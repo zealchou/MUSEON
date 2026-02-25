@@ -1,0 +1,46 @@
+{
+  "name": "museclaw-dashboard",
+  "version": "1.0.0",
+  "description": "MuseClaw Token Dashboard - Real-time monitoring and control",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder",
+    "pack": "electron-builder --dir"
+  },
+  "keywords": [
+    "museclaw",
+    "dashboard",
+    "token",
+    "monitoring"
+  ],
+  "author": "MuseClaw Team",
+  "license": "MIT",
+  "dependencies": {
+    "chart.js": "^4.4.1",
+    "react": "^18.2.0",
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.7",
+    "@babel/preset-react": "^7.23.3",
+    "electron": "^28.1.4",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.museclaw.dashboard",
+    "productName": "MuseClaw Dashboard",
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "target": "dmg"
+    },
+    "linux": {
+      "target": "AppImage"
+    },
+    "win": {
+      "target": "nsis"
+    }
+  }
+}
