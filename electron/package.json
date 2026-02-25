@@ -31,10 +31,46 @@
   },
   "build": {
     "appId": "com.museclaw.dashboard",
-    "productName": "MuseClaw Dashboard",
+    "productName": "MuseClaw",
+    "files": [
+      "**/*",
+      "!**/*.map"
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
     "mac": {
-      "category": "public.app-category.developer-tools",
-      "target": "dmg"
+      "category": "public.app-category.productivity",
+      "target": {
+        "target": "dmg",
+        "arch": ["arm64", "x64"]
+      },
+      "identity": "-",
+      "signIgnore": ".*",
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false,
+      "entitlements": null,
+      "entitlementsInherit": null
+    },
+    "dmg": {
+      "sign": false,
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ],
+      "window": {
+        "width": 540,
+        "height": 380
+      }
     },
     "linux": {
       "target": "AppImage"
