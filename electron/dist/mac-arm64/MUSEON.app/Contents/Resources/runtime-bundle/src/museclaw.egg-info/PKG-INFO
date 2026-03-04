@@ -1,0 +1,60 @@
+Metadata-Version: 2.4
+Name: museclaw
+Version: 0.1.0
+Summary: MuseClaw - A living AI assistant with 44 skills
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: fastapi>=0.109.0
+Requires-Dist: uvicorn[standard]>=0.27.0
+Requires-Dist: anthropic>=0.18.0
+Requires-Dist: python-telegram-bot>=20.8
+Requires-Dist: apscheduler>=3.10.4
+Requires-Dist: sqlite-vec>=0.0.1a11
+Requires-Dist: pydantic>=2.6.0
+Requires-Dist: python-multipart>=0.0.9
+Requires-Dist: httpx>=0.26.0
+Requires-Dist: aiofiles>=23.2.1
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0.0; extra == "dev"
+Requires-Dist: pytest-bdd>=7.0.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.23.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.1.0; extra == "dev"
+Requires-Dist: pytest-mock>=3.12.0; extra == "dev"
+Requires-Dist: black>=24.1.0; extra == "dev"
+Requires-Dist: ruff>=0.2.0; extra == "dev"
+Requires-Dist: mypy>=1.8.0; extra == "dev"
+
+# MuseClaw
+
+A living AI assistant with 44 skills that grows alongside you.
+
+## Architecture
+
+MuseClaw is built on:
+- **Gateway Core**: 24/7 daemon with session management, cron engine, and security gate
+- **LLM Client**: Claude Haiku + Sonnet dual-model smart routing
+- **Memory Engine**: Four-channel memory with vector indexing
+- **Agent Runtime**: Tool execution with sandbox isolation
+
+## Installation
+
+```bash
+cd museclaw
+pip install -e ".[dev]"
+```
+
+## Development
+
+Run tests:
+```bash
+pytest tests/ -v
+```
+
+Run with coverage:
+```bash
+pytest tests/ -v --cov=museclaw --cov-report=html
+```
+
+## License
+
+Proprietary - Zeal's Consulting Clients Only

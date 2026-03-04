@@ -1,0 +1,39 @@
+{
+  "days": {
+    "2026-02-28": {
+      "input_tokens": 1035358,
+      "output_tokens": 136766,
+      "total_tokens": 1172124,
+      "models": {
+        "sonnet": {
+          "input": 1035358,
+          "output": 136766,
+          "calls": 201
+        },
+        "haiku": {
+          "input": 0,
+          "output": 0,
+          "calls": 0
+        }
+      }
+    }
+  },
+  "monthly_totals": {
+    "input_tokens": 1035358,
+    "output_tokens": 136766,
+    "total_tokens": 1172124,
+    "estimated_cost_usd": 5.1576,
+    "models": {
+      "sonnet": {
+        "input": 1035358,
+        "output": 136766,
+        "calls": 201
+      },
+      "haiku": {
+        "input": 0,
+        "output": 0,
+        "calls": 0
+      }
+    }
+  }
+}

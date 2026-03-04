@@ -1,17 +1,17 @@
 #!/bin/bash
 
 #
-# MuseClaw .dmg 打包腳本
+# MUSEON .dmg 打包腳本（自帶 Python Runtime）
 #
-# 用途: 打包 Electron app 為 .dmg 安裝檔
-# 使用 electron-builder 與 ad-hoc 簽名
+# 用途: 打包 Electron app + Python 原始碼 為 .dmg 安裝檔
+# 客戶安裝後首次啟動會自動部署 Python 環境
 #
 # 使用方式:
-#   cd museclaw
+#   cd museon
 #   ./scripts/build-dmg.sh
 #
 # 輸出:
-#   electron/dist/MuseClaw-{version}.dmg
+#   electron/dist/MUSEON-{version}-{arch}.dmg
 #
 
 set -e
@@ -42,7 +42,7 @@ error() {
 
 echo ""
 echo "================================================"
-echo "   MuseClaw .dmg 打包程式"
+echo "   MUSEON .dmg 打包程式（自帶 Python Runtime）"
 echo "   Ad-hoc 簽名 (免 Apple Developer)"
 echo "================================================"
 echo ""
@@ -54,13 +54,32 @@ fi
 
 # 檢查是否在專案根目錄
 if [ ! -f "pyproject.toml" ]; then
-    error "請在 museclaw 專案根目錄執行此腳本"
+    error "請在 museon 專案根目錄執行此腳本"
 fi
 
 # 檢查 electron 目錄
 if [ ! -d "electron" ]; then
     error "找不到 electron 目錄"
 fi
+
+# ─── Step 1: 準備 .runtime-bundle（Python 原始碼）───
+info "Step 1: 準備 Python runtime bundle..."
+if [ -f "scripts/prepare-runtime-bundle.sh" ]; then
+    bash scripts/prepare-runtime-bundle.sh
+else
+    error "找不到 scripts/prepare-runtime-bundle.sh"
+fi
+
+# 驗證 bundle 存在
+if [ ! -f ".runtime-bundle/pyproject.toml" ]; then
+    error ".runtime-bundle 準備失敗（找不到 pyproject.toml）"
+fi
+
+BUNDLE_SIZE=$(du -sh .runtime-bundle | cut -f1)
+info "runtime-bundle 大小: $BUNDLE_SIZE"
+
+# ─── Step 2: 打包 Electron DMG ───
+info "Step 2: 打包 Electron DMG..."
 
 cd electron
 
@@ -71,7 +90,7 @@ fi
 
 # 檢查 node_modules
 if [ ! -d "node_modules" ]; then
-    warn "node_modules 不存在,執行 npm install..."
+    warn "node_modules 不存在，執行 npm install..."
     npm install
 fi
 
@@ -96,57 +115,70 @@ if [ ! -d "dist" ]; then
 fi
 
 # 尋找 .dmg 檔案
-DMG_FILE=$(find dist -name "*.dmg" -type f | head -n 1)
+DMG_FILES=$(find dist -name "*.dmg" -type f)
 
-if [ -z "$DMG_FILE" ]; then
+if [ -z "$DMG_FILES" ]; then
     error "找不到 .dmg 檔案"
 fi
 
-DMG_NAME=$(basename "$DMG_FILE")
-DMG_SIZE=$(du -h "$DMG_FILE" | cut -f1)
-
-success "打包完成!"
-
-echo ""
-echo "================================================"
-echo "   打包完成"
-echo ""
-echo "   檔案: $DMG_NAME"
-echo "   大小: $DMG_SIZE"
-echo "   路徑: $DMG_FILE"
-echo ""
-echo "   此 .dmg 使用 ad-hoc 簽名,"
-echo "   安裝時請使用 scripts/install-museclaw.sh"
-echo "   或手動移除 quarantine 屬性:"
-echo ""
-echo "   sudo xattr -r -d com.apple.quarantine /Applications/MuseClaw.app"
-echo "================================================"
-echo ""
-
-# 回到專案根目錄
 cd ..
 
-# 詢問是否測試安裝
-echo ""
-read -p "是否測試安裝此 .dmg? (y/N): " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    info "掛載 .dmg..."
-    open "$DMG_FILE"
+# ─── Step 3: 驗證 DMG 內容 ───
+info "Step 3: 驗證 DMG 包含 runtime..."
 
-    echo ""
-    info "請手動拖曳 MuseClaw.app 到 Applications"
-    echo ""
-    read -p "拖曳完成後按 Enter 繼續..." -r
+# 找到一個 DMG 進行驗證
+FIRST_DMG=$(echo "$DMG_FILES" | head -n 1)
+FIRST_DMG="electron/$FIRST_DMG"
 
-    # 執行安裝腳本 (移除 quarantine)
-    if [ -f "scripts/install-museclaw.sh" ]; then
-        info "執行安裝腳本..."
-        ./scripts/install-museclaw.sh
+# 掛載 DMG 靜默驗證
+MOUNT_POINT=$(hdiutil attach "$FIRST_DMG" -nobrowse -readonly -mountpoint /tmp/museon-verify-$$ 2>/dev/null | tail -1 | awk '{print $NF}')
+
+if [ -n "$MOUNT_POINT" ]; then
+    APP_PATH="$MOUNT_POINT/MUSEON.app"
+    RUNTIME_IN_DMG="$APP_PATH/Contents/Resources/runtime-bundle"
+
+    if [ -d "$RUNTIME_IN_DMG" ] && [ -f "$RUNTIME_IN_DMG/pyproject.toml" ]; then
+        RUNTIME_SIZE=$(du -sh "$RUNTIME_IN_DMG" | cut -f1)
+        SRC_FILES=$(find "$RUNTIME_IN_DMG/src" -name "*.py" 2>/dev/null | wc -l | tr -d ' ')
+        success "DMG 內含 runtime-bundle ($RUNTIME_SIZE, $SRC_FILES 個 .py 檔案)"
     else
-        warn "找不到安裝腳本,請手動執行:"
-        echo "sudo xattr -r -d com.apple.quarantine /Applications/MuseClaw.app"
+        warn "DMG 內未找到 runtime-bundle！客戶安裝後需要另外部署 Python 環境"
     fi
+
+    hdiutil detach "$MOUNT_POINT" -quiet 2>/dev/null || true
+else
+    warn "無法掛載 DMG 進行驗證（非致命）"
 fi
+
+# ─── 結果報告 ───
+echo ""
+echo "================================================"
+echo "   打包完成（自帶 Python Runtime）"
+echo ""
+
+for DMG_FILE in $DMG_FILES; do
+    DMG_FILE="electron/$DMG_FILE"
+    DMG_NAME=$(basename "$DMG_FILE")
+    DMG_SIZE=$(du -h "$DMG_FILE" | cut -f1)
+    echo "   檔案: $DMG_NAME"
+    echo "   大小: $DMG_SIZE"
+    echo "   路徑: $DMG_FILE"
+    echo ""
+done
+
+echo "   客戶使用方式："
+echo "   1. 打開 .dmg，拖曳 MUSEON.app 到 Applications"
+echo "   2. 首次啟動會自動部署 Python 環境"
+echo "   3. 需要系統已安裝 Python >= 3.11"
+echo "      (brew install python@3.13)"
+echo ""
+echo "   移除 quarantine："
+echo "   sudo xattr -r -d com.apple.quarantine /Applications/MUSEON.app"
+echo "================================================"
+echo ""
+
+# 清理 .runtime-bundle
+info "清理 .runtime-bundle..."
+rm -rf .runtime-bundle
 
 success "完成!"

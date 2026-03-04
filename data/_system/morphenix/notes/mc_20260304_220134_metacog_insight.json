@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260304_220134_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n**修改方向：**\n- 移除「停止折騰回報系統」（可能造成負面情緒，像在說教）\n- 刪掉選項式的「你想要我」，改為直接給可交付物：提供一份**朋友電腦安裝的快速檢查表**（包括具體指令或配置範本），讓使用者能立即執行，而非再次詢問偏好\n- 最後一句emoji雖然親切但不如直接問：「要我現在幫你組一份給朋友的完整部署指南嗎？」更有行動力\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-04T22:01:34.592609+08:00",
+  "priority": "medium"
+}

@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260305_001831_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n**修改方向（≤150字）：**\n\n這段回覆出現3個問題：\n\na. **使用者沒有要求建議，要求的是「架構方案」** — 回覆應該直接給出「Persona Router 精細化的具體規則集」，而不是列舉疑問。使用者說「立即測試」，期待的是可執行的東西。\n\nb. **隱含假設過多** — 假設使用者的三迴圈模型、假設 B 線報告內容、假設 ANIMA 七層模型對方已知。應該先釐清。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-05T00:18:31.783929+08:00",
+  "priority": "medium"
+}

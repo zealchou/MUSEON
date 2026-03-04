@@ -1,0 +1,43 @@
+{
+  "meta": {
+    "created": "2026-03-04T13:44:00+08:00",
+    "next_report": "2026-03-04T14:04:00+08:00",
+    "report_interval_seconds": 600
+  },
+  "tasks": [
+    {
+      "id": "task_001",
+      "name": "OpenClaw 主動回報系統配置",
+      "status": "in_progress",
+      "created_at": "2026-03-04T10:56:00+08:00",
+      "promised_completion": "2026-03-04T14:04:00+08:00",
+      "description": "建立可主動積極回報的自動化系統，無需被動等待敲問",
+      "priority": "high",
+      "updates": [
+        {
+          "timestamp": "2026-03-04T10:56:00+08:00",
+          "status": "started",
+          "message": "開始研究 OpenClaw cron 方案"
+        },
+        {
+          "timestamp": "2026-03-04T12:11:00+08:00",
+          "status": "pivot",
+          "message": "OpenClaw cron 方案失敗，改用 macOS launchd"
+        },
+        {
+          "timestamp": "2026-03-04T13:44:00+08:00",
+          "status": "in_progress",
+          "message": "launchd 任務已激活，每 10 分鐘檢查一次是否有逾期承諾"
+        }
+      ]
+    }
+  ],
+  "settings": {
+    "telegram_enabled": true,
+    "telegram_bot_token": "8694763877:AAE1dti1giO_4FXA3kVSIXPWP0YcYP43FXM",
+    "telegram_chat_id": "待取得",
+    "report_mode": "announce",
+    "auto_cleanup": true,
+    "note": "系統現在會在承諾時間自動向你回報，不需要你敲問"
+  }
+}

@@ -10,7 +10,7 @@ class TestRouter:
 
     def test_classify_simple_greeting_to_haiku(self):
         """Test that simple greetings are routed to Haiku."""
-        from museclaw.llm.router import Router
+        from museon.llm.router import Router
 
         router = Router()
 
@@ -23,7 +23,7 @@ class TestRouter:
 
     def test_classify_skill_task_to_sonnet(self):
         """Test that skill-based tasks are routed to Sonnet."""
-        from museclaw.llm.router import Router
+        from museon.llm.router import Router
 
         router = Router()
 
@@ -40,7 +40,7 @@ class TestRouter:
 
     def test_classify_business_consulting_to_sonnet(self):
         """Test that business consulting is routed to Sonnet."""
-        from museclaw.llm.router import Router
+        from museon.llm.router import Router
 
         router = Router()
 
@@ -57,7 +57,7 @@ class TestRouter:
 
     def test_classify_simple_query_to_haiku(self):
         """Test that simple queries are routed to Haiku."""
-        from museclaw.llm.router import Router
+        from museon.llm.router import Router
 
         router = Router()
 
@@ -73,7 +73,7 @@ class TestRouter:
 
     def test_maintain_sonnet_with_active_skills(self):
         """Test that Router maintains Sonnet when skills are active."""
-        from museclaw.llm.router import Router
+        from museon.llm.router import Router
 
         router = Router()
 
@@ -85,7 +85,7 @@ class TestRouter:
 
     def test_default_to_sonnet_for_complex_tasks(self):
         """Test that complex/ambiguous tasks default to Sonnet."""
-        from museclaw.llm.router import Router
+        from museon.llm.router import Router
 
         router = Router()
 
@@ -105,7 +105,7 @@ class TestLLMClient:
     @pytest.mark.asyncio
     async def test_create_message_with_haiku(self, mock_anthropic_client):
         """Test creating message with Haiku model."""
-        from museclaw.llm.client import LLMClient
+        from museon.llm.client import LLMClient
 
         client = LLMClient(api_key="test_key")
         client._client = mock_anthropic_client
@@ -122,7 +122,7 @@ class TestLLMClient:
     @pytest.mark.asyncio
     async def test_create_message_with_sonnet(self, mock_anthropic_client):
         """Test creating message with Sonnet model."""
-        from museclaw.llm.client import LLMClient
+        from museon.llm.client import LLMClient
 
         client = LLMClient(api_key="test_key")
         client._client = mock_anthropic_client
@@ -139,7 +139,7 @@ class TestLLMClient:
     @pytest.mark.asyncio
     async def test_prompt_caching_header(self, mock_anthropic_client):
         """Test that prompt caching is enabled."""
-        from museclaw.llm.client import LLMClient
+        from museon.llm.client import LLMClient
 
         client = LLMClient(api_key="test_key")
         client._client = mock_anthropic_client
@@ -160,7 +160,7 @@ class TestLLMClient:
     @pytest.mark.asyncio
     async def test_token_efficient_tool_use_header(self, mock_anthropic_client):
         """Test that token-efficient tool use header is sent."""
-        from museclaw.llm.client import LLMClient
+        from museon.llm.client import LLMClient
 
         client = LLMClient(api_key="test_key")
         client._client = mock_anthropic_client
@@ -191,7 +191,7 @@ class TestBudgetMonitor:
 
     def test_track_usage(self):
         """Test tracking token usage."""
-        from museclaw.llm.budget import BudgetMonitor
+        from museon.llm.budget import BudgetMonitor
 
         monitor = BudgetMonitor(daily_limit=200000)
 
@@ -203,7 +203,7 @@ class TestBudgetMonitor:
 
     def test_usage_percentage(self):
         """Test calculating usage percentage."""
-        from museclaw.llm.budget import BudgetMonitor
+        from museon.llm.budget import BudgetMonitor
 
         monitor = BudgetMonitor(daily_limit=200000)
 
@@ -214,7 +214,7 @@ class TestBudgetMonitor:
 
     def test_check_budget_within_limit(self):
         """Test checking budget when within limit."""
-        from museclaw.llm.budget import BudgetMonitor
+        from museon.llm.budget import BudgetMonitor
 
         monitor = BudgetMonitor(daily_limit=200000)
 
@@ -224,7 +224,7 @@ class TestBudgetMonitor:
 
     def test_check_budget_exceeded(self):
         """Test checking budget when exceeded."""
-        from museclaw.llm.budget import BudgetMonitor
+        from museon.llm.budget import BudgetMonitor
 
         monitor = BudgetMonitor(daily_limit=200000)
 
@@ -235,7 +235,7 @@ class TestBudgetMonitor:
 
     def test_warning_threshold(self):
         """Test warning when approaching budget limit."""
-        from museclaw.llm.budget import BudgetMonitor
+        from museon.llm.budget import BudgetMonitor
 
         monitor = BudgetMonitor(daily_limit=200000, warning_threshold=0.8)
 
@@ -249,7 +249,7 @@ class TestReflexEngine:
 
     def test_match_template(self):
         """Test matching a template."""
-        from museclaw.llm.reflex import ReflexEngine
+        from museon.llm.reflex import ReflexEngine
 
         engine = ReflexEngine()
 
@@ -263,7 +263,7 @@ class TestReflexEngine:
 
     def test_no_match(self):
         """Test when no template matches."""
-        from museclaw.llm.reflex import ReflexEngine
+        from museon.llm.reflex import ReflexEngine
 
         engine = ReflexEngine()
 
@@ -273,7 +273,7 @@ class TestReflexEngine:
 
     def test_multiple_templates(self):
         """Test multiple templates."""
-        from museclaw.llm.reflex import ReflexEngine
+        from museon.llm.reflex import ReflexEngine
 
         engine = ReflexEngine()
 
@@ -290,7 +290,7 @@ class TestPromptCaching:
 
     def test_cache_config_structure(self):
         """Test that cache config is properly structured."""
-        from museclaw.llm.cache import PromptCacheConfig
+        from museon.llm.cache import PromptCacheConfig
 
         config = PromptCacheConfig.create_system_cache(content="Test system prompt", ttl=3600)
 
@@ -300,7 +300,7 @@ class TestPromptCaching:
 
     def test_cache_breakpoints(self):
         """Test that cache breakpoints are set correctly."""
-        from museclaw.llm.cache import PromptCacheConfig
+        from museon.llm.cache import PromptCacheConfig
 
         # Should support up to 4 cache breakpoints
         configs = [

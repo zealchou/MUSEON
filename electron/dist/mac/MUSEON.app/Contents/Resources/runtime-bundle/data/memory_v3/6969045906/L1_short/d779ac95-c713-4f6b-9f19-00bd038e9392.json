@@ -1,0 +1,21 @@
+{
+  "id": "d779ac95-c713-4f6b-9f19-00bd038e9392",
+  "content": "[失敗經驗] 任務：做競品分析：找台灣 5 家 AI 顧問公司服務定價案例。做完覆盤——搜尋整理能力品質分數如何？需要什麼工作流提升效率？\n失敗類型：timeout\n回應片段：達達把拔，剛才在爬取戰國策的詳細內容時遇到了網頁抓取超時的問題（30秒內無法完成），這通常是因為該網站載入較慢或有防爬機制。\n\n讓我換個策略，用更多關鍵字組合來搜尋台灣 AI 顧問公司的定價資訊：",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "timeout"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-02-28T21:22:23.131507+08:00",
+  "updated_at": "2026-02-28T21:22:23.131507+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "6969045906",
+  "session_id": "",
+  "archived": false
+}

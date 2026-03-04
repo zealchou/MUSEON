@@ -1,0 +1,44 @@
+{
+  "session_id": "serial_R62",
+  "nodes": {
+    "topic_turn_0": {
+      "node_id": "topic_turn_0",
+      "node_type": "topic",
+      "label": "turn_0",
+      "properties": {
+        "content_length": 30,
+        "detected_at": "2026-02-28T23:24:57.060255"
+      },
+      "created_at": "2026-02-28T23:24:57.060265",
+      "updated_at": "2026-02-28T23:24:57.060265"
+    },
+    "topic_turn_1": {
+      "node_id": "topic_turn_1",
+      "node_type": "topic",
+      "label": "turn_1",
+      "properties": {
+        "content_length": 46,
+        "detected_at": "2026-02-28T23:25:05.662562"
+      },
+      "created_at": "2026-02-28T23:25:05.662571",
+      "updated_at": "2026-02-28T23:25:05.662572"
+    },
+    "topic_turn_2": {
+      "node_id": "topic_turn_2",
+      "node_type": "topic",
+      "label": "turn_2",
+      "properties": {
+        "content_length": 34,
+        "detected_at": "2026-02-28T23:25:14.319125"
+      },
+      "created_at": "2026-02-28T23:25:14.319136",
+      "updated_at": "2026-02-28T23:25:14.319137"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 3,
+    "last_content_length": 34
+  },
+  "last_updated": "2026-02-28T23:25:14.319125"
+}

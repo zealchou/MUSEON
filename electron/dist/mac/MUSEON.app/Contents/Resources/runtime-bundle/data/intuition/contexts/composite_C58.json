@@ -1,0 +1,32 @@
+{
+  "session_id": "composite_C58",
+  "nodes": {
+    "intention_資訊查詢": {
+      "node_id": "intention_資訊查詢",
+      "node_type": "intention",
+      "label": "資訊查詢",
+      "properties": {
+        "detected_at": "2026-02-28T21:24:14.103411"
+      },
+      "created_at": "2026-02-28T21:24:14.103421",
+      "updated_at": "2026-02-28T21:24:14.103421"
+    },
+    "topic_turn_1": {
+      "node_id": "topic_turn_1",
+      "node_type": "topic",
+      "label": "turn_1",
+      "properties": {
+        "content_length": 74,
+        "detected_at": "2026-02-28T21:24:14.103411"
+      },
+      "created_at": "2026-02-28T21:24:14.103424",
+      "updated_at": "2026-02-28T21:24:14.103424"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 1,
+    "last_content_length": 74
+  },
+  "last_updated": "2026-02-28T21:24:14.103411"
+}

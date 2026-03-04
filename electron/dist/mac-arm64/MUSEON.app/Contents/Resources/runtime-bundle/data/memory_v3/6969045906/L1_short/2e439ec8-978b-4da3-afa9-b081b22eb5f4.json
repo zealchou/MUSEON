@@ -1,0 +1,21 @@
+{
+  "id": "2e439ec8-978b-4da3-afa9-b081b22eb5f4",
+  "content": "[失敗經驗] 任務：最後做個健檢收尾，看看經過這一輪對話你的狀態有沒有變化。\n失敗類型：general_failure\n回應片段：[霓裳 離線模式]\n\n目前無法連線到 AI 服務。你的訊息已記錄。\n等連線恢復後我會重新處理。\n\n收到的訊息：「最後做個健檢收尾，看看經過這一輪對話你的狀態有沒有變化。」",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-02-28T23:24:42.048616+08:00",
+  "updated_at": "2026-02-28T23:24:42.048616+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "6969045906",
+  "session_id": "",
+  "archived": false
+}

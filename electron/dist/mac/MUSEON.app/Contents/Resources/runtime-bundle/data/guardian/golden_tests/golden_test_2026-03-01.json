@@ -1,0 +1,57 @@
+{
+  "run_at": "2026-02-28T17:50:48.309027+00:00",
+  "total": 8,
+  "passed": 8,
+  "failed": 0,
+  "all_passed": true,
+  "results": [
+    {
+      "id": "GT-01",
+      "name": "core_identity",
+      "passed": true,
+      "reason": ""
+    },
+    {
+      "id": "GT-02",
+      "name": "birth_date_preserved",
+      "passed": true,
+      "reason": ""
+    },
+    {
+      "id": "GT-03",
+      "name": "naming_completed",
+      "passed": true,
+      "reason": ""
+    },
+    {
+      "id": "GT-04",
+      "name": "core_traits_exist",
+      "passed": true,
+      "reason": ""
+    },
+    {
+      "id": "GT-05",
+      "name": "soul_rings_not_deleted",
+      "passed": true,
+      "reason": ""
+    },
+    {
+      "id": "GT-06",
+      "name": "evolution_not_regressed",
+      "passed": true,
+      "reason": ""
+    },
+    {
+      "id": "GT-07",
+      "name": "user_relationship_intact",
+      "passed": true,
+      "reason": ""
+    },
+    {
+      "id": "GT-08",
+      "name": "boss_name_preserved",
+      "passed": true,
+      "reason": ""
+    }
+  ]
+}

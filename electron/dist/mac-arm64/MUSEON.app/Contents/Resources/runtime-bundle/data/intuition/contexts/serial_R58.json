@@ -1,0 +1,54 @@
+{
+  "session_id": "serial_R58",
+  "nodes": {
+    "intention_求助": {
+      "node_id": "intention_求助",
+      "node_type": "intention",
+      "label": "求助",
+      "properties": {
+        "detected_at": "2026-02-28T23:22:16.084490"
+      },
+      "created_at": "2026-02-28T23:22:16.084499",
+      "updated_at": "2026-02-28T23:22:16.084500"
+    },
+    "topic_turn_1": {
+      "node_id": "topic_turn_1",
+      "node_type": "topic",
+      "label": "turn_1",
+      "properties": {
+        "content_length": 54,
+        "detected_at": "2026-02-28T23:22:16.084490"
+      },
+      "created_at": "2026-02-28T23:22:16.084503",
+      "updated_at": "2026-02-28T23:22:16.084504"
+    },
+    "topic_turn_2": {
+      "node_id": "topic_turn_2",
+      "node_type": "topic",
+      "label": "turn_2",
+      "properties": {
+        "content_length": 32,
+        "detected_at": "2026-02-28T23:22:52.807811"
+      },
+      "created_at": "2026-02-28T23:22:52.807828",
+      "updated_at": "2026-02-28T23:22:52.807829"
+    },
+    "topic_turn_3": {
+      "node_id": "topic_turn_3",
+      "node_type": "topic",
+      "label": "turn_3",
+      "properties": {
+        "content_length": 29,
+        "detected_at": "2026-02-28T23:23:01.375512"
+      },
+      "created_at": "2026-02-28T23:23:01.375525",
+      "updated_at": "2026-02-28T23:23:01.375526"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 3,
+    "last_content_length": 29
+  },
+  "last_updated": "2026-02-28T23:23:01.375512"
+}

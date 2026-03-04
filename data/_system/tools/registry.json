@@ -1,0 +1,68 @@
+{
+  "searxng": {
+    "name": "searxng",
+    "installed": true,
+    "enabled": true,
+    "healthy": true,
+    "last_health_check": "2026-03-05T00:25:37.500373+08:00",
+    "last_started": "",
+    "install_progress": 2,
+    "install_status": "installing",
+    "error_message": ""
+  },
+  "qdrant": {
+    "name": "qdrant",
+    "installed": true,
+    "enabled": true,
+    "healthy": true,
+    "last_health_check": "2026-03-05T00:25:37.502171+08:00",
+    "last_started": "2026-03-03T21:50:56.909439+08:00",
+    "install_progress": 100,
+    "install_status": "installed",
+    "error_message": ""
+  },
+  "whisper": {
+    "name": "whisper",
+    "installed": true,
+    "enabled": true,
+    "healthy": true,
+    "last_health_check": "2026-03-05T00:25:37.502848+08:00",
+    "last_started": "",
+    "install_progress": 0,
+    "install_status": "",
+    "error_message": ""
+  },
+  "paddleocr": {
+    "name": "paddleocr",
+    "installed": true,
+    "enabled": true,
+    "healthy": true,
+    "last_health_check": "2026-03-05T00:25:37.504854+08:00",
+    "last_started": "",
+    "install_progress": 0,
+    "install_status": "",
+    "error_message": ""
+  },
+  "kokoro": {
+    "name": "kokoro",
+    "installed": true,
+    "enabled": true,
+    "healthy": true,
+    "last_health_check": "2026-03-05T00:25:37.505049+08:00",
+    "last_started": "",
+    "install_progress": 0,
+    "install_status": "",
+    "error_message": ""
+  },
+  "firecrawl": {
+    "name": "firecrawl",
+    "installed": true,
+    "enabled": true,
+    "healthy": true,
+    "last_health_check": "2026-03-05T00:25:37.507032+08:00",
+    "last_started": "2026-03-03T21:52:50.449383+08:00",
+    "install_progress": 100,
+    "install_status": "installed",
+    "error_message": ""
+  }
+}

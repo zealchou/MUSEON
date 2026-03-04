@@ -1,24 +1,26 @@
 {
-  "name": "museclaw-dashboard",
-  "version": "1.0.0",
-  "description": "MuseClaw Token Dashboard - Real-time monitoring and control",
+  "name": "museon",
+  "version": "2.0.0",
+  "description": "MUSEON Dashboard - Real-time monitoring and control",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "dev": "electron . --dev",
+    "prebuild": "bash scripts/generate-icon.sh",
     "build": "electron-builder",
     "pack": "electron-builder --dir"
   },
   "keywords": [
-    "museclaw",
+    "museon",
     "dashboard",
-    "token",
-    "monitoring"
+    "monitoring",
+    "ai-organism"
   ],
-  "author": "MuseClaw Team",
+  "author": "MUSEON Team",
   "license": "MIT",
   "dependencies": {
     "chart.js": "^4.4.1",
+    "pixi.js": "^7.4.3",
     "react": "^18.2.0",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.2.0"
@@ -30,11 +32,18 @@
     "electron-builder": "^24.9.1"
   },
   "build": {
-    "appId": "com.museclaw.dashboard",
-    "productName": "MuseClaw",
+    "appId": "com.museon.app",
+    "productName": "MUSEON",
     "files": [
       "**/*",
       "!**/*.map"
+    ],
+    "extraResources": [
+      {
+        "from": "../.runtime-bundle",
+        "to": "runtime-bundle",
+        "filter": ["**/*"]
+      }
     ],
     "directories": {
       "output": "dist",
@@ -44,7 +53,10 @@
       "category": "public.app-category.productivity",
       "target": {
         "target": "dmg",
-        "arch": ["arm64", "x64"]
+        "arch": [
+          "arm64",
+          "x64"
+        ]
       },
       "identity": "-",
       "signIgnore": ".*",

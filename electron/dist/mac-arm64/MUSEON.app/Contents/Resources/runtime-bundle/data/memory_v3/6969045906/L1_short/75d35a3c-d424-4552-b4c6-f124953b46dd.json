@@ -1,0 +1,21 @@
+{
+  "id": "75d35a3c-d424-4552-b4c6-f124953b46dd",
+  "content": "[失敗經驗] 任務：最後幫我搜尋一下我們討論到的關鍵詞，看有沒有遺漏的最新資訊。\n失敗類型：general_failure\n回應片段：[霓裳 離線模式]\n\n目前無法連線到 AI 服務。你的訊息已記錄。\n等連線恢復後我會重新處理。\n\n收到的訊息：「最後幫我搜尋一下我們討論到的關鍵詞，看有沒有遺漏的最新資訊。」",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-02-28T23:30:45.021790+08:00",
+  "updated_at": "2026-02-28T23:30:45.021790+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "6969045906",
+  "session_id": "",
+  "archived": false
+}

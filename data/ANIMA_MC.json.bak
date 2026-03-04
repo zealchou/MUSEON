@@ -1,0 +1,30 @@
+{
+  "version": "1.0.0",
+  "type": "museclaw",
+  "identity": {
+    "name": "MUSEON",
+    "birth_date": "2026-03-03T21:26:45.766147",
+    "growth_stage": "infant",
+    "days_alive": 0
+  },
+  "self_awareness": {
+    "who_am_i": "",
+    "my_purpose": ""
+  },
+  "personality": {
+    "core_traits": [],
+    "communication_style": ""
+  },
+  "capabilities": {
+    "loaded_skills": [],
+    "forged_skills": []
+  },
+  "evolution": {
+    "current_stage": "unborn",
+    "iteration_count": 0
+  },
+  "memory_summary": {
+    "total_interactions": 0,
+    "sessions_count": 0
+  }
+}

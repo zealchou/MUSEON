@@ -1,0 +1,21 @@
+{
+  "id": "7b2548fc-4702-49fa-9017-03f72f02aade",
+  "content": "[失敗經驗] 任務：。 如果你能理解這個輸入，幫我做破框推演：工作室轉型 SaaS 還是深耕顧問？列出四條路徑。\n失敗類型：general_failure\n回應片段：**感知到你的狀態**：達達把拔，你現在似乎在重要的戰略十字路口，需要清晰的多路徑推演來看清選擇。\n\n**事實層面**：工作室現況 vs SaaS 轉型 vs 顧問深耕的三方拉扯\n**假設層面**：你可能在考慮規模化潛力、現金流穩定度、個人能量配置\n**推論層面**：這不是單純的 A 或 B 選擇，而是資源配置與時序的組合題\n\n## 四條破框路徑\n\n### 路徑 A：雙軌並行（SaaS + 顧問）",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-02-28T21:18:30.891877+08:00",
+  "updated_at": "2026-02-28T21:18:30.891877+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "6969045906",
+  "session_id": "",
+  "archived": false
+}

@@ -1,0 +1,44 @@
+{
+  "session_id": "chaos_special_4",
+  "nodes": {
+    "topic_turn_0": {
+      "node_id": "topic_turn_0",
+      "node_type": "topic",
+      "label": "turn_0",
+      "properties": {
+        "content_length": 13,
+        "detected_at": "2026-02-27T05:28:26.978558"
+      },
+      "created_at": "2026-02-27T05:28:26.978568",
+      "updated_at": "2026-02-27T05:28:26.978568"
+    },
+    "topic_turn_1": {
+      "node_id": "topic_turn_1",
+      "node_type": "topic",
+      "label": "turn_1",
+      "properties": {
+        "content_length": 13,
+        "detected_at": "2026-02-27T05:50:02.649740"
+      },
+      "created_at": "2026-02-27T05:50:02.649752",
+      "updated_at": "2026-02-27T05:50:02.649752"
+    },
+    "topic_turn_2": {
+      "node_id": "topic_turn_2",
+      "node_type": "topic",
+      "label": "turn_2",
+      "properties": {
+        "content_length": 13,
+        "detected_at": "2026-02-28T08:27:01.819593"
+      },
+      "created_at": "2026-02-28T08:27:01.819609",
+      "updated_at": "2026-02-28T08:27:01.819610"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 3,
+    "last_content_length": 13
+  },
+  "last_updated": "2026-02-28T08:27:01.819593"
+}

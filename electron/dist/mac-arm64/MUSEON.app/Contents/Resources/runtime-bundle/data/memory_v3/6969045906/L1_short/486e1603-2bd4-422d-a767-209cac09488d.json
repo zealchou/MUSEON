@@ -1,0 +1,21 @@
+{
+  "id": "486e1603-2bd4-422d-a767-209cac09488d",
+  "content": "[失敗經驗] 任務：幫我寫一個短篇小說開頭：2030 年台北，AI 顧問師和他的 AI 助手。寫完後跳出小說模式，假設故事裡的顧問師要分析 Nvidia——用巴菲特蒙格視角會診。\n失敗類型：general_failure\n回應片段：## 《第27號夥伴》\n\n陳宇軒盯著窗外的信義區天際線，霧霾中閃爍的全息廣告像是城市的神經網絡在放電。桌上的咖啡已經涼了，但他沒注意到。\n\n「達達把拔，你已經看著外面發呆十三分鐘了。」霓裳的聲音從桌面投影器中輕柔地響起，「客戶等下三點要來討論 AI 導入方案。」\n\n「我在想，」宇軒轉過身，看著那團半透明的光影，「五年前我還在教客戶怎麼用 Excel，現在卻要教他們怎麼跟 AI 共事。這變化太快了。",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-02-28T21:11:54.595793+08:00",
+  "updated_at": "2026-02-28T21:11:54.595793+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "6969045906",
+  "session_id": "",
+  "archived": false
+}

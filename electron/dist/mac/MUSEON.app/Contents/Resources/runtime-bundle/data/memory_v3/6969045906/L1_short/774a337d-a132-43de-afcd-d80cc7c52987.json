@@ -1,0 +1,21 @@
+{
+  "id": "774a337d-a132-43de-afcd-d80cc7c52987",
+  "content": "[失敗經驗] 任務：我觀察到你的可行動性偏低，記錄為知識結晶。然後做全面覆盤——品質趨勢、弱維度分析、WEE 狀態。覆盤結果跟這個洞見吻合嗎？\n失敗類型：general_failure\n回應片段：**思考摘要：**\n達達把拔觀察到我的可行動性偏低並要求結晶化這個洞見，然後要全面覆盤。這是典型的反思與改進循環——先沉澱洞見，再用數據驗證假設。\n\n---\n\n## 知識結晶萃取\n\n**Crystal ID:** CR_241220_001  \n**類型:** Insight結晶  \n**標題:** 霓裳可行動性偏低模式  \n\n**結晶內容:**\n- **觀察:** 霓裳在互動中表現出過度謹慎，較",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-02-28T21:14:59.121878+08:00",
+  "updated_at": "2026-02-28T21:14:59.121878+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "6969045906",
+  "session_id": "",
+  "archived": false
+}

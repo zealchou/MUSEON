@@ -12,7 +12,7 @@ class TestMemoryChannels:
 
     def test_meta_thinking_channel_structure(self):
         """Test meta-thinking channel stores thought patterns correctly."""
-        from museclaw.memory.channels import MetaThinkingChannel
+        from museon.memory.channels import MetaThinkingChannel
 
         channel = MetaThinkingChannel()
 
@@ -31,7 +31,7 @@ class TestMemoryChannels:
 
     def test_event_channel_structure(self):
         """Test event channel stores concrete events."""
-        from museclaw.memory.channels import EventChannel
+        from museon.memory.channels import EventChannel
 
         channel = EventChannel()
 
@@ -49,7 +49,7 @@ class TestMemoryChannels:
 
     def test_outcome_channel_structure(self):
         """Test outcome channel stores results and metrics."""
-        from museclaw.memory.channels import OutcomeChannel
+        from museon.memory.channels import OutcomeChannel
 
         channel = OutcomeChannel()
 
@@ -71,7 +71,7 @@ class TestMemoryChannels:
 
     def test_user_reaction_channel_structure(self):
         """Test user-reaction channel stores user feedback."""
-        from museclaw.memory.channels import UserReactionChannel
+        from museon.memory.channels import UserReactionChannel
 
         channel = UserReactionChannel()
 
@@ -90,7 +90,7 @@ class TestMemoryChannels:
 
     def test_channels_are_independent(self):
         """Test that four channels operate independently."""
-        from museclaw.memory.channels import (
+        from museon.memory.channels import (
             MetaThinkingChannel,
             EventChannel,
             OutcomeChannel,
@@ -112,7 +112,7 @@ class TestMemoryStore:
 
     def test_store_creates_markdown_file(self):
         """Test that store creates Markdown file for memory entries."""
-        from museclaw.memory.store import MemoryStore
+        from museon.memory.store import MemoryStore
         import tempfile
         import shutil
 
@@ -145,9 +145,9 @@ class TestMemoryStore:
 
     def test_store_organizes_by_date(self):
         """Test that store organizes memories by date."""
-        from museclaw.memory.store import MemoryStore
+        from museon.memory.store import MemoryStore
 
-        store = MemoryStore(base_path="/tmp/museclaw/memory")
+        store = MemoryStore(base_path="/tmp/museon/memory")
 
         timestamp = datetime(2026, 2, 25, 10, 0, 0)
         path = store.get_memory_path("meta-thinking", timestamp)
@@ -159,7 +159,7 @@ class TestMemoryStore:
 
     def test_store_reads_markdown(self):
         """Test that store can read back Markdown memories."""
-        from museclaw.memory.store import MemoryStore
+        from museon.memory.store import MemoryStore
         import tempfile
         import shutil
 
@@ -192,17 +192,17 @@ class TestMemoryVector:
     @patch("sqlite3.connect")
     def test_vector_store_initializes_db(self, mock_connect):
         """Test that vector store initializes sqlite database."""
-        from museclaw.memory.vector import VectorStore
+        from museon.memory.vector import VectorStore
 
         mock_conn = Mock()
         mock_cursor = Mock()
         mock_conn.cursor.return_value = mock_cursor
         mock_connect.return_value = mock_conn
 
-        store = VectorStore(db_path="/tmp/museclaw/vectors.db")
+        store = VectorStore(db_path="/tmp/museon/vectors.db")
 
         # Should connect to database
-        mock_connect.assert_called_with("/tmp/museclaw/vectors.db")
+        mock_connect.assert_called_with("/tmp/museon/vectors.db")
 
         # Should create tables
         mock_cursor.execute.assert_called()
@@ -210,14 +210,14 @@ class TestMemoryVector:
     @patch("sqlite3.connect")
     def test_vector_store_can_insert_embedding(self, mock_connect):
         """Test that vector store can insert embeddings."""
-        from museclaw.memory.vector import VectorStore
+        from museon.memory.vector import VectorStore
 
         mock_conn = Mock()
         mock_cursor = Mock()
         mock_conn.cursor.return_value = mock_cursor
         mock_connect.return_value = mock_conn
 
-        store = VectorStore(db_path="/tmp/museclaw/vectors.db")
+        store = VectorStore(db_path="/tmp/museon/vectors.db")
 
         # Mock embedding (typically 1024 dimensions for Claude)
         embedding = [0.1] * 1024
@@ -234,7 +234,7 @@ class TestMemoryVector:
 
     def test_vector_store_can_search_similar(self):
         """Test that vector store can search for similar embeddings."""
-        from museclaw.memory.vector import VectorStore
+        from museon.memory.vector import VectorStore
         import tempfile
         import os
 
@@ -281,7 +281,7 @@ class TestMemoryCompressor:
 
     def test_compressor_reduces_token_count(self):
         """Test that compressor reduces token count of conversations."""
-        from museclaw.memory.compressor import ConversationCompressor
+        from museon.memory.compressor import ConversationCompressor
 
         compressor = ConversationCompressor()
 
@@ -305,7 +305,7 @@ class TestMemoryCompressor:
 
     def test_compressor_preserves_recent_messages(self):
         """Test that compressor always preserves recent messages."""
-        from museclaw.memory.compressor import ConversationCompressor
+        from museon.memory.compressor import ConversationCompressor
 
         compressor = ConversationCompressor(preserve_last_n=2)
 
@@ -325,7 +325,7 @@ class TestMemoryCompressor:
 
     def test_compressor_creates_summary(self):
         """Test that compressor creates summary of compressed parts."""
-        from museclaw.memory.compressor import ConversationCompressor
+        from museon.memory.compressor import ConversationCompressor
 
         compressor = ConversationCompressor(preserve_last_n=2)
 
@@ -353,7 +353,7 @@ class TestMemoryValidator:
 
     def test_validator_checks_trust_level(self):
         """Test that validator checks trust level before writing."""
-        from museclaw.memory.validator import MemoryValidator
+        from museon.memory.validator import MemoryValidator
 
         validator = MemoryValidator()
 
@@ -380,7 +380,7 @@ class TestMemoryValidator:
 
     def test_validator_allows_event_from_any_source(self):
         """Test that validator allows event channel from any source."""
-        from museclaw.memory.validator import MemoryValidator
+        from museon.memory.validator import MemoryValidator
 
         validator = MemoryValidator()
 
@@ -396,7 +396,7 @@ class TestMemoryValidator:
 
     def test_validator_blocks_meta_thinking_from_untrusted(self):
         """Test that meta-thinking channel blocks untrusted sources."""
-        from museclaw.memory.validator import MemoryValidator
+        from museon.memory.validator import MemoryValidator
 
         validator = MemoryValidator()
 
@@ -412,7 +412,7 @@ class TestMemoryValidator:
 
     def test_validator_performs_cross_validation(self):
         """Test that validator performs cross-validation with existing memories."""
-        from museclaw.memory.validator import MemoryValidator
+        from museon.memory.validator import MemoryValidator
 
         validator = MemoryValidator(min_confidence=0.5)
 
@@ -437,7 +437,7 @@ class TestMemoryValidator:
 
     def test_validator_requires_minimum_confidence(self):
         """Test that validator requires minimum confidence for memory write."""
-        from museclaw.memory.validator import MemoryValidator
+        from museon.memory.validator import MemoryValidator
 
         validator = MemoryValidator(min_confidence=0.7)
 
@@ -460,10 +460,10 @@ class TestMemoryIntegration:
 
     def test_full_memory_write_flow(self):
         """Test complete flow: validate -> write to store -> write to vector."""
-        from museclaw.memory.validator import MemoryValidator
-        from museclaw.memory.store import MemoryStore
-        from museclaw.memory.vector import VectorStore
-        from museclaw.memory.channels import MetaThinkingChannel
+        from museon.memory.validator import MemoryValidator
+        from museon.memory.store import MemoryStore
+        from museon.memory.vector import VectorStore
+        from museon.memory.channels import MetaThinkingChannel
         import tempfile
         import shutil
         import os
@@ -518,7 +518,7 @@ class TestMemoryIntegration:
 
     def test_four_channel_parallel_write(self):
         """Test writing to all four channels simultaneously."""
-        from museclaw.memory.channels import (
+        from museon.memory.channels import (
             MetaThinkingChannel,
             EventChannel,
             OutcomeChannel,

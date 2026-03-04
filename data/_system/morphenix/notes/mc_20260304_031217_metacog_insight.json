@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260304_031217_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：\n- 「要我繼續嘗試嗎？」轉為「我會立即嘗試方案 2 和 3，預計 X 分鐘內回覆」（承諾具體行動，勿踢球)\n- 把「資訊不夠完整、無法給確定答案」改為「目前有 X% 的線索，這些足以往下推進」（提升信心度）\n- 刪除「還是你已經有其他資源」（不要詢問使用者補充，改為自主出擊）\n- 三個方案排序改為「難度 vs 效果」排序，建議最高效的優先執行\n\n核心問題：目前像「求救」\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-04T03:12:17.336544+08:00",
+  "priority": "medium"
+}

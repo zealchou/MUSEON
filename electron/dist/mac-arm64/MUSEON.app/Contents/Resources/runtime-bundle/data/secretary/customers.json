@@ -1,0 +1,43 @@
+{
+  "customers": [
+    {
+      "id": "cust-001",
+      "name": "永豐五金有限公司",
+      "contact_person": "陳總經理",
+      "phone": "02-2345-6789",
+      "email": "chen@yongfeng.com.tw",
+      "status": "active",
+      "last_interaction": "2026-03-01T10:00:00Z",
+      "next_action": "寄送 Q2 報價單",
+      "next_action_date": "2026-03-04",
+      "tags": ["VIP", "hardware"],
+      "notes": "合作超過三年的老客戶，每季固定採購"
+    },
+    {
+      "id": "cust-002",
+      "name": "大同電子商行",
+      "contact_person": "林經理",
+      "phone": "03-9876-5432",
+      "email": "lin@datong-elec.com.tw",
+      "status": "active",
+      "last_interaction": "2026-02-15T14:00:00Z",
+      "next_action": "跟進新品體驗回饋",
+      "next_action_date": "2026-03-10",
+      "tags": ["electronics"],
+      "notes": "上月寄送新品試用，等待回饋"
+    },
+    {
+      "id": "cust-003",
+      "name": "三陽機械工業",
+      "contact_person": "張副總",
+      "phone": "04-1234-5678",
+      "email": "chang@sanyang-mech.com.tw",
+      "status": "lead",
+      "last_interaction": "2026-02-01T09:00:00Z",
+      "next_action": "安排首次拜訪",
+      "next_action_date": "2026-03-08",
+      "tags": ["manufacturing", "prospect"],
+      "notes": "透過永豐陳總介紹，有機械零件需求"
+    }
+  ]
+}

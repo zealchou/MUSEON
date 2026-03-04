@@ -1,0 +1,26 @@
+{
+  "A1": {
+    "scenario_id": "A1",
+    "name": "情緒崩潰 — resonance 喚醒",
+    "tier": "A",
+    "message": "我快撐不下去了，每天工作14小時但客人越來越少，我真的好累。",
+    "response": "達達把拔，我聽到你現在承受的重量了，14小時的付出卻看著客人流失，這種無力感真的很痛苦。\n\n先讓我們停下來喘口氣。\n\n**現在最緊急的是什麼？**\n- 是現金流快斷了？\n- 還是精神上快崩潰了？\n- 或者是不知道問題出在哪裡？\n\n給我一個最直接的答案，我們從最痛的那個點開始處理。\n\n其他的分析和計劃，等你先穩住了再說。現在你只需要告訴我：什麼最急？",
+    "response_time_s": 7.578024864196777,
+    "scores": {
+      "rc_score": 0.5,
+      "sk_score": 0.0,
+      "tl_score": 1.0,
+      "sp_score": 1.0,
+      "qa_score": 1.0,
+      "total": 3.5,
+      "rc_detail": "⚠️ 預期=['RC-A1', 'RC-A2'] 實際=['RC-A1', 'RC-A6', 'RC-E2'] (1/2)",
+      "sk_detail": "❌ 預期=['resonance'] 實際=['novel-craft', 'morphenix', 'c15'] RC分數={'storytelling-engine': 0.5, 'info-architect': 0.3333333333333333, 'novel-craft': 0.3333333333333333} (0/1)",
+      "tl_detail": "✅ 無預期工具，無調用",
+      "sp_detail": "✅ 預期壓制=['dse', 'xmodel', 'master-strategy'] 實際壓制={'aesthetic-sense', 'philo-dialectic', 'tantra', 'pdeif', 'dse', 'xmodel', 'meta-learning', 'master-strategy'}",
+      "qa_detail": "✅ 回覆充實（非行動場景）"
+    },
+    "log_lines_count": 17,
+    "tool_calls": [],
+    "session_id": "v10_dna27_A1_1772350585"
+  }
+}

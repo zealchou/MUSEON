@@ -1,0 +1,44 @@
+{
+  "session_id": "serial_R59",
+  "nodes": {
+    "emotion_感謝": {
+      "node_id": "emotion_感謝",
+      "node_type": "emotion",
+      "label": "感謝",
+      "properties": {
+        "detected_at": "2026-02-28T23:23:25.838135",
+        "source": "text_analysis"
+      },
+      "created_at": "2026-02-28T23:23:25.838147",
+      "updated_at": "2026-02-28T23:23:25.838148"
+    },
+    "topic_turn_1": {
+      "node_id": "topic_turn_1",
+      "node_type": "topic",
+      "label": "turn_1",
+      "properties": {
+        "content_length": 40,
+        "detected_at": "2026-02-28T23:23:25.838135"
+      },
+      "created_at": "2026-02-28T23:23:25.838156",
+      "updated_at": "2026-02-28T23:23:25.838157"
+    },
+    "topic_turn_2": {
+      "node_id": "topic_turn_2",
+      "node_type": "topic",
+      "label": "turn_2",
+      "properties": {
+        "content_length": 35,
+        "detected_at": "2026-02-28T23:23:34.441247"
+      },
+      "created_at": "2026-02-28T23:23:34.441266",
+      "updated_at": "2026-02-28T23:23:34.441267"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 2,
+    "last_content_length": 35
+  },
+  "last_updated": "2026-02-28T23:23:34.441247"
+}

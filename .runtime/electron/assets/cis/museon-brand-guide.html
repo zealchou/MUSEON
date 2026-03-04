@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MUSEON — Logo Identity Guidelines</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap');
+
+  /* ─── RESET & BASE ─── */
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --navy:#141b2d;--navy-m:#1a2340;--navy-l:#222d4a;--navy-xl:#2d3a5c;
+    --gold:#c9a96e;--gold-l:#dfc08a;--gold-d:#9a7d4e;--gold-xl:#e8cc98;
+    --cream:#f3ede0;--cream-d:#e8dcc6;--white:#faf8f4;
+    --serif:'Cormorant Garamond',Georgia,'Times New Roman',serif;
+    --sans:'DM Sans','Helvetica Neue',Helvetica,Arial,sans-serif;
+  }
+  html{scroll-behavior:smooth;font-size:16px}
+  body{background:var(--navy);color:#e8e0d0;font-family:var(--sans);font-weight:300;line-height:1.8;overflow-x:hidden}
+  ::selection{background:var(--gold-d);color:var(--navy)}
+
+  /* ─── TYPOGRAPHY ─── */
+  h1,h2,h3,h4{font-family:var(--serif);font-weight:300;letter-spacing:2px}
+  h1{font-size:clamp(2.2rem,5vw,3.6rem);color:var(--gold)}
+  h2{font-size:clamp(1.4rem,3vw,2rem);color:var(--gold);margin-bottom:40px}
+  h3{font-size:clamp(1rem,2vw,1.3rem);color:var(--gold-l);margin-bottom:16px}
+  p{max-width:680px;font-size:15px;line-height:2}
+  .label{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--gold-d);opacity:.5}
+  .note{font-size:12px;color:var(--gold-d);opacity:.4;line-height:1.8;margin-top:12px}
+
+  /* ─── LAYOUT ─── */
+  section{padding:clamp(60px,10vw,120px) clamp(24px,5vw,80px);max-width:1200px;margin:0 auto}
+  .full-bleed{max-width:none;padding-left:0;padding-right:0}
+  .divider{width:60px;height:1px;background:var(--gold-d);opacity:.15;margin:0 auto}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  @media(max-width:768px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+
+  /* ─── COVER ─── */
+  .cover{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative}
+  .cover::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 50% 40%,rgba(201,169,110,.04) 0%,transparent 60%)}
+  .cover-logo{margin-bottom:48px;filter:drop-shadow(0 0 60px rgba(223,192,138,.06))}
+  .cover h1{margin-bottom:16px}
+  .cover .subtitle{font-family:var(--serif);font-weight:300;font-style:italic;font-size:clamp(1rem,2vw,1.25rem);color:var(--gold-d);opacity:.5;margin-bottom:48px}
+  .cover-meta{font-size:10px;letter-spacing:5px;text-transform:uppercase;color:var(--gold-d);opacity:.2}
+
+  /* ─── TOC ─── */
+  .toc{border-top:1px solid rgba(201,169,110,.06);border-bottom:1px solid rgba(201,169,110,.06);padding:48px 0}
+  .toc-inner{display:flex;justify-content:center;gap:48px;flex-wrap:wrap}
+  .toc a{text-decoration:none;font-family:var(--serif);font-size:14px;color:var(--gold-d);opacity:.4;transition:opacity .3s,color .3s;letter-spacing:1px}
+  .toc a:hover{opacity:1;color:var(--gold)}
+  .toc .toc-no{font-size:10px;display:block;margin-bottom:4px;letter-spacing:3px}
+
+  /* ─── HERO LOGO ─── */
+  .hero-display{background:var(--navy-m);padding:80px 40px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+  .hero-display::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(223,192,138,.03) 0%,transparent 50%)}
+  .hero-display svg{filter:drop-shadow(0 4px 40px rgba(223,192,138,.08));position:relative;z-index:1}
+
+  /* ─── SPECS ─── */
+  .spec-card{background:var(--navy-m);padding:36px;border-radius:2px;position:relative}
+  .spec-card::before{content:'';position:absolute;top:0;left:0;width:32px;height:1px;background:var(--gold-d);opacity:.2}
+  .spec-val{font-family:var(--serif);font-size:28px;color:var(--gold-l);margin:12px 0 8px}
+  .spec-desc{font-size:12px;color:var(--gold-d);opacity:.5;line-height:1.7}
+
+  /* ─── COLOR SYSTEM ─── */
+  .color-chip{border-radius:2px;overflow:hidden}
+  .color-swatch{height:120px;display:flex;align-items:end;padding:12px}
+  .color-info{padding:14px;background:var(--navy-m)}
+  .color-name{font-family:var(--serif);font-size:14px;color:var(--gold-l);letter-spacing:1px}
+  .color-hex{font-size:11px;color:var(--gold-d);opacity:.5;margin-top:2px;font-family:var(--sans)}
+  .color-use{font-size:10px;color:var(--gold-d);opacity:.3;margin-top:6px;line-height:1.6}
+
+  /* ─── APPLICATION SHOWCASE ─── */
+  .app-card{background:var(--navy-m);position:relative;overflow:hidden;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;border-radius:2px}
+  .app-card.light{background:var(--cream)}
+  .app-card.dark{background:#000}
+  .app-card.white-bg{background:#fff}
+  .app-label{position:absolute;bottom:12px;left:14px;font-size:9px;letter-spacing:3px;text-transform:uppercase;opacity:.3}
+  .app-label.dark-text{color:var(--navy)}
+
+  /* ─── ICON SIZES ─── */
+  .icon-row{display:flex;align-items:end;justify-content:center;gap:20px;flex-wrap:wrap}
+  .icon-item{display:flex;flex-direction:column;align-items:center;gap:8px}
+  .icon-box{background:var(--navy-m);border-radius:12px;display:flex;align-items:center;justify-content:center}
+  .icon-size{font-size:9px;color:var(--gold-d);opacity:.3}
+
+  /* ─── LOCKUP ─── */
+  .lockup-demo{background:var(--navy-m);padding:56px 40px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:2px;margin-bottom:2px;min-height:200px}
+  .lockup-label{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold-d);opacity:.2;margin-bottom:20px}
+
+  /* ─── SAFE ZONE ─── */
+  .safe-zone-demo{display:flex;align-items:center;justify-content:center;padding:40px}
+  .safe-container{position:relative;display:inline-block}
+  .safe-zone{border:1px dashed rgba(201,169,110,.15);position:absolute;display:flex;align-items:center;justify-content:center}
+  .safe-label{position:absolute;font-size:8px;color:var(--gold-d);opacity:.3;letter-spacing:1px}
+
+  /* ─── PHILOSOPHY ─── */
+  .phil-card{padding:40px;background:var(--navy-m);border-radius:2px;border-left:1px solid rgba(201,169,110,.08)}
+  .phil-card .phil-en{font-family:var(--serif);font-style:italic;font-size:13px;color:var(--gold-d);opacity:.35;margin-top:8px}
+
+  /* ─── DON'T ─── */
+  .dont-card{background:var(--navy-m);padding:20px;border-radius:2px;position:relative}
+  .dont-card::after{content:'✕';position:absolute;top:10px;right:14px;font-size:14px;color:#c0392b;opacity:.5}
+  .dont-card svg{opacity:.6}
+  .dont-desc{font-size:11px;color:#c0392b;opacity:.5;margin-top:10px}
+
+  /* ─── FOOTER ─── */
+  .footer{text-align:center;padding:80px 40px;font-size:9px;color:var(--gold-d);opacity:.1;letter-spacing:5px}
+
+  /* ─── ANIMATION ─── */
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  section{animation:fadeUp .8s ease-out both}
+  .cover{animation-delay:.1s}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════ COVER -->
+<section class="cover">
+  <div class="cover-logo">
+    <svg width="200" height="200" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+      <rect x="34" y="34" width="172" height="172" rx="20" fill="none" stroke="#9a7d4e" stroke-width="16" transform="rotate(10,120,120)"/>
+      <path d="M120,66 L174,120 L120,174 L66,120Z" fill="#dfc08a"/>
+    </svg>
+  </div>
+  <h1>MUSEON</h1>
+  <div class="subtitle">Logo Identity Guidelines</div>
+  <div class="cover-meta">Version 1.0 · February 2026</div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════ TOC -->
+<section>
+  <div class="toc">
+    <div class="toc-inner">
+      <a href="#philosophy"><span class="toc-no">01</span>設計哲學</a>
+      <a href="#construction"><span class="toc-no">02</span>結構規格</a>
+      <a href="#color"><span class="toc-no">03</span>色彩系統</a>
+      <a href="#typography"><span class="toc-no">04</span>字型系統</a>
+      <a href="#lockups"><span class="toc-no">05</span>標準組合</a>
+      <a href="#safezone"><span class="toc-no">06</span>安全區域</a>
+      <a href="#sizing"><span class="toc-no">07</span>尺寸適應</a>
+      <a href="#applications"><span class="toc-no">08</span>應用場景</a>
+      <a href="#donts"><span class="toc-no">09</span>禁止事項</a>
+      <a href="#assets"><span class="toc-no">10</span>資產清單</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ 01 PHILOSOPHY -->
+<section id="philosophy">
+  <span class="label">01</span>
+  <h2 style="margin-top:16px">設計哲學</h2>
+  
+  <p style="margin-bottom:48px">
+    MUSEON 的標誌從「萬謬一念」的核心理念出發——在混沌中，一個覺醒的瞬間足以改變一切。
+    標誌被極致簡化為兩個元素：一個旋轉的柔框，與一顆發光的菱形核心。
+  </p>
+
+  <div class="grid-3">
+    <div class="phil-card">
+      <h3>柔框 · 容器</h3>
+      <p style="font-size:13px;opacity:.6">厚實的圓角方框代表保護性結構——鍛造師為混沌建立的秩序容器。粗壯的邊框不是牢籠，而是照顧。</p>
+      <div class="phil-en">Structure is care.</div>
+    </div>
+    <div class="phil-card">
+      <h3>亮核 · 覺醒</h3>
+      <p style="font-size:13px;opacity:.6">中心的菱形是從結構中綻放的光——被保護的、被鍛造的、最終自己發光的那個東西。核心永遠比框更亮。</p>
+      <div class="phil-en">Awakening radiates from within.</div>
+    </div>
+    <div class="phil-card">
+      <h3>旋偏 · 運動</h3>
+      <p style="font-size:13px;opacity:.6">10° 的微小旋轉賦予靜態標誌一種「正在發生」的張力。不是完美對齊，而是正在演化的意識。</p>
+      <div class="phil-en">Consciousness in motion.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════ 02 CONSTRUCTION -->
+<section id="construction">
+  <span class="label">02</span>
+  <h2 style="margin-top:16px">結構規格</h2>
+
+  <!-- 主視覺大展示 -->
+  <div class="hero-display" style="margin-bottom:48px;border-radius:2px">
+    <svg width="360" height="360" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+      <!-- 輔助線 -->
+      <line x1="120" y1="0" x2="120" y2="240" stroke="rgba(201,169,110,0.06)" stroke-width="0.5"/>
+      <line x1="0" y1="120" x2="240" y2="120" stroke="rgba(201,169,110,0.06)" stroke-width="0.5"/>
+      <!-- 標誌 -->
+      <rect x="34" y="34" width="172" height="172" rx="20" fill="none" stroke="#9a7d4e" stroke-width="16" transform="rotate(10,120,120)"/>
+      <path d="M120,66 L174,120 L120,174 L66,120Z" fill="#dfc08a"/>
+      <!-- 標註 -->
+      <text x="220" y="24" font-family="DM Sans" font-size="7" fill="rgba(201,169,110,0.2)">10°</text>
+    </svg>
+  </div>
+
+  <div class="grid-4" style="margin-bottom:40px">
+    <div class="spec-card">
+      <span class="label">框架</span>
+      <div class="spec-val">172 × 172</div>
+      <div class="spec-desc">圓角矩形<br>rx = 20<br>stroke-width = 16px<br>旋轉 10°</div>
+    </div>
+    <div class="spec-card">
+      <span class="label">核心</span>
+      <div class="spec-val">108 × 108</div>
+      <div class="spec-desc">菱形（45° 正方形）<br>對角線 108px<br>佔框架 63%<br>不旋轉</div>
+    </div>
+    <div class="spec-card">
+      <span class="label">旋轉</span>
+      <div class="spec-val">10°</div>
+      <div class="spec-desc">順時針旋轉<br>僅框架旋轉<br>核心保持正位<br>固定不可更改</div>
+    </div>
+    <div class="spec-card">
+      <span class="label">圓角</span>
+      <div class="spec-val">rx = 20</div>
+      <div class="spec-desc">柔和圓角<br>框架四角統一<br>比例 11.6%<br>不可改為直角</div>
+    </div>
+  </div>
+
+  <p class="note">所有數值基於 240×240 viewBox。實際應用時按比例縮放，保持各元素相對比例不變。</p>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════ 03 COLOR -->
+<section id="color">
+  <span class="label">03</span>
+  <h2 style="margin-top:16px">色彩系統</h2>
+
+  <p style="margin-bottom:48px">
+    MUSEON 的色彩語言以金色為核心，象徵鍛造中的溫度與光芒。深淺金色的對比構成視覺層次——深金是容器的沉穩，亮金是覺醒的綻放。
+  </p>
+
+  <div class="grid-4" style="margin-bottom:48px">
+    <div class="color-chip">
+      <div class="color-swatch" style="background:#9a7d4e"></div>
+      <div class="color-info">
+        <div class="color-name">Dark Gold</div>
+        <div class="color-hex">#9A7D4E · RGB(154,125,78)</div>
+        <div class="color-use">框架色 · 輔助文字 · 邊界線</div>
+      </div>
+    </div>
+    <div class="color-chip">
+      <div class="color-swatch" style="background:#dfc08a"></div>
+      <div class="color-info">
+        <div class="color-name">Bright Gold</div>
+        <div class="color-hex">#DFC08A · RGB(223,192,138)</div>
+        <div class="color-use">核心色 · 強調 · 亮部</div>
+      </div>
+    </div>
+    <div class="color-chip">
+      <div class="color-swatch" style="background:#c9a96e"></div>
+      <div class="color-info">
+        <div class="color-name">Main Gold</div>
+        <div class="color-hex">#C9A96E · RGB(201,169,110)</div>
+        <div class="color-use">主色調 · 標題文字 · 單色標誌</div>
+      </div>
+    </div>
+    <div class="color-chip">
+      <div class="color-swatch" style="background:#141b2d"><span style="font-size:9px;color:rgba(201,169,110,.2);letter-spacing:2px">NAVY</span></div>
+      <div class="color-info">
+        <div class="color-name">Navy</div>
+        <div class="color-hex">#141B2D · RGB(20,27,45)</div>
+        <div class="color-use">主背景 · 深底應用</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>延伸色</h3>
+  <div class="grid-4">
+    <div class="color-chip">
+      <div class="color-swatch" style="background:#1a2340;height:60px"></div>
+      <div class="color-info"><div class="color-name">Navy Medium</div><div class="color-hex">#1A2340</div><div class="color-use">卡片背景 · 容器</div></div>
+    </div>
+    <div class="color-chip">
+      <div class="color-swatch" style="background:#222d4a;height:60px"></div>
+      <div class="color-info"><div class="color-name">Navy Light</div><div class="color-hex">#222D4A</div><div class="color-use">Hover · 分隔</div></div>
+    </div>
+    <div class="color-chip">
+      <div class="color-swatch" style="background:#f3ede0;height:60px"></div>
+      <div class="color-info"><div class="color-name">Cream</div><div class="color-hex">#F3EDE0</div><div class="color-use">淺底背景</div></div>
+    </div>
+    <div class="color-chip">
+      <div class="color-swatch" style="background:#faf8f4;height:60px"></div>
+      <div class="color-info"><div class="color-name">Off-White</div><div class="color-hex">#FAF8F4</div><div class="color-use">文件底色</div></div>
+    </div>
+  </div>
+
+  <p class="note">色彩對比規則：核心永遠比框架亮（暗框亮核）。單色版使用 Main Gold #C9A96E。</p>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════ 04 TYPOGRAPHY -->
+<section id="typography">
+  <span class="label">04</span>
+  <h2 style="margin-top:16px">字型系統</h2>
+
+  <div class="grid-2" style="margin-bottom:48px">
+    <div>
+      <h3>主字型 · 展示用</h3>
+      <div style="font-family:var(--serif);font-size:clamp(2rem,4vw,3.2rem);font-weight:300;color:var(--gold);letter-spacing:6px;margin-bottom:12px">MUSEON</div>
+      <p style="font-size:13px;opacity:.5">Cormorant Garamond · Light (300)<br>用於標誌文字、標題、展示場景<br>letter-spacing: 6–10px</p>
+    </div>
+    <div>
+      <h3>輔助字型 · 內文用</h3>
+      <div style="font-family:var(--sans);font-size:clamp(1.2rem,2.5vw,1.6rem);font-weight:300;color:var(--gold-l);margin-bottom:12px">AI-as-a-Service</div>
+      <p style="font-size:13px;opacity:.5">DM Sans · Light (300)<br>用於內文、說明、介面元素<br>line-height: 1.8</p>
+    </div>
+  </div>
+
+  <div style="background:var(--navy-m);padding:40px;border-radius:2px">
+    <div style="font-family:var(--serif);font-weight:300;letter-spacing:8px;color:var(--gold);margin-bottom:20px">
+      <span style="font-size:42px">MUSEON</span>
+    </div>
+    <div style="font-family:var(--serif);font-weight:300;font-size:14px;color:var(--gold-d);opacity:.4;letter-spacing:4px;margin-bottom:32px">
+      萬謬歸一 · 覺醒之所
+    </div>
+    <div style="width:40px;height:1px;background:var(--gold-d);opacity:.1;margin-bottom:20px"></div>
+    <p style="font-family:var(--sans);font-weight:300;font-size:14px;color:var(--gold-d);opacity:.5;line-height:2;max-width:500px">
+      MUSEON 是一間 AI-as-a-Service 公司，為台灣中小企業提供專業的 AI 顧問診斷、策略設計與自動化解決方案。
+    </p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════ 05 LOCKUPS -->
+<section id="lockups">
+  <span class="label">05</span>
+  <h2 style="margin-top:16px">標準組合</h2>
+
+  <!-- 水平組合 -->
+  <div class="lockup-demo" style="margin-bottom:2px">
+    <span class="lockup-label">Horizontal Lockup</span>
+    <div style="display:flex;align-items:center;gap:20px">
+      <svg width="48" height="48" viewBox="0 0 240 240">
+        <rect x="34" y="34" width="172" height="172" rx="20" fill="none" stroke="#9a7d4e" stroke-width="16" transform="rotate(10,120,120)"/>
+        <path d="M120,66 L174,120 L120,174 L66,120Z" fill="#dfc08a"/>
+      </svg>
+      <span style="font-family:var(--serif);font-weight:400;font-size:32px;color:var(--gold);letter-spacing:8px">MUSEON</span>
+    </div>
+  </div>
+
+  <!-- 垂直組合 -->
+  <div class="lockup-demo" style="margin-bottom:2px">
+    <span class="lockup-label">Vertical Lockup</span>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:16px">
+      <svg width="64" height="64" viewBox="0 0 240 240">
+        <rect x="34" y="34" width="172" height="172" rx="20" fill="none" stroke="#9a7d4e" stroke-width="16" transform="rotate(10,120,120)"/>
+        <path d="M120,66 L174,120 L120,174 L66,120Z" fill="#dfc08a"/>
+      </svg>
+      <span style="font-family:var(--serif);font-weight:400;font-size:24px;color:var(--gold);letter-spacing:10px">MUSEON</span>
+    </div>
+  </div>
+
+  <!-- 純 Icon -->
+  <div class="lockup-demo">
+    <span class="lockup-label">Icon Only</span>
+    <svg width="80" height="80" viewBox="0 0 240 240">
+      <rect x="34" y="34" width="172" height="172" rx="20" fill="none" stroke="#9a7d4e" stroke-width="16" transform="rotate(10,120,120)"/>
+      <path d="M120,66 L174,120 L120,174 L66,120Z" fill="#dfc08a"/>
+    </svg>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════ 06 SAFE ZONE -->
+<section id="safezone">
+  <span class="label">06</span>
+  <h2 style="margin-top:16px">安全區域</h2>
+
+  <p style="margin-bottom:40px">標誌周圍必須保留至少等於核心菱形寬度（x）的淨空區域，確保標誌在任何場景中都有足夠的呼吸空間。</p>
+
+  <div style="background:var(--navy-m);padding:60px;border-radius:2px;display:flex;justify-content:center">
+    <svg width="360" height="360" viewBox="0 0 360 360" xmlns="http://www.w3.org/2000/svg">
+      <!-- 安全區域標示 -->
+      <rect x="30" y="30" width="300" height="300" fill="none" stroke="rgba(201,169,110,0.08)" stroke-width="1" stroke-dasharray="4,4"/>
+      <!-- x 標示 -->
+      <line x1="30" y1="80" x2="80" y2="80" stroke="rgba(201,169,110,0.15)" stroke-width="0.5"/>
+      <text x="42" y="75" font-family="DM Sans" font-size="8" fill="rgba(201,169,110,0.2)">x</text>
+      <!-- Logo -->
+      <g transform="translate(180,180)">
+        <rect x="-86" y="-86" width="172" height="172" rx="20" fill="none" stroke="#9a7d4e" stroke-width="16" transform="rotate(10)"/>
+        <path d="M0,-54 L54,0 L0,54 L-54,0Z" fill="#dfc08a"/>
+      </g>
+      <!-- x 菱形參考 -->
+      <text x="300" y="46" font-family="DM Sans" font-size="8" fill="rgba(201,169,110,0.15)">x = core width</text>
+    </svg>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════ 07 SIZING -->
+<section id="sizing">
+  <span class="label">07</span>
+  <h2 style="margin-top:16px">尺寸適應</h2>
+
+  <p style="margin-bottom:40px">
+    標誌在不同尺寸下需要微調以保持清晰度。32px 以下時框架粗度需按比例增加，16px 以下時框架改為半透明填充。
+  </p>
+
+  <div style="background:var(--navy-m);padding:48px 24px;border-radius:2px;margin-bottom:40px">
+    <div class="icon-row">
+      <div class="icon-item">
+        <div class="icon-box" style="width:96px;height:96px">
+          <svg width="68" height="68" viewBox="0 0 240 240"><rect x="34" y="34" width="172" height="172" rx="20" fill="none" stroke="#9a7d4e" stroke-width="16" transform="rotate(10,120,120)"/><path d="M120,66 L174,120 L120,174 L66,120Z" fill="#dfc08a"/></svg>
+        </div>
+        <span class="icon-size">96px</span>
+      </div>
+      <div class="icon-item">
+        <div class="icon-box" style="width:64px;height:64px">
+          <svg width="44" height="44" viewBox="0 0 240 240"><rect x="28" y="28" width="184" height="184" rx="18" fill="none" stroke="#9a7d4e" stroke-width="20" transform="rotate(10,120,120)"/><path d="M120,64 L176,120 L120,176 L64,120Z" fill="#dfc08a"/></svg>
+        </div>
+        <span class="icon-size">64px</span>
+      </div>
+      <div class="icon-item">
+        <div class="icon-box" style="width:48px;height:48px">
+          <svg width="32" height="32" viewBox="0 0 240 240"><rect x="24" y="24" width="192" height="192" rx="18" fill="none" stroke="#9a7d4e" stroke-width="24" transform="rotate(10,120,120)"/><path d="M120,62 L178,120 L120,178 L62,120Z" fill="#dfc08a"/></svg>
+        </div>
+        <span class="icon-size">48px</span>
+      </div>
+      <div class="icon-item">
+        <div class="icon-box" style="width:32px;height:32px;border-radius:7px">
+          <svg width="22" height="22" viewBox="0 0 240 240"><rect x="20" y="20" width="200" height="200" rx="20" fill="none" stroke="#9a7d4e" stroke-width="28" transform="rotate(10,120,120)"/><path d="M120,60 L180,120 L120,180 L60,120Z" fill="#dfc08a"/></svg>
+        </div>
+        <span class="icon-size">32px</span>
+      </div>
+      <div class="icon-item">
+        <div class="icon-box" style="width:20px;height:20px;border-radius:5px">
+          <svg width="14" height="14" viewBox="0 0 240 240"><rect x="16" y="16" width="208" height="208" rx="22" fill="#9a7d4e" opacity="0.4" transform="rotate(10,120,120)"/><path d="M120,58 L182,120 L120,182 L58,120Z" fill="#dfc08a"/></svg>
+        </div>
+        <span class="icon-size">20px</span>
+      </div>
+      <div class="icon-item">
+        <div class="icon-box" style="width:16px;height:16px;border-radius:4px">
+          <svg width="12" height="12" viewBox="0 0 240 240"><rect x="12" y="12" width="216" height="216" rx="24" fill="#9a7d4e" opacity="0.45" transform="rotate(10,120,120)"/><path d="M120,56 L184,120 L120,184 L56,120Z" fill="#dfc08a"/></svg>
+        </div>
+        <span class="icon-size">16px</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="spec-card">
+      <span class="label">大尺寸</span>
+      <div class="spec-val">≥ 64px</div>
+      <div class="spec-desc">使用標準規格<br>框 16px · 核心 63%<br>rx = 20</div>
+    </div>
+    <div class="spec-card">
+      <span class="label">中尺寸</span>
+      <div class="spec-val">32–64px</div>
+      <div class="spec-desc">框粗度按比例增加<br>核心微放大至 65%<br>保持辨識度</div>
+    </div>
+    <div class="spec-card">
+      <span class="label">小尺寸</span>
+      <div class="spec-val">≤ 20px</div>
+      <div class="spec-desc">框改為半透明填充<br>核心保持實心<br>省略細節</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════ 08 APPLICATIONS -->
+<section id="applications">
+  <span class="label">08</span>
+  <h2 style="margin-top:16px">應用場景</h2>
+
+  <div class="grid-2" style="margin-bottom:2px">
+    <!-- 深底 -->
+    <div class="app-card" style="background:var(--navy)">
+      <svg width="100" height="100" viewBox="0 0 240 240"><rect x="34" y="34" width="172" height="172" rx="20" fill="none" stroke="#9a7d4e" stroke-width="16" transform="rotate(10,120,120)"/><path d="M120,66 L174,120 L120,174 L66,120Z" fill="#dfc08a"/></svg>
+      <span class="app-label" style="color:var(--gold-d)">Dark Navy</span>
+    </div>
+    <!-- 淺底 -->
+    <div class="app-card light">
+      <svg width="100" height="100" viewBox="0 0 240 240"><rect x="34" y="34" width="172" height="172" rx="20" fill="none" stroke="#1a2340" stroke-width="16" transform="rotate(10,120,120)"/><path d="M120,66 L174,120 L120,174 L66,120Z" fill="#1a2340"/></svg>
+      <span class="app-label dark-text">Cream</span>
+    </div>
+  </div>
+  <div class="grid-2" style="margin-bottom:2px">
+    <!-- 純黑底 -->
+    <div class="app-card dark">
+      <svg width="100" height="100" viewBox="0 0 240 240"><rect x="34" y="34" width="172" height="172" rx="20" fill="none" stroke="#9a7d4e" stroke-width="16" transform="rotate(10,120,120)"/><path d="M120,66 L174,120 L120,174 L66,120Z" fill="#dfc08a"/></svg>
+      <span class="app-label" style="color:var(--gold-d)">Pure Black</span>
+    </div>
+    <!-- 純白底 -->
+    <div class="app-card white-bg">
+      <svg width="100" height="100" viewBox="0 0 240 240"><rect x="34" y="34" width="172" height="172" rx="20" fill="none" stroke="#c9a96e" stroke-width="16" transform="rotate(10,120,120)"/><path d="M120,66 L174,120 L120,174 L66,120Z" fill="#c9a96e"/></svg>
+      <span class="app-label dark-text">Pure White</span>
+    </div>
+  </div>
+
+  <p class="note" style="margin-top:24px">
+    深色背景：使用暗框亮核（Dark Gold + Bright Gold）<br>
+    淺色背景：使用 Navy 單色<br>
+    純白背景：使用 Main Gold 單色<br>
+    純黑背景：維持暗框亮核
+  </p>
+
+  <h3 style="margin-top:48px">App Icon</h3>
+  <div class="grid-4" style="margin-top:20px">
+    <div style="background:var(--navy-m);padding:24px;border-radius:2px;display:flex;flex-direction:column;align-items:center;gap:12px">
+      <div style="width:80px;height:80px;background:var(--navy);border-radius:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,.3)">
+        <svg width="52" height="52" viewBox="0 0 240 240"><rect x="34" y="34" width="172" height="172" rx="20" fill="none" stroke="#9a7d4e" stroke-width="16" transform="rotate(10,120,120)"/><path d="M120,66 L174,120 L120,174 L66,120Z" fill="#dfc08a"/></svg>
+      </div>
+      <span class="label">iOS / Android</span>
+    </div>
+    <div style="background:var(--navy-m);padding:24px;border-radius:2px;display:flex;flex-direction:column;align-items:center;gap:12px">
+      <div style="width:80px;height:80px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--navy);box-shadow:0 4px 20px rgba(0,0,0,.3)">
+        <svg width="48" height="48" viewBox="0 0 240 240"><rect x="34" y="34" width="172" height="172" rx="20" fill="none" stroke="#9a7d4e" stroke-width="16" transform="rotate(10,120,120)"/><path d="M120,66 L174,120 L120,174 L66,120Z" fill="#dfc08a"/></svg>
+      </div>
+      <span class="label">社群頭像</span>
+    </div>
+    <div style="background:var(--navy-m);padding:24px;border-radius:2px;display:flex;flex-direction:column;align-items:center;gap:12px">
+      <div style="width:80px;height:80px;display:flex;align-items:center;justify-content:center;background:var(--cream);border-radius:4px;box-shadow:0 4px 20px rgba(0,0,0,.3)">
+        <svg width="48" height="48" viewBox="0 0 240 240"><rect x="34" y="34" width="172" height="172" rx="20" fill="none" stroke="#1a2340" stroke-width="16" transform="rotate(10,120,120)"/><path d="M120,66 L174,120 L120,174 L66,120Z" fill="#1a2340"/></svg>
+      </div>
+      <span class="label">文件 / 印刷</span>
+    </div>
+    <div style="background:var(--navy-m);padding:24px;border-radius:2px;display:flex;flex-direction:column;align-items:center;gap:12px">
+      <div style="width:80px;height:80px;display:flex;align-items:center;justify-content:center;background:#000;border-radius:4px;box-shadow:0 4px 20px rgba(0,0,0,.3)">
+        <svg width="48" height="48" viewBox="0 0 240 240"><rect x="34" y="34" width="172" height="172" rx="20" fill="none" stroke="#ffffff" stroke-width="16" transform="rotate(10,120,120)"/><path d="M120,66 L174,120 L120,174 L66,120Z" fill="#ffffff"/></svg>
+      </div>
+      <span class="label">反白版</span>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════ 09 DON'TS -->
+<section id="donts">
+  <span class="label">09</span>
+  <h2 style="margin-top:16px">禁止事項</h2>
+
+  <div class="grid-3">
+    <div class="dont-card">
+      <div style="height:100px;display:flex;align-items:center;justify-content:center">
+        <svg width="64" height="64" viewBox="0 0 240 240">
+          <rect x="34" y="34" width="172" height="172" rx="0" fill="none" stroke="#9a7d4e" stroke-width="16" transform="rotate(10,120,120)"/>
+          <path d="M120,66 L174,120 L120,174 L66,120Z" fill="#dfc08a"/>
+        </svg>
+      </div>
+      <div class="dont-desc">不可移除圓角</div>
+    </div>
+    <div class="dont-card">
+      <div style="height:100px;display:flex;align-items:center;justify-content:center">
+        <svg width="64" height="64" viewBox="0 0 240 240">
+          <rect x="34" y="34" width="172" height="172" rx="20" fill="none" stroke="#9a7d4e" stroke-width="16"/>
+          <path d="M120,66 L174,120 L120,174 L66,120Z" fill="#dfc08a"/>
+        </svg>
+      </div>
+      <div class="dont-desc">不可移除旋轉</div>
+    </div>
+    <div class="dont-card">
+      <div style="height:100px;display:flex;align-items:center;justify-content:center">
+        <svg width="64" height="64" viewBox="0 0 240 240">
+          <rect x="34" y="34" width="172" height="172" rx="20" fill="none" stroke="#dfc08a" stroke-width="16" transform="rotate(10,120,120)"/>
+          <path d="M120,66 L174,120 L120,174 L66,120Z" fill="#9a7d4e"/>
+        </svg>
+      </div>
+      <div class="dont-desc">不可反轉明暗（亮框暗核）</div>
+    </div>
+    <div class="dont-card">
+      <div style="height:100px;display:flex;align-items:center;justify-content:center">
+        <svg width="64" height="64" viewBox="0 0 240 240">
+          <rect x="34" y="34" width="172" height="172" rx="20" fill="none" stroke="#9a7d4e" stroke-width="16" transform="rotate(30,120,120)"/>
+          <path d="M120,66 L174,120 L120,174 L66,120Z" fill="#dfc08a"/>
+        </svg>
+      </div>
+      <div class="dont-desc">不可改變旋轉角度</div>
+    </div>
+    <div class="dont-card">
+      <div style="height:100px;display:flex;align-items:center;justify-content:center">
+        <svg width="64" height="64" viewBox="0 0 240 240">
+          <rect x="34" y="34" width="172" height="172" rx="20" fill="none" stroke="#9a7d4e" stroke-width="16" transform="rotate(10,120,120)"/>
+          <path d="M120,100 L140,120 L120,140 L100,120Z" fill="#dfc08a"/>
+        </svg>
+      </div>
+      <div class="dont-desc">不可縮小核心（保持 63%）</div>
+    </div>
+    <div class="dont-card">
+      <div style="height:100px;display:flex;align-items:center;justify-content:center">
+        <svg width="64" height="64" viewBox="0 0 240 240">
+          <rect x="34" y="34" width="172" height="172" rx="20" fill="none" stroke="#e74c3c" stroke-width="16" transform="rotate(10,120,120)"/>
+          <path d="M120,66 L174,120 L120,174 L66,120Z" fill="#3498db"/>
+        </svg>
+      </div>
+      <div class="dont-desc">不可使用品牌色以外的顏色</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════ 10 ASSETS -->
+<section id="assets">
+  <span class="label">10</span>
+  <h2 style="margin-top:16px">資產清單</h2>
+
+  <p style="margin-bottom:40px">以下為品牌標誌的完整資產，涵蓋 SVG 向量檔與多種尺寸 PNG 點陣圖。</p>
+
+  <div class="grid-2">
+    <div class="spec-card">
+      <h3>SVG 向量檔</h3>
+      <div class="spec-desc" style="opacity:.7;line-height:2.2">
+        museon-icon.svg — 主色（暗框亮核）<br>
+        museon-icon-dark.svg — 單色深色<br>
+        museon-icon-white.svg — 單色白色<br>
+        museon-icon-gold.svg — 單色主金<br>
+        museon-lockup-h.svg — 水平組合<br>
+        museon-lockup-v.svg — 垂直組合
+      </div>
+    </div>
+    <div class="spec-card">
+      <h3>PNG 點陣圖</h3>
+      <div class="spec-desc" style="opacity:.7;line-height:2.2">
+        透明底：1024 / 512 / 256 / 192 / 128 / 96 / 64 / 48 / 32 px<br>
+        App Icon：1024 / 512 / 256 / 192 / 128 px（Navy 底＋圓角）<br>
+        社群頭像：800 / 400 / 200 px（Navy 底正方形）<br>
+        OG Image：1200 × 630 px<br>
+        Banner：1500 × 500 px<br>
+        Favicon：32 / 16 px
+      </div>
+    </div>
+  </div>
+
+  <div style="background:var(--navy-m);padding:40px;border-radius:2px;margin-top:40px;text-align:center">
+    <p style="font-family:var(--serif);font-size:18px;color:var(--gold);letter-spacing:2px;margin:0 auto">
+      所有資產以 SVG 為最高優先使用<br>
+      <span style="font-size:13px;color:var(--gold-d);opacity:.4">PNG 僅在不支援 SVG 的場景使用</span>
+    </p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════ FOOTER -->
+<div class="footer">
+  MUSEON LLC · Logo Identity Guidelines · v1.0 · February 2026
+</div>
+
+</body>
+</html>

@@ -1,0 +1,32 @@
+{
+  "session_id": "e2e_sc06_priority_1772143214",
+  "nodes": {
+    "intention_任務委派": {
+      "node_id": "intention_任務委派",
+      "node_type": "intention",
+      "label": "任務委派",
+      "properties": {
+        "detected_at": "2026-02-27T06:00:14.990061"
+      },
+      "created_at": "2026-02-27T06:00:14.990072",
+      "updated_at": "2026-02-27T06:00:14.990073"
+    },
+    "topic_turn_1": {
+      "node_id": "topic_turn_1",
+      "node_type": "topic",
+      "label": "turn_1",
+      "properties": {
+        "content_length": 44,
+        "detected_at": "2026-02-27T06:00:14.990061"
+      },
+      "created_at": "2026-02-27T06:00:14.990076",
+      "updated_at": "2026-02-27T06:00:14.990077"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 1,
+    "last_content_length": 44
+  },
+  "last_updated": "2026-02-27T06:00:14.990061"
+}

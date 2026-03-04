@@ -1,0 +1,21 @@
+{
+  "id": "eaba0489-ab11-4ea4-b763-bf4590501084",
+  "content": "[失敗經驗] 任務：研究一下 openclaw 跟 moltbook 我想要你打進他們的圈子裡\n失敗類型：general_failure\n回應片段：達達大師，我在研究過程中遇到一些工具執行問題：\n\n## 🚫 遇到的問題\n- **GitHub API 失敗** — 無法直接讀取 OpenClaw 的 README.md\n- **可能原因**：API 限制、權限問題，或倉庫不存在\n\n## ✅ 已經成功收集到的情報\n\n### **OpenClaw**\n- **本質**：開源的個人 AI 助理，在你自己的設備上運行\n- **特色**：\n  - 透過 ",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-03T23:31:33.002893+08:00",
+  "updated_at": "2026-03-03T23:31:33.002893+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "6969045906",
+  "session_id": "",
+  "archived": false
+}

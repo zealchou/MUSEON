@@ -1,0 +1,24 @@
+{
+  "version": "1.0.0",
+  "type": "user",
+  "profile": {
+    "name": "使用者",
+    "business_type": "unknown"
+  },
+  "needs": {
+    "immediate_need": "unknown",
+    "main_pain_point": "unknown"
+  },
+  "preferences": {
+    "language": "zh-TW"
+  },
+  "knowledge_level": {},
+  "interaction_patterns": {},
+  "relationship": {
+    "trust_level": "initial",
+    "total_interactions": 0,
+    "first_interaction": "2026-03-03T21:26:45.768408",
+    "last_interaction": "2026-03-03T21:26:45.768413"
+  },
+  "platforms": {}
+}

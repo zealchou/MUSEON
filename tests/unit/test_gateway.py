@@ -4,7 +4,7 @@ import asyncio
 import hmac
 import hashlib
 from datetime import datetime
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import pytest
 from fastapi import HTTPException
@@ -16,7 +16,7 @@ class TestInternalMessage:
 
     def test_create_internal_message(self):
         """Test creating an internal message."""
-        from museclaw.gateway.message import InternalMessage
+        from museon.gateway.message import InternalMessage
 
         msg = InternalMessage(
             source="telegram",
@@ -36,7 +36,7 @@ class TestInternalMessage:
 
     def test_message_validation(self):
         """Test message field validation."""
-        from museclaw.gateway.message import InternalMessage
+        from museon.gateway.message import InternalMessage
 
         with pytest.raises((ValueError, TypeError)):
             InternalMessage(
@@ -56,7 +56,7 @@ class TestSessionManager:
     @pytest.mark.asyncio
     async def test_acquire_lock(self):
         """Test acquiring session lock."""
-        from museclaw.gateway.session import SessionManager
+        from museon.gateway.session import SessionManager
 
         manager = SessionManager()
         session_id = "test_session"
@@ -79,7 +79,7 @@ class TestSessionManager:
     @pytest.mark.asyncio
     async def test_session_serialization(self):
         """Test that sessions are processed serially."""
-        from museclaw.gateway.session import SessionManager
+        from museon.gateway.session import SessionManager
 
         manager = SessionManager()
         session_id = "test_session"
@@ -103,7 +103,7 @@ class TestSessionManager:
     @pytest.mark.asyncio
     async def test_is_processing(self):
         """Test checking if session is processing."""
-        from museclaw.gateway.session import SessionManager
+        from museon.gateway.session import SessionManager
 
         manager = SessionManager()
         session_id = "test_session"
@@ -122,7 +122,7 @@ class TestSecurityGate:
 
     def test_hmac_validation_success(self):
         """Test HMAC signature validation success."""
-        from museclaw.gateway.security import SecurityGate
+        from museon.gateway.security import SecurityGate
 
         secret = "test_secret_key"
         gate = SecurityGate(hmac_secret=secret)
@@ -134,7 +134,7 @@ class TestSecurityGate:
 
     def test_hmac_validation_failure(self):
         """Test HMAC signature validation failure."""
-        from museclaw.gateway.security import SecurityGate
+        from museon.gateway.security import SecurityGate
 
         gate = SecurityGate(hmac_secret="test_secret_key")
 
@@ -146,7 +146,7 @@ class TestSecurityGate:
     @pytest.mark.asyncio
     async def test_rate_limiting(self):
         """Test rate limiting."""
-        from museclaw.gateway.security import SecurityGate
+        from museon.gateway.security import SecurityGate
 
         gate = SecurityGate(rate_limit_per_minute=5)
         user_id = "test_user"
@@ -160,7 +160,7 @@ class TestSecurityGate:
 
     def test_input_sanitization(self):
         """Test input sanitization."""
-        from museclaw.gateway.security import SecurityGate
+        from museon.gateway.security import SecurityGate
 
         gate = SecurityGate()
 
@@ -174,7 +174,7 @@ class TestSecurityGate:
 
     def test_command_injection_detection(self):
         """Test command injection detection."""
-        from museclaw.gateway.security import SecurityGate
+        from museon.gateway.security import SecurityGate
 
         gate = SecurityGate()
 
@@ -196,7 +196,7 @@ class TestCronEngine:
     @pytest.mark.asyncio
     async def test_add_job(self):
         """Test adding a cron job."""
-        from museclaw.gateway.cron import CronEngine
+        from museon.gateway.cron import CronEngine
 
         engine = CronEngine()
         job_called = False
@@ -221,7 +221,7 @@ class TestCronEngine:
 
     def test_remove_job(self):
         """Test removing a cron job."""
-        from museclaw.gateway.cron import CronEngine
+        from museon.gateway.cron import CronEngine
 
         engine = CronEngine()
 
@@ -243,7 +243,7 @@ class TestCronEngine:
 
     def test_cron_expression(self):
         """Test cron expression parsing."""
-        from museclaw.gateway.cron import CronEngine
+        from museon.gateway.cron import CronEngine
 
         engine = CronEngine()
 
@@ -266,7 +266,7 @@ class TestGatewayServer:
 
     def test_localhost_binding(self):
         """Test that server only binds to localhost."""
-        from museclaw.gateway.server import create_app
+        from museon.gateway.server import create_app
 
         app = create_app()
 
@@ -279,7 +279,7 @@ class TestGatewayServer:
     @pytest.mark.asyncio
     async def test_health_endpoint(self):
         """Test health check endpoint."""
-        from museclaw.gateway.server import create_app
+        from museon.gateway.server import create_app
 
         app = create_app()
         client = TestClient(app)
@@ -291,7 +291,7 @@ class TestGatewayServer:
     @pytest.mark.asyncio
     async def test_webhook_endpoint_with_valid_hmac(self):
         """Test webhook endpoint with valid HMAC."""
-        from museclaw.gateway.server import create_app
+        from museon.gateway.server import create_app
 
         app = create_app()
         client = TestClient(app)
@@ -300,8 +300,12 @@ class TestGatewayServer:
         payload = b'{"message": "test"}'
         signature = hmac.new(secret.encode(), payload, hashlib.sha256).hexdigest()
 
-        # Mock the security gate
-        with patch("museclaw.gateway.server.security_gate") as mock_gate:
+        # Mock the security gate and brain to prevent data file corruption
+        mock_brain = MagicMock()
+        mock_brain.process = AsyncMock(return_value="test response")
+
+        with patch("museon.gateway.server.security_gate") as mock_gate, \
+             patch("museon.gateway.server._get_brain", return_value=mock_brain):
             mock_gate.validate_hmac.return_value = True
             mock_gate.sanitize_input.return_value = '{"message": "test"}'
             mock_gate.check_rate_limit.return_value = True

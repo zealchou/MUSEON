@@ -1,0 +1,21 @@
+{
+  "id": "dac139c5-05d0-4aa1-83df-0e9964bc6b81",
+  "content": "[失敗經驗] 任務：檢查 WEE 工作流引擎狀態：有沒有正在追蹤的工作流？熟練度如何？需要什麼迭代？\n失敗類型：general_failure\n回應片段：我讀到你想檢查 WEE 工作流引擎的整體狀態，看看系統裡有什麼正在跑。\n\n**WEE 引擎狀態掃描**\n\n**六層記憶系統狀態**\n- L0-L2（感知-短期-工作記憶）：清空狀態，無活躍工作流\n- L3-L5（情節-語義-程序記憶）：基礎結構已建立，但缺乏具體工作流實例\n- 記憶層躍遷機制：待激活\n\n**當前追蹤的工作流**\n❌ 零個活躍工作流（這是第一個發現點）\n- 沒有正在執行的 kata（",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-02-28T21:55:29.087941+08:00",
+  "updated_at": "2026-02-28T21:55:29.087941+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "6969045906",
+  "session_id": "",
+  "archived": false
+}
