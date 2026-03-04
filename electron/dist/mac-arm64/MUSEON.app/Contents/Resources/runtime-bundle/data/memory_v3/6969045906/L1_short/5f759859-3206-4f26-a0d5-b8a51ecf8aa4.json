@@ -1,0 +1,21 @@
+{
+  "id": "5f759859-3206-4f26-a0d5-b8a51ecf8aa4",
+  "content": "[失敗經驗] 任務：好的，那從市場面來看，台積電和半導體產業跟我們剛才聊的有什麼關聯？\n失敗類型：general_failure\n回應片段：[霓裳 離線模式]\n\n目前無法連線到 AI 服務。你的訊息已記錄。\n等連線恢復後我會重新處理。\n\n收到的訊息：「好的，那從市場面來看，台積電和半導體產業跟我們剛才聊的有什麼關聯？」",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-02-28T23:32:49.783262+08:00",
+  "updated_at": "2026-02-28T23:32:49.783262+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "6969045906",
+  "session_id": "",
+  "archived": false
+}

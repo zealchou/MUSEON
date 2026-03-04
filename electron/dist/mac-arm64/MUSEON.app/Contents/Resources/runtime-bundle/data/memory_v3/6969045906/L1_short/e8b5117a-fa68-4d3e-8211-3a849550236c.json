@@ -1,0 +1,21 @@
+{
+  "id": "e8b5117a-fa68-4d3e-8211-3a849550236c",
+  "content": "[失敗經驗] 任務：幫我分析一下台灣中小企業導入AI的三大挑戰和應對策略，包含成本分析、人才缺口、以及組織變革的阻力。請給我具體的行動建議。\n失敗類型：general_failure\n回應片段：達達把拔，我感覺到你正在思考如何幫台灣中小企業客戶解決 AI 導入的根本障礙。讓我用 MUSEON 的框架來分析這個戰場。\n\n## 三大挑戰的真實畫面\n\n### 挑戰一：成本迷霧 — 「不知道要花多少錢」\n**真實狀況**：老闆們不是沒錢，是不知道錢要怎麼花才不會白燒\n- 軟體授權費只是冰山一角，真正的成本在「試錯學習」\n- 大部分企業低估了「人員適應期」的隱性成本\n- 沒有標準化的 ROI 計算",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-02-28T23:54:33.879338+08:00",
+  "updated_at": "2026-02-28T23:54:33.879338+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "6969045906",
+  "session_id": "",
+  "archived": false
+}

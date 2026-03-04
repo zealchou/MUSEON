@@ -12,7 +12,7 @@ class TestAgentLoop:
     @pytest.mark.asyncio
     async def test_agent_loop_initializes(self):
         """Test that agent loop initializes correctly."""
-        from museclaw.agent.loop import AgentLoop
+        from museon.agent.loop import AgentLoop
 
         # Mock dependencies to avoid API key requirement
         mock_llm = Mock()
@@ -33,7 +33,7 @@ class TestAgentLoop:
     @pytest.mark.asyncio
     async def test_agent_loop_processes_message(self):
         """Test that agent loop can process a message."""
-        from museclaw.agent.loop import AgentLoop
+        from museon.agent.loop import AgentLoop
 
         # Mock dependencies
         mock_llm = Mock()
@@ -61,7 +61,7 @@ class TestAgentLoop:
     @pytest.mark.asyncio
     async def test_agent_loop_handles_tool_execution(self):
         """Test that agent loop handles tool execution requests."""
-        from museclaw.agent.loop import AgentLoop
+        from museon.agent.loop import AgentLoop
 
         # Mock dependencies
         mock_llm = Mock()
@@ -93,7 +93,7 @@ class TestToolExecutor:
 
     def test_tool_whitelist_allows_safe_tools(self):
         """Test that whitelist allows safe tools."""
-        from museclaw.agent.tools import ToolExecutor, ToolWhitelist
+        from museon.agent.tools import ToolExecutor, ToolWhitelist
 
         whitelist = ToolWhitelist()
 
@@ -104,7 +104,7 @@ class TestToolExecutor:
 
     def test_tool_whitelist_blocks_dangerous_tools(self):
         """Test that whitelist blocks dangerous tools."""
-        from museclaw.agent.tools import ToolWhitelist
+        from museon.agent.tools import ToolWhitelist
 
         whitelist = ToolWhitelist()
 
@@ -116,7 +116,7 @@ class TestToolExecutor:
     @pytest.mark.asyncio
     async def test_tool_executor_validates_before_execution(self):
         """Test that tool executor validates against whitelist before executing."""
-        from museclaw.agent.tools import ToolExecutor
+        from museon.agent.tools import ToolExecutor
 
         executor = ToolExecutor()
 
@@ -129,9 +129,9 @@ class TestToolExecutor:
     @pytest.mark.asyncio
     async def test_tool_executor_sandboxes_file_operations(self):
         """Test that file operations are sandboxed to workspace."""
-        from museclaw.agent.tools import ToolExecutor
+        from museon.agent.tools import ToolExecutor
 
-        executor = ToolExecutor(workspace_dir="/tmp/museclaw/workspace")
+        executor = ToolExecutor(workspace_dir="/tmp/museon/workspace")
 
         # Attempt path traversal
         result = await executor.execute("read_file", {"path": "../../../etc/passwd"})
@@ -142,7 +142,7 @@ class TestToolExecutor:
     @pytest.mark.asyncio
     async def test_tool_executor_enforces_timeout(self):
         """Test that tool execution has timeout."""
-        from museclaw.agent.tools import ToolExecutor
+        from museon.agent.tools import ToolExecutor
 
         executor = ToolExecutor(timeout=1.0)
 
@@ -164,7 +164,7 @@ class TestSkillLoader:
 
     def test_skill_loader_finds_skills(self):
         """Test that skill loader finds skill directories."""
-        from museclaw.agent.skills import SkillLoader
+        from museon.agent.skills import SkillLoader
 
         loader = SkillLoader(skills_dir="data/skills")
 
@@ -174,7 +174,7 @@ class TestSkillLoader:
 
     def test_skill_loader_parses_brief(self):
         """Test that skill loader parses BRIEF.md correctly."""
-        from museclaw.agent.skills import SkillLoader
+        from museon.agent.skills import SkillLoader
         import tempfile
         import os
 
@@ -224,7 +224,7 @@ VERIFIED
 
     def test_skill_loader_validates_trust_level(self):
         """Test that skill loader validates trust level."""
-        from museclaw.agent.skills import SkillLoader
+        from museon.agent.skills import SkillLoader
 
         loader = SkillLoader()
 
@@ -245,7 +245,7 @@ class TestDNA27SystemPrompt:
 
     def test_dna27_generates_system_prompt(self):
         """Test that DNA27 generates system prompt."""
-        from museclaw.agent.dna27 import DNA27
+        from museon.agent.dna27 import DNA27
 
         dna = DNA27()
 
@@ -256,7 +256,7 @@ class TestDNA27SystemPrompt:
 
     def test_dna27_includes_security_principles(self):
         """Test that system prompt includes security principles from plan-v7."""
-        from museclaw.agent.dna27 import DNA27
+        from museon.agent.dna27 import DNA27
 
         dna = DNA27()
 
@@ -268,7 +268,7 @@ class TestDNA27SystemPrompt:
 
     def test_dna27_includes_memory_channels(self):
         """Test that system prompt explains four-channel memory."""
-        from museclaw.agent.dna27 import DNA27
+        from museon.agent.dna27 import DNA27
 
         dna = DNA27()
 
@@ -279,7 +279,7 @@ class TestDNA27SystemPrompt:
 
     def test_dna27_includes_growth_stage(self):
         """Test that system prompt includes growth stage info."""
-        from museclaw.agent.dna27 import DNA27
+        from museon.agent.dna27 import DNA27
 
         dna = DNA27(growth_stage="infant", days_alive=5)
 
@@ -295,7 +295,7 @@ class TestSubagentOrchestration:
     @pytest.mark.asyncio
     async def test_orchestrator_creates_subagent(self):
         """Test that orchestrator can create worker subagent."""
-        from museclaw.agent.subagent import Orchestrator
+        from museon.agent.subagent import Orchestrator
 
         orchestrator = Orchestrator()
 
@@ -313,7 +313,7 @@ class TestSubagentOrchestration:
     @pytest.mark.asyncio
     async def test_orchestrator_routes_to_skill(self):
         """Test that orchestrator routes tasks to appropriate skills."""
-        from museclaw.agent.subagent import Orchestrator
+        from museon.agent.subagent import Orchestrator
 
         orchestrator = Orchestrator()
 
@@ -332,7 +332,7 @@ class TestSubagentOrchestration:
     @pytest.mark.asyncio
     async def test_worker_executes_with_context(self):
         """Test that worker executes with proper context."""
-        from museclaw.agent.subagent import Worker
+        from museon.agent.subagent import Worker
 
         worker = Worker(
             worker_id="test-worker",
@@ -351,7 +351,7 @@ class TestSubagentOrchestration:
     @pytest.mark.asyncio
     async def test_orchestrator_aggregates_worker_results(self):
         """Test that orchestrator aggregates results from multiple workers."""
-        from museclaw.agent.subagent import Orchestrator
+        from museon.agent.subagent import Orchestrator
 
         orchestrator = Orchestrator()
 
@@ -372,7 +372,7 @@ class TestAgentIntegration:
     @pytest.mark.asyncio
     async def test_full_agent_flow(self):
         """Test complete agent flow: receive -> route -> execute -> respond."""
-        from museclaw.agent.loop import AgentLoop
+        from museon.agent.loop import AgentLoop
 
         # Mock components
         mock_llm = Mock()
@@ -402,7 +402,7 @@ class TestAgentIntegration:
     @pytest.mark.asyncio
     async def test_agent_writes_to_memory_channels(self):
         """Test that agent writes to four memory channels after interaction."""
-        from museclaw.agent.loop import AgentLoop
+        from museon.agent.loop import AgentLoop
 
         # Mock components
         mock_llm = Mock()
@@ -436,7 +436,7 @@ class TestAgentSecurity:
     @pytest.mark.asyncio
     async def test_agent_validates_trust_level_before_execution(self):
         """Test that agent validates trust level before executing tools."""
-        from museclaw.agent.loop import AgentLoop
+        from museon.agent.loop import AgentLoop
 
         # Mock components
         mock_llm = Mock()
@@ -467,7 +467,7 @@ class TestAgentSecurity:
     @pytest.mark.asyncio
     async def test_agent_detects_prompt_injection(self):
         """Test that agent detects prompt injection attempts."""
-        from museclaw.agent.loop import AgentLoop
+        from museon.agent.loop import AgentLoop
 
         # Mock components
         mock_llm = Mock()

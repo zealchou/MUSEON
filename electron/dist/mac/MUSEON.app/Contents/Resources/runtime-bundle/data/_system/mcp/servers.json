@@ -1,0 +1,32 @@
+{
+  "github": {
+    "transport": "stdio",
+    "command": "npx -y @modelcontextprotocol/server-github",
+    "env": {}
+  },
+  "filesystem": {
+    "transport": "stdio",
+    "command": "npx -y @modelcontextprotocol/server-filesystem /Users/ZEALCHOU/MUSEON/data /Users/ZEALCHOU/Downloads /tmp",
+    "env": {}
+  },
+  "fetch": {
+    "transport": "stdio",
+    "command": "uvx mcp-server-fetch",
+    "env": {}
+  },
+  "git": {
+    "transport": "stdio",
+    "command": "uvx mcp-server-git",
+    "env": {}
+  },
+  "context7": {
+    "transport": "stdio",
+    "command": "npx -y @upstash/context7-mcp@latest",
+    "env": {}
+  },
+  "sequential-thinking": {
+    "transport": "stdio",
+    "command": "npx -y @modelcontextprotocol/server-sequential-thinking",
+    "env": {}
+  }
+}

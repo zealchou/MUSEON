@@ -1,0 +1,132 @@
+{
+  "10": {
+    "scenario_id": "10",
+    "name": "系統極限 — 完整創業計畫書",
+    "round1": {
+      "response": "**[思考摘要] 達達把拔提出了重大轉換決定——從美業轉向AI教育培訓。這是個複雜的戰略決策，需要大量市場研究和財務規劃。但我感受到背後可能有更深層的動機和考量，需要先釐清。一週內完成完整計畫書在時程上很緊迫，我需要平衡他的急迫感和決策品質。**\n\n達達把拔，我聽到你想要做重大轉換，從美業跨到AI教育。這是個很大的決定，背後一定有重要的考量。\n\n先讓我釐清一下：\n- **事實**：你想轉做AI教育培訓\n- **假設**：美業現況不如預期，或者看到AI教育的機會\n- **推論**：需要更多背景資訊才能給出精準建議\n\n**三個選項：**\n\n**選項A：快速MVP版計畫書（3-4天）**\n- 甜頭：快速有個框架開始行動\n- 代價：深度不夠，可能遺漏關鍵盲點\n- 風險：基於不充分資訊做重大決策\n- 下一步：先做市場驗證小實驗\n\n**選項B：分階段完整版（7-10天）**\n- 甜頭：策略紮實，降低創業風險\n- 代價：時間較長，可能錯失當下機會\n- 風險：過度分析導致行動延遲\n- 下一步：同時進行市場接觸和計畫撰寫\n\n**選項C：混合式邊做邊學**\n- 甜頭：理論與實踐並進，資訊更真實\n- 代價：需要同時管理多線任務\n- 風險：精力分散\n- 下一步：定義最小可測試版本\n\n**我需要先了解：**\n1. 從美業轉出的主要原因？\n2. 對AI教育的了解程度？\n3. 目標學員是誰？（企業內訓？個人提升？）\n4. 預算範圍大概多少？\n\n**最小下一步：**先花30分鐘聊聊你的轉換動機和資源現況，這樣我才能給你最適合的計畫書架構。\n\n你覺得哪個方向比較符合你現在的狀態？",
+      "response_time_s": 18.26719880104065,
+      "response_length": 684,
+      "metacognition": [
+        {
+          "id": "mc_bbb6d267b924",
+          "session_id": "bdd_stress_s10",
+          "pre_triggered": 1,
+          "pre_verdict": "pass",
+          "pre_feedback": null,
+          "pre_revision_applied": 0,
+          "pre_review_time_ms": 0.44482421875,
+          "predicted_reaction_type": "acceptance",
+          "predicted_reaction": "使用者可能會接受建議或表示了解",
+          "prediction_confidence": 0.65,
+          "actual_reaction_type": null,
+          "prediction_accuracy": null,
+          "accuracy_method": null,
+          "routing_loop": "FAST_LOOP",
+          "routing_mode": "CIVIL_MODE",
+          "matched_skills": "[\"plugin-registry\", \"dna27\", \"deep-think\"]",
+          "user_message_snippet": "我想離開美業，轉做 AI 教育培訓。\n幫我做一份完整的創業計畫書：\n- 市場分析（台灣 AI 教育市場多大）\n- 商業模式（怎麼賺錢）\n- 品牌定位（我要叫什麼名字、長什麼樣子）\n- 行銷策略（怎麼招",
+          "response_snippet": "**[思考摘要] 達達把拔提出了重大轉換決定——從美業轉向AI教育培訓。這是個複雜的戰略決策，需要大量市場研究和財務規劃。但我感受到背後可能有更深層的動機和考量，需要先釐清。一週內完成完整計畫書在時程",
+          "created_at": "2026-03-01T12:39:56.901713+08:00",
+          "observed_at": null
+        }
+      ],
+      "new_morphenix": 0
+    },
+    "round2": {
+      "response": "我會叫你「分階段」。\n\n分階段，有什麼需要 霓裳 幫忙的嗎？",
+      "response_time_s": 0.008043050765991211,
+      "response_length": 30,
+      "metacognition": [
+        {
+          "id": "mc_bbb6d267b924",
+          "session_id": "bdd_stress_s10",
+          "pre_triggered": 1,
+          "pre_verdict": "pass",
+          "pre_feedback": null,
+          "pre_revision_applied": 0,
+          "pre_review_time_ms": 0.44482421875,
+          "predicted_reaction_type": "acceptance",
+          "predicted_reaction": "使用者可能會接受建議或表示了解",
+          "prediction_confidence": 0.65,
+          "actual_reaction_type": "acceptance",
+          "prediction_accuracy": 1.0,
+          "accuracy_method": "cpu_heuristic",
+          "routing_loop": "FAST_LOOP",
+          "routing_mode": "CIVIL_MODE",
+          "matched_skills": "[\"plugin-registry\", \"dna27\", \"deep-think\"]",
+          "user_message_snippet": "我想離開美業，轉做 AI 教育培訓。\n幫我做一份完整的創業計畫書：\n- 市場分析（台灣 AI 教育市場多大）\n- 商業模式（怎麼賺錢）\n- 品牌定位（我要叫什麼名字、長什麼樣子）\n- 行銷策略（怎麼招",
+          "response_snippet": "**[思考摘要] 達達把拔提出了重大轉換決定——從美業轉向AI教育培訓。這是個複雜的戰略決策，需要大量市場研究和財務規劃。但我感受到背後可能有更深層的動機和考量，需要先釐清。一週內完成完整計畫書在時程",
+          "created_at": "2026-03-01T12:39:56.901713+08:00",
+          "observed_at": "2026-03-01T12:40:11.142401+08:00"
+        }
+      ],
+      "new_morphenix": 0
+    },
+    "anima_baseline": {
+      "labels": [
+        "☰ 乾/身份/使命",
+        "☷ 坤/記憶/積累",
+        "☳ 震/行動/執行",
+        "☴ 巽/好奇/探索",
+        "☵ 坎/共振/連結",
+        "☲ 離/覺察/洞見",
+        "☶ 艮/邊界/守護",
+        "☱ 兌/連結/互動"
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        100.0,
+        0.0,
+        0.0
+      ],
+      "absolute": {
+        "qian": 0,
+        "kun": 0,
+        "zhen": 0,
+        "xun": 0,
+        "kan": 0,
+        "li": 1,
+        "gen": 0,
+        "dui": 0
+      },
+      "total": 1
+    },
+    "anima_after": {
+      "labels": [
+        "☰ 乾/身份/使命",
+        "☷ 坤/記憶/積累",
+        "☳ 震/行動/執行",
+        "☴ 巽/好奇/探索",
+        "☵ 坎/共振/連結",
+        "☲ 離/覺察/洞見",
+        "☶ 艮/邊界/守護",
+        "☱ 兌/連結/互動"
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        100.0,
+        0.0,
+        0.0
+      ],
+      "absolute": {
+        "qian": 0,
+        "kun": 0,
+        "zhen": 0,
+        "xun": 0,
+        "kan": 0,
+        "li": 1,
+        "gen": 0,
+        "dui": 0
+      },
+      "total": 1
+    }
+  }
+}

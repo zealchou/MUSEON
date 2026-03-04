@@ -1,0 +1,22 @@
+{
+  "session_id": "e2e_sc04_multi_1772238825",
+  "nodes": {
+    "topic_turn_0": {
+      "node_id": "topic_turn_0",
+      "node_type": "topic",
+      "label": "turn_0",
+      "properties": {
+        "content_length": 11,
+        "detected_at": "2026-02-28T08:33:45.706261"
+      },
+      "created_at": "2026-02-28T08:33:45.706273",
+      "updated_at": "2026-02-28T08:33:45.706274"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 1,
+    "last_content_length": 11
+  },
+  "last_updated": "2026-02-28T08:33:45.706261"
+}

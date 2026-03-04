@@ -9,11 +9,11 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from museclaw.channels.base import ChannelAdapter, TrustLevel
-from museclaw.channels.electron import ElectronAdapter
-from museclaw.channels.telegram import TelegramAdapter
-from museclaw.channels.webhook import WebhookAdapter
-from museclaw.gateway.message import InternalMessage
+from museon.channels.base import ChannelAdapter, TrustLevel
+from museon.channels.electron import ElectronAdapter
+from museon.channels.telegram import TelegramAdapter
+from museon.channels.webhook import WebhookAdapter
+from museon.gateway.message import InternalMessage
 
 
 class TestChannelAdapter:
@@ -49,7 +49,7 @@ class TestTelegramAdapter:
         """Test receiving message from trusted user."""
         mock_update = MagicMock()
         mock_update.message.from_user.id = 12345
-        mock_update.message.text = "Hello MuseClaw"
+        mock_update.message.text = "Hello MUSEON"
         mock_update.message.date = datetime(2026, 2, 25, 10, 0, 0)
         mock_update.message.chat.id = 12345
 
@@ -59,7 +59,7 @@ class TestTelegramAdapter:
 
         assert message.source == "telegram"
         assert message.user_id == "12345"
-        assert message.content == "Hello MuseClaw"
+        assert message.content == "Hello MUSEON"
         assert message.trust_level == "core"
         assert message.session_id.startswith("telegram_")
 
@@ -84,7 +84,7 @@ class TestTelegramAdapter:
             source="telegram",
             session_id="telegram_12345",
             user_id="12345",
-            content="Response from MuseClaw",
+            content="Response from MUSEON",
             timestamp=datetime.now(),
             trust_level="core",
             metadata={"chat_id": 12345},
@@ -235,7 +235,7 @@ class TestElectronAdapter:
     @pytest.fixture
     def electron_config(self):
         return {
-            "ipc_socket_path": "/tmp/museclaw.sock",
+            "ipc_socket_path": "/tmp/museon.sock",
             "owner_user_id": "owner123",
         }
 
@@ -245,7 +245,7 @@ class TestElectronAdapter:
 
     def test_initialization(self, electron_adapter):
         """Test adapter initializes correctly."""
-        assert electron_adapter.ipc_socket_path == "/tmp/museclaw.sock"
+        assert electron_adapter.ipc_socket_path == "/tmp/museon.sock"
         assert electron_adapter.owner_user_id == "owner123"
 
     @pytest.mark.asyncio

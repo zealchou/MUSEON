@@ -1,0 +1,43 @@
+{
+  "session_id": "serial_R45",
+  "nodes": {
+    "topic_turn_0": {
+      "node_id": "topic_turn_0",
+      "node_type": "topic",
+      "label": "turn_0",
+      "properties": {
+        "content_length": 58,
+        "detected_at": "2026-02-28T23:03:49.335276"
+      },
+      "created_at": "2026-02-28T23:03:49.335288",
+      "updated_at": "2026-02-28T23:03:49.335289"
+    },
+    "intention_資訊查詢": {
+      "node_id": "intention_資訊查詢",
+      "node_type": "intention",
+      "label": "資訊查詢",
+      "properties": {
+        "detected_at": "2026-02-28T23:04:32.922316"
+      },
+      "created_at": "2026-02-28T23:04:32.922333",
+      "updated_at": "2026-02-28T23:04:32.922334"
+    },
+    "topic_turn_2": {
+      "node_id": "topic_turn_2",
+      "node_type": "topic",
+      "label": "turn_2",
+      "properties": {
+        "content_length": 42,
+        "detected_at": "2026-02-28T23:04:32.922316"
+      },
+      "created_at": "2026-02-28T23:04:32.922338",
+      "updated_at": "2026-02-28T23:04:32.922339"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 2,
+    "last_content_length": 42
+  },
+  "last_updated": "2026-02-28T23:04:32.922316"
+}

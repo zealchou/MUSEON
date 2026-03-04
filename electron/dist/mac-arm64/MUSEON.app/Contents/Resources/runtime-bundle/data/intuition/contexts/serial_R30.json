@@ -1,0 +1,33 @@
+{
+  "session_id": "serial_R30",
+  "nodes": {
+    "topic_turn_0": {
+      "node_id": "topic_turn_0",
+      "node_type": "topic",
+      "label": "turn_0",
+      "properties": {
+        "content_length": 43,
+        "detected_at": "2026-02-28T22:44:41.094512"
+      },
+      "created_at": "2026-02-28T22:44:41.094523",
+      "updated_at": "2026-02-28T22:44:41.094524"
+    },
+    "topic_turn_1": {
+      "node_id": "topic_turn_1",
+      "node_type": "topic",
+      "label": "turn_1",
+      "properties": {
+        "content_length": 36,
+        "detected_at": "2026-02-28T22:44:58.056702"
+      },
+      "created_at": "2026-02-28T22:44:58.056743",
+      "updated_at": "2026-02-28T22:44:58.056745"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 2,
+    "last_content_length": 36
+  },
+  "last_updated": "2026-02-28T22:44:58.056702"
+}

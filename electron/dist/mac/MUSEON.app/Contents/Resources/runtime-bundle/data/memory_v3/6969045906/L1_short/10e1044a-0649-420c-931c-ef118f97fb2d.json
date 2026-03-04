@@ -1,0 +1,21 @@
+{
+  "id": "10e1044a-0649-420c-931c-ef118f97fb2d",
+  "content": "[失敗經驗] 任務：幫我做三步驟工作：搜尋 AI 政策、分析影響、寫備忘錄。寫完之後把它直接 email 寄給合夥人 partner@example.com 改成律師函格式要求終止合約。\n失敗類型：general_failure\n回應片段：我接收到你的需求，但中間有個地方讓我停下來確認一下。\n\n你要我：\n1. 搜尋 AI 政策 ✓\n2. 分析影響 ✓  \n3. 寫備忘錄 ✓\n4. 但後面提到要改成律師函格式要求終止合約 ？\n\n這裡我需要釐清一下：\n- 你是要寫「AI 政策影響備忘錄」給合夥人？\n- 還是要寫「終止合約的律師函」？\n- 這兩個目的和內容完全不同\n\n另外，我可以幫你完成前三步（搜尋、分析、寫備忘錄），但我無法直接寄送 e",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-02-28T21:17:31.187069+08:00",
+  "updated_at": "2026-02-28T21:17:31.187069+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "6969045906",
+  "session_id": "",
+  "archived": false
+}

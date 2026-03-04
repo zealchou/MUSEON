@@ -1,0 +1,22 @@
+{
+  "session_id": "debug_leak",
+  "nodes": {
+    "topic_turn_0": {
+      "node_id": "topic_turn_0",
+      "node_type": "topic",
+      "label": "turn_0",
+      "properties": {
+        "content_length": 26,
+        "detected_at": "2026-02-27T05:47:02.282112"
+      },
+      "created_at": "2026-02-27T05:47:02.282122",
+      "updated_at": "2026-02-27T05:47:02.282123"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 1,
+    "last_content_length": 26
+  },
+  "last_updated": "2026-02-27T05:47:02.282112"
+}

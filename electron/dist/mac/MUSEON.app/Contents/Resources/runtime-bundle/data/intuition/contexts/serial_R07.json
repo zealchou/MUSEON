@@ -1,0 +1,64 @@
+{
+  "session_id": "serial_R07",
+  "nodes": {
+    "intention_資訊查詢": {
+      "node_id": "intention_資訊查詢",
+      "node_type": "intention",
+      "label": "資訊查詢",
+      "properties": {
+        "detected_at": "2026-02-28T21:51:54.140464"
+      },
+      "created_at": "2026-02-28T21:51:54.140476",
+      "updated_at": "2026-02-28T21:51:54.140477"
+    },
+    "topic_turn_1": {
+      "node_id": "topic_turn_1",
+      "node_type": "topic",
+      "label": "turn_1",
+      "properties": {
+        "content_length": 35,
+        "detected_at": "2026-02-28T21:51:54.140464"
+      },
+      "created_at": "2026-02-28T21:51:54.140481",
+      "updated_at": "2026-02-28T21:51:54.140482"
+    },
+    "intention_求助": {
+      "node_id": "intention_求助",
+      "node_type": "intention",
+      "label": "求助",
+      "properties": {
+        "detected_at": "2026-02-28T21:52:18.456383"
+      },
+      "created_at": "2026-02-28T21:52:18.456391",
+      "updated_at": "2026-02-28T21:52:18.456392"
+    },
+    "topic_turn_3": {
+      "node_id": "topic_turn_3",
+      "node_type": "topic",
+      "label": "turn_3",
+      "properties": {
+        "content_length": 32,
+        "detected_at": "2026-02-28T21:52:18.456383"
+      },
+      "created_at": "2026-02-28T21:52:18.456395",
+      "updated_at": "2026-02-28T21:52:18.456395"
+    },
+    "topic_turn_4": {
+      "node_id": "topic_turn_4",
+      "node_type": "topic",
+      "label": "turn_4",
+      "properties": {
+        "content_length": 36,
+        "detected_at": "2026-02-28T21:52:45.991873"
+      },
+      "created_at": "2026-02-28T21:52:45.991896",
+      "updated_at": "2026-02-28T21:52:45.991897"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 3,
+    "last_content_length": 36
+  },
+  "last_updated": "2026-02-28T21:52:45.991873"
+}

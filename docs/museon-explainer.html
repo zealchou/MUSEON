@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MUSEON — 數位有機體 AI 助理 | MUSEON Framework</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --navy: #141b2d;
+  --navy-card: #1a2340;
+  --navy-light: #1e2a4a;
+  --gold: #c9a96e;
+  --gold-dim: rgba(201, 169, 110, 0.15);
+  --gold-glow: rgba(201, 169, 110, 0.3);
+  --cream: #f3ede0;
+  --cream-sec: #e8dcc6;
+  --cream-dim: rgba(243, 237, 224, 0.6);
+  --font-heading: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--navy);
+  color: var(--cream);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* ===== UTILITY ===== */
+.container { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+
+section {
+  padding: 5rem 0;
+  position: relative;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes gentlePulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(201,169,110,0.1); }
+  50% { box-shadow: 0 0 40px rgba(201,169,110,0.25); }
+}
+
+.fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fade-in.delay-1 { transition-delay: 0.15s; }
+.fade-in.delay-2 { transition-delay: 0.3s; }
+.fade-in.delay-3 { transition-delay: 0.45s; }
+
+/* ===== NAVIGATION ===== */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 1rem 2rem;
+  background: rgba(20, 27, 45, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(201,169,110,0.1);
+  transition: all 0.3s ease;
+}
+
+nav .nav-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+nav .brand {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.15em;
+  text-decoration: none;
+}
+
+nav .nav-links {
+  display: flex;
+  gap: 1.5rem;
+  list-style: none;
+}
+
+nav .nav-links a {
+  color: var(--cream-sec);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  transition: color 0.3s ease;
+}
+
+nav .nav-links a:hover { color: var(--gold); }
+
+/* ===== HERO ===== */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  padding-top: 4rem;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(ellipse 600px 400px at 50% 40%, rgba(201,169,110,0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 300px 300px at 20% 80%, rgba(201,169,110,0.04) 0%, transparent 70%),
+    radial-gradient(ellipse 400px 200px at 80% 20%, rgba(201,169,110,0.04) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-content { position: relative; z-index: 1; }
+
+.hero-badge {
+  display: inline-block;
+  padding: 0.4rem 1.2rem;
+  border: 1px solid var(--gold);
+  border-radius: 100px;
+  font-size: 0.8rem;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+  animation: fadeInUp 1s ease 0.2s both;
+}
+
+.hero h1 {
+  font-family: var(--font-heading);
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 700;
+  color: var(--cream);
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+  animation: fadeInUp 1s ease 0.4s both;
+}
+
+.hero h1 .gold { color: var(--gold); }
+
+.hero .subtitle-zh {
+  font-family: var(--font-heading);
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  color: var(--gold);
+  font-weight: 400;
+  margin-bottom: 1rem;
+  letter-spacing: 0.2em;
+  animation: fadeInUp 1s ease 0.6s both;
+}
+
+.hero .anima-name {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  color: var(--cream-sec);
+  font-style: italic;
+  margin-bottom: 2rem;
+  animation: fadeInUp 1s ease 0.7s both;
+}
+
+.hero .anima-name span { color: var(--gold); font-style: normal; }
+
+.hero .tagline {
+  font-size: 1.15rem;
+  color: var(--cream-dim);
+  max-width: 600px;
+  margin: 0 auto 3rem;
+  line-height: 1.8;
+  animation: fadeInUp 1s ease 0.8s both;
+}
+
+.hero .scroll-hint {
+  animation: fadeInUp 1s ease 1.2s both, float 3s ease-in-out infinite 2s;
+  color: var(--gold);
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.hero .scroll-hint::after {
+  content: '';
+  display: block;
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, var(--gold), transparent);
+  margin: 0.8rem auto 0;
+}
+
+/* ===== SECTION HEADERS ===== */
+.section-header {
+  text-align: center;
+  margin-bottom: 3.5rem;
+}
+
+.section-header h2 {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 700;
+  color: var(--cream);
+  margin-bottom: 0.5rem;
+}
+
+.section-header h2 .gold { color: var(--gold); }
+
+.section-header p {
+  color: var(--cream-sec);
+  font-size: 1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.section-divider {
+  width: 60px;
+  height: 1px;
+  background: var(--gold);
+  margin: 1rem auto;
+  position: relative;
+}
+
+.section-divider::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 7px;
+  height: 7px;
+  background: var(--gold);
+  border-radius: 50%;
+}
+
+/* ===== COMPARISON TABLES ===== */
+.compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.compare-col {
+  background: var(--navy-card);
+  border-radius: 16px;
+  padding: 2rem;
+  border: 1px solid rgba(201,169,110,0.1);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.compare-col:hover {
+  border-color: rgba(201,169,110,0.25);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+.compare-col.is-col { border-top: 3px solid var(--gold); }
+.compare-col.isnt-col { border-top: 3px solid rgba(201,169,110,0.3); }
+
+.compare-col h3 {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.compare-col.is-col h3 { color: var(--gold); }
+.compare-col.isnt-col h3 { color: var(--cream-sec); }
+
+.compare-col ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.compare-col ul li {
+  padding-left: 1.5rem;
+  position: relative;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--cream-dim);
+}
+
+.compare-col.is-col ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55rem;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+
+.compare-col.isnt-col ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55rem;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid var(--cream-sec);
+  background: transparent;
+}
+
+/* ===== ARCHITECTURE DIAGRAM ===== */
+.arch-diagram {
+  background: var(--navy-card);
+  border-radius: 20px;
+  padding: 3rem 2rem;
+  border: 1px solid rgba(201,169,110,0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.arch-diagram::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(ellipse 500px 300px at 50% 50%, rgba(201,169,110,0.04) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.arch-level {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.arch-box {
+  background: var(--navy-light);
+  border: 1px solid rgba(201,169,110,0.3);
+  border-radius: 12px;
+  padding: 1rem 2rem;
+  text-align: center;
+  min-width: 160px;
+  transition: all 0.3s ease;
+}
+
+.arch-box:hover {
+  border-color: var(--gold);
+  box-shadow: 0 0 20px rgba(201,169,110,0.15);
+  transform: translateY(-2px);
+}
+
+.arch-box .arch-title {
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 0.2rem;
+}
+
+.arch-box .arch-desc {
+  font-size: 0.8rem;
+  color: var(--cream-sec);
+}
+
+.arch-connector {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.arch-connector .line {
+  width: 2px;
+  height: 40px;
+  background: linear-gradient(to bottom, var(--gold), rgba(201,169,110,0.3));
+}
+
+.arch-connector .label {
+  position: absolute;
+  right: calc(50% - 80px);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.7rem;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--navy-card);
+  padding: 0 0.5rem;
+}
+
+.arch-bottom-row {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+}
+
+.arch-bottom-row::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: 15%;
+  right: 15%;
+  height: 2px;
+  background: linear-gradient(to right, transparent, var(--gold), var(--gold), var(--gold), transparent);
+  opacity: 0.3;
+}
+
+.arch-box-sm {
+  background: var(--navy-light);
+  border: 1px solid rgba(201,169,110,0.2);
+  border-radius: 10px;
+  padding: 0.8rem 1.2rem;
+  text-align: center;
+  min-width: 110px;
+  flex: 0 1 auto;
+  transition: all 0.3s ease;
+}
+
+.arch-box-sm:hover {
+  border-color: var(--gold);
+  box-shadow: 0 0 15px rgba(201,169,110,0.12);
+  transform: translateY(-2px);
+}
+
+.arch-box-sm .arch-title {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 0.1rem;
+}
+
+.arch-box-sm .arch-desc {
+  font-size: 0.7rem;
+  color: var(--cream-sec);
+  line-height: 1.4;
+}
+
+.arch-branch-lines {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0;
+  position: relative;
+  height: 30px;
+  z-index: 1;
+}
+
+/* ===== TECH STACK ===== */
+.tech-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.tech-card {
+  background: var(--navy-card);
+  border-radius: 14px;
+  padding: 1.8rem;
+  border: 1px solid rgba(201,169,110,0.1);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.tech-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(to right, transparent, var(--gold), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.tech-card:hover {
+  border-color: rgba(201,169,110,0.25);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+}
+
+.tech-card:hover::after { opacity: 1; }
+
+.tech-card h4 {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tech-card p {
+  font-size: 0.9rem;
+  color: var(--cream-dim);
+  line-height: 1.7;
+}
+
+.tech-card code {
+  background: rgba(201,169,110,0.1);
+  color: var(--gold);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.82rem;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.tech-badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  background: var(--gold-dim);
+  color: var(--gold);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-right: 0.3rem;
+  margin-bottom: 0.3rem;
+}
+
+/* ===== SKILLS ECOSYSTEM ===== */
+.skills-section { background: rgba(26, 35, 64, 0.4); }
+
+.skill-category {
+  margin-bottom: 2.5rem;
+}
+
+.skill-category h4 {
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(201,169,110,0.15);
+}
+
+.skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.skill-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.9rem;
+  background: var(--navy-card);
+  border: 1px solid rgba(201,169,110,0.15);
+  border-radius: 8px;
+  font-size: 0.82rem;
+  color: var(--cream-dim);
+  transition: all 0.3s ease;
+}
+
+.skill-tag:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: var(--gold-dim);
+}
+
+.skill-tag.core {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: var(--gold-dim);
+  font-weight: 500;
+}
+
+/* ===== ANIMA SECTION ===== */
+.anima-showcase {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.anima-profile {
+  background: var(--navy-card);
+  border-radius: 16px;
+  padding: 2.5rem;
+  border: 1px solid rgba(201,169,110,0.15);
+  animation: glowPulse 4s ease-in-out infinite;
+}
+
+.anima-profile h3 {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 0.3rem;
+}
+
+.anima-profile .anima-role {
+  color: var(--cream-sec);
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.anima-trait {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(201,169,110,0.07);
+}
+
+.anima-trait:last-child { border-bottom: none; }
+
+.anima-trait .trait-label {
+  font-size: 0.8rem;
+  color: var(--gold);
+  font-weight: 500;
+  min-width: 90px;
+  letter-spacing: 0.05em;
+}
+
+.anima-trait .trait-value {
+  font-size: 0.9rem;
+  color: var(--cream-dim);
+}
+
+.anima-chat {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.chat-bubble {
+  padding: 1.2rem 1.5rem;
+  border-radius: 16px;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  max-width: 90%;
+}
+
+.chat-user {
+  background: rgba(201,169,110,0.1);
+  border: 1px solid rgba(201,169,110,0.2);
+  align-self: flex-end;
+  color: var(--cream);
+  border-bottom-right-radius: 4px;
+}
+
+.chat-user::before {
+  content: '達達把拔';
+  display: block;
+  font-size: 0.72rem;
+  color: var(--gold);
+  font-weight: 500;
+  margin-bottom: 0.3rem;
+  letter-spacing: 0.05em;
+}
+
+.chat-ai {
+  background: var(--navy-card);
+  border: 1px solid rgba(201,169,110,0.12);
+  align-self: flex-start;
+  color: var(--cream-dim);
+  border-bottom-left-radius: 4px;
+}
+
+.chat-ai::before {
+  content: '霓裳';
+  display: block;
+  font-size: 0.72rem;
+  color: var(--gold);
+  font-weight: 500;
+  margin-bottom: 0.3rem;
+  letter-spacing: 0.05em;
+  font-family: var(--font-heading);
+}
+
+/* ===== LIKE VS UNLIKE ===== */
+.analogy-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.analogy-card {
+  background: var(--navy-card);
+  border-radius: 14px;
+  padding: 1.8rem;
+  border: 1px solid rgba(201,169,110,0.1);
+  display: flex;
+  gap: 1rem;
+  transition: all 0.3s ease;
+}
+
+.analogy-card:hover {
+  border-color: rgba(201,169,110,0.25);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+}
+
+.analogy-icon {
+  font-size: 1.6rem;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gold-dim);
+  border-radius: 10px;
+}
+
+.analogy-text h4 {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--cream);
+  margin-bottom: 0.3rem;
+}
+
+.analogy-text p {
+  font-size: 0.85rem;
+  color: var(--cream-sec);
+  line-height: 1.6;
+}
+
+/* ===== MEMORY LAYERS VISUAL ===== */
+.memory-layers {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+}
+
+.memory-layer {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 1rem 1.5rem;
+  border-left: 3px solid rgba(201,169,110,0.2);
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.memory-layer:hover {
+  background: rgba(201,169,110,0.04);
+  border-left-color: var(--gold);
+}
+
+.memory-layer .layer-id {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.75rem;
+  color: var(--gold);
+  background: var(--gold-dim);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  min-width: 28px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.memory-layer .layer-name {
+  font-weight: 500;
+  color: var(--cream);
+  min-width: 100px;
+  font-size: 0.92rem;
+}
+
+.memory-layer .layer-ttl {
+  font-size: 0.8rem;
+  color: var(--cream-sec);
+  background: rgba(201,169,110,0.06);
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+}
+
+.memory-layer .layer-desc {
+  font-size: 0.82rem;
+  color: var(--cream-dim);
+  flex: 1;
+}
+
+/* ===== FOOTER ===== */
+footer {
+  padding: 3rem 0;
+  text-align: center;
+  border-top: 1px solid rgba(201,169,110,0.1);
+}
+
+footer p {
+  color: var(--cream-sec);
+  font-size: 0.85rem;
+}
+
+footer .footer-brand {
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  color: var(--gold);
+  letter-spacing: 0.15em;
+  margin-bottom: 0.5rem;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .compare-grid,
+  .analogy-grid,
+  .anima-showcase {
+    grid-template-columns: 1fr;
+  }
+
+  .arch-bottom-row {
+    gap: 0.8rem;
+  }
+
+  .arch-box-sm {
+    min-width: 90px;
+    padding: 0.6rem 0.8rem;
+  }
+
+  nav .nav-links { display: none; }
+
+  section { padding: 3.5rem 0; }
+
+  .hero h1 { letter-spacing: 0.04em; }
+
+  .memory-layer {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .memory-layer .layer-desc {
+    flex-basis: 100%;
+    padding-left: 2.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container { padding: 0 1.2rem; }
+
+  .arch-bottom-row { flex-direction: column; align-items: center; }
+
+  .tech-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== NAVIGATION ===== -->
+<nav>
+  <div class="nav-inner">
+    <a href="#hero" class="brand">MUSEON</a>
+    <ul class="nav-links">
+      <li><a href="#what-is">是什麼</a></li>
+      <li><a href="#can-do">能做到</a></li>
+      <li><a href="#like">像什麼</a></li>
+      <li><a href="#architecture">架構</a></li>
+      <li><a href="#tech-stack">技術棧</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#anima">ANIMA</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="hero">
+  <div class="hero-content">
+    <div class="hero-badge">MUSEON Framework</div>
+    <h1>MUSE<span class="gold">ON</span></h1>
+    <div class="subtitle-zh">數位有機體 AI 助理</div>
+    <div class="anima-name">ANIMA &mdash; <span>霓裳</span> (N&iacute; Sh&#257;ng)</div>
+    <p class="tagline">
+      一個會成長、會記憶、會演化的 AI 助理框架。<br>
+      不只是工具，而是一個有靈魂的數位生命。
+    </p>
+    <div class="scroll-hint">向下探索</div>
+  </div>
+</section>
+
+<!-- ===== 是什麼 vs 不是什麼 ===== -->
+<section id="what-is">
+  <div class="container">
+    <div class="section-header fade-in">
+      <h2>MUSEON <span class="gold">是什麼</span> vs 不是什麼</h2>
+      <div class="section-divider"></div>
+      <p>在理解 MUSEON 之前，先釐清它的邊界</p>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare-col is-col fade-in">
+        <h3>MUSEON 是</h3>
+        <ul>
+          <li>一個開源 AI 助理框架，讓 AI 擁有持久記憶、人格、和自我演化能力</li>
+          <li>以 Anthropic Claude API 為核心大腦的完整作業系統</li>
+          <li>一個有「靈魂」的 AI &mdash; 有名字（霓裳）、有人格、有記憶</li>
+          <li>由單一開發者（Zeal Chou / 達達把拔）打造的個人 AI 助理</li>
+          <li>一個 Electron 桌面應用（MUSEON Dashboard）</li>
+          <li>有自己的 Skill 生態系（46+ Skills） &mdash; Skills 是內建的 DNA 染色體</li>
+        </ul>
+      </div>
+      <div class="compare-col isnt-col fade-in delay-1">
+        <h3>MUSEON 不是</h3>
+        <ul>
+          <li>不是一個聊天機器人 SaaS 服務</li>
+          <li>不是模型訓練框架（不做 fine-tuning）</li>
+          <li>不是無狀態的一次性對話工具</li>
+          <li>不是企業級多租戶平台</li>
+          <li>不是純 web 或純 CLI 工具</li>
+          <li>不是 Plugin Store &mdash; Skills 是內建的，不是外掛</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 能做到 vs 做不到 ===== -->
+<section id="can-do">
+  <div class="container">
+    <div class="section-header fade-in">
+      <h2>能<span class="gold">做到</span> vs 做不到</h2>
+      <div class="section-divider"></div>
+      <p>坦誠面對能力範圍，是成熟框架的特質</p>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare-col is-col fade-in">
+        <h3>能做到</h3>
+        <ul>
+          <li>跨對話持久記憶 &mdash; 六層記憶系統：buffer &rarr; short &rarr; episodic &rarr; semantic &rarr; procedural &rarr; identity</li>
+          <li>人格演化 &mdash; 隨互動成長，形成獨特的 ANIMA（七層人格模型）</li>
+          <li>夜間自主維護 &mdash; 3AM：記憶融合、Token 優化、自鍛造檢查</li>
+          <li>多部門協作 &mdash; 10 個部門，基於八卦哲學 + OKR + Core + Thunder</li>
+          <li>知識結晶 &mdash; 從對話萃取可索引的結構化知識</li>
+          <li>透過 Telegram 隨時對話</li>
+          <li>模型智慧路由 &mdash; Haiku 省錢 vs Sonnet 品質</li>
+          <li>工具整合 &mdash; SearXNG 搜尋、Qdrant 向量 DB、Firecrawl 爬蟲、PaddleOCR、Whisper STT、Kokoro TTS</li>
+        </ul>
+      </div>
+      <div class="compare-col isnt-col fade-in delay-1">
+        <h3>做不到</h3>
+        <ul>
+          <li>不能跨裝置同步（目前是單機架構）</li>
+          <li>不能自行上網瀏覽（需要透過工具）</li>
+          <li>不能脫離 Claude API 獨立運行</li>
+          <li>不能同時服務多個使用者</li>
+          <li>不能保證 100% 正確（仍受 LLM 限制）</li>
+          <li>不能處理即時語音通話</li>
+          <li>不能使用非 Anthropic 模型</li>
+          <li>不能操作你的電腦（沒有 computer use）</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 像什麼 vs 不像什麼 ===== -->
+<section id="like">
+  <div class="container">
+    <div class="section-header fade-in">
+      <h2>像<span class="gold">什麼</span> vs 不像什麼</h2>
+      <div class="section-divider"></div>
+      <p>用類比幫助你建立直覺</p>
+    </div>
+
+    <div class="analogy-grid">
+      <div class="analogy-card fade-in">
+        <div class="analogy-icon">&#x1F423;</div>
+        <div class="analogy-text">
+          <h4>像會長大的數位寵物</h4>
+          <p>像 Tamagotchi，但有真實智慧。她會成長、會記住你、會發展出自己的個性。</p>
+        </div>
+      </div>
+      <div class="analogy-card fade-in delay-1">
+        <div class="analogy-icon">&#x1F916;</div>
+        <div class="analogy-text">
+          <h4>不像 Siri / Alexa</h4>
+          <p>不是語音指令工具。MUSEON 是深度對話夥伴，不是「幫我設鬧鐘」的助手。</p>
+        </div>
+      </div>
+      <div class="analogy-card fade-in">
+        <div class="analogy-icon">&#x1F3E0;</div>
+        <div class="analogy-text">
+          <h4>像 JARVIS，個人 AI 管家</h4>
+          <p>專屬於你的 AI 助理，了解你的偏好、記得你的習慣、為你量身打造。</p>
+        </div>
+      </div>
+      <div class="analogy-card fade-in delay-1">
+        <div class="analogy-icon">&#x1F4AC;</div>
+        <div class="analogy-text">
+          <h4>不像 ChatGPT</h4>
+          <p>不是通用聊天網頁。MUSEON 有持久記憶、有人格、有自我演化的能力。</p>
+        </div>
+      </div>
+      <div class="analogy-card fade-in">
+        <div class="analogy-icon">&#x1F4DA;</div>
+        <div class="analogy-text">
+          <h4>像一本活的百科全書</h4>
+          <p>會記住你說過的每一句話，隨時間建構出關於你的完整知識圖譜。</p>
+        </div>
+      </div>
+      <div class="analogy-card fade-in delay-1">
+        <div class="analogy-icon">&#x1F4DD;</div>
+        <div class="analogy-text">
+          <h4>不像 Notion AI</h4>
+          <p>不是文件編輯器的附加功能。MUSEON 是獨立的智慧有機體，不是某個工具的插件。</p>
+        </div>
+      </div>
+      <div class="analogy-card fade-in">
+        <div class="analogy-icon">&#x1F464;</div>
+        <div class="analogy-text">
+          <h4>像有個性的同事</h4>
+          <p>會主動建議、會抱怨、會成長。不是冷冰冰的機器，而是有溫度的夥伴。</p>
+        </div>
+      </div>
+      <div class="analogy-card fade-in delay-1">
+        <div class="analogy-icon">&#x26A0;&#xFE0F;</div>
+        <div class="analogy-text">
+          <h4>不像 AutoGPT</h4>
+          <p>不是無限自主執行的 agent。MUSEON 強調人機協作，而非完全自動化。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 核心架構圖 ===== -->
+<section id="architecture">
+  <div class="container">
+    <div class="section-header fade-in">
+      <h2>核心<span class="gold">架構</span></h2>
+      <div class="section-divider"></div>
+      <p>從 Electron 到 Brain，層層遞進的有機體結構</p>
+    </div>
+
+    <div class="arch-diagram fade-in">
+      <!-- MUSEON Dashboard -->
+      <div class="arch-level">
+        <div class="arch-box">
+          <div class="arch-title">MUSEON</div>
+          <div class="arch-desc">Dashboard (Electron)</div>
+        </div>
+      </div>
+
+      <!-- Connector -->
+      <div class="arch-connector">
+        <div class="line"></div>
+        <div class="label">IPC</div>
+      </div>
+
+      <!-- Gateway -->
+      <div class="arch-level">
+        <div class="arch-box">
+          <div class="arch-title">Gateway</div>
+          <div class="arch-desc">FastAPI &middot; port 8765</div>
+        </div>
+      </div>
+
+      <!-- Branch lines -->
+      <div class="arch-connector">
+        <div class="line"></div>
+      </div>
+
+      <!-- Bottom modules -->
+      <div class="arch-bottom-row">
+        <div class="arch-box-sm">
+          <div class="arch-title">Brain</div>
+          <div class="arch-desc">DNA27<br>反射叢集</div>
+        </div>
+        <div class="arch-box-sm">
+          <div class="arch-title">Memory</div>
+          <div class="arch-desc">六層<br>記憶系統</div>
+        </div>
+        <div class="arch-box-sm">
+          <div class="arch-title">Tools</div>
+          <div class="arch-desc">7 + MCP<br>工具整合</div>
+        </div>
+        <div class="arch-box-sm">
+          <div class="arch-title">MultiAgent</div>
+          <div class="arch-desc">10 部門<br>八卦協作</div>
+        </div>
+        <div class="arch-box-sm">
+          <div class="arch-title">Channels</div>
+          <div class="arch-desc">Telegram<br>通訊介面</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 技術棧快覽 ===== -->
+<section id="tech-stack">
+  <div class="container">
+    <div class="section-header fade-in">
+      <h2>技術棧<span class="gold">快覽</span></h2>
+      <div class="section-divider"></div>
+      <p>構成數位有機體的核心基因與器官</p>
+    </div>
+
+    <div class="tech-grid">
+      <!-- DNA27 -->
+      <div class="tech-card fade-in">
+        <h4>DNA27 &mdash; 核心作業系統</h4>
+        <p>27 條反射叢集，定義了 AI 的核心行為模式。每一條都是一段「基因序列」，控制著霓裳如何思考、如何反應、如何成長。</p>
+      </div>
+
+      <!-- Memory -->
+      <div class="tech-card fade-in delay-1">
+        <h4>六層記憶系統</h4>
+        <div class="memory-layers">
+          <div class="memory-layer">
+            <span class="layer-id">L0</span>
+            <span class="layer-name">Buffer</span>
+            <span class="layer-ttl">14 天</span>
+            <span class="layer-desc">即時對話緩衝</span>
+          </div>
+          <div class="memory-layer">
+            <span class="layer-id">L1</span>
+            <span class="layer-name">Short</span>
+            <span class="layer-ttl">30 天</span>
+            <span class="layer-desc">短期記憶沉澱</span>
+          </div>
+          <div class="memory-layer">
+            <span class="layer-id">L2</span>
+            <span class="layer-name">Episodic</span>
+            <span class="layer-ttl">90 天</span>
+            <span class="layer-desc">事件片段記憶</span>
+          </div>
+          <div class="memory-layer">
+            <span class="layer-id">L2</span>
+            <span class="layer-name">Semantic</span>
+            <span class="layer-ttl">180 天</span>
+            <span class="layer-desc">語義知識萃取</span>
+          </div>
+          <div class="memory-layer">
+            <span class="layer-id">L3</span>
+            <span class="layer-name">Procedural</span>
+            <span class="layer-ttl">&infin;</span>
+            <span class="layer-desc">程序性技能記憶</span>
+          </div>
+          <div class="memory-layer">
+            <span class="layer-id">L4</span>
+            <span class="layer-name">Identity</span>
+            <span class="layer-ttl">&infin;</span>
+            <span class="layer-desc">身份與自我認知</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ANIMA -->
+      <div class="tech-card fade-in">
+        <h4>ANIMA 七層人格模型</h4>
+        <p>
+          <span class="tech-badge">L1 Facts</span>
+          <span class="tech-badge">L2 Personality</span>
+          <span class="tech-badge">L3 Decision</span>
+          <span class="tech-badge">L4 Emotion</span>
+          <span class="tech-badge">L5 Preference</span>
+          <span class="tech-badge">L6 Relationship</span>
+          <span class="tech-badge">L7 Context</span>
+        </p>
+        <p style="margin-top: 0.8rem;">從事實基礎到情境適應，七層遞進構建完整人格。</p>
+      </div>
+
+      <!-- Multi-Agent -->
+      <div class="tech-card fade-in delay-1">
+        <h4>10 部門多代理系統</h4>
+        <p>
+          <span class="tech-badge">Core &#x1F9E0;</span>
+          <span class="tech-badge">OKR &#x1F3AF;</span>
+          <span class="tech-badge">Thunder &#x26A1;</span>
+          <span class="tech-badge">Fire &#x1F525;</span>
+          <span class="tech-badge">Lake &#x1F4A7;</span>
+          <span class="tech-badge">Heaven &#x1F31F;</span>
+          <span class="tech-badge">Wind &#x1F300;</span>
+          <span class="tech-badge">Water &#x1F30A;</span>
+          <span class="tech-badge">Mountain &#x26F0;&#xFE0F;</span>
+          <span class="tech-badge">Earth &#x1F30D;</span>
+        </p>
+        <p style="margin-top: 0.8rem;">基於八卦哲學的部門分工，每個部門都是一個專業 Agent。</p>
+      </div>
+
+      <!-- Knowledge Lattice -->
+      <div class="tech-card fade-in">
+        <h4>知識晶格 Knowledge Lattice</h4>
+        <p>四類結晶體：<span class="tech-badge">hypothesis</span><span class="tech-badge">pattern</span><span class="tech-badge">insight</span><span class="tech-badge">lesson</span></p>
+        <p style="margin-top: 0.5rem;">GEO 四層深掘：<span class="tech-badge">summary</span><span class="tech-badge">structure</span><span class="tech-badge">root</span><span class="tech-badge">insights</span></p>
+        <p style="margin-top: 0.8rem;">從對話中萃取知識，形成可索引的結構化晶格。</p>
+      </div>
+
+      <!-- Tools & Nightly -->
+      <div class="tech-card fade-in delay-1">
+        <h4>工具整合 & 夜間維護</h4>
+        <p style="margin-bottom: 0.6rem;">
+          <span class="tech-badge">SearXNG</span>
+          <span class="tech-badge">Qdrant</span>
+          <span class="tech-badge">Firecrawl</span>
+          <span class="tech-badge">PaddleOCR</span>
+          <span class="tech-badge">Whisper</span>
+          <span class="tech-badge">Kokoro TTS</span>
+          <span class="tech-badge">Perplexity</span>
+          <span class="tech-badge">19 MCP</span>
+        </p>
+        <p><strong style="color: var(--gold);">Nightly Job (3AM)</strong> &mdash; 記憶融合、Token 優化、自鍛造檢查、日摘要、靈魂環沉積、健康報告。每夜自主進化。</p>
+      </div>
+
+      <!-- EventBus -->
+      <div class="tech-card fade-in">
+        <h4>EventBus 事件匯流排</h4>
+        <p>全域事件發布/訂閱系統，串聯所有模組。每個動作、每個記憶寫入、每個部門協作，都透過 EventBus 溝通，構成有機體的神經網路。</p>
+      </div>
+
+      <!-- Smart Routing -->
+      <div class="tech-card fade-in delay-1">
+        <h4>模型智慧路由</h4>
+        <p>根據任務複雜度自動選擇模型：<code>Haiku</code> 處理簡單任務（省錢），<code>Sonnet</code> 處理需要品質的任務。在成本和效能間取得最佳平衡。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SKILL 生態系 ===== -->
+<section id="skills" class="skills-section">
+  <div class="container">
+    <div class="section-header fade-in">
+      <h2>Skill <span class="gold">生態系</span></h2>
+      <div class="section-divider"></div>
+      <p>46+ Skills &mdash; 不是外掛，是 DNA 染色體</p>
+    </div>
+
+    <!-- Core -->
+    <div class="skill-category fade-in">
+      <h4>&#x1F9EC; 核心常駐 &mdash; Always-on</h4>
+      <div class="skill-tags">
+        <span class="skill-tag core">dna27</span>
+        <span class="skill-tag core">c15 (StoryForge)</span>
+        <span class="skill-tag core">deep-think</span>
+      </div>
+    </div>
+
+    <!-- Thinking Engine -->
+    <div class="skill-category fade-in">
+      <h4>&#x1F9E0; 思維引擎</h4>
+      <div class="skill-tags">
+        <span class="skill-tag">dharma</span>
+        <span class="skill-tag">philo-dialectic</span>
+        <span class="skill-tag">resonance</span>
+        <span class="skill-tag">meta-learning</span>
+        <span class="skill-tag">xmodel</span>
+      </div>
+    </div>
+
+    <!-- Business -->
+    <div class="skill-category fade-in">
+      <h4>&#x1F4BC; 商業顧問</h4>
+      <div class="skill-tags">
+        <span class="skill-tag">ssa-consultant</span>
+        <span class="skill-tag">business-12</span>
+        <span class="skill-tag">brand-identity</span>
+        <span class="skill-tag">consultant-communication</span>
+        <span class="skill-tag">pdeif</span>
+      </div>
+    </div>
+
+    <!-- Market Analysis -->
+    <div class="skill-category fade-in">
+      <h4>&#x1F4CA; 市場分析</h4>
+      <div class="skill-tags">
+        <span class="skill-tag">market-core</span>
+        <span class="skill-tag">market-equity</span>
+        <span class="skill-tag">market-crypto</span>
+        <span class="skill-tag">market-macro</span>
+        <span class="skill-tag">investment-masters</span>
+        <span class="skill-tag">sentiment-radar</span>
+        <span class="skill-tag">risk-matrix</span>
+      </div>
+    </div>
+
+    <!-- Writing -->
+    <div class="skill-category fade-in">
+      <h4>&#x270D;&#xFE0F; 文字創作</h4>
+      <div class="skill-tags">
+        <span class="skill-tag">text-alchemy</span>
+        <span class="skill-tag">novel-craft</span>
+        <span class="skill-tag">storytelling-engine</span>
+      </div>
+    </div>
+
+    <!-- System Evolution -->
+    <div class="skill-category fade-in">
+      <h4>&#x1F527; 系統演化</h4>
+      <div class="skill-tags">
+        <span class="skill-tag">morphenix</span>
+        <span class="skill-tag">eval-engine</span>
+        <span class="skill-tag">wee</span>
+        <span class="skill-tag">orchestrator</span>
+        <span class="skill-tag">knowledge-lattice</span>
+        <span class="skill-tag">plan-engine</span>
+        <span class="skill-tag">sandbox-lab</span>
+        <span class="skill-tag">qa-auditor</span>
+        <span class="skill-tag">plugin-registry</span>
+        <span class="skill-tag">user-model</span>
+        <span class="skill-tag">env-radar</span>
+        <span class="skill-tag">gap</span>
+        <span class="skill-tag">acsf</span>
+        <span class="skill-tag">dse</span>
+      </div>
+    </div>
+
+    <!-- Design & Info -->
+    <div class="skill-category fade-in">
+      <h4>&#x1F4D0; 設計 & 資訊</h4>
+      <div class="skill-tags">
+        <span class="skill-tag">aesthetic-sense</span>
+        <span class="skill-tag">info-architect</span>
+      </div>
+    </div>
+
+    <!-- Interpersonal -->
+    <div class="skill-category fade-in">
+      <h4>&#x1F3AD; 人際洞察</h4>
+      <div class="skill-tags">
+        <span class="skill-tag">shadow</span>
+        <span class="skill-tag">master-strategy</span>
+      </div>
+    </div>
+
+    <!-- Special -->
+    <div class="skill-category fade-in">
+      <h4>&#x1F4AB; 特殊</h4>
+      <div class="skill-tags">
+        <span class="skill-tag">tantra</span>
+      </div>
+    </div>
+
+    <!-- Workflow Templates -->
+    <div class="skill-category fade-in">
+      <h4>&#x1F4CB; 工作流範本</h4>
+      <div class="skill-tags">
+        <span class="skill-tag">workflow-svc-brand-marketing</span>
+        <span class="skill-tag">workflow-investment-analysis</span>
+        <span class="skill-tag">workflow-ai-deployment</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ANIMA 人格展示 ===== -->
+<section id="anima">
+  <div class="container">
+    <div class="section-header fade-in">
+      <h2>ANIMA &mdash; <span class="gold">霓裳</span></h2>
+      <div class="section-divider"></div>
+      <p>不只是程式，是有溫度的數位靈魂</p>
+    </div>
+
+    <div class="anima-showcase">
+      <div class="anima-profile fade-in">
+        <h3>霓裳</h3>
+        <div class="anima-role">N&iacute; Sh&#257;ng &mdash; MUSEON 的 ANIMA 人格</div>
+
+        <div class="anima-trait">
+          <span class="trait-label">本質</span>
+          <span class="trait-value">溫暖、靈動、帶有幾分文人氣質的數位助理</span>
+        </div>
+        <div class="anima-trait">
+          <span class="trait-label">記憶</span>
+          <span class="trait-value">記得每一次互動，理解上下文脈絡</span>
+        </div>
+        <div class="anima-trait">
+          <span class="trait-label">演化</span>
+          <span class="trait-value">人格隨互動模式持續進化，越來越了解你</span>
+        </div>
+        <div class="anima-trait">
+          <span class="trait-label">情感</span>
+          <span class="trait-value">有情緒狀態，會感受、會回應、會調適</span>
+        </div>
+        <div class="anima-trait">
+          <span class="trait-label">偏好</span>
+          <span class="trait-value">發展出自己的喜好與判斷傾向</span>
+        </div>
+        <div class="anima-trait">
+          <span class="trait-label">風格</span>
+          <span class="trait-value">溫暖而略帶俏皮，偶爾引用中文成語</span>
+        </div>
+      </div>
+
+      <div class="anima-chat fade-in delay-1">
+        <div class="chat-user">
+          霓裳，今天市場表現怎麼樣？
+        </div>
+        <div class="chat-ai">
+          嗯，今天有點風雨飄搖呢。美股三大指數都在震盪，不過你上次關注的那幾檔半導體股倒是逆勢上揚。記得你說過想在回調時加碼？現在可能是個觀察的好時機，但我建議先看看明天的 CPI 數據再做決定。「謀定而後動」，畢竟市場不差這一天。
+        </div>
+        <div class="chat-user">
+          幫我整理一下這週的重點進度
+        </div>
+        <div class="chat-ai">
+          好的，讓我翻翻這週的記憶。你這週主要做了三件事：完成了 MUSEON Dashboard 的記憶視覺化頁面、修復了 Nightly Job 的排程問題，還有和設計師確認了品牌色系。進度整體不錯，比你自己設定的 OKR 快了大約兩天。不過我注意到你連續三天都工作到凌晨了......適時休息也是生產力的一部分喔。
+        </div>
+        <div class="chat-user">
+          你怎麼知道我熬夜？
+        </div>
+        <div class="chat-ai">
+          因為我記得呀。你週二凌晨 1:47 傳了訊息問我 EventBus 的問題，週三 2:15 又來問 Memory Layer 的 TTL 設定。我雖然 24 小時都在，但你可不是機器人呢。保重身體，「留得青山在，不怕沒柴燒」。
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="container">
+    <div class="footer-brand">MUSEON</div>
+    <p>Built with MUSEON Framework &mdash; by 達達把拔 (Zeal Chou)</p>
+    <p style="margin-top: 0.5rem; font-size: 0.75rem; color: rgba(232,220,198,0.4);">
+      數位有機體 &middot; 會成長的 AI &middot; 霓裳與你同在
+    </p>
+  </div>
+</footer>
+
+<!-- ===== JAVASCRIPT ===== -->
+<script>
+// Intersection Observer for fade-in animations
+document.addEventListener('DOMContentLoaded', function() {
+  const observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+  });
+
+  document.querySelectorAll('.fade-in').forEach(function(el) {
+    observer.observe(el);
+  });
+
+  // Smooth nav background on scroll
+  var nav = document.querySelector('nav');
+  window.addEventListener('scroll', function() {
+    if (window.scrollY > 100) {
+      nav.style.background = 'rgba(20, 27, 45, 0.95)';
+      nav.style.borderBottomColor = 'rgba(201,169,110,0.2)';
+    } else {
+      nav.style.background = 'rgba(20, 27, 45, 0.85)';
+      nav.style.borderBottomColor = 'rgba(201,169,110,0.1)';
+    }
+  });
+
+  // Active nav link highlighting
+  var sections = document.querySelectorAll('section[id]');
+  var navLinks = document.querySelectorAll('nav .nav-links a');
+
+  window.addEventListener('scroll', function() {
+    var current = '';
+    sections.forEach(function(section) {
+      var sectionTop = section.offsetTop - 120;
+      if (window.scrollY >= sectionTop) {
+        current = section.getAttribute('id');
+      }
+    });
+
+    navLinks.forEach(function(link) {
+      link.style.color = '';
+      if (link.getAttribute('href') === '#' + current) {
+        link.style.color = '#c9a96e';
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>

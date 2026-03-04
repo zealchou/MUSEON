@@ -1,0 +1,21 @@
+{
+  "id": "35de1737-9f21-41ea-936f-e52a804e8857",
+  "content": "[失敗經驗] 任務：我覺得你需要一個 proposal-master 技能。討論完技能設計之後，用這個假想技能的能力來做一件事：模擬下週跟製造業老闆提案——elevator pitch、5 個反對意見回應、成交策略。\n失敗類型：general_failure\n回應片段：我需要先了解你跟製造業老闆的提案背景才能模擬得準確。\n\n先討論 **proposal-master** 技能設計：\n\n## Proposal-Master 技能架構\n\n**核心能力**：\n- 情境快速建模（客戶類型 + 痛點 + 決策邏輯）\n- 提案三層結構（Elevator Pitch + 深度論證 + 成交收尾）\n- 反對意見預測與化解（基於不同產業決策慣性）\n- 成交時機識別與推進技巧\n\n*",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-02-28T21:10:50.829709+08:00",
+  "updated_at": "2026-02-28T21:10:50.829709+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "6969045906",
+  "session_id": "",
+  "archived": false
+}

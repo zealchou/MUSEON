@@ -1,0 +1,20 @@
+{
+  "id": "0411b318-169c-47cf-b3f3-b99d67d5b730",
+  "content": "[失敗經驗] 任務：𝕳𝖊𝖑𝖑𝖔 Unicode 擴展\n失敗類型：general_failure\n回應片段：我看到你在探索 Unicode 的擴展字符集——那些數學粗體字符確實很有視覺張力。\n\n**關於 Unicode 擴展的幾個角度：**\n\n**技術層面**\n- 你用的是數學字母數字符號區塊（U+1D400-U+1D7FF）\n- 這些字符原本設計給數學公式，但現在常被用作裝飾\n- 甜頭：視覺突出，繞過一些平台的字體限制\n- 代價：部分系統或軟體可能顯示異常，搜尋功能失效\n\n**實際應用**\n- 社群媒",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-02-28T08:27:22.383688+08:00",
+  "updated_at": "2026-02-28T08:27:22.383688+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "boss",
+  "archived": false
+}

@@ -18,7 +18,7 @@ import json
 def mock_memory_store():
     """Mock memory store with sample data."""
     store = Mock()
-    store.data_dir = Path("/tmp/museclaw_test_data")
+    store.data_dir = Path("/tmp/museon_test_data")
     store.load_daily_log = AsyncMock(return_value={
         "conversations": [
             {"timestamp": "2026-02-20T10:00:00", "content": "test conv 1"},
@@ -73,7 +73,7 @@ class TestMemoryFusion:
     @pytest.mark.asyncio
     async def test_fusion_basic(self, mock_memory_store, mock_llm_client):
         """Test basic memory fusion from daily logs."""
-        from museclaw.nightly.fusion import MemoryFusion
+        from museon.nightly.fusion import MemoryFusion
 
         fusion = MemoryFusion(memory_store=mock_memory_store, llm_client=mock_llm_client)
         result = await fusion.fuse_daily_memories(date="2026-02-20")
@@ -86,7 +86,7 @@ class TestMemoryFusion:
     @pytest.mark.asyncio
     async def test_fusion_no_data(self, mock_memory_store, mock_llm_client):
         """Test fusion with no daily data (skip fusion)."""
-        from museclaw.nightly.fusion import MemoryFusion
+        from museon.nightly.fusion import MemoryFusion
 
         mock_memory_store.load_daily_log.return_value = {"conversations": []}
         fusion = MemoryFusion(memory_store=mock_memory_store, llm_client=mock_llm_client)
@@ -98,7 +98,7 @@ class TestMemoryFusion:
     @pytest.mark.asyncio
     async def test_cross_channel_fusion(self, mock_memory_store, mock_llm_client):
         """Test fusion across four memory channels."""
-        from museclaw.nightly.fusion import MemoryFusion
+        from museon.nightly.fusion import MemoryFusion
 
         mock_memory_store.load_daily_log.return_value = {
             "meta_thinking": [{"insight": "A"}],
@@ -125,7 +125,7 @@ class TestTokenOptimization:
     @pytest.mark.asyncio
     async def test_observe_routing_patterns(self, sample_routing_stats):
         """Test observation of routing patterns."""
-        from museclaw.nightly.optimize import TokenOptimizer
+        from museon.nightly.optimize import TokenOptimizer
 
         optimizer = TokenOptimizer()
         patterns = await optimizer.observe_patterns(sample_routing_stats)
@@ -138,7 +138,7 @@ class TestTokenOptimization:
     @pytest.mark.asyncio
     async def test_suggest_downgrade_opportunity(self, sample_routing_stats):
         """Test suggestion of downgrade opportunities."""
-        from museclaw.nightly.optimize import TokenOptimizer
+        from museon.nightly.optimize import TokenOptimizer
 
         # Add high-quality haiku tasks that could replace some sonnet tasks
         sample_routing_stats["tasks"].extend([
@@ -156,7 +156,7 @@ class TestTokenOptimization:
     @pytest.mark.asyncio
     async def test_verify_downgrade_quality(self):
         """Test quality verification after downgrade."""
-        from museclaw.nightly.optimize import TokenOptimizer
+        from museon.nightly.optimize import TokenOptimizer
 
         optimizer = TokenOptimizer()
 
@@ -176,7 +176,7 @@ class TestTokenOptimization:
     @pytest.mark.asyncio
     async def test_rollback_on_quality_drop(self):
         """Test automatic rollback when quality drops too much."""
-        from museclaw.nightly.optimize import TokenOptimizer
+        from museon.nightly.optimize import TokenOptimizer
 
         optimizer = TokenOptimizer()
 
@@ -200,7 +200,7 @@ class TestSelfForging:
     @pytest.mark.asyncio
     async def test_quality_driven_trigger(self, sample_quality_history):
         """Test quality-driven forge trigger (Q-Score < 70 for 5 times)."""
-        from museclaw.nightly.forge import ForgeEngine
+        from museon.nightly.forge import ForgeEngine
 
         engine = ForgeEngine()
         triggers = await engine.check_quality_triggers(sample_quality_history)
@@ -213,7 +213,7 @@ class TestSelfForging:
     @pytest.mark.asyncio
     async def test_usage_driven_trigger(self):
         """Test usage-driven trigger (repeated task without dedicated skill)."""
-        from museclaw.nightly.forge import ForgeEngine
+        from museon.nightly.forge import ForgeEngine
 
         # Simulate 10+ instances of same task type without skill
         usage_data = {
@@ -233,7 +233,7 @@ class TestSelfForging:
     @pytest.mark.asyncio
     async def test_time_driven_scan(self):
         """Test time-driven nightly scan."""
-        from museclaw.nightly.forge import ForgeEngine
+        from museon.nightly.forge import ForgeEngine
 
         # Mock skill health data
         skill_health = {
@@ -253,7 +253,7 @@ class TestSelfForging:
     @pytest.mark.asyncio
     async def test_forge_triggers_all_types(self, sample_quality_history):
         """Test all three trigger types combined."""
-        from museclaw.nightly.forge import ForgeEngine
+        from museon.nightly.forge import ForgeEngine
 
         engine = ForgeEngine()
 
@@ -280,7 +280,7 @@ class TestBatchAPI:
     @pytest.mark.asyncio
     async def test_batch_job_creation(self, mock_llm_client):
         """Test creating a batch job."""
-        from museclaw.nightly.batch import BatchProcessor
+        from museon.nightly.batch import BatchProcessor
 
         processor = BatchProcessor(llm_client=mock_llm_client)
 
@@ -297,7 +297,7 @@ class TestBatchAPI:
     @pytest.mark.asyncio
     async def test_batch_status_check(self):
         """Test checking batch job status."""
-        from museclaw.nightly.batch import BatchProcessor
+        from museon.nightly.batch import BatchProcessor
 
         processor = BatchProcessor(llm_client=Mock())
 
@@ -315,7 +315,7 @@ class TestBatchAPI:
     @pytest.mark.asyncio
     async def test_batch_cost_savings(self):
         """Test batch API provides 50% cost savings."""
-        from museclaw.nightly.batch import BatchProcessor
+        from museon.nightly.batch import BatchProcessor
 
         processor = BatchProcessor(llm_client=Mock())
 
@@ -333,7 +333,7 @@ class TestNightlyJob:
     @pytest.mark.asyncio
     async def test_nightly_job_full_workflow(self, mock_memory_store, mock_llm_client):
         """Test complete nightly job execution."""
-        from museclaw.nightly.job import NightlyJob
+        from museon.nightly.job import NightlyJob
 
         job = NightlyJob(
             memory_store=mock_memory_store,
@@ -350,7 +350,7 @@ class TestNightlyJob:
     @pytest.mark.asyncio
     async def test_nightly_job_error_handling(self, mock_memory_store, mock_llm_client):
         """Test nightly job handles errors gracefully."""
-        from museclaw.nightly.job import NightlyJob
+        from museon.nightly.job import NightlyJob
 
         # Make fusion fail
         mock_memory_store.load_daily_log.side_effect = Exception("DB error")
@@ -369,7 +369,7 @@ class TestNightlyJob:
     @pytest.mark.asyncio
     async def test_nightly_job_scheduling(self):
         """Test nightly job is scheduled at 3AM."""
-        from museclaw.nightly.job import get_schedule_time
+        from museon.nightly.job import get_schedule_time
 
         schedule = get_schedule_time()
 
@@ -379,7 +379,7 @@ class TestNightlyJob:
     @pytest.mark.asyncio
     async def test_nightly_produces_health_report(self, mock_memory_store, mock_llm_client):
         """Test nightly job produces security health report."""
-        from museclaw.nightly.job import NightlyJob
+        from museon.nightly.job import NightlyJob
 
         job = NightlyJob(
             memory_store=mock_memory_store,

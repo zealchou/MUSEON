@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260304_134931_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: **REVISE**\n\n修改方向（≤150字）：\n\n回覆過度停留在「確認/釐清」，但使用者上傳了具體圖片、提出了具體需求。應該：\n\n1. **直接執行**：先用 OCR 或手動精準轉錄圖片內容（不說「有些混亂」）\n2. **給出可用物**：根據圖片內容，提供「其他 AI Agent 品牌策略分析表」或「品牌建立 checklist」（具體交付物）\n3. **少問確認**：用行動展示理解，而非用問題",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-04T13:49:31.891853+08:00",
+  "priority": "medium"
+}

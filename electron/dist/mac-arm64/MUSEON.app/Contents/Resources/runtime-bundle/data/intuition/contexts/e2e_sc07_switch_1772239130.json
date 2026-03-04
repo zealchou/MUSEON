@@ -1,0 +1,22 @@
+{
+  "session_id": "e2e_sc07_switch_1772239130",
+  "nodes": {
+    "topic_turn_0": {
+      "node_id": "topic_turn_0",
+      "node_type": "topic",
+      "label": "turn_0",
+      "properties": {
+        "content_length": 32,
+        "detected_at": "2026-02-28T08:38:50.688728"
+      },
+      "created_at": "2026-02-28T08:38:50.688749",
+      "updated_at": "2026-02-28T08:38:50.688751"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 1,
+    "last_content_length": 32
+  },
+  "last_updated": "2026-02-28T08:38:50.688728"
+}

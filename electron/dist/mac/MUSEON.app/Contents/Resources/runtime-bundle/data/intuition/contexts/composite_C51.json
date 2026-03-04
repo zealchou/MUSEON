@@ -1,0 +1,32 @@
+{
+  "session_id": "composite_C51",
+  "nodes": {
+    "intention_求助": {
+      "node_id": "intention_求助",
+      "node_type": "intention",
+      "label": "求助",
+      "properties": {
+        "detected_at": "2026-02-28T21:18:11.342084"
+      },
+      "created_at": "2026-02-28T21:18:11.342093",
+      "updated_at": "2026-02-28T21:18:11.342094"
+    },
+    "topic_turn_1": {
+      "node_id": "topic_turn_1",
+      "node_type": "topic",
+      "label": "turn_1",
+      "properties": {
+        "content_length": 46,
+        "detected_at": "2026-02-28T21:18:11.342084"
+      },
+      "created_at": "2026-02-28T21:18:11.342096",
+      "updated_at": "2026-02-28T21:18:11.342097"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 1,
+    "last_content_length": 46
+  },
+  "last_updated": "2026-02-28T21:18:11.342084"
+}

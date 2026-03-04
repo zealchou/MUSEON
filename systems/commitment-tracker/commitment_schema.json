@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "commitments": [
+    {
+      "id": "commit_001",
+      "created_at": "2026-03-01T12:00:00+08:00",
+      "promised_to": "達達大師",
+      "description": "最小下一步：今晚花30分鐘把現金流狀況寫下來，看能撐幾週",
+      "due_date": "2026-03-01T20:00:00+08:00",
+      "priority": "high",
+      "status": "overdue",
+      "reminders_sent": 3,
+      "completion_evidence": null
+    },
+    {
+      "id": "commit_002", 
+      "created_at": "2026-03-01T12:05:00+08:00",
+      "promised_to": "達達大師",
+      "description": "今晚能不能提早2小時結束工作，然後告訴我：最近流失的客人裡，有沒有一個你覺得最可惜的",
+      "due_date": "2026-03-01T20:00:00+08:00",
+      "priority": "medium",
+      "status": "overdue", 
+      "reminders_sent": 2,
+      "completion_evidence": null
+    },
+    {
+      "id": "commit_003",
+      "created_at": "2026-03-01T12:10:00+08:00", 
+      "promised_to": "達達大師",
+      "description": "下一步：今晚就列出所有可削減成本，明天開始執行",
+      "due_date": "2026-03-02T09:00:00+08:00",
+      "priority": "high",
+      "status": "overdue",
+      "reminders_sent": 1,
+      "completion_evidence": null
+    }
+  ],
+  "settings": {
+    "reminder_intervals": [3600, 7200, 21600],
+    "escalation_threshold": 3,
+    "auto_apology_after_hours": 24
+  }
+}

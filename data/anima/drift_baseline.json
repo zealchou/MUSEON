@@ -1,0 +1,107 @@
+{
+  "taken_at": "2026-03-04T04:03:20.801214+00:00",
+  "mc_primals": {},
+  "mc_expression": {
+    "opener_stats": {
+      "greeting": 0,
+      "direct": 0,
+      "question": 0,
+      "empathy": 0
+    },
+    "tone_temperature": 0.5,
+    "last_evolved_at": "2026-03-03T23:35:31.893715",
+    "evolution_count": 1
+  },
+  "user_primals": {
+    "aspiration": {
+      "level": 16,
+      "confidence": 0.25,
+      "signal": "想一下問題背後的問題 也別忘了你有權限可以修改檔案 查一下問題在那邊 讓我知道你打算怎麼做",
+      "last_observed": "2026-03-04T08:53:45.226531"
+    },
+    "accumulation": {
+      "level": 8,
+      "confidence": 0.05,
+      "signal": "你說做不到之前 有沒有查過過去有沒有成功過 有沒有先查過外部的 Ai agent 大神 怎麼解決這個問題的？  沒有的話就去研究好再回覆我",
+      "last_observed": "2026-03-04T00:33:19.892793"
+    },
+    "action_power": {
+      "level": 17,
+      "confidence": 0.15,
+      "signal": "你在使用的是 telegram 介面跟我互動 所以會有問題是 telegram 的限制  以及  如果我沒有敲你 你就沒有辦法直接敲我  但我想要你會記得你有一",
+      "last_observed": "2026-03-04T00:29:27.872036"
+    },
+    "curiosity": {
+      "level": 16,
+      "confidence": 0.2,
+      "signal": "[🖼️ 圖片上傳] 訊息為什麼都被截斷？ 圖片已儲存至: /Users/ZEALCHOU/MUSEON/data/uploads/telegram/202603",
+      "last_observed": "2026-03-04T10:58:18.244200"
+    },
+    "emotion_pattern": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "blindspot": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "boundary": {
+      "level": 16,
+      "confidence": 0.1,
+      "signal": "我要能主動跟我回報的設定 我不要那種還要我 敲你你才跟我回報的模式  要主動積極的",
+      "last_observed": "2026-03-04T12:03:20.796441"
+    },
+    "relationship_depth": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    }
+  },
+  "user_L5": [
+    {
+      "key": "prefers_short_response",
+      "value": "prefers short response",
+      "confidence": 0.5,
+      "observed_count": 5,
+      "first_seen": "2026-03-03T22:07:50.457526",
+      "last_seen": "2026-03-03T22:33:49.182358"
+    },
+    {
+      "key": "active_late_evening",
+      "value": "active late evening",
+      "confidence": 0.5,
+      "observed_count": 5,
+      "first_seen": "2026-03-03T22:07:50.457526",
+      "last_seen": "2026-03-03T22:33:49.182358"
+    },
+    {
+      "key": "active_late_night",
+      "value": "active late night",
+      "confidence": 0.5,
+      "observed_count": 5,
+      "first_seen": "2026-03-04T00:02:17.034017",
+      "last_seen": "2026-03-04T00:33:19.892793"
+    }
+  ],
+  "user_L6": {
+    "detail_level": "moderate",
+    "emoji_usage": "none",
+    "language_mix": "chinese_dominant",
+    "avg_msg_length": 55,
+    "tone": "casual",
+    "question_style": "closed"
+  },
+  "user_L7": [
+    {
+      "role": "learner",
+      "active_since": "2026-03-04T00:02:17.034017",
+      "interaction_count": 1,
+      "last_seen": "2026-03-04T00:02:17.034017"
+    }
+  ]
+}

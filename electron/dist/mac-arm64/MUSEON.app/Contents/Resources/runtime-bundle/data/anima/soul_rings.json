@@ -1,0 +1,15 @@
+[
+  {
+    "type": "failure_lesson",
+    "description": "Q-Score 低於閾值（0.39）",
+    "context": "做競品分析：找台灣 5 家 AI 顧問公司服務定價案例。做完覆盤——搜尋整理能力品質分數如何？需要什麼工作流提升效率？",
+    "impact": "需要根因分析並制定預防措施",
+    "created_at": "2026-02-28T21:22:28.150444",
+    "hash": "19040b361cc1321f719ba013b5bf3875d374135810d9ff3a7a887624d0c2f217",
+    "prev_hash": "GENESIS",
+    "reinforcement_count": 36,
+    "failure_description": "互動品質分數 0.39 低於可接受閾值 0.4",
+    "root_cause": "待分析",
+    "prevention": "待制定"
+  }
+]

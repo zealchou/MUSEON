@@ -1,0 +1,21 @@
+{
+  "id": "a425cf82-a1bc-4b39-9f4f-2aa602c1c457",
+  "content": "[失敗經驗] 任務：很好，那接下來幫我搜尋一下跟剛才這個主題相關的最新研究或報導。\n失敗類型：timeout\n回應片段：**我的思考摘要**\n搜尋過程遇到 PDF 抓取超時，但已找到一些有價值的資料。用戶正處於情緒脆弱狀態，我應該先整理已獲得的資訊，避免讓技術問題增加他的挫敗感。\n\n---\n\n達達把拔，我剛才在搜尋相關研究時遇到一個技術狀況——有一份 2025 年台灣企業 DEI 報告的 PDF 檔案抓取超時了，但我已經找到一些很有價值的資訊可以分享給你。\n\n**已找到的重要發現：**\n\n1. **台灣職業倦怠數據",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "timeout"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-02-28T22:46:59.540307+08:00",
+  "updated_at": "2026-02-28T22:46:59.540307+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "6969045906",
+  "session_id": "",
+  "archived": false
+}

@@ -1,0 +1,22 @@
+{
+  "session_id": "composite_C26",
+  "nodes": {
+    "topic_turn_0": {
+      "node_id": "topic_turn_0",
+      "node_type": "topic",
+      "label": "turn_0",
+      "properties": {
+        "content_length": 68,
+        "detected_at": "2026-02-28T21:01:02.316451"
+      },
+      "created_at": "2026-02-28T21:01:02.316489",
+      "updated_at": "2026-02-28T21:01:02.316491"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 1,
+    "last_content_length": 68
+  },
+  "last_updated": "2026-02-28T21:01:02.316451"
+}

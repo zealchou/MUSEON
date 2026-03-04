@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260304_135228_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n**修改方向：**\n回覆混淆了技術架構。使用者的真實疑惑不是「為什麼能聊天」，而是「如果 token 錯了，系統怎麼運作」。建議：\n1. 簡化：明確說出「你正用的是 Web UI，不需要 token；自動回報用的才需要 token」\n2. 移除「OpenClaw Gateway」等模糊術語——這些沒被使用者提過，容易引發更多困惑\n3. 加入**立即可驗證的行動**：列出下次回報的預\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-04T13:52:28.149503+08:00",
+  "priority": "medium"
+}

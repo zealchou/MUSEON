@@ -1,0 +1,33 @@
+{
+  "session_id": "composite_C30",
+  "nodes": {
+    "emotion_疲憊": {
+      "node_id": "emotion_疲憊",
+      "node_type": "emotion",
+      "label": "疲憊",
+      "properties": {
+        "detected_at": "2026-02-28T21:03:48.929821",
+        "source": "text_analysis"
+      },
+      "created_at": "2026-02-28T21:03:48.929828",
+      "updated_at": "2026-02-28T21:03:48.929828"
+    },
+    "topic_turn_1": {
+      "node_id": "topic_turn_1",
+      "node_type": "topic",
+      "label": "turn_1",
+      "properties": {
+        "content_length": 72,
+        "detected_at": "2026-02-28T21:03:48.929821"
+      },
+      "created_at": "2026-02-28T21:03:48.929834",
+      "updated_at": "2026-02-28T21:03:48.929835"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 1,
+    "last_content_length": 72
+  },
+  "last_updated": "2026-02-28T21:03:48.929821"
+}

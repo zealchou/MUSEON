@@ -1,6 +1,6 @@
-# MuseClaw Dashboard
+# MUSEON Dashboard
 
-Real-time token usage monitoring and control panel for MuseClaw.
+Real-time monitoring and control panel for MUSEON.
 
 ## Features
 
@@ -52,7 +52,7 @@ npm run pack
 ## IPC Communication
 
 The Dashboard communicates with the Python Gateway via Unix socket:
-- Default socket: `/tmp/museclaw.sock`
+- Default socket: `/tmp/museon.sock`
 - Length-prefixed JSON messages
 - Bidirectional communication
 
@@ -94,7 +94,7 @@ The Dashboard minimizes to the system tray instead of closing. Click the tray ic
 **Gateway Offline**
 - Check that the Gateway daemon is running
 - Verify IPC socket path in settings
-- Check file permissions on `/tmp/museclaw.sock`
+- Check file permissions on `/tmp/museon.sock`
 
 **Charts Not Displaying**
 - Ensure Gateway is online

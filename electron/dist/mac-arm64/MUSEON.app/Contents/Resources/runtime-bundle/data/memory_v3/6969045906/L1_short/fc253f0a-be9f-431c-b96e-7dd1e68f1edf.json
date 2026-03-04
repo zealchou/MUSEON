@@ -1,0 +1,21 @@
+{
+  "id": "fc253f0a-be9f-431c-b96e-7dd1e68f1edf",
+  "content": "[失敗經驗] 任務：最後整合競品分析和前面所有討論，我的差異化定位應該是什麼？一句話概括。\n失敗類型：general_failure\n回應片段：[霓裳 離線模式]\n\n目前無法連線到 AI 服務。你的訊息已記錄。\n等連線恢復後我會重新處理。\n\n收到的訊息：「最後整合競品分析和前面所有討論，我的差異化定位應該是什麼？一句話概括。」",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-02-28T23:29:05.565413+08:00",
+  "updated_at": "2026-02-28T23:29:05.565413+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "6969045906",
+  "session_id": "",
+  "archived": false
+}

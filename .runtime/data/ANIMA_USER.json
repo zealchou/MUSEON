@@ -1,0 +1,64 @@
+{
+  "version": "1.0.0",
+  "type": "user",
+  "description": "使用者（老闆）的畫像檔 — 可被 MuseClaw 閱讀與改寫，隨互動持續演化",
+  "profile": {
+    "name": "Zeal",
+    "nickname": null,
+    "business_type": "unknown",
+    "role": null,
+    "industry": null
+  },
+  "needs": {
+    "immediate_need": "unknown",
+    "main_pain_point": "unknown",
+    "long_term_goals": [],
+    "recurring_requests": []
+  },
+  "preferences": {
+    "communication_style": null,
+    "response_length": null,
+    "language": "zh-TW",
+    "active_hours": null,
+    "sleep_hours": null,
+    "preferred_channels": []
+  },
+  "knowledge_level": {
+    "tech_literacy": null,
+    "ai_familiarity": null,
+    "domain_expertise": []
+  },
+  "interaction_patterns": {
+    "energy_level_typical": null,
+    "decision_style": null,
+    "feedback_style": null,
+    "trigger_words": [],
+    "comfort_topics": [],
+    "sensitive_topics": []
+  },
+  "relationship": {
+    "trust_level": "building",
+    "rapport_score": 0,
+    "total_interactions": 328,
+    "first_interaction": "2026-02-27T00:38:17.954034",
+    "last_interaction": "2026-02-28T08:39:26.219331",
+    "milestones": []
+  },
+  "platforms": {
+    "telegram": {
+      "configured": false,
+      "user_id": null
+    },
+    "instagram": {
+      "configured": false,
+      "account": null
+    },
+    "line": {
+      "configured": false,
+      "user_id": null
+    },
+    "google_drive": {
+      "configured": false
+    }
+  }
+}

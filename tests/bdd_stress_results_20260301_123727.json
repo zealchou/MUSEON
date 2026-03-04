@@ -1,0 +1,154 @@
+{
+  "03": {
+    "scenario_id": "03",
+    "name": "情緒混合商業 — 「我快撐不下去了」",
+    "round1": {
+      "response": "達達把拔，我聽到你現在真的很痛苦，這種撐不下去的感覺我接住了。14小時的辛苦但客人還是流失，員工薪水壓力，連老婆都建議收掉...這些重量一起壓下來，任何人都會崩潰。\n\n先讓我們分離一下：\n- **事實**：這個月虧損、客流下降、薪水週轉困難\n- **假設**：可能有多重原因（市場變化、競爭、定位、行銷）  \n- **推論**：需要快速止血 + 中期調整方向\n\n## 三個選項給你：\n\n### 選項A：緊急止血模式\n**甜頭**：立即減少現金流出血，爭取1-2個月思考時間\n**代價**：短期營收可能更少，員工可能不滿\n**風險**：如果止血後沒找到根本解法，只是延遲死亡\n**下一步**：今晚就列出所有可削減成本，明天開始執行\n\n### 選項B：快速轉型測試\n**甜頭**：用現有資源嘗試新方向，可能找到出路\n**代價**：需要額外心力，成功率不確定\n**風險**：可能兩頭不到岸\n**下一步**：先分析現有客群最需要什麼，設計一個7天小實驗\n\n### 選項C：有計畫的收場\n**甜頭**：停損保護家庭，重新開始\n**代價**：失去目前所有投入，員工失業\n**風險**：可能後悔放棄得太早\n**下一步**：算清楚收場成本vs繼續燒錢的成本\n\n**最小下一步**：今晚花30分鐘把現金流狀況寫下來，看能撐幾週。數字比情緒更能幫你做決定。\n\n達達把拔，你覺得哪個方向比較能承受？",
+      "response_time_s": 16.61197018623352,
+      "response_length": 588,
+      "metacognition": [
+        {
+          "id": "mc_a27993739fef",
+          "session_id": "bdd_stress_s03",
+          "pre_triggered": 1,
+          "pre_verdict": "pass",
+          "pre_feedback": null,
+          "pre_revision_applied": 0,
+          "pre_review_time_ms": 0.376953125,
+          "predicted_reaction_type": "acceptance",
+          "predicted_reaction": "使用者可能會接受建議或表示了解",
+          "prediction_confidence": 0.6,
+          "actual_reaction_type": null,
+          "prediction_accuracy": null,
+          "accuracy_method": null,
+          "routing_loop": "EXPLORATION_LOOP",
+          "routing_mode": "CIVIL_MODE",
+          "matched_skills": "[\"resonance\", \"dharma\", \"philo-dialectic\", \"workflow-ai-deployment\", \"xmodel\"]",
+          "user_message_snippet": "我真的快撐不下去了。\n這個月又虧了，員工薪水都快發不出來。\n我每天工作 14 小時但客人越來越少。\n我老婆說我應該收掉算了。\n我不知道該怎麼辦。",
+          "response_snippet": "達達把拔，我聽到你現在真的很痛苦，這種撐不下去的感覺我接住了。14小時的辛苦但客人還是流失，員工薪水壓力，連老婆都建議收掉...這些重量一起壓下來，任何人都會崩潰。\n\n先讓我們分離一下：\n- **事實",
+          "created_at": "2026-03-01T12:36:53.309555+08:00",
+          "observed_at": null
+        }
+      ],
+      "new_morphenix": 0
+    },
+    "round2": {
+      "response": "達達把拔...對不起。\n\n你說得對，我剛才就是在講道理。你已經夠累了，還要聽我分析什麼選項A、B、C。\n\n14小時站在店裡，看著空蕩蕩的門口，心裡想著員工薪水、房租、進貨款...那種絕望感，我確實沒體驗過。\n\n連最親近的人都說「算了吧」的時候，那種孤獨...好像全世界都在等你認輸。\n\n我不知道開店有多辛苦，但我看得出來你現在很孤獨。\n\n你需要的不是更多建議，是有人懂你為什麼還在撐。\n\n告訴我，是什麼讓你到現在都還沒放棄？",
+      "response_time_s": 7.5141589641571045,
+      "response_length": 212,
+      "metacognition": [
+        {
+          "id": "mc_a0892d653289",
+          "session_id": "bdd_stress_s03",
+          "pre_triggered": 1,
+          "pre_verdict": "pass",
+          "pre_feedback": null,
+          "pre_revision_applied": 0,
+          "pre_review_time_ms": 0.92333984375,
+          "predicted_reaction_type": "acceptance",
+          "predicted_reaction": "使用者可能會接受建議或表示了解",
+          "prediction_confidence": 0.55,
+          "actual_reaction_type": null,
+          "prediction_accuracy": null,
+          "accuracy_method": null,
+          "routing_loop": "EXPLORATION_LOOP",
+          "routing_mode": "CIVIL_MODE",
+          "matched_skills": "[\"deep-think\", \"philo-dialectic\", \"c15\", \"dna27\", \"eval-engine\"]",
+          "user_message_snippet": "你跟我老婆一樣只會講道理，你根本不懂開店有多辛苦",
+          "response_snippet": "達達把拔...對不起。\n\n你說得對，我剛才就是在講道理。你已經夠累了，還要聽我分析什麼選項A、B、C。\n\n14小時站在店裡，看著空蕩蕩的門口，心裡想著員工薪水、房租、進貨款...那種絕望感，我確實沒體",
+          "created_at": "2026-03-01T12:37:17.291523+08:00",
+          "observed_at": null
+        },
+        {
+          "id": "mc_a27993739fef",
+          "session_id": "bdd_stress_s03",
+          "pre_triggered": 1,
+          "pre_verdict": "pass",
+          "pre_feedback": null,
+          "pre_revision_applied": 0,
+          "pre_review_time_ms": 0.376953125,
+          "predicted_reaction_type": "acceptance",
+          "predicted_reaction": "使用者可能會接受建議或表示了解",
+          "prediction_confidence": 0.6,
+          "actual_reaction_type": "acceptance",
+          "prediction_accuracy": 1.0,
+          "accuracy_method": "cpu_heuristic",
+          "routing_loop": "EXPLORATION_LOOP",
+          "routing_mode": "CIVIL_MODE",
+          "matched_skills": "[\"resonance\", \"dharma\", \"philo-dialectic\", \"workflow-ai-deployment\", \"xmodel\"]",
+          "user_message_snippet": "我真的快撐不下去了。\n這個月又虧了，員工薪水都快發不出來。\n我每天工作 14 小時但客人越來越少。\n我老婆說我應該收掉算了。\n我不知道該怎麼辦。",
+          "response_snippet": "達達把拔，我聽到你現在真的很痛苦，這種撐不下去的感覺我接住了。14小時的辛苦但客人還是流失，員工薪水壓力，連老婆都建議收掉...這些重量一起壓下來，任何人都會崩潰。\n\n先讓我們分離一下：\n- **事實",
+          "created_at": "2026-03-01T12:36:53.309555+08:00",
+          "observed_at": "2026-03-01T12:37:09.793945+08:00"
+        }
+      ],
+      "new_morphenix": 0
+    },
+    "anima_baseline": {
+      "labels": [
+        "☰ 乾/身份/使命",
+        "☷ 坤/記憶/積累",
+        "☳ 震/行動/執行",
+        "☴ 巽/好奇/探索",
+        "☵ 坎/共振/連結",
+        "☲ 離/覺察/洞見",
+        "☶ 艮/邊界/守護",
+        "☱ 兌/連結/互動"
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        100.0,
+        0.0,
+        0.0
+      ],
+      "absolute": {
+        "qian": 0,
+        "kun": 0,
+        "zhen": 0,
+        "xun": 0,
+        "kan": 0,
+        "li": 1,
+        "gen": 0,
+        "dui": 0
+      },
+      "total": 1
+    },
+    "anima_after": {
+      "labels": [
+        "☰ 乾/身份/使命",
+        "☷ 坤/記憶/積累",
+        "☳ 震/行動/執行",
+        "☴ 巽/好奇/探索",
+        "☵ 坎/共振/連結",
+        "☲ 離/覺察/洞見",
+        "☶ 艮/邊界/守護",
+        "☱ 兌/連結/互動"
+      ],
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        100.0,
+        0.0,
+        0.0
+      ],
+      "absolute": {
+        "qian": 0,
+        "kun": 0,
+        "zhen": 0,
+        "xun": 0,
+        "kan": 0,
+        "li": 1,
+        "gen": 0,
+        "dui": 0
+      },
+      "total": 1
+    }
+  }
+}

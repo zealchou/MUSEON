@@ -6,12 +6,12 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from museclaw.agent.loop import AgentLoop
-from museclaw.channels.electron import ElectronAdapter
-from museclaw.channels.telegram import TelegramAdapter
-from museclaw.channels.webhook import WebhookAdapter
-from museclaw.gateway.message import InternalMessage
-from museclaw.gateway.session import SessionManager
+from museon.agent.loop import AgentLoop
+from museon.channels.electron import ElectronAdapter
+from museon.channels.telegram import TelegramAdapter
+from museon.channels.webhook import WebhookAdapter
+from museon.gateway.message import InternalMessage
+from museon.gateway.session import SessionManager
 
 
 class TestGatewayToAgentFlow:
@@ -41,7 +41,7 @@ class TestGatewayToAgentFlow:
         # Mock incoming Telegram update
         mock_update = MagicMock()
         mock_update.message.from_user.id = 12345
-        mock_update.message.text = "Hello MuseClaw"
+        mock_update.message.text = "Hello MUSEON"
         mock_update.message.date = datetime(2026, 2, 25, 10, 0, 0)
         mock_update.message.chat.id = 12345
 
@@ -50,7 +50,7 @@ class TestGatewayToAgentFlow:
         message = await telegram_adapter.receive()
 
         assert message.source == "telegram"
-        assert message.content == "Hello MuseClaw"
+        assert message.content == "Hello MUSEON"
         assert message.trust_level == "core"
 
         # Step 2: Session manager acquires lock
@@ -132,7 +132,7 @@ class TestGatewayToAgentFlow:
         """Test Electron Dashboard → Gateway → Agent flow."""
         # Setup Electron adapter
         electron_config = {
-            "ipc_socket_path": "/tmp/museclaw_test.sock",
+            "ipc_socket_path": "/tmp/museon_test.sock",
             "owner_user_id": "owner",
         }
         electron_adapter = ElectronAdapter(electron_config)

@@ -1,4 +1,4 @@
-"""Pytest configuration and fixtures for MuseClaw tests."""
+"""Pytest configuration and fixtures for MUSEON tests."""
 
 import asyncio
 from pathlib import Path
@@ -47,7 +47,7 @@ def sample_internal_message() -> dict:
         "source": "telegram",
         "session_id": "test_session_123",
         "user_id": "user_456",
-        "content": "Hello MuseClaw",
+        "content": "Hello MUSEON",
         "timestamp": "2026-02-25T10:00:00Z",
         "trust_level": "verified",
         "metadata": {},
