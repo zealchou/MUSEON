@@ -338,10 +338,45 @@ TIER_E_CLUSTERS = [
     ),
 ]
 
-# 合併所有 27 個叢集
+# ── Tier F — 系統診斷（自我感知）— 4 個 ──
+
+TIER_F_CLUSTERS = [
+    ReflexCluster(
+        cluster_id="RC-F1", tier="F", name="system_health_inquiry", weight=0.8,
+        keywords=["系統狀態", "健康狀態", "正常運作", "有沒有壞", "運作正常",
+                   "系統正常", "系統健康", "gateway", "服務狀態"],
+        regex_patterns=[r"系統.*狀態", r"正常.*運作", r"有沒有.*壞",
+                        r"運作.*正常", r"系統.*健康"],
+    ),
+    ReflexCluster(
+        cluster_id="RC-F2", tier="F", name="tool_status_check", weight=0.7,
+        keywords=["工具", "連線", "同步", "心跳", "排程", "cron",
+                   "dify", "zotero", "xtts", "stability", "degraded",
+                   "工具狀態", "工具壞了"],
+        regex_patterns=[r"工具.*狀態", r"工具.*壞", r"連線.*正常",
+                        r"排程.*正常", r"心跳.*機制"],
+    ),
+    ReflexCluster(
+        cluster_id="RC-F3", tier="F", name="self_diagnosis", weight=0.9,
+        keywords=["自我診斷", "自我檢查", "系統診斷", "哪裡壞了",
+                   "什麼問題", "哪裡有問題", "bug", "錯誤", "故障",
+                   "異常", "功能異常"],
+        regex_patterns=[r"哪裡.*壞", r"什麼.*問題", r"哪裡.*有.*問題",
+                        r"功能.*異常", r"自我.*診斷", r"自我.*檢查"],
+    ),
+    ReflexCluster(
+        cluster_id="RC-F4", tier="F", name="operational_feedback", weight=0.6,
+        keywords=["機制", "功能", "模組", "更新", "版本", "設定",
+                   "配置", "有在運作", "沒有運作", "失靈", "失效"],
+        regex_patterns=[r"有在.*運作", r"沒有.*運作", r"機制.*失[靈效]",
+                        r"功能.*沒.*用"],
+    ),
+]
+
+# 合併所有 31 個叢集（27 + 4 系統診斷）
 ALL_CLUSTERS: List[ReflexCluster] = (
     TIER_A_CLUSTERS + TIER_B_CLUSTERS + TIER_C_CLUSTERS
-    + TIER_D_CLUSTERS + TIER_E_CLUSTERS
+    + TIER_D_CLUSTERS + TIER_E_CLUSTERS + TIER_F_CLUSTERS
 )
 
 # ANIMA 八原語 ← DNA27 叢集親和映射
@@ -378,6 +413,11 @@ CLUSTER_ANIMA_AFFINITY: Dict[str, str] = {
     "RC-E2": "kun",   # 坤/記憶 — 累積需要記憶
     "RC-E3": "kun",   # 坤/記憶 — 週期需要記憶
     "RC-E4": "kan",   # 坎/共振 — 節奏恢復需要共振
+    # Tier F
+    "RC-F1": "li",    # 離/覺察 — 系統健康需要覺察
+    "RC-F2": "li",    # 離/覺察 — 工具狀態需要覺察
+    "RC-F3": "li",    # 離/覺察 — 自我診斷需要覺察
+    "RC-F4": "li",    # 離/覺察 — 運作回饋需要覺察
 }
 
 
@@ -431,7 +471,7 @@ def get_tier_scores(cluster_scores: Dict[str, float]) -> Dict[str, float]:
     BDD Spec §2.3: tier aggregation = max of cluster scores.
     """
     tier_map: Dict[str, List[float]] = {
-        "A": [], "B": [], "C": [], "D": [], "E": [],
+        "A": [], "B": [], "C": [], "D": [], "E": [], "F": [],
     }
 
     for cid, score in cluster_scores.items():
@@ -475,6 +515,10 @@ def select_loop(
         if has_depth or (is_long and tier_scores.get("A", 0) < 0.8):
             return "EXPLORATION_LOOP"  # 安全+深度並行
         return "FAST_LOOP"
+
+    # 1.5. System diagnostics → EXPLORATION_LOOP（需要探索才能回答）
+    if tier_scores.get("F", 0) >= T:
+        return "EXPLORATION_LOOP"
 
     # 2. Exploration signals
     if (cluster_scores.get("RC-C3", 0) >= T or
@@ -903,6 +947,14 @@ def build_routing_context(signal: RoutingSignal) -> str:
             "- 拉長時間軸，看長期影響\n"
             "- 辨識循環模式，避免重蹈覆轍\n"
             "- 在累積中找到意義\n\n"
+        )
+
+    if ts.get("F", 0) >= LOOP_THRESHOLD:
+        text += (
+            "### Tier F 系統診斷\n"
+            "- 偵測到系統自身狀態詢問，誠實報告當前運作狀況\n"
+            "- 主動檢查相關子系統（工具、排程、心跳等）的健康狀態\n"
+            "- 如有問題，報告問題現象和可能原因，不隱瞞\n\n"
         )
 
     # 高強度時 fast_loop 指令

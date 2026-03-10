@@ -87,6 +87,7 @@ class SkillScout:
 
     def __init__(self, data_dir: str = "data"):
         self.data_dir = Path(data_dir)
+        self.data_dir.mkdir(parents=True, exist_ok=True)
         self._scan_log_path = self.data_dir / "skill_scout_log.jsonl"
         self._known_skills_path = self.data_dir / "known_external_skills.json"
 
