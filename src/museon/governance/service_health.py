@@ -88,15 +88,9 @@ DEFAULT_SERVICES = [
         timeout_s=5.0,
         degraded_threshold_ms=3000,
     ),
-    ServiceConfig(
-        name="firecrawl",
-        container_name="firecrawl",
-        health_url="http://127.0.0.1:3002/health",
-        port=3002,
-        required=False,
-        timeout_s=5.0,
-        degraded_threshold_ms=5000,
-    ),
+    # firecrawl 已移除 — container 不存在，不必要的健康檢查
+    # 每 30 秒嘗試 docker restart 一個不存在的 container 會污染日誌
+    # 未來實際部署 firecrawl 時再加回
 ]
 
 

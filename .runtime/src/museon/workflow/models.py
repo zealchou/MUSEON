@@ -100,6 +100,84 @@ class FourDScore:
 
 
 # ═══════════════════════════════════════════
+# FiveDScore — 五維分數（泛用版）
+# ═══════════════════════════════════════════
+
+
+@dataclass
+class FiveDScore:
+    """5D 分數（speed, quality, alignment, leverage, external_integration）.
+
+    在 FourDScore 基礎上增加第五維「外部整合」：
+    衡量是否有效調用外部知識、資源、工具，以及整合品質。
+    每個維度 0-10 分，composite 為五維幾何平均。
+
+    此模型為泛用評分框架，可用於：
+    - 工作流執行（WEEEngine）
+    - 技能執行（SkillSynapse 回饋）
+    - 工具使用（ToolMuscle 回饋）
+    - 免疫規則評估（ImmuneMemory）
+    """
+
+    speed: float = 5.0
+    quality: float = 5.0
+    alignment: float = 5.0
+    leverage: float = 4.0
+    external_integration: float = 3.0
+
+    @property
+    def composite(self) -> float:
+        """幾何平均: (S × Q × A × L × E) ^ 0.2."""
+        product = (self.speed * self.quality * self.alignment
+                   * self.leverage * self.external_integration)
+        if product <= 0:
+            return 0.0
+        return product ** 0.2
+
+    def clamp(self) -> "FiveDScore":
+        """將所有分數限制在 [0, 10] 範圍."""
+        self.speed = max(0.0, min(10.0, self.speed))
+        self.quality = max(0.0, min(10.0, self.quality))
+        self.alignment = max(0.0, min(10.0, self.alignment))
+        self.leverage = max(0.0, min(10.0, self.leverage))
+        self.external_integration = max(0.0, min(10.0, self.external_integration))
+        return self
+
+    def to_dict(self) -> Dict[str, float]:
+        """轉換為 dict."""
+        return {
+            "speed": self.speed,
+            "quality": self.quality,
+            "alignment": self.alignment,
+            "leverage": self.leverage,
+            "external_integration": self.external_integration,
+            "composite": self.composite,
+        }
+
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]) -> "FiveDScore":
+        """從 dict 建構."""
+        return cls(
+            speed=float(d.get("speed", 5.0)),
+            quality=float(d.get("quality", 5.0)),
+            alignment=float(d.get("alignment", 5.0)),
+            leverage=float(d.get("leverage", 4.0)),
+            external_integration=float(d.get("external_integration", 3.0)),
+        )
+
+    @classmethod
+    def from_four_d(cls, score: FourDScore, ext: float = 3.0) -> "FiveDScore":
+        """從 FourDScore 轉換（向後相容）."""
+        return cls(
+            speed=score.speed,
+            quality=score.quality,
+            alignment=score.alignment,
+            leverage=score.leverage,
+            external_integration=ext,
+        )
+
+
+# ═══════════════════════════════════════════
 # WorkflowRecord — 工作流狀態記錄
 # ═══════════════════════════════════════════
 

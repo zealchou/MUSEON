@@ -70,9 +70,42 @@ class SharedAsset:
 class SharedAssetLibrary:
     """共享資產庫."""
 
-    def __init__(self, workspace: Path) -> None:
+    def __init__(self, workspace: Path, event_bus: Any = None) -> None:
         self._dir = Path(workspace) / "_system" / "shared_assets"
         self._dir.mkdir(parents=True, exist_ok=True)
+        self._event_bus = event_bus
+        self._subscribe()
+
+    def _subscribe(self) -> None:
+        """WP-06: 訂閱 KNOWLEDGE_GRAPH_UPDATED → 自動轉為 SharedAsset."""
+        if not self._event_bus:
+            return
+        try:
+            from museon.core.event_bus import KNOWLEDGE_GRAPH_UPDATED
+            self._event_bus.subscribe(
+                KNOWLEDGE_GRAPH_UPDATED, self._on_knowledge_graph_updated
+            )
+        except Exception as e:
+            logger.debug(f"SharedAssetLibrary subscription partial: {e}")
+
+    def _on_knowledge_graph_updated(self, data: Optional[Dict] = None) -> None:
+        """知識圖譜更新 → 高品質節點自動發布為 SharedAsset."""
+        if not data:
+            return
+        nodes = data.get("high_quality_nodes", [])
+        for node in nodes[:5]:  # 每次最多 5 筆
+            title = node.get("title", "")
+            content = node.get("content", "")
+            quality = node.get("quality", 0.5)
+            if title and quality > 0.6:
+                self.publish(
+                    title=title,
+                    content=content[:500],
+                    asset_type="knowledge",
+                    source_dept="nightly_graph",
+                    quality_score=quality,
+                    tags=node.get("tags", []),
+                )
 
     # ── CRUD ──
 
@@ -104,6 +137,21 @@ class SharedAssetLibrary:
             updated_at=now,
         )
         self._save(asset)
+
+        # WP-06: 發布 SHARED_ASSET_PUBLISHED
+        if self._event_bus:
+            try:
+                from museon.core.event_bus import SHARED_ASSET_PUBLISHED
+                self._event_bus.publish(SHARED_ASSET_PUBLISHED, {
+                    "asset_id": asset.asset_id,
+                    "title": title,
+                    "asset_type": asset_type,
+                    "source_dept": source_dept,
+                    "quality_score": quality_score,
+                })
+            except Exception:
+                pass
+
         return asset
 
     def get(self, asset_id: str) -> Optional[SharedAsset]:

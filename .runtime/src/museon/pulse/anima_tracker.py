@@ -56,7 +56,8 @@ class AnimaTracker:
                 # 嘗試從 ANIMA 的各種可能欄位名讀取
                 val = energies.get(info["name"], {})
                 if isinstance(val, dict):
-                    self._absolute[key] = val.get("absolute", val.get("value", 0))
+                    raw = val.get("absolute", val.get("value", 0))
+                    self._absolute[key] = int(raw) if isinstance(raw, (int, float)) else 0
                 elif isinstance(val, (int, float)):
                     self._absolute[key] = int(val)
 

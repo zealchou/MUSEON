@@ -407,7 +407,7 @@ class WEEEngine:
             if self._interaction_count % _PLATEAU_CHECK_INTERVAL == 0:
                 plateau_result = self._wf_engine.check_plateau(wf.workflow_id)
 
-            return {
+            result = {
                 "session_id": session_id,
                 "interaction": self._interaction_count,
                 "workflow_id": wf.workflow_id,
@@ -415,6 +415,36 @@ class WEEEngine:
                 "outcome": outcome,
                 "plateau_check": plateau_result,
             }
+
+            # 發布 SKILL_QUALITY_SCORED 事件
+            if self._event_bus:
+                try:
+                    from museon.core.event_bus import SKILL_QUALITY_SCORED
+                    self._event_bus.publish(SKILL_QUALITY_SCORED, {
+                        "workflow_id": wf.workflow_id,
+                        "workflow_name": wf.name,
+                        "score": score.to_dict(),
+                        "outcome": outcome,
+                        "matched_skills": data.get("matched_skills", []),
+                    })
+                except Exception:
+                    pass
+
+            # 發布 WEE_CYCLE_COMPLETE（ActivityLogger 訂閱）
+            if self._event_bus:
+                try:
+                    from museon.core.event_bus import WEE_CYCLE_COMPLETE
+                    self._event_bus.publish(WEE_CYCLE_COMPLETE, {
+                        "session_id": session_id,
+                        "interaction": self._interaction_count,
+                        "score": score.to_dict() if score else {},
+                        "outcome": outcome,
+                        "has_plateau": plateau_result is not None,
+                    })
+                except Exception:
+                    pass
+
+            return result
 
         except Exception as e:
             logger.error(f"WEEEngine.auto_cycle error: {e}")

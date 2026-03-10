@@ -263,6 +263,189 @@ TOOL_DEFINITIONS: List[Dict[str, Any]] = [
             "required": ["name", "transport", "command"]
         }
     },
+    # ═══════════════════════════════════════
+    # v12 新增工具：Self-Surgery（自我手術）
+    # ═══════════════════════════════════════
+    {
+        "name": "source_read",
+        "description": (
+            "讀取 MUSEON 源碼檔案（src/museon/ 下的 .py 檔案）。"
+            "當你需要檢查系統架構、理解模組實作、或診斷程式碼問題時使用。"
+            "受 SurgeonSandbox 限制，只能讀取 src/museon/ 下的 Python 檔案。"
+            "回傳完整原始碼內容。"
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "檔案路徑（相對於專案根目錄，如 src/museon/agent/tools.py）",
+                },
+            },
+            "required": ["file_path"],
+        },
+    },
+    {
+        "name": "source_search",
+        "description": (
+            "搜尋 MUSEON 源碼中的特定模式（正規表達式）。"
+            "當你需要找到特定函數、類別、變數、或程式碼模式時使用。"
+            "受 SurgeonSandbox 限制，只搜尋 src/museon/ 下的 Python 檔案。"
+            "回傳匹配的檔案路徑、行號和程式碼片段。"
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "pattern": {
+                    "type": "string",
+                    "description": "搜尋模式（正規表達式）",
+                },
+                "file_glob": {
+                    "type": "string",
+                    "description": "檔案篩選（glob 模式，預設 **/*.py）",
+                },
+            },
+            "required": ["pattern"],
+        },
+    },
+    {
+        "name": "source_ast_check",
+        "description": (
+            "執行 AST 靜態分析規則掃描。"
+            "檢測常見架構性問題：靜默異常(CA001)、asyncio 跨線程錯誤(CA002)、"
+            "未傳播的異常(CA003)、logger 命名空間(CA004)、循環 import(CA005)、"
+            "同步異步混用(CA006)、硬編碼密鑰(CA007)、死碼(CA008)。"
+            "純 CPU 操作，不消耗 Token。"
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "target_file": {
+                    "type": "string",
+                    "description": "要掃描的檔案路徑（留空則掃描全部 src/museon/）",
+                },
+                "rule_ids": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "指定規則 ID（如 [\"CA001\", \"CA002\"]，留空則執行全部規則）",
+                },
+            },
+            "required": [],
+        },
+    },
+    {
+        "name": "surgery_diagnose",
+        "description": (
+            "執行三層診斷管線（D1 靜態分析 → D2 日誌分析 → D3 LLM 根因分析）。"
+            "D1/D2 為純 CPU 操作，D3 僅在 D1/D2 發現問題時觸發（消耗 Token）。"
+            "回傳診斷結果，包含程式碼問題清單、日誌異常、根因分析和修復提案。"
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "skip_d3": {
+                    "type": "boolean",
+                    "description": "是否跳過 D3 LLM 分析（省 Token，預設 false）",
+                },
+            },
+            "required": [],
+        },
+    },
+    {
+        "name": "surgery_propose",
+        "description": (
+            "根據診斷結果生成修復提案並執行安全審查。"
+            "提案包含：影響檔案、修改內容（old/new）、信心指數、風險等級。"
+            "提案需通過 morphenix_standards 安全審查才能執行。"
+            "此工具不會修改任何檔案，只是生成提案並驗證安全性。"
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "title": {
+                    "type": "string",
+                    "description": "提案標題",
+                },
+                "description": {
+                    "type": "string",
+                    "description": "提案描述（問題根因和修復方式）",
+                },
+                "changes": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "file": {"type": "string"},
+                            "old": {"type": "string"},
+                            "new": {"type": "string"},
+                        },
+                        "required": ["file", "old", "new"],
+                    },
+                    "description": "修改清單，每項包含 file、old（原始碼）、new（修改後）",
+                },
+            },
+            "required": ["title", "description", "changes"],
+        },
+    },
+    {
+        "name": "surgery_apply",
+        "description": (
+            "執行手術——套用修復提案。"
+            "完整流程：安全審查 → git tag 快照 → 套用修改 → rsync 同步 → 記錄結果。"
+            "受嚴格限制：每日最多 3 次、最小間隔 60 分鐘、最多 3 個檔案、最多 50 行。"
+            "不可修改安全模組（morphenix_standards、kernel_guard 等）。"
+            "支援 dry_run 模式（乾跑，不實際修改）。"
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "title": {
+                    "type": "string",
+                    "description": "手術標題",
+                },
+                "description": {
+                    "type": "string",
+                    "description": "手術描述",
+                },
+                "changes": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "file": {"type": "string"},
+                            "old": {"type": "string"},
+                            "new": {"type": "string"},
+                        },
+                        "required": ["file", "old", "new"],
+                    },
+                    "description": "修改清單",
+                },
+                "dry_run": {
+                    "type": "boolean",
+                    "description": "乾跑模式（只驗證不執行，預設 false）",
+                },
+            },
+            "required": ["title", "description", "changes"],
+        },
+    },
+    {
+        "name": "surgery_rollback",
+        "description": (
+            "回滾到指定的 git tag 快照。"
+            "當手術結果不如預期時，使用此工具回滾 src/ 目錄到手術前狀態。"
+            "回滾後會自動 rsync 同步到 .runtime/。"
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "git_tag": {
+                    "type": "string",
+                    "description": "要回滾到的 git tag 名稱（從手術記錄中取得）",
+                },
+            },
+            "required": ["git_tag"],
+        },
+    },
 ]
 
 # 工具名稱集合（快速查找）

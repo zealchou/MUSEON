@@ -25,8 +25,8 @@ def registry(tmp_path):
 class TestToolConfigs:
     """Scenario: 工具設定完整性."""
 
-    def test_six_tools_defined(self):
-        assert len(TOOL_CONFIGS) == 6
+    def test_eleven_tools_defined(self):
+        assert len(TOOL_CONFIGS) == 11
 
     def test_all_have_required_fields(self):
         for name, config in TOOL_CONFIGS.items():
@@ -36,14 +36,14 @@ class TestToolConfigs:
             assert config.description
             assert config.category
             assert config.install_type in (
-                "docker", "native", "pip", "compose"
+                "docker", "native", "pip", "compose", "api"
             )
 
     def test_install_order_matches_configs(self):
         assert set(INSTALL_ORDER) == set(TOOL_CONFIGS.keys())
 
     def test_install_order_length(self):
-        assert len(INSTALL_ORDER) == 6
+        assert len(INSTALL_ORDER) == 11
 
     def test_docker_tools_have_ports(self):
         docker_tools = [
@@ -134,7 +134,7 @@ class TestToolConfigs:
             name for name, cfg in TOOL_CONFIGS.items()
             if not cfg.required
         ]
-        assert len(optional) == 3  # whisper, paddleocr, kokoro
+        assert len(optional) == 8  # whisper, paddleocr, kokoro, dify, freshrss, stability, xtts, zotero
 
     def test_llm_category_removed(self):
         """llm 類別已移除."""
@@ -157,9 +157,9 @@ class TestToolRegistry:
     def test_init_creates_dir(self, registry, tmp_path):
         assert (tmp_path / "_system" / "tools").is_dir()
 
-    def test_list_tools_returns_6(self, registry):
+    def test_list_tools_returns_11(self, registry):
         tools = registry.list_tools()
-        assert len(tools) == 6
+        assert len(tools) == 11
 
     def test_list_tools_order_matches_install_order(self, registry):
         tools = registry.list_tools()
@@ -195,7 +195,7 @@ class TestToolRegistry:
 
     def test_get_status_summary(self, registry):
         summary = registry.get_status_summary()
-        assert summary["total"] == 6
+        assert summary["total"] == 11
         assert summary["installed"] == 0
         assert summary["enabled"] == 0
         assert summary["healthy"] == 0
@@ -206,7 +206,7 @@ class TestToolRegistry:
 
     def test_get_not_installed(self, registry):
         not_installed = registry.get_not_installed()
-        assert len(not_installed) == 6
+        assert len(not_installed) == 11
 
     def test_get_required_tools(self, registry):
         required = registry.get_required_tools()
@@ -373,7 +373,7 @@ class TestHealthCheck:
 
     def test_check_all_health(self, registry):
         results = registry.check_all_health()
-        assert len(results) == 6
+        assert len(results) == 11
         for name, r in results.items():
             assert r["healthy"] is False
 

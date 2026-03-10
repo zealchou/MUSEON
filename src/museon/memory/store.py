@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 import json
+import threading
 
 
 class MemoryStore:
@@ -31,6 +32,7 @@ class MemoryStore:
         """
         self.base_path = Path(base_path)
         self.base_path.mkdir(parents=True, exist_ok=True)
+        self._write_lock = threading.Lock()
 
     def get_memory_path(self, channel: str, timestamp: datetime) -> Path:
         """Get the file path for a memory entry.
@@ -89,14 +91,15 @@ class MemoryStore:
 
         # Append to file (or create if doesn't exist)
         try:
-            with open(file_path, "a", encoding="utf-8") as f:
-                if file_path.stat().st_size == 0:
-                    # New file, add header
-                    header = f"# {channel.replace('-', ' ').title()}\n\n"
-                    f.write(header)
+            with self._write_lock:
+                with open(file_path, "a", encoding="utf-8") as f:
+                    if file_path.stat().st_size == 0:
+                        # New file, add header
+                        header = f"# {channel.replace('-', ' ').title()}\n\n"
+                        f.write(header)
 
-                f.write(markdown_entry)
-                f.write("\n\n---\n\n")
+                    f.write(markdown_entry)
+                    f.write("\n\n---\n\n")
 
             return True
 

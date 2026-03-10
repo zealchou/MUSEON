@@ -78,6 +78,14 @@ class ToolWhitelist:
             "mcp_list_servers",     # MCP 伺服器列表
             "mcp_call_tool",        # MCP 工具呼叫
             "mcp_add_server",       # MCP 伺服器新增
+            # v12 新增：Self-Surgery（自我手術）
+            "source_read",          # 讀取源碼
+            "source_search",        # 搜尋源碼
+            "source_ast_check",     # AST 靜態分析
+            "surgery_diagnose",     # 三層診斷管線
+            "surgery_propose",      # 生成修復提案
+            "surgery_apply",        # 執行手術
+            "surgery_rollback",     # 回滾
         }
 
         # Tools explicitly blocked
@@ -230,6 +238,18 @@ class ToolExecutor:
         except Exception as e:
             logger.warning(f"MCPConnectorSDK init failed (degraded): {e}")
 
+        # v12: Self-Surgery Engine
+        self._surgery_engine = None
+        self._diagnosis_pipeline = None
+        try:
+            from museon.doctor.surgeon import SurgeryEngine
+            project_root = Path(workspace_dir).parent.parent
+            self._surgery_engine = SurgeryEngine(
+                project_root=project_root, auto_restart=False,
+            )
+        except Exception as e:
+            logger.warning(f"SurgeryEngine init failed (degraded): {e}")
+
     async def execute(
         self, tool_name: str, arguments: Dict[str, Any]
     ) -> Dict[str, Any]:
@@ -313,6 +333,21 @@ class ToolExecutor:
             return await self._execute_shell_exec(arguments)
         elif tool_name == "file_write_rich":
             return await self._execute_file_write_rich(arguments)
+        # v12: Self-Surgery 工具路由
+        elif tool_name == "source_read":
+            return await self._execute_source_read(arguments)
+        elif tool_name == "source_search":
+            return await self._execute_source_search(arguments)
+        elif tool_name == "source_ast_check":
+            return await self._execute_source_ast_check(arguments)
+        elif tool_name == "surgery_diagnose":
+            return await self._execute_surgery_diagnose(arguments)
+        elif tool_name == "surgery_propose":
+            return await self._execute_surgery_propose(arguments)
+        elif tool_name == "surgery_apply":
+            return await self._execute_surgery_apply(arguments)
+        elif tool_name == "surgery_rollback":
+            return await self._execute_surgery_rollback(arguments)
         elif tool_name in ("mcp_list_servers", "mcp_call_tool", "mcp_add_server"):
             return await self._execute_mcp_tool(tool_name, arguments)
         # v10.2: 動態 MCP 工具路由（mcp__{server}__{tool} 格式）
@@ -1700,3 +1735,270 @@ class ToolExecutor:
         if not self._mcp_connector:
             return []
         return self._mcp_connector.list_tools()
+
+    # ═══════════════════════════════════════
+    # v12: Self-Surgery 工具實作
+    # ═══════════════════════════════════════
+
+    async def _execute_source_read(
+        self, arguments: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """讀取源碼檔案."""
+        if not self._surgery_engine:
+            return {"success": False, "error": "SurgeryEngine 未初始化"}
+
+        file_path = arguments.get("file_path", "")
+        if not file_path:
+            return {"success": False, "error": "缺少 file_path 參數"}
+
+        content = self._surgery_engine.read_source(file_path)
+        if content is None:
+            return {
+                "success": False,
+                "error": f"無法讀取 {file_path}（不存在或不在沙箱範圍內）",
+            }
+
+        return {
+            "success": True,
+            "result": {
+                "file_path": file_path,
+                "content": content,
+                "lines": len(content.splitlines()),
+            },
+        }
+
+    async def _execute_source_search(
+        self, arguments: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """搜尋源碼."""
+        if not self._surgery_engine:
+            return {"success": False, "error": "SurgeryEngine 未初始化"}
+
+        pattern = arguments.get("pattern", "")
+        if not pattern:
+            return {"success": False, "error": "缺少 pattern 參數"}
+
+        file_glob = arguments.get("file_glob", "**/*.py")
+        results = self._surgery_engine.search_source(pattern, file_glob)
+
+        return {
+            "success": True,
+            "result": {
+                "pattern": pattern,
+                "matches": results,
+                "total": len(results),
+            },
+        }
+
+    async def _execute_source_ast_check(
+        self, arguments: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """執行 AST 靜態分析."""
+        try:
+            from museon.doctor.code_analyzer import CodeAnalyzer
+        except ImportError:
+            return {"success": False, "error": "CodeAnalyzer 模組未安裝"}
+
+        project_root = Path(self._workspace_dir).parent.parent
+        analyzer = CodeAnalyzer(
+            source_root=project_root / "src" / "museon"
+        )
+
+        target_file = arguments.get("target_file", "")
+        rule_ids = arguments.get("rule_ids", [])
+
+        import asyncio
+        if target_file:
+            target_path = project_root / target_file
+            if rule_ids:
+                issues = await asyncio.to_thread(
+                    analyzer.scan_specific_rules, target_path, rule_ids
+                )
+            else:
+                issues = await asyncio.to_thread(
+                    analyzer.scan_file, target_path
+                )
+        else:
+            issues = await asyncio.to_thread(analyzer.scan_all)
+
+        report = CodeAnalyzer.format_report(issues)
+
+        return {
+            "success": True,
+            "result": {
+                "report": report,
+                "total_issues": len(issues),
+                "critical": sum(1 for i in issues if i.severity == "critical"),
+                "warning": sum(1 for i in issues if i.severity == "warning"),
+                "info": sum(1 for i in issues if i.severity == "info"),
+                "issues": [
+                    {
+                        "rule_id": i.rule_id,
+                        "file": i.file_path,
+                        "line": i.line,
+                        "message": i.message,
+                        "severity": i.severity,
+                        "suggestion": i.suggestion,
+                    }
+                    for i in issues[:30]  # 限制回傳數量
+                ],
+            },
+        }
+
+    async def _execute_surgery_diagnose(
+        self, arguments: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """執行三層診斷管線."""
+        try:
+            from museon.doctor.diagnosis_pipeline import DiagnosisPipeline
+        except ImportError:
+            return {"success": False, "error": "DiagnosisPipeline 模組未安裝"}
+
+        project_root = Path(self._workspace_dir).parent.parent
+        llm_adapter = self._brain._llm_adapter if self._brain and hasattr(self._brain, "_llm_adapter") else None
+
+        pipeline = DiagnosisPipeline(
+            source_root=project_root / "src" / "museon",
+            logs_dir=project_root / "logs",
+            heartbeat_state_path=project_root / "data" / "pulse" / "heartbeat_engine.json",
+            llm_adapter=llm_adapter,
+        )
+
+        skip_d3 = arguments.get("skip_d3", False)
+        result = await pipeline.run(skip_d3=skip_d3)
+
+        return {
+            "success": True,
+            "result": {
+                "summary": result.summary,
+                "diagnosis_level": result.diagnosis_level,
+                "has_issues": result.has_issues,
+                "critical_count": result.critical_count,
+                "code_issues": [
+                    {
+                        "rule_id": i.rule_id,
+                        "file": i.file_path,
+                        "line": i.line,
+                        "message": i.message,
+                        "severity": i.severity,
+                    }
+                    for i in result.code_issues[:20]
+                ],
+                "log_anomalies": [
+                    {
+                        "type": a.anomaly_type,
+                        "severity": a.severity,
+                        "message": a.message,
+                    }
+                    for a in result.log_anomalies[:10]
+                ],
+                "root_cause": result.root_cause,
+                "proposals": [
+                    {
+                        "title": p.title,
+                        "description": p.description,
+                        "affected_files": p.affected_files,
+                        "confidence": p.confidence,
+                        "risk_level": p.risk_level,
+                        "changes": p.changes,
+                    }
+                    for p in result.proposals
+                ],
+            },
+        }
+
+    async def _execute_surgery_propose(
+        self, arguments: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """生成修復提案並執行安全審查."""
+        if not self._surgery_engine:
+            return {"success": False, "error": "SurgeryEngine 未初始化"}
+
+        from museon.doctor.diagnosis_pipeline import SurgeryProposal
+
+        title = arguments.get("title", "")
+        description = arguments.get("description", "")
+        changes = arguments.get("changes", [])
+
+        if not title or not changes:
+            return {"success": False, "error": "缺少 title 或 changes 參數"}
+
+        proposal = SurgeryProposal(
+            title=title,
+            description=description,
+            affected_files=[c["file"] for c in changes],
+            changes=changes,
+        )
+
+        passed, violations, recommendation = self._surgery_engine.safety_review(proposal)
+
+        return {
+            "success": True,
+            "result": {
+                "proposal": {
+                    "title": title,
+                    "description": description,
+                    "affected_files": proposal.affected_files,
+                    "changes_count": len(changes),
+                },
+                "safety_review": {
+                    "passed": passed,
+                    "violations": violations,
+                    "recommendation": recommendation,
+                },
+            },
+        }
+
+    async def _execute_surgery_apply(
+        self, arguments: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """執行手術."""
+        if not self._surgery_engine:
+            return {"success": False, "error": "SurgeryEngine 未初始化"}
+
+        from museon.doctor.diagnosis_pipeline import SurgeryProposal
+
+        title = arguments.get("title", "")
+        description = arguments.get("description", "")
+        changes = arguments.get("changes", [])
+        dry_run = arguments.get("dry_run", False)
+
+        if not title or not changes:
+            return {"success": False, "error": "缺少 title 或 changes 參數"}
+
+        proposal = SurgeryProposal(
+            title=title,
+            description=description,
+            affected_files=[c["file"] for c in changes],
+            changes=changes,
+        )
+
+        result = await self._surgery_engine.execute_surgery(
+            proposal=proposal, dry_run=dry_run,
+        )
+
+        return {
+            "success": result.get("success", False),
+            "result": result,
+        }
+
+    async def _execute_surgery_rollback(
+        self, arguments: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """回滾到指定 git tag."""
+        if not self._surgery_engine:
+            return {"success": False, "error": "SurgeryEngine 未初始化"}
+
+        git_tag = arguments.get("git_tag", "")
+        if not git_tag:
+            return {"success": False, "error": "缺少 git_tag 參數"}
+
+        success = self._surgery_engine.rollback(git_tag)
+
+        return {
+            "success": success,
+            "result": {
+                "git_tag": git_tag,
+                "rollback_success": success,
+            },
+        }

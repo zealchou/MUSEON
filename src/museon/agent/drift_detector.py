@@ -82,7 +82,7 @@ class DriftDetector:
         """快照當前 ANIMA 狀態作為漂移基線."""
         baseline = {
             "taken_at": datetime.now(timezone.utc).isoformat(),
-            "mc_primals": anima_mc.get("eight_primals", {}),
+            "mc_primals": anima_mc.get("eight_primal_energies", anima_mc.get("eight_primals", {})),
             "mc_expression": anima_mc.get("self_awareness", {}).get(
                 "expression_style", {}
             ),

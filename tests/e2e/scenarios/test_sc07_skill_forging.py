@@ -6,6 +6,8 @@ SC-07：Skill 鍛造 + 商務運營同時進行（MUSEON 專屬壓測）
 - Context switching 後能回到原話題
 - 無洩漏
 """
+from __future__ import annotations
+
 import re
 import time
 import pytest

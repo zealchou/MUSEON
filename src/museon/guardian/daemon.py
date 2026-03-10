@@ -100,6 +100,7 @@ class GuardianDaemon:
         self.last_l1_result: Optional[Dict] = None
         self.last_l2_result: Optional[Dict] = None
         self.last_l3_result: Optional[Dict] = None
+        self.last_l5_result: Optional[Dict] = None
 
     # ═══════════════════════════════════════
     # L1: 基礎設施巡檢（每 30 分鐘）
@@ -382,7 +383,7 @@ class GuardianDaemon:
                 "identity": {
                     "name": "MUSEON",
                     "birth_date": datetime.now().isoformat(),
-                    "growth_stage": "infant",
+                    "growth_stage": "adult",
                     "days_alive": 0,
                 },
                 "self_awareness": {"who_am_i": "", "my_purpose": ""},
@@ -813,6 +814,83 @@ class GuardianDaemon:
                                  details=str(e))
 
     # ═══════════════════════════════════════
+    # L5: 程式碼健康檢查（Self-Surgery 整合）
+    # ═══════════════════════════════════════
+
+    def run_l5(self) -> Dict[str, Any]:
+        """L5: 程式碼靜態分析健康檢查.
+
+        使用 CodeAnalyzer 掃描 src/museon/ 下所有 .py 檔案，
+        偵測常見架構性問題（靜默異常、asyncio 錯誤、logger 問題等）。
+        純 CPU 零 Token 消耗。
+        """
+        import time as _time
+        start = _time.time()
+        result = {"level": "L5", "entries": [], "summary": ""}
+
+        try:
+            from museon.doctor.code_analyzer import CodeAnalyzer
+
+            source_root = self.data_dir.parent / "src" / "museon"
+            analyzer = CodeAnalyzer(source_root=source_root)
+            issues = analyzer.scan_all()
+
+            critical = [i for i in issues if i.severity == "critical"]
+            warning = [i for i in issues if i.severity == "warning"]
+
+            if critical:
+                result["entries"].append(GuardianEntry(
+                    "L5", "code_health", GuardianStatus.FAILED,
+                    details=(
+                        f"{len(critical)} 個 critical 問題: "
+                        + "; ".join(
+                            f"[{i.rule_id}] {i.file_path}:{i.line}"
+                            for i in critical[:5]
+                        )
+                    ),
+                ))
+            elif warning:
+                result["entries"].append(GuardianEntry(
+                    "L5", "code_health", GuardianStatus.DEGRADED,
+                    details=f"{len(warning)} 個 warning 問題",
+                ))
+            else:
+                result["entries"].append(GuardianEntry(
+                    "L5", "code_health", GuardianStatus.OK,
+                    details="程式碼健康 — 未發現問題",
+                ))
+
+            result["summary"] = (
+                f"L5 程式碼健康: "
+                f"{len(critical)} critical, {len(warning)} warning, "
+                f"{len(issues)} total"
+            )
+            result["issues"] = [
+                {
+                    "rule_id": i.rule_id,
+                    "file": i.file_path,
+                    "line": i.line,
+                    "message": i.message,
+                    "severity": i.severity,
+                }
+                for i in issues[:20]
+            ]
+
+        except Exception as e:
+            logger.error(f"Guardian L5 failed: {e}")
+            result["entries"].append(GuardianEntry(
+                "L5", "code_health", GuardianStatus.FAILED,
+                details=f"L5 執行失敗: {e}",
+            ))
+            result["summary"] = f"L5 執行失敗: {e}"
+
+        elapsed = _time.time() - start
+        result["elapsed_seconds"] = round(elapsed, 2)
+        self.last_l5_result = result
+        logger.info(f"Guardian L5 完成: {result['summary']} ({elapsed:.1f}s)")
+        return result
+
+    # ═══════════════════════════════════════
     # L4: 修復日誌 + 母體回報
     # ═══════════════════════════════════════
 
@@ -829,6 +907,7 @@ class GuardianDaemon:
             "l1_summary": self.last_l1_result.get("summary") if self.last_l1_result else None,
             "l2_summary": self.last_l2_result.get("summary") if self.last_l2_result else None,
             "l3_summary": self.last_l3_result.get("summary") if self.last_l3_result else None,
+            "l5_summary": self.last_l5_result.get("summary") if self.last_l5_result else None,
             "unresolved_count": len(unresolved),
             "unresolved": unresolved[:5],  # 最多回傳 5 筆
             "recent_repairs": recent_repairs,
@@ -837,11 +916,12 @@ class GuardianDaemon:
         }
 
     def get_full_report(self) -> Dict[str, Any]:
-        """取得三層完整報告 — 供 Doctor 頁面展開"""
+        """取得完整報告 — 供 Doctor 頁面展開"""
         return {
             "l1": self.last_l1_result,
             "l2": self.last_l2_result,
             "l3": self.last_l3_result,
+            "l5": self.last_l5_result,
             "unresolved": self._load_unresolved(),
             "recent_repairs": self._load_recent_repairs(limit=50),
         }

@@ -38,13 +38,15 @@ class SkillRouter:
     也支援舊結構（skills/ 直接放技能目錄，無 native/forged 子層）。
     """
 
-    def __init__(self, skills_dir: str = "data/skills"):
+    def __init__(self, skills_dir: str = "data/skills", event_bus=None):
         self.skills_dir = Path(skills_dir)
+        self._event_bus = event_bus
         self._index: List[Dict[str, Any]] = []
         self._vector_bridge = None
         self._rc_index = None  # RCAffinityIndex — DNA27 RC→skill 反向索引
         self._build_index()
         self._build_rc_index()
+        self._subscribe_events()
 
     def _build_index(self) -> None:
         """掃描所有 SKILL.md，建立觸發詞索引."""
@@ -240,6 +242,60 @@ class SkillRouter:
         except Exception as e:
             logger.warning(f"RC affinity index load failed (falling back to keyword-only): {e}")
             self._rc_index = None
+
+    def _subscribe_events(self) -> None:
+        """訂閱 Morphenix/DNA27 事件 → 自動熱重載索引."""
+        if not self._event_bus:
+            return
+        try:
+            from museon.core.event_bus import (
+                MORPHENIX_EXECUTION_COMPLETED,
+                DNA27_WEIGHTS_UPDATED,
+            )
+            self._event_bus.subscribe(
+                MORPHENIX_EXECUTION_COMPLETED, self._on_morphenix_completed
+            )
+            self._event_bus.subscribe(
+                DNA27_WEIGHTS_UPDATED, self._on_dna27_updated
+            )
+        except Exception as e:
+            logger.debug(f"SkillRouter event subscription failed: {e}")
+
+    def _on_morphenix_completed(self, data=None) -> None:
+        """Morphenix 執行完成 → 檢查是否影響技能，需要重載索引."""
+        try:
+            affected = []
+            if data and isinstance(data, dict):
+                for detail in data.get("details", []):
+                    affected.extend(detail.get("affected_skills", []))
+            if affected or (data and data.get("executed", 0) > 0):
+                self.rebuild_index()
+                logger.info(
+                    f"[SkillRouter] hot-reload after Morphenix "
+                    f"(affected_skills={affected})"
+                )
+                if self._event_bus:
+                    from museon.core.event_bus import SKILL_ROUTER_RELOADED
+                    self._event_bus.publish(SKILL_ROUTER_RELOADED, {
+                        "trigger": "morphenix",
+                        "skill_count": self.get_skill_count(),
+                    })
+        except Exception as e:
+            logger.warning(f"SkillRouter hot-reload failed: {e}")
+
+    def _on_dna27_updated(self, data=None) -> None:
+        """DNA27 權重更新 → 重建 RC 索引."""
+        try:
+            self._build_rc_index()
+            logger.info("[SkillRouter] RC index rebuilt after DNA27 update")
+            if self._event_bus:
+                from museon.core.event_bus import SKILL_ROUTER_RELOADED
+                self._event_bus.publish(SKILL_ROUTER_RELOADED, {
+                    "trigger": "dna27_weights",
+                    "skill_count": self.get_skill_count(),
+                })
+        except Exception as e:
+            logger.warning(f"SkillRouter RC rebuild failed: {e}")
 
     # 演化模式優先技能
     _EVOLUTION_SKILLS = {"morphenix", "wee", "dse", "sandbox-lab", "eval-engine"}

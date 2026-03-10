@@ -5,6 +5,7 @@
 """
 
 import subprocess
+from pathlib import Path
 from typing import List, Optional
 
 from .models import InstallConfig, StepResult, StepStatus
@@ -19,11 +20,13 @@ class InstallerOrchestrator:
 
     STEPS = [
         "_step_environment",
+        "_step_permissions",
         "_step_python_env",
         "_step_verify_modules",
         "_step_electron",
         "_step_daemon",
         "_step_api_keys",
+        "_step_claude_code",
         "_step_tools",
         "_step_launch",
     ]
@@ -31,11 +34,13 @@ class InstallerOrchestrator:
     # 統一的步驟名稱（用於 check_day0_readiness 比對）
     STEP_LABELS = {
         "_step_environment": "環境檢查",
+        "_step_permissions": "權限檢查",
         "_step_python_env": "Python 環境",
         "_step_verify_modules": "模組驗證",
         "_step_electron": "Electron",
         "_step_daemon": "Daemon",
         "_step_api_keys": "API Keys",
+        "_step_claude_code": "Claude Code",
         "_step_tools": "工具安裝",
         "_step_launch": "啟動",
     }
@@ -210,8 +215,33 @@ class InstallerOrchestrator:
             message=f"macOS {arch} | {disk_result.message}",
         )
 
+    def _step_permissions(self) -> StepResult:
+        """Step 2: macOS 權限檢查"""
+        from .permissions import PermissionChecker
+
+        checker = PermissionChecker()
+        results = checker.check_all()
+
+        denied = [r for r in results if not r.granted]
+        if denied:
+            labels = ", ".join(
+                checker.LABELS[r.permission] for r in denied
+            )
+            return StepResult(
+                step_name="權限檢查",
+                status=StepStatus.WARNING,
+                message=f"未授權: {labels}（可稍後在系統設定中開啟）",
+                details={"denied": [r.permission.value for r in denied]},
+            )
+
+        return StepResult(
+            step_name="權限檢查",
+            status=StepStatus.SUCCESS,
+            message="所有權限已確認",
+        )
+
     def _step_python_env(self) -> StepResult:
-        """Step 2: Python 環境建置"""
+        """Step 3: Python 環境建置"""
         from .environment import EnvironmentChecker
         from .python_env import PythonEnvironmentSetup
 
@@ -349,7 +379,77 @@ class InstallerOrchestrator:
         return StepResult(
             step_name="API Keys",
             status=StepStatus.SUCCESS,
-            message="API Key 設定完成",
+            message="API Key 設定完成（MAX 訂閱方案下為選擇性）",
+        )
+
+    def _step_claude_code(self) -> StepResult:
+        """Step 7.5: Claude Code CLI 設定（MAX 訂閱方案）"""
+        import shutil
+
+        # 1. 檢查 claude CLI
+        claude_path = shutil.which("claude")
+        if not claude_path:
+            return StepResult(
+                step_name="Claude Code",
+                status=StepStatus.WARNING,
+                message=(
+                    "Claude Code CLI 未安裝。MAX 訂閱方案需要 Claude Code。"
+                    "請先安裝：npm install -g @anthropic-ai/claude-code"
+                ),
+            )
+
+        # 2. 驗證 claude -p 可用
+        try:
+            import os
+            env = os.environ.copy()
+            env.pop("CLAUDECODE", None)
+            result = subprocess.run(
+                [claude_path, "-p", "--output-format", "json", "echo test"],
+                capture_output=True, text=True, timeout=30,
+                env=env,
+            )
+            if result.returncode != 0:
+                return StepResult(
+                    step_name="Claude Code",
+                    status=StepStatus.WARNING,
+                    message=f"claude -p 測試失敗: {result.stderr[:200]}",
+                )
+        except subprocess.TimeoutExpired:
+            return StepResult(
+                step_name="Claude Code",
+                status=StepStatus.WARNING,
+                message="claude -p 測試超時 — 請確認 MAX 訂閱是否有效",
+            )
+        except Exception as e:
+            return StepResult(
+                step_name="Claude Code",
+                status=StepStatus.WARNING,
+                message=f"claude -p 測試異常: {e}",
+            )
+
+        # 3. 設定 MCP Server（若 settings.json 存在）
+        claude_settings = Path.home() / ".claude" / "settings.json"
+        mcp_configured = False
+        if claude_settings.exists():
+            try:
+                import json
+                settings = json.loads(claude_settings.read_text(encoding="utf-8"))
+                mcp_servers = settings.get("mcpServers", {})
+                if "museon" in mcp_servers:
+                    mcp_configured = True
+            except Exception:
+                pass
+
+        msg = "Claude Code CLI 已驗證，MAX 訂閱方案就緒"
+        if mcp_configured:
+            msg += "（MCP Server 已註冊）"
+        else:
+            msg += "（MCP Server 尚未註冊，可稍後手動設定）"
+
+        return StepResult(
+            step_name="Claude Code",
+            status=StepStatus.SUCCESS,
+            message=msg,
         )
 
     def _step_tools(self) -> StepResult:

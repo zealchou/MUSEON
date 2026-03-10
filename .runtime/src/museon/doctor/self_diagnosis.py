@@ -356,41 +356,76 @@ class SelfDiagnosis:
             lines.append(f"（診斷耗時 {report.duration_ms}ms）")
             return "\n".join(lines)
 
-        # 有問題
-        lines.append("我做了一次自我診斷，以下是結果：\n")
-
-        # 自動修復的
-        if report.auto_repaired:
-            lines.append("**已自動修復：**")
+        if report.all_ok and report.auto_repaired:
+            # 全部 OK 但有自動修復項目 — 明確列出修復內容
+            lines.append("我做了一次自我診斷，發現一些小問題並已自動修復：\n")
             for r in report.auto_repaired:
                 emoji = "✅" if r.success else "❌"
                 lines.append(f"  {emoji} {r.message}")
             lines.append("")
+            lines.append("其他系統都正常運作中。")
+            lines.append(f"（診斷耗時 {report.duration_ms}ms）")
+            return "\n".join(lines)
+
+        # 有問題
+        lines.append("我做了一次自我診斷，以下是結果：\n")
+
+        # 追蹤已顯示的問題，避免遺漏
+        shown = set()
+
+        # 自動修復的
+        if report.auto_repaired:
+            lines.append("已自動修復：")
+            for r in report.auto_repaired:
+                emoji = "✅" if r.success else "❌"
+                lines.append(f"  {emoji} {r.message}")
+            lines.append("")
+            # 標記已修復的 issue
+            repaired_actions = {r.action for r in report.auto_repaired}
+            for i in report.issues:
+                if i.repair_action in repaired_actions:
+                    shown.add(id(i))
+
+        # 可自動修復但尚未執行（auto_repair=False 時）
+        green_pending = [
+            i for i in report.issues
+            if i.repairable and i.zone == "green"
+            and id(i) not in shown
+        ]
+        if green_pending:
+            lines.append("偵測到可自動修復的問題：")
+            for issue in green_pending:
+                lines.append(f"  🔧 {issue.name}：{issue.message}")
+            lines.append("")
+            for i in green_pending:
+                shown.add(id(i))
 
         # 需要確認的
         if report.needs_confirm:
-            lines.append("**需要你確認才能修復：**")
+            lines.append("需要你確認才能修復：")
             for issue in report.needs_confirm:
                 lines.append(f"  ⚠️ {issue.name}：{issue.message}")
                 lines.append(f"     → 修復方式：{issue.repair_action}")
             lines.append("")
+            for i in report.needs_confirm:
+                shown.add(id(i))
 
         # 需要手動處理的
         if report.needs_manual:
-            lines.append("**需要你手動處理：**")
+            lines.append("需要你手動處理：")
             for issue in report.needs_manual:
                 lines.append(f"  🔴 {issue.name}：{issue.message}")
             lines.append("")
+            for i in report.needs_manual:
+                shown.add(id(i))
 
-        # 剩餘問題（未分類的 warning/critical）
+        # 剩餘問題（未在上方任何區塊顯示的）
         other_issues = [
             i for i in report.issues
-            if not i.repairable
-            and i not in report.needs_confirm
-            and i not in report.needs_manual
+            if id(i) not in shown
         ]
         if other_issues:
-            lines.append("**其他狀態：**")
+            lines.append("其他狀態：")
             for issue in other_issues:
                 emoji = "⚠️" if issue.severity == "warning" else "🔴"
                 lines.append(f"  {emoji} {issue.name}：{issue.message}")

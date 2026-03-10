@@ -429,7 +429,7 @@ class SoulRingStore:
             - 若通過：(True, "Soul Ring Integrity: VALID")
             - 若失敗：(False, "Soul Ring Integrity: CORRUPTED at ring #{index}")
         """
-        rings = self.load_soul_rings()
+        rings = self.load_soul_rings(verify=False)
         return self._verify_chain(rings, "Soul Ring")
 
     def verify_observation_ring_integrity(self) -> Tuple[bool, str]:
@@ -845,7 +845,7 @@ class RingDepositor:
         duplicate_index = self._check_duplicate_soul_ring(description)
         if duplicate_index is not None:
             # 相似事件已存在，遞增 reinforcement_count
-            rings = self._store.load_soul_rings()
+            rings = self._store.load_soul_rings(verify=False)
             old_count = rings[duplicate_index].get(
                 "reinforcement_count", 0
             )
@@ -881,7 +881,7 @@ class RingDepositor:
             return None
 
         # 取得前一條年輪的 hash
-        existing_rings = self._store.load_soul_rings()
+        existing_rings = self._store.load_soul_rings(verify=False)
         prev_hash = (
             existing_rings[-1]["hash"]
             if existing_rings
@@ -912,6 +912,17 @@ class RingDepositor:
 
         # 寫入
         self._store.append_soul_ring(ring)
+
+        # 發布 SOUL_RING_DEPOSITED（ActivityLogger 訂閱）
+        try:
+            from museon.core.event_bus import get_event_bus, SOUL_RING_DEPOSITED
+            get_event_bus().publish(SOUL_RING_DEPOSITED, {
+                "ring_type": ring_type,
+                "description": description[:100],
+            })
+        except Exception:
+            pass
+
         return ring
 
     # ═══════════════════════════════════════════
@@ -1407,7 +1418,7 @@ class RingDepositor:
         Returns:
             重複年輪的索引；無重複則回傳 None
         """
-        rings = self._store.load_soul_rings()
+        rings = self._store.load_soul_rings(verify=False)
         if not rings:
             return None
 
@@ -1459,7 +1470,7 @@ class RingDepositor:
         Returns:
             True 表示已達上限
         """
-        rings = self._store.load_soul_rings()
+        rings = self._store.load_soul_rings(verify=False)
         if not rings:
             return False
 

@@ -30,6 +30,7 @@ class InstallerPackager:
     INCLUDE_FILES = [
         "pyproject.toml",
         "Install-MUSEON.command",
+        ".env.example",         # API Key 範本（含 PreflightGate 警告說明）
     ]
 
     # electron/ 下要包含的項目（不含 node_modules/, dist/）
@@ -56,6 +57,13 @@ class InstallerPackager:
         ".pytest_cache",
         ".DS_Store",
         "_tools",           # 工具本體（whisper.cpp 3GB+）— 由 _step_tools 在線安裝
+        ".env",             # 🔒 防止真實 API Key 洩漏（PreflightGate 安全層）
+    }
+
+    # 敏感檔案排除（即使在 INCLUDE_DIRS 內也不打包）
+    SENSITIVE_FILES = {
+        "activity_log.jsonl",   # 可能含 token 討論記錄
+        "heartbeat.jsonl",      # 運行時心跳日誌
     }
 
     # 超過此大小的檔案不打包（安全網：防止意外打包大檔案）
@@ -357,6 +365,9 @@ class InstallerPackager:
         for part in parts:
             if part in self.EXCLUDE_PATTERNS:
                 return True
+        # 敏感檔案排除（檔名匹配）
+        if path.name in self.SENSITIVE_FILES:
+            return True
         # 安全網：超過 MAX_FILE_SIZE_MB 的檔案不打包
         try:
             size_mb = path.stat().st_size / (1024 * 1024)
@@ -388,6 +399,94 @@ echo ""
 
 PAYLOAD_LINE=__PAYLOAD_LINE__
 DEFAULT_DIR="$HOME/MUSEON"
+
+# ─── 終端機權限預檢 ───
+echo "  🔐 終端機權限預檢"
+echo ""
+
+# 偵測終端機類型
+detect_terminal() {
+    case "${TERM_PROGRAM:-}" in
+        Apple_Terminal) echo "終端機 (Terminal)" ;;
+        iTerm.app)      echo "iTerm2" ;;
+        WarpTerminal)   echo "Warp" ;;
+        vscode)         echo "VSCode Terminal" ;;
+        *)              echo "終端機" ;;
+    esac
+}
+TERMINAL_NAME=$(detect_terminal)
+
+# 檢查 Full Disk Access
+check_full_disk_access() {
+    ls "$HOME/Library/Application Support/com.apple.TCC/TCC.db" &>/dev/null 2>&1
+}
+
+# 檢查 Automation 權限
+check_automation() {
+    local result
+    result=$(osascript -e 'tell application "System Events" to return name of current user' 2>&1) || true
+    if echo "$result" | grep -q "1743"; then
+        return 1
+    fi
+    return 0
+}
+
+FDA_OK=false
+AUTO_OK=false
+
+if check_full_disk_access; then
+    echo "  ✅ Full Disk Access — 已授權"
+    FDA_OK=true
+else
+    echo "  ⚠️  Full Disk Access — 未授權"
+    echo ""
+    echo "  MUSEON 需要「完整磁碟取用權限」才能存取所有檔案。"
+    echo ""
+    echo "  正在開啟系統設定..."
+    open "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles" 2>/dev/null || true
+    sleep 1
+    echo ""
+    echo "  請在系統設定中："
+    echo "    1. 找到「完整磁碟取用權限」(Full Disk Access)"
+    echo "    2. 點擊 + 按鈕（可能需要輸入密碼）"
+    echo "    3. 加入「$TERMINAL_NAME」"
+    echo "    4. 確認已開啟 ✅"
+    echo ""
+    echo "  ⚠️  授權後需要重新啟動終端機才會生效！"
+    echo ""
+    read -p "  已完成按 Enter 繼續 / 輸入 skip 跳過: " FDA_CHOICE
+    if [ "$FDA_CHOICE" != "skip" ]; then
+        if check_full_disk_access; then
+            echo "  ✅ Full Disk Access — 已授權"
+            FDA_OK=true
+        else
+            echo "  ⚠️  尚未偵測到權限（可能需要重啟終端機），安裝將繼續"
+        fi
+    fi
+fi
+
+if check_automation; then
+    echo "  ✅ Automation — 已授權"
+    AUTO_OK=true
+else
+    echo "  ⚠️  Automation — 未授權"
+    echo "  MUSEON 需要 Automation 權限來與其他應用互動。"
+    open "x-apple.systempreferences:com.apple.preference.security?Privacy_Automation" 2>/dev/null || true
+    echo "  請在系統設定中允許「$TERMINAL_NAME」控制其他應用。"
+    read -p "  已完成按 Enter 繼續 / 輸入 skip 跳過: " AUTO_CHOICE
+    if [ "$AUTO_CHOICE" != "skip" ]; then
+        if check_automation; then
+            echo "  ✅ Automation — 已授權"
+            AUTO_OK=true
+        else
+            echo "  ⚠️  尚未偵測到權限，安裝將繼續"
+        fi
+    fi
+fi
+
+echo ""
+echo "  權限預檢完成"
+echo ""
 
 # ─── [0] 選擇安裝位置 ───
 echo "  📁 選擇安裝位置"

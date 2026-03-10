@@ -1,7 +1,7 @@
 """VectorBridge — 語義搜尋統一門面.
 
 整合 Qdrant 向量資料庫 + Embedder 嵌入引擎，提供：
-- 5 個 collection（memories, skills, dna27, crystals, workflows）
+- 6 個 collection（memories, skills, dna27, crystals, workflows, documents）
 - index / search / batch 操作
 - 完整 graceful degradation（Qdrant 或 fastembed 不可用時靜默失敗）
 
@@ -24,13 +24,22 @@ logger = logging.getLogger(__name__)
 # Qdrant 連線
 QDRANT_URL = "http://127.0.0.1:6333"
 
-# 5 個 Collection 定義
+# 6 個 Collection 定義
 COLLECTIONS: Dict[str, Dict[str, Any]] = {
     "memories": {"desc": "六層記憶語義索引"},
     "skills": {"desc": "技能語義匹配"},
     "dna27": {"desc": "DNA27 反射弧語義"},
     "crystals": {"desc": "知識晶體語義"},
     "workflows": {"desc": "工作流語義"},
+    "documents": {"desc": "結構化資料語義索引"},
+}
+
+# documents collection 的 payload index 定義
+DOCUMENTS_PAYLOAD_INDEXES: Dict[str, str] = {
+    "doc_type": "keyword",      # ledger, meeting, event, contact
+    "user_id": "keyword",       # 使用者 ID（multitenancy 分隔）
+    "created_at": "integer",    # UNIX timestamp（範圍查詢）
+    "tags": "keyword",          # 標籤（多值 keyword）
 }
 
 # 可用性快取時間（秒）
@@ -47,17 +56,46 @@ class VectorBridge:
             results = vb.search("memories", "學技能", limit=5)
     """
 
-    def __init__(self, workspace: Path):
+    def __init__(self, workspace: Path, event_bus=None):
         """初始化 VectorBridge.
 
         Args:
             workspace: 工作目錄（brain.data_dir）
+            event_bus: EventBus 實例（可選）
         """
         self._workspace = Path(workspace)
+        self._event_bus = event_bus
         self._embedder: Optional[Embedder] = None
         self._client = None  # lazy QdrantClient
         self._available: Optional[bool] = None
         self._available_checked_at: float = 0.0
+        self._subscribe()
+
+    def _subscribe(self) -> None:
+        """訂閱 MEMORY_STORED 作為備援索引路徑."""
+        if not self._event_bus:
+            return
+        try:
+            from museon.core.event_bus import MEMORY_STORED
+            self._event_bus.subscribe(MEMORY_STORED, self._on_memory_stored)
+        except Exception:
+            pass
+
+    def _on_memory_stored(self, data: Optional[Dict] = None) -> None:
+        """MEMORY_STORED 備援索引：若主流程索引失敗，此路徑補索引."""
+        if not data or not self.is_available():
+            return
+        try:
+            memory_id = data.get("memory_id", "")
+            if not memory_id:
+                return
+            # 檢查是否已索引（避免重複）
+            results = self.search("memories", memory_id, limit=1)
+            if results and any(r.get("id") == memory_id for r in results):
+                return
+            # 備援索引（content 不在事件中，跳過）
+        except Exception:
+            pass
 
     # ═══════════════════════════════════════════
     # 可用性檢查
@@ -163,6 +201,17 @@ class VectorBridge:
                     ),
                 ],
             )
+
+            # 發布 MEMORY_VECTOR_INDEXED 事件
+            if self._event_bus and collection == "memories":
+                try:
+                    from museon.core.event_bus import MEMORY_VECTOR_INDEXED
+                    self._event_bus.publish(MEMORY_VECTOR_INDEXED, {
+                        "doc_id": doc_id,
+                        "collection": collection,
+                    })
+                except Exception:
+                    pass
 
             return True
 
@@ -311,7 +360,7 @@ class VectorBridge:
     # ═══════════════════════════════════════════
 
     def ensure_collections(self) -> Dict:
-        """確保 5 個 collection 都存在.
+        """確保 6 個 collection 都存在.
 
         Returns:
             {"created": [...], "existing": [...], "error": str|None}
@@ -334,6 +383,9 @@ class VectorBridge:
                 except Exception:
                     self._create_collection(name, dim)
                     result["created"].append(name)
+
+            # documents collection 需要額外建立 payload indexes
+            self._ensure_payload_indexes("documents")
 
         except Exception as e:
             result["error"] = str(e)
@@ -460,6 +512,146 @@ class VectorBridge:
 
         except Exception as e:
             logger.warning(f"Failed to create collection {name}: {e}")
+
+    def _ensure_payload_indexes(self, collection: str) -> None:
+        """確保 payload indexes 存在（目前用於 documents collection）.
+
+        靜默失敗，不影響主流程。
+        """
+        if collection not in COLLECTIONS:
+            return
+
+        indexes = DOCUMENTS_PAYLOAD_INDEXES if collection == "documents" else {}
+        if not indexes:
+            return
+
+        try:
+            client = self._get_client()
+            if client is None:
+                return
+
+            from qdrant_client.models import PayloadSchemaType
+
+            type_map = {
+                "keyword": PayloadSchemaType.KEYWORD,
+                "integer": PayloadSchemaType.INTEGER,
+                "float": PayloadSchemaType.FLOAT,
+                "text": PayloadSchemaType.TEXT,
+            }
+
+            for field_name, field_type in indexes.items():
+                try:
+                    schema_type = type_map.get(field_type)
+                    if schema_type is None:
+                        continue
+                    client.create_payload_index(
+                        collection_name=collection,
+                        field_name=field_name,
+                        field_schema=schema_type,
+                    )
+                    logger.debug(
+                        f"Created payload index: {collection}.{field_name} "
+                        f"({field_type})"
+                    )
+                except Exception:
+                    # Index 可能已存在，靜默略過
+                    pass
+
+        except Exception as e:
+            logger.debug(f"Failed to ensure payload indexes: {e}")
+
+    def search_documents(
+        self,
+        query: str,
+        doc_type: Optional[str] = None,
+        user_id: Optional[str] = None,
+        limit: int = 10,
+        score_threshold: float = 0.3,
+    ) -> List[Dict]:
+        """搜尋 documents collection（支援 payload filter）.
+
+        Args:
+            query: 查詢文本
+            doc_type: 文件類型篩選（ledger, meeting, event, contact）
+            user_id: 使用者 ID 篩選
+            limit: 回傳上限
+            score_threshold: 最低相似度分數
+
+        Returns:
+            搜尋結果列表
+        """
+        try:
+            embedder = self._get_embedder()
+            query_vector = embedder.embed_single(query)
+            if query_vector is None:
+                return []
+
+            client = self._get_client()
+            if client is None:
+                return []
+
+            self._ensure_collection("documents", embedder.dimension)
+
+            # 建立 filter
+            must_conditions = []
+            if doc_type:
+                from qdrant_client.models import FieldCondition, MatchValue
+                must_conditions.append(
+                    FieldCondition(
+                        key="doc_type",
+                        match=MatchValue(value=doc_type),
+                    )
+                )
+            if user_id:
+                from qdrant_client.models import FieldCondition, MatchValue
+                must_conditions.append(
+                    FieldCondition(
+                        key="user_id",
+                        match=MatchValue(value=user_id),
+                    )
+                )
+
+            query_filter = None
+            if must_conditions:
+                from qdrant_client.models import Filter
+                query_filter = Filter(must=must_conditions)
+
+            if hasattr(client, "query_points"):
+                response = client.query_points(
+                    collection_name="documents",
+                    query=query_vector,
+                    query_filter=query_filter,
+                    limit=limit,
+                    score_threshold=score_threshold,
+                    with_payload=True,
+                )
+                hits = response.points
+            else:
+                hits = client.search(
+                    collection_name="documents",
+                    query_vector=query_vector,
+                    query_filter=query_filter,
+                    limit=limit,
+                    score_threshold=score_threshold,
+                )
+
+            return [
+                {
+                    "id": hit.payload.get("doc_id", str(hit.id)),
+                    "score": hit.score,
+                    "text": hit.payload.get("text", ""),
+                    **{
+                        k: v
+                        for k, v in hit.payload.items()
+                        if k not in ("doc_id", "text")
+                    },
+                }
+                for hit in hits
+            ]
+
+        except Exception as e:
+            logger.debug(f"VectorBridge search_documents failed: {e}")
+            return []
 
     @staticmethod
     def _doc_id_to_point_id(doc_id: str) -> str:

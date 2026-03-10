@@ -1,9 +1,13 @@
 """LLM Client - Claude API wrapper with Haiku and Sonnet support."""
 
+import logging
 import os
 from typing import Any, Dict, List, Optional, Literal
 
+import anthropic
 from anthropic import AsyncAnthropic
+
+logger = logging.getLogger(__name__)
 
 
 class LLMClient:
@@ -17,8 +21,8 @@ class LLMClient:
     """
 
     MODEL_MAP = {
-        "haiku": "claude-3-5-haiku-20241022",
-        "sonnet": "claude-3-5-sonnet-20241022",
+        "haiku": "claude-haiku-4-5-20251001",
+        "sonnet": "claude-sonnet-4-20250514",
     }
 
     def __init__(self, api_key: Optional[str] = None) -> None:
@@ -86,7 +90,14 @@ class LLMClient:
             # For now, we just include tools in the request
 
         # Make API call
-        response = await self._client.messages.create(**request_params)
+        try:
+            response = await self._client.messages.create(**request_params)
+        except anthropic.RateLimitError as e:
+            logger.warning(f"Anthropic rate limit hit: {e}")
+            raise
+        except anthropic.APIError as e:
+            logger.error(f"Anthropic API error: {e}")
+            raise
 
         return response
 

@@ -1697,10 +1697,10 @@ class TestOrchestratorIntegration:
         config = InstallConfig(install_dir=tmp_path)
         return InstallerOrchestrator(config=config, interactive=interactive)
 
-    def test_orc01_eight_steps(self):
-        """ORC-01: STEPS 有 8 個步驟"""
+    def test_orc01_ten_steps(self):
+        """ORC-01: STEPS 有 10 個步驟（含權限檢查 + Claude Code）"""
         from museon.installer.orchestrator import InstallerOrchestrator
-        assert len(InstallerOrchestrator.STEPS) == 8
+        assert len(InstallerOrchestrator.STEPS) == 10
 
     def test_orc02_step_labels_match(self):
         """ORC-02: 每個步驟都有對應標籤"""
@@ -1717,7 +1717,7 @@ class TestOrchestratorIntegration:
         for step in InstallerOrchestrator.STEPS:
             setattr(orch, step, lambda: success_result)
         results = orch.run()
-        assert len(results) == 8
+        assert len(results) == 10
         assert all(r.status == StepStatus.SUCCESS for r in results)
 
     def test_orc04_run_stops_on_failed(self, tmp_path):
@@ -1753,7 +1753,7 @@ class TestOrchestratorIntegration:
         for step in InstallerOrchestrator.STEPS:
             setattr(orch, step, make_result)
         results = orch.run()
-        assert len(results) == 8
+        assert len(results) == 10
 
     def test_orc06_run_continues_on_skipped(self, tmp_path):
         """ORC-06: SKIPPED 時繼續"""
@@ -1770,7 +1770,7 @@ class TestOrchestratorIntegration:
         for step in InstallerOrchestrator.STEPS:
             setattr(orch, step, make_result)
         results = orch.run()
-        assert len(results) == 8
+        assert len(results) == 10
 
     def test_orc07_summary_all_success(self, tmp_path):
         """ORC-07: 摘要全部成功"""

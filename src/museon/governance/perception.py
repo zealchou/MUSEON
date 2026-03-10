@@ -96,6 +96,7 @@ class DiagnosticReport:
     diagnosis_duration_ms: float
     event_counts: Dict[str, int] = field(default_factory=dict)
     raw_signals: Dict[str, Any] = field(default_factory=dict)
+    prescriptions: List["Prescription"] = field(default_factory=list)
 
     @property
     def symptom_count(self) -> int:
@@ -129,6 +130,16 @@ class DiagnosticReport:
             for s in self.symptoms
         )
 
+    @property
+    def has_prescriptions(self) -> bool:
+        """是否有處方建議"""
+        return len(self.prescriptions) > 0
+
+    @property
+    def auto_prescriptions(self) -> List["Prescription"]:
+        """可自動執行的處方列表"""
+        return [p for p in self.prescriptions if p.auto_executable]
+
     def to_dict(self) -> dict:
         return {
             "timestamp": self.timestamp,
@@ -137,10 +148,187 @@ class DiagnosticReport:
             "severe_count": self.severe_count,
             "max_severity": self.max_severity.value,
             "is_healthy": self.is_healthy,
+            "has_prescriptions": self.has_prescriptions,
             "diagnosis_duration_ms": round(self.diagnosis_duration_ms, 1),
             "symptoms": [s.to_dict() for s in self.symptoms],
+            "prescriptions": [p.to_dict() for p in self.prescriptions],
             "event_counts": self.event_counts,
         }
+
+
+# ─── 處方系統 ───
+
+
+@dataclass
+class Prescription:
+    """診斷後的處方 — 建議的修復行動."""
+
+    name: str                           # 處方名稱（機器可讀）
+    action_type: str                    # 行動類型: "restart" | "alert" | "tune" | "escalate" | "observe"
+    description: str                    # 人類可讀描述
+    target: str                         # 目標子系統
+    priority: int                       # 優先級 (1=最高, 5=最低)
+    auto_executable: bool               # 是否可自動執行
+    triggered_by: List[str]             # 觸發此處方的症狀名稱列表
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> dict:
+        return {
+            "name": self.name,
+            "action_type": self.action_type,
+            "description": self.description,
+            "target": self.target,
+            "priority": self.priority,
+            "auto_executable": self.auto_executable,
+            "triggered_by": self.triggered_by,
+            "metadata": self.metadata,
+        }
+
+
+class PrescriptionEngine:
+    """處方引擎 — 根據症狀組合生成修復處方.
+
+    處方規則矩陣（不是 if-else，而是結構化的規則）：
+    - 單一症狀 → 對應處方
+    - 症狀組合 → 複合處方
+    - 嚴重度升級 → 處方升級
+    """
+
+    # 規則矩陣：症狀 → 處方映射
+    RULES: List[Dict[str, Any]] = [
+        # ── 單一症狀規則 ──
+        {
+            "symptoms": ["gateway_lock_lost"],
+            "prescription": "restart_gateway",
+            "action": "restart",
+            "description": "Gateway lock 遺失，需重啟 Gateway 恢復進程唯一性",
+            "target": "gateway",
+            "auto": True,
+            "priority": 1,
+        },
+        {
+            "symptoms": ["telegram_offline"],
+            "prescription": "restart_telegram",
+            "action": "restart",
+            "description": "Telegram 離線，需重啟通訊模組",
+            "target": "telegram",
+            "auto": True,
+            "priority": 1,
+        },
+        {
+            "symptoms": ["high_error_rate"],
+            "prescription": "reduce_load",
+            "action": "tune",
+            "description": "錯誤率過高，降低系統負載以恢復穩定",
+            "target": "system",
+            "auto": True,
+            "priority": 2,
+        },
+        {
+            "symptoms": ["anima_imbalance"],
+            "prescription": "balance_training",
+            "action": "observe",
+            "description": "ANIMA 元素失衡，建議調整訓練策略以平衡弱勢元素",
+            "target": "anima",
+            "auto": False,
+            "priority": 4,
+        },
+        {
+            "symptoms": ["systemic_degradation"],
+            "prescription": "emergency_triage",
+            "action": "escalate",
+            "description": "系統性退化，啟動緊急分診流程，需人類介入",
+            "target": "system",
+            "auto": False,
+            "priority": 1,
+        },
+        {
+            "symptoms": ["high_memory"],
+            "prescription": "memory_cleanup",
+            "action": "restart",
+            "description": "記憶體使用偏高，清理快取或重啟高記憶體服務",
+            "target": "resource",
+            "auto": True,
+            "priority": 2,
+        },
+        {
+            "symptoms": ["service_qdrant_unhealthy"],
+            "prescription": "restart_qdrant",
+            "action": "restart",
+            "description": "Qdrant 服務不健康，需重啟向量資料庫",
+            "target": "qdrant",
+            "auto": True,
+            "priority": 1,
+        },
+        {
+            "symptoms": ["no_interactions"],
+            "prescription": "proactive_check_in",
+            "action": "alert",
+            "description": "長時間無使用者互動，主動發送問候訊息",
+            "target": "telegram",
+            "auto": True,
+            "priority": 5,
+        },
+        # ── 症狀組合規則（複合處方）──
+        {
+            "symptoms": ["telegram_offline", "high_error_rate"],
+            "prescription": "comm_crisis_protocol",
+            "action": "escalate",
+            "description": "通訊中斷合併高錯誤率，啟動通訊危機處理協議",
+            "target": "system",
+            "auto": False,
+            "priority": 1,
+        },
+    ]
+
+    def prescribe(self, report: DiagnosticReport) -> List[Prescription]:
+        """根據診斷報告中的症狀組合生成處方列表.
+
+        匹配邏輯：
+        1. 收集報告中所有症狀名稱
+        2. 對每條規則檢查其所需症狀是否全部出現
+        3. 生成對應處方
+        4. 去重（同名處方保留優先級最高的）
+        5. 按優先級排序返回
+        """
+        symptom_names = {s.name for s in report.symptoms}
+        matched: List[Prescription] = []
+
+        for rule in self.RULES:
+            required = set(rule["symptoms"])
+            if required.issubset(symptom_names):
+                matched.append(Prescription(
+                    name=rule["prescription"],
+                    action_type=rule["action"],
+                    description=rule["description"],
+                    target=rule["target"],
+                    priority=rule["priority"],
+                    auto_executable=rule["auto"],
+                    triggered_by=rule["symptoms"],
+                ))
+
+        # 去重：同名處方保留優先級最高（數字最小）的
+        seen: Dict[str, Prescription] = {}
+        for p in matched:
+            if p.name not in seen or p.priority < seen[p.name].priority:
+                seen[p.name] = p
+        deduplicated = list(seen.values())
+
+        # 按優先級排序（1=最高，數字越小越前）
+        deduplicated.sort(key=lambda p: p.priority)
+        return deduplicated
+
+    def get_auto_prescriptions(
+        self, prescriptions: List[Prescription]
+    ) -> List[Prescription]:
+        """篩選可自動執行的處方.
+
+        Returns:
+            按優先級排序的可自動執行處方列表。
+        """
+        auto = [p for p in prescriptions if p.auto_executable]
+        auto.sort(key=lambda p: p.priority)
+        return auto
 
 
 # ─── 事件收集器（聞）───
@@ -226,6 +414,7 @@ class PerceptionEngine:
         self._event_collector = EventCollector(
             window_minutes=event_window_minutes
         )
+        self._prescription_engine = PrescriptionEngine()
         self._connected_to_bus = False
 
     def connect_event_bus(self, event_bus: Any) -> None:
@@ -297,8 +486,27 @@ class PerceptionEngine:
             raw_signals=raw_signals,
         )
 
+        # ═══ 處方生成：根據症狀開立處方 ═══
+        prescriptions = self._prescription_engine.prescribe(report)
+        report.prescriptions = prescriptions
+
+        if prescriptions:
+            auto_rx = self._prescription_engine.get_auto_prescriptions(
+                prescriptions
+            )
+            logger.info(
+                f"Prescriptions generated: {len(prescriptions)} total, "
+                f"{len(auto_rx)} auto-executable"
+            )
+            for rx in prescriptions:
+                logger.debug(
+                    f"  Rx[{rx.priority}] {rx.name} ({rx.action_type}) "
+                    f"-> {rx.target} | auto={rx.auto_executable}"
+                )
+
         logger.debug(
             f"Perception complete: {report.symptom_count} symptoms, "
+            f"{len(report.prescriptions)} prescriptions, "
             f"max_severity={report.max_severity.value}, "
             f"{elapsed_ms:.1f}ms"
         )
@@ -443,15 +651,15 @@ class PerceptionEngine:
             rusage = resource.getrusage(resource.RUSAGE_SELF)
             memory_mb = rusage.ru_maxrss / (1024 * 1024)  # macOS: bytes
             signals["memory_mb"] = memory_mb
-            if memory_mb > 500:  # > 500 MB
+            if memory_mb > 2000:  # > 2 GB（64 GB 機器的合理閾值）
                 symptoms.append(Symptom(
                     name="high_memory",
                     category=SymptomCategory.RESOURCE,
-                    severity=SymptomSeverity.MODERATE if memory_mb > 800 else SymptomSeverity.MILD,
+                    severity=SymptomSeverity.MODERATE if memory_mb > 4000 else SymptomSeverity.MILD,
                     message=f"記憶體使用偏高: {memory_mb:.0f} MB",
                     source="望",
                     metric_value=memory_mb,
-                    reference_value=300.0,
+                    reference_value=2000.0,
                 ))
         except Exception:
             pass

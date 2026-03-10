@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260304_120320_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n**修改方向**（≤150字）：\n\n使用者要求「主動積極的回報」機制，但你的回覆反而要求使用者執行診斷命令後回傳給你，這違反了需求。建議：\n\n1. **不要問使用者執行命令** — 改成提供可直接複製貼上的完整診斷腳本（.sh檔）\n2. **給具體交付物** — 改成「這是我為你寫的自動監控腳本，放在你的 cron 或 launchd 裡，它會主動告訴你結果」\n3. **移除「需要\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-04T12:03:20.822070+08:00",
-  "priority": "medium"
-}

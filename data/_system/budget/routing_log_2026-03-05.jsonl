@@ -1,9 +1,0 @@
-{"ts": "2026-03-05T00:00:15.079009", "model": "sonnet", "task_type": "simple_ack", "reason": "ultra_short", "input_tokens": 32520, "output_tokens": 145, "q_score": null}
-{"ts": "2026-03-05T00:17:18.438679", "model": "sonnet", "task_type": "complex", "reason": "kw:story", "input_tokens": 27298, "output_tokens": 757, "q_score": null}
-{"ts": "2026-03-05T00:17:45.480845", "model": "sonnet", "task_type": "complex", "reason": "no_router", "input_tokens": 27515, "output_tokens": 836, "q_score": null}
-{"ts": "2026-03-05T00:24:20.436069", "model": "sonnet", "task_type": "complex", "reason": "kw:幫我", "input_tokens": 37672, "output_tokens": 153, "q_score": null}
-{"ts": "2026-03-05T00:24:26.886102", "model": "sonnet", "task_type": "complex", "reason": "no_router", "input_tokens": 37892, "output_tokens": 26, "q_score": null}
-{"ts": "2026-03-05T00:42:17.110598", "model": "haiku", "task_type": "simple_ack", "reason": "ultra_short", "input_tokens": 52935, "output_tokens": 21, "q_score": null}
-{"ts": "2026-03-05T00:42:43.146560", "model": "sonnet", "task_type": "complex", "reason": "no_router", "input_tokens": 51800, "output_tokens": 942, "q_score": null}
-{"ts": "2026-03-05T00:45:46.836615", "model": "haiku", "task_type": "simple_ack", "reason": "ultra_short", "input_tokens": 47605, "output_tokens": 410, "q_score": null}
-{"ts": "2026-03-05T00:46:05.289545", "model": "sonnet", "task_type": "complex", "reason": "no_router", "input_tokens": 46590, "output_tokens": 622, "q_score": null}

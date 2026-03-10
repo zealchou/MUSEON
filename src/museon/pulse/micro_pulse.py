@@ -47,7 +47,7 @@ class MicroPulse:
         self._workspace = Path(workspace) if workspace else None
 
     def run(self) -> Dict:
-        """執行 4 項零 LLM 健康檢查."""
+        """執行 4 項零 LLM 健康檢查 + 輔助更新."""
         self._beat_counter += 1
         self._heartbeat_focus.record_beat()
 
@@ -80,6 +80,9 @@ class MicroPulse:
         if checks_passed < 4:
             status = "warning"
 
+        # 輔助更新：days_alive（確保無互動日也會更新）
+        self._update_days_alive()
+
         result = {
             "beat_count": beat_count,
             "uptime_hours": round(uptime_hours, 2),
@@ -98,6 +101,34 @@ class MicroPulse:
         })
 
         return result
+
+    def _update_days_alive(self) -> None:
+        """更新 ANIMA_MC.json 中的 days_alive（確保無互動日也能更新）."""
+        if not self._workspace:
+            return
+        import json
+        from datetime import datetime as _dt
+        anima_path = self._workspace / "ANIMA_MC.json"
+        if not anima_path.exists():
+            return
+        try:
+            data = json.loads(anima_path.read_text(encoding="utf-8"))
+            identity = data.get("identity", {})
+            birth_str = identity.get("birth_date")
+            if not birth_str:
+                return
+            birth = _dt.fromisoformat(birth_str)
+            new_days = (_dt.now() - birth).days
+            if new_days != identity.get("days_alive", 0):
+                identity["days_alive"] = new_days
+                data["identity"] = identity
+                anima_path.write_text(
+                    json.dumps(data, indent=2, ensure_ascii=False),
+                    encoding="utf-8",
+                )
+                logger.info(f"MicroPulse updated days_alive → {new_days}")
+        except Exception as e:
+            logger.debug(f"days_alive update failed: {e}")
 
     def _count_memory_files(self) -> int:
         """計算 memory/ 下檔案數."""

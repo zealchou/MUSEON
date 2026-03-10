@@ -6,6 +6,8 @@ SC-02：自主創業全流程（長時間自主運行壓測）簡化版
 - 長文輸出的完整性
 - 無洩漏
 """
+from __future__ import annotations
+
 import re
 import time
 import pytest

@@ -139,8 +139,12 @@ class Crystal:
     counter_evidence_count: int = 0
     # 來源上下文
     source_context: str = ""
-    # 狀態標記（disputed, merged, pending_recrystallization 等）
+    # 狀態標記（disputed, merged, pending_recrystallization, quarantined, provisional 等）
     status: str = "active"
+
+    # ── 外向型進化欄位 ──
+    # 來源追溯（outward_self / outward_service / 空=內部產生）
+    origin: str = ""
 
     def __post_init__(self) -> None:
         """初始化預設時間戳記."""
@@ -1778,6 +1782,19 @@ class KnowledgeLattice:
             # 持久化
             self._persist()
 
+            # 發布 CRYSTAL_CREATED（ActivityLogger 訂閱）
+            try:
+                from museon.core.event_bus import get_event_bus, CRYSTAL_CREATED
+                get_event_bus().publish(CRYSTAL_CREATED, {
+                    "cuid": cuid,
+                    "crystal_type": crystal_type,
+                    "domain": domain,
+                    "source_context": source_context[:100],
+                    "links_count": len(discovered_links),
+                })
+            except Exception:
+                pass
+
             # 檢查是否需要觸發輕量再結晶
             self._crystals_since_last_recrystallize += 1
             if (
@@ -2495,13 +2512,14 @@ class KnowledgeLattice:
         return created_cuids
 
     def nightly_maintenance(self) -> Dict[str, Any]:
-        """夜間維護 -- 完整健康同步與再結晶.
+        """夜間維護 -- 完整健康同步與再結晶（含自動執行）.
 
         包含：
         1. 更新所有結晶的共振指數
         2. 歸檔過期結晶
         3. 執行完整再結晶掃描
-        4. 產生健康報告
+        4. ★ 自動執行再結晶動作（合併/升級/降級/歸檔）
+        5. 產生健康報告
 
         Returns:
             維護報告
@@ -2520,13 +2538,8 @@ class KnowledgeLattice:
         # 3. 完整再結晶掃描
         recrystallize_report = self.recrystallize()
 
-        # 4. 歸檔過期 Hypothesis
-        expired_hyp = recrystallize_report.get("expired_hypotheses", [])
-        for cuid in expired_hyp:
-            if cuid in self._crystals:
-                self._recrystallizer.archive_crystal(cuid)
-                self._archive[cuid] = self._crystals[cuid]
-                del self._crystals[cuid]
+        # ═══ 4. ★ 自動執行再結晶動作 ═══
+        actions_taken = self._execute_recrystallization(recrystallize_report)
 
         # 5. 健康報告
         health = self.health_report()
@@ -2539,8 +2552,8 @@ class KnowledgeLattice:
             "ri_updated": len(self._crystals),
             "archived": archived,
             "archived_count": len(archived),
-            "expired_hypotheses_archived": expired_hyp,
             "recrystallize_report": recrystallize_report,
+            "actions_taken": actions_taken,
             "health": health,
         }
 
@@ -2548,10 +2561,139 @@ class KnowledgeLattice:
             f"Nightly maintenance 完成 | "
             f"RI 更新: {len(self._crystals)} | "
             f"歸檔: {len(archived)} | "
-            f"過期假設歸檔: {len(expired_hyp)}"
+            f"動作: {actions_taken.get('summary', '無')}"
         )
 
         return maintenance_report
+
+    def _execute_recrystallization(
+        self, report: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """★ 根據再結晶掃描結果，自動執行合併/升級/降級/歸檔動作.
+
+        這是從「記錄型系統」跨越到「自驅型系統」的關鍵方法。
+        不再只是偵測問題然後等人處理，而是自動執行安全的修復動作。
+
+        安全護欄：
+        - 每次維護最多合併 5 對結晶（避免過度合併）
+        - 每次最多升級 10 顆、降級 5 顆
+        - 所有動作都有完整日誌
+        - 合併前檢查相似度閾值
+
+        Args:
+            report: recrystallize() 產出的掃描報告
+
+        Returns:
+            已執行動作的摘要
+        """
+        actions = {
+            "merged": 0,
+            "upgraded": 0,
+            "downgraded": 0,
+            "stale_archived": 0,
+            "expired_hyp_archived": 0,
+            "details": [],
+        }
+
+        # ── 1. 合併冗餘結晶（每次最多 5 對）──
+        redundancy = report.get("redundancy", [])
+        merge_limit = 5
+        for pair in redundancy[:merge_limit]:
+            cuid_a = pair.get("cuid_a", "")
+            cuid_b = pair.get("cuid_b", "")
+            similarity = pair.get("similarity", 0)
+
+            if not cuid_a or not cuid_b:
+                continue
+            if cuid_a not in self._crystals or cuid_b not in self._crystals:
+                continue
+            if similarity < SIMILARITY_MERGE_THRESHOLD:
+                continue
+
+            # 生成新 CUID
+            crystal_a = self._crystals[cuid_a]
+            new_cuid = self._generate_cuid(crystal_a.crystal_type)
+
+            try:
+                merged = self._recrystallizer.merge_crystals(
+                    cuid_a, cuid_b, new_cuid
+                )
+                if merged:
+                    # 將合併結果加入晶格
+                    merged.ri_score = ResonanceCalculator.calculate(merged)
+                    self._crystals[new_cuid] = merged
+                    # 舊結晶移入歸檔
+                    if cuid_a in self._crystals:
+                        self._archive[cuid_a] = self._crystals.pop(cuid_a)
+                    if cuid_b in self._crystals:
+                        self._archive[cuid_b] = self._crystals.pop(cuid_b)
+                    actions["merged"] += 1
+                    actions["details"].append(
+                        f"合併: {cuid_a} + {cuid_b} → {new_cuid} "
+                        f"(相似度 {similarity:.2f})"
+                    )
+            except Exception as e:
+                logger.warning(f"再結晶合併失敗 {cuid_a}+{cuid_b}: {e}")
+
+        # ── 2. 升級 Hypothesis → Pattern（成功 3+ 次）──
+        upgrade_limit = 10
+        for cuid in report.get("upgrade_candidates", [])[:upgrade_limit]:
+            if cuid not in self._crystals:
+                continue
+            crystal = self._crystals[cuid]
+            old_type = crystal.crystal_type
+            if self._recrystallizer.upgrade_crystal(cuid):
+                actions["upgraded"] += 1
+                actions["details"].append(
+                    f"升級: {cuid} | {old_type} → {crystal.crystal_type}"
+                )
+
+        # ── 3. 降級 Insight → Pattern（反證 2+ 次）──
+        downgrade_limit = 5
+        for cuid in report.get("downgrade_candidates", [])[:downgrade_limit]:
+            if cuid not in self._crystals:
+                continue
+            crystal = self._crystals[cuid]
+            old_type = crystal.crystal_type
+            if self._recrystallizer.downgrade_crystal(
+                cuid, reason="反證次數達到閾值"
+            ):
+                actions["downgraded"] += 1
+                actions["details"].append(
+                    f"降級: {cuid} | {old_type} → {crystal.crystal_type}"
+                )
+
+        # ── 4. 歸檔過期結晶（RI < 0.05 且 90+ 天未引用）──
+        for cuid in report.get("stale", []):
+            if cuid not in self._crystals:
+                continue
+            self._recrystallizer.archive_crystal(cuid)
+            self._archive[cuid] = self._crystals.pop(cuid)
+            actions["stale_archived"] += 1
+
+        # ── 5. 歸檔過期 Hypothesis（超過 30 天驗證窗口）──
+        for cuid in report.get("expired_hypotheses", []):
+            if cuid not in self._crystals:
+                continue
+            self._recrystallizer.archive_crystal(cuid)
+            self._archive[cuid] = self._crystals.pop(cuid)
+            actions["expired_hyp_archived"] += 1
+
+        # 摘要
+        total = sum(v for k, v in actions.items() if k != "details" and k != "summary")
+        actions["summary"] = (
+            f"合併{actions['merged']} 升級{actions['upgraded']} "
+            f"降級{actions['downgraded']} 歸檔{actions['stale_archived'] + actions['expired_hyp_archived']}"
+        )
+
+        if total > 0:
+            logger.info(
+                f"再結晶自動執行完成 | {actions['summary']}"
+            )
+        else:
+            logger.info("再結晶掃描完成，無需執行動作")
+
+        return actions
 
     # ═══════════════════════════════════════════
     # 輔助 API

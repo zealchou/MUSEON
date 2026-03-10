@@ -4,11 +4,22 @@ services:
     container_name: museclaw-firecrawl-redis
     restart: unless-stopped
     networks: [firecrawl]
+  postgres:
+    image: ghcr.io/firecrawl/nuq-postgres:latest
+    container_name: museclaw-firecrawl-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=firecrawl
+      - POSTGRES_PASSWORD=firecrawl
+      - POSTGRES_DB=firecrawl
+    volumes:
+      - firecrawl-pgdata:/var/lib/postgresql/data
+    networks: [firecrawl]
   playwright:
     image: ghcr.io/firecrawl/playwright-service:latest
     container_name: museclaw-firecrawl-playwright
     restart: unless-stopped
-    command: ['node', 'dist/server.js']
+    command: ['node', 'dist/api.js']
     environment:
       - PORT=3000
     networks: [firecrawl]
@@ -18,7 +29,14 @@ services:
     restart: unless-stopped
     environment:
       - REDIS_URL=redis://redis:6379
+      - REDIS_RATE_LIMIT_URL=redis://redis:6379
       - PLAYWRIGHT_MICROSERVICE_URL=http://playwright:3000
+      - NUQ_DATABASE_URL=postgresql://firecrawl:firecrawl@postgres:5432/firecrawl
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=firecrawl
+      - POSTGRES_USER=firecrawl
+      - POSTGRES_PASSWORD=firecrawl
       - USE_DB_AUTHENTICATION=false
       - PORT=3002
       - HOST=0.0.0.0
@@ -26,7 +44,7 @@ services:
       - SELF_HOSTED_WEBHOOK_SECRET=museclaw
     ports:
       - '127.0.0.1:3002:3002'
-    depends_on: [redis, playwright]
+    depends_on: [redis, postgres, playwright]
     command: ['node', '--max-old-space-size=8192', 'dist/src/index.js']
     networks: [firecrawl]
   worker:
@@ -35,12 +53,22 @@ services:
     restart: unless-stopped
     environment:
       - REDIS_URL=redis://redis:6379
+      - REDIS_RATE_LIMIT_URL=redis://redis:6379
       - PLAYWRIGHT_MICROSERVICE_URL=http://playwright:3000
+      - NUQ_DATABASE_URL=postgresql://firecrawl:firecrawl@postgres:5432/firecrawl
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=firecrawl
+      - POSTGRES_USER=firecrawl
+      - POSTGRES_PASSWORD=firecrawl
       - USE_DB_AUTHENTICATION=false
       - NUM_WORKERS_PER_QUEUE=1
-    depends_on: [redis, playwright]
+    depends_on: [redis, postgres, playwright]
     command: ['node', '--max-old-space-size=8192', 'dist/src/services/queue-worker.js']
     networks: [firecrawl]
+volumes:
+  firecrawl-pgdata:
+    driver: local
 networks:
   firecrawl:
     driver: bridge

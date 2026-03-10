@@ -552,4 +552,19 @@ contextBridge.exposeInMainWorld('museon', {
    * @returns {Promise<object>} { ANTHROPIC_API_KEY: { configured, prefix }, ... }
    */
   getKeyStatus: () => ipcRenderer.invoke('dashboard-get-key-status'),
+
+  // ─── Permissions（macOS 權限） ───
+
+  /**
+   * 檢查所有 macOS 權限狀態
+   * @returns {Promise<object>} { permissions: [{ name, label, granted, canRequest }] }
+   */
+  checkPermissions: () => ipcRenderer.invoke('permissions-check-all'),
+
+  /**
+   * 請求單一 macOS 權限
+   * @param {string} name - 權限名稱 (microphone/camera/notifications/accessibility/screen_recording/automation)
+   * @returns {Promise<object>} { success, granted, openedSettings? }
+   */
+  requestPermission: (name) => ipcRenderer.invoke('permissions-request', name),
 });

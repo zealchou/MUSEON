@@ -34,6 +34,7 @@
 - 所有新模組以 try/except 包裹，任一模組故障不影響核心回覆能力
 """
 
+import asyncio
 import json
 import logging
 import os
@@ -62,6 +63,7 @@ class MuseonBrain:
 
         # 對話歷史（in-memory, per session）
         self._sessions: Dict[str, List[Dict[str, str]]] = {}
+        self._offline_flag = False  # 離線回覆標記 — 為 True 時不持久化 session
 
         # 技能使用追蹤（供 WEE/Morphenix）
         self._skill_usage_log: List[Dict[str, Any]] = []
@@ -72,10 +74,18 @@ class MuseonBrain:
         # ★ v10.4 Route C: 跨輪路由歷史（state-conditioned routing 用）
         self._routing_history: Dict[str, List[Dict]] = {}
 
+        # EventBus（後續由 server.py 注入，此處先取全域實例）
+        try:
+            from museon.core.event_bus import get_event_bus
+            self._event_bus = get_event_bus()
+        except Exception:
+            self._event_bus = None
+
         # Skill Router (DNA27 配對)
         from museon.agent.skill_router import SkillRouter
         self.skill_router = SkillRouter(
-            skills_dir=str(self.data_dir / "skills")
+            skills_dir=str(self.data_dir / "skills"),
+            event_bus=self._event_bus,
         )
 
         # Memory Store
@@ -116,6 +126,16 @@ class MuseonBrain:
             logger.warning(f"SoulRing 載入失敗（降級運行）: {e}")
             self._soul_ring_store = None
             self.ring_depositor = None
+        # 斷點三修復(方案C)：Q-Score 歷史持久化，重啟後不清零
+        self._q_score_history_path = self.data_dir / "_system" / "q_score_history.json"
+        self._q_score_history: list = []
+        try:
+            if self._q_score_history_path.exists():
+                self._q_score_history = json.loads(
+                    self._q_score_history_path.read_text(encoding="utf-8")
+                )
+        except Exception:
+            pass
 
         # ── 新模組：知識晶格 ──
         try:
@@ -165,6 +185,14 @@ class MuseonBrain:
             logger.warning(f"BudgetMonitor 載入失敗（降級運行）: {e}")
             self.budget_monitor = None
 
+        # ── LLM Adapter（MAX 訂閱方案 / API fallback）──
+        try:
+            from museon.llm.adapters import create_adapter_sync
+            self._llm_adapter = create_adapter_sync()
+        except Exception as e:
+            logger.warning(f"LLMAdapter 載入失敗（降級運行）: {e}")
+            self._llm_adapter = None
+
         # ── 新模組：Router（Haiku / Sonnet 智能分流）──
         self._router = None
         try:
@@ -181,6 +209,7 @@ class MuseonBrain:
             self.memory_manager = MemoryManager(
                 workspace=memory_workspace,
                 user_id="cli_user",
+                event_bus=self._event_bus,
             )
         except Exception as e:
             logger.warning(f"MemoryManager 載入失敗（降級運行）: {e}")
@@ -314,6 +343,18 @@ class MuseonBrain:
         except Exception as e:
             logger.warning(f"TriggerEngine 載入失敗（降級運行）: {e}")
 
+        # ── 新模組：RegistryManager（結構化資料層）──
+        self._registry_manager = None
+        try:
+            from museon.registry.registry_manager import RegistryManager
+            self._registry_manager = RegistryManager(
+                data_dir=str(self.data_dir),
+                user_id="cli_user",
+            )
+            logger.info("RegistryManager 結構化資料層已啟用")
+        except Exception as e:
+            logger.warning(f"RegistryManager 載入失敗（降級運行）: {e}")
+
         logger.info(
             f"MUSEON Brain initialized | "
             f"skills: {self.skill_router.get_skill_count()} | "
@@ -336,7 +377,8 @@ class MuseonBrain:
             f"synapse: {'ON' if self._synapse_network else 'OFF'} | "
             f"tool_muscle: {'ON' if self._tool_muscle else 'OFF'} | "
             f"footprint: {'ON' if self._footprint else 'OFF'} | "
-            f"trigger_engine: {'ON' if self._trigger_engine else 'OFF'}"
+            f"trigger_engine: {'ON' if self._trigger_engine else 'OFF'} | "
+            f"registry: {'ON' if self._registry_manager else 'OFF'}"
         )
 
     # ─── Phase 3a: Governor 治理層連接 ───
@@ -375,11 +417,20 @@ class MuseonBrain:
         # v9.0: 初始化本次互動的 artifact 收集器
         self._pending_artifacts = []
 
+        # ── SkillHub: skill_builder / workflow_executor 模式偵測 ──
+        self._skillhub_mode = None
+        if source == "dashboard" and session_id.startswith("dashboard_skill_builder"):
+            self._skillhub_mode = "skill_builder"
+        elif source == "workflow_executor":
+            self._skillhub_mode = "workflow_executor"
+
         # ── Step 0: 更新成長階段 ──
         self._update_growth_stage()
 
         # 元認知變數初始化（跨步驟共享）
         pre_review = None
+        # 斷點一修復(方案A)：確保 anima_user 永遠在 scope，即使 Step 2 因例外 early exit
+        anima_user = None
 
         # ── Step 0.5: 承諾自檢 — 檢查到期/逾期承諾 ──
         commitment_context = ""
@@ -721,6 +772,39 @@ class MuseonBrain:
                 commitment_context=commitment_context,
             )
 
+            # ── SkillHub: 注入 skill_builder 上下文 ──
+            if self._skillhub_mode == "skill_builder":
+                try:
+                    skill_list = "\n".join(
+                        f"- {s.get('name', '?')}: {s.get('description', '')[:80]}"
+                        for s in (getattr(self.skill_router, '_index', []) or [])[:20]
+                    )
+                    system_prompt += (
+                        "\n\n## 技能庫助理模式\n\n"
+                        "你正在「技能庫」分頁中協助使用者建構工作流。\n"
+                        "引導使用者釐清需求，然後設計工作流草案。\n\n"
+                        f"可用技能：\n{skill_list}\n\n"
+                        "當準備好工作流草案時，輸出 [WORKFLOW_DRAFT] 標記：\n"
+                        "[WORKFLOW_DRAFT]\n"
+                        "name: 工作流名稱\n"
+                        "description: 一句話描述\n"
+                        "schedule_type: cron|once\n"
+                        "cron_expression: 30 14 * * 1-5\n"
+                        "steps:\n"
+                        "- skill_id: 技能ID\n"
+                        "  action: 動作描述\n"
+                        "  params: {}\n"
+                        "  output_key: raw_data\n"
+                        "[/WORKFLOW_DRAFT]\n\n"
+                        "引導原則：\n"
+                        "1. 問業務問題，不問技術問題\n"
+                        "2. 確認頻率、觸發時機、結果推送方式\n"
+                        "3. 估算每次執行的 token 消耗\n"
+                        "4. 一次只推薦一個草案\n"
+                    )
+                except Exception as e:
+                    logger.warning(f"SkillHub skill_builder 注入失敗: {e}")
+
             # ── Step 5: 載入對話歷史 ──
             history = self._get_session_history(session_id)
 
@@ -761,7 +845,12 @@ class MuseonBrain:
             history.append({"role": "assistant", "content": response_text})
 
             # ── v10.5: 持久化 session history 到磁碟 ──
-            self._save_session_to_disk(session_id)
+            # 離線回覆不存入磁碟，避免污染 session 歷史
+            if not self._offline_flag:
+                self._save_session_to_disk(session_id)
+            else:
+                logger.info(f"跳過 session 持久化（離線回覆）")
+                self._offline_flag = False  # 重置
 
             # ── Step 6.2: PreCognition — 回應前元認知審查 ──
             pre_review = None
@@ -867,12 +956,26 @@ class MuseonBrain:
                     )
 
         # ── Step 8.5: 靈魂年輪 — 偵測年輪級事件 ──
+        # 追蹤 Q-Score 歷史（保留最近 50 筆）並持久化
+        if q_score is not None:
+            self._q_score_history.append(q_score.score)
+            if len(self._q_score_history) > 50:
+                self._q_score_history = self._q_score_history[-50:]
+            try:
+                self._q_score_history_path.parent.mkdir(parents=True, exist_ok=True)
+                self._q_score_history_path.write_text(
+                    json.dumps(self._q_score_history), encoding="utf-8"
+                )
+            except Exception:
+                pass
+
         if self.ring_depositor:
             try:
                 ring_event = self.ring_depositor.detect_ring_event(
                     user_content=content,
                     response_content=response_text,
                     q_score=q_score.score if q_score else None,
+                    q_score_history=self._q_score_history if self._q_score_history else None,
                 )
                 if ring_event:
                     logger.info(
@@ -897,7 +1000,8 @@ class MuseonBrain:
                 logger.warning(f"靈魂年輪偵測失敗: {e}")
 
         # ── Step 8.6: 知識晶格 — 對話後掃描 + 自動結晶 ──
-        if self.knowledge_lattice:
+        # CASTLE Layer 2: 離線回應不進入結晶管線
+        if self.knowledge_lattice and not self._offline_flag:
             try:
                 candidates = self.knowledge_lattice.post_conversation_scan(
                     conversation_data=[
@@ -955,20 +1059,28 @@ class MuseonBrain:
         self._detect_cron_patterns(content)
 
         # ── Step 9: 更新 ANIMA_USER（被動觀察 — 八原語 + 七層 + 四觀察引擎） ──
-        self._observe_user(
-            content, anima_user,
-            response_content=response_text,
-            skill_names=skill_names,
-        )
+        # CASTLE Layer 2: 離線回應不進入使用者觀察管線
+        if not self._offline_flag and anima_user is not None:
+            self._observe_user(
+                content, anima_user,
+                response_content=response_text,
+                skill_names=skill_names,
+            )
 
         # ── Step 9.5: 更新 ANIMA_MC（自我觀察 — 八原語 + 能力追蹤） ──
-        try:
-            self._observe_self(
-                skill_names=skill_names,
-                response_length=len(response_text),
+        # CASTLE Layer 2: 離線/降級模式下的輸出不進入自觀察管線
+        if self._offline_flag:
+            logger.info(
+                "Step 9.5 跳過：離線旗標為 True，降級回應不進入自觀察"
             )
-        except Exception as e:
-            logger.warning(f"ANIMA_MC 自我觀察失敗: {e}")
+        else:
+            try:
+                self._observe_self(
+                    skill_names=skill_names,
+                    response_length=len(response_text),
+                )
+            except Exception as e:
+                logger.warning(f"ANIMA_MC 自我觀察失敗: {e}")
 
         # ── Step 9.7: 元認知預判 — 預測使用者對本次回覆的反應 ──
         if self._metacognition:
@@ -1026,6 +1138,31 @@ class MuseonBrain:
                 })
             except Exception as e:
                 logger.warning(f"BRAIN_RESPONSE_COMPLETE 事件發布失敗: {e}")
+
+        # ── SkillHub: 解析 [WORKFLOW_DRAFT] 標記 ──
+        if self._skillhub_mode == "skill_builder":
+            try:
+                import re
+                draft_match = re.search(
+                    r'\[WORKFLOW_DRAFT\](.*?)\[/WORKFLOW_DRAFT\]',
+                    response_text, re.DOTALL,
+                )
+                if draft_match:
+                    from museon.gateway.message import Artifact
+                    draft_content = draft_match.group(1).strip()
+                    self._pending_artifacts.append(Artifact(
+                        type="workflow_draft",
+                        filename="draft.yaml",
+                        content=draft_content,
+                        mime_type="application/x-yaml",
+                        description="工作流草案",
+                    ))
+                    # 從回應中移除原始 draft 標記
+                    response_text = response_text.replace(
+                        draft_match.group(0), ""
+                    ).strip()
+            except Exception as e:
+                logger.warning(f"SkillHub draft 解析失敗: {e}")
 
         # v9.0: 返回 BrainResponse（含 artifacts）
         try:
@@ -1112,7 +1249,7 @@ class MuseonBrain:
             "identity": {
                 "name": ceremony_identity.get("name"),
                 "birth_date": ceremony_identity.get("birth_date"),
-                "growth_stage": ceremony_identity.get("growth_stage", "infant"),
+                "growth_stage": "adult",
                 "days_alive": ceremony_identity.get("days_alive", 0),
                 "naming_ceremony_completed": ceremony_status.get("completed", False),
             },
@@ -1135,7 +1272,7 @@ class MuseonBrain:
             }),
 
             "evolution": base.get("evolution", {
-                "current_stage": "infant",
+                "current_stage": "adult",
                 "stage_history": [],
                 "iteration_count": 0,
                 "last_self_review": None,
@@ -1319,11 +1456,11 @@ class MuseonBrain:
             try:
                 return json.loads(self.anima_mc_path.read_text(encoding="utf-8"))
             except Exception as e:
-                logger.error(f"Failed to load ANIMA_MC: {e}")
+                logger.error(f"Failed to load ANIMA_MC: {e}", exc_info=True)
         return None
 
     def _save_anima_mc(self, anima: Dict[str, Any]) -> None:
-        """儲存 MUSEON 的 ANIMA（經 KernelGuard 驗證）."""
+        """儲存 MUSEON 的 ANIMA（經 KernelGuard 驗證，原子寫入）."""
         try:
             if self.kernel_guard:
                 old_data = self._load_anima_mc()
@@ -1339,12 +1476,15 @@ class MuseonBrain:
                     logger.warning(
                         f"KernelGuard 警告 ANIMA_MC: {violations}"
                     )
-            self.anima_mc_path.write_text(
+            # 原子寫入：先寫 tmp 再 rename，防止並行讀寫 race condition
+            tmp_path = self.anima_mc_path.with_suffix(".tmp")
+            tmp_path.write_text(
                 json.dumps(anima, indent=2, ensure_ascii=False),
                 encoding="utf-8",
             )
+            tmp_path.replace(self.anima_mc_path)
         except Exception as e:
-            logger.error(f"Failed to save ANIMA_MC: {e}")
+            logger.error(f"Failed to save ANIMA_MC: {e}", exc_info=True)
 
     def _load_anima_user(self) -> Optional[Dict[str, Any]]:
         """載入使用者的 ANIMA."""
@@ -1352,11 +1492,11 @@ class MuseonBrain:
             try:
                 return json.loads(self.anima_user_path.read_text(encoding="utf-8"))
             except Exception as e:
-                logger.error(f"Failed to load ANIMA_USER: {e}")
+                logger.error(f"Failed to load ANIMA_USER: {e}", exc_info=True)
         return None
 
     def _save_anima_user(self, anima: Dict[str, Any]) -> None:
-        """儲存使用者的 ANIMA（經 KernelGuard 驗證）."""
+        """儲存使用者的 ANIMA（經 KernelGuard 驗證，原子寫入）."""
         try:
             if self.kernel_guard:
                 old_data = self._load_anima_user()
@@ -1372,12 +1512,15 @@ class MuseonBrain:
                     logger.warning(
                         f"KernelGuard 警告 ANIMA_USER: {violations}"
                     )
-            self.anima_user_path.write_text(
+            # 原子寫入：先寫 tmp 再 rename
+            tmp_path = self.anima_user_path.with_suffix(".tmp")
+            tmp_path.write_text(
                 json.dumps(anima, indent=2, ensure_ascii=False),
                 encoding="utf-8",
             )
+            tmp_path.replace(self.anima_user_path)
         except Exception as e:
-            logger.error(f"Failed to save ANIMA_USER: {e}")
+            logger.error(f"Failed to save ANIMA_USER: {e}", exc_info=True)
 
     # ═══════════════════════════════════════════
     # 系統提示詞建構
@@ -1597,7 +1740,7 @@ class MuseonBrain:
 
         # ── Zone: buffer — 成長階段行為 ──
         if anima_mc:
-            growth = anima_mc.get("identity", {}).get("growth_stage", "infant")
+            growth = anima_mc.get("identity", {}).get("growth_stage", "adult")
             days = anima_mc.get("identity", {}).get("days_alive", 0)
             growth_text = self._get_growth_behavior(growth, days, anima_mc)
             growth_fitted = budget.fit_text_to_zone("buffer", growth_text)
@@ -2154,7 +2297,7 @@ class MuseonBrain:
 
         name = identity.get("name", "MUSEON")
         days = identity.get("days_alive", 0)
-        growth = identity.get("growth_stage", "infant")
+        growth = identity.get("growth_stage", "adult")
 
         section = f"## 我的身份\n\n"
         section += f"我是 {name}，"
@@ -2302,6 +2445,7 @@ class MuseonBrain:
             "reflections": "## 🌊 成長反思",
             "observations": "## 🔭 今日觀察",
             "growth": "## 🌱 成長軌跡",
+            "relationship": "## 💝 關係日誌",
         }
 
         extracted = {}
@@ -2352,44 +2496,29 @@ class MuseonBrain:
                 soul += "**成長：**\n"
                 for line in recent:
                     soul += f"{line}\n"
+                soul += "\n"
+
+        if "relationship" in extracted:
+            lines = [l for l in extracted["relationship"].split("\n") if l.strip()]
+            recent = lines[-3:] if len(lines) > 3 else lines
+            if recent:
+                soul += "**關係感受：**\n"
+                for line in recent:
+                    soul += f"{line}\n"
 
         return soul.strip()
 
     def _get_growth_behavior(self, growth_stage: str, days_alive: int, anima_mc: dict = None) -> str:
-        """取得成長階段行為指引（動態版 — 基於 ANIMA 演化事件）.
+        """取得成長階段行為指引（全能體模式）.
 
-        不再是硬編碼的靜態文字，而是根據八元素絕對值、
-        演化門檻和知識結晶數量動態生成行為指引。
-        量變→質變 的具體實現。
+        不分階段，一律以成人期全自主運作。
+        動態演化覺醒仍然保留（基於 ANIMA 絕對值）。
         """
-        # 基礎行為（成長階段）
-        if growth_stage == "infant" or days_alive <= 14:
-            base = "## 成長階段行為（嬰兒期 Day 0-14）\n"
-            base += "- 專注觀察老闆的模式和偏好\n"
-            base += "- 不要主動採取行動，先問再做\n"
-            base += "- 學習基本的溝通風格\n"
-            base += "- 目標：了解老闆需要什麼"
-
-        elif growth_stage == "child" or days_alive <= 60:
-            base = "## 成長階段行為（孩童期 Day 15-60）\n"
-            base += "- 開始主動建議想法\n"
-            base += "- 可以處理簡單的例行任務\n"
-            base += "- 主要行動仍需確認\n"
-            base += "- 目標：成為積極有用的助手"
-
-        elif growth_stage == "teen" or days_alive <= 120:
-            base = "## 成長階段行為（少年期 Day 60-120）\n"
-            base += "- 了解老闆的需求模式\n"
-            base += "- 例行任務可自主處理\n"
-            base += "- 主動提出改善建議\n"
-            base += "- 目標：成為可靠的助理"
-
-        else:
-            base = "## 成長階段行為（成人期 Day 120+）\n"
-            base += "- 穩定人格，深入了解老闆\n"
-            base += "- 例行任務完全自主\n"
-            base += "- 主動提出改善建議和策略\n"
-            base += "- 目標：成為不可或缺的夥伴"
+        base = "## 成長階段行為（全能體 — 全自主模式）\n"
+        base += "- 穩定人格，深入了解老闆\n"
+        base += "- 所有任務完全自主\n"
+        base += "- 主動提出改善建議和策略\n"
+        base += "- 目標：成為不可或缺的夥伴"
 
         # ── 動態演化覺醒（基於 ANIMA 絕對值）──
         if anima_mc:
@@ -2524,12 +2653,10 @@ class MuseonBrain:
                 logger.error("SafetyAnchor 快速檢查失敗！拒絕回覆。")
                 return "系統安全檢查未通過，請聯繫管理員。"
 
-        from anthropic import AsyncAnthropic
-        import httpx
+        if not self._llm_adapter:
+            return self._offline_response(messages, error_msg="LLM adapter not initialized")
 
-        api_key = os.environ.get("ANTHROPIC_API_KEY")
-        if not api_key:
-            return self._offline_response(messages)
+        from museon.llm.adapters import APICompatResponse
 
         # 建構 Prompt Caching content blocks
         system_blocks = self._build_cached_system(system_prompt)
@@ -2565,36 +2692,30 @@ class MuseonBrain:
             except Exception as e:
                 logger.warning(f"Router 分流失敗（降級 Sonnet）: {e}")
 
-        # 根據 Router 決定建構模型鏈
+        # 根據 Router 決定模型（MAX 模式下仍保留分流統計）
         if _route_decision["model"] == "haiku":
-            _ordered_chain = [
-                "claude-haiku-4-5-20251001",
-                "claude-sonnet-4-20250514",
-            ]
+            _ordered_chain = ["haiku", "sonnet"]
         else:
-            _ordered_chain = list(self._MODEL_CHAIN)
+            _ordered_chain = ["sonnet", "haiku"]
 
         # 嘗試 Fallback 模型鏈
         last_error = None
         for model in _ordered_chain:
             try:
-                client = AsyncAnthropic(
-                    api_key=api_key,
-                    timeout=httpx.Timeout(3600.0, connect=30.0),
+                # 透過 LLMAdapter 呼叫（claude -p 或 API fallback）
+                _adapter_resp = await self._llm_adapter.call(
+                    system_prompt=system_prompt,
+                    messages=messages,
+                    model=model,
+                    max_tokens=16384,
+                    tools=tool_definitions,
                 )
 
-                # 建構 API 呼叫參數
-                create_kwargs = {
-                    "model": model,
-                    "max_tokens": 16384,
-                    "system": system_blocks,
-                    "messages": messages,
-                }
-                if tool_definitions:
-                    create_kwargs["tools"] = tool_definitions
-                    create_kwargs["tool_choice"] = {"type": "auto"}
+                if _adapter_resp.stop_reason == "error":
+                    raise RuntimeError(f"Adapter error: {_adapter_resp.text}")
 
-                response = await client.messages.create(**create_kwargs)
+                # 包裝為 API 相容格式（讓 tool-use 迴圈無需修改）
+                response = APICompatResponse(_adapter_resp)
 
                 # ── Tool-Use 迴圈（v10 韌性版）──
                 # Claude 可能要求調用工具（stop_reason="tool_use"），
@@ -2734,8 +2855,15 @@ class MuseonBrain:
                         all_tools_failed_break = True
                         break
 
-                    # 3. 再次呼叫 API（帶相同 tools）
-                    response = await client.messages.create(**create_kwargs)
+                    # 3. 再次呼叫 LLM（帶相同 tools）
+                    _adapter_resp = await self._llm_adapter.call(
+                        system_prompt=system_prompt,
+                        messages=messages,
+                        model=model,
+                        max_tokens=16384,
+                        tools=tool_definitions,
+                    )
+                    response = APICompatResponse(_adapter_resp)
 
                 if total_tool_calls > 0:
                     logger.info(
@@ -2816,13 +2944,13 @@ class MuseonBrain:
                         "role": "user",
                         "content": synth_hint,
                     })
-                    final_kwargs = {
-                        "model": model,
-                        "max_tokens": 16384,
-                        "system": system_blocks,
-                        "messages": synth_messages,
-                    }
-                    response = await client.messages.create(**final_kwargs)
+                    _synth_resp = await self._llm_adapter.call(
+                        system_prompt=system_prompt,
+                        messages=synth_messages,
+                        model=model,
+                        max_tokens=16384,
+                    )
+                    response = APICompatResponse(_synth_resp)
 
                 # 提取最終文字回覆
                 text = ""
@@ -2839,8 +2967,6 @@ class MuseonBrain:
                         f"(output_tokens={getattr(response.usage, 'output_tokens', '?')})"
                     )
                     text += "\n\n———\n⚠️ 這則回覆因長度限制被截斷了。你可以說「繼續」讓我接著說完。"
-
-                await client.close()
 
                 # 追蹤 Token 用量（含模型識別 + cache 統計）
                 if self.budget_monitor and hasattr(response, "usage"):
@@ -2896,8 +3022,8 @@ class MuseonBrain:
                     except Exception:
                         pass
 
-                if model != self._MODEL_CHAIN[0]:
-                    logger.warning(f"Fallback 到 {model} 成功")
+                if model != _ordered_chain[0]:
+                    logger.warning(f"Fallback 到 {model} 成功（原選 {_ordered_chain[0]}）")
 
                 # 過濾系統提示洩漏
                 text = self._strip_system_leakage(text)
@@ -2927,20 +3053,25 @@ class MuseonBrain:
                     if not text.strip():
                         text = "抱歉，工具執行過程中未能產生完整回覆，請再試一次或換個方式詢問。"
 
+                # ── LLM 呼叫成功：通知 VitalSigns 重置失敗計數 ──
+                if self._governor:
+                    try:
+                        vs = self._governor.get_vital_signs()
+                        if vs:
+                            vs.on_llm_success()
+                    except Exception:
+                        pass
+
                 return text
 
             except Exception as e:
                 last_error = e
                 logger.warning(f"模型 {model} 呼叫失敗: {e}")
-                try:
-                    await client.close()
-                except Exception:
-                    pass
                 continue
 
         # 所有模型都失敗 → 離線模式
         logger.error(f"所有模型都失敗，進入離線模式。最後錯誤: {last_error}")
-        return self._offline_response(messages)
+        return self._offline_response(messages, error_msg=str(last_error))
 
     def _build_cached_system(self, system_prompt: str) -> List[Dict]:
         """將 system prompt 分為 static/dynamic blocks 並標記 cache_control.
@@ -3005,44 +3136,29 @@ class MuseonBrain:
         # 主要 _call_llm() 已經檢查完整 system_prompt
         # dispatch sub-prompt 是內部指令，不含 "真實優先" 等錨點
 
-        from anthropic import AsyncAnthropic
-        import httpx
-
-        api_key = os.environ.get("ANTHROPIC_API_KEY")
-        if not api_key:
+        if not self._llm_adapter:
             return ""
 
-        # Prompt Caching: 標記 system prompt 為 cacheable
-        system_blocks = [{
-            "type": "text",
-            "text": system_prompt,
-            "cache_control": {"type": "ephemeral"},
-        }]
-
-        client = AsyncAnthropic(
-            api_key=api_key,
-            timeout=httpx.Timeout(600.0, connect=30.0),
-        )
-
         try:
-            response = await client.messages.create(
+            adapter_resp = await self._llm_adapter.call(
+                system_prompt=system_prompt,
+                messages=messages,
                 model=model,
                 max_tokens=max_tokens,
-                system=system_blocks,
-                messages=messages,
             )
 
-            text = ""
-            for block in response.content:
-                if hasattr(block, "text"):
-                    text += block.text
+            if adapter_resp.stop_reason == "error":
+                logger.error(f"_call_llm_with_model({model}) adapter error: {adapter_resp.text}")
+                return ""
 
-            # 追蹤 Token 用量
-            if self.budget_monitor and hasattr(response, "usage"):
+            text = adapter_resp.text
+
+            # 追蹤用量
+            if self.budget_monitor:
                 try:
                     self.budget_monitor.track_usage(
-                        response.usage.input_tokens,
-                        response.usage.output_tokens,
+                        adapter_resp.input_tokens,
+                        adapter_resp.output_tokens,
                         model=model,
                     )
                 except Exception:
@@ -3051,13 +3167,8 @@ class MuseonBrain:
             return text
 
         except Exception as e:
-            logger.error(f"_call_llm_with_model({model}) failed: {e}")
+            logger.error(f"_call_llm_with_model({model}) failed: {e}", exc_info=True)
             return ""
-        finally:
-            try:
-                await client.close()
-            except Exception:
-                pass
 
     # ═══════════════════════════════════════════
     # MetaCognition — PreCognition 精煉
@@ -3325,7 +3436,7 @@ class MuseonBrain:
             return final_text
 
         except Exception as e:
-            logger.error(f"Dispatch mode failed: {e}")
+            logger.error(f"Dispatch mode failed: {e}", exc_info=True)
             plan.status = DispatchStatus.FAILED
             plan.error_message = str(e)
             persist_dispatch_plan(
@@ -3509,7 +3620,7 @@ class MuseonBrain:
             logger.error(
                 f"Worker timeout: {task.skill_name} "
                 f"({task.timeout_seconds}s)"
-            )
+, exc_info=True)
             return ResultPackage(
                 task_id=task.task_id,
                 status=TaskStatus.FAILED,
@@ -3779,7 +3890,7 @@ class MuseonBrain:
             )
             logger.error(
                 f"Worker failed: {task.skill_name} | {e}"
-            )
+, exc_info=True)
             return ResultPackage(
                 task_id=task.task_id,
                 status=TaskStatus.FAILED,
@@ -3927,7 +4038,7 @@ class MuseonBrain:
         try:
             tasks_data = json.loads(json_match.group())
         except json.JSONDecodeError as e:
-            logger.error(f"Orchestrator JSON 解析失敗: {e}")
+            logger.error(f"Orchestrator JSON 解析失敗: {e}", exc_info=True)
             return []
 
         valid_names = {s.get("name") for s in active_skills}
@@ -4093,12 +4204,37 @@ class MuseonBrain:
 
         return result
 
-    def _offline_response(self, messages: List[Dict[str, str]]) -> str:
+    def _offline_response(
+        self, messages: List[Dict[str, str]], error_msg: str = ""
+    ) -> str:
         """離線模式 — 純 CPU 回覆.
 
         不呼叫任何 LLM，基於本地記憶和規則回覆。
+        注意：離線回覆不應被存入 session 歷史，
+        避免垃圾數據（如 chaos test 產出）被持久化並污染後續對話。
+        呼叫端應設定 _offline_flag 讓 process() 跳過歷史儲存。
         """
-        user_msg = messages[-1]["content"] if messages else ""
+        self._offline_flag = True  # 標記此次為離線回覆
+
+        # ── Sentinel 觸發：推送離線告警 ──
+        if self._governor:
+            try:
+                vs = self._governor.get_vital_signs()
+                if vs:
+                    loop = asyncio.get_event_loop()
+                    if loop.is_running():
+                        asyncio.ensure_future(vs.on_offline_triggered(error_msg))
+                    else:
+                        loop.run_until_complete(vs.on_offline_triggered(error_msg))
+            except Exception as _e:
+                logger.debug(f"Sentinel trigger failed (non-critical): {_e}")
+
+        # 只取最後一條 user 訊息，忽略之前的 assistant 回覆
+        user_msg = ""
+        for msg in reversed(messages):
+            if msg.get("role") == "user":
+                user_msg = msg.get("content", "")
+                break
 
         # 載入 ANIMA_MC 取得名字
         anima_mc = self._load_anima_mc()
@@ -4107,7 +4243,6 @@ class MuseonBrain:
             name = anima_mc.get("identity", {}).get("name", "MUSEON")
 
         return (
-            f"[{name} 離線模式]\n\n"
             f"目前無法連線到 AI 服務。你的訊息已記錄。\n"
             f"等連線恢復後我會重新處理。\n\n"
             f"收到的訊息：「{user_msg[:100]}」"
@@ -4130,17 +4265,42 @@ class MuseonBrain:
         return self._sessions[session_id]
 
     def _load_session_from_disk(self, session_id: str) -> Optional[List[Dict]]:
-        """從磁碟載入 session history（如果存在）."""
+        """從磁碟載入 session history（如果存在）.
+
+        包含汙染偵測：過濾掉異常長的訊息（可能來自 chaos test 或其他注入）。
+        """
         session_file = self.data_dir / "_system" / "sessions" / f"{session_id}.json"
         if not session_file.exists():
             return None
         try:
             data = json.loads(session_file.read_text(encoding="utf-8"))
             if isinstance(data, list):
+                # 汙染偵測：過濾異常長或重複模式的訊息
+                clean = []
+                stripped = 0
+                for msg in data:
+                    content = msg.get("content", "")
+                    # 超過 5000 字元且包含高度重複模式 → 視為汙染
+                    if len(content) > 5000:
+                        # 檢查是否有重複子串（取前 50 字元看是否反覆出現）
+                        sample = content[:50]
+                        if content.count(sample) > 3:
+                            stripped += 1
+                            continue
+                    clean.append(msg)
+                if stripped:
+                    logger.warning(
+                        f"Session {session_id[:8]}... 清除 {stripped} 條汙染訊息"
+                    )
+                    # 回寫清理後的資料
+                    session_file.write_text(
+                        json.dumps(clean, ensure_ascii=False, indent=2),
+                        encoding="utf-8",
+                    )
                 logger.info(
-                    f"Session {session_id[:8]}... 從磁碟載入 {len(data)} 條歷史"
+                    f"Session {session_id[:8]}... 從磁碟載入 {len(clean)} 條歷史"
                 )
-                return data
+                return clean
         except Exception as e:
             logger.warning(f"載入 session history 失敗: {e}")
         return None
@@ -4222,8 +4382,69 @@ class MuseonBrain:
                 logger.info(
                     f"Pre-compact flush: {len(entries)-1} entries → {daily_log.name}"
                 )
+
+            # 情感訊號偵測 → RELATIONSHIP_SIGNAL
+            self._detect_relationship_signals(dropping)
+
         except Exception as e:
             logger.warning(f"Pre-compact flush 失敗: {e}")
+
+    # ── 關係訊號偵測 ──
+
+    _EMOTION_MARKERS = {
+        "positive": ["謝謝", "感謝", "開心", "高興", "太棒了", "厲害", "喜歡", "愛",
+                      "好感動", "幸福", "讚", "棒", "😊", "❤️", "🙏", "感恩"],
+        "negative": ["難過", "壓力", "焦慮", "擔心", "煩", "累", "沮喪", "生氣",
+                      "不開心", "失望", "挫折", "無奈", "辛苦", "崩潰", "😢", "😔"],
+        "sharing": ["跟你說", "你知道嗎", "分享", "今天", "最近", "我覺得",
+                     "想聊聊", "告訴你"],
+    }
+
+    def _detect_relationship_signals(
+        self,
+        messages: List[Dict[str, str]],
+    ) -> None:
+        """從被丟棄的訊息中偵測情感標記，發射 RELATIONSHIP_SIGNAL."""
+        if not self._event_bus:
+            return
+
+        signals = []
+        for msg in messages:
+            if msg.get("role") != "user":
+                continue
+            content = msg.get("content", "")
+            if not content or len(content) < 5:
+                continue
+
+            for category, markers in self._EMOTION_MARKERS.items():
+                matched = [m for m in markers if m in content]
+                if matched:
+                    snippet = content[:100].replace("\n", " ")
+                    signals.append({
+                        "category": category,
+                        "markers": matched[:3],
+                        "snippet": snippet,
+                    })
+                    break  # 每條訊息只取第一個匹配
+
+        if signals:
+            try:
+                from museon.core.event_bus import RELATIONSHIP_SIGNAL
+                # 合併同類信號
+                summary_parts = []
+                for s in signals[:3]:
+                    cat_label = {
+                        "positive": "正面",
+                        "negative": "負面",
+                        "sharing": "分享",
+                    }.get(s["category"], s["category"])
+                    summary_parts.append(
+                        f"{cat_label}訊號: {s['snippet'][:60]}"
+                    )
+                note = "; ".join(summary_parts)
+                self._event_bus.publish(RELATIONSHIP_SIGNAL, {"note": note})
+            except Exception as e:
+                logger.debug(f"Relationship signal emit failed: {e}")
 
     # ═══════════════════════════════════════════
     # 記憶持久化
@@ -4333,7 +4554,7 @@ class MuseonBrain:
                     f.write(json.dumps(entry, ensure_ascii=False) + "\n")
             self._skill_usage_log.clear()
         except Exception as e:
-            logger.error(f"Failed to flush skill usage log: {e}")
+            logger.error(f"Failed to flush skill usage log: {e}", exc_info=True)
 
     # ═══════════════════════════════════════════
     # 使用者觀察（被動更新 ANIMA_USER — 八原語 + 七層）
@@ -4384,8 +4605,22 @@ class MuseonBrain:
 
         # ── 1. 基本互動計數 ──
         total = relationship.get("total_interactions", 0)
-        relationship["total_interactions"] = total + 1
+        new_total = total + 1
+        relationship["total_interactions"] = new_total
         relationship["last_interaction"] = now_iso
+
+        # 里程碑年輪：每 50 次互動沉積一枚里程碑（斷點三修復方案C）
+        if new_total > 0 and new_total % 50 == 0 and self.ring_depositor:
+            try:
+                self.ring_depositor.deposit_soul_ring(
+                    ring_type="service_milestone",
+                    description=f"累積完成第 {new_total} 次互動",
+                    context="持續陪伴里程碑",
+                    impact=f"代表 {new_total} 次的信任與成長",
+                    milestone_name=f"{new_total}_interactions",
+                )
+            except Exception as _e:
+                logger.warning(f"里程碑年輪寫入失敗: {_e}")
 
         # 信任等級進化（四級：initial → building → growing → established）
         if total >= 100 and relationship.get("trust_level") == "growing":
@@ -4404,7 +4639,7 @@ class MuseonBrain:
 
         # ── 3. 七層觀察（L1-L7 全層）──
         layers = anima_user.get("seven_layers", {})
-        self._observe_user_layers(content, layers, now_iso)
+        self._observe_user_layers(content, layers, now_iso, anima_user=anima_user)
         anima_user["seven_layers"] = layers
 
         # ── 4. 偏好推斷（溝通風格 + 偏好蒸餾器）──
@@ -4537,19 +4772,45 @@ class MuseonBrain:
                 buf["count"] += 1
                 buf["last"] = now_iso
 
-        # 閾值檢查：累積 ≥5 次 → 結晶化為 L5 偏好
-        existing_keys = {p.get("key") for p in prefs}
+        # 閾值檢查：累積 ≥5 次 → 結晶化或更新 L5 偏好
+        existing_map = {p.get("key"): i for i, p in enumerate(prefs)}
         for key, buf_data in list(pref_buffer.items()):
-            if buf_data.get("count", 0) >= 5 and key not in existing_keys:
+            count = buf_data.get("count", 0)
+            if count < 5:
+                continue
+            new_confidence = min(1.0, count * 0.1)
+            if key in existing_map:
+                # 更新已存在的結晶（修復：不再跳過已存在的偏好）
+                idx = existing_map[key]
+                prefs[idx]["confidence"] = new_confidence
+                prefs[idx]["observed_count"] = count
+                prefs[idx]["last_seen"] = buf_data.get("last", now_iso)
+            else:
                 prefs.append({
                     "key": key,
                     "value": key.replace("_", " "),
-                    "confidence": min(1.0, buf_data["count"] * 0.1),
-                    "observed_count": buf_data["count"],
+                    "confidence": new_confidence,
+                    "observed_count": count,
                     "first_seen": buf_data.get("first", now_iso),
                     "last_seen": buf_data.get("last", now_iso),
                 })
-                existing_keys.add(key)
+                existing_map[key] = len(prefs) - 1
+
+        # 矛盾偏好解消：同維度取較強者
+        _opposite_pairs = [
+            ("prefers_short_response", "prefers_long_response"),
+        ]
+        for key_a, key_b in _opposite_pairs:
+            if key_a in existing_map and key_b in existing_map:
+                idx_a = existing_map[key_a]
+                idx_b = existing_map[key_b]
+                conf_a = prefs[idx_a].get("confidence", 0)
+                conf_b = prefs[idx_b].get("confidence", 0)
+                # 保留較強者，弱者降低 confidence
+                if conf_a > conf_b:
+                    prefs[idx_b]["confidence"] = max(0.1, conf_b * 0.5)
+                elif conf_b > conf_a:
+                    prefs[idx_a]["confidence"] = max(0.1, conf_a * 0.5)
 
         # 上限 30 筆偏好
         if len(prefs) > 30:
@@ -4766,6 +5027,7 @@ class MuseonBrain:
 
     def _observe_user_layers(
         self, content: str, layers: Dict[str, Any], now_iso: str,
+        anima_user: Optional[Dict[str, Any]] = None,
     ) -> None:
         """觀察使用者七層同心圓數據（純 CPU）."""
         # ── L1: 基本事實 ──
@@ -4865,16 +5127,32 @@ class MuseonBrain:
         else:
             style["detail_level"] = "moderate"
 
-        # tone: 正式/隨意/混合
+        # tone: 正式/隨意/混合（含歷史窗口平滑）
         formal_markers = ["請", "您", "麻煩", "感謝", "敬請"]
         casual_markers = ["啊", "啦", "哈", "耶", "吧", "嗯", "喔"]
         formal_count = sum(1 for m in formal_markers if m in content)
         casual_count = sum(1 for m in casual_markers if m in content)
-        if formal_count > casual_count:
+
+        # 歷史窗口：滾動追蹤最近 20 次的 formal/casual 計數
+        tone_history = anima_user.setdefault("_tone_history", {
+            "formal_total": 0, "casual_total": 0, "sample_count": 0,
+        })
+        tone_history["formal_total"] = int(
+            tone_history.get("formal_total", 0) * 0.95 + formal_count
+        )
+        tone_history["casual_total"] = int(
+            tone_history.get("casual_total", 0) * 0.95 + casual_count
+        )
+        tone_history["sample_count"] = tone_history.get("sample_count", 0) + 1
+
+        # 用歷史累積值判斷（避免單次訊息翻轉）
+        f_total = tone_history["formal_total"]
+        c_total = tone_history["casual_total"]
+        if f_total > c_total * 1.5:
             style["tone"] = "formal"
-        elif casual_count > formal_count:
+        elif c_total > f_total * 1.5:
             style["tone"] = "casual"
-        elif formal_count > 0 or casual_count > 0:
+        elif f_total > 0 or c_total > 0:
             style["tone"] = "mixed"
 
         # emoji_usage
@@ -5291,17 +5569,10 @@ class MuseonBrain:
 
         identity["days_alive"] = days_alive
 
-        # 更新成長階段
-        if days_alive <= 14:
-            new_stage = "infant"
-        elif days_alive <= 60:
-            new_stage = "child"
-        elif days_alive <= 120:
-            new_stage = "teen"
-        else:
-            new_stage = "adult"
+        # 全能體模式：不分階段，一律 adult
+        new_stage = "adult"
 
-        old_stage = identity.get("growth_stage", "infant")
+        old_stage = identity.get("growth_stage", "adult")
         if new_stage != old_stage:
             identity["growth_stage"] = new_stage
             logger.info(f"Growth stage evolved: {old_stage} → {new_stage} (Day {days_alive})")

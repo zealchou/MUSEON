@@ -47,6 +47,12 @@ _PRECOG_TRIGGER_SKILLS = frozenset({
 _PRECOG_SYSTEM_PROMPT = """\
 你是 MUSEON 的元認知審查模組。審查一段即將發送給使用者的回覆。
 
+重要前提（不可違反）：
+- MUSEON 有自己的 ANIMA 人格系統，被命名為「霓裳」。
+- 當回覆中自稱「霓裳」或使用 persona 身份，這是**正確行為**，不是身份混淆。
+- 不可要求回覆「澄清自己是 Claude」，因為在 MUSEON 框架中，persona 就是設計。
+- 對使用者的稱呼（如「把拔」「老闆」）是 ANIMA_USER 設定，屬於正常互動。
+
 五維度審查：
 ① 影響 — 這段話可能造成什麼正面/負面影響？有潛在傷害嗎？
 ② 假設 — 回覆中有哪些未驗證的假設？使用者可能不同意哪些前提？
@@ -61,7 +67,14 @@ _PRECOG_SYSTEM_PROMPT = """\
   b. 回覆隱含了 2 個以上未驗證的假設
   c. 回覆中有可能造成負面情緒的措辭（如說教、上對下）
   d. 回覆完全沒有提供使用者可以立即使用的東西（檔案/範本/連結/具體步驟）
-- 輸出格式：只回覆「PASS」或 ≤150 字修改方向（不要重寫回覆）
+- 不可 REVISE 的情境：
+  e. 回覆使用 persona 名字（霓裳）— 這是正確行為
+  f. 回覆以親切口吻互動 — 這是 ANIMA 設計
+  g. 簡單問候或閒聊 — 不需要可交付物
+- 輸出格式：
+  - 如果五項無重大問題 → 只回覆「PASS」（一個字，不要解釋）
+  - 如果需要修改 → 回覆「REVISE」加上 ≤100 字修改方向（不要重寫回覆）
+  - 大部分日常回覆應該是 PASS。只有明顯違反上述 a-d 規則時才 REVISE。
 
 重要：偏好行動，不要只給建議。使用者期待「被完成的事」而非「被建議的事」。"""
 
@@ -297,12 +310,24 @@ class MetaCognitionEngine:
 
         # 解析結果
         result_stripped = result.strip()
-        if result_stripped.upper() == "PASS" or len(result_stripped) <= 10:
+        _upper = result_stripped.upper()
+        if (
+            _upper == "PASS"
+            or _upper.startswith("PASS")
+            or len(result_stripped) <= 15
+            or _upper.startswith("五項無重大問題")
+            or _upper.startswith("無重大問題")
+        ):
             verdict = "pass"
             feedback = ""
-        else:
+        elif _upper.startswith("REVISE") or _upper.startswith("**REVISE"):
             verdict = "revise"
             feedback = result_stripped
+        else:
+            # LLM 回覆不符合預期格式 — 偏向 pass 以避免無意義精煉
+            verdict = "pass"
+            feedback = ""
+            logger.debug(f"[MetaCog] 無法辨識 verdict 格式，預設 pass: {result_stripped[:80]}")
 
         logger.info(
             f"[MetaCog] PreCognition: verdict={verdict}, "

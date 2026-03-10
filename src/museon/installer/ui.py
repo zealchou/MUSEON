@@ -51,11 +51,13 @@ class InstallerUI:
 
     STEP_NAMES = [
         "環境檢查",
+        "權限檢查",
         "Python 環境建置",
         "核心模組驗證",
         "Electron Dashboard",
         "Gateway Daemon",
         "API Key 設定",
+        "Claude Code",
         "工具安裝",
         "啟動確認",
     ]
@@ -63,11 +65,13 @@ class InstallerUI:
     # 每個步驟的預估時間（秒），用來給使用者心理預期
     STEP_ESTIMATES = {
         "環境檢查": "幾秒",
+        "權限檢查": "幾秒",
         "Python 環境建置": "1~3 分鐘",
         "核心模組驗證": "幾秒",
         "Electron Dashboard": "3~10 分鐘",
         "Gateway Daemon": "幾秒",
         "API Key 設定": "幾秒",
+        "Claude Code": "幾秒",
         "工具安裝": "3~10 分鐘",
         "啟動確認": "幾秒",
     }

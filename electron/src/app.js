@@ -69,6 +69,11 @@
 })();
 
 // ═══════════════════════════════════════
+// API Base URL
+// ═══════════════════════════════════════
+const API = 'http://127.0.0.1:8765';
+
+// ═══════════════════════════════════════
 // State
 // ═══════════════════════════════════════
 const state = {
@@ -149,6 +154,8 @@ const state = {
   toolInstalling: {},        // { name: { status, progress, message } }
   toolInstallPollers: {},     // { name: intervalId }
   // Setup Wizard 工具選擇
+  wizardPermissions: [],       // [{ name, label, granted, required }]
+  wizardPermissionsLoading: false,
   wizardToolsSelected: {},    // { name: true/false }
   wizardToolsInstalling: false,
   wizardToolsProgress: {},    // { name: { status, progress, message } }
@@ -191,22 +198,36 @@ const state = {
   mcpCategoryFilter: 'all',  // 分類篩選：'all' | 'search' | ...
   mcpConnecting: {},         // { name: true/false }
   mcpEnvInputs: {},          // { name: { KEY: value } }
+  // ── SkillHub 技能庫 ──
+  skillhubWorkflows: [],           // 工作流列表
+  skillhubSkills: [],              // 技能目錄
+  skillhubTasks: [],               // 任務列表
+  skillhubSelectedWorkflow: null,  // 選中的工作流 ID
+  skillhubChatMessages: [],        // [{role, content, timestamp, artifact?}]
+  skillhubChatInput: '',           // 輸入框當前值
+  skillhubChatSessionId: null,     // 對話 session ID
+  skillhubChatLoading: false,      // 等待回覆中
+  skillhubExecutions: [],          // 選中工作流的執行紀錄
+  skillhubLoading: false,
+  skillhubDetailRecord: null,      // 選中工作流的 WorkflowEngine 統計
+  _showSystemTasks: false,         // 系統排程任務展開/收合
   // 知識結晶分組收合
   crystalGroupExpanded: {},     // { Insight: true, Pattern: false, ... } — 預設全收合
   crystalSearchQuery: '',       // 搜尋框
   crystalSortBy: 'date',       // 'date' | 'quality'
 };
 
-const TOTAL_STEPS = 6;
+const TOTAL_STEPS = 7;
 const root = document.getElementById('root');
 
 // Tab configuration
-const TAB_IDS = ['secretary', 'organism', 'evolution', 'tools', 'doctor', 'settings'];
+const TAB_IDS = ['secretary', 'organism', 'evolution', 'skillhub', 'tools', 'doctor', 'settings'];
 const TAB_NAMES_ZH = {
   secretary: '📋 秘書台',
   organism: '🧬 生命',
   evolution: '📈 演化',
   memory: '🧠 記憶',
+  skillhub: '🔧 技能庫',
   tools: '🛠️ 工具庫',
   doctor: '🩺 健檢',
   settings: '⚙️ 設定',
@@ -216,6 +237,7 @@ const TAB_NAMES_EN = {
   organism: '🧬 Life',
   evolution: '📈 Evolution',
   memory: '🧠 Memory',
+  skillhub: '🔧 SkillHub',
   tools: '🛠️ Tools',
   doctor: '🩺 Health',
   settings: '⚙️ Settings',
@@ -498,6 +520,7 @@ function renderTabContent(overrideTab) {
       case 'secretary': return renderSecretary();
       case 'organism': return renderOrganism();
       case 'evolution': return renderEvolution();
+      case 'skillhub': return renderSkillHub();
       case 'tools': return renderTools();
       case 'doctor': return renderDoctor();
       case 'settings': return renderSettings();
@@ -3365,6 +3388,680 @@ async function installToolHandler(name) {
   state.toolInstallPollers[name] = poller;
 }
 
+// ═══════════════════════════════════════
+// 🔧 SkillHub 技能庫分頁
+// ═══════════════════════════════════════
+
+async function loadSkillHubData() {
+  if (state.skillhubLoading) return;
+  state.skillhubLoading = true;
+  render();
+  try {
+    const [wfRes, skillRes, taskRes] = await Promise.all([
+      fetch(`${API}/api/workflows`).then(r => r.json()).catch(() => ({ workflows: [] })),
+      fetch(`${API}/api/skills/catalog`).then(r => r.json()).catch(() => ({ skills: [] })),
+      fetch(`${API}/api/tasks`).then(r => r.json()).catch(() => ({ tasks: [] })),
+    ]);
+    state.skillhubWorkflows = wfRes.workflows || [];
+    state.skillhubSkills = skillRes.skills || [];
+    state.skillhubTasks = taskRes.tasks || [];
+  } catch (e) {
+    console.error('loadSkillHubData failed:', e);
+  }
+  state.skillhubLoading = false;
+  render();
+}
+
+async function loadWorkflowDetail(workflowId) {
+  try {
+    const res = await fetch(`${API}/api/workflows/${workflowId}`);
+    const data = await res.json();
+    state.skillhubExecutions = data.executions || [];
+    state.skillhubDetailRecord = data.record || null;
+    render();
+  } catch (e) {
+    console.error('loadWorkflowDetail failed:', e);
+  }
+}
+
+async function sendSkillHubChat() {
+  const content = state.skillhubChatInput.trim();
+  if (!content || state.skillhubChatLoading) return;
+
+  if (!state.skillhubChatSessionId) {
+    state.skillhubChatSessionId = `dashboard_skill_builder_${Date.now()}`;
+  }
+
+  state.skillhubChatMessages.push({
+    role: 'user', content, timestamp: new Date().toISOString(),
+  });
+  state.skillhubChatInput = '';
+  state.skillhubChatLoading = true;
+  render();
+
+  try {
+    const res = await fetch(`${API}/api/dashboard/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        content,
+        context: 'skill_builder',
+        session_id: state.skillhubChatSessionId,
+      }),
+    });
+    const data = await res.json();
+    const msg = {
+      role: 'assistant',
+      content: data.reply || '',
+      timestamp: new Date().toISOString(),
+    };
+    // 檢查 workflow_draft artifact
+    if (data.artifacts && data.artifacts.length > 0) {
+      const draft = data.artifacts.find(a => a.type === 'workflow_draft');
+      if (draft) msg.artifact = draft;
+    }
+    state.skillhubChatMessages.push(msg);
+    state.skillhubChatSessionId = data.session_id || state.skillhubChatSessionId;
+  } catch (e) {
+    state.skillhubChatMessages.push({
+      role: 'assistant', content: `連線錯誤: ${e.message}`,
+      timestamp: new Date().toISOString(),
+    });
+  }
+  state.skillhubChatLoading = false;
+  render();
+  // 自動滾動到底部
+  setTimeout(() => {
+    const chatBox = document.querySelector('.skillhub-chat-messages');
+    if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+  }, 100);
+}
+
+async function createWorkflowFromDraft(draftContent) {
+  try {
+    // 簡易 YAML-like 解析
+    const lines = draftContent.split('\n');
+    const draft = { steps: [] };
+    let currentStep = null;
+    let inSteps = false;
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith('name:')) draft.name = trimmed.slice(5).trim();
+      else if (trimmed.startsWith('description:')) draft.description = trimmed.slice(12).trim();
+      else if (trimmed.startsWith('schedule_type:')) draft.schedule_type = trimmed.slice(14).trim();
+      else if (trimmed.startsWith('cron_expression:')) draft.cron_expression = trimmed.slice(16).trim();
+      else if (trimmed === 'steps:') { inSteps = true; continue; }
+      else if (inSteps && trimmed.startsWith('- skill_id:')) {
+        if (currentStep) draft.steps.push(currentStep);
+        currentStep = { skill_id: trimmed.slice(11).trim() };
+      } else if (inSteps && currentStep) {
+        if (trimmed.startsWith('action:')) currentStep.action = trimmed.slice(7).trim();
+        else if (trimmed.startsWith('output_key:')) currentStep.output_key = trimmed.slice(11).trim();
+        else if (trimmed.startsWith('input_from:')) currentStep.input_from = trimmed.slice(11).trim();
+        else if (trimmed.startsWith('params:')) currentStep.params = {};
+      }
+    }
+    if (currentStep) draft.steps.push(currentStep);
+
+    const payload = {
+      name: draft.name || '未命名工作流',
+      description: draft.description || '',
+      steps: draft.steps,
+      schedule: {
+        schedule_type: draft.schedule_type || 'once',
+        cron_expression: draft.cron_expression || null,
+        active: true,
+      },
+      session_id: state.skillhubChatSessionId || '',
+    };
+
+    const res = await fetch(`${API}/api/workflows`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (data.success) {
+      state.skillhubChatMessages.push({
+        role: 'assistant',
+        content: `✅ 工作流「${payload.name}」已建立！`,
+        timestamp: new Date().toISOString(),
+      });
+      await loadSkillHubData();
+    } else {
+      state.skillhubChatMessages.push({
+        role: 'assistant',
+        content: `❌ 建立失敗: ${data.error || '未知錯誤'}`,
+        timestamp: new Date().toISOString(),
+      });
+    }
+  } catch (e) {
+    console.error('createWorkflowFromDraft failed:', e);
+  }
+  render();
+}
+
+async function runWorkflowNow(workflowId) {
+  try {
+    const res = await fetch(`${API}/api/workflows/${workflowId}/run-now`, { method: 'POST' });
+    const data = await res.json();
+    if (data.success) {
+      await loadWorkflowDetail(workflowId);
+    }
+  } catch (e) {
+    console.error('runWorkflowNow failed:', e);
+  }
+}
+
+async function toggleWorkflow(workflowId, active) {
+  try {
+    await fetch(`${API}/api/workflows/${workflowId}/toggle`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ active }),
+    });
+    await loadSkillHubData();
+  } catch (e) {
+    console.error('toggleWorkflow failed:', e);
+  }
+}
+
+async function deleteWorkflow(workflowId) {
+  try {
+    await fetch(`${API}/api/workflows/${workflowId}`, { method: 'DELETE' });
+    state.skillhubSelectedWorkflow = null;
+    state.skillhubExecutions = [];
+    state.skillhubDetailRecord = null;
+    await loadSkillHubData();
+  } catch (e) {
+    console.error('deleteWorkflow failed:', e);
+  }
+}
+
+function renderSkillHub() {
+  return h('div', {
+    style: {
+      display: 'flex', gap: '1rem', height: '100%',
+      padding: '1rem', boxSizing: 'border-box',
+    },
+  },
+    renderSkillHubLeft(),
+    renderSkillHubRight(),
+  );
+}
+
+function renderSkillHubLeft() {
+  return h('div', {
+    style: {
+      width: '280px', flexShrink: 0, overflowY: 'auto',
+      display: 'flex', flexDirection: 'column', gap: '0.75rem',
+    },
+  },
+    renderWorkflowList(),
+    renderSkillCatalog(),
+    renderTaskList(),
+  );
+}
+
+function _lifecycleBadge(lifecycle) {
+  const colors = {
+    birth: '#3b82f6', growth: '#f59e0b', maturity: '#10b981',
+    plateau: '#8b5cf6', evolution: '#ef4444', archived: '#6b7280',
+  };
+  return h('span', {
+    style: {
+      fontSize: '0.65rem', padding: '1px 6px', borderRadius: '8px',
+      background: colors[lifecycle] || '#6b7280', color: '#fff',
+      marginLeft: '0.4rem',
+    },
+  }, lifecycle || 'birth');
+}
+
+function renderWorkflowList() {
+  const wfs = state.skillhubWorkflows || [];
+  return h('div', {
+    style: {
+      background: 'rgba(255,255,255,0.03)', borderRadius: '8px',
+      padding: '0.75rem', border: '1px solid rgba(255,255,255,0.06)',
+    },
+  },
+    h('div', { style: { fontWeight: 600, marginBottom: '0.5rem', color: '#c9a96e' } }, '工作流'),
+    wfs.length === 0
+      ? h('div', { style: { color: '#888', fontSize: '0.8rem' } }, '尚無工作流，試試右邊對話建立')
+      : h('div', { style: { display: 'flex', flexDirection: 'column', gap: '4px' } },
+          ...wfs.map(wf => h('div', {
+            style: {
+              padding: '6px 8px', borderRadius: '6px', cursor: 'pointer',
+              background: state.skillhubSelectedWorkflow === wf.workflow_id
+                ? 'rgba(201,169,110,0.15)' : 'transparent',
+              transition: 'background 0.15s',
+              fontSize: '0.82rem',
+            },
+            onclick: () => {
+              state.skillhubSelectedWorkflow = wf.workflow_id;
+              loadWorkflowDetail(wf.workflow_id);
+              render();
+            },
+          },
+            h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' } },
+              h('span', {}, wf.name || wf.workflow_id),
+              _lifecycleBadge(wf.lifecycle),
+            ),
+            h('div', { style: { fontSize: '0.7rem', color: '#888', marginTop: '2px' } },
+              wf.schedule?.schedule_type === 'cron'
+                ? `🔄 ${wf.schedule.cron_expression || 'cron'}`
+                : '⏱️ 一次性',
+              wf.total_runs ? ` | ${wf.total_runs} 次` : '',
+            ),
+          )),
+        ),
+  );
+}
+
+function renderSkillCatalog() {
+  const skills = state.skillhubSkills || [];
+  return h('div', {
+    style: {
+      background: 'rgba(255,255,255,0.03)', borderRadius: '8px',
+      padding: '0.75rem', border: '1px solid rgba(255,255,255,0.06)',
+      maxHeight: '240px', overflowY: 'auto',
+    },
+  },
+    h('div', { style: { fontWeight: 600, marginBottom: '0.5rem', color: '#c9a96e' } },
+      `技能 (${skills.length})`),
+    skills.length === 0
+      ? h('div', { style: { color: '#888', fontSize: '0.8rem' } }, '載入中…')
+      : h('div', { style: { display: 'flex', flexDirection: 'column', gap: '2px' } },
+          ...skills.slice(0, 30).map(s => h('div', {
+            style: { fontSize: '0.78rem', padding: '3px 6px', color: '#ccc' },
+          },
+            h('span', { style: { marginRight: '4px' } }, s.emoji || '🔹'),
+            s.name || s.skill_id || '?',
+            s.lifecycle ? _lifecycleBadge(s.lifecycle) : null,
+          )),
+        ),
+  );
+}
+
+function renderTaskList() {
+  const tasks = state.skillhubTasks || [];
+  const workflowTasks = tasks.filter(t => t.source !== 'system');
+  const systemTasks = tasks.filter(t => t.source === 'system');
+
+  // 系統任務分類圖標
+  const _catIcon = (cat) => ({
+    pulse: '💓', maintenance: '🔧', exploration: '🔭',
+    research: '📊', external: '🔗', evolution: '🧬',
+  }[cat] || '⚙️');
+
+  // 系統任務分類排序（研究 > 探索 > 脈搏 > 外部 > 演化 > 維護）
+  const _catOrder = { research: 0, exploration: 1, pulse: 2, external: 3, evolution: 4, maintenance: 5 };
+  const sortedSystem = [...systemTasks].sort((a, b) =>
+    (_catOrder[a.category] ?? 9) - (_catOrder[b.category] ?? 9)
+  );
+
+  return h('div', {
+    style: {
+      background: 'rgba(255,255,255,0.03)', borderRadius: '8px',
+      padding: '0.75rem', border: '1px solid rgba(255,255,255,0.06)',
+    },
+  },
+    // ── 使用者任務 ──
+    h('div', { style: { fontWeight: 600, marginBottom: '0.5rem', color: '#c9a96e' } }, '任務'),
+    workflowTasks.length === 0
+      ? h('div', { style: { color: '#888', fontSize: '0.8rem', marginBottom: '0.5rem' } }, '尚無自訂任務')
+      : h('div', { style: { display: 'flex', flexDirection: 'column', gap: '3px', marginBottom: '0.5rem' } },
+          ...workflowTasks.slice(0, 10).map(t => h('div', {
+            style: { fontSize: '0.78rem', padding: '3px 6px', color: '#ccc' },
+          },
+            t.schedule_type === 'cron' ? '🔄 ' : '⏱️ ',
+            t.name || t.task_id,
+            t.active === false ? h('span', { style: { color: '#f59e0b', marginLeft: '4px' } }, '⏸') : null,
+          )),
+        ),
+
+    // ── 系統排程 ──
+    sortedSystem.length > 0
+      ? h('div', {},
+          h('div', {
+            style: {
+              fontWeight: 600, marginBottom: '0.4rem', marginTop: '0.3rem',
+              color: '#8899aa', fontSize: '0.75rem',
+              borderTop: '1px solid rgba(255,255,255,0.06)',
+              paddingTop: '0.5rem',
+              cursor: 'pointer', userSelect: 'none',
+            },
+            onclick: () => { state._showSystemTasks = !state._showSystemTasks; render(); },
+          },
+            state._showSystemTasks ? '▼ ' : '▶ ',
+            `系統排程（${sortedSystem.length}）`,
+          ),
+          state._showSystemTasks
+            ? h('div', { style: { display: 'flex', flexDirection: 'column', gap: '2px' } },
+                ...sortedSystem.map(t => h('div', {
+                  style: {
+                    fontSize: '0.72rem', padding: '2px 6px', color: '#999',
+                    display: 'flex', alignItems: 'center', gap: '4px',
+                  },
+                  title: `${t.description || t.schedule_display || ''}${t.uses_llm ? ' (使用 LLM)' : ''}`,
+                },
+                  h('span', {}, _catIcon(t.category) + ' '),
+                  h('span', { style: { flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } },
+                    t.name || t.task_id,
+                  ),
+                  h('span', {
+                    style: { color: '#666', fontSize: '0.65rem', flexShrink: 0 },
+                  }, t.schedule_display || ''),
+                  t.active === false
+                    ? h('span', { style: { color: '#f59e0b', marginLeft: '2px' } }, '⏸')
+                    : null,
+                  t.uses_llm
+                    ? h('span', { style: { color: '#a78bfa', marginLeft: '2px', fontSize: '0.6rem' } }, '🤖')
+                    : null,
+                )),
+              )
+            : null,
+        )
+      : null,
+  );
+}
+
+function renderSkillHubRight() {
+  return h('div', {
+    style: {
+      flex: 1, display: 'flex', flexDirection: 'column', gap: '0.75rem',
+      minWidth: 0,
+    },
+  },
+    renderSkillHubChat(),
+    state.skillhubSelectedWorkflow ? renderSkillHubDetails() : null,
+  );
+}
+
+function renderSkillHubChat() {
+  const msgs = state.skillhubChatMessages || [];
+  return h('div', {
+    style: {
+      flex: state.skillhubSelectedWorkflow ? '0 0 55%' : 1,
+      display: 'flex', flexDirection: 'column',
+      background: 'rgba(255,255,255,0.03)', borderRadius: '8px',
+      border: '1px solid rgba(255,255,255,0.06)',
+      overflow: 'hidden',
+    },
+  },
+    // 標題列
+    h('div', {
+      style: {
+        padding: '0.6rem 0.75rem', borderBottom: '1px solid rgba(255,255,255,0.06)',
+        fontWeight: 600, color: '#c9a96e', fontSize: '0.85rem',
+      },
+    }, '💬 工作流建構助理'),
+    // 訊息區
+    h('div', {
+      className: 'skillhub-chat-messages',
+      style: {
+        flex: 1, overflowY: 'auto', padding: '0.75rem',
+        display: 'flex', flexDirection: 'column', gap: '0.5rem',
+      },
+    },
+      msgs.length === 0
+        ? h('div', { style: { color: '#888', fontSize: '0.82rem', textAlign: 'center', marginTop: '2rem' } },
+            '告訴我你想自動化什麼任務，\n我來幫你設計工作流。')
+        : null,
+      ...msgs.map(renderChatMessage),
+      state.skillhubChatLoading
+        ? h('div', { style: { color: '#c9a96e', fontSize: '0.8rem', padding: '4px 8px' } }, '思考中…')
+        : null,
+    ),
+    // 輸入區
+    h('div', {
+      style: {
+        display: 'flex', gap: '0.5rem', padding: '0.6rem 0.75rem',
+        borderTop: '1px solid rgba(255,255,255,0.06)',
+      },
+    },
+      h('textarea', {
+        placeholder: '描述你想自動化的任務…（⌘+Enter 送出）',
+        value: state.skillhubChatInput,
+        rows: 2,
+        style: {
+          flex: 1, padding: '0.5rem 0.75rem', borderRadius: '6px',
+          border: '1px solid rgba(255,255,255,0.12)',
+          background: 'rgba(255,255,255,0.05)', color: '#eee',
+          fontSize: '0.85rem', outline: 'none',
+          resize: 'none', lineHeight: '1.4',
+          fontFamily: 'inherit',
+        },
+        oninput: (e) => { state.skillhubChatInput = e.target.value; },
+        onkeydown: (e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); sendSkillHubChat(); } },
+      }),
+      h('button', {
+        style: {
+          padding: '0.5rem 1rem', borderRadius: '6px',
+          background: state.skillhubChatLoading ? '#555' : '#c9a96e',
+          color: '#1a1a2e', border: 'none', cursor: 'pointer',
+          fontWeight: 600, fontSize: '0.85rem',
+        },
+        onclick: sendSkillHubChat,
+        disabled: state.skillhubChatLoading,
+      }, '送出'),
+    ),
+  );
+}
+
+function renderChatMessage(msg) {
+  const isUser = msg.role === 'user';
+  const bubble = h('div', {
+    style: {
+      maxWidth: '80%', padding: '0.5rem 0.75rem', borderRadius: '10px',
+      fontSize: '0.84rem', lineHeight: '1.45',
+      background: isUser ? 'rgba(201,169,110,0.15)' : 'rgba(255,255,255,0.04)',
+      color: '#ddd', alignSelf: isUser ? 'flex-end' : 'flex-start',
+      whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+    },
+  }, msg.content);
+
+  const children = [bubble];
+
+  // 工作流草案卡片
+  if (msg.artifact && msg.artifact.type === 'workflow_draft') {
+    children.push(renderWorkflowDraftCard(msg.artifact));
+  }
+
+  return h('div', {
+    style: {
+      display: 'flex', flexDirection: 'column',
+      alignItems: isUser ? 'flex-end' : 'flex-start',
+      gap: '0.3rem',
+    },
+  }, ...children);
+}
+
+function renderWorkflowDraftCard(artifact) {
+  return h('div', {
+    style: {
+      background: 'rgba(201,169,110,0.08)', border: '1px solid rgba(201,169,110,0.25)',
+      borderRadius: '8px', padding: '0.75rem', marginTop: '0.3rem',
+      maxWidth: '80%', fontSize: '0.82rem',
+    },
+  },
+    h('div', { style: { fontWeight: 600, color: '#c9a96e', marginBottom: '0.4rem' } },
+      '📋 工作流草案'),
+    h('pre', {
+      style: {
+        background: 'rgba(0,0,0,0.2)', padding: '0.5rem', borderRadius: '4px',
+        fontSize: '0.75rem', color: '#aaa', overflow: 'auto',
+        maxHeight: '200px', whiteSpace: 'pre-wrap',
+      },
+    }, artifact.content),
+    h('div', { style: { display: 'flex', gap: '0.5rem', marginTop: '0.5rem' } },
+      h('button', {
+        style: {
+          padding: '4px 12px', borderRadius: '6px', border: 'none',
+          background: '#10b981', color: '#fff', cursor: 'pointer',
+          fontSize: '0.78rem', fontWeight: 600,
+        },
+        onclick: () => createWorkflowFromDraft(artifact.content),
+      }, '建立並啟動'),
+      h('button', {
+        style: {
+          padding: '4px 12px', borderRadius: '6px',
+          border: '1px solid rgba(255,255,255,0.15)',
+          background: 'transparent', color: '#aaa', cursor: 'pointer',
+          fontSize: '0.78rem',
+        },
+        onclick: () => {
+          state.skillhubChatInput = '請修改草案：';
+          render();
+        },
+      }, '修改'),
+    ),
+  );
+}
+
+function renderSkillHubDetails() {
+  const wfId = state.skillhubSelectedWorkflow;
+  const wf = (state.skillhubWorkflows || []).find(w => w.workflow_id === wfId);
+  const record = state.skillhubDetailRecord;
+  const execs = state.skillhubExecutions || [];
+
+  if (!wf) return null;
+
+  return h('div', {
+    style: {
+      flex: '0 0 42%', display: 'flex', flexDirection: 'column',
+      background: 'rgba(255,255,255,0.03)', borderRadius: '8px',
+      border: '1px solid rgba(255,255,255,0.06)',
+      overflow: 'hidden',
+    },
+  },
+    // 標題 + 按鈕
+    h('div', {
+      style: {
+        padding: '0.6rem 0.75rem',
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      },
+    },
+      h('div', { style: { display: 'flex', alignItems: 'center', gap: '0.4rem' } },
+        h('span', { style: { fontWeight: 600, color: '#c9a96e', fontSize: '0.85rem' } }, wf.name),
+        _lifecycleBadge(record?.lifecycle || wf.lifecycle),
+      ),
+      h('div', { style: { display: 'flex', gap: '0.4rem' } },
+        h('button', {
+          style: {
+            padding: '3px 10px', borderRadius: '5px', border: 'none',
+            background: '#3b82f6', color: '#fff', cursor: 'pointer',
+            fontSize: '0.72rem',
+          },
+          onclick: () => runWorkflowNow(wfId),
+        }, '▶ 執行'),
+        h('button', {
+          style: {
+            padding: '3px 10px', borderRadius: '5px',
+            border: '1px solid rgba(255,255,255,0.15)',
+            background: 'transparent', color: '#aaa', cursor: 'pointer',
+            fontSize: '0.72rem',
+          },
+          onclick: () => toggleWorkflow(wfId, !wf.schedule?.active),
+        }, wf.schedule?.active ? '⏸ 暫停' : '▶ 啟用'),
+        h('button', {
+          style: {
+            padding: '3px 10px', borderRadius: '5px',
+            border: '1px solid rgba(239,68,68,0.3)',
+            background: 'transparent', color: '#ef4444', cursor: 'pointer',
+            fontSize: '0.72rem',
+          },
+          onclick: () => { if (confirm('確定刪除此工作流？')) deleteWorkflow(wfId); },
+        }, '🗑'),
+      ),
+    ),
+    // 統計列
+    record ? h('div', {
+      style: {
+        display: 'flex', gap: '1rem', padding: '0.5rem 0.75rem',
+        fontSize: '0.75rem', color: '#999',
+        borderBottom: '1px solid rgba(255,255,255,0.04)',
+      },
+    },
+      h('span', {}, `執行 ${record.total_runs || 0} 次`),
+      h('span', {}, `成功 ${record.success_count || 0}`),
+      h('span', {}, `Q-Score ${(record.avg_composite || 0).toFixed(2)}`),
+      h('span', {}, `方差 ${(record.variance || 0).toFixed(3)}`),
+    ) : null,
+    // 4D 分數條
+    record && record.avg_composite > 0 ? h('div', {
+      style: { padding: '0.5rem 0.75rem' },
+    },
+      ...['speed', 'quality', 'alignment', 'leverage'].map(dim => {
+        const val = record[dim] || 5;
+        return h('div', {
+          style: { display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '3px' },
+        },
+          h('span', { style: { width: '65px', fontSize: '0.7rem', color: '#999' } },
+            { speed: '速度', quality: '品質', alignment: '對齊', leverage: '槓桿' }[dim]),
+          h('div', {
+            style: {
+              flex: 1, height: '6px', background: 'rgba(255,255,255,0.06)',
+              borderRadius: '3px', overflow: 'hidden',
+            },
+          },
+            h('div', {
+              style: {
+                width: `${Math.min(val * 10, 100)}%`, height: '100%',
+                background: '#c9a96e', borderRadius: '3px',
+                transition: 'width 0.3s',
+              },
+            }),
+          ),
+          h('span', { style: { width: '28px', fontSize: '0.68rem', color: '#aaa', textAlign: 'right' } },
+            val.toFixed(1)),
+        );
+      }),
+    ) : null,
+    // 執行紀錄
+    h('div', {
+      style: { flex: 1, overflowY: 'auto', padding: '0.5rem 0.75rem' },
+    },
+      h('div', { style: { fontSize: '0.78rem', fontWeight: 600, color: '#c9a96e', marginBottom: '0.4rem' } },
+        '最近執行'),
+      execs.length === 0
+        ? h('div', { style: { color: '#888', fontSize: '0.78rem' } }, '尚無執行紀錄')
+        : h('table', {
+            style: {
+              width: '100%', borderCollapse: 'collapse', fontSize: '0.72rem',
+            },
+          },
+            h('thead', {},
+              h('tr', { style: { color: '#999', borderBottom: '1px solid rgba(255,255,255,0.06)' } },
+                h('th', { style: { textAlign: 'left', padding: '4px 6px' } }, '時間'),
+                h('th', { style: { textAlign: 'center', padding: '4px 6px' } }, '結果'),
+                h('th', { style: { textAlign: 'right', padding: '4px 6px' } }, 'Q-Score'),
+              ),
+            ),
+            h('tbody', {},
+              ...execs.map(e => h('tr', {
+                style: { borderBottom: '1px solid rgba(255,255,255,0.03)' },
+              },
+                h('td', { style: { padding: '4px 6px', color: '#bbb' } },
+                  e.created_at ? e.created_at.slice(5, 16).replace('T', ' ') : ''),
+                h('td', { style: { padding: '4px 6px', textAlign: 'center' } },
+                  e.outcome === 'success' ? '✅' : e.outcome === 'partial' ? '⚠️' : '❌'),
+                h('td', { style: { padding: '4px 6px', textAlign: 'right', color: '#c9a96e' } },
+                  (e.composite || 0).toFixed(2)),
+              )),
+            ),
+          ),
+    ),
+  );
+}
+
+
+// ═══════════════════════════════════════
+// 🛠️ 工具兵器庫分頁
+// ═══════════════════════════════════════
+
 function renderTools() {
   const status = state.toolsStatus || {};
   const tools = (state.toolsList && state.toolsList.tools) || [];
@@ -5262,6 +5959,8 @@ async function handleModeSelect(mode) {
       anthropic: { status: 'pending', message: '' },
       telegram: { status: 'pending', message: '' },
     };
+    state.wizardPermissions = [];
+    state.wizardPermissionsLoading = false;
     state.wizardToolsSelected = {};
     state.wizardToolsInstalling = false;
     state.wizardToolsProgress = {};
@@ -5307,8 +6006,9 @@ function renderWizardStep() {
     case 1: return renderStep1Anthropic();
     case 2: return renderStep2Telegram();
     case 3: return renderStep3Test();
-    case 4: return renderStep4Tools();
-    case 5: return renderStep5Complete();
+    case 4: return renderStep4Permissions();
+    case 5: return renderStep5Tools();
+    case 6: return renderStep6Complete();
     default: return renderStep0Welcome();
   }
 }
@@ -5474,7 +6174,7 @@ function renderStep3Test() {
         className: 'wizard-btn-primary',
         disabled: !allDone,
         onClick: () => goWizardStep(4),
-      }, allDone ? '選擇工具 →' : '測試中...')
+      }, allDone ? '下一步 →' : '測試中...')
     )
   );
 }
@@ -5497,8 +6197,150 @@ function renderTestItem(label, testState) {
   );
 }
 
-// --- Step 4: Tool Selection & Installation ---
-function renderStep4Tools() {
+// --- Step 4: Permissions ---
+function renderStep4Permissions() {
+  const perms = state.wizardPermissions;
+  const loading = state.wizardPermissionsLoading;
+
+  // 分為「必要」和「選用」兩組
+  const requiredPerms = perms.filter(p => p.required);
+  const optionalPerms = perms.filter(p => !p.required);
+
+  function renderPermRow(perm) {
+    const emojiMap = {
+      microphone: '🎙️',
+      camera: '📷',
+      notifications: '🔔',
+      accessibility: '♿',
+      screen_recording: '🖥️',
+      automation: '🤖',
+    };
+    const labelMap = {
+      microphone: '麥克風',
+      camera: '相機',
+      notifications: '通知',
+      accessibility: '輔助使用',
+      screen_recording: '螢幕錄影',
+      automation: '自動化操作',
+    };
+    const descMap = {
+      microphone: '語音輸入 & Whisper 轉錄',
+      camera: '視覺辨識 & 影像分析',
+      notifications: '系統通知提醒',
+      accessibility: '自動化操作輔助',
+      screen_recording: '畫面分析 & 擷取',
+      automation: '控制其他 App（AppleScript）',
+    };
+
+    const emoji = emojiMap[perm.name] || '🔧';
+    const label = labelMap[perm.name] || perm.name;
+    const desc = descMap[perm.name] || '';
+    const granted = perm.granted;
+
+    return h('div', {
+      style: {
+        display: 'flex', alignItems: 'center', gap: '12px',
+        padding: '10px 14px', background: '#0d1525', borderRadius: '10px',
+        border: `1px solid ${granted ? '#10b981' : '#222d4a'}`,
+      }
+    },
+      h('span', { style: { fontSize: '1.3rem', width: '28px', textAlign: 'center' } }, emoji),
+      h('div', { style: { flex: 1, minWidth: 0 } },
+        h('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } },
+          h('span', { style: { color: '#e8dcc6', fontWeight: '700', fontSize: '0.9rem' } }, label),
+          perm.required
+            ? h('span', { style: { color: '#ef4444', fontSize: '0.65rem', fontWeight: '700' } }, '必要')
+            : h('span', { style: { color: '#6b5f4a', fontSize: '0.65rem' } }, '選用'),
+        ),
+        h('div', { style: { color: '#9a8b70', fontSize: '0.75rem', marginTop: '2px' } }, desc),
+      ),
+      granted
+        ? h('span', { style: { color: '#10b981', fontSize: '0.85rem', fontWeight: '700', whiteSpace: 'nowrap' } }, '✓ 已授權')
+        : h('button', {
+            style: {
+              background: 'linear-gradient(135deg, #c9a96e, #a68b4b)',
+              color: '#0a0e1a', border: 'none', borderRadius: '8px',
+              padding: '6px 14px', cursor: 'pointer', fontWeight: '700',
+              fontSize: '0.8rem', whiteSpace: 'nowrap',
+            },
+            onClick: () => handleRequestPermission(perm.name),
+          }, '授權'),
+    );
+  }
+
+  return h('div', { className: 'wizard-step-content' },
+    h('div', { className: 'wizard-emoji' }, '🛡️'),
+    h('h2', { className: 'wizard-step-title' }, '系統權限'),
+    h('p', { className: 'wizard-step-desc' },
+      loading ? '正在檢查權限狀態...' : '授予 MUSEON 最大能力，解鎖所有功能'
+    ),
+
+    loading
+      ? h('div', { style: { textAlign: 'center', padding: '40px 0' } },
+          h('span', { className: 'wizard-spinner' })
+        )
+      : h('div', { style: { maxHeight: '360px', overflowY: 'auto', margin: '16px 0', display: 'flex', flexDirection: 'column', gap: '6px' } },
+          // 必要權限
+          requiredPerms.length > 0
+            ? h('div', { style: { color: '#c9a96e', fontSize: '0.75rem', fontWeight: '700', marginBottom: '4px', marginTop: '4px' } }, '— 必要權限 —')
+            : null,
+          ...requiredPerms.map(renderPermRow),
+          // 選用權限
+          optionalPerms.length > 0
+            ? h('div', { style: { color: '#6b5f4a', fontSize: '0.75rem', fontWeight: '700', marginBottom: '4px', marginTop: '12px' } }, '— 選用權限 —')
+            : null,
+          ...optionalPerms.map(renderPermRow),
+        ),
+
+    h('div', { className: 'wizard-btn-row', style: { marginTop: '12px' } },
+      h('button', { className: 'wizard-btn-secondary', onClick: () => goWizardStep(3) }, '← 上一步'),
+      h('button', { className: 'wizard-btn-skip', onClick: () => goWizardStep(5) }, '稍後設定'),
+      h('button', { className: 'wizard-btn-primary', onClick: () => goWizardStep(5) }, '選擇工具 →'),
+    ),
+  );
+}
+
+async function loadPermissions() {
+  if (!window.museon || !window.museon.checkPermissions) return;
+  state.wizardPermissionsLoading = true;
+  render();
+  try {
+    const results = await window.museon.checkPermissions();
+    // results = { notifications: 'granted', microphone: 'not-determined', ... }
+    const permDefs = [
+      { name: 'microphone',       required: true },
+      { name: 'notifications',    required: true },
+      { name: 'automation',       required: true },
+      { name: 'camera',           required: false },
+      { name: 'accessibility',    required: false },
+      { name: 'screen_recording', required: false },
+    ];
+    state.wizardPermissions = permDefs.map(def => ({
+      name: def.name,
+      required: def.required,
+      granted: results[def.name] === 'granted',
+    }));
+  } catch (err) {
+    console.error('[MUSEON] permissions check failed:', err);
+    state.wizardPermissions = [];
+  }
+  state.wizardPermissionsLoading = false;
+  render();
+}
+
+async function handleRequestPermission(name) {
+  if (!window.museon || !window.museon.requestPermission) return;
+  try {
+    await window.museon.requestPermission(name);
+    // 等一下再重新檢查（系統對話框可能需要時間）
+    setTimeout(() => loadPermissions(), 1500);
+  } catch (err) {
+    console.error('[MUSEON] permission request failed:', err);
+  }
+}
+
+// --- Step 5: Tool Selection & Installation ---
+function renderStep5Tools() {
   // 工具定義（與 ToolRegistry TOOL_CONFIGS 同步）
   const WIZARD_TOOLS = [
     { name: 'searxng', emoji: '🔍', label: 'SearXNG', desc: '搜尋引擎 — 聚合 70+ 來源，免費無限搜尋', ram: 256, type: 'docker', required: true },
@@ -5618,7 +6460,7 @@ function renderStep4Tools() {
     h('div', { className: 'wizard-btn-row', style: { marginTop: '12px' } },
       h('button', {
         className: 'wizard-btn-secondary',
-        onClick: () => goWizardStep(3),
+        onClick: () => goWizardStep(4),
         disabled: isInstalling && !state.wizardToolsDone,
       }, '← 上一步'),
       !isInstalling
@@ -5642,7 +6484,7 @@ function renderStep4Tools() {
         : state.wizardToolsDone
           ? h('button', {
               className: 'wizard-btn-primary',
-              onClick: () => goWizardStep(5),
+              onClick: () => goWizardStep(6),
             }, '繼續 →')
           : h('button', {
               className: 'wizard-btn-primary',
@@ -5696,8 +6538,8 @@ async function handleWizardInstallTools() {
   }, 1500);
 }
 
-// --- Step 5: Complete ---
-function renderStep5Complete() {
+// --- Step 6: Complete ---
+function renderStep6Complete() {
   return h('div', { className: 'wizard-step-content' },
     h('div', { className: 'wizard-celebration' },
       h('div', { className: 'wizard-emoji-large celebration-pulse' }, '🎉')
@@ -5736,8 +6578,12 @@ function goWizardStep(n) {
     runConnectionTests();
     return;
   }
-  // 進入 step 4 時重置工具安裝狀態
+  // 進入 step 4 時載入權限狀態
   if (n === 4) {
+    loadPermissions();
+  }
+  // 進入 step 5 時重置工具安裝狀態
+  if (n === 5) {
     if (!state.wizardToolsInstalling) {
       state.wizardToolsProgress = {};
       state.wizardToolsDone = false;
@@ -6079,6 +6925,9 @@ async function refreshActiveTab() {
           loadActivityRecent().catch(() => {}),
           loadDailySummaries().catch(() => {}),
         ]);
+        break;
+      case 'skillhub':
+        await loadSkillHubData();
         break;
       case 'tools':
         await loadToolsState();

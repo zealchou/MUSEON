@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260304_003319_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：\n1. **先明確回答使用者的質詢**——說明已檢查過的來源（哪些 AI agent 解決方案、成功案例）和搜尋範圍，不要模糊帶過\n2. **直接交付研究成果**——若已找到「OpenClaw 有 cron jobs 功能」的證據，列出具體的文檔連結、參數範例、或可執行的代碼片段，而非只說「有線索」\n3. **移除「正在研究」的模糊措辭**——使用者要的是「已確認的解決方\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-04T00:33:19.899018+08:00",
-  "priority": "medium"
-}

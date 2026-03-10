@@ -726,7 +726,7 @@ class TestMultiModelFallback:
         response = brain._offline_response([
             {"role": "user", "content": "今天市場行情如何？"}
         ])
-        assert "離線模式" in response
+        assert "無法連線" in response or "離線" in response
         assert "今天市場行情" in response
         shutil.rmtree(tmp, ignore_errors=True)
 
@@ -739,7 +739,7 @@ class TestMultiModelFallback:
         from museon.agent.brain import MuseonBrain
         brain = MuseonBrain(data_dir=tmp)
         response = brain._offline_response([])
-        assert "離線模式" in response
+        assert "無法連線" in response or "離線" in response
         shutil.rmtree(tmp, ignore_errors=True)
 
 

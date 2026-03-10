@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260305_004243_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：\n回覆開頭過於籠統，「直接診斷問題」但使用者訊息內容不足（只說「再重新檢查一次」）。需要：\n1. 先詢問具體要檢查什麼（缺少真需判斷）\n2. 或直接給出上文內容的檢查清單（提供可交付物而非空泛承諾）\n3. 避免「讓我...」這類說教語氣，改為直接執行\n\n建議：要求使用者澄清上文，或回顧上文內容並逐項檢驗。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-05T00:42:43.760618+08:00",
-  "priority": "medium"
-}
