@@ -16,6 +16,15 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
+from museon.core.event_bus import (
+    EVOLUTION_VELOCITY_ALERT,
+    KNOWLEDGE_GRAPH_UPDATED,
+    NIGHTLY_COMPLETED,
+    NIGHTLY_DAG_EXECUTED,
+    NIGHTLY_HEALTH_GATE,
+    NIGHTLY_STARTED,
+)
+
 logger = logging.getLogger(__name__)
 
 # ═══════════════════════════════════════════
@@ -174,7 +183,7 @@ class NightlyPipeline:
         started_at = datetime.now(TZ_TAIPEI)
 
         # 發布 NIGHTLY_STARTED
-        self._publish("NIGHTLY_STARTED", {
+        self._publish(NIGHTLY_STARTED, {
             "mode": mode,
             "started_at": started_at.isoformat(),
         })
@@ -201,7 +210,7 @@ class NightlyPipeline:
                     # 降級：跳過重型步驟
                     step_ids = self._get_degraded_steps()
                     gate_mode = "degraded"
-                self._publish("NIGHTLY_HEALTH_GATE", {
+                self._publish(NIGHTLY_HEALTH_GATE, {
                     "health_score": round(score, 1),
                     "gate_mode": gate_mode,
                     "step_count": len(step_ids),
@@ -226,7 +235,7 @@ class NightlyPipeline:
                 # 轉換 DAGExecutionReport → steps_dict 格式
                 for step_id, step_result in dag_report.steps.items():
                     steps_dict[step_result.name] = step_result.to_dict()
-                self._publish("NIGHTLY_DAG_EXECUTED", {
+                self._publish(NIGHTLY_DAG_EXECUTED, {
                     "execution_order": dag_report.execution_order,
                     "skipped_due_to_dependency": dag_report.skipped_due_to_dependency,
                 })
@@ -290,7 +299,7 @@ class NightlyPipeline:
         self._persist_report(report)
 
         # 發布 NIGHTLY_COMPLETED
-        self._publish("NIGHTLY_COMPLETED", {
+        self._publish(NIGHTLY_COMPLETED, {
             "mode": mode,
             "elapsed_seconds": elapsed,
             "summary": report["summary"],
@@ -1398,7 +1407,7 @@ class NightlyPipeline:
                     "quality": q,
                     "tags": node.get("tags", []),
                 })
-        self._publish("KNOWLEDGE_GRAPH_UPDATED", {
+        self._publish(KNOWLEDGE_GRAPH_UPDATED, {
             "node_count": len(nodes),
             "edge_count": len(edges),
             "high_quality_nodes": high_quality_nodes[:10],
@@ -2558,7 +2567,7 @@ class NightlyPipeline:
 
             # 若偵測到高原期或退化，發布事件
             if snapshot.plateau_alert or snapshot.regression_alert:
-                self._publish("EVOLUTION_VELOCITY_ALERT", {
+                self._publish(EVOLUTION_VELOCITY_ALERT, {
                     "composite_velocity": dashboard.get("composite_velocity", 0),
                     "trend": dashboard.get("trend", "unknown"),
                     "plateau_alert": snapshot.plateau_alert,

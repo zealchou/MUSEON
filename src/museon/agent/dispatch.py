@@ -179,10 +179,13 @@ def persist_dispatch_plan(
     target_path = target_dir / f"{plan.plan_id}.json"
     try:
         data = dispatch_plan_to_dict(plan)
-        target_path.write_text(
+        # 原子寫入：先寫 tmp 再 rename，防止中途崩潰產生半截檔案
+        tmp_path = target_path.with_suffix(".tmp")
+        tmp_path.write_text(
             json.dumps(data, indent=2, ensure_ascii=False, default=str),
             encoding="utf-8",
         )
+        tmp_path.replace(target_path)
     except Exception as e:
         logger.error(f"Failed to persist dispatch plan: {e}")
 

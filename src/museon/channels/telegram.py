@@ -1,6 +1,7 @@
 """Telegram Channel Adapter using python-telegram-bot 20.x."""
 
 import asyncio
+import json
 import logging
 import os
 import re
@@ -73,6 +74,10 @@ class TelegramAdapter(ChannelAdapter):
         self._proactive_message_ids: Dict[int, str] = {}  # {msg_id: push_context}
         self._max_proactive_ids = 50
 
+        # Deduplication: 追蹤已處理的 update_id，防止重複訊息
+        self._seen_update_ids: set = set()
+        self._max_seen_update_ids = 1000  # 避免無限成長
+
     async def start(self) -> None:
         """Start the Telegram bot and begin polling."""
         if self._running:
@@ -121,6 +126,38 @@ class TelegramAdapter(ChannelAdapter):
 
     async def _handle_message(self, update: Update, context: Any) -> None:
         """Handle incoming text message."""
+        if update.update_id in self._seen_update_ids:
+            logger.debug("Duplicate update_id %s, skipping", update.update_id)
+            return
+        self._seen_update_ids.add(update.update_id)
+        if len(self._seen_update_ids) > self._max_seen_update_ids:
+            self._seen_update_ids = set(list(self._seen_update_ids)[-500:])
+
+        # ── Group chat filtering ──
+        if update.message and update.message.chat.type in ("group", "supergroup"):
+            from_user = update.message.from_user
+            user_id_str = str(from_user.id) if from_user else ""
+            is_owner = user_id_str in self.trusted_user_ids
+
+            # Check if bot is @mentioned
+            text = update.message.text or ""
+            is_mentioned = False
+            if update.message.entities:
+                for ent in update.message.entities:
+                    if ent.type in ("mention", "text_mention"):
+                        is_mentioned = True
+                        break
+            # Also check for bot username in text as fallback
+            if not is_mentioned and context.bot and context.bot.username:
+                is_mentioned = f"@{context.bot.username}" in text
+
+            if not is_mentioned:
+                logger.debug(
+                    "Group message without @mention from user %s, skipping",
+                    user_id_str,
+                )
+                return
+
         # 記錄互動（HeartbeatFocus + 清除閒置推播狀態）
         if update.message and update.message.from_user:
             self.record_user_interaction(str(update.message.from_user.id))
@@ -128,6 +165,12 @@ class TelegramAdapter(ChannelAdapter):
 
     async def _handle_file_upload(self, update: Update, context: Any) -> None:
         """Handle incoming file uploads (document, photo, voice, audio, video)."""
+        if update.update_id in self._seen_update_ids:
+            logger.debug("Duplicate update_id %s, skipping", update.update_id)
+            return
+        self._seen_update_ids.add(update.update_id)
+        if len(self._seen_update_ids) > self._max_seen_update_ids:
+            self._seen_update_ids = set(list(self._seen_update_ids)[-500:])
         if update.message and update.message.from_user:
             self.record_user_interaction(str(update.message.from_user.id))
         await self.message_queue.put(update)
@@ -478,8 +521,21 @@ class TelegramAdapter(ChannelAdapter):
             if file_info:
                 content += f"\n影片已儲存至: {file_info['local_path']}"
 
-        # All DMs from owner/trusted users go to main session
-        session_id = f"telegram_{chat_id}"
+        # Group-aware session and metadata
+        is_group = update.message.chat.type in ("group", "supergroup")
+        is_owner = user_id in self.trusted_user_ids
+        sender_name = msg.from_user.first_name or ""
+
+        if is_group:
+            session_id = f"telegram_group_{abs(chat_id)}"
+            self._log_group_message(
+                group_id=chat_id,
+                user_id=user_id,
+                display_name=sender_name,
+                text=(update.message.text or "")[:500],
+            )
+        else:
+            session_id = f"telegram_{chat_id}"
 
         trust_level = self.get_trust_level(user_id)
 
@@ -488,7 +544,12 @@ class TelegramAdapter(ChannelAdapter):
             "message_id": msg.message_id,
             "first_name": msg.from_user.first_name,
             "username": msg.from_user.username,
+            "is_group": is_group,
+            "is_owner": is_owner,
+            "sender_name": sender_name,
         }
+        if is_group:
+            metadata["group_id"] = chat_id
         if file_info:
             metadata["file"] = file_info
         if msg.reply_to_message:
@@ -505,6 +566,48 @@ class TelegramAdapter(ChannelAdapter):
             trust_level=trust_level.value,
             metadata=metadata,
         )
+
+    def _log_group_message(
+        self,
+        group_id: int,
+        user_id: str,
+        display_name: str,
+        text: str,
+        bot_replied: bool = False,
+    ) -> None:
+        """Append group message to jsonl log file."""
+        try:
+            log_dir = (
+                Path(os.environ.get("MUSEON_HOME", "/tmp"))
+                / "data" / "logs" / "groups" / str(abs(group_id))
+            )
+            log_dir.mkdir(parents=True, exist_ok=True)
+            date_str = datetime.now().strftime("%Y-%m-%d")
+            log_file = log_dir / f"{date_str}.jsonl"
+            entry = {
+                "ts": datetime.now().isoformat(),
+                "group_id": group_id,
+                "user_id": user_id,
+                "name": display_name,
+                "text": text[:500],
+                "bot_replied": bot_replied,
+            }
+            with open(log_file, "a", encoding="utf-8") as f:
+                f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+        except Exception as e:
+            logger.warning(f"Group log write failed: {e}")
+
+    async def send_dm_to_owner(self, text: str) -> bool:
+        """Send a DM directly to the owner (first trusted_user_id)."""
+        if not self.application or not self.trusted_user_ids:
+            return False
+        try:
+            owner_id = int(self.trusted_user_ids[0])
+            await self.application.bot.send_message(chat_id=owner_id, text=text)
+            return True
+        except Exception as e:
+            logger.error(f"send_dm_to_owner failed: {e}")
+            return False
 
     async def send(self, message: InternalMessage) -> bool:
         """
@@ -711,6 +814,8 @@ class TelegramAdapter(ChannelAdapter):
         async def _typing_loop():
             try:
                 while True:
+                    if not self.application:
+                        break
                     await self.application.bot.send_chat_action(
                         chat_id=chat_id, action=ChatAction.TYPING
                     )
@@ -947,13 +1052,16 @@ class TelegramAdapter(ChannelAdapter):
             loop = asyncio.get_event_loop()
             owner_id = int(os.environ.get("TELEGRAM_OWNER_ID", "6969045906"))
             if loop.is_running():
-                loop.create_task(
-                    self.application.bot.send_message(
-                        chat_id=owner_id,
-                        text=text,
-                        parse_mode="Markdown",
-                    )
-                )
+                async def _safe_send():
+                    try:
+                        await self.application.bot.send_message(
+                            chat_id=owner_id,
+                            text=text,
+                            parse_mode="Markdown",
+                        )
+                    except Exception as send_err:
+                        logger.warning(f"Morphenix execution push send failed: {send_err}")
+                loop.create_task(_safe_send())
         except Exception as e:
             logger.error(f"Morphenix execution push failed: {e}")
 

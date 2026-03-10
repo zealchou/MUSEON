@@ -1,0 +1,51 @@
+# MUSEON Pre-commit Hooks
+# 安裝: pip install pre-commit && pre-commit install
+# 手動執行: pre-commit run --all-files
+#
+# 這些 hook 在每次 git commit 前自動執行，
+# 攔截可能導致 runtime error 的程式碼問題。
+
+repos:
+  # ── 1. Scope Audit（防 NameError）──
+  # 用 MUSEON 自製的 AST scope 審計工具
+  # 偵測方法中引用了未定義變數的 bug
+  - repo: local
+    hooks:
+      - id: scope-audit
+        name: Scope Audit (NameError prevention)
+        entry: python3 scripts/scope_audit.py
+        language: system
+        files: '\.py$'
+        pass_filenames: true
+        types: [python]
+
+  # ── 2. Python 語法檢查（最基本的防線）──
+  - repo: local
+    hooks:
+      - id: python-syntax
+        name: Python syntax check
+        entry: python3 -m py_compile
+        language: system
+        files: '\.py$'
+        types: [python]
+
+  # ── 3. Ruff（如果已安裝）──
+  # pip install ruff 後自動啟用
+  - repo: local
+    hooks:
+      - id: ruff-check
+        name: Ruff linter (if installed)
+        entry: bash -c 'command -v ruff >/dev/null 2>&1 && ruff check --select E,F,I,N,W,UP "$@" || true' --
+        language: system
+        files: '\.py$'
+        types: [python]
+
+  # ── 4. 防止敏感檔案被提交 ──
+  - repo: local
+    hooks:
+      - id: no-secrets
+        name: Block sensitive files
+        entry: bash -c 'for f in "$@"; do case "$f" in *.env|*credentials*|*secret*|*.pem|*.key) echo "BLOCKED: $f"; exit 1;; esac; done' --
+        language: system
+        pass_filenames: true
+        always_run: true

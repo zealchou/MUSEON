@@ -1,0 +1,63 @@
+# ═══════════════════════════════════════════
+# MUSEON .gitignore
+# ═══════════════════════════════════════════
+
+# === 敏感檔案 ===
+.env
+.env.*
+!.env.example
+
+# === 活動日誌（含用戶操作記錄）===
+data/_system/activity_log.jsonl
+
+# === Token 使用預算 ===
+data/_system/budget/
+
+# === 免疫記憶（含 incident 記錄）===
+data/_system/immunity.json
+
+# === Runtime 部署目錄 ===
+.runtime/
+
+# === 日誌 ===
+logs/
+*.log
+*.err
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+
+# === Virtual Environment ===
+.venv/
+venv/
+
+# === IDE ===
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# === Packaging ===
+releases/
+*.tar.gz
+*.dmg
+
+# === PID 檔案 ===
+.gateway.pid
+
+# === Refractory 狀態 ===
+refractory_state.json
+
+# === Docker 資料卷 ===
+docker-data/
+
+# === 審計報告（可選保留，但預設排除）===
+data/_system/audit/
