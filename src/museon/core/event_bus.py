@@ -130,6 +130,8 @@ TOOL_RECOVERED = "TOOL_RECOVERED"                          # 工具已恢復
 
 # WP-03: Governance-Nightly 雙向適應
 NIGHTLY_HEALTH_GATE = "NIGHTLY_HEALTH_GATE"                # Nightly 健康閘門決策
+NIGHTLY_DAG_EXECUTED = "NIGHTLY_DAG_EXECUTED"              # Nightly DAG 排程已執行
+EVOLUTION_VELOCITY_ALERT = "EVOLUTION_VELOCITY_ALERT"      # 演化速度警報（高原/退化）
 AUDIT_TREND_UPDATED = "AUDIT_TREND_UPDATED"                # 審計趨勢更新
 
 # WP-04: Doctor-Governance-Research 閉環
