@@ -56,6 +56,7 @@ class NamingCeremony:
 
     def _save_state(self):
         """Save ceremony state to disk."""
+        self.ceremony_state_path.parent.mkdir(parents=True, exist_ok=True)
         with open(self.ceremony_state_path, 'w', encoding='utf-8') as f:
             json.dump(self._state, f, indent=2, ensure_ascii=False)
 
@@ -103,6 +104,7 @@ class NamingCeremony:
 
         # Write to ANIMA L1
         anima_l1 = self._initialize_anima_l1(name)
+        self.anima_l1_path.parent.mkdir(parents=True, exist_ok=True)
         with open(self.anima_l1_path, 'w', encoding='utf-8') as f:
             json.dump(anima_l1, f, indent=2, ensure_ascii=False)
 

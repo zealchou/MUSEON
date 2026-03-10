@@ -4738,10 +4738,21 @@ def _register_system_cron_jobs(brain, app=None) -> None:
         hours=2,
     )
 
-    # ── WP-07: Tool Health Check (5min) ──
+    # ── WP-07: Tool Health Check (5min) — 含自癒 + 升級機制 ──
+    _tool_fail_counts: dict = {}
+    _TOOL_RESTART_THRESHOLD = 3   # 連續 3 次失敗 → 自動重啟
+    _TOOL_ESCALATE_THRESHOLD = 6  # 連續 6 次失敗 → 升級通知
+
     async def _tool_health_check_job():
-        """定期檢查所有工具健康狀態，偵測降級/恢復."""
+        """定期檢查所有工具健康狀態，偵測降級/恢復.
+
+        自癒邏輯：
+          - 連續 N 次失敗 → 嘗試 toggle off/on 重啟
+          - 連續 2N 次失敗 → 透過 Telegram 通知使用者介入
+          - 恢復時重置計數器並記錄
+        """
         try:
+            import asyncio as _aio
             from museon.core.event_bus import get_event_bus
             from museon.tools.tool_registry import ToolRegistry
 
@@ -4752,9 +4763,54 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                 event_bus=event_bus,
             )
             results = registry.check_all_health()
-            degraded = [n for n, r in results.items() if not r.get("healthy", True)]
+            degraded = []
+
+            for name, result in results.items():
+                if not result.get("healthy", True):
+                    _tool_fail_counts[name] = _tool_fail_counts.get(name, 0) + 1
+                    count = _tool_fail_counts[name]
+                    degraded.append(name)
+
+                    # 自動重啟（每 N 次嘗試一次）
+                    if count == _TOOL_RESTART_THRESHOLD:
+                        logger.warning(
+                            f"Tool {name}: {count} consecutive failures, "
+                            f"attempting auto-restart"
+                        )
+                        try:
+                            registry.toggle_tool(name, False)
+                            await _aio.sleep(3)
+                            registry.toggle_tool(name, True)
+                            logger.info(f"Tool {name}: auto-restart triggered")
+                        except Exception as e:
+                            logger.warning(f"Tool {name}: auto-restart failed: {e}")
+
+                    # 升級通知
+                    elif count == _TOOL_ESCALATE_THRESHOLD:
+                        logger.error(
+                            f"Tool {name}: {count} consecutive failures, escalating"
+                        )
+                        adapter = getattr(app.state, "telegram_adapter", None)
+                        if adapter and hasattr(adapter, "push_notification"):
+                            try:
+                                await adapter.push_notification(
+                                    f"⚠️ 工具 {name} 連續 {count} 次健康檢查失敗，"
+                                    f"自動重啟無效，需要人工介入"
+                                )
+                            except Exception:
+                                pass
+                else:
+                    # 恢復 — 重置計數器
+                    prev = _tool_fail_counts.get(name, 0)
+                    if prev > 0:
+                        logger.info(
+                            f"Tool {name}: recovered after {prev} failures ✓"
+                        )
+                    _tool_fail_counts[name] = 0
+
             if degraded:
-                logger.warning(f"Tool health check: degraded={degraded}")
+                fail_info = {n: _tool_fail_counts.get(n, 0) for n in degraded}
+                logger.warning(f"Tool health check: degraded={fail_info}")
         except Exception as e:
             logger.debug(f"Tool health check cron failed: {e}")
 

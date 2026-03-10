@@ -28,8 +28,8 @@ from typing import Dict, FrozenSet, List, Optional, Set, Tuple
 
 logger = logging.getLogger(__name__)
 
-# 解析 SKILL.md 中的 RC 代碼（支援 RC-A1 到 RC-E9）
-_RC_PATTERN = re.compile(r"RC-[A-E]\d+", re.IGNORECASE)
+# 解析 SKILL.md 中的 RC 代碼（支援 RC-A1 到 RC-F9）
+_RC_PATTERN = re.compile(r"RC-[A-F]\d+", re.IGNORECASE)
 
 # 偏好觸發的關鍵字模式
 _PREFERRED_KEYWORDS = ("偏好觸發", "preferred_cluster_hits", "優先處理")

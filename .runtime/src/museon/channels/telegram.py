@@ -939,6 +939,10 @@ class TelegramAdapter(ChannelAdapter):
 
         text = "\n".join(lines)
 
+        if not self.application:
+            logger.warning("Telegram adapter not initialized, skipping Morphenix notification")
+            return
+
         try:
             loop = asyncio.get_event_loop()
             owner_id = int(os.environ.get("TELEGRAM_OWNER_ID", "6969045906"))
