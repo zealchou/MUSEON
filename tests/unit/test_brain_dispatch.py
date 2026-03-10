@@ -566,7 +566,7 @@ class TestDispatchWorker:
 
         async def mock_llm(system_prompt, messages, model, max_tokens):
             assert "brand skill content" in system_prompt
-            assert model == "claude-haiku-4-20250514"
+            assert model == "claude-haiku-4-5-20251001"
             return '品牌分析完成。\n{"self_score": 0.9, "confidence": 0.85, "limitations": ""}'
 
         brain._call_llm_with_model = mock_llm

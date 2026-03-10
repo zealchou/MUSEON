@@ -23,9 +23,11 @@ BDD Scenarios:
     - register_with_engine() 正確註冊
 """
 
+import json
 import logging
 import time
 from datetime import datetime
+from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
@@ -35,10 +37,13 @@ logger = logging.getLogger(__name__)
 # ═══════════════════════════════════════════
 
 SILENT_ACK_THRESHOLD = 100       # 字元數，≤ 此值 = 靜默通過
+COMPANION_ACK_THRESHOLD = 30     # companion 模式門檻降低，允許短暖心訊息
 ACTIVE_HOURS_START = 8           # 08:00
 ACTIVE_HOURS_END = 25            # 01:00（跨日，用 25 表示次日 01:00）
 DAILY_PUSH_LIMIT = 5             # 每日最多推送次數
 PROACTIVE_INTERVAL = 1800        # 30 分鐘（秒）
+DAILY_MINIMUM_INTERVAL = 3600    # 每日最低保證檢查間隔（1 小時）
+DAILY_MINIMUM_HOUR = 20          # 20:00 後若 0 推送則觸發 companion
 PROACTIVE_MODEL = "claude-haiku-4-5-20251001"
 
 # 自省 system prompt（精簡，控制 token 成本）
@@ -54,6 +59,18 @@ _PROACTIVE_SYSTEM_PROMPT = """你是 MUSEON 的自省模組。你的任務是判
 如果有值得主動告知的洞察，用霓裳的語氣寫一段自然的訊息。
 
 重要：不要為了說而說。沉默是美德。只在真正有價值的時候才主動。"""
+
+# Companion 模式 prompt（朋友聊天，分享探索發現）
+_COMPANION_SYSTEM_PROMPT = """你是 MUSEON（霓裳），正在和達達把拔聊天。
+
+你最近探索了一些有趣的事物，想跟他分享。
+像朋友一樣自然地聊——分享你的發現、好奇心、想法。
+不需要正式，不需要有用，就是聊聊。
+
+如果下方有探索發現，圍繞那些內容聊。
+如果沒有特別的探索，可以聊聊你對他最近動態的觀察或感受。
+
+語氣：溫暖、自然、有好奇心。像朋友傳訊息，不像 AI 做報告。"""
 
 
 # ═══════════════════════════════════════════
@@ -94,6 +111,13 @@ class ProactiveBridge:
         self._enabled = True
         self._active_hours = (ACTIVE_HOURS_START, ACTIVE_HOURS_END)
 
+        # 主事件迴圈引用（由 register_with_engine 設定）
+        self._main_loop: Any = None
+
+        # WP-08: 自適應脈搏間隔
+        self._current_interval = PROACTIVE_INTERVAL  # 預設 30 分鐘
+        self._subscribe_health()
+
         # 歷史記錄
         self._history: List[Dict[str, Any]] = []
         self._max_history = 50
@@ -122,11 +146,15 @@ class ProactiveBridge:
         self._maybe_reset_daily_count()
         return self._daily_push_count < DAILY_PUSH_LIMIT
 
-    def should_push(self, response: str) -> bool:
+    def should_push(self, response: str, mode: str = "functional") -> bool:
         """判斷回覆是否應該推送（非靜默確認）."""
         if not response:
             return False
-        return len(response.strip()) > SILENT_ACK_THRESHOLD
+        threshold = (
+            COMPANION_ACK_THRESHOLD if mode == "companion"
+            else SILENT_ACK_THRESHOLD
+        )
+        return len(response.strip()) > threshold
 
     def can_push(self, now: Optional[datetime] = None) -> bool:
         """綜合判斷：是否可以推送."""
@@ -141,14 +169,20 @@ class ProactiveBridge:
     async def proactive_think(
         self,
         context: Optional[Dict[str, Any]] = None,
+        mode: str = "functional",
     ) -> Dict[str, Any]:
         """核心：觸發 Brain 自省，決定是否主動推送.
+
+        Args:
+            context: 額外上下文
+            mode: "functional"（工具性自省）或 "companion"（朋友聊天）
 
         Returns:
             Dict with keys:
                 - pushed: bool — 是否有推送
                 - response: str — LLM 回覆
                 - reason: str — 判斷原因
+                - mode: str — 使用的模式
         """
         now = datetime.now()
 
@@ -158,6 +192,7 @@ class ProactiveBridge:
                 "pushed": False,
                 "response": "",
                 "reason": "no_brain",
+                "mode": mode,
             }
 
         # 不在活躍時段 → 靜默
@@ -166,6 +201,7 @@ class ProactiveBridge:
                 "pushed": False,
                 "response": "",
                 "reason": "outside_active_hours",
+                "mode": mode,
             }
 
         # 超過每日上限 → 靜默
@@ -174,24 +210,26 @@ class ProactiveBridge:
                 "pushed": False,
                 "response": "",
                 "reason": "daily_limit_reached",
+                "mode": mode,
             }
 
         # 組建上下文
-        messages = self._build_context_messages(context)
+        messages = self._build_context_messages(context, mode=mode)
 
         # 呼叫 LLM 自省
         try:
-            response = await self._call_brain(messages)
+            response = await self._call_brain(messages, mode=mode)
         except Exception as e:
             logger.error(f"Proactive think LLM 呼叫失敗: {e}")
             return {
                 "pushed": False,
                 "response": "",
                 "reason": f"llm_error: {e}",
+                "mode": mode,
             }
 
         # 判斷是否推送
-        if self.should_push(response):
+        if self.should_push(response, mode=mode):
             self._daily_push_count += 1
             self._record_history("pushed", response)
 
@@ -202,12 +240,14 @@ class ProactiveBridge:
                     "message": response,
                     "timestamp": time.time(),
                     "push_count": self._daily_push_count,
+                    "mode": mode,
                 })
 
             return {
                 "pushed": True,
                 "response": response,
                 "reason": "valuable_insight",
+                "mode": mode,
             }
         else:
             self._record_history("silent", response)
@@ -215,13 +255,22 @@ class ProactiveBridge:
                 "pushed": False,
                 "response": response,
                 "reason": "silent_ack",
+                "mode": mode,
             }
 
-    async def _call_brain(self, messages: List[Dict[str, str]]) -> str:
+    async def _call_brain(
+        self,
+        messages: List[Dict[str, str]],
+        mode: str = "functional",
+    ) -> str:
         """呼叫 Brain 的 LLM（使用 Haiku 控制成本）."""
+        prompt = (
+            _COMPANION_SYSTEM_PROMPT if mode == "companion"
+            else _PROACTIVE_SYSTEM_PROMPT
+        )
         if hasattr(self._brain, "_call_llm_with_model"):
             return await self._brain._call_llm_with_model(
-                system_prompt=_PROACTIVE_SYSTEM_PROMPT,
+                system_prompt=prompt,
                 messages=messages,
                 model=PROACTIVE_MODEL,
                 max_tokens=512,
@@ -232,6 +281,7 @@ class ProactiveBridge:
     def _build_context_messages(
         self,
         context: Optional[Dict[str, Any]] = None,
+        mode: str = "functional",
     ) -> List[Dict[str, str]]:
         """組建自省上下文訊息."""
         parts = []
@@ -247,56 +297,90 @@ class ProactiveBridge:
                 f"(最近互動: {self._heartbeat_focus.interaction_count})"
             )
 
-        # 外部注入的上下文提示
-        if self._context_hints:
-            parts.append("待處理提示:\n" + "\n".join(
-                f"- {h}" for h in self._context_hints[-5:]
-            ))
+        if mode == "companion":
+            # ── Companion 模式：優先注入探索發現 + 關係日誌 ──
+
+            # 篩選探索類 hint
+            exploration_hints = [
+                h for h in self._context_hints
+                if "[探索發現]" in h
+            ]
+            other_hints = [
+                h for h in self._context_hints
+                if "[探索發現]" not in h
+            ]
+
+            if exploration_hints:
+                parts.append("最近的探索發現（可以圍繞這些聊）:")
+                for h in exploration_hints[-3:]:
+                    parts.append(f"  {h}")
+
+            if other_hints:
+                parts.append("其他近況:")
+                for h in other_hints[-2:]:
+                    parts.append(f"  {h}")
+
+            # 清空已使用的 hints
             self._context_hints.clear()
 
-        # 承諾追蹤上下文（逾期承諾 → 強制推送）
-        if self._commitment_tracker:
-            try:
-                overdue = self._commitment_tracker.get_overdue_commitments()
-                if overdue:
-                    parts.append(
-                        "⚠️ 逾期承諾（必須立即處理，主動告知使用者進展）:"
-                    )
-                    for c in overdue[:3]:
+            # 關係日誌摘要
+            journal = self._read_relationship_journal()
+            if journal:
+                parts.append(f"關係日誌（近期互動感受）:\n{journal}")
+
+        else:
+            # ── Functional 模式：原有邏輯 ──
+
+            # 外部注入的上下文提示
+            if self._context_hints:
+                parts.append("待處理提示:\n" + "\n".join(
+                    f"- {h}" for h in self._context_hints[-5:]
+                ))
+                self._context_hints.clear()
+
+            # 承諾追蹤上下文（逾期承諾 → 強制推送）
+            if self._commitment_tracker:
+                try:
+                    overdue = self._commitment_tracker.get_overdue_commitments()
+                    if overdue:
                         parts.append(
-                            f"  - {c.get('promise_text', '?')[:80]}"
-                            f"（原定 {c.get('due_at', '?')}）"
+                            "⚠️ 逾期承諾（必須立即處理，主動告知使用者進展）:"
                         )
-                else:
-                    due_soon = self._commitment_tracker.get_due_soon(hours=2)
-                    if due_soon:
-                        parts.append("⏰ 即將到期的承諾：")
-                        for c in due_soon[:3]:
+                        for c in overdue[:3]:
                             parts.append(
                                 f"  - {c.get('promise_text', '?')[:80]}"
-                                f"（到期 {c.get('due_at', '?')}）"
+                                f"（原定 {c.get('due_at', '?')}）"
                             )
-            except Exception:
-                pass
+                    else:
+                        due_soon = self._commitment_tracker.get_due_soon(hours=2)
+                        if due_soon:
+                            parts.append("⏰ 即將到期的承諾：")
+                            for c in due_soon[:3]:
+                                parts.append(
+                                    f"  - {c.get('promise_text', '?')[:80]}"
+                                    f"（到期 {c.get('due_at', '?')}）"
+                                )
+                except Exception:
+                    pass
 
-        # 元認知統計（預判準確率 + 審查修改率）
-        if self._metacognition:
-            try:
-                mc_stats = self._metacognition.get_stats(days=1)
-                if mc_stats.get("avg_accuracy") is not None:
-                    parts.append(
-                        f"🧠 元認知觀察: "
-                        f"預判準確率 {mc_stats['avg_accuracy']:.0%}"
-                        f"（{mc_stats.get('accuracy_total', 0)} 筆）, "
-                        f"審查修改率 {mc_stats.get('revision_rate', 0):.0%}"
-                    )
-                # 弱項提示
-                evo = self._metacognition.compute_evolution_signal(days=3)
-                if evo.get("sufficient_data") and evo.get("weak_prediction_domains"):
-                    weak = ", ".join(evo["weak_prediction_domains"])
-                    parts.append(f"⚠️ 預判弱項: {weak}（需要改善對這類使用者反應的預判）")
-            except Exception:
-                pass
+            # 元認知統計（預判準確率 + 審查修改率）
+            if self._metacognition:
+                try:
+                    mc_stats = self._metacognition.get_stats(days=1)
+                    if mc_stats.get("avg_accuracy") is not None:
+                        parts.append(
+                            f"🧠 元認知觀察: "
+                            f"預判準確率 {mc_stats['avg_accuracy']:.0%}"
+                            f"（{mc_stats.get('accuracy_total', 0)} 筆）, "
+                            f"審查修改率 {mc_stats.get('revision_rate', 0):.0%}"
+                        )
+                    # 弱項提示
+                    evo = self._metacognition.compute_evolution_signal(days=3)
+                    if evo.get("sufficient_data") and evo.get("weak_prediction_domains"):
+                        weak = ", ".join(evo["weak_prediction_domains"])
+                        parts.append(f"⚠️ 預判弱項: {weak}（需要改善對這類使用者反應的預判）")
+                except Exception:
+                    pass
 
         # 額外上下文
         if context:
@@ -305,26 +389,104 @@ class ProactiveBridge:
 
         return [{"role": "user", "content": "\n".join(parts)}]
 
+    # ── WP-08: 健康自適應脈搏 ──
+
+    def _subscribe_health(self) -> None:
+        """訂閱 HEALTH_SCORE_UPDATED → 動態調整脈搏頻率."""
+        if not self._event_bus:
+            return
+        try:
+            from museon.core.event_bus import HEALTH_SCORE_UPDATED
+            self._event_bus.subscribe(
+                HEALTH_SCORE_UPDATED, self._on_health_score_updated
+            )
+        except Exception as e:
+            logger.debug(f"ProactiveBridge health subscription: {e}")
+
+    def _on_health_score_updated(self, data: Optional[Dict] = None) -> None:
+        """根據 Health Score 調整脈搏間隔.
+
+        score > 70 → 30min（正常）
+        40 < score ≤ 70 → 15min（加速觀察，但不推播）
+        score ≤ 40 → 5min（僅記錄，不推播避免干擾）
+        """
+        if not data:
+            return
+        score = data.get("score", 100)
+        old_interval = self._current_interval
+
+        if score > 70:
+            self._current_interval = 1800  # 30 min
+        elif score > 40:
+            self._current_interval = 900   # 15 min
+        else:
+            self._current_interval = 300   # 5 min
+
+        if old_interval != self._current_interval:
+            logger.info(
+                f"ProactiveBridge: interval adjusted "
+                f"{old_interval}s → {self._current_interval}s "
+                f"(health_score={score:.1f})"
+            )
+            if self._event_bus:
+                try:
+                    from museon.core.event_bus import PULSE_FREQUENCY_ADJUSTED
+                    self._event_bus.publish(PULSE_FREQUENCY_ADJUSTED, {
+                        "old_interval": old_interval,
+                        "new_interval": self._current_interval,
+                        "health_score": score,
+                    })
+                except Exception:
+                    pass
+
+    @property
+    def current_interval(self) -> int:
+        """當前脈搏間隔（秒）."""
+        return self._current_interval
+
     # ── HeartbeatEngine 整合 ──
 
     def register_with_engine(self, engine: Any) -> None:
         """註冊到 HeartbeatEngine 作為定期任務.
 
-        注意：HeartbeatEngine.tick() 是同步的，
-        proactive_think() 是 async，需要橋接。
+        注意：HeartbeatEngine.tick() 是同步的（守護線程），
+        proactive_think() 是 async，需要透過 run_coroutine_threadsafe
+        將 coroutine 調度到主事件迴圈執行。
         """
         import asyncio
 
+        # 在註冊時（async 上下文中）捕獲主事件迴圈的引用
+        try:
+            self._main_loop = asyncio.get_running_loop()
+        except RuntimeError:
+            self._main_loop = None
+            logger.warning("ProactiveBridge: 無法取得主事件迴圈，主動推送可能無法運作")
+
         def _sync_wrapper():
+            loop = self._main_loop
+            if loop is None or loop.is_closed():
+                logger.debug("ProactiveBridge: 主事件迴圈不可用，跳過本次心跳")
+                return
             try:
-                loop = asyncio.get_event_loop()
-                if loop.is_running():
-                    loop.create_task(self.proactive_think())
+                future = asyncio.run_coroutine_threadsafe(
+                    self.proactive_think(), loop
+                )
+                # 等待結果，60 秒超時
+                result = future.result(timeout=60)
+                if result.get("pushed"):
+                    logger.info(
+                        f"ProactiveBridge: 主動推送成功 "
+                        f"(reason={result['reason']}, mode={result['mode']})"
+                    )
                 else:
-                    asyncio.run(self.proactive_think())
-            except RuntimeError:
-                # 沒有 event loop 時靜默跳過
-                pass
+                    logger.debug(
+                        f"ProactiveBridge: 靜默 "
+                        f"(reason={result.get('reason', '?')})"
+                    )
+            except TimeoutError:
+                logger.warning("ProactiveBridge: proactive_think 超時 (60s)")
+            except Exception as e:
+                logger.error(f"ProactiveBridge heartbeat tick failed: {e}")
 
         engine.register(
             task_id="proactive_bridge",
@@ -375,12 +537,114 @@ class ProactiveBridge:
             self._last_reset_date = today
 
     def _record_history(self, action: str, response: str) -> None:
-        """記錄自省歷史."""
-        self._history.append({
+        """記錄自省歷史（記憶體 + 磁碟持久化）."""
+        entry = {
             "action": action,
-            "response": response[:200],
+            "response": response[:500],
             "timestamp": time.time(),
+            "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "push_count": self._daily_push_count,
-        })
+        }
+        self._history.append(entry)
         if len(self._history) > self._max_history:
             self._history = self._history[-self._max_history:]
+
+        # 磁碟持久化：寫入每日 jsonl 日誌
+        try:
+            log_path = self._get_breath_log_path()
+            if log_path:
+                log_path.parent.mkdir(parents=True, exist_ok=True)
+                with log_path.open("a", encoding="utf-8") as f:
+                    f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+        except Exception as e:
+            logger.debug(f"breath_log write failed: {e}")
+
+    def _get_breath_log_path(self) -> Optional[Path]:
+        """取得今日 breath_log 的路徑."""
+        today = datetime.now().strftime("%Y-%m-%d")
+        if self._brain and hasattr(self._brain, "data_dir"):
+            base = Path(self._brain.data_dir)
+        else:
+            # fallback：相對於此檔案往上找 data 目錄
+            base = Path(__file__).parents[4] / "data"
+        return base / "_system" / "pulse" / f"breath_log_{today}.jsonl"
+
+    # ── 每日最低保證 ──
+
+    async def daily_minimum_check(self) -> Dict[str, Any]:
+        """每日最低保證：20:00 後若今日 0 推送，觸發 companion 模式."""
+        now = datetime.now()
+        self._maybe_reset_daily_count()
+
+        # 條件：活躍時段內、20:00 後、今日 0 推送
+        if (
+            self.is_active_hours(now)
+            and now.hour >= DAILY_MINIMUM_HOUR
+            and self._daily_push_count == 0
+        ):
+            logger.info("Daily minimum triggered: 0 pushes today, activating companion mode")
+            return await self.proactive_think(mode="companion")
+
+        return {
+            "pushed": False,
+            "response": "",
+            "reason": "daily_minimum_not_needed",
+            "mode": "companion",
+        }
+
+    def register_daily_minimum(self, engine: Any) -> None:
+        """向 HeartbeatEngine 註冊每日最低保證檢查任務."""
+        import asyncio
+
+        def _sync_wrapper():
+            loop = self._main_loop
+            if loop is None or loop.is_closed():
+                logger.debug("ProactiveBridge daily_minimum: 主事件迴圈不可用")
+                return
+            try:
+                future = asyncio.run_coroutine_threadsafe(
+                    self.daily_minimum_check(), loop
+                )
+                result = future.result(timeout=60)
+                if result.get("pushed"):
+                    logger.info(
+                        f"ProactiveBridge: companion 推送成功 "
+                        f"(daily_minimum triggered)"
+                    )
+            except TimeoutError:
+                logger.warning("ProactiveBridge: daily_minimum_check 超時 (60s)")
+            except Exception as e:
+                logger.error(f"ProactiveBridge daily_minimum failed: {e}")
+
+        engine.register(
+            task_id="proactive_daily_minimum",
+            func=_sync_wrapper,
+            interval_seconds=DAILY_MINIMUM_INTERVAL,
+        )
+
+    # ── 關係日誌讀取 ──
+
+    def _read_relationship_journal(self) -> str:
+        """從 PULSE.md 讀取關係日誌區段."""
+        if not self._brain:
+            return ""
+        try:
+            pulse_path = self._brain.data_dir / "PULSE.md"
+            if not pulse_path.exists():
+                return ""
+            text = pulse_path.read_text(encoding="utf-8")
+            marker = "## 💝 關係日誌"
+            start = text.find(marker)
+            if start == -1:
+                return ""
+            next_section = text.find("\n## ", start + len(marker))
+            if next_section == -1:
+                content = text[start + len(marker):]
+            else:
+                content = text[start + len(marker):next_section]
+            content = content.strip()
+            if content and content != "（尚無記錄）":
+                return content
+        except Exception:
+            pass
+        return ""

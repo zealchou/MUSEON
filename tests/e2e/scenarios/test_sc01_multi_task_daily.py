@@ -7,6 +7,8 @@ SC-01：多工日常營運壓測（簡化為 webhook 可測版本）
 - 無內部標記洩漏
 - 記憶跨訊息保持
 """
+from __future__ import annotations
+
 import re
 import time
 import pytest

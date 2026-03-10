@@ -711,17 +711,18 @@ class TestCrystallizerFlow:
         assert len(crystal.g4_insights) == 2
 
     def test_crystallize_auto_generates_geo_defaults(self, lattice):
-        """未提供 GEO 時自動萃取預設值."""
+        """未提供 GEO 時使用預設值（G2/G4 留空，G1/G3 自動填入）."""
         crystal = lattice.crystallize(
             raw_material="一段足夠長的原始素材，用於自動萃取 GEO 四層結構",
             source_context="",
             crystal_type="Hypothesis",
         )
-        # refine 步驟會自動從 raw_material 萃取
+        # G1 從 raw_material 前 80 字擷取，G3 使用通用引導問題
         assert crystal.g1_summary != ""
-        assert len(crystal.g2_structure) >= 1
         assert crystal.g3_root_inquiry != ""
-        assert len(crystal.g4_insights) >= 1
+        # G2/G4 未提供時留空（避免與 G1 重複）
+        assert isinstance(crystal.g2_structure, list)
+        assert isinstance(crystal.g4_insights, list)
 
     def test_crystallize_assigns_verification_level(self, lattice):
         """不同類型自動指定驗證等級."""

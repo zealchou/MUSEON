@@ -3691,3 +3691,439 @@ body {
   }
 }
 
+/* ═══════════════════════════════════════
+   Installer 2.0 — Phase 0-4 全螢幕安裝體驗
+   ═══════════════════════════════════════ */
+
+.installer-fullscreen {
+  position: fixed;
+  inset: 0;
+  background: #0f172a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+  color: #e2e8f0;
+  overflow: hidden;
+}
+
+/* ─── Brand 品牌視覺 ─── */
+
+.installer-brand {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.installer-logo-large {
+  font-size: 4rem;
+  margin-bottom: 0.5rem;
+  filter: drop-shadow(0 0 30px rgba(201, 169, 110, 0.3));
+}
+
+.installer-brand-name {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: #c9a96e;
+  text-shadow: 0 0 20px rgba(201, 169, 110, 0.3);
+}
+
+.installer-brand-sub {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin-top: 0.5rem;
+  letter-spacing: 0.05em;
+}
+
+/* ─── Phase 0: Splash 進度條 ─── */
+
+.installer-splash-status {
+  font-size: 0.875rem;
+  color: #94a3b8;
+  margin-bottom: 1rem;
+  min-height: 1.5em;
+  transition: opacity 0.3s ease;
+}
+
+.installer-progress-track {
+  width: 280px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+}
+
+.installer-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #c9a96e, #e8c97a);
+  border-radius: 2px;
+  transition: width 0.5s ease;
+  box-shadow: 0 0 8px rgba(201, 169, 110, 0.4);
+}
+
+.installer-progress-text {
+  font-size: 0.75rem;
+  color: #475569;
+}
+
+/* ─── Phase 0: Error / Python missing ─── */
+
+.installer-error-box {
+  margin-top: 1.5rem;
+  padding: 1rem 1.5rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  max-width: 380px;
+  text-align: center;
+}
+
+.installer-error-box p {
+  color: #fca5a5;
+  font-size: 0.875rem;
+  margin: 0 0 0.5rem;
+}
+
+.installer-error-box code {
+  display: block;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  font-family: 'SF Mono', monospace;
+  font-size: 0.8125rem;
+  color: #e2e8f0;
+  margin: 0.5rem 0;
+}
+
+/* ─── Phase 1: Welcome ─── */
+
+.installer-welcome-content {
+  text-align: center;
+  max-width: 400px;
+}
+
+.installer-welcome-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin-bottom: 0.75rem;
+}
+
+.installer-welcome-desc {
+  font-size: 0.9375rem;
+  color: #94a3b8;
+  line-height: 1.7;
+  margin-bottom: 2rem;
+}
+
+/* ─── Phase 2: Soul Injection ─── */
+
+.installer-soul-form {
+  width: 100%;
+  max-width: 400px;
+  padding: 0 1.5rem;
+}
+
+.installer-soul-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.installer-soul-desc {
+  font-size: 0.875rem;
+  color: #64748b;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.installer-field {
+  margin-bottom: 1.25rem;
+}
+
+.installer-field label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #94a3b8;
+  margin-bottom: 0.4rem;
+  letter-spacing: 0.02em;
+}
+
+.installer-field-hint {
+  font-size: 0.75rem;
+  color: #475569;
+  margin-bottom: 0.4rem;
+}
+
+.installer-field input {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  color: #e2e8f0;
+  font-size: 0.875rem;
+  font-family: 'SF Mono', monospace;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+.installer-field input:focus {
+  border-color: rgba(201, 169, 110, 0.5);
+  box-shadow: 0 0 0 3px rgba(201, 169, 110, 0.1);
+}
+
+.installer-field input.error {
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.installer-field-status {
+  font-size: 0.75rem;
+  margin-top: 0.3rem;
+  min-height: 1em;
+}
+
+.installer-field-status.success { color: #4ade80; }
+.installer-field-status.error { color: #f87171; }
+.installer-field-status.validating { color: #94a3b8; }
+
+.installer-optional-tag {
+  font-size: 0.6875rem;
+  color: #475569;
+  font-weight: 400;
+  margin-left: 0.3rem;
+}
+
+/* ─── Phase 3: Deploy 步驟列表 ─── */
+
+.installer-deploy-list {
+  width: 100%;
+  max-width: 420px;
+  padding: 0 1.5rem;
+}
+
+.installer-deploy-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.installer-deploy-desc {
+  font-size: 0.875rem;
+  color: #64748b;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.installer-deploy-step {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.installer-deploy-step:last-child {
+  border-bottom: none;
+}
+
+.installer-deploy-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.installer-deploy-icon.pending { color: #334155; }
+.installer-deploy-icon.running { color: #c9a96e; animation: spinProgress 1s linear infinite; }
+.installer-deploy-icon.done { color: #4ade80; }
+.installer-deploy-icon.failed { color: #f87171; }
+.installer-deploy-icon.warning { color: #fbbf24; }
+
+.installer-deploy-label {
+  flex: 1;
+  font-size: 0.875rem;
+  color: #94a3b8;
+}
+
+.installer-deploy-step.running .installer-deploy-label { color: #e2e8f0; }
+.installer-deploy-step.done .installer-deploy-label { color: #4ade80; }
+.installer-deploy-step.failed .installer-deploy-label { color: #f87171; }
+
+.installer-deploy-message {
+  font-size: 0.75rem;
+  color: #475569;
+  flex-shrink: 0;
+}
+
+/* Docker 引導畫面 */
+.installer-docker-guidance {
+  text-align: center;
+  max-width: 400px;
+  padding: 1.5rem;
+}
+
+.installer-docker-guidance p {
+  color: #94a3b8;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.installer-docker-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  margin-top: 1rem;
+}
+
+/* ─── Phase 4: Health Report ─── */
+
+.installer-health-report {
+  width: 100%;
+  max-width: 420px;
+  padding: 0 1.5rem;
+}
+
+.installer-health-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.installer-health-overall {
+  text-align: center;
+  font-size: 3rem;
+  margin: 1rem 0;
+}
+
+.installer-health-status {
+  text-align: center;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.installer-health-status.healthy { color: #4ade80; }
+.installer-health-status.partial { color: #fbbf24; }
+.installer-health-status.unhealthy { color: #f87171; }
+
+.installer-health-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.installer-health-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #94a3b8;
+}
+
+.installer-health-item .icon { font-size: 1rem; }
+.installer-health-item .icon.ok { color: #4ade80; }
+.installer-health-item .icon.warn { color: #fbbf24; }
+.installer-health-item .icon.fail { color: #f87171; }
+
+/* ─── 共用按鈕 ─── */
+
+.installer-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.installer-btn-primary {
+  background: linear-gradient(135deg, #c9a96e, #b8943e);
+  color: #0f172a;
+  box-shadow: 0 4px 15px rgba(201, 169, 110, 0.3);
+}
+
+.installer-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(201, 169, 110, 0.4);
+}
+
+.installer-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.installer-btn-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+.installer-btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.installer-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #e2e8f0;
+}
+
+.installer-btn-ghost {
+  background: transparent;
+  color: #64748b;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+}
+
+.installer-btn-ghost:hover {
+  color: #94a3b8;
+}
+
+/* ─── Animations ─── */
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 4px 15px rgba(201, 169, 110, 0.3); }
+  50% { box-shadow: 0 4px 25px rgba(201, 169, 110, 0.5), 0 0 40px rgba(201, 169, 110, 0.15); }
+}
+
+@keyframes spinProgress {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.installer-fade-in {
+  animation: fadeIn 0.5s ease forwards;
+}
+
+/* ─── Phase transition ─── */
+.installer-phase-enter {
+  animation: fadeIn 0.4s ease forwards;
+}
+

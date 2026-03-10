@@ -166,6 +166,109 @@ TOOL_CONFIGS: Dict[str, ToolConfig] = {
             "playwright_image": "ghcr.io/firecrawl/playwright-service:latest",
         },
     ),
+    "dify": ToolConfig(
+        name="dify",
+        display_name="Dify",
+        emoji="🔄",
+        description="工作流引擎 — MUSEON 的手腳，視覺化 AI 工作流建構平台，自動化排程與跨系統整合",
+        category="automation",
+        install_type="compose",
+        cost_tier="cpu",
+        docker_image="langgenius/dify-api:latest",
+        docker_port=5001,
+        docker_internal_port=5001,
+        ram_mb=1024,
+        health_url="http://127.0.0.1:5001/",
+        required=False,
+        extra_config={
+            "note": "Dify 自架版，需要 docker compose 啟動多容器（API + Web + Worker + PostgreSQL + Redis + Weaviate）",
+            "web_port": 3000,
+            "web_image": "langgenius/dify-web:latest",
+            "github": "https://github.com/langgenius/dify",
+            "mcp_support": "v1.6.0+ 雙向 MCP 支援",
+            "integration": "MUSEON 透過 REST API 自主執行工作流",
+        },
+    ),
+
+    # ── Phase 3-5 外部整合工具 ──
+
+    "freshrss": ToolConfig(
+        name="freshrss",
+        display_name="FreshRSS",
+        emoji="📡",
+        description="RSS 聚合器 — 自建 RSS 閱讀器，自動追蹤技術部落格與新聞來源",
+        category="feed",
+        install_type="docker",
+        cost_tier="cpu",
+        docker_image="freshrss/freshrss:latest",
+        docker_port=8080,
+        docker_internal_port=80,
+        ram_mb=128,
+        health_url="http://127.0.0.1:8080/api/greader.php",
+        required=False,
+        extra_config={
+            "note": "FreshRSS 自架版，支援 Google Reader API",
+            "github": "https://github.com/FreshRSS/FreshRSS",
+            "integration": "MUSEON 透過 RSSAggregator 定期拉取新文章",
+        },
+    ),
+
+    "stability": ToolConfig(
+        name="stability",
+        display_name="Stability AI",
+        emoji="🎨",
+        description="圖片生成 — Stability AI / SDXL API，文字到圖片生成",
+        category="generation",
+        install_type="api",
+        cost_tier="paid",
+        health_url="https://api.stability.ai/v1/engines/list",
+        required=False,
+        extra_config={
+            "note": "需要 STABILITY_API_KEY 環境變數",
+            "api_base": "https://api.stability.ai",
+            "integration": "MUSEON 透過 ImageGenerator 生成圖片",
+            "pricing": "依解析度和步數計費",
+        },
+    ),
+
+    "xtts": ToolConfig(
+        name="xtts",
+        display_name="XTTS v2",
+        emoji="🗣️",
+        description="語音克隆 — Coqui XTTS v2 Docker，多語言語音合成與克隆",
+        category="tts",
+        install_type="docker",
+        cost_tier="cpu",
+        docker_image="ghcr.io/coqui-ai/xtts-streaming-server:latest",
+        docker_port=8020,
+        docker_internal_port=80,
+        ram_mb=2048,
+        health_url="http://127.0.0.1:8020/docs",
+        required=False,
+        extra_config={
+            "note": "XTTS v2 Docker 伺服器，支援語音克隆和多語言合成",
+            "github": "https://github.com/coqui-ai/TTS",
+            "integration": "MUSEON 透過 VoiceCloner 進行語音合成",
+            "gpu_recommended": True,
+        },
+    ),
+
+    "zotero": ToolConfig(
+        name="zotero",
+        display_name="Zotero",
+        emoji="📚",
+        description="文獻管理 — Zotero API 整合，學術文獻匯入與向量搜尋",
+        category="research",
+        install_type="api",
+        cost_tier="free",
+        health_url="https://api.zotero.org/keys/current",
+        required=False,
+        extra_config={
+            "note": "需要 ZOTERO_API_KEY 和 ZOTERO_USER_ID 環境變數",
+            "api_base": "https://api.zotero.org",
+            "integration": "MUSEON 透過 ZoteroBridge 同步文獻到 Qdrant",
+        },
+    ),
 }
 
 # 工具安裝順序（Phase 排序，必要工具優先）
@@ -173,9 +276,14 @@ INSTALL_ORDER = [
     "searxng",     # Phase 1 (required)
     "qdrant",      # Phase 1 (required)
     "firecrawl",   # Phase 1 (required)
+    "dify",        # Phase 2 (optional, 工作流自動化)
     "whisper",     # Phase 2
     "paddleocr",   # Phase 2
     "kokoro",      # Phase 3
+    "freshrss",    # Phase 3 (RSS 聚合)
+    "stability",   # Phase 4 (圖片生成, API)
+    "xtts",        # Phase 4 (語音克隆)
+    "zotero",      # Phase 4 (文獻管理, API)
 ]
 
 # 分類名稱
@@ -185,6 +293,10 @@ CATEGORY_NAMES = {
     "memory": "📦 記憶能力",
     "crawl": "🕷️ 爬取能力",
     "tts": "🔊 語音能力",
+    "feed": "📡 資訊串流",
+    "generation": "🎨 生成能力",
+    "automation": "🔄 自動化",
+    "research": "📚 研究能力",
 }
 
 
@@ -221,12 +333,15 @@ class ToolRegistry:
     - Docker daemon 自動偵測與啟動（macOS Docker Desktop）
     """
 
-    def __init__(self, workspace: Path, auto_detect: bool = True) -> None:
+    def __init__(self, workspace: Path, auto_detect: bool = True, event_bus=None) -> None:
         self._workspace = Path(workspace)
+        self._event_bus = event_bus
         self._dir = self._workspace / "_system" / "tools"
         self._dir.mkdir(parents=True, exist_ok=True)
         self._state_path = self._dir / "registry.json"
         self._states: Dict[str, ToolState] = {}
+        # 追蹤前一次健康狀態（用於偵測變化）
+        self._prev_health: Dict[str, bool] = {}
         self._load_states()
         # 首次載入時自動偵測已安裝的工具（純 CPU, 零 Token）
         if auto_detect:
@@ -554,7 +669,7 @@ class ToolRegistry:
         }
 
     def check_health(self, name: str) -> Dict:
-        """健康檢查單一工具."""
+        """健康檢查單一工具（含狀態變化偵測 + EventBus 通知）."""
         if name not in TOOL_CONFIGS:
             return {"name": name, "healthy": False, "reason": "unknown_tool"}
 
@@ -571,11 +686,48 @@ class ToolRegistry:
                 "reason": "not_running",
             }
 
+        was_healthy = self._prev_health.get(name, True)
         healthy = self._check_tool_health(name, config)
         state.healthy = healthy
         state.last_health_check = datetime.now(TZ_TAIPEI).isoformat()
         self._states[name] = state
         self._save_states()
+
+        # 偵測狀態變化 → 發布 EventBus 事件
+        if self._event_bus and was_healthy != healthy:
+            try:
+                from museon.core.event_bus import (
+                    TOOL_HEALTH_CHANGED,
+                    TOOL_DEGRADED,
+                    TOOL_RECOVERED,
+                )
+                self._event_bus.publish(TOOL_HEALTH_CHANGED, {
+                    "tool_name": name,
+                    "was_healthy": was_healthy,
+                    "is_healthy": healthy,
+                    "required": config.required,
+                })
+                if not healthy:
+                    self._event_bus.publish(TOOL_DEGRADED, {
+                        "tool_name": name,
+                        "display_name": config.display_name,
+                        "required": config.required,
+                    })
+                    logger.warning(
+                        f"Tool degraded: {config.display_name} ({name})"
+                    )
+                else:
+                    self._event_bus.publish(TOOL_RECOVERED, {
+                        "tool_name": name,
+                        "display_name": config.display_name,
+                    })
+                    logger.info(
+                        f"Tool recovered: {config.display_name} ({name})"
+                    )
+            except Exception as e:
+                logger.debug(f"Tool health event publish failed: {e}")
+
+        self._prev_health[name] = healthy
 
         return {"name": name, "healthy": healthy}
 

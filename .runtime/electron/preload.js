@@ -125,6 +125,62 @@ contextBridge.exposeInMainWorld('museon', {
    */
   completeSetup: () => ipcRenderer.invoke('setup-complete'),
 
+  // ─── Installer 2.0 APIs ───
+
+  /**
+   * 取得安裝 checkpoint（斷點續裝）
+   * @returns {Promise<object|null>} checkpoint 或 null
+   */
+  getCheckpoint: () => ipcRenderer.invoke('installer-get-checkpoint'),
+
+  /**
+   * 儲存安裝 checkpoint
+   * @param {number} phase - 已完成的 phase
+   * @param {object} details - phase 細節
+   * @returns {Promise<object>} 更新後的 checkpoint
+   */
+  saveCheckpoint: (phase, details) => ipcRenderer.invoke('installer-save-checkpoint', phase, details),
+
+  /**
+   * 執行 Phase 0 全自動引導（Python/venv/Docker 偵測）
+   * @returns {Promise<object>} { success, steps, dockerStatus }
+   */
+  runBootstrap: () => ipcRenderer.invoke('installer-run-bootstrap'),
+
+  /**
+   * 監聽 Phase 0 即時進度
+   * @param {function} callback - { percent, status, error? }
+   */
+  onBootstrapProgress: (callback) => {
+    ipcRenderer.on('installer-bootstrap-progress', (event, data) => callback(data));
+  },
+
+  /**
+   * 執行 Phase 3 全自動部署（Gateway + Docker 工具）
+   * @returns {Promise<object>} { success, steps, toolResults, dockerMissing? }
+   */
+  runDeploy: () => ipcRenderer.invoke('installer-run-deploy'),
+
+  /**
+   * 監聽 Phase 3 per-tool 進度
+   * @param {function} callback - { step, status, message }
+   */
+  onDeployProgress: (callback) => {
+    ipcRenderer.on('installer-deploy-progress', (event, data) => callback(data));
+  },
+
+  /**
+   * 執行 Phase 4 健康檢查
+   * @returns {Promise<object>} { gateway, docker, tools, overall }
+   */
+  runHealthcheck: () => ipcRenderer.invoke('installer-run-healthcheck'),
+
+  /**
+   * Installer 完成後切換到 Dashboard 模式（擴大視窗、啟動 Watchdog）
+   * @returns {Promise<object>} { success }
+   */
+  completeInstallerTransition: () => ipcRenderer.invoke('installer-complete-transition'),
+
   // ─── 安裝模式偵測 ───
 
   /**
@@ -496,4 +552,19 @@ contextBridge.exposeInMainWorld('museon', {
    * @returns {Promise<object>} { ANTHROPIC_API_KEY: { configured, prefix }, ... }
    */
   getKeyStatus: () => ipcRenderer.invoke('dashboard-get-key-status'),
+
+  // ─── Permissions（macOS 權限） ───
+
+  /**
+   * 檢查所有 macOS 權限狀態
+   * @returns {Promise<object>} { permissions: [{ name, label, granted, canRequest }] }
+   */
+  checkPermissions: () => ipcRenderer.invoke('permissions-check-all'),
+
+  /**
+   * 請求單一 macOS 權限
+   * @param {string} name - 權限名稱 (microphone/camera/notifications/accessibility/screen_recording/automation)
+   * @returns {Promise<object>} { success, granted, openedSettings? }
+   */
+  requestPermission: (name) => ipcRenderer.invoke('permissions-request', name),
 });

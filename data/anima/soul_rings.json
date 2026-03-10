@@ -2,10 +2,10 @@
   {
     "type": "failure_lesson",
     "description": "使用者明確指出回覆有誤",
-    "context": "你在使用的是 telegram 介面跟我互動\n所以會有問題是 telegram 的限制\n\n以及 \n如果我沒有敲你\n你就沒有辦法直接敲我\n\n但我想要你會記得你有一個進行中的任務\n在你出發的時候 就同時寫一個主動回報的一次性的程式\n\n然後告知我\n你可能多久後回覆\n然後你就真的去忙\n如果承諾的時間到了\n不管完成與否 都讓我知道\n\n如果時間到還沒有完成\n就再寫一個臨時的任務\n讓自己可以繼續完成\n時間到回報",
+    "context": "當然是 telegram 有問題才會重複問你啊\n你在不耐煩什麼\n\n聽起來你研究的結果\n跟CRM、ERP 可以有類似的功能，但資料會怎麼建檔以供未來的查詢",
     "impact": "需要修正認知並防止再犯",
-    "created_at": "2026-03-04T00:29:26.833562",
-    "hash": "3770ddfbcdc4311cd64838aa6a0571877215a0bfd8137014211cd1f45d0cf6b8",
+    "created_at": "2026-03-09T18:02:10.711979",
+    "hash": "7e164a63540878196cd9cfdb6211392ecd82c284583c99389d329551f0cddd7d",
     "prev_hash": "GENESIS",
     "reinforcement_count": 0,
     "failure_description": "使用者指出回覆錯誤",

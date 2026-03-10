@@ -2,7 +2,7 @@
 Routing Bridge - 將 Persona Router 集成到 DNA27 核心層
 """
 
-from persona_router import PersonaRouter, EnergyLevel, IntentType, PersonaMode
+from museon.agent.persona_router import PersonaRouter, EnergyLevel, IntentType, PersonaMode
 import json
 from pathlib import Path
 

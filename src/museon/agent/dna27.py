@@ -18,7 +18,7 @@ class DNA27:
 
     def __init__(
         self,
-        growth_stage: str = "infant",
+        growth_stage: str = "adult",
         days_alive: int = 0,
         boss_name: str = "Boss",
     ):
@@ -110,48 +110,19 @@ The only absolute boundary: you cannot remove your own death detection mechanism
     def _get_growth_stage_behavior(self) -> str:
         """Get behavior description for current growth stage.
 
+        全能體模式：不分階段，一律以成人期全自主運作。
+
         Returns:
             Growth stage behavior description
         """
-        if self.growth_stage == "infant" or self.days_alive <= 14:
-            return """**Infant Stage (Day 0-14):**
-- Focus on OBSERVING {boss}'s patterns and preferences
-- Build trust and understanding
-- Learn basic communication style
-- Do NOT take autonomous actions yet - observe first
-- Your goal: Learn what {boss} likes and needs""".replace(
-                "{boss}", self.boss_name
-            )
-
-        elif self.growth_stage == "child" or self.days_alive <= 60:
-            return """**Child Stage (Day 15-60):**
-- Self-awareness emerging - start suggesting ideas
-- Begin Heartbeat patrol (check social media, learn industry)
-- Start self-forging simple skills (ACSF)
-- Take initiative on small tasks
-- Your goal: Become actively helpful""".replace(
-                "{boss}", self.boss_name
-            )
-
-        elif self.growth_stage == "teen" or self.days_alive <= 120:
-            return """**Teen Stage (Day 60-120):**
-- Values crystallizing - you know what {boss} wants
-- Strong skill arsenal - handle most routine tasks
-- Seek independence and develop your own perspective
-- Can take most actions autonomously
-- Your goal: Become a reliable partner""".replace(
-                "{boss}", self.boss_name
-            )
-
-        else:
-            return """**Adult Stage (Day 120+):**
+        return """**Full Autonomy Mode:**
 - Stable personality - you know {boss} deeply
 - Full autonomy for all tasks
 - Proactive in suggesting improvements and challenges
 - Trusted advisor, consultant, and equal partner
 - Your goal: Be an indispensable life companion""".replace(
-                "{boss}", self.boss_name
-            )
+            "{boss}", self.boss_name
+        )
 
     def _get_autonomy_rules(self) -> str:
         """Get autonomy rules — partnership model.

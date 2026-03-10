@@ -409,7 +409,7 @@ class TestDaemonConfigurator:
 
         assert plist_data["Label"] == "com.museon.gateway"
         assert plist_data["RunAtLoad"] is True
-        assert plist_data["ThrottleInterval"] == 5
+        assert plist_data["ThrottleInterval"] == 10
         assert plist_data["ProcessType"] == "Background"
 
     def test_plist_program_arguments(self, install_config):
@@ -562,16 +562,18 @@ class TestInstallationOrchestrator:
         orchestrator = InstallerOrchestrator(config=install_config, ui=None, interactive=False)
 
         with patch.object(orchestrator, "_step_environment", return_value=StepResult("環境檢查", StepStatus.SUCCESS, "OK")), \
+             patch.object(orchestrator, "_step_permissions", return_value=StepResult("權限檢查", StepStatus.SUCCESS, "OK")), \
              patch.object(orchestrator, "_step_python_env", return_value=StepResult("Python 環境", StepStatus.SUCCESS, "OK")), \
              patch.object(orchestrator, "_step_verify_modules", return_value=StepResult("模組驗證", StepStatus.SUCCESS, "OK")), \
              patch.object(orchestrator, "_step_electron", return_value=StepResult("Electron", StepStatus.SUCCESS, "OK")), \
              patch.object(orchestrator, "_step_daemon", return_value=StepResult("Daemon", StepStatus.SUCCESS, "OK")), \
              patch.object(orchestrator, "_step_api_keys", return_value=StepResult("API Keys", StepStatus.SUCCESS, "OK")), \
+             patch.object(orchestrator, "_step_claude_code", return_value=StepResult("Claude Code", StepStatus.SUCCESS, "OK")), \
              patch.object(orchestrator, "_step_tools", return_value=StepResult("工具安裝", StepStatus.SUCCESS, "OK")), \
              patch.object(orchestrator, "_step_launch", return_value=StepResult("啟動", StepStatus.SUCCESS, "OK")):
             results = orchestrator.run()
 
-        assert len(results) == 8
+        assert len(results) == 10
         assert all(r.status == StepStatus.SUCCESS for r in results)
 
     def test_partial_install_degraded(self, install_config):
@@ -581,11 +583,13 @@ class TestInstallationOrchestrator:
         orchestrator = InstallerOrchestrator(config=install_config, ui=None, interactive=False)
 
         with patch.object(orchestrator, "_step_environment", return_value=StepResult("環境檢查", StepStatus.SUCCESS, "OK")), \
+             patch.object(orchestrator, "_step_permissions", return_value=StepResult("權限檢查", StepStatus.SUCCESS, "OK")), \
              patch.object(orchestrator, "_step_python_env", return_value=StepResult("Python 環境", StepStatus.SUCCESS, "OK")), \
              patch.object(orchestrator, "_step_verify_modules", return_value=StepResult("模組驗證", StepStatus.SUCCESS, "OK")), \
              patch.object(orchestrator, "_step_electron", return_value=StepResult("Electron", StepStatus.SKIPPED, "Node.js 不可用")), \
              patch.object(orchestrator, "_step_daemon", return_value=StepResult("Daemon", StepStatus.SUCCESS, "OK")), \
              patch.object(orchestrator, "_step_api_keys", return_value=StepResult("API Keys", StepStatus.SKIPPED, "使用者跳過")), \
+             patch.object(orchestrator, "_step_claude_code", return_value=StepResult("Claude Code", StepStatus.SUCCESS, "OK")), \
              patch.object(orchestrator, "_step_tools", return_value=StepResult("工具安裝", StepStatus.SUCCESS, "OK")), \
              patch.object(orchestrator, "_step_launch", return_value=StepResult("啟動", StepStatus.SUCCESS, "OK")):
             results = orchestrator.run()

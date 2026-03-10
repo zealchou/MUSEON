@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import os
 import time
 from dataclasses import dataclass, field
 from enum import Enum
@@ -162,6 +163,9 @@ class Governor:
         self._growth_driver: Any = None       # Phase 3b: ANIMA 成長驅動
         self._prev_health_tier: Optional[HealthTier] = None  # Phase 3d: 健康等級變化偵測
 
+        # ─── Dendritic Layer: VIGIL EmoBank 健康分數 ───
+        self._dendritic: Any = None
+
         # ─── Autonomy Architecture: 後天免疫 + 自律神經 ───
         self._immune_memory: Any = None
         self._autonomic: Any = None
@@ -231,6 +235,27 @@ class Governor:
         except Exception as e:
             logger.warning(f"  免疫 ⚠ load failed (clean start): {e}")
 
+        # Dendritic Layer: Health Score 計算器
+        try:
+            from .dendritic_scorer import DendriticScorer
+            self._dendritic = DendriticScorer(event_bus=self._event_bus)
+            logger.info("  樹突 ✓ DendriticScorer active")
+        except Exception as e:
+            logger.debug(f"  樹突 ⚠ DendriticScorer not available: {e}")
+
+        # 生命徵象: 啟動 VitalSignsMonitor
+        try:
+            from .vital_signs import VitalSignsMonitor
+            self._vital_signs = VitalSignsMonitor(
+                data_dir=Path(os.environ.get("MUSEON_HOME", ".")) / "data",
+            )
+            self._vital_signs.register_governor_health(self.get_health)
+            await self._vital_signs.start()
+            logger.info("  生命 ✓ VitalSignsMonitor active")
+        except Exception as e:
+            logger.warning(f"  生命 ⚠ VitalSignsMonitor failed: {e}")
+            self._vital_signs = None
+
         # 上焦: 啟動趨勢分析 + 察覺調節免疫迴圈
         self._upper_task = asyncio.create_task(
             self._upper_burner_loop(), name="governor-upper-burner"
@@ -256,6 +281,10 @@ class Governor:
                 await self._upper_task
             except asyncio.CancelledError:
                 pass
+
+        # 生命徵象: 停止 VitalSignsMonitor
+        if getattr(self, '_vital_signs', None):
+            await self._vital_signs.stop()
 
         # Phase 2: 持久化免疫記憶
         try:
@@ -295,6 +324,28 @@ class Governor:
         self._telegram_status_fn = fn
         logger.debug("Governor: external telegram status function registered")
 
+    def register_vital_signs_deps(self, llm_adapter: Any = None, brain: Any = None) -> None:
+        """注入 LLM adapter 和 Brain 到 VitalSignsMonitor."""
+        vs = getattr(self, '_vital_signs', None)
+        if not vs:
+            return
+        if llm_adapter:
+            vs.register_llm_adapter(llm_adapter)
+        if brain:
+            vs.register_brain(brain)
+        logger.info("Governor: VitalSigns dependencies registered")
+
+    async def run_vital_preflight(self):
+        """執行啟動預檢（供 server.py 在所有子系統就緒後呼叫）."""
+        vs = getattr(self, '_vital_signs', None)
+        if vs:
+            return await vs.run_preflight()
+        return None
+
+    def get_vital_signs(self):
+        """取得 VitalSignsMonitor 實例."""
+        return getattr(self, '_vital_signs', None)
+
     def register_event_bus(self, event_bus: Any) -> None:
         """連接 EventBus 到察覺引擎，開始被動聆聽事件流。
 
@@ -306,6 +357,16 @@ class Governor:
         """
         self._event_bus = event_bus  # Phase 3d
         self._perception.connect_event_bus(event_bus)
+        # WP-04: 訂閱 AUDIT_COMPLETED → 根據結果觸發反應
+        try:
+            from museon.core.event_bus import AUDIT_COMPLETED
+            event_bus.subscribe(AUDIT_COMPLETED, self._on_audit_completed)
+        except Exception as e:
+            logger.debug(f"Governor: AUDIT_COMPLETED subscription failed: {e}")
+        # WP-04: 注入 event_bus 到 ImmuneMemoryBank（延遲注入）
+        if self._immune_memory and not getattr(self._immune_memory, "_event_bus", None):
+            self._immune_memory._event_bus = event_bus
+            self._immune_memory._subscribe()
         logger.debug("Governor: EventBus connected to PerceptionEngine")
 
     def _get_telegram_status(self) -> dict:
@@ -369,6 +430,14 @@ class Governor:
             "autonomic": (
                 self._autonomic.get_status()
                 if self._autonomic else None
+            ),
+            "dendritic": (
+                self._dendritic.get_status()
+                if self._dendritic else None
+            ),
+            "vital_signs": (
+                self._vital_signs.get_status()
+                if getattr(self, '_vital_signs', None) else None
             ),
         }
 
@@ -454,6 +523,17 @@ class Governor:
                         self._run_immunity_cycle(report)
                     except Exception as e:
                         logger.warning(f"Immunity cycle failed: {e}")
+
+                # ── Step 4.1: Dendritic Layer tick ──
+                if self._dendritic:
+                    try:
+                        dendritic_status = self._dendritic.tick()
+                        logger.debug(
+                            f"Dendritic: score={dendritic_status.get('score')}, "
+                            f"tier={dendritic_status.get('tier_label')}"
+                        )
+                    except Exception as e:
+                        logger.debug(f"Dendritic tick failed: {e}")
 
                 # ── Step 4.2: Autonomic Layer tick ──
                 if self._autonomic:
@@ -650,6 +730,39 @@ class Governor:
                     "⚠️ 治未病警告: 連續 3 次健康快照均為 degraded/critical"
                 )
 
+    # ─── WP-04: 審計完成回調 ───
+
+    def _on_audit_completed(self, data: Optional[Dict] = None) -> None:
+        """審計完成 → 根據結果調整治理行為."""
+        if not data:
+            return
+        overall = data.get("overall", "ok")
+        summary = data.get("summary", {})
+
+        if overall == "critical":
+            # CRITICAL → 觸發 Algedonic Signal
+            logger.warning(
+                f"Governor: Audit CRITICAL — {summary}"
+            )
+            if self._event_bus:
+                try:
+                    self._event_bus.publish(
+                        "GOVERNANCE_ALGEDONIC_SIGNAL",
+                        {"source": "system_audit", "overall": overall, "summary": summary},
+                    )
+                except Exception:
+                    pass
+        elif overall == "warning":
+            # WARNING → 縮短巡檢間隔（加速感知）
+            if hasattr(self, "_upper_check_interval_s"):
+                self._upper_check_interval_s = min(
+                    self._upper_check_interval_s, 180.0
+                )
+                logger.info(
+                    f"Governor: Audit WARNING — 巡檢間隔縮短至 "
+                    f"{self._upper_check_interval_s}s"
+                )
+
     # ─── Phase 2: 免疫迴圈 ───
 
     def _run_immunity_cycle(self, report: DiagnosticReport) -> None:
@@ -685,19 +798,46 @@ class Governor:
                 # 強化抗體
                 self._immunity.reinforce(response.antibody_id, success=True)
             else:
-                # 未知模式 → 記錄事件（後續可學習）
-                self._immunity.record_incident(symptom)
-
-                # 後天免疫：記錄異常到 ImmuneMemoryBank
+                # 後天免疫（ImmuneMemoryBank）：檢查是否有學習到的防禦規則
+                signature = f"{symptom.source}::{symptom.message[:80]}"
+                defense = None
                 if self._immune_memory:
                     try:
-                        signature = f"{symptom.source}::{symptom.message[:80]}"
-                        self._immune_memory.record_anomaly(
-                            signature=signature,
-                            context=symptom.message[:200],
-                        )
+                        defense = self._immune_memory.check_defense(signature)
                     except Exception as e:
-                        logger.debug(f"ImmuneMemory record failed: {e}")
+                        logger.debug(f"ImmuneMemory check_defense failed: {e}")
+
+                if defense:
+                    logger.info(
+                        f"後天免疫反應: {defense[:100]} "
+                        f"(signature={signature[:50]})"
+                    )
+                    self._immunity.record_incident(
+                        symptom,
+                        resolution=f"[ImmuneMemory] {defense}",
+                        auto_resolved=True,
+                    )
+                    self._immune_memory.reinforce(signature, success=True)
+                else:
+                    # 去重：已有同名未解決事件就不重複建立
+                    if self._immunity.has_active_incident(symptom.name):
+                        logger.debug(
+                            f"跳過重複事件: {symptom.name} "
+                            f"(已有未解決記錄)"
+                        )
+                    else:
+                        # 未知模式 → 記錄事件（後續可學習）
+                        self._immunity.record_incident(symptom)
+
+                    # 記錄異常到 ImmuneMemoryBank（第一次記錄、第二次生成規則）
+                    if self._immune_memory:
+                        try:
+                            self._immune_memory.record_anomaly(
+                                signature=signature,
+                                context=symptom.message[:200],
+                            )
+                        except Exception as e:
+                            logger.debug(f"ImmuneMemory record failed: {e}")
 
     def _on_regulation_action(self, action: Any) -> None:
         """調節引擎的行動回調。
@@ -800,6 +940,19 @@ class Governor:
             )
         elif new_status == ServiceStatus.HEALTHY:
             logger.info(f"中焦信號: [{name}] 恢復健康")
+            # 自動 resolve 該服務相關的未解決事件
+            resolution = f"服務 {name} 已恢復健康"
+            svc_symptom = f"service_{name}_unhealthy"
+            count = self._immunity.resolve_by_symptom(svc_symptom, resolution)
+            # 如果有服務恢復，也嘗試 resolve system_degraded/critical
+            if count > 0:
+                self._immunity.resolve_by_symptom(
+                    "system_degraded", resolution
+                )
+                self._immunity.resolve_by_symptom(
+                    "system_critical", resolution
+                )
+                self._immunity.save()
 
     # ─── Subsystem Access (供 server.py 使用) ───
 

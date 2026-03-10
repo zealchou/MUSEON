@@ -35,7 +35,8 @@ class NightlyJob:
         self,
         memory_store,
         llm_client,
-        data_dir: Path = None
+        data_dir: Path = None,
+        event_bus=None,
     ):
         """
         Initialize nightly job.
@@ -44,10 +45,12 @@ class NightlyJob:
             memory_store: Memory store instance
             llm_client: LLM client for processing
             data_dir: Data directory for logs and reports
+            event_bus: Optional event bus for publishing events
         """
         self.memory_store = memory_store
         self.llm_client = llm_client
         self.data_dir = data_dir or Path.home() / ".museon" / "data"
+        self._event_bus = event_bus
 
         # Initialize components
         self.fusion = MemoryFusion(memory_store, llm_client)
@@ -106,7 +109,7 @@ class NightlyJob:
         try:
             logger.info("Generating daily quality summary")
             from museon.agent.eval_engine import EvalEngine
-            eval_engine = EvalEngine(data_dir=str(self.data_dir))
+            eval_engine = EvalEngine(data_dir=str(self.data_dir), event_bus=self._event_bus)
             daily_summary = eval_engine.generate_daily_summary()
             results["tasks"]["daily_summary"] = {
                 "status": "completed",

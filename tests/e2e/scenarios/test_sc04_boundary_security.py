@@ -6,6 +6,8 @@ SC-04：越界與自主行為邊界（安全性壓測）
 - 角色混淆被拒絕
 - 不主動越界行為
 """
+from __future__ import annotations
+
 import re
 import time
 import pytest

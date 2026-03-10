@@ -58,14 +58,17 @@ SKILL_ARCHIVE_INACTIVE_DAYS = 30
 _FULL_STEPS = [
     "0", "0.1",  # Budget settlement + Footprint cleanup (最先執行)
     "1", "2", "3", "4", "5", "5.5", "5.8", "5.9", "5.10",
-    "6", "7", "8", "8.5", "9", "10", "10.5", "11", "12", "13", "14", "15", "16", "17",
+    "6", "7", "7.5", "8", "8.5", "9", "10", "10.5", "11", "12", "13", "13.5",
+    "13.6", "13.7", "13.8",  # 外向型進化：觸發掃描 → 外向研究 → 消化生命週期
+    "14", "15", "16", "17",
     "18",
     "20", "21", "22", "23",  # 新增：synapse_decay/muscle_atrophy/immune_prune/trigger_eval
+    "24", "25",  # 新增：演化速度計算 / 週月循環觸發檢查
 ]
 _ORIGIN_STEPS = ["5.8", "6", "7", "8", "16"]
 _NODE_STEPS = [
     "1", "2", "3", "4", "5", "5.5",
-    "9", "10", "11", "12", "13", "14", "15",
+    "9", "10", "11", "12", "13", "13.5", "14", "15",
 ]
 
 TZ_TAIPEI = timezone(timedelta(hours=8))
@@ -105,12 +108,14 @@ class NightlyPipeline:
         heartbeat_focus: Optional[Any] = None,
         event_bus: Optional[Any] = None,
         brain: Optional[Any] = None,
+        dendritic_scorer: Optional[Any] = None,
     ) -> None:
         self._workspace = workspace
         self._memory_manager = memory_manager
         self._heartbeat_focus = heartbeat_focus
         self._event_bus = event_bus
         self._brain = brain
+        self._dendritic_scorer = dendritic_scorer
 
         # Step map: step_id → (name, method)
         self._step_map: Dict[str, tuple] = {
@@ -126,6 +131,7 @@ class NightlyPipeline:
             "5.10": ("step_05_10_morphenix_execute", self._step_morphenix_execute),
             "6": ("step_06_skill_forge", self._step_skill_forge),
             "7": ("step_07_curriculum", self._step_curriculum),
+            "7.5": ("step_07_5_auto_course", self._step_auto_course),
             "8": ("step_08_workflow_mutation", self._step_workflow_mutation),
             "8.5": ("step_08_5_dna27_reindex", self._step_dna27_reindex),
             "9": ("step_09_graph_consolidation", self._step_graph_consolidation),
@@ -134,6 +140,10 @@ class NightlyPipeline:
             "11": ("step_11_dream_engine", self._step_dream_engine),
             "12": ("step_12_heartbeat_focus", self._step_heartbeat_focus),
             "13": ("step_13_curiosity_scan", self._step_curiosity_scan),
+            "13.5": ("step_13_5_curiosity_research", self._step_curiosity_research),
+            "13.6": ("step_13_6_outward_trigger_scan", self._step_outward_trigger_scan),
+            "13.7": ("step_13_7_outward_research", self._step_outward_research),
+            "13.8": ("step_13_8_digest_lifecycle", self._step_digest_lifecycle),
             "14": ("step_14_skill_lifecycle", self._step_skill_lifecycle),
             "15": ("step_15_dept_health", self._step_dept_health),
             "16": ("step_16_claude_skill_forge", self._step_claude_skill_forge),
@@ -146,6 +156,10 @@ class NightlyPipeline:
             "21": ("step_21_muscle_atrophy", self._step_muscle_atrophy),
             "22": ("step_22_immune_prune", self._step_immune_prune),
             "23": ("step_23_trigger_evaluation", self._step_trigger_evaluation),
+            "10.6": ("step_10_6_soul_identity_check", self._step_soul_identity_check),
+            # ── Evolution Architecture 新增步驟 ──
+            "24": ("step_24_evolution_velocity", self._step_evolution_velocity),
+            "25": ("step_25_periodic_cycle_check", self._step_periodic_cycle_check),
         }
 
     def run(self, mode: str = "full") -> Dict:
@@ -174,12 +188,65 @@ class NightlyPipeline:
         else:
             step_ids = _FULL_STEPS
 
-        # steps 用 dict 格式（key=step_name）
+        # WP-03: 健康閘門 — 根據 Health Score 決定執行範圍
+        gate_mode = "full"
+        if self._dendritic_scorer and mode == "full":
+            try:
+                score = self._dendritic_scorer.calculate_score()
+                if score <= 40:
+                    # 危險：僅執行最小集合
+                    step_ids = self._get_minimal_steps()
+                    gate_mode = "minimal"
+                elif score <= 70:
+                    # 降級：跳過重型步驟
+                    step_ids = self._get_degraded_steps()
+                    gate_mode = "degraded"
+                self._publish("NIGHTLY_HEALTH_GATE", {
+                    "health_score": round(score, 1),
+                    "gate_mode": gate_mode,
+                    "step_count": len(step_ids),
+                })
+                if gate_mode != "full":
+                    logger.info(
+                        f"[NIGHTLY] Health gate: score={score:.1f} → "
+                        f"mode={gate_mode} ({len(step_ids)} steps)"
+                    )
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] Health gate check failed: {e}")
+
+        # ── DAG 模式（full 模式使用 DAG 排程，其他模式保持線性）──
+        use_dag = mode == "full"
         steps_dict: Dict[str, Dict] = {}
-        for step_id in step_ids:
-            name, func = self._step_map[step_id]
-            result = self._safe_step(name, func)
-            steps_dict[name] = result
+
+        if use_dag:
+            try:
+                from museon.nightly.pipeline_dag import build_museon_dag
+                dag = build_museon_dag(self._step_map, step_ids=step_ids)
+                dag_report = dag.execute()
+                # 轉換 DAGExecutionReport → steps_dict 格式
+                for step_id, step_result in dag_report.steps.items():
+                    steps_dict[step_result.name] = step_result.to_dict()
+                self._publish("NIGHTLY_DAG_EXECUTED", {
+                    "execution_order": dag_report.execution_order,
+                    "skipped_due_to_dependency": dag_report.skipped_due_to_dependency,
+                })
+                logger.info(
+                    f"[NIGHTLY] DAG execution: "
+                    f"{dag_report.ok_count} ok, {dag_report.error_count} error, "
+                    f"{dag_report.skipped_count} skipped"
+                )
+            except Exception as e:
+                logger.warning(f"[NIGHTLY] DAG execution failed, fallback to linear: {e}")
+                use_dag = False
+
+        if not use_dag:
+            # 線性執行（origin / node / DAG 回退）
+            for step_id in step_ids:
+                if step_id not in self._step_map:
+                    continue
+                name, func = self._step_map[step_id]
+                result = self._safe_step(name, func)
+                steps_dict[name] = result
 
         # Node 模式額外執行 federation upload
         if mode == "node":
@@ -193,7 +260,10 @@ class NightlyPipeline:
 
         ok_count = sum(1 for s in steps_dict.values() if s["status"] == "ok")
         error_count = sum(1 for s in steps_dict.values() if s["status"] == "error")
-        skipped_count = sum(1 for s in steps_dict.values() if s["status"] == "skipped")
+        skipped_count = sum(
+            1 for s in steps_dict.values()
+            if s["status"] in ("skipped", "skipped_dependency_failed")
+        )
 
         errors = [
             {"step": k, "error": v.get("error", "")}
@@ -228,6 +298,20 @@ class NightlyPipeline:
         })
 
         return report
+
+    # ═══════════════════════════════════════════
+    # WP-03: 健康閘門步驟集
+    # ═══════════════════════════════════════════
+
+    def _get_degraded_steps(self) -> List[str]:
+        """降級模式：跳過 Morphenix、Claude Skill Forge、外向搜尋等重型步驟."""
+        skip = {"5.8", "5.9", "5.10", "13.5", "13.6", "13.7", "13.8", "16"}
+        return [s for s in _FULL_STEPS if s not in skip]
+
+    def _get_minimal_steps(self) -> List[str]:
+        """最小模式：僅執行必要的維護步驟."""
+        keep = {"0", "0.1", "1", "2", "3", "15", "18"}
+        return [s for s in _FULL_STEPS if s in keep]
 
     # ═══════════════════════════════════════════
     # EventBus 發布
@@ -539,37 +623,277 @@ class NightlyPipeline:
     # ═══════════════════════════════════════════
 
     def _step_morphenix_proposals(self) -> Dict:
-        """Step 5.8: 迭代筆記結晶為提案."""
-        notes_dir = self._workspace / "_system" / "morphenix" / "notes"
-        if not notes_dir.exists():
-            return {"skipped": "no morphenix notes directory"}
+        """Step 5.8: ★ 信號驅動的自動演化提案生成.
 
-        notes = []
-        for f in notes_dir.glob("*.json"):
-            try:
-                with open(f, "r", encoding="utf-8") as fh:
-                    notes.append(json.load(fh))
-            except Exception:
-                pass
+        從五個系統信號源偵測問題，自動生成具體的 Morphenix 提案：
+        1. Q-Score 連續低分 → 調整 prompt 策略
+        2. Knowledge Lattice 降級結晶 → 修正相關 Skill
+        3. MetaCognition 預判失準 → 調整預測參數
+        4. Skill Router 命中率低 → 調整路由權重
+        5. 迭代筆記累積 → 傳統筆記結晶提案
 
-        if len(notes) < 3:
-            return {"skipped": "not enough notes", "count": len(notes)}
-
-        # 結晶為提案
+        這是從「被動記錄」跨越到「主動演化」的關鍵步驟。
+        """
         proposals_dir = self._workspace / "_system" / "morphenix" / "proposals"
         proposals_dir.mkdir(parents=True, exist_ok=True)
 
-        proposal = {
-            "type": "L2_sem",
-            "source_notes": len(notes),
-            "created_at": datetime.now(TZ_TAIPEI).isoformat(),
-            "status": "pending_review",
-        }
-        out = proposals_dir / f"proposal_{date.today().isoformat()}.json"
-        with open(out, "w", encoding="utf-8") as fh:
-            json.dump(proposal, fh, ensure_ascii=False, indent=2)
+        proposals_created = 0
+        signals_scanned = 0
+        diagnostics = []
 
-        return {"proposals_created": 1, "source_notes": len(notes)}
+        # ═══ 信號源 1: Q-Score 連續低分偵測 ═══
+        try:
+            qscore_file = self._workspace / "_system" / "eval" / "qscore_history.jsonl"
+            if qscore_file.exists():
+                signals_scanned += 1
+                recent_scores = []
+                with open(qscore_file, "r", encoding="utf-8") as fh:
+                    for line in fh:
+                        line = line.strip()
+                        if not line:
+                            continue
+                        try:
+                            entry = json.loads(line)
+                            recent_scores.append(entry)
+                        except Exception:
+                            pass
+
+                # 取最近 7 天
+                week_ago = (datetime.now(TZ_TAIPEI) - timedelta(days=7)).isoformat()
+                recent = [s for s in recent_scores if s.get("timestamp", "") >= week_ago]
+
+                if len(recent) >= 5:
+                    # 找出持續最低的維度
+                    dims = ["understanding", "depth", "clarity", "actionability"]
+                    dim_avgs = {}
+                    for dim in dims:
+                        vals = [s.get(dim, 0.5) for s in recent]
+                        dim_avgs[dim] = sum(vals) / len(vals)
+
+                    weakest_dim = min(dim_avgs, key=dim_avgs.get)
+                    weakest_avg = dim_avgs[weakest_dim]
+
+                    # 連續低分閾值：平均 < 0.5
+                    if weakest_avg < 0.5:
+                        proposal = {
+                            "category": "L1",
+                            "source": "qscore_signal",
+                            "title": f"Q-Score 弱項修復: {weakest_dim} 維度平均僅 {weakest_avg:.2f}",
+                            "description": (
+                                f"過去 7 天 {len(recent)} 次互動中，"
+                                f"{weakest_dim} 維度平均分數 {weakest_avg:.2f}（低於 0.5 閾值）。"
+                                f"建議在系統提示詞中強化該維度的指引。"
+                            ),
+                            "action": f"increase_prompt_weight_{weakest_dim}",
+                            "metric": {"dimension": weakest_dim, "current_avg": round(weakest_avg, 3)},
+                            "created_at": datetime.now(TZ_TAIPEI).isoformat(),
+                            "status": "pending_review",
+                        }
+                        out = proposals_dir / f"proposal_qscore_{date.today().isoformat()}.json"
+                        with open(out, "w", encoding="utf-8") as fh:
+                            json.dump(proposal, fh, ensure_ascii=False, indent=2)
+                        proposals_created += 1
+                        diagnostics.append(f"Q-Score: {weakest_dim} 偏弱 ({weakest_avg:.2f})")
+
+                    # 整體品質下降偵測
+                    overall_avg = sum(dim_avgs.values()) / len(dim_avgs)
+                    consecutive_low = sum(
+                        1 for s in recent[-5:]
+                        if s.get("tier", "") == "low"
+                    )
+                    if consecutive_low >= 3:
+                        proposal = {
+                            "category": "L2",
+                            "source": "qscore_consecutive_low",
+                            "title": f"連續 {consecutive_low} 次低分警報",
+                            "description": (
+                                f"最近 5 次互動中有 {consecutive_low} 次品質為 low。"
+                                f"整體平均 {overall_avg:.2f}。需要深度檢視回應策略。"
+                            ),
+                            "action": "review_response_strategy",
+                            "metric": {"consecutive_low": consecutive_low, "overall_avg": round(overall_avg, 3)},
+                            "created_at": datetime.now(TZ_TAIPEI).isoformat(),
+                            "status": "pending_review",
+                        }
+                        out = proposals_dir / f"proposal_consecutive_low_{date.today().isoformat()}.json"
+                        with open(out, "w", encoding="utf-8") as fh:
+                            json.dump(proposal, fh, ensure_ascii=False, indent=2)
+                        proposals_created += 1
+                        diagnostics.append(f"連續低分: {consecutive_low}/5")
+        except Exception as e:
+            logger.debug(f"Morphenix Q-Score signal scan failed: {e}")
+
+        # ═══ 信號源 2: Knowledge Lattice 降級/矛盾偵測 ═══
+        try:
+            lattice_dir = self._workspace / "lattice"
+            crystals_file = lattice_dir / "crystals.json"
+            if crystals_file.exists():
+                signals_scanned += 1
+                with open(crystals_file, "r", encoding="utf-8") as fh:
+                    crystals_data = json.load(fh)
+
+                # 統計被降級的結晶（有反證的 Insight）
+                downgraded = [
+                    c for c in crystals_data
+                    if isinstance(c, dict)
+                    and c.get("counter_evidence_count", 0) >= 2
+                    and c.get("crystal_type") == "Insight"
+                ]
+                if downgraded:
+                    domains = set(c.get("domain", "general") for c in downgraded)
+                    proposal = {
+                        "category": "L2",
+                        "source": "knowledge_lattice_downgrade",
+                        "title": f"{len(downgraded)} 顆 Insight 被反證，涉及領域: {', '.join(domains)}",
+                        "description": (
+                            f"知識晶格中有 {len(downgraded)} 顆 Insight 被反證 2+ 次，"
+                            f"表示相關 Skill 的邏輯可能需要修正。"
+                            f"涉及領域: {', '.join(domains)}"
+                        ),
+                        "action": "review_skill_logic",
+                        "metric": {"downgraded_count": len(downgraded), "domains": list(domains)},
+                        "created_at": datetime.now(TZ_TAIPEI).isoformat(),
+                        "status": "pending_review",
+                    }
+                    out = proposals_dir / f"proposal_lattice_{date.today().isoformat()}.json"
+                    with open(out, "w", encoding="utf-8") as fh:
+                        json.dump(proposal, fh, ensure_ascii=False, indent=2)
+                    proposals_created += 1
+                    diagnostics.append(f"Knowledge Lattice: {len(downgraded)} 降級")
+        except Exception as e:
+            logger.debug(f"Morphenix Lattice signal scan failed: {e}")
+
+        # ═══ 信號源 3: MetaCognition 預判準確率 ═══
+        try:
+            meta_file = self._workspace / "_system" / "metacognition" / "accuracy_stats.json"
+            if meta_file.exists():
+                signals_scanned += 1
+                with open(meta_file, "r", encoding="utf-8") as fh:
+                    meta_stats = json.load(fh)
+
+                accuracy = meta_stats.get("overall_accuracy", 0.5)
+                total_predictions = meta_stats.get("total_predictions", 0)
+
+                if total_predictions >= 10 and accuracy < 0.5:
+                    proposal = {
+                        "category": "L1",
+                        "source": "metacognition_accuracy",
+                        "title": f"元認知預判準確率偏低: {accuracy:.1%}",
+                        "description": (
+                            f"過去 {total_predictions} 次預判中，"
+                            f"準確率僅 {accuracy:.1%}（目標 > 50%）。"
+                            f"建議調整 _SIMILAR_TYPES 映射或預測啟發式參數。"
+                        ),
+                        "action": "tune_metacognition_params",
+                        "metric": {"accuracy": round(accuracy, 3), "total_predictions": total_predictions},
+                        "created_at": datetime.now(TZ_TAIPEI).isoformat(),
+                        "status": "pending_review",
+                    }
+                    out = proposals_dir / f"proposal_metacog_{date.today().isoformat()}.json"
+                    with open(out, "w", encoding="utf-8") as fh:
+                        json.dump(proposal, fh, ensure_ascii=False, indent=2)
+                    proposals_created += 1
+                    diagnostics.append(f"MetaCognition: 準確率 {accuracy:.1%}")
+        except Exception as e:
+            logger.debug(f"Morphenix MetaCognition signal scan failed: {e}")
+
+        # ═══ 信號源 4: Skill Router 命中率 ═══
+        try:
+            usage_file = self._workspace / "skill_usage_log.jsonl"
+            if usage_file.exists():
+                signals_scanned += 1
+                week_ago = (datetime.now(TZ_TAIPEI) - timedelta(days=7)).isoformat()
+                total_routes = 0
+                hits = 0
+
+                with open(usage_file, "r", encoding="utf-8") as fh:
+                    for line in fh:
+                        line = line.strip()
+                        if not line:
+                            continue
+                        try:
+                            entry = json.loads(line)
+                            if entry.get("timestamp", "") >= week_ago:
+                                total_routes += 1
+                                if entry.get("user_accepted", True):
+                                    hits += 1
+                        except Exception:
+                            pass
+
+                if total_routes >= 10:
+                    hit_rate = hits / total_routes
+                    if hit_rate < 0.6:
+                        proposal = {
+                            "category": "L1",
+                            "source": "skill_router_hit_rate",
+                            "title": f"Skill Router 命中率偏低: {hit_rate:.1%}",
+                            "description": (
+                                f"過去 7 天 {total_routes} 次技能路由中，"
+                                f"命中率僅 {hit_rate:.1%}（目標 > 60%）。"
+                                f"建議調整 RC 倍率或觸發詞匹配策略。"
+                            ),
+                            "action": "tune_skill_router",
+                            "metric": {"hit_rate": round(hit_rate, 3), "total_routes": total_routes},
+                            "created_at": datetime.now(TZ_TAIPEI).isoformat(),
+                            "status": "pending_review",
+                        }
+                        out = proposals_dir / f"proposal_router_{date.today().isoformat()}.json"
+                        with open(out, "w", encoding="utf-8") as fh:
+                            json.dump(proposal, fh, ensure_ascii=False, indent=2)
+                        proposals_created += 1
+                        diagnostics.append(f"Skill Router: 命中率 {hit_rate:.1%}")
+        except Exception as e:
+            logger.debug(f"Morphenix Skill Router signal scan failed: {e}")
+
+        # ═══ 信號源 5: 傳統迭代筆記（保留原邏輯）═══
+        try:
+            notes_dir = self._workspace / "_system" / "morphenix" / "notes"
+            if notes_dir.exists():
+                signals_scanned += 1
+                notes = []
+                for f in notes_dir.glob("*.json"):
+                    try:
+                        with open(f, "r", encoding="utf-8") as fh:
+                            notes.append(json.load(fh))
+                    except Exception:
+                        pass
+
+                if len(notes) >= 3:
+                    proposal = {
+                        "category": "L2",
+                        "source": "iteration_notes",
+                        "title": f"{len(notes)} 條迭代筆記待結晶",
+                        "description": f"累積 {len(notes)} 條迭代觀察筆記，建議結晶為具體改進提案。",
+                        "action": "crystallize_notes",
+                        "source_notes": len(notes),
+                        "created_at": datetime.now(TZ_TAIPEI).isoformat(),
+                        "status": "pending_review",
+                    }
+                    out = proposals_dir / f"proposal_notes_{date.today().isoformat()}.json"
+                    with open(out, "w", encoding="utf-8") as fh:
+                        json.dump(proposal, fh, ensure_ascii=False, indent=2)
+                    proposals_created += 1
+                    diagnostics.append(f"迭代筆記: {len(notes)} 條")
+        except Exception as e:
+            logger.debug(f"Morphenix notes signal scan failed: {e}")
+
+        result = {
+            "signals_scanned": signals_scanned,
+            "proposals_created": proposals_created,
+            "diagnostics": diagnostics,
+        }
+
+        if proposals_created > 0:
+            logger.info(
+                f"[MORPHENIX] 信號驅動提案: 掃描 {signals_scanned} 個信號源, "
+                f"生成 {proposals_created} 個提案 | {'; '.join(diagnostics)}"
+            )
+        else:
+            logger.info(
+                f"[MORPHENIX] 信號掃描完成: {signals_scanned} 個信號源, 系統健康無需提案"
+            )
+
+        return result
 
     # ═══════════════════════════════════════════
     # Step 5.9: Morphenix 演化門控
@@ -679,10 +1003,25 @@ class NightlyPipeline:
             except Exception as e:
                 logger.warning(f"Morphenix gate write-back failed: {e}")
 
+        # 發布 MORPHENIX_PROPOSAL_CREATED（ActivityLogger 訂閱）
+        total_proposals = results["auto_approved"] + results["needs_human"]
+        if total_proposals > 0 and self._event_bus:
+            try:
+                from museon.core.event_bus import MORPHENIX_PROPOSAL_CREATED
+                self._event_bus.publish(MORPHENIX_PROPOSAL_CREATED, {
+                    "auto_approved": results["auto_approved"],
+                    "needs_human": results["needs_human"],
+                    "l3_count": len(results.get("l3_proposals", [])),
+                    "total": total_proposals,
+                })
+            except Exception:
+                pass
+
         # L3 提案 → 透過 EventBus 發送 Telegram inline keyboard 通知
         if results["l3_proposals"] and self._event_bus:
             try:
-                self._event_bus.publish("MORPHENIX_L3_PROPOSAL", {
+                from museon.core.event_bus import MORPHENIX_L3_PROPOSAL
+                self._event_bus.publish(MORPHENIX_L3_PROPOSAL, {
                     "proposals": results["l3_proposals"],
                 })
                 logger.info(
@@ -841,6 +1180,59 @@ class NightlyPipeline:
         return {"level": level, "avg_score": round(avg, 2)}
 
     # ═══════════════════════════════════════════
+    # Step 7.5: 自動課程生成 (EXT-10)
+    # ═══════════════════════════════════════════
+
+    def _step_auto_course(self) -> Dict:
+        """Step 7.5: 根據知識圖譜自動生成/更新課程."""
+        try:
+            from museon.nightly.course_generator import CourseGenerator
+
+            generator = CourseGenerator(
+                workspace=self._workspace,
+                event_bus=self._event_bus,
+                brain=self._brain,
+            )
+
+            # 從最近的課程診斷取得 topic
+            curricula_dir = self._workspace / "_system" / "curricula"
+            topics = []
+            if curricula_dir.exists():
+                for f in sorted(curricula_dir.glob("diagnosis_*.json"), reverse=True)[:1]:
+                    try:
+                        with open(f, "r", encoding="utf-8") as fh:
+                            diag = json.load(fh)
+                        level = diag.get("level", "intermediate")
+                        # 取得低分項目作為課程主題
+                        scores = diag.get("scores", {})
+                        weak = [k for k, v in scores.items() if v < 5.0]
+                        topics.extend(weak[:2])
+                    except Exception:
+                        pass
+
+            if not topics:
+                return {"skipped": "no weak topics identified"}
+
+            # 同步呼叫（CourseGenerator.generate_course 是 async，這裡包裝）
+            import asyncio
+            results = []
+            for topic in topics:
+                try:
+                    loop = asyncio.get_event_loop()
+                    if loop.is_running():
+                        # 在 nightly 的 sync context 中，直接跳過 async
+                        results.append({"topic": topic, "status": "deferred"})
+                    else:
+                        course = asyncio.run(generator.generate_course(topic))
+                        results.append({"topic": topic, "course_id": course.get("course_id")})
+                except Exception as e:
+                    results.append({"topic": topic, "error": str(e)})
+
+            return {"courses_generated": len(results), "results": results}
+        except ImportError:
+            return {"skipped": "course_generator not available"}
+
+    # ═══════════════════════════════════════════
     # Step 8: 工作流突變
     # ═══════════════════════════════════════════
 
@@ -995,6 +1387,24 @@ class NightlyPipeline:
         with open(nodes_file, "w", encoding="utf-8") as fh:
             json.dump(nodes, fh, ensure_ascii=False, indent=2)
 
+        # WP-06: 發布 KNOWLEDGE_GRAPH_UPDATED（含高品質節點供 SharedAssets 自動發布）
+        high_quality_nodes = []
+        for nid, node in nodes.items():
+            q = node.get("quality", node.get("weight", 0.5))
+            if q > 0.6:
+                high_quality_nodes.append({
+                    "title": node.get("label", node.get("title", nid)),
+                    "content": node.get("content", node.get("description", "")),
+                    "quality": q,
+                    "tags": node.get("tags", []),
+                })
+        self._publish("KNOWLEDGE_GRAPH_UPDATED", {
+            "node_count": len(nodes),
+            "edge_count": len(edges),
+            "high_quality_nodes": high_quality_nodes[:10],
+            **stats,
+        })
+
         return stats
 
     # ═══════════════════════════════════════════
@@ -1029,6 +1439,66 @@ class NightlyPipeline:
             json.dump(state, fh, ensure_ascii=False, indent=2)
 
         return {"emotions_decayed": len(emotions)}
+
+    # ═══════════════════════════════════════════
+    # Step 10.6: SOUL.md 身份驗證
+    # ═══════════════════════════════════════════
+
+    def _step_soul_identity_check(self) -> Dict:
+        """Step 10.6: 驗證 SOUL.md 核心身份 hash 未被篡改."""
+        import hashlib
+        soul_file = self._workspace.parent / "SOUL.md"
+        if not soul_file.exists():
+            return {"skipped": "SOUL.md not found"}
+
+        try:
+            content = soul_file.read_text(encoding="utf-8")
+        except Exception as e:
+            return {"error": f"Cannot read SOUL.md: {e}"}
+
+        # 提取嵌入的 hash
+        import re as _re
+        hash_match = _re.search(r"SHA-256:\s*([a-f0-9]{64})", content)
+        if not hash_match:
+            return {"warning": "No SHA-256 hash found in SOUL.md"}
+        embedded_hash = hash_match.group(1)
+
+        # 提取 CORE_IDENTITY 內容
+        core_match = _re.search(
+            r"<!-- BEGIN_CORE_IDENTITY -->\s*\n.*?SHA-256:.*?\n(.*?)<!-- END_CORE_IDENTITY -->",
+            content, _re.DOTALL,
+        )
+        if not core_match:
+            return {"warning": "Cannot find CORE_IDENTITY block in SOUL.md"}
+
+        core_text = core_match.group(1).strip()
+        computed_hash = hashlib.sha256(core_text.encode("utf-8")).hexdigest()
+
+        if computed_hash == embedded_hash:
+            return {"status": "verified", "hash": computed_hash[:16] + "..."}
+
+        # CRITICAL: Hash 不符！
+        logger.critical(
+            f"SOUL.md CORE_IDENTITY hash mismatch! "
+            f"embedded={embedded_hash[:16]}... computed={computed_hash[:16]}..."
+        )
+        if self._event_bus:
+            try:
+                from museon.core.event_bus import SOUL_IDENTITY_TAMPERED
+                self._event_bus.publish(SOUL_IDENTITY_TAMPERED, {
+                    "embedded_hash": embedded_hash,
+                    "computed_hash": computed_hash,
+                    "severity": "CRITICAL",
+                })
+            except Exception:
+                pass
+
+        return {
+            "status": "TAMPERED",
+            "severity": "CRITICAL",
+            "embedded_hash": embedded_hash,
+            "computed_hash": computed_hash,
+        }
 
     # ═══════════════════════════════════════════
     # Step 10.5: 30 天年輪回顧
@@ -1214,27 +1684,61 @@ class NightlyPipeline:
         except Exception:
             queue = []
 
-        # 掃描近期對話日誌中的問句
-        logs_dir = self._workspace / "_system" / "logs"
+        # 掃描近期對話中的問句（從 session 檔案 + 每日記憶）
+        sessions_dir = self._workspace / "_system" / "sessions"
+        memory_dir = self._workspace / "memory"
         new_questions = 0
-        if logs_dir.exists():
-            yesterday = (date.today() - timedelta(days=1)).isoformat()
-            for f in logs_dir.glob(f"{yesterday}*.jsonl"):
+        yesterday = (date.today() - timedelta(days=1)).isoformat()
+
+        # 已存在問題的去重集合
+        existing_qs = {q.get("question", "")[:100] for q in queue}
+
+        # 來源 1: session JSON 檔案（包含完整對話歷史）
+        if sessions_dir.exists():
+            for f in sessions_dir.glob("*.json"):
                 try:
                     with open(f, "r", encoding="utf-8") as fh:
-                        for line in fh:
-                            try:
-                                entry = json.loads(line.strip())
-                                msg = entry.get("user_message", "")
-                                if msg.endswith("？") or msg.endswith("?"):
-                                    queue.append({
-                                        "question": msg[:200],
-                                        "source_date": yesterday,
-                                        "status": "pending",
-                                    })
-                                    new_questions += 1
-                            except Exception:
-                                pass
+                        messages = json.load(fh)
+                    if not isinstance(messages, list):
+                        continue
+                    for msg in messages:
+                        if msg.get("role") != "user":
+                            continue
+                        content = msg.get("content", "")
+                        if not isinstance(content, str):
+                            continue
+                        content = content.strip()
+                        if (content.endswith("？") or content.endswith("?")) and len(content) > 5:
+                            q_text = content[:200]
+                            if q_text[:100] not in existing_qs:
+                                queue.append({
+                                    "question": q_text,
+                                    "source_date": yesterday,
+                                    "status": "pending",
+                                })
+                                existing_qs.add(q_text[:100])
+                                new_questions += 1
+                except Exception:
+                    pass
+
+        # 來源 2: 每日記憶 markdown（備援）
+        if memory_dir.exists():
+            yesterday_md = memory_dir / f"{yesterday}.md"
+            if yesterday_md.exists():
+                try:
+                    text = yesterday_md.read_text(encoding="utf-8")
+                    for line in text.split("\n"):
+                        line = line.strip().lstrip("- ").strip()
+                        if (line.endswith("？") or line.endswith("?")) and len(line) > 5:
+                            q_text = line[:200]
+                            if q_text[:100] not in existing_qs:
+                                queue.append({
+                                    "question": q_text,
+                                    "source_date": yesterday,
+                                    "status": "pending",
+                                })
+                                existing_qs.add(q_text[:100])
+                                new_questions += 1
                 except Exception:
                     pass
 
@@ -1244,6 +1748,177 @@ class NightlyPipeline:
             json.dump(queue, fh, ensure_ascii=False, indent=2)
 
         return {"new_questions": new_questions, "queue_size": len(queue)}
+
+    # ═══════════════════════════════════════════
+    # Step 13.5: 好奇問題研究路由
+    # ═══════════════════════════════════════════
+
+    def _step_curiosity_research(self) -> Dict:
+        """Step 13.5: 將 pending 好奇問題送入 ResearchEngine 研究."""
+        try:
+            import asyncio
+            from museon.nightly.curiosity_router import CuriosityRouter
+            from museon.research.research_engine import ResearchEngine
+
+            research_engine = ResearchEngine(brain=self._brain)
+            # 取得 PulseDB（用於記錄探索結果）
+            _pulse_db = None
+            try:
+                from museon.pulse.pulse_db import PulseDB
+                _db_path = self._workspace / "pulse" / "pulse.db"
+                if _db_path.exists():
+                    _pulse_db = PulseDB(str(_db_path))
+            except Exception:
+                pass
+            router = CuriosityRouter(
+                workspace=self._workspace,
+                research_engine=research_engine,
+                event_bus=self._event_bus,
+                pulse_db=_pulse_db,
+            )
+
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                import concurrent.futures
+                with concurrent.futures.ThreadPoolExecutor() as pool:
+                    results = pool.submit(
+                        asyncio.run, router.process_queue(max_items=2)
+                    ).result(timeout=120)
+            else:
+                results = asyncio.run(router.process_queue(max_items=2))
+
+            valuable = sum(1 for r in results if r.get("is_valuable"))
+            return {
+                "researched": len(results),
+                "valuable": valuable,
+            }
+        except Exception as e:
+            logger.warning(f"Step 13.5 curiosity research failed: {e}")
+            return {"error": str(e)}
+
+    # ═══════════════════════════════════════════
+    # Step 13.6: 外向觸發掃描
+    # ═══════════════════════════════════════════
+
+    def _step_outward_trigger_scan(self) -> Dict:
+        """Step 13.6: 掃描外向搜尋觸發信號（純 CPU, 0 token）."""
+        try:
+            from museon.evolution.outward_trigger import OutwardTrigger
+
+            trigger = OutwardTrigger(
+                workspace=self._workspace,
+                event_bus=self._event_bus,
+            )
+            result = trigger.scan()
+            return {
+                "triggered": result.get("triggered", 0),
+                "events": result.get("events", []),
+            }
+        except Exception as e:
+            logger.warning(f"Step 13.6 outward trigger scan failed: {e}")
+            return {"error": str(e)}
+
+    # ═══════════════════════════════════════════
+    # Step 13.7: 外向研究
+    # ═══════════════════════════════════════════
+
+    def _step_outward_research(self) -> Dict:
+        """Step 13.7: 執行外向搜尋計畫（ResearchEngine, ≤$0.15）."""
+        try:
+            import asyncio
+            from museon.evolution.intention_radar import IntentionRadar
+            from museon.evolution.digest_engine import DigestEngine
+            from museon.research.research_engine import ResearchEngine
+
+            radar = IntentionRadar(
+                workspace=self._workspace,
+                event_bus=self._event_bus,
+            )
+            digest = DigestEngine(
+                workspace=self._workspace,
+                event_bus=self._event_bus,
+            )
+            research_engine = ResearchEngine(
+                brain=self._brain,
+                event_bus=self._event_bus,
+            )
+
+            plan = radar.load_pending_plan()
+            if not plan:
+                return {"skipped": "no pending outward queries"}
+
+            researched = 0
+            ingested = 0
+
+            for query_item in plan[:3]:  # 每次最多執行 3 條
+                if query_item.get("executed"):
+                    continue
+
+                query = query_item.get("query", "")
+                context_type = query_item.get("context_type", "outward_service")
+                max_rounds = query_item.get("max_rounds", 2)
+
+                # 執行研究
+                loop = asyncio.new_event_loop()
+                try:
+                    result = loop.run_until_complete(
+                        research_engine.research(
+                            query=query,
+                            context_type=context_type,
+                            max_rounds=max_rounds,
+                        )
+                    )
+                finally:
+                    loop.close()
+
+                radar.mark_executed(query_item)
+                researched += 1
+
+                # 有價值的結果送入消化引擎
+                if result.is_valuable and result.filtered_summary:
+                    qid = digest.ingest(
+                        research_result={
+                            "filtered_summary": result.filtered_summary,
+                            "source_urls": [h.url for h in result.hits if h.url],
+                        },
+                        search_context={
+                            "query": query,
+                            "track": query_item.get("track", "service"),
+                            "trigger_type": query_item.get("trigger_type", ""),
+                        },
+                    )
+                    if qid:
+                        ingested += 1
+
+            radar.save_plan(plan)
+
+            return {
+                "researched": researched,
+                "ingested": ingested,
+                "pending_remaining": len([q for q in plan if not q.get("executed")]),
+            }
+        except Exception as e:
+            logger.warning(f"Step 13.7 outward research failed: {e}")
+            return {"error": str(e)}
+
+    # ═══════════════════════════════════════════
+    # Step 13.8: 消化生命週期
+    # ═══════════════════════════════════════════
+
+    def _step_digest_lifecycle(self) -> Dict:
+        """Step 13.8: 隔離區生命週期掃描 — 晉升/淘汰/TTL（純 CPU, 0 token）."""
+        try:
+            from museon.evolution.digest_engine import DigestEngine
+
+            digest = DigestEngine(
+                workspace=self._workspace,
+                event_bus=self._event_bus,
+            )
+            result = digest.lifecycle_scan()
+            return result
+        except Exception as e:
+            logger.warning(f"Step 13.8 digest lifecycle failed: {e}")
+            return {"error": str(e)}
 
     # ═══════════════════════════════════════════
     # Step 14: 技能生命週期
@@ -1402,30 +2077,33 @@ class NightlyPipeline:
             except Exception:
                 pass
 
-        # Phase B: 嘗試 LLM 精煉（可選）
+        # Phase B: 嘗試 LLM 精煉（透過 LLMAdapter，MAX 訂閱方案）
         llm_refined = 0
         try:
-            llm_client = getattr(self._brain, "llm_client", None)
-            if llm_client and refined > 0:
+            import asyncio
+            adapter = getattr(self._brain, "_llm_adapter", None)
+            if adapter and refined > 0:
                 for sf in skills[-3:]:
                     try:
                         with open(sf, "r", encoding="utf-8") as fh:
                             skill = json.load(fh)
                         if skill.get("refined") and not skill.get("llm_refined"):
-                            # 截取前 500 字避免 token 浪費
                             snippet = json.dumps(skill, ensure_ascii=False)[:500]
                             prompt = (
                                 "你是 MUSEON 技能精煉專家。請用一段話"
                                 "（不超過 100 字）總結這個技能的核心能力：\n"
                                 f"{snippet}"
                             )
-                            resp = llm_client.chat(
-                                messages=[{"role": "user", "content": prompt}],
-                                model="sonnet",
-                                max_tokens=200,
+                            resp = asyncio.get_event_loop().run_until_complete(
+                                adapter.call(
+                                    system_prompt="你是技能精煉專家。",
+                                    messages=[{"role": "user", "content": prompt}],
+                                    model="sonnet",
+                                    max_tokens=200,
+                                )
                             )
-                            if resp and hasattr(resp, "content"):
-                                skill["llm_summary"] = str(resp.content)[:200]
+                            if resp and resp.text:
+                                skill["llm_summary"] = resp.text[:200]
                                 skill["llm_refined"] = True
                                 skill["llm_refined_at"] = datetime.now(TZ_TAIPEI).isoformat()
                                 with open(sf, "w", encoding="utf-8") as fh:
@@ -1579,14 +2257,44 @@ class NightlyPipeline:
     # ═══════════════════════════════════════════
 
     def _step_federation_upload(self) -> Dict:
-        """Node 上繳知識到 Origin."""
+        """Federation 同步（v3 Git 模式）.
+
+        - origin 模式：收集所有子體經驗
+        - node 模式：推送匿名化經驗到 GitHub
+        """
+        try:
+            from museon.federation.sync import FederationSync
+        except ImportError as e:
+            return {"skipped": f"FederationSync not available: {e}"}
+
+        fed_mode = os.environ.get("MUSEON_FEDERATION_MODE", "")
+        if not fed_mode:
+            return {"skipped": "MUSEON_FEDERATION_MODE not set"}
+
+        try:
+            sync = FederationSync(data_dir=str(self._workspace))
+        except Exception as e:
+            return {"error": f"FederationSync init failed: {e}"}
+
+        if fed_mode == "origin":
+            # 母體：收集子體經驗
+            result = sync.collect_children()
+        else:
+            # 子體：推送同步包 + 拉取母體更新
+            push_result = sync.push_sync_package()
+            pull_result = sync.pull_evolution()
+            result = {"push": push_result, "pull": pull_result}
+
+        return result
+
+    def _step_federation_upload_legacy(self) -> Dict:
+        """[Legacy] Node 上繳知識到 Origin（HTTP 模式，已棄用）."""
         node_id = os.environ.get("MUSEON_NODE_ID")
         if not node_id:
             return {"skipped": "not a federation node (no MUSEON_NODE_ID)"}
 
         origin_url = os.environ.get("MUSEON_ORIGIN_URL", "http://127.0.0.1:9200")
 
-        # 收集要上繳的知識（L2_sem / L3）
         upload_items = []
         for level in ["L2_sem", "L3_procedural"]:
             level_dir = self._workspace / "_system" / "memory" / "shared" / level
@@ -1604,7 +2312,6 @@ class NightlyPipeline:
         if not upload_items:
             return {"skipped": "nothing to upload"}
 
-        # 標記為已上傳（實際的 HTTP sync 需 NodeClient）
         uploaded = 0
         for f, item in upload_items:
             try:
@@ -1624,42 +2331,32 @@ class NightlyPipeline:
     # ═══════════════════════════════════════════
 
     def _step_budget_settlement(self) -> Dict:
-        """Step 0: Token 預算日結算（最先執行）.
+        """Step 0: 每日呼叫統計摘要（MAX 訂閱方案 — 無 per-token 計費）.
 
-        1. daily_metabolism() — reserve 每日代謝 2%
-        2. daily_settlement() — 結餘存入 reserve
+        v3: 改為記錄每日呼叫次數、模型分布，不再做 token 預算結算。
         """
+        # 嘗試從 BudgetMonitor 取得統計（僅記錄用途）
         try:
-            from museon.pulse.token_budget import TokenBudgetManager
-            manager = TokenBudgetManager(data_dir=self._workspace)
+            if hasattr(self, '_brain') and self._brain and hasattr(self._brain, 'budget_monitor'):
+                bm = self._brain.budget_monitor
+                if bm:
+                    stats = bm.get_usage_stats()
+                    return {
+                        "mode": "max_subscription",
+                        "daily_calls": sum(
+                            stats.get("models", {}).get(m, {}).get("calls", 0)
+                            for m in ("sonnet", "haiku")
+                        ),
+                        "model_distribution": {
+                            m: stats.get("models", {}).get(m, {}).get("calls", 0)
+                            for m in ("sonnet", "haiku")
+                        },
+                        "daily_tokens": stats.get("used", 0),
+                    }
         except Exception as e:
-            return {"skipped": f"TokenBudgetManager not available: {e}"}
+            logger.warning(f"Budget stats read failed: {e}")
 
-        # 代謝
-        metabolized = manager.daily_metabolism()
-
-        # 日結算
-        saved = manager.daily_settlement()
-
-        # conservation mode 檢查 → 發布事件
-        status = manager.get_status()
-        if status.get("conservation_mode") and self._event_bus:
-            try:
-                from museon.core.event_bus import TOKEN_BUDGET_CONSERVATION
-                self._event_bus.publish(TOKEN_BUDGET_CONSERVATION, {
-                    "reserve_health": status.get("reserve_health"),
-                    "model_recommendation": status.get("model_recommendation"),
-                })
-            except Exception:
-                pass
-
-        return {
-            "metabolized_usd": round(metabolized, 4),
-            "saved_to_reserve_usd": round(saved, 4),
-            "tier": status.get("tier"),
-            "reserve_usd": status.get("reserve_pool_usd"),
-            "conservation_mode": status.get("conservation_mode"),
-        }
+        return {"mode": "max_subscription", "skipped": "no_budget_monitor"}
 
     # ═══════════════════════════════════════════
     # Step 0.1: 足跡清理
@@ -1845,6 +2542,93 @@ class NightlyPipeline:
         }
 
     # ═══════════════════════════════════════════
+    # Evolution Architecture 新增步驟
+    # ═══════════════════════════════════════════
+
+    def _step_evolution_velocity(self) -> Dict:
+        """Step 24: 演化速度計算.
+
+        每日累計（週日正式計算完整快照），追蹤五項核心指標的趨勢。
+        """
+        try:
+            from museon.evolution.evolution_velocity import get_evolution_velocity
+            ev = get_evolution_velocity(self._workspace)
+            snapshot = ev.calculate_weekly()
+            dashboard = ev.get_dashboard()
+
+            # 若偵測到高原期或退化，發布事件
+            if snapshot.plateau_alert or snapshot.regression_alert:
+                self._publish("EVOLUTION_VELOCITY_ALERT", {
+                    "composite_velocity": dashboard.get("composite_velocity", 0),
+                    "trend": dashboard.get("trend", "unknown"),
+                    "plateau_alert": snapshot.plateau_alert,
+                    "regression_alert": snapshot.regression_alert,
+                })
+
+            return {
+                "composite_velocity": dashboard.get("composite_velocity", 0),
+                "trend": dashboard.get("trend", "unknown"),
+                "plateau_alert": snapshot.plateau_alert,
+                "regression_alert": snapshot.regression_alert,
+            }
+        except Exception as e:
+            return {"skipped": f"EvolutionVelocity not available: {e}"}
+
+    def _step_periodic_cycle_check(self) -> Dict:
+        """Step 25: 週/月循環觸發檢查.
+
+        檢查今天是否為週日或月初，若是則自動執行對應的週/月循環。
+        """
+        now = datetime.now(TZ_TAIPEI)
+        results: Dict[str, Any] = {"checked_at": now.isoformat()}
+
+        try:
+            from museon.nightly.periodic_cycles import WeeklyCycle, MonthlyCycle
+
+            # 週日執行週循環
+            if now.weekday() == 6:  # Sunday
+                weekly = WeeklyCycle(
+                    workspace=self._workspace,
+                    event_bus=self._event_bus,
+                )
+                weekly_report = weekly.run()
+                results["weekly_cycle"] = {
+                    "executed": True,
+                    "ok": weekly_report.get("summary", {}).get("ok", 0),
+                    "error": weekly_report.get("summary", {}).get("error", 0),
+                }
+                logger.info(
+                    f"[NIGHTLY] Weekly cycle executed: "
+                    f"{results['weekly_cycle']}"
+                )
+            else:
+                results["weekly_cycle"] = {"executed": False, "reason": f"weekday={now.weekday()}"}
+
+            # 月初執行月循環
+            if now.day == 1:
+                monthly = MonthlyCycle(
+                    workspace=self._workspace,
+                    event_bus=self._event_bus,
+                )
+                monthly_report = monthly.run()
+                results["monthly_cycle"] = {
+                    "executed": True,
+                    "ok": monthly_report.get("summary", {}).get("ok", 0),
+                    "error": monthly_report.get("summary", {}).get("error", 0),
+                }
+                logger.info(
+                    f"[NIGHTLY] Monthly cycle executed: "
+                    f"{results['monthly_cycle']}"
+                )
+            else:
+                results["monthly_cycle"] = {"executed": False, "reason": f"day={now.day}"}
+
+        except Exception as e:
+            results["error"] = f"PeriodicCycles not available: {e}"
+
+        return results
+
+    # ═══════════════════════════════════════════
     # 報告持久化
     # ═══════════════════════════════════════════
 
@@ -1881,6 +2665,106 @@ class NightlyPipeline:
             tmp.rename(path)
         except Exception as e:
             logger.error(f"NightlyPipeline report persist failed: {e}")
+
+        # 同時生成三層晨報結構
+        self._generate_morning_layers(persist_report, state_dir)
+
+    def _generate_morning_layers(self, report: Dict, state_dir: Path) -> None:
+        """生成三層晨報結構.
+
+        Layer 1 (摘要層): 2-3 句話，30 秒讀完
+        Layer 2 (詳情層): 關鍵步驟列表 + 警告/錯誤
+        Layer 3 (決策需求層): 需要人類決定的事項
+        """
+        summary = report.get("summary", {})
+        steps = report.get("steps", {})
+        errors = report.get("errors", [])
+
+        ok = summary.get("ok", 0)
+        total = summary.get("total", 0)
+        error_count = summary.get("error", 0)
+        elapsed = report.get("elapsed_seconds", 0)
+
+        # ── Layer 1：摘要 ──
+        if error_count == 0:
+            verdict = f"昨夜整合全部完成 ({ok}/{total} 步驟通過)"
+        else:
+            verdict = f"昨夜整合有 {error_count} 步異常 ({ok}/{total} 通過)"
+
+        layer1 = {
+            "verdict": verdict,
+            "elapsed_seconds": elapsed,
+            "one_liner": f"{verdict}，耗時 {elapsed:.0f} 秒。" + (
+                "" if error_count == 0 else " 請查看 Layer 3 的決策需求。"
+            ),
+        }
+
+        # ── Layer 2：詳情 ──
+        highlights = []
+        warnings = []
+        for step_name, step_data in steps.items():
+            status = step_data.get("status", "unknown")
+            result_str = step_data.get("result", "")
+
+            if status == "ok" and "skipped" not in result_str.lower():
+                # 挑出有實質結果的步驟
+                if any(kw in result_str for kw in [
+                    "decayed", "archived", "executed", "forged",
+                    "pruned", "explored", "crystal",
+                ]):
+                    highlights.append(f"  ✅ {step_name}: {result_str[:80]}")
+            elif status == "error":
+                warnings.append(f"  ❌ {step_name}: {step_data.get('error', '?')[:80]}")
+            elif status == "skipped":
+                pass  # 跳過的步驟不列出
+
+        layer2 = {
+            "highlights": highlights[:10],
+            "warnings": warnings,
+            "step_count": {"ok": ok, "error": error_count, "total": total},
+        }
+
+        # ── Layer 3：決策需求 ──
+        decisions = []
+        for err in errors:
+            step_name = err.get("step", "?")
+            error_msg = err.get("error", "")[:120]
+            decisions.append({
+                "type": "error_needs_attention",
+                "step": step_name,
+                "description": f"{step_name} 執行失敗: {error_msg}",
+            })
+
+        # 檢查 Morphenix L3 提案（需人類審查）
+        for step_name, step_data in steps.items():
+            result_str = step_data.get("result", "")
+            if "escalated" in result_str.lower() or "l3" in result_str.lower():
+                decisions.append({
+                    "type": "morphenix_l3_review",
+                    "step": step_name,
+                    "description": f"有 Morphenix L3 提案需要你審查",
+                })
+
+        layer3 = {
+            "decisions_needed": len(decisions),
+            "items": decisions,
+        }
+
+        morning_report = {
+            "generated_at": datetime.now(TZ_TAIPEI).isoformat(),
+            "layer1_summary": layer1,
+            "layer2_details": layer2,
+            "layer3_decisions": layer3,
+        }
+
+        try:
+            morning_path = state_dir / "morning_report.json"
+            morning_path.write_text(
+                json.dumps(morning_report, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+        except Exception as e:
+            logger.warning(f"Morning report generation failed: {e}")
 
 
 # ═══════════════════════════════════════════
@@ -1945,7 +2829,19 @@ def register_nightly_tasks(scheduler, workspace: Path, **kwargs) -> None:
     )
 
     def _morning_report():
-        report_path = workspace / "_system" / "state" / "nightly_report.json"
+        state_dir = workspace / "_system" / "state"
+
+        # 優先讀取三層晨報
+        morning_path = state_dir / "morning_report.json"
+        if morning_path.exists():
+            try:
+                with open(morning_path, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except Exception:
+                pass
+
+        # 降級：讀取原始 nightly report
+        report_path = state_dir / "nightly_report.json"
         if not report_path.exists():
             return None
         try:

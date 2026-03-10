@@ -257,19 +257,20 @@ MCP_SERVER_CATALOG: List[Dict[str, Any]] = [
         "auth_guide": "在 Discord Developer Portal 建立 Bot，取得 Token",
         "auth_url": "https://discord.com/developers/applications",
     },
-    # ═══ 🗃️ 資料庫 ═══
+    # ═══ 🔄 工作流自動化 ═══
     {
-        "name": "postgres",
-        "display_name": "PostgreSQL",
-        "description": "連線並查詢 PostgreSQL 資料庫",
-        "category": "database",
-        "icon": "\U0001f418",
-        "transport": "stdio",
-        "command": "npx -y @modelcontextprotocol/server-postgres",
+        "name": "dify",
+        "display_name": "Dify 工作流引擎",
+        "description": "MUSEON 的手腳 — 透過 Dify REST API 自主執行工作流、排程任務、跨系統整合",
+        "category": "automation",
+        "icon": "\U0001f916",
+        "transport": "native",
+        "command": "",
         "auth_required": True,
-        "auth_env": ["POSTGRES_CONNECTION_STRING"],
-        "auth_guide": "提供 PostgreSQL 連線字串，格式：postgresql://user:pass@host:5432/db",
-        "auth_url": "",
+        "auth_env": ["DIFY_API_KEY", "DIFY_BASE_URL"],
+        "auth_guide": "自架 Dify（docker compose up -d），從 Dify Dashboard → Settings → API Key 取得",
+        "auth_url": "https://docs.dify.ai/",
+        "native_module": "museon.tools.mcp_dify",
     },
 ]
 
@@ -291,7 +292,7 @@ _CAPABILITY_KEYWORDS: Dict[str, List[str]] = {
     "sentry": ["sentry", "error tracking", "bug report", "錯誤追蹤"],
     "slack": ["slack", "channel", "dm", "頻道"],
     "discord": ["discord", "伺服器", "server chat"],
-    "postgres": ["postgres", "postgresql", "pg"],
+    "dify": ["dify", "workflow", "工作流", "自動化", "排程", "automation", "pipeline"],
 }
 
 

@@ -42,11 +42,13 @@ def find_install_dir() -> Path:
 # 每個步驟的 spinner 訊息
 STEP_SPINNER_MESSAGES = [
     "檢查系統環境",
+    "檢查 macOS 權限",
     "建立 Python 虛擬環境 & 安裝依賴",
     "驗證核心模組",
     "打包 Electron Dashboard（npm install + build）",
     "設定 Gateway 24/7 daemon",
     "設定 API Keys",
+    "驗證 Claude Code CLI（MAX 訂閱方案）",
     "安裝 AI 工具（SearXNG / Firecrawl / Whisper / OCR...）",
     "確認 Gateway 啟動狀態",
 ]

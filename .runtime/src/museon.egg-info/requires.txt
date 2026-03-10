@@ -8,6 +8,9 @@ pydantic>=2.6.0
 python-multipart>=0.0.9
 httpx>=0.26.0
 aiofiles>=23.2.1
+qdrant-client>=1.7.0
+fastembed>=0.2.0
+mcp>=1.20.0
 
 [dev]
 pytest>=8.0.0

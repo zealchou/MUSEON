@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260304_002439_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n**修改方向**（≤150字）：\n\n回覆假設了使用者想要「人類社交媒體品牌策略」，但實際需求可能是：\na) 驗證你確實**看到了截圖內容**（OCR確認可以，但要簡潔）\nb) 釐清**上一次對話為何中斷**（技術問題？思考中斷？）\nc) 確認**使用者真正的問題是什麼**——是要品牌策略、還是在測試你的理解能力、還是討論AI agent的身份定位？\n\n建議先問：「截圖讀取成功。你上",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-04T00:24:39.138666+08:00",
-  "priority": "medium"
-}

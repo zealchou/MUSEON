@@ -169,9 +169,11 @@ class TestRecall:
         assert "機器學習" in results[0]["content"]
 
     def test_recall_access_count(self, mm):
-        """BDD: recall 副作用 — access_count++."""
+        """BDD: recall 副作用 — access_count++（緩衝後持久化）."""
         mid = mm.store("test_user", "機器學習模型訓練", "L2_ep")
         mm.recall("test_user", "機器學習")
+        # access_count 使用緩衝機制，需先 flush 再檢查
+        mm._flush_access_counts("test_user")
         entries = mm.list_memories("test_user", "L2_ep")
         entry = next(e for e in entries if e["id"] == mid)
         assert entry["access_count"] >= 1
@@ -346,11 +348,13 @@ class TestSupersede:
             assert old["archive_reason"] == "superseded"
 
     def test_supersede_inherits_access(self, mm):
-        """BDD: 新記憶繼承 access_count."""
+        """BDD: 新記憶繼承 access_count（緩衝後持久化）."""
         old_id = mm.store("test_user", "原始版本內容記憶", "L2_ep")
         # Recall 增加 access
         mm.recall("test_user", "原始版本")
         mm.recall("test_user", "原始版本")
+        # flush 緩衝的 access_count 到磁碟，才能被 supersede 繼承
+        mm._flush_access_counts("test_user")
 
         new_entry = mm.supersede("test_user", old_id, "新版本記憶")
         assert new_entry.get("access_count", 0) >= 1

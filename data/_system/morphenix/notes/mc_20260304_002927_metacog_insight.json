@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260304_002927_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n**修改方向**：\n1. **核心問題**：回覆承諾了技術上無法實現的事。你（AI）無法真的執行 shell script、設定 cron job 或在 Telegram 外部系統運行程式。這是虛假承諾。\n\n2. **真實狀況**：你只能在被使用者敲時才能回應。不能主動觸發 Telegram 訊息。\n\n3. **建議做法**：\n   - 誠實說明限制：「我無法在 Telegram",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-04T00:29:27.877574+08:00",
-  "priority": "medium"
-}

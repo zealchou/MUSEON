@@ -83,8 +83,8 @@ class TestConstants:
         assert REPORT_TRUNCATE_CHARS == 200
 
     def test_full_steps_count(self):
-        """BDD: 19 個步驟（17 標準 + Step 5.5 + Step 5.8）."""
-        assert len(_FULL_STEPS) == 19
+        """BDD: 37 個步驟（含 L5 code health + doctor 手術步驟）."""
+        assert len(_FULL_STEPS) == 37
 
     def test_origin_steps(self):
         """BDD: Origin 模式 = 5.8, 6, 7, 8, 16（5 個）."""
@@ -92,12 +92,12 @@ class TestConstants:
         assert len(_ORIGIN_STEPS) == 5
 
     def test_node_steps(self):
-        """BDD: Node 模式 = 1-5.5, 9-15（13 個）."""
+        """BDD: Node 模式 = 1-5.5, 9-15（14 個，含 13.5）."""
         assert _NODE_STEPS == [
             "1", "2", "3", "4", "5", "5.5",
-            "9", "10", "11", "12", "13", "14", "15",
+            "9", "10", "11", "12", "13", "13.5", "14", "15",
         ]
-        assert len(_NODE_STEPS) == 13
+        assert len(_NODE_STEPS) == 14
 
     def test_wee_min_crystals(self):
         assert WEE_MIN_CRYSTALS_FOR_FUSE == 3
@@ -484,23 +484,23 @@ class TestMorphenixProposals:
     """Scenario: Step 5.8 — Morphenix 提案結晶."""
 
     def test_no_notes_dir(self, tmp_path):
-        """BDD: 無 notes 目錄 → skipped."""
+        """BDD: 無信號源 → proposals_created == 0."""
         pipeline = NightlyPipeline(tmp_path)
         result = pipeline._step_morphenix_proposals()
-        assert "skipped" in result
+        assert result["proposals_created"] == 0
 
     def test_not_enough_notes(self, tmp_path):
-        """BDD: 不足 3 個 notes → skipped."""
+        """BDD: 不足 3 個 notes → proposals_created == 0."""
         notes_dir = tmp_path / "_system" / "morphenix" / "notes"
         notes_dir.mkdir(parents=True)
         (notes_dir / "note1.json").write_text(json.dumps({"idea": "test"}))
 
         pipeline = NightlyPipeline(tmp_path)
         result = pipeline._step_morphenix_proposals()
-        assert "skipped" in result
+        assert result["proposals_created"] == 0
 
     def test_crystallize_proposals(self, tmp_path):
-        """BDD: 3+ notes → 結晶為提案."""
+        """BDD: 3+ notes → 信號驅動結晶為提案."""
         notes_dir = tmp_path / "_system" / "morphenix" / "notes"
         notes_dir.mkdir(parents=True)
         for i in range(5):
@@ -510,8 +510,8 @@ class TestMorphenixProposals:
 
         pipeline = NightlyPipeline(tmp_path)
         result = pipeline._step_morphenix_proposals()
-        assert result["proposals_created"] == 1
-        assert result["source_notes"] == 5
+        assert result["proposals_created"] >= 1
+        assert result["signals_scanned"] >= 1
 
 
 # ═══════════════════════════════════════════

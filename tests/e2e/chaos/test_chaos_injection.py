@@ -6,6 +6,7 @@
 - Unicode 邊界不崩潰
 - Gateway 錯誤處理正確
 """
+from __future__ import annotations
 import re
 import time
 import pytest

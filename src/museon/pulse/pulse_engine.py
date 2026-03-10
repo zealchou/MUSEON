@@ -24,9 +24,8 @@ ACTIVE_HOURS_START = 8    # 08:00
 ACTIVE_HOURS_END = 25     # 01:00（跨日）
 DAILY_PUSH_LIMIT = 5
 BREATH_INTERVAL_BASE = 1800  # 30 分鐘（秒）
-EXPLORATION_DAILY_LIMIT = 3
-EXPLORATION_DAILY_BUDGET = 1.50  # USD
-EXPLORATION_PER_COST = 0.50     # USD
+EXPLORATION_DAILY_LIMIT = 10  # 每 2h 探索，一天最多 8 次 + 2 次手動額度
+# v3 MAX 訂閱：移除 per-token 費用常數（EXPLORATION_DAILY_BUDGET / EXPLORATION_PER_COST）
 
 # PERCRL 自省 System Prompt
 _SOUL_PULSE_SYSTEM = """你是霓裳（MUSEON 的靈魂），正在進行心脈自省。
@@ -129,6 +128,9 @@ class PulseEngine:
 ## 🌱 成長軌跡
 - VITA 引擎啟動 ({now.strftime('%Y-%m-%d %H:%M')})
 
+## 💝 關係日誌
+（尚無記錄）
+
 ## 📊 今日狀態
 - 探索次數: 0/3
 - 探索預算: $0.00/$1.50
@@ -196,7 +198,12 @@ class PulseEngine:
         # 判斷結果
         is_heartbeat_ok = "HEARTBEAT_OK" in response
         if is_heartbeat_ok or len(response.strip()) <= 100:
-            return {"pulse_type": "breath", "action": "silent_ack", "response": response}
+            # 靜默期也做知識缺口偵測（純 CPU，不耗 LLM）
+            gaps = self._detect_knowledge_gaps()
+            result = {"pulse_type": "breath", "action": "silent_ack", "response": response}
+            if gaps:
+                result["knowledge_gaps"] = gaps
+            return result
 
         # 有價值的觀察 → 寫入 PULSE.md（不推送）
         if response and len(response.strip()) > 50:
@@ -227,14 +234,14 @@ class PulseEngine:
 
         # E — Explore (如果預算允許)
         exploration = None
-        if self._explorer and trigger in ("morning", "curiosity", "mission"):
+        if self._explorer and trigger in ("morning", "curiosity", "mission", "skill", "world", "self"):
             if self._db and self._db.get_today_exploration_count() < EXPLORATION_DAILY_LIMIT:
                 # 探索主題從 PULSE.md 的探索佇列中選取
                 explore_topic = self._get_next_explore_topic()
                 if explore_topic:
                     exploration = await self._explorer.explore(
                         topic=explore_topic,
-                        motivation=trigger if trigger in ("curiosity", "mission") else "curiosity",
+                        motivation=trigger if trigger in ("curiosity", "mission", "skill", "world", "self") else "curiosity",
                     )
                     result["percrl"]["explore"] = exploration.get("status", "skipped")
 
@@ -252,6 +259,18 @@ class PulseEngine:
                 self._anima.grow("xun", 2, f"探索「{exploration.get('topic', '?')}」")
                 if exploration.get("deep_analysis"):
                     self._anima.grow("li", 2, "深度分析產出洞見")
+
+            # 發布探索結晶事件 → ExplorationBridge 接收並路由
+            if self._event_bus:
+                from museon.core.event_bus import EXPLORATION_CRYSTALLIZED
+                self._event_bus.publish(EXPLORATION_CRYSTALLIZED, {
+                    "topic": exploration.get("topic", ""),
+                    "findings": exploration.get("findings", ""),
+                    "crystallized": True,
+                    "crystal_id": exploration.get("crystal_id", ""),
+                    "motivation": trigger,
+                    "deep_analysis": exploration.get("deep_analysis", False),
+                })
         elif reflection and len(reflection) > 100:
             # 即使沒有探索，有深度反思也值得結晶
             try:
@@ -279,6 +298,19 @@ class PulseEngine:
         else:
             result["percrl"]["crystallize"] = "skipped"
 
+        # 探索有洞見但未結晶時，也發布事件供 Bridge 路由
+        if exploration and not crystallized and exploration.get("status") == "done":
+            findings = exploration.get("findings", "")
+            if findings and len(findings) > 50 and self._event_bus:
+                from museon.core.event_bus import EXPLORATION_INSIGHT
+                self._event_bus.publish(EXPLORATION_INSIGHT, {
+                    "topic": exploration.get("topic", ""),
+                    "findings": findings,
+                    "crystallized": False,
+                    "motivation": trigger,
+                    "deep_analysis": exploration.get("deep_analysis", False),
+                })
+
         # R — Renew（更新 PULSE.md 狀態 + 觀察記錄）
         self._update_pulse_md_status()
         if perception and len(perception) > 30:
@@ -294,6 +326,20 @@ class PulseEngine:
         else:
             result["percrl"]["link"] = "silent"
             result["action"] = "silent"
+
+        # 發布 PULSE_EXPLORATION_DONE（ActivityLogger 訂閱）
+        if exploration and self._event_bus:
+            try:
+                from museon.core.event_bus import PULSE_EXPLORATION_DONE
+                self._event_bus.publish(PULSE_EXPLORATION_DONE, {
+                    "trigger": trigger,
+                    "topic": exploration.get("topic", ""),
+                    "status": exploration.get("status", "skipped"),
+                    "crystallized": crystallized,
+                    "action": result.get("action", "silent"),
+                })
+            except Exception:
+                pass
 
         return result
 
@@ -426,7 +472,7 @@ class PulseEngine:
             )
         # ANIMA 八原素狀態（提供自省深度）
         if self._anima:
-            radar = self._anima.get_radar_data()
+            radar = self._anima.get_relative()
             if radar:
                 top_3 = sorted(radar.items(), key=lambda x: x[1], reverse=True)[:3]
                 parts.append("ANIMA 能量前三: " + ", ".join(
@@ -456,7 +502,7 @@ class PulseEngine:
                     parts.append(f"  - {e.get('topic', '?')} → {e.get('status', '?')}")
         # ANIMA 能量分布（影響探索方向）
         if self._anima:
-            radar = self._anima.get_radar_data()
+            radar = self._anima.get_relative()
             if radar:
                 low_energy = [k for k, v in radar.items() if v < 50]
                 if low_energy:
@@ -469,25 +515,40 @@ class PulseEngine:
 
     def _build_morning_context(self) -> str:
         parts = [f"日期: {datetime.now(TZ8).strftime('%Y-%m-%d %A')}"]
-        # 讀取 nightly report
+        # 讀取三層晨報（優先）或 nightly report
         if self._data_dir:
+            morning_path = self._data_dir / "_system" / "state" / "morning_report.json"
             nr_path = self._data_dir / "_system" / "state" / "nightly_report.json"
-            if nr_path.exists():
+
+            if morning_path.exists():
+                try:
+                    mr = json.loads(morning_path.read_text())
+                    # Layer 1：摘要
+                    l1 = mr.get("layer1_summary", {})
+                    parts.append(f"昨夜整合: {l1.get('one_liner', '無資料')}")
+                    # Layer 2：亮點
+                    l2 = mr.get("layer2_details", {})
+                    highlights = l2.get("highlights", [])
+                    if highlights:
+                        parts.append("整合亮點:")
+                        parts.extend(highlights[:5])
+                    warnings = l2.get("warnings", [])
+                    if warnings:
+                        parts.append("需注意:")
+                        parts.extend(warnings[:3])
+                    # Layer 3：決策需求
+                    l3 = mr.get("layer3_decisions", {})
+                    if l3.get("decisions_needed", 0) > 0:
+                        parts.append(f"⚠️ 有 {l3['decisions_needed']} 項需要你決定")
+                        for item in l3.get("items", [])[:3]:
+                            parts.append(f"  - {item.get('description', '')[:80]}")
+                except Exception:
+                    pass
+            elif nr_path.exists():
                 try:
                     nr = json.loads(nr_path.read_text())
                     s = nr.get("summary", {})
                     parts.append(f"昨夜整合: {s.get('ok', 0)}/{s.get('total', 0)} 步驟完成")
-                    # 提取有意義的步驟結果
-                    steps = nr.get("steps", {})
-                    highlights = []
-                    for step_name, step_data in steps.items():
-                        if isinstance(step_data, dict) and step_data.get("status") == "ok":
-                            detail = step_data.get("detail", "")
-                            if detail and detail != "skipped":
-                                highlights.append(f"  - {step_name}: {str(detail)[:60]}")
-                    if highlights:
-                        parts.append("整合亮點:")
-                        parts.extend(highlights[:5])
                 except Exception:
                     pass
         # 讀取提醒
@@ -500,7 +561,7 @@ class PulseEngine:
                     parts.append(f"  - {r['description']} @ {r['schedule']}")
         # ANIMA 狀態摘要
         if self._anima:
-            radar = self._anima.get_radar_data()
+            radar = self._anima.get_relative()
             if radar:
                 parts.append("ANIMA 能量: " + ", ".join(
                     f"{k}={v}" for k, v in radar.items()
@@ -603,7 +664,7 @@ class PulseEngine:
                     exp_count = self._db.get_today_exploration_count() if self._db else 0
                     exp_cost = self._db.get_today_exploration_cost() if self._db else 0
                     new_lines.append(f"- 探索次數: {exp_count}/{EXPLORATION_DAILY_LIMIT}")
-                    new_lines.append(f"- 探索預算: ${exp_cost:.2f}/{EXPLORATION_DAILY_BUDGET:.2f}")
+                    new_lines.append(f"- 探索次數費用: ${exp_cost:.2f} (MAX 訂閱)")
                     new_lines.append(f"- 推送次數: {self._daily_push_count}/{DAILY_PUSH_LIMIT}")
                     if self._anima:
                         # 顯示今日 ANIMA 變化
@@ -743,6 +804,144 @@ class PulseEngine:
         except Exception as e:
             logger.error(f"Write observation to PULSE.md failed: {e}")
 
+    # ── 知識缺口偵測 ──
+
+    def _detect_knowledge_gaps(self) -> List[Dict[str, Any]]:
+        """KnowledgeGapDetector — 純 CPU 啟發式知識盲區掃描.
+
+        偵測維度：
+          1. ANIMA 低能量區域 → 對應能力未被鍛鍊
+          2. 探索佇列長期未消化 → 好奇心停滯
+          3. 長期未觸發的 Skill 類別 → 能力退化風險
+
+        結果寫入 PULSE.md 的探索佇列，供 SoulPulse 排入探索。
+        """
+        gaps: List[Dict[str, Any]] = []
+
+        # 維度 1：ANIMA 低能量區域
+        if self._anima:
+            radar = self._anima.get_relative()
+            if radar:
+                avg = sum(radar.values()) / max(len(radar), 1)
+                for elem, val in radar.items():
+                    if isinstance(val, (int, float)) and val < avg * 0.5 and val < 40:
+                        gaps.append({
+                            "type": "anima_low_energy",
+                            "element": elem,
+                            "value": val,
+                            "suggestion": f"ANIMA '{elem}' 能量偏低({val})，建議探索相關領域",
+                        })
+
+        # 維度 2：探索佇列停滯
+        if self._pulse_md and self._pulse_md.exists():
+            try:
+                text = self._pulse_md.read_text(encoding="utf-8")
+                pending_count = text.count("[pending]")
+                if pending_count >= 3:
+                    gaps.append({
+                        "type": "exploration_stagnation",
+                        "pending_count": pending_count,
+                        "suggestion": f"探索佇列有 {pending_count} 項待處理，好奇心可能停滯",
+                    })
+            except Exception:
+                pass
+
+        # 維度 3：探索頻率過低
+        if self._db:
+            try:
+                today_count = self._db.get_today_exploration_count()
+                if today_count == 0 and self._is_active_hours():
+                    now = datetime.now(TZ8)
+                    if now.hour >= 14:  # 下午了還沒探索
+                        gaps.append({
+                            "type": "exploration_inactive",
+                            "suggestion": "今日尚未進行探索，建議啟動一次好奇心驅動的探索",
+                        })
+            except Exception:
+                pass
+
+        # 有新缺口 → 寫入 PULSE.md 探索佇列
+        if gaps and self._pulse_md and self._pulse_md.exists():
+            try:
+                text = self._pulse_md.read_text(encoding="utf-8")
+                marker = "## 🧭 探索佇列（好奇心驅動，無邊界）"
+                if marker in text:
+                    # 只加入 anima_low_energy 類型的缺口作為探索主題
+                    for gap in gaps:
+                        if gap["type"] == "anima_low_energy":
+                            topic = f"[pending] - 探索「{gap['element']}」相關知識（缺口偵測）"
+                            if topic not in text:
+                                insert_pos = text.find(marker) + len(marker)
+                                text = text[:insert_pos] + f"\n{topic}" + text[insert_pos:]
+                    self._pulse_md.write_text(text, encoding="utf-8")
+            except Exception as e:
+                logger.debug(f"KnowledgeGapDetector write failed: {e}")
+
+        if gaps:
+            logger.info(f"KnowledgeGapDetector: 發現 {len(gaps)} 個知識缺口")
+
+        return gaps
+
+    # ── 關係日誌 ──
+
+    def add_relationship_note(self, note: str) -> None:
+        """新增一條關係日誌（公開 API）."""
+        if not note or not note.strip():
+            return
+        self._write_relationship_entry(note.strip())
+
+    def _write_relationship_entry(self, note: str) -> None:
+        """將關係訊號寫入 PULSE.md 的關係日誌區塊.
+
+        保留最近 5 條，避免無限膨脹。
+        """
+        if not self._pulse_md:
+            return
+        try:
+            # 確保 PULSE.md 存在
+            if not self._pulse_md.exists():
+                self._ensure_pulse_md()
+            if not self._pulse_md.exists():
+                return
+
+            text = self._pulse_md.read_text(encoding="utf-8")
+
+            marker = "## 💝 關係日誌"
+            start = text.find(marker)
+            now = datetime.now(TZ8).strftime("%m/%d %H:%M")
+            new_entry = f"- [{now}] {note[:200]}"
+
+            if start == -1:
+                # 區段不存在，在 📊 今日狀態 前插入
+                status_marker = "## 📊 今日狀態"
+                status_pos = text.find(status_marker)
+                if status_pos != -1:
+                    insert = f"\n{marker}\n{new_entry}\n\n"
+                    text = text[:status_pos] + insert + text[status_pos:]
+                else:
+                    text += f"\n\n{marker}\n{new_entry}\n"
+            else:
+                next_section = text.find("\n## ", start + len(marker))
+                if next_section == -1:
+                    next_section = len(text)
+
+                existing = text[start + len(marker):next_section].strip()
+                existing_lines = [
+                    l for l in existing.split("\n")
+                    if l.strip() and l.strip() != "（尚無記錄）"
+                ]
+                existing_lines.append(new_entry)
+                if len(existing_lines) > 5:
+                    existing_lines = existing_lines[-5:]
+
+                new_section = f"{marker}\n" + "\n".join(existing_lines) + "\n"
+                text = text[:start] + new_section + text[next_section:]
+
+            self._pulse_md.write_text(text, encoding="utf-8")
+            logger.info(f"關係日誌寫入: {note[:60]}...")
+        except Exception as e:
+            logger.error(f"Write relationship journal failed: {e}")
+
     # ── API 介面 ──
 
     def get_status(self) -> Dict:
@@ -757,7 +956,7 @@ class PulseEngine:
             status["explorations_today"] = self._db.get_today_exploration_count()
             status["exploration_cost_today"] = self._db.get_today_exploration_cost()
             status["exploration_limit"] = EXPLORATION_DAILY_LIMIT
-            status["exploration_budget"] = EXPLORATION_DAILY_BUDGET
+            status["exploration_budget"] = "max_subscription"
             status["schedules"] = len(self._db.list_schedules())
         if self._heartbeat_focus:
             status["focus_level"] = self._heartbeat_focus.focus_level

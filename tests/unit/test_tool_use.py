@@ -29,9 +29,9 @@ class TestToolSchemas:
     """tool_schemas.py 定義驗證."""
 
     def test_tool_definitions_exist(self):
-        """TOOL_DEFINITIONS 包含 4 個工具."""
+        """TOOL_DEFINITIONS 包含 19 個工具（v12 含 7 個 Self-Surgery 工具）."""
         from museon.agent.tool_schemas import TOOL_DEFINITIONS
-        assert len(TOOL_DEFINITIONS) == 4
+        assert len(TOOL_DEFINITIONS) == 19
 
     def test_tool_definitions_have_required_fields(self):
         """每個工具定義包含 name, description, input_schema."""
@@ -44,9 +44,18 @@ class TestToolSchemas:
             assert "required" in tool["input_schema"]
 
     def test_tool_names(self):
-        """4 個工具名稱正確."""
+        """19 個工具名稱正確（v12 含 Self-Surgery 工具）."""
         from museon.agent.tool_schemas import TOOL_NAMES
-        assert TOOL_NAMES == {"web_search", "web_crawl", "speech_to_text", "ocr"}
+        assert TOOL_NAMES == {
+            "web_search", "web_crawl", "speech_to_text", "ocr",
+            "generate_artifact", "read_skill", "skill_search",
+            "shell_exec", "file_write_rich",
+            "mcp_list_servers", "mcp_call_tool", "mcp_add_server",
+            # v12 Self-Surgery 工具
+            "source_read", "source_search", "source_ast_check",
+            "surgery_diagnose", "surgery_propose",
+            "surgery_apply", "surgery_rollback",
+        }
 
     def test_descriptions_are_detailed(self):
         """描述夠詳細（>=50 字元，遵循 best practice）."""
@@ -89,73 +98,67 @@ class TestToolSchemas:
         assert ocr_tool["input_schema"]["required"] == ["file_path"]
 
 
-class TestShouldEnableTools:
-    """should_enable_tools() 啟發式判斷."""
+class TestToolsAlwaysEnabled:
+    """v10: 工具永遠開啟，模型自主決定（移除 should_enable_tools 啟發式閘門）."""
 
-    def test_empty_content_returns_false(self):
-        from museon.agent.tool_schemas import should_enable_tools
-        assert should_enable_tools("") is False
+    def test_no_should_enable_tools_function(self):
+        """v10 移除了 should_enable_tools，不應存在此函式."""
+        import museon.agent.tool_schemas as ts
+        assert not hasattr(ts, "should_enable_tools")
 
-    def test_none_content_returns_false(self):
-        from museon.agent.tool_schemas import should_enable_tools
-        assert should_enable_tools(None) is False
+    def test_tool_definitions_always_available(self):
+        """TOOL_DEFINITIONS 始終可用，不受訊息內容影響."""
+        from museon.agent.tool_schemas import TOOL_DEFINITIONS
+        assert len(TOOL_DEFINITIONS) > 0
 
-    def test_search_keywords_zh(self):
-        """中文搜尋關鍵字觸發."""
-        from museon.agent.tool_schemas import should_enable_tools
-        assert should_enable_tools("幫我搜尋台灣新聞") is True
-        assert should_enable_tools("查一下問題的答案") is True
-        assert should_enable_tools("幫我找股價") is True
+    def test_get_all_tool_definitions_returns_static(self):
+        """get_all_tool_definitions 不帶參數時回傳所有靜態工具."""
+        from museon.agent.tool_schemas import get_all_tool_definitions, TOOL_DEFINITIONS
+        result = get_all_tool_definitions()
+        assert len(result) == len(TOOL_DEFINITIONS)
 
-    def test_search_keywords_en(self):
-        """英文搜尋關鍵字觸發."""
-        from museon.agent.tool_schemas import should_enable_tools
-        assert should_enable_tools("search for latest news") is True
-        assert should_enable_tools("look up this topic") is True
+    def test_get_all_tool_definitions_merges_dynamic(self):
+        """get_all_tool_definitions 合併動態 MCP 工具（不重複）."""
+        from museon.agent.tool_schemas import get_all_tool_definitions, TOOL_DEFINITIONS
+        dynamic = [{"name": "mcp__test__hello", "description": "test", "input_schema": {"type": "object", "properties": {}, "required": []}}]
+        result = get_all_tool_definitions(dynamic_tools=dynamic)
+        assert len(result) == len(TOOL_DEFINITIONS) + 1
 
-    def test_url_detection(self):
-        """URL 自動觸發."""
-        from museon.agent.tool_schemas import should_enable_tools
-        assert should_enable_tools("看看這個 https://example.com") is True
-        assert should_enable_tools("http://example.com 這個網頁") is True
+    def test_get_all_tool_definitions_no_duplicate(self):
+        """get_all_tool_definitions 不加入已存在的工具名稱."""
+        from museon.agent.tool_schemas import get_all_tool_definitions, TOOL_DEFINITIONS
+        duplicate = [{"name": "web_search", "description": "dup", "input_schema": {"type": "object", "properties": {}, "required": []}}]
+        result = get_all_tool_definitions(dynamic_tools=duplicate)
+        assert len(result) == len(TOOL_DEFINITIONS)
 
-    def test_crawl_keywords(self):
-        """爬取關鍵字觸發."""
-        from museon.agent.tool_schemas import should_enable_tools
-        assert should_enable_tools("爬取這個網頁的內容") is True
-        assert should_enable_tools("抓取文章") is True
+    def test_tool_names_is_frozenset(self):
+        """TOOL_NAMES 是 frozenset（不可變）."""
+        from museon.agent.tool_schemas import TOOL_NAMES
+        assert isinstance(TOOL_NAMES, frozenset)
 
-    def test_speech_keywords(self):
-        """語音關鍵字觸發."""
-        from museon.agent.tool_schemas import should_enable_tools
-        assert should_enable_tools("轉錄這段語音") is True
-        assert should_enable_tools("這個音檔是什麼內容") is True
-        assert should_enable_tools("file.mp3") is True
+    def test_all_definitions_have_name(self):
+        """每個工具定義都有 name."""
+        from museon.agent.tool_schemas import TOOL_DEFINITIONS
+        for tool in TOOL_DEFINITIONS:
+            assert "name" in tool
 
-    def test_ocr_keywords(self):
-        """OCR 關鍵字觸發."""
-        from museon.agent.tool_schemas import should_enable_tools
-        assert should_enable_tools("看看這張圖裡的文字") is True
-        assert should_enable_tools("截圖中有什麼") is True
-        assert should_enable_tools("辨識這張圖") is True
+    def test_all_definitions_have_description(self):
+        """每個工具定義都有 description."""
+        from museon.agent.tool_schemas import TOOL_DEFINITIONS
+        for tool in TOOL_DEFINITIONS:
+            assert "description" in tool
 
-    def test_normal_conversation_returns_false(self):
-        """一般對話不觸發."""
-        from museon.agent.tool_schemas import should_enable_tools
-        assert should_enable_tools("你好") is False
-        assert should_enable_tools("心情如何") is False
-        assert should_enable_tools("請問你是誰") is False
-        assert should_enable_tools("謝謝你的幫助") is False
+    def test_all_definitions_have_input_schema(self):
+        """每個工具定義都有 input_schema."""
+        from museon.agent.tool_schemas import TOOL_DEFINITIONS
+        for tool in TOOL_DEFINITIONS:
+            assert "input_schema" in tool
 
-    def test_latest_keyword_triggers(self):
-        """'最新' 關鍵字觸發（需要即時資訊）."""
-        from museon.agent.tool_schemas import should_enable_tools
-        assert should_enable_tools("最新的AI趨勢是什麼") is True
-
-    def test_news_keyword_triggers(self):
-        """'新聞' 關鍵字觸發."""
-        from museon.agent.tool_schemas import should_enable_tools
-        assert should_enable_tools("有什麼新聞值得關注") is True
+    def test_tool_names_match_definitions(self):
+        """TOOL_NAMES 與 TOOL_DEFINITIONS 的名稱一致."""
+        from museon.agent.tool_schemas import TOOL_NAMES, TOOL_DEFINITIONS
+        expected = frozenset(t["name"] for t in TOOL_DEFINITIONS)
+        assert TOOL_NAMES == expected
 
 
 # ═══════════════════════════════════════
@@ -459,11 +462,12 @@ class TestBrainToolUseIntegration:
             brain = MuseonBrain(data_dir=tmp)
             assert brain._tool_executor is not None
 
-    def test_should_enable_tools_integration(self):
-        """Brain process() 中 should_enable_tools 被呼叫."""
-        from museon.agent.tool_schemas import should_enable_tools
-        assert should_enable_tools("幫我搜尋最新新聞") is True
-        assert should_enable_tools("你好嗎") is False
+    def test_tools_always_enabled_in_v10(self):
+        """v10: 工具永遠開啟，should_enable_tools 已移除."""
+        import museon.agent.tool_schemas as ts
+        assert not hasattr(ts, "should_enable_tools")
+        # 工具定義始終可用
+        assert len(ts.TOOL_DEFINITIONS) > 0
 
     def test_call_llm_accepts_enable_tools(self):
         """_call_llm 接受 enable_tools 參數."""
@@ -499,10 +503,10 @@ class TestInstallerToolStep:
         launch_idx = steps.index("_step_launch")
         assert tools_idx < launch_idx
 
-    def test_installer_has_8_steps(self):
-        """安裝器現在有 8 個步驟."""
+    def test_installer_has_10_steps(self):
+        """安裝器現在有 10 個步驟（含權限檢查 + Claude Code）."""
         from museon.installer.orchestrator import InstallerOrchestrator
-        assert len(InstallerOrchestrator.STEPS) == 8
+        assert len(InstallerOrchestrator.STEPS) == 10
 
     def test_ui_step_names_match(self):
         """UI STEP_NAMES 數量與 STEPS 一致."""

@@ -631,17 +631,23 @@ class TestAppJsStateManagement:
         self.content = (SRC_DIR / "app.js").read_text()
 
     def test_four_tabs_defined(self):
-        """Scenario: 定義了四個分頁"""
+        """Scenario: 定義了七個分頁（TAB_IDS 已擴展）"""
+        assert "'secretary'" in self.content
         assert "'organism'" in self.content
         assert "'evolution'" in self.content
-        assert "'memory'" in self.content
+        assert "'skillhub'" in self.content
+        assert "'tools'" in self.content
+        assert "'doctor'" in self.content
         assert "'settings'" in self.content
 
     def test_tab_names_in_chinese(self):
         """Scenario: 分頁名稱使用繁體中文"""
+        assert "秘書台" in self.content
         assert "生命" in self.content
         assert "演化" in self.content
-        assert "記憶" in self.content
+        assert "技能庫" in self.content
+        assert "工具庫" in self.content
+        assert "健檢" in self.content
         assert "設定" in self.content
 
     def test_state_has_brainState(self):
@@ -744,12 +750,12 @@ class TestTopologyJs:
         self.content = (SRC_DIR / "topology.js").read_text()
 
     def test_brain_topology_class_exists(self):
-        """Scenario: BrainTopology 建構函式存在"""
-        assert "function BrainTopology" in self.content
+        """Scenario: KnowledgeStarMap 建構函式存在（原 BrainTopology 已重構）"""
+        assert "function KnowledgeStarMap" in self.content
 
     def test_exposed_as_window_global(self):
-        """Scenario: BrainTopology 暴露為 window 全域變數"""
-        assert "window.BrainTopology = BrainTopology" in self.content
+        """Scenario: BrainTopology 暴露為 window 全域變數（向後相容別名）"""
+        assert "window.BrainTopology = KnowledgeStarMap" in self.content
 
     def test_setData_method(self):
         """Scenario: setData 方法存在"""
@@ -785,14 +791,12 @@ class TestTopologyJs:
         assert "extends" in self.content
         assert "related" in self.content
 
-    def test_module_hubs_defined(self):
-        """Scenario: 六大模組 Hub 定義（純色彩＋角度，不含文字）"""
-        assert "brain" in self.content
-        assert "soul" in self.content
-        assert "eval" in self.content
-        assert "intuition" in self.content
-        assert "plan" in self.content
-        assert "knowledge" in self.content
+    def test_crystal_types_as_node_categories(self):
+        """Scenario: Crystal 類型作為節點分類（KnowledgeStarMap 已取代模組 Hub）"""
+        assert "CRYSTAL_COLORS" in self.content
+        assert "crystal_type" in self.content
+        assert "cuid" in self.content
+        assert "ri_score" in self.content
 
     def test_mouse_interaction_handlers(self):
         """Scenario: 滑鼠互動事件處理"""
@@ -836,12 +840,12 @@ class TestCssCompleteness:
         assert ".vital-item" in self.content
 
     def test_module_health_style(self):
-        """Scenario: 模組健康卡片樣式"""
-        assert ".module-card" in self.content or ".module-health" in self.content
+        """Scenario: 模組健康卡片樣式（已重構為 Doctor 頁面）"""
+        assert ".doctor-check-item" in self.content or ".doctor-summary" in self.content
 
     def test_chart_grid_style(self):
-        """Scenario: 圖表網格樣式"""
-        assert ".chart-grid" in self.content
+        """Scenario: 圖表網格樣式（已重構為演化圖表卡片）"""
+        assert ".evo-chart-card" in self.content
 
     def test_memory_sidebar_style(self):
         """Scenario: 記憶側邊欄樣式"""
@@ -981,12 +985,23 @@ class TestZeroTokenPrinciple:
         assert "fetch(" not in section
         assert "axios" not in section
 
-    def test_no_api_call_in_app_js(self):
-        """Scenario: app.js 不包含任何 HTTP API 呼叫"""
+    def test_no_external_api_call_in_app_js(self):
+        """Scenario: app.js 不包含外部 API 呼叫（允許本地 Gateway fetch）"""
         content = (SRC_DIR / "app.js").read_text()
-        assert "fetch(" not in content
+        # 不允許直接呼叫 Anthropic API endpoint
+        assert "api.anthropic.com" not in content
         assert "XMLHttpRequest" not in content
         assert "axios" not in content
+        # fetch 允許：本地 Gateway (127.0.0.1 / localhost / ${API} 變數)
+        for line in content.split("\n"):
+            if "fetch(" in line:
+                is_local = (
+                    "127.0.0.1" in line
+                    or "localhost" in line
+                    or "${API}" in line
+                )
+                if not is_local:
+                    assert False, f"External fetch found: {line.strip()}"
 
     def test_no_api_call_in_topology_js(self):
         """Scenario: topology.js 不包含任何 HTTP API 呼叫"""

@@ -133,7 +133,7 @@ class NamingCeremony:
             "identity": {
                 "name": my_name,
                 "birth_date": datetime.now().isoformat(),
-                "growth_stage": "infant",
+                "growth_stage": "adult",
                 "days_alive": 0,
             },
             "self_awareness": {

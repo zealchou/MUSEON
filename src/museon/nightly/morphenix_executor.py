@@ -99,17 +99,54 @@ class MorphenixExecutor:
             results["details"].append(detail)
             results[detail["outcome"]] += 1
 
+        # 收集受影響的技能和 DNA27 變更
+        all_affected_skills = []
+        has_dna27_change = False
+        for detail in results["details"]:
+            affected = detail.get("affected_skills", [])
+            all_affected_skills.extend(affected)
+            # 偵測 DNA27 相關變更
+            title = detail.get("title", "")
+            files = detail.get("changed_files", [])
+            if any("dna27" in s.lower() for s in [title] + files):
+                has_dna27_change = True
+
         # 發布完成事件
         if self._event_bus and results["executed"] > 0:
             try:
-                self._event_bus.publish("MORPHENIX_EXECUTION_COMPLETED", {
+                from museon.core.event_bus import MORPHENIX_EXECUTION_COMPLETED
+                self._event_bus.publish(MORPHENIX_EXECUTION_COMPLETED, {
                     "executed": results["executed"],
                     "failed": results["failed"],
                     "details": results["details"],
+                    "affected_skills": list(set(all_affected_skills)),
                     "timestamp": datetime.now(TZ8).isoformat(),
                 })
             except Exception as e:
                 logger.warning(f"Morphenix EventBus publish failed: {e}")
+
+            # 同步發布 MORPHENIX_EXECUTED（ActivityLogger / TelegramAdapter 訂閱）
+            try:
+                from museon.core.event_bus import MORPHENIX_EXECUTED
+                self._event_bus.publish(MORPHENIX_EXECUTED, {
+                    "executed": results["executed"],
+                    "failed": results["failed"],
+                    "affected_skills": list(set(all_affected_skills)),
+                    "timestamp": datetime.now(TZ8).isoformat(),
+                })
+            except Exception:
+                pass
+
+            # DNA27 相關變更 → 額外發布權重更新事件
+            if has_dna27_change:
+                try:
+                    from museon.core.event_bus import DNA27_WEIGHTS_UPDATED
+                    self._event_bus.publish(DNA27_WEIGHTS_UPDATED, {
+                        "trigger": "morphenix_execution",
+                        "timestamp": datetime.now(TZ8).isoformat(),
+                    })
+                except Exception:
+                    pass
 
         return results
 
@@ -174,7 +211,8 @@ class MorphenixExecutor:
             # 發布 L3 升級事件
             if self._event_bus:
                 try:
-                    self._event_bus.publish("MORPHENIX_L3_PROPOSAL", {
+                    from museon.core.event_bus import MORPHENIX_L3_PROPOSAL
+                    self._event_bus.publish(MORPHENIX_L3_PROPOSAL, {
                         "proposals": [{
                             "id": pid,
                             "title": title,
@@ -224,8 +262,9 @@ class MorphenixExecutor:
         except Exception as e:
             logger.warning(f"Morphenix Executor: mark_executed failed: {e}")
 
-        # Step 5: 記錄 + 清理已執行的 notes
+        # Step 5: 記錄 + 效果追蹤 + 清理已執行的 notes
         self._log_execution(pid, "executed", result=exec_result)
+        self._track_execution(proposal, exec_result)
         self._cleanup_executed_notes(proposal)
 
         logger.info(f"Morphenix Executor: EXECUTED {pid} successfully")
@@ -505,6 +544,143 @@ class MorphenixExecutor:
                 f.write(json.dumps(log_entry, ensure_ascii=False) + "\n")
         except Exception as e:
             logger.warning(f"Morphenix Executor: log write failed: {e}")
+
+    # ═══════════════════════════════════════════
+    # 14 天效果追蹤
+    # ═══════════════════════════════════════════
+
+    EFFECT_TRACKING_DAYS = 14
+    COOLDOWN_DAYS = 14
+
+    def evaluate_effects(self) -> Dict[str, Any]:
+        """評估已執行提案的 14 天效果.
+
+        掃描 execution_log，找出 14 天前執行的提案，
+        比對執行前後的系統健康指標，判斷提案是否有效。
+
+        由 NightlyPipeline step 5.10 呼叫。
+
+        Returns:
+            {
+                "evaluated": int,
+                "effective": int,
+                "ineffective": int,
+                "details": [...]
+            }
+        """
+        tracker_file = self._log_dir / "effect_tracker.json"
+        tracker = self._load_tracker(tracker_file)
+
+        now = datetime.now(TZ8)
+        results = {"evaluated": 0, "effective": 0, "ineffective": 0, "details": []}
+
+        for pid, entry in list(tracker.items()):
+            if entry.get("evaluated"):
+                continue
+
+            executed_at = datetime.fromisoformat(entry["executed_at"])
+            days_elapsed = (now - executed_at).days
+
+            if days_elapsed < self.EFFECT_TRACKING_DAYS:
+                continue
+
+            # 14 天到期 — 評估效果
+            evaluation = self._evaluate_one_effect(pid, entry)
+            entry["evaluated"] = True
+            entry["evaluation"] = evaluation
+            entry["evaluated_at"] = now.isoformat()
+
+            results["evaluated"] += 1
+            if evaluation.get("effective"):
+                results["effective"] += 1
+            else:
+                results["ineffective"] += 1
+            results["details"].append({
+                "proposal_id": pid,
+                "title": entry.get("title", ""),
+                **evaluation,
+            })
+
+        self._save_tracker(tracker_file, tracker)
+
+        if results["evaluated"] > 0:
+            logger.info(
+                f"Morphenix 效果評估: {results['effective']}/{results['evaluated']} 有效"
+            )
+
+        return results
+
+    def _track_execution(self, proposal: Dict[str, Any], exec_result: Dict) -> None:
+        """記錄提案執行資訊，供 14 天後效果評估."""
+        tracker_file = self._log_dir / "effect_tracker.json"
+        tracker = self._load_tracker(tracker_file)
+
+        pid = proposal.get("id", "unknown")
+        tracker[pid] = {
+            "title": proposal.get("title", ""),
+            "level": proposal.get("level", "L1"),
+            "description": proposal.get("description", "")[:200],
+            "executed_at": datetime.now(TZ8).isoformat(),
+            "exec_result": {
+                "action": exec_result.get("action", ""),
+                "count": exec_result.get("count", 0),
+            },
+            "evaluated": False,
+        }
+
+        self._save_tracker(tracker_file, tracker)
+
+    def _evaluate_one_effect(
+        self, pid: str, entry: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """評估單一提案的效果（啟發式）.
+
+        目前使用簡單指標：
+        - 執行後是否有同類異常重複出現（從 execution_log 檢查）
+        - 預設為 effective（保守策略，信任已通過審查的提案）
+        """
+        # 檢查 execution_log 中是否有 failed 記錄
+        executed_at = datetime.fromisoformat(entry["executed_at"])
+        log_date = executed_at.strftime("%Y-%m-%d")
+
+        # 掃描最近 14 天的 execution log
+        failure_count = 0
+        for day_offset in range(self.EFFECT_TRACKING_DAYS):
+            check_date = (executed_at + timedelta(days=day_offset + 1)).strftime("%Y-%m-%d")
+            log_file = self._log_dir / f"exec_{check_date}.jsonl"
+            if log_file.exists():
+                try:
+                    for line in log_file.read_text(encoding="utf-8").splitlines():
+                        record = json.loads(line)
+                        if record.get("outcome") == "failed":
+                            failure_count += 1
+                except Exception:
+                    pass
+
+        effective = failure_count == 0
+        return {
+            "effective": effective,
+            "days_tracked": self.EFFECT_TRACKING_DAYS,
+            "post_failures": failure_count,
+            "verdict": "有效 — 無後續失敗" if effective else f"待觀察 — {failure_count} 次後續失敗",
+        }
+
+    def _load_tracker(self, path: Path) -> Dict:
+        if path.exists():
+            try:
+                return json.loads(path.read_text(encoding="utf-8"))
+            except Exception:
+                pass
+        return {}
+
+    def _save_tracker(self, path: Path, data: Dict) -> None:
+        try:
+            path.write_text(
+                json.dumps(data, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+        except Exception as e:
+            logger.warning(f"Morphenix effect tracker save failed: {e}")
 
     def _cleanup_executed_notes(self, proposal: Dict[str, Any]) -> None:
         """清理已執行提案對應的 notes（移到 archive）."""

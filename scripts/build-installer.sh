@@ -34,6 +34,38 @@ fi
 # 建立輸出目錄
 mkdir -p dist
 
+# ═══════════════════════════════════════
+# 打包前系統審計（Gate）
+# ═══════════════════════════════════════
+echo "  → 執行打包前系統審計..."
+echo ""
+AUDIT_OUTPUT=$("$VENV_PYTHON" -m museon.doctor.system_audit \
+    --gate --layer infrastructure security --home "$PROJECT_DIR" 2>&1) || {
+    echo "$AUDIT_OUTPUT" | while IFS= read -r line; do echo "  $line"; done
+    echo ""
+    echo "  ❌ 審計未通過 — 請修復 CRITICAL 問題後重試"
+    exit 1
+}
+echo "$AUDIT_OUTPUT" | while IFS= read -r line; do echo "  $line"; done
+echo ""
+echo "  ✅ 審計通過，繼續打包"
+echo ""
+
+# ═══════════════════════════════════════
+# Scope Audit — 偵測 NameError 類 scope 漏洞
+# ═══════════════════════════════════════
+echo "  → 執行 Scope Audit（防 NameError）..."
+SCOPE_OUTPUT=$(python3 "$PROJECT_DIR/scripts/scope_audit.py" \
+    "$PROJECT_DIR/src/museon/agent/brain.py" \
+    "$PROJECT_DIR/src/museon/gateway/server.py" 2>&1) || {
+    echo "$SCOPE_OUTPUT" | while IFS= read -r line; do echo "  $line"; done
+    echo ""
+    echo "  ❌ Scope Audit 未通過 — 請修復 scope 漏洞後重試"
+    exit 1
+}
+echo "  ✅ Scope Audit 通過"
+echo ""
+
 # 執行打包
 echo "  → 開始打包..."
 echo ""
@@ -131,6 +163,49 @@ if [ -f "dist/Install-MUSEON.command" ]; then
     else
         echo "  ❌ V7: 安裝器缺少 _step_tools — 工具不會被自動安裝！"
         VERIFY_PASS=false
+    fi
+
+    # V11: Claude Code CLI 可用（MAX 訂閱驗證）
+    if command -v claude &>/dev/null; then
+        echo "  ✅ V11: Claude Code CLI 已安裝"
+    else
+        echo "  ⚠️  V11: Claude Code CLI 未安裝（MAX 訂閱方案需要）"
+    fi
+
+    # V12: LLM Adapter 存在
+    if [ -f "$PROJECT_DIR/src/museon/llm/adapters.py" ]; then
+        echo "  ✅ V12: LLMAdapter 層已建立 (adapters.py)"
+    else
+        echo "  ❌ V12: LLMAdapter 層缺失 — MAX 訂閱方案無法運作！"
+        VERIFY_PASS=false
+    fi
+
+    # V13: MCP Server 存在
+    if [ -f "$PROJECT_DIR/src/museon/mcp_server.py" ]; then
+        echo "  ✅ V13: MCP Server 已建立 (mcp_server.py)"
+    else
+        echo "  ⚠️  V13: MCP Server 缺失"
+    fi
+
+    # V14: SOUL.md 存在
+    if [ -f "$PROJECT_DIR/data/SOUL.md" ]; then
+        echo "  ✅ V14: SOUL.md 身份憲法已建立"
+    else
+        echo "  ⚠️  V14: SOUL.md 缺失"
+    fi
+
+    # V15: RateLimitGuard 存在
+    if [ -f "$PROJECT_DIR/src/museon/llm/rate_limit_guard.py" ]; then
+        echo "  ✅ V15: RateLimitGuard 已建立"
+    else
+        echo "  ⚠️  V15: RateLimitGuard 缺失"
+    fi
+
+    # V16: Federation 模組存在
+    if [ -f "$PROJECT_DIR/src/museon/federation/sync.py" ]; then
+        echo "  ✅ V16: Federation 同步模組已建立"
+    else
+        echo "  ⚠️  V16: Federation 同步模組缺失"
     fi
 
     # V10: 安裝檔大小不超過 200MB（防止意外打包大型模型/工具）

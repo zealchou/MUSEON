@@ -1,7 +1,0 @@
-{"ts": "2026-03-05T00:00:15.078191", "model": "sonnet", "cache_read": 0, "cache_create": 1307, "input_tokens": 32520}
-{"ts": "2026-03-05T00:17:18.438259", "model": "sonnet", "cache_read": 0, "cache_create": 11245, "input_tokens": 27298}
-{"ts": "2026-03-05T00:17:45.480402", "model": "sonnet", "cache_read": 0, "cache_create": 1307, "input_tokens": 27515}
-{"ts": "2026-03-05T00:24:20.435414", "model": "sonnet", "cache_read": 0, "cache_create": 1307, "input_tokens": 37672}
-{"ts": "2026-03-05T00:24:26.885387", "model": "sonnet", "cache_read": 1307, "cache_create": 0, "input_tokens": 37892}
-{"ts": "2026-03-05T00:42:43.145840", "model": "sonnet", "cache_read": 0, "cache_create": 1307, "input_tokens": 51800}
-{"ts": "2026-03-05T00:46:05.289182", "model": "sonnet", "cache_read": 1307, "cache_create": 0, "input_tokens": 46590}

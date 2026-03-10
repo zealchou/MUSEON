@@ -6,6 +6,8 @@ SC-05：記憶持久化與上下文遺忘（長期穩定性壓測）
 - 大量記憶不影響回覆品質
 - 無洩漏
 """
+from __future__ import annotations
+
 import re
 import time
 import pytest

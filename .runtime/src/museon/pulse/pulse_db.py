@@ -161,6 +161,56 @@ class PulseDB:
             CREATE INDEX IF NOT EXISTS idx_metacognition_unobserved
                 ON metacognition(session_id, observed_at)
                 WHERE observed_at IS NULL AND predicted_reaction_type IS NOT NULL;
+
+            -- Scout 草稿表（SkillForgeScout 產出）
+            CREATE TABLE IF NOT EXISTS scout_drafts (
+                id TEXT PRIMARY KEY,
+                topic TEXT NOT NULL,
+                mode TEXT NOT NULL,              -- 'gap'|'upgrade'|'blank'
+                research_summary TEXT,
+                draft_content TEXT NOT NULL,
+                target_skill TEXT,               -- 目標 Skill 檔案
+                status TEXT DEFAULT 'pending',   -- 'pending'|'submitted'|'approved'|'rejected'
+                created_at TEXT NOT NULL,
+                submitted_at TEXT,
+                metadata TEXT DEFAULT '{}'        -- JSON
+            );
+            CREATE INDEX IF NOT EXISTS idx_scout_drafts_status
+                ON scout_drafts(status, created_at);
+
+            -- Health Score 歷史表（DendriticScorer 產出）
+            CREATE TABLE IF NOT EXISTS health_scores (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp TEXT NOT NULL,
+                score REAL NOT NULL,
+                tier INTEGER NOT NULL,           -- 0=healthy, 1=degraded, 2=critical
+                event_count INTEGER DEFAULT 0,
+                incident_count INTEGER DEFAULT 0,
+                metadata TEXT DEFAULT '{}'        -- JSON
+            );
+            CREATE INDEX IF NOT EXISTS idx_health_scores_ts
+                ON health_scores(timestamp);
+
+            -- Incident 記錄表（DendriticScorer Incident Package）
+            CREATE TABLE IF NOT EXISTS incidents (
+                id TEXT PRIMARY KEY,
+                incident_type TEXT NOT NULL,      -- 'soft_failure'|'hard_failure'|'degradation'
+                module TEXT NOT NULL,
+                pattern TEXT NOT NULL,
+                frequency INTEGER DEFAULT 0,
+                health_delta REAL DEFAULT 0.0,
+                suggested_tier INTEGER DEFAULT 1,
+                raw_log_snippet TEXT,
+                research_status TEXT DEFAULT 'none', -- 'none'|'pending'|'done'|'no_value'
+                research_summary TEXT,
+                created_at TEXT NOT NULL,
+                resolved_at TEXT,
+                metadata TEXT DEFAULT '{}'        -- JSON
+            );
+            CREATE INDEX IF NOT EXISTS idx_incidents_module
+                ON incidents(module, created_at);
+            CREATE INDEX IF NOT EXISTS idx_incidents_status
+                ON incidents(research_status, created_at);
         """)
         conn.commit()
 
@@ -688,3 +738,205 @@ class PulseDB:
             "revision_rate": revised / total if total else 0,
             "verdicts": verdicts,
         }
+
+    # ── Scout Drafts CRUD（SkillForgeScout 草稿）──
+
+    def save_scout_draft(
+        self,
+        draft_id: str,
+        topic: str,
+        mode: str,
+        draft_content: str,
+        target_skill: str = "",
+        research_summary: str = "",
+        metadata: Optional[Dict] = None,
+    ) -> str:
+        """儲存一筆 Scout 草稿."""
+        conn = self._get_conn()
+        now = datetime.now(TZ8).isoformat()
+        conn.execute(
+            "INSERT OR REPLACE INTO scout_drafts "
+            "(id, topic, mode, research_summary, draft_content, target_skill, "
+            "status, created_at, metadata) "
+            "VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?)",
+            (
+                draft_id, topic, mode, research_summary, draft_content,
+                target_skill, now,
+                json.dumps(metadata or {}, ensure_ascii=False),
+            ),
+        )
+        conn.commit()
+        return draft_id
+
+    def get_pending_scout_drafts(self) -> List[Dict]:
+        """取得待處理的 Scout 草稿."""
+        conn = self._get_conn()
+        rows = conn.execute(
+            "SELECT * FROM scout_drafts WHERE status = 'pending' "
+            "ORDER BY created_at",
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+    def update_scout_draft_status(
+        self, draft_id: str, status: str,
+    ) -> bool:
+        """更新草稿狀態."""
+        conn = self._get_conn()
+        now = datetime.now(TZ8).isoformat()
+        cur = conn.execute(
+            "UPDATE scout_drafts SET status = ?, submitted_at = ? WHERE id = ?",
+            (status, now, draft_id),
+        )
+        conn.commit()
+        return cur.rowcount > 0
+
+    # ── Health Scores CRUD（DendriticScorer 歷史）──
+
+    def log_health_score(
+        self,
+        score: float,
+        tier: int,
+        event_count: int = 0,
+        incident_count: int = 0,
+        metadata: Optional[Dict] = None,
+    ) -> int:
+        """記錄一筆 Health Score."""
+        conn = self._get_conn()
+        now = datetime.now(TZ8).isoformat()
+        cur = conn.execute(
+            "INSERT INTO health_scores "
+            "(timestamp, score, tier, event_count, incident_count, metadata) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
+            (
+                now, score, tier, event_count, incident_count,
+                json.dumps(metadata or {}, ensure_ascii=False),
+            ),
+        )
+        conn.commit()
+        return cur.lastrowid
+
+    def get_health_score_history(self, hours: int = 24, limit: int = 100) -> List[Dict]:
+        """取得最近 N 小時的 Health Score 歷史."""
+        conn = self._get_conn()
+        cutoff = (datetime.now(TZ8) - timedelta(hours=hours)).isoformat()
+        rows = conn.execute(
+            "SELECT * FROM health_scores WHERE timestamp > ? "
+            "ORDER BY timestamp DESC LIMIT ?",
+            (cutoff, limit),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+    def get_health_score_trend(self, hours: int = 6) -> Dict:
+        """取得 Health Score 趨勢摘要."""
+        history = self.get_health_score_history(hours=hours, limit=200)
+        if not history:
+            return {"trend": "no_data", "avg_score": None, "samples": 0}
+
+        scores = [h["score"] for h in history]
+        avg = sum(scores) / len(scores)
+
+        # 簡單趨勢：前半 vs 後半
+        mid = len(scores) // 2
+        if mid > 0:
+            first_half = sum(scores[:mid]) / mid
+            second_half = sum(scores[mid:]) / (len(scores) - mid)
+            if second_half > first_half + 5:
+                trend = "improving"
+            elif second_half < first_half - 5:
+                trend = "declining"
+            else:
+                trend = "stable"
+        else:
+            trend = "insufficient_data"
+
+        return {
+            "trend": trend,
+            "avg_score": round(avg, 1),
+            "min_score": round(min(scores), 1),
+            "max_score": round(max(scores), 1),
+            "samples": len(scores),
+        }
+
+    # ── Incidents CRUD（事件包記錄）──
+
+    def save_incident(
+        self,
+        incident_id: str,
+        incident_type: str,
+        module: str,
+        pattern: str,
+        frequency: int = 0,
+        health_delta: float = 0.0,
+        suggested_tier: int = 1,
+        raw_log_snippet: str = "",
+        metadata: Optional[Dict] = None,
+    ) -> str:
+        """儲存一筆 Incident."""
+        conn = self._get_conn()
+        now = datetime.now(TZ8).isoformat()
+        conn.execute(
+            "INSERT OR REPLACE INTO incidents "
+            "(id, incident_type, module, pattern, frequency, health_delta, "
+            "suggested_tier, raw_log_snippet, created_at, metadata) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (
+                incident_id, incident_type, module, pattern,
+                frequency, health_delta, suggested_tier,
+                raw_log_snippet[:1000], now,
+                json.dumps(metadata or {}, ensure_ascii=False),
+            ),
+        )
+        conn.commit()
+        return incident_id
+
+    def update_incident_research(
+        self, incident_id: str, research_status: str,
+        research_summary: str = "",
+    ) -> bool:
+        """更新 Incident 的研究狀態."""
+        conn = self._get_conn()
+        cur = conn.execute(
+            "UPDATE incidents SET research_status = ?, research_summary = ? "
+            "WHERE id = ?",
+            (research_status, research_summary, incident_id),
+        )
+        conn.commit()
+        return cur.rowcount > 0
+
+    def resolve_incident(self, incident_id: str) -> bool:
+        """標記 Incident 已解決."""
+        conn = self._get_conn()
+        now = datetime.now(TZ8).isoformat()
+        cur = conn.execute(
+            "UPDATE incidents SET resolved_at = ? WHERE id = ?",
+            (now, incident_id),
+        )
+        conn.commit()
+        return cur.rowcount > 0
+
+    def get_unresolved_incidents(self, module: str = None) -> List[Dict]:
+        """取得未解決的 Incidents."""
+        conn = self._get_conn()
+        if module:
+            rows = conn.execute(
+                "SELECT * FROM incidents WHERE resolved_at IS NULL "
+                "AND module = ? ORDER BY created_at DESC",
+                (module,),
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT * FROM incidents WHERE resolved_at IS NULL "
+                "ORDER BY created_at DESC",
+            ).fetchall()
+        return [dict(r) for r in rows]
+
+    def get_recent_incidents(self, hours: int = 24, limit: int = 50) -> List[Dict]:
+        """取得最近 N 小時的 Incidents."""
+        conn = self._get_conn()
+        cutoff = (datetime.now(TZ8) - timedelta(hours=hours)).isoformat()
+        rows = conn.execute(
+            "SELECT * FROM incidents WHERE created_at > ? "
+            "ORDER BY created_at DESC LIMIT ?",
+            (cutoff, limit),
+        ).fetchall()
+        return [dict(r) for r in rows]

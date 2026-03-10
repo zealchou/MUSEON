@@ -13,7 +13,7 @@ import logging
 import threading
 import uuid
 from datetime import datetime, timezone, timedelta
-from typing import Any, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
 from museon.memory.chromosome_index import ChromosomeIndex
 from museon.memory.quality_gate import (
@@ -111,9 +111,11 @@ class MemoryManager:
         workspace: str,
         user_id: str = "cli_user",
         chromosome_index: Optional[ChromosomeIndex] = None,
+        event_bus: Any = None,
     ):
         self._storage = LocalStorageBackend(workspace)
         self._user_id = user_id
+        self._event_bus = event_bus
         self._lock = threading.RLock()
 
         # ChromosomeIndex（每個 user_id 獨立）
@@ -218,6 +220,20 @@ class MemoryManager:
                 f"Memory stored: {memory_id} → {layer} "
                 f"({quality_tier}) [{source}]"
             )
+
+            # 發布 MEMORY_STORED 事件
+            if self._event_bus:
+                try:
+                    from museon.core.event_bus import MEMORY_STORED
+                    self._event_bus.publish(MEMORY_STORED, {
+                        "memory_id": memory_id,
+                        "layer": layer,
+                        "quality_tier": quality_tier,
+                        "source": source,
+                        "tags": tags or [],
+                    })
+                except Exception:
+                    pass
 
             return memory_id
 
@@ -360,7 +376,30 @@ class MemoryManager:
                 reverse=True,
             )
 
-            return [entry for _, _, _, entry in adjusted[:limit]]
+            final = [entry for _, _, _, entry in adjusted[:limit]]
+
+            # 發布 MEMORY_RECALLED 事件（含 vector score 回饋）
+            if self._event_bus and final:
+                try:
+                    from museon.core.event_bus import MEMORY_RECALLED
+                    # 高 vector score 的記憶自動晉升提示
+                    promote_candidates = [
+                        mid for mid, score in vector_score_map.items()
+                        if score > 0.85
+                    ]
+                    self._event_bus.publish(MEMORY_RECALLED, {
+                        "query": query,
+                        "result_count": len(final),
+                        "top_vector_scores": dict(
+                            sorted(vector_score_map.items(),
+                                   key=lambda x: x[1], reverse=True)[:5]
+                        ),
+                        "promote_candidates": promote_candidates[:3],
+                    })
+                except Exception:
+                    pass
+
+            return final
 
     def _buffer_access_count(self, memory_id: str) -> None:
         """緩衝 access_count 增量（不即時寫盤）."""
@@ -507,6 +546,18 @@ class MemoryManager:
                 f"Memory promoted: {memory_id} "
                 f"{old_layer} → {target_layer}"
             )
+
+            # 發布 MEMORY_PROMOTED 事件
+            if self._event_bus:
+                try:
+                    from museon.core.event_bus import MEMORY_PROMOTED
+                    self._event_bus.publish(MEMORY_PROMOTED, {
+                        "memory_id": memory_id,
+                        "from_layer": old_layer,
+                        "to_layer": target_layer,
+                    })
+                except Exception:
+                    pass
 
             return entry
 

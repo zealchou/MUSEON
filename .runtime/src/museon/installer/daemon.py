@@ -35,7 +35,7 @@ class DaemonConfigurator:
             "KeepAlive": {
                 "SuccessfulExit": False,
             },
-            "ThrottleInterval": 5,
+            "ThrottleInterval": 10,
             "ProcessType": "Background",
             "EnvironmentVariables": {
                 "PYTHONPATH": str(config.project_dir / "src"),

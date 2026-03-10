@@ -6,6 +6,8 @@ SC-06：排程 + 外部事件交叉（時序壓測）
 - 時間衝突處理
 - 優先級判斷（緊急 vs 排程）
 """
+from __future__ import annotations
+
 import re
 import time
 import pytest

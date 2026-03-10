@@ -759,14 +759,16 @@ class EvalEngine:
     Skill 使用率熱力圖，以及背景運行的每日/每週報告生成。
     """
 
-    def __init__(self, data_dir: str = "data"):
+    def __init__(self, data_dir: str = "data", event_bus: Any = None):
         """初始化 Eval-Engine.
 
         Args:
             data_dir: 資料根目錄
+            event_bus: EventBus 實例（用於發布品質信號給外向型進化引擎）
         """
         self.data_dir = Path(data_dir)
         self.store = EvalStore(data_dir=data_dir)
+        self._event_bus = event_bus
 
         # Skill 使用日誌路徑（與 Brain 共用）
         self.skill_usage_log_path = self.data_dir / "skill_usage_log.jsonl"
@@ -1659,6 +1661,28 @@ class EvalEngine:
 
         # 持久化盲點
         self.store.save_blindspots([b.to_dict() for b in blindspots])
+
+        # 發布 SKILL_QUALITY_SCORED 事件（供 OutwardTrigger B1 痛覺觸發）
+        if self._event_bus and blindspots:
+            try:
+                from museon.core.event_bus import SKILL_QUALITY_SCORED
+                self._event_bus.publish(SKILL_QUALITY_SCORED, {
+                    "blind_spots": [
+                        {
+                            "domain": b.affected_area,
+                            "skill": b.affected_area if b.blindspot_type == "skill_mismatch" else "",
+                            "detail": b.description,
+                            "severity": b.severity,
+                            "type": b.blindspot_type,
+                        }
+                        for b in blindspots
+                        if b.severity in ("high", "medium")
+                    ],
+                    "total_blindspots": len(blindspots),
+                    "global_avg": round(global_avg, 4),
+                })
+            except Exception as e:
+                logger.debug(f"EvalEngine: publish SKILL_QUALITY_SCORED failed: {e}")
 
         logger.info(f"盲點掃描完成 | 偵測到 {len(blindspots)} 個盲點")
         return blindspots

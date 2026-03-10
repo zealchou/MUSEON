@@ -93,9 +93,10 @@ class ImmuneMemoryBank:
       - prune_weak()：清除弱規則
     """
 
-    def __init__(self, data_dir: Optional[Path] = None):
+    def __init__(self, data_dir: Optional[Path] = None, event_bus: Any = None):
         self._memories: Dict[str, ImmuneMemory] = {}
         self._data_dir = data_dir
+        self._event_bus = event_bus
         self._file_path: Optional[Path] = None
 
         if data_dir:
@@ -103,7 +104,53 @@ class ImmuneMemoryBank:
             self._file_path.parent.mkdir(parents=True, exist_ok=True)
 
         self._load()
+        self._subscribe()
         logger.info("ImmuneMemoryBank 初始化: %d 條記憶", len(self._memories))
+
+    def _subscribe(self) -> None:
+        """WP-04: 訂閱免疫知識事件 → 自動學習修復模式."""
+        if not self._event_bus:
+            return
+        try:
+            from museon.core.event_bus import (
+                IMMUNE_KNOWLEDGE_GAINED, REPAIR_RESEARCH_READY,
+            )
+            self._event_bus.subscribe(
+                IMMUNE_KNOWLEDGE_GAINED, self._on_knowledge_gained
+            )
+            self._event_bus.subscribe(
+                REPAIR_RESEARCH_READY, self._on_repair_ready
+            )
+        except Exception as e:
+            logger.debug(f"ImmuneMemoryBank subscription partial: {e}")
+
+    def _on_knowledge_gained(self, data: Optional[Dict] = None) -> None:
+        """免疫研究學到新知識 → 自動記錄為免疫記憶."""
+        if not data:
+            return
+        pattern = data.get("pattern", "")
+        summary = data.get("defense_summary", "")
+        confidence = data.get("confidence", 0.5)
+        if pattern and summary:
+            self.record_anomaly(
+                signature=pattern,
+                context=f"Auto-learned from research: {summary[:100]}",
+                defense_rule=summary[:200],
+            )
+            # 直接設置信心度
+            if pattern in self._memories:
+                self._memories[pattern].confidence = max(
+                    self._memories[pattern].confidence, confidence
+                )
+                self._save()
+
+    def _on_repair_ready(self, data: Optional[Dict] = None) -> None:
+        """修復方案就緒 → 強化對應免疫記憶."""
+        if not data:
+            return
+        pattern = data.get("pattern", "")
+        if pattern and pattern in self._memories:
+            self.reinforce(pattern, success=True)
 
     def record_anomaly(
         self,

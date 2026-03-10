@@ -2015,6 +2015,148 @@ ipcMain.handle('setup-ensure-runtime', async () => {
 });
 
 // ═══════════════════════════════════════
+// macOS 權限檢查與請求
+// ═══════════════════════════════════════
+
+ipcMain.handle('permissions-check-all', async () => {
+  const { systemPreferences } = require('electron');
+  const { execSync } = require('child_process');
+  const permissions = [];
+
+  // 1. Notifications
+  permissions.push({
+    name: 'notifications',
+    label: '通知',
+    description: 'Gateway 離線警告、Nightly 完成提醒',
+    granted: true,
+    canRequest: true,
+  });
+
+  // 2. Microphone
+  const micStatus = systemPreferences.getMediaAccessStatus('microphone');
+  permissions.push({
+    name: 'microphone',
+    label: '麥克風',
+    description: 'Whisper 語音輸入',
+    granted: micStatus === 'granted',
+    canRequest: micStatus !== 'denied',
+  });
+
+  // 3. Camera
+  const camStatus = systemPreferences.getMediaAccessStatus('camera');
+  permissions.push({
+    name: 'camera',
+    label: '相機',
+    description: '視覺辨識（未來功能）',
+    granted: camStatus === 'granted',
+    canRequest: camStatus !== 'denied',
+  });
+
+  // 4. Accessibility
+  let accessibilityGranted = false;
+  try {
+    execSync(
+      'osascript -e \'tell application "System Events" to return name of first process\'',
+      { timeout: 3000, encoding: 'utf-8' }
+    );
+    accessibilityGranted = true;
+  } catch { /* not granted */ }
+  permissions.push({
+    name: 'accessibility',
+    label: '輔助使用',
+    description: '鍵盤快捷鍵、螢幕朗讀',
+    granted: accessibilityGranted,
+    canRequest: false,
+  });
+
+  // 5. Screen Recording
+  let screenGranted = false;
+  try {
+    execSync(
+      'osascript -e \'tell application "System Events" to return name of every window of first process\'',
+      { timeout: 5000, encoding: 'utf-8' }
+    );
+    screenGranted = true;
+  } catch { /* not granted */ }
+  permissions.push({
+    name: 'screen_recording',
+    label: '螢幕錄影',
+    description: '畫面分析（未來功能）',
+    granted: screenGranted,
+    canRequest: false,
+  });
+
+  // 6. Automation
+  let automationGranted = false;
+  try {
+    execSync(
+      'osascript -e \'tell application "Finder" to return name of home\'',
+      { timeout: 3000, encoding: 'utf-8' }
+    );
+    automationGranted = true;
+  } catch { /* not granted */ }
+  permissions.push({
+    name: 'automation',
+    label: 'Automation',
+    description: '與其他 macOS 應用程式互動',
+    granted: automationGranted,
+    canRequest: true,
+  });
+
+  return { permissions };
+});
+
+ipcMain.handle('permissions-request', async (event, name) => {
+  const { systemPreferences, shell, Notification } = require('electron');
+  const { execSync } = require('child_process');
+
+  switch (name) {
+    case 'microphone': {
+      const granted = await systemPreferences.askForMediaAccess('microphone');
+      return { success: true, granted };
+    }
+    case 'camera': {
+      const granted = await systemPreferences.askForMediaAccess('camera');
+      return { success: true, granted };
+    }
+    case 'notifications': {
+      if (Notification.isSupported()) {
+        new Notification({ title: 'MUSEON', body: '通知已開啟' }).show();
+      }
+      return { success: true, granted: true };
+    }
+    case 'accessibility': {
+      shell.openExternal(
+        'x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility'
+      );
+      return { success: true, granted: false, openedSettings: true };
+    }
+    case 'screen_recording': {
+      shell.openExternal(
+        'x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture'
+      );
+      return { success: true, granted: false, openedSettings: true };
+    }
+    case 'automation': {
+      try {
+        execSync(
+          'osascript -e \'tell application "System Events" to return ""\'',
+          { timeout: 10000 }
+        );
+        return { success: true, granted: true };
+      } catch {
+        shell.openExternal(
+          'x-apple.systempreferences:com.apple.preference.security?Privacy_Automation'
+        );
+        return { success: true, granted: false, openedSettings: true };
+      }
+    }
+    default:
+      return { success: false, error: `Unknown permission: ${name}` };
+  }
+});
+
+// ═══════════════════════════════════════
 // Installer 2.0 — Checkpoint 斷點續裝機制
 // ═══════════════════════════════════════
 

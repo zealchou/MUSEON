@@ -335,6 +335,36 @@ class ImmunityEngine:
 
         return incident
 
+    def resolve_by_symptom(self, symptom_name: str, resolution: str) -> int:
+        """批次 resolve 所有匹配 symptom_name 的未解決事件。
+
+        當服務恢復健康時由 Governor 呼叫，避免殭屍事件堆積。
+        Returns: 被 resolve 的事件數量。
+        """
+        import time as _time
+        count = 0
+        now = _time.time()
+        for inc in self._incidents:
+            if inc.symptom_name == symptom_name and not inc.resolved:
+                inc.resolved = True
+                inc.resolved_at = now
+                inc.auto_resolved = True
+                inc.resolution = resolution
+                count += 1
+        if count:
+            logger.info(
+                f"Immunity: resolved {count} incidents "
+                f"for symptom [{symptom_name}]"
+            )
+        return count
+
+    def has_active_incident(self, symptom_name: str) -> bool:
+        """檢查是否已有同名症狀的未解決事件（用於去重）。"""
+        return any(
+            inc.symptom_name == symptom_name and not inc.resolved
+            for inc in self._incidents
+        )
+
     def learn(self, incident: Incident) -> Optional[Antibody]:
         """從已解決的事件中學習，建立新抗體。
 

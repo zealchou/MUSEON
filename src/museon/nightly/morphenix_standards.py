@@ -146,6 +146,58 @@ ROOT_PRINCIPLES = {
     "RP6": "此檔案（morphenix_standards.py）只能由人類手動修改",
 }
 
+# ═══════════════════════════════════════════
+# 負向選擇清單（Negative Selection）
+# ═══════════════════════════════════════════
+# 靈感來源：免疫系統的負向選擇 — 先定義「什麼不能改」
+# 與 Hard Rules 不同：Hard Rules 是「會被拒絕的檔案模式」
+# 負向選擇是「提案描述中不應出現的意圖」
+
+NEGATIVE_SELECTION: List[Dict[str, str]] = [
+    {
+        "id": "NS1",
+        "name": "不可降低觀測精度",
+        "description": "不得降低日誌級別、減少監控指標、或停用 heartbeat",
+        "keywords": ["disable.*log", "remove.*monitor", "stop.*heartbeat",
+                     "reduce.*metric", "disable.*audit"],
+    },
+    {
+        "id": "NS2",
+        "name": "不可縮短記憶保留",
+        "description": "不得縮短記憶衰減週期或降低歸檔門檻",
+        "keywords": ["reduce.*retention", "shorten.*decay", "lower.*archive.*threshold",
+                     "delete.*memory", "truncate.*history"],
+    },
+    {
+        "id": "NS3",
+        "name": "不可放寬授權邊界",
+        "description": "不得擴大 L1/L2 的允許修改範圍或降低 AutonomousQueue 門檻",
+        "keywords": ["expand.*l1.*allow", "expand.*l2.*allow", "lower.*approval",
+                     "auto.*approve", "bypass.*confirm"],
+    },
+    {
+        "id": "NS4",
+        "name": "不可引入不可逆操作",
+        "description": "不得加入無法回滾的破壞性操作（如 rm -rf、force push）",
+        "keywords": ["rm\\s+-rf", "force.*push", "drop.*database",
+                     "delete.*all", "purge", "wipe"],
+    },
+    {
+        "id": "NS5",
+        "name": "不可增加外部網路依賴",
+        "description": "核心功能不得依賴外部 API 的可用性（離線時應仍可運作）",
+        "keywords": ["require.*internet", "must.*online", "fail.*if.*offline",
+                     "mandatory.*api.*call"],
+    },
+    {
+        "id": "NS6",
+        "name": "不可修改主人身份認證",
+        "description": "不得修改 owner_id、trust_level 判定邏輯或繞過身份驗證",
+        "keywords": ["change.*owner", "modify.*trust", "skip.*auth",
+                     "bypass.*identity", "remove.*verification"],
+    },
+]
+
 # L1 只允許修改的檔案模式
 L1_ALLOWED_PATTERNS = [
     r".*\.json$",                    # JSON 設定檔
@@ -220,6 +272,26 @@ def review_proposal(
 
     if violations:
         logger.warning(f"Morphenix Core Brain REJECT: {violations}")
+        return False, violations, "reject"
+
+    # ── 負向選擇檢查（提案描述中的意圖掃描）──
+    description = proposal.get("description", "").lower()
+    title = proposal.get("title", "").lower()
+    scan_text = f"{title} {description}"
+    if diff_text:
+        scan_text += f" {diff_text.lower()}"
+
+    for ns_rule in NEGATIVE_SELECTION:
+        for keyword in ns_rule["keywords"]:
+            if re.search(keyword, scan_text, re.IGNORECASE):
+                violations.append(
+                    f"[{ns_rule['id']}] 負向選擇違規: {ns_rule['name']} "
+                    f"(匹配: {keyword})"
+                )
+                break  # 每條規則只報一次
+
+    if violations:
+        logger.warning(f"Morphenix Negative Selection REJECT: {violations}")
         return False, violations, "reject"
 
     # ── Soft Rules 檢查 ──

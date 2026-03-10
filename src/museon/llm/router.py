@@ -1,6 +1,7 @@
 """Router - Smart model selection between Haiku and Sonnet.
 
 v2: 加入中文模式識別 + 路由統計記錄 + Nightly 覆寫支援。
+v3: MAX 訂閱方案 — 保留 classify() 供分析統計，模型選擇功能簡化。
 """
 
 import json

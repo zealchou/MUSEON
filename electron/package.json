@@ -1,6 +1,6 @@
 {
   "name": "museon",
-  "version": "2.0.0",
+  "version": "2.3.0",
   "description": "MUSEON Dashboard - Real-time monitoring and control",
   "main": "main.js",
   "scripts": {
@@ -62,8 +62,16 @@
       "signIgnore": ".*",
       "hardenedRuntime": false,
       "gatekeeperAssess": false,
-      "entitlements": null,
-      "entitlementsInherit": null
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.inherit.plist",
+      "extendInfo": {
+        "NSAppleEventsUsageDescription": "MUSEON 需要 Automation 權限來控制終端機和其他應用程式",
+        "NSMicrophoneUsageDescription": "MUSEON 需要麥克風權限來進行語音輸入和 Whisper 轉錄",
+        "NSCameraUsageDescription": "MUSEON 需要相機權限來進行視覺辨識和影像分析",
+        "NSSpeechRecognitionUsageDescription": "MUSEON 需要語音辨識權限來處理語音指令",
+        "NSScreenCaptureUsageDescription": "MUSEON 需要螢幕錄影權限來進行畫面分析",
+        "NSAccessibilityUsageDescription": "MUSEON 需要輔助使用權限來提供自動化操作"
+      }
     },
     "dmg": {
       "sign": false,

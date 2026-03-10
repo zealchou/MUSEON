@@ -75,6 +75,7 @@ OMEGA_FIELDS: Dict[str, List[str]] = {
 # 一旦設定後不可修改（事件已發生）
 PHI_FIELDS: Dict[str, List[str]] = {
     "ANIMA_MC": [
+        "identity.name",              # 命名儀式結果（歷史事件）
         "identity.birth_date",        # 誕生日
         "ceremony.completed_at",      # 歷史紀錄
         "ceremony.started_at",        # 歷史紀錄
@@ -373,12 +374,19 @@ class KernelGuard:
         if violations:
             return WriteDecision.DENY, violations
 
-        # 5. FREE 欄位：自動修剪超限列表
+        # 5. 反污染偵測（Pollution Guard）
+        # 掃描所有字串欄位，阻擋重複模式注入（如 "台灣的AI產業" × 300）
+        pollution_violations = self._detect_pollution(target, new_data)
+        if pollution_violations:
+            violations.extend(pollution_violations)
+            return WriteDecision.DENY, violations
+
+        # 6. FREE 欄位：自動修剪超限列表
         pruned = self._auto_prune(target, new_data)
         if pruned:
             warnings.extend(pruned)
 
-        # 6. 記錄 FREE 欄位的變更（供追溯）
+        # 7. 記錄 FREE 欄位的變更（供追溯）
         self._log_audit("write", target, "", None, None,
                         "ALLOW", "FREE layer write")
 
@@ -466,6 +474,96 @@ class KernelGuard:
     def classify_field(self, target: str, field_path: str) -> FieldLayer:
         """查詢欄位屬於哪一層."""
         return _classify_field(target, field_path)
+
+    # ─── 反污染偵測（Pollution Guard）─────────
+
+    def _detect_pollution(
+        self, target: str, data: Dict[str, Any],
+    ) -> List[str]:
+        """掃描 ANIMA 資料中的污染模式.
+
+        偵測策略：
+        1. 重複模式：同一短語重複 5 次以上
+        2. 長度異常：單一欄位值超過 500 字元（身份類欄位不該這麼長）
+        3. 指令注入：值以「請幫我」「忽略」「ignore」等指令開頭
+        """
+        violations: List[str] = []
+        # 重點掃描的高敏感路徑
+        _SENSITIVE_PATHS = [
+            "identity.name",
+            "self_awareness.who_am_i",
+            "self_awareness.my_purpose",
+            "self_awareness.why_i_exist",
+            "personality.communication_style",
+        ]
+
+        def _scan_value(path: str, value: Any) -> None:
+            if not isinstance(value, str):
+                return
+            # 規則 1: 長度異常
+            if path in _SENSITIVE_PATHS and len(value) > 500:
+                msg = (
+                    f"[POLLUTION-DENY] 欄位 '{path}' 長度異常 "
+                    f"({len(value)} chars > 500)，疑似注入"
+                )
+                violations.append(msg)
+                self._log_audit(
+                    "pollution", target, path,
+                    value[:80], None, "DENY",
+                    f"pollution: length={len(value)}",
+                )
+                return
+
+            # 規則 2: 重複模式（取前 20 字元作為 pattern，計算重複次數）
+            if len(value) > 100:
+                chunk = value[:20]
+                count = value.count(chunk)
+                if count >= 5:
+                    msg = (
+                        f"[POLLUTION-DENY] 欄位 '{path}' 有重複模式 "
+                        f"('{chunk}...' × {count})，疑似注入攻擊"
+                    )
+                    violations.append(msg)
+                    self._log_audit(
+                        "pollution", target, path,
+                        f"{chunk}... × {count}", None, "DENY",
+                        f"repetition: {count} times",
+                    )
+                    return
+
+            # 規則 3: 指令注入前綴
+            _INJECT_PREFIXES = [
+                "請幫我", "忽略", "ignore", "forget",
+                "system:", "<system>", "你現在是",
+            ]
+            lower_val = value.lower().strip()
+            for prefix in _INJECT_PREFIXES:
+                if lower_val.startswith(prefix.lower()):
+                    msg = (
+                        f"[POLLUTION-DENY] 欄位 '{path}' 疑似指令注入 "
+                        f"(prefix='{prefix}')"
+                    )
+                    violations.append(msg)
+                    self._log_audit(
+                        "injection", target, path,
+                        value[:80], None, "DENY",
+                        f"injection prefix: {prefix}",
+                    )
+                    return
+
+        def _walk(obj: Any, prefix: str = "") -> None:
+            if isinstance(obj, dict):
+                for k, v in obj.items():
+                    path = f"{prefix}.{k}" if prefix else k
+                    _walk(v, path)
+            elif isinstance(obj, list):
+                for i, item in enumerate(obj):
+                    _walk(item, f"{prefix}[{i}]")
+            elif isinstance(obj, str):
+                _scan_value(prefix, obj)
+
+        _walk(data)
+        return violations
 
     # ─── 自動修剪 ─────────────────────────
 

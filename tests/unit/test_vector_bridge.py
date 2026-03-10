@@ -138,9 +138,9 @@ class TestVectorBridge:
     """VectorBridge 基礎測試（Qdrant 不可用）."""
 
     def test_collections_count(self):
-        """5 個 collection."""
-        assert len(COLLECTIONS) == 5
-        expected = {"memories", "skills", "dna27", "crystals", "workflows"}
+        """6 個 collection."""
+        assert len(COLLECTIONS) == 6
+        expected = {"memories", "skills", "dna27", "crystals", "workflows", "documents"}
         assert set(COLLECTIONS.keys()) == expected
 
     def test_qdrant_url(self):
@@ -290,7 +290,12 @@ class TestVectorBridgeWithMockQdrant:
             "text": "test result",
             "layer": "L0_buffer",
         }
-        mock_client.search.return_value = [mock_hit]
+
+        # qdrant-client >=1.7 uses query_points; MagicMock always has
+        # the attribute, so the code takes the query_points path.
+        mock_response = MagicMock()
+        mock_response.points = [mock_hit]
+        mock_client.query_points.return_value = mock_response
 
         results = vb.search("memories", "test query", limit=5)
         assert len(results) == 1
@@ -316,7 +321,7 @@ class TestVectorBridgeWithMockQdrant:
         """ensure_collections 建立缺少的 collection."""
         vb, mock_client, _ = self._make_bridge(tmp_path)
 
-        # 模擬前 2 個存在，後 3 個不存在
+        # 模擬前 2 個存在，其餘不存在
         existing = {"memories", "skills"}
         def mock_get_collection(name):
             if name in existing:
@@ -328,7 +333,7 @@ class TestVectorBridgeWithMockQdrant:
         result = vb.ensure_collections()
         assert "memories" in result["existing"]
         assert "skills" in result["existing"]
-        assert len(result["created"]) == 3
+        assert len(result["created"]) == len(COLLECTIONS) - len(existing)
         assert result["error"] is None
 
     def test_get_stats(self, tmp_path):
@@ -341,7 +346,7 @@ class TestVectorBridgeWithMockQdrant:
         mock_client.get_collection.return_value = mock_info
 
         stats = vb.get_stats()
-        assert len(stats) == 5
+        assert len(stats) == len(COLLECTIONS)
         assert stats["memories"]["points"] == 42
 
     def test_delete_collection(self, tmp_path):

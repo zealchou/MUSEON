@@ -49,9 +49,19 @@ class TestTelegramAdapter:
         """Test receiving message from trusted user."""
         mock_update = MagicMock()
         mock_update.message.from_user.id = 12345
+        mock_update.message.from_user.first_name = "TestUser"
+        mock_update.message.from_user.username = "testuser"
         mock_update.message.text = "Hello MUSEON"
         mock_update.message.date = datetime(2026, 2, 25, 10, 0, 0)
         mock_update.message.chat.id = 12345
+        mock_update.message.message_id = 1
+        # Explicitly nullify media attributes to prevent MagicMock auto-truthy
+        mock_update.message.reply_to_message = None
+        mock_update.message.document = None
+        mock_update.message.photo = None
+        mock_update.message.voice = None
+        mock_update.message.audio = None
+        mock_update.message.video = None
 
         # Set mock method directly on instance
         telegram_adapter._get_update = lambda: mock_update
@@ -68,9 +78,18 @@ class TestTelegramAdapter:
         """Test receiving message from untrusted user."""
         mock_update = MagicMock()
         mock_update.message.from_user.id = 99999
+        mock_update.message.from_user.first_name = "Stranger"
+        mock_update.message.from_user.username = "stranger"
         mock_update.message.text = "Spam message"
         mock_update.message.date = datetime(2026, 2, 25, 10, 0, 0)
         mock_update.message.chat.id = 99999
+        mock_update.message.message_id = 2
+        mock_update.message.reply_to_message = None
+        mock_update.message.document = None
+        mock_update.message.photo = None
+        mock_update.message.voice = None
+        mock_update.message.audio = None
+        mock_update.message.video = None
 
         telegram_adapter._get_update = lambda: mock_update
         message = await telegram_adapter.receive()

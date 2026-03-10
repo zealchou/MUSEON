@@ -28,7 +28,7 @@ from .session import SessionManager
 from .security import SecurityGate
 from .cron import CronEngine
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("museon.gateway.server")
 
 
 def _configure_logging() -> None:
@@ -270,34 +270,51 @@ def create_app() -> FastAPI:
     @app.get("/health")
     async def health_check() -> Dict[str, Any]:
         """Health check endpoint."""
-        telegram_status = "running" if app.state.telegram_adapter else "not configured"
-        brain = _get_brain()
-        brain_status = "alive" if brain else "not initialized"
-        skill_count = brain.skill_router.get_skill_count() if brain else 0
+        try:
+            telegram_status = "running" if app.state.telegram_adapter else "not configured"
+            brain = _get_brain()
+            brain_status = "alive" if brain else "not initialized"
+            skill_count = brain.skill_router.get_skill_count() if brain else 0
 
-        # v10.2: MCP status
-        mcp_status = "disabled"
-        if (
-            brain
-            and hasattr(brain, '_tool_executor')
-            and brain._tool_executor
-            and hasattr(brain._tool_executor, '_mcp_connector')
-            and brain._tool_executor._mcp_connector
-        ):
-            mcp_info = brain._tool_executor._mcp_connector.get_status()
-            connected = mcp_info.get("total_connected", 0)
-            total = len(mcp_info.get("connections", {}))
-            tools = mcp_info.get("total_tools", 0)
-            mcp_status = f"{connected}/{total} servers, {tools} tools"
+            # v10.2: MCP status
+            mcp_status = "disabled"
+            if (
+                brain
+                and hasattr(brain, '_tool_executor')
+                and brain._tool_executor
+                and hasattr(brain._tool_executor, '_mcp_connector')
+                and brain._tool_executor._mcp_connector
+            ):
+                mcp_info = brain._tool_executor._mcp_connector.get_status()
+                connected = mcp_info.get("total_connected", 0)
+                total = len(mcp_info.get("connections", {}))
+                tools = mcp_info.get("total_tools", 0)
+                mcp_status = f"{connected}/{total} servers, {tools} tools"
 
-        return {
-            "status": "healthy",
-            "timestamp": datetime.now().isoformat(),
-            "telegram": telegram_status,
-            "brain": brain_status,
-            "skills_indexed": skill_count,
-            "mcp": mcp_status,
-        }
+            # 🛡️ Governor: 三焦式健康報告
+            governor_health = {}
+            governor = getattr(app.state, 'governor', None)
+            if governor:
+                governor_health = governor.get_health()
+
+            # 🚢 Bulkhead: 艙壁隔離狀態
+            bulkhead = getattr(app.state, 'bulkhead', None)
+            bulkhead_status = bulkhead.get_status() if bulkhead else {}
+            overall = bulkhead.overall_status if bulkhead else "healthy"
+
+            return {
+                "status": overall,
+                "timestamp": datetime.now().isoformat(),
+                "telegram": telegram_status,
+                "brain": brain_status,
+                "skills_indexed": skill_count,
+                "mcp": mcp_status,
+                "governance": governor_health,
+                "bulkhead": bulkhead_status,
+            }
+        except Exception as e:
+            logger.error(f"Health check failed: {e}", exc_info=True)
+            return {"status": "error", "error": str(e)}
 
     @app.post("/webhook")
     async def webhook_handler(
@@ -322,7 +339,7 @@ def create_app() -> FastAPI:
         try:
             data = await request.json()
         except Exception as e:
-            logger.error(f"Invalid JSON: {e}")
+            logger.error(f"Invalid JSON: {e}", exc_info=True)
             raise HTTPException(status_code=400, detail="Invalid JSON")
 
         # Extract user_id for rate limiting
@@ -352,7 +369,7 @@ def create_app() -> FastAPI:
                 metadata=data.get("metadata", {}),
             )
         except ValueError as e:
-            logger.error(f"Invalid message format: {e}")
+            logger.error(f"Invalid message format: {e}", exc_info=True)
             raise HTTPException(status_code=400, detail=str(e))
 
         # Acquire session lock
@@ -393,7 +410,7 @@ def create_app() -> FastAPI:
                 }
             )
         except Exception as e:
-            logger.error(f"Brain processing error: {e}")
+            logger.error(f"Brain processing error: {e}", exc_info=True)
             return JSONResponse(
                 status_code=500,
                 content={"status": "error", "message": str(e)},
@@ -406,13 +423,17 @@ def create_app() -> FastAPI:
     @app.get("/api/telegram/status")
     async def telegram_status() -> Dict[str, Any]:
         """Get Telegram adapter connection status."""
-        adapter = app.state.telegram_adapter
-        if not adapter:
-            return {"configured": False, "running": False, "last_message_time": None}
-        return {
-            "configured": True,
-            **adapter.get_status(),
-        }
+        try:
+            adapter = app.state.telegram_adapter
+            if not adapter:
+                return {"configured": False, "running": False, "last_message_time": None}
+            return {
+                "configured": True,
+                **adapter.get_status(),
+            }
+        except Exception as e:
+            logger.error(f"Telegram status check failed: {e}", exc_info=True)
+            return {"configured": False, "error": str(e)}
 
     @app.post("/api/telegram/restart")
     async def telegram_restart() -> Dict[str, Any]:
@@ -504,7 +525,7 @@ def create_app() -> FastAPI:
 
             return {"success": True, "response_length": len(response_text)}
         except Exception as e:
-            logger.error(f"Telegram inject failed: {e}")
+            logger.error(f"Telegram inject failed: {e}", exc_info=True)
             return {"success": False, "error": str(e)}
 
     # ─── Push Notification Endpoint（純 CPU 模板 → Telegram）───
@@ -531,8 +552,12 @@ def create_app() -> FastAPI:
         # 純 CPU 模板格式化
         text = f"{emoji} [{source}] {title}\n\n{body}"
 
-        sent = await adapter.push_notification(text)
-        return {"success": sent > 0, "sent": sent}
+        try:
+            sent = await adapter.push_notification(text)
+            return {"success": sent > 0, "sent": sent}
+        except Exception as e:
+            logger.error(f"Push notification failed: {e}", exc_info=True)
+            return {"success": False, "sent": 0, "error": str(e)}
 
     # ─── Doctor 健檢 & 修復端點（純 CPU）───
 
@@ -568,6 +593,101 @@ def create_app() -> FastAPI:
             }
         except Exception as e:
             return {"action": action, "status": "failed", "message": str(e)}
+
+    # ─── Self-Surgery 手術端點 ───
+
+    @app.get("/api/doctor/surgery/status")
+    async def doctor_surgery_status() -> Dict[str, Any]:
+        """取得手術引擎狀態 — 純 CPU"""
+        try:
+            from museon.doctor.surgeon import SurgeryEngine
+            engine = SurgeryEngine(project_root=Path(data_dir).parent)
+            return {"success": True, **engine.get_status()}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    @app.post("/api/doctor/surgery/diagnose")
+    async def doctor_surgery_diagnose(
+        payload: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """手動觸發三層診斷管線"""
+        try:
+            from museon.doctor.diagnosis_pipeline import DiagnosisPipeline
+
+            brain = _get_brain()
+            llm_adapter = brain._llm_adapter if hasattr(brain, "_llm_adapter") else None
+            project_root = Path(data_dir).parent
+
+            pipeline = DiagnosisPipeline(
+                source_root=project_root / "src" / "museon",
+                logs_dir=project_root / "logs",
+                heartbeat_state_path=Path(data_dir) / "pulse" / "heartbeat_engine.json",
+                llm_adapter=llm_adapter,
+            )
+
+            skip_d3 = payload.get("skip_d3", False)
+            result = await pipeline.run(skip_d3=skip_d3)
+
+            return {
+                "success": True,
+                "summary": result.summary,
+                "diagnosis_level": result.diagnosis_level,
+                "critical_count": result.critical_count,
+                "code_issues_count": len(result.code_issues),
+                "log_anomalies_count": len(result.log_anomalies),
+                "proposals_count": len(result.proposals),
+            }
+        except Exception as e:
+            logger.error(f"Surgery diagnose failed: {e}", exc_info=True)
+            return {"success": False, "error": str(e)}
+
+    @app.get("/api/doctor/surgery/log")
+    async def doctor_surgery_log() -> Dict[str, Any]:
+        """取得手術記錄"""
+        try:
+            from museon.doctor.surgery_log import SurgeryLog
+            log = SurgeryLog(data_dir=Path(data_dir) / "doctor")
+            return {
+                "success": True,
+                "recent": log.recent(20),
+                "stats": log.stats(),
+            }
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    @app.get("/api/doctor/code-health")
+    async def doctor_code_health() -> Dict[str, Any]:
+        """執行 AST 靜態分析 — 純 CPU"""
+        try:
+            from museon.doctor.code_analyzer import CodeAnalyzer
+
+            project_root = Path(data_dir).parent
+            analyzer = CodeAnalyzer(
+                source_root=project_root / "src" / "museon"
+            )
+            import asyncio
+            issues = await asyncio.to_thread(analyzer.scan_all)
+
+            return {
+                "success": True,
+                "total": len(issues),
+                "critical": sum(1 for i in issues if i.severity == "critical"),
+                "warning": sum(1 for i in issues if i.severity == "warning"),
+                "info": sum(1 for i in issues if i.severity == "info"),
+                "issues": [
+                    {
+                        "rule_id": i.rule_id,
+                        "file": i.file_path,
+                        "line": i.line,
+                        "message": i.message,
+                        "severity": i.severity,
+                    }
+                    for i in issues[:30]
+                ],
+                "report": CodeAnalyzer.format_report(issues),
+            }
+        except Exception as e:
+            return {"success": False, "error": str(e)}
 
     # ─── Budget 用量端點（純 CPU）───
 
@@ -825,7 +945,7 @@ def create_app() -> FastAPI:
 
             return {"success": True, **result}
         except Exception as e:
-            logger.error(f"Morphenix execute API error: {e}")
+            logger.error(f"Morphenix execute API error: {e}", exc_info=True)
             return {"error": str(e)}
 
     @app.get("/api/morphenix/execution-log")
@@ -1131,7 +1251,7 @@ def create_app() -> FastAPI:
                 "strategies": strategies,
             }
         except Exception as e:
-            logger.error(f"Savings breakdown failed: {e}")
+            logger.error(f"Savings breakdown failed: {e}", exc_info=True)
             return {"error": str(e), "total_saved_usd": 0, "total_tokens_saved": 0, "strategies": []}
 
     # ── Nightly Pipeline API ──
@@ -1172,10 +1292,14 @@ def create_app() -> FastAPI:
             from museon.core.event_bus import get_event_bus
 
             event_bus = get_event_bus()
+            # WP-03: 注入 DendriticScorer 健康閘門
+            _gov = getattr(app.state, "governor", None)
+            _dendritic = getattr(_gov, "_dendritic", None) if _gov else None
             pipeline = NightlyPipeline(
                 workspace=brain.data_dir,
                 event_bus=event_bus,
                 brain=brain,
+                dendritic_scorer=_dendritic,
             )
             report = pipeline.run()
             return {"triggered": True, "report": report}
@@ -1326,7 +1450,8 @@ def create_app() -> FastAPI:
         try:
             brain = _get_brain()
             from museon.multiagent.shared_assets import SharedAssetLibrary
-            lib = SharedAssetLibrary(workspace=brain.data_dir)
+            from museon.core.event_bus import get_event_bus
+            lib = SharedAssetLibrary(workspace=brain.data_dir, event_bus=get_event_bus())
             assets = lib.list_all()
             return {
                 "assets": [
@@ -1363,6 +1488,26 @@ def create_app() -> FastAPI:
             }
         except Exception as e:
             return {"error": str(e)}
+
+    # ── Dify API ──
+
+    @app.get("/api/tools/dify/status")
+    async def dify_status() -> Dict[str, Any]:
+        """Dify 工作流引擎連線狀態 — 零 token."""
+        try:
+            from museon.tools.mcp_dify import check_health
+            return check_health()
+        except Exception as e:
+            return {"healthy": False, "error": str(e), "configured": False}
+
+    @app.get("/api/tools/dify/tools")
+    async def dify_tools() -> Dict[str, Any]:
+        """列出 Dify MCP 可用工具 — 零 token."""
+        try:
+            from museon.tools.mcp_dify import DIFY_TOOLS
+            return {"tools": DIFY_TOOLS, "count": len(DIFY_TOOLS)}
+        except Exception as e:
+            return {"error": str(e), "tools": [], "count": 0}
 
     # ── Dispatch API ──
 
@@ -1921,7 +2066,7 @@ def create_app() -> FastAPI:
             }
 
         except Exception as e:
-            logger.error(f"Setup wizard error: {e}")
+            logger.error(f"Setup wizard error: {e}", exc_info=True)
             return {
                 "completed": False,
                 "current_step": 0,
@@ -2040,7 +2185,8 @@ def create_app() -> FastAPI:
         """Qdrant 可用性 + 各 collection 統計."""
         try:
             from museon.vector.vector_bridge import VectorBridge
-            vb = VectorBridge(workspace=_get_brain().data_dir)
+            from museon.core.event_bus import get_event_bus
+            vb = VectorBridge(workspace=_get_brain().data_dir, event_bus=get_event_bus())
             available = vb.is_available()
             stats = vb.get_stats() if available else {}
             return {
@@ -2062,7 +2208,8 @@ def create_app() -> FastAPI:
 
         try:
             from museon.vector.vector_bridge import VectorBridge
-            vb = VectorBridge(workspace=_get_brain().data_dir)
+            from museon.core.event_bus import get_event_bus
+            vb = VectorBridge(workspace=_get_brain().data_dir, event_bus=get_event_bus())
             results = vb.search(collection, query, limit=limit)
             return {"results": results, "count": len(results)}
         except Exception as e:
@@ -2073,7 +2220,8 @@ def create_app() -> FastAPI:
         """觸發全量重建索引."""
         try:
             from museon.vector.vector_bridge import VectorBridge
-            vb = VectorBridge(workspace=_get_brain().data_dir)
+            from museon.core.event_bus import get_event_bus
+            vb = VectorBridge(workspace=_get_brain().data_dir, event_bus=get_event_bus())
             result = vb.ensure_collections()
             return {"success": True, **result}
         except Exception as e:
@@ -2250,7 +2398,7 @@ def create_app() -> FastAPI:
                 "catalog_count": 0,
             }
         except Exception as e:
-            logger.error(f"MCP status failed: {e}")
+            logger.error(f"MCP status failed: {e}", exc_info=True)
             return {"error": str(e)}
 
     @app.get("/api/mcp/catalog")
@@ -2282,7 +2430,7 @@ def create_app() -> FastAPI:
                 })
             return {"catalog": catalog, "count": len(catalog)}
         except Exception as e:
-            logger.error(f"MCP catalog failed: {e}")
+            logger.error(f"MCP catalog failed: {e}", exc_info=True)
             return {"error": str(e), "catalog": [], "count": 0}
 
     @app.post("/api/mcp/connect")
@@ -2344,7 +2492,7 @@ def create_app() -> FastAPI:
             result = await connector.connect_server(name, config)
             return result
         except Exception as e:
-            logger.error(f"MCP connect failed: {e}")
+            logger.error(f"MCP connect failed: {e}", exc_info=True)
             return {"success": False, "error": str(e)}
 
     @app.post("/api/mcp/disconnect")
@@ -2383,7 +2531,7 @@ def create_app() -> FastAPI:
 
             return result
         except Exception as e:
-            logger.error(f"MCP disconnect failed: {e}")
+            logger.error(f"MCP disconnect failed: {e}", exc_info=True)
             return {"success": False, "error": str(e)}
 
     @app.on_event("startup")
@@ -2391,21 +2539,39 @@ def create_app() -> FastAPI:
         """Initialize services on startup."""
         logger.info("Starting MUSEON Gateway")
 
-        # ── 早期 port 檢查：避免 20 秒初始化後才發現 port 衝突 ──
-        import socket as _sock
-        try:
-            with _sock.socket(_sock.AF_INET, _sock.SOCK_STREAM) as _s:
-                _s.setsockopt(_sock.SOL_SOCKET, _sock.SO_REUSEADDR, 1)
-                _s.bind(("127.0.0.1", 8765))
-        except OSError:
-            logger.error(
-                "Port 8765 仍被占用，跳過初始化等待下次重啟。"
-                "這避免了 20 秒的無效初始化。"
-            )
-            return
+        # ══════════════════════════════════════════════════════════
+        # 🛡️ Governor: 啟動中焦 + 上焦治理
+        # 下焦 (GatewayLock) 已由 main() 保證
+        # 中焦: ServiceHealthMonitor — Docker 服務健康監控
+        # 上焦: 趨勢分析迴圈 — 週期性健康快照 + 警覺信號
+        # ══════════════════════════════════════════════════════════
+        governor = getattr(app.state, 'governor', None)
+        if governor:
+            try:
+                await governor.start()
+                logger.info("🛡️ Governor 三焦治理啟動完成")
+            except Exception as e:
+                logger.warning(f"Governor start failed (degraded): {e}")
 
-        # Load .env file
-        _load_env_file()
+        # 🧬 .env 已由 main() 載入，此處不再重複
+
+        # ══════════════════════════════════════════════════════════
+        # 🚢 Layer 2: BulkheadRegistry — 艙壁隔離
+        # ══════════════════════════════════════════════════════════
+        # 集中式子系統健康追蹤，供 /health 端點使用。
+        # 不改動現有 try/except 流程，只在各子系統初始化後記錄狀態。
+        # ══════════════════════════════════════════════════════════
+        from museon.governance.bulkhead import BulkheadRegistry
+        bulkhead = BulkheadRegistry()
+        app.state.bulkhead = bulkhead
+
+        # Governor 已在上方啟動，直接記錄狀態
+        if governor:
+            try:
+                # Governor 已成功啟動（否則上方 except 會記錄 warning）
+                bulkhead.register("governor", lambda: None, critical=True)
+            except Exception:
+                pass
 
         # ── Initialize MUSEON Brain ──
         brain = _get_brain()
@@ -2414,6 +2580,47 @@ def create_app() -> FastAPI:
             f"skills: {brain.skill_router.get_skill_count()} | "
             f"ceremony_needed: {brain.ceremony.is_ceremony_needed()}"
         )
+        # 🚢 Bulkhead: Brain 初始化成功
+        bulkhead.register("brain", lambda: None, critical=True)
+
+        # ══════════════════════════════════════════════════════════
+        # 🛡️ Phase 3a: Governor ↔ Brain 橋樑連接
+        # 打通治理層→大腦的回饋迴路，讓 Brain 能感知系統健康
+        # ══════════════════════════════════════════════════════════
+        if governor:
+            try:
+                # Phase 3a: 治理自覺 — Brain 能讀取 GovernanceContext
+                brain.set_governor(governor)
+
+                # Phase 2 補完: EventBus → PerceptionEngine 聞診
+                if hasattr(brain, '_event_bus') and brain._event_bus:
+                    governor.register_event_bus(brain._event_bus)
+                    logger.info("🛡️ Governor ↔ EventBus connected")
+
+                logger.info("🛡️ Phase 3a: Governor ↔ Brain bridge established")
+
+                # Phase 3b: VitalSigns 依賴注入 + Preflight
+                try:
+                    governor.register_vital_signs_deps(
+                        llm_adapter=brain._llm_adapter,
+                        brain=brain,
+                    )
+                    preflight_report = await governor.run_vital_preflight()
+                    if preflight_report:
+                        failed = preflight_report.failed_checks
+                        if failed:
+                            logger.warning(
+                                "🩺 Preflight: %d check(s) FAILED: %s",
+                                len(failed),
+                                ", ".join(c.name for c in failed),
+                            )
+                        else:
+                            logger.info("🩺 Preflight: all checks PASSED")
+                except Exception as e:
+                    logger.warning(f"VitalSigns preflight failed (degraded): {e}")
+
+            except Exception as e:
+                logger.warning(f"Governor-Brain bridge failed (degraded): {e}")
 
         # ── Ensure workspace directory exists (v9.0) ──
         workspace_dir = brain.data_dir / "workspace"
@@ -2457,15 +2664,63 @@ def create_app() -> FastAPI:
         # ── Start CronEngine + register system jobs ──
         cron_engine.start()
         _register_system_cron_jobs(brain, app)
+        _register_external_endpoints(app, brain.data_dir)
         logger.info(
             f"CronEngine started | jobs: {len(cron_engine.get_all_jobs())}"
         )
 
+        # ── SkillHub: 工作流排程初始化 ──
+        try:
+            from museon.workflow.soft_workflow import WorkflowStore
+            from museon.workflow.workflow_engine import WorkflowEngine
+            from museon.workflow.workflow_executor import WorkflowExecutor
+            from museon.workflow.workflow_scheduler import WorkflowScheduler
+            from museon.core.event_bus import get_event_bus
+
+            _wf_store = WorkflowStore(Path(_resolve_data_dir()) / "plans" / "workflows")
+            _wf_engine = WorkflowEngine(Path(_resolve_data_dir()), get_event_bus())
+            _wf_executor = WorkflowExecutor(brain, _wf_engine, _wf_store, get_event_bus())
+            _wf_scheduler = WorkflowScheduler(cron_engine, _wf_store, get_event_bus())
+            _wf_scheduler.set_executor(_wf_executor)
+            registered_count = _wf_scheduler.register_all()
+
+            app.state.workflow_store = _wf_store
+            app.state.workflow_engine = _wf_engine
+            app.state.workflow_executor = _wf_executor
+            app.state.workflow_scheduler = _wf_scheduler
+
+            _register_skillhub_endpoints(app)
+
+            logger.info(f"SkillHub started | workflows: {registered_count}")
+        except Exception as e:
+            logger.warning(f"SkillHub init failed (degraded): {e}")
+
         # Start Telegram adapter if token is configured (with retry)
         bot_token = os.environ.get("TELEGRAM_BOT_TOKEN")
         if bot_token:
-            max_retries = 3
+            # ═══════════════════════════════════════════════════════
+            # 🛡️ Governor 下焦: Telegram 受保護啟動
+            #
+            # 取代舊的 3 次簡單重試：
+            # - 指數退避 (2s→3.6s→6.5s→11.7s→21s→30s)
+            # - 409 getUpdates 衝突偵測 + 分類處理
+            # - 可恢復網路錯誤 vs 不可恢復錯誤分類
+            # - Webhook 清理（防止啟動衝突）
+            # - 統計追蹤（供 Governor 上焦趨勢分析）
+            # ═══════════════════════════════════════════════════════
+            from museon.governance.telegram_guard import (
+                compute_backoff,
+                is_getupdates_conflict,
+                is_recoverable_telegram_error,
+                PollingStats,
+                TELEGRAM_POLL_BACKOFF,
+            )
+
+            max_retries = 10  # 從 3 次提高到 10 次
             telegram_started = False
+            telegram_stats = PollingStats()
+            app.state.telegram_guard_stats = telegram_stats
+
             for attempt in range(1, max_retries + 1):
                 try:
                     from museon.channels.telegram import TelegramAdapter
@@ -2477,8 +2732,26 @@ def create_app() -> FastAPI:
                         "bot_token": bot_token,
                         "trusted_user_ids": trusted_ids,
                     })
+
+                    # 🛡️ Webhook 清理 — 防止 409 衝突
+                    # 在啟動 polling 之前清除可能殘留的舊 webhook
+                    if attempt == 1:
+                        try:
+                            from telegram import Bot
+                            _cleanup_bot = Bot(token=bot_token)
+                            await _cleanup_bot.delete_webhook(drop_pending_updates=False)
+                            logger.debug("🛡️ Pre-start webhook cleanup done")
+                        except Exception as _wh_err:
+                            logger.debug(f"Webhook cleanup skipped: {_wh_err}")
+
                     await adapter.start()
                     app.state.telegram_adapter = adapter
+
+                    # 記錄啟動成功
+                    import time as _time_mod
+                    telegram_stats.started_at = _time_mod.time()
+                    telegram_stats.last_successful_poll_at = _time_mod.time()
+                    telegram_stats.consecutive_errors = 0
 
                     # Start message pump
                     app.state.telegram_pump_task = asyncio.create_task(
@@ -2504,6 +2777,22 @@ def create_app() -> FastAPI:
                         )
                         app.state.proactive_bridge = proactive_bridge
                         logger.info("ProactiveBridge connected to EventBus")
+
+                        # ── HeartbeatEngine: 驅動 ProactiveBridge 定期自省 ──
+                        try:
+                            from museon.pulse.heartbeat_engine import get_heartbeat_engine
+                            _hb_state = str(brain.data_dir / "pulse" / "heartbeat_engine.json")
+                            heartbeat_engine = get_heartbeat_engine(state_path=_hb_state)
+                            proactive_bridge.register_with_engine(heartbeat_engine)
+                            heartbeat_engine.start()
+                            app.state.heartbeat_engine = heartbeat_engine
+                            logger.info(
+                                "HeartbeatEngine started → ProactiveBridge registered "
+                                f"(interval={proactive_bridge.current_interval}s)"
+                            )
+                        except Exception as _hbe_err:
+                            logger.error(f"HeartbeatEngine start failed: {_hbe_err}", exc_info=True)
+                            app.state.heartbeat_engine = None
 
                         # ── VITA PulseEngine: 生命力引擎 ──
                         try:
@@ -2537,6 +2826,60 @@ def create_app() -> FastAPI:
                             app.state.pulse_db = pulse_db
                             app.state.anima_tracker = anima_tracker
                             logger.info("VITA PulseEngine initialized")
+
+                            # ── MicroPulse: 零 LLM 系統健康脈搏 ──
+                            try:
+                                from museon.pulse.micro_pulse import register_micro_pulse
+                                micro_pulse = register_micro_pulse(
+                                    heartbeat_focus=heartbeat_focus,
+                                    event_bus=event_bus,
+                                    workspace=str(brain.data_dir),
+                                )
+                                app.state.micro_pulse = micro_pulse
+                                logger.info(
+                                    f"MicroPulse registered → beat every "
+                                    f"{micro_pulse._beat_counter} "
+                                    f"(interval=1800s)"
+                                )
+                            except Exception as _mp_err:
+                                logger.error(f"MicroPulse start failed: {_mp_err}", exc_info=True)
+                                app.state.micro_pulse = None
+
+                            # ── ExplorationBridge: 探索→演化橋樑 ──
+                            try:
+                                from museon.nightly.exploration_bridge import ExplorationBridge
+                                exploration_bridge = ExplorationBridge(
+                                    event_bus=event_bus,
+                                    workspace=brain.data_dir,
+                                )
+                                app.state.exploration_bridge = exploration_bridge
+                                logger.info("ExplorationBridge initialized (exploration→evolution)")
+                            except Exception as _eb_err:
+                                logger.warning(f"ExplorationBridge init failed (degraded): {_eb_err}")
+
+                            # ── ImmuneResearch: 免疫研究引擎 ──
+                            try:
+                                from museon.governance.immune_research import ImmuneResearch
+                                immune_research = ImmuneResearch(
+                                    brain=brain,
+                                    event_bus=event_bus,
+                                    workspace=brain.data_dir,
+                                    searxng_url="http://127.0.0.1:8888",
+                                )
+                                app.state.immune_research = immune_research
+                                logger.info("ImmuneResearch initialized (immune→research bridge)")
+                            except Exception as _ir_err:
+                                logger.warning(f"ImmuneResearch init failed (degraded): {_ir_err}")
+
+                            # Phase 3b: ANIMA 成長驅動 — 治理事件映射八元素
+                            _gov = getattr(app.state, 'governor', None)
+                            if _gov and anima_tracker:
+                                try:
+                                    _gov.register_anima_tracker(anima_tracker)
+                                except Exception as _e:
+                                    logger.warning(
+                                        f"Phase 3b ANIMA bridge failed: {_e}"
+                                    )
                         except Exception as e:
                             logger.warning(f"VITA PulseEngine init failed (degraded): {e}")
                             app.state.pulse_engine = None
@@ -2554,6 +2897,35 @@ def create_app() -> FastAPI:
                         app.state.autonomous_queue = autonomous_queue
                         logger.info("AutonomousQueue initialized")
 
+                        # ── Daily Minimum: 每日最低保證（20:00 後 0 推送觸發 companion）──
+                        try:
+                            proactive_bridge.register_daily_minimum(heartbeat_engine)
+                            logger.info("ProactiveBridge daily minimum registered")
+                        except Exception as _dm_err:
+                            logger.warning(f"Daily minimum registration failed: {_dm_err}")
+
+                        # ── Exploration Neural Tract: 探索結果 → ProactiveBridge context ──
+                        from museon.core.event_bus import (
+                            EXPLORATION_INSIGHT,
+                            EXPLORATION_CRYSTALLIZED,
+                        )
+
+                        def _on_exploration_result(data):
+                            if not data:
+                                return
+                            try:
+                                title = data.get("topic", "") or data.get("title", "")
+                                findings = data.get("findings", "") or data.get("summary", "")
+                                summary = findings[:200] if findings else ""
+                                hint = f"[探索發現] {title}: {summary}" if summary else f"[探索發現] {title}"
+                                proactive_bridge.add_context_hint(hint)
+                            except Exception:
+                                pass
+
+                        event_bus.subscribe(EXPLORATION_INSIGHT, _on_exploration_result)
+                        event_bus.subscribe(EXPLORATION_CRYSTALLIZED, _on_exploration_result)
+                        logger.info("Exploration → ProactiveBridge neural tract connected")
+
                         # ── Nightly Neural Tract: 管線完成 → ProactiveBridge 上下文注入 ──
                         from museon.core.event_bus import NIGHTLY_COMPLETED
                         def _on_nightly_completed(data):
@@ -2570,6 +2942,22 @@ def create_app() -> FastAPI:
                                 pass
                         event_bus.subscribe(NIGHTLY_COMPLETED, _on_nightly_completed)
                         logger.info("Nightly → ProactiveBridge neural tract connected")
+
+                        # ── Relationship Neural Tract: 情感訊號 → PulseEngine 關係日誌 ──
+                        from museon.core.event_bus import RELATIONSHIP_SIGNAL
+
+                        def _on_relationship_signal(data):
+                            if not data:
+                                return
+                            try:
+                                note = data.get("note", "")
+                                if note and hasattr(app.state, "pulse_engine") and app.state.pulse_engine:
+                                    app.state.pulse_engine.add_relationship_note(note)
+                            except Exception:
+                                pass
+
+                        event_bus.subscribe(RELATIONSHIP_SIGNAL, _on_relationship_signal)
+                        logger.info("Relationship → PulseEngine neural tract connected")
 
                         # ── WEE Neural Tract: BRAIN_RESPONSE_COMPLETE → WEEEngine.auto_cycle ──
                         try:
@@ -2604,8 +2992,12 @@ def create_app() -> FastAPI:
                             _log_events = [
                                 "BRAIN_RESPONSE_COMPLETE",
                                 "NIGHTLY_COMPLETED",
+                                "NIGHTLY_STARTED",
                                 "PULSE_PROACTIVE_SENT",
                                 "PULSE_EXPLORATION_DONE",
+                                "PULSE_MICRO_BEAT",
+                                "EVOLUTION_HEARTBEAT",
+                                "AUTONOMOUS_TASK_DONE",
                                 "MORPHENIX_PROPOSAL_CREATED",
                                 "MORPHENIX_EXECUTED",
                                 "WEE_CYCLE_COMPLETE",
@@ -2634,25 +3026,109 @@ def create_app() -> FastAPI:
                         logger.warning(f"Pulse integration failed (degraded): {e}")
 
                     logger.info(
-                        f"Telegram adapter started successfully"
+                        f"🛡️ Telegram adapter started successfully"
                         f" (attempt {attempt}/{max_retries})"
                     )
                     telegram_started = True
+                    # 🚢 Bulkhead: Telegram 啟動成功
+                    bulkhead.register("telegram", lambda: None)
+
+                    # 🛡️ 註冊 Telegram 狀態到 Governor（供三焦健康分析用）
+                    if governor:
+                        def _telegram_status_fn():
+                            stats = app.state.telegram_guard_stats
+                            _adapter = app.state.telegram_adapter
+                            import time as _t
+                            return {
+                                "running": _adapter is not None and getattr(_adapter, '_running', False),
+                                "uptime_s": round(_t.time() - stats.started_at, 1) if stats.started_at else 0,
+                                "total_restarts": stats.total_restarts,
+                                "consecutive_errors": stats.consecutive_errors,
+                                "conflict_count": stats.conflict_count,
+                                "network_error_count": stats.network_error_count,
+                                "last_error": stats.last_error,
+                            }
+                        governor.register_telegram_status(_telegram_status_fn)
+                        logger.info("🛡️ Telegram status registered to Governor")
+
                     break
+
                 except Exception as e:
+                    # 🛡️ 分類錯誤：409 衝突 / 可恢復網路錯誤 / 不可恢復
+                    is_conflict = is_getupdates_conflict(e)
+                    is_recoverable = is_recoverable_telegram_error(e)
+
+                    if is_conflict:
+                        telegram_stats.conflict_count += 1
+                        err_type = "409 getUpdates conflict"
+                    elif is_recoverable:
+                        telegram_stats.network_error_count += 1
+                        err_type = f"network error ({type(e).__name__})"
+                    else:
+                        err_type = f"error ({type(e).__name__})"
+
+                    telegram_stats.consecutive_errors += 1
+                    telegram_stats.last_error = str(e)
+
                     logger.error(
-                        f"Telegram start attempt {attempt}/{max_retries}"
-                        f" failed: {e}"
-                    )
+                        f"🛡️ Telegram start attempt {attempt}/{max_retries}"
+                        f" failed — {err_type}: {e}"
+, exc_info=True)
+
+                    # 不可恢復的錯誤且已超過 3 次 → 不再重試
+                    if not is_conflict and not is_recoverable and attempt >= 3:
+                        logger.error(
+                            f"Telegram: unrecoverable error after {attempt} attempts — giving up"
+, exc_info=True)
+                        break
+
                     if attempt < max_retries:
-                        await asyncio.sleep(5 * attempt)  # 5s, 10s backoff
+                        # 🛡️ 指數退避（取代舊的 5*attempt 線性退避）
+                        delay_ms = compute_backoff(TELEGRAM_POLL_BACKOFF, attempt)
+                        delay_s = delay_ms / 1000.0
+                        logger.info(
+                            f"🛡️ Telegram retry #{attempt+1} in {delay_s:.1f}s "
+                            f"(exponential backoff)"
+                        )
+                        await asyncio.sleep(delay_s)
+
             if not telegram_started:
+                telegram_stats.total_restarts = attempt
                 logger.error(
-                    "Telegram adapter failed after all retries — "
-                    "will remain offline until Gateway restart"
+                    f"🛡️ Telegram adapter failed after {attempt} retries — "
+                    f"conflicts={telegram_stats.conflict_count}, "
+                    f"network_errors={telegram_stats.network_error_count}. "
+                    f"Will remain offline until Gateway restart"
                 )
+                # 🚢 Bulkhead: Telegram 啟動失敗（非致命，Gateway 仍可運行）
+                bulkhead.mark_degraded(
+                    "telegram",
+                    f"Failed after {attempt} retries"
+                )
+                # 以 FAILED 狀態註冊（如果尚未註冊）
+                if "telegram" not in bulkhead.get_status():
+                    bulkhead.register(
+                        "telegram",
+                        lambda: (_ for _ in ()).throw(
+                            RuntimeError("Telegram startup failed")
+                        ),
+                    )
         else:
             logger.warning("TELEGRAM_BOT_TOKEN not set, Telegram disabled")
+
+        # ══════════════════════════════════════════════════════════
+        # ✅ RefractoryGuard: 啟動成功 — 清零失敗計數器
+        # ══════════════════════════════════════════════════════════
+        refractory = getattr(app.state, 'refractory', None)
+        if refractory:
+            refractory.record_success()
+            logger.info("✅ RefractoryGuard: 啟動成功，失敗計數歸零")
+
+        # 🚢 Bulkhead: 記錄整體狀態
+        logger.info(
+            f"🚢 Bulkhead 整體狀態: {bulkhead.overall_status} "
+            f"| 子系統: {bulkhead.get_status()}"
+        )
 
     @app.on_event("shutdown")
     async def shutdown_event():
@@ -2693,6 +3169,13 @@ def create_app() -> FastAPI:
                 logger.info("MCP connections shut down")
         except Exception as e:
             logger.warning(f"MCP shutdown error: {e}")
+
+        # 🛡️ Governor: 停止所有治理子系統（中焦 + 上焦）
+        # Gateway Lock（下焦）由 main() 的 finally 釋放
+        governor = getattr(app.state, 'governor', None)
+        if governor:
+            await governor.stop()
+            logger.info("🛡️ Governor: all governance subsystems stopped")
 
     return app
 
@@ -2889,7 +3372,7 @@ async def _telegram_message_pump(adapter) -> None:
 
             except Exception as proc_err:
                 # Brain 處理失敗（API timeout、離線等）→ 回傳錯誤訊息給使用者
-                logger.error(f"Brain processing failed: {proc_err}")
+                logger.error(f"Brain processing failed: {proc_err}", exc_info=True)
                 anima_mc = brain._load_anima_mc()
                 name = "MUSEON"
                 if anima_mc:
@@ -2977,7 +3460,7 @@ async def _telegram_message_pump(adapter) -> None:
                 logger.error(
                     f"Telegram message pump 斷路器開啟：連續 {consecutive_errors} 次錯誤，"
                     f"冷卻 {CIRCUIT_BREAKER_COOLDOWN}s。最後錯誤: {e}"
-                )
+, exc_info=True)
                 await asyncio.sleep(CIRCUIT_BREAKER_COOLDOWN)
                 consecutive_errors = 0  # 冷卻後重置，給一次機會
             else:
@@ -2991,6 +3474,590 @@ async def _telegram_message_pump(adapter) -> None:
                     f"{e}. 退避 {sleep_time:.1f}s"
                 )
                 await asyncio.sleep(sleep_time)
+
+
+# ═══════════════════════════════════════════════════════
+# 🔧 SkillHub — 工作流 + 技能 + 任務 API
+# ═══════════════════════════════════════════════════════
+
+
+def _register_skillhub_endpoints(app) -> None:
+    """註冊 SkillHub 相關 API 端點."""
+
+    # -- 工作流 CRUD --
+
+    @app.get("/api/workflows")
+    async def list_workflows():
+        """列出所有軟工作流."""
+        try:
+            store = app.state.workflow_store
+            engine = app.state.workflow_engine
+            workflows = store.list_all()
+            result = []
+            for wf in workflows:
+                record = engine.get_workflow(wf.workflow_id)
+                result.append({
+                    **wf.to_dict(),
+                    "total_runs": record.total_runs if record else 0,
+                    "success_count": record.success_count if record else 0,
+                    "avg_composite": record.avg_composite if record else 0,
+                    "lifecycle": record.lifecycle if record else wf.lifecycle,
+                })
+            return {"workflows": result}
+        except Exception as e:
+            logger.error(f"list_workflows failed: {e}", exc_info=True)
+            return {"workflows": [], "error": str(e)}
+
+    @app.get("/api/workflows/{workflow_id}")
+    async def get_workflow(workflow_id: str):
+        """工作流詳情 + 最近執行紀錄."""
+        try:
+            store = app.state.workflow_store
+            engine = app.state.workflow_engine
+            wf = store.load(workflow_id)
+            record = engine.get_workflow(workflow_id)
+            executions = engine.get_recent_executions(workflow_id, limit=10)
+            return {
+                "workflow": wf.to_dict() if wf else None,
+                "record": record.to_dict() if record else None,
+                "executions": [e.to_dict() for e in executions],
+            }
+        except Exception as e:
+            logger.error(f"get_workflow failed: {e}", exc_info=True)
+            return {"workflow": None, "error": str(e)}
+
+    @app.post("/api/workflows")
+    async def create_workflow(payload: Dict[str, Any] = Body(...)):
+        """從對話草案建立工作流."""
+        try:
+            from museon.workflow.soft_workflow import create_soft_workflow
+            from museon.core.event_bus import get_event_bus
+
+            store = app.state.workflow_store
+            engine = app.state.workflow_engine
+            scheduler = app.state.workflow_scheduler
+
+            wf = create_soft_workflow(
+                name=payload.get("name", "未命名工作流"),
+                description=payload.get("description", ""),
+                steps=payload.get("steps", []),
+                schedule=payload.get("schedule", {}),
+                session_id=payload.get("session_id", ""),
+                tags=payload.get("tags"),
+            )
+
+            # 儲存定義
+            store.save(wf)
+
+            # 同步到 WorkflowEngine SQLite
+            engine.get_or_create(
+                user_id="boss",
+                name=wf.name,
+                tags=wf.tags,
+            )
+
+            # 註冊排程
+            if wf.schedule.schedule_type == "cron" and wf.schedule.cron_expression:
+                try:
+                    scheduler.register(wf.workflow_id)
+                except Exception as sched_err:
+                    logger.warning(f"Scheduler register failed: {sched_err}")
+
+            # 發布事件
+            get_event_bus().publish("WORKFLOW_CREATED", {
+                "workflow_id": wf.workflow_id,
+                "name": wf.name,
+            })
+
+            return {"success": True, "workflow": wf.to_dict()}
+        except Exception as e:
+            logger.error(f"create_workflow failed: {e}", exc_info=True)
+            return {"success": False, "error": str(e)}
+
+    @app.post("/api/workflows/{workflow_id}/toggle")
+    async def toggle_workflow(workflow_id: str, payload: Dict[str, Any] = Body(...)):
+        """啟用/暫停排程."""
+        try:
+            scheduler = app.state.workflow_scheduler
+            active = payload.get("active", True)
+            scheduler.toggle(workflow_id, active)
+            return {"success": True, "active": active}
+        except Exception as e:
+            logger.error(f"toggle_workflow failed: {e}", exc_info=True)
+            return {"success": False, "error": str(e)}
+
+    @app.delete("/api/workflows/{workflow_id}")
+    async def delete_workflow(workflow_id: str):
+        """刪除工作流."""
+        try:
+            store = app.state.workflow_store
+            scheduler = app.state.workflow_scheduler
+            scheduler.unregister(workflow_id)
+            deleted = store.delete(workflow_id)
+            return {"success": deleted}
+        except Exception as e:
+            logger.error(f"delete_workflow failed: {e}", exc_info=True)
+            return {"success": False, "error": str(e)}
+
+    @app.post("/api/workflows/{workflow_id}/run-now")
+    async def run_workflow_now(workflow_id: str):
+        """手動觸發執行."""
+        try:
+            scheduler = app.state.workflow_scheduler
+            summary = await scheduler.trigger_now(workflow_id)
+            return {
+                "success": True,
+                "summary": summary.to_dict() if summary else None,
+            }
+        except Exception as e:
+            logger.error(f"run_workflow_now failed: {e}", exc_info=True)
+            return {"success": False, "error": str(e)}
+
+    # -- 技能目錄 --
+
+    @app.get("/api/skills/catalog")
+    async def skills_catalog():
+        """列出所有技能 + 元資料."""
+        try:
+            brain = _get_brain()
+            raw = getattr(brain.skill_router, '_index', [])
+            skills = [
+                {
+                    "skill_id": s.get("name", ""),
+                    "name": s.get("name", ""),
+                    "description": s.get("description", ""),
+                    "lifecycle": s.get("lifecycle", "unknown"),
+                    "origin": s.get("origin", "native"),
+                    "always_on": s.get("always_on", False),
+                    "emoji": s.get("emoji", ""),
+                }
+                for s in raw
+            ]
+            return {"skills": skills}
+        except Exception as e:
+            logger.error(f"skills_catalog failed: {e}", exc_info=True)
+            return {"skills": [], "error": str(e)}
+
+    # -- 儀表板對話 --
+
+    @app.post("/api/dashboard/chat")
+    async def dashboard_chat(payload: Dict[str, Any] = Body(...)):
+        """獨立 session 的對話式助理."""
+        content = payload.get("content", "").strip()
+        if not content:
+            return {"reply": "", "error": "content is required"}
+
+        context = payload.get("context", "skill_builder")
+        sid = payload.get("session_id") or f"dashboard_{context}_{int(datetime.now().timestamp())}"
+
+        if not await session_manager.acquire(sid):
+            return JSONResponse(
+                status_code=202,
+                content={"status": "queued", "session_id": sid},
+            )
+
+        try:
+            brain = _get_brain()
+            result = await brain.process(
+                content=content,
+                session_id=sid,
+                user_id="boss",
+                source="dashboard",
+            )
+
+            from museon.gateway.message import BrainResponse
+            if isinstance(result, BrainResponse):
+                return {
+                    "reply": result.text,
+                    "session_id": sid,
+                    "artifacts": [a.to_dict() for a in result.artifacts] if result.artifacts else [],
+                }
+            return {
+                "reply": str(result) if result else "",
+                "session_id": sid,
+                "artifacts": [],
+            }
+        except Exception as e:
+            logger.error(f"dashboard_chat failed: {e}", exc_info=True)
+            return {"reply": "", "session_id": sid, "error": str(e)}
+        finally:
+            await session_manager.release(sid)
+
+    # -- 任務管理 --
+
+    @app.get("/api/tasks")
+    async def list_tasks():
+        """列出使用者工作流任務 + 系統排程任務."""
+        tasks = []
+
+        # ── Part 1: WorkflowStore 使用者任務 ──
+        try:
+            store = app.state.workflow_store
+            workflows = store.list_all()
+            for wf in workflows:
+                tasks.append({
+                    "task_id": wf.workflow_id,
+                    "name": wf.name,
+                    "description": wf.description,
+                    "schedule_type": wf.schedule.schedule_type,
+                    "lifecycle": wf.lifecycle,
+                    "active": wf.schedule.active,
+                    "cron_expression": wf.schedule.cron_expression,
+                    "created_at": wf.created_at,
+                    "source": "workflow",
+                })
+        except Exception as e:
+            logger.debug(f"list_tasks workflow part failed: {e}")
+
+        # ── Part 2: 系統排程任務（CronEngine）──
+        try:
+            registry = getattr(app.state, "system_cron_registry", [])
+            for meta in registry:
+                job_id = meta["job_id"]
+                # 從 CronEngine 讀取實際狀態
+                job = cron_engine.get_job(job_id)
+                next_run = None
+                is_active = job is not None
+                if job and hasattr(job, "next_run_time") and job.next_run_time:
+                    next_run = job.next_run_time.isoformat()
+
+                tasks.append({
+                    "task_id": job_id,
+                    "name": meta["name"],
+                    "description": f"系統排程：{meta['schedule']}",
+                    "schedule_type": "system",
+                    "schedule_display": meta["schedule"],
+                    "category": meta.get("category", "system"),
+                    "uses_llm": meta.get("uses_llm", False),
+                    "active": is_active,
+                    "next_run": next_run,
+                    "source": "system",
+                })
+        except Exception as e:
+            logger.debug(f"list_tasks system part failed: {e}")
+
+        return {"tasks": tasks}
+
+    logger.info("SkillHub API endpoints registered")
+
+
+# ═══════════════════════════════════════════════════════
+# Phase 3-5: 外部整合 API 端點
+# ═══════════════════════════════════════════════════════
+
+
+def _register_external_endpoints(app, data_dir) -> None:
+    """註冊 Phase 3-5 外部整合 API 端點."""
+
+    # ── EXT-09: 推薦系統 ──
+    @app.get("/api/recommendations")
+    async def api_recommendations():
+        """取得個人化推薦."""
+        try:
+            from museon.agent.recommender import Recommender
+            from museon.core.event_bus import get_event_bus
+
+            recommender = Recommender(
+                workspace=data_dir,
+                event_bus=get_event_bus(),
+            )
+            items = await recommender.get_recommendations(limit=5)
+            return {"recommendations": items, "count": len(items)}
+        except Exception as e:
+            return {"error": str(e), "recommendations": []}
+
+    # ── EXT-15: 技能市場 ──
+    @app.get("/api/market/skills")
+    async def api_market_list():
+        """列出技能市場."""
+        try:
+            from museon.federation.skill_market import SkillMarket
+
+            market = SkillMarket(workspace=data_dir)
+            skills = await market.list_marketplace()
+            return {"skills": skills, "count": len(skills)}
+        except Exception as e:
+            return {"error": str(e), "skills": []}
+
+    @app.post("/api/market/publish")
+    async def api_market_publish(payload: Dict[str, Any] = {}):
+        """發布技能到市場."""
+        skill_id = payload.get("skill_id", "")
+        if not skill_id:
+            return {"error": "skill_id is required"}
+        try:
+            from museon.federation.skill_market import SkillMarket
+
+            market = SkillMarket(workspace=data_dir)
+            pkg = market.package_skill(skill_id)
+            result = await market.publish_skill(
+                package_path=pkg.get("path", ""),
+                price=payload.get("price", 0.0),
+                description=payload.get("description", ""),
+            )
+            return {"success": True, **result}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    @app.post("/api/market/install")
+    async def api_market_install(payload: Dict[str, Any] = {}):
+        """安裝市場技能."""
+        skill_id = payload.get("skill_id", "")
+        if not skill_id:
+            return {"error": "skill_id is required"}
+        try:
+            from museon.federation.skill_market import SkillMarket
+
+            market = SkillMarket(workspace=data_dir)
+            result = await market.install_skill(skill_id)
+            return {"success": True, **result}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    # ── EXT-01: RSS ──
+    @app.get("/api/rss/status")
+    async def api_rss_status():
+        """RSS 聚合器狀態."""
+        try:
+            from museon.tools.rss_aggregator import RSSAggregator
+
+            agg = RSSAggregator()
+            return {"available": True, "poll_interval": agg.POLL_INTERVAL}
+        except Exception as e:
+            return {"available": False, "error": str(e)}
+
+    # ── EXT-05: 圖片生成 ──
+    @app.post("/api/image/generate")
+    async def api_image_generate(payload: Dict[str, Any] = {}):
+        """生成圖片."""
+        prompt = payload.get("prompt", "")
+        if not prompt:
+            return {"error": "prompt is required"}
+        try:
+            from museon.tools.image_gen import ImageGenerator
+            from museon.core.event_bus import get_event_bus
+
+            gen = ImageGenerator(
+                event_bus=get_event_bus(),
+                output_dir=str(data_dir / "generated_images"),
+            )
+            result = await gen.generate(
+                prompt=prompt,
+                width=payload.get("width", 1024),
+                height=payload.get("height", 1024),
+                style=payload.get("style", "photographic"),
+            )
+            return {"success": True, **result}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    # ── EXT-06: 語音合成 ──
+    @app.post("/api/voice/synthesize")
+    async def api_voice_synthesize(payload: Dict[str, Any] = {}):
+        """語音合成."""
+        text = payload.get("text", "")
+        if not text:
+            return {"error": "text is required"}
+        try:
+            from museon.tools.voice_clone import VoiceCloner
+            from museon.core.event_bus import get_event_bus
+
+            cloner = VoiceCloner(
+                event_bus=get_event_bus(),
+                output_dir=str(data_dir / "generated_voices"),
+            )
+            result = await cloner.synthesize(
+                text=text,
+                language=payload.get("language", "zh"),
+            )
+            return {"success": True, **result}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    # ── EXT-11: Zotero ──
+    @app.get("/api/zotero/status")
+    async def api_zotero_status():
+        """Zotero 同步狀態."""
+        try:
+            from museon.tools.zotero_bridge import ZoteroBridge
+
+            bridge = ZoteroBridge(workspace=data_dir)
+            status = bridge.get_sync_status()
+            return {"available": True, **status}
+        except Exception as e:
+            return {"available": False, "error": str(e)}
+
+    @app.post("/api/zotero/search")
+    async def api_zotero_search(payload: Dict[str, Any] = {}):
+        """搜尋 Zotero 文獻."""
+        query = payload.get("query", "")
+        if not query:
+            return {"error": "query is required", "results": []}
+        try:
+            from museon.tools.zotero_bridge import ZoteroBridge
+            from museon.core.event_bus import get_event_bus
+
+            bridge = ZoteroBridge(
+                event_bus=get_event_bus(),
+                workspace=data_dir,
+            )
+            results = await bridge.search_references(query, limit=payload.get("limit", 10))
+            return {"results": results, "count": len(results)}
+        except Exception as e:
+            return {"error": str(e), "results": []}
+
+    # ── EXT-10: 自動課程 ──
+    @app.get("/api/courses")
+    async def api_courses_list():
+        """列出自動生成的課程."""
+        try:
+            from museon.nightly.course_generator import CourseGenerator
+
+            gen = CourseGenerator(workspace=data_dir)
+            courses = gen.list_courses()
+            return {"courses": courses, "count": len(courses)}
+        except Exception as e:
+            return {"error": str(e), "courses": []}
+
+    # ── EXT-12: 反饋迴圈 ──
+    @app.get("/api/feedback/summary")
+    async def api_feedback_summary():
+        """使用者反饋摘要."""
+        try:
+            from museon.evolution.feedback_loop import FeedbackLoop
+            from museon.core.event_bus import get_event_bus
+
+            loop = FeedbackLoop(
+                event_bus=get_event_bus(),
+                workspace=data_dir,
+            )
+            return loop.get_daily_summary()
+        except Exception as e:
+            return {"error": str(e)}
+
+    # ── EXT-03: Chrome Extension WebSocket ──
+    from fastapi import WebSocket as _WebSocket, WebSocketDisconnect
+
+    _extension_clients: list = []
+
+    @app.websocket("/ws/extension")
+    async def ws_extension(websocket: _WebSocket):
+        """Chrome Extension WebSocket 端點 — 雙向通訊."""
+        await websocket.accept()
+        _extension_clients.append(websocket)
+        logger.info(f"Chrome Extension connected (total: {len(_extension_clients)})")
+
+        try:
+            # 發送歡迎訊息
+            await websocket.send_json({
+                "type": "welcome",
+                "message": "Connected to MUSEON Gateway",
+                "version": "2.3.0",
+            })
+
+            while True:
+                raw = await websocket.receive_text()
+                try:
+                    data = json.loads(raw)
+                    msg_type = data.get("type", "")
+
+                    if msg_type == "extension_hello":
+                        logger.info(f"Extension hello: v{data.get('version', '?')}")
+                        await websocket.send_json({"type": "ack", "status": "connected"})
+
+                    elif msg_type == "extension_capture":
+                        # 記憶捕獲：選取文字 / 頁面擷取
+                        try:
+                            from museon.core.event_bus import get_event_bus, EXTENSION_CAPTURE
+                            eb = get_event_bus()
+                            eb.publish(EXTENSION_CAPTURE, {
+                                "action": data.get("action", "remember"),
+                                "text": data.get("text", ""),
+                                "url": data.get("url", ""),
+                                "title": data.get("title", ""),
+                                "timestamp": data.get("timestamp", ""),
+                            })
+                        except Exception:
+                            pass
+
+                        # 存入記憶
+                        brain = _get_brain()
+                        if brain and data.get("text"):
+                            try:
+                                brain.memory_store.store(
+                                    content=data["text"],
+                                    metadata={
+                                        "source": "chrome_extension",
+                                        "url": data.get("url", ""),
+                                        "title": data.get("title", ""),
+                                    },
+                                )
+                            except Exception as mem_err:
+                                logger.debug(f"Extension capture store failed: {mem_err}")
+
+                        await websocket.send_json({
+                            "type": "notification",
+                            "title": "MUSEON",
+                            "message": "已記住！",
+                        })
+
+                    elif msg_type == "extension_command":
+                        # 指令：問答 / 探索
+                        try:
+                            from museon.core.event_bus import get_event_bus, EXTENSION_COMMAND
+                            eb = get_event_bus()
+                            eb.publish(EXTENSION_COMMAND, {
+                                "action": data.get("action", "ask"),
+                                "query": data.get("query", ""),
+                                "context": data.get("context", ""),
+                                "timestamp": data.get("timestamp", ""),
+                            })
+                        except Exception:
+                            pass
+
+                        # 用 Brain 處理
+                        brain = _get_brain()
+                        if brain and data.get("query"):
+                            try:
+                                result = await brain.think(
+                                    query=data["query"],
+                                    session_id="extension",
+                                )
+                                response_text = result.get("response", "（無回應）")
+                                await websocket.send_json({
+                                    "type": "notification",
+                                    "title": "MUSEON",
+                                    "message": response_text[:200],
+                                })
+                            except Exception as think_err:
+                                logger.debug(f"Extension command think failed: {think_err}")
+                                await websocket.send_json({
+                                    "type": "notification",
+                                    "title": "MUSEON",
+                                    "message": f"處理中遇到問題: {str(think_err)[:100]}",
+                                })
+
+                    else:
+                        logger.debug(f"Extension unknown msg type: {msg_type}")
+
+                except json.JSONDecodeError:
+                    logger.debug("Extension: invalid JSON received")
+                except Exception as handler_err:
+                    logger.debug(f"Extension handler error: {handler_err}")
+
+        except WebSocketDisconnect:
+            pass
+        except Exception as ws_err:
+            logger.debug(f"Extension WebSocket error: {ws_err}")
+        finally:
+            if websocket in _extension_clients:
+                _extension_clients.remove(websocket)
+            logger.info(f"Chrome Extension disconnected (remaining: {len(_extension_clients)})")
+
+    # 儲存到 app.state 以便其他模組推送通知
+    app.state.extension_clients = _extension_clients
+
+    logger.info("External integration endpoints registered (Phase 3-5, incl. /ws/extension)")
 
 
 # ═══════════════════════════════════════════════════════
@@ -3019,10 +4086,14 @@ def _register_system_cron_jobs(brain, app=None) -> None:
             from museon.nightly.nightly_pipeline import NightlyPipeline, build_nightly_html
             from museon.core.event_bus import get_event_bus
             event_bus = get_event_bus()
+            # WP-03: 注入 DendriticScorer 健康閘門
+            _gov = getattr(app.state, "governor", None)
+            _dendritic = getattr(_gov, "_dendritic", None) if _gov else None
             pipeline = NightlyPipeline(
                 workspace=data_dir,
                 event_bus=event_bus,
                 brain=brain,
+                dendritic_scorer=_dendritic,
             )
             pipeline_report = pipeline.run()
             logger.info(
@@ -3047,7 +4118,7 @@ def _register_system_cron_jobs(brain, app=None) -> None:
             except Exception as notif_err:
                 logger.warning(f"Nightly Telegram push failed: {notif_err}")
         except Exception as e:
-            logger.error(f"NightlyPipeline failed: {e}")
+            logger.error(f"NightlyPipeline failed: {e}", exc_info=True)
 
         # Phase B: 原有 NightlyJob（記憶融合 + Token 優化 + 鍛造檢查 + 健康報告）
         try:
@@ -3060,7 +4131,7 @@ def _register_system_cron_jobs(brain, app=None) -> None:
             result = await job.run()
             logger.info(f"NightlyJob completed: {result.get('status')}")
         except Exception as e:
-            logger.error(f"NightlyJob failed: {e}")
+            logger.error(f"NightlyJob failed: {e}", exc_info=True)
 
     cron_engine.add_job(
         _nightly_job, trigger="cron", job_id="nightly-fusion",
@@ -3102,7 +4173,7 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                 await adapter.push_notification(morning_text)
                 logger.info("Morning report pushed to Telegram")
         except Exception as e:
-            logger.error(f"Morning report failed: {e}")
+            logger.error(f"Morning report failed: {e}", exc_info=True)
 
     cron_engine.add_job(
         _morning_report, trigger="cron", job_id="nightly-morning-report",
@@ -3132,7 +4203,7 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                     "\n".join(lines[-500:]) + "\n", encoding="utf-8"
                 )
         except Exception as e:
-            logger.error(f"Health heartbeat failed: {e}")
+            logger.error(f"Health heartbeat failed: {e}", exc_info=True)
 
     cron_engine.add_job(
         _health_heartbeat, trigger="interval", job_id="health-heartbeat",
@@ -3146,7 +4217,7 @@ def _register_system_cron_jobs(brain, app=None) -> None:
             brain._flush_skill_usage()
             logger.info("Memory flush completed (CPU-only)")
         except Exception as e:
-            logger.error(f"Memory flush failed: {e}")
+            logger.error(f"Memory flush failed: {e}", exc_info=True)
 
     cron_engine.add_job(
         _memory_flush, trigger="interval", job_id="memory-flush",
@@ -3184,7 +4255,7 @@ def _register_system_cron_jobs(brain, app=None) -> None:
             else:
                 logger.info("SkillScout: 無能力缺口")
         except Exception as e:
-            logger.error(f"Skill acquisition scan failed: {e}")
+            logger.error(f"Skill acquisition scan failed: {e}", exc_info=True)
 
     cron_engine.add_job(
         _skill_acquisition_scan, trigger="cron", job_id="skill-acquisition-scan",
@@ -3207,7 +4278,7 @@ def _register_system_cron_jobs(brain, app=None) -> None:
             else:
                 logger.info("Guardian L1: all ok")
         except Exception as e:
-            logger.error(f"Guardian L1 failed: {e}")
+            logger.error(f"Guardian L1 failed: {e}", exc_info=True)
 
     cron_engine.add_job(
         _guardian_l1, trigger="interval", job_id="guardian-l1",
@@ -3232,10 +4303,35 @@ def _register_system_cron_jobs(brain, app=None) -> None:
             else:
                 logger.info("Guardian L2+L3: all ok")
         except Exception as e:
-            logger.error(f"Guardian L2+L3 failed: {e}")
+            logger.error(f"Guardian L2+L3 failed: {e}", exc_info=True)
 
     cron_engine.add_job(
         _guardian_deep, trigger="interval", job_id="guardian-deep",
+        hours=6,
+    )
+
+    # ── Job 6.5: L5 程式碼健康檢查（每 6 小時）── CodeAnalyzer
+    async def _guardian_l5():
+        """L5: 程式碼靜態分析健康檢查（純 CPU，零 Token）."""
+        try:
+            if hasattr(brain, '_guardian') and brain._guardian:
+                import asyncio
+                result = await asyncio.to_thread(brain._guardian.run_l5)
+                critical_count = len([
+                    i for i in result.get("issues", [])
+                    if i.get("severity") == "critical"
+                ])
+                if critical_count > 0:
+                    logger.warning(
+                        f"Guardian L5: {critical_count} 個 critical 問題"
+                    )
+                else:
+                    logger.info(f"Guardian L5: {result.get('summary', 'OK')}")
+        except Exception as e:
+            logger.error(f"Guardian L5 failed: {e}", exc_info=True)
+
+    cron_engine.add_job(
+        _guardian_l5, trigger="interval", job_id="guardian-l5",
         hours=6,
     )
 
@@ -3280,7 +4376,7 @@ def _register_system_cron_jobs(brain, app=None) -> None:
             else:
                 logger.info("Tool discovery: no new recommendations")
         except Exception as e:
-            logger.error(f"Tool discovery scan failed: {e}")
+            logger.error(f"Tool discovery scan failed: {e}", exc_info=True)
 
     cron_engine.add_job(
         _tool_discovery_scan, trigger="cron",
@@ -3299,7 +4395,7 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                 return
             await engine.sys_pulse()
         except Exception as e:
-            logger.error(f"VITA SysPulse failed: {e}")
+            logger.error(f"VITA SysPulse failed: {e}", exc_info=True)
 
     cron_engine.add_job(
         _vita_sys_pulse, trigger="interval", job_id="vita-sys-pulse",
@@ -3330,7 +4426,7 @@ def _register_system_cron_jobs(brain, app=None) -> None:
             else:
                 logger.debug(f"VITA BreathPulse: {action}")
         except Exception as e:
-            logger.error(f"VITA BreathPulse failed: {e}")
+            logger.error(f"VITA BreathPulse failed: {e}", exc_info=True)
 
     cron_engine.add_job(
         _vita_breath_pulse, trigger="interval", job_id="vita-breath-pulse",
@@ -3351,7 +4447,7 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                 # Fallback to old morning report logic
                 await _morning_report()
         except Exception as e:
-            logger.error(f"VITA morning failed: {e}")
+            logger.error(f"VITA morning failed: {e}", exc_info=True)
 
     # Replace old morning report with VITA morning
     try:
@@ -3374,49 +4470,91 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                 result = await engine.trigger_evening()
                 logger.info(f"VITA evening: {result.get('action', '?')}")
         except Exception as e:
-            logger.error(f"VITA evening failed: {e}")
+            logger.error(f"VITA evening failed: {e}", exc_info=True)
 
     cron_engine.add_job(
         _vita_evening, trigger="cron", job_id="vita-evening",
         hour=22, minute=0,
     )
 
-    # ── Job 11.5: VITA 自主探索（每天 3 次：09:00 / 14:00 / 20:00）──
-    async def _vita_exploration(trigger: str):
-        """VITA SoulPulse: 自主探索 — 好奇心驅動外出探索世界."""
+    # ── Job 11.5: VITA 自主探索（每 2h：07:10 ~ 21:10，共 8 次）──
+    # 觸發類型輪替：morning → curiosity → mission → skill → world → self → curiosity → mission
+    _EXPLORE_TRIGGERS = ["morning", "curiosity", "mission", "skill", "world", "self", "curiosity", "mission"]
+
+    async def _vita_exploration_auto():
+        """VITA SoulPulse: 每 2h 自主探索 + Telegram 回報 + 自動鍛造."""
         try:
             if not app:
                 return
             engine = getattr(app.state, "pulse_engine", None)
             if not engine:
                 return
+
+            # 根據當日已執行次數輪替 trigger
+            _pdb = getattr(app.state, "pulse_db", None)
+            today_count = _pdb.get_today_exploration_count() if _pdb else 0
+            trigger = _EXPLORE_TRIGGERS[today_count % len(_EXPLORE_TRIGGERS)]
+
             result = await engine.soul_pulse(trigger=trigger)
             action = result.get("action", "?")
-            explored = result.get("percrl", {}).get("explore", "skipped")
-            logger.info(f"VITA exploration ({trigger}): action={action}, explore={explored}")
+            percrl = result.get("percrl", {})
+            explored = percrl.get("explore", "skipped")
+            crystallized = percrl.get("crystallize", "skipped")
+            logger.info(
+                f"VITA auto-explore #{today_count + 1} ({trigger}): "
+                f"explore={explored}, crystallize={crystallized}"
+            )
+
+            # ── Telegram 回報 ──
+            adapter = getattr(app.state, "telegram_adapter", None)
+            if adapter and explored != "skipped":
+                _status = "✅" if explored == "done" else f"⚠️ {explored}"
+                _crystal = "💎 已結晶" if crystallized == "done" else "📝 未結晶"
+                _msg = (
+                    f"🔭 【自主探索 #{today_count + 1}】\n\n"
+                    f"觸發: {trigger}\n"
+                    f"探索: {_status}\n"
+                    f"結晶: {_crystal}\n"
+                    f"動作: {action}"
+                )
+                try:
+                    await adapter.push_notification(_msg)
+                except Exception as e:
+                    logger.debug(f"Exploration Telegram notify failed: {e}")
+
+            # ── 探索後自動觸發技能鍛造 ──
+            if crystallized == "done" or explored == "done":
+                try:
+                    from museon.nightly.skill_forge_scout import SkillForgeScout
+                    scout = SkillForgeScout(
+                        brain=getattr(app.state, "brain", None),
+                        event_bus=getattr(app.state, "event_bus", None),
+                        workspace=getattr(app.state, "brain", None) and getattr(app.state.brain, "data_dir", None),
+                        pulse_db=_pdb,
+                        searxng_url="http://127.0.0.1:8888",
+                    )
+                    forge_results = await scout.process_queue(max_items=2)
+                    forged = sum(1 for r in forge_results if r.get("status") == "done")
+                    if forged > 0:
+                        logger.info(f"SkillForgeScout: auto-forged {forged} drafts after exploration")
+                        if adapter:
+                            _forge_msg = (
+                                f"🔨 【技能鍛造】探索後自動鍛造\n\n"
+                                f"產出 {forged} 份草稿，已提交 Morphenix 審核流程。"
+                            )
+                            try:
+                                await adapter.push_notification(_forge_msg)
+                            except Exception:
+                                pass
+                except Exception as e:
+                    logger.debug(f"Auto skill forge after exploration failed: {e}")
+
         except Exception as e:
-            logger.error(f"VITA exploration ({trigger}) failed: {e}")
-
-    async def _vita_morning_exploration():
-        await _vita_exploration("morning")
-
-    async def _vita_curiosity_exploration():
-        await _vita_exploration("curiosity")
-
-    async def _vita_mission_exploration():
-        await _vita_exploration("mission")
+            logger.error(f"VITA auto-explore failed: {e}", exc_info=True)
 
     cron_engine.add_job(
-        _vita_morning_exploration, trigger="cron", job_id="vita-explore-morning",
-        hour=9, minute=0,
-    )
-    cron_engine.add_job(
-        _vita_curiosity_exploration, trigger="cron", job_id="vita-explore-curiosity",
-        hour=14, minute=0,
-    )
-    cron_engine.add_job(
-        _vita_mission_exploration, trigger="cron", job_id="vita-explore-mission",
-        hour=20, minute=0,
+        _vita_exploration_auto, trigger="cron", job_id="vita-explore-auto",
+        hour="7,9,11,13,15,17,19,21", minute=10,
     )
 
     # ── Job 12: Morphenix 72hr 自動批准（每 6 小時檢查）──
@@ -3441,7 +4579,7 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                     msg += "\n霓裳將在下次整合時執行這些演化。"
                     await adapter.push_notification(msg)
         except Exception as e:
-            logger.error(f"Morphenix auto-approve failed: {e}")
+            logger.error(f"Morphenix auto-approve failed: {e}", exc_info=True)
 
     cron_engine.add_job(
         _morphenix_auto_approve, trigger="interval",
@@ -3456,8 +4594,8 @@ def _register_system_cron_jobs(brain, app=None) -> None:
             from museon.pulse.commitment_tracker import CommitmentTracker
             from museon.pulse.pulse_db import PulseDB
 
-            _project_root = _get_project_root()
-            _pulse_path = os.path.join(_project_root, "data", "pulse", "pulse.db")
+            _data_dir = _resolve_data_dir()
+            _pulse_path = os.path.join(_data_dir, "pulse", "pulse.db")
             _pdb = PulseDB(_pulse_path)
             tracker = CommitmentTracker(pulse_db=_pdb)
 
@@ -3468,6 +4606,7 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                     f"({result['overdue_ids'][:3]})"
                 )
                 # 透過 Telegram adapter 主動推送逾期提醒
+                adapter = getattr(app.state, "telegram_adapter", None)
                 if adapter and hasattr(adapter, "push_notification"):
                     overdue = tracker.get_overdue_commitments()
                     if overdue:
@@ -3489,7 +4628,7 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                     pass
 
         except Exception as e:
-            logger.error(f"Commitment periodic check failed: {e}")
+            logger.error(f"Commitment periodic check failed: {e}", exc_info=True)
 
     cron_engine.add_job(
         _commitment_periodic_check, trigger="interval",
@@ -3497,14 +4636,350 @@ def _register_system_cron_jobs(brain, app=None) -> None:
         minutes=15,
     )
 
+    # ── Job: Dendritic Health Score tick（每 5 分鐘）──
+    async def _dendritic_tick():
+        """DendriticScorer 定期 tick — 記錄 Health Score 到 PulseDB."""
+        try:
+            _gov = getattr(app.state, "governor", None)
+            if not _gov or not _gov._dendritic:
+                return
+            status = _gov._dendritic.tick()
+            # 記錄到 PulseDB
+            _pdb = getattr(app.state, "pulse_db", None)
+            if _pdb:
+                _pdb.log_health_score(
+                    score=status.get("score", 100),
+                    tier=status.get("tier", 0),
+                    event_count=status.get("event_count", 0),
+                    incident_count=status.get("recent_incidents", 0),
+                )
+        except Exception as e:
+            logger.debug(f"Dendritic tick cron failed: {e}")
+
+    cron_engine.add_job(
+        _dendritic_tick, trigger="interval",
+        job_id="dendritic-tick",
+        minutes=5,
+    )
+
+    # ── Job: ExplorationBridge 凌晨批次路由（每天 03:30）──
+    async def _exploration_bridge_batch():
+        """凌晨批次處理探索路由摘要."""
+        try:
+            bridge = getattr(app.state, "exploration_bridge", None)
+            if bridge:
+                from museon.core.event_bus import NIGHTLY_COMPLETED
+                bridge._on_nightly_complete({"batch": True})
+                logger.info("ExplorationBridge batch route completed")
+        except Exception as e:
+            logger.debug(f"ExplorationBridge batch failed: {e}")
+
+    cron_engine.add_job(
+        _exploration_bridge_batch, trigger="cron",
+        job_id="exploration-bridge-batch",
+        hour=3, minute=30,
+    )
+
+    # ── Job: Curiosity Research（每天 10:00）──
+    async def _curiosity_research_job():
+        """好奇問題研究 — 從佇列取 2 個問題用 ResearchEngine 研究."""
+        try:
+            from museon.nightly.curiosity_router import CuriosityRouter
+            from museon.research.research_engine import ResearchEngine
+            from museon.core.event_bus import get_event_bus
+
+            _eb = get_event_bus()
+            research_engine = ResearchEngine(
+                brain=brain,
+                searxng_url="http://127.0.0.1:8888",
+            )
+            _pdb = getattr(app.state, "pulse_db", None)
+            router = CuriosityRouter(
+                research_engine=research_engine,
+                event_bus=_eb,
+                workspace=data_dir,
+                pulse_db=_pdb,
+            )
+            results = await router.process_queue(max_items=2)
+            valuable = sum(1 for r in results if r.get("is_valuable"))
+            logger.info(
+                f"CuriosityRouter: researched {len(results)}, "
+                f"valuable {valuable}"
+            )
+        except Exception as e:
+            logger.error(f"Curiosity research cron failed: {e}", exc_info=True)
+
+    cron_engine.add_job(
+        _curiosity_research_job, trigger="cron",
+        job_id="curiosity-research",
+        hour=10, minute=0,
+    )
+
+    # ── Job: Immune Research（每 2 小時）──
+    async def _immune_research_job():
+        """免疫研究 — 處理 Tier 2 incidents 的待研究佇列."""
+        try:
+            ir = getattr(app.state, "immune_research", None)
+            if not ir:
+                return
+            results = await ir.process_queue(max_items=2)
+            done = sum(1 for r in results if r.status == "done")
+            if results:
+                logger.info(
+                    f"ImmuneResearch: processed {len(results)}, "
+                    f"done {done}"
+                )
+        except Exception as e:
+            logger.debug(f"Immune research cron failed: {e}")
+
+    cron_engine.add_job(
+        _immune_research_job, trigger="interval",
+        job_id="immune-research",
+        hours=2,
+    )
+
+    # ── WP-07: Tool Health Check (5min) ──
+    async def _tool_health_check_job():
+        """定期檢查所有工具健康狀態，偵測降級/恢復."""
+        try:
+            from museon.core.event_bus import get_event_bus
+            from museon.tools.tool_registry import ToolRegistry
+
+            brain = _get_brain()
+            event_bus = get_event_bus()
+            registry = ToolRegistry(
+                workspace=brain.data_dir,
+                event_bus=event_bus,
+            )
+            results = registry.check_all_health()
+            degraded = [n for n, r in results.items() if not r.get("healthy", True)]
+            if degraded:
+                logger.warning(f"Tool health check: degraded={degraded}")
+        except Exception as e:
+            logger.debug(f"Tool health check cron failed: {e}")
+
+    cron_engine.add_job(
+        _tool_health_check_job, trigger="interval",
+        job_id="tool-health-check",
+        minutes=5,
+    )
+
+    # ── WP-04: System Audit Periodic (每天 02:30) ──
+    async def _system_audit_periodic():
+        """每日定期系統審計 — 發布 AUDIT_COMPLETED + AUDIT_TREND_UPDATED."""
+        try:
+            from museon.doctor.system_audit import SystemAuditor
+            from museon.core.event_bus import get_event_bus
+
+            auditor = SystemAuditor(
+                museon_home=str(data_dir),
+                event_bus=get_event_bus(),
+            )
+            report = auditor.run_full_audit()
+            logger.info(
+                f"System audit periodic: overall={report.overall.value}, "
+                f"passed={report.summary.get('ok', 0)}, "
+                f"warned={report.summary.get('warning', 0)}, "
+                f"failed={report.summary.get('critical', 0)}"
+            )
+        except Exception as e:
+            logger.debug(f"System audit periodic cron failed: {e}")
+
+    cron_engine.add_job(
+        _system_audit_periodic, trigger="cron",
+        job_id="system-audit-periodic",
+        hour=2, minute=30,
+    )
+
+    # ── EXT-01: RSS Poll (60min) ──
+    async def _rss_poll_job():
+        """定期拉取 RSS 新文章."""
+        try:
+            from museon.tools.rss_aggregator import RSSAggregator
+            from museon.core.event_bus import get_event_bus
+
+            brain = _get_brain()
+            aggregator = RSSAggregator(
+                event_bus=get_event_bus(),
+                brain=brain,
+            )
+            items = await aggregator.poll_new_items()
+            if items:
+                logger.info(f"RSS poll: {len(items)} new items")
+        except Exception as e:
+            logger.debug(f"RSS poll cron failed: {e}")
+
+    cron_engine.add_job(
+        _rss_poll_job, trigger="interval",
+        job_id="rss-poll",
+        minutes=60,
+    )
+
+    # ── EXT-07: Dify Schedule Sync (15min) ──
+    async def _dify_schedule_sync():
+        """同步 Dify 排程，觸發到期工作流."""
+        try:
+            from museon.tools.dify_scheduler import DifyScheduler
+            from museon.core.event_bus import get_event_bus
+
+            scheduler = DifyScheduler(event_bus=get_event_bus())
+            result = await scheduler.sync_schedules()
+            triggered = result.get("triggered", 0)
+            if triggered:
+                logger.info(f"Dify sync: triggered {triggered} workflows")
+        except Exception as e:
+            logger.debug(f"Dify schedule sync cron failed: {e}")
+
+    cron_engine.add_job(
+        _dify_schedule_sync, trigger="interval",
+        job_id="dify-schedule-sync",
+        minutes=15,
+    )
+
+    # ── EXT-11: Zotero Sync (6h) ──
+    async def _zotero_sync_job():
+        """定期同步 Zotero 文獻到 Qdrant."""
+        try:
+            from museon.tools.zotero_bridge import ZoteroBridge
+            from museon.core.event_bus import get_event_bus
+
+            bridge = ZoteroBridge(
+                event_bus=get_event_bus(),
+                workspace=data_dir,
+            )
+            result = await bridge.sync_items()
+            synced = result.get("imported", 0)
+            if synced:
+                logger.info(f"Zotero sync: imported {synced} items")
+        except Exception as e:
+            logger.debug(f"Zotero sync cron failed: {e}")
+
+    cron_engine.add_job(
+        _zotero_sync_job, trigger="interval",
+        job_id="zotero-sync",
+        hours=6,
+    )
+
+    # ── EXT-04: Email Poll (5min) ──
+    async def _email_poll_job():
+        """定期拉取 Email 新郵件."""
+        try:
+            from museon.channels.email import EmailAdapter
+            from museon.core.event_bus import get_event_bus
+
+            # 只在設定了 IMAP 的情況下執行
+            imap_host = os.environ.get("MUSEON_IMAP_HOST")
+            if not imap_host:
+                return  # 未設定 Email，靜默跳過
+
+            adapter = EmailAdapter(
+                config={
+                    "imap_host": imap_host,
+                    "imap_port": int(os.environ.get("MUSEON_IMAP_PORT", "993")),
+                    "smtp_host": os.environ.get("MUSEON_SMTP_HOST", ""),
+                    "smtp_port": int(os.environ.get("MUSEON_SMTP_PORT", "587")),
+                    "username": os.environ.get("MUSEON_EMAIL_USER", ""),
+                    "password": os.environ.get("MUSEON_EMAIL_PASS", ""),
+                },
+                event_bus=get_event_bus(),
+            )
+            messages = await adapter.poll_inbox(max_messages=5)
+            if messages:
+                logger.info(f"Email poll: {len(messages)} new messages")
+        except Exception as e:
+            logger.debug(f"Email poll cron failed: {e}")
+
+    cron_engine.add_job(
+        _email_poll_job, trigger="interval",
+        job_id="email-poll",
+        minutes=5,
+    )
+
+    # ── EXT-14: Community Scan (每天 09:00) ──
+    async def _community_scan_job():
+        """每日掃描社群平台關鍵字提及."""
+        try:
+            from museon.channels.community import CommunityAdapter
+            from museon.core.event_bus import get_event_bus
+
+            adapter = CommunityAdapter(
+                config={"platforms": ["reddit", "hackernews"]},
+                event_bus=get_event_bus(),
+            )
+            mentions = await adapter.scan_mentions(
+                keywords=["MUSEON", "AI assistant", "autonomous AI"],
+                limit=10,
+            )
+            if mentions:
+                logger.info(f"Community scan: {len(mentions)} mentions found")
+        except Exception as e:
+            logger.debug(f"Community scan cron failed: {e}")
+
+    cron_engine.add_job(
+        _community_scan_job, trigger="cron",
+        job_id="community-scan",
+        hour=9, minute=0,
+    )
+
+    # ── Job: 每日企業個案晨報（每天 09:05）── LLM
+    async def _business_case_daily():
+        """每天 09:05：搜尋成功+失敗企業個案 → HBR HTML → GitHub Gist → Telegram."""
+        try:
+            from museon.nightly.business_case import BusinessCaseDaily
+            generator = BusinessCaseDaily(data_dir=data_dir)
+            adapter = getattr(app.state, "telegram_adapter", None) if app else None
+            url = await generator.run(brain=brain, adapter=adapter)
+            if url:
+                logger.info(f"BusinessCase daily report uploaded: {url}")
+            else:
+                logger.warning("BusinessCase daily report: no URL (check GITHUB_TOKEN)")
+        except Exception as e:
+            logger.error(f"BusinessCase daily job failed: {e}", exc_info=True)
+
+    cron_engine.add_job(
+        _business_case_daily, trigger="cron", job_id="business-case-daily",
+        hour=9, minute=5,
+    )
+
+    # ── 系統排程任務元資料清冊（供 /api/tasks 使用）──
+    _system_cron_registry = [
+        {"job_id": "nightly-fusion",         "name": "夜間整合管線",         "schedule": "每天 03:00",     "category": "maintenance", "uses_llm": True},
+        {"job_id": "system-audit-periodic",  "name": "系統審計",             "schedule": "每天 02:30",     "category": "maintenance", "uses_llm": False},
+        {"job_id": "exploration-bridge-batch","name": "探索路由批次",         "schedule": "每天 03:30",     "category": "exploration", "uses_llm": False},
+        {"job_id": "skill-acquisition-scan", "name": "Skill 偵查掃描",      "schedule": "每天 04:00",     "category": "exploration", "uses_llm": True},
+        {"job_id": "tool-discovery-scan",    "name": "工具自動發現",         "schedule": "每天 05:00",     "category": "exploration", "uses_llm": False},
+        {"job_id": "vita-morning",           "name": "霓裳晨感",             "schedule": "每天 07:30",     "category": "pulse",       "uses_llm": True},
+        {"job_id": "community-scan",         "name": "社群關鍵字掃描",       "schedule": "每天 09:00",     "category": "external",    "uses_llm": False},
+        {"job_id": "business-case-daily",    "name": "每日市場研究報告",     "schedule": "每天 09:05",     "category": "research",    "uses_llm": True},
+        {"job_id": "curiosity-research",     "name": "好奇問題研究",         "schedule": "每天 10:00",     "category": "research",    "uses_llm": True},
+        {"job_id": "vita-evening",           "name": "霓裳暮感",             "schedule": "每天 22:00",     "category": "pulse",       "uses_llm": True},
+        {"job_id": "vita-explore-auto",      "name": "自主探索（每 2h）",    "schedule": "07:10~21:10/2h", "category": "exploration", "uses_llm": True},
+        {"job_id": "health-heartbeat",       "name": "健康心跳",             "schedule": "每 30 分鐘",    "category": "maintenance", "uses_llm": False},
+        {"job_id": "vita-breath-pulse",      "name": "VITA 息脈",            "schedule": "每 30 分鐘",    "category": "pulse",       "uses_llm": True},
+        {"job_id": "guardian-l1",            "name": "Guardian L1 巡檢",     "schedule": "每 30 分鐘",    "category": "maintenance", "uses_llm": False},
+        {"job_id": "commitment-check",       "name": "承諾到期檢查",         "schedule": "每 15 分鐘",    "category": "pulse",       "uses_llm": False},
+        {"job_id": "rss-poll",               "name": "RSS 新文章拉取",       "schedule": "每 60 分鐘",    "category": "external",    "uses_llm": False},
+        {"job_id": "dify-schedule-sync",     "name": "Dify 排程同步",        "schedule": "每 15 分鐘",    "category": "external",    "uses_llm": False},
+        {"job_id": "memory-flush",           "name": "記憶持久化",           "schedule": "每 6 小時",     "category": "maintenance", "uses_llm": False},
+        {"job_id": "guardian-deep",          "name": "Guardian L2+L3 深度巡檢","schedule": "每 6 小時",   "category": "maintenance", "uses_llm": False},
+        {"job_id": "guardian-l5",            "name": "Guardian L5 程式碼健康", "schedule": "每 6 小時",     "category": "maintenance", "uses_llm": False},
+        {"job_id": "morphenix-auto-approve", "name": "Morphenix 自動批准",   "schedule": "每 6 小時",     "category": "evolution",   "uses_llm": False},
+        {"job_id": "zotero-sync",            "name": "Zotero 文獻同步",      "schedule": "每 6 小時",     "category": "external",    "uses_llm": False},
+        {"job_id": "immune-research",        "name": "免疫研究",             "schedule": "每 2 小時",     "category": "maintenance", "uses_llm": True},
+        {"job_id": "vita-sys-pulse",         "name": "VITA 微脈",            "schedule": "每 5 分鐘",     "category": "pulse",       "uses_llm": False},
+        {"job_id": "dendritic-tick",         "name": "Dendritic 健康記錄",   "schedule": "每 5 分鐘",     "category": "maintenance", "uses_llm": False},
+        {"job_id": "tool-health-check",      "name": "工具健康檢查",         "schedule": "每 5 分鐘",     "category": "maintenance", "uses_llm": False},
+        {"job_id": "email-poll",             "name": "Email 郵件拉取",       "schedule": "每 5 分鐘",     "category": "external",    "uses_llm": False},
+    ]
+
+    # 存到 app.state 供 /api/tasks 讀取
+    if app:
+        app.state.system_cron_registry = _system_cron_registry
+
     logger.info(
-        "System cron jobs registered: "
+        f"System cron jobs registered: {len(_system_cron_registry)} tasks | "
         "nightly-fusion(03:00), health-heartbeat(30min), "
-        "memory-flush(6h), skill-acquisition-scan(04:00), "
-        "tool-discovery(05:00), guardian-l1(30min), guardian-deep(6h), "
-        "vita-sys-pulse(5min), vita-breath-pulse(30min), "
-        "vita-morning(07:30), vita-evening(22:00), "
-        "morphenix-auto-approve(6h), commitment-check(15min)"
+        "vita-explore-auto(every2h@:10), business-case-daily(09:05), ..."
     )
 
 
@@ -3569,22 +5044,115 @@ def _pre_start_cleanup(port: int = 8765) -> None:
 
 def main() -> None:
     """Run the Gateway server (localhost only)."""
+    import sys
+    import time as _time
+
     # ── Configure application logging BEFORE anything else ──
     _configure_logging()
 
-    # ── Pre-start: 清理殭屍進程（防止 port 衝突）──
+    # ══════════════════════════════════════════════════════════
+    # 🧬 Layer 0: 載入 .env（從 startup_event 提前到此處）
+    # ══════════════════════════════════════════════════════════
+    # Preflight 需要讀取環境變數，所以必須先載入 .env
+    _load_env_file()
+
+    # ══════════════════════════════════════════════════════════
+    # 🫁 Layer 1: PreflightGate — 胸腺驗證
+    # ══════════════════════════════════════════════════════════
+    # 在任何服務啟動前驗證配置完整性。
+    # 失敗時 exit(0) 避免 launchd 無限重啟迴圈。
+    # （KeepAlive.SuccessfulExit=false 只在非零退出碼時重啟）
+    # ══════════════════════════════════════════════════════════
+    from museon.governance.preflight import PreflightGate
+    from museon.governance.refractory import RefractoryGuard
+
+    preflight = PreflightGate()
+    preflight_result = preflight.run()
+
+    for w in preflight_result.warnings:
+        logger.warning(f"⚠️  Preflight: {w}")
+
+    if not preflight_result.passed:
+        for f in preflight_result.failures:
+            logger.error(f"🚫 Preflight FATAL: {f}")
+        logger.error(
+            "Gateway 無法啟動 — 請修正上述問題後重啟。"
+            "（exit(0) 避免 launchd 無限重啟）"
+        )
+        # 記錄失敗到 RefractoryGuard
+        RefractoryGuard().record_failure("preflight_failed")
+        sys.exit(0)
+
+    # ══════════════════════════════════════════════════════════
+    # ⏳ Layer 3: RefractoryGuard — 不應期斷路器
+    # ══════════════════════════════════════════════════════════
+    # 跨重啟的失敗計數器 + 指數退避。
+    # 連續失敗過多 → 休眠（exit(0) 不重啟，等外部干預）。
+    # ══════════════════════════════════════════════════════════
+    refractory = RefractoryGuard()
+    action, wait_secs = refractory.check()
+
+    if action == "hibernate":
+        logger.warning(
+            "💤 RefractoryGuard: 休眠中（連續失敗過多）。"
+            "修改 .env 或刪除 ~/.museon/refractory_state.json 以喚醒。"
+        )
+        sys.exit(0)
+    elif action == "backoff":
+        logger.warning(
+            f"⏳ RefractoryGuard: 冷卻 {wait_secs} 秒後重試..."
+        )
+        _time.sleep(wait_secs)
+
+    # ══════════════════════════════════════════════════════════
+    # 🛡️ MUSEON Governor — 三焦式運行時治理
+    # ══════════════════════════════════════════════════════════
+    #
+    # 統一治理控制器，取代舊的 _pre_start_cleanup：
+    #
+    # 下焦: GatewayLock 確保全局唯一實例（PID Lock + 端口探測）
+    # 中焦: ServiceHealthMonitor (由 startup_event 啟動)
+    # 上焦: 趨勢分析 + 警覺信號 (由 startup_event 啟動)
+    #
+    # 如果另一個 Gateway 已在運行，直接拋出異常而非 kill -9
+    # ══════════════════════════════════════════════════════════
+    from museon.governance.governor import Governor
+    from museon.governance.gateway_lock import GatewayLockError
+
+    governor = Governor(port=8765)
+    try:
+        governor.acquire_lock()
+    except GatewayLockError as e:
+        logger.error(f"Cannot start Gateway: {e}", exc_info=True)
+        logger.error(
+            "Another Gateway instance is already running. "
+            "Stop it first or check the lock file."
+, exc_info=True)
+        sys.exit(1)  # exit(1) 合理 — 端口衝突應由 launchd 重試
+
+    # Fallback: 如果 lock 成功但 port 仍被佔用（邊緣情況），
+    # 保留舊的清理邏輯作為安全網
     _pre_start_cleanup(8765)
 
     app = create_app()
 
-    # CRITICAL: Only bind to localhost (127.0.0.1)
-    # This prevents remote access to the Gateway
-    uvicorn.run(
-        app,
-        host="127.0.0.1",  # localhost only
-        port=8765,
-        log_level="info",
-    )
+    # 將 Governor + RefractoryGuard 掛到 app.state，
+    # 供 startup/shutdown/health 使用
+    app.state.governor = governor
+    app.state.refractory = refractory
+
+    try:
+        # CRITICAL: Only bind to localhost (127.0.0.1)
+        # This prevents remote access to the Gateway
+        uvicorn.run(
+            app,
+            host="127.0.0.1",  # localhost only
+            port=8765,
+            log_level="info",
+        )
+    finally:
+        # 無論如何都要釋放鎖
+        governor.release_lock()
 
 
 if __name__ == "__main__":

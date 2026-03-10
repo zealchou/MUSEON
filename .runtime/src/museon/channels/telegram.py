@@ -69,6 +69,10 @@ class TelegramAdapter(ChannelAdapter):
         self._heartbeat_focus = None  # HeartbeatFocus instance
         self._notified_users: set = set()  # 閒置推播已通知用戶
 
+        # Proactive reply threading: 追蹤主動推送的 message_id
+        self._proactive_message_ids: Dict[int, str] = {}  # {msg_id: push_context}
+        self._max_proactive_ids = 50
+
     async def start(self) -> None:
         """Start the Telegram bot and begin polling."""
         if self._running:
@@ -406,10 +410,18 @@ class TelegramAdapter(ChannelAdapter):
         # ── 回覆上下文：提取被回覆的訊息內容 ──
         msg = update.message
         reply_context = ""
+        is_proactive_reply = False
         if msg.reply_to_message:
             replied = msg.reply_to_message
             replied_text = replied.text or replied.caption or ""
-            if replied_text:
+
+            # 偵測是否回覆主動推送訊息
+            replied_msg_id = replied.message_id
+            if replied_msg_id in self._proactive_message_ids:
+                is_proactive_reply = True
+                push_ctx = self._proactive_message_ids[replied_msg_id]
+                reply_context = f"[回覆霓裳的主動訊息：{push_ctx}]\n\n"
+            elif replied_text:
                 # 截斷過長的回覆上下文（避免 token 浪費）
                 if len(replied_text) > 500:
                     replied_text = replied_text[:500] + "..."
@@ -481,6 +493,8 @@ class TelegramAdapter(ChannelAdapter):
             metadata["file"] = file_info
         if msg.reply_to_message:
             metadata["reply_to_message_id"] = msg.reply_to_message.message_id
+        if is_proactive_reply:
+            metadata["is_proactive_reply"] = True
 
         return InternalMessage(
             source="telegram",
@@ -540,6 +554,8 @@ class TelegramAdapter(ChannelAdapter):
                     remaining = remaining[cut:].lstrip()
                     if chunk:
                         await self.application.bot.send_message(chat_id=chat_id, text=chunk)
+                        if remaining:
+                            await asyncio.sleep(0.15)  # 避免 Telegram rate limit
             return True
 
         except Exception as e:
@@ -602,23 +618,26 @@ class TelegramAdapter(ChannelAdapter):
 
     @staticmethod
     def _strip_markdown(text: str) -> str:
-        """去除 Markdown 語法，轉為自然語言格式。Telegram 應用人類自然語言溝通。"""
+        """去除 Markdown 語法，轉為自然語言格式。Telegram 應用人類自然語言溝通。
+
+        v10.5: 程式碼區塊保留內容（舊版會完全刪除導致回覆被吃掉）。
+        """
         # 移除標題語法 (##, ###, ####)
         text = re.sub(r'^#{1,6}\s+', '', text, flags=re.MULTILINE)
         # 移除粗體/斜體 (**text**, __text__, *text*, _text_)
         text = re.sub(r'\*\*(.+?)\*\*', r'\1', text)
         text = re.sub(r'__(.+?)__', r'\1', text)
         text = re.sub(r'(?<!\w)\*(?!\s)(.+?)(?<!\s)\*(?!\w)', r'\1', text)
-        # 移除行內代碼 `code`
+        # 移除行內代碼 `code` → 保留內容
         text = re.sub(r'`([^`]+)`', r'\1', text)
-        # 移除代碼塊 ```...```
-        text = re.sub(r'```[\s\S]*?```', '', text)
+        # 程式碼區塊 ```...``` → 保留內容，只移除圍欄標記
+        text = re.sub(r'```\w*\n?', '', text)
         # 移除無序列表符號 (- item, * item) 改為自然段落
         text = re.sub(r'^\s*[-*]\s+', '· ', text, flags=re.MULTILINE)
         # 移除有序列表格式 (1. item) 保留數字
         text = re.sub(r'^(\s*\d+)\.\s+', r'\1. ', text, flags=re.MULTILINE)
-        # 移除連結語法 [text](url) → text
-        text = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', text)
+        # 移除連結語法 [text](url) → text (url)
+        text = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'\1 (\2)', text)
         # 移除水平線 ---
         text = re.sub(r'^-{3,}$', '', text, flags=re.MULTILINE)
         # 清理多餘空行（超過兩個連續空行 → 兩個）
@@ -762,10 +781,17 @@ class TelegramAdapter(ChannelAdapter):
         sent = 0
         for cid in targets:
             try:
-                await self.application.bot.send_message(
+                msg = await self.application.bot.send_message(
                     chat_id=cid, text=text
                 )
                 sent += 1
+                # 追蹤主動推送 message_id（用於回覆串接）
+                if msg and msg.message_id:
+                    self._proactive_message_ids[msg.message_id] = text[:200]
+                    # 維持上限
+                    if len(self._proactive_message_ids) > self._max_proactive_ids:
+                        oldest = next(iter(self._proactive_message_ids))
+                        del self._proactive_message_ids[oldest]
             except Exception as e:
                 logger.error(f"Push notification failed for chat_id={cid}: {e}")
 
@@ -843,10 +869,21 @@ class TelegramAdapter(ChannelAdapter):
             return
         try:
             loop = asyncio.get_event_loop()
+
+            async def _push_and_report():
+                sent = await self.push_notification(message)
+                if sent > 0 and self._event_bus:
+                    from museon.core.event_bus import PULSE_PROACTIVE_SENT
+                    self._event_bus.publish(PULSE_PROACTIVE_SENT, {
+                        "message": message[:200],
+                        "sent_count": sent,
+                        "push_count": data.get("push_count", 0),
+                    })
+
             if loop.is_running():
-                loop.create_task(self.push_notification(message))
+                loop.create_task(_push_and_report())
             else:
-                asyncio.run(self.push_notification(message))
+                asyncio.run(_push_and_report())
         except Exception as e:
             logger.error(f"Proactive message push failed: {e}")
 
@@ -907,7 +944,7 @@ class TelegramAdapter(ChannelAdapter):
             owner_id = int(os.environ.get("TELEGRAM_OWNER_ID", "6969045906"))
             if loop.is_running():
                 loop.create_task(
-                    self._bot.send_message(
+                    self.application.bot.send_message(
                         chat_id=owner_id,
                         text=text,
                         parse_mode="Markdown",

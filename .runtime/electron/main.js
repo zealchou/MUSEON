@@ -32,18 +32,25 @@ let gatewayProcess = null;  // Child process for Gateway
 
 /**
  * Create the main dashboard window
+ * @param {object} opts - { installerMode: bool } 安裝模式使用小視窗
  */
-function createWindow() {
+function createWindow(opts = {}) {
+  const isInstaller = opts.installerMode || false;
   mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
+    width: isInstaller ? 600 : 1200,
+    height: isInstaller ? 720 : 800,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false
     },
     icon: path.join(__dirname, 'assets', 'icon.png'),
-    title: 'MUSEON'
+    title: 'MUSEON',
+    ...(isInstaller ? {
+      titleBarStyle: 'hiddenInset',
+      resizable: false,
+      maximizable: false,
+    } : {}),
   });
 
   mainWindow.loadFile(path.join(__dirname, 'src', 'index.html'));
@@ -2007,83 +2014,791 @@ ipcMain.handle('setup-ensure-runtime', async () => {
   return ensureRuntime();
 });
 
+// ═══════════════════════════════════════
+// macOS 權限檢查與請求
+// ═══════════════════════════════════════
+
+ipcMain.handle('permissions-check-all', async () => {
+  const { systemPreferences } = require('electron');
+  const { execSync } = require('child_process');
+  const permissions = [];
+
+  // 1. Notifications
+  permissions.push({
+    name: 'notifications',
+    label: '通知',
+    description: 'Gateway 離線警告、Nightly 完成提醒',
+    granted: true,
+    canRequest: true,
+  });
+
+  // 2. Microphone
+  const micStatus = systemPreferences.getMediaAccessStatus('microphone');
+  permissions.push({
+    name: 'microphone',
+    label: '麥克風',
+    description: 'Whisper 語音輸入',
+    granted: micStatus === 'granted',
+    canRequest: micStatus !== 'denied',
+  });
+
+  // 3. Camera
+  const camStatus = systemPreferences.getMediaAccessStatus('camera');
+  permissions.push({
+    name: 'camera',
+    label: '相機',
+    description: '視覺辨識（未來功能）',
+    granted: camStatus === 'granted',
+    canRequest: camStatus !== 'denied',
+  });
+
+  // 4. Accessibility
+  let accessibilityGranted = false;
+  try {
+    execSync(
+      'osascript -e \'tell application "System Events" to return name of first process\'',
+      { timeout: 3000, encoding: 'utf-8' }
+    );
+    accessibilityGranted = true;
+  } catch { /* not granted */ }
+  permissions.push({
+    name: 'accessibility',
+    label: '輔助使用',
+    description: '鍵盤快捷鍵、螢幕朗讀',
+    granted: accessibilityGranted,
+    canRequest: false,
+  });
+
+  // 5. Screen Recording
+  let screenGranted = false;
+  try {
+    execSync(
+      'osascript -e \'tell application "System Events" to return name of every window of first process\'',
+      { timeout: 5000, encoding: 'utf-8' }
+    );
+    screenGranted = true;
+  } catch { /* not granted */ }
+  permissions.push({
+    name: 'screen_recording',
+    label: '螢幕錄影',
+    description: '畫面分析（未來功能）',
+    granted: screenGranted,
+    canRequest: false,
+  });
+
+  // 6. Automation
+  let automationGranted = false;
+  try {
+    execSync(
+      'osascript -e \'tell application "Finder" to return name of home\'',
+      { timeout: 3000, encoding: 'utf-8' }
+    );
+    automationGranted = true;
+  } catch { /* not granted */ }
+  permissions.push({
+    name: 'automation',
+    label: 'Automation',
+    description: '與其他 macOS 應用程式互動',
+    granted: automationGranted,
+    canRequest: true,
+  });
+
+  return { permissions };
+});
+
+ipcMain.handle('permissions-request', async (event, name) => {
+  const { systemPreferences, shell, Notification } = require('electron');
+  const { execSync } = require('child_process');
+
+  switch (name) {
+    case 'microphone': {
+      const granted = await systemPreferences.askForMediaAccess('microphone');
+      return { success: true, granted };
+    }
+    case 'camera': {
+      const granted = await systemPreferences.askForMediaAccess('camera');
+      return { success: true, granted };
+    }
+    case 'notifications': {
+      if (Notification.isSupported()) {
+        new Notification({ title: 'MUSEON', body: '通知已開啟' }).show();
+      }
+      return { success: true, granted: true };
+    }
+    case 'accessibility': {
+      shell.openExternal(
+        'x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility'
+      );
+      return { success: true, granted: false, openedSettings: true };
+    }
+    case 'screen_recording': {
+      shell.openExternal(
+        'x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture'
+      );
+      return { success: true, granted: false, openedSettings: true };
+    }
+    case 'automation': {
+      try {
+        execSync(
+          'osascript -e \'tell application "System Events" to return ""\'',
+          { timeout: 10000 }
+        );
+        return { success: true, granted: true };
+      } catch {
+        shell.openExternal(
+          'x-apple.systempreferences:com.apple.preference.security?Privacy_Automation'
+        );
+        return { success: true, granted: false, openedSettings: true };
+      }
+    }
+    default:
+      return { success: false, error: `Unknown permission: ${name}` };
+  }
+});
+
+// ═══════════════════════════════════════
+// Installer 2.0 — Checkpoint 斷點續裝機制
+// ═══════════════════════════════════════
+
+const CHECKPOINT_FILENAME = '.setup_checkpoint.json';
+
+function getCheckpointPath() {
+  const homeDir = require('os').homedir();
+  return path.join(homeDir, 'MUSEON', CHECKPOINT_FILENAME);
+}
+
+function loadCheckpoint() {
+  const cpPath = getCheckpointPath();
+  try {
+    if (fs.existsSync(cpPath)) {
+      return JSON.parse(fs.readFileSync(cpPath, 'utf-8'));
+    }
+  } catch (err) {
+    console.warn('[MUSEON] loadCheckpoint error:', err.message);
+  }
+  return null;
+}
+
+function saveCheckpoint(phase, details = {}) {
+  const cpPath = getCheckpointPath();
+  const dir = path.dirname(cpPath);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+
+  const checkpoint = loadCheckpoint() || { version: app.getVersion(), completed_phase: -1, phase_details: {} };
+  checkpoint.version = app.getVersion();
+  checkpoint.completed_phase = phase;
+  checkpoint.phase_details = { ...checkpoint.phase_details, ...details };
+  checkpoint.updated_at = new Date().toISOString();
+
+  // 原子寫入：先寫 .tmp 再 rename
+  const tmpPath = cpPath + '.tmp';
+  fs.writeFileSync(tmpPath, JSON.stringify(checkpoint, null, 2), 'utf-8');
+  fs.renameSync(tmpPath, cpPath);
+  return checkpoint;
+}
+
+function getResumePhase() {
+  const cp = loadCheckpoint();
+  if (!cp) return 0; // 全新安裝從 Phase 0 開始
+  if (cp.version !== app.getVersion()) return 0; // 版本不同，重新開始
+  return Math.min((cp.completed_phase || -1) + 1, 4);
+}
+
+/**
+ * 判斷是否需要顯示 installer
+ * 條件：.env 不存在或 MUSEON_SETUP_DONE 未設定
+ */
+function needsInstaller() {
+  const homeDir = require('os').homedir();
+  const envPath = path.join(homeDir, 'MUSEON', '.env');
+  if (!fs.existsSync(envPath)) return true;
+  const env = parseEnvFile(envPath);
+  if (!env['MUSEON_SETUP_DONE']) return true;
+  if (!env['ANTHROPIC_API_KEY'] || env['ANTHROPIC_API_KEY'].length < 10) return true;
+  return false;
+}
+
+// ─── Installer IPC Channels ───
+
+ipcMain.handle('installer-get-checkpoint', () => {
+  return loadCheckpoint();
+});
+
+ipcMain.handle('installer-save-checkpoint', (event, phase, details) => {
+  return saveCheckpoint(phase, details);
+});
+
+/**
+ * installer-run-bootstrap: Phase 0 全自動引導
+ * 拆分 ensureRuntime() 為步驟式，每步推送進度
+ */
+ipcMain.handle('installer-run-bootstrap', async () => {
+  const homeDir = require('os').homedir();
+  const museonHome = path.join(homeDir, 'MUSEON');
+  const runtimeDir = path.join(museonHome, '.runtime');
+  const result = { success: false, steps: [] };
+
+  try {
+    // Step 1: 部署 .runtime/（10%）
+    safeSend('installer-bootstrap-progress', { percent: 5, status: '準備環境中...' });
+
+    if (!fs.existsSync(path.join(runtimeDir, 'src', 'museon'))) {
+      const bundlePath = getBundledRuntimePath();
+      if (bundlePath) {
+        safeSend('installer-bootstrap-progress', { percent: 8, status: '從安裝包部署原始碼...' });
+        fs.mkdirSync(runtimeDir, { recursive: true });
+        fs.mkdirSync(museonHome, { recursive: true });
+        try {
+          execSync(`rsync -a "${bundlePath}/" "${runtimeDir}/"`, { timeout: 60000 });
+          result.steps.push('原始碼部署完成');
+        } catch (err) {
+          result.steps.push(`部署失敗: ${err.message}`);
+          safeSend('installer-bootstrap-progress', { percent: 10, status: '部署失敗', error: err.message });
+          return result;
+        }
+        // 複製種子資料
+        const userDataDir = path.join(museonHome, 'data');
+        if (!fs.existsSync(userDataDir) && fs.existsSync(path.join(runtimeDir, 'data'))) {
+          try { execSync(`cp -Rn "${runtimeDir}/data/" "${userDataDir}/"`, { timeout: 30000 }); } catch {}
+        }
+      } else {
+        result.steps.push('開發模式，無需部署 runtime bundle');
+      }
+    } else {
+      result.steps.push('.runtime/src/museon 已存在');
+    }
+    safeSend('installer-bootstrap-progress', { percent: 10, status: '環境準備完成' });
+
+    // Step 2: 偵測 Python >= 3.11（30%）
+    safeSend('installer-bootstrap-progress', { percent: 15, status: '偵測 Python...' });
+    const systemPy = findSystemPython();
+    if (!systemPy) {
+      result.steps.push('找不到 Python >= 3.11');
+      safeSend('installer-bootstrap-progress', { percent: 30, status: '找不到 Python >= 3.11', error: 'python_missing' });
+      return result;
+    }
+    result.steps.push(`Python: ${systemPy}`);
+    safeSend('installer-bootstrap-progress', { percent: 30, status: `Python: ${systemPy}` });
+
+    // Step 3: 建立 venv + pip install（50%）
+    const venvDir = path.join(runtimeDir, '.venv');
+    const devVenvDir = path.join(museonHome, '.venv');
+    // 支援生產(runtimeDir)和開發(museonHome)兩種佈局
+    const targetVenv = fs.existsSync(path.join(runtimeDir, 'src', 'museon')) ? venvDir : devVenvDir;
+    const venvPy = path.join(targetVenv, 'bin', 'python3');
+
+    if (!fs.existsSync(venvPy)) {
+      safeSend('installer-bootstrap-progress', { percent: 35, status: '建立虛擬環境...' });
+      try {
+        execSync(`"${systemPy}" -m venv "${targetVenv}"`, { timeout: 30000 });
+        result.steps.push('venv 已建立');
+      } catch (err) {
+        result.steps.push(`venv 建立失敗: ${err.message}`);
+        safeSend('installer-bootstrap-progress', { percent: 50, status: 'venv 建立失敗', error: err.message });
+        return result;
+      }
+    }
+
+    // 檢查依賴
+    let depsInstalled = false;
+    try {
+      execSync(`"${venvPy}" -c "import fastapi"`, { timeout: 5000, stdio: 'ignore' });
+      depsInstalled = true;
+      result.steps.push('依賴已安裝');
+    } catch {}
+
+    if (!depsInstalled) {
+      safeSend('installer-bootstrap-progress', { percent: 40, status: '安裝 Python 依賴（首次約需 1-3 分鐘）...' });
+      const installDir = fs.existsSync(path.join(runtimeDir, 'pyproject.toml')) ? runtimeDir : museonHome;
+      try {
+        execSync(`cd "${installDir}" && "${venvPy}" -m pip install -e ".[dev]" --quiet`, {
+          timeout: 300000, stdio: 'pipe',
+        });
+        result.steps.push('依賴安裝完成');
+      } catch (err) {
+        result.steps.push(`依賴安裝失敗: ${err.message}`);
+        safeSend('installer-bootstrap-progress', { percent: 50, status: '依賴安裝失敗', error: err.message });
+        return result;
+      }
+    }
+    safeSend('installer-bootstrap-progress', { percent: 50, status: 'Python 環境就緒' });
+
+    // Step 4: 偵測 Docker Desktop（80%）
+    safeSend('installer-bootstrap-progress', { percent: 60, status: '偵測 Docker...' });
+    let dockerStatus = 'unknown';
+    try {
+      execSync('docker info', { timeout: 10000, stdio: 'ignore' });
+      dockerStatus = 'running';
+      result.steps.push('Docker Desktop 已運行');
+    } catch {
+      // 試試 Docker 是否安裝但未啟動
+      try {
+        execSync('command -v docker', { timeout: 3000, encoding: 'utf-8' });
+        dockerStatus = 'installed_not_running';
+        result.steps.push('Docker 已安裝但未啟動');
+        // 嘗試自動啟動
+        try {
+          execSync('open -a Docker', { timeout: 5000 });
+          result.steps.push('已嘗試啟動 Docker Desktop');
+          // 等待 Docker daemon
+          for (let i = 0; i < 12; i++) {
+            await new Promise(r => setTimeout(r, 5000));
+            safeSend('installer-bootstrap-progress', { percent: 65 + i * 1.2, status: `等待 Docker 啟動...（${(i + 1) * 5}s）` });
+            try {
+              execSync('docker info', { timeout: 5000, stdio: 'ignore' });
+              dockerStatus = 'running';
+              result.steps.push('Docker 已啟動');
+              break;
+            } catch {}
+          }
+        } catch {}
+      } catch {
+        dockerStatus = 'not_installed';
+        result.steps.push('Docker 未安裝');
+      }
+    }
+    safeSend('installer-bootstrap-progress', { percent: 80, status: `Docker: ${dockerStatus}` });
+
+    // Step 5: 完成（100%）
+    safeSend('installer-bootstrap-progress', { percent: 100, status: '環境檢查完成' });
+    result.success = true;
+    result.dockerStatus = dockerStatus;
+
+    // 儲存 checkpoint
+    saveCheckpoint(0, {
+      bootstrap: {
+        runtime_deployed: true,
+        venv_ready: true,
+        docker_status: dockerStatus,
+        python_path: systemPy,
+      }
+    });
+
+    return result;
+  } catch (err) {
+    result.steps.push(`未預期錯誤: ${err.message}`);
+    safeSend('installer-bootstrap-progress', { percent: 0, status: '錯誤', error: err.message });
+    return result;
+  }
+});
+
+/**
+ * installer-run-deploy: Phase 3 全自動部署工具箱
+ */
+ipcMain.handle('installer-run-deploy', async () => {
+  const result = { success: false, steps: [], toolResults: {} };
+
+  try {
+    // Step 1: 確保 .env 系統變數完整
+    safeSend('installer-deploy-progress', { step: 'env', status: 'running', message: '設定環境變數...' });
+    const homeDir = require('os').homedir();
+    const museonHome = path.join(homeDir, 'MUSEON');
+    const envPath = path.join(museonHome, '.env');
+    // 補寫系統變數（不覆蓋已有的 Key）
+    const envVars = {
+      MUSEON_HOME: museonHome,
+      MUSEON_VERSION: app.getVersion(),
+    };
+    for (const [key, value] of Object.entries(envVars)) {
+      const existing = parseEnvFile(envPath);
+      if (!existing[key]) {
+        writeEnvKey(envPath, key, value);
+      }
+    }
+    result.steps.push('環境變數已設定');
+    safeSend('installer-deploy-progress', { step: 'env', status: 'done', message: '環境變數已設定' });
+
+    // Step 2: 啟動 Gateway
+    safeSend('installer-deploy-progress', { step: 'gateway', status: 'running', message: '啟動 MUSEON Gateway...' });
+    if (gatewayProcess && !gatewayProcess.killed) {
+      gatewayProcess.kill('SIGTERM');
+      await new Promise(r => setTimeout(r, 1000));
+    }
+    gatewayProcess = spawnGateway();
+    const gwReady = await waitForGatewayReady(20000);
+    if (gwReady) {
+      gatewayOnline = true;
+      result.steps.push('Gateway 啟動成功');
+      safeSend('installer-deploy-progress', { step: 'gateway', status: 'done', message: 'Gateway 已啟動' });
+    } else {
+      result.steps.push('Gateway 啟動逾時（工具安裝仍會繼續）');
+      safeSend('installer-deploy-progress', { step: 'gateway', status: 'warning', message: 'Gateway 啟動中...' });
+    }
+
+    // Step 3: 偵測/啟動 Docker
+    safeSend('installer-deploy-progress', { step: 'docker', status: 'running', message: '偵測 Docker...' });
+    let dockerOK = false;
+    try {
+      execSync('docker info', { timeout: 10000, stdio: 'ignore' });
+      dockerOK = true;
+      safeSend('installer-deploy-progress', { step: 'docker', status: 'done', message: 'Docker 已就緒' });
+    } catch {
+      try {
+        execSync('command -v docker', { timeout: 3000, encoding: 'utf-8' });
+        // Docker 已安裝但未啟動
+        safeSend('installer-deploy-progress', { step: 'docker', status: 'running', message: '啟動 Docker Desktop...' });
+        try {
+          execSync('open -a Docker', { timeout: 5000 });
+          // 等待 daemon
+          for (let i = 0; i < 12; i++) {
+            await new Promise(r => setTimeout(r, 5000));
+            try {
+              execSync('docker info', { timeout: 5000, stdio: 'ignore' });
+              dockerOK = true;
+              break;
+            } catch {}
+          }
+        } catch {}
+      } catch {}
+
+      if (!dockerOK) {
+        result.steps.push('Docker 未就緒');
+        safeSend('installer-deploy-progress', { step: 'docker', status: 'docker_missing', message: 'Docker 未安裝或未啟動' });
+        // 不回傳失敗，讓 renderer 顯示引導畫面，後續可 retry
+        result.dockerMissing = true;
+        saveCheckpoint(2, { deploy: { docker_missing: true } });
+        return result;
+      }
+    }
+    result.steps.push('Docker 已就緒');
+
+    // Step 4-7: 安裝工具
+    const tools = ['searxng', 'qdrant', 'firecrawl', 'whisper'];
+    const projectRoot = getProjectRoot();
+    const pythonBin = findPython(projectRoot);
+    const runtimeSrc = path.join(projectRoot, '.runtime', 'src');
+    const srcDir = fs.existsSync(runtimeSrc) ? runtimeSrc : path.join(projectRoot, 'src');
+
+    for (const toolName of tools) {
+      safeSend('installer-deploy-progress', {
+        step: `tool-${toolName}`, status: 'running',
+        message: `安裝 ${toolName}...`
+      });
+      try {
+        const toolResult = await installToolDirect(pythonBin, srcDir, projectRoot, toolName);
+        result.toolResults[toolName] = toolResult;
+        if (toolResult.success) {
+          safeSend('installer-deploy-progress', {
+            step: `tool-${toolName}`, status: 'done',
+            message: `${toolName} 安裝完成`
+          });
+        } else {
+          safeSend('installer-deploy-progress', {
+            step: `tool-${toolName}`, status: 'failed',
+            message: `${toolName}: ${toolResult.error || '安裝失敗'}`
+          });
+        }
+      } catch (err) {
+        result.toolResults[toolName] = { success: false, error: err.message };
+        safeSend('installer-deploy-progress', {
+          step: `tool-${toolName}`, status: 'failed',
+          message: `${toolName}: ${err.message}`
+        });
+      }
+    }
+
+    // Step 8: 設定 launchd daemon
+    safeSend('installer-deploy-progress', { step: 'daemon', status: 'running', message: '設定開機自動啟動...' });
+    try {
+      setupLaunchdDaemon(projectRoot, pythonBin);
+      result.steps.push('launchd daemon 已設定');
+      safeSend('installer-deploy-progress', { step: 'daemon', status: 'done', message: '開機自動啟動已設定' });
+    } catch (err) {
+      result.steps.push(`daemon 設定失敗: ${err.message}`);
+      safeSend('installer-deploy-progress', { step: 'daemon', status: 'warning', message: '自動啟動設定失敗（非致命）' });
+    }
+
+    result.success = true;
+    saveCheckpoint(3, { deploy: { tools: result.toolResults, docker_ok: true } });
+    return result;
+  } catch (err) {
+    result.steps.push(`未預期錯誤: ${err.message}`);
+    return result;
+  }
+});
+
+/**
+ * 直接透過 Python 子進程安裝工具（不依賴 Gateway）
+ */
+function installToolDirect(pythonBin, srcDir, projectRoot, toolName) {
+  return new Promise((resolve) => {
+    const script = `
+import json, sys
+sys.path.insert(0, "${srcDir.replace(/"/g, '\\"')}")
+try:
+    from museon.tools.tool_registry import ToolRegistry
+    registry = ToolRegistry()
+    result = registry.install_tool("${toolName}")
+    print(json.dumps({"success": True, "result": str(result)}))
+except Exception as e:
+    print(json.dumps({"success": False, "error": str(e)}))
+`;
+    const proc = spawn(pythonBin, ['-c', script], {
+      cwd: projectRoot,
+      env: { ...process.env, PYTHONPATH: srcDir, MUSEON_HOME: projectRoot },
+      stdio: ['ignore', 'pipe', 'pipe'],
+      timeout: 600000, // 10 分鐘
+    });
+
+    let stdout = '';
+    let stderr = '';
+    proc.stdout.on('data', (d) => { stdout += d.toString(); });
+    proc.stderr.on('data', (d) => { stderr += d.toString(); });
+    proc.on('close', (code) => {
+      try {
+        // 取最後一行 JSON
+        const lines = stdout.trim().split('\n');
+        for (let i = lines.length - 1; i >= 0; i--) {
+          try {
+            const parsed = JSON.parse(lines[i]);
+            resolve(parsed);
+            return;
+          } catch {}
+        }
+        resolve({ success: code === 0, stdout: stdout.slice(-500), stderr: stderr.slice(-500) });
+      } catch {
+        resolve({ success: false, error: stderr.slice(-500) || `Exit code: ${code}` });
+      }
+    });
+    proc.on('error', (err) => {
+      resolve({ success: false, error: err.message });
+    });
+  });
+}
+
+/**
+ * 設定 launchd daemon plist
+ */
+function setupLaunchdDaemon(projectRoot, pythonBin) {
+  const homeDir = require('os').homedir();
+  const plistDir = path.join(homeDir, 'Library', 'LaunchAgents');
+  if (!fs.existsSync(plistDir)) fs.mkdirSync(plistDir, { recursive: true });
+
+  const runtimeSrc = path.join(projectRoot, '.runtime', 'src');
+  const srcDir = fs.existsSync(runtimeSrc) ? runtimeSrc : path.join(projectRoot, 'src');
+
+  const plistContent = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.museon.gateway</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>${pythonBin}</string>
+    <string>-m</string>
+    <string>museon.gateway.server</string>
+  </array>
+  <key>WorkingDirectory</key>
+  <string>${projectRoot}</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PYTHONPATH</key>
+    <string>${srcDir}</string>
+    <key>MUSEON_HOME</key>
+    <string>${projectRoot}</string>
+  </dict>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>StandardOutPath</key>
+  <string>${path.join(projectRoot, 'logs', 'gateway.log')}</string>
+  <key>StandardErrorPath</key>
+  <string>${path.join(projectRoot, 'logs', 'gateway.err')}</string>
+</dict>
+</plist>`;
+
+  const plistPath = path.join(plistDir, 'com.museon.gateway.plist');
+  fs.writeFileSync(plistPath, plistContent, 'utf-8');
+
+  // 載入 daemon
+  try { execSync(`launchctl unload "${plistPath}"`, { timeout: 5000, stdio: 'ignore' }); } catch {}
+  execSync(`launchctl load "${plistPath}"`, { timeout: 5000 });
+}
+
+/**
+ * installer-complete-transition: Installer 完成後切換到 Dashboard 模式
+ * 擴大視窗、建立 Tray、啟動 Watchdog
+ */
+ipcMain.handle('installer-complete-transition', async () => {
+  try {
+    // 擴大視窗到 Dashboard 尺寸
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.setResizable(true);
+      mainWindow.setMaximizable(true);
+      mainWindow.setSize(1200, 800, true);
+      mainWindow.center();
+      // 恢復正常 titleBar
+      // 注意：titleBarStyle 無法動態修改，但 hiddenInset 在大視窗也可以接受
+    }
+
+    // 建立 Tray
+    try { createTray(); } catch (err) { console.warn('[MUSEON] Tray creation failed:', err); }
+
+    // 啟動 Watchdog
+    startWatchdog();
+
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+/**
+ * installer-run-healthcheck: Phase 4 健康檢查
+ */
+ipcMain.handle('installer-run-healthcheck', async () => {
+  const report = {
+    gateway: { status: 'unknown' },
+    docker: { status: 'unknown' },
+    tools: {},
+    overall: 'unknown',
+  };
+
+  // Gateway 健檢
+  const health = await checkGatewayHealth();
+  report.gateway = {
+    status: health && health.status === 'healthy' ? 'healthy' : 'unhealthy',
+    details: health,
+  };
+
+  // Docker 健檢
+  try {
+    execSync('docker info', { timeout: 5000, stdio: 'ignore' });
+    report.docker = { status: 'healthy' };
+  } catch {
+    report.docker = { status: 'unhealthy' };
+  }
+
+  // 工具健檢
+  const tools = ['searxng', 'qdrant', 'firecrawl', 'whisper'];
+  for (const toolName of tools) {
+    try {
+      const out = execSync(`docker ps --filter "name=museon-${toolName}" --format "{{.Status}}"`, {
+        timeout: 5000, encoding: 'utf-8',
+      }).trim();
+      report.tools[toolName] = { status: out ? 'running' : 'stopped', details: out };
+    } catch {
+      report.tools[toolName] = { status: 'unknown' };
+    }
+  }
+
+  // 計算 overall
+  const gwOK = report.gateway.status === 'healthy';
+  const toolStatuses = Object.values(report.tools);
+  const toolsRunning = toolStatuses.filter(t => t.status === 'running').length;
+  const toolsFailed = toolStatuses.filter(t => t.status !== 'running' && t.status !== 'unknown').length;
+
+  if (gwOK && toolsRunning === tools.length) {
+    report.overall = 'healthy';
+  } else if (gwOK && toolsRunning > 0) {
+    report.overall = 'partial';
+  } else {
+    report.overall = 'unhealthy';
+  }
+
+  return report;
+});
+
 // App lifecycle
 app.whenReady().then(async () => {
   // 啟動防呆 — 清除殘留 MUSEON 進程
   killStaleProcesses();
 
-  // ─── DMG 自帶 runtime 首次部署 ───
-  const runtimeResult = await ensureRuntime();
-  console.log('[MUSEON] ensureRuntime:', JSON.stringify(runtimeResult));
+  // ─── 判斷是否需要 installer ───
+  const isInstallerMode = needsInstaller();
+  console.log('[MUSEON] Install mode:', isInstallerMode ? 'INSTALLER' : 'NORMAL');
 
-  createWindow();
+  if (isInstallerMode) {
+    // ── Installer 模式: 小視窗，由 renderer 驅動全流程 ──
+    createWindow({ installerMode: true });
 
-  // 首次啟動預設開啟「開機自動啟動」
-  if (!app.getLoginItemSettings().openAtLogin) {
-    app.setLoginItemSettings({ openAtLogin: true, openAsHidden: false });
-    console.log('[MUSEON] Auto-launch enabled by default');
-  }
+    // 首次啟動預設開啟「開機自動啟動」
+    if (!app.getLoginItemSettings().openAtLogin) {
+      app.setLoginItemSettings({ openAtLogin: true, openAsHidden: false });
+    }
 
-  // Tray 建立失敗不應阻止視窗顯示
-  try {
-    createTray();
-  } catch (err) {
-    console.error('[MUSEON] Failed to create tray (non-fatal):', err);
-  }
-
-  // Check if Gateway is already running (HTTP health check)
-  const existingHealth = await checkGatewayHealth();
-  if (existingHealth && existingHealth.status === 'healthy') {
-    gatewayOnline = true;
-    console.log('[MUSEON] Found existing Gateway (HTTP /health OK)');
-    safeSend('gateway-health', { online: true });
+    // Tray 不在 installer 模式建立
+    // renderer 的 init() 會偵測 isFirstRun → 啟動 Installer 2.0 流程
+    // bootstrap/deploy/healthcheck 全由 IPC handler 處理
   } else {
-    // Gateway 不在線 — 先嘗試 launchctl load daemon（如果 plist 存在）
-    const plistPath = path.join(
-      require('os').homedir(), 'Library', 'LaunchAgents', 'com.museon.gateway.plist'
-    );
-    if (fs.existsSync(plistPath)) {
-      console.log('[MUSEON] Found daemon plist, trying launchctl load...');
-      try {
-        const { execSync } = require('child_process');
-        // 先 unload 清理殘留
-        try { execSync(`launchctl unload "${plistPath}"`, { timeout: 5000, stdio: 'ignore' }); } catch {}
-        execSync(`launchctl load "${plistPath}"`, { timeout: 5000 });
-        console.log('[MUSEON] launchctl load succeeded, waiting for Gateway...');
-        const daemonReady = await waitForGatewayReady(10000);
-        if (daemonReady) {
-          gatewayOnline = true;
-          console.log('[MUSEON] Daemon-managed Gateway is online ✓');
-          safeSend('gateway-health', { online: true });
-          return; // 不需要 spawn，daemon 已經在管了
-        }
-        console.log('[MUSEON] Daemon Gateway not ready after 10s, falling back to spawn...');
-      } catch (daemonErr) {
-        console.warn('[MUSEON] launchctl load failed:', daemonErr.message);
-      }
+    // ── 正常模式: 大視窗 + 啟動 Gateway ──
+
+    // DMG 自帶 runtime 首次部署（正常模式也可能需要更新）
+    const runtimeResult = await ensureRuntime();
+    console.log('[MUSEON] ensureRuntime:', JSON.stringify(runtimeResult));
+
+    createWindow();
+
+    // 首次啟動預設開啟「開機自動啟動」
+    if (!app.getLoginItemSettings().openAtLogin) {
+      app.setLoginItemSettings({ openAtLogin: true, openAsHidden: false });
+      console.log('[MUSEON] Auto-launch enabled by default');
     }
-    // Fallback: No daemon or daemon failed — auto-spawn
-    console.log('[MUSEON] No running Gateway found, auto-spawning...');
+
+    // Tray 建立失敗不應阻止視窗顯示
     try {
-      gatewayProcess = spawnGateway();
-      console.log('[MUSEON] Gateway spawned (PID: ' + gatewayProcess.pid + ')');
-
-      // 等 Gateway HTTP /health 變為 healthy（最多 15 秒）
-      const ready = await waitForGatewayReady(15000);
-      if (ready) {
-        gatewayOnline = true;
-        console.log('[MUSEON] Auto-spawned Gateway is online ✓');
-        safeSend('gateway-health', { online: true });
-      } else {
-        console.error('[MUSEON] Gateway spawned but HTTP health check failed after 15s');
-      }
-    } catch (spawnErr) {
-      console.error('[MUSEON] Failed to auto-spawn Gateway:', spawnErr.message);
+      createTray();
+    } catch (err) {
+      console.error('[MUSEON] Failed to create tray (non-fatal):', err);
     }
-  }
 
-  // Start watchdog
-  startWatchdog();
+    // Check if Gateway is already running (HTTP health check)
+    const existingHealth = await checkGatewayHealth();
+    if (existingHealth && existingHealth.status === 'healthy') {
+      gatewayOnline = true;
+      console.log('[MUSEON] Found existing Gateway (HTTP /health OK)');
+      safeSend('gateway-health', { online: true });
+    } else {
+      // Gateway 不在線 — 先嘗試 launchctl load daemon（如果 plist 存在）
+      const plistPath = path.join(
+        require('os').homedir(), 'Library', 'LaunchAgents', 'com.museon.gateway.plist'
+      );
+      if (fs.existsSync(plistPath)) {
+        console.log('[MUSEON] Found daemon plist, trying launchctl load...');
+        try {
+          const { execSync } = require('child_process');
+          // 先 unload 清理殘留
+          try { execSync(`launchctl unload "${plistPath}"`, { timeout: 5000, stdio: 'ignore' }); } catch {}
+          execSync(`launchctl load "${plistPath}"`, { timeout: 5000 });
+          console.log('[MUSEON] launchctl load succeeded, waiting for Gateway...');
+          const daemonReady = await waitForGatewayReady(10000);
+          if (daemonReady) {
+            gatewayOnline = true;
+            console.log('[MUSEON] Daemon-managed Gateway is online ✓');
+            safeSend('gateway-health', { online: true });
+            startWatchdog();
+            return; // 不需要 spawn，daemon 已經在管了
+          }
+          console.log('[MUSEON] Daemon Gateway not ready after 10s, falling back to spawn...');
+        } catch (daemonErr) {
+          console.warn('[MUSEON] launchctl load failed:', daemonErr.message);
+        }
+      }
+      // Fallback: No daemon or daemon failed — auto-spawn
+      console.log('[MUSEON] No running Gateway found, auto-spawning...');
+      try {
+        gatewayProcess = spawnGateway();
+        console.log('[MUSEON] Gateway spawned (PID: ' + gatewayProcess.pid + ')');
+
+        // 等 Gateway HTTP /health 變為 healthy（最多 15 秒）
+        const ready = await waitForGatewayReady(15000);
+        if (ready) {
+          gatewayOnline = true;
+          console.log('[MUSEON] Auto-spawned Gateway is online ✓');
+          safeSend('gateway-health', { online: true });
+        } else {
+          console.error('[MUSEON] Gateway spawned but HTTP health check failed after 15s');
+        }
+      } catch (spawnErr) {
+        console.error('[MUSEON] Failed to auto-spawn Gateway:', spawnErr.message);
+      }
+    }
+
+    // Start watchdog
+    startWatchdog();
+  }
 
   // macOS dock 點擊 → 顯示已隱藏的視窗或建立新視窗
   app.on('activate', () => {

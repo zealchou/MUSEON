@@ -1,7 +1,14 @@
 """WEEEngine — Workflow Evolution Engine 自動循環引擎.
 
-每輪互動自動執行：信噪過濾 → 啟發式 4D 評分 → 記錄 → 高原檢查。
+每輪互動自動執行：信噪過濾 → 啟發式 5D 評分 → 記錄 → 高原檢查。
 搭配壓縮（daily）/ 融合（weekly）管線，驅動持續進化閉環。
+
+5D 評分維度：
+  D1 Speed — 執行速度
+  D2 Quality — 回應品質
+  D3 Alignment — 對齊度
+  D4 Leverage — 槓桿效率
+  D5 External Integration — 是否有效調用外部知識、資源、工具
 
 零 LLM 依賴。所有評分和偵測為純 Python 啟發式。
 """
@@ -13,7 +20,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from museon.workflow.models import FourDScore, WorkflowRecord
+from museon.workflow.models import FiveDScore, FourDScore, WorkflowRecord
 from museon.workflow.workflow_engine import WorkflowEngine
 
 logger = logging.getLogger(__name__)
@@ -110,7 +117,7 @@ class WEEEngine:
 
     每輪互動：
     1. 信噪過濾 — 只記錄有意義的信號
-    2. 啟發式 4D 評分 — 純 Python 規則
+    2. 啟發式 5D 評分 — 純 Python 規則
     3. 記錄到 WorkflowEngine
     4. 高原檢查（每 N 輪）
 
@@ -187,14 +194,20 @@ class WEEEngine:
         return False
 
     # ═══════════════════════════════════════════
-    # 啟發式 4D 評分
+    # 啟發式 5D 評分
     # ═══════════════════════════════════════════
 
-    def heuristic_score(self, data: Dict[str, Any]) -> FourDScore:
-        """啟發式 4D 評分.
+    def heuristic_score(self, data: Dict[str, Any]) -> FiveDScore:
+        """啟發式 5D 評分.
 
-        基礎分：S=5, Q=5, A=5, L=4
+        基礎分：S=5, Q=5, A=5, L=4, E=3
         根據上下文信號加減分，最後 clamp [0, 10]。
+
+        D5 External Integration 評分邏輯：
+          - 使用外部工具（搜尋、API）+1.0
+          - 引用外部知識 +0.5
+          - 多工具協同 +1.0
+          - 無外部資訊時預設 3.0
 
         Args:
             data: 互動數據
@@ -202,20 +215,25 @@ class WEEEngine:
                 - response_content: AI 回應
                 - q_score_tier: "high"/"medium"/"low"
                 - matched_skills: 匹配到的 skill 列表
+                - tools_used: 使用的工具列表（新增）
+                - external_sources: 外部資訊來源數（新增）
                 - source: 來源
 
         Returns:
-            FourDScore
+            FiveDScore（向後相容 FourDScore 的 speed/quality/alignment/leverage）
         """
         speed = 5.0
         quality = 5.0
         alignment = 5.0
         leverage = 4.0
+        external_integration = 3.0  # D5 基礎分
 
         user_content = data.get("user_content", "")
         response_content = data.get("response_content", "")
         q_score_tier = data.get("q_score_tier", "medium")
         matched_skills = data.get("matched_skills", [])
+        tools_used = data.get("tools_used", [])
+        external_sources = data.get("external_sources", 0)
 
         combined = f"{user_content} {response_content}"
 
@@ -264,11 +282,29 @@ class WEEEngine:
         if any(kw in combined for kw in _SIGNAL_KEYWORDS_ZH):
             quality += 0.5
 
-        return FourDScore(
+        # ── D5: External Integration ──
+        # 使用外部工具
+        if tools_used:
+            external_integration += 1.0
+            # 多工具協同加分
+            if len(tools_used) >= 2:
+                external_integration += 1.0
+
+        # 外部資訊來源
+        if external_sources > 0:
+            external_integration += min(1.0, external_sources * 0.5)
+
+        # 搜尋/引用相關關鍵字
+        _ext_kw = {"搜尋", "查詢", "引用", "參考", "來源", "search", "API", "外部"}
+        if any(kw in combined for kw in _ext_kw):
+            external_integration += 0.5
+
+        return FiveDScore(
             speed=speed,
             quality=quality,
             alignment=alignment,
             leverage=leverage,
+            external_integration=external_integration,
         ).clamp()
 
     def _detect_failure(self, content: str) -> bool:
@@ -371,7 +407,7 @@ class WEEEngine:
             if self._interaction_count % _PLATEAU_CHECK_INTERVAL == 0:
                 plateau_result = self._wf_engine.check_plateau(wf.workflow_id)
 
-            return {
+            result = {
                 "session_id": session_id,
                 "interaction": self._interaction_count,
                 "workflow_id": wf.workflow_id,
@@ -379,6 +415,36 @@ class WEEEngine:
                 "outcome": outcome,
                 "plateau_check": plateau_result,
             }
+
+            # 發布 SKILL_QUALITY_SCORED 事件
+            if self._event_bus:
+                try:
+                    from museon.core.event_bus import SKILL_QUALITY_SCORED
+                    self._event_bus.publish(SKILL_QUALITY_SCORED, {
+                        "workflow_id": wf.workflow_id,
+                        "workflow_name": wf.name,
+                        "score": score.to_dict(),
+                        "outcome": outcome,
+                        "matched_skills": data.get("matched_skills", []),
+                    })
+                except Exception:
+                    pass
+
+            # 發布 WEE_CYCLE_COMPLETE（ActivityLogger 訂閱）
+            if self._event_bus:
+                try:
+                    from museon.core.event_bus import WEE_CYCLE_COMPLETE
+                    self._event_bus.publish(WEE_CYCLE_COMPLETE, {
+                        "session_id": session_id,
+                        "interaction": self._interaction_count,
+                        "score": score.to_dict() if score else {},
+                        "outcome": outcome,
+                        "has_plateau": plateau_result is not None,
+                    })
+                except Exception:
+                    pass
+
+            return result
 
         except Exception as e:
             logger.error(f"WEEEngine.auto_cycle error: {e}")
