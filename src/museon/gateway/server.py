@@ -1405,7 +1405,7 @@ def create_app() -> FastAPI:
             brain = _get_brain()
             from museon.core.skill_manager import SkillManager
             mgr = SkillManager(workspace=brain.data_dir)
-            return mgr.scan_all()
+            return await asyncio.to_thread(mgr.scan_all)
         except Exception as e:
             return {"error": str(e)}
 
@@ -3290,6 +3290,10 @@ async def _telegram_message_pump(adapter) -> None:
 
             username = message.metadata.get("username", "unknown")
             chat_id = message.metadata.get("chat_id")
+            is_group = message.metadata.get("is_group", False)
+            is_owner = message.metadata.get("is_owner", False)
+            sender_name = message.metadata.get("sender_name", "")
+            group_id = message.metadata.get("group_id")
             logger.info(
                 f"Telegram [{username}]: {message.content[:80]}"
             )
@@ -3316,9 +3320,31 @@ async def _telegram_message_pump(adapter) -> None:
             brain = _get_brain()
 
             try:
+                # ── Check if owner is responding to a sensitivity escalation ──
+                if not is_group and is_owner:
+                    try:
+                        from museon.governance.multi_tenant import get_escalation_queue
+                        eq = get_escalation_queue()
+                        content_lower = message.content.strip().lower()
+                        if content_lower in ("可以", "yes", "ok", "好", "行"):
+                            eid = eq.resolve_latest(allowed=True)
+                            if eid:
+                                entry = eq.get(eid)
+                                if entry:
+                                    response_text = f"好，我去回覆 {entry['asker_name']} 的問題。"
+                                    # TODO: actually send the answer to the group (requires storing the question & context)
+                        elif content_lower in ("不行", "no", "不可以", "拒絕", "deny"):
+                            eid = eq.resolve_latest(allowed=False)
+                            if eid:
+                                entry = eq.get(eid)
+                                if entry:
+                                    response_text = f"好，已記錄。{entry['asker_name']} 那邊我會禮貌拒絕。"
+                    except Exception as _esc_err:
+                        logger.debug(f"Escalation check error: {_esc_err}")
+
                 # /start 觸發命名儀式（Brain 內部處理）
                 # /reset 強制重跑命名儀式
-                if message.content in ("/start", "/reset"):
+                if response_text is None and message.content in ("/start", "/reset"):
                     if message.content == "/reset":
                         # 強制重置儀式狀態
                         brain.ceremony._state = {
@@ -3354,13 +3380,69 @@ async def _telegram_message_pump(adapter) -> None:
                             user_id=message.user_id,
                             source="telegram",
                         )
-                else:
-                    brain_result = await brain.process(
-                        content=message.content,
-                        session_id=message.session_id,
-                        user_id=message.user_id,
-                        source="telegram",
-                    )
+                elif response_text is None:
+                    if is_group and not is_owner:
+                        # Sensitivity check for non-owner group messages
+                        try:
+                            from museon.governance.multi_tenant import (
+                                get_sensitivity_checker, get_escalation_queue, ExternalAnimaManager
+                            )
+                            from pathlib import Path as _Path
+                            import uuid as _uuid
+
+                            checker = get_sensitivity_checker()
+                            level, reason = checker.check(message.content)
+
+                            if level:
+                                # Sensitive topic: escalate to owner DM
+                                eq = get_escalation_queue()
+                                eid = _uuid.uuid4().hex[:8]
+                                eq.add(eid, message.content, sender_name, group_id or 0, level)
+
+                                dm_text = (
+                                    f"【群組敏感問題 - {level}】\n\n"
+                                    f"{sender_name} 在群組問了：\n「{message.content[:200]}」\n\n"
+                                    f"原因：{reason}\n\n"
+                                    f"可以回答嗎？\n"
+                                    f"回覆「可以」→ 我照常回答\n"
+                                    f"回覆「不行」→ 我禮貌拒絕\n"
+                                    f"（10 分鐘無回應 → 預設禮貌拒絕）"
+                                )
+                                await adapter.send_dm_to_owner(dm_text)
+                                response_text = f"這個問題我需要先確認一下，稍等。"
+
+                            else:
+                                # Not sensitive: update external anima and process
+                                data_dir = _Path(brain.data_dir)
+                                ext_mgr = ExternalAnimaManager(data_dir)
+                                ext_mgr.update(message.user_id, display_name=sender_name)
+
+                                # Prefix with group context so brain knows the situation
+                                group_prefix = f"[群組會議] {sender_name} 問：\n"
+                                brain_result = await brain.process(
+                                    content=group_prefix + message.content,
+                                    session_id=message.session_id,
+                                    user_id=message.user_id,
+                                    source="telegram",
+                                    metadata={"is_group": True, "sender_name": sender_name},
+                                )
+                        except Exception as _mt_err:
+                            logger.error(f"Multi-tenant processing error: {_mt_err}", exc_info=True)
+                            brain_result = await brain.process(
+                                content=message.content,
+                                session_id=message.session_id,
+                                user_id=message.user_id,
+                                source="telegram",
+                            )
+                    else:
+                        # Normal DM processing (owner or trusted user)
+                        brain_result = await brain.process(
+                            content=message.content,
+                            session_id=message.session_id,
+                            user_id=message.user_id,
+                            source="telegram",
+                            metadata=message.metadata if is_group else None,
+                        )
 
                 # v9.0: Extract text from BrainResponse
                 if brain_result is not None and response_text is None:
@@ -4170,8 +4252,11 @@ def _register_system_cron_jobs(brain, app=None) -> None:
 
             adapter = getattr(app.state, "telegram_adapter", None)
             if adapter:
-                await adapter.push_notification(morning_text)
-                logger.info("Morning report pushed to Telegram")
+                try:
+                    await adapter.push_notification(morning_text)
+                    logger.info("Morning report pushed to Telegram")
+                except Exception as push_err:
+                    logger.warning(f"Morning report push failed: {push_err}")
         except Exception as e:
             logger.error(f"Morning report failed: {e}", exc_info=True)
 
@@ -4182,12 +4267,24 @@ def _register_system_cron_jobs(brain, app=None) -> None:
 
     # ── Job 2: 健康心跳（每 30 分鐘）── 純 CPU
     async def _health_heartbeat():
-        """純 CPU 健康檢查：Gateway + Telegram + 記憶系統."""
+        """健康檢查：Gateway + Brain + LLM 存活."""
         try:
+            llm_status = "unchecked"
+            # LLM 存活檢查（透過 VitalSigns probe）
+            if brain and brain._governor:
+                try:
+                    vs = brain._governor.get_vital_signs()
+                    if vs:
+                        result = await vs._check_llm_alive()
+                        llm_status = result.status.value  # pass/fail/skip
+                except Exception as e:
+                    llm_status = f"error: {e}"
+
             report = {
                 "timestamp": datetime.now().isoformat(),
                 "gateway": "alive",
                 "brain": "alive" if brain else "dead",
+                "llm": llm_status,
                 "skills": brain.skill_router.get_skill_count() if brain else 0,
             }
             # 寫入心跳日誌（純 CPU 檔案 I/O）
@@ -4372,7 +4469,10 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                             f"(評分: {tool.get('score', 0)}/10)\n"
                         )
                     msg += "\n在儀表板「工具庫」查看詳情"
-                    await adapter.push_notification(msg)
+                    try:
+                        await adapter.push_notification(msg)
+                    except Exception as push_err:
+                        logger.warning(f"Tool discovery push failed: {push_err}")
             else:
                 logger.info("Tool discovery: no new recommendations")
         except Exception as e:
@@ -4577,7 +4677,10 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                     for pid in approved:
                         msg += f"  · {pid}\n"
                     msg += "\n霓裳將在下次整合時執行這些演化。"
-                    await adapter.push_notification(msg)
+                    try:
+                        await adapter.push_notification(msg)
+                    except Exception as push_err:
+                        logger.warning(f"Morphenix auto-approve push failed: {push_err}")
         except Exception as e:
             logger.error(f"Morphenix auto-approve failed: {e}", exc_info=True)
 
@@ -4606,15 +4709,18 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                     f"({result['overdue_ids'][:3]})"
                 )
                 # 透過 Telegram adapter 主動推送逾期提醒
-                adapter = getattr(app.state, "telegram_adapter", None)
-                if adapter and hasattr(adapter, "push_notification"):
+                _tg_adapter = getattr(app, "state", None) and getattr(app.state, "telegram_adapter", None) if app else None
+                if _tg_adapter and hasattr(_tg_adapter, "push_notification"):
                     overdue = tracker.get_overdue_commitments()
                     if overdue:
                         msg = "⚠️ 承諾提醒：\n"
                         for c in overdue[:3]:
                             msg += f"- {c.get('promise_text', '?')[:60]}\n"
                         msg += "\n（霓裳正在處理中，請稍候）"
-                        await adapter.push_notification(msg)
+                        try:
+                            await _tg_adapter.push_notification(msg)
+                        except Exception as push_err:
+                            logger.warning(f"Commitment push failed: {push_err}")
 
                 # ANIMA zhen -1 for overdue
                 try:
@@ -4738,10 +4844,12 @@ def _register_system_cron_jobs(brain, app=None) -> None:
         hours=2,
     )
 
-    # ── WP-07: Tool Health Check (5min) — 含自癒 + 升級機制 ──
+    # ── WP-07: Tool Health Check (5min) — 含自癒 + 升級 + 自動停用機制 ──
     _tool_fail_counts: dict = {}
+    _tool_disabled: dict = {}     # {name: disabled_at_ts}
     _TOOL_RESTART_THRESHOLD = 3   # 連續 3 次失敗 → 自動重啟
-    _TOOL_ESCALATE_THRESHOLD = 6  # 連續 6 次失敗 → 升級通知
+    _TOOL_ESCALATE_THRESHOLD = 6  # 連續 6 次失敗 → 升級通知 + 自動停用
+    _TOOL_REPROBE_INTERVAL = 1800  # 停用後每 30 分鐘嘗試恢復
 
     async def _tool_health_check_job():
         """定期檢查所有工具健康狀態，偵測降級/恢復.
@@ -4785,17 +4893,26 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                         except Exception as e:
                             logger.warning(f"Tool {name}: auto-restart failed: {e}")
 
-                    # 升級通知
+                    # 升級通知 + 自動停用
                     elif count == _TOOL_ESCALATE_THRESHOLD:
                         logger.error(
-                            f"Tool {name}: {count} consecutive failures, escalating"
+                            f"Tool {name}: {count} consecutive failures, "
+                            f"disabling and escalating"
                         )
-                        adapter = getattr(app.state, "telegram_adapter", None)
-                        if adapter and hasattr(adapter, "push_notification"):
+                        # 自動停用
+                        import time as _t_time
+                        _tool_disabled[name] = _t_time.time()
+                        try:
+                            registry.toggle_tool(name, False)
+                        except Exception:
+                            pass
+                        # 通知
+                        _tg = getattr(app, "state", None) and getattr(app.state, "telegram_adapter", None) if app else None
+                        if _tg and hasattr(_tg, "push_notification"):
                             try:
-                                await adapter.push_notification(
+                                await _tg.push_notification(
                                     f"⚠️ 工具 {name} 連續 {count} 次健康檢查失敗，"
-                                    f"自動重啟無效，需要人工介入"
+                                    f"已自動停用。每 30 分鐘嘗試恢復。"
                                 )
                             except Exception:
                                 pass
@@ -4806,7 +4923,35 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                         logger.info(
                             f"Tool {name}: recovered after {prev} failures ✓"
                         )
+                        # 若之前被停用，重新啟用
+                        if name in _tool_disabled:
+                            del _tool_disabled[name]
+                            try:
+                                registry.toggle_tool(name, True)
+                                logger.info(f"Tool {name}: re-enabled after recovery")
+                            except Exception:
+                                pass
                     _tool_fail_counts[name] = 0
+
+            # 已停用工具的定期 re-probe
+            import time as _t_time2
+            _now_ts = _t_time2.time()
+            for disabled_name, disabled_at in list(_tool_disabled.items()):
+                if _now_ts - disabled_at >= _TOOL_REPROBE_INTERVAL:
+                    logger.info(f"Tool {disabled_name}: re-probing disabled tool")
+                    try:
+                        registry.toggle_tool(disabled_name, True)
+                        await _aio.sleep(3)
+                        probe = registry.check_health(disabled_name)
+                        if probe and probe.get("healthy"):
+                            logger.info(f"Tool {disabled_name}: re-probe succeeded, re-enabled ✓")
+                            del _tool_disabled[disabled_name]
+                            _tool_fail_counts[disabled_name] = 0
+                        else:
+                            registry.toggle_tool(disabled_name, False)
+                            _tool_disabled[disabled_name] = _now_ts  # 重置 reprobe 計時
+                    except Exception as rp_err:
+                        logger.debug(f"Tool {disabled_name} re-probe failed: {rp_err}")
 
             if degraded:
                 fail_info = {n: _tool_fail_counts.get(n, 0) for n in degraded}
@@ -4848,28 +4993,34 @@ def _register_system_cron_jobs(brain, app=None) -> None:
     )
 
     # ── EXT-01: RSS Poll (60min) ──
-    async def _rss_poll_job():
-        """定期拉取 RSS 新文章."""
-        try:
-            from museon.tools.rss_aggregator import RSSAggregator
-            from museon.core.event_bus import get_event_bus
+    # 預檢 aiohttp 可用性，缺少時跳過註冊
+    import importlib.util as _imp_util
+    _has_aiohttp = _imp_util.find_spec("aiohttp") is not None
+    if not _has_aiohttp:
+        logger.warning("RSS poll cron 跳過註冊：aiohttp 未安裝")
+    else:
+        async def _rss_poll_job():
+            """定期拉取 RSS 新文章."""
+            try:
+                from museon.tools.rss_aggregator import RSSAggregator
+                from museon.core.event_bus import get_event_bus
 
-            brain = _get_brain()
-            aggregator = RSSAggregator(
-                event_bus=get_event_bus(),
-                brain=brain,
-            )
-            items = await aggregator.poll_new_items()
-            if items:
-                logger.info(f"RSS poll: {len(items)} new items")
-        except Exception as e:
-            logger.debug(f"RSS poll cron failed: {e}")
+                brain = _get_brain()
+                aggregator = RSSAggregator(
+                    event_bus=get_event_bus(),
+                    brain=brain,
+                )
+                items = await aggregator.poll_new_items()
+                if items:
+                    logger.info(f"RSS poll: {len(items)} new items")
+            except Exception as e:
+                logger.debug(f"RSS poll cron failed: {e}")
 
-    cron_engine.add_job(
-        _rss_poll_job, trigger="interval",
-        job_id="rss-poll",
-        minutes=60,
-    )
+        cron_engine.add_job(
+            _rss_poll_job, trigger="interval",
+            job_id="rss-poll",
+            minutes=60,
+        )
 
     # ── EXT-07: Dify Schedule Sync (15min) ──
     async def _dify_schedule_sync():

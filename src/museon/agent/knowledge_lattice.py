@@ -1748,9 +1748,12 @@ class KnowledgeLattice:
             passed, issues = self._crystallizer.quality_check(refined)
             if not passed:
                 logger.warning(
-                    f"品質閘未通過，仍然註冊（標記問題）: {issues}"
+                    f"品質閘未通過，標記為 quarantine: {issues}"
                 )
                 refined["quality_issues"] = issues
+                refined["status"] = "quarantine"
+            else:
+                refined["status"] = "verified"
 
             # Step 5: 分配 CUID 並註冊
             cuid = self._generate_cuid(crystal_type)
@@ -1764,6 +1767,12 @@ class KnowledgeLattice:
 
             # 語義索引到 Qdrant（靜默失敗）
             self._vector_index_crystal(crystal)
+
+            # quarantine crystal 不建立連結
+            if refined.get("status") == "quarantine":
+                logger.info(f"Crystal {cuid} quarantined — skipping link creation")
+                self._save_crystals()
+                return crystal
 
             # 建立發現的連結
             for link_info in discovered_links:

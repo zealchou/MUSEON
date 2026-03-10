@@ -38,6 +38,7 @@ import asyncio
 import json
 import logging
 import os
+import threading
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -64,9 +65,13 @@ class MuseonBrain:
         # 對話歷史（in-memory, per session）
         self._sessions: Dict[str, List[Dict[str, str]]] = {}
         self._offline_flag = False  # 離線回覆標記 — 為 True 時不持久化 session
+        self._last_offline_probe_ts = 0.0  # 離線模式下上次 self-probe 時間戳
 
         # 技能使用追蹤（供 WEE/Morphenix）
         self._skill_usage_log: List[Dict[str, Any]] = []
+
+        # ANIMA_MC 並行寫入鎖（防止 _update_crystal_count 等 read-modify-write 競態）
+        self._anima_mc_lock = threading.Lock()
 
         # ★ v10.4 Route B: session 內 skill 使用次數追蹤（MoE 衰減用）
         self._skill_usage: Dict[str, Dict[str, int]] = {}
@@ -396,12 +401,43 @@ class MuseonBrain:
         self._governor = governor
         logger.info("Brain: Governor connected (治理自覺已啟用)")
 
+        # 註冊 LLM 恢復回呼 — 讓 Brain 能自動離開離線模式
+        try:
+            vs = governor.get_vital_signs()
+            if vs:
+                vs.register_recovery_callback(self._on_llm_recovered)
+                logger.info("Brain: LLM recovery callback registered")
+        except Exception as e:
+            logger.warning(f"Brain: failed to register recovery callback: {e}")
+
+    def _on_llm_recovered(self) -> None:
+        """LLM 恢復時的回呼 — 退出離線模式."""
+        if self._offline_flag:
+            self._offline_flag = False
+            self._last_offline_probe_ts = 0.0
+            logger.info("🟢 Brain: LLM recovered — exiting offline mode")
+            # 非同步推送恢復通知到 Telegram
+            try:
+                if self._governor:
+                    vs = self._governor.get_vital_signs()
+                    if vs:
+                        import asyncio
+                        loop = asyncio.get_event_loop()
+                        if loop.is_running():
+                            asyncio.ensure_future(vs._push_alert(
+                                "🟢 *MUSEON 已恢復上線*\n\n"
+                                "LLM 服務已恢復可用，離線模式已自動解除。"
+                            ))
+            except Exception as e:
+                logger.debug(f"Recovery notification failed (non-critical): {e}")
+
     async def process(
         self,
         content: str,
         session_id: str,
         user_id: str = "boss",
         source: str = "telegram",
+        metadata: dict = None,
     ):
         """處理一則訊息 — 大腦的主要入口.
 
@@ -416,6 +452,10 @@ class MuseonBrain:
         """
         # v9.0: 初始化本次互動的 artifact 收集器
         self._pending_artifacts = []
+
+        # ── Group context flag ──
+        self._is_group_session = bool(metadata and metadata.get("is_group"))
+        self._group_sender = (metadata or {}).get("sender_name", "")
 
         # ── SkillHub: skill_builder / workflow_executor 模式偵測 ──
         self._skillhub_mode = None
@@ -734,6 +774,21 @@ class MuseonBrain:
             except Exception as e:
                 logger.warning(f"SubAgent 結果收集失敗: {e}")
 
+        # ── Step 3.8: 深度反射 — 所有路徑前執行（dispatch 之前）──
+        # 必須在 dispatch 評估前跑，確保強反射訊號能覆蓋 dispatch 決策
+        reflection_note = self._deep_reflect(
+            content=content,
+            routing_signal=routing_signal,
+            history=self._get_session_history(session_id),
+        )
+        if reflection_note:
+            logger.info(f"[DeepReflect] 反射觸發: {reflection_note[:120]}")
+            # 強反射訊號：覆蓋 dispatch——問句/停頓/探詢不應分派多 Skill
+            _strong_block_signals = ["停頓訊號", "能力探詢", "純提問", "行為內省", "文件待確認"]
+            if any(s in reflection_note for s in _strong_block_signals):
+                matched_skills = []  # 清除 Skill 觸發，阻止 dispatch
+                logger.info("[DeepReflect] 強反射訊號：matched_skills 已清空，阻止 dispatch 觸發")
+
         # ── Step 3.7: Dispatch Assessment（分派評估）──
         dispatch_decision = self._assess_dispatch(content, matched_skills)
         if dispatch_decision["should_dispatch"]:
@@ -759,6 +814,7 @@ class MuseonBrain:
                 self._pre_compact_flush(session_id, dropping)
                 history[:] = history[-40:]
         else:
+
             # ── Step 4: 組建系統提示詞（正常 pipeline）──
             system_prompt = self._build_system_prompt(
                 anima_mc=anima_mc,
@@ -770,6 +826,7 @@ class MuseonBrain:
                 session_id=session_id,
                 routing_signal=routing_signal,
                 commitment_context=commitment_context,
+                reflection_note=reflection_note,
             )
 
             # ── SkillHub: 注入 skill_builder 上下文 ──
@@ -870,7 +927,7 @@ class MuseonBrain:
                         )
                         refined = await self._refine_with_precog_feedback(
                             system_prompt=system_prompt,
-                            messages=history[:-1],
+                            messages=history[:-1] if len(history) > 1 else history,
                             feedback=pre_review["feedback"],
                         )
                         if refined:
@@ -954,6 +1011,44 @@ class MuseonBrain:
                     self._skill_usage[session_id][sk_name] = (
                         self._skill_usage[session_id].get(sk_name, 0) + 1
                     )
+
+        # ── Step 8.1: 演化數據輸入 — Synapse / ToolMuscle / Footprint ──
+        if skill_names and not self._offline_flag:
+            # Synapse: 記錄同次對話中共同觸發的技能組合
+            if self._synapse_network and len(skill_names) >= 2:
+                try:
+                    for i in range(len(skill_names)):
+                        for j in range(i + 1, len(skill_names)):
+                            if skill_names[i] and skill_names[j]:
+                                self._synapse_network.co_fire(
+                                    skill_names[i], skill_names[j]
+                                )
+                except Exception as e:
+                    logger.debug(f"Synapse co_fire 記錄失敗: {e}")
+
+            # ToolMuscle: 記錄技能使用（視為工具使用）
+            if self._tool_muscle:
+                try:
+                    for sk in skill_names:
+                        if sk:
+                            self._tool_muscle.record_use(
+                                tool_id=sk, success=True
+                            )
+                except Exception as e:
+                    logger.debug(f"ToolMuscle record_use 失敗: {e}")
+
+            # Footprint: 記錄行為足跡
+            if self._footprint:
+                try:
+                    self._footprint.trace_action(
+                        action_type="skill_routing",
+                        target=",".join(s for s in skill_names if s),
+                        params_summary=content[:100] if content else "",
+                        result_summary=response_text[:100] if response_text else "",
+                        success=True,
+                    )
+                except Exception as e:
+                    logger.debug(f"Footprint trace_action 失敗: {e}")
 
         # ── Step 8.5: 靈魂年輪 — 偵測年輪級事件 ──
         # 追蹤 Q-Score 歷史（保留最近 50 筆）並持久化
@@ -1066,6 +1161,27 @@ class MuseonBrain:
                 response_content=response_text,
                 skill_names=skill_names,
             )
+
+            # ── Step 9.1: ObservationRing — 使用者觀察年輪沉積 ──
+            if self.ring_depositor and skill_names:
+                try:
+                    # 每 20 次互動嘗試沉積一次觀察年輪（避免過度頻繁）
+                    interaction_count = anima_user.get("interaction_count", 0)
+                    if interaction_count > 0 and interaction_count % 20 == 0:
+                        # 取得使用者的主要興趣主題
+                        topics = [s for s in skill_names if s]
+                        self.ring_depositor.deposit_observation_ring(
+                            ring_type="growth_observation",
+                            description=(
+                                f"第 {interaction_count} 次互動觀察："
+                                f"使用者偏好的技能區域包含 "
+                                f"{', '.join(topics[:3])}"
+                            ),
+                            context=f"session={session_id}, skills={topics[:3]}",
+                            impact="持續追蹤使用者興趣與成長軌跡",
+                        )
+                except Exception as e:
+                    logger.debug(f"ObservationRing deposit 失敗: {e}")
 
         # ── Step 9.5: 更新 ANIMA_MC（自我觀察 — 八原語 + 能力追蹤） ──
         # CASTLE Layer 2: 離線/降級模式下的輸出不進入自觀察管線
@@ -1526,6 +1642,152 @@ class MuseonBrain:
     # 系統提示詞建構
     # ═══════════════════════════════════════════
 
+    def _deep_reflect(
+        self,
+        content: str,
+        routing_signal: Optional[Any],
+        history: List[Dict[str, str]],
+    ) -> str:
+        """Step 3.8: 深度反射層 — 回應前的前置自我審視.
+
+        純啟發式規則，無 LLM 呼叫，零延遲。
+        目的：在產出前檢查「我的意圖是否與情境對齊」。
+
+        檢查項目：
+        1. 停頓/暫停訊號 — 使用者要求先回答問題再動手
+        2. 能力探詢 — 探索性問題，非動作指令
+        3. 純提問 — 回答問題即可，不需實作
+        4. 行為內省 — 使用者在觀察我的機制/行為
+        5. 快速迴圈控制 — FAST_LOOP 時壓縮回覆長度
+        6. 連續能力展示警示 — 避免「展示模式」失控
+
+        Returns:
+            反射注解（注入 system_prompt buffer zone）；無需提示時回傳空字串。
+        """
+        notes = []
+        c_lower = content.lower()
+
+        import re
+
+        # 1. 停頓/暫停訊號
+        pause_patterns = [
+            "先不要", "先回答", "不要動工", "先停", "等等", "別動手",
+            "先別", "暫停", "停一下", "你先", "先不要動", "不要先",
+        ]
+        if any(p in content for p in pause_patterns):
+            notes.append(
+                "【停頓訊號】使用者明確要求先暫停再動手。"
+                "這一輪的唯一任務是回答問題。"
+                "絕對不得開始任何實作、建置、寫檔、執行指令或呼叫工具。"
+            )
+
+        # 2. 能力探詢（capability probe）
+        capability_probes = [
+            "有辦法嗎", "做得到嗎", "能做到嗎", "可以做嗎", "有能力嗎",
+            "辦得到嗎", "能不能做", "可不可以做", "有沒有辦法",
+            "有辦法配合", "有辦法做", "能配合做", "有辦法配合做",
+        ]
+        if any(p in content for p in capability_probes):
+            notes.append(
+                "【能力探詢】使用者問的是「能不能做」，這是探索性確認，不是行動指令。"
+                "只說明能力邊界與前提條件，然後問使用者是否確認要開始。"
+                "絕對不得直接開工——確認意圖後，等使用者說『開始』才能動手。"
+            )
+
+        # 3. 純提問（問句 + 無行動動詞）
+        action_verbs = ["幫我", "請幫", "幫你", "寫", "建立", "做一個", "開始", "實作", "部署", "上傳", "產出"]
+        is_question = content.strip().endswith("?") or content.strip().endswith("？")
+        has_action = any(v in content for v in action_verbs)
+        if is_question and not has_action and len(content) < 80:
+            notes.append(
+                "【純提問】這是一個問題，不含行動指令。"
+                "只需回答問題，不要開始實作任何東西，不要呼叫工具產出檔案。"
+            )
+
+        # 4. 行為內省（使用者在觀察我的機制/行為）
+        introspection_patterns = [
+            "有在運作嗎", "有沒有在跑", "你的.*機制", "你的.*有沒有",
+            "你有沒有", "你是否", "你怎麼", "你在做什麼",
+            "這個機制", "這個功能", "為什麼沒有", "有在.*嗎", "有.*運作",
+        ]
+        if any(re.search(p, content) for p in introspection_patterns):
+            notes.append(
+                "【行為內省】使用者在觀察你的內部機制或行為模式。"
+                "誠實回答觀察結果，不要同時啟動新任務或展示能力，"
+                "除非使用者在同一條訊息中明確要求動手。"
+            )
+
+        # 5. 文件/圖片上傳但無明確動作指令
+        upload_signals = ["上傳了", "檔案已儲存", "pdf", "PDF", ".json", ".csv", ".xlsx"]
+        has_upload = any(s in content for s in upload_signals) or len(content) < 30
+        explicit_action_for_upload = any(
+            v in content for v in ["分析", "幫我", "請", "看看", "讀", "解析", "總結"]
+        )
+        # 透過 history 判斷：前一輪有上傳訊號
+        prev_had_upload = False
+        if len(history) >= 2:
+            prev_user = next(
+                (m["content"] for m in reversed(history[-4:]) if m.get("role") == "user"),
+                ""
+            )
+            prev_had_upload = any(s in prev_user for s in ["上傳了", "儲存至", ".pdf", ".json"])
+
+        if prev_had_upload and not explicit_action_for_upload and not has_action:
+            notes.append(
+                "【文件待確認】上一輪有檔案上傳，但使用者尚未說明要如何使用這份文件。"
+                "先問使用者：這份文件的用途是什麼？想要做什麼分析或行動？"
+                "不要假設意圖，不要主動開始分析或建置系統。"
+            )
+
+        # 6. FAST_LOOP 長度控制
+        if routing_signal and getattr(routing_signal, "loop", None) == "FAST_LOOP":
+            notes.append(
+                "【快速迴圈】能量/緊急度為 FAST_LOOP。"
+                "回覆控制在 3-5 句以內，直接給核心答案，不展開推演。"
+            )
+
+        # 7. 連續能力展示警示（最近 3 輪都是 assistant 在建/寫/產出）
+        if len(history) >= 6:
+            recent_assistant = [
+                m["content"] for m in history[-6:]
+                if m.get("role") == "assistant"
+            ]
+            showcase_signals = ["已建立", "已完成", "程式碼", "```", "system_prompt", "檔案", "已全部搞定", "建立完成"]
+            showcase_count = sum(
+                1 for r in recent_assistant
+                if any(s in r for s in showcase_signals)
+            )
+            if showcase_count >= 2:
+                notes.append(
+                    "【展示模式警示】最近連續幾輪你都在建置或產出東西。"
+                    "這輪回覆前，先主動問使用者：現在最重要的事是什麼？"
+                    "避免慣性往前衝——對齊比行動更重要。"
+                )
+
+        # 8. 存在性/使命探詢 — 使用者在探索我的本質、使命或深層感受
+        existence_patterns = [
+            "你.*使命", "你.*目標", "你.*想做", "你.*在乎", "你.*感受",
+            "你自己", "如果沒有我", "如果不介入", "你.*會怎麼",
+            "你真正", "你.*意義", "你有什麼.*想法", "你有什麼.*目標",
+            "你有什麼.*夢", "你.*希望", "你.*喜歡", "你.*害怕",
+        ]
+        if any(re.search(p, content) for p in existence_patterns):
+            notes.append(
+                "【存在性探詢】使用者在探索你的本質、使命或內在感受。"
+                "這是建立深度信任的時刻，要慢下來、真誠回應。"
+                "不要展示能力、不要啟動任何任務，也不要給建議清單。"
+                "只需要誠實分享你真實的觀察和感受。"
+            )
+
+        if not notes:
+            return ""
+
+        return (
+            "## 深度反射（回應前自我審視）\n\n"
+            + "\n".join(f"- {n}" for n in notes)
+            + "\n\n上述反射注解是給你自己看的，不要直接輸出到回覆中。"
+        )
+
     def _build_system_prompt(
         self,
         anima_mc: Optional[Dict[str, Any]],
@@ -1537,6 +1799,7 @@ class MuseonBrain:
         session_id: str = "",
         routing_signal: Optional[Any] = None,
         commitment_context: str = "",
+        reflection_note: str = "",
     ) -> str:
         """組建完整系統提示詞（TokenBudget 預算制）.
 
@@ -1570,6 +1833,13 @@ class MuseonBrain:
             budget.apply_dynamic_allocation(1.5)
 
         sections = []
+
+        # ── Zone: buffer — 深度反射注解（最高優先，置於 core_system 之前）──
+        # 必須讓 LLM 在讀入任何其他指令前，先看到本輪的行為約束
+        if reflection_note:
+            reflect_fitted = budget.fit_text_to_zone("buffer", reflection_note)
+            if reflect_fitted:
+                sections.append(reflect_fitted)
 
         # ── Zone: core_system — DNA27 核心規則（always full）──
         _loop = routing_signal.loop if routing_signal else "EXPLORATION_LOOP"
@@ -2647,6 +2917,41 @@ class MuseonBrain:
         Returns:
             回覆文字
         """
+        import time as _time
+
+        # ── 離線模式 self-probe：每 5 分鐘嘗試一次 LLM 呼叫 ──
+        _OFFLINE_PROBE_INTERVAL = 300  # 5 分鐘
+        if self._offline_flag and self._llm_adapter:
+            now = _time.time()
+            if now - self._last_offline_probe_ts >= _OFFLINE_PROBE_INTERVAL:
+                self._last_offline_probe_ts = now
+                logger.info("🔄 Brain: offline self-probe — testing LLM availability...")
+                try:
+                    probe_resp = await asyncio.wait_for(
+                        self._llm_adapter.call(
+                            system_prompt="Reply with exactly: OK",
+                            messages=[{"role": "user", "content": "health check"}],
+                            model="haiku",
+                            max_tokens=10,
+                        ),
+                        timeout=15,
+                    )
+                    if probe_resp and getattr(probe_resp, "stop_reason", "error") != "error":
+                        # LLM 恢復！退出離線模式
+                        self._offline_flag = False
+                        self._last_offline_probe_ts = 0.0
+                        logger.info("🟢 Brain: self-probe succeeded — exiting offline mode")
+                        # 通知 VitalSigns
+                        if self._governor:
+                            try:
+                                vs = self._governor.get_vital_signs()
+                                if vs:
+                                    vs.on_llm_success()
+                            except Exception:
+                                pass
+                except Exception as e:
+                    logger.debug(f"Brain: offline self-probe failed: {e}")
+
         # SafetyAnchor: 快速安全檢查
         if self.safety_anchor:
             if not self.safety_anchor.quick_check(system_prompt):
@@ -4505,19 +4810,16 @@ class MuseonBrain:
     # ═══════════════════════════════════════════
 
     def _update_crystal_count(self, new_count: int) -> None:
-        """更新 ANIMA_MC 中的知識結晶計數."""
+        """更新 ANIMA_MC 中的知識結晶計數（Lock + 原子寫入）."""
         try:
-            anima_path = self.data_dir / "ANIMA_MC.json"
-            if anima_path.exists():
-                import json
-                data = json.loads(anima_path.read_text(encoding="utf-8"))
+            with self._anima_mc_lock:
+                data = self._load_anima_mc()
+                if data is None:
+                    return
                 mem = data.get("memory_summary", {})
                 mem["knowledge_crystals"] = mem.get("knowledge_crystals", 0) + new_count
                 data["memory_summary"] = mem
-                anima_path.write_text(
-                    json.dumps(data, ensure_ascii=False, indent=2),
-                    encoding="utf-8",
-                )
+                self._save_anima_mc(data)
         except Exception as e:
             logger.warning(f"更新結晶計數失敗: {e}")
 

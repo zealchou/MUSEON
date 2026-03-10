@@ -43,6 +43,7 @@ class DriftDetector:
 
     DRIFT_THRESHOLD = 0.15  # 15%
     CHECK_INTERVAL = 10     # 每 10 次觀察後檢查
+    MIN_BASELINE_INTERVAL_S = 3600 * 4  # 4 小時最短基線重建間隔
 
     # 加權維度
     WEIGHTS = {
@@ -62,6 +63,8 @@ class DriftDetector:
 
         self._observation_count = 0
         self._baseline: Optional[Dict[str, Any]] = None
+        self._last_baseline_ts: float = 0.0  # 上次基線建立時間戳
+        self._cumulative_drift: float = 0.0  # 累計漂移（不隨基線重置）
 
         # 載入既有基線
         if self.baseline_path.exists():
@@ -69,6 +72,14 @@ class DriftDetector:
                 self._baseline = json.loads(
                     self.baseline_path.read_text(encoding="utf-8")
                 )
+                # 從基線的 taken_at 推算時間戳
+                taken_at = self._baseline.get("taken_at", "")
+                if taken_at:
+                    from datetime import datetime as _dt
+                    try:
+                        self._last_baseline_ts = _dt.fromisoformat(taken_at).timestamp()
+                    except Exception:
+                        pass
             except Exception as e:
                 logger.warning(f"載入漂移基線失敗: {e}")
 
@@ -78,8 +89,26 @@ class DriftDetector:
         self,
         anima_mc: Dict[str, Any],
         anima_user: Dict[str, Any],
-    ) -> None:
-        """快照當前 ANIMA 狀態作為漂移基線."""
+        force: bool = False,
+    ) -> bool:
+        """快照當前 ANIMA 狀態作為漂移基線.
+
+        Returns:
+            是否成功建立基線（間隔不足時跳過，返回 False）
+        """
+        import time as _time
+        now = _time.time()
+
+        # 防止過於頻繁重建基線（最少間隔 4 小時）
+        if not force and self._last_baseline_ts > 0:
+            elapsed = now - self._last_baseline_ts
+            if elapsed < self.MIN_BASELINE_INTERVAL_S:
+                logger.info(
+                    f"漂移基線重建跳過：距上次僅 {elapsed/3600:.1f}h "
+                    f"(需 {self.MIN_BASELINE_INTERVAL_S/3600:.0f}h)"
+                )
+                return False
+
         baseline = {
             "taken_at": datetime.now(timezone.utc).isoformat(),
             "mc_primals": anima_mc.get("eight_primal_energies", anima_mc.get("eight_primals", {})),
@@ -103,9 +132,12 @@ class DriftDetector:
                 encoding="utf-8",
             )
             self._baseline = baseline
+            self._last_baseline_ts = now
             logger.info("漂移基線已建立")
+            return True
         except Exception as e:
             logger.error(f"寫入漂移基線失敗: {e}")
+            return False
 
     def should_check(self) -> bool:
         """是否應該進行漂移檢查（每 CHECK_INTERVAL 次觀察一次）."""
@@ -203,17 +235,23 @@ class DriftDetector:
             checked_at=now_iso,
         )
 
+        # 累計漂移追蹤（不隨基線重置）
+        self._cumulative_drift = max(self._cumulative_drift, weighted_sum)
+
         # 記錄漂移日誌
         self._log_drift(report)
 
-        # 如果漂移過大，更新基線（避免一直觸發）
+        # 如果漂移過大，嘗試更新基線（受最短間隔保護）
         if should_pause:
             logger.warning(
-                f"ANIMA 漂移超過閾值: {weighted_sum:.1%} > {self.DRIFT_THRESHOLD:.0%}"
+                f"ANIMA 漂移超過閾值: {weighted_sum:.1%} > {self.DRIFT_THRESHOLD:.0%} "
+                f"(累計最高: {self._cumulative_drift:.1%})"
             )
-            # 重建基線：承認當前狀態為新常態，防止每次都觸發暫停
-            self.take_baseline(anima_mc, anima_user)
-            logger.info("漂移基線已重建（暫停觸發後自動更新）")
+            rebuilt = self.take_baseline(anima_mc, anima_user)
+            if rebuilt:
+                logger.info("漂移基線已重建（暫停觸發後自動更新）")
+            else:
+                logger.info("漂移基線未重建（最短間隔保護）")
 
         return report
 
