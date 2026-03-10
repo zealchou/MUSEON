@@ -205,13 +205,20 @@ class SkillRouter:
         try:
             vb = self._get_vector_bridge()
             if vb is None:
+                logger.debug("vec_search: VectorBridge 不可用")
                 return {}
             results = vb.search("skills", query, limit=limit)
+            if not results:
+                logger.debug(
+                    f"vec_search: 搜尋結果為空 (query={query[:50]}..., "
+                    f"collection=skills)"
+                )
             return {
                 r["id"]: r["score"]
                 for r in results
             }
-        except Exception:
+        except Exception as e:
+            logger.debug(f"vec_search: 搜尋失敗: {e}")
             return {}
 
     def _build_rc_index(self) -> None:

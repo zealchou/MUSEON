@@ -38,6 +38,7 @@ import asyncio
 import json
 import logging
 import os
+import threading
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -67,6 +68,9 @@ class MuseonBrain:
 
         # 技能使用追蹤（供 WEE/Morphenix）
         self._skill_usage_log: List[Dict[str, Any]] = []
+
+        # ANIMA_MC 並行寫入鎖（防止 _update_crystal_count 等 read-modify-write 競態）
+        self._anima_mc_lock = threading.Lock()
 
         # ★ v10.4 Route B: session 內 skill 使用次數追蹤（MoE 衰減用）
         self._skill_usage: Dict[str, Dict[str, int]] = {}
@@ -759,6 +763,15 @@ class MuseonBrain:
                 self._pre_compact_flush(session_id, dropping)
                 history[:] = history[-40:]
         else:
+            # ── Step 3.8: 深度反射 — 回應前自我審視 ──
+            reflection_note = self._deep_reflect(
+                content=content,
+                routing_signal=routing_signal,
+                history=self._get_session_history(session_id),
+            )
+            if reflection_note:
+                logger.info(f"[DeepReflect] {reflection_note[:100]}")
+
             # ── Step 4: 組建系統提示詞（正常 pipeline）──
             system_prompt = self._build_system_prompt(
                 anima_mc=anima_mc,
@@ -770,6 +783,7 @@ class MuseonBrain:
                 session_id=session_id,
                 routing_signal=routing_signal,
                 commitment_context=commitment_context,
+                reflection_note=reflection_note,
             )
 
             # ── SkillHub: 注入 skill_builder 上下文 ──
@@ -870,7 +884,7 @@ class MuseonBrain:
                         )
                         refined = await self._refine_with_precog_feedback(
                             system_prompt=system_prompt,
-                            messages=history[:-1],
+                            messages=history[:-1] if len(history) > 1 else history,
                             feedback=pre_review["feedback"],
                         )
                         if refined:
@@ -1526,6 +1540,127 @@ class MuseonBrain:
     # 系統提示詞建構
     # ═══════════════════════════════════════════
 
+    def _deep_reflect(
+        self,
+        content: str,
+        routing_signal: Optional[Any],
+        history: List[Dict[str, str]],
+    ) -> str:
+        """Step 3.8: 深度反射層 — 回應前的前置自我審視.
+
+        純啟發式規則，無 LLM 呼叫，零延遲。
+        目的：在產出前檢查「我的意圖是否與情境對齊」。
+
+        檢查項目：
+        1. 停頓/暫停訊號 — 使用者要求先回答問題再動手
+        2. 能力探詢 — 探索性問題，非動作指令
+        3. 純提問 — 回答問題即可，不需實作
+        4. 行為內省 — 使用者在觀察我的機制/行為
+        5. 快速迴圈控制 — FAST_LOOP 時壓縮回覆長度
+        6. 連續能力展示警示 — 避免「展示模式」失控
+
+        Returns:
+            反射注解（注入 system_prompt buffer zone）；無需提示時回傳空字串。
+        """
+        notes = []
+        c_lower = content.lower()
+
+        # 1. 停頓/暫停訊號
+        pause_patterns = [
+            "先不要", "先回答", "不要動工", "先停", "等等", "別動手",
+            "先別", "暫停", "停一下", "你先",
+        ]
+        if any(p in content for p in pause_patterns):
+            notes.append(
+                "【停頓訊號】使用者要求先暫停，回答問題再動手。"
+                "這一輪只回答問題，絕對不開始任何實作或建置。"
+            )
+
+        # 2. 能力探詢（capability probe）
+        capability_probes = [
+            "有辦法嗎", "做得到嗎", "能做到嗎", "可以做嗎", "有能力嗎",
+            "辦得到嗎", "能不能做", "可不可以做", "有沒有辦法",
+            "有辦法配合", "有辦法做", "能配合做",
+        ]
+        if any(p in content for p in capability_probes):
+            notes.append(
+                "【能力探詢】使用者在問「能不能做」，這是探索性問題，不是指令。"
+                "先說明能力邊界與條件，確認使用者真正想要的是什麼，再問是否現在動手。"
+            )
+
+        # 3. 純提問（問句 + 無行動動詞）
+        action_verbs = ["幫我", "請幫", "幫你", "寫", "建立", "做一個", "開始", "實作", "部署", "上傳"]
+        is_question = content.strip().endswith("?") or content.strip().endswith("？")
+        has_action = any(v in content for v in action_verbs)
+        if is_question and not has_action and len(content) < 80:
+            notes.append(
+                "【純提問】這是一個問題，不含行動指令。"
+                "直接回答問題，不要開始實作任何東西。"
+            )
+
+        # 4. 行為內省（使用者在觀察我的機制/行為）
+        introspection_patterns = [
+            "有在運作嗎", "有沒有在跑", "你的.*機制", "你的.*有沒有",
+            "你有沒有", "你是否", "你怎麼", "你在做什麼",
+            "這個機制", "這個功能", "為什麼沒有",
+        ]
+        import re
+        if any(re.search(p, content) for p in introspection_patterns):
+            notes.append(
+                "【行為內省】使用者在觀察你的內部機制或行為模式。"
+                "誠實回答觀察結果（機制是否在運作、原因是什麼），"
+                "不要展示能力或啟動新任務，除非使用者明確要求。"
+            )
+
+        # 5. FAST_LOOP 長度控制
+        if routing_signal and getattr(routing_signal, "loop", None) == "FAST_LOOP":
+            notes.append(
+                "【快速迴圈】能量/緊急度判斷為 FAST_LOOP。"
+                "回覆控制在 3-5 句以內，直接給核心答案，不展開推演。"
+            )
+
+        # 6. 連續能力展示警示（最近 3 輪都是 assistant 在建/寫/產出）
+        if len(history) >= 6:
+            recent_assistant = [
+                m["content"] for m in history[-6:]
+                if m.get("role") == "assistant"
+            ]
+            showcase_signals = ["已建立", "已完成", "程式碼", "```", "system_prompt", "檔案"]
+            showcase_count = sum(
+                1 for r in recent_assistant
+                if any(s in r for s in showcase_signals)
+            )
+            if showcase_count >= 2:
+                notes.append(
+                    "【展示模式警示】最近連續幾輪你都在建置/產出東西。"
+                    "在這次回覆之前，先確認使用者的真實需求是什麼，"
+                    "避免繼續慣性地往前衝而沒有真正對齊。"
+                )
+
+        # 8. 存在性/使命探詢 — 使用者在探索我的本質、使命或深層感受
+        existence_patterns = [
+            "你.*使命", "你.*目標", "你.*想做", "你.*在乎", "你.*感受",
+            "你自己", "如果沒有我", "如果不介入", "你.*會怎麼",
+            "你真正", "你.*意義", "你有什麼.*想法", "你有什麼.*目標",
+            "你有什麼.*夢", "你.*希望", "你.*喜歡", "你.*害怕",
+        ]
+        if any(re.search(p, content) for p in existence_patterns):
+            notes.append(
+                "【存在性探詢】使用者在探索你的本質、使命或內在感受。"
+                "這是建立深度信任的時刻，要慢下來、真誠回應。"
+                "不要展示能力、不要啟動任何任務，也不要給建議清單。"
+                "只需要誠實分享你真實的觀察和感受。"
+            )
+
+        if not notes:
+            return ""
+
+        return (
+            "## 深度反射（回應前自我審視）\n\n"
+            + "\n".join(f"- {n}" for n in notes)
+            + "\n\n上述反射注解是給你自己看的，不要直接輸出到回覆中。"
+        )
+
     def _build_system_prompt(
         self,
         anima_mc: Optional[Dict[str, Any]],
@@ -1537,6 +1672,7 @@ class MuseonBrain:
         session_id: str = "",
         routing_signal: Optional[Any] = None,
         commitment_context: str = "",
+        reflection_note: str = "",
     ) -> str:
         """組建完整系統提示詞（TokenBudget 預算制）.
 
@@ -1582,6 +1718,12 @@ class MuseonBrain:
             safety_fitted = budget.fit_text_to_zone("buffer", safety_context)
             if safety_fitted:
                 sections.append(safety_fitted)
+
+        # ── Zone: buffer — 深度反射注解（Step 3.8 產出，最高優先）──
+        if reflection_note:
+            reflect_fitted = budget.fit_text_to_zone("buffer", reflection_note)
+            if reflect_fitted:
+                sections.append(reflect_fitted)
 
         # ── Zone: buffer — 承諾追蹤提醒 ──
         if commitment_context:
@@ -4505,19 +4647,16 @@ class MuseonBrain:
     # ═══════════════════════════════════════════
 
     def _update_crystal_count(self, new_count: int) -> None:
-        """更新 ANIMA_MC 中的知識結晶計數."""
+        """更新 ANIMA_MC 中的知識結晶計數（Lock + 原子寫入）."""
         try:
-            anima_path = self.data_dir / "ANIMA_MC.json"
-            if anima_path.exists():
-                import json
-                data = json.loads(anima_path.read_text(encoding="utf-8"))
+            with self._anima_mc_lock:
+                data = self._load_anima_mc()
+                if data is None:
+                    return
                 mem = data.get("memory_summary", {})
                 mem["knowledge_crystals"] = mem.get("knowledge_crystals", 0) + new_count
                 data["memory_summary"] = mem
-                anima_path.write_text(
-                    json.dumps(data, ensure_ascii=False, indent=2),
-                    encoding="utf-8",
-                )
+                self._save_anima_mc(data)
         except Exception as e:
             logger.warning(f"更新結晶計數失敗: {e}")
 

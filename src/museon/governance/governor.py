@@ -752,6 +752,29 @@ class Governor:
                     )
                 except Exception:
                     pass
+
+            # CRITICAL → 推送 Telegram 告警（限流：同類型每 10 分鐘最多 1 次）
+            import time as _time
+            _now = _time.time()
+            _last_critical_ts = getattr(self, "_last_critical_alert_ts", 0.0)
+            if _now - _last_critical_ts >= 600:  # 10 分鐘限流
+                self._last_critical_alert_ts = _now
+                vs = getattr(self, '_vital_signs', None)
+                if vs:
+                    import asyncio
+                    alert_text = (
+                        "🚨 *Governor 審計 CRITICAL*\n\n"
+                        f"來源: system\\_audit\n"
+                        f"摘要: {str(summary)[:300]}"
+                    )
+                    try:
+                        loop = asyncio.get_event_loop()
+                        if loop.is_running():
+                            asyncio.ensure_future(vs._push_alert(alert_text))
+                        else:
+                            loop.run_until_complete(vs._push_alert(alert_text))
+                    except Exception as e:
+                        logger.warning(f"Governor CRITICAL alert push failed: {e}")
         elif overall == "warning":
             # WARNING → 縮短巡檢間隔（加速感知）
             if hasattr(self, "_upper_check_interval_s"):
