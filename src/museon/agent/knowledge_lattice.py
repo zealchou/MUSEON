@@ -1771,7 +1771,7 @@ class KnowledgeLattice:
             # quarantine crystal 不建立連結
             if refined.get("status") == "quarantine":
                 logger.info(f"Crystal {cuid} quarantined — skipping link creation")
-                self._save_crystals()
+                self._persist()
                 return crystal
 
             # 建立發現的連結

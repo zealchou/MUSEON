@@ -30,7 +30,7 @@ class TestConstants:
     """常數驗證."""
 
     def test_silent_ack_threshold(self):
-        assert SILENT_ACK_THRESHOLD == 100
+        assert SILENT_ACK_THRESHOLD == 8
 
     def test_active_hours_start(self):
         assert ACTIVE_HOURS_START == 8
@@ -39,7 +39,7 @@ class TestConstants:
         assert ACTIVE_HOURS_END == 25  # 跨日 01:00
 
     def test_daily_push_limit(self):
-        assert DAILY_PUSH_LIMIT == 5
+        assert DAILY_PUSH_LIMIT == 25
 
     def test_proactive_interval(self):
         assert PROACTIVE_INTERVAL == 1800
@@ -54,16 +54,16 @@ class TestSilentAck:
     """靜默確認測試."""
 
     def test_short_response_not_pushed(self):
-        """BDD: 短回覆 ≤ 100 字元 → 不推送."""
+        """BDD: 短回覆 ≤ 8 字元 → 不推送."""
         bridge = ProactiveBridge()
         assert not bridge.should_push("OK")
-        assert not bridge.should_push("一切正常")
-        assert not bridge.should_push("x" * 100)
+        assert not bridge.should_push("好的")
+        assert not bridge.should_push("x" * 8)
 
     def test_long_response_pushed(self):
-        """BDD: 長回覆 > 100 字元 → 推送."""
+        """BDD: 長回覆 > 8 字元 → 推送."""
         bridge = ProactiveBridge()
-        assert bridge.should_push("x" * 101)
+        assert bridge.should_push("x" * 9)
 
     def test_empty_response_not_pushed(self):
         """BDD: 空回覆 → 不推送."""
@@ -78,14 +78,14 @@ class TestSilentAck:
         assert not bridge.should_push("\n\n\n")
 
     def test_exactly_threshold_not_pushed(self):
-        """BDD: 恰好 100 字元 → 不推送."""
+        """BDD: 恰好 8 字元 → 不推送."""
         bridge = ProactiveBridge()
-        assert not bridge.should_push("x" * 100)
+        assert not bridge.should_push("x" * 8)
 
     def test_threshold_plus_one_pushed(self):
-        """BDD: 101 字元 → 推送."""
+        """BDD: 9 字元 → 推送."""
         bridge = ProactiveBridge()
-        assert bridge.should_push("x" * 101)
+        assert bridge.should_push("x" * 9)
 
 
 # ═══════════════════════════════════════════
@@ -152,14 +152,14 @@ class TestDailyPushLimit:
     def test_at_limit(self):
         """BDD: 到達上限 → 不可推送."""
         bridge = ProactiveBridge()
-        bridge._daily_push_count = 5
+        bridge._daily_push_count = 25
         bridge._last_reset_date = datetime.now().strftime("%Y-%m-%d")
         assert not bridge.is_within_daily_limit()
 
     def test_over_limit(self):
         """BDD: 超過上限 → 不可推送."""
         bridge = ProactiveBridge()
-        bridge._daily_push_count = 10
+        bridge._daily_push_count = 30
         bridge._last_reset_date = datetime.now().strftime("%Y-%m-%d")
         assert not bridge.is_within_daily_limit()
 
