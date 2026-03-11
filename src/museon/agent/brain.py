@@ -2083,7 +2083,41 @@ class MuseonBrain:
             )
         except Exception as e:
             logger.warning(f"Memory recall 失敗: {e}")
-            return ""
+            items = []
+
+        # 跨 session 搜尋：外部用戶記憶（群組成員）
+        # 當 owner 在私聊中提及某個群組成員時，從 external_users 查找
+        if self.data_dir:
+            try:
+                from museon.governance.multi_tenant import ExternalAnimaManager
+                ext_mgr = ExternalAnimaManager(self.data_dir)
+                ext_results = ext_mgr.search_by_keyword(user_query, limit=3)
+                for ext in ext_results:
+                    name = ext.get("display_name") or ext.get("user_id", "?")
+                    parts = [f"外部用戶「{name}」"]
+                    relation = ext.get("relationship_to_owner")
+                    if relation:
+                        parts.append(f"關係：{relation}")
+                    summary = ext.get("context_summary")
+                    if summary:
+                        parts.append(f"摘要：{summary}")
+                    topics = ext.get("recent_topics", [])
+                    if topics:
+                        parts.append(f"近期話題：{'、'.join(topics[:3])}")
+                    groups = ext.get("groups_seen_in", [])
+                    if groups:
+                        parts.append(f"出現群組：{'、'.join(str(g) for g in groups[:2])}")
+                    count = ext.get("interaction_count", 0)
+                    if count:
+                        parts.append(f"互動次數：{count}")
+                    items.append({
+                        "content": "｜".join(parts),
+                        "layer": "external_user",
+                        "tags": ["群組成員", "外部用戶"],
+                        "outcome": "",
+                    })
+            except Exception as e:
+                logger.debug(f"External user search in memory inject: {e}")
 
         if not items:
             return ""

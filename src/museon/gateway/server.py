@@ -4949,26 +4949,29 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                 f"explore={explored}, crystallize={crystallized}"
             )
 
-            # 5. 探索有結果 → 主動傳給使用者
+            # 5. 探索有結果 → 主動傳給使用者（含主題 + 摘要）
             adapter = getattr(app.state, "telegram_adapter", None)
             if adapter and explored != "skipped":
-                explorer = getattr(engine, "_explorer", None)
-                # 從最近一次探索記錄取得 findings
+                # 從最近一次探索記錄取得 topic + findings
+                explore_topic = ""
                 findings_preview = ""
                 if _pdb:
                     exps = _pdb.get_today_explorations()
                     if exps:
                         latest = exps[-1]
-                        topic = latest.get("topic", "")
+                        explore_topic = latest.get("topic", "")
                         findings = latest.get("findings", "")
-                        if findings and findings not in ("搜尋無結果", "") and len(findings) > 30:
-                            findings_preview = f"\n\n📋 主要發現：\n{findings[:300]}"
+                        if findings and findings not in ("搜尋無結果", "無價值發現", "") and len(findings) > 20:
+                            findings_preview = f"\n\n📋 主要發現：\n{findings[:500]}"
 
-                _crystal_tag = "💎 已結晶" if crystallized == "done" else ""
+                topic_line = f"📌 主題：{explore_topic}\n" if explore_topic else ""
+                _crystal_tag = "\n💎 已結晶為長期記憶" if crystallized == "done" else ""
                 _msg = (
                     f"🔭 【自由探索回報】\n\n"
                     f"你不在的這 {idle_minutes:.0f} 分鐘，我出去探索了。\n"
-                    f"觸發：{trigger}{findings_preview}\n"
+                    f"觸發：{trigger}\n"
+                    f"{topic_line}"
+                    f"{findings_preview}"
                     f"{_crystal_tag}"
                 ).strip()
                 try:
