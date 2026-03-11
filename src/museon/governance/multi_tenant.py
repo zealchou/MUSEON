@@ -33,7 +33,7 @@ SENSITIVE_L2 = [
 ]
 
 SENSITIVE_L3 = [
-    "MUSEON", "霓裳", "架構", "API key", "token", "子機", "母機",
+    "霓裳", "架構", "API key", "token", "子機", "母機",
     "source code", "原始碼", "server", "專利", "商業秘密",
     "技術細節", "後台", "資料庫", "database", "patent",
 ]
