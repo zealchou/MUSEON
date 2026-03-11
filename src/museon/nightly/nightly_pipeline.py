@@ -956,12 +956,46 @@ class NightlyPipeline:
                 results["auto_approved"] += 1
                 results["executed"] += 1
 
+                # L1 持久化到 PulseDB（讓 Executor 能看到）
+                if pulse_db:
+                    try:
+                        pid = f"morphenix_{date.today().isoformat()}_L1_{results['auto_approved']:03d}"
+                        pulse_db.save_proposal(
+                            proposal_id=pid,
+                            level="L1",
+                            title=proposal.get("title", "L1 Config 提案"),
+                            description=proposal.get("description", proposal.get("summary", "")),
+                            affected_files=proposal.get("affected_files", []) if isinstance(proposal.get("affected_files"), list) else [],
+                            source_notes=proposal.get("source_notes", []) if isinstance(proposal.get("source_notes"), list) else [],
+                        )
+                        pulse_db.approve_proposal(pid, decided_by="auto")
+                        logger.info(f"Morphenix L1 proposal saved+approved in DB: {pid}")
+                    except Exception as e:
+                        logger.warning(f"Morphenix L1 DB persist failed: {e}")
+
             elif "L2" in str(category):
-                # L2 Logic: 自動核准，標記待測試
-                proposal["status"] = "approved_pending_test"
+                # L2 Logic: 自動核准（直接 approved，因無測試設施）
+                proposal["status"] = "approved"
                 proposal["decided_by"] = "auto"
                 proposal["decided_at"] = datetime.now(TZ_TAIPEI).isoformat()
                 results["auto_approved"] += 1
+
+                # L2 持久化到 PulseDB（讓 Executor 能看到）
+                if pulse_db:
+                    try:
+                        pid = f"morphenix_{date.today().isoformat()}_L2_{results['auto_approved']:03d}"
+                        pulse_db.save_proposal(
+                            proposal_id=pid,
+                            level="L2",
+                            title=proposal.get("title", "L2 Logic 提案"),
+                            description=proposal.get("description", proposal.get("summary", "")),
+                            affected_files=proposal.get("affected_files", []) if isinstance(proposal.get("affected_files"), list) else [],
+                            source_notes=proposal.get("source_notes", []) if isinstance(proposal.get("source_notes"), list) else [],
+                        )
+                        pulse_db.approve_proposal(pid, decided_by="auto")
+                        logger.info(f"Morphenix L2 proposal saved+approved in DB: {pid}")
+                    except Exception as e:
+                        logger.warning(f"Morphenix L2 DB persist failed: {e}")
 
             elif "L3" in str(category):
                 # L3 Architecture: 寫入 DB + Telegram 通知

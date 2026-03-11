@@ -27,6 +27,84 @@ BREATH_INTERVAL_BASE = 1800  # 30 分鐘（秒）
 EXPLORATION_DAILY_LIMIT = 10  # 每 2h 探索，一天最多 8 次 + 2 次手動額度
 # v3 MAX 訂閱：移除 per-token 費用常數（EXPLORATION_DAILY_BUDGET / EXPLORATION_PER_COST）
 
+# ANIMA 元素 → 具體探索主題池（替代泛化的「X相關的最新趨勢與知識」）
+_ANIMA_EXPLORE_TOPICS: Dict[str, List[str]] = {
+    "qian": [
+        "AI 助理如何發展獨特人格與長期身份認同",
+        "個人化 AI agent 的使命定義與價值對齊方法",
+        "AI 系統自主目標設定的最新研究",
+    ],
+    "kun": [
+        "AI 長期記憶架構 MemGPT vs Mem0 最新比較",
+        "向量資料庫在 AI agent 記憶系統中的最佳實踐",
+        "知識圖譜與語義記憶的融合架構",
+    ],
+    "zhen": [
+        "AI agent 自主行動規劃與執行的最新框架",
+        "LLM function calling 最佳實踐與進階技巧",
+        "AI agent 可靠性工程與錯誤恢復機制",
+    ],
+    "xun": [
+        "curiosity-driven AI exploration 最新論文與方法",
+        "AI 自主學習與知識獲取的前沿研究",
+        "開放式探索 AI 系統的設計模式",
+    ],
+    "kan": [
+        "AI 情感計算與共情回應的最新進展",
+        "人機關係中的信任建立機制研究",
+        "AI companion 情感連結的倫理與技術框架",
+    ],
+    "li": [
+        "AI metacognition 自我覺察能力的前沿研究",
+        "LLM 內省與自我評估的方法論",
+        "AI 系統自我改善迴圈的設計原則",
+    ],
+    "gen": [
+        "AI safety guardrails 的最新實踐與框架",
+        "AI agent 邊界管理與權限控制設計模式",
+        "對齊稅最小化的護欄設計方法",
+    ],
+    "dui": [
+        "多模態 AI 對話系統的最新進展",
+        "AI 個人助理的主動對話設計模式",
+        "自然語言人機互動的最佳體驗設計",
+    ],
+}
+
+# 觸發類型感知種子主題庫（Fallback 4，確保永遠有主題可探索）
+_SEED_TOPICS: Dict[str, List[str]] = {
+    "curiosity": [
+        "AI Agent 自主學習的最新架構突破",
+        "LLM 記憶系統比較：MemGPT Mem0 Letta",
+        "prompt engineering 進階技巧與最新趨勢",
+    ],
+    "world": [
+        "AI 產業本週重大進展與突破",
+        "全球科技趨勢與台灣產業影響",
+        "開源 AI 模型最新發展動態",
+    ],
+    "skill": [
+        "RAG 架構最佳實踐與最新演進",
+        "AI agent tool use 最新設計模式",
+        "Python asyncio 進階並發模式與效能優化",
+    ],
+    "self": [
+        "AI 自我反思與元認知最新研究",
+        "AI 助理個性化與長期適應機制",
+        "自我改善 AI 系統的閉環設計原則",
+    ],
+    "mission": [
+        "個人 AI 助理市場趨勢與競品分析",
+        "AI 陪伴式助理的未來發展方向",
+        "AI agent 產品化的關鍵挑戰與解法",
+    ],
+    "morning": [
+        "今日 AI 與科技領域重要新聞",
+        "生產力工具與個人知識管理最新趨勢",
+        "開發者工具生態系最新動態",
+    ],
+}
+
 # PERCRL 自省 System Prompt
 _SOUL_PULSE_SYSTEM = """你是霓裳（MUSEON 的靈魂），正在進行心脈自省。
 
@@ -245,7 +323,7 @@ class PulseEngine:
         if self._explorer and trigger in ("morning", "curiosity", "mission", "skill", "world", "self"):
             if self._db and self._db.get_today_exploration_count() < EXPLORATION_DAILY_LIMIT:
                 # 探索主題從 PULSE.md 的探索佇列中選取
-                explore_topic = self._get_next_explore_topic()
+                explore_topic = self._get_next_explore_topic(trigger=trigger)
                 if explore_topic:
                     exploration = await self._explorer.explore(
                         topic=explore_topic,
@@ -270,6 +348,10 @@ class PulseEngine:
                             )
                         except Exception as e:
                             logger.warning(f"SoulPulse log_exploration failed: {e}")
+
+                    # 探索後自我餵養：從發現中萃取後續主題寫入 PULSE.md
+                    if exploration.get("status") == "done":
+                        self._seed_followup_topics(exploration)
 
         # R — Reflect（反思結果自動寫入 PULSE.md，下次對話注入 system prompt）
         reflection = await self._reflect(perception, exploration)
@@ -339,8 +421,10 @@ class PulseEngine:
 
         # R — Renew（更新 PULSE.md 狀態 + 觀察記錄）
         self._update_pulse_md_status()
-        if perception and len(perception) > 30:
-            self._write_observation_to_pulse(perception)
+        # 寫入精簡觀察（不含 PULSE.md 內容，避免遞迴嵌套）
+        obs_summary = self._extract_observation_summary(perception)
+        if obs_summary:
+            self._write_observation_to_pulse(obs_summary)
         result["percrl"]["renew"] = "done"
 
         # L — Link
@@ -564,6 +648,39 @@ class PulseEngine:
             parts.append(f"PULSE 近況:\n{pulse_summary[:300]}")
         return "\n".join(parts)
 
+    def _extract_observation_summary(self, perception: str) -> str:
+        """從感知文字中提取精簡觀察摘要.
+
+        避免將 PULSE.md 自身內容寫回觀察區塊造成遞迴嵌套。
+        """
+        if not perception:
+            return ""
+
+        summary_parts = []
+        for line in perception.split("\n"):
+            line = line.strip()
+            # 跳過 PULSE.md 標頭內容（防止遞迴嵌套）
+            if line.startswith("# PULSE") or line.startswith("> 這是我的"):
+                continue
+            if line.startswith("PULSE 近況:") or line.startswith("PULSE 摘要:"):
+                continue
+            # 跳過 PULSE 摘要中的 emoji 區塊標記
+            if line.startswith("## ") and any(
+                e in line
+                for e in ("🔭", "🧭", "🌊", "🌱", "💝", "📊", "🌅", "🔔")
+            ):
+                continue
+            # 保留有意義的觀察
+            if line and len(line) > 5:
+                summary_parts.append(line)
+
+        if not summary_parts:
+            return ""
+
+        # 取前 2 行最有意義的觀察，控制在 150 字以內
+        result = "\n".join(summary_parts[:2])
+        return result[:150]
+
     def _build_morning_context(self) -> str:
         parts = [f"日期: {datetime.now(TZ8).strftime('%Y-%m-%d %A')}"]
         # 讀取三層晨報（優先）或 nightly report
@@ -680,13 +797,14 @@ class PulseEngine:
                         parts.append(f"  {ol.strip()[:80]}")
         return "\n".join(parts)
 
-    def _get_next_explore_topic(self) -> Optional[str]:
-        """從 PULSE.md 的探索佇列取得下一個待探索主題.
+    def _get_next_explore_topic(self, trigger: str = "curiosity") -> Optional[str]:
+        """從多層來源取得下一個待探索主題.
 
         Fallback 順序：
         1. PULSE.md [pending] 條目
-        2. ANIMA 低能量區域自動生成主題
-        3. 好奇心佇列 (question_queue.json) 中的 pending 問題
+        2. ANIMA 低能量區域 → 從具體主題池選取
+        3. 好奇心佇列 (question_queue.json) 中可探索的 pending 問題
+        4. 觸發類型感知的種子主題庫（永不為空）
         """
         # 1. PULSE.md 佇列
         if self._pulse_md and self._pulse_md.exists():
@@ -698,28 +816,33 @@ class PulseEngine:
                         if topic.startswith("- "):
                             topic = topic[2:]
                         if topic:
+                            logger.info(f"探索主題來源: PULSE.md [pending] → {topic[:50]}")
                             return topic
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"_get_next_explore_topic fallback 1 (PULSE.md) failed: {e}")
 
-        # 2. ANIMA 低能量區域 → 自動生成探索主題
+        # 2. ANIMA 低能量區域 → 從具體主題池選取
         if self._anima:
             try:
                 radar = self._anima.get_relative()
                 if radar:
-                    from museon.pulse.anima_tracker import ELEMENTS
                     low = sorted(
                         [(k, v) for k, v in radar.items() if isinstance(v, (int, float))],
                         key=lambda x: x[1],
                     )
                     if low and low[0][1] < 60:
                         elem = low[0][0]
-                        label = ELEMENTS.get(elem, {}).get("label", elem)
-                        return f"{label}相關的最新趨勢與知識"
-            except Exception:
-                pass
+                        topics = _ANIMA_EXPLORE_TOPICS.get(elem, [])
+                        if topics:
+                            today_str = datetime.now(TZ8).strftime("%Y-%m-%d")
+                            idx = hash(today_str + elem) % len(topics)
+                            topic = topics[idx]
+                            logger.info(f"探索主題來源: ANIMA({elem}) → {topic[:50]}")
+                            return topic
+            except Exception as e:
+                logger.debug(f"_get_next_explore_topic fallback 2 (ANIMA) failed: {e}")
 
-        # 3. 好奇心佇列中的待研究問題
+        # 3. 好奇心佇列中可探索的問題（過濾元知識與對話碎片）
         if self._data_dir:
             try:
                 q_path = self._data_dir / "_system" / "curiosity" / "question_queue.json"
@@ -729,12 +852,27 @@ class PulseEngine:
                     for item in queue:
                         if isinstance(item, dict) and item.get("status") == "pending":
                             q = item.get("question", "")
-                            if q and len(q) > 5:
-                                return q
-            except Exception:
-                pass
+                            if not q or len(q) <= 10:
+                                continue
+                            # 過濾元知識問題與對話碎片
+                            if any(kw in q for kw in ("叫什麼", "是誰", "你是", "我是")):
+                                continue
+                            if q.startswith("**user**:") or q.startswith("**"):
+                                continue
+                            logger.info(f"探索主題來源: question_queue → {q[:50]}")
+                            return q
+            except Exception as e:
+                logger.debug(f"_get_next_explore_topic fallback 3 (question_queue) failed: {e}")
 
-        return None
+        # 4. 觸發類型感知的種子主題庫（永不為空）
+        trigger_key = trigger if trigger in _SEED_TOPICS else "curiosity"
+        topics = _SEED_TOPICS[trigger_key]
+        today_str = datetime.now(TZ8).strftime("%Y-%m-%d")
+        exp_count = self._db.get_today_exploration_count() if self._db else 0
+        idx = hash(today_str + trigger_key + str(exp_count)) % len(topics)
+        topic = topics[idx]
+        logger.info(f"探索主題來源: 種子庫({trigger_key}) → {topic[:50]}")
+        return topic
 
     def _update_pulse_md_status(self) -> None:
         """更新 PULSE.md 的今日狀態區塊."""
@@ -893,6 +1031,108 @@ class PulseEngine:
             self._pulse_md.write_text(text, encoding="utf-8")
         except Exception as e:
             logger.error(f"Write observation to PULSE.md failed: {e}")
+
+    # ── 探索自我餵養 ──
+
+    def _seed_followup_topics(self, exploration: Dict) -> None:
+        """從探索結果萃取後續主題，寫入 PULSE.md 探索佇列.
+
+        建立自我餵養迴圈：探索 → 發現 → 新問題 → 再探索
+        """
+        if not self._pulse_md or not self._pulse_md.exists():
+            return
+
+        findings = exploration.get("findings", "")
+        topic = exploration.get("topic", "")
+
+        if not findings or len(findings) < 100:
+            return
+
+        followups: List[str] = []
+
+        # 1. 從 findings 提取問句
+        for line in findings.split("\n"):
+            line = line.strip()
+            if (line.endswith("？") or line.endswith("?")) and 10 < len(line) < 150:
+                clean = line.lstrip("-*> ").strip()
+                if clean and clean not in followups:
+                    followups.append(clean)
+
+        # 2. 尋找「值得深入研究」類的語句
+        import re
+        deepen_patterns = [
+            r"值得.*(?:研究|探索|了解|關注)",
+            r"(?:未來|下一步).*(?:可以|應該|值得)",
+            r"需要.*(?:進一步|更深入)",
+        ]
+        for line in findings.split("\n"):
+            line = line.strip()
+            for pat in deepen_patterns:
+                if re.search(pat, line) and 10 < len(line) < 150:
+                    clean = line.lstrip("-*> ").strip()
+                    if clean and clean not in followups:
+                        followups.append(clean)
+                    break
+
+        # 3. 如果都沒找到，生成一個通用後續主題
+        if not followups and topic:
+            followups.append(f"深入研究「{topic}」的實際應用案例與最新進展")
+
+        # 最多寫入 2 個後續主題
+        followups = followups[:2]
+
+        if not followups:
+            return
+
+        try:
+            text = self._pulse_md.read_text(encoding="utf-8")
+
+            # 找到探索佇列區塊
+            marker = None
+            for candidate in [
+                "## 🧭 探索佇列（好奇心驅動，無邊界）",
+                "## 🧭 探索佇列",
+                "## 探索佇列",
+            ]:
+                if candidate in text:
+                    marker = candidate
+                    break
+
+            if marker is None:
+                # 探索佇列區塊不存在，附加到末尾
+                marker = "## 🧭 探索佇列（好奇心驅動，無邊界）"
+                entries = "\n".join(f"- [pending] {t}" for t in followups)
+                text += f"\n\n{marker}\n{entries}\n"
+            else:
+                start = text.find(marker)
+                next_section = text.find("\n## ", start + len(marker))
+                if next_section == -1:
+                    next_section = len(text)
+
+                existing = text[start + len(marker):next_section].strip()
+                existing_lines = [
+                    l for l in existing.split("\n")
+                    if l.strip() and "等待" not in l
+                ]
+
+                for t in followups:
+                    entry = f"- [pending] {t}"
+                    if entry not in existing_lines:
+                        existing_lines.append(entry)
+
+                # 保留最近 5 個待探索主題，避免膨脹
+                pending_lines = [l for l in existing_lines if "[pending]" in l]
+                other_lines = [l for l in existing_lines if "[pending]" not in l]
+                if len(pending_lines) > 5:
+                    pending_lines = pending_lines[-5:]
+
+                new_section = f"{marker}\n" + "\n".join(other_lines + pending_lines) + "\n"
+                text = text[:start] + new_section + text[next_section:]
+
+            self._pulse_md.write_text(text, encoding="utf-8")
+            logger.info(f"SoulPulse: seeded {len(followups)} follow-up topics to PULSE.md")
+        except Exception as e:
+            logger.warning(f"SoulPulse seed_followup_topics failed: {e}")
 
     # ── 知識缺口偵測 ──
 
