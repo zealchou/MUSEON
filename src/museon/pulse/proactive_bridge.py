@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 # Constants
 # ═══════════════════════════════════════════
 
-SILENT_ACK_THRESHOLD = 15        # 字元數，≤ 此值 = 靜默通過（僅過濾 OK/HEARTBEAT_OK）
+SILENT_ACK_THRESHOLD = 8         # 字元數，≤ 此值 = 靜默通過（僅過濾 OK/HEARTBEAT_OK）
 COMPANION_ACK_THRESHOLD = 10     # companion 模式幾乎不過濾
 ACTIVE_HOURS_START = 8           # 08:00
 ACTIVE_HOURS_END = 25            # 01:00（跨日，用 25 表示次日 01:00）

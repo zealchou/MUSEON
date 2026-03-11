@@ -23,6 +23,8 @@ from museon.core.event_bus import (
     EXPLORATION_CRYSTALLIZED,
     EXPLORATION_INSIGHT,
     NIGHTLY_COMPLETED,
+    PROACTIVE_MESSAGE,
+    SCOUT_DRAFT_READY,
     SCOUT_GAP_DETECTED,
 )
 
@@ -68,6 +70,7 @@ class ExplorationBridge:
             self._event_bus.subscribe(EXPLORATION_CRYSTALLIZED, self._on_exploration)
             self._event_bus.subscribe(EXPLORATION_INSIGHT, self._on_exploration)
             self._event_bus.subscribe(NIGHTLY_COMPLETED, self._on_nightly_complete)
+            self._event_bus.subscribe(SCOUT_DRAFT_READY, self._on_scout_draft)
 
     def _on_exploration(self, data: Optional[Dict] = None) -> None:
         """處理探索完成事件 — 純 CPU 分析並分流."""
@@ -104,6 +107,17 @@ class ExplorationBridge:
                 f"ExplorationBridge: topic='{topic[:30]}' "
                 f"routed to {routes}"
             )
+
+        # 探索有洞見 → 主動推送給使用者（透過 PROACTIVE_MESSAGE 事件）
+        if findings and len(findings) > 50 and self._event_bus:
+            crystal_tag = "💎 " if crystallized else ""
+            preview = findings[:200].replace("\n", " ")
+            msg = f"🔭 {crystal_tag}探索「{topic[:30]}」的發現：\n\n{preview}"
+            self._event_bus.publish(PROACTIVE_MESSAGE, {
+                "message": msg,
+                "timestamp": datetime.now(TZ8).timestamp(),
+                "source": "exploration_bridge",
+            })
 
         # 記錄待批次處理
         self._pending_routes.append({
@@ -212,6 +226,19 @@ class ExplorationBridge:
 
         with open(note_file, "w", encoding="utf-8") as fh:
             json.dump(note, fh, ensure_ascii=False, indent=2)
+
+    def _on_scout_draft(self, data: Optional[Dict] = None) -> None:
+        """接收 Scout 草稿完成事件 → 路由到 Morphenix notes."""
+        if not data:
+            return
+        topic = data.get("topic", "")
+        draft = data.get("draft_path", "")
+        if topic:
+            self._route_to_morphenix_notes(
+                topic=f"[Scout] {topic}",
+                findings=data.get("summary", f"Scout 草稿已完成：{draft}"),
+            )
+            logger.info(f"ExplorationBridge: Scout draft routed to morphenix: {topic[:40]}")
 
     # ── 純 CPU 分析工具 ──
 

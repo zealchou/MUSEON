@@ -125,17 +125,8 @@ class MorphenixExecutor:
             except Exception as e:
                 logger.warning(f"Morphenix EventBus publish failed: {e}")
 
-            # 同步發布 MORPHENIX_EXECUTED（ActivityLogger / TelegramAdapter 訂閱）
-            try:
-                from museon.core.event_bus import MORPHENIX_EXECUTED
-                self._event_bus.publish(MORPHENIX_EXECUTED, {
-                    "executed": results["executed"],
-                    "failed": results["failed"],
-                    "affected_skills": list(set(all_affected_skills)),
-                    "timestamp": datetime.now(TZ8).isoformat(),
-                })
-            except Exception:
-                pass
+            # 註：MORPHENIX_EXECUTION_COMPLETED 已被 Telegram/SkillRouter 訂閱，
+            # 不需要再發布冗餘的 MORPHENIX_EXECUTED。
 
             # DNA27 相關變更 → 額外發布權重更新事件
             if has_dna27_change:

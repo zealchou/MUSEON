@@ -20,7 +20,7 @@ TZ8 = timezone(timedelta(hours=8))
 # Constants
 # ═══════════════════════════════════════════
 
-ACTIVE_HOURS_START = 8    # 08:00
+ACTIVE_HOURS_START = 7    # 07:00（涵蓋 07:30 晨安）
 ACTIVE_HOURS_END = 25     # 01:00（跨日）
 DAILY_PUSH_LIMIT = 25            # 與 ProactiveBridge 同步提高
 BREATH_INTERVAL_BASE = 1800  # 30 分鐘（秒）
@@ -252,6 +252,24 @@ class PulseEngine:
                         motivation=trigger if trigger in ("curiosity", "mission", "skill", "world", "self") else "curiosity",
                     )
                     result["percrl"]["explore"] = exploration.get("status", "skipped")
+
+                    # 記錄探索結果到 PulseDB
+                    if exploration.get("status") == "done":
+                        try:
+                            self._db.log_exploration(
+                                topic=exploration.get("topic", explore_topic),
+                                motivation=trigger,
+                                query=exploration.get("query", ""),
+                                findings=exploration.get("findings", "")[:2000],
+                                crystallized=exploration.get("crystallized", False),
+                                crystal_id=exploration.get("crystal_id", ""),
+                                tokens_used=exploration.get("tokens_used", 0),
+                                cost_usd=exploration.get("cost_usd", 0),
+                                duration_ms=exploration.get("duration_ms", 0),
+                                status="done",
+                            )
+                        except Exception as e:
+                            logger.warning(f"SoulPulse log_exploration failed: {e}")
 
         # R — Reflect（反思結果自動寫入 PULSE.md，下次對話注入 system prompt）
         reflection = await self._reflect(perception, exploration)
@@ -663,20 +681,59 @@ class PulseEngine:
         return "\n".join(parts)
 
     def _get_next_explore_topic(self) -> Optional[str]:
-        """從 PULSE.md 的探索佇列取得下一個待探索主題."""
-        if not self._pulse_md or not self._pulse_md.exists():
-            return None
-        try:
-            text = self._pulse_md.read_text(encoding="utf-8")
-            for line in text.split("\n"):
-                if "[pending]" in line:
-                    # 提取主題
-                    topic = line.split("[pending]")[-1].strip()
-                    if topic.startswith("- "):
-                        topic = topic[2:]
-                    return topic
-        except Exception:
-            pass
+        """從 PULSE.md 的探索佇列取得下一個待探索主題.
+
+        Fallback 順序：
+        1. PULSE.md [pending] 條目
+        2. ANIMA 低能量區域自動生成主題
+        3. 好奇心佇列 (question_queue.json) 中的 pending 問題
+        """
+        # 1. PULSE.md 佇列
+        if self._pulse_md and self._pulse_md.exists():
+            try:
+                text = self._pulse_md.read_text(encoding="utf-8")
+                for line in text.split("\n"):
+                    if "[pending]" in line:
+                        topic = line.split("[pending]")[-1].strip()
+                        if topic.startswith("- "):
+                            topic = topic[2:]
+                        if topic:
+                            return topic
+            except Exception:
+                pass
+
+        # 2. ANIMA 低能量區域 → 自動生成探索主題
+        if self._anima:
+            try:
+                radar = self._anima.get_relative()
+                if radar:
+                    from museon.pulse.anima_tracker import ELEMENTS
+                    low = sorted(
+                        [(k, v) for k, v in radar.items() if isinstance(v, (int, float))],
+                        key=lambda x: x[1],
+                    )
+                    if low and low[0][1] < 60:
+                        elem = low[0][0]
+                        label = ELEMENTS.get(elem, {}).get("label", elem)
+                        return f"{label}相關的最新趨勢與知識"
+            except Exception:
+                pass
+
+        # 3. 好奇心佇列中的待研究問題
+        if self._data_dir:
+            try:
+                q_path = self._data_dir / "_system" / "curiosity" / "question_queue.json"
+                if q_path.exists():
+                    import json as _json
+                    queue = _json.loads(q_path.read_text(encoding="utf-8"))
+                    for item in queue:
+                        if isinstance(item, dict) and item.get("status") == "pending":
+                            q = item.get("question", "")
+                            if q and len(q) > 5:
+                                return q
+            except Exception:
+                pass
+
         return None
 
     def _update_pulse_md_status(self) -> None:
@@ -897,8 +954,13 @@ class PulseEngine:
         if gaps and self._pulse_md and self._pulse_md.exists():
             try:
                 text = self._pulse_md.read_text(encoding="utf-8")
-                marker = "## 🧭 探索佇列（好奇心驅動，無邊界）"
-                if marker in text:
+                # 模糊匹配：支援多種標題格式
+                marker = None
+                for candidate in ["## 🧭 探索佇列（好奇心驅動，無邊界）", "## 🧭 探索佇列", "## 探索佇列"]:
+                    if candidate in text:
+                        marker = candidate
+                        break
+                if marker:
                     # 只加入 anima_low_energy 類型的缺口作為探索主題
                     for gap in gaps:
                         if gap["type"] == "anima_low_energy":

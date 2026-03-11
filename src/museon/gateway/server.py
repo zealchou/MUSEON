@@ -4775,6 +4775,14 @@ def _register_system_cron_jobs(brain, app=None) -> None:
             approved = db.auto_approve_stale_proposals(hours=72)
             if approved:
                 logger.info(f"Morphenix auto-approved {len(approved)} stale proposals: {approved}")
+                # 發布 MORPHENIX_AUTO_APPROVED 事件
+                _ebus = getattr(app.state, "event_bus", None)
+                if _ebus:
+                    from museon.core.event_bus import MORPHENIX_AUTO_APPROVED
+                    _ebus.publish(MORPHENIX_AUTO_APPROVED, {
+                        "proposal_ids": approved,
+                        "count": len(approved),
+                    })
                 # 通知 Telegram
                 adapter = getattr(app.state, "telegram_adapter", None)
                 if adapter:
