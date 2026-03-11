@@ -10,6 +10,7 @@ import logging
 import os
 import time
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
 
 logger = logging.getLogger(__name__)
@@ -128,6 +129,10 @@ class ClaudeCLIAdapter:
 
     這是合法的 Claude Code CLI 使用方式，不會被封鎖。
     每次呼叫啟動一個 subprocess，透過 --output-format json 取得結構化回應。
+
+    認證機制（優先順序）：
+    1. 環境變數 CLAUDE_CODE_OAUTH_TOKEN（Claude Desktop 注入）
+    2. 持久化 token 文件 ~/.museon/oauth_token（daemon 使用）
     """
 
     # 模型名稱映射
@@ -141,10 +146,40 @@ class ClaudeCLIAdapter:
         "claude-3-5-sonnet-20241022": "sonnet",
     }
 
+    # OAuth token 持久化路徑
+    _TOKEN_FILE = Path.home() / ".museon" / "oauth_token"
+
     def __init__(self, claude_path: Optional[str] = None):
         self._claude_path = claude_path or "claude"
         self._call_count = 0
         self._total_duration_ms = 0
+
+    def _get_oauth_token(self) -> Optional[str]:
+        """取得 OAuth token（環境變數 > 持久化文件）."""
+        # 1. 環境變數（Claude Desktop 注入）
+        token = os.environ.get("CLAUDE_CODE_OAUTH_TOKEN")
+        if token:
+            self._save_token(token)
+            return token
+        # 2. 持久化文件（launchd daemon 使用）
+        if self._TOKEN_FILE.exists():
+            try:
+                saved = self._TOKEN_FILE.read_text(encoding="utf-8").strip()
+                if saved:
+                    logger.debug("Using persisted OAuth token from %s", self._TOKEN_FILE)
+                    return saved
+            except Exception:
+                pass
+        return None
+
+    def _save_token(self, token: str) -> None:
+        """將 OAuth token 持久化到文件."""
+        try:
+            self._TOKEN_FILE.parent.mkdir(parents=True, exist_ok=True)
+            self._TOKEN_FILE.write_text(token, encoding="utf-8")
+            self._TOKEN_FILE.chmod(0o600)
+        except Exception as e:
+            logger.debug("Failed to persist OAuth token: %s", e)
 
     def _map_model(self, model: str) -> str:
         """將各種模型 ID 映射到 claude -p 接受的名稱."""
@@ -285,6 +320,11 @@ class ClaudeCLIAdapter:
         env.pop("CLAUDECODE", None)  # 避免巢狀檢查
         env.pop("ANTHROPIC_API_KEY", None)  # 強制 CLI 使用 OAuth token（Max 訂閱）
 
+        # 確保 OAuth token 可用（launchd daemon 沒有 Claude Desktop 注入的環境變數）
+        oauth_token = self._get_oauth_token()
+        if oauth_token:
+            env["CLAUDE_CODE_OAUTH_TOKEN"] = oauth_token
+
         try:
             proc = await asyncio.create_subprocess_exec(
                 *cmd,
@@ -303,9 +343,25 @@ class ClaudeCLIAdapter:
             stderr_text = stderr.decode("utf-8", errors="replace").strip()
 
             if proc.returncode != 0:
-                logger.error(f"claude -p failed (exit {proc.returncode}): {stderr_text[:500]}")
+                # 錯誤可能在 stderr 或 stdout JSON 中
+                error_detail = stderr_text[:500] if stderr_text else ""
+                if not error_detail and stdout_text:
+                    try:
+                        err_data = json.loads(stdout_text)
+                        error_detail = err_data.get("result", stdout_text[:500])
+                    except json.JSONDecodeError:
+                        error_detail = stdout_text[:500]
+                # 偵測 token 過期：收到 Not logged in 時清除持久化 token
+                if "Not logged in" in error_detail or "authentication" in error_detail.lower():
+                    logger.warning("OAuth token may be expired, clearing persisted token")
+                    if self._TOKEN_FILE.exists():
+                        try:
+                            self._TOKEN_FILE.unlink()
+                        except Exception:
+                            pass
+                logger.error(f"claude -p failed (exit {proc.returncode}): {error_detail}")
                 return AdapterResponse(
-                    text=f"[claude -p error] {stderr_text[:500]}",
+                    text=f"[claude -p error] {error_detail}",
                     stop_reason="error",
                     model=cli_model,
                 )
