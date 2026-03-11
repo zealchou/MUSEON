@@ -1,0 +1,62 @@
+[
+  {
+    "id": "3742c4e5-c563-4540-acdc-9b38922ca30f",
+    "timestamp": "2026-03-10T11:22:35.245543",
+    "alert_type": "zero_dimension",
+    "severity": "warning",
+    "message": "維度 understanding 為零",
+    "details": {
+      "dimension": "understanding",
+      "q_score_id": "97e5db2d-d24d-4be1-8333-a176680f58e4",
+      "session_id": ""
+    }
+  },
+  {
+    "id": "3f303ab2-499f-452d-af18-6b2b8289b789",
+    "timestamp": "2026-03-10T13:38:15.537987",
+    "alert_type": "zero_dimension",
+    "severity": "warning",
+    "message": "維度 understanding 為零",
+    "details": {
+      "dimension": "understanding",
+      "q_score_id": "60c1494c-f843-4aa0-a88a-42b33ece8058",
+      "session_id": ""
+    }
+  },
+  {
+    "id": "54fe370b-aca2-49a0-aedc-dc38d606ceda",
+    "timestamp": "2026-03-11T17:15:53.960644",
+    "alert_type": "zero_dimension",
+    "severity": "warning",
+    "message": "維度 understanding 為零",
+    "details": {
+      "dimension": "understanding",
+      "q_score_id": "16526630-8278-4f2b-9b65-8cc68687111e",
+      "session_id": ""
+    }
+  },
+  {
+    "id": "30596e68-8445-4ca1-909d-3dd32877dd03",
+    "timestamp": "2026-03-11T22:56:39.385525",
+    "alert_type": "zero_dimension",
+    "severity": "warning",
+    "message": "維度 understanding 為零",
+    "details": {
+      "dimension": "understanding",
+      "q_score_id": "cef73baa-7445-446d-a29f-80c9498c001d",
+      "session_id": ""
+    }
+  },
+  {
+    "id": "0a32eba8-cb4e-4553-b7ff-e62e0d66954d",
+    "timestamp": "2026-03-11T22:57:59.487532",
+    "alert_type": "zero_dimension",
+    "severity": "warning",
+    "message": "維度 understanding 為零",
+    "details": {
+      "dimension": "understanding",
+      "q_score_id": "15735245-4f81-4f84-9c0e-637499cdd060",
+      "session_id": ""
+    }
+  }
+]

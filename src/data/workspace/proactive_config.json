@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "telegram_user_id": 6969045906,
+  "telegram_bot_token": "8570443079:AAG1EbgVr_JoAAnlNoYdt7XGFvfd9j7dyys",
+  "push_interval_seconds": 1800,
+  "active_hours_start": 8,
+  "active_hours_end": 25,
+  "daily_push_limit": 5,
+  "silent_ack_threshold": 100,
+  "activated_at": "2026-03-05T08:04:42.513700",
+  "activated_by": "MUSEON",
+  "activation_reason": "达达把拔要求激活主动敲门"
+}
