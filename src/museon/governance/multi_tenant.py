@@ -124,6 +124,34 @@ class ExternalAnimaManager:
                 pass
         return self._default_anima(user_id)
 
+    def search_by_keyword(self, keyword: str, limit: int = 5) -> List[Dict[str, Any]]:
+        """搜尋外部用戶：比對 display_name、context_summary、recent_topics.
+
+        用於跨 session 記憶檢索——當 owner 在私聊中提及某個群組成員時，
+        能從外部用戶檔案中找到相關資訊。
+        """
+        keyword_lower = keyword.lower()
+        results = []
+        try:
+            for p in self.users_dir.glob("*.json"):
+                try:
+                    data = json.loads(p.read_text(encoding="utf-8"))
+                    # 比對 display_name
+                    name = (data.get("display_name") or "").lower()
+                    summary = (data.get("context_summary") or "").lower()
+                    topics = " ".join(data.get("recent_topics", [])).lower()
+                    relation = (data.get("relationship_to_owner") or "").lower()
+                    searchable = f"{name} {summary} {topics} {relation}"
+                    if keyword_lower in searchable:
+                        results.append(data)
+                        if len(results) >= limit:
+                            break
+                except Exception:
+                    continue
+        except Exception as e:
+            logger.debug(f"ExternalAnima search failed: {e}")
+        return results
+
     def save(self, user_id: str, anima: Dict[str, Any]) -> None:
         """完整覆寫外部用戶的 ANIMA 檔案。"""
         try:
