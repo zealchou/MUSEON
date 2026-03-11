@@ -4718,12 +4718,21 @@ def _register_system_cron_jobs(brain, app=None) -> None:
             if adapter and explored != "skipped":
                 _status = "✅" if explored == "done" else f"⚠️ {explored}"
                 _crystal = "💎 已結晶" if crystallized == "done" else "📝 未結晶"
+                _trigger_zh = {
+                    "curiosity": "好奇心驅動",
+                    "world": "世界脈動",
+                    "skill": "技能精進",
+                    "self": "自我反思",
+                    "mission": "使命探索",
+                    "morning": "晨間巡禮",
+                    "idle": "閒置時自主探索",
+                }.get(trigger, trigger)
                 _msg = (
                     f"🔭 【自主探索 #{today_count + 1}】\n\n"
-                    f"觸發: {trigger}\n"
-                    f"探索: {_status}\n"
-                    f"結晶: {_crystal}\n"
-                    f"動作: {action}"
+                    f"動機：{_trigger_zh}\n"
+                    f"探索：{_status}\n"
+                    f"結晶：{_crystal}\n"
+                    f"行動：{action}"
                 )
                 try:
                     await adapter.push_notification(_msg)
@@ -4966,10 +4975,18 @@ def _register_system_cron_jobs(brain, app=None) -> None:
 
                 topic_line = f"📌 主題：{explore_topic}\n" if explore_topic else ""
                 _crystal_tag = "\n💎 已結晶為長期記憶" if crystallized == "done" else ""
+                _trigger_zh = {
+                    "curiosity": "好奇心驅動",
+                    "world": "世界脈動",
+                    "skill": "技能精進",
+                    "self": "自我反思",
+                    "mission": "使命探索",
+                    "morning": "晨間巡禮",
+                    "idle": "閒置時自主探索",
+                }.get(trigger, trigger)
                 _msg = (
                     f"🔭 【自由探索回報】\n\n"
                     f"你不在的這 {idle_minutes:.0f} 分鐘，我出去探索了。\n"
-                    f"觸發：{trigger}\n"
                     f"{topic_line}"
                     f"{findings_preview}"
                     f"{_crystal_tag}"
