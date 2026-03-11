@@ -183,8 +183,20 @@ class GroupContextStore:
             for r in reversed(rows)
         ]
 
-    def format_context_for_prompt(self, group_id: int, limit: int = 20) -> str:
-        """Format recent group messages as a context string for LLM prompt."""
+    def format_context_for_prompt(
+        self,
+        group_id: int,
+        limit: int = 20,
+        owner_ids: Optional[set] = None,
+        boss_name: str = "",
+    ) -> str:
+        """Format recent group messages as a context string for LLM prompt.
+
+        Args:
+            owner_ids: set of user_id strings that belong to the owner/boss.
+                       Their messages will be tagged with boss_name.
+            boss_name: the owner's known name (from ANIMA_MC boss.name).
+        """
         messages = self.get_recent_context(group_id, limit)
         if not messages:
             return ""
@@ -192,7 +204,12 @@ class GroupContextStore:
         lines = ["[群組近期對話紀錄]"]
         for msg in messages:
             time_short = msg["time"].split("T")[-1][:5] if "T" in msg["time"] else msg["time"][-5:]
-            lines.append(f"  {time_short} {msg['name']}: {msg['text'][:200]}")
+            # Tag owner messages so Brain recognizes the boss
+            if owner_ids and msg.get("user_id") in owner_ids:
+                display = boss_name or msg["name"]
+                lines.append(f"  {time_short} {display}（老闆）: {msg['text'][:200]}")
+            else:
+                lines.append(f"  {time_short} {msg['name']}: {msg['text'][:200]}")
         lines.append("[/群組近期對話紀錄]")
         return "\n".join(lines)
 

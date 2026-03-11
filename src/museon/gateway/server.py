@@ -3344,11 +3344,11 @@ async def _telegram_message_pump(adapter) -> None:
                         ).strip()
                         content_lower = _stripped.lower() if _stripped else _raw.lower()
 
-                        # Bug fix: 包含式匹配（自然語言回覆如「都可以回答」也能命中）
+                        # Bug fix: 否定詞優先匹配（「不行」「不可以」必須先於「行」「可以」）
+                        _DENY_KW = ("不行", "不可以", "不要", "拒絕", "no", "deny", "不准", "別回答")
                         _APPROVE_KW = ("可以", "yes", "ok", "好", "行", "沒問題", "回答")
-                        _DENY_KW = ("不行", "no", "不可以", "拒絕", "deny", "不要")
-                        _is_approve = any(kw in content_lower for kw in _APPROVE_KW)
-                        _is_deny = any(kw in content_lower for kw in _DENY_KW) and not _is_approve
+                        _is_deny = any(kw in content_lower for kw in _DENY_KW)
+                        _is_approve = any(kw in content_lower for kw in _APPROVE_KW) and not _is_deny
 
                         if _is_approve:
                             eid = eq.resolve_latest(allowed=True)
@@ -3448,10 +3448,22 @@ async def _telegram_message_pump(adapter) -> None:
                             from pathlib import Path as _Path
                             import uuid as _uuid
 
+                            # Load boss name from ANIMA_MC so Brain recognizes owner
+                            _boss_name = ""
+                            _owner_ids = set()
+                            try:
+                                anima_mc = brain._load_anima_mc()
+                                if anima_mc:
+                                    _boss_name = anima_mc.get("boss", {}).get("name", "")
+                                _owner_ids = set(adapter.trusted_user_ids) if hasattr(adapter, "trusted_user_ids") else set()
+                            except Exception:
+                                pass
+
                             # Load recent group context for intelligent replies
                             _ctx_store = get_group_context_store()
                             _group_context = _ctx_store.format_context_for_prompt(
-                                group_id or 0, limit=20
+                                group_id or 0, limit=20,
+                                owner_ids=_owner_ids, boss_name=_boss_name,
                             )
 
                             if not is_owner:
@@ -3493,8 +3505,9 @@ async def _telegram_message_pump(adapter) -> None:
                                         metadata={"is_group": True, "sender_name": sender_name},
                                     )
                             else:
-                                # Owner in group: process with context, no sensitivity check
-                                group_prefix = f"[群組] {sender_name}（owner）：\n"
+                                # Owner in group: use boss_name so Brain recognizes its boss
+                                _display = _boss_name or sender_name
+                                group_prefix = f"[群組] {_display}（老闆）說：\n"
                                 _content = group_prefix + message.content
                                 if _group_context:
                                     _content = _group_context + "\n\n" + _content
@@ -3503,21 +3516,23 @@ async def _telegram_message_pump(adapter) -> None:
                                     session_id=message.session_id,
                                     user_id=message.user_id,
                                     source="telegram",
-                                    metadata={"is_group": True, "sender_name": sender_name, "is_owner": True},
+                                    metadata={"is_group": True, "sender_name": _display, "is_owner": True},
                                 )
                         except Exception as _mt_err:
                             logger.error(f"Multi-tenant processing error: {_mt_err}", exc_info=True)
-                            brain_result = await brain.process(
-                                content=message.content,
-                                session_id=message.session_id,
-                                user_id=message.user_id,
-                                source="telegram",
-                                metadata={
-                                    "is_group": True,
-                                    "sender_name": sender_name,
-                                    "permission_level": "external" if not is_owner else "core",
-                                },
-                            )
+                            if is_owner:
+                                # Owner fallback: safe to process without multi-tenant
+                                brain_result = await brain.process(
+                                    content=message.content,
+                                    session_id=message.session_id,
+                                    user_id=message.user_id,
+                                    source="telegram",
+                                    metadata={"is_group": True, "sender_name": sender_name, "is_owner": True},
+                                )
+                            else:
+                                # Non-owner fallback: refuse to process (safety first)
+                                response_text = "目前系統忙碌中，請稍後再試。"
+                                logger.warning(f"Blocked non-owner group msg due to multi-tenant error: {_mt_err}")
                     else:
                         # Normal DM processing (owner or trusted user)
                         brain_result = await brain.process(
@@ -3543,11 +3558,16 @@ async def _telegram_message_pump(adapter) -> None:
                 name = "MUSEON"
                 if anima_mc:
                     name = anima_mc.get("identity", {}).get("name", "MUSEON")
-                response_text = (
-                    f"[{name}] 處理過程發生錯誤，請稍後再試。\n\n"
-                    f"錯誤類型：{type(proc_err).__name__}\n"
-                    f"如果持續發生，請用 /reset 重新啟動。"
-                )
+                if is_group and not is_owner:
+                    # 群組外部用戶：不洩漏技術細節
+                    response_text = f"不好意思，我現在有點忙，請稍後再試。"
+                else:
+                    # Owner 或私訊：顯示錯誤細節方便除錯
+                    response_text = (
+                        f"[{name}] 處理過程發生錯誤，請稍後再試。\n\n"
+                        f"錯誤類型：{type(proc_err).__name__}\n"
+                        f"如果持續發生，請用 /reset 重新啟動。"
+                    )
             finally:
                 # Release session lock
                 if _session_locked and message.session_id and session_manager:

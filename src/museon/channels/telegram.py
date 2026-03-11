@@ -139,17 +139,27 @@ class TelegramAdapter(ChannelAdapter):
             user_id_str = str(from_user.id) if from_user else ""
             is_owner = user_id_str in self.trusted_user_ids
 
-            # Check if bot is @mentioned
+            # Check if bot is @mentioned (must be THIS bot, not any @user)
             text = update.message.text or ""
             is_mentioned = False
-            if update.message.entities:
+            bot_username = context.bot.username.lower() if context.bot and context.bot.username else ""
+            bot_id = context.bot.id if context.bot else None
+            if update.message.entities and bot_username:
                 for ent in update.message.entities:
-                    if ent.type in ("mention", "text_mention"):
-                        is_mentioned = True
-                        break
-            # Also check for bot username in text as fallback
-            if not is_mentioned and context.bot and context.bot.username:
-                is_mentioned = f"@{context.bot.username}" in text
+                    if ent.type == "mention":
+                        # @username mention — extract and compare
+                        mentioned = text[ent.offset:ent.offset + ent.length].lower()
+                        if mentioned == f"@{bot_username}":
+                            is_mentioned = True
+                            break
+                    elif ent.type == "text_mention" and ent.user:
+                        # Inline mention with user object — compare bot ID
+                        if bot_id and ent.user.id == bot_id:
+                            is_mentioned = True
+                            break
+            # Fallback: direct text check for bot username
+            if not is_mentioned and bot_username:
+                is_mentioned = f"@{bot_username}" in text.lower()
 
             # Always log group messages for context building
             sender_name = from_user.first_name or "" if from_user else ""
@@ -240,15 +250,23 @@ class TelegramAdapter(ChannelAdapter):
             except Exception as _db_err:
                 logger.debug(f"Group context DB write error (file): {_db_err}")
 
-            # Check @mention in caption
+            # Check @mention in caption (must be THIS bot, not any @user)
             is_mentioned = False
-            if caption and context.bot and context.bot.username:
-                is_mentioned = f"@{context.bot.username}" in caption
-            if update.message.caption_entities:
+            _bot_username = context.bot.username.lower() if context.bot and context.bot.username else ""
+            _bot_id = context.bot.id if context.bot else None
+            if update.message.caption_entities and _bot_username:
                 for ent in update.message.caption_entities:
-                    if ent.type in ("mention", "text_mention"):
-                        is_mentioned = True
-                        break
+                    if ent.type == "mention":
+                        mentioned = caption[ent.offset:ent.offset + ent.length].lower()
+                        if mentioned == f"@{_bot_username}":
+                            is_mentioned = True
+                            break
+                    elif ent.type == "text_mention" and ent.user:
+                        if _bot_id and ent.user.id == _bot_id:
+                            is_mentioned = True
+                            break
+            if not is_mentioned and _bot_username:
+                is_mentioned = f"@{_bot_username}" in caption.lower()
             if not is_mentioned:
                 logger.debug("Group file upload recorded (silent) from %s", user_id_str)
                 return
@@ -550,7 +568,18 @@ class TelegramAdapter(ChannelAdapter):
                 # 截斷過長的回覆上下文（避免 token 浪費）
                 if len(replied_text) > 500:
                     replied_text = replied_text[:500] + "..."
-                replied_from = "霓裳" if replied.from_user and replied.from_user.is_bot else "達達把拔"
+                if replied.from_user and replied.from_user.is_bot:
+                    replied_from = "霓裳"
+                elif replied.from_user:
+                    # Use actual display name; mark owner if in trusted list
+                    _replied_uid = str(replied.from_user.id)
+                    _replied_name = replied.from_user.first_name or replied.from_user.username or "某人"
+                    if _replied_uid in self.trusted_user_ids:
+                        replied_from = f"{_replied_name}（老闆）"
+                    else:
+                        replied_from = _replied_name
+                else:
+                    replied_from = "某人"
                 reply_context = f"[回覆 {replied_from} 的訊息：{replied_text}]\n\n"
 
         if reply_context and content:
