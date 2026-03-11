@@ -42,9 +42,22 @@ SENSITIVE_L3 = [
 class SensitivityChecker:
     """Classify user messages by sensitivity level."""
 
+    @staticmethod
+    def _clean_text(text: str) -> str:
+        """Remove @bot mentions and common noise before sensitivity check."""
+        import re
+        # Strip @xxx_bot mentions (e.g. @MuseonClaw_bot)
+        cleaned = re.sub(r"@\w+_?bot\b", "", text, flags=re.IGNORECASE)
+        # Strip reply context prefix
+        cleaned = re.sub(r"^\[回覆.*?的訊息：.*?\]\s*", "", cleaned, flags=re.DOTALL)
+        return cleaned.strip()
+
     def check(self, text: str) -> Tuple[Optional[str], str]:
         """Return (level, reason). Level is None, 'L1', 'L2', or 'L3' (L3 = highest)."""
-        text_lower = text.lower()
+        text_lower = self._clean_text(text).lower()
+
+        if not text_lower:
+            return None, ""
 
         for kw in SENSITIVE_L3:
             if kw.lower() in text_lower:
@@ -111,13 +124,21 @@ class EscalationQueue:
     3. Owner DMs a response ("可以" / "不行" / "yes" / "no")
     4. Bot replies to group OR politely declines
     5. If timeout → auto-decline
+
+    Multi-group support:
+    - Tracks latest escalation per group (not global singleton)
+    - resolve_latest() resolves the most recent unresolved across all groups
+    - FIFO ordering ensures fairness across groups
     """
 
     TIMEOUT_SECONDS = 600  # 10 minutes
 
     def __init__(self):
         self._pending: Dict[str, Dict[str, Any]] = {}
-        self._latest_id: Optional[str] = None
+        # Per-group latest tracking (replaces single _latest_id)
+        self._latest_per_group: Dict[int, str] = {}
+        # Global ordered list for FIFO resolution
+        self._order: list = []
 
     def add(
         self,
@@ -136,7 +157,8 @@ class EscalationQueue:
             "resolved": False,
             "allowed": False,
         }
-        self._latest_id = escalation_id
+        self._latest_per_group[group_id] = escalation_id
+        self._order.append(escalation_id)
 
     def resolve(self, escalation_id: str, allowed: bool) -> bool:
         if escalation_id not in self._pending:
@@ -146,12 +168,13 @@ class EscalationQueue:
         return True
 
     def resolve_latest(self, allowed: bool) -> Optional[str]:
-        """Resolve the most recent pending escalation (owner replied without specifying ID)."""
-        if self._latest_id and self._latest_id in self._pending:
-            entry = self._pending[self._latest_id]
-            if not entry["resolved"] and not self.is_timed_out(self._latest_id):
-                self.resolve(self._latest_id, allowed)
-                return self._latest_id
+        """Resolve the oldest unresolved escalation (FIFO across all groups)."""
+        for eid in self._order:
+            if eid in self._pending:
+                entry = self._pending[eid]
+                if not entry["resolved"] and not self.is_timed_out(eid):
+                    self.resolve(eid, allowed)
+                    return eid
         return None
 
     def is_timed_out(self, escalation_id: str) -> bool:
@@ -166,9 +189,22 @@ class EscalationQueue:
         return self._pending.get(escalation_id)
 
     def get_latest(self) -> Optional[Dict]:
-        if self._latest_id:
-            return self._pending.get(self._latest_id)
+        """Get the oldest unresolved escalation."""
+        for eid in self._order:
+            if eid in self._pending:
+                entry = self._pending[eid]
+                if not entry["resolved"] and not self.is_timed_out(eid):
+                    return entry
         return None
+
+    def pending_count(self) -> int:
+        """Return number of unresolved, non-timed-out escalations."""
+        return sum(
+            1 for eid in self._order
+            if eid in self._pending
+            and not self._pending[eid]["resolved"]
+            and not self.is_timed_out(eid)
+        )
 
     def purge_old(self) -> None:
         cutoff = datetime.now() - timedelta(hours=2)
@@ -178,6 +214,11 @@ class EscalationQueue:
         ]
         for k in to_delete:
             del self._pending[k]
+        self._order = [eid for eid in self._order if eid in self._pending]
+        self._latest_per_group = {
+            gid: eid for gid, eid in self._latest_per_group.items()
+            if eid in self._pending
+        }
 
 
 # ── Singletons ──

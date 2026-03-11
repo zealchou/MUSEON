@@ -3315,10 +3315,20 @@ async def _telegram_message_pump(adapter) -> None:
                         _progress_updater(adapter, chat_id, status_msg_id)
                     )
 
-            # ── 2. Route through MUSEON Brain ──
+            # ── 2. Route through MUSEON Brain (with session lock) ──
             response_text = None
             brain_result = None  # v9.0: raw BrainResponse
             brain = _get_brain()
+
+            # Acquire session lock (same pattern as webhook handler)
+            _session_locked = False
+            if message.session_id and session_manager:
+                _session_locked = await session_manager.acquire(message.session_id)
+                if not _session_locked:
+                    logger.warning(f"Session {message.session_id} busy, queuing message")
+                    # Wait briefly then retry once
+                    await asyncio.sleep(2)
+                    _session_locked = await session_manager.acquire(message.session_id)
 
             try:
                 # ── Check if owner is responding to a sensitivity escalation ──
@@ -3326,20 +3336,66 @@ async def _telegram_message_pump(adapter) -> None:
                     try:
                         from museon.governance.multi_tenant import get_escalation_queue
                         eq = get_escalation_queue()
-                        content_lower = message.content.strip().lower()
-                        if content_lower in ("可以", "yes", "ok", "好", "行"):
+                        # Bug fix: 剝離 Reply 前綴，只取使用者實際輸入
+                        _raw = message.content.strip()
+                        import re as _re
+                        _stripped = _re.sub(
+                            r"^\[回覆.*?的訊息：.*?\]\s*", "", _raw, flags=_re.DOTALL
+                        ).strip()
+                        content_lower = _stripped.lower() if _stripped else _raw.lower()
+
+                        # Bug fix: 包含式匹配（自然語言回覆如「都可以回答」也能命中）
+                        _APPROVE_KW = ("可以", "yes", "ok", "好", "行", "沒問題", "回答")
+                        _DENY_KW = ("不行", "no", "不可以", "拒絕", "deny", "不要")
+                        _is_approve = any(kw in content_lower for kw in _APPROVE_KW)
+                        _is_deny = any(kw in content_lower for kw in _DENY_KW) and not _is_approve
+
+                        if _is_approve:
                             eid = eq.resolve_latest(allowed=True)
                             if eid:
                                 entry = eq.get(eid)
                                 if entry:
-                                    response_text = f"好，我去回覆 {entry['asker_name']} 的問題。"
-                                    # TODO: actually send the answer to the group (requires storing the question & context)
-                        elif content_lower in ("不行", "no", "不可以", "拒絕", "deny"):
+                                    _q = entry.get("question", "")
+                                    _gid = entry.get("group_id")
+                                    _asker = entry.get("asker_name", "對方")
+                                    response_text = f"好，正在回覆 {_asker} 的問題。"
+                                    # Actually process & reply to group
+                                    if _gid and _q:
+                                        try:
+                                            _gr = await brain.process(
+                                                content=_q,
+                                                session_id=f"telegram_group_{abs(_gid)}",
+                                                user_id="external",
+                                                source="telegram",
+                                                metadata={"permission_level": "external", "sender_name": _asker, "is_group": True},
+                                            )
+                                            from museon.gateway.message import BrainResponse as _BR
+                                            if isinstance(_gr, _BR):
+                                                _reply = _gr.text or "好的，讓我想想看。"
+                                            else:
+                                                _reply = str(_gr) if _gr else "好的，讓我想想看。"
+                                            await adapter.application.bot.send_message(
+                                                chat_id=_gid, text=_reply
+                                            )
+                                            logger.info(f"Group escalation reply sent to {_gid} for {_asker}")
+                                        except Exception as _grp_err:
+                                            logger.error(f"Group reply after escalation failed: {_grp_err}", exc_info=True)
+                        elif _is_deny:
                             eid = eq.resolve_latest(allowed=False)
                             if eid:
                                 entry = eq.get(eid)
                                 if entry:
-                                    response_text = f"好，已記錄。{entry['asker_name']} 那邊我會禮貌拒絕。"
+                                    _gid = entry.get("group_id")
+                                    _asker = entry.get("asker_name", "對方")
+                                    response_text = f"好，已記錄。{_asker} 那邊我會禮貌拒絕。"
+                                    if _gid:
+                                        try:
+                                            await adapter.application.bot.send_message(
+                                                chat_id=_gid,
+                                                text="這個問題目前不方便回答，抱歉。有其他需要歡迎繼續詢問。",
+                                            )
+                                        except Exception as _grp_err:
+                                            logger.error(f"Group decline send failed: {_grp_err}", exc_info=True)
                     except Exception as _esc_err:
                         logger.debug(f"Escalation check error: {_esc_err}")
 
@@ -3382,50 +3438,72 @@ async def _telegram_message_pump(adapter) -> None:
                             source="telegram",
                         )
                 elif response_text is None:
-                    if is_group and not is_owner:
-                        # Sensitivity check for non-owner group messages
+                    if is_group:
+                        # Group message processing (owner or non-owner, @mentioned)
                         try:
                             from museon.governance.multi_tenant import (
                                 get_sensitivity_checker, get_escalation_queue, ExternalAnimaManager
                             )
+                            from museon.governance.group_context import get_group_context_store
                             from pathlib import Path as _Path
                             import uuid as _uuid
 
-                            checker = get_sensitivity_checker()
-                            level, reason = checker.check(message.content)
+                            # Load recent group context for intelligent replies
+                            _ctx_store = get_group_context_store()
+                            _group_context = _ctx_store.format_context_for_prompt(
+                                group_id or 0, limit=20
+                            )
 
-                            if level:
-                                # Sensitive topic: escalate to owner DM
-                                eq = get_escalation_queue()
-                                eid = _uuid.uuid4().hex[:8]
-                                eq.add(eid, message.content, sender_name, group_id or 0, level)
+                            if not is_owner:
+                                # Sensitivity check for non-owner messages
+                                checker = get_sensitivity_checker()
+                                level, reason = checker.check(message.content)
 
-                                dm_text = (
-                                    f"【群組敏感問題 - {level}】\n\n"
-                                    f"{sender_name} 在群組問了：\n「{message.content[:200]}」\n\n"
-                                    f"原因：{reason}\n\n"
-                                    f"可以回答嗎？\n"
-                                    f"回覆「可以」→ 我照常回答\n"
-                                    f"回覆「不行」→ 我禮貌拒絕\n"
-                                    f"（10 分鐘無回應 → 預設禮貌拒絕）"
-                                )
-                                await adapter.send_dm_to_owner(dm_text)
-                                response_text = f"這個問題我需要先確認一下，稍等。"
+                                if level:
+                                    eq = get_escalation_queue()
+                                    eid = _uuid.uuid4().hex[:8]
+                                    eq.add(eid, message.content, sender_name, group_id or 0, level)
 
+                                    dm_text = (
+                                        f"【群組敏感問題 - {level}】\n\n"
+                                        f"{sender_name} 在群組問了：\n「{message.content[:200]}」\n\n"
+                                        f"原因：{reason}\n\n"
+                                        f"可以回答嗎？\n"
+                                        f"回覆「可以」→ 我照常回答\n"
+                                        f"回覆「不行」→ 我禮貌拒絕\n"
+                                        f"（10 分鐘無回應 → 預設禮貌拒絕）"
+                                    )
+                                    await adapter.send_dm_to_owner(dm_text)
+                                    response_text = f"這個問題我需要先確認一下，稍等。"
+                                else:
+                                    # Not sensitive: update external anima and process with context
+                                    data_dir = _Path(brain.data_dir)
+                                    ext_mgr = ExternalAnimaManager(data_dir)
+                                    ext_mgr.update(message.user_id, display_name=sender_name)
+
+                                    group_prefix = f"[群組會議] {sender_name} 問：\n"
+                                    _content = group_prefix + message.content
+                                    if _group_context:
+                                        _content = _group_context + "\n\n" + _content
+                                    brain_result = await brain.process(
+                                        content=_content,
+                                        session_id=message.session_id,
+                                        user_id=message.user_id,
+                                        source="telegram",
+                                        metadata={"is_group": True, "sender_name": sender_name},
+                                    )
                             else:
-                                # Not sensitive: update external anima and process
-                                data_dir = _Path(brain.data_dir)
-                                ext_mgr = ExternalAnimaManager(data_dir)
-                                ext_mgr.update(message.user_id, display_name=sender_name)
-
-                                # Prefix with group context so brain knows the situation
-                                group_prefix = f"[群組會議] {sender_name} 問：\n"
+                                # Owner in group: process with context, no sensitivity check
+                                group_prefix = f"[群組] {sender_name}（owner）：\n"
+                                _content = group_prefix + message.content
+                                if _group_context:
+                                    _content = _group_context + "\n\n" + _content
                                 brain_result = await brain.process(
-                                    content=group_prefix + message.content,
+                                    content=_content,
                                     session_id=message.session_id,
                                     user_id=message.user_id,
                                     source="telegram",
-                                    metadata={"is_group": True, "sender_name": sender_name},
+                                    metadata={"is_group": True, "sender_name": sender_name, "is_owner": True},
                                 )
                         except Exception as _mt_err:
                             logger.error(f"Multi-tenant processing error: {_mt_err}", exc_info=True)
@@ -3434,6 +3512,11 @@ async def _telegram_message_pump(adapter) -> None:
                                 session_id=message.session_id,
                                 user_id=message.user_id,
                                 source="telegram",
+                                metadata={
+                                    "is_group": True,
+                                    "sender_name": sender_name,
+                                    "permission_level": "external" if not is_owner else "core",
+                                },
                             )
                     else:
                         # Normal DM processing (owner or trusted user)
@@ -3465,6 +3548,10 @@ async def _telegram_message_pump(adapter) -> None:
                     f"錯誤類型：{type(proc_err).__name__}\n"
                     f"如果持續發生，請用 /reset 重新啟動。"
                 )
+            finally:
+                # Release session lock
+                if _session_locked and message.session_id and session_manager:
+                    await session_manager.release(message.session_id)
 
             # ── 3. 停止進度更新器 ──
             if progress_task:
@@ -4774,6 +4861,103 @@ def _register_system_cron_jobs(brain, app=None) -> None:
         minutes=60,
     )
 
+    # ── Job: 自由探索 — 閒置 20 分鐘自動啟動（每 5 分鐘檢查）──
+    FREE_EXPLORE_IDLE_MINUTES = 20      # 閒置門檻（分鐘）
+    FREE_EXPLORE_COOLDOWN_MINUTES = 30  # 兩次自由探索最短間隔（分鐘）
+    _FREE_EXPLORE_TRIGGERS = ["curiosity", "world", "skill", "self", "mission"]
+    _last_free_explore: dict = {"ts": 0.0, "count": 0}
+
+    async def _vita_free_explore_on_idle():
+        """閒置 20 分鐘 → 自主自由探索（不打擾使用者，探索完再報告）."""
+        try:
+            if not app:
+                return
+            engine = getattr(app.state, "pulse_engine", None)
+            hf = getattr(app.state, "heartbeat_focus", None)
+            if not engine or not hf:
+                return
+
+            import time as _time
+            now_ts = _time.time()
+
+            # 1. 確認使用者真的閒置 > 20 分鐘
+            interactions = getattr(hf, "_interactions", [])
+            if not interactions:
+                return
+            last_interaction = max(interactions)
+            idle_minutes = (now_ts - last_interaction) / 60
+            if idle_minutes < FREE_EXPLORE_IDLE_MINUTES:
+                return
+
+            # 2. 確認距離上次自由探索 > 30 分鐘（避免連續觸發）
+            since_last = (now_ts - _last_free_explore["ts"]) / 60
+            if since_last < FREE_EXPLORE_COOLDOWN_MINUTES:
+                return
+
+            # 3. 確認今日自由探索次數未超上限
+            _pdb = getattr(app.state, "pulse_db", None)
+            today_count = _pdb.get_today_exploration_count() if _pdb else 0
+            from museon.pulse.pulse_engine import EXPLORATION_DAILY_LIMIT
+            if today_count >= EXPLORATION_DAILY_LIMIT:
+                return
+
+            # 4. 選擇觸發類型（輪替）
+            trigger = _FREE_EXPLORE_TRIGGERS[_last_free_explore["count"] % len(_FREE_EXPLORE_TRIGGERS)]
+            _last_free_explore["ts"] = now_ts
+            _last_free_explore["count"] += 1
+
+            logger.info(
+                f"自由探索啟動: idle={idle_minutes:.0f}min, trigger={trigger}, "
+                f"count=#{_last_free_explore['count']}"
+            )
+
+            result = await engine.soul_pulse(trigger=trigger)
+            percrl = result.get("percrl", {})
+            explored = percrl.get("explore", "skipped")
+            crystallized = percrl.get("crystallize", "skipped")
+
+            logger.info(
+                f"自由探索完成 #{_last_free_explore['count']} ({trigger}): "
+                f"explore={explored}, crystallize={crystallized}"
+            )
+
+            # 5. 探索有結果 → 主動傳給使用者
+            adapter = getattr(app.state, "telegram_adapter", None)
+            if adapter and explored != "skipped":
+                explorer = getattr(engine, "_explorer", None)
+                # 從最近一次探索記錄取得 findings
+                findings_preview = ""
+                if _pdb:
+                    exps = _pdb.get_today_explorations()
+                    if exps:
+                        latest = exps[-1]
+                        topic = latest.get("topic", "")
+                        findings = latest.get("findings", "")
+                        if findings and findings not in ("搜尋無結果", "") and len(findings) > 30:
+                            findings_preview = f"\n\n📋 主要發現：\n{findings[:300]}"
+
+                _crystal_tag = "💎 已結晶" if crystallized == "done" else ""
+                _msg = (
+                    f"🔭 【自由探索回報】\n\n"
+                    f"你不在的這 {idle_minutes:.0f} 分鐘，我出去探索了。\n"
+                    f"觸發：{trigger}{findings_preview}\n"
+                    f"{_crystal_tag}"
+                ).strip()
+                try:
+                    await adapter.push_notification(_msg)
+                except Exception as _e:
+                    logger.debug(f"Free explore notify failed: {_e}")
+
+        except Exception as e:
+            logger.error(f"自由探索 idle job failed: {e}", exc_info=True)
+
+    cron_engine.add_job(
+        _vita_free_explore_on_idle, trigger="interval",
+        job_id="vita-free-explore-idle",
+        minutes=5,
+        timeout=300,  # 5 分鐘超時（探索需要時間）
+    )
+
     # ── Job: Companion Watchdog — 看門狗（每 60 分鐘）──
     async def _companion_watchdog():
         """看門狗: 超過 3 小時沒成功推送 → 強制觸發 companion 模式."""
@@ -5234,6 +5418,7 @@ def _register_system_cron_jobs(brain, app=None) -> None:
         {"job_id": "guardian-l1",            "name": "Guardian L1 巡檢",     "schedule": "每 30 分鐘",    "category": "maintenance", "uses_llm": False},
         {"job_id": "commitment-check",       "name": "承諾到期檢查",         "schedule": "每 15 分鐘",    "category": "pulse",       "uses_llm": False},
         {"job_id": "vita-idle-check",        "name": "念感閒置偵測",         "schedule": "每 60 分鐘",    "category": "pulse",       "uses_llm": True},
+        {"job_id": "vita-free-explore-idle", "name": "閒置自由探索",          "schedule": "每 5 分鐘偵測",  "category": "exploration", "uses_llm": True},
         {"job_id": "companion-watchdog",     "name": "陪伴者看門狗",         "schedule": "每 60 分鐘",    "category": "pulse",       "uses_llm": True},
         {"job_id": "rss-poll",               "name": "RSS 新文章拉取",       "schedule": "每 60 分鐘",    "category": "external",    "uses_llm": False},
         {"job_id": "dify-schedule-sync",     "name": "Dify 排程同步",        "schedule": "每 15 分鐘",    "category": "external",    "uses_llm": False},
