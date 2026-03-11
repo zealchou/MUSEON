@@ -4727,17 +4727,43 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                     "morning": "晨間巡禮",
                     "idle": "閒置時自主探索",
                 }.get(trigger, trigger)
+
+                # 取得最新探索記錄用於報告
+                _latest_exp = None
+                if _pdb:
+                    _exps = _pdb.get_today_explorations()
+                    if _exps:
+                        _latest_exp = _exps[-1]
+
+                _explore_topic = (_latest_exp or {}).get("topic", "") if _latest_exp else ""
+                _topic_line = f"📌 主題：{_explore_topic}\n" if _explore_topic else ""
+
                 _msg = (
                     f"🔭 【自主探索 #{today_count + 1}】\n\n"
                     f"動機：{_trigger_zh}\n"
+                    f"{_topic_line}"
                     f"探索：{_status}\n"
                     f"結晶：{_crystal}\n"
-                    f"行動：{action}"
+                    f"行動：{action}\n\n"
+                    f"有什麼想聊的嗎？"
                 )
                 try:
                     await adapter.push_notification(_msg)
                 except Exception as e:
                     logger.debug(f"Exploration Telegram notify failed: {e}")
+
+                # 生成 HTML 報告附件
+                if _latest_exp:
+                    try:
+                        from museon.pulse.exploration_report import generate_html_report
+                        _reports_dir = Path(app.state.data_dir) / "_system" / "reports"
+                        _report_path = generate_html_report(_latest_exp, _reports_dir)
+                        _owner_id = int(adapter.trusted_user_ids[0])
+                        await adapter.send_document(
+                            _owner_id, str(_report_path), caption="📄 完整探索報告"
+                        )
+                    except Exception as _re:
+                        logger.debug(f"Exploration report send failed: {_re}")
 
             # ── 探索後自動觸發技能鍛造 ──
             if crystallized == "done" or explored == "done":
@@ -4958,43 +4984,49 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                 f"explore={explored}, crystallize={crystallized}"
             )
 
-            # 5. 探索有結果 → 主動傳給使用者（含主題 + 摘要）
+            # 5. 探索有結果 → 主動傳給使用者（含主題 + 摘要 + HTML 報告）
             adapter = getattr(app.state, "telegram_adapter", None)
             if adapter and explored != "skipped":
                 # 從最近一次探索記錄取得 topic + findings
                 explore_topic = ""
                 findings_preview = ""
+                _latest_exp = None
                 if _pdb:
                     exps = _pdb.get_today_explorations()
                     if exps:
-                        latest = exps[-1]
-                        explore_topic = latest.get("topic", "")
-                        findings = latest.get("findings", "")
+                        _latest_exp = exps[-1]
+                        explore_topic = _latest_exp.get("topic", "")
+                        findings = _latest_exp.get("findings", "")
                         if findings and findings not in ("搜尋無結果", "無價值發現", "") and len(findings) > 20:
                             findings_preview = f"\n\n📋 主要發現：\n{findings[:500]}"
 
                 topic_line = f"📌 主題：{explore_topic}\n" if explore_topic else ""
                 _crystal_tag = "\n💎 已結晶為長期記憶" if crystallized == "done" else ""
-                _trigger_zh = {
-                    "curiosity": "好奇心驅動",
-                    "world": "世界脈動",
-                    "skill": "技能精進",
-                    "self": "自我反思",
-                    "mission": "使命探索",
-                    "morning": "晨間巡禮",
-                    "idle": "閒置時自主探索",
-                }.get(trigger, trigger)
                 _msg = (
                     f"🔭 【自由探索回報】\n\n"
                     f"你不在的這 {idle_minutes:.0f} 分鐘，我出去探索了。\n"
                     f"{topic_line}"
                     f"{findings_preview}"
-                    f"{_crystal_tag}"
+                    f"{_crystal_tag}\n\n"
+                    f"有什麼想聊的嗎？"
                 ).strip()
                 try:
                     await adapter.push_notification(_msg)
                 except Exception as _e:
                     logger.debug(f"Free explore notify failed: {_e}")
+
+                # 生成 HTML 報告附件
+                if _latest_exp:
+                    try:
+                        from museon.pulse.exploration_report import generate_html_report
+                        _reports_dir = Path(app.state.data_dir) / "_system" / "reports"
+                        _report_path = generate_html_report(_latest_exp, _reports_dir)
+                        _owner_id = int(adapter.trusted_user_ids[0])
+                        await adapter.send_document(
+                            _owner_id, str(_report_path), caption="📄 完整探索報告"
+                        )
+                    except Exception as _re:
+                        logger.debug(f"Free explore report send failed: {_re}")
 
         except Exception as e:
             logger.error(f"自由探索 idle job failed: {e}", exc_info=True)
