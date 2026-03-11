@@ -1,0 +1,12 @@
+{
+  "heartbeat_integration": {
+    "enabled": true,
+    "proactive_bridge": {
+      "enabled": true,
+      "call_on_tick": true,
+      "interval_ticks": 6,
+      "async_mode": true
+    },
+    "status": "ready_for_activation"
+  }
+}

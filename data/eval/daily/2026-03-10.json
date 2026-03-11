@@ -1,0 +1,88 @@
+{
+  "date": "2026-03-10",
+  "total_interactions": 137,
+  "avg_q_score": 0.6051,
+  "satisfaction_proxy": 0.0,
+  "tier_distribution": {
+    "high": 46,
+    "medium": 66,
+    "low": 25
+  },
+  "best_score": 0.85,
+  "worst_score": 0.205,
+  "domain_breakdown": {
+    "general": 0.6051
+  },
+  "skill_usage": {
+    "market-core": 35,
+    "business-12": 32,
+    "gap": 50,
+    "market-crypto": 24,
+    "market-equity": 24,
+    "novel-craft": 10,
+    "risk-matrix": 8,
+    "storytelling-engine": 7,
+    "dharma": 33,
+    "info-architect": 10,
+    "dse": 61,
+    "market-macro": 21,
+    "plan-engine": 23,
+    "sentiment-radar": 20,
+    "morphenix": 34,
+    "c15": 12,
+    "workflow-ai-deployment": 22,
+    "workflow-investment-analysis": 18,
+    "plugin-registry": 4,
+    "dna27": 5,
+    "wee": 25,
+    "xmodel": 17,
+    "aesthetic-sense": 9,
+    "eval-engine": 16,
+    "consultant-communication": 6,
+    "sandbox-lab": 17,
+    "orchestrator": 6,
+    "shadow": 7,
+    "text-alchemy": 7,
+    "ssa-consultant": 24,
+    "master-strategy": 29,
+    "philo-dialectic": 14,
+    "workflow-svc-brand-marketing": 11,
+    "meta-learning": 10,
+    "pdeif": 22,
+    "qa-auditor": 9,
+    "investment-masters": 4,
+    "resonance": 5,
+    "deep-think": 3,
+    "acsf": 1,
+    "env-radar": 2,
+    "knowledge-lattice": 1,
+    "brand-identity": 1
+  },
+  "alerts": [
+    {
+      "id": "3742c4e5-c563-4540-acdc-9b38922ca30f",
+      "timestamp": "2026-03-10T11:22:35.245543",
+      "alert_type": "zero_dimension",
+      "severity": "warning",
+      "message": "維度 understanding 為零",
+      "details": {
+        "dimension": "understanding",
+        "q_score_id": "97e5db2d-d24d-4be1-8333-a176680f58e4",
+        "session_id": ""
+      }
+    },
+    {
+      "id": "3f303ab2-499f-452d-af18-6b2b8289b789",
+      "timestamp": "2026-03-10T13:38:15.537987",
+      "alert_type": "zero_dimension",
+      "severity": "warning",
+      "message": "維度 understanding 為零",
+      "details": {
+        "dimension": "understanding",
+        "q_score_id": "60c1494c-f843-4aa0-a88a-42b33ece8058",
+        "session_id": ""
+      }
+    }
+  ],
+  "insufficient_data": false
+}

@@ -1,0 +1,55 @@
+[
+  {
+    "question": "我的公司叫什麼？",
+    "source_date": "2026-03-10",
+    "status": "pending"
+  },
+  {
+    "question": "早安，今天有什麼可以幫我的嗎？",
+    "source_date": "2026-03-10",
+    "status": "researched",
+    "researched_at": "2026-03-11T03:00:15.367770+08:00"
+  },
+  {
+    "question": "你叫什麼名字？",
+    "source_date": "2026-03-10",
+    "status": "pending"
+  },
+  {
+    "question": "你的老闆是誰？",
+    "source_date": "2026-03-10",
+    "status": "pending"
+  },
+  {
+    "question": "請計算：如果月營收 150 萬，毛利率 35%，月固定成本 40 萬，請問每月淨利多少？",
+    "source_date": "2026-03-10",
+    "status": "researched",
+    "researched_at": "2026-03-11T10:00:00.024877+08:00"
+  },
+  {
+    "question": "台積電最近表現怎麼樣？",
+    "source_date": "2026-03-10",
+    "status": "researched",
+    "researched_at": "2026-03-11T10:00:00.025968+08:00"
+  },
+  {
+    "question": "你在群組裡面可以識別 不同的人嗎？怎麼做到？",
+    "source_date": "2026-03-10",
+    "status": "pending"
+  },
+  {
+    "question": "**user**: 請計算：如果月營收 150 萬，毛利率 35%，月固定成本 40 萬，請問每月淨利多少？",
+    "source_date": "2026-03-10",
+    "status": "pending"
+  },
+  {
+    "question": "**user**: 你在溝通前，有一個前置區的功能，讓你看到你反射性地回答的內容與目的、情境是否相符合，有的話才說，這個機制有在運作嗎？",
+    "source_date": "2026-03-10",
+    "status": "pending"
+  },
+  {
+    "question": "**user**: 還有其他更適合放的地方嗎？ 除了 system prompt？",
+    "source_date": "2026-03-10",
+    "status": "pending"
+  }
+]
