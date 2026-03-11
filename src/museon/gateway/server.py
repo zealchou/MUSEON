@@ -2776,6 +2776,7 @@ def create_app() -> FastAPI:
                             heartbeat_focus=heartbeat_focus,
                         )
                         app.state.proactive_bridge = proactive_bridge
+                        app.state.heartbeat_focus = heartbeat_focus
                         logger.info("ProactiveBridge connected to EventBus")
 
                         # ── HeartbeatEngine: 驅動 ProactiveBridge 定期自省 ──
@@ -4742,6 +4743,73 @@ def _register_system_cron_jobs(brain, app=None) -> None:
         minutes=15,
     )
 
+    # ── Job: 念感 — 使用者閒置偵測（每 60 分鐘）──
+    IDLE_CHECK_THRESHOLD_HOURS = 3.0  # 閒置超過 3 小時觸發念感
+
+    async def _vita_idle_check():
+        """念感: 檢查使用者閒置時間，超過閾值觸發 trigger_idle."""
+        try:
+            if not app:
+                return
+            engine = getattr(app.state, "pulse_engine", None)
+            hf = getattr(app.state, "heartbeat_focus", None)
+            if not engine or not hf:
+                return
+            # 從 HeartbeatFocus._interactions 計算最後互動時間
+            interactions = getattr(hf, "_interactions", [])
+            if not interactions:
+                return  # 沒有任何互動記錄，跳過
+            import time as _time
+            last_interaction = max(interactions)
+            idle_hours = (_time.time() - last_interaction) / 3600
+            if idle_hours >= IDLE_CHECK_THRESHOLD_HOURS:
+                result = await engine.trigger_idle(idle_hours)
+                logger.info(f"念感 idle check: idle={idle_hours:.1f}h → {result.get('action', '?')}")
+        except Exception as e:
+            logger.error(f"念感 idle check failed: {e}", exc_info=True)
+
+    cron_engine.add_job(
+        _vita_idle_check, trigger="interval",
+        job_id="vita-idle-check",
+        minutes=60,
+    )
+
+    # ── Job: Companion Watchdog — 看門狗（每 60 分鐘）──
+    async def _companion_watchdog():
+        """看門狗: 超過 3 小時沒成功推送 → 強制觸發 companion 模式."""
+        try:
+            if not app:
+                return
+            bridge = getattr(app.state, "proactive_bridge", None)
+            if not bridge:
+                return
+            result = bridge.watchdog_check()
+            if result.get("status") == "alert":
+                logger.warning(
+                    f"Companion Watchdog 警報: {result.get('hours_silent', '?')}h 無推送 "
+                    "→ 強制觸發 companion 模式"
+                )
+                # 直接在 CronEngine 的 async context 中呼叫 proactive_think
+                # 不經 HeartbeatEngine daemon thread，避免跨線程問題
+                import asyncio as _asyncio
+                try:
+                    think_result = await _asyncio.wait_for(
+                        bridge.proactive_think(mode="companion"), timeout=60
+                    )
+                    logger.info(f"Watchdog companion think: {think_result}")
+                except _asyncio.TimeoutError:
+                    logger.warning("Watchdog companion think 超時 (60s)")
+                except Exception as think_err:
+                    logger.error(f"Watchdog companion think failed: {think_err}", exc_info=True)
+        except Exception as e:
+            logger.error(f"Companion watchdog failed: {e}", exc_info=True)
+
+    cron_engine.add_job(
+        _companion_watchdog, trigger="interval",
+        job_id="companion-watchdog",
+        minutes=60,
+    )
+
     # ── Job: Dendritic Health Score tick（每 5 分鐘）──
     async def _dendritic_tick():
         """DendriticScorer 定期 tick — 記錄 Health Score 到 PulseDB."""
@@ -5165,6 +5233,8 @@ def _register_system_cron_jobs(brain, app=None) -> None:
         {"job_id": "vita-breath-pulse",      "name": "VITA 息脈",            "schedule": "每 30 分鐘",    "category": "pulse",       "uses_llm": True},
         {"job_id": "guardian-l1",            "name": "Guardian L1 巡檢",     "schedule": "每 30 分鐘",    "category": "maintenance", "uses_llm": False},
         {"job_id": "commitment-check",       "name": "承諾到期檢查",         "schedule": "每 15 分鐘",    "category": "pulse",       "uses_llm": False},
+        {"job_id": "vita-idle-check",        "name": "念感閒置偵測",         "schedule": "每 60 分鐘",    "category": "pulse",       "uses_llm": True},
+        {"job_id": "companion-watchdog",     "name": "陪伴者看門狗",         "schedule": "每 60 分鐘",    "category": "pulse",       "uses_llm": True},
         {"job_id": "rss-poll",               "name": "RSS 新文章拉取",       "schedule": "每 60 分鐘",    "category": "external",    "uses_llm": False},
         {"job_id": "dify-schedule-sync",     "name": "Dify 排程同步",        "schedule": "每 15 分鐘",    "category": "external",    "uses_llm": False},
         {"job_id": "memory-flush",           "name": "記憶持久化",           "schedule": "每 6 小時",     "category": "maintenance", "uses_llm": False},

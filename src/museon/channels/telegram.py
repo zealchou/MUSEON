@@ -919,6 +919,14 @@ class TelegramAdapter(ChannelAdapter):
         self._event_bus = event_bus
         self._heartbeat_focus = heartbeat_focus
 
+        # 保存主事件迴圈引用（Telegram bot 運行的迴圈）
+        # 用於跨線程安全推送：EventBus callback 可能從 HeartbeatEngine daemon thread 呼叫
+        import asyncio
+        try:
+            self._main_async_loop = asyncio.get_running_loop()
+        except RuntimeError:
+            self._main_async_loop = asyncio.get_event_loop()
+
         # 訂閱脈搏事件
         event_bus.subscribe(PULSE_RHYTHM_CHECK, self._on_rhythm_check)
         event_bus.subscribe(PULSE_NIGHTLY_DONE, self._on_nightly_done)
@@ -930,7 +938,8 @@ class TelegramAdapter(ChannelAdapter):
     def _on_rhythm_check(self, data: Optional[Dict] = None) -> None:
         """處理 Rhythm-Pulse 推播事件.
 
-        EventBus 是同步的，所以把 async 推播排入 event loop。
+        EventBus 是同步的，callback 可能從 HeartbeatEngine daemon thread 呼叫，
+        因此用 run_coroutine_threadsafe 排入 Telegram 主事件迴圈。
         """
         if not data or not self._running:
             return
@@ -938,11 +947,11 @@ class TelegramAdapter(ChannelAdapter):
         if not message:
             return
         try:
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                loop.create_task(self.push_notification(message))
+            main_loop = getattr(self, "_main_async_loop", None)
+            if main_loop and not main_loop.is_closed():
+                asyncio.run_coroutine_threadsafe(self.push_notification(message), main_loop)
             else:
-                asyncio.run(self.push_notification(message))
+                logger.warning("Rhythm check: 主事件迴圈不可用，跳過推送")
         except Exception as e:
             logger.error(f"Rhythm check push failed: {e}")
 
@@ -954,11 +963,11 @@ class TelegramAdapter(ChannelAdapter):
         if not summary:
             return
         try:
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                loop.create_task(self.push_notification(summary))
+            main_loop = getattr(self, "_main_async_loop", None)
+            if main_loop and not main_loop.is_closed():
+                asyncio.run_coroutine_threadsafe(self.push_notification(summary), main_loop)
             else:
-                asyncio.run(self.push_notification(summary))
+                logger.warning("Nightly done: 主事件迴圈不可用，跳過推送")
         except Exception as e:
             logger.error(f"Nightly done push failed: {e}")
 
@@ -966,6 +975,8 @@ class TelegramAdapter(ChannelAdapter):
         """處理主動互動推播事件.
 
         ProactiveBridge 發布 PROACTIVE_MESSAGE 事件時觸發。
+        callback 可能從 HeartbeatEngine daemon thread 呼叫，
+        因此用 run_coroutine_threadsafe 排入 Telegram 主事件迴圈。
         """
         if not data or not self._running:
             return
@@ -973,8 +984,6 @@ class TelegramAdapter(ChannelAdapter):
         if not message:
             return
         try:
-            loop = asyncio.get_event_loop()
-
             async def _push_and_report():
                 sent = await self.push_notification(message)
                 if sent > 0 and self._event_bus:
@@ -985,10 +994,11 @@ class TelegramAdapter(ChannelAdapter):
                         "push_count": data.get("push_count", 0),
                     })
 
-            if loop.is_running():
-                loop.create_task(_push_and_report())
+            main_loop = getattr(self, "_main_async_loop", None)
+            if main_loop and not main_loop.is_closed():
+                asyncio.run_coroutine_threadsafe(_push_and_report(), main_loop)
             else:
-                asyncio.run(_push_and_report())
+                logger.warning("Proactive message: 主事件迴圈不可用，跳過推送")
         except Exception as e:
             logger.error(f"Proactive message push failed: {e}")
 
@@ -1000,18 +1010,21 @@ class TelegramAdapter(ChannelAdapter):
         if not proposals:
             return
         try:
-            loop = asyncio.get_event_loop()
+            main_loop = getattr(self, "_main_async_loop", None)
+            if not main_loop or main_loop.is_closed():
+                logger.warning("Morphenix L3: 主事件迴圈不可用，跳過推送")
+                return
             for p in proposals:
-                if loop.is_running():
-                    loop.create_task(
-                        self.push_proposal_notification(
-                            proposal_id=p["id"],
-                            title=p.get("title", "L3 提案"),
-                            description=p.get("description", ""),
-                            level="L3",
-                            affected_files=p.get("affected_files", []),
-                        )
-                    )
+                asyncio.run_coroutine_threadsafe(
+                    self.push_proposal_notification(
+                        proposal_id=p["id"],
+                        title=p.get("title", "L3 提案"),
+                        description=p.get("description", ""),
+                        level="L3",
+                        affected_files=p.get("affected_files", []),
+                    ),
+                    main_loop,
+                )
         except Exception as e:
             logger.error(f"Morphenix L3 push failed: {e}")
 
@@ -1049,19 +1062,22 @@ class TelegramAdapter(ChannelAdapter):
             return
 
         try:
-            loop = asyncio.get_event_loop()
             owner_id = int(os.environ.get("TELEGRAM_OWNER_ID", "6969045906"))
-            if loop.is_running():
-                async def _safe_send():
-                    try:
-                        await self.application.bot.send_message(
-                            chat_id=owner_id,
-                            text=text,
-                            parse_mode="Markdown",
-                        )
-                    except Exception as send_err:
-                        logger.warning(f"Morphenix execution push send failed: {send_err}")
-                loop.create_task(_safe_send())
+            async def _safe_send():
+                try:
+                    await self.application.bot.send_message(
+                        chat_id=owner_id,
+                        text=text,
+                        parse_mode="Markdown",
+                    )
+                except Exception as send_err:
+                    logger.warning(f"Morphenix execution push send failed: {send_err}")
+
+            main_loop = getattr(self, "_main_async_loop", None)
+            if main_loop and not main_loop.is_closed():
+                asyncio.run_coroutine_threadsafe(_safe_send(), main_loop)
+            else:
+                logger.warning("Morphenix execution: 主事件迴圈不可用，跳過推送")
         except Exception as e:
             logger.error(f"Morphenix execution push failed: {e}")
 
