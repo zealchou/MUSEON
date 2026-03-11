@@ -133,7 +133,7 @@ class TelegramAdapter(ChannelAdapter):
         if len(self._seen_update_ids) > self._max_seen_update_ids:
             self._seen_update_ids = set(list(self._seen_update_ids)[-500:])
 
-        # ── Group chat filtering ──
+        # ── Group chat: read all, reply only when @mentioned ──
         if update.message and update.message.chat.type in ("group", "supergroup"):
             from_user = update.message.from_user
             user_id_str = str(from_user.id) if from_user else ""
@@ -151,10 +151,40 @@ class TelegramAdapter(ChannelAdapter):
             if not is_mentioned and context.bot and context.bot.username:
                 is_mentioned = f"@{context.bot.username}" in text
 
+            # Always log group messages for context building
+            sender_name = from_user.first_name or "" if from_user else ""
+            username = from_user.username or "" if from_user else ""
+            chat_id = update.message.chat.id
+            group_title = update.message.chat.title or ""
+            chat_type = update.message.chat.type or "supergroup"
+            self._log_group_message(
+                group_id=chat_id,
+                user_id=user_id_str,
+                display_name=sender_name,
+                text=(text or "")[:500],
+                bot_replied=False,
+            )
+            # Structured DB recording
+            try:
+                from museon.governance.group_context import get_group_context_store
+                store = get_group_context_store()
+                store.upsert_group(chat_id, group_title, chat_type)
+                store.record_message(
+                    group_id=chat_id,
+                    user_id=user_id_str,
+                    text=(text or "")[:2000],
+                    message_id=update.message.message_id,
+                    display_name=sender_name,
+                    username=username,
+                )
+            except Exception as _db_err:
+                logger.debug(f"Group context DB write error: {_db_err}")
+
             if not is_mentioned:
+                # Silent record — don't push to message_queue, just log
                 logger.debug(
-                    "Group message without @mention from user %s, skipping",
-                    user_id_str,
+                    "Group message recorded (silent) from %s in %s",
+                    user_id_str, chat_id,
                 )
                 return
 
@@ -171,6 +201,58 @@ class TelegramAdapter(ChannelAdapter):
         self._seen_update_ids.add(update.update_id)
         if len(self._seen_update_ids) > self._max_seen_update_ids:
             self._seen_update_ids = set(list(self._seen_update_ids)[-500:])
+
+        # Group file uploads: always log, only process if @mentioned
+        if update.message and update.message.chat.type in ("group", "supergroup"):
+            from_user = update.message.from_user
+            user_id_str = str(from_user.id) if from_user else ""
+            sender_name = from_user.first_name or "" if from_user else ""
+            chat_id = update.message.chat.id
+            caption = update.message.caption or ""
+            fname = ""
+            if update.message.document:
+                fname = update.message.document.file_name or "file"
+            elif update.message.photo:
+                fname = "photo"
+            elif update.message.voice:
+                fname = "voice"
+            self._log_group_message(
+                group_id=chat_id,
+                user_id=user_id_str,
+                display_name=sender_name,
+                text=f"[檔案: {fname}] {caption}"[:500],
+                bot_replied=False,
+            )
+            # Structured DB recording for file uploads
+            try:
+                from museon.governance.group_context import get_group_context_store
+                store = get_group_context_store()
+                store.upsert_group(chat_id, update.message.chat.title or "", update.message.chat.type or "supergroup")
+                store.record_message(
+                    group_id=chat_id,
+                    user_id=user_id_str,
+                    text=f"[檔案: {fname}] {caption}"[:2000],
+                    message_id=update.message.message_id,
+                    msg_type="file",
+                    display_name=sender_name,
+                    username=from_user.username or "" if from_user else "",
+                )
+            except Exception as _db_err:
+                logger.debug(f"Group context DB write error (file): {_db_err}")
+
+            # Check @mention in caption
+            is_mentioned = False
+            if caption and context.bot and context.bot.username:
+                is_mentioned = f"@{context.bot.username}" in caption
+            if update.message.caption_entities:
+                for ent in update.message.caption_entities:
+                    if ent.type in ("mention", "text_mention"):
+                        is_mentioned = True
+                        break
+            if not is_mentioned:
+                logger.debug("Group file upload recorded (silent) from %s", user_id_str)
+                return
+
         if update.message and update.message.from_user:
             self.record_user_interaction(str(update.message.from_user.id))
         await self.message_queue.put(update)
