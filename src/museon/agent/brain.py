@@ -83,7 +83,8 @@ class MuseonBrain:
         try:
             from museon.core.event_bus import get_event_bus
             self._event_bus = get_event_bus()
-        except Exception:
+        except Exception as e:
+            logger.debug(f"EventBus 取得失敗，降級為 None: {e}")
             self._event_bus = None
 
         # Skill Router (DNA27 配對)
@@ -139,8 +140,8 @@ class MuseonBrain:
                 self._q_score_history = json.loads(
                     self._q_score_history_path.read_text(encoding="utf-8")
                 )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"Q-score 歷史讀取失敗，重置為空: {e}")
 
         # ── 新模組：知識晶格 ──
         try:
@@ -647,8 +648,8 @@ class MuseonBrain:
                 cluster_scores = detect_safety_clusters(content)
                 if cluster_scores:
                     safety_context = _legacy_build(cluster_scores)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"安全叢集偵測（legacy fallback）失敗: {e}")
 
         # ── Step 3.0.3: Phase 3c — 健康感知路由調節 ──
         # 系統不健康時，將 SLOW_LOOP 降級為 EXPLORATION_LOOP，減少資源消耗
@@ -672,8 +673,8 @@ class MuseonBrain:
                         f"[Phase3c] 治理調節: SLOW_LOOP → EXPLORATION_LOOP "
                         f"(health={_gov_ctx.health_tier.value})"
                     )
-            except Exception:
-                pass  # 降級：路由調節失敗不影響核心流程
+            except Exception as e:
+                logger.debug(f"Phase3c 健康感知路由調節失敗（降級）: {e}")
 
         # ── Step 3.0.5: Multi-Agent 自動路由 — 根據訊息內容自動切換部門 ──
         if self._multiagent_enabled and self._context_switcher:
@@ -714,8 +715,8 @@ class MuseonBrain:
                             "score": hit["score"],
                             "source": "vector",
                         })
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"向量語意搜尋 Skill 失敗（降級）: {e}")
 
         skill_names = [s.get("name", "?") for s in matched_skills]
         logger.info(f"DNA27 matched skills: {skill_names}")
@@ -1061,8 +1062,8 @@ class MuseonBrain:
                 self._q_score_history_path.write_text(
                     json.dumps(self._q_score_history), encoding="utf-8"
                 )
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning(f"Q-score 歷史寫入失敗: {e}")
 
         if self.ring_depositor:
             try:
@@ -1145,8 +1146,8 @@ class MuseonBrain:
                                 reason=f"承諾兌現: {_fid}",
                                 absolute_after=0,  # 由 anima_tracker 更新實際值
                             )
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.debug(f"承諾兌現 ANIMA 記錄失敗: {e}")
             except Exception as e:
                 logger.warning(f"承諾掃描失敗: {e}")
 
@@ -1287,7 +1288,8 @@ class MuseonBrain:
                 text=response_text,
                 artifacts=list(self._pending_artifacts),
             )
-        except Exception:
+        except Exception as e:
+            logger.debug(f"BrainResponse 建立失敗，降級為純字串: {e}")
             return response_text  # 降級：返回純 str
 
     # ═══════════════════════════════════════════
@@ -1826,8 +1828,8 @@ class MuseonBrain:
                 # 演化模式 → 增加 memory 預算（結晶注入量更大）
                 elif routing_signal.mode == "EVOLUTION_MODE":
                     budget.apply_dynamic_allocation(1.2)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Token budget 動態分配失敗（降級）: {e}")
         elif safety_context and len(safety_context) > 200:
             # 向後相容：沒有 routing_signal 時用 safety_context 長度推估
             budget.apply_dynamic_allocation(1.5)
@@ -1872,8 +1874,8 @@ class MuseonBrain:
                     )
                     if gov_fitted:
                         sections.append(gov_fitted)
-            except Exception:
-                pass  # 降級：治理自覺不影響核心回覆
+            except Exception as e:
+                logger.debug(f"治理自覺 prompt 注入失敗（降級）: {e}")
 
         # ── Zone: persona — ANIMA 身份 + 使用者畫像 ──
         if anima_mc:
@@ -1909,8 +1911,8 @@ class MuseonBrain:
                     dept_fitted = budget.fit_text_to_zone("modules", dept_prompt)
                     if dept_fitted:
                         sections.append(dept_fitted)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"部門 prompt 注入失敗（降級）: {e}")
 
         # ── Zone: modules — 子代理回報 ──
         if sub_agent_context:
@@ -2947,8 +2949,8 @@ class MuseonBrain:
                                 vs = self._governor.get_vital_signs()
                                 if vs:
                                     vs.on_llm_success()
-                            except Exception:
-                                pass
+                            except Exception as e:
+                                logger.debug(f"VitalSigns.on_llm_success (offline probe) 失敗: {e}")
                 except Exception as e:
                     logger.debug(f"Brain: offline self-probe failed: {e}")
 
@@ -3308,10 +3310,10 @@ class MuseonBrain:
                                 }
                                 with open(cache_fp, "a", encoding="utf-8") as cf:
                                     cf.write(_cjson.dumps(cache_entry) + "\n")
-                            except Exception:
-                                pass
-                    except Exception:
-                        pass
+                            except Exception as e:
+                                logger.debug(f"快取統計寫入失敗: {e}")
+                    except Exception as e:
+                        logger.debug(f"Token 用量追蹤失敗: {e}")
 
                 # ── 路由統計記錄（P1: routing stats tracking）──
                 if self._router and hasattr(response, "usage"):
@@ -3324,8 +3326,8 @@ class MuseonBrain:
                             input_tokens=response.usage.input_tokens,
                             output_tokens=response.usage.output_tokens,
                         )
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.debug(f"路由統計記錄失敗: {e}")
 
                 if model != _ordered_chain[0]:
                     logger.warning(f"Fallback 到 {model} 成功（原選 {_ordered_chain[0]}）")
@@ -3364,8 +3366,8 @@ class MuseonBrain:
                         vs = self._governor.get_vital_signs()
                         if vs:
                             vs.on_llm_success()
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.debug(f"VitalSigns.on_llm_success 失敗: {e}")
 
                 return text
 
@@ -3466,8 +3468,8 @@ class MuseonBrain:
                         adapter_resp.output_tokens,
                         model=model,
                     )
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"BudgetMonitor.track_usage 失敗: {e}")
 
             return text
 
@@ -4384,8 +4386,8 @@ class MuseonBrain:
         if json_match:
             try:
                 return json.loads(json_match.group())
-            except json.JSONDecodeError:
-                pass
+            except json.JSONDecodeError as e:
+                logger.debug(f"self-assessment JSON 解析失敗: {e}")
 
         return {
             "self_score": 0.7,
@@ -5414,8 +5416,8 @@ class MuseonBrain:
                     if days_ago > 30:
                         pref["confidence"] = max(0.1,
                             round(pref.get("confidence", 0.5) * 0.9, 2))
-                except (ValueError, TypeError):
-                    pass
+                except (ValueError, TypeError) as e:
+                    logger.debug(f"偏好時間解析失敗，跳過衰減: {e}")
 
         # ── L6: 溝通風格（擴充版）──
         style = layers.setdefault("L6_communication_style", {})
@@ -5673,8 +5675,8 @@ class MuseonBrain:
                     # 如果品質良好，維持當前方向
                     elif avg_score > 0.7:
                         pass  # 不動
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"溝通風格演化失敗（降級）: {e}")
 
         # 累計調整紀錄
         style["last_evolved_at"] = datetime.now().isoformat()
