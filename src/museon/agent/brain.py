@@ -1156,15 +1156,25 @@ class MuseonBrain:
 
         # ── Step 9: 更新 ANIMA_USER（被動觀察 — 八原語 + 七層 + 四觀察引擎） ──
         # CASTLE Layer 2: 離線回應不進入使用者觀察管線
-        if not self._offline_flag and anima_user is not None:
+        # 群組防污染守衛: 群組訊息不更新 owner 的 ANIMA_USER
+        if not self._offline_flag and anima_user is not None and not self._is_group_session:
             self._observe_user(
                 content, anima_user,
                 response_content=response_text,
                 skill_names=skill_names,
             )
+        elif self._is_group_session and not self._offline_flag:
+            # 群組訊息 → 外部用戶觀察管線（不寫入 ANIMA_USER）
+            self._observe_external_user(
+                content,
+                user_id=user_id,
+                sender_name=self._group_sender,
+                response_content=response_text,
+                metadata=metadata,
+            )
 
             # ── Step 9.1: ObservationRing — 使用者觀察年輪沉積 ──
-            if self.ring_depositor and skill_names:
+            if not self._is_group_session and self.ring_depositor and skill_names:
                 try:
                     # 每 20 次互動嘗試沉積一次觀察年輪（避免過度頻繁）
                     interaction_count = anima_user.get("interaction_count", 0)
@@ -5026,6 +5036,78 @@ class MuseonBrain:
                 logger.warning(f"漂移偵測失敗: {e}")
 
         self._save_anima_user(anima_user)
+
+    # ─── 群組外部用戶觀察管線 ────────────────────
+
+    def _observe_external_user(
+        self,
+        content: str,
+        user_id: str,
+        sender_name: str = "",
+        response_content: str = "",
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> None:
+        """群組外部用戶觀察 — 寫入 external_users/{user_id}.json，不碰 ANIMA_USER。
+
+        輕量觀察：八原語 + 偏好 + 近期主題。
+        Owner 在群組中的發言不觀察（群組上下文已被前綴污染）。
+        """
+        if not user_id:
+            return
+        # Owner 在群組中的發言跳過外部用戶觀察
+        if metadata and metadata.get("is_owner"):
+            return
+
+        try:
+            from museon.governance.multi_tenant import ExternalAnimaManager
+            ext_mgr = ExternalAnimaManager(self.data_dir)
+            ext_anima = ext_mgr.load(user_id)
+
+            now_iso = datetime.now().isoformat()
+
+            # 更新 display_name
+            if sender_name and not ext_anima.get("display_name"):
+                ext_anima["display_name"] = sender_name
+
+            # 1. 互動計數（不重複累加，update() 已做過一次）
+            ext_anima["last_seen"] = now_iso
+
+            # 2. 輕量八原語觀察（復用現有關鍵字匹配）
+            primals = ext_anima.setdefault("eight_primals", {})
+            self._observe_user_primals(content, primals, now_iso)
+            ext_anima["eight_primals"] = primals
+
+            # 3. 簡單偏好追蹤
+            prefs = ext_anima.setdefault("preferences", {})
+            msg_len = len(content)
+            if msg_len > 300:
+                prefs["communication_style"] = "detailed"
+            elif msg_len < 30:
+                prefs["communication_style"] = "concise"
+            ext_anima["preferences"] = prefs
+
+            # 4. 近期主題記錄（保留最近 20 筆）
+            topics = ext_anima.setdefault("recent_topics", [])
+            # 清理群組前綴，只留使用者原始訊息的前 120 字元
+            clean_content = content
+            for prefix in ("[群組近期對話紀錄]", "[群組會議]", "[群組]"):
+                if prefix in clean_content:
+                    # 取前綴之後的最後一段（使用者的實際訊息）
+                    parts = clean_content.split("\n")
+                    clean_content = parts[-1] if parts else clean_content
+                    break
+            topics.append({
+                "snippet": clean_content[:120].replace("\n", " ").strip(),
+                "date": now_iso,
+            })
+            if len(topics) > 20:
+                ext_anima["recent_topics"] = topics[-20:]
+
+            ext_mgr.save(user_id, ext_anima)
+            logger.debug(f"外部用戶觀察完成: {user_id} ({sender_name})")
+
+        except Exception as e:
+            logger.warning(f"外部用戶觀察失敗 {user_id}: {e}")
 
     # ─── 觀察引擎 1a: 偏好蒸餾器 ────────────────────
 
