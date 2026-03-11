@@ -75,7 +75,11 @@ class SensitivityChecker:
 
 
 class ExternalAnimaManager:
-    """Create and manage per-user anima files for non-owner Telegram users."""
+    """Create and manage per-user anima files for non-owner Telegram users.
+
+    v2.0: 擴充 schema，支援八原語觀察、偏好追蹤、近期主題記錄，
+    讓 owner 未來可查詢客戶/外部用戶的行為畫像。
+    """
 
     def __init__(self, data_dir: Path):
         self.users_dir = data_dir / "_system" / "external_users"
@@ -84,35 +88,64 @@ class ExternalAnimaManager:
     def _path(self, user_id: str) -> Path:
         return self.users_dir / f"{user_id}.json"
 
-    def load(self, user_id: str) -> Dict[str, Any]:
-        p = self._path(user_id)
-        if p.exists():
-            try:
-                return json.loads(p.read_text(encoding="utf-8"))
-            except Exception:
-                pass
+    @staticmethod
+    def _default_anima(user_id: str) -> Dict[str, Any]:
+        """回傳 v2 預設結構。"""
         return {
+            "version": "2.0.0",
             "user_id": user_id,
             "created_at": datetime.now().isoformat(),
             "interaction_count": 0,
             "last_seen": None,
             "display_name": None,
             "context_summary": "",
+            "eight_primals": {},
+            "preferences": {},
+            "recent_topics": [],
+            "groups_seen_in": [],
+            "relationship_to_owner": "",
         }
 
-    def update(self, user_id: str, display_name: str = None) -> None:
-        anima = self.load(user_id)
-        anima["interaction_count"] = anima.get("interaction_count", 0) + 1
-        anima["last_seen"] = datetime.now().isoformat()
-        if display_name and not anima.get("display_name"):
-            anima["display_name"] = display_name
+    def load(self, user_id: str) -> Dict[str, Any]:
+        p = self._path(user_id)
+        if p.exists():
+            try:
+                data = json.loads(p.read_text(encoding="utf-8"))
+                # Schema migration v1 → v2
+                if "version" not in data:
+                    data["version"] = "2.0.0"
+                    data.setdefault("eight_primals", {})
+                    data.setdefault("preferences", {})
+                    data.setdefault("recent_topics", [])
+                    data.setdefault("groups_seen_in", [])
+                    data.setdefault("relationship_to_owner", "")
+                return data
+            except Exception:
+                pass
+        return self._default_anima(user_id)
+
+    def save(self, user_id: str, anima: Dict[str, Any]) -> None:
+        """完整覆寫外部用戶的 ANIMA 檔案。"""
         try:
             self._path(user_id).write_text(
                 json.dumps(anima, ensure_ascii=False, indent=2),
                 encoding="utf-8",
             )
         except Exception as e:
-            logger.warning(f"ExternalAnima write failed for {user_id}: {e}")
+            logger.warning(f"ExternalAnima save failed for {user_id}: {e}")
+
+    def update(self, user_id: str, display_name: str = None,
+               group_id: int = None) -> None:
+        anima = self.load(user_id)
+        anima["interaction_count"] = anima.get("interaction_count", 0) + 1
+        anima["last_seen"] = datetime.now().isoformat()
+        if display_name and not anima.get("display_name"):
+            anima["display_name"] = display_name
+        if group_id:
+            groups = anima.setdefault("groups_seen_in", [])
+            if group_id not in groups:
+                groups.append(group_id)
+        self.save(user_id, anima)
 
 
 class EscalationQueue:

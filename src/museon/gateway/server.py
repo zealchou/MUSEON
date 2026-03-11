@@ -3491,7 +3491,7 @@ async def _telegram_message_pump(adapter) -> None:
                                     # Not sensitive: update external anima and process with context
                                     data_dir = _Path(brain.data_dir)
                                     ext_mgr = ExternalAnimaManager(data_dir)
-                                    ext_mgr.update(message.user_id, display_name=sender_name)
+                                    ext_mgr.update(message.user_id, display_name=sender_name, group_id=group_id)
 
                                     group_prefix = f"[群組會議] {sender_name} 問：\n"
                                     _content = group_prefix + message.content
