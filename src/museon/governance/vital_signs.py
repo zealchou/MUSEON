@@ -211,8 +211,8 @@ class VitalSignsMonitor:
 
     async def _pulse_loop(self) -> None:
         """定期執行生命徵象檢查."""
-        # 首次等待 60 秒讓系統完全啟動
-        await asyncio.sleep(60)
+        # 首次等待 120 秒讓系統完全啟動（含 LLM API 冷啟動暖機）
+        await asyncio.sleep(120)
 
         while self._running:
             try:
