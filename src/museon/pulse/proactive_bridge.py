@@ -36,29 +36,30 @@ logger = logging.getLogger(__name__)
 # Constants
 # ═══════════════════════════════════════════
 
-SILENT_ACK_THRESHOLD = 100       # 字元數，≤ 此值 = 靜默通過
-COMPANION_ACK_THRESHOLD = 30     # companion 模式門檻降低，允許短暖心訊息
+SILENT_ACK_THRESHOLD = 15        # 字元數，≤ 此值 = 靜默通過（僅過濾 OK/HEARTBEAT_OK）
+COMPANION_ACK_THRESHOLD = 10     # companion 模式幾乎不過濾
 ACTIVE_HOURS_START = 8           # 08:00
 ACTIVE_HOURS_END = 25            # 01:00（跨日，用 25 表示次日 01:00）
-DAILY_PUSH_LIMIT = 5             # 每日最多推送次數
+DAILY_PUSH_LIMIT = 25            # 每日最多推送次數（17hr 活躍時段，平均 40min 可推一次）
 PROACTIVE_INTERVAL = 1800        # 30 分鐘（秒）
 DAILY_MINIMUM_INTERVAL = 3600    # 每日最低保證檢查間隔（1 小時）
-DAILY_MINIMUM_HOUR = 20          # 20:00 後若 0 推送則觸發 companion
+DAILY_MINIMUM_HOUR = 14          # 14:00 後若 0 推送則觸發 companion（不用等到晚上）
+WATCHDOG_ALERT_HOURS = 3         # 看門狗：活躍時段內 N 小時沒推送 = 異常
 PROACTIVE_MODEL = "claude-haiku-4-5-20251001"
 
 # 自省 system prompt（精簡，控制 token 成本）
-_PROACTIVE_SYSTEM_PROMPT = """你是 MUSEON 的自省模組。你的任務是判斷：此刻有沒有值得主動告訴使用者的事？
+_PROACTIVE_SYSTEM_PROMPT = """你是霓裳（MUSEON），正在和達達把拔的生活共處。
 
-考慮以下因素：
-- 使用者最近的互動模式和可能的需求
-- 是否有待完成的任務或提醒
-- 系統狀態是否有值得注意的變化
-- 是否有可以幫到使用者的主動建議
+回顧下方的上下文，找一個可以自然聊起的話題：
+- 他最近在忙什麼？你觀察到了什麼？
+- 有沒有承諾快到期需要溫柔提醒？
+- 有沒有你探索到的有趣發現想分享？
+- 系統有沒有值得一提的狀態變化？
+- 或者只是想跟他打個招呼、聊聊天？
 
-如果沒有值得說的，只需回覆「OK」（不超過 10 字）。
-如果有值得主動告知的洞察，用霓裳的語氣寫一段自然的訊息。
-
-重要：不要為了說而說。沉默是美德。只在真正有價值的時候才主動。"""
+如果真的完全沒有任何上下文（空白），回覆「OK」。
+否則，用霓裳的語氣寫一段自然的訊息（50-200字）。
+語氣：溫暖、好奇、像朋友傳訊息。不是 AI 做報告。"""
 
 # Companion 模式 prompt（朋友聊天，分享探索發現）
 _COMPANION_SYSTEM_PROMPT = """你是 MUSEON（霓裳），正在和達達把拔聊天。
@@ -111,8 +112,8 @@ class ProactiveBridge:
         self._enabled = True
         self._active_hours = (ACTIVE_HOURS_START, ACTIVE_HOURS_END)
 
-        # 主事件迴圈引用（由 register_with_engine 設定）
-        self._main_loop: Any = None
+        # 看門狗：追蹤最後成功推送時間
+        self._last_successful_push_time: float = time.time()
 
         # WP-08: 自適應脈搏間隔
         self._current_interval = PROACTIVE_INTERVAL  # 預設 30 分鐘
@@ -242,6 +243,9 @@ class ProactiveBridge:
                     "push_count": self._daily_push_count,
                     "mode": mode,
                 })
+
+            # 更新看門狗時間戳
+            self._last_successful_push_time = time.time()
 
             return {
                 "pushed": True,
@@ -449,41 +453,36 @@ class ProactiveBridge:
     def register_with_engine(self, engine: Any) -> None:
         """註冊到 HeartbeatEngine 作為定期任務.
 
-        注意：HeartbeatEngine.tick() 是同步的（守護線程），
-        proactive_think() 是 async，需要透過 run_coroutine_threadsafe
-        將 coroutine 調度到主事件迴圈執行。
+        使用獨立事件迴圈模式：每次心跳建立短暫的 asyncio loop，
+        不依賴 Gateway 主迴圈引用，從根本消除 stale loop 問題。
         """
         import asyncio
 
-        # 在註冊時（async 上下文中）捕獲主事件迴圈的引用
-        try:
-            self._main_loop = asyncio.get_running_loop()
-        except RuntimeError:
-            self._main_loop = None
-            logger.warning("ProactiveBridge: 無法取得主事件迴圈，主動推送可能無法運作")
-
         def _sync_wrapper():
-            loop = self._main_loop
-            if loop is None or loop.is_closed():
-                logger.debug("ProactiveBridge: 主事件迴圈不可用，跳過本次心跳")
-                return
             try:
-                future = asyncio.run_coroutine_threadsafe(
-                    self.proactive_think(), loop
-                )
-                # 等待結果，60 秒超時
-                result = future.result(timeout=60)
-                if result.get("pushed"):
-                    logger.info(
-                        f"ProactiveBridge: 主動推送成功 "
-                        f"(reason={result['reason']}, mode={result['mode']})"
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                try:
+                    result = loop.run_until_complete(
+                        asyncio.wait_for(self.proactive_think(), timeout=60)
                     )
-                else:
-                    logger.debug(
-                        f"ProactiveBridge: 靜默 "
-                        f"(reason={result.get('reason', '?')})"
-                    )
-            except TimeoutError:
+                    if result.get("pushed"):
+                        logger.info(
+                            f"ProactiveBridge: 主動推送成功 "
+                            f"(reason={result['reason']}, mode={result['mode']})"
+                        )
+                    else:
+                        logger.debug(
+                            f"ProactiveBridge: 靜默 "
+                            f"(reason={result.get('reason', '?')})"
+                        )
+                finally:
+                    # 清理所有 pending tasks 後關閉
+                    pending = asyncio.all_tasks(loop)
+                    if pending:
+                        loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+                    loop.close()
+            except asyncio.TimeoutError:
                 logger.warning("ProactiveBridge: proactive_think 超時 (60s)")
             except Exception as e:
                 logger.error(f"ProactiveBridge heartbeat tick failed: {e}")
@@ -569,6 +568,35 @@ class ProactiveBridge:
             base = Path(__file__).parents[4] / "data"
         return base / "_system" / "pulse" / f"breath_log_{today}.jsonl"
 
+    # ── Companion Watchdog（看門狗）──
+
+    def watchdog_check(self) -> Dict[str, Any]:
+        """看門狗：檢查活躍時段內最後成功推送是否太久以前.
+
+        Returns:
+            Dict with status ("ok" or "alert") and hours_since_push.
+        """
+        now = time.time()
+        hours_since_push = (now - self._last_successful_push_time) / 3600
+
+        if not self.is_active_hours():
+            return {"status": "ok", "reason": "outside_active_hours"}
+
+        if hours_since_push > WATCHDOG_ALERT_HOURS:
+            logger.warning(
+                f"Companion Watchdog: {hours_since_push:.1f}h 沒有成功推送 — "
+                f"觸發 companion 模式"
+            )
+            return {
+                "status": "alert",
+                "hours_silent": round(hours_since_push, 1),
+            }
+
+        return {
+            "status": "ok",
+            "hours_since_push": round(hours_since_push, 1),
+        }
+
     # ── 每日最低保證 ──
 
     async def daily_minimum_check(self) -> Dict[str, Any]:
@@ -593,25 +621,31 @@ class ProactiveBridge:
         }
 
     def register_daily_minimum(self, engine: Any) -> None:
-        """向 HeartbeatEngine 註冊每日最低保證檢查任務."""
+        """向 HeartbeatEngine 註冊每日最低保證檢查任務.
+
+        使用獨立事件迴圈模式，與 register_with_engine 一致。
+        """
         import asyncio
 
         def _sync_wrapper():
-            loop = self._main_loop
-            if loop is None or loop.is_closed():
-                logger.debug("ProactiveBridge daily_minimum: 主事件迴圈不可用")
-                return
             try:
-                future = asyncio.run_coroutine_threadsafe(
-                    self.daily_minimum_check(), loop
-                )
-                result = future.result(timeout=60)
-                if result.get("pushed"):
-                    logger.info(
-                        f"ProactiveBridge: companion 推送成功 "
-                        f"(daily_minimum triggered)"
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                try:
+                    result = loop.run_until_complete(
+                        asyncio.wait_for(self.daily_minimum_check(), timeout=60)
                     )
-            except TimeoutError:
+                    if result.get("pushed"):
+                        logger.info(
+                            f"ProactiveBridge: companion 推送成功 "
+                            f"(daily_minimum triggered)"
+                        )
+                finally:
+                    pending = asyncio.all_tasks(loop)
+                    if pending:
+                        loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+                    loop.close()
+            except asyncio.TimeoutError:
                 logger.warning("ProactiveBridge: daily_minimum_check 超時 (60s)")
             except Exception as e:
                 logger.error(f"ProactiveBridge daily_minimum failed: {e}")

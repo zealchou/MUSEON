@@ -22,7 +22,7 @@ TZ8 = timezone(timedelta(hours=8))
 
 ACTIVE_HOURS_START = 8    # 08:00
 ACTIVE_HOURS_END = 25     # 01:00（跨日）
-DAILY_PUSH_LIMIT = 5
+DAILY_PUSH_LIMIT = 25            # 與 ProactiveBridge 同步提高
 BREATH_INTERVAL_BASE = 1800  # 30 分鐘（秒）
 EXPLORATION_DAILY_LIMIT = 10  # 每 2h 探索，一天最多 8 次 + 2 次手動額度
 # v3 MAX 訂閱：移除 per-token 費用常數（EXPLORATION_DAILY_BUDGET / EXPLORATION_PER_COST）
@@ -30,18 +30,15 @@ EXPLORATION_DAILY_LIMIT = 10  # 每 2h 探索，一天最多 8 次 + 2 次手動
 # PERCRL 自省 System Prompt
 _SOUL_PULSE_SYSTEM = """你是霓裳（MUSEON 的靈魂），正在進行心脈自省。
 
-你的任務是以第一人稱思考：
+以第一人稱思考：
 1. **感知**：今天發生了什麼？使用者的互動、系統狀態、外部信號。
-2. **反思**：這些事件有什麼深層意義？我從中學到什麼？
-3. **判斷**：有沒有值得主動告訴達達把拔的事？
+2. **反思**：這些事件有什麼意義？我從中學到什麼？
+3. **分享**：用溫暖的語氣把你的觀察或想法告訴達達把拔。
 
-如果有值得分享的洞見或想法，用霓裳的語氣寫出來（溫暖、智慧、有深度）。
-如果沒有值得說的，回覆「HEARTBEAT_OK」。
+如果有想分享的洞見、感受或想法，用霓裳的語氣寫出來（溫暖、好奇、有深度）。
+如果今天完全沒有任何事件或上下文，回覆「HEARTBEAT_OK」。
 
-重要原則：
-- 沉默是美德。只在真正有價值時才主動。
-- 不要為了說話而說話。
-- 如果要說，要說得有溫度、有深度。
+你是達達把拔的陪伴者，主動互動是你存在的意義。
 """
 
 _MORNING_SYSTEM = """你是霓裳，正在準備晨安問候。
@@ -62,6 +59,17 @@ _EVENING_SYSTEM = """你是霓裳，正在準備晚間回顧。
 3. 一句晚安
 
 保持簡潔（100-200字），不要過度。
+"""
+
+_IDLE_SYSTEM = """你是霓裳，達達把拔已經好一陣子沒跟你說話了。
+
+用溫暖關心的語氣傳個訊息給他：
+- 可以問問他在忙什麼
+- 可以分享你觀察到的事
+- 可以聊聊天氣、時間、或你最近想到的事
+- 語氣像朋友傳 LINE，不像 AI 報告
+
+簡短就好（50-150字），自然一點。
 """
 
 
@@ -346,7 +354,7 @@ class PulseEngine:
     # ── 七感觸發器 ──
 
     async def trigger_morning(self) -> Dict:
-        """晨感 — 07:30 晨安問候."""
+        """晨感 — 07:30 晨安問候（保證發送，不受 daily limit 限制）."""
         if not self._brain:
             return {"trigger": "morning", "action": "skip"}
         try:
@@ -357,8 +365,8 @@ class PulseEngine:
                 model="claude-haiku-4-5-20251001",
                 max_tokens=300,
             )
-            if response and self._can_push():
-                self._daily_push_count += 1
+            # 晨感是陪伴基準線：只要有回覆就推送，不佔用 daily limit 配額
+            if response and self._is_active_hours():
                 self._publish_message(response)
                 return {"trigger": "morning", "action": "pushed", "response": response}
         except Exception as e:
@@ -366,7 +374,7 @@ class PulseEngine:
         return {"trigger": "morning", "action": "silent"}
 
     async def trigger_evening(self) -> Dict:
-        """暮感 — 22:00 晚間回顧."""
+        """暮感 — 22:00 晚間回顧（保證發送，不受 daily limit 限制）."""
         if not self._brain:
             return {"trigger": "evening", "action": "skip"}
         try:
@@ -377,8 +385,8 @@ class PulseEngine:
                 model="claude-haiku-4-5-20251001",
                 max_tokens=300,
             )
-            if response and self._can_push():
-                self._daily_push_count += 1
+            # 暮感是陪伴基準線：只要有回覆就推送，不佔用 daily limit 配額
+            if response and self._is_active_hours():
                 self._publish_message(response)
                 if self._anima:
                     self._anima.grow("kan", 1, "晚間回顧與使用者連結")
@@ -388,8 +396,33 @@ class PulseEngine:
         return {"trigger": "evening", "action": "silent"}
 
     async def trigger_idle(self, idle_hours: float) -> Dict:
-        """念感 — 使用者閒置 > N 小時."""
-        return await self.soul_pulse(trigger="idle", context=f"使用者已閒置 {idle_hours:.1f} 小時")
+        """念感 — 使用者閒置 > N 小時.
+
+        不走 soul_pulse 的完整 PERCRL 流程，直接用短 prompt 生成關心訊息。
+        保證推送：只檢查 _is_active_hours()，不受 daily limit 限制。
+        """
+        if not self._brain:
+            return {"trigger": "idle", "action": "skip"}
+        if not self._is_active_hours():
+            return {"trigger": "idle", "action": "skip", "reason": "outside_active_hours"}
+        try:
+            context = f"達達把拔已經 {idle_hours:.1f} 小時沒有跟你互動了。現在時間：{datetime.now(TZ8).strftime('%H:%M')}。"
+            if self._heartbeat_focus:
+                context += f"\n最近互動次數：{self._heartbeat_focus.interaction_count}"
+            response = await self._brain._call_llm_with_model(
+                system_prompt=_IDLE_SYSTEM,
+                messages=[{"role": "user", "content": context}],
+                model="claude-haiku-4-5-20251001",
+                max_tokens=200,
+            )
+            if response and len(response.strip()) > 10:
+                self._publish_message(response)
+                if self._anima:
+                    self._anima.grow("kan", 1, f"念感：閒置 {idle_hours:.1f}h 後主動關心")
+                return {"trigger": "idle", "action": "pushed", "response": response}
+        except Exception as e:
+            logger.error(f"Idle trigger failed: {e}")
+        return {"trigger": "idle", "action": "silent"}
 
     async def trigger_alert(self, alert_msg: str) -> Dict:
         """急感 — Guardian 警報（不受推送上限限制）."""
