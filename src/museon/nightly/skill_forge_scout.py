@@ -297,5 +297,5 @@ class SkillForgeScout:
         if not has_skill_signal:
             return None
 
-        result = await self._research_and_draft(topic, findings[:500])
+        result = await self._research_and_draft(topic, findings[:1200])
         return result if result.get("status") == "done" else None

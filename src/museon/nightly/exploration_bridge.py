@@ -111,7 +111,7 @@ class ExplorationBridge:
         # 探索有洞見 → 主動推送給使用者（透過 PROACTIVE_MESSAGE 事件）
         if findings and len(findings) > 50 and self._event_bus:
             crystal_tag = "💎 " if crystallized else ""
-            preview = findings[:200].replace("\n", " ")
+            preview = findings[:800].replace("\n", " ")
             msg = f"🔭 {crystal_tag}探索「{topic[:30]}」的發現：\n\n{preview}"
             self._event_bus.publish(PROACTIVE_MESSAGE, {
                 "message": msg,
@@ -166,7 +166,7 @@ class ExplorationBridge:
 
         queue.append({
             "topic": topic,
-            "findings_snippet": findings[:500],
+            "findings_snippet": findings[:1200],
             "source": "exploration_bridge",
             "created_at": datetime.now(TZ8).isoformat(),
             "status": "pending",
@@ -219,7 +219,7 @@ class ExplorationBridge:
         note = {
             "type": "exploration_insight",
             "topic": topic,
-            "observation": findings[:800],
+            "observation": findings[:2000],
             "source": "exploration_bridge",
             "created_at": now.isoformat(),
         }

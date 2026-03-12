@@ -1014,7 +1014,7 @@ class PulseEngine:
             if start == -1:
                 # 如果反思區塊不存在，附加到末尾
                 now = datetime.now(TZ8).strftime("%m/%d %H:%M")
-                text += f"\n\n{marker}\n- [{now}] {reflection[:200]}\n"
+                text += f"\n\n{marker}\n- [{now}] {reflection[:600]}\n"
             else:
                 # 找到下一個 ## 區塊
                 next_section = text.find("\n## ", start + len(marker))
@@ -1027,7 +1027,7 @@ class PulseEngine:
 
                 # 保持最近 5 條反思（避免無限膨脹）
                 now = datetime.now(TZ8).strftime("%m/%d %H:%M")
-                new_entry = f"- [{now}] {reflection[:200]}"
+                new_entry = f"- [{now}] {reflection[:600]}"
                 existing_lines.append(new_entry)
                 if len(existing_lines) > 5:
                     existing_lines = existing_lines[-5:]
