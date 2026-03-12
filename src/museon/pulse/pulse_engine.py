@@ -321,10 +321,12 @@ class PulseEngine:
         # E — Explore (如果預算允許)
         exploration = None
         if self._explorer and trigger in ("morning", "curiosity", "mission", "skill", "world", "self"):
-            if self._db and self._db.get_today_exploration_count() < EXPLORATION_DAILY_LIMIT:
+            _exp_count = self._db.get_today_exploration_count() if self._db else 0
+            if self._db and _exp_count < EXPLORATION_DAILY_LIMIT:
                 # 探索主題從 PULSE.md 的探索佇列中選取
                 explore_topic = self._get_next_explore_topic(trigger=trigger)
                 if explore_topic:
+                    logger.info(f"SoulPulse explore start: topic='{explore_topic[:60]}', trigger={trigger}")
                     exploration = await self._explorer.explore(
                         topic=explore_topic,
                         motivation=trigger if trigger in ("curiosity", "mission", "skill", "world", "self") else "curiosity",
@@ -333,8 +335,13 @@ class PulseEngine:
 
                     # 記錄探索結果到 PulseDB
                     if exploration.get("status") == "done":
+                        _findings_len = len(exploration.get("findings", ""))
+                        logger.info(
+                            f"SoulPulse explore done: topic='{explore_topic[:40]}', "
+                            f"findings_len={_findings_len}, deep={exploration.get('deep_analysis', False)}"
+                        )
                         try:
-                            self._db.log_exploration(
+                            _row_id = self._db.log_exploration(
                                 topic=exploration.get("topic", explore_topic),
                                 motivation=trigger,
                                 query=exploration.get("query", ""),
@@ -346,12 +353,30 @@ class PulseEngine:
                                 duration_ms=exploration.get("duration_ms", 0),
                                 status="done",
                             )
+                            logger.info(f"SoulPulse log_exploration OK: row_id={_row_id}")
                         except Exception as e:
-                            logger.warning(f"SoulPulse log_exploration failed: {e}")
+                            logger.error(f"SoulPulse log_exploration FAILED: {e}", exc_info=True)
 
                     # 探索後自我餵養：從發現中萃取後續主題寫入 PULSE.md
                     if exploration.get("status") == "done":
                         self._seed_followup_topics(exploration)
+            else:
+                logger.debug(f"SoulPulse explore skip: db={'ok' if self._db else 'None'}, count={_exp_count}/{EXPLORATION_DAILY_LIMIT}")
+
+        # 將探索資料直接掛到 result，讓 gateway 不必回讀 DB
+        if exploration:
+            result["exploration"] = {
+                "topic": exploration.get("topic", ""),
+                "findings": exploration.get("findings", ""),
+                "motivation": exploration.get("motivation", trigger),
+                "crystallized": exploration.get("crystallized", False),
+                "crystal_id": exploration.get("crystal_id", ""),
+                "deep_analysis": exploration.get("deep_analysis", False),
+                "tokens_used": exploration.get("tokens_used", 0),
+                "cost_usd": exploration.get("cost_usd", 0),
+                "duration_ms": exploration.get("duration_ms", 0),
+                "timestamp": now.isoformat(),
+            }
 
         # R — Reflect（反思結果自動寫入 PULSE.md，下次對話注入 system prompt）
         reflection = await self._reflect(perception, exploration)
@@ -842,22 +867,40 @@ class PulseEngine:
             except Exception as e:
                 logger.debug(f"_get_next_explore_topic fallback 2 (ANIMA) failed: {e}")
 
-        # 3. 好奇心佇列中可探索的問題（過濾元知識與對話碎片）
+        # 3. 好奇心佇列中可探索的問題（嚴格過濾：只允許真正的研究型問題）
         if self._data_dir:
             try:
                 q_path = self._data_dir / "_system" / "curiosity" / "question_queue.json"
                 if q_path.exists():
                     import json as _json
+                    import re as _re
                     queue = _json.loads(q_path.read_text(encoding="utf-8"))
+                    # 非研究型聊天碎片的關鍵詞黑名單
+                    _CHAT_BLACKLIST = (
+                        "叫什麼", "是誰", "你是", "我是", "早安", "晚安",
+                        "午安", "嗨", "你好", "謝謝", "幫我", "可以嗎",
+                        "怎麼樣", "好嗎", "在嗎", "想問", "@",
+                        "請計算", "算一下", "多少錢",
+                    )
                     for item in queue:
                         if isinstance(item, dict) and item.get("status") == "pending":
-                            q = item.get("question", "")
-                            if not q or len(q) <= 10:
+                            q = item.get("question", "").strip()
+                            if not q or len(q) <= 15 or len(q) > 200:
                                 continue
-                            # 過濾元知識問題與對話碎片
-                            if any(kw in q for kw in ("叫什麼", "是誰", "你是", "我是")):
+                            # 過濾聊天碎片
+                            if any(kw in q for kw in _CHAT_BLACKLIST):
                                 continue
+                            # 過濾非自然語言（對話格式碎片）
                             if q.startswith("**user**:") or q.startswith("**"):
+                                continue
+                            # 必須包含問號 或 研究性關鍵詞，才算是有效探索主題
+                            _has_question = "？" in q or "?" in q
+                            _has_research_kw = any(kw in q for kw in (
+                                "如何", "為什麼", "什麼是", "最新", "趨勢", "比較",
+                                "框架", "架構", "研究", "方法", "原理", "機制",
+                                "差異", "演化", "突破", "前沿",
+                            ))
+                            if not _has_question and not _has_research_kw:
                                 continue
                             logger.info(f"探索主題來源: question_queue → {q[:50]}")
                             return q

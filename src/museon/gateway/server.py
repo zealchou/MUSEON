@@ -4713,7 +4713,7 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                 f"explore={explored}, crystallize={crystallized}"
             )
 
-            # ── Telegram 回報 ──
+            # ── Telegram 回報（直接從 result 取探索資料，不依賴 DB 回讀）──
             adapter = getattr(app.state, "telegram_adapter", None)
             if adapter and explored != "skipped":
                 _status = "✅" if explored == "done" else f"⚠️ {explored}"
@@ -4728,15 +4728,17 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                     "idle": "閒置時自主探索",
                 }.get(trigger, trigger)
 
-                # 取得最新探索記錄用於報告
-                _latest_exp = None
-                if _pdb:
-                    _exps = _pdb.get_today_explorations()
-                    if _exps:
-                        _latest_exp = _exps[-1]
-
-                _explore_topic = (_latest_exp or {}).get("topic", "") if _latest_exp else ""
+                # 優先從 result["exploration"] 取資料（pulse_engine 直接掛上的）
+                _exp_data = result.get("exploration", {})
+                _explore_topic = _exp_data.get("topic", "")
+                _findings = _exp_data.get("findings", "")
                 _topic_line = f"📌 主題：{_explore_topic}\n" if _explore_topic else ""
+
+                # 建構 findings 摘要（過濾無價值結果）
+                _findings_preview = ""
+                _NO_VALUE_TAGS = ("搜尋無結果", "無價值發現", "探索失敗")
+                if _findings and not any(t in _findings for t in _NO_VALUE_TAGS) and len(_findings) > 20:
+                    _findings_preview = f"\n📋 主要發現：\n{_findings[:500]}\n"
 
                 _msg = (
                     f"🔭 【自主探索 #{today_count + 1}】\n\n"
@@ -4744,7 +4746,8 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                     f"{_topic_line}"
                     f"探索：{_status}\n"
                     f"結晶：{_crystal}\n"
-                    f"行動：{action}\n\n"
+                    f"行動：{action}"
+                    f"{_findings_preview}\n\n"
                     f"有什麼想聊的嗎？"
                 )
                 try:
@@ -4752,18 +4755,19 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                 except Exception as e:
                     logger.debug(f"Exploration Telegram notify failed: {e}")
 
-                # 生成 HTML 報告附件
-                if _latest_exp:
+                # 生成 HTML 報告附件（使用 result 資料，不依賴 DB）
+                if _exp_data and _findings and not any(t in _findings for t in _NO_VALUE_TAGS):
                     try:
                         from museon.pulse.exploration_report import generate_html_report
                         _reports_dir = Path(app.state.data_dir) / "_system" / "reports"
-                        _report_path = generate_html_report(_latest_exp, _reports_dir)
+                        _reports_dir.mkdir(parents=True, exist_ok=True)
+                        _report_path = generate_html_report(_exp_data, _reports_dir)
                         _owner_id = int(adapter.trusted_user_ids[0])
                         await adapter.send_document(
                             _owner_id, str(_report_path), caption="📄 完整探索報告"
                         )
                     except Exception as _re:
-                        logger.debug(f"Exploration report send failed: {_re}")
+                        logger.warning(f"Exploration report send failed: {_re}")
 
             # ── 探索後自動觸發技能鍛造 ──
             if crystallized == "done" or explored == "done":
@@ -4984,21 +4988,19 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                 f"explore={explored}, crystallize={crystallized}"
             )
 
-            # 5. 探索有結果 → 主動傳給使用者（含主題 + 摘要 + HTML 報告）
+            # 5. 探索有結果 → 主動傳給使用者（直接從 result 取資料，不依賴 DB 回讀）
             adapter = getattr(app.state, "telegram_adapter", None)
             if adapter and explored != "skipped":
-                # 從最近一次探索記錄取得 topic + findings
-                explore_topic = ""
+                # 優先從 result["exploration"] 取資料
+                _exp_data = result.get("exploration", {})
+                explore_topic = _exp_data.get("topic", "")
+                _findings = _exp_data.get("findings", "")
+
+                # 建構 findings 摘要（過濾無價值結果）
                 findings_preview = ""
-                _latest_exp = None
-                if _pdb:
-                    exps = _pdb.get_today_explorations()
-                    if exps:
-                        _latest_exp = exps[-1]
-                        explore_topic = _latest_exp.get("topic", "")
-                        findings = _latest_exp.get("findings", "")
-                        if findings and findings not in ("搜尋無結果", "無價值發現", "") and len(findings) > 20:
-                            findings_preview = f"\n\n📋 主要發現：\n{findings[:500]}"
+                _NO_VALUE_TAGS = ("搜尋無結果", "無價值發現", "探索失敗")
+                if _findings and not any(t in _findings for t in _NO_VALUE_TAGS) and len(_findings) > 20:
+                    findings_preview = f"\n\n📋 主要發現：\n{_findings[:500]}"
 
                 topic_line = f"📌 主題：{explore_topic}\n" if explore_topic else ""
                 _crystal_tag = "\n💎 已結晶為長期記憶" if crystallized == "done" else ""
@@ -5015,18 +5017,19 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                 except Exception as _e:
                     logger.debug(f"Free explore notify failed: {_e}")
 
-                # 生成 HTML 報告附件
-                if _latest_exp:
+                # 生成 HTML 報告附件（使用 result 資料，不依賴 DB）
+                if _exp_data and _findings and not any(t in _findings for t in _NO_VALUE_TAGS):
                     try:
                         from museon.pulse.exploration_report import generate_html_report
                         _reports_dir = Path(app.state.data_dir) / "_system" / "reports"
-                        _report_path = generate_html_report(_latest_exp, _reports_dir)
+                        _reports_dir.mkdir(parents=True, exist_ok=True)
+                        _report_path = generate_html_report(_exp_data, _reports_dir)
                         _owner_id = int(adapter.trusted_user_ids[0])
                         await adapter.send_document(
                             _owner_id, str(_report_path), caption="📄 完整探索報告"
                         )
                     except Exception as _re:
-                        logger.debug(f"Free explore report send failed: {_re}")
+                        logger.warning(f"Free explore report send failed: {_re}")
 
         except Exception as e:
             logger.error(f"自由探索 idle job failed: {e}", exc_info=True)
