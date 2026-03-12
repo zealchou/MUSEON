@@ -67,7 +67,8 @@ SKILL_ARCHIVE_INACTIVE_DAYS = 30
 _FULL_STEPS = [
     "0", "0.1",  # Budget settlement + Footprint cleanup (最先執行)
     "1", "2", "3", "4", "5", "5.5", "5.8", "5.9", "5.10",
-    "6", "7", "7.5", "8", "8.5", "9", "10", "10.5", "11", "12", "13", "13.5",
+    "5.9.5",
+    "6", "6.5", "7", "7.5", "8", "8.5", "9", "10", "10.5", "11", "12", "13", "13.5",
     "13.6", "13.7", "13.8",  # 外向型進化：觸發掃描 → 外向研究 → 消化生命週期
     "14", "15", "16", "17",
     "18",
@@ -137,8 +138,10 @@ class NightlyPipeline:
             "5.6": ("step_05_6_knowledge_lattice", self._step_knowledge_lattice),
             "5.8": ("step_05_8_morphenix_proposals", self._step_morphenix_proposals),
             "5.9": ("step_05_9_morphenix_gate", self._step_morphenix_gate),
+            "5.9.5": ("step_05_9_5_morphenix_validate", self._step_morphenix_validate),
             "5.10": ("step_05_10_morphenix_execute", self._step_morphenix_execute),
             "6": ("step_06_skill_forge", self._step_skill_forge),
+            "6.5": ("step_06_5_skill_scout", self._step_skill_scout),
             "7": ("step_07_curriculum", self._step_curriculum),
             "7.5": ("step_07_5_auto_course", self._step_auto_course),
             "8": ("step_08_workflow_mutation", self._step_workflow_mutation),
@@ -924,9 +927,14 @@ class NightlyPipeline:
             try:
                 with open(f, "r", encoding="utf-8") as fh:
                     proposal = json.load(fh)
-                if proposal.get("status") == "pending_review":
+                _st = proposal.get("status", "")
+                if _st in ("pending_review", "approved_pending_test", "pending"):
                     proposal["_file"] = str(f)
                     pending.append(proposal)
+                    logger.info(
+                        f"[MORPHENIX 5.9] Found proposal: {f.name}, "
+                        f"status={_st}, category={proposal.get('category', '?')}"
+                    )
             except Exception:
                 pass
 
@@ -971,7 +979,7 @@ class NightlyPipeline:
                         pulse_db.approve_proposal(pid, decided_by="auto")
                         logger.info(f"Morphenix L1 proposal saved+approved in DB: {pid}")
                     except Exception as e:
-                        logger.warning(f"Morphenix L1 DB persist failed: {e}")
+                        logger.error(f"Morphenix L1 DB persist FAILED: {e}", exc_info=True)
 
             elif "L2" in str(category):
                 # L2 Logic: 自動核准（直接 approved，因無測試設施）
@@ -995,7 +1003,7 @@ class NightlyPipeline:
                         pulse_db.approve_proposal(pid, decided_by="auto")
                         logger.info(f"Morphenix L2 proposal saved+approved in DB: {pid}")
                     except Exception as e:
-                        logger.warning(f"Morphenix L2 DB persist failed: {e}")
+                        logger.error(f"Morphenix L2 DB persist FAILED: {e}", exc_info=True)
 
             elif "L3" in str(category):
                 # L3 Architecture: 寫入 DB + Telegram 通知
@@ -1077,6 +1085,79 @@ class NightlyPipeline:
             logger.info(
                 f"Morphenix: {results['needs_human']} proposals need human approval (72h auto-approve)"
             )
+
+        return results
+
+    # ═══════════════════════════════════════════
+    # Step 5.9.5: Morphenix Docker 驗證
+    # ═══════════════════════════════════════════
+
+    def _step_morphenix_validate(self) -> Dict:
+        """Step 5.9.5: 在 Docker 隔離環境中驗證 L2+ 提案.
+
+        L1 跳過 Docker（只改 JSON，風險低）。
+        L2+ 強制 Docker pytest 驗證，失敗則 reject。
+        """
+        try:
+            from museon.pulse.pulse_db import PulseDB
+            db_path = self._workspace / "pulse.db"
+            pulse_db = PulseDB(str(db_path))
+        except Exception as e:
+            return {"skipped": f"PulseDB init failed: {e}"}
+
+        approved = [
+            p for p in pulse_db.get_all_proposals(100)
+            if p.get("status") == "approved"
+        ]
+        l2_plus = [p for p in approved if p.get("level") in ("L2", "L3")]
+
+        if not l2_plus:
+            return {"skipped": "no L2+ proposals to validate", "total_approved": len(approved)}
+
+        try:
+            from museon.nightly.morphenix_validator import MorphenixValidator
+            validator = MorphenixValidator(source_root=self._source_root)
+        except ImportError:
+            return {"skipped": "MorphenixValidator not available"}
+
+        results = {"validated": 0, "passed": 0, "failed": 0, "details": []}
+
+        import asyncio
+        for proposal in l2_plus:
+            pid = proposal.get("id", "?")
+            try:
+                vresult = asyncio.run(validator.validate_proposal(proposal))
+                results["validated"] += 1
+
+                if vresult.passed:
+                    results["passed"] += 1
+                    logger.info(
+                        f"[MORPHENIX 5.9.5] {pid} Docker validation PASSED "
+                        f"({vresult.reason}, {vresult.duration_ms}ms)"
+                    )
+                else:
+                    results["failed"] += 1
+                    # reject 提案
+                    pulse_db.reject_proposal(pid, decided_by="docker_validator")
+                    logger.warning(
+                        f"[MORPHENIX 5.9.5] {pid} Docker validation FAILED: "
+                        f"{vresult.reason} — REJECTED"
+                    )
+
+                results["details"].append({
+                    "id": pid,
+                    "passed": vresult.passed,
+                    "reason": vresult.reason,
+                    "duration_ms": vresult.duration_ms,
+                })
+
+            except Exception as e:
+                logger.error(f"[MORPHENIX 5.9.5] {pid} validation error: {e}")
+                results["details"].append({
+                    "id": pid,
+                    "passed": False,
+                    "reason": f"error: {str(e)[:100]}",
+                })
 
         return results
 
@@ -1181,6 +1262,82 @@ class NightlyPipeline:
             return {"forged": forged, "clusters": len(clusters)}
         except ImportError:
             return {"skipped": "ChromosomeIndex not available"}
+
+    # ═══════════════════════════════════════════
+    # Step 6.5: SkillForge Scout（探索發現 → 技能改善研究）
+    # ═══════════════════════════════════════════
+
+    def _step_skill_scout(self) -> Dict:
+        """Step 6.5: 消費 scout_queue 中的待研究項目，產出技能改善草稿."""
+        queue_file = self._workspace / "_system" / "bridge" / "scout_queue" / "pending.json"
+        if not queue_file.exists():
+            return {"skipped": "no scout_queue"}
+
+        try:
+            with open(queue_file, "r", encoding="utf-8") as fh:
+                queue = json.load(fh)
+        except Exception:
+            return {"skipped": "scout_queue read error"}
+
+        pending = [q for q in queue if q.get("status") == "pending"]
+        if not pending:
+            return {"skipped": "no pending scout items"}
+
+        # 去重：相同 topic 只保留第一個
+        seen_topics: set = set()
+        deduped: list = []
+        for item in pending:
+            topic = item.get("topic", "").strip()
+            if topic and topic not in seen_topics:
+                seen_topics.add(topic)
+                deduped.append(item)
+        removed_dupes = len(pending) - len(deduped)
+
+        if not deduped:
+            return {"skipped": "all scout items were duplicates", "removed": removed_dupes}
+
+        # 嘗試呼叫 SkillForgeScout
+        processed = 0
+        errors = []
+        try:
+            from museon.nightly.skill_forge_scout import SkillForgeScout
+            scout = SkillForgeScout(
+                brain=self._brain,
+                event_bus=self._event_bus,
+                workspace=self._workspace,
+            )
+            # 每次最多處理 3 個（控制 Token 成本）
+            import asyncio
+            results = asyncio.run(scout.process_queue(max_items=3))
+            processed = len(results) if results else 0
+        except ImportError:
+            errors.append("SkillForgeScout not available")
+        except Exception as e:
+            errors.append(str(e))
+            logger.warning(f"SkillForgeScout process_queue failed: {e}")
+
+        # 更新 queue：標記已處理的 + 去重後的
+        updated_queue = []
+        for item in queue:
+            topic = item.get("topic", "").strip()
+            if topic in seen_topics:
+                if topic not in {d.get("topic", "").strip() for d in updated_queue if d.get("status") == "pending"}:
+                    updated_queue.append(item)
+            else:
+                updated_queue.append(item)
+
+        try:
+            with open(queue_file, "w", encoding="utf-8") as fh:
+                json.dump(updated_queue, fh, ensure_ascii=False, indent=2)
+        except Exception as e:
+            logger.warning(f"scout_queue write-back failed: {e}")
+
+        return {
+            "processed": processed,
+            "deduped": len(deduped),
+            "removed_duplicates": removed_dupes,
+            "errors": errors if errors else None,
+        }
 
     # ═══════════════════════════════════════════
     # Step 7: 課程診斷

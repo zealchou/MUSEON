@@ -1,0 +1,20 @@
+# MUSEON Morphenix Validator — Docker 映像
+# 用途：在隔離環境中驗證 L2+ 程式碼變更不會破壞既有測試
+# 建構：docker build -f docker/Dockerfile.validator -t museon-validator:latest .
+# 使用：由 MorphenixValidator 自動呼叫，不需手動 docker run
+
+FROM python:3.13-slim
+
+LABEL maintainer="MUSEON Morphenix" \
+      description="Isolated pytest runner for Morphenix L2+ proposal validation"
+
+WORKDIR /museon
+
+# 安裝測試依賴（不含 GPU/大模型/外部服務）
+COPY docker/requirements-test.txt .
+RUN pip install --no-cache-dir -r requirements-test.txt
+
+# 原始碼由 volume mount 注入，不 COPY（避免每次重建映像）
+# docker run -v /tmp/museon-validate:/museon:ro ...
+
+CMD ["python", "-m", "pytest", "tests/unit/", "-x", "--tb=short", "-q", "--no-header"]
