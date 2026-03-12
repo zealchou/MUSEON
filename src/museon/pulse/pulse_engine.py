@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 TZ8 = timezone(timedelta(hours=8))
 
 # ═══════════════════════════════════════════
-# Constants
+# Constants（預設值，PI-2 熱更新時由 pulse_config.json 覆蓋）
 # ═══════════════════════════════════════════
 
 ACTIVE_HOURS_START = 7    # 07:00（涵蓋 07:30 晨安）
@@ -26,6 +26,15 @@ DAILY_PUSH_LIMIT = 25            # 與 ProactiveBridge 同步提高
 BREATH_INTERVAL_BASE = 1800  # 30 分鐘（秒）
 EXPLORATION_DAILY_LIMIT = 10  # 每 2h 探索，一天最多 8 次 + 2 次手動額度
 # v3 MAX 訂閱：移除 per-token 費用常數（EXPLORATION_DAILY_BUDGET / EXPLORATION_PER_COST）
+
+# PI-2 熱更新讀取器
+def _cfg(key: str, default: Any = None) -> Any:
+    """從 pulse_config.json 讀取 pulse_engine 區段的配置（PI-2 熱更新）."""
+    try:
+        from museon.pulse.pulse_intervention import get_config
+        return get_config("pulse_engine", key, default)
+    except Exception:
+        return default
 
 # ANIMA 元素 → 具體探索主題池（替代泛化的「X相關的最新趨勢與知識」）
 _ANIMA_EXPLORE_TOPICS: Dict[str, List[str]] = {
@@ -104,6 +113,18 @@ _SEED_TOPICS: Dict[str, List[str]] = {
         "開發者工具生態系最新動態",
     ],
 }
+
+# 動態主題生成 System Prompt（Haiku）
+_DYNAMIC_TOPIC_SYSTEM = """你是 MUSEON 的探索方向生成器。根據最近已探索的主題，生成一個「完全不同方向」的新探索主題。
+
+要求：
+- 與已探索主題的關鍵詞重疊 < 30%
+- 具體、可搜尋（不要泛泛而談）
+- 偏向 AI 技術、商業洞察、認知科學、或 AI 顧問事業相關領域
+- 長度 20-80 字之間
+- 直接輸出主題文字，不要加任何說明或前綴
+
+只輸出一行：探索主題。"""
 
 # PERCRL 自省 System Prompt
 _SOUL_PULSE_SYSTEM = """你是霓裳（MUSEON 的靈魂），正在進行心脈自省。
@@ -322,9 +343,14 @@ class PulseEngine:
         exploration = None
         if self._explorer and trigger in ("morning", "curiosity", "mission", "skill", "world", "self"):
             _exp_count = self._db.get_today_exploration_count() if self._db else 0
-            if self._db and _exp_count < EXPLORATION_DAILY_LIMIT:
-                # 探索主題從 PULSE.md 的探索佇列中選取
-                explore_topic = self._get_next_explore_topic(trigger=trigger)
+            _exp_limit = _cfg("exploration_daily_limit", EXPLORATION_DAILY_LIMIT)
+            if self._db and _exp_count < _exp_limit:
+                # 探索主題：1-3 靜態來源 → 4 Haiku 動態生成 → 5 種子備援
+                explore_topic = self._get_next_explore_topic(trigger=trigger, skip_seed=True)
+                if not explore_topic:
+                    explore_topic = await self._generate_dynamic_topic(trigger=trigger)
+                if not explore_topic:
+                    explore_topic = self._get_next_explore_topic(trigger=trigger, skip_seed=False)
                 if explore_topic:
                     logger.info(f"SoulPulse explore start: topic='{explore_topic[:60]}', trigger={trigger}")
                     exploration = await self._explorer.explore(
@@ -361,7 +387,7 @@ class PulseEngine:
                     if exploration.get("status") == "done":
                         self._seed_followup_topics(exploration)
             else:
-                logger.debug(f"SoulPulse explore skip: db={'ok' if self._db else 'None'}, count={_exp_count}/{EXPLORATION_DAILY_LIMIT}")
+                logger.debug(f"SoulPulse explore skip: db={'ok' if self._db else 'None'}, count={_exp_count}/{_exp_limit}")
 
         # 將探索資料直接掛到 result，讓 gateway 不必回讀 DB
         if exploration:
@@ -562,13 +588,16 @@ class PulseEngine:
         if now is None:
             now = datetime.now(TZ8)
         hour = now.hour
-        if ACTIVE_HOURS_END > 24:
-            return hour >= ACTIVE_HOURS_START or hour < (ACTIVE_HOURS_END - 24)
-        return ACTIVE_HOURS_START <= hour < ACTIVE_HOURS_END
+        start = _cfg("active_hours_start", ACTIVE_HOURS_START)
+        end = _cfg("active_hours_end", ACTIVE_HOURS_END)
+        if end > 24:
+            return hour >= start or hour < (end - 24)
+        return start <= hour < end
 
     def _can_push(self) -> bool:
         self._maybe_reset_daily()
-        return self._daily_push_count < DAILY_PUSH_LIMIT and self._is_active_hours()
+        limit = _cfg("daily_push_limit", DAILY_PUSH_LIMIT)
+        return self._daily_push_count < limit and self._is_active_hours()
 
     def _maybe_reset_daily(self) -> None:
         today = datetime.now(TZ8).strftime("%Y-%m-%d")
@@ -624,7 +653,7 @@ class PulseEngine:
 
     def _build_breath_context(self, pulse_summary: str) -> str:
         parts = [f"當前時間: {datetime.now(TZ8).strftime('%Y-%m-%d %H:%M')}"]
-        parts.append(f"今日推送: {self._daily_push_count}/{DAILY_PUSH_LIMIT}")
+        parts.append(f"今日推送: {self._daily_push_count}/{_cfg('daily_push_limit', DAILY_PUSH_LIMIT)}")
         if self._heartbeat_focus:
             parts.append(
                 f"使用者活躍度: {self._heartbeat_focus.focus_level} "
@@ -822,14 +851,58 @@ class PulseEngine:
                         parts.append(f"  {ol.strip()[:80]}")
         return "\n".join(parts)
 
-    def _get_next_explore_topic(self, trigger: str = "curiosity") -> Optional[str]:
+    def _get_topic_pointer(self) -> Dict:
+        """讀取主題輪轉指針."""
+        if not self._data_dir:
+            return {}
+        path = self._data_dir / "_system" / "pulse" / "topic_pointer.json"
+        if path.exists():
+            try:
+                return json.loads(path.read_text(encoding="utf-8"))
+            except Exception:
+                pass
+        return {}
+
+    def _advance_topic_pointer(self, key: str, pool_size: int) -> int:
+        """推進指針並回傳新索引."""
+        if not self._data_dir:
+            return 0
+        path = self._data_dir / "_system" / "pulse" / "topic_pointer.json"
+        ptr = self._get_topic_pointer()
+        idx = (ptr.get(key, 0) + 1) % pool_size
+        ptr[key] = idx
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(json.dumps(ptr, ensure_ascii=False, indent=2), encoding="utf-8")
+        except Exception as e:
+            logger.debug(f"Failed to save topic pointer: {e}")
+        return idx
+
+    def _is_recently_explored(self, topic: str, days: int = 7) -> bool:
+        """檢查主題是否在最近 N 天內已探索過（關鍵詞重疊 > 50%）."""
+        if not self._db:
+            return False
+        recent = self._db.get_recent_explorations(days=days, limit=30)
+        if not topic or not recent:
+            return False
+        topic_words = set(topic.replace("，", " ").replace("、", " ").split())
+        for past in recent:
+            past_words = set(past.replace("，", " ").replace("、", " ").split())
+            if not topic_words or not past_words:
+                continue
+            overlap = len(topic_words & past_words) / max(len(topic_words), 1)
+            if overlap > 0.5:
+                return True
+        return False
+
+    def _get_next_explore_topic(self, trigger: str = "curiosity", skip_seed: bool = False) -> Optional[str]:
         """從多層來源取得下一個待探索主題.
 
         Fallback 順序：
         1. PULSE.md [pending] 條目
-        2. ANIMA 低能量區域 → 從具體主題池選取
+        2. ANIMA 低能量區域 → 從具體主題池選取（rotating pointer + dedup）
         3. 好奇心佇列 (question_queue.json) 中可探索的 pending 問題
-        4. 觸發類型感知的種子主題庫（永不為空）
+        4. 觸發類型感知的種子主題庫（rotating pointer + dedup，skip_seed=True 時跳過）
         """
         # 1. PULSE.md 佇列
         if self._pulse_md and self._pulse_md.exists():
@@ -846,7 +919,7 @@ class PulseEngine:
             except Exception as e:
                 logger.debug(f"_get_next_explore_topic fallback 1 (PULSE.md) failed: {e}")
 
-        # 2. ANIMA 低能量區域 → 從具體主題池選取
+        # 2. ANIMA 低能量區域 → 從具體主題池選取（rotating pointer + dedup）
         if self._anima:
             try:
                 radar = self._anima.get_relative()
@@ -859,11 +932,16 @@ class PulseEngine:
                         elem = low[0][0]
                         topics = _ANIMA_EXPLORE_TOPICS.get(elem, [])
                         if topics:
-                            today_str = datetime.now(TZ8).strftime("%Y-%m-%d")
-                            idx = hash(today_str + elem) % len(topics)
-                            topic = topics[idx]
-                            logger.info(f"探索主題來源: ANIMA({elem}) → {topic[:50]}")
-                            return topic
+                            ptr = self._get_topic_pointer()
+                            start_idx = ptr.get(f"anima_{elem}", 0) % len(topics)
+                            for offset in range(len(topics)):
+                                idx = (start_idx + offset) % len(topics)
+                                topic = topics[idx]
+                                if not self._is_recently_explored(topic):
+                                    if offset > 0:
+                                        self._advance_topic_pointer(f"anima_{elem}", len(topics))
+                                    logger.info(f"探索主題來源: ANIMA({elem}) → {topic[:50]}")
+                                    return topic
             except Exception as e:
                 logger.debug(f"_get_next_explore_topic fallback 2 (ANIMA) failed: {e}")
 
@@ -907,15 +985,60 @@ class PulseEngine:
             except Exception as e:
                 logger.debug(f"_get_next_explore_topic fallback 3 (question_queue) failed: {e}")
 
-        # 4. 觸發類型感知的種子主題庫（永不為空）
+        # 4. 觸發類型感知的種子主題庫（rotating pointer + dedup）
+        if skip_seed:
+            return None
         trigger_key = trigger if trigger in _SEED_TOPICS else "curiosity"
         topics = _SEED_TOPICS[trigger_key]
-        today_str = datetime.now(TZ8).strftime("%Y-%m-%d")
-        exp_count = self._db.get_today_exploration_count() if self._db else 0
-        idx = hash(today_str + trigger_key + str(exp_count)) % len(topics)
-        topic = topics[idx]
-        logger.info(f"探索主題來源: 種子庫({trigger_key}) → {topic[:50]}")
+        ptr = self._get_topic_pointer()
+        start_idx = ptr.get(f"seed_{trigger_key}", 0) % len(topics)
+        for offset in range(len(topics)):
+            idx = (start_idx + offset) % len(topics)
+            topic = topics[idx]
+            if not self._is_recently_explored(topic, days=3):
+                if offset > 0:
+                    self._advance_topic_pointer(f"seed_{trigger_key}", len(topics))
+                logger.info(f"探索主題來源: 種子庫({trigger_key}) → {topic[:50]}")
+                return topic
+        # 全部都探索過了，輪轉一次再選第一個
+        self._advance_topic_pointer(f"seed_{trigger_key}", len(topics))
+        topic = topics[start_idx]
+        logger.info(f"探索主題來源: 種子庫({trigger_key}, 輪轉) → {topic[:50]}")
         return topic
+
+    async def _generate_dynamic_topic(self, trigger: str = "curiosity") -> Optional[str]:
+        """使用 Haiku 根據近期探索歷史動態生成全新探索主題."""
+        if not self._brain or not hasattr(self._brain, "_call_llm_with_model"):
+            return None
+        try:
+            recent = self._db.get_recent_explorations(days=30, limit=20) if self._db else []
+            recent_str = "\n".join(f"- {t}" for t in recent) if recent else "（無歷史記錄）"
+            trigger_hint = {
+                "curiosity": "AI 技術與方法論",
+                "world": "全球趨勢與產業變化",
+                "skill": "工程技術與開發實踐",
+                "self": "AI 自我改善與元認知",
+                "mission": "AI 顧問商業與產品化",
+                "morning": "生產力與知識工具",
+            }.get(trigger, "AI 相關領域")
+            prompt = (
+                f"觸發方向：{trigger_hint}\n\n"
+                f"最近 30 天已探索的主題（請避開這些方向）：\n{recent_str}\n\n"
+                f"請生成一個全新的探索主題。"
+            )
+            response = await self._brain._call_llm_with_model(
+                system_prompt=_DYNAMIC_TOPIC_SYSTEM,
+                messages=[{"role": "user", "content": prompt}],
+                model="claude-haiku-4-5-20251001",
+                max_tokens=100,
+            )
+            topic = response.strip().split("\n")[0].strip()
+            if topic and 10 < len(topic) < 200:
+                logger.info(f"探索主題來源: Haiku 動態生成 → {topic[:60]}")
+                return topic
+        except Exception as e:
+            logger.warning(f"Dynamic topic generation failed: {e}")
+        return None
 
     def _update_pulse_md_status(self) -> None:
         """更新 PULSE.md 的今日狀態區塊."""
@@ -934,9 +1057,9 @@ class PulseEngine:
                     # 寫入更新的狀態
                     exp_count = self._db.get_today_exploration_count() if self._db else 0
                     exp_cost = self._db.get_today_exploration_cost() if self._db else 0
-                    new_lines.append(f"- 探索次數: {exp_count}/{EXPLORATION_DAILY_LIMIT}")
+                    new_lines.append(f"- 探索次數: {exp_count}/{_cfg('exploration_daily_limit', EXPLORATION_DAILY_LIMIT)}")
                     new_lines.append(f"- 探索次數費用: ${exp_cost:.2f} (MAX 訂閱)")
-                    new_lines.append(f"- 推送次數: {self._daily_push_count}/{DAILY_PUSH_LIMIT}")
+                    new_lines.append(f"- 推送次數: {self._daily_push_count}/{_cfg('daily_push_limit', DAILY_PUSH_LIMIT)}")
                     if self._anima:
                         # 顯示今日 ANIMA 變化
                         today_changes = []
@@ -1328,12 +1451,12 @@ class PulseEngine:
         status = {
             "active_hours": self._is_active_hours(),
             "daily_push_count": self._daily_push_count,
-            "daily_push_limit": DAILY_PUSH_LIMIT,
+            "daily_push_limit": _cfg("daily_push_limit", DAILY_PUSH_LIMIT),
         }
         if self._db:
             status["explorations_today"] = self._db.get_today_exploration_count()
             status["exploration_cost_today"] = self._db.get_today_exploration_cost()
-            status["exploration_limit"] = EXPLORATION_DAILY_LIMIT
+            status["exploration_limit"] = _cfg("exploration_daily_limit", EXPLORATION_DAILY_LIMIT)
             status["exploration_budget"] = "max_subscription"
             status["schedules"] = len(self._db.list_schedules())
         if self._heartbeat_focus:

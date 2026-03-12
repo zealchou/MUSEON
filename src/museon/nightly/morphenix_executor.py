@@ -269,7 +269,7 @@ class MorphenixExecutor:
                 "rollback_tag": tag_name,
             }
 
-        # Step 3.5: 即時驗證（L2+ 原始碼修改需要 pytest 驗證）
+        # Step 3.5: 即時驗證（L2+ 原始碼修改需要 pytest 驗證；PI 層級不涉及原始碼，跳過）
         if level in ("L2", "L3") and exec_result.get("count", 0) > 0:
             verify_result = self._post_apply_verify(proposal, exec_result)
             if not verify_result["passed"]:
@@ -385,6 +385,8 @@ class MorphenixExecutor:
             return self._apply_l2(proposal, metadata)
         elif level == "L3":
             return self._apply_l3(proposal, metadata)
+        elif level in ("PI-1", "PI-2", "PI-3"):
+            return self._apply_pi(proposal, metadata, level)
         else:
             return {"action": "unknown_level", "level": level}
 
@@ -536,6 +538,115 @@ class MorphenixExecutor:
             "note": "L3 changes require human implementation. Marked as executed.",
             "description": proposal.get("description", ""),
         }
+
+    def _apply_pi(
+        self, proposal: Dict[str, Any], metadata: Dict, level: str,
+    ) -> Dict[str, Any]:
+        """PI-1/PI-2/PI-3 Pulse Intervention 變更.
+
+        PI-1（觀察介入）：觸發 PulseObserver 生成觀察報告（純讀取）
+        PI-2（參數熱更新）：寫入 pulse_config.json 修改 Pulse 常數
+        PI-3（行為注入）：透過 PulseBehaviorInjector 注入新規則（需通過品質門禁）
+        """
+        pid = proposal.get("id", "unknown")
+
+        if level == "PI-1":
+            return self._apply_pi1(proposal, metadata)
+        elif level == "PI-2":
+            return self._apply_pi2(proposal, metadata)
+        elif level == "PI-3":
+            return self._apply_pi3(proposal, metadata)
+        else:
+            return {"action": "unknown_pi_level", "level": level}
+
+    def _apply_pi1(
+        self, proposal: Dict[str, Any], metadata: Dict,
+    ) -> Dict[str, Any]:
+        """PI-1：觀察介入 — 產出 Pulse 行為觀察報告."""
+        try:
+            from museon.pulse.pulse_intervention import PulseObserver
+            observer = PulseObserver(str(self._workspace))
+            days = metadata.get("observation_days", 7)
+            report = observer.generate_observation_report(days=days)
+            logger.info(f"PI-1 observation report generated: {report.get('status', '?')}")
+            return {
+                "action": "pi1_observation",
+                "report": report,
+                "count": 1,
+            }
+        except Exception as e:
+            logger.error(f"PI-1 observation failed: {e}")
+            return {"action": "pi1_observation", "error": str(e), "count": 0}
+
+    def _apply_pi2(
+        self, proposal: Dict[str, Any], metadata: Dict,
+    ) -> Dict[str, Any]:
+        """PI-2：參數熱更新 — 修改 pulse_config.json."""
+        try:
+            from museon.pulse.pulse_intervention import update_config, init_config
+            # 確保 config 已初始化
+            init_config(str(self._workspace))
+
+            config_changes = metadata.get("config_changes", [])
+            applied = []
+            for change in config_changes:
+                section = change.get("section", "")
+                key = change.get("key", "")
+                value = change.get("value")
+                if not section or not key or value is None:
+                    continue
+                ok = update_config(
+                    section, key, value,
+                    modified_by=f"morphenix_{proposal.get('id', 'unknown')}",
+                )
+                if ok:
+                    applied.append({"section": section, "key": key, "value": value})
+                    logger.info(f"PI-2 config updated: {section}.{key} = {value}")
+                else:
+                    logger.warning(f"PI-2 config rejected: {section}.{key}")
+
+            return {
+                "action": "pi2_config_update",
+                "applied": applied,
+                "count": len(applied),
+            }
+        except Exception as e:
+            logger.error(f"PI-2 config update failed: {e}")
+            return {"action": "pi2_config_update", "error": str(e), "count": 0}
+
+    def _apply_pi3(
+        self, proposal: Dict[str, Any], metadata: Dict,
+    ) -> Dict[str, Any]:
+        """PI-3：行為注入 — 透過品質門禁後注入新規則."""
+        try:
+            from museon.pulse.pulse_intervention import PulseBehaviorInjector
+            injector = PulseBehaviorInjector(str(self._workspace))
+
+            rules = metadata.get("rules", [])
+            injected = []
+            rejected = []
+            for rule in rules:
+                result = injector.inject_rule(rule, proposal)
+                if result.get("success"):
+                    injected.append({
+                        "rule_id": result.get("rule_id", ""),
+                        "expires_at": result.get("expires_at", ""),
+                    })
+                else:
+                    rejected.append({
+                        "rule_id": rule.get("id", ""),
+                        "reason": result.get("reason", ""),
+                    })
+
+            return {
+                "action": "pi3_behavior_injection",
+                "injected": injected,
+                "rejected": rejected,
+                "count": len(injected),
+            }
+        except Exception as e:
+            logger.error(f"PI-3 behavior injection failed: {e}")
+            return {"action": "pi3_behavior_injection", "error": str(e), "count": 0}
 
     # ═══════════════════════════════════════════
     # 即時驗證 + 回滾

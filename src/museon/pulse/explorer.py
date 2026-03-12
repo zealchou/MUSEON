@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 TZ8 = timezone(timedelta(hours=8))
 
-# 探索預算
+# 探索預算（預設值，PI-2 熱更新時由 pulse_config.json 覆蓋）
 MAX_COST_PER_EXPLORATION = 0.50  # USD
 MAX_EXPLORATIONS_PER_DAY = 3
 MAX_DAILY_COST = 1.50  # USD
@@ -22,6 +22,16 @@ MAX_DAILY_COST = 1.50  # USD
 # 模型
 SCOUT_MODEL = "claude-haiku-4-5-20251001"      # 初步篩選
 DEEP_MODEL = "claude-sonnet-4-20250514"       # 深度分析（僅有價值時）
+
+
+# PI-2 熱更新讀取器
+def _cfg(key: str, default: Any = None) -> Any:
+    """從 pulse_config.json 讀取 explorer 區段的配置（PI-2 熱更新）."""
+    try:
+        from museon.pulse.pulse_intervention import get_config
+        return get_config("explorer", key, default)
+    except Exception:
+        return default
 
 _SCOUT_SYSTEM = """你是 MUSEON 的探索偵察模組。你的任務是快速評估搜尋結果的價值。
 
@@ -131,7 +141,8 @@ class Explorer:
             result["findings"] = findings
 
             # 如果成本預算允許，進行 Sonnet 深度分析
-            remaining_budget = MAX_COST_PER_EXPLORATION - result["cost_usd"]
+            max_cost = _cfg("max_cost_per_exploration", MAX_COST_PER_EXPLORATION)
+            remaining_budget = max_cost - result["cost_usd"]
             if remaining_budget > 0.10 and self._brain:
                 deep_report = await self._deep_analyze(topic, findings, motivation)
                 result["tokens_used"] += deep_report.get("tokens", 0)
@@ -191,10 +202,11 @@ class Explorer:
 
         prompt = f"搜尋主題：{topic}\n\n搜尋結果：\n{search_results}"
         try:
+            scout_model = _cfg("scout_model", SCOUT_MODEL)
             response = await self._brain._call_llm_with_model(
                 system_prompt=_SCOUT_SYSTEM,
                 messages=[{"role": "user", "content": prompt}],
-                model=SCOUT_MODEL,
+                model=scout_model,
                 max_tokens=300,
             )
             is_no_value = "NO_VALUE" in response
@@ -225,10 +237,11 @@ class Explorer:
             f"請進行深度分析。"
         )
         try:
+            deep_model = _cfg("deep_model", DEEP_MODEL)
             response = await self._brain._call_llm_with_model(
                 system_prompt=_DEEP_SYSTEM,
                 messages=[{"role": "user", "content": prompt}],
-                model=DEEP_MODEL,
+                model=deep_model,
                 max_tokens=2500,
             )
             # Sonnet 成本估算：~1000 input + 2500 output tokens
