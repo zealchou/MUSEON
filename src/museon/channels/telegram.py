@@ -79,6 +79,10 @@ class TelegramAdapter(ChannelAdapter):
         self._seen_update_ids: set = set()
         self._max_seen_update_ids = 1000  # 避免無限成長
 
+        # Bot identity cache (set after application.start())
+        self._bot_username: str = ""
+        self._bot_id: Optional[int] = None
+
     async def start(self) -> None:
         """Start the Telegram bot and begin polling."""
         if self._running:
@@ -109,6 +113,15 @@ class TelegramAdapter(ChannelAdapter):
         await self.application.initialize()
         await self.application.start()
         await self.application.updater.start_polling()
+
+        # Cache bot identity so group mention checks don't rely on context.bot
+        try:
+            bot_info = await self.application.bot.get_me()
+            self._bot_username = (bot_info.username or "").lower()
+            self._bot_id = bot_info.id
+            logger.info("Bot identity cached: @%s (id=%s)", self._bot_username, self._bot_id)
+        except Exception as _e:
+            logger.warning("Failed to cache bot identity: %s", _e)
 
         self._running = True
         logger.info("TelegramAdapter started and polling for updates")
@@ -143,8 +156,8 @@ class TelegramAdapter(ChannelAdapter):
             # Check if bot is @mentioned (must be THIS bot, not any @user)
             text = update.message.text or ""
             is_mentioned = False
-            bot_username = context.bot.username.lower() if context.bot and context.bot.username else ""
-            bot_id = context.bot.id if context.bot else None
+            bot_username = self._bot_username
+            bot_id = self._bot_id
             if update.message.entities and bot_username:
                 for ent in update.message.entities:
                     if ent.type == "mention":
@@ -253,8 +266,8 @@ class TelegramAdapter(ChannelAdapter):
 
             # Check @mention in caption (must be THIS bot, not any @user)
             is_mentioned = False
-            _bot_username = context.bot.username.lower() if context.bot and context.bot.username else ""
-            _bot_id = context.bot.id if context.bot else None
+            _bot_username = self._bot_username
+            _bot_id = self._bot_id
             if update.message.caption_entities and _bot_username:
                 for ent in update.message.caption_entities:
                     if ent.type == "mention":
