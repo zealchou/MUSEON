@@ -578,10 +578,10 @@ class MorphenixExecutor:
             return {"passed": True, "reason": "no_test_files_found"}
 
         try:
+            import sys as _sys
             result = subprocess.run(
-                ["python", "-m", "pytest"] + test_paths + [
+                [_sys.executable, "-m", "pytest"] + test_paths + [
                     "-x", "--tb=short", "-q", "--no-header",
-                    "--timeout=60",
                 ],
                 capture_output=True, text=True,
                 cwd=str(self._source_root),
@@ -946,43 +946,49 @@ class MorphenixExecutor:
     def _get_qscore_average(
         self, start: datetime, end: datetime,
     ) -> Optional[float]:
-        """從 nightly_analysis JSON 取得期間內的 Q-Score 平均值."""
-        analysis_dir = self._workspace / "_system" / "nightly_analysis"
-        if not analysis_dir.exists():
+        """從 q_scores.jsonl 取得期間內的 Q-Score 平均值."""
+        # 實際路徑: data/eval/q_scores.jsonl (JSONL 格式)
+        qscore_file = self._workspace / "eval" / "q_scores.jsonl"
+        if not qscore_file.exists():
             return None
 
         scores = []
-        current = start
-        while current <= end:
-            date_str = current.strftime("%Y-%m-%d")
-            # 嘗試多種檔案命名模式
-            for pattern in (
-                f"nightly_{date_str}.json",
-                f"analysis_{date_str}.json",
-                f"{date_str}.json",
-            ):
-                fpath = analysis_dir / pattern
-                if fpath.exists():
-                    try:
-                        data = json.loads(fpath.read_text(encoding="utf-8"))
-                        # Q-Score 可能在不同層級
-                        qs = (
-                            data.get("q_score")
-                            or data.get("quality_score")
-                            or data.get("metrics", {}).get("q_score")
-                        )
+        start_str = start.strftime("%Y-%m-%d")
+        end_str = end.strftime("%Y-%m-%d")
+
+        try:
+            for line in qscore_file.read_text(encoding="utf-8").splitlines():
+                if not line.strip():
+                    continue
+                try:
+                    record = json.loads(line)
+                    ts = record.get("timestamp", "")
+                    date_part = ts[:10] if len(ts) >= 10 else ""
+                    if start_str <= date_part <= end_str:
+                        qs = record.get("score")
                         if qs is not None:
                             scores.append(float(qs))
-                    except Exception:
-                        pass
-                    break
-            current += timedelta(days=1)
+                except Exception:
+                    continue
+        except Exception:
+            return None
 
         return sum(scores) / len(scores) if scores else None
 
     def _find_safety_tag(self, proposal_id: str) -> Optional[str]:
-        """從 execution_log 中尋找提案的 safety tag."""
-        # 掃描所有 execution log 找到這個 proposal 的 tag
+        """從 effect_tracker 或 git tags 中尋找提案的 safety tag."""
+        # 1. 先從 effect_tracker 讀取（主要來源）
+        try:
+            tracker_file = self._log_dir / "effect_tracker.json"
+            tracker = self._load_tracker(tracker_file)
+            entry = tracker.get(proposal_id, {})
+            tag = entry.get("safety_tag", "")
+            if tag:
+                return tag
+        except Exception:
+            pass
+
+        # 2. 從 execution_log 的 result 中搜尋
         try:
             for log_file in sorted(self._log_dir.glob("exec_*.jsonl"), reverse=True):
                 for line in log_file.read_text(encoding="utf-8").splitlines():
@@ -991,9 +997,9 @@ class MorphenixExecutor:
                         if (record.get("proposal_id") == proposal_id
                                 and record.get("outcome") == "executed"):
                             result = record.get("result", {})
-                            # tag 存在 _execute_one 的 return dict 裡
-                            # 但 log 只存了 result，需要從 effect_tracker 找
-                            pass
+                            tag = result.get("safety_tag", "")
+                            if tag:
+                                return tag
                     except Exception:
                         pass
         except Exception:
