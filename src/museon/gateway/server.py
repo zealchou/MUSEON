@@ -2917,7 +2917,7 @@ def create_app() -> FastAPI:
                             try:
                                 title = data.get("topic", "") or data.get("title", "")
                                 findings = data.get("findings", "") or data.get("summary", "")
-                                summary = findings[:200] if findings else ""
+                                summary = findings[:500] if findings else ""
                                 hint = f"[探索發現] {title}: {summary}" if summary else f"[探索發現] {title}"
                                 proactive_bridge.add_context_hint(hint)
                             except Exception:
@@ -4738,7 +4738,7 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                 _findings_preview = ""
                 _NO_VALUE_TAGS = ("搜尋無結果", "無價值發現", "探索失敗")
                 if _findings and not any(t in _findings for t in _NO_VALUE_TAGS) and len(_findings) > 20:
-                    _findings_preview = f"\n📋 主要發現：\n{_findings[:500]}\n"
+                    _findings_preview = f"\n📋 主要發現：\n{_findings[:1200]}\n"
 
                 _msg = (
                     f"🔭 【自主探索 #{today_count + 1}】\n\n"
@@ -5000,7 +5000,7 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                 findings_preview = ""
                 _NO_VALUE_TAGS = ("搜尋無結果", "無價值發現", "探索失敗")
                 if _findings and not any(t in _findings for t in _NO_VALUE_TAGS) and len(_findings) > 20:
-                    findings_preview = f"\n\n📋 主要發現：\n{_findings[:500]}"
+                    findings_preview = f"\n\n📋 主要發現：\n{_findings[:1200]}"
 
                 topic_line = f"📌 主題：{explore_topic}\n" if explore_topic else ""
                 _crystal_tag = "\n💎 已結晶為長期記憶" if crystallized == "done" else ""
