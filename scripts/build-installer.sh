@@ -66,6 +66,19 @@ SCOPE_OUTPUT=$(python3 "$PROJECT_DIR/scripts/scope_audit.py" \
 echo "  ✅ Scope Audit 通過"
 echo ""
 
+# ═══════════════════════════════════════
+# 同步開發環境 .runtime/（Gateway daemon 使用）
+# ═══════════════════════════════════════
+DEV_RUNTIME="$PROJECT_DIR/.runtime"
+if [ -d "$DEV_RUNTIME/src" ]; then
+    echo "  → 同步 src/ → .runtime/src/（開發環境 daemon 使用）..."
+    rsync -a --delete \
+        --exclude='__pycache__' --exclude='.DS_Store' \
+        "$PROJECT_DIR/src/" "$DEV_RUNTIME/src/"
+    echo "  ✅ 開發環境 .runtime 同步完成"
+    echo ""
+fi
+
 # 執行打包
 echo "  → 開始打包..."
 echo ""
