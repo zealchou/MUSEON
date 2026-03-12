@@ -101,6 +101,14 @@ class PulseDB:
                 metadata TEXT DEFAULT '{}'        -- JSON
             );
 
+            CREATE TABLE IF NOT EXISTS morphenix_rollbacks (
+                id TEXT PRIMARY KEY,
+                proposal_id TEXT NOT NULL,
+                reason TEXT NOT NULL,
+                rollback_tag TEXT NOT NULL,
+                rolled_back_at TEXT NOT NULL
+            );
+
             CREATE TABLE IF NOT EXISTS commitments (
                 id TEXT PRIMARY KEY,
                 session_id TEXT NOT NULL,
@@ -433,6 +441,51 @@ class PulseDB:
         )
         conn.commit()
         return cur.rowcount > 0
+
+    def mark_proposal_rolled_back(
+        self, proposal_id: str, reason: str = "",
+    ) -> bool:
+        """將提案標記為已回滾."""
+        conn = self._get_conn()
+        now = datetime.now(TZ8).isoformat()
+        cur = conn.execute(
+            "UPDATE morphenix_proposals "
+            "SET status = 'rolled_back', decided_at = ?, decided_by = ? "
+            "WHERE id = ?",
+            (now, f"rollback:{reason[:100]}", proposal_id),
+        )
+        conn.commit()
+        return cur.rowcount > 0
+
+    def log_rollback(
+        self, proposal_id: str, reason: str, rollback_tag: str,
+    ) -> None:
+        """寫入回滾記錄（不可刪除的審計軌跡）."""
+        conn = self._get_conn()
+        conn.execute(
+            """INSERT OR IGNORE INTO morphenix_rollbacks
+               (id, proposal_id, reason, rollback_tag, rolled_back_at)
+               VALUES (?, ?, ?, ?, ?)""",
+            (
+                f"rb_{proposal_id}_{datetime.now(TZ8).strftime('%Y%m%d%H%M%S')}",
+                proposal_id,
+                reason[:500],
+                rollback_tag,
+                datetime.now(TZ8).isoformat(),
+            ),
+        )
+        conn.commit()
+
+    def count_rollbacks_today(self) -> int:
+        """計算今天的回滾次數."""
+        conn = self._get_conn()
+        today = datetime.now(TZ8).strftime("%Y-%m-%d")
+        row = conn.execute(
+            "SELECT COUNT(*) FROM morphenix_rollbacks "
+            "WHERE rolled_back_at LIKE ?",
+            (f"{today}%",),
+        ).fetchone()
+        return row[0] if row else 0
 
     def set_proposal_telegram_id(
         self, proposal_id: str, message_id: int,

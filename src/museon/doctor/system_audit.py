@@ -1119,7 +1119,166 @@ class SystemAuditor:
         # 額外：RefractoryGuard state 檔案檢查
         checks.append(self._check_refractory_state())
 
+        # Morphenix 自我迭代健康檢查
+        checks.extend(self._check_morphenix_health())
+
         return checks
+
+    def _check_morphenix_health(self) -> List[CheckResult]:
+        """Morphenix 自我迭代引擎健康檢查."""
+        results = []
+
+        data_dir = self._museon_home / "data" / "_system" / "morphenix"
+
+        # 1. PulseDB proposals 記錄數
+        try:
+            db_path = self._museon_home / "data" / "_system" / "pulse.db"
+            if db_path.exists():
+                import sqlite3
+                conn = sqlite3.connect(str(db_path))
+                conn.row_factory = sqlite3.Row
+
+                # proposals 統計
+                row = conn.execute(
+                    "SELECT COUNT(*) as total, "
+                    "SUM(CASE WHEN status='pending' THEN 1 ELSE 0 END) as pending, "
+                    "SUM(CASE WHEN status='approved' THEN 1 ELSE 0 END) as approved, "
+                    "SUM(CASE WHEN status='executed' THEN 1 ELSE 0 END) as executed, "
+                    "SUM(CASE WHEN status='rejected' THEN 1 ELSE 0 END) as rejected, "
+                    "SUM(CASE WHEN status='rolled_back' THEN 1 ELSE 0 END) as rolled_back "
+                    "FROM morphenix_proposals"
+                ).fetchone()
+
+                total = row["total"] or 0
+                detail = (
+                    f"total={total}, pending={row['pending'] or 0}, "
+                    f"approved={row['approved'] or 0}, executed={row['executed'] or 0}, "
+                    f"rejected={row['rejected'] or 0}, rolled_back={row['rolled_back'] or 0}"
+                )
+                results.append(CheckResult(
+                    name="Morphenix PulseDB Proposals",
+                    status=CheckStatus.OK if total > 0 else CheckStatus.WARNING,
+                    detail=detail,
+                ))
+
+                # rollback 統計
+                try:
+                    rb_row = conn.execute(
+                        "SELECT COUNT(*) as cnt FROM morphenix_rollbacks"
+                    ).fetchone()
+                    rb_count = rb_row["cnt"] if rb_row else 0
+                    results.append(CheckResult(
+                        name="Morphenix Rollback History",
+                        status=(
+                            CheckStatus.OK if rb_count <= 5
+                            else CheckStatus.WARNING
+                        ),
+                        detail=f"total_rollbacks={rb_count}",
+                    ))
+                except Exception:
+                    pass  # 表可能還不存在
+
+                conn.close()
+            else:
+                results.append(CheckResult(
+                    name="Morphenix PulseDB",
+                    status=CheckStatus.WARNING,
+                    detail="pulse.db not found",
+                ))
+        except Exception as e:
+            results.append(CheckResult(
+                name="Morphenix PulseDB",
+                status=CheckStatus.WARNING,
+                detail=f"DB check error: {str(e)[:100]}",
+            ))
+
+        # 2. Execution log 最近執行時間
+        exec_log_dir = data_dir / "execution_log"
+        if exec_log_dir.exists():
+            log_files = sorted(exec_log_dir.glob("exec_*.jsonl"), reverse=True)
+            if log_files:
+                latest = log_files[0].name  # exec_YYYY-MM-DD.jsonl
+                last_exec_count = 0
+                try:
+                    for line in log_files[0].read_text(encoding="utf-8").splitlines():
+                        rec = json.loads(line)
+                        if rec.get("outcome") == "executed":
+                            last_exec_count += 1
+                except Exception:
+                    pass
+
+                results.append(CheckResult(
+                    name="Morphenix Last Execution",
+                    status=CheckStatus.OK,
+                    detail=f"latest_log={latest}, executed_in_log={last_exec_count}",
+                ))
+            else:
+                results.append(CheckResult(
+                    name="Morphenix Last Execution",
+                    status=CheckStatus.WARNING,
+                    detail="No execution logs found (never executed)",
+                ))
+        else:
+            results.append(CheckResult(
+                name="Morphenix Execution Log",
+                status=CheckStatus.WARNING,
+                detail="execution_log directory missing",
+            ))
+
+        # 3. Notes 累積量
+        notes_dir = data_dir / "notes"
+        if notes_dir.exists():
+            note_count = len(list(notes_dir.glob("*.json")))
+            results.append(CheckResult(
+                name="Morphenix Notes",
+                status=CheckStatus.OK,
+                detail=f"active_notes={note_count}",
+            ))
+
+        # 4. Docker validator 映像是否可用
+        try:
+            result = subprocess.run(
+                ["docker", "image", "inspect", "museon-validator:latest"],
+                capture_output=True, timeout=10,
+            )
+            results.append(CheckResult(
+                name="Morphenix Docker Validator",
+                status=(
+                    CheckStatus.OK if result.returncode == 0
+                    else CheckStatus.WARNING
+                ),
+                detail=(
+                    "museon-validator:latest available"
+                    if result.returncode == 0
+                    else "museon-validator:latest NOT found (docker build needed)"
+                ),
+            ))
+        except Exception:
+            results.append(CheckResult(
+                name="Morphenix Docker Validator",
+                status=CheckStatus.WARNING,
+                detail="Docker not available",
+            ))
+
+        # 5. Proposals JSON 目錄
+        proposals_dir = data_dir / "proposals"
+        if proposals_dir.exists():
+            proposal_files = list(proposals_dir.glob("*.json"))
+            pending_count = 0
+            for pf in proposal_files:
+                try:
+                    p = json.loads(pf.read_text(encoding="utf-8"))
+                    if p.get("status") in ("pending_review", "pending"):
+                        pending_count += 1
+                except Exception:
+                    pass
+            results.append(CheckResult(
+                name="Morphenix Proposals Queue",
+                status=CheckStatus.OK,
+                detail=f"json_files={len(proposal_files)}, pending={pending_count}",
+            ))
+
+        return results
 
     def _check_governance_module(
         self, name: str, module_path: str, class_name: Optional[str]

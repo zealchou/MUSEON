@@ -1,0 +1,6 @@
+# MUSEON Morphenix Validator — 最小測試依賴
+# 只包含跑 pytest 所需的套件，不含 LLM/外部服務 SDK
+
+pytest>=8.0.0
+pytest-asyncio>=0.23.0
+pytest-mock>=3.12.0

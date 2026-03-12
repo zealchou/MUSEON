@@ -1,0 +1,12 @@
+{
+  "category": "L2",
+  "source": "iteration_notes",
+  "title": "78 條迭代筆記待結晶",
+  "description": "累積 78 條迭代觀察筆記，建議結晶為具體改進提案。",
+  "action": "crystallize_notes",
+  "source_notes": 78,
+  "created_at": "2026-03-10T03:00:00.450797+08:00",
+  "status": "pending_review",
+  "decided_by": "auto",
+  "decided_at": "2026-03-10T03:00:00.459299+08:00"
+}

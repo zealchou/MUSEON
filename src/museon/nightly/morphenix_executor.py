@@ -34,6 +34,9 @@ TZ8 = timezone(timedelta(hours=8))
 # ═══════════════════════════════════════════
 
 
+MAX_ROLLBACKS_PER_DAY = 3  # 每日回滾上限，超過則暫停 Morphenix
+
+
 class MorphenixExecutor:
     """執行已核准的 Morphenix 演化提案.
 
@@ -234,6 +237,25 @@ class MorphenixExecutor:
                 "reason": "safety_snapshot_failed",
             }
 
+        # 安全檢查：今日回滾次數是否已達上限
+        try:
+            rollback_count = self._db.count_rollbacks_today()
+            if rollback_count >= MAX_ROLLBACKS_PER_DAY:
+                logger.error(
+                    f"Morphenix Executor: daily rollback limit reached "
+                    f"({rollback_count}/{MAX_ROLLBACKS_PER_DAY}), "
+                    f"SUSPENDING execution of {pid}"
+                )
+                self._log_execution(pid, "suspended", error="daily_rollback_limit")
+                self._notify_rollback_limit_reached(rollback_count)
+                return {
+                    "proposal_id": pid,
+                    "outcome": "skipped",
+                    "reason": f"daily_rollback_limit_reached ({rollback_count})",
+                }
+        except Exception:
+            pass  # count_rollbacks_today 不存在不阻擋
+
         # Step 3: 依層級執行
         try:
             exec_result = self._apply_changes(proposal)
@@ -247,6 +269,29 @@ class MorphenixExecutor:
                 "rollback_tag": tag_name,
             }
 
+        # Step 3.5: 即時驗證（L2+ 原始碼修改需要 pytest 驗證）
+        if level in ("L2", "L3") and exec_result.get("count", 0) > 0:
+            verify_result = self._post_apply_verify(proposal, exec_result)
+            if not verify_result["passed"]:
+                logger.error(
+                    f"Morphenix Executor: POST-APPLY VERIFY FAILED for {pid}: "
+                    f"{verify_result.get('reason', 'unknown')}"
+                )
+                rollback_ok = self._rollback_to_tag(tag_name, pid, "post_apply_verify_failed")
+                self._log_execution(
+                    pid, "rolled_back",
+                    error=f"post_apply_verify_failed: {verify_result.get('reason', '')}",
+                    result={"verify": verify_result, "rollback_success": rollback_ok},
+                )
+                return {
+                    "proposal_id": pid,
+                    "outcome": "failed",
+                    "reason": "post_apply_verify_failed",
+                    "verify_detail": verify_result,
+                    "rollback_tag": tag_name,
+                    "rollback_success": rollback_ok,
+                }
+
         # Step 4: 標記為已執行
         try:
             self._db.mark_proposal_executed(pid)
@@ -255,7 +300,7 @@ class MorphenixExecutor:
 
         # Step 5: 記錄 + 效果追蹤 + 清理已執行的 notes
         self._log_execution(pid, "executed", result=exec_result)
-        self._track_execution(proposal, exec_result)
+        self._track_execution(proposal, exec_result, safety_tag=tag_name)
         self._cleanup_executed_notes(proposal)
 
         logger.info(f"Morphenix Executor: EXECUTED {pid} successfully")
@@ -493,6 +538,177 @@ class MorphenixExecutor:
         }
 
     # ═══════════════════════════════════════════
+    # 即時驗證 + 回滾
+    # ═══════════════════════════════════════════
+
+    def _post_apply_verify(
+        self, proposal: Dict[str, Any], exec_result: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        """在 apply 後跑受影響模組的 unit test（快速驗證）.
+
+        Returns:
+            {"passed": bool, "reason": str, "output": str}
+        """
+        # 收集受影響的檔案路徑
+        affected_files = []
+        for item in exec_result.get("applied", []):
+            f = item.get("file", "")
+            if f:
+                affected_files.append(f)
+
+        # 如果有 patch 但沒有具體檔案清單 → 跑全部 unit test
+        if not affected_files and exec_result.get("action") == "l2_logic_patch":
+            affected_files = ["src/"]
+
+        # 推導對應的 test 路徑
+        test_targets = self._infer_test_targets(affected_files)
+        if not test_targets:
+            # 找不到對應測試 → 跑全部 unit test
+            test_targets = ["tests/unit/"]
+
+        # 跑 pytest
+        test_paths = []
+        for t in test_targets:
+            full = self._source_root / t
+            if full.exists():
+                test_paths.append(str(full))
+
+        if not test_paths:
+            # 沒有測試檔案可跑 → 通過（保守策略）
+            return {"passed": True, "reason": "no_test_files_found"}
+
+        try:
+            result = subprocess.run(
+                ["python", "-m", "pytest"] + test_paths + [
+                    "-x", "--tb=short", "-q", "--no-header",
+                    "--timeout=60",
+                ],
+                capture_output=True, text=True,
+                cwd=str(self._source_root),
+                timeout=120,
+            )
+            output = (result.stdout + result.stderr)[-2000:]
+
+            if result.returncode == 0:
+                logger.info(f"Morphenix post-apply verify: PASSED ({test_paths})")
+                return {"passed": True, "reason": "pytest_passed", "output": output}
+            else:
+                logger.warning(
+                    f"Morphenix post-apply verify: FAILED (rc={result.returncode})"
+                )
+                return {
+                    "passed": False,
+                    "reason": f"pytest_failed_rc{result.returncode}",
+                    "output": output,
+                }
+        except subprocess.TimeoutExpired:
+            return {"passed": False, "reason": "pytest_timeout", "output": ""}
+        except Exception as e:
+            logger.warning(f"Morphenix post-apply verify error: {e}")
+            return {"passed": False, "reason": f"verify_error: {str(e)[:200]}"}
+
+    def _infer_test_targets(self, affected_files: List[str]) -> List[str]:
+        """從受影響的原始碼路徑推導對應的 test 路徑.
+
+        例如：
+          src/museon/nightly/foo.py → tests/unit/nightly/test_foo.py
+          src/museon/core/bar.py   → tests/unit/core/test_bar.py
+        """
+        targets = set()
+        for filepath in affected_files:
+            # 正規化：移除前綴
+            fp = filepath.replace("\\", "/")
+            if fp.startswith("src/museon/"):
+                relative = fp[len("src/museon/"):]  # e.g. "nightly/foo.py"
+                parts = relative.rsplit("/", 1)
+                if len(parts) == 2:
+                    dirname, filename = parts
+                    test_file = f"tests/unit/{dirname}/test_{filename}"
+                    targets.add(test_file)
+                    # 也嘗試整個子目錄
+                    targets.add(f"tests/unit/{dirname}/")
+                else:
+                    test_file = f"tests/unit/test_{parts[0]}"
+                    targets.add(test_file)
+            elif fp.startswith("src/"):
+                targets.add("tests/unit/")
+        return list(targets)
+
+    def _rollback_to_tag(
+        self, tag_name: str, proposal_id: str, reason: str = "",
+    ) -> bool:
+        """回滾到 git tag 安全快照.
+
+        Returns:
+            True 如果回滾成功
+        """
+        if tag_name.startswith(("no-git-", "tag-failed-", "snapshot-error-")):
+            logger.warning(
+                f"Morphenix rollback: cannot rollback, tag is placeholder: {tag_name}"
+            )
+            return False
+
+        try:
+            # git checkout {tag} -- .
+            result = subprocess.run(
+                ["git", "checkout", tag_name, "--", "."],
+                capture_output=True, text=True,
+                cwd=str(self._source_root),
+                timeout=30,
+            )
+            if result.returncode != 0:
+                logger.error(
+                    f"Morphenix rollback FAILED: {result.stderr[:300]}"
+                )
+                return False
+
+            logger.info(
+                f"Morphenix rollback SUCCESS: restored to {tag_name} "
+                f"for proposal {proposal_id}"
+            )
+
+            # 記錄回滾到 PulseDB（不可刪除的審計軌跡）
+            try:
+                self._db.log_rollback(proposal_id, reason, tag_name)
+                self._db.mark_proposal_rolled_back(proposal_id, reason)
+            except Exception as e:
+                logger.warning(f"Morphenix rollback DB log failed: {e}")
+
+            # 發布回滾事件
+            if self._event_bus:
+                try:
+                    from museon.core.event_bus import MORPHENIX_ROLLBACK
+                    self._event_bus.publish(MORPHENIX_ROLLBACK, {
+                        "proposal_id": proposal_id,
+                        "tag_name": tag_name,
+                        "reason": reason,
+                        "timestamp": datetime.now(TZ8).isoformat(),
+                    })
+                except Exception:
+                    pass
+
+            return True
+
+        except Exception as e:
+            logger.error(f"Morphenix rollback error: {e}", exc_info=True)
+            return False
+
+    def _notify_rollback_limit_reached(self, count: int) -> None:
+        """每日回滾上限到達 → Telegram 通知人類."""
+        if self._event_bus:
+            try:
+                from museon.core.event_bus import MORPHENIX_ROLLBACK
+                self._event_bus.publish(MORPHENIX_ROLLBACK, {
+                    "type": "daily_limit_reached",
+                    "rollback_count": count,
+                    "max_allowed": MAX_ROLLBACKS_PER_DAY,
+                    "action": "morphenix_suspended",
+                    "timestamp": datetime.now(TZ8).isoformat(),
+                })
+            except Exception:
+                pass
+
+    # ═══════════════════════════════════════════
     # 輔助方法
     # ═══════════════════════════════════════════
 
@@ -601,7 +817,10 @@ class MorphenixExecutor:
 
         return results
 
-    def _track_execution(self, proposal: Dict[str, Any], exec_result: Dict) -> None:
+    def _track_execution(
+        self, proposal: Dict[str, Any], exec_result: Dict,
+        safety_tag: str = "",
+    ) -> None:
         """記錄提案執行資訊，供 14 天後效果評估."""
         tracker_file = self._log_dir / "effect_tracker.json"
         tracker = self._load_tracker(tracker_file)
@@ -612,6 +831,7 @@ class MorphenixExecutor:
             "level": proposal.get("level", "L1"),
             "description": proposal.get("description", "")[:200],
             "executed_at": datetime.now(TZ8).isoformat(),
+            "safety_tag": safety_tag,
             "exec_result": {
                 "action": exec_result.get("action", ""),
                 "count": exec_result.get("count", 0),
@@ -621,20 +841,23 @@ class MorphenixExecutor:
 
         self._save_tracker(tracker_file, tracker)
 
+    # Q-Score 退化閾值
+    QSCORE_REGRESSION_THRESHOLD = -0.1
+    MAX_POST_FAILURES = 2
+
     def _evaluate_one_effect(
         self, pid: str, entry: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """評估單一提案的效果（啟發式）.
+        """評估單一提案的效果（多維指標）.
 
-        目前使用簡單指標：
-        - 執行後是否有同類異常重複出現（從 execution_log 檢查）
-        - 預設為 effective（保守策略，信任已通過審查的提案）
+        維度：
+        1. 執行後 14 天是否有 failed 提案（原有邏輯）
+        2. Q-Score 趨勢：比對執行前後 7 天的 Q-Score 平均值
+        3. 若退化明顯 → 自動回滾 + Telegram 通知
         """
-        # 檢查 execution_log 中是否有 failed 記錄
         executed_at = datetime.fromisoformat(entry["executed_at"])
-        log_date = executed_at.strftime("%Y-%m-%d")
 
-        # 掃描最近 14 天的 execution log
+        # ── 維度 1：execution_log failure count ──
         failure_count = 0
         for day_offset in range(self.EFFECT_TRACKING_DAYS):
             check_date = (executed_at + timedelta(days=day_offset + 1)).strftime("%Y-%m-%d")
@@ -648,13 +871,149 @@ class MorphenixExecutor:
                 except Exception:
                     pass
 
-        effective = failure_count == 0
+        # ── 維度 2：Q-Score 趨勢比較 ──
+        qscore_delta = 0.0
+        qscore_before = None
+        qscore_after = None
+        try:
+            qscore_before = self._get_qscore_average(
+                executed_at - timedelta(days=7), executed_at,
+            )
+            qscore_after = self._get_qscore_average(
+                executed_at, executed_at + timedelta(days=self.EFFECT_TRACKING_DAYS),
+            )
+            if qscore_before is not None and qscore_after is not None:
+                qscore_delta = qscore_after - qscore_before
+        except Exception as e:
+            logger.debug(f"Q-Score trend check skipped: {e}")
+
+        # ── 判定：是否需要延遲回滾 ──
+        needs_rollback = False
+        rollback_reason = ""
+
+        if failure_count > self.MAX_POST_FAILURES:
+            needs_rollback = True
+            rollback_reason = f"post_failures={failure_count}"
+
+        if qscore_delta < self.QSCORE_REGRESSION_THRESHOLD:
+            needs_rollback = True
+            rollback_reason += (
+                f"{' + ' if rollback_reason else ''}"
+                f"qscore_regression={qscore_delta:.3f}"
+            )
+
+        effective = not needs_rollback
+
+        # 如果需要延遲回滾
+        if needs_rollback:
+            tag_name = entry.get("safety_tag", "")
+            if not tag_name:
+                # 嘗試從 execution_log 找 tag
+                tag_name = self._find_safety_tag(pid)
+
+            if tag_name:
+                logger.warning(
+                    f"Morphenix 延遲回滾: {pid} — {rollback_reason}, "
+                    f"rolling back to {tag_name}"
+                )
+                rollback_ok = self._rollback_to_tag(
+                    tag_name, pid, f"delayed_rollback: {rollback_reason}",
+                )
+            else:
+                rollback_ok = False
+                logger.warning(
+                    f"Morphenix 延遲回滾: {pid} — {rollback_reason}, "
+                    f"but no safety tag found, cannot rollback"
+                )
+        else:
+            rollback_ok = None
+
         return {
             "effective": effective,
             "days_tracked": self.EFFECT_TRACKING_DAYS,
             "post_failures": failure_count,
-            "verdict": "有效 — 無後續失敗" if effective else f"待觀察 — {failure_count} 次後續失敗",
+            "qscore_before": qscore_before,
+            "qscore_after": qscore_after,
+            "qscore_delta": round(qscore_delta, 4) if qscore_delta else 0,
+            "rollback_triggered": needs_rollback,
+            "rollback_success": rollback_ok,
+            "verdict": (
+                "有效 — 指標穩定" if effective
+                else f"退化回滾 — {rollback_reason}"
+            ),
         }
+
+    def _get_qscore_average(
+        self, start: datetime, end: datetime,
+    ) -> Optional[float]:
+        """從 nightly_analysis JSON 取得期間內的 Q-Score 平均值."""
+        analysis_dir = self._workspace / "_system" / "nightly_analysis"
+        if not analysis_dir.exists():
+            return None
+
+        scores = []
+        current = start
+        while current <= end:
+            date_str = current.strftime("%Y-%m-%d")
+            # 嘗試多種檔案命名模式
+            for pattern in (
+                f"nightly_{date_str}.json",
+                f"analysis_{date_str}.json",
+                f"{date_str}.json",
+            ):
+                fpath = analysis_dir / pattern
+                if fpath.exists():
+                    try:
+                        data = json.loads(fpath.read_text(encoding="utf-8"))
+                        # Q-Score 可能在不同層級
+                        qs = (
+                            data.get("q_score")
+                            or data.get("quality_score")
+                            or data.get("metrics", {}).get("q_score")
+                        )
+                        if qs is not None:
+                            scores.append(float(qs))
+                    except Exception:
+                        pass
+                    break
+            current += timedelta(days=1)
+
+        return sum(scores) / len(scores) if scores else None
+
+    def _find_safety_tag(self, proposal_id: str) -> Optional[str]:
+        """從 execution_log 中尋找提案的 safety tag."""
+        # 掃描所有 execution log 找到這個 proposal 的 tag
+        try:
+            for log_file in sorted(self._log_dir.glob("exec_*.jsonl"), reverse=True):
+                for line in log_file.read_text(encoding="utf-8").splitlines():
+                    try:
+                        record = json.loads(line)
+                        if (record.get("proposal_id") == proposal_id
+                                and record.get("outcome") == "executed"):
+                            result = record.get("result", {})
+                            # tag 存在 _execute_one 的 return dict 裡
+                            # 但 log 只存了 result，需要從 effect_tracker 找
+                            pass
+                    except Exception:
+                        pass
+        except Exception:
+            pass
+
+        # 嘗試從 git tags 搜尋
+        try:
+            result = subprocess.run(
+                ["git", "tag", "-l", f"morphenix/pre-{proposal_id}-*"],
+                capture_output=True, text=True,
+                cwd=str(self._source_root),
+                timeout=10,
+            )
+            tags = result.stdout.strip().splitlines()
+            if tags:
+                return tags[-1]  # 最新的 tag
+        except Exception:
+            pass
+
+        return None
 
     def _load_tracker(self, path: Path) -> Dict:
         if path.exists():

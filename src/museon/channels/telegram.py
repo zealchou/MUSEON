@@ -23,6 +23,7 @@ from museon.channels.base import ChannelAdapter, TrustLevel
 from museon.core.event_bus import (
     MORPHENIX_EXECUTION_COMPLETED,
     MORPHENIX_L3_PROPOSAL,
+    MORPHENIX_ROLLBACK,
     PROACTIVE_MESSAGE,
     PULSE_MICRO_BEAT,
     PULSE_NIGHTLY_DONE,
@@ -1044,6 +1045,7 @@ class TelegramAdapter(ChannelAdapter):
         event_bus.subscribe(PROACTIVE_MESSAGE, self._on_proactive_message)
         event_bus.subscribe(MORPHENIX_L3_PROPOSAL, self._on_morphenix_l3)
         event_bus.subscribe(MORPHENIX_EXECUTION_COMPLETED, self._on_morphenix_executed)
+        event_bus.subscribe(MORPHENIX_ROLLBACK, self._on_morphenix_rollback)
         logger.info("TelegramAdapter connected to pulse EventBus")
 
     def _on_rhythm_check(self, data: Optional[Dict] = None) -> None:
@@ -1160,11 +1162,17 @@ class TelegramAdapter(ChannelAdapter):
             pid = d.get("proposal_id", "?")
             outcome = d.get("outcome", "?")
             title = d.get("title", "")
+            level = d.get("level", "")
+            safety_tag = d.get("safety_tag", "")
             icon = {"executed": "✅", "failed": "❌", "escalated": "⬆️"}.get(outcome, "❓")
             line = f"  {icon} `{pid}`"
+            if level:
+                line += f" [{level}]"
             if title:
                 line += f" — {title}"
             lines.append(line)
+            if safety_tag and outcome == "executed":
+                lines.append(f"    🛡️ 安全快照：`{safety_tag}`")
 
         text = "\n".join(lines)
 
@@ -1191,6 +1199,57 @@ class TelegramAdapter(ChannelAdapter):
                 logger.warning("Morphenix execution: 主事件迴圈不可用，跳過推送")
         except Exception as e:
             logger.error(f"Morphenix execution push failed: {e}")
+
+    def _on_morphenix_rollback(self, data: Optional[Dict] = None) -> None:
+        """處理 Morphenix 回滾事件 → Telegram 緊急通知."""
+        if not data or not self._running:
+            return
+
+        rollback_type = data.get("type", "")
+
+        if rollback_type == "daily_limit_reached":
+            text = (
+                "🚨 *Morphenix 緊急通知*\n\n"
+                f"⛔ 每日回滾上限已達 ({data.get('rollback_count', '?')}"
+                f"/{data.get('max_allowed', '?')})\n"
+                "🔒 Morphenix 執行已自動暫停\n"
+                "👤 需要人類介入檢查"
+            )
+        else:
+            pid = data.get("proposal_id", "?")
+            reason = data.get("reason", "unknown")
+            tag = data.get("tag_name", "?")
+            text = (
+                "⚠️ *Morphenix 回滾通知*\n\n"
+                f"📋 提案：`{pid}`\n"
+                f"📌 原因：{reason}\n"
+                f"🔄 回滾至：`{tag}`\n"
+                f"🕐 時間：{data.get('timestamp', '?')}"
+            )
+
+        if not self.application:
+            logger.warning("Telegram adapter not initialized, skipping rollback notification")
+            return
+
+        try:
+            owner_id = int(os.environ.get("TELEGRAM_OWNER_ID", "6969045906"))
+            async def _safe_send():
+                try:
+                    await self.application.bot.send_message(
+                        chat_id=owner_id,
+                        text=text,
+                        parse_mode="Markdown",
+                    )
+                except Exception as send_err:
+                    logger.warning(f"Morphenix rollback push send failed: {send_err}")
+
+            main_loop = getattr(self, "_main_async_loop", None)
+            if main_loop and not main_loop.is_closed():
+                asyncio.run_coroutine_threadsafe(_safe_send(), main_loop)
+            else:
+                logger.warning("Morphenix rollback: 主事件迴圈不可用，跳過推送")
+        except Exception as e:
+            logger.error(f"Morphenix rollback push failed: {e}")
 
     def record_user_interaction(self, user_id: str) -> None:
         """記錄用戶互動 → 更新 HeartbeatFocus + 清除閒置推播狀態.
