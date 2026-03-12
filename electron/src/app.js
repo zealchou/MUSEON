@@ -856,8 +856,33 @@ function renderDualAnimaPanel() {
 
   const mcAnima = bs.persona || {};
   const userAnima = bs.userProfile || {};
-  const mcPrimals = mcAnima.eight_primals || {};
   const userPrimals = userAnima.eight_primals || {};
+
+  // ── 映射 ANIMA_MC 八原語：eight_primal_energies (中文key + {absolute,relative}) → eight_primals 格式 ──
+  const rawMcEnergies = mcAnima.eight_primal_energies || {};
+  const MC_KEY_MAP = {
+    '乾': 'qian_identity',
+    '坤': 'kun_memory',
+    '震': 'zhen_action',
+    '巽': 'xun_curiosity',
+    '坎': 'kan_resonance',
+    '離': 'li_awareness',
+    '艮': 'gen_boundary',
+    '兌': 'dui_connection',
+  };
+  const mcPrimals = {};
+  for (const [zhKey, engKey] of Object.entries(MC_KEY_MAP)) {
+    const raw = rawMcEnergies[zhKey];
+    if (raw) {
+      mcPrimals[engKey] = {
+        level: Math.round(raw.relative || 0),
+        signal: '',
+        confidence: raw.absolute > 0 ? Math.min(1, raw.absolute / 500) : 0,
+      };
+    } else {
+      mcPrimals[engKey] = { level: 0, signal: '尚無觀察', confidence: 0 };
+    }
+  }
 
   // MUSEON 八原語定義（乾坤震巽坎離艮兌）
   const MC_AXES = [
@@ -6990,11 +7015,25 @@ function initTopology() {
     const TopoClass = (typeof KnowledgeStarMap !== 'undefined') ? KnowledgeStarMap
                      : (typeof BrainTopology !== 'undefined') ? BrainTopology : null;
     if (TopoClass) {
+      // 保存前一個實例的旋轉/縮放狀態
+      let savedRotY = 0, savedRotX = 0.3, savedAutoRotY = 0, savedZoom = 1;
+      if (state.topology) {
+        savedRotY = state.topology._rotY || 0;
+        savedRotX = state.topology._rotX || 0.3;
+        savedAutoRotY = state.topology._autoRotY || 0;
+        savedZoom = (state.topology.camera && state.topology.camera.zoom) || 1;
+      }
       // Destroy previous instance
       if (state.topology && state.topology.destroy) {
         state.topology.destroy();
       }
       state.topology = new TopoClass(canvas);
+      // 恢復旋轉/縮放狀態（避免每次 render 都重設）
+      state.topology._rotY = savedRotY;
+      state.topology._rotX = savedRotX;
+      state.topology._autoRotY = savedAutoRotY;
+      state.topology.camera.zoom = savedZoom;
+
       const bs = state.brainState;
       state.topology.setData(bs.crystals || [], bs.crystalLinks || []);
     }

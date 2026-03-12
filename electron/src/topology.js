@@ -23,10 +23,10 @@
   };
 
   var LINK_COLORS = {
-    supports:    { color: "#94a3b8", dash: [],     baseAlpha: 0.525 },
-    contradicts: { color: "#ef4444", dash: [6, 4], baseAlpha: 0.825 },
-    extends:     { color: "#34d399", dash: [],     baseAlpha: 0.675 },
-    related:     { color: "#64748b", dash: [],     baseAlpha: 0.225 }
+    supports:    { color: "#94a3b8", dash: [],     baseAlpha: 0.6 },
+    contradicts: { color: "#ef4444", dash: [6, 4], baseAlpha: 0.85 },
+    extends:     { color: "#34d399", dash: [],     baseAlpha: 0.7 },
+    related:     { color: "#64748b", dash: [],     baseAlpha: 0.45 }
   };
 
   var ROTATION_SPEED = 0.0006; // radians per frame (2x original)
@@ -240,9 +240,27 @@
   };
 
   /* ---- Data ---- */
+  var MAX_VISIBLE_LINKS = 600; // 連線上限，避免 canvas 過密
+
   KnowledgeStarMap.prototype.setData = function (crystals, crystalLinks) {
     this.crystals = crystals || [];
-    this.links = crystalLinks || [];
+    var rawLinks = crystalLinks || [];
+
+    // 智慧篩選：連線數超過上限時，優先保留高共振端點的連線
+    if (rawLinks.length > MAX_VISIBLE_LINKS) {
+      var riMap = {};
+      for (var i = 0; i < this.crystals.length; i++) {
+        riMap[this.crystals[i].cuid] = this.crystals[i].ri_score || 0;
+      }
+      // 按兩端 ri_score 平均值排序，取前 MAX_VISIBLE_LINKS 條
+      rawLinks = rawLinks.slice().sort(function (a, b) {
+        var riA = ((riMap[a.from_cuid] || 0) + (riMap[a.to_cuid] || 0)) / 2;
+        var riB = ((riMap[b.from_cuid] || 0) + (riMap[b.to_cuid] || 0)) / 2;
+        return riB - riA;
+      }).slice(0, MAX_VISIBLE_LINKS);
+    }
+    this.links = rawLinks;
+
     if (this.crystals.length === 0) { this.nodes = []; this._nodeMap = {}; return; }
     this._buildNodes();
     this._runForceLayout(150);

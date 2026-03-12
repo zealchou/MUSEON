@@ -769,6 +769,8 @@ class Crystallizer:
         g1 = refined.get("g1_summary", "")
         discovered_links: List[Dict[str, str]] = []
 
+        new_type = refined.get("crystal_type", "Insight")
+
         for cuid, crystal in self._crystals.items():
             if crystal.archived:
                 continue
@@ -779,13 +781,41 @@ class Crystallizer:
             ).ratio()
 
             if similarity > SIMILARITY_MERGE_THRESHOLD:
-                # 高度相似 -- 合併候選
+                # 高度相似 -- extends（對同一主題的延伸/更新）
                 discovered_links.append({
                     "target_cuid": cuid,
-                    "link_type": "related",
+                    "link_type": "extends",
                     "similarity": str(round(similarity, 3)),
-                    "note": "高度相似，可能需要合併",
+                    "note": "高度相似，可能是延伸或需要合併",
                 })
+            elif similarity > 0.5:
+                # 中高相似度 -- 語義分類
+                # Lesson 遇到 Hypothesis = 可能支持或矛盾
+                existing_type = crystal.crystal_type
+                if (
+                    (new_type == "Lesson" and existing_type == "Hypothesis")
+                    or (new_type == "Hypothesis" and existing_type == "Lesson")
+                ):
+                    discovered_links.append({
+                        "target_cuid": cuid,
+                        "link_type": "supports",
+                        "similarity": str(round(similarity, 3)),
+                        "note": "經驗與假說互相佐證",
+                    })
+                elif new_type == existing_type:
+                    discovered_links.append({
+                        "target_cuid": cuid,
+                        "link_type": "supports",
+                        "similarity": str(round(similarity, 3)),
+                        "note": "同類型結晶，相互支持",
+                    })
+                else:
+                    discovered_links.append({
+                        "target_cuid": cuid,
+                        "link_type": "supports",
+                        "similarity": str(round(similarity, 3)),
+                        "note": "中高相似度，語義支持",
+                    })
             elif similarity > 0.3:
                 # 中度相似 -- 相關連結
                 discovered_links.append({
