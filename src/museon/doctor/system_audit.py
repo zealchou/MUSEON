@@ -1128,11 +1128,11 @@ class SystemAuditor:
         """Morphenix 自我迭代引擎健康檢查."""
         results = []
 
-        data_dir = self._museon_home / "data" / "_system" / "morphenix"
+        data_dir = self.home / "data" / "_system" / "morphenix"
 
         # 1. PulseDB proposals 記錄數
         try:
-            db_path = self._museon_home / "data" / "_system" / "pulse.db"
+            db_path = self.home / "data" / "pulse" / "pulse.db"
             if db_path.exists():
                 import sqlite3
                 conn = sqlite3.connect(str(db_path))

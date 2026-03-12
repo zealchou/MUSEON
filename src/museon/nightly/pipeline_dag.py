@@ -157,10 +157,12 @@ MUSEON_DEPENDENCIES: Dict[str, List[str]] = {
     # Phase 3: Morphenix（依賴 knowledge）
     "5.8": ["5.6"],           # proposals 依賴 knowledge lattice
     "5.9": ["5.8"],           # gate 依賴 proposals
-    "5.10": ["5.9"],          # execute 依賴 gate
+    "5.9.5": ["5.9"],         # Docker validate 依賴 gate
+    "5.10": ["5.9.5"],        # execute 依賴 Docker validate
 
     # Phase 4: Skill & Learning（依賴 morphenix）
     "6": ["5.10"],            # skill forge 依賴 morphenix
+    "6.5": ["6"],             # skill scout 依賴 skill forge
     "7": ["6"],               # curriculum 依賴 skill forge
     "7.5": ["7"],             # auto course 依賴 curriculum
     "8": [],                  # workflow mutation（獨立）

@@ -66,8 +66,7 @@ SKILL_ARCHIVE_INACTIVE_DAYS = 30
 # Federation step sets
 _FULL_STEPS = [
     "0", "0.1",  # Budget settlement + Footprint cleanup (最先執行)
-    "1", "2", "3", "4", "5", "5.5", "5.8", "5.9", "5.10",
-    "5.9.5",
+    "1", "2", "3", "4", "5", "5.5", "5.8", "5.9", "5.9.5", "5.10",
     "6", "6.5", "7", "7.5", "8", "8.5", "9", "10", "10.5", "11", "12", "13", "13.5",
     "13.6", "13.7", "13.8",  # 外向型進化：觸發掃描 → 外向研究 → 消化生命週期
     "14", "15", "16", "17",
@@ -121,6 +120,7 @@ class NightlyPipeline:
         dendritic_scorer: Optional[Any] = None,
     ) -> None:
         self._workspace = workspace
+        self._source_root = workspace.parent if workspace else Path.cwd()
         self._memory_manager = memory_manager
         self._heartbeat_focus = heartbeat_focus
         self._event_bus = event_bus
@@ -877,7 +877,7 @@ class NightlyPipeline:
                         "title": f"{len(notes)} 條迭代筆記待結晶",
                         "description": f"累積 {len(notes)} 條迭代觀察筆記，建議結晶為具體改進提案。",
                         "action": "crystallize_notes",
-                        "source_notes": len(notes),
+                        "source_notes": [f.name for f in notes_dir.glob("*.json") if f.is_file()][:20],
                         "created_at": datetime.now(TZ_TAIPEI).isoformat(),
                         "status": "pending_review",
                     }

@@ -424,7 +424,7 @@ class PulseDB:
         cur = conn.execute(
             "UPDATE morphenix_proposals "
             "SET status = 'rejected', decided_at = ?, decided_by = ? "
-            "WHERE id = ? AND status = 'pending'",
+            "WHERE id = ? AND status IN ('pending', 'approved')",
             (now, decided_by, proposal_id),
         )
         conn.commit()
