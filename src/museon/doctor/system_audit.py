@@ -1158,7 +1158,7 @@ class SystemAuditor:
                 results.append(CheckResult(
                     name="Morphenix PulseDB Proposals",
                     status=CheckStatus.OK if total > 0 else CheckStatus.WARNING,
-                    detail=detail,
+                    message=detail,
                 ))
 
                 # rollback 統計
@@ -1173,7 +1173,7 @@ class SystemAuditor:
                             CheckStatus.OK if rb_count <= 5
                             else CheckStatus.WARNING
                         ),
-                        detail=f"total_rollbacks={rb_count}",
+                        message=f"total_rollbacks={rb_count}",
                     ))
                 except Exception:
                     pass  # 表可能還不存在
@@ -1183,13 +1183,13 @@ class SystemAuditor:
                 results.append(CheckResult(
                     name="Morphenix PulseDB",
                     status=CheckStatus.WARNING,
-                    detail="pulse.db not found",
+                    message="pulse.db not found",
                 ))
         except Exception as e:
             results.append(CheckResult(
                 name="Morphenix PulseDB",
                 status=CheckStatus.WARNING,
-                detail=f"DB check error: {str(e)[:100]}",
+                message=f"DB check error: {str(e)[:100]}",
             ))
 
         # 2. Execution log 最近執行時間
@@ -1210,19 +1210,19 @@ class SystemAuditor:
                 results.append(CheckResult(
                     name="Morphenix Last Execution",
                     status=CheckStatus.OK,
-                    detail=f"latest_log={latest}, executed_in_log={last_exec_count}",
+                    message=f"latest_log={latest}, executed_in_log={last_exec_count}",
                 ))
             else:
                 results.append(CheckResult(
                     name="Morphenix Last Execution",
                     status=CheckStatus.WARNING,
-                    detail="No execution logs found (never executed)",
+                    message="No execution logs found (never executed)",
                 ))
         else:
             results.append(CheckResult(
                 name="Morphenix Execution Log",
                 status=CheckStatus.WARNING,
-                detail="execution_log directory missing",
+                message="execution_log directory missing",
             ))
 
         # 3. Notes 累積量
@@ -1232,7 +1232,7 @@ class SystemAuditor:
             results.append(CheckResult(
                 name="Morphenix Notes",
                 status=CheckStatus.OK,
-                detail=f"active_notes={note_count}",
+                message=f"active_notes={note_count}",
             ))
 
         # 4. Docker validator 映像是否可用
@@ -1247,7 +1247,7 @@ class SystemAuditor:
                     CheckStatus.OK if result.returncode == 0
                     else CheckStatus.WARNING
                 ),
-                detail=(
+                message=(
                     "museon-validator:latest available"
                     if result.returncode == 0
                     else "museon-validator:latest NOT found (docker build needed)"
@@ -1257,7 +1257,7 @@ class SystemAuditor:
             results.append(CheckResult(
                 name="Morphenix Docker Validator",
                 status=CheckStatus.WARNING,
-                detail="Docker not available",
+                message="Docker not available",
             ))
 
         # 5. Proposals JSON 目錄
@@ -1275,7 +1275,7 @@ class SystemAuditor:
             results.append(CheckResult(
                 name="Morphenix Proposals Queue",
                 status=CheckStatus.OK,
-                detail=f"json_files={len(proposal_files)}, pending={pending_count}",
+                message=f"json_files={len(proposal_files)}, pending={pending_count}",
             ))
 
         return results
