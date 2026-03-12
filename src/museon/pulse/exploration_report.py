@@ -37,7 +37,8 @@ def generate_html_report(data: Dict[str, Any], output_dir: Path) -> Path:
     motivation_raw = data.get("motivation", "")
     motivation = escape(_MOTIVATION_ZH.get(motivation_raw, motivation_raw))
     findings = data.get("findings", "")
-    crystallized = data.get("crystallized", 0)
+    # 相容 DB (integer 0/1) 和 result (boolean) 兩種來源
+    crystallized = bool(data.get("crystallized", 0))
     timestamp = data.get("timestamp", "")
     duration_ms = data.get("duration_ms", 0)
     cost_usd = data.get("cost_usd", 0.0)

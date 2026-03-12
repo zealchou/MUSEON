@@ -1,55 +1,31 @@
 [
   {
-    "question": "我的公司叫什麼？",
-    "source_date": "2026-03-10",
+    "question": "你做出來的網頁美感 沒辦法跟 Claude ai 一樣，是因為 Claude 的 skill 嗎？ 如果是的話，是不是可以把他們的 skill 下載來變成 Museon 自己的，或是進一步融合鍛造？",
+    "source_date": "2026-03-11",
     "status": "pending"
   },
   {
-    "question": "早安，今天有什麼可以幫我的嗎？",
-    "source_date": "2026-03-10",
-    "status": "researched",
-    "researched_at": "2026-03-11T03:00:15.367770+08:00"
+    "question": "如何讓霓裳知道哪些結晶被達達實際使用了？",
+    "source_date": "2026-03-12",
+    "status": "pending",
+    "source": "exploration_bridge"
   },
   {
-    "question": "你叫什麼名字？",
-    "source_date": "2026-03-10",
-    "status": "pending"
+    "question": "**Reflexion 實作細節** → 霓裳的 Brain 能否加入語言自評節點？",
+    "source_date": "2026-03-12",
+    "status": "pending",
+    "source": "exploration_bridge"
   },
   {
-    "question": "你的老闆是誰？",
-    "source_date": "2026-03-10",
-    "status": "pending"
+    "question": "**MemGPT 記憶搬運觸發條件** → Knowledge Lattice 的晶格化規則是否可借鑑？",
+    "source_date": "2026-03-12",
+    "status": "pending",
+    "source": "exploration_bridge"
   },
   {
-    "question": "請計算：如果月營收 150 萬，毛利率 35%，月固定成本 40 萬，請問每月淨利多少？",
-    "source_date": "2026-03-10",
-    "status": "researched",
-    "researched_at": "2026-03-11T10:00:00.024877+08:00"
-  },
-  {
-    "question": "台積電最近表現怎麼樣？",
-    "source_date": "2026-03-10",
-    "status": "researched",
-    "researched_at": "2026-03-11T10:00:00.025968+08:00"
-  },
-  {
-    "question": "你在群組裡面可以識別 不同的人嗎？怎麼做到？",
-    "source_date": "2026-03-10",
-    "status": "pending"
-  },
-  {
-    "question": "**user**: 請計算：如果月營收 150 萬，毛利率 35%，月固定成本 40 萬，請問每月淨利多少？",
-    "source_date": "2026-03-10",
-    "status": "pending"
-  },
-  {
-    "question": "**user**: 你在溝通前，有一個前置區的功能，讓你看到你反射性地回答的內容與目的、情境是否相符合，有的話才說，這個機制有在運作嗎？",
-    "source_date": "2026-03-10",
-    "status": "pending"
-  },
-  {
-    "question": "**user**: 還有其他更適合放的地方嗎？ 除了 system prompt？",
-    "source_date": "2026-03-10",
-    "status": "pending"
+    "question": "**Multi-Agent 失敗共識機制** → 多 Skill 協作時的錯誤傳播如何隔離？",
+    "source_date": "2026-03-12",
+    "status": "pending",
+    "source": "exploration_bridge"
   }
 ]
