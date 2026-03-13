@@ -39,7 +39,7 @@ class TestConstants:
         assert ACTIVE_HOURS_END == 25  # 跨日 01:00
 
     def test_daily_push_limit(self):
-        assert DAILY_PUSH_LIMIT == 25
+        assert DAILY_PUSH_LIMIT == 15  # PI-2: 配置外化後預設值同步為 15
 
     def test_proactive_interval(self):
         assert PROACTIVE_INTERVAL == 1800
