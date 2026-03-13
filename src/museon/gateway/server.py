@@ -2768,6 +2768,14 @@ def create_app() -> FastAPI:
                         heartbeat_focus = HeartbeatFocus(state_path=_hf_state)
                         adapter.connect_pulse(event_bus, heartbeat_focus)
 
+                        # ── PI-2 配置初始化：讓 _cfg() 讀取 pulse_config.json ──
+                        try:
+                            from museon.pulse.pulse_intervention import init_config as _pi_init
+                            _pi_init(str(brain.data_dir))
+                            logger.info("PulseIntervention config initialized (PI-2 hot-reload ready)")
+                        except Exception as _pi_err:
+                            logger.warning(f"PulseIntervention config init failed (degraded): {_pi_err}")
+
                         # ── ProactiveBridge: 心跳→大腦→頻道 ──
                         from museon.pulse.proactive_bridge import ProactiveBridge
                         proactive_bridge = ProactiveBridge(
