@@ -613,7 +613,7 @@ class PulseBehaviorInjector:
             "pulse_engine": {
                 "active_hours_start": 7,
                 "active_hours_end": 25,
-                "daily_push_limit": 25,
+                "daily_push_limit": 15,
                 "breath_interval_base": 1800,
                 "exploration_daily_limit": 10,
             },
@@ -622,7 +622,7 @@ class PulseBehaviorInjector:
                 "companion_ack_threshold": 10,
                 "active_hours_start": 8,
                 "active_hours_end": 25,
-                "daily_push_limit": 25,
+                "daily_push_limit": 15,
                 "proactive_interval": 1800,
                 "daily_minimum_interval": 3600,
                 "daily_minimum_hour": 14,

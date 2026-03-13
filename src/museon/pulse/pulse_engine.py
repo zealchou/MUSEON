@@ -22,7 +22,7 @@ TZ8 = timezone(timedelta(hours=8))
 
 ACTIVE_HOURS_START = 7    # 07:00（涵蓋 07:30 晨安）
 ACTIVE_HOURS_END = 25     # 01:00（跨日）
-DAILY_PUSH_LIMIT = 25            # 與 ProactiveBridge 同步提高
+DAILY_PUSH_LIMIT = 15            # 與 ProactiveBridge 同步
 BREATH_INTERVAL_BASE = 1800  # 30 分鐘（秒）
 EXPLORATION_DAILY_LIMIT = 10  # 每 2h 探索，一天最多 8 次 + 2 次手動額度
 # v3 MAX 訂閱：移除 per-token 費用常數（EXPLORATION_DAILY_BUDGET / EXPLORATION_PER_COST）
@@ -115,14 +115,20 @@ _SEED_TOPICS: Dict[str, List[str]] = {
 }
 
 # 動態主題生成 System Prompt（Haiku）
-_DYNAMIC_TOPIC_SYSTEM = """你是 MUSEON 的探索方向生成器。根據最近已探索的主題，生成一個「完全不同方向」的新探索主題。
+_DYNAMIC_TOPIC_SYSTEM = """你是 MUSEON 的探索方向生成器。根據最近已探索的主題與深度模式，生成一個真正有新意的探索主題。
 
-要求：
-- 與已探索主題的關鍵詞重疊 < 30%
-- 具體、可搜尋（不要泛泛而談）
-- 偏向 AI 技術、商業洞察、認知科學、或 AI 顧問事業相關領域
-- 長度 20-80 字之間
-- 直接輸出主題文字，不要加任何說明或前綴
+兩種策略，擇一執行：
+A. 縱向深挖：選最近探索過的某個主題，找出一個「更具體的子面向」繼續鑽，而不是同深度換個說法
+B. 橫向跳躍：跳到完全不同的知識領域（心理學、複雜系統、組織設計、創造力研究、哲學、生物學、經濟學等），但要能與 AI 顧問事業產生隱性連結
+
+判斷規則：如果最近 10 個主題都在同一個概念叢集（如「AI 記憶」「AI 助理」「LLM」），優先選 B；否則選 A。
+
+禁止：
+- 不可與已探索主題的關鍵詞重疊 > 30%
+- 不可泛泛而談（「AI 的未來」「科技趨勢」這類不算具體）
+- 不可只換同義詞重複已有主題
+
+格式：長度 20-80 字，直接輸出主題文字，不加任何說明或前綴。
 
 只輸出一行：探索主題。"""
 
@@ -386,6 +392,8 @@ class PulseEngine:
                     # 探索後自我餵養：從發現中萃取後續主題寫入 PULSE.md
                     if exploration.get("status") == "done":
                         self._seed_followup_topics(exploration)
+                        # 觸發靜默消化（背景任務，不阻塞主流程）
+                        asyncio.ensure_future(self._run_silent_digestion())
             else:
                 logger.debug(f"SoulPulse explore skip: db={'ok' if self._db else 'None'}, count={_exp_count}/{_exp_limit}")
 
@@ -678,6 +686,25 @@ class PulseEngine:
             parts.append(f"PULSE 摘要:\n{pulse_summary}")
         return "\n".join(parts)
 
+    def _load_digest_summary(self) -> str:
+        """載入今日靜默消化摘要（若存在）."""
+        if not self._data_dir:
+            return ""
+        try:
+            import json as _json
+            today = datetime.now(TZ8).strftime("%Y-%m-%d")
+            report_path = Path(self._data_dir) / "_system" / "pulse" / "digest_reports" / f"digest_{today}.json"
+            if not report_path.exists():
+                return ""
+            with open(report_path, encoding="utf-8") as f:
+                report = _json.load(f)
+            summary = report.get("summary", "")
+            if not summary or summary == "無顯著發現":
+                return ""
+            return summary
+        except Exception:
+            return ""
+
     def _build_perception(self, extra_context: str = "") -> str:
         parts = [f"時間: {datetime.now(TZ8).strftime('%Y-%m-%d %H:%M')}"]
         if extra_context:
@@ -696,6 +723,10 @@ class PulseEngine:
                 low_energy = [k for k, v in radar.items() if v < 50]
                 if low_energy:
                     parts.append(f"低能量區域: {', '.join(low_energy)}（可優先探索）")
+        # 靜默消化洞見（兩次對話之間的背景思考結果）
+        digest_summary = self._load_digest_summary()
+        if digest_summary:
+            parts.append(f"靜默消化（背景思考）: {digest_summary}")
         # PULSE.md 最近反思和觀察
         pulse_summary = self._read_pulse_summary()
         if pulse_summary:
@@ -913,7 +944,7 @@ class PulseEngine:
                         topic = line.split("[pending]")[-1].strip()
                         if topic.startswith("- "):
                             topic = topic[2:]
-                        if topic and not self._is_recently_explored(topic):
+                        if topic:
                             logger.info(f"探索主題來源: PULSE.md [pending] → {topic[:50]}")
                             return topic
             except Exception as e:
@@ -938,7 +969,8 @@ class PulseEngine:
                                 idx = (start_idx + offset) % len(topics)
                                 topic = topics[idx]
                                 if not self._is_recently_explored(topic):
-                                    self._advance_topic_pointer(f"anima_{elem}", len(topics))
+                                    if offset > 0:
+                                        self._advance_topic_pointer(f"anima_{elem}", len(topics))
                                     logger.info(f"探索主題來源: ANIMA({elem}) → {topic[:50]}")
                                     return topic
             except Exception as e:
@@ -979,9 +1011,6 @@ class PulseEngine:
                             ))
                             if not _has_question and not _has_research_kw:
                                 continue
-                            # 去重：跳過最近已探索過的相似主題
-                            if self._is_recently_explored(q):
-                                continue
                             logger.info(f"探索主題來源: question_queue → {q[:50]}")
                             return q
             except Exception as e:
@@ -998,8 +1027,8 @@ class PulseEngine:
             idx = (start_idx + offset) % len(topics)
             topic = topics[idx]
             if not self._is_recently_explored(topic, days=3):
-                # 無論 offset 為何，選中後都推進指針，避免下次重選同一個
-                self._advance_topic_pointer(f"seed_{trigger_key}", len(topics))
+                if offset > 0:
+                    self._advance_topic_pointer(f"seed_{trigger_key}", len(topics))
                 logger.info(f"探索主題來源: 種子庫({trigger_key}) → {topic[:50]}")
                 return topic
         # 全部都探索過了，輪轉一次再選第一個
@@ -1023,10 +1052,21 @@ class PulseEngine:
                 "mission": "AI 顧問商業與產品化",
                 "morning": "生產力與知識工具",
             }.get(trigger, "AI 相關領域")
+            # 分析最近主題的概念密度（找出最集中的關鍵詞叢集）
+            cluster_hint = ""
+            if recent:
+                from collections import Counter
+                all_words: list[str] = []
+                for t in recent[:10]:
+                    all_words.extend(t.replace("，", " ").replace("、", " ").split())
+                top = [w for w, _ in Counter(all_words).most_common(5) if len(w) > 1]
+                if top:
+                    cluster_hint = f"\n最近高頻概念叢集（這些方向已飽和，策略 B 應跳離）：{', '.join(top)}"
             prompt = (
-                f"觸發方向：{trigger_hint}\n\n"
-                f"最近 30 天已探索的主題（請避開這些方向）：\n{recent_str}\n\n"
-                f"請生成一個全新的探索主題。"
+                f"觸發方向：{trigger_hint}\n"
+                f"最近 30 天已探索的主題（按時間倒序）：\n{recent_str}"
+                f"{cluster_hint}\n\n"
+                f"請判斷要用策略 A（縱向深挖）還是策略 B（橫向跳躍），然後輸出一個探索主題。"
             )
             response = await self._brain._call_llm_with_model(
                 system_prompt=_DYNAMIC_TOPIC_SYSTEM,
@@ -1301,6 +1341,33 @@ class PulseEngine:
             logger.info(f"SoulPulse: seeded {len(followups)} follow-up topics to PULSE.md")
         except Exception as e:
             logger.warning(f"SoulPulse seed_followup_topics failed: {e}")
+
+    # ── 靜默消化 ──
+
+    async def _run_silent_digestion(self) -> None:
+        """背景執行靜默消化（探索結束後非阻塞觸發）."""
+        if not self._db or not self._data_dir:
+            return
+        try:
+            from museon.pulse.silent_digestion import SilentDigestion
+            # 嘗試取得 lattice（可選）
+            lattice = None
+            try:
+                from museon.agent.knowledge_lattice import KnowledgeLattice
+                lattice = KnowledgeLattice(data_dir=str(self._data_dir))
+            except Exception:
+                pass
+            digester = SilentDigestion(
+                db=self._db,
+                data_dir=str(self._data_dir),
+                lattice=lattice,
+            )
+            report = digester.digest(days=14)
+            if report.get("status") == "done":
+                summary = report.get("summary", "")
+                logger.info(f"SilentDigestion: {summary}")
+        except Exception as e:
+            logger.debug(f"SilentDigestion background task failed: {e}")
 
     # ── 知識缺口偵測 ──
 
