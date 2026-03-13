@@ -913,7 +913,7 @@ class PulseEngine:
                         topic = line.split("[pending]")[-1].strip()
                         if topic.startswith("- "):
                             topic = topic[2:]
-                        if topic:
+                        if topic and not self._is_recently_explored(topic):
                             logger.info(f"探索主題來源: PULSE.md [pending] → {topic[:50]}")
                             return topic
             except Exception as e:
@@ -938,8 +938,7 @@ class PulseEngine:
                                 idx = (start_idx + offset) % len(topics)
                                 topic = topics[idx]
                                 if not self._is_recently_explored(topic):
-                                    if offset > 0:
-                                        self._advance_topic_pointer(f"anima_{elem}", len(topics))
+                                    self._advance_topic_pointer(f"anima_{elem}", len(topics))
                                     logger.info(f"探索主題來源: ANIMA({elem}) → {topic[:50]}")
                                     return topic
             except Exception as e:
@@ -980,6 +979,9 @@ class PulseEngine:
                             ))
                             if not _has_question and not _has_research_kw:
                                 continue
+                            # 去重：跳過最近已探索過的相似主題
+                            if self._is_recently_explored(q):
+                                continue
                             logger.info(f"探索主題來源: question_queue → {q[:50]}")
                             return q
             except Exception as e:
@@ -996,8 +998,8 @@ class PulseEngine:
             idx = (start_idx + offset) % len(topics)
             topic = topics[idx]
             if not self._is_recently_explored(topic, days=3):
-                if offset > 0:
-                    self._advance_topic_pointer(f"seed_{trigger_key}", len(topics))
+                # 無論 offset 為何，選中後都推進指針，避免下次重選同一個
+                self._advance_topic_pointer(f"seed_{trigger_key}", len(topics))
                 logger.info(f"探索主題來源: 種子庫({trigger_key}) → {topic[:50]}")
                 return topic
         # 全部都探索過了，輪轉一次再選第一個
