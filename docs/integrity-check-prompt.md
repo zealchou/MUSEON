@@ -957,7 +957,6 @@
 | D2 | **常數計數增減** | 新增/移除集合元素（如 `COLLECTIONS` 新增 `documents`），測試硬寫 `assert len(X) == 5` | 改用 `len(COLLECTIONS)` 或 `len(X) - len(existing)` 等動態表達式，避免硬編碼數字 |
 | D3 | **欄位名稱重命名** | 源碼重命名欄位（如 `source_notes` 從 result 移入子物件），測試還在用舊 key | 以源碼 return 語句為準，更新測試的 key 存取路徑 |
 | D4 | **信號驅動重構** | 原本依賴特定目錄/檔案存在的邏輯（如 notes 目錄）改為多信號源掃描，測試仍基於舊前提 | 重新理解函式行為，依新邏輯設計 setup 資料與斷言 |
-
 | D5 | **物件存在性假設** | 源碼新增模組但初始化有條件分支（如 Telegram adapter 可能未啟動），callback 中直接呼叫 `self.xxx.method()` 而未檢查 `self.xxx is not None` | 所有 callback/cron handler 中使用的可空物件，入口加 `if not obj: return` 守衛 |
 | D6 | **品質閘門過度簡化** | 品質/嚴重度分級只有 2 級（pass/fail 或 tier 1/2），高頻+高影響的問題無法區分處理 | 至少 3 級分級（低/中/高 或 自動修復/LLM 研究/人工介入） |
 | D7 | **目錄不存在靜默崩潰** | 模組寫入檔案但 parent 目錄從未建立，首次啟動或資料清除後 `FileNotFoundError` | 所有 `write_text()` / `open(w)` 前確認 `parent.mkdir(parents=True, exist_ok=True)` |
