@@ -24,6 +24,10 @@ class PulseDB:
     def __init__(self, db_path: str) -> None:
         self._db_path = Path(db_path)
         self._db_path.parent.mkdir(parents=True, exist_ok=True)
+        # 防護：0-byte DB 檔 = 損壞，刪除後讓 _init_db 重建
+        if self._db_path.exists() and self._db_path.stat().st_size == 0:
+            logger.warning(f"PulseDB: 偵測到 0-byte DB 檔 {self._db_path}，刪除並重建")
+            self._db_path.unlink()
         self._local = threading.local()
         self._init_db()
 
@@ -300,6 +304,16 @@ class PulseDB:
     def get_today_exploration_cost(self) -> float:
         exps = self.get_today_explorations()
         return sum(e.get("cost_usd", 0) for e in exps)
+
+    def get_recent_explorations(self, days: int = 30, limit: int = 30) -> List[str]:
+        """Return recent explored topic strings for deduplication."""
+        conn = self._get_conn()
+        cutoff = (datetime.now(TZ8) - timedelta(days=days)).isoformat()
+        rows = conn.execute(
+            "SELECT topic FROM explorations WHERE timestamp >= ? ORDER BY timestamp DESC LIMIT ?",
+            (cutoff, limit),
+        ).fetchall()
+        return [r["topic"] for r in rows]
 
     # ── ANIMA Log ──
 
