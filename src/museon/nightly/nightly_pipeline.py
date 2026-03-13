@@ -945,7 +945,7 @@ class NightlyPipeline:
         pulse_db = None
         try:
             from museon.pulse.pulse_db import PulseDB
-            db_path = self._workspace / "pulse.db"
+            db_path = self._workspace / "pulse" / "pulse.db"
             pulse_db = PulseDB(str(db_path))
         except Exception as e:
             logger.warning(f"Morphenix gate: PulseDB init failed: {e}")
@@ -1100,7 +1100,7 @@ class NightlyPipeline:
         """
         try:
             from museon.pulse.pulse_db import PulseDB
-            db_path = self._workspace / "pulse.db"
+            db_path = self._workspace / "pulse" / "pulse.db"
             pulse_db = PulseDB(str(db_path))
         except Exception as e:
             return {"skipped": f"PulseDB init failed: {e}"}
@@ -1173,7 +1173,7 @@ class NightlyPipeline:
         """
         try:
             from museon.pulse.pulse_db import PulseDB
-            db_path = self._workspace / "pulse.db"
+            db_path = self._workspace / "pulse" / "pulse.db"
             pulse_db = PulseDB(str(db_path))
         except Exception as e:
             return {"skipped": f"PulseDB init failed: {e}"}
