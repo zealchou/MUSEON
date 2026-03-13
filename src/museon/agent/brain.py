@@ -151,6 +151,16 @@ class MuseonBrain:
             logger.warning(f"KnowledgeLattice 載入失敗（降級運行）: {e}")
             self.knowledge_lattice = None
 
+        # ── 新模組：結晶行為規則引擎 ──
+        try:
+            from museon.agent.crystal_actuator import CrystalActuator
+            self.crystal_actuator = CrystalActuator(
+                workspace=self.data_dir, event_bus=self._event_bus,
+            )
+        except Exception as e:
+            logger.warning(f"CrystalActuator 載入失敗（降級運行）: {e}")
+            self.crystal_actuator = None
+
         # ── 新模組：計畫引擎 ──
         try:
             from museon.agent.plan_engine import PlanEngine
@@ -1121,6 +1131,30 @@ class MuseonBrain:
             except Exception as e:
                 logger.warning(f"知識晶格掃描失敗: {e}")
 
+        # ── Step 8.6.5: Crystal Actuator 回饋迴圈（P3）──
+        # 如果本次對話中結晶行為規則參與了回覆，記錄正面回饋。
+        # 負面回饋由使用者不滿意時的 Q-Score 低分觸發（未來擴展）。
+        if self.crystal_actuator:
+            try:
+                active_rules = self.crystal_actuator.get_active_rules()
+                if active_rules and response_text:
+                    # 簡易正面回饋：如果規則存在且回覆順利產出 → +1
+                    # 更精細的回饋在未來由 Q-Score 驅動
+                    for rule in active_rules:
+                        rule_id = rule.get("rule_id", "")
+                        directive = rule.get("directive", "")
+                        summary = rule.get("summary", "")
+                        # 檢查回覆是否可能受到此規則影響
+                        if directive and (
+                            any(kw in response_text for kw in summary.split()[:3])
+                            or any(kw in content for kw in summary.split()[:3])
+                        ):
+                            self.crystal_actuator.record_feedback(
+                                rule_id, positive=True,
+                            )
+            except Exception as e:
+                logger.debug(f"Crystal Actuator 回饋記錄失敗: {e}")
+
         # ── Step 8.7: 承諾掃描 — 偵測回覆中的承諾並登記 ──
         if self._commitment_tracker:
             try:
@@ -2008,6 +2042,21 @@ class MuseonBrain:
                         )
             except Exception as e:
                 logger.warning(f"知識結晶注入失敗（降級運行）: {e}")
+
+        # ── Zone: memory — 結晶行為規則注入（P2/P3 演化閉環）──
+        if self.crystal_actuator and not budget.is_exhausted("memory"):
+            try:
+                rules_text = self.crystal_actuator.format_rules_for_prompt()
+                if rules_text:
+                    rules_fitted = budget.fit_text_to_zone("memory", rules_text)
+                    if rules_fitted:
+                        sections.append(rules_fitted)
+                        active_count = len(self.crystal_actuator.get_active_rules())
+                        logger.info(
+                            f"結晶行為規則注入: {active_count} 條活躍規則"
+                        )
+            except Exception as e:
+                logger.warning(f"結晶行為規則注入失敗（降級運行）: {e}")
 
         # ── Zone: buffer — PULSE.md 靈魂上下文注入（演化核心）──
         if not budget.is_exhausted("buffer"):

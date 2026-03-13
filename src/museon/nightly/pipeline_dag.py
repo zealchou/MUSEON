@@ -153,9 +153,10 @@ MUSEON_DEPENDENCIES: Dict[str, List[str]] = {
     "5": ["4"],               # WEE fuse 依賴 compress
     "5.5": ["5"],             # cross-crystallize 依賴 fuse
     "5.6": ["5.5"],           # knowledge lattice 依賴 cross-crystallize
+    "5.7": ["5.6"],           # crystal actuator 依賴 knowledge lattice
 
     # Phase 3: Morphenix（依賴 knowledge）
-    "5.8": ["5.6"],           # proposals 依賴 knowledge lattice
+    "5.8": ["5.7"],           # proposals 依賴 crystal actuator
     "5.9": ["5.8"],           # gate 依賴 proposals
     "5.9.5": ["5.9"],         # Docker validate 依賴 gate
     "5.10": ["5.9.5"],        # execute 依賴 Docker validate
