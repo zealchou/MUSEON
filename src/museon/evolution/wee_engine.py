@@ -527,9 +527,19 @@ class WEEEngine:
                 except Exception as e:
                     logger.warning(f"Crystal store failed: {e}")
 
+            # P1 水源：WEE 日壓縮結果寫入 Knowledge Lattice
+            kl_cuid = self._crystallize_to_lattice(
+                crystal_content=crystal_content,
+                crystal_type="Pattern",
+                g1_summary=f"WEE 日報 {target_date}：{total} 互動, 均分 {avg_composite:.1f}",
+                tags=["wee_daily", target_date],
+                source_context=f"wee_reflection:daily:{target_date}",
+            )
+
             return {
                 "compressed": True,
                 "crystal_id": crystal_id,
+                "kl_cuid": kl_cuid,
                 "date": target_date,
                 "interactions": total,
                 "avg_composite": round(avg_composite, 4),
@@ -619,6 +629,58 @@ class WEEEngine:
         except Exception as e:
             logger.error(f"WEEEngine.fuse_weekly error: {e}")
             return {"fused": False, "reason": str(e)}
+
+    # ═══════════════════════════════════════════
+    # P1: WEE 結晶水源 — 寫入 Knowledge Lattice
+    # ═══════════════════════════════════════════
+
+    def _crystallize_to_lattice(
+        self,
+        crystal_content: str,
+        crystal_type: str = "Pattern",
+        g1_summary: str = "",
+        tags: Optional[List[str]] = None,
+        source_context: str = "wee_reflection",
+    ) -> str:
+        """將 WEE 壓縮/融合結果寫入 Knowledge Lattice.
+
+        Args:
+            crystal_content: 結晶內容
+            crystal_type: 結晶類型（Pattern / Lesson）
+            g1_summary: G1 摘要
+            tags: 標籤
+            source_context: 來源上下文
+
+        Returns:
+            CUID 字串（失敗回空字串）
+        """
+        try:
+            from museon.agent.knowledge_lattice import KnowledgeLattice
+            lattice = KnowledgeLattice(workspace=self._workspace)
+
+            crystal = lattice.crystallize(
+                raw_material=crystal_content,
+                source_context=source_context,
+                crystal_type=crystal_type,
+                g1_summary=g1_summary or crystal_content[:28],
+                g2_structure=[crystal_content[:100]],
+                g3_root_inquiry="WEE 反芻對系統行為優化的啟示？",
+                g4_insights=[crystal_content[:80]],
+                assumption="WEE 反芻數據反映實際系統表現",
+                evidence=crystal_content[:100],
+                limitation="單日/單週樣本可能不具代表性",
+                tags=tags or ["wee"],
+                domain="self_evolution",
+            )
+            crystal.origin = "wee_reflection"
+            lattice._persist()
+
+            logger.info(f"P1 WEE 結晶: {crystal.cuid} ← {source_context}")
+            return crystal.cuid
+
+        except Exception as e:
+            logger.warning(f"WEE crystallize to lattice failed: {e}")
+            return ""
 
     # ═══════════════════════════════════════════
     # 狀態查詢

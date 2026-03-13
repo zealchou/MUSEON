@@ -66,7 +66,7 @@ SKILL_ARCHIVE_INACTIVE_DAYS = 30
 # Federation step sets
 _FULL_STEPS = [
     "0", "0.1",  # Budget settlement + Footprint cleanup (最先執行)
-    "1", "2", "3", "4", "5", "5.5", "5.8", "5.9", "5.9.5", "5.10",
+    "1", "2", "3", "4", "5", "5.5", "5.6", "5.7", "5.8", "5.9", "5.9.5", "5.10",
     "6", "6.5", "7", "7.5", "8", "8.5", "9", "10", "10.5", "11", "12", "13", "13.5",
     "13.6", "13.7", "13.8",  # 外向型進化：觸發掃描 → 外向研究 → 消化生命週期
     "14", "15", "16", "17",
@@ -136,6 +136,7 @@ class NightlyPipeline:
             "5": ("step_05_wee_fuse", self._step_wee_fuse),
             "5.5": ("step_05_5_cross_crystallize", self._step_cross_crystallize),
             "5.6": ("step_05_6_knowledge_lattice", self._step_knowledge_lattice),
+            "5.7": ("step_05_7_crystal_actuator", self._step_crystal_actuator),
             "5.8": ("step_05_8_morphenix_proposals", self._step_morphenix_proposals),
             "5.9": ("step_05_9_morphenix_gate", self._step_morphenix_gate),
             "5.9.5": ("step_05_9_5_morphenix_validate", self._step_morphenix_validate),
@@ -627,6 +628,44 @@ class NightlyPipeline:
             }
         except ImportError:
             return {"skipped": "KnowledgeLattice not available"}
+        except Exception as e:
+            return {"error": str(e)}
+
+    # ═══════════════════════════════════════════
+    # Step 5.7: Crystal Actuator — 結晶行為規則引擎
+    # ═══════════════════════════════════════════
+
+    def _step_crystal_actuator(self) -> Dict:
+        """Step 5.7: 結晶 → 行為規則轉化 + 新陳代謝.
+
+        1. actualize: 掃描高置信結晶 → 轉化為行為規則
+        2. metabolize: 根據回饋強化/淘汰規則（P3 核心）
+        """
+        try:
+            from museon.agent.crystal_actuator import CrystalActuator
+            from museon.agent.knowledge_lattice import KnowledgeLattice
+
+            lattice = KnowledgeLattice(data_dir=str(self._workspace))
+            actuator = CrystalActuator(
+                workspace=self._workspace, event_bus=self._event_bus,
+            )
+
+            # Phase 1: 轉化高置信結晶為行為規則
+            actualize_report = actuator.actualize(lattice)
+
+            # Phase 2: 新陳代謝（P3 回饋驅動的強化/淘汰）
+            metabolize_report = actuator.metabolize()
+
+            return {
+                "new_rules": actualize_report.get("new_rules", 0),
+                "expired_rules": actualize_report.get("expired_rules", 0),
+                "total_active": actualize_report.get("total_active", 0),
+                "strengthened": metabolize_report.get("strengthened", 0),
+                "weakened": metabolize_report.get("weakened", 0),
+                "removed": metabolize_report.get("removed", 0),
+            }
+        except ImportError:
+            return {"skipped": "CrystalActuator not available"}
         except Exception as e:
             return {"error": str(e)}
 

@@ -437,6 +437,32 @@ class PulseEngine:
                 if exploration.get("deep_analysis"):
                     self._anima.grow("li", 2, "深度分析產出洞見")
 
+            # P1 水源：探索結晶直寫 Knowledge Lattice
+            try:
+                if self._brain and self._brain.knowledge_lattice:
+                    _lattice = self._brain.knowledge_lattice
+                    _topic = exploration.get("topic", "")
+                    _findings = exploration.get("findings", "")[:300]
+                    _crystal = _lattice.crystallize(
+                        raw_material=f"探索「{_topic}」：{_findings}",
+                        source_context=f"exploration:{_topic[:50]}",
+                        crystal_type="Insight",
+                        g1_summary=f"探索發現：{_topic[:25]}",
+                        g2_structure=[f"主題: {_topic}", f"動機: {trigger}"],
+                        g3_root_inquiry=f"「{_topic}」對 MUSEON 能力邊界的影響？",
+                        g4_insights=[_findings[:100]] if _findings else [],
+                        assumption="外部探索發現對系統改進有價值",
+                        evidence=_findings[:100],
+                        limitation="需驗證是否可內化為實際能力",
+                        tags=["exploration", trigger],
+                        domain="external_knowledge",
+                    )
+                    _crystal.origin = "exploration"
+                    _lattice._persist()
+                    logger.info(f"P1 探索結晶: {_crystal.cuid} ← 主題「{_topic[:30]}」")
+            except Exception as _e:
+                logger.warning(f"P1 探索結晶失敗: {_e}")
+
             # 發布探索結晶事件 → ExplorationBridge 接收並路由
             if self._event_bus:
                 from museon.core.event_bus import EXPLORATION_CRYSTALLIZED

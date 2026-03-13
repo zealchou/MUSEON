@@ -303,6 +303,9 @@ class MorphenixExecutor:
         self._track_execution(proposal, exec_result, safety_tag=tag_name)
         self._cleanup_executed_notes(proposal)
 
+        # Step 6: 結晶閉環 — 回寫來源結晶狀態 + 演化結晶
+        self._close_crystal_loop(proposal, exec_result, pid)
+
         logger.info(f"Morphenix Executor: EXECUTED {pid} successfully")
 
         return {
@@ -1175,3 +1178,133 @@ class MorphenixExecutor:
                     logger.debug(f"Morphenix: archived note {note_path.name}")
                 except Exception as e:
                     logger.warning(f"Morphenix: note archive failed: {e}")
+
+    # ═══════════════════════════════════════════
+    # P0: 結晶閉環 — 回寫來源結晶狀態
+    # P1: 演化結晶水源 — 將提案執行結果結晶化
+    # ═══════════════════════════════════════════
+
+    def _close_crystal_loop(
+        self, proposal: Dict[str, Any], exec_result: Dict[str, Any], pid: str,
+    ) -> None:
+        """結晶閉環：回寫來源結晶狀態 + 將演化結果結晶化.
+
+        P0: 當提案來自 knowledge_lattice_downgrade 時，
+            回寫對應結晶的狀態（重置 counter_evidence / 標記 addressed）。
+
+        P1: 將演化提案執行結果本身結晶化為 Lesson/Pattern，
+            origin='morphenix_evolution'，形成「演化產出知識」的水源。
+        """
+        try:
+            lattice = self._get_knowledge_lattice()
+            if not lattice:
+                return
+
+            # ── P0: 回寫來源結晶狀態 ──
+            source = proposal.get("source", "")
+            if source == "knowledge_lattice_downgrade":
+                self._writeback_crystal_status(proposal, lattice)
+
+            # ── P1: 演化結果結晶化 ──
+            count = exec_result.get("count", 0)
+            if count > 0:
+                self._crystallize_evolution_result(proposal, exec_result, pid, lattice)
+
+        except Exception as e:
+            logger.warning(f"Morphenix crystal loop error: {e}")
+
+    def _writeback_crystal_status(
+        self, proposal: Dict[str, Any], lattice: Any,
+    ) -> None:
+        """P0: 回寫被修正的結晶狀態."""
+        try:
+            metadata = proposal.get("metadata", "{}")
+            if isinstance(metadata, str):
+                try:
+                    metadata = json.loads(metadata)
+                except Exception:
+                    metadata = {}
+
+            downgraded_cuids = metadata.get("downgraded_cuids", [])
+            if not downgraded_cuids:
+                # 嘗試從 metric 取得
+                metric = proposal.get("metric", {})
+                if isinstance(metric, str):
+                    try:
+                        metric = json.loads(metric)
+                    except Exception:
+                        metric = {}
+                downgraded_cuids = metric.get("cuids", [])
+
+            for cuid in downgraded_cuids:
+                crystal = lattice.get_crystal(cuid)
+                if crystal:
+                    crystal.counter_evidence_count = 0
+                    crystal.status = "active"
+                    crystal.updated_at = datetime.now(TZ8).isoformat()
+                    logger.info(
+                        f"Crystal 閉環回寫: {cuid} counter_evidence 重置, "
+                        f"status='active'"
+                    )
+
+            if downgraded_cuids:
+                lattice._persist()
+                logger.info(
+                    f"P0 結晶回寫完成: {len(downgraded_cuids)} 顆結晶狀態已更新"
+                )
+        except Exception as e:
+            logger.warning(f"Crystal writeback error: {e}")
+
+    def _crystallize_evolution_result(
+        self, proposal: Dict[str, Any], exec_result: Dict[str, Any],
+        pid: str, lattice: Any,
+    ) -> None:
+        """P1: 將演化提案執行結果結晶化為 Lesson."""
+        try:
+            level = proposal.get("level", "L1")
+            title = proposal.get("title", "")
+            desc = proposal.get("description", "")[:200]
+            action = exec_result.get("action", "")
+            count = exec_result.get("count", 0)
+
+            # 構建結晶素材
+            raw = (
+                f"Morphenix {level} 演化提案「{title}」執行成功。"
+                f"動作: {action}, 變更數: {count}。"
+                f"描述: {desc}"
+            )
+
+            crystal = lattice.crystallize(
+                raw_material=raw,
+                source_context=f"morphenix_evolution:{pid}",
+                crystal_type="Lesson",
+                g1_summary=f"演化 {level}：{title[:25]}",
+                g2_structure=[f"層級: {level}", f"動作: {action}", f"變更: {count}"],
+                g3_root_inquiry="此次演化解決了什麼根本問題？",
+                g4_insights=[desc[:100]] if desc else [],
+                assumption=f"{level} 變更預期改善系統行為",
+                evidence=f"成功執行 {count} 項變更",
+                limitation="需 14 天效果追蹤確認",
+                tags=["morphenix", level.lower(), "evolution"],
+                domain="system_evolution",
+            )
+            crystal.origin = "morphenix_evolution"
+            lattice._persist()
+
+            logger.info(
+                f"P1 演化結晶: {crystal.cuid} ← 提案 {pid}"
+            )
+
+        except Exception as e:
+            logger.warning(f"Evolution crystallize error: {e}")
+
+    def _get_knowledge_lattice(self) -> Optional[Any]:
+        """取得 KnowledgeLattice 實例."""
+        try:
+            from museon.agent.knowledge_lattice import KnowledgeLattice
+            lattice_dir = self._workspace / "lattice"
+            if lattice_dir.exists():
+                return KnowledgeLattice(workspace=self._workspace)
+        except Exception as e:
+            logger.debug(f"KnowledgeLattice not available: {e}")
+        return None
