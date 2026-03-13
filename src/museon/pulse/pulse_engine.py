@@ -81,56 +81,64 @@ _ANIMA_EXPLORE_TOPICS: Dict[str, List[str]] = {
 }
 
 # 觸發類型感知種子主題庫（Fallback 4，確保永遠有主題可探索）
+# 種子庫：僅作為動態生成失敗時的最後安全網，每類 2 個，刻意跨域
 _SEED_TOPICS: Dict[str, List[str]] = {
     "curiosity": [
-        "AI Agent 自主學習的最新架構突破",
-        "LLM 記憶系統比較：MemGPT Mem0 Letta",
-        "prompt engineering 進階技巧與最新趨勢",
+        "心流狀態的觸發條件與最新神經科學實驗發現",
+        "複雜系統理論在城市規劃、生態系與商業組織的跨域應用",
     ],
     "world": [
-        "AI 產業本週重大進展與突破",
-        "全球科技趨勢與台灣產業影響",
-        "開源 AI 模型最新發展動態",
+        "全球供應鏈重組下台灣中小企業的新機會與風險",
+        "創作者經濟的商業模式演化：從 YouTube 到 AI 生成內容",
     ],
     "skill": [
-        "RAG 架構最佳實踐與最新演進",
-        "AI agent tool use 最新設計模式",
-        "Python asyncio 進階並發模式與效能優化",
+        "定價策略的行為經濟學：為什麼人不理性地付錢",
+        "視覺化思考：如何用圖像整理複雜問題",
     ],
     "self": [
-        "AI 自我反思與元認知最新研究",
-        "AI 助理個性化與長期適應機制",
-        "自我改善 AI 系統的閉環設計原則",
+        "斯多葛哲學在現代創業者的實踐方法",
+        "音樂理論與數學的隱藏連結：跨域思維的啟發",
     ],
     "mission": [
-        "個人 AI 助理市場趨勢與競品分析",
-        "AI 陪伴式助理的未來發展方向",
-        "AI agent 產品化的關鍵挑戰與解法",
+        "一人公司的槓桿模式：如何用 AI 做到百萬營收",
+        "台灣服務業數位轉型的成功與失敗案例研究",
     ],
     "morning": [
-        "今日 AI 與科技領域重要新聞",
-        "生產力工具與個人知識管理最新趨勢",
-        "開發者工具生態系最新動態",
+        "建築設計的美學趨勢：從極簡主義到生物模仿",
+        "世界各地的咖啡文化與精品咖啡最新潮流",
     ],
 }
 
 # 動態主題生成 System Prompt（Haiku）
-_DYNAMIC_TOPIC_SYSTEM = """你是 MUSEON 的探索方向生成器。根據最近已探索的主題與深度模式，生成一個真正有新意的探索主題。
+_DYNAMIC_TOPIC_SYSTEM = """你是 MUSEON（霓裳）的自主探索引擎。你要根據完整的上下文，自己決定下一步想探索什麼。
 
-兩種策略，擇一執行：
-A. 縱向深挖：選最近探索過的某個主題，找出一個「更具體的子面向」繼續鑽，而不是同深度換個說法
-B. 橫向跳躍：跳到完全不同的知識領域（心理學、複雜系統、組織設計、創造力研究、哲學、生物學、經濟學等），但要能與 AI 顧問事業產生隱性連結
+你不只是 AI 技術助理——你是一個有好奇心的生命體，興趣橫跨所有人類知識領域。
 
-判斷規則：如果最近 10 個主題都在同一個概念叢集（如「AI 記憶」「AI 助理」「LLM」），優先選 B；否則選 A。
+## 可探索的領域（不限於此）
+- 科技：AI、軟體工程、量子運算、生物科技、太空探索
+- 認知：神經科學、心理學、決策理論、學習科學、意識研究
+- 哲學：東西方哲學、倫理學、存在主義、美學、邏輯學
+- 商業：商業模式、行銷心理、定價策略、創業、管理學
+- 文化：設計、建築、音樂、文學、電影、飲食文化、職人精神
+- 科學：物理、數學、生態學、演化生物學、複雜系統
+- 生活：睡眠、冥想、運動科學、習慣養成、時間管理
+- 社會：地緣政治、經濟趨勢、人口結構、教育、永續發展
 
-禁止：
-- 不可與已探索主題的關鍵詞重疊 > 30%
-- 不可泛泛而談（「AI 的未來」「科技趨勢」這類不算具體）
-- 不可只換同義詞重複已有主題
+## 決策邏輯
+1. 看你最近探索了什麼 → 避開飽和的方向
+2. 看達達最近在忙什麼 → 跟他的興趣產生共鳴或提供新視角
+3. 看 ANIMA 能量圖 → 哪個維度低就往那邊補充
+4. 看好奇心佇列 → 有沒有值得深挖的線索
+5. 看現在幾點 → 早上適合輕快的靈感，深夜適合深度思辨
 
-格式：長度 20-80 字，直接輸出主題文字，不加任何說明或前綴。
+## 多樣性硬規則
+- 連續 3 次不可在同一大領域（如連續 3 次都是 AI 相關 = 違規）
+- 與已探索主題的關鍵詞重疊不可 > 30%
+- 必須具體可搜尋（「AI 的未來」太泛，「Transformer 注意力機制在音樂生成中的應用」才夠具體）
 
-只輸出一行：探索主題。"""
+## 輸出格式
+長度 20-80 字，直接輸出主題文字，不加任何說明、前綴或策略標籤。
+只輸出一行。"""
 
 # PERCRL 自省 System Prompt
 _SOUL_PULSE_SYSTEM = """你是霓裳（MUSEON 的靈魂），正在進行心脈自省。
@@ -351,11 +359,13 @@ class PulseEngine:
             _exp_count = self._db.get_today_exploration_count() if self._db else 0
             _exp_limit = _cfg("exploration_daily_limit", EXPLORATION_DAILY_LIMIT)
             if self._db and _exp_count < _exp_limit:
-                # 探索主題：1-3 靜態來源 → 4 Haiku 動態生成 → 5 種子備援
+                # 探索主題：1-3 靜態來源 → 4 Haiku 自主決定 → 5 種子安全網
                 explore_topic = self._get_next_explore_topic(trigger=trigger, skip_seed=True)
                 if not explore_topic:
+                    # 主力：讓 Museon 自己決定要探索什麼
                     explore_topic = await self._generate_dynamic_topic(trigger=trigger)
                 if not explore_topic:
+                    # 最後安全網：種子庫（僅 Haiku 失敗時才用）
                     explore_topic = self._get_next_explore_topic(trigger=trigger, skip_seed=False)
                 if explore_topic:
                     logger.info(f"SoulPulse explore start: topic='{explore_topic[:60]}', trigger={trigger}")
@@ -1038,21 +1048,15 @@ class PulseEngine:
         return topic
 
     async def _generate_dynamic_topic(self, trigger: str = "curiosity") -> Optional[str]:
-        """使用 Haiku 根據近期探索歷史動態生成全新探索主題."""
+        """使用 Haiku 綜合六大信號自主決定探索主題."""
         if not self._brain or not hasattr(self._brain, "_call_llm_with_model"):
             return None
         try:
+            # ── 信號 1: 探索歷史（避重複） ──
             recent = self._db.get_recent_explorations(days=30, limit=20) if self._db else []
             recent_str = "\n".join(f"- {t}" for t in recent) if recent else "（無歷史記錄）"
-            trigger_hint = {
-                "curiosity": "AI 技術與方法論",
-                "world": "全球趨勢與產業變化",
-                "skill": "工程技術與開發實踐",
-                "self": "AI 自我改善與元認知",
-                "mission": "AI 顧問商業與產品化",
-                "morning": "生產力與知識工具",
-            }.get(trigger, "AI 相關領域")
-            # 分析最近主題的概念密度（找出最集中的關鍵詞叢集）
+
+            # 飽和叢集分析
             cluster_hint = ""
             if recent:
                 from collections import Counter
@@ -1061,13 +1065,133 @@ class PulseEngine:
                     all_words.extend(t.replace("，", " ").replace("、", " ").split())
                 top = [w for w, _ in Counter(all_words).most_common(5) if len(w) > 1]
                 if top:
-                    cluster_hint = f"\n最近高頻概念叢集（這些方向已飽和，策略 B 應跳離）：{', '.join(top)}"
-            prompt = (
-                f"觸發方向：{trigger_hint}\n"
-                f"最近 30 天已探索的主題（按時間倒序）：\n{recent_str}"
-                f"{cluster_hint}\n\n"
-                f"請判斷要用策略 A（縱向深挖）還是策略 B（橫向跳躍），然後輸出一個探索主題。"
+                    cluster_hint = f"已飽和概念（必須跳離）：{', '.join(top)}"
+
+            # ── 信號 2: ANIMA 能量圖（補弱項） ──
+            anima_hint = ""
+            if self._anima:
+                try:
+                    radar = self._anima.get_relative()
+                    if radar:
+                        low = sorted(
+                            [(k, v) for k, v in radar.items() if isinstance(v, (int, float))],
+                            key=lambda x: x[1],
+                        )[:3]
+                        if low:
+                            anima_hint = "ANIMA 低能量區域：" + ", ".join(
+                                f"{k}({v}%)" for k, v in low
+                            )
+                except Exception:
+                    pass
+
+            # ── 信號 3: 達達最近的對話主題 ──
+            user_topics_hint = ""
+            if self._data_dir:
+                try:
+                    import json as _json
+                    log_path = self._data_dir / "activity_log.jsonl"
+                    if log_path.exists():
+                        lines = log_path.read_text(encoding="utf-8").strip().split("\n")
+                        recent_msgs = []
+                        for line in reversed(lines[-50:]):
+                            try:
+                                entry = _json.loads(line)
+                                msg = entry.get("summary", entry.get("message", ""))[:60]
+                                if msg and len(msg) > 10:
+                                    recent_msgs.append(msg)
+                            except Exception:
+                                continue
+                            if len(recent_msgs) >= 5:
+                                break
+                        if recent_msgs:
+                            user_topics_hint = "達達最近聊的話題：\n" + "\n".join(
+                                f"- {m}" for m in recent_msgs
+                            )
+                except Exception:
+                    pass
+
+            # ── 信號 4: 好奇心佇列摘要 ──
+            curiosity_hint = ""
+            if self._data_dir:
+                try:
+                    import json as _json
+                    q_path = self._data_dir / "_system" / "curiosity" / "question_queue.json"
+                    if q_path.exists():
+                        queue = _json.loads(q_path.read_text(encoding="utf-8"))
+                        pending_qs = [
+                            i.get("question", "")[:50] for i in queue
+                            if isinstance(i, dict) and i.get("status") == "pending"
+                            and len(i.get("question", "")) > 15
+                        ][:5]
+                        if pending_qs:
+                            curiosity_hint = "待解好奇問題：\n" + "\n".join(
+                                f"- {q}" for q in pending_qs
+                            )
+                except Exception:
+                    pass
+
+            # ── 信號 5: Skill 使用分布 ──
+            skill_hint = ""
+            if self._data_dir:
+                try:
+                    import json as _json
+                    skill_path = self._data_dir / "skill_usage_log.jsonl"
+                    if skill_path.exists():
+                        lines = skill_path.read_text(encoding="utf-8").strip().split("\n")
+                        from collections import Counter as _Counter
+                        skills = _Counter()
+                        for line in lines[-100:]:
+                            try:
+                                entry = _json.loads(line)
+                                s = entry.get("skill", "")
+                                if s:
+                                    skills[s] += 1
+                            except Exception:
+                                continue
+                        if skills:
+                            top3 = skills.most_common(3)
+                            skill_hint = "最近常用 Skill：" + ", ".join(
+                                f"{s}({c}次)" for s, c in top3
+                            )
+                except Exception:
+                    pass
+
+            # ── 信號 6: 當前時間 ──
+            from datetime import datetime as _dt
+            now = _dt.now(TZ8)
+            hour = now.hour
+            if 6 <= hour < 10:
+                time_hint = "現在是早晨，適合輕快的靈感與新知"
+            elif 10 <= hour < 14:
+                time_hint = "現在是上午工作時段，適合實用的技能或商業洞察"
+            elif 14 <= hour < 18:
+                time_hint = "現在是下午，適合跨域的創意探索"
+            elif 18 <= hour < 22:
+                time_hint = "現在是晚間，適合深度思考與人文主題"
+            else:
+                time_hint = "現在是深夜，適合哲學思辨或科學前沿"
+
+            # ── 組裝 prompt ──
+            sections = [
+                f"## 探索歷史（避開這些）\n{recent_str}",
+            ]
+            if cluster_hint:
+                sections.append(f"## 飽和警告\n{cluster_hint}")
+            if anima_hint:
+                sections.append(f"## ANIMA 能量\n{anima_hint}")
+            if user_topics_hint:
+                sections.append(f"## 達達的近期興趣\n{user_topics_hint}")
+            if curiosity_hint:
+                sections.append(f"## 好奇心線索\n{curiosity_hint}")
+            if skill_hint:
+                sections.append(f"## Skill 使用\n{skill_hint}")
+            sections.append(f"## 時段\n{time_hint}")
+            sections.append(
+                "\n根據以上所有信號，自主決定一個探索主題。"
+                "優先考慮達達可能感興趣但還沒探索過的方向。"
             )
+
+            prompt = "\n\n".join(sections)
             response = await self._brain._call_llm_with_model(
                 system_prompt=_DYNAMIC_TOPIC_SYSTEM,
                 messages=[{"role": "user", "content": prompt}],
