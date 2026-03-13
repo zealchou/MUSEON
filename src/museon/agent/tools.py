@@ -1977,6 +1977,32 @@ class ToolExecutor:
             proposal=proposal, dry_run=dry_run,
         )
 
+        # 處理委派結果
+        if result.get("delegated"):
+            return {
+                "success": False,
+                "delegated": True,
+                "ticket_path": result.get("ticket_path", ""),
+                "message": (
+                    f"此手術涉及 {len(proposal.affected_files)} 個檔案，"
+                    f"已自動委派給 Claude Code 執行。"
+                    f"工單路徑: {result.get('ticket_path', '')}"
+                ),
+                "result": result,
+            }
+
+        # 處理驗證失敗自動回滾結果
+        if result.get("auto_rolled_back"):
+            return {
+                "success": False,
+                "auto_rolled_back": True,
+                "message": (
+                    f"手術已套用但 pytest 驗證失敗，"
+                    f"已自動回滾。錯誤: {result.get('error', '')}"
+                ),
+                "result": result,
+            }
+
         return {
             "success": result.get("success", False),
             "result": result,

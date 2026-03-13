@@ -21,6 +21,7 @@ class LLMClient:
     """
 
     MODEL_MAP = {
+        "opus": "claude-opus-4-6",
         "haiku": "claude-haiku-4-5-20251001",
         "sonnet": "claude-sonnet-4-20250514",
     }

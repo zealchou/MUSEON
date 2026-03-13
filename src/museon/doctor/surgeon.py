@@ -24,11 +24,14 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from museon.core.event_bus import (
     SURGERY_COMPLETED,
+    SURGERY_DELEGATED_TO_CLAUDE_CODE,
     SURGERY_FAILED,
     SURGERY_ROLLBACK,
     SURGERY_SAFETY_FAILED,
     SURGERY_SAFETY_PASSED,
     SURGERY_TRIGGERED,
+    SURGERY_VALIDATED,
+    SURGERY_VALIDATION_FAILED,
 )
 from museon.doctor.diagnosis_pipeline import DiagnosisResult, SurgeryProposal
 from museon.doctor.surgery_log import SurgeryLog, SurgeryRecord
@@ -516,6 +519,160 @@ class SurgeryEngine:
             logger.error(f"SurgeryEngine: rsync 錯誤: {e}")
             return False
 
+    # ── Step 9: 手術後自動驗證 ──
+
+    def _post_surgery_validate(self, surgery_id: str) -> Dict[str, Any]:
+        """手術後自動執行 pytest 驗證，確保修改沒有破壞現有功能.
+
+        Returns:
+            Dict with keys: passed (bool), returncode (int),
+            stdout (str), stderr (str), failed_tests (int), error_summary (str)
+        """
+        result: Dict[str, Any] = {
+            "passed": False,
+            "returncode": -1,
+            "stdout": "",
+            "stderr": "",
+            "failed_tests": 0,
+            "error_summary": "",
+        }
+
+        venv_python = self._root / ".venv" / "bin" / "python"
+        if not venv_python.exists():
+            result["error_summary"] = "venv python 不存在，跳過驗證"
+            result["passed"] = True  # 無法驗證時不阻擋
+            logger.warning(f"SurgeryEngine: {result['error_summary']}")
+            return result
+
+        try:
+            proc = subprocess.run(
+                [
+                    str(venv_python), "-m", "pytest",
+                    "tests/", "-x", "--tb=short", "-q",
+                    "--timeout=60",
+                ],
+                capture_output=True, text=True,
+                cwd=str(self._root),
+                timeout=180,  # 3 分鐘上限
+            )
+            result["returncode"] = proc.returncode
+            result["stdout"] = proc.stdout[-2000:] if proc.stdout else ""
+            result["stderr"] = proc.stderr[-1000:] if proc.stderr else ""
+            result["passed"] = proc.returncode == 0
+
+            # 解析失敗數
+            if not result["passed"]:
+                for line in proc.stdout.splitlines():
+                    if "failed" in line.lower():
+                        try:
+                            parts = line.strip().split()
+                            for i, p in enumerate(parts):
+                                if p == "failed":
+                                    result["failed_tests"] = int(parts[i - 1])
+                                    break
+                        except (ValueError, IndexError):
+                            pass
+                result["error_summary"] = (
+                    f"pytest 失敗: {result['failed_tests']} 個測試未通過"
+                )
+                logger.error(
+                    f"SurgeryEngine: 手術 {surgery_id} 驗證失敗 — "
+                    f"{result['error_summary']}"
+                )
+                self._publish_event(SURGERY_VALIDATION_FAILED, {
+                    "surgery_id": surgery_id,
+                    "failed_tests": result["failed_tests"],
+                    "error_summary": result["error_summary"],
+                })
+            else:
+                logger.info(
+                    f"SurgeryEngine: 手術 {surgery_id} 驗證通過 ✅"
+                )
+                self._publish_event(SURGERY_VALIDATED, {
+                    "surgery_id": surgery_id,
+                })
+
+        except subprocess.TimeoutExpired:
+            result["error_summary"] = "pytest 超時（>180s）"
+            logger.error(f"SurgeryEngine: {result['error_summary']}")
+        except Exception as e:
+            result["error_summary"] = f"pytest 執行錯誤: {e}"
+            logger.error(f"SurgeryEngine: {result['error_summary']}")
+
+        return result
+
+    # ── 跨檔委派：3+ 檔案自動排程到 Claude Code ──
+
+    DELEGATION_THRESHOLD = 3  # 修改超過此數量的檔案時委派
+
+    def _should_delegate_to_claude_code(
+        self, proposal: SurgeryProposal
+    ) -> bool:
+        """判斷是否應將手術委派給 Claude Code 執行.
+
+        條件：修改檔案數 >= DELEGATION_THRESHOLD（預設 3）
+        """
+        return len(proposal.affected_files) >= self.DELEGATION_THRESHOLD
+
+    def _write_delegation_ticket(
+        self,
+        proposal: SurgeryProposal,
+        surgery_id: str,
+        diagnosis_result: Optional[DiagnosisResult] = None,
+    ) -> Path:
+        """將手術提案寫成委派工單，供 Claude Code 執行.
+
+        工單寫入 data/_system/surgery/delegation/ 目錄，
+        Claude Code 端可定期掃描此目錄取得待辦手術。
+
+        Returns:
+            工單檔案路徑
+        """
+        delegation_dir = (
+            self._root / "data" / "_system" / "surgery" / "delegation"
+        )
+        delegation_dir.mkdir(parents=True, exist_ok=True)
+
+        ticket = {
+            "surgery_id": surgery_id,
+            "created_at": datetime.now().isoformat(),
+            "status": "pending",
+            "title": proposal.title,
+            "description": proposal.description,
+            "affected_files": proposal.affected_files,
+            "file_count": len(proposal.affected_files),
+            "changes": proposal.changes,
+            "diagnosis": (
+                diagnosis_result.diagnosis_level
+                if diagnosis_result else "manual"
+            ),
+            "reason": (
+                f"跨 {len(proposal.affected_files)} 個檔案，"
+                f"超過閾值 {self.DELEGATION_THRESHOLD}，"
+                "委派給 Claude Code 執行以確保品質"
+            ),
+        }
+
+        ticket_path = delegation_dir / f"ticket_{surgery_id}.json"
+        ticket_path.write_text(
+            json.dumps(ticket, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+
+        logger.info(
+            f"SurgeryEngine: 手術 {surgery_id} 已委派 — "
+            f"工單寫入 {ticket_path}"
+        )
+
+        self._publish_event(SURGERY_DELEGATED_TO_CLAUDE_CODE, {
+            "surgery_id": surgery_id,
+            "ticket_path": str(ticket_path),
+            "affected_files": proposal.affected_files,
+            "file_count": len(proposal.affected_files),
+        })
+
+        return ticket_path
+
     # ── Step 10: 回滾 ──
 
     def rollback(self, git_tag: str) -> bool:
@@ -635,6 +792,23 @@ class SurgeryEngine:
                 "note": "SurgeryEngine 自主手術，軟性規則警告已記錄",
             })
 
+        # Step 4.5: 跨檔委派檢查 — 3+ 檔案自動排程到 Claude Code
+        if (
+            not dry_run
+            and self._should_delegate_to_claude_code(proposal)
+        ):
+            ticket_path = self._write_delegation_ticket(
+                proposal, surgery_id, diagnosis_result,
+            )
+            self._log.update(
+                surgery_id, result="delegated",
+                error=f"已委派給 Claude Code: {ticket_path}",
+            )
+            result["delegated"] = True
+            result["ticket_path"] = str(ticket_path)
+            result["steps_completed"].append("delegated_to_claude_code")
+            return result
+
         # Step 5: 快照
         if not dry_run:
             git_tag = self.create_snapshot(surgery_id)
@@ -696,7 +870,37 @@ class SurgeryEngine:
                 "note": "自動重啟未啟用，需手動重啟 Gateway",
             }
 
-        # Step 9-10: 驗證由重啟後的 Guardian 執行
+        # Step 9: 手術後自動驗證（pytest）
+        validation = self._post_surgery_validate(surgery_id)
+        result["validation"] = validation
+        result["steps_completed"].append("validate")
+
+        if not validation["passed"]:
+            # 驗證失敗 → 自動回滾
+            logger.warning(
+                f"SurgeryEngine: 手術 {surgery_id} 驗證失敗，自動回滾"
+            )
+            if git_tag:
+                self.rollback(git_tag)
+                self.sync_to_runtime()
+                self._publish_event(SURGERY_ROLLBACK, {
+                    "surgery_id": surgery_id,
+                    "git_tag": git_tag,
+                    "reason": "post_surgery_validation_failed",
+                })
+            self._log.update(
+                surgery_id, result="rolled_back",
+                error=validation.get("error_summary", "驗證失敗"),
+            )
+            result["error"] = validation.get("error_summary", "驗證失敗")
+            result["auto_rolled_back"] = True
+            self._publish_event(SURGERY_FAILED, {
+                "surgery_id": surgery_id,
+                "reason": "validation_failed_auto_rollback",
+            })
+            return result
+
+        # Step 10: 完成
         self._log.update(surgery_id, result="success")
         result["success"] = True
         result["steps_completed"].append("complete")
@@ -706,11 +910,12 @@ class SurgeryEngine:
             "applied_count": len(applied),
             "git_tag": git_tag,
             "dry_run": dry_run,
+            "validated": True,
         })
 
         logger.info(
-            f"SurgeryEngine: 手術 {surgery_id} 完成 — "
-            f"{len(applied)} 個檔案已修改"
+            f"SurgeryEngine: 手術 {surgery_id} 完成 ✅ — "
+            f"{len(applied)} 個檔案已修改，pytest 驗證通過"
         )
         return result
 

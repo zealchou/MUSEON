@@ -26,8 +26,9 @@ class BudgetMonitor:
     - **Monthly cumulative**: track spending across the month
     """
 
-    # Model pricing (USD per 1M tokens) — 2026-02 Claude 4 系列
+    # Model pricing (USD per 1M tokens) — 2026-03 Claude 4 系列
     MODEL_PRICING = {
+        "claude-opus-4-6": {"input": 15.0, "output": 75.0, "label": "Opus"},
         "claude-sonnet-4-20250514": {"input": 3.0, "output": 15.0, "label": "Sonnet"},
         "claude-haiku-4-5-20251001": {"input": 0.80, "output": 4.0, "label": "Haiku"},
         # 舊版 fallback
@@ -74,8 +75,9 @@ class BudgetMonitor:
         self._input_tokens = 0
         self._output_tokens = 0
 
-        # Per-model tracking: { "sonnet": {input, output, calls}, "haiku": {...} }
+        # Per-model tracking: { "opus": {...}, "sonnet": {...}, "haiku": {...} }
         self._model_usage: Dict[str, Dict[str, int]] = {
+            "opus": {"input": 0, "output": 0, "calls": 0},
             "sonnet": {"input": 0, "output": 0, "calls": 0},
             "haiku": {"input": 0, "output": 0, "calls": 0},
         }
@@ -131,6 +133,7 @@ class BudgetMonitor:
             "total_tokens": 0,
             "estimated_cost_usd": 0.0,
             "models": {
+                "opus": {"input": 0, "output": 0, "calls": 0},
                 "sonnet": {"input": 0, "output": 0, "calls": 0},
                 "haiku": {"input": 0, "output": 0, "calls": 0},
             },
@@ -143,6 +146,7 @@ class BudgetMonitor:
             "output_tokens": 0,
             "total_tokens": 0,
             "models": {
+                "opus": {"input": 0, "output": 0, "calls": 0},
                 "sonnet": {"input": 0, "output": 0, "calls": 0},
                 "haiku": {"input": 0, "output": 0, "calls": 0},
             },
@@ -158,7 +162,7 @@ class BudgetMonitor:
             self._output_tokens = day_data.get("output_tokens", 0)
             self._daily_usage = day_data.get("total_tokens", 0)
             models = day_data.get("models", {})
-            for cat in ("sonnet", "haiku"):
+            for cat in ("opus", "sonnet", "haiku"):
                 m = models.get(cat, {})
                 self._model_usage[cat] = {
                     "input": m.get("input", 0),
@@ -171,6 +175,7 @@ class BudgetMonitor:
             self._input_tokens = 0
             self._output_tokens = 0
             self._model_usage = {
+                "opus": {"input": 0, "output": 0, "calls": 0},
                 "sonnet": {"input": 0, "output": 0, "calls": 0},
                 "haiku": {"input": 0, "output": 0, "calls": 0},
             }
@@ -196,7 +201,7 @@ class BudgetMonitor:
             totals["input_tokens"] += day_data.get("input_tokens", 0)
             totals["output_tokens"] += day_data.get("output_tokens", 0)
             totals["total_tokens"] += day_data.get("total_tokens", 0)
-            for cat in ("sonnet", "haiku"):
+            for cat in ("opus", "sonnet", "haiku"):
                 m = day_data.get("models", {}).get(cat, {})
                 totals["models"][cat]["input"] += m.get("input", 0)
                 totals["models"][cat]["output"] += m.get("output", 0)
@@ -222,12 +227,14 @@ class BudgetMonitor:
     # ── Model classification & pricing ───────────────────
 
     def _classify_model(self, model: Optional[str]) -> str:
-        """Classify a model ID into 'sonnet' or 'haiku'."""
+        """Classify a model ID into 'opus', 'sonnet', or 'haiku'."""
         if not model:
-            return "sonnet"  # 預設
+            return "opus"  # 預設
         m = model.lower()
         if "haiku" in m:
             return "haiku"
+        if "opus" in m:
+            return "opus"
         return "sonnet"
 
     def _get_pricing(self, model: Optional[str]) -> Dict[str, float]:
@@ -240,28 +247,30 @@ class BudgetMonitor:
     def _calc_model_cost(self, category: str) -> float:
         """Calculate cost for a model category (today only)."""
         usage = self._model_usage.get(category, {"input": 0, "output": 0})
-        if category == "haiku":
-            return (
-                (usage["input"] / 1_000_000) * 0.80
-                + (usage["output"] / 1_000_000) * 4.0
-            )
-        else:  # sonnet
-            return (
-                (usage["input"] / 1_000_000) * 3.0
-                + (usage["output"] / 1_000_000) * 15.0
-            )
+        pricing = {
+            "opus": (15.0, 75.0),
+            "sonnet": (3.0, 15.0),
+            "haiku": (0.80, 4.0),
+        }
+        inp_rate, out_rate = pricing.get(category, (3.0, 15.0))
+        return (
+            (usage["input"] / 1_000_000) * inp_rate
+            + (usage["output"] / 1_000_000) * out_rate
+        )
 
     def _calc_cost_from_usage(self, models: Dict[str, Dict[str, int]]) -> float:
         """Calculate cost from a models dict (for monthly totals)."""
+        pricing = {
+            "opus": (15.0, 75.0),
+            "sonnet": (3.0, 15.0),
+            "haiku": (0.80, 4.0),
+        }
         cost = 0.0
-        for cat in ("sonnet", "haiku"):
+        for cat in ("opus", "sonnet", "haiku"):
             m = models.get(cat, {"input": 0, "output": 0})
-            if cat == "haiku":
-                cost += (m.get("input", 0) / 1_000_000) * 0.80
-                cost += (m.get("output", 0) / 1_000_000) * 4.0
-            else:
-                cost += (m.get("input", 0) / 1_000_000) * 3.0
-                cost += (m.get("output", 0) / 1_000_000) * 15.0
+            inp_rate, out_rate = pricing.get(cat, (3.0, 15.0))
+            cost += (m.get("input", 0) / 1_000_000) * inp_rate
+            cost += (m.get("output", 0) / 1_000_000) * out_rate
         return cost
 
     # ── Usage tracking ───────────────────────────────────
@@ -345,13 +354,24 @@ class BudgetMonitor:
         """
         self._reset_if_new_day()
 
+        opus_cost = self._calc_model_cost("opus")
         sonnet_cost = self._calc_model_cost("sonnet")
         haiku_cost = self._calc_model_cost("haiku")
-        total_cost = sonnet_cost + haiku_cost
+        total_cost = opus_cost + sonnet_cost + haiku_cost
 
         # Load monthly cumulative
         month_data = self._load_month_data()
         monthly = month_data.get("monthly_totals", self._empty_totals())
+
+        def _model_stats(cat: str, cost: float) -> Dict[str, Any]:
+            u = self._model_usage.get(cat, {"input": 0, "output": 0, "calls": 0})
+            return {
+                "input_tokens": u["input"],
+                "output_tokens": u["output"],
+                "total_tokens": u["input"] + u["output"],
+                "calls": u["calls"],
+                "cost_usd": round(cost, 4),
+            }
 
         return {
             "daily_limit": self._daily_limit,
@@ -364,26 +384,9 @@ class BudgetMonitor:
             "estimated_cost_usd": round(total_cost, 4),
             # Per-model breakdown (today)
             "models": {
-                "sonnet": {
-                    "input_tokens": self._model_usage["sonnet"]["input"],
-                    "output_tokens": self._model_usage["sonnet"]["output"],
-                    "total_tokens": (
-                        self._model_usage["sonnet"]["input"]
-                        + self._model_usage["sonnet"]["output"]
-                    ),
-                    "calls": self._model_usage["sonnet"]["calls"],
-                    "cost_usd": round(sonnet_cost, 4),
-                },
-                "haiku": {
-                    "input_tokens": self._model_usage["haiku"]["input"],
-                    "output_tokens": self._model_usage["haiku"]["output"],
-                    "total_tokens": (
-                        self._model_usage["haiku"]["input"]
-                        + self._model_usage["haiku"]["output"]
-                    ),
-                    "calls": self._model_usage["haiku"]["calls"],
-                    "cost_usd": round(haiku_cost, 4),
-                },
+                "opus": _model_stats("opus", opus_cost),
+                "sonnet": _model_stats("sonnet", sonnet_cost),
+                "haiku": _model_stats("haiku", haiku_cost),
             },
             # Monthly cumulative
             "monthly": {

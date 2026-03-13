@@ -707,12 +707,13 @@ class TestMultiModelFallback:
     """Feature: 多模型 Fallback 策略."""
 
     def test_model_chain_defined(self):
-        """Scenario: Fallback 模型鏈包含 Sonnet 和 Haiku."""
+        """Scenario: Fallback 模型鏈包含 Opus、Sonnet 和 Haiku."""
         from museon.agent.brain import MuseonBrain
         chain = MuseonBrain._MODEL_CHAIN
-        assert len(chain) == 2
-        assert "sonnet" in chain[0]
-        assert "haiku" in chain[1]
+        assert len(chain) == 3
+        assert "opus" in chain[0]
+        assert "sonnet" in chain[1]
+        assert "haiku" in chain[2]
 
     def test_offline_response_format(self):
         """Scenario: 離線回覆包含使用者訊息摘要."""

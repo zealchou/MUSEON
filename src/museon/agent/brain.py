@@ -2942,11 +2942,12 @@ class MuseonBrain:
     # ═══════════════════════════════════════════
 
     # ═══════════════════════════════════════════
-    # 多模型 Fallback（Sonnet → Haiku → 離線）
+    # 多模型 Fallback（Opus → Sonnet → Haiku → 離線）
     # ═══════════════════════════════════════════
 
     # Fallback 模型鏈
     _MODEL_CHAIN = [
+        "claude-opus-4-6",
         "claude-sonnet-4-20250514",
         "claude-haiku-4-5-20251001",
     ]
@@ -2962,9 +2963,9 @@ class MuseonBrain:
     ) -> str:
         """呼叫 Claude API — 含 Router 智能分流 + 多模型 Fallback + Prompt Caching + Tool Use.
 
-        分流策略（Router v2）：
-        1. Router 根據訊息內容分類 → Haiku（簡單）或 Sonnet（複雜）
-        2. 選定模型失敗 → Fallback 到另一個模型
+        分流策略（Router v4）：
+        1. Router 根據訊息內容分類 → Opus（複雜）/ Sonnet（中等）/ Haiku（簡單）
+        2. 選定模型失敗 → Fallback 到下一層模型
         3. 都失敗 → 離線模式
 
         Prompt Caching (BDD Spec §14)：
@@ -3053,7 +3054,7 @@ class MuseonBrain:
                 logger.warning("tool_schemas 載入失敗，tool_use 降級關閉")
 
         # ── Router 智能分流 ──
-        _route_decision = {"model": "sonnet", "reason": "no_router", "task_type": "complex"}
+        _route_decision = {"model": "opus", "reason": "no_router", "task_type": "complex"}
         if self._router and user_content:
             try:
                 _route_decision = self._router.classify(
@@ -3068,11 +3069,14 @@ class MuseonBrain:
             except Exception as e:
                 logger.warning(f"Router 分流失敗（降級 Sonnet）: {e}")
 
-        # 根據 Router 決定模型（MAX 模式下仍保留分流統計）
-        if _route_decision["model"] == "haiku":
-            _ordered_chain = ["haiku", "sonnet"]
-        else:
-            _ordered_chain = ["sonnet", "haiku"]
+        # 根據 Router 決定模型（三層分流：Opus → Sonnet → Haiku）
+        _router_model = _route_decision["model"]
+        if _router_model == "opus":
+            _ordered_chain = ["opus", "sonnet", "haiku"]
+        elif _router_model == "sonnet":
+            _ordered_chain = ["sonnet", "opus", "haiku"]
+        else:  # haiku
+            _ordered_chain = ["haiku", "sonnet", "opus"]
 
         # 嘗試 Fallback 模型鏈
         last_error = None
