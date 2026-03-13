@@ -21,8 +21,8 @@ class TestRouter:
             assert result["model"] == "haiku"
             assert result["task_type"] == "simple_greeting"
 
-    def test_classify_skill_task_to_sonnet(self):
-        """Test that skill-based tasks are routed to Sonnet."""
+    def test_classify_skill_task_to_opus(self):
+        """Test that skill-based tasks are routed to Opus."""
         from museon.llm.router import Router
 
         router = Router()
@@ -35,12 +35,12 @@ class TestRouter:
 
         for request in skill_requests:
             result = router.classify(request, session_context={})
-            assert result["model"] == "sonnet"
+            assert result["model"] == "opus"
             assert result["reason"].startswith("kw:")
             assert result["task_type"] == "complex"
 
-    def test_classify_business_consulting_to_sonnet(self):
-        """Test that business consulting is routed to Sonnet."""
+    def test_classify_business_consulting_to_opus(self):
+        """Test that business consulting is routed to Opus."""
         from museon.llm.router import Router
 
         router = Router()
@@ -53,7 +53,7 @@ class TestRouter:
 
         for request in consulting_requests:
             result = router.classify(request, session_context={})
-            assert result["model"] == "sonnet"
+            assert result["model"] == "opus"
             assert result["reason"].startswith("kw:")
             assert result["task_type"] == "complex"
 
@@ -79,7 +79,7 @@ class TestRouter:
         """Test routing when skills are active in session context.
 
         Note: Current router does not check active_skills in session_context.
-        A short message without Sonnet keywords is routed to Haiku (casual_chat).
+        A short message without complex keywords is routed to Sonnet (casual_chat).
         Active skill awareness is handled at a higher layer, not the Router.
         """
         from museon.llm.router import Router
@@ -90,12 +90,13 @@ class TestRouter:
 
         result = router.classify("Continue with the post", session_context=session_context)
         # Router classifies purely on message content; active_skills not checked
-        assert result["model"] == "haiku"
+        # 21-300 char range without keywords → Sonnet (casual_chat)
+        assert result["model"] == "sonnet"
         assert result["reason"] == "casual_chat"
         assert result["task_type"] == "chat"
 
-    def test_default_to_sonnet_for_complex_tasks(self):
-        """Test that tasks with Sonnet keywords are routed to Sonnet."""
+    def test_default_to_opus_for_complex_tasks(self):
+        """Test that tasks with complex keywords are routed to Opus."""
         from museon.llm.router import Router
 
         router = Router()
@@ -107,7 +108,7 @@ class TestRouter:
 
         for request in complex_requests:
             result = router.classify(request, session_context={})
-            assert result["model"] == "sonnet"
+            assert result["model"] == "opus"
             assert result["reason"].startswith("kw:")
             assert result["task_type"] == "complex"
 
