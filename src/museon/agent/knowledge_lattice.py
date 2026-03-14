@@ -2896,9 +2896,17 @@ class KnowledgeLattice:
 
     def _persist(self) -> None:
         """持久化所有資料到磁碟."""
-        self._store.save_crystals(self._crystals)
-        self._store.save_links(self._dag.get_all_links())
-        self._store.save_archive(self._archive)
+        try:
+            self._store.save_crystals(self._crystals)
+            self._store.save_links(self._dag.get_all_links())
+            self._store.save_archive(self._archive)
+        except AttributeError as e:
+            logger.error(
+                f"KnowledgeLattice._persist 方法名稱不匹配"
+                f"（可能是 stale .pyc）: {e}"
+            )
+        except Exception as e:
+            logger.error(f"KnowledgeLattice._persist 失敗: {e}")
 
     def _keyword_match_score(self, query: str, crystal: Crystal) -> float:
         """計算關鍵字匹配分數.

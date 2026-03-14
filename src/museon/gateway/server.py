@@ -3559,6 +3559,13 @@ async def _telegram_message_pump(adapter) -> None:
                     else:
                         response_text = str(brain_result) if brain_result else ""
 
+                # ── 自癒：空回應 fallback（防止 Telegram 拒絕空訊息）──
+                if not response_text or not response_text.strip():
+                    logger.warning("Brain returned empty response, applying fallback")
+                    _mc = brain._load_anima_mc()
+                    _name = _mc.get("identity", {}).get("name", "霓裳") if _mc else "霓裳"
+                    response_text = f"[{_name}] 我剛才想了一下，但沒有組織出回應。你可以再說一次嗎？"
+
             except Exception as proc_err:
                 # Brain 處理失敗（API timeout、離線等）→ 回傳錯誤訊息給使用者
                 logger.error(f"Brain processing failed: {proc_err}", exc_info=True)
@@ -5217,6 +5224,10 @@ def _register_system_cron_jobs(brain, app=None) -> None:
             degraded = []
 
             for name, result in results.items():
+                # 跳過已停用或未安裝的工具 — 不計入失敗
+                _tool_status = result.get("status", "")
+                if _tool_status in ("disabled", "not_installed"):
+                    continue
                 if not result.get("healthy", True):
                     _tool_fail_counts[name] = _tool_fail_counts.get(name, 0) + 1
                     count = _tool_fail_counts[name]
@@ -5306,6 +5317,28 @@ def _register_system_cron_jobs(brain, app=None) -> None:
         _tool_health_check_job, trigger="interval",
         job_id="tool-health-check",
         minutes=5,
+    )
+
+    # ── 狀態熵清理（每小時）— 防止計數器/cache/session 無限膨脹 ──
+    async def _stale_state_cleanup_job():
+        """每小時清理過期的暫存狀態."""
+        try:
+            # 1. 清理 _tool_fail_counts 中已歸零的條目
+            stale = [k for k, v in _tool_fail_counts.items() if v == 0]
+            for k in stale:
+                del _tool_fail_counts[k]
+            # 2. 清理過期 session locks
+            if session_manager and hasattr(session_manager, 'cleanup_stale'):
+                await session_manager.cleanup_stale()
+            if stale:
+                logger.debug(f"Stale state cleanup: removed {len(stale)} zero counters")
+        except Exception as e:
+            logger.debug(f"Stale state cleanup failed: {e}")
+
+    cron_engine.add_job(
+        _stale_state_cleanup_job, trigger="interval",
+        job_id="stale-state-cleanup",
+        hours=1,
     )
 
     # ── WP-04: System Audit Periodic (每天 02:30) ──
