@@ -34,7 +34,7 @@ class PulseDB:
     def _get_conn(self) -> sqlite3.Connection:
         if not hasattr(self._local, "conn") or self._local.conn is None:
             self._local.conn = sqlite3.connect(
-                str(self._db_path), check_same_thread=False
+                str(self._db_path), check_same_thread=False, timeout=30
             )
             self._local.conn.row_factory = sqlite3.Row
             self._local.conn.execute("PRAGMA journal_mode=WAL")

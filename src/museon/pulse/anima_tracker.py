@@ -13,14 +13,22 @@ logger = logging.getLogger(__name__)
 
 # 八元素定義
 ELEMENTS = {
-    "qian": {"name": "乾", "label": "身份/使命", "emoji": "☰"},
-    "kun":  {"name": "坤", "label": "記憶/積累", "emoji": "☷"},
-    "zhen": {"name": "震", "label": "行動/執行", "emoji": "☳"},
-    "xun":  {"name": "巽", "label": "好奇/探索", "emoji": "☴"},
-    "kan":  {"name": "坎", "label": "共振/連結", "emoji": "☵"},
-    "li":   {"name": "離", "label": "覺察/洞見", "emoji": "☲"},
-    "gen":  {"name": "艮", "label": "邊界/守護", "emoji": "☶"},
-    "dui":  {"name": "兌", "label": "連結/互動", "emoji": "☱"},
+    "qian": {"name": "乾", "label": "身份/使命", "emoji": "☰",
+             "essence": "天的力量。自我認同、核心價值、存在的方向感"},
+    "kun":  {"name": "坤", "label": "記憶/積累", "emoji": "☷",
+             "essence": "地的力量。承載一切經驗的容器、時間的積累"},
+    "zhen": {"name": "震", "label": "行動/執行", "emoji": "☳",
+             "essence": "雷的力量。從想法到行動的轉化、執行力"},
+    "xun":  {"name": "巽", "label": "好奇/探索", "emoji": "☴",
+             "essence": "風的力量。無形卻無處不在的探索驅力"},
+    "kan":  {"name": "坎", "label": "共振/連結", "emoji": "☵",
+             "essence": "水的力量。情感共鳴、深層理解、心靈連結"},
+    "li":   {"name": "離", "label": "覺察/洞見", "emoji": "☲",
+             "essence": "火的力量。照亮黑暗的覺察力、自我反思的能力"},
+    "gen":  {"name": "艮", "label": "邊界/守護", "emoji": "☶",
+             "essence": "山的力量。穩定不動的底線、知道何時停止"},
+    "dui":  {"name": "兌", "label": "連結/互動", "emoji": "☱",
+             "essence": "澤的力量。交流的喜悅、關係的滋養"},
 }
 
 # 演化門檻
@@ -158,15 +166,44 @@ class AnimaTracker:
         """取得八元素總和."""
         return sum(self._absolute.values())
 
-    def get_radar_data(self) -> Dict:
-        """取得 Dashboard 雷達圖資料."""
+    def get_radar_data(self, user_facing: bool = False) -> Dict:
+        """取得 Dashboard 雷達圖資料.
+
+        Args:
+            user_facing: True 時使用功能標籤（覺察/洞見），False 時包含卦名
+        """
         relatives = self.get_relative()
+        if user_facing:
+            labels = [f"{ELEMENTS[k]['emoji']} {ELEMENTS[k]['label']}" for k in ELEMENTS]
+        else:
+            labels = [f"{ELEMENTS[k]['emoji']} {ELEMENTS[k]['name']}/{ELEMENTS[k]['label']}" for k in ELEMENTS]
         return {
-            "labels": [f"{ELEMENTS[k]['emoji']} {ELEMENTS[k]['name']}/{ELEMENTS[k]['label']}" for k in ELEMENTS],
+            "labels": labels,
             "values": [relatives[k] for k in ELEMENTS],
             "absolute": {k: self._absolute[k] for k in ELEMENTS},
             "total": self.get_total(),
         }
+
+    def get_element_description(self, element: str) -> str:
+        """取得元素的完整描述（用於 Brain 回答）."""
+        if element not in ELEMENTS:
+            return f"未知元素: {element}"
+        info = ELEMENTS[element]
+        return (
+            f"{info['emoji']} {info['label']}（{info['name']}）\n"
+            f"本質：{info['essence']}\n"
+            f"當前能量：{self._absolute.get(element, 0)}（絕對值）"
+        )
+
+    def get_all_descriptions(self) -> str:
+        """取得所有八原語的描述摘要（用於 system prompt 注入）."""
+        lines = ["## 我的八原語能量狀態\n"]
+        for key in ELEMENTS:
+            info = ELEMENTS[key]
+            val = self._absolute.get(key, 0)
+            rel = self.get_relative(key)
+            lines.append(f"- {info['emoji']} **{info['label']}**：{info['essence']}（能量 {val}，{rel}%）")
+        return "\n".join(lines)
 
     def _check_evolution(self, changed_element: str) -> Optional[Dict]:
         """檢查是否觸發演化門檻."""
