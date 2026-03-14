@@ -95,6 +95,7 @@ _FULL_STEPS = [
     "18",
     "20", "21", "22", "23",  # 新增：synapse_decay/muscle_atrophy/immune_prune/trigger_eval
     "24", "25",  # 新增：演化速度計算 / 週月循環觸發檢查
+    "26", "27",  # 新增：session 清理 / JSONL 日誌輪替
 ]
 _ORIGIN_STEPS = ["5.8", "6", "7", "8", "16"]
 _NODE_STEPS = [
@@ -195,6 +196,9 @@ class NightlyPipeline:
             # ── Evolution Architecture 新增步驟 ──
             "24": ("step_24_evolution_velocity", self._step_evolution_velocity),
             "25": ("step_25_periodic_cycle_check", self._step_periodic_cycle_check),
+            # ── 持久層衛生 ──
+            "26": ("step_26_session_cleanup", self._step_session_cleanup),
+            "27": ("step_27_log_rotation", self._step_log_rotation),
         }
 
     def run(self, mode: str = "full") -> Dict:
@@ -2900,6 +2904,106 @@ class NightlyPipeline:
             results["error"] = f"PeriodicCycles not available: {e}"
 
         return results
+
+    # ═══════════════════════════════════════════
+    # Step 26: Session TTL 清理
+    # ═══════════════════════════════════════════
+
+    def _step_session_cleanup(self) -> Dict:
+        """Step 26: 清理超過 14 天的 session 檔案."""
+        sessions_dir = self._workspace / "_system" / "sessions"
+        if not sessions_dir.exists():
+            return {"skipped": "sessions dir not found"}
+
+        cutoff = time.time() - 14 * 86400  # 14 天
+        removed = 0
+        kept = 0
+
+        for f in sessions_dir.glob("*.json"):
+            try:
+                if f.stat().st_mtime < cutoff:
+                    f.unlink()
+                    removed += 1
+                else:
+                    kept += 1
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] session cleanup skip {f.name}: {e}")
+
+        if removed > 0:
+            logger.info(f"[NIGHTLY] session cleanup: removed {removed}, kept {kept}")
+
+        return {"removed": removed, "kept": kept}
+
+    # ═══════════════════════════════════════════
+    # Step 27: JSONL 日誌輪替
+    # ═══════════════════════════════════════════
+
+    def _step_log_rotation(self) -> Dict:
+        """Step 27: 輪替無日期的 JSONL 日誌 — 超過 5MB 自動歸檔."""
+        import gzip
+        import shutil
+
+        SIZE_THRESHOLD = 5 * 1024 * 1024  # 5 MB
+        MAX_ARCHIVE_DAYS = 30
+
+        # 已知的無日期 JSONL 檔案（相對於 workspace）
+        jsonl_paths = [
+            "heartbeat.jsonl",
+            "_system/footprints/actions.jsonl",
+            "_system/footprints/decisions.jsonl",
+            "_system/footprints/evolutions.jsonl",
+            "intuition/signal_log.jsonl",
+            "eval/q_scores.jsonl",
+            "eval/satisfaction.jsonl",
+        ]
+
+        rotated = []
+        cleaned = []
+        today_str = datetime.now(TZ_TAIPEI).strftime("%Y%m%d")
+
+        for rel_path in jsonl_paths:
+            fp = self._workspace / rel_path
+            if not fp.exists():
+                continue
+
+            try:
+                size = fp.stat().st_size
+                if size < SIZE_THRESHOLD:
+                    continue
+
+                # 歸檔：rename → .gz
+                archive_name = f"{fp.stem}_{today_str}.jsonl.gz"
+                archive_path = fp.parent / archive_name
+
+                with open(fp, "rb") as f_in:
+                    with gzip.open(archive_path, "wb") as f_out:
+                        shutil.copyfileobj(f_in, f_out)
+
+                # 清空原檔（保留檔案，避免其他進程 FileNotFoundError）
+                with open(fp, "w") as f:
+                    pass
+
+                rotated.append(f"{rel_path} ({size // 1024}KB)")
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] log rotation skip {rel_path}: {e}")
+
+        # 清理超過 30 天的 .gz 歸檔
+        cutoff = time.time() - MAX_ARCHIVE_DAYS * 86400
+        for gz in self._workspace.rglob("*.jsonl.gz"):
+            try:
+                if gz.stat().st_mtime < cutoff:
+                    gz.unlink()
+                    cleaned.append(gz.name)
+            except Exception:
+                pass
+
+        if rotated:
+            logger.info(f"[NIGHTLY] log rotation: {rotated}")
+
+        return {
+            "rotated": rotated,
+            "archives_cleaned": len(cleaned),
+        }
 
     # ═══════════════════════════════════════════
     # 報告持久化
