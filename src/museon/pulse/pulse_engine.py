@@ -464,6 +464,7 @@ class PulseEngine:
                         limitation="需驗證是否可內化為實際能力",
                         tags=["exploration", trigger],
                         domain="external_knowledge",
+                        mode="auto",
                     )
                     _crystal.origin = "exploration"
                     _lattice._persist()

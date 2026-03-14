@@ -2805,14 +2805,12 @@ def create_app() -> FastAPI:
 
                         # ── VITA PulseEngine: 生命力引擎 ──
                         try:
-                            from museon.pulse.pulse_db import PulseDB
+                            from museon.pulse.pulse_db import get_pulse_db
                             from museon.pulse.explorer import Explorer
                             from museon.pulse.anima_tracker import AnimaTracker
                             from museon.pulse.pulse_engine import PulseEngine
 
-                            pulse_db = PulseDB(
-                                db_path=str(brain.data_dir / "pulse" / "pulse.db")
-                            )
+                            pulse_db = get_pulse_db(brain.data_dir)
                             explorer = Explorer(
                                 brain=brain,
                                 data_dir=str(brain.data_dir),
@@ -4294,8 +4292,13 @@ def _register_system_cron_jobs(brain, app=None) -> None:
             # WP-03: 注入 DendriticScorer 健康閘門
             _gov = getattr(app.state, "governor", None)
             _dendritic = getattr(_gov, "_dendritic", None) if _gov else None
+            # Contract 3: 注入 memory_manager + heartbeat_focus
+            _memory_manager = getattr(brain, "memory_manager", None) or getattr(brain, "_memory_manager", None)
+            _heartbeat_focus = getattr(app.state, "heartbeat_focus", None)
             pipeline = NightlyPipeline(
                 workspace=data_dir,
+                memory_manager=_memory_manager,
+                heartbeat_focus=_heartbeat_focus,
                 event_bus=event_bus,
                 brain=brain,
                 dendritic_scorer=_dendritic,
@@ -4328,9 +4331,11 @@ def _register_system_cron_jobs(brain, app=None) -> None:
         # Phase B: 原有 NightlyJob（記憶融合 + Token 優化 + 鍛造檢查 + 健康報告）
         try:
             from museon.nightly.job import NightlyJob
+            # Contract 3: 注入 brain 的 llm_adapter（而非 None）
+            _llm_client = getattr(brain, "_llm_adapter", None)
             job = NightlyJob(
                 memory_store=brain.memory_store,
-                llm_client=None,
+                llm_client=_llm_client,
                 data_dir=data_dir,
             )
             result = await job.run()
@@ -4865,11 +4870,10 @@ def _register_system_cron_jobs(brain, app=None) -> None:
         """定期檢查承諾到期狀態，逾期時透過 ProactiveBridge 推送."""
         try:
             from museon.pulse.commitment_tracker import CommitmentTracker
-            from museon.pulse.pulse_db import PulseDB
+            from museon.pulse.pulse_db import get_pulse_db
 
             _data_dir = _resolve_data_dir()
-            _pulse_path = os.path.join(_data_dir, "pulse", "pulse.db")
-            _pdb = PulseDB(_pulse_path)
+            _pdb = get_pulse_db(Path(_data_dir))
             tracker = CommitmentTracker(pulse_db=_pdb)
 
             result = tracker.periodic_check()

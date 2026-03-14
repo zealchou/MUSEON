@@ -832,7 +832,11 @@ class Crystallizer:
         )
         return refined, discovered_links
 
-    def quality_check(self, refined: Dict[str, Any]) -> Tuple[bool, List[str]]:
+    def quality_check(
+        self,
+        refined: Dict[str, Any],
+        mode: str = "strict",
+    ) -> Tuple[bool, List[str]]:
         """Step 4: 品質閘檢查 -- 四道 Gate 依序驗證.
 
         Gate 0 (G0): 非重複檢查
@@ -842,13 +846,16 @@ class Crystallizer:
 
         Args:
             refined: Step 2/3 的精煉結果
+            mode: "strict" (人工結晶，全 Gate 強制) |
+                  "auto" (自動結晶，G2/G3 降級為 warning 不阻擋)
 
         Returns:
             (是否全部通過, 未通過的問題列表)
         """
         issues: List[str] = []
+        warnings: List[str] = []
 
-        # Gate 0: 非重複檢查
+        # Gate 0: 非重複檢查（嚴格模式和自動模式都強制）
         g1 = refined.get("g1_summary", "")
         for cuid, crystal in self._crystals.items():
             if crystal.archived:
@@ -861,32 +868,54 @@ class Crystallizer:
                 )
                 break
 
-        # Gate 1: 電梯測試 -- G1 摘要必須存在
+        # Gate 1: 電梯測試 -- G1 摘要必須存在（兩種模式都強制）
         if not g1.strip():
             issues.append("G1 失敗：摘要為空")
 
         # Gate 2: MECE 冗餘率 < 10%
         g2 = refined.get("g2_structure", [])
         if len(g2) < 2:
-            issues.append("G2 失敗：MECE 拆解不足（至少需要 2 個面向）")
+            if mode == "auto":
+                # auto 模式：G2 降級為 warning，不阻擋結晶
+                warnings.append("G2 警告：MECE 拆解不足（auto 模式放行）")
+            else:
+                issues.append("G2 失敗：MECE 拆解不足（至少需要 2 個面向）")
         else:
             redundancy = self._calc_redundancy(g2)
-            if redundancy > 0.10:
-                issues.append(
-                    f"G2 失敗：冗餘率 {redundancy:.1%} 超過 10% 閾值"
-                )
+            threshold = 0.20 if mode == "auto" else 0.10
+            if redundancy > threshold:
+                if mode == "auto":
+                    warnings.append(
+                        f"G2 警告：冗餘率 {redundancy:.1%}（auto 模式放行）"
+                    )
+                else:
+                    issues.append(
+                        f"G2 失敗：冗餘率 {redundancy:.1%} 超過 10% 閾值"
+                    )
 
         # Gate 3: Root Inquiry 存在
         g3 = refined.get("g3_root_inquiry", "")
         if not g3.strip():
-            issues.append("G3 失敗：Root Inquiry 為空")
+            if mode == "auto":
+                warnings.append("G3 警告：Root Inquiry 為空（auto 模式放行）")
+            else:
+                issues.append("G3 失敗：Root Inquiry 為空")
 
         passed = len(issues) == 0
 
-        logger.info(
-            f"結晶化 Step 4 完成：品質閘 {'通過' if passed else '未通過'} "
-            f"| 問題數: {len(issues)}"
-        )
+        log_parts = [
+            f"結晶化 Step 4 完成：品質閘 {'通過' if passed else '未通過'}",
+            f"mode={mode}",
+            f"問題數: {len(issues)}",
+        ]
+        if warnings:
+            log_parts.append(f"警告數: {len(warnings)}")
+        logger.info(" | ".join(log_parts))
+
+        # 將 warnings 附加到結果（不影響 passed 判定，但讓呼叫端可見）
+        if warnings:
+            issues.extend(warnings)
+
         return passed, issues
 
     def register(
@@ -1714,6 +1743,7 @@ class KnowledgeLattice:
         limitation: str = "",
         tags: Optional[List[str]] = None,
         domain: str = "",
+        mode: str = "strict",
     ) -> Crystal:
         """完整五步驟結晶化流程.
 
@@ -1730,6 +1760,8 @@ class KnowledgeLattice:
             limitation: 限制條件
             tags: 標籤
             domain: 領域
+            mode: "strict" (人工/高品質結晶) |
+                  "auto" (自動結晶，G2/G3 放寬)
 
         Returns:
             新建立的 Crystal 實例
@@ -1774,8 +1806,8 @@ class KnowledgeLattice:
                 refined
             )
 
-            # Step 4: 品質閘檢查
-            passed, issues = self._crystallizer.quality_check(refined)
+            # Step 4: 品質閘檢查（mode 透傳至 G2/G3 閾值）
+            passed, issues = self._crystallizer.quality_check(refined, mode=mode)
             if not passed:
                 logger.warning(
                     f"品質閘未通過，標記為 quarantine: {issues}"

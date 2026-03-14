@@ -533,9 +533,8 @@ class TelegramAdapter(ChannelAdapter):
                 await query.answer("系統未就緒", show_alert=True)
                 return
 
-            db_path = brain.data_dir / "pulse.db"
-            from museon.pulse.pulse_db import PulseDB
-            db = PulseDB(str(db_path))
+            from museon.pulse.pulse_db import get_pulse_db
+            db = get_pulse_db(brain.data_dir)
 
             if action == "approve":
                 success = db.approve_proposal(proposal_id, decided_by="human")

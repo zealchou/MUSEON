@@ -289,8 +289,8 @@ class MuseonBrain:
         self._commitment_tracker = None
         try:
             from museon.pulse.commitment_tracker import CommitmentTracker
-            from museon.pulse.pulse_db import PulseDB
-            _pulse_db = PulseDB(str(self.data_dir / "pulse" / "pulse.db"))
+            from museon.pulse.pulse_db import get_pulse_db
+            _pulse_db = get_pulse_db(self.data_dir)
             self._commitment_tracker = CommitmentTracker(pulse_db=_pulse_db)
         except Exception as e:
             logger.warning(f"CommitmentTracker 載入失敗（降級運行）: {e}")
@@ -308,7 +308,7 @@ class MuseonBrain:
         try:
             from museon.agent.metacognition import MetaCognitionEngine
             self._metacognition = MetaCognitionEngine(
-                pulse_db_path=str(self.data_dir / "pulse" / "pulse.db"),
+                data_dir=self.data_dir,
                 brain=self,
             )
         except Exception as e:
@@ -1156,9 +1156,8 @@ class MuseonBrain:
                 # ★ 寫入排隊：PulseDB 寫入通過 WriteQueue 序列化
                 if fulfilled and hasattr(self, '_soul_ring_store'):
                     try:
-                        from museon.pulse.pulse_db import PulseDB
-                        _pulse_path = self.data_dir / "pulse" / "pulse.db"
-                        _pdb = PulseDB(str(_pulse_path))
+                        from museon.pulse.pulse_db import get_pulse_db
+                        _pdb = get_pulse_db(self.data_dir)
                         for _fid in fulfilled:
                             if self._wq:
                                 self._wq.enqueue(
@@ -2187,25 +2186,23 @@ class MuseonBrain:
         # 今日探索上下文：注入最近探索結果，使 Brain 能討論探索發現
         if self.data_dir:
             try:
-                from museon.pulse.pulse_db import PulseDB
-                _pulse_db_path = Path(self.data_dir) / "_system" / "pulse.db"
-                if _pulse_db_path.exists():
-                    _pdb = PulseDB(str(_pulse_db_path))
-                    _today_exps = _pdb.get_today_explorations()
-                    # 取最近 2 筆有效探索（findings 非空）
-                    _valid_exps = [
-                        e for e in reversed(_today_exps)
-                        if e.get("findings") and e["findings"] not in ("搜尋無結果", "無價值發現", "")
-                    ][:2]
-                    for _exp in _valid_exps:
-                        _exp_topic = _exp.get("topic", "未知主題")
-                        _exp_findings = _exp.get("findings", "")[:300]
-                        items.append({
-                            "content": f"今日探索「{_exp_topic}」: {_exp_findings}",
-                            "layer": "exploration",
-                            "tags": ["自主探索", "今日發現"],
-                            "outcome": "",
-                        })
+                from museon.pulse.pulse_db import get_pulse_db
+                _pdb = get_pulse_db(Path(self.data_dir))
+                _today_exps = _pdb.get_today_explorations()
+                # 取最近 2 筆有效探索（findings 非空）
+                _valid_exps = [
+                    e for e in reversed(_today_exps)
+                    if e.get("findings") and e["findings"] not in ("搜尋無結果", "無價值發現", "")
+                ][:2]
+                for _exp in _valid_exps:
+                    _exp_topic = _exp.get("topic", "未知主題")
+                    _exp_findings = _exp.get("findings", "")[:300]
+                    items.append({
+                        "content": f"今日探索「{_exp_topic}」: {_exp_findings}",
+                        "layer": "exploration",
+                        "tags": ["自主探索", "今日發現"],
+                        "outcome": "",
+                    })
             except Exception as e:
                 logger.debug(f"Exploration context in memory inject: {e}")
 
