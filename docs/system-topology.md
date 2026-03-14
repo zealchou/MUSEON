@@ -1,0 +1,370 @@
+# MUSEON 系統拓撲圖 v1.0
+
+> 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
+> 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+
+---
+
+## 使用方式
+
+| 場景 | 如何使用 |
+|------|---------|
+| **新增模組** | 在 `nodes` 新增條目 → 在 `links` 定義所有輸入/輸出 → 跑驗證清單 |
+| **Debug** | 找到問題節點 → 查上游（輸入）和下游（輸出）→ 逐一排查 |
+| **審計** | `system_audit` 載入此文件 → 檢查孤立節點、缺失連線、循環依賴 |
+| **迭代** | 修改前查影響範圍（所有相關 links）→ 修改後驗證無回歸 |
+
+---
+
+## 群組定義
+
+| 群組 ID | 名稱 | 職責 | 色碼 |
+|---------|------|------|------|
+| `center` | 核心 | 事件匯流排，全系統通訊樞紐 | `#C4502A` |
+| `channel` | 通道入口 | 使用者訊息收發、WebSocket、排程 | `#C4502A` |
+| `agent` | Agent / Brain | 主判斷中樞、技能路由、元認知 | `#2A7A6E` |
+| `pulse` | Pulse 生命力 | 自主探索、推播、心跳、承諾追蹤 | `#B8923A` |
+| `gov` | Governance | 三焦治理、免疫、護欄、沙盒 | `#2A6A8A` |
+| `doctor` | Doctor 診斷 | 系統審計、自我診斷、自動修復 | `#2D8A6E` |
+| `llm` | LLM 路由 | 模型選擇、預算、速限、快取 | `#5A5A6E` |
+| `data` | 資料持久層 | 記憶、向量索引、技能庫、SQLite | `#7A7888` |
+| `nightly` | Nightly 夜間 | 18 步夜間整合管線、演化提案 | `#9A3A1C` |
+| `external` | 外部服務 | SearXNG、Qdrant、Firecrawl、API | `#6A6880` |
+
+---
+
+## 節點清單（Nodes）
+
+### center — 核心
+| ID | 名稱 | 中文 | Hub | 半徑 |
+|----|------|------|-----|------|
+| `event-bus` | Event Bus | 核心事件匯流排 | Yes | 3.2 |
+
+### channel — 通道入口
+| ID | 名稱 | 中文 | Hub | 半徑 |
+|----|------|------|-----|------|
+| `user` | User (Zeal) | 使用者 | - | 2.0 |
+| `telegram` | Telegram | 主通道 | - | 1.6 |
+| `gateway` | Gateway | WebSocket :8765 | - | 1.6 |
+| `cron` | Cron | 排程入口 | - | 1.2 |
+
+### agent — Agent / Brain
+| ID | 名稱 | 中文 | Hub | Parent | 半徑 |
+|----|------|------|-----|--------|------|
+| `brain` | Agent / Brain | 主判斷中樞 | Yes | - | 2.8 |
+| `dna27` | DNA27 | 27 反射叢集 | - | brain | 1.0 |
+| `skill-router` | Skill Router | 技能路由 | - | brain | 1.1 |
+| `reflex-router` | Reflex Router | 反射路由 | - | brain | 1.0 |
+| `dispatch` | Dispatch | 多技能編排 | - | brain | 1.0 |
+| `knowledge-lattice` | Knowledge Lattice | 知識晶格 | - | brain | 1.1 |
+| `plan-engine` | Plan Engine | 六階段計畫 | - | brain | 1.0 |
+| `metacognition` | Metacognition | 元認知審查 | - | brain | 1.0 |
+| `intuition` | Intuition | 五層直覺 | - | brain | 0.9 |
+| `eval-engine` | Eval Engine | Q-Score | - | brain | 1.0 |
+| `soul-ring` | Soul Ring | 靈魂年輪 | - | brain | 0.9 |
+
+### pulse — Pulse 生命力
+| ID | 名稱 | 中文 | Hub | Parent | 半徑 |
+|----|------|------|-----|--------|------|
+| `pulse` | Pulse Engine | VITA 生命力 | Yes | - | 2.8 |
+| `heartbeat` | Heartbeat | 三脈主控 | - | pulse | 1.0 |
+| `explorer` | Explorer | 自主探索 | - | pulse | 1.1 |
+| `silent-digestion` | Silent Digestion | 靜默消化 | - | pulse | 1.0 |
+| `proactive-bridge` | Proactive Bridge | 主動推播 | - | pulse | 1.1 |
+| `micro-pulse` | Micro Pulse | 秒級微脈 | - | pulse | 0.8 |
+| `pulse-db` | Pulse DB | 脈搏資料庫 | - | pulse | 0.8 |
+| `commitment-tracker` | Commitment | 承諾追蹤 | - | pulse | 0.9 |
+| `task-scheduler` | Scheduler | APScheduler | - | pulse | 0.8 |
+
+### gov — Governance
+| ID | 名稱 | 中文 | Hub | Parent | 半徑 |
+|----|------|------|-----|--------|------|
+| `governance` | Governance | 三焦式治理 | Yes | - | 2.8 |
+| `governor` | Governor | 上中下焦 | - | governance | 1.0 |
+| `immunity` | Immunity | 先天 + 後天免疫 | - | governance | 1.1 |
+| `preflight` | Preflight | 啟動門 | - | governance | 0.9 |
+| `refractory` | Refractory | 斷路器 | - | governance | 0.9 |
+| `guardrails` | Guardrails | 四層安全護欄 | - | governance | 1.0 |
+| `skill-scanner` | Skill Scanner | 技能掃描 | - | governance | 0.8 |
+| `sandbox` | Sandbox | 沙盒隔離 | - | governance | 0.8 |
+| `telegram-guard` | TG Guard | Polling 守衛 | - | governance | 0.8 |
+| `service-health` | Service Health | 服務監控 | - | governance | 1.0 |
+
+### doctor — Doctor 診斷
+| ID | 名稱 | 中文 | Hub | Parent | 半徑 |
+|----|------|------|-----|--------|------|
+| `doctor` | Doctor | 自我診斷修復 | Yes | - | 2.8 |
+| `system-audit` | System Audit | 7 層 46 項 | - | doctor | 1.1 |
+| `health-check` | Health Check | 12 項基礎 | - | doctor | 0.9 |
+| `self-diagnosis` | Self Diagnosis | 診斷管線 | - | doctor | 0.9 |
+| `auto-repair` | Auto Repair | 自動修復 | - | doctor | 1.0 |
+| `surgery` | Surgery | 精準手術 | - | doctor | 0.8 |
+| `log-analyzer` | Log Analyzer | 日誌分析 | - | doctor | 0.8 |
+| `code-analyzer` | Code Analyzer | 代碼品質 | - | doctor | 0.8 |
+
+### llm — LLM 路由
+| ID | 名稱 | 中文 | Hub | Parent | 半徑 |
+|----|------|------|-----|--------|------|
+| `llm-router` | LLM Router | 智能模型選擇 | Yes | - | 2.2 |
+| `budget-mgr` | Budget Mgr | Token 預算 | - | llm-router | 1.0 |
+| `rate-limit` | Rate Limit | 速限守衛 | - | llm-router | 0.8 |
+| `llm-cache` | Cache | LRU 快取 | - | llm-router | 0.8 |
+
+### data — 資料持久層
+| ID | 名稱 | 中文 | Hub | Parent | 半徑 |
+|----|------|------|-----|--------|------|
+| `data-bus` | DataBus | 資料層路由器 | Yes | - | 1.8 |
+| `data-watchdog` | DataWatchdog | 資料層監控 | - | data-bus | 1.0 |
+| `memory` | Memory | 六層記憶 | - | data-bus | 1.6 |
+| `vector-index` | Vector Index | Qdrant 語義 | - | data-bus | 1.5 |
+| `wee` | WEE | 演化引擎 | - | data-bus | 1.2 |
+| `skills-registry` | Skills Registry | 技能資料庫 | - | data-bus | 1.2 |
+| `registry` | Registry | SQLite | - | data-bus | 1.0 |
+| `skill-synapse` | Skill Synapse | 突觸網路 | - | data-bus | 0.9 |
+
+### nightly — Nightly 夜間
+| ID | 名稱 | 中文 | Hub | Parent | 半徑 |
+|----|------|------|-----|--------|------|
+| `nightly` | Nightly Pipeline | 29 步夜間整合 | Yes | - | 2.2 |
+| `morphenix` | Morphenix | 演化提案 | - | nightly | 1.0 |
+
+### external — 外部服務
+| ID | 名稱 | 中文 | Hub | 半徑 |
+|----|------|------|-----|------|
+| `searxng` | SearXNG | 搜尋 :8888 | - | 1.0 |
+| `qdrant` | Qdrant | 向量 DB :6333 | - | 1.0 |
+| `firecrawl` | Firecrawl | 爬取 :3002 | - | 0.8 |
+| `anthropic-api` | Anthropic API | Claude API | - | 1.1 |
+
+---
+
+## 連線清單（Links）
+
+### 連線類型定義
+
+| 類型 | 說明 | 色碼 |
+|------|------|------|
+| `flow` | 資料流（使用者指令流經的路徑） | `#E0714D` |
+| `control` | 控制流（事件分派、排程觸發） | `#7A7888` |
+| `internal` | 群組內部連線（Hub ↔ 子節點） | `#9898A8` |
+| `cross` | 跨群組連線（系統間協作） | `#C4502A` |
+| `async` | 非同步連線（推播、回饋） | `#B8923A` |
+| `monitor` | 監控連線（健康檢查） | `#2A6A8A` |
+
+### 主資料流（flow）
+| Source | Target | 說明 |
+|--------|--------|------|
+| `user` | `telegram` | 訊息指令 |
+| `telegram` | `gateway` | 轉發 |
+| `gateway` | `event-bus` | 路由 |
+| `cron` | `event-bus` | 定時觸發 |
+
+### 控制流（control）
+| Source | Target | 說明 |
+|--------|--------|------|
+| `event-bus` | `brain` | 事件分派 |
+| `event-bus` | `pulse` | 脈搏事件 |
+| `event-bus` | `governance` | 治理事件 |
+| `event-bus` | `doctor` | 診斷事件 |
+| `event-bus` | `llm-router` | LLM 事件 |
+| `event-bus` | `data-bus` | 資料事件 |
+| `cron` | `nightly` | 03:00 觸發 |
+
+### Agent 內部連線（internal）
+| Source | Target | 說明 |
+|--------|--------|------|
+| `brain` | `dna27` | 載入反射 |
+| `brain` | `skill-router` | 技能路由 |
+| `brain` | `reflex-router` | 迴圈判定 |
+| `brain` | `dispatch` | 多技能分派 |
+| `brain` | `knowledge-lattice` | 結晶注入 |
+| `brain` | `plan-engine` | 計畫啟動 |
+| `brain` | `metacognition` | 元認知 |
+| `brain` | `intuition` | 直覺感知 |
+| `brain` | `eval-engine` | 品質評分 |
+| `brain` | `soul-ring` | 年輪記錄 |
+
+### Pulse 內部連線（internal）
+| Source | Target | 說明 |
+|--------|--------|------|
+| `pulse` | `heartbeat` | 三脈 |
+| `pulse` | `explorer` | 探索 |
+| `pulse` | `silent-digestion` | 消化 |
+| `pulse` | `proactive-bridge` | 推播 |
+| `pulse` | `micro-pulse` | 微脈 |
+| `pulse` | `pulse-db` | 持久化 |
+| `pulse` | `commitment-tracker` | 承諾 |
+| `pulse` | `task-scheduler` | 排程 |
+
+### Governance 內部連線（internal）
+| Source | Target | 說明 |
+|--------|--------|------|
+| `governance` | `governor` | 三焦 |
+| `governance` | `immunity` | 免疫 |
+| `governance` | `preflight` | 啟動門 |
+| `governance` | `refractory` | 斷路 |
+| `governance` | `guardrails` | 護欄 |
+| `governance` | `skill-scanner` | 掃描 |
+| `governance` | `sandbox` | 沙盒 |
+| `governance` | `telegram-guard` | 守衛 |
+| `governance` | `service-health` | 監控 |
+
+### Doctor 內部連線（internal）
+| Source | Target | 說明 |
+|--------|--------|------|
+| `doctor` | `system-audit` | 審計 |
+| `doctor` | `health-check` | 檢查 |
+| `doctor` | `self-diagnosis` | 診斷 |
+| `doctor` | `auto-repair` | 修復 |
+| `doctor` | `surgery` | 手術 |
+| `doctor` | `log-analyzer` | 日誌 |
+| `doctor` | `code-analyzer` | 代碼 |
+
+### LLM 內部連線（internal）
+| Source | Target | 說明 |
+|--------|--------|------|
+| `llm-router` | `budget-mgr` | 預算 |
+| `llm-router` | `rate-limit` | 速限 |
+| `llm-router` | `llm-cache` | 快取 |
+
+### Data 內部連線（internal）
+| Source | Target | 說明 |
+|--------|--------|------|
+| `data-bus` | `memory` | Store 路由 |
+| `data-bus` | `vector-index` | Store 路由 |
+| `data-bus` | `wee` | Store 路由 |
+| `data-bus` | `skills-registry` | Store 路由 |
+| `data-bus` | `registry` | Store 路由 |
+| `data-bus` | `skill-synapse` | Store 路由 |
+| `data-bus` | `data-watchdog` | 監控注入 |
+| `wee` | `skill-synapse` | 突觸演化 |
+| `skills-registry` | `registry` | 技能資料表 |
+
+### Nightly 內部連線（internal）
+| Source | Target | 說明 |
+|--------|--------|------|
+| `nightly` | `morphenix` | 演化提案 |
+
+### 跨系統連線（cross）
+| Source | Target | 說明 |
+|--------|--------|------|
+| `skill-router` | `vector-index` | 語義匹配 |
+| `skill-router` | `skills-registry` | 技能查找 |
+| `skill-router` | `llm-router` | API 呼叫 |
+| `dispatch` | `llm-router` | API 呼叫 |
+| `knowledge-lattice` | `vector-index` | 結晶存取 |
+| `metacognition` | `llm-router` | Haiku 審查 |
+| `eval-engine` | `memory` | 品質數據 |
+| `eval-engine` | `registry` | Q-Score 存取 |
+| `soul-ring` | `memory` | 年輪寫入 |
+| `brain` | `llm-router` | 生成回應 |
+| `brain` | `memory` | 四通道持久化 |
+| `guardrails` | `brain` | 行為約束 |
+| `commitment-tracker` | `brain` | 承諾自檢 |
+| `commitment-tracker` | `registry` | 承諾記錄 |
+| `explorer` | `searxng` | 網路搜尋 |
+| `explorer` | `llm-router` | 深度分析 |
+| `explorer` | `firecrawl` | 頁面爬取 |
+| `silent-digestion` | `memory` | 反思寫入 |
+| `skill-scanner` | `skills-registry` | 安全掃描 |
+| `auto-repair` | `gateway` | 重啟修復 |
+| `system-audit` | `service-health` | 交叉驗證 |
+| `llm-router` | `anthropic-api` | API 呼叫 |
+| `memory` | `vector-index` | 嵌入索引 |
+| `memory` | `registry` | 持久化儲存 |
+| `vector-index` | `qdrant` | 向量存儲 |
+| `wee` | `skills-registry` | 演化追蹤 |
+| `wee` | `registry` | 演化狀態 |
+| `pulse-db` | `registry` | 脈搏記錄 |
+| `nightly` | `memory` | 記憶壓縮 |
+| `nightly` | `skills-registry` | 品質檢查 |
+| `nightly` | `wee` | 演化速度 |
+| `nightly` | `knowledge-lattice` | 結晶固化 |
+| `nightly` | `budget-mgr` | 預算結算 |
+| `nightly` | `immunity` | 抗體修剪 |
+| `nightly` | `skill-synapse` | Synapse Decay |
+| `nightly` | `data-watchdog` | Step 29 健康檢查 |
+| `data-bus` | `pulse-db` | Store 路由 |
+| `data-bus` | `knowledge-lattice` | Store 路由 |
+| `data-bus` | `soul-ring` | Store 路由 |
+| `data-bus` | `eval-engine` | Store 路由 |
+
+### 監控連線（monitor）
+| Source | Target | 說明 |
+|--------|--------|------|
+| `service-health` | `gateway` | 監控 |
+| `service-health` | `qdrant` | 監控 |
+| `service-health` | `searxng` | 監控 |
+| `service-health` | `firecrawl` | 監控 |
+| `service-health` | `anthropic-api` | 監控 |
+
+### 非同步連線（async）
+| Source | Target | 說明 |
+|--------|--------|------|
+| `proactive-bridge` | `telegram` | 非同步推播 |
+| `nightly` | `event-bus` | 回饋迴路 |
+| `morphenix` | `event-bus` | 提案回饋 |
+| `telegram` | `user` | 回傳回應 |
+| `data-watchdog` | `event-bus` | 監控事件 |
+
+---
+
+## 驗證規則（Validation Rules）
+
+### 必要條件 — 每次審計必檢
+
+- [ ] **無孤立節點**：每個節點至少有 1 條連線（輸入或輸出）
+- [ ] **Hub 完整性**：每個 Hub 節點必須與其所有 `parent=hub` 的子節點有 `internal` 連線
+- [ ] **Event Bus 必達**：每個群組的 Hub 至少有 1 條與 `event-bus` 的連線（control 或 async）
+- [ ] **外部服務必監控**：每個 `external` 節點至少被 `service-health` 監控
+- [ ] **資料層必連**：任何讀寫持久資料的節點必須與 `data` 群組有 `cross` 連線
+- [ ] **雙向一致**：如果 A→B 是 `cross`，B 的影響範圍分析中必須包含 A
+
+### 新增模組必做清單
+
+1. 在本文件 `nodes` 對應群組表格新增條目
+2. 定義所有 **輸入連線**（誰呼叫/觸發此模組？）
+3. 定義所有 **輸出連線**（此模組呼叫/影響誰？）
+4. 如果是 Hub 的子節點，設定 `parent` 並加入 `internal` 連線
+5. 如果依賴外部服務，加入 `cross` 連線到 `external` 節點
+6. 如果產生/消費持久資料，加入 `cross` 連線到 `data` 群組
+7. 更新 3D 心智圖 HTML（`data/workspace/MUSEON_3d_mindmap.html`）的 nodes 和 links 陣列
+8. 執行驗證規則確認無違規
+
+### 影響範圍分析模板
+
+修改節點 `X` 前，查詢：
+
+```
+直接影響：X 的所有輸出連線 targets
+間接影響：targets 的輸出連線 targets（二度關聯）
+上游依賴：X 的所有輸入連線 sources
+測試範圍：直接影響 + X 本身
+```
+
+---
+
+## 統計摘要
+
+| 指標 | 數值 |
+|------|------|
+| 總節點數 | 61 |
+| 總連線數 | 108 |
+| 群組數 | 10 |
+| Hub 節點 | 8 (event-bus, brain, pulse, governance, doctor, llm-router, nightly, data-bus) |
+| 跨系統連線 | 40 |
+| 內部連線 | 47 |
+| 非同步連線 | 5 |
+| 監控連線 | 5 |
+| 控制連線 | 7 |
+| 資料流連線 | 4 |
+| 平均連線數/節點 | 3.5 |
+
+---
+
+## 版本紀錄
+
+| 版本 | 日期 | 變更 |
+|------|------|------|
+| v1.0 | 2026-03-14 | 初版建立，59 節點 91 連線 |
+| v1.1 | 2026-03-15 | 新增 DataBus/DataWatchdog、data 群組 Hub 化、Nightly 29 步 |

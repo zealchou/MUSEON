@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>MUSEON 3D 系統心智圖</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#F7F5F0;font-family:'Outfit','Noto Sans TC',sans-serif;color:#12121A}
+canvas{display:block}
+
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 20px;
+  background:linear-gradient(180deg,rgba(247,245,240,.96) 0%,rgba(247,245,240,0) 100%);
+  pointer-events:none;
+}
+.topbar>*{pointer-events:auto}
+.topbar h1{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:#C4502A}
+.topbar .hint{font-size:.65rem;color:#5A5A6E}
+
+.legend{
+  position:fixed;top:52px;left:12px;z-index:90;
+  background:rgba(253,252,250,.94);border:1px solid #E2E0DA;
+  border-radius:10px;padding:14px 16px;width:195px;
+  backdrop-filter:blur(12px);
+  box-shadow:0 1px 3px rgba(18,18,26,.06),0 4px 12px rgba(18,18,26,.04);
+}
+.legend h3{font-family:'IBM Plex Mono',monospace;font-size:.58rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#9A3A1C;margin-bottom:10px}
+.legend-item{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:.66rem;color:#5A5A6E;cursor:pointer;transition:opacity .15s}
+.legend-item:hover{color:#12121A}
+.legend-item.dimmed{opacity:.25}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.legend-div{height:1px;background:#E2E0DA;margin:10px 0}
+.legend-link{display:flex;align-items:center;gap:8px;font-size:.6rem;color:#9898A8;margin-bottom:4px}
+.legend-line{width:18px;height:0;flex-shrink:0}
+
+.info-panel{
+  position:fixed;top:52px;right:12px;z-index:90;
+  background:rgba(253,252,250,.96);border:1px solid #E2E0DA;
+  border-radius:10px;padding:16px 18px;width:280px;max-height:calc(100vh - 80px);
+  overflow-y:auto;backdrop-filter:blur(12px);
+  box-shadow:0 1px 3px rgba(18,18,26,.06),0 4px 12px rgba(18,18,26,.04);
+  transition:opacity .25s,transform .25s;
+  opacity:0;transform:translateX(12px);pointer-events:none;
+}
+.info-panel.visible{opacity:1;transform:translateX(0);pointer-events:auto}
+.info-panel .nd-name{font-size:1rem;font-weight:600;color:#12121A}
+.info-panel .nd-zh{font-size:.78rem;color:#5A5A6E;margin-bottom:6px}
+.info-panel .nd-badge{
+  font-family:'IBM Plex Mono',monospace;font-size:.55rem;font-weight:600;
+  letter-spacing:.06em;text-transform:uppercase;
+  padding:2px 8px;border-radius:100px;display:inline-block;margin-bottom:12px;
+}
+.info-panel h4{font-size:.66rem;font-weight:600;color:#9898A8;margin:10px 0 4px}
+.conn-list{list-style:none}
+.conn-list li{font-size:.64rem;color:#5A5A6E;padding:3px 0;border-bottom:1px solid rgba(226,224,218,.6);display:flex;align-items:center;gap:6px}
+.conn-list li:last-child{border:none}
+.conn-arrow{font-size:.7rem;flex-shrink:0}
+.conn-lbl{font-family:'IBM Plex Mono',monospace;font-size:.52rem;color:#9898A8;margin-left:auto}
+
+.controls{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:90;display:flex;gap:8px}
+.btn{
+  font-family:'IBM Plex Mono',monospace;font-size:.6rem;font-weight:600;
+  letter-spacing:.04em;padding:6px 14px;border-radius:100px;
+  border:1.5px solid #E2E0DA;background:rgba(253,252,250,.9);
+  color:#5A5A6E;cursor:pointer;transition:all .15s;backdrop-filter:blur(8px);
+}
+.btn:hover{border-color:#C4502A;color:#C4502A}
+
+.tooltip{
+  position:fixed;z-index:200;pointer-events:none;
+  background:rgba(253,252,250,.96);border:1px solid #E2E0DA;
+  border-radius:8px;padding:8px 12px;
+  box-shadow:0 2px 8px rgba(18,18,26,.1);
+  font-size:12px;line-height:1.5;
+  opacity:0;transition:opacity .15s;
+  max-width:220px;
+}
+.tooltip.show{opacity:1}
+.tooltip strong{color:#12121A}
+.tooltip .sub{color:#5A5A6E;font-size:11px}
+.tooltip .grp{font-family:'IBM Plex Mono',monospace;font-size:10px}
+
+/* 3D labels via CSS2DRenderer */
+.node-label{
+  pointer-events:none;text-align:center;white-space:nowrap;
+  text-shadow:0 0 4px rgba(247,245,240,.9),0 0 8px rgba(247,245,240,.7);
+}
+.node-label.hub{
+  font-family:'Outfit','Noto Sans TC',sans-serif;font-size:11px;font-weight:600;
+  color:#12121A;line-height:1.3;
+}
+.node-label.hub .en{font-size:11px;font-weight:600}
+.node-label.hub .zh{font-size:9px;color:#5A5A6E;font-weight:400}
+.node-label.sub{
+  font-family:'Noto Sans TC','Outfit',sans-serif;font-size:8px;font-weight:400;
+  color:#5A5A6E;
+}
+.link-label{
+  pointer-events:none;
+  font-family:'IBM Plex Mono',monospace;font-size:7px;font-weight:500;
+  letter-spacing:.02em;color:#9898A8;white-space:nowrap;
+  text-shadow:0 0 4px rgba(247,245,240,.95),0 0 8px rgba(247,245,240,.8);
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>MUSEON 3D 系統心智圖</h1>
+  <div class="hint">左鍵拖曳旋轉 · 滾輪縮放 · 點擊節點查看連結</div>
+</div>
+
+<div class="legend">
+  <h3>系統群組</h3>
+  <div class="legend-item" data-g="channel"><div class="legend-dot" style="background:#C4502A"></div>通道入口</div>
+  <div class="legend-item" data-g="agent"><div class="legend-dot" style="background:#2A7A6E"></div>Agent / Brain</div>
+  <div class="legend-item" data-g="pulse"><div class="legend-dot" style="background:#B8923A"></div>Pulse 生命力</div>
+  <div class="legend-item" data-g="gov"><div class="legend-dot" style="background:#2A6A8A"></div>Governance</div>
+  <div class="legend-item" data-g="doctor"><div class="legend-dot" style="background:#2D8A6E"></div>Doctor 診斷</div>
+  <div class="legend-item" data-g="llm"><div class="legend-dot" style="background:#5A5A6E"></div>LLM 路由</div>
+  <div class="legend-item" data-g="data"><div class="legend-dot" style="background:#7A7888"></div>資料持久層</div>
+  <div class="legend-item" data-g="nightly"><div class="legend-dot" style="background:#9A3A1C"></div>Nightly 夜間</div>
+  <div class="legend-item" data-g="external"><div class="legend-dot" style="background:#6A6880"></div>外部服務</div>
+  <div class="legend-div"></div>
+  <div class="legend-link"><div class="legend-line" style="border-top:2px solid #9898A8"></div>內部連結</div>
+  <div class="legend-link"><div class="legend-line" style="border-top:2px solid #C4502A"></div>跨系統</div>
+  <div class="legend-link"><div class="legend-line" style="border-top:2px dashed #B8923A"></div>非同步</div>
+</div>
+
+<div class="info-panel" id="info">
+  <div class="nd-name" id="i-name"></div>
+  <div class="nd-zh" id="i-zh"></div>
+  <div class="nd-badge" id="i-badge"></div>
+  <h4 id="i-out-t">輸出連結</h4>
+  <ul class="conn-list" id="i-out"></ul>
+  <h4 id="i-in-t">輸入連結</h4>
+  <ul class="conn-list" id="i-in"></ul>
+</div>
+
+<div class="controls">
+  <button class="btn" onclick="resetView()">重置視角</button>
+  <button class="btn" onclick="clearSelection()">取消選取</button>
+  <button class="btn" id="rotBtn" onclick="toggleRot()">自動旋轉：開</button>
+  <button class="btn" id="simBtn" onclick="reheatSim()">重新模擬</button>
+</div>
+
+<div class="tooltip" id="tip"></div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { TrackballControls } from 'three/addons/controls/TrackballControls.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+// ═══════════════════════════════════════
+//  COLORS & DATA
+// ═══════════════════════════════════════
+const GC = {
+  center:'#C4502A', channel:'#C4502A', agent:'#2A7A6E', pulse:'#B8923A',
+  gov:'#2A6A8A', doctor:'#2D8A6E', llm:'#5A5A6E', data:'#7A7888',
+  nightly:'#9A3A1C', external:'#6A6880'
+};
+const GN = {
+  center:'核心', channel:'通道入口', agent:'Agent/Brain', pulse:'Pulse 生命力',
+  gov:'Governance', doctor:'Doctor', llm:'LLM 路由', data:'資料層', nightly:'Nightly', external:'外部服務'
+};
+function lkHex(t){ return t==='cross'?0xC4502A:t==='async'?0xB8923A:t==='monitor'?0x2A6A8A:t==='control'?0x7A7888:t==='flow'?0xE0714D:0x9898A8; }
+function lkCSS(t){ return t==='cross'?'#C4502A':t==='async'?'#B8923A':t==='monitor'?'#2A6A8A':t==='control'?'#7A7888':t==='flow'?'#E0714D':'#9898A8'; }
+
+const nodes = [
+  {id:"event-bus",label:"Event Bus",zh:"核心事件匯流排",group:"center",r:3.2,hub:1},
+  {id:"user",label:"User (Zeal)",zh:"使用者",group:"channel",r:2.0},
+  {id:"telegram",label:"Telegram",zh:"主通道",group:"channel",r:1.6},
+  {id:"gateway",label:"Gateway",zh:"WebSocket :8765",group:"channel",r:1.6},
+  {id:"cron",label:"Cron",zh:"排程入口",group:"channel",r:1.2},
+  {id:"brain",label:"Agent / Brain",zh:"主判斷中樞",group:"agent",r:2.8,hub:1},
+  {id:"dna27",label:"DNA27",zh:"27反射叢集",group:"agent",p:"brain",r:1.0},
+  {id:"skill-router",label:"Skill Router",zh:"技能路由",group:"agent",p:"brain",r:1.1},
+  {id:"reflex-router",label:"Reflex Router",zh:"反射路由",group:"agent",p:"brain",r:1.0},
+  {id:"dispatch",label:"Dispatch",zh:"多技能編排",group:"agent",p:"brain",r:1.0},
+  {id:"knowledge-lattice",label:"Knowledge Lattice",zh:"知識晶格",group:"agent",p:"brain",r:1.1},
+  {id:"plan-engine",label:"Plan Engine",zh:"六階段計畫",group:"agent",p:"brain",r:1.0},
+  {id:"metacognition",label:"Metacognition",zh:"元認知審查",group:"agent",p:"brain",r:1.0},
+  {id:"intuition",label:"Intuition",zh:"五層直覺",group:"agent",p:"brain",r:0.9},
+  {id:"eval-engine",label:"Eval Engine",zh:"Q-Score",group:"agent",p:"brain",r:1.0},
+  {id:"soul-ring",label:"Soul Ring",zh:"靈魂年輪",group:"agent",p:"brain",r:0.9},
+  {id:"pulse",label:"Pulse Engine",zh:"VITA 生命力",group:"pulse",r:2.8,hub:1},
+  {id:"heartbeat",label:"Heartbeat",zh:"三脈主控",group:"pulse",p:"pulse",r:1.0},
+  {id:"explorer",label:"Explorer",zh:"自主探索",group:"pulse",p:"pulse",r:1.1},
+  {id:"silent-digestion",label:"Silent Digestion",zh:"靜默消化",group:"pulse",p:"pulse",r:1.0},
+  {id:"proactive-bridge",label:"Proactive Bridge",zh:"主動推播",group:"pulse",p:"pulse",r:1.1},
+  {id:"micro-pulse",label:"Micro Pulse",zh:"秒級微脈",group:"pulse",p:"pulse",r:0.8},
+  {id:"pulse-db",label:"Pulse DB",zh:"脈搏資料庫",group:"pulse",p:"pulse",r:0.8},
+  {id:"commitment-tracker",label:"Commitment",zh:"承諾追蹤",group:"pulse",p:"pulse",r:0.9},
+  {id:"task-scheduler",label:"Scheduler",zh:"APScheduler",group:"pulse",p:"pulse",r:0.8},
+  {id:"governance",label:"Governance",zh:"三焦式治理",group:"gov",r:2.8,hub:1},
+  {id:"governor",label:"Governor",zh:"上中下焦",group:"gov",p:"governance",r:1.0},
+  {id:"immunity",label:"Immunity",zh:"先天+後天免疫",group:"gov",p:"governance",r:1.1},
+  {id:"preflight",label:"Preflight",zh:"啟動門",group:"gov",p:"governance",r:0.9},
+  {id:"refractory",label:"Refractory",zh:"斷路器",group:"gov",p:"governance",r:0.9},
+  {id:"guardrails",label:"Guardrails",zh:"四層安全護欄",group:"gov",p:"governance",r:1.0},
+  {id:"skill-scanner",label:"Skill Scanner",zh:"技能掃描",group:"gov",p:"governance",r:0.8},
+  {id:"sandbox",label:"Sandbox",zh:"沙盒隔離",group:"gov",p:"governance",r:0.8},
+  {id:"telegram-guard",label:"TG Guard",zh:"Polling守衛",group:"gov",p:"governance",r:0.8},
+  {id:"service-health",label:"Service Health",zh:"服務監控",group:"gov",p:"governance",r:1.0},
+  {id:"doctor",label:"Doctor",zh:"自我診斷修復",group:"doctor",r:2.8,hub:1},
+  {id:"system-audit",label:"System Audit",zh:"7層46項",group:"doctor",p:"doctor",r:1.1},
+  {id:"health-check",label:"Health Check",zh:"12項基礎",group:"doctor",p:"doctor",r:0.9},
+  {id:"self-diagnosis",label:"Self Diagnosis",zh:"診斷管線",group:"doctor",p:"doctor",r:0.9},
+  {id:"auto-repair",label:"Auto Repair",zh:"自動修復",group:"doctor",p:"doctor",r:1.0},
+  {id:"surgery",label:"Surgery",zh:"精準手術",group:"doctor",p:"doctor",r:0.8},
+  {id:"log-analyzer",label:"Log Analyzer",zh:"日誌分析",group:"doctor",p:"doctor",r:0.8},
+  {id:"code-analyzer",label:"Code Analyzer",zh:"代碼品質",group:"doctor",p:"doctor",r:0.8},
+  {id:"llm-router",label:"LLM Router",zh:"智能模型選擇",group:"llm",r:2.2,hub:1},
+  {id:"budget-mgr",label:"Budget Mgr",zh:"Token預算",group:"llm",p:"llm-router",r:1.0},
+  {id:"rate-limit",label:"Rate Limit",zh:"速限守衛",group:"llm",p:"llm-router",r:0.8},
+  {id:"llm-cache",label:"Cache",zh:"LRU快取",group:"llm",p:"llm-router",r:0.8},
+  {id:"memory",label:"Memory",zh:"六層記憶",group:"data",p:"data-bus",r:1.6},
+  {id:"vector-index",label:"Vector Index",zh:"Qdrant語義",group:"data",p:"data-bus",r:1.5},
+  {id:"wee",label:"WEE",zh:"演化引擎",group:"data",p:"data-bus",r:1.2},
+  {id:"skills-registry",label:"Skills Registry",zh:"技能資料庫",group:"data",p:"data-bus",r:1.2},
+  {id:"registry",label:"Registry",zh:"SQLite",group:"data",p:"data-bus",r:1.0},
+  {id:"skill-synapse",label:"Skill Synapse",zh:"突觸網路",group:"data",p:"data-bus",r:0.9},
+  {id:"nightly",label:"Nightly Pipeline",zh:"29步夜間整合",group:"nightly",r:2.2,hub:1},
+  {id:"morphenix",label:"Morphenix",zh:"演化提案",group:"nightly",p:"nightly",r:1.0},
+  {id:"searxng",label:"SearXNG",zh:"搜尋:8888",group:"external",r:1.0},
+  {id:"qdrant",label:"Qdrant",zh:"向量DB:6333",group:"external",r:1.0},
+  {id:"firecrawl",label:"Firecrawl",zh:"爬取:3002",group:"external",r:0.8},
+  {id:"anthropic-api",label:"Anthropic API",zh:"Claude API",group:"external",r:1.1},
+  {id:"data-bus",label:"DataBus",zh:"資料層路由器",group:"data",r:1.8,hub:1},
+  {id:"data-watchdog",label:"DataWatchdog",zh:"資料層監控",group:"data",p:"data-bus",r:1.0},
+];
+
+const links = [
+  {source:"user",target:"telegram",label:"訊息指令",type:"flow"},
+  {source:"telegram",target:"gateway",label:"轉發",type:"flow"},
+  {source:"gateway",target:"event-bus",label:"路由",type:"flow"},
+  {source:"cron",target:"event-bus",label:"定時觸發",type:"flow"},
+  {source:"event-bus",target:"brain",label:"事件分派",type:"control"},
+  {source:"event-bus",target:"pulse",label:"脈搏事件",type:"control"},
+  {source:"event-bus",target:"governance",label:"治理事件",type:"control"},
+  {source:"event-bus",target:"doctor",label:"診斷事件",type:"control"},
+  {source:"event-bus",target:"llm-router",label:"LLM事件",type:"control"},
+  {source:"event-bus",target:"data-bus",label:"資料事件",type:"control"},
+  {source:"brain",target:"dna27",label:"載入反射",type:"internal"},
+  {source:"brain",target:"skill-router",label:"技能路由",type:"internal"},
+  {source:"brain",target:"reflex-router",label:"迴圈判定",type:"internal"},
+  {source:"brain",target:"dispatch",label:"多技能分派",type:"internal"},
+  {source:"brain",target:"knowledge-lattice",label:"結晶注入",type:"internal"},
+  {source:"brain",target:"plan-engine",label:"計畫啟動",type:"internal"},
+  {source:"brain",target:"metacognition",label:"元認知",type:"internal"},
+  {source:"brain",target:"intuition",label:"直覺感知",type:"internal"},
+  {source:"brain",target:"eval-engine",label:"品質評分",type:"internal"},
+  {source:"brain",target:"soul-ring",label:"年輪記錄",type:"internal"},
+  {source:"skill-router",target:"vector-index",label:"語義匹配",type:"cross"},
+  {source:"skill-router",target:"skills-registry",label:"技能查找",type:"cross"},
+  {source:"skill-router",target:"llm-router",label:"API呼叫",type:"cross"},
+  {source:"dispatch",target:"llm-router",label:"API呼叫",type:"cross"},
+  {source:"knowledge-lattice",target:"vector-index",label:"結晶存取",type:"cross"},
+  {source:"metacognition",target:"llm-router",label:"Haiku審查",type:"cross"},
+  {source:"eval-engine",target:"memory",label:"品質數據",type:"cross"},
+  {source:"soul-ring",target:"memory",label:"年輪寫入",type:"cross"},
+  {source:"brain",target:"llm-router",label:"生成回應",type:"cross"},
+  {source:"brain",target:"memory",label:"四通道持久化",type:"cross"},
+  {source:"guardrails",target:"brain",label:"行為約束",type:"cross"},
+  {source:"commitment-tracker",target:"brain",label:"承諾自檢",type:"cross"},
+  {source:"pulse",target:"heartbeat",label:"三脈",type:"internal"},
+  {source:"pulse",target:"explorer",label:"探索",type:"internal"},
+  {source:"pulse",target:"silent-digestion",label:"消化",type:"internal"},
+  {source:"pulse",target:"proactive-bridge",label:"推播",type:"internal"},
+  {source:"pulse",target:"micro-pulse",label:"微脈",type:"internal"},
+  {source:"pulse",target:"pulse-db",label:"持久化",type:"internal"},
+  {source:"pulse",target:"commitment-tracker",label:"承諾",type:"internal"},
+  {source:"pulse",target:"task-scheduler",label:"排程",type:"internal"},
+  {source:"explorer",target:"searxng",label:"網路搜尋",type:"cross"},
+  {source:"explorer",target:"llm-router",label:"深度分析",type:"cross"},
+  {source:"explorer",target:"firecrawl",label:"頁面爬取",type:"cross"},
+  {source:"proactive-bridge",target:"telegram",label:"非同步推播",type:"async"},
+  {source:"silent-digestion",target:"memory",label:"反思寫入",type:"cross"},
+  {source:"governance",target:"governor",label:"三焦",type:"internal"},
+  {source:"governance",target:"immunity",label:"免疫",type:"internal"},
+  {source:"governance",target:"preflight",label:"啟動門",type:"internal"},
+  {source:"governance",target:"refractory",label:"斷路",type:"internal"},
+  {source:"governance",target:"guardrails",label:"護欄",type:"internal"},
+  {source:"governance",target:"skill-scanner",label:"掃描",type:"internal"},
+  {source:"governance",target:"sandbox",label:"沙盒",type:"internal"},
+  {source:"governance",target:"telegram-guard",label:"守衛",type:"internal"},
+  {source:"governance",target:"service-health",label:"監控",type:"internal"},
+  {source:"service-health",target:"gateway",label:"監控",type:"monitor"},
+  {source:"service-health",target:"qdrant",label:"監控",type:"monitor"},
+  {source:"service-health",target:"searxng",label:"監控",type:"monitor"},
+  {source:"service-health",target:"firecrawl",label:"監控",type:"monitor"},
+  {source:"service-health",target:"anthropic-api",label:"監控",type:"monitor"},
+  {source:"skill-scanner",target:"skills-registry",label:"安全掃描",type:"cross"},
+  {source:"doctor",target:"system-audit",label:"審計",type:"internal"},
+  {source:"doctor",target:"health-check",label:"檢查",type:"internal"},
+  {source:"doctor",target:"self-diagnosis",label:"診斷",type:"internal"},
+  {source:"doctor",target:"auto-repair",label:"修復",type:"internal"},
+  {source:"doctor",target:"surgery",label:"手術",type:"internal"},
+  {source:"doctor",target:"log-analyzer",label:"日誌",type:"internal"},
+  {source:"doctor",target:"code-analyzer",label:"代碼",type:"internal"},
+  {source:"auto-repair",target:"gateway",label:"重啟修復",type:"cross"},
+  {source:"system-audit",target:"service-health",label:"交叉驗證",type:"cross"},
+  {source:"llm-router",target:"budget-mgr",label:"預算",type:"internal"},
+  {source:"llm-router",target:"rate-limit",label:"速限",type:"internal"},
+  {source:"llm-router",target:"llm-cache",label:"快取",type:"internal"},
+  {source:"llm-router",target:"anthropic-api",label:"API呼叫",type:"cross"},
+  {source:"memory",target:"vector-index",label:"嵌入索引",type:"cross"},
+  {source:"vector-index",target:"qdrant",label:"向量存儲",type:"cross"},
+  {source:"wee",target:"skill-synapse",label:"突觸演化",type:"internal"},
+  {source:"wee",target:"skills-registry",label:"演化追蹤",type:"cross"},
+  {source:"nightly",target:"morphenix",label:"演化提案",type:"internal"},
+  {source:"nightly",target:"memory",label:"記憶壓縮",type:"cross"},
+  {source:"nightly",target:"skills-registry",label:"品質檢查",type:"cross"},
+  {source:"nightly",target:"wee",label:"演化速度",type:"cross"},
+  {source:"nightly",target:"knowledge-lattice",label:"結晶固化",type:"cross"},
+  {source:"nightly",target:"budget-mgr",label:"預算結算",type:"cross"},
+  {source:"nightly",target:"immunity",label:"抗體修剪",type:"cross"},
+  {source:"nightly",target:"skill-synapse",label:"Synapse Decay",type:"cross"},
+  {source:"nightly",target:"event-bus",label:"回饋迴路",type:"async"},
+  {source:"morphenix",target:"event-bus",label:"提案回饋",type:"async"},
+  {source:"cron",target:"nightly",label:"03:00觸發",type:"control"},
+  {source:"telegram",target:"user",label:"回傳回應",type:"async"},
+  {source:"memory",target:"registry",label:"持久化儲存",type:"cross"},
+  {source:"skills-registry",target:"registry",label:"技能資料表",type:"internal"},
+  {source:"pulse-db",target:"registry",label:"脈搏記錄",type:"cross"},
+  {source:"wee",target:"registry",label:"演化狀態",type:"cross"},
+  {source:"eval-engine",target:"registry",label:"Q-Score 存取",type:"cross"},
+  {source:"commitment-tracker",target:"registry",label:"承諾記錄",type:"cross"},
+  {source:"data-bus",target:"memory",label:"Store路由",type:"internal"},
+  {source:"data-bus",target:"vector-index",label:"Store路由",type:"internal"},
+  {source:"data-bus",target:"wee",label:"Store路由",type:"internal"},
+  {source:"data-bus",target:"skills-registry",label:"Store路由",type:"internal"},
+  {source:"data-bus",target:"registry",label:"Store路由",type:"internal"},
+  {source:"data-bus",target:"skill-synapse",label:"Store路由",type:"internal"},
+  {source:"data-bus",target:"data-watchdog",label:"監控注入",type:"internal"},
+  {source:"data-bus",target:"pulse-db",label:"Store路由",type:"cross"},
+  {source:"data-bus",target:"knowledge-lattice",label:"Store路由",type:"cross"},
+  {source:"data-bus",target:"soul-ring",label:"Store路由",type:"cross"},
+  {source:"data-bus",target:"eval-engine",label:"Store路由",type:"cross"},
+  {source:"nightly",target:"data-watchdog",label:"Step29健康檢查",type:"cross"},
+  {source:"data-watchdog",target:"event-bus",label:"監控事件",type:"async"},
+];
+
+const nodeMap = {};
+nodes.forEach(n => nodeMap[n.id] = n);
+
+// ═══════════════════════════════════════
+//  FORCE-DIRECTED LAYOUT — gravity + attraction + repulsion
+// ═══════════════════════════════════════
+
+// Group target positions on a Fibonacci sphere (uniform spherical distribution)
+const groupKeys = Object.keys(GC);
+const groupTargets = {};
+const golden = (1 + Math.sqrt(5)) / 2;
+groupKeys.forEach((g, i) => {
+  if (g === 'center') { groupTargets[g] = new THREE.Vector3(0, 0, 0); return; }
+  const theta = 2 * Math.PI * i / golden;
+  const phi = Math.acos(1 - 2 * (i + 0.5) / groupKeys.length);
+  const R = 35;
+  groupTargets[g] = new THREE.Vector3(
+    R * Math.sin(phi) * Math.cos(theta),
+    R * Math.cos(phi),
+    R * Math.sin(phi) * Math.sin(theta)
+  );
+});
+
+// Connection weight per node (proxy for "熟練度")
+nodes.forEach(n => {
+  n.connCount = links.filter(l => l.source === n.id || l.target === n.id).length;
+});
+
+// Initialize positions near group targets with jitter
+nodes.forEach(n => {
+  const target = groupTargets[n.group] || new THREE.Vector3(0, 0, 0);
+  const jitter = n.hub ? 3 : 12;
+  n.pos = new THREE.Vector3(
+    target.x + (Math.random() - 0.5) * jitter,
+    target.y + (Math.random() - 0.5) * jitter,
+    target.z + (Math.random() - 0.5) * jitter
+  );
+  n.vx = 0; n.vy = 0; n.vz = 0;
+});
+
+// Simulation parameters
+let simTemp = 1.0;
+const SIM_COOL = 0.9985;
+const SIM_MIN = 0.005;
+
+// ═══════════════════════════════════════
+//  THREE.JS SETUP
+// ═══════════════════════════════════════
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#F7F5F0');
+
+const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.set(0, 30, 120);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+document.body.appendChild(renderer.domElement);
+
+// Lights
+scene.add(new THREE.AmbientLight(0xF7F5F0, 0.8));
+const dirLight = new THREE.DirectionalLight(0xFFFFFF, 0.5);
+dirLight.position.set(60, 80, 60);
+scene.add(dirLight);
+
+// TrackballControls — true 360° free rotation (no gimbal lock)
+const controls = new TrackballControls(camera, renderer.domElement);
+controls.rotateSpeed = 2.0;
+controls.zoomSpeed = 1.2;
+controls.panSpeed = 0.8;
+controls.dynamicDampingFactor = 0.12;
+controls.minDistance = 40;
+controls.maxDistance = 250;
+
+// Auto-rotation state
+let autoRotate = true;
+const autoRotSpeed = 0.001;
+
+// ═══════════════════════════════════════
+//  CREATE NODE MESHES
+// ═══════════════════════════════════════
+const sphereGeo = new THREE.SphereGeometry(1, 24, 24);
+const nodeMeshes = [];
+const nodeGroup = new THREE.Group();
+
+nodes.forEach(n => {
+  const color = new THREE.Color(GC[n.group]);
+  const mat = new THREE.MeshStandardMaterial({
+    color: color,
+    roughness: 0.35,
+    metalness: 0.1,
+    emissive: color,
+    emissiveIntensity: 0.15
+  });
+  const mesh = new THREE.Mesh(sphereGeo, mat);
+  mesh.scale.setScalar(n.r);
+  mesh.position.copy(n.pos);
+  mesh.userData = n;
+  nodeGroup.add(mesh);
+  nodeMeshes.push(mesh);
+  n.mesh = mesh;
+  n.origColor = color.clone();
+});
+
+scene.add(nodeGroup);
+
+// ═══════════════════════════════════════
+//  CREATE LINK LINES
+// ═══════════════════════════════════════
+const linkGroup = new THREE.Group();
+const linkMeshes = [];
+
+links.forEach(l => {
+  const sn = nodeMap[l.source];
+  const tn = nodeMap[l.target];
+  if (!sn || !tn) return;
+
+  const geo = new THREE.BufferGeometry().setFromPoints([sn.pos, tn.pos]);
+  const mat = new THREE.LineBasicMaterial({
+    color: lkHex(l.type),
+    transparent: true,
+    opacity: l.type === 'internal' ? 0.15 : 0.3,
+    linewidth: 1
+  });
+  const line = new THREE.Line(geo, mat);
+  line.userData = l;
+  linkGroup.add(line);
+  linkMeshes.push(line);
+  l.line = line;
+});
+
+scene.add(linkGroup);
+
+// ═══════════════════════════════════════
+//  CSS2D LABEL RENDERER
+// ═══════════════════════════════════════
+const labelRenderer = new CSS2DRenderer();
+labelRenderer.setSize(window.innerWidth, window.innerHeight);
+labelRenderer.domElement.style.position = 'absolute';
+labelRenderer.domElement.style.top = '0';
+labelRenderer.domElement.style.left = '0';
+labelRenderer.domElement.style.pointerEvents = 'none';
+document.body.appendChild(labelRenderer.domElement);
+
+// Node labels
+nodes.forEach(n => {
+  const div = document.createElement('div');
+  div.className = 'node-label ' + (n.hub || n.id === 'event-bus' ? 'hub' : 'sub');
+  if (n.hub || n.id === 'event-bus') {
+    div.innerHTML = '<div class="en">' + n.label + '</div><div class="zh">' + n.zh + '</div>';
+  } else {
+    div.textContent = n.zh;
+  }
+  const lbl = new CSS2DObject(div);
+  lbl.position.set(0, n.r + 1.5, 0); // offset above the sphere
+  n.mesh.add(lbl);
+  n.labelObj = lbl;
+  n.labelDiv = div;
+});
+
+// Link labels — only cross-system / async / monitor (skip internal to reduce clutter)
+const linkLabels = [];
+links.forEach(l => {
+  if (l.type === 'internal') return;
+  const sn = nodeMap[l.source];
+  const tn = nodeMap[l.target];
+  if (!sn || !tn) return;
+
+  const div = document.createElement('div');
+  div.className = 'link-label';
+  div.textContent = l.label;
+
+  const lbl = new CSS2DObject(div);
+  // position at midpoint of the link
+  lbl.position.set(
+    (sn.pos.x + tn.pos.x) / 2,
+    (sn.pos.y + tn.pos.y) / 2,
+    (sn.pos.z + tn.pos.z) / 2
+  );
+  scene.add(lbl);
+  linkLabels.push({ obj: lbl, div: div, link: l });
+});
+
+// ═══════════════════════════════════════
+//  RAYCASTER (click & hover)
+// ═══════════════════════════════════════
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+let selectedNode = null;
+let hoveredNode = null;
+
+function getIntersectedNode(event) {
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+  const intersects = raycaster.intersectObjects(nodeMeshes);
+  return intersects.length > 0 ? intersects[0].object.userData : null;
+}
+
+// Tooltip
+const tip = document.getElementById('tip');
+renderer.domElement.addEventListener('mousemove', e => {
+  const n = getIntersectedNode(e);
+  document.body.style.cursor = n ? 'pointer' : 'default';
+
+  if (n && n !== selectedNode) {
+    tip.innerHTML = '<strong>' + n.label + '</strong><br><span class="sub">' + n.zh + '</span><br><span class="grp" style="color:' + GC[n.group] + '">' + GN[n.group] + '</span>';
+    tip.style.left = (e.clientX + 14) + 'px';
+    tip.style.top = (e.clientY + 14) + 'px';
+    tip.classList.add('show');
+    if (!selectedNode) highlightNode(n);
+  } else if (!n && !selectedNode) {
+    tip.classList.remove('show');
+    clearHighlight();
+  }
+});
+
+renderer.domElement.addEventListener('click', e => {
+  const n = getIntersectedNode(e);
+  if (n) {
+    if (selectedNode === n) { selectedNode = null; clearHighlight(); hideInfo(); }
+    else { selectedNode = n; highlightNode(n); showInfo(n); }
+  } else {
+    selectedNode = null; clearHighlight(); hideInfo();
+  }
+  tip.classList.remove('show');
+});
+
+// ═══════════════════════════════════════
+//  HIGHLIGHT
+// ═══════════════════════════════════════
+const dimColor = new THREE.Color('#E2E0DA');
+
+function highlightNode(node) {
+  const connected = new Set([node.id]);
+  const connLinks = new Set();
+  links.forEach(l => {
+    if (l.source === node.id) { connected.add(l.target); connLinks.add(l); }
+    if (l.target === node.id) { connected.add(l.source); connLinks.add(l); }
+  });
+  // If hub, also include children's connections
+  if (node.hub || node.id === 'event-bus') {
+    nodes.filter(n => n.p === node.id).forEach(kid => {
+      connected.add(kid.id);
+      links.forEach(l => {
+        if (l.source === kid.id) { connected.add(l.target); connLinks.add(l); }
+        if (l.target === kid.id) { connected.add(l.source); connLinks.add(l); }
+      });
+    });
+  }
+
+  nodeMeshes.forEach(m => {
+    const n = m.userData;
+    if (connected.has(n.id)) {
+      m.material.color.copy(n.origColor);
+      m.material.emissive.copy(n.origColor);
+      m.material.emissiveIntensity = 0.3;
+      m.material.opacity = 1;
+      m.material.transparent = false;
+      if (n.labelDiv) n.labelDiv.style.opacity = '1';
+    } else {
+      m.material.color.copy(dimColor);
+      m.material.emissive.set(0x000000);
+      m.material.emissiveIntensity = 0;
+      m.material.opacity = 0.2;
+      m.material.transparent = true;
+      if (n.labelDiv) n.labelDiv.style.opacity = '0.15';
+    }
+  });
+
+  linkMeshes.forEach(line => {
+    const l = line.userData;
+    if (connLinks.has(l)) {
+      line.material.opacity = 0.8;
+      line.material.color.set(lkHex(l.type));
+    } else {
+      line.material.opacity = 0.03;
+      line.material.color.copy(dimColor);
+    }
+  });
+
+  // Dim/show link labels
+  linkLabels.forEach(ll => {
+    ll.div.style.opacity = connLinks.has(ll.link) ? '1' : '0.1';
+  });
+}
+
+function clearHighlight() {
+  nodeMeshes.forEach(m => {
+    const n = m.userData;
+    m.material.color.copy(n.origColor);
+    m.material.emissive.copy(n.origColor);
+    m.material.emissiveIntensity = 0.15;
+    m.material.opacity = 1;
+    m.material.transparent = false;
+    if (n.labelDiv) n.labelDiv.style.opacity = '1';
+  });
+  linkMeshes.forEach(line => {
+    const l = line.userData;
+    line.material.opacity = l.type === 'internal' ? 0.15 : 0.3;
+    line.material.color.set(lkHex(l.type));
+  });
+  linkLabels.forEach(ll => { ll.div.style.opacity = '1'; });
+}
+
+// ═══════════════════════════════════════
+//  INFO PANEL
+// ═══════════════════════════════════════
+function showInfo(node) {
+  const outL = [], inL = [];
+  links.forEach(l => {
+    if (l.source === node.id) outL.push(l);
+    if (l.target === node.id) inL.push(l);
+  });
+  if (node.hub || node.id === 'event-bus') {
+    nodes.filter(n => n.p === node.id).forEach(kid => {
+      links.forEach(l => {
+        if (l.source === kid.id) outL.push(l);
+        if (l.target === kid.id) inL.push(l);
+      });
+    });
+  }
+
+  document.getElementById('i-name').textContent = node.label;
+  document.getElementById('i-zh').textContent = node.zh;
+  const badge = document.getElementById('i-badge');
+  badge.textContent = GN[node.group];
+  badge.style.background = GC[node.group] + '20';
+  badge.style.color = GC[node.group];
+
+  const seenO = new Set();
+  document.getElementById('i-out').innerHTML = outL.filter(l => {
+    const k = l.target + l.label; if (seenO.has(k)) return false; seenO.add(k); return true;
+  }).map(l => '<li><span class="conn-arrow" style="color:' + lkCSS(l.type) + '">→</span>' + (nodeMap[l.target]?.label || l.target) + '<span class="conn-lbl">' + l.label + '</span></li>').join('');
+
+  const seenI = new Set();
+  document.getElementById('i-in').innerHTML = inL.filter(l => {
+    const k = l.source + l.label; if (seenI.has(k)) return false; seenI.add(k); return true;
+  }).map(l => '<li><span class="conn-arrow" style="color:' + lkCSS(l.type) + '">←</span>' + (nodeMap[l.source]?.label || l.source) + '<span class="conn-lbl">' + l.label + '</span></li>').join('');
+
+  document.getElementById('i-out-t').textContent = '輸出連結 (' + seenO.size + ')';
+  document.getElementById('i-in-t').textContent = '輸入連結 (' + seenI.size + ')';
+  document.getElementById('info').classList.add('visible');
+}
+
+function hideInfo() { document.getElementById('info').classList.remove('visible'); }
+
+// ═══════════════════════════════════════
+//  GLOBAL CONTROLS
+// ═══════════════════════════════════════
+window.resetView = function() {
+  camera.position.set(0, 30, 120);
+  camera.up.set(0, 1, 0);
+  controls.target.set(0, 0, 0);
+  controls.reset();
+};
+window.clearSelection = function() { selectedNode = null; clearHighlight(); hideInfo(); };
+window.toggleRot = function() {
+  autoRotate = !autoRotate;
+  document.getElementById('rotBtn').textContent = '自動旋轉：' + (autoRotate ? '開' : '關');
+};
+window.reheatSim = function() {
+  simTemp = 0.6;
+  document.getElementById('simBtn').textContent = '重新模擬中…';
+  setTimeout(() => { document.getElementById('simBtn').textContent = '重新模擬'; }, 3000);
+};
+
+// Legend toggle
+document.querySelectorAll('.legend-item').forEach(el => {
+  el.addEventListener('click', () => {
+    el.classList.toggle('dimmed');
+    const g = el.dataset.g;
+    const hidden = el.classList.contains('dimmed');
+    nodeMeshes.forEach(m => { if (m.userData.group === g) m.visible = !hidden; });
+    linkMeshes.forEach(line => {
+      const l = line.userData;
+      const sg = nodeMap[l.source]?.group;
+      const tg = nodeMap[l.target]?.group;
+      if (sg === g || tg === g) line.visible = !hidden;
+    });
+  });
+});
+
+// Resize
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  labelRenderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ═══════════════════════════════════════
+//  FORCE SIMULATION
+// ═══════════════════════════════════════
+function simulateForces() {
+  if (simTemp < SIM_MIN) return;
+  const dt = 0.4 * simTemp;
+
+  // Reset forces
+  nodes.forEach(n => { n.fx = 0; n.fy = 0; n.fz = 0; });
+
+  // 1. Node repulsion (Coulomb-like)
+  const repelK = 100;
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i + 1; j < nodes.length; j++) {
+      const a = nodes[i], b = nodes[j];
+      let dx = a.pos.x - b.pos.x, dy = a.pos.y - b.pos.y, dz = a.pos.z - b.pos.z;
+      let dist2 = dx*dx + dy*dy + dz*dz;
+      if (dist2 < 4) dist2 = 4;
+      const dist = Math.sqrt(dist2);
+      const f = repelK / dist2;
+      dx /= dist; dy /= dist; dz /= dist;
+      a.fx += dx*f; a.fy += dy*f; a.fz += dz*f;
+      b.fx -= dx*f; b.fy -= dy*f; b.fz -= dz*f;
+    }
+  }
+
+  // 2. Link attraction (spring)
+  const linkK = 0.06;
+  const restLen = 10;
+  links.forEach(l => {
+    const sn = nodeMap[l.source], tn = nodeMap[l.target];
+    if (!sn || !tn) return;
+    let dx = tn.pos.x - sn.pos.x, dy = tn.pos.y - sn.pos.y, dz = tn.pos.z - sn.pos.z;
+    const dist = Math.sqrt(dx*dx + dy*dy + dz*dz) || 1;
+    const f = linkK * (dist - restLen);
+    dx /= dist; dy /= dist; dz /= dist;
+    sn.fx += dx*f; sn.fy += dy*f; sn.fz += dz*f;
+    tn.fx -= dx*f; tn.fy -= dy*f; tn.fz -= dz*f;
+  });
+
+  // 3. Spherical shell constraint — push toward target sphere radius
+  const sphereK = 0.04;
+  nodes.forEach(n => {
+    const dist = n.pos.length() || 1;
+    const targetR = n.hub || n.id === 'event-bus' ? 0 : 38;
+    const diff = targetR - dist;
+    n.fx += (n.pos.x / dist) * diff * sphereK;
+    n.fy += (n.pos.y / dist) * diff * sphereK;
+    n.fz += (n.pos.z / dist) * diff * sphereK;
+  });
+
+  // 4. Group clustering — attract to group target center
+  const groupK = 0.025;
+  nodes.forEach(n => {
+    const target = groupTargets[n.group];
+    if (!target) return;
+    n.fx += (target.x - n.pos.x) * groupK;
+    n.fy += (target.y - n.pos.y) * groupK;
+    n.fz += (target.z - n.pos.z) * groupK;
+  });
+
+  // 5. Central gravity — gentle pull toward origin
+  const gravK = 0.005;
+  nodes.forEach(n => {
+    n.fx -= n.pos.x * gravK;
+    n.fy -= n.pos.y * gravK;
+    n.fz -= n.pos.z * gravK;
+  });
+
+  // 6. Apply forces (mass = 1 + connCount * 0.3)
+  const dampK = 0.82;
+  nodes.forEach(n => {
+    const mass = 1 + n.connCount * 0.3;
+    n.vx = (n.vx + n.fx / mass * dt) * dampK;
+    n.vy = (n.vy + n.fy / mass * dt) * dampK;
+    n.vz = (n.vz + n.fz / mass * dt) * dampK;
+    n.pos.x += n.vx * dt;
+    n.pos.y += n.vy * dt;
+    n.pos.z += n.vz * dt;
+    n.mesh.position.copy(n.pos);
+  });
+
+  // 7. Update link geometries
+  linkMeshes.forEach(line => {
+    const l = line.userData;
+    const sn = nodeMap[l.source], tn = nodeMap[l.target];
+    if (!sn || !tn) return;
+    const arr = line.geometry.attributes.position.array;
+    arr[0] = sn.pos.x; arr[1] = sn.pos.y; arr[2] = sn.pos.z;
+    arr[3] = tn.pos.x; arr[4] = tn.pos.y; arr[5] = tn.pos.z;
+    line.geometry.attributes.position.needsUpdate = true;
+  });
+
+  // 8. Update link label positions
+  linkLabels.forEach(ll => {
+    const sn = nodeMap[ll.link.source], tn = nodeMap[ll.link.target];
+    if (!sn || !tn) return;
+    ll.obj.position.set(
+      (sn.pos.x + tn.pos.x) / 2,
+      (sn.pos.y + tn.pos.y) / 2,
+      (sn.pos.z + tn.pos.z) / 2
+    );
+  });
+
+  simTemp *= SIM_COOL;
+}
+
+// ═══════════════════════════════════════
+//  ANIMATE
+// ═══════════════════════════════════════
+let lastInteraction = 0;
+renderer.domElement.addEventListener('pointerdown', () => { lastInteraction = Date.now(); });
+renderer.domElement.addEventListener('pointerup', () => { lastInteraction = Date.now(); });
+
+function animate() {
+  requestAnimationFrame(animate);
+
+  // Auto-rotation (manual implementation for TrackballControls)
+  if (autoRotate && Date.now() - lastInteraction > 2000) {
+    const axis = new THREE.Vector3(0, 1, 0);
+    const q = new THREE.Quaternion().setFromAxisAngle(axis, autoRotSpeed);
+    camera.position.applyQuaternion(q);
+    camera.up.applyQuaternion(q);
+  }
+
+  controls.update();
+  simulateForces();
+  renderer.render(scene, camera);
+  labelRenderer.render(scene, camera);
+}
+animate();
+</script>
+</body>
+</html>
