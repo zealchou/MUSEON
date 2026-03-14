@@ -19,6 +19,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from museon.core.data_bus import DataContract, StoreSpec, StoreEngine, TTLTier
+
 logger = logging.getLogger(__name__)
 
 TZ_TAIPEI = timezone(timedelta(hours=8))
@@ -156,7 +158,7 @@ class SoftWorkflow:
 # ═══════════════════════════════════════════
 
 
-class WorkflowStore:
+class WorkflowStore(DataContract):
     """軟工作流的檔案系統儲存層.
 
     目錄結構：
@@ -167,6 +169,28 @@ class WorkflowStore:
             ├── state.json
             └── executions/
     """
+
+    @classmethod
+    def store_spec(cls) -> StoreSpec:
+        return StoreSpec(
+            name="workflow_store",
+            engine=StoreEngine.MIXED,
+            ttl=TTLTier.PERMANENT,
+            description="軟工作流雙軌儲存（MD + JSON）",
+            tables=["registry.json", "workflow.md", "state.json"],
+        )
+
+    def health_check(self) -> Dict[str, Any]:
+        try:
+            wf_count = sum(1 for d in self._base_dir.iterdir() if d.is_dir())
+            reg_ok = self._registry_path.exists()
+            return {
+                "status": "ok",
+                "workflows": wf_count,
+                "registry_exists": reg_ok,
+            }
+        except Exception as e:
+            return {"status": "error", "error": str(e)}
 
     def __init__(self, base_dir: Path) -> None:
         self._base_dir = Path(base_dir)

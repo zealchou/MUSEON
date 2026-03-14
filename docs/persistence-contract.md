@@ -324,10 +324,24 @@ Heartbeat Timer (30s)
 - [x] 自動遷移機制：首次讀取 PulseDB 無資料時自動從 JSON fallback 遷移
 
 ### Phase 3：Store 介面統一（高收益）
-- [ ] 定義 `DataContract` 基類（write/read/delete/ttl/migrate）
-- [ ] 所有 Store 類實現 DataContract
-- [ ] 建立 `DataBus`（類比 EventBus 的資料層路由）
-- [ ] Store 註冊機制（類似 ModuleRegistry）
+- [x] 定義 `DataContract` 基類（store_spec + health_check）→ `core/data_bus.py`
+- [x] 所有 Store 類實現 DataContract（10 個 Store 已接入）
+- [x] 建立 `DataBus`（類比 EventBus 的資料層路由）→ `core/data_bus.py`
+- [x] Store 註冊機制（DataBus.register + get_data_bus singleton）
+
+已接入 DataContract 的 Store 類：
+| Store 類 | 引擎 | TTL | 檔案 |
+|---------|------|-----|------|
+| PulseDB | SQLite | PERMANENT | `pulse/pulse_db.py` |
+| MemoryStore | Markdown | PERMANENT | `memory/store.py` |
+| LatticeStore | JSON | PERMANENT | `agent/knowledge_lattice.py` |
+| SoulRingStore | JSON (append-only) | PERMANENT | `agent/soul_ring.py` |
+| WorkflowStore | Mixed (MD+JSON) | PERMANENT | `workflow/soft_workflow.py` |
+| FootprintStore | JSONL (append-only) | MEDIUM | `governance/footprint.py` |
+| GroupContextStore | SQLite | PERMANENT | `governance/group_context.py` |
+| SkillManager | JSON | PERMANENT | `core/skill_manager.py` |
+| ActivityLogger | JSONL (append-only) | SHORT | `core/activity_logger.py` |
+| EvalStore | Mixed (JSONL+PulseDB) | LONG | `agent/eval_engine.py` |
 
 ### Phase 4：監控與自癒（遠期）
 - [ ] 資料完整性自動檢查（Nightly）
@@ -361,3 +375,4 @@ Heartbeat Timer (30s)
 |------|------|------|
 | v1.0 | 2026-03-15 | 初版：完整水電圖，涵蓋 23 個正常配對、3 個 Dead Write、14 個死目錄 |
 | v1.1 | 2026-03-15 | Phase 2 完成：4 個 JSON 遷移至 PulseDB（ceremony_state + eval 三件套） |
+| v1.2 | 2026-03-15 | Phase 3 完成：DataContract + DataBus 建立，10 個 Store 類統一接入 |

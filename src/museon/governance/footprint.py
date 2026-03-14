@@ -21,6 +21,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from museon.core.data_bus import DataContract, StoreSpec, StoreEngine, TTLTier
+
 logger = logging.getLogger(__name__)
 
 # ═══════════════════════════════════════════
@@ -103,7 +105,7 @@ class EvolutionTrace:
 # ═══════════════════════════════════════════
 
 
-class FootprintStore:
+class FootprintStore(DataContract):
     """三層足跡持久化管理.
 
     儲存結構：
@@ -112,6 +114,30 @@ class FootprintStore:
         ├── decisions.jsonl    (L2)
         └── evolutions.jsonl   (L3)
     """
+
+    @classmethod
+    def store_spec(cls) -> StoreSpec:
+        return StoreSpec(
+            name="footprint_store",
+            engine=StoreEngine.JSONL,
+            ttl=TTLTier.MEDIUM,  # L1=30d, L2=90d, L3=permanent（取中間值）
+            write_mode="append_only",
+            description="三層行為足跡 JSONL 追蹤",
+            tables=["actions.jsonl", "decisions.jsonl", "evolutions.jsonl"],
+        )
+
+    def health_check(self) -> Dict[str, Any]:
+        try:
+            sizes = {}
+            for name, path in [
+                ("actions", self._action_path),
+                ("decisions", self._decision_path),
+                ("evolutions", self._evolution_path),
+            ]:
+                sizes[name] = path.stat().st_size if path.exists() else 0
+            return {"status": "ok", "file_sizes": sizes}
+        except Exception as e:
+            return {"status": "error", "error": str(e)}
 
     def __init__(self, data_dir: Path):
         self._base_dir = Path(data_dir) / "_system" / "footprints"

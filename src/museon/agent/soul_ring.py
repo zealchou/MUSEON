@@ -30,6 +30,8 @@ from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any, Dict, List, Literal, Optional, Tuple, Union
 
+from museon.core.data_bus import DataContract, StoreSpec, StoreEngine, TTLTier
+
 logger = logging.getLogger(__name__)
 
 # ═══════════════════════════════════════════
@@ -253,7 +255,7 @@ class ObservationRing:
 # ═══════════════════════════════════════════
 
 
-class SoulRingStore:
+class SoulRingStore(DataContract):
     """靈魂年輪持久化層.
 
     負責年輪的載入、儲存、備份與完整性驗證。
@@ -265,6 +267,29 @@ class SoulRingStore:
       - observation_rings: data/anima/observation_rings.json
       - 每日備份:          data/anima/backups/soul_rings_{date}.json
     """
+
+    @classmethod
+    def store_spec(cls) -> StoreSpec:
+        return StoreSpec(
+            name="soul_ring_store",
+            engine=StoreEngine.JSON,
+            ttl=TTLTier.PERMANENT,
+            write_mode="append_only",
+            description="靈魂年輪 append-only 成長記錄",
+            tables=["soul_rings.json", "observation_rings.json"],
+        )
+
+    def health_check(self) -> Dict[str, Any]:
+        try:
+            soul_size = self._soul_rings_path.stat().st_size if self._soul_rings_path.exists() else 0
+            obs_size = self._observation_rings_path.stat().st_size if self._observation_rings_path.exists() else 0
+            return {
+                "status": "ok",
+                "soul_rings_bytes": soul_size,
+                "observation_rings_bytes": obs_size,
+            }
+        except Exception as e:
+            return {"status": "error", "error": str(e)}
 
     def __init__(self, data_dir: str = "data") -> None:
         """初始化持久化層.

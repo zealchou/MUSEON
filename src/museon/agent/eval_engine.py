@@ -24,6 +24,8 @@ from datetime import datetime, timedelta, date
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from museon.core.data_bus import DataContract, StoreSpec, StoreEngine, TTLTier
+
 logger = logging.getLogger(__name__)
 
 # ════════════════════════════════════════════
@@ -397,18 +399,42 @@ class WeeklyReport:
 # 持久化層
 # ════════════════════════════════════════════
 
-class EvalStore:
+class EvalStore(DataContract):
     """Eval-Engine 持久化層.
 
     檔案結構：
       data/eval/q_scores.jsonl       — Q-Score 記錄（append-only JSONL）
       data/eval/satisfaction.jsonl   — 滿意度信號（append-only JSONL）
-      data/eval/ab_baselines.json    — A/B 基線快照
-      data/eval/blindspots.json      — 盲點記錄
-      data/eval/alerts.json          — 警報記錄
+      data/eval/ab_baselines.json    — A/B 基線快照（已遷移至 PulseDB）
+      data/eval/blindspots.json      — 盲點記錄（已遷移至 PulseDB）
+      data/eval/alerts.json          — 警報記錄（已遷移至 PulseDB）
       data/eval/daily/{date}.json    — 每日摘要
       data/eval/weekly/{week}.json   — 每週報告
     """
+
+    @classmethod
+    def store_spec(cls) -> StoreSpec:
+        return StoreSpec(
+            name="eval_store",
+            engine=StoreEngine.MIXED,
+            ttl=TTLTier.LONG,
+            write_mode="append_only",
+            description="品質評估引擎（JSONL + PulseDB）",
+            tables=["q_scores.jsonl", "satisfaction.jsonl", "daily/", "weekly/"],
+        )
+
+    def health_check(self) -> Dict[str, Any]:
+        try:
+            q_size = self.q_scores_path.stat().st_size if self.q_scores_path.exists() else 0
+            sat_size = self.satisfaction_path.stat().st_size if self.satisfaction_path.exists() else 0
+            return {
+                "status": "ok",
+                "q_scores_bytes": q_size,
+                "satisfaction_bytes": sat_size,
+            }
+        except Exception as e:
+            logger.warning(f"EvalStore health_check 失敗: {e}", exc_info=True)
+            return {"status": "error", "error": str(e)}
 
     def __init__(self, data_dir: str = "data"):
         """初始化持久化層.

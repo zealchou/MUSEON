@@ -20,11 +20,39 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from museon.core.data_bus import DataContract, StoreSpec, StoreEngine, TTLTier
+
 logger = logging.getLogger(__name__)
 
 
-class GroupContextStore:
+class GroupContextStore(DataContract):
     """SQLite-backed structured storage for group conversations and client data."""
+
+    @classmethod
+    def store_spec(cls) -> StoreSpec:
+        return StoreSpec(
+            name="group_context_store",
+            engine=StoreEngine.SQLITE,
+            ttl=TTLTier.PERMANENT,
+            description="Telegram 群組上下文 SQLite 儲存",
+            tables=["groups", "clients", "group_members", "messages"],
+        )
+
+    def health_check(self) -> Dict[str, Any]:
+        try:
+            conn = self._get_conn()
+            integrity = conn.execute("PRAGMA integrity_check").fetchone()
+            ok = integrity and integrity[0] == "ok"
+            msg_count = conn.execute("SELECT COUNT(*) FROM messages").fetchone()[0]
+            size = self.db_path.stat().st_size if self.db_path.exists() else 0
+            return {
+                "status": "ok" if ok else "degraded",
+                "integrity": integrity[0] if integrity else "unknown",
+                "messages": msg_count,
+                "size_bytes": size,
+            }
+        except Exception as e:
+            return {"status": "error", "error": str(e)}
 
     def __init__(self, data_dir: Path):
         self.db_path = data_dir / "_system" / "group_context.db"

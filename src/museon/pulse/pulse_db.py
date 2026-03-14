@@ -14,13 +14,53 @@ from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from museon.core.data_bus import DataContract, StoreSpec, StoreEngine, TTLTier
+
 logger = logging.getLogger(__name__)
 
 TZ8 = timezone(timedelta(hours=8))
 
 
-class PulseDB:
+class PulseDB(DataContract):
     """SQLite-based pulse schedule and exploration database."""
+
+    _TABLES = [
+        "schedules", "explorations", "anima_log", "evolution_events",
+        "morphenix_proposals", "morphenix_rollbacks", "commitments",
+        "metacognition", "scout_drafts", "health_scores", "incidents",
+        "ceremony_state", "eval_baselines", "eval_blindspots", "eval_alerts",
+    ]
+
+    @classmethod
+    def store_spec(cls) -> StoreSpec:
+        return StoreSpec(
+            name="pulse_db",
+            engine=StoreEngine.SQLITE,
+            ttl=TTLTier.PERMANENT,
+            description="VITA 生命力引擎的結構層儲存",
+            tables=list(cls._TABLES),
+        )
+
+    def health_check(self) -> Dict[str, Any]:
+        try:
+            conn = self._get_conn()
+            integrity = conn.execute("PRAGMA integrity_check").fetchone()
+            ok = integrity and integrity[0] == "ok"
+            row_counts = {}
+            for t in self._TABLES:
+                try:
+                    row_counts[t] = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                except Exception:
+                    row_counts[t] = -1
+            size = self._db_path.stat().st_size if self._db_path.exists() else 0
+            return {
+                "status": "ok" if ok else "degraded",
+                "integrity": integrity[0] if integrity else "unknown",
+                "size_bytes": size,
+                "tables": row_counts,
+            }
+        except Exception as e:
+            return {"status": "error", "error": str(e)}
 
     def __init__(self, db_path: str) -> None:
         self._db_path = Path(db_path)

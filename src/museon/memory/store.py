@@ -20,9 +20,31 @@ from datetime import datetime
 import json
 import threading
 
+from museon.core.data_bus import DataContract, StoreSpec, StoreEngine, TTLTier
 
-class MemoryStore:
+
+class MemoryStore(DataContract):
     """Markdown-based memory storage system."""
+
+    @classmethod
+    def store_spec(cls) -> StoreSpec:
+        return StoreSpec(
+            name="memory_store",
+            engine=StoreEngine.MARKDOWN,
+            ttl=TTLTier.PERMANENT,
+            description="人類可讀的 Markdown 記憶儲存",
+        )
+
+    def health_check(self) -> Dict[str, Any]:
+        try:
+            stats = self.get_storage_stats()
+            return {
+                "status": "ok",
+                "total_files": stats.get("total_files", 0),
+                "size_bytes": stats.get("total_size_bytes", 0),
+            }
+        except Exception as e:
+            return {"status": "error", "error": str(e)}
 
     def __init__(self, base_path: str = "data/memory"):
         """Initialize memory store.
