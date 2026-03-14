@@ -410,8 +410,10 @@ class PulseEngine:
                         except Exception as e:
                             logger.error(f"SoulPulse log_exploration FAILED: {e}", exc_info=True)
 
-                    # 探索後自我餵養：從發現中萃取後續主題寫入 PULSE.md
+                    # 探索完成後：標記 PULSE.md 中對應的 [pending] 為 [done]
                     if exploration.get("status") == "done":
+                        self._mark_pulse_topic_done(explore_topic)
+                        # 探索後自我餵養：從發現中萃取後續主題寫入 PULSE.md
                         self._seed_followup_topics(exploration)
                         # 觸發靜默消化（背景任務，不阻塞主流程）
                         asyncio.ensure_future(self._run_silent_digestion())
@@ -996,7 +998,7 @@ class PulseEngine:
         3. 好奇心佇列 (question_queue.json) 中可探索的 pending 問題
         4. 觸發類型感知的種子主題庫（rotating pointer + dedup，skip_seed=True 時跳過）
         """
-        # 1. PULSE.md 佇列
+        # 1. PULSE.md 佇列（跳過最近已探索的主題）
         if self._pulse_md and self._pulse_md.exists():
             try:
                 text = self._pulse_md.read_text(encoding="utf-8")
@@ -1005,9 +1007,11 @@ class PulseEngine:
                         topic = line.split("[pending]")[-1].strip()
                         if topic.startswith("- "):
                             topic = topic[2:]
-                        if topic:
+                        if topic and not self._is_recently_explored(topic, days=3):
                             logger.info(f"探索主題來源: PULSE.md [pending] → {topic[:50]}")
                             return topic
+                        elif topic:
+                            logger.debug(f"PULSE.md [pending] 跳過（最近已探索）: {topic[:50]}")
             except Exception as e:
                 logger.debug(f"_get_next_explore_topic fallback 1 (PULSE.md) failed: {e}")
 
@@ -1415,6 +1419,41 @@ class PulseEngine:
         except Exception as e:
             logger.error(f"Write observation to PULSE.md failed: {e}")
 
+    # ── PULSE.md 探索佇列管理 ──
+
+    def _mark_pulse_topic_done(self, topic: str) -> None:
+        """將 PULSE.md 中匹配的 [pending] 項目標記為 [done].
+
+        匹配策略：關鍵詞重疊 > 50%，標記所有相關項目（不只第一個）。
+        """
+        if not self._pulse_md or not self._pulse_md.exists():
+            return
+        try:
+            text = self._pulse_md.read_text(encoding="utf-8")
+            lines = text.split("\n")
+            changed = False
+            # 提取主題關鍵詞用於模糊匹配
+            topic_words = set(w for w in topic.replace("「", " ").replace("」", " ").split() if len(w) >= 2)
+            for i, line in enumerate(lines):
+                if "[pending]" not in line:
+                    continue
+                line_content = line.split("[pending]")[-1].strip()
+                line_words = set(w for w in line_content.replace("「", " ").replace("」", " ").split() if len(w) >= 2)
+                # 完全包含或關鍵詞重疊 > 50%
+                if topic_words and line_words:
+                    overlap = len(topic_words & line_words) / max(min(len(topic_words), len(line_words)), 1)
+                else:
+                    overlap = 0
+                if topic[:20] in line or overlap > 0.5:
+                    lines[i] = line.replace("[pending]", "[done]")
+                    changed = True
+                    logger.info(f"PULSE.md 標記完成: {line_content[:50]}")
+                    # 不 break — 標記所有相關項目
+            if changed:
+                self._pulse_md.write_text("\n".join(lines), encoding="utf-8")
+        except Exception as e:
+            logger.debug(f"_mark_pulse_topic_done failed: {e}")
+
     # ── 探索自我餵養 ──
 
     def _seed_followup_topics(self, exploration: Dict) -> None:
@@ -1499,6 +1538,10 @@ class PulseEngine:
                 ]
 
                 for t in followups:
+                    # 去重：跳過最近已探索的主題
+                    if self._is_recently_explored(t, days=3):
+                        logger.debug(f"seed_followup 跳過（最近已探索）: {t[:40]}")
+                        continue
                     entry = f"- [pending] {t}"
                     if entry not in existing_lines:
                         existing_lines.append(entry)
@@ -1612,13 +1655,22 @@ class PulseEngine:
                         break
                 if marker:
                     # 只加入 anima_low_energy 類型的缺口作為探索主題
+                    changed = False
                     for gap in gaps:
                         if gap["type"] == "anima_low_energy":
-                            topic = f"[pending] - 探索「{gap['element']}」相關知識（缺口偵測）"
-                            if topic not in text:
+                            elem = gap["element"]
+                            topic = f"[pending] - 探索「{elem}」相關知識（缺口偵測）"
+                            # 三重去重：完全匹配 + [done] 已完成 + 最近已探索
+                            if topic not in text \
+                                    and f"[done] - 探索「{elem}」" not in text \
+                                    and not self._is_recently_explored(f"探索「{elem}」相關知識", days=3):
                                 insert_pos = text.find(marker) + len(marker)
                                 text = text[:insert_pos] + f"\n{topic}" + text[insert_pos:]
-                    self._pulse_md.write_text(text, encoding="utf-8")
+                                changed = True
+                            else:
+                                logger.debug(f"KnowledgeGapDetector 跳過（已探索/已完成）: {elem}")
+                    if changed:
+                        self._pulse_md.write_text(text, encoding="utf-8")
             except Exception as e:
                 logger.debug(f"KnowledgeGapDetector write failed: {e}")
 
