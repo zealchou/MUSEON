@@ -83,8 +83,8 @@ class TestConstants:
         assert REPORT_TRUNCATE_CHARS == 200
 
     def test_full_steps_count(self):
-        """BDD: 44 個步驟（含 session 清理 + JSONL 輪替 + WAL Checkpoint）."""
-        assert len(_FULL_STEPS) == 44
+        """BDD: 45 個步驟（含 session 清理 + JSONL 輪替 + WAL Checkpoint + DataWatchdog）."""
+        assert len(_FULL_STEPS) == 45
 
     def test_origin_steps(self):
         """BDD: Origin 模式 = 5.8, 6, 7, 8, 16（5 個）."""

@@ -220,6 +220,12 @@ CRYSTAL_CREATED = "CRYSTAL_CREATED"                            # 結晶已建立
 SOUL_RING_DEPOSITED = "SOUL_RING_DEPOSITED"                    # 靈魂環已存入
 SOUL_IDENTITY_TAMPERED = "SOUL_IDENTITY_TAMPERED"            # SOUL.md 完整性被篡改
 
+# 資料層監控事件（Phase 4 DataWatchdog）
+DATA_HEALTH_CHECKED = "DATA_HEALTH_CHECKED"                    # 資料層健康檢查完成
+DATA_STORE_DEGRADED = "DATA_STORE_DEGRADED"                    # Store 健康降級
+DATA_STORAGE_WARNING = "DATA_STORAGE_WARNING"                  # 儲存空間預警
+DATA_DEAD_WRITE_DETECTED = "DATA_DEAD_WRITE_DETECTED"          # Dead Write 偵測
+
 # ═══════════════════════════════════════════
 # Singleton
 # ═══════════════════════════════════════════
