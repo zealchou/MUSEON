@@ -343,11 +343,17 @@ Heartbeat Timer (30s)
 | ActivityLogger | JSONL (append-only) | SHORT | `core/activity_logger.py` |
 | EvalStore | Mixed (JSONL+PulseDB) | LONG | `agent/eval_engine.py` |
 
-### Phase 4：監控與自癒（遠期）
-- [ ] 資料完整性自動檢查（Nightly）
-- [ ] 寫入量/讀取量監控指標
-- [ ] Dead Write 自動偵測（寫入但 >30天 無讀取）
-- [ ] 儲存空間預警
+### Phase 4：監控與自癒
+- [x] 資料完整性自動檢查 → Nightly Step 29 `DataWatchdog.run_health_check()`
+- [x] 寫入量/讀取量監控指標 → 每次 health_check 記錄 size snapshot，JSONL 歷史追蹤
+- [x] Dead Write 自動偵測 → 比對 30 天快照，size 不變 = 嫌疑 Dead Write
+- [x] 儲存空間預警 → SQLite >500MB / JSONL >50MB / JSON >10MB / 全系統 >1GB
+
+實作模組：
+- `core/data_watchdog.py` — DataWatchdog 主邏輯
+- `core/event_bus.py` — 新增 4 個資料監控事件
+- `nightly/nightly_pipeline.py` — Step 29 接入
+- 快照持久化：`data/_system/data_health/` (latest_snapshot.json + snapshot_history.jsonl)
 
 ---
 
@@ -376,3 +382,4 @@ Heartbeat Timer (30s)
 | v1.0 | 2026-03-15 | 初版：完整水電圖，涵蓋 23 個正常配對、3 個 Dead Write、14 個死目錄 |
 | v1.1 | 2026-03-15 | Phase 2 完成：4 個 JSON 遷移至 PulseDB（ceremony_state + eval 三件套） |
 | v1.2 | 2026-03-15 | Phase 3 完成：DataContract + DataBus 建立，10 個 Store 類統一接入 |
+| v1.3 | 2026-03-15 | Phase 4 完成：DataWatchdog 監控 + Nightly Step 29 + Dead Write 偵測 + 空間預警 |

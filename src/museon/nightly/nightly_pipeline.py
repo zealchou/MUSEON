@@ -17,6 +17,10 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
 from museon.core.event_bus import (
+    DATA_DEAD_WRITE_DETECTED,
+    DATA_HEALTH_CHECKED,
+    DATA_STORAGE_WARNING,
+    DATA_STORE_DEGRADED,
     EVOLUTION_VELOCITY_ALERT,
     KNOWLEDGE_GRAPH_UPDATED,
     NIGHTLY_COMPLETED,
@@ -95,7 +99,7 @@ _FULL_STEPS = [
     "18",
     "20", "21", "22", "23",  # 新增：synapse_decay/muscle_atrophy/immune_prune/trigger_eval
     "24", "25",  # 新增：演化速度計算 / 週月循環觸發檢查
-    "26", "27", "28",  # 持久層衛生：session 清理 / JSONL 輪替 / WAL checkpoint
+    "26", "27", "28", "29",  # 持久層衛生：session 清理 / JSONL 輪替 / WAL checkpoint / DataWatchdog
 ]
 _ORIGIN_STEPS = ["5.8", "6", "7", "8", "16"]
 _NODE_STEPS = [
@@ -200,6 +204,7 @@ class NightlyPipeline:
             "26": ("step_26_session_cleanup", self._step_session_cleanup),
             "27": ("step_27_log_rotation", self._step_log_rotation),
             "28": ("step_28_wal_checkpoint", self._step_wal_checkpoint),
+            "29": ("step_29_data_watchdog", self._step_data_watchdog),
         }
 
     def run(self, mode: str = "full") -> Dict:
@@ -3041,6 +3046,61 @@ class NightlyPipeline:
 
         logger.info(f"[NIGHTLY] WAL checkpoint: {results}")
         return {"databases": results}
+
+    def _step_data_watchdog(self) -> Dict:
+        """Step 29: DataWatchdog — 資料層健康監控、空間預警、Dead Write 偵測.
+
+        基於 Phase 3 DataContract + DataBus 架構：
+        - 對所有已註冊 Store 執行 health_check
+        - 檢查儲存空間閾值
+        - 比對歷史快照偵測 Dead Write
+        - 發布 EventBus 告警事件
+        """
+        from museon.core.data_bus import get_data_bus
+        from museon.core.data_watchdog import DataWatchdog
+
+        bus = get_data_bus()
+
+        # 如果 DataBus 無已註冊 Store，跳過
+        if not bus.list_stores():
+            logger.info("[NIGHTLY] DataWatchdog: DataBus 無已註冊 Store，跳過")
+            return {"status": "skipped", "reason": "no stores registered"}
+
+        watchdog = DataWatchdog(data_dir=self._workspace)
+        report = watchdog.run_health_check(bus=bus)
+
+        # 發布 EventBus 事件
+        self._publish(DATA_HEALTH_CHECKED, {
+            "status": report["status"],
+            "store_count": len(report["stores"]),
+            "alert_count": len(report["alerts"]),
+            "total_bytes": report["storage"]["total_bytes"],
+        })
+
+        # 個別告警事件
+        for alert in report.get("alerts", []):
+            if alert["severity"] == "critical":
+                self._publish(DATA_STORE_DEGRADED, alert)
+            elif "空間" in alert.get("message", "") or "預警線" in alert.get("message", ""):
+                self._publish(DATA_STORAGE_WARNING, alert)
+
+        for suspect in report.get("dead_write_suspects", []):
+            self._publish(DATA_DEAD_WRITE_DETECTED, suspect)
+
+        logger.info(
+            f"[NIGHTLY] DataWatchdog: {report['status']} | "
+            f"stores={len(report['stores'])} | "
+            f"alerts={len(report['alerts'])} | "
+            f"dead_suspects={len(report['dead_write_suspects'])}"
+        )
+
+        return {
+            "status": report["status"],
+            "stores_checked": len(report["stores"]),
+            "alerts": len(report["alerts"]),
+            "dead_write_suspects": len(report["dead_write_suspects"]),
+            "total_storage": report["storage"]["total_bytes"],
+        }
 
     # ═══════════════════════════════════════════
     # 報告持久化
