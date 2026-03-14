@@ -230,8 +230,8 @@ class SkillManager:
                             if stripped.startswith("description:"):
                                 description = stripped.split(":", 1)[1].strip()
                                 break
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[SKILL_MANAGER] data read failed (degraded): {e}")
 
         return {
             "name": name,
@@ -286,8 +286,8 @@ class SkillManager:
         # 重建路由索引
         try:
             self.router.rebuild_index()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[SKILL_MANAGER] operation failed (degraded): {e}")
 
         return {
             "installed": True,
@@ -431,8 +431,8 @@ class SkillManager:
                                 meta["lifecycle"] = "archived"
                                 archived += 1
                                 self._save_meta(skill_dir, meta)
-                        except Exception:
-                            pass
+                        except Exception as e:
+                            logger.debug(f"[SKILL_MANAGER] skill failed (degraded): {e}")
 
         return {
             "promoted": promoted,

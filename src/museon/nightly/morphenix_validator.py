@@ -137,8 +137,8 @@ class MorphenixValidator:
             if self._sandbox_dir and self._sandbox_dir.exists():
                 try:
                     shutil.rmtree(self._sandbox_dir)
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[MORPHENIX_VALIDATOR] operation failed (degraded): {e}")
 
     def _docker_available(self) -> bool:
         """檢查 Docker daemon 是否可用."""

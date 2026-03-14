@@ -196,8 +196,8 @@ class DigestEngine:
                     "trial_count": crystal["trial_count"],
                     "track": crystal.get("track", "service"),
                 })
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[DIGEST_ENGINE] crystal failed (degraded): {e}")
 
         logger.info(
             f"DigestEngine: trial recorded {quarantine_id} "
@@ -252,8 +252,8 @@ class DigestEngine:
                 if days > crystal.get("max_quarantine_days", MAX_QUARANTINE_DAYS):
                     self._archive(crystal, reason="ttl_expired")
                     ttl_expired.append(qid)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[DIGEST_ENGINE] crystal failed (degraded): {e}")
 
         self._save_quarantine()
 
@@ -352,8 +352,8 @@ class DigestEngine:
                     "reason": reason,
                     "track": crystal.get("track", "service"),
                 })
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[DIGEST_ENGINE] crystal failed (degraded): {e}")
 
         logger.info(
             f"DigestEngine: ARCHIVED {qid} reason={reason}"

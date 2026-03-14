@@ -195,13 +195,13 @@ class GatewayLock:
             if self._fd is not None:
                 os.close(self._fd)
                 self._fd = None
-        except OSError:
-            pass
+        except OSError as e:
+            logger.debug(f"[GATEWAY_LOCK] operation failed (degraded): {e}")
 
         try:
             self._lock_path.unlink(missing_ok=True)
-        except OSError:
-            pass
+        except OSError as e:
+            logger.debug(f"[GATEWAY_LOCK] lock failed (degraded): {e}")
 
         self._acquired = False
         logger.info("Gateway lock released")
@@ -304,8 +304,8 @@ class GatewayLock:
                 age = (datetime.now(timezone.utc) - created).total_seconds()
                 if age > self.stale_s:
                     return True
-            except ValueError:
-                pass
+            except ValueError as e:
+                logger.debug(f"[GATEWAY_LOCK] operation failed (degraded): {e}")
 
         # 方法 2: 檢查文件修改時間
         try:

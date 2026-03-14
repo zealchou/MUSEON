@@ -220,22 +220,22 @@ class MetaCognitionEngine:
             try:
                 if routing_signal.is_safety_triggered:
                     return True
-            except AttributeError:
-                pass
+            except AttributeError as e:
+                logger.debug(f"[METACOGNITION] trigger failed (degraded): {e}")
 
             # SLOW_LOOP → 必審
             try:
                 if routing_signal.loop == "SLOW_LOOP":
                     return True
-            except AttributeError:
-                pass
+            except AttributeError as e:
+                logger.debug(f"[METACOGNITION] operation failed (degraded): {e}")
 
             # FAST_LOOP → 跳過（速度優先）
             try:
                 if routing_signal.loop == "FAST_LOOP":
                     return False
-            except AttributeError:
-                pass
+            except AttributeError as e:
+                logger.debug(f"[METACOGNITION] operation failed (degraded): {e}")
 
         # 匹配觸發技能 → 必審
         if skills & _PRECOG_TRIGGER_SKILLS:
@@ -250,8 +250,8 @@ class MetaCognitionEngine:
             try:
                 if routing_signal.loop == "EXPLORATION_LOOP":
                     return True
-            except AttributeError:
-                pass
+            except AttributeError as e:
+                logger.debug(f"[METACOGNITION] operation failed (degraded): {e}")
 
         return False
 
@@ -416,8 +416,8 @@ class MetaCognitionEngine:
                         # 上次猜 acceptance 但猜錯 → 本次改預測 follow_up
                         best_type = "follow_up"
                         best_confidence = 0.4
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[METACOGNITION] pulse failed (degraded): {e}")
 
         # 路由信號修正
         if routing_signal:
@@ -427,8 +427,8 @@ class MetaCognitionEngine:
                     if best_type not in ("emotional", "acceptance"):
                         best_type = "emotional"
                         best_confidence = 0.5
-            except AttributeError:
-                pass
+            except AttributeError as e:
+                logger.debug(f"[METACOGNITION] trigger failed (degraded): {e}")
 
         # 生成預測描述
         _PREDICTION_TEMPLATES = {
@@ -630,8 +630,8 @@ class MetaCognitionEngine:
                 trend = "improving"
             elif o_acc - r_acc > 0.1:
                 trend = "declining"
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[METACOGNITION] pulse failed (degraded): {e}")
 
         return {
             "sufficient_data": True,

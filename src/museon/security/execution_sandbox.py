@@ -394,8 +394,8 @@ class ExecutionSandbox:
                         capture_output=True, timeout=10,
                     )
                     cleaned += 1
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[EXECUTION_SANDBOX] docker failed (degraded): {e}")
 
         except Exception as e:
             logger.warning(f"Cleanup failed: {e}")
@@ -426,9 +426,9 @@ class ExecutionSandbox:
                                 stats["success"] += 1
                             else:
                                 stats["failed"] += 1
-                        except json.JSONDecodeError:
-                            pass
-        except Exception:
-            pass
+                        except json.JSONDecodeError as e:
+                            logger.debug(f"[EXECUTION_SANDBOX] file stat failed (degraded): {e}")
+        except Exception as e:
+            logger.debug(f"[EXECUTION_SANDBOX] JSON failed (degraded): {e}")
 
         return stats

@@ -385,8 +385,8 @@ class ProactiveBridge:
                                     f"  - {c.get('promise_text', '?')[:80]}"
                                     f"（到期 {c.get('due_at', '?')}）"
                                 )
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[PROACTIVE_BRIDGE] operation failed (degraded): {e}")
 
             # 元認知統計（預判準確率 + 審查修改率）
             if self._metacognition:
@@ -404,8 +404,8 @@ class ProactiveBridge:
                     if evo.get("sufficient_data") and evo.get("weak_prediction_domains"):
                         weak = ", ".join(evo["weak_prediction_domains"])
                         parts.append(f"⚠️ 預判弱項: {weak}（需要改善對這類使用者反應的預判）")
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[PROACTIVE_BRIDGE] file stat failed (degraded): {e}")
 
         # 額外上下文
         if context:
@@ -461,8 +461,8 @@ class ProactiveBridge:
                         "new_interval": self._current_interval,
                         "health_score": score,
                     })
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[PROACTIVE_BRIDGE] scoring failed (degraded): {e}")
 
     @property
     def current_interval(self) -> int:
@@ -702,6 +702,6 @@ class ProactiveBridge:
             content = content.strip()
             if content and content != "（尚無記錄）":
                 return content
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[PROACTIVE_BRIDGE] operation failed (degraded): {e}")
         return ""

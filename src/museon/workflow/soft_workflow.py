@@ -225,8 +225,8 @@ class WorkflowStore:
                     if wf:
                         result.append(wf)
                 return result
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[SOFT_WORKFLOW] data load failed (degraded): {e}")
         # 回退：掃描所有子目錄
         result = []
         for d in sorted(self._base_dir.iterdir()):

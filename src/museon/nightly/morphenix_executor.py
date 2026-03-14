@@ -139,8 +139,8 @@ class MorphenixExecutor:
                         "trigger": "morphenix_execution",
                         "timestamp": datetime.now(TZ8).isoformat(),
                     })
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[MORPHENIX_EXECUTOR] morphenix failed (degraded): {e}")
 
         return results
 
@@ -214,8 +214,8 @@ class MorphenixExecutor:
                             "escalation_reason": violations,
                         }],
                     })
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[MORPHENIX_EXECUTOR] PID check failed (degraded): {e}")
 
             return {
                 "proposal_id": pid,
@@ -798,8 +798,8 @@ class MorphenixExecutor:
                         "reason": reason,
                         "timestamp": datetime.now(TZ8).isoformat(),
                     })
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[MORPHENIX_EXECUTOR] morphenix failed (degraded): {e}")
 
             return True
 
@@ -819,8 +819,8 @@ class MorphenixExecutor:
                     "action": "morphenix_suspended",
                     "timestamp": datetime.now(TZ8).isoformat(),
                 })
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[MORPHENIX_EXECUTOR] morphenix failed (degraded): {e}")
 
     # ═══════════════════════════════════════════
     # 輔助方法
@@ -982,8 +982,8 @@ class MorphenixExecutor:
                         record = json.loads(line)
                         if record.get("outcome") == "failed":
                             failure_count += 1
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[MORPHENIX_EXECUTOR] JSON failed (degraded): {e}")
 
         # ── 維度 2：Q-Score 趨勢比較 ──
         qscore_delta = 0.0
@@ -1099,8 +1099,8 @@ class MorphenixExecutor:
             tag = entry.get("safety_tag", "")
             if tag:
                 return tag
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[MORPHENIX_EXECUTOR] operation failed (degraded): {e}")
 
         # 2. 從 execution_log 的 result 中搜尋
         try:
@@ -1114,10 +1114,10 @@ class MorphenixExecutor:
                             tag = result.get("safety_tag", "")
                             if tag:
                                 return tag
-                    except Exception:
-                        pass
-        except Exception:
-            pass
+                    except Exception as e:
+                        logger.debug(f"[MORPHENIX_EXECUTOR] JSON failed (degraded): {e}")
+        except Exception as e:
+            logger.debug(f"[MORPHENIX_EXECUTOR] JSON failed (degraded): {e}")
 
         # 嘗試從 git tags 搜尋
         try:
@@ -1130,8 +1130,8 @@ class MorphenixExecutor:
             tags = result.stdout.strip().splitlines()
             if tags:
                 return tags[-1]  # 最新的 tag
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[MORPHENIX_EXECUTOR] morphenix failed (degraded): {e}")
 
         return None
 
@@ -1139,8 +1139,8 @@ class MorphenixExecutor:
         if path.exists():
             try:
                 return json.loads(path.read_text(encoding="utf-8"))
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[MORPHENIX_EXECUTOR] JSON failed (degraded): {e}")
         return {}
 
     def _save_tracker(self, path: Path, data: Dict) -> None:

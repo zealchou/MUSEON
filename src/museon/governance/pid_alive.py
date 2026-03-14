@@ -96,8 +96,8 @@ def get_process_cmdline(pid: int) -> str | None:
             )
             if result.returncode == 0:
                 return result.stdout.strip()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[PID_ALIVE] PID check failed (degraded): {e}")
 
     return None
 
@@ -124,8 +124,8 @@ def _is_zombie(pid: int) -> bool:
             for line in f:
                 if line.startswith("State:"):
                     return "Z" in line
-    except (FileNotFoundError, PermissionError):
-        pass
+    except (FileNotFoundError, PermissionError) as e:
+        logger.debug(f"[PID_ALIVE] file stat failed (degraded): {e}")
     return False
 
 
@@ -143,8 +143,8 @@ def _get_start_time_linux(pid: int) -> float | None:
         # starttime 是第 20 個欄位（從 state 開始算起，0-indexed 第 19 個）
         if len(fields) > 19:
             return float(fields[19])
-    except (FileNotFoundError, PermissionError, ValueError, IndexError):
-        pass
+    except (FileNotFoundError, PermissionError, ValueError, IndexError) as e:
+        logger.debug(f"[PID_ALIVE] file stat failed (degraded): {e}")
     return None
 
 
@@ -168,8 +168,8 @@ def _get_start_time_macos(pid: int) -> float | None:
                     result.stdout.strip(), "%a %b %d %H:%M:%S %Y"
                 )
                 return dt.timestamp()
-            except ValueError:
-                pass
-    except Exception:
-        pass
+            except ValueError as e:
+                logger.debug(f"[PID_ALIVE] operation failed (degraded): {e}")
+    except Exception as e:
+        logger.debug(f"[PID_ALIVE] operation failed (degraded): {e}")
     return None

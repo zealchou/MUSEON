@@ -177,8 +177,8 @@ class RefractoryGuard:
         if env_path:
             try:
                 state.env_mtime = env_path.stat().st_mtime
-            except OSError:
-                pass
+            except OSError as e:
+                logger.debug(f"[REFRACTORY] file stat failed (degraded): {e}")
 
         # 達到休眠門檻
         if state.failure_count >= 10:
@@ -228,8 +228,8 @@ class RefractoryGuard:
                 current_mtime = env_path.stat().st_mtime
                 if state.env_mtime > 0 and current_mtime > state.env_mtime:
                     return True
-            except OSError:
-                pass
+            except OSError as e:
+                logger.debug(f"[REFRACTORY] file stat failed (degraded): {e}")
 
         # 2. 24 小時自動嘗試
         if state.last_failure_ts > 0:

@@ -232,8 +232,8 @@ class MemoryManager:
                         "source": source,
                         "tags": tags or [],
                     })
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[MEMORY_MANAGER] memory failed (degraded): {e}")
 
             return memory_id
 
@@ -396,8 +396,8 @@ class MemoryManager:
                         ),
                         "promote_candidates": promote_candidates[:3],
                     })
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[MEMORY_MANAGER] scoring failed (degraded): {e}")
 
             return final
 
@@ -556,8 +556,8 @@ class MemoryManager:
                         "from_layer": old_layer,
                         "to_layer": target_layer,
                     })
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[MEMORY_MANAGER] memory failed (degraded): {e}")
 
             return entry
 
@@ -702,8 +702,8 @@ class MemoryManager:
                         try:
                             self.demote(uid, memory_id)
                             stats["demoted"] += 1
-                        except ValueError:
-                            pass
+                        except ValueError as e:
+                            logger.debug(f"[MEMORY_MANAGER] file stat failed (degraded): {e}")
                         continue
 
                     # 3. 自動晉升
@@ -716,8 +716,8 @@ class MemoryManager:
                                 try:
                                     self.promote(uid, memory_id, targets[0])
                                     stats["promoted"] += 1
-                                except ValueError:
-                                    pass
+                                except ValueError as e:
+                                    logger.debug(f"[MEMORY_MANAGER] file stat failed (degraded): {e}")
 
             # 持久化索引
             self._index.save()
@@ -797,8 +797,8 @@ class MemoryManager:
             vb = VectorBridge(workspace=workspace)
             if vb.is_available():
                 return vb
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[MEMORY_MANAGER] vector failed (degraded): {e}")
         return None
 
     def _vector_index(

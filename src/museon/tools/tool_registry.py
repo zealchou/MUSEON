@@ -492,8 +492,8 @@ class ToolRegistry:
                         "message": f"Docker Desktop 已自動啟動（等待 {int(time.time() - start_time)} 秒）。",
                         "was_already_running": False,
                     }
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[TOOL_REGISTRY] docker failed (degraded): {e}")
             time.sleep(3)
 
         return {
@@ -1325,8 +1325,8 @@ class ToolRegistry:
             except urllib.error.HTTPError as e:
                 if e.code < 500:
                     return True  # 4xx = 伺服器已啟動
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[TOOL_REGISTRY] file stat failed (degraded): {e}")
             time.sleep(2)
         return False
 
@@ -1354,8 +1354,8 @@ class ToolRegistry:
                             state.healthy = self._check_tool_health(
                                 name, config
                             )
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[TOOL_REGISTRY] health check failed (degraded): {e}")
 
             elif config.install_type == "compose":
                 running = self._check_compose_running(name)
@@ -1386,8 +1386,8 @@ class ToolRegistry:
                     state.installed = True
                     state.enabled = True  # 非常駐工具，偵測到即啟用
                     state.healthy = True  # 可 import = 健康
-                except ImportError:
-                    pass
+                except ImportError as e:
+                    logger.debug(f"[TOOL_REGISTRY] module import failed (degraded): {e}")
 
             if state.installed and not was_installed:
                 detected[name] = True

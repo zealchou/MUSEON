@@ -63,8 +63,8 @@ class ActivityLogger:
             for ln in reversed(tail):  # newest first
                 try:
                     events.append(json.loads(ln))
-                except json.JSONDecodeError:
-                    pass
+                except json.JSONDecodeError as e:
+                    logger.debug(f"[ACTIVITY_LOGGER] JSON failed (degraded): {e}")
             return events
         except Exception as exc:
             logger.warning("Activity log read failed: %s", exc)
@@ -84,8 +84,8 @@ class ActivityLogger:
                     entry = json.loads(ln)
                     if entry.get("ts", "").startswith(today_prefix):
                         events.append(entry)
-                except json.JSONDecodeError:
-                    pass
+                except json.JSONDecodeError as e:
+                    logger.debug(f"[ACTIVITY_LOGGER] JSON failed (degraded): {e}")
             return events
         except Exception as exc:
             logger.warning("Activity log today read failed: %s", exc)

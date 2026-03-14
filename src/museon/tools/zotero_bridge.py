@@ -215,8 +215,8 @@ class ZoteroBridge:
             ) as resp:
                 if resp.status == 200:
                     return
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[ZOTERO_BRIDGE] file stat failed (degraded): {e}")
 
         # 建立 collection
         try:

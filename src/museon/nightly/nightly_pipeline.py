@@ -351,7 +351,8 @@ class NightlyPipeline:
             if len(result_str) > REPORT_TRUNCATE_CHARS:
                 result_str = result_str[:REPORT_TRUNCATE_CHARS] + "..."
             return {"status": "ok", "result": result_str}
-        except NotImplementedError:
+        except NotImplementedError as e:
+            logger.debug(f"[NIGHTLY] degraded: {e}")
             return {"status": "skipped", "result": "subsystem not available"}
         except Exception as e:
             logger.error(f"[NIGHTLY] Step {name} failed: {e}")
@@ -379,16 +380,16 @@ class NightlyPipeline:
                     decayed += 1
                     with open(f, "w", encoding="utf-8") as fh:
                         json.dump(data, fh, ensure_ascii=False, indent=2)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] JSON parse failed (degraded): {e}")
         # Phase B: Multi-Agent shared_assets 衰退
         shared_decayed = 0
         try:
             from museon.multiagent.shared_assets import SharedAssetLibrary
             lib = SharedAssetLibrary(workspace=self._workspace)
             shared_decayed = lib.decay_all()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         return {"decayed": decayed, "shared_decayed": shared_decayed}
 
@@ -408,8 +409,8 @@ class NightlyPipeline:
                         archive_dir.mkdir(parents=True, exist_ok=True)
                         f.rename(archive_dir / f.name)
                         archived += 1
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         # Phase B: Multi-Agent shared_assets 歸檔
         shared_archived = 0
@@ -417,8 +418,8 @@ class NightlyPipeline:
             from museon.multiagent.shared_assets import SharedAssetLibrary
             lib = SharedAssetLibrary(workspace=self._workspace)
             shared_archived = lib.archive_low_quality()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         return {"archived": archived, "shared_archived": shared_archived}
 
@@ -456,8 +457,8 @@ class NightlyPipeline:
                 memory_manager=memory_manager,
             )
             return wee.compress_daily()
-        except ImportError:
-            pass
+        except ImportError as e:
+            logger.debug(f"[NIGHTLY] WEE engine failed (degraded): {e}")
 
         # ── Filesystem fallback（原始邏輯）──
         wee_dir = self._workspace / "_system" / "wee" / "sessions"
@@ -489,8 +490,8 @@ class NightlyPipeline:
                 with open(out, "w", encoding="utf-8") as fh:
                     json.dump(crystal, fh, ensure_ascii=False, indent=2)
                 compressed += 1
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         return {"compressed": compressed, "source_date": yesterday}
 
@@ -513,8 +514,8 @@ class NightlyPipeline:
                 memory_manager=memory_manager,
             )
             return wee.fuse_weekly()
-        except ImportError:
-            pass
+        except ImportError as e:
+            logger.debug(f"[NIGHTLY] WEE engine failed (degraded): {e}")
 
         # ── Filesystem fallback（原始邏輯）──
         crystal_dir = self._workspace / "_system" / "wee" / "crystals" / "daily"
@@ -536,8 +537,8 @@ class NightlyPipeline:
                     d_week = f"{d_cal[0]}-W{d_cal[1]:02d}"
                     if d_week == iso_week:
                         week_crystals.append(data)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] WEE engine failed (degraded): {e}")
 
         if len(week_crystals) < WEE_MIN_CRYSTALS_FOR_FUSE:
             return {"skipped": "not enough crystals", "count": len(week_crystals)}
@@ -582,8 +583,8 @@ class NightlyPipeline:
                     if item_id not in seen_ids:
                         seen_ids.add(item_id)
                         l2_items.append(item)
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         if len(l2_items) < 3:
             return {"skipped": "not enough L2_ep items", "count": len(l2_items)}
@@ -601,7 +602,8 @@ class NightlyPipeline:
                 min_size=SKILL_FORGE_MIN_CLUSTER,
             )
             return {"clusters": len(clusters), "total_items": len(l2_items)}
-        except ImportError:
+        except ImportError as e:
+            logger.debug(f"[NIGHTLY] degraded: {e}")
             return {"skipped": "ChromosomeIndex not available"}
 
     # ═══════════════════════════════════════════
@@ -626,7 +628,8 @@ class NightlyPipeline:
                 "recrystallized": report.get("recrystallized", 0),
                 "ri_updated": report.get("ri_updated", 0),
             }
-        except ImportError:
+        except ImportError as e:
+            logger.debug(f"[NIGHTLY] degraded: {e}")
             return {"skipped": "KnowledgeLattice not available"}
         except Exception as e:
             return {"error": str(e)}
@@ -664,7 +667,8 @@ class NightlyPipeline:
                 "weakened": metabolize_report.get("weakened", 0),
                 "removed": metabolize_report.get("removed", 0),
             }
-        except ImportError:
+        except ImportError as e:
+            logger.debug(f"[NIGHTLY] degraded: {e}")
             return {"skipped": "CrystalActuator not available"}
         except Exception as e:
             return {"error": str(e)}
@@ -706,8 +710,8 @@ class NightlyPipeline:
                         try:
                             entry = json.loads(line)
                             recent_scores.append(entry)
-                        except Exception:
-                            pass
+                        except Exception as e:
+                            logger.debug(f"[NIGHTLY] scoring failed (degraded): {e}")
 
                 # 取最近 7 天
                 week_ago = (datetime.now(TZ_TAIPEI) - timedelta(days=7)).isoformat()
@@ -868,8 +872,8 @@ class NightlyPipeline:
                                 total_routes += 1
                                 if entry.get("user_accepted", True):
                                     hits += 1
-                        except Exception:
-                            pass
+                        except Exception as e:
+                            logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
                 if total_routes >= 10:
                     hit_rate = hits / total_routes
@@ -906,8 +910,8 @@ class NightlyPipeline:
                     try:
                         with open(f, "r", encoding="utf-8") as fh:
                             notes.append(json.load(fh))
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.debug(f"[NIGHTLY] JSON parse failed (degraded): {e}")
 
                 if len(notes) >= 3:
                     proposal = {
@@ -974,8 +978,8 @@ class NightlyPipeline:
                         f"[MORPHENIX 5.9] Found proposal: {f.name}, "
                         f"status={_st}, category={proposal.get('category', '?')}"
                     )
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         if not pending:
             return {"skipped": "no pending proposals"}
@@ -1104,8 +1108,8 @@ class NightlyPipeline:
                     "l3_count": len(results.get("l3_proposals", [])),
                     "total": total_proposals,
                 })
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         # L3 提案 → 透過 EventBus 發送 Telegram inline keyboard 通知
         if results["l3_proposals"] and self._event_bus:
@@ -1156,7 +1160,8 @@ class NightlyPipeline:
         try:
             from museon.nightly.morphenix_validator import MorphenixValidator
             validator = MorphenixValidator(source_root=self._source_root)
-        except ImportError:
+        except ImportError as e:
+            logger.debug(f"[NIGHTLY] degraded: {e}")
             return {"skipped": "MorphenixValidator not available"}
 
         results = {"validated": 0, "passed": 0, "failed": 0, "details": []}
@@ -1263,8 +1268,8 @@ class NightlyPipeline:
             try:
                 with open(f, "r", encoding="utf-8") as fh:
                     items.append(json.load(fh))
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] JSON parse failed (degraded): {e}")
 
         if len(items) < SKILL_FORGE_MIN_CLUSTER:
             return {"skipped": "not enough L2_ep items", "count": len(items)}
@@ -1299,7 +1304,8 @@ class NightlyPipeline:
                 forged += 1
 
             return {"forged": forged, "clusters": len(clusters)}
-        except ImportError:
+        except ImportError as e:
+            logger.debug(f"[NIGHTLY] degraded: {e}")
             return {"skipped": "ChromosomeIndex not available"}
 
     # ═══════════════════════════════════════════
@@ -1315,7 +1321,8 @@ class NightlyPipeline:
         try:
             with open(queue_file, "r", encoding="utf-8") as fh:
                 queue = json.load(fh)
-        except Exception:
+        except Exception as e:
+            logger.debug(f"[NIGHTLY] degraded: {e}")
             return {"skipped": "scout_queue read error"}
 
         pending = [q for q in queue if q.get("status") == "pending"]
@@ -1349,7 +1356,8 @@ class NightlyPipeline:
             import asyncio
             results = asyncio.run(scout.process_queue(max_items=3))
             processed = len(results) if results else 0
-        except ImportError:
+        except ImportError as e:
+            logger.debug(f"[NIGHTLY] degraded: {e}")
             errors.append("SkillForgeScout not available")
         except Exception as e:
             errors.append(str(e))
@@ -1392,7 +1400,8 @@ class NightlyPipeline:
             try:
                 with open(scores_file, "r", encoding="utf-8") as fh:
                     scores = json.load(fh)
-            except Exception:
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] degraded: {e}")
                 scores = {"speed": 5.0, "quality": 5.0, "alignment": 5.0, "leverage": 5.0}
 
         avg = sum(scores.values()) / max(len(scores), 1)
@@ -1446,8 +1455,8 @@ class NightlyPipeline:
                         scores = diag.get("scores", {})
                         weak = [k for k, v in scores.items() if v < 5.0]
                         topics.extend(weak[:2])
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
             if not topics:
                 return {"skipped": "no weak topics identified"}
@@ -1468,7 +1477,8 @@ class NightlyPipeline:
                     results.append({"topic": topic, "error": str(e)})
 
             return {"courses_generated": len(results), "results": results}
-        except ImportError:
+        except ImportError as e:
+            logger.debug(f"[NIGHTLY] degraded: {e}")
             return {"skipped": "course_generator not available"}
 
     # ═══════════════════════════════════════════
@@ -1498,7 +1508,8 @@ class NightlyPipeline:
             try:
                 with open(runs_file, "r", encoding="utf-8") as fh:
                     runs = json.load(fh)
-            except Exception:
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] degraded: {e}")
                 scanned += 1
                 continue
 
@@ -1564,13 +1575,15 @@ class NightlyPipeline:
         try:
             with open(edges_file, "r", encoding="utf-8") as fh:
                 edges = json.load(fh)
-        except Exception:
+        except Exception as e:
+            logger.debug(f"[NIGHTLY] degraded: {e}")
             return {"skipped": "edges file unreadable"}
 
         try:
             with open(nodes_file, "r", encoding="utf-8") as fh:
                 nodes = json.load(fh)
-        except Exception:
+        except Exception as e:
+            logger.debug(f"[NIGHTLY] degraded: {e}")
             nodes = {}
 
         stats = {
@@ -1663,7 +1676,8 @@ class NightlyPipeline:
         try:
             with open(state_file, "r", encoding="utf-8") as fh:
                 state = json.load(fh)
-        except Exception:
+        except Exception as e:
+            logger.debug(f"[NIGHTLY] degraded: {e}")
             return {"skipped": "soul state unreadable"}
 
         # 情緒衰減
@@ -1729,8 +1743,8 @@ class NightlyPipeline:
                     "computed_hash": computed_hash,
                     "severity": "CRITICAL",
                 })
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         return {
             "status": "TAMPERED",
@@ -1756,8 +1770,8 @@ class NightlyPipeline:
                 with open(state_file, "r", encoding="utf-8") as fh:
                     state = json.load(fh)
                 last_review = state.get("last_review")
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         if last_review:
             try:
@@ -1767,8 +1781,8 @@ class NightlyPipeline:
                 )).days
                 if days_since < 30:
                     return {"skipped": f"last review {days_since} days ago, next in {30 - days_since} days"}
-            except (ValueError, TypeError):
-                pass
+            except (ValueError, TypeError) as e:
+                logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         # 載入最近 30 天的 Soul Rings
         rings_path = self._workspace.parent / "anima" / "soul_rings.json"
@@ -1778,7 +1792,8 @@ class NightlyPipeline:
         try:
             with open(rings_path, "r", encoding="utf-8") as fh:
                 data = json.load(fh)
-        except Exception:
+        except Exception as e:
+            logger.debug(f"[NIGHTLY] degraded: {e}")
             return {"skipped": "soul_rings.json unreadable"}
 
         rings = data.get("soul_rings", [])
@@ -1870,8 +1885,8 @@ class NightlyPipeline:
                     with open(f, "r", encoding="utf-8") as fh:
                         data = json.load(fh)
                     fragments.append(data.get("content", data.get("summary", "")))
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         if not fragments:
             return {"skipped": "no memory fragments"}
@@ -1920,7 +1935,8 @@ class NightlyPipeline:
         try:
             with open(queue_file, "r", encoding="utf-8") as fh:
                 queue = json.load(fh)
-        except Exception:
+        except Exception as e:
+            logger.debug(f"[NIGHTLY] degraded: {e}")
             queue = []
 
         # 掃描近期對話中的問句（從 session 檔案 + 每日記憶）
@@ -1957,8 +1973,8 @@ class NightlyPipeline:
                                 })
                                 existing_qs.add(q_text[:100])
                                 new_questions += 1
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         # 來源 2: 每日記憶 markdown（備援）
         if memory_dir.exists():
@@ -1978,8 +1994,8 @@ class NightlyPipeline:
                                 })
                                 existing_qs.add(q_text[:100])
                                 new_questions += 1
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         # 保留最近 50 個問題
         queue = queue[-50:]
@@ -2007,8 +2023,8 @@ class NightlyPipeline:
                 _db_path = self._workspace / "pulse" / "pulse.db"
                 if _db_path.exists():
                     _pulse_db = PulseDB(str(_db_path))
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] pulse failed (degraded): {e}")
             router = CuriosityRouter(
                 workspace=self._workspace,
                 research_engine=research_engine,
@@ -2208,15 +2224,15 @@ class NightlyPipeline:
                             skill["status"] = "archived"
                             archived += 1
                             changed = True
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
                 if changed:
                     with open(f, "w", encoding="utf-8") as fh:
                         json.dump(skill, fh, ensure_ascii=False, indent=2)
 
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] JSON parse failed (degraded): {e}")
 
         # Phase B: per-skill _meta.json（SkillManager 整合）
         phase_b = {"promoted": 0, "deprecated": 0, "archived": 0}
@@ -2250,8 +2266,8 @@ class NightlyPipeline:
                     dept = json.load(fh)
                 dept["_file"] = f.name
                 departments.append(dept)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] department failed (degraded): {e}")
 
         if not departments:
             return {"skipped": "no departments found"}
@@ -2313,8 +2329,8 @@ class NightlyPipeline:
                     with open(sf, "w", encoding="utf-8") as fh:
                         json.dump(skill, fh, ensure_ascii=False, indent=2)
                     refined += 1
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         # Phase B: 嘗試 LLM 精煉（透過 LLMAdapter，MAX 訂閱方案）
         llm_refined = 0
@@ -2348,10 +2364,10 @@ class NightlyPipeline:
                                 with open(sf, "w", encoding="utf-8") as fh:
                                     json.dump(skill, fh, ensure_ascii=False, indent=2)
                                 llm_refined += 1
-                    except Exception:
-                        pass
-        except Exception:
-            pass
+                    except Exception as e:
+                        logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
+        except Exception as e:
+            logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         return {
             "refined": refined,
@@ -2545,8 +2561,8 @@ class NightlyPipeline:
                         item = json.load(fh)
                     if not item.get("uploaded"):
                         upload_items.append((f, item))
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         if not upload_items:
             return {"skipped": "nothing to upload"}
@@ -2560,8 +2576,8 @@ class NightlyPipeline:
                 with open(f, "w", encoding="utf-8") as fh:
                     json.dump(item, fh, ensure_ascii=False, indent=2)
                 uploaded += 1
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         return {"uploaded": uploaded, "node_id": node_id, "origin_url": origin_url}
 
@@ -2640,8 +2656,8 @@ class NightlyPipeline:
                 self._event_bus.publish(SYNAPSE_PRELOAD, {
                     "strongest": preloads[:3],
                 })
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         return {
             "decayed_synapses": decayed_count,
@@ -2671,8 +2687,8 @@ class NightlyPipeline:
                     "dormant_tools": dormant[:10],
                     "count": len(dormant),
                 })
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         return {
             "atrophied_tools": atrophied_count,
@@ -2704,8 +2720,8 @@ class NightlyPipeline:
                     "active_defenses": len(active),
                     "avg_confidence": stats.get("avg_confidence", 0),
                 })
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         return {
             "pruned_weak_rules": pruned,
@@ -2748,7 +2764,8 @@ class NightlyPipeline:
             if budget.can_afford_exploration():
                 factors[TriggerType.SURPLUS_BASED.value] = 0.7
             vitality = budget.get_vitality_modifier()
-        except Exception:
+        except Exception as e:
+            logger.debug(f"[NIGHTLY] degraded: {e}")
             vitality = 1.0
 
         # 13. 熵增警報 — 檢查系統目錄大小
@@ -2769,8 +2786,8 @@ class NightlyPipeline:
                     "fired_triggers": result.fired_triggers,
                     "vitality_modifier": result.vitality_modifier,
                 })
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         return {
             "total_score": result.total_score,
@@ -3076,8 +3093,8 @@ def register_nightly_tasks(scheduler, workspace: Path, **kwargs) -> None:
             try:
                 with open(morning_path, "r", encoding="utf-8") as f:
                     return json.load(f)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] JSON parse failed (degraded): {e}")
 
         # 降級：讀取原始 nightly report
         report_path = state_dir / "nightly_report.json"
@@ -3086,7 +3103,8 @@ def register_nightly_tasks(scheduler, workspace: Path, **kwargs) -> None:
         try:
             with open(report_path, "r", encoding="utf-8") as f:
                 return json.load(f)
-        except Exception:
+        except Exception as e:
+            logger.debug(f"[NIGHTLY] degraded: {e}")
             return None
 
     scheduler.register(

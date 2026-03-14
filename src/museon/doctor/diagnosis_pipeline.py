@@ -222,8 +222,8 @@ class DiagnosisPipeline:
                 "log_anomalies_count": len(result.log_anomalies),
                 "proposals_count": len(result.proposals),
             })
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[DIAGNOSIS_PIPELINE] diagnosis failed (degraded): {e}")
 
         return result
 
@@ -287,8 +287,8 @@ class DiagnosisPipeline:
                 # 截取前 200 行或全部（取較小者）
                 excerpt = "\n".join(lines[:200])
                 parts.append(f"### {file_path}\n```python\n{excerpt}\n```\n")
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[DIAGNOSIS_PIPELINE] data read failed (degraded): {e}")
         return "\n".join(parts)
 
     @staticmethod
@@ -300,14 +300,14 @@ class DiagnosisPipeline:
         if json_match:
             try:
                 return json.loads(json_match.group(1))
-            except json.JSONDecodeError:
-                pass
+            except json.JSONDecodeError as e:
+                logger.debug(f"[DIAGNOSIS_PIPELINE] JSON failed (degraded): {e}")
 
         # 嘗試直接解析
         try:
             return json.loads(text)
-        except json.JSONDecodeError:
-            pass
+        except json.JSONDecodeError as e:
+            logger.debug(f"[DIAGNOSIS_PIPELINE] JSON failed (degraded): {e}")
 
         # 嘗試找任何 JSON 物件
         brace_start = text.find("{")
@@ -315,8 +315,8 @@ class DiagnosisPipeline:
         if brace_start >= 0 and brace_end > brace_start:
             try:
                 return json.loads(text[brace_start:brace_end + 1])
-            except json.JSONDecodeError:
-                pass
+            except json.JSONDecodeError as e:
+                logger.debug(f"[DIAGNOSIS_PIPELINE] JSON failed (degraded): {e}")
 
         logger.warning("DiagnosisPipeline: 無法從 LLM 回應中提取 JSON")
         return {"root_cause": text[:500], "proposals": []}

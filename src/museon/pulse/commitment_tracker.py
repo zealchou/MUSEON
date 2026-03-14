@@ -428,8 +428,8 @@ class CommitmentTracker:
                     "請在回覆中自然提及這些承諾，並說明進展或道歉。"
                 )
                 parts.append("")
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[COMMITMENT_TRACKER] operation failed (degraded): {e}")
 
         try:
             due_soon = self._db.get_due_soon_commitments(hours=2)
@@ -441,8 +441,8 @@ class CommitmentTracker:
                         f"（到期 {c.get('due_at', '?')}）"
                     )
                 parts.append("")
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[COMMITMENT_TRACKER] operation failed (degraded): {e}")
 
         if not parts:
             return ""

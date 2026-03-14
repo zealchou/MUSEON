@@ -143,8 +143,8 @@ def museon_skill_track() -> Dict[str, Any]:
             task_type = entry.get("task_type", "unknown")
             stats[task_type] = stats.get(task_type, 0) + 1
             total += 1
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug(f"[MCP_SERVER] file stat failed (degraded): {e}")
 
     return {"date": today, "calls": total, "stats": stats}
 
@@ -190,8 +190,8 @@ def museon_health_status() -> Dict[str, Any]:
             guard_data = json.loads(guard_file.read_text(encoding="utf-8"))
             status["rate_limit_level"] = "check_via_guard"
             status["weekly_calls"] = len(guard_data.get("calls", []))
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[MCP_SERVER] WEE failed (degraded): {e}")
 
     return status
 

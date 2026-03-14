@@ -164,8 +164,8 @@ class MicroPulse:
                     for line in f:
                         if "ERROR" in line:
                             error_count += 1
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[MICRO_PULSE] file I/O failed (degraded): {e}")
 
         return error_count
 

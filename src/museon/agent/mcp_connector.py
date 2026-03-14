@@ -389,8 +389,8 @@ class MCPConnectorSDK:
                     conn._task.cancel()
                     try:
                         await conn._task
-                    except (asyncio.CancelledError, Exception):
-                        pass
+                    except (asyncio.CancelledError, Exception) as e:
+                        logger.debug(f"[MCP_CONNECTOR] operation failed (degraded): {e}")
 
             # 建立連線物件
             ready_event = asyncio.Event()
@@ -520,8 +520,8 @@ class MCPConnectorSDK:
                 versions = sorted(os.listdir(nvm_dir), reverse=True)
                 if versions:
                     extra_paths.insert(0, os.path.join(nvm_dir, versions[0], "bin"))
-            except OSError:
-                pass
+            except OSError as e:
+                logger.debug(f"[MCP_CONNECTOR] operation failed (degraded): {e}")
 
         existing_path = merged.get("PATH", "")
         for p in extra_paths:
@@ -578,8 +578,8 @@ class MCPConnectorSDK:
                 # 持有連線直到被取消
                 try:
                     await asyncio.Event().wait()
-                except asyncio.CancelledError:
-                    pass
+                except asyncio.CancelledError as e:
+                    logger.debug(f"[MCP_CONNECTOR] async op failed (degraded): {e}")
 
     async def _run_sse_connection(
         self,
@@ -624,8 +624,8 @@ class MCPConnectorSDK:
 
                 try:
                     await asyncio.Event().wait()
-                except asyncio.CancelledError:
-                    pass
+                except asyncio.CancelledError as e:
+                    logger.debug(f"[MCP_CONNECTOR] async op failed (degraded): {e}")
 
     async def _run_http_connection(
         self,
@@ -670,8 +670,8 @@ class MCPConnectorSDK:
 
                 try:
                     await asyncio.Event().wait()
-                except asyncio.CancelledError:
-                    pass
+                except asyncio.CancelledError as e:
+                    logger.debug(f"[MCP_CONNECTOR] async op failed (degraded): {e}")
 
     async def disconnect_server(self, name: str) -> Dict[str, Any]:
         """斷開指定伺服器連線."""
@@ -684,8 +684,8 @@ class MCPConnectorSDK:
                 conn._task.cancel()
                 try:
                     await conn._task
-                except (asyncio.CancelledError, Exception):
-                    pass
+                except (asyncio.CancelledError, Exception) as e:
+                    logger.debug(f"[MCP_CONNECTOR] operation failed (degraded): {e}")
 
             logger.info(f"MCP server '{name}' disconnected")
             return {"success": True, "message": f"伺服器 '{name}' 已斷線"}

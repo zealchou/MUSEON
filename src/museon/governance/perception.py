@@ -442,8 +442,8 @@ class PerceptionEngine:
 
             try:
                 event_bus.subscribe(evt_const, _make_handler(evt_name))
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[PERCEPTION] operation failed (degraded): {e}")
 
         self._connected_to_bus = True
         logger.debug("PerceptionEngine connected to EventBus")
@@ -661,8 +661,8 @@ class PerceptionEngine:
                     metric_value=memory_mb,
                     reference_value=2000.0,
                 ))
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[PERCEPTION] memory failed (degraded): {e}")
 
         return symptoms, signals
 

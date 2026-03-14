@@ -116,8 +116,8 @@ class SurgeryLog:
                             rec["duration_seconds"] = (
                                 datetime.now() - start
                             ).total_seconds()
-                        except Exception:
-                            pass
+                        except Exception as e:
+                            logger.debug(f"[SURGERY_LOG] operation failed (degraded): {e}")
                 self._save()
                 logger.info(
                     f"SurgeryLog: 更新 {surgery_id} → {kwargs}"
@@ -154,8 +154,8 @@ class SurgeryLog:
                     ts = rec.get("timestamp", "")
                     dt = datetime.fromisoformat(ts)
                     return dt.timestamp()
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[SURGERY_LOG] operation failed (degraded): {e}")
         return None
 
     def stats(self) -> Dict[str, Any]:

@@ -531,5 +531,5 @@ class SelfDiagnosis:
                 "auto_repaired": len(report.auto_repaired),
                 "duration_ms": report.duration_ms,
             })
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[SELF_DIAGNOSIS] repair failed (degraded): {e}")

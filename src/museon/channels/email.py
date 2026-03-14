@@ -107,8 +107,8 @@ class EmailAdapter(ChannelAdapter):
             self._poll_task.cancel()
             try:
                 await self._poll_task
-            except asyncio.CancelledError:
-                pass
+            except asyncio.CancelledError as e:
+                logger.debug(f"[EMAIL] operation failed (degraded): {e}")
             self._poll_task = None
 
         logger.info("EmailAdapter stopped")

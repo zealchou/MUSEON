@@ -86,8 +86,8 @@ class GovernanceGrowthDriver:
             if self._was_strained and ctx.is_healthy:
                 self._was_strained = False
                 self._tracker.grow("qian", 3, "治理: 從壓力恢復，展現韌性")
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[ANIMA_BRIDGE] health check failed (degraded): {e}")
 
     def _drive_kun(self, ctx: Any) -> None:
         """坤(積累) — 後天免疫記憶被調用。"""
@@ -98,8 +98,8 @@ class GovernanceGrowthDriver:
                     "kun", delta,
                     f"治理: 後天免疫命中 {ctx.adaptive_hits} 次",
                 )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[ANIMA_BRIDGE] operation failed (degraded): {e}")
 
     def _drive_zhen(self, ctx: Any) -> None:
         """震(行動) — 調節引擎產出修正行動。"""
@@ -107,8 +107,8 @@ class GovernanceGrowthDriver:
             # 有症狀且 immune_hit_rate > 0 表示有活躍的調節行為
             if ctx.symptom_count > 0 and ctx.immune_hit_rate > 0:
                 self._tracker.grow("zhen", 1, "治理: 調節引擎產出修正行動")
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[ANIMA_BRIDGE] immune failed (degraded): {e}")
 
     def _drive_gen(self, ctx: Any) -> None:
         """艮(邊界) — 先天免疫防禦觸發。"""
@@ -119,8 +119,8 @@ class GovernanceGrowthDriver:
                     "gen", delta,
                     f"治理: 先天免疫防禦 {ctx.innate_defenses} 次",
                 )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[ANIMA_BRIDGE] operation failed (degraded): {e}")
 
     def _drive_dui(self, ctx: Any) -> None:
         """兌(連結) — 連續健康表示穩定連結。"""
@@ -132,8 +132,8 @@ class GovernanceGrowthDriver:
                     self._consecutive_healthy = 0  # 重置計數
             else:
                 self._consecutive_healthy = 0
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[ANIMA_BRIDGE] health check failed (degraded): {e}")
 
     def _drive_li(self, report: Optional[Any]) -> None:
         """離(覺察) — 切診產出交叉症狀，深層洞見。"""
@@ -153,16 +153,16 @@ class GovernanceGrowthDriver:
                     "li", 1,
                     f"治理: 切診交叉分析產出 {cross_count} 個深層洞見",
                 )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[ANIMA_BRIDGE] operation failed (degraded): {e}")
 
     def _drive_xun(self, ctx: Any) -> None:
         """巽(好奇) — 偵測到趨勢惡化，探索根因。"""
         try:
             if ctx.trend == "declining":
                 self._tracker.grow("xun", 1, "治理: 趨勢惡化，探索根因")
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[ANIMA_BRIDGE] operation failed (degraded): {e}")
 
     def _drive_kan(self, ctx: Any) -> None:
         """坎(共振) — 從壓力恢復，內外共振回歸。"""
@@ -170,5 +170,5 @@ class GovernanceGrowthDriver:
             # 這和 qian 的恢復不同：kan 追蹤的是從不健康到健康比率提升
             if ctx.healthy_ratio > 0.8 and ctx.trend == "improving":
                 self._tracker.grow("kan", 2, "治理: 系統共振回歸穩定")
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[ANIMA_BRIDGE] health check failed (degraded): {e}")

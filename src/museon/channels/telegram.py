@@ -83,6 +83,11 @@ class TelegramAdapter(ChannelAdapter):
         self._bot_username: str = ""
         self._bot_id: Optional[int] = None
 
+        # Pending group file uploads: {chat_id: [(update, timestamp), ...]}
+        # Files uploaded without @mention are held here for 10 minutes
+        self._pending_group_files: Dict[int, list] = {}
+        self._pending_file_ttl = 600  # seconds
+
     async def start(self) -> None:
         """Start the Telegram bot and begin polling."""
         if self._running:
@@ -212,6 +217,20 @@ class TelegramAdapter(ChannelAdapter):
                 )
                 return
 
+        # Inject any pending group file uploads before this @mention message
+        if update.message and update.message.chat.type in ("group", "supergroup"):
+            chat_id = update.message.chat.id
+            if chat_id in self._pending_group_files and self._pending_group_files[chat_id]:
+                import time as _time
+                cutoff = _time.time() - self._pending_file_ttl
+                valid_files = [(u, t) for u, t in self._pending_group_files[chat_id] if t > cutoff]
+                for file_update, _ts in valid_files:
+                    logger.info("Injecting pending file upload into queue for chat %s", chat_id)
+                    if file_update.message and file_update.message.from_user:
+                        self.record_user_interaction(str(file_update.message.from_user.id))
+                    await self.message_queue.put(file_update)
+                self._pending_group_files[chat_id] = []
+
         # 記錄互動（HeartbeatFocus + 清除閒置推播狀態）
         if update.message and update.message.from_user:
             self.record_user_interaction(str(update.message.from_user.id))
@@ -282,7 +301,17 @@ class TelegramAdapter(ChannelAdapter):
             if not is_mentioned and _bot_username:
                 is_mentioned = f"@{_bot_username}" in caption.lower()
             if not is_mentioned:
-                logger.debug("Group file upload recorded (silent) from %s", user_id_str)
+                # Stash the update so a subsequent @mention can retrieve it
+                import time as _time
+                if chat_id not in self._pending_group_files:
+                    self._pending_group_files[chat_id] = []
+                self._pending_group_files[chat_id].append((update, _time.time()))
+                # Prune expired entries
+                cutoff = _time.time() - self._pending_file_ttl
+                self._pending_group_files[chat_id] = [
+                    (u, t) for u, t in self._pending_group_files[chat_id] if t > cutoff
+                ]
+                logger.info("Group file upload stashed from %s in chat %s (pending @mention)", user_id_str, chat_id)
                 return
 
         if update.message and update.message.from_user:
@@ -945,8 +974,8 @@ class TelegramAdapter(ChannelAdapter):
                         chat_id=chat_id, action=ChatAction.TYPING
                     )
                     await asyncio.sleep(4)
-            except asyncio.CancelledError:
-                pass
+            except asyncio.CancelledError as e:
+                logger.debug(f"[TELEGRAM] async op failed (degraded): {e}")
             except Exception as e:
                 logger.debug(f"Typing indicator stopped: {e}")
 
@@ -964,8 +993,8 @@ class TelegramAdapter(ChannelAdapter):
             task.cancel()
             try:
                 await task
-            except asyncio.CancelledError:
-                pass
+            except asyncio.CancelledError as e:
+                logger.debug(f"[TELEGRAM] operation failed (degraded): {e}")
 
     @property
     def is_running(self) -> bool:

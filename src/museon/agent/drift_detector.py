@@ -78,8 +78,8 @@ class DriftDetector:
                     from datetime import datetime as _dt
                     try:
                         self._last_baseline_ts = _dt.fromisoformat(taken_at).timestamp()
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.debug(f"[DRIFT_DETECTOR] operation failed (degraded): {e}")
             except Exception as e:
                 logger.warning(f"載入漂移基線失敗: {e}")
 

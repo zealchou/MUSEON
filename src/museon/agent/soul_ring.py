@@ -920,8 +920,8 @@ class RingDepositor:
                 "ring_type": ring_type,
                 "description": description[:100],
             })
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[SOUL_RING] soul failed (degraded): {e}")
 
         return ring
 
