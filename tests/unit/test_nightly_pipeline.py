@@ -815,17 +815,17 @@ class TestCuriosityScan:
 
     def test_scan_logs_for_questions(self, tmp_path):
         """BDD: 掃描對話日誌中的問句."""
-        yesterday = (date.today() - timedelta(days=1)).isoformat()
-        logs_dir = tmp_path / "_system" / "logs"
-        logs_dir.mkdir(parents=True)
+        # 實際程式碼掃描 _system/sessions/*.json（role/content 結構）
+        sessions_dir = tmp_path / "_system" / "sessions"
+        sessions_dir.mkdir(parents=True)
 
-        log_file = logs_dir / f"{yesterday}_01.jsonl"
-        lines = [
-            json.dumps({"user_message": "這個功能怎麼用？"}) + "\n",
-            json.dumps({"user_message": "好的，了解"}) + "\n",
-            json.dumps({"user_message": "為什麼會這樣？"}) + "\n",
+        session_file = sessions_dir / "test_session.json"
+        messages = [
+            {"role": "user", "content": "這個功能怎麼用？"},
+            {"role": "user", "content": "好的，了解"},
+            {"role": "user", "content": "為什麼會這樣？"},
         ]
-        log_file.write_text("".join(lines))
+        session_file.write_text(json.dumps(messages, ensure_ascii=False))
 
         pipeline = NightlyPipeline(tmp_path)
         result = pipeline._step_curiosity_scan()

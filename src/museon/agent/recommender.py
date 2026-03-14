@@ -450,6 +450,6 @@ class Recommender:
                         })
                     except Exception:
                         continue
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[RECOMMENDER] crystal failed (degraded): {e}")
         return all_items

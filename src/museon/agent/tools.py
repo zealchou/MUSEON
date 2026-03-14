@@ -1524,8 +1524,8 @@ class ToolExecutor:
                     )
                     _, stderr = await asyncio.wait_for(proc.communicate(), timeout=60)
                     converted = proc.returncode == 0
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[TOOLS] async op failed (degraded): {e}")
 
             # 結果
             if converted and target_path.exists():
@@ -1619,8 +1619,8 @@ class ToolExecutor:
                     result["configured"] = [
                         {"name": k, **v} for k, v in servers.items()
                     ]
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[TOOLS] JSON failed (degraded): {e}")
 
             # 已連線的伺服器（含工具清單）
             if self._mcp_connector:
@@ -1657,8 +1657,8 @@ class ToolExecutor:
             if servers_file.exists():
                 try:
                     servers = json.loads(servers_file.read_text("utf-8"))
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[TOOLS] JSON failed (degraded): {e}")
 
             server_config = {
                 "transport": transport,

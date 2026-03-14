@@ -461,8 +461,8 @@ class HealthChecker:
                     repairable=True,
                     repair_action="reinstall_daemon",
                 )
-        except (subprocess.TimeoutExpired, OSError):
-            pass
+        except (subprocess.TimeoutExpired, OSError) as e:
+            pass  # degraded: repair
 
         # 檢查 daemon 是否 loaded
         try:
@@ -480,8 +480,8 @@ class HealthChecker:
                     repairable=True,
                     repair_action="load_daemon",
                 )
-        except (subprocess.TimeoutExpired, OSError):
-            pass
+        except (subprocess.TimeoutExpired, OSError) as e:
+            pass  # degraded: repair
 
         return CheckResult(
             name="Daemon 設定",
@@ -638,6 +638,6 @@ class HealthChecker:
                 if "=" in line:
                     key, _, value = line.partition("=")
                     env_vars[key.strip()] = value.strip().strip("'\"")
-        except (OSError, UnicodeDecodeError):
-            pass
+        except (OSError, UnicodeDecodeError) as e:
+            pass  # degraded: data read
         return env_vars

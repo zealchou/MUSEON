@@ -128,8 +128,8 @@ def _log_config_change(section: str, key: str,
     try:
         with open(history_file, "a", encoding="utf-8") as f:
             f.write(json.dumps(entry, ensure_ascii=False) + "\n")
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug(f"[PULSE_INTERVENTION] JSON failed (degraded): {e}")
 
 
 # ═══════════════════════════════════════════
@@ -281,8 +281,8 @@ class PulseObserver:
                         signals.append(sig)
                 except Exception:
                     continue
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[PULSE_INTERVENTION] JSON failed (degraded): {e}")
         return signals
 
 
@@ -503,8 +503,8 @@ class PulseQualityGate:
             self._gate_log.parent.mkdir(parents=True, exist_ok=True)
             with open(self._gate_log, "a", encoding="utf-8") as f:
                 f.write(json.dumps(entry, ensure_ascii=False) + "\n")
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[PULSE_INTERVENTION] JSON failed (degraded): {e}")
 
 
 # ═══════════════════════════════════════════
@@ -645,8 +645,8 @@ class PulseBehaviorInjector:
         if self._rules_file.exists():
             try:
                 return json.loads(self._rules_file.read_text(encoding="utf-8"))
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[PULSE_INTERVENTION] JSON failed (degraded): {e}")
         return []
 
     def _save_rules(self, rules: List[Dict]) -> None:

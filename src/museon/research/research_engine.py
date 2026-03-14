@@ -260,8 +260,8 @@ class ResearchEngine:
                     "cost_usd": result.cost_usd,
                     "duration_ms": result.duration_ms,
                 })
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[RESEARCH_ENGINE] file stat failed (degraded): {e}")
 
         return result
 

@@ -445,8 +445,8 @@ def create_app() -> FastAPI:
                 app.state.telegram_pump_task.cancel()
                 try:
                     await app.state.telegram_pump_task
-                except asyncio.CancelledError:
-                    pass
+                except asyncio.CancelledError as e:
+                    logger.debug(f"[SERVER] telegram failed (degraded): {e}")
                 steps.append("已停止訊息泵")
 
             if app.state.telegram_adapter:
@@ -928,8 +928,8 @@ def create_app() -> FastAPI:
             try:
                 from museon.core.event_bus import get_event_bus
                 event_bus = get_event_bus()
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[SERVER] module import failed (degraded): {e}")
 
             executor = MorphenixExecutor(
                 workspace=Path(brain.data_dir),
@@ -965,8 +965,8 @@ def create_app() -> FastAPI:
                         if line:
                             try:
                                 logs.append(json.loads(line))
-                            except Exception:
-                                pass
+                            except Exception as e:
+                                logger.debug(f"[SERVER] JSON failed (degraded): {e}")
             return {"logs": logs[:50]}
         except Exception as e:
             return {"error": str(e)}
@@ -1530,8 +1530,8 @@ def create_app() -> FastAPI:
                             "result_count": len(data.get("results", [])),
                             "created_at": data.get("created_at"),
                         })
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.debug(f"[SERVER] file stat failed (degraded): {e}")
             return {"active_plans": plans, "count": len(plans)}
         except Exception as e:
             return {"error": str(e), "active_plans": [], "count": 0}
@@ -1577,8 +1577,8 @@ def create_app() -> FastAPI:
                                 "total_token_usage", {},
                             ),
                         })
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.debug(f"[SERVER] token failed (degraded): {e}")
             # 按 created_at 倒序，取前 20
             entries.sort(
                 key=lambda x: x.get("created_at", ""),
@@ -2025,8 +2025,8 @@ def create_app() -> FastAPI:
                         1 for c in conn.values()
                         if c.status == "connected"
                     )
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[SERVER] file stat failed (degraded): {e}")
 
             mcp_step = {
                 "step": 3,
@@ -2526,8 +2526,8 @@ def create_app() -> FastAPI:
                         json.dumps(servers, indent=2, ensure_ascii=False),
                         encoding="utf-8",
                     )
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[SERVER] JSON failed (degraded): {e}")
 
             return result
         except Exception as e:
@@ -2570,8 +2570,8 @@ def create_app() -> FastAPI:
             try:
                 # Governor 已成功啟動（否則上方 except 會記錄 warning）
                 bulkhead.register("governor", lambda: None, critical=True)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[SERVER] operation failed (degraded): {e}")
 
         # ── Initialize MUSEON Brain ──
         brain = _get_brain()
@@ -2928,8 +2928,8 @@ def create_app() -> FastAPI:
                                 summary = findings[:500] if findings else ""
                                 hint = f"[探索發現] {title}: {summary}" if summary else f"[探索發現] {title}"
                                 proactive_bridge.add_context_hint(hint)
-                            except Exception:
-                                pass
+                            except Exception as e:
+                                logger.debug(f"[SERVER] operation failed (degraded): {e}")
 
                         event_bus.subscribe(EXPLORATION_INSIGHT, _on_exploration_result)
                         event_bus.subscribe(EXPLORATION_CRYSTALLIZED, _on_exploration_result)
@@ -2947,8 +2947,8 @@ def create_app() -> FastAPI:
                                 if errors:
                                     hint += f", {len(errors)} 個失敗"
                                 proactive_bridge.add_context_hint(hint)
-                            except Exception:
-                                pass
+                            except Exception as e:
+                                logger.debug(f"[SERVER] operation failed (degraded): {e}")
                         event_bus.subscribe(NIGHTLY_COMPLETED, _on_nightly_completed)
                         logger.info("Nightly → ProactiveBridge neural tract connected")
 
@@ -2962,8 +2962,8 @@ def create_app() -> FastAPI:
                                 note = data.get("note", "")
                                 if note and hasattr(app.state, "pulse_engine") and app.state.pulse_engine:
                                     app.state.pulse_engine.add_relationship_note(note)
-                            except Exception:
-                                pass
+                            except Exception as e:
+                                logger.debug(f"[SERVER] pulse failed (degraded): {e}")
 
                         event_bus.subscribe(RELATIONSHIP_SIGNAL, _on_relationship_signal)
                         logger.info("Relationship → PulseEngine neural tract connected")
@@ -2983,8 +2983,8 @@ def create_app() -> FastAPI:
                                         memory_manager=getattr(brain, "memory_manager", None),
                                     )
                                     wee.auto_cycle(data)
-                                except Exception:
-                                    pass
+                                except Exception as e:
+                                    logger.debug(f"[SERVER] WEE failed (degraded): {e}")
 
                             event_bus.subscribe(BRAIN_RESPONSE_COMPLETE, _on_brain_response)
                             logger.info("WEE neural tract connected (BRAIN_RESPONSE_COMPLETE → auto_cycle)")
@@ -3023,8 +3023,8 @@ def create_app() -> FastAPI:
                                     def _h(data):
                                         try:
                                             _activity_logger.log(name, data, source="event_bus")
-                                        except Exception:
-                                            pass
+                                        except Exception as e:
+                                            logger.debug(f"[SERVER] operation failed (degraded): {e}")
                                     return _h
                                 event_bus.subscribe(_evt_const, _make_handler(_evt_name))
                             logger.info("ActivityLogger connected to EventBus (%d events)", len(_log_events))
@@ -3155,8 +3155,8 @@ def create_app() -> FastAPI:
             app.state.telegram_pump_task.cancel()
             try:
                 await app.state.telegram_pump_task
-            except asyncio.CancelledError:
-                pass
+            except asyncio.CancelledError as e:
+                logger.debug(f"[SERVER] telegram failed (degraded): {e}")
 
         # Stop Telegram adapter
         if app.state.telegram_adapter:
@@ -3256,8 +3256,8 @@ async def _progress_updater(
                                 f"傳送「停止」可中斷當前任務。"
                             ),
                         )
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.debug(f"[SERVER] operation failed (degraded): {e}")
                 else:
                     await adapter.update_processing_status(
                         chat_id, status_msg_id,
@@ -3266,8 +3266,8 @@ async def _progress_updater(
 
                 await asyncio.sleep(13)  # + 前面的 2s ≈ 15s 間隔
 
-    except asyncio.CancelledError:
-        pass
+    except asyncio.CancelledError as e:
+        logger.debug(f"[SERVER] async op failed (degraded): {e}")
     except Exception as e:
         logger.debug(f"Progress updater stopped: {e}")
 
@@ -3464,8 +3464,8 @@ async def _telegram_message_pump(adapter) -> None:
                                 if anima_mc:
                                     _boss_name = anima_mc.get("boss", {}).get("name", "")
                                 _owner_ids = set(adapter.trusted_user_ids) if hasattr(adapter, "trusted_user_ids") else set()
-                            except Exception:
-                                pass
+                            except Exception as e:
+                                logger.debug(f"[SERVER] brain failed (degraded): {e}")
 
                             # Load recent group context for intelligent replies
                             _ctx_store = get_group_context_store()
@@ -3593,8 +3593,8 @@ async def _telegram_message_pump(adapter) -> None:
                 progress_task.cancel()
                 try:
                     await progress_task
-                except asyncio.CancelledError:
-                    pass
+                except asyncio.CancelledError as e:
+                    logger.debug(f"[SERVER] operation failed (degraded): {e}")
 
             # ── 4. 先更新進度訊息為「✍️ 正在發送...」──
             if status_msg_id and chat_id:
@@ -3657,8 +3657,8 @@ async def _telegram_message_pump(adapter) -> None:
                 progress_task.cancel()
                 try:
                     await progress_task
-                except (asyncio.CancelledError, Exception):
-                    pass
+                except (asyncio.CancelledError, Exception) as e:
+                    logger.debug(f"[SERVER] operation failed (degraded): {e}")
 
             # ── 斷路器模式 ──
             if consecutive_errors >= CIRCUIT_BREAKER_THRESHOLD:
@@ -4182,8 +4182,8 @@ def _register_external_endpoints(app, data_dir) -> None:
                                 "title": data.get("title", ""),
                                 "timestamp": data.get("timestamp", ""),
                             })
-                        except Exception:
-                            pass
+                        except Exception as e:
+                            logger.debug(f"[SERVER] module import failed (degraded): {e}")
 
                         # 存入記憶
                         brain = _get_brain()
@@ -4217,8 +4217,8 @@ def _register_external_endpoints(app, data_dir) -> None:
                                 "context": data.get("context", ""),
                                 "timestamp": data.get("timestamp", ""),
                             })
-                        except Exception:
-                            pass
+                        except Exception as e:
+                            logger.debug(f"[SERVER] module import failed (degraded): {e}")
 
                         # 用 Brain 處理
                         brain = _get_brain()
@@ -4250,8 +4250,8 @@ def _register_external_endpoints(app, data_dir) -> None:
                 except Exception as handler_err:
                     logger.debug(f"Extension handler error: {handler_err}")
 
-        except WebSocketDisconnect:
-            pass
+        except WebSocketDisconnect as e:
+            logger.debug(f"[SERVER] JSON failed (degraded): {e}")
         except Exception as ws_err:
             logger.debug(f"Extension WebSocket error: {ws_err}")
         finally:
@@ -4675,8 +4675,8 @@ def _register_system_cron_jobs(brain, app=None) -> None:
     # Replace old morning report with VITA morning
     try:
         cron_engine.remove_job("nightly-morning-report")
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug(f"[SERVER] operation failed (degraded): {e}")
     cron_engine.add_job(
         _vita_morning, trigger="cron", job_id="vita-morning",
         hour=7, minute=30,
@@ -4806,8 +4806,8 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                             )
                             try:
                                 await adapter.push_notification(_forge_msg)
-                            except Exception:
-                                pass
+                            except Exception as e:
+                                logger.debug(f"[SERVER] operation failed (degraded): {e}")
                 except Exception as e:
                     logger.debug(f"Auto skill forge after exploration failed: {e}")
 
@@ -4900,8 +4900,8 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                             reason=f"承諾逾期: {_oid}",
                             absolute_after=0,
                         )
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[SERVER] operation failed (degraded): {e}")
 
         except Exception as e:
             logger.error(f"Commitment periodic check failed: {e}", exc_info=True)
@@ -5258,8 +5258,8 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                         _tool_disabled[name] = _t_time.time()
                         try:
                             registry.toggle_tool(name, False)
-                        except Exception:
-                            pass
+                        except Exception as e:
+                            logger.debug(f"[SERVER] tool failed (degraded): {e}")
                         # 通知
                         _tg = getattr(app, "state", None) and getattr(app.state, "telegram_adapter", None) if app else None
                         if _tg and hasattr(_tg, "push_notification"):
@@ -5268,8 +5268,8 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                                     f"⚠️ 工具 {name} 連續 {count} 次健康檢查失敗，"
                                     f"已自動停用。每 30 分鐘嘗試恢復。"
                                 )
-                            except Exception:
-                                pass
+                            except Exception as e:
+                                logger.debug(f"[SERVER] operation failed (degraded): {e}")
                 else:
                     # 恢復 — 重置計數器
                     prev = _tool_fail_counts.get(name, 0)
@@ -5283,8 +5283,8 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                             try:
                                 registry.toggle_tool(name, True)
                                 logger.info(f"Tool {name}: re-enabled after recovery")
-                            except Exception:
-                                pass
+                            except Exception as e:
+                                logger.debug(f"[SERVER] tool failed (degraded): {e}")
                     _tool_fail_counts[name] = 0
 
             # 已停用工具的定期 re-probe

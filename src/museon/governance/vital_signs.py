@@ -105,8 +105,8 @@ class VitalSignsMonitor:
             if ids_str:
                 try:
                     self._trusted_user_id = int(ids_str.split(",")[0].strip())
-                except ValueError:
-                    pass
+                except ValueError as e:
+                    logger.debug(f"[VITAL_SIGNS] operation failed (degraded): {e}")
 
         # 外部注入的引用
         self._llm_adapter = None  # set by register_llm_adapter()
@@ -157,8 +157,8 @@ class VitalSignsMonitor:
             self._pulse_task.cancel()
             try:
                 await self._pulse_task
-            except asyncio.CancelledError:
-                pass
+            except asyncio.CancelledError as e:
+                logger.debug(f"[VITAL_SIGNS] pulse failed (degraded): {e}")
         logger.info("VitalSignsMonitor stopped")
 
     # ═══════════════════════════════════════
@@ -645,8 +645,8 @@ class VitalSignsMonitor:
             details["disk_free_mb"] = round(free_mb)
             if free_mb < self.RESOURCE_DISK_WARN_MB:
                 issues.append(f"Disk low: {free_mb:.0f}MB free")
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[VITAL_SIGNS] module import failed (degraded): {e}")
 
         # Session 檔案數量
         session_dir = self._data_dir / "_system" / "sessions"

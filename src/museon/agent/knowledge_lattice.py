@@ -1558,8 +1558,8 @@ class LatticeStore:
             if tmp_path.exists():
                 try:
                     tmp_path.unlink()
-                except OSError:
-                    pass
+                except OSError as e:
+                    logger.debug(f"[KNOWLEDGE_LATTICE] operation failed (degraded): {e}")
 
 
 # ═══════════════════════════════════════════
@@ -1648,8 +1648,8 @@ class KnowledgeLattice:
             if vb.is_available():
                 self._vector_bridge = vb
                 return vb
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[KNOWLEDGE_LATTICE] vector failed (degraded): {e}")
         return None
 
     def _vector_index_crystal(self, crystal: "Crystal") -> None:
@@ -1831,8 +1831,8 @@ class KnowledgeLattice:
                     "source_context": source_context[:100],
                     "links_count": len(discovered_links),
                 })
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[KNOWLEDGE_LATTICE] crystal failed (degraded): {e}")
 
             # 檢查是否需要觸發輕量再結晶
             self._crystals_since_last_recrystallize += 1
@@ -2363,8 +2363,8 @@ class KnowledgeLattice:
                 last_ref = datetime.fromisoformat(crystal.last_referenced)
                 if (now - last_ref).days <= 90:
                     recently_referenced += 1
-            except (ValueError, TypeError):
-                pass
+            except (ValueError, TypeError) as e:
+                logger.debug(f"[KNOWLEDGE_LATTICE] crystal failed (degraded): {e}")
 
         avg_ri = total_ri / active_count if active_count > 0 else 0.0
         active_rate = (

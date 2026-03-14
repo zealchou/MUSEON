@@ -671,6 +671,6 @@ class KernelGuard:
                 ts = datetime.fromisoformat(a["ts"]).timestamp()
                 if ts > cutoff and a.get("decision") == "DENY":
                     count += 1
-            except (ValueError, KeyError):
-                pass
+            except (ValueError, KeyError) as e:
+                logger.debug(f"[KERNEL_GUARD] operation failed (degraded): {e}")
         return count

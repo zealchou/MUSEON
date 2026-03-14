@@ -427,8 +427,8 @@ class WEEEngine:
                         "outcome": outcome,
                         "matched_skills": data.get("matched_skills", []),
                     })
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[WEE_ENGINE] skill failed (degraded): {e}")
 
             # 發布 WEE_CYCLE_COMPLETE（ActivityLogger 訂閱）
             if self._event_bus:
@@ -441,8 +441,8 @@ class WEEEngine:
                         "outcome": outcome,
                         "has_plateau": plateau_result is not None,
                     })
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[WEE_ENGINE] scoring failed (degraded): {e}")
 
             return result
 

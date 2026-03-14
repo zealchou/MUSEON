@@ -121,8 +121,8 @@ class DiscordAdapter(ChannelAdapter):
             self._bot_task.cancel()
             try:
                 await self._bot_task
-            except (asyncio.CancelledError, Exception):
-                pass
+            except (asyncio.CancelledError, Exception) as e:
+                logger.debug(f"[DISCORD] operation failed (degraded): {e}")
             self._bot_task = None
 
         self._running = False

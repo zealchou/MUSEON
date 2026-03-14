@@ -170,8 +170,8 @@ class ClaudeCLIAdapter:
                 if saved:
                     logger.debug("Using persisted OAuth token from %s", self._TOKEN_FILE)
                     return saved
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[ADAPTERS] token failed (degraded): {e}")
         return None
 
     def _save_token(self, token: str) -> None:
@@ -266,8 +266,8 @@ class ClaudeCLIAdapter:
                         input=tc.get("input", {}),
                     ))
                 return calls
-        except (json.JSONDecodeError, KeyError, TypeError):
-            pass
+        except (json.JSONDecodeError, KeyError, TypeError) as e:
+            logger.debug(f"[ADAPTERS] tool failed (degraded): {e}")
 
         # 嘗試在文字中找到 JSON 區塊
         import re
@@ -283,8 +283,8 @@ class ClaudeCLIAdapter:
                         input=tc.get("input", {}),
                     ))
                 return calls
-            except (json.JSONDecodeError, KeyError, TypeError):
-                pass
+            except (json.JSONDecodeError, KeyError, TypeError) as e:
+                logger.debug(f"[ADAPTERS] tool failed (degraded): {e}")
 
         return []
 
@@ -359,8 +359,8 @@ class ClaudeCLIAdapter:
                     if self._TOKEN_FILE.exists():
                         try:
                             self._TOKEN_FILE.unlink()
-                        except Exception:
-                            pass
+                        except Exception as e:
+                            logger.debug(f"[ADAPTERS] token failed (degraded): {e}")
                 logger.error(f"claude -p failed (exit {proc.returncode}): {error_detail}")
                 return AdapterResponse(
                     text=f"[claude -p error] {error_detail}",
@@ -569,8 +569,8 @@ class AnthropicAPIAdapter:
         if self._client:
             try:
                 await self._client.close()
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[ADAPTERS] operation failed (degraded): {e}")
             self._client = None
 
 

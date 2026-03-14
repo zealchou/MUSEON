@@ -288,8 +288,8 @@ class PulseEngine:
             try:
                 with open(hb_path, "a", encoding="utf-8") as f:
                     f.write(json.dumps(report, ensure_ascii=False) + "\n")
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[PULSE_ENGINE] JSON failed (degraded): {e}")
         return report
 
     async def breath_pulse(self) -> Dict:
@@ -570,8 +570,8 @@ class PulseEngine:
                     "crystallized": crystallized,
                     "action": result.get("action", "silent"),
                 })
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[PULSE_ENGINE] crystal failed (degraded): {e}")
 
         return result
 
@@ -858,15 +858,15 @@ class PulseEngine:
                         parts.append(f"⚠️ 有 {l3['decisions_needed']} 項需要你決定")
                         for item in l3.get("items", [])[:3]:
                             parts.append(f"  - {item.get('description', '')[:80]}")
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[PULSE_ENGINE] operation failed (degraded): {e}")
             elif nr_path.exists():
                 try:
                     nr = json.loads(nr_path.read_text())
                     s = nr.get("summary", {})
                     parts.append(f"昨夜整合: {s.get('ok', 0)}/{s.get('total', 0)} 步驟完成")
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[PULSE_ENGINE] JSON failed (degraded): {e}")
         # 讀取提醒
         if self._db:
             schedules = self._db.list_schedules()
@@ -928,8 +928,8 @@ class PulseEngine:
                         changes.append(f"{name}+{h['delta']}({reason})")
                 if changes:
                     parts.append(f"ANIMA 今日成長: {', '.join(changes[:5])}")
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[PULSE_ENGINE] operation failed (degraded): {e}")
         if self._heartbeat_focus:
             parts.append(f"使用者活躍度: {self._heartbeat_focus.focus_level}")
         # PULSE.md 今日觀察摘要
@@ -953,8 +953,8 @@ class PulseEngine:
         if path.exists():
             try:
                 return json.loads(path.read_text(encoding="utf-8"))
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[PULSE_ENGINE] JSON failed (degraded): {e}")
         return {}
 
     def _advance_topic_pointer(self, key: str, pool_size: int) -> int:
@@ -1136,8 +1136,8 @@ class PulseEngine:
                             anima_hint = "ANIMA 低能量區域：" + ", ".join(
                                 f"{k}({v}%)" for k, v in low
                             )
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[PULSE_ENGINE] operation failed (degraded): {e}")
 
             # ── 信號 3: 達達最近的對話主題 ──
             user_topics_hint = ""
@@ -1162,8 +1162,8 @@ class PulseEngine:
                             user_topics_hint = "達達最近聊的話題：\n" + "\n".join(
                                 f"- {m}" for m in recent_msgs
                             )
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[PULSE_ENGINE] operation failed (degraded): {e}")
 
             # ── 信號 4: 好奇心佇列摘要 ──
             curiosity_hint = ""
@@ -1182,8 +1182,8 @@ class PulseEngine:
                             curiosity_hint = "待解好奇問題：\n" + "\n".join(
                                 f"- {q}" for q in pending_qs
                             )
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[PULSE_ENGINE] curiosity failed (degraded): {e}")
 
             # ── 信號 5: Skill 使用分布 ──
             skill_hint = ""
@@ -1208,8 +1208,8 @@ class PulseEngine:
                             skill_hint = "最近常用 Skill：" + ", ".join(
                                 f"{s}({c}次)" for s, c in top3
                             )
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[PULSE_ENGINE] skill failed (degraded): {e}")
 
             # ── 信號 6: 當前時間 ──
             from datetime import datetime as _dt
@@ -1573,8 +1573,8 @@ class PulseEngine:
             try:
                 from museon.agent.knowledge_lattice import KnowledgeLattice
                 lattice = KnowledgeLattice(data_dir=str(self._data_dir))
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[PULSE_ENGINE] lattice failed (degraded): {e}")
             digester = SilentDigestion(
                 db=self._db,
                 data_dir=str(self._data_dir),
@@ -1626,8 +1626,8 @@ class PulseEngine:
                         "pending_count": pending_count,
                         "suggestion": f"探索佇列有 {pending_count} 項待處理，好奇心可能停滯",
                     })
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[PULSE_ENGINE] data read failed (degraded): {e}")
 
         # 維度 3：探索頻率過低
         if self._db:
@@ -1640,8 +1640,8 @@ class PulseEngine:
                             "type": "exploration_inactive",
                             "suggestion": "今日尚未進行探索，建議啟動一次好奇心驅動的探索",
                         })
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[PULSE_ENGINE] operation failed (degraded): {e}")
 
         # 有新缺口 → 寫入 PULSE.md 探索佇列
         if gaps and self._pulse_md and self._pulse_md.exists():

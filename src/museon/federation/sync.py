@@ -171,8 +171,8 @@ class FederationSync:
                             "filename": f.name,
                             "data": anon,
                         })
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.debug(f"[SYNC] crystal failed (degraded): {e}")
 
         # 2. Skill 使用統計
         stats_dir = self._data_dir / "_system" / "budget"
@@ -186,8 +186,8 @@ class FederationSync:
                         package["skill_stats"][task_type] = (
                             package["skill_stats"].get(task_type, 0) + 1
                         )
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[SYNC] skill failed (degraded): {e}")
 
         # 3. Workflow 執行記錄
         wf_dir = self._data_dir / "_system" / "workflow"
@@ -197,8 +197,8 @@ class FederationSync:
                     raw = json.loads(f.read_text(encoding="utf-8"))
                     anon = self._anonymize_dict(raw) if isinstance(raw, dict) else raw
                     package["workflow_records"].append(anon)
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[SYNC] JSON failed (degraded): {e}")
 
         return package
 

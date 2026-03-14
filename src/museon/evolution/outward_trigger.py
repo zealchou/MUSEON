@@ -582,8 +582,8 @@ class OutwardTrigger:
                         f"direction_cooldown: '{signal.get('search_intent', '')[:30]}' "
                         f"until {cooldown_end.strftime('%Y-%m-%d')}"
                     )
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[OUTWARD_TRIGGER] trigger failed (degraded): {e}")
 
         # 通過檢查
         self._daily_count += 1
@@ -682,8 +682,8 @@ class OutwardTrigger:
                 # 跨日，重置
                 self._daily_count = 0
                 self._daily_date = today
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[OUTWARD_TRIGGER] JSON failed (degraded): {e}")
 
     # ─── 持久化：Pending 信號 ───
 
@@ -718,5 +718,5 @@ class OutwardTrigger:
         try:
             if pending_file.exists():
                 pending_file.write_text("[]", encoding="utf-8")
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[OUTWARD_TRIGGER] data write failed (degraded): {e}")

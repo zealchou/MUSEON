@@ -189,8 +189,8 @@ class InstallerOrchestrator:
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
                 )
-            except OSError:
-                pass
+            except OSError as e:
+                pass  # degraded: subprocess
 
     # ─── 各步驟實作（可被 mock 覆蓋） ───
 
@@ -437,8 +437,8 @@ class InstallerOrchestrator:
                 mcp_servers = settings.get("mcpServers", {})
                 if "museon" in mcp_servers:
                     mcp_configured = True
-            except Exception:
-                pass
+            except Exception as e:
+                pass  # degraded: JSON
 
         msg = "Claude Code CLI 已驗證，MAX 訂閱方案就緒"
         if mcp_configured:
@@ -493,8 +493,8 @@ class InstallerOrchestrator:
                 ["docker", "logout", "ghcr.io"],
                 capture_output=True, timeout=10,
             )
-        except Exception:
-            pass
+        except Exception as e:
+            pass  # degraded: docker
 
         try:
             from museon.tools.tool_registry import ToolRegistry, INSTALL_ORDER
@@ -532,8 +532,8 @@ class InstallerOrchestrator:
             # 健康檢查
             try:
                 registry.check_all_health()
-            except Exception:
-                pass
+            except Exception as e:
+                pass  # degraded: health check
 
             total = len(INSTALL_ORDER)
 

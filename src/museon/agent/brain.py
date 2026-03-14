@@ -79,7 +79,7 @@ class MuseonBrain:
         # ★ v10.4 Route C: 跨輪路由歷史（state-conditioned routing 用）
         self._routing_history: Dict[str, List[Dict]] = {}
 
-        # EventBus（後續由 server.py 注入，此處先取全域實例）
+        # ── EventBus（全域事件匯流排）──
         try:
             from museon.core.event_bus import get_event_bus
             self._event_bus = get_event_bus()
@@ -87,52 +87,155 @@ class MuseonBrain:
             logger.debug(f"EventBus 取得失敗，降級為 None: {e}")
             self._event_bus = None
 
-        # Skill Router (DNA27 配對)
+        # ── CORE 模組（失敗 = 系統不可用）──
         from museon.agent.skill_router import SkillRouter
         self.skill_router = SkillRouter(
             skills_dir=str(self.data_dir / "skills"),
             event_bus=self._event_bus,
         )
 
-        # Memory Store
         from museon.memory.store import MemoryStore
         self.memory_store = MemoryStore(
             base_path=str(self.data_dir / "memory")
         )
 
-        # Naming Ceremony
         from museon.onboarding.ceremony import NamingCeremony
         self.ceremony = NamingCeremony(data_dir=str(self.data_dir))
 
-        # ── 新模組：直覺引擎 ──
-        try:
-            from museon.agent.intuition import IntuitionEngine
-            self.intuition = IntuitionEngine(data_dir=str(self.data_dir))
-        except Exception as e:
-            logger.warning(f"IntuitionEngine 載入失敗（降級運行）: {e}")
-            self.intuition = None
+        # ── ModuleRegistry：聲明式載入所有可選模組 ──
+        from museon.core.module_registry import ModuleRegistry, ModuleSpec, ModuleTier
 
-        # ── 新模組：Eval Engine ──
-        try:
-            from museon.agent.eval_engine import EvalEngine
-            self.eval_engine = EvalEngine(data_dir=str(self.data_dir))
-        except Exception as e:
-            logger.warning(f"EvalEngine 載入失敗（降級運行）: {e}")
-            self.eval_engine = None
+        self._module_registry = ModuleRegistry()
+        _dd = str(self.data_dir)
 
-        # ── 新模組：靈魂年輪 ──
+        # 定義所有可選模組（原本各自 try/except 的 28 個模組）
+        self._module_registry.register_many({
+            # ── Agent 層 ──
+            "intuition": ModuleSpec(
+                import_path="museon.agent.intuition",
+                class_name="IntuitionEngine",
+                init_kwargs={"data_dir": _dd},
+                attr_name="intuition",
+            ),
+            "eval_engine": ModuleSpec(
+                import_path="museon.agent.eval_engine",
+                class_name="EvalEngine",
+                init_kwargs={"data_dir": _dd},
+                attr_name="eval_engine",
+            ),
+            "knowledge_lattice": ModuleSpec(
+                import_path="museon.agent.knowledge_lattice",
+                class_name="KnowledgeLattice",
+                init_kwargs={"data_dir": _dd},
+                attr_name="knowledge_lattice",
+            ),
+            "plan_engine": ModuleSpec(
+                import_path="museon.agent.plan_engine",
+                class_name="PlanEngine",
+                init_kwargs={"data_dir": _dd},
+                attr_name="plan_engine",
+            ),
+            "sub_agent_mgr": ModuleSpec(
+                import_path="museon.agent.sub_agent",
+                class_name="SubAgentManager",
+                init_kwargs={"data_dir": _dd},
+                attr_name="sub_agent_mgr",
+            ),
+            "safety_anchor": ModuleSpec(
+                import_path="museon.agent.safety_anchor",
+                class_name="SafetyAnchor",
+                attr_name="safety_anchor",
+            ),
+            "kernel_guard": ModuleSpec(
+                import_path="museon.agent.kernel_guard",
+                class_name="KernelGuard",
+                init_kwargs={"data_dir": self.data_dir},
+                attr_name="kernel_guard",
+            ),
+            "drift_detector": ModuleSpec(
+                import_path="museon.agent.drift_detector",
+                class_name="DriftDetector",
+                init_kwargs={"data_dir": self.data_dir},
+                attr_name="drift_detector",
+            ),
+            # ── Security 層 ──
+            "input_sanitizer": ModuleSpec(
+                import_path="museon.security.sanitizer",
+                class_name="InputSanitizer",
+                attr_name="input_sanitizer",
+            ),
+            # ── LLM 層 ──
+            "budget_monitor": ModuleSpec(
+                import_path="museon.llm.budget",
+                class_name="BudgetMonitor",
+                init_kwargs={"data_dir": _dd},
+                attr_name="budget_monitor",
+            ),
+            "router": ModuleSpec(
+                import_path="museon.llm.router",
+                class_name="Router",
+                init_kwargs={"data_dir": _dd},
+                attr_name="_router",
+            ),
+            # ── Evolution 層 ──
+            "synapse_network": ModuleSpec(
+                import_path="museon.evolution.skill_synapse",
+                class_name="SynapseNetwork",
+                init_kwargs={"data_dir": self.data_dir},
+                attr_name="_synapse_network",
+                tier=ModuleTier.EDGE,
+            ),
+            "tool_muscle": ModuleSpec(
+                import_path="museon.evolution.tool_muscle",
+                class_name="ToolMuscleTracker",
+                init_kwargs={"data_dir": self.data_dir},
+                attr_name="_tool_muscle",
+                tier=ModuleTier.EDGE,
+            ),
+            "trigger_engine": ModuleSpec(
+                import_path="museon.evolution.trigger_weights",
+                class_name="TriggerEngine",
+                init_kwargs={"data_dir": self.data_dir},
+                attr_name="_trigger_engine",
+                tier=ModuleTier.EDGE,
+            ),
+            # ── Governance 層 ──
+            "footprint": ModuleSpec(
+                import_path="museon.governance.footprint",
+                class_name="FootprintStore",
+                init_kwargs={"data_dir": self.data_dir},
+                attr_name="_footprint",
+                tier=ModuleTier.EDGE,
+            ),
+            # ── Registry 層 ──
+            "registry_manager": ModuleSpec(
+                import_path="museon.registry.registry_manager",
+                class_name="RegistryManager",
+                init_kwargs={"data_dir": _dd, "user_id": "cli_user"},
+                attr_name="_registry_manager",
+                tier=ModuleTier.EDGE,
+            ),
+        })
+
+        # 初始化所有可選模組（統一降級處理）
+        self._module_registry.init_all()
+        self._module_registry.inject_to(self)
+
+        # ── 需要特殊初始化的模組（無法用 ModuleSpec 標準化的）──
+
+        # SoulRing（需要兩個類別交互初始化）
         try:
             from museon.agent.soul_ring import SoulRingStore, RingDepositor
-            self._soul_ring_store = SoulRingStore(data_dir=str(self.data_dir))
+            self._soul_ring_store = SoulRingStore(data_dir=_dd)
             self.ring_depositor = RingDepositor(
-                store=self._soul_ring_store,
-                data_dir=str(self.data_dir),
+                store=self._soul_ring_store, data_dir=_dd,
             )
         except Exception as e:
             logger.warning(f"SoulRing 載入失敗（降級運行）: {e}")
             self._soul_ring_store = None
             self.ring_depositor = None
-        # 斷點三修復(方案C)：Q-Score 歷史持久化，重啟後不清零
+
+        # Q-Score 歷史持久化
         self._q_score_history_path = self.data_dir / "_system" / "q_score_history.json"
         self._q_score_history: list = []
         try:
@@ -143,15 +246,7 @@ class MuseonBrain:
         except Exception as e:
             logger.warning(f"Q-score 歷史讀取失敗，重置為空: {e}")
 
-        # ── 新模組：知識晶格 ──
-        try:
-            from museon.agent.knowledge_lattice import KnowledgeLattice
-            self.knowledge_lattice = KnowledgeLattice(data_dir=str(self.data_dir))
-        except Exception as e:
-            logger.warning(f"KnowledgeLattice 載入失敗（降級運行）: {e}")
-            self.knowledge_lattice = None
-
-        # ── 新模組：結晶行為規則引擎 ──
+        # CrystalActuator（需要 event_bus 注入）
         try:
             from museon.agent.crystal_actuator import CrystalActuator
             self.crystal_actuator = CrystalActuator(
@@ -161,47 +256,7 @@ class MuseonBrain:
             logger.warning(f"CrystalActuator 載入失敗（降級運行）: {e}")
             self.crystal_actuator = None
 
-        # ── 新模組：計畫引擎 ──
-        try:
-            from museon.agent.plan_engine import PlanEngine
-            self.plan_engine = PlanEngine(data_dir=str(self.data_dir))
-        except Exception as e:
-            logger.warning(f"PlanEngine 載入失敗（降級運行）: {e}")
-            self.plan_engine = None
-
-        # ── 新模組：子代理管理器 ──
-        try:
-            from museon.agent.sub_agent import SubAgentManager
-            self.sub_agent_mgr = SubAgentManager(data_dir=str(self.data_dir))
-        except Exception as e:
-            logger.warning(f"SubAgentManager 載入失敗（降級運行）: {e}")
-            self.sub_agent_mgr = None
-
-        # ── 新模組：SafetyAnchor ──
-        try:
-            from museon.agent.safety_anchor import SafetyAnchor
-            self.safety_anchor = SafetyAnchor()
-        except Exception as e:
-            logger.warning(f"SafetyAnchor 載入失敗（降級運行）: {e}")
-            self.safety_anchor = None
-
-        # ── 新模組：InputSanitizer（L2 輸入防線）──
-        try:
-            from museon.security.sanitizer import InputSanitizer
-            self.input_sanitizer = InputSanitizer()
-        except Exception as e:
-            logger.warning(f"InputSanitizer 載入失敗（降級運行）: {e}")
-            self.input_sanitizer = None
-
-        # ── 新模組：BudgetMonitor（Token 用量追蹤）──
-        try:
-            from museon.llm.budget import BudgetMonitor
-            self.budget_monitor = BudgetMonitor(data_dir=str(self.data_dir))
-        except Exception as e:
-            logger.warning(f"BudgetMonitor 載入失敗（降級運行）: {e}")
-            self.budget_monitor = None
-
-        # ── LLM Adapter（MAX 訂閱方案 / API fallback）──
+        # LLM Adapter（工廠函數模式）
         try:
             from museon.llm.adapters import create_adapter_sync
             self._llm_adapter = create_adapter_sync()
@@ -209,21 +264,11 @@ class MuseonBrain:
             logger.warning(f"LLMAdapter 載入失敗（降級運行）: {e}")
             self._llm_adapter = None
 
-        # ── 新模組：Router（Haiku / Sonnet 智能分流）──
-        self._router = None
-        try:
-            from museon.llm.router import Router
-            self._router = Router(data_dir=str(self.data_dir))
-            logger.info("Router 智能分流已啟用")
-        except Exception as e:
-            logger.warning(f"Router 載入失敗（降級 Sonnet-only）: {e}")
-
-        # ── 新模組：六層記憶管理器 ──
+        # MemoryManager（需要 event_bus 注入）
         try:
             from museon.memory.memory_manager import MemoryManager
-            memory_workspace = str(self.data_dir / "memory_v3")
             self.memory_manager = MemoryManager(
-                workspace=memory_workspace,
+                workspace=str(self.data_dir / "memory_v3"),
                 user_id="cli_user",
                 event_bus=self._event_bus,
             )
@@ -231,65 +276,26 @@ class MuseonBrain:
             logger.warning(f"MemoryManager 載入失敗（降級運行）: {e}")
             self.memory_manager = None
 
-        # ── 新模組：Multi-Agent 飛輪八部門（常駐啟用）──
+        # Multi-Agent ContextSwitcher
         self._multiagent_enabled = True
         self._context_switcher = None
         try:
             from museon.multiagent.context_switch import ContextSwitcher
             self._context_switcher = ContextSwitcher()
-            logger.info("Multi-Agent 飛輪八部門已啟用（常駐）")
         except Exception as e:
             logger.warning(f"Multi-Agent 載入失敗（降級運行）: {e}")
 
-        # ── 新模組：KernelGuard（ANIMA 寫入保護）──
-        try:
-            from museon.agent.kernel_guard import KernelGuard
-            self.kernel_guard = KernelGuard(data_dir=self.data_dir)
-        except Exception as e:
-            logger.warning(f"KernelGuard 載入失敗（降級運行）: {e}")
-            self.kernel_guard = None
-
-        # ── 新模組：DriftDetector（ANIMA 漂移偵測）──
-        try:
-            from museon.agent.drift_detector import DriftDetector
-            self.drift_detector = DriftDetector(data_dir=self.data_dir)
-        except Exception as e:
-            logger.warning(f"DriftDetector 載入失敗（降級運行）: {e}")
-            self.drift_detector = None
-
-        # ── Phase 3a: Governor 治理層引用（GovernanceContext Bridge）──
-        self._governor = None  # 由 set_governor() 注入
-
-        # ── 失敗蒸餾快取（5 分鐘去重）──
-        self._failure_distill_cache: Dict[str, float] = {}
-
-        # ── 自主排程偵測緩衝 ──
-        self._cron_pattern_buffer: List[str] = []
-
-        # ── 待推播通知（純 CPU 模板，由 Gateway 發送）──
-        self._pending_notifications: List[Dict[str, str]] = []
-
-        # ── EventBus（全域事件匯流排）──
-        self._event_bus = None
-        try:
-            from museon.core.event_bus import get_event_bus
-            self._event_bus = get_event_bus()
-        except Exception as e:
-            logger.warning(f"EventBus 載入失敗（降級運行）: {e}")
-
-        # ── 新模組：CommitmentTracker（承諾追蹤 — 言出必行）──
+        # CommitmentTracker（需要 PulseDB 先初始化）
         self._commitment_tracker = None
         try:
             from museon.pulse.commitment_tracker import CommitmentTracker
             from museon.pulse.pulse_db import PulseDB
-            _pulse_db_path = self.data_dir / "pulse" / "pulse.db"
-            _pulse_db = PulseDB(str(_pulse_db_path))
+            _pulse_db = PulseDB(str(self.data_dir / "pulse" / "pulse.db"))
             self._commitment_tracker = CommitmentTracker(pulse_db=_pulse_db)
-            logger.info("CommitmentTracker 承諾追蹤已啟用")
         except Exception as e:
             logger.warning(f"CommitmentTracker 載入失敗（降級運行）: {e}")
 
-        # ── 新模組：AsyncWriteQueue（非同步寫入佇列 — 序列化 SQLite/JSON 寫入）──
+        # AsyncWriteQueue（全域單例工廠）
         try:
             from museon.pulse.async_write_queue import get_write_queue
             self._wq = get_write_queue()
@@ -297,20 +303,18 @@ class MuseonBrain:
             logger.warning(f"AsyncWriteQueue 載入失敗（降級為同步寫入）: {e}")
             self._wq = None
 
-        # ── 新模組：MetaCognition Engine（元認知 — 大腦層級審慎思考）──
+        # MetaCognition（需要 brain 反向引用）
         self._metacognition = None
         try:
             from museon.agent.metacognition import MetaCognitionEngine
-            _pulse_db_path_mc = self.data_dir / "pulse" / "pulse.db"
             self._metacognition = MetaCognitionEngine(
-                pulse_db_path=str(_pulse_db_path_mc),
+                pulse_db_path=str(self.data_dir / "pulse" / "pulse.db"),
                 brain=self,
             )
-            logger.info("MetaCognitionEngine 元認知引擎已啟用")
         except Exception as e:
             logger.warning(f"MetaCognitionEngine 載入失敗（降級運行）: {e}")
 
-        # ── 新模組：Tool Executor（Anthropic tool_use 工具調用）──
+        # ToolExecutor（需要 brain 反向引用）
         self._tool_executor = None
         try:
             from museon.agent.tools import ToolExecutor
@@ -322,62 +326,21 @@ class MuseonBrain:
         except Exception as e:
             logger.warning(f"ToolExecutor 載入失敗（降級運行）: {e}")
 
-        # ── 新模組：TokenBudgetManager（薪水制 Token 經濟）──
+        # TokenBudgetManager
         self._token_budget = None
         try:
             from museon.pulse.token_budget import TokenBudgetManager
             self._token_budget = TokenBudgetManager(data_dir=self.data_dir)
-            logger.info("TokenBudgetManager 薪水制已啟用")
         except Exception as e:
             logger.warning(f"TokenBudgetManager 載入失敗（降級運行）: {e}")
 
-        # ── 新模組：SynapseNetwork（技能突觸網路）──
-        self._synapse_network = None
-        try:
-            from museon.evolution.skill_synapse import SynapseNetwork
-            self._synapse_network = SynapseNetwork(data_dir=self.data_dir)
-            logger.info("SynapseNetwork 技能突觸已啟用")
-        except Exception as e:
-            logger.warning(f"SynapseNetwork 載入失敗（降級運行）: {e}")
+        # ── Phase 3a: Governor 治理層引用 ──
+        self._governor = None  # 由 set_governor() 注入
 
-        # ── 新模組：ToolMuscleTracker（工具肌肉記憶）──
-        self._tool_muscle = None
-        try:
-            from museon.evolution.tool_muscle import ToolMuscleTracker
-            self._tool_muscle = ToolMuscleTracker(data_dir=self.data_dir)
-            logger.info("ToolMuscleTracker 肌肉記憶已啟用")
-        except Exception as e:
-            logger.warning(f"ToolMuscleTracker 載入失敗（降級運行）: {e}")
-
-        # ── 新模組：FootprintStore（三層行為足跡）──
-        self._footprint = None
-        try:
-            from museon.governance.footprint import FootprintStore
-            self._footprint = FootprintStore(data_dir=self.data_dir)
-            logger.info("FootprintStore 行為足跡已啟用")
-        except Exception as e:
-            logger.warning(f"FootprintStore 載入失敗（降級運行）: {e}")
-
-        # ── 新模組：TriggerEngine（13 觸發器引擎）──
-        self._trigger_engine = None
-        try:
-            from museon.evolution.trigger_weights import TriggerEngine
-            self._trigger_engine = TriggerEngine(data_dir=self.data_dir)
-            logger.info("TriggerEngine 觸發引擎已啟用")
-        except Exception as e:
-            logger.warning(f"TriggerEngine 載入失敗（降級運行）: {e}")
-
-        # ── 新模組：RegistryManager（結構化資料層）──
-        self._registry_manager = None
-        try:
-            from museon.registry.registry_manager import RegistryManager
-            self._registry_manager = RegistryManager(
-                data_dir=str(self.data_dir),
-                user_id="cli_user",
-            )
-            logger.info("RegistryManager 結構化資料層已啟用")
-        except Exception as e:
-            logger.warning(f"RegistryManager 載入失敗（降級運行）: {e}")
+        # ── 內部狀態 ──
+        self._failure_distill_cache: Dict[str, float] = {}
+        self._cron_pattern_buffer: List[str] = []
+        self._pending_notifications: List[Dict[str, str]] = []
 
         logger.info(
             f"MUSEON Brain initialized | "
@@ -2965,8 +2928,8 @@ class MuseonBrain:
         try:
             if hasattr(self, "_anima_tracker") and self._anima_tracker:
                 return self._anima_tracker.get_all_descriptions()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[BRAIN] operation failed (degraded): {e}")
 
         # Fallback：從知識文件讀取精簡版
         try:
@@ -2985,8 +2948,8 @@ class MuseonBrain:
                             lines.append(line)
                     if lines:
                         return "## 我的八原語能量\n" + "\n".join(lines)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[BRAIN] token failed (degraded): {e}")
 
         return ""
 
@@ -3725,8 +3688,8 @@ class MuseonBrain:
                         "\n⚡ 重要：使用者偏好簡短回覆。精煉後的回覆必須控制在 2-3 句以內，"
                         "不要過度展開或列舉。"
                     )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[BRAIN] operation failed (degraded): {e}")
 
         refined_prompt = (
             system_prompt

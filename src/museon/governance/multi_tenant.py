@@ -120,8 +120,8 @@ class ExternalAnimaManager:
                     data.setdefault("groups_seen_in", [])
                     data.setdefault("relationship_to_owner", "")
                 return data
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[MULTI_TENANT] JSON failed (degraded): {e}")
         return self._default_anima(user_id)
 
     def search_by_keyword(self, keyword: str, limit: int = 5) -> List[Dict[str, Any]]:

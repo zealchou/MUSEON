@@ -250,8 +250,8 @@ class SurgeryRestarter:
         try:
             if self._pending_marker.exists():
                 self._pending_marker.unlink()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[SURGEON] operation failed (degraded): {e}")
 
 
 # ═══════════════════════════════════════════
@@ -570,8 +570,8 @@ class SurgeryEngine:
                                 if p == "failed":
                                     result["failed_tests"] = int(parts[i - 1])
                                     break
-                        except (ValueError, IndexError):
-                            pass
+                        except (ValueError, IndexError) as e:
+                            logger.debug(f"[SURGEON] operation failed (degraded): {e}")
                 result["error_summary"] = (
                     f"pytest 失敗: {result['failed_tests']} 個測試未通過"
                 )
@@ -968,8 +968,8 @@ class SurgeryEngine:
                             "line": i,
                             "content": line.strip(),
                         })
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[SURGEON] data read failed (degraded): {e}")
 
             # 限制結果數量
             if len(results) >= 100:
@@ -985,8 +985,8 @@ class SurgeryEngine:
         try:
             from museon.core.event_bus import get_event_bus
             get_event_bus().publish(event_type, payload)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[SURGEON] module import failed (degraded): {e}")
 
     def get_status(self) -> Dict[str, Any]:
         """取得手術引擎狀態."""

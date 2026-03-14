@@ -170,8 +170,8 @@ class ServiceHealthMonitor:
             self._check_task.cancel()
             try:
                 await self._check_task
-            except asyncio.CancelledError:
-                pass
+            except asyncio.CancelledError as e:
+                logger.debug(f"[SERVICE_HEALTH] operation failed (degraded): {e}")
         logger.info("ServiceHealthMonitor stopped")
 
     async def check_service(self, name: str) -> ServiceStatus:

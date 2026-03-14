@@ -195,8 +195,8 @@ class TelegramPollingGuard:
             self._polling_task.cancel()
             try:
                 await self._polling_task
-            except asyncio.CancelledError:
-                pass
+            except asyncio.CancelledError as e:
+                logger.debug(f"[TELEGRAM_GUARD] operation failed (degraded): {e}")
 
         await self._stop_application()
         logger.info("TelegramPollingGuard stopped")

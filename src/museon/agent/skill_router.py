@@ -190,8 +190,8 @@ class SkillRouter:
             if vb.is_available():
                 self._vector_bridge = vb
                 return vb
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[SKILL_ROUTER] vector failed (degraded): {e}")
         return None
 
     def _vector_search_skills(
@@ -368,8 +368,8 @@ class SkillRouter:
                 elif loop == "SLOW_LOOP":
                     effective_top_n = top_n + 2
                 # EXPLORATION_LOOP → 維持原 top_n
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[SKILL_ROUTER] operation failed (degraded): {e}")
 
         # ── Layer 1: DNA27 RC 驅動 — 從 skill 自己的 RC 親和宣告匹配 ──
         rc_scores: Dict[str, float] = {}
@@ -589,8 +589,8 @@ class SkillRouter:
         if path.exists():
             try:
                 return path.read_text(encoding="utf-8")
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[SKILL_ROUTER] data read failed (degraded): {e}")
         return ""
 
     def load_skill_summary(self, skill: Dict[str, Any]) -> str:

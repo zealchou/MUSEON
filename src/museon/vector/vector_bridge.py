@@ -78,8 +78,8 @@ class VectorBridge:
         try:
             from museon.core.event_bus import MEMORY_STORED
             self._event_bus.subscribe(MEMORY_STORED, self._on_memory_stored)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[VECTOR_BRIDGE] memory failed (degraded): {e}")
 
     def _on_memory_stored(self, data: Optional[Dict] = None) -> None:
         """MEMORY_STORED 備援索引：若主流程索引失敗，此路徑補索引."""
@@ -94,8 +94,8 @@ class VectorBridge:
             if results and any(r.get("id") == memory_id for r in results):
                 return
             # 備援索引（content 不在事件中，跳過）
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[VECTOR_BRIDGE] memory failed (degraded): {e}")
 
     # ═══════════════════════════════════════════
     # 可用性檢查
@@ -210,8 +210,8 @@ class VectorBridge:
                         "doc_id": doc_id,
                         "collection": collection,
                     })
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[VECTOR_BRIDGE] vector failed (degraded): {e}")
 
             return True
 

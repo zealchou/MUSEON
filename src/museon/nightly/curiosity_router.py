@@ -151,8 +151,8 @@ class CuriosityRouter:
                 source_date = q.get("source_date", "2020-01-01")
                 days_old = (datetime.now(TZ8).date() - datetime.fromisoformat(source_date).date()).days
                 s += max(0, 10 - days_old)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[CURIOSITY_ROUTER] operation failed (degraded): {e}")
             # 長度適中
             qlen = len(q.get("question", ""))
             if 10 < qlen < 100:

@@ -41,7 +41,7 @@ WEE_PLATEAU_DETECTED = "WEE_PLATEAU_DETECTED"
 # Self-Diagnosis 自我診斷事件
 SELF_DIAGNOSIS_TRIGGERED = "SELF_DIAGNOSIS_TRIGGERED"
 SELF_DIAGNOSIS_COMPLETED = "SELF_DIAGNOSIS_COMPLETED"
-SELF_REPAIR_EXECUTED = "SELF_REPAIR_EXECUTED"
+SELF_REPAIR_EXECUTED = "SELF_REPAIR_EXECUTED"                # DEPRECATED: 無發布/訂閱者
 
 # Self-Surgery 自我手術事件
 SURGERY_TRIGGERED = "SURGERY_TRIGGERED"
@@ -70,13 +70,13 @@ GOVERNANCE_ALGEDONIC_SIGNAL = "GOVERNANCE_ALGEDONIC_SIGNAL"
 # ═══════════════════════════════════════════
 # Autonomy Architecture 自主演化事件
 # ═══════════════════════════════════════════
-TOKEN_BUDGET_WARNING = "TOKEN_BUDGET_WARNING"
-TOKEN_BUDGET_CONSERVATION = "TOKEN_BUDGET_CONSERVATION"
+TOKEN_BUDGET_WARNING = "TOKEN_BUDGET_WARNING"                # DEPRECATED: 無發布/訂閱者
+TOKEN_BUDGET_CONSERVATION = "TOKEN_BUDGET_CONSERVATION"      # DEPRECATED: 無發布/訂閱者
 SYNAPSE_PRELOAD = "SYNAPSE_PRELOAD"
 TOOL_MUSCLE_DORMANT = "TOOL_MUSCLE_DORMANT"
 IMMUNE_MEMORY_LEARNED = "IMMUNE_MEMORY_LEARNED"
 AUTONOMIC_REPAIR = "AUTONOMIC_REPAIR"
-EVOLUTION_TRACE = "EVOLUTION_TRACE"
+EVOLUTION_TRACE = "EVOLUTION_TRACE"                          # DEPRECATED: 無發布/訂閱者
 TRIGGER_FIRED = "TRIGGER_FIRED"
 
 # ═══════════════════════════════════════════
@@ -86,8 +86,8 @@ PREFLIGHT_FAILED = "PREFLIGHT_FAILED"
 PREFLIGHT_PASSED = "PREFLIGHT_PASSED"
 REFRACTORY_BACKOFF = "REFRACTORY_BACKOFF"
 REFRACTORY_HIBERNATE = "REFRACTORY_HIBERNATE"
-REFRACTORY_WAKE = "REFRACTORY_WAKE"
-GATEWAY_DEGRADED = "GATEWAY_DEGRADED"
+REFRACTORY_WAKE = "REFRACTORY_WAKE"                          # DEPRECATED: 無發布/訂閱者
+GATEWAY_DEGRADED = "GATEWAY_DEGRADED"                        # DEPRECATED: 無發布/訂閱者
 
 # ═══════════════════════════════════════════
 # Exploration → Evolution Bridge 事件
@@ -279,8 +279,8 @@ class EventBus:
             if event_type in self._subscribers:
                 try:
                     self._subscribers[event_type].remove(callback)
-                except ValueError:
-                    pass
+                except ValueError as e:
+                    logger.debug(f"[EVENT_BUS] operation failed (degraded): {e}")
 
     def publish(self, event_type: str, data: Optional[Dict[str, Any]] = None) -> None:
         """發布事件 — 呼叫所有訂閱者."""

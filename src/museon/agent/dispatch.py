@@ -173,8 +173,8 @@ def persist_dispatch_plan(
     if (completed or failed) and active_path.exists():
         try:
             active_path.unlink()
-        except OSError:
-            pass
+        except OSError as e:
+            logger.debug(f"[DISPATCH] operation failed (degraded): {e}")
 
     target_path = target_dir / f"{plan.plan_id}.json"
     try:

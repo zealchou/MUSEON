@@ -279,8 +279,8 @@ class Governor:
             self._upper_task.cancel()
             try:
                 await self._upper_task
-            except asyncio.CancelledError:
-                pass
+            except asyncio.CancelledError as e:
+                logger.debug(f"[GOVERNOR] operation failed (degraded): {e}")
 
         # 生命徵象: 停止 VitalSignsMonitor
         if getattr(self, '_vital_signs', None):
@@ -359,10 +359,20 @@ class Governor:
         self._perception.connect_event_bus(event_bus)
         # WP-04: 訂閱 AUDIT_COMPLETED → 根據結果觸發反應
         try:
-            from museon.core.event_bus import AUDIT_COMPLETED
+            from museon.core.event_bus import (
+                AUDIT_COMPLETED,
+                MORPHENIX_AUTO_APPROVED,
+                SOUL_IDENTITY_TAMPERED,
+            )
             event_bus.subscribe(AUDIT_COMPLETED, self._on_audit_completed)
+            event_bus.subscribe(
+                SOUL_IDENTITY_TAMPERED, self._on_soul_identity_tampered
+            )
+            event_bus.subscribe(
+                MORPHENIX_AUTO_APPROVED, self._on_morphenix_auto_approved
+            )
         except Exception as e:
-            logger.debug(f"Governor: AUDIT_COMPLETED subscription failed: {e}")
+            logger.debug(f"Governor: event subscription failed: {e}")
         # WP-04: 注入 event_bus 到 ImmuneMemoryBank（延遲注入）
         if self._immune_memory and not getattr(self._immune_memory, "_event_bus", None):
             self._immune_memory._event_bus = event_bus
@@ -551,8 +561,8 @@ class Governor:
                 # ── Step 6: 持久化免疫記憶 ──
                 try:
                     self._immunity.save()
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[GOVERNOR] operation failed (degraded): {e}")
 
                 # ── Step 4.5: Phase 3b — ANIMA 成長驅動 ──
                 if self._growth_driver:
@@ -653,8 +663,8 @@ class Governor:
 
             rusage = resource.getrusage(resource.RUSAGE_SELF)
             memory_mb = rusage.ru_maxrss / (1024 * 1024)  # macOS: bytes
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[GOVERNOR] memory failed (degraded): {e}")
 
         return HealthSnapshot(
             timestamp=time.time(),
@@ -750,8 +760,8 @@ class Governor:
                         "GOVERNANCE_ALGEDONIC_SIGNAL",
                         {"source": "system_audit", "overall": overall, "summary": summary},
                     )
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[GOVERNOR] audit failed (degraded): {e}")
 
             # CRITICAL → 推送 Telegram 告警（限流：同類型每 10 分鐘最多 1 次）
             import time as _time
@@ -785,6 +795,87 @@ class Governor:
                     f"Governor: Audit WARNING — 巡檢間隔縮短至 "
                     f"{self._upper_check_interval_s}s"
                 )
+
+    # ─── SOUL_IDENTITY_TAMPERED 告警 ───
+
+    def _on_soul_identity_tampered(self, data: Optional[Dict] = None) -> None:
+        """SOUL.md 完整性被篡改 → 觸發 CRITICAL 警覺信號."""
+        logger.critical(
+            f"🚨 SOUL IDENTITY TAMPERED — "
+            f"embedded={data.get('embedded_hash', '?')[:8]}... "
+            f"computed={data.get('computed_hash', '?')[:8]}... "
+            f"severity={data.get('severity', 'CRITICAL')}"
+        )
+        # 發布 Algedonic Signal
+        if self._event_bus:
+            try:
+                self._event_bus.publish(
+                    "GOVERNANCE_ALGEDONIC_SIGNAL",
+                    {
+                        "source": "soul_identity_check",
+                        "overall": "critical",
+                        "summary": {
+                            "event": "SOUL_IDENTITY_TAMPERED",
+                            "embedded_hash": data.get("embedded_hash", ""),
+                            "computed_hash": data.get("computed_hash", ""),
+                        },
+                    },
+                )
+            except Exception as e:
+                logger.warning(f"Governor: Algedonic signal publish failed: {e}")
+
+        # 推送 Telegram 告警
+        vs = getattr(self, "_vital_signs", None)
+        if vs:
+            import asyncio
+
+            alert_text = (
+                "🚨 *CRITICAL: SOUL Identity Tampered*\n\n"
+                f"Expected hash: `{data.get('embedded_hash', '?')[:16]}...`\n"
+                f"Actual hash: `{data.get('computed_hash', '?')[:16]}...`\n\n"
+                "SOUL.md 完整性已被篡改，請立即檢查。"
+            )
+            try:
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    asyncio.ensure_future(vs._push_alert(alert_text))
+                else:
+                    loop.run_until_complete(vs._push_alert(alert_text))
+            except Exception as e:
+                logger.warning(f"Governor: Soul tamper alert push failed: {e}")
+
+    # ─── MORPHENIX_AUTO_APPROVED 執行者 ───
+
+    def _on_morphenix_auto_approved(self, data: Optional[Dict] = None) -> None:
+        """Morphenix 提案自動核准 → 觸發執行."""
+        if not data:
+            return
+        proposal_ids = data.get("proposal_ids", [])
+        count = data.get("count", 0)
+        logger.info(
+            f"Governor: Morphenix auto-approved {count} proposals: {proposal_ids}"
+        )
+        # 嘗試觸發 MorphenixExecutor 執行
+        try:
+            from museon.nightly.morphenix_executor import MorphenixExecutor
+
+            executor = MorphenixExecutor(
+                workspace=self._workspace,
+                event_bus=self._event_bus,
+            )
+            for pid in proposal_ids:
+                try:
+                    result = executor.execute_proposal(pid)
+                    logger.info(
+                        f"Governor: Morphenix proposal {pid} executed: "
+                        f"{result.get('status', 'unknown')}"
+                    )
+                except Exception as e:
+                    logger.warning(
+                        f"Governor: Morphenix proposal {pid} execution failed: {e}"
+                    )
+        except ImportError as e:
+            logger.debug(f"Governor: MorphenixExecutor not available: {e}")
 
     # ─── Phase 2: 免疫迴圈 ───
 

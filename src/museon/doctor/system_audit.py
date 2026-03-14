@@ -287,8 +287,8 @@ class SystemAuditor:
                         "warned": trend_layer.warned,
                         "failed": trend_layer.failed,
                     })
-            except Exception:
-                pass
+            except Exception as e:
+                pass  # degraded: audit
 
         return report
 
@@ -442,8 +442,8 @@ class SystemAuditor:
                             repairable=True,
                             repair_action="fix_plist_home",
                         )
-            except Exception:
-                pass
+            except Exception as e:
+                pass  # degraded: repair
 
         return base
 
@@ -1204,8 +1204,8 @@ class SystemAuditor:
                         rec = json.loads(line)
                         if rec.get("outcome") == "executed":
                             last_exec_count += 1
-                except Exception:
-                    pass
+                except Exception as e:
+                    pass  # degraded: JSON
 
                 results.append(CheckResult(
                     name="Morphenix Last Execution",
@@ -1270,8 +1270,8 @@ class SystemAuditor:
                     p = json.loads(pf.read_text(encoding="utf-8"))
                     if p.get("status") in ("pending_review", "pending"):
                         pending_count += 1
-                except Exception:
-                    pass
+                except Exception as e:
+                    pass  # degraded: file stat
             results.append(CheckResult(
                 name="Morphenix Proposals Queue",
                 status=CheckStatus.OK,

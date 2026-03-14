@@ -393,8 +393,8 @@ class EvolutionVelocity:
                                 ct = ct.replace(tzinfo=TZ8)
                             if ct >= week_start:
                                 new_crystals += 1
-                        except (ValueError, TypeError):
-                            pass
+                        except (ValueError, TypeError) as e:
+                            logger.debug(f"[EVOLUTION_VELOCITY] crystal failed (degraded): {e}")
         except Exception as e:
             logger.warning(f"EvolutionVelocity: read crystals failed: {e}")
 
@@ -445,8 +445,8 @@ class EvolutionVelocity:
                             ).total_seconds() / 3600.0
                             if hours >= 0:
                                 repair_times.append(hours)
-                        except (ValueError, TypeError):
-                            pass
+                        except (ValueError, TypeError) as e:
+                            logger.debug(f"[EVOLUTION_VELOCITY] repair failed (degraded): {e}")
         except Exception as e:
             logger.warning(
                 f"EvolutionVelocity: read immunity events failed: {e}"

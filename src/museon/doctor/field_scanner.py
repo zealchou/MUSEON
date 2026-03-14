@@ -430,8 +430,8 @@ class FieldScanner:
                                     f"vs prefers_long({long_conf:.1f})"
                                 ),
                             ))
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[FIELD_SCANNER] crystal failed (degraded): {e}")
 
         # Pattern 2: mc_primals 是否為空
         baseline_path = self.data_dir / "anima" / "drift_baseline.json"
@@ -445,8 +445,8 @@ class FieldScanner:
                         field_key="mc_primals",
                         message="drift_baseline.json 的 mc_primals 為空 — MC 漂移偵測盲區",
                     ))
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[FIELD_SCANNER] JSON failed (degraded): {e}")
 
         # Pattern 3: soul_rings 是否為空
         soul_path = self.data_dir / "anima" / "soul_rings.json"
@@ -460,8 +460,8 @@ class FieldScanner:
                         field_key="soul_rings",
                         message="soul_rings.json 為空 — 靈魂年輪從未寫入",
                     ))
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[FIELD_SCANNER] soul failed (degraded): {e}")
 
         # Pattern 4: PULSE.md 區段標記一致性
         pulse_path = self.data_dir / "PULSE.md"
@@ -483,8 +483,8 @@ class FieldScanner:
                             field_key=section,
                             message=f"PULSE.md 缺少區段: {section}",
                         ))
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[FIELD_SCANNER] pulse failed (degraded): {e}")
 
     def format_report(self, report: ScanReport) -> str:
         """格式化掃描報告."""

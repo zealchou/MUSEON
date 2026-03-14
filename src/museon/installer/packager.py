@@ -373,8 +373,8 @@ class InstallerPackager:
             size_mb = path.stat().st_size / (1024 * 1024)
             if size_mb > self.MAX_FILE_SIZE_MB:
                 return True
-        except OSError:
-            pass
+        except OSError as e:
+            pass  # degraded: file stat
         return False
 
 

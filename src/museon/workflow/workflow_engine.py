@@ -568,8 +568,8 @@ class WorkflowEngine:
         tags = []
         try:
             tags = json.loads(row["tags_json"])
-        except (json.JSONDecodeError, KeyError):
-            pass
+        except (json.JSONDecodeError, KeyError) as e:
+            logger.debug(f"[WORKFLOW_ENGINE] JSON failed (degraded): {e}")
 
         return WorkflowRecord(
             workflow_id=row["workflow_id"],
