@@ -9,6 +9,7 @@ import logging
 import sqlite3
 import threading
 import time
+import uuid
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -274,6 +275,44 @@ class PulseDB:
                 ON incidents(module, created_at);
             CREATE INDEX IF NOT EXISTS idx_incidents_status
                 ON incidents(research_status, created_at);
+
+            -- ═══ Phase 2: JSON → SQLite 遷移 ═══
+
+            -- Ceremony State（命名儀式狀態）
+            CREATE TABLE IF NOT EXISTS ceremony_state (
+                key TEXT PRIMARY KEY,
+                value TEXT NOT NULL
+            );
+
+            -- Eval: A/B Baselines（基線快照，一旦建立不可修改）
+            CREATE TABLE IF NOT EXISTS eval_baselines (
+                change_id TEXT PRIMARY KEY,
+                baseline_json TEXT NOT NULL,     -- JSON blob
+                created_at TEXT NOT NULL
+            );
+
+            -- Eval: Blindspots（盲點記錄）
+            CREATE TABLE IF NOT EXISTS eval_blindspots (
+                id TEXT PRIMARY KEY,
+                blindspot_json TEXT NOT NULL,     -- JSON blob
+                created_at TEXT NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS idx_eval_blindspots_ts
+                ON eval_blindspots(created_at);
+
+            -- Eval: Alerts（品質警報）
+            CREATE TABLE IF NOT EXISTS eval_alerts (
+                id TEXT PRIMARY KEY,
+                alert_type TEXT NOT NULL,
+                severity TEXT DEFAULT 'medium',
+                message TEXT,
+                details_json TEXT DEFAULT '{}',   -- JSON blob
+                created_at TEXT NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS idx_eval_alerts_ts
+                ON eval_alerts(created_at);
+            CREATE INDEX IF NOT EXISTS idx_eval_alerts_type
+                ON eval_alerts(alert_type, created_at);
         """)
         conn.commit()
 
@@ -1101,6 +1140,234 @@ class PulseDB:
             (cutoff, limit),
         ).fetchall()
         return [dict(r) for r in rows]
+
+    # ══════════════════════════════════════════════
+    # Phase 2: Ceremony State（命名儀式狀態）
+    # ══════════════════════════════════════════════
+
+    def get_ceremony_state(self) -> Dict[str, Any]:
+        """取得命名儀式狀態."""
+        conn = self._get_conn()
+        rows = conn.execute("SELECT key, value FROM ceremony_state").fetchall()
+        if not rows:
+            return {}
+        state = {}
+        for r in rows:
+            try:
+                state[r["key"]] = json.loads(r["value"])
+            except (json.JSONDecodeError, TypeError):
+                state[r["key"]] = r["value"]
+        return state
+
+    def save_ceremony_state(self, state: Dict[str, Any]) -> None:
+        """儲存命名儀式狀態（全量覆寫）."""
+        conn = self._get_conn()
+        for key, value in state.items():
+            conn.execute(
+                "INSERT OR REPLACE INTO ceremony_state (key, value) VALUES (?, ?)",
+                (key, json.dumps(value, ensure_ascii=False)),
+            )
+        conn.commit()
+
+    # ══════════════════════════════════════════════
+    # Phase 2: Eval Baselines（A/B 基線）
+    # ══════════════════════════════════════════════
+
+    def load_eval_baselines(self) -> Dict[str, Any]:
+        """載入所有 A/B 基線."""
+        conn = self._get_conn()
+        rows = conn.execute(
+            "SELECT change_id, baseline_json FROM eval_baselines "
+            "ORDER BY created_at",
+        ).fetchall()
+        result = {}
+        for r in rows:
+            try:
+                result[r["change_id"]] = json.loads(r["baseline_json"])
+            except json.JSONDecodeError:
+                logger.warning(f"eval_baselines JSON 解析失敗: {r['change_id']}")
+        return result
+
+    def save_eval_baseline(self, change_id: str, baseline: Dict[str, Any]) -> bool:
+        """儲存 A/B 基線（HG-EVAL-BASELINE-LOCK: 已存在則拒絕）."""
+        conn = self._get_conn()
+        existing = conn.execute(
+            "SELECT 1 FROM eval_baselines WHERE change_id = ?",
+            (change_id,),
+        ).fetchone()
+        if existing:
+            logger.warning(
+                f"基線鎖定違規: 嘗試修改已存在的基線 {change_id} — "
+                f"基線一旦建立不可修改，這是數據誠實的基礎"
+            )
+            return False
+        now = datetime.now(TZ8).isoformat()
+        conn.execute(
+            "INSERT INTO eval_baselines (change_id, baseline_json, created_at) "
+            "VALUES (?, ?, ?)",
+            (change_id, json.dumps(baseline, ensure_ascii=False), now),
+        )
+        conn.commit()
+        return True
+
+    # ══════════════════════════════════════════════
+    # Phase 2: Eval Blindspots（盲點記錄）
+    # ══════════════════════════════════════════════
+
+    def load_eval_blindspots(self) -> List[Dict[str, Any]]:
+        """載入盲點記錄."""
+        conn = self._get_conn()
+        rows = conn.execute(
+            "SELECT blindspot_json FROM eval_blindspots ORDER BY created_at",
+        ).fetchall()
+        result = []
+        for r in rows:
+            try:
+                result.append(json.loads(r["blindspot_json"]))
+            except json.JSONDecodeError:
+                logger.warning("eval_blindspots JSON 解析失敗")
+        return result
+
+    def save_eval_blindspots(self, blindspots: List[Dict[str, Any]]) -> None:
+        """儲存盲點記錄（全量覆寫）."""
+        conn = self._get_conn()
+        conn.execute("DELETE FROM eval_blindspots")
+        now = datetime.now(TZ8).isoformat()
+        for bs in blindspots:
+            bs_id = bs.get("id", str(uuid.uuid4()))
+            conn.execute(
+                "INSERT INTO eval_blindspots (id, blindspot_json, created_at) "
+                "VALUES (?, ?, ?)",
+                (bs_id, json.dumps(bs, ensure_ascii=False), now),
+            )
+        conn.commit()
+
+    # ══════════════════════════════════════════════
+    # Phase 2: Eval Alerts（品質警報）
+    # ══════════════════════════════════════════════
+
+    def load_eval_alerts(self) -> List[Dict[str, Any]]:
+        """載入警報記錄."""
+        conn = self._get_conn()
+        rows = conn.execute(
+            "SELECT * FROM eval_alerts ORDER BY created_at",
+        ).fetchall()
+        result = []
+        for r in rows:
+            d = dict(r)
+            try:
+                d["details"] = json.loads(d.pop("details_json", "{}"))
+            except json.JSONDecodeError:
+                d["details"] = {}
+            result.append(d)
+        return result
+
+    def save_eval_alerts(self, alerts: List[Dict[str, Any]]) -> None:
+        """儲存警報記錄（全量覆寫）."""
+        conn = self._get_conn()
+        conn.execute("DELETE FROM eval_alerts")
+        now = datetime.now(TZ8).isoformat()
+        for alert in alerts:
+            alert_id = alert.get("id", str(uuid.uuid4()))
+            conn.execute(
+                "INSERT INTO eval_alerts "
+                "(id, alert_type, severity, message, details_json, created_at) "
+                "VALUES (?, ?, ?, ?, ?, ?)",
+                (
+                    alert_id,
+                    alert.get("alert_type", "unknown"),
+                    alert.get("severity", "medium"),
+                    alert.get("message", ""),
+                    json.dumps(alert.get("details", {}), ensure_ascii=False),
+                    alert.get("timestamp", alert.get("created_at", now)),
+                ),
+            )
+        conn.commit()
+
+    def append_eval_alert(self, alert: Dict[str, Any]) -> None:
+        """追加一筆警報."""
+        conn = self._get_conn()
+        now = datetime.now(TZ8).isoformat()
+        alert_id = alert.get("id", str(uuid.uuid4()))
+        conn.execute(
+            "INSERT OR REPLACE INTO eval_alerts "
+            "(id, alert_type, severity, message, details_json, created_at) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
+            (
+                alert_id,
+                alert.get("alert_type", "unknown"),
+                alert.get("severity", "medium"),
+                alert.get("message", ""),
+                json.dumps(alert.get("details", {}), ensure_ascii=False),
+                alert.get("timestamp", alert.get("created_at", now)),
+            ),
+        )
+        conn.commit()
+
+    # ══════════════════════════════════════════════
+    # Phase 2: JSON → SQLite 遷移工具
+    # ══════════════════════════════════════════════
+
+    def migrate_ceremony_from_json(self, json_path: Path) -> bool:
+        """從 ceremony_state.json 遷移到 SQLite."""
+        if not json_path.exists():
+            return False
+        try:
+            with open(json_path, "r", encoding="utf-8") as f:
+                state = json.load(f)
+            self.save_ceremony_state(state)
+            logger.info(f"ceremony_state 遷移完成: {len(state)} 筆 key-value")
+            return True
+        except Exception as e:
+            logger.error(f"ceremony_state 遷移失敗: {e}")
+            return False
+
+    def migrate_eval_from_json(self, eval_dir: Path) -> Dict[str, str]:
+        """從 eval/ JSON 檔案遷移到 SQLite."""
+        results = {}
+
+        # ab_baselines.json
+        ab_path = eval_dir / "ab_baselines.json"
+        if ab_path.exists():
+            try:
+                with open(ab_path, "r", encoding="utf-8") as f:
+                    baselines = json.load(f)
+                for cid, bl in baselines.items():
+                    self.save_eval_baseline(cid, bl)
+                results["ab_baselines"] = f"ok ({len(baselines)} 筆)"
+            except Exception as e:
+                results["ab_baselines"] = f"error: {e}"
+        else:
+            results["ab_baselines"] = "not_found"
+
+        # blindspots.json
+        bs_path = eval_dir / "blindspots.json"
+        if bs_path.exists():
+            try:
+                with open(bs_path, "r", encoding="utf-8") as f:
+                    blindspots = json.load(f)
+                self.save_eval_blindspots(blindspots)
+                results["blindspots"] = f"ok ({len(blindspots)} 筆)"
+            except Exception as e:
+                results["blindspots"] = f"error: {e}"
+        else:
+            results["blindspots"] = "not_found"
+
+        # alerts.json
+        alerts_path = eval_dir / "alerts.json"
+        if alerts_path.exists():
+            try:
+                with open(alerts_path, "r", encoding="utf-8") as f:
+                    alerts = json.load(f)
+                self.save_eval_alerts(alerts)
+                results["alerts"] = f"ok ({len(alerts)} 筆)"
+            except Exception as e:
+                results["alerts"] = f"error: {e}"
+        else:
+            results["alerts"] = "not_found"
+
+        logger.info(f"eval JSON 遷移結果: {results}")
+        return results
 
 
 # ══════════════════════════════════════════════════

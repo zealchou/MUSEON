@@ -314,13 +314,14 @@ Heartbeat Timer (30s)
 - [ ] 確認 Telegram JSONL 的去留
 
 ### Phase 2：JSON → SQLite 遷移（中風險）
-- [ ] `ceremony_state.json` → PulseDB.ceremony table
-- [ ] `tasks.json` → PulseDB.tasks table（如果不是已有 schedules）
-- [ ] `eval/ab_baselines.json` → PulseDB.eval_baselines table
-- [ ] `eval/blindspots.json` → PulseDB.eval_blindspots table
-- [ ] `eval/alerts.json` → PulseDB.eval_alerts table
-- [ ] 保留 JSONL 作為 append-only 審計（不遷移）
-- [ ] 保留 daily/weekly JSON 作為快照（不遷移）
+- [x] `ceremony_state.json` → PulseDB.ceremony_state table
+- [x] `tasks.json` → 跳過（無程式碼讀寫，已由 schedules + commitments 覆蓋）
+- [x] `eval/ab_baselines.json` → PulseDB.eval_baselines table
+- [x] `eval/blindspots.json` → PulseDB.eval_blindspots table
+- [x] `eval/alerts.json` → PulseDB.eval_alerts table
+- [x] 保留 JSONL 作為 append-only 審計（不遷移）
+- [x] 保留 daily/weekly JSON 作為快照（不遷移）
+- [x] 自動遷移機制：首次讀取 PulseDB 無資料時自動從 JSON fallback 遷移
 
 ### Phase 3：Store 介面統一（高收益）
 - [ ] 定義 `DataContract` 基類（write/read/delete/ttl/migrate）
@@ -359,3 +360,4 @@ Heartbeat Timer (30s)
 | 版本 | 日期 | 變更 |
 |------|------|------|
 | v1.0 | 2026-03-15 | 初版：完整水電圖，涵蓋 23 個正常配對、3 個 Dead Write、14 個死目錄 |
+| v1.1 | 2026-03-15 | Phase 2 完成：4 個 JSON 遷移至 PulseDB（ceremony_state + eval 三件套） |
