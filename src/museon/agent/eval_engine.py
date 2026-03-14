@@ -424,17 +424,32 @@ class EvalStore:
         (self.eval_dir / "daily").mkdir(parents=True, exist_ok=True)
         (self.eval_dir / "weekly").mkdir(parents=True, exist_ok=True)
 
-        # 檔案路徑
+        # 檔案路徑（JSONL 保留 append-only，不遷移）
         self.q_scores_path = self.eval_dir / "q_scores.jsonl"
         self.satisfaction_path = self.eval_dir / "satisfaction.jsonl"
+
+        # Phase 2: JSON → PulseDB（保留路徑用於遷移 fallback）
         self.ab_baselines_path = self.eval_dir / "ab_baselines.json"
         self.blindspots_path = self.eval_dir / "blindspots.json"
         self.alerts_path = self.eval_dir / "alerts.json"
 
-        # 執行緒鎖（確保寫入原子性）
+        # PulseDB 單例
+        from museon.pulse.pulse_db import get_pulse_db
+        self._pulse_db = get_pulse_db(self.data_dir)
+
+        # 首次使用時自動遷移舊 JSON 到 PulseDB
+        self._ensure_migrated()
+
+        # 執行緒鎖（確保 JSONL 寫入原子性）
         self._write_lock = threading.Lock()
 
         logger.info(f"EvalStore 初始化完成 | 路徑: {self.eval_dir}")
+
+    def _ensure_migrated(self) -> None:
+        """首次使用時自動遷移 eval/ 下的 JSON 到 PulseDB."""
+        # 只在 PulseDB 內無資料且 JSON 存在時遷移
+        if not self._pulse_db.load_eval_alerts() and self.alerts_path.exists():
+            self._pulse_db.migrate_eval_from_json(self.eval_dir)
 
     # ── JSONL append 寫入 ──
 
@@ -566,7 +581,7 @@ class EvalStore:
 
         return signals
 
-    # ── A/B 基線（JSON） ──
+    # ── A/B 基線（PulseDB） ──
 
     def load_ab_baselines(self) -> Dict[str, Any]:
         """載入所有 A/B 基線.
@@ -574,14 +589,7 @@ class EvalStore:
         Returns:
             基線字典 {change_id: baseline_data}
         """
-        if not self.ab_baselines_path.exists():
-            return {}
-        try:
-            with open(self.ab_baselines_path, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception as e:
-            logger.error(f"載入 A/B 基線失敗: {e}")
-            return {}
+        return self._pulse_db.load_eval_baselines()
 
     def save_ab_baseline(self, change_id: str, baseline: Dict[str, Any]) -> bool:
         """儲存 A/B 基線.
@@ -595,28 +603,9 @@ class EvalStore:
         Returns:
             True 若儲存成功
         """
-        with self._write_lock:
-            baselines = self.load_ab_baselines()
+        return self._pulse_db.save_eval_baseline(change_id, baseline)
 
-            # HG-EVAL-BASELINE-LOCK: 基線一旦建立不可修改
-            if change_id in baselines:
-                logger.warning(
-                    f"基線鎖定違規: 嘗試修改已存在的基線 {change_id} — "
-                    f"基線一旦建立不可修改，這是數據誠實的基礎"
-                )
-                return False
-
-            baselines[change_id] = baseline
-
-            try:
-                with open(self.ab_baselines_path, "w", encoding="utf-8") as f:
-                    json.dump(baselines, f, indent=2, ensure_ascii=False)
-                return True
-            except Exception as e:
-                logger.error(f"儲存 A/B 基線失敗: {e}")
-                return False
-
-    # ── 盲點（JSON） ──
+    # ── 盲點（PulseDB） ──
 
     def load_blindspots(self) -> List[Dict[str, Any]]:
         """載入盲點記錄.
@@ -624,14 +613,7 @@ class EvalStore:
         Returns:
             盲點列表
         """
-        if not self.blindspots_path.exists():
-            return []
-        try:
-            with open(self.blindspots_path, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception as e:
-            logger.error(f"載入盲點失敗: {e}")
-            return []
+        return self._pulse_db.load_eval_blindspots()
 
     def save_blindspots(self, blindspots: List[Dict[str, Any]]) -> None:
         """儲存盲點記錄.
@@ -639,14 +621,9 @@ class EvalStore:
         Args:
             blindspots: 盲點列表
         """
-        with self._write_lock:
-            try:
-                with open(self.blindspots_path, "w", encoding="utf-8") as f:
-                    json.dump(blindspots, f, indent=2, ensure_ascii=False)
-            except Exception as e:
-                logger.error(f"儲存盲點失敗: {e}")
+        self._pulse_db.save_eval_blindspots(blindspots)
 
-    # ── 警報（JSON） ──
+    # ── 警報（PulseDB） ──
 
     def load_alerts(self) -> List[Dict[str, Any]]:
         """載入警報記錄.
@@ -654,14 +631,7 @@ class EvalStore:
         Returns:
             警報列表
         """
-        if not self.alerts_path.exists():
-            return []
-        try:
-            with open(self.alerts_path, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception as e:
-            logger.error(f"載入警報失敗: {e}")
-            return []
+        return self._pulse_db.load_eval_alerts()
 
     def save_alerts(self, alerts: List[Dict[str, Any]]) -> None:
         """儲存警報記錄.
@@ -669,12 +639,7 @@ class EvalStore:
         Args:
             alerts: 警報列表
         """
-        with self._write_lock:
-            try:
-                with open(self.alerts_path, "w", encoding="utf-8") as f:
-                    json.dump(alerts, f, indent=2, ensure_ascii=False)
-            except Exception as e:
-                logger.error(f"儲存警報失敗: {e}")
+        self._pulse_db.save_eval_alerts(alerts)
 
     def append_alert(self, alert: Alert) -> None:
         """追加一筆警報.
@@ -682,14 +647,7 @@ class EvalStore:
         Args:
             alert: 警報資料
         """
-        with self._write_lock:
-            alerts = self.load_alerts()
-            alerts.append(alert.to_dict())
-            try:
-                with open(self.alerts_path, "w", encoding="utf-8") as f:
-                    json.dump(alerts, f, indent=2, ensure_ascii=False)
-            except Exception as e:
-                logger.error(f"追加警報失敗: {e}")
+        self._pulse_db.append_eval_alert(alert.to_dict())
 
     # ── 每日摘要 ──
 
@@ -1398,6 +1356,7 @@ class EvalEngine:
             created = datetime.fromisoformat(baseline["created_at"])
             observation_days = (datetime.now() - created).days
         except (ValueError, KeyError, TypeError):
+            logger.debug("A/B baseline created_at 解析失敗，observation_days 設為 0")
             observation_days = 0
 
         result.observation_days = observation_days
@@ -1407,6 +1366,7 @@ class EvalEngine:
         try:
             since = datetime.fromisoformat(baseline["created_at"])
         except (ValueError, KeyError, TypeError):
+            logger.debug("A/B baseline created_at 無效，since 回退到 7 天前")
             since = datetime.now() - timedelta(days=7)
 
         current_scores = self.store.load_q_scores(since=since)
