@@ -475,13 +475,18 @@ class SkillRouter:
                     if not skill.get("always_on") and skill_name not in rc_scores:
                         kw_score = 0.0
 
-            # ── v10.1 三層疊加：RC × 5.0 + keyword + vector × 1.5 ──
-            # RC 提升至 5.0（DNA27 反射弧是核心驅動，必須主導）
+            # ── v10.1 三層疊加：RC × rc_weight + keyword + vector × 1.5 ──
+            # RC 預設 5.0（DNA27 反射弧是核心驅動，必須主導）
+            # ★ v10.5: 短訊息 + 弱 RC 信號 → 動態降權至 2.0（讓語義有機會補正）
             # Vector 降至 1.5（語義補充，不應蓋過神經迴路信號）
             rc_s = rc_scores.get(skill_name, 0.0)
             v_score = vector_scores.get(skill_name, 0.0)
 
-            combined = rc_s * 5.0 + kw_score + v_score * 1.5
+            _rc_weight = 5.0
+            if len(message.strip()) < 20 and rc_s < 0.3 and rc_s > 0:
+                _rc_weight = 2.0
+
+            combined = rc_s * _rc_weight + kw_score + v_score * 1.5
 
             # /command 匹配的絕對優先（不受 usage decay 影響）
             is_command_match = kw_score >= 10.0

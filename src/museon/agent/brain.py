@@ -289,6 +289,14 @@ class MuseonBrain:
         except Exception as e:
             logger.warning(f"CommitmentTracker 載入失敗（降級運行）: {e}")
 
+        # ── 新模組：AsyncWriteQueue（非同步寫入佇列 — 序列化 SQLite/JSON 寫入）──
+        try:
+            from museon.pulse.async_write_queue import get_write_queue
+            self._wq = get_write_queue()
+        except Exception as e:
+            logger.warning(f"AsyncWriteQueue 載入失敗（降級為同步寫入）: {e}")
+            self._wq = None
+
         # ── 新模組：MetaCognition Engine（元認知 — 大腦層級審慎思考）──
         self._metacognition = None
         try:
@@ -619,6 +627,15 @@ class MuseonBrain:
         anima_mc = self._load_anima_mc()
         anima_user = self._load_anima_user()
 
+        # ── Step 2.5: 簡單訊息判定（Pipeline 短路用）──
+        # 短訊息且不含指令/分析關鍵字 → 跳過重量級步驟（MetaCog/KnowledgeLattice/Q-Score）
+        _is_simple = (
+            len(content.strip()) < 15
+            and not any(
+                kw in content for kw in ["/", "分析", "報告", "計畫", "策略", "研究", "評估"]
+            )
+        )
+
         # ── Step 3: DNA27 反射路由器（全 27 叢集 + RoutingSignal）——靈魂先行 ──
         routing_signal = None
         safety_context = ""
@@ -921,8 +938,9 @@ class MuseonBrain:
                 self._offline_flag = False  # 重置
 
             # ── Step 6.2: PreCognition — 回應前元認知審查 ──
+            # ★ Pipeline 短路：簡單訊息跳過 MetaCog 審查
             pre_review = None
-            if self._metacognition:
+            if self._metacognition and not _is_simple:
                 try:
                     pre_review = await self._metacognition.pre_review(
                         draft_response=response_text,
@@ -949,8 +967,9 @@ class MuseonBrain:
                     logger.debug(f"PreCognition 審查跳過: {e}")
 
         # ── Step 6.5: Eval Engine — Q-Score 靜默評分 ──
+        # ★ Pipeline 短路：簡單訊息跳過 Q-Score
         q_score = None
-        if self.eval_engine:
+        if self.eval_engine and not _is_simple:
             try:
                 q_score = self.eval_engine.evaluate(
                     user_content=content,
@@ -1062,6 +1081,7 @@ class MuseonBrain:
                     logger.debug(f"Footprint trace_action 失敗: {e}")
 
         # ── Step 8.5: 靈魂年輪 — 偵測年輪級事件 ──
+        # ★ Pipeline 短路：簡單訊息跳過 Soul Ring（q_score 已被跳過，此處自然不觸發）
         # 追蹤 Q-Score 歷史（保留最近 50 筆）並持久化
         if q_score is not None:
             self._q_score_history.append(q_score.score)
@@ -1107,7 +1127,8 @@ class MuseonBrain:
 
         # ── Step 8.6: 知識晶格 — 對話後掃描 + 自動結晶 ──
         # CASTLE Layer 2: 離線回應不進入結晶管線
-        if self.knowledge_lattice and not self._offline_flag:
+        # ★ Pipeline 短路：簡單訊息跳過 KnowledgeLattice 掃描
+        if self.knowledge_lattice and not self._offline_flag and not _is_simple:
             try:
                 candidates = self.knowledge_lattice.post_conversation_scan(
                     conversation_data=[
@@ -1169,17 +1190,27 @@ class MuseonBrain:
                     user_message=content,
                 )
                 # ANIMA 連動：兌現承諾 → zhen +2
+                # ★ 寫入排隊：PulseDB 寫入通過 WriteQueue 序列化
                 if fulfilled and hasattr(self, '_soul_ring_store'):
                     try:
                         from museon.pulse.pulse_db import PulseDB
                         _pulse_path = self.data_dir / "pulse" / "pulse.db"
                         _pdb = PulseDB(str(_pulse_path))
                         for _fid in fulfilled:
-                            _pdb.log_anima_change(
-                                element="zhen", delta=2,
-                                reason=f"承諾兌現: {_fid}",
-                                absolute_after=0,  # 由 anima_tracker 更新實際值
-                            )
+                            if self._wq:
+                                self._wq.enqueue(
+                                    f"commitment_zhen_{_fid}",
+                                    _pdb.log_anima_change,
+                                    element="zhen", delta=2,
+                                    reason=f"承諾兌現: {_fid}",
+                                    absolute_after=0,
+                                )
+                            else:
+                                _pdb.log_anima_change(
+                                    element="zhen", delta=2,
+                                    reason=f"承諾兌現: {_fid}",
+                                    absolute_after=0,
+                                )
                     except Exception as e:
                         logger.debug(f"承諾兌現 ANIMA 記錄失敗: {e}")
             except Exception as e:
@@ -1244,9 +1275,11 @@ class MuseonBrain:
                 logger.warning(f"ANIMA_MC 自我觀察失敗: {e}")
 
         # ── Step 9.7: 元認知預判 — 預測使用者對本次回覆的反應 ──
+        # ★ 寫入排隊：predict_reaction 寫入 PulseDB，通過 WriteQueue 序列化
         if self._metacognition:
             try:
-                self._metacognition.predict_reaction(
+                _predict_fn = self._metacognition.predict_reaction
+                _predict_kwargs = dict(
                     session_id=session_id,
                     user_query=content,
                     response=response_text,
@@ -1254,6 +1287,10 @@ class MuseonBrain:
                     matched_skills=skill_names,
                     pre_review=pre_review,
                 )
+                if self._wq:
+                    self._wq.enqueue("metacog_predict", _predict_fn, **_predict_kwargs)
+                else:
+                    _predict_fn(**_predict_kwargs)
             except Exception as e:
                 logger.debug(f"元認知預判跳過: {e}")
 
@@ -1933,6 +1970,22 @@ class MuseonBrain:
             user_fitted = budget.fit_text_to_zone("persona", user_text)
             if user_fitted:
                 sections.append(user_fitted)
+
+            # ★ 簡短偏好注入：L5 觀察超過 50 次 → 強制約束回覆長度
+            _psr_count = (
+                anima_user.get("observations", {})
+                .get("prefers_short_response", {})
+                .get("count", 0)
+            )
+            if _psr_count > 50:
+                _brevity = (
+                    "⚡ 使用者偏好簡短回覆（已觀察 {} 次）。"
+                    "除非明確要求詳細說明，否則控制在 2-3 句以內。"
+                    "不要過度展開、不要列舉、不要加註解。"
+                ).format(_psr_count)
+                _brevity_fitted = budget.fit_text_to_zone("persona", _brevity)
+                if _brevity_fitted:
+                    sections.append(_brevity_fitted)
 
         # ── Zone: modules — 完整認知能力自覺（v11: LLM-first routing）──
         # 核心改動：從「只看 DNA27 匹配的 5-10 個」→「看見全部能力，自主選擇」
@@ -3661,12 +3714,27 @@ class MuseonBrain:
         Returns:
             精煉後的回覆文字
         """
+        # ★ 簡短偏好約束：若使用者偏好簡短回覆，在精煉指令中加入長度限制
+        _brevity_constraint = ""
+        try:
+            _au = self._load_anima_user()
+            if _au:
+                _psr = _au.get("observations", {}).get("prefers_short_response", {}).get("count", 0)
+                if _psr > 50:
+                    _brevity_constraint = (
+                        "\n⚡ 重要：使用者偏好簡短回覆。精煉後的回覆必須控制在 2-3 句以內，"
+                        "不要過度展開或列舉。"
+                    )
+        except Exception:
+            pass
+
         refined_prompt = (
             system_prompt
             + "\n\n"
             + "【元認知審查回饋】\n"
             + "你的初始回覆經過內部審查，以下是需要注意的修改方向：\n"
             + feedback
+            + _brevity_constraint
             + "\n\n"
             + "請根據以上回饋，重新組織你的回覆。不需要提及審查過程。"
         )
@@ -4973,18 +5041,27 @@ class MuseonBrain:
     # ═══════════════════════════════════════════
 
     def _update_crystal_count(self, new_count: int) -> None:
-        """更新 ANIMA_MC 中的知識結晶計數（Lock + 原子寫入）."""
-        try:
-            with self._anima_mc_lock:
-                data = self._load_anima_mc()
-                if data is None:
-                    return
-                mem = data.get("memory_summary", {})
-                mem["knowledge_crystals"] = mem.get("knowledge_crystals", 0) + new_count
-                data["memory_summary"] = mem
-                self._save_anima_mc(data)
-        except Exception as e:
-            logger.warning(f"更新結晶計數失敗: {e}")
+        """更新 ANIMA_MC 中的知識結晶計數（Lock + 原子寫入）.
+
+        ★ 通過 WriteQueue 序列化（避免與 _observe_self 等並行寫入競態）
+        """
+        def _do_update():
+            try:
+                with self._anima_mc_lock:
+                    data = self._load_anima_mc()
+                    if data is None:
+                        return
+                    mem = data.get("memory_summary", {})
+                    mem["knowledge_crystals"] = mem.get("knowledge_crystals", 0) + new_count
+                    data["memory_summary"] = mem
+                    self._save_anima_mc(data)
+            except Exception as e:
+                logger.warning(f"更新結晶計數失敗: {e}")
+
+        if self._wq:
+            self._wq.enqueue("crystal_count_update", _do_update)
+        else:
+            _do_update()
 
     # ═══════════════════════════════════════════
     # 技能使用追蹤（WEE/Morphenix）
@@ -5187,7 +5264,11 @@ class MuseonBrain:
             except Exception as e:
                 logger.warning(f"漂移偵測失敗: {e}")
 
-        self._save_anima_user(anima_user)
+        # ★ 寫入排隊：ANIMA_USER JSON 寫入通過 WriteQueue 序列化
+        if self._wq:
+            self._wq.enqueue("anima_user_save", self._save_anima_user, anima_user)
+        else:
+            self._save_anima_user(anima_user)
 
     # ─── 群組外部用戶觀察管線 ────────────────────
 
@@ -5838,7 +5919,11 @@ class MuseonBrain:
                 logger.warning(f"L3 匹配失敗: {e}")
 
         if changed:
-            self._save_anima_mc(anima_mc)
+            # ★ 寫入排隊：ANIMA_MC JSON 寫入通過 WriteQueue 序列化
+            if self._wq:
+                self._wq.enqueue("anima_mc_self_observe", self._save_anima_mc, anima_mc)
+            else:
+                self._save_anima_mc(anima_mc)
 
     # ─── Morphenix Instant Note Bridge（v9.0）────────
 
