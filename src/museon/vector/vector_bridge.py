@@ -1,7 +1,7 @@
 """VectorBridge — 語義搜尋統一門面.
 
 整合 Qdrant 向量資料庫 + Embedder 嵌入引擎，提供：
-- 6 個 collection（memories, skills, dna27, crystals, workflows, documents）
+- 7 個 collection（memories, skills, dna27, crystals, workflows, documents, references）
 - index / search / batch 操作
 - 完整 graceful degradation（Qdrant 或 fastembed 不可用時靜默失敗）
 
@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 # Qdrant 連線
 QDRANT_URL = "http://127.0.0.1:6333"
 
-# 6 個 Collection 定義
+# 7 個 Collection 定義
 COLLECTIONS: Dict[str, Dict[str, Any]] = {
     "memories": {"desc": "六層記憶語義索引"},
     "skills": {"desc": "技能語義匹配"},
@@ -32,6 +32,7 @@ COLLECTIONS: Dict[str, Dict[str, Any]] = {
     "crystals": {"desc": "知識晶體語義"},
     "workflows": {"desc": "工作流語義"},
     "documents": {"desc": "結構化資料語義索引"},
+    "references": {"desc": "Zotero 文獻語義索引"},
 }
 
 # documents collection 的 payload index 定義
@@ -384,6 +385,9 @@ class VectorBridge:
                     self._create_collection(name, dim)
                     result["created"].append(name)
 
+            # 確保既有 collection 的 indexing_threshold 為 1000
+            self._ensure_optimizers(client, result["existing"])
+
             # documents collection 需要額外建立 payload indexes
             self._ensure_payload_indexes("documents")
 
@@ -499,7 +503,11 @@ class VectorBridge:
             if client is None:
                 return
 
-            from qdrant_client.models import Distance, VectorParams
+            from qdrant_client.models import (
+                Distance,
+                OptimizersConfigDiff,
+                VectorParams,
+            )
 
             client.create_collection(
                 collection_name=name,
@@ -507,11 +515,41 @@ class VectorBridge:
                     size=dimension,
                     distance=Distance.COSINE,
                 ),
+                optimizers_config=OptimizersConfigDiff(
+                    indexing_threshold=1000,
+                ),
             )
             logger.info(f"Created Qdrant collection: {name} (dim={dimension})")
 
         except Exception as e:
             logger.warning(f"Failed to create collection {name}: {e}")
+
+    def _ensure_optimizers(self, client, collection_names: List[str]) -> None:
+        """確保既有 collection 的 indexing_threshold 足夠低以建立 HNSW 索引."""
+        try:
+            from qdrant_client.models import OptimizersConfigDiff
+
+            for name in collection_names:
+                try:
+                    info = client.get_collection(name)
+                    current = getattr(
+                        info.config.optimizer_config, "indexing_threshold", None
+                    )
+                    if current is not None and current > 1000:
+                        client.update_collection(
+                            collection_name=name,
+                            optimizers_config=OptimizersConfigDiff(
+                                indexing_threshold=1000,
+                            ),
+                        )
+                        logger.info(
+                            f"Updated {name} indexing_threshold: "
+                            f"{current} → 1000"
+                        )
+                except Exception as e:
+                    logger.debug(f"Skip optimizer check for {name}: {e}")
+        except ImportError:
+            pass
 
     def _ensure_payload_indexes(self, collection: str) -> None:
         """確保 payload indexes 存在（目前用於 documents collection）.

@@ -1,12 +1,12 @@
-"""Service Health Monitor — Docker 服務存活監控 + 自動恢復
+"""Service Health Monitor — 服務存活監控 + 自動恢復
 
 監控對象：
-- Qdrant (向量資料庫) — port 6333
-- SearXNG (搜尋引擎) — port 8888
-- Firecrawl (網頁爬蟲) — port 3002
+- Qdrant (向量資料庫) — port 6333, 本地進程模式
+- SearXNG (搜尋引擎) — port 8888, Docker 容器模式
 
 恢復策略：
-- 偵測到不健康 → 記錄 + 嘗試 docker restart
+- Docker 模式：嘗試 docker restart
+- 本地進程模式：透過 port 找 PID → kill → 等待進程管理器重啟
 - Cooldown 機制 — 避免頻繁重啟
 - 每小時重啟上限 — 防止無限重啟風暴
 - 啟動寬限期 — 新啟動的服務給予額外時間
@@ -44,12 +44,13 @@ class ServiceConfig:
     """服務監控配置"""
 
     name: str  # 服務名稱
-    container_name: str  # Docker container 名稱
+    container_name: str  # Docker container 名稱（docker 模式用）
     health_url: str  # 健康檢查 URL
     port: int  # 監聽端口
     required: bool = True  # 是否為必要服務
     timeout_s: float = 5.0  # 健康檢查超時
     degraded_threshold_ms: float = 2000  # 回應超過此值視為 degraded
+    restart_strategy: str = "docker"  # "docker" | "process"
 
 
 @dataclass
@@ -78,6 +79,7 @@ DEFAULT_SERVICES = [
         required=True,
         timeout_s=5.0,
         degraded_threshold_ms=500,
+        restart_strategy="process",  # Qdrant 以本地進程運行，非 Docker
     ),
     ServiceConfig(
         name="searxng",
@@ -345,7 +347,7 @@ class ServiceHealthMonitor:
     async def _try_restart(
         self, name: str, config: ServiceConfig, state: ServiceState
     ) -> None:
-        """嘗試 docker restart 恢復服務。"""
+        """嘗試恢復服務（根據 restart_strategy 選擇策略）。"""
         now = time.time()
 
         # Cooldown 檢查
@@ -363,6 +365,107 @@ class ServiceHealthMonitor:
                 f"limit — manual intervention needed"
             )
             return
+
+        if config.restart_strategy == "process":
+            await self._try_restart_process(name, config, state)
+        else:
+            await self._try_restart_docker(name, config, state)
+
+    async def _try_restart_process(
+        self, name: str, config: ServiceConfig, state: ServiceState
+    ) -> None:
+        """透過 port 找 PID → kill → 等待進程管理器（launchd 等）重啟。"""
+        now = time.time()
+
+        try:
+            # 找佔用 port 的 PID
+            result = await asyncio.to_thread(
+                subprocess.run,
+                ["lsof", "-ti", f":{config.port}"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+
+            pids = [
+                p.strip() for p in result.stdout.strip().split("\n") if p.strip()
+            ]
+
+            if not pids:
+                logger.warning(
+                    f"[{name}] no process found on port {config.port} — "
+                    f"service may need manual start"
+                )
+                state.last_restart_at = now
+                state.restart_timestamps.append(now)
+                return
+
+            logger.info(
+                f"[{name}] attempting process restart "
+                f"(PIDs: {', '.join(pids)})..."
+            )
+
+            # SIGTERM 優雅關閉
+            for pid in pids:
+                await asyncio.to_thread(
+                    subprocess.run,
+                    ["kill", "-TERM", pid],
+                    capture_output=True,
+                    timeout=5,
+                )
+
+            # 等待 5 秒讓進程關閉
+            await asyncio.sleep(5)
+
+            # 檢查是否已關閉
+            result2 = await asyncio.to_thread(
+                subprocess.run,
+                ["lsof", "-ti", f":{config.port}"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+
+            remaining = [
+                p.strip()
+                for p in result2.stdout.strip().split("\n")
+                if p.strip()
+            ]
+
+            if remaining:
+                # 強制終止
+                for pid in remaining:
+                    await asyncio.to_thread(
+                        subprocess.run,
+                        ["kill", "-9", pid],
+                        capture_output=True,
+                        timeout=5,
+                    )
+                logger.warning(
+                    f"[{name}] sent SIGKILL to remaining PIDs: "
+                    f"{', '.join(remaining)}"
+                )
+
+            state.total_restarts += 1
+            state.last_restart_at = now
+            state.restart_timestamps.append(now)
+            logger.info(
+                f"[{name}] process killed — waiting for process manager "
+                f"to restart on port {config.port}"
+            )
+
+        except subprocess.TimeoutExpired:
+            logger.error(f"[{name}] process restart timed out")
+        except FileNotFoundError:
+            logger.error(f"[{name}] lsof command not found")
+        except Exception as e:
+            logger.error(f"[{name}] process restart error: {e}")
+
+    async def _try_restart_docker(
+        self, name: str, config: ServiceConfig, state: ServiceState
+    ) -> None:
+        """Docker 容器重啟。"""
+        now = time.time()
 
         logger.info(f"[{name}] attempting docker restart...")
 
