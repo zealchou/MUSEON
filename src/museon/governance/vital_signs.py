@@ -752,7 +752,6 @@ class VitalSignsMonitor:
                     json={
                         "chat_id": self._trusted_user_id,
                         "text": text,
-                        "parse_mode": "Markdown",
                     },
                 )
                 if resp.status_code == 200:
@@ -797,11 +796,11 @@ class VitalSignsMonitor:
         )
 
     def _format_report(self, report: VitalReport) -> str:
-        """格式化報告為 Telegram Markdown."""
+        """格式化報告為純文字（避免 Telegram Markdown 解析錯誤）."""
         lines = []
         for c in report.checks:
             icon = {"pass": "✅", "warn": "⚠️", "fail": "❌", "skip": "⏭"}[c.status.value]
-            lines.append(f"{icon} *{c.name}*: {c.message}")
+            lines.append(f"{icon} [{c.name}] {c.message}")
         return "\n".join(lines)
 
     # ─── Status for /health ───

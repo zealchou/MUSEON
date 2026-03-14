@@ -586,12 +586,14 @@ class FallbackAdapter:
     """
 
     CLI_FAIL_THRESHOLD = 2  # 連續失敗 N 次就切換
+    CLI_RETRY_INTERVAL = 300  # 5 分鐘後自動嘗試 CLI 恢復
 
     def __init__(self, cli: ClaudeCLIAdapter, api: AnthropicAPIAdapter):
         self._cli = cli
         self._api = api
         self._cli_consecutive_fails = 0
         self._using_api = False
+        self._switched_to_api_at: float = 0.0  # 切換到 API 的時間戳（首次切換時設定）
 
     async def call(
         self,
@@ -613,8 +615,10 @@ class FallbackAdapter:
                     f"CLI adapter failed ({self._cli_consecutive_fails}/{self.CLI_FAIL_THRESHOLD})"
                 )
                 if self._cli_consecutive_fails >= self.CLI_FAIL_THRESHOLD:
+                    import time as _time
                     logger.info("Switching to API adapter due to CLI failures")
                     self._using_api = True
+                    self._switched_to_api_at = _time.time()
                     # 立即用 API 重試這次呼叫
                     return await self._api.call(
                         system_prompt, messages, model, max_tokens, tools, session_id
@@ -624,25 +628,44 @@ class FallbackAdapter:
                 self._cli_consecutive_fails = 0
                 return resp
 
+        # 時間型 CLI 恢復：超過 CLI_RETRY_INTERVAL 秒後自動嘗試
+        import time as _time
+        elapsed = _time.time() - self._switched_to_api_at
+        if elapsed >= self.CLI_RETRY_INTERVAL:
+            probe = await self._cli.call(
+                "test", [{"role": "user", "content": "ping"}], "haiku", 10
+            )
+            if probe.stop_reason != "error":
+                logger.info(
+                    f"CLI adapter recovered after {elapsed:.0f}s, switching back"
+                )
+                self._using_api = False
+                self._cli_consecutive_fails = 0
+                # 用 CLI 處理本次請求
+                return await self._cli.call(
+                    system_prompt, messages, model, max_tokens, tools, session_id
+                )
+            else:
+                # 重置計時，再等下一個週期
+                self._switched_to_api_at = _time.time()
+                logger.debug("CLI probe still failing, stay on API")
+
         # 使用 API adapter
         resp = await self._api.call(
             system_prompt, messages, model, max_tokens, tools, session_id
         )
 
-        # 每 20 次 API 呼叫嘗試一次 CLI，看是否恢復
-        if hasattr(self, "_api_call_count"):
-            self._api_call_count += 1
-        else:
-            self._api_call_count = 1
-
-        if self._api_call_count % 20 == 0:
-            probe = await self._cli.call(
-                "test", [{"role": "user", "content": "ping"}], "haiku", 10
+        # 若 API 也失敗，立即嘗試 CLI（可能限流已解除）
+        if resp.stop_reason == "error":
+            logger.info("API also failed, trying CLI immediately")
+            cli_resp = await self._cli.call(
+                system_prompt, messages, model, max_tokens, tools, session_id
             )
-            if probe.stop_reason != "error":
-                logger.info("CLI adapter recovered, switching back")
+            if cli_resp.stop_reason != "error":
+                logger.info("CLI recovered via API-failure fallback, switching back")
                 self._using_api = False
                 self._cli_consecutive_fails = 0
+                return cli_resp
 
         return resp
 
