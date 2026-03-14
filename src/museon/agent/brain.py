@@ -2856,8 +2856,13 @@ class MuseonBrain:
         if not extracted:
             return ""
 
+        # 注入八原語知識（讓 MUSEON 理解自身能量維度）
+        primals_context = self._get_primals_context()
+
         # 組建靈魂上下文（精簡版，~300-500 tokens）
         soul = "## 我的近期覺察（PULSE）\n\n"
+        if primals_context:
+            soul += primals_context + "\n\n"
         soul += "以下是我最近的觀察和反思，影響我如何理解和回應：\n\n"
 
         if "reflections" in extracted:
@@ -2897,6 +2902,40 @@ class MuseonBrain:
                     soul += f"{line}\n"
 
         return soul.strip()
+
+    def _get_primals_context(self) -> str:
+        """讀取八原語知識並生成精簡上下文注入 system prompt.
+
+        讓 MUSEON 真正理解八原語的意涵，而不只是知道代號。
+        """
+        # 嘗試從 AnimaTracker 取得描述
+        try:
+            if hasattr(self, "_anima_tracker") and self._anima_tracker:
+                return self._anima_tracker.get_all_descriptions()
+        except Exception:
+            pass
+
+        # Fallback：從知識文件讀取精簡版
+        try:
+            primals_path = self.data_dir / "_system" / "anima" / "eight_primal_energies.md"
+            if primals_path.exists():
+                text = primals_path.read_text(encoding="utf-8")
+                # 只取核心定義區段（避免過長）
+                start = text.find("## 八原語定義")
+                end = text.find("## 四對動態張力")
+                if start != -1 and end != -1:
+                    section = text[start:end].strip()
+                    # 精簡到 ~200 tokens
+                    lines = []
+                    for line in section.split("\n"):
+                        if line.startswith("### ") or line.startswith("- **本質**"):
+                            lines.append(line)
+                    if lines:
+                        return "## 我的八原語能量\n" + "\n".join(lines)
+        except Exception:
+            pass
+
+        return ""
 
     def _get_growth_behavior(self, growth_stage: str, days_alive: int, anima_mc: dict = None) -> str:
         """取得成長階段行為指引（全能體模式）.
@@ -2956,11 +2995,11 @@ class MuseonBrain:
         for cn_name, (key, label) in name_map.items():
             v = element_vals[key]
             if v >= 1000:
-                hints.append(f"🌳 {label}化境：{cn_name}元素已深根（{v}），可在此領域完全自主決策。")
+                hints.append(f"🌳 {label}化境：能量已深根（{v}），可在此領域完全自主決策。")
             elif v >= 500:
-                hints.append(f"🌿 {label}精通：{cn_name}元素繁茂（{v}），可在此領域主動提出深度建議。")
+                hints.append(f"🌿 {label}精通：能量繁茂（{v}），可在此領域主動提出深度建議。")
             elif v >= 100:
-                hints.append(f"🌱 {label}覺醒：{cn_name}元素萌芽（{v}），開始在此領域展現獨立判斷。")
+                hints.append(f"🌱 {label}覺醒：能量萌芽（{v}），開始在此領域展現獨立判斷。")
 
         # ── 總量級覺醒 ──
         if total >= 5000:
