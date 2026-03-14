@@ -95,7 +95,7 @@ _FULL_STEPS = [
     "18",
     "20", "21", "22", "23",  # 新增：synapse_decay/muscle_atrophy/immune_prune/trigger_eval
     "24", "25",  # 新增：演化速度計算 / 週月循環觸發檢查
-    "26", "27",  # 新增：session 清理 / JSONL 日誌輪替
+    "26", "27", "28",  # 持久層衛生：session 清理 / JSONL 輪替 / WAL checkpoint
 ]
 _ORIGIN_STEPS = ["5.8", "6", "7", "8", "16"]
 _NODE_STEPS = [
@@ -199,6 +199,7 @@ class NightlyPipeline:
             # ── 持久層衛生 ──
             "26": ("step_26_session_cleanup", self._step_session_cleanup),
             "27": ("step_27_log_rotation", self._step_log_rotation),
+            "28": ("step_28_wal_checkpoint", self._step_wal_checkpoint),
         }
 
     def run(self, mode: str = "full") -> Dict:
@@ -3004,6 +3005,42 @@ class NightlyPipeline:
             "rotated": rotated,
             "archives_cleaned": len(cleaned),
         }
+
+    def _step_wal_checkpoint(self) -> Dict:
+        """Step 28: SQLite WAL Checkpoint — 壓縮所有 WAL 日誌.
+
+        避免 WAL 檔案無限成長（group_context.db-wal 曾達 4MB）。
+        對所有已知的 SQLite 資料庫執行 PRAGMA wal_checkpoint(TRUNCATE)。
+        """
+        import sqlite3
+
+        DB_PATHS = [
+            self._workspace / "pulse" / "pulse.db",
+            self._workspace / "_system" / "state" / "group_context.db",
+            self._workspace / "_system" / "wee" / "workflow_state.db",
+            self._workspace / "registry" / "registry.db",
+        ]
+
+        results = {}
+        for db_path in DB_PATHS:
+            name = db_path.stem
+            if not db_path.exists():
+                results[name] = "not_found"
+                continue
+            try:
+                conn = sqlite3.connect(str(db_path), timeout=10)
+                conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+                conn.close()
+                # 檢查 WAL 檔案大小
+                wal_path = db_path.parent / f"{db_path.name}-wal"
+                wal_size = wal_path.stat().st_size if wal_path.exists() else 0
+                results[name] = f"ok (wal={wal_size}B)"
+            except Exception as e:
+                results[name] = f"error: {e}"
+                logger.debug(f"[NIGHTLY] WAL checkpoint {name}: {e}")
+
+        logger.info(f"[NIGHTLY] WAL checkpoint: {results}")
+        return {"databases": results}
 
     # ═══════════════════════════════════════════
     # 報告持久化
