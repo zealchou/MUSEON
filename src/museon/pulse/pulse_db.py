@@ -29,15 +29,66 @@ class PulseDB:
             logger.warning(f"PulseDB: 偵測到 0-byte DB 檔 {self._db_path}，刪除並重建")
             self._db_path.unlink()
         self._local = threading.local()
+        # 防護：integrity check — 偵測 malformed DB 並自動重建
+        if self._db_path.exists():
+            self._integrity_check()
         self._init_db()
+
+    def _integrity_check(self) -> None:
+        """檢查 DB 完整性，損壞時自動從 dump 重建."""
+        try:
+            conn = sqlite3.connect(str(self._db_path), timeout=10)
+            result = conn.execute("PRAGMA integrity_check").fetchone()
+            conn.close()
+            if result and result[0] != "ok":
+                logger.error(f"PulseDB: integrity_check FAILED: {result[0]}，嘗試重建")
+                self._rebuild_from_dump()
+        except sqlite3.DatabaseError as e:
+            logger.error(f"PulseDB: integrity_check 異常: {e}，嘗試重建")
+            self._rebuild_from_dump()
+
+    def _rebuild_from_dump(self) -> None:
+        """嘗試從損壞的 DB dump 可搶救的資料，重建乾淨的 DB."""
+        bak = self._db_path.with_suffix(".db.malformed")
+        try:
+            # 嘗試 dump 可搶救的資料
+            import subprocess
+            dump_result = subprocess.run(
+                ["sqlite3", str(self._db_path), ".dump"],
+                capture_output=True, text=True, timeout=30,
+            )
+            # 備份損壞檔
+            self._db_path.rename(bak)
+            # 清除 WAL/SHM
+            for suffix in (".db-wal", ".db-shm"):
+                p = self._db_path.with_name(self._db_path.name.replace(".db", suffix))
+                if p.exists():
+                    p.unlink()
+            if dump_result.returncode == 0 and dump_result.stdout.strip():
+                # 從 dump 重建
+                new_conn = sqlite3.connect(str(self._db_path))
+                new_conn.executescript(dump_result.stdout)
+                new_conn.close()
+                logger.info("PulseDB: 從 dump 成功重建 DB")
+            else:
+                logger.warning("PulseDB: dump 失敗，將建立全新 DB")
+        except Exception as e:
+            logger.error(f"PulseDB: 重建失敗: {e}，將建立全新 DB")
+            if self._db_path.exists():
+                self._db_path.rename(bak)
+            for suffix in (".db-wal", ".db-shm"):
+                p = self._db_path.with_name(self._db_path.name.replace(".db", suffix))
+                if p.exists():
+                    p.unlink()
 
     def _get_conn(self) -> sqlite3.Connection:
         if not hasattr(self._local, "conn") or self._local.conn is None:
             self._local.conn = sqlite3.connect(
-                str(self._db_path), check_same_thread=False, timeout=30
+                str(self._db_path), check_same_thread=False, timeout=60
             )
             self._local.conn.row_factory = sqlite3.Row
             self._local.conn.execute("PRAGMA journal_mode=WAL")
+            self._local.conn.execute("PRAGMA busy_timeout=60000")
             self._local.conn.execute("PRAGMA foreign_keys=ON")
         return self._local.conn
 
@@ -275,19 +326,36 @@ class PulseDB:
         tokens_used: int = 0, cost_usd: float = 0.0, duration_ms: int = 0,
         status: str = "done",
     ) -> int:
-        conn = self._get_conn()
-        now = datetime.now(TZ8).isoformat()
-        cur = conn.execute(
-            "INSERT INTO explorations "
-            "(timestamp, topic, motivation, query, findings, crystallized, crystal_id, "
-            "tokens_used, cost_usd, duration_ms, status) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            (now, topic, motivation, query, findings,
-             1 if crystallized else 0, crystal_id,
-             tokens_used, cost_usd, duration_ms, status),
-        )
-        conn.commit()
-        return cur.lastrowid
+        for attempt in range(3):
+            try:
+                conn = self._get_conn()
+                now = datetime.now(TZ8).isoformat()
+                cur = conn.execute(
+                    "INSERT INTO explorations "
+                    "(timestamp, topic, motivation, query, findings, crystallized, crystal_id, "
+                    "tokens_used, cost_usd, duration_ms, status) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (now, topic, motivation, query, findings,
+                     1 if crystallized else 0, crystal_id,
+                     tokens_used, cost_usd, duration_ms, status),
+                )
+                conn.commit()
+                return cur.lastrowid
+            except sqlite3.OperationalError as e:
+                if "locked" in str(e) and attempt < 2:
+                    logger.warning(f"PulseDB: log_exploration locked, retry {attempt+1}/3")
+                    time.sleep(1 + attempt)
+                    continue
+                logger.error(f"PulseDB: log_exploration failed: {e}")
+                return -1
+            except sqlite3.DatabaseError as e:
+                logger.error(f"PulseDB: log_exploration DB error: {e}, reconnecting")
+                self._local.conn = None
+                if attempt < 2:
+                    self._integrity_check()
+                    continue
+                return -1
+        return -1
 
     def get_today_explorations(self) -> List[Dict]:
         conn = self._get_conn()
@@ -314,6 +382,16 @@ class PulseDB:
             (cutoff, limit),
         ).fetchall()
         return [r["topic"] for r in rows]
+
+    def get_explorations_full(self, days: int = 14, limit: int = 50) -> List[Dict]:
+        """Return recent explorations as full dicts (for SilentDigestion)."""
+        conn = self._get_conn()
+        cutoff = (datetime.now(TZ8) - timedelta(days=days)).isoformat()
+        rows = conn.execute(
+            "SELECT * FROM explorations WHERE timestamp >= ? ORDER BY timestamp DESC LIMIT ?",
+            (cutoff, limit),
+        ).fetchall()
+        return [dict(r) for r in rows]
 
     # ── ANIMA Log ──
 
@@ -695,32 +773,48 @@ class PulseDB:
         response_snippet: Optional[str] = None,
     ) -> Dict:
         """新增一筆元認知記錄."""
-        conn = self._get_conn()
-        now = datetime.now(TZ8).isoformat()
-        skills_json = json.dumps(matched_skills or [], ensure_ascii=False)
-        conn.execute(
-            "INSERT OR REPLACE INTO metacognition "
-            "(id, session_id, pre_triggered, pre_verdict, pre_feedback, "
-            "pre_revision_applied, pre_review_time_ms, "
-            "predicted_reaction_type, predicted_reaction, prediction_confidence, "
-            "routing_loop, routing_mode, matched_skills, "
-            "user_message_snippet, response_snippet, created_at) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            (
-                metacog_id, session_id,
-                1 if pre_triggered else 0,
-                pre_verdict, pre_feedback,
-                1 if pre_revision_applied else 0,
-                pre_review_time_ms,
-                predicted_reaction_type, predicted_reaction, prediction_confidence,
-                routing_loop, routing_mode, skills_json,
-                (user_message_snippet or "")[:100],
-                (response_snippet or "")[:100],
-                now,
-            ),
-        )
-        conn.commit()
-        return {"id": metacog_id, "created": True}
+        for attempt in range(3):
+            try:
+                conn = self._get_conn()
+                now = datetime.now(TZ8).isoformat()
+                skills_json = json.dumps(matched_skills or [], ensure_ascii=False)
+                conn.execute(
+                    "INSERT OR REPLACE INTO metacognition "
+                    "(id, session_id, pre_triggered, pre_verdict, pre_feedback, "
+                    "pre_revision_applied, pre_review_time_ms, "
+                    "predicted_reaction_type, predicted_reaction, prediction_confidence, "
+                    "routing_loop, routing_mode, matched_skills, "
+                    "user_message_snippet, response_snippet, created_at) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (
+                        metacog_id, session_id,
+                        1 if pre_triggered else 0,
+                        pre_verdict, pre_feedback,
+                        1 if pre_revision_applied else 0,
+                        pre_review_time_ms,
+                        predicted_reaction_type, predicted_reaction, prediction_confidence,
+                        routing_loop, routing_mode, skills_json,
+                        (user_message_snippet or "")[:100],
+                        (response_snippet or "")[:100],
+                        now,
+                    ),
+                )
+                conn.commit()
+                return {"id": metacog_id, "created": True}
+            except sqlite3.OperationalError as e:
+                if "locked" in str(e) and attempt < 2:
+                    logger.warning(f"PulseDB: add_metacognition locked, retry {attempt+1}/3")
+                    time.sleep(1 + attempt)
+                    continue
+                logger.error(f"PulseDB: add_metacognition failed: {e}")
+                return {"id": metacog_id, "created": False, "error": str(e)}
+            except sqlite3.DatabaseError as e:
+                logger.error(f"PulseDB: add_metacognition DB error: {e}, reconnecting")
+                self._local.conn = None
+                if attempt < 2:
+                    continue
+                return {"id": metacog_id, "created": False, "error": str(e)}
+        return {"id": metacog_id, "created": False, "error": "max retries"}
 
     def get_latest_prediction(self, session_id: str) -> Optional[Dict]:
         """取得本 session 最後一筆有預測但未觀察的記錄."""

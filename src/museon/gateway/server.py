@@ -4791,7 +4791,7 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                     scout = SkillForgeScout(
                         brain=getattr(app.state, "brain", None),
                         event_bus=getattr(app.state, "event_bus", None),
-                        workspace=getattr(app.state, "brain", None) and getattr(app.state.brain, "data_dir", None),
+                        workspace=getattr(getattr(app.state, "brain", None), "data_dir", None),
                         pulse_db=_pdb,
                         searxng_url="http://127.0.0.1:8888",
                     )
