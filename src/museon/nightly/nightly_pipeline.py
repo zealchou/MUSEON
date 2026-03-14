@@ -27,6 +27,28 @@ from museon.core.event_bus import (
 
 logger = logging.getLogger(__name__)
 
+
+def _run_async_safe(coro, timeout: int = 120):
+    """統一的 sync-in-async 橋接.
+
+    在 Gateway async context 中安全執行 async 函數。
+    如果當前有 event loop 正在運行，使用 ThreadPoolExecutor 橋接。
+    """
+    import asyncio
+
+    try:
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            import concurrent.futures
+
+            with concurrent.futures.ThreadPoolExecutor() as pool:
+                return pool.submit(asyncio.run, coro).result(timeout=timeout)
+        else:
+            return asyncio.run(coro)
+    except RuntimeError:
+        return asyncio.run(coro)
+
+
 # ═══════════════════════════════════════════
 # Constants
 # ═══════════════════════════════════════════
@@ -987,9 +1009,8 @@ class NightlyPipeline:
         # 取得 PulseDB（用於持久化 L3 提案）
         pulse_db = None
         try:
-            from museon.pulse.pulse_db import PulseDB
-            db_path = self._workspace / "pulse" / "pulse.db"
-            pulse_db = PulseDB(str(db_path))
+            from museon.pulse.pulse_db import get_pulse_db
+            pulse_db = get_pulse_db(self._workspace)
         except Exception as e:
             logger.warning(f"Morphenix gate: PulseDB init failed: {e}")
 
@@ -1142,9 +1163,8 @@ class NightlyPipeline:
         L2+ 強制 Docker pytest 驗證，失敗則 reject。
         """
         try:
-            from museon.pulse.pulse_db import PulseDB
-            db_path = self._workspace / "pulse" / "pulse.db"
-            pulse_db = PulseDB(str(db_path))
+            from museon.pulse.pulse_db import get_pulse_db
+            pulse_db = get_pulse_db(self._workspace)
         except Exception as e:
             return {"skipped": f"PulseDB init failed: {e}"}
 
@@ -1166,11 +1186,10 @@ class NightlyPipeline:
 
         results = {"validated": 0, "passed": 0, "failed": 0, "details": []}
 
-        import asyncio
         for proposal in l2_plus:
             pid = proposal.get("id", "?")
             try:
-                vresult = asyncio.run(validator.validate_proposal(proposal))
+                vresult = _run_async_safe(validator.validate_proposal(proposal))
                 results["validated"] += 1
 
                 if vresult.passed:
@@ -1216,9 +1235,8 @@ class NightlyPipeline:
         → Core Brain 審查 → git tag 安全快照 → 執行變更 → 標記 executed
         """
         try:
-            from museon.pulse.pulse_db import PulseDB
-            db_path = self._workspace / "pulse" / "pulse.db"
-            pulse_db = PulseDB(str(db_path))
+            from museon.pulse.pulse_db import get_pulse_db
+            pulse_db = get_pulse_db(self._workspace)
         except Exception as e:
             return {"skipped": f"PulseDB init failed: {e}"}
 
@@ -1353,8 +1371,7 @@ class NightlyPipeline:
                 workspace=self._workspace,
             )
             # 每次最多處理 3 個（控制 Token 成本）
-            import asyncio
-            results = asyncio.run(scout.process_queue(max_items=3))
+            results = _run_async_safe(scout.process_queue(max_items=3))
             processed = len(results) if results else 0
         except ImportError as e:
             logger.debug(f"[NIGHTLY] degraded: {e}")
@@ -1462,17 +1479,11 @@ class NightlyPipeline:
                 return {"skipped": "no weak topics identified"}
 
             # 同步呼叫（CourseGenerator.generate_course 是 async，這裡包裝）
-            import asyncio
             results = []
             for topic in topics:
                 try:
-                    loop = asyncio.get_event_loop()
-                    if loop.is_running():
-                        # 在 nightly 的 sync context 中，直接跳過 async
-                        results.append({"topic": topic, "status": "deferred"})
-                    else:
-                        course = asyncio.run(generator.generate_course(topic))
-                        results.append({"topic": topic, "course_id": course.get("course_id")})
+                    course = _run_async_safe(generator.generate_course(topic))
+                    results.append({"topic": topic, "course_id": course.get("course_id")})
                 except Exception as e:
                     results.append({"topic": topic, "error": str(e)})
 
@@ -2011,7 +2022,6 @@ class NightlyPipeline:
     def _step_curiosity_research(self) -> Dict:
         """Step 13.5: 將 pending 好奇問題送入 ResearchEngine 研究."""
         try:
-            import asyncio
             from museon.nightly.curiosity_router import CuriosityRouter
             from museon.research.research_engine import ResearchEngine
 
@@ -2019,10 +2029,8 @@ class NightlyPipeline:
             # 取得 PulseDB（用於記錄探索結果）
             _pulse_db = None
             try:
-                from museon.pulse.pulse_db import PulseDB
-                _db_path = self._workspace / "pulse" / "pulse.db"
-                if _db_path.exists():
-                    _pulse_db = PulseDB(str(_db_path))
+                from museon.pulse.pulse_db import get_pulse_db
+                _pulse_db = get_pulse_db(self._workspace)
             except Exception as e:
                 logger.debug(f"[NIGHTLY] pulse failed (degraded): {e}")
             router = CuriosityRouter(
@@ -2032,15 +2040,7 @@ class NightlyPipeline:
                 pulse_db=_pulse_db,
             )
 
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                import concurrent.futures
-                with concurrent.futures.ThreadPoolExecutor() as pool:
-                    results = pool.submit(
-                        asyncio.run, router.process_queue(max_items=2)
-                    ).result(timeout=120)
-            else:
-                results = asyncio.run(router.process_queue(max_items=2))
+            results = _run_async_safe(router.process_queue(max_items=2))
 
             valuable = sum(1 for r in results if r.get("is_valuable"))
             return {
