@@ -671,6 +671,7 @@ class WEEEngine:
                 limitation="單日/單週樣本可能不具代表性",
                 tags=tags or ["wee"],
                 domain="self_evolution",
+                mode="auto",
             )
             crystal.origin = "wee_reflection"
             lattice._persist()

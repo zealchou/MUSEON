@@ -181,15 +181,26 @@ class MetaCognitionEngine:
 
     def __init__(
         self,
-        pulse_db_path: str,
+        data_dir: Any = None,
         brain: Any = None,
+        *,
+        pulse_db_path: str = "",  # 相容舊呼叫，已棄用
     ) -> None:
         self._brain = brain
         self._pulse_db = None
 
         try:
-            from museon.pulse.pulse_db import PulseDB
-            self._pulse_db = PulseDB(pulse_db_path)
+            from museon.pulse.pulse_db import get_pulse_db
+            if data_dir is not None:
+                from pathlib import Path
+                self._pulse_db = get_pulse_db(Path(data_dir) if not isinstance(data_dir, Path) else data_dir)
+            elif pulse_db_path:
+                # 向後相容：從完整路徑反推 data_dir
+                from pathlib import Path
+                _p = Path(pulse_db_path)
+                # pulse_db_path 通常是 data_dir/pulse/pulse.db
+                _data_dir = _p.parent.parent if _p.parent.name == "pulse" else _p.parent
+                self._pulse_db = get_pulse_db(_data_dir)
         except Exception as e:
             logger.warning(f"MetaCognition PulseDB 連接失敗: {e}")
 

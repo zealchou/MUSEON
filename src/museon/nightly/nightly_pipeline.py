@@ -1103,11 +1103,28 @@ class NightlyPipeline:
                         logger.error(f"Morphenix L3 DB save failed: {e}")
 
             else:
-                # 未分類，預設為 L1
+                # 未分類，預設為 L1（Contract 4: 同時寫入 PulseDB）
                 proposal["status"] = "approved"
                 proposal["decided_by"] = "auto"
                 proposal["decided_at"] = datetime.now(TZ_TAIPEI).isoformat()
                 results["auto_approved"] += 1
+
+                # 持久化到 PulseDB（確保 Executor 能讀到）
+                if pulse_db:
+                    try:
+                        pid = f"morphenix_{date.today().isoformat()}_auto_{results['auto_approved']:03d}"
+                        pulse_db.save_proposal(
+                            proposal_id=pid,
+                            level="L1",
+                            title=proposal.get("title", "未分類提案"),
+                            description=proposal.get("description", proposal.get("summary", "")),
+                            affected_files=proposal.get("affected_files", []) if isinstance(proposal.get("affected_files"), list) else [],
+                            source_notes=proposal.get("source_notes", []) if isinstance(proposal.get("source_notes"), list) else [],
+                        )
+                        pulse_db.approve_proposal(pid, decided_by="auto")
+                        logger.info(f"Morphenix uncategorized proposal saved+approved in DB: {pid}")
+                    except Exception as e:
+                        logger.error(f"Morphenix uncategorized DB persist FAILED: {e}")
 
             # 寫回 JSON 檔
             try:

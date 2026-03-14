@@ -547,6 +547,7 @@ class DigestEngine:
                 limitation="來源為外部搜尋，適用範圍需進一步驗證",
                 tags=crystal.get("tags", []),
                 domain=crystal.get("track", "service"),
+                mode="auto",
             )
             # 補充 origin 標記
             new_crystal.origin = "outward_service"

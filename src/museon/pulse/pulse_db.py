@@ -1101,3 +1101,42 @@ class PulseDB:
             (cutoff, limit),
         ).fetchall()
         return [dict(r) for r in rows]
+
+
+# ══════════════════════════════════════════════════
+# Singleton Factory — 全系統共用一個 PulseDB 連線
+# ══════════════════════════════════════════════════
+# 解決 11 個檔案各自 PulseDB() 造成的 DB locked / malformed 問題
+
+_pulse_db_instances: Dict[str, "PulseDB"] = {}
+_pulse_db_lock = threading.Lock()
+
+
+def get_pulse_db(data_dir: Optional[Path] = None) -> "PulseDB":
+    """取得 PulseDB 單例.
+
+    全系統應使用此函數取得 PulseDB，而非直接 PulseDB()。
+    同一個 db_path 只會建立一個 PulseDB 實例。
+
+    Args:
+        data_dir: 資料目錄（包含 pulse/ 子目錄的父目錄）
+                  如果為 None，使用預設路徑 ~/MUSEON/data
+
+    Returns:
+        PulseDB 單例
+
+    Example:
+        from museon.pulse.pulse_db import get_pulse_db
+        db = get_pulse_db(self.data_dir)
+        db.log_exploration(...)
+    """
+    if data_dir is None:
+        data_dir = Path.home() / "MUSEON" / "data"
+    data_dir = Path(data_dir)
+    db_path = str(data_dir / "pulse" / "pulse.db")
+
+    with _pulse_db_lock:
+        if db_path not in _pulse_db_instances:
+            _pulse_db_instances[db_path] = PulseDB(db_path)
+            logger.info(f"PulseDB singleton created: {db_path}")
+        return _pulse_db_instances[db_path]

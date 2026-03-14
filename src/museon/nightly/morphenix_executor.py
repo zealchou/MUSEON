@@ -1287,6 +1287,7 @@ class MorphenixExecutor:
                 limitation="需 14 天效果追蹤確認",
                 tags=["morphenix", level.lower(), "evolution"],
                 domain="system_evolution",
+                mode="auto",
             )
             crystal.origin = "morphenix_evolution"
             lattice._persist()
