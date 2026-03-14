@@ -23,6 +23,8 @@ from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
 
+from museon.core.data_bus import DataContract, StoreSpec, StoreEngine, TTLTier
+
 logger = logging.getLogger(__name__)
 
 # ═══════════════════════════════════════════
@@ -1407,7 +1409,7 @@ class RecrystallizationEngine:
 # 持久化存儲
 # ═══════════════════════════════════════════
 
-class LatticeStore:
+class LatticeStore(DataContract):
     """知識晶格持久化存儲.
 
     檔案結構：
@@ -1416,6 +1418,31 @@ class LatticeStore:
     - data/lattice/archive.json      -- 已歸檔結晶
     - data/lattice/cuid_counter.json -- CUID 序號計數器
     """
+
+    @classmethod
+    def store_spec(cls) -> StoreSpec:
+        return StoreSpec(
+            name="lattice_store",
+            engine=StoreEngine.JSON,
+            ttl=TTLTier.PERMANENT,
+            description="知識晶格結晶化存儲",
+            tables=["crystals.json", "links.json", "archive.json", "cuid_counter.json"],
+        )
+
+    def health_check(self) -> Dict[str, Any]:
+        try:
+            files = {
+                "crystals": self._crystals_path,
+                "links": self._links_path,
+                "archive": self._archive_path,
+                "counter": self._counter_path,
+            }
+            sizes = {}
+            for k, p in files.items():
+                sizes[k] = p.stat().st_size if p.exists() else 0
+            return {"status": "ok", "file_sizes": sizes}
+        except Exception as e:
+            return {"status": "error", "error": str(e)}
 
     def __init__(self, data_dir: str = "data") -> None:
         """初始化存儲.
@@ -1703,7 +1730,7 @@ class KnowledgeLattice:
             }
             vb.index("crystals", crystal.cuid, text, metadata=metadata)
         except Exception:
-            pass  # 靜默失敗，不影響主流程
+            logger.debug("向量索引失敗，不影響主流程", exc_info=True)
 
     def _vector_recall_crystals(
         self, query: str, limit: int,

@@ -11,11 +11,31 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from museon.core.data_bus import DataContract, StoreSpec, StoreEngine, TTLTier
+
 logger = logging.getLogger(__name__)
 
 
-class ActivityLogger:
+class ActivityLogger(DataContract):
     """Append-only JSONL logger for EventBus events."""
+
+    @classmethod
+    def store_spec(cls) -> StoreSpec:
+        return StoreSpec(
+            name="activity_logger",
+            engine=StoreEngine.JSONL,
+            ttl=TTLTier.SHORT,
+            write_mode="append_only",
+            description="EventBus 事件 JSONL 日誌",
+            tables=["activity_log.jsonl"],
+        )
+
+    def health_check(self) -> Dict[str, Any]:
+        try:
+            size = self.log_path.stat().st_size if self.log_path.exists() else 0
+            return {"status": "ok", "size_bytes": size}
+        except Exception as e:
+            return {"status": "error", "error": str(e)}
 
     def __init__(self, data_dir: str):
         self.data_dir = Path(data_dir)
