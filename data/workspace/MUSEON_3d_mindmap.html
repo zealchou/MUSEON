@@ -122,7 +122,10 @@ canvas{display:block}
   <div class="legend-item" data-g="doctor"><div class="legend-dot" style="background:#2D8A6E"></div>Doctor 診斷</div>
   <div class="legend-item" data-g="llm"><div class="legend-dot" style="background:#5A5A6E"></div>LLM 路由</div>
   <div class="legend-item" data-g="data"><div class="legend-dot" style="background:#7A7888"></div>資料持久層</div>
+  <div class="legend-item" data-g="evolution"><div class="legend-dot" style="background:#6B3FA0"></div>Evolution 演化</div>
+  <div class="legend-item" data-g="tools"><div class="legend-dot" style="background:#8A6A3E"></div>Tools 工具</div>
   <div class="legend-item" data-g="nightly"><div class="legend-dot" style="background:#9A3A1C"></div>Nightly 夜間</div>
+  <div class="legend-item" data-g="installer"><div class="legend-dot" style="background:#5A8A3E"></div>Installer 安裝</div>
   <div class="legend-item" data-g="external"><div class="legend-dot" style="background:#6A6880"></div>外部服務</div>
   <div class="legend-div"></div>
   <div class="legend-link"><div class="legend-line" style="border-top:2px solid #9898A8"></div>內部連結</div>
@@ -169,11 +172,14 @@ import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer
 const GC = {
   center:'#C4502A', channel:'#C4502A', agent:'#2A7A6E', pulse:'#B8923A',
   gov:'#2A6A8A', doctor:'#2D8A6E', llm:'#5A5A6E', data:'#7A7888',
-  nightly:'#9A3A1C', external:'#6A6880'
+  evolution:'#6B3FA0', tools:'#8A6A3E',
+  nightly:'#9A3A1C', installer:'#5A8A3E', external:'#6A6880'
 };
 const GN = {
   center:'核心', channel:'通道入口', agent:'Agent/Brain', pulse:'Pulse 生命力',
-  gov:'Governance', doctor:'Doctor', llm:'LLM 路由', data:'資料層', nightly:'Nightly', external:'外部服務'
+  gov:'Governance', doctor:'Doctor', llm:'LLM 路由', data:'資料層',
+  evolution:'Evolution 演化', tools:'Tools 工具',
+  nightly:'Nightly', installer:'Installer 安裝', external:'外部服務'
 };
 function lkHex(t){ return t==='cross'?0xC4502A:t==='async'?0xB8923A:t==='monitor'?0x2A6A8A:t==='control'?0x7A7888:t==='flow'?0xE0714D:0x9898A8; }
 function lkCSS(t){ return t==='cross'?'#C4502A':t==='async'?'#B8923A':t==='monitor'?'#2A6A8A':t==='control'?'#7A7888':t==='flow'?'#E0714D':'#9898A8'; }
@@ -240,6 +246,54 @@ const nodes = [
   {id:"anthropic-api",label:"Anthropic API",zh:"Claude API",group:"external",r:1.1},
   {id:"data-bus",label:"DataBus",zh:"資料層路由器",group:"data",r:1.8,hub:1},
   {id:"data-watchdog",label:"DataWatchdog",zh:"資料層監控",group:"data",p:"data-bus",r:1.0},
+  // v1.2+ channel
+  {id:"mcp-server",label:"MCP Server",zh:"Claude Code 介面",group:"channel",r:1.2},
+  // v1.2+ agent
+  {id:"onboarding",label:"Onboarding",zh:"上線儀式",group:"agent",p:"brain",r:0.9},
+  {id:"multiagent",label:"Multiagent",zh:"多代理協調",group:"agent",p:"brain",r:0.9},
+  // v1.2+ gov
+  {id:"guardian",label:"Guardian",zh:"系統守護 Daemon",group:"gov",p:"governance",r:1.1},
+  {id:"security",label:"Security",zh:"安全淨化與稽核",group:"gov",p:"governance",r:1.0},
+  {id:"dendritic-scorer",label:"Dendritic Scorer",zh:"樹突評分器",group:"gov",p:"governance",r:0.9},
+  {id:"footprint",label:"Footprint",zh:"操作足跡追蹤",group:"gov",p:"governance",r:0.9},
+  {id:"perception",label:"Perception",zh:"四診合參感知",group:"gov",p:"governance",r:0.9},
+  // v1.4 data SQLite
+  {id:"group-context-db",label:"GroupContextDB",zh:"群組上下文 SQLite",group:"data",p:"data-bus",r:1.0},
+  {id:"workflow-state-db",label:"WorkflowStateDB",zh:"工作流 SQLite",group:"data",p:"data-bus",r:1.0},
+  // evolution 群組
+  {id:"evolution",label:"Evolution",zh:"演化系統",group:"evolution",r:2.2,hub:1},
+  {id:"outward-trigger",label:"Outward Trigger",zh:"外向演化觸發",group:"evolution",p:"evolution",r:1.1},
+  {id:"intention-radar",label:"Intention Radar",zh:"意圖雷達",group:"evolution",p:"evolution",r:1.0},
+  {id:"digest-engine",label:"Digest Engine",zh:"消化結晶引擎",group:"evolution",p:"evolution",r:1.0},
+  {id:"research-engine",label:"Research Engine",zh:"外部研究引擎",group:"evolution",p:"evolution",r:1.1},
+  {id:"evolution-velocity",label:"Evolution Velocity",zh:"演化速度測量",group:"evolution",p:"evolution",r:1.0},
+  {id:"feedback-loop",label:"Feedback Loop",zh:"使用者回饋迴路",group:"evolution",p:"evolution",r:0.9},
+  {id:"parameter-tuner",label:"Parameter Tuner",zh:"參數自動調諧",group:"evolution",p:"evolution",r:0.9},
+  {id:"tool-muscle",label:"Tool Muscle",zh:"工具肌肉記憶",group:"evolution",p:"evolution",r:0.8},
+  {id:"trigger-weights",label:"Trigger Weights",zh:"觸發器權重",group:"evolution",p:"evolution",r:0.8},
+  // tools 群組
+  {id:"tool-registry",label:"Tool Registry",zh:"工具註冊中心",group:"tools",r:1.8,hub:1},
+  {id:"tool-discovery",label:"Tool Discovery",zh:"工具自動探測",group:"tools",p:"tool-registry",r:1.0},
+  {id:"dify-scheduler",label:"Dify Scheduler",zh:"Dify 排程器",group:"tools",p:"tool-registry",r:0.8},
+  {id:"image-gen",label:"Image Gen",zh:"圖像生成",group:"tools",p:"tool-registry",r:0.8},
+  {id:"rss-aggregator",label:"RSS Aggregator",zh:"RSS 聚合器",group:"tools",p:"tool-registry",r:0.8},
+  {id:"voice-clone",label:"Voice Clone",zh:"語音克隆",group:"tools",p:"tool-registry",r:0.7},
+  {id:"zotero-bridge",label:"Zotero Bridge",zh:"文獻管理橋接",group:"tools",p:"tool-registry",r:0.8},
+  {id:"mcp-dify",label:"MCP Dify",zh:"MCP-Dify 連接器",group:"tools",p:"tool-registry",r:0.7},
+  {id:"skill-market",label:"Skill Market",zh:"技能交易市場",group:"tools",p:"tool-registry",r:1.0},
+  {id:"federation-sync",label:"Federation Sync",zh:"母子體同步",group:"tools",p:"tool-registry",r:0.9},
+  // nightly 子節點
+  {id:"curiosity-router",label:"Curiosity Router",zh:"好奇心路由",group:"nightly",p:"nightly",r:0.9},
+  {id:"exploration-bridge",label:"Exploration Bridge",zh:"探索橋接",group:"nightly",p:"nightly",r:0.9},
+  {id:"skill-forge-scout",label:"Skill Forge Scout",zh:"技能鍛造偵察",group:"nightly",p:"nightly",r:0.8},
+  {id:"crystal-actuator",label:"Crystal Actuator",zh:"結晶致動器",group:"nightly",p:"nightly",r:0.8},
+  {id:"periodic-cycles",label:"Periodic Cycles",zh:"週期循環",group:"nightly",p:"nightly",r:0.9},
+  // installer 群組
+  {id:"installer",label:"Installer",zh:"安裝編排器",group:"installer",r:1.6,hub:1},
+  {id:"installer-daemon",label:"Daemon Config",zh:"Daemon 設定",group:"installer",p:"installer",r:0.8},
+  {id:"installer-electron",label:"Electron Packager",zh:"Electron 打包",group:"installer",p:"installer",r:0.8},
+  {id:"installer-env",label:"Environment",zh:"環境檢查",group:"installer",p:"installer",r:0.7},
+  {id:"installer-verifier",label:"Module Verifier",zh:"模組驗證",group:"installer",p:"installer",r:0.7},
 ];
 
 const links = [
@@ -351,6 +405,83 @@ const links = [
   {source:"data-bus",target:"eval-engine",label:"Store路由",type:"cross"},
   {source:"nightly",target:"data-watchdog",label:"Step29健康檢查",type:"cross"},
   {source:"data-watchdog",target:"event-bus",label:"監控事件",type:"async"},
+  // ═══ v1.2-v1.4 新增連線 ═══
+  // control — 新群組 Hub 與 event-bus
+  {source:"event-bus",target:"evolution",label:"演化事件",type:"control"},
+  {source:"event-bus",target:"tool-registry",label:"工具事件",type:"control"},
+  // agent internal
+  {source:"brain",target:"onboarding",label:"上線儀式",type:"internal"},
+  {source:"brain",target:"multiagent",label:"多代理協調",type:"internal"},
+  // gov internal
+  {source:"governance",target:"guardian",label:"守護",type:"internal"},
+  {source:"governance",target:"security",label:"安全",type:"internal"},
+  {source:"governance",target:"dendritic-scorer",label:"評分",type:"internal"},
+  {source:"governance",target:"footprint",label:"足跡",type:"internal"},
+  {source:"governance",target:"perception",label:"感知",type:"internal"},
+  // evolution internal
+  {source:"evolution",target:"outward-trigger",label:"外向觸發",type:"internal"},
+  {source:"evolution",target:"intention-radar",label:"意圖偵測",type:"internal"},
+  {source:"evolution",target:"digest-engine",label:"消化結晶",type:"internal"},
+  {source:"evolution",target:"research-engine",label:"外部研究",type:"internal"},
+  {source:"evolution",target:"evolution-velocity",label:"速度測量",type:"internal"},
+  {source:"evolution",target:"feedback-loop",label:"回饋迴路",type:"internal"},
+  {source:"evolution",target:"parameter-tuner",label:"參數調諧",type:"internal"},
+  {source:"evolution",target:"tool-muscle",label:"肌肉記憶",type:"internal"},
+  {source:"evolution",target:"trigger-weights",label:"觸發權重",type:"internal"},
+  // tools internal
+  {source:"tool-registry",target:"tool-discovery",label:"工具探測",type:"internal"},
+  {source:"tool-registry",target:"dify-scheduler",label:"Dify 排程",type:"internal"},
+  {source:"tool-registry",target:"image-gen",label:"圖像生成",type:"internal"},
+  {source:"tool-registry",target:"rss-aggregator",label:"RSS 聚合",type:"internal"},
+  {source:"tool-registry",target:"voice-clone",label:"語音克隆",type:"internal"},
+  {source:"tool-registry",target:"zotero-bridge",label:"文獻管理",type:"internal"},
+  {source:"tool-registry",target:"mcp-dify",label:"MCP-Dify",type:"internal"},
+  {source:"tool-registry",target:"skill-market",label:"技能市場",type:"internal"},
+  {source:"tool-registry",target:"federation-sync",label:"母子同步",type:"internal"},
+  // data internal — v1.4 SQLite
+  {source:"data-bus",target:"group-context-db",label:"Store 路由",type:"internal"},
+  {source:"data-bus",target:"workflow-state-db",label:"Store 路由",type:"internal"},
+  // nightly internal
+  {source:"nightly",target:"curiosity-router",label:"好奇心路由",type:"internal"},
+  {source:"nightly",target:"exploration-bridge",label:"探索橋接",type:"internal"},
+  {source:"nightly",target:"skill-forge-scout",label:"技能鍛造",type:"internal"},
+  {source:"nightly",target:"crystal-actuator",label:"結晶致動",type:"internal"},
+  {source:"nightly",target:"periodic-cycles",label:"週期循環",type:"internal"},
+  // installer internal
+  {source:"installer",target:"installer-daemon",label:"Daemon 設定",type:"internal"},
+  {source:"installer",target:"installer-electron",label:"Electron 打包",type:"internal"},
+  {source:"installer",target:"installer-env",label:"環境檢查",type:"internal"},
+  {source:"installer",target:"installer-verifier",label:"模組驗證",type:"internal"},
+  // cross — evolution chain
+  {source:"outward-trigger",target:"intention-radar",label:"觸發搜尋",type:"cross"},
+  {source:"intention-radar",target:"research-engine",label:"執行研究",type:"cross"},
+  {source:"research-engine",target:"digest-engine",label:"消化結果",type:"cross"},
+  {source:"digest-engine",target:"knowledge-lattice",label:"結晶寫入",type:"cross"},
+  {source:"evolution-velocity",target:"parameter-tuner",label:"速度驅動調諧",type:"cross"},
+  {source:"nightly",target:"evolution-velocity",label:"夜間速度計算",type:"cross"},
+  {source:"nightly",target:"parameter-tuner",label:"夜間參數調諧",type:"cross"},
+  // cross — gov 新節點
+  {source:"guardian",target:"doctor",label:"修復委派",type:"cross"},
+  {source:"guardian",target:"brain",label:"ANIMA 修復",type:"cross"},
+  {source:"onboarding",target:"brain",label:"初始化身份",type:"cross"},
+  // cross — tools/channel
+  {source:"tool-registry",target:"skill-router",label:"工具查找",type:"cross"},
+  {source:"mcp-server",target:"brain",label:"ANIMA 狀態查詢",type:"cross"},
+  // cross — gov 評分/追蹤
+  {source:"dendritic-scorer",target:"eval-engine",label:"品質評分",type:"cross"},
+  {source:"footprint",target:"data-bus",label:"足跡持久化",type:"cross"},
+  {source:"perception",target:"brain",label:"四診合參",type:"cross"},
+  // cross — nightly 子節點
+  {source:"curiosity-router",target:"pulse",label:"探索主題",type:"cross"},
+  {source:"exploration-bridge",target:"skill-forge-scout",label:"技能線索",type:"cross"},
+  {source:"crystal-actuator",target:"knowledge-lattice",label:"結晶操作",type:"cross"},
+  {source:"periodic-cycles",target:"pulse",label:"週期驅動",type:"cross"},
+  // cross — tools 子節點
+  {source:"skill-market",target:"skills-registry",label:"技能打包",type:"cross"},
+  {source:"federation-sync",target:"nightly",label:"夜間同步",type:"cross"},
+  {source:"zotero-bridge",target:"vector-index",label:"文獻索引",type:"cross"},
+  // cross — installer
+  {source:"auto-repair",target:"installer",label:"修復用安裝器",type:"cross"},
 ];
 
 const nodeMap = {};
