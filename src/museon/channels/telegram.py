@@ -1081,49 +1081,11 @@ class TelegramAdapter(ChannelAdapter):
             self._main_async_loop = asyncio.get_event_loop()
 
         # 訂閱脈搏事件
-        event_bus.subscribe(PULSE_RHYTHM_CHECK, self._on_rhythm_check)
-        event_bus.subscribe(PULSE_NIGHTLY_DONE, self._on_nightly_done)
         event_bus.subscribe(PROACTIVE_MESSAGE, self._on_proactive_message)
         event_bus.subscribe(MORPHENIX_L3_PROPOSAL, self._on_morphenix_l3)
         event_bus.subscribe(MORPHENIX_EXECUTION_COMPLETED, self._on_morphenix_executed)
         event_bus.subscribe(MORPHENIX_ROLLBACK, self._on_morphenix_rollback)
         logger.info("TelegramAdapter connected to pulse EventBus")
-
-    def _on_rhythm_check(self, data: Optional[Dict] = None) -> None:
-        """處理 Rhythm-Pulse 推播事件.
-
-        EventBus 是同步的，callback 可能從 HeartbeatEngine daemon thread 呼叫，
-        因此用 run_coroutine_threadsafe 排入 Telegram 主事件迴圈。
-        """
-        if not data or not self._running:
-            return
-        message = data.get("message", "")
-        if not message:
-            return
-        try:
-            main_loop = getattr(self, "_main_async_loop", None)
-            if main_loop and not main_loop.is_closed():
-                asyncio.run_coroutine_threadsafe(self.push_notification(message), main_loop)
-            else:
-                logger.warning("Rhythm check: 主事件迴圈不可用，跳過推送")
-        except Exception as e:
-            logger.error(f"Rhythm check push failed: {e}")
-
-    def _on_nightly_done(self, data: Optional[Dict] = None) -> None:
-        """處理凌晨管線完成事件 → 晨間廣播."""
-        if not data or not self._running:
-            return
-        summary = data.get("summary", "")
-        if not summary:
-            return
-        try:
-            main_loop = getattr(self, "_main_async_loop", None)
-            if main_loop and not main_loop.is_closed():
-                asyncio.run_coroutine_threadsafe(self.push_notification(summary), main_loop)
-            else:
-                logger.warning("Nightly done: 主事件迴圈不可用，跳過推送")
-        except Exception as e:
-            logger.error(f"Nightly done push failed: {e}")
 
     def _on_proactive_message(self, data: Optional[Dict] = None) -> None:
         """處理主動互動推播事件.

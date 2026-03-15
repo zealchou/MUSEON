@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.0
+# Joint Map — 共享可變狀態接頭圖 v1.6
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -56,9 +56,10 @@
 | **`pulse/anima_mc_store.py`** | **`save()` / `update()`** | **統一入口** | 完整 JSON | **✅ `threading.Lock` + KernelGuard + 原子寫入(tmp→rename)** |
 | `agent/brain.py` | `_save_anima_mc()` → 委派 Store | 整個檔案 | 完整 JSON | ✅ 經由 AnimaMCStore |
 | `agent/brain.py` | `_update_crystal_count()` → Store.update() | `memory_summary.knowledge_crystals` | int | ✅ 原子讀改寫 |
-| `agent/brain.py` | `_observe_self()` → Store.save() | `self_awareness.*`, `evolution.*` | str/dict | ✅ 經由 AnimaMCStore |
+| `agent/brain.py` | `_observe_self()` → Store.update() via WQ | `memory_summary.*`, `evolution.*`, `capabilities.*`, `eight_primals.*` | dict | ✅ 原子讀改寫 via AnimaMCStore.update() |
 | `pulse/anima_tracker.py` | `_save()` → Store.update() | `eight_primal_energies`, `_vita_triggered_thresholds` | `{元素: {absolute: int, relative: float}}` | ✅ 經由 AnimaMCStore |
 | `pulse/micro_pulse.py` | `_update_days_alive()` → Store.update() | `identity.days_alive` | int | ✅ 經由 AnimaMCStore |
+| `agent/brain.py` | `_merge_ceremony_into_anima_mc()` → Store.update() via WQ | 全部欄位（ceremony 合併） | 完整 JSON | ✅ 原子讀改寫 via AnimaMCStore.update() |
 | `onboarding/ceremony.py` | `receive_name()`, `_initialize_anima_l1()` | 初始化全部欄位 | 完整 JSON | 無（單次初始化，可接受） |
 | `guardian/daemon.py` | 修復邏輯 — `_check_anima()` | 結構修復（缺失欄位補回） | 部分 JSON patch | 無（修復模式，低頻） |
 
@@ -84,7 +85,9 @@
 
 1. ~~brain vs anima_tracker 互相覆蓋~~ → **已修復**：統一經由 AnimaMCStore，單一 `threading.Lock`
 2. ~~micro_pulse 直接寫入~~ → **已修復**：改用 `AnimaMCStore.update()` 原子讀改寫
-3. **格式不一致**：brain 管 `eight_primals`（已過時），anima_tracker 管 `eight_primal_energies` → 兩套數值系統並存（待後續合約處理）
+3. ~~`_observe_self` 在 WQ 外讀取~~ → **已修復**：改用 `AnimaMCStore.update()` 原子讀改寫（整個 RMW 在 Store 鎖內）
+4. ~~`_merge_ceremony_into_anima_mc` 繞過 WQ/Store~~ → **已修復**：改用 `AnimaMCStore.update()` + WriteQueue 序列化
+5. **格式不一致**：brain 管 `eight_primals`（已過時），anima_tracker 管 `eight_primal_energies` → 兩套數值系統並存（待後續合約處理）
 
 ---
 
@@ -105,7 +108,7 @@
 | `pulse/pulse_engine.py` | `_update_pulse_md_status()` | `## 📊 今日狀態` | 探索次數、推送次數等統計 |
 | `pulse/pulse_engine.py` | — | `## 💝 關係日誌` | 正面/負面/分享訊號記錄 |
 
-**鎖**：無顯式鎖，依賴原子寫入（tmp→rename）
+**鎖**：✅ `threading.Lock` + 原子寫入（tmp→rename+fsync）——所有 7 種寫入方法均在鎖內完成完整讀改寫
 
 #### 讀取者（5+ 個模組）
 
@@ -599,7 +602,7 @@
 | observation_rings.json | `threading.Lock` | soul_ring | ✅ 完整 |
 | PulseDB | SQLite WAL + `threading.Lock` | pulse_db | ✅ 完整 |
 | Qdrant | 內部 MVCC | — | ✅ 資料庫層 |
-| PULSE.md | 原子寫入(tmp→rename) | pulse_engine | ⚠️ 無並發保護 |
+| PULSE.md | `threading.Lock` + 原子寫入(tmp→rename+fsync) | pulse_engine | ✅ 完整（Lock + 原子寫入） |
 | question_queue.json | **無** | — | ❌ 危險 |
 | scout_queue/pending.json | **無** | — | ❌ 危險 |
 | crystals.json | **無** | — | ❌ 危險 |
@@ -612,7 +615,7 @@
 | 模組 | 並發模型 | 說明 |
 |------|---------|------|
 | brain.py | asyncio + threading 混合 | async def + threading.Lock |
-| pulse_engine.py | asyncio | 全 async |
+| pulse_engine.py | asyncio + threading.Lock | async + threading.Lock（PULSE.md 寫入保護） |
 | anima_tracker.py | 同步 | 原子寫入，無 async |
 | micro_pulse.py | 同步 | 直接寫入 |
 | nightly_pipeline.py | 同步（背景執行緒） | `_run_async_safe()` → `asyncio.new_event_loop()`（合約 3 修復） |
@@ -628,6 +631,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-16 | v1.6 | DNA27 深度審計修復：PULSE.md 加入 threading.Lock + 原子寫入（7 處寫入全覆蓋）；ANIMA_MC _observe_self + _merge_ceremony 改用 Store.update() 原子讀改寫；鎖一覽表同步更新 |
 | 2026-03-15 | v1.5 | 9.5 精度修復：新增 #25 JSONL 審計日誌群（21 檔群組管理）、#26 memory/{date}/{ch}.md 記憶檔（3 寫 5 讀）；共享狀態 24→26 個 |
 | 2026-03-15 | v1.4 | 全面覆蓋修復：新增 #22 budget/usage_{month}.json、#23 _system/outward/*.json、#24 _system/marketplace/*.json；共享狀態 21→24 個 |
 | 2026-03-15 | v1.3 | 藍圖完整性修復：guardian/daemon.py 加入 ANIMA_MC 讀寫者，新增 #17-#21 共享狀態（velocity_log, tuning_audit, trigger_configs, tool_muscles, repair_log） |

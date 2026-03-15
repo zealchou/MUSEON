@@ -1,4 +1,4 @@
-# MUSEON 系統拓撲圖 v1.0
+# MUSEON 系統拓撲圖 v1.5
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
@@ -80,7 +80,8 @@
 | `micro-pulse` | Micro Pulse | 秒級微脈 | - | pulse | 0.8 |
 | `pulse-db` | Pulse DB | 脈搏資料庫 | - | pulse | 0.8 |
 | `commitment-tracker` | Commitment | 承諾追蹤 | - | pulse | 0.9 |
-| `task-scheduler` | Scheduler | APScheduler | - | pulse | 0.8 |
+| `anima-mc-store` | AnimaMC Store | ANIMA統一存取 | - | pulse | 1.1 |
+| `anima-tracker` | Anima Tracker | 八元素追蹤 | - | pulse | 1.0 |
 
 ### gov — Governance
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -90,7 +91,6 @@
 | `immunity` | Immunity | 先天 + 後天免疫 | - | governance | 1.1 |
 | `preflight` | Preflight | 啟動門 | - | governance | 0.9 |
 | `refractory` | Refractory | 斷路器 | - | governance | 0.9 |
-| `guardrails` | Guardrails | 四層安全護欄 | - | governance | 1.0 |
 | `skill-scanner` | Skill Scanner | 技能掃描 | - | governance | 0.8 |
 | `sandbox` | Sandbox | 沙盒隔離 | - | governance | 0.8 |
 | `telegram-guard` | TG Guard | Polling 守衛 | - | governance | 0.8 |
@@ -254,7 +254,10 @@
 | `pulse` | `micro-pulse` | 微脈 |
 | `pulse` | `pulse-db` | 持久化 |
 | `pulse` | `commitment-tracker` | 承諾 |
-| `pulse` | `task-scheduler` | 排程 |
+| `pulse` | `anima-mc-store` | ANIMA 統一存取 |
+| `pulse` | `anima-tracker` | 八元素追蹤 |
+| `anima-tracker` | `anima-mc-store` | 八元素經由 Store |
+| `micro-pulse` | `anima-mc-store` | 微脈經由 Store |
 
 ### Governance 內部連線（internal）
 | Source | Target | 說明 |
@@ -263,7 +266,6 @@
 | `governance` | `immunity` | 免疫 |
 | `governance` | `preflight` | 啟動門 |
 | `governance` | `refractory` | 斷路 |
-| `governance` | `guardrails` | 護欄 |
 | `governance` | `skill-scanner` | 掃描 |
 | `governance` | `sandbox` | 沙盒 |
 | `governance` | `telegram-guard` | 守衛 |
@@ -358,7 +360,6 @@
 | `soul-ring` | `memory` | 年輪寫入 |
 | `brain` | `llm-router` | 生成回應 |
 | `brain` | `memory` | 四通道持久化 |
-| `guardrails` | `brain` | 行為約束 |
 | `commitment-tracker` | `brain` | 承諾自檢 |
 | `commitment-tracker` | `registry` | 承諾記錄 |
 | `explorer` | `searxng` | 網路搜尋 |
@@ -399,6 +400,8 @@
 | `onboarding` | `brain` | 初始化身份 |
 | `tool-registry` | `skill-router` | 工具查找 |
 | `mcp-server` | `brain` | ANIMA 狀態查詢 |
+| `brain` | `anima-mc-store` | ANIMA_MC 存取 |
+| `gateway` | `anima-mc-store` | API 查詢 ANIMA |
 | `dendritic-scorer` | `eval-engine` | 品質評分 |
 | `footprint` | `data-bus` | 足跡持久化 |
 | `perception` | `brain` | 四診合參 |
@@ -479,11 +482,11 @@
 | 指標 | 數值 |
 |------|------|
 | 總節點數 | 104 |
-| 總連線數 | 191 |
+| 總連線數 | 195 |
 | 群組數 | 13 |
 | Hub 節點 | 11 (event-bus, brain, pulse, governance, doctor, llm-router, evolution, tool-registry, nightly, data-bus, installer) |
-| 跨系統連線 | 65 |
-| 內部連線 | 96 |
+| 跨系統連線 | 66 |
+| 內部連線 | 99 |
 | 非同步連線 | 5 |
 | 監控連線 | 5 |
 | 控制連線 | 9 |
@@ -497,6 +500,7 @@
 | 版本 | 日期 | 變更 |
 |------|------|------|
 | v1.0 | 2026-03-14 | 初版建立，59 節點 91 連線 |
+| v1.5 | 2026-03-15 | DNA27 深度修復：移除幽靈節點 task-scheduler(pulse) + guardrails(gov)、新增 anima-mc-store + anima-tracker 到 pulse 群組、修正跨系統連線（+6 新連線 -3 幽靈連線）；104 節點 195 連線 |
 | v1.4 | 2026-03-15 | 9.5 精度修復：data 群組新增 3 個 SQLite 子節點（pulse-db, group-context-db, workflow-state-db）+ 3 條 Store 路由連線；104 節點 191 連線 |
 | v1.3 | 2026-03-15 | 全面覆蓋修復：新增 installer 群組(5節點)；nightly 擴充+5子節點；tools 擴充+7節點(含federation)；gov 擴充+3子節點；channel 加 mcp-server；新增 43 條連線，總計 101 節點 188 連線 |
 | v1.2 | 2026-03-15 | 藍圖完整性修復：新增 evolution(10節點)、tools(3節點) 群組；agent 群組加 onboarding+multiagent；gov 群組加 guardian+security；新增 37 條連線 |

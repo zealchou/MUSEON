@@ -1,4 +1,4 @@
-# MUSEON Persistence Contract v1.0 — 水電圖
+# MUSEON Persistence Contract v1.7 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
@@ -56,7 +56,7 @@
 | 路徑模式 | 負責模組 | 寫入者 | 消費者 |
 |---------|---------|--------|--------|
 | `data/memory/{YYYY}/{MM}/{DD}/{channel}.md` | `memory/store.py` | `MemoryStore.write()` | `MemoryStore.read()`, Nightly 壓縮 |
-| `data/PULSE.md` | `pulse/pulse_engine.py` | `PulseEngine` | `brain.py`, `explorer.py` |
+| `data/PULSE.md` | `pulse/pulse_engine.py` | `PulseEngine`（✅ threading.Lock + 原子寫入） | `brain.py`, `explorer.py` |
 | `data/SOUL.md` | `agent/soul_ring.py` | `SoulRing` | `brain.py` |
 | `data/skills/{category}/{name}.md` | `core/skill_manager.py` | Morphenix/手動 | `skill_router.py`, `skill_manager.py` |
 | `data/workspace/*.md` | 各模組 | 臨時產出 | 使用者直接閱讀 |
@@ -317,7 +317,7 @@ Installer 編排 (orchestrator.py)
 
 | 檔案 | 負責模組 | 用途 | R/W |
 |------|---------|------|-----|
-| `ANIMA_MC.json` | `brain.py` | ANIMA 多元性狀態 | R/W |
+| `ANIMA_MC.json` | `pulse/anima_mc_store.py` | ANIMA 多元性狀態（✅ AnimaMCStore 統一存取） | R/W |
 | `ANIMA_USER.json` | `brain.py` | 使用者 ANIMA 狀態 | R/W |
 | `ceremony_state.json` | `onboarding/ceremony.py` | 初始化儀式狀態 | R/W |
 | `tasks.json` | `pulse/pulse_engine.py` | 任務清單快照 | R/W |
@@ -454,6 +454,7 @@ Installer 編排 (orchestrator.py)
 | v1.0 | 2026-03-15 | 初版：完整水電圖，涵蓋 23 個正常配對、3 個 Dead Write、14 個死目錄 |
 | v1.1 | 2026-03-15 | Phase 2 完成：4 個 JSON 遷移至 PulseDB（ceremony_state + eval 三件套） |
 | v1.2 | 2026-03-15 | Phase 3 完成：DataContract + DataBus 建立，10 個 Store 類統一接入 |
+| v1.7 | 2026-03-15 | DNA27 深度修復：PULSE.md 寫入加入 threading.Lock + 原子寫入（tmp→rename+fsync）、ANIMA_MC.json 改為 AnimaMCStore 統一存取 |
 | v1.6 | 2026-03-15 | 9.5 精度修復：新增管線 H(Installer)、拓撲對應表同步（3 個 SQLite 子節點已在 topology v1.4 上圖） |
 | v1.5 | 2026-03-15 | 全面覆蓋修復：新增管線 G(Federation)、W31-W33 配對、修正 outward 歸屬（proactive_bridge→outward_trigger）、新增 marketplace+budget 子目錄 |
 | v1.4 | 2026-03-15 | 藍圖完整性修復：新增管線 E(Evolution) + F(Guardian)、W24-W30 配對、9 個 _system 子目錄條目 |

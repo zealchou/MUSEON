@@ -7,6 +7,8 @@
 import asyncio
 import json
 import logging
+import tempfile
+import threading
 import time
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
@@ -218,6 +220,7 @@ class PulseEngine:
         self._anima = anima_tracker
         self._data_dir = Path(data_dir) if data_dir else None
         self._pulse_md = Path(data_dir) / "PULSE.md" if data_dir else None
+        self._pulse_md_lock = threading.Lock()  # PULSE.md 寫入鎖
 
         # 推送計數
         self._daily_push_count = 0
@@ -229,6 +232,28 @@ class PulseEngine:
 
         # 初始化 PULSE.md
         self._ensure_pulse_md()
+
+    def _atomic_write_pulse_md(self, content: str) -> None:
+        """原子寫入 PULSE.md（tmp→rename + Lock）."""
+        if not self._pulse_md:
+            return
+        parent = self._pulse_md.parent
+        fd, tmp_path = tempfile.mkstemp(
+            dir=str(parent), prefix=".pulse_md_", suffix=".tmp"
+        )
+        try:
+            with open(fd, "w", encoding="utf-8") as f:
+                f.write(content)
+                f.flush()
+                import os
+                os.fsync(f.fileno())
+            Path(tmp_path).replace(self._pulse_md)
+        except Exception:
+            try:
+                Path(tmp_path).unlink(missing_ok=True)
+            except Exception:
+                pass
+            raise
 
     def _ensure_pulse_md(self) -> None:
         """確保 PULSE.md 存在."""
@@ -1267,46 +1292,45 @@ class PulseEngine:
         if not self._pulse_md or not self._pulse_md.exists():
             return
         try:
-            text = self._pulse_md.read_text(encoding="utf-8")
-            lines = text.split("\n")
-            new_lines = []
-            in_status = False
+            with self._pulse_md_lock:
+                text = self._pulse_md.read_text(encoding="utf-8")
+                lines = text.split("\n")
+                new_lines = []
+                in_status = False
 
-            for line in lines:
-                if "## 📊 今日狀態" in line:
-                    in_status = True
-                    new_lines.append(line)
-                    # 寫入更新的狀態
-                    exp_count = self._db.get_today_exploration_count() if self._db else 0
-                    exp_cost = self._db.get_today_exploration_cost() if self._db else 0
-                    new_lines.append(f"- 探索次數: {exp_count}/{_cfg('exploration_daily_limit', EXPLORATION_DAILY_LIMIT)}")
-                    new_lines.append(f"- 探索次數費用: ${exp_cost:.2f} (MAX 訂閱)")
-                    new_lines.append(f"- 推送次數: {self._daily_push_count}/{_cfg('daily_push_limit', DAILY_PUSH_LIMIT)}")
-                    if self._anima:
-                        # 顯示今日 ANIMA 變化
-                        today_changes = []
-                        if self._db:
-                            from museon.pulse.anima_tracker import ELEMENTS
-                            history = self._db.get_anima_history(limit=20)
-                            today = datetime.now(TZ8).strftime("%Y-%m-%d")
-                            for h in history:
-                                if h.get("timestamp", "").startswith(today):
-                                    elem = h["element"]
-                                    name = ELEMENTS.get(elem, {}).get("name", elem)
-                                    today_changes.append(f"{name}+{h['delta']}")
-                        if today_changes:
-                            new_lines.append(f"- ANIMA 變化: {', '.join(today_changes)}")
-                    continue
-                elif line.startswith("## ") and in_status:
-                    in_status = False
-                    new_lines.append("")
-                    new_lines.append(line)
-                    continue
+                for line in lines:
+                    if "## 📊 今日狀態" in line:
+                        in_status = True
+                        new_lines.append(line)
+                        exp_count = self._db.get_today_exploration_count() if self._db else 0
+                        exp_cost = self._db.get_today_exploration_cost() if self._db else 0
+                        new_lines.append(f"- 探索次數: {exp_count}/{_cfg('exploration_daily_limit', EXPLORATION_DAILY_LIMIT)}")
+                        new_lines.append(f"- 探索次數費用: ${exp_cost:.2f} (MAX 訂閱)")
+                        new_lines.append(f"- 推送次數: {self._daily_push_count}/{_cfg('daily_push_limit', DAILY_PUSH_LIMIT)}")
+                        if self._anima:
+                            today_changes = []
+                            if self._db:
+                                from museon.pulse.anima_tracker import ELEMENTS
+                                history = self._db.get_anima_history(limit=20)
+                                today = datetime.now(TZ8).strftime("%Y-%m-%d")
+                                for h in history:
+                                    if h.get("timestamp", "").startswith(today):
+                                        elem = h["element"]
+                                        name = ELEMENTS.get(elem, {}).get("name", elem)
+                                        today_changes.append(f"{name}+{h['delta']}")
+                            if today_changes:
+                                new_lines.append(f"- ANIMA 變化: {', '.join(today_changes)}")
+                        continue
+                    elif line.startswith("## ") and in_status:
+                        in_status = False
+                        new_lines.append("")
+                        new_lines.append(line)
+                        continue
 
-                if not in_status:
-                    new_lines.append(line)
+                    if not in_status:
+                        new_lines.append(line)
 
-            self._pulse_md.write_text("\n".join(new_lines), encoding="utf-8")
+                self._atomic_write_pulse_md("\n".join(new_lines))
         except Exception as e:
             logger.error(f"Update PULSE.md status failed: {e}")
 
@@ -1351,37 +1375,32 @@ class PulseEngine:
         if not self._pulse_md or not self._pulse_md.exists():
             return
         try:
-            text = self._pulse_md.read_text(encoding="utf-8")
+            with self._pulse_md_lock:
+                text = self._pulse_md.read_text(encoding="utf-8")
 
-            # 找到反思區塊
-            marker = "## 🌊 成長反思"
-            start = text.find(marker)
-            if start == -1:
-                # 如果反思區塊不存在，附加到末尾
-                now = datetime.now(TZ8).strftime("%m/%d %H:%M")
-                text += f"\n\n{marker}\n- [{now}] {reflection[:600]}\n"
-            else:
-                # 找到下一個 ## 區塊
-                next_section = text.find("\n## ", start + len(marker))
-                if next_section == -1:
-                    next_section = len(text)
+                marker = "## 🌊 成長反思"
+                start = text.find(marker)
+                if start == -1:
+                    now = datetime.now(TZ8).strftime("%m/%d %H:%M")
+                    text += f"\n\n{marker}\n- [{now}] {reflection[:600]}\n"
+                else:
+                    next_section = text.find("\n## ", start + len(marker))
+                    if next_section == -1:
+                        next_section = len(text)
 
-                # 取得現有反思內容
-                existing = text[start + len(marker):next_section].strip()
-                existing_lines = [l for l in existing.split("\n") if l.strip()]
+                    existing = text[start + len(marker):next_section].strip()
+                    existing_lines = [l for l in existing.split("\n") if l.strip()]
 
-                # 保持最近 5 條反思（避免無限膨脹）
-                now = datetime.now(TZ8).strftime("%m/%d %H:%M")
-                new_entry = f"- [{now}] {reflection[:600]}"
-                existing_lines.append(new_entry)
-                if len(existing_lines) > 5:
-                    existing_lines = existing_lines[-5:]
+                    now = datetime.now(TZ8).strftime("%m/%d %H:%M")
+                    new_entry = f"- [{now}] {reflection[:600]}"
+                    existing_lines.append(new_entry)
+                    if len(existing_lines) > 5:
+                        existing_lines = existing_lines[-5:]
 
-                # 重建反思區塊
-                new_section = f"{marker}\n" + "\n".join(existing_lines) + "\n"
-                text = text[:start] + new_section + text[next_section:]
+                    new_section = f"{marker}\n" + "\n".join(existing_lines) + "\n"
+                    text = text[:start] + new_section + text[next_section:]
 
-            self._pulse_md.write_text(text, encoding="utf-8")
+                self._atomic_write_pulse_md(text)
             logger.info(f"反思寫入 PULSE.md（演化閉環）: {reflection[:60]}...")
         except Exception as e:
             logger.error(f"Write reflection to PULSE.md failed: {e}")
@@ -1391,32 +1410,32 @@ class PulseEngine:
         if not self._pulse_md or not self._pulse_md.exists():
             return
         try:
-            text = self._pulse_md.read_text(encoding="utf-8")
+            with self._pulse_md_lock:
+                text = self._pulse_md.read_text(encoding="utf-8")
 
-            marker = "## 🔭 今日觀察"
-            start = text.find(marker)
-            if start == -1:
-                now = datetime.now(TZ8).strftime("%m/%d %H:%M")
-                text += f"\n\n{marker}\n- [{now}] {observation[:150]}\n"
-            else:
-                next_section = text.find("\n## ", start + len(marker))
-                if next_section == -1:
-                    next_section = len(text)
+                marker = "## 🔭 今日觀察"
+                start = text.find(marker)
+                if start == -1:
+                    now = datetime.now(TZ8).strftime("%m/%d %H:%M")
+                    text += f"\n\n{marker}\n- [{now}] {observation[:150]}\n"
+                else:
+                    next_section = text.find("\n## ", start + len(marker))
+                    if next_section == -1:
+                        next_section = len(text)
 
-                existing = text[start + len(marker):next_section].strip()
-                existing_lines = [l for l in existing.split("\n") if l.strip()]
+                    existing = text[start + len(marker):next_section].strip()
+                    existing_lines = [l for l in existing.split("\n") if l.strip()]
 
-                now = datetime.now(TZ8).strftime("%m/%d %H:%M")
-                new_entry = f"- [{now}] {observation[:150]}"
-                existing_lines.append(new_entry)
-                # 保持最近 5 條觀察
-                if len(existing_lines) > 5:
-                    existing_lines = existing_lines[-5:]
+                    now = datetime.now(TZ8).strftime("%m/%d %H:%M")
+                    new_entry = f"- [{now}] {observation[:150]}"
+                    existing_lines.append(new_entry)
+                    if len(existing_lines) > 5:
+                        existing_lines = existing_lines[-5:]
 
-                new_section = f"{marker}\n" + "\n".join(existing_lines) + "\n"
-                text = text[:start] + new_section + text[next_section:]
+                    new_section = f"{marker}\n" + "\n".join(existing_lines) + "\n"
+                    text = text[:start] + new_section + text[next_section:]
 
-            self._pulse_md.write_text(text, encoding="utf-8")
+                self._atomic_write_pulse_md(text)
         except Exception as e:
             logger.error(f"Write observation to PULSE.md failed: {e}")
 
@@ -1430,28 +1449,26 @@ class PulseEngine:
         if not self._pulse_md or not self._pulse_md.exists():
             return
         try:
-            text = self._pulse_md.read_text(encoding="utf-8")
-            lines = text.split("\n")
-            changed = False
-            # 提取主題關鍵詞用於模糊匹配
-            topic_words = set(w for w in topic.replace("「", " ").replace("」", " ").split() if len(w) >= 2)
-            for i, line in enumerate(lines):
-                if "[pending]" not in line:
-                    continue
-                line_content = line.split("[pending]")[-1].strip()
-                line_words = set(w for w in line_content.replace("「", " ").replace("」", " ").split() if len(w) >= 2)
-                # 完全包含或關鍵詞重疊 > 50%
-                if topic_words and line_words:
-                    overlap = len(topic_words & line_words) / max(min(len(topic_words), len(line_words)), 1)
-                else:
-                    overlap = 0
-                if topic[:20] in line or overlap > 0.5:
-                    lines[i] = line.replace("[pending]", "[done]")
-                    changed = True
-                    logger.info(f"PULSE.md 標記完成: {line_content[:50]}")
-                    # 不 break — 標記所有相關項目
-            if changed:
-                self._pulse_md.write_text("\n".join(lines), encoding="utf-8")
+            with self._pulse_md_lock:
+                text = self._pulse_md.read_text(encoding="utf-8")
+                lines = text.split("\n")
+                changed = False
+                topic_words = set(w for w in topic.replace("「", " ").replace("」", " ").split() if len(w) >= 2)
+                for i, line in enumerate(lines):
+                    if "[pending]" not in line:
+                        continue
+                    line_content = line.split("[pending]")[-1].strip()
+                    line_words = set(w for w in line_content.replace("「", " ").replace("」", " ").split() if len(w) >= 2)
+                    if topic_words and line_words:
+                        overlap = len(topic_words & line_words) / max(min(len(topic_words), len(line_words)), 1)
+                    else:
+                        overlap = 0
+                    if topic[:20] in line or overlap > 0.5:
+                        lines[i] = line.replace("[pending]", "[done]")
+                        changed = True
+                        logger.info(f"PULSE.md 標記完成: {line_content[:50]}")
+                if changed:
+                    self._atomic_write_pulse_md("\n".join(lines))
         except Exception as e:
             logger.debug(f"_mark_pulse_topic_done failed: {e}")
 
@@ -1508,55 +1525,52 @@ class PulseEngine:
             return
 
         try:
-            text = self._pulse_md.read_text(encoding="utf-8")
+            with self._pulse_md_lock:
+                text = self._pulse_md.read_text(encoding="utf-8")
 
-            # 找到探索佇列區塊
-            marker = None
-            for candidate in [
-                "## 🧭 探索佇列（好奇心驅動，無邊界）",
-                "## 🧭 探索佇列",
-                "## 探索佇列",
-            ]:
-                if candidate in text:
-                    marker = candidate
-                    break
+                marker = None
+                for candidate in [
+                    "## 🧭 探索佇列（好奇心驅動，無邊界）",
+                    "## 🧭 探索佇列",
+                    "## 探索佇列",
+                ]:
+                    if candidate in text:
+                        marker = candidate
+                        break
 
-            if marker is None:
-                # 探索佇列區塊不存在，附加到末尾
-                marker = "## 🧭 探索佇列（好奇心驅動，無邊界）"
-                entries = "\n".join(f"- [pending] {t}" for t in followups)
-                text += f"\n\n{marker}\n{entries}\n"
-            else:
-                start = text.find(marker)
-                next_section = text.find("\n## ", start + len(marker))
-                if next_section == -1:
-                    next_section = len(text)
+                if marker is None:
+                    marker = "## 🧭 探索佇列（好奇心驅動，無邊界）"
+                    entries = "\n".join(f"- [pending] {t}" for t in followups)
+                    text += f"\n\n{marker}\n{entries}\n"
+                else:
+                    start = text.find(marker)
+                    next_section = text.find("\n## ", start + len(marker))
+                    if next_section == -1:
+                        next_section = len(text)
 
-                existing = text[start + len(marker):next_section].strip()
-                existing_lines = [
-                    l for l in existing.split("\n")
-                    if l.strip() and "等待" not in l
-                ]
+                    existing = text[start + len(marker):next_section].strip()
+                    existing_lines = [
+                        l for l in existing.split("\n")
+                        if l.strip() and "等待" not in l
+                    ]
 
-                for t in followups:
-                    # 去重：跳過最近已探索的主題
-                    if self._is_recently_explored(t, days=3):
-                        logger.debug(f"seed_followup 跳過（最近已探索）: {t[:40]}")
-                        continue
-                    entry = f"- [pending] {t}"
-                    if entry not in existing_lines:
-                        existing_lines.append(entry)
+                    for t in followups:
+                        if self._is_recently_explored(t, days=3):
+                            logger.debug(f"seed_followup 跳過（最近已探索）: {t[:40]}")
+                            continue
+                        entry = f"- [pending] {t}"
+                        if entry not in existing_lines:
+                            existing_lines.append(entry)
 
-                # 保留最近 5 個待探索主題，避免膨脹
-                pending_lines = [l for l in existing_lines if "[pending]" in l]
-                other_lines = [l for l in existing_lines if "[pending]" not in l]
-                if len(pending_lines) > 5:
-                    pending_lines = pending_lines[-5:]
+                    pending_lines = [l for l in existing_lines if "[pending]" in l]
+                    other_lines = [l for l in existing_lines if "[pending]" not in l]
+                    if len(pending_lines) > 5:
+                        pending_lines = pending_lines[-5:]
 
-                new_section = f"{marker}\n" + "\n".join(other_lines + pending_lines) + "\n"
-                text = text[:start] + new_section + text[next_section:]
+                    new_section = f"{marker}\n" + "\n".join(other_lines + pending_lines) + "\n"
+                    text = text[:start] + new_section + text[next_section:]
 
-            self._pulse_md.write_text(text, encoding="utf-8")
+                self._atomic_write_pulse_md(text)
             logger.info(f"SoulPulse: seeded {len(followups)} follow-up topics to PULSE.md")
         except Exception as e:
             logger.warning(f"SoulPulse seed_followup_topics failed: {e}")
@@ -1647,31 +1661,29 @@ class PulseEngine:
         # 有新缺口 → 寫入 PULSE.md 探索佇列
         if gaps and self._pulse_md and self._pulse_md.exists():
             try:
-                text = self._pulse_md.read_text(encoding="utf-8")
-                # 模糊匹配：支援多種標題格式
-                marker = None
-                for candidate in ["## 🧭 探索佇列（好奇心驅動，無邊界）", "## 🧭 探索佇列", "## 探索佇列"]:
-                    if candidate in text:
-                        marker = candidate
-                        break
-                if marker:
-                    # 只加入 anima_low_energy 類型的缺口作為探索主題
-                    changed = False
-                    for gap in gaps:
-                        if gap["type"] == "anima_low_energy":
-                            elem = gap["element"]
-                            topic = f"[pending] - 探索「{elem}」相關知識（缺口偵測）"
-                            # 三重去重：完全匹配 + [done] 已完成 + 最近已探索
-                            if topic not in text \
-                                    and f"[done] - 探索「{elem}」" not in text \
-                                    and not self._is_recently_explored(f"探索「{elem}」相關知識", days=3):
-                                insert_pos = text.find(marker) + len(marker)
-                                text = text[:insert_pos] + f"\n{topic}" + text[insert_pos:]
-                                changed = True
-                            else:
-                                logger.debug(f"KnowledgeGapDetector 跳過（已探索/已完成）: {elem}")
-                    if changed:
-                        self._pulse_md.write_text(text, encoding="utf-8")
+                with self._pulse_md_lock:
+                    text = self._pulse_md.read_text(encoding="utf-8")
+                    marker = None
+                    for candidate in ["## 🧭 探索佇列（好奇心驅動，無邊界）", "## 🧭 探索佇列", "## 探索佇列"]:
+                        if candidate in text:
+                            marker = candidate
+                            break
+                    if marker:
+                        changed = False
+                        for gap in gaps:
+                            if gap["type"] == "anima_low_energy":
+                                elem = gap["element"]
+                                topic = f"[pending] - 探索「{elem}」相關知識（缺口偵測）"
+                                if topic not in text \
+                                        and f"[done] - 探索「{elem}」" not in text \
+                                        and not self._is_recently_explored(f"探索「{elem}」相關知識", days=3):
+                                    insert_pos = text.find(marker) + len(marker)
+                                    text = text[:insert_pos] + f"\n{topic}" + text[insert_pos:]
+                                    changed = True
+                                else:
+                                    logger.debug(f"KnowledgeGapDetector 跳過（已探索/已完成）: {elem}")
+                        if changed:
+                            self._atomic_write_pulse_md(text)
             except Exception as e:
                 logger.debug(f"KnowledgeGapDetector write failed: {e}")
 
@@ -1696,46 +1708,45 @@ class PulseEngine:
         if not self._pulse_md:
             return
         try:
-            # 確保 PULSE.md 存在
             if not self._pulse_md.exists():
                 self._ensure_pulse_md()
             if not self._pulse_md.exists():
                 return
 
-            text = self._pulse_md.read_text(encoding="utf-8")
+            with self._pulse_md_lock:
+                text = self._pulse_md.read_text(encoding="utf-8")
 
-            marker = "## 💝 關係日誌"
-            start = text.find(marker)
-            now = datetime.now(TZ8).strftime("%m/%d %H:%M")
-            new_entry = f"- [{now}] {note[:200]}"
+                marker = "## 💝 關係日誌"
+                start = text.find(marker)
+                now = datetime.now(TZ8).strftime("%m/%d %H:%M")
+                new_entry = f"- [{now}] {note[:200]}"
 
-            if start == -1:
-                # 區段不存在，在 📊 今日狀態 前插入
-                status_marker = "## 📊 今日狀態"
-                status_pos = text.find(status_marker)
-                if status_pos != -1:
-                    insert = f"\n{marker}\n{new_entry}\n\n"
-                    text = text[:status_pos] + insert + text[status_pos:]
+                if start == -1:
+                    status_marker = "## 📊 今日狀態"
+                    status_pos = text.find(status_marker)
+                    if status_pos != -1:
+                        insert = f"\n{marker}\n{new_entry}\n\n"
+                        text = text[:status_pos] + insert + text[status_pos:]
+                    else:
+                        text += f"\n\n{marker}\n{new_entry}\n"
                 else:
-                    text += f"\n\n{marker}\n{new_entry}\n"
-            else:
-                next_section = text.find("\n## ", start + len(marker))
-                if next_section == -1:
-                    next_section = len(text)
+                    next_section = text.find("\n## ", start + len(marker))
+                    if next_section == -1:
+                        next_section = len(text)
 
-                existing = text[start + len(marker):next_section].strip()
-                existing_lines = [
-                    l for l in existing.split("\n")
-                    if l.strip() and l.strip() != "（尚無記錄）"
-                ]
-                existing_lines.append(new_entry)
-                if len(existing_lines) > 5:
-                    existing_lines = existing_lines[-5:]
+                    existing = text[start + len(marker):next_section].strip()
+                    existing_lines = [
+                        l for l in existing.split("\n")
+                        if l.strip() and l.strip() != "（尚無記錄）"
+                    ]
+                    existing_lines.append(new_entry)
+                    if len(existing_lines) > 5:
+                        existing_lines = existing_lines[-5:]
 
-                new_section = f"{marker}\n" + "\n".join(existing_lines) + "\n"
-                text = text[:start] + new_section + text[next_section:]
+                    new_section = f"{marker}\n" + "\n".join(existing_lines) + "\n"
+                    text = text[:start] + new_section + text[next_section:]
 
-            self._pulse_md.write_text(text, encoding="utf-8")
+                self._atomic_write_pulse_md(text)
             logger.info(f"關係日誌寫入: {note[:60]}...")
         except Exception as e:
             logger.error(f"Write relationship journal failed: {e}")

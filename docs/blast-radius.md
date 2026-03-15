@@ -1,4 +1,4 @@
-# Blast Radius — 模組影響半徑表 v1.0
+# Blast Radius — 模組影響半徑表 v1.5
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
@@ -50,8 +50,8 @@
 #### 事件健康度
 
 ```
-已定義事件：215 | 實際發布：59 | 有訂閱者：31 | 孤兒事件：38 | 幽靈訂閱：3
-事件健康度 ≈ 52.5%（47% 信號被忽視）
+已定義事件：215 | 實際發布：59 | 有訂閱者：31 | 孤兒事件：38 | 幽靈訂閱：0（已全部修復）
+事件健康度 ≈ 67.9%（幽靈訂閱清零後提升）
 ```
 
 ---
@@ -623,13 +623,14 @@
 - `MEMORY_PROMOTED` / `MEMORY_RECALLED` — 記憶事件無人監聽
 - `AUTONOMIC_REPAIR` — 自主修復無人知曉
 
-### 幽靈訂閱（只收不發）：3 個
+### 幽靈訂閱（只收不發）：0 個（v1.5 全部修復）
 
-| 事件 | 訂閱者 | 狀態 |
-|------|--------|------|
-| `PULSE_RHYTHM_CHECK` | telegram | ❌ 無發布者 → Telegram 永遠收不到 |
-| `PULSE_NIGHTLY_DONE` | telegram | ❌ 無發布者 → Telegram 永遠收不到 |
-| `NIGHTLY_COMPLETED` | server, exploration_bridge | ✅ 實際存在（nightly_pipeline 用 `_publish()` 包裝） |
+| 事件 | 原訂閱者 | 修復方式 |
+|------|----------|---------|
+| `PULSE_RHYTHM_CHECK` | telegram | ✅ 已移除訂閱 + 死處理器 `_on_rhythm_check()` |
+| `PULSE_NIGHTLY_DONE` | telegram | ✅ 已移除訂閱 + 死處理器 `_on_nightly_done()` |
+| `EVOLUTION_HEARTBEAT` | server (ActivityLogger) | ✅ 已從 `_log_events` 移除 |
+| `MORPHENIX_EXECUTED` | server (ActivityLogger) | ✅ 已修正為正確常量名 `MORPHENIX_EXECUTION_COMPLETED` |
 
 ---
 
@@ -682,7 +683,7 @@
 | 單引用模組（扇入 1） | 72 | — |
 | 葉子模組（扇入 0） | 43 | 可安全修改 |
 | 共享可變狀態 | 26 個 | 詳見 joint-map.md（v1.5）— 含 #25 JSONL 審計日誌群 + #26 記憶 Markdown |
-| 事件健康度 | 52.5% | 47% 信號被忽視 |
+| 事件健康度 | 67.9% | 幽靈訂閱清零（v1.5 修復） |
 | 致命單點 | event_bus | 佔全系統 33% 依賴 |
 
 ---
@@ -691,6 +692,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-15 | v1.5 | DNA27 深度修復：幽靈訂閱 3→0（telegram 2 個移除 + server ActivityLogger 2 個修正）、事件健康度 52.5%→67.9%、ANIMA_MC 殘餘漏洞已修復（_observe_self + _merge_ceremony 改用 Store.update()） |
 | 2026-03-15 | v1.4 | 9.5 精度修復：健康快照共享狀態 24→26（同步 joint-map v1.5） |
 | 2026-03-15 | v1.3 | 全面覆蓋修復：新增 doctor/system_audit、mcp_server、federation/skill_market、federation/sync 到黃區；健康快照同步（共享狀態 16→24） |
 | 2026-03-15 | v1.2 | 藍圖完整性修復：新增 evolution/outward_trigger, evolution/wee_engine, evolution/evolution_velocity, guardian/daemon 到黃區 |
