@@ -97,14 +97,14 @@ def when_cli_fails_twice(ctx):
     # Also need API to handle the fallback call
     api_resp = MagicMock(text="ok from api", stop_reason="end_turn")
     ctx.fallback._api.call = AsyncMock(return_value=api_resp)
-    for _ in range(2):
-        asyncio.get_event_loop().run_until_complete(
-            ctx.fallback.call(
+    async def _run_two_calls():
+        for _ in range(2):
+            await ctx.fallback.call(
                 system_prompt="test",
                 messages=[{"role": "user", "content": "hi"}],
                 model="sonnet",
             )
-        )
+    asyncio.run(_run_two_calls())
 
 
 @given("a FallbackAdapter using API after CLI failures")
@@ -174,8 +174,7 @@ def then_offline_returned(ctx):
 @then("the VitalSigns sentinel should be notified")
 def then_sentinel_notified(ctx):
     # Give async task a chance to run
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(asyncio.sleep(0.1))
+    asyncio.run(asyncio.sleep(0.1))
     assert ctx.vital_signs._consecutive_llm_failures >= 1 or \
         ctx.vital_signs._push_alert.called
 

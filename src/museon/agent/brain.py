@@ -4696,11 +4696,12 @@ class MuseonBrain:
             try:
                 vs = self._governor.get_vital_signs()
                 if vs:
-                    loop = asyncio.get_event_loop()
-                    if loop.is_running():
+                    try:
+                        loop = asyncio.get_running_loop()
                         asyncio.ensure_future(vs.on_offline_triggered(error_msg))
-                    else:
-                        loop.run_until_complete(vs.on_offline_triggered(error_msg))
+                    except RuntimeError:
+                        # 無 running loop（同步呼叫情境）→ 建立臨時 loop
+                        asyncio.run(vs.on_offline_triggered(error_msg))
             except Exception as _e:
                 logger.debug(f"Sentinel trigger failed (non-critical): {_e}")
 
