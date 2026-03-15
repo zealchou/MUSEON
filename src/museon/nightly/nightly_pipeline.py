@@ -33,24 +33,31 @@ logger = logging.getLogger(__name__)
 
 
 def _run_async_safe(coro, timeout: int = 120):
-    """統一的 sync-in-async 橋接.
+    """統一的 sync-in-async 橋接（合約 3 修復）.
 
-    在 Gateway async context 中安全執行 async 函數。
-    如果當前有 event loop 正在運行，使用 ThreadPoolExecutor 橋接。
+    NightlyPipeline 運行在獨立背景線程，需要呼叫 async 函數。
+    始終建立獨立 event loop，避免與 Gateway 主 loop 衝突。
+
+    修復前問題：
+    - asyncio.get_event_loop() 在 Python 3.10+ deprecated
+    - 若線程看到 Gateway 主 loop → run_until_complete() 拋 RuntimeError
     """
     import asyncio
 
+    loop = asyncio.new_event_loop()
     try:
-        loop = asyncio.get_event_loop()
-        if loop.is_running():
-            import concurrent.futures
-
-            with concurrent.futures.ThreadPoolExecutor() as pool:
-                return pool.submit(asyncio.run, coro).result(timeout=timeout)
-        else:
-            return asyncio.run(coro)
-    except RuntimeError:
-        return asyncio.run(coro)
+        return loop.run_until_complete(asyncio.wait_for(coro, timeout=timeout))
+    finally:
+        # 清理殘留任務
+        try:
+            pending = asyncio.all_tasks(loop)
+            if pending:
+                loop.run_until_complete(
+                    asyncio.gather(*pending, return_exceptions=True)
+                )
+        except Exception:
+            pass
+        loop.close()
 
 
 # ═══════════════════════════════════════════
@@ -2376,13 +2383,14 @@ class NightlyPipeline:
                                 "（不超過 100 字）總結這個技能的核心能力：\n"
                                 f"{snippet}"
                             )
-                            resp = asyncio.get_event_loop().run_until_complete(
+                            resp = _run_async_safe(
                                 adapter.call(
                                     system_prompt="你是技能精煉專家。",
                                     messages=[{"role": "user", "content": prompt}],
                                     model="sonnet",
                                     max_tokens=200,
-                                )
+                                ),
+                                timeout=30,
                             )
                             if resp and resp.text:
                                 skill["llm_summary"] = resp.text[:200]

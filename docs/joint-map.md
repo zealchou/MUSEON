@@ -280,10 +280,10 @@
 - `threading.local()` per-thread 連線
 - `get_pulse_db()` 單例模式
 
-#### ⚠️ 注意
+#### ✅ 狀態（合約 2 驗證：已解決）
 
-- 11 個模組可能各自初始化 PulseDB 而非走單例 → 潛在 DB locked
-- 混合 asyncio + threading 存取
+- ~~11 個模組可能各自初始化 PulseDB 而非走單例~~ → **已解決**：所有 14 處呼叫均使用 `get_pulse_db()` 單例
+- 混合 asyncio + threading 存取 → 合約 3 處理
 
 ---
 
@@ -448,7 +448,7 @@
 | pulse_engine.py | asyncio | 全 async |
 | anima_tracker.py | 同步 | 原子寫入，無 async |
 | micro_pulse.py | 同步 | 直接寫入 |
-| nightly_pipeline.py | 同步（背景執行緒） | threading.Thread |
+| nightly_pipeline.py | 同步（背景執行緒） | `_run_async_safe()` → `asyncio.new_event_loop()`（合約 3 修復） |
 | curiosity_router.py | 同步 | NightlyPipeline 子步驟 |
 | pulse_db.py | threading | threading.Lock + threading.local |
 | server.py | asyncio + threading 混合 | FastAPI async + threading.Lock |
@@ -461,5 +461,6 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-15 | v1.2 | 合約 2 驗證已解決 + 合約 3：nightly async 橋接修復，並發模型表更新 |
 | 2026-03-15 | v1.1 | 合約 1：AnimaMCStore 統一存取層，ANIMA_MC.json 鎖策略統一 |
 | 2026-03-15 | v1.0 | 初始建立，16 個共享狀態，6 個模組組 |

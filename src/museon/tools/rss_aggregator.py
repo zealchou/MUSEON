@@ -175,10 +175,12 @@ class RSSAggregator:
                 logger.error(f"Mark read error: {e}")
 
         try:
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
+            # 合約 3：用 get_running_loop() 取代 deprecated get_event_loop()
+            try:
+                loop = asyncio.get_running_loop()
                 loop.create_task(_do_mark())
-            else:
+            except RuntimeError:
+                # 不在 async context 中 → 建立獨立 loop
                 asyncio.run(_do_mark())
         except Exception as e:
             logger.error(f"Mark read scheduling error: {e}")
