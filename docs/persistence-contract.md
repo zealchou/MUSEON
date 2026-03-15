@@ -187,6 +187,19 @@ SkillMarket / FederationSync
     └──→ FederationSync ──→ GitHub Private Repo (museon-federation/)  [Git]
 ```
 
+### 管線 H：Installer 部署管線
+
+```
+Installer 編排 (orchestrator.py)
+    │
+    ├──→ DaemonConfigurator ──→ /Library/LaunchAgents/com.museon.gateway.plist  [plist]
+    ├──→ ApiKeyConfigurator ──→ ${MUSEON_HOME}/.env  [dotenv]
+    ├──→ InstallerPackager  ──→ ${OUTPUT_DIR}/*.command  [self-extracting archive]
+    └──→ 目錄建立          ──→ ${MUSEON_HOME}/logs/  [目錄結構]
+```
+
+> **注意**：Installer 不讀寫任何 SQLite DB 或 JSONL 日誌。產出物為部署配置（plist, .env），屬於「基礎設施」而非「資料層」。
+
 ### 管線 D：審計與足跡管線
 
 ```
@@ -420,17 +433,17 @@ SkillMarket / FederationSync
 
 `system-topology.md` 中的 `data` 群組需擴展：
 
-| 現有節點 | 對應引擎 | 需新增的子節點 |
-|---------|---------|--------------|
-| `memory` | Markdown + JSON | `memory-store`, `memory-manager` |
-| `vector-index` | Qdrant | 已足夠 |
-| `registry` | SQLite | 已足夠 |
-| — | SQLite | `pulse-db`（從 pulse 群組拉 cross 連線） |
-| — | SQLite | `group-context-db` |
-| — | SQLite | `workflow-state-db` |
-| `wee` | — | 移到 nightly 群組更合適 |
-| `skills-registry` | Markdown | 保留 |
-| `skill-synapse` | JSON | 待確認是否已退役 |
+| 拓撲節點 | 對應引擎 | 狀態 |
+|---------|---------|------|
+| `memory` | Markdown + JSON | ✅ 已存在 |
+| `vector-index` | Qdrant | ✅ 已存在 |
+| `registry` | RegistryDB SQLite | ✅ 已存在（v1.4 更名） |
+| `pulse-db` | PulseDB SQLite (15 表) | ✅ v1.4 新增 |
+| `group-context-db` | GroupContextDB SQLite | ✅ v1.4 新增 |
+| `workflow-state-db` | WorkflowStateDB SQLite | ✅ v1.4 新增 |
+| `wee` | 演化引擎 | ✅ 已存在 |
+| `skills-registry` | Markdown | ✅ 已存在 |
+| `skill-synapse` | JSON | ⚠️ 待確認是否已退役 |
 
 ---
 
@@ -441,6 +454,7 @@ SkillMarket / FederationSync
 | v1.0 | 2026-03-15 | 初版：完整水電圖，涵蓋 23 個正常配對、3 個 Dead Write、14 個死目錄 |
 | v1.1 | 2026-03-15 | Phase 2 完成：4 個 JSON 遷移至 PulseDB（ceremony_state + eval 三件套） |
 | v1.2 | 2026-03-15 | Phase 3 完成：DataContract + DataBus 建立，10 個 Store 類統一接入 |
+| v1.6 | 2026-03-15 | 9.5 精度修復：新增管線 H(Installer)、拓撲對應表同步（3 個 SQLite 子節點已在 topology v1.4 上圖） |
 | v1.5 | 2026-03-15 | 全面覆蓋修復：新增管線 G(Federation)、W31-W33 配對、修正 outward 歸屬（proactive_bridge→outward_trigger）、新增 marketplace+budget 子目錄 |
 | v1.4 | 2026-03-15 | 藍圖完整性修復：新增管線 E(Evolution) + F(Guardian)、W24-W30 配對、9 個 _system 子目錄條目 |
 | v1.3 | 2026-03-15 | Phase 4 完成：DataWatchdog 監控 + Nightly Step 29 + Dead Write 偵測 + 空間預警 |
