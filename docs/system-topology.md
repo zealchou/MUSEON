@@ -28,6 +28,8 @@
 | `doctor` | Doctor 診斷 | 系統審計、自我診斷、自動修復 | `#2D8A6E` |
 | `llm` | LLM 路由 | 模型選擇、預算、速限、快取 | `#5A5A6E` |
 | `data` | 資料持久層 | 記憶、向量索引、技能庫、SQLite | `#7A7888` |
+| `evolution` | Evolution 演化 | 外向演化、意圖雷達、研究消化、參數調諧 | `#6B3FA0` |
+| `tools` | Tools 工具 | 工具註冊、探測、排程 | `#8A6A3E` |
 | `nightly` | Nightly 夜間 | 18 步夜間整合管線、演化提案 | `#9A3A1C` |
 | `external` | 外部服務 | SearXNG、Qdrant、Firecrawl、API | `#6A6880` |
 
@@ -62,6 +64,8 @@
 | `intuition` | Intuition | 五層直覺 | - | brain | 0.9 |
 | `eval-engine` | Eval Engine | Q-Score | - | brain | 1.0 |
 | `soul-ring` | Soul Ring | 靈魂年輪 | - | brain | 0.9 |
+| `onboarding` | Onboarding | 上線儀式 | - | brain | 0.9 |
+| `multiagent` | Multiagent | 多代理協調 | - | brain | 0.9 |
 
 ### pulse — Pulse 生命力
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -89,6 +93,8 @@
 | `sandbox` | Sandbox | 沙盒隔離 | - | governance | 0.8 |
 | `telegram-guard` | TG Guard | Polling 守衛 | - | governance | 0.8 |
 | `service-health` | Service Health | 服務監控 | - | governance | 1.0 |
+| `guardian` | Guardian | 系統守護 Daemon | - | governance | 1.1 |
+| `security` | Security | 安全淨化與稽核 | - | governance | 1.0 |
 
 ### doctor — Doctor 診斷
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -121,6 +127,27 @@
 | `skills-registry` | Skills Registry | 技能資料庫 | - | data-bus | 1.2 |
 | `registry` | Registry | SQLite | - | data-bus | 1.0 |
 | `skill-synapse` | Skill Synapse | 突觸網路 | - | data-bus | 0.9 |
+
+### evolution — Evolution 演化
+| ID | 名稱 | 中文 | Hub | Parent | 半徑 |
+|----|------|------|-----|--------|------|
+| `evolution` | Evolution | 演化系統 | Yes | - | 2.2 |
+| `outward-trigger` | Outward Trigger | 外向演化觸發 | - | evolution | 1.1 |
+| `intention-radar` | Intention Radar | 意圖雷達 | - | evolution | 1.0 |
+| `digest-engine` | Digest Engine | 消化結晶引擎 | - | evolution | 1.0 |
+| `research-engine` | Research Engine | 外部研究引擎 | - | evolution | 1.1 |
+| `evolution-velocity` | Evolution Velocity | 演化速度測量 | - | evolution | 1.0 |
+| `feedback-loop` | Feedback Loop | 使用者回饋迴路 | - | evolution | 0.9 |
+| `parameter-tuner` | Parameter Tuner | 參數自動調諧 | - | evolution | 0.9 |
+| `tool-muscle` | Tool Muscle | 工具肌肉記憶 | - | evolution | 0.8 |
+| `trigger-weights` | Trigger Weights | 觸發器權重 | - | evolution | 0.8 |
+
+### tools — Tools 工具套件
+| ID | 名稱 | 中文 | Hub | Parent | 半徑 |
+|----|------|------|-----|--------|------|
+| `tool-registry` | Tool Registry | 工具註冊中心 | Yes | - | 1.8 |
+| `tool-discovery` | Tool Discovery | 工具自動探測 | - | tool-registry | 1.0 |
+| `dify-scheduler` | Dify Scheduler | Dify 排程器 | - | tool-registry | 0.8 |
 
 ### nightly — Nightly 夜間
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -168,6 +195,8 @@
 | `event-bus` | `doctor` | 診斷事件 |
 | `event-bus` | `llm-router` | LLM 事件 |
 | `event-bus` | `data-bus` | 資料事件 |
+| `event-bus` | `evolution` | 演化事件 |
+| `event-bus` | `tool-registry` | 工具事件 |
 | `cron` | `nightly` | 03:00 觸發 |
 
 ### Agent 內部連線（internal）
@@ -183,6 +212,8 @@
 | `brain` | `intuition` | 直覺感知 |
 | `brain` | `eval-engine` | 品質評分 |
 | `brain` | `soul-ring` | 年輪記錄 |
+| `brain` | `onboarding` | 上線儀式 |
+| `brain` | `multiagent` | 多代理協調 |
 
 ### Pulse 內部連線（internal）
 | Source | Target | 說明 |
@@ -208,6 +239,27 @@
 | `governance` | `sandbox` | 沙盒 |
 | `governance` | `telegram-guard` | 守衛 |
 | `governance` | `service-health` | 監控 |
+| `governance` | `guardian` | 守護 |
+| `governance` | `security` | 安全 |
+
+### Evolution 內部連線（internal）
+| Source | Target | 說明 |
+|--------|--------|------|
+| `evolution` | `outward-trigger` | 外向觸發 |
+| `evolution` | `intention-radar` | 意圖偵測 |
+| `evolution` | `digest-engine` | 消化結晶 |
+| `evolution` | `research-engine` | 外部研究 |
+| `evolution` | `evolution-velocity` | 速度測量 |
+| `evolution` | `feedback-loop` | 回饋迴路 |
+| `evolution` | `parameter-tuner` | 參數調諧 |
+| `evolution` | `tool-muscle` | 肌肉記憶 |
+| `evolution` | `trigger-weights` | 觸發權重 |
+
+### Tools 內部連線（internal）
+| Source | Target | 說明 |
+|--------|--------|------|
+| `tool-registry` | `tool-discovery` | 工具探測 |
+| `tool-registry` | `dify-scheduler` | Dify 排程 |
 
 ### Doctor 內部連線（internal）
 | Source | Target | 說明 |
@@ -288,6 +340,17 @@
 | `data-bus` | `knowledge-lattice` | Store 路由 |
 | `data-bus` | `soul-ring` | Store 路由 |
 | `data-bus` | `eval-engine` | Store 路由 |
+| `outward-trigger` | `intention-radar` | 觸發搜尋 |
+| `intention-radar` | `research-engine` | 執行研究 |
+| `research-engine` | `digest-engine` | 消化結果 |
+| `digest-engine` | `knowledge-lattice` | 結晶寫入 |
+| `evolution-velocity` | `parameter-tuner` | 速度驅動調諧 |
+| `nightly` | `evolution-velocity` | 夜間速度計算 |
+| `nightly` | `parameter-tuner` | 夜間參數調諧 |
+| `guardian` | `doctor` | 修復委派 |
+| `guardian` | `brain` | ANIMA 修復 |
+| `onboarding` | `brain` | 初始化身份 |
+| `tool-registry` | `skill-router` | 工具查找 |
 
 ### 監控連線（monitor）
 | Source | Target | 說明 |
@@ -348,17 +411,17 @@
 
 | 指標 | 數值 |
 |------|------|
-| 總節點數 | 61 |
-| 總連線數 | 108 |
-| 群組數 | 10 |
-| Hub 節點 | 8 (event-bus, brain, pulse, governance, doctor, llm-router, nightly, data-bus) |
-| 跨系統連線 | 40 |
-| 內部連線 | 47 |
+| 總節點數 | 80 |
+| 總連線數 | 145 |
+| 群組數 | 12 |
+| Hub 節點 | 10 (event-bus, brain, pulse, governance, doctor, llm-router, evolution, tool-registry, nightly, data-bus) |
+| 跨系統連線 | 52 |
+| 內部連線 | 70 |
 | 非同步連線 | 5 |
 | 監控連線 | 5 |
-| 控制連線 | 7 |
+| 控制連線 | 9 |
 | 資料流連線 | 4 |
-| 平均連線數/節點 | 3.5 |
+| 平均連線數/節點 | 3.6 |
 
 ---
 
@@ -367,4 +430,5 @@
 | 版本 | 日期 | 變更 |
 |------|------|------|
 | v1.0 | 2026-03-14 | 初版建立，59 節點 91 連線 |
+| v1.2 | 2026-03-15 | 藍圖完整性修復：新增 evolution(10節點)、tools(3節點) 群組；agent 群組加 onboarding+multiagent；gov 群組加 guardian+security；新增 37 條連線 |
 | v1.1 | 2026-03-15 | 新增 DataBus/DataWatchdog、data 群組 Hub 化、Nightly 29 步 |

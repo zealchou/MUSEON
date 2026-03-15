@@ -1,0 +1,110 @@
+Feature: 工程藍圖完整性
+  作為 MUSEON 的架構維護者
+  我需要驗證四張工程藍圖（接頭圖、爆炸圖、神經圖、水電圖）
+  涵蓋所有已知的模組、共享狀態和跨系統依賴
+  以確保「修 A 不壞 B」的施工安全
+
+  Background:
+    Given 四張工程藍圖已載入
+
+  # ═══════════════════════════════════════
+  # 🔗 接頭圖（joint-map.md）完整性
+  # ═══════════════════════════════════════
+
+  Scenario: 接頭圖 — ANIMA_MC.json 所有寫入者皆已登記
+    When 掃描 ANIMA_MC.json 的實際寫入模組
+    Then 接頭圖應列出 "onboarding/ceremony.py" 為 ANIMA_MC 寫入者
+    And 接頭圖應列出 "guardian/daemon.py" 為 ANIMA_MC 讀寫者
+
+  Scenario: 接頭圖 — ANIMA_USER.json 所有寫入者皆已登記
+    When 掃描 ANIMA_USER.json 的實際寫入模組
+    Then 接頭圖應列出 "onboarding/ceremony.py" 為 ANIMA_USER 寫入者
+    And 接頭圖應列出 "guardian/daemon.py" 為 ANIMA_USER 寫入者
+
+  Scenario: 接頭圖 — Evolution 共享檔案已登記
+    When 掃描 evolution 目錄的共享檔案寫入
+    Then 接頭圖應包含共享狀態 "velocity_log.jsonl"
+    And 接頭圖應包含共享狀態 "tuning_audit.jsonl"
+    And 接頭圖應包含共享狀態 "trigger_configs.json"
+    And 接頭圖應包含共享狀態 "tool_muscles.json"
+
+  Scenario: 接頭圖 — 所有 CRITICAL 共享狀態的寫入者數量正確
+    When 檢查 CRITICAL 區域的寫入者清單
+    Then ANIMA_MC.json 的寫入者應至少有 6 個模組
+    And ANIMA_USER.json 的寫入者應至少有 3 個模組
+
+  # ═══════════════════════════════════════
+  # 💥 爆炸圖（blast-radius.md）完整性
+  # ═══════════════════════════════════════
+
+  Scenario: 爆炸圖 — Evolution 模組影響半徑已登記
+    When 掃描 evolution 目錄的跨模組依賴
+    Then 爆炸圖應包含模組 "evolution/outward_trigger.py"
+    And 爆炸圖應包含模組 "evolution/wee_engine.py"
+    And 爆炸圖應包含模組 "evolution/evolution_velocity.py"
+
+  Scenario: 爆炸圖 — Guardian 模組影響半徑已登記
+    When 掃描 guardian 目錄的跨模組依賴
+    Then 爆炸圖應包含模組 "guardian/daemon.py"
+
+  Scenario: 爆炸圖 — 模組組 G1-G6 完整性
+    When 檢查模組組定義
+    Then 應存在模組組 "G1" 包含 "anima_tracker"
+    And 應存在模組組 "G2" 包含 "curiosity_router"
+    And 應存在模組組 "G6" 包含 "daemon"
+
+  # ═══════════════════════════════════════
+  # 🧠 神經圖（system-topology.md）完整性
+  # ═══════════════════════════════════════
+
+  Scenario: 神經圖 — S9 Evolution 系統節點已登記
+    When 掃描 evolution 系統的實際模組
+    Then 神經圖應包含節點 "outward-trigger"
+    And 神經圖應包含節點 "intention-radar"
+    And 神經圖應包含節點 "digest-engine"
+    And 神經圖應包含節點 "evolution-velocity"
+    And 神經圖應包含節點 "research-engine"
+
+  Scenario: 神經圖 — S4 Governance 應包含 security 和 guardian
+    When 掃描 governance 群組的實際模組
+    Then 神經圖應包含節點 "guardian"
+    And 神經圖應包含節點 "security"
+
+  Scenario: 神經圖 — S1 Brain 應包含 onboarding 和 multiagent
+    When 掃描 agent 群組的實際模組
+    Then 神經圖應包含節點 "onboarding"
+    And 神經圖應包含節點 "multiagent"
+
+  Scenario: 神經圖 — S10 Tools 系統節點已登記
+    When 掃描 tools 系統的實際模組
+    Then 神經圖應包含節點 "tool-registry"
+    And 神經圖應包含節點 "tool-discovery"
+
+  Scenario: 神經圖 — Evolution 事件鏈連線已登記
+    When 掃描 evolution 事件鏈的連線
+    Then 神經圖應包含連線從 "outward-trigger" 到 "intention-radar"
+    And 神經圖應包含連線從 "intention-radar" 到 "research-engine"
+    And 神經圖應包含連線從 "research-engine" 到 "digest-engine"
+
+  Scenario: 神經圖 — 所有群組 Hub 皆連接 event-bus
+    When 檢查群組 Hub 與 event-bus 的連線
+    Then 每個群組 Hub 應至少有 1 條與 event-bus 的連線
+
+  # ═══════════════════════════════════════
+  # 🔧 水電圖（persistence-contract.md）完整性
+  # ═══════════════════════════════════════
+
+  Scenario: 水電圖 — Evolution 儲存位置已登記
+    When 掃描 evolution 目錄的資料寫入
+    Then 水電圖應包含資料路徑 "velocity_log"
+    And 水電圖應包含資料路徑 "tuning_audit"
+    And 水電圖應包含資料路徑 "tuned_parameters"
+
+  Scenario: 水電圖 — Guardian 儲存位置已登記
+    When 掃描 guardian 目錄的資料寫入
+    Then 水電圖應包含資料路徑 "guardian"
+    And 水電圖應包含資料路徑 "repair_log"
+
+  Scenario: 水電圖 — 每個寫入必有消費者
+    When 檢查寫入消費配對表
+    Then 不應存在未被標記的 Dead Write

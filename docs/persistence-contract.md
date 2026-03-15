@@ -148,6 +148,34 @@ Heartbeat Timer (30s)
 └─────────────────┘
 ```
 
+### 管線 E：Evolution 演化管線
+
+```
+Nightly / WEE / OutwardTrigger
+    │
+    ├──→ EvolutionVelocity ──→ data/_system/evolution/velocity_log.jsonl  [JSONL]
+    ├──→ ParameterTuner ──→ data/_system/evolution/tuned_parameters.json  [JSON]
+    │                    ──→ data/_system/evolution/tuning_audit.jsonl  [JSONL]
+    ├──→ TriggerWeights ──→ data/_system/trigger_configs.json  [JSON]
+    ├──→ ToolMuscle ──→ data/_system/tool_muscles.json  [JSON]
+    ├──→ OutwardTrigger ──→ data/_system/outward/*.json  [JSON 多檔]
+    └──→ DigestEngine ──→ data/_system/outward/quarantine.json  [JSON]
+                       ──→ data/_system/morphenix/notes/*.json  [JSON]
+```
+
+### 管線 F：Guardian 守護管線
+
+```
+Guardian Daemon (launchd 常駐)
+    │
+    ├──→ ANIMA_MC.json  [JSON R/W] — 結構修復
+    ├──→ ANIMA_USER.json  [JSON R/W] — 結構修復
+    ├──→ data/_system/guardian/repair_log.jsonl  [JSONL W]
+    ├──→ data/_system/guardian/unresolved.json  [JSON W]
+    ├──→ data/_system/guardian/state.json  [JSON W]
+    └──→ data/_system/guardian/mothership_queue.json  [JSON W]
+```
+
 ### 管線 D：審計與足跡管線
 
 ```
@@ -192,6 +220,13 @@ Heartbeat Timer (30s)
 | W21 | 染色體索引 | ChromosomeIndex | MemoryManager | JSON | 永久 | OK |
 | W22 | Kernel 審計 | Guardian | Doctor | JSONL | 輪替 >5MB | OK |
 | W23 | 足跡日誌 | Footprint | SystemAudit | JSONL | 輪替 >5MB | OK |
+| W24 | 演化速度快照 | EvolutionVelocity | ParameterTuner | JSONL | 輪替 >5MB | OK |
+| W25 | 調諧稽核 | ParameterTuner | EvolutionVelocity | JSONL | 輪替 >5MB | OK |
+| W26 | 觸發器設定 | TriggerWeights | NightlyPipeline | JSON | 永久 | OK |
+| W27 | 工具肌肉記憶 | ToolMuscle | NightlyPipeline | JSON | 永久 | OK |
+| W28 | Guardian 修復日誌 | Guardian/Daemon | Doctor/HealthCheck | JSONL | 輪替 >5MB | OK |
+| W29 | Outward 隔離區 | DigestEngine | DigestEngine(再處理) | JSON | 永久 | OK |
+| W30 | Guardian 狀態 | Guardian/Daemon | Guardian/Daemon(恢復) | JSON | 永久 | OK |
 
 ### Dead Write（寫入無消費者）
 
@@ -273,6 +308,14 @@ Heartbeat Timer (30s)
 | `_system/outward/*.json` | `pulse/proactive_bridge.py` | 推播狀態 |
 | `_system/sessions/*.json` | `gateway/session.py` | 會話快照 |
 | `_system/tools/registry.json` | `tools/tool_registry.py` | 工具清單 |
+| `_system/evolution/velocity_log.jsonl` | `nightly/evolution_velocity.py` | 演化速度快照 |
+| `_system/evolution/tuned_parameters.json` | `nightly/parameter_tuner.py` | 已調諧參數 |
+| `_system/evolution/tuning_audit.jsonl` | `nightly/parameter_tuner.py` | 調諧稽核軌跡 |
+| `_system/trigger_configs.json` | `evolution/trigger_weights.py` | 觸發器設定 |
+| `_system/tool_muscles.json` | `evolution/tool_muscle.py` | 工具肌肉記憶 |
+| `_system/outward/*.json` | `evolution/outward_trigger.py` | 外向演化狀態 |
+| `_system/guardian/repair_log.jsonl` | `guardian/daemon.py` | 修復日誌 |
+| `_system/guardian/state.json` | `guardian/daemon.py` | 守護狀態 |
 
 ### `anima/` 子目錄
 
@@ -382,4 +425,5 @@ Heartbeat Timer (30s)
 | v1.0 | 2026-03-15 | 初版：完整水電圖，涵蓋 23 個正常配對、3 個 Dead Write、14 個死目錄 |
 | v1.1 | 2026-03-15 | Phase 2 完成：4 個 JSON 遷移至 PulseDB（ceremony_state + eval 三件套） |
 | v1.2 | 2026-03-15 | Phase 3 完成：DataContract + DataBus 建立，10 個 Store 類統一接入 |
+| v1.4 | 2026-03-15 | 藍圖完整性修復：新增管線 E(Evolution) + F(Guardian)、W24-W30 配對、9 個 _system 子目錄條目 |
 | v1.3 | 2026-03-15 | Phase 4 完成：DataWatchdog 監控 + Nightly Step 29 + Dead Write 偵測 + 空間預警 |
