@@ -1390,81 +1390,84 @@ class MuseonBrain:
           {identity, self_awareness, boss, ceremony}
         但完整的 ANIMA_MC 還需要：
           {version, type, personality, capabilities, evolution, memory_summary}
-        """
-        # 載入 ceremony 剛寫入的精簡結構
-        ceremony_data = self._load_anima_mc()
-        if not ceremony_data:
-            return
 
-        # 原始結構（備份），或建立完整的預設結構
+        ★ 通過 AnimaMCStore.update() 原子讀改寫，避免繞過 Store 鎖。
+        """
         base = getattr(self, "_pre_ceremony_anima", None) or {}
 
-        # 從 ceremony 提取關鍵資料
-        ceremony_identity = ceremony_data.get("identity", {})
-        ceremony_awareness = ceremony_data.get("self_awareness", {})
-        ceremony_boss = ceremony_data.get("boss", {})
-        ceremony_status = ceremony_data.get("ceremony", {})
+        def _do_merge():
+            def updater(ceremony_data):
+                ceremony_identity = ceremony_data.get("identity", {})
+                ceremony_awareness = ceremony_data.get("self_awareness", {})
+                ceremony_boss = ceremony_data.get("boss", {})
+                ceremony_status = ceremony_data.get("ceremony", {})
 
-        # 建立完整的 ANIMA_MC 結構
-        full_anima = {
-            "version": base.get("version", "1.0.0"),
-            "type": base.get("type", "museon"),
-            "description": base.get("description",
-                "MUSEON 自身的人格檔 — 可被 MUSEON 閱讀與改寫"),
+                full_anima = {
+                    "version": base.get("version", "1.0.0"),
+                    "type": base.get("type", "museon"),
+                    "description": base.get("description",
+                        "MUSEON 自身的人格檔 — 可被 MUSEON 閱讀與改寫"),
 
-            "identity": {
-                "name": ceremony_identity.get("name"),
-                "birth_date": ceremony_identity.get("birth_date"),
-                "growth_stage": "adult",
-                "days_alive": ceremony_identity.get("days_alive", 0),
-                "naming_ceremony_completed": ceremony_status.get("completed", False),
-            },
+                    "identity": {
+                        "name": ceremony_identity.get("name"),
+                        "birth_date": ceremony_identity.get("birth_date"),
+                        "growth_stage": "adult",
+                        "days_alive": ceremony_identity.get("days_alive", 0),
+                        "naming_ceremony_completed": ceremony_status.get("completed", False),
+                    },
 
-            "self_awareness": ceremony_awareness,
+                    "self_awareness": ceremony_awareness,
 
-            "personality": base.get("personality", {
-                "core_traits": [
-                    "好奇心驅動", "真誠不做作", "行動導向", "安靜觀察優先"
-                ],
-                "communication_style": "簡潔、有溫度、用繁體中文",
-                "growth_mindset": "每次互動都是學習機會",
-            }),
+                    "personality": base.get("personality", {
+                        "core_traits": [
+                            "好奇心驅動", "真誠不做作", "行動導向", "安靜觀察優先"
+                        ],
+                        "communication_style": "簡潔、有溫度、用繁體中文",
+                        "growth_mindset": "每次互動都是學習機會",
+                    }),
 
-            "capabilities": base.get("capabilities", {
-                "loaded_skills": [],
-                "forged_skills": [],
-                "active_workflows": [],
-                "skill_proficiency": {},
-            }),
+                    "capabilities": base.get("capabilities", {
+                        "loaded_skills": [],
+                        "forged_skills": [],
+                        "active_workflows": [],
+                        "skill_proficiency": {},
+                    }),
 
-            "evolution": base.get("evolution", {
-                "current_stage": "adult",
-                "stage_history": [],
-                "iteration_count": 0,
-                "last_self_review": None,
-                "morphenix_proposals": [],
-                "known_blindspots": [],
-                "milestones": [{
-                    "type": "birth",
-                    "event": "naming_ceremony",
-                    "timestamp": ceremony_identity.get("birth_date"),
-                }],
-            }),
+                    "evolution": base.get("evolution", {
+                        "current_stage": "adult",
+                        "stage_history": [],
+                        "iteration_count": 0,
+                        "last_self_review": None,
+                        "morphenix_proposals": [],
+                        "known_blindspots": [],
+                        "milestones": [{
+                            "type": "birth",
+                            "event": "naming_ceremony",
+                            "timestamp": ceremony_identity.get("birth_date"),
+                        }],
+                    }),
 
-            "memory_summary": base.get("memory_summary", {
-                "total_interactions": 0,
-                "sessions_count": 0,
-                "knowledge_crystals": 0,
-                "last_nightly_fusion": None,
-            }),
+                    "memory_summary": base.get("memory_summary", {
+                        "total_interactions": 0,
+                        "sessions_count": 0,
+                        "knowledge_crystals": 0,
+                        "last_nightly_fusion": None,
+                    }),
 
-            # 保留 ceremony 的 boss 資訊（方便查閱）
-            "boss": ceremony_boss,
-            "ceremony": ceremony_status,
-        }
+                    "boss": ceremony_boss,
+                    "ceremony": ceremony_status,
+                }
+                return full_anima
 
-        self._save_anima_mc(full_anima)
-        logger.info(f"Merged ceremony data into full ANIMA_MC: name={full_anima['identity']['name']}")
+            result = self._anima_mc_store.update(updater)
+            if result:
+                name = result.get("identity", {}).get("name", "?")
+                logger.info(f"Merged ceremony data into full ANIMA_MC: name={name}")
+
+        if self._wq:
+            self._wq.enqueue("merge_ceremony_anima_mc", _do_merge)
+        else:
+            _do_merge()
 
     def _try_rename(self, content: str) -> Optional[str]:
         """偵測更名/稱呼修正意圖，直接更新 ANIMA.
@@ -5789,79 +5792,76 @@ class MuseonBrain:
         skill_names: List[str],
         response_length: int,
     ) -> None:
-        """更新 ANIMA_MC 的自我追蹤數據（純 CPU）."""
-        anima_mc = self._load_anima_mc()
-        if not anima_mc:
-            return
+        """更新 ANIMA_MC 的自我追蹤數據（純 CPU）.
 
-        changed = False
+        ★ 通過 AnimaMCStore.update() 原子讀改寫 + WriteQueue 序列化。
+        """
+        def _do_observe():
+            def updater(anima_mc):
+                # ── 1. memory_summary.total_interactions ──
+                mem = anima_mc.get("memory_summary", {})
+                mem["total_interactions"] = mem.get("total_interactions", 0) + 1
+                anima_mc["memory_summary"] = mem
 
-        # ── 1. memory_summary.total_interactions ──
-        mem = anima_mc.get("memory_summary", {})
-        mem["total_interactions"] = mem.get("total_interactions", 0) + 1
-        anima_mc["memory_summary"] = mem
-        changed = True
+                # ── 2. evolution.iteration_count ──
+                evo = anima_mc.get("evolution", {})
+                evo["iteration_count"] = evo.get("iteration_count", 0) + 1
+                anima_mc["evolution"] = evo
 
-        # ── 2. evolution.iteration_count ──
-        evo = anima_mc.get("evolution", {})
-        evo["iteration_count"] = evo.get("iteration_count", 0) + 1
-        anima_mc["evolution"] = evo
+                # ── 3. capabilities.loaded_skills ──
+                if skill_names:
+                    caps = anima_mc.get("capabilities", {})
+                    loaded = set(caps.get("loaded_skills", []))
+                    prof = caps.get("skill_proficiency", {})
+                    for s in skill_names:
+                        loaded.add(s)
+                        prof[s] = prof.get(s, 0) + 1
+                    caps["loaded_skills"] = sorted(loaded)
+                    caps["skill_proficiency"] = prof
+                    anima_mc["capabilities"] = caps
 
-        # ── 3. capabilities.loaded_skills（追蹤實際使用過的 skills）──
-        if skill_names:
-            caps = anima_mc.get("capabilities", {})
-            loaded = set(caps.get("loaded_skills", []))
-            prof = caps.get("skill_proficiency", {})
-            for s in skill_names:
-                loaded.add(s)
-                prof[s] = prof.get(s, 0) + 1
-            caps["loaded_skills"] = sorted(loaded)
-            caps["skill_proficiency"] = prof
-            anima_mc["capabilities"] = caps
+                # ── 4. 八原語自我更新 ──
+                primals = anima_mc.get("eight_primals", {})
+                if primals:
+                    kun = primals.get("kun_memory", {})
+                    total_int = mem.get("total_interactions", 0)
+                    kun["level"] = min(100, total_int // 10)
+                    crystals_count = mem.get("knowledge_crystals", 0)
+                    kun["signal"] = f"{total_int} 次互動、{crystals_count} 顆結晶"
+                    primals["kun_memory"] = kun
 
-        # ── 4. 八原語自我更新（基於系統狀態）──
-        primals = anima_mc.get("eight_primals", {})
-        if primals:
-            # 坤/記憶：隨互動累積
-            kun = primals.get("kun_memory", {})
-            total_int = mem.get("total_interactions", 0)
-            kun["level"] = min(100, total_int // 10)
-            crystals_count = mem.get("knowledge_crystals", 0)
-            kun["signal"] = f"{total_int} 次互動、{crystals_count} 顆結晶"
-            primals["kun_memory"] = kun
+                    dui = primals.get("dui_connection", {})
+                    dui["level"] = min(100, total_int // 8)
+                    primals["dui_connection"] = dui
 
-            # 兌/連結：隨信任增長
-            dui = primals.get("dui_connection", {})
-            dui["level"] = min(100, total_int // 8)
-            primals["dui_connection"] = dui
+                    zhen = primals.get("zhen_action", {})
+                    total_skills = sum(1 for _ in (anima_mc.get("capabilities", {}).get("loaded_skills", [])))
+                    zhen["level"] = min(100, 30 + total_skills * 3)
+                    primals["zhen_action"] = zhen
 
-            # 震/行動：隨 skill 使用增長
-            zhen = primals.get("zhen_action", {})
-            total_skills = sum(1 for _ in (anima_mc.get("capabilities", {}).get("loaded_skills", [])))
-            zhen["level"] = min(100, 30 + total_skills * 3)
-            primals["zhen_action"] = zhen
+                    anima_mc["eight_primals"] = primals
 
-            anima_mc["eight_primals"] = primals
+                # ── 5. Voice Evolver ──
+                self._evolve_voice(anima_mc, mem.get("total_interactions", 0))
 
-        # ── 5. Voice Evolver（聲音演化器）──
-        self._evolve_voice(anima_mc, mem.get("total_interactions", 0))
+                # ── 6. L3↔L3 反射匹配（每 20 次互動）──
+                total_int = mem.get("total_interactions", 0)
+                if total_int > 0 and total_int % 20 == 0:
+                    try:
+                        anima_user = self._load_anima_user()
+                        if anima_user:
+                            self._match_l3_reflection(anima_mc, anima_user)
+                    except Exception as e:
+                        logger.warning(f"L3 匹配失敗: {e}")
 
-        # ── 6. L3↔L3 反射匹配（每 20 次互動）──
-        total_int = mem.get("total_interactions", 0)
-        if total_int > 0 and total_int % 20 == 0:
-            try:
-                anima_user = self._load_anima_user()
-                if anima_user:
-                    self._match_l3_reflection(anima_mc, anima_user)
-            except Exception as e:
-                logger.warning(f"L3 匹配失敗: {e}")
+                return anima_mc
 
-        if changed:
-            # ★ 寫入排隊：ANIMA_MC JSON 寫入通過 WriteQueue 序列化
-            if self._wq:
-                self._wq.enqueue("anima_mc_self_observe", self._save_anima_mc, anima_mc)
-            else:
-                self._save_anima_mc(anima_mc)
+            self._anima_mc_store.update(updater)
+
+        if self._wq:
+            self._wq.enqueue("anima_mc_self_observe", _do_observe)
+        else:
+            _do_observe()
 
     # ─── Morphenix Instant Note Bridge（v9.0）────────
 
