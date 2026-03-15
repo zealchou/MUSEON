@@ -52,11 +52,11 @@ class NightlyJob:
         self.data_dir = data_dir or Path.home() / ".museon" / "data"
         self._event_bus = event_bus
 
-        # Initialize components
-        self.fusion = MemoryFusion(memory_store, llm_client)
+        # Initialize components（合約 4：llm_client 可為 None 時安全降級）
+        self.fusion = MemoryFusion(memory_store, llm_client) if llm_client else None
         self.optimizer = TokenOptimizer()
         self.forge_engine = ForgeEngine()
-        self.batch_processor = BatchProcessor(llm_client)
+        self.batch_processor = BatchProcessor(llm_client) if llm_client else None
 
     async def run(self) -> Dict[str, Any]:
         """
@@ -175,6 +175,9 @@ class NightlyJob:
 
     async def _run_memory_fusion(self) -> Dict[str, Any]:
         """Run memory fusion for yesterday's data."""
+        # 合約 4：llm_client 不存在時安全跳過
+        if not self.fusion:
+            return {"status": "skipped", "reason": "llm_client not available"}
         from datetime import timedelta
         yesterday = (datetime.now().date() - timedelta(days=1)).isoformat()
         result = await self.fusion.fuse_daily_memories(date=yesterday)
