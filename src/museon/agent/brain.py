@@ -62,6 +62,10 @@ class MuseonBrain:
         self.anima_mc_path = self.data_dir / "ANIMA_MC.json"
         self.anima_user_path = self.data_dir / "ANIMA_USER.json"
 
+        # ── AnimaMCStore 統一存取層（合約 1：解決 3 種互不相容的寫入策略）──
+        from museon.pulse.anima_mc_store import get_anima_mc_store
+        self._anima_mc_store = get_anima_mc_store(path=self.anima_mc_path)
+
         # 對話歷史（in-memory, per session）
         self._sessions: Dict[str, List[Dict[str, str]]] = {}
         self._offline_flag = False  # 離線回覆標記 — 為 True 時不持久化 session
@@ -69,9 +73,6 @@ class MuseonBrain:
 
         # 技能使用追蹤（供 WEE/Morphenix）
         self._skill_usage_log: List[Dict[str, Any]] = []
-
-        # ANIMA_MC 並行寫入鎖（防止 _update_crystal_count 等 read-modify-write 競態）
-        self._anima_mc_lock = threading.Lock()
 
         # ★ v10.4 Route B: session 內 skill 使用次數追蹤（MoE 衰減用）
         self._skill_usage: Dict[str, Dict[str, int]] = {}
@@ -220,6 +221,10 @@ class MuseonBrain:
         # 初始化所有可選模組（統一降級處理）
         self._module_registry.init_all()
         self._module_registry.inject_to(self)
+
+        # ── AnimaMCStore: 注入 KernelGuard（Store 先建，KG 後建）──
+        if getattr(self, "kernel_guard", None):
+            self._anima_mc_store.set_kernel_guard(self.kernel_guard)
 
         # ── 需要特殊初始化的模組（無法用 ModuleSpec 標準化的）──
 
@@ -1612,40 +1617,12 @@ class MuseonBrain:
     # ═══════════════════════════════════════════
 
     def _load_anima_mc(self) -> Optional[Dict[str, Any]]:
-        """載入 MUSEON 的 ANIMA."""
-        if self.anima_mc_path.exists():
-            try:
-                return json.loads(self.anima_mc_path.read_text(encoding="utf-8"))
-            except Exception as e:
-                logger.error(f"Failed to load ANIMA_MC: {e}", exc_info=True)
-        return None
+        """載入 MUSEON 的 ANIMA（委派給 AnimaMCStore）."""
+        return self._anima_mc_store.load()
 
     def _save_anima_mc(self, anima: Dict[str, Any]) -> None:
-        """儲存 MUSEON 的 ANIMA（經 KernelGuard 驗證，原子寫入）."""
-        try:
-            if self.kernel_guard:
-                old_data = self._load_anima_mc()
-                decision, violations = self.kernel_guard.validate_write(
-                    "ANIMA_MC", old_data, anima
-                )
-                if decision.value == "deny":
-                    logger.error(
-                        f"KernelGuard DENY ANIMA_MC 寫入: {violations}"
-                    )
-                    return
-                if violations:
-                    logger.warning(
-                        f"KernelGuard 警告 ANIMA_MC: {violations}"
-                    )
-            # 原子寫入：先寫 tmp 再 rename，防止並行讀寫 race condition
-            tmp_path = self.anima_mc_path.with_suffix(".tmp")
-            tmp_path.write_text(
-                json.dumps(anima, indent=2, ensure_ascii=False),
-                encoding="utf-8",
-            )
-            tmp_path.replace(self.anima_mc_path)
-        except Exception as e:
-            logger.error(f"Failed to save ANIMA_MC: {e}", exc_info=True)
+        """儲存 MUSEON 的 ANIMA（委派給 AnimaMCStore：Lock + KernelGuard + 原子寫入）."""
+        self._anima_mc_store.save(anima)
 
     def _load_anima_user(self) -> Optional[Dict[str, Any]]:
         """載入使用者的 ANIMA."""
@@ -2013,7 +1990,7 @@ class MuseonBrain:
                         chain_types=["supports", "extends", "related"],
                     )
                 except Exception:
-                    # Fallback: 原始 auto_recall
+                    logger.debug("chain_recall 失敗，降級到 auto_recall", exc_info=True)
                     crystals = self.knowledge_lattice.auto_recall(
                         context=user_query, max_push=max_push,
                     )
@@ -2040,7 +2017,7 @@ class MuseonBrain:
                                 f"{len(compressed)} chars"
                             )
                         except Exception:
-                            # Fallback: 不壓縮，截斷到 max_push
+                            logger.debug("結晶壓縮失敗，降級到截斷", exc_info=True)
                             crystals = crystals[:max_push]
                             crystal_text = self._format_crystals_full(crystals)
                     else:
@@ -2838,6 +2815,7 @@ class MuseonBrain:
         try:
             text = pulse_path.read_text(encoding="utf-8")
         except Exception:
+            logger.debug("PULSE.md 讀取失敗", exc_info=True)
             return ""
 
         if not text.strip():
@@ -4288,6 +4266,7 @@ class MuseonBrain:
                     if not skill_content:
                         skill_content = full_content
                 except Exception:
+                    logger.debug("skill 內容壓縮失敗，使用完整版", exc_info=True)
                     skill_content = full_content
                 break
 
@@ -5001,20 +4980,18 @@ class MuseonBrain:
     # ═══════════════════════════════════════════
 
     def _update_crystal_count(self, new_count: int) -> None:
-        """更新 ANIMA_MC 中的知識結晶計數（Lock + 原子寫入）.
+        """更新 ANIMA_MC 中的知識結晶計數.
 
-        ★ 通過 WriteQueue 序列化（避免與 _observe_self 等並行寫入競態）
+        ★ 通過 WriteQueue 序列化 + AnimaMCStore.update() 原子讀改寫
         """
         def _do_update():
             try:
-                with self._anima_mc_lock:
-                    data = self._load_anima_mc()
-                    if data is None:
-                        return
+                def updater(data):
                     mem = data.get("memory_summary", {})
                     mem["knowledge_crystals"] = mem.get("knowledge_crystals", 0) + new_count
                     data["memory_summary"] = mem
-                    self._save_anima_mc(data)
+                    return data
+                self._anima_mc_store.update(updater)
             except Exception as e:
                 logger.warning(f"更新結晶計數失敗: {e}")
 
@@ -6141,6 +6118,7 @@ class MuseonBrain:
         try:
             birth_date = datetime.fromisoformat(birth_date_str)
         except (ValueError, TypeError):
+            logger.debug(f"birth_date 格式無效: {birth_date_str!r}")
             return
 
         days_alive = (datetime.now() - birth_date).days

@@ -2808,6 +2808,7 @@ def create_app() -> FastAPI:
                             from museon.pulse.pulse_db import get_pulse_db
                             from museon.pulse.explorer import Explorer
                             from museon.pulse.anima_tracker import AnimaTracker
+                            from museon.pulse.anima_mc_store import get_anima_mc_store
                             from museon.pulse.pulse_engine import PulseEngine
 
                             pulse_db = get_pulse_db(brain.data_dir)
@@ -2816,9 +2817,14 @@ def create_app() -> FastAPI:
                                 data_dir=str(brain.data_dir),
                                 searxng_url="http://127.0.0.1:8888",
                             )
+                            # ★ 取得 AnimaMCStore 單例（Brain 已初始化）
+                            _anima_mc_store = get_anima_mc_store(
+                                path=brain.data_dir / "ANIMA_MC.json"
+                            )
                             anima_tracker = AnimaTracker(
                                 anima_path=str(brain.data_dir / "ANIMA_MC.json"),
                                 pulse_db=pulse_db,
+                                anima_mc_store=_anima_mc_store,
                             )
                             pulse_engine = PulseEngine(
                                 brain=brain,
@@ -2841,6 +2847,7 @@ def create_app() -> FastAPI:
                                     heartbeat_focus=heartbeat_focus,
                                     event_bus=event_bus,
                                     workspace=str(brain.data_dir),
+                                    anima_mc_store=_anima_mc_store,
                                 )
                                 app.state.micro_pulse = micro_pulse
                                 logger.info(

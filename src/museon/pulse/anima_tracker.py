@@ -44,24 +44,37 @@ EVOLUTION_THRESHOLDS = [
 class AnimaTracker:
     """ANIMA 八元素追蹤器."""
 
-    def __init__(self, anima_path: str, pulse_db=None) -> None:
+    def __init__(
+        self,
+        anima_path: str,
+        pulse_db=None,
+        anima_mc_store=None,
+    ) -> None:
         self._anima_path = Path(anima_path)
         self._db = pulse_db
+        self._store = anima_mc_store  # ★ AnimaMCStore 統一存取層
         self._absolute: Dict[str, int] = {k: 0 for k in ELEMENTS}
         self._triggered_thresholds: set = set()
         self._load()
 
     def _load(self) -> None:
         """從 ANIMA_MC.json 載入八元素數值."""
-        if not self._anima_path.exists():
-            return
         try:
-            data = json.loads(self._anima_path.read_text(encoding="utf-8"))
+            # ★ 優先使用 AnimaMCStore（統一鎖 + 原子讀取）
+            if self._store:
+                data = self._store.load()
+            elif self._anima_path.exists():
+                data = json.loads(self._anima_path.read_text(encoding="utf-8"))
+            else:
+                return
+
+            if data is None:
+                return
+
             # 讀取 eight_primal_energies
             energies = data.get("eight_primal_energies", {})
             for key in ELEMENTS:
                 info = ELEMENTS[key]
-                # 嘗試從 ANIMA 的各種可能欄位名讀取
                 val = energies.get(info["name"], {})
                 if isinstance(val, dict):
                     raw = val.get("absolute", val.get("value", 0))
@@ -78,28 +91,17 @@ class AnimaTracker:
 
     def _save(self) -> None:
         """保存八元素到 ANIMA_MC.json."""
+        # ★ 優先使用 AnimaMCStore（統一鎖 + KernelGuard + 原子寫入）
+        if self._store:
+            self._save_via_store()
+            return
+
+        # Fallback：直接寫入（向後相容，無 Store 時）
         if not self._anima_path.exists():
             return
         try:
             data = json.loads(self._anima_path.read_text(encoding="utf-8"))
-
-            # 更新 eight_primal_energies
-            if "eight_primal_energies" not in data:
-                data["eight_primal_energies"] = {}
-
-            for key, info in ELEMENTS.items():
-                name = info["name"]
-                existing = data["eight_primal_energies"].get(name, {})
-                if not isinstance(existing, dict):
-                    existing = {"value": existing}
-                existing["absolute"] = self._absolute[key]
-                existing["relative"] = self.get_relative(key)
-                data["eight_primal_energies"][name] = existing
-
-            # 保存已觸發門檻
-            data["_vita_triggered_thresholds"] = list(self._triggered_thresholds)
-
-            # Atomic write
+            self._apply_energies_to_data(data)
             tmp = self._anima_path.with_suffix(".tmp")
             tmp.write_text(
                 json.dumps(data, ensure_ascii=False, indent=2),
@@ -108,6 +110,30 @@ class AnimaTracker:
             tmp.rename(self._anima_path)
         except Exception as e:
             logger.error(f"AnimaTracker save failed: {e}")
+
+    def _save_via_store(self) -> None:
+        """透過 AnimaMCStore 的 update() 原子讀改寫."""
+        try:
+            self._store.update(self._apply_energies_to_data)
+        except Exception as e:
+            logger.error(f"AnimaTracker save via store failed: {e}")
+
+    def _apply_energies_to_data(self, data: Dict) -> Dict:
+        """將當前八元素數值寫入 data dict（供 update 回呼使用）."""
+        if "eight_primal_energies" not in data:
+            data["eight_primal_energies"] = {}
+
+        for key, info in ELEMENTS.items():
+            name = info["name"]
+            existing = data["eight_primal_energies"].get(name, {})
+            if not isinstance(existing, dict):
+                existing = {"value": existing}
+            existing["absolute"] = self._absolute[key]
+            existing["relative"] = self.get_relative(key)
+            data["eight_primal_energies"][name] = existing
+
+        data["_vita_triggered_thresholds"] = list(self._triggered_thresholds)
+        return data
 
     def grow(self, element: str, delta: int, reason: str) -> Dict:
         """增長八元素絕對值."""
