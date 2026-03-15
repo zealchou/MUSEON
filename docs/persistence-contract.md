@@ -176,6 +176,17 @@ Guardian Daemon (launchd 常駐)
     └──→ data/_system/guardian/mothership_queue.json  [JSON W]
 ```
 
+### 管線 G：Federation 聯邦管線
+
+```
+SkillMarket / FederationSync
+    │
+    ├──→ SkillMarket ──→ data/_system/marketplace/registry.json  [JSON]
+    │                 ──→ data/_system/marketplace/installs.json  [JSON]
+    │                 ──→ data/_system/marketplace/packages/*.mskill  [ZIP]
+    └──→ FederationSync ──→ GitHub Private Repo (museon-federation/)  [Git]
+```
+
 ### 管線 D：審計與足跡管線
 
 ```
@@ -227,6 +238,9 @@ Guardian Daemon (launchd 常駐)
 | W28 | Guardian 修復日誌 | Guardian/Daemon | Doctor/HealthCheck | JSONL | 輪替 >5MB | OK |
 | W29 | Outward 隔離區 | DigestEngine | DigestEngine(再處理) | JSON | 永久 | OK |
 | W30 | Guardian 狀態 | Guardian/Daemon | Guardian/Daemon(恢復) | JSON | 永久 | OK |
+| W31 | LLM Token 預算 | BudgetManager | BudgetManager, Nightly | JSON | 月度歸檔 | OK |
+| W32 | 技能市集註冊 | SkillMarket | SkillMarket, Gateway | JSON | 永久 | OK |
+| W33 | 外向演化狀態 | OutwardTrigger | NightlyPipeline | JSON | 永久 | OK |
 
 ### Dead Write（寫入無消費者）
 
@@ -305,7 +319,7 @@ Guardian Daemon (launchd 常駐)
 | `_system/evolution/version.json` | `evolution/wee_engine.py` | 系統版本追蹤 |
 | `_system/footprints/actions.jsonl` | `governance/footprint.py` | L1 足跡 |
 | `_system/morphenix/*.json` | `nightly/morphenix_executor.py` | 執行快照 |
-| `_system/outward/*.json` | `pulse/proactive_bridge.py` | 推播狀態 |
+| `_system/outward/*.json` | `evolution/outward_trigger.py` | 外向演化狀態（behavior_shift, cooldown, counter, pending_signals 等） |
 | `_system/sessions/*.json` | `gateway/session.py` | 會話快照 |
 | `_system/tools/registry.json` | `tools/tool_registry.py` | 工具清單 |
 | `_system/evolution/velocity_log.jsonl` | `nightly/evolution_velocity.py` | 演化速度快照 |
@@ -316,6 +330,8 @@ Guardian Daemon (launchd 常駐)
 | `_system/outward/*.json` | `evolution/outward_trigger.py` | 外向演化狀態 |
 | `_system/guardian/repair_log.jsonl` | `guardian/daemon.py` | 修復日誌 |
 | `_system/guardian/state.json` | `guardian/daemon.py` | 守護狀態 |
+| `_system/marketplace/*.json` | `federation/skill_market.py` | 技能市集註冊與安裝記錄 |
+| `_system/budget/usage_{month}.json` | `llm/budget.py` | 月度 Token 用量 |
 
 ### `anima/` 子目錄
 
@@ -425,5 +441,6 @@ Guardian Daemon (launchd 常駐)
 | v1.0 | 2026-03-15 | 初版：完整水電圖，涵蓋 23 個正常配對、3 個 Dead Write、14 個死目錄 |
 | v1.1 | 2026-03-15 | Phase 2 完成：4 個 JSON 遷移至 PulseDB（ceremony_state + eval 三件套） |
 | v1.2 | 2026-03-15 | Phase 3 完成：DataContract + DataBus 建立，10 個 Store 類統一接入 |
+| v1.5 | 2026-03-15 | 全面覆蓋修復：新增管線 G(Federation)、W31-W33 配對、修正 outward 歸屬（proactive_bridge→outward_trigger）、新增 marketplace+budget 子目錄 |
 | v1.4 | 2026-03-15 | 藍圖完整性修復：新增管線 E(Evolution) + F(Guardian)、W24-W30 配對、9 個 _system 子目錄條目 |
 | v1.3 | 2026-03-15 | Phase 4 完成：DataWatchdog 監控 + Nightly Step 29 + Dead Write 偵測 + 空間預警 |
