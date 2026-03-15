@@ -92,9 +92,7 @@ def given_failing_llm(ctx):
 
 @when("preflight runs")
 def when_preflight_runs(ctx):
-    ctx.report = asyncio.get_event_loop().run_until_complete(
-        ctx.monitor.run_preflight()
-    )
+    ctx.report = asyncio.run(ctx.monitor.run_preflight())
 
 
 @then(parsers.parse('the "{check_name}" check should be "{expected_status}"'))
@@ -127,9 +125,7 @@ def then_check_has_message(ctx):
 
 @when("pulse runs")
 def when_pulse_runs(ctx):
-    ctx.report = asyncio.get_event_loop().run_until_complete(
-        ctx.monitor.run_pulse()
-    )
+    ctx.report = asyncio.run(ctx.monitor.run_pulse())
 
 
 @then(parsers.parse("the pulse report should contain at least {n:d} checks"))
@@ -149,17 +145,13 @@ def then_pulse_overall_not(ctx, status):
 @when(parsers.parse('offline is triggered with error "{error_msg}"'))
 def when_offline_triggered(ctx, error_msg):
     with patch.object(ctx.monitor, "_push_alert", new_callable=AsyncMock):
-        asyncio.get_event_loop().run_until_complete(
-            ctx.monitor.on_offline_triggered(error_msg)
-        )
+        asyncio.run(ctx.monitor.on_offline_triggered(error_msg))
 
 
 @when(parsers.parse('offline is triggered with error "{error_msg}" within same minute'))
 def when_offline_same_minute(ctx, error_msg):
     with patch.object(ctx.monitor, "_push_alert", new_callable=AsyncMock):
-        asyncio.get_event_loop().run_until_complete(
-            ctx.monitor.on_offline_triggered(error_msg)
-        )
+        asyncio.run(ctx.monitor.on_offline_triggered(error_msg))
 
 
 @then(parsers.parse("the sentinel count should be {n:d}"))
