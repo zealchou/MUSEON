@@ -1295,8 +1295,13 @@ def create_app() -> FastAPI:
             # WP-03: 注入 DendriticScorer 健康閘門
             _gov = getattr(app.state, "governor", None)
             _dendritic = getattr(_gov, "_dendritic", None) if _gov else None
+            # 合約 4：補齊 memory_manager + heartbeat_focus（與生產端一致）
+            _memory_manager = getattr(brain, "memory_manager", None) or getattr(brain, "_memory_manager", None)
+            _heartbeat_focus = getattr(app.state, "heartbeat_focus", None)
             pipeline = NightlyPipeline(
                 workspace=brain.data_dir,
+                memory_manager=_memory_manager,
+                heartbeat_focus=_heartbeat_focus,
                 event_bus=event_bus,
                 brain=brain,
                 dendritic_scorer=_dendritic,
@@ -4338,8 +4343,10 @@ def _register_system_cron_jobs(brain, app=None) -> None:
         # Phase B: 原有 NightlyJob（記憶融合 + Token 優化 + 鍛造檢查 + 健康報告）
         try:
             from museon.nightly.job import NightlyJob
-            # Contract 3: 注入 brain 的 llm_adapter（而非 None）
+            # 合約 4：注入 brain 的 llm_adapter + 存在性檢查
             _llm_client = getattr(brain, "_llm_adapter", None)
+            if not _llm_client:
+                logger.warning("NightlyJob: brain._llm_adapter 不存在，記憶融合/批次處理將跳過")
             job = NightlyJob(
                 memory_store=brain.memory_store,
                 llm_client=_llm_client,
