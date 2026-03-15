@@ -262,6 +262,39 @@ def then_all_hubs_connected_to_event_bus(ctx):
 # 🔧 水電圖（persistence-contract.md）
 # ═══════════════════════════════════════
 
+@when("掃描 JSONL 日誌檔案群")
+def when_scan_jsonl_log_group(ctx):
+    pass
+
+
+@when("掃描記憶系統的讀寫模組")
+def when_scan_memory_system_rw(ctx):
+    pass
+
+
+@when("掃描 data 群組的持久層")
+def when_scan_data_group_persistence(ctx):
+    pass
+
+
+@when("掃描 installer 目錄的資料寫入")
+def when_scan_installer_data_writes(ctx):
+    pass
+
+
+@when("比對爆炸圖和接頭圖的共享狀態計數")
+def when_compare_shared_state_counts(ctx):
+    pass
+
+
+@then(parsers.parse('爆炸圖健康快照應包含 "{count}"'))
+def then_blast_radius_snapshot_contains(ctx, count):
+    health_section = _extract_section(ctx.blast_radius, "系統健康度快照", "變更日誌")
+    assert count in health_section, (
+        f"爆炸圖健康快照中未找到 '{count}'"
+    )
+
+
 @when("掃描 evolution 目錄的資料寫入")
 def when_scan_evolution_data_writes(ctx):
     pass

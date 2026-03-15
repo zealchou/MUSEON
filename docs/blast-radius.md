@@ -681,7 +681,7 @@
 | 中間模組（扇入 2-9） | 60 | — |
 | 單引用模組（扇入 1） | 72 | — |
 | 葉子模組（扇入 0） | 43 | 可安全修改 |
-| 共享可變狀態 | 24 個 | 詳見 joint-map.md（v1.4） |
+| 共享可變狀態 | 26 個 | 詳見 joint-map.md（v1.5）— 含 #25 JSONL 審計日誌群 + #26 記憶 Markdown |
 | 事件健康度 | 52.5% | 47% 信號被忽視 |
 | 致命單點 | event_bus | 佔全系統 33% 依賴 |
 
@@ -691,6 +691,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-15 | v1.4 | 9.5 精度修復：健康快照共享狀態 24→26（同步 joint-map v1.5） |
 | 2026-03-15 | v1.3 | 全面覆蓋修復：新增 doctor/system_audit、mcp_server、federation/skill_market、federation/sync 到黃區；健康快照同步（共享狀態 16→24） |
 | 2026-03-15 | v1.2 | 藍圖完整性修復：新增 evolution/outward_trigger, evolution/wee_engine, evolution/evolution_velocity, guardian/daemon 到黃區 |
 | 2026-03-15 | v1.1 | 合約 1：新增 AnimaMCStore 模組，anima_tracker 鎖風險標記為已修復 |

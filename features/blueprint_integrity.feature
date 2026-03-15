@@ -165,3 +165,33 @@ Feature: 工程藍圖完整性
   Scenario: 水電圖 — Outward 歸屬正確
     When 掃描 evolution 目錄的資料寫入
     Then 水電圖應包含資料路徑 "outward_trigger"
+
+  # ═══════════════════════════════════════
+  # 第四輪：9.5 精度修復驗證
+  # ═══════════════════════════════════════
+
+  Scenario: 接頭圖 — JSONL 審計日誌群已登記
+    When 掃描 JSONL 日誌檔案群
+    Then 接頭圖應包含共享狀態 "JSONL 審計日誌群"
+    And 接頭圖應包含共享狀態 "activity_log.jsonl"
+    And 接頭圖應包含共享狀態 "heartbeat.jsonl"
+
+  Scenario: 接頭圖 — Markdown 記憶檔已登記
+    When 掃描記憶系統的讀寫模組
+    Then 接頭圖應包含共享狀態 "memory/{date}/{ch}.md"
+    And 接頭圖應包含共享狀態 "MemoryStore"
+
+  Scenario: 神經圖 — SQLite DB 子節點已登記
+    When 掃描 data 群組的持久層
+    Then 神經圖應包含節點 "pulse-db"
+    And 神經圖應包含節點 "group-context-db"
+    And 神經圖應包含節點 "workflow-state-db"
+
+  Scenario: 水電圖 — Installer 管線已登記
+    When 掃描 installer 目錄的資料寫入
+    Then 水電圖應包含資料路徑 "Installer"
+    And 水電圖應包含資料路徑 "DaemonConfigurator"
+
+  Scenario: 爆炸圖 — 共享狀態數與接頭圖一致
+    When 比對爆炸圖和接頭圖的共享狀態計數
+    Then 爆炸圖健康快照應包含 "26 個"

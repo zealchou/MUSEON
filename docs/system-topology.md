@@ -128,9 +128,12 @@
 | `data-watchdog` | DataWatchdog | 資料層監控 | - | data-bus | 1.0 |
 | `memory` | Memory | 六層記憶 | - | data-bus | 1.6 |
 | `vector-index` | Vector Index | Qdrant 語義 | - | data-bus | 1.5 |
+| `pulse-db` | PulseDB | 生命力 SQLite (15 表) | - | data-bus | 1.4 |
+| `group-context-db` | GroupContextDB | 群組上下文 SQLite | - | data-bus | 1.0 |
+| `workflow-state-db` | WorkflowStateDB | 工作流 SQLite | - | data-bus | 1.0 |
 | `wee` | WEE | 演化引擎 | - | data-bus | 1.2 |
 | `skills-registry` | Skills Registry | 技能資料庫 | - | data-bus | 1.2 |
-| `registry` | Registry | SQLite | - | data-bus | 1.0 |
+| `registry` | Registry | RegistryDB SQLite | - | data-bus | 1.0 |
 | `skill-synapse` | Skill Synapse | 突觸網路 | - | data-bus | 0.9 |
 
 ### evolution — Evolution 演化
@@ -325,6 +328,9 @@
 | `data-bus` | `registry` | Store 路由 |
 | `data-bus` | `skill-synapse` | Store 路由 |
 | `data-bus` | `data-watchdog` | 監控注入 |
+| `data-bus` | `pulse-db` | Store 路由 |
+| `data-bus` | `group-context-db` | Store 路由 |
+| `data-bus` | `workflow-state-db` | Store 路由 |
 | `wee` | `skill-synapse` | 突觸演化 |
 | `skills-registry` | `registry` | 技能資料表 |
 
@@ -472,8 +478,8 @@
 
 | 指標 | 數值 |
 |------|------|
-| 總節點數 | 101 |
-| 總連線數 | 188 |
+| 總節點數 | 104 |
+| 總連線數 | 191 |
 | 群組數 | 13 |
 | Hub 節點 | 11 (event-bus, brain, pulse, governance, doctor, llm-router, evolution, tool-registry, nightly, data-bus, installer) |
 | 跨系統連線 | 65 |
@@ -491,6 +497,7 @@
 | 版本 | 日期 | 變更 |
 |------|------|------|
 | v1.0 | 2026-03-14 | 初版建立，59 節點 91 連線 |
+| v1.4 | 2026-03-15 | 9.5 精度修復：data 群組新增 3 個 SQLite 子節點（pulse-db, group-context-db, workflow-state-db）+ 3 條 Store 路由連線；104 節點 191 連線 |
 | v1.3 | 2026-03-15 | 全面覆蓋修復：新增 installer 群組(5節點)；nightly 擴充+5子節點；tools 擴充+7節點(含federation)；gov 擴充+3子節點；channel 加 mcp-server；新增 43 條連線，總計 101 節點 188 連線 |
 | v1.2 | 2026-03-15 | 藍圖完整性修復：新增 evolution(10節點)、tools(3節點) 群組；agent 群組加 onboarding+multiagent；gov 群組加 guardian+security；新增 37 條連線 |
 | v1.1 | 2026-03-15 | 新增 DataBus/DataWatchdog、data 群組 Hub 化、Nightly 29 步 |

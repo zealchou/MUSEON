@@ -35,6 +35,8 @@
 | 22 | budget/usage_{month}.json | 🟢 | 1 | 2 | 無 | [→](#22-budgetusage_monthjson) |
 | 23 | _system/outward/*.json | 🟡 | 1 | 2 | 無 | [→](#23-_systemoutwardjson) |
 | 24 | _system/marketplace/*.json | 🟢 | 1 | 1 | 無 | [→](#24-_systemmarketplacejson) |
+| 25 | JSONL 審計日誌群 (21 檔) | 🟢 | 各1 | 各1-3 | 無(append) | [→](#25-jsonl-審計日誌群) |
+| 26 | memory/{date}/{ch}.md | 🟡 | 3 | 5 | 無 | [→](#26-memorydatechmd) |
 
 > **危險度定義**：🔴 多寫入者+高扇出+格式不一致 | 🟡 多寫入者或高扇出 | 🟢 單寫入者+低扇出
 
@@ -515,6 +517,63 @@
 
 ---
 
+### 25. JSONL 審計日誌群
+
+**路徑**：散佈於 `data/` 各處（見下表）
+**用途**：Append-only 審計日誌——風險低（只追加不修改），統一群組管理而非逐一追蹤
+**設計原則**：此條目用「一個群組」管理 21 個 JSONL 檔案，避免藍圖膨脹導致維護成本超過收益
+
+| 子檔案 | 路徑 | 寫入者 | 讀取者 | TTL |
+|--------|------|--------|--------|-----|
+| activity_log.jsonl | `data/activity_log.jsonl` | ActivityLogger | SystemAudit | >5MB 輪替 |
+| heartbeat.jsonl | `data/heartbeat.jsonl` | PulseEngine | Doctor, Nightly | >5MB 輪替 |
+| q_scores.jsonl | `data/eval/q_scores.jsonl` | EvalEngine | EvalEngine, Nightly, ParameterTuner | >5MB 輪替 |
+| satisfaction.jsonl | `data/eval/satisfaction.jsonl` | EvalEngine | EvalEngine | >5MB 輪替 |
+| kernel_audit.jsonl | `data/guardian/kernel_audit.jsonl` | KernelGuard | SystemAudit | >5MB 輪替 |
+| repair_log.jsonl | `data/guardian/repair_log.jsonl` | GuardianDaemon | Doctor | >5MB 輪替 |
+| actions.jsonl | `data/_system/footprints/actions.jsonl` | FootprintStore | SystemAudit | 30 天 |
+| decisions.jsonl | `data/_system/footprints/decisions.jsonl` | FootprintStore | SystemAudit | 90 天 |
+| evolutions.jsonl | `data/_system/footprints/evolutions.jsonl` | FootprintStore | SystemAudit | 永久 |
+| velocity_log.jsonl | `data/_system/evolution/velocity_log.jsonl` | EvolutionVelocity | ParameterTuner | >5MB 輪替 |
+| tuning_audit.jsonl | `data/_system/evolution/tuning_audit.jsonl` | ParameterTuner | EvolutionVelocity | >5MB 輪替 |
+| routing_log_{date}.jsonl | `data/_system/budget/routing_log_*.jsonl` | Router, Gateway | NightlyJob, FederationSync | 日期輪替 |
+| cache_log_{date}.jsonl | `data/_system/budget/cache_log_*.jsonl` | Brain | Nightly | 日期輪替 |
+| reflex_log_{date}.jsonl | `data/_system/budget/reflex_log_*.jsonl` | Gateway | 反射分析 | 日期輪替 |
+| exec_{date}.jsonl | `data/_system/morphenix/execution_log/exec_*.jsonl` | MorphenixExecutor | SystemAudit, Nightly | 日期輪替 |
+| breath_log_{date}.jsonl | `data/_system/pulse/breath_log_*.jsonl` | ProactiveBridge | Nightly | 日期輪替 |
+| push_history.jsonl | `data/workspace/push_history.jsonl` | TelegramPusher | 去重驗證 | 永久 |
+| anima_history.jsonl | `data/_system/anima/anima_history.jsonl` | PeriodicCycles | ANIMA 追蹤 | 永久 |
+| nightly_history.jsonl | `data/_system/state/nightly_history.jsonl` | PeriodicCycles | 執行歷史 | 永久 |
+| skill_usage_log.jsonl | `data/skill_usage_log.jsonl` | Brain, PulseEngine | ⚠️ DW2 嫌疑 | >5MB 輪替 |
+| signal_log.jsonl | `data/intuition/signal_log.jsonl` | Intuition | ⚠️ DW3 嫌疑 | 30 天 |
+
+> **統一清理機制**：Nightly Step 27（>5MB gzip 壓縮）+ Step 27 延伸（>30 天 .gz 刪除）
+
+---
+
+### 26. memory/{date}/{ch}.md
+
+**路徑**：`data/memory/{YYYY}/{MM}/{DD}/{channel}.md`（4 通道：meta-thinking, event, outcome, user-reaction）
+**用途**：人類可讀的對話記憶 Markdown——Brain 四通道持久化 + MemoryFusion 跨通道融合
+
+#### 讀寫表
+
+| 模組 | 操作 | 說明 |
+|------|------|------|
+| `memory/store.py` (MemoryStore) | **W** — `write()`, `save_memory()` | 核心寫入入口（append-only） |
+| `agent/brain.py` | **W** — `_persist_memory()` 呼叫 MemoryStore | 四通道事件/思考/結果持久化 |
+| `nightly/fusion.py` (MemoryFusion) | **RW** — 讀取 `load_daily_log()` → LLM 融合 → 寫回 meta-thinking | 夜間跨通道融合 |
+| `gateway/server.py` | **W** — Chrome Extension 捕獲 → MemoryStore | 網頁片段存入 |
+| `nightly/nightly_pipeline.py` | **R** — 步驟 1-5 記憶壓縮升級 | 短期→長期記憶 |
+| `memory/memory_manager.py` | **R** — `load_daily_log()` | 六層記憶管理讀取源 |
+| `pulse/micro_pulse.py` | **R** — 掃描目錄統計 | 脈衝檢測 |
+| `mcp_server.py` | **R** — REST API 暴露 | Claude Code 存取 |
+| `guardian/daemon.py` | **R** — 健康檢查 | MemoryStore 存活確認 |
+
+> **⚠️ 風險**：3 個寫入者（Brain, MemoryFusion, Gateway）無鎖機制，但因分時段寫入（即時 vs 夜間 vs 手動）實際衝突概率低
+
+---
+
 ## 必須同時修改的模組組（不可分批）
 
 > 修改以下任一模組時，**必須**同時檢查並調整同組所有模組。
@@ -569,6 +628,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-15 | v1.5 | 9.5 精度修復：新增 #25 JSONL 審計日誌群（21 檔群組管理）、#26 memory/{date}/{ch}.md 記憶檔（3 寫 5 讀）；共享狀態 24→26 個 |
 | 2026-03-15 | v1.4 | 全面覆蓋修復：新增 #22 budget/usage_{month}.json、#23 _system/outward/*.json、#24 _system/marketplace/*.json；共享狀態 21→24 個 |
 | 2026-03-15 | v1.3 | 藍圖完整性修復：guardian/daemon.py 加入 ANIMA_MC 讀寫者，新增 #17-#21 共享狀態（velocity_log, tuning_audit, trigger_configs, tool_muscles, repair_log） |
 | 2026-03-15 | v1.2 | 合約 2 驗證已解決 + 合約 3：nightly async 橋接修復，並發模型表更新 |
