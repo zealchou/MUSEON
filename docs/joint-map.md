@@ -11,7 +11,7 @@
 
 | # | 共享狀態 | 危險度 | 寫入者 | 讀取者 | 鎖 | 頁內連結 |
 |---|---------|--------|--------|--------|-----|---------|
-| 1 | ANIMA_MC.json | 🔴 | 5 | 11+ | 部分 | [→](#1-anima_mcjson) |
+| 1 | ANIMA_MC.json | 🔴 | 6 | 12+ | 部分 | [→](#1-anima_mcjson) |
 | 2 | PULSE.md | 🔴 | 1(7法) | 5+ | 無 | [→](#2-pulsemd) |
 | 3 | ANIMA_USER.json | 🔴 | 3 | 9 | 部分 | [→](#3-anima_userjson) |
 | 4 | question_queue.json | 🟡 | 2 | 3 | 無 | [→](#4-question_queuejson) |
@@ -27,6 +27,11 @@
 | 14 | nightly_report.json | 🟢 | 1 | 3 | 原子寫 | [→](#14-nightly_reportjson) |
 | 15 | morphenix/proposals/ | 🟢 | 1 | 3 | 原子寫 | [→](#15-morphenixproposals) |
 | 16 | tuned_parameters.json | 🟢 | 1 | 2 | 無 | [→](#16-tuned_parametersjson) |
+| 17 | velocity_log.jsonl | 🟢 | 1 | 1 | 無 | [→](#17-velocity_logjsonl) |
+| 18 | tuning_audit.jsonl | 🟢 | 1 | 1 | 無 | [→](#18-tuning_auditjsonl) |
+| 19 | trigger_configs.json | 🟢 | 1 | 1 | 無 | [→](#19-trigger_configsjson) |
+| 20 | tool_muscles.json | 🟢 | 1 | 1 | 無 | [→](#20-tool_musclesjson) |
+| 21 | guardian/repair_log.jsonl | 🟢 | 1 | 1 | 無 | [→](#21-guardianrepair_logjsonl) |
 
 > **危險度定義**：🔴 多寫入者+高扇出+格式不一致 | 🟡 多寫入者或高扇出 | 🟢 單寫入者+低扇出
 
@@ -39,7 +44,7 @@
 **路徑**：`data/ANIMA_MC.json`
 **用途**：MUSEON 靈魂核心——身份、人格、能力、演化狀態
 
-#### 寫入者（5 個模組 → 統一經由 AnimaMCStore）
+#### 寫入者（6 個模組 → 統一經由 AnimaMCStore + guardian 修復）
 
 | 模組 | 函數 | 寫入的 Key | 格式 | 鎖 |
 |------|------|-----------|------|-----|
@@ -50,8 +55,9 @@
 | `pulse/anima_tracker.py` | `_save()` → Store.update() | `eight_primal_energies`, `_vita_triggered_thresholds` | `{元素: {absolute: int, relative: float}}` | ✅ 經由 AnimaMCStore |
 | `pulse/micro_pulse.py` | `_update_days_alive()` → Store.update() | `identity.days_alive` | int | ✅ 經由 AnimaMCStore |
 | `onboarding/ceremony.py` | `receive_name()`, `_initialize_anima_l1()` | 初始化全部欄位 | 完整 JSON | 無（單次初始化，可接受） |
+| `guardian/daemon.py` | 修復邏輯 — `_check_anima()` | 結構修復（缺失欄位補回） | 部分 JSON patch | 無（修復模式，低頻） |
 
-#### 讀取者（11+ 個模組）
+#### 讀取者（12+ 個模組）
 
 | 模組 | 函數 | 讀取的 Key | 用途 |
 |------|------|-----------|------|
@@ -67,6 +73,7 @@
 | `doctor/field_scanner.py` | `ANIMA_MC_SCHEMA` | 全部欄位 | 使用率掃描 |
 | `nightly/periodic_cycles.py` | — | `eight_primal_energies` | 30 天趨勢 |
 | `mcp_server.py` | `museon_anima_status()` | 全部 | 暴露給 Claude Code |
+| `guardian/daemon.py` | `_check_anima()` | 全部 | 結構完整性檢查 + 修復 |
 
 #### ✅ 衝突風險（已修復 — 合約 1）
 
@@ -407,6 +414,66 @@
 
 ---
 
+### 17. velocity_log.jsonl
+
+**路徑**：`data/_system/evolution/velocity_log.jsonl`
+**用途**：演化速度週間快照
+
+| 模組 | 操作 | 鎖 |
+|------|------|-----|
+| `nightly/evolution_velocity.py` | **W** — 週間快照 append | ❌ 無（JSONL append 相對安全） |
+| `nightly/parameter_tuner.py` | **R** — 速度趨勢分析 | — |
+
+---
+
+### 18. tuning_audit.jsonl
+
+**路徑**：`data/_system/evolution/tuning_audit.jsonl`
+**用途**：參數調諧稽核軌跡
+
+| 模組 | 操作 | 鎖 |
+|------|------|-----|
+| `nightly/parameter_tuner.py` | **W** — 每次調諧記錄 | ❌ 無（JSONL append 相對安全） |
+| `nightly/evolution_velocity.py` | **R** — 調諧效果追蹤 | — |
+
+---
+
+### 19. trigger_configs.json
+
+**路徑**：`data/_system/trigger_configs.json`
+**用途**：Evolution 觸發器設定
+
+| 模組 | 操作 | 鎖 |
+|------|------|-----|
+| `evolution/trigger_weights.py` | **RW** — 觸發器權重更新 | ❌ 無 |
+| `nightly/nightly_pipeline.py` | **R** — 觸發條件檢查 | — |
+
+---
+
+### 20. tool_muscles.json
+
+**路徑**：`data/_system/tool_muscles.json`
+**用途**：工具肌肉記憶（使用頻率與熟練度）
+
+| 模組 | 操作 | 鎖 |
+|------|------|-----|
+| `evolution/tool_muscle.py` | **RW** — 肌肉記憶更新 | ❌ 無 |
+| `nightly/nightly_pipeline.py` | **R** — 工具退化偵測 | — |
+
+---
+
+### 21. guardian/repair_log.jsonl
+
+**路徑**：`data/_system/guardian/repair_log.jsonl`
+**用途**：Guardian 守護修復日誌
+
+| 模組 | 操作 | 鎖 |
+|------|------|-----|
+| `guardian/daemon.py` | **W** — 修復記錄 append | ❌ 無（JSONL append） |
+| `doctor/health_check.py` | **R** — 修復歷史分析 | — |
+
+---
+
 ## 必須同時修改的模組組（不可分批）
 
 > 修改以下任一模組時，**必須**同時檢查並調整同組所有模組。
@@ -461,6 +528,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-15 | v1.3 | 藍圖完整性修復：guardian/daemon.py 加入 ANIMA_MC 讀寫者，新增 #17-#21 共享狀態（velocity_log, tuning_audit, trigger_configs, tool_muscles, repair_log） |
 | 2026-03-15 | v1.2 | 合約 2 驗證已解決 + 合約 3：nightly async 橋接修復，並發模型表更新 |
 | 2026-03-15 | v1.1 | 合約 1：AnimaMCStore 統一存取層，ANIMA_MC.json 鎖策略統一 |
 | 2026-03-15 | v1.0 | 初始建立，16 個共享狀態，6 個模組組 |

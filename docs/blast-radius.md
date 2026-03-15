@@ -239,7 +239,93 @@
 
 ## 🟡 黃區重點模組
 
-> 以下列出扇入 2-9 且觸及共享狀態的重要模組。完整 60 個黃區模組不逐一列出。
+> 以下列出扇入 2-9 且觸及共享狀態的重要模組。完整黃區模組不逐一列出。
+
+### evolution/outward_trigger.py
+
+| 屬性 | 值 |
+|------|-----|
+| **扇入** | 2（nightly_pipeline, wee_engine） |
+| **角色** | 外向演化觸發器——偵測品質下滑、技能高原，觸發外部研究 |
+
+#### 影響半徑
+
+| 影響類型 | 範圍 |
+|---------|------|
+| 共享狀態讀寫 | `_system/outward/` 目錄（6 個 JSON）、`_system/wee/plateau_alerts.json`(R)、`_system/morphenix/notes/`(R) |
+| 事件訂閱 | SKILL_QUALITY_SCORED, USER_FEEDBACK_SIGNAL |
+| 事件發布 | OUTWARD_SEARCH_NEEDED |
+| 下游影響 | intention_radar → research_engine → digest_engine |
+
+#### 修改安全邊界
+
+| ✅ 安全 | ❌ 危險 |
+|---------|---------|
+| 修改觸發閾值 | 修改事件發布格式 |
+| 新增觸發訊號來源 | 修改 cooldown 邏輯 |
+
+---
+
+### evolution/wee_engine.py
+
+| 屬性 | 值 |
+|------|-----|
+| **扇入** | 3（nightly_pipeline, data_bus, brain） |
+| **角色** | WEE 演化引擎——工作流五維度評分、結晶寫入 |
+
+#### 影響半徑
+
+| 影響類型 | 範圍 |
+|---------|------|
+| 共享狀態 | WorkflowStateDB(RW)、lattice/crystals.json(W) |
+| 事件發布 | SKILL_QUALITY_SCORED, WEE_CYCLE_COMPLETE |
+| 跨模組依賴 | workflow/models.py, workflow/workflow_engine.py, agent/knowledge_lattice.py |
+
+---
+
+### evolution/evolution_velocity.py
+
+| 屬性 | 值 |
+|------|-----|
+| **扇入** | 2（nightly_pipeline） |
+| **角色** | 演化速度測量——週間快照、多維指標計算 |
+
+#### 影響半徑
+
+| 影響類型 | 範圍 |
+|---------|------|
+| 共享狀態讀取 | crystals.json(R), immunity/events.jsonl(R), accuracy_stats.json(R), skill_usage_log.jsonl(R), morphenix/proposals/(R) |
+| 共享狀態寫入 | velocity_log.jsonl(W) |
+
+---
+
+### guardian/daemon.py
+
+| 屬性 | 值 |
+|------|-----|
+| **扇入** | 1（gateway/server.py 啟動） |
+| **角色** | 系統守護 Daemon——核心檔案修復、健康巡邏 |
+
+#### 影響半徑
+
+| 影響類型 | 範圍 |
+|---------|------|
+| 共享狀態讀寫 | ANIMA_MC.json(RW), ANIMA_USER.json(RW), lattice/crystals.json(R), soul_rings.json(R), workflow/workflows.json(RW) |
+| 共享狀態寫入 | guardian/repair_log.jsonl(W), guardian/unresolved.json(W), guardian/state.json(W) |
+| 跨模組依賴 | security/audit.py, doctor/code_analyzer.py |
+
+#### 修改安全邊界
+
+| ✅ 安全 | ❌ 危險 |
+|---------|---------|
+| 新增巡邏項目 | 修改 ANIMA_MC/USER 修復邏輯 |
+| 修改日誌格式 | 修改守護循環間隔 |
+
+#### ⚠️ 必須同時檢查的模組組
+
+修改 guardian/daemon.py 時，必須檢查 **G1（ANIMA 數值）+ G6（免疫系統）**（見 joint-map）
+
+---
 
 ### pulse/pulse_engine.py
 
@@ -525,5 +611,6 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-15 | v1.2 | 藍圖完整性修復：新增 evolution/outward_trigger, evolution/wee_engine, evolution/evolution_velocity, guardian/daemon 到黃區 |
 | 2026-03-15 | v1.1 | 合約 1：新增 AnimaMCStore 模組，anima_tracker 鎖風險標記為已修復 |
 | 2026-03-15 | v1.0 | 初始建立，176 模組分析，6 Hub + 42 葉子，38 孤兒事件 |
