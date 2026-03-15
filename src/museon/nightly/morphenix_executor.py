@@ -188,6 +188,11 @@ class MorphenixExecutor:
                 f"Morphenix Executor: REJECTED {pid} — {violations}"
             )
             self._log_execution(pid, "rejected", violations=violations)
+            # 合約 5：同步更新 DB 狀態，避免 approved 殘留導致無限重試
+            try:
+                self._db.reject_proposal(pid, decided_by="core_brain")
+            except Exception as e:
+                logger.warning(f"Morphenix Executor: DB reject_proposal failed for {pid}: {e}")
             return {
                 "proposal_id": pid,
                 "outcome": "failed",
@@ -201,6 +206,11 @@ class MorphenixExecutor:
                 f"Morphenix Executor: ESCALATED {pid} to L3 — {violations}"
             )
             self._log_execution(pid, "escalated", violations=violations)
+            # 合約 5：升級 L3 = 不再自動執行，DB 標記為 rejected
+            try:
+                self._db.reject_proposal(pid, decided_by="escalated_to_l3")
+            except Exception as e:
+                logger.warning(f"Morphenix Executor: DB reject_proposal failed for {pid}: {e}")
 
             # 發布 L3 升級事件
             if self._event_bus:
@@ -231,6 +241,11 @@ class MorphenixExecutor:
                 f"Morphenix Executor: FAILED to create safety snapshot for {pid}"
             )
             self._log_execution(pid, "failed", error="git_tag_failed")
+            # 合約 5：快照失敗 = 不可執行，DB 標記為 rejected
+            try:
+                self._db.reject_proposal(pid, decided_by="git_tag_failed")
+            except Exception as e:
+                logger.warning(f"Morphenix Executor: DB reject_proposal failed for {pid}: {e}")
             return {
                 "proposal_id": pid,
                 "outcome": "failed",
@@ -262,6 +277,11 @@ class MorphenixExecutor:
         except Exception as e:
             logger.error(f"Morphenix Executor: FAILED {pid}: {e}")
             self._log_execution(pid, "failed", error=str(e))
+            # 合約 5：執行失敗，DB 標記為 rejected
+            try:
+                self._db.reject_proposal(pid, decided_by="execution_failed")
+            except Exception as exc:
+                logger.warning(f"Morphenix Executor: DB reject_proposal failed for {pid}: {exc}")
             return {
                 "proposal_id": pid,
                 "outcome": "failed",
@@ -283,6 +303,13 @@ class MorphenixExecutor:
                     error=f"post_apply_verify_failed: {verify_result.get('reason', '')}",
                     result={"verify": verify_result, "rollback_success": rollback_ok},
                 )
+                # 合約 5：回滾後 DB 標記為 rolled_back
+                try:
+                    self._db.mark_proposal_rolled_back(
+                        pid, reason=verify_result.get("reason", "post_apply_verify_failed")
+                    )
+                except Exception as exc:
+                    logger.warning(f"Morphenix Executor: DB mark_rolled_back failed for {pid}: {exc}")
                 return {
                     "proposal_id": pid,
                     "outcome": "failed",
