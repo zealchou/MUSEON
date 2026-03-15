@@ -108,3 +108,60 @@ Feature: 工程藍圖完整性
   Scenario: 水電圖 — 每個寫入必有消費者
     When 檢查寫入消費配對表
     Then 不應存在未被標記的 Dead Write
+
+  # ═══════════════════════════════════════
+  # 🔄 第二輪全面覆蓋驗證
+  # ═══════════════════════════════════════
+
+  Scenario: 接頭圖 — LLM 預算共享狀態已登記
+    When 掃描 evolution 目錄的共享檔案寫入
+    Then 接頭圖應包含共享狀態 "budget/usage_"
+
+  Scenario: 接頭圖 — Outward 共享狀態已登記
+    When 掃描 evolution 目錄的共享檔案寫入
+    Then 接頭圖應包含共享狀態 "_system/outward"
+
+  Scenario: 接頭圖 — Federation 共享狀態已登記
+    When 掃描 evolution 目錄的共享檔案寫入
+    Then 接頭圖應包含共享狀態 "marketplace"
+
+  Scenario: 神經圖 — Nightly 子模組已登記
+    When 掃描 evolution 系統的實際模組
+    Then 神經圖應包含節點 "curiosity-router"
+    And 神經圖應包含節點 "exploration-bridge"
+    And 神經圖應包含節點 "crystal-actuator"
+    And 神經圖應包含節點 "periodic-cycles"
+    And 神經圖應包含節點 "skill-forge-scout"
+
+  Scenario: 神經圖 — Tools 擴充節點已登記
+    When 掃描 tools 系統的實際模組
+    Then 神經圖應包含節點 "skill-market"
+    And 神經圖應包含節點 "federation-sync"
+    And 神經圖應包含節點 "zotero-bridge"
+
+  Scenario: 神經圖 — Installer 系統已登記
+    When 掃描 tools 系統的實際模組
+    Then 神經圖應包含節點 "installer"
+    And 神經圖應包含節點 "installer-daemon"
+
+  Scenario: 神經圖 — MCP Server 和 Governance 子模組已登記
+    When 掃描 governance 群組的實際模組
+    Then 神經圖應包含節點 "mcp-server"
+    And 神經圖應包含節點 "dendritic-scorer"
+    And 神經圖應包含節點 "footprint"
+    And 神經圖應包含節點 "perception"
+
+  Scenario: 爆炸圖 — Doctor 和 MCP 模組影響半徑已登記
+    When 掃描 evolution 目錄的跨模組依賴
+    Then 爆炸圖應包含模組 "doctor/system_audit.py"
+    And 爆炸圖應包含模組 "mcp_server.py"
+    And 爆炸圖應包含模組 "federation/skill_market.py"
+
+  Scenario: 水電圖 — Federation 儲存位置已登記
+    When 掃描 evolution 目錄的資料寫入
+    Then 水電圖應包含資料路徑 "marketplace"
+    And 水電圖應包含資料路徑 "Federation"
+
+  Scenario: 水電圖 — Outward 歸屬正確
+    When 掃描 evolution 目錄的資料寫入
+    Then 水電圖應包含資料路徑 "outward_trigger"

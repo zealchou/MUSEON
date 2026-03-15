@@ -29,8 +29,9 @@
 | `llm` | LLM 路由 | 模型選擇、預算、速限、快取 | `#5A5A6E` |
 | `data` | 資料持久層 | 記憶、向量索引、技能庫、SQLite | `#7A7888` |
 | `evolution` | Evolution 演化 | 外向演化、意圖雷達、研究消化、參數調諧 | `#6B3FA0` |
-| `tools` | Tools 工具 | 工具註冊、探測、排程 | `#8A6A3E` |
-| `nightly` | Nightly 夜間 | 18 步夜間整合管線、演化提案 | `#9A3A1C` |
+| `tools` | Tools 工具 | 工具註冊、探測、排程、聯邦市場 | `#8A6A3E` |
+| `nightly` | Nightly 夜間 | 29 步夜間整合管線、演化提案、好奇心路由 | `#9A3A1C` |
+| `installer` | Installer 安裝 | 部署編排、Daemon 設定、Electron 打包 | `#5A8A3E` |
 | `external` | 外部服務 | SearXNG、Qdrant、Firecrawl、API | `#6A6880` |
 
 ---
@@ -49,6 +50,7 @@
 | `telegram` | Telegram | 主通道 | - | 1.6 |
 | `gateway` | Gateway | WebSocket :8765 | - | 1.6 |
 | `cron` | Cron | 排程入口 | - | 1.2 |
+| `mcp-server` | MCP Server | Claude Code 介面 | - | 1.2 |
 
 ### agent — Agent / Brain
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -95,6 +97,9 @@
 | `service-health` | Service Health | 服務監控 | - | governance | 1.0 |
 | `guardian` | Guardian | 系統守護 Daemon | - | governance | 1.1 |
 | `security` | Security | 安全淨化與稽核 | - | governance | 1.0 |
+| `dendritic-scorer` | Dendritic Scorer | 樹突評分器 | - | governance | 0.9 |
+| `footprint` | Footprint | 操作足跡追蹤 | - | governance | 0.9 |
+| `perception` | Perception | 四診合參感知 | - | governance | 0.9 |
 
 ### doctor — Doctor 診斷
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -148,12 +153,33 @@
 | `tool-registry` | Tool Registry | 工具註冊中心 | Yes | - | 1.8 |
 | `tool-discovery` | Tool Discovery | 工具自動探測 | - | tool-registry | 1.0 |
 | `dify-scheduler` | Dify Scheduler | Dify 排程器 | - | tool-registry | 0.8 |
+| `image-gen` | Image Gen | 圖像生成 | - | tool-registry | 0.8 |
+| `rss-aggregator` | RSS Aggregator | RSS 聚合器 | - | tool-registry | 0.8 |
+| `voice-clone` | Voice Clone | 語音克隆 | - | tool-registry | 0.7 |
+| `zotero-bridge` | Zotero Bridge | 文獻管理橋接 | - | tool-registry | 0.8 |
+| `mcp-dify` | MCP Dify | MCP-Dify 連接器 | - | tool-registry | 0.7 |
+| `skill-market` | Skill Market | 技能交易市場 | - | tool-registry | 1.0 |
+| `federation-sync` | Federation Sync | 母子體同步 | - | tool-registry | 0.9 |
 
 ### nightly — Nightly 夜間
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
 |----|------|------|-----|--------|------|
 | `nightly` | Nightly Pipeline | 29 步夜間整合 | Yes | - | 2.2 |
 | `morphenix` | Morphenix | 演化提案 | - | nightly | 1.0 |
+| `curiosity-router` | Curiosity Router | 好奇心路由 | - | nightly | 0.9 |
+| `exploration-bridge` | Exploration Bridge | 探索橋接 | - | nightly | 0.9 |
+| `skill-forge-scout` | Skill Forge Scout | 技能鍛造偵察 | - | nightly | 0.8 |
+| `crystal-actuator` | Crystal Actuator | 結晶致動器 | - | nightly | 0.8 |
+| `periodic-cycles` | Periodic Cycles | 週期循環 | - | nightly | 0.9 |
+
+### installer — Installer 安裝
+| ID | 名稱 | 中文 | Hub | Parent | 半徑 |
+|----|------|------|-----|--------|------|
+| `installer` | Installer | 安裝編排器 | Yes | - | 1.6 |
+| `installer-daemon` | Daemon Config | Daemon 設定 | - | installer | 0.8 |
+| `installer-electron` | Electron Packager | Electron 打包 | - | installer | 0.8 |
+| `installer-env` | Environment | 環境檢查 | - | installer | 0.7 |
+| `installer-verifier` | Module Verifier | 模組驗證 | - | installer | 0.7 |
 
 ### external — 外部服務
 | ID | 名稱 | 中文 | Hub | 半徑 |
@@ -241,6 +267,9 @@
 | `governance` | `service-health` | 監控 |
 | `governance` | `guardian` | 守護 |
 | `governance` | `security` | 安全 |
+| `governance` | `dendritic-scorer` | 評分 |
+| `governance` | `footprint` | 足跡 |
+| `governance` | `perception` | 感知 |
 
 ### Evolution 內部連線（internal）
 | Source | Target | 說明 |
@@ -260,6 +289,13 @@
 |--------|--------|------|
 | `tool-registry` | `tool-discovery` | 工具探測 |
 | `tool-registry` | `dify-scheduler` | Dify 排程 |
+| `tool-registry` | `image-gen` | 圖像生成 |
+| `tool-registry` | `rss-aggregator` | RSS 聚合 |
+| `tool-registry` | `voice-clone` | 語音克隆 |
+| `tool-registry` | `zotero-bridge` | 文獻管理 |
+| `tool-registry` | `mcp-dify` | MCP-Dify |
+| `tool-registry` | `skill-market` | 技能市場 |
+| `tool-registry` | `federation-sync` | 母子同步 |
 
 ### Doctor 內部連線（internal）
 | Source | Target | 說明 |
@@ -296,6 +332,11 @@
 | Source | Target | 說明 |
 |--------|--------|------|
 | `nightly` | `morphenix` | 演化提案 |
+| `nightly` | `curiosity-router` | 好奇心路由 |
+| `nightly` | `exploration-bridge` | 探索橋接 |
+| `nightly` | `skill-forge-scout` | 技能鍛造 |
+| `nightly` | `crystal-actuator` | 結晶致動 |
+| `nightly` | `periodic-cycles` | 週期循環 |
 
 ### 跨系統連線（cross）
 | Source | Target | 說明 |
@@ -351,6 +392,26 @@
 | `guardian` | `brain` | ANIMA 修復 |
 | `onboarding` | `brain` | 初始化身份 |
 | `tool-registry` | `skill-router` | 工具查找 |
+| `mcp-server` | `brain` | ANIMA 狀態查詢 |
+| `dendritic-scorer` | `eval-engine` | 品質評分 |
+| `footprint` | `data-bus` | 足跡持久化 |
+| `perception` | `brain` | 四診合參 |
+| `curiosity-router` | `pulse` | 探索主題 |
+| `exploration-bridge` | `skill-forge-scout` | 技能線索 |
+| `crystal-actuator` | `knowledge-lattice` | 結晶操作 |
+| `periodic-cycles` | `pulse` | 週期驅動 |
+| `skill-market` | `skills-registry` | 技能打包 |
+| `federation-sync` | `nightly` | 夜間同步 |
+| `zotero-bridge` | `vector-index` | 文獻索引 |
+| `auto-repair` | `installer` | 修復用安裝器 |
+
+### Installer 內部連線（internal）
+| Source | Target | 說明 |
+|--------|--------|------|
+| `installer` | `installer-daemon` | Daemon 設定 |
+| `installer` | `installer-electron` | Electron 打包 |
+| `installer` | `installer-env` | 環境檢查 |
+| `installer` | `installer-verifier` | 模組驗證 |
 
 ### 監控連線（monitor）
 | Source | Target | 說明 |
@@ -411,17 +472,17 @@
 
 | 指標 | 數值 |
 |------|------|
-| 總節點數 | 80 |
-| 總連線數 | 145 |
-| 群組數 | 12 |
-| Hub 節點 | 10 (event-bus, brain, pulse, governance, doctor, llm-router, evolution, tool-registry, nightly, data-bus) |
-| 跨系統連線 | 52 |
-| 內部連線 | 70 |
+| 總節點數 | 101 |
+| 總連線數 | 188 |
+| 群組數 | 13 |
+| Hub 節點 | 11 (event-bus, brain, pulse, governance, doctor, llm-router, evolution, tool-registry, nightly, data-bus, installer) |
+| 跨系統連線 | 65 |
+| 內部連線 | 96 |
 | 非同步連線 | 5 |
 | 監控連線 | 5 |
 | 控制連線 | 9 |
 | 資料流連線 | 4 |
-| 平均連線數/節點 | 3.6 |
+| 平均連線數/節點 | 3.7 |
 
 ---
 
@@ -430,5 +491,6 @@
 | 版本 | 日期 | 變更 |
 |------|------|------|
 | v1.0 | 2026-03-14 | 初版建立，59 節點 91 連線 |
+| v1.3 | 2026-03-15 | 全面覆蓋修復：新增 installer 群組(5節點)；nightly 擴充+5子節點；tools 擴充+7節點(含federation)；gov 擴充+3子節點；channel 加 mcp-server；新增 43 條連線，總計 101 節點 188 連線 |
 | v1.2 | 2026-03-15 | 藍圖完整性修復：新增 evolution(10節點)、tools(3節點) 群組；agent 群組加 onboarding+multiagent；gov 群組加 guardian+security；新增 37 條連線 |
 | v1.1 | 2026-03-15 | 新增 DataBus/DataWatchdog、data 群組 Hub 化、Nightly 29 步 |

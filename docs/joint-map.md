@@ -32,6 +32,9 @@
 | 19 | trigger_configs.json | 🟢 | 1 | 1 | 無 | [→](#19-trigger_configsjson) |
 | 20 | tool_muscles.json | 🟢 | 1 | 1 | 無 | [→](#20-tool_musclesjson) |
 | 21 | guardian/repair_log.jsonl | 🟢 | 1 | 1 | 無 | [→](#21-guardianrepair_logjsonl) |
+| 22 | budget/usage_{month}.json | 🟢 | 1 | 2 | 無 | [→](#22-budgetusage_monthjson) |
+| 23 | _system/outward/*.json | 🟡 | 1 | 2 | 無 | [→](#23-_systemoutwardjson) |
+| 24 | _system/marketplace/*.json | 🟢 | 1 | 1 | 無 | [→](#24-_systemmarketplacejson) |
 
 > **危險度定義**：🔴 多寫入者+高扇出+格式不一致 | 🟡 多寫入者或高扇出 | 🟢 單寫入者+低扇出
 
@@ -474,6 +477,44 @@
 
 ---
 
+### 22. budget/usage_{month}.json
+
+**路徑**：`data/_system/budget/usage_{YYYY-MM}.json`
+**用途**：月度 Token 預算追蹤
+
+| 模組 | 操作 | 鎖 |
+|------|------|-----|
+| `llm/budget.py` | **RW** — 每次 API 呼叫累加 | ❌ 無 |
+| `nightly/nightly_pipeline.py` | **R** — 預算結算 | — |
+
+---
+
+### 23. _system/outward/*.json
+
+**路徑**：`data/_system/outward/` （含 behavior_shift.json, direction_cooldown.json, daily_counter.json, pending_signals.json 等 6 檔）
+**用途**：外向演化觸發器的狀態追蹤
+
+| 模組 | 操作 | 鎖 |
+|------|------|-----|
+| `evolution/outward_trigger.py` | **RW** — 行為轉變偵測、冷卻時間、每日計數、待處理訊號 | ❌ 無 |
+| `nightly/nightly_pipeline.py` | **R** — 狀態檢查 | — |
+
+> **注意**：水電圖曾將此目錄標為 `pulse/proactive_bridge.py` 負責，經查證實際只有 `outward_trigger.py` 寫入此目錄。proactive_bridge 使用的是 `_system/bridge/` 下的獨立路徑。
+
+---
+
+### 24. _system/marketplace/*.json
+
+**路徑**：`data/_system/marketplace/`
+**用途**：技能交易市場資料（打包、簽章、安裝記錄）
+
+| 模組 | 操作 | 鎖 |
+|------|------|-----|
+| `federation/skill_market.py` | **RW** — 市集註冊、安裝記錄 | ❌ 無 |
+| `gateway/server.py` | **R** — API 暴露 | — |
+
+---
+
 ## 必須同時修改的模組組（不可分批）
 
 > 修改以下任一模組時，**必須**同時檢查並調整同組所有模組。
@@ -528,6 +569,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-15 | v1.4 | 全面覆蓋修復：新增 #22 budget/usage_{month}.json、#23 _system/outward/*.json、#24 _system/marketplace/*.json；共享狀態 21→24 個 |
 | 2026-03-15 | v1.3 | 藍圖完整性修復：guardian/daemon.py 加入 ANIMA_MC 讀寫者，新增 #17-#21 共享狀態（velocity_log, tuning_audit, trigger_configs, tool_muscles, repair_log） |
 | 2026-03-15 | v1.2 | 合約 2 驗證已解決 + 合約 3：nightly async 橋接修復，並發模型表更新 |
 | 2026-03-15 | v1.1 | 合約 1：AnimaMCStore 統一存取層，ANIMA_MC.json 鎖策略統一 |

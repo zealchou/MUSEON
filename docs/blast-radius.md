@@ -327,6 +327,86 @@
 
 ---
 
+### doctor/system_audit.py
+
+| 屬性 | 值 |
+|------|-----|
+| **扇入** | 2（nightly_pipeline, service_health） |
+| **角色** | 7 層 46 項系統審計 |
+
+#### 影響半徑
+
+| 影響類型 | 範圍 |
+|---------|------|
+| 共享狀態讀取 | ANIMA_MC.json(R), ANIMA_USER.json(R), soul_rings.json(R), crystals.json(R), pulse.db(R) |
+| 事件發布 | AUDIT_COMPLETED |
+| 跨模組依賴 | service_health（交叉驗證）, data_watchdog（健康檢查）, health_check |
+
+#### 修改安全邊界
+
+| ✅ 安全 | ❌ 危險 |
+|---------|---------|
+| 新增審計層/項目 | 修改審計結果格式（影響 governor 訂閱） |
+| 修改日誌輸出 | 修改 health_check 整合邏輯 |
+
+---
+
+### mcp_server.py
+
+| 屬性 | 值 |
+|------|-----|
+| **扇入** | 0（獨立入口點） |
+| **扇出** | 5+（讀取 ANIMA_MC, ANIMA_USER, PulseDB 等） |
+| **角色** | Claude Code MCP 介面——暴露 MUSEON 狀態給外部 AI |
+
+#### 影響半徑
+
+| 影響類型 | 範圍 |
+|---------|------|
+| 共享狀態讀取 | ANIMA_MC.json(R), ANIMA_USER.json(R) |
+| 外部影響 | Claude Code 使用此介面查詢 MUSEON 狀態 |
+
+#### 修改安全邊界
+
+| ✅ 安全 | ❌ 危險 |
+|---------|---------|
+| 新增暴露的查詢端點 | 修改回傳的 ANIMA 資料格式 |
+| 新增過濾/摘要邏輯 | 新增寫入能力（目前只讀） |
+
+---
+
+### federation/skill_market.py
+
+| 屬性 | 值 |
+|------|-----|
+| **扇入** | 1（gateway/server.py） |
+| **角色** | 技能打包、簽章、本地市集 |
+
+#### 影響半徑
+
+| 影響類型 | 範圍 |
+|---------|------|
+| 共享狀態 | `_system/marketplace/*.json`(RW) |
+| 跨模組依賴 | gateway/server.py（API 暴露） |
+
+---
+
+### federation/sync.py
+
+| 屬性 | 值 |
+|------|-----|
+| **扇入** | 1（nightly/nightly_pipeline.py） |
+| **角色** | 母子體 Git 同步引擎 |
+
+#### 影響半徑
+
+| 影響類型 | 範圍 |
+|---------|------|
+| 外部依賴 | GitHub Private Repo |
+| 跨模組依賴 | nightly_pipeline（夜間同步步驟） |
+
+---
+
 ### pulse/pulse_engine.py
 
 | 屬性 | 值 |
@@ -596,12 +676,12 @@
 
 | 指標 | 數值 | 說明 |
 |------|------|------|
-| 總模組數 | 176 | 含所有 .py（不含 __init__.py） |
+| 總模組數 | 181 | 含所有 .py（不含 __init__.py、不含 _dead_code_archive） |
 | Hub 模組（扇入 ≥ 10） | 6 | event_bus(117), message(20), tool_registry(18), pulse_db(14), data_bus(13), dispatch(11) |
 | 中間模組（扇入 2-9） | 60 | — |
 | 單引用模組（扇入 1） | 72 | — |
-| 葉子模組（扇入 0） | 42 | 可安全修改 |
-| 共享可變狀態 | 16 個 | 詳見 joint-map.md |
+| 葉子模組（扇入 0） | 43 | 可安全修改 |
+| 共享可變狀態 | 24 個 | 詳見 joint-map.md（v1.4） |
 | 事件健康度 | 52.5% | 47% 信號被忽視 |
 | 致命單點 | event_bus | 佔全系統 33% 依賴 |
 
@@ -611,6 +691,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-15 | v1.3 | 全面覆蓋修復：新增 doctor/system_audit、mcp_server、federation/skill_market、federation/sync 到黃區；健康快照同步（共享狀態 16→24） |
 | 2026-03-15 | v1.2 | 藍圖完整性修復：新增 evolution/outward_trigger, evolution/wee_engine, evolution/evolution_velocity, guardian/daemon 到黃區 |
 | 2026-03-15 | v1.1 | 合約 1：新增 AnimaMCStore 模組，anima_tracker 鎖風險標記為已修復 |
 | 2026-03-15 | v1.0 | 初始建立，176 模組分析，6 Hub + 42 葉子，38 孤兒事件 |
