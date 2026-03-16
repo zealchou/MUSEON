@@ -891,10 +891,10 @@ renderer.domElement.addEventListener('mousemove', e => {
     tip.style.left = (e.clientX + 14) + 'px';
     tip.style.top = (e.clientY + 14) + 'px';
     tip.classList.add('show');
-    if (!selectedNode) highlightNode(n);
+    if (!selectedNode && !coverageViewActive) highlightNode(n);
   } else if (!n && !selectedNode) {
     tip.classList.remove('show');
-    clearHighlight();
+    if (!coverageViewActive) clearHighlight();
   }
 });
 
@@ -917,15 +917,21 @@ renderer.domElement.addEventListener('click', e => {
   const n = getIntersectedNode(e);
   if (n) {
     if (selectedNode === n) {
-      selectedNode = null; clearHighlight(); hideInfo();
+      selectedNode = null;
+      if (!coverageViewActive) clearHighlight();
+      hideInfo();
       targetGoal.set(0, 0, 0); // 修改1：回到原點
     } else {
-      selectedNode = n; highlightNode(n); showInfo(n);
+      selectedNode = n;
+      if (!coverageViewActive) highlightNode(n);
+      showInfo(n);
       targetGoal.copy(n.pos); // 修改1：聚焦節點
     }
   } else {
     // 只有真正點空白才取消（不是拖拉結束）
-    selectedNode = null; clearHighlight(); hideInfo();
+    selectedNode = null;
+    if (!coverageViewActive) clearHighlight();
+    hideInfo();
     targetGoal.set(0, 0, 0);
   }
   tip.classList.remove('show');
@@ -1115,10 +1121,13 @@ window.resetView = function() {
   camera.up.set(0, 1, 0);
   controls.target.set(0, 0, 0);
   targetGoal.set(0, 0, 0);
-  selectedNode = null; clearHighlight(); hideInfo();
+  selectedNode = null;
+  // 如果覆蓋率視圖開啟，先關閉
+  if (coverageViewActive) toggleCoverageView();
+  clearHighlight(); hideInfo();
   controls.reset();
 };
-window.clearSelection = function() { selectedNode = null; clearHighlight(); hideInfo(); targetGoal.set(0, 0, 0); };
+window.clearSelection = function() { selectedNode = null; if (!coverageViewActive) clearHighlight(); hideInfo(); targetGoal.set(0, 0, 0); };
 window.toggleRot = function() {
   autoRotate = !autoRotate;
   document.getElementById('rotBtn').textContent = '自動旋轉：' + (autoRotate ? '開' : '關');
