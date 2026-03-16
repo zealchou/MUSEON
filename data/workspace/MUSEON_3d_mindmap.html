@@ -165,6 +165,7 @@ canvas{display:block}
 import * as THREE from 'three';
 import { TrackballControls } from 'three/addons/controls/TrackballControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 // ═══════════════════════════════════════
 //  COLORS & DATA
@@ -548,16 +549,20 @@ camera.position.set(0, 30, 120);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
 document.body.appendChild(renderer.domElement);
 
-// Lights — 純白環境光 + 雙向打光，避免奶油色濾鏡洗白球體
-scene.add(new THREE.AmbientLight(0xffffff, 0.35));
-const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+// Environment map — 玻璃彈珠反射用
+const pmremGenerator = new THREE.PMREMGenerator(renderer);
+scene.environment = pmremGenerator.fromScene(new RoomEnvironment()).texture;
+pmremGenerator.dispose();
+
+// Lights
+scene.add(new THREE.AmbientLight(0xffffff, 0.3));
+const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
 dirLight.position.set(60, 80, 60);
 scene.add(dirLight);
-const fillLight = new THREE.DirectionalLight(0xffffff, 0.3);
-fillLight.position.set(-40, -20, -40);
-scene.add(fillLight);
 
 // TrackballControls — true 360° free rotation (no gimbal lock)
 const controls = new TrackballControls(camera, renderer.domElement);
@@ -581,12 +586,19 @@ const nodeGroup = new THREE.Group();
 
 nodes.forEach(n => {
   const color = new THREE.Color(GC[n.group]);
-  const mat = new THREE.MeshStandardMaterial({
+  const mat = new THREE.MeshPhysicalMaterial({
     color: color,
-    roughness: 0.18,
-    metalness: 0.05,
+    roughness: 0.0,
+    metalness: 0.0,
     emissive: color,
-    emissiveIntensity: 0.35
+    emissiveIntensity: 0.25,
+    clearcoat: 1.0,
+    clearcoatRoughness: 0.03,
+    transmission: 0.15,
+    thickness: 3.0,
+    ior: 1.52,
+    envMapIntensity: 0.8,
+    transparent: true
   });
   const mesh = new THREE.Mesh(sphereGeo, mat);
   mesh.scale.setScalar(n.r);
