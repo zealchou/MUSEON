@@ -898,6 +898,18 @@ const targetGoal = new THREE.Vector3(0, 0, 0);
 let coverageViewActive = false;
 let lastInteraction = 0;
 
+// ── Doctor 狀態變數（必須在 animate / mousemove 之前宣告）──
+const DOCTOR_API = 'http://localhost:8765';
+const DOCTOR_WS  = 'ws://localhost:8765/ws/doctor-monitor';
+let doctorData = null;
+let doctorViewActive = false;
+let doctorWs = null;
+let doctorPollTimer = null;
+let doctorHeartbeatTimer = null;
+let doctorReconnectAttempts = 0;
+const DOCTOR_MAX_RECONNECT = 5;
+const DOCTOR_RECONNECT_BASE_MS = 2000;
+
 function getIntersectedNode(event) {
   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
@@ -1593,13 +1605,7 @@ document.addEventListener('keydown', e => {
 // ═══════════════════════════════════════
 //  DOCTOR LIVE MONITOR — B+C 混合方案
 // ═══════════════════════════════════════
-const DOCTOR_API = 'http://localhost:8765';
-const DOCTOR_WS  = 'ws://localhost:8765/ws/doctor-monitor';
-let doctorData = null;
-let doctorViewActive = false;
-let doctorWs = null;
-let doctorPollTimer = null;
-let doctorHeartbeatTimer = null;
+// （Doctor 狀態變數已前移至 raycaster 區塊，避免 TDZ）
 
 function updateDoctorIndicator(state) {
   const el = document.getElementById('doctorStatus');
@@ -1609,9 +1615,7 @@ function updateDoctorIndicator(state) {
   else                          el.textContent = '\u26AA Doctor 離線';
 }
 
-let doctorReconnectAttempts = 0;
-const DOCTOR_MAX_RECONNECT = 5;
-const DOCTOR_RECONNECT_BASE_MS = 2000;
+// （doctorReconnectAttempts / MAX / BASE_MS 已前移至 raycaster 區塊）
 
 function connectDoctor() {
   try {
