@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.8
+# Joint Map — 共享可變狀態接頭圖 v1.10
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -37,6 +37,7 @@
 | 24 | _system/marketplace/*.json | 🟢 | 1 | 1 | 無 | [→](#24-_systemmarketplacejson) |
 | 25 | JSONL 審計日誌群 (21 檔) | 🟢 | 各1 | 各1-3 | 無(append) | [→](#25-jsonl-審計日誌群) |
 | 26 | memory/{date}/{ch}.md | 🟡 | 3 | 5 | 無 | [→](#26-memorydatechmd) |
+| 27 | fact_corrections.jsonl | 🟢 | 1 | 3 | 無(append) | [→](#27-fact_correctionsjsonl) |
 
 > **危險度定義**：🔴 多寫入者+高扇出+格式不一致 | 🟡 多寫入者或高扇出 | 🟢 單寫入者+低扇出
 
@@ -584,6 +585,26 @@
 
 ---
 
+### 27. fact_corrections.jsonl
+
+**路徑**：`data/anima/fact_corrections.jsonl`
+**用途**：使用者事實更正日誌——記錄每次事實覆寫的舊→新對應，供自省、PULSE.md 過濾、system prompt 注入
+
+#### 讀寫表
+
+| 模組 | 操作 | 說明 |
+|------|------|------|
+| `agent/brain.py` | **W** — `_log_fact_correction()` | 偵測到使用者糾正事實時 append 寫入 |
+| `agent/brain.py` | **R** — `_build_soul_context()` | 讀取最近 3 條注入 system prompt |
+| `pulse/proactive_bridge.py` | **R** — `_build_context_messages()` | 自省時讀取最近 5 條避免引用過期記憶 |
+| `pulse/pulse_engine.py` | **R** — `_write_reflection_to_pulse()` | 寫入反思前過濾已糾正的事實 |
+
+> **格式**：JSONL，每行一個 JSON 物件：`{timestamp, session_id, user_said, corrections: [{old_id, old_content, new_content, new_id}]}`
+> **鎖**：無需（Append-only，單一寫入者）
+> **TTL**：永久（歷史追蹤）
+
+---
+
 ## 必須同時修改的模組組（不可分批）
 
 > 修改以下任一模組時，**必須**同時檢查並調整同組所有模組。
@@ -592,7 +613,7 @@
 |-------|------|------|---------|
 | **G1** | ANIMA 數值 | anima_tracker + brain + server + micro_pulse + kernel_guard | ANIMA_MC.json（寫入格式 + 鎖機制必須統一） |
 | **G2** | 探索結晶管線 | pulse_engine + curiosity_router + exploration_bridge + nightly_pipeline + skill_forge_scout | question_queue.json + scout_queue/pending.json + PULSE.md 探索佇列 |
-| **G3** | 記憶管線 | memory_manager + brain + vector_bridge + reflex_router + multi_agent_executor | MemoryStore + Qdrant memories collection（memory_manager 支援 dept_id 標籤寫入 + dept_filter 過濾檢索） |
+| **G3** | 記憶管線 | memory_manager + brain + vector_bridge + reflex_router + multi_agent_executor | MemoryStore + Qdrant memories collection（memory_manager 支援 dept_id 標籤寫入 + dept_filter 過濾檢索 + supersede() 事實覆寫 + VectorBridge.mark_deprecated() 軟刪除） |
 | **G4** | 演化速度 | evolution_velocity + parameter_tuner + periodic_cycles + metacognition | accuracy_stats.json + tuned_parameters.json + velocity_log.jsonl |
 | **G5** | 知識晶格 | knowledge_lattice + crystal_actuator + recommender | crystals.json + crystal_rules.json |
 | **G6** | 免疫系統 | immunity + immune_memory + immune_research + daemon | events.jsonl + immune_memory.json |
@@ -638,6 +659,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-16 | v1.10 | P0 記憶事實覆寫：新增 #27 fact_corrections.jsonl（Brain 寫、Brain+ProactiveBridge+PulseEngine 讀）；G3 記憶管線新增 supersede()+mark_deprecated() 事實覆寫路徑；Qdrant memories 新增 status=deprecated 過濾；共享狀態 26→27 個 |
 | 2026-03-16 | v1.9 | Phase 4 飛輪多代理實質化：memory_manager.py store() 新增 dept_id 參數（記憶條目帶部門標籤）；recall() 新增 dept_filter 參數（按部門過濾檢索）；G3 記憶管線新增 multi_agent_executor 為間接消費者；無新增共享狀態（MultiAgentExecutor/ResponseSynthesizer/FlywheelCoordinator 均為無狀態或記憶體內狀態） |
 | 2026-03-16 | v1.8 | Phase 2 八原語接線：#9 Qdrant 向量庫 collections 7→8（新增 primals）；寫入者 3→4（+primal_detector）；讀取者 5→6（+primal_detector）；primal_detector.py 負責 primals collection 的索引寫入與語義搜尋 |
 | 2026-03-16 | v1.7 | Docker 沙盒驗證器上線：morphenix_validator 已在 #15 morphenix/proposals/ 登錄為讀取者，無新增共享狀態；Dockerfile.validator 修復並 build 成功（1637 passed） |

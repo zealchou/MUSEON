@@ -1,4 +1,4 @@
-# MUSEON Persistence Contract v1.10 — 水電圖
+# MUSEON Persistence Contract v1.12 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
@@ -102,6 +102,24 @@ User Message
 | `memory_v3/{user}/L4_identity/*.json` | Nightly | recall() | 永久 |
 | `memory_v3/{user}/L5_scratch/*.json` | 手動 | recall() | 永久 |
 | Qdrant:`memories` | MemoryManager | semantic recall | ∞（跟隨 JSON） |
+| Qdrant:`memories` (deprecated) | VectorBridge.mark_deprecated() | search() 自動過濾 | ∞（軟刪除標記） |
+| `data/anima/fact_corrections.jsonl` | Brain._log_fact_correction() | ProactiveBridge, PulseEngine, Brain | 永久(append) |
+
+### 管線 A-2：事實更正覆寫管線（P0 新增）
+
+```
+User 糾正事實（「不是…是…」「只有」「你記錯了」等）
+    │
+    ▼
+┌─────────────────┐
+│  Brain           │ ──→ _detect_fact_correction()（CPU 啟發式）
+│  (brain.py)      │ ──→ _handle_fact_correction()（LLM 判斷矛盾）
+└─────────────────┘
+    │
+    ├──→ MemoryManager.supersede()  [JSON: archived=True + 新記憶]
+    ├──→ VectorBridge.mark_deprecated()  [Qdrant: status=deprecated]
+    └──→ data/anima/fact_corrections.jsonl  [JSONL append: 更正日誌]
+```
 
 ### 管線 B：Pulse 生命力管線
 
@@ -462,6 +480,7 @@ Installer 編排 (orchestrator.py)
 | v1.0 | 2026-03-15 | 初版：完整水電圖，涵蓋 23 個正常配對、3 個 Dead Write、14 個死目錄 |
 | v1.1 | 2026-03-15 | Phase 2 完成：4 個 JSON 遷移至 PulseDB（ceremony_state + eval 三件套） |
 | v1.2 | 2026-03-15 | Phase 3 完成：DataContract + DataBus 建立，10 個 Store 類統一接入 |
+| v1.12 | 2026-03-16 | P0 記憶事實覆寫：新增管線 A-2（事實更正覆寫管線）；Qdrant memories 新增 status=deprecated 軟刪除標記（VectorBridge.mark_deprecated() 寫入、search() 自動過濾）；新增 data/anima/fact_corrections.jsonl（Brain 寫入、ProactiveBridge+PulseEngine+Brain 讀取）；MemoryManager.supersede() 已存在但現在被 Brain 自動呼叫 |
 | v1.11 | 2026-03-16 | Phase 4 飛輪多代理實質化：W10 六層記憶條目新增 dept_id 欄位；memory_manager store()+recall() 支援部門級隔離；MultiAgentExecutor/ResponseSynthesizer/FlywheelCoordinator 均無新增持久化 |
 | v1.10 | 2026-03-16 | Phase 3 日記+群組ANIMA：SoulRingStore→DiaryStore 重命名（W14 更新）；ANIMA_USER 新增 L8_context_behavior_notes 層（群組行為追蹤）；diary entries 新增 entry_type/highlights/learnings/tomorrow_intent 欄位；nightly _step_diary_generation 每日生成日記摘要 |
 | v1.9 | 2026-03-16 | Phase 2 八原語接線：Qdrant Engine 2 新增 primals collection（1024 維，PrimalDetector 寫入+搜尋）；新增 W34 配對（八原語向量索引） |

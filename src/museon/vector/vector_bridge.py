@@ -292,6 +292,7 @@ class VectorBridge:
         query: str,
         limit: int = 10,
         score_threshold: float = 0.3,
+        filter_deprecated: bool = True,
     ) -> List[Dict]:
         """語義搜尋.
 
@@ -300,6 +301,7 @@ class VectorBridge:
             query: 查詢文本
             limit: 回傳上限
             score_threshold: 最低相似度分數
+            filter_deprecated: 是否過濾已廢棄的向量（預設 True）
 
         Returns:
             [{id, score, text, metadata}, ...] 按 score 降序。
@@ -321,23 +323,45 @@ class VectorBridge:
             # 確保 collection 存在
             self._ensure_collection(collection, embedder.dimension)
 
+            # 構建 Qdrant Filter（過濾 deprecated 向量）
+            query_filter = None
+            if filter_deprecated:
+                try:
+                    from qdrant_client.models import Filter, FieldCondition, MatchValue
+                    query_filter = Filter(
+                        must_not=[
+                            FieldCondition(
+                                key="status",
+                                match=MatchValue(value="deprecated"),
+                            )
+                        ]
+                    )
+                except ImportError:
+                    pass  # 舊版 qdrant-client，降級為不過濾
+
             # qdrant-client ≥1.7 uses query_points; fallback to search for older
             if hasattr(client, "query_points"):
-                response = client.query_points(
-                    collection_name=collection,
-                    query=query_vector,
-                    limit=limit,
-                    score_threshold=score_threshold,
-                    with_payload=True,
-                )
+                kwargs = {
+                    "collection_name": collection,
+                    "query": query_vector,
+                    "limit": limit,
+                    "score_threshold": score_threshold,
+                    "with_payload": True,
+                }
+                if query_filter is not None:
+                    kwargs["query_filter"] = query_filter
+                response = client.query_points(**kwargs)
                 hits = response.points
             else:
-                hits = client.search(
-                    collection_name=collection,
-                    query_vector=query_vector,
-                    limit=limit,
-                    score_threshold=score_threshold,
-                )
+                kwargs = {
+                    "collection_name": collection,
+                    "query_vector": query_vector,
+                    "limit": limit,
+                    "score_threshold": score_threshold,
+                }
+                if query_filter is not None:
+                    kwargs["query_filter"] = query_filter
+                hits = client.search(**kwargs)
 
             return [
                 {
@@ -356,6 +380,53 @@ class VectorBridge:
         except Exception as e:
             logger.debug(f"VectorBridge search failed: {e}")
             return []
+
+    # ═══════════════════════════════════════════
+    # 記憶廢棄標記（P0 事實覆寫）
+    # ═══════════════════════════════════════════
+
+    def mark_deprecated(
+        self,
+        collection: str,
+        doc_id: str,
+    ) -> bool:
+        """將指定向量標記為 deprecated（軟刪除）.
+
+        被標記的向量在 search() 中會被自動過濾。
+
+        Args:
+            collection: collection 名稱
+            doc_id: 文件唯一 ID
+
+        Returns:
+            True if marked, False otherwise.
+        """
+        if collection not in COLLECTIONS:
+            return False
+
+        try:
+            client = self._get_client()
+            if client is None:
+                return False
+
+            from qdrant_client.models import SetPayloadOperation, PointIdsList
+
+            point_id = self._doc_id_to_point_id(doc_id)
+
+            client.set_payload(
+                collection_name=collection,
+                payload={"status": "deprecated"},
+                points=[point_id],
+            )
+
+            logger.info(
+                f"VectorBridge mark_deprecated: {collection}/{doc_id}"
+            )
+            return True
+
+        except Exception as e:
+            logger.debug(f"VectorBridge mark_deprecated failed: {e}")
+            return False
 
     # ═══════════════════════════════════════════
     # 管理操作

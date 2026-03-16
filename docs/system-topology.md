@@ -1,4 +1,4 @@
-# MUSEON 系統拓撲圖 v1.6
+# MUSEON 系統拓撲圖 v1.7
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
@@ -72,6 +72,7 @@
 | `response-synthesizer` | Response Synthesizer | 多部門回覆合成 | - | brain | 0.8 |
 | `flywheel-coordinator` | Flywheel Coordinator | 飛輪流動協調 | - | brain | 0.9 |
 | `primal-detector` | Primal Detector | 八原語偵測 | - | brain | 1.0 |
+| `fact-correction` | Fact Correction | 事實覆寫引擎 | - | brain | 0.9 |
 
 ### pulse — Pulse 生命力
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -253,6 +254,7 @@
 | `brain` | `response-synthesizer` | 回覆合成 |
 | `brain` | `flywheel-coordinator` | 飛輪流動 |
 | `brain` | `primal-detector` | 八原語偵測 |
+| `brain` | `fact-correction` | 事實更正偵測+覆寫 |
 | `multi-agent-executor` | `llm-router` | 多部門 API 呼叫 |
 
 ### Pulse 內部連線（internal）
@@ -364,6 +366,9 @@
 | Source | Target | 說明 |
 |--------|--------|------|
 | `primal-detector` | `vector-index` | 八原語語義匹配 |
+| `fact-correction` | `memory` | 記憶覆寫（supersede） |
+| `fact-correction` | `vector-index` | 向量廢棄標記（mark_deprecated） |
+| `fact-correction` | `llm-router` | Haiku 矛盾判斷 |
 | `skill-router` | `vector-index` | 語義匹配 |
 | `skill-router` | `skills-registry` | 技能查找 |
 | `skill-router` | `llm-router` | API 呼叫 |
@@ -518,6 +523,7 @@
 | 版本 | 日期 | 變更 |
 |------|------|------|
 | v1.0 | 2026-03-14 | 初版建立，59 節點 91 連線 |
+| v1.10 | 2026-03-16 | P0 記憶事實覆寫：agent 群組新增 fact-correction 節點（+1 節點 +4 連線：brain→fact-correction internal、fact-correction→memory cross、fact-correction→vector-index cross、fact-correction→llm-router cross）；111 節點 211 連線 |
 | v1.9 | 2026-03-16 | Phase 4 飛輪多代理實質化：multiagent 群組新增 multi-agent-executor、response-synthesizer、flywheel-coordinator 節點（+3 節點 +4 連線：brain→multi-agent-executor internal、brain→response-synthesizer internal、brain→flywheel-coordinator internal、multi-agent-executor→llm-router cross）；110 節點 207 連線 |
 | v1.8 | 2026-03-16 | Phase 3 日記+群組ANIMA：soul-ring→diary-store 重命名；pulse 群組新增 group-session-proactive 節點（+1 節點 +4 連線）；107 節點 203 連線 |
 | v1.7 | 2026-03-16 | Phase 2 八原語接線：agent 群組新增 primal-detector 節點（+1 節點 +2 連線：brain→primal-detector internal + primal-detector→vector-index cross）；106 節點 199 連線 |
