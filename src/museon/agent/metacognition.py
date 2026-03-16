@@ -345,11 +345,74 @@ class MetaCognitionEngine:
             f"time={elapsed_ms:.0f}ms"
         )
 
+        # DNA-Inspired: 校對→演化閉環
+        # verdict=revise 時發布品質旗標，供 morphenix/parameter_tuner 訂閱
+        if verdict == "revise":
+            self._emit_quality_flag(
+                feedback=feedback,
+                matched_skills=matched_skills,
+                user_query=user_query,
+            )
+
         return {
             "verdict": verdict,
             "feedback": feedback,
             "review_time_ms": elapsed_ms,
         }
+
+    def _emit_quality_flag(
+        self,
+        feedback: str,
+        matched_skills: Optional[List[str]] = None,
+        user_query: str = "",
+    ) -> None:
+        """發布 METACOGNITION_QUALITY_FLAG 事件（DNA 校對→演化閉環）.
+
+        當 PreCognition 判定 verdict=revise 時呼叫。
+        事件 payload 包含結構化品質問題分類，供下游訂閱者
+        （morphenix 迭代筆記 / parameter_tuner 權重微調）消費。
+        """
+        try:
+            from museon.core.event_bus import (
+                METACOGNITION_QUALITY_FLAG,
+                get_event_bus,
+            )
+            category = self._classify_quality_category(feedback)
+            get_event_bus().publish(METACOGNITION_QUALITY_FLAG, {
+                "source": "metacognition",
+                "category": category,
+                "feedback": feedback[:300],
+                "skills_involved": list(matched_skills) if matched_skills else [],
+                "user_query_snippet": user_query[:100],
+                "timestamp": datetime.now(TZ8).isoformat(),
+            })
+            logger.info(
+                f"[MetaCog] Quality flag emitted: category={category}, "
+                f"skills={matched_skills}"
+            )
+        except Exception as e:
+            logger.debug(f"[MetaCog] quality flag emit failed (degraded): {e}")
+
+    @staticmethod
+    def _classify_quality_category(feedback: str) -> str:
+        """從 PreCognition 反饋中分類品質問題類型.
+
+        四大類別對應 DNA 修復酶的四種修復機制：
+        - missing_action: 使用者要行動但只給建議（錯配修復）
+        - weak_reasoning: 假設未驗證或邏輯薄弱（鏈斷修復）
+        - tone_issue: 措辭可能引起負面情緒（鹼基切除修復）
+        - missing_deliverable: 缺少可交付物（核苷酸切除修復）
+        """
+        fb_lower = feedback.lower()
+        if any(w in fb_lower for w in ["行動", "做", "產出", "執行", "action"]):
+            return "missing_action"
+        if any(w in fb_lower for w in ["假設", "驗證", "邏輯", "前提", "assumption"]):
+            return "weak_reasoning"
+        if any(w in fb_lower for w in ["措辭", "語氣", "說教", "上對下", "tone"]):
+            return "tone_issue"
+        if any(w in fb_lower for w in ["交付", "檔案", "範本", "步驟", "deliverable"]):
+            return "missing_deliverable"
+        return "unclassified"
 
     async def _call_review_llm(self, review_message: str) -> str:
         """呼叫 Haiku 執行 PreCognition 審查."""

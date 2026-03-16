@@ -64,6 +64,22 @@ class MorphenixExecutor:
         self._log_dir.mkdir(parents=True, exist_ok=True)
 
     # ═══════════════════════════════════════════
+    # DNA-Inspired 品質回饋閉環
+    # ═══════════════════════════════════════════
+
+    def _load_quality_flags(self, days: int = 7) -> Dict[str, Any]:
+        """從 PulseDB 讀取近期品質旗標摘要.
+
+        DNA 類比：DNA 修復酶的修復紀錄 → 演化壓力資料庫。
+        metacognition 是「校對酶」，morphenix 是「演化壓力」。
+        """
+        try:
+            return self._db.get_quality_flag_summary(days=days)
+        except Exception as e:
+            logger.debug(f"Morphenix: quality flags load failed (degraded): {e}")
+            return {"total_flags": 0, "by_skill": {}, "recent_feedbacks": []}
+
+    # ═══════════════════════════════════════════
     # 公開 API
     # ═══════════════════════════════════════════
 
@@ -86,6 +102,15 @@ class MorphenixExecutor:
             "skipped": 0,
             "details": [],
         }
+
+        # DNA-Inspired 閉環：讀取近期品質旗標作為演化上下文
+        quality_context = self._load_quality_flags()
+        if quality_context.get("total_flags", 0) > 0:
+            logger.info(
+                f"Morphenix Executor: {quality_context['total_flags']} quality flags "
+                f"from metacognition (by_skill: {quality_context.get('by_skill', {})})"
+            )
+            results["quality_flags"] = quality_context
 
         # 撈取已核准提案
         approved = self._get_approved_proposals()

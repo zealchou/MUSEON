@@ -2,10 +2,51 @@
 
 10 Agents：Core + OKR + 8 飛輪部門（雷/火/澤/天/風/水/山/地）。
 依據 MULTI_AGENT_BDD_SPEC §2 實作。
+
+DNA-Inspired 擴展：
+- CapabilityAtom（能力原子）：部門內部的最小能力單位
+- methylation（甲基化標記）：動態抑制/啟用特定能力原子
+  不修改底層 prompt（基因組），只調整「開關面板」（表觀遺傳）
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
+
+
+# ═══════════════════════════════════════════
+# DNA-Inspired: 能力原子（Capability Atom）
+# ═══════════════════════════════════════════
+
+@dataclass
+class CapabilityAtom:
+    """部門內部的最小能力單位.
+
+    DNA 類比：
+    - name = 基因名稱（如「五層蒐集引擎」）
+    - methylation = 甲基化程度（0.0=完全抑制, 1.0=完全啟用）
+    - context_triggers = 什麼環境條件下自動調整甲基化
+    - description = 能力描述
+
+    表觀遺傳原則：
+    - methylation 不改變 prompt 本身（基因組不變）
+    - 只影響該能力在路由時的權重（表觀遺傳開關）
+    - 可被 parameter_tuner / morphenix 動態調整
+    """
+
+    name: str                           # 能力名稱
+    methylation: float = 1.0            # 0.0=抑制, 1.0=啟用
+    description: str = ""               # 能力描述
+    context_triggers: Tuple[str, ...] = ()  # 自動調高的環境關鍵字
+
+    @property
+    def is_active(self) -> bool:
+        """甲基化程度 > 0.3 視為啟用."""
+        return self.methylation > 0.3
+
+    @property
+    def is_suppressed(self) -> bool:
+        """甲基化程度 ≤ 0.3 視為抑制."""
+        return self.methylation <= 0.3
 
 
 @dataclass(frozen=True)
@@ -416,3 +457,110 @@ def get_prev_dept(dept_id: str) -> Optional[str]:
     """取得飛輪上一站."""
     dept = _DEPARTMENTS.get(dept_id)
     return dept.prev_dept if dept else None
+
+
+# ═══════════════════════════════════════════
+# DNA-Inspired: 能力原子註冊表
+# ═══════════════════════════════════════════
+
+# 部門 → 能力原子清單（可被 parameter_tuner / morphenix 動態調整）
+_CAPABILITY_ATOMS: Dict[str, List[CapabilityAtom]] = {
+    "core": [
+        CapabilityAtom(
+            name="multi_dimension_analysis",
+            methylation=1.0,
+            description="多維度問題分析：拆解複雜問題的因果關係",
+            context_triggers=("分析", "診斷", "問題"),
+        ),
+        CapabilityAtom(
+            name="cross_dept_synthesis",
+            methylation=1.0,
+            description="跨部門情報綜合：整合各部門觀點形成全局判斷",
+            context_triggers=("綜合", "整合", "全局"),
+        ),
+        CapabilityAtom(
+            name="strategy_advice",
+            methylation=1.0,
+            description="策略建議：提供可操作的行動方案",
+            context_triggers=("策略", "方案", "建議"),
+        ),
+        CapabilityAtom(
+            name="priority_ranking",
+            methylation=1.0,
+            description="優先級排序：在有限資源下判斷最高槓桿點",
+            context_triggers=("優先", "排序", "槓桿"),
+        ),
+    ],
+    "thunder": [
+        CapabilityAtom(
+            name="task_decomposition",
+            methylation=1.0,
+            description="任務拆解：大目標→30分鐘小步驟",
+            context_triggers=("拆解", "分解", "步驟"),
+        ),
+        CapabilityAtom(
+            name="priority_sorting",
+            methylation=1.0,
+            description="Eisenhower 矩陣快速排序",
+            context_triggers=("排序", "優先", "急"),
+        ),
+        CapabilityAtom(
+            name="obstacle_removal",
+            methylation=1.0,
+            description="障礙排除：遇到卡點直接繞過或拆更小",
+            context_triggers=("卡", "阻礙", "困難"),
+        ),
+    ],
+}
+
+
+def get_capability_atoms(dept_id: str) -> List[CapabilityAtom]:
+    """取得部門的能力原子清單."""
+    return list(_CAPABILITY_ATOMS.get(dept_id, []))
+
+
+def get_active_capabilities(dept_id: str) -> List[CapabilityAtom]:
+    """取得部門中啟用的能力原子（methylation > 0.3）."""
+    return [a for a in _CAPABILITY_ATOMS.get(dept_id, []) if a.is_active]
+
+
+def adjust_methylation(
+    dept_id: str,
+    capability_name: str,
+    new_methylation: float,
+) -> bool:
+    """調整特定能力原子的甲基化程度.
+
+    DNA 類比：環境壓力 → 表觀遺傳修飾 → 基因表達量變化。
+    由 parameter_tuner 或 morphenix 在演化過程中呼叫。
+
+    Args:
+        dept_id: 部門 ID
+        capability_name: 能力原子名稱
+        new_methylation: 新的甲基化程度 (0.0-1.0)
+
+    Returns:
+        True if adjusted, False if not found
+    """
+    atoms = _CAPABILITY_ATOMS.get(dept_id, [])
+    for atom in atoms:
+        if atom.name == capability_name:
+            atom.methylation = max(0.0, min(1.0, new_methylation))
+            logger.info(
+                f"[CapabilityAtom] Methylation adjusted: "
+                f"{dept_id}.{capability_name} → {atom.methylation:.2f}"
+            )
+            return True
+    return False
+
+
+def get_methylation_snapshot() -> Dict[str, Dict[str, float]]:
+    """取得所有部門的甲基化快照（供 morphenix 演化審計）.
+
+    Returns:
+        {"dept_id": {"capability_name": methylation, ...}, ...}
+    """
+    snapshot: Dict[str, Dict[str, float]] = {}
+    for dept_id, atoms in _CAPABILITY_ATOMS.items():
+        snapshot[dept_id] = {a.name: a.methylation for a in atoms}
+    return snapshot

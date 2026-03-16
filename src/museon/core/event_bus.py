@@ -61,6 +61,12 @@ MORPHENIX_EXECUTION_COMPLETED = "MORPHENIX_EXECUTION_COMPLETED"
 MORPHENIX_ROLLBACK = "MORPHENIX_ROLLBACK"
 
 # ═══════════════════════════════════════════
+# DNA-Inspired Quality Feedback 品質回饋閉環
+# （校對→演化：metacognition → morphenix 管線）
+# ═══════════════════════════════════════════
+METACOGNITION_QUALITY_FLAG = "METACOGNITION_QUALITY_FLAG"    # 元認知品質校驗旗標（verdict=revise）
+
+# ═══════════════════════════════════════════
 # Governance 治理層事件（Phase 3d）
 # ═══════════════════════════════════════════
 GOVERNANCE_CYCLE_COMPLETED = "GOVERNANCE_CYCLE_COMPLETED"

@@ -1,4 +1,4 @@
-# MUSEON 系統拓撲圖 v1.8
+# MUSEON 系統拓撲圖 v1.9
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
@@ -69,7 +69,7 @@
 | `onboarding` | Onboarding | 上線儀式 | - | brain | 0.9 |
 | `multiagent` | Multiagent | 多代理協調 | - | brain | 0.9 |
 | `multi-agent-executor` | Multi Agent Executor | 並行 LLM 執行器 | - | brain | 1.0 |
-| `response-synthesizer` | Response Synthesizer | 多部門回覆合成 | - | brain | 0.8 |
+| `response-synthesizer` | Response Synthesizer | DNA 交叉重組合成 | - | brain | 0.8 |
 | `flywheel-coordinator` | Flywheel Coordinator | 飛輪流動協調 | - | brain | 0.9 |
 | `primal-detector` | Primal Detector | 八原語偵測 | - | brain | 1.0 |
 | `fact-correction` | Fact Correction | 事實覆寫引擎 | - | brain | 0.9 |
@@ -439,6 +439,9 @@
 | `federation-sync` | `nightly` | 夜間同步 |
 | `zotero-bridge` | `vector-index` | 文獻索引 |
 | `auto-repair` | `installer` | 修復用安裝器 |
+| `metacognition` | `pulse-db` | DNA 品質旗標寫入（METACOGNITION_QUALITY_FLAG） |
+| `morphenix` | `pulse-db` | DNA 品質旗標讀取（品質回饋閉環） |
+| `response-synthesizer` | `multi-agent-executor` | DNA 交叉重組（片段評分合成） |
 
 ### Installer 內部連線（internal）
 | Source | Target | 說明 |
@@ -508,16 +511,16 @@
 | 指標 | 數值 |
 |------|------|
 | 總節點數 | 118 |
-| 總連線數 | 230 |
+| 總連線數 | 233 |
 | 群組數 | 13 |
 | Hub 節點 | 11 (event-bus, brain, pulse, governance, doctor, llm-router, evolution, tool-registry, nightly, data-bus, installer) |
-| 跨系統連線 | 67 |
+| 跨系統連線 | 70 |
 | 內部連線 | 111 |
 | 非同步連線 | 5 |
 | 監控連線 | 5 |
 | 控制連線 | 9 |
 | 資料流連線 | 4 |
-| 平均連線數/節點 | 1.9 |
+| 平均連線數/節點 | 2.0 |
 
 ---
 
@@ -526,6 +529,7 @@
 | 版本 | 日期 | 變更 |
 |------|------|------|
 | v1.0 | 2026-03-14 | 初版建立，59 節點 91 連線 |
+| v1.9 | 2026-03-17 | DNA-Inspired 品質回饋閉環：新增 3 條跨群組連線（metacognition→pulse-db 品質旗標寫入、morphenix→pulse-db 品質旗標讀取、response-synthesizer→multi-agent-executor DNA 交叉重組）；response-synthesizer 描述更新為「DNA 交叉重組合成」；118 節點 233 連線 |
 | v1.14 | 2026-03-16 | Memory Reset 一鍵重置：doctor 群組新增 `memory-reset` 節點（+1 節點 +1 內部連線 doctor→memory-reset）；memory-reset 為 CLI 工具，涵蓋 25 個持久層的原子重置；3D 心智圖同步；統計修正（v1.9-v1.13 遺漏）；118 節點 230 連線 |
 | v1.13 | 2026-03-16 | 五缺陷修復 3D 心智圖同步：新增 `blueprint-reader` 節點（data 群組）；新增 7 條連線（governor→immunity learn、governor→pulse-db incident、governor→dendritic-scorer immunity注入、blueprint-reader→doctor/surgery/morphenix 藍圖感知、nightly→blueprint-reader Step 30）；refractory 更新為「三態+半開」；system-audit 更新為「8層49項」；117 節點 229 連線 |
 | v1.12 | 2026-03-16 | P5 斷路器半開 + Nightly 藍圖驗證：refractory 節點描述更新為「三態+半開試探」；nightly 新增 Step 30→blueprint-reader 連線（+1 連線） |
