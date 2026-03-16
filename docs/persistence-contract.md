@@ -1,4 +1,4 @@
-# MUSEON Persistence Contract v1.12 — 水電圖
+# MUSEON Persistence Contract v1.13 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
@@ -147,7 +147,7 @@ Heartbeat Timer (30s)
     ├──→ metacognition table ──→ Metacognition
     ├──→ scout_drafts table ──→ SkillScout, Nightly
     ├──→ health_scores table ──→ DendriticScorer, Doctor
-    └──→ incidents table ──→ SelfDiagnosis, Doctor
+    └──→ incidents table ──→ SelfDiagnosis, Doctor  [P2: Governor→server callback 寫入]
 ```
 
 ### 管線 C：評估與追蹤管線

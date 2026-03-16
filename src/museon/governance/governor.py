@@ -187,8 +187,33 @@ class Governor:
         except Exception as e:
             logger.debug(f"Governor: AutonomicLayer not available: {e}")
 
+        # ─── P2: Incident 回調（PulseDB 橋接）───
+        self._on_incident_callback: Optional[Callable] = None
+
         self._running = False
         self._started_at = 0.0
+
+    # ─── P2: Incident 回調 API ───
+
+    def set_incident_callback(self, callback: Callable) -> None:
+        """註冊 incident 回調，由 Server 呼叫以連接 PulseDB.
+
+        當免疫迴圈產生新 incident 時，呼叫 callback(incident)
+        將事件同步寫入 PulseDB.incidents 表。
+
+        Args:
+            callback: 接收 Incident 物件的回調函數
+        """
+        self._on_incident_callback = callback
+        logger.info("Governor: incident callback registered")
+
+    def _fire_incident_callback(self, incident: Any) -> None:
+        """安全觸發 incident 回調（失敗不影響主流程）."""
+        if self._on_incident_callback:
+            try:
+                self._on_incident_callback(incident)
+            except Exception as e:
+                logger.debug(f"Incident callback failed (degraded): {e}")
 
     # ─── Lifecycle ───
 
@@ -911,6 +936,8 @@ class Governor:
                 )
                 # 從解決中學習，生成/強化抗體（P1 後天免疫修復）
                 self._immunity.learn(incident)
+                # P2: 同步到 PulseDB.incidents
+                self._fire_incident_callback(incident)
                 # 強化抗體
                 self._immunity.reinforce(response.antibody_id, success=True)
             else:
@@ -935,6 +962,8 @@ class Governor:
                     )
                     # 從解決中學習（P1 後天免疫修復）
                     self._immunity.learn(inc_defense)
+                    # P2: 同步到 PulseDB.incidents
+                    self._fire_incident_callback(inc_defense)
                     self._immune_memory.reinforce(signature, success=True)
                 else:
                     # 去重：已有同名未解決事件就不重複建立
@@ -945,7 +974,9 @@ class Governor:
                         )
                     else:
                         # 未知模式 → 記錄事件（後續可學習）
-                        self._immunity.record_incident(symptom)
+                        inc_unknown = self._immunity.record_incident(symptom)
+                        # P2: 同步到 PulseDB.incidents
+                        self._fire_incident_callback(inc_unknown)
 
                     # 記錄異常到 ImmuneMemoryBank（第一次記錄、第二次生成規則）
                     if self._immune_memory:

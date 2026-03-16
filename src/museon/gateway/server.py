@@ -2865,6 +2865,40 @@ def create_app() -> FastAPI:
                             app.state.anima_tracker = anima_tracker
                             logger.info("VITA PulseEngine initialized")
 
+                            # ── P2: Governor ↔ PulseDB Incident 橋接 ──
+                            _gov_for_pdb = getattr(app.state, "governor", None)
+                            if _gov_for_pdb and pulse_db:
+                                def _bridge_incident_to_pulsedb(
+                                    incident,
+                                    _pdb=pulse_db,
+                                ):
+                                    """將 immunity incident 同步寫入 PulseDB.incidents."""
+                                    _pdb.save_incident(
+                                        incident_id=incident.incident_id,
+                                        incident_type="immunity_event",
+                                        module=incident.category,
+                                        pattern=incident.symptom_name,
+                                        health_delta=(
+                                            -10.0
+                                            if incident.severity == "severe"
+                                            else -5.0
+                                        ),
+                                        suggested_tier=(
+                                            2 if not incident.resolved else 1
+                                        ),
+                                        raw_log_snippet=(
+                                            incident.description[:500]
+                                        ),
+                                    )
+
+                                _gov_for_pdb.set_incident_callback(
+                                    _bridge_incident_to_pulsedb
+                                )
+                                logger.info(
+                                    "🛡️ P2: Governor → PulseDB incident "
+                                    "bridge connected"
+                                )
+
                             # ── MicroPulse: 零 LLM 系統健康脈搏 ──
                             try:
                                 from museon.pulse.micro_pulse import register_micro_pulse
