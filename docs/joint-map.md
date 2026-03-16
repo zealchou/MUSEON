@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.7
+# Joint Map — 共享可變狀態接頭圖 v1.8
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -575,7 +575,7 @@
 | `nightly/fusion.py` (MemoryFusion) | **RW** — 讀取 `load_daily_log()` → LLM 融合 → 寫回 meta-thinking | 夜間跨通道融合 |
 | `gateway/server.py` | **W** — Chrome Extension 捕獲 → MemoryStore | 網頁片段存入 |
 | `nightly/nightly_pipeline.py` | **R** — 步驟 1-5 記憶壓縮升級 | 短期→長期記憶 |
-| `memory/memory_manager.py` | **R** — `load_daily_log()` | 六層記憶管理讀取源 |
+| `memory/memory_manager.py` | **R** — `load_daily_log()` | 六層記憶管理讀取源（支援 dept_filter 過濾） |
 | `pulse/micro_pulse.py` | **R** — 掃描目錄統計 | 脈衝檢測 |
 | `mcp_server.py` | **R** — REST API 暴露 | Claude Code 存取 |
 | `guardian/daemon.py` | **R** — 健康檢查 | MemoryStore 存活確認 |
@@ -592,7 +592,7 @@
 |-------|------|------|---------|
 | **G1** | ANIMA 數值 | anima_tracker + brain + server + micro_pulse + kernel_guard | ANIMA_MC.json（寫入格式 + 鎖機制必須統一） |
 | **G2** | 探索結晶管線 | pulse_engine + curiosity_router + exploration_bridge + nightly_pipeline + skill_forge_scout | question_queue.json + scout_queue/pending.json + PULSE.md 探索佇列 |
-| **G3** | 記憶管線 | memory_manager + brain + vector_bridge + reflex_router | MemoryStore + Qdrant memories collection |
+| **G3** | 記憶管線 | memory_manager + brain + vector_bridge + reflex_router + multi_agent_executor | MemoryStore + Qdrant memories collection（memory_manager 支援 dept_id 標籤寫入 + dept_filter 過濾檢索） |
 | **G4** | 演化速度 | evolution_velocity + parameter_tuner + periodic_cycles + metacognition | accuracy_stats.json + tuned_parameters.json + velocity_log.jsonl |
 | **G5** | 知識晶格 | knowledge_lattice + crystal_actuator + recommender | crystals.json + crystal_rules.json |
 | **G6** | 免疫系統 | immunity + immune_memory + immune_research + daemon | events.jsonl + immune_memory.json |
@@ -638,6 +638,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-16 | v1.9 | Phase 4 飛輪多代理實質化：memory_manager.py store() 新增 dept_id 參數（記憶條目帶部門標籤）；recall() 新增 dept_filter 參數（按部門過濾檢索）；G3 記憶管線新增 multi_agent_executor 為間接消費者；無新增共享狀態（MultiAgentExecutor/ResponseSynthesizer/FlywheelCoordinator 均為無狀態或記憶體內狀態） |
 | 2026-03-16 | v1.8 | Phase 2 八原語接線：#9 Qdrant 向量庫 collections 7→8（新增 primals）；寫入者 3→4（+primal_detector）；讀取者 5→6（+primal_detector）；primal_detector.py 負責 primals collection 的索引寫入與語義搜尋 |
 | 2026-03-16 | v1.7 | Docker 沙盒驗證器上線：morphenix_validator 已在 #15 morphenix/proposals/ 登錄為讀取者，無新增共享狀態；Dockerfile.validator 修復並 build 成功（1637 passed） |
 | 2026-03-16 | v1.6 | DNA27 深度審計修復：PULSE.md 加入 threading.Lock + 原子寫入（7 處寫入全覆蓋）；ANIMA_MC _observe_self + _merge_ceremony 改用 Store.update() 原子讀改寫；鎖一覽表同步更新 |

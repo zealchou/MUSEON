@@ -89,18 +89,35 @@ def route(
     Returns:
         (dept_id, confidence)
     """
+    result = route_extended(message, current_dept, user_primals)
+    return result[0], result[1]
+
+
+def route_extended(
+    message: str,
+    current_dept: str = "core",
+    user_primals: Optional[Dict[str, int]] = None,
+) -> Tuple[str, float, List[str]]:
+    """路由訊息至部門（擴展版：含輔助部門列表）.
+
+    Returns:
+        (primary_dept_id, confidence, auxiliary_dept_ids)
+        - confidence > 0.8 → 只啟動主部門
+        - 0.5 <= confidence <= 0.8 → 主部門 + 1-2 個輔助
+        - confidence < 0.5 → 主部門 + 3-4 個輔助
+    """
     text = message.strip()
 
     # 1. 指令偵測
     first_token = text.split()[0].lower() if text else ""
     if first_token in _COMMAND_MAP:
-        return _COMMAND_MAP[first_token], CONFIDENCE_COMMAND
+        return _COMMAND_MAP[first_token], CONFIDENCE_COMMAND, []
 
     # 2. 後續對話偵測
     if len(text) <= FOLLOWUP_MAX_LEN and current_dept != "core":
         for indicator in _FOLLOWUP_INDICATORS:
             if indicator in text:
-                return current_dept, CONFIDENCE_FOLLOWUP
+                return current_dept, CONFIDENCE_FOLLOWUP, []
 
     # 3. 關鍵字評分
     best_dept = "core"
@@ -138,10 +155,45 @@ def route(
             confidence = 0.6
         else:
             confidence = 0.4
-        return best_dept, confidence
+
+        # 決定輔助部門
+        auxiliaries = _select_auxiliaries(
+            best_dept, confidence, dept_scores,
+        )
+        return best_dept, confidence, auxiliaries
 
     # 4. 預設 → core
-    return "core", CONFIDENCE_DEFAULT
+    return "core", CONFIDENCE_DEFAULT, []
+
+
+def _select_auxiliaries(
+    primary: str,
+    confidence: float,
+    dept_scores: Dict[str, float],
+) -> List[str]:
+    """根據信心度選擇輔助部門.
+
+    - confidence > 0.8 → 不需要輔助
+    - 0.5 <= confidence <= 0.8 → 1-2 個輔助
+    - confidence < 0.5 → 3-4 個輔助
+    """
+    if confidence > 0.8:
+        return []
+
+    # 按分數排序（排除主部門和 okr）
+    candidates = sorted(
+        [(d, s) for d, s in dept_scores.items()
+         if d != primary and d != "okr" and s > 0],
+        key=lambda x: x[1],
+        reverse=True,
+    )
+
+    if confidence >= 0.5:
+        max_aux = 2
+    else:
+        max_aux = 4
+
+    return [d for d, _ in candidates[:max_aux]]
 
 
 def soft_route(message: str) -> Dict[str, float]:

@@ -296,6 +296,9 @@ class MuseonBrain:
         # Multi-Agent ContextSwitcher
         self._multiagent_enabled = True
         self._context_switcher = None
+        self._multiagent_executor = None  # Phase 4: 並行 LLM 執行器
+        self._flywheel_coordinator = None  # Phase 4: 飛輪流動協調器
+        self._multiagent_auxiliaries: list = []  # 當前 turn 的輔助部門
         try:
             from museon.multiagent.context_switch import ContextSwitcher
             self._context_switcher = ContextSwitcher()
@@ -701,20 +704,22 @@ class MuseonBrain:
                 logger.debug(f"Phase3c 健康感知路由調節失敗（降級）: {e}")
 
         # ── Step 3.0.5: Multi-Agent 自動路由 — 根據訊息內容自動切換部門 ──
+        self._multiagent_auxiliaries = []  # 重置每 turn 的輔助部門
         if self._multiagent_enabled and self._context_switcher:
             try:
-                from museon.multiagent.okr_router import route as okr_route
+                from museon.multiagent.okr_router import route_extended
                 current_dept = self._context_switcher.current_dept
-                target_dept, confidence = okr_route(
+                target_dept, confidence, auxiliaries = route_extended(
                     content, current_dept,
                     user_primals=_user_primals or None,
                 )
+                self._multiagent_auxiliaries = auxiliaries
                 if target_dept != current_dept and confidence >= 0.4:
                     switch_result = self._context_switcher.switch_to(target_dept)
                     if switch_result.get("switched"):
                         logger.info(
                             f"[MultiAgent] 自動路由: {current_dept} → {target_dept} "
-                            f"(confidence={confidence:.2f})"
+                            f"(confidence={confidence:.2f}, aux={auxiliaries})"
                         )
                 self._context_switcher.add_message("user", content)
             except Exception as e:
@@ -910,14 +915,63 @@ class MuseonBrain:
             # 記住 _call_llm 呼叫前的歷史長度，用於清理工具中間訊息
             _history_len_before_llm = len(history)
 
-            response_text = await self._call_llm(
-                system_prompt=system_prompt,
-                messages=history,
-                anima_mc=anima_mc,
-                enable_tools=_enable_tools,
-                user_content=content,
-                matched_skills=skill_names,
-            )
+            # ── Phase 4: Multi-Agent 並行呼叫（有輔助部門時） ──
+            _used_multiagent = False
+            if (
+                self._multiagent_auxiliaries
+                and self._multiagent_enabled
+                and self._llm_adapter
+            ):
+                try:
+                    from museon.multiagent.multi_agent_executor import MultiAgentExecutor
+                    from museon.multiagent.response_synthesizer import synthesize
+
+                    if not self._multiagent_executor:
+                        self._multiagent_executor = MultiAgentExecutor(self._llm_adapter)
+
+                    primary_dept = (
+                        self._context_switcher.current_dept
+                        if self._context_switcher
+                        else "core"
+                    )
+
+                    # 建構使用者上下文（八原語語義化）
+                    _user_ctx = ""
+                    try:
+                        _user_ctx = self._get_user_context_prompt()
+                    except Exception:
+                        pass
+
+                    ma_result = await self._multiagent_executor.execute(
+                        user_message=content,
+                        primary_dept_id=primary_dept,
+                        auxiliary_dept_ids=self._multiagent_auxiliaries,
+                        user_context=_user_ctx,
+                        messages=history,
+                    )
+
+                    if not ma_result.primary.error:
+                        response_text = synthesize(ma_result)
+                        _used_multiagent = True
+                        logger.info(
+                            f"[MultiAgent] 並行呼叫完成: "
+                            f"primary={primary_dept}, "
+                            f"aux={self._multiagent_auxiliaries}, "
+                            f"latency={ma_result.total_latency_ms}ms"
+                        )
+                except Exception as e:
+                    logger.warning(f"Multi-Agent 並行呼叫失敗（降級單一 LLM）: {e}")
+
+            # 標準單一 LLM 呼叫（無輔助部門或 Multi-Agent 失敗時）
+            if not _used_multiagent:
+                response_text = await self._call_llm(
+                    system_prompt=system_prompt,
+                    messages=history,
+                    anima_mc=anima_mc,
+                    enable_tools=_enable_tools,
+                    user_content=content,
+                    matched_skills=skill_names,
+                )
 
             # ── v10.5: 清理 tool-use 中間訊息 ──
             # _call_llm 會透過 messages（= history 同引用）直接
