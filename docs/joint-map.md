@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.10
+# Joint Map — 共享可變狀態接頭圖 v1.11
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -659,6 +659,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-16 | v1.11 | P1 推送上下文串接：TelegramAdapter._write_push_to_session() 推送成功後寫入 Brain session history（session_id=telegram_{owner_chat_id}），role=assistant 帶 [主動推送 HH:MM] 前綴；session history 新增間接寫入者（TelegramAdapter 經由 Brain._get_session_history()） |
 | 2026-03-16 | v1.10 | P0 記憶事實覆寫：新增 #27 fact_corrections.jsonl（Brain 寫、Brain+ProactiveBridge+PulseEngine 讀）；G3 記憶管線新增 supersede()+mark_deprecated() 事實覆寫路徑；Qdrant memories 新增 status=deprecated 過濾；共享狀態 26→27 個 |
 | 2026-03-16 | v1.9 | Phase 4 飛輪多代理實質化：memory_manager.py store() 新增 dept_id 參數（記憶條目帶部門標籤）；recall() 新增 dept_filter 參數（按部門過濾檢索）；G3 記憶管線新增 multi_agent_executor 為間接消費者；無新增共享狀態（MultiAgentExecutor/ResponseSynthesizer/FlywheelCoordinator 均為無狀態或記憶體內狀態） |
 | 2026-03-16 | v1.8 | Phase 2 八原語接線：#9 Qdrant 向量庫 collections 7→8（新增 primals）；寫入者 3→4（+primal_detector）；讀取者 5→6（+primal_detector）；primal_detector.py 負責 primals collection 的索引寫入與語義搜尋 |
