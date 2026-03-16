@@ -95,6 +95,18 @@ class MuseonBrain:
             event_bus=self._event_bus,
         )
 
+        # ★ v10.5: 八原語向量語義偵測器
+        self._primal_detector = None
+        try:
+            from museon.agent.primal_detector import PrimalDetector
+            self._primal_detector = PrimalDetector(
+                workspace=self.data_dir,
+                event_bus=self._event_bus,
+            )
+            self._primal_detector.ensure_indexed()
+        except Exception as e:
+            logger.debug(f"PrimalDetector 初始化失敗（降級到關鍵字）: {e}")
+
         from museon.memory.store import MemoryStore
         self.memory_store = MemoryStore(
             base_path=str(self.data_dir / "memory")
@@ -595,6 +607,22 @@ class MuseonBrain:
         anima_mc = self._load_anima_mc()
         anima_user = self._load_anima_user()
 
+        # ── Step 2.1: 取得使用者八原語即時值（供路由器消費）──
+        # 合併 ANIMA_USER 長期 level + PrimalDetector 當前訊息即時偵測
+        _user_primals: Dict[str, int] = {}
+        try:
+            stored_primals = anima_user.get("eight_primals", {})
+            for pk, pv in stored_primals.items():
+                if isinstance(pv, dict) and pv.get("level", 0) > 0:
+                    _user_primals[pk] = pv["level"]
+            # 即時偵測當前訊息的原語（與長期值取 max）
+            if self._primal_detector:
+                instant_primals = self._primal_detector.detect(content)
+                for pk, lvl in instant_primals.items():
+                    _user_primals[pk] = max(_user_primals.get(pk, 0), lvl)
+        except Exception as _e:
+            logger.debug(f"八原語即時值取得失敗（降級）: {_e}")
+
         # ── Step 2.5: 簡單訊息判定（Pipeline 短路用）──
         # 短訊息且不含指令/分析關鍵字 → 跳過重量級步驟（MetaCog/KnowledgeLattice/Q-Score）
         _is_simple = (
@@ -617,6 +645,7 @@ class MuseonBrain:
                 history_len=len(history),
                 workspace=str(self.data_dir),
                 prev_signals=prev_signals,
+                user_primals=_user_primals or None,
             )
             safety_context = build_routing_context(routing_signal)
             logger.info(
@@ -676,7 +705,10 @@ class MuseonBrain:
             try:
                 from museon.multiagent.okr_router import route as okr_route
                 current_dept = self._context_switcher.current_dept
-                target_dept, confidence = okr_route(content, current_dept)
+                target_dept, confidence = okr_route(
+                    content, current_dept,
+                    user_primals=_user_primals or None,
+                )
                 if target_dept != current_dept and confidence >= 0.4:
                     switch_result = self._context_switcher.switch_to(target_dept)
                     if switch_result.get("switched"):
@@ -694,6 +726,7 @@ class MuseonBrain:
         matched_skills = self.skill_router.match(
             content, top_n=5, routing_signal=routing_signal,
             skill_usage=session_usage,
+            user_primals=_user_primals or None,
         )
 
         # Step 3.1b: VectorBridge 語義匹配輔助（靜默失敗）
@@ -2759,9 +2792,13 @@ class MuseonBrain:
         total = relationship.get("total_interactions", 0)
         section += f"\n信任等級：{trust} | 總互動次數：{total}\n"
 
-        # ── Tier-1 八原語摘要（最高 3 個 + 最低 1 個）──
+        # ── Tier-1 八原語語義化摘要 ──
         primals = anima_user.get("eight_primals", {})
         if primals:
+            try:
+                from museon.agent.primal_detector import PRIMAL_DESCRIPTIONS
+            except ImportError:
+                PRIMAL_DESCRIPTIONS = {}
             scored = []
             for k, v in primals.items():
                 if isinstance(v, dict) and v.get("level", 0) > 0:
@@ -2772,10 +2809,30 @@ class MuseonBrain:
                 bottom = [s for s in scored if s[1] > 0]
                 section += "\n八原語（核心驅力）：\n"
                 for k, lvl in top3:
-                    section += f"  ▲ {k}: {lvl}\n"
+                    desc = PRIMAL_DESCRIPTIONS.get(k, k)
+                    section += f"  ▲ {desc} ({lvl})\n"
                 if len(bottom) > 3:
                     bk, bl = bottom[-1]
-                    section += f"  ▽ {bk}: {bl}\n"
+                    bdesc = PRIMAL_DESCRIPTIONS.get(bk, bk)
+                    section += f"  ▽ {bdesc} ({bl})\n"
+
+                # ★ v10.5: 行為指引（基於最高原語）
+                top_key = top3[0][0]
+                top_level = top3[0][1]
+                if top_level >= 60:
+                    _guidance_map = {
+                        "curiosity": "好奇心驅動型——優先提供深度分析而非表面建議",
+                        "action_power": "行動力驅動型——直接給可執行方案，減少理論鋪墊",
+                        "emotion_pattern": "情緒敏感型——先接住感受再給分析",
+                        "aspiration": "願景驅動型——連結長遠目標，鼓勵系統思考",
+                        "accumulation": "累積型——強調基礎建設和持續投入的價值",
+                        "boundary": "邊界清晰型——尊重界限，精簡回應，不追問",
+                        "blindspot": "自我覺察型——提供不同視角和建設性反饋",
+                        "relationship_depth": "關係深度型——展現真誠和脆弱，建立深層連結",
+                    }
+                    guidance = _guidance_map.get(top_key, "")
+                    if guidance:
+                        section += f"\n行為指引：{guidance}\n"
 
         # ── Tier-1 L6 溝通風格摘要 ──
         layers = anima_user.get("seven_layers", {})
@@ -5116,9 +5173,17 @@ class MuseonBrain:
 
         anima_user["relationship"] = relationship
 
-        # ── 2. 八原語觀察（啟發式關鍵字匹配）──
+        # ── 2. 八原語觀察（向量語義偵測 + 關鍵字 fallback）──
         primals = anima_user.get("eight_primals", {})
-        self._observe_user_primals(content, primals, now_iso)
+        # ★ v10.5: 先用 PrimalDetector 偵測即時原語
+        detected_primals = {}
+        if self._primal_detector:
+            try:
+                detected_primals = self._primal_detector.detect(content)
+            except Exception as _e:
+                logger.debug(f"PrimalDetector.detect 失敗: {_e}")
+        # 用偵測結果更新長期 ANIMA_USER 八原語（EMA 平滑）
+        self._observe_user_primals(content, primals, now_iso, detected_primals)
         anima_user["eight_primals"] = primals
 
         # ── 3. 七層觀察（L1-L7 全層）──
@@ -5522,32 +5587,54 @@ class MuseonBrain:
 
     def _observe_user_primals(
         self, content: str, primals: Dict[str, Any], now_iso: str,
+        detected_primals: Optional[Dict[str, int]] = None,
     ) -> None:
-        """用關鍵字啟發式觀察使用者的八原語維度（純 CPU）."""
+        """觀察使用者的八原語維度（向量語義 + 關鍵字 fallback）.
+
+        Args:
+            content: 使用者訊息
+            primals: ANIMA_USER 中的 eight_primals dict（就地修改）
+            now_iso: ISO 時間戳
+            detected_primals: PrimalDetector 即時偵測結果 {key: level(0-100)}
+        """
         # 初始化缺少的維度
         for key in ["aspiration", "accumulation", "action_power", "curiosity",
                      "emotion_pattern", "blindspot", "boundary", "relationship_depth"]:
             if key not in primals:
                 primals[key] = {"level": 0, "confidence": 0.0, "signal": "", "last_observed": None}
 
-        # 關鍵字匹配
-        for primal_key, keywords in self._PRIMAL_KEYWORDS.items():
-            hits = sum(1 for kw in keywords if kw in content)
-            if hits > 0:
+        # ★ v10.5: 優先使用 PrimalDetector 語義偵測結果
+        if detected_primals:
+            for primal_key, det_level in detected_primals.items():
+                if primal_key not in primals:
+                    continue
                 p = primals[primal_key]
                 old_level = p.get("level", 0)
-                delta = min(hits * 8, 25)  # 每次最多 +25
-                # 冷啟動保護：level < 10 時用直接加法，避免 EMA 從零爬不動
+                # EMA 平滑更新長期 level（語義偵測更精確，alpha=0.15）
                 if old_level < 10:
-                    p["level"] = min(100, old_level + delta)
+                    p["level"] = min(100, max(old_level, det_level))
                 else:
-                    p["level"] = min(100, int(old_level * 0.92 + (old_level + delta) * 0.08))
-                # 信心度（隨觀察次數累積，capped at 1.0）
+                    p["level"] = min(100, int(old_level * 0.85 + det_level * 0.15))
                 old_conf = p.get("confidence", 0.0)
-                p["confidence"] = min(1.0, round(old_conf + 0.05, 2))
-                # 更新信號（最近觸發的原文片段）
+                p["confidence"] = min(1.0, round(old_conf + 0.08, 2))
                 p["signal"] = content[:80].replace("\n", " ")
                 p["last_observed"] = now_iso
+        else:
+            # Fallback: 關鍵字匹配
+            for primal_key, keywords in self._PRIMAL_KEYWORDS.items():
+                hits = sum(1 for kw in keywords if kw in content)
+                if hits > 0:
+                    p = primals[primal_key]
+                    old_level = p.get("level", 0)
+                    delta = min(hits * 8, 25)
+                    if old_level < 10:
+                        p["level"] = min(100, old_level + delta)
+                    else:
+                        p["level"] = min(100, int(old_level * 0.92 + (old_level + delta) * 0.08))
+                    old_conf = p.get("confidence", 0.0)
+                    p["confidence"] = min(1.0, round(old_conf + 0.05, 2))
+                    p["signal"] = content[:80].replace("\n", " ")
+                    p["last_observed"] = now_iso
 
         # 問號計數 → 好奇心額外加分
         q_marks = content.count("？") + content.count("?")

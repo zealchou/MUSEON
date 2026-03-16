@@ -33,6 +33,7 @@ COLLECTIONS: Dict[str, Dict[str, Any]] = {
     "workflows": {"desc": "工作流語義"},
     "documents": {"desc": "結構化資料語義索引"},
     "references": {"desc": "Zotero 文獻語義索引"},
+    "primals": {"desc": "八原語語義偵測"},
 }
 
 # documents collection 的 payload index 定義
