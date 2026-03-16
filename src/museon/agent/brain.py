@@ -213,6 +213,8 @@ class MuseonBrain:
                 attr_name="_tool_muscle",
                 tier=ModuleTier.EDGE,
             ),
+            # NOTE: TriggerEngine 由 Nightly Pipeline 主動調用，
+            # Brain 僅負責 lazy-load 實例化，對話流不直接使用。
             "trigger_engine": ModuleSpec(
                 import_path="museon.evolution.trigger_weights",
                 class_name="TriggerEngine",

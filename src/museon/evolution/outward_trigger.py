@@ -88,7 +88,7 @@ class OutwardTrigger:
             )
             logger.info("OutwardTrigger subscribed to EventBus")
         except Exception as e:
-            logger.debug(f"OutwardTrigger subscription failed: {e}")
+            logger.warning(f"OutwardTrigger subscription failed: {e}")
 
     def _on_skill_quality(self, data: Optional[Dict] = None) -> None:
         """收集技能品質信號（B1 痛覺觸發）.

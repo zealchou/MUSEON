@@ -77,7 +77,7 @@ class IntentionRadar:
             )
             logger.info("IntentionRadar subscribed to OUTWARD_SEARCH_NEEDED")
         except Exception as e:
-            logger.debug(f"IntentionRadar subscription failed: {e}")
+            logger.warning(f"IntentionRadar subscription failed: {e}")
 
     def _on_search_needed(self, data: Optional[Dict] = None) -> None:
         """收到觸發事件時，追加到搜尋計畫佇列."""
