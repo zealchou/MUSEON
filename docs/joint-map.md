@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.13
+# Joint Map — 共享可變狀態接頭圖 v1.14
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -142,8 +142,9 @@
 
 | 模組 | 函數 | 寫入的 Key | 鎖 |
 |------|------|-----------|-----|
-| `agent/brain.py` | `_save_anima_user()` | 整體（DM 全權重 + 群組 0.5 權重） | 原子寫入(tmp→rename) + KernelGuard |
+| `agent/brain.py` | `_save_anima_user()` | 整體（DM 全權重 + 群組 0.5 權重）| 原子寫入(tmp→rename) + KernelGuard |
 | `agent/brain.py` | `_observe_group_behavioral_shift()` | `L8_context_behavior_notes` | 同上（群組訊息觸發） |
+| `memory/memory_gate.py` | （間接）經由 brain.py `_observe_user(suppress_primals, suppress_facts)` | 控制八原語+L1是否寫入 | ★ v1.14 新增：MemoryGate 判定糾正/否認時 suppress |
 | `onboarding/ceremony.py` | `receive_answers()` | `my_name`, `boss_name` | 無（單次初始化） |
 | `guardian/daemon.py` | 修復邏輯 | 結構修復 | 無 |
 
@@ -167,6 +168,13 @@
 
 - 與 ANIMA_MC.json 共用 `boss_name` 等資訊但分別儲存 → 可能不同步
 - daemon 的修復邏輯可能覆蓋 brain 的寫入
+
+#### ✅ v1.14 Memory Gate 防護
+
+- brain.py Step 9.0 在記憶寫入前，經 `MemoryGate.classify_intent()` + `decide_action()` 判斷意圖
+- 糾正/否認意圖 → `suppress_primals=True`（跳過八原語 signal 寫入）+ `suppress_facts=True`（跳過 L1 事實寫入）
+- 解決「越否認越強化」迴圈（糾正句子不再被存為新記憶信號）
+- L1 事實新增 `status`（active/deprecated）+ `confidence`（0.0-1.0）欄位
 
 ---
 
@@ -661,6 +669,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-16 | v1.14 | Memory Gate 記憶閘門：新增 `memory/memory_gate.py` 為 ANIMA_USER.json 間接寫入控制者；brain.py `_observe_user()` 新增 `suppress_primals`/`suppress_facts` 參數；`_observe_user_layers()` 新增 `suppress_facts` 參數；L1_facts 新增 `status`/`confidence` 欄位；Step 9.2 事實更正偵測提前到 Step 9 之前；解決「越否認越強化」記憶迴圈 |
 | 2026-03-16 | v1.12 | P4 PULSE.md 自省清洗：#27 fact_corrections.jsonl 的三個讀取者已實作——brain.py `_get_fact_correction_declarations()` 注入 system prompt、proactive_bridge.py `_read_recent_fact_corrections()` 注入自省上下文、pulse_engine.py `_reflection_contains_stale_facts()` 寫入前過濾；PULSE.md 寫入新增過期事實過濾閘 |
 | 2026-03-16 | v1.11 | P1 推送上下文串接：TelegramAdapter._write_push_to_session() 推送成功後寫入 Brain session history（session_id=telegram_{owner_chat_id}），role=assistant 帶 [主動推送 HH:MM] 前綴；session history 新增間接寫入者（TelegramAdapter 經由 Brain._get_session_history()） |
 | 2026-03-16 | v1.10 | P0 記憶事實覆寫：新增 #27 fact_corrections.jsonl（Brain 寫、Brain+ProactiveBridge+PulseEngine 讀）；G3 記憶管線新增 supersede()+mark_deprecated() 事實覆寫路徑；Qdrant memories 新增 status=deprecated 過濾；共享狀態 26→27 個 |
