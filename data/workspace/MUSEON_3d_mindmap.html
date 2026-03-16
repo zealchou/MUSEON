@@ -550,11 +550,14 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 document.body.appendChild(renderer.domElement);
 
-// Lights
-scene.add(new THREE.AmbientLight(0xF7F5F0, 0.8));
-const dirLight = new THREE.DirectionalLight(0xFFFFFF, 0.5);
+// Lights — 純白環境光 + 雙向打光，避免奶油色濾鏡洗白球體
+scene.add(new THREE.AmbientLight(0xffffff, 0.35));
+const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
 dirLight.position.set(60, 80, 60);
 scene.add(dirLight);
+const fillLight = new THREE.DirectionalLight(0xffffff, 0.3);
+fillLight.position.set(-40, -20, -40);
+scene.add(fillLight);
 
 // TrackballControls — true 360° free rotation (no gimbal lock)
 const controls = new TrackballControls(camera, renderer.domElement);
@@ -580,10 +583,10 @@ nodes.forEach(n => {
   const color = new THREE.Color(GC[n.group]);
   const mat = new THREE.MeshStandardMaterial({
     color: color,
-    roughness: 0.35,
-    metalness: 0.1,
+    roughness: 0.18,
+    metalness: 0.05,
     emissive: color,
-    emissiveIntensity: 0.15
+    emissiveIntensity: 0.35
   });
   const mesh = new THREE.Mesh(sphereGeo, mat);
   mesh.scale.setScalar(n.r);
@@ -813,7 +816,7 @@ function clearHighlight() {
     const n = m.userData;
     m.material.color.copy(n.origColor);
     m.material.emissive.copy(n.origColor);
-    m.material.emissiveIntensity = 0.15;
+    m.material.emissiveIntensity = 0.35;
     m.material.opacity = 1;
     m.material.transparent = false;
     m.material.depthWrite = true;
