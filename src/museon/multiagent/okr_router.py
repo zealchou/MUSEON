@@ -9,7 +9,7 @@
 依據 MULTI_AGENT_BDD_SPEC §3 實作。
 """
 
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from museon.multiagent.department_config import (
     FLYWHEEL_ORDER,
@@ -58,8 +58,33 @@ _build_command_map()
 # ═══════════════════════════════════════════
 
 
-def route(message: str, current_dept: str = "core") -> Tuple[str, float]:
+# ═══════════════════════════════════════════
+# 八原語 → 部門親和映射（v10.5）
+# ═══════════════════════════════════════════
+
+_PRIMAL_DEPT_AFFINITY: Dict[str, Dict[str, float]] = {
+    "curiosity":        {"wind": 0.2},          # 風/創新
+    "aspiration":       {"heaven": 0.2},         # 天/願景
+    "action_power":     {"thunder": 0.2},        # 雷/執行
+    "emotion_pattern":  {"lake": 0.15},          # 澤/客戶
+    "accumulation":     {"earth": 0.15},         # 地/營運
+    "boundary":         {"mountain": 0.15},      # 山/品管
+    "relationship_depth": {"lake": 0.15},        # 澤/客戶
+    "blindspot":        {"water": 0.1},          # 水/財務
+}
+
+
+def route(
+    message: str,
+    current_dept: str = "core",
+    user_primals: Optional[Dict[str, int]] = None,
+) -> Tuple[str, float]:
     """路由訊息至部門.
+
+    Args:
+        message: 使用者訊息
+        current_dept: 當前部門
+        user_primals: 八原語維度 {primal_key: level(0-100)}（可選）
 
     Returns:
         (dept_id, confidence)
@@ -79,14 +104,28 @@ def route(message: str, current_dept: str = "core") -> Tuple[str, float]:
 
     # 3. 關鍵字評分
     best_dept = "core"
-    best_score = 0
+    best_score = 0.0
     depts = get_all_departments()
 
+    dept_scores: Dict[str, float] = {}
     for dept_id, dept in depts.items():
-        score = 0
+        score = 0.0
         for kw in dept.keywords:
             if kw in text:
-                score += 1
+                score += 1.0
+        dept_scores[dept_id] = score
+
+    # 3.5 ★ v10.5 八原語加權
+    if user_primals:
+        for primal_key, dept_map in _PRIMAL_DEPT_AFFINITY.items():
+            level = user_primals.get(primal_key, 0)
+            if level > 30:  # 至少有一定強度才加權
+                for dept_id, boost in dept_map.items():
+                    if dept_id in dept_scores:
+                        dept_scores[dept_id] += boost * (level / 100.0)
+
+    # 找最高分
+    for dept_id, score in dept_scores.items():
         if score > best_score:
             best_score = score
             best_dept = dept_id
@@ -95,7 +134,7 @@ def route(message: str, current_dept: str = "core") -> Tuple[str, float]:
         # confidence: 1 hit=0.4, 2 hits=0.6, 3+=0.9
         if best_score >= 3:
             confidence = 0.9
-        elif best_score == 2:
+        elif best_score >= 2:
             confidence = 0.6
         else:
             confidence = 0.4

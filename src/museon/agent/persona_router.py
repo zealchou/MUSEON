@@ -160,21 +160,73 @@ class PersonaRouter:
         
         return persona_map.get(intent, PersonaMode.COACH)
     
-    def generate_config(self, message: str, context: Dict = None) -> ResponseConfig:
-        """生成完整的回應配置"""
+    def generate_config(
+        self, message: str, context: Dict = None,
+        user_primals: Optional[Dict[str, int]] = None,
+    ) -> ResponseConfig:
+        """生成完整的回應配置
+
+        Args:
+            message: 使用者訊息
+            context: 上下文（可選）
+            user_primals: 八原語維度 {primal_key: level(0-100)}（可選）
+        """
         if context is None:
             context = {}
-        
+
         # 三維分析
         energy = self.detect_energy(message, context)
         intents = self.detect_intent(message)
         primary_intent = self.resolve_mixed_intents(intents, energy)
         persona = self.determine_persona(energy, primary_intent)
-        
+
         # 根據組合生成具體配置
         config = self._build_response_config(energy, primary_intent, persona)
-        
+
+        # ── v10.5 八原語調節回應深度/風格 ──
+        if user_primals:
+            self._apply_primal_adjustments(config, user_primals)
+
         return config
+
+    def _apply_primal_adjustments(
+        self, config: ResponseConfig,
+        user_primals: Dict[str, int],
+    ) -> None:
+        """根據八原語調整回應配置（就地修改）.
+
+        - curiosity 高 → max_length 上調 1.5 倍，鼓勵深入探索
+        - boundary 高 → max_length 下調 0.7 倍，不追問太多
+        - emotion_pattern 高 → 先同理再分析
+        - action_power 高 → 直接給行動方案
+        """
+        curiosity = user_primals.get("curiosity", 0)
+        boundary = user_primals.get("boundary", 0)
+        emotion = user_primals.get("emotion_pattern", 0)
+        action = user_primals.get("action_power", 0)
+
+        # curiosity 高（>60）→ 鼓勵深度展開
+        if curiosity > 60 and config.max_length is not None:
+            config.max_length = int(config.max_length * 1.5)
+            if "鼓勵深入探索" not in config.tone_guidance:
+                config.tone_guidance += "，鼓勵深入探索"
+
+        # boundary 高（>60）→ 精簡回應，不追問
+        if boundary > 60:
+            if config.max_length is not None:
+                config.max_length = int(config.max_length * 0.7)
+            if "不要追問太多" not in config.forbidden_elements:
+                config.forbidden_elements.append("不要追問太多")
+
+        # emotion_pattern 高（>60）→ 先同理再分析
+        if emotion > 60:
+            if "先同理再分析" not in config.required_elements:
+                config.required_elements.insert(0, "先同理再分析")
+
+        # action_power 高（>60）→ 直接給行動方案
+        if action > 60:
+            if "直接給行動方案" not in config.tone_guidance:
+                config.tone_guidance += "，直接給行動方案"
     
     def _build_response_config(self, energy: EnergyLevel, 
                               intent: IntentType, 

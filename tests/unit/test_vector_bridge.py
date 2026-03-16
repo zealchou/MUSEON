@@ -138,9 +138,9 @@ class TestVectorBridge:
     """VectorBridge 基礎測試（Qdrant 不可用）."""
 
     def test_collections_count(self):
-        """7 個 collection（含 references）."""
-        assert len(COLLECTIONS) == 7
-        expected = {"memories", "skills", "dna27", "crystals", "workflows", "documents", "references"}
+        """8 個 collection（含 references + primals）."""
+        assert len(COLLECTIONS) == 8
+        expected = {"memories", "skills", "dna27", "crystals", "workflows", "documents", "references", "primals"}
         assert set(COLLECTIONS.keys()) == expected
 
     def test_qdrant_url(self):
