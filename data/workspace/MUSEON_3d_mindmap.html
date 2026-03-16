@@ -104,13 +104,69 @@ canvas{display:block}
   letter-spacing:.02em;color:#9898A8;white-space:nowrap;
   text-shadow:0 0 4px rgba(247,245,240,.95),0 0 8px rgba(247,245,240,.8);
 }
+
+/* ═══ Health Check System ═══ */
+.health-row{
+  display:flex;align-items:center;gap:6px;margin-bottom:10px;
+  padding:6px 8px;border-radius:6px;background:rgba(226,224,218,.25);
+}
+.health-status{font-size:.6rem;color:#5A5A6E;flex:1}
+.health-status.never{color:#C9943A;font-weight:600}
+.health-btn{
+  font-family:'IBM Plex Mono',monospace;font-size:.55rem;font-weight:600;
+  letter-spacing:.04em;padding:5px 12px;border-radius:6px;
+  border:none;background:#C4502A;color:#fff;cursor:pointer;
+  transition:all .15s;white-space:nowrap;
+}
+.health-btn:hover{background:#E0714D}
+.health-btn:active{background:#9A3A1C}
+.health-btn.copied{background:#2A7A6E}
+
+.health-badge{
+  pointer-events:none;text-align:center;
+  font-family:'IBM Plex Mono',monospace;font-size:7px;font-weight:600;
+  letter-spacing:.04em;padding:1px 4px;border-radius:100px;
+  text-shadow:0 0 4px rgba(247,245,240,.95);
+}
+.health-badge.never{color:#C9943A}
+.health-badge.checked{color:#2A7A6E}
+
+/* ═══ Coverage Panel ═══ */
+.coverage-panel{
+  position:fixed;bottom:52px;left:12px;z-index:90;
+  background:rgba(253,252,250,.94);border:1px solid #E2E0DA;
+  border-radius:10px;padding:12px 14px;width:220px;
+  backdrop-filter:blur(12px);
+  box-shadow:0 1px 3px rgba(18,18,26,.06),0 4px 12px rgba(18,18,26,.04);
+}
+.coverage-panel h3{font-family:'IBM Plex Mono',monospace;font-size:.55rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#9A3A1C;margin-bottom:8px}
+.coverage-bar{height:6px;background:#E2E0DA;border-radius:3px;overflow:hidden;margin-bottom:6px}
+.coverage-fill{height:100%;background:#C4502A;border-radius:3px;transition:width .3s}
+.coverage-stat{font-size:.6rem;color:#5A5A6E;margin-bottom:4px}
+.coverage-oldest{font-size:.55rem;color:#C9943A;margin-bottom:8px}
+.coverage-toggle{
+  font-family:'IBM Plex Mono',monospace;font-size:.55rem;font-weight:600;
+  padding:4px 10px;border-radius:100px;cursor:pointer;
+  border:1.5px solid #E2E0DA;background:transparent;color:#5A5A6E;
+  transition:all .15s;
+}
+.coverage-toggle:hover{border-color:#C4502A;color:#C4502A}
+.coverage-toggle.active{background:#C4502A;color:#fff;border-color:#C4502A}
+
+/* ═══ Sync Info ═══ */
+.sync-info{
+  font-family:'IBM Plex Mono',monospace;font-size:.55rem;font-weight:500;
+  color:#9898A8;letter-spacing:.02em;
+}
+.sync-info.stale{color:#C9943A}
 </style>
 </head>
 <body>
 
 <div class="topbar">
   <h1>MUSEON 3D 系統心智圖</h1>
-  <div class="hint">左鍵拖曳旋轉 · 滾輪縮放 · 點擊節點查看連結</div>
+  <div class="hint">左鍵拖曳旋轉 · 滾輪縮放 · 點擊節點查看連結 · H 健康檢查 · Esc 取消</div>
+  <div class="sync-info" id="syncInfo"></div>
 </div>
 
 <div class="legend">
@@ -137,10 +193,22 @@ canvas{display:block}
   <div class="nd-name" id="i-name"></div>
   <div class="nd-zh" id="i-zh"></div>
   <div class="nd-badge" id="i-badge"></div>
+  <div class="health-row">
+    <div class="health-status" id="i-health"></div>
+    <button class="health-btn" id="i-health-btn" onclick="doHealthCheck()">健康檢查</button>
+  </div>
   <h4 id="i-out-t">輸出連結</h4>
   <ul class="conn-list" id="i-out"></ul>
   <h4 id="i-in-t">輸入連結</h4>
   <ul class="conn-list" id="i-in"></ul>
+</div>
+
+<div class="coverage-panel" id="coveragePanel">
+  <h3>健康檢查覆蓋</h3>
+  <div class="coverage-bar"><div class="coverage-fill" id="covFill"></div></div>
+  <div class="coverage-stat" id="covStat"></div>
+  <div class="coverage-oldest" id="covOldest"></div>
+  <button class="coverage-toggle" id="covToggle" onclick="toggleCoverageView()">覆蓋率視圖</button>
 </div>
 
 <div class="controls">
@@ -148,6 +216,7 @@ canvas{display:block}
   <button class="btn" onclick="clearSelection()">取消選取</button>
   <button class="btn" id="rotBtn" onclick="toggleRot()">自動旋轉：開</button>
   <button class="btn" id="simBtn" onclick="reheatSim()">重新模擬</button>
+  <button class="btn" onclick="syncTopology()">同步拓撲</button>
 </div>
 
 <div class="tooltip" id="tip"></div>
@@ -166,6 +235,48 @@ import * as THREE from 'three';
 import { TrackballControls } from 'three/addons/controls/TrackballControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+// ═══════════════════════════════════════
+//  SYNC META — 拓撲同步狀態
+// ═══════════════════════════════════════
+const SYNC_META = {
+  topologyVersion: 'v1.8',
+  syncDate: '2026-03-16',
+  nodeCount: 0, // auto-calculated below
+  linkCount: 0  // auto-calculated below
+};
+
+// ═══════════════════════════════════════
+//  HEALTH CHECK SYSTEM — localStorage 持久化
+// ═══════════════════════════════════════
+const HC_KEY = 'museon-health-checks';
+function loadHealthData() {
+  try { return JSON.parse(localStorage.getItem(HC_KEY)) || {}; } catch { return {}; }
+}
+function saveHealthData(data) {
+  localStorage.setItem(HC_KEY, JSON.stringify(data));
+}
+function getNodeHealth(nodeId) {
+  const data = loadHealthData();
+  return data[nodeId] || { count: 0, lastCheck: null };
+}
+function incrementHealth(nodeId) {
+  const data = loadHealthData();
+  if (!data[nodeId]) data[nodeId] = { count: 0, lastCheck: null };
+  data[nodeId].count++;
+  data[nodeId].lastCheck = new Date().toISOString();
+  saveHealthData(data);
+}
+function formatTimeAgo(isoStr) {
+  if (!isoStr) return null;
+  const diff = Date.now() - new Date(isoStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return mins + ' 分鐘前';
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return hours + ' 小時前';
+  const days = Math.floor(hours / 24);
+  return days + ' 天前';
+}
 
 // ═══════════════════════════════════════
 //  COLORS & DATA
@@ -553,6 +664,10 @@ const links = [
 const nodeMap = {};
 nodes.forEach(n => nodeMap[n.id] = n);
 
+// Update SYNC_META counts
+SYNC_META.nodeCount = nodes.length;
+SYNC_META.linkCount = links.length;
+
 // ═══════════════════════════════════════
 //  FORCE-DIRECTED LAYOUT — gravity + attraction + repulsion
 // ═══════════════════════════════════════
@@ -753,6 +868,9 @@ const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let selectedNode = null;
 let hoveredNode = null;
+const targetGoal = new THREE.Vector3(0, 0, 0);
+let coverageViewActive = false;
+let lastInteraction = 0;
 
 function getIntersectedNode(event) {
   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -780,13 +898,35 @@ renderer.domElement.addEventListener('mousemove', e => {
   }
 });
 
+// ═══ Drag detection — 修改2：拖拉不清除選取 ═══
+let mouseDownX = 0, mouseDownY = 0;
+renderer.domElement.addEventListener('pointerdown', e => {
+  mouseDownX = e.clientX;
+  mouseDownY = e.clientY;
+  lastInteraction = Date.now();
+});
+renderer.domElement.addEventListener('pointerup', () => {
+  lastInteraction = Date.now();
+});
+
 renderer.domElement.addEventListener('click', e => {
+  // 修改2：距離 > 5px 視為拖拉，跳過選取邏輯
+  const dx = e.clientX - mouseDownX, dy = e.clientY - mouseDownY;
+  if (dx * dx + dy * dy > 25) return;
+
   const n = getIntersectedNode(e);
   if (n) {
-    if (selectedNode === n) { selectedNode = null; clearHighlight(); hideInfo(); }
-    else { selectedNode = n; highlightNode(n); showInfo(n); }
+    if (selectedNode === n) {
+      selectedNode = null; clearHighlight(); hideInfo();
+      targetGoal.set(0, 0, 0); // 修改1：回到原點
+    } else {
+      selectedNode = n; highlightNode(n); showInfo(n);
+      targetGoal.copy(n.pos); // 修改1：聚焦節點
+    }
   } else {
+    // 只有真正點空白才取消（不是拖拉結束）
     selectedNode = null; clearHighlight(); hideInfo();
+    targetGoal.set(0, 0, 0);
   }
   tip.classList.remove('show');
 });
@@ -939,6 +1079,17 @@ function showInfo(node) {
   badge.style.background = GC[node.group] + '20';
   badge.style.color = GC[node.group];
 
+  // 修改3：健康狀態顯示
+  const health = getNodeHealth(node.id);
+  const healthEl = document.getElementById('i-health');
+  if (health.count === 0) {
+    healthEl.textContent = '⚠ 從未檢查';
+    healthEl.className = 'health-status never';
+  } else {
+    healthEl.textContent = '已檢查 ' + health.count + ' 次 · 上次：' + formatTimeAgo(health.lastCheck);
+    healthEl.className = 'health-status';
+  }
+
   const seenO = new Set();
   document.getElementById('i-out').innerHTML = outL.filter(l => {
     const k = l.target + l.label; if (seenO.has(k)) return false; seenO.add(k); return true;
@@ -963,9 +1114,11 @@ window.resetView = function() {
   camera.position.set(0, 30, 120);
   camera.up.set(0, 1, 0);
   controls.target.set(0, 0, 0);
+  targetGoal.set(0, 0, 0);
+  selectedNode = null; clearHighlight(); hideInfo();
   controls.reset();
 };
-window.clearSelection = function() { selectedNode = null; clearHighlight(); hideInfo(); };
+window.clearSelection = function() { selectedNode = null; clearHighlight(); hideInfo(); targetGoal.set(0, 0, 0); };
 window.toggleRot = function() {
   autoRotate = !autoRotate;
   document.getElementById('rotBtn').textContent = '自動旋轉：' + (autoRotate ? '開' : '關');
@@ -1110,18 +1263,27 @@ function simulateForces() {
 // ═══════════════════════════════════════
 //  ANIMATE
 // ═══════════════════════════════════════
-let lastInteraction = 0;
-renderer.domElement.addEventListener('pointerdown', () => { lastInteraction = Date.now(); });
-renderer.domElement.addEventListener('pointerup', () => { lastInteraction = Date.now(); });
+// lastInteraction 已在 raycaster 區塊宣告，pointerdown/up 已在 drag detection 區塊註冊
 
 function animate() {
   requestAnimationFrame(animate);
 
-  // Auto-rotation (manual implementation for TrackballControls)
+  // 修改1：平滑過渡旋轉中心 → targetGoal
+  controls.target.lerp(targetGoal, 0.05);
+
+  // 修改1：如果有選取節點，targetGoal 跟隨節點位置（力模擬中節點會動）
+  if (selectedNode) {
+    targetGoal.copy(selectedNode.pos);
+  }
+
+  // Auto-rotation (around controls.target, not world origin)
   if (autoRotate && Date.now() - lastInteraction > 2000) {
     const axis = new THREE.Vector3(0, 1, 0);
     const q = new THREE.Quaternion().setFromAxisAngle(axis, autoRotSpeed);
+    // 繞 controls.target 旋轉（非世界原點）
+    camera.position.sub(controls.target);
     camera.position.applyQuaternion(q);
+    camera.position.add(controls.target);
     camera.up.applyQuaternion(q);
   }
 
@@ -1131,6 +1293,232 @@ function animate() {
   labelRenderer.render(scene, camera);
 }
 animate();
+
+// ═══════════════════════════════════════
+//  HEALTH CHECK — 功能實作
+// ═══════════════════════════════════════
+window.doHealthCheck = function() {
+  if (!selectedNode) return;
+  const node = selectedNode;
+
+  // 收集連線資訊
+  const outLinks = [], inLinks = [];
+  links.forEach(l => {
+    if (l.source === node.id) outLinks.push(l);
+    if (l.target === node.id) inLinks.push(l);
+  });
+  if (node.hub || node.id === 'event-bus') {
+    nodes.filter(n => n.p === node.id).forEach(kid => {
+      links.forEach(l => {
+        if (l.source === kid.id) outLinks.push(l);
+        if (l.target === kid.id) inLinks.push(l);
+      });
+    });
+  }
+
+  // 收集相關聯節點 ID
+  const relatedIds = new Set();
+  outLinks.forEach(l => relatedIds.add(l.target));
+  inLinks.forEach(l => relatedIds.add(l.source));
+  relatedIds.delete(node.id);
+  const connNames = [...relatedIds].map(id => nodeMap[id]?.label || id).join(', ');
+
+  // 生成剪貼簿指令
+  const cmd = [
+    '\uD83D\uDD0D MUSEON 健康檢查請求',
+    '\u2501'.repeat(17),
+    '目標模組：' + node.label + '（' + node.zh + '）',
+    '所屬群組：' + GN[node.group],
+    '直接連線：' + connNames,
+    '輸出連結：' + outLinks.length + ' 條 | 輸入連結：' + inLinks.length + ' 條',
+    '',
+    '請執行：',
+    '1. 檢查相關模組的 log（~/MUSEON/logs/）',
+    '2. 讀取 blast-radius.md 確認影響範圍',
+    '3. DSE 第一性原理分析：問題背後的問題',
+    '4. 提出修復建議與 plan',
+    '5. 確認後自動迭代 + 同步更新藍圖與 3D 心智圖'
+  ].join('\n');
+
+  navigator.clipboard.writeText(cmd).then(() => {
+    const btn = document.getElementById('i-health-btn');
+    btn.textContent = '\u2713 已複製';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '健康檢查'; btn.classList.remove('copied'); }, 2000);
+  });
+
+  // 計數 +1（本節點 + 相關聯節點）
+  incrementHealth(node.id);
+  relatedIds.forEach(id => incrementHealth(id));
+
+  // 更新 info panel 健康顯示
+  const health = getNodeHealth(node.id);
+  const healthEl = document.getElementById('i-health');
+  healthEl.textContent = '已檢查 ' + health.count + ' 次 · 上次：' + formatTimeAgo(health.lastCheck);
+  healthEl.className = 'health-status';
+
+  // 更新覆蓋率面板 & 節點徽章
+  updateCoveragePanel();
+  updateHealthBadges();
+};
+
+// ═══════════════════════════════════════
+//  COVERAGE PANEL — 覆蓋率視圖
+// ═══════════════════════════════════════
+function updateCoveragePanel() {
+  const data = loadHealthData();
+  let checked = 0;
+  let oldestNode = null;
+  let oldestTime = Infinity;
+
+  nodes.forEach(n => {
+    const h = data[n.id];
+    if (h && h.count > 0) {
+      checked++;
+      const t = new Date(h.lastCheck).getTime();
+      if (t < oldestTime) { oldestTime = t; oldestNode = n; }
+    }
+  });
+
+  const total = nodes.length;
+  const pct = Math.round(checked / total * 100);
+
+  document.getElementById('covFill').style.width = pct + '%';
+  document.getElementById('covStat').textContent = checked + '/' + total + ' (' + pct + '%)';
+
+  const neverChecked = total - checked;
+  if (checked === 0) {
+    document.getElementById('covOldest').textContent = '尚無檢查記錄';
+  } else if (neverChecked > 0) {
+    document.getElementById('covOldest').textContent = '\u26A0 ' + neverChecked + ' 個節點從未檢查';
+  } else if (oldestNode) {
+    document.getElementById('covOldest').textContent = '最久未查：' + oldestNode.label + '（' + formatTimeAgo(new Date(oldestTime).toISOString()) + '）';
+  }
+}
+
+window.toggleCoverageView = function() {
+  coverageViewActive = !coverageViewActive;
+  const btn = document.getElementById('covToggle');
+  btn.classList.toggle('active', coverageViewActive);
+  btn.textContent = coverageViewActive ? '關閉覆蓋率視圖' : '覆蓋率視圖';
+
+  if (coverageViewActive) {
+    // 熱力圖模式
+    const data = loadHealthData();
+    nodeMeshes.forEach(m => {
+      const n = m.userData;
+      const h = data[n.id];
+      const count = h ? h.count : 0;
+      let heatColor;
+      if (count === 0) heatColor = new THREE.Color('#C4402A');       // Error 紅
+      else if (count <= 2) heatColor = new THREE.Color('#B8923A');   // Warning 金
+      else heatColor = new THREE.Color('#2A7A6E');                   // Success 綠
+
+      m.material.color.copy(heatColor);
+      m.material.emissive.copy(heatColor);
+      m.material.emissiveIntensity = 0.6;
+      m.material.opacity = 1;
+      m.material.transparent = false;
+      m.material.needsUpdate = true;
+    });
+  } else {
+    // 恢復原色
+    if (selectedNode) { highlightNode(selectedNode); }
+    else { clearHighlight(); }
+  }
+};
+
+// ═══════════════════════════════════════
+//  SYNC TOPOLOGY — 同步功能
+// ═══════════════════════════════════════
+window.syncTopology = function() {
+  const cmd = [
+    '\uD83D\uDD04 MUSEON 拓撲同步請求',
+    '\u2501'.repeat(17),
+    '當前版本：' + SYNC_META.topologyVersion + ' \u00B7 上次同步：' + SYNC_META.syncDate,
+    '節點數：' + SYNC_META.nodeCount + ' \u00B7 連線數：' + SYNC_META.linkCount,
+    '',
+    '請執行：.venv/bin/python scripts/sync_topology_to_3d.py --apply',
+    '同步後請重新整理瀏覽器頁面。'
+  ].join('\n');
+
+  navigator.clipboard.writeText(cmd).then(() => {
+    const btns = document.querySelectorAll('.controls .btn');
+    const syncBtn = btns[btns.length - 1];
+    syncBtn.textContent = '\u2713 已複製';
+    setTimeout(() => { syncBtn.textContent = '同步拓撲'; }, 2000);
+  });
+};
+
+// 初始化同步狀態顯示
+function initSyncInfo() {
+  const el = document.getElementById('syncInfo');
+  const syncDate = new Date(SYNC_META.syncDate);
+  const daysSince = Math.floor((Date.now() - syncDate.getTime()) / 86400000);
+  const stale = daysSince > 7;
+  el.className = 'sync-info' + (stale ? ' stale' : '');
+  el.textContent = '拓撲 ' + SYNC_META.topologyVersion + ' \u00B7 ' + SYNC_META.nodeCount + ' 節點 \u00B7 ' + SYNC_META.linkCount + ' 連線 \u00B7 同步 ' + SYNC_META.syncDate + (stale ? ' \u26A0' : '');
+}
+
+// ═══════════════════════════════════════
+//  HEALTH BADGES — 節點健康徽章
+// ═══════════════════════════════════════
+const healthBadgeDivs = {};
+
+function createHealthBadges() {
+  nodes.forEach(n => {
+    const div = document.createElement('div');
+    div.className = 'health-badge';
+    const lbl = new CSS2DObject(div);
+    lbl.position.set(0, -(n.r + 1.2), 0);
+    n.mesh.add(lbl);
+    healthBadgeDivs[n.id] = div;
+  });
+  updateHealthBadges();
+}
+
+function updateHealthBadges() {
+  const data = loadHealthData();
+  nodes.forEach(n => {
+    const div = healthBadgeDivs[n.id];
+    if (!div) return;
+    const h = data[n.id];
+    const count = h ? h.count : 0;
+    if (count === 0) {
+      div.textContent = '\u26A0';
+      div.className = 'health-badge never';
+    } else {
+      div.textContent = '\u00D7' + count;
+      div.className = 'health-badge checked';
+    }
+  });
+}
+
+// ═══════════════════════════════════════
+//  KEYBOARD SHORTCUTS
+// ═══════════════════════════════════════
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  switch (e.key.toLowerCase()) {
+    case 'h':
+      if (selectedNode) doHealthCheck();
+      break;
+    case 'escape':
+      clearSelection();
+      break;
+    case 'c':
+      toggleCoverageView();
+      break;
+  }
+});
+
+// ═══════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════
+initSyncInfo();
+createHealthBadges();
+updateCoveragePanel();
+
 </script>
 </body>
 </html>
