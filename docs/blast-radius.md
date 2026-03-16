@@ -188,15 +188,15 @@
 | 屬性 | 值 |
 |------|-----|
 | **扇入** | 3（server, mcp_server, __init__） |
-| **扇出** | 29+（import 29 個模組，初始化全系統——含 PrimalDetector） |
-| **角色** | 系統核心——LLM 對話、記憶、自我觀察、所有子系統初始化 |
+| **扇出** | 31+（import 31 個模組，初始化全系統——含 PrimalDetector, MultiAgentExecutor） |
+| **角色** | 系統核心——LLM 對話、記憶、自我觀察、所有子系統初始化、多代理並行呼叫 |
 
 #### 影響半徑
 
 | 影響類型 | 範圍 |
 |---------|------|
-| 共享狀態讀寫 | ANIMA_MC.json(RW), ANIMA_USER.json(RW+L8群組), PULSE.md(R), PulseDB(R), Qdrant(W), Qdrant:primals(R via PrimalDetector), diary_entries(R), synapses(R) |
-| 子系統初始化 | 29 個模組在 Brain.__init__() 中初始化（含 PrimalDetector, DiaryStore） |
+| 共享狀態讀寫 | ANIMA_MC.json(RW), ANIMA_USER.json(RW+L8群組), PULSE.md(R), PulseDB(R), Qdrant(W), Qdrant:primals(R via PrimalDetector), diary_entries(R), synapses(R), memory(R/W+dept_id) |
+| 子系統初始化 | 31 個模組在 Brain.__init__() 中初始化（含 PrimalDetector, DiaryStore, MultiAgentExecutor, FlywheelCoordinator） |
 | System Prompt | `_build_soul_context()` + `_build_system_prompt()` 決定 AI 所有行為 |
 
 #### 修改安全邊界
@@ -717,6 +717,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-16 | v1.9 | Phase 4 飛輪多代理實質化：department_config 新增 full_system_prompt/model_tier；新增 multi_agent_executor.py（綠區，扇入=1）、response_synthesizer.py（綠區，扇入=1）、flywheel_flow.py（綠區，扇入=0）；okr_router 新增 route_extended() 回傳輔助部門；brain.py 扇出 29→31+（新增 MultiAgentExecutor, ResponseSynthesizer）；memory_manager 新增 dept_id/dept_filter 參數（向後相容） |
 | 2026-03-16 | v1.8 | Phase 3 日記+群組ANIMA：SoulRingStore→DiaryStore 重命名（新增 entry_type/highlights/learnings 欄位）；brain.py 群組訊息更新 ANIMA_USER（L1-L7 半權重+L8_context_behavior_notes）；新增 pulse/group_session_proactive.py（綠區，扇入=1，監聽 GROUP_SESSION_END）；telegram.py 新增群組閒置偵測+GROUP_SESSION_END 事件發布；heartbeat_engine.py 新增 schedule_delayed_task()；server.py 新增 /api/anima/user/group-behaviors；nightly _step_soul_nightly→_step_diary_generation |
 | 2026-03-16 | v1.7 | Phase 2 八原語接線：新增 agent/primal_detector.py 到綠區（扇入=1）；brain.py 扇出 28→29+（新增 PrimalDetector 初始化）；vector_bridge.py 扇入 6→7、collections 7→8（新增 primals）；skill_router/persona_router/reflex_router/okr_router 新增 Optional user_primals 參數（向後相容） |
 | 2026-03-16 | v1.6 | Docker 沙盒驗證器上線：新增 nightly/morphenix_validator.py 到綠區（扇入=1），Dockerfile 修復（補齊專案依賴 + jieba + PYTHONPATH + addopts 覆蓋），image `museon-validator:latest` 已建構並驗證（1637 passed） |

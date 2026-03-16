@@ -68,6 +68,9 @@
 | `diary-store` | Diary Store | 日記存儲（原靈魂年輪） | - | brain | 0.9 |
 | `onboarding` | Onboarding | 上線儀式 | - | brain | 0.9 |
 | `multiagent` | Multiagent | 多代理協調 | - | brain | 0.9 |
+| `multi-agent-executor` | Multi Agent Executor | 並行 LLM 執行器 | - | brain | 1.0 |
+| `response-synthesizer` | Response Synthesizer | 多部門回覆合成 | - | brain | 0.8 |
+| `flywheel-coordinator` | Flywheel Coordinator | 飛輪流動協調 | - | brain | 0.9 |
 | `primal-detector` | Primal Detector | 八原語偵測 | - | brain | 1.0 |
 
 ### pulse — Pulse 生命力
@@ -246,7 +249,11 @@
 | `brain` | `diary-store` | 日記記錄 |
 | `brain` | `onboarding` | 上線儀式 |
 | `brain` | `multiagent` | 多代理協調 |
+| `brain` | `multi-agent-executor` | 並行 LLM 呼叫 |
+| `brain` | `response-synthesizer` | 回覆合成 |
+| `brain` | `flywheel-coordinator` | 飛輪流動 |
 | `brain` | `primal-detector` | 八原語偵測 |
+| `multi-agent-executor` | `llm-router` | 多部門 API 呼叫 |
 
 ### Pulse 內部連線（internal）
 | Source | Target | 說明 |
@@ -492,17 +499,17 @@
 
 | 指標 | 數值 |
 |------|------|
-| 總節點數 | 106 |
-| 總連線數 | 199 |
+| 總節點數 | 110 |
+| 總連線數 | 207 |
 | 群組數 | 13 |
 | Hub 節點 | 11 (event-bus, brain, pulse, governance, doctor, llm-router, evolution, tool-registry, nightly, data-bus, installer) |
 | 跨系統連線 | 67 |
-| 內部連線 | 102 |
+| 內部連線 | 110 |
 | 非同步連線 | 5 |
 | 監控連線 | 5 |
 | 控制連線 | 9 |
 | 資料流連線 | 4 |
-| 平均連線數/節點 | 3.7 |
+| 平均連線數/節點 | 3.8 |
 
 ---
 
@@ -511,6 +518,7 @@
 | 版本 | 日期 | 變更 |
 |------|------|------|
 | v1.0 | 2026-03-14 | 初版建立，59 節點 91 連線 |
+| v1.9 | 2026-03-16 | Phase 4 飛輪多代理實質化：multiagent 群組新增 multi-agent-executor、response-synthesizer、flywheel-coordinator 節點（+3 節點 +4 連線：brain→multi-agent-executor internal、brain→response-synthesizer internal、brain→flywheel-coordinator internal、multi-agent-executor→llm-router cross）；110 節點 207 連線 |
 | v1.8 | 2026-03-16 | Phase 3 日記+群組ANIMA：soul-ring→diary-store 重命名；pulse 群組新增 group-session-proactive 節點（+1 節點 +4 連線）；107 節點 203 連線 |
 | v1.7 | 2026-03-16 | Phase 2 八原語接線：agent 群組新增 primal-detector 節點（+1 節點 +2 連線：brain→primal-detector internal + primal-detector→vector-index cross）；106 節點 199 連線 |
 | v1.6 | 2026-03-16 | Docker 沙盒驗證器上線：nightly 群組新增 morphenix-validator 節點（+1 節點 +2 內部連線）；105 節點 197 連線 |

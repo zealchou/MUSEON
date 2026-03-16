@@ -1,4 +1,4 @@
-# MUSEON Persistence Contract v1.9 — 水電圖
+# MUSEON Persistence Contract v1.10 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
@@ -257,6 +257,12 @@ Installer 編排 (orchestrator.py)
 | W33 | 外向演化狀態 | OutwardTrigger | NightlyPipeline | JSON | 永久 | OK |
 | W34 | 八原語向量索引 | PrimalDetector | PrimalDetector.detect | Qdrant | ∞ | OK |
 
+> **v1.10 補充（Phase 4 飛輪多代理）**：
+> - W10 六層記憶條目新增 `dept_id` 欄位（可選），用於部門級記憶隔離
+> - `memory_manager.py` 的 `store()` 接受 `dept_id` 參數，自動注入 `dept:{dept_id}` 標籤
+> - `memory_manager.py` 的 `recall()` 接受 `dept_filter` 參數，在 Qdrant 和 TF-IDF 兩條搜尋路徑均支援過濾
+> - MultiAgentExecutor、ResponseSynthesizer、FlywheelCoordinator 均為無狀態/記憶體內狀態，不新增持久化
+
 ### Dead Write（寫入無消費者）
 
 | ID | 資料 | 寫入者 | 路徑 | 建議處理 |
@@ -456,6 +462,7 @@ Installer 編排 (orchestrator.py)
 | v1.0 | 2026-03-15 | 初版：完整水電圖，涵蓋 23 個正常配對、3 個 Dead Write、14 個死目錄 |
 | v1.1 | 2026-03-15 | Phase 2 完成：4 個 JSON 遷移至 PulseDB（ceremony_state + eval 三件套） |
 | v1.2 | 2026-03-15 | Phase 3 完成：DataContract + DataBus 建立，10 個 Store 類統一接入 |
+| v1.11 | 2026-03-16 | Phase 4 飛輪多代理實質化：W10 六層記憶條目新增 dept_id 欄位；memory_manager store()+recall() 支援部門級隔離；MultiAgentExecutor/ResponseSynthesizer/FlywheelCoordinator 均無新增持久化 |
 | v1.10 | 2026-03-16 | Phase 3 日記+群組ANIMA：SoulRingStore→DiaryStore 重命名（W14 更新）；ANIMA_USER 新增 L8_context_behavior_notes 層（群組行為追蹤）；diary entries 新增 entry_type/highlights/learnings/tomorrow_intent 欄位；nightly _step_diary_generation 每日生成日記摘要 |
 | v1.9 | 2026-03-16 | Phase 2 八原語接線：Qdrant Engine 2 新增 primals collection（1024 維，PrimalDetector 寫入+搜尋）；新增 W34 配對（八原語向量索引） |
 | v1.8 | 2026-03-16 | Docker 沙盒驗證器上線：morphenix_validator 使用暫時性 tempdir（非持久儲存），Docker volume 為唯讀掛載，無新增持久資料 |
