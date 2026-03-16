@@ -16,16 +16,24 @@
   - 6-9 次失敗：5 分鐘冷卻
   - 10+ 次失敗：休眠（exit(0) 不重啟，等外部干預）
 
+半開試探（對照 Circuit Breaker half-open）：
+  - 休眠超過 30 分鐘 → 自動進入半開狀態
+  - 半開時允許一次試探性重啟
+  - 試探成功 → 清零、完全恢復
+  - 試探失敗 → 回到休眠、失敗計數 +1
+
 喚醒條件：
   - .env 檔案 mtime 變更（使用者修改了配置）
   - refractory_state.json 被刪除
-  - 6 小時自動嘗試修復一次
+  - 30 分鐘半開試探（自動）
+  - 6 小時完全喚醒（自動）
 
 DSE 參考：
   - K8s CrashLoopBackOff: 10s→20s→40s→...→300s cap
   - systemd StartLimitBurst: N 次失敗後停止重啟
   - 生物神經元不應期：動作電位後的冷卻期
   - Erlang OTP: max_restarts / max_seconds supervisor 策略
+  - Netflix Hystrix: closed→open→half-open 三態斷路器
 """
 from __future__ import annotations
 
@@ -54,6 +62,7 @@ BACKOFF_LEVELS: List[Tuple[int, int, Optional[int]]] = [
 
 HEAL_TIMEOUT_SECS = 3600       # 1 小時無失敗 = 自然痊癒
 AUTO_WAKE_SECS = 21600         # 6 小時自動嘗試修復一次
+HALF_OPEN_SECS = 1800          # 30 分鐘後自動半開（試探性恢復）
 
 
 # ═══════════════════════════════════════════
@@ -70,6 +79,8 @@ class RefractoryState:
     hibernating: bool = False
     hibernate_reason: str = ""
     env_mtime: float = 0.0
+    half_open: bool = False            # 半開試探狀態
+    half_open_since: float = 0.0       # 進入半開的時間戳
 
 
 # ═══════════════════════════════════════════
@@ -107,23 +118,47 @@ class RefractoryGuard:
         """檢查當前狀態，決定行動.
 
         Returns:
-            ("proceed", 0)     → 正常啟動
+            ("proceed", 0)     → 正常啟動（含半開試探）
             ("backoff", secs)  → 需等待 N 秒後重啟
             ("hibernate", 0)   → 休眠，由呼叫者 exit(0)
         """
         state = self._load_state()
 
+        # ── 半開狀態：允許試探性重啟 ──
+        if state.half_open:
+            logger.info(
+                "RefractoryGuard: 半開狀態，允許一次試探性重啟"
+            )
+            return ("proceed", 0)
+
         # ── 檢查是否在休眠中 ──
         if state.hibernating:
+            # 1. 外部干預（.env 變更 / 6 小時自動）→ 完全喚醒
             if self._should_wake(state):
                 logger.info(
                     "RefractoryGuard: 偵測到外部干預，從休眠中喚醒"
                 )
                 state.hibernating = False
+                state.half_open = False
+                state.half_open_since = 0.0
                 state.failure_count = 0
                 state.hibernate_reason = ""
                 self._save_state(state)
                 return ("proceed", 0)
+
+            # 2. 半開試探：休眠超過 HALF_OPEN_SECS → 進入半開
+            if state.last_failure_ts > 0:
+                elapsed = time.time() - state.last_failure_ts
+                if elapsed > HALF_OPEN_SECS:
+                    logger.info(
+                        f"RefractoryGuard: 休眠 {elapsed:.0f}s，"
+                        f"進入半開試探狀態"
+                    )
+                    state.half_open = True
+                    state.half_open_since = time.time()
+                    self._save_state(state)
+                    return ("proceed", 0)
+
             logger.warning(
                 f"RefractoryGuard: 仍在休眠中"
                 f"（原因: {state.hibernate_reason}，"
@@ -180,6 +215,21 @@ class RefractoryGuard:
             except OSError as e:
                 logger.debug(f"[REFRACTORY] file stat failed (degraded): {e}")
 
+        # ── 半開試探失敗 → 回到休眠 ──
+        if state.half_open:
+            state.half_open = False
+            state.half_open_since = 0.0
+            state.hibernating = True
+            state.hibernate_reason = (
+                reason or "半開試探失敗，回到休眠"
+            )
+            logger.warning(
+                f"RefractoryGuard: 半開試探失敗（{state.hibernate_reason}），"
+                f"回到休眠（失敗 {state.failure_count} 次）"
+            )
+            self._save_state(state)
+            return
+
         # 達到休眠門檻
         if state.failure_count >= 10:
             state.hibernating = True
@@ -195,9 +245,17 @@ class RefractoryGuard:
         )
 
     def record_success(self) -> None:
-        """記錄啟動成功 — 清零計數器."""
+        """記錄啟動成功 — 清零計數器.
+
+        若在半開試探狀態下成功，則完全恢復（關閉斷路器）。
+        """
         state = self._load_state()
-        if state.failure_count > 0 or state.hibernating:
+        if state.half_open:
+            logger.info(
+                "RefractoryGuard: 半開試探成功！完全恢復"
+                f"（從 {state.failure_count} 次失敗中恢復）"
+            )
+        elif state.failure_count > 0 or state.hibernating:
             logger.info(
                 f"RefractoryGuard: 啟動成功，"
                 f"清零失敗計數（原計 {state.failure_count}）"
@@ -205,6 +263,8 @@ class RefractoryGuard:
         state.failure_count = 0
         state.hibernating = False
         state.hibernate_reason = ""
+        state.half_open = False
+        state.half_open_since = 0.0
         self._save_state(state)
 
     def get_state(self) -> RefractoryState:
@@ -214,12 +274,14 @@ class RefractoryGuard:
     # ─── 內部方法 ───────────────────────────────
 
     def _should_wake(self, state: RefractoryState) -> bool:
-        """判斷是否應從休眠中喚醒.
+        """判斷是否應從休眠中完全喚醒（非半開）.
 
-        喚醒條件：
+        完全喚醒條件（重置計數器）：
         1. .env 檔案 mtime 變了（使用者修改了配置）
         2. 6 小時自動嘗試修復一次
         3. state 檔案被外部刪除（由 _load_state 處理）
+
+        注意：半開試探（30 分鐘）在 check() 中處理，不在此方法中。
         """
         # 1. .env mtime 變更
         env_path = self._find_env_file()
@@ -253,6 +315,8 @@ class RefractoryGuard:
                 hibernating=data.get("hibernating", False),
                 hibernate_reason=data.get("hibernate_reason", ""),
                 env_mtime=data.get("env_mtime", 0.0),
+                half_open=data.get("half_open", False),
+                half_open_since=data.get("half_open_since", 0.0),
             )
         except (json.JSONDecodeError, OSError) as e:
             logger.warning(

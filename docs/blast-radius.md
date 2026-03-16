@@ -1,4 +1,4 @@
-# Blast Radius — 模組影響半徑表 v1.17
+# Blast Radius — 模組影響半徑表 v1.18
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
@@ -509,7 +509,7 @@
 | 屬性 | 值 |
 |------|-----|
 | **扇入** | 2 |
-| **角色** | 夜間整合管線（45 步驟，~22 步實際執行） |
+| **角色** | 夜間整合管線（46 步驟，含 Step 30 藍圖一致性驗證） |
 
 #### 影響半徑
 
@@ -517,7 +517,7 @@
 |---------|------|
 | 共享狀態讀寫 | question_queue(RW), scout_queue(R), nightly_report(W), PulseDB(RW), crystals(R), accuracy_stats(R) |
 | 事件發布 | 6 個：NIGHTLY_COMPLETED, IMMUNE_MEMORY_LEARNED, MORPHENIX_PROPOSAL_CREATED, SOUL_IDENTITY_TAMPERED, SYNAPSE_PRELOAD, TRIGGER_FIRED, TOOL_MUSCLE_DORMANT |
-| 子步驟呼叫 | curiosity_router, exploration_bridge, skill_forge_scout, crystal_actuator, parameter_tuner, morphenix_validator, morphenix_executor, evolution_velocity, periodic_cycles |
+| 子步驟呼叫 | curiosity_router, exploration_bridge, skill_forge_scout, crystal_actuator, parameter_tuner, morphenix_validator, morphenix_executor, evolution_velocity, periodic_cycles, blueprint_reader |
 
 #### 修改安全邊界
 
@@ -583,6 +583,25 @@
 | **扇入** | 3 |
 | **角色** | 治理層中樞——事件訂閱與決策 |
 | **事件訂閱** | AUDIT_COMPLETED, MORPHENIX_AUTO_APPROVED, SOUL_IDENTITY_TAMPERED |
+
+---
+
+### governance/refractory.py
+
+| 屬性 | 值 |
+|------|-----|
+| **扇入** | 2（server.py, governor.py） |
+| **角色** | 跨重啟斷路器（不應期）——三態 + 半開試探 |
+| **狀態機** | proceed → backoff → hibernate ⇌ half_open → proceed |
+| **持久狀態** | `~/.museon/refractory_state.json`（failure_count, hibernating, half_open, env_mtime） |
+
+#### 修改安全邊界
+
+| ✅ 安全 | ❌ 危險 |
+|---------|---------|
+| 調整退避時間常數 | 修改狀態持久化檔案路徑 |
+| 新增喚醒條件 | 移除 hibernate 門檻 |
+| 修改日誌格式 | 修改 `_find_env_file()` 路徑解析邏輯 |
 
 ---
 
@@ -718,6 +737,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-16 | v1.18 | P5 斷路器半開 + Nightly 藍圖驗證：refractory.py 新增 `half_open` / `half_open_since` 狀態欄位，`check()` 支援半開試探性恢復（hibernate 30 分鐘→half_open→proceed），`record_failure()` 半開失敗→回到 hibernate，`record_success()` 半開成功→完全恢復；nightly_pipeline.py 新增 Step 30 `_step_blueprint_consistency()`（3 項檢查：藍圖存在性、新鮮度 72h 閾值、禁區模組路徑）；新增 `governance/refractory.py` 到黃區 |
 | 2026-03-16 | v1.17 | P4 Doctor 藍圖感知：新增 `core/blueprint_reader.py`（綠區，扇入=0），解析 blast-radius.md 和 joint-map.md；system_audit.py 新增 Layer 8 BLUEPRINT（3 項檢查：藍圖存在性、新鮮度、禁區保護）；surgeon.py safety_review 新增 4.5b 動態扇入安全檢查（blast-radius 禁區/紅區攔截）；morphenix_standards.py 新增 B1 藍圖禁區規則（Hard Rule 層級攔截） |
 | 2026-03-16 | v1.16 | P3 健康分數真實化：governor.py Step 4.1 `_dendritic.tick()` 之前新增 immunity 未解決事件注入（`immunity._incidents` → `dendritic.record_event()`），DendriticScorer 健康分數首次反映 immunity 未解決事件 |
 | 2026-03-16 | v1.15 | P2 事件匯聯：governor.py 新增 `_on_incident_callback` + `set_incident_callback()` + `_fire_incident_callback()`（incident 回調機制），`_run_immunity_cycle()` 三個分支新增回調觸發（先天/後天/未知）；server.py 新增 `_bridge_incident_to_pulsedb()` 回調橋接 PulseDB.incidents 表——Governor 的 immunity 事件首次同步到 PulseDB |
