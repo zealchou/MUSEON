@@ -767,7 +767,7 @@ function highlightNode(node) {
       m.material.color.copy(dimColor);
       m.material.emissive.set(0x000000);
       m.material.emissiveIntensity = 0;
-      m.material.opacity = 0.3;
+      m.material.opacity = 0.08;
       m.material.transparent = true;
       if (n.labelDiv) {
         n.labelDiv.style.opacity = '0.15';
@@ -797,9 +797,17 @@ function highlightNode(node) {
     }
   });
 
-  // Dim/show link labels
+  // Dim/show link labels + 相關連線標籤放大 2 級 + 粗體
   linkLabels.forEach(ll => {
-    ll.div.style.opacity = connLinks.has(ll.link) ? '1' : '0.1';
+    if (connLinks.has(ll.link)) {
+      ll.div.style.opacity = '1';
+      ll.div.style.fontSize = '9px';
+      ll.div.style.fontWeight = '700';
+    } else {
+      ll.div.style.opacity = '0.1';
+      ll.div.style.fontSize = '';
+      ll.div.style.fontWeight = '';
+    }
   });
 }
 
@@ -831,7 +839,7 @@ function clearHighlight() {
     line.material.opacity = l.type === 'internal' ? 0.15 : 0.3;
     line.material.color.set(lkHex(l.type));
   });
-  linkLabels.forEach(ll => { ll.div.style.opacity = '1'; });
+  linkLabels.forEach(ll => { ll.div.style.opacity = '1'; ll.div.style.fontSize = ''; ll.div.style.fontWeight = ''; });
 }
 
 // ═══════════════════════════════════════
