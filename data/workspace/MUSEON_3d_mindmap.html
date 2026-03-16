@@ -159,14 +159,32 @@ canvas{display:block}
   color:#9898A8;letter-spacing:.02em;
 }
 .sync-info.stale{color:#C9943A}
+
+/* ═══ Doctor Live Monitor ═══ */
+.doctor-indicator{
+  font-family:'IBM Plex Mono',monospace;font-size:.55rem;font-weight:500;
+  color:#9898A8;letter-spacing:.02em;margin-left:12px;
+}
+.doctor-indicator.connected{color:#2A7A6E}
+.doctor-indicator.polling{color:#B8923A}
+.doctor-indicator.offline{color:#9898A8}
+.doctor-toggle{margin-top:6px;border-color:#80B8A8 !important;color:#80B8A8 !important}
+.doctor-toggle:hover{border-color:#C4502A !important;color:#C4502A !important}
+.doctor-toggle.active{background:#C4502A !important;color:#fff !important;border-color:#C4502A !important}
+.doctor-row{
+  margin-top:8px;padding:8px 10px;background:#FDF5F3;border-radius:6px;
+  border-left:3px solid #C4402A;font-family:'IBM Plex Mono',monospace;font-size:.6rem;
+}
+.doctor-issues{white-space:pre-wrap;line-height:1.5;color:#5A5A6E}
 </style>
 </head>
 <body>
 
 <div class="topbar">
   <h1>MUSEON 3D 系統心智圖</h1>
-  <div class="hint">左鍵拖曳旋轉 · 滾輪縮放 · 點擊節點查看連結 · H 健康檢查 · Esc 取消</div>
+  <div class="hint">左鍵拖曳旋轉 · 滾輪縮放 · 點擊節點查看連結 · H 健康檢查 · D Doctor視圖 · Esc 取消</div>
   <div class="sync-info" id="syncInfo"></div>
+  <div class="doctor-indicator" id="doctorStatus">⚪ Doctor 離線</div>
 </div>
 
 <div class="legend">
@@ -197,6 +215,9 @@ canvas{display:block}
     <div class="health-status" id="i-health"></div>
     <button class="health-btn" id="i-health-btn" onclick="doHealthCheck()">健康檢查</button>
   </div>
+  <div class="doctor-row" id="doctorRow" style="display:none">
+    <div class="doctor-issues" id="i-doctor"></div>
+  </div>
   <h4 id="i-out-t">輸出連結</h4>
   <ul class="conn-list" id="i-out"></ul>
   <h4 id="i-in-t">輸入連結</h4>
@@ -209,6 +230,7 @@ canvas{display:block}
   <div class="coverage-stat" id="covStat"></div>
   <div class="coverage-oldest" id="covOldest"></div>
   <button class="coverage-toggle" id="covToggle" onclick="toggleCoverageView()">覆蓋率視圖</button>
+  <button class="coverage-toggle doctor-toggle" id="doctorToggle" onclick="toggleDoctorView()">Doctor 診斷視圖</button>
 </div>
 
 <div class="controls">
@@ -891,10 +913,10 @@ renderer.domElement.addEventListener('mousemove', e => {
     tip.style.left = (e.clientX + 14) + 'px';
     tip.style.top = (e.clientY + 14) + 'px';
     tip.classList.add('show');
-    if (!selectedNode && !coverageViewActive) highlightNode(n);
+    if (!selectedNode && !coverageViewActive && !doctorViewActive) highlightNode(n);
   } else if (!n && !selectedNode) {
     tip.classList.remove('show');
-    if (!coverageViewActive) clearHighlight();
+    if (!coverageViewActive && !doctorViewActive) clearHighlight();
   }
 });
 
@@ -918,19 +940,19 @@ renderer.domElement.addEventListener('click', e => {
   if (n) {
     if (selectedNode === n) {
       selectedNode = null;
-      if (!coverageViewActive) clearHighlight();
+      if (!coverageViewActive && !doctorViewActive) clearHighlight();
       hideInfo();
       targetGoal.set(0, 0, 0); // 修改1：回到原點
     } else {
       selectedNode = n;
-      if (!coverageViewActive) highlightNode(n);
+      if (!coverageViewActive && !doctorViewActive) highlightNode(n);
       showInfo(n);
       targetGoal.copy(n.pos); // 修改1：聚焦節點
     }
   } else {
     // 只有真正點空白才取消（不是拖拉結束）
     selectedNode = null;
-    if (!coverageViewActive) clearHighlight();
+    if (!coverageViewActive && !doctorViewActive) clearHighlight();
     hideInfo();
     targetGoal.set(0, 0, 0);
   }
@@ -1108,6 +1130,27 @@ function showInfo(node) {
 
   document.getElementById('i-out-t').textContent = '輸出連結 (' + seenO.size + ')';
   document.getElementById('i-in-t').textContent = '輸入連結 (' + seenI.size + ')';
+
+  // Doctor 診斷資訊
+  const doctorRow = document.getElementById('doctorRow');
+  const doctorEl = document.getElementById('i-doctor');
+  if (doctorData && doctorData.nodes && doctorData.nodes[node.id]) {
+    const ns = doctorData.nodes[node.id];
+    if (ns.issues && ns.issues.length > 0) {
+      const icon = ns.status === 'critical' ? '\uD83D\uDD34' : '\uD83D\uDFE1';
+      doctorEl.textContent = icon + ' Doctor 發現 ' + ns.issues.length + ' 個問題：\n' + ns.issues.map(i => '  \u2022 ' + i).join('\n');
+      doctorRow.style.display = '';
+    } else {
+      doctorEl.textContent = '\uD83D\uDFE2 Doctor 確認正常';
+      doctorRow.style.display = '';
+    }
+  } else if (doctorData) {
+    doctorEl.textContent = '\u26AA 不在 Doctor 掃描範圍';
+    doctorRow.style.display = '';
+  } else {
+    doctorRow.style.display = 'none';
+  }
+
   document.getElementById('info').classList.add('visible');
 }
 
@@ -1122,12 +1165,13 @@ window.resetView = function() {
   controls.target.set(0, 0, 0);
   targetGoal.set(0, 0, 0);
   selectedNode = null;
-  // 如果覆蓋率視圖開啟，先關閉
+  // 如果視圖模式開啟，先關閉
   if (coverageViewActive) toggleCoverageView();
+  if (doctorViewActive) toggleDoctorView();
   clearHighlight(); hideInfo();
   controls.reset();
 };
-window.clearSelection = function() { selectedNode = null; if (!coverageViewActive) clearHighlight(); hideInfo(); targetGoal.set(0, 0, 0); };
+window.clearSelection = function() { selectedNode = null; if (!coverageViewActive && !doctorViewActive) clearHighlight(); hideInfo(); targetGoal.set(0, 0, 0); };
 window.toggleRot = function() {
   autoRotate = !autoRotate;
   document.getElementById('rotBtn').textContent = '自動旋轉：' + (autoRotate ? '開' : '關');
@@ -1298,6 +1342,24 @@ function animate() {
 
   controls.update();
   simulateForces();
+
+  // Doctor 心跳脈動動畫
+  if (doctorViewActive) {
+    const t = Date.now() * 0.003;
+    nodeMeshes.forEach(m => {
+      const n = m.userData;
+      if (n._doctorPulse) {
+        const ns = doctorData?.nodes?.[n.id];
+        const speed = ns?.status === 'critical' ? 4.0 : 2.0;
+        const amplitude = ns?.status === 'critical' ? 0.25 : 0.15;
+        const pulse = 1.0 + Math.abs(Math.sin(t * speed)) * amplitude;
+        m.scale.setScalar(pulse);
+      } else {
+        m.scale.setScalar(1.0);
+      }
+    });
+  }
+
   renderer.render(scene, camera);
   labelRenderer.render(scene, camera);
 }
@@ -1518,8 +1580,148 @@ document.addEventListener('keydown', e => {
     case 'c':
       toggleCoverageView();
       break;
+    case 'd':
+      toggleDoctorView();
+      break;
   }
 });
+
+// ═══════════════════════════════════════
+//  DOCTOR LIVE MONITOR — B+C 混合方案
+// ═══════════════════════════════════════
+const DOCTOR_API = 'http://localhost:8765';
+const DOCTOR_WS  = 'ws://localhost:8765/ws/doctor-monitor';
+let doctorData = null;
+let doctorViewActive = false;
+let doctorWs = null;
+let doctorPollTimer = null;
+let doctorHeartbeatTimer = null;
+
+function updateDoctorIndicator(state) {
+  const el = document.getElementById('doctorStatus');
+  el.className = 'doctor-indicator ' + state;
+  if (state === 'connected')    el.textContent = '\uD83D\uDFE2 Doctor 監控中';
+  else if (state === 'polling') el.textContent = '\uD83D\uDFE1 Doctor 輪詢中';
+  else                          el.textContent = '\u26AA Doctor 離線';
+}
+
+function connectDoctor() {
+  try {
+    doctorWs = new WebSocket(DOCTOR_WS);
+    doctorWs.onopen = () => {
+      updateDoctorIndicator('connected');
+      // 停止 polling（如果之前降級過）
+      if (doctorPollTimer) { clearInterval(doctorPollTimer); doctorPollTimer = null; }
+    };
+    doctorWs.onmessage = (e) => {
+      const msg = JSON.parse(e.data);
+      if (msg.type === 'doctor_status') {
+        doctorData = msg.data;
+        if (doctorViewActive) applyDoctorColors();
+        updateDoctorBadges();
+      }
+    };
+    doctorWs.onclose = () => {
+      updateDoctorIndicator('polling');
+      startDoctorPolling();
+    };
+    doctorWs.onerror = () => {
+      doctorWs.close();
+    };
+    // 心跳 30s
+    if (doctorHeartbeatTimer) clearInterval(doctorHeartbeatTimer);
+    doctorHeartbeatTimer = setInterval(() => {
+      if (doctorWs?.readyState === WebSocket.OPEN) {
+        doctorWs.send(JSON.stringify({type: 'ping'}));
+      }
+    }, 30000);
+  } catch {
+    startDoctorPolling();
+  }
+}
+
+function startDoctorPolling() {
+  if (doctorPollTimer) return;
+  fetchDoctorStatus();
+  doctorPollTimer = setInterval(fetchDoctorStatus, 60000);
+}
+
+async function fetchDoctorStatus() {
+  try {
+    const res = await fetch(DOCTOR_API + '/api/doctor/node-status');
+    if (res.ok) {
+      doctorData = await res.json();
+      updateDoctorIndicator('polling');
+      if (doctorViewActive) applyDoctorColors();
+      updateDoctorBadges();
+    }
+  } catch {
+    updateDoctorIndicator('offline');
+  }
+}
+
+function applyDoctorColors() {
+  if (!doctorData?.nodes) return;
+  nodeMeshes.forEach(m => {
+    const n = m.userData;
+    const nodeStatus = doctorData.nodes[n.id];
+    let color;
+    if (!nodeStatus)                        color = new THREE.Color('#E2E0DA');
+    else if (nodeStatus.status === 'critical') color = new THREE.Color('#C4402A');
+    else if (nodeStatus.status === 'warning')  color = new THREE.Color('#B8923A');
+    else                                    color = new THREE.Color('#2A7A6E');
+
+    m.material.color.copy(color);
+    m.material.emissive.copy(color);
+    m.material.emissiveIntensity = 0.6;
+    m.material.opacity = 1;
+    m.material.transparent = false;
+    m.material.needsUpdate = true;
+
+    // 標記脈動節點
+    n._doctorPulse = nodeStatus && (nodeStatus.status === 'critical' || nodeStatus.status === 'warning');
+  });
+}
+
+function updateDoctorBadges() {
+  // 更新 topbar Doctor toggle 按鈕的問題計數
+  if (!doctorData?.summary) return;
+  const btn = document.getElementById('doctorToggle');
+  const total = (doctorData.summary.warning || 0) + (doctorData.summary.critical || 0);
+  if (total > 0) {
+    btn.textContent = doctorViewActive ? '關閉 Doctor 視圖 (' + total + ')' : 'Doctor 診斷視圖 (' + total + ')';
+  } else {
+    btn.textContent = doctorViewActive ? '關閉 Doctor 視圖' : 'Doctor 診斷視圖';
+  }
+}
+
+window.toggleDoctorView = function() {
+  doctorViewActive = !doctorViewActive;
+  // 互斥：關閉覆蓋率視圖
+  if (doctorViewActive && coverageViewActive) toggleCoverageView();
+
+  const btn = document.getElementById('doctorToggle');
+  btn.classList.toggle('active', doctorViewActive);
+
+  if (doctorViewActive) {
+    if (doctorData) {
+      applyDoctorColors();
+    } else {
+      // 首次開啟且無資料，嘗試拉取
+      fetchDoctorStatus();
+    }
+    updateDoctorBadges();
+  } else {
+    // 恢復原色 + 清除脈動
+    nodeMeshes.forEach(m => {
+      m.userData._doctorPulse = false;
+      m.scale.setScalar(1.0);
+    });
+    if (selectedNode) highlightNode(selectedNode);
+    else clearHighlight();
+    updateDoctorBadges();
+  }
+};
 
 // ═══════════════════════════════════════
 //  INIT
@@ -1527,6 +1729,7 @@ document.addEventListener('keydown', e => {
 initSyncInfo();
 createHealthBadges();
 updateCoveragePanel();
+connectDoctor();
 
 </script>
 </body>

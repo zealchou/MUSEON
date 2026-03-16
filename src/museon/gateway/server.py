@@ -569,7 +569,14 @@ def create_app() -> FastAPI:
 
             checker = HealthChecker()
             report = checker.run_all()
-            return report.to_dict()
+            result = report.to_dict()
+            # 健檢完成 → 推送給 3D 心智圖
+            try:
+                if hasattr(app.state, "broadcast_doctor_status"):
+                    asyncio.ensure_future(app.state.broadcast_doctor_status())
+            except Exception:
+                pass
+            return result
         except Exception as e:
             return {"error": str(e), "overall": "unknown", "checks": []}
 
@@ -668,7 +675,7 @@ def create_app() -> FastAPI:
             import asyncio
             issues = await asyncio.to_thread(analyzer.scan_all)
 
-            return {
+            result = {
                 "success": True,
                 "total": len(issues),
                 "critical": sum(1 for i in issues if i.severity == "critical"),
@@ -686,8 +693,123 @@ def create_app() -> FastAPI:
                 ],
                 "report": CodeAnalyzer.format_report(issues),
             }
+            # 分析完成 → 推送給 3D 心智圖
+            try:
+                if hasattr(app.state, "broadcast_doctor_status"):
+                    asyncio.ensure_future(app.state.broadcast_doctor_status())
+            except Exception:
+                pass
+            return result
         except Exception as e:
             return {"success": False, "error": str(e)}
+
+    # ─── Doctor Node Status（3D 心智圖專用）───
+
+    @app.get("/api/doctor/node-status")
+    async def doctor_node_status() -> Dict[str, Any]:
+        """組合 health_check + code_health，回傳以 node_id 為 key 的診斷映射.
+
+        供 3D 心智圖即時顯示 Doctor 診斷結果。
+        """
+        from datetime import datetime as _dt
+
+        node_map: Dict[str, Dict[str, Any]] = {}  # {node_id: {status, issues[]}}
+
+        def _set_worst(nid: str, status: str, issue: str = ""):
+            """設定節點狀態（只往嚴重方向升級）"""
+            severity = {"ok": 0, "warning": 1, "critical": 2, "unknown": -1}
+            if nid not in node_map:
+                node_map[nid] = {"status": "ok", "issues": []}
+            cur = severity.get(node_map[nid]["status"], 0)
+            new = severity.get(status, 0)
+            if new > cur:
+                node_map[nid]["status"] = status
+            if issue:
+                node_map[nid]["issues"].append(issue)
+
+        # ── A. Health Check 12 項 → 映射到節點 ──
+        try:
+            from museon.doctor.health_check import HealthChecker
+            checker = HealthChecker()
+            report = checker.run_all()
+
+            # 映射表：檢查名稱關鍵字 → 節點 ID 列表
+            _hc_map = {
+                "gateway": ["gateway"],
+                "daemon": ["daemon"],
+                "數據完整性": ["diary-store", "pulse-db", "memory-store"],
+                "核心模組": ["brain", "skill-router", "gateway"],
+                "dashboard": ["electron"],
+                "app": ["electron"],
+                "api key": ["llm-router"],
+                ".env": ["llm-router"],
+            }
+
+            for chk in report.to_dict().get("checks", []):
+                chk_name = chk.get("name", "")
+                chk_status = chk.get("status", "ok")
+                if chk_status == "ok":
+                    continue
+                matched = False
+                for keyword, nids in _hc_map.items():
+                    if keyword.lower() in chk_name.lower():
+                        for nid in nids:
+                            _set_worst(nid, chk_status, f"[健檢] {chk_name}: {chk.get('message', '')}")
+                        matched = True
+                if not matched:
+                    # 系統級問題不映射到特定節點
+                    pass
+        except Exception as hc_err:
+            logger.debug(f"node-status health_check failed: {hc_err}")
+
+        # ── B. Code Analyzer AST → 映射到節點 ──
+        try:
+            from museon.doctor.code_analyzer import CodeAnalyzer
+            import asyncio as _aio
+
+            project_root = Path(data_dir).parent
+            analyzer = CodeAnalyzer(source_root=project_root / "src" / "museon")
+            issues = await _aio.to_thread(analyzer.scan_all)
+
+            for issue in issues:
+                # 路徑轉節點 ID：src/museon/agent/brain.py → brain
+                fp = issue.file_path
+                parts = Path(fp).parts
+                # 找 museon 之後的路徑
+                try:
+                    idx = list(parts).index("museon")
+                    if idx + 2 < len(parts):
+                        module_file = parts[idx + 2]  # e.g., "brain.py"
+                        nid = module_file.replace(".py", "").replace("_", "-")
+                        _set_worst(
+                            nid,
+                            issue.severity,
+                            f"[{issue.rule_id}] {issue.message} ({Path(fp).name}:{issue.line})",
+                        )
+                except (ValueError, IndexError):
+                    pass
+        except Exception as ca_err:
+            logger.debug(f"node-status code_analyzer failed: {ca_err}")
+
+        # ── 統計 ──
+        summary = {"ok": 0, "warning": 0, "critical": 0}
+        for v in node_map.values():
+            s = v["status"]
+            if s in summary:
+                summary[s] += 1
+
+        overall = "ok"
+        if summary["critical"] > 0:
+            overall = "critical"
+        elif summary["warning"] > 0:
+            overall = "warning"
+
+        return {
+            "timestamp": _dt.now().isoformat(),
+            "overall": overall,
+            "nodes": node_map,
+            "summary": summary,
+        }
 
     # ─── Budget 用量端點（純 CPU）───
 
@@ -4325,7 +4447,99 @@ def _register_external_endpoints(app, data_dir) -> None:
     # 儲存到 app.state 以便其他模組推送通知
     app.state.extension_clients = _extension_clients
 
-    logger.info("External integration endpoints registered (Phase 3-5, incl. /ws/extension)")
+    # ── EXT-13: Doctor Monitor WebSocket（3D 心智圖即時診斷）──
+
+    _doctor_monitor_clients: list = []
+
+    async def _broadcast_doctor_status():
+        """推送最新 Doctor node-status 給所有 3D 心智圖客戶端."""
+        if not _doctor_monitor_clients:
+            return
+        try:
+            status = await doctor_node_status()
+            _doctor_status_cache.update(status)
+            msg = {"type": "doctor_status", "data": status}
+            dead = []
+            for client in _doctor_monitor_clients:
+                try:
+                    await client.send_json(msg)
+                except Exception:
+                    dead.append(client)
+            for c in dead:
+                if c in _doctor_monitor_clients:
+                    _doctor_monitor_clients.remove(c)
+        except Exception as bc_err:
+            logger.debug(f"broadcast_doctor_status failed: {bc_err}")
+
+    # 快取最後一次 doctor_node_status 結果，避免 WebSocket 連線時阻塞事件迴圈
+    _doctor_status_cache: Dict[str, Any] = {}
+
+    async def _refresh_doctor_cache():
+        """背景刷新 Doctor 狀態快取."""
+        try:
+            _doctor_status_cache.update(await doctor_node_status())
+        except Exception as e:
+            logger.debug(f"Doctor cache refresh failed: {e}")
+
+    @app.websocket("/ws/doctor-monitor")
+    async def ws_doctor_monitor(websocket: _WebSocket):
+        """3D 心智圖 Doctor 即時監控端點."""
+        await websocket.accept()
+        _doctor_monitor_clients.append(websocket)
+        logger.info(f"Doctor Monitor connected (total: {len(_doctor_monitor_clients)})")
+
+        try:
+            # 連線時推送快取狀態（不阻塞），若無快取則觸發背景刷新
+            if _doctor_status_cache:
+                await websocket.send_json({"type": "doctor_status", "data": _doctor_status_cache})
+            else:
+                # 送一個佔位回應，然後背景刷新
+                await websocket.send_json({"type": "doctor_status", "data": {
+                    "timestamp": "", "overall": "unknown", "nodes": {}, "summary": {}
+                }})
+                import asyncio as _ws_aio
+                _ws_aio.ensure_future(_refresh_and_push(websocket))
+
+            while True:
+                raw = await websocket.receive_text()
+                try:
+                    data = json.loads(raw)
+                    if data.get("type") == "ping":
+                        await websocket.send_json({"type": "pong"})
+                    elif data.get("type") == "refresh":
+                        try:
+                            status = await doctor_node_status()
+                            _doctor_status_cache.update(status)
+                        except Exception:
+                            status = _doctor_status_cache or {
+                                "timestamp": "", "overall": "unknown", "nodes": {}, "summary": {}
+                            }
+                        await websocket.send_json({"type": "doctor_status", "data": status})
+                except json.JSONDecodeError:
+                    pass
+
+        except WebSocketDisconnect:
+            pass
+        except Exception as ws_err:
+            logger.warning(f"Doctor Monitor WebSocket error: {ws_err}")
+        finally:
+            if websocket in _doctor_monitor_clients:
+                _doctor_monitor_clients.remove(websocket)
+            logger.info(f"Doctor Monitor disconnected (remaining: {len(_doctor_monitor_clients)})")
+
+    async def _refresh_and_push(ws: _WebSocket):
+        """背景刷新 Doctor 狀態並推送給特定客戶端."""
+        try:
+            await _refresh_doctor_cache()
+            if _doctor_status_cache:
+                await ws.send_json({"type": "doctor_status", "data": _doctor_status_cache})
+        except Exception:
+            pass
+
+    app.state.doctor_monitor_clients = _doctor_monitor_clients
+    app.state.broadcast_doctor_status = _broadcast_doctor_status
+
+    logger.info("External integration endpoints registered (Phase 3-5, incl. /ws/extension, /ws/doctor-monitor)")
 
 
 # ═══════════════════════════════════════════════════════
@@ -5430,6 +5644,12 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                 f"warned={report.summary.get('warning', 0)}, "
                 f"failed={report.summary.get('critical', 0)}"
             )
+            # 審計完成 → 即時推送給 3D 心智圖
+            try:
+                if hasattr(app.state, "broadcast_doctor_status"):
+                    await app.state.broadcast_doctor_status()
+            except Exception:
+                pass
         except Exception as e:
             logger.debug(f"System audit periodic cron failed: {e}")
 
