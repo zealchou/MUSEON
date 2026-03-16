@@ -749,6 +749,9 @@ function highlightNode(node) {
       m.material.emissiveIntensity = 0.3;
       m.material.opacity = 1;
       m.material.transparent = false;
+      m.material.depthWrite = true;
+      m.material.needsUpdate = true;
+      m.renderOrder = 0;
       if (n.labelDiv) {
         n.labelDiv.style.opacity = '1';
         // 相關節點：字體放大 2 級 + 粗體
@@ -767,21 +770,14 @@ function highlightNode(node) {
       m.material.color.copy(dimColor);
       m.material.emissive.set(0x000000);
       m.material.emissiveIntensity = 0;
-      m.material.opacity = 0.08;
+      m.material.opacity = 0.06;
       m.material.transparent = true;
+      m.material.depthWrite = false;
+      m.material.needsUpdate = true;
+      m.renderOrder = -1;
       if (n.labelDiv) {
-        n.labelDiv.style.opacity = '0.15';
-        // 無關節點：還原字體
-        const isHub = n.labelDiv.classList.contains('hub');
-        if (isHub) {
-          const enEl = n.labelDiv.querySelector('.en');
-          const zhEl = n.labelDiv.querySelector('.zh');
-          if (enEl) { enEl.style.fontSize = ''; enEl.style.fontWeight = ''; }
-          if (zhEl) { zhEl.style.fontSize = ''; zhEl.style.fontWeight = ''; }
-        } else {
-          n.labelDiv.style.fontSize = '';
-          n.labelDiv.style.fontWeight = '';
-        }
+        n.labelDiv.style.opacity = '0';
+        // 無關節點：隱藏標籤
       }
     }
   });
@@ -819,6 +815,9 @@ function clearHighlight() {
     m.material.emissiveIntensity = 0.15;
     m.material.opacity = 1;
     m.material.transparent = false;
+    m.material.depthWrite = true;
+    m.material.needsUpdate = true;
+    m.renderOrder = 0;
     if (n.labelDiv) {
       n.labelDiv.style.opacity = '1';
       // 還原字體大小與粗細
