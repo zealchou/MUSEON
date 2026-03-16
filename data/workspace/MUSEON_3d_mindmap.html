@@ -222,13 +222,13 @@ const nodes = [
   {id:"governor",label:"Governor",zh:"上中下焦",group:"gov",p:"governance",r:1.0},
   {id:"immunity",label:"Immunity",zh:"先天+後天免疫",group:"gov",p:"governance",r:1.1},
   {id:"preflight",label:"Preflight",zh:"啟動門",group:"gov",p:"governance",r:0.9},
-  {id:"refractory",label:"Refractory",zh:"斷路器",group:"gov",p:"governance",r:0.9},
+  {id:"refractory",label:"Refractory",zh:"斷路器（三態+半開）",group:"gov",p:"governance",r:0.9},
   {id:"skill-scanner",label:"Skill Scanner",zh:"技能掃描",group:"gov",p:"governance",r:0.8},
   {id:"sandbox",label:"Sandbox",zh:"沙盒隔離",group:"gov",p:"governance",r:0.8},
   {id:"telegram-guard",label:"TG Guard",zh:"Polling守衛",group:"gov",p:"governance",r:0.8},
   {id:"service-health",label:"Service Health",zh:"服務監控",group:"gov",p:"governance",r:1.0},
   {id:"doctor",label:"Doctor",zh:"自我診斷修復",group:"doctor",r:2.8,hub:1},
-  {id:"system-audit",label:"System Audit",zh:"7層46項",group:"doctor",p:"doctor",r:1.1},
+  {id:"system-audit",label:"System Audit",zh:"8層49項",group:"doctor",p:"doctor",r:1.1},
   {id:"health-check",label:"Health Check",zh:"12項基礎",group:"doctor",p:"doctor",r:0.9},
   {id:"self-diagnosis",label:"Self Diagnosis",zh:"診斷管線",group:"doctor",p:"doctor",r:0.9},
   {id:"auto-repair",label:"Auto Repair",zh:"自動修復",group:"doctor",p:"doctor",r:1.0},
@@ -308,6 +308,8 @@ const nodes = [
   {id:"flywheel-coordinator",label:"Flywheel Coordinator",zh:"飛輪協調器",group:"multiagent",p:"multiagent",r:0.8},
   // P0: 事實覆寫引擎
   {id:"fact-correction",label:"Fact Correction",zh:"事實覆寫引擎",group:"agent",p:"brain",r:0.9},
+  // P4: 藍圖解析器
+  {id:"blueprint-reader",label:"Blueprint Reader",zh:"藍圖解析器",group:"data",r:0.9},
 ];
 
 const links = [
@@ -531,6 +533,19 @@ const links = [
   // P4: 自省清洗——事實更正注入
   {source:"fact-correction",target:"proactive-bridge",label:"事實更正→自省上下文",type:"async"},
   {source:"fact-correction",target:"pulse",label:"事實更正→PULSE.md 過濾",type:"async"},
+  // ── 五缺陷修復（P1-P5）新增連線 ──
+  // P1: 抗體學習接通
+  {source:"governor",target:"immunity",label:"learn() 抗體學習",type:"internal"},
+  // P2: incident 回調橋接
+  {source:"governor",target:"pulse-db",label:"incident 回調→PulseDB",type:"cross"},
+  // P3: 健康分數真實化
+  {source:"governor",target:"dendritic-scorer",label:"immunity 未解決→健康分數",type:"internal"},
+  // P4: 藍圖感知
+  {source:"blueprint-reader",target:"doctor",label:"Layer 8 藍圖審計",type:"cross"},
+  {source:"blueprint-reader",target:"surgery",label:"動態扇入安全檢查",type:"cross"},
+  {source:"blueprint-reader",target:"morphenix",label:"B1 藍圖禁區審查",type:"cross"},
+  // P5: Nightly 藍圖驗證
+  {source:"nightly",target:"blueprint-reader",label:"Step 30 藍圖一致性",type:"cross"},
 ];
 
 const nodeMap = {};
