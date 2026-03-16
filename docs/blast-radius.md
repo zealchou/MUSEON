@@ -1,4 +1,4 @@
-# Blast Radius — 模組影響半徑表 v1.18
+# Blast Radius — 模組影響半徑表 v1.19
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
@@ -188,8 +188,8 @@
 | 屬性 | 值 |
 |------|-----|
 | **扇入** | 3（server, mcp_server, __init__） |
-| **扇出** | 31+（import 31 個模組，初始化全系統——含 PrimalDetector, MultiAgentExecutor） |
-| **角色** | 系統核心——LLM 對話、記憶、自我觀察、所有子系統初始化、多代理並行呼叫 |
+| **扇出** | 32+（import 32 個模組，初始化全系統——含 PrimalDetector, MultiAgentExecutor, MemoryGate） |
+| **角色** | 系統核心——LLM 對話、記憶、自我觀察、所有子系統初始化、多代理並行呼叫、記憶閘門意圖判斷 |
 
 #### 影響半徑
 
@@ -628,6 +628,9 @@
 ### Agent 層（8 個）
 `agent/dna27.py`, `agent/drift_detector.py`, `agent/intuition.py`, `agent/kernel_guard.py`, `agent/plan_engine.py`, `agent/primal_detector.py`, `agent/routing_bridge.py`, `agent/safety_anchor.py`, `agent/sub_agent.py`
 
+### Memory 層（1 個）
+`memory/memory_gate.py`（★ v1.19 新增，扇入=1，僅 brain.py import；純 CPU 規則引擎，零 LLM 成本，判斷記憶寫入意圖）
+
 ### Gateway 層（3 個）
 `gateway/cron.py`, `gateway/security.py`, `gateway/session.py`
 
@@ -726,7 +729,7 @@
 | Hub 模組（扇入 ≥ 10） | 6 | event_bus(117), message(20), tool_registry(18), pulse_db(14), data_bus(13), dispatch(11) |
 | 中間模組（扇入 2-9） | 60 | — |
 | 單引用模組（扇入 1） | 72 | — |
-| 葉子模組（扇入 0） | 43 | 可安全修改 |
+| 葉子模組（扇入 0） | 44 | 可安全修改（+memory_gate.py） |
 | 共享可變狀態 | 27 個 | 詳見 joint-map.md（v1.10）— 含 #25 JSONL 審計日誌群 + #26 記憶 Markdown + #27 fact_corrections.jsonl |
 | 事件健康度 | 67.9% | 幽靈訂閱清零（v1.5 修復） |
 | 致命單點 | event_bus | 佔全系統 33% 依賴 |
@@ -737,6 +740,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-16 | v1.19 | Memory Gate 記憶閘門：新增 `memory/memory_gate.py` 到綠區（扇入=1，brain.py import）；brain.py 扇出 31→32+（新增 MemoryGate 初始化）；brain.py Step 9.0 新增意圖分類閘門（classify_intent → decide_action → suppress_primals/suppress_facts）；brain.py `_observe_user()` 新增 suppress 參數（修改安全：不影響 G1/G3 外部模組） |
 | 2026-03-16 | v1.18 | P5 斷路器半開 + Nightly 藍圖驗證：refractory.py 新增 `half_open` / `half_open_since` 狀態欄位，`check()` 支援半開試探性恢復（hibernate 30 分鐘→half_open→proceed），`record_failure()` 半開失敗→回到 hibernate，`record_success()` 半開成功→完全恢復；nightly_pipeline.py 新增 Step 30 `_step_blueprint_consistency()`（3 項檢查：藍圖存在性、新鮮度 72h 閾值、禁區模組路徑）；新增 `governance/refractory.py` 到黃區 |
 | 2026-03-16 | v1.17 | P4 Doctor 藍圖感知：新增 `core/blueprint_reader.py`（綠區，扇入=0），解析 blast-radius.md 和 joint-map.md；system_audit.py 新增 Layer 8 BLUEPRINT（3 項檢查：藍圖存在性、新鮮度、禁區保護）；surgeon.py safety_review 新增 4.5b 動態扇入安全檢查（blast-radius 禁區/紅區攔截）；morphenix_standards.py 新增 B1 藍圖禁區規則（Hard Rule 層級攔截） |
 | 2026-03-16 | v1.16 | P3 健康分數真實化：governor.py Step 4.1 `_dendritic.tick()` 之前新增 immunity 未解決事件注入（`immunity._incidents` → `dendritic.record_event()`），DendriticScorer 健康分數首次反映 immunity 未解決事件 |

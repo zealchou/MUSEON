@@ -107,6 +107,14 @@ class MuseonBrain:
         except Exception as e:
             logger.debug(f"PrimalDetector 初始化失敗（降級到關鍵字）: {e}")
 
+        # ★ v1.13: Memory Gate — 記憶寫入前的意圖分類閘門
+        self._memory_gate = None
+        try:
+            from museon.memory.memory_gate import MemoryGate
+            self._memory_gate = MemoryGate()
+        except Exception as e:
+            logger.debug(f"MemoryGate 初始化失敗（降級到無閘門模式）: {e}")
+
         from museon.memory.store import MemoryStore
         self.memory_store = MemoryStore(
             base_path=str(self.data_dir / "memory")
@@ -1275,9 +1283,44 @@ class MuseonBrain:
         # ── Step 8.8: 自主排程偵測（純 CPU）──
         self._detect_cron_patterns(content)
 
-        # ── Step 9: 更新 ANIMA_USER（被動觀察 — 八原語 + 七層 + 四觀察引擎） ──
+        # ── Step 9.0: Memory Gate 意圖分類（v1.13 新增）──
+        # 在記憶寫入前先判斷意圖，避免「越否認越強化」迴圈
+        _memory_action = None
+        if not self._offline_flag and self._memory_gate:
+            try:
+                _memory_intent = self._memory_gate.classify_intent(content)
+                _memory_action = self._memory_gate.decide_action(_memory_intent)
+                if _memory_action.action != "ADD":
+                    logger.info(
+                        f"MemoryGate: {_memory_action.action} — {_memory_action.reason}"
+                    )
+            except Exception as e:
+                logger.warning(f"MemoryGate 分類失敗（降級到無閘門）: {e}")
+                _memory_action = None
+
+        # ── Step 9.2: 事實更正偵測（P0 記憶事實覆寫）──
+        # v1.13: 提前到 Step 9 之前，確保糾正在記憶寫入前觸發
+        if not self._offline_flag and not self._is_group_session:
+            try:
+                _should_correct = (
+                    (_memory_action is not None and _memory_action.trigger_correction)
+                    or self._detect_fact_correction(content)
+                )
+                if _should_correct:
+                    asyncio.ensure_future(
+                        self._handle_fact_correction(
+                            content, response_text, session_id,
+                        )
+                    )
+            except Exception as e:
+                logger.warning(f"事實更正偵測失敗: {e}")
+
+        # ── Step 9: 條件式更新 ANIMA_USER（被動觀察 — 八原語 + 七層 + 四觀察引擎） ──
         # CASTLE Layer 2: 離線回應不進入使用者觀察管線
         # v2.0: 群組訊息也更新 ANIMA_USER（權重 ×0.5），不再完全跳過
+        # v1.13: Memory Gate 可 suppress 八原語和事實寫入
+        _suppress_primals = _memory_action.suppress_primals if _memory_action else False
+        _suppress_facts = _memory_action.suppress_facts if _memory_action else False
         if not self._offline_flag and anima_user is not None:
             if self._is_group_session:
                 # 群組模式：同時進入 ANIMA_USER（半權重）+ 外部用戶觀察
@@ -1286,6 +1329,8 @@ class MuseonBrain:
                     response_content=response_text,
                     skill_names=skill_names,
                     context_type="group",  # v2.0: 標記群組來源，觀察引擎內部降權 ×0.5
+                    suppress_primals=_suppress_primals,
+                    suppress_facts=_suppress_facts,
                 )
                 self._observe_external_user(
                     content,
@@ -1300,20 +1345,9 @@ class MuseonBrain:
                     content, anima_user,
                     response_content=response_text,
                     skill_names=skill_names,
+                    suppress_primals=_suppress_primals,
+                    suppress_facts=_suppress_facts,
                 )
-
-        # ── Step 9.2: 事實更正偵測（P0 記憶事實覆寫）──
-        # 使用者糾正事實時，找到矛盾的舊記憶並標記廢棄
-        if not self._offline_flag and not self._is_group_session:
-            try:
-                if self._detect_fact_correction(content):
-                    asyncio.ensure_future(
-                        self._handle_fact_correction(
-                            content, response_text, session_id,
-                        )
-                    )
-            except Exception as e:
-                logger.warning(f"事實更正偵測失敗: {e}")
 
         # ── Step 9.5: 更新 ANIMA_MC（自我觀察 — 八原語 + 能力追蹤） ──
         # CASTLE Layer 2: 離線/降級模式下的輸出不進入自觀察管線
@@ -5225,19 +5259,23 @@ class MuseonBrain:
         response_content: str = "",
         skill_names: Optional[List[str]] = None,
         context_type: str = "dm",
+        suppress_primals: bool = False,
+        suppress_facts: bool = False,
     ) -> None:
         """被動觀察使用者行為，更新 ANIMA_USER.
 
         整合六大觀察器：
         1. 基本互動計數 + 信任等級
-        2. 八原語（啟發式關鍵字）
-        3. 七層同心圓（L1-L7 全層）
+        2. 八原語（啟發式關鍵字）— suppress_primals=True 時跳過
+        3. 七層同心圓（L1-L7 全層）— suppress_facts=True 時跳過 L1
         4. 偏好蒸餾器
         5. 年輪觀察器
         6. 風格觀察器 + 模式觀察器
 
         Args:
             context_type: 觀察來源（"dm"=私訊全權重, "group"=群組半權重 ×0.5）
+            suppress_primals: Memory Gate 判定為糾正/否認時，跳過八原語寫入
+            suppress_facts: Memory Gate 判定為糾正/否認時，跳過 L1 事實寫入
         """
         if not anima_user:
             return
@@ -5278,24 +5316,31 @@ class MuseonBrain:
         anima_user["relationship"] = relationship
 
         # ── 2. 八原語觀察（向量語義偵測 + 關鍵字 fallback）──
+        # ★ v1.13: Memory Gate 糾正/否認時跳過八原語寫入，避免「越否認越強化」
         primals = anima_user.get("eight_primals", {})
-        # ★ v10.5: 先用 PrimalDetector 偵測即時原語
-        detected_primals = {}
-        if self._primal_detector:
-            try:
-                detected_primals = self._primal_detector.detect(content)
-            except Exception as _e:
-                logger.debug(f"PrimalDetector.detect 失敗: {_e}")
-        # 用偵測結果更新長期 ANIMA_USER 八原語（EMA 平滑）
-        self._observe_user_primals(
-            content, primals, now_iso, detected_primals,
-            obs_weight=obs_weight,
-        )
+        if not suppress_primals:
+            # ★ v10.5: 先用 PrimalDetector 偵測即時原語
+            detected_primals = {}
+            if self._primal_detector:
+                try:
+                    detected_primals = self._primal_detector.detect(content)
+                except Exception as _e:
+                    logger.debug(f"PrimalDetector.detect 失敗: {_e}")
+            # 用偵測結果更新長期 ANIMA_USER 八原語（EMA 平滑）
+            self._observe_user_primals(
+                content, primals, now_iso, detected_primals,
+                obs_weight=obs_weight,
+            )
+        else:
+            logger.info("MemoryGate: suppress_primals=True, 跳過八原語觀察")
         anima_user["eight_primals"] = primals
 
         # ── 3. 七層觀察（L1-L7 全層）──
         layers = anima_user.get("seven_layers", {})
-        self._observe_user_layers(content, layers, now_iso, anima_user=anima_user)
+        self._observe_user_layers(
+            content, layers, now_iso, anima_user=anima_user,
+            suppress_facts=suppress_facts,  # ★ v1.13: 傳遞到 L1
+        )
         anima_user["seven_layers"] = layers
 
         # ── 4. 偏好推斷（溝通風格 + 偏好蒸餾器）──
@@ -6091,31 +6136,42 @@ class MuseonBrain:
     def _observe_user_layers(
         self, content: str, layers: Dict[str, Any], now_iso: str,
         anima_user: Optional[Dict[str, Any]] = None,
+        suppress_facts: bool = False,
     ) -> None:
-        """觀察使用者七層同心圓數據（純 CPU）."""
+        """觀察使用者七層同心圓數據（純 CPU）.
+
+        Args:
+            suppress_facts: Memory Gate 判定為糾正/否認時，跳過 L1 事實寫入
+        """
         # ── L1: 基本事實 ──
-        facts = layers.setdefault("L1_facts", [])
-        existing_facts = {f.get("fact", "") for f in facts}
-        for category, keywords in self._FACT_PATTERNS.items():
-            hits = [kw for kw in keywords if kw in content]
-            if len(hits) >= 1:
-                # 擷取包含關鍵字的句子作為事實
-                for kw in hits:
-                    idx = content.find(kw)
-                    if idx >= 0:
-                        # 擷取關鍵字前後 40 字
-                        start = max(0, idx - 20)
-                        end = min(len(content), idx + len(kw) + 40)
-                        snippet = content[start:end].replace("\n", " ").strip()
-                        if snippet and snippet not in existing_facts:
-                            facts.append({
-                                "fact": snippet,
-                                "category": category,
-                                "source": "conversation",
-                                "date": now_iso,
-                            })
-                            existing_facts.add(snippet)
-                            break  # 每個 category 每次最多新增一筆
+        # ★ v1.13: Memory Gate 糾正/否認時跳過 L1 事實寫入
+        if not suppress_facts:
+            facts = layers.setdefault("L1_facts", [])
+            existing_facts = {f.get("fact", "") for f in facts}
+            for category, keywords in self._FACT_PATTERNS.items():
+                hits = [kw for kw in keywords if kw in content]
+                if len(hits) >= 1:
+                    # 擷取包含關鍵字的句子作為事實
+                    for kw in hits:
+                        idx = content.find(kw)
+                        if idx >= 0:
+                            # 擷取關鍵字前後 40 字
+                            start = max(0, idx - 20)
+                            end = min(len(content), idx + len(kw) + 40)
+                            snippet = content[start:end].replace("\n", " ").strip()
+                            if snippet and snippet not in existing_facts:
+                                facts.append({
+                                    "fact": snippet,
+                                    "category": category,
+                                    "source": "conversation",
+                                    "date": now_iso,
+                                    "status": "active",       # ★ v1.13: 事實狀態追蹤
+                                    "confidence": 0.7,         # ★ v1.13: 初始信心度
+                                })
+                                existing_facts.add(snippet)
+                                break  # 每個 category 每次最多新增一筆
+        else:
+            logger.info("MemoryGate: suppress_facts=True, 跳過 L1 事實寫入")
 
         # 限制 L1 上限 50 筆，超過移除最舊的
         if len(facts) > 50:
