@@ -43,13 +43,13 @@ class FeedbackLoop:
 
     def __init__(
         self,
-        event_bus: Any = None,
         workspace: Optional[str] = None,
+        event_bus: Any = None,
     ) -> None:
         """
         Args:
-            event_bus: EventBus 實例（可選）
             workspace: 工作區路徑（可選，用於持久化）
+            event_bus: EventBus 實例（可選）
         """
         self._event_bus = event_bus
         self._workspace = workspace
