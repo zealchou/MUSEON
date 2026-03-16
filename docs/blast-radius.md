@@ -1,4 +1,4 @@
-# Blast Radius — 模組影響半徑表 v1.7
+# Blast Radius — 模組影響半徑表 v1.10
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
@@ -195,7 +195,7 @@
 
 | 影響類型 | 範圍 |
 |---------|------|
-| 共享狀態讀寫 | ANIMA_MC.json(RW), ANIMA_USER.json(RW+L8群組), PULSE.md(R), PulseDB(R), Qdrant(W), Qdrant:primals(R via PrimalDetector), diary_entries(R), synapses(R), memory(R/W+dept_id) |
+| 共享狀態讀寫 | ANIMA_MC.json(RW), ANIMA_USER.json(RW+L8群組), PULSE.md(R), PulseDB(R), Qdrant(W), Qdrant:primals(R via PrimalDetector), diary_entries(R), synapses(R), memory(R/W+dept_id), fact_corrections.jsonl(RW) |
 | 子系統初始化 | 31 個模組在 Brain.__init__() 中初始化（含 PrimalDetector, DiaryStore, MultiAgentExecutor, FlywheelCoordinator） |
 | System Prompt | `_build_soul_context()` + `_build_system_prompt()` 決定 AI 所有行為 |
 
@@ -204,7 +204,7 @@
 | ✅ 安全 | ❌ 危險 |
 |---------|---------|
 | 修改 `_chat()` 的回應後處理 | 修改 `__init__()` 的初始化順序 |
-| 新增獨立觀察方法 | 修改 `_build_soul_context()` |
+| 新增獨立觀察方法（如 `_handle_fact_correction()`） | 修改 `_build_soul_context()` |
 | 修改日誌格式 | 修改 `_save_anima_mc()` / `_load_anima_mc()` |
 | — | 修改 `_anima_mc_lock` 鎖策略 |
 | — | 新增/修改 system prompt 注入來源 |
@@ -540,8 +540,9 @@
 
 | 影響類型 | 範圍 |
 |---------|------|
-| 共享狀態 | Qdrant 8 個 collections（含 primals） |
+| 共享狀態 | Qdrant 8 個 collections（含 primals）；memories collection 新增 status=deprecated 軟刪除過濾 |
 | 直接 import | 7 個模組（brain, memory_manager, reflex_router, skill_router, knowledge_lattice, chromosome_index, primal_detector） |
+| 新增方法 | `mark_deprecated(collection, doc_id)` — 標記向量為 deprecated，search() 自動過濾 |
 | 降級影響 | Qdrant 離線 → 檢索能力降級為 TF-IDF（0.3 折扣） |
 
 #### 修改安全邊界
@@ -549,7 +550,7 @@
 | ✅ 安全 | ❌ 危險 |
 |---------|---------|
 | 新增 collection | 修改 embedding 維度或模型 |
-| 新增查詢參數 | 修改 graceful degradation 邏輯 |
+| 新增查詢參數（如 `filter_deprecated`） | 修改 graceful degradation 邏輯 |
 | — | 修改 collection schema |
 
 ---
@@ -707,7 +708,7 @@
 | 中間模組（扇入 2-9） | 60 | — |
 | 單引用模組（扇入 1） | 72 | — |
 | 葉子模組（扇入 0） | 43 | 可安全修改 |
-| 共享可變狀態 | 26 個 | 詳見 joint-map.md（v1.7）— 含 #25 JSONL 審計日誌群 + #26 記憶 Markdown |
+| 共享可變狀態 | 27 個 | 詳見 joint-map.md（v1.10）— 含 #25 JSONL 審計日誌群 + #26 記憶 Markdown + #27 fact_corrections.jsonl |
 | 事件健康度 | 67.9% | 幽靈訂閱清零（v1.5 修復） |
 | 致命單點 | event_bus | 佔全系統 33% 依賴 |
 
@@ -717,6 +718,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-16 | v1.10 | P0 記憶事實覆寫：brain.py 新增 `_detect_fact_correction()`+`_handle_fact_correction()`+`_log_fact_correction()`（安全操作：獨立觀察方法）；vector_bridge.py 新增 `mark_deprecated()`、search() 新增 `filter_deprecated` 參數（向後相容，預設 True）；共享狀態 26→27 個 |
 | 2026-03-16 | v1.9 | Phase 4 飛輪多代理實質化：department_config 新增 full_system_prompt/model_tier；新增 multi_agent_executor.py（綠區，扇入=1）、response_synthesizer.py（綠區，扇入=1）、flywheel_flow.py（綠區，扇入=0）；okr_router 新增 route_extended() 回傳輔助部門；brain.py 扇出 29→31+（新增 MultiAgentExecutor, ResponseSynthesizer）；memory_manager 新增 dept_id/dept_filter 參數（向後相容） |
 | 2026-03-16 | v1.8 | Phase 3 日記+群組ANIMA：SoulRingStore→DiaryStore 重命名（新增 entry_type/highlights/learnings 欄位）；brain.py 群組訊息更新 ANIMA_USER（L1-L7 半權重+L8_context_behavior_notes）；新增 pulse/group_session_proactive.py（綠區，扇入=1，監聽 GROUP_SESSION_END）；telegram.py 新增群組閒置偵測+GROUP_SESSION_END 事件發布；heartbeat_engine.py 新增 schedule_delayed_task()；server.py 新增 /api/anima/user/group-behaviors；nightly _step_soul_nightly→_step_diary_generation |
 | 2026-03-16 | v1.7 | Phase 2 八原語接線：新增 agent/primal_detector.py 到綠區（扇入=1）；brain.py 扇出 28→29+（新增 PrimalDetector 初始化）；vector_bridge.py 扇入 6→7、collections 7→8（新增 primals）；skill_router/persona_router/reflex_router/okr_router 新增 Optional user_primals 參數（向後相容） |

@@ -1302,6 +1302,19 @@ class MuseonBrain:
                     skill_names=skill_names,
                 )
 
+        # ── Step 9.2: 事實更正偵測（P0 記憶事實覆寫）──
+        # 使用者糾正事實時，找到矛盾的舊記憶並標記廢棄
+        if not self._offline_flag and not self._is_group_session:
+            try:
+                if self._detect_fact_correction(content):
+                    asyncio.ensure_future(
+                        self._handle_fact_correction(
+                            content, response_text, session_id,
+                        )
+                    )
+            except Exception as e:
+                logger.warning(f"事實更正偵測失敗: {e}")
+
         # ── Step 9.5: 更新 ANIMA_MC（自我觀察 — 八原語 + 能力追蹤） ──
         # CASTLE Layer 2: 離線/降級模式下的輸出不進入自觀察管線
         if self._offline_flag:
@@ -5340,6 +5353,179 @@ class MuseonBrain:
             self._wq.enqueue("anima_user_save", self._save_anima_user, anima_user)
         else:
             self._save_anima_user(anima_user)
+
+    # ─── 事實更正偵測與處理（P0 記憶事實覆寫）────────────────
+
+    # 事實更正關鍵字模式（純 CPU 啟發式偵測）
+    _FACT_CORRECTION_PATTERNS: List[str] = [
+        "不是", "你記錯", "你搞錯", "哪來的", "沒有這", "沒那回事",
+        "只有", "才沒有", "要我講多少遍", "跟你說過", "我已經說過",
+        "我說過了", "是兩個", "是2個", "不是12", "沒有12",
+        "你怎麼又", "又來了", "又搞錯", "錯了啦", "不對啦",
+        "我糾正", "我更正", "不是這樣", "才不是",
+        "你誤會", "你弄錯", "你搞混", "修正一下",
+    ]
+
+    def _detect_fact_correction(self, content: str) -> bool:
+        """偵測使用者訊息是否包含事實糾正信號.
+
+        純 CPU 啟發式：檢查是否匹配糾正模式關鍵字。
+        設計為低成本、高召回率（寧可多偵測，由後續 LLM 精確判斷）。
+        """
+        if len(content) < 4:
+            return False
+
+        content_lower = content.lower()
+        match_count = sum(
+            1 for pattern in self._FACT_CORRECTION_PATTERNS
+            if pattern in content_lower
+        )
+        # 命中 1 個以上關鍵字即觸發
+        return match_count >= 1
+
+    async def _handle_fact_correction(
+        self,
+        user_content: str,
+        assistant_response: str,
+        session_id: str,
+    ) -> None:
+        """使用者糾正事實時，找到矛盾的舊記憶並標記廢棄.
+
+        流程：
+        1. 用 MemoryManager.recall() 搜尋與糾正內容語義相關的記憶
+        2. 呼叫 Haiku LLM 判斷哪些記憶與新事實矛盾
+        3. 對矛盾記憶呼叫 MemoryManager.supersede() + VectorBridge.mark_deprecated()
+        4. 記錄到 data/anima/fact_corrections.jsonl
+        """
+        if not self.memory_manager:
+            return
+
+        try:
+            # 1. 搜尋相關記憶
+            related_memories = self.memory_manager.recall(
+                user_id=self.memory_manager._user_id,
+                query=user_content,
+                limit=10,
+            )
+
+            if not related_memories:
+                return
+
+            # 2. 用 Haiku 判斷哪些記憶與新事實矛盾
+            memories_text = "\n".join(
+                f"[{i}] ID={m.get('id','?')} | {m.get('content','')[:200]}"
+                for i, m in enumerate(related_memories)
+            )
+
+            judge_prompt = (
+                "你是事實一致性判斷器。使用者剛糾正了一個事實。\n"
+                "請判斷以下哪些記憶與使用者的糾正內容矛盾。\n\n"
+                f"使用者糾正內容：\n{user_content}\n\n"
+                f"相關記憶：\n{memories_text}\n\n"
+                "回覆格式：只回傳矛盾記憶的編號（如 0,2,5），"
+                "如果沒有矛盾則回傳 NONE。"
+                "不要解釋，只回傳編號或 NONE。"
+            )
+
+            result = await self._call_llm_with_model(
+                system_prompt="你是精準的事實一致性判斷器。",
+                messages=[{"role": "user", "content": judge_prompt}],
+                model="claude-haiku-4-5-20251001",
+                max_tokens=100,
+            )
+
+            if not result or "NONE" in result.upper():
+                logger.debug("事實更正偵測：無矛盾記憶")
+                return
+
+            # 3. 解析矛盾記憶編號
+            import re
+            indices = [
+                int(x) for x in re.findall(r"\d+", result)
+                if int(x) < len(related_memories)
+            ]
+
+            if not indices:
+                return
+
+            # 4. 對矛盾記憶執行 supersede + mark_deprecated
+            corrections = []
+            for idx in indices:
+                old_memory = related_memories[idx]
+                old_id = old_memory.get("id", "")
+                if not old_id:
+                    continue
+
+                try:
+                    # 記憶層：supersede（歸檔舊記憶 + 建新記憶）
+                    new_entry = self.memory_manager.supersede(
+                        user_id=self.memory_manager._user_id,
+                        old_id=old_id,
+                        new_content=user_content,
+                        tags=old_memory.get("tags", []) + ["fact_correction"],
+                        source="fact_correction",
+                    )
+
+                    # 向量層：mark_deprecated（軟刪除舊向量）
+                    try:
+                        from museon.vector.vector_bridge import VectorBridge
+                        vb = VectorBridge(workspace=self.data_dir)
+                        vb.mark_deprecated("memories", old_id)
+                    except Exception as ve:
+                        logger.debug(f"向量廢棄標記失敗: {ve}")
+
+                    corrections.append({
+                        "old_id": old_id,
+                        "old_content": old_memory.get("content", "")[:200],
+                        "new_content": user_content[:200],
+                        "new_id": new_entry.get("id", ""),
+                    })
+
+                    logger.info(
+                        f"事實覆寫：{old_id} → {new_entry.get('id', '?')}"
+                    )
+
+                except Exception as se:
+                    logger.warning(f"記憶 supersede 失敗 {old_id}: {se}")
+
+            # 5. 寫入事實更正日誌
+            if corrections:
+                self._log_fact_correction(
+                    user_content, assistant_response,
+                    session_id, corrections,
+                )
+
+        except Exception as e:
+            logger.warning(f"事實更正處理失敗: {e}")
+
+    def _log_fact_correction(
+        self,
+        user_content: str,
+        assistant_response: str,
+        session_id: str,
+        corrections: list,
+    ) -> None:
+        """將事實更正記錄追加到 fact_corrections.jsonl."""
+        import json
+
+        log_path = self.data_dir / "anima" / "fact_corrections.jsonl"
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+
+        entry = {
+            "timestamp": datetime.now().isoformat(),
+            "session_id": session_id,
+            "user_said": user_content[:500],
+            "corrections": corrections,
+        }
+
+        try:
+            with open(log_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+            logger.info(
+                f"事實更正日誌寫入：{len(corrections)} 條記憶被覆寫"
+            )
+        except Exception as e:
+            logger.warning(f"事實更正日誌寫入失敗: {e}")
 
     # ─── L8 群組行為觀察（v2.0 新增）────────────────────
 
