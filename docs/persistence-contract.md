@@ -453,6 +453,46 @@ Installer 編排 (orchestrator.py)
 - `nightly/nightly_pipeline.py` — Step 29 接入
 - 快照持久化：`data/_system/data_health/` (latest_snapshot.json + snapshot_history.jsonl)
 
+### Pipeline R：Memory Reset Pipeline（一鍵重置管線）
+
+> v1.14 新增。`doctor/memory_reset.py` 提供全系統記憶/知識一鍵重置，涵蓋 25 個持久層。
+
+**觸發方式**：CLI `python -m museon.doctor.memory_reset --home ~/MUSEON [--confirm]`
+
+| 類別 | 層 | 目標 | 操作 |
+|------|-----|------|------|
+| A.身份 | A1 | ANIMA_MC.json（boss/self_awareness） | 重置為初始模板（保留 identity.name=霓裳） |
+| A.身份 | A2 | ANIMA_USER.json | 重置為空模板（七層結構+空 profile） |
+| A.身份 | A3 | PulseDB.ceremony_state | DELETE FROM + reset sequence |
+| B.對話 | B1 | PULSE.md | 從模板重新生成 |
+| B.對話 | B2 | SOUL.md | 清空內容 |
+| B.對話 | B3 | memory/{date}/*.md | 刪除所有記憶 Markdown |
+| B.對話 | B4 | memory_v3/*.json | 刪除 JSON 記憶檔 |
+| B.對話 | B5 | session/*.json | 刪除所有 session 檔 |
+| B.對話 | B6 | PulseDB.anima_log | DELETE FROM + reset sequence |
+| B.對話 | B7 | PulseDB.metacognition | DELETE FROM + reset sequence |
+| C.知識 | C1 | crystals.json | 重置為空陣列 |
+| C.知識 | C2 | Qdrant collections | 刪除並重建（保留 schema） |
+| C.知識 | C3 | synapses.json | 重置為空物件 |
+| C.知識 | C4 | scout_queue/*.json | 刪除待處理佇列 |
+| D.行為 | D1 | soul_rings.json (DiaryStore) | 重置為空陣列 |
+| D.行為 | D2 | drift_log.jsonl | 清空 |
+| D.行為 | D3 | fact_corrections.jsonl | 清空 |
+| E.評估 | E1 | PulseDB（其餘表） | DELETE FROM 所有非 ceremony 表 |
+| E.評估 | E2 | eval/*.jsonl + daily_reports/ | 刪除所有評估資料 |
+| E.評估 | E3 | workflow_state.db | DELETE FROM workflows + executions |
+| F.日誌 | F1 | activity_log.jsonl | 清空 |
+| F.日誌 | F2 | guardian/*.jsonl | 清空所有 guardian 日誌 |
+| F.日誌 | F3 | footprints/*.jsonl | 清空足跡日誌 |
+| G.狀態 | G1 | nightly_state.json | 重置為空物件 |
+| G.狀態 | G2 | _system/outward/*.json | 刪除外展狀態 |
+
+**安全機制**：
+- 預設 `--dry-run`（不加 `--confirm` 只列出清單不執行）
+- 執行前列出所有待清除層，執行後報告成功/失敗/跳過統計
+- ANIMA_MC 保留 identity.name（Museon 不忘記自己叫什麼）
+- 清除後重建骨架目錄結構
+
 ---
 
 ## 與系統拓撲的對應
@@ -480,6 +520,7 @@ Installer 編排 (orchestrator.py)
 | v1.0 | 2026-03-15 | 初版：完整水電圖，涵蓋 23 個正常配對、3 個 Dead Write、14 個死目錄 |
 | v1.1 | 2026-03-15 | Phase 2 完成：4 個 JSON 遷移至 PulseDB（ceremony_state + eval 三件套） |
 | v1.2 | 2026-03-15 | Phase 3 完成：DataContract + DataBus 建立，10 個 Store 類統一接入 |
+| v1.14 | 2026-03-16 | Memory Reset 一鍵重置管線：新增 Pipeline R（25 個持久層的原子重置管線）；涵蓋 7 大類（A.身份 B.對話 C.知識 D.行為 E.評估 F.日誌 G.狀態）；`doctor/memory_reset.py` 為唯一執行入口；預設 dry-run 安全模式 |
 | v1.12 | 2026-03-16 | P0 記憶事實覆寫：新增管線 A-2（事實更正覆寫管線）；Qdrant memories 新增 status=deprecated 軟刪除標記（VectorBridge.mark_deprecated() 寫入、search() 自動過濾）；新增 data/anima/fact_corrections.jsonl（Brain 寫入、ProactiveBridge+PulseEngine+Brain 讀取）；MemoryManager.supersede() 已存在但現在被 Brain 自動呼叫 |
 | v1.11 | 2026-03-16 | Phase 4 飛輪多代理實質化：W10 六層記憶條目新增 dept_id 欄位；memory_manager store()+recall() 支援部門級隔離；MultiAgentExecutor/ResponseSynthesizer/FlywheelCoordinator 均無新增持久化 |
 | v1.10 | 2026-03-16 | Phase 3 日記+群組ANIMA：SoulRingStore→DiaryStore 重命名（W14 更新）；ANIMA_USER 新增 L8_context_behavior_notes 層（群組行為追蹤）；diary entries 新增 entry_type/highlights/learnings/tomorrow_intent 欄位；nightly _step_diary_generation 每日生成日記摘要 |

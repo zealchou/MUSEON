@@ -118,6 +118,7 @@
 | `surgery` | Surgery | 精準手術 | - | doctor | 0.8 |
 | `log-analyzer` | Log Analyzer | 日誌分析 | - | doctor | 0.8 |
 | `code-analyzer` | Code Analyzer | 代碼品質 | - | doctor | 0.8 |
+| `memory-reset` | Memory Reset | 一鍵記憶重置 | - | doctor | 0.8 |
 
 ### llm — LLM 路由
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -326,6 +327,7 @@
 | `doctor` | `surgery` | 手術 |
 | `doctor` | `log-analyzer` | 日誌 |
 | `doctor` | `code-analyzer` | 代碼 |
+| `doctor` | `memory-reset` | 重置 |
 
 ### LLM 內部連線（internal）
 | Source | Target | 說明 |
@@ -505,17 +507,17 @@
 
 | 指標 | 數值 |
 |------|------|
-| 總節點數 | 110 |
-| 總連線數 | 207 |
+| 總節點數 | 118 |
+| 總連線數 | 230 |
 | 群組數 | 13 |
 | Hub 節點 | 11 (event-bus, brain, pulse, governance, doctor, llm-router, evolution, tool-registry, nightly, data-bus, installer) |
 | 跨系統連線 | 67 |
-| 內部連線 | 110 |
+| 內部連線 | 111 |
 | 非同步連線 | 5 |
 | 監控連線 | 5 |
 | 控制連線 | 9 |
 | 資料流連線 | 4 |
-| 平均連線數/節點 | 3.8 |
+| 平均連線數/節點 | 1.9 |
 
 ---
 
@@ -524,6 +526,7 @@
 | 版本 | 日期 | 變更 |
 |------|------|------|
 | v1.0 | 2026-03-14 | 初版建立，59 節點 91 連線 |
+| v1.14 | 2026-03-16 | Memory Reset 一鍵重置：doctor 群組新增 `memory-reset` 節點（+1 節點 +1 內部連線 doctor→memory-reset）；memory-reset 為 CLI 工具，涵蓋 25 個持久層的原子重置；3D 心智圖同步；統計修正（v1.9-v1.13 遺漏）；118 節點 230 連線 |
 | v1.13 | 2026-03-16 | 五缺陷修復 3D 心智圖同步：新增 `blueprint-reader` 節點（data 群組）；新增 7 條連線（governor→immunity learn、governor→pulse-db incident、governor→dendritic-scorer immunity注入、blueprint-reader→doctor/surgery/morphenix 藍圖感知、nightly→blueprint-reader Step 30）；refractory 更新為「三態+半開」；system-audit 更新為「8層49項」；117 節點 229 連線 |
 | v1.12 | 2026-03-16 | P5 斷路器半開 + Nightly 藍圖驗證：refractory 節點描述更新為「三態+半開試探」；nightly 新增 Step 30→blueprint-reader 連線（+1 連線） |
 | v1.11 | 2026-03-16 | P1+P4 3D 心智圖同步：新增 telegram→brain async（P1 推送寫入 session）、fact-correction→proactive-bridge async + fact-correction→pulse async（P4 自省清洗）；112 節點 219 連線 |
