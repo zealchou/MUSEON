@@ -549,8 +549,8 @@ camera.position.set(0, 30, 120);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.0;
+renderer.toneMapping = THREE.LinearToneMapping;
+renderer.toneMappingExposure = 0.9;
 document.body.appendChild(renderer.domElement);
 
 // Environment map — 玻璃彈珠反射用
@@ -559,8 +559,8 @@ scene.environment = pmremGenerator.fromScene(new RoomEnvironment()).texture;
 pmremGenerator.dispose();
 
 // Lights
-scene.add(new THREE.AmbientLight(0xffffff, 0.3));
-const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+scene.add(new THREE.AmbientLight(0xffffff, 0.15));
+const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
 dirLight.position.set(60, 80, 60);
 scene.add(dirLight);
 
@@ -588,17 +588,16 @@ nodes.forEach(n => {
   const color = new THREE.Color(GC[n.group]);
   const mat = new THREE.MeshPhysicalMaterial({
     color: color,
-    roughness: 0.0,
+    roughness: 0.45,
     metalness: 0.0,
     emissive: color,
-    emissiveIntensity: 0.25,
-    clearcoat: 1.0,
-    clearcoatRoughness: 0.03,
-    transmission: 0.15,
-    thickness: 3.0,
-    ior: 1.52,
-    envMapIntensity: 0.8,
-    transparent: true
+    emissiveIntensity: 0.5,
+    clearcoat: 0.0,
+    transmission: 0.0,
+    envMapIntensity: 0.15,
+    sheen: 0.3,
+    sheenRoughness: 0.6,
+    sheenColor: color
   });
   const mesh = new THREE.Mesh(sphereGeo, mat);
   mesh.scale.setScalar(n.r);
@@ -762,7 +761,7 @@ function highlightNode(node) {
     if (connected.has(n.id)) {
       m.material.color.copy(n.origColor);
       m.material.emissive.copy(n.origColor);
-      m.material.emissiveIntensity = 0.3;
+      m.material.emissiveIntensity = 0.6;
       m.material.opacity = 1;
       m.material.transparent = false;
       m.material.depthWrite = true;
@@ -828,7 +827,7 @@ function clearHighlight() {
     const n = m.userData;
     m.material.color.copy(n.origColor);
     m.material.emissive.copy(n.origColor);
-    m.material.emissiveIntensity = 0.35;
+    m.material.emissiveIntensity = 0.5;
     m.material.opacity = 1;
     m.material.transparent = false;
     m.material.depthWrite = true;
