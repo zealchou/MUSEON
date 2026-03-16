@@ -262,8 +262,8 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 //  SYNC META — 拓撲同步狀態
 // ═══════════════════════════════════════
 const SYNC_META = {
-  topologyVersion: 'v1.8',
-  syncDate: '2026-03-16',
+  topologyVersion: 'v1.9',
+  syncDate: '2026-03-17',
   nodeCount: 0, // auto-calculated below
   linkCount: 0  // auto-calculated below
 };
@@ -438,7 +438,7 @@ const nodes = [
   {id:"installer-verifier",label:"Module Verifier",zh:"模組驗證",group:"installer",p:"installer",r:0.7},
   // Phase 4: 飛輪多代理實質化
   {id:"multi-agent-executor",label:"MultiAgent Executor",zh:"多代理執行器",group:"multiagent",p:"multiagent",r:1.0},
-  {id:"response-synthesizer",label:"Response Synthesizer",zh:"回覆合成器",group:"multiagent",p:"multiagent",r:0.8},
+  {id:"response-synthesizer",label:"Response Synthesizer",zh:"DNA交叉重組合成",group:"multiagent",p:"multiagent",r:0.8},
   {id:"flywheel-coordinator",label:"Flywheel Coordinator",zh:"飛輪協調器",group:"multiagent",p:"multiagent",r:0.8},
   // P0: 事實覆寫引擎
   {id:"fact-correction",label:"Fact Correction",zh:"事實覆寫引擎",group:"agent",p:"brain",r:0.9},
@@ -681,6 +681,10 @@ const links = [
   {source:"blueprint-reader",target:"morphenix",label:"B1 藍圖禁區審查",type:"cross"},
   // P5: Nightly 藍圖驗證
   {source:"nightly",target:"blueprint-reader",label:"Step 30 藍圖一致性",type:"cross"},
+  // ── DNA-Inspired 品質回饋閉環 ──
+  {source:"metacognition",target:"pulse-db",label:"品質旗標寫入 METACOGNITION_QUALITY_FLAG",type:"cross"},
+  {source:"morphenix",target:"pulse-db",label:"品質旗標讀取（品質回饋閉環）",type:"cross"},
+  {source:"response-synthesizer",target:"multi-agent-executor",label:"DNA 交叉重組（片段評分）",type:"cross"},
 ];
 
 const nodeMap = {};

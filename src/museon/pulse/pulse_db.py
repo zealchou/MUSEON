@@ -979,6 +979,64 @@ class PulseDB(DataContract):
             "verdicts": verdicts,
         }
 
+    def get_quality_flags(self, days: int = 7) -> List[Dict]:
+        """取得近期品質旗標（verdict=revise 的元認知記錄）.
+
+        DNA-Inspired 閉環：校對(metacognition)→演化(morphenix) 的資料通道。
+        morphenix 夜間管線呼叫此方法，取得近期品質問題清單，
+        作為演化提案的輸入依據。
+
+        Returns:
+            品質旗標列表，每筆包含 pre_verdict, pre_feedback,
+            matched_skills, user_message_snippet 等欄位。
+        """
+        conn = self._get_conn()
+        cutoff = (datetime.now(TZ8) - timedelta(days=days)).isoformat()
+        rows = conn.execute(
+            "SELECT id, session_id, pre_verdict, pre_feedback, "
+            "matched_skills, user_message_snippet, response_snippet, "
+            "created_at "
+            "FROM metacognition "
+            "WHERE pre_verdict = 'revise' AND created_at > ? "
+            "ORDER BY created_at DESC",
+            (cutoff,),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+    def get_quality_flag_summary(self, days: int = 7) -> Dict:
+        """取得品質旗標摘要統計（供 morphenix 快速判斷是否需要產生提案）.
+
+        Returns:
+            {
+                "total_flags": int,
+                "by_skill": {"skill_name": count, ...},
+                "recent_feedbacks": [最近 5 筆 feedback 摘要],
+            }
+        """
+        flags = self.get_quality_flags(days=days)
+        if not flags:
+            return {"total_flags": 0, "by_skill": {}, "recent_feedbacks": []}
+
+        # 統計各 Skill 的品質旗標數
+        by_skill: Dict[str, int] = {}
+        for f in flags:
+            skills_raw = f.get("matched_skills") or "[]"
+            try:
+                import json as _json
+                skills = _json.loads(skills_raw) if isinstance(skills_raw, str) else skills_raw
+            except Exception:
+                skills = []
+            for s in skills:
+                by_skill[s] = by_skill.get(s, 0) + 1
+
+        return {
+            "total_flags": len(flags),
+            "by_skill": dict(sorted(by_skill.items(), key=lambda x: -x[1])),
+            "recent_feedbacks": [
+                f.get("pre_feedback", "")[:150] for f in flags[:5]
+            ],
+        }
+
     # ── Scout Drafts CRUD（SkillForgeScout 草稿）──
 
     def save_scout_draft(
