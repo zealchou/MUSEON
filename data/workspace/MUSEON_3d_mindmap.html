@@ -302,6 +302,10 @@ const nodes = [
   {id:"installer-electron",label:"Electron Packager",zh:"Electron 打包",group:"installer",p:"installer",r:0.8},
   {id:"installer-env",label:"Environment",zh:"環境檢查",group:"installer",p:"installer",r:0.7},
   {id:"installer-verifier",label:"Module Verifier",zh:"模組驗證",group:"installer",p:"installer",r:0.7},
+  // Phase 4: 飛輪多代理實質化
+  {id:"multi-agent-executor",label:"MultiAgent Executor",zh:"多代理執行器",group:"multiagent",p:"multiagent",r:1.0},
+  {id:"response-synthesizer",label:"Response Synthesizer",zh:"回覆合成器",group:"multiagent",p:"multiagent",r:0.8},
+  {id:"flywheel-coordinator",label:"Flywheel Coordinator",zh:"飛輪協調器",group:"multiagent",p:"multiagent",r:0.8},
 ];
 
 const links = [
@@ -510,6 +514,11 @@ const links = [
   {source:"zotero-bridge",target:"vector-index",label:"文獻索引",type:"cross"},
   // cross — installer
   {source:"auto-repair",target:"installer",label:"修復用安裝器",type:"cross"},
+  // Phase 4: 飛輪多代理
+  {source:"brain",target:"multi-agent-executor",label:"並行 LLM 呼叫",type:"internal"},
+  {source:"brain",target:"response-synthesizer",label:"回覆合成",type:"internal"},
+  {source:"brain",target:"flywheel-coordinator",label:"飛輪流動",type:"internal"},
+  {source:"multi-agent-executor",target:"llm-router",label:"多部門 LLM",type:"cross"},
 ];
 
 const nodeMap = {};
