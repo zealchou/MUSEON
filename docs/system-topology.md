@@ -1,4 +1,4 @@
-# MUSEON 系統拓撲圖 v1.5
+# MUSEON 系統拓撲圖 v1.6
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
@@ -68,6 +68,7 @@
 | `soul-ring` | Soul Ring | 靈魂年輪 | - | brain | 0.9 |
 | `onboarding` | Onboarding | 上線儀式 | - | brain | 0.9 |
 | `multiagent` | Multiagent | 多代理協調 | - | brain | 0.9 |
+| `primal-detector` | Primal Detector | 八原語偵測 | - | brain | 1.0 |
 
 ### pulse — Pulse 生命力
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -244,6 +245,7 @@
 | `brain` | `soul-ring` | 年輪記錄 |
 | `brain` | `onboarding` | 上線儀式 |
 | `brain` | `multiagent` | 多代理協調 |
+| `brain` | `primal-detector` | 八原語偵測 |
 
 ### Pulse 內部連線（internal）
 | Source | Target | 說明 |
@@ -352,6 +354,7 @@
 ### 跨系統連線（cross）
 | Source | Target | 說明 |
 |--------|--------|------|
+| `primal-detector` | `vector-index` | 八原語語義匹配 |
 | `skill-router` | `vector-index` | 語義匹配 |
 | `skill-router` | `skills-registry` | 技能查找 |
 | `skill-router` | `llm-router` | API 呼叫 |
@@ -484,12 +487,12 @@
 
 | 指標 | 數值 |
 |------|------|
-| 總節點數 | 105 |
-| 總連線數 | 197 |
+| 總節點數 | 106 |
+| 總連線數 | 199 |
 | 群組數 | 13 |
 | Hub 節點 | 11 (event-bus, brain, pulse, governance, doctor, llm-router, evolution, tool-registry, nightly, data-bus, installer) |
-| 跨系統連線 | 66 |
-| 內部連線 | 101 |
+| 跨系統連線 | 67 |
+| 內部連線 | 102 |
 | 非同步連線 | 5 |
 | 監控連線 | 5 |
 | 控制連線 | 9 |
@@ -503,6 +506,7 @@
 | 版本 | 日期 | 變更 |
 |------|------|------|
 | v1.0 | 2026-03-14 | 初版建立，59 節點 91 連線 |
+| v1.7 | 2026-03-16 | Phase 2 八原語接線：agent 群組新增 primal-detector 節點（+1 節點 +2 連線：brain→primal-detector internal + primal-detector→vector-index cross）；106 節點 199 連線 |
 | v1.6 | 2026-03-16 | Docker 沙盒驗證器上線：nightly 群組新增 morphenix-validator 節點（+1 節點 +2 內部連線）；105 節點 197 連線 |
 | v1.5 | 2026-03-15 | DNA27 深度修復：移除幽靈節點 task-scheduler(pulse) + guardrails(gov)、新增 anima-mc-store + anima-tracker 到 pulse 群組、修正跨系統連線（+6 新連線 -3 幽靈連線）；104 節點 195 連線 |
 | v1.4 | 2026-03-15 | 9.5 精度修復：data 群組新增 3 個 SQLite 子節點（pulse-db, group-context-db, workflow-state-db）+ 3 條 Store 路由連線；104 節點 191 連線 |

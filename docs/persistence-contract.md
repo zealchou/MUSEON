@@ -1,4 +1,4 @@
-# MUSEON Persistence Contract v1.7 — 水電圖
+# MUSEON Persistence Contract v1.9 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
@@ -44,6 +44,7 @@
 | `workflows` | 1024 | `vector_bridge.py` | `workflow_engine.py` | `workflow_engine.py` |
 | `documents` | 1024 | `vector_bridge.py` | `mcp_connector.py` | `vector_bridge.query_points()` |
 | `references` | 1024 | `vector_bridge.py` | `zotero_bridge.py` | `zotero_bridge.py` |
+| `primals` | 1024 | `vector_bridge.py` | `primal_detector.py` | `primal_detector.py` |
 
 **共用規範**：
 - 統一透過 `VectorBridge` 操作，不直接 import qdrant_client
@@ -254,6 +255,7 @@ Installer 編排 (orchestrator.py)
 | W31 | LLM Token 預算 | BudgetManager | BudgetManager, Nightly | JSON | 月度歸檔 | OK |
 | W32 | 技能市集註冊 | SkillMarket | SkillMarket, Gateway | JSON | 永久 | OK |
 | W33 | 外向演化狀態 | OutwardTrigger | NightlyPipeline | JSON | 永久 | OK |
+| W34 | 八原語向量索引 | PrimalDetector | PrimalDetector.detect | Qdrant | ∞ | OK |
 
 ### Dead Write（寫入無消費者）
 
@@ -454,6 +456,7 @@ Installer 編排 (orchestrator.py)
 | v1.0 | 2026-03-15 | 初版：完整水電圖，涵蓋 23 個正常配對、3 個 Dead Write、14 個死目錄 |
 | v1.1 | 2026-03-15 | Phase 2 完成：4 個 JSON 遷移至 PulseDB（ceremony_state + eval 三件套） |
 | v1.2 | 2026-03-15 | Phase 3 完成：DataContract + DataBus 建立，10 個 Store 類統一接入 |
+| v1.9 | 2026-03-16 | Phase 2 八原語接線：Qdrant Engine 2 新增 primals collection（1024 維，PrimalDetector 寫入+搜尋）；新增 W34 配對（八原語向量索引） |
 | v1.8 | 2026-03-16 | Docker 沙盒驗證器上線：morphenix_validator 使用暫時性 tempdir（非持久儲存），Docker volume 為唯讀掛載，無新增持久資料 |
 | v1.7 | 2026-03-15 | DNA27 深度修復：PULSE.md 寫入加入 threading.Lock + 原子寫入（tmp→rename+fsync）、ANIMA_MC.json 改為 AnimaMCStore 統一存取 |
 | v1.6 | 2026-03-15 | 9.5 精度修復：新增管線 H(Installer)、拓撲對應表同步（3 個 SQLite 子節點已在 topology v1.4 上圖） |
