@@ -730,8 +730,9 @@ def create_app() -> FastAPI:
         # ── A. Health Check 12 項 → 映射到節點 ──
         try:
             from museon.doctor.health_check import HealthChecker
+            import asyncio as _hc_aio
             checker = HealthChecker()
-            report = checker.run_all()
+            report = await _hc_aio.to_thread(checker.run_all)
 
             # 映射表：檢查名稱關鍵字 → 節點 ID 列表
             _hc_map = {
@@ -2681,7 +2682,6 @@ def create_app() -> FastAPI:
             logger.error(f"MCP disconnect failed: {e}", exc_info=True)
             return {"success": False, "error": str(e)}
 
-    @app.on_event("startup")
     async def startup_event():
         """Initialize services on startup."""
         logger.info("Starting MUSEON Gateway")
@@ -3324,7 +3324,6 @@ def create_app() -> FastAPI:
             f"| 子系統: {bulkhead.get_status()}"
         )
 
-    @app.on_event("shutdown")
     async def shutdown_event():
         """Cleanup on shutdown."""
         logger.info("Shutting down MUSEON Gateway")
@@ -3370,6 +3369,10 @@ def create_app() -> FastAPI:
         if governor:
             await governor.stop()
             logger.info("🛡️ Governor: all governance subsystems stopped")
+
+    # 註冊生命週期事件（避免 @app.on_event() DeprecationWarning）
+    app.router.on_startup.append(startup_event)
+    app.router.on_shutdown.append(shutdown_event)
 
     return app
 
@@ -4533,8 +4536,8 @@ def _register_external_endpoints(app, data_dir) -> None:
             await _refresh_doctor_cache()
             if _doctor_status_cache:
                 await ws.send_json({"type": "doctor_status", "data": _doctor_status_cache})
-        except Exception:
-            pass
+        except Exception as rp_err:
+            logger.debug(f"Doctor _refresh_and_push failed: {rp_err}")
 
     app.state.doctor_monitor_clients = _doctor_monitor_clients
     app.state.broadcast_doctor_status = _broadcast_doctor_status
