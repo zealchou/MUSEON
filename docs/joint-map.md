@@ -669,6 +669,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-16 | v1.15 | Memory Reset 一鍵重置工具：新增 `doctor/memory_reset.py` 為 25 個共享狀態的重置者（#1 ANIMA_MC.json boss/self_awareness 重置、#2 ANIMA_USER.json 全量重置、#3 PULSE.md 模板重建、#9 Qdrant 全部 collections 刪除重建、#25 JSONL 審計日誌群清空、#26 記憶 Markdown 刪除、#27 fact_corrections.jsonl 清空）；同時重置 PulseDB 全表、sessions、crystals/synapses/scout_queue、diary/drift、eval/workflow_state.db、guardian/footprints/activity_log、nightly_state/outward；預設 dry-run 安全模式 |
 | 2026-03-16 | v1.14 | Memory Gate 記憶閘門：新增 `memory/memory_gate.py` 為 ANIMA_USER.json 間接寫入控制者；brain.py `_observe_user()` 新增 `suppress_primals`/`suppress_facts` 參數；`_observe_user_layers()` 新增 `suppress_facts` 參數；L1_facts 新增 `status`/`confidence` 欄位；Step 9.2 事實更正偵測提前到 Step 9 之前；解決「越否認越強化」記憶迴圈 |
 | 2026-03-16 | v1.12 | P4 PULSE.md 自省清洗：#27 fact_corrections.jsonl 的三個讀取者已實作——brain.py `_get_fact_correction_declarations()` 注入 system prompt、proactive_bridge.py `_read_recent_fact_corrections()` 注入自省上下文、pulse_engine.py `_reflection_contains_stale_facts()` 寫入前過濾；PULSE.md 寫入新增過期事實過濾閘 |
 | 2026-03-16 | v1.11 | P1 推送上下文串接：TelegramAdapter._write_push_to_session() 推送成功後寫入 Brain session history（session_id=telegram_{owner_chat_id}），role=assistant 帶 [主動推送 HH:MM] 前綴；session history 新增間接寫入者（TelegramAdapter 經由 Brain._get_session_history()） |
