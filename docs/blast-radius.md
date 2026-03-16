@@ -1,4 +1,4 @@
-# Blast Radius — 模組影響半徑表 v1.5
+# Blast Radius — 模組影響半徑表 v1.7
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
@@ -15,7 +15,7 @@
 | 🔴 **禁區** | 扇入 ≥ 40，修改影響全系統 | 1 | 除非系統級重構計畫，**禁止修改** |
 | 🟠 **紅區** | 扇入 10-39，修改影響多個子系統 | 5 | 必須回報使用者 + 全量 pytest + 影響分析 |
 | 🟡 **黃區** | 扇入 2-9，修改影響 2+ 模組 | 60 | 查 blast-radius + joint-map，跑相關測試 |
-| 🟢 **綠區** | 扇入 0-1，修改不影響上游 | 114 | 可直接修改，跑單元測試即可 |
+| 🟢 **綠區** | 扇入 0-1，修改不影響上游 | 115 | 可直接修改，跑單元測試即可 |
 
 ---
 
@@ -188,15 +188,15 @@
 | 屬性 | 值 |
 |------|-----|
 | **扇入** | 3（server, mcp_server, __init__） |
-| **扇出** | 28+（import 28 個模組，初始化全系統） |
+| **扇出** | 29+（import 29 個模組，初始化全系統——含 PrimalDetector） |
 | **角色** | 系統核心——LLM 對話、記憶、自我觀察、所有子系統初始化 |
 
 #### 影響半徑
 
 | 影響類型 | 範圍 |
 |---------|------|
-| 共享狀態讀寫 | ANIMA_MC.json(RW), ANIMA_USER.json(RW), PULSE.md(R), PulseDB(R), Qdrant(W), soul_rings(R), synapses(R) |
-| 子系統初始化 | 28 個模組在 Brain.__init__() 中初始化 |
+| 共享狀態讀寫 | ANIMA_MC.json(RW), ANIMA_USER.json(RW), PULSE.md(R), PulseDB(R), Qdrant(W), Qdrant:primals(R via PrimalDetector), soul_rings(R), synapses(R) |
+| 子系統初始化 | 29 個模組在 Brain.__init__() 中初始化（含 PrimalDetector） |
 | System Prompt | `_build_soul_context()` + `_build_system_prompt()` 決定 AI 所有行為 |
 
 #### 修改安全邊界
@@ -533,15 +533,15 @@
 
 | 屬性 | 值 |
 |------|-----|
-| **扇入** | 6 |
+| **扇入** | 7 |
 | **角色** | Qdrant 向量庫的統一存取層 |
 
 #### 影響半徑
 
 | 影響類型 | 範圍 |
 |---------|------|
-| 共享狀態 | Qdrant 7 個 collections |
-| 直接 import | 6 個模組（brain, memory_manager, reflex_router, skill_router, knowledge_lattice, chromosome_index） |
+| 共享狀態 | Qdrant 8 個 collections（含 primals） |
+| 直接 import | 7 個模組（brain, memory_manager, reflex_router, skill_router, knowledge_lattice, chromosome_index, primal_detector） |
 | 降級影響 | Qdrant 離線 → 檢索能力降級為 TF-IDF（0.3 折扣） |
 
 #### 修改安全邊界
@@ -606,7 +606,7 @@
 > 以下模組無人 import（扇入 = 0），修改不影響任何上游，可直接修改。
 
 ### Agent 層（8 個）
-`agent/dna27.py`, `agent/drift_detector.py`, `agent/intuition.py`, `agent/kernel_guard.py`, `agent/plan_engine.py`, `agent/routing_bridge.py`, `agent/safety_anchor.py`, `agent/sub_agent.py`
+`agent/dna27.py`, `agent/drift_detector.py`, `agent/intuition.py`, `agent/kernel_guard.py`, `agent/plan_engine.py`, `agent/primal_detector.py`, `agent/routing_bridge.py`, `agent/safety_anchor.py`, `agent/sub_agent.py`
 
 ### Gateway 層（3 個）
 `gateway/cron.py`, `gateway/security.py`, `gateway/session.py`
@@ -702,12 +702,12 @@
 
 | 指標 | 數值 | 說明 |
 |------|------|------|
-| 總模組數 | 181 | 含所有 .py（不含 __init__.py、不含 _dead_code_archive） |
+| 總模組數 | 182 | 含所有 .py（不含 __init__.py、不含 _dead_code_archive） |
 | Hub 模組（扇入 ≥ 10） | 6 | event_bus(117), message(20), tool_registry(18), pulse_db(14), data_bus(13), dispatch(11) |
 | 中間模組（扇入 2-9） | 60 | — |
 | 單引用模組（扇入 1） | 72 | — |
 | 葉子模組（扇入 0） | 43 | 可安全修改 |
-| 共享可變狀態 | 26 個 | 詳見 joint-map.md（v1.5）— 含 #25 JSONL 審計日誌群 + #26 記憶 Markdown |
+| 共享可變狀態 | 26 個 | 詳見 joint-map.md（v1.7）— 含 #25 JSONL 審計日誌群 + #26 記憶 Markdown |
 | 事件健康度 | 67.9% | 幽靈訂閱清零（v1.5 修復） |
 | 致命單點 | event_bus | 佔全系統 33% 依賴 |
 
@@ -717,6 +717,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-16 | v1.7 | Phase 2 八原語接線：新增 agent/primal_detector.py 到綠區（扇入=1）；brain.py 扇出 28→29+（新增 PrimalDetector 初始化）；vector_bridge.py 扇入 6→7、collections 7→8（新增 primals）；skill_router/persona_router/reflex_router/okr_router 新增 Optional user_primals 參數（向後相容） |
 | 2026-03-16 | v1.6 | Docker 沙盒驗證器上線：新增 nightly/morphenix_validator.py 到綠區（扇入=1），Dockerfile 修復（補齊專案依賴 + jieba + PYTHONPATH + addopts 覆蓋），image `museon-validator:latest` 已建構並驗證（1637 passed） |
 | 2026-03-15 | v1.5 | DNA27 深度修復：幽靈訂閱 3→0（telegram 2 個移除 + server ActivityLogger 2 個修正）、事件健康度 52.5%→67.9%、ANIMA_MC 殘餘漏洞已修復（_observe_self + _merge_ceremony 改用 Store.update()） |
 | 2026-03-15 | v1.4 | 9.5 精度修復：健康快照共享狀態 24→26（同步 joint-map v1.5） |

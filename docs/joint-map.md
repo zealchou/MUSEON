@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.6
+# Joint Map — 共享可變狀態接頭圖 v1.7
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -19,7 +19,7 @@
 | 6 | lattice/crystals.json | 🟡 | 2 | 5 | 無 | [→](#6-latticecrystalsjson) |
 | 7 | accuracy_stats.json | 🟡 | 2 | 6 | 無 | [→](#7-accuracy_statsjson) |
 | 8 | PulseDB (pulse.db) | 🟡 | 2 | 11 | SQLite WAL | [→](#8-pulsedb-pulsedb) |
-| 9 | Qdrant 向量庫 | 🟡 | 3 | 5 | 內部 MVCC | [→](#9-qdrant-向量庫) |
+| 9 | Qdrant 向量庫 | 🟡 | 4 | 6 | 內部 MVCC | [→](#9-qdrant-向量庫) |
 | 10 | soul_rings.json | 🟢 | 1 | 3 | ✅ Lock | [→](#10-soul_ringsjson) |
 | 11 | immunity/events.jsonl | 🟢 | 2 | 3 | 無 | [→](#11-immunityeventsjsonl) |
 | 12 | immune_memory.json | 🟢 | 1 | 2 | 無 | [→](#12-immune_memoryjson) |
@@ -304,8 +304,8 @@
 
 ### 9. Qdrant 向量庫
 
-**位置**：`http://127.0.0.1:6333`（7 個 collections）
-**用途**：語義搜尋——記憶、技能、知識文件的向量索引
+**位置**：`http://127.0.0.1:6333`（8 個 collections）
+**用途**：語義搜尋——記憶、技能、知識文件、八原語的向量索引
 
 #### 讀寫表
 
@@ -318,6 +318,7 @@
 | `agent/knowledge_lattice.py` | **R** | documents |
 | `agent/reflex_router.py` | **R** | memories |
 | `memory/chromosome_index.py` | **R** | references |
+| `agent/primal_detector.py` | **RW** | primals（八原語語義偵測——寫入索引 + 搜尋匹配） |
 
 #### 鎖與降級
 
@@ -631,6 +632,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-16 | v1.8 | Phase 2 八原語接線：#9 Qdrant 向量庫 collections 7→8（新增 primals）；寫入者 3→4（+primal_detector）；讀取者 5→6（+primal_detector）；primal_detector.py 負責 primals collection 的索引寫入與語義搜尋 |
 | 2026-03-16 | v1.7 | Docker 沙盒驗證器上線：morphenix_validator 已在 #15 morphenix/proposals/ 登錄為讀取者，無新增共享狀態；Dockerfile.validator 修復並 build 成功（1637 passed） |
 | 2026-03-16 | v1.6 | DNA27 深度審計修復：PULSE.md 加入 threading.Lock + 原子寫入（7 處寫入全覆蓋）；ANIMA_MC _observe_self + _merge_ceremony 改用 Store.update() 原子讀改寫；鎖一覽表同步更新 |
 | 2026-03-15 | v1.5 | 9.5 精度修復：新增 #25 JSONL 審計日誌群（21 檔群組管理）、#26 memory/{date}/{ch}.md 記憶檔（3 寫 5 讀）；共享狀態 24→26 個 |
