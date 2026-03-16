@@ -407,6 +407,31 @@
 
 ---
 
+### nightly/morphenix_validator.py
+
+| 屬性 | 值 |
+|------|-----|
+| **扇入** | 1（nightly_pipeline.py） |
+| **角色** | Docker 沙盒驗證器——L2+ 提案在隔離容器中跑 pytest，通過才放行到 executor |
+
+#### 影響半徑
+
+| 影響類型 | 範圍 |
+|---------|------|
+| 外部依賴 | Docker daemon + `museon-validator:latest` image |
+| 共享狀態讀 | morphenix/proposals/（#15）|
+| 降級行為 | Docker 不可用→跳過驗證（`docker_unavailable_skip`），image 缺失→跳過（`docker_image_missing_skip`） |
+
+#### 修改安全邊界
+
+| ✅ 安全 | ❌ 危險 |
+|---------|---------|
+| 修改 DOCKER_TIMEOUT | 修改 passed=True 的 skip 邏輯（會讓不安全提案放行） |
+| 修改 RSYNC_EXCLUDES | 移除 `--network=none` 隔離（安全護欄） |
+| 新增語法檢查規則 | 修改 Docker CMD（影響 pytest 範圍） |
+
+---
+
 ### pulse/pulse_engine.py
 
 | 屬性 | 值 |
@@ -692,6 +717,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-16 | v1.6 | Docker 沙盒驗證器上線：新增 nightly/morphenix_validator.py 到綠區（扇入=1），Dockerfile 修復（補齊專案依賴 + jieba + PYTHONPATH + addopts 覆蓋），image `museon-validator:latest` 已建構並驗證（1637 passed） |
 | 2026-03-15 | v1.5 | DNA27 深度修復：幽靈訂閱 3→0（telegram 2 個移除 + server ActivityLogger 2 個修正）、事件健康度 52.5%→67.9%、ANIMA_MC 殘餘漏洞已修復（_observe_self + _merge_ceremony 改用 Store.update()） |
 | 2026-03-15 | v1.4 | 9.5 精度修復：健康快照共享狀態 24→26（同步 joint-map v1.5） |
 | 2026-03-15 | v1.3 | 全面覆蓋修復：新增 doctor/system_audit、mcp_server、federation/skill_market、federation/sync 到黃區；健康快照同步（共享狀態 16→24） |
