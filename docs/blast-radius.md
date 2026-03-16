@@ -1,4 +1,4 @@
-# Blast Radius — 模組影響半徑表 v1.19
+# Blast Radius — 模組影響半徑表 v1.21
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
@@ -189,13 +189,13 @@
 |------|-----|
 | **扇入** | 3（server, mcp_server, __init__） |
 | **扇出** | 32+（import 32 個模組，初始化全系統——含 PrimalDetector, MultiAgentExecutor, MemoryGate） |
-| **角色** | 系統核心——LLM 對話、記憶、自我觀察、所有子系統初始化、多代理並行呼叫、記憶閘門意圖判斷 |
+| **角色** | 系統核心——LLM 對話、記憶、自我觀察、所有子系統初始化、多代理並行呼叫、記憶閘門意圖判斷、認知追蹤（trace_decision+trace_cognitive） |
 
 #### 影響半徑
 
 | 影響類型 | 範圍 |
 |---------|------|
-| 共享狀態讀寫 | ANIMA_MC.json(RW), ANIMA_USER.json(RW+L8群組), PULSE.md(R), PulseDB(R), Qdrant(W), Qdrant:primals(R via PrimalDetector), diary_entries(R), synapses(R), memory(R/W+dept_id), fact_corrections.jsonl(RW) |
+| 共享狀態讀寫 | ANIMA_MC.json(RW), ANIMA_USER.json(RW+L8群組), PULSE.md(R), PulseDB(R), Qdrant(W), Qdrant:primals(R via PrimalDetector), diary_entries(R), synapses(R), memory(R/W+dept_id), fact_corrections.jsonl(RW), cognitive_trace.jsonl(W via footprint.trace_cognitive+trace_decision) |
 | 子系統初始化 | 31 個模組在 Brain.__init__() 中初始化（含 PrimalDetector, DiaryStore, MultiAgentExecutor, FlywheelCoordinator） |
 | System Prompt | `_build_soul_context()` + `_build_system_prompt()` 決定 AI 所有行為 |
 
@@ -205,6 +205,7 @@
 |---------|---------|
 | 修改 `_chat()` 的回應後處理 | 修改 `__init__()` 的初始化順序 |
 | 新增獨立觀察方法（如 `_handle_fact_correction()`） | 修改 `_build_soul_context()` |
+| Step 8 trace_decision/trace_cognitive 呼叫（純寫入足跡） | 修改 trace 呼叫的觸發條件 |
 | 修改日誌格式 | 修改 `_save_anima_mc()` / `_load_anima_mc()` |
 | — | 修改 `_anima_mc_lock` 鎖策略 |
 | — | 新增/修改 system prompt 注入來源 |
@@ -332,22 +333,24 @@
 | 屬性 | 值 |
 |------|-----|
 | **扇入** | 2（nightly_pipeline, service_health） |
-| **角色** | 7 層 46 項系統審計 |
+| **角色** | 7 層 46 項系統審計 + Skill Doctor 認知層審計（12 項 `_sd_check_*` 子檢查） |
 
 #### 影響半徑
 
 | 影響類型 | 範圍 |
 |---------|------|
-| 共享狀態讀取 | ANIMA_MC.json(R), ANIMA_USER.json(R), diary_entries(R), crystals.json(R), pulse.db(R) |
+| 共享狀態讀取 | ANIMA_MC.json(R), ANIMA_USER.json(R), diary_entries(R), crystals.json(R), pulse.db(R), cognitive_trace.jsonl(R) |
 | 事件發布 | AUDIT_COMPLETED |
 | 跨模組依賴 | service_health（交叉驗證）, data_watchdog（健康檢查）, health_check |
+| 新增方法 | `_audit_skill_doctor()` + 12 個 `_sd_check_*` 子方法（認知層檢查）；`_check_skills` glob bug 修復 |
 
 #### 修改安全邊界
 
 | ✅ 安全 | ❌ 危險 |
 |---------|---------|
 | 新增審計層/項目 | 修改審計結果格式（影響 governor 訂閱） |
-| 修改日誌輸出 | 修改 health_check 整合邏輯 |
+| 新增 `_sd_check_*` 子檢查 | 修改 health_check 整合邏輯 |
+| 修改日誌輸出 | 修改 `_check_skills` glob 路徑 |
 
 ---
 
@@ -631,8 +634,12 @@
 ### Memory 層（1 個）
 `memory/memory_gate.py`（★ v1.19 新增，扇入=1，僅 brain.py import；純 CPU 規則引擎，零 LLM 成本，判斷記憶寫入意圖）
 
-### Doctor 層（1 個）
+### Governance 層（1 個）
+`governance/cognitive_receipt.py`（★ v1.21 新增，扇入=1，僅 footprint.py import；CognitiveReceipt dataclass 定義，認知追蹤的結構化收據格式）
+
+### Doctor 層（2 個）
 `doctor/memory_reset.py`（★ v1.20 新增，扇入=0，CLI 工具；一鍵重置 25 個持久層，涵蓋 ANIMA_MC/USER、PULSE.md、PulseDB、Qdrant、sessions、memory_v3 等全部記憶/知識/行為/評估/日誌層）
+`MUSEON_observatory.html`（★ v1.21 新增，扇入=0，純前端儀表板；讀取 cognitive_trace.jsonl 視覺化認知追蹤）
 
 ### Gateway 層（3 個）
 `gateway/cron.py`, `gateway/security.py`, `gateway/session.py`
@@ -733,8 +740,8 @@
 | Hub 模組（扇入 ≥ 10） | 6 | event_bus(117), message(20), tool_registry(18), pulse_db(14), data_bus(13), dispatch(11) |
 | 中間模組（扇入 2-9） | 60 | — |
 | 單引用模組（扇入 1） | 72 | — |
-| 葉子模組（扇入 0） | 45 | 可安全修改（+memory_gate.py, +memory_reset.py） |
-| 共享可變狀態 | 27 個 | 詳見 joint-map.md（v1.10）— 含 #25 JSONL 審計日誌群 + #26 記憶 Markdown + #27 fact_corrections.jsonl |
+| 葉子模組（扇入 0） | 47 | 可安全修改（+memory_gate.py, +memory_reset.py, +cognitive_receipt.py, +MUSEON_observatory.html） |
+| 共享可變狀態 | 28 個 | 詳見 joint-map.md（v1.16）— 含 #25 JSONL 審計日誌群 + #26 記憶 Markdown + #27 fact_corrections.jsonl + #28 cognitive_trace.jsonl |
 | 事件健康度 | 67.9% | 幽靈訂閱清零（v1.5 修復） |
 | 致命單點 | event_bus | 佔全系統 33% 依賴 |
 
@@ -744,6 +751,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-17 | v1.21 | 認知可觀測性：brain.py 角色新增 trace_decision+trace_cognitive（Step 8 認知追蹤）、共享狀態新增 cognitive_trace.jsonl(W)；system_audit.py 新增 `_audit_skill_doctor()` + 12 個 `_sd_check_*` 子方法（認知層檢查）、共享狀態讀取新增 cognitive_trace.jsonl(R)、`_check_skills` glob bug 修復；綠區新增 `governance/cognitive_receipt.py`（扇入=1，CognitiveReceipt dataclass）+ `MUSEON_observatory.html`（扇入=0，前端儀表板）；葉子模組 45→47；共享狀態 27→28 |
 | 2026-03-16 | v1.20 | Memory Reset 一鍵重置工具：新增 `doctor/memory_reset.py` 到綠區（扇入=0，純 CLI 工具）；覆蓋 25 個持久層（7 大類：A.身份×3、B.對話×7、C.知識×4、D.行為×3、E.評估×3、F.日誌×3、G.狀態×2）；葉子模組 44→45；不影響任何運行中模組（僅 Gateway 停機後使用） |
 | 2026-03-16 | v1.19 | Memory Gate 記憶閘門：新增 `memory/memory_gate.py` 到綠區（扇入=1，brain.py import）；brain.py 扇出 31→32+（新增 MemoryGate 初始化）；brain.py Step 9.0 新增意圖分類閘門（classify_intent → decide_action → suppress_primals/suppress_facts）；brain.py `_observe_user()` 新增 suppress 參數（修改安全：不影響 G1/G3 外部模組） |
 | 2026-03-16 | v1.18 | P5 斷路器半開 + Nightly 藍圖驗證：refractory.py 新增 `half_open` / `half_open_since` 狀態欄位，`check()` 支援半開試探性恢復（hibernate 30 分鐘→half_open→proceed），`record_failure()` 半開失敗→回到 hibernate，`record_success()` 半開成功→完全恢復；nightly_pipeline.py 新增 Step 30 `_step_blueprint_consistency()`（3 項檢查：藍圖存在性、新鮮度 72h 閾值、禁區模組路徑）；新增 `governance/refractory.py` 到黃區 |

@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MUSEON Observatory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   MUSEON Observatory — 設計規範 v1.0
+   核心：溫暖的精密感（壁爐旁的精密儀器）
+   ═══════════════════════════════════════════ */
+
+:root {
+  /* 品牌色 */
+  --ember: #C4502A;
+  --ember-light: #E0714D;
+  --ember-dark: #9A3A1C;
+  --teal: #2A7A6E;
+  --gold: #B8923A;
+  /* 中性色 */
+  --ink: #12121A;
+  --slate: #5A5A6E;
+  --mist: #9898A8;
+  --border: #E2E0DA;
+  --parchment: #F7F5F0;
+  --snow: #FDFCFA;
+  /* 語義色 */
+  --success: #2D8A6E;
+  --warning: #C9943A;
+  --error: #C4402A;
+  --info: #2A6A8A;
+  /* 間距 */
+  --sp-2: 2px; --sp-4: 4px; --sp-8: 8px; --sp-16: 16px;
+  --sp-24: 24px; --sp-32: 32px; --sp-48: 48px;
+  /* 字型 */
+  --font-display: 'Cormorant Garamond', serif;
+  --font-body: 'Outfit', 'Noto Sans TC', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--parchment);
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.75;
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* ── Topbar ── */
+.topbar {
+  height: 56px;
+  background: rgba(247,245,240,0.96);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--sp-24);
+  gap: var(--sp-16);
+  z-index: 100;
+  position: relative;
+}
+.topbar-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.topbar-title span { color: var(--ember); }
+.topbar-tabs {
+  display: flex;
+  gap: var(--sp-4);
+  margin-left: var(--sp-24);
+}
+.tab-btn {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 16px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--slate);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.tab-btn:hover { border-color: var(--ember-light); color: var(--ink); }
+.tab-btn.active {
+  background: var(--ember);
+  color: white;
+  border-color: var(--ember);
+}
+.topbar-status {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--slate);
+}
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--mist);
+}
+.status-dot.online { background: var(--success); }
+.status-dot.offline { background: var(--error); }
+
+/* ── Main Layout ── */
+.main {
+  height: calc(100vh - 56px - 40px); /* topbar + healthbar */
+  display: flex;
+}
+.panel-topology {
+  flex: 1;
+  border-right: 1px solid var(--border);
+  position: relative;
+}
+.panel-topology iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+.panel-cognitive {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--sp-24);
+}
+
+/* ── 模式控制 ── */
+.main[data-mode="topology"] .panel-cognitive { display: none; }
+.main[data-mode="topology"] .panel-topology { flex: 1; border-right: none; }
+.main[data-mode="cognitive"] .panel-topology { display: none; }
+.main[data-mode="cognitive"] .panel-cognitive { flex: 1; }
+.main[data-mode="dual"] .panel-topology { flex: 1; }
+.main[data-mode="dual"] .panel-cognitive { flex: 1; }
+
+/* ── Health Bar ── */
+.healthbar {
+  height: 40px;
+  background: var(--snow);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--sp-24);
+  gap: var(--sp-32);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--slate);
+}
+.health-section {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+}
+.health-label { font-weight: 500; }
+.health-bar-bg {
+  width: 120px;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.health-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+.health-bar-fill.ok { background: var(--teal); }
+.health-bar-fill.warn { background: var(--warning); }
+.health-bar-fill.crit { background: var(--error); }
+
+/* ── 認知面板卡片 ── */
+.cog-section { margin-bottom: var(--sp-32); }
+.cog-section-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: var(--sp-16);
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+}
+.card {
+  background: var(--snow);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: var(--sp-24);
+  margin-bottom: var(--sp-16);
+}
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--sp-8);
+}
+.card-title {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--ink);
+}
+.card-time {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--mist);
+}
+.badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.badge-ember {
+  background: rgba(196,80,42,0.1);
+  color: var(--ember-dark);
+}
+.badge-teal {
+  background: rgba(42,122,110,0.1);
+  color: var(--teal);
+}
+.badge-gold {
+  background: rgba(184,146,58,0.1);
+  color: var(--gold);
+}
+.badge-slate {
+  background: rgba(90,90,110,0.1);
+  color: var(--slate);
+}
+.skill-tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin: 2px 4px 2px 0;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: rgba(42,122,110,0.08);
+  color: var(--teal);
+  border: 1px solid transparent;
+}
+.skill-tag:hover {
+  background: rgba(42,122,110,0.18);
+  border-color: var(--teal);
+}
+.skill-tag.highlighted {
+  background: var(--ember);
+  color: white;
+  border-color: var(--ember);
+}
+
+/* ── Doctor 健康格 ── */
+.doctor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--sp-8);
+}
+.doctor-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+  padding: var(--sp-8) var(--sp-16);
+  border-radius: 6px;
+  font-size: 13px;
+  background: var(--parchment);
+}
+.doctor-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.doctor-dot.ok { background: var(--teal); }
+.doctor-dot.warn { background: var(--warning); }
+.doctor-dot.crit { background: var(--error); }
+.doctor-dot.unknown { background: var(--mist); }
+
+/* ── 熱力圖 ── */
+.heatmap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+.heat-cell {
+  width: 56px;
+  height: 28px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: 1px solid transparent;
+}
+.heat-cell:hover { border-color: var(--ink); transform: scale(1.1); }
+
+/* ── 空狀態 ── */
+.empty-state {
+  text-align: center;
+  padding: var(--sp-48) var(--sp-24);
+  color: var(--mist);
+  font-size: 14px;
+}
+
+/* ── RWD ── */
+@media (max-width: 1279px) and (min-width: 1024px) {
+  /* iPad Landscape: 壓縮雙欄 */
+  .main[data-mode="dual"] .panel-topology { flex: 0 0 45%; }
+  .main[data-mode="dual"] .panel-cognitive { flex: 0 0 55%; }
+}
+@media (max-width: 1023px) and (min-width: 768px) {
+  /* iPad Portrait: 強制 Tab 切換 */
+  .main[data-mode="dual"] .panel-cognitive { display: none; }
+  .main[data-mode="dual"] .panel-topology { flex: 1; border-right: none; }
+  .main[data-mode="dual"][data-mobile-tab="cognitive"] .panel-topology { display: none; }
+  .main[data-mode="dual"][data-mobile-tab="cognitive"] .panel-cognitive { display: block; flex: 1; }
+  .topbar-subtitle { display: none; }
+}
+@media (max-width: 767px) {
+  .main { display: none; }
+  .healthbar { display: none; }
+  body::after {
+    content: 'MUSEON Observatory 不支援手機瀏覽，請使用電腦或 iPad。';
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: calc(100vh - 56px);
+    padding: var(--sp-48);
+    text-align: center;
+    color: var(--mist);
+    font-size: 16px;
+  }
+}
+
+/* ── 認知回執時間軸 ── */
+.receipt-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+  padding: 6px 0;
+  border-bottom: 1px solid var(--parchment);
+  font-size: 13px;
+}
+.receipt-signal {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  width: 48px;
+  text-align: center;
+}
+.receipt-loop {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  width: 24px;
+  text-align: center;
+  color: var(--ember);
+  font-weight: 600;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ Topbar ═══ -->
+<div class="topbar">
+  <div class="topbar-title">MUSEON <span>Observatory</span></div>
+  <div class="topbar-tabs">
+    <button class="tab-btn" data-mode="topology">拓撲</button>
+    <button class="tab-btn active" data-mode="dual">雙欄</button>
+    <button class="tab-btn" data-mode="cognitive">認知</button>
+  </div>
+  <div class="topbar-status">
+    <span class="status-dot" id="gw-dot"></span>
+    <span id="gw-label">Gateway —</span>
+  </div>
+</div>
+
+<!-- ═══ Main ═══ -->
+<div class="main" id="main" data-mode="dual">
+  <!-- 左：3D 系統拓撲 -->
+  <div class="panel-topology">
+    <iframe id="topo-iframe" src="MUSEON_3d_mindmap.html"></iframe>
+  </div>
+
+  <!-- 右：認知 Observatory -->
+  <div class="panel-cognitive" id="cog-panel">
+
+    <!-- Section 1: Skill Doctor -->
+    <div class="cog-section">
+      <div class="cog-section-title">Skill Doctor</div>
+      <div class="doctor-grid" id="doctor-grid">
+        <div class="empty-state">載入中…</div>
+      </div>
+    </div>
+
+    <!-- Section 2: 認知回執時間軸 -->
+    <div class="cog-section">
+      <div class="cog-section-title">認知回執</div>
+      <div class="card" id="cognitive-trace-card">
+        <div class="empty-state">尚無認知回執記錄</div>
+      </div>
+    </div>
+
+    <!-- Section 3: Decision Trace -->
+    <div class="cog-section">
+      <div class="cog-section-title">決策軌跡</div>
+      <div id="decision-list">
+        <div class="empty-state">尚無決策記錄</div>
+      </div>
+    </div>
+
+    <!-- Section 4: Skill 路由歷史 -->
+    <div class="cog-section">
+      <div class="cog-section-title">Skill 路由歷史</div>
+      <div id="routing-list">
+        <div class="empty-state">尚無路由記錄</div>
+      </div>
+    </div>
+
+    <!-- Section 5: Skill 使用熱力圖 -->
+    <div class="cog-section">
+      <div class="cog-section-title">Skill 使用熱力圖</div>
+      <div class="heatmap" id="heatmap">
+        <div class="empty-state">尚無數據</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ Health Bar ═══ -->
+<div class="healthbar">
+  <div class="health-section">
+    <span class="health-label">結構健康</span>
+    <div class="health-bar-bg">
+      <div class="health-bar-fill ok" id="health-struct" style="width: 0%"></div>
+    </div>
+    <span id="health-struct-pct">—</span>
+  </div>
+  <div class="health-section">
+    <span class="health-label">認知健康</span>
+    <div class="health-bar-bg">
+      <div class="health-bar-fill ok" id="health-cog" style="width: 0%"></div>
+    </div>
+    <span id="health-cog-pct">—</span>
+  </div>
+  <div class="health-section" style="margin-left: auto;">
+    <span id="last-update">最後更新: —</span>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   MUSEON Observatory — JavaScript
+   ═══════════════════════════════════════════ */
+
+const GW_API = 'http://localhost:8765';
+const GW_WS  = 'ws://localhost:8765/ws/doctor-monitor';
+
+// ── State ──
+let gwOnline = false;
+let doctorData = null;
+let skillUsageLog = [];
+let cognitiveTrace = [];
+let decisionTrace = [];
+let skillCounts = {};
+
+// ── Tab Switching ──
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('main').dataset.mode = btn.dataset.mode;
+  });
+});
+
+// ── Gateway Connection ──
+function checkGateway() {
+  fetch(`${GW_API}/health`, { signal: AbortSignal.timeout(3000) })
+    .then(r => r.json())
+    .then(data => {
+      gwOnline = true;
+      document.getElementById('gw-dot').className = 'status-dot online';
+      document.getElementById('gw-label').textContent = `Gateway 在線`;
+      // 從 health 端點取得 skill doctor 資料
+      if (data.checks) {
+        renderDoctorFromHealth(data);
+      }
+    })
+    .catch(() => {
+      gwOnline = false;
+      document.getElementById('gw-dot').className = 'status-dot offline';
+      document.getElementById('gw-label').textContent = 'Gateway 離線';
+    });
+}
+
+// ── WebSocket ──
+let ws = null;
+function connectWS() {
+  try {
+    ws = new WebSocket(GW_WS);
+    ws.onmessage = (e) => {
+      try {
+        const msg = JSON.parse(e.data);
+        if (msg.type === 'doctor_status') {
+          doctorData = msg.data;
+          renderDoctorFromWS(msg.data);
+        }
+      } catch(err) { /* ignore parse errors */ }
+    };
+    ws.onclose = () => { setTimeout(connectWS, 5000); };
+    ws.onerror = () => { ws.close(); };
+  } catch(e) { setTimeout(connectWS, 5000); }
+}
+
+// ── Data Fetching (via Gateway API) ──
+function fetchFootprints() {
+  if (!gwOnline) return;
+
+  // 認知回執
+  fetch(`${GW_API}/api/footprints/cognitive_trace?limit=20`, { signal: AbortSignal.timeout(3000) })
+    .then(r => r.ok ? r.json() : [])
+    .then(data => { cognitiveTrace = data; renderCognitiveTrace(); })
+    .catch(() => {});
+
+  // 決策軌跡
+  fetch(`${GW_API}/api/footprints/decisions?limit=10`, { signal: AbortSignal.timeout(3000) })
+    .then(r => r.ok ? r.json() : [])
+    .then(data => { decisionTrace = data; renderDecisionTrace(); })
+    .catch(() => {});
+
+  // Skill 路由歷史
+  fetch(`${GW_API}/api/footprints/skill_usage?limit=20`, { signal: AbortSignal.timeout(3000) })
+    .then(r => r.ok ? r.json() : [])
+    .then(data => { skillUsageLog = data; renderRoutingHistory(); buildHeatmap(); })
+    .catch(() => {});
+}
+
+// ── Render: Skill Doctor ──
+function renderDoctorFromHealth(healthData) {
+  const grid = document.getElementById('doctor-grid');
+  if (!healthData.checks || !Array.isArray(healthData.checks)) {
+    grid.innerHTML = '<div class="empty-state">無 Doctor 資料</div>';
+    return;
+  }
+  // 篩選 SD: 開頭的檢查項 + Skills 索引
+  const sdChecks = healthData.checks.filter(c =>
+    c.name && (c.name.startsWith('SD:') || c.name === 'Skills 索引')
+  );
+  if (sdChecks.length === 0) {
+    grid.innerHTML = '<div class="empty-state">無 Skill Doctor 資料（需執行審計）</div>';
+    return;
+  }
+  grid.innerHTML = sdChecks.map(c => {
+    const dotClass = c.status === 'ok' ? 'ok' : c.status === 'warning' ? 'warn' : c.status === 'critical' ? 'crit' : 'unknown';
+    return `<div class="doctor-item"><div class="doctor-dot ${dotClass}"></div><span>${c.name}: ${c.message}</span></div>`;
+  }).join('');
+  updateHealthBars(sdChecks);
+}
+
+function renderDoctorFromWS(data) {
+  // WS 格式可能不同，先嘗試相同結構
+  if (data.checks) renderDoctorFromHealth(data);
+}
+
+function updateHealthBars(checks) {
+  const struct = checks.filter(c => c.name && c.name.startsWith('SD:') && !['SD:決策軌跡','SD:認知回執','SD:路由多樣性','SD:常駐出現率','SD:回應長度','SD:時間戳一致性'].includes(c.name));
+  const cog = checks.filter(c => ['SD:決策軌跡','SD:認知回執','SD:路由多樣性','SD:常駐出現率','SD:回應長度','SD:時間戳一致性'].includes(c.name));
+
+  renderHealthBar('health-struct', 'health-struct-pct', struct);
+  renderHealthBar('health-cog', 'health-cog-pct', cog);
+  document.getElementById('last-update').textContent = `最後更新: ${new Date().toLocaleTimeString('zh-TW')}`;
+}
+
+function renderHealthBar(barId, labelId, checks) {
+  if (!checks.length) return;
+  const ok = checks.filter(c => c.status === 'ok').length;
+  const pct = Math.round((ok / checks.length) * 100);
+  const bar = document.getElementById(barId);
+  bar.style.width = pct + '%';
+  bar.className = `health-bar-fill ${pct >= 80 ? 'ok' : pct >= 50 ? 'warn' : 'crit'}`;
+  document.getElementById(labelId).textContent = `${pct}%`;
+}
+
+// ── Render: 認知回執時間軸 ──
+function renderCognitiveTrace() {
+  const container = document.getElementById('cognitive-trace-card');
+  if (!cognitiveTrace.length) {
+    container.innerHTML = '<div class="empty-state">尚無認知回執記錄</div>';
+    return;
+  }
+  container.innerHTML = cognitiveTrace.map(r => {
+    const time = formatTime(r.timestamp);
+    const skills = (r.top_skills || []).map(s =>
+      `<span class="skill-tag" onclick="highlightSkill('${s}')">${s}</span>`
+    ).join('');
+    return `
+      <div class="receipt-row">
+        <span class="card-time">${time}</span>
+        <span class="receipt-loop">${r.loop || '?'}</span>
+        <span class="receipt-signal badge ${r.qc_verdict === 'pass' ? 'badge-teal' : 'badge-gold'}">${r.qc_verdict || '?'}</span>
+        <span class="badge badge-slate">${r.p0_signal || '—'}</span>
+        ${r.c15_active ? '<span class="badge badge-ember">C15</span>' : ''}
+        ${r.resonance ? '<span class="badge badge-gold">共振</span>' : ''}
+        ${skills}
+      </div>
+    `;
+  }).join('');
+}
+
+// ── Render: Decision Trace ──
+function renderDecisionTrace() {
+  const container = document.getElementById('decision-list');
+  if (!decisionTrace.length) {
+    container.innerHTML = '<div class="empty-state">尚無決策記錄</div>';
+    return;
+  }
+  container.innerHTML = decisionTrace.map(d => {
+    const time = formatTime(d.timestamp);
+    const chosen = (d.chosen || '').split(',').map(s =>
+      `<span class="skill-tag" onclick="highlightSkill('${s.trim()}')">${s.trim()}</span>`
+    ).join('');
+    const alts = (d.alternatives || []).map(s =>
+      `<span class="skill-tag" style="opacity:0.5">${s}</span>`
+    ).join('');
+    return `
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">${d.decision_type || 'unknown'}</span>
+          <span class="card-time">${time}</span>
+        </div>
+        <div>選擇: ${chosen}</div>
+        ${alts ? `<div style="margin-top:4px;font-size:12px;color:var(--mist)">替代: ${alts}</div>` : ''}
+        ${d.context ? `<div style="margin-top:4px;font-size:12px;color:var(--slate)">${escapeHtml(d.context)}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+// ── Render: Skill 路由歷史 ──
+function renderRoutingHistory() {
+  const container = document.getElementById('routing-list');
+  if (!skillUsageLog.length) {
+    container.innerHTML = '<div class="empty-state">尚無路由記錄</div>';
+    return;
+  }
+  container.innerHTML = skillUsageLog.map(entry => {
+    const time = formatTime(entry.timestamp);
+    const skills = (entry.skills || []).map(s => {
+      skillCounts[s] = (skillCounts[s] || 0) + 1;
+      return `<span class="skill-tag" onclick="highlightSkill('${s}')">${s}</span>`;
+    }).join('');
+    const msg = escapeHtml((entry.trigger_message || '').substring(0, 60));
+    return `
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title" style="font-size:13px">${msg}${(entry.trigger_message||'').length > 60 ? '…' : ''}</span>
+          <span class="card-time">${time}</span>
+        </div>
+        <div>${skills}</div>
+        <div style="font-size:11px;color:var(--mist);margin-top:4px">回應長度: ${entry.response_length || 0}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ── Render: Skill 使用熱力圖 ──
+function buildHeatmap() {
+  const container = document.getElementById('heatmap');
+  if (Object.keys(skillCounts).length === 0) {
+    container.innerHTML = '<div class="empty-state">尚無數據</div>';
+    return;
+  }
+  const maxCount = Math.max(...Object.values(skillCounts), 1);
+  const sorted = Object.entries(skillCounts).sort((a, b) => b[1] - a[1]);
+  container.innerHTML = sorted.map(([name, count]) => {
+    const intensity = count / maxCount;
+    const r = Math.round(196 + (253 - 196) * (1 - intensity));
+    const g = Math.round(80 + (245 - 80) * (1 - intensity));
+    const b = Math.round(42 + (240 - 42) * (1 - intensity));
+    const bg = `rgb(${r},${g},${b})`;
+    const textColor = intensity > 0.5 ? 'white' : 'var(--ink)';
+    return `<div class="heat-cell" style="background:${bg};color:${textColor}"
+                 title="${name}: ${count} 次" onclick="highlightSkill('${name}')">${name.substring(0,6)}</div>`;
+  }).join('');
+}
+
+// ── Cross-Highlighting ──
+function highlightSkill(skillName) {
+  // 高亮認知面板中的 skill tags
+  document.querySelectorAll('.skill-tag').forEach(tag => {
+    tag.classList.toggle('highlighted', tag.textContent.trim() === skillName);
+  });
+  // 通知 3D 拓撲 iframe 高亮對應節點
+  const iframe = document.getElementById('topo-iframe');
+  if (iframe && iframe.contentWindow) {
+    iframe.contentWindow.postMessage({
+      type: 'observatory_highlight',
+      target: skillName,
+      group: 'agent'
+    }, '*');
+  }
+}
+
+// 接收來自 iframe 的訊息（反向高亮）
+window.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'topology_highlight') {
+    const nodeName = e.data.target || '';
+    // 如果點了 skill-router 相關節點，高亮路由歷史
+    if (nodeName.includes('skill') || nodeName.includes('router')) {
+      document.querySelectorAll('.skill-tag').forEach(tag => {
+        tag.classList.add('highlighted');
+      });
+      setTimeout(() => {
+        document.querySelectorAll('.skill-tag').forEach(tag => {
+          tag.classList.remove('highlighted');
+        });
+      }, 2000);
+    }
+  }
+});
+
+// ── Utils ──
+function formatTime(ts) {
+  if (!ts) return '—';
+  try {
+    const d = new Date(ts);
+    return d.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+  } catch { return ts.substring(11, 16); }
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ── Init ──
+checkGateway();
+connectWS();
+setInterval(checkGateway, 30000);
+setInterval(fetchFootprints, 15000);
+// 首次延遲 2 秒載入（等 Gateway 回應）
+setTimeout(fetchFootprints, 2000);
+</script>
+</body>
+</html>

@@ -780,8 +780,11 @@ class SystemAuditor:
         # 4.2 Token 預算
         checks.append(self._check_budget())
 
-        # 4.3 Skills 索引
+        # 4.3 Skills 索引（基本計數）
         checks.append(self._check_skills())
+
+        # 4.3+ Skill Doctor 雙層健康檢查
+        checks.extend(self._audit_skill_doctor())
 
         # 4.4 Event Bus 免疫事件
         checks.append(self._check_event_bus())
@@ -873,17 +876,556 @@ class SystemAuditor:
         # Gateway 不可用時，檢查 skills 目錄
         skills_dir = self.data_dir / "skills"
         if skills_dir.exists():
-            count = sum(1 for _ in skills_dir.glob("*.md"))
+            # 掃描 native/*/SKILL.md + forged/*/SKILL.md（新結構）
+            native_dir = skills_dir / "native"
+            forged_dir = skills_dir / "forged"
+            count = 0
+            if native_dir.exists():
+                count += sum(1 for _ in native_dir.glob("*/SKILL.md"))
+            if forged_dir.exists():
+                count += sum(1 for _ in forged_dir.glob("*/SKILL.md"))
+            if count == 0:
+                # fallback：舊平面結構
+                count = sum(1 for _ in skills_dir.glob("*.md"))
             return CheckResult(
                 name="Skills 索引",
                 status=CheckStatus.OK if count > 0 else CheckStatus.WARNING,
-                message=f"Skills 目錄有 {count} 個 .md 檔案",
+                message=f"Skills 目錄有 {count} 個 Skill 定義",
             )
         return CheckResult(
             name="Skills 索引",
             status=CheckStatus.WARNING,
             message="Skills 目錄不存在",
         )
+
+    # ═══════════════════════════════════════════
+    # Skill Doctor — 雙層健康檢查（結構 + 認知）
+    # ═══════════════════════════════════════════
+
+    def _audit_skill_doctor(self) -> List[CheckResult]:
+        """Skill Doctor 雙層健康檢查：7 結構 + 7 認知."""
+        results: List[CheckResult] = []
+        # 結構層
+        results.append(self._sd_check_skill_structure())
+        results.append(self._sd_check_always_on())
+        results.append(self._sd_check_native_claude_sync())
+        results.append(self._sd_check_trigger_conflicts())
+        results.append(self._sd_check_rc_coverage())
+        results.append(self._sd_check_skill_usage_noise())
+        # 認知層
+        results.append(self._sd_check_decision_trace_active())
+        results.append(self._sd_check_cognitive_trace_active())
+        results.append(self._sd_check_routing_diversity())
+        results.append(self._sd_check_always_on_frequency())
+        results.append(self._sd_check_response_length_anomaly())
+        results.append(self._sd_check_timestamp_consistency())
+        return results
+
+    # ── 結構層 ──
+
+    def _sd_check_skill_structure(self) -> CheckResult:
+        """每個 skill 目錄都有 SKILL.md."""
+        try:
+            native_dir = self.data_dir / "skills" / "native"
+            if not native_dir.exists():
+                return CheckResult(
+                    name="SD:結構完整性",
+                    status=CheckStatus.WARNING,
+                    message="native/ 目錄不存在",
+                )
+            missing = []
+            total = 0
+            for d in sorted(native_dir.iterdir()):
+                if not d.is_dir():
+                    continue
+                total += 1
+                if not (d / "SKILL.md").exists() and not (d / "BRIEF.md").exists():
+                    missing.append(d.name)
+            if missing:
+                return CheckResult(
+                    name="SD:結構完整性",
+                    status=CheckStatus.WARNING,
+                    message=f"{len(missing)}/{total} 缺少 SKILL.md: {', '.join(missing[:5])}",
+                )
+            return CheckResult(
+                name="SD:結構完整性",
+                status=CheckStatus.OK,
+                message=f"{total} 個 Skill 結構完整",
+            )
+        except Exception as e:
+            return CheckResult(
+                name="SD:結構完整性",
+                status=CheckStatus.UNKNOWN,
+                message=f"檢查失敗: {e}",
+            )
+
+    def _sd_check_always_on(self) -> CheckResult:
+        """常駐 skill（dna27, deep-think, c15）存在且標記正確."""
+        try:
+            required = {"dna27", "deep-think", "c15"}
+            native_dir = self.data_dir / "skills" / "native"
+            found = set()
+            for name in required:
+                skill_file = native_dir / name / "SKILL.md"
+                if skill_file.exists():
+                    content = skill_file.read_text("utf-8")[:500]
+                    if "always_on" in content.lower() or "常駐" in content:
+                        found.add(name)
+            missing = required - found
+            if missing:
+                return CheckResult(
+                    name="SD:常駐 Skill",
+                    status=CheckStatus.WARNING,
+                    message=f"缺少或未標記: {', '.join(missing)}",
+                )
+            return CheckResult(
+                name="SD:常駐 Skill",
+                status=CheckStatus.OK,
+                message=f"3 個常駐 Skill 正常（{', '.join(sorted(found))}）",
+            )
+        except Exception as e:
+            return CheckResult(
+                name="SD:常駐 Skill",
+                status=CheckStatus.UNKNOWN,
+                message=f"檢查失敗: {e}",
+            )
+
+    def _sd_check_native_claude_sync(self) -> CheckResult:
+        """native/ vs ~/.claude/skills/ 同步狀態."""
+        try:
+            native_dir = self.data_dir / "skills" / "native"
+            claude_dir = Path.home() / ".claude" / "skills"
+            if not native_dir.exists() or not claude_dir.exists():
+                return CheckResult(
+                    name="SD:Native↔Claude 同步",
+                    status=CheckStatus.WARNING,
+                    message="目錄不存在，無法比較",
+                )
+            native_skills = {d.name for d in native_dir.iterdir() if d.is_dir()}
+            claude_skills = {d.name for d in claude_dir.iterdir() if d.is_dir()}
+            only_native = native_skills - claude_skills
+            only_claude = claude_skills - native_skills
+            if only_native or only_claude:
+                msg_parts = []
+                if only_native:
+                    msg_parts.append(f"僅 native: {', '.join(sorted(only_native)[:3])}")
+                if only_claude:
+                    msg_parts.append(f"僅 claude: {', '.join(sorted(only_claude)[:3])}")
+                return CheckResult(
+                    name="SD:Native↔Claude 同步",
+                    status=CheckStatus.WARNING,
+                    message=f"不同步 — {'; '.join(msg_parts)}",
+                    details={"only_native": sorted(only_native), "only_claude": sorted(only_claude)},
+                )
+            return CheckResult(
+                name="SD:Native↔Claude 同步",
+                status=CheckStatus.OK,
+                message=f"{len(native_skills)} 個 Skill 完全同步",
+            )
+        except Exception as e:
+            return CheckResult(
+                name="SD:Native↔Claude 同步",
+                status=CheckStatus.UNKNOWN,
+                message=f"檢查失敗: {e}",
+            )
+
+    def _sd_check_trigger_conflicts(self) -> CheckResult:
+        """觸發詞衝突偵測（同一觸發詞出現在多個 skill）."""
+        try:
+            import re
+            native_dir = self.data_dir / "skills" / "native"
+            if not native_dir.exists():
+                return CheckResult(
+                    name="SD:觸發詞衝突",
+                    status=CheckStatus.UNKNOWN,
+                    message="native/ 不存在",
+                )
+            trigger_map: Dict[str, List[str]] = {}
+            for d in sorted(native_dir.iterdir()):
+                if not d.is_dir():
+                    continue
+                skill_file = d / "SKILL.md"
+                if not skill_file.exists():
+                    continue
+                content = skill_file.read_text("utf-8")
+                # 提取觸發詞段落
+                match = re.search(r"觸發詞[：:](.+?)(?:\n#|\n\n)", content, re.DOTALL)
+                if match:
+                    words = [w.strip().strip("、，,") for w in match.group(1).split() if len(w.strip()) > 1]
+                    for w in words[:20]:  # 限制每個 skill 最多 20 個觸發詞
+                        trigger_map.setdefault(w, []).append(d.name)
+            conflicts = {k: v for k, v in trigger_map.items() if len(v) > 2}
+            if conflicts:
+                top3 = sorted(conflicts.items(), key=lambda x: len(x[1]), reverse=True)[:3]
+                msg = "; ".join(f"「{k}」→{len(v)}個" for k, v in top3)
+                return CheckResult(
+                    name="SD:觸發詞衝突",
+                    status=CheckStatus.WARNING,
+                    message=f"{len(conflicts)} 組衝突: {msg}",
+                    details={"conflicts_count": len(conflicts)},
+                )
+            return CheckResult(
+                name="SD:觸發詞衝突",
+                status=CheckStatus.OK,
+                message="無嚴重觸發詞衝突（≤2 重複視為正常）",
+            )
+        except Exception as e:
+            return CheckResult(
+                name="SD:觸發詞衝突",
+                status=CheckStatus.UNKNOWN,
+                message=f"檢查失敗: {e}",
+            )
+
+    def _sd_check_rc_coverage(self) -> CheckResult:
+        """RC affinity 覆蓋率檢查."""
+        try:
+            import re
+            native_dir = self.data_dir / "skills" / "native"
+            if not native_dir.exists():
+                return CheckResult(
+                    name="SD:RC 覆蓋率",
+                    status=CheckStatus.UNKNOWN,
+                    message="native/ 不存在",
+                )
+            rc_set: set = set()
+            skills_with_rc = 0
+            skills_total = 0
+            for d in sorted(native_dir.iterdir()):
+                if not d.is_dir():
+                    continue
+                skill_file = d / "SKILL.md"
+                if not skill_file.exists():
+                    continue
+                skills_total += 1
+                content = skill_file.read_text("utf-8")
+                match = re.search(r"RC[_\s]*Affinity[：:\s]+([^\n]+)", content, re.IGNORECASE)
+                if match:
+                    skills_with_rc += 1
+                    rcs = [r.strip() for r in match.group(1).split(",")]
+                    rc_set.update(rcs)
+            pct = (skills_with_rc / skills_total * 100) if skills_total > 0 else 0
+            if pct < 50:
+                status = CheckStatus.WARNING
+            else:
+                status = CheckStatus.OK
+            return CheckResult(
+                name="SD:RC 覆蓋率",
+                status=status,
+                message=f"{skills_with_rc}/{skills_total} 有 RC 標記（{pct:.0f}%），涵蓋 {len(rc_set)} 個 RC",
+                details={"coverage_pct": pct, "rc_count": len(rc_set)},
+            )
+        except Exception as e:
+            return CheckResult(
+                name="SD:RC 覆蓋率",
+                status=CheckStatus.UNKNOWN,
+                message=f"檢查失敗: {e}",
+            )
+
+    def _sd_check_skill_usage_noise(self) -> CheckResult:
+        """usage log 噪音比（短問題觸發高特異性 skill）."""
+        try:
+            log_path = self.data_dir / "skill_usage_log.jsonl"
+            if not log_path.exists():
+                return CheckResult(
+                    name="SD:路由噪音",
+                    status=CheckStatus.UNKNOWN,
+                    message="skill_usage_log.jsonl 不存在",
+                )
+            noisy = 0
+            total = 0
+            for line in log_path.read_text("utf-8").strip().split("\n")[-50:]:
+                if not line.strip():
+                    continue
+                try:
+                    entry = json.loads(line)
+                    total += 1
+                    msg = entry.get("trigger_message", "")
+                    skills = entry.get("skills", [])
+                    # 短訊息（≤10 字元）觸發 ≥5 個 skill 視為噪音
+                    if len(msg) <= 10 and len(skills) >= 5:
+                        noisy += 1
+                except (json.JSONDecodeError, KeyError):
+                    continue
+            if total == 0:
+                return CheckResult(
+                    name="SD:路由噪音",
+                    status=CheckStatus.OK,
+                    message="無使用記錄",
+                )
+            noise_pct = (noisy / total * 100) if total > 0 else 0
+            if noise_pct > 30:
+                status = CheckStatus.WARNING
+            else:
+                status = CheckStatus.OK
+            return CheckResult(
+                name="SD:路由噪音",
+                status=status,
+                message=f"近 {total} 筆中 {noisy} 筆疑似噪音（{noise_pct:.0f}%）",
+                details={"noise_pct": noise_pct, "noisy": noisy, "total": total},
+            )
+        except Exception as e:
+            return CheckResult(
+                name="SD:路由噪音",
+                status=CheckStatus.UNKNOWN,
+                message=f"檢查失敗: {e}",
+            )
+
+    # ── 認知層 ──
+
+    def _sd_check_decision_trace_active(self) -> CheckResult:
+        """decisions.jsonl 是否有近 24h 記錄."""
+        return self._sd_check_jsonl_freshness(
+            self.data_dir / "_system" / "footprints" / "decisions.jsonl",
+            "SD:決策軌跡",
+        )
+
+    def _sd_check_cognitive_trace_active(self) -> CheckResult:
+        """cognitive_trace.jsonl 是否有近 24h 記錄."""
+        return self._sd_check_jsonl_freshness(
+            self.data_dir / "_system" / "footprints" / "cognitive_trace.jsonl",
+            "SD:認知回執",
+        )
+
+    def _sd_check_jsonl_freshness(self, path: Path, name: str) -> CheckResult:
+        """通用 JSONL 檔案新鮮度檢查."""
+        try:
+            if not path.exists():
+                return CheckResult(
+                    name=name,
+                    status=CheckStatus.WARNING,
+                    message=f"{path.name} 不存在（尚未產生記錄）",
+                )
+            # 讀最後一行的 timestamp
+            lines = path.read_text("utf-8").strip().split("\n")
+            if not lines or not lines[-1].strip():
+                return CheckResult(
+                    name=name,
+                    status=CheckStatus.WARNING,
+                    message=f"{path.name} 為空",
+                )
+            last = json.loads(lines[-1])
+            ts_str = last.get("timestamp", "")
+            if not ts_str:
+                return CheckResult(
+                    name=name,
+                    status=CheckStatus.OK,
+                    message=f"{len(lines)} 筆記錄（無時間戳）",
+                )
+            # 嘗試解析 ISO 時間
+            try:
+                from datetime import timezone
+                ts = datetime.fromisoformat(ts_str.replace("Z", "+00:00"))
+                age_hours = (datetime.now(timezone.utc) - ts).total_seconds() / 3600
+                if age_hours > 48:
+                    status = CheckStatus.WARNING
+                    msg = f"{len(lines)} 筆，最後記錄 {age_hours:.0f}h 前（超過 48h）"
+                else:
+                    status = CheckStatus.OK
+                    msg = f"{len(lines)} 筆，最後記錄 {age_hours:.0f}h 前"
+            except (ValueError, TypeError):
+                status = CheckStatus.OK
+                msg = f"{len(lines)} 筆記錄"
+            return CheckResult(name=name, status=status, message=msg)
+        except Exception as e:
+            return CheckResult(
+                name=name,
+                status=CheckStatus.UNKNOWN,
+                message=f"檢查失敗: {e}",
+            )
+
+    def _sd_check_routing_diversity(self) -> CheckResult:
+        """近 N 次路由是否集中在少數 skill（MoE 失效偵測）."""
+        try:
+            log_path = self.data_dir / "skill_usage_log.jsonl"
+            if not log_path.exists():
+                return CheckResult(
+                    name="SD:路由多樣性",
+                    status=CheckStatus.UNKNOWN,
+                    message="無使用記錄",
+                )
+            lines = log_path.read_text("utf-8").strip().split("\n")[-30:]
+            skill_counts: Dict[str, int] = {}
+            total_slots = 0
+            for line in lines:
+                if not line.strip():
+                    continue
+                try:
+                    entry = json.loads(line)
+                    for sk in entry.get("skills", []):
+                        skill_counts[sk] = skill_counts.get(sk, 0) + 1
+                        total_slots += 1
+                except (json.JSONDecodeError, KeyError):
+                    continue
+            if total_slots == 0:
+                return CheckResult(
+                    name="SD:路由多樣性",
+                    status=CheckStatus.OK,
+                    message="無使用記錄",
+                )
+            unique = len(skill_counts)
+            # 前 3 名佔比
+            top3 = sorted(skill_counts.values(), reverse=True)[:3]
+            top3_pct = (sum(top3) / total_slots * 100) if total_slots > 0 else 0
+            if unique <= 5 and top3_pct > 60:
+                status = CheckStatus.WARNING
+                msg = f"多樣性低：{unique} 個 Skill，Top3 佔 {top3_pct:.0f}%"
+            else:
+                status = CheckStatus.OK
+                msg = f"{unique} 個 Skill 活躍，Top3 佔 {top3_pct:.0f}%"
+            return CheckResult(
+                name="SD:路由多樣性",
+                status=status,
+                message=msg,
+                details={"unique_skills": unique, "top3_pct": top3_pct},
+            )
+        except Exception as e:
+            return CheckResult(
+                name="SD:路由多樣性",
+                status=CheckStatus.UNKNOWN,
+                message=f"檢查失敗: {e}",
+            )
+
+    def _sd_check_always_on_frequency(self) -> CheckResult:
+        """常駐 skill 是否在每次路由中都出現."""
+        try:
+            log_path = self.data_dir / "skill_usage_log.jsonl"
+            if not log_path.exists():
+                return CheckResult(
+                    name="SD:常駐出現率",
+                    status=CheckStatus.UNKNOWN,
+                    message="無使用記錄",
+                )
+            always_on = {"dna27", "deep-think", "c15"}
+            lines = log_path.read_text("utf-8").strip().split("\n")[-20:]
+            total = 0
+            ao_present = 0
+            for line in lines:
+                if not line.strip():
+                    continue
+                try:
+                    entry = json.loads(line)
+                    skills = set(entry.get("skills", []))
+                    total += 1
+                    if skills & always_on:
+                        ao_present += 1
+                except (json.JSONDecodeError, KeyError):
+                    continue
+            if total == 0:
+                return CheckResult(
+                    name="SD:常駐出現率",
+                    status=CheckStatus.OK,
+                    message="無使用記錄",
+                )
+            pct = (ao_present / total * 100) if total > 0 else 0
+            # 常駐 skill 至少 80% 的路由中應出現
+            if pct < 80:
+                return CheckResult(
+                    name="SD:常駐出現率",
+                    status=CheckStatus.WARNING,
+                    message=f"常駐 Skill 只在 {pct:.0f}% 的路由中出現（{ao_present}/{total}）",
+                )
+            return CheckResult(
+                name="SD:常駐出現率",
+                status=CheckStatus.OK,
+                message=f"常駐 Skill 在 {pct:.0f}% 的路由中出現（{ao_present}/{total}）",
+            )
+        except Exception as e:
+            return CheckResult(
+                name="SD:常駐出現率",
+                status=CheckStatus.UNKNOWN,
+                message=f"檢查失敗: {e}",
+            )
+
+    def _sd_check_response_length_anomaly(self) -> CheckResult:
+        """回應長度異常偵測."""
+        try:
+            log_path = self.data_dir / "skill_usage_log.jsonl"
+            if not log_path.exists():
+                return CheckResult(
+                    name="SD:回應長度",
+                    status=CheckStatus.UNKNOWN,
+                    message="無使用記錄",
+                )
+            lengths = []
+            for line in log_path.read_text("utf-8").strip().split("\n")[-30:]:
+                if not line.strip():
+                    continue
+                try:
+                    entry = json.loads(line)
+                    rl = entry.get("response_length", 0)
+                    if rl > 0:
+                        lengths.append(rl)
+                except (json.JSONDecodeError, KeyError):
+                    continue
+            if len(lengths) < 5:
+                return CheckResult(
+                    name="SD:回應長度",
+                    status=CheckStatus.OK,
+                    message=f"樣本不足（{len(lengths)} 筆），跳過",
+                )
+            avg = sum(lengths) / len(lengths)
+            extremes = sum(1 for l in lengths if l > avg * 3 or l < avg * 0.1)
+            if extremes > len(lengths) * 0.3:
+                return CheckResult(
+                    name="SD:回應長度",
+                    status=CheckStatus.WARNING,
+                    message=f"異常比例高: {extremes}/{len(lengths)} 超出 3x 均值（avg={avg:.0f}）",
+                )
+            return CheckResult(
+                name="SD:回應長度",
+                status=CheckStatus.OK,
+                message=f"近 {len(lengths)} 筆平均 {avg:.0f} 字元，無嚴重異常",
+            )
+        except Exception as e:
+            return CheckResult(
+                name="SD:回應長度",
+                status=CheckStatus.UNKNOWN,
+                message=f"檢查失敗: {e}",
+            )
+
+    def _sd_check_timestamp_consistency(self) -> CheckResult:
+        """各 log 的時間戳格式一致性."""
+        try:
+            issues = []
+            # 檢查 skill_usage_log.jsonl（應有 UTC 時區）
+            log_path = self.data_dir / "skill_usage_log.jsonl"
+            if log_path.exists():
+                last_line = log_path.read_text("utf-8").strip().split("\n")[-1]
+                try:
+                    entry = json.loads(last_line)
+                    ts = entry.get("timestamp", "")
+                    if ts and "+" not in ts and "Z" not in ts:
+                        issues.append("skill_usage_log 缺少時區")
+                except (json.JSONDecodeError, KeyError):
+                    pass
+            # 檢查 actions.jsonl
+            action_path = self.data_dir / "_system" / "footprints" / "actions.jsonl"
+            if action_path.exists():
+                last_line = action_path.read_text("utf-8").strip().split("\n")[-1]
+                try:
+                    entry = json.loads(last_line)
+                    ts = entry.get("timestamp", "")
+                    if ts and "+" not in ts and "Z" not in ts:
+                        issues.append("actions.jsonl 缺少時區")
+                except (json.JSONDecodeError, KeyError):
+                    pass
+            if issues:
+                return CheckResult(
+                    name="SD:時間戳一致性",
+                    status=CheckStatus.WARNING,
+                    message=f"格式不一致: {'; '.join(issues)}",
+                )
+            return CheckResult(
+                name="SD:時間戳一致性",
+                status=CheckStatus.OK,
+                message="時間戳格式一致",
+            )
+        except Exception as e:
+            return CheckResult(
+                name="SD:時間戳一致性",
+                status=CheckStatus.UNKNOWN,
+                message=f"檢查失敗: {e}",
+            )
 
     def _check_event_bus(self) -> CheckResult:
         """檢查 Event Bus 是否包含免疫事件定義"""

@@ -1,4 +1,4 @@
-# MUSEON Persistence Contract v1.13 — 水電圖
+# MUSEON Persistence Contract v1.15 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
@@ -226,6 +226,7 @@ Installer 編排 (orchestrator.py)
     │
     ├──→ ActivityLogger ──→ data/activity_log.jsonl  [JSONL]
     ├──→ Footprint ──→ data/_system/footprints/actions.jsonl  [JSONL]
+    ├──→ Footprint ──→ data/_system/footprints/cognitive_trace.jsonl  [JSONL]
     ├──→ Gateway ──→ data/heartbeat.jsonl  [JSONL]
     ├──→ Guardian ──→ data/guardian/kernel_audit.jsonl  [JSONL]
     ├──→ LLM Router ──→ data/_system/pulse/routing_log_{date}.jsonl  [JSONL]
@@ -274,6 +275,7 @@ Installer 編排 (orchestrator.py)
 | W32 | 技能市集註冊 | SkillMarket | SkillMarket, Gateway | JSON | 永久 | OK |
 | W33 | 外向演化狀態 | OutwardTrigger | NightlyPipeline | JSON | 永久 | OK |
 | W34 | 八原語向量索引 | PrimalDetector | PrimalDetector.detect | Qdrant | ∞ | OK |
+| W35 | 認知追蹤日誌 | FootprintStore.trace_cognitive() | SystemAudit(Skill Doctor), Observatory | JSONL | 30 天 | OK |
 
 > **v1.10 補充（Phase 4 飛輪多代理）**：
 > - W10 六層記憶條目新增 `dept_id` 欄位（可選），用於部門級記憶隔離
@@ -357,6 +359,7 @@ Installer 編排 (orchestrator.py)
 | `_system/curiosity/question_queue.json` | `pulse/curiosity_router.py` | 好奇心佇列 |
 | `_system/evolution/version.json` | `evolution/wee_engine.py` | 系統版本追蹤 |
 | `_system/footprints/actions.jsonl` | `governance/footprint.py` | L1 足跡 |
+| `_system/footprints/cognitive_trace.jsonl` | `governance/footprint.py` | 認知追蹤（Brain Step 8 決策迴圈的認知軌跡） |
 | `_system/morphenix/*.json` | `nightly/morphenix_executor.py` | 執行快照 |
 | `_system/outward/*.json` | `evolution/outward_trigger.py` | 外向演化狀態（behavior_shift, cooldown, counter, pending_signals 等） |
 | `_system/sessions/*.json` | `gateway/session.py` | 會話快照 |
@@ -435,7 +438,7 @@ Installer 編排 (orchestrator.py)
 | LatticeStore | JSON | PERMANENT | `agent/knowledge_lattice.py` |
 | DiaryStore (原 SoulRingStore) | JSON (append-only) | PERMANENT | `agent/soul_ring.py` |
 | WorkflowStore | Mixed (MD+JSON) | PERMANENT | `workflow/soft_workflow.py` |
-| FootprintStore | JSONL (append-only) | MEDIUM | `governance/footprint.py` |
+| FootprintStore | JSONL (append-only: actions+decisions+evolutions+cognitive_trace) | MEDIUM | `governance/footprint.py` |
 | GroupContextStore | SQLite | PERMANENT | `governance/group_context.py` |
 | SkillManager | JSON | PERMANENT | `core/skill_manager.py` |
 | ActivityLogger | JSONL (append-only) | SHORT | `core/activity_logger.py` |
@@ -520,6 +523,7 @@ Installer 編排 (orchestrator.py)
 | v1.0 | 2026-03-15 | 初版：完整水電圖，涵蓋 23 個正常配對、3 個 Dead Write、14 個死目錄 |
 | v1.1 | 2026-03-15 | Phase 2 完成：4 個 JSON 遷移至 PulseDB（ceremony_state + eval 三件套） |
 | v1.2 | 2026-03-15 | Phase 3 完成：DataContract + DataBus 建立，10 個 Store 類統一接入 |
+| v1.15 | 2026-03-17 | 認知可觀測性：新增 W35 cognitive_trace.jsonl（FootprintStore.trace_cognitive() 寫入、SystemAudit Skill Doctor + Observatory 讀取）；管線 D 新增 Footprint→cognitive_trace.jsonl 資料流；FootprintStore DataContract 描述更新（actions+decisions+evolutions+cognitive_trace 四檔）；`_system/footprints/` 子目錄新增 cognitive_trace.jsonl 條目 |
 | v1.14 | 2026-03-16 | Memory Reset 一鍵重置管線：新增 Pipeline R（25 個持久層的原子重置管線）；涵蓋 7 大類（A.身份 B.對話 C.知識 D.行為 E.評估 F.日誌 G.狀態）；`doctor/memory_reset.py` 為唯一執行入口；預設 dry-run 安全模式 |
 | v1.12 | 2026-03-16 | P0 記憶事實覆寫：新增管線 A-2（事實更正覆寫管線）；Qdrant memories 新增 status=deprecated 軟刪除標記（VectorBridge.mark_deprecated() 寫入、search() 自動過濾）；新增 data/anima/fact_corrections.jsonl（Brain 寫入、ProactiveBridge+PulseEngine+Brain 讀取）；MemoryManager.supersede() 已存在但現在被 Brain 自動呼叫 |
 | v1.11 | 2026-03-16 | Phase 4 飛輪多代理實質化：W10 六層記憶條目新增 dept_id 欄位；memory_manager store()+recall() 支援部門級隔離；MultiAgentExecutor/ResponseSynthesizer/FlywheelCoordinator 均無新增持久化 |

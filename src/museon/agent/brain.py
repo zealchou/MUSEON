@@ -1132,8 +1132,18 @@ class MuseonBrain:
                 except Exception as e:
                     logger.debug(f"ToolMuscle record_use 失敗: {e}")
 
-            # Footprint: 記錄行為足跡
+            # Footprint: 記錄決策軌跡（L2）+ 行為足跡（L1）
             if self._footprint:
+                try:
+                    self._footprint.trace_decision(
+                        decision_type="skill_routing",
+                        chosen=",".join(skill_names[:3]),
+                        alternatives=[s for s in skill_names[3:] if s],
+                        reasoning=f"top{len(skill_names)}_ranked",
+                        context=content[:100] if content else "",
+                    )
+                except Exception as e:
+                    logger.debug(f"Footprint trace_decision 失敗: {e}")
                 try:
                     self._footprint.trace_action(
                         action_type="skill_routing",
@@ -1144,6 +1154,20 @@ class MuseonBrain:
                     )
                 except Exception as e:
                     logger.debug(f"Footprint trace_action 失敗: {e}")
+                # 認知回執（Compact Cognitive Receipt）
+                try:
+                    self._footprint.trace_cognitive({
+                        "p0_signal": "",
+                        "qc_verdict": "pass" if not getattr(self, '_last_qc_clarify', False) else "clarify",
+                        "user_energy": "",
+                        "c15_active": True,
+                        "resonance": False,
+                        "loop": "E",
+                        "top_skills": skill_names[:3],
+                        "meta_note": "",
+                    })
+                except Exception as e:
+                    logger.debug(f"Footprint trace_cognitive 失敗: {e}")
 
         # ── Step 8.5: 靈魂日記 — 偵測日記級事件（v2.0 降低門檻版）──
         # ★ Pipeline 短路：簡單訊息跳過 Soul Ring（q_score 已被跳過，此處自然不觸發）
