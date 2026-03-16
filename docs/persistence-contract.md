@@ -58,7 +58,7 @@
 |---------|---------|--------|--------|
 | `data/memory/{YYYY}/{MM}/{DD}/{channel}.md` | `memory/store.py` | `MemoryStore.write()` | `MemoryStore.read()`, Nightly 壓縮 |
 | `data/PULSE.md` | `pulse/pulse_engine.py` | `PulseEngine`（✅ threading.Lock + 原子寫入） | `brain.py`, `explorer.py` |
-| `data/SOUL.md` | `agent/soul_ring.py` | `SoulRing` | `brain.py` |
+| `data/SOUL.md` | `agent/soul_ring.py` (DiaryStore) | `DiaryStore` | `brain.py` |
 | `data/skills/{category}/{name}.md` | `core/skill_manager.py` | Morphenix/手動 | `skill_router.py`, `skill_manager.py` |
 | `data/workspace/*.md` | 各模組 | 臨時產出 | 使用者直接閱讀 |
 
@@ -235,7 +235,7 @@ Installer 編排 (orchestrator.py)
 | W11 | 向量索引 | VectorBridge | VectorBridge.search | Qdrant | ∞ | OK |
 | W12 | 路由統計 | LLM Router | Nightly/Job | JSONL | 輪替 >5MB | OK |
 | W13 | 知識晶體 | KnowledgeLattice | KnowledgeLattice, Brain | JSON+Vector | 永久 | OK |
-| W14 | 靈魂年輪 | SoulRing | Brain, Nightly | JSON | 永久 | OK |
+| W14 | 日記條目（原靈魂年輪） | DiaryStore | Brain, Nightly | JSON | 永久 | OK |
 | W15 | ANIMA 狀態 | Brain | Brain 啟動時載入 | JSON | 永久 | OK |
 | W16 | Pulse 狀態 | PulseEngine | Brain, Explorer | Markdown | 每次覆寫 | OK |
 | W17 | 技能庫 | SkillManager | SkillRouter | Markdown | 永久 | OK |
@@ -292,7 +292,7 @@ Installer 編排 (orchestrator.py)
 
 | 等級 | 保留期 | 適用資料 | 清理機制 |
 |------|--------|---------|---------|
-| **PERMANENT** | 永久 | L3-L5 記憶, 靈魂年輪, ANIMA, 知識晶體 | 不清理 |
+| **PERMANENT** | 永久 | L3-L5 記憶, 日記條目, ANIMA(含L8群組行為), 知識晶體 | 不清理 |
 | **LONG** | 90 天 | L2 情節記憶, 已完成承諾 | Nightly Step 清理 |
 | **MEDIUM** | 30 天 | L1 短期記憶, 已執行提案, 壓縮歸檔 | Nightly Step 清理 |
 | **SHORT** | 14 天 | Session 快取, 臨時上下文 | Nightly Step 26 (已實作) |
@@ -353,7 +353,7 @@ Installer 編排 (orchestrator.py)
 | 檔案 | 負責模組 | 用途 |
 |------|---------|------|
 | `anima/drift_baseline.json` | `agent/drift_detector.py` | 漂移基線 |
-| `anima/soul_rings.json` | `agent/soul_ring.py` | 靈魂年輪序列 |
+| `anima/soul_rings.json` | `agent/soul_ring.py` (DiaryStore) | 日記條目序列（v2.0 新增 entry_type/highlights/learnings/tomorrow_intent） |
 
 ### `eval/` 子目錄
 
@@ -409,7 +409,7 @@ Installer 編排 (orchestrator.py)
 | PulseDB | SQLite | PERMANENT | `pulse/pulse_db.py` |
 | MemoryStore | Markdown | PERMANENT | `memory/store.py` |
 | LatticeStore | JSON | PERMANENT | `agent/knowledge_lattice.py` |
-| SoulRingStore | JSON (append-only) | PERMANENT | `agent/soul_ring.py` |
+| DiaryStore (原 SoulRingStore) | JSON (append-only) | PERMANENT | `agent/soul_ring.py` |
 | WorkflowStore | Mixed (MD+JSON) | PERMANENT | `workflow/soft_workflow.py` |
 | FootprintStore | JSONL (append-only) | MEDIUM | `governance/footprint.py` |
 | GroupContextStore | SQLite | PERMANENT | `governance/group_context.py` |
@@ -456,6 +456,7 @@ Installer 編排 (orchestrator.py)
 | v1.0 | 2026-03-15 | 初版：完整水電圖，涵蓋 23 個正常配對、3 個 Dead Write、14 個死目錄 |
 | v1.1 | 2026-03-15 | Phase 2 完成：4 個 JSON 遷移至 PulseDB（ceremony_state + eval 三件套） |
 | v1.2 | 2026-03-15 | Phase 3 完成：DataContract + DataBus 建立，10 個 Store 類統一接入 |
+| v1.10 | 2026-03-16 | Phase 3 日記+群組ANIMA：SoulRingStore→DiaryStore 重命名（W14 更新）；ANIMA_USER 新增 L8_context_behavior_notes 層（群組行為追蹤）；diary entries 新增 entry_type/highlights/learnings/tomorrow_intent 欄位；nightly _step_diary_generation 每日生成日記摘要 |
 | v1.9 | 2026-03-16 | Phase 2 八原語接線：Qdrant Engine 2 新增 primals collection（1024 維，PrimalDetector 寫入+搜尋）；新增 W34 配對（八原語向量索引） |
 | v1.8 | 2026-03-16 | Docker 沙盒驗證器上線：morphenix_validator 使用暫時性 tempdir（非持久儲存），Docker volume 為唯讀掛載，無新增持久資料 |
 | v1.7 | 2026-03-15 | DNA27 深度修復：PULSE.md 寫入加入 threading.Lock + 原子寫入（tmp→rename+fsync）、ANIMA_MC.json 改為 AnimaMCStore 統一存取 |

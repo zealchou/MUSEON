@@ -182,7 +182,7 @@ class NightlyPipeline:
             "8": ("step_08_workflow_mutation", self._step_workflow_mutation),
             "8.5": ("step_08_5_dna27_reindex", self._step_dna27_reindex),
             "9": ("step_09_graph_consolidation", self._step_graph_consolidation),
-            "10": ("step_10_soul_nightly", self._step_soul_nightly),
+            "10": ("step_10_diary_generation", self._step_diary_generation),
             "10.5": ("step_10_5_ring_review", self._step_ring_review),
             "11": ("step_11_dream_engine", self._step_dream_engine),
             "12": ("step_12_heartbeat_focus", self._step_heartbeat_focus),
@@ -1705,38 +1705,105 @@ class NightlyPipeline:
         return stats
 
     # ═══════════════════════════════════════════
-    # Step 10: 靈魂層夜間整合
+    # Step 10: 靈魂日記生成 + 情緒衰減（v2.0）
     # ═══════════════════════════════════════════
 
-    def _step_soul_nightly(self) -> Dict:
-        """Step 10: 靈魂整合（情緒衰減、自我認知更新）."""
+    def _step_diary_generation(self) -> Dict:
+        """Step 10: 靈魂日記生成 + 情緒衰減（v2.0 重構版）.
+
+        合併原 _step_soul_nightly 的情緒衰減功能，
+        並整合 DiaryStore.generate_daily_summary() 生成每日日記條目。
+        """
+        result: Dict[str, Any] = {}
+
+        # Part A: 情緒衰減（保留原邏輯）
         soul_dir = self._workspace / "_system" / "soul"
-        if not soul_dir.exists():
-            return {"skipped": "no soul directory"}
+        if soul_dir.exists():
+            state_file = soul_dir / "soul_state.json"
+            if state_file.exists():
+                try:
+                    with open(state_file, "r", encoding="utf-8") as fh:
+                        state = json.load(fh)
+                    emotions = state.get("emotions", {})
+                    for key in emotions:
+                        if isinstance(emotions[key], (int, float)):
+                            emotions[key] = round(
+                                emotions[key] * DAILY_DECAY_FACTOR, 4
+                            )
+                    state["last_nightly"] = datetime.now(TZ_TAIPEI).isoformat()
+                    with open(state_file, "w", encoding="utf-8") as fh:
+                        json.dump(state, fh, ensure_ascii=False, indent=2)
+                    result["emotions_decayed"] = len(emotions)
+                except Exception as e:
+                    logger.debug(f"[NIGHTLY] emotion decay degraded: {e}")
+                    result["emotion_decay_error"] = str(e)
 
-        state_file = soul_dir / "soul_state.json"
-        if not state_file.exists():
-            return {"skipped": "no soul state"}
-
+        # Part B: 每日日記生成（v2.0 新增）
         try:
-            with open(state_file, "r", encoding="utf-8") as fh:
-                state = json.load(fh)
+            from museon.agent.soul_ring import DiaryStore
+            from museon.core.activity_logger import ActivityLogger
+            from datetime import date as _date
+
+            diary_store = DiaryStore(data_dir=str(self._workspace))
+            today = _date.today()
+
+            # 收集當日互動統計
+            al = ActivityLogger(data_dir=str(self._workspace))
+            today_events = al.today_events()
+            interaction_count = len(today_events)
+
+            # 收集 Q-Score（從持久化檔案）
+            q_path = self._workspace / "_system" / "q_score_history.json"
+            q_scores = None
+            if q_path.exists():
+                try:
+                    q_scores = json.loads(q_path.read_text(encoding="utf-8"))
+                except Exception:
+                    pass
+
+            # 收集八原語（從 ANIMA_USER）
+            primals = None
+            anima_path = self._workspace / "anima" / "anima_user.json"
+            if anima_path.exists():
+                try:
+                    anima_data = json.loads(
+                        anima_path.read_text(encoding="utf-8")
+                    )
+                    primals = anima_data.get("eight_primal_energies")
+                except Exception:
+                    pass
+
+            # 生成亮點（從事件類型統計）
+            highlights = []
+            if today_events:
+                event_types: Dict[str, int] = {}
+                for evt in today_events:
+                    etype = evt.get("event", "unknown")
+                    event_types[etype] = event_types.get(etype, 0) + 1
+                top_events = sorted(
+                    event_types.items(), key=lambda x: -x[1]
+                )[:3]
+                highlights = [
+                    f"{etype}: {count} 次" for etype, count in top_events
+                ]
+
+            # 生成日記條目
+            ring = diary_store.generate_daily_summary(
+                target_date=today,
+                interaction_count=interaction_count,
+                q_scores=q_scores,
+                primals=primals,
+                highlights=highlights,
+            )
+
+            result["diary_generated"] = ring is not None
+            result["interaction_count"] = interaction_count
+
         except Exception as e:
-            logger.debug(f"[NIGHTLY] degraded: {e}")
-            return {"skipped": "soul state unreadable"}
+            logger.debug(f"[NIGHTLY] diary generation degraded: {e}")
+            result["diary_error"] = str(e)
 
-        # 情緒衰減
-        emotions = state.get("emotions", {})
-        for key in emotions:
-            if isinstance(emotions[key], (int, float)):
-                emotions[key] = round(emotions[key] * DAILY_DECAY_FACTOR, 4)
-
-        state["last_nightly"] = datetime.now(TZ_TAIPEI).isoformat()
-
-        with open(state_file, "w", encoding="utf-8") as fh:
-            json.dump(state, fh, ensure_ascii=False, indent=2)
-
-        return {"emotions_decayed": len(emotions)}
+        return result
 
     # ═══════════════════════════════════════════
     # Step 10.6: SOUL.md 身份驗證

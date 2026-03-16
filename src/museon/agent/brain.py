@@ -240,16 +240,16 @@ class MuseonBrain:
 
         # ── 需要特殊初始化的模組（無法用 ModuleSpec 標準化的）──
 
-        # SoulRing（需要兩個類別交互初始化）
+        # DiaryStore（原 SoulRing，需要兩個類別交互初始化）
         try:
-            from museon.agent.soul_ring import SoulRingStore, RingDepositor
-            self._soul_ring_store = SoulRingStore(data_dir=_dd)
+            from museon.agent.soul_ring import DiaryStore, RingDepositor
+            self._diary_store = DiaryStore(data_dir=_dd)
             self.ring_depositor = RingDepositor(
-                store=self._soul_ring_store, data_dir=_dd,
+                store=self._diary_store, data_dir=_dd,
             )
         except Exception as e:
-            logger.warning(f"SoulRing 載入失敗（降級運行）: {e}")
-            self._soul_ring_store = None
+            logger.warning(f"DiaryStore 載入失敗（降級運行）: {e}")
+            self._diary_store = None
             self.ring_depositor = None
 
         # Q-Score 歷史持久化
@@ -1081,7 +1081,7 @@ class MuseonBrain:
                 except Exception as e:
                     logger.debug(f"Footprint trace_action 失敗: {e}")
 
-        # ── Step 8.5: 靈魂年輪 — 偵測年輪級事件 ──
+        # ── Step 8.5: 靈魂日記 — 偵測日記級事件（v2.0 降低門檻版）──
         # ★ Pipeline 短路：簡單訊息跳過 Soul Ring（q_score 已被跳過，此處自然不觸發）
         # 追蹤 Q-Score 歷史（保留最近 50 筆）並持久化
         if q_score is not None:
@@ -1103,17 +1103,19 @@ class MuseonBrain:
                     response_content=response_text,
                     q_score=q_score.score if q_score else None,
                     q_score_history=self._q_score_history if self._q_score_history else None,
+                    content_length=len(content) if content else 0,
                 )
                 if ring_event:
                     logger.info(
-                        f"靈魂年輪事件偵測: type={ring_event.get('ring_type')}"
+                        f"靈魂日記事件偵測: type={ring_event.get('ring_type')} "
+                        f"entry_type={ring_event.get('entry_type', 'event')}"
                     )
-                    # 實際存入靈魂年輪
                     self.ring_depositor.deposit_soul_ring(
                         ring_type=ring_event["ring_type"],
                         description=ring_event["description"],
                         context=ring_event.get("context", ""),
                         impact=ring_event.get("impact", ""),
+                        entry_type=ring_event.get("entry_type", "event"),
                         milestone_name=ring_event.get("milestone_name"),
                         metrics=ring_event.get("metrics"),
                         failure_description=ring_event.get("failure_description"),
@@ -1124,7 +1126,7 @@ class MuseonBrain:
                         calibrated_value=ring_event.get("calibrated_value"),
                     )
             except Exception as e:
-                logger.warning(f"靈魂年輪偵測失敗: {e}")
+                logger.warning(f"靈魂日記偵測失敗: {e}")
 
         # ── Step 8.6: 知識晶格 — 對話後掃描 + 自動結晶 ──
         # CASTLE Layer 2: 離線回應不進入結晶管線
@@ -1221,43 +1223,30 @@ class MuseonBrain:
 
         # ── Step 9: 更新 ANIMA_USER（被動觀察 — 八原語 + 七層 + 四觀察引擎） ──
         # CASTLE Layer 2: 離線回應不進入使用者觀察管線
-        # 群組防污染守衛: 群組訊息不更新 owner 的 ANIMA_USER
-        if not self._offline_flag and anima_user is not None and not self._is_group_session:
-            self._observe_user(
-                content, anima_user,
-                response_content=response_text,
-                skill_names=skill_names,
-            )
-        elif self._is_group_session and not self._offline_flag:
-            # 群組訊息 → 外部用戶觀察管線（不寫入 ANIMA_USER）
-            self._observe_external_user(
-                content,
-                user_id=user_id,
-                sender_name=self._group_sender,
-                response_content=response_text,
-                metadata=metadata,
-            )
-
-            # ── Step 9.1: ObservationRing — 使用者觀察年輪沉積 ──
-            if not self._is_group_session and self.ring_depositor and skill_names:
-                try:
-                    # 每 20 次互動嘗試沉積一次觀察年輪（避免過度頻繁）
-                    interaction_count = anima_user.get("interaction_count", 0)
-                    if interaction_count > 0 and interaction_count % 20 == 0:
-                        # 取得使用者的主要興趣主題
-                        topics = [s for s in skill_names if s]
-                        self.ring_depositor.deposit_observation_ring(
-                            ring_type="growth_observation",
-                            description=(
-                                f"第 {interaction_count} 次互動觀察："
-                                f"使用者偏好的技能區域包含 "
-                                f"{', '.join(topics[:3])}"
-                            ),
-                            context=f"session={session_id}, skills={topics[:3]}",
-                            impact="持續追蹤使用者興趣與成長軌跡",
-                        )
-                except Exception as e:
-                    logger.debug(f"ObservationRing deposit 失敗: {e}")
+        # v2.0: 群組訊息也更新 ANIMA_USER（權重 ×0.5），不再完全跳過
+        if not self._offline_flag and anima_user is not None:
+            if self._is_group_session:
+                # 群組模式：同時進入 ANIMA_USER（半權重）+ 外部用戶觀察
+                self._observe_user(
+                    content, anima_user,
+                    response_content=response_text,
+                    skill_names=skill_names,
+                    context_type="group",  # v2.0: 標記群組來源，觀察引擎內部降權 ×0.5
+                )
+                self._observe_external_user(
+                    content,
+                    user_id=user_id,
+                    sender_name=self._group_sender,
+                    response_content=response_text,
+                    metadata=metadata,
+                )
+            else:
+                # DM 模式：全權重更新 ANIMA_USER
+                self._observe_user(
+                    content, anima_user,
+                    response_content=response_text,
+                    skill_names=skill_names,
+                )
 
         # ── Step 9.5: 更新 ANIMA_MC（自我觀察 — 八原語 + 能力追蹤） ──
         # CASTLE Layer 2: 離線/降級模式下的輸出不進入自觀察管線
@@ -5127,6 +5116,7 @@ class MuseonBrain:
         anima_user: Optional[Dict[str, Any]],
         response_content: str = "",
         skill_names: Optional[List[str]] = None,
+        context_type: str = "dm",
     ) -> None:
         """被動觀察使用者行為，更新 ANIMA_USER.
 
@@ -5137,9 +5127,15 @@ class MuseonBrain:
         4. 偏好蒸餾器
         5. 年輪觀察器
         6. 風格觀察器 + 模式觀察器
+
+        Args:
+            context_type: 觀察來源（"dm"=私訊全權重, "group"=群組半權重 ×0.5）
         """
         if not anima_user:
             return
+
+        # v2.0: 群組觀察權重
+        obs_weight = 0.5 if context_type == "group" else 1.0
 
         now_iso = datetime.now().isoformat()
         relationship = anima_user.get("relationship", {})
@@ -5183,7 +5179,10 @@ class MuseonBrain:
             except Exception as _e:
                 logger.debug(f"PrimalDetector.detect 失敗: {_e}")
         # 用偵測結果更新長期 ANIMA_USER 八原語（EMA 平滑）
-        self._observe_user_primals(content, primals, now_iso, detected_primals)
+        self._observe_user_primals(
+            content, primals, now_iso, detected_primals,
+            obs_weight=obs_weight,
+        )
         anima_user["eight_primals"] = primals
 
         # ── 3. 七層觀察（L1-L7 全層）──
@@ -5276,11 +5275,133 @@ class MuseonBrain:
             except Exception as e:
                 logger.warning(f"漂移偵測失敗: {e}")
 
+        # ── 10. L8 群組行為觀察（v2.0 新增）──
+        if context_type == "group":
+            self._observe_group_behavioral_shift(
+                content, anima_user, obs_weight,
+            )
+
         # ★ 寫入排隊：ANIMA_USER JSON 寫入通過 WriteQueue 序列化
         if self._wq:
             self._wq.enqueue("anima_user_save", self._save_anima_user, anima_user)
         else:
             self._save_anima_user(anima_user)
+
+    # ─── L8 群組行為觀察（v2.0 新增）────────────────────
+
+    def _observe_group_behavioral_shift(
+        self,
+        content: str,
+        anima_user: Dict[str, Any],
+        obs_weight: float = 0.5,
+    ) -> None:
+        """觀察使用者在群組中的行為差異（L8 層）.
+
+        追蹤四個維度：
+        1. formality_shift: 語氣/正式度與 DM 基線的差異
+        2. topic_distribution: 群組中討論的主題分佈
+        3. initiative_ratio: 主動發言 vs 只回應的比例
+        4. energy_delta: 群組互動後能量變化
+
+        Args:
+            content: 使用者訊息
+            anima_user: ANIMA_USER dict（就地修改）
+            obs_weight: 觀察權重
+        """
+        l8 = anima_user.setdefault("L8_context_behavior_notes", {
+            "observations": [],
+            "formality_baseline_dm": None,
+            "group_stats": {},
+        })
+
+        now_iso = datetime.now().isoformat()
+
+        # 1. 正式度偵測（簡易啟發式：長度、標點、敬語）
+        formality_score = 0.5  # 中性基準
+        politeness_markers = ["請", "您", "謝謝", "麻煩", "不好意思", "抱歉"]
+        casual_markers = ["哈哈", "XD", "lol", "haha", "欸", "唉", "ㄏ", "讚"]
+        for m in politeness_markers:
+            if m in content:
+                formality_score += 0.08
+        for m in casual_markers:
+            if m in content:
+                formality_score -= 0.08
+        if len(content) > 200:
+            formality_score += 0.05
+        formality_score = max(0.0, min(1.0, formality_score))
+
+        # 2. 主動度偵測（是否以問號結尾、是否 @mention 他人、訊息長度）
+        initiative_score = 0.5
+        if content.strip().endswith("？") or content.strip().endswith("?"):
+            initiative_score += 0.15  # 提問 = 主動
+        if "@" in content:
+            initiative_score += 0.10  # @mention = 主動引導
+        if len(content) > 100:
+            initiative_score += 0.10  # 長訊息 = 主動分享
+        elif len(content) < 20:
+            initiative_score -= 0.15  # 短回覆 = 被動
+        initiative_score = max(0.0, min(1.0, initiative_score))
+
+        # 3. 主題偵測（簡易關鍵字分類）
+        topic = "general"
+        topic_keywords = {
+            "tech": ["程式", "系統", "API", "bug", "功能", "開發", "架構"],
+            "business": ["客戶", "營收", "行銷", "產品", "定價", "成交"],
+            "personal": ["今天", "最近", "感覺", "覺得", "想要", "希望"],
+            "creative": ["設計", "風格", "美", "創意", "靈感", "故事"],
+        }
+        for t_name, t_keywords in topic_keywords.items():
+            if any(kw in content for kw in t_keywords):
+                topic = t_name
+                break
+
+        # 4. 組裝觀察記錄
+        group_id = getattr(self, "_current_group_id", None) or "unknown"
+        observation = {
+            "observed_at": now_iso,
+            "group_id": str(group_id),
+            "formality_shift": round(formality_score, 2),
+            "initiative_ratio": round(initiative_score, 2),
+            "topic": topic,
+            "content_length": len(content),
+            "confidence": round(0.6 * obs_weight, 2),
+        }
+
+        # 追加到觀察列表（保留最近 50 條）
+        observations = l8.setdefault("observations", [])
+        observations.append(observation)
+        if len(observations) > 50:
+            l8["observations"] = observations[-50:]
+
+        # 更新群組統計
+        stats = l8.setdefault("group_stats", {})
+        g_stats = stats.setdefault(str(group_id), {
+            "interaction_count": 0,
+            "avg_formality": 0.5,
+            "avg_initiative": 0.5,
+            "topic_distribution": {},
+            "last_interaction": None,
+        })
+        g_count = g_stats.get("interaction_count", 0)
+        new_count = g_count + 1
+        g_stats["interaction_count"] = new_count
+
+        # EMA 更新平均值
+        old_f = g_stats.get("avg_formality", 0.5)
+        g_stats["avg_formality"] = round(
+            old_f * 0.9 + formality_score * 0.1, 3
+        )
+        old_i = g_stats.get("avg_initiative", 0.5)
+        g_stats["avg_initiative"] = round(
+            old_i * 0.9 + initiative_score * 0.1, 3
+        )
+
+        # 主題分佈計數
+        t_dist = g_stats.setdefault("topic_distribution", {})
+        t_dist[topic] = t_dist.get(topic, 0) + 1
+        g_stats["last_interaction"] = now_iso
+
+        anima_user["L8_context_behavior_notes"] = l8
 
     # ─── 群組外部用戶觀察管線 ────────────────────
 
@@ -5588,6 +5709,7 @@ class MuseonBrain:
     def _observe_user_primals(
         self, content: str, primals: Dict[str, Any], now_iso: str,
         detected_primals: Optional[Dict[str, int]] = None,
+        obs_weight: float = 1.0,
     ) -> None:
         """觀察使用者的八原語維度（向量語義 + 關鍵字 fallback）.
 
@@ -5596,6 +5718,7 @@ class MuseonBrain:
             primals: ANIMA_USER 中的 eight_primals dict（就地修改）
             now_iso: ISO 時間戳
             detected_primals: PrimalDetector 即時偵測結果 {key: level(0-100)}
+            obs_weight: 觀察權重（1.0=DM 全權重, 0.5=群組半權重）
         """
         # 初始化缺少的維度
         for key in ["aspiration", "accumulation", "action_power", "curiosity",
@@ -5604,19 +5727,25 @@ class MuseonBrain:
                 primals[key] = {"level": 0, "confidence": 0.0, "signal": "", "last_observed": None}
 
         # ★ v10.5: 優先使用 PrimalDetector 語義偵測結果
+        # v2.0: 群組觀察 alpha 依 obs_weight 縮放
+        alpha_semantic = 0.15 * obs_weight   # DM=0.15, group=0.075
+        alpha_keyword = 0.08 * obs_weight    # DM=0.08, group=0.04
+        conf_delta_semantic = 0.08 * obs_weight
+        conf_delta_keyword = 0.05 * obs_weight
+
         if detected_primals:
             for primal_key, det_level in detected_primals.items():
                 if primal_key not in primals:
                     continue
                 p = primals[primal_key]
                 old_level = p.get("level", 0)
-                # EMA 平滑更新長期 level（語義偵測更精確，alpha=0.15）
+                # EMA 平滑更新長期 level（語義偵測更精確）
                 if old_level < 10:
-                    p["level"] = min(100, max(old_level, det_level))
+                    p["level"] = min(100, max(old_level, int(det_level * obs_weight)))
                 else:
-                    p["level"] = min(100, int(old_level * 0.85 + det_level * 0.15))
+                    p["level"] = min(100, int(old_level * (1 - alpha_semantic) + det_level * alpha_semantic))
                 old_conf = p.get("confidence", 0.0)
-                p["confidence"] = min(1.0, round(old_conf + 0.08, 2))
+                p["confidence"] = min(1.0, round(old_conf + conf_delta_semantic, 2))
                 p["signal"] = content[:80].replace("\n", " ")
                 p["last_observed"] = now_iso
         else:
@@ -5626,13 +5755,13 @@ class MuseonBrain:
                 if hits > 0:
                     p = primals[primal_key]
                     old_level = p.get("level", 0)
-                    delta = min(hits * 8, 25)
+                    delta = int(min(hits * 8, 25) * obs_weight)
                     if old_level < 10:
                         p["level"] = min(100, old_level + delta)
                     else:
-                        p["level"] = min(100, int(old_level * 0.92 + (old_level + delta) * 0.08))
+                        p["level"] = min(100, int(old_level * (1 - alpha_keyword) + (old_level + delta) * alpha_keyword))
                     old_conf = p.get("confidence", 0.0)
-                    p["confidence"] = min(1.0, round(old_conf + 0.05, 2))
+                    p["confidence"] = min(1.0, round(old_conf + conf_delta_keyword, 2))
                     p["signal"] = content[:80].replace("\n", " ")
                     p["last_observed"] = now_iso
 

@@ -157,6 +157,7 @@ HEALTH_SCORE_UPDATED = "HEALTH_SCORE_UPDATED"              # Health Score 更新
 # EXT-04: 多通道通訊
 CHANNEL_MESSAGE_RECEIVED = "CHANNEL_MESSAGE_RECEIVED"      # 通道訊息接收
 CHANNEL_MESSAGE_SENT = "CHANNEL_MESSAGE_SENT"              # 通道訊息發送
+GROUP_SESSION_END = "GROUP_SESSION_END"                    # 群組會話結束（閒置逾時）
 
 # EXT-01: RSS 聚合器
 RSS_NEW_ITEMS = "RSS_NEW_ITEMS"                            # RSS 新條目
