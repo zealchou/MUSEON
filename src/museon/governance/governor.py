@@ -909,6 +909,8 @@ class Governor:
                     resolution=response.response_description,
                     auto_resolved=True,
                 )
+                # 從解決中學習，生成/強化抗體（P1 後天免疫修復）
+                self._immunity.learn(incident)
                 # 強化抗體
                 self._immunity.reinforce(response.antibody_id, success=True)
             else:
@@ -926,11 +928,13 @@ class Governor:
                         f"後天免疫反應: {defense[:100]} "
                         f"(signature={signature[:50]})"
                     )
-                    self._immunity.record_incident(
+                    inc_defense = self._immunity.record_incident(
                         symptom,
                         resolution=f"[ImmuneMemory] {defense}",
                         auto_resolved=True,
                     )
+                    # 從解決中學習（P1 後天免疫修復）
+                    self._immunity.learn(inc_defense)
                     self._immune_memory.reinforce(signature, success=True)
                 else:
                     # 去重：已有同名未解決事件就不重複建立
