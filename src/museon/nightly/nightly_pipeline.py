@@ -107,6 +107,7 @@ _FULL_STEPS = [
     "20", "21", "22", "23",  # 新增：synapse_decay/muscle_atrophy/immune_prune/trigger_eval
     "24", "25",  # 新增：演化速度計算 / 週月循環觸發檢查
     "26", "27", "28", "29",  # 持久層衛生：session 清理 / JSONL 輪替 / WAL checkpoint / DataWatchdog
+    "30",  # 藍圖一致性驗證
 ]
 _ORIGIN_STEPS = ["5.8", "6", "7", "8", "16"]
 _NODE_STEPS = [
@@ -212,6 +213,8 @@ class NightlyPipeline:
             "27": ("step_27_log_rotation", self._step_log_rotation),
             "28": ("step_28_wal_checkpoint", self._step_wal_checkpoint),
             "29": ("step_29_data_watchdog", self._step_data_watchdog),
+            # ── 藍圖驗證 ──
+            "30": ("step_30_blueprint_consistency", self._step_blueprint_consistency),
         }
 
     def run(self, mode: str = "full") -> Dict:
@@ -3175,6 +3178,94 @@ class NightlyPipeline:
             "alerts": len(report["alerts"]),
             "dead_write_suspects": len(report["dead_write_suspects"]),
             "total_storage": report["storage"]["total_bytes"],
+        }
+
+    def _step_blueprint_consistency(self) -> Dict:
+        """Step 30: 藍圖一致性驗證 — 確保工程藍圖與程式碼同步.
+
+        檢查項：
+        - 30.1 四張藍圖存在性（blast-radius / joint-map / system-topology / persistence-contract）
+        - 30.2 藍圖新鮮度（docs/*.md vs src/ 最後修改時間差異）
+        - 30.3 禁區模組路徑存在性（blast-radius 標為禁區的模組是否實際存在）
+        """
+        issues: List[str] = []
+        docs_dir = self._source_root / "docs"
+
+        # ── 30.1 藍圖存在性 ──
+        blueprint_names = [
+            "blast-radius.md",
+            "joint-map.md",
+            "system-topology.md",
+            "persistence-contract.md",
+        ]
+        for name in blueprint_names:
+            bp_path = docs_dir / name
+            if not bp_path.exists():
+                issues.append(f"藍圖缺失: {name}")
+            elif bp_path.stat().st_size == 0:
+                issues.append(f"藍圖為空: {name}")
+
+        # ── 30.2 藍圖新鮮度 ──
+        src_dir = self._source_root / "src" / "museon"
+        if src_dir.exists() and docs_dir.exists():
+            try:
+                # 找 src/ 下最新修改的 .py
+                latest_src_mtime = 0.0
+                for py_file in src_dir.rglob("*.py"):
+                    try:
+                        mt = py_file.stat().st_mtime
+                        if mt > latest_src_mtime:
+                            latest_src_mtime = mt
+                    except OSError:
+                        pass
+
+                # 找 docs/ 下最舊的藍圖
+                oldest_doc_mtime = float("inf")
+                for name in blueprint_names:
+                    bp_path = docs_dir / name
+                    if bp_path.exists():
+                        try:
+                            mt = bp_path.stat().st_mtime
+                            if mt < oldest_doc_mtime:
+                                oldest_doc_mtime = mt
+                        except OSError:
+                            pass
+
+                # 如果程式碼比藍圖新超過 72 小時，警告
+                if latest_src_mtime > 0 and oldest_doc_mtime < float("inf"):
+                    drift_hours = (latest_src_mtime - oldest_doc_mtime) / 3600
+                    if drift_hours > 72:
+                        issues.append(
+                            f"藍圖過期: src/ 比 docs/ 新 {drift_hours:.0f} 小時"
+                        )
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] Blueprint freshness check failed: {e}")
+
+        # ── 30.3 禁區模組路徑存在性 ──
+        try:
+            from museon.core.blueprint_reader import BlastRadiusReader
+
+            reader = BlastRadiusReader(docs_dir)
+            for mod_path in reader.get_forbidden_modules():
+                full_path = src_dir / mod_path
+                if not full_path.exists():
+                    issues.append(f"禁區模組不存在: {mod_path}")
+        except Exception as e:
+            logger.debug(f"[NIGHTLY] Blueprint forbidden check skipped: {e}")
+
+        status = "ok" if not issues else "warning"
+        logger.info(
+            f"[NIGHTLY] BlueprintConsistency: {status} | "
+            f"issues={len(issues)}"
+        )
+        if issues:
+            for issue in issues:
+                logger.warning(f"[NIGHTLY] BlueprintConsistency: {issue}")
+
+        return {
+            "status": status,
+            "issues": issues,
+            "blueprints_checked": len(blueprint_names),
         }
 
     # ═══════════════════════════════════════════

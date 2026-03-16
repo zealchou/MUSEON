@@ -96,7 +96,7 @@
 | `governor` | Governor | 上中下焦 | - | governance | 1.0 |
 | `immunity` | Immunity | 先天 + 後天免疫 | - | governance | 1.1 |
 | `preflight` | Preflight | 啟動門 | - | governance | 0.9 |
-| `refractory` | Refractory | 斷路器 | - | governance | 0.9 |
+| `refractory` | Refractory | 斷路器（三態+半開試探） | - | governance | 0.9 |
 | `skill-scanner` | Skill Scanner | 技能掃描 | - | governance | 0.8 |
 | `sandbox` | Sandbox | 沙盒隔離 | - | governance | 0.8 |
 | `telegram-guard` | TG Guard | Polling 守衛 | - | governance | 0.8 |
@@ -404,6 +404,7 @@
 | `nightly` | `immunity` | 抗體修剪 |
 | `nightly` | `skill-synapse` | Synapse Decay |
 | `nightly` | `data-watchdog` | Step 29 健康檢查 |
+| `nightly` | `blueprint-reader` | Step 30 藍圖一致性驗證 |
 | `data-bus` | `pulse-db` | Store 路由 |
 | `data-bus` | `knowledge-lattice` | Store 路由 |
 | `data-bus` | `diary-store` | Store 路由 |
@@ -523,6 +524,7 @@
 | 版本 | 日期 | 變更 |
 |------|------|------|
 | v1.0 | 2026-03-14 | 初版建立，59 節點 91 連線 |
+| v1.12 | 2026-03-16 | P5 斷路器半開 + Nightly 藍圖驗證：refractory 節點描述更新為「三態+半開試探」；nightly 新增 Step 30→blueprint-reader 連線（+1 連線） |
 | v1.11 | 2026-03-16 | P1+P4 3D 心智圖同步：新增 telegram→brain async（P1 推送寫入 session）、fact-correction→proactive-bridge async + fact-correction→pulse async（P4 自省清洗）；112 節點 219 連線 |
 | v1.10 | 2026-03-16 | P0 記憶事實覆寫：agent 群組新增 fact-correction 節點（+1 節點 +4 連線：brain→fact-correction internal、fact-correction→memory cross、fact-correction→vector-index cross、fact-correction→llm-router cross）；111 節點 211 連線 |
 | v1.9 | 2026-03-16 | Phase 4 飛輪多代理實質化：multiagent 群組新增 multi-agent-executor、response-synthesizer、flywheel-coordinator 節點（+3 節點 +4 連線：brain→multi-agent-executor internal、brain→response-synthesizer internal、brain→flywheel-coordinator internal、multi-agent-executor→llm-router cross）；110 節點 207 連線 |
