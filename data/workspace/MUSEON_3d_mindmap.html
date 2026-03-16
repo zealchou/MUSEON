@@ -749,14 +749,40 @@ function highlightNode(node) {
       m.material.emissiveIntensity = 0.3;
       m.material.opacity = 1;
       m.material.transparent = false;
-      if (n.labelDiv) n.labelDiv.style.opacity = '1';
+      if (n.labelDiv) {
+        n.labelDiv.style.opacity = '1';
+        // 相關節點：字體放大 2 級 + 粗體
+        const isHub = n.labelDiv.classList.contains('hub');
+        if (isHub) {
+          const enEl = n.labelDiv.querySelector('.en');
+          const zhEl = n.labelDiv.querySelector('.zh');
+          if (enEl) { enEl.style.fontSize = '13px'; enEl.style.fontWeight = '700'; }
+          if (zhEl) { zhEl.style.fontSize = '11px'; zhEl.style.fontWeight = '700'; }
+        } else {
+          n.labelDiv.style.fontSize = '10px';
+          n.labelDiv.style.fontWeight = '700';
+        }
+      }
     } else {
       m.material.color.copy(dimColor);
       m.material.emissive.set(0x000000);
       m.material.emissiveIntensity = 0;
-      m.material.opacity = 0.2;
+      m.material.opacity = 0.3;
       m.material.transparent = true;
-      if (n.labelDiv) n.labelDiv.style.opacity = '0.15';
+      if (n.labelDiv) {
+        n.labelDiv.style.opacity = '0.15';
+        // 無關節點：還原字體
+        const isHub = n.labelDiv.classList.contains('hub');
+        if (isHub) {
+          const enEl = n.labelDiv.querySelector('.en');
+          const zhEl = n.labelDiv.querySelector('.zh');
+          if (enEl) { enEl.style.fontSize = ''; enEl.style.fontWeight = ''; }
+          if (zhEl) { zhEl.style.fontSize = ''; zhEl.style.fontWeight = ''; }
+        } else {
+          n.labelDiv.style.fontSize = '';
+          n.labelDiv.style.fontWeight = '';
+        }
+      }
     }
   });
 
@@ -785,7 +811,20 @@ function clearHighlight() {
     m.material.emissiveIntensity = 0.15;
     m.material.opacity = 1;
     m.material.transparent = false;
-    if (n.labelDiv) n.labelDiv.style.opacity = '1';
+    if (n.labelDiv) {
+      n.labelDiv.style.opacity = '1';
+      // 還原字體大小與粗細
+      const isHub = n.labelDiv.classList.contains('hub');
+      if (isHub) {
+        const enEl = n.labelDiv.querySelector('.en');
+        const zhEl = n.labelDiv.querySelector('.zh');
+        if (enEl) { enEl.style.fontSize = ''; enEl.style.fontWeight = ''; }
+        if (zhEl) { zhEl.style.fontSize = ''; zhEl.style.fontWeight = ''; }
+      } else {
+        n.labelDiv.style.fontSize = '';
+        n.labelDiv.style.fontWeight = '';
+      }
+    }
   });
   linkMeshes.forEach(line => {
     const l = line.userData;
