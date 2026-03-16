@@ -115,22 +115,22 @@ canvas{display:block}
 
 <div class="legend">
   <h3>系統群組</h3>
-  <div class="legend-item" data-g="channel"><div class="legend-dot" style="background:#C4502A"></div>通道入口</div>
-  <div class="legend-item" data-g="agent"><div class="legend-dot" style="background:#2A7A6E"></div>Agent / Brain</div>
-  <div class="legend-item" data-g="pulse"><div class="legend-dot" style="background:#B8923A"></div>Pulse 生命力</div>
-  <div class="legend-item" data-g="gov"><div class="legend-dot" style="background:#2A6A8A"></div>Governance</div>
-  <div class="legend-item" data-g="doctor"><div class="legend-dot" style="background:#2D8A6E"></div>Doctor 診斷</div>
-  <div class="legend-item" data-g="llm"><div class="legend-dot" style="background:#5A5A6E"></div>LLM 路由</div>
-  <div class="legend-item" data-g="data"><div class="legend-dot" style="background:#7A7888"></div>資料持久層</div>
-  <div class="legend-item" data-g="evolution"><div class="legend-dot" style="background:#6B3FA0"></div>Evolution 演化</div>
-  <div class="legend-item" data-g="tools"><div class="legend-dot" style="background:#8A6A3E"></div>Tools 工具</div>
-  <div class="legend-item" data-g="nightly"><div class="legend-dot" style="background:#9A3A1C"></div>Nightly 夜間</div>
-  <div class="legend-item" data-g="installer"><div class="legend-dot" style="background:#5A8A3E"></div>Installer 安裝</div>
-  <div class="legend-item" data-g="external"><div class="legend-dot" style="background:#6A6880"></div>外部服務</div>
+  <div class="legend-item" data-g="channel"><div class="legend-dot" style="background:#C4978E"></div>通道入口</div>
+  <div class="legend-item" data-g="agent"><div class="legend-dot" style="background:#8EA89A"></div>Agent / Brain</div>
+  <div class="legend-item" data-g="pulse"><div class="legend-dot" style="background:#C2AB8A"></div>Pulse 生命力</div>
+  <div class="legend-item" data-g="gov"><div class="legend-dot" style="background:#8DA5B5"></div>Governance</div>
+  <div class="legend-item" data-g="doctor"><div class="legend-dot" style="background:#8AB5A4"></div>Doctor 診斷</div>
+  <div class="legend-item" data-g="llm"><div class="legend-dot" style="background:#9B959C"></div>LLM 路由</div>
+  <div class="legend-item" data-g="data"><div class="legend-dot" style="background:#A49DB2"></div>資料持久層</div>
+  <div class="legend-item" data-g="evolution"><div class="legend-dot" style="background:#AD96B8"></div>Evolution 演化</div>
+  <div class="legend-item" data-g="tools"><div class="legend-dot" style="background:#B5A28E"></div>Tools 工具</div>
+  <div class="legend-item" data-g="nightly"><div class="legend-dot" style="background:#C08E82"></div>Nightly 夜間</div>
+  <div class="legend-item" data-g="installer"><div class="legend-dot" style="background:#97A88E"></div>Installer 安裝</div>
+  <div class="legend-item" data-g="external"><div class="legend-dot" style="background:#A0A0A4"></div>外部服務</div>
   <div class="legend-div"></div>
-  <div class="legend-link"><div class="legend-line" style="border-top:2px solid #9898A8"></div>內部連結</div>
-  <div class="legend-link"><div class="legend-line" style="border-top:2px solid #C4502A"></div>跨系統</div>
-  <div class="legend-link"><div class="legend-line" style="border-top:2px dashed #B8923A"></div>非同步</div>
+  <div class="legend-link"><div class="legend-line" style="border-top:2px solid #B5B3AE"></div>內部連結</div>
+  <div class="legend-link"><div class="legend-line" style="border-top:2px solid #C4978E"></div>跨系統</div>
+  <div class="legend-link"><div class="legend-line" style="border-top:2px dashed #C2AB8A"></div>非同步</div>
 </div>
 
 <div class="info-panel" id="info">
@@ -169,11 +169,12 @@ import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer
 // ═══════════════════════════════════════
 //  COLORS & DATA
 // ═══════════════════════════════════════
+// Morandi Palette — 低飽和灰調粉霧色系
 const GC = {
-  center:'#C4502A', channel:'#C4502A', agent:'#2A7A6E', pulse:'#B8923A',
-  gov:'#2A6A8A', doctor:'#2D8A6E', llm:'#5A5A6E', data:'#7A7888',
-  evolution:'#6B3FA0', tools:'#8A6A3E',
-  nightly:'#9A3A1C', installer:'#5A8A3E', external:'#6A6880'
+  center:'#C4978E', channel:'#C4978E', agent:'#8EA89A', pulse:'#C2AB8A',
+  gov:'#8DA5B5', doctor:'#8AB5A4', llm:'#9B959C', data:'#A49DB2',
+  evolution:'#AD96B8', tools:'#B5A28E',
+  nightly:'#C08E82', installer:'#97A88E', external:'#A0A0A4'
 };
 const GN = {
   center:'核心', channel:'通道入口', agent:'Agent/Brain', pulse:'Pulse 生命力',
@@ -181,8 +182,8 @@ const GN = {
   evolution:'Evolution 演化', tools:'Tools 工具',
   nightly:'Nightly', installer:'Installer 安裝', external:'外部服務'
 };
-function lkHex(t){ return t==='cross'?0xC4502A:t==='async'?0xB8923A:t==='monitor'?0x2A6A8A:t==='control'?0x7A7888:t==='flow'?0xE0714D:0x9898A8; }
-function lkCSS(t){ return t==='cross'?'#C4502A':t==='async'?'#B8923A':t==='monitor'?'#2A6A8A':t==='control'?'#7A7888':t==='flow'?'#E0714D':'#9898A8'; }
+function lkHex(t){ return t==='cross'?0xC4978E:t==='async'?0xC2AB8A:t==='monitor'?0x8DA5B5:t==='control'?0xA0A0A4:t==='flow'?0xD4A898:0xB5B3AE; }
+function lkCSS(t){ return t==='cross'?'#C4978E':t==='async'?'#C2AB8A':t==='monitor'?'#8DA5B5':t==='control'?'#A0A0A4':t==='flow'?'#D4A898':'#B5B3AE'; }
 
 const nodes = [
   {id:"event-bus",label:"Event Bus",zh:"核心事件匯流排",group:"center",r:3.2,hub:1},
