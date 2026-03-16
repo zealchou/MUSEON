@@ -60,6 +60,7 @@ class AuditLayer(str, Enum):
     EVOLUTION = "evolution"
     SECURITY = "security"
     TREND = "trend"
+    BLUEPRINT = "blueprint"  # P4: 藍圖一致性
 
 
 LAYER_LABELS = {
@@ -70,6 +71,7 @@ LAYER_LABELS = {
     AuditLayer.EVOLUTION: "演化",
     AuditLayer.SECURITY: "安全",
     AuditLayer.TREND: "趨勢",
+    AuditLayer.BLUEPRINT: "藍圖",
 }
 
 
@@ -229,6 +231,7 @@ class SystemAuditor:
             (AuditLayer.EVOLUTION, self._audit_evolution),
             (AuditLayer.SECURITY, self._audit_security),
             (AuditLayer.TREND, self._audit_trend),
+            (AuditLayer.BLUEPRINT, self._audit_blueprint),
         ]
 
         results: List[LayerResult] = []
@@ -1796,6 +1799,161 @@ class SystemAuditor:
         except Exception as e:
             return CheckResult(
                 name="磁碟趨勢",
+                status=CheckStatus.UNKNOWN,
+                message=f"無法檢查: {e}",
+            )
+
+
+    # ═══════════════════════════════════════════
+    # Layer 8: 藍圖一致性（P4 新增）
+    # ═══════════════════════════════════════════
+
+    def _audit_blueprint(self) -> List[CheckResult]:
+        checks = []
+
+        # 8.1 藍圖存在性
+        checks.append(self._check_blueprint_existence())
+
+        # 8.2 藍圖新鮮度
+        checks.append(self._check_blueprint_freshness())
+
+        # 8.3 禁區模組保護
+        checks.append(self._check_forbidden_modules())
+
+        return checks
+
+    def _check_blueprint_existence(self) -> CheckResult:
+        """檢查四張藍圖是否存在且非空."""
+        blueprint_names = [
+            "blast-radius.md",
+            "joint-map.md",
+            "system-topology.md",
+            "persistence-contract.md",
+        ]
+        docs_dir = self.home / "docs"
+        missing = []
+        empty = []
+        for name in blueprint_names:
+            path = docs_dir / name
+            if not path.exists():
+                missing.append(name)
+            elif path.stat().st_size < 100:
+                empty.append(name)
+
+        if missing:
+            return CheckResult(
+                name="藍圖存在性",
+                status=CheckStatus.CRITICAL,
+                message=f"藍圖缺失: {', '.join(missing)}",
+                details={"missing": missing},
+            )
+        if empty:
+            return CheckResult(
+                name="藍圖存在性",
+                status=CheckStatus.WARNING,
+                message=f"藍圖可能為空: {', '.join(empty)}",
+                details={"empty": empty},
+            )
+        return CheckResult(
+            name="藍圖存在性",
+            status=CheckStatus.OK,
+            message="四張藍圖均存在且有內容",
+        )
+
+    def _check_blueprint_freshness(self) -> CheckResult:
+        """比較 docs/*.md 和 src/ 的最後修改時間."""
+        docs_dir = self.home / "docs"
+        src_dir = self.home / "src"
+
+        if not docs_dir.exists() or not src_dir.exists():
+            return CheckResult(
+                name="藍圖新鮮度",
+                status=CheckStatus.UNKNOWN,
+                message="docs/ 或 src/ 目錄不存在",
+            )
+
+        try:
+            # 找到 docs/*.md 最新修改時間
+            doc_files = list(docs_dir.glob("*.md"))
+            if not doc_files:
+                return CheckResult(
+                    name="藍圖新鮮度",
+                    status=CheckStatus.WARNING,
+                    message="docs/ 無 .md 文件",
+                )
+            latest_doc = max(f.stat().st_mtime for f in doc_files)
+
+            # 找到 src/ 最新 .py 修改時間
+            py_files = list(src_dir.rglob("*.py"))
+            if not py_files:
+                return CheckResult(
+                    name="藍圖新鮮度",
+                    status=CheckStatus.OK,
+                    message="src/ 無 .py 文件",
+                )
+            latest_src = max(f.stat().st_mtime for f in py_files)
+
+            gap_hours = (latest_src - latest_doc) / 3600
+            if gap_hours > 72:
+                return CheckResult(
+                    name="藍圖新鮮度",
+                    status=CheckStatus.WARNING,
+                    message=(
+                        f"藍圖落後源碼 {gap_hours:.0f} 小時"
+                        f"（可能過期）"
+                    ),
+                    details={"gap_hours": round(gap_hours, 1)},
+                )
+            return CheckResult(
+                name="藍圖新鮮度",
+                status=CheckStatus.OK,
+                message=f"藍圖與源碼時差 {abs(gap_hours):.0f} 小時內",
+                details={"gap_hours": round(gap_hours, 1)},
+            )
+        except Exception as e:
+            return CheckResult(
+                name="藍圖新鮮度",
+                status=CheckStatus.UNKNOWN,
+                message=f"無法檢查: {e}",
+            )
+
+    def _check_forbidden_modules(self) -> CheckResult:
+        """檢查 blast-radius 標為禁區的模組是否存在."""
+        try:
+            from museon.core.blueprint_reader import BlastRadiusReader
+
+            reader = BlastRadiusReader(self.home / "docs")
+            forbidden = reader.get_forbidden_modules()
+
+            if not forbidden:
+                return CheckResult(
+                    name="禁區模組保護",
+                    status=CheckStatus.OK,
+                    message="未解析到禁區模組（可能文件格式不匹配）",
+                )
+
+            existing = []
+            for mod in forbidden:
+                path = self.home / "src" / "museon" / mod
+                if path.exists():
+                    fan_in = reader.get_fan_in(mod)
+                    existing.append(f"{mod}(扇入={fan_in})")
+
+            return CheckResult(
+                name="禁區模組保護",
+                status=CheckStatus.OK,
+                message=(
+                    f"禁區模組 {len(forbidden)} 個，"
+                    f"確認存在: {', '.join(existing) or '無'}"
+                ),
+                details={
+                    "forbidden": forbidden,
+                    "existing": existing,
+                },
+            )
+        except Exception as e:
+            return CheckResult(
+                name="禁區模組保護",
                 status=CheckStatus.UNKNOWN,
                 message=f"無法檢查: {e}",
             )

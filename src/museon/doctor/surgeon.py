@@ -348,6 +348,28 @@ class SurgeryEngine:
                     f"（還需等 {remaining:.0f} 分鐘）"
                 )
 
+        # 4.5b P4: 藍圖動態扇入安全檢查
+        try:
+            from museon.core.blueprint_reader import BlastRadiusReader
+            br_reader = BlastRadiusReader(self._root / "docs")
+            for filepath in proposal.affected_files:
+                # 標準化路徑為 blast-radius 格式
+                normalized = filepath
+                if "src/museon/" in filepath:
+                    normalized = filepath.split("src/museon/")[-1]
+                zone = br_reader.get_safety_zone(normalized)
+                if zone == "forbidden":
+                    violations.append(
+                        f"[藍圖禁區] {normalized}（扇入≥40，禁止修改）"
+                    )
+                elif zone == "red":
+                    fan_in = br_reader.get_fan_in(normalized)
+                    violations.append(
+                        f"[藍圖紅區] {normalized}（扇入={fan_in}，建議升級 L3）"
+                    )
+        except Exception as e:
+            logger.debug(f"Blueprint check skipped: {e}")
+
         # 4.6 morphenix_standards 硬性規則審查
         ms_proposal = {
             "level": "L2",
