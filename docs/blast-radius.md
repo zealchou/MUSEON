@@ -1,4 +1,4 @@
-# Blast Radius — 模組影響半徑表 v1.12
+# Blast Radius — 模組影響半徑表 v1.13
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
@@ -718,6 +718,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-16 | v1.13 | P4 PULSE.md 自省清洗：brain.py 新增 `_get_fact_correction_declarations()`（讀 fact_corrections.jsonl 注入 soul context）；proactive_bridge.py 新增 `_read_recent_fact_corrections()`（讀 fact_corrections.jsonl 注入自省上下文）；pulse_engine.py 新增 `_reflection_contains_stale_facts()`（寫入前過濾過期事實）+ `_write_reflection_to_pulse()` 新增過濾閘 |
 | 2026-03-16 | v1.12 | P2 靜默閾值上調+推送品質門檻：proactive_bridge.py `SILENT_ACK_THRESHOLD` 8→200、`COMPANION_ACK_THRESHOLD` 10→100、`DAILY_PUSH_LIMIT` 15→8；`should_push()` 新增問句比率門檻（>50%→靜默）+`_is_duplicate_push()` Jaccard 重複度門檻（>0.7→靜默）；無新增共享狀態、無新增 import |
 | 2026-03-16 | v1.11 | P1 推送上下文串接：telegram.py `_on_proactive_message()` 推送成功後呼叫 `_write_push_to_session()` 寫入 Brain session history（新增 Brain session 寫入副作用）；BDD feature 共享狀態數 26→27 |
 | 2026-03-16 | v1.10 | P0 記憶事實覆寫：brain.py 新增 `_detect_fact_correction()`+`_handle_fact_correction()`+`_log_fact_correction()`（安全操作：獨立觀察方法）；vector_bridge.py 新增 `mark_deprecated()`、search() 新增 `filter_deprecated` 參數（向後相容，預設 True）；共享狀態 26→27 個 |

@@ -3008,7 +3008,48 @@ class MuseonBrain:
                 for line in recent:
                     soul += f"{line}\n"
 
+        # P4: 注入最近事實更正聲明，防止 LLM 引用過期資訊
+        corrections_note = self._get_fact_correction_declarations()
+        if corrections_note:
+            soul += f"\n{corrections_note}\n"
+
         return soul.strip()
+
+    def _get_fact_correction_declarations(self) -> str:
+        """讀取最近事實更正並生成聲明注入 system prompt（P4 自省清洗）.
+
+        讓 LLM 在生成回覆時優先採信更正，避免引用過期資訊。
+        """
+        try:
+            import json
+            corrections_path = self.data_dir / "anima" / "fact_corrections.jsonl"
+            if not corrections_path.exists():
+                return ""
+
+            text = corrections_path.read_text(encoding="utf-8").strip()
+            if not text:
+                return ""
+
+            lines = text.split("\n")[-3:]  # 最近 3 條
+            declarations = []
+            for line in lines:
+                if not line.strip():
+                    continue
+                try:
+                    entry = json.loads(line)
+                    user_content = entry.get("user_content", "")[:80]
+                    if user_content:
+                        declarations.append(f"- {user_content}")
+                except json.JSONDecodeError:
+                    continue
+
+            if not declarations:
+                return ""
+
+            return "**⚠️ 已確認的事實更正（優先採信，勿引用舊資訊）：**\n" + "\n".join(declarations)
+        except Exception as e:
+            logger.debug(f"讀取事實更正聲明失敗: {e}")
+            return ""
 
     def _get_primals_context(self) -> str:
         """讀取八原語知識並生成精簡上下文注入 system prompt.
