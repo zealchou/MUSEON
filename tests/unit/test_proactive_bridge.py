@@ -30,7 +30,7 @@ class TestConstants:
     """常數驗證."""
 
     def test_silent_ack_threshold(self):
-        assert SILENT_ACK_THRESHOLD == 8
+        assert SILENT_ACK_THRESHOLD == 200  # P2 修復：8→200
 
     def test_active_hours_start(self):
         assert ACTIVE_HOURS_START == 8
@@ -39,7 +39,7 @@ class TestConstants:
         assert ACTIVE_HOURS_END == 25  # 跨日 01:00
 
     def test_daily_push_limit(self):
-        assert DAILY_PUSH_LIMIT == 15  # PI-2: 配置外化後預設值同步為 15
+        assert DAILY_PUSH_LIMIT == 8  # P2 修復：15→8
 
     def test_proactive_interval(self):
         assert PROACTIVE_INTERVAL == 1800
@@ -54,16 +54,16 @@ class TestSilentAck:
     """靜默確認測試."""
 
     def test_short_response_not_pushed(self):
-        """BDD: 短回覆 ≤ 8 字元 → 不推送."""
+        """BDD: 短回覆 ≤ 200 字元 → 不推送（P2 修復）."""
         bridge = ProactiveBridge()
         assert not bridge.should_push("OK")
         assert not bridge.should_push("好的")
-        assert not bridge.should_push("x" * 8)
+        assert not bridge.should_push("x" * 200)
 
     def test_long_response_pushed(self):
-        """BDD: 長回覆 > 8 字元 → 推送."""
+        """BDD: 長回覆 > 200 字元 → 推送（P2 修復）."""
         bridge = ProactiveBridge()
-        assert bridge.should_push("x" * 9)
+        assert bridge.should_push("x" * 201)
 
     def test_empty_response_not_pushed(self):
         """BDD: 空回覆 → 不推送."""
@@ -78,14 +78,14 @@ class TestSilentAck:
         assert not bridge.should_push("\n\n\n")
 
     def test_exactly_threshold_not_pushed(self):
-        """BDD: 恰好 8 字元 → 不推送."""
+        """BDD: 恰好 200 字元 → 不推送（P2 修復）."""
         bridge = ProactiveBridge()
-        assert not bridge.should_push("x" * 8)
+        assert not bridge.should_push("x" * 200)
 
     def test_threshold_plus_one_pushed(self):
-        """BDD: 9 字元 → 推送."""
+        """BDD: 201 字元 → 推送（P2 修復：閾值 200+1）."""
         bridge = ProactiveBridge()
-        assert bridge.should_push("x" * 9)
+        assert bridge.should_push("x" * 201)
 
 
 # ═══════════════════════════════════════════
@@ -266,8 +266,8 @@ class TestProactiveThink:
 
     @pytest.mark.asyncio
     async def test_long_response_pushed(self):
-        """BDD: 長回覆 → 推送."""
-        long_msg = "達達把拔，我注意到你最近的工作模式有些變化，" * 5
+        """BDD: 長回覆（> 200 字元）→ 推送."""
+        long_msg = "達達把拔，我注意到你最近的工作模式有些變化，想跟你聊聊最近的一些觀察。" * 10
         brain = MagicMock()
         brain._call_llm_with_model = AsyncMock(return_value=long_msg)
         bus = EventBus()
@@ -301,7 +301,7 @@ class TestEventBusIntegration:
     @pytest.mark.asyncio
     async def test_publishes_proactive_message(self):
         """BDD: 有價值洞察 → 發布 PROACTIVE_MESSAGE."""
-        long_msg = "達達把拔，我注意到你最近的工作模式有些重大的變化，想跟你分享我的觀察和一些建議。" * 3
+        long_msg = "達達把拔，我注意到你最近的工作模式有些重大的變化，想跟你分享我的觀察和一些建議。" * 8
         brain = MagicMock()
         brain._call_llm_with_model = AsyncMock(return_value=long_msg)
         bus = EventBus()
@@ -335,7 +335,7 @@ class TestEventBusIntegration:
     @pytest.mark.asyncio
     async def test_no_event_bus_ok(self):
         """BDD: 無 event_bus → 不報錯."""
-        long_msg = "這是一段有價值的洞察。" * 10
+        long_msg = "這是一段有價值的洞察，值得推送給使用者知道的重要資訊。" * 15
         brain = MagicMock()
         brain._call_llm_with_model = AsyncMock(return_value=long_msg)
         bridge = ProactiveBridge(brain=brain, event_bus=None)
@@ -412,7 +412,7 @@ class TestHistory:
     @pytest.mark.asyncio
     async def test_push_history(self):
         """BDD: 推送記錄到歷史."""
-        long_msg = "有價值的洞察" * 20
+        long_msg = "有價值的洞察，這是一段值得推送的完整訊息內容" * 15
         brain = MagicMock()
         brain._call_llm_with_model = AsyncMock(return_value=long_msg)
         bridge = ProactiveBridge(brain=brain)

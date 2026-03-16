@@ -36,11 +36,11 @@ logger = logging.getLogger(__name__)
 # Constants
 # ═══════════════════════════════════════════
 
-SILENT_ACK_THRESHOLD = 8         # 字元數，≤ 此值 = 靜默通過（僅過濾 OK/HEARTBEAT_OK）
-COMPANION_ACK_THRESHOLD = 10     # companion 模式幾乎不過濾
+SILENT_ACK_THRESHOLD = 200       # 字元數，≤ 此值 = 靜默通過（P2 修復：8→200，對齊 OpenClaw 300 字元思路）
+COMPANION_ACK_THRESHOLD = 100    # companion 模式也提高門檻（P2 修復：10→100）
 ACTIVE_HOURS_START = 8           # 08:00
 ACTIVE_HOURS_END = 25            # 01:00（跨日，用 25 表示次日 01:00）
-DAILY_PUSH_LIMIT = 15            # 每日最多推送次數
+DAILY_PUSH_LIMIT = 8             # 每日最多推送次數（P2 修復：15→8，減少無價值推送）
 PROACTIVE_INTERVAL = 1800        # 30 分鐘（秒）
 DAILY_MINIMUM_INTERVAL = 3600    # 每日最低保證檢查間隔（1 小時）
 DAILY_MINIMUM_HOUR = 14          # 14:00 後若 0 推送則觸發 companion（不用等到晚上）
@@ -168,14 +168,52 @@ class ProactiveBridge:
         return self._daily_push_count < limit
 
     def should_push(self, response: str, mode: str = "functional") -> bool:
-        """判斷回覆是否應該推送（非靜默確認）."""
+        """判斷回覆是否應該推送（非靜默確認 + P2 品質門檻）."""
         if not response:
             return False
+        stripped = response.strip()
         threshold = (
             _cfg("companion_ack_threshold", COMPANION_ACK_THRESHOLD) if mode == "companion"
             else _cfg("silent_ack_threshold", SILENT_ACK_THRESHOLD)
         )
-        return len(response.strip()) > threshold
+        if len(stripped) <= threshold:
+            return False
+
+        # P2 品質門檻 1：問句比率 > 50% → 降為靜默（自問自答無價值）
+        sentences = [s.strip() for s in stripped.replace("？", "?").split("?") if s.strip()]
+        if len(sentences) > 0:
+            question_ratio = (len(stripped.split("?")) - 1) / max(len(sentences), 1)
+            if question_ratio > 0.5:
+                logger.debug("推送品質門檻攔截：問句比率 %.1f%% > 50%%", question_ratio * 100)
+                return False
+
+        # P2 品質門檻 2：與最近推送重複度 > 0.7 → 降為靜默
+        if self._is_duplicate_push(stripped):
+            logger.debug("推送品質門檻攔截：與最近推送重複度過高")
+            return False
+
+        return True
+
+    def _is_duplicate_push(self, text: str, threshold: float = 0.7) -> bool:
+        """用 Jaccard 相似度判斷是否與最近 3 次推送重複."""
+        recent = [
+            h.get("response", "")
+            for h in self._history[-3:]
+            if h.get("action") == "pushed"
+        ]
+        if not recent:
+            return False
+
+        text_chars = set(text)
+        for prev in recent:
+            prev_chars = set(prev)
+            if not text_chars or not prev_chars:
+                continue
+            intersection = len(text_chars & prev_chars)
+            union = len(text_chars | prev_chars)
+            if union > 0 and intersection / union > threshold:
+                return True
+        return False
 
     def can_push(self, now: Optional[datetime] = None) -> bool:
         """綜合判斷：是否可以推送."""
