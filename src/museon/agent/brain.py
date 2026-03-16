@@ -5161,47 +5161,53 @@ class MuseonBrain:
         except Exception as e:
             logger.warning(f"RC 校準失敗: {e}")
 
-        # ── 9. 漂移偵測（每 10 次觀察檢查一次）──
+        # ── 9. 漂移偵測 v2.0（每 10 次觀察檢查一次）──
+        # 不再暫停/恢復演化，改為：
+        # - drift < 50%：寫入覺察日誌，不影響任何行為
+        # - drift >= 50%：限制 morphenix 提案（L2/L3），核心學習繼續
         if self.drift_detector and self.drift_detector.should_check():
             try:
                 anima_mc = self._load_anima_mc() or {}
                 drift_report = self.drift_detector.check_drift(anima_mc, anima_user)
-                if drift_report.should_pause:
-                    # 暫停演化（DriftDetector 已自動重建基線）
-                    anima_mc.setdefault("evolution", {})["paused"] = True
-                    anima_mc["evolution"]["paused_reason"] = (
+                evolution = anima_mc.setdefault("evolution", {})
+
+                if drift_report.should_restrict_morphenix:
+                    # 極端漂移 → 限制 morphenix 提案
+                    evolution["morphenix_restricted"] = True
+                    evolution["morphenix_restricted_reason"] = (
                         f"drift={drift_report.drift_score:.1%}"
                     )
-                    anima_mc["evolution"]["paused_at"] = now_iso
+                    evolution["morphenix_restricted_at"] = now_iso
+                    # 清除舊的 paused 標記（向後相容）
+                    evolution.pop("paused", None)
+                    evolution.pop("paused_reason", None)
+                    evolution.pop("paused_at", None)
                     self._save_anima_mc(anima_mc)
-                    # 排入通知佇列
                     self._pending_notifications.append({
                         "source": "drift_detector",
-                        "title": "ANIMA 漂移警報",
-                        "body": (
-                            f"漂移分數 {drift_report.drift_score:.1%} "
-                            f"超過閾值 15%，演化已暫停。"
-                            f"\n基線已自動重建，下次檢查通過後自動恢復。"
-                        ),
-                        "emoji": "⚠️",
+                        "title": "漂移覺察",
+                        "body": drift_report.awareness_log,
+                        "emoji": "🔍",
                     })
                     logger.warning(
-                        f"ANIMA 漂移偵測觸發暫停: {drift_report.drift_score:.1%}"
+                        f"ANIMA 漂移極端: {drift_report.drift_score:.1%} → morphenix 受限"
                     )
                 else:
-                    # 漂移正常 → 自動恢復演化（若之前被暫停）
-                    evolution = anima_mc.get("evolution", {})
-                    if evolution.get("paused"):
-                        evolution["paused"] = False
-                        evolution["resumed_at"] = now_iso
-                        evolution["resumed_reason"] = (
-                            f"drift={drift_report.drift_score:.1%} < 15%"
-                        )
-                        anima_mc["evolution"] = evolution
+                    # 漂移正常 → 解除 morphenix 限制
+                    if evolution.get("morphenix_restricted"):
+                        evolution["morphenix_restricted"] = False
+                        evolution.pop("morphenix_restricted_reason", None)
+                        evolution.pop("morphenix_restricted_at", None)
                         self._save_anima_mc(anima_mc)
                         logger.info(
-                            f"ANIMA 漂移恢復正常: {drift_report.drift_score:.1%}，演化已自動恢復"
+                            f"ANIMA 漂移正常: {drift_report.drift_score:.1%}，morphenix 限制已解除"
                         )
+                    # 同時清除舊的 paused 標記（向後相容遷移）
+                    if evolution.get("paused"):
+                        evolution["paused"] = False
+                        evolution.pop("paused_reason", None)
+                        evolution.pop("paused_at", None)
+                        self._save_anima_mc(anima_mc)
             except Exception as e:
                 logger.warning(f"漂移偵測失敗: {e}")
 
