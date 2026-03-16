@@ -306,6 +306,8 @@ const nodes = [
   {id:"multi-agent-executor",label:"MultiAgent Executor",zh:"多代理執行器",group:"multiagent",p:"multiagent",r:1.0},
   {id:"response-synthesizer",label:"Response Synthesizer",zh:"回覆合成器",group:"multiagent",p:"multiagent",r:0.8},
   {id:"flywheel-coordinator",label:"Flywheel Coordinator",zh:"飛輪協調器",group:"multiagent",p:"multiagent",r:0.8},
+  // P0: 事實覆寫引擎
+  {id:"fact-correction",label:"Fact Correction",zh:"事實覆寫引擎",group:"agent",p:"brain",r:0.9},
 ];
 
 const links = [
@@ -519,6 +521,16 @@ const links = [
   {source:"brain",target:"response-synthesizer",label:"回覆合成",type:"internal"},
   {source:"brain",target:"flywheel-coordinator",label:"飛輪流動",type:"internal"},
   {source:"multi-agent-executor",target:"llm-router",label:"多部門 LLM",type:"cross"},
+  // P0: 事實覆寫引擎連線
+  {source:"brain",target:"fact-correction",label:"事實更正偵測",type:"internal"},
+  {source:"fact-correction",target:"memory",label:"記憶覆寫 supersede()",type:"cross"},
+  {source:"fact-correction",target:"vector-index",label:"向量廢棄 mark_deprecated()",type:"cross"},
+  {source:"fact-correction",target:"llm-router",label:"Haiku 矛盾判斷",type:"cross"},
+  // P1: 推送寫入 session
+  {source:"telegram",target:"brain",label:"推送寫入 session history",type:"async"},
+  // P4: 自省清洗——事實更正注入
+  {source:"fact-correction",target:"proactive-bridge",label:"事實更正→自省上下文",type:"async"},
+  {source:"fact-correction",target:"pulse",label:"事實更正→PULSE.md 過濾",type:"async"},
 ];
 
 const nodeMap = {};
