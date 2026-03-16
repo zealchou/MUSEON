@@ -350,6 +350,8 @@ class ImmunityEngine:
                 inc.resolved_at = now
                 inc.auto_resolved = True
                 inc.resolution = resolution
+                # 從事後解決中學習，生成抗體（P1 後天免疫修復）
+                self.learn(inc)
                 count += 1
         if count:
             logger.info(
