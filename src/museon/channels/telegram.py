@@ -1139,6 +1139,9 @@ class TelegramAdapter(ChannelAdapter):
         ProactiveBridge 發布 PROACTIVE_MESSAGE 事件時觸發。
         callback 可能從 HeartbeatEngine daemon thread 呼叫，
         因此用 run_coroutine_threadsafe 排入 Telegram 主事件迴圈。
+
+        P1 修復：推送成功後寫入 Brain session history，
+        避免使用者回覆推送時 Brain 沒有前文。
         """
         if not data or not self._running:
             return
@@ -1148,13 +1151,17 @@ class TelegramAdapter(ChannelAdapter):
         try:
             async def _push_and_report():
                 sent = await self.push_notification(message)
-                if sent > 0 and self._event_bus:
-                    from museon.core.event_bus import PULSE_PROACTIVE_SENT
-                    self._event_bus.publish(PULSE_PROACTIVE_SENT, {
-                        "message": message[:200],
-                        "sent_count": sent,
-                        "push_count": data.get("push_count", 0),
-                    })
+                if sent > 0:
+                    # P1: 推送內容寫入 Brain session history
+                    self._write_push_to_session(message)
+
+                    if self._event_bus:
+                        from museon.core.event_bus import PULSE_PROACTIVE_SENT
+                        self._event_bus.publish(PULSE_PROACTIVE_SENT, {
+                            "message": message[:200],
+                            "sent_count": sent,
+                            "push_count": data.get("push_count", 0),
+                        })
 
             main_loop = getattr(self, "_main_async_loop", None)
             if main_loop and not main_loop.is_closed():
@@ -1163,6 +1170,41 @@ class TelegramAdapter(ChannelAdapter):
                 logger.warning("Proactive message: 主事件迴圈不可用，跳過推送")
         except Exception as e:
             logger.error(f"Proactive message push failed: {e}")
+
+    def _write_push_to_session(self, message: str) -> None:
+        """將推送內容寫入 owner 的 Brain session history.
+
+        讓 Brain 在使用者回覆時能看到推送前文，
+        避免上下文斷裂。
+        """
+        try:
+            brain = self._get_brain()
+            if not brain:
+                return
+
+            # 取得 owner session_id
+            if not self.trusted_user_ids:
+                return
+            owner_chat_id = self.trusted_user_ids[0]
+            session_id = f"telegram_{owner_chat_id}"
+
+            # 寫入 session history（assistant role，帶推送標記前綴）
+            from datetime import datetime
+            push_prefix = f"[主動推送 {datetime.now().strftime('%H:%M')}]"
+            push_content = f"{push_prefix} {message[:500]}"
+
+            history = brain._get_session_history(session_id)
+            history.append({
+                "role": "assistant",
+                "content": push_content,
+            })
+            brain._save_session_to_disk(session_id)
+
+            logger.debug(
+                f"推送已寫入 session {session_id}: {push_content[:80]}..."
+            )
+        except Exception as e:
+            logger.debug(f"推送寫入 session 失敗（降級運行）: {e}")
 
     def _on_morphenix_l3(self, data: Optional[Dict] = None) -> None:
         """處理 Morphenix L3 提案事件 → Telegram inline keyboard 通知."""
