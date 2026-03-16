@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.12
+# Joint Map — 共享可變狀態接頭圖 v1.13
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -18,7 +18,7 @@
 | 5 | scout_queue/pending.json | 🟡 | 2 | 2 | 無 | [→](#5-scout_queuependingjson) |
 | 6 | lattice/crystals.json | 🟡 | 2 | 5 | 無 | [→](#6-latticecrystalsjson) |
 | 7 | accuracy_stats.json | 🟡 | 2 | 6 | 無 | [→](#7-accuracy_statsjson) |
-| 8 | PulseDB (pulse.db) | 🟡 | 2 | 11 | SQLite WAL | [→](#8-pulsedb-pulsedb) |
+| 8 | PulseDB (pulse.db) | 🟡 | 3 | 11 | SQLite WAL | [→](#8-pulsedb-pulsedb) |
 | 9 | Qdrant 向量庫 | 🟡 | 4 | 6 | 內部 MVCC | [→](#9-qdrant-向量庫) |
 | 10 | diary entries (soul_rings.json) | 🟢 | 1 | 4 | ✅ Lock | [→](#10-diary-entries) |
 | 11 | immunity/events.jsonl | 🟢 | 2 | 3 | 無 | [→](#11-immunityeventsjsonl) |
@@ -275,6 +275,7 @@
 |------|--------|
 | `pulse/pulse_db.py` | 全部 14 表（schedules, explorations, anima_log, evolution_events, morphenix_proposals, commitments, metacognition, scout_drafts, health_scores, incidents 等） |
 | `nightly/nightly_pipeline.py` | evolution_events, 多表日誌 |
+| `gateway/server.py` (via Governor callback) | incidents（P2 新增：Governor 免疫迴圈 → `_bridge_incident_to_pulsedb()` → `pulse_db.save_incident()`） |
 
 #### 讀取者（11 個模組）
 
