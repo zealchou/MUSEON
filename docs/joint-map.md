@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.14
+# Joint Map — 共享可變狀態接頭圖 v1.16
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -38,6 +38,7 @@
 | 25 | JSONL 審計日誌群 (21 檔) | 🟢 | 各1 | 各1-3 | 無(append) | [→](#25-jsonl-審計日誌群) |
 | 26 | memory/{date}/{ch}.md | 🟡 | 3 | 5 | 無 | [→](#26-memorydatechmd) |
 | 27 | fact_corrections.jsonl | 🟢 | 1 | 3 | 無(append) | [→](#27-fact_correctionsjsonl) |
+| 28 | cognitive_trace.jsonl | 🟢 | 1 | 2 | 無(append) | [→](#28-cognitive_tracejsonl) |
 
 > **危險度定義**：🔴 多寫入者+高扇出+格式不一致 | 🟡 多寫入者或高扇出 | 🟢 單寫入者+低扇出
 
@@ -555,6 +556,7 @@
 | repair_log.jsonl | `data/guardian/repair_log.jsonl` | GuardianDaemon | Doctor | >5MB 輪替 |
 | actions.jsonl | `data/_system/footprints/actions.jsonl` | FootprintStore | SystemAudit | 30 天 |
 | decisions.jsonl | `data/_system/footprints/decisions.jsonl` | FootprintStore | SystemAudit | 90 天 |
+| cognitive_trace.jsonl | `data/_system/footprints/cognitive_trace.jsonl` | FootprintStore | SystemAudit, Observatory | 30 天 |
 | evolutions.jsonl | `data/_system/footprints/evolutions.jsonl` | FootprintStore | SystemAudit | 永久 |
 | velocity_log.jsonl | `data/_system/evolution/velocity_log.jsonl` | EvolutionVelocity | ParameterTuner | >5MB 輪替 |
 | tuning_audit.jsonl | `data/_system/evolution/tuning_audit.jsonl` | ParameterTuner | EvolutionVelocity | >5MB 輪替 |
@@ -616,6 +618,31 @@
 
 ---
 
+### 28. cognitive_trace.jsonl
+
+**路徑**：`data/_system/footprints/cognitive_trace.jsonl`
+**用途**：認知可觀測性追蹤——每次 Brain 決策迴圈的認知軌跡（P0 信號、QC 判決、能量、共振、迴圈數、Top Skills）
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| `governance/footprint.py` | **W** | `trace_cognitive()` | 每次 Brain Step 8 決策後 append 寫入 | ❌ 無（JSONL append 相對安全） |
+| `doctor/system_audit.py` | **R** | `_audit_skill_doctor()` → `_sd_check_*` | Skill Doctor 認知層檢查（12 項子檢查） | — |
+| `MUSEON_observatory.html` | **R** | 前端 JS fetch | 認知可觀測性儀表板視覺化 | — |
+
+#### 資料格式
+
+```json
+{"timestamp": "ISO8601", "p0_signal": "str", "qc_verdict": "str", "user_energy": "str", "c15_active": "str", "resonance": "str", "loop": "int", "top_skills": ["str"], "meta_note": "str"}
+```
+
+> **鎖**：無需（Append-only，單一寫入者 FootprintStore）
+> **TTL**：與 actions.jsonl 相同（30 天）
+> **設計**：與 footprints/actions.jsonl、decisions.jsonl 同層，由 FootprintStore 統一管理
+
+---
+
 ## 必須同時修改的模組組（不可分批）
 
 > 修改以下任一模組時，**必須**同時檢查並調整同組所有模組。
@@ -670,6 +697,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-17 | v1.16 | 認知可觀測性：新增 #28 cognitive_trace.jsonl（FootprintStore.trace_cognitive() 寫入、SystemAudit Skill Doctor + Observatory 讀取）；#25 JSONL 審計日誌群新增 cognitive_trace.jsonl 條目（21→22 檔）；共享狀態 27→28 個 |
 | 2026-03-16 | v1.15 | Memory Reset 一鍵重置工具：新增 `doctor/memory_reset.py` 為 25 個共享狀態的重置者（#1 ANIMA_MC.json boss/self_awareness 重置、#2 ANIMA_USER.json 全量重置、#3 PULSE.md 模板重建、#9 Qdrant 全部 collections 刪除重建、#25 JSONL 審計日誌群清空、#26 記憶 Markdown 刪除、#27 fact_corrections.jsonl 清空）；同時重置 PulseDB 全表、sessions、crystals/synapses/scout_queue、diary/drift、eval/workflow_state.db、guardian/footprints/activity_log、nightly_state/outward；預設 dry-run 安全模式 |
 | 2026-03-17 | v1.15 | DNA-Inspired 品質回饋閉環：#8 PulseDB 讀取者 11→12（+morphenix_executor `get_quality_flags()`/`get_quality_flag_summary()`）；metacognition 新增 `METACOGNITION_QUALITY_FLAG` 事件發布（verdict=revise 時）；morphenix_executor 夜間管線讀取品質旗標作為演化上下文 |
 | 2026-03-16 | v1.14 | Memory Gate 記憶閘門：新增 `memory/memory_gate.py` 為 ANIMA_USER.json 間接寫入控制者；brain.py `_observe_user()` 新增 `suppress_primals`/`suppress_facts` 參數；`_observe_user_layers()` 新增 `suppress_facts` 參數；L1_facts 新增 `status`/`confidence` 欄位；Step 9.2 事實更正偵測提前到 Step 9 之前；解決「越否認越強化」記憶迴圈 |

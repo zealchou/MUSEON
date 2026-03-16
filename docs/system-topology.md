@@ -1,4 +1,4 @@
-# MUSEON 系統拓撲圖 v1.9
+# MUSEON 系統拓撲圖 v1.10
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
@@ -106,6 +106,7 @@
 | `dendritic-scorer` | Dendritic Scorer | 樹突評分器 | - | governance | 0.9 |
 | `footprint` | Footprint | 操作足跡追蹤 | - | governance | 0.9 |
 | `perception` | Perception | 四診合參感知 | - | governance | 0.9 |
+| `cognitive-receipt` | Cognitive Receipt | 認知收據格式定義 | - | governance | 0.7 |
 
 ### doctor — Doctor 診斷
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -119,6 +120,7 @@
 | `log-analyzer` | Log Analyzer | 日誌分析 | - | doctor | 0.8 |
 | `code-analyzer` | Code Analyzer | 代碼品質 | - | doctor | 0.8 |
 | `memory-reset` | Memory Reset | 一鍵記憶重置 | - | doctor | 0.8 |
+| `observatory` | Observatory | 認知可觀測性儀表板 | - | doctor | 0.8 |
 
 ### llm — LLM 路由
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -290,6 +292,8 @@
 | `governance` | `dendritic-scorer` | 評分 |
 | `governance` | `footprint` | 足跡 |
 | `governance` | `perception` | 感知 |
+| `governance` | `cognitive-receipt` | 認知收據 |
+| `footprint` | `cognitive-receipt` | 認知追蹤格式定義 |
 
 ### Evolution 內部連線（internal）
 | Source | Target | 說明 |
@@ -328,6 +332,7 @@
 | `doctor` | `log-analyzer` | 日誌 |
 | `doctor` | `code-analyzer` | 代碼 |
 | `doctor` | `memory-reset` | 重置 |
+| `doctor` | `observatory` | 認知儀表板 |
 
 ### LLM 內部連線（internal）
 | Source | Target | 說明 |
@@ -442,6 +447,10 @@
 | `metacognition` | `pulse-db` | DNA 品質旗標寫入（METACOGNITION_QUALITY_FLAG） |
 | `morphenix` | `pulse-db` | DNA 品質旗標讀取（品質回饋閉環） |
 | `response-synthesizer` | `multi-agent-executor` | DNA 交叉重組（片段評分合成） |
+| `brain` | `footprint` | Step 8 認知追蹤（trace_decision+trace_cognitive） |
+| `footprint` | `data-bus` | cognitive_trace.jsonl 寫入 |
+| `observatory` | `footprint` | 讀取 cognitive_trace.jsonl 視覺化 |
+| `observatory` | `service-health` | 讀取健康狀態 |
 
 ### Installer 內部連線（internal）
 | Source | Target | 說明 |
@@ -510,8 +519,8 @@
 
 | 指標 | 數值 |
 |------|------|
-| 總節點數 | 118 |
-| 總連線數 | 233 |
+| 總節點數 | 120 |
+| 總連線數 | 240 |
 | 群組數 | 13 |
 | Hub 節點 | 11 (event-bus, brain, pulse, governance, doctor, llm-router, evolution, tool-registry, nightly, data-bus, installer) |
 | 跨系統連線 | 70 |
@@ -529,6 +538,7 @@
 | 版本 | 日期 | 變更 |
 |------|------|------|
 | v1.0 | 2026-03-14 | 初版建立，59 節點 91 連線 |
+| v1.10 | 2026-03-17 | 認知可觀測性：gov 群組新增 `cognitive-receipt` 節點；doctor 群組新增 `observatory` 節點（+2 節點）；新增 7 條連線（governance→cognitive-receipt internal、footprint→cognitive-receipt internal、doctor→observatory internal、brain→footprint cross 認知追蹤、footprint→data-bus cross JSONL 寫入、observatory→footprint cross 讀取、observatory→service-health cross 健康狀態）；120 節點 240 連線 |
 | v1.9 | 2026-03-17 | DNA-Inspired 品質回饋閉環：新增 3 條跨群組連線（metacognition→pulse-db 品質旗標寫入、morphenix→pulse-db 品質旗標讀取、response-synthesizer→multi-agent-executor DNA 交叉重組）；response-synthesizer 描述更新為「DNA 交叉重組合成」；118 節點 233 連線 |
 | v1.14 | 2026-03-16 | Memory Reset 一鍵重置：doctor 群組新增 `memory-reset` 節點（+1 節點 +1 內部連線 doctor→memory-reset）；memory-reset 為 CLI 工具，涵蓋 25 個持久層的原子重置；3D 心智圖同步；統計修正（v1.9-v1.13 遺漏）；118 節點 230 連線 |
 | v1.13 | 2026-03-16 | 五缺陷修復 3D 心智圖同步：新增 `blueprint-reader` 節點（data 群組）；新增 7 條連線（governor→immunity learn、governor→pulse-db incident、governor→dendritic-scorer immunity注入、blueprint-reader→doctor/surgery/morphenix 藍圖感知、nightly→blueprint-reader Step 30）；refractory 更新為「三態+半開」；system-audit 更新為「8層49項」；117 節點 229 連線 |

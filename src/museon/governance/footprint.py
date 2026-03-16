@@ -133,6 +133,7 @@ class FootprintStore(DataContract):
                 ("actions", self._action_path),
                 ("decisions", self._decision_path),
                 ("evolutions", self._evolution_path),
+                ("cognitive_trace", self._cognitive_path),
             ]:
                 sizes[name] = path.stat().st_size if path.exists() else 0
             return {"status": "ok", "file_sizes": sizes}
@@ -146,6 +147,7 @@ class FootprintStore(DataContract):
         self._action_path = self._base_dir / "actions.jsonl"
         self._decision_path = self._base_dir / "decisions.jsonl"
         self._evolution_path = self._base_dir / "evolutions.jsonl"
+        self._cognitive_path = self._base_dir / "cognitive_trace.jsonl"
 
         self._lock = threading.Lock()
 
@@ -196,6 +198,11 @@ class FootprintStore(DataContract):
             context=context[:200],
         )
         self._append(self._decision_path, trace.to_dict())
+
+    def trace_cognitive(self, receipt: dict) -> None:
+        """記錄認知回執（Compact Cognitive Receipt）."""
+        receipt["timestamp"] = datetime.now(timezone.utc).isoformat()
+        self._append(self._cognitive_path, receipt)
 
     def trace_evolution(
         self,
