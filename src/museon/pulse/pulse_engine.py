@@ -1371,9 +1371,17 @@ class PulseEngine:
 
         這是演化閉環的寫入端：
         反思 → PULSE.md → _build_soul_context() → system prompt → 行為改變
+
+        P4 修復：寫入前檢查是否包含已被糾正的過期事實，避免回聲效應。
         """
         if not self._pulse_md or not self._pulse_md.exists():
             return
+
+        # P4: 過濾已糾正的過期事實
+        if self._reflection_contains_stale_facts(reflection):
+            logger.info("反思包含已糾正的過期事實，跳過寫入 PULSE.md")
+            return
+
         try:
             with self._pulse_md_lock:
                 text = self._pulse_md.read_text(encoding="utf-8")
@@ -1404,6 +1412,52 @@ class PulseEngine:
             logger.info(f"反思寫入 PULSE.md（演化閉環）: {reflection[:60]}...")
         except Exception as e:
             logger.error(f"Write reflection to PULSE.md failed: {e}")
+
+    def _reflection_contains_stale_facts(self, reflection: str) -> bool:
+        """檢查反思是否包含已被使用者糾正的過期事實（P4 自省清洗）.
+
+        用簡單字串匹配（不額外呼叫 LLM），零成本實現。
+        """
+        try:
+            corrections_path = Path(self._data_dir) / "anima" / "fact_corrections.jsonl"
+            if not corrections_path.exists():
+                return False
+
+            text = corrections_path.read_text(encoding="utf-8").strip()
+            if not text:
+                return False
+
+            # 讀取最近 10 條更正
+            lines = text.split("\n")[-10:]
+            keywords = []
+            for line in lines:
+                if not line.strip():
+                    continue
+                try:
+                    entry = json.loads(line)
+                    # 從 superseded_memories 提取被淘汰的關鍵事實
+                    for mem in entry.get("superseded_memories", []):
+                        old_content = mem.get("old_content", "")
+                        # 提取關鍵詞片段（> 4 字的實質內容）
+                        for segment in old_content.split("，"):
+                            segment = segment.strip()
+                            if len(segment) > 4:
+                                keywords.append(segment[:30])
+                except (json.JSONDecodeError, KeyError):
+                    continue
+
+            # 檢查反思是否包含任何過期事實的關鍵詞
+            if not keywords:
+                return False
+
+            reflection_lower = reflection.lower()
+            matches = sum(1 for kw in keywords if kw.lower() in reflection_lower)
+            # 至少有 2 個關鍵詞匹配才判定為包含過期事實
+            return matches >= 2
+
+        except Exception as e:
+            logger.debug(f"事實更正過濾檢查失敗: {e}")
+            return False
 
     def _write_observation_to_pulse(self, observation: str) -> None:
         """將觀察寫入 PULSE.md 的觀察區塊."""

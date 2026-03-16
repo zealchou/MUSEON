@@ -215,6 +215,31 @@ class ProactiveBridge:
                 return True
         return False
 
+    def _read_recent_fact_corrections(self, limit: int = 5) -> List[str]:
+        """讀取最近的事實更正記錄（P4 自省清洗）."""
+        try:
+            corrections_path = Path("data/anima/fact_corrections.jsonl")
+            if not corrections_path.exists():
+                return []
+            lines = corrections_path.read_text(encoding="utf-8").strip().split("\n")
+            results = []
+            for line in reversed(lines[-limit * 2:]):  # 讀多一些以防解析失敗
+                if not line.strip():
+                    continue
+                try:
+                    entry = json.loads(line)
+                    correction = entry.get("user_content", "")[:100]
+                    if correction:
+                        results.append(correction)
+                except json.JSONDecodeError:
+                    continue
+                if len(results) >= limit:
+                    break
+            return results
+        except Exception as e:
+            logger.debug(f"讀取事實更正記錄失敗: {e}")
+            return []
+
     def can_push(self, now: Optional[datetime] = None) -> bool:
         """綜合判斷：是否可以推送."""
         return (
@@ -444,6 +469,13 @@ class ProactiveBridge:
                         parts.append(f"⚠️ 預判弱項: {weak}（需要改善對這類使用者反應的預判）")
                 except Exception as e:
                     logger.debug(f"[PROACTIVE_BRIDGE] file stat failed (degraded): {e}")
+
+        # P4 事實更正注入：讓自省知道哪些資訊已過期
+        corrections = self._read_recent_fact_corrections(limit=5)
+        if corrections:
+            parts.append("⚠️ 最近事實更正（以下資訊已確認過期，自省時請勿引用）:")
+            for c in corrections:
+                parts.append(f"  - {c}")
 
         # 額外上下文
         if context:
