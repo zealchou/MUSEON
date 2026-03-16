@@ -1,4 +1,4 @@
-# Blast Radius — 模組影響半徑表 v1.15
+# Blast Radius — 模組影響半徑表 v1.16
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
@@ -718,7 +718,8 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
-| 2026-03-16 | v1.15 | P2 事件匯聚：governor.py 新增 `_on_incident_callback` + `set_incident_callback()` + `_fire_incident_callback()`（incident 回調機制），`_run_immunity_cycle()` 三個分支新增回調觸發（先天/後天/未知）；server.py 新增 `_bridge_incident_to_pulsedb()` 回調橋接 PulseDB.incidents 表——Governor 的 immunity 事件首次同步到 PulseDB |
+| 2026-03-16 | v1.16 | P3 健康分數真實化：governor.py Step 4.1 `_dendritic.tick()` 之前新增 immunity 未解決事件注入（`immunity._incidents` → `dendritic.record_event()`），DendriticScorer 健康分數首次反映 immunity 未解決事件 |
+| 2026-03-16 | v1.15 | P2 事件匯聯：governor.py 新增 `_on_incident_callback` + `set_incident_callback()` + `_fire_incident_callback()`（incident 回調機制），`_run_immunity_cycle()` 三個分支新增回調觸發（先天/後天/未知）；server.py 新增 `_bridge_incident_to_pulsedb()` 回調橋接 PulseDB.incidents 表——Governor 的 immunity 事件首次同步到 PulseDB |
 | 2026-03-16 | v1.14 | P1 後天免疫路徑修復：governor.py `_run_immunity_cycle()` 先天/後天免疫匹配成功後新增 `immunity.learn(incident)` 呼叫（2 處）——接通抗體學習路徑；immunity.py `resolve_by_symptom()` 事件解決後新增 `self.learn(inc)` 呼叫——事後解決也能生成抗體 |
 | 2026-03-16 | v1.13 | P4 PULSE.md 自省清洗：brain.py 新增 `_get_fact_correction_declarations()`（讀 fact_corrections.jsonl 注入 soul context）；proactive_bridge.py 新增 `_read_recent_fact_corrections()`（讀 fact_corrections.jsonl 注入自省上下文）；pulse_engine.py 新增 `_reflection_contains_stale_facts()`（寫入前過濾過期事實）+ `_write_reflection_to_pulse()` 新增過濾閘 |
 | 2026-03-16 | v1.12 | P2 靜默閾值上調+推送品質門檻：proactive_bridge.py `SILENT_ACK_THRESHOLD` 8→200、`COMPANION_ACK_THRESHOLD` 10→100、`DAILY_PUSH_LIMIT` 15→8；`should_push()` 新增問句比率門檻（>50%→靜默）+`_is_duplicate_push()` Jaccard 重複度門檻（>0.7→靜默）；無新增共享狀態、無新增 import |

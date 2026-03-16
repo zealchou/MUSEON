@@ -560,6 +560,28 @@ class Governor:
                         logger.warning(f"Immunity cycle failed: {e}")
 
                 # ── Step 4.1: Dendritic Layer tick ──
+                # P3: 注入 immunity 未解決事件作為負面健康信號
+                if self._dendritic:
+                    try:
+                        unresolved = [
+                            inc for inc in self._immunity._incidents
+                            if not inc.resolved
+                        ]
+                        for inc in unresolved:
+                            impact = (
+                                -20.0 if inc.severity == "severe" else -5.0
+                            )
+                            self._dendritic.record_event(
+                                impact=impact,
+                                source=f"immunity:{inc.category}",
+                                message=inc.description[:200],
+                                event_type="immunity_unresolved",
+                            )
+                    except Exception as e:
+                        logger.debug(
+                            f"Immunity→Dendritic injection failed: {e}"
+                        )
+
                 if self._dendritic:
                     try:
                         dendritic_status = self._dendritic.tick()

@@ -21,7 +21,7 @@
 | 8 | PulseDB (pulse.db) | 🟡 | 3 | 11 | SQLite WAL | [→](#8-pulsedb-pulsedb) |
 | 9 | Qdrant 向量庫 | 🟡 | 4 | 6 | 內部 MVCC | [→](#9-qdrant-向量庫) |
 | 10 | diary entries (soul_rings.json) | 🟢 | 1 | 4 | ✅ Lock | [→](#10-diary-entries) |
-| 11 | immunity/events.jsonl | 🟢 | 2 | 3 | 無 | [→](#11-immunityeventsjsonl) |
+| 11 | immunity/events.jsonl | 🟢 | 2 | 4 | 無 | [→](#11-immunityeventsjsonl) |
 | 12 | immune_memory.json | 🟢 | 1 | 2 | 無 | [→](#12-immune_memoryjson) |
 | 13 | synapses.json | 🟢 | 1 | 3 | 無 | [→](#13-synapsesjson) |
 | 14 | nightly_report.json | 🟢 | 1 | 3 | 原子寫 | [→](#14-nightly_reportjson) |
@@ -363,6 +363,7 @@
 |------|------|-----|
 | `governance/immunity.py` | **RW** | ❌ 無（JSONL append 相對安全） |
 | `guardian/daemon.py` | **W** | ❌ 無 |
+| `governance/governor.py` | **R**（P3: 讀取 `_immunity._incidents` 未解決事件 → 注入 DendriticScorer） | — |
 | `nightly/evolution_velocity.py` | **R** | — |
 | `nightly/parameter_tuner.py` | **R** | — |
 
