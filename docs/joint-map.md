@@ -631,6 +631,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-16 | v1.7 | Docker 沙盒驗證器上線：morphenix_validator 已在 #15 morphenix/proposals/ 登錄為讀取者，無新增共享狀態；Dockerfile.validator 修復並 build 成功（1637 passed） |
 | 2026-03-16 | v1.6 | DNA27 深度審計修復：PULSE.md 加入 threading.Lock + 原子寫入（7 處寫入全覆蓋）；ANIMA_MC _observe_self + _merge_ceremony 改用 Store.update() 原子讀改寫；鎖一覽表同步更新 |
 | 2026-03-15 | v1.5 | 9.5 精度修復：新增 #25 JSONL 審計日誌群（21 檔群組管理）、#26 memory/{date}/{ch}.md 記憶檔（3 寫 5 讀）；共享狀態 24→26 個 |
 | 2026-03-15 | v1.4 | 全面覆蓋修復：新增 #22 budget/usage_{month}.json、#23 _system/outward/*.json、#24 _system/marketplace/*.json；共享狀態 21→24 個 |

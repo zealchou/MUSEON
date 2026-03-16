@@ -8,13 +8,26 @@ FROM python:3.13-slim
 LABEL maintainer="MUSEON Morphenix" \
       description="Isolated pytest runner for Morphenix L2+ proposal validation"
 
+# 系統依賴（sqlite3 header for sqlite-vec, git for patch apply）
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /museon
 
-# 安裝測試依賴（不含 GPU/大模型/外部服務）
-COPY docker/requirements-test.txt .
-RUN pip install --no-cache-dir -r requirements-test.txt
+# 安裝測試依賴 + 專案核心依賴
+COPY docker/requirements-test.txt /tmp/requirements-test.txt
+RUN pip install --no-cache-dir -r /tmp/requirements-test.txt \
+    && rm /tmp/requirements-test.txt
+
+# 設定 PYTHONPATH（volume mount 會注入 src/ 和 tests/）
+ENV PYTHONPATH="/museon/src"
 
 # 原始碼由 volume mount 注入，不 COPY（避免每次重建映像）
-# docker run -v /tmp/museon-validate:/museon:ro ...
+# MorphenixValidator: docker run -v /tmp/museon-validate-xxx:/museon:ro ...
 
-CMD ["python", "-m", "pytest", "tests/unit/", "-x", "--tb=short", "-q", "--no-header"]
+# -o addopts=      → 清除 pyproject.toml 的 --cov 設定（驗證器不需要 coverage）
+# --ignore=...     → 排除依賴 electron/ 等未掛載目錄的檔案完整性測試
+CMD ["python", "-m", "pytest", "tests/unit/", "-x", "--tb=short", "-q", "--no-header", \
+     "-o", "addopts=", \
+     "--ignore=tests/unit/test_dashboard_features.py"]

@@ -1,6 +1,30 @@
-# MUSEON Morphenix Validator — 最小測試依賴
-# 只包含跑 pytest 所需的套件，不含 LLM/外部服務 SDK
+# MUSEON Morphenix Validator — 測試環境依賴
+# 包含跑 pytest + import museon 所需的全部套件
+# 不含 fastembed（避免下載模型膨脹映像）
 
+# --- pytest 套件 ---
 pytest>=8.0.0
 pytest-asyncio>=0.23.0
 pytest-mock>=3.12.0
+pytest-bdd>=7.0.0
+
+# --- 專案核心依賴（unit test import 必需）---
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+anthropic>=0.18.0
+python-telegram-bot>=20.8
+apscheduler>=3.10.4
+pydantic>=2.6.0
+python-multipart>=0.0.9
+httpx>=0.26.0
+aiofiles>=23.2.1
+aiohttp>=3.9.0
+
+# --- 可選但 import 會觸發的 ---
+qdrant-client>=1.7.0
+mcp>=1.20.0
+jieba>=0.42.1
+
+# --- stub/mock 替代 ---
+# fastembed 不裝（太大），unit test 應 mock embedder
+# sqlite-vec 不裝（C extension），unit test 應 mock DB

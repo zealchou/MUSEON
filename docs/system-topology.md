@@ -174,6 +174,7 @@
 | `skill-forge-scout` | Skill Forge Scout | 技能鍛造偵察 | - | nightly | 0.8 |
 | `crystal-actuator` | Crystal Actuator | 結晶致動器 | - | nightly | 0.8 |
 | `periodic-cycles` | Periodic Cycles | 週期循環 | - | nightly | 0.9 |
+| `morphenix-validator` | Morphenix Validator | Docker 沙盒驗證 | - | nightly | 0.7 |
 
 ### installer — Installer 安裝
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -345,6 +346,8 @@
 | `nightly` | `skill-forge-scout` | 技能鍛造 |
 | `nightly` | `crystal-actuator` | 結晶致動 |
 | `nightly` | `periodic-cycles` | 週期循環 |
+| `nightly` | `morphenix-validator` | Docker 沙盒驗證 |
+| `morphenix-validator` | `morphenix` | 驗證通過→執行 |
 
 ### 跨系統連線（cross）
 | Source | Target | 說明 |
@@ -481,12 +484,12 @@
 
 | 指標 | 數值 |
 |------|------|
-| 總節點數 | 104 |
-| 總連線數 | 195 |
+| 總節點數 | 105 |
+| 總連線數 | 197 |
 | 群組數 | 13 |
 | Hub 節點 | 11 (event-bus, brain, pulse, governance, doctor, llm-router, evolution, tool-registry, nightly, data-bus, installer) |
 | 跨系統連線 | 66 |
-| 內部連線 | 99 |
+| 內部連線 | 101 |
 | 非同步連線 | 5 |
 | 監控連線 | 5 |
 | 控制連線 | 9 |
@@ -500,6 +503,7 @@
 | 版本 | 日期 | 變更 |
 |------|------|------|
 | v1.0 | 2026-03-14 | 初版建立，59 節點 91 連線 |
+| v1.6 | 2026-03-16 | Docker 沙盒驗證器上線：nightly 群組新增 morphenix-validator 節點（+1 節點 +2 內部連線）；105 節點 197 連線 |
 | v1.5 | 2026-03-15 | DNA27 深度修復：移除幽靈節點 task-scheduler(pulse) + guardrails(gov)、新增 anima-mc-store + anima-tracker 到 pulse 群組、修正跨系統連線（+6 新連線 -3 幽靈連線）；104 節點 195 連線 |
 | v1.4 | 2026-03-15 | 9.5 精度修復：data 群組新增 3 個 SQLite 子節點（pulse-db, group-context-db, workflow-state-db）+ 3 條 Store 路由連線；104 節點 191 連線 |
 | v1.3 | 2026-03-15 | 全面覆蓋修復：新增 installer 群組(5節點)；nightly 擴充+5子節點；tools 擴充+7節點(含federation)；gov 擴充+3子節點；channel 加 mcp-server；新增 43 條連線，總計 101 節點 188 連線 |
