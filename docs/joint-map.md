@@ -20,7 +20,7 @@
 | 7 | accuracy_stats.json | 🟡 | 2 | 6 | 無 | [→](#7-accuracy_statsjson) |
 | 8 | PulseDB (pulse.db) | 🟡 | 2 | 11 | SQLite WAL | [→](#8-pulsedb-pulsedb) |
 | 9 | Qdrant 向量庫 | 🟡 | 4 | 6 | 內部 MVCC | [→](#9-qdrant-向量庫) |
-| 10 | soul_rings.json | 🟢 | 1 | 3 | ✅ Lock | [→](#10-soul_ringsjson) |
+| 10 | diary entries (soul_rings.json) | 🟢 | 1 | 4 | ✅ Lock | [→](#10-diary-entries) |
 | 11 | immunity/events.jsonl | 🟢 | 2 | 3 | 無 | [→](#11-immunityeventsjsonl) |
 | 12 | immune_memory.json | 🟢 | 1 | 2 | 無 | [→](#12-immune_memoryjson) |
 | 13 | synapses.json | 🟢 | 1 | 3 | 無 | [→](#13-synapsesjson) |
@@ -71,7 +71,7 @@
 | `gateway/server.py` | `_build_system_prompt()` | identity, capabilities, personality | API 回應語氣 |
 | `pulse/anima_tracker.py` | `_load()` | `eight_primal_energies` | 能量成長計算 |
 | `pulse/micro_pulse.py` | `_update_days_alive()` | `identity.birth_date` | 天數計算 |
-| `agent/soul_ring.py` | — | `eight_primal_energies` (via AnimaTracker) | 年輪記錄 |
+| `agent/soul_ring.py` (DiaryStore) | — | `eight_primal_energies` (via AnimaTracker) | 日記條目記錄 |
 | `agent/kernel_guard.py` | `validate_write()` | OMEGA/PHI/PSI 欄位 | 寫入前驗證 |
 | `agent/drift_detector.py` | — | 全部 | 飄移基線比較 |
 | `governance/perception.py` | — | 全部 | 四診合參 |
@@ -141,7 +141,8 @@
 
 | 模組 | 函數 | 寫入的 Key | 鎖 |
 |------|------|-----------|-----|
-| `agent/brain.py` | `_save_anima_user()` | 整體 | 原子寫入(tmp→rename) + KernelGuard |
+| `agent/brain.py` | `_save_anima_user()` | 整體（DM 全權重 + 群組 0.5 權重） | 原子寫入(tmp→rename) + KernelGuard |
+| `agent/brain.py` | `_observe_group_behavioral_shift()` | `L8_context_behavior_notes` | 同上（群組訊息觸發） |
 | `onboarding/ceremony.py` | `receive_answers()` | `my_name`, `boss_name` | 無（單次初始化） |
 | `guardian/daemon.py` | 修復邏輯 | 結構修復 | 無 |
 
@@ -150,7 +151,9 @@
 | 模組 | 用途 |
 |------|------|
 | `agent/brain.py` | 載入使用者資訊 |
-| `agent/soul_ring.py` | 使用者觀察年輪 |
+| `agent/soul_ring.py` (DiaryStore) | 使用者觀察日記 |
+| `pulse/group_session_proactive.py` | L8 群組行為觀察 |
+| `gateway/server.py` | API: `/api/anima/user/group-behaviors` |
 | `onboarding/ceremony.py` | 初始化流程 |
 | `agent/metacognition.py` | 元認知觀察 |
 | `guardian/daemon.py` | 健康檢查 |
@@ -331,16 +334,19 @@
 
 ## 🟢 MEDIUM 區域
 
-### 10. soul_rings.json
+### 10. diary entries
 
-**路徑**：`data/anima/soul_rings.json`
-**用途**：靈魂年輪——Append-only 成長記錄
+**路徑**：`data/anima/soul_rings.json`（v2.0 重命名為 DiaryStore，檔案路徑不變）
+**用途**：日記條目——Append-only 成長記錄（原靈魂年輪 + 每日摘要 + 反思）
 
 | 模組 | 操作 | 鎖 |
 |------|------|-----|
-| `agent/soul_ring.py` | **RW** — append + reinforcement_count 更新 | ✅ `threading.Lock(_soul_lock)` |
-| `agent/brain.py` | **R** | — |
+| `agent/soul_ring.py` (DiaryStore) | **RW** — append + reinforcement_count 更新 + generate_daily_summary | ✅ `threading.Lock(_soul_lock)` |
+| `agent/brain.py` | **R** — 讀取最近日記（E-tier 路由時） | — |
+| `nightly/nightly_pipeline.py` | **W** — 每日日記生成（_step_diary_generation） | — |
 | `nightly/evolution_velocity.py` | **R** | — |
+
+**v2.0 新增欄位**：`entry_type`（daily_summary/event/reflection）、`highlights`、`learnings`、`tomorrow_intent`
 
 **安全等級**：✅ 有鎖 + Append-only + SHA-256 Hash Chain + 每日備份
 
@@ -599,8 +605,8 @@
 |---------|--------|------|--------|
 | ANIMA_MC.json | **AnimaMCStore** (`threading.Lock` + KernelGuard + 原子寫入) | **全部寫入者** | ✅ **完整（合約 1 修復）** |
 | ANIMA_MC.json | WriteQueue | brain | ✅ 序列化（非關鍵寫入） |
-| soul_rings.json | `threading.Lock` | soul_ring | ✅ 完整 |
-| observation_rings.json | `threading.Lock` | soul_ring | ✅ 完整 |
+| diary entries (soul_rings.json) | `threading.Lock` | soul_ring (DiaryStore) | ✅ 完整 |
+| observation_rings.json | `threading.Lock` | soul_ring (DiaryStore) | ✅ 完整 |
 | PulseDB | SQLite WAL + `threading.Lock` | pulse_db | ✅ 完整 |
 | Qdrant | 內部 MVCC | — | ✅ 資料庫層 |
 | PULSE.md | `threading.Lock` + 原子寫入(tmp→rename+fsync) | pulse_engine | ✅ 完整（Lock + 原子寫入） |

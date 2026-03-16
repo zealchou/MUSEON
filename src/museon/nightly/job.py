@@ -131,8 +131,8 @@ class NightlyJob:
         # Task 5: Soul Ring Nightly Batch Deposit
         try:
             logger.info("Running soul ring nightly batch deposit")
-            from museon.agent.soul_ring import SoulRingStore, RingDepositor
-            sr_store = SoulRingStore(data_dir=str(self.data_dir))
+            from museon.agent.soul_ring import DiaryStore, RingDepositor
+            sr_store = DiaryStore(data_dir=str(self.data_dir))
             depositor = RingDepositor(
                 store=sr_store, data_dir=str(self.data_dir)
             )

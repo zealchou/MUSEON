@@ -124,19 +124,6 @@ class HeartbeatEngine:
             if now - task.last_run >= task.interval_seconds:
                 self._execute_task(task)
 
-    def _execute_task(self, task: HeartbeatTask) -> None:
-        """執行單一任務（錯誤隔離）."""
-        try:
-            task.func()
-            task.run_count += 1
-            task.last_run = time.time()
-            task.last_error = None
-        except Exception as e:
-            task.last_error = str(e)
-            task.last_run = time.time()
-            logger.error(f"HeartbeatTask '{task.task_id}' error: {e}")
-        self._save_state()
-
     # ── 守護線程 ──
 
     def start(self) -> None:
@@ -164,6 +151,52 @@ class HeartbeatEngine:
             except Exception as e:
                 logger.error(f"HeartbeatEngine tick error: {e}")
             time.sleep(self._tick_interval)
+
+    # ── 延遲任務 ──
+
+    def schedule_delayed_task(
+        self,
+        task_id: str,
+        func: Callable,
+        delay_seconds: int,
+    ) -> None:
+        """排程一次性延遲任務.
+
+        任務在 delay_seconds 後的下一次 tick 執行一次，然後自動移除。
+        """
+        fire_at = time.time() + delay_seconds
+        with self._lock:
+            self._tasks[task_id] = HeartbeatTask(
+                task_id=task_id,
+                func=func,
+                interval_seconds=0,  # 一次性
+                enabled=True,
+                last_run=fire_at,  # 借用 last_run 儲存 fire_at
+                run_count=-1,  # 標記為一次性任務
+            )
+
+    def _execute_task(self, task: HeartbeatTask) -> None:
+        """執行單一任務（錯誤隔離）."""
+        is_one_shot = task.run_count == -1
+        try:
+            task.func()
+            if is_one_shot:
+                # 一次性任務執行後自動移除
+                with self._lock:
+                    self._tasks.pop(task.task_id, None)
+                logger.info(f"One-shot task '{task.task_id}' completed and removed")
+                return
+            task.run_count += 1
+            task.last_run = time.time()
+            task.last_error = None
+        except Exception as e:
+            task.last_error = str(e)
+            task.last_run = time.time()
+            logger.error(f"HeartbeatTask '{task.task_id}' error: {e}")
+            if is_one_shot:
+                with self._lock:
+                    self._tasks.pop(task.task_id, None)
+        self._save_state()
 
     # ── 狀態 ──
 

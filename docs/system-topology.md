@@ -65,7 +65,7 @@
 | `metacognition` | Metacognition | 元認知審查 | - | brain | 1.0 |
 | `intuition` | Intuition | 五層直覺 | - | brain | 0.9 |
 | `eval-engine` | Eval Engine | Q-Score | - | brain | 1.0 |
-| `soul-ring` | Soul Ring | 靈魂年輪 | - | brain | 0.9 |
+| `diary-store` | Diary Store | 日記存儲（原靈魂年輪） | - | brain | 0.9 |
 | `onboarding` | Onboarding | 上線儀式 | - | brain | 0.9 |
 | `multiagent` | Multiagent | 多代理協調 | - | brain | 0.9 |
 | `primal-detector` | Primal Detector | 八原語偵測 | - | brain | 1.0 |
@@ -83,6 +83,7 @@
 | `commitment-tracker` | Commitment | 承諾追蹤 | - | pulse | 0.9 |
 | `anima-mc-store` | AnimaMC Store | ANIMA統一存取 | - | pulse | 1.1 |
 | `anima-tracker` | Anima Tracker | 八元素追蹤 | - | pulse | 1.0 |
+| `group-session-proactive` | Group Session Proactive | 群組後主動追問 | - | pulse | 0.9 |
 
 ### gov — Governance
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -242,7 +243,7 @@
 | `brain` | `metacognition` | 元認知 |
 | `brain` | `intuition` | 直覺感知 |
 | `brain` | `eval-engine` | 品質評分 |
-| `brain` | `soul-ring` | 年輪記錄 |
+| `brain` | `diary-store` | 日記記錄 |
 | `brain` | `onboarding` | 上線儀式 |
 | `brain` | `multiagent` | 多代理協調 |
 | `brain` | `primal-detector` | 八原語偵測 |
@@ -261,6 +262,7 @@
 | `pulse` | `anima-tracker` | 八元素追蹤 |
 | `anima-tracker` | `anima-mc-store` | 八元素經由 Store |
 | `micro-pulse` | `anima-mc-store` | 微脈經由 Store |
+| `pulse` | `group-session-proactive` | 群組追問 |
 
 ### Governance 內部連線（internal）
 | Source | Target | 說明 |
@@ -363,7 +365,7 @@
 | `metacognition` | `llm-router` | Haiku 審查 |
 | `eval-engine` | `memory` | 品質數據 |
 | `eval-engine` | `registry` | Q-Score 存取 |
-| `soul-ring` | `memory` | 年輪寫入 |
+| `diary-store` | `memory` | 日記寫入 |
 | `brain` | `llm-router` | 生成回應 |
 | `brain` | `memory` | 四通道持久化 |
 | `commitment-tracker` | `brain` | 承諾自檢 |
@@ -392,7 +394,7 @@
 | `nightly` | `data-watchdog` | Step 29 健康檢查 |
 | `data-bus` | `pulse-db` | Store 路由 |
 | `data-bus` | `knowledge-lattice` | Store 路由 |
-| `data-bus` | `soul-ring` | Store 路由 |
+| `data-bus` | `diary-store` | Store 路由 |
 | `data-bus` | `eval-engine` | Store 路由 |
 | `outward-trigger` | `intention-radar` | 觸發搜尋 |
 | `intention-radar` | `research-engine` | 執行研究 |
@@ -400,6 +402,9 @@
 | `digest-engine` | `knowledge-lattice` | 結晶寫入 |
 | `evolution-velocity` | `parameter-tuner` | 速度驅動調諧 |
 | `nightly` | `evolution-velocity` | 夜間速度計算 |
+| `nightly` | `diary-store` | 每日日記生成 |
+| `group-session-proactive` | `event-bus` | GROUP_SESSION_END 訂閱 |
+| `telegram` | `event-bus` | GROUP_SESSION_END 發布 |
 | `nightly` | `parameter-tuner` | 夜間參數調諧 |
 | `guardian` | `doctor` | 修復委派 |
 | `guardian` | `brain` | ANIMA 修復 |
@@ -506,6 +511,7 @@
 | 版本 | 日期 | 變更 |
 |------|------|------|
 | v1.0 | 2026-03-14 | 初版建立，59 節點 91 連線 |
+| v1.8 | 2026-03-16 | Phase 3 日記+群組ANIMA：soul-ring→diary-store 重命名；pulse 群組新增 group-session-proactive 節點（+1 節點 +4 連線）；107 節點 203 連線 |
 | v1.7 | 2026-03-16 | Phase 2 八原語接線：agent 群組新增 primal-detector 節點（+1 節點 +2 連線：brain→primal-detector internal + primal-detector→vector-index cross）；106 節點 199 連線 |
 | v1.6 | 2026-03-16 | Docker 沙盒驗證器上線：nightly 群組新增 morphenix-validator 節點（+1 節點 +2 內部連線）；105 節點 197 連線 |
 | v1.5 | 2026-03-15 | DNA27 深度修復：移除幽靈節點 task-scheduler(pulse) + guardrails(gov)、新增 anima-mc-store + anima-tracker 到 pulse 群組、修正跨系統連線（+6 新連線 -3 幽靈連線）；104 節點 195 連線 |

@@ -195,8 +195,8 @@
 
 | 影響類型 | 範圍 |
 |---------|------|
-| 共享狀態讀寫 | ANIMA_MC.json(RW), ANIMA_USER.json(RW), PULSE.md(R), PulseDB(R), Qdrant(W), Qdrant:primals(R via PrimalDetector), soul_rings(R), synapses(R) |
-| 子系統初始化 | 29 個模組在 Brain.__init__() 中初始化（含 PrimalDetector） |
+| 共享狀態讀寫 | ANIMA_MC.json(RW), ANIMA_USER.json(RW+L8群組), PULSE.md(R), PulseDB(R), Qdrant(W), Qdrant:primals(R via PrimalDetector), diary_entries(R), synapses(R) |
+| 子系統初始化 | 29 個模組在 Brain.__init__() 中初始化（含 PrimalDetector, DiaryStore） |
 | System Prompt | `_build_soul_context()` + `_build_system_prompt()` 決定 AI 所有行為 |
 
 #### 修改安全邊界
@@ -310,7 +310,7 @@
 
 | 影響類型 | 範圍 |
 |---------|------|
-| 共享狀態讀寫 | ANIMA_MC.json(RW), ANIMA_USER.json(RW), lattice/crystals.json(R), soul_rings.json(R), workflow/workflows.json(RW) |
+| 共享狀態讀寫 | ANIMA_MC.json(RW), ANIMA_USER.json(RW), lattice/crystals.json(R), diary_entries(R), workflow/workflows.json(RW) |
 | 共享狀態寫入 | guardian/repair_log.jsonl(W), guardian/unresolved.json(W), guardian/state.json(W) |
 | 跨模組依賴 | security/audit.py, doctor/code_analyzer.py |
 
@@ -338,7 +338,7 @@
 
 | 影響類型 | 範圍 |
 |---------|------|
-| 共享狀態讀取 | ANIMA_MC.json(R), ANIMA_USER.json(R), soul_rings.json(R), crystals.json(R), pulse.db(R) |
+| 共享狀態讀取 | ANIMA_MC.json(R), ANIMA_USER.json(R), diary_entries(R), crystals.json(R), pulse.db(R) |
 | 事件發布 | AUDIT_COMPLETED |
 | 跨模組依賴 | service_health（交叉驗證）, data_watchdog（健康檢查）, health_check |
 
@@ -497,7 +497,7 @@
 | 影響類型 | 範圍 |
 |---------|------|
 | 共享狀態 | ANIMA_MC.json — `eight_primal_energies` 區段 |
-| 下游 | brain.py, soul_ring.py, periodic_cycles.py |
+| 下游 | brain.py, soul_ring.py (DiaryStore), periodic_cycles.py |
 | 鎖風險 | ✅ 已修復：經由 AnimaMCStore 統一鎖保護（合約 1） |
 
 #### 必須同時檢查：**G1（ANIMA 數值組）**
@@ -644,7 +644,7 @@
 **關鍵孤兒**（可能是設計遺漏）：
 - `DNA27_WEIGHTS_UPDATED` — 演化權重變化無人監聽
 - `CRYSTAL_CREATED` — 知識結晶無人應用
-- `SOUL_RING_DEPOSITED` — 靈魂環存入無人確認
+- `SOUL_RING_DEPOSITED` — 日記條目存入無人確認
 - `MEMORY_PROMOTED` / `MEMORY_RECALLED` — 記憶事件無人監聽
 - `AUTONOMIC_REPAIR` — 自主修復無人知曉
 
@@ -717,6 +717,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-16 | v1.8 | Phase 3 日記+群組ANIMA：SoulRingStore→DiaryStore 重命名（新增 entry_type/highlights/learnings 欄位）；brain.py 群組訊息更新 ANIMA_USER（L1-L7 半權重+L8_context_behavior_notes）；新增 pulse/group_session_proactive.py（綠區，扇入=1，監聽 GROUP_SESSION_END）；telegram.py 新增群組閒置偵測+GROUP_SESSION_END 事件發布；heartbeat_engine.py 新增 schedule_delayed_task()；server.py 新增 /api/anima/user/group-behaviors；nightly _step_soul_nightly→_step_diary_generation |
 | 2026-03-16 | v1.7 | Phase 2 八原語接線：新增 agent/primal_detector.py 到綠區（扇入=1）；brain.py 扇出 28→29+（新增 PrimalDetector 初始化）；vector_bridge.py 扇入 6→7、collections 7→8（新增 primals）；skill_router/persona_router/reflex_router/okr_router 新增 Optional user_primals 參數（向後相容） |
 | 2026-03-16 | v1.6 | Docker 沙盒驗證器上線：新增 nightly/morphenix_validator.py 到綠區（扇入=1），Dockerfile 修復（補齊專案依賴 + jieba + PYTHONPATH + addopts 覆蓋），image `museon-validator:latest` 已建構並驗證（1637 passed） |
 | 2026-03-15 | v1.5 | DNA27 深度修復：幽靈訂閱 3→0（telegram 2 個移除 + server ActivityLogger 2 個修正）、事件健康度 52.5%→67.9%、ANIMA_MC 殘餘漏洞已修復（_observe_self + _merge_ceremony 改用 Store.update()） |

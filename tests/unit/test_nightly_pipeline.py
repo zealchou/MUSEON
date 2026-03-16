@@ -717,13 +717,15 @@ class TestGraphConsolidation:
 
 
 class TestSoulNightly:
-    """Scenario: Step 10 — 靈魂層夜間整合."""
+    """Scenario: Step 10 — 日記生成（原靈魂層夜間整合）."""
 
     def test_no_soul_dir(self, tmp_path):
-        """BDD: 無 soul 目錄 → skipped."""
+        """BDD: 無 soul 目錄 → 日記仍生成（情緒衰減跳過）."""
         pipeline = NightlyPipeline(tmp_path)
-        result = pipeline._step_soul_nightly()
-        assert "skipped" in result
+        result = pipeline._step_diary_generation()
+        # v2.0: 不再 skip，即使無 soul dir 也嘗試生成日記
+        assert "diary_generated" in result
+        assert "emotions_decayed" not in result  # 沒有 soul dir → 不衰減
 
     def test_emotion_decay(self, tmp_path):
         """BDD: 情緒衰減."""
@@ -733,7 +735,7 @@ class TestSoulNightly:
         (soul_dir / "soul_state.json").write_text(json.dumps(state))
 
         pipeline = NightlyPipeline(tmp_path)
-        result = pipeline._step_soul_nightly()
+        result = pipeline._step_diary_generation()
         assert result["emotions_decayed"] == 2
 
         updated = json.loads((soul_dir / "soul_state.json").read_text())

@@ -814,6 +814,26 @@ def create_app() -> FastAPI:
         except Exception as e:
             return {"error": str(e)}
 
+    @app.get("/api/anima/user/group-behaviors")
+    async def anima_user_group_behaviors() -> Dict[str, Any]:
+        """取得 ANIMA_USER L8 群組行為觀察."""
+        try:
+            brain = _get_brain()
+            dd = getattr(brain, "data_dir", None) or str(Path.home() / "MUSEON" / "data")
+            anima_path = Path(dd) / "anima" / "anima_user.json"
+            if not anima_path.exists():
+                return {"observations": [], "group_stats": {}, "count": 0}
+            import json as _json
+            anima_user = _json.loads(anima_path.read_text(encoding="utf-8"))
+            l8 = anima_user.get("L8_context_behavior_notes", {})
+            return {
+                "observations": l8.get("observations", [])[-20:],  # 最近 20 筆
+                "group_stats": l8.get("group_stats", {}),
+                "count": len(l8.get("observations", [])),
+            }
+        except Exception as e:
+            return {"error": str(e), "observations": [], "group_stats": {}}
+
     @app.get("/api/pulse/explorations")
     async def pulse_explorations() -> Dict[str, Any]:
         """取得今日探索日誌"""

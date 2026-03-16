@@ -21,6 +21,7 @@ from telegram.ext import (
 
 from museon.channels.base import ChannelAdapter, TrustLevel
 from museon.core.event_bus import (
+    GROUP_SESSION_END,
     MORPHENIX_EXECUTION_COMPLETED,
     MORPHENIX_L3_PROPOSAL,
     MORPHENIX_ROLLBACK,
@@ -87,6 +88,11 @@ class TelegramAdapter(ChannelAdapter):
         # Files uploaded without @mention are held here for 10 minutes
         self._pending_group_files: Dict[int, list] = {}
         self._pending_file_ttl = 600  # seconds
+
+        # Group session idle tracking: {group_id: last_activity_timestamp}
+        self._group_last_activity: Dict[int, float] = {}
+        self._group_session_idle_seconds = 30 * 60  # 30 分鐘無訊息 → 視為會話結束
+        self._group_msg_counts: Dict[int, int] = {}  # 本次會話訊息數
 
     async def start(self) -> None:
         """Start the Telegram bot and begin polling."""
@@ -186,6 +192,8 @@ class TelegramAdapter(ChannelAdapter):
             chat_id = update.message.chat.id
             group_title = update.message.chat.title or ""
             chat_type = update.message.chat.type or "supergroup"
+            # 追蹤群組活動（閒置偵測用）
+            self._track_group_activity(chat_id)
             self._log_group_message(
                 group_id=chat_id,
                 user_id=user_id_str,
@@ -749,6 +757,44 @@ class TelegramAdapter(ChannelAdapter):
                 f.write(json.dumps(entry, ensure_ascii=False) + "\n")
         except Exception as e:
             logger.warning(f"Group log write failed: {e}")
+
+    def _track_group_activity(self, group_id: int) -> None:
+        """追蹤群組訊息活動，用於閒置偵測."""
+        import time as _time
+        now = _time.time()
+        prev = self._group_last_activity.get(group_id)
+        # 如果距上次訊息已超過閒置閾值，視為新會話
+        if prev and (now - prev) > self._group_session_idle_seconds:
+            self._group_msg_counts[group_id] = 0
+        self._group_last_activity[group_id] = now
+        self._group_msg_counts[group_id] = self._group_msg_counts.get(group_id, 0) + 1
+
+    def check_group_session_idle(self) -> None:
+        """檢查所有群組的閒置狀態，發布 GROUP_SESSION_END 事件.
+
+        由 HeartbeatEngine tick 定期呼叫。
+        """
+        import time as _time
+        now = _time.time()
+        ended_groups = []
+        for group_id, last_ts in list(self._group_last_activity.items()):
+            elapsed = now - last_ts
+            if elapsed >= self._group_session_idle_seconds:
+                msg_count = self._group_msg_counts.get(group_id, 0)
+                if msg_count > 0 and self._event_bus:
+                    self._event_bus.publish(GROUP_SESSION_END, {
+                        "group_id": group_id,
+                        "session_duration_seconds": int(elapsed),
+                        "message_count": msg_count,
+                    })
+                    logger.info(
+                        f"GROUP_SESSION_END published | group={group_id} "
+                        f"msgs={msg_count} idle={int(elapsed)}s"
+                    )
+                ended_groups.append(group_id)
+        # 清理已結束的會話
+        for gid in ended_groups:
+            self._group_msg_counts[gid] = 0
 
     async def send_dm_to_owner(self, text: str) -> bool:
         """Send a DM directly to the owner (first trusted_user_id)."""
