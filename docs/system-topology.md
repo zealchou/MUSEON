@@ -1,4 +1,4 @@
-# MUSEON 系統拓撲圖 v1.7
+# MUSEON 系統拓撲圖 v1.8
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
@@ -523,6 +523,7 @@
 | 版本 | 日期 | 變更 |
 |------|------|------|
 | v1.0 | 2026-03-14 | 初版建立，59 節點 91 連線 |
+| v1.11 | 2026-03-16 | P1+P4 3D 心智圖同步：新增 telegram→brain async（P1 推送寫入 session）、fact-correction→proactive-bridge async + fact-correction→pulse async（P4 自省清洗）；112 節點 219 連線 |
 | v1.10 | 2026-03-16 | P0 記憶事實覆寫：agent 群組新增 fact-correction 節點（+1 節點 +4 連線：brain→fact-correction internal、fact-correction→memory cross、fact-correction→vector-index cross、fact-correction→llm-router cross）；111 節點 211 連線 |
 | v1.9 | 2026-03-16 | Phase 4 飛輪多代理實質化：multiagent 群組新增 multi-agent-executor、response-synthesizer、flywheel-coordinator 節點（+3 節點 +4 連線：brain→multi-agent-executor internal、brain→response-synthesizer internal、brain→flywheel-coordinator internal、multi-agent-executor→llm-router cross）；110 節點 207 連線 |
 | v1.8 | 2026-03-16 | Phase 3 日記+群組ANIMA：soul-ring→diary-store 重命名；pulse 群組新增 group-session-proactive 節點（+1 節點 +4 連線）；107 節點 203 連線 |
