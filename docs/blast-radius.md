@@ -1,4 +1,4 @@
-# Blast Radius — 模組影響半徑表 v1.21
+# Blast Radius — 模組影響半徑表 v1.22
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
@@ -195,7 +195,7 @@
 
 | 影響類型 | 範圍 |
 |---------|------|
-| 共享狀態讀寫 | ANIMA_MC.json(RW), ANIMA_USER.json(RW+L8群組), PULSE.md(R), PulseDB(R), Qdrant(W), Qdrant:primals(R via PrimalDetector), diary_entries(R), synapses(R), memory(R/W+dept_id), fact_corrections.jsonl(RW), cognitive_trace.jsonl(W via footprint.trace_cognitive+trace_decision) |
+| 共享狀態讀寫 | ANIMA_MC.json(RW), ANIMA_USER.json(RW+L8群組), PULSE.md(R), PulseDB(R), Qdrant(W), Qdrant:primals(R via PrimalDetector), diary_entries(R), synapses(R), memory(R/W+dept_id), fact_corrections.jsonl(RW), cognitive_trace.jsonl(W via footprint.trace_cognitive+trace_decision), lord_profile.json(W via _observe_lord) |
 | 子系統初始化 | 31 個模組在 Brain.__init__() 中初始化（含 PrimalDetector, DiaryStore, MultiAgentExecutor, FlywheelCoordinator） |
 | System Prompt | `_build_soul_context()` + `_build_system_prompt()` 決定 AI 所有行為 |
 
@@ -204,7 +204,7 @@
 | ✅ 安全 | ❌ 危險 |
 |---------|---------|
 | 修改 `_chat()` 的回應後處理 | 修改 `__init__()` 的初始化順序 |
-| 新增獨立觀察方法（如 `_handle_fact_correction()`） | 修改 `_build_soul_context()` |
+| 新增獨立觀察方法（如 `_handle_fact_correction()`, `_observe_lord()`） | 修改 `_build_soul_context()` |
 | Step 8 trace_decision/trace_cognitive 呼叫（純寫入足跡） | 修改 trace 呼叫的觸發條件 |
 | 修改日誌格式 | 修改 `_save_anima_mc()` / `_load_anima_mc()` |
 | — | 修改 `_anima_mc_lock` 鎖策略 |
@@ -751,6 +751,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-17 | v1.22 | 軍師架構 Phase 0：brain.py 共享狀態新增 lord_profile.json(W)（`_observe_lord()` 原子寫入）；修改安全邊界「安全」欄新增 `_observe_lord()`（獨立觀察方法）；共享狀態 28→29 |
 | 2026-03-17 | v1.21 | 認知可觀測性：brain.py 角色新增 trace_decision+trace_cognitive（Step 8 認知追蹤）、共享狀態新增 cognitive_trace.jsonl(W)；system_audit.py 新增 `_audit_skill_doctor()` + 12 個 `_sd_check_*` 子方法（認知層檢查）、共享狀態讀取新增 cognitive_trace.jsonl(R)、`_check_skills` glob bug 修復；綠區新增 `governance/cognitive_receipt.py`（扇入=1，CognitiveReceipt dataclass）+ `MUSEON_observatory.html`（扇入=0，前端儀表板）；葉子模組 45→47；共享狀態 27→28 |
 | 2026-03-16 | v1.20 | Memory Reset 一鍵重置工具：新增 `doctor/memory_reset.py` 到綠區（扇入=0，純 CLI 工具）；覆蓋 25 個持久層（7 大類：A.身份×3、B.對話×7、C.知識×4、D.行為×3、E.評估×3、F.日誌×3、G.狀態×2）；葉子模組 44→45；不影響任何運行中模組（僅 Gateway 停機後使用） |
 | 2026-03-16 | v1.19 | Memory Gate 記憶閘門：新增 `memory/memory_gate.py` 到綠區（扇入=1，brain.py import）；brain.py 扇出 31→32+（新增 MemoryGate 初始化）；brain.py Step 9.0 新增意圖分類閘門（classify_intent → decide_action → suppress_primals/suppress_facts）；brain.py `_observe_user()` 新增 suppress 參數（修改安全：不影響 G1/G3 外部模組） |

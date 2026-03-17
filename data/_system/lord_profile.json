@@ -1,0 +1,56 @@
+{
+  "version": "1.0",
+  "lord_id": "zeal",
+  "domains": {
+    "business_strategy": {
+      "level": "expert",
+      "confidence": 0.92,
+      "classification": "strength",
+      "evidence_count": 50
+    },
+    "consultant_sales": {
+      "level": "expert",
+      "confidence": 0.88,
+      "classification": "strength",
+      "evidence_count": 40
+    },
+    "brand_design": {
+      "level": "intermediate",
+      "confidence": 0.72,
+      "classification": "unknown",
+      "evidence_count": 15
+    },
+    "ai_architecture": {
+      "level": "intermediate",
+      "confidence": 0.78,
+      "classification": "unknown",
+      "evidence_count": 20
+    },
+    "programming": {
+      "level": "beginner",
+      "confidence": 0.95,
+      "classification": "weakness",
+      "evidence_count": 60
+    },
+    "emotional_regulation": {
+      "level": "developing",
+      "confidence": 0.60,
+      "classification": "weakness",
+      "evidence_count": 10
+    }
+  },
+  "domain_keywords": {
+    "business_strategy": ["策略", "商業", "市場", "定位", "獲利", "競爭", "商模", "佈局", "利基", "護城河"],
+    "consultant_sales": ["銷售", "客戶", "成交", "提案", "顧問", "說服", "異議", "轉換", "簽約"],
+    "brand_design": ["品牌", "設計", "視覺", "美感", "識別", "色彩", "排版", "Logo"],
+    "ai_architecture": ["AI", "模組", "架構", "系統", "引擎", "Agent", "Skill", "pipeline"],
+    "programming": ["程式", "Python", "code", "函數", "bug", "API", "debug", "deploy", "script"],
+    "emotional_regulation": ["情緒", "壓力", "焦慮", "關係", "衝突", "煩", "累", "崩潰"]
+  },
+  "advise_cooldown": {
+    "last_advise_ts": null,
+    "cooldown_minutes": 30,
+    "session_advise_count": 0,
+    "max_per_session": 3
+  }
+}
