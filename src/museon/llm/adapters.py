@@ -556,8 +556,31 @@ class AnthropicAPIAdapter:
                 raw={"response": response.model_dump() if hasattr(response, "model_dump") else None},
             )
 
+        # P1: 拆分異常處理 — 區分不可重試 vs 可重試錯誤
         except Exception as e:
-            logger.error(f"API adapter error: {e}")
+            error_type = type(e).__name__
+            error_str = str(e)
+
+            # 認證錯誤（401）— 不可重試，API key 無效
+            if "authentication" in error_str.lower() or "401" in error_str:
+                logger.error(f"API authentication error (不可重試): {e}")
+                return AdapterResponse(
+                    text=f"[API auth error] {e}",
+                    stop_reason="auth_error",
+                    model=model_id,
+                )
+
+            # 速率限制（429）— 可重試但需等待
+            if "rate" in error_str.lower() and "limit" in error_str.lower():
+                logger.warning(f"API rate limit hit: {e}")
+                return AdapterResponse(
+                    text=f"[API rate limit] {e}",
+                    stop_reason="rate_limited",
+                    model=model_id,
+                )
+
+            # 其他錯誤 — 一般性失敗
+            logger.error(f"API adapter error ({error_type}): {e}")
             return AdapterResponse(
                 text=f"[API error] {e}",
                 stop_reason="error",

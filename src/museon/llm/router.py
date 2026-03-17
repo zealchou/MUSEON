@@ -50,8 +50,9 @@ class Router:
         (r"^(真的嗎|是喔|喔喔|原來|哦|蛤|欸|不會吧|天啊|傻眼|無言|厲害|猛)(!|！|$|\s|？)", "simple_reaction"),
     ]
 
-    # Keywords that require Sonnet（中英文皆涵蓋）
-    SONNET_KEYWORDS = [
+    # Keywords that require complex model (Opus)（中英文皆涵蓋）
+    # P3: v4 三層路由後，這些關鍵字路由到 Opus 而非 Sonnet
+    COMPLEX_KEYWORDS = [
         # English
         "write", "create", "generate", "compose", "draft",
         "business", "revenue", "marketing", "strategy", "profit", "customer",
@@ -108,7 +109,7 @@ class Router:
                 return {"model": "haiku", "reason": pattern[:30], "task_type": task_type}
 
         # Rule 3: Opus keywords（複雜意圖關鍵字 → Opus）
-        for keyword in self.SONNET_KEYWORDS:
+        for keyword in self.COMPLEX_KEYWORDS:
             if keyword in message_lower:
                 return {"model": "opus", "reason": f"kw:{keyword}", "task_type": "complex"}
 

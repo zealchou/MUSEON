@@ -3395,6 +3395,16 @@ class MuseonBrain:
                 if _adapter_resp.stop_reason == "error":
                     raise RuntimeError(f"Adapter error: {_adapter_resp.text}")
 
+                # P1: 認證錯誤不可重試 — 同一 adapter 的 key 對所有模型都一樣
+                if _adapter_resp.stop_reason == "auth_error":
+                    logger.error("認證錯誤（不可重試），直接進入離線模式")
+                    return self._offline_response(messages, error_msg=_adapter_resp.text)
+
+                # P1: 速率限制 — 不切模型（同一 key 的限制跨模型共享）
+                if _adapter_resp.stop_reason == "rate_limited":
+                    logger.warning("速率限制，直接進入離線模式（等待限制解除）")
+                    return self._offline_response(messages, error_msg=_adapter_resp.text)
+
                 # 包裝為 API 相容格式（讓 tool-use 迴圈無需修改）
                 response = APICompatResponse(_adapter_resp)
 
