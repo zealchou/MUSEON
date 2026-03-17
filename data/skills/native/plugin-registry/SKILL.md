@@ -403,6 +403,22 @@ DNA27（核心 OS）
 | 核心能力 | 畫像建構（知識水準/溝通偏好/決策風格/能量模式/專長）→ 個人化調適 → 偏好學習 |
 | 與其他外掛 | dna27 Persona 旋鈕（固定軸 vs 動態微調）；deep-think（品質 vs 個人化）；eval-engine（滿意度代理校準）；knowledge-lattice（專長維度）；wee（能力成長維度） |
 
+### persona-router (baihe) — 百合引擎軍師路由
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | PERSONA_ROUTER_BAIHE |
+| 類別 | core-extension（非獨立 Skill，persona_router.py 的 v2 擴展） |
+| 運行模式 | **常駐**——brain.py Step 3.65 自動執行，不需觸發 |
+| 風險等級 | LOW（讀取 lord_profile.json 做決策，try/except 安全降級） |
+| 允許迴圈 | 全部（常駐層不限制迴圈） |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | lord_profile.json 存在（不存在時靜默降級） |
+| 觸發指令 | 無（自動執行） |
+| 核心能力 | 四象限軍師路由（Q1 全力輔助 / Q2 精準補位 / Q3 主動進諫 / Q4 靜默觀察）→ 進諫階梯（Tier 0-3）→ 表達模式映射 → system prompt 注入 |
+| 資料來源 | `data/_system/lord_profile.json`（R：讀取領域強弱項，W：進諫冷卻寫回） |
+| 與其他外掛 | user-model（User-Model 管「怎麼說」，lord_profile 管「什麼領域強/弱」）；c15（四象限表達模式切換）；deep-think Phase 0（戰略訊號觸發）；master-strategy（百合象限決定戰略姿態） |
+
 ---
 
 ## 七、演化與治理
