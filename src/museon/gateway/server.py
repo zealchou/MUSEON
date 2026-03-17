@@ -3713,6 +3713,11 @@ async def _telegram_message_pump(adapter) -> None:
                 elif response_text is None:
                     if is_group:
                         # Group message processing (owner or non-owner, @mentioned)
+                        # Phase 1: Multi-tenant setup (imports, context, sensitivity check)
+                        # Errors here → "忙碌中" for non-owner (setup failure)
+                        _mt_ready = False
+                        _brain_content = None
+                        _brain_metadata = None
                         try:
                             from museon.governance.multi_tenant import (
                                 get_sensitivity_checker, get_escalation_queue, ExternalAnimaManager
@@ -3761,51 +3766,49 @@ async def _telegram_message_pump(adapter) -> None:
                                     await adapter.send_dm_to_owner(dm_text)
                                     response_text = f"這個問題我需要先確認一下，稍等。"
                                 else:
-                                    # Not sensitive: update external anima and process with context
+                                    # Not sensitive: update external anima, prepare content for brain
                                     data_dir = _Path(brain.data_dir)
                                     ext_mgr = ExternalAnimaManager(data_dir)
                                     ext_mgr.update(message.user_id, display_name=sender_name, group_id=group_id)
 
                                     group_prefix = f"[群組會議] {sender_name} 問：\n"
-                                    _content = group_prefix + message.content
+                                    _brain_content = group_prefix + message.content
                                     if _group_context:
-                                        _content = _group_context + "\n\n" + _content
-                                    brain_result = await brain.process(
-                                        content=_content,
-                                        session_id=message.session_id,
-                                        user_id=message.user_id,
-                                        source="telegram",
-                                        metadata={"is_group": True, "sender_name": sender_name},
-                                    )
+                                        _brain_content = _group_context + "\n\n" + _brain_content
+                                    _brain_metadata = {"is_group": True, "sender_name": sender_name}
+                                    _mt_ready = True
                             else:
                                 # Owner in group: use boss_name so Brain recognizes its boss
                                 _display = _boss_name or sender_name
                                 group_prefix = f"[群組] {_display}（老闆）說：\n"
-                                _content = group_prefix + message.content
+                                _brain_content = group_prefix + message.content
                                 if _group_context:
-                                    _content = _group_context + "\n\n" + _content
-                                brain_result = await brain.process(
-                                    content=_content,
-                                    session_id=message.session_id,
-                                    user_id=message.user_id,
-                                    source="telegram",
-                                    metadata={"is_group": True, "sender_name": _display, "is_owner": True},
-                                )
+                                    _brain_content = _group_context + "\n\n" + _brain_content
+                                _brain_metadata = {"is_group": True, "sender_name": _display, "is_owner": True}
+                                _mt_ready = True
                         except Exception as _mt_err:
-                            logger.error(f"Multi-tenant processing error: {_mt_err}", exc_info=True)
+                            logger.error(f"Multi-tenant setup error: {_mt_err}", exc_info=True)
                             if is_owner:
-                                # Owner fallback: safe to process without multi-tenant
-                                brain_result = await brain.process(
-                                    content=message.content,
-                                    session_id=message.session_id,
-                                    user_id=message.user_id,
-                                    source="telegram",
-                                    metadata={"is_group": True, "sender_name": sender_name, "is_owner": True},
-                                )
+                                # Owner fallback: process without multi-tenant context
+                                _brain_content = message.content
+                                _brain_metadata = {"is_group": True, "sender_name": sender_name, "is_owner": True}
+                                _mt_ready = True
                             else:
-                                # Non-owner fallback: refuse to process (safety first)
+                                # Non-owner: multi-tenant setup failed, cannot safely determine sensitivity
                                 response_text = "目前系統忙碌中，請稍後再試。"
-                                logger.warning(f"Blocked non-owner group msg due to multi-tenant error: {_mt_err}")
+                                logger.warning(f"Blocked non-owner group msg due to multi-tenant setup error: {_mt_err}")
+
+                        # Phase 2: Brain processing (OUTSIDE multi-tenant try/except)
+                        # brain.process() errors propagate to outer handler (line ~3834)
+                        # which has proper error messages for both owner and non-owner
+                        if _mt_ready and response_text is None:
+                            brain_result = await brain.process(
+                                content=_brain_content,
+                                session_id=message.session_id,
+                                user_id=message.user_id,
+                                source="telegram",
+                                metadata=_brain_metadata,
+                            )
                     else:
                         # Normal DM processing (owner or trusted user)
                         brain_result = await brain.process(
