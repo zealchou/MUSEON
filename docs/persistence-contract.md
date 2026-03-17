@@ -443,6 +443,7 @@ Installer 編排 (orchestrator.py)
 | SkillManager | JSON | PERMANENT | `core/skill_manager.py` |
 | ActivityLogger | JSONL (append-only) | SHORT | `core/activity_logger.py` |
 | EvalStore | Mixed (JSONL+PulseDB) | LONG | `agent/eval_engine.py` |
+| WorkflowEngine | SQLite | PERMANENT | `workflow/workflow_engine.py` |
 
 ### Phase 4：監控與自癒
 - [x] 資料完整性自動檢查 → Nightly Step 29 `DataWatchdog.run_health_check()`
@@ -523,6 +524,7 @@ Installer 編排 (orchestrator.py)
 | v1.0 | 2026-03-15 | 初版：完整水電圖，涵蓋 23 個正常配對、3 個 Dead Write、14 個死目錄 |
 | v1.1 | 2026-03-15 | Phase 2 完成：4 個 JSON 遷移至 PulseDB（ceremony_state + eval 三件套） |
 | v1.2 | 2026-03-15 | Phase 3 完成：DataContract + DataBus 建立，10 個 Store 類統一接入 |
+| v1.16 | 2026-03-17 | WorkflowEngine DataContract 接入：WorkflowEngine 實作 DataContract（store_spec+health_check）；Nightly _auto_register_known_stores 新增 workflow_state_db 自動註冊；新增 cleanup_old_executions() 清理已歸檔工作流的過期 executions（90 天） |
 | v1.15 | 2026-03-17 | 認知可觀測性：新增 W35 cognitive_trace.jsonl（FootprintStore.trace_cognitive() 寫入、SystemAudit Skill Doctor + Observatory 讀取）；管線 D 新增 Footprint→cognitive_trace.jsonl 資料流；FootprintStore DataContract 描述更新（actions+decisions+evolutions+cognitive_trace 四檔）；`_system/footprints/` 子目錄新增 cognitive_trace.jsonl 條目 |
 | v1.14 | 2026-03-16 | Memory Reset 一鍵重置管線：新增 Pipeline R（25 個持久層的原子重置管線）；涵蓋 7 大類（A.身份 B.對話 C.知識 D.行為 E.評估 F.日誌 G.狀態）；`doctor/memory_reset.py` 為唯一執行入口；預設 dry-run 安全模式 |
 | v1.12 | 2026-03-16 | P0 記憶事實覆寫：新增管線 A-2（事實更正覆寫管線）；Qdrant memories 新增 status=deprecated 軟刪除標記（VectorBridge.mark_deprecated() 寫入、search() 自動過濾）；新增 data/anima/fact_corrections.jsonl（Brain 寫入、ProactiveBridge+PulseEngine+Brain 讀取）；MemoryManager.supersede() 已存在但現在被 Brain 自動呼叫 |
