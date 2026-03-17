@@ -262,7 +262,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 //  SYNC META — 拓撲同步狀態
 // ═══════════════════════════════════════
 const SYNC_META = {
-  topologyVersion: 'v1.9',
+  topologyVersion: 'v1.10',
   syncDate: '2026-03-17',
   nodeCount: 0, // auto-calculated below
   linkCount: 0  // auto-calculated below
@@ -369,6 +369,7 @@ const nodes = [
   {id:"log-analyzer",label:"Log Analyzer",zh:"日誌分析",group:"doctor",p:"doctor",r:0.8},
   {id:"code-analyzer",label:"Code Analyzer",zh:"代碼品質",group:"doctor",p:"doctor",r:0.8},
   {id:"memory-reset",label:"Memory Reset",zh:"一鍵記憶重置",group:"doctor",p:"doctor",r:0.8},
+  {id:"observatory",label:"Observatory",zh:"認知可觀測性儀表板",group:"doctor",p:"doctor",r:0.8},
   {id:"llm-router",label:"LLM Router",zh:"智能模型選擇",group:"llm",r:2.2,hub:1},
   {id:"budget-mgr",label:"Budget Mgr",zh:"Token預算",group:"llm",p:"llm-router",r:1.0},
   {id:"rate-limit",label:"Rate Limit",zh:"速限守衛",group:"llm",p:"llm-router",r:0.8},
@@ -379,7 +380,7 @@ const nodes = [
   {id:"skills-registry",label:"Skills Registry",zh:"技能資料庫",group:"data",p:"data-bus",r:1.2},
   {id:"registry",label:"Registry",zh:"SQLite",group:"data",p:"data-bus",r:1.0},
   {id:"skill-synapse",label:"Skill Synapse",zh:"突觸網路",group:"data",p:"data-bus",r:0.9},
-  {id:"nightly",label:"Nightly Pipeline",zh:"29步夜間整合",group:"nightly",r:2.2,hub:1},
+  {id:"nightly",label:"Nightly Pipeline",zh:"30+步夜間整合",group:"nightly",r:2.2,hub:1},
   {id:"morphenix",label:"Morphenix",zh:"演化提案",group:"nightly",p:"nightly",r:1.0},
   {id:"morphenix-validator",label:"Morphenix Validator",zh:"Docker 沙盒驗證",group:"nightly",p:"nightly",r:0.7},
   {id:"searxng",label:"SearXNG",zh:"搜尋:8888",group:"external",r:1.0},
@@ -399,6 +400,7 @@ const nodes = [
   {id:"dendritic-scorer",label:"Dendritic Scorer",zh:"樹突評分器",group:"gov",p:"governance",r:0.9},
   {id:"footprint",label:"Footprint",zh:"操作足跡追蹤",group:"gov",p:"governance",r:0.9},
   {id:"perception",label:"Perception",zh:"四診合參感知",group:"gov",p:"governance",r:0.9},
+  {id:"cognitive-receipt",label:"Cognitive Receipt",zh:"認知收據格式定義",group:"gov",p:"governance",r:0.7},
   // v1.4 data SQLite
   {id:"group-context-db",label:"GroupContextDB",zh:"群組上下文 SQLite",group:"data",p:"data-bus",r:1.0},
   {id:"workflow-state-db",label:"WorkflowStateDB",zh:"工作流 SQLite",group:"data",p:"data-bus",r:1.0},
@@ -437,9 +439,9 @@ const nodes = [
   {id:"installer-env",label:"Environment",zh:"環境檢查",group:"installer",p:"installer",r:0.7},
   {id:"installer-verifier",label:"Module Verifier",zh:"模組驗證",group:"installer",p:"installer",r:0.7},
   // Phase 4: 飛輪多代理實質化
-  {id:"multi-agent-executor",label:"MultiAgent Executor",zh:"多代理執行器",group:"multiagent",p:"multiagent",r:1.0},
-  {id:"response-synthesizer",label:"Response Synthesizer",zh:"DNA交叉重組合成",group:"multiagent",p:"multiagent",r:0.8},
-  {id:"flywheel-coordinator",label:"Flywheel Coordinator",zh:"飛輪協調器",group:"multiagent",p:"multiagent",r:0.8},
+  {id:"multi-agent-executor",label:"MultiAgent Executor",zh:"多代理執行器",group:"agent",p:"brain",r:1.0},
+  {id:"response-synthesizer",label:"Response Synthesizer",zh:"DNA交叉重組合成",group:"agent",p:"brain",r:0.8},
+  {id:"flywheel-coordinator",label:"Flywheel Coordinator",zh:"飛輪協調器",group:"agent",p:"brain",r:0.8},
   // P0: 事實覆寫引擎
   {id:"fact-correction",label:"Fact Correction",zh:"事實覆寫引擎",group:"agent",p:"brain",r:0.9},
   // P4: 藍圖解析器
@@ -685,6 +687,14 @@ const links = [
   {source:"metacognition",target:"pulse-db",label:"品質旗標寫入 METACOGNITION_QUALITY_FLAG",type:"cross"},
   {source:"morphenix",target:"pulse-db",label:"品質旗標讀取（品質回饋閉環）",type:"cross"},
   {source:"response-synthesizer",target:"multi-agent-executor",label:"DNA 交叉重組（片段評分）",type:"cross"},
+  // ── 認知可觀測性（v1.10 3D 同步）──
+  {source:"governance",target:"cognitive-receipt",label:"認知收據",type:"internal"},
+  {source:"footprint",target:"cognitive-receipt",label:"認知追蹤格式定義",type:"internal"},
+  {source:"doctor",target:"observatory",label:"認知儀表板",type:"internal"},
+  {source:"brain",target:"footprint",label:"Step 8 認知追蹤",type:"cross"},
+  {source:"footprint",target:"data-bus",label:"cognitive_trace.jsonl 寫入",type:"cross"},
+  {source:"observatory",target:"footprint",label:"讀取 cognitive_trace.jsonl",type:"cross"},
+  {source:"observatory",target:"service-health",label:"讀取健康狀態",type:"cross"},
 ];
 
 const nodeMap = {};

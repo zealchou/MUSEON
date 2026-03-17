@@ -1,4 +1,4 @@
-# MUSEON 系統拓撲圖 v1.10
+# MUSEON 系統拓撲圖 v1.11
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
@@ -30,7 +30,7 @@
 | `data` | 資料持久層 | 記憶、向量索引、技能庫、SQLite | `#7A7888` |
 | `evolution` | Evolution 演化 | 外向演化、意圖雷達、研究消化、參數調諧 | `#6B3FA0` |
 | `tools` | Tools 工具 | 工具註冊、探測、排程、聯邦市場 | `#8A6A3E` |
-| `nightly` | Nightly 夜間 | 29 步夜間整合管線、演化提案、好奇心路由 | `#9A3A1C` |
+| `nightly` | Nightly 夜間 | 30+ 步夜間整合管線、演化提案、好奇心路由 | `#9A3A1C` |
 | `installer` | Installer 安裝 | 部署編排、Daemon 設定、Electron 打包 | `#5A8A3E` |
 | `external` | 外部服務 | SearXNG、Qdrant、Firecrawl、API | `#6A6880` |
 
@@ -72,6 +72,9 @@
 | `response-synthesizer` | Response Synthesizer | DNA 交叉重組合成 | - | brain | 0.8 |
 | `flywheel-coordinator` | Flywheel Coordinator | 飛輪流動協調 | - | brain | 0.9 |
 | `primal-detector` | Primal Detector | 八原語偵測 | - | brain | 1.0 |
+| `persona-router` | Persona Router | 人格路由 | - | brain | 1.0 |
+| `drift-detector` | Drift Detector | 漂移偵測 | - | brain | 0.8 |
+| `okr-router` | OKR Router | 八卦路由 | - | brain | 0.9 |
 | `fact-correction` | Fact Correction | 事實覆寫引擎 | - | brain | 0.9 |
 
 ### pulse — Pulse 生命力
@@ -144,6 +147,7 @@
 | `skills-registry` | Skills Registry | 技能資料庫 | - | data-bus | 1.2 |
 | `registry` | Registry | RegistryDB SQLite | - | data-bus | 1.0 |
 | `skill-synapse` | Skill Synapse | 突觸網路 | - | data-bus | 0.9 |
+| `blueprint-reader` | Blueprint Reader | 藍圖解析器 | - | data-bus | 0.9 |
 
 ### evolution — Evolution 演化
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -176,7 +180,7 @@
 ### nightly — Nightly 夜間
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
 |----|------|------|-----|--------|------|
-| `nightly` | Nightly Pipeline | 29 步夜間整合 | Yes | - | 2.2 |
+| `nightly` | Nightly Pipeline | 30+ 步夜間整合 | Yes | - | 2.2 |
 | `morphenix` | Morphenix | 演化提案 | - | nightly | 1.0 |
 | `curiosity-router` | Curiosity Router | 好奇心路由 | - | nightly | 0.9 |
 | `exploration-bridge` | Exploration Bridge | 探索橋接 | - | nightly | 0.9 |
@@ -257,6 +261,9 @@
 | `brain` | `response-synthesizer` | 回覆合成 |
 | `brain` | `flywheel-coordinator` | 飛輪流動 |
 | `brain` | `primal-detector` | 八原語偵測 |
+| `brain` | `persona-router` | 人格路由 |
+| `brain` | `drift-detector` | 漂移檢查 |
+| `brain` | `okr-router` | 八卦路由 |
 | `brain` | `fact-correction` | 事實更正偵測+覆寫 |
 | `multi-agent-executor` | `llm-router` | 多部門 API 呼叫 |
 
@@ -294,6 +301,8 @@
 | `governance` | `perception` | 感知 |
 | `governance` | `cognitive-receipt` | 認知收據 |
 | `footprint` | `cognitive-receipt` | 認知追蹤格式定義 |
+| `governor` | `immunity` | learn() 抗體學習 |
+| `governor` | `dendritic-scorer` | immunity 未解決→健康分數 |
 
 ### Evolution 內部連線（internal）
 | Source | Target | 說明 |
@@ -350,6 +359,7 @@
 | `data-bus` | `skills-registry` | Store 路由 |
 | `data-bus` | `registry` | Store 路由 |
 | `data-bus` | `skill-synapse` | Store 路由 |
+| `data-bus` | `blueprint-reader` | Store 路由 |
 | `data-bus` | `data-watchdog` | 監控注入 |
 | `data-bus` | `pulse-db` | Store 路由 |
 | `data-bus` | `group-context-db` | Store 路由 |
@@ -373,6 +383,11 @@
 | Source | Target | 說明 |
 |--------|--------|------|
 | `primal-detector` | `vector-index` | 八原語語義匹配 |
+| `primal-detector` | `skill-router` | 原語加分 |
+| `primal-detector` | `reflex-router` | 原語 boost |
+| `primal-detector` | `persona-router` | 原語調適 |
+| `primal-detector` | `okr-router` | 原語路由 |
+| `drift-detector` | `memory` | 覺察日誌 |
 | `fact-correction` | `memory` | 記憶覆寫（supersede） |
 | `fact-correction` | `vector-index` | 向量廢棄標記（mark_deprecated） |
 | `fact-correction` | `llm-router` | Haiku 矛盾判斷 |
@@ -538,6 +553,7 @@
 | 版本 | 日期 | 變更 |
 |------|------|------|
 | v1.0 | 2026-03-14 | 初版建立，59 節點 91 連線 |
+| v1.11 | 2026-03-17 | 3D 心智圖全面同步：nightly 群組標籤統一為「30+ 步」；3D 新增 `observatory`+`cognitive-receipt` 節點（+2）、+7 連線（認知可觀測性閉環）；修正 multi-agent-executor/response-synthesizer/flywheel-coordinator 群組歸屬 multiagent→agent；SYNC_META 升級 v1.10；115 節點 218 連線（3D）|
 | v1.10 | 2026-03-17 | 認知可觀測性：gov 群組新增 `cognitive-receipt` 節點；doctor 群組新增 `observatory` 節點（+2 節點）；新增 7 條連線（governance→cognitive-receipt internal、footprint→cognitive-receipt internal、doctor→observatory internal、brain→footprint cross 認知追蹤、footprint→data-bus cross JSONL 寫入、observatory→footprint cross 讀取、observatory→service-health cross 健康狀態）；120 節點 240 連線 |
 | v1.9 | 2026-03-17 | DNA-Inspired 品質回饋閉環：新增 3 條跨群組連線（metacognition→pulse-db 品質旗標寫入、morphenix→pulse-db 品質旗標讀取、response-synthesizer→multi-agent-executor DNA 交叉重組）；response-synthesizer 描述更新為「DNA 交叉重組合成」；118 節點 233 連線 |
 | v1.14 | 2026-03-16 | Memory Reset 一鍵重置：doctor 群組新增 `memory-reset` 節點（+1 節點 +1 內部連線 doctor→memory-reset）；memory-reset 為 CLI 工具，涵蓋 25 個持久層的原子重置；3D 心智圖同步；統計修正（v1.9-v1.13 遺漏）；118 節點 230 連線 |
