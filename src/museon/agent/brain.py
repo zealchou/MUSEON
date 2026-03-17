@@ -1478,6 +1478,9 @@ class MuseonBrain:
             except Exception as e:
                 logger.warning(f"SkillHub draft 解析失敗: {e}")
 
+        # P5: 偵測用戶休息/免打擾意圖 → 發布 USER_QUIET_MODE 事件
+        self._detect_and_publish_quiet_mode(content)
+
         # v9.0: 返回 BrainResponse（含 artifacts）
         try:
             from museon.gateway.message import BrainResponse
@@ -5494,6 +5497,81 @@ class MuseonBrain:
         )
         # 命中 1 個以上關鍵字即觸發
         return match_count >= 1
+
+    # ── P5: 用戶休息/免打擾意圖偵測 ──
+
+    # 休息關鍵字 + 時間指示詞（需兩者同時命中）
+    _REST_KEYWORDS = [
+        "休息", "睡覺", "睡了", "去睡", "晚安", "good night", "goodnight",
+        "先睡", "要睡了", "去休息", "不聊了", "明天再",
+    ]
+    _WAKE_TIME_PATTERN = None  # lazy init
+
+    def _detect_and_publish_quiet_mode(self, content: str) -> None:
+        """偵測用戶休息意圖並發布 USER_QUIET_MODE 事件.
+
+        觸發條件：訊息包含休息關鍵字。
+        效果：計算 suppress_until 時間戳並發布事件，ProactiveBridge 收到後
+              在免打擾期間內不推送任何主動訊息。
+
+        解析時間線索：
+          「明天早上七點」→ 隔天 07:00
+          「明天」→ 隔天 08:00（預設）
+          無時間線索 → 6 小時後
+        """
+        if not content or len(content) < 2:
+            return
+
+        content_lower = content.lower()
+        has_rest = any(kw in content_lower for kw in self._REST_KEYWORDS)
+        if not has_rest:
+            return
+
+        import re
+        import time as _time
+
+        suppress_until = None
+
+        # 嘗試解析「明天X點」「明天早上X點」
+        time_match = re.search(
+            r"明天.*?(?:早上|上午|下午|晚上)?.*?(\d{1,2})\s*(?:點|:00|時)",
+            content,
+        )
+        if time_match:
+            hour = int(time_match.group(1))
+            # 粗略處理「下午」
+            if "下午" in content and hour < 12:
+                hour += 12
+            tomorrow = datetime.now().replace(
+                hour=hour, minute=0, second=0, microsecond=0
+            )
+            if tomorrow <= datetime.now():
+                tomorrow += timedelta(days=1)
+            suppress_until = tomorrow.timestamp()
+        elif "明天" in content:
+            tomorrow_8am = (datetime.now() + timedelta(days=1)).replace(
+                hour=8, minute=0, second=0, microsecond=0
+            )
+            suppress_until = tomorrow_8am.timestamp()
+        else:
+            # 無時間線索 → 預設靜默 6 小時
+            suppress_until = _time.time() + 6 * 3600
+
+        if suppress_until and self._event_bus:
+            try:
+                from museon.core.event_bus import USER_QUIET_MODE
+                self._event_bus.publish(USER_QUIET_MODE, {
+                    "suppress_until": suppress_until,
+                    "trigger_text": content[:100],
+                })
+                readable = datetime.fromtimestamp(suppress_until).strftime(
+                    "%Y-%m-%d %H:%M"
+                )
+                logger.info(
+                    f"[P5] 用戶休息意圖偵測命中，免打擾到 {readable}"
+                )
+            except Exception as e:
+                logger.debug(f"[P5] 免打擾事件發布失敗: {e}")
 
     async def _handle_fact_correction(
         self,
