@@ -3,6 +3,8 @@
 import json
 import logging
 import os
+import tempfile
+import threading
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -69,6 +71,9 @@ class BudgetMonitor:
                 logger.warning(f"Cannot create budget dir: {e}")
                 self._budget_dir = None
 
+        # Thread safety (P2: brain asyncio + nightly thread 並發保護)
+        self._lock = threading.Lock()
+
         # Track usage by day
         self._today = datetime.now().date()
         self._daily_usage = 0
@@ -113,15 +118,26 @@ class BudgetMonitor:
             return {"days": {}, "monthly_totals": self._empty_totals()}
 
     def _save_month_data(self, data: Dict[str, Any], d: Optional[date] = None) -> None:
-        """Save a month's usage data to disk."""
+        """Save a month's usage data to disk (P2: atomic write via tmp→rename)."""
         fp = self._month_file(d)
         if not fp:
             return
         try:
-            fp.write_text(
-                json.dumps(data, ensure_ascii=False, indent=2),
-                encoding="utf-8",
+            content = json.dumps(data, ensure_ascii=False, indent=2)
+            # 原子寫入：tmp 檔案 → rename（同目錄內 rename 是原子操作）
+            fd, tmp_path = tempfile.mkstemp(
+                dir=str(fp.parent), suffix=".tmp", prefix=".budget_"
             )
+            try:
+                os.write(fd, content.encode("utf-8"))
+                os.fsync(fd)
+                os.close(fd)
+                os.replace(tmp_path, str(fp))
+            except Exception:
+                os.close(fd) if not os.get_inheritable(fd) else None
+                if os.path.exists(tmp_path):
+                    os.unlink(tmp_path)
+                raise
         except OSError as e:
             logger.warning(f"Failed to save budget data to {fp}: {e}")
 
@@ -185,13 +201,13 @@ class BudgetMonitor:
         data = self._load_month_data()
         today_key = self._today.isoformat()
 
-        # Save today's entry
+        # Save today's entry (P0 fix: 加入 opus — v4 三層路由)
         data["days"][today_key] = {
             "input_tokens": self._input_tokens,
             "output_tokens": self._output_tokens,
             "total_tokens": self._daily_usage,
             "models": {
-                cat: dict(self._model_usage[cat]) for cat in ("sonnet", "haiku")
+                cat: dict(self._model_usage[cat]) for cat in ("opus", "sonnet", "haiku")
             },
         }
 
@@ -279,28 +295,29 @@ class BudgetMonitor:
         self, input_tokens: int, output_tokens: int, model: Optional[str] = None
     ) -> None:
         """
-        Track token usage and persist to disk.
+        Track token usage and persist to disk (P2: thread-safe).
 
         Args:
             input_tokens: Number of input tokens used
             output_tokens: Number of output tokens used
             model: Model ID (e.g., "claude-sonnet-4-20250514")
         """
-        self._reset_if_new_day()
+        with self._lock:
+            self._reset_if_new_day()
 
-        total_tokens = input_tokens + output_tokens
-        self._daily_usage += total_tokens
-        self._input_tokens += input_tokens
-        self._output_tokens += output_tokens
+            total_tokens = input_tokens + output_tokens
+            self._daily_usage += total_tokens
+            self._input_tokens += input_tokens
+            self._output_tokens += output_tokens
 
-        # Per-model tracking
-        category = self._classify_model(model)
-        self._model_usage[category]["input"] += input_tokens
-        self._model_usage[category]["output"] += output_tokens
-        self._model_usage[category]["calls"] += 1
+            # Per-model tracking
+            category = self._classify_model(model)
+            self._model_usage[category]["input"] += input_tokens
+            self._model_usage[category]["output"] += output_tokens
+            self._model_usage[category]["calls"] += 1
 
-        # Persist to disk
-        self._persist_today()
+            # Persist to disk
+            self._persist_today()
 
     # ── Query methods ────────────────────────────────────
 
