@@ -529,7 +529,9 @@ class MuseonBrain:
             )
             if detect_self_check_intent(content):
                 logger.info("自我檢查意圖偵測命中")
-                import asyncio
+                # asyncio 已在模組頂層 import（line 37），不可在此重複 import
+                # 否則 Python 編譯器會將 asyncio 標記為 process() 的 local 變數，
+                # 遮蔽全域 import，導致其他分支 UnboundLocalError
                 import concurrent.futures
 
                 def _run_diagnosis():
@@ -6274,12 +6276,11 @@ class MuseonBrain:
                                 })
                                 existing_facts.add(snippet)
                                 break  # 每個 category 每次最多新增一筆
+            # 限制 L1 上限 50 筆，超過移除最舊的
+            if len(facts) > 50:
+                layers["L1_facts"] = facts[-50:]
         else:
             logger.info("MemoryGate: suppress_facts=True, 跳過 L1 事實寫入")
-
-        # 限制 L1 上限 50 筆，超過移除最舊的
-        if len(facts) > 50:
-            layers["L1_facts"] = facts[-50:]
 
         # ── L2: 人格特質 ──
         traits = layers.setdefault("L2_personality", [])

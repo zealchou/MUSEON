@@ -5140,7 +5140,7 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                 if _exp_data and _findings and not any(t in _findings for t in _NO_VALUE_TAGS):
                     try:
                         from museon.pulse.exploration_report import generate_html_report
-                        _reports_dir = Path(app.state.data_dir) / "_system" / "reports"
+                        _reports_dir = Path(brain.data_dir) / "_system" / "reports"
                         _reports_dir.mkdir(parents=True, exist_ok=True)
                         _report_path = generate_html_report(_exp_data, _reports_dir)
                         _owner_id = int(adapter.trusted_user_ids[0])
@@ -5401,7 +5401,7 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                 if _exp_data and _findings and not any(t in _findings for t in _NO_VALUE_TAGS):
                     try:
                         from museon.pulse.exploration_report import generate_html_report
-                        _reports_dir = Path(app.state.data_dir) / "_system" / "reports"
+                        _reports_dir = Path(brain.data_dir) / "_system" / "reports"
                         _reports_dir.mkdir(parents=True, exist_ok=True)
                         _report_path = generate_html_report(_exp_data, _reports_dir)
                         _owner_id = int(adapter.trusted_user_ids[0])
