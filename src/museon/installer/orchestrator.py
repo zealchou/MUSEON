@@ -4,11 +4,14 @@
 串聯所有安裝步驟，收集結果，產出報告
 """
 
+import logging
 import subprocess
 from pathlib import Path
 from typing import List, Optional
 
 from .models import InstallConfig, StepResult, StepStatus
+
+logger = logging.getLogger(__name__)
 
 
 class InstallerOrchestrator:
@@ -136,15 +139,18 @@ class InstallerOrchestrator:
         Returns:
             下一步指引訊息
         """
-        # 用標準化的 step_name 比對
+        # 用 STEP_LABELS 標準值比對（避免硬編碼漂移）
+        daemon_label = self.STEP_LABELS["_step_daemon"]
+        electron_label = self.STEP_LABELS["_step_electron"]
+
         daemon_ok = any(
-            r.step_name in ("Daemon", "啟動 daemon", "啟動")
+            r.step_name == daemon_label
             and r.status == StepStatus.SUCCESS
             for r in self.results
         )
 
         dashboard_installed = any(
-            r.step_name in ("Electron", "安裝 Dashboard")
+            r.step_name == electron_label
             and r.status == StepStatus.SUCCESS
             for r in self.results
         )
@@ -190,7 +196,7 @@ class InstallerOrchestrator:
                     stderr=subprocess.DEVNULL,
                 )
             except OSError as e:
-                pass  # degraded: subprocess
+                logger.debug("degraded: open dashboard failed: %s", e)
 
     # ─── 各步驟實作（可被 mock 覆蓋） ───
 
@@ -438,7 +444,7 @@ class InstallerOrchestrator:
                 if "museon" in mcp_servers:
                     mcp_configured = True
             except Exception as e:
-                pass  # degraded: JSON
+                logger.debug("degraded: parse claude settings JSON: %s", e)
 
         msg = "Claude Code CLI 已驗證，MAX 訂閱方案就緒"
         if mcp_configured:
@@ -494,7 +500,7 @@ class InstallerOrchestrator:
                 capture_output=True, timeout=10,
             )
         except Exception as e:
-            pass  # degraded: docker
+            logger.debug("degraded: docker logout ghcr.io: %s", e)
 
         try:
             from museon.tools.tool_registry import ToolRegistry, INSTALL_ORDER
@@ -507,9 +513,8 @@ class InstallerOrchestrator:
             failed = []
 
             for name in INSTALL_ORDER:
-                # 使用 _states dict 直接取得 ToolState
-                state = registry._states.get(name)
-                if state and state.installed:
+                tool_info = registry.get_tool(name)
+                if tool_info and tool_info.get("installed"):
                     installed += 1
                     continue
 
@@ -533,7 +538,7 @@ class InstallerOrchestrator:
             try:
                 registry.check_all_health()
             except Exception as e:
-                pass  # degraded: health check
+                logger.debug("degraded: tool health check: %s", e)
 
             total = len(INSTALL_ORDER)
 
