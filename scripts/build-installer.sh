@@ -221,6 +221,14 @@ if [ -f "dist/Install-MUSEON.command" ]; then
         echo "  ⚠️  V16: Federation 同步模組缺失"
     fi
 
+    # V17: Namespace 一致性（import/module path 不可殘留 museclaw）
+    if grep -rqE "(from|import)\s+museclaw" "$PROJECT_DIR/src/museon/" 2>/dev/null; then
+        echo "  ❌ V17: src/ 中有 import/from museclaw 殘留！"
+        VERIFY_PASS=false
+    else
+        echo "  ✅ V17: Namespace 一致性確認（無 museclaw import）"
+    fi
+
     # V10: 安裝檔大小不超過 200MB（防止意外打包大型模型/工具）
     SIZE_KB=$(du -k "dist/Install-MUSEON.command" | cut -f1)
     SIZE_MB=$((SIZE_KB / 1024))

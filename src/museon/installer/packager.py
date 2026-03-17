@@ -5,6 +5,7 @@
 """
 
 import base64
+import logging
 import os
 import shutil
 import stat
@@ -12,6 +13,8 @@ import tarfile
 import tempfile
 from pathlib import Path
 from typing import Dict, List
+
+logger = logging.getLogger(__name__)
 
 from .models import StepResult, StepStatus
 
@@ -374,7 +377,7 @@ class InstallerPackager:
             if size_mb > self.MAX_FILE_SIZE_MB:
                 return True
         except OSError as e:
-            pass  # degraded: file stat
+            logger.debug("degraded: file stat for %s: %s", path, e)
         return False
 
 
