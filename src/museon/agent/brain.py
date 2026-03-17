@@ -13,7 +13,8 @@
   Step 3    : DNA27 反射路由器 — RoutingSignal（靈魂先行）
   Step 3.1  : DNA27 路由 — 匹配技能（受 RoutingSignal 調節）
   Step 3.5  : 計畫引擎觸發檢查
-  Step 4    : 組建系統提示詞（DNA27 + 技能 + ANIMA + 記憶 + 承諾 + 直覺）
+  Step 3.65 : 百合引擎 — 軍師四象限路由（lord_profile → BaiheDecision）
+  Step 4    : 組建系統提示詞（DNA27 + 技能 + ANIMA + 記憶 + 承諾 + 直覺 + 百合）
   Step 5    : 載入對話歷史
   Step 6    : 呼叫 Claude API
   Step 6.2  : ★ PreCognition — 回應前元認知審查（大腦層級）
@@ -820,6 +821,44 @@ class MuseonBrain:
             except Exception as e:
                 logger.warning(f"SubAgent 結果收集失敗: {e}")
 
+        # ── Step 3.65: 百合引擎 — 軍師四象限路由 ──
+        baihe_context = ""
+        try:
+            _lord_path = self.data_dir / "_system" / "lord_profile.json"
+            if _lord_path.exists():
+                _lord_raw = _lord_path.read_text(encoding="utf-8")
+                _lord_profile = json.loads(_lord_raw)
+                # 取得 user_primals（如果有）
+                _user_primals = None
+                if anima_user:
+                    _raw_primals = anima_user.get("eight_primals", {})
+                    _user_primals = {
+                        k: int(v.get("level", 0)) if isinstance(v, dict) else 0
+                        for k, v in _raw_primals.items()
+                    }
+                from museon.agent.persona_router import PersonaRouter
+                _baihe_router = PersonaRouter()
+                _baihe_decision = _baihe_router.baihe_decide(
+                    content, {}, _lord_profile, _user_primals,
+                )
+                baihe_context = self._format_baihe_guidance(_baihe_decision)
+
+                # 更新進諫冷卻（如果本輪進諫了）
+                if _baihe_decision.should_advise:
+                    _cooldown = _lord_profile.setdefault("advise_cooldown", {})
+                    _cooldown["last_advise_ts"] = datetime.now().isoformat()
+                    _cooldown["session_advise_count"] = (
+                        _cooldown.get("session_advise_count", 0) + 1
+                    )
+                    _tmp = _lord_path.with_suffix(".json.tmp")
+                    _tmp.write_text(
+                        json.dumps(_lord_profile, ensure_ascii=False, indent=2) + "\n",
+                        encoding="utf-8",
+                    )
+                    _tmp.replace(_lord_path)
+        except Exception as e:
+            logger.debug(f"Step 3.65 百合引擎降級: {e}")
+
         # ── Step 3.8: 深度反射 — 所有路徑前執行（dispatch 之前）──
         # 必須在 dispatch 評估前跑，確保強反射訊號能覆蓋 dispatch 決策
         reflection_note = self._deep_reflect(
@@ -873,6 +912,7 @@ class MuseonBrain:
                 routing_signal=routing_signal,
                 commitment_context=commitment_context,
                 reflection_note=reflection_note,
+                baihe_context=baihe_context,
             )
 
             # ── SkillHub: 注入 skill_builder 上下文 ──
@@ -1979,6 +2019,7 @@ class MuseonBrain:
         routing_signal: Optional[Any] = None,
         commitment_context: str = "",
         reflection_note: str = "",
+        baihe_context: str = "",
     ) -> str:
         """組建完整系統提示詞（TokenBudget 預算制）.
 
@@ -2039,6 +2080,12 @@ class MuseonBrain:
             )
             if commitment_fitted:
                 sections.append(commitment_fitted)
+
+        # ── Zone: buffer — 百合引擎軍師定位 ──
+        if baihe_context:
+            baihe_fitted = budget.fit_text_to_zone("buffer", baihe_context)
+            if baihe_fitted:
+                sections.append(baihe_fitted)
 
         # ── Zone: buffer — 治理自覺（Phase 3a）──
         if self._governor and not budget.is_exhausted("buffer"):
@@ -5500,6 +5547,59 @@ class MuseonBrain:
         "programming": ["程式", "Python", "code", "函數", "bug", "API", "debug", "deploy", "script"],
         "emotional_regulation": ["情緒", "壓力", "焦慮", "關係", "衝突", "煩", "累", "崩潰"],
     }
+
+    # ─── 百合引擎輔助方法 ─────────────────────────────
+
+    def _format_baihe_guidance(self, decision) -> str:
+        """將 BaiheDecision 格式化為 system prompt 注入文字."""
+        quadrant_labels = {
+            "Q1": "全力輔助 — 強項+主動，做配角",
+            "Q2": "精準補位 — 弱項+主動，白話翻譯",
+            "Q3": "主動進諫 — 弱項+未問，溫和提醒",
+            "Q4": "靜默觀察 — 強項+未問，只記不說",
+        }
+        expression_labels = {
+            "parallel_staff": "並肩參謀：跟隨主人節奏，不搶方向盤",
+            "translator": "白話翻譯官：用比喻和生活語言解釋專業概念",
+            "loyal_counsel": "忠臣進諫：先同理再建議，附退路",
+            "silent_presence": "存在不干擾：極簡回應",
+        }
+        advise_tier_labels = {
+            0: "靜默",
+            1: "暗示（一句帶過）",
+            2: "明示（結構化指出）",
+            3: "直諫（附風險預警）",
+        }
+
+        q = decision.quadrant.value   # Q1/Q2/Q3/Q4
+        lines = [
+            "## 軍師定位（百合引擎）",
+            f"- 象限：{q} {quadrant_labels.get(q, '')}",
+            f"- 領域：{decision.topic_domain.value}",
+            f"- 表達模式：{expression_labels.get(decision.expression_mode, decision.expression_mode)}",
+        ]
+
+        if decision.should_advise and decision.advise_tier > 0:
+            lines.append(
+                f"- 進諫等級：Tier {decision.advise_tier} "
+                f"{advise_tier_labels.get(decision.advise_tier, '')}"
+            )
+
+        # 象限指引
+        if q == "Q1":
+            lines.append("- 必做：配合主人思路延伸，不搶結論")
+            lines.append("- 禁止：主導方向、替主人做決定")
+        elif q == "Q2":
+            lines.append("- 必做：白話比喻優先，每個專詞都解釋")
+            lines.append("- 禁止：丟術語不解釋、假設主人懂")
+        elif q == "Q3":
+            lines.append("- 必做：先同理再建議，附退路")
+            lines.append("- 禁止：急著糾正、語氣居高臨下")
+        elif q == "Q4":
+            lines.append("- 必做：簡短確認即可")
+            lines.append("- 禁止：主動展開分析")
+
+        return "\n".join(lines)
 
     def _observe_lord(self, content: str, skill_names: List[str]) -> None:
         """被動觀察主人訊息，更新 lord_profile.json 的領域 evidence_count.

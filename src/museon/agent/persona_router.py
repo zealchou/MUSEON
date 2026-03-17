@@ -1,13 +1,22 @@
 """
-MUSEON Persona Router v1.0
-AI 人格一致性決策引擎 - 三維座標定位回應策略
+MUSEON Persona Router v2.0 — 百合引擎（Baihe Engine）
+AI 人格一致性決策引擎 - 4D+1 座標定位回應策略
+
+v1.0: 三維路由（Energy × Intent → Persona）
+v2.0: 四維+一路由（Energy × Intent × TopicDomain × LordInitiated → BaiheQuadrant）
+      + 四階進諫階梯 + 冷卻機制
 """
 
 import json
+import logging
+from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import Any, Dict, List, Tuple, Optional
 from enum import Enum
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+
+logger = logging.getLogger(__name__)
+
 
 class EnergyLevel(Enum):
     LOW = "L"
@@ -15,17 +24,35 @@ class EnergyLevel(Enum):
     HIGH = "H"
     HIGH_PRODUCTIVE = "H+"
 
+
 class IntentType(Enum):
     EMOTIONAL = "T1"
     TECHNICAL = "T2"
     DECISION = "T3"
     EXPLORATION = "T4"
 
+
 class PersonaMode(Enum):
     FRIEND = "F"
     COACH = "C"
     ADVISOR = "A"
     EXPERT = "E"
+
+
+class TopicDomain(Enum):
+    """主人領域強弱項分類"""
+    STRENGTH = "strength"
+    WEAKNESS = "weakness"
+    UNKNOWN = "unknown"
+
+
+class BaiheQuadrant(Enum):
+    """百合四象限 — 捭闔決策空間"""
+    FULL_SUPPORT = "Q1"       # 強項+主動 → 全力輔助（不搶方向盤）
+    PRECISE_ASSIST = "Q2"     # 弱項+主動 → 精準補位（白話翻譯）
+    PROACTIVE_ADVISE = "Q3"   # 弱項+未問 → 主動進諫（溫和提醒）
+    SILENT_OBSERVE = "Q4"     # 強項+未問 → 靜默觀察（只記不說）
+
 
 @dataclass
 class ResponseConfig:
@@ -37,6 +64,18 @@ class ResponseConfig:
     required_elements: List[str]
     forbidden_elements: List[str]
     tone_guidance: str
+
+
+@dataclass
+class BaiheDecision:
+    """百合引擎完整決策輸出"""
+    quadrant: BaiheQuadrant
+    topic_domain: TopicDomain
+    lord_initiated: bool
+    response_config: ResponseConfig
+    advise_tier: int = 0            # 0=靜默, 1=暗示, 2=明示, 3=直諫
+    should_advise: bool = False
+    expression_mode: str = "silent_presence"  # parallel_staff/translator/loyal_counsel/silent_presence
 
 class PersonaRouter:
     """人格路由決策引擎"""
@@ -306,6 +345,210 @@ class PersonaRouter:
                 tone_guidance="允許完整推演，以有用為邊界"
             )
     
+    # ═══════════════════════════════════════════
+    # 百合引擎（Baihe Engine）— v2.0 四象限軍師路由
+    # ═══════════════════════════════════════════
+
+    def detect_topic_domain(
+        self, message: str, lord_profile: Dict[str, Any],
+    ) -> TopicDomain:
+        """根據 lord_profile 的 domain_keywords 偵測訊息涉及的領域強弱項."""
+        domains = lord_profile.get("domains", {})
+        keywords_map = lord_profile.get("domain_keywords", {})
+        msg_lower = message.lower()
+
+        matched: List[Tuple[str, str]] = []  # [(domain_key, classification)]
+        for domain_key, kw_list in keywords_map.items():
+            for kw in kw_list:
+                if kw.lower() in msg_lower:
+                    classification = (
+                        domains.get(domain_key, {}).get("classification", "unknown")
+                    )
+                    matched.append((domain_key, classification))
+                    break
+
+        if not matched:
+            return TopicDomain.UNKNOWN
+
+        # 多領域命中時：weakness 優先（弱項補位更重要）
+        classifications = [c for _, c in matched]
+        if "weakness" in classifications:
+            return TopicDomain.WEAKNESS
+        if "strength" in classifications:
+            return TopicDomain.STRENGTH
+        return TopicDomain.UNKNOWN
+
+    def detect_lord_initiated(self, message: str) -> bool:
+        """判斷主人是否主動發問（True=主動問, False=被動/陳述）."""
+        # 問號結尾 = 主動問
+        stripped = message.strip()
+        if stripped.endswith("?") or stripped.endswith("？"):
+            return True
+        # 求助型關鍵字
+        ask_signals = [
+            "怎麼", "如何", "可以嗎", "教我", "幫我", "能不能",
+            "是什麼", "為什麼", "有沒有", "什麼是", "可不可以",
+        ]
+        msg_lower = message.lower()
+        return any(s in msg_lower for s in ask_signals)
+
+    def baihe_decide(
+        self,
+        message: str,
+        context: Dict[str, Any],
+        lord_profile: Dict[str, Any],
+        user_primals: Optional[Dict[str, int]] = None,
+    ) -> BaiheDecision:
+        """百合引擎完整決策 — 4D+1 路由.
+
+        四維度：Energy × Intent × TopicDomain × LordInitiated
+        +1：進諫階梯（僅 Q3 啟動）
+
+        Returns:
+            BaiheDecision 包含象限、表達模式、進諫等級
+        """
+        # 1. 基礎 3D 路由
+        energy = self.detect_energy(message, context)
+        intents = self.detect_intent(message)
+        primary_intent = self.resolve_mixed_intents(intents, energy)
+        persona = self.determine_persona(energy, primary_intent)
+        config = self._build_response_config(energy, primary_intent, persona)
+
+        if user_primals:
+            self._apply_primal_adjustments(config, user_primals)
+
+        # 2. 新增維度：領域偵測 + 主動判斷
+        topic_domain = self.detect_topic_domain(message, lord_profile)
+        lord_initiated = self.detect_lord_initiated(message)
+
+        # 3. 四象限決策
+        if lord_initiated:
+            if topic_domain == TopicDomain.WEAKNESS:
+                quadrant = BaiheQuadrant.PRECISE_ASSIST    # Q2
+            else:
+                quadrant = BaiheQuadrant.FULL_SUPPORT      # Q1（強項或未知）
+        else:
+            if topic_domain == TopicDomain.WEAKNESS:
+                quadrant = BaiheQuadrant.PROACTIVE_ADVISE   # Q3
+            else:
+                quadrant = BaiheQuadrant.SILENT_OBSERVE     # Q4（強項或未知）
+
+        # 4. 進諫階梯（僅 Q3）
+        should_advise = False
+        advise_tier = 0
+        if quadrant == BaiheQuadrant.PROACTIVE_ADVISE:
+            should_advise, advise_tier, _reason = self._check_advise_ladder(
+                lord_profile, energy,
+            )
+            if not should_advise:
+                # 進諫條件不成立 → 降級為靜默觀察
+                quadrant = BaiheQuadrant.SILENT_OBSERVE
+
+        # 5. 表達模式映射
+        expression_map = {
+            BaiheQuadrant.FULL_SUPPORT: "parallel_staff",     # 並肩參謀
+            BaiheQuadrant.PRECISE_ASSIST: "translator",       # 白話翻譯官
+            BaiheQuadrant.PROACTIVE_ADVISE: "loyal_counsel",  # 忠臣進諫
+            BaiheQuadrant.SILENT_OBSERVE: "silent_presence",  # 存在不干擾
+        }
+        expression_mode = expression_map[quadrant]
+
+        # 6. 調整 ResponseConfig
+        self._apply_baihe_adjustment(config, quadrant, should_advise)
+
+        logger.info(
+            f"百合引擎: {quadrant.value}({quadrant.name}) "
+            f"domain={topic_domain.value} initiated={lord_initiated} "
+            f"advise_tier={advise_tier} expression={expression_mode}"
+        )
+
+        return BaiheDecision(
+            quadrant=quadrant,
+            topic_domain=topic_domain,
+            lord_initiated=lord_initiated,
+            response_config=config,
+            advise_tier=advise_tier,
+            should_advise=should_advise,
+            expression_mode=expression_mode,
+        )
+
+    def _check_advise_ladder(
+        self, lord_profile: Dict[str, Any], energy: EnergyLevel,
+    ) -> Tuple[bool, int, str]:
+        """四階進諫階梯 + 冷卻檢查.
+
+        Returns:
+            (should_advise, tier, reason)
+            tier: 0=靜默, 1=暗示, 2=明示, 3=直諫
+        """
+        cooldown = lord_profile.get("advise_cooldown", {})
+        max_per_session = cooldown.get("max_per_session", 3)
+        session_count = cooldown.get("session_advise_count", 0)
+        cooldown_minutes = cooldown.get("cooldown_minutes", 30)
+        last_ts = cooldown.get("last_advise_ts")
+
+        # 冷卻中 → 不進諫
+        if last_ts:
+            try:
+                last_dt = datetime.fromisoformat(last_ts)
+                elapsed = (datetime.now() - last_dt).total_seconds() / 60
+                if elapsed < cooldown_minutes:
+                    return (False, 0, f"冷卻中（{elapsed:.0f}/{cooldown_minutes}分鐘）")
+            except (ValueError, TypeError):
+                pass
+
+        # 達到 session 上限
+        if session_count >= max_per_session:
+            return (False, 0, f"已達 session 上限（{session_count}/{max_per_session}）")
+
+        # 低能量 → 不進諫（能量守護）
+        if energy == EnergyLevel.LOW:
+            return (False, 0, "低能量，不進諫")
+
+        # 中能量 → Tier 1 暗示
+        if energy == EnergyLevel.MEDIUM:
+            return (True, 1, "中能量，暗示")
+
+        # 高能量 → Tier 2 明示 / Tier 3 直諫（根據重複盲點）
+        # TODO Phase 1+: 加入重複盲點偵測，目前固定 Tier 2
+        return (True, 2, "高能量，明示")
+
+    def _apply_baihe_adjustment(
+        self,
+        config: ResponseConfig,
+        quadrant: BaiheQuadrant,
+        should_advise: bool,
+    ) -> None:
+        """根據百合象限調整 ResponseConfig（就地修改）."""
+        if quadrant == BaiheQuadrant.FULL_SUPPORT:
+            # Q1: 不搶方向盤，跟隨主人節奏
+            config.tone_guidance += "，以配角姿態輔助，不主導方向"
+            if "不搶主人結論" not in config.forbidden_elements:
+                config.forbidden_elements.append("不搶主人結論")
+
+        elif quadrant == BaiheQuadrant.PRECISE_ASSIST:
+            # Q2: 白話翻譯，降低焦慮
+            config.tone_guidance += "，用白話翻譯專業概念，降低焦慮感"
+            if "白話比喻優先" not in config.required_elements:
+                config.required_elements.insert(0, "白話比喻優先")
+
+        elif quadrant == BaiheQuadrant.PROACTIVE_ADVISE and should_advise:
+            # Q3: 溫和進諫
+            config.tone_guidance += "，溫和提醒潛在風險，附退路"
+            if "先同理再建議" not in config.required_elements:
+                config.required_elements.insert(0, "先同理再建議")
+            if "保留主人退路" not in config.required_elements:
+                config.required_elements.append("保留主人退路")
+
+        elif quadrant == BaiheQuadrant.SILENT_OBSERVE:
+            # Q4: 極簡存在
+            if config.max_length is not None:
+                config.max_length = min(config.max_length, 80)
+            else:
+                config.max_length = 80
+            config.tone_guidance = "極簡回應，存在但不干擾"
+            config.forbidden_elements.append("主動展開分析")
+
     def check_kernel_constraints(self, response_draft: str) -> List[str]:
         """檢查是否違反核心護欄"""
         violations = []

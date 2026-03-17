@@ -654,7 +654,8 @@
 | 模組 | 操作 | 函數 | 說明 | 鎖 |
 |------|------|------|------|-----|
 | `agent/brain.py` | **W** | `_observe_lord()` | 每次 _observe_user() 尾部呼叫，根據關鍵字匹配遞增 evidence_count | 原子寫入（tmp→rename） |
-| `agent/persona_router.py` | **R** | `baihe_decide()` | Phase 1 百合引擎讀取，判斷四象限路由 | — |
+| `agent/brain.py` | **R** | `Step 3.65` | 百合引擎路由：讀取 lord_profile 傳入 baihe_decide()，進諫時原子寫回 cooldown | 原子寫入（tmp→rename） |
+| `agent/persona_router.py` | **R** | `baihe_decide()` | 接收 brain.py 傳入的 lord_profile dict，純讀不寫 | — |
 
 #### 資料格式
 
@@ -722,6 +723,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-17 | v1.18 | 軍師架構 Phase 1：#29 lord_profile.json 讀取者確認——brain.py Step 3.65 百合引擎讀取+進諫冷卻寫回，persona_router.py `baihe_decide()` 純讀（接收 dict 參數）；寫入者 1→2（brain.py: _observe_lord + Step 3.65 cooldown）；危險度維持 🟢（同一寫入者 brain.py 的兩個路徑） |
 | 2026-03-17 | v1.17 | 軍師架構 Phase 0：新增 #29 lord_profile.json（🟢 危險度，單寫入者 brain.py `_observe_lord()`，原子寫入）；讀取者預留 persona_router.py（Phase 1）；共享狀態 28→29 個 |
 | 2026-03-17 | v1.16 | 認知可觀測性：新增 #28 cognitive_trace.jsonl（FootprintStore.trace_cognitive() 寫入、SystemAudit Skill Doctor + Observatory 讀取）；#25 JSONL 審計日誌群新增 cognitive_trace.jsonl 條目（21→22 檔）；共享狀態 27→28 個 |
 | 2026-03-16 | v1.15 | Memory Reset 一鍵重置工具：新增 `doctor/memory_reset.py` 為 25 個共享狀態的重置者（#1 ANIMA_MC.json boss/self_awareness 重置、#2 ANIMA_USER.json 全量重置、#3 PULSE.md 模板重建、#9 Qdrant 全部 collections 刪除重建、#25 JSONL 審計日誌群清空、#26 記憶 Markdown 刪除、#27 fact_corrections.jsonl 清空）；同時重置 PulseDB 全表、sessions、crystals/synapses/scout_queue、diary/drift、eval/workflow_state.db、guardian/footprints/activity_log、nightly_state/outward；預設 dry-run 安全模式 |
