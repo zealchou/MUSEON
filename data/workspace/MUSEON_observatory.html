@@ -494,16 +494,22 @@ function checkGateway() {
       gwOnline = true;
       document.getElementById('gw-dot').className = 'status-dot online';
       document.getElementById('gw-label').textContent = `Gateway 在線`;
-      // 從 health 端點取得 skill doctor 資料
-      if (data.checks) {
-        renderDoctorFromHealth(data);
-      }
+      // 連上後立即抓 Doctor 資料
+      fetchDoctorCheck();
     })
     .catch(() => {
       gwOnline = false;
       document.getElementById('gw-dot').className = 'status-dot offline';
       document.getElementById('gw-label').textContent = 'Gateway 離線';
     });
+}
+
+function fetchDoctorCheck() {
+  if (!gwOnline) return;
+  fetch(`${GW_API}/api/doctor/skill-doctor`, { signal: AbortSignal.timeout(15000) })
+    .then(r => r.ok ? r.json() : null)
+    .then(data => { if (data) renderDoctorFromSkillDoctor(data); })
+    .catch(() => {});
 }
 
 // ── WebSocket ──
@@ -549,30 +555,22 @@ function fetchFootprints() {
 }
 
 // ── Render: Skill Doctor ──
-function renderDoctorFromHealth(healthData) {
+function renderDoctorFromSkillDoctor(data) {
   const grid = document.getElementById('doctor-grid');
-  if (!healthData.checks || !Array.isArray(healthData.checks)) {
-    grid.innerHTML = '<div class="empty-state">無 Doctor 資料</div>';
+  if (!data.checks || !Array.isArray(data.checks) || data.checks.length === 0) {
+    grid.innerHTML = '<div class="empty-state">無 Skill Doctor 資料</div>';
     return;
   }
-  // 篩選 SD: 開頭的檢查項 + Skills 索引
-  const sdChecks = healthData.checks.filter(c =>
-    c.name && (c.name.startsWith('SD:') || c.name === 'Skills 索引')
-  );
-  if (sdChecks.length === 0) {
-    grid.innerHTML = '<div class="empty-state">無 Skill Doctor 資料（需執行審計）</div>';
-    return;
-  }
-  grid.innerHTML = sdChecks.map(c => {
+  grid.innerHTML = data.checks.map(c => {
     const dotClass = c.status === 'ok' ? 'ok' : c.status === 'warning' ? 'warn' : c.status === 'critical' ? 'crit' : 'unknown';
-    return `<div class="doctor-item"><div class="doctor-dot ${dotClass}"></div><span>${c.name}: ${c.message}</span></div>`;
+    const shortName = c.name.replace(/^SD[:：]\s*/, '');
+    return `<div class="doctor-item"><div class="doctor-dot ${dotClass}"></div><span>${shortName}: ${c.message}</span></div>`;
   }).join('');
-  updateHealthBars(sdChecks);
+  updateHealthBars(data.checks);
 }
 
 function renderDoctorFromWS(data) {
-  // WS 格式可能不同，先嘗試相同結構
-  if (data.checks) renderDoctorFromHealth(data);
+  if (data.checks) renderDoctorFromSkillDoctor(data);
 }
 
 function updateHealthBars(checks) {
@@ -658,19 +656,23 @@ function renderRoutingHistory() {
   }
   container.innerHTML = skillUsageLog.map(entry => {
     const time = formatTime(entry.timestamp);
-    const skills = (entry.skills || []).map(s => {
+    // 相容兩種欄位名稱：skills (array) 或 target (逗號分隔字串)
+    const skillArr = entry.skills || (entry.target ? entry.target.split(',').map(s => s.trim()).filter(Boolean) : []);
+    const skills = skillArr.map(s => {
       skillCounts[s] = (skillCounts[s] || 0) + 1;
       return `<span class="skill-tag" onclick="highlightSkill('${s}')">${s}</span>`;
     }).join('');
-    const msg = escapeHtml((entry.trigger_message || '').substring(0, 60));
+    const rawMsg = entry.trigger_message || entry.params_summary || '';
+    const msg = escapeHtml(rawMsg.substring(0, 60));
+    const hasMore = rawMsg.length > 60;
     return `
       <div class="card">
         <div class="card-header">
-          <span class="card-title" style="font-size:13px">${msg}${(entry.trigger_message||'').length > 60 ? '…' : ''}</span>
+          <span class="card-title" style="font-size:13px">${msg}${hasMore ? '…' : ''}</span>
           <span class="card-time">${time}</span>
         </div>
         <div>${skills}</div>
-        <div style="font-size:11px;color:var(--mist);margin-top:4px">回應長度: ${entry.response_length || 0}</div>
+        <div style="font-size:11px;color:var(--mist);margin-top:4px">回應長度: ${entry.response_length || entry.result_summary?.length || 0}</div>
       </div>
     `;
   }).join('');
