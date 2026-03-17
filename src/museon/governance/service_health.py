@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import shutil
 import subprocess
 import time
 from dataclasses import dataclass, field
@@ -141,6 +142,14 @@ class ServiceHealthMonitor:
         self._started_at = 0.0
         self._check_task: Optional[asyncio.Task] = None
         self._check_in_flight = False
+
+        # P2 加固：啟動時偵測外部命令可用性，缺失時降級（不重複報錯）
+        self._has_lsof = shutil.which("lsof") is not None
+        self._has_docker = shutil.which("docker") is not None
+        if not self._has_lsof:
+            logger.warning("ServiceHealthMonitor: lsof 不可用，process restart 將被跳過")
+        if not self._has_docker:
+            logger.warning("ServiceHealthMonitor: docker 不可用，docker restart 將被跳過")
 
     async def start(self) -> None:
         """啟動健康監控。"""
@@ -382,6 +391,9 @@ class ServiceHealthMonitor:
         self, name: str, config: ServiceConfig, state: ServiceState
     ) -> None:
         """透過 port 找 PID → kill → 等待進程管理器（launchd 等）重啟。"""
+        if not self._has_lsof:
+            return  # 已在啟動時警告過，不重複報錯
+
         now = time.time()
 
         try:
@@ -472,6 +484,9 @@ class ServiceHealthMonitor:
         self, name: str, config: ServiceConfig, state: ServiceState
     ) -> None:
         """Docker 容器重啟。"""
+        if not self._has_docker:
+            return  # 已在啟動時警告過，不重複報錯
+
         now = time.time()
 
         logger.info(f"[{name}] attempting docker restart...")
