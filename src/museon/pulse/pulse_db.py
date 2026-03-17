@@ -131,7 +131,29 @@ class PulseDB(DataContract):
             self._local.conn.execute("PRAGMA journal_mode=WAL")
             self._local.conn.execute("PRAGMA busy_timeout=60000")
             self._local.conn.execute("PRAGMA foreign_keys=ON")
+            # P0 加固：設定 WAL 自動 checkpoint 閾值（1000 頁 ≈ 4MB）
+            # 防止 WAL 無限增長導致損壞風險增加
+            self._local.conn.execute("PRAGMA wal_autocheckpoint=1000")
         return self._local.conn
+
+    def wal_checkpoint(self) -> Dict[str, Any]:
+        """手動觸發 WAL checkpoint（供 Nightly/健康檢查呼叫）.
+
+        Returns:
+            {"status": "ok"/"error", "busy": int, "log": int, "checkpointed": int}
+        """
+        try:
+            conn = self._get_conn()
+            result = conn.execute("PRAGMA wal_checkpoint(PASSIVE)").fetchone()
+            return {
+                "status": "ok",
+                "busy": result[0],
+                "log": result[1],
+                "checkpointed": result[2],
+            }
+        except Exception as e:
+            logger.warning(f"PulseDB: wal_checkpoint failed: {e}")
+            return {"status": "error", "error": str(e)}
 
     def _init_db(self) -> None:
         conn = self._get_conn()
@@ -882,8 +904,13 @@ class PulseDB(DataContract):
                 return {"id": metacog_id, "created": True}
             except sqlite3.OperationalError as e:
                 if "locked" in str(e) and attempt < 2:
-                    logger.warning(f"PulseDB: add_metacognition locked, retry {attempt+1}/3")
-                    time.sleep(1 + attempt)
+                    # P2 加固：指數退避（1s→3s→7s），降低夜間管線鎖競爭
+                    backoff = (2 ** attempt) - 1 + attempt  # 1, 3, 7
+                    logger.warning(
+                        f"PulseDB: add_metacognition locked, "
+                        f"retry {attempt+1}/3 (backoff={backoff}s)"
+                    )
+                    time.sleep(backoff)
                     continue
                 logger.error(f"PulseDB: add_metacognition failed: {e}")
                 return {"id": metacog_id, "created": False, "error": str(e)}
@@ -891,6 +918,7 @@ class PulseDB(DataContract):
                 logger.error(f"PulseDB: add_metacognition DB error: {e}, reconnecting")
                 self._local.conn = None
                 if attempt < 2:
+                    self._integrity_check()
                     continue
                 return {"id": metacog_id, "created": False, "error": str(e)}
         return {"id": metacog_id, "created": False, "error": "max retries"}
