@@ -171,7 +171,9 @@ class CuriosityRouter:
         queue_file = self._workspace / "_system" / "curiosity" / "question_queue.json"
         try:
             with open(queue_file, "r", encoding="utf-8") as fh:
-                return json.load(fh)
+                raw = json.load(fh)
+                # 相容兩種格式：{"questions": [...]} 或 [...]
+                return raw.get("questions", []) if isinstance(raw, dict) else raw
         except Exception:
             return []
 

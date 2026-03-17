@@ -189,7 +189,9 @@ class ExplorationBridge:
         queue_file = curiosity_dir / "question_queue.json"
         try:
             with open(queue_file, "r", encoding="utf-8") as fh:
-                queue = json.load(fh)
+                raw = json.load(fh)
+                # 相容兩種格式：{"questions": [...]} 或 [...]
+                queue = raw.get("questions", []) if isinstance(raw, dict) else raw
         except Exception:
             queue = []
 

@@ -1074,7 +1074,9 @@ class PulseEngine:
                 if q_path.exists():
                     import json as _json
                     import re as _re
-                    queue = _json.loads(q_path.read_text(encoding="utf-8"))
+                    _raw = _json.loads(q_path.read_text(encoding="utf-8"))
+                    # 相容兩種格式：{"questions": [...]} 或 [...]
+                    queue = _raw.get("questions", []) if isinstance(_raw, dict) else _raw
                     # 非研究型聊天碎片的關鍵詞黑名單
                     _CHAT_BLACKLIST = (
                         "叫什麼", "是誰", "你是", "我是", "早安", "晚安",
@@ -1198,7 +1200,8 @@ class PulseEngine:
                     import json as _json
                     q_path = self._data_dir / "_system" / "curiosity" / "question_queue.json"
                     if q_path.exists():
-                        queue = _json.loads(q_path.read_text(encoding="utf-8"))
+                        _raw2 = _json.loads(q_path.read_text(encoding="utf-8"))
+                        queue = _raw2.get("questions", []) if isinstance(_raw2, dict) else _raw2
                         pending_qs = [
                             i.get("question", "")[:50] for i in queue
                             if isinstance(i, dict) and i.get("status") == "pending"

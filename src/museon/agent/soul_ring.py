@@ -1321,12 +1321,16 @@ class RingDepositor:
                 "prevention": "待制定",
             }
 
-        # 偵測使用者明確指出錯誤的模式
+        # 偵測使用者明確指出 MUSEON 回覆有誤的模式
+        # 收窄關鍵詞：移除「有問題」「不對」等中文日常用語，
+        # 只保留明確針對 AI 回覆的指正（需含「你」前綴或明確糾正語氣）
         error_indicators = [
-            "錯了", "不對", "搞錯", "誤解", "你弄錯", "這不是",
-            "你搞錯", "不正確", "有問題", "你誤會",
+            "你錯了", "你搞錯", "你弄錯", "你誤會", "你誤解",
+            "你說的不對", "你說的不正確", "這不是我說的",
+            "你理解錯", "你搞混", "你記錯",
         ]
-        if any(kw in user_content for kw in error_indicators):
+        # 至少 10 字才觸發（排除單純的「你錯了」短句碰巧出現）
+        if len(user_content) >= 10 and any(kw in user_content for kw in error_indicators):
             return {
                 "ring_type": "failure_lesson",
                 "entry_type": "event",
