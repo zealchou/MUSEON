@@ -5481,6 +5481,97 @@ class MuseonBrain:
         else:
             self._save_anima_user(anima_user)
 
+        # ── 11. 主人領域畫像觀察（軍師架構 Phase 0）──
+        try:
+            self._observe_lord(content, skill_names or [])
+        except Exception as e:
+            logger.debug(f"lord_profile 觀察降級: {e}")
+
+    # ═══════════════════════════════════════════
+    # 主人領域畫像觀察（lord_profile.json — 軍師架構基礎層）
+    # ═══════════════════════════════════════════
+
+    # 領域關鍵字表（與 lord_profile.json 的 domain_keywords 對齊）
+    _LORD_DOMAIN_KEYWORDS: Dict[str, list] = {
+        "business_strategy": ["策略", "商業", "市場", "定位", "獲利", "競爭", "商模", "佈局", "利基", "護城河"],
+        "consultant_sales": ["銷售", "客戶", "成交", "提案", "顧問", "說服", "異議", "轉換", "簽約"],
+        "brand_design": ["品牌", "設計", "視覺", "美感", "識別", "色彩", "排版", "Logo"],
+        "ai_architecture": ["AI", "模組", "架構", "系統", "引擎", "Agent", "Skill", "pipeline"],
+        "programming": ["程式", "Python", "code", "函數", "bug", "API", "debug", "deploy", "script"],
+        "emotional_regulation": ["情緒", "壓力", "焦慮", "關係", "衝突", "煩", "累", "崩潰"],
+    }
+
+    def _observe_lord(self, content: str, skill_names: List[str]) -> None:
+        """被動觀察主人訊息，更新 lord_profile.json 的領域 evidence_count.
+
+        設計原則：
+        - 只做「觀察記錄」，不做任何決策（決策留給 Phase 1 百合引擎）
+        - 原子寫入，失敗不影響核心流程
+        - 與 ANIMA_USER 完全解耦（不讀不寫 ANIMA_USER）
+        """
+        lord_path = self.data_dir / "_system" / "lord_profile.json"
+        if not lord_path.exists():
+            return
+
+        # ── 1. 關鍵字匹配：偵測訊息涉及哪些領域 ──
+        matched_domains: List[str] = []
+        content_lower = content.lower()
+        for domain, keywords in self._LORD_DOMAIN_KEYWORDS.items():
+            for kw in keywords:
+                if kw.lower() in content_lower:
+                    matched_domains.append(domain)
+                    break  # 每個領域只算一次
+
+        # Skill 名稱也可輔助判斷（例如 master-strategy → business_strategy）
+        _skill_domain_map = {
+            "master-strategy": "business_strategy",
+            "ssa-consultant": "consultant_sales",
+            "brand-identity": "brand_design",
+            "aesthetic-sense": "brand_design",
+            "market-core": "business_strategy",
+            "resonance": "emotional_regulation",
+            "dharma": "emotional_regulation",
+        }
+        for sn in skill_names:
+            mapped = _skill_domain_map.get(sn)
+            if mapped and mapped not in matched_domains:
+                matched_domains.append(mapped)
+
+        if not matched_domains:
+            return  # 沒有可觀察的領域信號
+
+        # ── 2. 原子更新 lord_profile.json ──
+        try:
+            raw = lord_path.read_text(encoding="utf-8")
+            profile = json.loads(raw)
+        except (json.JSONDecodeError, OSError):
+            logger.warning("lord_profile.json 讀取失敗，跳過觀察")
+            return
+
+        domains = profile.get("domains", {})
+        updated = False
+        for d in matched_domains:
+            if d in domains:
+                domains[d]["evidence_count"] = domains[d].get("evidence_count", 0) + 1
+                updated = True
+
+        if not updated:
+            return
+
+        # 原子寫入（先寫 .tmp 再 rename）
+        tmp_path = lord_path.with_suffix(".json.tmp")
+        try:
+            tmp_path.write_text(
+                json.dumps(profile, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8",
+            )
+            tmp_path.replace(lord_path)
+            logger.debug(f"lord_profile 觀察更新: {matched_domains}")
+        except OSError as e:
+            logger.warning(f"lord_profile 原子寫入失敗: {e}")
+            if tmp_path.exists():
+                tmp_path.unlink(missing_ok=True)
+
     # ─── 事實更正偵測與處理（P0 記憶事實覆寫）────────────────
 
     # 事實更正關鍵字模式（純 CPU 啟發式偵測）

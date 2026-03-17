@@ -1,4 +1,4 @@
-# MUSEON 系統拓撲圖 v1.11
+# MUSEON 系統拓撲圖 v1.12
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
@@ -148,6 +148,7 @@
 | `registry` | Registry | RegistryDB SQLite | - | data-bus | 1.0 |
 | `skill-synapse` | Skill Synapse | 突觸網路 | - | data-bus | 0.9 |
 | `blueprint-reader` | Blueprint Reader | 藍圖解析器 | - | data-bus | 0.9 |
+| `lord-profile` | Lord Profile | 主人領域畫像 | - | data-bus | 0.8 |
 
 ### evolution — Evolution 演化
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -466,6 +467,8 @@
 | `footprint` | `data-bus` | cognitive_trace.jsonl 寫入 |
 | `observatory` | `footprint` | 讀取 cognitive_trace.jsonl 視覺化 |
 | `observatory` | `service-health` | 讀取健康狀態 |
+| `brain` | `lord-profile` | _observe_lord() 領域畫像寫入 |
+| `lord-profile` | `persona-router` | 百合引擎讀取領域畫像（Phase 1） |
 
 ### Installer 內部連線（internal）
 | Source | Target | 說明 |
@@ -553,6 +556,7 @@
 | 版本 | 日期 | 變更 |
 |------|------|------|
 | v1.0 | 2026-03-14 | 初版建立，59 節點 91 連線 |
+| v1.12 | 2026-03-17 | 軍師架構 Phase 0：data 群組新增 `lord-profile` 節點（+1 節點）；新增 2 條 cross 連線（brain→lord-profile 領域畫像寫入、lord-profile→persona-router 百合引擎讀取）；116 節點 220 連線 |
 | v1.11 | 2026-03-17 | 3D 心智圖全面同步：nightly 群組標籤統一為「30+ 步」；3D 新增 `observatory`+`cognitive-receipt` 節點（+2）、+7 連線（認知可觀測性閉環）；修正 multi-agent-executor/response-synthesizer/flywheel-coordinator 群組歸屬 multiagent→agent；SYNC_META 升級 v1.10；115 節點 218 連線（3D）|
 | v1.10 | 2026-03-17 | 認知可觀測性：gov 群組新增 `cognitive-receipt` 節點；doctor 群組新增 `observatory` 節點（+2 節點）；新增 7 條連線（governance→cognitive-receipt internal、footprint→cognitive-receipt internal、doctor→observatory internal、brain→footprint cross 認知追蹤、footprint→data-bus cross JSONL 寫入、observatory→footprint cross 讀取、observatory→service-health cross 健康狀態）；120 節點 240 連線 |
 | v1.9 | 2026-03-17 | DNA-Inspired 品質回饋閉環：新增 3 條跨群組連線（metacognition→pulse-db 品質旗標寫入、morphenix→pulse-db 品質旗標讀取、response-synthesizer→multi-agent-executor DNA 交叉重組）；response-synthesizer 描述更新為「DNA 交叉重組合成」；118 節點 233 連線 |

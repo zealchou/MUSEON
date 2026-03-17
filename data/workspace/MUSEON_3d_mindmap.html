@@ -262,7 +262,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 //  SYNC META — 拓撲同步狀態
 // ═══════════════════════════════════════
 const SYNC_META = {
-  topologyVersion: 'v1.10',
+  topologyVersion: 'v1.11',
   syncDate: '2026-03-17',
   nodeCount: 0, // auto-calculated below
   linkCount: 0  // auto-calculated below
@@ -446,6 +446,8 @@ const nodes = [
   {id:"fact-correction",label:"Fact Correction",zh:"事實覆寫引擎",group:"agent",p:"brain",r:0.9},
   // P4: 藍圖解析器
   {id:"blueprint-reader",label:"Blueprint Reader",zh:"藍圖解析器",group:"data",r:0.9},
+  // 主人領域畫像
+  {id:"lord-profile",label:"Lord Profile",zh:"主人領域畫像",group:"data",p:"data-bus",r:0.8},
 ];
 
 const links = [
@@ -695,6 +697,9 @@ const links = [
   {source:"footprint",target:"data-bus",label:"cognitive_trace.jsonl 寫入",type:"cross"},
   {source:"observatory",target:"footprint",label:"讀取 cognitive_trace.jsonl",type:"cross"},
   {source:"observatory",target:"service-health",label:"讀取健康狀態",type:"cross"},
+  // ── Lord Profile 領域畫像 ──
+  {source:"brain",target:"lord-profile",label:"_observe_lord() 領域畫像寫入",type:"cross"},
+  {source:"lord-profile",target:"persona-router",label:"百合引擎讀取領域畫像",type:"cross"},
 ];
 
 const nodeMap = {};

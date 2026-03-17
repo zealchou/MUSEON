@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.16
+# Joint Map — 共享可變狀態接頭圖 v1.17
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -39,6 +39,7 @@
 | 26 | memory/{date}/{ch}.md | 🟡 | 3 | 5 | 無 | [→](#26-memorydatechmd) |
 | 27 | fact_corrections.jsonl | 🟢 | 1 | 3 | 無(append) | [→](#27-fact_correctionsjsonl) |
 | 28 | cognitive_trace.jsonl | 🟢 | 1 | 2 | 無(append) | [→](#28-cognitive_tracejsonl) |
+| 29 | lord_profile.json | 🟢 | 1 | 1+ | 原子寫 | [→](#29-lord_profilejson) |
 
 > **危險度定義**：🔴 多寫入者+高扇出+格式不一致 | 🟡 多寫入者或高扇出 | 🟢 單寫入者+低扇出
 
@@ -643,6 +644,30 @@
 
 ---
 
+### 29. lord_profile.json
+
+**路徑**：`data/_system/lord_profile.json`
+**用途**：主人領域強弱項畫像（軍師架構基礎層）——記錄 Zeal 在 6 大領域的專長等級、分類（strength/weakness/unknown）、觀察證據計數
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| `agent/brain.py` | **W** | `_observe_lord()` | 每次 _observe_user() 尾部呼叫，根據關鍵字匹配遞增 evidence_count | 原子寫入（tmp→rename） |
+| `agent/persona_router.py` | **R** | `baihe_decide()` | Phase 1 百合引擎讀取，判斷四象限路由 | — |
+
+#### 資料格式
+
+```json
+{"version": "1.0", "lord_id": "zeal", "domains": {"business_strategy": {"level": "expert", "confidence": 0.92, "classification": "strength", "evidence_count": 50}, ...}, "domain_keywords": {...}, "advise_cooldown": {"last_advise_ts": null, "cooldown_minutes": 30, "session_advise_count": 0, "max_per_session": 3}}
+```
+
+> **鎖**：原子寫入（.json.tmp → rename），單一寫入者 brain.py
+> **TTL**：永久，不自動清理
+> **設計**：與 ANIMA_USER.json 完全解耦——ANIMA_USER 管「使用者是誰」，lord_profile 管「使用者哪裡強哪裡弱」
+
+---
+
 ## 必須同時修改的模組組（不可分批）
 
 > 修改以下任一模組時，**必須**同時檢查並調整同組所有模組。
@@ -697,6 +722,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-17 | v1.17 | 軍師架構 Phase 0：新增 #29 lord_profile.json（🟢 危險度，單寫入者 brain.py `_observe_lord()`，原子寫入）；讀取者預留 persona_router.py（Phase 1）；共享狀態 28→29 個 |
 | 2026-03-17 | v1.16 | 認知可觀測性：新增 #28 cognitive_trace.jsonl（FootprintStore.trace_cognitive() 寫入、SystemAudit Skill Doctor + Observatory 讀取）；#25 JSONL 審計日誌群新增 cognitive_trace.jsonl 條目（21→22 檔）；共享狀態 27→28 個 |
 | 2026-03-16 | v1.15 | Memory Reset 一鍵重置工具：新增 `doctor/memory_reset.py` 為 25 個共享狀態的重置者（#1 ANIMA_MC.json boss/self_awareness 重置、#2 ANIMA_USER.json 全量重置、#3 PULSE.md 模板重建、#9 Qdrant 全部 collections 刪除重建、#25 JSONL 審計日誌群清空、#26 記憶 Markdown 刪除、#27 fact_corrections.jsonl 清空）；同時重置 PulseDB 全表、sessions、crystals/synapses/scout_queue、diary/drift、eval/workflow_state.db、guardian/footprints/activity_log、nightly_state/outward；預設 dry-run 安全模式 |
 | 2026-03-17 | v1.15 | DNA-Inspired 品質回饋閉環：#8 PulseDB 讀取者 11→12（+morphenix_executor `get_quality_flags()`/`get_quality_flag_summary()`）；metacognition 新增 `METACOGNITION_QUALITY_FLAG` 事件發布（verdict=revise 時）；morphenix_executor 夜間管線讀取品質旗標作為演化上下文 |
