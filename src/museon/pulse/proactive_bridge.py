@@ -145,6 +145,10 @@ class ProactiveBridge:
         # 上下文提示（可由外部注入，如排程提醒等）
         self._context_hints: List[str] = []
 
+        # P5: 用戶免打擾（suppress_until）
+        self._suppress_until: Optional[float] = None  # Unix timestamp
+        self._subscribe_quiet_mode()
+
     # ── 判斷邏輯 ──
 
     def is_active_hours(self, now: Optional[datetime] = None) -> bool:
@@ -168,7 +172,7 @@ class ProactiveBridge:
         return self._daily_push_count < limit
 
     def should_push(self, response: str, mode: str = "functional") -> bool:
-        """判斷回覆是否應該推送（非靜默確認 + P2 品質門檻）."""
+        """判斷回覆是否應該推送（非靜默確認 + P2 品質門檻 + P5 角色一致性）."""
         if not response:
             return False
         stripped = response.strip()
@@ -177,6 +181,11 @@ class ProactiveBridge:
             else _cfg("silent_ack_threshold", SILENT_ACK_THRESHOLD)
         )
         if len(stripped) <= threshold:
+            return False
+
+        # P5 品質門檻 0：角色脫軌偵測 — LLM 拒絕 persona 或身份混亂
+        if self._is_identity_confusion(stripped):
+            logger.warning("推送品質門檻攔截：角色脫軌（LLM 拒絕 persona）")
             return False
 
         # P2 品質門檻 1：問句比率 > 50% → 降為靜默（自問自答無價值）
@@ -193,6 +202,31 @@ class ProactiveBridge:
             return False
 
         return True
+
+    @staticmethod
+    def _is_identity_confusion(text: str) -> bool:
+        """偵測 LLM 角色脫軌：拒絕 persona、身份混亂、安全訓練突破.
+
+        當底層模型的安全訓練壓過 system prompt 的 persona 指令時，
+        會產出「我是 Claude / AI 助手 / 不能假扮」之類的拒絕訊息。
+        這些訊息不應推送給用戶。
+        """
+        # 關鍵字組合：必須同時命中「身份宣告」+「拒絕/限制」才算脫軌
+        identity_markers = [
+            "我是 Claude", "我是Claude", "I am Claude", "I'm Claude",
+            "我是一個 AI", "我是一个 AI", "我是 AI 助手", "作為 AI 助手",
+            "作為一個 AI", "作为一个 AI",
+        ]
+        refusal_markers = [
+            "不能假扮", "無法假扮", "不能扮演", "無法扮演",
+            "不能冒充", "無法冒充", "不應該假裝", "不該假裝",
+            "造成誤導", "造成误导", "cannot pretend", "can't pretend",
+            "cannot impersonate", "can't roleplay",
+        ]
+        text_lower = text.lower()
+        has_identity = any(m.lower() in text_lower for m in identity_markers)
+        has_refusal = any(m.lower() in text_lower for m in refusal_markers)
+        return has_identity or has_refusal
 
     def _is_duplicate_push(self, text: str, threshold: float = 0.7) -> bool:
         """用 Jaccard 相似度判斷是否與最近 3 次推送重複."""
@@ -276,6 +310,16 @@ class ProactiveBridge:
                 "pushed": False,
                 "response": "",
                 "reason": "no_brain",
+                "mode": mode,
+            }
+
+        # P5: 用戶免打擾 → 靜默
+        if self.is_quiet_mode():
+            until_str = datetime.fromtimestamp(self._suppress_until).strftime("%H:%M")
+            return {
+                "pushed": False,
+                "response": "",
+                "reason": f"quiet_mode_until_{until_str}",
                 "mode": mode,
             }
 
@@ -497,6 +541,45 @@ class ProactiveBridge:
             )
         except Exception as e:
             logger.debug(f"ProactiveBridge health subscription: {e}")
+
+    # ── P5: 用戶免打擾（Quiet Mode）──
+
+    def _subscribe_quiet_mode(self) -> None:
+        """訂閱 USER_QUIET_MODE → 抑制主動推送直到指定時間."""
+        if not self._event_bus:
+            return
+        try:
+            from museon.core.event_bus import USER_QUIET_MODE
+            self._event_bus.subscribe(
+                USER_QUIET_MODE, self._on_user_quiet_mode
+            )
+        except Exception as e:
+            logger.debug(f"ProactiveBridge quiet mode subscription: {e}")
+
+    def _on_user_quiet_mode(self, data: Optional[Dict] = None) -> None:
+        """處理用戶免打擾事件."""
+        if not data:
+            return
+        until = data.get("suppress_until")
+        if until:
+            self._suppress_until = until
+            readable = datetime.fromtimestamp(until).strftime("%Y-%m-%d %H:%M")
+            logger.info(f"ProactiveBridge: 進入免打擾模式，直到 {readable}")
+
+    def set_quiet_until(self, until_ts: float) -> None:
+        """手動設定免打擾時間（Unix timestamp）."""
+        self._suppress_until = until_ts
+        readable = datetime.fromtimestamp(until_ts).strftime("%Y-%m-%d %H:%M")
+        logger.info(f"ProactiveBridge: 免打擾設定到 {readable}")
+
+    def is_quiet_mode(self) -> bool:
+        """判斷是否在免打擾期間."""
+        if self._suppress_until is None:
+            return False
+        if time.time() >= self._suppress_until:
+            self._suppress_until = None  # 過期自動清除
+            return False
+        return True
 
     def _on_health_score_updated(self, data: Optional[Dict] = None) -> None:
         """根據 Health Score 調整脈搏間隔.

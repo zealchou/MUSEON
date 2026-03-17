@@ -174,6 +174,9 @@ WIKI_PUBLISHED = "WIKI_PUBLISHED"                          # Wiki 已發布
 # EXT-12: 使用者反饋
 USER_FEEDBACK_SIGNAL = "USER_FEEDBACK_SIGNAL"              # 使用者反饋信號
 
+# P5: 用戶免打擾
+USER_QUIET_MODE = "USER_QUIET_MODE"                        # 用戶要求免打擾（suppress_until: float）
+
 # EXT-07: Dify 排程
 DIFY_WORKFLOW_TRIGGERED = "DIFY_WORKFLOW_TRIGGERED"        # Dify 工作流觸發
 DIFY_WORKFLOW_COMPLETED = "DIFY_WORKFLOW_COMPLETED"        # Dify 工作流完成
