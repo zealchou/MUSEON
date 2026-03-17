@@ -3182,6 +3182,22 @@ class NightlyPipeline:
             except Exception as e:
                 logger.debug(f"[NIGHTLY] Auto-register group_context failed: {e}")
 
+        # WorkflowEngine（工作流狀態 SQLite）
+        wf_path = self._workspace / "_system" / "wee" / "workflow_state.db"
+        if wf_path.exists():
+            try:
+                from museon.workflow.workflow_engine import WorkflowEngine
+                wf_engine = WorkflowEngine(workspace=self._workspace)
+                spec = wf_engine.store_spec() if hasattr(wf_engine, "store_spec") else None
+                bus.register("workflow_state_db", wf_engine, spec)
+                # 順便清理過期 executions（已歸檔工作流的 90 天以上紀錄）
+                if hasattr(wf_engine, "cleanup_old_executions"):
+                    cleanup_result = wf_engine.cleanup_old_executions(days=90)
+                    if cleanup_result.get("deleted_executions", 0) > 0:
+                        logger.info(f"[NIGHTLY] WorkflowEngine cleanup: {cleanup_result}")
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] Auto-register workflow_state_db failed: {e}")
+
     def _step_data_watchdog(self) -> Dict:
         """Step 29: DataWatchdog — 資料層健康監控、空間預警、Dead Write 偵測.
 

@@ -1357,7 +1357,7 @@ class MorphenixExecutor:
             from museon.agent.knowledge_lattice import KnowledgeLattice
             lattice_dir = self._workspace / "lattice"
             if lattice_dir.exists():
-                return KnowledgeLattice(workspace=self._workspace)
+                return KnowledgeLattice(data_dir=str(self._workspace))
         except Exception as e:
             logger.debug(f"KnowledgeLattice not available: {e}")
         return None
