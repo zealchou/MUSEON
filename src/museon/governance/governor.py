@@ -162,6 +162,7 @@ class Governor:
         self._event_bus: Any = None           # Phase 3d: EventBus 引用
         self._growth_driver: Any = None       # Phase 3b: ANIMA 成長驅動
         self._prev_health_tier: Optional[HealthTier] = None  # Phase 3d: 健康等級變化偵測
+        self._workspace: Optional[Path] = Path(data_dir) if data_dir else None  # Morphenix 執行用
 
         # ─── Dendritic Layer: VIGIL EmoBank 健康分數 ───
         self._dendritic: Any = None
@@ -176,7 +177,7 @@ class Governor:
             )
             logger.info("Governor: ImmuneMemoryBank loaded")
         except Exception as e:
-            logger.debug(f"Governor: ImmuneMemoryBank not available: {e}")
+            logger.warning(f"Governor: ImmuneMemoryBank not available: {e}")
 
         try:
             from .autonomic import AutonomicLayer
@@ -185,7 +186,7 @@ class Governor:
             )
             logger.info("Governor: AutonomicLayer loaded")
         except Exception as e:
-            logger.debug(f"Governor: AutonomicLayer not available: {e}")
+            logger.warning(f"Governor: AutonomicLayer not available: {e}")
 
         # ─── P2: Incident 回調（PulseDB 橋接）───
         self._on_incident_callback: Optional[Callable] = None
@@ -266,7 +267,7 @@ class Governor:
             self._dendritic = DendriticScorer(event_bus=self._event_bus)
             logger.info("  樹突 ✓ DendriticScorer active")
         except Exception as e:
-            logger.debug(f"  樹突 ⚠ DendriticScorer not available: {e}")
+            logger.warning(f"  樹突 ⚠ DendriticScorer not available: {e}")
 
         # 生命徵象: 啟動 VitalSignsMonitor
         try:

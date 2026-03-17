@@ -335,9 +335,16 @@ class ServiceHealthMonitor:
                 return ServiceStatus.UNHEALTHY
 
         except urllib.error.URLError as e:
-            state.last_error = f"connection error: {e.reason}"
+            # urllib 把 socket.timeout 包裝成 URLError(reason=socket.timeout(...))
+            # 必須在此分辨 timeout vs 其他連線錯誤
+            reason = getattr(e, "reason", None)
+            if isinstance(reason, (TimeoutError, OSError)) and "timed out" in str(reason):
+                state.last_error = f"timeout after {config.timeout_s}s"
+            else:
+                state.last_error = f"connection error: {e.reason}"
             return ServiceStatus.UNHEALTHY
-        except TimeoutError:
+        except (TimeoutError, asyncio.TimeoutError):
+            # asyncio.to_thread 層級的 timeout（罕見但可能）
             state.last_error = f"timeout after {config.timeout_s}s"
             return ServiceStatus.UNHEALTHY
         except Exception as e:
