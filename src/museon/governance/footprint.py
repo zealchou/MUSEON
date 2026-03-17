@@ -239,6 +239,10 @@ class FootprintStore(DataContract):
         """取得最近的 L3 演化記錄."""
         return self._read_recent(self._evolution_path, limit)
 
+    def get_recent_cognitive(self, limit: int = 50) -> List[Dict[str, Any]]:
+        """取得最近的認知回執."""
+        return self._read_recent(self._cognitive_path, limit)
+
     # ─── 清理方法（由 NightlyPipeline 呼叫）────
 
     def cleanup(self) -> Dict[str, int]:

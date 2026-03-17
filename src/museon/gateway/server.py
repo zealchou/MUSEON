@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 from fastapi import Body, FastAPI, Request, HTTPException, Header
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 import uvicorn
 
@@ -261,6 +262,14 @@ def create_app() -> FastAPI:
         title="MUSEON Gateway",
         description="24/7 Life Central - MUSEON Brain routing and session management",
         version="0.2.0",
+    )
+
+    # ─── CORS（Observatory / Electron 跨域存取）───
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
 
     # ─── Telegram adapter state ───
@@ -578,6 +587,40 @@ def create_app() -> FastAPI:
                 pass
             return result
         except Exception as e:
+            return {"error": str(e), "overall": "unknown", "checks": []}
+
+    @app.get("/api/doctor/skill-doctor")
+    async def doctor_skill_doctor() -> Dict[str, Any]:
+        """執行 Skill Doctor 雙層健檢（結構 + 認知）."""
+        try:
+            import asyncio
+            from museon.doctor.system_audit import SystemAuditor
+
+            brain = _get_brain()
+            auditor = SystemAuditor(
+                museon_home=str(Path(brain.data_dir).parent),
+            )
+            checks = await asyncio.to_thread(auditor._audit_skill_doctor)
+            result_checks = []
+            for c in checks:
+                result_checks.append({
+                    "name": c.name,
+                    "status": c.status,
+                    "message": c.message,
+                    "details": c.details if hasattr(c, "details") else {},
+                    "repairable": False,
+                    "repair_action": "",
+                })
+            ok_count = sum(1 for c in result_checks if c["status"] == "ok")
+            total = len(result_checks)
+            overall = "ok" if ok_count == total else "warning" if ok_count >= total // 2 else "critical"
+            return {
+                "timestamp": datetime.now().isoformat(),
+                "overall": overall,
+                "checks": result_checks,
+            }
+        except Exception as e:
+            logger.error("skill-doctor error: %s", e, exc_info=True)
             return {"error": str(e), "overall": "unknown", "checks": []}
 
     @app.post("/api/doctor/repair")
@@ -1195,6 +1238,40 @@ def create_app() -> FastAPI:
             }
         except Exception as e:
             return {"error": str(e), "haiku": {}, "sonnet": {}, "savings": {}}
+
+    # ── Footprint API（認知回執 / 決策軌跡 / Skill 使用）──
+
+    @app.get("/api/footprints/cognitive_trace")
+    async def footprints_cognitive(limit: int = 20) -> list:
+        """取得最近的認知回執（CognitiveReceipt）."""
+        try:
+            brain = _get_brain()
+            return brain._footprint.get_recent_cognitive(limit)
+        except Exception as e:
+            logger.warning("footprints_cognitive error: %s", e)
+            return []
+
+    @app.get("/api/footprints/decisions")
+    async def footprints_decisions(limit: int = 20) -> list:
+        """取得最近的決策軌跡（DecisionTrace）."""
+        try:
+            brain = _get_brain()
+            return brain._footprint.get_recent_decisions(limit)
+        except Exception as e:
+            logger.warning("footprints_decisions error: %s", e)
+            return []
+
+    @app.get("/api/footprints/skill_usage")
+    async def footprints_skill_usage(limit: int = 50) -> list:
+        """取得最近的動作足跡（含 Skill 使用資訊）."""
+        try:
+            brain = _get_brain()
+            actions = brain._footprint.get_recent_actions(limit)
+            # 篩選有 skill 資訊的動作
+            return [a for a in actions if a.get("action_type") == "skill_routing" or a.get("skills")]
+        except Exception as e:
+            logger.warning("footprints_skill_usage error: %s", e)
+            return []
 
     # ── Token 節省明細 API ──
 
