@@ -293,32 +293,51 @@ class DiagnosisPipeline:
 
     @staticmethod
     def _extract_json(text: str) -> Dict[str, Any]:
-        """從 LLM 回應中提取 JSON."""
-        # 嘗試找 JSON 區塊
+        """從 LLM 回應中提取 JSON.
+
+        P3 加固：四層 fallback 策略 + 大小寫不敏感 regex。
+        """
         import re
-        json_match = re.search(r"```json\s*(.*?)\s*```", text, re.DOTALL)
+
+        # 策略 1：找 ```json ... ``` 或 ``` ... ``` 區塊（大小寫不敏感）
+        json_match = re.search(
+            r"```(?:json|JSON)?\s*\n?(.*?)\s*```", text, re.DOTALL
+        )
         if json_match:
-            try:
-                return json.loads(json_match.group(1))
-            except json.JSONDecodeError as e:
-                logger.debug(f"[DIAGNOSIS_PIPELINE] JSON failed (degraded): {e}")
+            candidate = json_match.group(1).strip()
+            if candidate.startswith("{"):
+                try:
+                    return json.loads(candidate)
+                except json.JSONDecodeError as e:
+                    logger.debug(f"DiagnosisPipeline: 策略1 JSON 解析失敗: {e}")
 
-        # 嘗試直接解析
+        # 策略 2：直接解析整段文字
         try:
-            return json.loads(text)
-        except json.JSONDecodeError as e:
-            logger.debug(f"[DIAGNOSIS_PIPELINE] JSON failed (degraded): {e}")
+            return json.loads(text.strip())
+        except json.JSONDecodeError:
+            pass
 
-        # 嘗試找任何 JSON 物件
+        # 策略 3：找最外層 { ... } 區塊（貪婪匹配）
         brace_start = text.find("{")
         brace_end = text.rfind("}")
         if brace_start >= 0 and brace_end > brace_start:
             try:
                 return json.loads(text[brace_start:brace_end + 1])
-            except json.JSONDecodeError as e:
-                logger.debug(f"[DIAGNOSIS_PIPELINE] JSON failed (degraded): {e}")
+            except json.JSONDecodeError:
+                pass
 
-        logger.warning("DiagnosisPipeline: 無法從 LLM 回應中提取 JSON")
+        # 策略 4：逐行掃描，找第一個可解析的 JSON 物件
+        for line in text.splitlines():
+            line = line.strip()
+            if line.startswith("{"):
+                try:
+                    return json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+
+        logger.warning(
+            "DiagnosisPipeline: 四層 JSON 提取均失敗，降級為純文字根因"
+        )
         return {"root_cause": text[:500], "proposals": []}
 
     @staticmethod

@@ -1506,11 +1506,24 @@ class SystemAuditor:
         """檢查免疫記憶"""
         immunity_path = self.data_dir / "_system" / "immunity.json"
         if not immunity_path.exists():
-            return CheckResult(
-                name="免疫記憶",
-                status=CheckStatus.WARNING,
-                message="immunity.json 不存在（尚無免疫記錄）",
-            )
+            # P4 加固：自動建立空免疫記憶結構，避免持續 WARNING
+            try:
+                immunity_path.parent.mkdir(parents=True, exist_ok=True)
+                immunity_path.write_text(
+                    json.dumps({"antibodies": [], "incidents": []}, indent=2),
+                    encoding="utf-8",
+                )
+                return CheckResult(
+                    name="免疫記憶",
+                    status=CheckStatus.OK,
+                    message="immunity.json 已自動建立（空白初始狀態）",
+                )
+            except Exception as e:
+                return CheckResult(
+                    name="免疫記憶",
+                    status=CheckStatus.WARNING,
+                    message=f"immunity.json 不存在且無法自動建立: {e}",
+                )
 
         try:
             data = json.loads(immunity_path.read_text("utf-8"))
