@@ -14,8 +14,10 @@
 
 import json
 import logging
+import os
 import subprocess
 import sys
+import threading
 import time
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta, timezone
@@ -340,15 +342,17 @@ class ToolRegistry:
         self._dir.mkdir(parents=True, exist_ok=True)
         self._state_path = self._dir / "registry.json"
         self._states: Dict[str, ToolState] = {}
+        self._lock = threading.Lock()
         # 追蹤前一次健康狀態（用於偵測變化）
         self._prev_health: Dict[str, bool] = {}
+        self._last_health_detail: Dict = {}
         self._load_states()
         # 首次載入時自動偵測已安裝的工具（純 CPU, 零 Token）
         if auto_detect:
             try:
                 self.auto_detect()
             except Exception as e:
-                logger.debug(f"Auto-detect skipped: {e}")
+                logger.warning(f"Auto-detect failed, tools may not be detected: {e}")
 
     # ── Docker Daemon 管理 ──
 
@@ -536,14 +540,23 @@ class ToolRegistry:
                 self._states[name] = ToolState(name=name)
 
     def _save_states(self) -> None:
-        """持久化狀態到 registry.json."""
-        data = {
-            name: asdict(state) for name, state in self._states.items()
-        }
-        self._state_path.write_text(
-            json.dumps(data, ensure_ascii=False, indent=2),
-            encoding="utf-8",
-        )
+        """持久化狀態到 registry.json（原子寫入 + 線程鎖保護）."""
+        with self._lock:
+            data = {
+                name: asdict(state) for name, state in self._states.items()
+            }
+            content = json.dumps(data, ensure_ascii=False, indent=2)
+            tmp_path = self._state_path.with_suffix(".json.tmp")
+            try:
+                tmp_path.write_text(content, encoding="utf-8")
+                os.replace(str(tmp_path), str(self._state_path))
+            except Exception:
+                # 原子寫入失敗時 fallback 直接寫入
+                try:
+                    tmp_path.unlink(missing_ok=True)
+                except OSError:
+                    pass
+                self._state_path.write_text(content, encoding="utf-8")
 
     # ── 公開 API ──
 
@@ -725,11 +738,17 @@ class ToolRegistry:
                         f"Tool recovered: {config.display_name} ({name})"
                     )
             except Exception as e:
-                logger.debug(f"Tool health event publish failed: {e}")
+                logger.warning(f"Tool health event publish failed: {e}")
 
         self._prev_health[name] = healthy
 
-        return {"name": name, "healthy": healthy}
+        result = {"name": name, "healthy": healthy}
+        # P4: 附加結構化故障資訊（向後相容——新增欄位不刪欄位）
+        detail = getattr(self, "_last_health_detail", None)
+        if detail:
+            result["reason"] = detail.get("reason", "")
+            result["category"] = detail.get("category", "")
+        return result
 
     def check_all_health(self) -> Dict:
         """健康檢查所有已啟用工具."""
@@ -942,7 +961,14 @@ class ToolRegistry:
             return True
 
         except subprocess.TimeoutExpired:
-            logger.error(f"Docker install {name} timed out")
+            logger.error(f"Docker install {name} timed out, cleaning up zombie container")
+            try:
+                subprocess.run(
+                    ["docker", "rm", "-f", f"museon-{name}"],
+                    capture_output=True, timeout=15,
+                )
+            except Exception:
+                pass
             return False
         except FileNotFoundError:
             logger.error("Docker CLI not found — is Docker installed?")
@@ -1194,7 +1220,16 @@ class ToolRegistry:
             return True
 
         except subprocess.TimeoutExpired:
-            logger.error("Firecrawl compose install timed out")
+            logger.error("Firecrawl compose install timed out, cleaning up")
+            try:
+                compose_file = self._dir / "firecrawl" / "docker-compose.yml"
+                if compose_file.exists():
+                    subprocess.run(
+                        ["docker", "compose", "-f", str(compose_file), "down"],
+                        capture_output=True, timeout=30,
+                    )
+            except Exception:
+                pass
             return False
         except Exception as e:
             logger.error(f"Firecrawl compose error: {e}")
@@ -1246,23 +1281,41 @@ class ToolRegistry:
             return False
 
     def _check_tool_health(self, name: str, config: ToolConfig) -> bool:
-        """檢查工具健康狀態."""
+        """檢查工具健康狀態（回傳 bool，細節存入 _last_health_detail）."""
+        detail = self._check_tool_health_detail(name, config)
+        self._last_health_detail = detail
+        return detail["healthy"]
+
+    def _check_tool_health_detail(self, name: str, config: ToolConfig) -> Dict:
+        """檢查工具健康狀態，回傳結構化故障資訊.
+
+        Returns:
+            {"healthy": bool, "reason": str, "category": str}
+            category: healthy | not_installed | docker_stopped | service_error | network_error | binary_missing
+        """
         if not config.health_url:
             # 無常駐服務的工具：檢查是否安裝
             if config.install_type == "docker":
-                return self._check_docker_running(name)
+                running = self._check_docker_running(name)
+                if running:
+                    return {"healthy": True, "reason": "", "category": "healthy"}
+                return {"healthy": False, "reason": f"Docker container museon-{name} not running", "category": "docker_stopped"}
             elif config.install_type == "compose":
-                return self._check_compose_running(name)
+                running = self._check_compose_running(name)
+                if running:
+                    return {"healthy": True, "reason": "", "category": "healthy"}
+                return {"healthy": False, "reason": f"Compose service {name} not running", "category": "docker_stopped"}
             elif name == "whisper":
-                # 新版 cmake build 產出在 build/bin/
                 whisper_dir = (
                     self._workspace / "_tools" / "whisper.cpp"
                 )
-                return (
+                if (
                     (whisper_dir / "build" / "bin" / "whisper-cli").exists()
-                    or (whisper_dir / "main").exists()  # 舊版相容
-                )
-            return True  # pip installed
+                    or (whisper_dir / "main").exists()
+                ):
+                    return {"healthy": True, "reason": "", "category": "healthy"}
+                return {"healthy": False, "reason": "whisper-cli binary not found", "category": "binary_missing"}
+            return {"healthy": True, "reason": "", "category": "healthy"}  # pip installed
 
         try:
             import urllib.request
@@ -1271,12 +1324,20 @@ class ToolRegistry:
                 config.health_url, method="GET"
             )
             with urllib.request.urlopen(req, timeout=5) as resp:
-                return resp.status < 500
+                if resp.status < 500:
+                    return {"healthy": True, "reason": "", "category": "healthy"}
+                return {"healthy": False, "reason": f"HTTP {resp.status}", "category": "service_error"}
         except urllib.error.HTTPError as e:
-            # 4xx = 伺服器活著（只是端點方法不對），仍視為健康
-            return e.code < 500
-        except Exception:
-            return False
+            if e.code < 500:
+                return {"healthy": True, "reason": "", "category": "healthy"}
+            return {"healthy": False, "reason": f"HTTP {e.code}", "category": "service_error"}
+        except urllib.error.URLError as e:
+            reason_str = str(e.reason) if e.reason else str(e)
+            if "refused" in reason_str.lower():
+                return {"healthy": False, "reason": f"Connection refused: {config.health_url}", "category": "docker_stopped"}
+            return {"healthy": False, "reason": reason_str, "category": "network_error"}
+        except Exception as e:
+            return {"healthy": False, "reason": str(e)[:200], "category": "network_error"}
 
     def _check_compose_running(self, name: str) -> bool:
         """檢查 compose 服務是否運行."""
@@ -1355,7 +1416,7 @@ class ToolRegistry:
                                 name, config
                             )
                 except Exception as e:
-                    logger.debug(f"[TOOL_REGISTRY] health check failed (degraded): {e}")
+                    logger.warning(f"[TOOL_REGISTRY] auto-detect {name} failed: {e}")
 
             elif config.install_type == "compose":
                 running = self._check_compose_running(name)
@@ -1386,8 +1447,8 @@ class ToolRegistry:
                     state.installed = True
                     state.enabled = True  # 非常駐工具，偵測到即啟用
                     state.healthy = True  # 可 import = 健康
-                except ImportError as e:
-                    logger.debug(f"[TOOL_REGISTRY] module import failed (degraded): {e}")
+                except ImportError:
+                    logger.info(f"[TOOL_REGISTRY] {name} not installed (pip install {config.install_cmd})")
 
             if state.installed and not was_installed:
                 detected[name] = True

@@ -589,7 +589,8 @@ class TestToolRegistryLearnings:
         """健康檢查能處理 4xx HTTPError（不視為不健康）."""
         import inspect
         from museon.tools.tool_registry import ToolRegistry
-        source = inspect.getsource(ToolRegistry._check_tool_health)
+        # P4: HTTPError 處理邏輯在 _check_tool_health_detail 中
+        source = inspect.getsource(ToolRegistry._check_tool_health_detail)
         assert "HTTPError" in source
 
     def test_auto_detect_handles_pip_packages(self):
