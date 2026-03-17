@@ -195,7 +195,7 @@
 
 | 影響類型 | 範圍 |
 |---------|------|
-| 共享狀態讀寫 | ANIMA_MC.json(RW), ANIMA_USER.json(RW+L8群組), PULSE.md(R), PulseDB(R), Qdrant(W), Qdrant:primals(R via PrimalDetector), diary_entries(R), synapses(R), memory(R/W+dept_id), fact_corrections.jsonl(RW), cognitive_trace.jsonl(W via footprint.trace_cognitive+trace_decision), lord_profile.json(W via _observe_lord) |
+| 共享狀態讀寫 | ANIMA_MC.json(RW), ANIMA_USER.json(RW+L8群組), PULSE.md(R), PulseDB(R), Qdrant(W), Qdrant:primals(R via PrimalDetector), diary_entries(R), synapses(R), memory(R/W+dept_id), fact_corrections.jsonl(RW), cognitive_trace.jsonl(W via footprint.trace_cognitive+trace_decision), lord_profile.json(RW: R via Step 3.65 百合引擎, W via _observe_lord) |
 | 子系統初始化 | 31 個模組在 Brain.__init__() 中初始化（含 PrimalDetector, DiaryStore, MultiAgentExecutor, FlywheelCoordinator） |
 | System Prompt | `_build_soul_context()` + `_build_system_prompt()` 決定 AI 所有行為 |
 
@@ -751,6 +751,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-17 | v1.23 | 軍師架構 Phase 1：brain.py 共享狀態 lord_profile.json 從 W 升級為 RW（Step 3.65 百合引擎讀取+進諫冷卻寫回）；brain.py 新增 `_format_baihe_guidance()` 方法；Pipeline 註解新增 Step 3.65 |
 | 2026-03-17 | v1.22 | 軍師架構 Phase 0：brain.py 共享狀態新增 lord_profile.json(W)（`_observe_lord()` 原子寫入）；修改安全邊界「安全」欄新增 `_observe_lord()`（獨立觀察方法）；共享狀態 28→29 |
 | 2026-03-17 | v1.21 | 認知可觀測性：brain.py 角色新增 trace_decision+trace_cognitive（Step 8 認知追蹤）、共享狀態新增 cognitive_trace.jsonl(W)；system_audit.py 新增 `_audit_skill_doctor()` + 12 個 `_sd_check_*` 子方法（認知層檢查）、共享狀態讀取新增 cognitive_trace.jsonl(R)、`_check_skills` glob bug 修復；綠區新增 `governance/cognitive_receipt.py`（扇入=1，CognitiveReceipt dataclass）+ `MUSEON_observatory.html`（扇入=0，前端儀表板）；葉子模組 45→47；共享狀態 27→28 |
 | 2026-03-16 | v1.20 | Memory Reset 一鍵重置工具：新增 `doctor/memory_reset.py` 到綠區（扇入=0，純 CLI 工具）；覆蓋 25 個持久層（7 大類：A.身份×3、B.對話×7、C.知識×4、D.行為×3、E.評估×3、F.日誌×3、G.狀態×2）；葉子模組 44→45；不影響任何運行中模組（僅 Gateway 停機後使用） |

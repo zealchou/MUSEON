@@ -2,9 +2,16 @@
 Routing Bridge - 將 Persona Router 集成到 DNA27 核心層
 """
 
-from museon.agent.persona_router import PersonaRouter, EnergyLevel, IntentType, PersonaMode
+from museon.agent.persona_router import (
+    PersonaRouter, EnergyLevel, IntentType, PersonaMode,
+    TopicDomain, BaiheQuadrant, BaiheDecision,
+)
 import json
+import logging
 from pathlib import Path
+from typing import Any, Dict, Optional
+
+logger = logging.getLogger(__name__)
 
 class RoutingBridge:
     """將 Router 決策與 DNA27 核心層連接的橋樑"""
@@ -24,35 +31,42 @@ class RoutingBridge:
         self.last_energy_detected = None
         self.topic_count = 0
     
-    def route_response(self, user_message: str, context: dict = None) -> dict:
-        """
-        完整的路由決策流程
-        
-        返回：
-        {
-            'config': ResponseConfig,
-            'kernel_violations': List[str],
-            'routing_decision': str,
-            'instructions': dict
-        }
+    def route_response(
+        self,
+        user_message: str,
+        context: dict = None,
+        lord_profile: Optional[Dict[str, Any]] = None,
+        user_primals: Optional[Dict[str, int]] = None,
+    ) -> dict:
+        """完整的路由決策流程（v2.0 百合引擎版）.
+
+        Returns:
+            dict with energy/intent/persona/tone/baihe fields
         """
         if context is None:
             context = {}
-        
-        # 追蹤對話輪數（用於長對話檢測）
+
         self.conversation_turns += 1
         context['conversation_turn'] = self.conversation_turns
-        
-        # 生成路由配置
-        config = self.router.generate_config(user_message, context)
-        
-        # 檢查護欄違反
-        violations = self.router.check_kernel_constraints("")  # 實際檢查會在生成回應後進行
-        
-        # 檢測長對話漂移
+
+        # 百合引擎路由（如果有 lord_profile）
+        baihe_decision: Optional[BaiheDecision] = None
+        if lord_profile:
+            try:
+                baihe_decision = self.router.baihe_decide(
+                    user_message, context, lord_profile, user_primals,
+                )
+            except Exception as e:
+                logger.warning(f"百合引擎決策失敗（降級為基礎路由）: {e}")
+
+        if baihe_decision:
+            config = baihe_decision.response_config
+        else:
+            config = self.router.generate_config(user_message, context, user_primals)
+
+        violations = self.router.check_kernel_constraints("")
         drift_warning = self._check_long_conversation_drift()
-        
-        # 組織最終決策
+
         routing_decision = {
             'energy': config.energy.value,
             'intent': config.intent.value,
@@ -63,9 +77,21 @@ class RoutingBridge:
             'forbidden': config.forbidden_elements,
             'kernel_violations': violations,
             'drift_warning': drift_warning,
-            'turn_count': self.conversation_turns
+            'turn_count': self.conversation_turns,
         }
-        
+
+        # 百合引擎附加欄位
+        if baihe_decision:
+            routing_decision['baihe'] = {
+                'quadrant': baihe_decision.quadrant.value,
+                'quadrant_name': baihe_decision.quadrant.name,
+                'topic_domain': baihe_decision.topic_domain.value,
+                'lord_initiated': baihe_decision.lord_initiated,
+                'advise_tier': baihe_decision.advise_tier,
+                'should_advise': baihe_decision.should_advise,
+                'expression_mode': baihe_decision.expression_mode,
+            }
+
         return routing_decision
     
     def _check_long_conversation_drift(self) -> str:
