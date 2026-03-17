@@ -79,6 +79,9 @@ _EXCLUSION_PATTERNS = [
     re.compile(r"如果我"),        # 假設句
     re.compile(r"要是我"),        # 假設句
     re.compile(r"假如我"),        # 假設句
+    re.compile(r"^\s*[-–—•]\s"),  # 列表項（建議/行動清單，非 MUSEON 承諾）
+    re.compile(r"[嗎呢？?]\s*$"),  # 問句（詢問使用者，非承諾）
+    re.compile(r"需要我.*嗎"),    # 「需要我幫你做X嗎」是詢問，不是承諾
 ]
 
 
