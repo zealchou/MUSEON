@@ -656,7 +656,7 @@ class WEEEngine:
         """
         try:
             from museon.agent.knowledge_lattice import KnowledgeLattice
-            lattice = KnowledgeLattice(workspace=self._workspace)
+            lattice = KnowledgeLattice(data_dir=str(self._workspace))
 
             crystal = lattice.crystallize(
                 raw_material=crystal_content,

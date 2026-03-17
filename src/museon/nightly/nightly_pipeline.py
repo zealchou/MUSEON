@@ -41,23 +41,40 @@ def _run_async_safe(coro, timeout: int = 120):
     修復前問題：
     - asyncio.get_event_loop() 在 Python 3.10+ deprecated
     - 若線程看到 Gateway 主 loop → run_until_complete() 拋 RuntimeError
+    - Python 3.10+ 的 events._get_running_loop() 是 thread-local，
+      若當前線程有 running loop，new_event_loop 也無法 run_until_complete
+
+    修復策略：偵測當前線程是否有 running loop，若有則在獨立線程執行。
     """
     import asyncio
+    from concurrent.futures import ThreadPoolExecutor
 
-    loop = asyncio.new_event_loop()
-    try:
-        return loop.run_until_complete(asyncio.wait_for(coro, timeout=timeout))
-    finally:
-        # 清理殘留任務
+    def _execute():
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
         try:
-            pending = asyncio.all_tasks(loop)
-            if pending:
-                loop.run_until_complete(
-                    asyncio.gather(*pending, return_exceptions=True)
-                )
-        except Exception:
-            pass
-        loop.close()
+            return loop.run_until_complete(asyncio.wait_for(coro, timeout=timeout))
+        finally:
+            try:
+                pending = asyncio.all_tasks(loop)
+                if pending:
+                    loop.run_until_complete(
+                        asyncio.gather(*pending, return_exceptions=True)
+                    )
+            except Exception:
+                pass
+            loop.close()
+
+    # 偵測當前線程是否有 running loop
+    try:
+        asyncio.get_running_loop()
+        # 有 running loop → 在獨立線程執行，避免 RuntimeError
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            future = pool.submit(_execute)
+            return future.result(timeout=timeout + 5)
+    except RuntimeError:
+        # 沒有 running loop → 直接執行
+        return _execute()
 
 
 # ═══════════════════════════════════════════
@@ -248,7 +265,17 @@ class NightlyPipeline:
         if self._dendritic_scorer and mode == "full":
             try:
                 score = self._dendritic_scorer.calculate_score()
-                if score <= 40:
+                if score == 0.0:
+                    # score=0.0 通常表示計分器冷啟動或無足夠數據，
+                    # 降級而非最小化，避免因計分失真跳過全部核心步驟
+                    step_ids = self._get_degraded_steps()
+                    gate_mode = "degraded"
+                    logger.warning(
+                        "[NIGHTLY] Health gate: score=0.0 "
+                        "(cold start or insufficient data), "
+                        "falling back to degraded mode"
+                    )
+                elif score <= 40:
                     # 危險：僅執行最小集合
                     step_ids = self._get_minimal_steps()
                     gate_mode = "minimal"
@@ -3099,9 +3126,9 @@ class NightlyPipeline:
 
         DB_PATHS = [
             self._workspace / "pulse" / "pulse.db",
-            self._workspace / "_system" / "state" / "group_context.db",
+            self._workspace / "_system" / "group_context.db",
             self._workspace / "_system" / "wee" / "workflow_state.db",
-            self._workspace / "registry" / "registry.db",
+            self._workspace / "registry" / "cli_user" / "registry.db",
         ]
 
         results = {}
@@ -3125,6 +3152,34 @@ class NightlyPipeline:
         logger.info(f"[NIGHTLY] WAL checkpoint: {results}")
         return {"databases": results}
 
+    def _auto_register_known_stores(self, bus) -> None:
+        """自動發現並註冊已知的 DataContract Store 到 DataBus.
+
+        Phase 3 設計了 DataContract 介面，PulseDB/GroupContextStore 皆有實作，
+        但「註冊環節」未完成。此方法在 DataWatchdog 步驟中補完。
+        """
+        # PulseDB（singleton，不會重複建立）
+        pulse_path = self._workspace / "pulse" / "pulse.db"
+        if pulse_path.exists():
+            try:
+                from museon.pulse.pulse_db import get_pulse_db
+                pulse_db = get_pulse_db(self._workspace)
+                spec = pulse_db.store_spec() if hasattr(pulse_db, "store_spec") else None
+                bus.register("pulse", pulse_db, spec)
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] Auto-register pulse failed: {e}")
+
+        # GroupContextStore
+        gc_path = self._workspace / "_system" / "group_context.db"
+        if gc_path.exists():
+            try:
+                from museon.governance.group_context import GroupContextStore
+                gc_store = GroupContextStore(data_dir=self._workspace)
+                spec = gc_store.store_spec() if hasattr(gc_store, "store_spec") else None
+                bus.register("group_context", gc_store, spec)
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] Auto-register group_context failed: {e}")
+
     def _step_data_watchdog(self) -> Dict:
         """Step 29: DataWatchdog — 資料層健康監控、空間預警、Dead Write 偵測.
 
@@ -3139,10 +3194,12 @@ class NightlyPipeline:
 
         bus = get_data_bus()
 
-        # 如果 DataBus 無已註冊 Store，跳過
+        # 自動發現並註冊已知 Store（Phase 3 未完成的註冊環節）
         if not bus.list_stores():
-            logger.info("[NIGHTLY] DataWatchdog: DataBus 無已註冊 Store，跳過")
-            return {"status": "skipped", "reason": "no stores registered"}
+            self._auto_register_known_stores(bus)
+        if not bus.list_stores():
+            logger.info("[NIGHTLY] DataWatchdog: 無可註冊的 Store，跳過")
+            return {"status": "skipped", "reason": "no stores found"}
 
         watchdog = DataWatchdog(data_dir=self._workspace)
         report = watchdog.run_health_check(bus=bus)
