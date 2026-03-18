@@ -992,7 +992,7 @@ class MuseonBrain:
                     try:
                         _user_ctx = self._get_user_context_prompt()
                     except Exception:
-                        pass
+                        logger.debug("_get_user_context_prompt 失敗，user_ctx 降級為空字串", exc_info=True)
 
                     ma_result = await self._multiagent_executor.execute(
                         user_message=content,
@@ -3861,6 +3861,8 @@ class MuseonBrain:
         用於 dispatch 系統的 orchestrator / worker / synthesis 呼叫，
         需要精確控制模型選擇。
 
+        P5 修復：強制繁體中文輸出（貫穿所有子系統）
+
         Args:
             system_prompt: 系統提示詞
             messages: 對話訊息
@@ -3876,6 +3878,11 @@ class MuseonBrain:
 
         if not self._llm_adapter:
             return ""
+
+        # P5 修復：強制繁體中文輸出設定
+        # 在 system_prompt 末尾追加語言強制要求（如果還沒有的話）
+        if "繁體中文" not in system_prompt and "Traditional Chinese" not in system_prompt:
+            system_prompt = system_prompt.rstrip() + "\n\n【強制規則】必須使用繁體中文回覆。"
 
         try:
             adapter_resp = await self._llm_adapter.call(
@@ -4979,8 +4986,11 @@ class MuseonBrain:
                         loop = asyncio.get_running_loop()
                         asyncio.ensure_future(vs.on_offline_triggered(error_msg))
                     except RuntimeError:
-                        # 無 running loop（同步呼叫情境）→ 建立臨時 loop
-                        asyncio.run(vs.on_offline_triggered(error_msg))
+                        # 無 running loop（同步 / daemon thread 情境）→ 新 thread 建立隔離 loop
+                        # 避免在呼叫方 thread 上直接 asyncio.run()，防止跨 loop 物件衝突
+                        def _trigger_offline(_coro=vs.on_offline_triggered(error_msg)) -> None:
+                            asyncio.run(_coro)
+                        threading.Thread(target=_trigger_offline, daemon=True).start()
             except Exception as _e:
                 logger.debug(f"Sentinel trigger failed (non-critical): {_e}")
 
