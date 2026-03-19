@@ -149,6 +149,29 @@ class ProactiveBridge:
         self._suppress_until: Optional[float] = None  # Unix timestamp
         self._subscribe_quiet_mode()
 
+    # ── 百合引擎快取讀取（P3 串聯）──
+
+    def _read_baihe_cache(self) -> Dict[str, Any]:
+        """讀取 brain 寫入的 baihe_cache.json，取得最近的象限決策."""
+        try:
+            if self._brain and hasattr(self._brain, "data_dir"):
+                cache_path = Path(self._brain.data_dir) / "_system" / "baihe_cache.json"
+            else:
+                cache_path = Path(__file__).parents[4] / "data" / "_system" / "baihe_cache.json"
+            if cache_path.exists():
+                data = json.loads(cache_path.read_text(encoding="utf-8"))
+                # 只使用 2 小時內的快取
+                ts = data.get("ts", "")
+                if ts:
+                    from datetime import datetime as _dt
+                    cache_dt = _dt.fromisoformat(ts)
+                    if (datetime.now() - cache_dt).total_seconds() > 7200:
+                        return {}
+                return data
+        except Exception as e:
+            logger.debug(f"讀取 baihe_cache 失敗: {e}")
+        return {}
+
     # ── 判斷邏輯 ──
 
     def is_active_hours(self, now: Optional[datetime] = None) -> bool:
@@ -394,11 +417,34 @@ class ProactiveBridge:
         messages: List[Dict[str, str]],
         mode: str = "functional",
     ) -> str:
-        """呼叫 Brain 的 LLM（使用 Haiku 控制成本）."""
+        """呼叫 Brain 的 LLM（使用 Haiku 控制成本）.
+
+        P3: 根據百合引擎象限調整推送語氣。
+        """
         prompt = (
             _COMPANION_SYSTEM_PROMPT if mode == "companion"
             else _PROACTIVE_SYSTEM_PROMPT
         )
+
+        # P3: 讀取百合象限，注入語氣指引
+        baihe = self._read_baihe_cache()
+        if baihe:
+            quadrant = baihe.get("quadrant", "")
+            expression = baihe.get("expression_mode", "")
+            _tone_map = {
+                "Q1": "語氣：配角姿態，跟隨主人節奏延伸，不主導方向。",
+                "Q2": "語氣：白話翻譯，用比喻解釋，降低焦慮感。",
+                "Q3": "語氣：溫和提醒，先同理再建議，附退路。可以主動指出觀察到的盲點。",
+                "Q4": "語氣：極簡存在，簡短即可，不主動展開。",
+            }
+            tone_hint = _tone_map.get(quadrant, "")
+            if tone_hint:
+                prompt += f"\n\n{tone_hint}"
+
+            # Q4 靜默象限：降低推送意願
+            if quadrant == "Q4" and mode == "functional":
+                prompt += "\n除非有非常重要的事，否則回覆「OK」即可。"
+
         if hasattr(self._brain, "_call_llm_with_model"):
             model = _cfg("proactive_model", PROACTIVE_MODEL)
             return await self._brain._call_llm_with_model(
@@ -421,6 +467,18 @@ class ProactiveBridge:
         # 系統狀態
         parts.append(f"當前時間: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
         parts.append(f"今日已推送: {self._daily_push_count}/{_cfg('daily_push_limit', DAILY_PUSH_LIMIT)}")
+
+        # P3: 注入百合象限上下文
+        baihe = self._read_baihe_cache()
+        if baihe:
+            _q_labels = {
+                "Q1": "全力輔助（主人在強項領域主動提問）",
+                "Q2": "精準補位（主人在弱項領域主動提問）",
+                "Q3": "主動進諫（主人在弱項但沒問——可以主動提醒）",
+                "Q4": "靜默觀察（主人在強項且沒問——存在不干擾）",
+            }
+            q = baihe.get("quadrant", "")
+            parts.append(f"百合引擎當前象限: {q} {_q_labels.get(q, '')}")
 
         # HeartbeatFocus 資訊
         if self._heartbeat_focus:
