@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MUSEON 殺手級功能 DSE 分析 — 六場深度訪談交叉比對 | 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ember: #C4502A;
+  --ember-light: #D4714F;
+  --ember-glow: rgba(196,80,42,0.12);
+  --ember-dark: #9A3A1C;
+  --teal: #2A7C6F;
+  --teal-light: #3A9C8F;
+  --gold: #B8860B;
+  --gold-light: #D4A844;
+  --ink: #1A1A1A;
+  --charcoal: #333333;
+  --stone: #6B6B6B;
+  --silver: #9B9B9B;
+  --mist: #E8E0D8;
+  --parchment: #F5F0EB;
+  --cream: #FAF8F5;
+  --white: #FFFFFF;
+  --deep-ink: #0E0E16;
+  --surface: #16161F;
+  --success: #2D8659;
+  --warning: #B8860B;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Outfit', 'Noto Sans TC', -apple-system, sans-serif;
+  background: var(--parchment);
+  color: var(--charcoal);
+  line-height: 1.75;
+  font-size: 16px;
+}
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  background: rgba(26,26,26,0.95);
+  backdrop-filter: blur(12px);
+  padding: 12px 0;
+  border-bottom: 2px solid var(--ember);
+}
+.nav-inner {
+  max-width: 820px; margin: 0 auto; padding: 0 24px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-weight: 600; color: var(--ember-light);
+  letter-spacing: 2px;
+}
+.nav-links { display: flex; gap: 20px; }
+.nav-links a {
+  color: var(--mist); text-decoration: none; font-size: 13px;
+  transition: color 0.2s; font-family: 'Noto Sans TC', sans-serif;
+}
+.nav-links a:hover { color: var(--ember-light); }
+.hero {
+  background: linear-gradient(135deg, #1A1A1A 0%, #2A2018 50%, #1A1A1A 100%);
+  padding: 140px 24px 80px;
+  text-align: center;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 30% 50%, rgba(196,80,42,0.15) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 30%, rgba(42,124,111,0.1) 0%, transparent 50%);
+}
+.hero-content { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; }
+.hero-tags {
+  display: flex; justify-content: center; gap: 10px;
+  margin-bottom: 24px; flex-wrap: wrap;
+}
+.hero-tag {
+  display: inline-block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 4px 14px; border-radius: 20px;
+}
+.hero-tag-ember {
+  background: rgba(196,80,42,0.2); color: var(--ember-light);
+  border: 1px solid rgba(196,80,42,0.35);
+}
+.hero-tag-gold {
+  background: rgba(184,134,11,0.2); color: var(--gold-light);
+  border: 1px solid rgba(184,134,11,0.35);
+}
+.hero-tag-teal {
+  background: rgba(42,124,111,0.2); color: var(--teal-light);
+  border: 1px solid rgba(42,124,111,0.35);
+}
+.hero h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 700; color: var(--cream);
+  line-height: 1.2; margin-bottom: 20px;
+}
+.hero h1 span { color: var(--ember-light); }
+.hero-sub {
+  font-size: 16px; color: var(--silver);
+  line-height: 1.7; max-width: 560px; margin: 0 auto 32px;
+  font-family: 'Noto Sans TC', sans-serif;
+}
+.hero-stats {
+  display: flex; justify-content: center; gap: 40px; flex-wrap: wrap;
+  margin-top: 40px;
+}
+.hero-stat { text-align: center; }
+.hero-stat-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px; font-weight: 700; color: var(--ember-light);
+}
+.hero-stat-label {
+  font-size: 12px; color: var(--silver); letter-spacing: 1px;
+  text-transform: uppercase; margin-top: 4px;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.main { max-width: 820px; margin: 0 auto; padding: 0 24px; }
+.verdict {
+  background: var(--white);
+  border-left: 4px solid var(--ember);
+  border-radius: 0 12px 12px 0;
+  padding: 40px;
+  margin: -40px 0 48px;
+  position: relative; z-index: 2;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+}
+.verdict-label {
+  font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--ember); font-weight: 600; margin-bottom: 12px;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.verdict h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px; font-weight: 700; color: var(--ink);
+  line-height: 1.4; margin-bottom: 16px;
+}
+.verdict p { color: var(--stone); font-size: 15px; line-height: 1.8; }
+.verdict-highlight {
+  display: inline;
+  background: linear-gradient(transparent 60%, rgba(196,80,42,0.15) 60%);
+  font-weight: 600; color: var(--ink);
+}
+.section { margin-bottom: 64px; }
+.section-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px; color: var(--ember); font-weight: 600;
+  letter-spacing: 2px; margin-bottom: 8px;
+}
+.section h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px; font-weight: 700; color: var(--ink);
+  line-height: 1.3; margin-bottom: 24px;
+}
+.section h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-weight: 600; color: var(--ink);
+  margin: 32px 0 16px;
+}
+.section p {
+  color: var(--charcoal); margin-bottom: 16px; font-size: 15px;
+  line-height: 1.85;
+}
+.pull-quote {
+  border-left: 3px solid var(--gold);
+  padding: 24px 28px; margin: 28px 0;
+  background: rgba(184,134,11,0.05);
+  border-radius: 0 10px 10px 0;
+}
+.pull-quote p {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-weight: 600; color: var(--ink);
+  line-height: 1.5; font-style: italic; margin-bottom: 0;
+}
+.pull-quote .quote-source {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; font-weight: 500; color: var(--stone);
+  letter-spacing: 0.05em; margin-top: 10px; font-style: normal;
+}
+.insight-item {
+  display: flex; align-items: flex-start; gap: 20px;
+  background: var(--white); border-radius: 12px;
+  padding: 28px; margin-bottom: 16px;
+  border: 1px solid var(--mist);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.insight-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+.insight-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--ember); color: var(--white);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px; font-weight: 700; flex-shrink: 0;
+}
+.insight-content { flex: 1; }
+.insight-content h4 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-weight: 600; color: var(--ink);
+  margin-bottom: 8px;
+}
+.insight-content p {
+  font-size: 14px; color: var(--stone); line-height: 1.7; margin-bottom: 0;
+}
+.mech-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0;
+}
+.mech-item {
+  padding: 24px; background: var(--white); border-radius: 12px;
+  border: 1px solid var(--mist); transition: transform 0.2s;
+}
+.mech-item:hover { transform: translateY(-2px); }
+.mech-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; margin-bottom: 10px;
+}
+.mech-label.ember { color: var(--ember); }
+.mech-label.teal { color: var(--teal); }
+.mech-label.gold { color: var(--gold); }
+.mech-label.slate { color: var(--stone); }
+.mech-item p { font-size: 14px; color: var(--charcoal); line-height: 1.7; margin-bottom: 0; }
+.mech-item strong { color: var(--ink); }
+.case-study {
+  background: linear-gradient(135deg, var(--ink) 0%, #2A2018 100%);
+  border-radius: 16px; padding: 40px; margin: 32px 0; color: var(--cream);
+}
+.case-label {
+  font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--ember-light); font-weight: 600; margin-bottom: 16px;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.case-study h4 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px; font-weight: 600; margin-bottom: 16px;
+}
+.case-study p { color: var(--silver); font-size: 15px; line-height: 1.8; margin-bottom: 16px; }
+.case-study p:last-child { margin-bottom: 0; }
+.case-stat-row {
+  display: flex; gap: 32px; flex-wrap: wrap; margin-top: 24px;
+  padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.1);
+}
+.case-stat { text-align: center; flex: 1; min-width: 100px; }
+.case-stat-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px; font-weight: 700; color: var(--ember-light);
+}
+.case-stat-label { font-size: 12px; color: var(--silver); margin-top: 4px; }
+.killer-card {
+  background: var(--white); border-radius: 16px; padding: 40px;
+  margin: 32px 0; border: 2px solid var(--ember);
+  position: relative; overflow: hidden;
+  box-shadow: 0 8px 32px rgba(196,80,42,0.1);
+}
+.killer-card::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 4px;
+  background: linear-gradient(90deg, var(--ember), var(--gold), var(--teal));
+}
+.killer-rank {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 72px; font-weight: 700; color: rgba(196,80,42,0.08);
+  position: absolute; top: 10px; right: 30px; line-height: 1;
+}
+.killer-tag {
+  display: inline-block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 4px 14px; border-radius: 20px;
+  background: rgba(196,80,42,0.1); color: var(--ember-dark);
+  border: 1px solid rgba(196,80,42,0.25); margin-bottom: 16px;
+}
+.killer-card h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px; font-weight: 700; color: var(--ink);
+  line-height: 1.3; margin-bottom: 12px;
+}
+.killer-card .subtitle {
+  font-size: 16px; color: var(--stone); margin-bottom: 20px; font-weight: 400;
+}
+.killer-card p { font-size: 15px; line-height: 1.85; color: var(--charcoal); margin-bottom: 12px; }
+.killer-evidence {
+  background: var(--parchment); border-radius: 10px;
+  padding: 20px 24px; margin-top: 20px;
+}
+.killer-evidence-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--teal); margin-bottom: 10px;
+}
+.killer-evidence ul { list-style: none; padding: 0; }
+.killer-evidence li {
+  font-size: 14px; color: var(--charcoal); line-height: 1.7;
+  padding: 6px 0; padding-left: 20px; position: relative;
+}
+.killer-evidence li::before {
+  content: '\2192'; position: absolute; left: 0; color: var(--ember); font-weight: 600;
+}
+.pitch-line {
+  background: linear-gradient(135deg, var(--ink) 0%, #2A2018 100%);
+  border-radius: 10px; padding: 20px 24px; margin-top: 20px;
+  color: var(--cream);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px; font-weight: 600;
+  line-height: 1.5; font-style: italic; text-align: center;
+}
+.convergence-bar {
+  display: flex; align-items: center; gap: 12px;
+  padding: 16px 0; border-bottom: 1px solid var(--mist);
+}
+.convergence-bar:last-child { border-bottom: none; }
+.conv-label { font-size: 14px; font-weight: 500; color: var(--ink); min-width: 180px; }
+.conv-bar-bg {
+  flex: 1; height: 24px; background: var(--mist); border-radius: 12px; overflow: hidden;
+}
+.conv-bar-fill {
+  height: 100%; border-radius: 12px;
+  background: linear-gradient(90deg, var(--ember), var(--ember-light));
+}
+.conv-count {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px; font-weight: 600; color: var(--ember);
+  min-width: 40px; text-align: right;
+}
+.persona-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 24px 0;
+}
+.persona-card {
+  background: var(--white); border-radius: 12px; padding: 24px;
+  border: 1px solid var(--mist); transition: transform 0.2s;
+}
+.persona-card:hover { transform: translateY(-2px); }
+.persona-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-weight: 700; color: var(--ink); margin-bottom: 4px;
+}
+.persona-role {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--ember); margin-bottom: 12px;
+}
+.persona-card p { font-size: 13px; color: var(--stone); line-height: 1.7; margin-bottom: 0; }
+.pain-matrix {
+  width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 13px;
+}
+.pain-matrix th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 600; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--stone);
+  padding: 12px 14px; text-align: left;
+  border-bottom: 2px solid var(--mist); background: var(--parchment);
+}
+.pain-matrix td {
+  padding: 14px; border-bottom: 1px solid var(--mist);
+  vertical-align: top; color: var(--charcoal); line-height: 1.6;
+}
+.pain-matrix tr:hover { background: rgba(196,80,42,0.03); }
+.pain-matrix .name-col { font-weight: 600; color: var(--ink); white-space: nowrap; }
+.pain-tag {
+  display: inline-block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px; font-weight: 600; letter-spacing: 0.05em;
+  padding: 2px 8px; border-radius: 12px; text-transform: uppercase;
+}
+.pain-tag-high { background: rgba(196,80,42,0.12); color: var(--ember); }
+.pain-tag-mid { background: rgba(184,134,11,0.12); color: var(--gold); }
+.footer {
+  background: var(--ink); padding: 48px 24px; text-align: center; margin-top: 64px;
+}
+.footer-brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px; font-weight: 600; color: var(--ember-light);
+  letter-spacing: 3px; margin-bottom: 8px;
+}
+.footer p { font-size: 13px; color: var(--silver); line-height: 1.7; }
+.footer .footer-note {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; color: var(--stone);
+  letter-spacing: 1px; margin-top: 20px;
+}
+@media (max-width: 640px) {
+  .mech-grid, .persona-grid { grid-template-columns: 1fr; }
+  .hero-stats { gap: 24px; }
+  .killer-card, .case-study, .verdict { padding: 28px; }
+  .nav-links { display: none; }
+  .pain-matrix td, .pain-matrix th { padding: 10px 8px; }
+  .conv-label { min-width: 120px; font-size: 12px; }
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-brand">MUSEON</div>
+    <div class="nav-links">
+      <a href="#verdict">結論</a>
+      <a href="#convergence">交叉驗證</a>
+      <a href="#killer">殺手功能</a>
+      <a href="#playbook">銷售劇本</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-tags">
+      <span class="hero-tag hero-tag-ember">DSE ANALYSIS</span>
+      <span class="hero-tag hero-tag-gold">6 TRANSCRIPTS</span>
+      <span class="hero-tag hero-tag-teal">CROSS-VALIDATION</span>
+    </div>
+    <h1>他們不知道自己需要的<br><span>殺手級功能</span></h1>
+    <p class="hero-sub">
+      六場深度訪談、六個完全不同的產業、375 分鐘的逐字稿——<br>
+      交叉比對後浮現三個共通的深層痛點，指向同一個解法。
+    </p>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-num">6</div>
+        <div class="hero-stat-label">深度訪談</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">375</div>
+        <div class="hero-stat-label">分鐘逐字稿</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">6</div>
+        <div class="hero-stat-label">產業橫跨</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">3</div>
+        <div class="hero-stat-label">殺手功能</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<main class="main">
+
+<div class="verdict" id="verdict">
+  <div class="verdict-label">Executive Summary</div>
+  <h2>別的 AI 賣效率，MUSEON 賣的是——<br>「讓你的腦袋不再是公司唯一的單點故障」</h2>
+  <p>六位受訪者橫跨自動化機械、設計師眼鏡、政府補助、咖啡教學、室內設計、AI 媒體——看起來毫無關聯。但逐字稿裡藏著同一條暗流：<span class="verdict-highlight">每個老闆的核心價值都鎖在自己腦袋裡，無法被複製、無法被傳承、無法被規模化。</span>他們不是缺工具——他們缺的是一面鏡子，幫他們把 20 年練出來的直覺，變成別人也能用的系統。</p>
+  <p>這不是「SOP 數位化」能解的。SOP 記錄的是「做什麼」，但老闆真正值錢的是「為什麼這樣判斷」。MUSEON 的殺手級功能，就是把<span class="verdict-highlight">「為什麼」從老闆的腦袋裡挖出來，結構化，然後讓新人、讓 AI、讓整個組織都能用。</span></p>
+</div>
+
+<!-- SECTION 1 -->
+<section class="section">
+  <div class="section-num">01</div>
+  <h2>六張面孔，一個困局</h2>
+  <div class="persona-grid">
+    <div class="persona-card">
+      <div class="persona-name">文祺</div>
+      <div class="persona-role">自動化機械 · 40年家族企業</div>
+      <p>「維修經驗都在紙本筆記裡。」——師傅退休等於知識斷層，40 年的故障排除經驗可能一夕歸零。</p>
+    </div>
+    <div class="persona-card">
+      <div class="persona-name">Jarry</div>
+      <div class="persona-role">設計師眼鏡 · 經營21年</div>
+      <p>「把事情做對比把事情做快重要。」——匠人精神極強，但店面氛圍嚇跑客人，不知道怎麼把品味翻譯成行銷語言。</p>
+    </div>
+    <div class="persona-card">
+      <div class="persona-name">蔡宗宸</div>
+      <div class="persona-role">政府補助顧問 · 團隊4人</div>
+      <p>「我透過公司名，腦子就會出現什麼計畫適合他。」——兩年走 50 個同事，蜘蛛網型判斷力無法被教會。</p>
+    </div>
+    <div class="persona-card">
+      <div class="persona-name">祥吉</div>
+      <div class="persona-role">咖啡店+教學 · 經營7年</div>
+      <p>「重點是他給人的那個感覺。」——教學天賦是「把難的變簡單」，但這種能力沒辦法寫進 SOP。</p>
+    </div>
+    <div class="persona-card">
+      <div class="persona-name">阿福</div>
+      <div class="persona-role">室內設計師 · 一人公司</div>
+      <p>「我覺得很搭，但我要去清楚有脈絡去跟客戶講。」——空間哲學家，直覺精準但無法用邏輯說服客戶。</p>
+    </div>
+    <div class="persona-card">
+      <div class="persona-name">智弘</div>
+      <div class="persona-role">AI媒體/GEO · 剛創業</div>
+      <p>「這個服務太新了，很多人還不懂。」——技術走在市場前面，但沒有資本撐到市場醒過來。</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2 -->
+<section class="section" id="convergence">
+  <div class="section-num">02</div>
+  <h2>痛點交叉驗證——六個產業的共同暗語</h2>
+  <p>把六份逐字稿的情緒高點、低點、自我矛盾、認知天花板全部攤開，用 DSE 第一性原理分析，浮現五條收斂線：</p>
+  <h3>痛點出現頻率（6 位受訪者中）</h3>
+  <div style="background: var(--white); border-radius: 12px; padding: 24px 28px; border: 1px solid var(--mist); margin: 24px 0;">
+    <div class="convergence-bar">
+      <span class="conv-label">腦袋是公司單點故障</span>
+      <div class="conv-bar-bg"><div class="conv-bar-fill" style="width: 100%"></div></div>
+      <span class="conv-count">6/6</span>
+    </div>
+    <div class="convergence-bar">
+      <span class="conv-label">品牌語言翻譯缺失</span>
+      <div class="conv-bar-bg"><div class="conv-bar-fill" style="width: 83%"></div></div>
+      <span class="conv-count">5/6</span>
+    </div>
+    <div class="convergence-bar">
+      <span class="conv-label">一人扛全部，腦力過載</span>
+      <div class="conv-bar-bg"><div class="conv-bar-fill" style="width: 100%"></div></div>
+      <span class="conv-count">6/6</span>
+    </div>
+    <div class="convergence-bar">
+      <span class="conv-label">隱性知識無法傳承</span>
+      <div class="conv-bar-bg"><div class="conv-bar-fill" style="width: 83%"></div></div>
+      <span class="conv-count">5/6</span>
+    </div>
+    <div class="convergence-bar">
+      <span class="conv-label">低估自身累積的價值</span>
+      <div class="conv-bar-bg"><div class="conv-bar-fill" style="width: 67%"></div></div>
+      <span class="conv-count">4/6</span>
+    </div>
+  </div>
+
+  <div class="pull-quote">
+    <p>「六個完全不同的產業，同一句潛台詞：我知道我的判斷力很值錢，但我不知道怎麼讓別人也有這個判斷力。」</p>
+    <div class="quote-source">— DSE 交叉分析結論</div>
+  </div>
+
+  <h3>逐人痛點矩陣</h3>
+  <div style="overflow-x: auto;">
+  <table class="pain-matrix">
+    <thead>
+      <tr><th>受訪者</th><th>他說的</th><th>他真正的痛</th><th>嚴重度</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="name-col">文祺</td>
+        <td>維修經驗都在紙本筆記</td>
+        <td>師傅退休 = 40年經驗歸零，公司無法繼續接單</td>
+        <td><span class="pain-tag pain-tag-high">致命</span></td>
+      </tr>
+      <tr>
+        <td class="name-col">Jarry</td>
+        <td>客人踏不進來</td>
+        <td>匠人品味無法被翻譯成市場語言，好東西賣不出去</td>
+        <td><span class="pain-tag pain-tag-high">致命</span></td>
+      </tr>
+      <tr>
+        <td class="name-col">蔡宗宸</td>
+        <td>兩年走 50 個同事</td>
+        <td>蜘蛛網型判斷力無法教會，新人永遠學不會「為什麼」</td>
+        <td><span class="pain-tag pain-tag-high">致命</span></td>
+      </tr>
+      <tr>
+        <td class="name-col">祥吉</td>
+        <td>有 SOP 但找不到人</td>
+        <td>教學天賦是「讓人聽得懂」，這沒辦法寫成文件</td>
+        <td><span class="pain-tag pain-tag-mid">嚴重</span></td>
+      </tr>
+      <tr>
+        <td class="name-col">阿福</td>
+        <td>我覺得很搭但說不清楚</td>
+        <td>20年設計直覺無法邏輯化，說服不了客戶、帶不了徒弟</td>
+        <td><span class="pain-tag pain-tag-high">致命</span></td>
+      </tr>
+      <tr>
+        <td class="name-col">智弘</td>
+        <td>太新了，很多人不懂</td>
+        <td>技術超前市場認知，沒有語言把專業翻譯成「客戶想買的東西」</td>
+        <td><span class="pain-tag pain-tag-mid">嚴重</span></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- SECTION 3: KILLER FEATURES -->
+<section class="section" id="killer">
+  <div class="section-num">03</div>
+  <h2>三個殺手級功能</h2>
+  <p>以下三個功能不是從「MUSEON 能做什麼」推出來的——是從「六個老闆最深的痛點」倒推回來的。每一個都經過逐字稿的情緒驗證：在這個痛點被觸及時，受訪者的語氣、措辭、停頓都發生了變化。</p>
+
+  <div class="killer-card">
+    <span class="killer-rank">#1</span>
+    <span class="killer-tag">殺手功能 #1</span>
+    <h3>腦袋備份機<br><small style="font-size: 16px; color: var(--stone); font-weight: 400;">Tacit Knowledge Crystallizer</small></h3>
+    <p class="subtitle">把老闆 20 年的直覺，變成整間公司都能用的判斷力</p>
+    <p>這不是「建知識庫」——老闆們都聽過知識庫，覺得太麻煩、要打字、要分類、最後沒人更新。</p>
+    <p><strong>MUSEON 的做法完全不同：老闆照常工作、照常聊天、照常做判斷——MUSEON 在對話中自動捕捉他的判斷邏輯，結構化後鍛造成可執行的 AI Skill。</strong></p>
+    <p>蔡宗宸花 4 年練出的「看公司名就知道適合什麼計畫」、阿福花 20 年練出的「看人就知道適合什麼空間」、文祺師傅 40 年的故障排除經驗——這些全部可以被 MUSEON 萃取、結構化、傳承。</p>
+    <div class="killer-evidence">
+      <div class="killer-evidence-label">逐字稿證據</div>
+      <ul>
+        <li><strong>蔡宗宸：</strong>「（經驗）沒辦法書寫下來，因為你的對象是人」——他嘗試過寫 SOP，失敗了。因為他的判斷不是線性流程，是蜘蛛網。</li>
+        <li><strong>阿福：</strong>「我覺得很搭...但我要去清楚有脈絡去跟客戶講」——他知道答案，但說不出「為什麼」。</li>
+        <li><strong>文祺：</strong>維修經驗全在紙本筆記，師傅退休後沒人能接手複雜案件。</li>
+        <li><strong>祥吉：</strong>「有 SOP 但找不到人」——SOP 寫了，但核心的「感覺」沒辦法被文件化。</li>
+      </ul>
+    </div>
+    <div class="pitch-line">「你繼續忙，MUSEON 幫你把腦袋裡的東西變成公司資產。<br>新人第一天，就能用你 20 年的判斷力。」</div>
+  </div>
+
+  <div class="killer-card">
+    <span class="killer-rank">#2</span>
+    <span class="killer-tag">殺手功能 #2</span>
+    <h3>靈魂翻譯機<br><small style="font-size: 16px; color: var(--stone); font-weight: 400;">Brand Soul Translator</small></h3>
+    <p class="subtitle">把「我知道但說不出來的價值」翻譯成客戶聽得懂的語言</p>
+    <p>五位受訪者有同一個盲點：<strong>他們的產品力 90 分，行銷力 30 分。</strong>不是因為不懂行銷——是因為他們最值錢的東西，恰好是最難用語言描述的東西。</p>
+    <p>Jarry 的匠人品味、阿福的空間哲學、祥吉的「讓人聽得懂」的教學天賦、智弘的 GEO 技術——每一個都需要翻譯，才能變成客戶願意付錢的商品。</p>
+    <p><strong>MUSEON 不是「幫你寫文案」——是先挖出你的品牌靈魂，再用你的客戶聽得懂的語言說出來。</strong>從品牌定位、故事結構、到每一則社群貼文，全部從同一個核心長出來。</p>
+    <div class="killer-evidence">
+      <div class="killer-evidence-label">逐字稿證據</div>
+      <ul>
+        <li><strong>Jarry：</strong>「客人踏不進來，看起來就很貴」——21 年匠人精神，但品牌語言把客人嚇跑了。</li>
+        <li><strong>阿福：</strong>「客戶問我什麼風格，我沒有什麼風格」——他的設計哲學太深，市場接不住。</li>
+        <li><strong>智弘：</strong>「這個服務太新了，很多人還不懂」——GEO 技術領先市場兩年，但說不出讓老闆秒懂的話。</li>
+        <li><strong>祥吉：</strong>品牌已從「咖啡店」演化成「體驗策展」，但自己還在用舊框架看自己。</li>
+        <li><strong>蔡宗宸：</strong>「品牌這塊我做不到」——承認品牌評估的能力缺口，轉介案件等於少賺。</li>
+      </ul>
+    </div>
+    <div class="pitch-line">「你最強的武器是你的專業——<br>MUSEON 幫你把這個武器變成所有人都聽得懂的話。」</div>
+  </div>
+
+  <div class="killer-card">
+    <span class="killer-rank">#3</span>
+    <span class="killer-tag">殺手功能 #3</span>
+    <h3>決策分身術<br><small style="font-size: 16px; color: var(--stone); font-weight: 400;">Cognitive Clone</small></h3>
+    <p class="subtitle">你人不在，判斷力還在</p>
+    <p>中小企業老闆真正缺的不是「多一雙手」，而是<strong>多一顆能判斷的腦</strong>。他要的是出差時、跑業務時、不在現場時，有人能替他做 70% 品質的決策。</p>
+    <p>不是 chatbot 回答問題——是根據老闆過往的決策模式，在新情境中給出「老闆你可能會這樣處理」的建議。不是取代老闆，是延伸老闆。</p>
+    <p><strong>結合「腦袋備份機」累積的判斷邏輯 + 即時情境判斷，MUSEON 可以成為老闆的「認知分身」——比請一個助理更快、比寫 SOP 更活、比培訓新人更穩定。</strong></p>
+    <div class="killer-evidence">
+      <div class="killer-evidence-label">逐字稿證據</div>
+      <ul>
+        <li><strong>蔡宗宸：</strong>「每個老闆需要的就是秘書——你如果做出有溫度的 AI 秘書，哇」——他自己說出了答案。</li>
+        <li><strong>全部 6 位：</strong>六位受訪者全是「什麼都自己扛」。不是控制狂，是找不到值得信任的判斷力來分攤。</li>
+        <li><strong>文祺：</strong>公司營運依賴少數資深師傅的即時判斷——師傅請假就停擺。</li>
+        <li><strong>祥吉：</strong>一人管企劃、教學、備課、社群、訂單，腦力嚴重過載。</li>
+        <li><strong>智弘：</strong>「網站我自己架、前端我自己寫、招商全部我自己弄」——全才就是瓶頸。</li>
+      </ul>
+    </div>
+    <div class="pitch-line">「不是幫你找員工——是讓你分身。<br>你人不在，判斷力還在。」</div>
+  </div>
+</section>
+
+<!-- SECTION 4 -->
+<section class="section">
+  <div class="section-num">04</div>
+  <h2>技術實現路徑</h2>
+  <p>三個殺手功能不是夢——對應的技術棧已經就位。</p>
+  <div class="mech-grid">
+    <div class="mech-item">
+      <div class="mech-label ember">腦袋備份機</div>
+      <p><strong>Knowledge Lattice</strong>——對話中自動萃取知識結晶</p>
+      <p style="margin-top: 8px;"><strong>ACSF</strong>——將結晶鍛造成可執行的 AI Skill</p>
+      <p style="margin-top: 8px;"><strong>Resonance</strong>——捕捉對話中的情緒錨點</p>
+    </div>
+    <div class="mech-item">
+      <div class="mech-label teal">靈魂翻譯機</div>
+      <p><strong>Brand Identity</strong>——品牌定位五要素挖掘</p>
+      <p style="margin-top: 8px;"><strong>Storytelling Engine</strong>——故事結構 + 情緒弧線</p>
+      <p style="margin-top: 8px;"><strong>Text Alchemy + C15</strong>——品牌一致的持續產出</p>
+    </div>
+    <div class="mech-item">
+      <div class="mech-label gold">決策分身術</div>
+      <p><strong>Brain + Plan Engine</strong>——情境判斷 + 決策推演</p>
+      <p style="margin-top: 8px;"><strong>User Model</strong>——越用越懂老闆的決策風格</p>
+      <p style="margin-top: 8px;"><strong>Orchestrator</strong>——多 Skill 協作編排</p>
+    </div>
+    <div class="mech-item">
+      <div class="mech-label slate">共用底層</div>
+      <p><strong>DNA27 核心</strong>——三迴圈路由 + 27 反射叢集</p>
+      <p style="margin-top: 8px;"><strong>Eval Engine</strong>——數據驗證效果</p>
+      <p style="margin-top: 8px;"><strong>Pulse Engine</strong>——主動觀察 + 提醒</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 5 -->
+<section class="section" id="playbook">
+  <div class="section-num">05</div>
+  <h2>銷售劇本——怎麼讓客戶「非買不可」</h2>
+  <p>不賣功能、不賣效率、不賣 AI。<strong>賣解放。</strong></p>
+
+  <div class="case-study">
+    <div class="case-label">核心銷售邏輯</div>
+    <h4>不要問客戶「你想要什麼」<br>要問「什麼事情讓你最累？」</h4>
+    <p>客戶不會說「我要知識管理系統」——他會說「我怕老張退休」。客戶不會說「我要品牌定位顧問」——他會說「客人問我跟別人有什麼不同，我答不出來」。</p>
+    <p><strong>MUSEON 不是從「功能清單」出發，是從「那口氣」出發。</strong>聽到那口氣，就知道用哪個殺手功能接住他。</p>
+    <div class="case-stat-row">
+      <div class="case-stat">
+        <div class="case-stat-num">6/6</div>
+        <div class="case-stat-label">最累的是腦力不是體力</div>
+      </div>
+      <div class="case-stat">
+        <div class="case-stat-num">5/6</div>
+        <div class="case-stat-label">說不清自己的差異化</div>
+      </div>
+      <div class="case-stat">
+        <div class="case-stat-num">4/6</div>
+        <div class="case-stat-label">試過 AI 但只做到 60 分</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>各產業的「開門一句話」</h3>
+  <div class="insight-item">
+    <div class="insight-num" style="background: var(--teal);">機</div>
+    <div class="insight-content">
+      <h4>自動化機械（文祺）</h4>
+      <p>「你的師傅退休那天，40 年的故障排除經驗也退休了。如果師傅今天講的話、做的判斷，明天新人就能查到呢？」</p>
+    </div>
+  </div>
+  <div class="insight-item">
+    <div class="insight-num" style="background: var(--gold);">眼</div>
+    <div class="insight-content">
+      <h4>設計師眼鏡（Jarry）</h4>
+      <p>「AI 不是讓你跑更快——是讓你有時間慢下來做對的事。客人進門前就已經懂你的價值，不會被價格嚇跑。」</p>
+    </div>
+  </div>
+  <div class="insight-item">
+    <div class="insight-num">補</div>
+    <div class="insight-content">
+      <h4>政府補助顧問（蔡宗宸）</h4>
+      <p>「培養一個人到獨立作業要 3 年、花 126 萬。MUSEON 年費 7.2 萬，新人第一天就能用你的判斷力。算帳而已。」</p>
+    </div>
+  </div>
+  <div class="insight-item">
+    <div class="insight-num" style="background: var(--ember-dark);">咖</div>
+    <div class="insight-content">
+      <h4>咖啡店+教學（祥吉）</h4>
+      <p>「你的教學天賦是『讓人聽得懂』——但這個天賦只留在你一個人身上。讓 MUSEON 幫你把天賦變成可以傳給下一個人的系統。」</p>
+    </div>
+  </div>
+  <div class="insight-item">
+    <div class="insight-num" style="background: var(--teal);">設</div>
+    <div class="insight-content">
+      <h4>室內設計（阿福）</h4>
+      <p>「你花 20 年學會理解人——但花多少時間在報價、發票、跟工班確認細節？那些偷走的，是你本該花在客戶身上的注意力。」</p>
+    </div>
+  </div>
+  <div class="insight-item">
+    <div class="insight-num" style="background: var(--gold);">媒</div>
+    <div class="insight-content">
+      <h4>AI 媒體/GEO（智弘）</h4>
+      <p>「你幫別人被 AI 看見——但你自己呢？讓 MUSEON 幫你把自己做成第一個活案例。用結果說話，比任何銷售話術都強。」</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 6 -->
+<section class="section">
+  <div class="section-num">06</div>
+  <h2>銷售禁語——這些話說了就失去客戶</h2>
+  <div class="mech-grid">
+    <div class="mech-item">
+      <div class="mech-label ember">絕對不要說</div>
+      <p><strong>「AI 可以取代員工」</strong><br>他們怕的不是員工貴——是怕好員工走了經驗沒了。「取代」觸動的是焦慮，不是購買。</p>
+    </div>
+    <div class="mech-item">
+      <div class="mech-label ember">絕對不要說</div>
+      <p><strong>「提升效率」</strong><br>對匠人型老闆來說，效率 = 偷工減料。他們要的是品質，不是速度。</p>
+    </div>
+    <div class="mech-item">
+      <div class="mech-label teal">應該要說</div>
+      <p><strong>「讓你專心做你擅長的事」</strong><br>把 AI 定位成「解放者」而不是「取代者」。你繼續做核心的事，其他的交給 MUSEON。</p>
+    </div>
+    <div class="mech-item">
+      <div class="mech-label teal">應該要說</div>
+      <p><strong>「你的經驗不應該只在你腦袋裡」</strong><br>打中最深的恐懼——但不恐嚇，而是提供解法。</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 7 -->
+<section class="section">
+  <div class="section-num">07</div>
+  <h2>立即可執行的下一步</h2>
+  <div class="insight-item">
+    <div class="insight-num">1</div>
+    <div class="insight-content">
+      <h4>打造一個 15 分鐘 Demo</h4>
+      <p>挑一個產業（建議：政府補助 or 室內設計），用「腦袋備份機」做 live demo——老闆講 5 分鐘他怎麼做判斷，MUSEON 即時結構化出判斷邏輯圖。<strong>讓他親眼看見「我的腦袋被讀懂了」的瞬間</strong>——這比任何話術都有效。</p>
+    </div>
+  </div>
+  <div class="insight-item">
+    <div class="insight-num">2</div>
+    <div class="insight-content">
+      <h4>為 Jarry 做一份品牌翻譯</h4>
+      <p>用「靈魂翻譯機」幫喜德眼鏡做一份品牌敘事——把 21 年匠人精神翻譯成 IG 能用的語言。做完直接給他看，不收費。<strong>他的反應本身就是最好的銷售素材。</strong></p>
+    </div>
+  </div>
+  <div class="insight-item">
+    <div class="insight-num">3</div>
+    <div class="insight-content">
+      <h4>用蔡宗宸的語言做銷售頁</h4>
+      <p>他說：「你到底能不能幫我省錢？如果你的 10,000 可以取代 2 個人，買不買單？買啊。」——<strong>直接用他的算帳邏輯當銷售頁的核心</strong>：培訓一個人 126 萬 vs MUSEON 年費 7.2 萬。</p>
+    </div>
+  </div>
+  <div class="insight-item">
+    <div class="insight-num">4</div>
+    <div class="insight-content">
+      <h4>智弘 = 潛在合作夥伴</h4>
+      <p>他有 GEO 技術 + 媒體管道 + 異業合作經驗。MUSEON 幫他客戶做品牌定位，他幫 MUSEON 客戶做 GEO 曝光。<strong>互為彼此的服務延伸</strong>，各取所長。</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 8 -->
+<section class="section">
+  <div class="section-num">08</div>
+  <h2>待補強：剩餘四份逐字稿</h2>
+  <p>本報告基於六份逐字稿（01 文祺、02 Jarry、03 蔡宗宸、04 祥吉、05 阿福、06 智弘）。剩餘四份（07 尚甫-長照、08 嘉玲-房仲、09 林宏霖-工程行、10 憶琪-學校 IT）的 PDF 已收到但尚待解析。</p>
+  <div class="mech-grid">
+    <div class="mech-item">
+      <div class="mech-label gold">預期收斂</div>
+      <p>長照（行政過載）和工程行（報價 + 經驗傳承）極可能強化「腦袋備份機」和「決策分身術」的佐證。</p>
+    </div>
+    <div class="mech-item">
+      <div class="mech-label gold">預期新發現</div>
+      <p>房仲（嘉玲）預期會帶出「客戶追蹤 + 溫度管理」的新維度，可能催生第四個殺手功能：<strong>客戶溫度計</strong>。</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="footer-brand">MUSEON</div>
+  <p>在不奪權、不失真、不成癮的前提下，<br>打造可長期陪伴的人類對齊 AI 助理。</p>
+  <div class="footer-note">DSE CROSS-ANALYSIS · 6 TRANSCRIPTS · 375 MINUTES · 2026-03-19</div>
+</footer>
+
+</body>
+</html>
