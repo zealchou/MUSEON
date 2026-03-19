@@ -1,4 +1,4 @@
-# Blast Radius — 模組影響半徑表 v1.22
+# Blast Radius — 模組影響半徑表 v1.24
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
@@ -751,6 +751,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-19 | v1.24 | P1-P3 PersonaRouter 全接線：brain.py Step 3.65 baihe_decide context 從空 `{}` 填入 routing_signal+matched_skills+commitment+session_len+is_late_night；新增 Step 3.66 根因偵測層（`_detect_root_cause_hint()` Haiku 分析重複模式）；brain.py 新增共享狀態 baihe_cache.json(W)（原子寫入，供 ProactiveBridge 讀取）；proactive_bridge.py 新增 `_read_baihe_cache()`（讀 baihe_cache.json）、`_call_brain()` 根據象限注入語氣指引、`_build_context_messages()` 注入象限上下文；共享狀態 29→30 |
 | 2026-03-17 | v1.23 | 軍師架構 Phase 1：brain.py 共享狀態 lord_profile.json 從 W 升級為 RW（Step 3.65 百合引擎讀取+進諫冷卻寫回）；brain.py 新增 `_format_baihe_guidance()` 方法；Pipeline 註解新增 Step 3.65 |
 | 2026-03-17 | v1.22 | 軍師架構 Phase 0：brain.py 共享狀態新增 lord_profile.json(W)（`_observe_lord()` 原子寫入）；修改安全邊界「安全」欄新增 `_observe_lord()`（獨立觀察方法）；共享狀態 28→29 |
 | 2026-03-17 | v1.21 | 認知可觀測性：brain.py 角色新增 trace_decision+trace_cognitive（Step 8 認知追蹤）、共享狀態新增 cognitive_trace.jsonl(W)；system_audit.py 新增 `_audit_skill_doctor()` + 12 個 `_sd_check_*` 子方法（認知層檢查）、共享狀態讀取新增 cognitive_trace.jsonl(R)、`_check_skills` glob bug 修復；綠區新增 `governance/cognitive_receipt.py`（扇入=1，CognitiveReceipt dataclass）+ `MUSEON_observatory.html`（扇入=0，前端儀表板）；葉子模組 45→47；共享狀態 27→28 |

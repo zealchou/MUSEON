@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.17
+# Joint Map — 共享可變狀態接頭圖 v1.18
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -40,6 +40,7 @@
 | 27 | fact_corrections.jsonl | 🟢 | 1 | 3 | 無(append) | [→](#27-fact_correctionsjsonl) |
 | 28 | cognitive_trace.jsonl | 🟢 | 1 | 2 | 無(append) | [→](#28-cognitive_tracejsonl) |
 | 29 | lord_profile.json | 🟢 | 1 | 1+ | 原子寫 | [→](#29-lord_profilejson) |
+| 30 | _system/baihe_cache.json | 🟢 | 1 | 2 | 原子寫 | [→](#30-_systembaihe_cachejson) |
 
 > **危險度定義**：🔴 多寫入者+高扇出+格式不一致 | 🟡 多寫入者或高扇出 | 🟢 單寫入者+低扇出
 
@@ -669,6 +670,29 @@
 
 ---
 
+### 30. _system/baihe_cache.json
+
+**路徑**：`data/_system/baihe_cache.json`
+**用途**：百合引擎最近一次決策快取——讓 ProactiveBridge 在自省時知道 brain 的人格象限狀態
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| `agent/brain.py` | **W** | `Step 3.65` | 百合引擎決策後原子寫入（tmp→rename） | 原子寫入 |
+| `pulse/proactive_bridge.py` | **R** | `_read_baihe_cache()` | 自省前讀取象限，調整推送語氣和頻率 | — |
+
+#### 資料格式
+
+```json
+{"quadrant": "Q1", "expression_mode": "parallel_staff", "advise_tier": 0, "topic_domain": "strength", "ts": "2026-03-19T20:00:00"}
+```
+
+> **鎖**：原子寫入（.json.tmp → rename），單一寫入者 brain.py
+> **TTL**：讀取時只使用 2 小時內的快取，過期忽略
+
+---
+
 ## 必須同時修改的模組組（不可分批）
 
 > 修改以下任一模組時，**必須**同時檢查並調整同組所有模組。
@@ -723,6 +747,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-19 | v1.19 | P1-P3 PersonaRouter 全接線：新增 #30 `_system/baihe_cache.json`（🟢 危險度，單寫入者 brain.py `Step 3.65` 原子寫入，讀取者 `pulse/proactive_bridge.py` `_read_baihe_cache()`）；brain.py Step 3.65 baihe_decide() context 從空 `{}` 填入 routing_signal+matched_skills+commitment+session_len+is_late_night；brain.py 新增 Step 3.66 根因偵測層（`_detect_root_cause_hint()`，純記憶體，無持久化）；proactive_bridge.py 新增 baihe_cache.json 讀取依賴；共享狀態 29→30 個 |
 | 2026-03-17 | v1.18 | 軍師架構 Phase 1：#29 lord_profile.json 讀取者確認——brain.py Step 3.65 百合引擎讀取+進諫冷卻寫回，persona_router.py `baihe_decide()` 純讀（接收 dict 參數）；寫入者 1→2（brain.py: _observe_lord + Step 3.65 cooldown）；危險度維持 🟢（同一寫入者 brain.py 的兩個路徑） |
 | 2026-03-17 | v1.17 | 軍師架構 Phase 0：新增 #29 lord_profile.json（🟢 危險度，單寫入者 brain.py `_observe_lord()`，原子寫入）；讀取者預留 persona_router.py（Phase 1）；共享狀態 28→29 個 |
 | 2026-03-17 | v1.16 | 認知可觀測性：新增 #28 cognitive_trace.jsonl（FootprintStore.trace_cognitive() 寫入、SystemAudit Skill Doctor + Observatory 讀取）；#25 JSONL 審計日誌群新增 cognitive_trace.jsonl 條目（21→22 檔）；共享狀態 27→28 個 |

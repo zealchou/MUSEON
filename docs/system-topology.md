@@ -72,7 +72,7 @@
 | `response-synthesizer` | Response Synthesizer | DNA 交叉重組合成 | - | brain | 0.8 |
 | `flywheel-coordinator` | Flywheel Coordinator | 飛輪流動協調 | - | brain | 0.9 |
 | `primal-detector` | Primal Detector | 八原語偵測 | - | brain | 1.0 |
-| `persona-router` | Persona Router | 人格路由 | - | brain | 1.0 |
+| `persona-router` | Persona Router | 人格路由 + 百合引擎決策 | - | brain | 1.1 |
 | `drift-detector` | Drift Detector | 漂移偵測 | - | brain | 0.8 |
 | `okr-router` | OKR Router | 八卦路由 | - | brain | 0.9 |
 | `fact-correction` | Fact Correction | 事實覆寫引擎 | - | brain | 0.9 |
@@ -84,7 +84,7 @@
 | `heartbeat` | Heartbeat | 三脈主控 | - | pulse | 1.0 |
 | `explorer` | Explorer | 自主探索 | - | pulse | 1.1 |
 | `silent-digestion` | Silent Digestion | 靜默消化 | - | pulse | 1.0 |
-| `proactive-bridge` | Proactive Bridge | 主動推播 | - | pulse | 1.1 |
+| `proactive-bridge` | Proactive Bridge | 主動推播 + 百合引擎象限調適 | - | pulse | 1.2 |
 | `micro-pulse` | Micro Pulse | 秒級微脈 | - | pulse | 0.8 |
 | `pulse-db` | Pulse DB | 脈搏資料庫 | - | pulse | 0.8 |
 | `commitment-tracker` | Commitment | 承諾追蹤 | - | pulse | 0.9 |
@@ -388,6 +388,7 @@
 | `primal-detector` | `reflex-router` | 原語 boost |
 | `primal-detector` | `persona-router` | 原語調適 |
 | `primal-detector` | `okr-router` | 原語路由 |
+| `persona-router` | `proactive-bridge` | 象限決策結果回饋（P1-P3） |
 | `drift-detector` | `memory` | 覺察日誌 |
 | `fact-correction` | `memory` | 記憶覆寫（supersede） |
 | `fact-correction` | `vector-index` | 向量廢棄標記（mark_deprecated） |
@@ -555,6 +556,7 @@
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.18 | 2026-03-19 | P1-P3 PersonaRouter 全接線 + 四張藍圖同步：persona-router 節點半徑 1.0→1.1、proactive-bridge 節點半徑 1.1→1.2；新增 cross 連線 persona-router→proactive-bridge（象限決策結果回饋）；brain→proactive-bridge 連線描述更新為「推播 + 百合象限上下文注入」；版本統一為 v1.18（同步 blast-radius v1.24, persistence-contract v1.18, joint-map v1.18）；統計無變化；120 節點 240 連線 |
 | v1.0 | 2026-03-14 | 初版建立，59 節點 91 連線 |
 | v1.12 | 2026-03-17 | 軍師架構 Phase 0：data 群組新增 `lord-profile` 節點（+1 節點）；新增 2 條 cross 連線（brain→lord-profile 領域畫像寫入、lord-profile→persona-router 百合引擎讀取）；116 節點 220 連線 |
 | v1.11 | 2026-03-17 | 3D 心智圖全面同步：nightly 群組標籤統一為「30+ 步」；3D 新增 `observatory`+`cognitive-receipt` 節點（+2）、+7 連線（認知可觀測性閉環）；修正 multi-agent-executor/response-synthesizer/flywheel-coordinator 群組歸屬 multiagent→agent；SYNC_META 升級 v1.10；115 節點 218 連線（3D）|
