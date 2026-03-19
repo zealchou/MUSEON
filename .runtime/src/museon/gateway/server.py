@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 from fastapi import Body, FastAPI, Request, HTTPException, Header
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 import uvicorn
 
@@ -263,6 +264,14 @@ def create_app() -> FastAPI:
         version="0.2.0",
     )
 
+    # ─── CORS（Observatory / Electron 跨域存取）───
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
     # ─── Telegram adapter state ───
     app.state.telegram_adapter = None
     app.state.telegram_pump_task = None
@@ -445,8 +454,8 @@ def create_app() -> FastAPI:
                 app.state.telegram_pump_task.cancel()
                 try:
                     await app.state.telegram_pump_task
-                except asyncio.CancelledError:
-                    pass
+                except asyncio.CancelledError as e:
+                    logger.debug(f"[SERVER] telegram failed (degraded): {e}")
                 steps.append("已停止訊息泵")
 
             if app.state.telegram_adapter:
@@ -569,8 +578,49 @@ def create_app() -> FastAPI:
 
             checker = HealthChecker()
             report = checker.run_all()
-            return report.to_dict()
+            result = report.to_dict()
+            # 健檢完成 → 推送給 3D 心智圖
+            try:
+                if hasattr(app.state, "broadcast_doctor_status"):
+                    asyncio.ensure_future(app.state.broadcast_doctor_status())
+            except Exception:
+                pass
+            return result
         except Exception as e:
+            return {"error": str(e), "overall": "unknown", "checks": []}
+
+    @app.get("/api/doctor/skill-doctor")
+    async def doctor_skill_doctor() -> Dict[str, Any]:
+        """執行 Skill Doctor 雙層健檢（結構 + 認知）."""
+        try:
+            import asyncio
+            from museon.doctor.system_audit import SystemAuditor
+
+            brain = _get_brain()
+            auditor = SystemAuditor(
+                museon_home=str(Path(brain.data_dir).parent),
+            )
+            checks = await asyncio.to_thread(auditor._audit_skill_doctor)
+            result_checks = []
+            for c in checks:
+                result_checks.append({
+                    "name": c.name,
+                    "status": c.status,
+                    "message": c.message,
+                    "details": c.details if hasattr(c, "details") else {},
+                    "repairable": False,
+                    "repair_action": "",
+                })
+            ok_count = sum(1 for c in result_checks if c["status"] == "ok")
+            total = len(result_checks)
+            overall = "ok" if ok_count == total else "warning" if ok_count >= total // 2 else "critical"
+            return {
+                "timestamp": datetime.now().isoformat(),
+                "overall": overall,
+                "checks": result_checks,
+            }
+        except Exception as e:
+            logger.error("skill-doctor error: %s", e, exc_info=True)
             return {"error": str(e), "overall": "unknown", "checks": []}
 
     @app.post("/api/doctor/repair")
@@ -668,7 +718,7 @@ def create_app() -> FastAPI:
             import asyncio
             issues = await asyncio.to_thread(analyzer.scan_all)
 
-            return {
+            result = {
                 "success": True,
                 "total": len(issues),
                 "critical": sum(1 for i in issues if i.severity == "critical"),
@@ -686,8 +736,124 @@ def create_app() -> FastAPI:
                 ],
                 "report": CodeAnalyzer.format_report(issues),
             }
+            # 分析完成 → 推送給 3D 心智圖
+            try:
+                if hasattr(app.state, "broadcast_doctor_status"):
+                    asyncio.ensure_future(app.state.broadcast_doctor_status())
+            except Exception:
+                pass
+            return result
         except Exception as e:
             return {"success": False, "error": str(e)}
+
+    # ─── Doctor Node Status（3D 心智圖專用）───
+
+    @app.get("/api/doctor/node-status")
+    async def doctor_node_status() -> Dict[str, Any]:
+        """組合 health_check + code_health，回傳以 node_id 為 key 的診斷映射.
+
+        供 3D 心智圖即時顯示 Doctor 診斷結果。
+        """
+        from datetime import datetime as _dt
+
+        node_map: Dict[str, Dict[str, Any]] = {}  # {node_id: {status, issues[]}}
+
+        def _set_worst(nid: str, status: str, issue: str = ""):
+            """設定節點狀態（只往嚴重方向升級）"""
+            severity = {"ok": 0, "warning": 1, "critical": 2, "unknown": -1}
+            if nid not in node_map:
+                node_map[nid] = {"status": "ok", "issues": []}
+            cur = severity.get(node_map[nid]["status"], 0)
+            new = severity.get(status, 0)
+            if new > cur:
+                node_map[nid]["status"] = status
+            if issue:
+                node_map[nid]["issues"].append(issue)
+
+        # ── A. Health Check 12 項 → 映射到節點 ──
+        try:
+            from museon.doctor.health_check import HealthChecker
+            import asyncio as _hc_aio
+            checker = HealthChecker()
+            report = await _hc_aio.to_thread(checker.run_all)
+
+            # 映射表：檢查名稱關鍵字 → 節點 ID 列表
+            _hc_map = {
+                "gateway": ["gateway"],
+                "daemon": ["daemon"],
+                "數據完整性": ["diary-store", "pulse-db", "memory-store"],
+                "核心模組": ["brain", "skill-router", "gateway"],
+                "dashboard": ["electron"],
+                "app": ["electron"],
+                "api key": ["llm-router"],
+                ".env": ["llm-router"],
+            }
+
+            for chk in report.to_dict().get("checks", []):
+                chk_name = chk.get("name", "")
+                chk_status = chk.get("status", "ok")
+                if chk_status == "ok":
+                    continue
+                matched = False
+                for keyword, nids in _hc_map.items():
+                    if keyword.lower() in chk_name.lower():
+                        for nid in nids:
+                            _set_worst(nid, chk_status, f"[健檢] {chk_name}: {chk.get('message', '')}")
+                        matched = True
+                if not matched:
+                    # 系統級問題不映射到特定節點
+                    pass
+        except Exception as hc_err:
+            logger.debug(f"node-status health_check failed: {hc_err}")
+
+        # ── B. Code Analyzer AST → 映射到節點 ──
+        try:
+            from museon.doctor.code_analyzer import CodeAnalyzer
+            import asyncio as _aio
+
+            project_root = Path(data_dir).parent
+            analyzer = CodeAnalyzer(source_root=project_root / "src" / "museon")
+            issues = await _aio.to_thread(analyzer.scan_all)
+
+            for issue in issues:
+                # 路徑轉節點 ID：src/museon/agent/brain.py → brain
+                fp = issue.file_path
+                parts = Path(fp).parts
+                # 找 museon 之後的路徑
+                try:
+                    idx = list(parts).index("museon")
+                    if idx + 2 < len(parts):
+                        module_file = parts[idx + 2]  # e.g., "brain.py"
+                        nid = module_file.replace(".py", "").replace("_", "-")
+                        _set_worst(
+                            nid,
+                            issue.severity,
+                            f"[{issue.rule_id}] {issue.message} ({Path(fp).name}:{issue.line})",
+                        )
+                except (ValueError, IndexError):
+                    pass
+        except Exception as ca_err:
+            logger.debug(f"node-status code_analyzer failed: {ca_err}")
+
+        # ── 統計 ──
+        summary = {"ok": 0, "warning": 0, "critical": 0}
+        for v in node_map.values():
+            s = v["status"]
+            if s in summary:
+                summary[s] += 1
+
+        overall = "ok"
+        if summary["critical"] > 0:
+            overall = "critical"
+        elif summary["warning"] > 0:
+            overall = "warning"
+
+        return {
+            "timestamp": _dt.now().isoformat(),
+            "overall": overall,
+            "nodes": node_map,
+            "summary": summary,
+        }
 
     # ─── Budget 用量端點（純 CPU）───
 
@@ -814,6 +980,26 @@ def create_app() -> FastAPI:
         except Exception as e:
             return {"error": str(e)}
 
+    @app.get("/api/anima/user/group-behaviors")
+    async def anima_user_group_behaviors() -> Dict[str, Any]:
+        """取得 ANIMA_USER L8 群組行為觀察."""
+        try:
+            brain = _get_brain()
+            dd = getattr(brain, "data_dir", None) or str(Path.home() / "MUSEON" / "data")
+            anima_path = Path(dd) / "anima" / "anima_user.json"
+            if not anima_path.exists():
+                return {"observations": [], "group_stats": {}, "count": 0}
+            import json as _json
+            anima_user = _json.loads(anima_path.read_text(encoding="utf-8"))
+            l8 = anima_user.get("L8_context_behavior_notes", {})
+            return {
+                "observations": l8.get("observations", [])[-20:],  # 最近 20 筆
+                "group_stats": l8.get("group_stats", {}),
+                "count": len(l8.get("observations", [])),
+            }
+        except Exception as e:
+            return {"error": str(e), "observations": [], "group_stats": {}}
+
     @app.get("/api/pulse/explorations")
     async def pulse_explorations() -> Dict[str, Any]:
         """取得今日探索日誌"""
@@ -928,8 +1114,8 @@ def create_app() -> FastAPI:
             try:
                 from museon.core.event_bus import get_event_bus
                 event_bus = get_event_bus()
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[SERVER] module import failed (degraded): {e}")
 
             executor = MorphenixExecutor(
                 workspace=Path(brain.data_dir),
@@ -965,8 +1151,8 @@ def create_app() -> FastAPI:
                         if line:
                             try:
                                 logs.append(json.loads(line))
-                            except Exception:
-                                pass
+                            except Exception as e:
+                                logger.debug(f"[SERVER] JSON failed (degraded): {e}")
             return {"logs": logs[:50]}
         except Exception as e:
             return {"error": str(e)}
@@ -1052,6 +1238,40 @@ def create_app() -> FastAPI:
             }
         except Exception as e:
             return {"error": str(e), "haiku": {}, "sonnet": {}, "savings": {}}
+
+    # ── Footprint API（認知回執 / 決策軌跡 / Skill 使用）──
+
+    @app.get("/api/footprints/cognitive_trace")
+    async def footprints_cognitive(limit: int = 20) -> list:
+        """取得最近的認知回執（CognitiveReceipt）."""
+        try:
+            brain = _get_brain()
+            return brain._footprint.get_recent_cognitive(limit)
+        except Exception as e:
+            logger.warning("footprints_cognitive error: %s", e)
+            return []
+
+    @app.get("/api/footprints/decisions")
+    async def footprints_decisions(limit: int = 20) -> list:
+        """取得最近的決策軌跡（DecisionTrace）."""
+        try:
+            brain = _get_brain()
+            return brain._footprint.get_recent_decisions(limit)
+        except Exception as e:
+            logger.warning("footprints_decisions error: %s", e)
+            return []
+
+    @app.get("/api/footprints/skill_usage")
+    async def footprints_skill_usage(limit: int = 50) -> list:
+        """取得最近的動作足跡（含 Skill 使用資訊）."""
+        try:
+            brain = _get_brain()
+            actions = brain._footprint.get_recent_actions(limit)
+            # 篩選有 skill 資訊的動作
+            return [a for a in actions if a.get("action_type") == "skill_routing" or a.get("skills")]
+        except Exception as e:
+            logger.warning("footprints_skill_usage error: %s", e)
+            return []
 
     # ── Token 節省明細 API ──
 
@@ -1295,8 +1515,13 @@ def create_app() -> FastAPI:
             # WP-03: 注入 DendriticScorer 健康閘門
             _gov = getattr(app.state, "governor", None)
             _dendritic = getattr(_gov, "_dendritic", None) if _gov else None
+            # 合約 4：補齊 memory_manager + heartbeat_focus（與生產端一致）
+            _memory_manager = getattr(brain, "memory_manager", None) or getattr(brain, "_memory_manager", None)
+            _heartbeat_focus = getattr(app.state, "heartbeat_focus", None)
             pipeline = NightlyPipeline(
                 workspace=brain.data_dir,
+                memory_manager=_memory_manager,
+                heartbeat_focus=_heartbeat_focus,
                 event_bus=event_bus,
                 brain=brain,
                 dendritic_scorer=_dendritic,
@@ -1405,7 +1630,7 @@ def create_app() -> FastAPI:
             brain = _get_brain()
             from museon.core.skill_manager import SkillManager
             mgr = SkillManager(workspace=brain.data_dir)
-            return mgr.scan_all()
+            return await asyncio.to_thread(mgr.scan_all)
         except Exception as e:
             return {"error": str(e)}
 
@@ -1530,8 +1755,8 @@ def create_app() -> FastAPI:
                             "result_count": len(data.get("results", [])),
                             "created_at": data.get("created_at"),
                         })
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.debug(f"[SERVER] file stat failed (degraded): {e}")
             return {"active_plans": plans, "count": len(plans)}
         except Exception as e:
             return {"error": str(e), "active_plans": [], "count": 0}
@@ -1577,8 +1802,8 @@ def create_app() -> FastAPI:
                                 "total_token_usage", {},
                             ),
                         })
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.debug(f"[SERVER] token failed (degraded): {e}")
             # 按 created_at 倒序，取前 20
             entries.sort(
                 key=lambda x: x.get("created_at", ""),
@@ -2025,8 +2250,8 @@ def create_app() -> FastAPI:
                         1 for c in conn.values()
                         if c.status == "connected"
                     )
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[SERVER] file stat failed (degraded): {e}")
 
             mcp_step = {
                 "step": 3,
@@ -2526,15 +2751,14 @@ def create_app() -> FastAPI:
                         json.dumps(servers, indent=2, ensure_ascii=False),
                         encoding="utf-8",
                     )
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[SERVER] JSON failed (degraded): {e}")
 
             return result
         except Exception as e:
             logger.error(f"MCP disconnect failed: {e}", exc_info=True)
             return {"success": False, "error": str(e)}
 
-    @app.on_event("startup")
     async def startup_event():
         """Initialize services on startup."""
         logger.info("Starting MUSEON Gateway")
@@ -2570,8 +2794,8 @@ def create_app() -> FastAPI:
             try:
                 # Governor 已成功啟動（否則上方 except 會記錄 warning）
                 bulkhead.register("governor", lambda: None, critical=True)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[SERVER] operation failed (degraded): {e}")
 
         # ── Initialize MUSEON Brain ──
         brain = _get_brain()
@@ -2768,6 +2992,14 @@ def create_app() -> FastAPI:
                         heartbeat_focus = HeartbeatFocus(state_path=_hf_state)
                         adapter.connect_pulse(event_bus, heartbeat_focus)
 
+                        # ── PI-2 配置初始化：讓 _cfg() 讀取 pulse_config.json ──
+                        try:
+                            from museon.pulse.pulse_intervention import init_config as _pi_init
+                            _pi_init(str(brain.data_dir))
+                            logger.info("PulseIntervention config initialized (PI-2 hot-reload ready)")
+                        except Exception as _pi_err:
+                            logger.warning(f"PulseIntervention config init failed (degraded): {_pi_err}")
+
                         # ── ProactiveBridge: 心跳→大腦→頻道 ──
                         from museon.pulse.proactive_bridge import ProactiveBridge
                         proactive_bridge = ProactiveBridge(
@@ -2776,6 +3008,7 @@ def create_app() -> FastAPI:
                             heartbeat_focus=heartbeat_focus,
                         )
                         app.state.proactive_bridge = proactive_bridge
+                        app.state.heartbeat_focus = heartbeat_focus
                         logger.info("ProactiveBridge connected to EventBus")
 
                         # ── HeartbeatEngine: 驅動 ProactiveBridge 定期自省 ──
@@ -2796,22 +3029,26 @@ def create_app() -> FastAPI:
 
                         # ── VITA PulseEngine: 生命力引擎 ──
                         try:
-                            from museon.pulse.pulse_db import PulseDB
+                            from museon.pulse.pulse_db import get_pulse_db
                             from museon.pulse.explorer import Explorer
                             from museon.pulse.anima_tracker import AnimaTracker
+                            from museon.pulse.anima_mc_store import get_anima_mc_store
                             from museon.pulse.pulse_engine import PulseEngine
 
-                            pulse_db = PulseDB(
-                                db_path=str(brain.data_dir / "pulse" / "pulse.db")
-                            )
+                            pulse_db = get_pulse_db(brain.data_dir)
                             explorer = Explorer(
                                 brain=brain,
                                 data_dir=str(brain.data_dir),
                                 searxng_url="http://127.0.0.1:8888",
                             )
+                            # ★ 取得 AnimaMCStore 單例（Brain 已初始化）
+                            _anima_mc_store = get_anima_mc_store(
+                                path=brain.data_dir / "ANIMA_MC.json"
+                            )
                             anima_tracker = AnimaTracker(
                                 anima_path=str(brain.data_dir / "ANIMA_MC.json"),
                                 pulse_db=pulse_db,
+                                anima_mc_store=_anima_mc_store,
                             )
                             pulse_engine = PulseEngine(
                                 brain=brain,
@@ -2827,6 +3064,40 @@ def create_app() -> FastAPI:
                             app.state.anima_tracker = anima_tracker
                             logger.info("VITA PulseEngine initialized")
 
+                            # ── P2: Governor ↔ PulseDB Incident 橋接 ──
+                            _gov_for_pdb = getattr(app.state, "governor", None)
+                            if _gov_for_pdb and pulse_db:
+                                def _bridge_incident_to_pulsedb(
+                                    incident,
+                                    _pdb=pulse_db,
+                                ):
+                                    """將 immunity incident 同步寫入 PulseDB.incidents."""
+                                    _pdb.save_incident(
+                                        incident_id=incident.incident_id,
+                                        incident_type="immunity_event",
+                                        module=incident.category,
+                                        pattern=incident.symptom_name,
+                                        health_delta=(
+                                            -10.0
+                                            if incident.severity == "severe"
+                                            else -5.0
+                                        ),
+                                        suggested_tier=(
+                                            2 if not incident.resolved else 1
+                                        ),
+                                        raw_log_snippet=(
+                                            incident.description[:500]
+                                        ),
+                                    )
+
+                                _gov_for_pdb.set_incident_callback(
+                                    _bridge_incident_to_pulsedb
+                                )
+                                logger.info(
+                                    "🛡️ P2: Governor → PulseDB incident "
+                                    "bridge connected"
+                                )
+
                             # ── MicroPulse: 零 LLM 系統健康脈搏 ──
                             try:
                                 from museon.pulse.micro_pulse import register_micro_pulse
@@ -2834,6 +3105,7 @@ def create_app() -> FastAPI:
                                     heartbeat_focus=heartbeat_focus,
                                     event_bus=event_bus,
                                     workspace=str(brain.data_dir),
+                                    anima_mc_store=_anima_mc_store,
                                 )
                                 app.state.micro_pulse = micro_pulse
                                 logger.info(
@@ -2916,11 +3188,11 @@ def create_app() -> FastAPI:
                             try:
                                 title = data.get("topic", "") or data.get("title", "")
                                 findings = data.get("findings", "") or data.get("summary", "")
-                                summary = findings[:200] if findings else ""
+                                summary = findings[:500] if findings else ""
                                 hint = f"[探索發現] {title}: {summary}" if summary else f"[探索發現] {title}"
                                 proactive_bridge.add_context_hint(hint)
-                            except Exception:
-                                pass
+                            except Exception as e:
+                                logger.debug(f"[SERVER] operation failed (degraded): {e}")
 
                         event_bus.subscribe(EXPLORATION_INSIGHT, _on_exploration_result)
                         event_bus.subscribe(EXPLORATION_CRYSTALLIZED, _on_exploration_result)
@@ -2938,8 +3210,8 @@ def create_app() -> FastAPI:
                                 if errors:
                                     hint += f", {len(errors)} 個失敗"
                                 proactive_bridge.add_context_hint(hint)
-                            except Exception:
-                                pass
+                            except Exception as e:
+                                logger.debug(f"[SERVER] operation failed (degraded): {e}")
                         event_bus.subscribe(NIGHTLY_COMPLETED, _on_nightly_completed)
                         logger.info("Nightly → ProactiveBridge neural tract connected")
 
@@ -2953,8 +3225,8 @@ def create_app() -> FastAPI:
                                 note = data.get("note", "")
                                 if note and hasattr(app.state, "pulse_engine") and app.state.pulse_engine:
                                     app.state.pulse_engine.add_relationship_note(note)
-                            except Exception:
-                                pass
+                            except Exception as e:
+                                logger.debug(f"[SERVER] pulse failed (degraded): {e}")
 
                         event_bus.subscribe(RELATIONSHIP_SIGNAL, _on_relationship_signal)
                         logger.info("Relationship → PulseEngine neural tract connected")
@@ -2974,8 +3246,8 @@ def create_app() -> FastAPI:
                                         memory_manager=getattr(brain, "memory_manager", None),
                                     )
                                     wee.auto_cycle(data)
-                                except Exception:
-                                    pass
+                                except Exception as e:
+                                    logger.debug(f"[SERVER] WEE failed (degraded): {e}")
 
                             event_bus.subscribe(BRAIN_RESPONSE_COMPLETE, _on_brain_response)
                             logger.info("WEE neural tract connected (BRAIN_RESPONSE_COMPLETE → auto_cycle)")
@@ -2996,10 +3268,9 @@ def create_app() -> FastAPI:
                                 "PULSE_PROACTIVE_SENT",
                                 "PULSE_EXPLORATION_DONE",
                                 "PULSE_MICRO_BEAT",
-                                "EVOLUTION_HEARTBEAT",
                                 "AUTONOMOUS_TASK_DONE",
                                 "MORPHENIX_PROPOSAL_CREATED",
-                                "MORPHENIX_EXECUTED",
+                                "MORPHENIX_EXECUTION_COMPLETED",
                                 "WEE_CYCLE_COMPLETE",
                                 "CRYSTAL_CREATED",
                                 "SOUL_RING_DEPOSITED",
@@ -3014,8 +3285,8 @@ def create_app() -> FastAPI:
                                     def _h(data):
                                         try:
                                             _activity_logger.log(name, data, source="event_bus")
-                                        except Exception:
-                                            pass
+                                        except Exception as e:
+                                            logger.debug(f"[SERVER] operation failed (degraded): {e}")
                                     return _h
                                 event_bus.subscribe(_evt_const, _make_handler(_evt_name))
                             logger.info("ActivityLogger connected to EventBus (%d events)", len(_log_events))
@@ -3130,7 +3401,6 @@ def create_app() -> FastAPI:
             f"| 子系統: {bulkhead.get_status()}"
         )
 
-    @app.on_event("shutdown")
     async def shutdown_event():
         """Cleanup on shutdown."""
         logger.info("Shutting down MUSEON Gateway")
@@ -3146,8 +3416,8 @@ def create_app() -> FastAPI:
             app.state.telegram_pump_task.cancel()
             try:
                 await app.state.telegram_pump_task
-            except asyncio.CancelledError:
-                pass
+            except asyncio.CancelledError as e:
+                logger.debug(f"[SERVER] telegram failed (degraded): {e}")
 
         # Stop Telegram adapter
         if app.state.telegram_adapter:
@@ -3176,6 +3446,10 @@ def create_app() -> FastAPI:
         if governor:
             await governor.stop()
             logger.info("🛡️ Governor: all governance subsystems stopped")
+
+    # 註冊生命週期事件（避免 @app.on_event() DeprecationWarning）
+    app.router.on_startup.append(startup_event)
+    app.router.on_shutdown.append(shutdown_event)
 
     return app
 
@@ -3247,8 +3521,8 @@ async def _progress_updater(
                                 f"傳送「停止」可中斷當前任務。"
                             ),
                         )
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.debug(f"[SERVER] operation failed (degraded): {e}")
                 else:
                     await adapter.update_processing_status(
                         chat_id, status_msg_id,
@@ -3257,8 +3531,8 @@ async def _progress_updater(
 
                 await asyncio.sleep(13)  # + 前面的 2s ≈ 15s 間隔
 
-    except asyncio.CancelledError:
-        pass
+    except asyncio.CancelledError as e:
+        logger.debug(f"[SERVER] async op failed (degraded): {e}")
     except Exception as e:
         logger.debug(f"Progress updater stopped: {e}")
 
@@ -3290,6 +3564,10 @@ async def _telegram_message_pump(adapter) -> None:
 
             username = message.metadata.get("username", "unknown")
             chat_id = message.metadata.get("chat_id")
+            is_group = message.metadata.get("is_group", False)
+            is_owner = message.metadata.get("is_owner", False)
+            sender_name = message.metadata.get("sender_name", "")
+            group_id = message.metadata.get("group_id")
             logger.info(
                 f"Telegram [{username}]: {message.content[:80]}"
             )
@@ -3310,15 +3588,93 @@ async def _telegram_message_pump(adapter) -> None:
                         _progress_updater(adapter, chat_id, status_msg_id)
                     )
 
-            # ── 2. Route through MUSEON Brain ──
+            # ── 2. Route through MUSEON Brain (with session lock) ──
             response_text = None
             brain_result = None  # v9.0: raw BrainResponse
             brain = _get_brain()
 
+            # Acquire session lock (same pattern as webhook handler)
+            _session_locked = False
+            if message.session_id and session_manager:
+                _session_locked = await session_manager.acquire(message.session_id)
+                if not _session_locked:
+                    logger.warning(f"Session {message.session_id} busy, queuing message")
+                    # Wait briefly then retry once
+                    await asyncio.sleep(2)
+                    _session_locked = await session_manager.acquire(message.session_id)
+
             try:
+                # ── Check if owner is responding to a sensitivity escalation ──
+                if not is_group and is_owner:
+                    try:
+                        from museon.governance.multi_tenant import get_escalation_queue
+                        eq = get_escalation_queue()
+                        # Bug fix: 剝離 Reply 前綴，只取使用者實際輸入
+                        _raw = message.content.strip()
+                        import re as _re
+                        _stripped = _re.sub(
+                            r"^\[回覆.*?的訊息：.*?\]\s*", "", _raw, flags=_re.DOTALL
+                        ).strip()
+                        content_lower = _stripped.lower() if _stripped else _raw.lower()
+
+                        # Bug fix: 否定詞優先匹配（「不行」「不可以」必須先於「行」「可以」）
+                        _DENY_KW = ("不行", "不可以", "不要", "拒絕", "no", "deny", "不准", "別回答")
+                        _APPROVE_KW = ("可以", "yes", "ok", "好", "行", "沒問題", "回答")
+                        _is_deny = any(kw in content_lower for kw in _DENY_KW)
+                        _is_approve = any(kw in content_lower for kw in _APPROVE_KW) and not _is_deny
+
+                        if _is_approve:
+                            eid = eq.resolve_latest(allowed=True)
+                            if eid:
+                                entry = eq.get(eid)
+                                if entry:
+                                    _q = entry.get("question", "")
+                                    _gid = entry.get("group_id")
+                                    _asker = entry.get("asker_name", "對方")
+                                    response_text = f"好，正在回覆 {_asker} 的問題。"
+                                    # Actually process & reply to group
+                                    if _gid and _q:
+                                        try:
+                                            _gr = await brain.process(
+                                                content=_q,
+                                                session_id=f"telegram_group_{abs(_gid)}",
+                                                user_id="external",
+                                                source="telegram",
+                                                metadata={"permission_level": "external", "sender_name": _asker, "is_group": True},
+                                            )
+                                            from museon.gateway.message import BrainResponse as _BR
+                                            if isinstance(_gr, _BR):
+                                                _reply = _gr.text or "好的，讓我想想看。"
+                                            else:
+                                                _reply = str(_gr) if _gr else "好的，讓我想想看。"
+                                            await adapter.application.bot.send_message(
+                                                chat_id=_gid, text=_reply
+                                            )
+                                            logger.info(f"Group escalation reply sent to {_gid} for {_asker}")
+                                        except Exception as _grp_err:
+                                            logger.error(f"Group reply after escalation failed: {_grp_err}", exc_info=True)
+                        elif _is_deny:
+                            eid = eq.resolve_latest(allowed=False)
+                            if eid:
+                                entry = eq.get(eid)
+                                if entry:
+                                    _gid = entry.get("group_id")
+                                    _asker = entry.get("asker_name", "對方")
+                                    response_text = f"好，已記錄。{_asker} 那邊我會禮貌拒絕。"
+                                    if _gid:
+                                        try:
+                                            await adapter.application.bot.send_message(
+                                                chat_id=_gid,
+                                                text="這個問題目前不方便回答，抱歉。有其他需要歡迎繼續詢問。",
+                                            )
+                                        except Exception as _grp_err:
+                                            logger.error(f"Group decline send failed: {_grp_err}", exc_info=True)
+                    except Exception as _esc_err:
+                        logger.debug(f"Escalation check error: {_esc_err}")
+
                 # /start 觸發命名儀式（Brain 內部處理）
                 # /reset 強制重跑命名儀式
-                if message.content in ("/start", "/reset"):
+                if response_text is None and message.content in ("/start", "/reset"):
                     if message.content == "/reset":
                         # 強制重置儀式狀態
                         brain.ceremony._state = {
@@ -3354,13 +3710,114 @@ async def _telegram_message_pump(adapter) -> None:
                             user_id=message.user_id,
                             source="telegram",
                         )
-                else:
-                    brain_result = await brain.process(
-                        content=message.content,
-                        session_id=message.session_id,
-                        user_id=message.user_id,
-                        source="telegram",
-                    )
+                elif response_text is None:
+                    if is_group:
+                        # Group message processing (owner or non-owner, @mentioned)
+                        # Phase 1: Multi-tenant setup (imports, context, sensitivity check)
+                        # Errors here → "忙碌中" for non-owner (setup failure)
+                        _mt_ready = False
+                        _brain_content = None
+                        _brain_metadata = None
+                        try:
+                            from museon.governance.multi_tenant import (
+                                get_sensitivity_checker, get_escalation_queue, ExternalAnimaManager
+                            )
+                            from museon.governance.group_context import get_group_context_store
+                            from pathlib import Path as _Path
+                            import uuid as _uuid
+
+                            # Load boss name from ANIMA_MC so Brain recognizes owner
+                            _boss_name = ""
+                            _owner_ids = set()
+                            try:
+                                anima_mc = brain._load_anima_mc()
+                                if anima_mc:
+                                    _boss_name = anima_mc.get("boss", {}).get("name", "")
+                                _owner_ids = set(adapter.trusted_user_ids) if hasattr(adapter, "trusted_user_ids") else set()
+                            except Exception as e:
+                                logger.debug(f"[SERVER] brain failed (degraded): {e}")
+
+                            # Load recent group context for intelligent replies
+                            _ctx_store = get_group_context_store()
+                            _group_context = _ctx_store.format_context_for_prompt(
+                                group_id or 0, limit=20,
+                                owner_ids=_owner_ids, boss_name=_boss_name,
+                            )
+
+                            if not is_owner:
+                                # Sensitivity check for non-owner messages
+                                checker = get_sensitivity_checker()
+                                level, reason = checker.check(message.content)
+
+                                if level:
+                                    eq = get_escalation_queue()
+                                    eid = _uuid.uuid4().hex[:8]
+                                    eq.add(eid, message.content, sender_name, group_id or 0, level)
+
+                                    dm_text = (
+                                        f"【群組敏感問題 - {level}】\n\n"
+                                        f"{sender_name} 在群組問了：\n「{message.content[:200]}」\n\n"
+                                        f"原因：{reason}\n\n"
+                                        f"可以回答嗎？\n"
+                                        f"回覆「可以」→ 我照常回答\n"
+                                        f"回覆「不行」→ 我禮貌拒絕\n"
+                                        f"（10 分鐘無回應 → 預設禮貌拒絕）"
+                                    )
+                                    await adapter.send_dm_to_owner(dm_text)
+                                    response_text = f"這個問題我需要先確認一下，稍等。"
+                                else:
+                                    # Not sensitive: update external anima, prepare content for brain
+                                    data_dir = _Path(brain.data_dir)
+                                    ext_mgr = ExternalAnimaManager(data_dir)
+                                    ext_mgr.update(message.user_id, display_name=sender_name, group_id=group_id)
+
+                                    group_prefix = f"[群組會議] {sender_name} 問：\n"
+                                    _brain_content = group_prefix + message.content
+                                    if _group_context:
+                                        _brain_content = _group_context + "\n\n" + _brain_content
+                                    _brain_metadata = {"is_group": True, "sender_name": sender_name}
+                                    _mt_ready = True
+                            else:
+                                # Owner in group: use boss_name so Brain recognizes its boss
+                                _display = _boss_name or sender_name
+                                group_prefix = f"[群組] {_display}（老闆）說：\n"
+                                _brain_content = group_prefix + message.content
+                                if _group_context:
+                                    _brain_content = _group_context + "\n\n" + _brain_content
+                                _brain_metadata = {"is_group": True, "sender_name": _display, "is_owner": True}
+                                _mt_ready = True
+                        except Exception as _mt_err:
+                            logger.error(f"Multi-tenant setup error: {_mt_err}", exc_info=True)
+                            if is_owner:
+                                # Owner fallback: process without multi-tenant context
+                                _brain_content = message.content
+                                _brain_metadata = {"is_group": True, "sender_name": sender_name, "is_owner": True}
+                                _mt_ready = True
+                            else:
+                                # Non-owner: multi-tenant setup failed, cannot safely determine sensitivity
+                                response_text = "目前系統忙碌中，請稍後再試。"
+                                logger.warning(f"Blocked non-owner group msg due to multi-tenant setup error: {_mt_err}")
+
+                        # Phase 2: Brain processing (OUTSIDE multi-tenant try/except)
+                        # brain.process() errors propagate to outer handler (line ~3834)
+                        # which has proper error messages for both owner and non-owner
+                        if _mt_ready and response_text is None:
+                            brain_result = await brain.process(
+                                content=_brain_content,
+                                session_id=message.session_id,
+                                user_id=message.user_id,
+                                source="telegram",
+                                metadata=_brain_metadata,
+                            )
+                    else:
+                        # Normal DM processing (owner or trusted user)
+                        brain_result = await brain.process(
+                            content=message.content,
+                            session_id=message.session_id,
+                            user_id=message.user_id,
+                            source="telegram",
+                            metadata=message.metadata if is_group else None,
+                        )
 
                 # v9.0: Extract text from BrainResponse
                 if brain_result is not None and response_text is None:
@@ -3370,6 +3827,13 @@ async def _telegram_message_pump(adapter) -> None:
                     else:
                         response_text = str(brain_result) if brain_result else ""
 
+                # ── 自癒：空回應 fallback（防止 Telegram 拒絕空訊息）──
+                if not response_text or not response_text.strip():
+                    logger.warning("Brain returned empty response, applying fallback")
+                    _mc = brain._load_anima_mc()
+                    _name = _mc.get("identity", {}).get("name", "霓裳") if _mc else "霓裳"
+                    response_text = f"[{_name}] 我剛才想了一下，但沒有組織出回應。你可以再說一次嗎？"
+
             except Exception as proc_err:
                 # Brain 處理失敗（API timeout、離線等）→ 回傳錯誤訊息給使用者
                 logger.error(f"Brain processing failed: {proc_err}", exc_info=True)
@@ -3377,19 +3841,28 @@ async def _telegram_message_pump(adapter) -> None:
                 name = "MUSEON"
                 if anima_mc:
                     name = anima_mc.get("identity", {}).get("name", "MUSEON")
-                response_text = (
-                    f"[{name}] 處理過程發生錯誤，請稍後再試。\n\n"
-                    f"錯誤類型：{type(proc_err).__name__}\n"
-                    f"如果持續發生，請用 /reset 重新啟動。"
-                )
+                if is_group and not is_owner:
+                    # 群組外部用戶：不洩漏技術細節
+                    response_text = f"不好意思，我現在有點忙，請稍後再試。"
+                else:
+                    # Owner 或私訊：顯示錯誤細節方便除錯
+                    response_text = (
+                        f"[{name}] 處理過程發生錯誤，請稍後再試。\n\n"
+                        f"錯誤類型：{type(proc_err).__name__}\n"
+                        f"如果持續發生，請用 /reset 重新啟動。"
+                    )
+            finally:
+                # Release session lock
+                if _session_locked and message.session_id and session_manager:
+                    await session_manager.release(message.session_id)
 
             # ── 3. 停止進度更新器 ──
             if progress_task:
                 progress_task.cancel()
                 try:
                     await progress_task
-                except asyncio.CancelledError:
-                    pass
+                except asyncio.CancelledError as e:
+                    logger.debug(f"[SERVER] operation failed (degraded): {e}")
 
             # ── 4. 先更新進度訊息為「✍️ 正在發送...」──
             if status_msg_id and chat_id:
@@ -3452,8 +3925,8 @@ async def _telegram_message_pump(adapter) -> None:
                 progress_task.cancel()
                 try:
                     await progress_task
-                except (asyncio.CancelledError, Exception):
-                    pass
+                except (asyncio.CancelledError, Exception) as e:
+                    logger.debug(f"[SERVER] operation failed (degraded): {e}")
 
             # ── 斷路器模式 ──
             if consecutive_errors >= CIRCUIT_BREAKER_THRESHOLD:
@@ -3977,8 +4450,8 @@ def _register_external_endpoints(app, data_dir) -> None:
                                 "title": data.get("title", ""),
                                 "timestamp": data.get("timestamp", ""),
                             })
-                        except Exception:
-                            pass
+                        except Exception as e:
+                            logger.debug(f"[SERVER] module import failed (degraded): {e}")
 
                         # 存入記憶
                         brain = _get_brain()
@@ -4012,8 +4485,8 @@ def _register_external_endpoints(app, data_dir) -> None:
                                 "context": data.get("context", ""),
                                 "timestamp": data.get("timestamp", ""),
                             })
-                        except Exception:
-                            pass
+                        except Exception as e:
+                            logger.debug(f"[SERVER] module import failed (degraded): {e}")
 
                         # 用 Brain 處理
                         brain = _get_brain()
@@ -4045,8 +4518,8 @@ def _register_external_endpoints(app, data_dir) -> None:
                 except Exception as handler_err:
                     logger.debug(f"Extension handler error: {handler_err}")
 
-        except WebSocketDisconnect:
-            pass
+        except WebSocketDisconnect as e:
+            logger.debug(f"[SERVER] JSON failed (degraded): {e}")
         except Exception as ws_err:
             logger.debug(f"Extension WebSocket error: {ws_err}")
         finally:
@@ -4057,7 +4530,99 @@ def _register_external_endpoints(app, data_dir) -> None:
     # 儲存到 app.state 以便其他模組推送通知
     app.state.extension_clients = _extension_clients
 
-    logger.info("External integration endpoints registered (Phase 3-5, incl. /ws/extension)")
+    # ── EXT-13: Doctor Monitor WebSocket（3D 心智圖即時診斷）──
+
+    _doctor_monitor_clients: list = []
+
+    async def _broadcast_doctor_status():
+        """推送最新 Doctor node-status 給所有 3D 心智圖客戶端."""
+        if not _doctor_monitor_clients:
+            return
+        try:
+            status = await doctor_node_status()
+            _doctor_status_cache.update(status)
+            msg = {"type": "doctor_status", "data": status}
+            dead = []
+            for client in _doctor_monitor_clients:
+                try:
+                    await client.send_json(msg)
+                except Exception:
+                    dead.append(client)
+            for c in dead:
+                if c in _doctor_monitor_clients:
+                    _doctor_monitor_clients.remove(c)
+        except Exception as bc_err:
+            logger.debug(f"broadcast_doctor_status failed: {bc_err}")
+
+    # 快取最後一次 doctor_node_status 結果，避免 WebSocket 連線時阻塞事件迴圈
+    _doctor_status_cache: Dict[str, Any] = {}
+
+    async def _refresh_doctor_cache():
+        """背景刷新 Doctor 狀態快取."""
+        try:
+            _doctor_status_cache.update(await doctor_node_status())
+        except Exception as e:
+            logger.debug(f"Doctor cache refresh failed: {e}")
+
+    @app.websocket("/ws/doctor-monitor")
+    async def ws_doctor_monitor(websocket: _WebSocket):
+        """3D 心智圖 Doctor 即時監控端點."""
+        await websocket.accept()
+        _doctor_monitor_clients.append(websocket)
+        logger.info(f"Doctor Monitor connected (total: {len(_doctor_monitor_clients)})")
+
+        try:
+            # 連線時推送快取狀態（不阻塞），若無快取則觸發背景刷新
+            if _doctor_status_cache:
+                await websocket.send_json({"type": "doctor_status", "data": _doctor_status_cache})
+            else:
+                # 送一個佔位回應，然後背景刷新
+                await websocket.send_json({"type": "doctor_status", "data": {
+                    "timestamp": "", "overall": "unknown", "nodes": {}, "summary": {}
+                }})
+                import asyncio as _ws_aio
+                _ws_aio.ensure_future(_refresh_and_push(websocket))
+
+            while True:
+                raw = await websocket.receive_text()
+                try:
+                    data = json.loads(raw)
+                    if data.get("type") == "ping":
+                        await websocket.send_json({"type": "pong"})
+                    elif data.get("type") == "refresh":
+                        try:
+                            status = await doctor_node_status()
+                            _doctor_status_cache.update(status)
+                        except Exception:
+                            status = _doctor_status_cache or {
+                                "timestamp": "", "overall": "unknown", "nodes": {}, "summary": {}
+                            }
+                        await websocket.send_json({"type": "doctor_status", "data": status})
+                except json.JSONDecodeError:
+                    pass
+
+        except WebSocketDisconnect:
+            pass
+        except Exception as ws_err:
+            logger.warning(f"Doctor Monitor WebSocket error: {ws_err}")
+        finally:
+            if websocket in _doctor_monitor_clients:
+                _doctor_monitor_clients.remove(websocket)
+            logger.info(f"Doctor Monitor disconnected (remaining: {len(_doctor_monitor_clients)})")
+
+    async def _refresh_and_push(ws: _WebSocket):
+        """背景刷新 Doctor 狀態並推送給特定客戶端."""
+        try:
+            await _refresh_doctor_cache()
+            if _doctor_status_cache:
+                await ws.send_json({"type": "doctor_status", "data": _doctor_status_cache})
+        except Exception as rp_err:
+            logger.debug(f"Doctor _refresh_and_push failed: {rp_err}")
+
+    app.state.doctor_monitor_clients = _doctor_monitor_clients
+    app.state.broadcast_doctor_status = _broadcast_doctor_status
+
+    logger.info("External integration endpoints registered (Phase 3-5, incl. /ws/extension, /ws/doctor-monitor)")
 
 
 # ═══════════════════════════════════════════════════════
@@ -4089,8 +4654,13 @@ def _register_system_cron_jobs(brain, app=None) -> None:
             # WP-03: 注入 DendriticScorer 健康閘門
             _gov = getattr(app.state, "governor", None)
             _dendritic = getattr(_gov, "_dendritic", None) if _gov else None
+            # Contract 3: 注入 memory_manager + heartbeat_focus
+            _memory_manager = getattr(brain, "memory_manager", None) or getattr(brain, "_memory_manager", None)
+            _heartbeat_focus = getattr(app.state, "heartbeat_focus", None)
             pipeline = NightlyPipeline(
                 workspace=data_dir,
+                memory_manager=_memory_manager,
+                heartbeat_focus=_heartbeat_focus,
                 event_bus=event_bus,
                 brain=brain,
                 dendritic_scorer=_dendritic,
@@ -4123,9 +4693,13 @@ def _register_system_cron_jobs(brain, app=None) -> None:
         # Phase B: 原有 NightlyJob（記憶融合 + Token 優化 + 鍛造檢查 + 健康報告）
         try:
             from museon.nightly.job import NightlyJob
+            # 合約 4：注入 brain 的 llm_adapter + 存在性檢查
+            _llm_client = getattr(brain, "_llm_adapter", None)
+            if not _llm_client:
+                logger.warning("NightlyJob: brain._llm_adapter 不存在，記憶融合/批次處理將跳過")
             job = NightlyJob(
                 memory_store=brain.memory_store,
-                llm_client=None,
+                llm_client=_llm_client,
                 data_dir=data_dir,
             )
             result = await job.run()
@@ -4170,8 +4744,11 @@ def _register_system_cron_jobs(brain, app=None) -> None:
 
             adapter = getattr(app.state, "telegram_adapter", None)
             if adapter:
-                await adapter.push_notification(morning_text)
-                logger.info("Morning report pushed to Telegram")
+                try:
+                    await adapter.push_notification(morning_text)
+                    logger.info("Morning report pushed to Telegram")
+                except Exception as push_err:
+                    logger.warning(f"Morning report push failed: {push_err}")
         except Exception as e:
             logger.error(f"Morning report failed: {e}", exc_info=True)
 
@@ -4182,12 +4759,24 @@ def _register_system_cron_jobs(brain, app=None) -> None:
 
     # ── Job 2: 健康心跳（每 30 分鐘）── 純 CPU
     async def _health_heartbeat():
-        """純 CPU 健康檢查：Gateway + Telegram + 記憶系統."""
+        """健康檢查：Gateway + Brain + LLM 存活."""
         try:
+            llm_status = "unchecked"
+            # LLM 存活檢查（透過 VitalSigns probe）
+            if brain and brain._governor:
+                try:
+                    vs = brain._governor.get_vital_signs()
+                    if vs:
+                        result = await vs._check_llm_alive()
+                        llm_status = result.status.value  # pass/fail/skip
+                except Exception as e:
+                    llm_status = f"error: {e}"
+
             report = {
                 "timestamp": datetime.now().isoformat(),
                 "gateway": "alive",
                 "brain": "alive" if brain else "dead",
+                "llm": llm_status,
                 "skills": brain.skill_router.get_skill_count() if brain else 0,
             }
             # 寫入心跳日誌（純 CPU 檔案 I/O）
@@ -4372,7 +4961,10 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                             f"(評分: {tool.get('score', 0)}/10)\n"
                         )
                     msg += "\n在儀表板「工具庫」查看詳情"
-                    await adapter.push_notification(msg)
+                    try:
+                        await adapter.push_notification(msg)
+                    except Exception as push_err:
+                        logger.warning(f"Tool discovery push failed: {push_err}")
             else:
                 logger.info("Tool discovery: no new recommendations")
         except Exception as e:
@@ -4452,8 +5044,8 @@ def _register_system_cron_jobs(brain, app=None) -> None:
     # Replace old morning report with VITA morning
     try:
         cron_engine.remove_job("nightly-morning-report")
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug(f"[SERVER] operation failed (degraded): {e}")
     cron_engine.add_job(
         _vita_morning, trigger="cron", job_id="vita-morning",
         hour=7, minute=30,
@@ -4505,22 +5097,61 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                 f"explore={explored}, crystallize={crystallized}"
             )
 
-            # ── Telegram 回報 ──
+            # ── Telegram 回報（直接從 result 取探索資料，不依賴 DB 回讀）──
             adapter = getattr(app.state, "telegram_adapter", None)
             if adapter and explored != "skipped":
                 _status = "✅" if explored == "done" else f"⚠️ {explored}"
                 _crystal = "💎 已結晶" if crystallized == "done" else "📝 未結晶"
+                _trigger_zh = {
+                    "curiosity": "好奇心驅動",
+                    "world": "世界脈動",
+                    "skill": "技能精進",
+                    "self": "自我反思",
+                    "mission": "使命探索",
+                    "morning": "晨間巡禮",
+                    "idle": "閒置時自主探索",
+                }.get(trigger, trigger)
+
+                # 優先從 result["exploration"] 取資料（pulse_engine 直接掛上的）
+                _exp_data = result.get("exploration", {})
+                _explore_topic = _exp_data.get("topic", "")
+                _findings = _exp_data.get("findings", "")
+                _topic_line = f"📌 主題：{_explore_topic}\n" if _explore_topic else ""
+
+                # 建構 findings 摘要（過濾無價值結果）
+                _findings_preview = ""
+                _NO_VALUE_TAGS = ("搜尋無結果", "無價值發現", "探索失敗")
+                if _findings and not any(t in _findings for t in _NO_VALUE_TAGS) and len(_findings) > 20:
+                    _findings_preview = f"\n📋 主要發現：\n{_findings[:1200]}\n"
+
                 _msg = (
                     f"🔭 【自主探索 #{today_count + 1}】\n\n"
-                    f"觸發: {trigger}\n"
-                    f"探索: {_status}\n"
-                    f"結晶: {_crystal}\n"
-                    f"動作: {action}"
+                    f"動機：{_trigger_zh}\n"
+                    f"{_topic_line}"
+                    f"探索：{_status}\n"
+                    f"結晶：{_crystal}\n"
+                    f"行動：{action}"
+                    f"{_findings_preview}\n\n"
+                    f"有什麼想聊的嗎？"
                 )
                 try:
                     await adapter.push_notification(_msg)
                 except Exception as e:
                     logger.debug(f"Exploration Telegram notify failed: {e}")
+
+                # 生成 HTML 報告附件（使用 result 資料，不依賴 DB）
+                if _exp_data and _findings and not any(t in _findings for t in _NO_VALUE_TAGS):
+                    try:
+                        from museon.pulse.exploration_report import generate_html_report
+                        _reports_dir = Path(brain.data_dir) / "_system" / "reports"
+                        _reports_dir.mkdir(parents=True, exist_ok=True)
+                        _report_path = generate_html_report(_exp_data, _reports_dir)
+                        _owner_id = int(adapter.trusted_user_ids[0])
+                        await adapter.send_document(
+                            _owner_id, str(_report_path), caption="📄 完整探索報告"
+                        )
+                    except Exception as _re:
+                        logger.warning(f"Exploration report send failed: {_re}")
 
             # ── 探索後自動觸發技能鍛造 ──
             if crystallized == "done" or explored == "done":
@@ -4529,7 +5160,7 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                     scout = SkillForgeScout(
                         brain=getattr(app.state, "brain", None),
                         event_bus=getattr(app.state, "event_bus", None),
-                        workspace=getattr(app.state, "brain", None) and getattr(app.state.brain, "data_dir", None),
+                        workspace=getattr(getattr(app.state, "brain", None), "data_dir", None),
                         pulse_db=_pdb,
                         searxng_url="http://127.0.0.1:8888",
                     )
@@ -4544,8 +5175,8 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                             )
                             try:
                                 await adapter.push_notification(_forge_msg)
-                            except Exception:
-                                pass
+                            except Exception as e:
+                                logger.debug(f"[SERVER] operation failed (degraded): {e}")
                 except Exception as e:
                     logger.debug(f"Auto skill forge after exploration failed: {e}")
 
@@ -4567,6 +5198,14 @@ def _register_system_cron_jobs(brain, app=None) -> None:
             approved = db.auto_approve_stale_proposals(hours=72)
             if approved:
                 logger.info(f"Morphenix auto-approved {len(approved)} stale proposals: {approved}")
+                # 發布 MORPHENIX_AUTO_APPROVED 事件
+                _ebus = getattr(app.state, "event_bus", None)
+                if _ebus:
+                    from museon.core.event_bus import MORPHENIX_AUTO_APPROVED
+                    _ebus.publish(MORPHENIX_AUTO_APPROVED, {
+                        "proposal_ids": approved,
+                        "count": len(approved),
+                    })
                 # 通知 Telegram
                 adapter = getattr(app.state, "telegram_adapter", None)
                 if adapter:
@@ -4577,7 +5216,10 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                     for pid in approved:
                         msg += f"  · {pid}\n"
                     msg += "\n霓裳將在下次整合時執行這些演化。"
-                    await adapter.push_notification(msg)
+                    try:
+                        await adapter.push_notification(msg)
+                    except Exception as push_err:
+                        logger.warning(f"Morphenix auto-approve push failed: {push_err}")
         except Exception as e:
             logger.error(f"Morphenix auto-approve failed: {e}", exc_info=True)
 
@@ -4592,11 +5234,10 @@ def _register_system_cron_jobs(brain, app=None) -> None:
         """定期檢查承諾到期狀態，逾期時透過 ProactiveBridge 推送."""
         try:
             from museon.pulse.commitment_tracker import CommitmentTracker
-            from museon.pulse.pulse_db import PulseDB
+            from museon.pulse.pulse_db import get_pulse_db
 
             _data_dir = _resolve_data_dir()
-            _pulse_path = os.path.join(_data_dir, "pulse", "pulse.db")
-            _pdb = PulseDB(_pulse_path)
+            _pdb = get_pulse_db(Path(_data_dir))
             tracker = CommitmentTracker(pulse_db=_pdb)
 
             result = tracker.periodic_check()
@@ -4606,15 +5247,18 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                     f"({result['overdue_ids'][:3]})"
                 )
                 # 透過 Telegram adapter 主動推送逾期提醒
-                adapter = getattr(app.state, "telegram_adapter", None)
-                if adapter and hasattr(adapter, "push_notification"):
+                _tg_adapter = getattr(app, "state", None) and getattr(app.state, "telegram_adapter", None) if app else None
+                if _tg_adapter and hasattr(_tg_adapter, "push_notification"):
                     overdue = tracker.get_overdue_commitments()
                     if overdue:
                         msg = "⚠️ 承諾提醒：\n"
                         for c in overdue[:3]:
                             msg += f"- {c.get('promise_text', '?')[:60]}\n"
                         msg += "\n（霓裳正在處理中，請稍候）"
-                        await adapter.push_notification(msg)
+                        try:
+                            await _tg_adapter.push_notification(msg)
+                        except Exception as push_err:
+                            logger.warning(f"Commitment push failed: {push_err}")
 
                 # ANIMA zhen -1 for overdue
                 try:
@@ -4624,8 +5268,8 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                             reason=f"承諾逾期: {_oid}",
                             absolute_after=0,
                         )
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[SERVER] operation failed (degraded): {e}")
 
         except Exception as e:
             logger.error(f"Commitment periodic check failed: {e}", exc_info=True)
@@ -4634,6 +5278,186 @@ def _register_system_cron_jobs(brain, app=None) -> None:
         _commitment_periodic_check, trigger="interval",
         job_id="commitment-check",
         minutes=15,
+    )
+
+    # ── Job: 念感 — 使用者閒置偵測（每 60 分鐘）──
+    IDLE_CHECK_THRESHOLD_HOURS = 3.0  # 閒置超過 3 小時觸發念感
+
+    async def _vita_idle_check():
+        """念感: 檢查使用者閒置時間，超過閾值觸發 trigger_idle."""
+        try:
+            if not app:
+                return
+            engine = getattr(app.state, "pulse_engine", None)
+            hf = getattr(app.state, "heartbeat_focus", None)
+            if not engine or not hf:
+                return
+            # 從 HeartbeatFocus._interactions 計算最後互動時間
+            interactions = getattr(hf, "_interactions", [])
+            if not interactions:
+                return  # 沒有任何互動記錄，跳過
+            import time as _time
+            last_interaction = max(interactions)
+            idle_hours = (_time.time() - last_interaction) / 3600
+            if idle_hours >= IDLE_CHECK_THRESHOLD_HOURS:
+                result = await engine.trigger_idle(idle_hours)
+                logger.info(f"念感 idle check: idle={idle_hours:.1f}h → {result.get('action', '?')}")
+        except Exception as e:
+            logger.error(f"念感 idle check failed: {e}", exc_info=True)
+
+    cron_engine.add_job(
+        _vita_idle_check, trigger="interval",
+        job_id="vita-idle-check",
+        minutes=60,
+    )
+
+    # ── Job: 自由探索 — 閒置 20 分鐘自動啟動（每 5 分鐘檢查）──
+    FREE_EXPLORE_IDLE_MINUTES = 20      # 閒置門檻（分鐘）
+    FREE_EXPLORE_COOLDOWN_MINUTES = 30  # 兩次自由探索最短間隔（分鐘）
+    _FREE_EXPLORE_TRIGGERS = ["curiosity", "world", "skill", "self", "mission"]
+    _last_free_explore: dict = {"ts": 0.0, "count": 0}
+
+    async def _vita_free_explore_on_idle():
+        """閒置 20 分鐘 → 自主自由探索（不打擾使用者，探索完再報告）."""
+        try:
+            if not app:
+                return
+            engine = getattr(app.state, "pulse_engine", None)
+            hf = getattr(app.state, "heartbeat_focus", None)
+            if not engine or not hf:
+                return
+
+            import time as _time
+            now_ts = _time.time()
+
+            # 1. 確認使用者真的閒置 > 20 分鐘
+            interactions = getattr(hf, "_interactions", [])
+            if not interactions:
+                return
+            last_interaction = max(interactions)
+            idle_minutes = (now_ts - last_interaction) / 60
+            if idle_minutes < FREE_EXPLORE_IDLE_MINUTES:
+                return
+
+            # 2. 確認距離上次自由探索 > 30 分鐘（避免連續觸發）
+            since_last = (now_ts - _last_free_explore["ts"]) / 60
+            if since_last < FREE_EXPLORE_COOLDOWN_MINUTES:
+                return
+
+            # 3. 確認今日自由探索次數未超上限
+            _pdb = getattr(app.state, "pulse_db", None)
+            today_count = _pdb.get_today_exploration_count() if _pdb else 0
+            from museon.pulse.pulse_engine import EXPLORATION_DAILY_LIMIT
+            if today_count >= EXPLORATION_DAILY_LIMIT:
+                return
+
+            # 4. 選擇觸發類型（輪替）
+            trigger = _FREE_EXPLORE_TRIGGERS[_last_free_explore["count"] % len(_FREE_EXPLORE_TRIGGERS)]
+            _last_free_explore["ts"] = now_ts
+            _last_free_explore["count"] += 1
+
+            logger.info(
+                f"自由探索啟動: idle={idle_minutes:.0f}min, trigger={trigger}, "
+                f"count=#{_last_free_explore['count']}"
+            )
+
+            result = await engine.soul_pulse(trigger=trigger)
+            percrl = result.get("percrl", {})
+            explored = percrl.get("explore", "skipped")
+            crystallized = percrl.get("crystallize", "skipped")
+
+            logger.info(
+                f"自由探索完成 #{_last_free_explore['count']} ({trigger}): "
+                f"explore={explored}, crystallize={crystallized}"
+            )
+
+            # 5. 探索有結果 → 主動傳給使用者（直接從 result 取資料，不依賴 DB 回讀）
+            adapter = getattr(app.state, "telegram_adapter", None)
+            if adapter and explored != "skipped":
+                # 優先從 result["exploration"] 取資料
+                _exp_data = result.get("exploration", {})
+                explore_topic = _exp_data.get("topic", "")
+                _findings = _exp_data.get("findings", "")
+
+                # 建構 findings 摘要（過濾無價值結果）
+                findings_preview = ""
+                _NO_VALUE_TAGS = ("搜尋無結果", "無價值發現", "探索失敗")
+                if _findings and not any(t in _findings for t in _NO_VALUE_TAGS) and len(_findings) > 20:
+                    findings_preview = f"\n\n📋 主要發現：\n{_findings[:1200]}"
+
+                topic_line = f"📌 主題：{explore_topic}\n" if explore_topic else ""
+                _crystal_tag = "\n💎 已結晶為長期記憶" if crystallized == "done" else ""
+                _msg = (
+                    f"🔭 【自由探索回報】\n\n"
+                    f"你不在的這 {idle_minutes:.0f} 分鐘，我出去探索了。\n"
+                    f"{topic_line}"
+                    f"{findings_preview}"
+                    f"{_crystal_tag}\n\n"
+                    f"有什麼想聊的嗎？"
+                ).strip()
+                try:
+                    await adapter.push_notification(_msg)
+                except Exception as _e:
+                    logger.debug(f"Free explore notify failed: {_e}")
+
+                # 生成 HTML 報告附件（使用 result 資料，不依賴 DB）
+                if _exp_data and _findings and not any(t in _findings for t in _NO_VALUE_TAGS):
+                    try:
+                        from museon.pulse.exploration_report import generate_html_report
+                        _reports_dir = Path(brain.data_dir) / "_system" / "reports"
+                        _reports_dir.mkdir(parents=True, exist_ok=True)
+                        _report_path = generate_html_report(_exp_data, _reports_dir)
+                        _owner_id = int(adapter.trusted_user_ids[0])
+                        await adapter.send_document(
+                            _owner_id, str(_report_path), caption="📄 完整探索報告"
+                        )
+                    except Exception as _re:
+                        logger.warning(f"Free explore report send failed: {_re}")
+
+        except Exception as e:
+            logger.error(f"自由探索 idle job failed: {e}", exc_info=True)
+
+    cron_engine.add_job(
+        _vita_free_explore_on_idle, trigger="interval",
+        job_id="vita-free-explore-idle",
+        minutes=5,
+        timeout=300,  # 5 分鐘超時（探索需要時間）
+    )
+
+    # ── Job: Companion Watchdog — 看門狗（每 60 分鐘）──
+    async def _companion_watchdog():
+        """看門狗: 超過 3 小時沒成功推送 → 強制觸發 companion 模式."""
+        try:
+            if not app:
+                return
+            bridge = getattr(app.state, "proactive_bridge", None)
+            if not bridge:
+                return
+            result = bridge.watchdog_check()
+            if result.get("status") == "alert":
+                logger.warning(
+                    f"Companion Watchdog 警報: {result.get('hours_silent', '?')}h 無推送 "
+                    "→ 強制觸發 companion 模式"
+                )
+                # 直接在 CronEngine 的 async context 中呼叫 proactive_think
+                # 不經 HeartbeatEngine daemon thread，避免跨線程問題
+                import asyncio as _asyncio
+                try:
+                    think_result = await _asyncio.wait_for(
+                        bridge.proactive_think(mode="companion"), timeout=60
+                    )
+                    logger.info(f"Watchdog companion think: {think_result}")
+                except _asyncio.TimeoutError:
+                    logger.warning("Watchdog companion think 超時 (60s)")
+                except Exception as think_err:
+                    logger.error(f"Watchdog companion think failed: {think_err}", exc_info=True)
+        except Exception as e:
+            logger.error(f"Companion watchdog failed: {e}", exc_info=True)
+
+    cron_engine.add_job(
+        _companion_watchdog, trigger="interval",
+        job_id="companion-watchdog",
+        minutes=60,
     )
 
     # ── Job: Dendritic Health Score tick（每 5 分鐘）──
@@ -4738,10 +5562,12 @@ def _register_system_cron_jobs(brain, app=None) -> None:
         hours=2,
     )
 
-    # ── WP-07: Tool Health Check (5min) — 含自癒 + 升級機制 ──
+    # ── WP-07: Tool Health Check (5min) — 含自癒 + 升級 + 自動停用機制 ──
     _tool_fail_counts: dict = {}
+    _tool_disabled: dict = {}     # {name: disabled_at_ts}
     _TOOL_RESTART_THRESHOLD = 3   # 連續 3 次失敗 → 自動重啟
-    _TOOL_ESCALATE_THRESHOLD = 6  # 連續 6 次失敗 → 升級通知
+    _TOOL_ESCALATE_THRESHOLD = 6  # 連續 6 次失敗 → 升級通知 + 自動停用
+    _TOOL_REPROBE_INTERVAL = 1800  # 停用後每 30 分鐘嘗試恢復
 
     async def _tool_health_check_job():
         """定期檢查所有工具健康狀態，偵測降級/恢復.
@@ -4766,6 +5592,10 @@ def _register_system_cron_jobs(brain, app=None) -> None:
             degraded = []
 
             for name, result in results.items():
+                # 跳過已停用或未安裝的工具 — 不計入失敗
+                _tool_status = result.get("status", "")
+                if _tool_status in ("disabled", "not_installed"):
+                    continue
                 if not result.get("healthy", True):
                     _tool_fail_counts[name] = _tool_fail_counts.get(name, 0) + 1
                     count = _tool_fail_counts[name]
@@ -4785,20 +5615,29 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                         except Exception as e:
                             logger.warning(f"Tool {name}: auto-restart failed: {e}")
 
-                    # 升級通知
+                    # 升級通知 + 自動停用
                     elif count == _TOOL_ESCALATE_THRESHOLD:
                         logger.error(
-                            f"Tool {name}: {count} consecutive failures, escalating"
+                            f"Tool {name}: {count} consecutive failures, "
+                            f"disabling and escalating"
                         )
-                        adapter = getattr(app.state, "telegram_adapter", None)
-                        if adapter and hasattr(adapter, "push_notification"):
+                        # 自動停用
+                        import time as _t_time
+                        _tool_disabled[name] = _t_time.time()
+                        try:
+                            registry.toggle_tool(name, False)
+                        except Exception as e:
+                            logger.debug(f"[SERVER] tool failed (degraded): {e}")
+                        # 通知
+                        _tg = getattr(app, "state", None) and getattr(app.state, "telegram_adapter", None) if app else None
+                        if _tg and hasattr(_tg, "push_notification"):
                             try:
-                                await adapter.push_notification(
+                                await _tg.push_notification(
                                     f"⚠️ 工具 {name} 連續 {count} 次健康檢查失敗，"
-                                    f"自動重啟無效，需要人工介入"
+                                    f"已自動停用。每 30 分鐘嘗試恢復。"
                                 )
-                            except Exception:
-                                pass
+                            except Exception as e:
+                                logger.debug(f"[SERVER] operation failed (degraded): {e}")
                 else:
                     # 恢復 — 重置計數器
                     prev = _tool_fail_counts.get(name, 0)
@@ -4806,7 +5645,35 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                         logger.info(
                             f"Tool {name}: recovered after {prev} failures ✓"
                         )
+                        # 若之前被停用，重新啟用
+                        if name in _tool_disabled:
+                            del _tool_disabled[name]
+                            try:
+                                registry.toggle_tool(name, True)
+                                logger.info(f"Tool {name}: re-enabled after recovery")
+                            except Exception as e:
+                                logger.debug(f"[SERVER] tool failed (degraded): {e}")
                     _tool_fail_counts[name] = 0
+
+            # 已停用工具的定期 re-probe
+            import time as _t_time2
+            _now_ts = _t_time2.time()
+            for disabled_name, disabled_at in list(_tool_disabled.items()):
+                if _now_ts - disabled_at >= _TOOL_REPROBE_INTERVAL:
+                    logger.info(f"Tool {disabled_name}: re-probing disabled tool")
+                    try:
+                        registry.toggle_tool(disabled_name, True)
+                        await _aio.sleep(3)
+                        probe = registry.check_health(disabled_name)
+                        if probe and probe.get("healthy"):
+                            logger.info(f"Tool {disabled_name}: re-probe succeeded, re-enabled ✓")
+                            del _tool_disabled[disabled_name]
+                            _tool_fail_counts[disabled_name] = 0
+                        else:
+                            registry.toggle_tool(disabled_name, False)
+                            _tool_disabled[disabled_name] = _now_ts  # 重置 reprobe 計時
+                    except Exception as rp_err:
+                        logger.debug(f"Tool {disabled_name} re-probe failed: {rp_err}")
 
             if degraded:
                 fail_info = {n: _tool_fail_counts.get(n, 0) for n in degraded}
@@ -4818,6 +5685,28 @@ def _register_system_cron_jobs(brain, app=None) -> None:
         _tool_health_check_job, trigger="interval",
         job_id="tool-health-check",
         minutes=5,
+    )
+
+    # ── 狀態熵清理（每小時）— 防止計數器/cache/session 無限膨脹 ──
+    async def _stale_state_cleanup_job():
+        """每小時清理過期的暫存狀態."""
+        try:
+            # 1. 清理 _tool_fail_counts 中已歸零的條目
+            stale = [k for k, v in _tool_fail_counts.items() if v == 0]
+            for k in stale:
+                del _tool_fail_counts[k]
+            # 2. 清理過期 session locks
+            if session_manager and hasattr(session_manager, 'cleanup_stale'):
+                await session_manager.cleanup_stale()
+            if stale:
+                logger.debug(f"Stale state cleanup: removed {len(stale)} zero counters")
+        except Exception as e:
+            logger.debug(f"Stale state cleanup failed: {e}")
+
+    cron_engine.add_job(
+        _stale_state_cleanup_job, trigger="interval",
+        job_id="stale-state-cleanup",
+        hours=1,
     )
 
     # ── WP-04: System Audit Periodic (每天 02:30) ──
@@ -4838,6 +5727,12 @@ def _register_system_cron_jobs(brain, app=None) -> None:
                 f"warned={report.summary.get('warning', 0)}, "
                 f"failed={report.summary.get('critical', 0)}"
             )
+            # 審計完成 → 即時推送給 3D 心智圖
+            try:
+                if hasattr(app.state, "broadcast_doctor_status"):
+                    await app.state.broadcast_doctor_status()
+            except Exception:
+                pass
         except Exception as e:
             logger.debug(f"System audit periodic cron failed: {e}")
 
@@ -4848,28 +5743,34 @@ def _register_system_cron_jobs(brain, app=None) -> None:
     )
 
     # ── EXT-01: RSS Poll (60min) ──
-    async def _rss_poll_job():
-        """定期拉取 RSS 新文章."""
-        try:
-            from museon.tools.rss_aggregator import RSSAggregator
-            from museon.core.event_bus import get_event_bus
+    # 預檢 aiohttp 可用性，缺少時跳過註冊
+    import importlib.util as _imp_util
+    _has_aiohttp = _imp_util.find_spec("aiohttp") is not None
+    if not _has_aiohttp:
+        logger.warning("RSS poll cron 跳過註冊：aiohttp 未安裝")
+    else:
+        async def _rss_poll_job():
+            """定期拉取 RSS 新文章."""
+            try:
+                from museon.tools.rss_aggregator import RSSAggregator
+                from museon.core.event_bus import get_event_bus
 
-            brain = _get_brain()
-            aggregator = RSSAggregator(
-                event_bus=get_event_bus(),
-                brain=brain,
-            )
-            items = await aggregator.poll_new_items()
-            if items:
-                logger.info(f"RSS poll: {len(items)} new items")
-        except Exception as e:
-            logger.debug(f"RSS poll cron failed: {e}")
+                brain = _get_brain()
+                aggregator = RSSAggregator(
+                    event_bus=get_event_bus(),
+                    brain=brain,
+                )
+                items = await aggregator.poll_new_items()
+                if items:
+                    logger.info(f"RSS poll: {len(items)} new items")
+            except Exception as e:
+                logger.debug(f"RSS poll cron failed: {e}")
 
-    cron_engine.add_job(
-        _rss_poll_job, trigger="interval",
-        job_id="rss-poll",
-        minutes=60,
-    )
+        cron_engine.add_job(
+            _rss_poll_job, trigger="interval",
+            job_id="rss-poll",
+            minutes=60,
+        )
 
     # ── EXT-07: Dify Schedule Sync (15min) ──
     async def _dify_schedule_sync():
@@ -5014,6 +5915,9 @@ def _register_system_cron_jobs(brain, app=None) -> None:
         {"job_id": "vita-breath-pulse",      "name": "VITA 息脈",            "schedule": "每 30 分鐘",    "category": "pulse",       "uses_llm": True},
         {"job_id": "guardian-l1",            "name": "Guardian L1 巡檢",     "schedule": "每 30 分鐘",    "category": "maintenance", "uses_llm": False},
         {"job_id": "commitment-check",       "name": "承諾到期檢查",         "schedule": "每 15 分鐘",    "category": "pulse",       "uses_llm": False},
+        {"job_id": "vita-idle-check",        "name": "念感閒置偵測",         "schedule": "每 60 分鐘",    "category": "pulse",       "uses_llm": True},
+        {"job_id": "vita-free-explore-idle", "name": "閒置自由探索",          "schedule": "每 5 分鐘偵測",  "category": "exploration", "uses_llm": True},
+        {"job_id": "companion-watchdog",     "name": "陪伴者看門狗",         "schedule": "每 60 分鐘",    "category": "pulse",       "uses_llm": True},
         {"job_id": "rss-poll",               "name": "RSS 新文章拉取",       "schedule": "每 60 分鐘",    "category": "external",    "uses_llm": False},
         {"job_id": "dify-schedule-sync",     "name": "Dify 排程同步",        "schedule": "每 15 分鐘",    "category": "external",    "uses_llm": False},
         {"job_id": "memory-flush",           "name": "記憶持久化",           "schedule": "每 6 小時",     "category": "maintenance", "uses_llm": False},

@@ -9,33 +9,151 @@ import logging
 import sqlite3
 import threading
 import time
+import uuid
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+
+from museon.core.data_bus import DataContract, StoreSpec, StoreEngine, TTLTier
 
 logger = logging.getLogger(__name__)
 
 TZ8 = timezone(timedelta(hours=8))
 
 
-class PulseDB:
+class PulseDB(DataContract):
     """SQLite-based pulse schedule and exploration database."""
+
+    _TABLES = [
+        "schedules", "explorations", "anima_log", "evolution_events",
+        "morphenix_proposals", "morphenix_rollbacks", "commitments",
+        "metacognition", "scout_drafts", "health_scores", "incidents",
+        "ceremony_state", "eval_baselines", "eval_blindspots", "eval_alerts",
+    ]
+
+    @classmethod
+    def store_spec(cls) -> StoreSpec:
+        return StoreSpec(
+            name="pulse_db",
+            engine=StoreEngine.SQLITE,
+            ttl=TTLTier.PERMANENT,
+            description="VITA 生命力引擎的結構層儲存",
+            tables=list(cls._TABLES),
+        )
+
+    def health_check(self) -> Dict[str, Any]:
+        try:
+            conn = self._get_conn()
+            integrity = conn.execute("PRAGMA integrity_check").fetchone()
+            ok = integrity and integrity[0] == "ok"
+            row_counts = {}
+            for t in self._TABLES:
+                try:
+                    row_counts[t] = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                except Exception:
+                    row_counts[t] = -1
+            size = self._db_path.stat().st_size if self._db_path.exists() else 0
+            return {
+                "status": "ok" if ok else "degraded",
+                "integrity": integrity[0] if integrity else "unknown",
+                "size_bytes": size,
+                "tables": row_counts,
+            }
+        except Exception as e:
+            return {"status": "error", "error": str(e)}
 
     def __init__(self, db_path: str) -> None:
         self._db_path = Path(db_path)
         self._db_path.parent.mkdir(parents=True, exist_ok=True)
+        # 防護：0-byte DB 檔 = 損壞，刪除後讓 _init_db 重建
+        if self._db_path.exists() and self._db_path.stat().st_size == 0:
+            logger.warning(f"PulseDB: 偵測到 0-byte DB 檔 {self._db_path}，刪除並重建")
+            self._db_path.unlink()
         self._local = threading.local()
+        # 防護：integrity check — 偵測 malformed DB 並自動重建
+        if self._db_path.exists():
+            self._integrity_check()
         self._init_db()
+
+    def _integrity_check(self) -> None:
+        """檢查 DB 完整性，損壞時自動從 dump 重建."""
+        try:
+            conn = sqlite3.connect(str(self._db_path), timeout=10)
+            result = conn.execute("PRAGMA integrity_check").fetchone()
+            conn.close()
+            if result and result[0] != "ok":
+                logger.error(f"PulseDB: integrity_check FAILED: {result[0]}，嘗試重建")
+                self._rebuild_from_dump()
+        except sqlite3.DatabaseError as e:
+            logger.error(f"PulseDB: integrity_check 異常: {e}，嘗試重建")
+            self._rebuild_from_dump()
+
+    def _rebuild_from_dump(self) -> None:
+        """嘗試從損壞的 DB dump 可搶救的資料，重建乾淨的 DB."""
+        bak = self._db_path.with_suffix(".db.malformed")
+        try:
+            # 嘗試 dump 可搶救的資料
+            import subprocess
+            dump_result = subprocess.run(
+                ["sqlite3", str(self._db_path), ".dump"],
+                capture_output=True, text=True, timeout=30,
+            )
+            # 備份損壞檔
+            self._db_path.rename(bak)
+            # 清除 WAL/SHM
+            for suffix in (".db-wal", ".db-shm"):
+                p = self._db_path.with_name(self._db_path.name.replace(".db", suffix))
+                if p.exists():
+                    p.unlink()
+            if dump_result.returncode == 0 and dump_result.stdout.strip():
+                # 從 dump 重建
+                new_conn = sqlite3.connect(str(self._db_path))
+                new_conn.executescript(dump_result.stdout)
+                new_conn.close()
+                logger.info("PulseDB: 從 dump 成功重建 DB")
+            else:
+                logger.warning("PulseDB: dump 失敗，將建立全新 DB")
+        except Exception as e:
+            logger.error(f"PulseDB: 重建失敗: {e}，將建立全新 DB")
+            if self._db_path.exists():
+                self._db_path.rename(bak)
+            for suffix in (".db-wal", ".db-shm"):
+                p = self._db_path.with_name(self._db_path.name.replace(".db", suffix))
+                if p.exists():
+                    p.unlink()
 
     def _get_conn(self) -> sqlite3.Connection:
         if not hasattr(self._local, "conn") or self._local.conn is None:
             self._local.conn = sqlite3.connect(
-                str(self._db_path), check_same_thread=False
+                str(self._db_path), check_same_thread=False, timeout=60
             )
             self._local.conn.row_factory = sqlite3.Row
             self._local.conn.execute("PRAGMA journal_mode=WAL")
+            self._local.conn.execute("PRAGMA busy_timeout=60000")
             self._local.conn.execute("PRAGMA foreign_keys=ON")
+            # P0 加固：設定 WAL 自動 checkpoint 閾值（1000 頁 ≈ 4MB）
+            # 防止 WAL 無限增長導致損壞風險增加
+            self._local.conn.execute("PRAGMA wal_autocheckpoint=1000")
         return self._local.conn
+
+    def wal_checkpoint(self) -> Dict[str, Any]:
+        """手動觸發 WAL checkpoint（供 Nightly/健康檢查呼叫）.
+
+        Returns:
+            {"status": "ok"/"error", "busy": int, "log": int, "checkpointed": int}
+        """
+        try:
+            conn = self._get_conn()
+            result = conn.execute("PRAGMA wal_checkpoint(PASSIVE)").fetchone()
+            return {
+                "status": "ok",
+                "busy": result[0],
+                "log": result[1],
+                "checkpointed": result[2],
+            }
+        except Exception as e:
+            logger.warning(f"PulseDB: wal_checkpoint failed: {e}")
+            return {"status": "error", "error": str(e)}
 
     def _init_db(self) -> None:
         conn = self._get_conn()
@@ -99,6 +217,14 @@ class PulseDB:
                 source_notes TEXT DEFAULT '[]',   -- JSON array of note refs
                 telegram_message_id INTEGER,      -- for inline keyboard tracking
                 metadata TEXT DEFAULT '{}'        -- JSON
+            );
+
+            CREATE TABLE IF NOT EXISTS morphenix_rollbacks (
+                id TEXT PRIMARY KEY,
+                proposal_id TEXT NOT NULL,
+                reason TEXT NOT NULL,
+                rollback_tag TEXT NOT NULL,
+                rolled_back_at TEXT NOT NULL
             );
 
             CREATE TABLE IF NOT EXISTS commitments (
@@ -211,6 +337,44 @@ class PulseDB:
                 ON incidents(module, created_at);
             CREATE INDEX IF NOT EXISTS idx_incidents_status
                 ON incidents(research_status, created_at);
+
+            -- ═══ Phase 2: JSON → SQLite 遷移 ═══
+
+            -- Ceremony State（命名儀式狀態）
+            CREATE TABLE IF NOT EXISTS ceremony_state (
+                key TEXT PRIMARY KEY,
+                value TEXT NOT NULL
+            );
+
+            -- Eval: A/B Baselines（基線快照，一旦建立不可修改）
+            CREATE TABLE IF NOT EXISTS eval_baselines (
+                change_id TEXT PRIMARY KEY,
+                baseline_json TEXT NOT NULL,     -- JSON blob
+                created_at TEXT NOT NULL
+            );
+
+            -- Eval: Blindspots（盲點記錄）
+            CREATE TABLE IF NOT EXISTS eval_blindspots (
+                id TEXT PRIMARY KEY,
+                blindspot_json TEXT NOT NULL,     -- JSON blob
+                created_at TEXT NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS idx_eval_blindspots_ts
+                ON eval_blindspots(created_at);
+
+            -- Eval: Alerts（品質警報）
+            CREATE TABLE IF NOT EXISTS eval_alerts (
+                id TEXT PRIMARY KEY,
+                alert_type TEXT NOT NULL,
+                severity TEXT DEFAULT 'medium',
+                message TEXT,
+                details_json TEXT DEFAULT '{}',   -- JSON blob
+                created_at TEXT NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS idx_eval_alerts_ts
+                ON eval_alerts(created_at);
+            CREATE INDEX IF NOT EXISTS idx_eval_alerts_type
+                ON eval_alerts(alert_type, created_at);
         """)
         conn.commit()
 
@@ -263,19 +427,36 @@ class PulseDB:
         tokens_used: int = 0, cost_usd: float = 0.0, duration_ms: int = 0,
         status: str = "done",
     ) -> int:
-        conn = self._get_conn()
-        now = datetime.now(TZ8).isoformat()
-        cur = conn.execute(
-            "INSERT INTO explorations "
-            "(timestamp, topic, motivation, query, findings, crystallized, crystal_id, "
-            "tokens_used, cost_usd, duration_ms, status) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            (now, topic, motivation, query, findings,
-             1 if crystallized else 0, crystal_id,
-             tokens_used, cost_usd, duration_ms, status),
-        )
-        conn.commit()
-        return cur.lastrowid
+        for attempt in range(3):
+            try:
+                conn = self._get_conn()
+                now = datetime.now(TZ8).isoformat()
+                cur = conn.execute(
+                    "INSERT INTO explorations "
+                    "(timestamp, topic, motivation, query, findings, crystallized, crystal_id, "
+                    "tokens_used, cost_usd, duration_ms, status) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (now, topic, motivation, query, findings,
+                     1 if crystallized else 0, crystal_id,
+                     tokens_used, cost_usd, duration_ms, status),
+                )
+                conn.commit()
+                return cur.lastrowid
+            except sqlite3.OperationalError as e:
+                if "locked" in str(e) and attempt < 2:
+                    logger.warning(f"PulseDB: log_exploration locked, retry {attempt+1}/3")
+                    time.sleep(1 + attempt)
+                    continue
+                logger.error(f"PulseDB: log_exploration failed: {e}")
+                return -1
+            except sqlite3.DatabaseError as e:
+                logger.error(f"PulseDB: log_exploration DB error: {e}, reconnecting")
+                self._local.conn = None
+                if attempt < 2:
+                    self._integrity_check()
+                    continue
+                return -1
+        return -1
 
     def get_today_explorations(self) -> List[Dict]:
         conn = self._get_conn()
@@ -292,6 +473,26 @@ class PulseDB:
     def get_today_exploration_cost(self) -> float:
         exps = self.get_today_explorations()
         return sum(e.get("cost_usd", 0) for e in exps)
+
+    def get_recent_explorations(self, days: int = 30, limit: int = 30) -> List[str]:
+        """Return recent explored topic strings for deduplication."""
+        conn = self._get_conn()
+        cutoff = (datetime.now(TZ8) - timedelta(days=days)).isoformat()
+        rows = conn.execute(
+            "SELECT topic FROM explorations WHERE timestamp >= ? ORDER BY timestamp DESC LIMIT ?",
+            (cutoff, limit),
+        ).fetchall()
+        return [r["topic"] for r in rows]
+
+    def get_explorations_full(self, days: int = 14, limit: int = 50) -> List[Dict]:
+        """Return recent explorations as full dicts (for SilentDigestion)."""
+        conn = self._get_conn()
+        cutoff = (datetime.now(TZ8) - timedelta(days=days)).isoformat()
+        rows = conn.execute(
+            "SELECT * FROM explorations WHERE timestamp >= ? ORDER BY timestamp DESC LIMIT ?",
+            (cutoff, limit),
+        ).fetchall()
+        return [dict(r) for r in rows]
 
     # ── ANIMA Log ──
 
@@ -416,7 +617,7 @@ class PulseDB:
         cur = conn.execute(
             "UPDATE morphenix_proposals "
             "SET status = 'rejected', decided_at = ?, decided_by = ? "
-            "WHERE id = ? AND status = 'pending'",
+            "WHERE id = ? AND status IN ('pending', 'approved')",
             (now, decided_by, proposal_id),
         )
         conn.commit()
@@ -433,6 +634,51 @@ class PulseDB:
         )
         conn.commit()
         return cur.rowcount > 0
+
+    def mark_proposal_rolled_back(
+        self, proposal_id: str, reason: str = "",
+    ) -> bool:
+        """將提案標記為已回滾."""
+        conn = self._get_conn()
+        now = datetime.now(TZ8).isoformat()
+        cur = conn.execute(
+            "UPDATE morphenix_proposals "
+            "SET status = 'rolled_back', decided_at = ?, decided_by = ? "
+            "WHERE id = ?",
+            (now, f"rollback:{reason[:100]}", proposal_id),
+        )
+        conn.commit()
+        return cur.rowcount > 0
+
+    def log_rollback(
+        self, proposal_id: str, reason: str, rollback_tag: str,
+    ) -> None:
+        """寫入回滾記錄（不可刪除的審計軌跡）."""
+        conn = self._get_conn()
+        conn.execute(
+            """INSERT OR IGNORE INTO morphenix_rollbacks
+               (id, proposal_id, reason, rollback_tag, rolled_back_at)
+               VALUES (?, ?, ?, ?, ?)""",
+            (
+                f"rb_{proposal_id}_{datetime.now(TZ8).strftime('%Y%m%d%H%M%S')}",
+                proposal_id,
+                reason[:500],
+                rollback_tag,
+                datetime.now(TZ8).isoformat(),
+            ),
+        )
+        conn.commit()
+
+    def count_rollbacks_today(self) -> int:
+        """計算今天的回滾次數."""
+        conn = self._get_conn()
+        today = datetime.now(TZ8).strftime("%Y-%m-%d")
+        row = conn.execute(
+            "SELECT COUNT(*) FROM morphenix_rollbacks "
+            "WHERE rolled_back_at LIKE ?",
+            (f"{today}%",),
+        ).fetchone()
+        return row[0] if row else 0
 
     def set_proposal_telegram_id(
         self, proposal_id: str, message_id: int,
@@ -628,32 +874,54 @@ class PulseDB:
         response_snippet: Optional[str] = None,
     ) -> Dict:
         """新增一筆元認知記錄."""
-        conn = self._get_conn()
-        now = datetime.now(TZ8).isoformat()
-        skills_json = json.dumps(matched_skills or [], ensure_ascii=False)
-        conn.execute(
-            "INSERT OR REPLACE INTO metacognition "
-            "(id, session_id, pre_triggered, pre_verdict, pre_feedback, "
-            "pre_revision_applied, pre_review_time_ms, "
-            "predicted_reaction_type, predicted_reaction, prediction_confidence, "
-            "routing_loop, routing_mode, matched_skills, "
-            "user_message_snippet, response_snippet, created_at) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            (
-                metacog_id, session_id,
-                1 if pre_triggered else 0,
-                pre_verdict, pre_feedback,
-                1 if pre_revision_applied else 0,
-                pre_review_time_ms,
-                predicted_reaction_type, predicted_reaction, prediction_confidence,
-                routing_loop, routing_mode, skills_json,
-                (user_message_snippet or "")[:100],
-                (response_snippet or "")[:100],
-                now,
-            ),
-        )
-        conn.commit()
-        return {"id": metacog_id, "created": True}
+        for attempt in range(3):
+            try:
+                conn = self._get_conn()
+                now = datetime.now(TZ8).isoformat()
+                skills_json = json.dumps(matched_skills or [], ensure_ascii=False)
+                conn.execute(
+                    "INSERT OR REPLACE INTO metacognition "
+                    "(id, session_id, pre_triggered, pre_verdict, pre_feedback, "
+                    "pre_revision_applied, pre_review_time_ms, "
+                    "predicted_reaction_type, predicted_reaction, prediction_confidence, "
+                    "routing_loop, routing_mode, matched_skills, "
+                    "user_message_snippet, response_snippet, created_at) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (
+                        metacog_id, session_id,
+                        1 if pre_triggered else 0,
+                        pre_verdict, pre_feedback,
+                        1 if pre_revision_applied else 0,
+                        pre_review_time_ms,
+                        predicted_reaction_type, predicted_reaction, prediction_confidence,
+                        routing_loop, routing_mode, skills_json,
+                        (user_message_snippet or "")[:100],
+                        (response_snippet or "")[:100],
+                        now,
+                    ),
+                )
+                conn.commit()
+                return {"id": metacog_id, "created": True}
+            except sqlite3.OperationalError as e:
+                if "locked" in str(e) and attempt < 2:
+                    # P2 加固：指數退避（1s→3s→7s），降低夜間管線鎖競爭
+                    backoff = (2 ** attempt) - 1 + attempt  # 1, 3, 7
+                    logger.warning(
+                        f"PulseDB: add_metacognition locked, "
+                        f"retry {attempt+1}/3 (backoff={backoff}s)"
+                    )
+                    time.sleep(backoff)
+                    continue
+                logger.error(f"PulseDB: add_metacognition failed: {e}")
+                return {"id": metacog_id, "created": False, "error": str(e)}
+            except sqlite3.DatabaseError as e:
+                logger.error(f"PulseDB: add_metacognition DB error: {e}, reconnecting")
+                self._local.conn = None
+                if attempt < 2:
+                    self._integrity_check()
+                    continue
+                return {"id": metacog_id, "created": False, "error": str(e)}
+        return {"id": metacog_id, "created": False, "error": "max retries"}
 
     def get_latest_prediction(self, session_id: str) -> Optional[Dict]:
         """取得本 session 最後一筆有預測但未觀察的記錄."""
@@ -737,6 +1005,64 @@ class PulseDB:
             "revised": revised,
             "revision_rate": revised / total if total else 0,
             "verdicts": verdicts,
+        }
+
+    def get_quality_flags(self, days: int = 7) -> List[Dict]:
+        """取得近期品質旗標（verdict=revise 的元認知記錄）.
+
+        DNA-Inspired 閉環：校對(metacognition)→演化(morphenix) 的資料通道。
+        morphenix 夜間管線呼叫此方法，取得近期品質問題清單，
+        作為演化提案的輸入依據。
+
+        Returns:
+            品質旗標列表，每筆包含 pre_verdict, pre_feedback,
+            matched_skills, user_message_snippet 等欄位。
+        """
+        conn = self._get_conn()
+        cutoff = (datetime.now(TZ8) - timedelta(days=days)).isoformat()
+        rows = conn.execute(
+            "SELECT id, session_id, pre_verdict, pre_feedback, "
+            "matched_skills, user_message_snippet, response_snippet, "
+            "created_at "
+            "FROM metacognition "
+            "WHERE pre_verdict = 'revise' AND created_at > ? "
+            "ORDER BY created_at DESC",
+            (cutoff,),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+    def get_quality_flag_summary(self, days: int = 7) -> Dict:
+        """取得品質旗標摘要統計（供 morphenix 快速判斷是否需要產生提案）.
+
+        Returns:
+            {
+                "total_flags": int,
+                "by_skill": {"skill_name": count, ...},
+                "recent_feedbacks": [最近 5 筆 feedback 摘要],
+            }
+        """
+        flags = self.get_quality_flags(days=days)
+        if not flags:
+            return {"total_flags": 0, "by_skill": {}, "recent_feedbacks": []}
+
+        # 統計各 Skill 的品質旗標數
+        by_skill: Dict[str, int] = {}
+        for f in flags:
+            skills_raw = f.get("matched_skills") or "[]"
+            try:
+                import json as _json
+                skills = _json.loads(skills_raw) if isinstance(skills_raw, str) else skills_raw
+            except Exception:
+                skills = []
+            for s in skills:
+                by_skill[s] = by_skill.get(s, 0) + 1
+
+        return {
+            "total_flags": len(flags),
+            "by_skill": dict(sorted(by_skill.items(), key=lambda x: -x[1])),
+            "recent_feedbacks": [
+                f.get("pre_feedback", "")[:150] for f in flags[:5]
+            ],
         }
 
     # ── Scout Drafts CRUD（SkillForgeScout 草稿）──
@@ -940,3 +1266,270 @@ class PulseDB:
             (cutoff, limit),
         ).fetchall()
         return [dict(r) for r in rows]
+
+    # ══════════════════════════════════════════════
+    # Phase 2: Ceremony State（命名儀式狀態）
+    # ══════════════════════════════════════════════
+
+    def get_ceremony_state(self) -> Dict[str, Any]:
+        """取得命名儀式狀態."""
+        conn = self._get_conn()
+        rows = conn.execute("SELECT key, value FROM ceremony_state").fetchall()
+        if not rows:
+            return {}
+        state = {}
+        for r in rows:
+            try:
+                state[r["key"]] = json.loads(r["value"])
+            except (json.JSONDecodeError, TypeError):
+                state[r["key"]] = r["value"]
+        return state
+
+    def save_ceremony_state(self, state: Dict[str, Any]) -> None:
+        """儲存命名儀式狀態（全量覆寫）."""
+        conn = self._get_conn()
+        for key, value in state.items():
+            conn.execute(
+                "INSERT OR REPLACE INTO ceremony_state (key, value) VALUES (?, ?)",
+                (key, json.dumps(value, ensure_ascii=False)),
+            )
+        conn.commit()
+
+    # ══════════════════════════════════════════════
+    # Phase 2: Eval Baselines（A/B 基線）
+    # ══════════════════════════════════════════════
+
+    def load_eval_baselines(self) -> Dict[str, Any]:
+        """載入所有 A/B 基線."""
+        conn = self._get_conn()
+        rows = conn.execute(
+            "SELECT change_id, baseline_json FROM eval_baselines "
+            "ORDER BY created_at",
+        ).fetchall()
+        result = {}
+        for r in rows:
+            try:
+                result[r["change_id"]] = json.loads(r["baseline_json"])
+            except json.JSONDecodeError:
+                logger.warning(f"eval_baselines JSON 解析失敗: {r['change_id']}")
+        return result
+
+    def save_eval_baseline(self, change_id: str, baseline: Dict[str, Any]) -> bool:
+        """儲存 A/B 基線（HG-EVAL-BASELINE-LOCK: 已存在則拒絕）."""
+        conn = self._get_conn()
+        existing = conn.execute(
+            "SELECT 1 FROM eval_baselines WHERE change_id = ?",
+            (change_id,),
+        ).fetchone()
+        if existing:
+            logger.warning(
+                f"基線鎖定違規: 嘗試修改已存在的基線 {change_id} — "
+                f"基線一旦建立不可修改，這是數據誠實的基礎"
+            )
+            return False
+        now = datetime.now(TZ8).isoformat()
+        conn.execute(
+            "INSERT INTO eval_baselines (change_id, baseline_json, created_at) "
+            "VALUES (?, ?, ?)",
+            (change_id, json.dumps(baseline, ensure_ascii=False), now),
+        )
+        conn.commit()
+        return True
+
+    # ══════════════════════════════════════════════
+    # Phase 2: Eval Blindspots（盲點記錄）
+    # ══════════════════════════════════════════════
+
+    def load_eval_blindspots(self) -> List[Dict[str, Any]]:
+        """載入盲點記錄."""
+        conn = self._get_conn()
+        rows = conn.execute(
+            "SELECT blindspot_json FROM eval_blindspots ORDER BY created_at",
+        ).fetchall()
+        result = []
+        for r in rows:
+            try:
+                result.append(json.loads(r["blindspot_json"]))
+            except json.JSONDecodeError:
+                logger.warning("eval_blindspots JSON 解析失敗")
+        return result
+
+    def save_eval_blindspots(self, blindspots: List[Dict[str, Any]]) -> None:
+        """儲存盲點記錄（全量覆寫）."""
+        conn = self._get_conn()
+        conn.execute("DELETE FROM eval_blindspots")
+        now = datetime.now(TZ8).isoformat()
+        for bs in blindspots:
+            bs_id = bs.get("id", str(uuid.uuid4()))
+            conn.execute(
+                "INSERT INTO eval_blindspots (id, blindspot_json, created_at) "
+                "VALUES (?, ?, ?)",
+                (bs_id, json.dumps(bs, ensure_ascii=False), now),
+            )
+        conn.commit()
+
+    # ══════════════════════════════════════════════
+    # Phase 2: Eval Alerts（品質警報）
+    # ══════════════════════════════════════════════
+
+    def load_eval_alerts(self) -> List[Dict[str, Any]]:
+        """載入警報記錄."""
+        conn = self._get_conn()
+        rows = conn.execute(
+            "SELECT * FROM eval_alerts ORDER BY created_at",
+        ).fetchall()
+        result = []
+        for r in rows:
+            d = dict(r)
+            try:
+                d["details"] = json.loads(d.pop("details_json", "{}"))
+            except json.JSONDecodeError:
+                d["details"] = {}
+            result.append(d)
+        return result
+
+    def save_eval_alerts(self, alerts: List[Dict[str, Any]]) -> None:
+        """儲存警報記錄（全量覆寫）."""
+        conn = self._get_conn()
+        conn.execute("DELETE FROM eval_alerts")
+        now = datetime.now(TZ8).isoformat()
+        for alert in alerts:
+            alert_id = alert.get("id", str(uuid.uuid4()))
+            conn.execute(
+                "INSERT INTO eval_alerts "
+                "(id, alert_type, severity, message, details_json, created_at) "
+                "VALUES (?, ?, ?, ?, ?, ?)",
+                (
+                    alert_id,
+                    alert.get("alert_type", "unknown"),
+                    alert.get("severity", "medium"),
+                    alert.get("message", ""),
+                    json.dumps(alert.get("details", {}), ensure_ascii=False),
+                    alert.get("timestamp", alert.get("created_at", now)),
+                ),
+            )
+        conn.commit()
+
+    def append_eval_alert(self, alert: Dict[str, Any]) -> None:
+        """追加一筆警報."""
+        conn = self._get_conn()
+        now = datetime.now(TZ8).isoformat()
+        alert_id = alert.get("id", str(uuid.uuid4()))
+        conn.execute(
+            "INSERT OR REPLACE INTO eval_alerts "
+            "(id, alert_type, severity, message, details_json, created_at) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
+            (
+                alert_id,
+                alert.get("alert_type", "unknown"),
+                alert.get("severity", "medium"),
+                alert.get("message", ""),
+                json.dumps(alert.get("details", {}), ensure_ascii=False),
+                alert.get("timestamp", alert.get("created_at", now)),
+            ),
+        )
+        conn.commit()
+
+    # ══════════════════════════════════════════════
+    # Phase 2: JSON → SQLite 遷移工具
+    # ══════════════════════════════════════════════
+
+    def migrate_ceremony_from_json(self, json_path: Path) -> bool:
+        """從 ceremony_state.json 遷移到 SQLite."""
+        if not json_path.exists():
+            return False
+        try:
+            with open(json_path, "r", encoding="utf-8") as f:
+                state = json.load(f)
+            self.save_ceremony_state(state)
+            logger.info(f"ceremony_state 遷移完成: {len(state)} 筆 key-value")
+            return True
+        except Exception as e:
+            logger.error(f"ceremony_state 遷移失敗: {e}")
+            return False
+
+    def migrate_eval_from_json(self, eval_dir: Path) -> Dict[str, str]:
+        """從 eval/ JSON 檔案遷移到 SQLite."""
+        results = {}
+
+        # ab_baselines.json
+        ab_path = eval_dir / "ab_baselines.json"
+        if ab_path.exists():
+            try:
+                with open(ab_path, "r", encoding="utf-8") as f:
+                    baselines = json.load(f)
+                for cid, bl in baselines.items():
+                    self.save_eval_baseline(cid, bl)
+                results["ab_baselines"] = f"ok ({len(baselines)} 筆)"
+            except Exception as e:
+                results["ab_baselines"] = f"error: {e}"
+        else:
+            results["ab_baselines"] = "not_found"
+
+        # blindspots.json
+        bs_path = eval_dir / "blindspots.json"
+        if bs_path.exists():
+            try:
+                with open(bs_path, "r", encoding="utf-8") as f:
+                    blindspots = json.load(f)
+                self.save_eval_blindspots(blindspots)
+                results["blindspots"] = f"ok ({len(blindspots)} 筆)"
+            except Exception as e:
+                results["blindspots"] = f"error: {e}"
+        else:
+            results["blindspots"] = "not_found"
+
+        # alerts.json
+        alerts_path = eval_dir / "alerts.json"
+        if alerts_path.exists():
+            try:
+                with open(alerts_path, "r", encoding="utf-8") as f:
+                    alerts = json.load(f)
+                self.save_eval_alerts(alerts)
+                results["alerts"] = f"ok ({len(alerts)} 筆)"
+            except Exception as e:
+                results["alerts"] = f"error: {e}"
+        else:
+            results["alerts"] = "not_found"
+
+        logger.info(f"eval JSON 遷移結果: {results}")
+        return results
+
+
+# ══════════════════════════════════════════════════
+# Singleton Factory — 全系統共用一個 PulseDB 連線
+# ══════════════════════════════════════════════════
+# 解決 11 個檔案各自 PulseDB() 造成的 DB locked / malformed 問題
+
+_pulse_db_instances: Dict[str, "PulseDB"] = {}
+_pulse_db_lock = threading.Lock()
+
+
+def get_pulse_db(data_dir: Optional[Path] = None) -> "PulseDB":
+    """取得 PulseDB 單例.
+
+    全系統應使用此函數取得 PulseDB，而非直接 PulseDB()。
+    同一個 db_path 只會建立一個 PulseDB 實例。
+
+    Args:
+        data_dir: 資料目錄（包含 pulse/ 子目錄的父目錄）
+                  如果為 None，使用預設路徑 ~/MUSEON/data
+
+    Returns:
+        PulseDB 單例
+
+    Example:
+        from museon.pulse.pulse_db import get_pulse_db
+        db = get_pulse_db(self.data_dir)
+        db.log_exploration(...)
+    """
+    if data_dir is None:
+        data_dir = Path.home() / "MUSEON" / "data"
+    data_dir = Path(data_dir)
+    db_path = str(data_dir / "pulse" / "pulse.db")
+
+    with _pulse_db_lock:
+        if db_path not in _pulse_db_instances:
+            _pulse_db_instances[db_path] = PulseDB(db_path)
+            logger.info(f"PulseDB singleton created: {db_path}")
+        return _pulse_db_instances[db_path]

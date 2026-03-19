@@ -15,6 +15,8 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from museon.core.data_bus import DataContract, StoreSpec, StoreEngine, TTLTier
+
 logger = logging.getLogger(__name__)
 
 TZ_TAIPEI = timezone(timedelta(hours=8))
@@ -49,7 +51,7 @@ _DEFAULT_META: Dict[str, Any] = {
 # SkillManager
 # ═══════════════════════════════════════════
 
-class SkillManager:
+class SkillManager(DataContract):
     """技能生命週期統一門面.
 
     workspace 對應 brain.data_dir（通常是 data/）。
@@ -57,6 +59,27 @@ class SkillManager:
         workspace/skills/native/<name>/SKILL.md
         workspace/skills/forged/<name>/SKILL.md + _meta.json
     """
+
+    @classmethod
+    def store_spec(cls) -> StoreSpec:
+        return StoreSpec(
+            name="skill_manager",
+            engine=StoreEngine.JSON,
+            ttl=TTLTier.PERMANENT,
+            description="技能生命週期管理（_meta.json + SKILL.md）",
+        )
+
+    def health_check(self) -> Dict[str, Any]:
+        try:
+            native = sum(1 for d in self._native_dir.iterdir() if d.is_dir()) if self._native_dir.exists() else 0
+            forged = sum(1 for d in self._forged_dir.iterdir() if d.is_dir()) if self._forged_dir.exists() else 0
+            return {
+                "status": "ok",
+                "native_skills": native,
+                "forged_skills": forged,
+            }
+        except Exception as e:
+            return {"status": "error", "error": str(e)}
 
     def __init__(self, workspace: Path) -> None:
         self._workspace = Path(workspace)
@@ -230,8 +253,8 @@ class SkillManager:
                             if stripped.startswith("description:"):
                                 description = stripped.split(":", 1)[1].strip()
                                 break
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[SKILL_MANAGER] data read failed (degraded): {e}")
 
         return {
             "name": name,
@@ -286,8 +309,8 @@ class SkillManager:
         # 重建路由索引
         try:
             self.router.rebuild_index()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[SKILL_MANAGER] operation failed (degraded): {e}")
 
         return {
             "installed": True,
@@ -431,8 +454,8 @@ class SkillManager:
                                 meta["lifecycle"] = "archived"
                                 archived += 1
                                 self._save_meta(skill_dir, meta)
-                        except Exception:
-                            pass
+                        except Exception as e:
+                            logger.debug(f"[SKILL_MANAGER] skill failed (degraded): {e}")
 
         return {
             "promoted": promoted,

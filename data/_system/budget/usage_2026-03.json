@@ -135,23 +135,145 @@
           "calls": 48
         }
       }
+    },
+    "2026-03-14": {
+      "input_tokens": 8597,
+      "output_tokens": 347691,
+      "total_tokens": 356288,
+      "models": {
+        "sonnet": {
+          "input": 1270,
+          "output": 54180,
+          "calls": 39
+        },
+        "haiku": {
+          "input": 2631,
+          "output": 260495,
+          "calls": 260
+        }
+      }
+    },
+    "2026-03-15": {
+      "input_tokens": 14583,
+      "output_tokens": 548657,
+      "total_tokens": 563240,
+      "models": {
+        "sonnet": {
+          "input": 97,
+          "output": 14814,
+          "calls": 32
+        },
+        "haiku": {
+          "input": 3748,
+          "output": 372740,
+          "calls": 375
+        }
+      }
+    },
+    "2026-03-16": {
+      "input_tokens": 11808,
+      "output_tokens": 542229,
+      "total_tokens": 554037,
+      "models": {
+        "sonnet": {
+          "input": 108,
+          "output": 41947,
+          "calls": 32
+        },
+        "haiku": {
+          "input": 3593,
+          "output": 355208,
+          "calls": 360
+        }
+      }
+    },
+    "2026-03-17": {
+      "input_tokens": 68474,
+      "output_tokens": 523384,
+      "total_tokens": 591858,
+      "models": {
+        "opus": {
+          "input": 38258,
+          "output": 18512,
+          "calls": 19
+        },
+        "sonnet": {
+          "input": 23,
+          "output": 16771,
+          "calls": 8
+        },
+        "haiku": {
+          "input": 4435,
+          "output": 404846,
+          "calls": 444
+        }
+      }
+    },
+    "2026-03-18": {
+      "input_tokens": 42584,
+      "output_tokens": 625572,
+      "total_tokens": 668156,
+      "models": {
+        "opus": {
+          "input": 40404,
+          "output": 292692,
+          "calls": 102
+        },
+        "sonnet": {
+          "input": 2,
+          "output": 7064,
+          "calls": 1
+        },
+        "haiku": {
+          "input": 2178,
+          "output": 325816,
+          "calls": 219
+        }
+      }
+    },
+    "2026-03-19": {
+      "input_tokens": 28819,
+      "output_tokens": 494840,
+      "total_tokens": 523659,
+      "models": {
+        "opus": {
+          "input": 27620,
+          "output": 298509,
+          "calls": 51
+        },
+        "sonnet": {
+          "input": 14,
+          "output": 19398,
+          "calls": 5
+        },
+        "haiku": {
+          "input": 1185,
+          "output": 176933,
+          "calls": 119
+        }
+      }
     }
   },
   "monthly_totals": {
-    "input_tokens": 4578808,
-    "output_tokens": 630506,
-    "total_tokens": 5209314,
-    "estimated_cost_usd": 16.2454,
+    "input_tokens": 4753673,
+    "output_tokens": 3712879,
+    "total_tokens": 8466552,
+    "estimated_cost_usd": 73.4836,
     "models": {
+      "opus": {
+        "input": 106282,
+        "output": 609713,
+        "calls": 172
+      },
       "sonnet": {
-        "input": 2913152,
-        "output": 331941,
-        "calls": 239
+        "input": 2914666,
+        "output": 486115,
+        "calls": 356
       },
       "haiku": {
-        "input": 1665656,
-        "output": 298565,
-        "calls": 400
+        "input": 1683426,
+        "output": 2194603,
+        "calls": 2177
       }
     }
   }

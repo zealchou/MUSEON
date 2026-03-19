@@ -16,7 +16,66 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
+from museon.core.event_bus import (
+    DATA_DEAD_WRITE_DETECTED,
+    DATA_HEALTH_CHECKED,
+    DATA_STORAGE_WARNING,
+    DATA_STORE_DEGRADED,
+    EVOLUTION_VELOCITY_ALERT,
+    KNOWLEDGE_GRAPH_UPDATED,
+    NIGHTLY_COMPLETED,
+    NIGHTLY_DAG_EXECUTED,
+    NIGHTLY_HEALTH_GATE,
+    NIGHTLY_STARTED,
+)
+
 logger = logging.getLogger(__name__)
+
+
+def _run_async_safe(coro, timeout: int = 120):
+    """統一的 sync-in-async 橋接（合約 3 修復）.
+
+    NightlyPipeline 運行在獨立背景線程，需要呼叫 async 函數。
+    始終建立獨立 event loop，避免與 Gateway 主 loop 衝突。
+
+    修復前問題：
+    - asyncio.get_event_loop() 在 Python 3.10+ deprecated
+    - 若線程看到 Gateway 主 loop → run_until_complete() 拋 RuntimeError
+    - Python 3.10+ 的 events._get_running_loop() 是 thread-local，
+      若當前線程有 running loop，new_event_loop 也無法 run_until_complete
+
+    修復策略：偵測當前線程是否有 running loop，若有則在獨立線程執行。
+    """
+    import asyncio
+    from concurrent.futures import ThreadPoolExecutor
+
+    def _execute():
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            return loop.run_until_complete(asyncio.wait_for(coro, timeout=timeout))
+        finally:
+            try:
+                pending = asyncio.all_tasks(loop)
+                if pending:
+                    loop.run_until_complete(
+                        asyncio.gather(*pending, return_exceptions=True)
+                    )
+            except Exception:
+                pass
+            loop.close()
+
+    # 偵測當前線程是否有 running loop
+    try:
+        asyncio.get_running_loop()
+        # 有 running loop → 在獨立線程執行，避免 RuntimeError
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            future = pool.submit(_execute)
+            return future.result(timeout=timeout + 5)
+    except RuntimeError:
+        # 沒有 running loop → 直接執行
+        return _execute()
+
 
 # ═══════════════════════════════════════════
 # Constants
@@ -57,13 +116,15 @@ SKILL_ARCHIVE_INACTIVE_DAYS = 30
 # Federation step sets
 _FULL_STEPS = [
     "0", "0.1",  # Budget settlement + Footprint cleanup (最先執行)
-    "1", "2", "3", "4", "5", "5.5", "5.8", "5.9", "5.10",
-    "6", "7", "7.5", "8", "8.5", "9", "10", "10.5", "11", "12", "13", "13.5",
+    "1", "2", "3", "4", "5", "5.5", "5.6", "5.7", "5.8", "5.9", "5.9.5", "5.10",
+    "6", "6.5", "7", "7.5", "8", "8.5", "9", "10", "10.5", "11", "12", "13", "13.5",
     "13.6", "13.7", "13.8",  # 外向型進化：觸發掃描 → 外向研究 → 消化生命週期
     "14", "15", "16", "17",
     "18",
     "20", "21", "22", "23",  # 新增：synapse_decay/muscle_atrophy/immune_prune/trigger_eval
     "24", "25",  # 新增：演化速度計算 / 週月循環觸發檢查
+    "26", "27", "28", "29",  # 持久層衛生：session 清理 / JSONL 輪替 / WAL checkpoint / DataWatchdog
+    "30",  # 藍圖一致性驗證
 ]
 _ORIGIN_STEPS = ["5.8", "6", "7", "8", "16"]
 _NODE_STEPS = [
@@ -111,6 +172,7 @@ class NightlyPipeline:
         dendritic_scorer: Optional[Any] = None,
     ) -> None:
         self._workspace = workspace
+        self._source_root = workspace.parent if workspace else Path.cwd()
         self._memory_manager = memory_manager
         self._heartbeat_focus = heartbeat_focus
         self._event_bus = event_bus
@@ -126,16 +188,19 @@ class NightlyPipeline:
             "5": ("step_05_wee_fuse", self._step_wee_fuse),
             "5.5": ("step_05_5_cross_crystallize", self._step_cross_crystallize),
             "5.6": ("step_05_6_knowledge_lattice", self._step_knowledge_lattice),
+            "5.7": ("step_05_7_crystal_actuator", self._step_crystal_actuator),
             "5.8": ("step_05_8_morphenix_proposals", self._step_morphenix_proposals),
             "5.9": ("step_05_9_morphenix_gate", self._step_morphenix_gate),
+            "5.9.5": ("step_05_9_5_morphenix_validate", self._step_morphenix_validate),
             "5.10": ("step_05_10_morphenix_execute", self._step_morphenix_execute),
             "6": ("step_06_skill_forge", self._step_skill_forge),
+            "6.5": ("step_06_5_skill_scout", self._step_skill_scout),
             "7": ("step_07_curriculum", self._step_curriculum),
             "7.5": ("step_07_5_auto_course", self._step_auto_course),
             "8": ("step_08_workflow_mutation", self._step_workflow_mutation),
             "8.5": ("step_08_5_dna27_reindex", self._step_dna27_reindex),
             "9": ("step_09_graph_consolidation", self._step_graph_consolidation),
-            "10": ("step_10_soul_nightly", self._step_soul_nightly),
+            "10": ("step_10_diary_generation", self._step_diary_generation),
             "10.5": ("step_10_5_ring_review", self._step_ring_review),
             "11": ("step_11_dream_engine", self._step_dream_engine),
             "12": ("step_12_heartbeat_focus", self._step_heartbeat_focus),
@@ -160,6 +225,13 @@ class NightlyPipeline:
             # ── Evolution Architecture 新增步驟 ──
             "24": ("step_24_evolution_velocity", self._step_evolution_velocity),
             "25": ("step_25_periodic_cycle_check", self._step_periodic_cycle_check),
+            # ── 持久層衛生 ──
+            "26": ("step_26_session_cleanup", self._step_session_cleanup),
+            "27": ("step_27_log_rotation", self._step_log_rotation),
+            "28": ("step_28_wal_checkpoint", self._step_wal_checkpoint),
+            "29": ("step_29_data_watchdog", self._step_data_watchdog),
+            # ── 藍圖驗證 ──
+            "30": ("step_30_blueprint_consistency", self._step_blueprint_consistency),
         }
 
     def run(self, mode: str = "full") -> Dict:
@@ -174,7 +246,7 @@ class NightlyPipeline:
         started_at = datetime.now(TZ_TAIPEI)
 
         # 發布 NIGHTLY_STARTED
-        self._publish("NIGHTLY_STARTED", {
+        self._publish(NIGHTLY_STARTED, {
             "mode": mode,
             "started_at": started_at.isoformat(),
         })
@@ -193,7 +265,17 @@ class NightlyPipeline:
         if self._dendritic_scorer and mode == "full":
             try:
                 score = self._dendritic_scorer.calculate_score()
-                if score <= 40:
+                if score == 0.0:
+                    # score=0.0 通常表示計分器冷啟動或無足夠數據，
+                    # 降級而非最小化，避免因計分失真跳過全部核心步驟
+                    step_ids = self._get_degraded_steps()
+                    gate_mode = "degraded"
+                    logger.warning(
+                        "[NIGHTLY] Health gate: score=0.0 "
+                        "(cold start or insufficient data), "
+                        "falling back to degraded mode"
+                    )
+                elif score <= 40:
                     # 危險：僅執行最小集合
                     step_ids = self._get_minimal_steps()
                     gate_mode = "minimal"
@@ -201,7 +283,7 @@ class NightlyPipeline:
                     # 降級：跳過重型步驟
                     step_ids = self._get_degraded_steps()
                     gate_mode = "degraded"
-                self._publish("NIGHTLY_HEALTH_GATE", {
+                self._publish(NIGHTLY_HEALTH_GATE, {
                     "health_score": round(score, 1),
                     "gate_mode": gate_mode,
                     "step_count": len(step_ids),
@@ -226,7 +308,7 @@ class NightlyPipeline:
                 # 轉換 DAGExecutionReport → steps_dict 格式
                 for step_id, step_result in dag_report.steps.items():
                     steps_dict[step_result.name] = step_result.to_dict()
-                self._publish("NIGHTLY_DAG_EXECUTED", {
+                self._publish(NIGHTLY_DAG_EXECUTED, {
                     "execution_order": dag_report.execution_order,
                     "skipped_due_to_dependency": dag_report.skipped_due_to_dependency,
                 })
@@ -290,7 +372,7 @@ class NightlyPipeline:
         self._persist_report(report)
 
         # 發布 NIGHTLY_COMPLETED
-        self._publish("NIGHTLY_COMPLETED", {
+        self._publish(NIGHTLY_COMPLETED, {
             "mode": mode,
             "elapsed_seconds": elapsed,
             "summary": report["summary"],
@@ -338,7 +420,8 @@ class NightlyPipeline:
             if len(result_str) > REPORT_TRUNCATE_CHARS:
                 result_str = result_str[:REPORT_TRUNCATE_CHARS] + "..."
             return {"status": "ok", "result": result_str}
-        except NotImplementedError:
+        except NotImplementedError as e:
+            logger.debug(f"[NIGHTLY] degraded: {e}")
             return {"status": "skipped", "result": "subsystem not available"}
         except Exception as e:
             logger.error(f"[NIGHTLY] Step {name} failed: {e}")
@@ -366,16 +449,16 @@ class NightlyPipeline:
                     decayed += 1
                     with open(f, "w", encoding="utf-8") as fh:
                         json.dump(data, fh, ensure_ascii=False, indent=2)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] JSON parse failed (degraded): {e}")
         # Phase B: Multi-Agent shared_assets 衰退
         shared_decayed = 0
         try:
             from museon.multiagent.shared_assets import SharedAssetLibrary
             lib = SharedAssetLibrary(workspace=self._workspace)
             shared_decayed = lib.decay_all()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         return {"decayed": decayed, "shared_decayed": shared_decayed}
 
@@ -395,8 +478,8 @@ class NightlyPipeline:
                         archive_dir.mkdir(parents=True, exist_ok=True)
                         f.rename(archive_dir / f.name)
                         archived += 1
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         # Phase B: Multi-Agent shared_assets 歸檔
         shared_archived = 0
@@ -404,8 +487,8 @@ class NightlyPipeline:
             from museon.multiagent.shared_assets import SharedAssetLibrary
             lib = SharedAssetLibrary(workspace=self._workspace)
             shared_archived = lib.archive_low_quality()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         return {"archived": archived, "shared_archived": shared_archived}
 
@@ -443,8 +526,8 @@ class NightlyPipeline:
                 memory_manager=memory_manager,
             )
             return wee.compress_daily()
-        except ImportError:
-            pass
+        except ImportError as e:
+            logger.debug(f"[NIGHTLY] WEE engine failed (degraded): {e}")
 
         # ── Filesystem fallback（原始邏輯）──
         wee_dir = self._workspace / "_system" / "wee" / "sessions"
@@ -476,8 +559,8 @@ class NightlyPipeline:
                 with open(out, "w", encoding="utf-8") as fh:
                     json.dump(crystal, fh, ensure_ascii=False, indent=2)
                 compressed += 1
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         return {"compressed": compressed, "source_date": yesterday}
 
@@ -500,8 +583,8 @@ class NightlyPipeline:
                 memory_manager=memory_manager,
             )
             return wee.fuse_weekly()
-        except ImportError:
-            pass
+        except ImportError as e:
+            logger.debug(f"[NIGHTLY] WEE engine failed (degraded): {e}")
 
         # ── Filesystem fallback（原始邏輯）──
         crystal_dir = self._workspace / "_system" / "wee" / "crystals" / "daily"
@@ -523,8 +606,8 @@ class NightlyPipeline:
                     d_week = f"{d_cal[0]}-W{d_cal[1]:02d}"
                     if d_week == iso_week:
                         week_crystals.append(data)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] WEE engine failed (degraded): {e}")
 
         if len(week_crystals) < WEE_MIN_CRYSTALS_FOR_FUSE:
             return {"skipped": "not enough crystals", "count": len(week_crystals)}
@@ -569,8 +652,8 @@ class NightlyPipeline:
                     if item_id not in seen_ids:
                         seen_ids.add(item_id)
                         l2_items.append(item)
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         if len(l2_items) < 3:
             return {"skipped": "not enough L2_ep items", "count": len(l2_items)}
@@ -588,7 +671,8 @@ class NightlyPipeline:
                 min_size=SKILL_FORGE_MIN_CLUSTER,
             )
             return {"clusters": len(clusters), "total_items": len(l2_items)}
-        except ImportError:
+        except ImportError as e:
+            logger.debug(f"[NIGHTLY] degraded: {e}")
             return {"skipped": "ChromosomeIndex not available"}
 
     # ═══════════════════════════════════════════
@@ -613,8 +697,48 @@ class NightlyPipeline:
                 "recrystallized": report.get("recrystallized", 0),
                 "ri_updated": report.get("ri_updated", 0),
             }
-        except ImportError:
+        except ImportError as e:
+            logger.debug(f"[NIGHTLY] degraded: {e}")
             return {"skipped": "KnowledgeLattice not available"}
+        except Exception as e:
+            return {"error": str(e)}
+
+    # ═══════════════════════════════════════════
+    # Step 5.7: Crystal Actuator — 結晶行為規則引擎
+    # ═══════════════════════════════════════════
+
+    def _step_crystal_actuator(self) -> Dict:
+        """Step 5.7: 結晶 → 行為規則轉化 + 新陳代謝.
+
+        1. actualize: 掃描高置信結晶 → 轉化為行為規則
+        2. metabolize: 根據回饋強化/淘汰規則（P3 核心）
+        """
+        try:
+            from museon.agent.crystal_actuator import CrystalActuator
+            from museon.agent.knowledge_lattice import KnowledgeLattice
+
+            lattice = KnowledgeLattice(data_dir=str(self._workspace))
+            actuator = CrystalActuator(
+                workspace=self._workspace, event_bus=self._event_bus,
+            )
+
+            # Phase 1: 轉化高置信結晶為行為規則
+            actualize_report = actuator.actualize(lattice)
+
+            # Phase 2: 新陳代謝（P3 回饋驅動的強化/淘汰）
+            metabolize_report = actuator.metabolize()
+
+            return {
+                "new_rules": actualize_report.get("new_rules", 0),
+                "expired_rules": actualize_report.get("expired_rules", 0),
+                "total_active": actualize_report.get("total_active", 0),
+                "strengthened": metabolize_report.get("strengthened", 0),
+                "weakened": metabolize_report.get("weakened", 0),
+                "removed": metabolize_report.get("removed", 0),
+            }
+        except ImportError as e:
+            logger.debug(f"[NIGHTLY] degraded: {e}")
+            return {"skipped": "CrystalActuator not available"}
         except Exception as e:
             return {"error": str(e)}
 
@@ -655,8 +779,8 @@ class NightlyPipeline:
                         try:
                             entry = json.loads(line)
                             recent_scores.append(entry)
-                        except Exception:
-                            pass
+                        except Exception as e:
+                            logger.debug(f"[NIGHTLY] scoring failed (degraded): {e}")
 
                 # 取最近 7 天
                 week_ago = (datetime.now(TZ_TAIPEI) - timedelta(days=7)).isoformat()
@@ -817,8 +941,8 @@ class NightlyPipeline:
                                 total_routes += 1
                                 if entry.get("user_accepted", True):
                                     hits += 1
-                        except Exception:
-                            pass
+                        except Exception as e:
+                            logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
                 if total_routes >= 10:
                     hit_rate = hits / total_routes
@@ -855,8 +979,8 @@ class NightlyPipeline:
                     try:
                         with open(f, "r", encoding="utf-8") as fh:
                             notes.append(json.load(fh))
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.debug(f"[NIGHTLY] JSON parse failed (degraded): {e}")
 
                 if len(notes) >= 3:
                     proposal = {
@@ -865,7 +989,7 @@ class NightlyPipeline:
                         "title": f"{len(notes)} 條迭代筆記待結晶",
                         "description": f"累積 {len(notes)} 條迭代觀察筆記，建議結晶為具體改進提案。",
                         "action": "crystallize_notes",
-                        "source_notes": len(notes),
+                        "source_notes": [f.name for f in notes_dir.glob("*.json") if f.is_file()][:20],
                         "created_at": datetime.now(TZ_TAIPEI).isoformat(),
                         "status": "pending_review",
                     }
@@ -915,11 +1039,16 @@ class NightlyPipeline:
             try:
                 with open(f, "r", encoding="utf-8") as fh:
                     proposal = json.load(fh)
-                if proposal.get("status") == "pending_review":
+                _st = proposal.get("status", "")
+                if _st in ("pending_review", "approved_pending_test", "pending"):
                     proposal["_file"] = str(f)
                     pending.append(proposal)
-            except Exception:
-                pass
+                    logger.info(
+                        f"[MORPHENIX 5.9] Found proposal: {f.name}, "
+                        f"status={_st}, category={proposal.get('category', '?')}"
+                    )
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         if not pending:
             return {"skipped": "no pending proposals"}
@@ -927,9 +1056,8 @@ class NightlyPipeline:
         # 取得 PulseDB（用於持久化 L3 提案）
         pulse_db = None
         try:
-            from museon.pulse.pulse_db import PulseDB
-            db_path = self._workspace / "pulse.db"
-            pulse_db = PulseDB(str(db_path))
+            from museon.pulse.pulse_db import get_pulse_db
+            pulse_db = get_pulse_db(self._workspace)
         except Exception as e:
             logger.warning(f"Morphenix gate: PulseDB init failed: {e}")
 
@@ -947,12 +1075,46 @@ class NightlyPipeline:
                 results["auto_approved"] += 1
                 results["executed"] += 1
 
+                # L1 持久化到 PulseDB（讓 Executor 能看到）
+                if pulse_db:
+                    try:
+                        pid = f"morphenix_{date.today().isoformat()}_L1_{results['auto_approved']:03d}"
+                        pulse_db.save_proposal(
+                            proposal_id=pid,
+                            level="L1",
+                            title=proposal.get("title", "L1 Config 提案"),
+                            description=proposal.get("description", proposal.get("summary", "")),
+                            affected_files=proposal.get("affected_files", []) if isinstance(proposal.get("affected_files"), list) else [],
+                            source_notes=proposal.get("source_notes", []) if isinstance(proposal.get("source_notes"), list) else [],
+                        )
+                        pulse_db.approve_proposal(pid, decided_by="auto")
+                        logger.info(f"Morphenix L1 proposal saved+approved in DB: {pid}")
+                    except Exception as e:
+                        logger.error(f"Morphenix L1 DB persist FAILED: {e}", exc_info=True)
+
             elif "L2" in str(category):
-                # L2 Logic: 自動核准，標記待測試
-                proposal["status"] = "approved_pending_test"
+                # L2 Logic: 自動核准（直接 approved，因無測試設施）
+                proposal["status"] = "approved"
                 proposal["decided_by"] = "auto"
                 proposal["decided_at"] = datetime.now(TZ_TAIPEI).isoformat()
                 results["auto_approved"] += 1
+
+                # L2 持久化到 PulseDB（讓 Executor 能看到）
+                if pulse_db:
+                    try:
+                        pid = f"morphenix_{date.today().isoformat()}_L2_{results['auto_approved']:03d}"
+                        pulse_db.save_proposal(
+                            proposal_id=pid,
+                            level="L2",
+                            title=proposal.get("title", "L2 Logic 提案"),
+                            description=proposal.get("description", proposal.get("summary", "")),
+                            affected_files=proposal.get("affected_files", []) if isinstance(proposal.get("affected_files"), list) else [],
+                            source_notes=proposal.get("source_notes", []) if isinstance(proposal.get("source_notes"), list) else [],
+                        )
+                        pulse_db.approve_proposal(pid, decided_by="auto")
+                        logger.info(f"Morphenix L2 proposal saved+approved in DB: {pid}")
+                    except Exception as e:
+                        logger.error(f"Morphenix L2 DB persist FAILED: {e}", exc_info=True)
 
             elif "L3" in str(category):
                 # L3 Architecture: 寫入 DB + Telegram 通知
@@ -988,11 +1150,28 @@ class NightlyPipeline:
                         logger.error(f"Morphenix L3 DB save failed: {e}")
 
             else:
-                # 未分類，預設為 L1
+                # 未分類，預設為 L1（Contract 4: 同時寫入 PulseDB）
                 proposal["status"] = "approved"
                 proposal["decided_by"] = "auto"
                 proposal["decided_at"] = datetime.now(TZ_TAIPEI).isoformat()
                 results["auto_approved"] += 1
+
+                # 持久化到 PulseDB（確保 Executor 能讀到）
+                if pulse_db:
+                    try:
+                        pid = f"morphenix_{date.today().isoformat()}_auto_{results['auto_approved']:03d}"
+                        pulse_db.save_proposal(
+                            proposal_id=pid,
+                            level="L1",
+                            title=proposal.get("title", "未分類提案"),
+                            description=proposal.get("description", proposal.get("summary", "")),
+                            affected_files=proposal.get("affected_files", []) if isinstance(proposal.get("affected_files"), list) else [],
+                            source_notes=proposal.get("source_notes", []) if isinstance(proposal.get("source_notes"), list) else [],
+                        )
+                        pulse_db.approve_proposal(pid, decided_by="auto")
+                        logger.info(f"Morphenix uncategorized proposal saved+approved in DB: {pid}")
+                    except Exception as e:
+                        logger.error(f"Morphenix uncategorized DB persist FAILED: {e}")
 
             # 寫回 JSON 檔
             try:
@@ -1014,8 +1193,8 @@ class NightlyPipeline:
                     "l3_count": len(results.get("l3_proposals", [])),
                     "total": total_proposals,
                 })
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         # L3 提案 → 透過 EventBus 發送 Telegram inline keyboard 通知
         if results["l3_proposals"] and self._event_bus:
@@ -1038,6 +1217,78 @@ class NightlyPipeline:
         return results
 
     # ═══════════════════════════════════════════
+    # Step 5.9.5: Morphenix Docker 驗證
+    # ═══════════════════════════════════════════
+
+    def _step_morphenix_validate(self) -> Dict:
+        """Step 5.9.5: 在 Docker 隔離環境中驗證 L2+ 提案.
+
+        L1 跳過 Docker（只改 JSON，風險低）。
+        L2+ 強制 Docker pytest 驗證，失敗則 reject。
+        """
+        try:
+            from museon.pulse.pulse_db import get_pulse_db
+            pulse_db = get_pulse_db(self._workspace)
+        except Exception as e:
+            return {"skipped": f"PulseDB init failed: {e}"}
+
+        approved = [
+            p for p in pulse_db.get_all_proposals(100)
+            if p.get("status") == "approved"
+        ]
+        l2_plus = [p for p in approved if p.get("level") in ("L2", "L3")]
+
+        if not l2_plus:
+            return {"skipped": "no L2+ proposals to validate", "total_approved": len(approved)}
+
+        try:
+            from museon.nightly.morphenix_validator import MorphenixValidator
+            validator = MorphenixValidator(source_root=self._source_root)
+        except ImportError as e:
+            logger.debug(f"[NIGHTLY] degraded: {e}")
+            return {"skipped": "MorphenixValidator not available"}
+
+        results = {"validated": 0, "passed": 0, "failed": 0, "details": []}
+
+        for proposal in l2_plus:
+            pid = proposal.get("id", "?")
+            try:
+                vresult = _run_async_safe(validator.validate_proposal(proposal))
+                results["validated"] += 1
+
+                if vresult.passed:
+                    results["passed"] += 1
+                    logger.info(
+                        f"[MORPHENIX 5.9.5] {pid} Docker validation PASSED "
+                        f"({vresult.reason}, {vresult.duration_ms}ms)"
+                    )
+                else:
+                    results["failed"] += 1
+                    # reject 提案
+                    pulse_db.reject_proposal(pid, decided_by="docker_validator")
+                    logger.warning(
+                        f"[MORPHENIX 5.9.5] {pid} Docker validation FAILED: "
+                        f"{vresult.reason} — REJECTED"
+                    )
+
+                results["details"].append({
+                    "id": pid,
+                    "passed": vresult.passed,
+                    "reason": vresult.reason,
+                    "duration_ms": vresult.duration_ms,
+                })
+
+            except Exception as e:
+                logger.error(f"[MORPHENIX 5.9.5] {pid} validation error: {e}")
+                results["details"].append({
+                    "id": pid,
+                    "passed": False,
+                    "reason": f"error: {str(e)[:100]}",
+                })
+
+        return results
+
+    # ═══════════════════════════════════════════
     # Step 5.10: Morphenix 執行
     # ═══════════════════════════════════════════
 
@@ -1048,9 +1299,8 @@ class NightlyPipeline:
         → Core Brain 審查 → git tag 安全快照 → 執行變更 → 標記 executed
         """
         try:
-            from museon.pulse.pulse_db import PulseDB
-            db_path = self._workspace / "pulse.db"
-            pulse_db = PulseDB(str(db_path))
+            from museon.pulse.pulse_db import get_pulse_db
+            pulse_db = get_pulse_db(self._workspace)
         except Exception as e:
             return {"skipped": f"PulseDB init failed: {e}"}
 
@@ -1100,8 +1350,8 @@ class NightlyPipeline:
             try:
                 with open(f, "r", encoding="utf-8") as fh:
                     items.append(json.load(fh))
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] JSON parse failed (degraded): {e}")
 
         if len(items) < SKILL_FORGE_MIN_CLUSTER:
             return {"skipped": "not enough L2_ep items", "count": len(items)}
@@ -1136,8 +1386,86 @@ class NightlyPipeline:
                 forged += 1
 
             return {"forged": forged, "clusters": len(clusters)}
-        except ImportError:
+        except ImportError as e:
+            logger.debug(f"[NIGHTLY] degraded: {e}")
             return {"skipped": "ChromosomeIndex not available"}
+
+    # ═══════════════════════════════════════════
+    # Step 6.5: SkillForge Scout（探索發現 → 技能改善研究）
+    # ═══════════════════════════════════════════
+
+    def _step_skill_scout(self) -> Dict:
+        """Step 6.5: 消費 scout_queue 中的待研究項目，產出技能改善草稿."""
+        queue_file = self._workspace / "_system" / "bridge" / "scout_queue" / "pending.json"
+        if not queue_file.exists():
+            return {"skipped": "no scout_queue"}
+
+        try:
+            with open(queue_file, "r", encoding="utf-8") as fh:
+                queue = json.load(fh)
+        except Exception as e:
+            logger.debug(f"[NIGHTLY] degraded: {e}")
+            return {"skipped": "scout_queue read error"}
+
+        pending = [q for q in queue if q.get("status") == "pending"]
+        if not pending:
+            return {"skipped": "no pending scout items"}
+
+        # 去重：相同 topic 只保留第一個
+        seen_topics: set = set()
+        deduped: list = []
+        for item in pending:
+            topic = item.get("topic", "").strip()
+            if topic and topic not in seen_topics:
+                seen_topics.add(topic)
+                deduped.append(item)
+        removed_dupes = len(pending) - len(deduped)
+
+        if not deduped:
+            return {"skipped": "all scout items were duplicates", "removed": removed_dupes}
+
+        # 嘗試呼叫 SkillForgeScout
+        processed = 0
+        errors = []
+        try:
+            from museon.nightly.skill_forge_scout import SkillForgeScout
+            scout = SkillForgeScout(
+                brain=self._brain,
+                event_bus=self._event_bus,
+                workspace=self._workspace,
+            )
+            # 每次最多處理 3 個（控制 Token 成本）
+            results = _run_async_safe(scout.process_queue(max_items=3))
+            processed = len(results) if results else 0
+        except ImportError as e:
+            logger.debug(f"[NIGHTLY] degraded: {e}")
+            errors.append("SkillForgeScout not available")
+        except Exception as e:
+            errors.append(str(e))
+            logger.warning(f"SkillForgeScout process_queue failed: {e}")
+
+        # 更新 queue：標記已處理的 + 去重後的
+        updated_queue = []
+        for item in queue:
+            topic = item.get("topic", "").strip()
+            if topic in seen_topics:
+                if topic not in {d.get("topic", "").strip() for d in updated_queue if d.get("status") == "pending"}:
+                    updated_queue.append(item)
+            else:
+                updated_queue.append(item)
+
+        try:
+            with open(queue_file, "w", encoding="utf-8") as fh:
+                json.dump(updated_queue, fh, ensure_ascii=False, indent=2)
+        except Exception as e:
+            logger.warning(f"scout_queue write-back failed: {e}")
+
+        return {
+            "processed": processed,
+            "deduped": len(deduped),
+            "removed_duplicates": removed_dupes,
+            "errors": errors if errors else None,
+        }
 
     # ═══════════════════════════════════════════
     # Step 7: 課程診斷
@@ -1153,7 +1481,8 @@ class NightlyPipeline:
             try:
                 with open(scores_file, "r", encoding="utf-8") as fh:
                     scores = json.load(fh)
-            except Exception:
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] degraded: {e}")
                 scores = {"speed": 5.0, "quality": 5.0, "alignment": 5.0, "leverage": 5.0}
 
         avg = sum(scores.values()) / max(len(scores), 1)
@@ -1207,29 +1536,24 @@ class NightlyPipeline:
                         scores = diag.get("scores", {})
                         weak = [k for k, v in scores.items() if v < 5.0]
                         topics.extend(weak[:2])
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
             if not topics:
                 return {"skipped": "no weak topics identified"}
 
             # 同步呼叫（CourseGenerator.generate_course 是 async，這裡包裝）
-            import asyncio
             results = []
             for topic in topics:
                 try:
-                    loop = asyncio.get_event_loop()
-                    if loop.is_running():
-                        # 在 nightly 的 sync context 中，直接跳過 async
-                        results.append({"topic": topic, "status": "deferred"})
-                    else:
-                        course = asyncio.run(generator.generate_course(topic))
-                        results.append({"topic": topic, "course_id": course.get("course_id")})
+                    course = _run_async_safe(generator.generate_course(topic))
+                    results.append({"topic": topic, "course_id": course.get("course_id")})
                 except Exception as e:
                     results.append({"topic": topic, "error": str(e)})
 
             return {"courses_generated": len(results), "results": results}
-        except ImportError:
+        except ImportError as e:
+            logger.debug(f"[NIGHTLY] degraded: {e}")
             return {"skipped": "course_generator not available"}
 
     # ═══════════════════════════════════════════
@@ -1259,7 +1583,8 @@ class NightlyPipeline:
             try:
                 with open(runs_file, "r", encoding="utf-8") as fh:
                     runs = json.load(fh)
-            except Exception:
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] degraded: {e}")
                 scanned += 1
                 continue
 
@@ -1325,13 +1650,15 @@ class NightlyPipeline:
         try:
             with open(edges_file, "r", encoding="utf-8") as fh:
                 edges = json.load(fh)
-        except Exception:
+        except Exception as e:
+            logger.debug(f"[NIGHTLY] degraded: {e}")
             return {"skipped": "edges file unreadable"}
 
         try:
             with open(nodes_file, "r", encoding="utf-8") as fh:
                 nodes = json.load(fh)
-        except Exception:
+        except Exception as e:
+            logger.debug(f"[NIGHTLY] degraded: {e}")
             nodes = {}
 
         stats = {
@@ -1398,7 +1725,7 @@ class NightlyPipeline:
                     "quality": q,
                     "tags": node.get("tags", []),
                 })
-        self._publish("KNOWLEDGE_GRAPH_UPDATED", {
+        self._publish(KNOWLEDGE_GRAPH_UPDATED, {
             "node_count": len(nodes),
             "edge_count": len(edges),
             "high_quality_nodes": high_quality_nodes[:10],
@@ -1408,37 +1735,105 @@ class NightlyPipeline:
         return stats
 
     # ═══════════════════════════════════════════
-    # Step 10: 靈魂層夜間整合
+    # Step 10: 靈魂日記生成 + 情緒衰減（v2.0）
     # ═══════════════════════════════════════════
 
-    def _step_soul_nightly(self) -> Dict:
-        """Step 10: 靈魂整合（情緒衰減、自我認知更新）."""
+    def _step_diary_generation(self) -> Dict:
+        """Step 10: 靈魂日記生成 + 情緒衰減（v2.0 重構版）.
+
+        合併原 _step_soul_nightly 的情緒衰減功能，
+        並整合 DiaryStore.generate_daily_summary() 生成每日日記條目。
+        """
+        result: Dict[str, Any] = {}
+
+        # Part A: 情緒衰減（保留原邏輯）
         soul_dir = self._workspace / "_system" / "soul"
-        if not soul_dir.exists():
-            return {"skipped": "no soul directory"}
+        if soul_dir.exists():
+            state_file = soul_dir / "soul_state.json"
+            if state_file.exists():
+                try:
+                    with open(state_file, "r", encoding="utf-8") as fh:
+                        state = json.load(fh)
+                    emotions = state.get("emotions", {})
+                    for key in emotions:
+                        if isinstance(emotions[key], (int, float)):
+                            emotions[key] = round(
+                                emotions[key] * DAILY_DECAY_FACTOR, 4
+                            )
+                    state["last_nightly"] = datetime.now(TZ_TAIPEI).isoformat()
+                    with open(state_file, "w", encoding="utf-8") as fh:
+                        json.dump(state, fh, ensure_ascii=False, indent=2)
+                    result["emotions_decayed"] = len(emotions)
+                except Exception as e:
+                    logger.debug(f"[NIGHTLY] emotion decay degraded: {e}")
+                    result["emotion_decay_error"] = str(e)
 
-        state_file = soul_dir / "soul_state.json"
-        if not state_file.exists():
-            return {"skipped": "no soul state"}
-
+        # Part B: 每日日記生成（v2.0 新增）
         try:
-            with open(state_file, "r", encoding="utf-8") as fh:
-                state = json.load(fh)
-        except Exception:
-            return {"skipped": "soul state unreadable"}
+            from museon.agent.soul_ring import DiaryStore
+            from museon.core.activity_logger import ActivityLogger
+            from datetime import date as _date
 
-        # 情緒衰減
-        emotions = state.get("emotions", {})
-        for key in emotions:
-            if isinstance(emotions[key], (int, float)):
-                emotions[key] = round(emotions[key] * DAILY_DECAY_FACTOR, 4)
+            diary_store = DiaryStore(data_dir=str(self._workspace))
+            today = _date.today()
 
-        state["last_nightly"] = datetime.now(TZ_TAIPEI).isoformat()
+            # 收集當日互動統計
+            al = ActivityLogger(data_dir=str(self._workspace))
+            today_events = al.today_events()
+            interaction_count = len(today_events)
 
-        with open(state_file, "w", encoding="utf-8") as fh:
-            json.dump(state, fh, ensure_ascii=False, indent=2)
+            # 收集 Q-Score（從持久化檔案）
+            q_path = self._workspace / "_system" / "q_score_history.json"
+            q_scores = None
+            if q_path.exists():
+                try:
+                    q_scores = json.loads(q_path.read_text(encoding="utf-8"))
+                except Exception:
+                    pass
 
-        return {"emotions_decayed": len(emotions)}
+            # 收集八原語（從 ANIMA_USER）
+            primals = None
+            anima_path = self._workspace / "anima" / "anima_user.json"
+            if anima_path.exists():
+                try:
+                    anima_data = json.loads(
+                        anima_path.read_text(encoding="utf-8")
+                    )
+                    primals = anima_data.get("eight_primal_energies")
+                except Exception:
+                    pass
+
+            # 生成亮點（從事件類型統計）
+            highlights = []
+            if today_events:
+                event_types: Dict[str, int] = {}
+                for evt in today_events:
+                    etype = evt.get("event", "unknown")
+                    event_types[etype] = event_types.get(etype, 0) + 1
+                top_events = sorted(
+                    event_types.items(), key=lambda x: -x[1]
+                )[:3]
+                highlights = [
+                    f"{etype}: {count} 次" for etype, count in top_events
+                ]
+
+            # 生成日記條目
+            ring = diary_store.generate_daily_summary(
+                target_date=today,
+                interaction_count=interaction_count,
+                q_scores=q_scores,
+                primals=primals,
+                highlights=highlights,
+            )
+
+            result["diary_generated"] = ring is not None
+            result["interaction_count"] = interaction_count
+
+        except Exception as e:
+            logger.debug(f"[NIGHTLY] diary generation degraded: {e}")
+            result["diary_error"] = str(e)
+
+        return result
 
     # ═══════════════════════════════════════════
     # Step 10.6: SOUL.md 身份驗證
@@ -1490,8 +1885,8 @@ class NightlyPipeline:
                     "computed_hash": computed_hash,
                     "severity": "CRITICAL",
                 })
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         return {
             "status": "TAMPERED",
@@ -1517,8 +1912,8 @@ class NightlyPipeline:
                 with open(state_file, "r", encoding="utf-8") as fh:
                     state = json.load(fh)
                 last_review = state.get("last_review")
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         if last_review:
             try:
@@ -1528,8 +1923,8 @@ class NightlyPipeline:
                 )).days
                 if days_since < 30:
                     return {"skipped": f"last review {days_since} days ago, next in {30 - days_since} days"}
-            except (ValueError, TypeError):
-                pass
+            except (ValueError, TypeError) as e:
+                logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         # 載入最近 30 天的 Soul Rings
         rings_path = self._workspace.parent / "anima" / "soul_rings.json"
@@ -1539,7 +1934,8 @@ class NightlyPipeline:
         try:
             with open(rings_path, "r", encoding="utf-8") as fh:
                 data = json.load(fh)
-        except Exception:
+        except Exception as e:
+            logger.debug(f"[NIGHTLY] degraded: {e}")
             return {"skipped": "soul_rings.json unreadable"}
 
         rings = data.get("soul_rings", [])
@@ -1631,8 +2027,8 @@ class NightlyPipeline:
                     with open(f, "r", encoding="utf-8") as fh:
                         data = json.load(fh)
                     fragments.append(data.get("content", data.get("summary", "")))
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         if not fragments:
             return {"skipped": "no memory fragments"}
@@ -1680,8 +2076,11 @@ class NightlyPipeline:
         queue_file = curiosity_dir / "question_queue.json"
         try:
             with open(queue_file, "r", encoding="utf-8") as fh:
-                queue = json.load(fh)
-        except Exception:
+                raw = json.load(fh)
+                # 相容兩種格式：{"questions": [...]} 或 [...]
+                queue = raw.get("questions", []) if isinstance(raw, dict) else raw
+        except Exception as e:
+            logger.debug(f"[NIGHTLY] degraded: {e}")
             queue = []
 
         # 掃描近期對話中的問句（從 session 檔案 + 每日記憶）
@@ -1718,8 +2117,8 @@ class NightlyPipeline:
                                 })
                                 existing_qs.add(q_text[:100])
                                 new_questions += 1
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         # 來源 2: 每日記憶 markdown（備援）
         if memory_dir.exists():
@@ -1739,8 +2138,8 @@ class NightlyPipeline:
                                 })
                                 existing_qs.add(q_text[:100])
                                 new_questions += 1
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         # 保留最近 50 個問題
         queue = queue[-50:]
@@ -1756,7 +2155,6 @@ class NightlyPipeline:
     def _step_curiosity_research(self) -> Dict:
         """Step 13.5: 將 pending 好奇問題送入 ResearchEngine 研究."""
         try:
-            import asyncio
             from museon.nightly.curiosity_router import CuriosityRouter
             from museon.research.research_engine import ResearchEngine
 
@@ -1764,12 +2162,10 @@ class NightlyPipeline:
             # 取得 PulseDB（用於記錄探索結果）
             _pulse_db = None
             try:
-                from museon.pulse.pulse_db import PulseDB
-                _db_path = self._workspace / "pulse" / "pulse.db"
-                if _db_path.exists():
-                    _pulse_db = PulseDB(str(_db_path))
-            except Exception:
-                pass
+                from museon.pulse.pulse_db import get_pulse_db
+                _pulse_db = get_pulse_db(self._workspace)
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] pulse failed (degraded): {e}")
             router = CuriosityRouter(
                 workspace=self._workspace,
                 research_engine=research_engine,
@@ -1777,15 +2173,7 @@ class NightlyPipeline:
                 pulse_db=_pulse_db,
             )
 
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                import concurrent.futures
-                with concurrent.futures.ThreadPoolExecutor() as pool:
-                    results = pool.submit(
-                        asyncio.run, router.process_queue(max_items=2)
-                    ).result(timeout=120)
-            else:
-                results = asyncio.run(router.process_queue(max_items=2))
+            results = _run_async_safe(router.process_queue(max_items=2))
 
             valuable = sum(1 for r in results if r.get("is_valuable"))
             return {
@@ -1969,15 +2357,15 @@ class NightlyPipeline:
                             skill["status"] = "archived"
                             archived += 1
                             changed = True
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
                 if changed:
                     with open(f, "w", encoding="utf-8") as fh:
                         json.dump(skill, fh, ensure_ascii=False, indent=2)
 
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] JSON parse failed (degraded): {e}")
 
         # Phase B: per-skill _meta.json（SkillManager 整合）
         phase_b = {"promoted": 0, "deprecated": 0, "archived": 0}
@@ -2011,8 +2399,8 @@ class NightlyPipeline:
                     dept = json.load(fh)
                 dept["_file"] = f.name
                 departments.append(dept)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] department failed (degraded): {e}")
 
         if not departments:
             return {"skipped": "no departments found"}
@@ -2074,8 +2462,8 @@ class NightlyPipeline:
                     with open(sf, "w", encoding="utf-8") as fh:
                         json.dump(skill, fh, ensure_ascii=False, indent=2)
                     refined += 1
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         # Phase B: 嘗試 LLM 精煉（透過 LLMAdapter，MAX 訂閱方案）
         llm_refined = 0
@@ -2094,13 +2482,14 @@ class NightlyPipeline:
                                 "（不超過 100 字）總結這個技能的核心能力：\n"
                                 f"{snippet}"
                             )
-                            resp = asyncio.get_event_loop().run_until_complete(
+                            resp = _run_async_safe(
                                 adapter.call(
                                     system_prompt="你是技能精煉專家。",
                                     messages=[{"role": "user", "content": prompt}],
                                     model="sonnet",
                                     max_tokens=200,
-                                )
+                                ),
+                                timeout=30,
                             )
                             if resp and resp.text:
                                 skill["llm_summary"] = resp.text[:200]
@@ -2109,10 +2498,10 @@ class NightlyPipeline:
                                 with open(sf, "w", encoding="utf-8") as fh:
                                     json.dump(skill, fh, ensure_ascii=False, indent=2)
                                 llm_refined += 1
-                    except Exception:
-                        pass
-        except Exception:
-            pass
+                    except Exception as e:
+                        logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
+        except Exception as e:
+            logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         return {
             "refined": refined,
@@ -2306,8 +2695,8 @@ class NightlyPipeline:
                         item = json.load(fh)
                     if not item.get("uploaded"):
                         upload_items.append((f, item))
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         if not upload_items:
             return {"skipped": "nothing to upload"}
@@ -2321,8 +2710,8 @@ class NightlyPipeline:
                 with open(f, "w", encoding="utf-8") as fh:
                     json.dump(item, fh, ensure_ascii=False, indent=2)
                 uploaded += 1
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         return {"uploaded": uploaded, "node_id": node_id, "origin_url": origin_url}
 
@@ -2401,8 +2790,8 @@ class NightlyPipeline:
                 self._event_bus.publish(SYNAPSE_PRELOAD, {
                     "strongest": preloads[:3],
                 })
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         return {
             "decayed_synapses": decayed_count,
@@ -2432,8 +2821,8 @@ class NightlyPipeline:
                     "dormant_tools": dormant[:10],
                     "count": len(dormant),
                 })
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         return {
             "atrophied_tools": atrophied_count,
@@ -2465,8 +2854,8 @@ class NightlyPipeline:
                     "active_defenses": len(active),
                     "avg_confidence": stats.get("avg_confidence", 0),
                 })
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         return {
             "pruned_weak_rules": pruned,
@@ -2509,7 +2898,8 @@ class NightlyPipeline:
             if budget.can_afford_exploration():
                 factors[TriggerType.SURPLUS_BASED.value] = 0.7
             vitality = budget.get_vitality_modifier()
-        except Exception:
+        except Exception as e:
+            logger.debug(f"[NIGHTLY] degraded: {e}")
             vitality = 1.0
 
         # 13. 熵增警報 — 檢查系統目錄大小
@@ -2530,8 +2920,8 @@ class NightlyPipeline:
                     "fired_triggers": result.fired_triggers,
                     "vitality_modifier": result.vitality_modifier,
                 })
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
         return {
             "total_score": result.total_score,
@@ -2558,7 +2948,7 @@ class NightlyPipeline:
 
             # 若偵測到高原期或退化，發布事件
             if snapshot.plateau_alert or snapshot.regression_alert:
-                self._publish("EVOLUTION_VELOCITY_ALERT", {
+                self._publish(EVOLUTION_VELOCITY_ALERT, {
                     "composite_velocity": dashboard.get("composite_velocity", 0),
                     "trend": dashboard.get("trend", "unknown"),
                     "plateau_alert": snapshot.plateau_alert,
@@ -2627,6 +3017,331 @@ class NightlyPipeline:
             results["error"] = f"PeriodicCycles not available: {e}"
 
         return results
+
+    # ═══════════════════════════════════════════
+    # Step 26: Session TTL 清理
+    # ═══════════════════════════════════════════
+
+    def _step_session_cleanup(self) -> Dict:
+        """Step 26: 清理超過 14 天的 session 檔案."""
+        sessions_dir = self._workspace / "_system" / "sessions"
+        if not sessions_dir.exists():
+            return {"skipped": "sessions dir not found"}
+
+        cutoff = time.time() - 14 * 86400  # 14 天
+        removed = 0
+        kept = 0
+
+        for f in sessions_dir.glob("*.json"):
+            try:
+                if f.stat().st_mtime < cutoff:
+                    f.unlink()
+                    removed += 1
+                else:
+                    kept += 1
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] session cleanup skip {f.name}: {e}")
+
+        if removed > 0:
+            logger.info(f"[NIGHTLY] session cleanup: removed {removed}, kept {kept}")
+
+        return {"removed": removed, "kept": kept}
+
+    # ═══════════════════════════════════════════
+    # Step 27: JSONL 日誌輪替
+    # ═══════════════════════════════════════════
+
+    def _step_log_rotation(self) -> Dict:
+        """Step 27: 輪替無日期的 JSONL 日誌 — 超過 5MB 自動歸檔."""
+        import gzip
+        import shutil
+
+        SIZE_THRESHOLD = 5 * 1024 * 1024  # 5 MB
+        MAX_ARCHIVE_DAYS = 30
+
+        # 已知的無日期 JSONL 檔案（相對於 workspace）
+        jsonl_paths = [
+            "heartbeat.jsonl",
+            "_system/footprints/actions.jsonl",
+            "_system/footprints/decisions.jsonl",
+            "_system/footprints/evolutions.jsonl",
+            "intuition/signal_log.jsonl",
+            "eval/q_scores.jsonl",
+            "eval/satisfaction.jsonl",
+        ]
+
+        rotated = []
+        cleaned = []
+        today_str = datetime.now(TZ_TAIPEI).strftime("%Y%m%d")
+
+        for rel_path in jsonl_paths:
+            fp = self._workspace / rel_path
+            if not fp.exists():
+                continue
+
+            try:
+                size = fp.stat().st_size
+                if size < SIZE_THRESHOLD:
+                    continue
+
+                # 歸檔：rename → .gz
+                archive_name = f"{fp.stem}_{today_str}.jsonl.gz"
+                archive_path = fp.parent / archive_name
+
+                with open(fp, "rb") as f_in:
+                    with gzip.open(archive_path, "wb") as f_out:
+                        shutil.copyfileobj(f_in, f_out)
+
+                # 清空原檔（保留檔案，避免其他進程 FileNotFoundError）
+                with open(fp, "w") as f:
+                    pass
+
+                rotated.append(f"{rel_path} ({size // 1024}KB)")
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] log rotation skip {rel_path}: {e}")
+
+        # 清理超過 30 天的 .gz 歸檔
+        cutoff = time.time() - MAX_ARCHIVE_DAYS * 86400
+        for gz in self._workspace.rglob("*.jsonl.gz"):
+            try:
+                if gz.stat().st_mtime < cutoff:
+                    gz.unlink()
+                    cleaned.append(gz.name)
+            except Exception:
+                pass
+
+        if rotated:
+            logger.info(f"[NIGHTLY] log rotation: {rotated}")
+
+        return {
+            "rotated": rotated,
+            "archives_cleaned": len(cleaned),
+        }
+
+    def _step_wal_checkpoint(self) -> Dict:
+        """Step 28: SQLite WAL Checkpoint — 壓縮所有 WAL 日誌.
+
+        避免 WAL 檔案無限成長（group_context.db-wal 曾達 4MB）。
+        對所有已知的 SQLite 資料庫執行 PRAGMA wal_checkpoint(TRUNCATE)。
+        """
+        import sqlite3
+
+        DB_PATHS = [
+            self._workspace / "pulse" / "pulse.db",
+            self._workspace / "_system" / "group_context.db",
+            self._workspace / "_system" / "wee" / "workflow_state.db",
+            self._workspace / "registry" / "cli_user" / "registry.db",
+        ]
+
+        results = {}
+        for db_path in DB_PATHS:
+            name = db_path.stem
+            if not db_path.exists():
+                results[name] = "not_found"
+                continue
+            try:
+                conn = sqlite3.connect(str(db_path), timeout=10)
+                conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+                conn.close()
+                # 檢查 WAL 檔案大小
+                wal_path = db_path.parent / f"{db_path.name}-wal"
+                wal_size = wal_path.stat().st_size if wal_path.exists() else 0
+                results[name] = f"ok (wal={wal_size}B)"
+            except Exception as e:
+                results[name] = f"error: {e}"
+                logger.debug(f"[NIGHTLY] WAL checkpoint {name}: {e}")
+
+        logger.info(f"[NIGHTLY] WAL checkpoint: {results}")
+        return {"databases": results}
+
+    def _auto_register_known_stores(self, bus) -> None:
+        """自動發現並註冊已知的 DataContract Store 到 DataBus.
+
+        Phase 3 設計了 DataContract 介面，PulseDB/GroupContextStore 皆有實作，
+        但「註冊環節」未完成。此方法在 DataWatchdog 步驟中補完。
+        """
+        # PulseDB（singleton，不會重複建立）
+        pulse_path = self._workspace / "pulse" / "pulse.db"
+        if pulse_path.exists():
+            try:
+                from museon.pulse.pulse_db import get_pulse_db
+                pulse_db = get_pulse_db(self._workspace)
+                spec = pulse_db.store_spec() if hasattr(pulse_db, "store_spec") else None
+                bus.register("pulse", pulse_db, spec)
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] Auto-register pulse failed: {e}")
+
+        # GroupContextStore
+        gc_path = self._workspace / "_system" / "group_context.db"
+        if gc_path.exists():
+            try:
+                from museon.governance.group_context import GroupContextStore
+                gc_store = GroupContextStore(data_dir=self._workspace)
+                spec = gc_store.store_spec() if hasattr(gc_store, "store_spec") else None
+                bus.register("group_context", gc_store, spec)
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] Auto-register group_context failed: {e}")
+
+        # WorkflowEngine（工作流狀態 SQLite）
+        wf_path = self._workspace / "_system" / "wee" / "workflow_state.db"
+        if wf_path.exists():
+            try:
+                from museon.workflow.workflow_engine import WorkflowEngine
+                wf_engine = WorkflowEngine(workspace=self._workspace)
+                spec = wf_engine.store_spec() if hasattr(wf_engine, "store_spec") else None
+                bus.register("workflow_state_db", wf_engine, spec)
+                # 順便清理過期 executions（已歸檔工作流的 90 天以上紀錄）
+                if hasattr(wf_engine, "cleanup_old_executions"):
+                    cleanup_result = wf_engine.cleanup_old_executions(days=90)
+                    if cleanup_result.get("deleted_executions", 0) > 0:
+                        logger.info(f"[NIGHTLY] WorkflowEngine cleanup: {cleanup_result}")
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] Auto-register workflow_state_db failed: {e}")
+
+    def _step_data_watchdog(self) -> Dict:
+        """Step 29: DataWatchdog — 資料層健康監控、空間預警、Dead Write 偵測.
+
+        基於 Phase 3 DataContract + DataBus 架構：
+        - 對所有已註冊 Store 執行 health_check
+        - 檢查儲存空間閾值
+        - 比對歷史快照偵測 Dead Write
+        - 發布 EventBus 告警事件
+        """
+        from museon.core.data_bus import get_data_bus
+        from museon.core.data_watchdog import DataWatchdog
+
+        bus = get_data_bus()
+
+        # 自動發現並註冊已知 Store（Phase 3 未完成的註冊環節）
+        if not bus.list_stores():
+            self._auto_register_known_stores(bus)
+        if not bus.list_stores():
+            logger.info("[NIGHTLY] DataWatchdog: 無可註冊的 Store，跳過")
+            return {"status": "skipped", "reason": "no stores found"}
+
+        watchdog = DataWatchdog(data_dir=self._workspace)
+        report = watchdog.run_health_check(bus=bus)
+
+        # 發布 EventBus 事件
+        self._publish(DATA_HEALTH_CHECKED, {
+            "status": report["status"],
+            "store_count": len(report["stores"]),
+            "alert_count": len(report["alerts"]),
+            "total_bytes": report["storage"]["total_bytes"],
+        })
+
+        # 個別告警事件
+        for alert in report.get("alerts", []):
+            if alert["severity"] == "critical":
+                self._publish(DATA_STORE_DEGRADED, alert)
+            elif "空間" in alert.get("message", "") or "預警線" in alert.get("message", ""):
+                self._publish(DATA_STORAGE_WARNING, alert)
+
+        for suspect in report.get("dead_write_suspects", []):
+            self._publish(DATA_DEAD_WRITE_DETECTED, suspect)
+
+        logger.info(
+            f"[NIGHTLY] DataWatchdog: {report['status']} | "
+            f"stores={len(report['stores'])} | "
+            f"alerts={len(report['alerts'])} | "
+            f"dead_suspects={len(report['dead_write_suspects'])}"
+        )
+
+        return {
+            "status": report["status"],
+            "stores_checked": len(report["stores"]),
+            "alerts": len(report["alerts"]),
+            "dead_write_suspects": len(report["dead_write_suspects"]),
+            "total_storage": report["storage"]["total_bytes"],
+        }
+
+    def _step_blueprint_consistency(self) -> Dict:
+        """Step 30: 藍圖一致性驗證 — 確保工程藍圖與程式碼同步.
+
+        檢查項：
+        - 30.1 四張藍圖存在性（blast-radius / joint-map / system-topology / persistence-contract）
+        - 30.2 藍圖新鮮度（docs/*.md vs src/ 最後修改時間差異）
+        - 30.3 禁區模組路徑存在性（blast-radius 標為禁區的模組是否實際存在）
+        """
+        issues: List[str] = []
+        docs_dir = self._source_root / "docs"
+
+        # ── 30.1 藍圖存在性 ──
+        blueprint_names = [
+            "blast-radius.md",
+            "joint-map.md",
+            "system-topology.md",
+            "persistence-contract.md",
+        ]
+        for name in blueprint_names:
+            bp_path = docs_dir / name
+            if not bp_path.exists():
+                issues.append(f"藍圖缺失: {name}")
+            elif bp_path.stat().st_size == 0:
+                issues.append(f"藍圖為空: {name}")
+
+        # ── 30.2 藍圖新鮮度 ──
+        src_dir = self._source_root / "src" / "museon"
+        if src_dir.exists() and docs_dir.exists():
+            try:
+                # 找 src/ 下最新修改的 .py
+                latest_src_mtime = 0.0
+                for py_file in src_dir.rglob("*.py"):
+                    try:
+                        mt = py_file.stat().st_mtime
+                        if mt > latest_src_mtime:
+                            latest_src_mtime = mt
+                    except OSError:
+                        pass
+
+                # 找 docs/ 下最舊的藍圖
+                oldest_doc_mtime = float("inf")
+                for name in blueprint_names:
+                    bp_path = docs_dir / name
+                    if bp_path.exists():
+                        try:
+                            mt = bp_path.stat().st_mtime
+                            if mt < oldest_doc_mtime:
+                                oldest_doc_mtime = mt
+                        except OSError:
+                            pass
+
+                # 如果程式碼比藍圖新超過 72 小時，警告
+                if latest_src_mtime > 0 and oldest_doc_mtime < float("inf"):
+                    drift_hours = (latest_src_mtime - oldest_doc_mtime) / 3600
+                    if drift_hours > 72:
+                        issues.append(
+                            f"藍圖過期: src/ 比 docs/ 新 {drift_hours:.0f} 小時"
+                        )
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] Blueprint freshness check failed: {e}")
+
+        # ── 30.3 禁區模組路徑存在性 ──
+        try:
+            from museon.core.blueprint_reader import BlastRadiusReader
+
+            reader = BlastRadiusReader(docs_dir)
+            for mod_path in reader.get_forbidden_modules():
+                full_path = src_dir / mod_path
+                if not full_path.exists():
+                    issues.append(f"禁區模組不存在: {mod_path}")
+        except Exception as e:
+            logger.debug(f"[NIGHTLY] Blueprint forbidden check skipped: {e}")
+
+        status = "ok" if not issues else "warning"
+        logger.info(
+            f"[NIGHTLY] BlueprintConsistency: {status} | "
+            f"issues={len(issues)}"
+        )
+        if issues:
+            for issue in issues:
+                logger.warning(f"[NIGHTLY] BlueprintConsistency: {issue}")
+
+        return {
+            "status": status,
+            "issues": issues,
+            "blueprints_checked": len(blueprint_names),
+        }
 
     # ═══════════════════════════════════════════
     # 報告持久化
@@ -2837,8 +3552,8 @@ def register_nightly_tasks(scheduler, workspace: Path, **kwargs) -> None:
             try:
                 with open(morning_path, "r", encoding="utf-8") as f:
                     return json.load(f)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] JSON parse failed (degraded): {e}")
 
         # 降級：讀取原始 nightly report
         report_path = state_dir / "nightly_report.json"
@@ -2847,7 +3562,8 @@ def register_nightly_tasks(scheduler, workspace: Path, **kwargs) -> None:
         try:
             with open(report_path, "r", encoding="utf-8") as f:
                 return json.load(f)
-        except Exception:
+        except Exception as e:
+            logger.debug(f"[NIGHTLY] degraded: {e}")
             return None
 
     scheduler.register(

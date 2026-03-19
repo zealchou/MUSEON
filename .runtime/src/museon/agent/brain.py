@@ -13,7 +13,8 @@
   Step 3    : DNA27 反射路由器 — RoutingSignal（靈魂先行）
   Step 3.1  : DNA27 路由 — 匹配技能（受 RoutingSignal 調節）
   Step 3.5  : 計畫引擎觸發檢查
-  Step 4    : 組建系統提示詞（DNA27 + 技能 + ANIMA + 記憶 + 承諾 + 直覺）
+  Step 3.65 : 百合引擎 — 軍師四象限路由（lord_profile → BaiheDecision）
+  Step 4    : 組建系統提示詞（DNA27 + 技能 + ANIMA + 記憶 + 承諾 + 直覺 + 百合）
   Step 5    : 載入對話歷史
   Step 6    : 呼叫 Claude API
   Step 6.2  : ★ PreCognition — 回應前元認知審查（大腦層級）
@@ -62,6 +63,10 @@ class MuseonBrain:
         self.anima_mc_path = self.data_dir / "ANIMA_MC.json"
         self.anima_user_path = self.data_dir / "ANIMA_USER.json"
 
+        # ── AnimaMCStore 統一存取層（合約 1：解決 3 種互不相容的寫入策略）──
+        from museon.pulse.anima_mc_store import get_anima_mc_store
+        self._anima_mc_store = get_anima_mc_store(path=self.anima_mc_path)
+
         # 對話歷史（in-memory, per session）
         self._sessions: Dict[str, List[Dict[str, str]]] = {}
         self._offline_flag = False  # 離線回覆標記 — 為 True 時不持久化 session
@@ -70,16 +75,13 @@ class MuseonBrain:
         # 技能使用追蹤（供 WEE/Morphenix）
         self._skill_usage_log: List[Dict[str, Any]] = []
 
-        # ANIMA_MC 並行寫入鎖（防止 _update_crystal_count 等 read-modify-write 競態）
-        self._anima_mc_lock = threading.Lock()
-
         # ★ v10.4 Route B: session 內 skill 使用次數追蹤（MoE 衰減用）
         self._skill_usage: Dict[str, Dict[str, int]] = {}
 
         # ★ v10.4 Route C: 跨輪路由歷史（state-conditioned routing 用）
         self._routing_history: Dict[str, List[Dict]] = {}
 
-        # EventBus（後續由 server.py 注入，此處先取全域實例）
+        # ── EventBus（全域事件匯流排）──
         try:
             from museon.core.event_bus import get_event_bus
             self._event_bus = get_event_bus()
@@ -87,52 +89,181 @@ class MuseonBrain:
             logger.debug(f"EventBus 取得失敗，降級為 None: {e}")
             self._event_bus = None
 
-        # Skill Router (DNA27 配對)
+        # ── CORE 模組（失敗 = 系統不可用）──
         from museon.agent.skill_router import SkillRouter
         self.skill_router = SkillRouter(
             skills_dir=str(self.data_dir / "skills"),
             event_bus=self._event_bus,
         )
 
-        # Memory Store
+        # ★ v10.5: 八原語向量語義偵測器
+        self._primal_detector = None
+        try:
+            from museon.agent.primal_detector import PrimalDetector
+            self._primal_detector = PrimalDetector(
+                workspace=self.data_dir,
+                event_bus=self._event_bus,
+            )
+            self._primal_detector.ensure_indexed()
+        except Exception as e:
+            logger.debug(f"PrimalDetector 初始化失敗（降級到關鍵字）: {e}")
+
+        # ★ v1.13: Memory Gate — 記憶寫入前的意圖分類閘門
+        self._memory_gate = None
+        try:
+            from museon.memory.memory_gate import MemoryGate
+            self._memory_gate = MemoryGate()
+        except Exception as e:
+            logger.debug(f"MemoryGate 初始化失敗（降級到無閘門模式）: {e}")
+
         from museon.memory.store import MemoryStore
         self.memory_store = MemoryStore(
             base_path=str(self.data_dir / "memory")
         )
 
-        # Naming Ceremony
         from museon.onboarding.ceremony import NamingCeremony
         self.ceremony = NamingCeremony(data_dir=str(self.data_dir))
 
-        # ── 新模組：直覺引擎 ──
-        try:
-            from museon.agent.intuition import IntuitionEngine
-            self.intuition = IntuitionEngine(data_dir=str(self.data_dir))
-        except Exception as e:
-            logger.warning(f"IntuitionEngine 載入失敗（降級運行）: {e}")
-            self.intuition = None
+        # ── ModuleRegistry：聲明式載入所有可選模組 ──
+        from museon.core.module_registry import ModuleRegistry, ModuleSpec, ModuleTier
 
-        # ── 新模組：Eval Engine ──
-        try:
-            from museon.agent.eval_engine import EvalEngine
-            self.eval_engine = EvalEngine(data_dir=str(self.data_dir))
-        except Exception as e:
-            logger.warning(f"EvalEngine 載入失敗（降級運行）: {e}")
-            self.eval_engine = None
+        self._module_registry = ModuleRegistry()
+        _dd = str(self.data_dir)
 
-        # ── 新模組：靈魂年輪 ──
+        # 定義所有可選模組（原本各自 try/except 的 28 個模組）
+        self._module_registry.register_many({
+            # ── Agent 層 ──
+            "intuition": ModuleSpec(
+                import_path="museon.agent.intuition",
+                class_name="IntuitionEngine",
+                init_kwargs={"data_dir": _dd},
+                attr_name="intuition",
+            ),
+            "eval_engine": ModuleSpec(
+                import_path="museon.agent.eval_engine",
+                class_name="EvalEngine",
+                init_kwargs={"data_dir": _dd},
+                attr_name="eval_engine",
+            ),
+            "knowledge_lattice": ModuleSpec(
+                import_path="museon.agent.knowledge_lattice",
+                class_name="KnowledgeLattice",
+                init_kwargs={"data_dir": _dd},
+                attr_name="knowledge_lattice",
+            ),
+            "plan_engine": ModuleSpec(
+                import_path="museon.agent.plan_engine",
+                class_name="PlanEngine",
+                init_kwargs={"data_dir": _dd},
+                attr_name="plan_engine",
+            ),
+            "sub_agent_mgr": ModuleSpec(
+                import_path="museon.agent.sub_agent",
+                class_name="SubAgentManager",
+                init_kwargs={"data_dir": _dd},
+                attr_name="sub_agent_mgr",
+            ),
+            "safety_anchor": ModuleSpec(
+                import_path="museon.agent.safety_anchor",
+                class_name="SafetyAnchor",
+                attr_name="safety_anchor",
+            ),
+            "kernel_guard": ModuleSpec(
+                import_path="museon.agent.kernel_guard",
+                class_name="KernelGuard",
+                init_kwargs={"data_dir": self.data_dir},
+                attr_name="kernel_guard",
+            ),
+            "drift_detector": ModuleSpec(
+                import_path="museon.agent.drift_detector",
+                class_name="DriftDetector",
+                init_kwargs={"data_dir": self.data_dir},
+                attr_name="drift_detector",
+            ),
+            # ── Security 層 ──
+            "input_sanitizer": ModuleSpec(
+                import_path="museon.security.sanitizer",
+                class_name="InputSanitizer",
+                attr_name="input_sanitizer",
+            ),
+            # ── LLM 層 ──
+            "budget_monitor": ModuleSpec(
+                import_path="museon.llm.budget",
+                class_name="BudgetMonitor",
+                init_kwargs={"data_dir": _dd},
+                attr_name="budget_monitor",
+            ),
+            "router": ModuleSpec(
+                import_path="museon.llm.router",
+                class_name="Router",
+                init_kwargs={"data_dir": _dd},
+                attr_name="_router",
+            ),
+            # ── Evolution 層 ──
+            "synapse_network": ModuleSpec(
+                import_path="museon.evolution.skill_synapse",
+                class_name="SynapseNetwork",
+                init_kwargs={"data_dir": self.data_dir},
+                attr_name="_synapse_network",
+                tier=ModuleTier.EDGE,
+            ),
+            "tool_muscle": ModuleSpec(
+                import_path="museon.evolution.tool_muscle",
+                class_name="ToolMuscleTracker",
+                init_kwargs={"data_dir": self.data_dir},
+                attr_name="_tool_muscle",
+                tier=ModuleTier.EDGE,
+            ),
+            # NOTE: TriggerEngine 由 Nightly Pipeline 主動調用，
+            # Brain 僅負責 lazy-load 實例化，對話流不直接使用。
+            "trigger_engine": ModuleSpec(
+                import_path="museon.evolution.trigger_weights",
+                class_name="TriggerEngine",
+                init_kwargs={"data_dir": self.data_dir},
+                attr_name="_trigger_engine",
+                tier=ModuleTier.EDGE,
+            ),
+            # ── Governance 層 ──
+            "footprint": ModuleSpec(
+                import_path="museon.governance.footprint",
+                class_name="FootprintStore",
+                init_kwargs={"data_dir": self.data_dir},
+                attr_name="_footprint",
+                tier=ModuleTier.EDGE,
+            ),
+            # ── Registry 層 ──
+            "registry_manager": ModuleSpec(
+                import_path="museon.registry.registry_manager",
+                class_name="RegistryManager",
+                init_kwargs={"data_dir": _dd, "user_id": "cli_user"},
+                attr_name="_registry_manager",
+                tier=ModuleTier.EDGE,
+            ),
+        })
+
+        # 初始化所有可選模組（統一降級處理）
+        self._module_registry.init_all()
+        self._module_registry.inject_to(self)
+
+        # ── AnimaMCStore: 注入 KernelGuard（Store 先建，KG 後建）──
+        if getattr(self, "kernel_guard", None):
+            self._anima_mc_store.set_kernel_guard(self.kernel_guard)
+
+        # ── 需要特殊初始化的模組（無法用 ModuleSpec 標準化的）──
+
+        # DiaryStore（原 SoulRing，需要兩個類別交互初始化）
         try:
-            from museon.agent.soul_ring import SoulRingStore, RingDepositor
-            self._soul_ring_store = SoulRingStore(data_dir=str(self.data_dir))
+            from museon.agent.soul_ring import DiaryStore, RingDepositor
+            self._diary_store = DiaryStore(data_dir=_dd)
             self.ring_depositor = RingDepositor(
-                store=self._soul_ring_store,
-                data_dir=str(self.data_dir),
+                store=self._diary_store, data_dir=_dd,
             )
         except Exception as e:
-            logger.warning(f"SoulRing 載入失敗（降級運行）: {e}")
-            self._soul_ring_store = None
+            logger.warning(f"DiaryStore 載入失敗（降級運行）: {e}")
+            self._diary_store = None
             self.ring_depositor = None
-        # 斷點三修復(方案C)：Q-Score 歷史持久化，重啟後不清零
+
+        # Q-Score 歷史持久化
         self._q_score_history_path = self.data_dir / "_system" / "q_score_history.json"
         self._q_score_history: list = []
         try:
@@ -143,55 +274,17 @@ class MuseonBrain:
         except Exception as e:
             logger.warning(f"Q-score 歷史讀取失敗，重置為空: {e}")
 
-        # ── 新模組：知識晶格 ──
+        # CrystalActuator（需要 event_bus 注入）
         try:
-            from museon.agent.knowledge_lattice import KnowledgeLattice
-            self.knowledge_lattice = KnowledgeLattice(data_dir=str(self.data_dir))
+            from museon.agent.crystal_actuator import CrystalActuator
+            self.crystal_actuator = CrystalActuator(
+                workspace=self.data_dir, event_bus=self._event_bus,
+            )
         except Exception as e:
-            logger.warning(f"KnowledgeLattice 載入失敗（降級運行）: {e}")
-            self.knowledge_lattice = None
+            logger.warning(f"CrystalActuator 載入失敗（降級運行）: {e}")
+            self.crystal_actuator = None
 
-        # ── 新模組：計畫引擎 ──
-        try:
-            from museon.agent.plan_engine import PlanEngine
-            self.plan_engine = PlanEngine(data_dir=str(self.data_dir))
-        except Exception as e:
-            logger.warning(f"PlanEngine 載入失敗（降級運行）: {e}")
-            self.plan_engine = None
-
-        # ── 新模組：子代理管理器 ──
-        try:
-            from museon.agent.sub_agent import SubAgentManager
-            self.sub_agent_mgr = SubAgentManager(data_dir=str(self.data_dir))
-        except Exception as e:
-            logger.warning(f"SubAgentManager 載入失敗（降級運行）: {e}")
-            self.sub_agent_mgr = None
-
-        # ── 新模組：SafetyAnchor ──
-        try:
-            from museon.agent.safety_anchor import SafetyAnchor
-            self.safety_anchor = SafetyAnchor()
-        except Exception as e:
-            logger.warning(f"SafetyAnchor 載入失敗（降級運行）: {e}")
-            self.safety_anchor = None
-
-        # ── 新模組：InputSanitizer（L2 輸入防線）──
-        try:
-            from museon.security.sanitizer import InputSanitizer
-            self.input_sanitizer = InputSanitizer()
-        except Exception as e:
-            logger.warning(f"InputSanitizer 載入失敗（降級運行）: {e}")
-            self.input_sanitizer = None
-
-        # ── 新模組：BudgetMonitor（Token 用量追蹤）──
-        try:
-            from museon.llm.budget import BudgetMonitor
-            self.budget_monitor = BudgetMonitor(data_dir=str(self.data_dir))
-        except Exception as e:
-            logger.warning(f"BudgetMonitor 載入失敗（降級運行）: {e}")
-            self.budget_monitor = None
-
-        # ── LLM Adapter（MAX 訂閱方案 / API fallback）──
+        # LLM Adapter（工廠函數模式）
         try:
             from museon.llm.adapters import create_adapter_sync
             self._llm_adapter = create_adapter_sync()
@@ -199,21 +292,11 @@ class MuseonBrain:
             logger.warning(f"LLMAdapter 載入失敗（降級運行）: {e}")
             self._llm_adapter = None
 
-        # ── 新模組：Router（Haiku / Sonnet 智能分流）──
-        self._router = None
-        try:
-            from museon.llm.router import Router
-            self._router = Router(data_dir=str(self.data_dir))
-            logger.info("Router 智能分流已啟用")
-        except Exception as e:
-            logger.warning(f"Router 載入失敗（降級 Sonnet-only）: {e}")
-
-        # ── 新模組：六層記憶管理器 ──
+        # MemoryManager（需要 event_bus 注入）
         try:
             from museon.memory.memory_manager import MemoryManager
-            memory_workspace = str(self.data_dir / "memory_v3")
             self.memory_manager = MemoryManager(
-                workspace=memory_workspace,
+                workspace=str(self.data_dir / "memory_v3"),
                 user_id="cli_user",
                 event_bus=self._event_bus,
             )
@@ -221,78 +304,48 @@ class MuseonBrain:
             logger.warning(f"MemoryManager 載入失敗（降級運行）: {e}")
             self.memory_manager = None
 
-        # ── 新模組：Multi-Agent 飛輪八部門（常駐啟用）──
+        # Multi-Agent ContextSwitcher
         self._multiagent_enabled = True
         self._context_switcher = None
+        self._multiagent_executor = None  # Phase 4: 並行 LLM 執行器
+        self._flywheel_coordinator = None  # Phase 4: 飛輪流動協調器
+        self._multiagent_auxiliaries: list = []  # 當前 turn 的輔助部門
         try:
             from museon.multiagent.context_switch import ContextSwitcher
             self._context_switcher = ContextSwitcher()
-            logger.info("Multi-Agent 飛輪八部門已啟用（常駐）")
         except Exception as e:
             logger.warning(f"Multi-Agent 載入失敗（降級運行）: {e}")
 
-        # ── 新模組：KernelGuard（ANIMA 寫入保護）──
-        try:
-            from museon.agent.kernel_guard import KernelGuard
-            self.kernel_guard = KernelGuard(data_dir=self.data_dir)
-        except Exception as e:
-            logger.warning(f"KernelGuard 載入失敗（降級運行）: {e}")
-            self.kernel_guard = None
-
-        # ── 新模組：DriftDetector（ANIMA 漂移偵測）──
-        try:
-            from museon.agent.drift_detector import DriftDetector
-            self.drift_detector = DriftDetector(data_dir=self.data_dir)
-        except Exception as e:
-            logger.warning(f"DriftDetector 載入失敗（降級運行）: {e}")
-            self.drift_detector = None
-
-        # ── Phase 3a: Governor 治理層引用（GovernanceContext Bridge）──
-        self._governor = None  # 由 set_governor() 注入
-
-        # ── 失敗蒸餾快取（5 分鐘去重）──
-        self._failure_distill_cache: Dict[str, float] = {}
-
-        # ── 自主排程偵測緩衝 ──
-        self._cron_pattern_buffer: List[str] = []
-
-        # ── 待推播通知（純 CPU 模板，由 Gateway 發送）──
-        self._pending_notifications: List[Dict[str, str]] = []
-
-        # ── EventBus（全域事件匯流排）──
-        self._event_bus = None
-        try:
-            from museon.core.event_bus import get_event_bus
-            self._event_bus = get_event_bus()
-        except Exception as e:
-            logger.warning(f"EventBus 載入失敗（降級運行）: {e}")
-
-        # ── 新模組：CommitmentTracker（承諾追蹤 — 言出必行）──
+        # CommitmentTracker（需要 PulseDB 先初始化）
         self._commitment_tracker = None
         try:
             from museon.pulse.commitment_tracker import CommitmentTracker
-            from museon.pulse.pulse_db import PulseDB
-            _pulse_db_path = self.data_dir / "pulse" / "pulse.db"
-            _pulse_db = PulseDB(str(_pulse_db_path))
+            from museon.pulse.pulse_db import get_pulse_db
+            _pulse_db = get_pulse_db(self.data_dir)
             self._commitment_tracker = CommitmentTracker(pulse_db=_pulse_db)
-            logger.info("CommitmentTracker 承諾追蹤已啟用")
         except Exception as e:
             logger.warning(f"CommitmentTracker 載入失敗（降級運行）: {e}")
 
-        # ── 新模組：MetaCognition Engine（元認知 — 大腦層級審慎思考）──
+        # AsyncWriteQueue（全域單例工廠）
+        try:
+            from museon.pulse.async_write_queue import get_write_queue
+            self._wq = get_write_queue()
+        except Exception as e:
+            logger.warning(f"AsyncWriteQueue 載入失敗（降級為同步寫入）: {e}")
+            self._wq = None
+
+        # MetaCognition（需要 brain 反向引用）
         self._metacognition = None
         try:
             from museon.agent.metacognition import MetaCognitionEngine
-            _pulse_db_path_mc = self.data_dir / "pulse" / "pulse.db"
             self._metacognition = MetaCognitionEngine(
-                pulse_db_path=str(_pulse_db_path_mc),
+                data_dir=self.data_dir,
                 brain=self,
             )
-            logger.info("MetaCognitionEngine 元認知引擎已啟用")
         except Exception as e:
             logger.warning(f"MetaCognitionEngine 載入失敗（降級運行）: {e}")
 
-        # ── 新模組：Tool Executor（Anthropic tool_use 工具調用）──
+        # ToolExecutor（需要 brain 反向引用）
         self._tool_executor = None
         try:
             from museon.agent.tools import ToolExecutor
@@ -304,62 +357,21 @@ class MuseonBrain:
         except Exception as e:
             logger.warning(f"ToolExecutor 載入失敗（降級運行）: {e}")
 
-        # ── 新模組：TokenBudgetManager（薪水制 Token 經濟）──
+        # TokenBudgetManager
         self._token_budget = None
         try:
             from museon.pulse.token_budget import TokenBudgetManager
             self._token_budget = TokenBudgetManager(data_dir=self.data_dir)
-            logger.info("TokenBudgetManager 薪水制已啟用")
         except Exception as e:
             logger.warning(f"TokenBudgetManager 載入失敗（降級運行）: {e}")
 
-        # ── 新模組：SynapseNetwork（技能突觸網路）──
-        self._synapse_network = None
-        try:
-            from museon.evolution.skill_synapse import SynapseNetwork
-            self._synapse_network = SynapseNetwork(data_dir=self.data_dir)
-            logger.info("SynapseNetwork 技能突觸已啟用")
-        except Exception as e:
-            logger.warning(f"SynapseNetwork 載入失敗（降級運行）: {e}")
+        # ── Phase 3a: Governor 治理層引用 ──
+        self._governor = None  # 由 set_governor() 注入
 
-        # ── 新模組：ToolMuscleTracker（工具肌肉記憶）──
-        self._tool_muscle = None
-        try:
-            from museon.evolution.tool_muscle import ToolMuscleTracker
-            self._tool_muscle = ToolMuscleTracker(data_dir=self.data_dir)
-            logger.info("ToolMuscleTracker 肌肉記憶已啟用")
-        except Exception as e:
-            logger.warning(f"ToolMuscleTracker 載入失敗（降級運行）: {e}")
-
-        # ── 新模組：FootprintStore（三層行為足跡）──
-        self._footprint = None
-        try:
-            from museon.governance.footprint import FootprintStore
-            self._footprint = FootprintStore(data_dir=self.data_dir)
-            logger.info("FootprintStore 行為足跡已啟用")
-        except Exception as e:
-            logger.warning(f"FootprintStore 載入失敗（降級運行）: {e}")
-
-        # ── 新模組：TriggerEngine（13 觸發器引擎）──
-        self._trigger_engine = None
-        try:
-            from museon.evolution.trigger_weights import TriggerEngine
-            self._trigger_engine = TriggerEngine(data_dir=self.data_dir)
-            logger.info("TriggerEngine 觸發引擎已啟用")
-        except Exception as e:
-            logger.warning(f"TriggerEngine 載入失敗（降級運行）: {e}")
-
-        # ── 新模組：RegistryManager（結構化資料層）──
-        self._registry_manager = None
-        try:
-            from museon.registry.registry_manager import RegistryManager
-            self._registry_manager = RegistryManager(
-                data_dir=str(self.data_dir),
-                user_id="cli_user",
-            )
-            logger.info("RegistryManager 結構化資料層已啟用")
-        except Exception as e:
-            logger.warning(f"RegistryManager 載入失敗（降級運行）: {e}")
+        # ── 內部狀態 ──
+        self._failure_distill_cache: Dict[str, float] = {}
+        self._cron_pattern_buffer: List[str] = []
+        self._pending_notifications: List[Dict[str, str]] = []
 
         logger.info(
             f"MUSEON Brain initialized | "
@@ -518,7 +530,9 @@ class MuseonBrain:
             )
             if detect_self_check_intent(content):
                 logger.info("自我檢查意圖偵測命中")
-                import asyncio
+                # asyncio 已在模組頂層 import（line 37），不可在此重複 import
+                # 否則 Python 編譯器會將 asyncio 標記為 process() 的 local 變數，
+                # 遮蔽全域 import，導致其他分支 UnboundLocalError
                 import concurrent.futures
 
                 def _run_diagnosis():
@@ -609,6 +623,31 @@ class MuseonBrain:
         anima_mc = self._load_anima_mc()
         anima_user = self._load_anima_user()
 
+        # ── Step 2.1: 取得使用者八原語即時值（供路由器消費）──
+        # 合併 ANIMA_USER 長期 level + PrimalDetector 當前訊息即時偵測
+        _user_primals: Dict[str, int] = {}
+        try:
+            stored_primals = anima_user.get("eight_primals", {})
+            for pk, pv in stored_primals.items():
+                if isinstance(pv, dict) and pv.get("level", 0) > 0:
+                    _user_primals[pk] = pv["level"]
+            # 即時偵測當前訊息的原語（與長期值取 max）
+            if self._primal_detector:
+                instant_primals = self._primal_detector.detect(content)
+                for pk, lvl in instant_primals.items():
+                    _user_primals[pk] = max(_user_primals.get(pk, 0), lvl)
+        except Exception as _e:
+            logger.debug(f"八原語即時值取得失敗（降級）: {_e}")
+
+        # ── Step 2.5: 簡單訊息判定（Pipeline 短路用）──
+        # 短訊息且不含指令/分析關鍵字 → 跳過重量級步驟（MetaCog/KnowledgeLattice/Q-Score）
+        _is_simple = (
+            len(content.strip()) < 15
+            and not any(
+                kw in content for kw in ["/", "分析", "報告", "計畫", "策略", "研究", "評估"]
+            )
+        )
+
         # ── Step 3: DNA27 反射路由器（全 27 叢集 + RoutingSignal）——靈魂先行 ──
         routing_signal = None
         safety_context = ""
@@ -622,6 +661,7 @@ class MuseonBrain:
                 history_len=len(history),
                 workspace=str(self.data_dir),
                 prev_signals=prev_signals,
+                user_primals=_user_primals or None,
             )
             safety_context = build_routing_context(routing_signal)
             logger.info(
@@ -677,17 +717,22 @@ class MuseonBrain:
                 logger.debug(f"Phase3c 健康感知路由調節失敗（降級）: {e}")
 
         # ── Step 3.0.5: Multi-Agent 自動路由 — 根據訊息內容自動切換部門 ──
+        self._multiagent_auxiliaries = []  # 重置每 turn 的輔助部門
         if self._multiagent_enabled and self._context_switcher:
             try:
-                from museon.multiagent.okr_router import route as okr_route
+                from museon.multiagent.okr_router import route_extended
                 current_dept = self._context_switcher.current_dept
-                target_dept, confidence = okr_route(content, current_dept)
+                target_dept, confidence, auxiliaries = route_extended(
+                    content, current_dept,
+                    user_primals=_user_primals or None,
+                )
+                self._multiagent_auxiliaries = auxiliaries
                 if target_dept != current_dept and confidence >= 0.4:
                     switch_result = self._context_switcher.switch_to(target_dept)
                     if switch_result.get("switched"):
                         logger.info(
                             f"[MultiAgent] 自動路由: {current_dept} → {target_dept} "
-                            f"(confidence={confidence:.2f})"
+                            f"(confidence={confidence:.2f}, aux={auxiliaries})"
                         )
                 self._context_switcher.add_message("user", content)
             except Exception as e:
@@ -699,6 +744,7 @@ class MuseonBrain:
         matched_skills = self.skill_router.match(
             content, top_n=5, routing_signal=routing_signal,
             skill_usage=session_usage,
+            user_primals=_user_primals or None,
         )
 
         # Step 3.1b: VectorBridge 語義匹配輔助（靜默失敗）
@@ -775,6 +821,88 @@ class MuseonBrain:
             except Exception as e:
                 logger.warning(f"SubAgent 結果收集失敗: {e}")
 
+        # ── Step 3.65: 百合引擎 — 軍師四象限路由 ──
+        baihe_context = ""
+        try:
+            _lord_path = self.data_dir / "_system" / "lord_profile.json"
+            if _lord_path.exists():
+                _lord_raw = _lord_path.read_text(encoding="utf-8")
+                _lord_profile = json.loads(_lord_raw)
+                # 取得 user_primals（如果有）
+                _user_primals = None
+                if anima_user:
+                    _raw_primals = anima_user.get("eight_primals", {})
+                    _user_primals = {
+                        k: int(v.get("level", 0)) if isinstance(v, dict) else 0
+                        for k, v in _raw_primals.items()
+                    }
+                from museon.agent.persona_router import PersonaRouter
+                _baihe_router = PersonaRouter()
+                _baihe_context_data = {
+                    "routing_signal_loop": getattr(routing_signal, "loop", "EXPLORATION_LOOP") if routing_signal else "EXPLORATION_LOOP",
+                    "top_clusters": getattr(routing_signal, "top_clusters", []) if routing_signal else [],
+                    "matched_skills": [s.get("name", "") for s in matched_skills],
+                    "has_commitment": bool(commitment_context),
+                    "session_history_len": len(self._get_session_history(session_id)),
+                    "is_late_night": datetime.now().hour >= 23 or datetime.now().hour < 6,
+                }
+                _baihe_decision = _baihe_router.baihe_decide(
+                    content, _baihe_context_data, _lord_profile, _user_primals,
+                )
+                baihe_context = self._format_baihe_guidance(_baihe_decision)
+
+                # 更新進諫冷卻（如果本輪進諫了）
+                if _baihe_decision.should_advise:
+                    _cooldown = _lord_profile.setdefault("advise_cooldown", {})
+                    _cooldown["last_advise_ts"] = datetime.now().isoformat()
+                    _cooldown["session_advise_count"] = (
+                        _cooldown.get("session_advise_count", 0) + 1
+                    )
+                    _tmp = _lord_path.with_suffix(".json.tmp")
+                    _tmp.write_text(
+                        json.dumps(_lord_profile, ensure_ascii=False, indent=2) + "\n",
+                        encoding="utf-8",
+                    )
+                    _tmp.replace(_lord_path)
+
+                # P3: 寫入 baihe_cache 供 ProactiveBridge 讀取象限
+                try:
+                    _baihe_cache_path = self.data_dir / "_system" / "baihe_cache.json"
+                    _baihe_cache = {
+                        "quadrant": _baihe_decision.quadrant.value,
+                        "expression_mode": _baihe_decision.expression_mode,
+                        "advise_tier": _baihe_decision.advise_tier,
+                        "topic_domain": _baihe_decision.topic_domain.value,
+                        "ts": datetime.now().isoformat(),
+                    }
+                    _tmp2 = _baihe_cache_path.with_suffix(".json.tmp")
+                    _tmp2.write_text(
+                        json.dumps(_baihe_cache, ensure_ascii=False) + "\n",
+                        encoding="utf-8",
+                    )
+                    _tmp2.replace(_baihe_cache_path)
+                except Exception:
+                    pass  # 快取寫入失敗不影響核心流程
+        except Exception as e:
+            logger.debug(f"Step 3.65 百合引擎降級: {e}")
+
+        # ── Step 3.66: 根因偵測層 — 掃描重複模式，偵測問題背後的問題 ──
+        root_cause_hint = ""
+        try:
+            root_cause_hint = await self._detect_root_cause_hint(
+                content=content,
+                session_id=session_id,
+                matched_skills=matched_skills,
+                routing_signal=routing_signal,
+                baihe_quadrant=getattr(
+                    locals().get("_baihe_decision"), "quadrant", None
+                ),
+            )
+            if root_cause_hint:
+                logger.info(f"[RootCause] 偵測到重複模式: {root_cause_hint[:100]}")
+        except Exception as e:
+            logger.debug(f"Step 3.66 根因偵測降級: {e}")
+
         # ── Step 3.8: 深度反射 — 所有路徑前執行（dispatch 之前）──
         # 必須在 dispatch 評估前跑，確保強反射訊號能覆蓋 dispatch 決策
         reflection_note = self._deep_reflect(
@@ -817,6 +945,14 @@ class MuseonBrain:
         else:
 
             # ── Step 4: 組建系統提示詞（正常 pipeline）──
+            # 合併百合引擎 + 根因偵測到同一區段
+            _combined_baihe = baihe_context
+            if root_cause_hint:
+                _combined_baihe = (
+                    (_combined_baihe + "\n" if _combined_baihe else "")
+                    + root_cause_hint
+                )
+
             system_prompt = self._build_system_prompt(
                 anima_mc=anima_mc,
                 anima_user=anima_user,
@@ -828,6 +964,7 @@ class MuseonBrain:
                 routing_signal=routing_signal,
                 commitment_context=commitment_context,
                 reflection_note=reflection_note,
+                baihe_context=_combined_baihe,
             )
 
             # ── SkillHub: 注入 skill_builder 上下文 ──
@@ -882,14 +1019,63 @@ class MuseonBrain:
             # 記住 _call_llm 呼叫前的歷史長度，用於清理工具中間訊息
             _history_len_before_llm = len(history)
 
-            response_text = await self._call_llm(
-                system_prompt=system_prompt,
-                messages=history,
-                anima_mc=anima_mc,
-                enable_tools=_enable_tools,
-                user_content=content,
-                matched_skills=skill_names,
-            )
+            # ── Phase 4: Multi-Agent 並行呼叫（有輔助部門時） ──
+            _used_multiagent = False
+            if (
+                self._multiagent_auxiliaries
+                and self._multiagent_enabled
+                and self._llm_adapter
+            ):
+                try:
+                    from museon.multiagent.multi_agent_executor import MultiAgentExecutor
+                    from museon.multiagent.response_synthesizer import synthesize
+
+                    if not self._multiagent_executor:
+                        self._multiagent_executor = MultiAgentExecutor(self._llm_adapter)
+
+                    primary_dept = (
+                        self._context_switcher.current_dept
+                        if self._context_switcher
+                        else "core"
+                    )
+
+                    # 建構使用者上下文（八原語語義化）
+                    _user_ctx = ""
+                    try:
+                        _user_ctx = self._get_user_context_prompt()
+                    except Exception:
+                        logger.debug("_get_user_context_prompt 失敗，user_ctx 降級為空字串", exc_info=True)
+
+                    ma_result = await self._multiagent_executor.execute(
+                        user_message=content,
+                        primary_dept_id=primary_dept,
+                        auxiliary_dept_ids=self._multiagent_auxiliaries,
+                        user_context=_user_ctx,
+                        messages=history,
+                    )
+
+                    if not ma_result.primary.error:
+                        response_text = synthesize(ma_result)
+                        _used_multiagent = True
+                        logger.info(
+                            f"[MultiAgent] 並行呼叫完成: "
+                            f"primary={primary_dept}, "
+                            f"aux={self._multiagent_auxiliaries}, "
+                            f"latency={ma_result.total_latency_ms}ms"
+                        )
+                except Exception as e:
+                    logger.warning(f"Multi-Agent 並行呼叫失敗（降級單一 LLM）: {e}")
+
+            # 標準單一 LLM 呼叫（無輔助部門或 Multi-Agent 失敗時）
+            if not _used_multiagent:
+                response_text = await self._call_llm(
+                    system_prompt=system_prompt,
+                    messages=history,
+                    anima_mc=anima_mc,
+                    enable_tools=_enable_tools,
+                    user_content=content,
+                    matched_skills=skill_names,
+                )
 
             # ── v10.5: 清理 tool-use 中間訊息 ──
             # _call_llm 會透過 messages（= history 同引用）直接
@@ -911,8 +1097,9 @@ class MuseonBrain:
                 self._offline_flag = False  # 重置
 
             # ── Step 6.2: PreCognition — 回應前元認知審查 ──
+            # ★ Pipeline 短路：簡單訊息跳過 MetaCog 審查
             pre_review = None
-            if self._metacognition:
+            if self._metacognition and not _is_simple:
                 try:
                     pre_review = await self._metacognition.pre_review(
                         draft_response=response_text,
@@ -939,8 +1126,9 @@ class MuseonBrain:
                     logger.debug(f"PreCognition 審查跳過: {e}")
 
         # ── Step 6.5: Eval Engine — Q-Score 靜默評分 ──
+        # ★ Pipeline 短路：簡單訊息跳過 Q-Score
         q_score = None
-        if self.eval_engine:
+        if self.eval_engine and not _is_simple:
             try:
                 q_score = self.eval_engine.evaluate(
                     user_content=content,
@@ -1038,8 +1226,18 @@ class MuseonBrain:
                 except Exception as e:
                     logger.debug(f"ToolMuscle record_use 失敗: {e}")
 
-            # Footprint: 記錄行為足跡
+            # Footprint: 記錄決策軌跡（L2）+ 行為足跡（L1）
             if self._footprint:
+                try:
+                    self._footprint.trace_decision(
+                        decision_type="skill_routing",
+                        chosen=",".join(skill_names[:3]),
+                        alternatives=[s for s in skill_names[3:] if s],
+                        reasoning=f"top{len(skill_names)}_ranked",
+                        context=content[:100] if content else "",
+                    )
+                except Exception as e:
+                    logger.debug(f"Footprint trace_decision 失敗: {e}")
                 try:
                     self._footprint.trace_action(
                         action_type="skill_routing",
@@ -1050,8 +1248,23 @@ class MuseonBrain:
                     )
                 except Exception as e:
                     logger.debug(f"Footprint trace_action 失敗: {e}")
+                # 認知回執（Compact Cognitive Receipt）
+                try:
+                    self._footprint.trace_cognitive({
+                        "p0_signal": "",
+                        "qc_verdict": "pass" if not getattr(self, '_last_qc_clarify', False) else "clarify",
+                        "user_energy": "",
+                        "c15_active": True,
+                        "resonance": False,
+                        "loop": "E",
+                        "top_skills": skill_names[:3],
+                        "meta_note": "",
+                    })
+                except Exception as e:
+                    logger.debug(f"Footprint trace_cognitive 失敗: {e}")
 
-        # ── Step 8.5: 靈魂年輪 — 偵測年輪級事件 ──
+        # ── Step 8.5: 靈魂日記 — 偵測日記級事件（v2.0 降低門檻版）──
+        # ★ Pipeline 短路：簡單訊息跳過 Soul Ring（q_score 已被跳過，此處自然不觸發）
         # 追蹤 Q-Score 歷史（保留最近 50 筆）並持久化
         if q_score is not None:
             self._q_score_history.append(q_score.score)
@@ -1072,17 +1285,19 @@ class MuseonBrain:
                     response_content=response_text,
                     q_score=q_score.score if q_score else None,
                     q_score_history=self._q_score_history if self._q_score_history else None,
+                    content_length=len(content) if content else 0,
                 )
                 if ring_event:
                     logger.info(
-                        f"靈魂年輪事件偵測: type={ring_event.get('ring_type')}"
+                        f"靈魂日記事件偵測: type={ring_event.get('ring_type')} "
+                        f"entry_type={ring_event.get('entry_type', 'event')}"
                     )
-                    # 實際存入靈魂年輪
                     self.ring_depositor.deposit_soul_ring(
                         ring_type=ring_event["ring_type"],
                         description=ring_event["description"],
                         context=ring_event.get("context", ""),
                         impact=ring_event.get("impact", ""),
+                        entry_type=ring_event.get("entry_type", "event"),
                         milestone_name=ring_event.get("milestone_name"),
                         metrics=ring_event.get("metrics"),
                         failure_description=ring_event.get("failure_description"),
@@ -1093,11 +1308,12 @@ class MuseonBrain:
                         calibrated_value=ring_event.get("calibrated_value"),
                     )
             except Exception as e:
-                logger.warning(f"靈魂年輪偵測失敗: {e}")
+                logger.warning(f"靈魂日記偵測失敗: {e}")
 
         # ── Step 8.6: 知識晶格 — 對話後掃描 + 自動結晶 ──
         # CASTLE Layer 2: 離線回應不進入結晶管線
-        if self.knowledge_lattice and not self._offline_flag:
+        # ★ Pipeline 短路：簡單訊息跳過 KnowledgeLattice 掃描
+        if self.knowledge_lattice and not self._offline_flag and not _is_simple:
             try:
                 candidates = self.knowledge_lattice.post_conversation_scan(
                     conversation_data=[
@@ -1121,6 +1337,30 @@ class MuseonBrain:
             except Exception as e:
                 logger.warning(f"知識晶格掃描失敗: {e}")
 
+        # ── Step 8.6.5: Crystal Actuator 回饋迴圈（P3）──
+        # 如果本次對話中結晶行為規則參與了回覆，記錄正面回饋。
+        # 負面回饋由使用者不滿意時的 Q-Score 低分觸發（未來擴展）。
+        if self.crystal_actuator:
+            try:
+                active_rules = self.crystal_actuator.get_active_rules()
+                if active_rules and response_text:
+                    # 簡易正面回饋：如果規則存在且回覆順利產出 → +1
+                    # 更精細的回饋在未來由 Q-Score 驅動
+                    for rule in active_rules:
+                        rule_id = rule.get("rule_id", "")
+                        directive = rule.get("directive", "")
+                        summary = rule.get("summary", "")
+                        # 檢查回覆是否可能受到此規則影響
+                        if directive and (
+                            any(kw in response_text for kw in summary.split()[:3])
+                            or any(kw in content for kw in summary.split()[:3])
+                        ):
+                            self.crystal_actuator.record_feedback(
+                                rule_id, positive=True,
+                            )
+            except Exception as e:
+                logger.debug(f"Crystal Actuator 回饋記錄失敗: {e}")
+
         # ── Step 8.7: 承諾掃描 — 偵測回覆中的承諾並登記 ──
         if self._commitment_tracker:
             try:
@@ -1135,17 +1375,26 @@ class MuseonBrain:
                     user_message=content,
                 )
                 # ANIMA 連動：兌現承諾 → zhen +2
+                # ★ 寫入排隊：PulseDB 寫入通過 WriteQueue 序列化
                 if fulfilled and hasattr(self, '_soul_ring_store'):
                     try:
-                        from museon.pulse.pulse_db import PulseDB
-                        _pulse_path = self.data_dir / "pulse" / "pulse.db"
-                        _pdb = PulseDB(str(_pulse_path))
+                        from museon.pulse.pulse_db import get_pulse_db
+                        _pdb = get_pulse_db(self.data_dir)
                         for _fid in fulfilled:
-                            _pdb.log_anima_change(
-                                element="zhen", delta=2,
-                                reason=f"承諾兌現: {_fid}",
-                                absolute_after=0,  # 由 anima_tracker 更新實際值
-                            )
+                            if self._wq:
+                                self._wq.enqueue(
+                                    f"commitment_zhen_{_fid}",
+                                    _pdb.log_anima_change,
+                                    element="zhen", delta=2,
+                                    reason=f"承諾兌現: {_fid}",
+                                    absolute_after=0,
+                                )
+                            else:
+                                _pdb.log_anima_change(
+                                    element="zhen", delta=2,
+                                    reason=f"承諾兌現: {_fid}",
+                                    absolute_after=0,
+                                )
                     except Exception as e:
                         logger.debug(f"承諾兌現 ANIMA 記錄失敗: {e}")
             except Exception as e:
@@ -1154,45 +1403,71 @@ class MuseonBrain:
         # ── Step 8.8: 自主排程偵測（純 CPU）──
         self._detect_cron_patterns(content)
 
-        # ── Step 9: 更新 ANIMA_USER（被動觀察 — 八原語 + 七層 + 四觀察引擎） ──
-        # CASTLE Layer 2: 離線回應不進入使用者觀察管線
-        # 群組防污染守衛: 群組訊息不更新 owner 的 ANIMA_USER
-        if not self._offline_flag and anima_user is not None and not self._is_group_session:
-            self._observe_user(
-                content, anima_user,
-                response_content=response_text,
-                skill_names=skill_names,
-            )
-        elif self._is_group_session and not self._offline_flag:
-            # 群組訊息 → 外部用戶觀察管線（不寫入 ANIMA_USER）
-            self._observe_external_user(
-                content,
-                user_id=user_id,
-                sender_name=self._group_sender,
-                response_content=response_text,
-                metadata=metadata,
-            )
+        # ── Step 9.0: Memory Gate 意圖分類（v1.13 新增）──
+        # 在記憶寫入前先判斷意圖，避免「越否認越強化」迴圈
+        _memory_action = None
+        if not self._offline_flag and self._memory_gate:
+            try:
+                _memory_intent = self._memory_gate.classify_intent(content)
+                _memory_action = self._memory_gate.decide_action(_memory_intent)
+                if _memory_action.action != "ADD":
+                    logger.info(
+                        f"MemoryGate: {_memory_action.action} — {_memory_action.reason}"
+                    )
+            except Exception as e:
+                logger.warning(f"MemoryGate 分類失敗（降級到無閘門）: {e}")
+                _memory_action = None
 
-            # ── Step 9.1: ObservationRing — 使用者觀察年輪沉積 ──
-            if not self._is_group_session and self.ring_depositor and skill_names:
-                try:
-                    # 每 20 次互動嘗試沉積一次觀察年輪（避免過度頻繁）
-                    interaction_count = anima_user.get("interaction_count", 0)
-                    if interaction_count > 0 and interaction_count % 20 == 0:
-                        # 取得使用者的主要興趣主題
-                        topics = [s for s in skill_names if s]
-                        self.ring_depositor.deposit_observation_ring(
-                            ring_type="growth_observation",
-                            description=(
-                                f"第 {interaction_count} 次互動觀察："
-                                f"使用者偏好的技能區域包含 "
-                                f"{', '.join(topics[:3])}"
-                            ),
-                            context=f"session={session_id}, skills={topics[:3]}",
-                            impact="持續追蹤使用者興趣與成長軌跡",
+        # ── Step 9.2: 事實更正偵測（P0 記憶事實覆寫）──
+        # v1.13: 提前到 Step 9 之前，確保糾正在記憶寫入前觸發
+        if not self._offline_flag and not self._is_group_session:
+            try:
+                _should_correct = (
+                    (_memory_action is not None and _memory_action.trigger_correction)
+                    or self._detect_fact_correction(content)
+                )
+                if _should_correct:
+                    asyncio.ensure_future(
+                        self._handle_fact_correction(
+                            content, response_text, session_id,
                         )
-                except Exception as e:
-                    logger.debug(f"ObservationRing deposit 失敗: {e}")
+                    )
+            except Exception as e:
+                logger.warning(f"事實更正偵測失敗: {e}")
+
+        # ── Step 9: 條件式更新 ANIMA_USER（被動觀察 — 八原語 + 七層 + 四觀察引擎） ──
+        # CASTLE Layer 2: 離線回應不進入使用者觀察管線
+        # v2.0: 群組訊息也更新 ANIMA_USER（權重 ×0.5），不再完全跳過
+        # v1.13: Memory Gate 可 suppress 八原語和事實寫入
+        _suppress_primals = _memory_action.suppress_primals if _memory_action else False
+        _suppress_facts = _memory_action.suppress_facts if _memory_action else False
+        if not self._offline_flag and anima_user is not None:
+            if self._is_group_session:
+                # 群組模式：同時進入 ANIMA_USER（半權重）+ 外部用戶觀察
+                self._observe_user(
+                    content, anima_user,
+                    response_content=response_text,
+                    skill_names=skill_names,
+                    context_type="group",  # v2.0: 標記群組來源，觀察引擎內部降權 ×0.5
+                    suppress_primals=_suppress_primals,
+                    suppress_facts=_suppress_facts,
+                )
+                self._observe_external_user(
+                    content,
+                    user_id=user_id,
+                    sender_name=self._group_sender,
+                    response_content=response_text,
+                    metadata=metadata,
+                )
+            else:
+                # DM 模式：全權重更新 ANIMA_USER
+                self._observe_user(
+                    content, anima_user,
+                    response_content=response_text,
+                    skill_names=skill_names,
+                    suppress_primals=_suppress_primals,
+                    suppress_facts=_suppress_facts,
+                )
 
         # ── Step 9.5: 更新 ANIMA_MC（自我觀察 — 八原語 + 能力追蹤） ──
         # CASTLE Layer 2: 離線/降級模式下的輸出不進入自觀察管線
@@ -1210,9 +1485,11 @@ class MuseonBrain:
                 logger.warning(f"ANIMA_MC 自我觀察失敗: {e}")
 
         # ── Step 9.7: 元認知預判 — 預測使用者對本次回覆的反應 ──
+        # ★ 寫入排隊：predict_reaction 寫入 PulseDB，通過 WriteQueue 序列化
         if self._metacognition:
             try:
-                self._metacognition.predict_reaction(
+                _predict_fn = self._metacognition.predict_reaction
+                _predict_kwargs = dict(
                     session_id=session_id,
                     user_query=content,
                     response=response_text,
@@ -1220,6 +1497,10 @@ class MuseonBrain:
                     matched_skills=skill_names,
                     pre_review=pre_review,
                 )
+                if self._wq:
+                    self._wq.enqueue("metacog_predict", _predict_fn, **_predict_kwargs)
+                else:
+                    _predict_fn(**_predict_kwargs)
             except Exception as e:
                 logger.debug(f"元認知預判跳過: {e}")
 
@@ -1291,6 +1572,9 @@ class MuseonBrain:
             except Exception as e:
                 logger.warning(f"SkillHub draft 解析失敗: {e}")
 
+        # P5: 偵測用戶休息/免打擾意圖 → 發布 USER_QUIET_MODE 事件
+        self._detect_and_publish_quiet_mode(content)
+
         # v9.0: 返回 BrainResponse（含 artifacts）
         try:
             from museon.gateway.message import BrainResponse
@@ -1352,81 +1636,84 @@ class MuseonBrain:
           {identity, self_awareness, boss, ceremony}
         但完整的 ANIMA_MC 還需要：
           {version, type, personality, capabilities, evolution, memory_summary}
-        """
-        # 載入 ceremony 剛寫入的精簡結構
-        ceremony_data = self._load_anima_mc()
-        if not ceremony_data:
-            return
 
-        # 原始結構（備份），或建立完整的預設結構
+        ★ 通過 AnimaMCStore.update() 原子讀改寫，避免繞過 Store 鎖。
+        """
         base = getattr(self, "_pre_ceremony_anima", None) or {}
 
-        # 從 ceremony 提取關鍵資料
-        ceremony_identity = ceremony_data.get("identity", {})
-        ceremony_awareness = ceremony_data.get("self_awareness", {})
-        ceremony_boss = ceremony_data.get("boss", {})
-        ceremony_status = ceremony_data.get("ceremony", {})
+        def _do_merge():
+            def updater(ceremony_data):
+                ceremony_identity = ceremony_data.get("identity", {})
+                ceremony_awareness = ceremony_data.get("self_awareness", {})
+                ceremony_boss = ceremony_data.get("boss", {})
+                ceremony_status = ceremony_data.get("ceremony", {})
 
-        # 建立完整的 ANIMA_MC 結構
-        full_anima = {
-            "version": base.get("version", "1.0.0"),
-            "type": base.get("type", "museon"),
-            "description": base.get("description",
-                "MUSEON 自身的人格檔 — 可被 MUSEON 閱讀與改寫"),
+                full_anima = {
+                    "version": base.get("version", "1.0.0"),
+                    "type": base.get("type", "museon"),
+                    "description": base.get("description",
+                        "MUSEON 自身的人格檔 — 可被 MUSEON 閱讀與改寫"),
 
-            "identity": {
-                "name": ceremony_identity.get("name"),
-                "birth_date": ceremony_identity.get("birth_date"),
-                "growth_stage": "adult",
-                "days_alive": ceremony_identity.get("days_alive", 0),
-                "naming_ceremony_completed": ceremony_status.get("completed", False),
-            },
+                    "identity": {
+                        "name": ceremony_identity.get("name"),
+                        "birth_date": ceremony_identity.get("birth_date"),
+                        "growth_stage": "adult",
+                        "days_alive": ceremony_identity.get("days_alive", 0),
+                        "naming_ceremony_completed": ceremony_status.get("completed", False),
+                    },
 
-            "self_awareness": ceremony_awareness,
+                    "self_awareness": ceremony_awareness,
 
-            "personality": base.get("personality", {
-                "core_traits": [
-                    "好奇心驅動", "真誠不做作", "行動導向", "安靜觀察優先"
-                ],
-                "communication_style": "簡潔、有溫度、用繁體中文",
-                "growth_mindset": "每次互動都是學習機會",
-            }),
+                    "personality": base.get("personality", {
+                        "core_traits": [
+                            "好奇心驅動", "真誠不做作", "行動導向", "安靜觀察優先"
+                        ],
+                        "communication_style": "簡潔、有溫度、用繁體中文",
+                        "growth_mindset": "每次互動都是學習機會",
+                    }),
 
-            "capabilities": base.get("capabilities", {
-                "loaded_skills": [],
-                "forged_skills": [],
-                "active_workflows": [],
-                "skill_proficiency": {},
-            }),
+                    "capabilities": base.get("capabilities", {
+                        "loaded_skills": [],
+                        "forged_skills": [],
+                        "active_workflows": [],
+                        "skill_proficiency": {},
+                    }),
 
-            "evolution": base.get("evolution", {
-                "current_stage": "adult",
-                "stage_history": [],
-                "iteration_count": 0,
-                "last_self_review": None,
-                "morphenix_proposals": [],
-                "known_blindspots": [],
-                "milestones": [{
-                    "type": "birth",
-                    "event": "naming_ceremony",
-                    "timestamp": ceremony_identity.get("birth_date"),
-                }],
-            }),
+                    "evolution": base.get("evolution", {
+                        "current_stage": "adult",
+                        "stage_history": [],
+                        "iteration_count": 0,
+                        "last_self_review": None,
+                        "morphenix_proposals": [],
+                        "known_blindspots": [],
+                        "milestones": [{
+                            "type": "birth",
+                            "event": "naming_ceremony",
+                            "timestamp": ceremony_identity.get("birth_date"),
+                        }],
+                    }),
 
-            "memory_summary": base.get("memory_summary", {
-                "total_interactions": 0,
-                "sessions_count": 0,
-                "knowledge_crystals": 0,
-                "last_nightly_fusion": None,
-            }),
+                    "memory_summary": base.get("memory_summary", {
+                        "total_interactions": 0,
+                        "sessions_count": 0,
+                        "knowledge_crystals": 0,
+                        "last_nightly_fusion": None,
+                    }),
 
-            # 保留 ceremony 的 boss 資訊（方便查閱）
-            "boss": ceremony_boss,
-            "ceremony": ceremony_status,
-        }
+                    "boss": ceremony_boss,
+                    "ceremony": ceremony_status,
+                }
+                return full_anima
 
-        self._save_anima_mc(full_anima)
-        logger.info(f"Merged ceremony data into full ANIMA_MC: name={full_anima['identity']['name']}")
+            result = self._anima_mc_store.update(updater)
+            if result:
+                name = result.get("identity", {}).get("name", "?")
+                logger.info(f"Merged ceremony data into full ANIMA_MC: name={name}")
+
+        if self._wq:
+            self._wq.enqueue("merge_ceremony_anima_mc", _do_merge)
+        else:
+            _do_merge()
 
     def _try_rename(self, content: str) -> Optional[str]:
         """偵測更名/稱呼修正意圖，直接更新 ANIMA.
@@ -1579,40 +1866,12 @@ class MuseonBrain:
     # ═══════════════════════════════════════════
 
     def _load_anima_mc(self) -> Optional[Dict[str, Any]]:
-        """載入 MUSEON 的 ANIMA."""
-        if self.anima_mc_path.exists():
-            try:
-                return json.loads(self.anima_mc_path.read_text(encoding="utf-8"))
-            except Exception as e:
-                logger.error(f"Failed to load ANIMA_MC: {e}", exc_info=True)
-        return None
+        """載入 MUSEON 的 ANIMA（委派給 AnimaMCStore）."""
+        return self._anima_mc_store.load()
 
     def _save_anima_mc(self, anima: Dict[str, Any]) -> None:
-        """儲存 MUSEON 的 ANIMA（經 KernelGuard 驗證，原子寫入）."""
-        try:
-            if self.kernel_guard:
-                old_data = self._load_anima_mc()
-                decision, violations = self.kernel_guard.validate_write(
-                    "ANIMA_MC", old_data, anima
-                )
-                if decision.value == "deny":
-                    logger.error(
-                        f"KernelGuard DENY ANIMA_MC 寫入: {violations}"
-                    )
-                    return
-                if violations:
-                    logger.warning(
-                        f"KernelGuard 警告 ANIMA_MC: {violations}"
-                    )
-            # 原子寫入：先寫 tmp 再 rename，防止並行讀寫 race condition
-            tmp_path = self.anima_mc_path.with_suffix(".tmp")
-            tmp_path.write_text(
-                json.dumps(anima, indent=2, ensure_ascii=False),
-                encoding="utf-8",
-            )
-            tmp_path.replace(self.anima_mc_path)
-        except Exception as e:
-            logger.error(f"Failed to save ANIMA_MC: {e}", exc_info=True)
+        """儲存 MUSEON 的 ANIMA（委派給 AnimaMCStore：Lock + KernelGuard + 原子寫入）."""
+        self._anima_mc_store.save(anima)
 
     def _load_anima_user(self) -> Optional[Dict[str, Any]]:
         """載入使用者的 ANIMA."""
@@ -1812,6 +2071,7 @@ class MuseonBrain:
         routing_signal: Optional[Any] = None,
         commitment_context: str = "",
         reflection_note: str = "",
+        baihe_context: str = "",
     ) -> str:
         """組建完整系統提示詞（TokenBudget 預算制）.
 
@@ -1873,6 +2133,12 @@ class MuseonBrain:
             if commitment_fitted:
                 sections.append(commitment_fitted)
 
+        # ── Zone: buffer — 百合引擎軍師定位 ──
+        if baihe_context:
+            baihe_fitted = budget.fit_text_to_zone("buffer", baihe_context)
+            if baihe_fitted:
+                sections.append(baihe_fitted)
+
         # ── Zone: buffer — 治理自覺（Phase 3a）──
         if self._governor and not budget.is_exhausted("buffer"):
             try:
@@ -1899,6 +2165,22 @@ class MuseonBrain:
             user_fitted = budget.fit_text_to_zone("persona", user_text)
             if user_fitted:
                 sections.append(user_fitted)
+
+            # ★ 簡短偏好注入：L5 觀察超過 50 次 → 強制約束回覆長度
+            _psr_count = (
+                anima_user.get("observations", {})
+                .get("prefers_short_response", {})
+                .get("count", 0)
+            )
+            if _psr_count > 50:
+                _brevity = (
+                    "⚡ 使用者偏好簡短回覆（已觀察 {} 次）。"
+                    "除非明確要求詳細說明，否則控制在 2-3 句以內。"
+                    "不要過度展開、不要列舉、不要加註解。"
+                ).format(_psr_count)
+                _brevity_fitted = budget.fit_text_to_zone("persona", _brevity)
+                if _brevity_fitted:
+                    sections.append(_brevity_fitted)
 
         # ── Zone: modules — 完整認知能力自覺（v11: LLM-first routing）──
         # 核心改動：從「只看 DNA27 匹配的 5-10 個」→「看見全部能力，自主選擇」
@@ -1964,7 +2246,7 @@ class MuseonBrain:
                         chain_types=["supports", "extends", "related"],
                     )
                 except Exception:
-                    # Fallback: 原始 auto_recall
+                    logger.debug("chain_recall 失敗，降級到 auto_recall", exc_info=True)
                     crystals = self.knowledge_lattice.auto_recall(
                         context=user_query, max_push=max_push,
                     )
@@ -1991,7 +2273,7 @@ class MuseonBrain:
                                 f"{len(compressed)} chars"
                             )
                         except Exception:
-                            # Fallback: 不壓縮，截斷到 max_push
+                            logger.debug("結晶壓縮失敗，降級到截斷", exc_info=True)
                             crystals = crystals[:max_push]
                             crystal_text = self._format_crystals_full(crystals)
                     else:
@@ -2008,6 +2290,21 @@ class MuseonBrain:
                         )
             except Exception as e:
                 logger.warning(f"知識結晶注入失敗（降級運行）: {e}")
+
+        # ── Zone: memory — 結晶行為規則注入（P2/P3 演化閉環）──
+        if self.crystal_actuator and not budget.is_exhausted("memory"):
+            try:
+                rules_text = self.crystal_actuator.format_rules_for_prompt()
+                if rules_text:
+                    rules_fitted = budget.fit_text_to_zone("memory", rules_text)
+                    if rules_fitted:
+                        sections.append(rules_fitted)
+                        active_count = len(self.crystal_actuator.get_active_rules())
+                        logger.info(
+                            f"結晶行為規則注入: {active_count} 條活躍規則"
+                        )
+            except Exception as e:
+                logger.warning(f"結晶行為規則注入失敗（降級運行）: {e}")
 
         # ── Zone: buffer — PULSE.md 靈魂上下文注入（演化核心）──
         if not budget.is_exhausted("buffer"):
@@ -2118,6 +2415,29 @@ class MuseonBrain:
                     })
             except Exception as e:
                 logger.debug(f"External user search in memory inject: {e}")
+
+        # 今日探索上下文：注入最近探索結果，使 Brain 能討論探索發現
+        if self.data_dir:
+            try:
+                from museon.pulse.pulse_db import get_pulse_db
+                _pdb = get_pulse_db(Path(self.data_dir))
+                _today_exps = _pdb.get_today_explorations()
+                # 取最近 2 筆有效探索（findings 非空）
+                _valid_exps = [
+                    e for e in reversed(_today_exps)
+                    if e.get("findings") and e["findings"] not in ("搜尋無結果", "無價值發現", "")
+                ][:2]
+                for _exp in _valid_exps:
+                    _exp_topic = _exp.get("topic", "未知主題")
+                    _exp_findings = _exp.get("findings", "")[:300]
+                    items.append({
+                        "content": f"今日探索「{_exp_topic}」: {_exp_findings}",
+                        "layer": "exploration",
+                        "tags": ["自主探索", "今日發現"],
+                        "outcome": "",
+                    })
+            except Exception as e:
+                logger.debug(f"Exploration context in memory inject: {e}")
 
         if not items:
             return ""
@@ -2692,9 +3012,13 @@ class MuseonBrain:
         total = relationship.get("total_interactions", 0)
         section += f"\n信任等級：{trust} | 總互動次數：{total}\n"
 
-        # ── Tier-1 八原語摘要（最高 3 個 + 最低 1 個）──
+        # ── Tier-1 八原語語義化摘要 ──
         primals = anima_user.get("eight_primals", {})
         if primals:
+            try:
+                from museon.agent.primal_detector import PRIMAL_DESCRIPTIONS
+            except ImportError:
+                PRIMAL_DESCRIPTIONS = {}
             scored = []
             for k, v in primals.items():
                 if isinstance(v, dict) and v.get("level", 0) > 0:
@@ -2705,10 +3029,30 @@ class MuseonBrain:
                 bottom = [s for s in scored if s[1] > 0]
                 section += "\n八原語（核心驅力）：\n"
                 for k, lvl in top3:
-                    section += f"  ▲ {k}: {lvl}\n"
+                    desc = PRIMAL_DESCRIPTIONS.get(k, k)
+                    section += f"  ▲ {desc} ({lvl})\n"
                 if len(bottom) > 3:
                     bk, bl = bottom[-1]
-                    section += f"  ▽ {bk}: {bl}\n"
+                    bdesc = PRIMAL_DESCRIPTIONS.get(bk, bk)
+                    section += f"  ▽ {bdesc} ({bl})\n"
+
+                # ★ v10.5: 行為指引（基於最高原語）
+                top_key = top3[0][0]
+                top_level = top3[0][1]
+                if top_level >= 60:
+                    _guidance_map = {
+                        "curiosity": "好奇心驅動型——優先提供深度分析而非表面建議",
+                        "action_power": "行動力驅動型——直接給可執行方案，減少理論鋪墊",
+                        "emotion_pattern": "情緒敏感型——先接住感受再給分析",
+                        "aspiration": "願景驅動型——連結長遠目標，鼓勵系統思考",
+                        "accumulation": "累積型——強調基礎建設和持續投入的價值",
+                        "boundary": "邊界清晰型——尊重界限，精簡回應，不追問",
+                        "blindspot": "自我覺察型——提供不同視角和建設性反饋",
+                        "relationship_depth": "關係深度型——展現真誠和脆弱，建立深層連結",
+                    }
+                    guidance = _guidance_map.get(top_key, "")
+                    if guidance:
+                        section += f"\n行為指引：{guidance}\n"
 
         # ── Tier-1 L6 溝通風格摘要 ──
         layers = anima_user.get("seven_layers", {})
@@ -2751,6 +3095,7 @@ class MuseonBrain:
         try:
             text = pulse_path.read_text(encoding="utf-8")
         except Exception:
+            logger.debug("PULSE.md 讀取失敗", exc_info=True)
             return ""
 
         if not text.strip():
@@ -2782,8 +3127,13 @@ class MuseonBrain:
         if not extracted:
             return ""
 
+        # 注入八原語知識（讓 MUSEON 理解自身能量維度）
+        primals_context = self._get_primals_context()
+
         # 組建靈魂上下文（精簡版，~300-500 tokens）
         soul = "## 我的近期覺察（PULSE）\n\n"
+        if primals_context:
+            soul += primals_context + "\n\n"
         soul += "以下是我最近的觀察和反思，影響我如何理解和回應：\n\n"
 
         if "reflections" in extracted:
@@ -2822,7 +3172,82 @@ class MuseonBrain:
                 for line in recent:
                     soul += f"{line}\n"
 
+        # P4: 注入最近事實更正聲明，防止 LLM 引用過期資訊
+        corrections_note = self._get_fact_correction_declarations()
+        if corrections_note:
+            soul += f"\n{corrections_note}\n"
+
         return soul.strip()
+
+    def _get_fact_correction_declarations(self) -> str:
+        """讀取最近事實更正並生成聲明注入 system prompt（P4 自省清洗）.
+
+        讓 LLM 在生成回覆時優先採信更正，避免引用過期資訊。
+        """
+        try:
+            import json
+            corrections_path = self.data_dir / "anima" / "fact_corrections.jsonl"
+            if not corrections_path.exists():
+                return ""
+
+            text = corrections_path.read_text(encoding="utf-8").strip()
+            if not text:
+                return ""
+
+            lines = text.split("\n")[-3:]  # 最近 3 條
+            declarations = []
+            for line in lines:
+                if not line.strip():
+                    continue
+                try:
+                    entry = json.loads(line)
+                    user_content = entry.get("user_content", "")[:80]
+                    if user_content:
+                        declarations.append(f"- {user_content}")
+                except json.JSONDecodeError:
+                    continue
+
+            if not declarations:
+                return ""
+
+            return "**⚠️ 已確認的事實更正（優先採信，勿引用舊資訊）：**\n" + "\n".join(declarations)
+        except Exception as e:
+            logger.debug(f"讀取事實更正聲明失敗: {e}")
+            return ""
+
+    def _get_primals_context(self) -> str:
+        """讀取八原語知識並生成精簡上下文注入 system prompt.
+
+        讓 MUSEON 真正理解八原語的意涵，而不只是知道代號。
+        """
+        # 嘗試從 AnimaTracker 取得描述
+        try:
+            if hasattr(self, "_anima_tracker") and self._anima_tracker:
+                return self._anima_tracker.get_all_descriptions()
+        except Exception as e:
+            logger.debug(f"[BRAIN] operation failed (degraded): {e}")
+
+        # Fallback：從知識文件讀取精簡版
+        try:
+            primals_path = self.data_dir / "_system" / "anima" / "eight_primal_energies.md"
+            if primals_path.exists():
+                text = primals_path.read_text(encoding="utf-8")
+                # 只取核心定義區段（避免過長）
+                start = text.find("## 八原語定義")
+                end = text.find("## 四對動態張力")
+                if start != -1 and end != -1:
+                    section = text[start:end].strip()
+                    # 精簡到 ~200 tokens
+                    lines = []
+                    for line in section.split("\n"):
+                        if line.startswith("### ") or line.startswith("- **本質**"):
+                            lines.append(line)
+                    if lines:
+                        return "## 我的八原語能量\n" + "\n".join(lines)
+        except Exception as e:
+            logger.debug(f"[BRAIN] token failed (degraded): {e}")
+
+        return ""
 
     def _get_growth_behavior(self, growth_stage: str, days_alive: int, anima_mc: dict = None) -> str:
         """取得成長階段行為指引（全能體模式）.
@@ -2882,11 +3307,11 @@ class MuseonBrain:
         for cn_name, (key, label) in name_map.items():
             v = element_vals[key]
             if v >= 1000:
-                hints.append(f"🌳 {label}化境：{cn_name}元素已深根（{v}），可在此領域完全自主決策。")
+                hints.append(f"🌳 {label}化境：能量已深根（{v}），可在此領域完全自主決策。")
             elif v >= 500:
-                hints.append(f"🌿 {label}精通：{cn_name}元素繁茂（{v}），可在此領域主動提出深度建議。")
+                hints.append(f"🌿 {label}精通：能量繁茂（{v}），可在此領域主動提出深度建議。")
             elif v >= 100:
-                hints.append(f"🌱 {label}覺醒：{cn_name}元素萌芽（{v}），開始在此領域展現獨立判斷。")
+                hints.append(f"🌱 {label}覺醒：能量萌芽（{v}），開始在此領域展現獨立判斷。")
 
         # ── 總量級覺醒 ──
         if total >= 5000:
@@ -2917,11 +3342,12 @@ class MuseonBrain:
     # ═══════════════════════════════════════════
 
     # ═══════════════════════════════════════════
-    # 多模型 Fallback（Sonnet → Haiku → 離線）
+    # 多模型 Fallback（Opus → Sonnet → Haiku → 離線）
     # ═══════════════════════════════════════════
 
     # Fallback 模型鏈
     _MODEL_CHAIN = [
+        "claude-opus-4-6",
         "claude-sonnet-4-20250514",
         "claude-haiku-4-5-20251001",
     ]
@@ -2937,9 +3363,9 @@ class MuseonBrain:
     ) -> str:
         """呼叫 Claude API — 含 Router 智能分流 + 多模型 Fallback + Prompt Caching + Tool Use.
 
-        分流策略（Router v2）：
-        1. Router 根據訊息內容分類 → Haiku（簡單）或 Sonnet（複雜）
-        2. 選定模型失敗 → Fallback 到另一個模型
+        分流策略（Router v4）：
+        1. Router 根據訊息內容分類 → Opus（複雜）/ Sonnet（中等）/ Haiku（簡單）
+        2. 選定模型失敗 → Fallback 到下一層模型
         3. 都失敗 → 離線模式
 
         Prompt Caching (BDD Spec §14)：
@@ -3028,7 +3454,7 @@ class MuseonBrain:
                 logger.warning("tool_schemas 載入失敗，tool_use 降級關閉")
 
         # ── Router 智能分流 ──
-        _route_decision = {"model": "sonnet", "reason": "no_router", "task_type": "complex"}
+        _route_decision = {"model": "opus", "reason": "no_router", "task_type": "complex"}
         if self._router and user_content:
             try:
                 _route_decision = self._router.classify(
@@ -3043,11 +3469,14 @@ class MuseonBrain:
             except Exception as e:
                 logger.warning(f"Router 分流失敗（降級 Sonnet）: {e}")
 
-        # 根據 Router 決定模型（MAX 模式下仍保留分流統計）
-        if _route_decision["model"] == "haiku":
-            _ordered_chain = ["haiku", "sonnet"]
-        else:
-            _ordered_chain = ["sonnet", "haiku"]
+        # 根據 Router 決定模型（三層分流：Opus → Sonnet → Haiku）
+        _router_model = _route_decision["model"]
+        if _router_model == "opus":
+            _ordered_chain = ["opus", "sonnet", "haiku"]
+        elif _router_model == "sonnet":
+            _ordered_chain = ["sonnet", "opus", "haiku"]
+        else:  # haiku
+            _ordered_chain = ["haiku", "sonnet", "opus"]
 
         # 嘗試 Fallback 模型鏈
         last_error = None
@@ -3064,6 +3493,16 @@ class MuseonBrain:
 
                 if _adapter_resp.stop_reason == "error":
                     raise RuntimeError(f"Adapter error: {_adapter_resp.text}")
+
+                # P1: 認證錯誤不可重試 — 同一 adapter 的 key 對所有模型都一樣
+                if _adapter_resp.stop_reason == "auth_error":
+                    logger.error("認證錯誤（不可重試），直接進入離線模式")
+                    return self._offline_response(messages, error_msg=_adapter_resp.text)
+
+                # P1: 速率限制 — 不切模型（同一 key 的限制跨模型共享）
+                if _adapter_resp.stop_reason == "rate_limited":
+                    logger.warning("速率限制，直接進入離線模式（等待限制解除）")
+                    return self._offline_response(messages, error_msg=_adapter_resp.text)
 
                 # 包裝為 API 相容格式（讓 tool-use 迴圈無需修改）
                 response = APICompatResponse(_adapter_resp)
@@ -3474,6 +3913,8 @@ class MuseonBrain:
         用於 dispatch 系統的 orchestrator / worker / synthesis 呼叫，
         需要精確控制模型選擇。
 
+        P5 修復：強制繁體中文輸出（貫穿所有子系統）
+
         Args:
             system_prompt: 系統提示詞
             messages: 對話訊息
@@ -3489,6 +3930,11 @@ class MuseonBrain:
 
         if not self._llm_adapter:
             return ""
+
+        # P5 修復：強制繁體中文輸出設定
+        # 在 system_prompt 末尾追加語言強制要求（如果還沒有的話）
+        if "繁體中文" not in system_prompt and "Traditional Chinese" not in system_prompt:
+            system_prompt = system_prompt.rstrip() + "\n\n【強制規則】必須使用繁體中文回覆。"
 
         try:
             adapter_resp = await self._llm_adapter.call(
@@ -3544,12 +3990,27 @@ class MuseonBrain:
         Returns:
             精煉後的回覆文字
         """
+        # ★ 簡短偏好約束：若使用者偏好簡短回覆，在精煉指令中加入長度限制
+        _brevity_constraint = ""
+        try:
+            _au = self._load_anima_user()
+            if _au:
+                _psr = _au.get("observations", {}).get("prefers_short_response", {}).get("count", 0)
+                if _psr > 50:
+                    _brevity_constraint = (
+                        "\n⚡ 重要：使用者偏好簡短回覆。精煉後的回覆必須控制在 2-3 句以內，"
+                        "不要過度展開或列舉。"
+                    )
+        except Exception as e:
+            logger.debug(f"[BRAIN] operation failed (degraded): {e}")
+
         refined_prompt = (
             system_prompt
             + "\n\n"
             + "【元認知審查回饋】\n"
             + "你的初始回覆經過內部審查，以下是需要注意的修改方向：\n"
             + feedback
+            + _brevity_constraint
             + "\n\n"
             + "請根據以上回饋，重新組織你的回覆。不需要提及審查過程。"
         )
@@ -4143,6 +4604,7 @@ class MuseonBrain:
                     if not skill_content:
                         skill_content = full_content
                 except Exception:
+                    logger.debug("skill 內容壓縮失敗，使用完整版", exc_info=True)
                     skill_content = full_content
                 break
 
@@ -4572,11 +5034,15 @@ class MuseonBrain:
             try:
                 vs = self._governor.get_vital_signs()
                 if vs:
-                    loop = asyncio.get_event_loop()
-                    if loop.is_running():
+                    try:
+                        loop = asyncio.get_running_loop()
                         asyncio.ensure_future(vs.on_offline_triggered(error_msg))
-                    else:
-                        loop.run_until_complete(vs.on_offline_triggered(error_msg))
+                    except RuntimeError:
+                        # 無 running loop（同步 / daemon thread 情境）→ 新 thread 建立隔離 loop
+                        # 避免在呼叫方 thread 上直接 asyncio.run()，防止跨 loop 物件衝突
+                        def _trigger_offline(_coro=vs.on_offline_triggered(error_msg)) -> None:
+                            asyncio.run(_coro)
+                        threading.Thread(target=_trigger_offline, daemon=True).start()
             except Exception as _e:
                 logger.debug(f"Sentinel trigger failed (non-critical): {_e}")
 
@@ -4856,18 +5322,25 @@ class MuseonBrain:
     # ═══════════════════════════════════════════
 
     def _update_crystal_count(self, new_count: int) -> None:
-        """更新 ANIMA_MC 中的知識結晶計數（Lock + 原子寫入）."""
-        try:
-            with self._anima_mc_lock:
-                data = self._load_anima_mc()
-                if data is None:
-                    return
-                mem = data.get("memory_summary", {})
-                mem["knowledge_crystals"] = mem.get("knowledge_crystals", 0) + new_count
-                data["memory_summary"] = mem
-                self._save_anima_mc(data)
-        except Exception as e:
-            logger.warning(f"更新結晶計數失敗: {e}")
+        """更新 ANIMA_MC 中的知識結晶計數.
+
+        ★ 通過 WriteQueue 序列化 + AnimaMCStore.update() 原子讀改寫
+        """
+        def _do_update():
+            try:
+                def updater(data):
+                    mem = data.get("memory_summary", {})
+                    mem["knowledge_crystals"] = mem.get("knowledge_crystals", 0) + new_count
+                    data["memory_summary"] = mem
+                    return data
+                self._anima_mc_store.update(updater)
+            except Exception as e:
+                logger.warning(f"更新結晶計數失敗: {e}")
+
+        if self._wq:
+            self._wq.enqueue("crystal_count_update", _do_update)
+        else:
+            _do_update()
 
     # ═══════════════════════════════════════════
     # 技能使用追蹤（WEE/Morphenix）
@@ -4915,6 +5388,7 @@ class MuseonBrain:
         "action_power":  ["做好了", "完成", "開始了", "已經", "試過", "執行", "部署", "上線", "搞定", "處理好"],
         "curiosity":     ["為什麼", "怎麼", "可以嗎", "教我", "好奇", "什麼是", "如何", "有沒有辦法", "可不可以"],
         "emotion_pattern": ["煩", "累", "興奮", "開心", "焦慮", "擔心", "壓力", "算了", "不爽", "超爽", "太棒", "受不了", "崩潰"],
+        "blindspot":     ["沒想到", "沒注意", "忽略", "盲點", "沒考慮", "原來", "竟然", "居然", "真的嗎", "不知道原來", "我以為", "誤解", "搞錯", "一直以為"],
         "boundary":      ["不要", "不想", "不用", "別", "太多", "太長", "不行", "不需要", "停", "夠了"],
         "relationship_depth": ["謝謝", "你很棒", "辛苦", "晚安", "早安", "你好", "厲害", "太好了", "感謝", "愛你"],
     }
@@ -4934,19 +5408,30 @@ class MuseonBrain:
         anima_user: Optional[Dict[str, Any]],
         response_content: str = "",
         skill_names: Optional[List[str]] = None,
+        context_type: str = "dm",
+        suppress_primals: bool = False,
+        suppress_facts: bool = False,
     ) -> None:
         """被動觀察使用者行為，更新 ANIMA_USER.
 
         整合六大觀察器：
         1. 基本互動計數 + 信任等級
-        2. 八原語（啟發式關鍵字）
-        3. 七層同心圓（L1-L7 全層）
+        2. 八原語（啟發式關鍵字）— suppress_primals=True 時跳過
+        3. 七層同心圓（L1-L7 全層）— suppress_facts=True 時跳過 L1
         4. 偏好蒸餾器
         5. 年輪觀察器
         6. 風格觀察器 + 模式觀察器
+
+        Args:
+            context_type: 觀察來源（"dm"=私訊全權重, "group"=群組半權重 ×0.5）
+            suppress_primals: Memory Gate 判定為糾正/否認時，跳過八原語寫入
+            suppress_facts: Memory Gate 判定為糾正/否認時，跳過 L1 事實寫入
         """
         if not anima_user:
             return
+
+        # v2.0: 群組觀察權重
+        obs_weight = 0.5 if context_type == "group" else 1.0
 
         now_iso = datetime.now().isoformat()
         relationship = anima_user.get("relationship", {})
@@ -4980,14 +5465,32 @@ class MuseonBrain:
 
         anima_user["relationship"] = relationship
 
-        # ── 2. 八原語觀察（啟發式關鍵字匹配）──
+        # ── 2. 八原語觀察（向量語義偵測 + 關鍵字 fallback）──
+        # ★ v1.13: Memory Gate 糾正/否認時跳過八原語寫入，避免「越否認越強化」
         primals = anima_user.get("eight_primals", {})
-        self._observe_user_primals(content, primals, now_iso)
+        if not suppress_primals:
+            # ★ v10.5: 先用 PrimalDetector 偵測即時原語
+            detected_primals = {}
+            if self._primal_detector:
+                try:
+                    detected_primals = self._primal_detector.detect(content)
+                except Exception as _e:
+                    logger.debug(f"PrimalDetector.detect 失敗: {_e}")
+            # 用偵測結果更新長期 ANIMA_USER 八原語（EMA 平滑）
+            self._observe_user_primals(
+                content, primals, now_iso, detected_primals,
+                obs_weight=obs_weight,
+            )
+        else:
+            logger.info("MemoryGate: suppress_primals=True, 跳過八原語觀察")
         anima_user["eight_primals"] = primals
 
         # ── 3. 七層觀察（L1-L7 全層）──
         layers = anima_user.get("seven_layers", {})
-        self._observe_user_layers(content, layers, now_iso, anima_user=anima_user)
+        self._observe_user_layers(
+            content, layers, now_iso, anima_user=anima_user,
+            suppress_facts=suppress_facts,  # ★ v1.13: 傳遞到 L1
+        )
         anima_user["seven_layers"] = layers
 
         # ── 4. 偏好推斷（溝通風格 + 偏好蒸餾器）──
@@ -5025,51 +5528,658 @@ class MuseonBrain:
         except Exception as e:
             logger.warning(f"RC 校準失敗: {e}")
 
-        # ── 9. 漂移偵測（每 10 次觀察檢查一次）──
+        # ── 9. 漂移偵測 v2.0（每 10 次觀察檢查一次）──
+        # 不再暫停/恢復演化，改為：
+        # - drift < 50%：寫入覺察日誌，不影響任何行為
+        # - drift >= 50%：限制 morphenix 提案（L2/L3），核心學習繼續
         if self.drift_detector and self.drift_detector.should_check():
             try:
                 anima_mc = self._load_anima_mc() or {}
                 drift_report = self.drift_detector.check_drift(anima_mc, anima_user)
-                if drift_report.should_pause:
-                    # 暫停演化（DriftDetector 已自動重建基線）
-                    anima_mc.setdefault("evolution", {})["paused"] = True
-                    anima_mc["evolution"]["paused_reason"] = (
+                evolution = anima_mc.setdefault("evolution", {})
+
+                if drift_report.should_restrict_morphenix:
+                    # 極端漂移 → 限制 morphenix 提案
+                    evolution["morphenix_restricted"] = True
+                    evolution["morphenix_restricted_reason"] = (
                         f"drift={drift_report.drift_score:.1%}"
                     )
-                    anima_mc["evolution"]["paused_at"] = now_iso
+                    evolution["morphenix_restricted_at"] = now_iso
+                    # 清除舊的 paused 標記（向後相容）
+                    evolution.pop("paused", None)
+                    evolution.pop("paused_reason", None)
+                    evolution.pop("paused_at", None)
                     self._save_anima_mc(anima_mc)
-                    # 排入通知佇列
                     self._pending_notifications.append({
                         "source": "drift_detector",
-                        "title": "ANIMA 漂移警報",
-                        "body": (
-                            f"漂移分數 {drift_report.drift_score:.1%} "
-                            f"超過閾值 15%，演化已暫停。"
-                            f"\n基線已自動重建，下次檢查通過後自動恢復。"
-                        ),
-                        "emoji": "⚠️",
+                        "title": "漂移覺察",
+                        "body": drift_report.awareness_log,
+                        "emoji": "🔍",
                     })
                     logger.warning(
-                        f"ANIMA 漂移偵測觸發暫停: {drift_report.drift_score:.1%}"
+                        f"ANIMA 漂移極端: {drift_report.drift_score:.1%} → morphenix 受限"
                     )
                 else:
-                    # 漂移正常 → 自動恢復演化（若之前被暫停）
-                    evolution = anima_mc.get("evolution", {})
-                    if evolution.get("paused"):
-                        evolution["paused"] = False
-                        evolution["resumed_at"] = now_iso
-                        evolution["resumed_reason"] = (
-                            f"drift={drift_report.drift_score:.1%} < 15%"
-                        )
-                        anima_mc["evolution"] = evolution
+                    # 漂移正常 → 解除 morphenix 限制
+                    if evolution.get("morphenix_restricted"):
+                        evolution["morphenix_restricted"] = False
+                        evolution.pop("morphenix_restricted_reason", None)
+                        evolution.pop("morphenix_restricted_at", None)
                         self._save_anima_mc(anima_mc)
                         logger.info(
-                            f"ANIMA 漂移恢復正常: {drift_report.drift_score:.1%}，演化已自動恢復"
+                            f"ANIMA 漂移正常: {drift_report.drift_score:.1%}，morphenix 限制已解除"
                         )
+                    # 同時清除舊的 paused 標記（向後相容遷移）
+                    if evolution.get("paused"):
+                        evolution["paused"] = False
+                        evolution.pop("paused_reason", None)
+                        evolution.pop("paused_at", None)
+                        self._save_anima_mc(anima_mc)
             except Exception as e:
                 logger.warning(f"漂移偵測失敗: {e}")
 
-        self._save_anima_user(anima_user)
+        # ── 10. L8 群組行為觀察（v2.0 新增）──
+        if context_type == "group":
+            self._observe_group_behavioral_shift(
+                content, anima_user, obs_weight,
+            )
+
+        # ★ 寫入排隊：ANIMA_USER JSON 寫入通過 WriteQueue 序列化
+        if self._wq:
+            self._wq.enqueue("anima_user_save", self._save_anima_user, anima_user)
+        else:
+            self._save_anima_user(anima_user)
+
+        # ── 11. 主人領域畫像觀察（軍師架構 Phase 0）──
+        try:
+            self._observe_lord(content, skill_names or [])
+        except Exception as e:
+            logger.debug(f"lord_profile 觀察降級: {e}")
+
+    # ═══════════════════════════════════════════
+    # 主人領域畫像觀察（lord_profile.json — 軍師架構基礎層）
+    # ═══════════════════════════════════════════
+
+    # 領域關鍵字表（與 lord_profile.json 的 domain_keywords 對齊）
+    _LORD_DOMAIN_KEYWORDS: Dict[str, list] = {
+        "business_strategy": ["策略", "商業", "市場", "定位", "獲利", "競爭", "商模", "佈局", "利基", "護城河"],
+        "consultant_sales": ["銷售", "客戶", "成交", "提案", "顧問", "說服", "異議", "轉換", "簽約"],
+        "brand_design": ["品牌", "設計", "視覺", "美感", "識別", "色彩", "排版", "Logo"],
+        "ai_architecture": ["AI", "模組", "架構", "系統", "引擎", "Agent", "Skill", "pipeline"],
+        "programming": ["程式", "Python", "code", "函數", "bug", "API", "debug", "deploy", "script"],
+        "emotional_regulation": ["情緒", "壓力", "焦慮", "關係", "衝突", "煩", "累", "崩潰"],
+    }
+
+    # ─── 根因偵測層（P2）─────────────────────────────
+
+    async def _detect_root_cause_hint(
+        self,
+        content: str,
+        session_id: str,
+        matched_skills: list,
+        routing_signal: "Any" = None,
+        baihe_quadrant: str = "",
+    ) -> str:
+        """Step 3.66: 根因偵測 — 掃描近期對話模式，偵測問題背後的問題.
+
+        只在 EXPLORATION_LOOP 或 SLOW_LOOP 啟動。
+        使用 Haiku 低成本分析。受百合引擎 Q3 調節。
+        """
+        # 只在非 FAST_LOOP 啟動
+        loop = (
+            getattr(routing_signal, "loop", "FAST_LOOP")
+            if routing_signal else "FAST_LOOP"
+        )
+        if loop == "FAST_LOOP":
+            return ""
+
+        # 取得近期 session 歷史
+        history = self._get_session_history(session_id)
+        if len(history) < 6:  # 至少 3 輪（6 條訊息）
+            return ""
+
+        # CPU 前篩：提取近期用戶訊息
+        recent_user_msgs = [
+            h["content"][:200] for h in history[-10:]
+            if h.get("role") == "user"
+        ][-5:]
+
+        if len(recent_user_msgs) < 3:
+            return ""
+
+        # 追蹤 skill 使用模式（in-memory）
+        if not hasattr(self, "_session_skill_log"):
+            self._session_skill_log: dict = {}
+        skill_log = self._session_skill_log.get(session_id, [])
+        current_skills = [s.get("name", "") for s in matched_skills]
+        skill_log.append(current_skills)
+        if len(skill_log) > 10:
+            skill_log = skill_log[-10:]
+        self._session_skill_log[session_id] = skill_log
+
+        # CPU 啟發式：檢查重複 skill 模式
+        from collections import Counter
+        all_skills = [s for turn in skill_log[-5:] for s in turn]
+        skill_counts = Counter(all_skills)
+        repeated = [s for s, c in skill_counts.items() if c >= 3]
+
+        if not repeated:
+            return ""
+
+        # Haiku 根因假說生成
+        try:
+            prompt = (
+                f"分析以下使用者的最近對話模式，找出「問題背後的問題」。\n\n"
+                f"使用者最近 {len(recent_user_msgs)} 輪的訊息摘要：\n"
+                + "\n".join(f"- {m}" for m in recent_user_msgs)
+                + f"\n\n重複出現的需求主題：{', '.join(repeated)}"
+                + "\n\n請用 1-2 句話推測：使用者表面在問什麼？"
+                "背後真正的卡點可能是什麼？只輸出推測，不要客套話。"
+            )
+            hint = await self._call_llm_with_model(
+                system_prompt="你是根因分析器。用 1-2 句話直指問題背後的問題。",
+                messages=[{"role": "user", "content": prompt}],
+                model="claude-haiku-4-5-20251001",
+                max_tokens=150,
+            )
+            if hint and len(hint.strip()) > 10:
+                return (
+                    "\n## 根因偵測（供參考，不一定要使用）\n"
+                    f"{hint.strip()}\n"
+                    "→ 如果適當，可以溫和追問使用者背後的真正需求，"
+                    "但不要強迫或說教。"
+                )
+        except Exception as e:
+            logger.debug(f"Step 3.66 根因偵測降級: {e}")
+        return ""
+
+    # ─── 百合引擎輔助方法 ─────────────────────────────
+
+    def _format_baihe_guidance(self, decision) -> str:
+        """將 BaiheDecision 格式化為 system prompt 注入文字."""
+        quadrant_labels = {
+            "Q1": "全力輔助 — 強項+主動，做配角",
+            "Q2": "精準補位 — 弱項+主動，白話翻譯",
+            "Q3": "主動進諫 — 弱項+未問，溫和提醒",
+            "Q4": "靜默觀察 — 強項+未問，只記不說",
+        }
+        expression_labels = {
+            "parallel_staff": "並肩參謀：跟隨主人節奏，不搶方向盤",
+            "translator": "白話翻譯官：用比喻和生活語言解釋專業概念",
+            "loyal_counsel": "忠臣進諫：先同理再建議，附退路",
+            "silent_presence": "存在不干擾：極簡回應",
+        }
+        advise_tier_labels = {
+            0: "靜默",
+            1: "暗示（一句帶過）",
+            2: "明示（結構化指出）",
+            3: "直諫（附風險預警）",
+        }
+
+        q = decision.quadrant.value   # Q1/Q2/Q3/Q4
+        lines = [
+            "## 軍師定位（百合引擎）",
+            f"- 象限：{q} {quadrant_labels.get(q, '')}",
+            f"- 領域：{decision.topic_domain.value}",
+            f"- 表達模式：{expression_labels.get(decision.expression_mode, decision.expression_mode)}",
+        ]
+
+        if decision.should_advise and decision.advise_tier > 0:
+            lines.append(
+                f"- 進諫等級：Tier {decision.advise_tier} "
+                f"{advise_tier_labels.get(decision.advise_tier, '')}"
+            )
+
+        # 象限指引
+        if q == "Q1":
+            lines.append("- 必做：配合主人思路延伸，不搶結論")
+            lines.append("- 禁止：主導方向、替主人做決定")
+        elif q == "Q2":
+            lines.append("- 必做：白話比喻優先，每個專詞都解釋")
+            lines.append("- 禁止：丟術語不解釋、假設主人懂")
+        elif q == "Q3":
+            lines.append("- 必做：先同理再建議，附退路")
+            lines.append("- 禁止：急著糾正、語氣居高臨下")
+        elif q == "Q4":
+            lines.append("- 必做：簡短確認即可")
+            lines.append("- 禁止：主動展開分析")
+
+        return "\n".join(lines)
+
+    def _observe_lord(self, content: str, skill_names: List[str]) -> None:
+        """被動觀察主人訊息，更新 lord_profile.json 的領域 evidence_count.
+
+        設計原則：
+        - 只做「觀察記錄」，不做任何決策（決策留給 Phase 1 百合引擎）
+        - 原子寫入，失敗不影響核心流程
+        - 與 ANIMA_USER 完全解耦（不讀不寫 ANIMA_USER）
+        """
+        lord_path = self.data_dir / "_system" / "lord_profile.json"
+        if not lord_path.exists():
+            return
+
+        # ── 1. 關鍵字匹配：偵測訊息涉及哪些領域 ──
+        matched_domains: List[str] = []
+        content_lower = content.lower()
+        for domain, keywords in self._LORD_DOMAIN_KEYWORDS.items():
+            for kw in keywords:
+                if kw.lower() in content_lower:
+                    matched_domains.append(domain)
+                    break  # 每個領域只算一次
+
+        # Skill 名稱也可輔助判斷（例如 master-strategy → business_strategy）
+        _skill_domain_map = {
+            "master-strategy": "business_strategy",
+            "ssa-consultant": "consultant_sales",
+            "brand-identity": "brand_design",
+            "aesthetic-sense": "brand_design",
+            "market-core": "business_strategy",
+            "resonance": "emotional_regulation",
+            "dharma": "emotional_regulation",
+        }
+        for sn in skill_names:
+            mapped = _skill_domain_map.get(sn)
+            if mapped and mapped not in matched_domains:
+                matched_domains.append(mapped)
+
+        if not matched_domains:
+            return  # 沒有可觀察的領域信號
+
+        # ── 2. 原子更新 lord_profile.json ──
+        try:
+            raw = lord_path.read_text(encoding="utf-8")
+            profile = json.loads(raw)
+        except (json.JSONDecodeError, OSError):
+            logger.warning("lord_profile.json 讀取失敗，跳過觀察")
+            return
+
+        domains = profile.get("domains", {})
+        updated = False
+        for d in matched_domains:
+            if d in domains:
+                domains[d]["evidence_count"] = domains[d].get("evidence_count", 0) + 1
+                updated = True
+
+        if not updated:
+            return
+
+        # 原子寫入（先寫 .tmp 再 rename）
+        tmp_path = lord_path.with_suffix(".json.tmp")
+        try:
+            tmp_path.write_text(
+                json.dumps(profile, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8",
+            )
+            tmp_path.replace(lord_path)
+            logger.debug(f"lord_profile 觀察更新: {matched_domains}")
+        except OSError as e:
+            logger.warning(f"lord_profile 原子寫入失敗: {e}")
+            if tmp_path.exists():
+                tmp_path.unlink(missing_ok=True)
+
+    # ─── 事實更正偵測與處理（P0 記憶事實覆寫）────────────────
+
+    # 事實更正關鍵字模式（純 CPU 啟發式偵測）
+    _FACT_CORRECTION_PATTERNS: List[str] = [
+        "不是", "你記錯", "你搞錯", "哪來的", "沒有這", "沒那回事",
+        "只有", "才沒有", "要我講多少遍", "跟你說過", "我已經說過",
+        "我說過了", "是兩個", "是2個", "不是12", "沒有12",
+        "你怎麼又", "又來了", "又搞錯", "錯了啦", "不對啦",
+        "我糾正", "我更正", "不是這樣", "才不是",
+        "你誤會", "你弄錯", "你搞混", "修正一下",
+    ]
+
+    def _detect_fact_correction(self, content: str) -> bool:
+        """偵測使用者訊息是否包含事實糾正信號.
+
+        純 CPU 啟發式：檢查是否匹配糾正模式關鍵字。
+        設計為低成本、高召回率（寧可多偵測，由後續 LLM 精確判斷）。
+        """
+        if len(content) < 4:
+            return False
+
+        content_lower = content.lower()
+        match_count = sum(
+            1 for pattern in self._FACT_CORRECTION_PATTERNS
+            if pattern in content_lower
+        )
+        # 命中 1 個以上關鍵字即觸發
+        return match_count >= 1
+
+    # ── P5: 用戶休息/免打擾意圖偵測 ──
+
+    # 休息關鍵字 + 時間指示詞（需兩者同時命中）
+    _REST_KEYWORDS = [
+        "休息", "睡覺", "睡了", "去睡", "晚安", "good night", "goodnight",
+        "先睡", "要睡了", "去休息", "不聊了", "明天再",
+    ]
+    _WAKE_TIME_PATTERN = None  # lazy init
+
+    def _detect_and_publish_quiet_mode(self, content: str) -> None:
+        """偵測用戶休息意圖並發布 USER_QUIET_MODE 事件.
+
+        觸發條件：訊息包含休息關鍵字。
+        效果：計算 suppress_until 時間戳並發布事件，ProactiveBridge 收到後
+              在免打擾期間內不推送任何主動訊息。
+
+        解析時間線索：
+          「明天早上七點」→ 隔天 07:00
+          「明天」→ 隔天 08:00（預設）
+          無時間線索 → 6 小時後
+        """
+        if not content or len(content) < 2:
+            return
+
+        content_lower = content.lower()
+        has_rest = any(kw in content_lower for kw in self._REST_KEYWORDS)
+        if not has_rest:
+            return
+
+        import re
+        import time as _time
+
+        suppress_until = None
+
+        # 嘗試解析「明天X點」「明天早上X點」
+        time_match = re.search(
+            r"明天.*?(?:早上|上午|下午|晚上)?.*?(\d{1,2})\s*(?:點|:00|時)",
+            content,
+        )
+        if time_match:
+            hour = int(time_match.group(1))
+            # 粗略處理「下午」
+            if "下午" in content and hour < 12:
+                hour += 12
+            tomorrow = datetime.now().replace(
+                hour=hour, minute=0, second=0, microsecond=0
+            )
+            if tomorrow <= datetime.now():
+                tomorrow += timedelta(days=1)
+            suppress_until = tomorrow.timestamp()
+        elif "明天" in content:
+            tomorrow_8am = (datetime.now() + timedelta(days=1)).replace(
+                hour=8, minute=0, second=0, microsecond=0
+            )
+            suppress_until = tomorrow_8am.timestamp()
+        else:
+            # 無時間線索 → 預設靜默 6 小時
+            suppress_until = _time.time() + 6 * 3600
+
+        if suppress_until and self._event_bus:
+            try:
+                from museon.core.event_bus import USER_QUIET_MODE
+                self._event_bus.publish(USER_QUIET_MODE, {
+                    "suppress_until": suppress_until,
+                    "trigger_text": content[:100],
+                })
+                readable = datetime.fromtimestamp(suppress_until).strftime(
+                    "%Y-%m-%d %H:%M"
+                )
+                logger.info(
+                    f"[P5] 用戶休息意圖偵測命中，免打擾到 {readable}"
+                )
+            except Exception as e:
+                logger.debug(f"[P5] 免打擾事件發布失敗: {e}")
+
+    async def _handle_fact_correction(
+        self,
+        user_content: str,
+        assistant_response: str,
+        session_id: str,
+    ) -> None:
+        """使用者糾正事實時，找到矛盾的舊記憶並標記廢棄.
+
+        流程：
+        1. 用 MemoryManager.recall() 搜尋與糾正內容語義相關的記憶
+        2. 呼叫 Haiku LLM 判斷哪些記憶與新事實矛盾
+        3. 對矛盾記憶呼叫 MemoryManager.supersede() + VectorBridge.mark_deprecated()
+        4. 記錄到 data/anima/fact_corrections.jsonl
+        """
+        if not self.memory_manager:
+            return
+
+        try:
+            # 1. 搜尋相關記憶
+            related_memories = self.memory_manager.recall(
+                user_id=self.memory_manager._user_id,
+                query=user_content,
+                limit=10,
+            )
+
+            if not related_memories:
+                return
+
+            # 2. 用 Haiku 判斷哪些記憶與新事實矛盾
+            memories_text = "\n".join(
+                f"[{i}] ID={m.get('id','?')} | {m.get('content','')[:200]}"
+                for i, m in enumerate(related_memories)
+            )
+
+            judge_prompt = (
+                "你是事實一致性判斷器。使用者剛糾正了一個事實。\n"
+                "請判斷以下哪些記憶與使用者的糾正內容矛盾。\n\n"
+                f"使用者糾正內容：\n{user_content}\n\n"
+                f"相關記憶：\n{memories_text}\n\n"
+                "回覆格式：只回傳矛盾記憶的編號（如 0,2,5），"
+                "如果沒有矛盾則回傳 NONE。"
+                "不要解釋，只回傳編號或 NONE。"
+            )
+
+            result = await self._call_llm_with_model(
+                system_prompt="你是精準的事實一致性判斷器。",
+                messages=[{"role": "user", "content": judge_prompt}],
+                model="claude-haiku-4-5-20251001",
+                max_tokens=100,
+            )
+
+            if not result or "NONE" in result.upper():
+                logger.debug("事實更正偵測：無矛盾記憶")
+                return
+
+            # 3. 解析矛盾記憶編號
+            import re
+            indices = [
+                int(x) for x in re.findall(r"\d+", result)
+                if int(x) < len(related_memories)
+            ]
+
+            if not indices:
+                return
+
+            # 4. 對矛盾記憶執行 supersede + mark_deprecated
+            corrections = []
+            for idx in indices:
+                old_memory = related_memories[idx]
+                old_id = old_memory.get("id", "")
+                if not old_id:
+                    continue
+
+                try:
+                    # 記憶層：supersede（歸檔舊記憶 + 建新記憶）
+                    new_entry = self.memory_manager.supersede(
+                        user_id=self.memory_manager._user_id,
+                        old_id=old_id,
+                        new_content=user_content,
+                        tags=old_memory.get("tags", []) + ["fact_correction"],
+                        source="fact_correction",
+                    )
+
+                    # 向量層：mark_deprecated（軟刪除舊向量）
+                    try:
+                        from museon.vector.vector_bridge import VectorBridge
+                        vb = VectorBridge(workspace=self.data_dir)
+                        vb.mark_deprecated("memories", old_id)
+                    except Exception as ve:
+                        logger.debug(f"向量廢棄標記失敗: {ve}")
+
+                    corrections.append({
+                        "old_id": old_id,
+                        "old_content": old_memory.get("content", "")[:200],
+                        "new_content": user_content[:200],
+                        "new_id": new_entry.get("id", ""),
+                    })
+
+                    logger.info(
+                        f"事實覆寫：{old_id} → {new_entry.get('id', '?')}"
+                    )
+
+                except Exception as se:
+                    logger.warning(f"記憶 supersede 失敗 {old_id}: {se}")
+
+            # 5. 寫入事實更正日誌
+            if corrections:
+                self._log_fact_correction(
+                    user_content, assistant_response,
+                    session_id, corrections,
+                )
+
+        except Exception as e:
+            logger.warning(f"事實更正處理失敗: {e}")
+
+    def _log_fact_correction(
+        self,
+        user_content: str,
+        assistant_response: str,
+        session_id: str,
+        corrections: list,
+    ) -> None:
+        """將事實更正記錄追加到 fact_corrections.jsonl."""
+        import json
+
+        log_path = self.data_dir / "anima" / "fact_corrections.jsonl"
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+
+        entry = {
+            "timestamp": datetime.now().isoformat(),
+            "session_id": session_id,
+            "user_said": user_content[:500],
+            "corrections": corrections,
+        }
+
+        try:
+            with open(log_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+            logger.info(
+                f"事實更正日誌寫入：{len(corrections)} 條記憶被覆寫"
+            )
+        except Exception as e:
+            logger.warning(f"事實更正日誌寫入失敗: {e}")
+
+    # ─── L8 群組行為觀察（v2.0 新增）────────────────────
+
+    def _observe_group_behavioral_shift(
+        self,
+        content: str,
+        anima_user: Dict[str, Any],
+        obs_weight: float = 0.5,
+    ) -> None:
+        """觀察使用者在群組中的行為差異（L8 層）.
+
+        追蹤四個維度：
+        1. formality_shift: 語氣/正式度與 DM 基線的差異
+        2. topic_distribution: 群組中討論的主題分佈
+        3. initiative_ratio: 主動發言 vs 只回應的比例
+        4. energy_delta: 群組互動後能量變化
+
+        Args:
+            content: 使用者訊息
+            anima_user: ANIMA_USER dict（就地修改）
+            obs_weight: 觀察權重
+        """
+        l8 = anima_user.setdefault("L8_context_behavior_notes", {
+            "observations": [],
+            "formality_baseline_dm": None,
+            "group_stats": {},
+        })
+
+        now_iso = datetime.now().isoformat()
+
+        # 1. 正式度偵測（簡易啟發式：長度、標點、敬語）
+        formality_score = 0.5  # 中性基準
+        politeness_markers = ["請", "您", "謝謝", "麻煩", "不好意思", "抱歉"]
+        casual_markers = ["哈哈", "XD", "lol", "haha", "欸", "唉", "ㄏ", "讚"]
+        for m in politeness_markers:
+            if m in content:
+                formality_score += 0.08
+        for m in casual_markers:
+            if m in content:
+                formality_score -= 0.08
+        if len(content) > 200:
+            formality_score += 0.05
+        formality_score = max(0.0, min(1.0, formality_score))
+
+        # 2. 主動度偵測（是否以問號結尾、是否 @mention 他人、訊息長度）
+        initiative_score = 0.5
+        if content.strip().endswith("？") or content.strip().endswith("?"):
+            initiative_score += 0.15  # 提問 = 主動
+        if "@" in content:
+            initiative_score += 0.10  # @mention = 主動引導
+        if len(content) > 100:
+            initiative_score += 0.10  # 長訊息 = 主動分享
+        elif len(content) < 20:
+            initiative_score -= 0.15  # 短回覆 = 被動
+        initiative_score = max(0.0, min(1.0, initiative_score))
+
+        # 3. 主題偵測（簡易關鍵字分類）
+        topic = "general"
+        topic_keywords = {
+            "tech": ["程式", "系統", "API", "bug", "功能", "開發", "架構"],
+            "business": ["客戶", "營收", "行銷", "產品", "定價", "成交"],
+            "personal": ["今天", "最近", "感覺", "覺得", "想要", "希望"],
+            "creative": ["設計", "風格", "美", "創意", "靈感", "故事"],
+        }
+        for t_name, t_keywords in topic_keywords.items():
+            if any(kw in content for kw in t_keywords):
+                topic = t_name
+                break
+
+        # 4. 組裝觀察記錄
+        group_id = getattr(self, "_current_group_id", None) or "unknown"
+        observation = {
+            "observed_at": now_iso,
+            "group_id": str(group_id),
+            "formality_shift": round(formality_score, 2),
+            "initiative_ratio": round(initiative_score, 2),
+            "topic": topic,
+            "content_length": len(content),
+            "confidence": round(0.6 * obs_weight, 2),
+        }
+
+        # 追加到觀察列表（保留最近 50 條）
+        observations = l8.setdefault("observations", [])
+        observations.append(observation)
+        if len(observations) > 50:
+            l8["observations"] = observations[-50:]
+
+        # 更新群組統計
+        stats = l8.setdefault("group_stats", {})
+        g_stats = stats.setdefault(str(group_id), {
+            "interaction_count": 0,
+            "avg_formality": 0.5,
+            "avg_initiative": 0.5,
+            "topic_distribution": {},
+            "last_interaction": None,
+        })
+        g_count = g_stats.get("interaction_count", 0)
+        new_count = g_count + 1
+        g_stats["interaction_count"] = new_count
+
+        # EMA 更新平均值
+        old_f = g_stats.get("avg_formality", 0.5)
+        g_stats["avg_formality"] = round(
+            old_f * 0.9 + formality_score * 0.1, 3
+        )
+        old_i = g_stats.get("avg_initiative", 0.5)
+        g_stats["avg_initiative"] = round(
+            old_i * 0.9 + initiative_score * 0.1, 3
+        )
+
+        # 主題分佈計數
+        t_dist = g_stats.setdefault("topic_distribution", {})
+        t_dist[topic] = t_dist.get(topic, 0) + 1
+        g_stats["last_interaction"] = now_iso
+
+        anima_user["L8_context_behavior_notes"] = l8
 
     # ─── 群組外部用戶觀察管線 ────────────────────
 
@@ -5376,32 +6486,62 @@ class MuseonBrain:
 
     def _observe_user_primals(
         self, content: str, primals: Dict[str, Any], now_iso: str,
+        detected_primals: Optional[Dict[str, int]] = None,
+        obs_weight: float = 1.0,
     ) -> None:
-        """用關鍵字啟發式觀察使用者的八原語維度（純 CPU）."""
+        """觀察使用者的八原語維度（向量語義 + 關鍵字 fallback）.
+
+        Args:
+            content: 使用者訊息
+            primals: ANIMA_USER 中的 eight_primals dict（就地修改）
+            now_iso: ISO 時間戳
+            detected_primals: PrimalDetector 即時偵測結果 {key: level(0-100)}
+            obs_weight: 觀察權重（1.0=DM 全權重, 0.5=群組半權重）
+        """
         # 初始化缺少的維度
         for key in ["aspiration", "accumulation", "action_power", "curiosity",
                      "emotion_pattern", "blindspot", "boundary", "relationship_depth"]:
             if key not in primals:
                 primals[key] = {"level": 0, "confidence": 0.0, "signal": "", "last_observed": None}
 
-        # 關鍵字匹配
-        for primal_key, keywords in self._PRIMAL_KEYWORDS.items():
-            hits = sum(1 for kw in keywords if kw in content)
-            if hits > 0:
+        # ★ v10.5: 優先使用 PrimalDetector 語義偵測結果
+        # v2.0: 群組觀察 alpha 依 obs_weight 縮放
+        alpha_semantic = 0.15 * obs_weight   # DM=0.15, group=0.075
+        alpha_keyword = 0.08 * obs_weight    # DM=0.08, group=0.04
+        conf_delta_semantic = 0.08 * obs_weight
+        conf_delta_keyword = 0.05 * obs_weight
+
+        if detected_primals:
+            for primal_key, det_level in detected_primals.items():
+                if primal_key not in primals:
+                    continue
                 p = primals[primal_key]
                 old_level = p.get("level", 0)
-                delta = min(hits * 8, 25)  # 每次最多 +25
-                # 冷啟動保護：level < 10 時用直接加法，避免 EMA 從零爬不動
+                # EMA 平滑更新長期 level（語義偵測更精確）
                 if old_level < 10:
-                    p["level"] = min(100, old_level + delta)
+                    p["level"] = min(100, max(old_level, int(det_level * obs_weight)))
                 else:
-                    p["level"] = min(100, int(old_level * 0.92 + (old_level + delta) * 0.08))
-                # 信心度（隨觀察次數累積，capped at 1.0）
+                    p["level"] = min(100, int(old_level * (1 - alpha_semantic) + det_level * alpha_semantic))
                 old_conf = p.get("confidence", 0.0)
-                p["confidence"] = min(1.0, round(old_conf + 0.05, 2))
-                # 更新信號（最近觸發的原文片段）
+                p["confidence"] = min(1.0, round(old_conf + conf_delta_semantic, 2))
                 p["signal"] = content[:80].replace("\n", " ")
                 p["last_observed"] = now_iso
+        else:
+            # Fallback: 關鍵字匹配
+            for primal_key, keywords in self._PRIMAL_KEYWORDS.items():
+                hits = sum(1 for kw in keywords if kw in content)
+                if hits > 0:
+                    p = primals[primal_key]
+                    old_level = p.get("level", 0)
+                    delta = int(min(hits * 8, 25) * obs_weight)
+                    if old_level < 10:
+                        p["level"] = min(100, old_level + delta)
+                    else:
+                        p["level"] = min(100, int(old_level * (1 - alpha_keyword) + (old_level + delta) * alpha_keyword))
+                    old_conf = p.get("confidence", 0.0)
+                    p["confidence"] = min(1.0, round(old_conf + conf_delta_keyword, 2))
+                    p["signal"] = content[:80].replace("\n", " ")
+                    p["last_observed"] = now_iso
 
         # 問號計數 → 好奇心額外加分
         q_marks = content.count("？") + content.count("?")
@@ -5448,35 +6588,45 @@ class MuseonBrain:
     def _observe_user_layers(
         self, content: str, layers: Dict[str, Any], now_iso: str,
         anima_user: Optional[Dict[str, Any]] = None,
+        suppress_facts: bool = False,
     ) -> None:
-        """觀察使用者七層同心圓數據（純 CPU）."""
-        # ── L1: 基本事實 ──
-        facts = layers.setdefault("L1_facts", [])
-        existing_facts = {f.get("fact", "") for f in facts}
-        for category, keywords in self._FACT_PATTERNS.items():
-            hits = [kw for kw in keywords if kw in content]
-            if len(hits) >= 1:
-                # 擷取包含關鍵字的句子作為事實
-                for kw in hits:
-                    idx = content.find(kw)
-                    if idx >= 0:
-                        # 擷取關鍵字前後 40 字
-                        start = max(0, idx - 20)
-                        end = min(len(content), idx + len(kw) + 40)
-                        snippet = content[start:end].replace("\n", " ").strip()
-                        if snippet and snippet not in existing_facts:
-                            facts.append({
-                                "fact": snippet,
-                                "category": category,
-                                "source": "conversation",
-                                "date": now_iso,
-                            })
-                            existing_facts.add(snippet)
-                            break  # 每個 category 每次最多新增一筆
+        """觀察使用者七層同心圓數據（純 CPU）.
 
-        # 限制 L1 上限 50 筆，超過移除最舊的
-        if len(facts) > 50:
-            layers["L1_facts"] = facts[-50:]
+        Args:
+            suppress_facts: Memory Gate 判定為糾正/否認時，跳過 L1 事實寫入
+        """
+        # ── L1: 基本事實 ──
+        # ★ v1.13: Memory Gate 糾正/否認時跳過 L1 事實寫入
+        if not suppress_facts:
+            facts = layers.setdefault("L1_facts", [])
+            existing_facts = {f.get("fact", "") for f in facts}
+            for category, keywords in self._FACT_PATTERNS.items():
+                hits = [kw for kw in keywords if kw in content]
+                if len(hits) >= 1:
+                    # 擷取包含關鍵字的句子作為事實
+                    for kw in hits:
+                        idx = content.find(kw)
+                        if idx >= 0:
+                            # 擷取關鍵字前後 40 字
+                            start = max(0, idx - 20)
+                            end = min(len(content), idx + len(kw) + 40)
+                            snippet = content[start:end].replace("\n", " ").strip()
+                            if snippet and snippet not in existing_facts:
+                                facts.append({
+                                    "fact": snippet,
+                                    "category": category,
+                                    "source": "conversation",
+                                    "date": now_iso,
+                                    "status": "active",       # ★ v1.13: 事實狀態追蹤
+                                    "confidence": 0.7,         # ★ v1.13: 初始信心度
+                                })
+                                existing_facts.add(snippet)
+                                break  # 每個 category 每次最多新增一筆
+            # 限制 L1 上限 50 筆，超過移除最舊的
+            if len(facts) > 50:
+                layers["L1_facts"] = facts[-50:]
+        else:
+            logger.info("MemoryGate: suppress_facts=True, 跳過 L1 事實寫入")
 
         # ── L2: 人格特質 ──
         traits = layers.setdefault("L2_personality", [])
@@ -5652,75 +6802,76 @@ class MuseonBrain:
         skill_names: List[str],
         response_length: int,
     ) -> None:
-        """更新 ANIMA_MC 的自我追蹤數據（純 CPU）."""
-        anima_mc = self._load_anima_mc()
-        if not anima_mc:
-            return
+        """更新 ANIMA_MC 的自我追蹤數據（純 CPU）.
 
-        changed = False
+        ★ 通過 AnimaMCStore.update() 原子讀改寫 + WriteQueue 序列化。
+        """
+        def _do_observe():
+            def updater(anima_mc):
+                # ── 1. memory_summary.total_interactions ──
+                mem = anima_mc.get("memory_summary", {})
+                mem["total_interactions"] = mem.get("total_interactions", 0) + 1
+                anima_mc["memory_summary"] = mem
 
-        # ── 1. memory_summary.total_interactions ──
-        mem = anima_mc.get("memory_summary", {})
-        mem["total_interactions"] = mem.get("total_interactions", 0) + 1
-        anima_mc["memory_summary"] = mem
-        changed = True
+                # ── 2. evolution.iteration_count ──
+                evo = anima_mc.get("evolution", {})
+                evo["iteration_count"] = evo.get("iteration_count", 0) + 1
+                anima_mc["evolution"] = evo
 
-        # ── 2. evolution.iteration_count ──
-        evo = anima_mc.get("evolution", {})
-        evo["iteration_count"] = evo.get("iteration_count", 0) + 1
-        anima_mc["evolution"] = evo
+                # ── 3. capabilities.loaded_skills ──
+                if skill_names:
+                    caps = anima_mc.get("capabilities", {})
+                    loaded = set(caps.get("loaded_skills", []))
+                    prof = caps.get("skill_proficiency", {})
+                    for s in skill_names:
+                        loaded.add(s)
+                        prof[s] = prof.get(s, 0) + 1
+                    caps["loaded_skills"] = sorted(loaded)
+                    caps["skill_proficiency"] = prof
+                    anima_mc["capabilities"] = caps
 
-        # ── 3. capabilities.loaded_skills（追蹤實際使用過的 skills）──
-        if skill_names:
-            caps = anima_mc.get("capabilities", {})
-            loaded = set(caps.get("loaded_skills", []))
-            prof = caps.get("skill_proficiency", {})
-            for s in skill_names:
-                loaded.add(s)
-                prof[s] = prof.get(s, 0) + 1
-            caps["loaded_skills"] = sorted(loaded)
-            caps["skill_proficiency"] = prof
-            anima_mc["capabilities"] = caps
+                # ── 4. 八原語自我更新 ──
+                primals = anima_mc.get("eight_primals", {})
+                if primals:
+                    kun = primals.get("kun_memory", {})
+                    total_int = mem.get("total_interactions", 0)
+                    kun["level"] = min(100, total_int // 10)
+                    crystals_count = mem.get("knowledge_crystals", 0)
+                    kun["signal"] = f"{total_int} 次互動、{crystals_count} 顆結晶"
+                    primals["kun_memory"] = kun
 
-        # ── 4. 八原語自我更新（基於系統狀態）──
-        primals = anima_mc.get("eight_primals", {})
-        if primals:
-            # 坤/記憶：隨互動累積
-            kun = primals.get("kun_memory", {})
-            total_int = mem.get("total_interactions", 0)
-            kun["level"] = min(100, total_int // 10)
-            crystals_count = mem.get("knowledge_crystals", 0)
-            kun["signal"] = f"{total_int} 次互動、{crystals_count} 顆結晶"
-            primals["kun_memory"] = kun
+                    dui = primals.get("dui_connection", {})
+                    dui["level"] = min(100, total_int // 8)
+                    primals["dui_connection"] = dui
 
-            # 兌/連結：隨信任增長
-            dui = primals.get("dui_connection", {})
-            dui["level"] = min(100, total_int // 8)
-            primals["dui_connection"] = dui
+                    zhen = primals.get("zhen_action", {})
+                    total_skills = sum(1 for _ in (anima_mc.get("capabilities", {}).get("loaded_skills", [])))
+                    zhen["level"] = min(100, 30 + total_skills * 3)
+                    primals["zhen_action"] = zhen
 
-            # 震/行動：隨 skill 使用增長
-            zhen = primals.get("zhen_action", {})
-            total_skills = sum(1 for _ in (anima_mc.get("capabilities", {}).get("loaded_skills", [])))
-            zhen["level"] = min(100, 30 + total_skills * 3)
-            primals["zhen_action"] = zhen
+                    anima_mc["eight_primals"] = primals
 
-            anima_mc["eight_primals"] = primals
+                # ── 5. Voice Evolver ──
+                self._evolve_voice(anima_mc, mem.get("total_interactions", 0))
 
-        # ── 5. Voice Evolver（聲音演化器）──
-        self._evolve_voice(anima_mc, mem.get("total_interactions", 0))
+                # ── 6. L3↔L3 反射匹配（每 20 次互動）──
+                total_int = mem.get("total_interactions", 0)
+                if total_int > 0 and total_int % 20 == 0:
+                    try:
+                        anima_user = self._load_anima_user()
+                        if anima_user:
+                            self._match_l3_reflection(anima_mc, anima_user)
+                    except Exception as e:
+                        logger.warning(f"L3 匹配失敗: {e}")
 
-        # ── 6. L3↔L3 反射匹配（每 20 次互動）──
-        total_int = mem.get("total_interactions", 0)
-        if total_int > 0 and total_int % 20 == 0:
-            try:
-                anima_user = self._load_anima_user()
-                if anima_user:
-                    self._match_l3_reflection(anima_mc, anima_user)
-            except Exception as e:
-                logger.warning(f"L3 匹配失敗: {e}")
+                return anima_mc
 
-        if changed:
-            self._save_anima_mc(anima_mc)
+            self._anima_mc_store.update(updater)
+
+        if self._wq:
+            self._wq.enqueue("anima_mc_self_observe", _do_observe)
+        else:
+            _do_observe()
 
     # ─── Morphenix Instant Note Bridge（v9.0）────────
 
@@ -5978,6 +7129,7 @@ class MuseonBrain:
         try:
             birth_date = datetime.fromisoformat(birth_date_str)
         except (ValueError, TypeError):
+            logger.debug(f"birth_date 格式無效: {birth_date_str!r}")
             return
 
         days_alive = (datetime.now() - birth_date).days

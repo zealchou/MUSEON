@@ -3,7 +3,7 @@ name: plugin-registry
 description: >
   外掛模組註冊表（Plugin Registry）v2.0 — DNA27 核心的參考文件，
   管理所有 MUSEON 外掛模組的註冊資訊、迴圈允許規則、RC 親和對照、協作矩陣與共存規則。
-  已註冊外掛：28 個（含 3 常駐 + 25 按需）。未部署但設計中：meta-learning、info-architect。
+  已註冊外掛：29 個（含 3 常駐 + 26 按需）。未部署但設計中：meta-learning、info-architect。
   此文件為 dna27/references 底下的治理參考文件，非獨立 Skill，不可被單獨觸發。
   觸發時機：DNA27 路由、orchestrator 編排、morphenix 迭代時自動參照。
   指令觸發：無獨立指令。透過 /orchestrate、/morphenix fitness、/morphenix status 間接使用。
@@ -75,7 +75,8 @@ DNA27（核心 OS）
 │   ├── gap                  （市場缺口分析引擎）
 │   ├── dse                  （AI 技術融合驗證引擎）
 │   ├── acsf                 （能力結晶與 Skill 鑄造引擎）
-│   └── env-radar            （環境雷達引擎）
+│   ├── env-radar            （環境雷達引擎）
+│   └── report-forge         （付費級產業診斷報告鍛造引擎）
 │
 ├── 【特殊模組】
 │   └── tantra               （情慾治理引擎，研究階段）
@@ -585,6 +586,21 @@ DNA27（核心 OS）
 | 核心能力 | PESTEL 環境分析、FACT 競爭情報、技術雷達四象限、弱訊號偵測；五種模式：全景/競品/技術/弱訊號/演化壓力 |
 | 與其他外掛 | morphenix（演化方向→演化行動）；gap（AI 市場缺口 vs 環境大勢）；master-strategy（戰略判斷的環境情報）；knowledge-lattice（趨勢洞見結晶化） |
 
+### report-forge — 付費級產業診斷報告鍛造引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | REPORT_FORGE |
+| 類別 | premium-report-production-engine |
+| 風險等級 | LOW |
+| 允許迴圈 | exploration_loop（展示版）、slow_loop（完整版） |
+| 允許模式 | civil_mode（客戶交付）、evolution_mode（方法論迭代） |
+| 入場條件 | 使用者要求產出產業診斷報告、深度分析報告、客戶交付物 |
+| 觸發指令 | /report、/report [產業]、/forge-report、/diagnose [產業]、/report preview、/report full |
+| 核心能力 | 七層報告結構（SCR→MECE→多視角→嵌入式案例→情境模擬→行動清單→暗示擴展）；三角驗證方法論（資料×方法論×研究者×理論）；HTML 品牌報告產出 |
+| 產線位置 | DSE（方法論驗證）→ **Report-Forge**（報告生產）→ ACSF（商品化包裝） |
+| 與其他外掛 | dse（方法論來源）；consultant-communication（結構工具：金字塔/MECE/SCQA）；business-12（診斷框架）；market-core（市場數據）；master-strategy（戰略推演）；storytelling-engine（案例敘事）；aesthetic-sense（美感審計） |
+
 ---
 
 ## 九、特殊模組
@@ -723,6 +739,10 @@ DNA27（核心 OS）
 | 組合 | 適用情境 |
 |---|---|
 | gap → dse → acsf | 完整產品線：找缺口 → 技術驗證 → 鍛造商品 |
+| dse → report-forge → acsf | 報告產品線：方法論驗證 → 報告生產 → 商品包裝 |
+| report-forge + consultant-communication | 報告結構（金字塔/MECE/SCQA）+ 產業深度 |
+| report-forge + business-12 + market-core | 完整產業診斷：商業框架 + 市場數據 + 報告產出 |
+| report-forge + storytelling-engine + aesthetic-sense | 報告品質三閘門：敘事 + 美感 + 方法論 |
 | env-radar + gap | 環境大勢 + AI 市場缺口的交叉定位 |
 | acsf + eval-engine | 鍛造後品質基準線驗證 |
 | dse + sandbox-lab | 技術方案的系統內驗證 |
@@ -749,3 +769,4 @@ DNA27（核心 OS）
 | v1.0 | — | 初版，僅註冊 5 個外掛（xmodel、business-12、ssa-consultant、master-strategy、persona-chiqi） |
 | **v2.0** | **2026-02-21** | **完整更新：新增 21 個外掛註冊（共 26 個）；新增 2 個未部署模組紀錄；重建完整協作矩陣（5 大類 20+ 組合）；新增常駐層/半常駐層分類；新增產線位置標記；新增變更紀錄** |
 | **v2.1** | **2026-03-13** | **新增 2 個外掛（共 28 個）：query-clarity（常駐層，問題品質守門）、roundtable（按需，圓桌詰問引擎）；常駐層從 2→3 個；新增「前置與決策支援」類別與協作矩陣** |
+| **v2.2** | **2026-03-18** | **新增 1 個外掛（共 29 個）：report-forge（產品線，付費級產業診斷報告鍛造引擎）；產品線管線新增 4 組協作組合** |

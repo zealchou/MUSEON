@@ -273,8 +273,8 @@ class AutoRepair:
                         capture_output=True,
                         timeout=5,
                     )
-        except (subprocess.TimeoutExpired, OSError):
-            pass
+        except (subprocess.TimeoutExpired, OSError) as e:
+            pass  # degraded: PID check
 
         # 嘗試 launchctl 啟動
         plist = self.checker.plist_path
@@ -375,8 +375,8 @@ class AutoRepair:
                     lines = f.read_text("utf-8", errors="replace").splitlines()
                     f.write_text("\n".join(lines[-1000:]) + "\n", "utf-8")
                     rotated.append(f.name)
-                except OSError:
-                    pass
+                except OSError as e:
+                    pass  # degraded: data write
 
         if not rotated:
             return RepairResult(

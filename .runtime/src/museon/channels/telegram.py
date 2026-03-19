@@ -1,6 +1,7 @@
 """Telegram Channel Adapter using python-telegram-bot 20.x."""
 
 import asyncio
+import json
 import logging
 import os
 import re
@@ -20,8 +21,10 @@ from telegram.ext import (
 
 from museon.channels.base import ChannelAdapter, TrustLevel
 from museon.core.event_bus import (
+    GROUP_SESSION_END,
     MORPHENIX_EXECUTION_COMPLETED,
     MORPHENIX_L3_PROPOSAL,
+    MORPHENIX_ROLLBACK,
     PROACTIVE_MESSAGE,
     PULSE_MICRO_BEAT,
     PULSE_NIGHTLY_DONE,
@@ -73,6 +76,24 @@ class TelegramAdapter(ChannelAdapter):
         self._proactive_message_ids: Dict[int, str] = {}  # {msg_id: push_context}
         self._max_proactive_ids = 50
 
+        # Deduplication: 追蹤已處理的 update_id，防止重複訊息
+        self._seen_update_ids: set = set()
+        self._max_seen_update_ids = 1000  # 避免無限成長
+
+        # Bot identity cache (set after application.start())
+        self._bot_username: str = ""
+        self._bot_id: Optional[int] = None
+
+        # Pending group file uploads: {chat_id: [(update, timestamp), ...]}
+        # Files uploaded without @mention are held here for 10 minutes
+        self._pending_group_files: Dict[int, list] = {}
+        self._pending_file_ttl = 600  # seconds
+
+        # Group session idle tracking: {group_id: last_activity_timestamp}
+        self._group_last_activity: Dict[int, float] = {}
+        self._group_session_idle_seconds = 30 * 60  # 30 分鐘無訊息 → 視為會話結束
+        self._group_msg_counts: Dict[int, int] = {}  # 本次會話訊息數
+
     async def start(self) -> None:
         """Start the Telegram bot and begin polling."""
         if self._running:
@@ -104,6 +125,15 @@ class TelegramAdapter(ChannelAdapter):
         await self.application.start()
         await self.application.updater.start_polling()
 
+        # Cache bot identity so group mention checks don't rely on context.bot
+        try:
+            bot_info = await self.application.bot.get_me()
+            self._bot_username = (bot_info.username or "").lower()
+            self._bot_id = bot_info.id
+            logger.info("Bot identity cached: @%s (id=%s)", self._bot_username, self._bot_id)
+        except Exception as _e:
+            logger.warning("Failed to cache bot identity: %s", _e)
+
         self._running = True
         logger.info("TelegramAdapter started and polling for updates")
 
@@ -121,6 +151,94 @@ class TelegramAdapter(ChannelAdapter):
 
     async def _handle_message(self, update: Update, context: Any) -> None:
         """Handle incoming text message."""
+        if update.update_id in self._seen_update_ids:
+            logger.debug("Duplicate update_id %s, skipping", update.update_id)
+            return
+        self._seen_update_ids.add(update.update_id)
+        if len(self._seen_update_ids) > self._max_seen_update_ids:
+            self._seen_update_ids = set(list(self._seen_update_ids)[-500:])
+
+        # ── Group chat: read all, reply only when @mentioned ──
+        if update.message and update.message.chat.type in ("group", "supergroup"):
+            from_user = update.message.from_user
+            user_id_str = str(from_user.id) if from_user else ""
+            is_owner = user_id_str in self.trusted_user_ids
+
+            # Check if bot is @mentioned (must be THIS bot, not any @user)
+            text = update.message.text or ""
+            is_mentioned = False
+            bot_username = self._bot_username
+            bot_id = self._bot_id
+            if update.message.entities and bot_username:
+                for ent in update.message.entities:
+                    if ent.type == "mention":
+                        # @username mention — extract and compare
+                        mentioned = text[ent.offset:ent.offset + ent.length].lower()
+                        if mentioned == f"@{bot_username}":
+                            is_mentioned = True
+                            break
+                    elif ent.type == "text_mention" and ent.user:
+                        # Inline mention with user object — compare bot ID
+                        if bot_id and ent.user.id == bot_id:
+                            is_mentioned = True
+                            break
+            # Fallback: direct text check for bot username
+            if not is_mentioned and bot_username:
+                is_mentioned = f"@{bot_username}" in text.lower()
+
+            # Always log group messages for context building
+            sender_name = from_user.first_name or "" if from_user else ""
+            username = from_user.username or "" if from_user else ""
+            chat_id = update.message.chat.id
+            group_title = update.message.chat.title or ""
+            chat_type = update.message.chat.type or "supergroup"
+            # 追蹤群組活動（閒置偵測用）
+            self._track_group_activity(chat_id)
+            self._log_group_message(
+                group_id=chat_id,
+                user_id=user_id_str,
+                display_name=sender_name,
+                text=(text or "")[:500],
+                bot_replied=False,
+            )
+            # Structured DB recording
+            try:
+                from museon.governance.group_context import get_group_context_store
+                store = get_group_context_store()
+                store.upsert_group(chat_id, group_title, chat_type)
+                store.record_message(
+                    group_id=chat_id,
+                    user_id=user_id_str,
+                    text=(text or "")[:2000],
+                    message_id=update.message.message_id,
+                    display_name=sender_name,
+                    username=username,
+                )
+            except Exception as _db_err:
+                logger.debug(f"Group context DB write error: {_db_err}")
+
+            if not is_mentioned:
+                # Silent record — don't push to message_queue, just log
+                logger.debug(
+                    "Group message recorded (silent) from %s in %s",
+                    user_id_str, chat_id,
+                )
+                return
+
+        # Inject any pending group file uploads before this @mention message
+        if update.message and update.message.chat.type in ("group", "supergroup"):
+            chat_id = update.message.chat.id
+            if chat_id in self._pending_group_files and self._pending_group_files[chat_id]:
+                import time as _time
+                cutoff = _time.time() - self._pending_file_ttl
+                valid_files = [(u, t) for u, t in self._pending_group_files[chat_id] if t > cutoff]
+                for file_update, _ts in valid_files:
+                    logger.info("Injecting pending file upload into queue for chat %s", chat_id)
+                    if file_update.message and file_update.message.from_user:
+                        self.record_user_interaction(str(file_update.message.from_user.id))
+                    await self.message_queue.put(file_update)
+                self._pending_group_files[chat_id] = []
+
         # 記錄互動（HeartbeatFocus + 清除閒置推播狀態）
         if update.message and update.message.from_user:
             self.record_user_interaction(str(update.message.from_user.id))
@@ -128,6 +246,82 @@ class TelegramAdapter(ChannelAdapter):
 
     async def _handle_file_upload(self, update: Update, context: Any) -> None:
         """Handle incoming file uploads (document, photo, voice, audio, video)."""
+        if update.update_id in self._seen_update_ids:
+            logger.debug("Duplicate update_id %s, skipping", update.update_id)
+            return
+        self._seen_update_ids.add(update.update_id)
+        if len(self._seen_update_ids) > self._max_seen_update_ids:
+            self._seen_update_ids = set(list(self._seen_update_ids)[-500:])
+
+        # Group file uploads: always log, only process if @mentioned
+        if update.message and update.message.chat.type in ("group", "supergroup"):
+            from_user = update.message.from_user
+            user_id_str = str(from_user.id) if from_user else ""
+            sender_name = from_user.first_name or "" if from_user else ""
+            chat_id = update.message.chat.id
+            caption = update.message.caption or ""
+            fname = ""
+            if update.message.document:
+                fname = update.message.document.file_name or "file"
+            elif update.message.photo:
+                fname = "photo"
+            elif update.message.voice:
+                fname = "voice"
+            self._log_group_message(
+                group_id=chat_id,
+                user_id=user_id_str,
+                display_name=sender_name,
+                text=f"[檔案: {fname}] {caption}"[:500],
+                bot_replied=False,
+            )
+            # Structured DB recording for file uploads
+            try:
+                from museon.governance.group_context import get_group_context_store
+                store = get_group_context_store()
+                store.upsert_group(chat_id, update.message.chat.title or "", update.message.chat.type or "supergroup")
+                store.record_message(
+                    group_id=chat_id,
+                    user_id=user_id_str,
+                    text=f"[檔案: {fname}] {caption}"[:2000],
+                    message_id=update.message.message_id,
+                    msg_type="file",
+                    display_name=sender_name,
+                    username=from_user.username or "" if from_user else "",
+                )
+            except Exception as _db_err:
+                logger.debug(f"Group context DB write error (file): {_db_err}")
+
+            # Check @mention in caption (must be THIS bot, not any @user)
+            is_mentioned = False
+            _bot_username = self._bot_username
+            _bot_id = self._bot_id
+            if update.message.caption_entities and _bot_username:
+                for ent in update.message.caption_entities:
+                    if ent.type == "mention":
+                        mentioned = caption[ent.offset:ent.offset + ent.length].lower()
+                        if mentioned == f"@{_bot_username}":
+                            is_mentioned = True
+                            break
+                    elif ent.type == "text_mention" and ent.user:
+                        if _bot_id and ent.user.id == _bot_id:
+                            is_mentioned = True
+                            break
+            if not is_mentioned and _bot_username:
+                is_mentioned = f"@{_bot_username}" in caption.lower()
+            if not is_mentioned:
+                # Stash the update so a subsequent @mention can retrieve it
+                import time as _time
+                if chat_id not in self._pending_group_files:
+                    self._pending_group_files[chat_id] = []
+                self._pending_group_files[chat_id].append((update, _time.time()))
+                # Prune expired entries
+                cutoff = _time.time() - self._pending_file_ttl
+                self._pending_group_files[chat_id] = [
+                    (u, t) for u, t in self._pending_group_files[chat_id] if t > cutoff
+                ]
+                logger.info("Group file upload stashed from %s in chat %s (pending @mention)", user_id_str, chat_id)
+                return
+
         if update.message and update.message.from_user:
             self.record_user_interaction(str(update.message.from_user.id))
         await self.message_queue.put(update)
@@ -347,9 +541,8 @@ class TelegramAdapter(ChannelAdapter):
                 await query.answer("系統未就緒", show_alert=True)
                 return
 
-            db_path = brain.data_dir / "pulse.db"
-            from museon.pulse.pulse_db import PulseDB
-            db = PulseDB(str(db_path))
+            from museon.pulse.pulse_db import get_pulse_db
+            db = get_pulse_db(brain.data_dir)
 
             if action == "approve":
                 success = db.approve_proposal(proposal_id, decided_by="human")
@@ -425,7 +618,18 @@ class TelegramAdapter(ChannelAdapter):
                 # 截斷過長的回覆上下文（避免 token 浪費）
                 if len(replied_text) > 500:
                     replied_text = replied_text[:500] + "..."
-                replied_from = "霓裳" if replied.from_user and replied.from_user.is_bot else "達達把拔"
+                if replied.from_user and replied.from_user.is_bot:
+                    replied_from = "霓裳"
+                elif replied.from_user:
+                    # Use actual display name; mark owner if in trusted list
+                    _replied_uid = str(replied.from_user.id)
+                    _replied_name = replied.from_user.first_name or replied.from_user.username or "某人"
+                    if _replied_uid in self.trusted_user_ids:
+                        replied_from = f"{_replied_name}（老闆）"
+                    else:
+                        replied_from = _replied_name
+                else:
+                    replied_from = "某人"
                 reply_context = f"[回覆 {replied_from} 的訊息：{replied_text}]\n\n"
 
         if reply_context and content:
@@ -478,8 +682,21 @@ class TelegramAdapter(ChannelAdapter):
             if file_info:
                 content += f"\n影片已儲存至: {file_info['local_path']}"
 
-        # All DMs from owner/trusted users go to main session
-        session_id = f"telegram_{chat_id}"
+        # Group-aware session and metadata
+        is_group = update.message.chat.type in ("group", "supergroup")
+        is_owner = user_id in self.trusted_user_ids
+        sender_name = msg.from_user.first_name or ""
+
+        if is_group:
+            session_id = f"telegram_group_{abs(chat_id)}"
+            self._log_group_message(
+                group_id=chat_id,
+                user_id=user_id,
+                display_name=sender_name,
+                text=(update.message.text or "")[:500],
+            )
+        else:
+            session_id = f"telegram_{chat_id}"
 
         trust_level = self.get_trust_level(user_id)
 
@@ -488,7 +705,12 @@ class TelegramAdapter(ChannelAdapter):
             "message_id": msg.message_id,
             "first_name": msg.from_user.first_name,
             "username": msg.from_user.username,
+            "is_group": is_group,
+            "is_owner": is_owner,
+            "sender_name": sender_name,
         }
+        if is_group:
+            metadata["group_id"] = chat_id
         if file_info:
             metadata["file"] = file_info
         if msg.reply_to_message:
@@ -505,6 +727,86 @@ class TelegramAdapter(ChannelAdapter):
             trust_level=trust_level.value,
             metadata=metadata,
         )
+
+    def _log_group_message(
+        self,
+        group_id: int,
+        user_id: str,
+        display_name: str,
+        text: str,
+        bot_replied: bool = False,
+    ) -> None:
+        """Append group message to jsonl log file."""
+        try:
+            log_dir = (
+                Path(os.environ.get("MUSEON_HOME", "/tmp"))
+                / "data" / "logs" / "groups" / str(abs(group_id))
+            )
+            log_dir.mkdir(parents=True, exist_ok=True)
+            date_str = datetime.now().strftime("%Y-%m-%d")
+            log_file = log_dir / f"{date_str}.jsonl"
+            entry = {
+                "ts": datetime.now().isoformat(),
+                "group_id": group_id,
+                "user_id": user_id,
+                "name": display_name,
+                "text": text[:500],
+                "bot_replied": bot_replied,
+            }
+            with open(log_file, "a", encoding="utf-8") as f:
+                f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+        except Exception as e:
+            logger.warning(f"Group log write failed: {e}")
+
+    def _track_group_activity(self, group_id: int) -> None:
+        """追蹤群組訊息活動，用於閒置偵測."""
+        import time as _time
+        now = _time.time()
+        prev = self._group_last_activity.get(group_id)
+        # 如果距上次訊息已超過閒置閾值，視為新會話
+        if prev and (now - prev) > self._group_session_idle_seconds:
+            self._group_msg_counts[group_id] = 0
+        self._group_last_activity[group_id] = now
+        self._group_msg_counts[group_id] = self._group_msg_counts.get(group_id, 0) + 1
+
+    def check_group_session_idle(self) -> None:
+        """檢查所有群組的閒置狀態，發布 GROUP_SESSION_END 事件.
+
+        由 HeartbeatEngine tick 定期呼叫。
+        """
+        import time as _time
+        now = _time.time()
+        ended_groups = []
+        for group_id, last_ts in list(self._group_last_activity.items()):
+            elapsed = now - last_ts
+            if elapsed >= self._group_session_idle_seconds:
+                msg_count = self._group_msg_counts.get(group_id, 0)
+                if msg_count > 0 and self._event_bus:
+                    self._event_bus.publish(GROUP_SESSION_END, {
+                        "group_id": group_id,
+                        "session_duration_seconds": int(elapsed),
+                        "message_count": msg_count,
+                    })
+                    logger.info(
+                        f"GROUP_SESSION_END published | group={group_id} "
+                        f"msgs={msg_count} idle={int(elapsed)}s"
+                    )
+                ended_groups.append(group_id)
+        # 清理已結束的會話
+        for gid in ended_groups:
+            self._group_msg_counts[gid] = 0
+
+    async def send_dm_to_owner(self, text: str) -> bool:
+        """Send a DM directly to the owner (first trusted_user_id)."""
+        if not self.application or not self.trusted_user_ids:
+            return False
+        try:
+            owner_id = int(self.trusted_user_ids[0])
+            await self.application.bot.send_message(chat_id=owner_id, text=text)
+            return True
+        except Exception as e:
+            logger.error(f"send_dm_to_owner failed: {e}")
+            return False
 
     async def send(self, message: InternalMessage) -> bool:
         """
@@ -711,12 +1013,14 @@ class TelegramAdapter(ChannelAdapter):
         async def _typing_loop():
             try:
                 while True:
+                    if not self.application:
+                        break
                     await self.application.bot.send_chat_action(
                         chat_id=chat_id, action=ChatAction.TYPING
                     )
                     await asyncio.sleep(4)
-            except asyncio.CancelledError:
-                pass
+            except asyncio.CancelledError as e:
+                logger.debug(f"[TELEGRAM] async op failed (degraded): {e}")
             except Exception as e:
                 logger.debug(f"Typing indicator stopped: {e}")
 
@@ -734,8 +1038,8 @@ class TelegramAdapter(ChannelAdapter):
             task.cancel()
             try:
                 await task
-            except asyncio.CancelledError:
-                pass
+            except asyncio.CancelledError as e:
+                logger.debug(f"[TELEGRAM] operation failed (degraded): {e}")
 
     @property
     def is_running(self) -> bool:
@@ -814,53 +1118,30 @@ class TelegramAdapter(ChannelAdapter):
         self._event_bus = event_bus
         self._heartbeat_focus = heartbeat_focus
 
+        # 保存主事件迴圈引用（Telegram bot 運行的迴圈）
+        # 用於跨線程安全推送：EventBus callback 可能從 HeartbeatEngine daemon thread 呼叫
+        import asyncio
+        try:
+            self._main_async_loop = asyncio.get_running_loop()
+        except RuntimeError:
+            self._main_async_loop = asyncio.get_event_loop()
+
         # 訂閱脈搏事件
-        event_bus.subscribe(PULSE_RHYTHM_CHECK, self._on_rhythm_check)
-        event_bus.subscribe(PULSE_NIGHTLY_DONE, self._on_nightly_done)
         event_bus.subscribe(PROACTIVE_MESSAGE, self._on_proactive_message)
         event_bus.subscribe(MORPHENIX_L3_PROPOSAL, self._on_morphenix_l3)
         event_bus.subscribe(MORPHENIX_EXECUTION_COMPLETED, self._on_morphenix_executed)
+        event_bus.subscribe(MORPHENIX_ROLLBACK, self._on_morphenix_rollback)
         logger.info("TelegramAdapter connected to pulse EventBus")
-
-    def _on_rhythm_check(self, data: Optional[Dict] = None) -> None:
-        """處理 Rhythm-Pulse 推播事件.
-
-        EventBus 是同步的，所以把 async 推播排入 event loop。
-        """
-        if not data or not self._running:
-            return
-        message = data.get("message", "")
-        if not message:
-            return
-        try:
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                loop.create_task(self.push_notification(message))
-            else:
-                asyncio.run(self.push_notification(message))
-        except Exception as e:
-            logger.error(f"Rhythm check push failed: {e}")
-
-    def _on_nightly_done(self, data: Optional[Dict] = None) -> None:
-        """處理凌晨管線完成事件 → 晨間廣播."""
-        if not data or not self._running:
-            return
-        summary = data.get("summary", "")
-        if not summary:
-            return
-        try:
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                loop.create_task(self.push_notification(summary))
-            else:
-                asyncio.run(self.push_notification(summary))
-        except Exception as e:
-            logger.error(f"Nightly done push failed: {e}")
 
     def _on_proactive_message(self, data: Optional[Dict] = None) -> None:
         """處理主動互動推播事件.
 
         ProactiveBridge 發布 PROACTIVE_MESSAGE 事件時觸發。
+        callback 可能從 HeartbeatEngine daemon thread 呼叫，
+        因此用 run_coroutine_threadsafe 排入 Telegram 主事件迴圈。
+
+        P1 修復：推送成功後寫入 Brain session history，
+        避免使用者回覆推送時 Brain 沒有前文。
         """
         if not data or not self._running:
             return
@@ -868,24 +1149,62 @@ class TelegramAdapter(ChannelAdapter):
         if not message:
             return
         try:
-            loop = asyncio.get_event_loop()
-
             async def _push_and_report():
                 sent = await self.push_notification(message)
-                if sent > 0 and self._event_bus:
-                    from museon.core.event_bus import PULSE_PROACTIVE_SENT
-                    self._event_bus.publish(PULSE_PROACTIVE_SENT, {
-                        "message": message[:200],
-                        "sent_count": sent,
-                        "push_count": data.get("push_count", 0),
-                    })
+                if sent > 0:
+                    # P1: 推送內容寫入 Brain session history
+                    self._write_push_to_session(message)
 
-            if loop.is_running():
-                loop.create_task(_push_and_report())
+                    if self._event_bus:
+                        from museon.core.event_bus import PULSE_PROACTIVE_SENT
+                        self._event_bus.publish(PULSE_PROACTIVE_SENT, {
+                            "message": message[:200],
+                            "sent_count": sent,
+                            "push_count": data.get("push_count", 0),
+                        })
+
+            main_loop = getattr(self, "_main_async_loop", None)
+            if main_loop and not main_loop.is_closed():
+                asyncio.run_coroutine_threadsafe(_push_and_report(), main_loop)
             else:
-                asyncio.run(_push_and_report())
+                logger.warning("Proactive message: 主事件迴圈不可用，跳過推送")
         except Exception as e:
             logger.error(f"Proactive message push failed: {e}")
+
+    def _write_push_to_session(self, message: str) -> None:
+        """將推送內容寫入 owner 的 Brain session history.
+
+        讓 Brain 在使用者回覆時能看到推送前文，
+        避免上下文斷裂。
+        """
+        try:
+            brain = self._get_brain()
+            if not brain:
+                return
+
+            # 取得 owner session_id
+            if not self.trusted_user_ids:
+                return
+            owner_chat_id = self.trusted_user_ids[0]
+            session_id = f"telegram_{owner_chat_id}"
+
+            # 寫入 session history（assistant role，帶推送標記前綴）
+            from datetime import datetime
+            push_prefix = f"[主動推送 {datetime.now().strftime('%H:%M')}]"
+            push_content = f"{push_prefix} {message[:500]}"
+
+            history = brain._get_session_history(session_id)
+            history.append({
+                "role": "assistant",
+                "content": push_content,
+            })
+            brain._save_session_to_disk(session_id)
+
+            logger.debug(
+                f"推送已寫入 session {session_id}: {push_content[:80]}..."
+            )
+        except Exception as e:
+            logger.debug(f"推送寫入 session 失敗（降級運行）: {e}")
 
     def _on_morphenix_l3(self, data: Optional[Dict] = None) -> None:
         """處理 Morphenix L3 提案事件 → Telegram inline keyboard 通知."""
@@ -895,18 +1214,21 @@ class TelegramAdapter(ChannelAdapter):
         if not proposals:
             return
         try:
-            loop = asyncio.get_event_loop()
+            main_loop = getattr(self, "_main_async_loop", None)
+            if not main_loop or main_loop.is_closed():
+                logger.warning("Morphenix L3: 主事件迴圈不可用，跳過推送")
+                return
             for p in proposals:
-                if loop.is_running():
-                    loop.create_task(
-                        self.push_proposal_notification(
-                            proposal_id=p["id"],
-                            title=p.get("title", "L3 提案"),
-                            description=p.get("description", ""),
-                            level="L3",
-                            affected_files=p.get("affected_files", []),
-                        )
-                    )
+                asyncio.run_coroutine_threadsafe(
+                    self.push_proposal_notification(
+                        proposal_id=p["id"],
+                        title=p.get("title", "L3 提案"),
+                        description=p.get("description", ""),
+                        level="L3",
+                        affected_files=p.get("affected_files", []),
+                    ),
+                    main_loop,
+                )
         except Exception as e:
             logger.error(f"Morphenix L3 push failed: {e}")
 
@@ -931,11 +1253,17 @@ class TelegramAdapter(ChannelAdapter):
             pid = d.get("proposal_id", "?")
             outcome = d.get("outcome", "?")
             title = d.get("title", "")
+            level = d.get("level", "")
+            safety_tag = d.get("safety_tag", "")
             icon = {"executed": "✅", "failed": "❌", "escalated": "⬆️"}.get(outcome, "❓")
             line = f"  {icon} `{pid}`"
+            if level:
+                line += f" [{level}]"
             if title:
                 line += f" — {title}"
             lines.append(line)
+            if safety_tag and outcome == "executed":
+                lines.append(f"    🛡️ 安全快照：`{safety_tag}`")
 
         text = "\n".join(lines)
 
@@ -944,18 +1272,75 @@ class TelegramAdapter(ChannelAdapter):
             return
 
         try:
-            loop = asyncio.get_event_loop()
             owner_id = int(os.environ.get("TELEGRAM_OWNER_ID", "6969045906"))
-            if loop.is_running():
-                loop.create_task(
-                    self.application.bot.send_message(
+            async def _safe_send():
+                try:
+                    await self.application.bot.send_message(
                         chat_id=owner_id,
                         text=text,
                         parse_mode="Markdown",
                     )
-                )
+                except Exception as send_err:
+                    logger.warning(f"Morphenix execution push send failed: {send_err}")
+
+            main_loop = getattr(self, "_main_async_loop", None)
+            if main_loop and not main_loop.is_closed():
+                asyncio.run_coroutine_threadsafe(_safe_send(), main_loop)
+            else:
+                logger.warning("Morphenix execution: 主事件迴圈不可用，跳過推送")
         except Exception as e:
             logger.error(f"Morphenix execution push failed: {e}")
+
+    def _on_morphenix_rollback(self, data: Optional[Dict] = None) -> None:
+        """處理 Morphenix 回滾事件 → Telegram 緊急通知."""
+        if not data or not self._running:
+            return
+
+        rollback_type = data.get("type", "")
+
+        if rollback_type == "daily_limit_reached":
+            text = (
+                "🚨 *Morphenix 緊急通知*\n\n"
+                f"⛔ 每日回滾上限已達 ({data.get('rollback_count', '?')}"
+                f"/{data.get('max_allowed', '?')})\n"
+                "🔒 Morphenix 執行已自動暫停\n"
+                "👤 需要人類介入檢查"
+            )
+        else:
+            pid = data.get("proposal_id", "?")
+            reason = data.get("reason", "unknown")
+            tag = data.get("tag_name", "?")
+            text = (
+                "⚠️ *Morphenix 回滾通知*\n\n"
+                f"📋 提案：`{pid}`\n"
+                f"📌 原因：{reason}\n"
+                f"🔄 回滾至：`{tag}`\n"
+                f"🕐 時間：{data.get('timestamp', '?')}"
+            )
+
+        if not self.application:
+            logger.warning("Telegram adapter not initialized, skipping rollback notification")
+            return
+
+        try:
+            owner_id = int(os.environ.get("TELEGRAM_OWNER_ID", "6969045906"))
+            async def _safe_send():
+                try:
+                    await self.application.bot.send_message(
+                        chat_id=owner_id,
+                        text=text,
+                        parse_mode="Markdown",
+                    )
+                except Exception as send_err:
+                    logger.warning(f"Morphenix rollback push send failed: {send_err}")
+
+            main_loop = getattr(self, "_main_async_loop", None)
+            if main_loop and not main_loop.is_closed():
+                asyncio.run_coroutine_threadsafe(_safe_send(), main_loop)
+            else:
+                logger.warning("Morphenix rollback: 主事件迴圈不可用，跳過推送")
+        except Exception as e:
+            logger.error(f"Morphenix rollback push failed: {e}")
 
     def record_user_interaction(self, user_id: str) -> None:
         """記錄用戶互動 → 更新 HeartbeatFocus + 清除閒置推播狀態.

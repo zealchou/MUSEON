@@ -1339,6 +1339,19 @@ class PlanEngine:
         plan.todos = todos or []
         plan.current_stage = StageType.TODO
 
+        # DNA-Inspired mRNA 剪接（Intron Splicing）：
+        # 自動偵測並移除與計畫範圍無關的子任務，
+        # 合併重複步驟，保留外顯子（真正需要執行的）。
+        if plan.todos:
+            original_count = len(plan.todos)
+            plan.todos = self._splice_todos(plan)
+            spliced = original_count - len(plan.todos)
+            if spliced > 0:
+                logger.info(
+                    f"[PlanEngine] mRNA splicing: {spliced} intron tasks "
+                    f"removed ({original_count} → {len(plan.todos)})"
+                )
+
         self.store.save(plan)
 
         logger.info(
@@ -1346,6 +1359,61 @@ class PlanEngine:
         )
 
         return plan.todos
+
+    def _splice_todos(self, plan: PlanDocument) -> List[TodoItem]:
+        """mRNA 剪接：移除/合併與計畫目標不相關的子任務.
+
+        DNA 類比：
+        - 外顯子（Exon）= 與計畫 changes 直接相關的任務 → 保留
+        - 內含子（Intron）= 與計畫範圍無交集的任務 → 標記移除
+        - 剪接位點（Splice Site）= 重複/冗餘步驟 → 合併
+
+        剪接規則（保守策略，寧多勿少）：
+        1. 空白/佔位任務 → 移除
+        2. 完全重複的任務描述 → 去重保留第一個
+        3. 如果計畫有明確 changes 範圍，檢查任務是否落在範圍內
+        """
+        if not plan.todos:
+            return []
+
+        # Pass 1: 移除空白任務
+        filtered = [t for t in plan.todos if t.content.strip()]
+
+        # Pass 2: 去重（保守——只對完全相同的描述去重）
+        seen_contents: set = set()
+        deduped = []
+        for t in filtered:
+            normalized = t.content.strip().lower()
+            if normalized not in seen_contents:
+                seen_contents.add(normalized)
+                deduped.append(t)
+            else:
+                logger.debug(f"[PlanEngine] Spliced duplicate intron: {t.content[:60]}")
+
+        # Pass 3: 如果計畫有 changes 清單，標記超出範圍的任務
+        # （保守策略：只 log 警告，不自動移除，避免誤判）
+        if plan.changes:
+            change_keywords = set()
+            for c in plan.changes:
+                # 從 change 描述中提取關鍵詞
+                words = re.findall(r"[\w\u4e00-\u9fff]+", c.file_path or "")
+                words += re.findall(r"[\w\u4e00-\u9fff]+", c.description or "")
+                change_keywords.update(w.lower() for w in words if len(w) > 2)
+
+            if change_keywords:
+                for t in deduped:
+                    task_words = set(
+                        w.lower() for w in re.findall(r"[\w\u4e00-\u9fff]+", t.content)
+                        if len(w) > 2
+                    )
+                    overlap = task_words & change_keywords
+                    if not overlap:
+                        logger.info(
+                            f"[PlanEngine] Potential intron task (no overlap with "
+                            f"changes): {t.content[:60]}"
+                        )
+
+        return deduped
 
     # ═══════════════════════════════════════════
     # Stage 5: Execute — 執行

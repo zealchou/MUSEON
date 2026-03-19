@@ -492,8 +492,8 @@ class GuardianDaemon:
         if not lattice_dir.exists():
             try:
                 lattice_dir.mkdir(parents=True, exist_ok=True)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[DAEMON] lattice failed (degraded): {e}")
 
         crystals_path = lattice_dir / "crystals.json"
         links_path = lattice_dir / "links.json"
@@ -519,8 +519,8 @@ class GuardianDaemon:
                     bak = fpath.with_suffix(".json.bak")
                     try:
                         fpath.rename(bak)
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.debug(f"[DAEMON] file rename failed (degraded): {e}")
                     fpath.write_text("[]", encoding="utf-8")
                     issues.append(f"{name} JSON 損壞，已備份並重建")
 
@@ -636,8 +636,8 @@ class GuardianDaemon:
                         import shutil
                         shutil.copy2(str(fpath), str(bak))
                         created += 1
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.debug(f"[DAEMON] module import failed (degraded): {e}")
 
         if created > 0:
             self._log_repair("L2", "backups", "repaired",
@@ -958,8 +958,8 @@ class GuardianDaemon:
             bak = path.with_suffix(".json.bak")
             try:
                 path.rename(bak)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[DAEMON] file rename failed (degraded): {e}")
             try:
                 path.write_text(
                     json.dumps(defaults, ensure_ascii=False, indent=2),
@@ -1084,8 +1084,8 @@ class GuardianDaemon:
         try:
             if self.unresolved_path.exists():
                 return json.loads(self.unresolved_path.read_text(encoding="utf-8"))
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[DAEMON] JSON failed (degraded): {e}")
         return []
 
     def _queue_mothership(self, layer: str, check: str, details: str):
@@ -1118,8 +1118,8 @@ class GuardianDaemon:
                     self.mothership_queue_path.read_text(encoding="utf-8")
                 )
                 return sum(1 for q in queue if not q.get("sent", False))
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[DAEMON] data read failed (degraded): {e}")
         return 0
 
     def _save_state(self):
@@ -1144,8 +1144,8 @@ class GuardianDaemon:
         try:
             if self.state_path.exists():
                 return json.loads(self.state_path.read_text(encoding="utf-8"))
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[DAEMON] JSON failed (degraded): {e}")
         return {}
 
     # ═══════════════════════════════════════

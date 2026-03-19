@@ -1524,8 +1524,8 @@ class ToolExecutor:
                     )
                     _, stderr = await asyncio.wait_for(proc.communicate(), timeout=60)
                     converted = proc.returncode == 0
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[TOOLS] async op failed (degraded): {e}")
 
             # 結果
             if converted and target_path.exists():
@@ -1619,8 +1619,8 @@ class ToolExecutor:
                     result["configured"] = [
                         {"name": k, **v} for k, v in servers.items()
                     ]
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[TOOLS] JSON failed (degraded): {e}")
 
             # 已連線的伺服器（含工具清單）
             if self._mcp_connector:
@@ -1657,8 +1657,8 @@ class ToolExecutor:
             if servers_file.exists():
                 try:
                     servers = json.loads(servers_file.read_text("utf-8"))
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[TOOLS] JSON failed (degraded): {e}")
 
             server_config = {
                 "transport": transport,
@@ -1976,6 +1976,32 @@ class ToolExecutor:
         result = await self._surgery_engine.execute_surgery(
             proposal=proposal, dry_run=dry_run,
         )
+
+        # 處理委派結果
+        if result.get("delegated"):
+            return {
+                "success": False,
+                "delegated": True,
+                "ticket_path": result.get("ticket_path", ""),
+                "message": (
+                    f"此手術涉及 {len(proposal.affected_files)} 個檔案，"
+                    f"已自動委派給 Claude Code 執行。"
+                    f"工單路徑: {result.get('ticket_path', '')}"
+                ),
+                "result": result,
+            }
+
+        # 處理驗證失敗自動回滾結果
+        if result.get("auto_rolled_back"):
+            return {
+                "success": False,
+                "auto_rolled_back": True,
+                "message": (
+                    f"手術已套用但 pytest 驗證失敗，"
+                    f"已自動回滾。錯誤: {result.get('error', '')}"
+                ),
+                "result": result,
+            }
 
         return {
             "success": result.get("success", False),

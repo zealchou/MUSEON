@@ -1,4 +1,8 @@
-"""LLM Client - Claude API wrapper with Haiku and Sonnet support."""
+"""LLM Client - Claude API wrapper (DEPRECATED: 請使用 llm/adapters.py).
+
+此模組為早期 API 直連實作，已被 adapters.py 的 FallbackAdapter 取代。
+保留供向後相容參考，不建議在新代碼中使用。
+"""
 
 import logging
 import os
@@ -20,7 +24,9 @@ class LLMClient:
     - Token-Efficient Tool Use
     """
 
+    # P4: 新增 opus（v4 三層路由）
     MODEL_MAP = {
+        "opus": "claude-opus-4-6",
         "haiku": "claude-haiku-4-5-20251001",
         "sonnet": "claude-sonnet-4-20250514",
     }
@@ -40,7 +46,7 @@ class LLMClient:
 
     async def create_message(
         self,
-        model: Literal["haiku", "sonnet"],
+        model: Literal["opus", "haiku", "sonnet"],
         messages: List[Dict[str, Any]],
         max_tokens: int = 4096,
         system: Optional[str] = None,
@@ -101,7 +107,7 @@ class LLMClient:
 
         return response
 
-    def get_model_name(self, model: Literal["haiku", "sonnet"]) -> str:
+    def get_model_name(self, model: Literal["opus", "haiku", "sonnet"]) -> str:
         """
         Get the full model name.
 
