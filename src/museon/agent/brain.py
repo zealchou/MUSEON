@@ -838,8 +838,16 @@ class MuseonBrain:
                     }
                 from museon.agent.persona_router import PersonaRouter
                 _baihe_router = PersonaRouter()
+                _baihe_context_data = {
+                    "routing_signal_loop": getattr(routing_signal, "loop", "EXPLORATION_LOOP") if routing_signal else "EXPLORATION_LOOP",
+                    "top_clusters": getattr(routing_signal, "top_clusters", []) if routing_signal else [],
+                    "matched_skills": [s.get("name", "") for s in matched_skills],
+                    "has_commitment": bool(commitment_context),
+                    "session_history_len": len(self._get_session_history(session_id)),
+                    "is_late_night": datetime.now().hour >= 23 or datetime.now().hour < 6,
+                }
                 _baihe_decision = _baihe_router.baihe_decide(
-                    content, {}, _lord_profile, _user_primals,
+                    content, _baihe_context_data, _lord_profile, _user_primals,
                 )
                 baihe_context = self._format_baihe_guidance(_baihe_decision)
 
@@ -856,8 +864,44 @@ class MuseonBrain:
                         encoding="utf-8",
                     )
                     _tmp.replace(_lord_path)
+
+                # P3: 寫入 baihe_cache 供 ProactiveBridge 讀取象限
+                try:
+                    _baihe_cache_path = self.data_dir / "_system" / "baihe_cache.json"
+                    _baihe_cache = {
+                        "quadrant": _baihe_decision.quadrant.value,
+                        "expression_mode": _baihe_decision.expression_mode,
+                        "advise_tier": _baihe_decision.advise_tier,
+                        "topic_domain": _baihe_decision.topic_domain.value,
+                        "ts": datetime.now().isoformat(),
+                    }
+                    _tmp2 = _baihe_cache_path.with_suffix(".json.tmp")
+                    _tmp2.write_text(
+                        json.dumps(_baihe_cache, ensure_ascii=False) + "\n",
+                        encoding="utf-8",
+                    )
+                    _tmp2.replace(_baihe_cache_path)
+                except Exception:
+                    pass  # 快取寫入失敗不影響核心流程
         except Exception as e:
             logger.debug(f"Step 3.65 百合引擎降級: {e}")
+
+        # ── Step 3.66: 根因偵測層 — 掃描重複模式，偵測問題背後的問題 ──
+        root_cause_hint = ""
+        try:
+            root_cause_hint = await self._detect_root_cause_hint(
+                content=content,
+                session_id=session_id,
+                matched_skills=matched_skills,
+                routing_signal=routing_signal,
+                baihe_quadrant=getattr(
+                    locals().get("_baihe_decision"), "quadrant", None
+                ),
+            )
+            if root_cause_hint:
+                logger.info(f"[RootCause] 偵測到重複模式: {root_cause_hint[:100]}")
+        except Exception as e:
+            logger.debug(f"Step 3.66 根因偵測降級: {e}")
 
         # ── Step 3.8: 深度反射 — 所有路徑前執行（dispatch 之前）──
         # 必須在 dispatch 評估前跑，確保強反射訊號能覆蓋 dispatch 決策
@@ -901,6 +945,14 @@ class MuseonBrain:
         else:
 
             # ── Step 4: 組建系統提示詞（正常 pipeline）──
+            # 合併百合引擎 + 根因偵測到同一區段
+            _combined_baihe = baihe_context
+            if root_cause_hint:
+                _combined_baihe = (
+                    (_combined_baihe + "\n" if _combined_baihe else "")
+                    + root_cause_hint
+                )
+
             system_prompt = self._build_system_prompt(
                 anima_mc=anima_mc,
                 anima_user=anima_user,
@@ -912,7 +964,7 @@ class MuseonBrain:
                 routing_signal=routing_signal,
                 commitment_context=commitment_context,
                 reflection_note=reflection_note,
-                baihe_context=baihe_context,
+                baihe_context=_combined_baihe,
             )
 
             # ── SkillHub: 注入 skill_builder 上下文 ──
@@ -5557,6 +5609,89 @@ class MuseonBrain:
         "programming": ["程式", "Python", "code", "函數", "bug", "API", "debug", "deploy", "script"],
         "emotional_regulation": ["情緒", "壓力", "焦慮", "關係", "衝突", "煩", "累", "崩潰"],
     }
+
+    # ─── 根因偵測層（P2）─────────────────────────────
+
+    async def _detect_root_cause_hint(
+        self,
+        content: str,
+        session_id: str,
+        matched_skills: list,
+        routing_signal: "Any" = None,
+        baihe_quadrant: str = "",
+    ) -> str:
+        """Step 3.66: 根因偵測 — 掃描近期對話模式，偵測問題背後的問題.
+
+        只在 EXPLORATION_LOOP 或 SLOW_LOOP 啟動。
+        使用 Haiku 低成本分析。受百合引擎 Q3 調節。
+        """
+        # 只在非 FAST_LOOP 啟動
+        loop = (
+            getattr(routing_signal, "loop", "FAST_LOOP")
+            if routing_signal else "FAST_LOOP"
+        )
+        if loop == "FAST_LOOP":
+            return ""
+
+        # 取得近期 session 歷史
+        history = self._get_session_history(session_id)
+        if len(history) < 6:  # 至少 3 輪（6 條訊息）
+            return ""
+
+        # CPU 前篩：提取近期用戶訊息
+        recent_user_msgs = [
+            h["content"][:200] for h in history[-10:]
+            if h.get("role") == "user"
+        ][-5:]
+
+        if len(recent_user_msgs) < 3:
+            return ""
+
+        # 追蹤 skill 使用模式（in-memory）
+        if not hasattr(self, "_session_skill_log"):
+            self._session_skill_log: dict = {}
+        skill_log = self._session_skill_log.get(session_id, [])
+        current_skills = [s.get("name", "") for s in matched_skills]
+        skill_log.append(current_skills)
+        if len(skill_log) > 10:
+            skill_log = skill_log[-10:]
+        self._session_skill_log[session_id] = skill_log
+
+        # CPU 啟發式：檢查重複 skill 模式
+        from collections import Counter
+        all_skills = [s for turn in skill_log[-5:] for s in turn]
+        skill_counts = Counter(all_skills)
+        repeated = [s for s, c in skill_counts.items() if c >= 3]
+
+        if not repeated:
+            return ""
+
+        # Haiku 根因假說生成
+        try:
+            prompt = (
+                f"分析以下使用者的最近對話模式，找出「問題背後的問題」。\n\n"
+                f"使用者最近 {len(recent_user_msgs)} 輪的訊息摘要：\n"
+                + "\n".join(f"- {m}" for m in recent_user_msgs)
+                + f"\n\n重複出現的需求主題：{', '.join(repeated)}"
+                + "\n\n請用 1-2 句話推測：使用者表面在問什麼？"
+                "背後真正的卡點可能是什麼？只輸出推測，不要客套話。"
+            )
+            hint = await self._call_llm_with_model(
+                system_prompt="你是根因分析器。用 1-2 句話直指問題背後的問題。",
+                messages=[{"role": "user", "content": prompt}],
+                model="claude-haiku-4-5-20251001",
+                max_tokens=150,
+            )
+            if hint and len(hint.strip()) > 10:
+                return (
+                    "\n## 根因偵測（供參考，不一定要使用）\n"
+                    f"{hint.strip()}\n"
+                    "→ 如果適當，可以溫和追問使用者背後的真正需求，"
+                    "但不要強迫或說教。"
+                )
+        except Exception as e:
+            logger.debug(f"Step 3.66 根因偵測降級: {e}")
+        return ""
 
     # ─── 百合引擎輔助方法 ─────────────────────────────
 
