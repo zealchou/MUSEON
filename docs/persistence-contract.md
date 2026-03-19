@@ -276,6 +276,7 @@ Installer 編排 (orchestrator.py)
 | W33 | 外向演化狀態 | OutwardTrigger | NightlyPipeline | JSON | 永久 | OK |
 | W34 | 八原語向量索引 | PrimalDetector | PrimalDetector.detect | Qdrant | ∞ | OK |
 | W35 | 認知追蹤日誌 | FootprintStore.trace_cognitive() | SystemAudit(Skill Doctor), Observatory | JSONL | 30 天 | OK |
+| W36 | 百合引擎決策快取 | Brain.Step 3.65 (baihe_decide) | ProactiveBridge._read_baihe_cache() | JSON | 2 小時（過期忽略） | OK |
 
 > **v1.10 補充（Phase 4 飛輪多代理）**：
 > - W10 六層記憶條目新增 `dept_id` 欄位（可選），用於部門級記憶隔離
@@ -374,6 +375,7 @@ Installer 編排 (orchestrator.py)
 | `_system/guardian/state.json` | `guardian/daemon.py` | 守護狀態 |
 | `_system/marketplace/*.json` | `federation/skill_market.py` | 技能市集註冊與安裝記錄 |
 | `_system/lord_profile.json` | `agent/brain.py` (`_observe_lord()`) | 主人領域強弱項畫像（軍師架構基礎層） |
+| `_system/baihe_cache.json` | `agent/brain.py` (Step 3.65 百合引擎) | 百合引擎最近決策快取——供 ProactiveBridge 讀取象限調整推送語氣（原子寫入 tmp→rename） |
 | `_system/budget/usage_{month}.json` | `llm/budget.py` | 月度 Token 用量 |
 
 ### `anima/` 子目錄
@@ -525,6 +527,7 @@ Installer 編排 (orchestrator.py)
 | v1.0 | 2026-03-15 | 初版：完整水電圖，涵蓋 23 個正常配對、3 個 Dead Write、14 個死目錄 |
 | v1.1 | 2026-03-15 | Phase 2 完成：4 個 JSON 遷移至 PulseDB（ceremony_state + eval 三件套） |
 | v1.2 | 2026-03-15 | Phase 3 完成：DataContract + DataBus 建立，10 個 Store 類統一接入 |
+| v1.18 | 2026-03-19 | P1-P3 藍圖同步：新增 W36 baihe_cache.json 配對（Brain Step 3.65 原子寫入、ProactiveBridge 讀取，TTL 2h）；補入 _system/baihe_cache.json 子目錄條目；同步 blast-radius/joint-map 已有的 baihe_cache 記錄 |
 | v1.17 | 2026-03-17 | 軍師架構 Phase 0：`_system/` 子目錄新增 lord_profile.json 條目（brain.py `_observe_lord()` 寫入、persona_router.py 讀取）；JSON 格式：6 領域 × 4 欄位 + domain_keywords + advise_cooldown；原子寫入（tmp→rename） |
 | v1.16 | 2026-03-17 | WorkflowEngine DataContract 接入：WorkflowEngine 實作 DataContract（store_spec+health_check）；Nightly _auto_register_known_stores 新增 workflow_state_db 自動註冊；新增 cleanup_old_executions() 清理已歸檔工作流的過期 executions（90 天） |
 | v1.15 | 2026-03-17 | 認知可觀測性：新增 W35 cognitive_trace.jsonl（FootprintStore.trace_cognitive() 寫入、SystemAudit Skill Doctor + Observatory 讀取）；管線 D 新增 Footprint→cognitive_trace.jsonl 資料流；FootprintStore DataContract 描述更新（actions+decisions+evolutions+cognitive_trace 四檔）；`_system/footprints/` 子目錄新增 cognitive_trace.jsonl 條目 |
