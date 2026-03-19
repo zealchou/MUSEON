@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>會議記錄 · 符大哥 × MUSEON · 2026-03</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ember: #C4502A;
+    --ember-light: #E0714D;
+    --ember-dark: #9A3A1C;
+    --teal: #2A7A6E;
+    --gold: #B8923A;
+    --ink: #12121A;
+    --slate: #5A5A6E;
+    --mist: #9898A8;
+    --border: #E2E0DA;
+    --parchment: #F7F5F0;
+    --snow: #FDFCFA;
+    --deep-ink: #0E0E16;
+    --surface: #16161F;
+    --raised: #1E1E2A;
+    --success: #2D8A6E;
+    --warning: #C9943A;
+    --error: #C4402A;
+    --info: #2A6A8A;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+    background: var(--parchment);
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: var(--deep-ink);
+    color: #fff;
+    padding: 80px 40px 64px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 70% 50%, rgba(196,80,42,0.18) 0%, transparent 65%),
+                radial-gradient(ellipse at 20% 80%, rgba(42,122,110,0.12) 0%, transparent 55%);
+    pointer-events: none;
+  }
+  .hero-inner {
+    max-width: 820px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(196,80,42,0.15);
+    border: 1px solid rgba(196,80,42,0.35);
+    color: var(--ember-light);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 100px;
+    margin-bottom: 24px;
+  }
+  .hero-badge::before { content: '●'; font-size: 8px; }
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 48px;
+    font-weight: 600;
+    line-height: 1.15;
+    color: #fff;
+    margin-bottom: 12px;
+  }
+  .hero h1 em { font-style: italic; color: var(--ember-light); }
+  .hero-subtitle {
+    font-size: 18px;
+    color: rgba(255,255,255,0.62);
+    font-weight: 300;
+    margin-bottom: 40px;
+    max-width: 600px;
+  }
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    padding-top: 32px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+  .meta-item { display: flex; flex-direction: column; gap: 4px; }
+  .meta-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+  }
+  .meta-value { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.85); }
+
+  /* ── LAYOUT ── */
+  .page { max-width: 820px; margin: 0 auto; padding: 0 40px 96px; }
+
+  /* ── EXECUTIVE BRIEF ── */
+  .exec-brief {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px 36px;
+    margin-top: -32px;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 4px 24px rgba(18,18,26,0.08);
+  }
+  .exec-brief-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ember);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .exec-brief-label::before { content: '⚡'; font-size: 12px; }
+  .exec-brief h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--ink);
+  }
+  .exec-brief p {
+    font-size: 15px;
+    color: var(--slate);
+    line-height: 1.75;
+  }
+  .exec-brief p strong { color: var(--ink); }
+  .exec-kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  .exec-kpi {
+    text-align: center;
+  }
+  .exec-kpi-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--ember);
+    line-height: 1.2;
+  }
+  .exec-kpi-label {
+    font-size: 12px;
+    color: var(--mist);
+    margin-top: 4px;
+  }
+
+  /* ── SECTION HEADERS ── */
+  .section {
+    padding: 48px 0 0;
+    animation: fadeUp 0.4s ease-out both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .section-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ember);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .section h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 24px;
+    line-height: 1.25;
+  }
+
+  /* ── PARTICIPANTS ── */
+  .participants-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .participant-card {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    transition: transform 200ms ease, box-shadow 200ms ease;
+  }
+  .participant-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(18,18,26,0.08);
+  }
+  .participant-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+  .avatar-ember { background: rgba(196,80,42,0.12); color: var(--ember-dark); }
+  .avatar-teal  { background: rgba(42,122,110,0.12); color: var(--teal); }
+  .avatar-gold  { background: rgba(184,146,58,0.12); color: var(--gold); }
+  .participant-info h4 { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+  .participant-info p  { font-size: 13px; color: var(--slate); line-height: 1.5; }
+  .participant-role {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 100px;
+    margin-top: 6px;
+  }
+  .role-host { background: rgba(196,80,42,0.1); color: var(--ember-dark); }
+  .role-guest { background: rgba(42,122,110,0.1); color: var(--teal); }
+  .role-observer { background: rgba(184,146,58,0.1); color: #8a6e2a; }
+
+  /* ── PROFILE RADAR (八原語) ── */
+  .profile-section {
+    margin-top: 16px;
+  }
+  .profile-bars {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 24px;
+  }
+  .profile-bar-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .profile-bar-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--slate);
+    width: 56px;
+    flex-shrink: 0;
+    text-align: right;
+  }
+  .profile-bar-track {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .profile-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.6s ease;
+  }
+  .fill-ember { background: var(--ember); }
+  .fill-teal { background: var(--teal); }
+  .fill-gold { background: var(--gold); }
+  .fill-mist { background: var(--mist); }
+  .profile-bar-val {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--mist);
+    width: 28px;
+  }
+
+  /* ── TOPIC CLUSTERS ── */
+  .topic-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .topic-card {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    transition: transform 200ms ease, box-shadow 200ms ease;
+  }
+  .topic-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(18,18,26,0.08);
+  }
+  .topic-card.full-width {
+    grid-column: 1 / -1;
+  }
+  .topic-tag {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 10px;
+    border-radius: 100px;
+    margin-bottom: 12px;
+  }
+  .tag-ops { background: rgba(42,122,110,0.1); color: var(--teal); }
+  .tag-strategy { background: rgba(196,80,42,0.1); color: var(--ember-dark); }
+  .tag-biz { background: rgba(184,146,58,0.1); color: #8a6e2a; }
+  .topic-card h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .topic-card p {
+    font-size: 14px;
+    color: var(--slate);
+    line-height: 1.65;
+  }
+  .topic-evidence {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .topic-evidence-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--mist);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .topic-evidence blockquote {
+    font-size: 13px;
+    color: var(--slate);
+    font-style: italic;
+    padding-left: 12px;
+    border-left: 2px solid var(--border);
+    line-height: 1.6;
+  }
+
+  /* ── SESSIONS TIMELINE ── */
+  .timeline { position: relative; padding-left: 28px; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--ember), var(--teal), var(--border));
+  }
+  .timeline-item { position: relative; margin-bottom: 32px; }
+  .timeline-dot {
+    position: absolute;
+    left: -28px;
+    top: 6px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--ember);
+    border: 2px solid var(--parchment);
+    z-index: 1;
+  }
+  .timeline-item:last-child .timeline-dot { background: var(--teal); }
+  .timeline-card {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    transition: transform 200ms ease, box-shadow 200ms ease;
+  }
+  .timeline-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(18,18,26,0.08);
+  }
+  .timeline-date {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--ember);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .timeline-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .timeline-body { font-size: 15px; line-height: 1.75; color: var(--slate); }
+  .timeline-body p { margin-bottom: 10px; }
+  .timeline-body strong { color: var(--ink); }
+
+  /* ── DIALOGUE EXCERPT ── */
+  .dialogue {
+    background: var(--parchment);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 12px 0;
+  }
+  .dialogue-line {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .dialogue-line:last-child { margin-bottom: 0; }
+  .dialogue-speaker {
+    font-weight: 600;
+    flex-shrink: 0;
+    font-size: 13px;
+  }
+  .speaker-joh { color: var(--teal); }
+  .speaker-museon { color: var(--ember); }
+  .speaker-zeal { color: var(--gold); }
+  .dialogue-text { color: var(--slate); }
+  .dialogue-text em { font-style: italic; color: var(--mist); }
+
+  /* ── MATERIALS LIST ── */
+  .materials-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .material-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(184,146,58,0.1);
+    border: 1px solid rgba(184,146,58,0.25);
+    color: #8a6e2a;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 100px;
+  }
+
+  /* ── DSE BOX ── */
+  .dse-box {
+    background: var(--deep-ink);
+    border-radius: 12px;
+    padding: 32px 36px;
+    margin-top: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+  .dse-box::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 80% 20%, rgba(196,80,42,0.15) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .dse-box-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ember-light);
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .dse-box h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .dse-box p, .dse-box li {
+    font-size: 15px;
+    color: rgba(255,255,255,0.72);
+    line-height: 1.75;
+    position: relative;
+  }
+  .dse-box ul { list-style: none; }
+  .dse-box li { padding: 4px 0 4px 20px; position: relative; }
+  .dse-box li::before { content: '→'; position: absolute; left: 0; color: var(--ember-light); }
+
+  /* ── INSIGHT CARDS ── */
+  .insight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .insight-card {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--ember);
+    border-radius: 0 10px 10px 0;
+    padding: 20px 24px;
+  }
+  .insight-card.teal { border-left-color: var(--teal); }
+  .insight-card.gold { border-left-color: var(--gold); }
+  .insight-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--ember);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .insight-card.teal .insight-num { color: var(--teal); }
+  .insight-card.gold .insight-num { color: var(--gold); }
+  .insight-card h4 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+  .insight-card p  { font-size: 14px; color: var(--slate); line-height: 1.65; }
+
+  /* ── PULL QUOTE ── */
+  .pull-quote {
+    border-left: 3px solid var(--ember);
+    padding: 16px 24px;
+    margin: 24px 0;
+    background: rgba(196,80,42,0.04);
+    border-radius: 0 8px 8px 0;
+  }
+  .pull-quote p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-style: italic;
+    color: var(--ink);
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+  .pull-quote cite {
+    font-size: 12px;
+    color: var(--slate);
+    font-style: normal;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* ── DECISION TABLE ── */
+  .decision-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  .decision-table th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--slate);
+    padding: 10px 16px;
+    text-align: left;
+    border-bottom: 2px solid var(--border);
+    background: var(--snow);
+  }
+  .decision-table td {
+    font-size: 14px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    background: var(--snow);
+  }
+  .decision-table tr:last-child td { border-bottom: none; }
+  .decision-table tr:hover td { background: var(--parchment); }
+  .status-badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 100px;
+  }
+  .status-done { background: rgba(45,138,110,0.1); color: #1e6a50; }
+  .status-pending { background: rgba(201,148,58,0.12); color: #8a6020; }
+  .status-action { background: rgba(196,80,42,0.1); color: var(--ember-dark); }
+
+  /* ── ACTION ITEMS (Plaud-inspired: Who + What + When + Risk) ── */
+  .action-list { list-style: none; }
+  .action-item {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 12px;
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 16px;
+    transition: transform 200ms ease;
+  }
+  .action-item:hover { transform: translateY(-1px); }
+  .action-index {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(196,80,42,0.1);
+    color: var(--ember-dark);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .action-content h4 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .action-content p  { font-size: 14px; color: var(--slate); line-height: 1.6; margin-bottom: 8px; }
+  .action-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .action-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--slate);
+  }
+  .action-meta-item .label { color: var(--mist); }
+  .action-risk {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 100px;
+  }
+  .risk-low { background: rgba(45,138,110,0.1); color: #1e6a50; }
+  .risk-mid { background: rgba(201,148,58,0.12); color: #8a6020; }
+  .risk-high { background: rgba(196,64,42,0.1); color: var(--ember-dark); }
+
+  /* ── OPEN QUESTIONS ── */
+  .open-q-list { list-style: none; counter-reset: open-q; }
+  .open-q-item {
+    counter-increment: open-q;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .open-q-item:last-child { border-bottom: none; }
+  .open-q-item::before {
+    content: 'Q' counter(open-q);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ember);
+    background: rgba(196,80,42,0.08);
+    padding: 4px 8px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .open-q-text {
+    font-size: 15px;
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .open-q-text span {
+    display: block;
+    font-size: 13px;
+    color: var(--mist);
+    margin-top: 4px;
+  }
+
+  /* ── NEXT STEPS ── */
+  .next-steps-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .next-step-card {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    transition: transform 200ms ease;
+  }
+  .next-step-card:hover { transform: translateY(-2px); }
+  .next-step-card h4 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+  .next-step-card p  { font-size: 14px; color: var(--slate); line-height: 1.65; }
+  .priority-high { border-top: 3px solid var(--ember); }
+  .priority-mid  { border-top: 3px solid var(--teal); }
+
+  /* ── FOOTER ── */
+  .footer {
+    background: var(--deep-ink);
+    color: rgba(255,255,255,0.5);
+    text-align: center;
+    padding: 40px;
+    font-size: 13px;
+    font-family: 'IBM Plex Mono', monospace;
+    margin-top: 80px;
+  }
+  .footer strong { color: rgba(255,255,255,0.85); }
+  .footer a { color: var(--ember-light); text-decoration: none; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    .hero { padding: 56px 24px 48px; }
+    .hero h1 { font-size: 34px; }
+    .page { padding: 0 24px 64px; }
+    .exec-brief { margin-left: 24px; margin-right: 24px; padding: 24px; }
+    .exec-kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .participants-grid,
+    .insight-grid,
+    .next-steps-grid,
+    .topic-grid,
+    .profile-bars { grid-template-columns: 1fr; }
+    .action-item { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ HERO ══════════════════════════════════════════ -->
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">Group Meeting Notes · WF-GMN-01</div>
+    <h1>符大哥 × MUSEON<br><em>旅行社 AI 導入洽談</em></h1>
+    <p class="hero-subtitle">從真實行程壓測到老闆 Pitch 準備——兩週對話中浮現的商業信號與戰略機會</p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">時間跨度</span>
+        <span class="meta-value">2026-03-12 → 03-18</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">對話輪次</span>
+        <span class="meta-value">32 次互動</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">素材傳送</span>
+        <span class="meta-value">7 張照片 + 2 份文件</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">交付物</span>
+        <span class="meta-value">戰略清單 + HTML 報告</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">生成時間</span>
+        <span class="meta-value">2026-03-19</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ══ EXECUTIVE BRIEF (Plaud-inspired: 30 秒掌握全貌) ══ -->
+<div class="page">
+  <div class="exec-brief">
+    <div class="exec-brief-label">Executive Brief · 30 秒摘要</div>
+    <h3>這兩週發生了什麼？</h3>
+    <p>
+      符大哥（Joh）是一位旅行社業者，他做了兩件事：<strong>第一</strong>，用一個正在執行中的日本東北行程（仙台花卷盛岡 5 日）來壓測 MUSEON 的實際能力——傳了 7 張行程照片和 1 份選餐檔，要求即時分析行程邏輯、餐廳對比、車程計算。<strong>第二</strong>，壓測通過後，他要求一份 1,000 字以內的「戰略功能摘要」，準備拿去向旅行社老闆做 MUSEON 的導入提案。
+    </p>
+    <p style="margin-top:12px;">
+      <strong>一句話結論</strong>：他不是在「試用 AI」，他是在<strong>替 MUSEON 做市場推廣的前置作業</strong>。如果 Pitch 成功，這條線會從一個人變成整間旅行社 + 同業人脈。
+    </p>
+    <div class="exec-kpi-row">
+      <div class="exec-kpi">
+        <div class="exec-kpi-num">32</div>
+        <div class="exec-kpi-label">互動次數</div>
+      </div>
+      <div class="exec-kpi">
+        <div class="exec-kpi-num">2</div>
+        <div class="exec-kpi-label">主要 Session</div>
+      </div>
+      <div class="exec-kpi">
+        <div class="exec-kpi-num">9</div>
+        <div class="exec-kpi-label">素材傳送</div>
+      </div>
+      <div class="exec-kpi">
+        <div class="exec-kpi-num" style="color:var(--warning);">待定</div>
+        <div class="exec-kpi-label">Pitch 結果</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 01. PARTICIPANTS ══ -->
+  <section class="section">
+    <div class="section-label">01 · 參與者</div>
+    <h2>對話的兩端</h2>
+    <div class="participants-grid">
+      <div class="participant-card">
+        <div class="participant-avatar avatar-ember">ZC</div>
+        <div class="participant-info">
+          <h4>Zeal（MUSEON 創辦人）</h4>
+          <p>MUSEON AI 顧問系統的創辦人，商業策略端決策者。負責判斷合作深度與商業模式。</p>
+          <span class="participant-role role-host">決策者</span>
+        </div>
+      </div>
+      <div class="participant-card">
+        <div class="participant-avatar avatar-teal">Joh</div>
+        <div class="participant-info">
+          <h4>符大哥（Joh）</h4>
+          <p>旅行社業者，探索 AI 工具在國際旅行社場域的導入可行性。好奇心極強，會主動壓測工具能力。</p>
+          <span class="participant-role role-guest">潛在客戶 / 推廣者</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 八原語 Profile -->
+    <div class="profile-section">
+      <div class="section-label" style="padding-top:0; margin-bottom:12px;">符大哥的行為驅力（八原語分析）</div>
+      <div class="profile-bars">
+        <div class="profile-bar-item">
+          <span class="profile-bar-name">好奇心</span>
+          <div class="profile-bar-track"><div class="profile-bar-fill fill-ember" style="width:100%"></div></div>
+          <span class="profile-bar-val">100</span>
+        </div>
+        <div class="profile-bar-item">
+          <span class="profile-bar-name">邊界</span>
+          <div class="profile-bar-track"><div class="profile-bar-fill fill-teal" style="width:30%"></div></div>
+          <span class="profile-bar-val">30</span>
+        </div>
+        <div class="profile-bar-item">
+          <span class="profile-bar-name">志向</span>
+          <div class="profile-bar-track"><div class="profile-bar-fill fill-gold" style="width:16%"></div></div>
+          <span class="profile-bar-val">16</span>
+        </div>
+        <div class="profile-bar-item">
+          <span class="profile-bar-name">積累</span>
+          <div class="profile-bar-track"><div class="profile-bar-fill fill-gold" style="width:16%"></div></div>
+          <span class="profile-bar-val">16</span>
+        </div>
+        <div class="profile-bar-item">
+          <span class="profile-bar-name">行動力</span>
+          <div class="profile-bar-track"><div class="profile-bar-fill fill-gold" style="width:16%"></div></div>
+          <span class="profile-bar-val">16</span>
+        </div>
+        <div class="profile-bar-item">
+          <span class="profile-bar-name">盲點</span>
+          <div class="profile-bar-track"><div class="profile-bar-fill fill-gold" style="width:16%"></div></div>
+          <span class="profile-bar-val">16</span>
+        </div>
+        <div class="profile-bar-item">
+          <span class="profile-bar-name">情緒</span>
+          <div class="profile-bar-track"><div class="profile-bar-fill fill-mist" style="width:0%"></div></div>
+          <span class="profile-bar-val">0</span>
+        </div>
+        <div class="profile-bar-item">
+          <span class="profile-bar-name">連結</span>
+          <div class="profile-bar-track"><div class="profile-bar-fill fill-mist" style="width:0%"></div></div>
+          <span class="profile-bar-val">0</span>
+        </div>
+      </div>
+      <p style="font-size:13px; color:var(--mist); margin-top:12px;">行為指引：好奇心驅動型——他不需要被「說服」，需要被「滿足」。給他越深的東西、他黏得越緊。</p>
+    </div>
+  </section>
+
+  <!-- ══ 02. TOPIC CLUSTERS (按主題聚類，非按時間排) ══ -->
+  <section class="section">
+    <div class="section-label">02 · 討論主題聚類</div>
+    <h2>這兩週圍繞了哪些核心議題</h2>
+    <div class="topic-grid">
+
+      <div class="topic-card">
+        <span class="topic-tag tag-ops">實戰壓測</span>
+        <h4>選餐作業邏輯</h4>
+        <p>符大哥傳來真實的選餐檔（MST0419-K.docx），要 MUSEON 理解旅行社的「選餐檔」到底在做什麼。核心發現：選餐檔 = 「已訂位置、尚未選定餐廳」的決策暫存狀態——是作業人員與客人共同決策的工作介面。</p>
+        <div class="topic-evidence">
+          <div class="topic-evidence-label">原文佐證</div>
+          <blockquote>「已經訂好位置，但還沒決定要用哪家餐廳，因為還需要比較兩家餐廳的菜色和其他條件。」</blockquote>
+        </div>
+      </div>
+
+      <div class="topic-card">
+        <span class="topic-tag tag-ops">實戰壓測</span>
+        <h4>行程動線規劃</h4>
+        <p>35 人團體、午餐預算 3,300 日圓。符大哥要求分析「從餐廳出發到飯店結束的一整天行程」的地點順序、距離與時間。這不是理論題，是正在執行的客戶行程。</p>
+        <div class="topic-evidence">
+          <div class="topic-evidence-label">原文佐證</div>
+          <blockquote>「所有地點（從餐廳出發到飯店結束的一整天行程）的行程順序，距離和時間。」</blockquote>
+        </div>
+      </div>
+
+      <div class="topic-card">
+        <span class="topic-tag tag-strategy">商業策略</span>
+        <h4>MUSEON 戰略價值翻譯</h4>
+        <p>壓測過了之後，符大哥的需求從「這東西能不能用」跳到「我怎麼把它賣給老闆」。他要的不是功能列表，而是一份能讓旅行社老闆理解的商業語言——1,000 字以內，直接講「能幫我省多少人、多賺多少」。</p>
+        <div class="topic-evidence">
+          <div class="topic-evidence-label">原文佐證</div>
+          <blockquote>「你在嗎？請告訴我你現在在戰略層面可以提供的功能是什麼？我要跟旅行社老闆做介紹，限制在 1000 個字以內。」</blockquote>
+        </div>
+      </div>
+
+      <div class="topic-card">
+        <span class="topic-tag tag-biz">關係動態</span>
+        <h4>資源與邊界管理</h4>
+        <p>Zeal 中途因 API 用量被用完而暫停服務（「暫時不要用了，我正事沒辦法用了」），後續重新購買 Max 200 方案恢復。符大哥的反應是「Okok，我另外弄一個」——邊界清楚，不黏不鬧，合作成熟度高。</p>
+        <div class="topic-evidence">
+          <div class="topic-evidence-label">原文佐證</div>
+          <blockquote>「Okok，我另外弄一個」</blockquote>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══ 03. SESSION TIMELINE ══ -->
+  <section class="section">
+    <div class="section-label">03 · 對話時間軸</div>
+    <h2>兩場關鍵 Session</h2>
+    <div class="timeline">
+
+      <!-- Session 1 -->
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card">
+          <div class="timeline-date">Session 1 · 2026-03-13</div>
+          <div class="timeline-title">仙台花卷盛岡 5 日行程分析</div>
+          <div class="timeline-body">
+            <p>符大哥傳來日本東北行程的完整素材——7 張行程照片 + 1 份選餐檔（MST0419-K.docx），要求 MUSEON 即時分析。他一開始就設定了清楚的期望：<strong>「如果需要我重新傳送，請直接跟我說」</strong>——這是有合作經驗的人才會主動提的話。</p>
+            <p>在 MUSEON 回覆後，他沒有直接接受分析結果，而是追問：<strong>「你在其中看到了什麼資訊？我想知道你看到什麼？我要跟你討論。」</strong>——他不要答案，要「對齊認知」。這是好奇心 100 分的典型行為。</p>
+          </div>
+          <div class="dialogue">
+            <div class="dialogue-line">
+              <span class="dialogue-speaker speaker-joh">Joh：</span>
+              <span class="dialogue-text">35 人，中午的午餐 3300 日圓</span>
+            </div>
+            <div class="dialogue-line">
+              <span class="dialogue-speaker speaker-joh">Joh：</span>
+              <span class="dialogue-text">我提供一份檔案給你，作為選餐檔的製作參考</span>
+            </div>
+            <div class="dialogue-line">
+              <span class="dialogue-speaker speaker-joh">Joh：</span>
+              <span class="dialogue-text">請問你在其中看到了什麼資訊？我想知道你看到什麼？我要跟你討論</span>
+            </div>
+          </div>
+          <div class="materials-list">
+            <span class="material-tag">仙台行程圖 ×7</span>
+            <span class="material-tag">MST0419-K.docx</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Session 2 -->
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card">
+          <div class="timeline-date">Session 2 · 2026-03-18</div>
+          <div class="timeline-title">MUSEON 戰略價值 Pitch 準備</div>
+          <div class="timeline-body">
+            <p>五天後，符大哥的需求升級了。他不再問「能不能用」，而是直接說：<strong>「告訴我你在戰略層面可以提供的功能，1,000 字以內。」</strong></p>
+            <p>這句話包含三個商業信號：</p>
+            <p><strong>(1)</strong> 他已經決定要推薦 MUSEON 給老闆——不是「考慮中」，是「幫我準備銷售材料」。<br>
+            <strong>(2)</strong> 1,000 字限制 = 他在模擬老闆的注意力預算。<br>
+            <strong>(3)</strong> 要「戰略層面」而非「功能列表」——他懂得區分老闆要聽什麼和技術人員要聽什麼。</p>
+          </div>
+          <div class="dialogue">
+            <div class="dialogue-line">
+              <span class="dialogue-speaker speaker-joh">Joh：</span>
+              <span class="dialogue-text">你在嗎？請告訴我你現在在戰略層面可以提供的功能是什麼？我要跟旅行社老闆做介紹，限制在 1000 個字以內。</span>
+            </div>
+          </div>
+          <div class="materials-list">
+            <span class="material-tag">戰略清單（1,000 字內）</span>
+            <span class="material-tag">travel_agency_ai_report_2026.html</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══ 04. PULL QUOTE ══ -->
+  <section class="section" style="padding-top:32px;">
+    <div class="pull-quote">
+      <p>「你在嗎？請告訴我你現在在戰略層面可以提供的功能是什麼？我要跟旅行社老闆做介紹，限制在 1000 個字以內。」</p>
+      <cite>— 符大哥 · 2026-03-18 16:11</cite>
+    </div>
+  </section>
+
+  <!-- ══ 05. DSE ANALYSIS ══ -->
+  <section class="section">
+    <div class="section-label">05 · DSE 第一性原理分析</div>
+    <h2>這段對話的底層結構</h2>
+    <div class="dse-box">
+      <div class="dse-box-label">DSE · 深層因果鏈</div>
+      <h3>符大哥真正在做什麼？</h3>
+      <p>拿掉所有表面行為，底層結構是一條經典的<strong style="color:#E0714D;">內部銷售員養成鏈</strong>：</p>
+      <br>
+      <ul>
+        <li><strong style="color:#E0714D;">能力驗證</strong>（Session 1）——用真實工作壓測，確認 MUSEON 理解旅行社的作業語言，而不只是「會聊天的 AI」</li>
+        <li><strong style="color:#E0714D;">信任轉化</strong>（Session 1→2 之間的沉默期）——五天沒說話，代表他在內部消化、對照、判斷</li>
+        <li><strong style="color:#E0714D;">銷售武裝</strong>（Session 2）——要的是「幫我向老闆銷售的彈藥」，不是「教我怎麼用」</li>
+        <li><strong style="color:#E0714D;">風險降低</strong>——他替老闆設定 1,000 字限制 = 「如果老闆不買單，至少不會花太多時間」</li>
+      </ul>
+      <br>
+      <p><strong style="color:#fff;">核心假設</strong>：符大哥的角色是 MUSEON 在旅行社圈子的「第零號推廣者」。他的成敗決定這條垂直市場線的存活。</p>
+    </div>
+  </section>
+
+  <!-- ══ 06. KEY INSIGHTS ══ -->
+  <section class="section">
+    <div class="section-label">06 · 關鍵洞見</div>
+    <h2>四個不能忽略的訊號</h2>
+    <div class="insight-grid">
+      <div class="insight-card">
+        <div class="insight-num">Insight 01</div>
+        <h4>他在做的是「內部銷售」</h4>
+        <p>不是在問「AI 有什麼功能」，是在問「我怎麼把這個東西賣給我老闆」。Early Adopter 的典型行為——自己買單之前，先幫你做市場驗證。</p>
+      </div>
+      <div class="insight-card teal">
+        <div class="insight-num">Insight 02</div>
+        <h4>真實壓測 > 一百場 Demo</h4>
+        <p>他傳的是正在執行中的客戶行程，不是假資料。代表信任度已經跨過「試玩」門檻，進入「能不能放進我的工作流」的評估。</p>
+      </div>
+      <div class="insight-card gold">
+        <div class="insight-num">Insight 03</div>
+        <h4>「對齊認知」的追問模式</h4>
+        <p>「你看到了什麼？我要跟你討論。」——這不是在要答案，是在測試 MUSEON 是否真的「懂」旅行社的語言。通過這關才會走到 Session 2。</p>
+      </div>
+      <div class="insight-card">
+        <div class="insight-num">Insight 04</div>
+        <h4>邊界清楚 = 合作品質高</h4>
+        <p>API 用量用完時他的反應是「Okok，我另外弄一個」——不糾纏、不抱怨。這種合作者值得優先服務。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 07. DECISIONS ══ -->
+  <section class="section">
+    <div class="section-label">07 · 決策紀錄</div>
+    <h2>這兩週做了哪些決定</h2>
+    <table class="decision-table">
+      <thead>
+        <tr>
+          <th>決策事項</th>
+          <th>負責方</th>
+          <th>狀態</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>選餐作業邏輯診斷——確認「選餐檔 = 待選定狀態」的定義</td>
+          <td>MUSEON</td>
+          <td><span class="status-badge status-done">已完成</span></td>
+        </tr>
+        <tr>
+          <td>行程地點順序 × 車程 × 餐廳時間邏輯分析</td>
+          <td>MUSEON</td>
+          <td><span class="status-badge status-done">已完成</span></td>
+        </tr>
+        <tr>
+          <td>戰略價值清單（1,000 字內）撰寫與交付</td>
+          <td>MUSEON</td>
+          <td><span class="status-badge status-done">已完成</span></td>
+        </tr>
+        <tr>
+          <td>完整旅行社 AI 導入 HTML 報告生成與發佈</td>
+          <td>MUSEON</td>
+          <td><span class="status-badge status-done">已完成</span></td>
+        </tr>
+        <tr>
+          <td>向旅行社老闆進行 MUSEON Pitch</td>
+          <td>符大哥</td>
+          <td><span class="status-badge status-pending">待執行</span></td>
+        </tr>
+        <tr>
+          <td>Pitch 結果回饋 → 決定後續合作深度</td>
+          <td>雙方</td>
+          <td><span class="status-badge status-action">待確認</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ══ 08. ACTION ITEMS (Plaud-inspired: Who + What + When + Risk) ══ -->
+  <section class="section">
+    <div class="section-label">08 · 行動清單</div>
+    <h2>接下來誰要做什麼</h2>
+    <ul class="action-list">
+      <li class="action-item">
+        <div class="action-index">A1</div>
+        <div class="action-content">
+          <h4>符大哥執行 Pitch</h4>
+          <p>使用已交付的「旅行社 × MUSEON 戰略價值清單」向旅行社老闆做簡報。重點打「省人力 + 客戶決策加速 + 可交付物品質」三張牌。</p>
+          <div class="action-meta">
+            <span class="action-meta-item"><span class="label">Owner:</span> 符大哥</span>
+            <span class="action-meta-item"><span class="label">Deadline:</span> 2026-03 月底前</span>
+            <span class="action-risk risk-mid">卡點預警：老闆可能問「多少錢」，需要先備好定價方案</span>
+          </div>
+        </div>
+      </li>
+      <li class="action-item">
+        <div class="action-index">A2</div>
+        <div class="action-content">
+          <h4>Pitch 結果回饋</h4>
+          <p>老闆的具體反應是什麼？有哪些疑慮？「太貴」「不信任AI」「不知道怎麼開始」——每種反應對應不同的下一步。</p>
+          <div class="action-meta">
+            <span class="action-meta-item"><span class="label">Owner:</span> 符大哥 → Zeal</span>
+            <span class="action-meta-item"><span class="label">Deadline:</span> Pitch 後 48 小時內</span>
+            <span class="action-risk risk-low">低風險：符大哥主動回饋意願高</span>
+          </div>
+        </div>
+      </li>
+      <li class="action-item">
+        <div class="action-index">A3</div>
+        <div class="action-content">
+          <h4>準備旅行社定價方案（如 Pitch 有進展）</h4>
+          <p>根據三層漏斗架構：即答型（無限）+ 工單型（選餐分析、行程優化）+ 專案型（完整 AI 導入報告）。月費制，旅行社老闆聽得懂的語言。</p>
+          <div class="action-meta">
+            <span class="action-meta-item"><span class="label">Owner:</span> Zeal + MUSEON</span>
+            <span class="action-meta-item"><span class="label">Trigger:</span> Pitch 結果正面時</span>
+            <span class="action-risk risk-mid">卡點預警：旅行社利潤薄，定價要能對齊「省人力 = 省錢」的邏輯</span>
+          </div>
+        </div>
+      </li>
+      <li class="action-item">
+        <div class="action-index">A4</div>
+        <div class="action-content">
+          <h4>仙台行程完整版輸出（可選 Demo）</h4>
+          <p>把 MST0419-K 選餐作業走完一遍——輸出「餐廳 A/B 對比表 + 最佳用餐時段 + 備案方案」。可作為 Pitch 的實體附件，讓老闆看見「AI 做出來長什麼樣」。</p>
+          <div class="action-meta">
+            <span class="action-meta-item"><span class="label">Owner:</span> MUSEON</span>
+            <span class="action-meta-item"><span class="label">Trigger:</span> 符大哥確認需要時</span>
+            <span class="action-risk risk-low">低風險：素材已到位，執行即可</span>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ══ 09. OPEN QUESTIONS ══ -->
+  <section class="section">
+    <div class="section-label">09 · 待解問題</div>
+    <h2>這些問題還沒有答案</h2>
+    <ul class="open-q-list">
+      <li class="open-q-item">
+        <div class="open-q-text">
+          符大哥的老闆是什麼類型？數字導向（「省多少錢」）還是故事導向（「同業誰在用」）？
+          <span>影響 Pitch 策略與後續銷售材料的調性。</span>
+        </div>
+      </li>
+      <li class="open-q-item">
+        <div class="open-q-text">
+          旅行社目前的 IT 工具棧是什麼？用 Excel 排行程還是有專業軟體？
+          <span>決定 MUSEON 要取代什麼、還是疊加在什麼上面。</span>
+        </div>
+      </li>
+      <li class="open-q-item">
+        <div class="open-q-text">
+          符大哥在這間旅行社的角色——是員工、合夥人、還是獨立 OP？
+          <span>影響他推動導入的權限和速度。</span>
+        </div>
+      </li>
+      <li class="open-q-item">
+        <div class="open-q-text">
+          如果老闆買單，第一個月要解決的「一件事」是什麼？選餐自動化？行程優化？還是客戶溝通？
+          <span>聚焦比全面更重要。一個月做好一件事 > 三件事都做到 60 分。</span>
+        </div>
+      </li>
+      <li class="open-q-item">
+        <div class="open-q-text">
+          符大哥有同業人脈的推廣意願嗎？還是只打算自己用？
+          <span>決定這是「一單生意」還是「一條渠道」。</span>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ══ 10. NEXT STEPS ══ -->
+  <section class="section">
+    <div class="section-label">10 · 戰略優先級</div>
+    <h2>下一步怎麼走</h2>
+    <div class="next-steps-grid">
+      <div class="next-step-card priority-high">
+        <h4>等 Pitch 結果</h4>
+        <p>最高優先。老闆的反應決定：(A) 單店試用 → (B) 整間旅行社導入 → (C) 同業推廣。三條路需要不同的資源配置。</p>
+      </div>
+      <div class="next-step-card priority-high">
+        <h4>備好定價方案</h4>
+        <p>Pitch 成功後老闆第一個問題一定是「多少錢」。月薪制 + 三層漏斗的旅行社版本要預先準備好，不能臨時掰。</p>
+      </div>
+      <div class="next-step-card priority-mid">
+        <h4>旅行社 SOP 標準化</h4>
+        <p>選餐分析、行程動線、成本可見化——固化為可重複使用的旅行社專屬 Skill，降低每次執行的邊際成本。</p>
+      </div>
+      <div class="next-step-card priority-mid">
+        <h4>日本行程案例庫</h4>
+        <p>仙台花卷盛岡 = 第一個案例。如果做得好，可以快速複製到其他路線（東京、大阪、北海道），形成旅行社 AI 的案例資產。</p>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /page -->
+
+<!-- ══ FOOTER ══ -->
+<footer class="footer">
+  <p>
+    <strong>MUSEON · 群組會議記錄引擎 (WF-GMN-01)</strong><br>
+    自動生成時間：2026-03-19 ·
+    <a href="https://zealchou.github.io/museon-reports/reports/group_meeting_notes_joh_20260318.html">
+      外部鏈接
+    </a><br>
+    <span style="margin-top:8px;display:block;">
+      本記錄由 MUSEON AI 自動整理群組對話內容生成，融合 Plaud 會議記錄方法論與 DSE 第一性原理分析。<br>
+      供內部戰略決策參考使用。
+    </span>
+  </p>
+</footer>
+
+</body>
+</html>
