@@ -23,6 +23,8 @@ from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
 
+from museon.core.data_bus import DataContract, StoreSpec, StoreEngine, TTLTier
+
 logger = logging.getLogger(__name__)
 
 # ═══════════════════════════════════════════
@@ -769,6 +771,8 @@ class Crystallizer:
         g1 = refined.get("g1_summary", "")
         discovered_links: List[Dict[str, str]] = []
 
+        new_type = refined.get("crystal_type", "Insight")
+
         for cuid, crystal in self._crystals.items():
             if crystal.archived:
                 continue
@@ -779,13 +783,41 @@ class Crystallizer:
             ).ratio()
 
             if similarity > SIMILARITY_MERGE_THRESHOLD:
-                # 高度相似 -- 合併候選
+                # 高度相似 -- extends（對同一主題的延伸/更新）
                 discovered_links.append({
                     "target_cuid": cuid,
-                    "link_type": "related",
+                    "link_type": "extends",
                     "similarity": str(round(similarity, 3)),
-                    "note": "高度相似，可能需要合併",
+                    "note": "高度相似，可能是延伸或需要合併",
                 })
+            elif similarity > 0.5:
+                # 中高相似度 -- 語義分類
+                # Lesson 遇到 Hypothesis = 可能支持或矛盾
+                existing_type = crystal.crystal_type
+                if (
+                    (new_type == "Lesson" and existing_type == "Hypothesis")
+                    or (new_type == "Hypothesis" and existing_type == "Lesson")
+                ):
+                    discovered_links.append({
+                        "target_cuid": cuid,
+                        "link_type": "supports",
+                        "similarity": str(round(similarity, 3)),
+                        "note": "經驗與假說互相佐證",
+                    })
+                elif new_type == existing_type:
+                    discovered_links.append({
+                        "target_cuid": cuid,
+                        "link_type": "supports",
+                        "similarity": str(round(similarity, 3)),
+                        "note": "同類型結晶，相互支持",
+                    })
+                else:
+                    discovered_links.append({
+                        "target_cuid": cuid,
+                        "link_type": "supports",
+                        "similarity": str(round(similarity, 3)),
+                        "note": "中高相似度，語義支持",
+                    })
             elif similarity > 0.3:
                 # 中度相似 -- 相關連結
                 discovered_links.append({
@@ -802,7 +834,11 @@ class Crystallizer:
         )
         return refined, discovered_links
 
-    def quality_check(self, refined: Dict[str, Any]) -> Tuple[bool, List[str]]:
+    def quality_check(
+        self,
+        refined: Dict[str, Any],
+        mode: str = "strict",
+    ) -> Tuple[bool, List[str]]:
         """Step 4: 品質閘檢查 -- 四道 Gate 依序驗證.
 
         Gate 0 (G0): 非重複檢查
@@ -812,13 +848,16 @@ class Crystallizer:
 
         Args:
             refined: Step 2/3 的精煉結果
+            mode: "strict" (人工結晶，全 Gate 強制) |
+                  "auto" (自動結晶，G2/G3 降級為 warning 不阻擋)
 
         Returns:
             (是否全部通過, 未通過的問題列表)
         """
         issues: List[str] = []
+        warnings: List[str] = []
 
-        # Gate 0: 非重複檢查
+        # Gate 0: 非重複檢查（嚴格模式和自動模式都強制）
         g1 = refined.get("g1_summary", "")
         for cuid, crystal in self._crystals.items():
             if crystal.archived:
@@ -831,32 +870,54 @@ class Crystallizer:
                 )
                 break
 
-        # Gate 1: 電梯測試 -- G1 摘要必須存在
+        # Gate 1: 電梯測試 -- G1 摘要必須存在（兩種模式都強制）
         if not g1.strip():
             issues.append("G1 失敗：摘要為空")
 
         # Gate 2: MECE 冗餘率 < 10%
         g2 = refined.get("g2_structure", [])
         if len(g2) < 2:
-            issues.append("G2 失敗：MECE 拆解不足（至少需要 2 個面向）")
+            if mode == "auto":
+                # auto 模式：G2 降級為 warning，不阻擋結晶
+                warnings.append("G2 警告：MECE 拆解不足（auto 模式放行）")
+            else:
+                issues.append("G2 失敗：MECE 拆解不足（至少需要 2 個面向）")
         else:
             redundancy = self._calc_redundancy(g2)
-            if redundancy > 0.10:
-                issues.append(
-                    f"G2 失敗：冗餘率 {redundancy:.1%} 超過 10% 閾值"
-                )
+            threshold = 0.20 if mode == "auto" else 0.10
+            if redundancy > threshold:
+                if mode == "auto":
+                    warnings.append(
+                        f"G2 警告：冗餘率 {redundancy:.1%}（auto 模式放行）"
+                    )
+                else:
+                    issues.append(
+                        f"G2 失敗：冗餘率 {redundancy:.1%} 超過 10% 閾值"
+                    )
 
         # Gate 3: Root Inquiry 存在
         g3 = refined.get("g3_root_inquiry", "")
         if not g3.strip():
-            issues.append("G3 失敗：Root Inquiry 為空")
+            if mode == "auto":
+                warnings.append("G3 警告：Root Inquiry 為空（auto 模式放行）")
+            else:
+                issues.append("G3 失敗：Root Inquiry 為空")
 
         passed = len(issues) == 0
 
-        logger.info(
-            f"結晶化 Step 4 完成：品質閘 {'通過' if passed else '未通過'} "
-            f"| 問題數: {len(issues)}"
-        )
+        log_parts = [
+            f"結晶化 Step 4 完成：品質閘 {'通過' if passed else '未通過'}",
+            f"mode={mode}",
+            f"問題數: {len(issues)}",
+        ]
+        if warnings:
+            log_parts.append(f"警告數: {len(warnings)}")
+        logger.info(" | ".join(log_parts))
+
+        # 將 warnings 附加到結果（不影響 passed 判定，但讓呼叫端可見）
+        if warnings:
+            issues.extend(warnings)
+
         return passed, issues
 
     def register(
@@ -1348,7 +1409,7 @@ class RecrystallizationEngine:
 # 持久化存儲
 # ═══════════════════════════════════════════
 
-class LatticeStore:
+class LatticeStore(DataContract):
     """知識晶格持久化存儲.
 
     檔案結構：
@@ -1357,6 +1418,31 @@ class LatticeStore:
     - data/lattice/archive.json      -- 已歸檔結晶
     - data/lattice/cuid_counter.json -- CUID 序號計數器
     """
+
+    @classmethod
+    def store_spec(cls) -> StoreSpec:
+        return StoreSpec(
+            name="lattice_store",
+            engine=StoreEngine.JSON,
+            ttl=TTLTier.PERMANENT,
+            description="知識晶格結晶化存儲",
+            tables=["crystals.json", "links.json", "archive.json", "cuid_counter.json"],
+        )
+
+    def health_check(self) -> Dict[str, Any]:
+        try:
+            files = {
+                "crystals": self._crystals_path,
+                "links": self._links_path,
+                "archive": self._archive_path,
+                "counter": self._counter_path,
+            }
+            sizes = {}
+            for k, p in files.items():
+                sizes[k] = p.stat().st_size if p.exists() else 0
+            return {"status": "ok", "file_sizes": sizes}
+        except Exception as e:
+            return {"status": "error", "error": str(e)}
 
     def __init__(self, data_dir: str = "data") -> None:
         """初始化存儲.
@@ -1528,8 +1614,8 @@ class LatticeStore:
             if tmp_path.exists():
                 try:
                     tmp_path.unlink()
-                except OSError:
-                    pass
+                except OSError as e:
+                    logger.debug(f"[KNOWLEDGE_LATTICE] operation failed (degraded): {e}")
 
 
 # ═══════════════════════════════════════════
@@ -1618,8 +1704,8 @@ class KnowledgeLattice:
             if vb.is_available():
                 self._vector_bridge = vb
                 return vb
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[KNOWLEDGE_LATTICE] vector failed (degraded): {e}")
         return None
 
     def _vector_index_crystal(self, crystal: "Crystal") -> None:
@@ -1644,7 +1730,7 @@ class KnowledgeLattice:
             }
             vb.index("crystals", crystal.cuid, text, metadata=metadata)
         except Exception:
-            pass  # 靜默失敗，不影響主流程
+            logger.debug("向量索引失敗，不影響主流程", exc_info=True)
 
     def _vector_recall_crystals(
         self, query: str, limit: int,
@@ -1684,6 +1770,7 @@ class KnowledgeLattice:
         limitation: str = "",
         tags: Optional[List[str]] = None,
         domain: str = "",
+        mode: str = "strict",
     ) -> Crystal:
         """完整五步驟結晶化流程.
 
@@ -1700,6 +1787,8 @@ class KnowledgeLattice:
             limitation: 限制條件
             tags: 標籤
             domain: 領域
+            mode: "strict" (人工/高品質結晶) |
+                  "auto" (自動結晶，G2/G3 放寬)
 
         Returns:
             新建立的 Crystal 實例
@@ -1744,8 +1833,8 @@ class KnowledgeLattice:
                 refined
             )
 
-            # Step 4: 品質閘檢查
-            passed, issues = self._crystallizer.quality_check(refined)
+            # Step 4: 品質閘檢查（mode 透傳至 G2/G3 閾值）
+            passed, issues = self._crystallizer.quality_check(refined, mode=mode)
             if not passed:
                 logger.warning(
                     f"品質閘未通過，標記為 quarantine: {issues}"
@@ -1771,7 +1860,7 @@ class KnowledgeLattice:
             # quarantine crystal 不建立連結
             if refined.get("status") == "quarantine":
                 logger.info(f"Crystal {cuid} quarantined — skipping link creation")
-                self._save_crystals()
+                self._persist()
                 return crystal
 
             # 建立發現的連結
@@ -1801,8 +1890,8 @@ class KnowledgeLattice:
                     "source_context": source_context[:100],
                     "links_count": len(discovered_links),
                 })
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[KNOWLEDGE_LATTICE] crystal failed (degraded): {e}")
 
             # 檢查是否需要觸發輕量再結晶
             self._crystals_since_last_recrystallize += 1
@@ -2333,8 +2422,8 @@ class KnowledgeLattice:
                 last_ref = datetime.fromisoformat(crystal.last_referenced)
                 if (now - last_ref).days <= 90:
                     recently_referenced += 1
-            except (ValueError, TypeError):
-                pass
+            except (ValueError, TypeError) as e:
+                logger.debug(f"[KNOWLEDGE_LATTICE] crystal failed (degraded): {e}")
 
         avg_ri = total_ri / active_count if active_count > 0 else 0.0
         active_rate = (
@@ -2866,9 +2955,17 @@ class KnowledgeLattice:
 
     def _persist(self) -> None:
         """持久化所有資料到磁碟."""
-        self._store.save_crystals(self._crystals)
-        self._store.save_links(self._dag.get_all_links())
-        self._store.save_archive(self._archive)
+        try:
+            self._store.save_crystals(self._crystals)
+            self._store.save_links(self._dag.get_all_links())
+            self._store.save_archive(self._archive)
+        except AttributeError as e:
+            logger.error(
+                f"KnowledgeLattice._persist 方法名稱不匹配"
+                f"（可能是 stale .pyc）: {e}"
+            )
+        except Exception as e:
+            logger.error(f"KnowledgeLattice._persist 失敗: {e}")
 
     def _keyword_match_score(self, query: str, crystal: Crystal) -> float:
         """計算關鍵字匹配分數.

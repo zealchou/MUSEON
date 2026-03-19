@@ -11,11 +11,31 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from museon.core.data_bus import DataContract, StoreSpec, StoreEngine, TTLTier
+
 logger = logging.getLogger(__name__)
 
 
-class ActivityLogger:
+class ActivityLogger(DataContract):
     """Append-only JSONL logger for EventBus events."""
+
+    @classmethod
+    def store_spec(cls) -> StoreSpec:
+        return StoreSpec(
+            name="activity_logger",
+            engine=StoreEngine.JSONL,
+            ttl=TTLTier.SHORT,
+            write_mode="append_only",
+            description="EventBus 事件 JSONL 日誌",
+            tables=["activity_log.jsonl"],
+        )
+
+    def health_check(self) -> Dict[str, Any]:
+        try:
+            size = self.log_path.stat().st_size if self.log_path.exists() else 0
+            return {"status": "ok", "size_bytes": size}
+        except Exception as e:
+            return {"status": "error", "error": str(e)}
 
     def __init__(self, data_dir: str):
         self.data_dir = Path(data_dir)
@@ -63,8 +83,8 @@ class ActivityLogger:
             for ln in reversed(tail):  # newest first
                 try:
                     events.append(json.loads(ln))
-                except json.JSONDecodeError:
-                    pass
+                except json.JSONDecodeError as e:
+                    logger.debug(f"[ACTIVITY_LOGGER] JSON failed (degraded): {e}")
             return events
         except Exception as exc:
             logger.warning("Activity log read failed: %s", exc)
@@ -84,8 +104,8 @@ class ActivityLogger:
                     entry = json.loads(ln)
                     if entry.get("ts", "").startswith(today_prefix):
                         events.append(entry)
-                except json.JSONDecodeError:
-                    pass
+                except json.JSONDecodeError as e:
+                    logger.debug(f"[ACTIVITY_LOGGER] JSON failed (degraded): {e}")
             return events
         except Exception as exc:
             logger.warning("Activity log today read failed: %s", exc)

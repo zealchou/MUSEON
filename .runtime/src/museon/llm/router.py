@@ -1,7 +1,8 @@
-"""Router - Smart model selection between Haiku and Sonnet.
+"""Router - Smart model selection between Opus, Sonnet, and Haiku.
 
 v2: 加入中文模式識別 + 路由統計記錄 + Nightly 覆寫支援。
 v3: MAX 訂閱方案 — 保留 classify() 供分析統計，模型選擇功能簡化。
+v4: 三層路由 — Opus 4.6（複雜）→ Sonnet 4（中等）→ Haiku 4.5（簡單）。
 """
 
 import json
@@ -25,8 +26,9 @@ class Router:
     - Nightly 優化引擎尚未將此 task type 標為 Sonnet-only
     """
 
-    MODEL_HAIKU = "claude-haiku-4-5-20251001"
+    MODEL_OPUS = "claude-opus-4-6"
     MODEL_SONNET = "claude-sonnet-4-20250514"
+    MODEL_HAIKU = "claude-haiku-4-5-20251001"
 
     # Patterns that can be handled by Haiku（中英文皆涵蓋）
     HAIKU_PATTERNS = [
@@ -48,8 +50,9 @@ class Router:
         (r"^(真的嗎|是喔|喔喔|原來|哦|蛤|欸|不會吧|天啊|傻眼|無言|厲害|猛)(!|！|$|\s|？)", "simple_reaction"),
     ]
 
-    # Keywords that require Sonnet（中英文皆涵蓋）
-    SONNET_KEYWORDS = [
+    # Keywords that require complex model (Opus)（中英文皆涵蓋）
+    # P3: v4 三層路由後，這些關鍵字路由到 Opus 而非 Sonnet
+    COMPLEX_KEYWORDS = [
         # English
         "write", "create", "generate", "compose", "draft",
         "business", "revenue", "marketing", "strategy", "profit", "customer",
@@ -96,38 +99,40 @@ class Router:
         # Rule 0: Nightly 覆寫（已驗證可以用 Haiku 的 task type）
         # 保留供未來使用
 
-        # Rule 1: tool_use 相關任務 → Sonnet（需要工具的複雜任務）
+        # Rule 1: tool_use 相關任務 → Opus（需要工具的複雜任務）
         if session_context.get("pending_tool_use"):
-            return {"model": "sonnet", "reason": "tool_use", "task_type": "tool"}
+            return {"model": "opus", "reason": "tool_use", "task_type": "tool"}
 
         # Rule 2: Haiku-eligible patterns（優先檢查，短句直接分流）
         for pattern, task_type in self.HAIKU_PATTERNS:
             if re.search(pattern, message_lower, re.IGNORECASE):
                 return {"model": "haiku", "reason": pattern[:30], "task_type": task_type}
 
-        # Rule 3: Sonnet keywords（複雜意圖關鍵字）
-        for keyword in self.SONNET_KEYWORDS:
+        # Rule 3: Opus keywords（複雜意圖關鍵字 → Opus）
+        for keyword in self.COMPLEX_KEYWORDS:
             if keyword in message_lower:
-                return {"model": "sonnet", "reason": f"kw:{keyword}", "task_type": "complex"}
+                return {"model": "opus", "reason": f"kw:{keyword}", "task_type": "complex"}
 
-        # Rule 4: 長度檢查 — 中文 300 字以下算短對話可走 Haiku
+        # Rule 4: 長度檢查 — 中文 300 字以上走 Opus
         char_count = len(message)
         if char_count > 300:
-            return {"model": "sonnet", "reason": "msg_too_long", "task_type": "complex"}
+            return {"model": "opus", "reason": "msg_too_long", "task_type": "complex"}
 
         # Rule 5: 超短訊息（≤ 20 字）且沒命中任何規則 → Haiku
         if char_count <= 20:
             return {"model": "haiku", "reason": "ultra_short", "task_type": "simple_ack"}
 
-        # Rule 6: 中等長度（21-300 字）且無 Sonnet 關鍵字 → Haiku
-        # 日常閒聊通常沒有觸發 Sonnet 關鍵字
-        return {"model": "haiku", "reason": "casual_chat", "task_type": "chat"}
+        # Rule 6: 中等長度（21-300 字）且無複雜關鍵字 → Sonnet
+        # 日常閒聊不需要 Opus 但也不該用 Haiku
+        return {"model": "sonnet", "reason": "casual_chat", "task_type": "chat"}
 
     def get_model_id(self, model_label: str) -> str:
-        """Convert 'haiku'/'sonnet' to full model ID."""
+        """Convert 'haiku'/'sonnet'/'opus' to full model ID."""
         if model_label == "haiku":
             return self.MODEL_HAIKU
-        return self.MODEL_SONNET
+        if model_label == "sonnet":
+            return self.MODEL_SONNET
+        return self.MODEL_OPUS
 
     # ── 路由統計記錄 ──
 

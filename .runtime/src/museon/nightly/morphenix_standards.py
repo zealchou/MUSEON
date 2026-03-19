@@ -274,6 +274,37 @@ def review_proposal(
         logger.warning(f"Morphenix Core Brain REJECT: {violations}")
         return False, violations, "reject"
 
+    # ── B1: 藍圖禁區檢查（P4 新增）──
+    try:
+        from museon.core.blueprint_reader import BlastRadiusReader
+        _docs_dir = None
+        for parent in Path(__file__).resolve().parents:
+            if (parent / "pyproject.toml").exists():
+                if parent.name == ".runtime":
+                    _docs_dir = parent.parent / "docs"
+                else:
+                    _docs_dir = parent / "docs"
+                break
+        if not _docs_dir:
+            _docs_dir = Path.home() / "MUSEON" / "docs"
+        br_reader = BlastRadiusReader(_docs_dir)
+        for f in affected_files:
+            # 標準化為 blast-radius 格式
+            normalized = f
+            if "src/museon/" in f:
+                normalized = f.split("src/museon/")[-1]
+            zone = br_reader.get_safety_zone(normalized)
+            if zone == "forbidden":
+                violations.append(
+                    f"[B1] 藍圖禁區: {normalized}（扇入≥40，禁止修改）"
+                )
+    except Exception as e:
+        logger.debug(f"Blueprint B1 check skipped: {e}")
+
+    if violations:
+        logger.warning(f"Morphenix Blueprint REJECT: {violations}")
+        return False, violations, "reject"
+
     # ── 負向選擇檢查（提案描述中的意圖掃描）──
     description = proposal.get("description", "").lower()
     title = proposal.get("title", "").lower()

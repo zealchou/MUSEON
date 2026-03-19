@@ -17,6 +17,7 @@
 import asyncio
 import json
 import logging
+import shutil
 import subprocess
 import time
 import uuid
@@ -141,6 +142,25 @@ class ExecutionSandbox:
                 "block_reason": "",
                 "audit_id": "",
             }
+
+        # 步驟 2.5：shell 指令預檢 — 偵測沙盒映像中不可用的命令
+        # Docker 容器使用精簡映像，不含 git、curl 等工具
+        _UNAVAILABLE_IN_SANDBOX = {"git", "curl", "wget", "ssh", "scp", "rsync"}
+        if language == "shell":
+            first_cmd = code.strip().split()[0] if code.strip() else ""
+            if first_cmd in _UNAVAILABLE_IN_SANDBOX:
+                skip_result = {
+                    "success": False,
+                    "stdout": "",
+                    "stderr": f"Command '{first_cmd}' is not available in sandbox Docker image. "
+                              f"This command requires host-level access.",
+                    "exit_code": 127,
+                    "duration_ms": 0,
+                    "blocked": False,
+                    "block_reason": "",
+                }
+                skip_result["audit_id"] = self._audit_log(code, skip_result)
+                return skip_result
 
         # 步驟 3：組裝 Docker 指令
         docker_cmd = self._build_docker_cmd(code, language, timeout)
@@ -374,8 +394,8 @@ class ExecutionSandbox:
                         capture_output=True, timeout=10,
                     )
                     cleaned += 1
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[EXECUTION_SANDBOX] docker failed (degraded): {e}")
 
         except Exception as e:
             logger.warning(f"Cleanup failed: {e}")
@@ -406,9 +426,9 @@ class ExecutionSandbox:
                                 stats["success"] += 1
                             else:
                                 stats["failed"] += 1
-                        except json.JSONDecodeError:
-                            pass
-        except Exception:
-            pass
+                        except json.JSONDecodeError as e:
+                            logger.debug(f"[EXECUTION_SANDBOX] file stat failed (degraded): {e}")
+        except Exception as e:
+            logger.debug(f"[EXECUTION_SANDBOX] JSON failed (degraded): {e}")
 
         return stats

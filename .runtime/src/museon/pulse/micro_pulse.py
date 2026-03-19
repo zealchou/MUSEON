@@ -39,12 +39,14 @@ class MicroPulse:
         heartbeat_focus: HeartbeatFocus,
         event_bus: EventBus,
         workspace: Optional[str] = None,
+        anima_mc_store=None,
     ) -> None:
         self._heartbeat_focus = heartbeat_focus
         self._event_bus = event_bus
         self._beat_counter: int = 0
         self._start_time: float = time.time()
         self._workspace = Path(workspace) if workspace else None
+        self._anima_mc_store = anima_mc_store  # ★ AnimaMCStore 統一存取層
 
     def run(self) -> Dict:
         """執行 4 項零 LLM 健康檢查 + 輔助更新."""
@@ -104,10 +106,32 @@ class MicroPulse:
 
     def _update_days_alive(self) -> None:
         """更新 ANIMA_MC.json 中的 days_alive（確保無互動日也能更新）."""
+        from datetime import datetime as _dt
+
+        # ★ 優先使用 AnimaMCStore（統一鎖 + 原子寫入）
+        if self._anima_mc_store:
+            try:
+                def updater(data):
+                    identity = data.get("identity", {})
+                    birth_str = identity.get("birth_date")
+                    if not birth_str:
+                        return data
+                    birth = _dt.fromisoformat(birth_str)
+                    new_days = (_dt.now() - birth).days
+                    if new_days != identity.get("days_alive", 0):
+                        identity["days_alive"] = new_days
+                        data["identity"] = identity
+                        logger.info(f"MicroPulse updated days_alive → {new_days}")
+                    return data
+                self._anima_mc_store.update(updater)
+            except Exception as e:
+                logger.debug(f"days_alive update via store failed: {e}")
+            return
+
+        # Fallback：直接寫入（無 Store 時，向後相容）
         if not self._workspace:
             return
         import json
-        from datetime import datetime as _dt
         anima_path = self._workspace / "ANIMA_MC.json"
         if not anima_path.exists():
             return
@@ -122,10 +146,13 @@ class MicroPulse:
             if new_days != identity.get("days_alive", 0):
                 identity["days_alive"] = new_days
                 data["identity"] = identity
-                anima_path.write_text(
+                # ★ 修復：原本直接 write_text 無原子保護，改為 tmp → rename
+                tmp_path = anima_path.with_suffix(".tmp")
+                tmp_path.write_text(
                     json.dumps(data, indent=2, ensure_ascii=False),
                     encoding="utf-8",
                 )
+                tmp_path.replace(anima_path)
                 logger.info(f"MicroPulse updated days_alive → {new_days}")
         except Exception as e:
             logger.debug(f"days_alive update failed: {e}")
@@ -164,8 +191,8 @@ class MicroPulse:
                     for line in f:
                         if "ERROR" in line:
                             error_count += 1
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[MICRO_PULSE] file I/O failed (degraded): {e}")
 
         return error_count
 
@@ -178,11 +205,12 @@ def register_micro_pulse(
     heartbeat_focus: HeartbeatFocus,
     event_bus: EventBus,
     workspace: Optional[str] = None,
+    anima_mc_store=None,
 ) -> "MicroPulse":
     """建立 MicroPulse 實例並註冊到 HeartbeatEngine."""
     from museon.pulse.heartbeat_engine import get_heartbeat_engine
 
-    pulse = MicroPulse(heartbeat_focus, event_bus, workspace)
+    pulse = MicroPulse(heartbeat_focus, event_bus, workspace, anima_mc_store)
     engine = get_heartbeat_engine()
     engine.register("micro_pulse", pulse.run, interval_seconds=MICRO_PULSE_INTERVAL)
     return pulse

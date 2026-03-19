@@ -729,11 +729,58 @@ def _apply_state_conditioning(
 # ReflexRouter — 主入口
 # ═══════════════════════════════════════════
 
+def _apply_primal_boost(
+    cluster_scores: Dict[str, float],
+    user_primals: Dict[str, int],
+) -> Dict[str, float]:
+    """v10.5: 根據使用者八原語驅力 boost 對應的 RC 叢集.
+
+    映射表（只在原語 level > 50 時生效）：
+      - curiosity   → RC-D1（實驗邊界）+0.3
+      - emotion_pattern → RC-A1（能量耗竭）+0.2
+      - aspiration  → RC-E2（選擇累積）+0.2
+      - boundary    → RC-B2（依賴壓制）+0.2
+      - action_power → RC-D2（犯錯預算）+0.2
+
+    Args:
+        cluster_scores: 當前叢集分數（不直接修改）
+        user_primals: {primal_key: level(0-100)}
+
+    Returns:
+        調整後的 cluster_scores
+    """
+    if not user_primals:
+        return cluster_scores
+
+    scores = dict(cluster_scores)
+
+    PRIMAL_RC_MAP = {
+        "curiosity":       ("RC-D1", 0.3),
+        "emotion_pattern": ("RC-A1", 0.2),
+        "aspiration":      ("RC-E2", 0.2),
+        "boundary":        ("RC-B2", 0.2),
+        "action_power":    ("RC-D2", 0.2),
+    }
+
+    for primal_key, (rc_id, boost) in PRIMAL_RC_MAP.items():
+        level = user_primals.get(primal_key, 0)
+        if level > 50:
+            scores[rc_id] = min(
+                CLUSTER_MAX_SCORE, scores.get(rc_id, 0) + boost,
+            )
+            logger.debug(
+                f"[DNA27] primal boost: {primal_key}={level} → {rc_id} +{boost}"
+            )
+
+    return scores
+
+
 def route(
     message: str,
     history_len: int = 0,
     workspace: str = None,
     prev_signals: Optional[List[Dict]] = None,
+    user_primals: Optional[Dict[str, int]] = None,
 ) -> RoutingSignal:
     """DNA27 反射路由器 — 產生 RoutingSignal.
 
@@ -753,6 +800,7 @@ def route(
         history_len: 對話歷史長度
         workspace: 資料目錄（用於 Qdrant 向量語義偵測）
         prev_signals: ★ v10.4 Route C — 前幾輪的 RoutingSignal.to_dict() 列表
+        user_primals: ★ v10.5 — {primal_key: level(0-100)} 使用者八原語
 
     Returns:
         RoutingSignal（不可變）
@@ -826,6 +874,13 @@ def route(
             cluster_scores = _apply_state_conditioning(cluster_scores, prev_signals)
         except Exception as e:
             logger.debug(f"[DNA27] state_conditioning 失敗（降級）: {e}")
+
+    # 2.9 ★ v10.5: 八原語驅力 boost
+    if user_primals:
+        try:
+            cluster_scores = _apply_primal_boost(cluster_scores, user_primals)
+        except Exception as e:
+            logger.debug(f"[DNA27] primal_boost 失敗（降級）: {e}")
 
     # 3. Tier Aggregation
     tier_scores = get_tier_scores(cluster_scores)

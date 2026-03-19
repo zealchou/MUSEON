@@ -1,6 +1,6 @@
 """核心模組驗證
 
-對應 features/installation.feature Section 3
+對應 features/installation.feature Section 4（安裝流程第 4 步）
 驗證四大核心模組是否可載入
 """
 

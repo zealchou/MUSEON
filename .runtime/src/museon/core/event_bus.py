@@ -41,7 +41,7 @@ WEE_PLATEAU_DETECTED = "WEE_PLATEAU_DETECTED"
 # Self-Diagnosis 自我診斷事件
 SELF_DIAGNOSIS_TRIGGERED = "SELF_DIAGNOSIS_TRIGGERED"
 SELF_DIAGNOSIS_COMPLETED = "SELF_DIAGNOSIS_COMPLETED"
-SELF_REPAIR_EXECUTED = "SELF_REPAIR_EXECUTED"
+SELF_REPAIR_EXECUTED = "SELF_REPAIR_EXECUTED"                # DEPRECATED: 無發布/訂閱者
 
 # Self-Surgery 自我手術事件
 SURGERY_TRIGGERED = "SURGERY_TRIGGERED"
@@ -50,11 +50,21 @@ SURGERY_SAFETY_FAILED = "SURGERY_SAFETY_FAILED"
 SURGERY_COMPLETED = "SURGERY_COMPLETED"
 SURGERY_FAILED = "SURGERY_FAILED"
 SURGERY_ROLLBACK = "SURGERY_ROLLBACK"
+SURGERY_VALIDATED = "SURGERY_VALIDATED"
+SURGERY_VALIDATION_FAILED = "SURGERY_VALIDATION_FAILED"
+SURGERY_DELEGATED_TO_CLAUDE_CODE = "SURGERY_DELEGATED_TO_CLAUDE_CODE"
 
 # Morphenix 演化提案事件
 MORPHENIX_L3_PROPOSAL = "MORPHENIX_L3_PROPOSAL"
 MORPHENIX_AUTO_APPROVED = "MORPHENIX_AUTO_APPROVED"
 MORPHENIX_EXECUTION_COMPLETED = "MORPHENIX_EXECUTION_COMPLETED"
+MORPHENIX_ROLLBACK = "MORPHENIX_ROLLBACK"
+
+# ═══════════════════════════════════════════
+# DNA-Inspired Quality Feedback 品質回饋閉環
+# （校對→演化：metacognition → morphenix 管線）
+# ═══════════════════════════════════════════
+METACOGNITION_QUALITY_FLAG = "METACOGNITION_QUALITY_FLAG"    # 元認知品質校驗旗標（verdict=revise）
 
 # ═══════════════════════════════════════════
 # Governance 治理層事件（Phase 3d）
@@ -66,13 +76,13 @@ GOVERNANCE_ALGEDONIC_SIGNAL = "GOVERNANCE_ALGEDONIC_SIGNAL"
 # ═══════════════════════════════════════════
 # Autonomy Architecture 自主演化事件
 # ═══════════════════════════════════════════
-TOKEN_BUDGET_WARNING = "TOKEN_BUDGET_WARNING"
-TOKEN_BUDGET_CONSERVATION = "TOKEN_BUDGET_CONSERVATION"
+TOKEN_BUDGET_WARNING = "TOKEN_BUDGET_WARNING"                # DEPRECATED: 無發布/訂閱者
+TOKEN_BUDGET_CONSERVATION = "TOKEN_BUDGET_CONSERVATION"      # DEPRECATED: 無發布/訂閱者
 SYNAPSE_PRELOAD = "SYNAPSE_PRELOAD"
 TOOL_MUSCLE_DORMANT = "TOOL_MUSCLE_DORMANT"
 IMMUNE_MEMORY_LEARNED = "IMMUNE_MEMORY_LEARNED"
 AUTONOMIC_REPAIR = "AUTONOMIC_REPAIR"
-EVOLUTION_TRACE = "EVOLUTION_TRACE"
+EVOLUTION_TRACE = "EVOLUTION_TRACE"                          # DEPRECATED: 無發布/訂閱者
 TRIGGER_FIRED = "TRIGGER_FIRED"
 
 # ═══════════════════════════════════════════
@@ -82,8 +92,8 @@ PREFLIGHT_FAILED = "PREFLIGHT_FAILED"
 PREFLIGHT_PASSED = "PREFLIGHT_PASSED"
 REFRACTORY_BACKOFF = "REFRACTORY_BACKOFF"
 REFRACTORY_HIBERNATE = "REFRACTORY_HIBERNATE"
-REFRACTORY_WAKE = "REFRACTORY_WAKE"
-GATEWAY_DEGRADED = "GATEWAY_DEGRADED"
+REFRACTORY_WAKE = "REFRACTORY_WAKE"                          # DEPRECATED: 無發布/訂閱者
+GATEWAY_DEGRADED = "GATEWAY_DEGRADED"                        # DEPRECATED: 無發布/訂閱者
 
 # ═══════════════════════════════════════════
 # Exploration → Evolution Bridge 事件
@@ -130,6 +140,8 @@ TOOL_RECOVERED = "TOOL_RECOVERED"                          # 工具已恢復
 
 # WP-03: Governance-Nightly 雙向適應
 NIGHTLY_HEALTH_GATE = "NIGHTLY_HEALTH_GATE"                # Nightly 健康閘門決策
+NIGHTLY_DAG_EXECUTED = "NIGHTLY_DAG_EXECUTED"              # Nightly DAG 排程已執行
+EVOLUTION_VELOCITY_ALERT = "EVOLUTION_VELOCITY_ALERT"      # 演化速度警報（高原/退化）
 AUDIT_TREND_UPDATED = "AUDIT_TREND_UPDATED"                # 審計趨勢更新
 
 # WP-04: Doctor-Governance-Research 閉環
@@ -151,6 +163,7 @@ HEALTH_SCORE_UPDATED = "HEALTH_SCORE_UPDATED"              # Health Score 更新
 # EXT-04: 多通道通訊
 CHANNEL_MESSAGE_RECEIVED = "CHANNEL_MESSAGE_RECEIVED"      # 通道訊息接收
 CHANNEL_MESSAGE_SENT = "CHANNEL_MESSAGE_SENT"              # 通道訊息發送
+GROUP_SESSION_END = "GROUP_SESSION_END"                    # 群組會話結束（閒置逾時）
 
 # EXT-01: RSS 聚合器
 RSS_NEW_ITEMS = "RSS_NEW_ITEMS"                            # RSS 新條目
@@ -160,6 +173,9 @@ WIKI_PUBLISHED = "WIKI_PUBLISHED"                          # Wiki 已發布
 
 # EXT-12: 使用者反饋
 USER_FEEDBACK_SIGNAL = "USER_FEEDBACK_SIGNAL"              # 使用者反饋信號
+
+# P5: 用戶免打擾
+USER_QUIET_MODE = "USER_QUIET_MODE"                        # 用戶要求免打擾（suppress_until: float）
 
 # EXT-07: Dify 排程
 DIFY_WORKFLOW_TRIGGERED = "DIFY_WORKFLOW_TRIGGERED"        # Dify 工作流觸發
@@ -213,6 +229,12 @@ CRYSTAL_CREATED = "CRYSTAL_CREATED"                            # 結晶已建立
 # Soul Identity 事件
 SOUL_RING_DEPOSITED = "SOUL_RING_DEPOSITED"                    # 靈魂環已存入
 SOUL_IDENTITY_TAMPERED = "SOUL_IDENTITY_TAMPERED"            # SOUL.md 完整性被篡改
+
+# 資料層監控事件（Phase 4 DataWatchdog）
+DATA_HEALTH_CHECKED = "DATA_HEALTH_CHECKED"                    # 資料層健康檢查完成
+DATA_STORE_DEGRADED = "DATA_STORE_DEGRADED"                    # Store 健康降級
+DATA_STORAGE_WARNING = "DATA_STORAGE_WARNING"                  # 儲存空間預警
+DATA_DEAD_WRITE_DETECTED = "DATA_DEAD_WRITE_DETECTED"          # Dead Write 偵測
 
 # ═══════════════════════════════════════════
 # Singleton
@@ -273,8 +295,8 @@ class EventBus:
             if event_type in self._subscribers:
                 try:
                     self._subscribers[event_type].remove(callback)
-                except ValueError:
-                    pass
+                except ValueError as e:
+                    logger.debug(f"[EVENT_BUS] operation failed (degraded): {e}")
 
     def publish(self, event_type: str, data: Optional[Dict[str, Any]] = None) -> None:
         """發布事件 — 呼叫所有訂閱者."""

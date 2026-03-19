@@ -155,6 +155,7 @@ class MemoryManager:
         source: str = "",
         outcome: str = "",
         session_id: str = "",
+        dept_id: str = "",
     ) -> str:
         """存儲記憶到指定層.
 
@@ -168,6 +169,7 @@ class MemoryManager:
             source: 來源標記
             outcome: 結果標記（"" / "success" / "partial" / "failed"）
             session_id: 對話 ID（用於同 session 記憶加權）
+            dept_id: 部門 ID（多代理模式下的記憶命名空間）
 
         Returns:
             memory_id (UUID)
@@ -186,11 +188,16 @@ class MemoryManager:
             if quality_tier is None:
                 quality_tier = assess_quality(content, source)
 
+            # Phase 4.8: 部門標籤自動注入
+            _tags = list(tags or [])
+            if dept_id and f"dept:{dept_id}" not in _tags:
+                _tags.append(f"dept:{dept_id}")
+
             entry = {
                 "id": memory_id,
                 "content": content,
                 "layer": layer,
-                "tags": tags or [],
+                "tags": _tags,
                 "quality_tier": quality_tier,
                 "dna27_routing": dna27_routing or {},
                 "created_at": now,
@@ -201,6 +208,7 @@ class MemoryManager:
                 "outcome": outcome,
                 "user_id": user_id,
                 "session_id": session_id,
+                "dept_id": dept_id,
                 "archived": False,
             }
 
@@ -232,8 +240,8 @@ class MemoryManager:
                         "source": source,
                         "tags": tags or [],
                     })
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[MEMORY_MANAGER] memory failed (degraded): {e}")
 
             return memory_id
 
@@ -246,6 +254,7 @@ class MemoryManager:
         layers: Optional[List[str]] = None,
         limit: int = 10,
         session_id: str = "",
+        dept_filter: str = "",
     ) -> List[Dict]:
         """語義檢索記憶（Qdrant-primary 架構）.
 
@@ -263,6 +272,7 @@ class MemoryManager:
             query: 查詢文本
             layers: 限定層級（None = 全部）
             limit: 回傳筆數上限
+            dept_filter: 部門過濾（空字串 = 搜全局）
             session_id: 對話 ID（可選，用於同 session 加權）
 
         Returns:
@@ -289,6 +299,9 @@ class MemoryManager:
                 if entry.get("archived", False):
                     continue
                 if layers and entry["layer"] not in layers:
+                    continue
+                # Phase 4.8: 部門過濾
+                if dept_filter and entry.get("dept_id", "") != dept_filter:
                     continue
 
                 seen_ids.add(memory_id)
@@ -322,6 +335,9 @@ class MemoryManager:
                     if entry.get("archived", False):
                         continue
                     if layers and entry["layer"] not in layers:
+                        continue
+                    # Phase 4.8: 部門過濾
+                    if dept_filter and entry.get("dept_id", "") != dept_filter:
                         continue
 
                     seen_ids.add(memory_id)
@@ -396,8 +412,8 @@ class MemoryManager:
                         ),
                         "promote_candidates": promote_candidates[:3],
                     })
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[MEMORY_MANAGER] scoring failed (degraded): {e}")
 
             return final
 
@@ -556,8 +572,8 @@ class MemoryManager:
                         "from_layer": old_layer,
                         "to_layer": target_layer,
                     })
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[MEMORY_MANAGER] memory failed (degraded): {e}")
 
             return entry
 
@@ -702,8 +718,8 @@ class MemoryManager:
                         try:
                             self.demote(uid, memory_id)
                             stats["demoted"] += 1
-                        except ValueError:
-                            pass
+                        except ValueError as e:
+                            logger.debug(f"[MEMORY_MANAGER] file stat failed (degraded): {e}")
                         continue
 
                     # 3. 自動晉升
@@ -716,8 +732,8 @@ class MemoryManager:
                                 try:
                                     self.promote(uid, memory_id, targets[0])
                                     stats["promoted"] += 1
-                                except ValueError:
-                                    pass
+                                except ValueError as e:
+                                    logger.debug(f"[MEMORY_MANAGER] file stat failed (degraded): {e}")
 
             # 持久化索引
             self._index.save()
@@ -797,8 +813,8 @@ class MemoryManager:
             vb = VectorBridge(workspace=workspace)
             if vb.is_available():
                 return vb
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[MEMORY_MANAGER] vector failed (degraded): {e}")
         return None
 
     def _vector_index(

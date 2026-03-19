@@ -149,8 +149,8 @@ class SharedAssetLibrary:
                     "source_dept": source_dept,
                     "quality_score": quality_score,
                 })
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[SHARED_ASSETS] scoring failed (degraded): {e}")
 
         return asset
 

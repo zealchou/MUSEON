@@ -181,15 +181,26 @@ class MetaCognitionEngine:
 
     def __init__(
         self,
-        pulse_db_path: str,
+        data_dir: Any = None,
         brain: Any = None,
+        *,
+        pulse_db_path: str = "",  # 相容舊呼叫，已棄用
     ) -> None:
         self._brain = brain
         self._pulse_db = None
 
         try:
-            from museon.pulse.pulse_db import PulseDB
-            self._pulse_db = PulseDB(pulse_db_path)
+            from museon.pulse.pulse_db import get_pulse_db
+            if data_dir is not None:
+                from pathlib import Path
+                self._pulse_db = get_pulse_db(Path(data_dir) if not isinstance(data_dir, Path) else data_dir)
+            elif pulse_db_path:
+                # 向後相容：從完整路徑反推 data_dir
+                from pathlib import Path
+                _p = Path(pulse_db_path)
+                # pulse_db_path 通常是 data_dir/pulse/pulse.db
+                _data_dir = _p.parent.parent if _p.parent.name == "pulse" else _p.parent
+                self._pulse_db = get_pulse_db(_data_dir)
         except Exception as e:
             logger.warning(f"MetaCognition PulseDB 連接失敗: {e}")
 
@@ -220,22 +231,22 @@ class MetaCognitionEngine:
             try:
                 if routing_signal.is_safety_triggered:
                     return True
-            except AttributeError:
-                pass
+            except AttributeError as e:
+                logger.debug(f"[METACOGNITION] trigger failed (degraded): {e}")
 
             # SLOW_LOOP → 必審
             try:
                 if routing_signal.loop == "SLOW_LOOP":
                     return True
-            except AttributeError:
-                pass
+            except AttributeError as e:
+                logger.debug(f"[METACOGNITION] operation failed (degraded): {e}")
 
             # FAST_LOOP → 跳過（速度優先）
             try:
                 if routing_signal.loop == "FAST_LOOP":
                     return False
-            except AttributeError:
-                pass
+            except AttributeError as e:
+                logger.debug(f"[METACOGNITION] operation failed (degraded): {e}")
 
         # 匹配觸發技能 → 必審
         if skills & _PRECOG_TRIGGER_SKILLS:
@@ -250,8 +261,8 @@ class MetaCognitionEngine:
             try:
                 if routing_signal.loop == "EXPLORATION_LOOP":
                     return True
-            except AttributeError:
-                pass
+            except AttributeError as e:
+                logger.debug(f"[METACOGNITION] operation failed (degraded): {e}")
 
         return False
 
@@ -334,11 +345,74 @@ class MetaCognitionEngine:
             f"time={elapsed_ms:.0f}ms"
         )
 
+        # DNA-Inspired: 校對→演化閉環
+        # verdict=revise 時發布品質旗標，供 morphenix/parameter_tuner 訂閱
+        if verdict == "revise":
+            self._emit_quality_flag(
+                feedback=feedback,
+                matched_skills=matched_skills,
+                user_query=user_query,
+            )
+
         return {
             "verdict": verdict,
             "feedback": feedback,
             "review_time_ms": elapsed_ms,
         }
+
+    def _emit_quality_flag(
+        self,
+        feedback: str,
+        matched_skills: Optional[List[str]] = None,
+        user_query: str = "",
+    ) -> None:
+        """發布 METACOGNITION_QUALITY_FLAG 事件（DNA 校對→演化閉環）.
+
+        當 PreCognition 判定 verdict=revise 時呼叫。
+        事件 payload 包含結構化品質問題分類，供下游訂閱者
+        （morphenix 迭代筆記 / parameter_tuner 權重微調）消費。
+        """
+        try:
+            from museon.core.event_bus import (
+                METACOGNITION_QUALITY_FLAG,
+                get_event_bus,
+            )
+            category = self._classify_quality_category(feedback)
+            get_event_bus().publish(METACOGNITION_QUALITY_FLAG, {
+                "source": "metacognition",
+                "category": category,
+                "feedback": feedback[:300],
+                "skills_involved": list(matched_skills) if matched_skills else [],
+                "user_query_snippet": user_query[:100],
+                "timestamp": datetime.now(TZ8).isoformat(),
+            })
+            logger.info(
+                f"[MetaCog] Quality flag emitted: category={category}, "
+                f"skills={matched_skills}"
+            )
+        except Exception as e:
+            logger.debug(f"[MetaCog] quality flag emit failed (degraded): {e}")
+
+    @staticmethod
+    def _classify_quality_category(feedback: str) -> str:
+        """從 PreCognition 反饋中分類品質問題類型.
+
+        四大類別對應 DNA 修復酶的四種修復機制：
+        - missing_action: 使用者要行動但只給建議（錯配修復）
+        - weak_reasoning: 假設未驗證或邏輯薄弱（鏈斷修復）
+        - tone_issue: 措辭可能引起負面情緒（鹼基切除修復）
+        - missing_deliverable: 缺少可交付物（核苷酸切除修復）
+        """
+        fb_lower = feedback.lower()
+        if any(w in fb_lower for w in ["行動", "做", "產出", "執行", "action"]):
+            return "missing_action"
+        if any(w in fb_lower for w in ["假設", "驗證", "邏輯", "前提", "assumption"]):
+            return "weak_reasoning"
+        if any(w in fb_lower for w in ["措辭", "語氣", "說教", "上對下", "tone"]):
+            return "tone_issue"
+        if any(w in fb_lower for w in ["交付", "檔案", "範本", "步驟", "deliverable"]):
+            return "missing_deliverable"
+        return "unclassified"
 
     async def _call_review_llm(self, review_message: str) -> str:
         """呼叫 Haiku 執行 PreCognition 審查."""
@@ -416,8 +490,8 @@ class MetaCognitionEngine:
                         # 上次猜 acceptance 但猜錯 → 本次改預測 follow_up
                         best_type = "follow_up"
                         best_confidence = 0.4
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[METACOGNITION] pulse failed (degraded): {e}")
 
         # 路由信號修正
         if routing_signal:
@@ -427,8 +501,8 @@ class MetaCognitionEngine:
                     if best_type not in ("emotional", "acceptance"):
                         best_type = "emotional"
                         best_confidence = 0.5
-            except AttributeError:
-                pass
+            except AttributeError as e:
+                logger.debug(f"[METACOGNITION] trigger failed (degraded): {e}")
 
         # 生成預測描述
         _PREDICTION_TEMPLATES = {
@@ -630,8 +704,8 @@ class MetaCognitionEngine:
                 trend = "improving"
             elif o_acc - r_acc > 0.1:
                 trend = "declining"
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[METACOGNITION] pulse failed (degraded): {e}")
 
         return {
             "sufficient_data": True,

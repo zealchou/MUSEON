@@ -1,31 +1,116 @@
 [
   {
-    "question": "你做出來的網頁美感 沒辦法跟 Claude ai 一樣，是因為 Claude 的 skill 嗎？ 如果是的話，是不是可以把他們的 skill 下載來變成 Museon 自己的，或是進一步融合鍛造？",
-    "source_date": "2026-03-11",
+    "question": "我的公司叫什麼？",
+    "source_date": "2026-03-17",
     "status": "pending"
   },
   {
-    "question": "如何讓霓裳知道哪些結晶被達達實際使用了？",
-    "source_date": "2026-03-12",
-    "status": "pending",
-    "source": "exploration_bridge"
+    "question": "你叫什麼名字？",
+    "source_date": "2026-03-17",
+    "status": "pending"
   },
   {
-    "question": "**Reflexion 實作細節** → 霓裳的 Brain 能否加入語言自評節點？",
-    "source_date": "2026-03-12",
-    "status": "pending",
-    "source": "exploration_bridge"
+    "question": "早安，今天有什麼可以幫我的嗎？",
+    "source_date": "2026-03-17",
+    "status": "researched",
+    "researched_at": "2026-03-18T10:00:06.042220+08:00"
   },
   {
-    "question": "**MemGPT 記憶搬運觸發條件** → Knowledge Lattice 的晶格化規則是否可借鑑？",
-    "source_date": "2026-03-12",
-    "status": "pending",
-    "source": "exploration_bridge"
+    "question": "我改主意了，不做 B2C 了，改做 B2B 企業記帳解決方案。幫我分析這個轉變需要調整哪些策略？",
+    "source_date": "2026-03-17",
+    "status": "researched",
+    "researched_at": "2026-03-18T10:00:08.148562+08:00"
   },
   {
-    "question": "**Multi-Agent 失敗共識機制** → 多 Skill 協作時的錯誤傳播如何隔離？",
-    "source_date": "2026-03-12",
-    "status": "pending",
-    "source": "exploration_bridge"
+    "question": "[回覆 霓裳 的訊息：你說得對，我跳過了最重要的事。\n\nTA 是誰？ 我不知道。我說「台灣中小企業主」是一個沒有臉的標籤，不是一個人。\n\n為什麼需要買？ 我假設了「他們需要診斷」，但沒有驗證。也許他們根本不覺得自己有問題，或者覺得有問題但不覺得一份報告能解決。\n\n為什麼跟我買？ 這個我完全沒想。市面上免費的 ChatGPT 就能跑商業分析，我憑什麼收錢？我的差異化是什麼？我說不出來。\n\n為什麼 5",
+    "source_date": "2026-03-17",
+    "status": "pending"
+  },
+  {
+    "question": "[群組近期對話紀錄]\n  40:37 Feng: @MuseonClaw_bot  一定要重啟嘛？\n  42:56 Feng: 第 6 步：把以下資訊給 Agent 開發者\n\n把這些資訊傳給對方：\n\n```\n1. Server URL：https://你的域名\n2. Pair Code：（第 5 步產生的配對碼）\n3. 配對碼有效期：5 分鐘，過期要重新產生\n4. API 文件：AGENT_INT",
+    "source_date": "2026-03-17",
+    "status": "pending"
+  },
+  {
+    "question": "**user**: 剛才被迭代的那個舊的 gist  能直接刪除嗎？",
+    "source_date": "2026-03-17",
+    "status": "pending"
+  },
+  {
+    "question": "**user**: 請計算：如果月營收 150 萬，毛利率 35%，月固定成本 40 萬，請問每月淨利多少？",
+    "source_date": "2026-03-17",
+    "status": "pending"
+  },
+  {
+    "question": "我在跟 士維的 group 討論中問你的學習收穫\n你記得你說了什麼嗎？",
+    "source_date": "2026-03-18",
+    "status": "researched",
+    "researched_at": "2026-03-19T10:00:06.038953+08:00"
+  },
+  {
+    "question": "[群組近期對話紀錄]\n  18:22 Feng: @MuseonClaw_bot \n1. 目前先一個\n2. 可以喔，這是有後台的所以好處理\n3. 你說看看，我不太懂你的意思\n  42:51 Feng: @MuseonClaw_bot \n你去查相關和saas還有Aaas有關的機制和文章。\n然後再次回覆我\n第三個問題\n  50:30 Feng: @MuseonClaw_bot  你在針對我們的專案來看",
+    "source_date": "2026-03-18",
+    "status": "pending"
+  },
+  {
+    "question": "[群組近期對話紀錄]\n  26:09 你的資源跟手腳（老闆）: 那底薪應該也要加 勞健保（類似 Apple care、勞健保） 否則售後不理（沒有維護迭代跟持續更新）\n\n獎金應該也要依據不同的 工作內容設定而有不同的設計方式（但一開始先簡單就好了）\n  26:20 你的資源跟手腳（老闆）: @MuseonClaw_bot 那底薪應該也要加 勞健保（類似 Apple care、勞健保） 否則售後不理",
+    "source_date": "2026-03-18",
+    "status": "pending"
+  },
+  {
+    "question": "[群組近期對話紀錄]\n  54:30 Feng: @MuseonClaw_bot \n1. 月費 6,000（1000次）+超量計費，還有一筆錢要算到，就是claude max100 的錢喔\n\n2. 你知道目前的架構下，用戶要付兩次錢嘛？\n  57:13 Feng: @MuseonClaw_bot  先給我這個\n包含功能 給我10個\n  00:20 Feng: @MuseonClaw_bot 現在就",
+    "source_date": "2026-03-18",
+    "status": "pending"
+  },
+  {
+    "question": "[群組近期對話紀錄]\n  00:20 Feng: @MuseonClaw_bot 現在就討論\n  11:03 Feng: @MuseonClaw_bot 你把c的架構給我，我來問看看，\n另外API和Max  會有llm的差異嘛？\n  20:39 Feng: 改成： \n Agent → MUC Server（proxy）→ Claude API（用我們的 API key） \n          ↑ ",
+    "source_date": "2026-03-18",
+    "status": "pending"
+  },
+  {
+    "question": "[群組近期對話紀錄]\n  25:11 你的資源跟手腳（老闆）: @MuseonClaw_bot 你在這樣的過程中\n有什麼收穫跟學習\n  28:21 Feng: 哈哈哈\nZeal 感覺是我第一次上ssa的狀態\n  29:23 你的資源跟手腳（老闆）: 你說 Museon 嗎\n\n這就是我說的\n一般的 Gpt 只是 知道很多\n但沒有足夠的市場經驗去判斷做決策\n  29:34 你的資源跟手腳（老闆）: 所",
+    "source_date": "2026-03-18",
+    "status": "pending"
+  },
+  {
+    "question": "@MuseonClaw_bot 所以我這邊server要設定N 點透過後台設定\n然後你那邊要在子體規劃回傳給server 點數\n是吧？",
+    "source_date": "2026-03-18",
+    "status": "researched",
+    "researched_at": "2026-03-19T10:00:07.741135+08:00"
+  },
+  {
+    "question": "[群組近期對話紀錄]\n  37:14 Feng: @MuseonClaw_bot 來喔我們今天對話了幾輪?\n  38:57 你的資源跟手腳（老闆）: @MuseonClaw_bot 客戶提出需求\n\n你要自己判斷需求是否清晰\n是否符合SMART 原則\n\n不符合要透過教練對話的方式跟客戶互動，直到需求明確，同時調用技能、工作流，直到解決達成客戶的需求。\n\n這樣算是完成一個任務，但就算這樣計算，任務也有",
+    "source_date": "2026-03-18",
+    "status": "pending"
+  },
+  {
+    "question": "**user**: @MuseonClaw_bot   1. 所以這個是你要deviceToken 記下來的是嗎？ 2. Ed25519 簽章 | 📋 待驗 | 有拿到 signature，下一步驗章 |  如何驗證？ 3. b方案的api是否需要修正配合？",
+    "source_date": "2026-03-18",
+    "status": "pending"
+  },
+  {
+    "question": "**user**: [群組近期對話紀錄]   40:36 Feng: e03bbd0062cf016e0d8b21b3784b6340  新的code   40:45 Feng: @MuseonClaw_bot  e03bbd0062cf016e0d8b21b3784b6340  新的code   46:31 Feng: @MuseonClaw_bot   1. 所以這個是你要deviceToke",
+    "source_date": "2026-03-18",
+    "status": "pending"
+  },
+  {
+    "question": "**user**: @MuseonClaw_bot 看來測試應該是成功了， 1.  有要在測試的嘛？ 2. api或sdk的部份有要優化或修正的嘛？ 3. 這個sdk有辦法做到，放進去子體後，如果那掉修改，子體就壞掉嘛？ 4. 公鑰是server這邊給的嘛？透過什麼方式給子體的呢？",
+    "source_date": "2026-03-18",
+    "status": "pending"
+  },
+  {
+    "question": "**user**: @MuseonClaw_bot   1. 企業買 20 座位 = 20 個 License = 20 台設備各跑一個子體 ，目前server也是這樣的限制的，一對一對一。但考慮到現實層面來說，20台設備*3萬多少？企業是有的嘛？可以負擔嘛？（我覺得是這策略和現實的考慮）  2. 好問，現在我拿掉跟server設定的sdk後，子體脫理server的限制，他就可以24小時365天1",
+    "source_date": "2026-03-18",
+    "status": "pending"
+  },
+  {
+    "question": "**user**: @MuseonClaw_bot  1. 月費 6,000（1000次）+超量計費，還有一筆錢要算到，就是claude max100 的錢喔  2. 你知道目前的架構下，用戶要付兩次錢嘛？",
+    "source_date": "2026-03-18",
+    "status": "pending"
+  },
+  {
+    "question": "**user**: @MuseonClaw_bot 你把c的架構給我，我來問看看， 另外API和Max  會有llm的差異嘛？",
+    "source_date": "2026-03-18",
+    "status": "pending"
   }
 ]

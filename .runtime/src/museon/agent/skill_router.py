@@ -190,8 +190,8 @@ class SkillRouter:
             if vb.is_available():
                 self._vector_bridge = vb
                 return vb
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[SKILL_ROUTER] vector failed (degraded): {e}")
         return None
 
     def _vector_search_skills(
@@ -205,13 +205,20 @@ class SkillRouter:
         try:
             vb = self._get_vector_bridge()
             if vb is None:
+                logger.debug("vec_search: VectorBridge 不可用")
                 return {}
             results = vb.search("skills", query, limit=limit)
+            if not results:
+                logger.debug(
+                    f"vec_search: 搜尋結果為空 (query={query[:50]}..., "
+                    f"collection=skills)"
+                )
             return {
                 r["id"]: r["score"]
                 for r in results
             }
-        except Exception:
+        except Exception as e:
+            logger.debug(f"vec_search: 搜尋失敗: {e}")
             return {}
 
     def _build_rc_index(self) -> None:
@@ -313,8 +320,9 @@ class SkillRouter:
         top_n: int = 5,
         routing_signal: Any = None,
         skill_usage: Optional[Dict[str, int]] = None,
+        user_primals: Optional[Dict[str, int]] = None,
     ) -> List[Dict[str, Any]]:
-        """v10.4 三層疊加匹配 — DNA27 RC 驅動 + 關鍵字 + 向量 + MoE 衰減.
+        """v10.5 四層疊加匹配 — RC 驅動 + 關鍵字 + 向量 + 八原語 + MoE 衰減.
 
         Layer 1: RC 驅動（權重 ×5.0）
           - 從 routing_signal.top_clusters 取得觸發的 RC
@@ -327,7 +335,10 @@ class SkillRouter:
         Layer 3: Qdrant 向量語義搜尋
           - 語義相似度補充
 
-        最終分數 = (RC_score × 5.0 + keyword_score + vector_score × 1.5) × usage_decay
+        Layer 4: ★ v10.5 八原語親和評分
+          - 使用者當前原語 × 技能原語親和度
+
+        最終分數 = (RC × 5.0 + kw + vec × 1.5 + primal × 2.0) × usage_decay
 
         ★ v10.4 Route B: MoE-style usage frequency decay
           - 借鏡 MoE auxiliary load balancing loss
@@ -344,6 +355,7 @@ class SkillRouter:
             top_n: 返回前 N 個匹配結果
             routing_signal: DNA27 RoutingSignal（可選）
             skill_usage: ★ v10.4 Route B — {skill_name: usage_count} session 內使用次數
+            user_primals: ★ v10.5 — {primal_key: level(0-100)} 使用者八原語
 
         Returns:
             匹配到的技能列表，按相關度排序
@@ -361,8 +373,8 @@ class SkillRouter:
                 elif loop == "SLOW_LOOP":
                     effective_top_n = top_n + 2
                 # EXPLORATION_LOOP → 維持原 top_n
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[SKILL_ROUTER] operation failed (degraded): {e}")
 
         # ── Layer 1: DNA27 RC 驅動 — 從 skill 自己的 RC 親和宣告匹配 ──
         rc_scores: Dict[str, float] = {}
@@ -468,13 +480,33 @@ class SkillRouter:
                     if not skill.get("always_on") and skill_name not in rc_scores:
                         kw_score = 0.0
 
-            # ── v10.1 三層疊加：RC × 5.0 + keyword + vector × 1.5 ──
-            # RC 提升至 5.0（DNA27 反射弧是核心驅動，必須主導）
+            # ── v10.5 四層疊加：RC × rc_weight + keyword + vector × 1.5 + primal × 2.0 ──
+            # RC 預設 5.0（DNA27 反射弧是核心驅動，必須主導）
+            # ★ v10.5: 短訊息 + 弱 RC 信號 → 動態降權至 2.0（讓語義有機會補正）
             # Vector 降至 1.5（語義補充，不應蓋過神經迴路信號）
+            # Primal 2.0（八原語親和——使用者驅力影響技能選擇）
             rc_s = rc_scores.get(skill_name, 0.0)
             v_score = vector_scores.get(skill_name, 0.0)
 
-            combined = rc_s * 5.0 + kw_score + v_score * 1.5
+            _rc_weight = 5.0
+            if len(message.strip()) < 20 and rc_s < 0.3 and rc_s > 0:
+                _rc_weight = 2.0
+
+            # ── Layer 4: 八原語親和評分 ──
+            primal_score = 0.0
+            if user_primals:
+                try:
+                    from museon.agent.primal_detector import DEFAULT_SKILL_PRIMAL_AFFINITY
+                    affinity = DEFAULT_SKILL_PRIMAL_AFFINITY.get(skill_name, {})
+                    if affinity:
+                        for pk, aff in affinity.items():
+                            user_level = user_primals.get(pk, 0)
+                            if user_level > 0:
+                                primal_score += (user_level / 100.0) * aff
+                except Exception:
+                    pass
+
+            combined = rc_s * _rc_weight + kw_score + v_score * 1.5 + primal_score * 2.0
 
             # /command 匹配的絕對優先（不受 usage decay 影響）
             is_command_match = kw_score >= 10.0
@@ -577,8 +609,8 @@ class SkillRouter:
         if path.exists():
             try:
                 return path.read_text(encoding="utf-8")
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[SKILL_ROUTER] data read failed (degraded): {e}")
         return ""
 
     def load_skill_summary(self, skill: Dict[str, Any]) -> str:

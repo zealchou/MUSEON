@@ -1,7 +1,7 @@
 """VectorBridge — 語義搜尋統一門面.
 
 整合 Qdrant 向量資料庫 + Embedder 嵌入引擎，提供：
-- 6 個 collection（memories, skills, dna27, crystals, workflows, documents）
+- 7 個 collection（memories, skills, dna27, crystals, workflows, documents, references）
 - index / search / batch 操作
 - 完整 graceful degradation（Qdrant 或 fastembed 不可用時靜默失敗）
 
@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 # Qdrant 連線
 QDRANT_URL = "http://127.0.0.1:6333"
 
-# 6 個 Collection 定義
+# 7 個 Collection 定義
 COLLECTIONS: Dict[str, Dict[str, Any]] = {
     "memories": {"desc": "六層記憶語義索引"},
     "skills": {"desc": "技能語義匹配"},
@@ -32,6 +32,8 @@ COLLECTIONS: Dict[str, Dict[str, Any]] = {
     "crystals": {"desc": "知識晶體語義"},
     "workflows": {"desc": "工作流語義"},
     "documents": {"desc": "結構化資料語義索引"},
+    "references": {"desc": "Zotero 文獻語義索引"},
+    "primals": {"desc": "八原語語義偵測"},
 }
 
 # documents collection 的 payload index 定義
@@ -78,8 +80,8 @@ class VectorBridge:
         try:
             from museon.core.event_bus import MEMORY_STORED
             self._event_bus.subscribe(MEMORY_STORED, self._on_memory_stored)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[VECTOR_BRIDGE] memory failed (degraded): {e}")
 
     def _on_memory_stored(self, data: Optional[Dict] = None) -> None:
         """MEMORY_STORED 備援索引：若主流程索引失敗，此路徑補索引."""
@@ -94,8 +96,8 @@ class VectorBridge:
             if results and any(r.get("id") == memory_id for r in results):
                 return
             # 備援索引（content 不在事件中，跳過）
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[VECTOR_BRIDGE] memory failed (degraded): {e}")
 
     # ═══════════════════════════════════════════
     # 可用性檢查
@@ -210,8 +212,8 @@ class VectorBridge:
                         "doc_id": doc_id,
                         "collection": collection,
                     })
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"[VECTOR_BRIDGE] vector failed (degraded): {e}")
 
             return True
 
@@ -290,6 +292,7 @@ class VectorBridge:
         query: str,
         limit: int = 10,
         score_threshold: float = 0.3,
+        filter_deprecated: bool = True,
     ) -> List[Dict]:
         """語義搜尋.
 
@@ -298,6 +301,7 @@ class VectorBridge:
             query: 查詢文本
             limit: 回傳上限
             score_threshold: 最低相似度分數
+            filter_deprecated: 是否過濾已廢棄的向量（預設 True）
 
         Returns:
             [{id, score, text, metadata}, ...] 按 score 降序。
@@ -319,23 +323,45 @@ class VectorBridge:
             # 確保 collection 存在
             self._ensure_collection(collection, embedder.dimension)
 
+            # 構建 Qdrant Filter（過濾 deprecated 向量）
+            query_filter = None
+            if filter_deprecated:
+                try:
+                    from qdrant_client.models import Filter, FieldCondition, MatchValue
+                    query_filter = Filter(
+                        must_not=[
+                            FieldCondition(
+                                key="status",
+                                match=MatchValue(value="deprecated"),
+                            )
+                        ]
+                    )
+                except ImportError:
+                    pass  # 舊版 qdrant-client，降級為不過濾
+
             # qdrant-client ≥1.7 uses query_points; fallback to search for older
             if hasattr(client, "query_points"):
-                response = client.query_points(
-                    collection_name=collection,
-                    query=query_vector,
-                    limit=limit,
-                    score_threshold=score_threshold,
-                    with_payload=True,
-                )
+                kwargs = {
+                    "collection_name": collection,
+                    "query": query_vector,
+                    "limit": limit,
+                    "score_threshold": score_threshold,
+                    "with_payload": True,
+                }
+                if query_filter is not None:
+                    kwargs["query_filter"] = query_filter
+                response = client.query_points(**kwargs)
                 hits = response.points
             else:
-                hits = client.search(
-                    collection_name=collection,
-                    query_vector=query_vector,
-                    limit=limit,
-                    score_threshold=score_threshold,
-                )
+                kwargs = {
+                    "collection_name": collection,
+                    "query_vector": query_vector,
+                    "limit": limit,
+                    "score_threshold": score_threshold,
+                }
+                if query_filter is not None:
+                    kwargs["query_filter"] = query_filter
+                hits = client.search(**kwargs)
 
             return [
                 {
@@ -354,6 +380,53 @@ class VectorBridge:
         except Exception as e:
             logger.debug(f"VectorBridge search failed: {e}")
             return []
+
+    # ═══════════════════════════════════════════
+    # 記憶廢棄標記（P0 事實覆寫）
+    # ═══════════════════════════════════════════
+
+    def mark_deprecated(
+        self,
+        collection: str,
+        doc_id: str,
+    ) -> bool:
+        """將指定向量標記為 deprecated（軟刪除）.
+
+        被標記的向量在 search() 中會被自動過濾。
+
+        Args:
+            collection: collection 名稱
+            doc_id: 文件唯一 ID
+
+        Returns:
+            True if marked, False otherwise.
+        """
+        if collection not in COLLECTIONS:
+            return False
+
+        try:
+            client = self._get_client()
+            if client is None:
+                return False
+
+            from qdrant_client.models import SetPayloadOperation, PointIdsList
+
+            point_id = self._doc_id_to_point_id(doc_id)
+
+            client.set_payload(
+                collection_name=collection,
+                payload={"status": "deprecated"},
+                points=[point_id],
+            )
+
+            logger.info(
+                f"VectorBridge mark_deprecated: {collection}/{doc_id}"
+            )
+            return True
+
+        except Exception as e:
+            logger.debug(f"VectorBridge mark_deprecated failed: {e}")
+            return False
 
     # ═══════════════════════════════════════════
     # 管理操作
@@ -383,6 +456,9 @@ class VectorBridge:
                 except Exception:
                     self._create_collection(name, dim)
                     result["created"].append(name)
+
+            # 確保既有 collection 的 indexing_threshold 為 1000
+            self._ensure_optimizers(client, result["existing"])
 
             # documents collection 需要額外建立 payload indexes
             self._ensure_payload_indexes("documents")
@@ -499,7 +575,11 @@ class VectorBridge:
             if client is None:
                 return
 
-            from qdrant_client.models import Distance, VectorParams
+            from qdrant_client.models import (
+                Distance,
+                OptimizersConfigDiff,
+                VectorParams,
+            )
 
             client.create_collection(
                 collection_name=name,
@@ -507,11 +587,41 @@ class VectorBridge:
                     size=dimension,
                     distance=Distance.COSINE,
                 ),
+                optimizers_config=OptimizersConfigDiff(
+                    indexing_threshold=1000,
+                ),
             )
             logger.info(f"Created Qdrant collection: {name} (dim={dimension})")
 
         except Exception as e:
             logger.warning(f"Failed to create collection {name}: {e}")
+
+    def _ensure_optimizers(self, client, collection_names: List[str]) -> None:
+        """確保既有 collection 的 indexing_threshold 足夠低以建立 HNSW 索引."""
+        try:
+            from qdrant_client.models import OptimizersConfigDiff
+
+            for name in collection_names:
+                try:
+                    info = client.get_collection(name)
+                    current = getattr(
+                        info.config.optimizer_config, "indexing_threshold", None
+                    )
+                    if current is not None and current > 1000:
+                        client.update_collection(
+                            collection_name=name,
+                            optimizers_config=OptimizersConfigDiff(
+                                indexing_threshold=1000,
+                            ),
+                        )
+                        logger.info(
+                            f"Updated {name} indexing_threshold: "
+                            f"{current} → 1000"
+                        )
+                except Exception as e:
+                    logger.debug(f"Skip optimizer check for {name}: {e}")
+        except ImportError:
+            pass
 
     def _ensure_payload_indexes(self, collection: str) -> None:
         """確保 payload indexes 存在（目前用於 documents collection）.

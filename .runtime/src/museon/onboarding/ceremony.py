@@ -13,6 +13,16 @@ from datetime import datetime
 import json
 from pathlib import Path
 
+from museon.pulse.pulse_db import get_pulse_db
+
+_DEFAULT_STATE = {
+    "stage": "not_started",
+    "completed": False,
+    "name_given": False,
+    "questions_asked": False,
+    "answers_received": False,
+}
+
 
 class NamingCeremony:
     """Manages the naming ceremony ritual for first-time MUSEON setup.
@@ -37,28 +47,33 @@ class NamingCeremony:
         self.anima_user_path = self.data_dir / "ANIMA_USER.json"
         # Legacy compatibility
         self.anima_l1_path = self.anima_mc_path
+
+        # Phase 2: ceremony_state → PulseDB（保留 JSON 路徑用於遷移）
         self.ceremony_state_path = self.data_dir / "ceremony_state.json"
+        self._pulse_db = get_pulse_db(self.data_dir)
 
         self._state = self._load_state()
 
     def _load_state(self) -> Dict[str, Any]:
-        """Load ceremony state from disk."""
+        """Load ceremony state from PulseDB (fallback to JSON for migration)."""
+        # 優先從 PulseDB 讀取
+        state = self._pulse_db.get_ceremony_state()
+        if state:
+            return state
+
+        # Fallback: 從舊 JSON 遷移
         if self.ceremony_state_path.exists():
+            if self._pulse_db.migrate_ceremony_from_json(self.ceremony_state_path):
+                return self._pulse_db.get_ceremony_state() or dict(_DEFAULT_STATE)
+            # 遷移失敗時直接讀 JSON
             with open(self.ceremony_state_path, 'r', encoding='utf-8') as f:
                 return json.load(f)
-        return {
-            "stage": "not_started",
-            "completed": False,
-            "name_given": False,
-            "questions_asked": False,
-            "answers_received": False,
-        }
+
+        return dict(_DEFAULT_STATE)
 
     def _save_state(self):
-        """Save ceremony state to disk."""
-        self.ceremony_state_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(self.ceremony_state_path, 'w', encoding='utf-8') as f:
-            json.dump(self._state, f, indent=2, ensure_ascii=False)
+        """Save ceremony state to PulseDB."""
+        self._pulse_db.save_ceremony_state(self._state)
 
     def is_ceremony_needed(self) -> bool:
         """Check if naming ceremony is needed (first time setup)."""

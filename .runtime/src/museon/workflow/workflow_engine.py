@@ -8,12 +8,15 @@
 
 import json
 import logging
+import os
 import sqlite3
 import threading
 import uuid
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+
+from museon.core.data_bus import DataContract, StoreSpec, StoreEngine, TTLTier
 
 from .models import (
     BIRTH_TO_GROWTH_SUCCESS,
@@ -82,12 +85,48 @@ _CREATE_EXECUTIONS_INDEXES = [
 ]
 
 
-class WorkflowEngine:
+class WorkflowEngine(DataContract):
     """工作流生命週期引擎.
 
     SQLite-backed，支援 6 階段生命週期管理。
     所有公開方法皆 try/except 包裝，失敗不拋異常（graceful degradation）。
+    實現 DataContract 介面，可被 DataBus 統一管理。
     """
+
+    @classmethod
+    def store_spec(cls) -> StoreSpec:
+        """聲明 WorkflowStateDB 的靜態規格."""
+        return StoreSpec(
+            name="workflow_state_db",
+            engine=StoreEngine.SQLITE,
+            ttl=TTLTier.PERMANENT,
+            write_mode="replace",
+            description="工作流演化狀態（6 階段生命週期 + 4D 分數統計）",
+            tables=["workflows", "executions"],
+        )
+
+    def health_check(self) -> Dict[str, Any]:
+        """執行健康檢查."""
+        try:
+            conn = self._get_conn()
+            wf_count = conn.execute(
+                "SELECT COUNT(*) FROM workflows"
+            ).fetchone()[0]
+            exec_count = conn.execute(
+                "SELECT COUNT(*) FROM executions"
+            ).fetchone()[0]
+            db_size = 0
+            if self._db_path.exists():
+                db_size = os.path.getsize(self._db_path)
+            return {
+                "status": "ok",
+                "workflows_count": wf_count,
+                "executions_count": exec_count,
+                "db_size_bytes": db_size,
+                "db_path": str(self._db_path),
+            }
+        except Exception as e:
+            return {"status": "error", "error": str(e)}
 
     def __init__(
         self,
@@ -555,6 +594,65 @@ class WorkflowEngine:
         )
         conn.commit()
 
+    # ═══════════════════════════════════════════
+    # 資料清理
+    # ═══════════════════════════════════════════
+
+    def cleanup_old_executions(self, days: int = 90) -> Dict[str, Any]:
+        """清理超過 N 天的 archived 工作流執行記錄.
+
+        只清理 lifecycle='archived' 的工作流的執行記錄。
+        活躍工作流的歷史記錄不會被清除。
+
+        Args:
+            days: 保留天數（預設 90 天）
+
+        Returns:
+            {"deleted_executions": int, "archived_workflows": int}
+        """
+        try:
+            conn = self._get_conn()
+            cutoff = (
+                datetime.now(TZ_TAIPEI) - timedelta(days=days)
+            ).isoformat()
+
+            # 找出所有 archived 工作流
+            archived = conn.execute(
+                "SELECT workflow_id FROM workflows WHERE lifecycle = 'archived'"
+            ).fetchall()
+            archived_ids = [r["workflow_id"] for r in archived]
+
+            if not archived_ids:
+                return {"deleted_executions": 0, "archived_workflows": 0}
+
+            placeholders = ",".join("?" * len(archived_ids))
+            result = conn.execute(
+                f"""DELETE FROM executions
+                    WHERE workflow_id IN ({placeholders})
+                    AND created_at < ?""",
+                [*archived_ids, cutoff],
+            )
+            deleted = result.rowcount
+            conn.commit()
+
+            if deleted > 0:
+                logger.info(
+                    f"[WORKFLOW_ENGINE] Cleaned {deleted} old executions "
+                    f"from {len(archived_ids)} archived workflows"
+                )
+
+            return {
+                "deleted_executions": deleted,
+                "archived_workflows": len(archived_ids),
+            }
+        except Exception as e:
+            logger.warning(f"[WORKFLOW_ENGINE] Cleanup failed: {e}")
+            return {"deleted_executions": 0, "error": str(e)}
+
+    # ═══════════════════════════════════════════
+    # 私有方法
+    # ═══════════════════════════════════════════
+
     def _publish(self, event_type: str, data: Dict) -> None:
         """EventBus 發布（靜默失敗）."""
         if self._event_bus:
@@ -568,8 +666,8 @@ class WorkflowEngine:
         tags = []
         try:
             tags = json.loads(row["tags_json"])
-        except (json.JSONDecodeError, KeyError):
-            pass
+        except (json.JSONDecodeError, KeyError) as e:
+            logger.debug(f"[WORKFLOW_ENGINE] JSON failed (degraded): {e}")
 
         return WorkflowRecord(
             workflow_id=row["workflow_id"],

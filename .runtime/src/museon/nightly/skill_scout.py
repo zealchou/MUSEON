@@ -277,8 +277,8 @@ class SkillScout:
                 return json.loads(
                     self._known_skills_path.read_text(encoding="utf-8")
                 )
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[SKILL_SCOUT] data read failed (degraded): {e}")
         return {}
 
     def _log_scan(

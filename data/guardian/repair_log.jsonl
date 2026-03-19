@@ -1,5 +1,0 @@
-{"timestamp": "2026-03-03T21:26:45.767488", "layer": "L2", "check": "anima_mc", "status": "repaired", "action": "create_file"}
-{"timestamp": "2026-03-03T21:26:45.769260", "layer": "L2", "check": "anima_user", "status": "repaired", "action": "create_file"}
-{"timestamp": "2026-03-03T21:26:45.771947", "layer": "L2", "check": "lattice_integrity", "status": "repaired", "action": "crystals 重建為空; links 重建為空"}
-{"timestamp": "2026-03-03T21:26:45.776778", "layer": "L2", "check": "backups", "status": "repaired", "action": "建立 2 個備份"}
-{"timestamp": "2026-03-07T07:20:10.112806", "layer": "L2", "check": "backups", "status": "repaired", "action": "建立 2 個備份"}

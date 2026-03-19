@@ -1,7 +1,9 @@
-"""Drift Detector — ANIMA 漂移偵測系統.
+"""Drift Detector — ANIMA 漂移偵測系統 v2.0.
 
-每 10 次觀察後檢查 ANIMA 狀態與基線的加權漂移分數，
-超過 15% 閾值則暫停演化 + 通知 Zeal。
+每 10 次觀察後檢查 ANIMA 狀態與基線的連續相似度漂移分數。
+- drift < 50%：寫入覺察日誌（drift_awareness.jsonl），不觸發任何暫停
+- drift >= 50%：凍結 morphenix 提案（L2/L3 級），核心學習全繼續
+- 基線採用 EMA 指數加權平滑，避免振盪
 """
 from __future__ import annotations
 
@@ -9,6 +11,7 @@ import json
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -19,30 +22,34 @@ logger = logging.getLogger(__name__)
 class DriftReport:
     """漂移偵測報告."""
     drift_score: float  # 0~1，加權漂移分數
-    should_pause: bool
+    should_restrict_morphenix: bool  # 是否限制 morphenix 提案
+    awareness_log: str = ""  # 自我覺察日誌文字
     details: List[Dict[str, Any]] = field(default_factory=list)
     checked_at: str = ""
 
     def to_dict(self) -> dict:
         return {
             "drift_score": round(self.drift_score, 4),
-            "should_pause": self.should_pause,
+            "should_restrict_morphenix": self.should_restrict_morphenix,
+            "awareness_log": self.awareness_log,
             "details": self.details,
             "checked_at": self.checked_at,
         }
 
 
 class DriftDetector:
-    """ANIMA 漂移偵測器.
+    """ANIMA 漂移偵測器 v2.0.
 
     職責：
-    1. 快照 ANIMA 基線
-    2. 週期性比較當前值與基線
-    3. 加權漂移分數 > 15% → 暫停演化
+    1. 快照 ANIMA 基線（EMA 指數加權平滑）
+    2. 週期性比較當前值與基線（連續相似度）
+    3. 加權漂移分數 >= 50% → 限制 morphenix 提案
+    4. 所有漂移檢查寫入覺察日誌
     """
 
-    DRIFT_THRESHOLD = 0.15  # 15%
+    DRIFT_THRESHOLD = 0.50  # 50% — 極端漂移才觸發限制
     CHECK_INTERVAL = 10     # 每 10 次觀察後檢查
+    EMA_ALPHA = 0.3         # EMA 平滑係數（新值權重 30%）
 
     # 加權維度
     WEIGHTS = {
@@ -59,9 +66,12 @@ class DriftDetector:
         self.baseline_path.parent.mkdir(parents=True, exist_ok=True)
         self.drift_log_path = data_dir / "guardian" / "drift_log.jsonl"
         self.drift_log_path.parent.mkdir(parents=True, exist_ok=True)
+        self.awareness_log_path = data_dir / "anima" / "drift_awareness.jsonl"
+        self.awareness_log_path.parent.mkdir(parents=True, exist_ok=True)
 
         self._observation_count = 0
         self._baseline: Optional[Dict[str, Any]] = None
+        self._cumulative_drift: float = 0.0  # 累計漂移（不隨基線重置）
 
         # 載入既有基線
         if self.baseline_path.exists():
@@ -72,16 +82,46 @@ class DriftDetector:
             except Exception as e:
                 logger.warning(f"載入漂移基線失敗: {e}")
 
-        logger.info("DriftDetector 初始化完成")
+        logger.info("DriftDetector v2.0 初始化完成")
 
     def take_baseline(
         self,
         anima_mc: Dict[str, Any],
         anima_user: Dict[str, Any],
-    ) -> None:
-        """快照當前 ANIMA 狀態作為漂移基線."""
-        baseline = {
-            "taken_at": datetime.now(timezone.utc).isoformat(),
+        force: bool = False,
+    ) -> bool:
+        """快照當前 ANIMA 狀態作為漂移基線.
+
+        使用 EMA 指數加權平滑：new_baseline = α * current + (1-α) * old_baseline
+        首次建立或 force=True 時直接快照。
+        """
+        current = self._extract_snapshot(anima_mc, anima_user)
+
+        if self._baseline and not force:
+            # EMA 平滑更新——數值欄位漸進調整
+            baseline = self._ema_merge(self._baseline, current, self.EMA_ALPHA)
+        else:
+            baseline = current
+
+        baseline["taken_at"] = datetime.now(timezone.utc).isoformat()
+
+        try:
+            self.baseline_path.write_text(
+                json.dumps(baseline, indent=2, ensure_ascii=False),
+                encoding="utf-8",
+            )
+            self._baseline = baseline
+            logger.info("漂移基線已更新（EMA 平滑）")
+            return True
+        except Exception as e:
+            logger.error(f"寫入漂移基線失敗: {e}")
+            return False
+
+    def _extract_snapshot(
+        self, anima_mc: Dict[str, Any], anima_user: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """從 ANIMA 狀態提取快照欄位."""
+        return {
             "mc_primals": anima_mc.get("eight_primal_energies", anima_mc.get("eight_primals", {})),
             "mc_expression": anima_mc.get("self_awareness", {}).get(
                 "expression_style", {}
@@ -97,15 +137,48 @@ class DriftDetector:
                 "L7_context_roles", []
             ),
         }
-        try:
-            self.baseline_path.write_text(
-                json.dumps(baseline, indent=2, ensure_ascii=False),
-                encoding="utf-8",
-            )
-            self._baseline = baseline
-            logger.info("漂移基線已建立")
-        except Exception as e:
-            logger.error(f"寫入漂移基線失敗: {e}")
+
+    def _ema_merge(
+        self, old: Dict[str, Any], new: Dict[str, Any], alpha: float
+    ) -> Dict[str, Any]:
+        """EMA 指數加權合併基線（數值型欄位漸進調整，非數值型直接替換）."""
+        merged = {}
+        for key in set(list(old.keys()) + list(new.keys())):
+            if key == "taken_at":
+                continue
+            old_val = old.get(key)
+            new_val = new.get(key)
+            if new_val is None:
+                merged[key] = old_val
+            elif old_val is None:
+                merged[key] = new_val
+            elif isinstance(old_val, dict) and isinstance(new_val, dict):
+                merged[key] = self._ema_merge_dict(old_val, new_val, alpha)
+            elif isinstance(old_val, list) and isinstance(new_val, list):
+                merged[key] = new_val  # 列表型直接取新值
+            else:
+                merged[key] = new_val
+        return merged
+
+    def _ema_merge_dict(
+        self, old: Dict[str, Any], new: Dict[str, Any], alpha: float
+    ) -> Dict[str, Any]:
+        """EMA 合併字典（遞迴處理巢狀數值）."""
+        merged = {}
+        for key in set(list(old.keys()) + list(new.keys())):
+            old_val = old.get(key)
+            new_val = new.get(key)
+            if new_val is None:
+                merged[key] = old_val
+            elif old_val is None:
+                merged[key] = new_val
+            elif isinstance(old_val, (int, float)) and isinstance(new_val, (int, float)):
+                merged[key] = alpha * new_val + (1 - alpha) * old_val
+            elif isinstance(old_val, dict) and isinstance(new_val, dict):
+                merged[key] = self._ema_merge_dict(old_val, new_val, alpha)
+            else:
+                merged[key] = new_val
+        return merged
 
     def should_check(self) -> bool:
         """是否應該進行漂移檢查（每 CHECK_INTERVAL 次觀察一次）."""
@@ -117,15 +190,22 @@ class DriftDetector:
         anima_mc: Dict[str, Any],
         anima_user: Dict[str, Any],
     ) -> DriftReport:
-        """比較當前值與基線，計算加權漂移分數."""
+        """比較當前值與基線，計算連續相似度加權漂移分數.
+
+        v2.0 改進：
+        - 連續相似度取代二進制比較
+        - 50% 極端閾值取代 15%
+        - 每次檢查都 EMA 微調基線
+        - 寫入覺察日誌而非觸發暫停
+        """
         now_iso = datetime.now(timezone.utc).isoformat()
 
         if not self._baseline:
-            # 沒有基線 → 建立基線，不報告漂移
-            self.take_baseline(anima_mc, anima_user)
+            self.take_baseline(anima_mc, anima_user, force=True)
             return DriftReport(
                 drift_score=0.0,
-                should_pause=False,
+                should_restrict_morphenix=False,
+                awareness_log="首次建立基線",
                 details=[{"note": "首次建立基線"}],
                 checked_at=now_iso,
             )
@@ -157,7 +237,7 @@ class DriftDetector:
             "weight": self.WEIGHTS["L5_preference_crystals"],
         })
 
-        # 3. L6 風格變化
+        # 3. L6 風格變化（改用連續相似度）
         l6_drift = self._compute_style_drift(
             self._baseline.get("user_L6", {}),
             anima_user.get("seven_layers", {}).get("L6_communication_style", {}),
@@ -194,26 +274,38 @@ class DriftDetector:
         })
 
         # 最終漂移分數
-        should_pause = weighted_sum > self.DRIFT_THRESHOLD
+        should_restrict = weighted_sum >= self.DRIFT_THRESHOLD
+
+        # 生成覺察日誌
+        awareness = self._generate_awareness_log(weighted_sum, details, should_restrict)
 
         report = DriftReport(
             drift_score=weighted_sum,
-            should_pause=should_pause,
+            should_restrict_morphenix=should_restrict,
+            awareness_log=awareness,
             details=details,
             checked_at=now_iso,
         )
 
+        # 累計漂移追蹤（不隨基線重置）
+        self._cumulative_drift = max(self._cumulative_drift, weighted_sum)
+
         # 記錄漂移日誌
         self._log_drift(report)
 
-        # 如果漂移過大，更新基線（避免一直觸發）
-        if should_pause:
+        # 寫入覺察日誌（每次檢查都寫）
+        self._log_awareness(report)
+
+        # 每次檢查都 EMA 微調基線（消除振盪）
+        self.take_baseline(anima_mc, anima_user)
+
+        if should_restrict:
             logger.warning(
-                f"ANIMA 漂移超過閾值: {weighted_sum:.1%} > {self.DRIFT_THRESHOLD:.0%}"
+                f"ANIMA 漂移極端: {weighted_sum:.1%} >= {self.DRIFT_THRESHOLD:.0%} "
+                f"→ morphenix 提案受限"
             )
-            # 重建基線：承認當前狀態為新常態，防止每次都觸發暫停
-            self.take_baseline(anima_mc, anima_user)
-            logger.info("漂移基線已重建（暫停觸發後自動更新）")
+        else:
+            logger.info(f"ANIMA 漂移正常: {weighted_sum:.1%}")
 
         return report
 
@@ -257,7 +349,14 @@ class DriftDetector:
     def _compute_style_drift(
         self, old: Dict[str, Any], new: Dict[str, Any]
     ) -> float:
-        """計算風格型資料的漂移（基於欄位值變化）."""
+        """計算風格型資料的連續相似度漂移.
+
+        v2.0：取代二進制 != 比較
+        - 數值型：abs(old - new) / max(abs(old), abs(new), 1e-6)
+        - 字串型：1 - SequenceMatcher.ratio()
+        - 列表型：Jaccard distance
+        - 最終取加權平均
+        """
         if not old or not new:
             return 0.0
 
@@ -265,18 +364,84 @@ class DriftDetector:
         if not all_keys:
             return 0.0
 
-        changed = 0
-        total = 0
+        total_drift = 0.0
+        count = 0
         for key in all_keys:
             old_val = old.get(key)
             new_val = new.get(key)
             if old_val is None and new_val is None:
                 continue
-            total += 1
-            if old_val != new_val:
-                changed += 1
+            count += 1
 
-        return changed / max(total, 1)
+            if old_val is None or new_val is None:
+                total_drift += 1.0  # 新增或消失的欄位 = 完全漂移
+            elif isinstance(old_val, (int, float)) and isinstance(new_val, (int, float)):
+                # 數值型：連續差異比率
+                max_abs = max(abs(old_val), abs(new_val), 1e-6)
+                total_drift += abs(old_val - new_val) / max_abs
+            elif isinstance(old_val, str) and isinstance(new_val, str):
+                # 字串型：序列相似度
+                ratio = SequenceMatcher(None, old_val, new_val).ratio()
+                total_drift += 1.0 - ratio
+            elif isinstance(old_val, list) and isinstance(new_val, list):
+                # 列表型：Jaccard distance
+                total_drift += self._jaccard_distance(old_val, new_val)
+            elif isinstance(old_val, dict) and isinstance(new_val, dict):
+                # 巢狀字典：遞迴計算
+                total_drift += self._compute_style_drift(old_val, new_val)
+            else:
+                # 類型不同 = 完全漂移
+                total_drift += 1.0 if old_val != new_val else 0.0
+
+        return min(1.0, total_drift / max(count, 1))
+
+    @staticmethod
+    def _jaccard_distance(a: List[Any], b: List[Any]) -> float:
+        """Jaccard distance for lists."""
+        set_a = set(str(x) for x in a)
+        set_b = set(str(x) for x in b)
+        if not set_a and not set_b:
+            return 0.0
+        intersection = len(set_a & set_b)
+        union = len(set_a | set_b)
+        return 1.0 - (intersection / max(union, 1))
+
+    # ─── 覺察日誌 ─────────────────────────
+
+    def _generate_awareness_log(
+        self, drift_score: float, details: List[Dict], is_extreme: bool
+    ) -> str:
+        """生成自我覺察日誌文字."""
+        top_dims = sorted(details, key=lambda d: d["drift"], reverse=True)[:3]
+        dim_desc = ", ".join(
+            f'{d["dimension"]}({d["drift"]:.1%})' for d in top_dims if d["drift"] > 0.01
+        )
+
+        if is_extreme:
+            return (
+                f"極端漂移 {drift_score:.1%}：{dim_desc}。"
+                f"morphenix 提案已限制，核心學習繼續。"
+            )
+        elif drift_score > 0.20:
+            return f"中等漂移 {drift_score:.1%}：{dim_desc}。持續觀察中。"
+        elif drift_score > 0.05:
+            return f"輕微漂移 {drift_score:.1%}：{dim_desc}。正常範圍。"
+        else:
+            return f"穩定 {drift_score:.1%}。無顯著變化。"
+
+    def _log_awareness(self, report: DriftReport) -> None:
+        """Append-only 覺察日誌."""
+        try:
+            entry = {
+                "timestamp": report.checked_at,
+                "drift_score": round(report.drift_score, 4),
+                "restricted": report.should_restrict_morphenix,
+                "awareness": report.awareness_log,
+            }
+            with open(self.awareness_log_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+        except Exception as e:
+            logger.error(f"覺察日誌寫入失敗: {e}")
 
     # ─── 日誌 ─────────────────────────
 

@@ -412,8 +412,8 @@ class SubAgentManager:
             try:
                 data = json.loads(counter_path.read_text(encoding="utf-8"))
                 return data.get("count", 0)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"[SUB_AGENT] JSON failed (degraded): {e}")
         return 0
 
     def _save_counter(self) -> None:
