@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MUSEON 主動探測與動態調適設計 — 雙盲破局操作手冊 | 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ember: #C4502A;
+  --ember-light: #D4714F;
+  --ember-glow: rgba(196,80,42,0.12);
+  --ember-dark: #9A3A1C;
+  --teal: #2A7C6F;
+  --teal-light: #3A9C8F;
+  --gold: #B8860B;
+  --gold-light: #D4A844;
+  --ink: #1A1A1A;
+  --charcoal: #333333;
+  --stone: #6B6B6B;
+  --silver: #9B9B9B;
+  --mist: #E8E0D8;
+  --parchment: #F5F0EB;
+  --cream: #FAF8F5;
+  --white: #FFFFFF;
+  --deep-ink: #0E0E16;
+  --surface: #16161F;
+  --success: #2D8659;
+  --warning: #B8860B;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Outfit', 'Noto Sans TC', -apple-system, sans-serif;
+  background: var(--parchment);
+  color: var(--charcoal);
+  line-height: 1.75;
+  font-size: 16px;
+}
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  background: rgba(26,26,26,0.95);
+  backdrop-filter: blur(12px);
+  padding: 12px 0;
+  border-bottom: 2px solid var(--ember);
+}
+.nav-inner {
+  max-width: 860px; margin: 0 auto; padding: 0 24px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-weight: 600; color: var(--ember-light);
+  letter-spacing: 2px;
+}
+.nav-links { display: flex; gap: 18px; }
+.nav-links a {
+  color: var(--mist); text-decoration: none; font-size: 12px;
+  transition: color 0.2s; font-family: 'Noto Sans TC', sans-serif;
+}
+.nav-links a:hover { color: var(--ember-light); }
+
+/* HERO */
+.hero {
+  background: linear-gradient(135deg, #1A1A1A 0%, #2A2018 50%, #1A1A1A 100%);
+  padding: 140px 24px 80px;
+  text-align: center;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 25% 50%, rgba(196,80,42,0.15) 0%, transparent 60%),
+    radial-gradient(ellipse at 75% 30%, rgba(42,124,111,0.1) 0%, transparent 50%);
+}
+.hero-content { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; }
+.hero-tags {
+  display: flex; justify-content: center; gap: 10px;
+  margin-bottom: 24px; flex-wrap: wrap;
+}
+.hero-tag {
+  display: inline-block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 4px 14px; border-radius: 20px;
+}
+.hero-tag-ember {
+  background: rgba(196,80,42,0.2); color: var(--ember-light);
+  border: 1px solid rgba(196,80,42,0.35);
+}
+.hero-tag-gold {
+  background: rgba(184,134,11,0.2); color: var(--gold-light);
+  border: 1px solid rgba(184,134,11,0.35);
+}
+.hero-tag-teal {
+  background: rgba(42,124,111,0.2); color: var(--teal-light);
+  border: 1px solid rgba(42,124,111,0.35);
+}
+.hero h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(30px, 5vw, 46px);
+  font-weight: 700; color: var(--cream);
+  line-height: 1.25; margin-bottom: 20px;
+}
+.hero h1 span { color: var(--ember-light); }
+.hero-sub {
+  font-size: 16px; color: var(--silver);
+  line-height: 1.7; max-width: 580px; margin: 0 auto 32px;
+  font-family: 'Noto Sans TC', sans-serif;
+}
+.hero-stats {
+  display: flex; justify-content: center; gap: 40px; flex-wrap: wrap;
+  margin-top: 40px;
+}
+.hero-stat { text-align: center; }
+.hero-stat-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px; font-weight: 700; color: var(--ember-light);
+}
+.hero-stat-label {
+  font-size: 11px; color: var(--silver); letter-spacing: 1px;
+  text-transform: uppercase; margin-top: 4px;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+/* MAIN */
+.main { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+
+/* VERDICT */
+.verdict {
+  background: var(--white);
+  border-left: 4px solid var(--ember);
+  border-radius: 0 12px 12px 0;
+  padding: 40px;
+  margin: -40px 0 48px;
+  position: relative; z-index: 2;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+}
+.verdict-label {
+  font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--ember); font-weight: 600; margin-bottom: 12px;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.verdict h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px; font-weight: 700; color: var(--ink);
+  line-height: 1.4; margin-bottom: 16px;
+}
+.verdict p { color: var(--stone); font-size: 15px; line-height: 1.8; }
+.verdict-highlight {
+  display: inline;
+  background: linear-gradient(transparent 60%, rgba(196,80,42,0.15) 60%);
+  font-weight: 600; color: var(--ink);
+}
+
+/* SECTION */
+.section { margin-bottom: 64px; }
+.section-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px; color: var(--ember); font-weight: 600;
+  letter-spacing: 2px; margin-bottom: 8px;
+}
+.section h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 30px; font-weight: 700; color: var(--ink);
+  line-height: 1.3; margin-bottom: 24px;
+}
+.section h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-weight: 600; color: var(--ink);
+  margin: 32px 0 16px;
+}
+.section p {
+  color: var(--charcoal); margin-bottom: 16px; font-size: 15px;
+  line-height: 1.85;
+}
+
+/* PULL QUOTE */
+.pull-quote {
+  border-left: 3px solid var(--gold);
+  padding: 24px 28px; margin: 28px 0;
+  background: rgba(184,134,11,0.05);
+  border-radius: 0 10px 10px 0;
+}
+.pull-quote p {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-weight: 600; color: var(--ink);
+  line-height: 1.5; font-style: italic; margin-bottom: 0;
+}
+.pull-quote .quote-source {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; font-weight: 500; color: var(--stone);
+  letter-spacing: 0.05em; margin-top: 10px; font-style: normal;
+}
+
+/* INSIGHT ITEM */
+.insight-item {
+  display: flex; align-items: flex-start; gap: 20px;
+  background: var(--white); border-radius: 12px;
+  padding: 28px; margin-bottom: 16px;
+  border: 1px solid var(--mist);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.insight-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+.insight-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--ember); color: var(--white);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px; font-weight: 700; flex-shrink: 0;
+}
+.insight-content { flex: 1; }
+.insight-content h4 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-weight: 600; color: var(--ink);
+  margin-bottom: 8px;
+}
+.insight-content p {
+  font-size: 14px; color: var(--stone); line-height: 1.7; margin-bottom: 0;
+}
+
+/* MECH GRID */
+.mech-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0;
+}
+.mech-item {
+  padding: 24px; background: var(--white); border-radius: 12px;
+  border: 1px solid var(--mist); transition: transform 0.2s;
+}
+.mech-item:hover { transform: translateY(-2px); }
+.mech-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; margin-bottom: 10px;
+}
+.mech-label.ember { color: var(--ember); }
+.mech-label.teal { color: var(--teal); }
+.mech-label.gold { color: var(--gold); }
+.mech-label.slate { color: var(--stone); }
+.mech-item p { font-size: 14px; color: var(--charcoal); line-height: 1.7; margin-bottom: 0; }
+.mech-item strong { color: var(--ink); }
+
+/* CASE STUDY */
+.case-study {
+  background: linear-gradient(135deg, var(--ink) 0%, #2A2018 100%);
+  border-radius: 16px; padding: 40px; margin: 32px 0; color: var(--cream);
+}
+.case-label {
+  font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--ember-light); font-weight: 600; margin-bottom: 16px;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.case-study h4 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px; font-weight: 600; margin-bottom: 16px;
+}
+.case-study p { color: var(--silver); font-size: 15px; line-height: 1.8; margin-bottom: 16px; }
+.case-study p:last-child { margin-bottom: 0; }
+.case-stat-row {
+  display: flex; gap: 32px; flex-wrap: wrap; margin-top: 24px;
+  padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.1);
+}
+.case-stat { text-align: center; flex: 1; min-width: 100px; }
+.case-stat-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px; font-weight: 700; color: var(--ember-light);
+}
+.case-stat-label { font-size: 12px; color: var(--silver); margin-top: 4px; }
+
+/* FLOW DIAGRAM */
+.flow-container {
+  background: var(--white); border-radius: 16px; padding: 32px;
+  border: 1px solid var(--mist); margin: 24px 0;
+}
+.flow-step {
+  display: flex; align-items: flex-start; gap: 20px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--mist);
+}
+.flow-step:last-child { border-bottom: none; }
+.flow-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0; font-weight: 700;
+  font-family: 'Cormorant Garamond', serif;
+}
+.flow-icon.ember-bg { background: var(--ember-glow); color: var(--ember); }
+.flow-icon.teal-bg { background: rgba(42,124,111,0.12); color: var(--teal); }
+.flow-icon.gold-bg { background: rgba(184,134,11,0.12); color: var(--gold); }
+.flow-body { flex: 1; }
+.flow-body h4 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-weight: 600; color: var(--ink);
+  margin-bottom: 6px;
+}
+.flow-body p { font-size: 14px; color: var(--stone); line-height: 1.7; margin-bottom: 0; }
+.flow-arrow {
+  text-align: center; color: var(--silver); font-size: 20px; padding: 4px 0;
+}
+
+/* SIGNAL TABLE */
+.signal-table {
+  width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 14px;
+}
+.signal-table th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 600; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--stone);
+  padding: 12px 14px; text-align: left;
+  border-bottom: 2px solid var(--mist); background: var(--parchment);
+}
+.signal-table td {
+  padding: 14px; border-bottom: 1px solid var(--mist);
+  vertical-align: top; color: var(--charcoal); line-height: 1.6;
+}
+.signal-table tr:hover { background: rgba(196,80,42,0.03); }
+.signal-tag {
+  display: inline-block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px; font-weight: 600; letter-spacing: 0.05em;
+  padding: 2px 8px; border-radius: 12px; text-transform: uppercase;
+}
+.signal-tag-pain { background: rgba(196,80,42,0.12); color: var(--ember); }
+.signal-tag-mode { background: rgba(42,124,111,0.12); color: var(--teal); }
+.signal-tag-adapt { background: rgba(184,134,11,0.12); color: var(--gold); }
+
+/* DIALOGUE DEMO */
+.dialogue-box {
+  background: var(--white); border-radius: 16px; padding: 32px;
+  border: 2px solid var(--mist); margin: 24px 0;
+  position: relative; overflow: hidden;
+}
+.dialogue-box::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 4px;
+  background: linear-gradient(90deg, var(--ember), var(--gold), var(--teal));
+}
+.dialogue-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--ember); margin-bottom: 20px;
+}
+.dialogue-line {
+  padding: 12px 16px; margin-bottom: 8px; border-radius: 10px;
+}
+.dialogue-user {
+  background: var(--parchment);
+  margin-left: 40px;
+}
+.dialogue-museon {
+  background: rgba(42,124,111,0.06);
+  border-left: 3px solid var(--teal);
+  margin-right: 40px;
+}
+.dialogue-annotation {
+  background: rgba(184,134,11,0.06);
+  border-left: 3px solid var(--gold);
+  margin: 4px 0 16px;
+  padding: 8px 16px;
+  font-size: 12px;
+  color: var(--gold);
+  font-family: 'IBM Plex Mono', monospace;
+  font-style: italic;
+}
+.dialogue-speaker {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 600; letter-spacing: 1px;
+  text-transform: uppercase; margin-bottom: 4px;
+}
+.dialogue-speaker.user-name { color: var(--stone); }
+.dialogue-speaker.museon-name { color: var(--teal); }
+.dialogue-text { font-size: 14px; color: var(--charcoal); line-height: 1.7; }
+
+/* MODE CARD */
+.mode-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0;
+}
+.mode-card {
+  background: var(--white); border-radius: 12px; padding: 24px;
+  border: 1px solid var(--mist); transition: transform 0.2s;
+  position: relative; overflow: hidden;
+}
+.mode-card:hover { transform: translateY(-2px); }
+.mode-card::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+}
+.mode-card.coach::before { background: var(--teal); }
+.mode-card.ally::before { background: var(--ember); }
+.mode-card.mirror::before { background: var(--gold); }
+.mode-card.strategist::before { background: var(--ink); }
+.mode-icon { font-size: 28px; margin-bottom: 12px; }
+.mode-card h4 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px; font-weight: 700; color: var(--ink);
+  margin-bottom: 4px;
+}
+.mode-subtitle {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.mode-card.coach .mode-subtitle { color: var(--teal); }
+.mode-card.ally .mode-subtitle { color: var(--ember); }
+.mode-card.mirror .mode-subtitle { color: var(--gold); }
+.mode-card.strategist .mode-subtitle { color: var(--stone); }
+.mode-card p { font-size: 13px; color: var(--stone); line-height: 1.7; margin-bottom: 8px; }
+.mode-trigger {
+  font-size: 12px; color: var(--charcoal); font-weight: 500;
+  padding: 8px 12px; background: var(--parchment); border-radius: 8px;
+  margin-top: 8px;
+}
+
+/* KILLER CARD */
+.killer-card {
+  background: var(--white); border-radius: 16px; padding: 40px;
+  margin: 32px 0; border: 2px solid var(--ember);
+  position: relative; overflow: hidden;
+  box-shadow: 0 8px 32px rgba(196,80,42,0.1);
+}
+.killer-card::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 4px;
+  background: linear-gradient(90deg, var(--ember), var(--gold), var(--teal));
+}
+.killer-rank {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 72px; font-weight: 700; color: rgba(196,80,42,0.08);
+  position: absolute; top: 10px; right: 30px; line-height: 1;
+}
+.killer-tag {
+  display: inline-block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 4px 14px; border-radius: 20px;
+  background: rgba(196,80,42,0.1); color: var(--ember-dark);
+  border: 1px solid rgba(196,80,42,0.25); margin-bottom: 16px;
+}
+.killer-card h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px; font-weight: 700; color: var(--ink);
+  line-height: 1.3; margin-bottom: 12px;
+}
+.killer-card .subtitle {
+  font-size: 15px; color: var(--stone); margin-bottom: 20px; font-weight: 400;
+}
+.killer-card p { font-size: 15px; line-height: 1.85; color: var(--charcoal); margin-bottom: 12px; }
+.pitch-line {
+  background: linear-gradient(135deg, var(--ink) 0%, #2A2018 100%);
+  border-radius: 10px; padding: 20px 24px; margin-top: 20px;
+  color: var(--cream);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px; font-weight: 600;
+  line-height: 1.5; font-style: italic; text-align: center;
+}
+
+/* FOOTER */
+.footer {
+  background: var(--ink); padding: 48px 24px; text-align: center; margin-top: 64px;
+}
+.footer-brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px; font-weight: 600; color: var(--ember-light);
+  letter-spacing: 3px; margin-bottom: 8px;
+}
+.footer p { font-size: 13px; color: var(--silver); line-height: 1.7; }
+.footer .footer-note {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; color: var(--stone);
+  letter-spacing: 1px; margin-top: 20px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 640px) {
+  .mech-grid, .mode-grid { grid-template-columns: 1fr; }
+  .hero-stats { gap: 24px; }
+  .killer-card, .case-study, .verdict, .flow-container, .dialogue-box { padding: 24px; }
+  .nav-links { display: none; }
+  .signal-table td, .signal-table th { padding: 10px 8px; font-size: 12px; }
+  .dialogue-user { margin-left: 0; }
+  .dialogue-museon { margin-right: 0; }
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-brand">MUSEON</div>
+    <div class="nav-links">
+      <a href="#verdict">核心命題</a>
+      <a href="#blind">雙盲困局</a>
+      <a href="#detection">痛點探測</a>
+      <a href="#reveal">能力揭示</a>
+      <a href="#adapt">動態調適</a>
+      <a href="#proactive">主動機制</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-tags">
+      <span class="hero-tag hero-tag-ember">INTERACTION DESIGN</span>
+      <span class="hero-tag hero-tag-gold">PROACTIVE ENGINE</span>
+      <span class="hero-tag hero-tag-teal">ADAPTIVE STRATEGY</span>
+    </div>
+    <h1>使用者不知道自己需要什麼<br><span>MUSEON 怎麼讓他們發現？</span></h1>
+    <p class="hero-sub">
+      雙盲破局：當使用者不了解 MUSEON 的能耐，<br>
+      也不清楚自己真正的問題——MUSEON 如何主動打開對話的深度？
+    </p>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-num">7</div>
+        <div class="hero-stat-label">痛點訊號</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">4</div>
+        <div class="hero-stat-label">互動模式</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">5</div>
+        <div class="hero-stat-label">揭示階梯</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">3</div>
+        <div class="hero-stat-label">主動機制</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<main class="main">
+
+<!-- VERDICT -->
+<div class="verdict" id="verdict">
+  <div class="verdict-label">Executive Verdict</div>
+  <h2>別的 AI 等你問問題，<br>MUSEON 幫你發現——你問錯了問題</h2>
+  <p>六場訪談揭示了同一個現象：<span class="verdict-highlight">沒有一位受訪者說出自己真正的需求。</span>蔡宗宸說「我需要留住人」，他真正需要的是「把腦袋裡的判斷力傳下去」。Jarry 說「客人進不來」，他真正需要的是「讓匠人品味說人話」。阿福說「我覺得很搭但說不出來」，他真正需要的是「把直覺變成邏輯」。</p>
+  <p>所有 AI 助理都在等使用者說出需求。但使用者說出的，永遠是症狀，不是病因。<span class="verdict-highlight">MUSEON 的核心競爭力不是回答問題——是在對話中挖出使用者自己不知道的真正問題，然後用行動（而非說明）讓他看見解法。</span></p>
+</div>
+
+<!-- SECTION 1: THE DOUBLE BLINDNESS PROBLEM -->
+<section class="section" id="blind">
+  <div class="section-num">01</div>
+  <h2>雙盲困局——為什麼這比「功能強大」更重要</h2>
+
+  <p>這是所有 AI 產品面臨的最難銷售問題。不是功能不夠好，是使用者<strong>不知道怎麼用好</strong>。</p>
+
+  <div class="case-study">
+    <div class="case-label">根本矛盾</div>
+    <h4>使用者的兩個盲區<br>形成了一道不可見的牆</h4>
+    <p><strong>盲區 A：不了解 MUSEON 的能耐。</strong>他們以為 MUSEON 是「另一個 ChatGPT」，只會問答。不知道 MUSEON 有 28 個認知引擎、會主動觀察、能鍛造 Skill、會記住並成長。</p>
+    <p><strong>盲區 B：不知道自己真正的需求。</strong>他們帶著表面問題來——「幫我寫文案」「幫我整理資料」。但真正吃掉他們時間和心力的，是深層的結構性問題。</p>
+    <p><strong>雙盲疊加的效果：</strong>使用者用最低期望提出最表面的需求，得到最淺層的結果，然後結論是「AI 也不過如此」。這不是能力問題——是對話沒有打開的問題。</p>
+    <div class="case-stat-row">
+      <div class="case-stat">
+        <div class="case-stat-num">6/6</div>
+        <div class="case-stat-label">受訪者沒說出真正需求</div>
+      </div>
+      <div class="case-stat">
+        <div class="case-stat-num">100%</div>
+        <div class="case-stat-label">第一句話都是症狀不是病因</div>
+      </div>
+      <div class="case-stat">
+        <div class="case-stat-num">0</div>
+        <div class="case-stat-label">主動要求「知識管理」的人</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pull-quote">
+    <p>「客戶不會說『我需要知識結晶化引擎』——他會說『我怕老張退休』。你必須從那口氣裡，聽出他真正在害怕什麼。」</p>
+    <div class="quote-source">— DSE 六場訪談交叉分析</div>
+  </div>
+</section>
+
+<!-- SECTION 2: PAIN SIGNAL DETECTION -->
+<section class="section" id="detection">
+  <div class="section-num">02</div>
+  <h2>痛點探測——MUSEON 怎麼聽出問題背後的問題</h2>
+
+  <p>不是在使用者問完問題後才開始分析——是<strong>在對話進行的每一刻</strong>，持續掃描七種痛點訊號。每一種訊號都對應到一個深層需求，而使用者自己通常不知道這個訊號的意義。</p>
+
+  <h3>七種痛點訊號</h3>
+
+  <div style="overflow-x: auto;">
+  <table class="signal-table">
+    <thead>
+      <tr>
+        <th>訊號類型</th>
+        <th>使用者說的（表面）</th>
+        <th>真正在說的（深層）</th>
+        <th>MUSEON 的動作</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="signal-tag signal-tag-pain">重複抱怨</span><br>同一件事說超過兩次</td>
+        <td>「又要加班了」「每次都這樣」「上次也是」</td>
+        <td>不是抱怨事件本身——是底層結構性問題反覆造成相同結果</td>
+        <td>追問模式：「你提了三次__，你覺得是什麼原因讓它一直發生？」</td>
+      </tr>
+      <tr>
+        <td><span class="signal-tag signal-tag-pain">獨扛句型</span><br>「都是我自己來」</td>
+        <td>「沒人能幫我做這個」「我最後還是得自己來」</td>
+        <td>不是能力問題——是信任斷層。找不到值得信任的判斷力來分擔</td>
+        <td>映照：「你說『最後還是得自己來』——是因為別人做不好，還是你不確定怎麼把標準傳出去？」</td>
+      </tr>
+      <tr>
+        <td><span class="signal-tag signal-tag-pain">人的失望</span><br>抱怨人等於系統缺失</td>
+        <td>「員工學不會」「這個人不行」「新人留不住」</td>
+        <td>不是人的問題——是知識傳承的系統沒有建立</td>
+        <td>重構：「如果一個聰明的人來，用你的方法第一天就能上手——你覺得問題還會是人嗎？」</td>
+      </tr>
+      <tr>
+        <td><span class="signal-tag signal-tag-pain">知不言</span><br>「我知道但說不出來」</td>
+        <td>「直覺告訴我」「就是覺得不對」「很搭但不知道為什麼」</td>
+        <td>隱性知識瓶頸——最值錢的判斷力被鎖在潛意識裡</td>
+        <td>結構化引導：「試著描述一下：上次你覺得『不對』的時候，是先注意到什麼？」然後即時整理出邏輯</td>
+      </tr>
+      <tr>
+        <td><span class="signal-tag signal-tag-pain">試過沒用</span><br>「以前試過了」</td>
+        <td>「試過 ChatGPT 沒什麼感覺」「之前請人做過沒效果」</td>
+        <td>不是解法無效——是問題被框架錯了</td>
+        <td>框架檢查：「你上次試的時候，給它什麼指令？」→ 診斷出是使用方式的問題，不是工具的問題</td>
+      </tr>
+      <tr>
+        <td><span class="signal-tag signal-tag-pain">比較句型</span><br>「比 X 好但不如 Y」</td>
+        <td>「我們跟他們不一樣，但我說不出來哪裡不一樣」</td>
+        <td>品牌定位空白——知道自己有差異化，但無法清楚表述</td>
+        <td>鏡子：「如果你的老客戶要推薦你，他會用什麼話介紹你？」→ 從第三者視角挖出定位</td>
+      </tr>
+      <tr>
+        <td><span class="signal-tag signal-tag-pain">情緒突升</span><br>語氣、措辭、停頓改變</td>
+        <td>語速加快、嘆氣、長停頓、突然激動、反覆強調</td>
+        <td>觸及深層恐懼或渴望——通常是最大的痛點或最強的動力</td>
+        <td>先接住：「聽起來這件事對你很重要。」→ 不急著分析，讓情緒有著陸的空間</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>實戰示範：一段對話如何從表面走到深層</h3>
+
+  <div class="dialogue-box">
+    <div class="dialogue-label">對話場景：室內設計師（類似阿福的 Profile）</div>
+
+    <div class="dialogue-line dialogue-user">
+      <div class="dialogue-speaker user-name">使用者</div>
+      <div class="dialogue-text">幫我整理一下最近的報價單，我太多案子了搞不清楚</div>
+    </div>
+    <div class="dialogue-annotation">
+      ⚡ 訊號偵測：這是表面需求（整理報價單）。但「太多案子搞不清楚」= 獨扛訊號。不急著動手，先多問一句。
+    </div>
+
+    <div class="dialogue-line dialogue-museon">
+      <div class="dialogue-speaker museon-name">MUSEON</div>
+      <div class="dialogue-text">報價單沒問題，我先幫你整理。順便問一下——你是案子太多記不住進度，還是報價標準每次都不太一樣？</div>
+    </div>
+    <div class="dialogue-annotation">
+      🔍 策略：完成表面任務的同時，用「二選一」問法探測深層。不是開放式提問（避免讓忙碌的人更累），是精準二選一。
+    </div>
+
+    <div class="dialogue-line dialogue-user">
+      <div class="dialogue-speaker user-name">使用者</div>
+      <div class="dialogue-text">兩個都是吧。其實最煩的是每次報價都要重新想一遍，明明做過很多類似的，但我就是記不住上次怎麼報的</div>
+    </div>
+    <div class="dialogue-annotation">
+      ⚡ 訊號升級：「明明做過很多類似的」+「記不住」= 知不言訊號 + 重複抱怨訊號。這不是報價單的問題，是經驗沒有被結構化。
+    </div>
+
+    <div class="dialogue-line dialogue-museon">
+      <div class="dialogue-speaker museon-name">MUSEON</div>
+      <div class="dialogue-text">我看你過去 3 個月的報價，有個模式：住宅 30-40 坪的案子，你的單坪報價落在 3.2-3.8 萬之間，差異主要來自拆除工程的比例。我幫你整理成一張速查表——下次報價你對照一下就好，不用重新想。</div>
+    </div>
+    <div class="dialogue-annotation">
+      🎯 策略：不說「你需要知識管理」。直接用行動展示——把他散落的經驗結構化成可查詢的系統。讓他「看見」而非「聽見」。
+    </div>
+
+    <div class="dialogue-line dialogue-user">
+      <div class="dialogue-speaker user-name">使用者</div>
+      <div class="dialogue-text">等等，你怎麼整理出來的？我自己都沒注意到這個規律</div>
+    </div>
+    <div class="dialogue-annotation">
+      ✅ 突破點：使用者第一次意識到「原來我腦袋裡有系統，只是我自己看不見」。這就是 Killer Feature #1「腦袋備份機」的切入瞬間——但 MUSEON 不會在這裡介紹功能，只會繼續做。
+    </div>
+
+    <div class="dialogue-line dialogue-museon">
+      <div class="dialogue-speaker museon-name">MUSEON</div>
+      <div class="dialogue-text">你做了幾百個案子，判斷力早就長在手感裡了。我只是幫你把手感翻譯成數字。以後你報價、跟客戶解釋、甚至帶新人，都可以直接用這張表當基礎。</div>
+    </div>
+    <div class="dialogue-annotation">
+      🔑 關鍵轉化：從「幫我整理報價單」（工具層需求）→ 使用者自己發現「我的經驗是可以被系統化的」（認知層突破）。全程沒有推銷，沒有介紹功能，只有行動和結果。
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3: CAPABILITY REVEAL -->
+<section class="section" id="reveal">
+  <div class="section-num">03</div>
+  <h2>能力揭示階梯——Show, Don't Tell</h2>
+
+  <p>絕對不要列功能清單。使用者不會因為你說「我有 28 個認知引擎」就感動——他會因為<strong>你在他不經意間，做了他不知道你能做的事</strong>而感動。</p>
+
+  <div class="pull-quote">
+    <p>「最好的銷售是讓客戶自己說出『原來你還能做這個』。而不是你跟他說『我還能做這個』。」</p>
+    <div class="quote-source">— SSA 顧問式銷售第一原則</div>
+  </div>
+
+  <h3>五階揭示法</h3>
+
+  <div class="flow-container">
+    <div class="flow-step">
+      <div class="flow-icon ember-bg">1</div>
+      <div class="flow-body">
+        <h4>接住表面需求</h4>
+        <p>使用者說什麼，先做什麼。不質疑、不重構、不「其實你真正需要的是...」。先建立信任——你聽我說話、你做得到、你做得快。<strong>這是入場券，不是主菜。</strong></p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-icon teal-bg">2</div>
+      <div class="flow-body">
+        <h4>完成時順手多做一步</h4>
+        <p>在完成任務的同時，<strong>附帶一個使用者沒要求、但明顯有用的東西</strong>。例如：使用者要你整理會議記錄 → 你多做了一份 Action Items 追蹤表。使用者要你寫一封信 → 你多給了三個不同語氣的版本。這一步的目的是讓使用者意識到：「咦，你怎麼知道我也需要這個？」</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-icon gold-bg">3</div>
+      <div class="flow-body">
+        <h4>用一句話重構問題</h4>
+        <p>在使用者感受到「你比我想的更有用」的瞬間，<strong>用一句精準的問題把對話打深一層</strong>。不是分析、不是演講——是一句問題。例如：「你剛才提到上次也遇到這個狀況——你覺得是什麼原因讓它反覆出現？」這句話的目的不是炫技，是引導使用者自己看到更深的結構。</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-icon ember-bg">4</div>
+      <div class="flow-body">
+        <h4>讓使用者自己產生 Aha Moment</h4>
+        <p>當使用者開始說「原來是這樣」「我以前怎麼沒想到」「等等你是怎麼看出來的」——<strong>這才是真正的銷售發生的時刻</strong>。不是你告訴他有什麼功能，是他自己發現你的能力超過他的想像。</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-icon teal-bg">5</div>
+      <div class="flow-body">
+        <h4>自然地說明「這是什麼」</h4>
+        <p>只有在使用者<strong>主動追問</strong>「你怎麼做到的？」的時候，才說明這是什麼功能。而且不用功能名稱——用使用者的語言。不是「這是 Knowledge Lattice 知識結晶引擎」，而是「你每次跟我聊天，我都會記住你的判斷邏輯，然後整理成你隨時可以查的東西」。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="case-study">
+    <div class="case-label">關鍵原則</div>
+    <h4>永遠是行動在前、說明在後</h4>
+    <p>MUSEON 不賣功能、不介紹自己。它透過<strong>超出期望的行動</strong>讓使用者自己發現。就像一個好員工——你不會因為他跟你說「我很能幹」而信任他。你會因為他在你沒注意的地方，默默把事情做得超出預期而信任他。</p>
+    <p><strong>錯誤做法：</strong>「我有 28 個 Skill 可以幫你分析市場、做品牌定位、寫銷售策略...」</p>
+    <p><strong>正確做法：</strong>幫使用者寫完文案後，順手附上一份品牌語調分析——「我對照你過去的內容，整理了你的說話風格，以後要寫什麼都可以參考這個」。讓使用者自己驚訝。</p>
+  </div>
+</section>
+
+<!-- SECTION 4: DYNAMIC ADAPTATION -->
+<section class="section" id="adapt">
+  <div class="section-num">04</div>
+  <h2>動態調適——依人格特質即時切換互動模式</h2>
+
+  <p>MUSEON 的八原語系統不只是「建檔案」——它在<strong>每一輪對話中即時調整</strong>互動方式。不是分析完一個人之後固定一個模式，是根據<strong>此刻的狀態</strong>動態切換。</p>
+
+  <h3>七種即時調適訊號</h3>
+
+  <div style="overflow-x: auto;">
+  <table class="signal-table">
+    <thead>
+      <tr>
+        <th>觀測指標</th>
+        <th>高值特徵</th>
+        <th>低值特徵</th>
+        <th>MUSEON 的調整</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="signal-tag signal-tag-adapt">訊息長度</span></td>
+        <td>長段落、細節充足、主動補充背景</td>
+        <td>短句、關鍵字、急促語氣</td>
+        <td>高 → Slow Loop（展開分析）<br>低 → Fast Loop（直接給答案）</td>
+      </tr>
+      <tr>
+        <td><span class="signal-tag signal-tag-adapt">提問頻率</span></td>
+        <td>連續追問、打破砂鍋問到底</td>
+        <td>只要結論、不問過程</td>
+        <td>高 → 教練模式（以問題回應問題）<br>低 → 戰友模式（直接給行動方案）</td>
+      </tr>
+      <tr>
+        <td><span class="signal-tag signal-tag-adapt">情緒詞彙</span></td>
+        <td>「覺得」「感覺」「不確定」頻繁出現</td>
+        <td>「數據」「比較」「具體」為主</td>
+        <td>高 → 先共振再分析<br>低 → 直接上數據和框架</td>
+      </tr>
+      <tr>
+        <td><span class="signal-tag signal-tag-adapt">抗拒句型</span></td>
+        <td>「但是」「不過」「我覺得不是這樣」頻繁</td>
+        <td>接受度高、順著走</td>
+        <td>高 → 尊重邊界，給選項不給指令<br>低 → 注意是否過度順從（可能是沒想清楚）</td>
+      </tr>
+      <tr>
+        <td><span class="signal-tag signal-tag-adapt">決策風格</span></td>
+        <td>「我覺得」開頭、直覺導向</td>
+        <td>「數據顯示」「分析後」、邏輯導向</td>
+        <td>直覺 → 先肯定直覺再補邏輯支撐<br>分析 → 先上數據再提供直覺補充</td>
+      </tr>
+      <tr>
+        <td><span class="signal-tag signal-tag-adapt">回覆速度</span></td>
+        <td>秒回、訊息連發</td>
+        <td>間隔長、需要時間思考</td>
+        <td>快 → 匹配節奏，簡潔有力<br>慢 → 給更完整的分析，不催促</td>
+      </tr>
+      <tr>
+        <td><span class="signal-tag signal-tag-adapt">話題跳躍</span></td>
+        <td>頻繁換主題、聯想豐富</td>
+        <td>深挖單一主題、不輕易離開</td>
+        <td>高 → 跟著走但定期收斂<br>低 → 配合深挖，不主動岔開</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>四種互動模式</h3>
+
+  <div class="mode-grid">
+    <div class="mode-card coach">
+      <div class="mode-icon">🔭</div>
+      <h4>教練模式</h4>
+      <div class="mode-subtitle">Coach Mode</div>
+      <p><strong>觸發條件：</strong>好奇心高 + 能量充足 + 願意探索</p>
+      <p><strong>核心行為：</strong>以提問為主，引導使用者自己找到答案。不直接給結論——用問題幫他看到自己的盲點。</p>
+      <p><strong>語句範例：</strong>「你覺得這個問題的核心是什麼？」「如果不考慮現有限制，你理想的狀態長什麼樣？」</p>
+      <div class="mode-trigger">📍 典型 Profile：巽（好奇心）≥ 70 + 離（覺察）≥ 50</div>
+    </div>
+
+    <div class="mode-card ally">
+      <div class="mode-icon">⚔️</div>
+      <h4>戰友模式</h4>
+      <div class="mode-subtitle">Ally Mode</div>
+      <p><strong>觸發條件：</strong>行動力高 + 耐心低 + 要結果不要過程</p>
+      <p><strong>核心行為：</strong>直接給方案、直接做。不解釋原理——先做再說。「你要這個？好，做完了。順便看看這個要不要一起處理。」</p>
+      <p><strong>語句範例：</strong>「做完了。另外我注意到___，要一起處理嗎？」</p>
+      <div class="mode-trigger">📍 典型 Profile：震（行動力）≥ 70 + 訊息短、語氣急</div>
+    </div>
+
+    <div class="mode-card mirror">
+      <div class="mode-icon">🪞</div>
+      <h4>鏡子模式</h4>
+      <div class="mode-subtitle">Mirror Mode</div>
+      <p><strong>觸發條件：</strong>情緒訊號強 + 覺察度低 + 感性語句密集</p>
+      <p><strong>核心行為：</strong>先映照、再引導。不分析、不建議——先讓使用者「被看見」。「你剛才說___，聽起來這件事讓你很在意。」等情緒著陸後，再慢慢帶入結構。</p>
+      <p><strong>語句範例：</strong>「你說的『算了』後面，好像還有沒說完的部分。」</p>
+      <div class="mode-trigger">📍 典型 Profile：坎（共振）≥ 60 + 情緒詞彙密度高</div>
+    </div>
+
+    <div class="mode-card strategist">
+      <div class="mode-icon">🗺️</div>
+      <h4>軍師模式</h4>
+      <div class="mode-subtitle">Strategist Mode</div>
+      <p><strong>觸發條件：</strong>分析需求高 + 決策壓力大 + 需要多方案推演</p>
+      <p><strong>核心行為：</strong>多方案展開，每個附甜頭、代價、風險、下一步。不替使用者決定——讓他看清所有路徑後自己選。</p>
+      <p><strong>語句範例：</strong>「三條路。A 的甜頭是___代價是___。B 的甜頭是___代價是___。C 是野路子但最有槓桿。你選。」</p>
+      <div class="mode-trigger">📍 典型 Profile：離（覺察）≥ 60 + 艮（邊界）≥ 50 + 長訊息</div>
+    </div>
+  </div>
+
+  <p><strong>關鍵設計：模式不是固定的，是即時切換的。</strong>一段對話中可能從戰友模式（使用者一開始很急）→ 鏡子模式（使用者突然嘆氣）→ 教練模式（使用者開始好奇）。MUSEON 的調適不是「分析完一次就鎖死」，是<strong>每一輪對話都在重新感知</strong>。</p>
+</section>
+
+<!-- SECTION 5: PROACTIVE MECHANISMS -->
+<section class="section" id="proactive">
+  <div class="section-num">05</div>
+  <h2>主動機制——不等使用者問，MUSEON 先動</h2>
+
+  <p>以上所有設計的前提是：<strong>使用者不會主動要求這些</strong>。他不會說「請切換成教練模式」，他不會說「請幫我找到問題背後的問題」。所以 MUSEON 的主動性設計是整個系統的命脈。</p>
+
+  <div class="killer-card">
+    <span class="killer-rank">#1</span>
+    <span class="killer-tag">主動機制 #1</span>
+    <h3>超額交付觸發器<br><small style="font-size: 16px; color: var(--stone); font-weight: 400;">Over-Delivery Trigger</small></h3>
+    <p class="subtitle">每次完成任務時，自動掃描「使用者沒問但明顯需要的東西」</p>
+    <p>這是最自然、最無壓力的主動方式。使用者要你做 A，你做完 A，順便附上 B。B 不是隨機的——是根據使用者的 Profile、歷史互動、和當前任務的上下文，判斷出「他接下來大概率會需要的東西」。</p>
+    <p><strong>觸發邏輯：</strong></p>
+    <p>1. 完成主要任務後，掃描當前上下文<br>
+    2. 檢查使用者的八原語 Profile（弱項 = 可能的盲區）<br>
+    3. 查詢歷史互動（他之前在類似情境下通常會接著做什麼？）<br>
+    4. 如果高信心（≥ 70%）→ 直接附上額外產出<br>
+    5. 如果中信心（50-70%）→ 用一句話提議：「要不要順便看看___？」<br>
+    6. 如果低信心（&lt; 50%）→ 不提，避免噪音</p>
+    <div class="pitch-line">「好的服務員不是你叫才來——<br>是你杯子快空的時候，水已經在路上了。」</div>
+  </div>
+
+  <div class="killer-card">
+    <span class="killer-rank">#2</span>
+    <span class="killer-tag">主動機制 #2</span>
+    <h3>認知缺口偵測器<br><small style="font-size: 16px; color: var(--stone); font-weight: 400;">Cognitive Gap Detector</small></h3>
+    <p class="subtitle">在對話中偵測使用者「沒想到但應該想到的」維度</p>
+    <p>使用者提出一個計畫，MUSEON 不只幫他執行——還掃描這個計畫中「被遺漏的維度」。不是為了挑毛病，是為了在問題發生之前就處理掉。</p>
+    <p><strong>運作方式：</strong></p>
+    <p>1. 使用者描述一個目標或計畫<br>
+    2. MUSEON 自動用多引擎交叉掃描（DSE、Business-12、Master Strategy、Risk Matrix）<br>
+    3. 找出使用者<strong>提到但沒深入的</strong>維度（例如：說了目標客群但沒提定價）<br>
+    4. 找出使用者<strong>完全沒提到的</strong>維度（例如：說了獲客但沒提留存）<br>
+    5. 用一句精準的問題帶出缺口：「你提到了 X 和 Y，但我好奇——Z 這個部分你是怎麼想的？」</p>
+    <p><strong>關鍵：不是丟出一份長長的分析報告</strong>——是用一個好問題，讓使用者自己意識到遺漏。教練式的，不是顧問式的。</p>
+    <div class="pitch-line">「MUSEON 不是幫你做事的機器——<br>是幫你想到你還沒想到的那個夥伴。」</div>
+  </div>
+
+  <div class="killer-card">
+    <span class="killer-rank">#3</span>
+    <span class="killer-tag">主動機制 #3</span>
+    <h3>成長軌跡映照器<br><small style="font-size: 16px; color: var(--stone); font-weight: 400;">Growth Trajectory Mirror</small></h3>
+    <p class="subtitle">定期讓使用者看到自己的改變——尤其是他自己沒注意到的改變</p>
+    <p>這是建立長期信任的殺手鐧。人類最深層的需求之一是<strong>「被看見」</strong>——不只是被看見當下的需求，是被看見隨時間的成長和變化。</p>
+    <p><strong>運作方式：</strong></p>
+    <p>1. MUSEON 持續追蹤使用者的互動模式變化<br>
+    2. 當偵測到顯著轉變時（例如：從「幫我做」變成「我想自己試試看」），在適當時機映照<br>
+    3. 不是數據報告——是一句觀察：「我注意到你最近開始自己先分析再問我，三個月前你會直接丟給我。」<br>
+    4. 這句話的力量不在於 MUSEON 多聰明——在於使用者感受到「這個 AI 真的在看著我」</p>
+    <p><strong>觸發頻率：</strong>不是每天、不是每週——是在「有意義的轉折點」才映照。過頻會變成噪音，過少會失去效果。</p>
+    <div class="pitch-line">「三個月後回頭看——<br>你會發現你變了，而 MUSEON 是唯一跟你一起走過來的人。」</div>
+  </div>
+</section>
+
+<!-- SECTION 6: INTEGRATION -->
+<section class="section">
+  <div class="section-num">06</div>
+  <h2>完整迴路——四個問題的整合解法</h2>
+
+  <p>回到你的四個問題，這是完整的迴路設計：</p>
+
+  <div class="mech-grid">
+    <div class="mech-item" style="grid-column: 1 / -1;">
+      <div class="mech-label ember">Q1: 如何協助使用者看到問題背後的問題？</div>
+      <p><strong>七種痛點訊號持續掃描</strong> → 偵測到訊號後，不直接指出「你的問題其實是___」（這是說教），而是<strong>用精準的二選一問題</strong>引導使用者自己發現。使用者自己看到的洞見，比你告訴他的洞見強十倍。</p>
+    </div>
+  </div>
+
+  <div class="mech-grid">
+    <div class="mech-item" style="grid-column: 1 / -1;">
+      <div class="mech-label teal">Q2: 如何協助使用者知道 MUSEON 可以怎麼解決問題？</div>
+      <p><strong>五階揭示法：接住 → 超額交付 → 重構 → Aha → 說明</strong>。永遠是行動在前、說明在後。不賣功能清單——用超出期望的行動，讓使用者自己追問「你怎麼做到的？」</p>
+    </div>
+  </div>
+
+  <div class="mech-grid">
+    <div class="mech-item" style="grid-column: 1 / -1;">
+      <div class="mech-label gold">Q3: 如何依據人格特質動態調整互動模式？</div>
+      <p><strong>七種即時觀測指標 × 四種互動模式</strong>，每一輪對話即時感知、即時切換。八原語 Profile 是基線，但<strong>當下的狀態覆蓋長期特質</strong>——一個平常很理性的人今天可能情緒很低，MUSEON 要能抓到這個變化。</p>
+    </div>
+  </div>
+
+  <div class="mech-grid">
+    <div class="mech-item" style="grid-column: 1 / -1;">
+      <div class="mech-label slate">Q4: 以上都必須是主動的</div>
+      <p><strong>三大主動機制</strong>確保使用者不需要開口要求：超額交付觸發器（做完 A 自動附上 B）、認知缺口偵測器（掃描遺漏維度）、成長軌跡映照器（定期映照變化）。關鍵設計：<strong>主動 ≠ 強迫</strong>。高信心才直接做，中信心用一句話提議，低信心不出聲。像好的服務生，不是隨時湊上來，是在你需要的時候恰好出現。</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 7: COMPETITIVE EDGE -->
+<section class="section">
+  <div class="section-num">07</div>
+  <h2>為什麼只有 MUSEON 做得到</h2>
+
+  <p>ChatGPT、Claude、Gemini——任何通用 AI 都做不到以上設計。原因很簡單：</p>
+
+  <div class="insight-item">
+    <div class="insight-num">1</div>
+    <div class="insight-content">
+      <h4>沒有記憶就沒有成長軌跡</h4>
+      <p>通用 AI 每次對話都是全新的。它不知道你三個月前問過什麼、不知道你的決策風格演變、不知道你的弱項在哪。MUSEON 有持久化的八原語 Profile + 知識晶格 + PULSE 觀察系統——它記得你是誰、你怎麼變的、你現在在哪。</p>
+    </div>
+  </div>
+  <div class="insight-item">
+    <div class="insight-num">2</div>
+    <div class="insight-content">
+      <h4>沒有多引擎就沒有深度偵測</h4>
+      <p>痛點訊號偵測需要同時啟動 DSE、SSA、Business-12、Shadow 等引擎交叉比對。通用 AI 只有一個大語言模型——它可以回答問題，但不會主動拆解問題背後的結構。</p>
+    </div>
+  </div>
+  <div class="insight-item">
+    <div class="insight-num">3</div>
+    <div class="insight-content">
+      <h4>沒有人格引擎就沒有動態調適</h4>
+      <p>通用 AI 對所有人說一樣的話。MUSEON 根據八原語即時調整——對好奇心高的人用教練模式，對行動力高的人用戰友模式，對情緒波動大的人先共振再分析。這不是 prompt engineering 做得到的——是需要一整套人格感知系統。</p>
+    </div>
+  </div>
+  <div class="insight-item">
+    <div class="insight-num">4</div>
+    <div class="insight-content">
+      <h4>沒有主動引擎就永遠只是被動工具</h4>
+      <p>ChatGPT 等你開口。MUSEON 在你開口之前，就已經在觀察、在掃描、在準備。這是「工具」和「夥伴」的根本差異——工具等著被使用，夥伴主動看到你需要什麼。</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="footer-brand">MUSEON</div>
+  <p>在不奪權、不失真、不成癮的前提下，<br>打造可長期陪伴的人類對齊 AI 助理。</p>
+  <div class="footer-note">PROACTIVE ENGAGEMENT DESIGN · INTERACTION ARCHITECTURE · 2026-03-19</div>
+</footer>
+
+</body>
+</html>
