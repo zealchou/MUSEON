@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.22
+# Joint Map — 共享可變狀態接頭圖 v1.23
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -258,6 +258,17 @@
 | 類型升降級 | Hypothesis→Insight→Principle（驗證次數驅動） | `crystal_actuator.py` | Nightly 管線 |
 
 > 詳見 `persistence-contract.md` §衰減與優先級模型。
+
+#### MemGPT 分層召回（v1.23 新增）
+
+| 層級 | RI 範圍 | 策略 | 執行者 |
+|------|---------|------|--------|
+| Tier-0 (Hot) | RI ≥ 0.7 | 無條件注入 context window | `knowledge_lattice.py` `recall_tiered()` |
+| Tier-1 (Warm) | 0.2 ≤ RI < 0.7 | 語義搜尋後注入 | `knowledge_lattice.py` `recall_tiered()` |
+| Tier-2 (Cold) | RI < 0.2 | 僅顯式查詢才拉取 | 不在 `recall_tiered` 中處理 |
+
+> `brain.py` 的結晶注入區已從 `recall_with_chains()` 切換為 `recall_tiered()`。
+> `recall_with_chains()` 仍保留作為 `recall_tiered()` 內部的 Warm 搜尋引擎。
 
 #### ⚠️ 衝突風險
 
@@ -758,6 +769,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-21 | v1.23 | MemGPT 分層結晶召回：#6 crystals.json 新增「MemGPT 分層召回」表（Hot/Warm/Cold 三層策略）；`knowledge_lattice.py` 新增 `recall_tiered()` 方法（RW 不變，讀寫者不變）；同步 blast-radius v1.29 |
 | 2026-03-20 | v1.22 | 衰減生命週期補全：#6 crystals.json 新增「衰減策略」表（RI 公式、歸檔閾值、升降級觸發）+ 衝突風險新增衰減並發項；同步 persistence-contract v1.21（四大衰減引擎全文件）、system-topology v1.22（decay 連線類型）、blast-radius v1.28（G8 衰減組） |
 | 2026-03-20 | v1.21 | P3 前置交織融合：system_prompt 動態注入 _p3_pre_fusion_ctx（唯讀參考，不新增共享狀態） | blast-radius v1.27, system-topology v1.21 |
 | 2026-03-20 | v1.20 | P0-P3 思維引擎升級（純 Skill .md 認知行為變更）：deep-think v2.0、query-clarity v2.0、orchestrator v3.0、dna27 v2.2；無新增共享狀態（30 個不變）、無讀寫者變更、無鎖機制變更；版本同步 system-topology v1.19、persistence-contract v1.19、blast-radius v1.25 |
