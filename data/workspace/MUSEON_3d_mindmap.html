@@ -262,7 +262,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 //  SYNC META — 拓撲同步狀態
 // ═══════════════════════════════════════
 const SYNC_META = {
-  topologyVersion: 'v1.20',
+  topologyVersion: 'v1.21',
   syncDate: '2026-03-20',
   nodeCount: 0, // auto-calculated below
   linkCount: 0, // auto-calculated below
@@ -271,7 +271,8 @@ const SYNC_META = {
     'query-clarity v2.0: P1 主動觸發「你可能沒想到」',
     'orchestrator v3.0: P3 並行融合模式',
     'dna27 v2.2: 回應合約升級（思考路徑+盲點提醒）',
-    'brain.py P3 策略層並行融合落地：P3FusionSignal + Step3.4 + Phase4.5 + 5個P3方法（_detect_p3_strategy_layer_signal/_execute_p3_parallel_fusion/_p3_strategy_perspective/_p3_human_perspective/_p3_risk_perspective）'
+    'brain.py P3 策略層並行融合落地：P3FusionSignal + Step3.4 + Phase4.5 + 5個P3方法（_detect_p3_strategy_layer_signal/_execute_p3_parallel_fusion/_p3_strategy_perspective/_p3_human_perspective/_p3_risk_perspective）',
+    'brain.py P3 前置交織融合 v1.22：_p3_gather_pre_fusion_insights() 在 Step 5.5 並行收集多視角洞察 → 注入 system_prompt → 主 LLM 回覆自然交織六層技術棧，Phase 4.5 從追加改為簽名'
   ]
 };
 
@@ -707,6 +708,8 @@ const links = [
   // ── Lord Profile 領域畫像 ──
   {source:"brain",target:"lord-profile",label:"_observe_lord() 領域畫像寫入",type:"cross"},
   {source:"lord-profile",target:"persona-router",label:"百合引擎讀取領域畫像",type:"cross"},
+  // ── P3 前置交織融合 ──
+  {source:"brain",target:"dendritic-scorer",label:"P3 前置融合（Step 5.5）",type:"internal"},
 ];
 
 const nodeMap = {};

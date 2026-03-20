@@ -1,4 +1,4 @@
-# MUSEON Persistence Contract v1.19 — 水電圖
+# MUSEON Persistence Contract v1.20 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
@@ -527,6 +527,7 @@ Installer 編排 (orchestrator.py)
 | v1.0 | 2026-03-15 | 初版：完整水電圖，涵蓋 23 個正常配對、3 個 Dead Write、14 個死目錄 |
 | v1.1 | 2026-03-15 | Phase 2 完成：4 個 JSON 遷移至 PulseDB（ceremony_state + eval 三件套） |
 | v1.2 | 2026-03-15 | Phase 3 完成：DataContract + DataBus 建立，10 個 Store 類統一接入 |
+| v1.20 | 2026-03-20 | P3 前置交織融合：無新增持久層（_p3_pre_fusion_ctx 為 in-memory 注入，不落地） | joint-map v1.21 |
 | v1.19 | 2026-03-20 | P0-P3 思維引擎升級（純 Skill .md 認知行為變更）：無新增持久層寫入/消費配對，無新增儲存引擎條目。版本同步 system-topology v1.19、blast-radius v1.25、joint-map v1.20 |
 | v1.18 | 2026-03-19 | P1-P3 藍圖同步：新增 W36 baihe_cache.json 配對（Brain Step 3.65 原子寫入、ProactiveBridge 讀取，TTL 2h）；補入 _system/baihe_cache.json 子目錄條目；同步 blast-radius/joint-map 已有的 baihe_cache 記錄 |
 | v1.17 | 2026-03-17 | 軍師架構 Phase 0：`_system/` 子目錄新增 lord_profile.json 條目（brain.py `_observe_lord()` 寫入、persona_router.py 讀取）；JSON 格式：6 領域 × 4 欄位 + domain_keywords + advise_cooldown；原子寫入（tmp→rename） |
