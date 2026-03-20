@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUSEON 思維引擎 vs 工具生態 | 75 個案例的本質分層</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --ember: #C4502A;
+            --parchment: #F5E6D3;
+            --charcoal: #2A2A2A;
+            --sage: #8B9D83;
+            --gold: #D4A574;
+            --thinking: #6B5B95;
+            --tool: #4A90E2;
+            --strategy: #E24A6A;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+            background: linear-gradient(135deg, var(--parchment) 0%, #FFF9F0 100%);
+            color: var(--charcoal);
+            line-height: 1.8;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 60px 40px;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            margin-bottom: 80px;
+            padding: 60px 40px;
+            background: linear-gradient(135deg, rgba(196, 80, 42, 0.08) 0%, rgba(107, 91, 149, 0.08) 100%);
+            border-radius: 16px;
+            border: 1px solid rgba(196, 80, 42, 0.2);
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            color: var(--charcoal);
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+        }
+
+        .hero .tagline {
+            font-size: 1.4rem;
+            color: var(--ember);
+            font-weight: 600;
+            margin-bottom: 30px;
+            letter-spacing: 0.02em;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: var(--charcoal);
+            max-width: 800px;
+            margin: 0 auto 20px;
+            opacity: 0.85;
+        }
+
+        .core-thesis {
+            background: white;
+            border-left: 4px solid var(--ember);
+            padding: 30px;
+            margin-top: 40px;
+            border-radius: 8px;
+            font-size: 1.15rem;
+            font-weight: 500;
+            color: var(--charcoal);
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Pyramid Section */
+        .pyramid-section {
+            margin-bottom: 100px;
+        }
+
+        .pyramid-container {
+            perspective: 1000px;
+            margin-bottom: 60px;
+        }
+
+        .pyramid {
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 0;
+            align-items: center;
+        }
+
+        .pyramid-layer {
+            width: 100%;
+            text-align: center;
+            padding: 40px;
+            border-radius: 8px;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .pyramid-layer:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .layer-tool {
+            background: linear-gradient(135deg, #E8F0FF 0%, #F0F7FF 100%);
+            border: 2px solid var(--tool);
+            max-width: 900px;
+        }
+
+        .layer-thinking {
+            background: linear-gradient(135deg, #F0E8FF 0%, #F7F0FF 100%);
+            border: 2px solid var(--thinking);
+            max-width: 700px;
+        }
+
+        .layer-strategy {
+            background: linear-gradient(135deg, #FFE8E8 0%, #FFF0F0 100%);
+            border: 2px solid var(--strategy);
+            max-width: 500px;
+        }
+
+        .layer-label {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .layer-tool .layer-label {
+            color: var(--tool);
+        }
+
+        .layer-thinking .layer-label {
+            color: var(--thinking);
+        }
+
+        .layer-strategy .layer-label {
+            color: var(--strategy);
+        }
+
+        .layer-count {
+            font-size: 0.95rem;
+            opacity: 0.8;
+            margin-bottom: 16px;
+        }
+
+        .layer-description {
+            font-size: 1.05rem;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+
+        .layer-role {
+            font-size: 0.95rem;
+            opacity: 0.85;
+            font-style: italic;
+        }
+
+        /* Layer Details */
+        .layer-details {
+            margin-bottom: 80px;
+        }
+
+        .layer-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 40px;
+            padding: 30px;
+            border-radius: 12px;
+            background: white;
+        }
+
+        .layer-icon {
+            font-size: 3rem;
+        }
+
+        .layer-header-content h2 {
+            font-size: 2rem;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .layer-header-content p {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .layer-tool .layer-header {
+            border-left: 6px solid var(--tool);
+        }
+
+        .layer-thinking .layer-header {
+            border-left: 6px solid var(--thinking);
+        }
+
+        .layer-strategy .layer-header {
+            border-left: 6px solid var(--strategy);
+        }
+
+        /* Search & Filter */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 40px;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .search-box {
+            width: 100%;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 14px 18px;
+            font-size: 1rem;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--ember);
+        }
+
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .filter-buttons label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: background 0.3s;
+            font-weight: 500;
+        }
+
+        .filter-buttons input[type="radio"] {
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+        }
+
+        .filter-buttons input[type="checkbox"] {
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+        }
+
+        .filter-buttons label:hover {
+            background: rgba(0, 0, 0, 0.04);
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .case-card {
+            background: white;
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+            border-left: 6px solid transparent;
+        }
+
+        .case-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .case-card.tool {
+            border-left-color: var(--tool);
+        }
+
+        .case-card.thinking {
+            border-left-color: var(--thinking);
+        }
+
+        .case-card.strategy {
+            border-left-color: var(--strategy);
+        }
+
+        .case-number {
+            display: inline-block;
+            background: #F0F0F0;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #666;
+        }
+
+        .case-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--charcoal);
+            line-height: 1.4;
+        }
+
+        .case-layer {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .case-layer.tool {
+            background: rgba(74, 144, 226, 0.1);
+            color: var(--tool);
+        }
+
+        .case-layer.thinking {
+            background: rgba(107, 91, 149, 0.1);
+            color: var(--thinking);
+        }
+
+        .case-layer.strategy {
+            background: rgba(226, 74, 106, 0.1);
+            color: var(--strategy);
+        }
+
+        .case-description {
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .case-value {
+            background: rgba(196, 80, 42, 0.05);
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #555;
+            border-left: 3px solid var(--ember);
+        }
+
+        .case-value strong {
+            color: var(--charcoal);
+        }
+
+        /* Insights Section */
+        .insights-section {
+            margin-top: 100px;
+            padding: 60px 40px;
+            background: linear-gradient(135deg, rgba(196, 80, 42, 0.08) 0%, rgba(107, 91, 149, 0.08) 100%);
+            border-radius: 16px;
+            border: 1px solid rgba(196, 80, 42, 0.2);
+        }
+
+        .insights-section h2 {
+            font-size: 2rem;
+            margin-bottom: 40px;
+            color: var(--charcoal);
+            text-align: center;
+        }
+
+        .insight-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .insight-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .insight-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--charcoal);
+        }
+
+        .insight-card p {
+            font-size: 0.95rem;
+            color: #666;
+            line-height: 1.7;
+            margin-bottom: 12px;
+        }
+
+        .insight-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .insight-card li {
+            padding: 6px 0;
+            font-size: 0.95rem;
+            color: #666;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .insight-card li:before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: var(--ember);
+            font-weight: bold;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 80px;
+            padding: 40px;
+            text-align: center;
+            color: #999;
+            font-size: 0.9rem;
+            border-top: 1px solid #E0E0E0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            .hero {
+                padding: 40px 20px;
+            }
+
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+
+            .hero .tagline {
+                font-size: 1.1rem;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pyramid-layer {
+                max-width: 100% !important;
+            }
+
+            .filter-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-buttons label {
+                justify-content: flex-start;
+            }
+        }
+
+        /* Utilities */
+        .hidden {
+            display: none !important;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--ember);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #999;
+            margin-top: 6px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1>MUSEON 思維引擎</h1>
+            <div class="tagline">vs 工具生態</div>
+            <p>75 個 Claude 案例的本質分層</p>
+            <div class="core-thesis">
+                <strong>大部分 AI 工具幫你做事。</strong><br>
+                MUSEON 幫你想事。<br>
+                <br>
+                <span style="opacity: 0.85;">解決用戶的雙盲：不知 AI 能做什麼 + 不知自己需要什麼。
+                通過六層思維棧（前置→判斷→主權→逆熵→陽謀陰謀→分析），
+                讓你能真正用好 OpenClaw。</span>
+            </div>
+            <div class="stats-row" style="max-width: 900px; margin-left: auto; margin-right: auto;">
+                <div class="stat-box">
+                    <div class="stat-number">45</div>
+                    <div class="stat-label">工具層<br>自己搞定</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">20</div>
+                    <div class="stat-label">判斷層<br>幫你想清楚</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">10</div>
+                    <div class="stat-label">策略層<br>重新定義問題</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pyramid -->
+        <section class="pyramid-section">
+            <div class="pyramid-container">
+                <div class="pyramid">
+                    <div class="pyramid-layer layer-tool">
+                        <div class="layer-label">🔧 工具層</div>
+                        <div class="layer-count">45 個案例</div>
+                        <div class="layer-description">使用者自己能搞定</div>
+                        <div class="layer-role">MUSEON：教練角色，展示可能性</div>
+                    </div>
+                    <div class="pyramid-layer layer-thinking">
+                        <div class="layer-label">🧠 判斷層</div>
+                        <div class="layer-count">20 個案例</div>
+                        <div class="layer-description">知道要做什麼，但不知怎麼想</div>
+                        <div class="layer-role">MUSEON：前置思考、狀況判斷、主權守護</div>
+                    </div>
+                    <div class="pyramid-layer layer-strategy">
+                        <div class="layer-label">⚔️ 策略層</div>
+                        <div class="layer-count">10 個案例</div>
+                        <div class="layer-description">連問題都問不對</div>
+                        <div class="layer-role">MUSEON：重新定義問題、多層思考、陽謀陰謀堆疊</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Controls -->
+        <section class="controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="搜尋案例編號、名稱或關鍵詞...">
+            </div>
+            <div class="filter-buttons">
+                <label><input type="radio" name="layer" value="all" checked> 全部</label>
+                <label><input type="radio" name="layer" value="tool"> 🔧 工具層 (45)</label>
+                <label><input type="radio" name="layer" value="thinking"> 🧠 判斷層 (20)</label>
+                <label><input type="radio" name="layer" value="strategy"> ⚔️ 策略層 (10)</label>
+            </div>
+        </section>
+
+        <!-- Cards Grid -->
+        <div class="cards-grid" id="cardsGrid">
+            <!-- Cases will be inserted here by JavaScript -->
+        </div>
+
+        <!-- Insights -->
+        <section class="insights-section">
+            <h2>三層差異的本質</h2>
+            <div class="insight-grid">
+                <div class="insight-card">
+                    <h3>🔧 工具層的價值</h3>
+                    <p><strong>解決第一個盲：「不知道 AI 能做什麼」</strong></p>
+                    <p>這 45 個案例是告訴你 Claude 可以幫你完成的各種任務。用戶看到這些場景，才能想像 AI 在自己工作中的角色。</p>
+                    <p style="margin-top: 16px; color: var(--ember); font-weight: 600;">MUSEON 的角色：展示可能性、教會用戶自助、省時間</p>
+                </div>
+                <div class="insight-card">
+                    <h3>🧠 判斷層的價值</h3>
+                    <p><strong>解決第二個盲的前半段：「知道要做，不知怎麼想」</strong></p>
+                    <p>這 20 個案例不是 Claude 能不能做，而是「怎麼想才能做好」。多數工具止於執行，MUSEON 在執行前深層思考。</p>
+                    <p style="margin-top: 16px; color: var(--thinking); font-weight: 600;">MUSEON 的角色：層層質疑假設、設計前置思考、確保方向對</p>
+                </div>
+                <div class="insight-card">
+                    <h3>⚔️ 策略層的價值</h3>
+                    <p><strong>解決第二個盲的後半段：「連問題都問不對」</strong></p>
+                    <p>這 10 個案例是「幫你重新定義問題」。不是分析，是破框。用六層思維棧重新切問題，再用工具做分析。</p>
+                    <p style="margin-top: 16px; color: var(--strategy); font-weight: 600;">MUSEON 的角色：第一性原則、Xmodel 破框、陽謀陰謀洞察</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cases Data will be loaded by JavaScript -->
+    </div>
+
+    <footer>
+        <p>MUSEON × Claude 75 Use Cases — 思維架構分層報告 | Generated 2026-03-20</p>
+        <p style="margin-top: 10px;">核心理念：教你想事，而非替你做事</p>
+    </footer>
+
+    <script>
+        const cases = [
+            // 工具層 (45 個)
+            { id: 1, name: "建立圖表化儀表板", layer: "tool", description: "用 Claude 快速生成互動式數據可視化，無需寫代碼。", value: "展示 AI 能把資料變清楚" },
+            { id: 2, name: "並列比較預算方案", layer: "tool", description: "多個財務選項的並排表格展示與比較。", value: "工具層面，表格清晰即可" },
+            { id: 6, name: "建立志工管理系統", layer: "tool", description: "設計志工招募、排班、績效追蹤的流程框架。", value: "看到可以自動化哪些部分" },
+            { id: 9, name: "規劃課程進度表", layer: "tool", description: "為教材設計合理的周期、進度和里程碑。", value: "工具層的標準任務" },
+            { id: 11, name: "邊學邊應用公式", layer: "tool", description: "邊讀公式解釋邊在實例中應用，加深理解。", value: "教學對話，不需深層思考" },
+            { id: 13, name: "圖表化資料", layer: "tool", description: "將原始數據轉成可視化的圖表（HTML/SVG）。", value: "純生成任務，無判斷層" },
+            { id: 14, name: "讓黑板課程活起來", layer: "tool", description: "用互動式 HTML demo 呈現課程概念。", value: "展示 AI 的表達能力" },
+            { id: 17, name: "建立客製化課程教材", layer: "tool", description: "根據學生程度和需求量身定製教材內容。", value: "個性化文本生成" },
+            { id: 18, name: "建立客製網頁", layer: "tool", description: "快速生成業務相關的單頁網站或登陸頁。", value: "HTML 生成，無策略層" },
+            { id: 20, name: "互動式圖表工具", layer: "tool", description: "用 HTML/JavaScript 建立可操作的數據展示。", value: "前端技能展示" },
+            { id: 21, name: "整理桌面檔案", layer: "tool", description: "讀取檔案內容後建議組織結構和命名規範。", value: "純執行任務（受限於架構）" },
+            { id: 24, name: "用 Claude 挑選禮物", layer: "tool", description: "根據對方背景和偏好推薦合適的禮物。", value: "對話推薦，無深層判斷" },
+            { id: 25, name: "願望清單應用", layer: "tool", description: "設計和維護個人或團隊的目標追蹤應用。", value: "應用設計框架" },
+            { id: 26, name: "設計在地採集指南", layer: "tool", description: "根據地區特色設計農產品或手工藝採購指南。", value: "網搜 + 文案組合" },
+            { id: 34, name: "補助金提案組裝", layer: "tool", description: "將零散的材料組織成完整的補助金申請書。", value: "結構化寫作" },
+            { id: 38, name: "專案狀態報告", layer: "tool", description: "從事件流生成格式化的週/月報告。", value: "模板填充" },
+            { id: 40, name: "快速準備一週工作計畫", layer: "tool", description: "根據優先級和時間限制規劃周任務。", value: "任務分解，純執行" },
+            { id: 42, name: "互動式 PDF 表單", layer: "tool", description: "設計和生成可填寫的表單邏輯。", value: "設計邏輯，執行困難受限" },
+            { id: 43, name: "建立流程圖", layer: "tool", description: "用 HTML/SVG 將文字流程轉為視覺圖表。", value: "視覺化能力" },
+            { id: 44, name: "將 Email 轉成活動追蹤器", layer: "tool", description: "從郵件內容提取事項並建立追蹤清單。", value: "資訊擷取（受限架構）" },
+            { id: 46, name: "合規稽核文件準備", layer: "tool", description: "整理和格式化合規相關的法律文件。", value: "文件管理（受限架構）" },
+            { id: 48, name: "追蹤發現時間軸", layer: "tool", description: "將研究里程碑組織成互動式時間軸。", value: "視覺化時序" },
+            { id: 50, name: "跨帳戶對帳", layer: "tool", description: "比對多個帳戶的交易記錄找出差異。", value: "資料比對邏輯（受限架構）" },
+            { id: 54, name: "整理企業財務", layer: "tool", description: "分類和標準化企業的財務記錄。", value: "資料分類（受限架構）" },
+            { id: 57, name: "通勤時間變研究時間", layer: "tool", description: "在音聲或快速對話中完成知識累積。", value: "非同步學習方式" },
+            { id: 62, name: "建立銷售報告", layer: "tool", description: "從原始銷售數據生成銷售業績報告。", value: "報告格式化（受限 CRM 整合）" },
+            { id: 64, name: "將銷售通話記錄到 CRM", layer: "tool", description: "自動記錄銷售互動到客戶管理系統。", value: "自動化記錄（受限架構）" },
+            { id: 65, name: "跨網站比較產品", layer: "tool", description: "爬取多個網站資訊並建立比較表格。", value: "網搜聚合" },
+            { id: 66, name: "從日曆準備行程", layer: "tool", description: "根據日程表自動整理出行計畫。", value: "行程整理（受限架構）" },
+            { id: 67, name: "清理行銷郵件", layer: "tool", description: "篩選和分類電子郵件收件箱。", value: "郵件管理（受限架構）" },
+            { id: 68, name: "從分析儀表板提取指標", layer: "tool", description: "讀取儀表板並轉成簡報用的數據。", value: "儀表板讀取（受限架構）" },
+            { id: 69, name: "整理 Google Drive 檔案", layer: "tool", description: "根據內容智能組織雲端資料夾。", value: "檔案管理（受限架構）" },
+            { id: 70, name: "臨床前研究分析", layer: "tool", description: "分析實驗數據並識別統計趨勢。", value: "數據分析邏輯" },
+            { id: 71, name: "基因組資料分析", layer: "tool", description: "處理和解釋基因組學數據。", value: "專科數據分析" },
+            { id: 72, name: "跨平台調整內容格式", layer: "tool", description: "將內容改寫成適合 LinkedIn/X/TikTok 的風格。", value: "風格轉換，text-alchemy 可優化" },
+            { id: 73, name: "分析行銷活動績效", layer: "tool", description: "評估轉換率、ROI、成本效益。", value: "分析框架（受限 MCP 整合）" },
+            { id: 74, name: "建立新進人員入職指南", layer: "tool", description: "製作系統化的組織入職流程文件。", value: "文件組織" },
+            { id: 75, name: "探索 Claude 能為你做什麼", layer: "tool", description: "在開放對話中發現 Claude 的各種應用場景。", value: "展示可能性（MUSEON 做得更好）" },
+
+            // 判斷層 (20 個)
+            { id: 4, name: "檢視變革理論", layer: "thinking", description: "深層思考組織變革的假設與邏輯缺陷。", value: "前置思考：假設正確嗎？" },
+            { id: 5, name: "工作流程改進", layer: "thinking", description: "在改變流程前質疑改變的前提。", value: "主權守護：改什麼？為什麼改？" },
+            { id: 12, name: "整理文獻回顧", layer: "thinking", description: "結構化知識累積，找出盲區和洞見。", value: "知識晶格：這些文獻說的對嗎？" },
+            { id: 22, name: "繪製理解地圖", layer: "thinking", description: "視覺化理解邏輯，發現思維盲點。", value: "狀況判斷：哪裡理解有誤？" },
+            { id: 27, name: "訊息串轉研究筆記", layer: "thinking", description: "從對話萃取真正重要的洞見。", value: "判斷層：什麼才是關鍵？" },
+            { id: 31, name: "跨工具每日簡報", layer: "thinking", description: "整合多管道資訊，判斷優先級。", value: "狀況判斷：今天最重要的是什麼？" },
+            { id: 37, name: "生成 AI 政策", layer: "thinking", description: "為組織制定符合脈絡的 AI 使用規範。", value: "前置思考：這家公司的 AI 風險在哪？" },
+            { id: 39, name: "分析使用者回饋模式", layer: "thinking", description: "從表面意見找出根因問題。", value: "判斷層：用戶真正想說什麼？" },
+            { id: 47, name: "Project 管理法律工作流", layer: "thinking", description: "判斷法律工作的優先級和流程邏輯。", value: "狀況判斷：該怎麼排期？" },
+            { id: 55, name: "彙整回饋管道主題", layer: "thinking", description: "從雜亂回饋找出模式和優先議題。", value: "判斷層：哪些問題出現最多？" },
+            { id: 59, name: "規劃文獻回顧", layer: "thinking", description: "定義該問什麼問題、看什麼文獻。", value: "前置思考：回顧的邊界在哪？" },
+            { id: 2, name: "多情境壓力測試財務計畫", layer: "thinking", description: "在假設變化下檢驗計畫的穩健性。", value: "風險判斷：最壞情況下該怎麼辦？" },
+            { id: 10, name: "比較獎助金選項", layer: "thinking", description: "不只是列表，要質疑選項間的隱藏差異。", value: "判斷層：看起來一樣但為什麼不同？" },
+            { id: 3, name: "捐贈者保留價值", layer: "thinking", description: "重新定義什麼是「保留」。", value: "主權守護：你怎麼定義成功？" },
+            { id: 16, name: "研究轉化成簡報", layer: "thinking", description: "在濃縮前先想清楚「誰需要知道什麼」。", value: "判斷層：哪些資訊最關鍵？" },
+            { id: 19, name: "用 Skills 提升設計", layer: "thinking", description: "判斷什麼能力應該 Skill 化。", value: "設計判斷：什麼值得反覆用？" },
+            { id: 28, name: "製作品牌資產", layer: "thinking", description: "在設計前理清品牌本質。", value: "主權守護：品牌到底是什麼？" },
+            { id: 41, name: "比較和分析競爭選項", layer: "thinking", description: "用圓桌詰問看清楚隱藏的取捨。", value: "陽謀陰謀：每個選項的代價是什麼？" },
+            { id: 35, name: "開發方案工具包", layer: "thinking", description: "在建包前定義「什麼才算解決」。", value: "判斷層：方案成功的標準？" },
+
+            // 策略層 (10 個)
+            { id: 1, name: "查看募款目標的實際需求", layer: "strategy", description: "用第一性原理重新定義募款問題。", value: "MUSEON 核心：真正缺什麼？vs 以為缺什麼？" },
+            { id: 7, name: "分析募款績效", layer: "strategy", description: "不只數字，要看募款策略的根本假設。", value: "策略層：募款邏輯對不對？" },
+            { id: 8, name: "撰寫影響力報告", layer: "strategy", description: "重新定義什麼是「影響力」再呈現。", value: "主權守護 + 品牌敘事" },
+            { id: 23, name: "多情境壓力測試財務計畫", layer: "strategy", description: "用逆熵流設計未來多層次推演。", value: "MUSEON 的 PDEIF：終點反推" },
+            { id: 29, name: "品牌指南包裝成 Skill", layer: "strategy", description: "判斷什麼規範值得鍛造成 Skill。", value: "能力結晶：什麼能力可重用？" },
+            { id: 36, name: "方案資料視覺化", layer: "strategy", description: "在視覺化前決定「要說什麼故事」。", value: "敘事層：資料怎麼說最有力？" },
+            { id: 45, name: "合約審閱與談判", layer: "strategy", description: "在簽字前看清雙方的隱藏動機。", value: "master-strategy + shadow：對手在想什麼？" },
+            { id: 51, name: "全面評估一家公司", layer: "strategy", description: "六位大師會診 + 反向思考 + 黑天鵝防禦。", value: "investment-masters 群體智慧" },
+            { id: 52, name: "建立財務模型", layer: "strategy", description: "先質疑假設再建模型。", value: "第一性原則：這些假設從何而來？" },
+            { id: 53, name: "草擬投資備忘錄", layer: "strategy", description: "多層思考框架，不是填模板。", value: "investment-masters + 戰略推演" },
+            { id: 56, name: "市場規模估算", layer: "strategy", description: "質疑估算邏輯本身，再做計算。", value: "第一性原則：怎麼估才正確？" },
+            { id: 60, name: "建立銷售提案簡報", layer: "strategy", description: "SSA 12 步驟 + 對手防禦 + 情感路由。", value: "ssa-consultant：誰是真正決策者？" },
+            { id: 61, name: "準備銷售商機", layer: "strategy", description: "先看清客戶的真實需求和隱藏恐懼。", value: "shadow + master-strategy 堆疊" },
+            { id: 63, name: "銷售戰情卡庫", layer: "strategy", description: "每張卡都是一個博弈情境的應對方案。", value: "人際博弈辨識 + 敘事張力" }
+        ];
+
+        function renderCards(filter = 'all', search = '') {
+            const grid = document.getElementById('cardsGrid');
+            grid.innerHTML = '';
+
+            const filtered = cases.filter(c => {
+                const matchLayer = filter === 'all' || c.layer === filter;
+                const matchSearch = search === '' ||
+                    c.name.toLowerCase().includes(search.toLowerCase()) ||
+                    c.id.toString().includes(search) ||
+                    c.description.toLowerCase().includes(search.toLowerCase());
+                return matchLayer && matchSearch;
+            });
+
+            filtered.forEach(c => {
+                const card = document.createElement('div');
+                card.className = `case-card ${c.layer}`;
+                card.innerHTML = `
+                    <div class="case-number">#${c.id}</div>
+                    <div class="case-title">${c.name}</div>
+                    <div class="case-layer ${c.layer}">
+                        ${c.layer === 'tool' ? '🔧 工具層' : c.layer === 'thinking' ? '🧠 判斷層' : '⚔️ 策略層'}
+                    </div>
+                    <div class="case-description">${c.description}</div>
+                    <div class="case-value"><strong>MUSEON 的不同：</strong> ${c.value}</div>
+                `;
+                grid.appendChild(card);
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; opacity: 0.6;"><p style="font-size: 1.1rem;">沒有符合的案例</p></div>';
+            }
+        }
+
+        // Event listeners
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const layer = document.querySelector('input[name="layer"]:checked').value;
+            renderCards(layer, e.target.value);
+        });
+
+        document.querySelectorAll('input[name="layer"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const search = document.getElementById('searchInput').value;
+                renderCards(e.target.value, search);
+            });
+        });
+
+        // Initial render
+        renderCards();
+    </script>
+</body>
+</html>
