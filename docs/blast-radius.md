@@ -1,4 +1,4 @@
-# Blast Radius — 模組影響半徑表 v1.27
+# Blast Radius — 模組影響半徑表 v1.28
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
@@ -712,6 +712,9 @@
 | **G5** | 改知識晶格 | knowledge_lattice + crystal_actuator + recommender | crystals.json |
 | **G6** | 改免疫系統 | immunity + immune_memory + immune_research + daemon | events.jsonl + immune_memory.json |
 | **G7** | 改品質回饋閉環（DNA-Inspired） | metacognition + morphenix_executor + pulse_db | PulseDB.metacognition 表（`METACOGNITION_QUALITY_FLAG` 事件） |
+| **G8** | 改衰減參數或老化邏輯 | knowledge_lattice + crystal_actuator + recommender + memory_manager + dendritic_scorer | crystals.json(RI) + Qdrant memories(TTL) + PulseDB health_scores(半衰期) + 推薦排序(近因性) |
+
+> **G8 衰減組說明**：四個衰減引擎（結晶 RI、記憶 TTL、健康分數半衰期、推薦近因性）各自獨立但交叉影響——修改結晶 RI 衰減速度會間接影響 recommender 的推薦排序；修改 dendritic_scorer 半衰期會影響 governor 治理決策進而影響 brain Step 5.5 融合品質。修改任一衰減參數前，必須查閱 `persistence-contract.md` §衰減與優先級模型的完整公式表。
 
 ---
 
@@ -760,6 +763,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-20 | v1.28 | 衰減生命週期補全：新增 G8 衰減組（knowledge_lattice + crystal_actuator + recommender + memory_manager + dendritic_scorer），標記衰減參數修改的跨模組影響；同步 persistence-contract v1.21、system-topology v1.22、joint-map v1.22 |
 | 2026-03-20 | v1.27 | brain.py P3 前置交織融合：新增 _p3_gather_pre_fusion_insights()，Phase 4.5 從「追加多視角區塊」改為「輕量簽名」，_execute_p3_parallel_fusion 降級為向後相容 |
 | 2026-03-20 | v1.26 | P3 策略層並行融合落地實作：brain.py 新增 P3FusionSignal 資料類別 + _detect_p3_strategy_layer_signal() + _execute_p3_parallel_fusion() + _p3_strategy_perspective() + _p3_human_perspective() + _p3_risk_perspective()（共 5 個新方法）；brain.py 扇入不變，新方法扇出：_call_llm_with_model × 3（已有連線）；無新增共享狀態；版本同步 system-topology v1.20、joint-map v1.20、persistence-contract v1.19 |
 | 2026-03-20 | v1.25 | P0-P3 思維引擎升級（純 Skill .md 認知行為變更，無結構性改動）：deep-think v2.0（P0 思考路徑可見化 + P1 主動盲點提醒 + P2 重大決策先問後答）、query-clarity v2.0（P1 主動觸發「你可能沒想到」）、orchestrator v3.0（P3 並行融合模式）、dna27 v2.2（回應合約對齊）；無新增/修改模組扇入扇出、無新增共享狀態、無事件變更；版本同步 system-topology v1.19、persistence-contract v1.19、joint-map v1.20 |

@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.21
+# Joint Map — 共享可變狀態接頭圖 v1.22
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -249,10 +249,21 @@
 | `agent/recommender.py` | **R** | 推薦 | — |
 | `pulse/wee_engine.py` | **R** | 工作流查詢 | — |
 
+#### 衰減策略
+
+| 機制 | 公式/參數 | 執行者 | 觸發時機 |
+|------|---------|--------|---------|
+| RI 指數衰減 | `RI = (0.3×Freq + 0.4×Depth + 0.3×Quality) × exp(-0.03 × days)` | `knowledge_lattice.py` 檢索時計算 | 每次結晶檢索 |
+| 低 RI 歸檔 | RI < 0.05 → 標記 archived | `crystal_actuator.py` Nightly 降級步驟 | Nightly 管線 |
+| 類型升降級 | Hypothesis→Insight→Principle（驗證次數驅動） | `crystal_actuator.py` | Nightly 管線 |
+
+> 詳見 `persistence-contract.md` §衰減與優先級模型。
+
 #### ⚠️ 衝突風險
 
 - knowledge_lattice 和 crystal_actuator 都能寫入 → 無鎖保護
 - 降級邏輯可能與新增邏輯衝突
+- **衰減計算與新增寫入並發時**，crystal_actuator 可能歸檔剛被引用的結晶（低概率但存在）
 
 ---
 
@@ -747,6 +758,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-20 | v1.22 | 衰減生命週期補全：#6 crystals.json 新增「衰減策略」表（RI 公式、歸檔閾值、升降級觸發）+ 衝突風險新增衰減並發項；同步 persistence-contract v1.21（四大衰減引擎全文件）、system-topology v1.22（decay 連線類型）、blast-radius v1.28（G8 衰減組） |
 | 2026-03-20 | v1.21 | P3 前置交織融合：system_prompt 動態注入 _p3_pre_fusion_ctx（唯讀參考，不新增共享狀態） | blast-radius v1.27, system-topology v1.21 |
 | 2026-03-20 | v1.20 | P0-P3 思維引擎升級（純 Skill .md 認知行為變更）：deep-think v2.0、query-clarity v2.0、orchestrator v3.0、dna27 v2.2；無新增共享狀態（30 個不變）、無讀寫者變更、無鎖機制變更；版本同步 system-topology v1.19、persistence-contract v1.19、blast-radius v1.25 |
 | 2026-03-19 | v1.19 | P1-P3 PersonaRouter 全接線：新增 #30 `_system/baihe_cache.json`（🟢 危險度，單寫入者 brain.py `Step 3.65` 原子寫入，讀取者 `pulse/proactive_bridge.py` `_read_baihe_cache()`）；brain.py Step 3.65 baihe_decide() context 從空 `{}` 填入 routing_signal+matched_skills+commitment+session_len+is_late_night；brain.py 新增 Step 3.66 根因偵測層（`_detect_root_cause_hint()`，純記憶體，無持久化）；proactive_bridge.py 新增 baihe_cache.json 讀取依賴；共享狀態 29→30 個 |

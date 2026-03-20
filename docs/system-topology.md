@@ -1,4 +1,4 @@
-# MUSEON 系統拓撲圖 v1.21
+# MUSEON 系統拓撲圖 v1.22
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
@@ -223,6 +223,20 @@
 | `cross` | 跨群組連線（系統間協作） | `#C4502A` |
 | `async` | 非同步連線（推播、回饋） | `#B8923A` |
 | `monitor` | 監控連線（健康檢查） | `#2A6A8A` |
+| `decay` | 衰減連線（資料老化、優先級退場） | `#8B6E5A` |
+
+### 衰減連線（decay）
+
+> 橫切關注點：四個模組各自實作衰減邏輯，影響資料的「老化退場」。
+> 詳細公式與參數見 `persistence-contract.md` §衰減與優先級模型。
+
+| Source | Target | 說明 |
+|--------|--------|------|
+| `knowledge-lattice` → `crystal-actuator` | `crystals.json` | RI 指數衰減 `exp(-0.03×days)`，RI<0.05 由 crystal-actuator 執行歸檔 |
+| `memory` → `vector-index` | Qdrant memories | TTL 分級（24h/14d/90d）+ 訪問次數晉升/降級 + supersede 事實覆寫 |
+| `dendritic-scorer` → `pulse-db` | health_scores 表 | 半衰期 2h 指數衰減，governor 每回合 tick() |
+| `recommender` → in-memory | 推薦排序 | 近因性半衰期 7d + 互動衰減 λ=0.95 |
+| `nightly` → `skill-synapse` | synapses.json | Synapse Decay（已有連線） |
 
 ### 主資料流（flow）
 | Source | Target | 說明 |
@@ -562,6 +576,7 @@
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.22 | 2026-03-20 | 衰減生命週期補全：新增 `decay` 連線類型（色碼 #8B6E5A）+ 5 條衰減連線（結晶 RI、記憶 TTL、健康分數半衰期、推薦近因性、Synapse Decay）；同步 persistence-contract v1.21、blast-radius v1.28、joint-map v1.22 |
 | v1.21 | 2026-03-20 | P3 前置交織融合——Step 5.5 前置多視角收集 + system_prompt 注入，視角從「追加」變「交織」，dendritic-fusion 連線擴展至 Step 5.5 |
 | v1.20 | 2026-03-20 | P3 策略層並行融合落地：brain.py 新增 P3FusionSignal + Step 3.4 偵測 + Phase 4.5 執行管道 + 5 個 P3 方法；120 節點 240 連線不變；無新增節點；P3 Skill 層（orchestrator v3.0）+ P3 程式碼層（brain.py）雙層實作完整 |
 | v1.19 | 2026-03-20 | P0-P3 思維引擎升級（純 Skill .md 認知行為變更，無新節點/連線）：deep-think v2.0（思考路徑可見化 P0 + 主動盲點提醒 P1 + 重大決策先問後答 P2）、query-clarity v2.0（主動觸發「你可能沒想到」P1）、orchestrator v3.0（並行融合模式 P3）、dna27 v2.2（回應合約對齊）；120 節點 240 連線（不變） |

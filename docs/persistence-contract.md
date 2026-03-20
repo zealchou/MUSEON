@@ -1,4 +1,4 @@
-# MUSEON Persistence Contract v1.20 — 水電圖
+# MUSEON Persistence Contract v1.21 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
@@ -336,6 +336,54 @@ Installer 編排 (orchestrator.py)
 | 評估日報 | >90 天 | `eval/archive/` | 合併 JSON |
 | PulseDB 備份 | 每次 Nightly | `pulse/pulse.db.bak` | 覆寫式 |
 
+### 衰減與優先級模型（Decay & Priority Model）
+
+> 跨模組的橫切關注點：四個子系統各自實作衰減函數，控制資料的「老化退場」。
+> 修改任何衰減參數時，需同步查閱 `blast-radius.md` G8 組。
+
+#### 四大衰減引擎
+
+| 引擎 | 模組 | 衰減公式 | 閾值 | 觸發時機 |
+|------|------|---------|------|---------|
+| **結晶衰減** | `agent/knowledge_lattice.py` | `RI = (0.3×Freq + 0.4×Depth + 0.3×Quality) × exp(-0.03 × days_since_last_cited)` | RI < 0.05 → 自動歸檔 | 每次結晶檢索時計算 |
+| **記憶層級衰減** | `agent/memory_manager.py` | TTL 離散分級（見上方 TTL 分級表）+ 訪問次數晉升（L0→L1→L2）+ 低相關性降級（L2→L1→L0） | 各層 TTL 到期 / 訪問計數 < 閾值 | Nightly 清理 + MemoryManager 即時升降 |
+| **健康分數衰減** | `governance/dendritic_scorer.py` | 指數衰減，半衰期 2 小時：`score(t) = score₀ × exp(-ln2/2h × Δt)` | 無硬閾值（分數影響治理決策） | 每次 `tick()` 呼叫（governor 每回合觸發） |
+| **推薦近因性衰減** | `agent/recommender.py` | 近因性半衰期 7 天 + 互動衰減係數 λ=0.95：`recency = exp(-ln2/7d × days)` × `interaction_decay = 0.95^n` | 無硬閾值（影響推薦排序權重） | 每次推薦計算時即時計算 |
+
+#### 衰減引擎間的關係
+
+```
+knowledge_lattice ──RI 衰減──→ crystals.json ←──降級/升級──── crystal_actuator (Nightly)
+                                     ↑
+                              recommender (讀取 RI 排序推薦)
+
+memory_manager ──TTL+訪問──→ Qdrant memories ←──deprecated 標記── fact_correction
+                                     ↑
+                              reflex_router (讀取記憶)
+
+dendritic_scorer ──半衰期──→ health_scores (PulseDB) ←── governor (注入 immunity 事件)
+                                     ↑
+                              brain Step 5.5 (P3 融合讀取)
+
+recommender ──近因性衰減──→ 推薦排序 (in-memory)
+                                     ↑
+                              crystals.json RI (交叉影響)
+```
+
+#### 衰減參數速查
+
+| 參數 | 值 | 所在檔案 | 修改影響 |
+|------|-----|---------|---------|
+| 結晶 RI λ | 0.03 | `knowledge_lattice.py` | 結晶老化速度：↑ 更快遺忘、↓ 更長記憶 |
+| 結晶歸檔閾值 | 0.05 | `knowledge_lattice.py` | ↓ 更多結晶被歸檔、↑ 更多低品質結晶留存 |
+| 健康分數半衰期 | 2h | `dendritic_scorer.py` | ↑ 系統更寬容、↓ 對異常更敏感 |
+| 推薦近因性半衰期 | 7d | `recommender.py` | ↑ 舊內容更常被推薦、↓ 偏好近期內容 |
+| 互動衰減 λ | 0.95 | `recommender.py` | ↑ 互動次數影響更小、↓ 越多互動權重越低 |
+| 記憶 L0 TTL | 24h | `memory_manager.py` | 短期記憶存活時間 |
+| 記憶 L1 TTL | 14d | `memory_manager.py` | 中期記憶存活時間 |
+| 記憶 L2 TTL | 90d | `memory_manager.py` | 長期記憶存活時間 |
+| Supersede 機制 | 即時 | `memory_manager.py` | 事實覆寫：新事實 mark 舊事實為 deprecated |
+
 ---
 
 ## JSON 資料位置清單
@@ -527,6 +575,7 @@ Installer 編排 (orchestrator.py)
 | v1.0 | 2026-03-15 | 初版：完整水電圖，涵蓋 23 個正常配對、3 個 Dead Write、14 個死目錄 |
 | v1.1 | 2026-03-15 | Phase 2 完成：4 個 JSON 遷移至 PulseDB（ceremony_state + eval 三件套） |
 | v1.2 | 2026-03-15 | Phase 3 完成：DataContract + DataBus 建立，10 個 Store 類統一接入 |
+| v1.21 | 2026-03-20 | 衰減生命週期補全：新增「衰減與優先級模型」章節——四大衰減引擎（結晶 RI λ=0.03、記憶 TTL 離散分級、健康分數半衰期 2h、推薦近因性 7d）的公式/閾值/觸發時機/引擎間關係圖/參數速查表；同步 system-topology v1.22（新增 decay 連線類型）、blast-radius v1.28（新增 G8 衰減組）、joint-map v1.22（crystals.json 補衰減策略） |
 | v1.20 | 2026-03-20 | P3 前置交織融合：無新增持久層（_p3_pre_fusion_ctx 為 in-memory 注入，不落地） | joint-map v1.21 |
 | v1.19 | 2026-03-20 | P0-P3 思維引擎升級（純 Skill .md 認知行為變更）：無新增持久層寫入/消費配對，無新增儲存引擎條目。版本同步 system-topology v1.19、blast-radius v1.25、joint-map v1.20 |
 | v1.18 | 2026-03-19 | P1-P3 藍圖同步：新增 W36 baihe_cache.json 配對（Brain Step 3.65 原子寫入、ProactiveBridge 讀取，TTL 2h）；補入 _system/baihe_cache.json 子目錄條目；同步 blast-radius/joint-map 已有的 baihe_cache 記錄 |
