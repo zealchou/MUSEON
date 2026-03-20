@@ -137,8 +137,9 @@ class MuseonBrain:
                 event_bus=self._event_bus,
             )
             self._primal_detector.ensure_indexed()
+            logger.debug("PrimalDetector 初始化成功")
         except Exception as e:
-            logger.debug(f"PrimalDetector 初始化失敗（降級到關鍵字）: {e}")
+            logger.debug(f"PrimalDetector 初始化失敗（降級到關鍵字）: {type(e).__name__}: {e}")
 
         # ★ v1.13: Memory Gate — 記憶寫入前的意圖分類閘門
         self._memory_gate = None
@@ -1438,14 +1439,22 @@ class MuseonBrain:
                 except Exception as e:
                     logger.debug(f"Footprint trace_action 失敗: {e}")
                 # 認知回執（Compact Cognitive Receipt）
+                # v1.1: 5 欄位從硬編碼改為動態讀取（Observatory 可觀測性實質化）
                 try:
+                    _loop_map = {"FAST_LOOP": "F", "EXPLORATION_LOOP": "E", "SLOW_LOOP": "S"}
+                    _loop_short = _loop_map.get(routing_signal.loop, "E") if routing_signal else "E"
+                    _energy_map = {"FAST_LOOP": "high", "EXPLORATION_LOOP": "neutral", "SLOW_LOOP": "deep"}
+                    _energy = _energy_map.get(routing_signal.loop, "neutral") if routing_signal else "neutral"
+                    _p0 = ""
+                    if routing_signal and routing_signal.top_clusters:
+                        _p0 = routing_signal.top_clusters[0]
                     self._footprint.trace_cognitive({
-                        "p0_signal": "",
+                        "p0_signal": _p0,
                         "qc_verdict": "pass" if not getattr(self, '_last_qc_clarify', False) else "clarify",
-                        "user_energy": "",
-                        "c15_active": True,
-                        "resonance": False,
-                        "loop": "E",
+                        "user_energy": _energy,
+                        "c15_active": "text-alchemy" not in skill_names,
+                        "resonance": "resonance" in skill_names,
+                        "loop": _loop_short,
                         "top_skills": skill_names[:3],
                         "meta_note": "",
                     })
@@ -6180,7 +6189,15 @@ class MuseonBrain:
                         # 無 running loop（同步 / daemon thread 情境）→ 新 thread 建立隔離 loop
                         # 避免在呼叫方 thread 上直接 asyncio.run()，防止跨 loop 物件衝突
                         def _trigger_offline(_coro=vs.on_offline_triggered(error_msg)) -> None:
-                            asyncio.run(_coro)
+                            try:
+                                loop = asyncio.new_event_loop()
+                                asyncio.set_event_loop(loop)
+                                try:
+                                    loop.run_until_complete(_coro)
+                                finally:
+                                    loop.close()
+                            except Exception as cleanup_e:
+                                logger.debug(f"Event loop cleanup failed: {cleanup_e}")
                         threading.Thread(target=_trigger_offline, daemon=True).start()
             except Exception as _e:
                 logger.debug(f"Sentinel trigger failed (non-critical): {_e}")
