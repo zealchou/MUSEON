@@ -1,5 +1,32 @@
 ---
 name: orchestrator
+type: on-demand
+layer: evolution
+io:
+  inputs:
+    - from: user
+      field: complex_task
+      required: true
+  outputs:
+    - to: wee
+      field: execution_trace
+      trigger: always
+    - to: consultant-communication
+      field: execution_summary_request
+      trigger: conditional
+    - to: user
+      field: orchestrated_result
+      trigger: always
+connects_to:
+  - wee
+  - eval-engine
+  - consultant-communication
+  - plugin-registry
+memory:
+  writes:
+    - target: wee
+      type: proficiency
+      condition: "多 Skill 編排完成時"
 description: >
   Orchestrator（編排引擎）— DNA27 核心的外掛模組，
   MUSEON 的多 Skill 協作編排與任務分解引擎。當使用者的需求橫跨多個 Skill 時，

@@ -1,5 +1,30 @@
 ---
 name: risk-matrix
+type: on-demand
+layer: market
+io:
+  inputs:
+    - from: market-core
+      field: bull_bear_analysis
+      required: true
+    - from: investment-masters
+      field: master_verdict
+      required: false
+  outputs:
+    - to: knowledge-lattice
+      field: allocation_plan
+      trigger: always
+    - to: user
+      field: risk_report
+      trigger: always
+connects_to:
+  - market-core
+  - investment-masters
+memory:
+  writes:
+    - target: knowledge-lattice
+      type: crystal
+      condition: 配置建議產出時
 description: >
   Risk-Matrix（風險管理與資產配置引擎）— DNA27 核心的外掛模組，
   market-core 生態系的風險管理衛星，專為投資組合風險評估與資產配置特化。

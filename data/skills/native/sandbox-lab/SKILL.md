@@ -1,5 +1,26 @@
 ---
 name: sandbox-lab
+type: on-demand
+layer: evolution
+io:
+  inputs:
+    - from: user
+      field: experiment_design
+      required: true
+  outputs:
+    - to: morphenix
+      field: experiment_results
+      trigger: conditional
+    - to: eval-engine
+      field: ab_test_results
+      trigger: conditional
+    - to: user
+      field: experiment_report
+      trigger: always
+connects_to:
+  - morphenix
+  - eval-engine
+  - orchestrator
 description: >
   Sandbox-Lab（沙盒實驗室）— DNA27 核心的外掛模組，
   MUSEON 的安全實驗與假說驗證引擎。提供「不怕搞砸」的受控環境：

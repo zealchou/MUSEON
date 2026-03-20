@@ -1,5 +1,27 @@
 ---
 name: ssa-consultant
+type: on-demand
+layer: business
+io:
+  inputs:
+    - from: user
+      field: sales_scenario
+      required: true
+  outputs:
+    - to: knowledge-lattice
+      field: sales_strategy
+      trigger: always
+    - to: user
+      field: consultative_plan
+      trigger: always
+connects_to:
+  - business-12
+  - master-strategy
+memory:
+  writes:
+    - target: knowledge-lattice
+      type: crystal
+      condition: 顧問/教練流程完成時
 description: >
   SSA 顧問式銷售與系統創業引擎。DNA27 核心的外掛模組，融合顧問式銷售 12 步驟、系統創業方法論、
   及 27 條 SSA 專家染色體，提供銷售診斷、系統建構與全人演化的實戰指引。

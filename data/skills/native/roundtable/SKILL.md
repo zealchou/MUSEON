@@ -1,5 +1,36 @@
 ---
 name: roundtable
+type: on-demand
+layer: analysis
+io:
+  inputs:
+    - from: query-clarity
+      field: validated_question
+      required: true
+    - from: user-model
+      field: user_profile
+      required: false
+  outputs:
+    - to: knowledge-lattice
+      field: verdict_with_dissent
+      trigger: always
+    - to: user-model
+      field: decision_pattern
+      trigger: conditional
+connects_to:
+  - master-strategy
+  - shadow
+memory:
+  writes:
+    - target: knowledge-lattice
+      type: crystal
+      condition: 使用者做出仲裁決定時
+    - target: user-model
+      type: profile_update
+      condition: 從裁決推斷決策偏好
+  reads:
+    - source: user-model
+      field: user_profile
 description: >
   Roundtable（圓桌詰問引擎）— DNA27 核心的外掛模組，
   問題清晰後啟動的多角色交叉詰問系統。MUSEON 擔任主持人，

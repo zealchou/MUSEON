@@ -1,5 +1,31 @@
 ---
 name: master-strategy
+type: on-demand
+layer: business
+io:
+  inputs:
+    - from: user
+      field: strategic_scenario
+      required: true
+    - from: deep-think
+      field: strategic_signal
+      required: false
+  outputs:
+    - to: knowledge-lattice
+      field: strategic_assessment
+      trigger: always
+    - to: user
+      field: wargame_result
+      trigger: always
+connects_to:
+  - shadow
+  - roundtable
+  - business-12
+memory:
+  writes:
+    - target: knowledge-lattice
+      type: crystal
+      condition: 沙盤推演完成時
 description: >
   Master Strategy 戰略判斷與心理動力引擎。DNA27 核心的外掛模組，融合兵法（孫子、吳子、司馬法、六韜、三略、尉繚子、將苑、唐李問對）、
   縱橫術（鬼谷子）、與現實顯化方法論（Zeal / A3），提供戰略計量、戰術變壓、治理紀律、心理影響、領導力動態、

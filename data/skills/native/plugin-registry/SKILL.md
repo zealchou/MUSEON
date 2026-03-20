@@ -1,5 +1,24 @@
 ---
 name: plugin-registry
+type: reference
+layer: evolution
+io:
+  inputs:
+    - from: acsf
+      field: new_skill_entry
+      required: false
+  outputs:
+    - to: orchestrator
+      field: skill_catalog
+      trigger: on-request
+    - to: morphenix
+      field: skill_health_data
+      trigger: on-request
+connects_to:
+  - dna27
+  - orchestrator
+  - morphenix
+  - acsf
 description: >
   外掛模組註冊表（Plugin Registry）v2.0 — DNA27 核心的參考文件，
   管理所有 MUSEON 外掛模組的註冊資訊、迴圈允許規則、RC 親和對照、協作矩陣與共存規則。

@@ -1,5 +1,39 @@
 ---
 name: workflow-svc-brand-marketing
+type: workflow
+layer: workflow
+io:
+  inputs:
+    - from: user
+      field: client_brief
+      required: true
+  outputs:
+    - to: wee
+      field: execution_trace
+      trigger: always
+    - to: user
+      field: deliverables
+      trigger: always
+connects_to:
+  - ssa-consultant
+  - business-12
+  - brand-identity
+  - storytelling-engine
+  - xmodel
+  - pdeif
+  - master-strategy
+  - text-alchemy
+  - c15
+  - aesthetic-sense
+  - consultant-communication
+  - eval-engine
+  - orchestrator
+  - knowledge-lattice
+memory:
+  writes:
+    - target: wee
+      type: proficiency
+      condition: 工作流完成時
 description: >
   服務業品牌行銷顧問工作流（WF-SVC-01）— MUSEON 第一條預設工作流範本。
   適用客戶：美業/餐飲/咖啡/零售，已經營一段時間但品牌模糊、行銷社群做不起來。

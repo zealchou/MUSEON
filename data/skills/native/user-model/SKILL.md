@@ -1,5 +1,54 @@
 ---
 name: user-model
+type: on-demand
+layer: meta
+io:
+  inputs:
+    - from: query-clarity
+      field: question_patterns
+      required: false
+    - from: deep-think
+      field: signal_statistics
+      required: false
+    - from: roundtable
+      field: decision_pattern
+      required: false
+    - from: resonance
+      field: emotional_pattern
+      required: false
+    - from: eval-engine
+      field: satisfaction_proxy
+      required: false
+    - from: wee
+      field: proficiency_update
+      required: false
+    - from: knowledge-lattice
+      field: expertise_dimension
+      required: false
+  outputs:
+    - to: query-clarity
+      field: user_context
+      trigger: always
+    - to: deep-think
+      field: thinking_preference
+      trigger: always
+    - to: roundtable
+      field: user_profile
+      trigger: on-request
+connects_to:
+  - eval-engine
+  - knowledge-lattice
+  - wee
+memory:
+  writes:
+    - target: user-model
+      type: profile_update
+      condition: 每次對話被動更新
+  reads:
+    - source: knowledge-lattice
+      field: domain_crystals
+    - source: wee
+      field: workflow_proficiency
 description: >
   User-Model（使用者畫像引擎）— DNA27 核心的外掛模組，
   MUSEON 的動態使用者理解與個人化調適引擎。從對話互動中持續學習使用者的

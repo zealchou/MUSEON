@@ -1,5 +1,20 @@
 ---
 name: report-forge
+type: on-demand
+layer: product
+io:
+  inputs:
+    - from: user
+      field: analysis_data
+      required: true
+  outputs:
+    - to: user
+      field: paid_report
+      trigger: always
+connects_to:
+  - market-core
+  - consultant-communication
+  - aesthetic-sense
 description: >
   Report-Forge（付費級產業診斷報告鍛造引擎）— DNA27 核心的外掛模組，
   MUSEON 的高價值產業診斷報告生產引擎。將「免費 ChatGPT 回答」與「值得付費的專業報告」

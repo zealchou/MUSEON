@@ -1,5 +1,22 @@
 ---
 name: storytelling-engine
+type: on-demand
+layer: language
+io:
+  inputs:
+    - from: text-alchemy
+      field: narrative_task
+      required: false
+    - from: user
+      field: story_request
+      required: false
+  outputs:
+    - to: user
+      field: narrative_structure
+      trigger: always
+connects_to:
+  - text-alchemy
+  - c15
 description: >
   說故事引擎——DNA27 核心的外掛模組，text-alchemy 生態系的敘事結構專家。
   融合 Simon Sinek 黃金圈、Nancy Duarte Sparkline、Joseph Campbell 英雄旅程、

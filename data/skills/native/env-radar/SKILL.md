@@ -1,5 +1,27 @@
 ---
 name: env-radar
+type: on-demand
+layer: product
+io:
+  inputs:
+    - from: user
+      field: scan_request
+      required: true
+  outputs:
+    - to: morphenix
+      field: external_signals
+      trigger: conditional
+    - to: user
+      field: radar_report
+      trigger: always
+connects_to:
+  - morphenix
+  - gap
+memory:
+  writes:
+    - target: morphenix
+      type: proposal
+      condition: 發現重要外部變化時
 description: >
   Env-Radar（環境雷達）— DNA27 核心的外掛模組，
   MUSEON 的外部環境掃描與訊號情報引擎。持續監測 AI 產業趨勢、競品動態、

@@ -1,5 +1,46 @@
 ---
 name: deep-think
+type: always-on
+layer: core-extension
+io:
+  inputs:
+    - from: query-clarity
+      field: validated_question
+      required: true
+  outputs:
+    - to: resonance
+      field: emotional_signal
+      trigger: conditional
+    - to: dharma
+      field: transformation_signal
+      trigger: conditional
+    - to: philo-dialectic
+      field: philosophical_signal
+      trigger: conditional
+    - to: master-strategy
+      field: strategic_signal
+      trigger: conditional
+    - to: user
+      field: thinking_trace
+      trigger: always
+connects_to:
+  - resonance
+  - dharma
+  - philo-dialectic
+  - master-strategy
+memory:
+  writes:
+    - target: user-model
+      type: profile_update
+      condition: "Phase 0 訊號分流累積統計"
+    - target: knowledge-lattice
+      type: crystal
+      condition: 信心水準高且有新洞見時
+  reads:
+    - source: user-model
+      field: thinking_preference
+    - source: knowledge-lattice
+      field: related_crystals
 description: >
   深度思考前置引擎（Deep Think Engine）— DNA27 核心層的擴展模組，
   在每次回答前自動運行的思維品質控制迴圈。

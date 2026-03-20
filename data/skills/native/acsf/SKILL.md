@@ -1,5 +1,25 @@
 ---
 name: acsf
+type: on-demand
+layer: product
+io:
+  inputs:
+    - from: dse
+      field: feasibility_report
+      required: false
+    - from: user
+      field: skill_forge_request
+      required: false
+  outputs:
+    - to: plugin-registry
+      field: new_skill_entry
+      trigger: conditional
+    - to: user
+      field: skill_product
+      trigger: always
+connects_to:
+  - dse
+  - plugin-registry
 description: >
   ACSF（Ability Crystallization & Skill Forge）能力結晶與 Skill 鑄造引擎。
   DNA27 核心的外掛模組，將 DSE 驗證後的技術方案鍛造成符合 DNA27 架構、

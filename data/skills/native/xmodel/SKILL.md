@@ -1,5 +1,27 @@
 ---
 name: xmodel
+type: on-demand
+layer: thinking
+io:
+  inputs:
+    - from: user
+      field: stuck_problem
+      required: true
+  outputs:
+    - to: knowledge-lattice
+      field: multi_path_solutions
+      trigger: always
+    - to: user
+      field: experiment_designs
+      trigger: always
+connects_to:
+  - pdeif
+  - business-12
+memory:
+  writes:
+    - target: knowledge-lattice
+      type: crystal
+      condition: 多方案產出時
 description: >
   X-Model（vNext）通用破框解方引擎。DNA27 核心的外掛模組，用跨領域槓桿視角生成多條可行路徑，
   並把解法轉成「可承擔的小實驗」。不限商業場景——可用於人生/關係/健康/職涯/創作等任何領域。

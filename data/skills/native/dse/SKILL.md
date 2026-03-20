@@ -1,5 +1,33 @@
 ---
 name: dse
+type: on-demand
+layer: product
+io:
+  inputs:
+    - from: gap
+      field: opportunity_list
+      required: false
+    - from: user
+      field: tech_fusion_request
+      required: false
+  outputs:
+    - to: acsf
+      field: feasibility_report
+      trigger: conditional
+    - to: knowledge-lattice
+      field: feasibility_report
+      trigger: conditional
+    - to: user
+      field: dse_report
+      trigger: always
+connects_to:
+  - acsf
+  - knowledge-lattice
+memory:
+  writes:
+    - target: knowledge-lattice
+      type: crystal
+      condition: 驗證完成時
 description: >
   DSE（Dialogic Synthesis Engineering）AI 技術融合快速驗證引擎。DNA27 核心的外掛模組，專門處理 LLM、RAG、Agent、記憶系統等 AI 技術的整合研究與商業可行性驗證。
   觸發時機：(1) 使用者輸入 /dse 或 /tech-fusion 指令強制啟動；

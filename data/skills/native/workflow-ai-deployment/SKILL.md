@@ -1,5 +1,37 @@
 ---
 name: workflow-ai-deployment
+type: workflow
+layer: workflow
+io:
+  inputs:
+    - from: user
+      field: business_assessment
+      required: true
+  outputs:
+    - to: wee
+      field: execution_trace
+      trigger: always
+    - to: user
+      field: ai_deployment_plan
+      trigger: always
+connects_to:
+  - ssa-consultant
+  - business-12
+  - dse
+  - xmodel
+  - pdeif
+  - master-strategy
+  - consultant-communication
+  - eval-engine
+  - orchestrator
+  - knowledge-lattice
+  - report-forge
+  - aesthetic-sense
+memory:
+  writes:
+    - target: wee
+      type: proficiency
+      condition: 工作流完成時
 description: >
   AI 導入與部署顧問工作流（WF-AID-01）— MUSEON 第三條預設工作流範本。
   適用客戶：台灣中小企業（員工 200 人以下），想用 AI 但不知道從哪開始，

@@ -1,5 +1,40 @@
 ---
 name: market-core
+type: on-demand
+layer: market
+io:
+  inputs:
+    - from: user
+      field: market_query
+      required: true
+  outputs:
+    - to: investment-masters
+      field: bull_bear_analysis
+      trigger: conditional
+    - to: risk-matrix
+      field: bull_bear_analysis
+      trigger: conditional
+    - to: sentiment-radar
+      field: analysis_context
+      trigger: conditional
+    - to: knowledge-lattice
+      field: bull_bear_analysis
+      trigger: always
+    - to: user
+      field: market_report
+      trigger: always
+connects_to:
+  - market-equity
+  - market-crypto
+  - market-macro
+  - investment-masters
+  - risk-matrix
+  - sentiment-radar
+memory:
+  writes:
+    - target: knowledge-lattice
+      type: crystal
+      condition: 分析報告產出時
 description: >
   Market-Core（市場分析核心引擎）— DNA27 核心的外掛模組，
   MUSEON 的通用市場研究與多空研判框架。提供五層蒐集引擎、多空對稱論述框架、
