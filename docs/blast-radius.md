@@ -763,6 +763,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-21 | v1.29 | MemGPT 分層結晶召回：knowledge_lattice.py 新增 `recall_tiered()` 方法（Hot/Warm/Cold 三層策略）；brain.py L3208 結晶注入從 `recall_with_chains()` 切換為 `recall_tiered()`（1 行改動，降級路徑保留 auto_recall）；G5 影響範圍不變（`recall_with_chains` 仍為 `recall_tiered` 內部引擎）；同步 joint-map v1.23 |
 | 2026-03-20 | v1.28 | 衰減生命週期補全：新增 G8 衰減組（knowledge_lattice + crystal_actuator + recommender + memory_manager + dendritic_scorer），標記衰減參數修改的跨模組影響；同步 persistence-contract v1.21、system-topology v1.22、joint-map v1.22 |
 | 2026-03-20 | v1.27 | brain.py P3 前置交織融合：新增 _p3_gather_pre_fusion_insights()，Phase 4.5 從「追加多視角區塊」改為「輕量簽名」，_execute_p3_parallel_fusion 降級為向後相容 |
 | 2026-03-20 | v1.26 | P3 策略層並行融合落地實作：brain.py 新增 P3FusionSignal 資料類別 + _detect_p3_strategy_layer_signal() + _execute_p3_parallel_fusion() + _p3_strategy_perspective() + _p3_human_perspective() + _p3_risk_perspective()（共 5 個新方法）；brain.py 扇入不變，新方法扇出：_call_llm_with_model × 3（已有連線）；無新增共享狀態；版本同步 system-topology v1.20、joint-map v1.20、persistence-contract v1.19 |

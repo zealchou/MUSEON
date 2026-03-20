@@ -3019,3 +3019,96 @@ class KnowledgeLattice:
                 f"升級候選: {len(upgrade)} | "
                 f"過期假設: {len(expired)}"
             )
+
+    # ── MemGPT-style Tiered Recall（分層結晶召回）──
+
+    def recall_tiered(
+        self,
+        context: str,
+        max_push: int = 10,
+        budget_remaining: Optional[int] = None,
+    ) -> List[Crystal]:
+        """MemGPT 分層結晶召回 — Hot/Warm/Cold 三層策略.
+
+        靈感來源：MemGPT 的 in-context / external / archival 記憶分層。
+        將結晶依 RI 分為三層，以不同策略注入 context window：
+
+        - Tier-0 (Hot): RI >= 0.7（CORE）→ 無條件注入（常駐 context）
+        - Tier-1 (Warm): 0.2 <= RI < 0.7（ACTIVE）→ 語義搜尋後注入
+        - Tier-2 (Cold): RI < 0.2 → 僅在顯式查詢時才拉取（此方法不處理）
+
+        與原有 recall_with_chains 的差別：
+        - recall_with_chains：所有結晶統一語義搜尋，高 RI 的不一定被選中
+        - recall_tiered：先保證 Hot 結晶必定注入，再用剩餘名額搜尋 Warm 層
+
+        Args:
+            context: 查詢上下文
+            max_push: 結晶注入上限（含 Hot + Warm）
+            budget_remaining: 剩餘 token 預算（可選，用於動態調整）
+
+        Returns:
+            分層召回的結晶列表（Hot 在前，Warm 在後）
+        """
+        if not context or not context.strip():
+            return []
+
+        # Phase 1: 分類所有活躍結晶
+        hot_crystals: List[Crystal] = []
+        warm_cuids: Set[str] = set()
+
+        for cuid, crystal in self._crystals.items():
+            if crystal.archived:
+                continue
+            ri = ResonanceCalculator.calculate(crystal)
+            crystal.ri_score = ri  # 順便更新快取
+
+            if ri >= RI_CORE_THRESHOLD:
+                hot_crystals.append(crystal)
+            elif ri >= RI_ACTIVE_THRESHOLD:
+                warm_cuids.add(cuid)
+
+        # Phase 2: Hot 結晶無條件注入（按 RI 排序取 top）
+        hot_crystals.sort(key=lambda c: c.ri_score, reverse=True)
+        hot_budget = min(len(hot_crystals), max(1, max_push // 2))
+        selected_hot = hot_crystals[:hot_budget]
+
+        # Phase 3: 剩餘名額用語義搜尋 Warm 結晶
+        remaining_slots = max_push - len(selected_hot)
+        selected_warm: List[Crystal] = []
+
+        if remaining_slots > 0 and warm_cuids:
+            # 用 recall_with_chains 搜尋，再過濾只保留 Warm 層
+            try:
+                chain_results = self.recall_with_chains(
+                    context=context,
+                    max_push=remaining_slots * 2,  # 多取一些再過濾
+                    chain_hops=1,
+                    chain_types=["supports", "extends", "related"],
+                )
+            except Exception:
+                logger.debug("recall_tiered: chain_recall fallback", exc_info=True)
+                chain_results = self.recall(query=context, top_n=remaining_slots * 2)
+
+            seen_hot = {c.cuid for c in selected_hot}
+            for crystal in chain_results:
+                if crystal.cuid in seen_hot:
+                    continue
+                if crystal.cuid in warm_cuids:
+                    selected_warm.append(crystal)
+                    if len(selected_warm) >= remaining_slots:
+                        break
+
+        results = selected_hot + selected_warm
+
+        # 過濾低分結晶（與 brain.py 原有邏輯一致）
+        results = [c for c in results if c.ri_score >= RI_ARCHIVE_THRESHOLD]
+
+        logger.info(
+            f"分層召回: Hot={len(selected_hot)} + "
+            f"Warm={len(selected_warm)} = {len(results)} 顆 "
+            f"(max_push={max_push}, "
+            f"total_hot={len(hot_crystals)}, "
+            f"total_warm={len(warm_cuids)})"
+        )
+
+        return results
