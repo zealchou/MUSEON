@@ -205,6 +205,7 @@ canvas{display:block}
   <div class="legend-link"><div class="legend-line" style="border-top:2px solid #B5B3AD"></div>內部連結</div>
   <div class="legend-link"><div class="legend-line" style="border-top:2px solid #C98980"></div>跨系統</div>
   <div class="legend-link"><div class="legend-line" style="border-top:2px dashed #C5A47E"></div>非同步</div>
+  <div class="legend-link"><div class="legend-line" style="border-top:2px dotted #8B6E5A"></div>衰減</div>
 </div>
 
 <div class="info-panel" id="info">
@@ -262,7 +263,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 //  SYNC META — 拓撲同步狀態
 // ═══════════════════════════════════════
 const SYNC_META = {
-  topologyVersion: 'v1.22',
+  topologyVersion: 'v1.23',
   syncDate: '2026-03-20',
   nodeCount: 0, // auto-calculated below
   linkCount: 0, // auto-calculated below
@@ -325,8 +326,8 @@ const GN = {
   evolution:'Evolution 演化', tools:'Tools 工具',
   nightly:'Nightly', installer:'Installer 安裝', external:'外部服務'
 };
-function lkHex(t){ return t==='cross'?0xC98980:t==='async'?0xC5A47E:t==='monitor'?0x84A4BA:t==='control'?0x9E9EA4:t==='flow'?0xDC9F8E:0xB5B3AD; }
-function lkCSS(t){ return t==='cross'?'#C98980':t==='async'?'#C5A47E':t==='monitor'?'#84A4BA':t==='control'?'#9E9EA4':t==='flow'?'#DC9F8E':'#B5B3AD'; }
+function lkHex(t){ return t==='cross'?0xC98980:t==='async'?0xC5A47E:t==='monitor'?0x84A4BA:t==='control'?0x9E9EA4:t==='flow'?0xDC9F8E:t==='decay'?0x8B6E5A:0xB5B3AD; }
+function lkCSS(t){ return t==='cross'?'#C98980':t==='async'?'#C5A47E':t==='monitor'?'#84A4BA':t==='control'?'#9E9EA4':t==='flow'?'#DC9F8E':t==='decay'?'#8B6E5A':'#B5B3AD'; }
 
 const nodes = [
   {id:"event-bus",label:"Event Bus",zh:"核心事件匯流排",group:"center",r:3.2,hub:1},
@@ -451,12 +452,14 @@ const nodes = [
   {id:"multi-agent-executor",label:"MultiAgent Executor",zh:"多代理執行器",group:"agent",p:"brain",r:1.0},
   {id:"response-synthesizer",label:"Response Synthesizer",zh:"DNA交叉重組合成",group:"agent",p:"brain",r:0.8},
   {id:"flywheel-coordinator",label:"Flywheel Coordinator",zh:"飛輪協調器",group:"agent",p:"brain",r:0.8},
+  // P3: 並行融合引擎
+  {id:"dendritic-fusion",label:"Dendritic Fusion",zh:"P3 並行融合引擎（MetaCog+Eval+Health）",group:"agent",p:"brain",r:1.1},
   // P0: 事實覆寫引擎
   {id:"fact-correction",label:"Fact Correction",zh:"事實覆寫引擎",group:"agent",p:"brain",r:0.9},
   // 知識推薦引擎
   {id:"recommender",label:"Recommender",zh:"知識推薦引擎",group:"agent",r:0.7,p:"brain"},
   // P4: 藍圖解析器
-  {id:"blueprint-reader",label:"Blueprint Reader",zh:"藍圖解析器",group:"data",r:0.9},
+  {id:"blueprint-reader",label:"Blueprint Reader",zh:"藍圖解析器",group:"data",p:"data-bus",r:0.9},
   // 主人領域畫像
   {id:"lord-profile",label:"Lord Profile",zh:"主人領域畫像",group:"data",p:"data-bus",r:0.8},
 ];
@@ -567,7 +570,7 @@ const links = [
   {source:"nightly",target:"knowledge-lattice",label:"結晶固化",type:"cross"},
   {source:"nightly",target:"budget-mgr",label:"預算結算",type:"cross"},
   {source:"nightly",target:"immunity",label:"抗體修剪",type:"cross"},
-  {source:"nightly",target:"skill-synapse",label:"Synapse Decay",type:"cross"},
+  {source:"nightly",target:"skill-synapse",label:"Synapse Decay",type:"decay"},
   {source:"nightly",target:"event-bus",label:"回饋迴路",type:"async"},
   {source:"morphenix",target:"event-bus",label:"提案回饋",type:"async"},
   {source:"cron",target:"nightly",label:"03:00觸發",type:"control"},
@@ -673,6 +676,8 @@ const links = [
   {source:"brain",target:"response-synthesizer",label:"回覆合成",type:"internal"},
   {source:"brain",target:"flywheel-coordinator",label:"飛輪流動",type:"internal"},
   {source:"multi-agent-executor",target:"llm-router",label:"多部門 LLM",type:"cross"},
+  // 知識推薦引擎
+  {source:"brain",target:"recommender",label:"知識推薦",type:"internal"},
   // P0: 事實覆寫引擎連線
   {source:"brain",target:"fact-correction",label:"事實更正偵測",type:"internal"},
   {source:"fact-correction",target:"memory",label:"記憶覆寫 supersede()",type:"cross"},
@@ -711,13 +716,16 @@ const links = [
   // ── Lord Profile 領域畫像 ──
   {source:"brain",target:"lord-profile",label:"_observe_lord() 領域畫像寫入",type:"cross"},
   {source:"lord-profile",target:"persona-router",label:"百合引擎讀取領域畫像",type:"cross"},
-  // ── P3 前置交織融合 ──
-  {source:"brain",target:"dendritic-scorer",label:"P3 前置融合（Step 5.5）",type:"internal"},
+  // ── P3 前置交織融合 + 並行融合 ──
+  {source:"brain",target:"dendritic-fusion",label:"P3 前置融合（Step 5.5）+ 並行融合（Step 6.2-6.5）",type:"internal"},
+  {source:"dendritic-fusion",target:"metacognition",label:"並行預認知審查",type:"internal"},
+  {source:"dendritic-fusion",target:"eval-engine",label:"並行品質評分",type:"internal"},
+  {source:"dendritic-fusion",target:"dendritic-scorer",label:"P3 並行融合讀取健康分數",type:"cross"},
   // 衰減連線（decay）
-  {source:"knowledge-lattice",target:"crystal-actuator",label:"RI 指數衰減 exp(-0.03×d)",type:"cross"},
-  {source:"memory",target:"vector-index",label:"TTL 分級 + supersede 覆寫",type:"cross"},
-  {source:"dendritic-scorer",target:"pulse-db",label:"半衰期 2h 指數衰減",type:"cross"},
-  {source:"recommender",target:"knowledge-lattice",label:"近因性衰減 7d + λ=0.95",type:"cross"},
+  {source:"knowledge-lattice",target:"crystal-actuator",label:"RI 指數衰減 exp(-0.03×d)",type:"decay"},
+  {source:"memory",target:"vector-index",label:"TTL 分級 + supersede 覆寫",type:"decay"},
+  {source:"dendritic-scorer",target:"pulse-db",label:"半衰期 2h 指數衰減",type:"decay"},
+  {source:"recommender",target:"knowledge-lattice",label:"近因性衰減 7d + λ=0.95",type:"decay"},
 ];
 
 const nodeMap = {};
