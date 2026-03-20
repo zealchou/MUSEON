@@ -861,8 +861,8 @@ class MuseonBrain:
                             "stakeholders": decision_signal.stakeholders_count,
                         },
                     )
-                except Exception:
-                    pass
+                except Exception as _log_e:
+                    logger.debug(f"[P2] 決策層日誌記錄失敗: {_log_e}", exc_info=True)
 
                 logger.info("[P2] 決策層路徑完成，返回反問回覆")
                 return decision_response
@@ -1014,8 +1014,8 @@ class MuseonBrain:
                         encoding="utf-8",
                     )
                     _tmp2.replace(_baihe_cache_path)
-                except Exception:
-                    pass  # 快取寫入失敗不影響核心流程
+                except Exception as _cache_e:
+                    logger.debug(f"Step 3.65 百合快取寫入失敗: {_cache_e}", exc_info=True)
         except Exception as e:
             logger.debug(f"Step 3.65 百合引擎降級: {e}")
 
@@ -3203,22 +3203,20 @@ class MuseonBrain:
                 if routing_signal:
                     max_push = routing_signal.max_crystal_push
 
-                # Layer 2: 鏈式召回（DAG 擴展 seed crystals）
+                # Layer 2: MemGPT 分層召回（Hot 常駐 + Warm 語義搜尋）
                 try:
-                    crystals = self.knowledge_lattice.recall_with_chains(
+                    crystals = self.knowledge_lattice.recall_tiered(
                         context=user_query,
                         max_push=max_push,
-                        chain_hops=1,
-                        chain_types=["supports", "extends", "related"],
+                        budget_remaining=budget.remaining("memory") if hasattr(budget, "remaining") else None,
                     )
                 except Exception:
-                    logger.debug("chain_recall 失敗，降級到 auto_recall", exc_info=True)
+                    logger.debug("recall_tiered 失敗，降級到 auto_recall", exc_info=True)
                     crystals = self.knowledge_lattice.auto_recall(
                         context=user_query, max_push=max_push,
                     )
-
-                # 過濾低分結晶（ri_score < 0.05 的噪音）
-                crystals = [c for c in crystals if c.ri_score >= 0.05] if crystals else []
+                    # 過濾低分結晶（ri_score < 0.05 的噪音）
+                    crystals = [c for c in crystals if c.ri_score >= 0.05] if crystals else []
 
                 if crystals:
                     # Layer 3: 結晶壓縮（超過 8 顆時啟動，省 token）
