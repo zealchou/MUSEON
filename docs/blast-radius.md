@@ -1,4 +1,4 @@
-# Blast Radius — 模組影響半徑表 v1.30
+# Blast Radius — 模組影響半徑表 v1.31
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
@@ -712,7 +712,7 @@
 | **G2** | 改探索/好奇心邏輯 | pulse_engine + curiosity_router + exploration_bridge + nightly_pipeline + skill_forge_scout | question_queue.json + scout_queue/pending.json + PULSE.md |
 | **G3** | 改記憶存取 | memory_manager + brain + vector_bridge + reflex_router | MemoryStore + Qdrant |
 | **G4** | 改演化速度計算 | evolution_velocity + parameter_tuner + periodic_cycles + metacognition | accuracy_stats.json + tuned_parameters.json |
-| **G5** | 改知識晶格 | knowledge_lattice + crystal_actuator + recommender | crystals.json |
+| **G5** | 改知識晶格 | knowledge_lattice + crystal_actuator + recommender + brain（Layer 2.5 社群摘要） | crystals.json |
 | **G6** | 改免疫系統 | immunity + immune_memory + immune_research + daemon | events.jsonl + immune_memory.json |
 | **G7** | 改品質回饋閉環（DNA-Inspired） | metacognition + morphenix_executor + pulse_db | PulseDB.metacognition 表（`METACOGNITION_QUALITY_FLAG` 事件） |
 | **G8** | 改衰減參數或老化邏輯 | knowledge_lattice + crystal_actuator + recommender + memory_manager + dendritic_scorer | crystals.json(RI) + Qdrant memories(TTL) + PulseDB health_scores(半衰期) + 推薦排序(近因性) |
@@ -766,6 +766,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-21 | v1.31 | GraphRAG 社群偵測：knowledge_lattice.py 新增 `detect_communities()`（Label Propagation）+ `_summarize_community()`（Extract-based 摘要）+ `has_communities()`（快速檢查）+ `recall_with_community()`（語義社群召回）（全部為純新增方法，不改既有 API）；brain.py L3221-3233 新增 Layer 2.5 社群摘要注入（~12 行，`has_communities()` + `recall_with_community()`，降級 try/except 保護）；G5 影響範圍：brain 新增為社群摘要消費者；無新增持久層（社群偵測為即時計算）；同步 joint-map v1.25、persistence-contract v1.22（不變）、system-topology v1.23（不變） |
 | 2026-03-21 | v1.30 | 混合檢索（Hybrid Retrieval）：vector_bridge.py 新增 `hybrid_search()` + `_sparse_search()` + `_rrf_merge()` + `index_sparse()` + `backfill_sparse()` + `build_sparse_idf()`（全部為新增方法，不修改既有 API）；新增 `vector/sparse_embedder.py` 到綠區（扇入=1，僅 vector_bridge import）；Qdrant 共享狀態：新增 N 個 sparse collections（分離式 Route A，不碰原 dense schema）+ `_system/sparse_idf.json`；vector_bridge 扇入不變（7）；同步 joint-map v1.24、persistence-contract v1.22 |
 | 2026-03-21 | v1.29 | MemGPT 分層結晶召回：knowledge_lattice.py 新增 `recall_tiered()` 方法（Hot/Warm/Cold 三層策略）；brain.py L3208 結晶注入從 `recall_with_chains()` 切換為 `recall_tiered()`（1 行改動，降級路徑保留 auto_recall）；G5 影響範圍不變（`recall_with_chains` 仍為 `recall_tiered` 內部引擎）；同步 joint-map v1.23 |
 | 2026-03-20 | v1.28 | 衰減生命週期補全：新增 G8 衰減組（knowledge_lattice + crystal_actuator + recommender + memory_manager + dendritic_scorer），標記衰減參數修改的跨模組影響；同步 persistence-contract v1.21、system-topology v1.22、joint-map v1.22 |
