@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.23
+# MUSEON 系統拓撲圖 v1.24
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.24 (2026-03-21)**：A 區迭代 #1~#3 拓撲同步——MemGPT recall_tiered、Hybrid Retrieval sparse-embedder、GraphRAG 社群摘要 Layer 2.5
 > **v1.23 (2026-03-20)**：補記 recommender 節點（知識推薦引擎）+ 3D 心智圖全面同步修復
 > **v1.22 (2026-03-20)**：P3 前置交織融合——Step 5.5 前置多視角收集 + system_prompt 注入
 
@@ -153,6 +154,7 @@
 | `skill-synapse` | Skill Synapse | 突觸網路 | - | data-bus | 0.9 |
 | `blueprint-reader` | Blueprint Reader | 藍圖解析器 | - | data-bus | 0.9 |
 | `lord-profile` | Lord Profile | 主人領域畫像 | - | data-bus | 0.8 |
+| `sparse-embedder` | Sparse Embedder | BM25 稀疏向量 | - | data-bus | 0.9 |
 
 ### evolution — Evolution 演化
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -269,6 +271,8 @@
 | `brain` | `reflex-router` | 迴圈判定 |
 | `brain` | `dispatch` | 多技能分派 |
 | `brain` | `knowledge-lattice` | 結晶注入 |
+| `brain` | `knowledge-lattice` | MemGPT 三層分級召回 recall_tiered() |
+| `brain` | `knowledge-lattice` | GraphRAG 社群摘要 Layer 2.5 recall_with_community() |
 | `brain` | `plan-engine` | 計畫啟動 |
 | `brain` | `metacognition` | 元認知 |
 | `brain` | `intuition` | 直覺感知 |
@@ -383,6 +387,8 @@
 | `data-bus` | `registry` | Store 路由 |
 | `data-bus` | `skill-synapse` | Store 路由 |
 | `data-bus` | `blueprint-reader` | Store 路由 |
+| `data-bus` | `sparse-embedder` | Store 路由 |
+| `vector-index` | `sparse-embedder` | 混合檢索 BM25+Dense RRF 融合 |
 | `data-bus` | `data-watchdog` | 監控注入 |
 | `data-bus` | `pulse-db` | Store 路由 |
 | `data-bus` | `group-context-db` | Store 路由 |
@@ -440,7 +446,8 @@
 | `llm-router` | `anthropic-api` | API 呼叫 |
 | `memory` | `vector-index` | 嵌入索引 |
 | `memory` | `registry` | 持久化儲存 |
-| `vector-index` | `qdrant` | 向量存儲 |
+| `vector-index` | `qdrant` | 向量存儲（dense） |
+| `sparse-embedder` | `qdrant` | 稀疏向量存儲（sparse collections） |
 | `wee` | `skills-registry` | 演化追蹤 |
 | `wee` | `registry` | 演化狀態 |
 | `pulse-db` | `registry` | 脈搏記錄 |
@@ -562,16 +569,17 @@
 
 | 指標 | 數值 |
 |------|------|
-| 總節點數 | 120 |
-| 總連線數 | 240 |
+| 總節點數 | 121 |
+| 總連線數 | 245 |
 | 群組數 | 13 |
 | Hub 節點 | 11 (event-bus, brain, pulse, governance, doctor, llm-router, evolution, tool-registry, nightly, data-bus, installer) |
-| 跨系統連線 | 70 |
-| 內部連線 | 111 |
+| 跨系統連線 | 71 |
+| 內部連線 | 115 |
 | 非同步連線 | 5 |
 | 監控連線 | 5 |
 | 控制連線 | 9 |
 | 資料流連線 | 4 |
+| 衰減連線 | 5 |
 | 平均連線數/節點 | 2.0 |
 
 ---
@@ -580,6 +588,7 @@
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.24 | 2026-03-21 | A 區迭代 #1~#3 拓撲同步：data 群組新增 `sparse-embedder` 節點（BM25 稀疏向量，+1 節點）；新增 5 條連線——agent internal: brain→knowledge-lattice MemGPT recall_tiered() + GraphRAG Layer 2.5 recall_with_community()（+2）；data internal: data-bus→sparse-embedder Store 路由 + vector-index→sparse-embedder 混合檢索 RRF 融合（+2）；cross: sparse-embedder→qdrant 稀疏向量存儲（+1）；vector-index→qdrant 描述更新為「向量存儲（dense）」；121 節點 245 連線 |
 | v1.22 | 2026-03-20 | 衰減生命週期補全：新增 `decay` 連線類型（色碼 #8B6E5A）+ 5 條衰減連線（結晶 RI、記憶 TTL、健康分數半衰期、推薦近因性、Synapse Decay）；同步 persistence-contract v1.21、blast-radius v1.28、joint-map v1.22 |
 | v1.21 | 2026-03-20 | P3 前置交織融合——Step 5.5 前置多視角收集 + system_prompt 注入，視角從「追加」變「交織」，dendritic-fusion 連線擴展至 Step 5.5 |
 | v1.20 | 2026-03-20 | P3 策略層並行融合落地：brain.py 新增 P3FusionSignal + Step 3.4 偵測 + Phase 4.5 執行管道 + 5 個 P3 方法；120 節點 240 連線不變；無新增節點；P3 Skill 層（orchestrator v3.0）+ P3 程式碼層（brain.py）雙層實作完整 |
