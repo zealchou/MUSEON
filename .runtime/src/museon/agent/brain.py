@@ -12,6 +12,9 @@
   Step 2    : 載入 ANIMA_MC + ANIMA_USER
   Step 3    : DNA27 反射路由器 — RoutingSignal（靈魂先行）
   Step 3.1  : DNA27 路由 — 匹配技能（受 RoutingSignal 調節）
+  Step 3.2  : ★ P2 決策層信號偵測（重大決策先問後答）
+  Step 3.3  : ★ P2 決策層路徑短路（若偵測到重大決策，直接返回反問）
+  Step 3.4  : ★ P3 策略層並行融合信號偵測（非 P2 重大決策時才觸發）
   Step 3.5  : 計畫引擎觸發檢查
   Step 3.65 : 百合引擎 — 軍師四象限路由（lord_profile → BaiheDecision）
   Step 4    : 組建系統提示詞（DNA27 + 技能 + ANIMA + 記憶 + 承諾 + 直覺 + 百合）
@@ -40,11 +43,40 @@ import json
 import logging
 import os
 import threading
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
+
+
+# ═══════════════════════════════════════════════════════════════════
+# 決策信號偵測（P2 重大決策先問後答）
+# ═══════════════════════════════════════════════════════════════════
+
+@dataclass
+class DecisionSignal:
+    """重大決策信號 — 決策層路由用."""
+    is_major: bool
+    decision_type: str  # e.g., "cost-vs-quality", "speed-vs-perfection", "business-investment"
+    confidence: float  # 0.0-1.0
+    stakeholders_count: int  # 涉及的利益相關方數量
+    impact_horizon_months: int  # 影響時間範圍（月）
+    details: str  # 簡短說明
+
+
+# ═══════════════════════════════════════════════════════════════════
+# P3 策略層並行融合信號
+# ═══════════════════════════════════════════════════════════════════
+
+@dataclass
+class P3FusionSignal:
+    """策略層並行融合信號 — P3 多視角交織路由用."""
+    should_fuse: bool
+    perspectives: List[str]   # e.g., ["strategy", "human", "risk"]
+    confidence: float  # 0.0-1.0
+    reason: str  # 觸發原因說明
 
 
 class MuseonBrain:
@@ -767,6 +799,106 @@ class MuseonBrain:
         skill_names = [s.get("name", "?") for s in matched_skills]
         logger.info(f"DNA27 matched skills: {skill_names}")
 
+        # ── Step 3.2: P2 決策層信號偵測 ──
+        decision_signal = None
+        try:
+            loop_mode = (
+                getattr(routing_signal, "loop", "EXPLORATION_LOOP")
+                if routing_signal else "EXPLORATION_LOOP"
+            )
+            decision_signal = self._detect_major_decision_signal(
+                query=content,
+                loop_mode=loop_mode,
+                anima_mc=anima_mc,
+                anima_user=anima_user,
+            )
+            if decision_signal.is_major:
+                logger.info(
+                    f"[P2] 重大決策信號偵測: type={decision_signal.decision_type}, "
+                    f"stakeholders={decision_signal.stakeholders_count}, "
+                    f"confidence={decision_signal.confidence:.2f}"
+                )
+        except Exception as e:
+            logger.debug(f"決策層信號偵測失敗（降級跳過）: {e}")
+            decision_signal = DecisionSignal(
+                is_major=False,
+                decision_type="",
+                confidence=0.0,
+                stakeholders_count=0,
+                impact_horizon_months=0,
+                details=f"偵測異常: {str(e)}",
+            )
+
+        # ── Step 3.3: P2 決策層路徑短路 — 重大決策先問後答 ──
+        # 若偵測到重大決策，立即進入「決策層反問模式」，不進入後續 pipeline
+        if decision_signal and decision_signal.is_major:
+            try:
+                decision_response = await self._handle_decision_layer_path(
+                    query=content,
+                    decision_signal=decision_signal,
+                    session_id=session_id,
+                    anima_mc=anima_mc,
+                    anima_user=anima_user,
+                )
+
+                # 記錄決策層互動
+                if session_id:
+                    self._sessions.setdefault(session_id, []).append({
+                        "role": "assistant",
+                        "content": decision_response,
+                        "decision_layer": True,
+                    })
+
+                # 簡略的決策層事件追蹤
+                try:
+                    from museon.pulse.heartbeat_engine import log_action
+                    log_action(
+                        self.data_dir,
+                        event="decision_layer_triggered",
+                        details={
+                            "decision_type": decision_signal.decision_type,
+                            "stakeholders": decision_signal.stakeholders_count,
+                        },
+                    )
+                except Exception:
+                    pass
+
+                logger.info("[P2] 決策層路徑完成，返回反問回覆")
+                return decision_response
+
+            except Exception as e:
+                logger.error(
+                    f"[P2] 決策層路徑失敗，降級進入正常 pipeline: {e}",
+                    exc_info=True,
+                )
+                # 降級：繼續進行正常 pipeline
+
+        # ── Step 3.4: P3 策略層並行融合信號偵測 ──
+        # 條件：非 P2 重大決策 + 非簡單訊息 + SLOW/EXPLORATION_LOOP + 有策略層 Skill
+        _p3_fusion_signal = P3FusionSignal(
+            should_fuse=False, perspectives=[], confidence=0.0, reason="未偵測"
+        )
+        if not (decision_signal and decision_signal.is_major) and not _is_simple:
+            try:
+                _p3_loop_mode = (
+                    getattr(routing_signal, "loop", "EXPLORATION_LOOP")
+                    if routing_signal else "EXPLORATION_LOOP"
+                )
+                _p3_fusion_signal = self._detect_p3_strategy_layer_signal(
+                    query=content,
+                    loop_mode=_p3_loop_mode,
+                    matched_skills=skill_names,
+                )
+                if _p3_fusion_signal.should_fuse:
+                    logger.info(
+                        f"[P3] 策略層融合信號: "
+                        f"perspectives={_p3_fusion_signal.perspectives}, "
+                        f"confidence={_p3_fusion_signal.confidence:.2f}, "
+                        f"reason={_p3_fusion_signal.reason}"
+                    )
+            except Exception as e:
+                logger.debug(f"[P3] 融合信號偵測失敗（降級跳過）: {e}")
+
         # ── Step 3.5: 計畫引擎觸發檢查 ──
         if self.plan_engine:
             try:
@@ -1077,6 +1209,24 @@ class MuseonBrain:
                     matched_skills=skill_names,
                 )
 
+                # ── Phase 4.5: P3 策略層並行融合 ──
+                # 在主回覆後，並行呼叫多視角 Haiku，追加「多視角觀察」區塊
+                if _p3_fusion_signal and _p3_fusion_signal.should_fuse:
+                    try:
+                        p3_enrichment = await self._execute_p3_parallel_fusion(
+                            query=content,
+                            fusion_signal=_p3_fusion_signal,
+                            anima_user=anima_user,
+                        )
+                        if p3_enrichment:
+                            response_text = response_text + "\n\n" + p3_enrichment
+                            logger.info(
+                                f"[P3] 多視角融合已注入: "
+                                f"perspectives={_p3_fusion_signal.perspectives}"
+                            )
+                    except Exception as e:
+                        logger.debug(f"[P3] 策略層融合失敗（降級繼續）: {e}")
+
             # ── v10.5: 清理 tool-use 中間訊息 ──
             # _call_llm 會透過 messages（= history 同引用）直接
             # append tool_use/tool_result 中間訊息，這些對後續輪次
@@ -1096,52 +1246,61 @@ class MuseonBrain:
                 logger.info(f"跳過 session 持久化（離線回覆）")
                 self._offline_flag = False  # 重置
 
-            # ── Step 6.2: PreCognition — 回應前元認知審查 ──
-            # ★ Pipeline 短路：簡單訊息跳過 MetaCog 審查
+            # ── Step 6.2-6.5: P3 並行融合模式 ── (★ v1.21 實裝)
+            # ★ 三角度同步審查：MetaCog + Eval + Health（無串行瓶頸）
+            # 改進方向：由原本的 Phase 4.5 策略層融合改為 Step 6 決策審查層並行融合
             pre_review = None
-            if self._metacognition and not _is_simple:
+            q_score = None
+            thinking_path_summary = ""
+            p3_fusion_result = None
+
+            if not _is_simple and (self._metacognition or self.eval_engine):
                 try:
-                    pre_review = await self._metacognition.pre_review(
+                    # ★ P3 並行融合：三個評分模組並行執行（MetaCog + Eval + Health）
+                    p3_fusion_result = await self._parallel_review_synthesis(
                         draft_response=response_text,
                         user_query=content,
+                        response_content=response_text,
                         routing_signal=routing_signal,
                         matched_skills=skill_names,
                     )
-                    if pre_review and pre_review.get("verdict") == "revise":
-                        # Step 6.3: 注入審查回饋，精煉回覆
+
+                    # 解包融合結果
+                    pre_review = p3_fusion_result.get("pre_review")
+                    q_score = p3_fusion_result.get("q_score")
+                    thinking_path_summary = p3_fusion_result.get("thinking_path_summary", "")
+                    fusion_verdict = p3_fusion_result.get("fusion_verdict", "pass")
+
+                    # 記錄 Q-Score 評分（如果有）
+                    if q_score:
+                        logger.debug(
+                            f"Q-Score: {q_score.score:.3f} ({q_score.tier}) | "
+                            f"U={q_score.understanding:.2f} D={q_score.depth:.2f} "
+                            f"C={q_score.clarity:.2f} A={q_score.actionability:.2f}"
+                        )
+
+                    # Step 6.3: 根據融合決策執行修改
+                    if fusion_verdict == "revise" and pre_review:
                         logger.info(
-                            f"[MetaCog] PreCognition 建議修改: "
-                            f"{pre_review['feedback'][:80]}..."
+                            f"[P3-Fusion] REVISE 決策 | "
+                            f"feedback={pre_review.get('feedback', '')[:80]}..."
                         )
                         refined = await self._refine_with_precog_feedback(
                             system_prompt=system_prompt,
                             messages=history[:-1] if len(history) > 1 else history,
-                            feedback=pre_review["feedback"],
+                            feedback=pre_review.get("feedback", ""),
                         )
                         if refined:
                             response_text = refined
                             # 更新歷史中的回覆
                             history[-1] = {"role": "assistant", "content": response_text}
-                except Exception as e:
-                    logger.debug(f"PreCognition 審查跳過: {e}")
+                    elif fusion_verdict == "alert":
+                        logger.warning(
+                            "[P3-Fusion] ALERT 決策 | 系統健康度臨界，建議監控"
+                        )
 
-        # ── Step 6.5: Eval Engine — Q-Score 靜默評分 ──
-        # ★ Pipeline 短路：簡單訊息跳過 Q-Score
-        q_score = None
-        if self.eval_engine and not _is_simple:
-            try:
-                q_score = self.eval_engine.evaluate(
-                    user_content=content,
-                    response_content=response_text,
-                    matched_skills=skill_names,
-                )
-                logger.debug(
-                    f"Q-Score: {q_score.score:.3f} ({q_score.tier}) | "
-                    f"U={q_score.understanding:.2f} D={q_score.depth:.2f} "
-                    f"C={q_score.clarity:.2f} A={q_score.actionability:.2f}"
-                )
-            except Exception as e:
-                logger.warning(f"Eval Engine 評分失敗: {e}")
+                except Exception as e:
+                    logger.warning(f"P3 並行融合異常，降級運行: {e}")
 
         # ── Step 7: 持久化到記憶 ──
         await self._persist_memory(
@@ -1575,16 +1734,54 @@ class MuseonBrain:
         # P5: 偵測用戶休息/免打擾意圖 → 發布 USER_QUIET_MODE 事件
         self._detect_and_publish_quiet_mode(content)
 
+        # P0: 注入思考路徑摘要到回覆前置（50% 情況下有摘要）
+        final_response = response_text
+        if thinking_path_summary:
+            final_response = f"【我的思考路徑】{thinking_path_summary}\n\n{response_text}"
+            logger.debug(f"[P0] 回覆前置注入思考摘要")
+
+        # P1: 主動盲點提醒——根據探索度決定是否注入「你可能沒想到」提示
+        try:
+            exploration_score = self._estimate_user_exploration_level(anima_user)
+
+            # 計算本次提醒的出現概率（技術型<20%不提示，均衡型30-50%，探索型>60%較常提示）
+            should_show_blindspot = False
+            if exploration_score < 0.25:
+                # 技術型：降低頻率（10% 概率）
+                should_show_blindspot = (len(content) % 10 == 0)
+            elif exploration_score < 0.55:
+                # 均衡型：中等頻率（40% 概率）
+                should_show_blindspot = (len(content) % 10 < 4)
+            else:
+                # 探索型：較高頻率（60% 概率）
+                should_show_blindspot = (len(content) % 10 < 6)
+
+            if should_show_blindspot:
+                from museon.agent.eval_engine import get_blindspot_hint_for_query
+                blindspot_hint = get_blindspot_hint_for_query(
+                    query=content,
+                    matched_skills=[s.get("name") for s in matched_skills] if matched_skills else None,
+                )
+                if blindspot_hint:
+                    # 在思考路徑和回應之間插入盲點提醒
+                    if thinking_path_summary:
+                        final_response = f"【我的思考路徑】{thinking_path_summary}\n\n【順便一提】{blindspot_hint}\n\n{response_text}"
+                    else:
+                        final_response = f"【順便一提】{blindspot_hint}\n\n{response_text}"
+                    logger.debug(f"[P1] 盲點提醒已注入 | 探索度={exploration_score:.2f}")
+        except Exception as e:
+            logger.debug(f"[P1] 盲點提醒注入失敗（降級繼續）: {e}")
+
         # v9.0: 返回 BrainResponse（含 artifacts）
         try:
             from museon.gateway.message import BrainResponse
             return BrainResponse(
-                text=response_text,
+                text=final_response,
                 artifacts=list(self._pending_artifacts),
             )
         except Exception as e:
             logger.debug(f"BrainResponse 建立失敗，降級為純字串: {e}")
-            return response_text  # 降級：返回純 str
+            return final_response  # 降級：返回純 str
 
     # ═══════════════════════════════════════════
     # 命名儀式
@@ -1909,6 +2106,65 @@ class MuseonBrain:
         except Exception as e:
             logger.error(f"Failed to save ANIMA_USER: {e}", exc_info=True)
 
+    def _estimate_user_exploration_level(self, anima_user: Optional[Dict[str, Any]]) -> float:
+        """估算使用者的探索度等級（0.0-1.0）.
+
+        邏輯：
+        - 技術型（<20%）：過往 skill_cluster 重複高、多元性低
+        - 均衡型（30-50%）：moderate 多樣性
+        - 探索型（>60%）：高頻率接觸新 skill、涉及多領域
+
+        Returns:
+            exploration_score: 0.0（技術型封閉）→ 1.0（高度探索型）
+        """
+        if not anima_user:
+            return 0.5  # 無數據時預設均衡
+
+        try:
+            # 取得過往 skill_cluster 多樣性
+            decision_patterns = anima_user.get("seven_layers", {}).get("L3_decision_pattern", [])
+            preference_crystals = anima_user.get("seven_layers", {}).get("L5_preference_crystals", [])
+
+            # 策略 1: 計算 skill_cluster 的不重複數量
+            skill_clusters = set()
+            for pattern in decision_patterns:
+                if pattern.get("pattern_type") == "skill_cluster":
+                    desc = pattern.get("description", "")
+                    if desc.startswith("skill_cluster:"):
+                        skill_clusters.add(desc)
+
+            # 策略 2: 計算偏好結晶的多樣性（category 種類數）
+            interest_keys = {k for k in preference_crystals if "interested_in" in k.get("key", "")}
+
+            # 策略 3: 計算角色多樣性（L7_context_roles）
+            roles = anima_user.get("seven_layers", {}).get("L7_context_roles", [])
+            role_count = len(roles)
+
+            # 加權計算
+            cluster_diversity = min(len(skill_clusters) / 15.0, 1.0)  # 15 個 skill_cluster 為滿分
+            interest_diversity = min(len(interest_keys) / 8.0, 1.0)  # 8 個興趣類別為滿分
+            role_diversity = min(role_count / 5.0, 1.0)  # 5 個角色為滿分
+
+            exploration_score = (
+                0.5 * cluster_diversity +
+                0.3 * interest_diversity +
+                0.2 * role_diversity
+            )
+
+            # 三級分類
+            if exploration_score < 0.25:
+                logger.debug(f"用戶探索度：技術型（{exploration_score:.2f}）")
+            elif exploration_score < 0.55:
+                logger.debug(f"用戶探索度：均衡型（{exploration_score:.2f}）")
+            else:
+                logger.debug(f"用戶探索度：探索型（{exploration_score:.2f}）")
+
+            return exploration_score
+
+        except Exception as e:
+            logger.warning(f"探索度計算失敗（降級）: {e}")
+            return 0.5
+
     # ═══════════════════════════════════════════
     # 系統提示詞建構
     # ═══════════════════════════════════════════
@@ -2057,6 +2313,613 @@ class MuseonBrain:
             "## 深度反射（回應前自我審視）\n\n"
             + "\n".join(f"- {n}" for n in notes)
             + "\n\n上述反射注解是給你自己看的，不要直接輸出到回覆中。"
+        )
+
+    async def _handle_decision_layer_path(
+        self,
+        query: str,
+        decision_signal: DecisionSignal,
+        session_id: str,
+        anima_mc: Optional[Dict[str, Any]] = None,
+        anima_user: Optional[Dict[str, Any]] = None,
+    ) -> str:
+        """P2 決策層路徑 — 重大決策先問後答.
+
+        流程：
+        1. 並行蒐集 xmodel、master-strategy、shadow 的多角度見解
+        2. 綜合為 3-5 個反問點
+        3. 組裝回覆：「這是個重大決策。在深入分析之前，我想確認... [反問清單]」
+        4. 返回反問回覆，等待使用者下一個 turn 再進行深入分析
+
+        Returns:
+            決策層反問回覆文本
+        """
+        # 步驟 1：並行蒐集多角度見解
+        perspectives = await self._gather_decision_perspectives(
+            query=query,
+            decision_signal=decision_signal,
+            anima_mc=anima_mc,
+            anima_user=anima_user,
+        )
+
+        # 步驟 2：綜合為反問點
+        decision_questions = self._synthesize_decision_questions(
+            query=query,
+            decision_signal=decision_signal,
+            perspectives=perspectives,
+        )
+
+        # 步驟 3：組裝回覆
+        my_name = "MUSEON"
+        if anima_mc:
+            my_name = anima_mc.get("identity", {}).get("name", "MUSEON")
+
+        decision_response = (
+            f"這是個重大決策。{my_name} 先不直接分析，想確認你有沒有考慮過這些角度：\n\n"
+        )
+
+        for i, question in enumerate(decision_questions, 1):
+            decision_response += f"{i}. {question}\n"
+
+        decision_response += (
+            "\n你可以逐個回答，或告訴我哪些已經想過了。"
+            "讓我了解你的思路後，我再做更深入的分析。"
+        )
+
+        logger.info(f"[決策層] 反問回覆已組裝，共 {len(decision_questions)} 個反問點")
+
+        return decision_response
+
+    def _synthesize_decision_questions(
+        self,
+        query: str,
+        decision_signal: DecisionSignal,
+        perspectives: Dict[str, str],
+    ) -> List[str]:
+        """從多角度見解綜合為 3-5 個反問點.
+
+        策略：
+        - 提取 xmodel、master-strategy、shadow 的核心反問
+        - 補充決策類型特定的反問
+        - 控制在 3-5 個反問
+
+        Returns:
+            反問列表 (3-5 個)
+        """
+        questions = []
+
+        # 從各個角色的見解中提取反問
+        if perspectives.get("xmodel"):
+            questions.append(perspectives["xmodel"])
+
+        if perspectives.get("master_strategy"):
+            questions.append(perspectives["master_strategy"])
+
+        if perspectives.get("shadow"):
+            questions.append(perspectives["shadow"])
+
+        # 補充決策類型特定的反問
+        type_specific_q = self._get_decision_type_questions(decision_signal)
+        if type_specific_q:
+            questions.append(type_specific_q)
+
+        # 利益相關方角度反問
+        if decision_signal.stakeholders_count >= 3:
+            questions.append(
+                f"涉及 {decision_signal.stakeholders_count} 個利益相關方。"
+                "你有充分聽取每方的立場嗎？"
+            )
+
+        # 控制在 3-5 個
+        questions = [q for q in questions if q]  # 去空值
+        return questions[:5] if len(questions) > 5 else questions or ["想想還有什麼沒考慮到的嗎？"]
+
+    def _get_decision_type_questions(self, decision_signal: DecisionSignal) -> str:
+        """根據決策類型給出特定反問."""
+        decision_type = decision_signal.decision_type
+
+        if decision_type == "financial":
+            return "成本與收益的長期回報週期是多少？這個決定會影響現金流嗎？"
+        elif decision_type == "organizational":
+            return "這個決策對團隊文化和人才留存會有什麼影響？"
+        elif decision_type == "product":
+            return "這個決策會改變產品的核心價值主張嗎？"
+        elif decision_type == "market":
+            return "你對市場反應和競爭對手動向有多大的把握？"
+        else:
+            return "這個決策的不可逆性程度如何？一旦錯了能糾正嗎？"
+
+    async def _gather_decision_perspectives(
+        self,
+        query: str,
+        decision_signal: DecisionSignal,
+        anima_mc: Optional[Dict[str, Any]] = None,
+        anima_user: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, str]:
+        """並行蒐集決策多角度見解（xmodel/master-strategy/shadow 模擬）.
+
+        Returns:
+            {
+                "xmodel": "...",  # 破框思維角度
+                "master_strategy": "...",  # 商業現實角度
+                "shadow": "...",  # 心理傾向角度
+            }
+        """
+        perspectives = {}
+
+        # 並行呼叫三個角色（使用 asyncio.gather）
+        try:
+            results = await asyncio.gather(
+                self._xmodel_perspective(query, decision_signal),
+                self._master_strategy_perspective(query, decision_signal),
+                self._shadow_perspective(query, decision_signal, anima_user),
+                return_exceptions=True,
+            )
+
+            perspectives["xmodel"] = (
+                results[0] if isinstance(results[0], str) else ""
+            )
+            perspectives["master_strategy"] = (
+                results[1] if isinstance(results[1], str) else ""
+            )
+            perspectives["shadow"] = (
+                results[2] if isinstance(results[2], str) else ""
+            )
+
+            logger.info(
+                "[決策層] 多角度見解蒐集完畢: "
+                f"xmodel={len(perspectives['xmodel'])} chars, "
+                f"master_strategy={len(perspectives['master_strategy'])} chars, "
+                f"shadow={len(perspectives['shadow'])} chars"
+            )
+
+        except Exception as e:
+            logger.error(f"決策層多角度見解失敗: {e}", exc_info=True)
+
+        return perspectives
+
+    async def _xmodel_perspective(
+        self, query: str, decision_signal: DecisionSignal
+    ) -> str:
+        """xmodel（破框思維）角度 — 有沒有其他框架？"""
+        try:
+            prompt = (
+                f"使用者的決策問題：{query[:300]}\n\n"
+                f"決策類型：{decision_signal.decision_type}\n"
+                f"涉及利益相關方：{decision_signal.stakeholders_count} 個\n\n"
+                f"你是 xmodel（破框思維）顧問。在 1-2 句內，"
+                f"問一個關於「有沒有我沒想到的框架或視角」的反問。"
+            )
+
+            response = await self._call_llm_with_model(
+                system_prompt="你是 MUSEON 的破框思維顧問（xmodel）。快速、簡潔、反問式。",
+                messages=[{"role": "user", "content": prompt}],
+                model="claude-haiku-4-5-20251001",
+                max_tokens=100,
+            )
+            return response.strip()[:150]
+
+        except Exception as e:
+            logger.debug(f"xmodel 角度生成失敗: {e}")
+            return ""
+
+    async def _master_strategy_perspective(
+        self, query: str, decision_signal: DecisionSignal
+    ) -> str:
+        """master-strategy（商業現實）角度 — 商業現實是什麼？"""
+        try:
+            prompt = (
+                f"使用者的決策問題：{query[:300]}\n\n"
+                f"決策類型：{decision_signal.decision_type}\n"
+                f"影響時間：{decision_signal.impact_horizon_months} 個月\n\n"
+                f"你是商業戰略顧問（master-strategy）。在 1-2 句內，"
+                f"問一個關於「這個決策的商業現實/代價」的反問。"
+            )
+
+            response = await self._call_llm_with_model(
+                system_prompt="你是 MUSEON 的商業戰略顧問（master-strategy）。專注商業現實與代價。",
+                messages=[{"role": "user", "content": prompt}],
+                model="claude-haiku-4-5-20251001",
+                max_tokens=100,
+            )
+            return response.strip()[:150]
+
+        except Exception as e:
+            logger.debug(f"master-strategy 角度生成失敗: {e}")
+            return ""
+
+    async def _shadow_perspective(
+        self,
+        query: str,
+        decision_signal: DecisionSignal,
+        anima_user: Optional[Dict[str, Any]] = None,
+    ) -> str:
+        """shadow（心理傾向）角度 — 你的心理傾向是什麼？"""
+        try:
+            user_context = ""
+            if anima_user:
+                bias = anima_user.get("psychological_bias", "")
+                growth = anima_user.get("growth_phase", "")
+                if bias:
+                    user_context = f"（已知心理傾向：{bias}）"
+                if growth:
+                    user_context += f"（成長階段：{growth}）"
+
+            prompt = (
+                f"使用者的決策問題：{query[:300]}\n"
+                f"{user_context}\n\n"
+                f"你是心理顧問（shadow）。在 1-2 句內，"
+                f"問一個關於「你在這個決策中的心理傾向/盲點」的反問。"
+            )
+
+            response = await self._call_llm_with_model(
+                system_prompt="你是 MUSEON 的心理顧問（shadow）。幫助使用者看見自己的心理傾向。",
+                messages=[{"role": "user", "content": prompt}],
+                model="claude-haiku-4-5-20251001",
+                max_tokens=100,
+            )
+            return response.strip()[:150]
+
+        except Exception as e:
+            logger.debug(f"shadow 角度生成失敗: {e}")
+            return ""
+
+    # ═══════════════════════════════════════════════════════════════════
+    # P3 策略層並行融合
+    # ═══════════════════════════════════════════════════════════════════
+
+    def _detect_p3_strategy_layer_signal(
+        self,
+        query: str,
+        loop_mode: str,
+        matched_skills: List[str],
+    ) -> P3FusionSignal:
+        """偵測「策略層」信號 — P3 並行融合路由核心邏輯.
+
+        判斷條件：
+        1. loop_mode 不是 FAST_LOOP（快速問答不需要多角度）
+        2. matched_skills 包含至少 1 個策略層 Skill
+        3. query 長度 > 15 字（非簡短問候）
+
+        視角路由：
+        - strategy（必選）：master-strategy × xmodel 破框戰略
+        - human（人物/關係詞觸發）：shadow 心理動機與博弈
+        - risk（商業/市場詞觸發）：代價、機會成本、風險
+
+        Returns:
+            P3FusionSignal
+        """
+        # 快速通道：FAST_LOOP 直接跳過
+        if loop_mode == "FAST_LOOP":
+            return P3FusionSignal(
+                should_fuse=False,
+                perspectives=[],
+                confidence=0.0,
+                reason="FAST_LOOP 模式，跳過 P3",
+            )
+
+        # 太短的查詢不需要多角度
+        if len(query.strip()) < 15:
+            return P3FusionSignal(
+                should_fuse=False,
+                perspectives=[],
+                confidence=0.0,
+                reason="查詢過短，跳過 P3",
+            )
+
+        # 策略層 Skill 清單（命中任一即觸發）
+        strategy_skills = {
+            "master-strategy", "xmodel", "shadow", "business-12",
+            "dse", "market-core", "market-equity", "market-crypto",
+            "market-macro", "ssa-consultant", "roundtable",
+        }
+        matched_strategy = [s for s in matched_skills if s in strategy_skills]
+        if not matched_strategy:
+            return P3FusionSignal(
+                should_fuse=False,
+                perspectives=[],
+                confidence=0.0,
+                reason="未匹配到策略層 Skill",
+            )
+
+        # 決定需要哪些視角
+        perspectives: List[str] = ["strategy"]  # 策略/破框視角（必選）
+
+        # 含人物/關係詞 → 加入心理視角
+        human_keywords = [
+            "客戶", "老闆", "團隊", "對方", "合作", "競爭", "談判",
+            "關係", "說服", "溝通", "說", "人", "他", "她", "他們",
+        ]
+        if any(kw in query for kw in human_keywords):
+            perspectives.append("human")
+
+        # 含商業/市場/風險詞 → 加入風險視角
+        risk_keywords = [
+            "市場", "風險", "成本", "利潤", "收益", "投資", "定價",
+            "競爭對手", "品牌", "業績", "營收", "獲利", "損失", "機會",
+        ]
+        if any(kw in query for kw in risk_keywords):
+            perspectives.append("risk")
+
+        # SLOW_LOOP 且命中 ≥2 個策略 Skill → 提高信心值
+        confidence = 0.6
+        if loop_mode == "SLOW_LOOP" and len(matched_strategy) >= 2:
+            confidence = 0.9
+        elif loop_mode == "SLOW_LOOP":
+            confidence = 0.75
+
+        return P3FusionSignal(
+            should_fuse=True,
+            perspectives=perspectives,
+            confidence=confidence,
+            reason=f"策略層 Skill: {matched_strategy}, loop: {loop_mode}",
+        )
+
+    async def _execute_p3_parallel_fusion(
+        self,
+        query: str,
+        fusion_signal: P3FusionSignal,
+        anima_user: Optional[Dict[str, Any]] = None,
+    ) -> str:
+        """P3 策略層並行融合 — 並行呼叫多視角 Haiku，組裝「多視角觀察」.
+
+        不取代主回覆，而是在主回覆後追加「MUSEON 多視角觀察」補充區塊。
+        使用 asyncio.gather 並行呼叫，盡量不增加總延遲。
+
+        Returns:
+            多視角補充文字（追加到主回覆末尾），空字串表示無補充
+        """
+        tasks = []
+        labels = []
+
+        if "strategy" in fusion_signal.perspectives:
+            tasks.append(self._p3_strategy_perspective(query))
+            labels.append("📐 策略層（破框 × 戰略）")
+
+        if "human" in fusion_signal.perspectives:
+            tasks.append(self._p3_human_perspective(query, anima_user))
+            labels.append("🧠 人心層（動機 × 博弈）")
+
+        if "risk" in fusion_signal.perspectives:
+            tasks.append(self._p3_risk_perspective(query))
+            labels.append("⚡ 風險層（代價 × 機會）")
+
+        if not tasks:
+            return ""
+
+        # 並行呼叫（asyncio.gather，return_exceptions=True 確保單個失敗不影響其他）
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        # 組裝輸出（只取有效結果）
+        valid_parts = []
+        for label, result in zip(labels, results):
+            if isinstance(result, Exception) or not result:
+                continue
+            valid_parts.append(f"**{label}**\n{result.strip()}")
+
+        if not valid_parts:
+            return ""
+
+        lines = ["---", "**MUSEON 多視角觀察**", ""]
+        lines.extend(valid_parts)
+        return "\n\n".join(["---\n**MUSEON 多視角觀察**"] + valid_parts)
+
+    async def _p3_strategy_perspective(self, query: str) -> str:
+        """P3 策略視角 — 破框思維 × 戰略判斷的融合分析."""
+        try:
+            prompt = (
+                f"使用者的問題：{query[:400]}\n\n"
+                f"你同時是破框思維顧問（xmodel）和商業戰略顧問（master-strategy）。\n"
+                f"在 2-3 句內，指出「使用者可能沒想到的戰略視角或框架盲點」。"
+                f"直接切入，不重複問題本身。用繁體中文回答。"
+            )
+            response = await self._call_llm_with_model(
+                system_prompt=(
+                    "你是 MUSEON 的策略層顧問，融合 xmodel（破框）和 master-strategy（戰略）。"
+                    "簡潔、精準、有洞察力。不要重複使用者說的話，直接給補充視角。繁體中文。"
+                ),
+                messages=[{"role": "user", "content": prompt}],
+                model="claude-haiku-4-5-20251001",
+                max_tokens=150,
+            )
+            return response.strip()
+        except Exception as e:
+            logger.debug(f"[P3] 策略視角生成失敗: {e}")
+            return ""
+
+    async def _p3_human_perspective(
+        self,
+        query: str,
+        anima_user: Optional[Dict[str, Any]] = None,
+    ) -> str:
+        """P3 人心視角 — shadow 心理動機與博弈分析."""
+        try:
+            user_ctx = ""
+            if anima_user:
+                bias = anima_user.get("psychological_bias", "")
+                if bias:
+                    user_ctx = f"（已知心理傾向：{bias}）"
+
+            prompt = (
+                f"使用者的問題：{query[:400]}\n"
+                f"{user_ctx}\n\n"
+                f"你是心理顧問（shadow）。在 2-3 句內，"
+                f"指出「這個情境中涉及的人心動機、潛在博弈、或需要注意的心理層面」。"
+                f"不是泛泛的心理學，是針對這個具體問題的人際洞察。繁體中文。"
+            )
+            response = await self._call_llm_with_model(
+                system_prompt=(
+                    "你是 MUSEON 的人心顧問（shadow）。專注人際動態、隱性動機與心理傾向。"
+                    "簡潔、有洞察力、針對具體情境。繁體中文。"
+                ),
+                messages=[{"role": "user", "content": prompt}],
+                model="claude-haiku-4-5-20251001",
+                max_tokens=150,
+            )
+            return response.strip()
+        except Exception as e:
+            logger.debug(f"[P3] 人心視角生成失敗: {e}")
+            return ""
+
+    async def _p3_risk_perspective(self, query: str) -> str:
+        """P3 風險視角 — 商業代價與機會成本分析."""
+        try:
+            prompt = (
+                f"使用者的問題：{query[:400]}\n\n"
+                f"你是風險管理顧問。在 2-3 句內，"
+                f"指出「這個情境中容易被忽略的風險、代價或機會成本」。"
+                f"具體、可操作，不是抽象的風險清單。繁體中文。"
+            )
+            response = await self._call_llm_with_model(
+                system_prompt=(
+                    "你是 MUSEON 的風險顧問。專注商業代價、機會成本與容易被忽略的風險點。"
+                    "簡潔、具體、針對問題。繁體中文。"
+                ),
+                messages=[{"role": "user", "content": prompt}],
+                model="claude-haiku-4-5-20251001",
+                max_tokens=150,
+            )
+            return response.strip()
+        except Exception as e:
+            logger.debug(f"[P3] 風險視角生成失敗: {e}")
+            return ""
+
+    def _detect_major_decision_signal(
+        self,
+        query: str,
+        loop_mode: str,
+        anima_mc: Optional[Dict[str, Any]] = None,
+        anima_user: Optional[Dict[str, Any]] = None,
+    ) -> DecisionSignal:
+        """偵測「重大決策」信號 — P2 路由核心邏輯.
+
+        判斷條件：
+        1. query 包含決策詞彙（「決定」「選擇」「要不要」「該不該」等）
+        2. 涉及 2+ 個利益相關方或領域衝突（成本 vs 品質、快速 vs 完美等）
+        3. 影響時間尺度 > 3 個月
+        4. loop_mode = "SLOW_LOOP"（使用者能量充足）
+
+        Returns:
+            DecisionSignal 物件，is_major=True 時觸發決策層路徑
+        """
+        import re
+
+        # 快速通道：非 SLOW_LOOP 直接回傳 False
+        if loop_mode != "SLOW_LOOP":
+            return DecisionSignal(
+                is_major=False,
+                decision_type="",
+                confidence=0.0,
+                stakeholders_count=0,
+                impact_horizon_months=0,
+                details="非 SLOW_LOOP 模式，跳過決策層偵測",
+            )
+
+        # 判斷條件 1：決策詞彙
+        decision_keywords = [
+            "決定", "決策", "選擇", "要不要", "該不該", "應不應該",
+            "採不採", "做不做", "該怎麼", "如何決定", "哪個更好",
+            "比較", "權衡", "取捨", "優先順序", "要... 還是...",
+        ]
+        has_decision_keyword = any(
+            kw in query for kw in decision_keywords
+        )
+
+        if not has_decision_keyword:
+            return DecisionSignal(
+                is_major=False,
+                decision_type="",
+                confidence=0.0,
+                stakeholders_count=0,
+                impact_horizon_months=0,
+                details="未偵測到決策詞彙",
+            )
+
+        # 判斷條件 2：多利益相關方或領域衝突
+        conflict_pairs = [
+            ("成本", "品質"), ("快", "完美"), ("速度", "精度"),
+            ("短期", "長期"), ("收益", "風險"), ("成長", "穩定"),
+            ("擴張", "深耕"), ("自動化", "人工"), ("外包", "內建"),
+            ("用戶", "成本"), ("廣度", "深度"), ("品牌", "利潤"),
+        ]
+        conflict_pattern = "|".join(
+            f"({c1}|{c2})" for c1, c2 in conflict_pairs
+        )
+        has_conflict = len(re.findall(conflict_pattern, query)) >= 2
+
+        stakeholders_keywords = [
+            "老闆", "團隊", "客戶", "員工", "市場", "競爭對手",
+            "合作夥伴", "投資者", "股東", "部門", "跨部門",
+        ]
+        mentioned_stakeholders = sum(
+            1 for sw in stakeholders_keywords if sw in query
+        )
+
+        stakeholders_count = mentioned_stakeholders + (2 if has_conflict else 0)
+
+        if stakeholders_count < 2:
+            return DecisionSignal(
+                is_major=False,
+                decision_type="",
+                confidence=0.3,
+                stakeholders_count=stakeholders_count,
+                impact_horizon_months=0,
+                details="利益相關方不足（<2）",
+            )
+
+        # 判斷條件 3：影響時間尺度
+        time_keywords = {
+            "長期": 12,
+            "短期": 1,
+            "中期": 6,
+            "3 年": 36,
+            "1 年": 12,
+            "半年": 6,
+            "一個月": 1,
+            "三個月": 3,
+            "未來": 12,
+            "往後": 12,
+        }
+        impact_months = 3  # 預設 3 個月
+        for keyword, months in time_keywords.items():
+            if keyword in query:
+                impact_months = max(impact_months, months)
+                break
+
+        if impact_months <= 3:
+            return DecisionSignal(
+                is_major=False,
+                decision_type="",
+                confidence=0.4,
+                stakeholders_count=stakeholders_count,
+                impact_horizon_months=impact_months,
+                details=f"影響時間短（{impact_months} 個月）",
+            )
+
+        # 綜合判斷：決定決策類型
+        decision_type = "general"
+        if any(kw in query for kw in ["成本", "錢", "預算", "投資"]):
+            decision_type = "financial"
+        elif any(kw in query for kw in ["人", "團隊", "招聘", "組織"]):
+            decision_type = "organizational"
+        elif any(kw in query for kw in ["產品", "服務", "技術", "功能"]):
+            decision_type = "product"
+        elif any(kw in query for kw in ["市場", "客戶", "品牌", "銷售"]):
+            decision_type = "market"
+
+        confidence = min(0.95, 0.6 + (stakeholders_count * 0.1))
+
+        return DecisionSignal(
+            is_major=True,
+            decision_type=decision_type,
+            confidence=confidence,
+            stakeholders_count=stakeholders_count,
+            impact_horizon_months=impact_months,
+            details=(
+                f"多利益相關方({stakeholders_count}) + "
+                f"長期影響({impact_months}月) + "
+                f"決策詞彙 + {decision_type}"
+            ),
         )
 
     def _build_system_prompt(
@@ -3966,6 +4829,188 @@ class MuseonBrain:
         except Exception as e:
             logger.error(f"_call_llm_with_model({model}) failed: {e}", exc_info=True)
             return ""
+
+    # ═══════════════════════════════════════════
+    # P3 並行融合模式 — 三角度同步審查
+    # ═══════════════════════════════════════════
+
+    async def _parallel_review_synthesis(
+        self,
+        draft_response: str,
+        user_query: str,
+        response_content: str,
+        routing_signal: Optional[Any],
+        matched_skills: List[str],
+    ) -> Dict[str, Any]:
+        """P3 並行融合模式：同時執行 MetaCognition + Eval + Health 三個評分.
+
+        使用 asyncio.gather() 並行執行三個獨立的審查/評分模組，
+        避免串行瓶頸，提升即時回覆品質。
+
+        Args:
+            draft_response: 初稿回覆文字
+            user_query: 使用者輸入
+            response_content: 完整回覆內容
+            routing_signal: DNA27 路由信號
+            matched_skills: 匹配的技能列表
+
+        Returns:
+            Dict with keys:
+            - pre_review: MetaCognition 結果（dict or None）
+            - q_score: EvalEngine 結果（QScore or None）
+            - health_score: DendriticScorer 健康分數（float or None）
+            - fusion_verdict: 融合決策 ("pass" / "revise" / "alert")
+            - thinking_path_summary: P0 思考路徑摘要（str）
+        """
+        fusion_result = {
+            "pre_review": None,
+            "q_score": None,
+            "health_score": None,
+            "fusion_verdict": "pass",
+            "thinking_path_summary": "",
+        }
+
+        # ★ P3 並行融合：準備三個異步任務
+        tasks = []
+        task_names = []
+
+        # 任務 1: MetaCognition.pre_review()
+        if self._metacognition:
+            async def _meta_task():
+                try:
+                    return await self._metacognition.pre_review(
+                        draft_response=draft_response,
+                        user_query=user_query,
+                        routing_signal=routing_signal,
+                        matched_skills=matched_skills,
+                    )
+                except Exception as e:
+                    logger.debug(f"MetaCognition.pre_review 失敗: {e}")
+                    return None
+
+            tasks.append(_meta_task())
+            task_names.append("pre_review")
+
+        # 任務 2: EvalEngine.evaluate()
+        if self.eval_engine:
+            def _eval_task():
+                try:
+                    return self.eval_engine.evaluate(
+                        user_content=user_query,
+                        response_content=response_content,
+                        matched_skills=matched_skills,
+                    )
+                except Exception as e:
+                    logger.debug(f"EvalEngine.evaluate 失敗: {e}")
+                    return None
+
+            # 包裝同步函數為異步
+            tasks.append(asyncio.get_event_loop().run_in_executor(None, _eval_task))
+            task_names.append("q_score")
+
+        # 任務 3: Health Score（通過 Governor 的 DendriticScorer）
+        if self._governor and hasattr(self._governor, 'dendritic_scorer'):
+            def _health_task():
+                try:
+                    scorer = self._governor.dendritic_scorer
+                    return scorer.calculate_score()
+                except Exception as e:
+                    logger.debug(f"DendriticScorer.calculate_score 失敗: {e}")
+                    return None
+
+            tasks.append(asyncio.get_event_loop().run_in_executor(None, _health_task))
+            task_names.append("health_score")
+
+        # ★ 並行執行所有任務（無阻塞等待）
+        if tasks:
+            try:
+                results = await asyncio.gather(*tasks, return_exceptions=True)
+                for i, (result, task_name) in enumerate(zip(results, task_names)):
+                    if isinstance(result, Exception):
+                        logger.debug(
+                            f"Task '{task_name}' raised exception: {result}"
+                        )
+                        fusion_result[task_name] = None
+                    else:
+                        fusion_result[task_name] = result
+            except Exception as e:
+                logger.warning(f"Parallel review gather 失敗: {e}")
+
+        # ★ P3 融合決策邏輯（基於三角度加權）
+        try:
+            pre_review = fusion_result.get("pre_review")
+            q_score = fusion_result.get("q_score")
+            health_score = fusion_result.get("health_score")
+
+            # 提煉思考路徑摘要（P0）
+            if pre_review and self._metacognition:
+                try:
+                    fusion_result["thinking_path_summary"] = (
+                        self._metacognition.extract_thinking_summary(
+                            pre_review=pre_review,
+                            user_query=user_query,
+                        )
+                    )
+                except Exception as e:
+                    logger.debug(f"提煉思考摘要失敗: {e}")
+
+            # 融合三角度決策
+            # 權重分配：MetaCog (40%) + Eval (35%) + Health (25%)
+            fusion_score = 0.5  # 基線
+
+            # 角度 1: MetaCognition 建議修改（權重 40%）
+            if pre_review and pre_review.get("verdict") == "revise":
+                fusion_score -= 0.4
+                logger.info(
+                    f"[P3-Fusion] MetaCog 建議修改: "
+                    f"{pre_review.get('feedback', '')[:80]}..."
+                )
+
+            # 角度 2: EvalEngine Q-Score（權重 35%）
+            if q_score:
+                # Q-Score 低於 0.5 → 品質警告
+                if q_score.score < 0.5:
+                    fusion_score -= 0.35 * (0.5 - q_score.score) / 0.5
+                    logger.debug(
+                        f"[P3-Fusion] Q-Score 低分警告: {q_score.score:.3f}"
+                    )
+                else:
+                    # Q-Score 高分 → 加分
+                    fusion_score += 0.1 * (q_score.score - 0.5)
+
+            # 角度 3: Health Score（權重 25%）
+            if health_score is not None:
+                # Health Score < 50 → 系統不健康，建議修改或延後
+                if health_score < 50:
+                    fusion_score -= 0.25 * (50 - health_score) / 50
+                    logger.debug(
+                        f"[P3-Fusion] Health Score 警告: {health_score:.1f}"
+                    )
+
+            # ★ 最終決策
+            if fusion_score < 0.3:
+                fusion_result["fusion_verdict"] = "revise"
+                logger.info("[P3-Fusion] 融合決策: REVISE")
+            elif health_score is not None and health_score < 40:
+                fusion_result["fusion_verdict"] = "alert"
+                logger.warning(
+                    "[P3-Fusion] 融合決策: ALERT (系統健康度臨界)"
+                )
+            else:
+                fusion_result["fusion_verdict"] = "pass"
+
+            logger.debug(
+                f"[P3-Fusion] 完成 | "
+                f"meta={pre_review is not None} | "
+                f"eval={q_score is not None} | "
+                f"health={health_score is not None} | "
+                f"verdict={fusion_result['fusion_verdict']}"
+            )
+
+        except Exception as e:
+            logger.warning(f"P3 融合決策失敗，默認 PASS: {e}")
+
+        return fusion_result
 
     # ═══════════════════════════════════════════
     # MetaCognition — PreCognition 精煉
