@@ -1,4 +1,4 @@
-# MUSEON 系統拓撲圖 v1.12
+# MUSEON 系統拓撲圖 v1.19
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
@@ -556,6 +556,7 @@
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.19 | 2026-03-20 | P0-P3 思維引擎升級（純 Skill .md 認知行為變更，無新節點/連線）：deep-think v2.0（思考路徑可見化 P0 + 主動盲點提醒 P1 + 重大決策先問後答 P2）、query-clarity v2.0（主動觸發「你可能沒想到」P1）、orchestrator v3.0（並行融合模式 P3）、dna27 v2.2（回應合約對齊）；120 節點 240 連線（不變） |
 | v1.18 | 2026-03-19 | P1-P3 PersonaRouter 全接線 + 四張藍圖同步：persona-router 節點半徑 1.0→1.1、proactive-bridge 節點半徑 1.1→1.2；新增 cross 連線 persona-router→proactive-bridge（象限決策結果回饋）；brain→proactive-bridge 連線描述更新為「推播 + 百合象限上下文注入」；版本統一為 v1.18（同步 blast-radius v1.24, persistence-contract v1.18, joint-map v1.18）；統計無變化；120 節點 240 連線 |
 | v1.0 | 2026-03-14 | 初版建立，59 節點 91 連線 |
 | v1.12 | 2026-03-17 | 軍師架構 Phase 0：data 群組新增 `lord-profile` 節點（+1 節點）；新增 2 條 cross 連線（brain→lord-profile 領域畫像寫入、lord-profile→persona-router 百合引擎讀取）；116 節點 220 連線 |
