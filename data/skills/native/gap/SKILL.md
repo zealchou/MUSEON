@@ -1,5 +1,22 @@
 ---
 name: gap
+type: on-demand
+layer: product
+io:
+  inputs:
+    - from: user
+      field: market_scan_request
+      required: true
+  outputs:
+    - to: dse
+      field: opportunity_list
+      trigger: conditional
+    - to: user
+      field: gap_analysis
+      trigger: always
+connects_to:
+  - dse
+  - env-radar
 description: >
   GAP（Gap Analysis for Prompt-products）AI Agent 生態系缺口分析引擎。
   DNA27 核心的外掛模組，專門掃描 AI Agent / Skill 市場的需求缺口，

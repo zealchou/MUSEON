@@ -1,5 +1,27 @@
 ---
 name: shadow
+type: on-demand
+layer: business
+io:
+  inputs:
+    - from: user
+      field: interpersonal_scenario
+      required: true
+  outputs:
+    - to: knowledge-lattice
+      field: pattern_identification
+      trigger: always
+    - to: user
+      field: defense_strategy
+      trigger: always
+connects_to:
+  - master-strategy
+  - roundtable
+memory:
+  writes:
+    - target: knowledge-lattice
+      type: crystal
+      condition: 防禦/洞察分析完成時
 description: >
   Shadow — 人際博弈辨識引擎。DNA27 核心的外掛模組，
   融合「防禦辨識」與「博弈洞察」雙層結構，

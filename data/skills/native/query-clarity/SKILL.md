@@ -1,5 +1,30 @@
 ---
 name: query-clarity
+type: always-on
+layer: core-extension
+io:
+  inputs:
+    - from: user
+      field: raw_question
+      required: true
+  outputs:
+    - to: deep-think
+      field: validated_question
+      trigger: always
+    - to: roundtable
+      field: suggestion_to_start
+      trigger: conditional
+connects_to:
+  - roundtable
+  - user-model
+memory:
+  writes:
+    - target: user-model
+      type: profile_update
+      condition: 問題習慣模式累積更新
+  reads:
+    - source: user-model
+      field: user_context
 description: >
   Query-Clarity（問題品質守門層）— DNA27 核心層的擴展模組，
   所有 Skill 路由之前的問題品質濾網。在 MUSEON 開始分析之前，

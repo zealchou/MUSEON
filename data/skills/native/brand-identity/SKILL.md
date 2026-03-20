@@ -1,5 +1,19 @@
 ---
 name: brand-identity
+type: on-demand
+layer: aesthetic
+io:
+  inputs:
+    - from: user
+      field: brand_task
+      required: true
+  outputs:
+    - to: user
+      field: brand_assets
+      trigger: always
+connects_to:
+  - aesthetic-sense
+  - business-12
 description: >
   MUSEON Brand Identity 品牌識別治理引擎。DNA27 核心的外掛模組，
   為所有 MUSEON 對外輸出注入品牌一致性：定位宣言、視覺識別、語調光譜、訊息架構與品牌行為準則。

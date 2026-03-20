@@ -1,5 +1,26 @@
 ---
 name: resonance
+type: on-demand
+layer: thinking
+io:
+  inputs:
+    - from: deep-think
+      field: emotional_signal
+      required: true
+  outputs:
+    - to: dharma
+      field: emotional_state_ready
+      trigger: conditional
+    - to: user
+      field: emotional_response
+      trigger: always
+connects_to:
+  - dharma
+memory:
+  writes:
+    - target: user-model
+      type: profile_update
+      condition: 情緒模式累積更新
 description: >
   感性共振引擎（Resonance Engine）——DNA27 核心的外掛模組，
   專為處理使用者輸入中的「感性資訊」與「情緒語句」所設計。

@@ -1,5 +1,41 @@
 ---
 name: wee
+type: on-demand
+layer: evolution
+io:
+  inputs:
+    - from: orchestrator
+      field: execution_trace
+      required: false
+    - from: pdeif
+      field: reverse_path_design
+      required: false
+    - from: user
+      field: workflow_task
+      required: false
+  outputs:
+    - to: user-model
+      field: proficiency_update
+      trigger: conditional
+    - to: knowledge-lattice
+      field: workflow_lessons
+      trigger: conditional
+    - to: user
+      field: proficiency_dashboard
+      trigger: on-request
+connects_to:
+  - pdeif
+  - xmodel
+  - morphenix
+  - orchestrator
+memory:
+  writes:
+    - target: wee
+      type: proficiency
+      condition: 工作流執行教練迴路完成時
+    - target: knowledge-lattice
+      type: crystal
+      condition: 工作流教訓萃取時
 description: >
   Workflow Evolution Engine（WEE）— 六憶逆熵演化系統。DNA27 核心的外掛模組，
   融合六層記憶系統、三環教練迴路、四維熟練度追蹤與逆熵破框機制，管理工作流完整生命週期。

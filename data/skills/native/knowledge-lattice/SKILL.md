@@ -1,5 +1,65 @@
 ---
 name: knowledge-lattice
+type: on-demand
+layer: evolution
+io:
+  inputs:
+    - from: roundtable
+      field: verdict_with_dissent
+      required: false
+    - from: investment-masters
+      field: master_verdict
+      required: false
+    - from: market-core
+      field: bull_bear_analysis
+      required: false
+    - from: master-strategy
+      field: strategic_assessment
+      required: false
+    - from: business-12
+      field: business_diagnosis
+      required: false
+    - from: dharma
+      field: transformation_milestone
+      required: false
+    - from: deep-think
+      field: key_insight
+      required: false
+    - from: xmodel
+      field: multi_path_solutions
+      required: false
+    - from: dse
+      field: feasibility_report
+      required: false
+    - from: shadow
+      field: pattern_identification
+      required: false
+    - from: philo-dialectic
+      field: concept_clarity
+      required: false
+    - from: wee
+      field: workflow_lessons
+      required: false
+  outputs:
+    - to: deep-think
+      field: related_crystals
+      trigger: always
+    - to: user-model
+      field: expertise_dimension
+      trigger: conditional
+    - to: user
+      field: crystal_recall
+      trigger: on-request
+connects_to:
+  - user-model
+  - wee
+  - morphenix
+  - meta-learning
+memory:
+  writes:
+    - target: knowledge-lattice
+      type: crystal
+      condition: 結晶萃取觸發時
 description: >
   Knowledge Lattice（知識晶格）— DNA27 核心的外掛模組，
   MUSEON 的結構化知識累積與再結晶引擎。將對話中驗證過的洞見、失敗教訓、成功模式，

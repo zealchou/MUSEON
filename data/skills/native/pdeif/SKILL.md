@@ -1,5 +1,27 @@
 ---
 name: pdeif
+type: on-demand
+layer: thinking
+io:
+  inputs:
+    - from: user
+      field: goal_description
+      required: true
+  outputs:
+    - to: wee
+      field: reverse_path_design
+      trigger: conditional
+    - to: user
+      field: convergence_plan
+      trigger: always
+connects_to:
+  - xmodel
+  - wee
+memory:
+  writes:
+    - target: wee
+      type: proficiency
+      condition: 流程設計完成時
 description: >
   PDEIF（Purpose-Driven Entropy-Inverse Flow）目的導向逆熵流引擎。
   DNA27 核心的外掛模組，將「終點狀態」形式化為可操作的逆熵流：

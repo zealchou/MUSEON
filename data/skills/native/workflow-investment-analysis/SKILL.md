@@ -1,5 +1,34 @@
 ---
 name: workflow-investment-analysis
+type: workflow
+layer: workflow
+io:
+  inputs:
+    - from: user
+      field: market_target
+      required: true
+  outputs:
+    - to: wee
+      field: execution_trace
+      trigger: always
+    - to: user
+      field: html_report
+      trigger: always
+connects_to:
+  - market-core
+  - market-equity
+  - market-crypto
+  - market-macro
+  - investment-masters
+  - sentiment-radar
+  - risk-matrix
+  - report-forge
+  - eval-engine
+memory:
+  writes:
+    - target: wee
+      type: proficiency
+      condition: 工作流完成時
 description: >
   投資分析報告工作流（WF-INV-01）— MUSEON 第二條預設工作流範本。
   適用場景：針對特定市場/標的產出完整的多空分析 HTML 報告，

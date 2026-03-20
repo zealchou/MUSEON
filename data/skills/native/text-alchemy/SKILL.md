@@ -1,5 +1,30 @@
 ---
 name: text-alchemy
+type: on-demand
+layer: language
+io:
+  inputs:
+    - from: user
+      field: writing_task
+      required: true
+  outputs:
+    - to: storytelling-engine
+      field: narrative_task
+      trigger: conditional
+    - to: novel-craft
+      field: fiction_task
+      trigger: conditional
+    - to: consultant-communication
+      field: business_comm_task
+      trigger: conditional
+    - to: user
+      field: styled_output
+      trigger: always
+connects_to:
+  - c15
+  - storytelling-engine
+  - novel-craft
+  - consultant-communication
 description: >
   Text Alchemy（文字煉金系統）— DNA27 核心的語言層路由模組。
   專責處理「有明確產出」的文字任務，根據意圖、受眾、場景自動路由到適合的風格模組。

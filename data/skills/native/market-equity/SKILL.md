@@ -1,5 +1,25 @@
 ---
 name: market-equity
+type: on-demand
+layer: market
+io:
+  inputs:
+    - from: market-core
+      field: framework
+      required: true
+    - from: user
+      field: stock_query
+      required: false
+  outputs:
+    - to: market-core
+      field: equity_analysis
+      trigger: always
+    - to: user
+      field: stock_report
+      trigger: always
+connects_to:
+  - market-core
+  - investment-masters
 description: >
   Market-Equity（股票市場分析衛星）— DNA27 核心的外掛模組，
   market-core 的第一個場景衛星，專為股票/ETF/大盤分析特化。

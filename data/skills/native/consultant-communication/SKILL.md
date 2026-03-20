@@ -1,5 +1,25 @@
 ---
 name: consultant-communication
+type: on-demand
+layer: language
+io:
+  inputs:
+    - from: text-alchemy
+      field: business_comm_task
+      required: false
+    - from: orchestrator
+      field: execution_summary_request
+      required: false
+    - from: user
+      field: communication_task
+      required: false
+  outputs:
+    - to: user
+      field: structured_output
+      trigger: always
+connects_to:
+  - text-alchemy
+  - orchestrator
 description: >
   顧問式溝通引擎（Consultant Communication Engine）——DNA27 核心的外掛模組。
   融合麥肯錫金字塔原則、MECE 結構化思維、SCQA 敘事框架、HBR 寫作風格、

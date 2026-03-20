@@ -1,5 +1,25 @@
 ---
 name: sentiment-radar
+type: on-demand
+layer: market
+io:
+  inputs:
+    - from: market-core
+      field: analysis_context
+      required: false
+    - from: user
+      field: sentiment_query
+      required: false
+  outputs:
+    - to: market-core
+      field: sentiment_score
+      trigger: always
+    - to: user
+      field: sentiment_report
+      trigger: always
+connects_to:
+  - market-core
+  - investment-masters
 description: >
   Sentiment-Radar（市場情緒雷達）— DNA27 核心的外掛模組，
   market-core 生態系的情緒分析衛星，專為市場情緒量化與輿情追蹤特化。

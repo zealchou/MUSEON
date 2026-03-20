@@ -1,5 +1,30 @@
 ---
 name: eval-engine
+type: on-demand
+layer: evolution
+io:
+  inputs:
+    - from: user
+      field: response_feedback
+      required: false
+  outputs:
+    - to: user-model
+      field: satisfaction_proxy
+      trigger: conditional
+    - to: morphenix
+      field: quality_trends
+      trigger: conditional
+    - to: user
+      field: eval_dashboard
+      trigger: on-request
+connects_to:
+  - user-model
+  - morphenix
+memory:
+  writes:
+    - target: eval-engine
+      type: score
+      condition: 每次回答品質評分後
 description: >
   Eval-Engine（效能儀表板）— DNA27 核心的外掛模組，
   MUSEON 的系統化效能度量與品質追蹤引擎。為所有 Skill 的演化提供數據基礎：

@@ -1,5 +1,24 @@
 ---
 name: dna27
+type: always-on
+layer: core-extension
+io:
+  inputs:
+    - from: user
+      field: all_input
+      required: true
+  outputs:
+    - to: query-clarity
+      field: routed_input
+      trigger: always
+    - to: deep-think
+      field: loop_context
+      trigger: always
+connects_to:
+  - query-clarity
+  - deep-think
+  - c15
+  - plugin-registry
 description: >
   MUSEON DNA27 vNext — 核心 AI 作業系統（母體 Skill）。所有其他 MUSEON 外掛模組（xmodel、business-12 等）
   的底層依賴。提供：Kernel 治理護欄（五大不可覆寫值 + 三大權力）、三迴圈節奏路由（fast/exploration/slow）、

@@ -1,5 +1,26 @@
 ---
 name: meta-learning
+type: on-demand
+layer: meta
+io:
+  inputs:
+    - from: user
+      field: learning_task
+      required: true
+  outputs:
+    - to: knowledge-lattice
+      field: learning_strategy
+      trigger: conditional
+    - to: user
+      field: learning_plan
+      trigger: always
+connects_to:
+  - knowledge-lattice
+memory:
+  writes:
+    - target: knowledge-lattice
+      type: crystal
+      condition: 學習模式分析完成時
 description: >
   元學習引擎（Meta-Learning Engine）——學習如何學習。DNA27 核心的外掛模組，
   融合 Feynman 教學驗證法、Musk 第一性原理、Munger 心智模型晶格、Da Vinci 跨域好奇力、

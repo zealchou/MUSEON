@@ -1,5 +1,37 @@
 ---
 name: morphenix
+type: on-demand
+layer: evolution
+io:
+  inputs:
+    - from: eval-engine
+      field: quality_trends
+      required: false
+    - from: env-radar
+      field: external_signals
+      required: false
+    - from: sandbox-lab
+      field: experiment_results
+      required: false
+    - from: qa-auditor
+      field: audit_report
+      required: false
+  outputs:
+    - to: user
+      field: evolution_proposals
+      trigger: always
+connects_to:
+  - plugin-registry
+  - eval-engine
+  - env-radar
+memory:
+  writes:
+    - target: morphenix
+      type: proposal
+      condition: 結晶提案流程觸發時
+  reads:
+    - source: eval-engine
+      field: blindspot_radar
 description: >
   Morphenix（自我進化浴火鳳凰）— DNA27 核心的外掛模組，
   MUSEON 的自主迭代引擎。讓系統能觀察自身不足、累積改善想法、

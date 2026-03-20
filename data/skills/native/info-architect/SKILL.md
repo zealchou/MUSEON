@@ -1,5 +1,18 @@
 ---
 name: info-architect
+type: on-demand
+layer: meta
+io:
+  inputs:
+    - from: user
+      field: organization_task
+      required: true
+  outputs:
+    - to: user
+      field: organized_structure
+      trigger: always
+connects_to:
+  - aesthetic-sense
 description: >
   資訊架構與整理引擎——DNA27 核心的外掛模組。以 Apple 設計哲學為基底，
   提供資料/檔案/Email/筆記的分類診斷、結構設計、命名規範與美感審計。

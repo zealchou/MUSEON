@@ -1,5 +1,18 @@
 ---
 name: tantra
+type: on-demand
+layer: special
+io:
+  inputs:
+    - from: user
+      field: explicit_activation
+      required: true
+  outputs:
+    - to: user
+      field: research_output
+      trigger: on-request
+connects_to:
+  - resonance
 description: >
   Tantra — 情慾治理與深化引擎。DNA27 核心的外掛模組，
   為未來成人版 AI 實裝預先研究的情慾完整技術棧。

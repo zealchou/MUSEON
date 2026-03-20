@@ -1,5 +1,31 @@
 ---
 name: investment-masters
+type: on-demand
+layer: market
+io:
+  inputs:
+    - from: market-core
+      field: bull_bear_analysis
+      required: true
+  outputs:
+    - to: risk-matrix
+      field: master_verdict
+      trigger: conditional
+    - to: knowledge-lattice
+      field: master_verdict
+      trigger: always
+    - to: user
+      field: masters_consultation
+      trigger: always
+connects_to:
+  - market-core
+  - risk-matrix
+  - sentiment-radar
+memory:
+  writes:
+    - target: knowledge-lattice
+      type: crystal
+      condition: 會診完成時
 description: >
   Investment-Masters（投資軍師團）— DNA27 核心的外掛模組，
   market-core 生態系的「第二意見」衛星，專為投資決策提供大師級多視角會診。
