@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from museon.vector.embedder import Embedder
+from museon.vector.sparse_embedder import SparseEmbedder
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +69,7 @@ class VectorBridge:
         self._workspace = Path(workspace)
         self._event_bus = event_bus
         self._embedder: Optional[Embedder] = None
+        self._sparse_embedder: Optional[SparseEmbedder] = None
         self._client = None  # lazy QdrantClient
         self._available: Optional[bool] = None
         self._available_checked_at: float = 0.0
@@ -533,6 +535,12 @@ class VectorBridge:
             self._embedder = Embedder()
         return self._embedder
 
+    def _get_sparse_embedder(self) -> SparseEmbedder:
+        """Lazy 取得 SparseEmbedder."""
+        if self._sparse_embedder is None:
+            self._sparse_embedder = SparseEmbedder(workspace=self._workspace)
+        return self._sparse_embedder
+
     def _get_client(self):
         """Lazy 取得 QdrantClient."""
         if self._client is not None:
@@ -762,6 +770,422 @@ class VectorBridge:
         except Exception as e:
             logger.debug(f"VectorBridge search_documents failed: {e}")
             return []
+
+    # ═══════════════════════════════════════════
+    # 混合檢索（Dense + Sparse → RRF 融合）
+    # ═══════════════════════════════════════════
+
+    def hybrid_search(
+        self,
+        collection: str,
+        query: str,
+        limit: int = 10,
+        score_threshold: float = 0.3,
+        rrf_k: int = 60,
+    ) -> List[Dict]:
+        """混合檢索：Dense（語義）+ Sparse（BM25）→ RRF 融合.
+
+        同時查詢 dense collection 和對應的 sparse collection，
+        用 Reciprocal Rank Fusion 合併排名。
+
+        若 sparse collection 不存在或 IDF 未建立，降級為純 dense 搜尋。
+
+        Args:
+            collection: collection 名稱（memories, crystals, ...）
+            query: 查詢文本
+            limit: 回傳上限
+            score_threshold: dense search 的最低相似度分數
+            rrf_k: RRF 參數（預設 60）
+
+        Returns:
+            [{id, score, text, metadata}, ...] 按 RRF score 降序。
+        """
+        # Phase 1: Dense search（一定執行）
+        dense_results = self.search(
+            collection=collection,
+            query=query,
+            limit=limit * 2,  # 多取一些供融合
+            score_threshold=score_threshold,
+        )
+
+        # Phase 2: Sparse search（可選）
+        sparse_results = self._sparse_search(
+            collection=collection,
+            query=query,
+            limit=limit * 2,
+        )
+
+        # Phase 3: 如果沒有 sparse 結果，直接回 dense
+        if not sparse_results:
+            return dense_results[:limit]
+
+        # Phase 4: RRF 融合
+        merged = self._rrf_merge(
+            dense_results=dense_results,
+            sparse_results=sparse_results,
+            k=rrf_k,
+        )
+
+        return merged[:limit]
+
+    def _sparse_search(
+        self,
+        collection: str,
+        query: str,
+        limit: int = 20,
+    ) -> List[Dict]:
+        """稀疏向量搜尋（BM25）.
+
+        使用 {collection}_sparse collection。
+
+        Args:
+            collection: 原始 collection 名稱
+            query: 查詢文本
+            limit: 回傳上限
+
+        Returns:
+            [{id, score, text}, ...] 按 score 降序。
+            若 sparse collection 不存在或 IDF 未建立，回傳空 list。
+        """
+        sparse_collection = f"{collection}_sparse"
+        sparse_embedder = self._get_sparse_embedder()
+
+        if not sparse_embedder.is_available() or not sparse_embedder.has_idf():
+            return []
+
+        try:
+            client = self._get_client()
+            if client is None:
+                return []
+
+            # 檢查 sparse collection 是否存在
+            try:
+                client.get_collection(sparse_collection)
+            except Exception:
+                return []  # collection 不存在，靜默降級
+
+            # 編碼 query 為稀疏向量
+            indices, values = sparse_embedder.encode(query)
+            if not indices:
+                return []
+
+            from qdrant_client.models import SparseVector, NamedSparseVector
+
+            # Qdrant sparse vector search
+            if hasattr(client, "query_points"):
+                response = client.query_points(
+                    collection_name=sparse_collection,
+                    query=SparseVector(indices=indices, values=values),
+                    using="bm25",
+                    limit=limit,
+                    with_payload=True,
+                )
+                hits = response.points
+            else:
+                # 舊版 API fallback
+                return []
+
+            return [
+                {
+                    "id": hit.payload.get("doc_id", str(hit.id)),
+                    "score": hit.score,
+                    "text": hit.payload.get("text", ""),
+                    **{
+                        k: v
+                        for k, v in hit.payload.items()
+                        if k not in ("doc_id", "text")
+                    },
+                }
+                for hit in hits
+            ]
+
+        except Exception as e:
+            logger.debug(f"VectorBridge sparse search failed: {e}")
+            return []
+
+    @staticmethod
+    def _rrf_merge(
+        dense_results: List[Dict],
+        sparse_results: List[Dict],
+        k: int = 60,
+    ) -> List[Dict]:
+        """Reciprocal Rank Fusion 合併兩組排名結果.
+
+        RRF_score(d) = Σ 1/(k + rank_i(d))
+
+        Args:
+            dense_results: Dense 搜尋結果
+            sparse_results: Sparse 搜尋結果
+            k: RRF 常數（預設 60）
+
+        Returns:
+            合併後的結果，按 RRF score 降序。
+        """
+        scores: Dict[str, float] = {}
+        items: Dict[str, Dict] = {}
+
+        # Dense 排名分數
+        for rank, item in enumerate(dense_results):
+            doc_id = item.get("id", "")
+            if not doc_id:
+                continue
+            scores[doc_id] = scores.get(doc_id, 0.0) + 1.0 / (k + rank + 1)
+            if doc_id not in items:
+                items[doc_id] = item
+
+        # Sparse 排名分數
+        for rank, item in enumerate(sparse_results):
+            doc_id = item.get("id", "")
+            if not doc_id:
+                continue
+            scores[doc_id] = scores.get(doc_id, 0.0) + 1.0 / (k + rank + 1)
+            if doc_id not in items:
+                items[doc_id] = item
+
+        # 按 RRF score 排序
+        sorted_ids = sorted(scores.keys(), key=lambda d: -scores[d])
+
+        result = []
+        for doc_id in sorted_ids:
+            item = items[doc_id].copy()
+            item["rrf_score"] = round(scores[doc_id], 6)
+            result.append(item)
+
+        return result
+
+    def index_sparse(
+        self,
+        collection: str,
+        doc_id: str,
+        text: str,
+        metadata: Optional[Dict] = None,
+    ) -> bool:
+        """將文本索引到 sparse collection.
+
+        Args:
+            collection: 原始 collection 名稱
+            doc_id: 文件唯一 ID
+            text: 要索引的文本
+            metadata: 額外 metadata
+
+        Returns:
+            True if indexed, False otherwise.
+        """
+        sparse_collection = f"{collection}_sparse"
+        sparse_embedder = self._get_sparse_embedder()
+
+        if not sparse_embedder.is_available() or not sparse_embedder.has_idf():
+            return False
+
+        try:
+            client = self._get_client()
+            if client is None:
+                return False
+
+            indices, values = sparse_embedder.encode(text)
+            if not indices:
+                return False
+
+            from qdrant_client.models import PointStruct, SparseVector
+
+            # 確保 sparse collection 存在
+            self._ensure_sparse_collection(sparse_collection)
+
+            payload = {
+                "doc_id": doc_id,
+                "text": text[:500],
+            }
+            if metadata:
+                payload.update(metadata)
+
+            point_id = self._doc_id_to_point_id(doc_id)
+
+            client.upsert(
+                collection_name=sparse_collection,
+                points=[
+                    PointStruct(
+                        id=point_id,
+                        vector={
+                            "bm25": SparseVector(
+                                indices=indices,
+                                values=values,
+                            ),
+                        },
+                        payload=payload,
+                    ),
+                ],
+            )
+
+            return True
+
+        except Exception as e:
+            logger.debug(f"VectorBridge sparse index failed: {e}")
+            return False
+
+    def build_sparse_idf(self, collection: str) -> int:
+        """從既有 dense collection 的 payload 建立 IDF 表.
+
+        掃描 dense collection 中所有文件的 text 欄位，
+        用來建立 BM25 的 IDF 統計。
+
+        Args:
+            collection: collection 名稱
+
+        Returns:
+            詞彙表大小。
+        """
+        try:
+            client = self._get_client()
+            if client is None:
+                return 0
+
+            # 用 scroll 取出所有 payload.text
+            corpus = []
+            offset = None
+            while True:
+                result = client.scroll(
+                    collection_name=collection,
+                    limit=100,
+                    offset=offset,
+                    with_payload=True,
+                    with_vectors=False,
+                )
+                points, next_offset = result
+                for point in points:
+                    text = point.payload.get("text", "")
+                    if text:
+                        corpus.append(text)
+                if next_offset is None:
+                    break
+                offset = next_offset
+
+            if not corpus:
+                logger.info(f"No documents in {collection} for IDF building")
+                return 0
+
+            sparse_embedder = self._get_sparse_embedder()
+            return sparse_embedder.build_idf(corpus)
+
+        except Exception as e:
+            logger.debug(f"VectorBridge build_sparse_idf failed: {e}")
+            return 0
+
+    def backfill_sparse(self, collection: str, batch_size: int = 50) -> int:
+        """將既有 dense collection 的文件回填到 sparse collection.
+
+        Args:
+            collection: collection 名稱
+            batch_size: 每批處理數量
+
+        Returns:
+            成功索引的數量。
+        """
+        sparse_embedder = self._get_sparse_embedder()
+        if not sparse_embedder.is_available() or not sparse_embedder.has_idf():
+            return 0
+
+        try:
+            client = self._get_client()
+            if client is None:
+                return 0
+
+            sparse_collection = f"{collection}_sparse"
+            self._ensure_sparse_collection(sparse_collection)
+
+            from qdrant_client.models import PointStruct, SparseVector
+
+            indexed = 0
+            offset = None
+
+            while True:
+                result = client.scroll(
+                    collection_name=collection,
+                    limit=batch_size,
+                    offset=offset,
+                    with_payload=True,
+                    with_vectors=False,
+                )
+                points, next_offset = result
+
+                if not points:
+                    break
+
+                batch_points = []
+                for point in points:
+                    text = point.payload.get("text", "")
+                    if not text:
+                        continue
+
+                    indices, values = sparse_embedder.encode(text)
+                    if not indices:
+                        continue
+
+                    batch_points.append(
+                        PointStruct(
+                            id=point.id,
+                            vector={
+                                "bm25": SparseVector(
+                                    indices=indices,
+                                    values=values,
+                                ),
+                            },
+                            payload=point.payload,
+                        )
+                    )
+
+                if batch_points:
+                    client.upsert(
+                        collection_name=sparse_collection,
+                        points=batch_points,
+                    )
+                    indexed += len(batch_points)
+
+                if next_offset is None:
+                    break
+                offset = next_offset
+
+            logger.info(
+                f"Backfilled {indexed} points to {sparse_collection}"
+            )
+            return indexed
+
+        except Exception as e:
+            logger.debug(f"VectorBridge backfill_sparse failed: {e}")
+            return 0
+
+    def _ensure_sparse_collection(self, name: str) -> None:
+        """確保 sparse collection 存在（使用 SparseVectorParams）."""
+        try:
+            client = self._get_client()
+            if client is None:
+                return
+
+            client.get_collection(name)
+
+        except Exception:
+            # Collection 不存在，建立 sparse-only collection
+            self._create_sparse_collection(name)
+
+    def _create_sparse_collection(self, name: str) -> None:
+        """建立 sparse-only collection."""
+        try:
+            client = self._get_client()
+            if client is None:
+                return
+
+            from qdrant_client.models import SparseVectorParams
+
+            client.create_collection(
+                collection_name=name,
+                vectors_config={},
+                sparse_vectors_config={
+                    "bm25": SparseVectorParams(),
+                },
+            )
+            logger.info(f"Created sparse collection: {name}")
+
+        except Exception as e:
+            logger.warning(f"Failed to create sparse collection {name}: {e}")
 
     @staticmethod
     def _doc_id_to_point_id(doc_id: str) -> str:

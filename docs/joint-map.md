@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.23
+# Joint Map — 共享可變狀態接頭圖 v1.24
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -359,10 +359,22 @@
 | `memory/chromosome_index.py` | **R** | references |
 | `agent/primal_detector.py` | **RW** | primals（八原語語義偵測——寫入索引 + 搜尋匹配） |
 
+#### Sparse Collections（混合檢索）
+
+| 模組 | 操作 | Sparse Collection |
+|------|------|-------------------|
+| `vector/vector_bridge.py` | **RW** | `{name}_sparse`（BM25 稀疏向量） |
+| `vector/sparse_embedder.py` | **W** | `data/_system/sparse_idf.json`（IDF 表） |
+
+- **Route A 分離式**：不修改原 dense collections 的 schema
+- `hybrid_search()` 同時查 dense + sparse → RRF 融合
+- IDF 表由 `build_sparse_idf()` 從 dense collection 語料建立
+
 #### 鎖與降級
 
 - **無顯式鎖**（Qdrant 內部 MVCC）
 - **Graceful Degradation**：Qdrant 離線時靜默失敗 → **檢索能力降級為 TF-IDF（0.3 折扣）**
+- **Hybrid 降級**：sparse collection 不存在或 IDF 未建立 → hybrid_search 自動降級為純 dense
 - **Pending Index Queue**：`_pending_indexes` 暫存失敗索引（但無自動恢復觸發）
 - **可用性快取**：60 秒
 
@@ -769,6 +781,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-21 | v1.24 | 混合檢索（Hybrid Retrieval）：#9 Qdrant 向量庫新增 Sparse Collections 分區（`{name}_sparse`，BM25 稀疏向量）；新增 `sparse_embedder.py` 為 `_system/sparse_idf.json` 寫入者；VectorBridge 新增 `hybrid_search()`/`_sparse_search()`/`index_sparse()`/`backfill_sparse()`/`build_sparse_idf()`；Route A 分離式設計——不修改原 dense collections schema；同步 persistence-contract v1.22、blast-radius v1.30 |
 | 2026-03-21 | v1.23 | MemGPT 分層結晶召回：#6 crystals.json 新增「MemGPT 分層召回」表（Hot/Warm/Cold 三層策略）；`knowledge_lattice.py` 新增 `recall_tiered()` 方法（RW 不變，讀寫者不變）；同步 blast-radius v1.29 |
 | 2026-03-20 | v1.22 | 衰減生命週期補全：#6 crystals.json 新增「衰減策略」表（RI 公式、歸檔閾值、升降級觸發）+ 衝突風險新增衰減並發項；同步 persistence-contract v1.21（四大衰減引擎全文件）、system-topology v1.22（decay 連線類型）、blast-radius v1.28（G8 衰減組） |
 | 2026-03-20 | v1.21 | P3 前置交織融合：system_prompt 動態注入 _p3_pre_fusion_ctx（唯讀參考，不新增共享狀態） | blast-radius v1.27, system-topology v1.21 |

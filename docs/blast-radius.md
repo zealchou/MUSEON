@@ -1,4 +1,4 @@
-# Blast Radius — 模組影響半徑表 v1.28
+# Blast Radius — 模組影響半徑表 v1.30
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
@@ -552,18 +552,18 @@
 
 | 影響類型 | 範圍 |
 |---------|------|
-| 共享狀態 | Qdrant 8 個 collections（含 primals）；memories collection 新增 status=deprecated 軟刪除過濾 |
+| 共享狀態 | Qdrant 8 個 dense collections + N 個 sparse collections（`{name}_sparse`）；memories collection 新增 status=deprecated 軟刪除過濾 |
 | 直接 import | 7 個模組（brain, memory_manager, reflex_router, skill_router, knowledge_lattice, chromosome_index, primal_detector） |
-| 新增方法 | `mark_deprecated(collection, doc_id)` — 標記向量為 deprecated，search() 自動過濾 |
-| 降級影響 | Qdrant 離線 → 檢索能力降級為 TF-IDF（0.3 折扣） |
+| 新增方法 | `mark_deprecated()` — 軟刪除；`hybrid_search()` — Dense+Sparse RRF 融合；`index_sparse()` / `backfill_sparse()` / `build_sparse_idf()` — 稀疏向量管理 |
+| 降級影響 | Qdrant 離線 → 檢索降級為 TF-IDF（0.3 折扣）；Sparse 不可用 → hybrid_search 降級為純 dense |
 
 #### 修改安全邊界
 
 | ✅ 安全 | ❌ 危險 |
 |---------|---------|
-| 新增 collection | 修改 embedding 維度或模型 |
+| 新增 collection（含 sparse） | 修改 embedding 維度或模型 |
 | 新增查詢參數（如 `filter_deprecated`） | 修改 graceful degradation 邏輯 |
-| — | 修改 collection schema |
+| 新增 hybrid_search 參數 | 修改 collection schema |
 
 ---
 
@@ -649,6 +649,9 @@
 ### Doctor 層（2 個）
 `doctor/memory_reset.py`（★ v1.20 新增，扇入=0，CLI 工具；一鍵重置 25 個持久層，涵蓋 ANIMA_MC/USER、PULSE.md、PulseDB、Qdrant、sessions、memory_v3 等全部記憶/知識/行為/評估/日誌層）
 `MUSEON_observatory.html`（★ v1.21 新增，扇入=0，純前端儀表板；讀取 cognitive_trace.jsonl 視覺化認知追蹤）
+
+### Vector 層（1 個）
+`vector/sparse_embedder.py`（★ v1.30 新增，扇入=1，僅 vector_bridge.py import；BM25 稀疏向量產生器，jieba 中文分詞 + IDF 持久化）
 
 ### Gateway 層（3 個）
 `gateway/cron.py`, `gateway/security.py`, `gateway/session.py`
@@ -763,6 +766,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-21 | v1.30 | 混合檢索（Hybrid Retrieval）：vector_bridge.py 新增 `hybrid_search()` + `_sparse_search()` + `_rrf_merge()` + `index_sparse()` + `backfill_sparse()` + `build_sparse_idf()`（全部為新增方法，不修改既有 API）；新增 `vector/sparse_embedder.py` 到綠區（扇入=1，僅 vector_bridge import）；Qdrant 共享狀態：新增 N 個 sparse collections（分離式 Route A，不碰原 dense schema）+ `_system/sparse_idf.json`；vector_bridge 扇入不變（7）；同步 joint-map v1.24、persistence-contract v1.22 |
 | 2026-03-21 | v1.29 | MemGPT 分層結晶召回：knowledge_lattice.py 新增 `recall_tiered()` 方法（Hot/Warm/Cold 三層策略）；brain.py L3208 結晶注入從 `recall_with_chains()` 切換為 `recall_tiered()`（1 行改動，降級路徑保留 auto_recall）；G5 影響範圍不變（`recall_with_chains` 仍為 `recall_tiered` 內部引擎）；同步 joint-map v1.23 |
 | 2026-03-20 | v1.28 | 衰減生命週期補全：新增 G8 衰減組（knowledge_lattice + crystal_actuator + recommender + memory_manager + dendritic_scorer），標記衰減參數修改的跨模組影響；同步 persistence-contract v1.21、system-topology v1.22、joint-map v1.22 |
 | 2026-03-20 | v1.27 | brain.py P3 前置交織融合：新增 _p3_gather_pre_fusion_insights()，Phase 4.5 從「追加多視角區塊」改為「輕量簽名」，_execute_p3_parallel_fusion 降級為向後相容 |

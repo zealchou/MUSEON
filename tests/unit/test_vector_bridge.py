@@ -15,6 +15,7 @@ from museon.vector.embedder import (
     DEFAULT_MODEL,
     Embedder,
 )
+from museon.vector.sparse_embedder import SparseEmbedder
 from museon.vector.vector_bridge import (
     COLLECTIONS,
     QDRANT_URL,
@@ -373,3 +374,217 @@ class TestVectorBridgeWithMockQdrant:
         id1 = vb._doc_id_to_point_id("doc-a")
         id2 = vb._doc_id_to_point_id("doc-b")
         assert id1 != id2
+
+
+# ═══════════════════════════════════════════
+# TestSparseEmbedder
+# ═══════════════════════════════════════════
+
+
+class TestSparseEmbedder:
+    """SparseEmbedder BM25 稀疏向量測試."""
+
+    def test_is_available(self):
+        """jieba 可用."""
+        se = SparseEmbedder()
+        assert se.is_available() is True
+
+    def test_tokenize_chinese(self):
+        """中文分詞 + 停用詞過濾."""
+        se = SparseEmbedder()
+        tokens = se.tokenize("MUSEON 知識晶格系統")
+        assert "museon" in tokens
+        assert "知識" in tokens
+        assert "晶格" in tokens
+        # 停用詞應被過濾
+        assert "的" not in tokens
+        assert "是" not in tokens
+
+    def test_tokenize_empty(self):
+        """空文本回傳空 list."""
+        se = SparseEmbedder()
+        assert se.tokenize("") == []
+
+    def test_tokenize_stopwords_only(self):
+        """純停用詞回傳空 list."""
+        se = SparseEmbedder()
+        result = se.tokenize("的 了 在 是")
+        assert result == []
+
+    def test_build_idf(self):
+        """IDF 建立."""
+        se = SparseEmbedder()
+        corpus = [
+            "知識結晶化是一個過程",
+            "語義搜尋使用向量",
+            "混合檢索結合兩種方法",
+        ]
+        vocab_size = se.build_idf(corpus)
+        assert vocab_size > 0
+        assert se.has_idf()
+        assert se._doc_count == 3
+        assert se._avg_dl > 0
+
+    def test_encode_without_idf(self):
+        """未建 IDF 時回傳空."""
+        se = SparseEmbedder()
+        indices, values = se.encode("test query")
+        assert indices == []
+        assert values == []
+
+    def test_encode_with_idf(self):
+        """建 IDF 後可正常編碼."""
+        se = SparseEmbedder()
+        corpus = [
+            "知識結晶化是一個過程",
+            "語義搜尋使用向量資料庫",
+            "混合檢索結合語義和關鍵字",
+            "稀疏向量使用 BM25 權重",
+        ]
+        se.build_idf(corpus)
+        indices, values = se.encode("語義搜尋")
+        assert len(indices) > 0
+        assert len(indices) == len(values)
+        assert all(v > 0 for v in values)
+
+    def test_encode_empty_text(self):
+        """空文本編碼回傳空."""
+        se = SparseEmbedder()
+        se.build_idf(["一些語料"])
+        indices, values = se.encode("")
+        assert indices == []
+        assert values == []
+
+    def test_idf_persistence(self, tmp_path):
+        """IDF 表可持久化和載入."""
+        # 建立並儲存
+        se1 = SparseEmbedder(workspace=tmp_path)
+        corpus = ["語義搜尋", "知識結晶", "混合檢索"]
+        se1.build_idf(corpus)
+        vocab1 = len(se1._idf)
+
+        # 重新載入
+        se2 = SparseEmbedder(workspace=tmp_path)
+        assert se2.has_idf()
+        assert len(se2._idf) == vocab1
+
+    def test_encode_batch(self):
+        """批次編碼."""
+        se = SparseEmbedder()
+        se.build_idf(["語義搜尋", "知識結晶", "混合檢索"])
+        results = se.encode_batch(["語義", "知識"])
+        assert len(results) == 2
+        for indices, values in results:
+            assert isinstance(indices, list)
+            assert isinstance(values, list)
+
+
+# ═══════════════════════════════════════════
+# TestRRFMerge
+# ═══════════════════════════════════════════
+
+
+class TestRRFMerge:
+    """Reciprocal Rank Fusion 測試."""
+
+    def test_rrf_merge_basic(self):
+        """基本 RRF 合併."""
+        dense = [
+            {"id": "doc-a", "score": 0.9, "text": "A"},
+            {"id": "doc-b", "score": 0.8, "text": "B"},
+            {"id": "doc-c", "score": 0.7, "text": "C"},
+        ]
+        sparse = [
+            {"id": "doc-b", "score": 5.0, "text": "B"},
+            {"id": "doc-d", "score": 4.0, "text": "D"},
+            {"id": "doc-a", "score": 3.0, "text": "A"},
+        ]
+        merged = VectorBridge._rrf_merge(dense, sparse, k=60)
+
+        # doc-a 和 doc-b 出現在兩組，應排前面
+        ids = [r["id"] for r in merged]
+        assert "doc-a" in ids
+        assert "doc-b" in ids
+        assert "doc-d" in ids
+
+        # 每個結果都有 rrf_score
+        for r in merged:
+            assert "rrf_score" in r
+            assert r["rrf_score"] > 0
+
+    def test_rrf_merge_single_source(self):
+        """只有一組結果時等同原排名."""
+        dense = [
+            {"id": "doc-a", "score": 0.9, "text": "A"},
+            {"id": "doc-b", "score": 0.8, "text": "B"},
+        ]
+        merged = VectorBridge._rrf_merge(dense, [], k=60)
+        assert len(merged) == 2
+        assert merged[0]["id"] == "doc-a"
+
+    def test_rrf_merge_both_empty(self):
+        """兩組都空."""
+        merged = VectorBridge._rrf_merge([], [], k=60)
+        assert merged == []
+
+    def test_rrf_merge_overlap_boosted(self):
+        """重疊文件應得更高分."""
+        dense = [
+            {"id": "overlap", "score": 0.9, "text": "X"},
+            {"id": "dense-only", "score": 0.8, "text": "Y"},
+        ]
+        sparse = [
+            {"id": "overlap", "score": 5.0, "text": "X"},
+            {"id": "sparse-only", "score": 4.0, "text": "Z"},
+        ]
+        merged = VectorBridge._rrf_merge(dense, sparse, k=60)
+
+        # overlap 應排第一（因為兩組都有）
+        assert merged[0]["id"] == "overlap"
+        # overlap 的 RRF score 應大於單一來源的
+        overlap_score = merged[0]["rrf_score"]
+        other_scores = [r["rrf_score"] for r in merged if r["id"] != "overlap"]
+        assert all(overlap_score > s for s in other_scores)
+
+
+# ═══════════════════════════════════════════
+# TestHybridSearch
+# ═══════════════════════════════════════════
+
+
+class TestHybridSearch:
+    """hybrid_search 混合檢索測試."""
+
+    def test_hybrid_fallback_to_dense(self, tmp_path):
+        """sparse 不可用時降級為純 dense."""
+        vb = VectorBridge(workspace=tmp_path)
+        mock_dense = [
+            {"id": "doc-1", "score": 0.9, "text": "result"},
+        ]
+        with patch.object(vb, "search", return_value=mock_dense):
+            with patch.object(vb, "_sparse_search", return_value=[]):
+                results = vb.hybrid_search("crystals", "test", limit=5)
+                assert len(results) == 1
+                assert results[0]["id"] == "doc-1"
+
+    def test_hybrid_with_both_sources(self, tmp_path):
+        """dense + sparse 都有結果時 RRF 融合."""
+        vb = VectorBridge(workspace=tmp_path)
+        mock_dense = [
+            {"id": "doc-a", "score": 0.9, "text": "A"},
+            {"id": "doc-b", "score": 0.8, "text": "B"},
+        ]
+        mock_sparse = [
+            {"id": "doc-b", "score": 5.0, "text": "B"},
+            {"id": "doc-c", "score": 4.0, "text": "C"},
+        ]
+        with patch.object(vb, "search", return_value=mock_dense):
+            with patch.object(vb, "_sparse_search", return_value=mock_sparse):
+                results = vb.hybrid_search("crystals", "test", limit=3)
+                assert len(results) == 3
+                # doc-b 出現在兩組，應排更前
+                ids = [r["id"] for r in results]
+                assert "doc-b" in ids
+                # 每個結果有 rrf_score
+                for r in results:
+                    assert "rrf_score" in r

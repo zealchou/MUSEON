@@ -1,4 +1,4 @@
-# MUSEON Persistence Contract v1.21 — 水電圖
+# MUSEON Persistence Contract v1.22 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
@@ -45,6 +45,18 @@
 | `documents` | 1024 | `vector_bridge.py` | `mcp_connector.py` | `vector_bridge.query_points()` |
 | `references` | 1024 | `vector_bridge.py` | `zotero_bridge.py` | `zotero_bridge.py` |
 | `primals` | 1024 | `vector_bridge.py` | `primal_detector.py` | `primal_detector.py` |
+
+**Sparse Collections（BM25 稀疏向量，Route A 分離式）**：
+
+| Collection | 型態 | 負責模組 | 寫入者 | 搜尋者 |
+|-----------|------|---------|--------|--------|
+| `{name}_sparse` | sparse-only (BM25) | `vector_bridge.py` | `VectorBridge.index_sparse()` / `backfill_sparse()` | `VectorBridge._sparse_search()` via `hybrid_search()` |
+
+- 命名規則：原 collection 名稱加 `_sparse` 後綴（例：`crystals_sparse`）
+- 稀疏向量名稱：`bm25`（`SparseVectorParams` 預設）
+- IDF 表儲存：`data/_system/sparse_idf.json`（`SparseEmbedder` 持久化）
+- 零遷移設計：不修改原 dense collection 的 schema
+- Graceful degradation：IDF 未建立或 sparse collection 不存在時，`hybrid_search()` 降級為純 dense
 
 **共用規範**：
 - 統一透過 `VectorBridge` 操作，不直接 import qdrant_client
@@ -575,6 +587,7 @@ recommender ──近因性衰減──→ 推薦排序 (in-memory)
 | v1.0 | 2026-03-15 | 初版：完整水電圖，涵蓋 23 個正常配對、3 個 Dead Write、14 個死目錄 |
 | v1.1 | 2026-03-15 | Phase 2 完成：4 個 JSON 遷移至 PulseDB（ceremony_state + eval 三件套） |
 | v1.2 | 2026-03-15 | Phase 3 完成：DataContract + DataBus 建立，10 個 Store 類統一接入 |
+| v1.22 | 2026-03-20 | 混合檢索（Hybrid Retrieval）：Qdrant Engine 2 新增 Sparse Collections 分區（`{name}_sparse`，BM25 稀疏向量，Route A 分離式零遷移設計）；新增 `data/_system/sparse_idf.json`（SparseEmbedder IDF 表持久化）；VectorBridge 新增 `hybrid_search()` / `index_sparse()` / `backfill_sparse()` / `build_sparse_idf()`；hybrid_search 降級策略：IDF 未建 → 純 dense |
 | v1.21 | 2026-03-20 | 衰減生命週期補全：新增「衰減與優先級模型」章節——四大衰減引擎（結晶 RI λ=0.03、記憶 TTL 離散分級、健康分數半衰期 2h、推薦近因性 7d）的公式/閾值/觸發時機/引擎間關係圖/參數速查表；同步 system-topology v1.22（新增 decay 連線類型）、blast-radius v1.28（新增 G8 衰減組）、joint-map v1.22（crystals.json 補衰減策略） |
 | v1.20 | 2026-03-20 | P3 前置交織融合：無新增持久層（_p3_pre_fusion_ctx 為 in-memory 注入，不落地） | joint-map v1.21 |
 | v1.19 | 2026-03-20 | P0-P3 思維引擎升級（純 Skill .md 認知行為變更）：無新增持久層寫入/消費配對，無新增儲存引擎條目。版本同步 system-topology v1.19、blast-radius v1.25、joint-map v1.20 |
