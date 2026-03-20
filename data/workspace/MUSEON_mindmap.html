@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MUSEON 系統心智圖 — 子系統關聯網路</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ember:#C4502A;--ember-light:#E0714D;--ember-dark:#9A3A1C;
+  --teal:#2A7A6E;--teal-dark:#1E5C54;
+  --gold:#B8923A;--gold-dark:#8A6C2A;
+  --ink:#12121A;--slate:#5A5A6E;--mist:#9898A8;
+  --border:#E2E0DA;--parchment:#F7F5F0;--snow:#FDFCFA;
+  --info:#2A6A8A;--success:#2D8A6E;
+}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--parchment);font-family:'Outfit','Noto Sans TC',sans-serif}
+
+/* ═══ Top Bar ═══ */
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 20px;background:rgba(247,245,240,.92);
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--border);
+}
+.topbar h1{
+  font-family:'Cormorant Garamond',serif;font-size:1.2rem;
+  font-weight:700;color:var(--ember);
+}
+.topbar .hint{font-size:.68rem;color:var(--mist)}
+
+/* ═══ Legend Panel ═══ */
+.legend-panel{
+  position:fixed;top:54px;left:12px;z-index:90;
+  background:var(--snow);border:1px solid var(--border);
+  border-radius:10px;padding:14px 16px;width:210px;
+  box-shadow:0 4px 16px rgba(18,18,26,.08);
+  font-size:.68rem;
+}
+.legend-panel h3{
+  font-family:'IBM Plex Mono',monospace;font-size:.6rem;
+  font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ember-dark);margin-bottom:10px;
+}
+.legend-item{display:flex;align-items:center;gap:8px;margin-bottom:6px;color:var(--slate);cursor:pointer;transition:opacity .15s}
+.legend-item:hover{opacity:.7}
+.legend-item.dimmed{opacity:.3}
+.legend-swatch{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.legend-divider{height:1px;background:var(--border);margin:10px 0}
+.link-legend{display:flex;align-items:center;gap:8px;margin-bottom:5px;color:var(--mist);font-size:.62rem}
+.link-line{width:20px;height:0;flex-shrink:0}
+
+/* ═══ Info Panel ═══ */
+.info-panel{
+  position:fixed;top:54px;right:12px;z-index:90;
+  background:var(--snow);border:1px solid var(--border);
+  border-radius:10px;padding:16px 18px;width:280px;
+  box-shadow:0 4px 16px rgba(18,18,26,.08);
+  transition:opacity .2s,transform .2s;
+  opacity:0;transform:translateY(8px);pointer-events:none;
+}
+.info-panel.visible{opacity:1;transform:translateY(0);pointer-events:auto}
+.info-panel .node-name{
+  font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:2px;
+}
+.info-panel .node-zh{font-size:.78rem;color:var(--mist);margin-bottom:8px}
+.info-panel .node-group{
+  font-family:'IBM Plex Mono',monospace;font-size:.58rem;font-weight:600;
+  letter-spacing:.06em;text-transform:uppercase;
+  padding:2px 8px;border-radius:100px;display:inline-block;margin-bottom:10px;
+}
+.info-panel h4{font-size:.68rem;font-weight:600;color:var(--slate);margin:8px 0 4px}
+.conn-list{list-style:none;max-height:300px;overflow-y:auto}
+.conn-list li{
+  font-size:.66rem;color:var(--slate);padding:3px 0;
+  border-bottom:1px solid rgba(226,224,218,.5);
+  display:flex;align-items:center;gap:6px;
+}
+.conn-list li:last-child{border:none}
+.conn-arrow{font-size:.7rem;flex-shrink:0}
+.conn-label{
+  font-family:'IBM Plex Mono',monospace;font-size:.55rem;
+  color:var(--mist);margin-left:auto;
+}
+
+/* ═══ Controls ═══ */
+.controls{
+  position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:90;
+  display:flex;gap:8px;
+}
+.ctrl-btn{
+  font-family:'IBM Plex Mono',monospace;font-size:.62rem;font-weight:600;
+  letter-spacing:.04em;padding:6px 14px;border-radius:100px;
+  border:1.5px solid var(--border);background:var(--snow);
+  color:var(--slate);cursor:pointer;transition:all .15s;
+}
+.ctrl-btn:hover{border-color:var(--ember);color:var(--ember)}
+.ctrl-btn.active{background:var(--ember);color:#fff;border-color:var(--ember)}
+
+/* ═══ SVG ═══ */
+svg{display:block}
+.link{fill:none;stroke-width:1.2;transition:opacity .3s,stroke-width .3s}
+.link-label{
+  font-family:'IBM Plex Mono',monospace;font-size:8px;
+  fill:var(--mist);pointer-events:none;opacity:0;transition:opacity .3s;
+}
+.node-circle{stroke-width:2;cursor:grab;transition:r .2s,opacity .3s}
+.node-circle:active{cursor:grabbing}
+.node-label{
+  font-family:'Outfit','Noto Sans TC',sans-serif;
+  font-size:9px;fill:var(--ink);pointer-events:none;
+  text-anchor:middle;transition:opacity .3s;font-weight:500;
+}
+.node-label-zh{
+  font-size:7.5px;fill:var(--mist);pointer-events:none;
+  text-anchor:middle;transition:opacity .3s;
+}
+
+/* highlight states */
+.faded .link{opacity:.03!important;stroke-width:1!important}
+.faded .node-circle{opacity:.12!important}
+.faded .node-label,.faded .node-label-zh{opacity:.1!important}
+.faded .highlighted-link{opacity:.85!important;stroke-width:2.5!important}
+.faded .highlighted-node{opacity:1!important}
+.faded .highlighted-label{opacity:1!important}
+.faded .link-label.highlighted-label{opacity:1!important}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>MUSEON 系統心智圖</h1>
+  <div class="hint">拖曳節點 · 滾輪縮放 · 點擊查看連結 · 空白處重置</div>
+</div>
+
+<div class="legend-panel" id="legend">
+  <h3>系統群組</h3>
+  <div class="legend-item" data-group="channel" onclick="toggleGroup(this)"><div class="legend-swatch" style="background:var(--ember)"></div>通道入口</div>
+  <div class="legend-item" data-group="agent" onclick="toggleGroup(this)"><div class="legend-swatch" style="background:var(--teal)"></div>Agent / Brain</div>
+  <div class="legend-item" data-group="pulse" onclick="toggleGroup(this)"><div class="legend-swatch" style="background:var(--gold)"></div>Pulse 生命力</div>
+  <div class="legend-item" data-group="gov" onclick="toggleGroup(this)"><div class="legend-swatch" style="background:var(--info)"></div>Governance 治理</div>
+  <div class="legend-item" data-group="doctor" onclick="toggleGroup(this)"><div class="legend-swatch" style="background:var(--success)"></div>Doctor 診斷</div>
+  <div class="legend-item" data-group="llm" onclick="toggleGroup(this)"><div class="legend-swatch" style="background:var(--slate)"></div>LLM 路由</div>
+  <div class="legend-item" data-group="data" onclick="toggleGroup(this)"><div class="legend-swatch" style="background:var(--border)"></div>資料持久層</div>
+  <div class="legend-item" data-group="nightly" onclick="toggleGroup(this)"><div class="legend-swatch" style="background:var(--ink)"></div>Nightly 夜間</div>
+  <div class="legend-item" data-group="external" onclick="toggleGroup(this)"><div class="legend-swatch" style="background:var(--mist)"></div>外部服務</div>
+  <div class="legend-divider"></div>
+  <div class="link-legend"><div class="link-line" style="border-top:2px solid var(--slate)"></div>同步 / 內部</div>
+  <div class="link-legend"><div class="link-line" style="border-top:2px solid var(--ember)"></div>跨系統連結</div>
+  <div class="link-legend"><div class="link-line" style="border-top:2px dashed var(--gold)"></div>非同步 / 回饋</div>
+  <div class="link-legend"><div class="link-line" style="border-top:2px dotted var(--info)"></div>監控</div>
+</div>
+
+<div class="info-panel" id="info">
+  <div class="node-name" id="info-name"></div>
+  <div class="node-zh" id="info-zh"></div>
+  <div class="node-group" id="info-group"></div>
+  <h4 id="info-out-title">輸出連結</h4>
+  <ul class="conn-list" id="info-out"></ul>
+  <h4 id="info-in-title">輸入連結</h4>
+  <ul class="conn-list" id="info-in"></ul>
+</div>
+
+<div class="controls">
+  <button class="ctrl-btn" onclick="zoomFit()">全覽</button>
+  <button class="ctrl-btn" onclick="resetHighlight()">重置</button>
+</div>
+
+<svg id="graph"></svg>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+// ═══════════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════════
+const groupColors = {
+  center:'#C4502A', channel:'#C4502A', agent:'#2A7A6E', pulse:'#B8923A',
+  gov:'#2A6A8A', doctor:'#2D8A6E', llm:'#5A5A6E', data:'#9898A8',
+  nightly:'#12121A', external:'#9898A8'
+};
+const groupNames = {
+  center:'核心', channel:'通道入口', agent:'Agent/Brain', pulse:'Pulse 生命力',
+  gov:'Governance 治理', doctor:'Doctor 診斷', llm:'LLM 路由',
+  data:'資料持久層', nightly:'Nightly 夜間', external:'外部服務'
+};
+
+// Group angle positions (radians, 0=right, CCW)
+const GA = {
+  center:0, channel: -Math.PI/2,
+  agent: -Math.PI/5, pulse: Math.PI/5,
+  gov: Math.PI - Math.PI/5, doctor: -(Math.PI - Math.PI/5),
+  llm: Math.PI/2.5, data: Math.PI/1.5,
+  nightly: Math.PI*0.85, external: Math.PI/2
+};
+
+const rawNodes = [
+  {id:"event-bus",label:"Event Bus",zh:"核心事件匯流排",group:"center",r:26},
+  // Channels
+  {id:"user",label:"User (Zeal)",zh:"使用者",group:"channel",r:18},
+  {id:"telegram",label:"Telegram",zh:"主通道",group:"channel",r:14},
+  {id:"gateway",label:"Gateway",zh:"WebSocket :8765",group:"channel",r:14},
+  {id:"cron",label:"Cron",zh:"排程入口",group:"channel",r:10},
+  // Agent
+  {id:"brain",label:"Agent / Brain",zh:"主判斷中樞",group:"agent",r:20,hub:1},
+  {id:"dna27",label:"DNA27",zh:"27反射叢集",group:"agent",p:"brain",r:10},
+  {id:"skill-router",label:"Skill Router",zh:"技能路由",group:"agent",p:"brain",r:11},
+  {id:"reflex-router",label:"Reflex Router",zh:"反射路由·迴圈選擇",group:"agent",p:"brain",r:10},
+  {id:"dispatch",label:"Dispatch",zh:"多技能編排",group:"agent",p:"brain",r:10},
+  {id:"knowledge-lattice",label:"Knowledge Lattice",zh:"知識晶格·DAG",group:"agent",p:"brain",r:11},
+  {id:"plan-engine",label:"Plan Engine",zh:"六階段計畫",group:"agent",p:"brain",r:10},
+  {id:"metacognition",label:"Metacognition",zh:"元認知審查",group:"agent",p:"brain",r:10},
+  {id:"intuition",label:"Intuition",zh:"五層直覺感知",group:"agent",p:"brain",r:9},
+  {id:"eval-engine",label:"Eval Engine",zh:"Q-Score 四維評分",group:"agent",p:"brain",r:10},
+  {id:"soul-ring",label:"Soul Ring",zh:"靈魂年輪·Hash Chain",group:"agent",p:"brain",r:9},
+  {id:"thinking-engine",label:"Thinking Engine P0-P3",zh:"思維引擎升級·深度思考",group:"agent",p:"brain",r:12},
+  {id:"p0-visibility",label:"P0 Path Visibility",zh:"思考路徑可見化",group:"agent",p:"thinking-engine",r:8},
+  {id:"p1-blindspot",label:"P1 Blind Spot",zh:"主動盲點提醒",group:"agent",p:"thinking-engine",r:8},
+  {id:"p2-decision",label:"P2 Major Decision",zh:"重大決策先問後答",group:"agent",p:"thinking-engine",r:8},
+  {id:"p3-fusion",label:"P3 Parallel Fusion",zh:"並行融合模式",group:"agent",p:"thinking-engine",r:8},
+  // Pulse
+  {id:"pulse",label:"Pulse Engine",zh:"VITA 生命力引擎",group:"pulse",r:20,hub:1},
+  {id:"heartbeat",label:"Heartbeat",zh:"三脈主控",group:"pulse",p:"pulse",r:10},
+  {id:"explorer",label:"Explorer",zh:"自主探索",group:"pulse",p:"pulse",r:11},
+  {id:"silent-digestion",label:"Silent Digestion",zh:"靜默消化",group:"pulse",p:"pulse",r:10},
+  {id:"proactive-bridge",label:"Proactive Bridge",zh:"主動推播",group:"pulse",p:"pulse",r:11},
+  {id:"micro-pulse",label:"Micro Pulse",zh:"秒級微脈",group:"pulse",p:"pulse",r:8},
+  {id:"pulse-db",label:"Pulse DB",zh:"脈搏資料庫",group:"pulse",p:"pulse",r:8},
+  {id:"commitment-tracker",label:"Commitment",zh:"承諾追蹤",group:"pulse",p:"pulse",r:9},
+  {id:"task-scheduler",label:"Scheduler",zh:"APScheduler",group:"pulse",p:"pulse",r:8},
+  // Governance
+  {id:"governance",label:"Governance",zh:"三焦式分層治理",group:"gov",r:20,hub:1},
+  {id:"governor",label:"Governor",zh:"上焦·中焦·下焦",group:"gov",p:"governance",r:10},
+  {id:"immunity",label:"Immunity",zh:"先天+後天免疫",group:"gov",p:"governance",r:11},
+  {id:"preflight",label:"Preflight",zh:"啟動前驗證門",group:"gov",p:"governance",r:9},
+  {id:"refractory",label:"Refractory",zh:"跨重啟斷路器",group:"gov",p:"governance",r:9},
+  {id:"guardrails",label:"Guardrails",zh:"四層安全護欄",group:"gov",p:"governance",r:10},
+  {id:"skill-scanner",label:"Skill Scanner",zh:"技能安全掃描",group:"gov",p:"governance",r:8},
+  {id:"sandbox",label:"Sandbox",zh:"沙盒隔離執行",group:"gov",p:"governance",r:8},
+  {id:"telegram-guard",label:"TG Guard",zh:"Polling 守衛",group:"gov",p:"governance",r:8},
+  {id:"service-health",label:"Service Health",zh:"服務健康監控",group:"gov",p:"governance",r:10},
+  // Doctor
+  {id:"doctor",label:"Doctor",zh:"自我診斷修復",group:"doctor",r:20,hub:1},
+  {id:"system-audit",label:"System Audit",zh:"7層46項體檢",group:"doctor",p:"doctor",r:11},
+  {id:"health-check",label:"Health Check",zh:"12項基礎檢查",group:"doctor",p:"doctor",r:9},
+  {id:"self-diagnosis",label:"Self Diagnosis",zh:"自我診斷管線",group:"doctor",p:"doctor",r:9},
+  {id:"auto-repair",label:"Auto Repair",zh:"自動修復",group:"doctor",p:"doctor",r:10},
+  {id:"surgery",label:"Surgery",zh:"精準手術",group:"doctor",p:"doctor",r:8},
+  {id:"log-analyzer",label:"Log Analyzer",zh:"日誌分析",group:"doctor",p:"doctor",r:8},
+  {id:"code-analyzer",label:"Code Analyzer",zh:"代碼品質",group:"doctor",p:"doctor",r:8},
+  // LLM
+  {id:"llm-router",label:"LLM Router",zh:"智能模型選擇",group:"llm",r:16,hub:1},
+  {id:"budget-mgr",label:"Budget Mgr",zh:"Token 預算",group:"llm",p:"llm-router",r:10},
+  {id:"rate-limit",label:"Rate Limit",zh:"速限守衛",group:"llm",p:"llm-router",r:8},
+  {id:"llm-cache",label:"Cache",zh:"LRU 快取",group:"llm",p:"llm-router",r:8},
+  // Data
+  {id:"memory",label:"Memory",zh:"六層記憶系統",group:"data",r:14},
+  {id:"vector-index",label:"Vector Index",zh:"Qdrant 語義向量",group:"data",r:13},
+  {id:"wee",label:"WEE",zh:"演化引擎·5D評分",group:"data",r:12},
+  {id:"skills-registry",label:"Skills Registry",zh:"45 native + forged",group:"data",r:12},
+  {id:"registry",label:"Registry",zh:"SQLite 結構化",group:"data",r:10},
+  {id:"skill-synapse",label:"Skill Synapse",zh:"突觸網路·Hebb",group:"data",r:9},
+  // Nightly
+  {id:"nightly",label:"Nightly Pipeline",zh:"18步夜間整合",group:"nightly",r:16,hub:1},
+  {id:"morphenix",label:"Morphenix",zh:"自我演化提案",group:"nightly",p:"nightly",r:10},
+  // External
+  {id:"searxng",label:"SearXNG",zh:"搜尋 :8888",group:"external",r:10},
+  {id:"qdrant",label:"Qdrant",zh:"向量DB :6333",group:"external",r:10},
+  {id:"firecrawl",label:"Firecrawl",zh:"爬取 :3002",group:"external",r:8},
+  {id:"anthropic-api",label:"Anthropic API",zh:"Claude API",group:"external",r:11},
+];
+
+const rawLinks = [
+  // ── User Flow ──
+  {s:"user",t:"telegram",label:"訊息指令",type:"flow"},
+  {s:"telegram",t:"gateway",label:"轉發",type:"flow"},
+  {s:"gateway",t:"event-bus",label:"路由",type:"flow"},
+  {s:"cron",t:"event-bus",label:"定時觸發",type:"flow"},
+  // ── Event Bus → Main Systems ──
+  {s:"event-bus",t:"brain",label:"事件分派",type:"control"},
+  {s:"event-bus",t:"pulse",label:"脈搏事件",type:"control"},
+  {s:"event-bus",t:"governance",label:"治理事件",type:"control"},
+  {s:"event-bus",t:"doctor",label:"診斷事件",type:"control"},
+  // ── Agent Internal ──
+  {s:"brain",t:"dna27",label:"載入反射",type:"internal"},
+  {s:"brain",t:"skill-router",label:"技能路由",type:"internal"},
+  {s:"brain",t:"reflex-router",label:"迴圈判定",type:"internal"},
+  {s:"brain",t:"dispatch",label:"多技能分派",type:"internal"},
+  {s:"brain",t:"knowledge-lattice",label:"結晶注入",type:"internal"},
+  {s:"brain",t:"plan-engine",label:"計畫啟動",type:"internal"},
+  {s:"brain",t:"metacognition",label:"元認知審查",type:"internal"},
+  {s:"brain",t:"intuition",label:"直覺感知",type:"internal"},
+  {s:"brain",t:"eval-engine",label:"品質評分",type:"internal"},
+  {s:"brain",t:"soul-ring",label:"年輪記錄",type:"internal"},
+  {s:"brain",t:"thinking-engine",label:"深度思考引擎",type:"internal"},
+  {s:"thinking-engine",t:"p0-visibility",label:"可見化",type:"internal"},
+  {s:"thinking-engine",t:"p1-blindspot",label:"主動提醒",type:"internal"},
+  {s:"thinking-engine",t:"p2-decision",label:"決策詢問",type:"internal"},
+  {s:"thinking-engine",t:"p3-fusion",label:"融合輸出",type:"internal"},
+  // ── Agent Cross ──
+  {s:"thinking-engine",t:"skill-router",label:"思維驅動技能選擇",type:"cross"},
+  {s:"thinking-engine",t:"dispatch",label:"並行編排",type:"cross"},
+  {s:"skill-router",t:"vector-index",label:"語義匹配",type:"cross"},
+  {s:"skill-router",t:"skills-registry",label:"技能查找",type:"cross"},
+  {s:"skill-router",t:"llm-router",label:"API 呼叫",type:"cross"},
+  {s:"dispatch",t:"llm-router",label:"API 呼叫",type:"cross"},
+  {s:"knowledge-lattice",t:"vector-index",label:"結晶存取",type:"cross"},
+  {s:"metacognition",t:"llm-router",label:"Haiku 審查",type:"cross"},
+  {s:"eval-engine",t:"memory",label:"品質數據",type:"cross"},
+  {s:"soul-ring",t:"memory",label:"年輪寫入",type:"cross"},
+  {s:"brain",t:"llm-router",label:"生成回應",type:"cross"},
+  {s:"brain",t:"memory",label:"四通道持久化",type:"cross"},
+  {s:"guardrails",t:"brain",label:"行為約束",type:"cross"},
+  {s:"commitment-tracker",t:"brain",label:"承諾自檢",type:"cross"},
+  // ── Pulse Internal ──
+  {s:"pulse",t:"heartbeat",label:"三脈控制",type:"internal"},
+  {s:"pulse",t:"explorer",label:"探索觸發",type:"internal"},
+  {s:"pulse",t:"silent-digestion",label:"靜默消化",type:"internal"},
+  {s:"pulse",t:"proactive-bridge",label:"推播控制",type:"internal"},
+  {s:"pulse",t:"micro-pulse",label:"微脈",type:"internal"},
+  {s:"pulse",t:"pulse-db",label:"持久化",type:"internal"},
+  {s:"pulse",t:"commitment-tracker",label:"承諾追蹤",type:"internal"},
+  {s:"pulse",t:"task-scheduler",label:"排程",type:"internal"},
+  // ── Pulse Cross ──
+  {s:"explorer",t:"searxng",label:"網路搜尋",type:"cross"},
+  {s:"explorer",t:"llm-router",label:"深度分析",type:"cross"},
+  {s:"explorer",t:"firecrawl",label:"頁面爬取",type:"cross"},
+  {s:"proactive-bridge",t:"telegram",label:"非同步推播",type:"async"},
+  {s:"silent-digestion",t:"memory",label:"反思寫入",type:"cross"},
+  // ── Governance Internal ──
+  {s:"governance",t:"governor",label:"三焦主控",type:"internal"},
+  {s:"governance",t:"immunity",label:"免疫系統",type:"internal"},
+  {s:"governance",t:"preflight",label:"啟動門",type:"internal"},
+  {s:"governance",t:"refractory",label:"斷路器",type:"internal"},
+  {s:"governance",t:"guardrails",label:"安全護欄",type:"internal"},
+  {s:"governance",t:"skill-scanner",label:"技能掃描",type:"internal"},
+  {s:"governance",t:"sandbox",label:"沙盒隔離",type:"internal"},
+  {s:"governance",t:"telegram-guard",label:"Polling 守衛",type:"internal"},
+  {s:"governance",t:"service-health",label:"服務監控",type:"internal"},
+  // ── Governance Cross ──
+  {s:"service-health",t:"gateway",label:"監控",type:"monitor"},
+  {s:"service-health",t:"qdrant",label:"監控",type:"monitor"},
+  {s:"service-health",t:"searxng",label:"監控",type:"monitor"},
+  {s:"service-health",t:"firecrawl",label:"監控",type:"monitor"},
+  {s:"skill-scanner",t:"skills-registry",label:"安全掃描",type:"cross"},
+  // ── Doctor Internal ──
+  {s:"doctor",t:"system-audit",label:"系統審計",type:"internal"},
+  {s:"doctor",t:"health-check",label:"健康檢查",type:"internal"},
+  {s:"doctor",t:"self-diagnosis",label:"自我診斷",type:"internal"},
+  {s:"doctor",t:"auto-repair",label:"自動修復",type:"internal"},
+  {s:"doctor",t:"surgery",label:"精準手術",type:"internal"},
+  {s:"doctor",t:"log-analyzer",label:"日誌分析",type:"internal"},
+  {s:"doctor",t:"code-analyzer",label:"代碼分析",type:"internal"},
+  // ── Doctor Cross ──
+  {s:"auto-repair",t:"gateway",label:"重啟修復",type:"cross"},
+  {s:"system-audit",t:"service-health",label:"交叉驗證",type:"cross"},
+  // ── LLM ──
+  {s:"llm-router",t:"budget-mgr",label:"預算追蹤",type:"internal"},
+  {s:"llm-router",t:"rate-limit",label:"速限控制",type:"internal"},
+  {s:"llm-router",t:"llm-cache",label:"快取查詢",type:"internal"},
+  {s:"llm-router",t:"anthropic-api",label:"API 呼叫",type:"cross"},
+  // ── Data ──
+  {s:"memory",t:"vector-index",label:"嵌入索引",type:"cross"},
+  {s:"vector-index",t:"qdrant",label:"向量存儲",type:"cross"},
+  {s:"wee",t:"skill-synapse",label:"突觸演化",type:"internal"},
+  {s:"wee",t:"skills-registry",label:"演化追蹤",type:"cross"},
+  // ── Nightly ──
+  {s:"nightly",t:"morphenix",label:"演化提案",type:"internal"},
+  {s:"nightly",t:"memory",label:"記憶壓縮",type:"cross"},
+  {s:"nightly",t:"skills-registry",label:"品質檢查",type:"cross"},
+  {s:"nightly",t:"wee",label:"演化速度",type:"cross"},
+  {s:"nightly",t:"knowledge-lattice",label:"結晶固化",type:"cross"},
+  {s:"nightly",t:"budget-mgr",label:"預算結算",type:"cross"},
+  {s:"nightly",t:"immunity",label:"抗體修剪",type:"cross"},
+  {s:"nightly",t:"skill-synapse",label:"Synapse Decay",type:"cross"},
+  {s:"nightly",t:"event-bus",label:"回饋迴路",type:"async"},
+  {s:"morphenix",t:"event-bus",label:"提案回饋",type:"async"},
+  {s:"cron",t:"nightly",label:"03:00 觸發",type:"control"},
+  // ── Response ──
+  {s:"telegram",t:"user",label:"回傳回應",type:"async"},
+];
+
+// ═══════════════════════════════════════════════
+//  SETUP
+// ═══════════════════════════════════════════════
+const W = window.innerWidth, H = window.innerHeight;
+const CX = W/2, CY = H/2;
+
+// Compute initial positions
+const nodes = rawNodes.map((d,i) => {
+  const angle = GA[d.group] || 0;
+  let dist = 0;
+  if(d.id === 'event-bus') dist = 0;
+  else if(d.hub || !d.p) dist = d.group === 'center' ? 0 : 260;
+  else dist = 400;
+  // Add some spread within group
+  const spread = d.p ? (i % 7 - 3) * 0.25 : (i % 5 - 2) * 0.15;
+  return {
+    ...d,
+    x: CX + Math.cos(angle + spread) * dist + (Math.random()-.5)*30,
+    y: CY + Math.sin(angle + spread) * dist + (Math.random()-.5)*30,
+  };
+});
+
+const nodeMap = Object.fromEntries(nodes.map(n => [n.id, n]));
+const links = rawLinks.map(l => ({source: l.s, target: l.t, label: l.label, type: l.type}));
+
+// ═══════════════════════════════════════════════
+//  SVG + ZOOM
+// ═══════════════════════════════════════════════
+const svg = d3.select("#graph").attr("width", W).attr("height", H);
+const g = svg.append("g");
+
+const zoom = d3.zoom().scaleExtent([0.2, 4]).on("zoom", e => g.attr("transform", e.transform));
+svg.call(zoom);
+
+// Arrow markers
+const defs = svg.append("defs");
+Object.entries(groupColors).forEach(([k,c]) => {
+  defs.append("marker").attr("id",`arrow-${k}`)
+    .attr("viewBox","0 0 8 6").attr("refX",8).attr("refY",3)
+    .attr("markerWidth",6).attr("markerHeight",5).attr("orient","auto")
+    .append("path").attr("d","M0,0 L8,3 L0,6 Z").attr("fill",c).attr("opacity",.6);
+});
+// generic arrows for link types
+["cross","async","monitor","flow","control","internal"].forEach(t => {
+  const c = t==='cross'?'#C4502A':t==='async'?'#B8923A':t==='monitor'?'#2A6A8A':'#9898A8';
+  defs.append("marker").attr("id",`arrow-${t}`)
+    .attr("viewBox","0 0 8 6").attr("refX",8).attr("refY",3)
+    .attr("markerWidth",6).attr("markerHeight",5).attr("orient","auto")
+    .append("path").attr("d","M0,0 L8,3 L0,6 Z").attr("fill",c).attr("opacity",.7);
+});
+
+// ═══════════════════════════════════════════════
+//  LINKS
+// ═══════════════════════════════════════════════
+function linkColor(type) {
+  switch(type){
+    case 'cross': return '#C4502A';
+    case 'async': return '#B8923A';
+    case 'monitor': return '#2A6A8A';
+    case 'control': return '#5A5A6E';
+    case 'flow': return '#C4502A';
+    default: return '#C4C2BC';
+  }
+}
+function linkDash(type) {
+  switch(type){
+    case 'async': return '6,3';
+    case 'monitor': return '2,3';
+    default: return 'none';
+  }
+}
+
+const linkG = g.append("g").attr("class","links");
+const linkEls = linkG.selectAll("line").data(links).enter().append("line")
+  .attr("class","link")
+  .attr("stroke", d => linkColor(d.type))
+  .attr("stroke-dasharray", d => linkDash(d.type))
+  .attr("opacity", d => d.type==='internal' ? 0.18 : 0.25)
+  .attr("marker-end", d => `url(#arrow-${d.type})`);
+
+// Link labels (shown on highlight)
+const linkLabelEls = linkG.selectAll("text").data(links).enter().append("text")
+  .attr("class","link-label")
+  .text(d => d.label);
+
+// ═══════════════════════════════════════════════
+//  NODES
+// ═══════════════════════════════════════════════
+const nodeG = g.append("g").attr("class","nodes");
+
+const nodeGroups = nodeG.selectAll("g").data(nodes).enter().append("g").attr("class","node-g");
+
+// Glow for hubs
+nodeGroups.filter(d => d.hub || d.id==='event-bus').append("circle")
+  .attr("r", d => d.r + 6)
+  .attr("fill", d => groupColors[d.group])
+  .attr("opacity", 0.12);
+
+// Main circle
+nodeGroups.append("circle")
+  .attr("class","node-circle")
+  .attr("r", d => d.r)
+  .attr("fill", d => groupColors[d.group])
+  .attr("stroke", d => d3.color(groupColors[d.group]).darker(.4))
+  .attr("opacity", d => d.p ? 0.85 : 1);
+
+// Labels
+nodeGroups.append("text")
+  .attr("class","node-label")
+  .attr("dy", d => d.r + 12)
+  .text(d => d.label)
+  .style("font-size", d => (d.hub || d.id==='event-bus') ? '11px' : d.p ? '8px' : '10px')
+  .style("font-weight", d => (d.hub || d.id==='event-bus') ? '600' : '500');
+
+nodeGroups.append("text")
+  .attr("class","node-label-zh")
+  .attr("dy", d => d.r + 22)
+  .text(d => d.zh)
+  .style("font-size", d => d.p ? '7px' : '8px');
+
+// ═══════════════════════════════════════════════
+//  FORCE SIMULATION
+// ═══════════════════════════════════════════════
+const simulation = d3.forceSimulation(nodes)
+  .force("link", d3.forceLink(links).id(d => d.id)
+    .distance(d => {
+      if(d.type === 'internal') return 70;
+      if(d.type === 'control') return 140;
+      return 180;
+    }).strength(d => d.type === 'internal' ? 0.8 : 0.15))
+  .force("charge", d3.forceManyBody().strength(d => d.hub ? -600 : d.p ? -150 : -300))
+  .force("center", d3.forceCenter(CX, CY).strength(0.03))
+  .force("collide", d3.forceCollide(d => d.r + 18).strength(0.7))
+  .force("radial", d3.forceRadial(d => {
+    if(d.id === 'event-bus') return 0;
+    if(d.hub || (!d.p && d.group !== 'center')) return 250;
+    return 380;
+  }, CX, CY).strength(d => d.id==='event-bus' ? 1 : 0.12))
+  .alphaDecay(0.015)
+  .on("tick", ticked);
+
+function ticked() {
+  linkEls
+    .attr("x1", d => d.source.x).attr("y1", d => d.source.y)
+    .attr("x2", d => {
+      // Shorten line to not overlap target circle
+      const dx = d.target.x - d.source.x, dy = d.target.y - d.source.y;
+      const dist = Math.sqrt(dx*dx+dy*dy) || 1;
+      return d.target.x - dx/dist * (d.target.r || 10);
+    })
+    .attr("y2", d => {
+      const dx = d.target.x - d.source.x, dy = d.target.y - d.source.y;
+      const dist = Math.sqrt(dx*dx+dy*dy) || 1;
+      return d.target.y - dy/dist * (d.target.r || 10);
+    });
+
+  linkLabelEls
+    .attr("x", d => (d.source.x + d.target.x) / 2)
+    .attr("y", d => (d.source.y + d.target.y) / 2 - 3);
+
+  nodeGroups.attr("transform", d => `translate(${d.x},${d.y})`);
+}
+
+// Drag
+const drag = d3.drag()
+  .on("start", (e,d) => { if(!e.active) simulation.alphaTarget(0.1).restart(); d.fx=d.x; d.fy=d.y; })
+  .on("drag", (e,d) => { d.fx=e.x; d.fy=e.y; })
+  .on("end", (e,d) => { if(!e.active) simulation.alphaTarget(0); d.fx=null; d.fy=null; });
+nodeGroups.call(drag);
+
+// ═══════════════════════════════════════════════
+//  INTERACTIONS
+// ═══════════════════════════════════════════════
+let locked = null;
+
+function getConnected(nodeId) {
+  const connNodes = new Set([nodeId]);
+  const connLinks = new Set();
+  const outLinks = [], inLinks = [];
+
+  links.forEach((l,i) => {
+    const sid = typeof l.source === 'object' ? l.source.id : l.source;
+    const tid = typeof l.target === 'object' ? l.target.id : l.target;
+    if(sid === nodeId) { connNodes.add(tid); connLinks.add(i); outLinks.push(l); }
+    if(tid === nodeId) { connNodes.add(sid); connLinks.add(i); inLinks.push(l); }
+  });
+
+  // If hub, also include children's connections
+  const nd = nodeMap[nodeId];
+  if(nd && (nd.hub || nd.id === 'event-bus')) {
+    const children = nodes.filter(n => n.p === nodeId).map(n => n.id);
+    children.forEach(cid => {
+      connNodes.add(cid);
+      links.forEach((l,i) => {
+        const sid = typeof l.source === 'object' ? l.source.id : l.source;
+        const tid = typeof l.target === 'object' ? l.target.id : l.target;
+        if(sid === cid) { connNodes.add(tid); connLinks.add(i); outLinks.push(l); }
+        if(tid === cid) { connNodes.add(sid); connLinks.add(i); inLinks.push(l); }
+      });
+    });
+  }
+
+  return { connNodes, connLinks, outLinks, inLinks };
+}
+
+function highlight(nodeId) {
+  const { connNodes, connLinks, outLinks, inLinks } = getConnected(nodeId);
+  const nd = nodeMap[nodeId];
+
+  // Add faded class to SVG
+  g.classed("faded", true);
+
+  // Highlight connected elements
+  linkEls.each(function(d,i) {
+    d3.select(this).classed("highlighted-link", connLinks.has(i));
+  });
+  linkLabelEls.each(function(d,i) {
+    d3.select(this).classed("highlighted-label", connLinks.has(i));
+  });
+  nodeGroups.each(function(d) {
+    const isConn = connNodes.has(d.id);
+    d3.select(this).selectAll("circle").classed("highlighted-node", isConn);
+    d3.select(this).selectAll("text").classed("highlighted-label", isConn);
+  });
+
+  // Update info panel
+  const panel = document.getElementById('info');
+  panel.classList.add('visible');
+  document.getElementById('info-name').textContent = nd.label;
+  document.getElementById('info-zh').textContent = nd.zh;
+  const groupEl = document.getElementById('info-group');
+  groupEl.textContent = groupNames[nd.group];
+  groupEl.style.background = groupColors[nd.group] + '20';
+  groupEl.style.color = groupColors[nd.group];
+
+  const outEl = document.getElementById('info-out');
+  const inEl = document.getElementById('info-in');
+
+  // De-duplicate
+  const seenOut = new Set(), seenIn = new Set();
+  outEl.innerHTML = outLinks.filter(l => {
+    const tid = typeof l.target === 'object' ? l.target.id : l.target;
+    if(seenOut.has(tid+l.label)) return false; seenOut.add(tid+l.label); return true;
+  }).map(l => {
+    const tid = typeof l.target === 'object' ? l.target.id : l.target;
+    const tn = nodeMap[tid];
+    return `<li><span class="conn-arrow" style="color:${linkColor(l.type)}">→</span> ${tn?tn.label:tid} <span class="conn-label">${l.label}</span></li>`;
+  }).join('');
+
+  inEl.innerHTML = inLinks.filter(l => {
+    const sid = typeof l.source === 'object' ? l.source.id : l.source;
+    if(seenIn.has(sid+l.label)) return false; seenIn.add(sid+l.label); return true;
+  }).map(l => {
+    const sid = typeof l.source === 'object' ? l.source.id : l.source;
+    const sn = nodeMap[sid];
+    return `<li><span class="conn-arrow" style="color:${linkColor(l.type)}">←</span> ${sn?sn.label:sid} <span class="conn-label">${l.label}</span></li>`;
+  }).join('');
+
+  document.getElementById('info-out-title').textContent = `輸出連結 (${seenOut.size})`;
+  document.getElementById('info-in-title').textContent = `輸入連結 (${seenIn.size})`;
+}
+
+function resetHighlight() {
+  locked = null;
+  g.classed("faded", false);
+  linkEls.classed("highlighted-link", false);
+  linkLabelEls.classed("highlighted-label", false);
+  nodeGroups.selectAll("circle").classed("highlighted-node", false);
+  nodeGroups.selectAll("text").classed("highlighted-label", false);
+  document.getElementById('info').classList.remove('visible');
+}
+
+// Mouse events
+nodeGroups.on("mouseover", function(e, d) {
+  if(locked) return;
+  highlight(d.id);
+}).on("mouseout", function() {
+  if(locked) return;
+  resetHighlight();
+}).on("click", function(e, d) {
+  e.stopPropagation();
+  if(locked === d.id) { locked = null; resetHighlight(); return; }
+  locked = d.id;
+  highlight(d.id);
+});
+
+svg.on("click", () => { if(locked) resetHighlight(); });
+
+// ═══════════════════════════════════════════════
+//  CONTROLS
+// ═══════════════════════════════════════════════
+function zoomFit() {
+  const bounds = g.node().getBBox();
+  const dx = bounds.width, dy = bounds.height;
+  const x = bounds.x, y = bounds.y;
+  const scale = Math.min(0.85, 0.85 / Math.max(dx/W, dy/H));
+  const tx = W/2 - scale * (x + dx/2);
+  const ty = H/2 - scale * (y + dy/2);
+  svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity.translate(tx,ty).scale(scale));
+}
+
+function toggleGroup(el) {
+  const grp = el.dataset.group;
+  el.classList.toggle('dimmed');
+  const dimmed = el.classList.contains('dimmed');
+  nodeGroups.filter(d => d.group === grp).style("display", dimmed ? "none" : "block");
+  linkEls.filter(d => {
+    const sid = typeof d.source === 'object' ? d.source.group : nodeMap[d.source]?.group;
+    const tid = typeof d.target === 'object' ? d.target.group : nodeMap[d.target]?.group;
+    return sid === grp || tid === grp;
+  }).style("display", dimmed ? "none" : "block");
+}
+
+// Initial zoom fit after simulation settles
+setTimeout(zoomFit, 2000);
+
+// Resize
+window.addEventListener('resize', () => {
+  const w = window.innerWidth, h = window.innerHeight;
+  svg.attr("width", w).attr("height", h);
+});
+</script>
+</body>
+</html>
