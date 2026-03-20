@@ -3218,6 +3218,21 @@ class MuseonBrain:
                     # 過濾低分結晶（ri_score < 0.05 的噪音）
                     crystals = [c for c in crystals if c.ri_score >= 0.05] if crystals else []
 
+                # Layer 2.5: GraphRAG 社群摘要（結晶不足時補充高層脈絡）
+                if len(crystals) < max_push and self.knowledge_lattice.has_communities():
+                    try:
+                        community_summaries = self.knowledge_lattice.recall_with_community(
+                            context=user_query, max_summaries=2,
+                        )
+                        if community_summaries:
+                            comm_text = "\n".join(community_summaries)
+                            comm_fitted = budget.fit_text_to_zone("memory", f"## 相關知識社群\n{comm_text}")
+                            if comm_fitted:
+                                sections.append(comm_fitted)
+                                logger.info(f"社群摘要注入: {len(community_summaries)} 個社群")
+                    except Exception:
+                        logger.debug("社群摘要召回失敗（降級跳過）", exc_info=True)
+
                 if crystals:
                     # Layer 3: 結晶壓縮（超過 8 顆時啟動，省 token）
                     _COMPRESS_THRESHOLD = 8

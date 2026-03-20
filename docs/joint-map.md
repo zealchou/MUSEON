@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.24
+# Joint Map — 共享可變狀態接頭圖 v1.25
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -269,6 +269,18 @@
 
 > `brain.py` 的結晶注入區已從 `recall_with_chains()` 切換為 `recall_tiered()`。
 > `recall_with_chains()` 仍保留作為 `recall_tiered()` 內部的 Warm 搜尋引擎。
+
+#### GraphRAG 社群摘要（v1.25 新增）
+
+| 方法 | 作用 | 依賴 |
+|------|------|------|
+| `detect_communities()` | Label Propagation 社群偵測 | DAG adjacency（記憶體計算，不持久化） |
+| `_summarize_community()` | Extract-based 社群摘要 | crystals.json（唯讀） |
+| `has_communities()` | 快速檢查是否有社群 | DAG links count |
+| `recall_with_community()` | 語義搜尋相關社群 | `recall()` + `detect_communities()` |
+
+> `brain.py` Layer 2.5 在結晶不足時呼叫 `recall_with_community()` 注入社群摘要。
+> 社群偵測為即時計算（不持久化），基於 Crystal DAG 既有連結，無新增共享狀態。
 
 #### ⚠️ 衝突風險
 
@@ -781,6 +793,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-21 | v1.25 | GraphRAG 社群偵測：#6 crystals.json 新增「GraphRAG 社群摘要」表（detect_communities + recall_with_community 四個方法）；knowledge_lattice.py 新增社群偵測（純新增，RW 不變，讀寫者不變）；brain.py Layer 2.5 新增 `has_communities()` + `recall_with_community()` 呼叫（僅讀）；無新增共享狀態（社群偵測為即時計算，不持久化）；同步 blast-radius v1.31 |
 | 2026-03-21 | v1.24 | 混合檢索（Hybrid Retrieval）：#9 Qdrant 向量庫新增 Sparse Collections 分區（`{name}_sparse`，BM25 稀疏向量）；新增 `sparse_embedder.py` 為 `_system/sparse_idf.json` 寫入者；VectorBridge 新增 `hybrid_search()`/`_sparse_search()`/`index_sparse()`/`backfill_sparse()`/`build_sparse_idf()`；Route A 分離式設計——不修改原 dense collections schema；同步 persistence-contract v1.22、blast-radius v1.30 |
 | 2026-03-21 | v1.23 | MemGPT 分層結晶召回：#6 crystals.json 新增「MemGPT 分層召回」表（Hot/Warm/Cold 三層策略）；`knowledge_lattice.py` 新增 `recall_tiered()` 方法（RW 不變，讀寫者不變）；同步 blast-radius v1.29 |
 | 2026-03-20 | v1.22 | 衰減生命週期補全：#6 crystals.json 新增「衰減策略」表（RI 公式、歸檔閾值、升降級觸發）+ 衝突風險新增衰減並發項；同步 persistence-contract v1.21（四大衰減引擎全文件）、system-topology v1.22（decay 連線類型）、blast-radius v1.28（G8 衰減組） |

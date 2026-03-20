@@ -737,3 +737,201 @@ class TestCrystallizerFlow:
 
         lesson = lattice.crystallize("教訓", "", "Lesson")
         assert lesson.verification_level == "observed"
+
+
+# ════════════════════════════════════════════
+# Section: GraphRAG 社群偵測與摘要
+# ════════════════════════════════════════════
+
+class TestCommunityDetection:
+    """測試 GraphRAG Label Propagation 社群偵測."""
+
+    def test_detect_communities_with_links(self, lattice):
+        """有連結的結晶形成社群."""
+        c1 = lattice.crystallize("量子糾纏的非局域性特徵", "", "Insight")
+        c2 = lattice.crystallize("量子退相干導致經典行為", "", "Pattern")
+        c3 = lattice.crystallize("觀測者效應與波函數塌縮", "", "Hypothesis")
+        c4 = lattice.crystallize("歐洲中世紀城堡的防禦策略", "", "Lesson")
+
+        # c1-c2-c3 形成一個社群
+        lattice.add_link(c1.cuid, c2.cuid, "supports")
+        lattice.add_link(c2.cuid, c3.cuid, "extends")
+
+        communities = lattice.detect_communities(min_community_size=2)
+
+        # 至少有一個包含 c1, c2, c3 的社群
+        found = False
+        for label, cuids in communities.items():
+            member_set = set(cuids)
+            if {c1.cuid, c2.cuid, c3.cuid}.issubset(member_set):
+                found = True
+                break
+        assert found, f"未找到包含 c1/c2/c3 的社群: {communities}"
+
+        # c4 是孤立的，不應出現在 min_size=2 的社群中
+        for label, cuids in communities.items():
+            if c4.cuid in cuids:
+                assert len(cuids) >= 2
+
+    def test_detect_communities_no_links(self, lattice):
+        """無連結時不產生社群."""
+        lattice.crystallize("獨立結晶一", "", "Insight")
+        lattice.crystallize("獨立結晶二", "", "Pattern")
+        lattice.crystallize("獨立結晶三", "", "Lesson")
+
+        communities = lattice.detect_communities(min_community_size=2)
+        assert communities == {}
+
+    def test_detect_communities_multiple_groups(self, lattice):
+        """多個不相連的子圖形成各自的社群."""
+        # 群組 A
+        a1 = lattice.crystallize("生物演化中的自然選擇", "", "Insight")
+        a2 = lattice.crystallize("基因突變是演化的原材料", "", "Pattern")
+        lattice.add_link(a1.cuid, a2.cuid, "supports")
+
+        # 群組 B
+        b1 = lattice.crystallize("資本市場的有效市場假說", "", "Hypothesis")
+        b2 = lattice.crystallize("行為經濟學挑戰理性人假設", "", "Lesson")
+        lattice.add_link(b1.cuid, b2.cuid, "related")
+
+        communities = lattice.detect_communities(min_community_size=2)
+        assert len(communities) >= 2
+
+    def test_detect_communities_convergence(self, lattice):
+        """Label Propagation 能收斂（不無限迭代）."""
+        crystals = []
+        for i in range(10):
+            c = lattice.crystallize(
+                f"連續結晶第 {i} 號的詳細內容描述", "", "Pattern",
+            )
+            crystals.append(c)
+
+        # 建立鏈式連結: 0-1-2-3-...-9
+        for i in range(len(crystals) - 1):
+            lattice.add_link(crystals[i].cuid, crystals[i + 1].cuid, "extends")
+
+        # 應該能正常完成不掛起
+        communities = lattice.detect_communities(min_community_size=2)
+        assert isinstance(communities, dict)
+        # 鏈式連結應收斂為 1 個大社群
+        total_members = sum(len(v) for v in communities.values())
+        assert total_members >= 5  # 至少多數節點被收入社群
+
+
+class TestCommunitySummary:
+    """測試社群摘要生成."""
+
+    def test_summarize_community_format(self, lattice):
+        """摘要包含結晶數量、類型統計、top 結晶."""
+        c1 = lattice.crystallize("深度學習的梯度消失問題", "", "Insight")
+        c2 = lattice.crystallize("批次正規化緩解梯度問題", "", "Pattern")
+        c3 = lattice.crystallize("殘差連接可能是更好的方案", "", "Hypothesis")
+        lattice.add_link(c1.cuid, c2.cuid, "supports")
+        lattice.add_link(c2.cuid, c3.cuid, "extends")
+
+        cuids = [c1.cuid, c2.cuid, c3.cuid]
+        summary = lattice._summarize_community(cuids)
+
+        assert "3 顆結晶" in summary
+        assert "Insight" in summary
+        assert "Pattern" in summary
+
+    def test_summarize_community_empty(self, lattice):
+        """空 CUID 列表回傳空字串."""
+        summary = lattice._summarize_community([])
+        assert summary == ""
+
+    def test_summarize_community_max_chars(self, lattice):
+        """摘要不超過 max_chars."""
+        crystals = []
+        for i in range(5):
+            c = lattice.crystallize(
+                f"一段非常長的結晶內容第{i}號用於測試截斷功能" * 3,
+                "", "Insight",
+            )
+            crystals.append(c)
+        cuids = [c.cuid for c in crystals]
+
+        summary = lattice._summarize_community(cuids, max_chars=100)
+        assert len(summary) <= 100
+
+
+class TestHasCommunities:
+    """測試 has_communities 快速檢查."""
+
+    def test_has_communities_true(self, lattice):
+        """有連結時回傳 True."""
+        c1 = lattice.crystallize("結晶甲用來測試社群存在", "", "Insight")
+        c2 = lattice.crystallize("結晶乙用來測試社群存在", "", "Pattern")
+        lattice.add_link(c1.cuid, c2.cuid, "supports")
+
+        assert lattice.has_communities() is True
+
+    def test_has_communities_false_no_links(self, lattice):
+        """無連結時回傳 False."""
+        lattice.crystallize("孤立結晶一號", "", "Insight")
+        lattice.crystallize("孤立結晶二號", "", "Pattern")
+
+        assert lattice.has_communities() is False
+
+    def test_has_communities_false_too_few(self, lattice):
+        """結晶不足 min_community_size 時回傳 False."""
+        lattice.crystallize("唯一的結晶", "", "Insight")
+        assert lattice.has_communities() is False
+
+
+class TestRecallWithCommunity:
+    """測試社群摘要召回."""
+
+    def test_recall_with_community_returns_summaries(self, lattice):
+        """有社群時回傳摘要列表."""
+        c1 = lattice.crystallize("台灣半導體供應鏈的韌性分析", "", "Insight")
+        c2 = lattice.crystallize("晶圓代工的護城河效應", "", "Pattern")
+        c3 = lattice.crystallize("地緣政治對晶片產業的影響", "", "Lesson")
+        lattice.add_link(c1.cuid, c2.cuid, "supports")
+        lattice.add_link(c2.cuid, c3.cuid, "extends")
+
+        summaries = lattice.recall_with_community(
+            context="半導體供應鏈",
+            max_summaries=2,
+            min_community_size=2,
+        )
+        assert isinstance(summaries, list)
+        assert len(summaries) >= 1
+        # 摘要是字串
+        assert all(isinstance(s, str) for s in summaries)
+
+    def test_recall_with_community_no_communities(self, lattice):
+        """無社群時回傳空列表."""
+        lattice.crystallize("孤立結晶", "", "Insight")
+        summaries = lattice.recall_with_community(
+            context="任意查詢",
+            min_community_size=3,
+        )
+        assert summaries == []
+
+    def test_recall_with_community_relevance(self, lattice):
+        """有多個社群時能正確回傳摘要（不依賴 Qdrant 語義排序）."""
+        # 社群 A: 量子物理
+        a1 = lattice.crystallize("量子糾纏的非局域性特徵詳解", "", "Insight")
+        a2 = lattice.crystallize("量子退相干導致經典行為出現", "", "Pattern")
+        a3 = lattice.crystallize("量子計算利用糾纏態進行平行運算", "", "Hypothesis")
+        lattice.add_link(a1.cuid, a2.cuid, "supports")
+        lattice.add_link(a2.cuid, a3.cuid, "extends")
+
+        # 社群 B: 料理
+        b1 = lattice.crystallize("法式料理中的五大醬汁基礎", "", "Insight")
+        b2 = lattice.crystallize("高湯熬煮的時間與溫度控制", "", "Pattern")
+        b3 = lattice.crystallize("分子料理是傳統烹飪的科學延伸", "", "Lesson")
+        lattice.add_link(b1.cuid, b2.cuid, "supports")
+        lattice.add_link(b2.cuid, b3.cuid, "extends")
+
+        summaries = lattice.recall_with_community(
+            context="量子物理與糾纏態",
+            max_summaries=2,
+            min_community_size=2,
+        )
+        # 兩個社群都應該被偵測到
+        assert len(summaries) >= 1
+        # 所有回傳的都是字串且非空
+        assert all(isinstance(s, str) and len(s) > 0 for s in summaries)
