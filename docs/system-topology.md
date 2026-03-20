@@ -1,8 +1,8 @@
-# MUSEON 系統拓撲圖 v1.20
+# MUSEON 系統拓撲圖 v1.21
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
-> **v1.20 (2026-03-20)**：新增 P3 並行融合節點 (dendritic-fusion) + 連線
+> **v1.21 (2026-03-20)**：P3 前置交織融合——Step 5.5 前置多視角收集 + system_prompt 注入
 
 ---
 
@@ -268,7 +268,7 @@
 | `brain` | `drift-detector` | 漂移檢查 |
 | `brain` | `okr-router` | 八卦路由 |
 | `brain` | `fact-correction` | 事實更正偵測+覆寫 |
-| `brain` | `dendritic-fusion` | P3 並行融合（Step 6.2-6.5） |
+| `brain` | `dendritic-fusion` | P3 前置融合（Step 5.5）+ 並行融合（Step 6.2-6.5） |
 | `dendritic-fusion` | `metacognition` | 並行預認知審查 |
 | `dendritic-fusion` | `eval-engine` | 並行品質評分 |
 | `multi-agent-executor` | `llm-router` | 多部門 API 呼叫 |
@@ -562,6 +562,7 @@
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.21 | 2026-03-20 | P3 前置交織融合——Step 5.5 前置多視角收集 + system_prompt 注入，視角從「追加」變「交織」，dendritic-fusion 連線擴展至 Step 5.5 |
 | v1.20 | 2026-03-20 | P3 策略層並行融合落地：brain.py 新增 P3FusionSignal + Step 3.4 偵測 + Phase 4.5 執行管道 + 5 個 P3 方法；120 節點 240 連線不變；無新增節點；P3 Skill 層（orchestrator v3.0）+ P3 程式碼層（brain.py）雙層實作完整 |
 | v1.19 | 2026-03-20 | P0-P3 思維引擎升級（純 Skill .md 認知行為變更，無新節點/連線）：deep-think v2.0（思考路徑可見化 P0 + 主動盲點提醒 P1 + 重大決策先問後答 P2）、query-clarity v2.0（主動觸發「你可能沒想到」P1）、orchestrator v3.0（並行融合模式 P3）、dna27 v2.2（回應合約對齊）；120 節點 240 連線（不變） |
 | v1.18 | 2026-03-19 | P1-P3 PersonaRouter 全接線 + 四張藍圖同步：persona-router 節點半徑 1.0→1.1、proactive-bridge 節點半徑 1.1→1.2；新增 cross 連線 persona-router→proactive-bridge（象限決策結果回饋）；brain→proactive-bridge 連線描述更新為「推播 + 百合象限上下文注入」；版本統一為 v1.18（同步 blast-radius v1.24, persistence-contract v1.18, joint-map v1.18）；統計無變化；120 節點 240 連線 |

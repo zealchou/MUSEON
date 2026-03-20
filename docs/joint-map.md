@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.20
+# Joint Map — 共享可變狀態接頭圖 v1.21
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -747,6 +747,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-20 | v1.21 | P3 前置交織融合：system_prompt 動態注入 _p3_pre_fusion_ctx（唯讀參考，不新增共享狀態） | blast-radius v1.27, system-topology v1.21 |
 | 2026-03-20 | v1.20 | P0-P3 思維引擎升級（純 Skill .md 認知行為變更）：deep-think v2.0、query-clarity v2.0、orchestrator v3.0、dna27 v2.2；無新增共享狀態（30 個不變）、無讀寫者變更、無鎖機制變更；版本同步 system-topology v1.19、persistence-contract v1.19、blast-radius v1.25 |
 | 2026-03-19 | v1.19 | P1-P3 PersonaRouter 全接線：新增 #30 `_system/baihe_cache.json`（🟢 危險度，單寫入者 brain.py `Step 3.65` 原子寫入，讀取者 `pulse/proactive_bridge.py` `_read_baihe_cache()`）；brain.py Step 3.65 baihe_decide() context 從空 `{}` 填入 routing_signal+matched_skills+commitment+session_len+is_late_night；brain.py 新增 Step 3.66 根因偵測層（`_detect_root_cause_hint()`，純記憶體，無持久化）；proactive_bridge.py 新增 baihe_cache.json 讀取依賴；共享狀態 29→30 個 |
 | 2026-03-17 | v1.18 | 軍師架構 Phase 1：#29 lord_profile.json 讀取者確認——brain.py Step 3.65 百合引擎讀取+進諫冷卻寫回，persona_router.py `baihe_decide()` 純讀（接收 dict 參數）；寫入者 1→2（brain.py: _observe_lord + Step 3.65 cooldown）；危險度維持 🟢（同一寫入者 brain.py 的兩個路徑） |

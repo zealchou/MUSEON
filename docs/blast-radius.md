@@ -1,11 +1,11 @@
-# Blast Radius — 模組影響半徑表 v1.26
+# Blast Radius — 模組影響半徑表 v1.27
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節
-> **v1.26 (2026-03-20)**：brain.py 角色更新 — 新增 P3 並行融合（Step 6.2-6.5）
+> **v1.27 (2026-03-20)**：brain.py P3 前置交織融合——新增 `_p3_gather_pre_fusion_insights()`，Phase 4.5 輕量簽名，`_execute_p3_parallel_fusion` 降級為向後相容
 
 ---
 
@@ -191,6 +191,14 @@
 | **扇入** | 3（server, mcp_server, __init__） |
 | **扇出** | 32+（import 32 個模組，初始化全系統——含 PrimalDetector, MultiAgentExecutor, MemoryGate） |
 | **角色** | 系統核心——LLM 對話、記憶、自我觀察、所有子系統初始化、多代理並行呼叫、記憶閘門意圖判斷、認知追蹤（trace_decision+trace_cognitive）、P3 並行融合（Step 6.2-6.5） |
+
+**P3 方法群：**
+- `_p3_gather_pre_fusion_insights()` (新增 v1.22: 前置融合注入 system_prompt)
+- `_detect_p3_strategy_layer_signal()`
+- `_execute_p3_parallel_fusion()` (v1.22 起降級為向後相容)
+- `_p3_strategy_perspective()`
+- `_p3_human_perspective()`
+- `_p3_risk_perspective()`
 
 #### 影響半徑
 
@@ -752,6 +760,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-20 | v1.27 | brain.py P3 前置交織融合：新增 _p3_gather_pre_fusion_insights()，Phase 4.5 從「追加多視角區塊」改為「輕量簽名」，_execute_p3_parallel_fusion 降級為向後相容 |
 | 2026-03-20 | v1.26 | P3 策略層並行融合落地實作：brain.py 新增 P3FusionSignal 資料類別 + _detect_p3_strategy_layer_signal() + _execute_p3_parallel_fusion() + _p3_strategy_perspective() + _p3_human_perspective() + _p3_risk_perspective()（共 5 個新方法）；brain.py 扇入不變，新方法扇出：_call_llm_with_model × 3（已有連線）；無新增共享狀態；版本同步 system-topology v1.20、joint-map v1.20、persistence-contract v1.19 |
 | 2026-03-20 | v1.25 | P0-P3 思維引擎升級（純 Skill .md 認知行為變更，無結構性改動）：deep-think v2.0（P0 思考路徑可見化 + P1 主動盲點提醒 + P2 重大決策先問後答）、query-clarity v2.0（P1 主動觸發「你可能沒想到」）、orchestrator v3.0（P3 並行融合模式）、dna27 v2.2（回應合約對齊）；無新增/修改模組扇入扇出、無新增共享狀態、無事件變更；版本同步 system-topology v1.19、persistence-contract v1.19、joint-map v1.20 |
 | 2026-03-19 | v1.24 | P1-P3 PersonaRouter 全接線：brain.py Step 3.65 baihe_decide context 從空 `{}` 填入 routing_signal+matched_skills+commitment+session_len+is_late_night；新增 Step 3.66 根因偵測層（`_detect_root_cause_hint()` Haiku 分析重複模式）；brain.py 新增共享狀態 baihe_cache.json(W)（原子寫入，供 ProactiveBridge 讀取）；proactive_bridge.py 新增 `_read_baihe_cache()`（讀 baihe_cache.json）、`_call_brain()` 根據象限注入語氣指引、`_build_context_messages()` 注入象限上下文；共享狀態 29→30 |
