@@ -1,8 +1,9 @@
-# MUSEON 系統拓撲圖 v1.22
+# MUSEON 系統拓撲圖 v1.23
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
-> **v1.21 (2026-03-20)**：P3 前置交織融合——Step 5.5 前置多視角收集 + system_prompt 注入
+> **v1.23 (2026-03-20)**：補記 recommender 節點（知識推薦引擎）+ 3D 心智圖全面同步修復
+> **v1.22 (2026-03-20)**：P3 前置交織融合——Step 5.5 前置多視角收集 + system_prompt 注入
 
 ---
 
@@ -78,6 +79,7 @@
 | `okr-router` | OKR Router | 八卦路由 | - | brain | 0.9 |
 | `fact-correction` | Fact Correction | 事實覆寫引擎 | - | brain | 0.9 |
 | `dendritic-fusion` | Dendritic Fusion | P3 並行融合引擎（MetaCog+Eval+Health） | - | brain | 1.1 |
+| `recommender` | Recommender | 知識推薦引擎 | - | brain | 0.7 |
 
 ### pulse — Pulse 生命力
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -235,7 +237,7 @@
 | `knowledge-lattice` → `crystal-actuator` | `crystals.json` | RI 指數衰減 `exp(-0.03×days)`，RI<0.05 由 crystal-actuator 執行歸檔 |
 | `memory` → `vector-index` | Qdrant memories | TTL 分級（24h/14d/90d）+ 訪問次數晉升/降級 + supersede 事實覆寫 |
 | `dendritic-scorer` → `pulse-db` | health_scores 表 | 半衰期 2h 指數衰減，governor 每回合 tick() |
-| `recommender` → in-memory | 推薦排序 | 近因性半衰期 7d + 互動衰減 λ=0.95 |
+| `recommender` → `knowledge-lattice` | 推薦排序 | 近因性半衰期 7d + 互動衰減 λ=0.95 |
 | `nightly` → `skill-synapse` | synapses.json | Synapse Decay（已有連線） |
 
 ### 主資料流（flow）
@@ -283,6 +285,7 @@
 | `brain` | `okr-router` | 八卦路由 |
 | `brain` | `fact-correction` | 事實更正偵測+覆寫 |
 | `brain` | `dendritic-fusion` | P3 前置融合（Step 5.5）+ 並行融合（Step 6.2-6.5） |
+| `brain` | `recommender` | 知識推薦引擎 |
 | `dendritic-fusion` | `metacognition` | 並行預認知審查 |
 | `dendritic-fusion` | `eval-engine` | 並行品質評分 |
 | `multi-agent-executor` | `llm-router` | 多部門 API 呼叫 |
@@ -421,6 +424,7 @@
 | `eval-engine` | `memory` | 品質數據 |
 | `eval-engine` | `registry` | Q-Score 存取 |
 | `dendritic-fusion` | `dendritic-scorer` | P3 並行融合讀取健康分數 |
+| `recommender` | `knowledge-lattice` | 近因性衰減 7d + 互動衰減 λ=0.95 |
 | `diary-store` | `memory` | 日記寫入 |
 | `brain` | `llm-router` | 生成回應 |
 | `brain` | `memory` | 四通道持久化 |
