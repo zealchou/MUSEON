@@ -263,8 +263,8 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 //  SYNC META — 拓撲同步狀態
 // ═══════════════════════════════════════
 const SYNC_META = {
-  topologyVersion: 'v1.23',
-  syncDate: '2026-03-20',
+  topologyVersion: 'v1.24',
+  syncDate: '2026-03-21',
   nodeCount: 0, // auto-calculated below
   linkCount: 0, // auto-calculated below
   skillUpgrades: [
@@ -274,7 +274,10 @@ const SYNC_META = {
     'dna27 v2.2: 回應合約升級（思考路徑+盲點提醒）',
     'brain.py P3 策略層並行融合落地：P3FusionSignal + Step3.4 + Phase4.5 + 5個P3方法（_detect_p3_strategy_layer_signal/_execute_p3_parallel_fusion/_p3_strategy_perspective/_p3_human_perspective/_p3_risk_perspective）',
     'brain.py P3 前置交織融合 v1.22：_p3_gather_pre_fusion_insights() 在 Step 5.5 並行收集多視角洞察 → 注入 system_prompt → 主 LLM 回覆自然交織六層技術棧，Phase 4.5 從追加改為簽名',
-    'decay-lifecycle v1.0: 衰減生命週期四引擎橫切補全'
+    'decay-lifecycle v1.0: 衰減生命週期四引擎橫切補全',
+    'A區 #1 MemGPT: recall_tiered() 三層分級召回（Hot≥0.7/Warm≥0.2/Cold）',
+    'A區 #2 Hybrid Retrieval: sparse-embedder BM25 稀疏向量 + RRF 融合 + 分離式 sparse collections',
+    'A區 #3 GraphRAG: detect_communities() Label Propagation + recall_with_community() 社群摘要 Layer 2.5'
   ]
 };
 
@@ -462,6 +465,8 @@ const nodes = [
   {id:"blueprint-reader",label:"Blueprint Reader",zh:"藍圖解析器",group:"data",p:"data-bus",r:0.9},
   // 主人領域畫像
   {id:"lord-profile",label:"Lord Profile",zh:"主人領域畫像",group:"data",p:"data-bus",r:0.8},
+  // A區 #2: BM25 稀疏向量生成器
+  {id:"sparse-embedder",label:"Sparse Embedder",zh:"BM25 稀疏向量",group:"data",p:"data-bus",r:0.9},
 ];
 
 const links = [
@@ -558,7 +563,7 @@ const links = [
   {source:"llm-router",target:"llm-cache",label:"快取",type:"internal"},
   {source:"llm-router",target:"anthropic-api",label:"API呼叫",type:"cross"},
   {source:"memory",target:"vector-index",label:"嵌入索引",type:"cross"},
-  {source:"vector-index",target:"qdrant",label:"向量存儲",type:"cross"},
+  {source:"vector-index",target:"qdrant",label:"向量存儲（dense）",type:"cross"},
   {source:"wee",target:"skill-synapse",label:"突觸演化",type:"internal"},
   {source:"wee",target:"skills-registry",label:"演化追蹤",type:"cross"},
   {source:"nightly",target:"morphenix",label:"演化提案",type:"internal"},
@@ -726,6 +731,15 @@ const links = [
   {source:"memory",target:"vector-index",label:"TTL 分級 + supersede 覆寫",type:"decay"},
   {source:"dendritic-scorer",target:"pulse-db",label:"半衰期 2h 指數衰減",type:"decay"},
   {source:"recommender",target:"knowledge-lattice",label:"近因性衰減 7d + λ=0.95",type:"decay"},
+  // ── A區迭代 #1~#3 (v1.24) ──
+  // #1 MemGPT: 三層分級召回（Hot/Warm/Cold）
+  {source:"brain",target:"knowledge-lattice",label:"三層分級召回 recall_tiered()",type:"internal"},
+  // #2 Hybrid Retrieval: BM25 稀疏向量 + RRF 融合
+  {source:"data-bus",target:"sparse-embedder",label:"Store路由",type:"internal"},
+  {source:"vector-index",target:"sparse-embedder",label:"混合檢索 BM25+Dense RRF",type:"internal"},
+  {source:"sparse-embedder",target:"qdrant",label:"稀疏向量存儲",type:"cross"},
+  // #3 GraphRAG: 社群摘要注入
+  {source:"brain",target:"knowledge-lattice",label:"社群摘要 Layer 2.5",type:"internal"},
 ];
 
 const nodeMap = {};
