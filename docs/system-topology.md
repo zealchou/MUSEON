@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.24
+# MUSEON 系統拓撲圖 v1.25
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.25 (2026-03-21)**：新增 deep-think、roundtable、investment-masters 拓撲節點 + 10 條連線
 > **v1.24 (2026-03-21)**：A 區迭代 #1~#3 拓撲同步——MemGPT recall_tiered、Hybrid Retrieval sparse-embedder、GraphRAG 社群摘要 Layer 2.5
 > **v1.23 (2026-03-20)**：補記 recommender 節點（知識推薦引擎）+ 3D 心智圖全面同步修復
 > **v1.22 (2026-03-20)**：P3 前置交織融合——Step 5.5 前置多視角收集 + system_prompt 注入
@@ -76,6 +77,9 @@
 | `flywheel-coordinator` | Flywheel Coordinator | 飛輪流動協調 | - | brain | 0.9 |
 | `primal-detector` | Primal Detector | 八原語偵測 | - | brain | 1.0 |
 | `persona-router` | Persona Router | 人格路由 + 百合引擎決策 | - | brain | 1.1 |
+| `deep-think` | Deep Think | 思考前置引擎（P0 訊號分流 / P1 輸入審視 / P2 決策偵測） | - | brain | 1.1 |
+| `roundtable` | Roundtable | 圓桌詰問引擎（多角色交叉詰問 + 仲裁） | - | brain | 1.0 |
+| `investment-masters` | Investment Masters | 投資軍師團（六位大師模型會診） | - | brain | 0.9 |
 | `drift-detector` | Drift Detector | 漂移偵測 | - | brain | 0.8 |
 | `okr-router` | OKR Router | 八卦路由 | - | brain | 0.9 |
 | `fact-correction` | Fact Correction | 事實覆寫引擎 | - | brain | 0.9 |
@@ -285,6 +289,9 @@
 | `brain` | `flywheel-coordinator` | 飛輪流動 |
 | `brain` | `primal-detector` | 八原語偵測 |
 | `brain` | `persona-router` | 人格路由 |
+| `brain` | `deep-think` | 思考前置 P0/P1/P2 |
+| `brain` | `roundtable` | 圓桌詰問 |
+| `brain` | `investment-masters` | 軍師會診 |
 | `brain` | `drift-detector` | 漂移檢查 |
 | `brain` | `okr-router` | 八卦路由 |
 | `brain` | `fact-correction` | 事實更正偵測+覆寫 |
@@ -417,6 +424,11 @@
 | `primal-detector` | `persona-router` | 原語調適 |
 | `primal-detector` | `okr-router` | 原語路由 |
 | `persona-router` | `proactive-bridge` | 象限決策結果回饋（P1-P3） |
+| `deep-think` | `metacognition` | Phase 0 元認知觀察 |
+| `deep-think` | `persona-router` | Phase 0 訊號分流→百合引擎 |
+| `roundtable` | `knowledge-lattice` | 裁決軌跡結晶 |
+| `investment-masters` | `knowledge-lattice` | 軍師會診結晶 |
+| `investment-masters` | `skill-router` | DNA27 RC 親和觸發 |
 | `drift-detector` | `memory` | 覺察日誌 |
 | `fact-correction` | `memory` | 記憶覆寫（supersede） |
 | `fact-correction` | `vector-index` | 向量廢棄標記（mark_deprecated） |
@@ -588,6 +600,7 @@
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.25 | 2026-03-21 | 軍師互動+思考前置區拓撲補全：agent 群組新增 `deep-think`、`roundtable`、`investment-masters` 3 個節點（+3）；新增 10 條連線——internal: brain→deep-think/roundtable/investment-masters（+3）；cross: deep-think→metacognition Phase 0 元認知、deep-think→persona-router 訊號分流→百合引擎、roundtable→knowledge-lattice 裁決軌跡結晶、investment-masters→knowledge-lattice 軍師會診結晶、investment-masters→skill-router DNA27 RC 親和觸發（+5）；配套百合引擎 27 單元測試 + Telegram 端到端驗證；124 節點 255 連線 |
 | v1.24 | 2026-03-21 | A 區迭代 #1~#3 拓撲同步：data 群組新增 `sparse-embedder` 節點（BM25 稀疏向量，+1 節點）；新增 5 條連線——agent internal: brain→knowledge-lattice MemGPT recall_tiered() + GraphRAG Layer 2.5 recall_with_community()（+2）；data internal: data-bus→sparse-embedder Store 路由 + vector-index→sparse-embedder 混合檢索 RRF 融合（+2）；cross: sparse-embedder→qdrant 稀疏向量存儲（+1）；vector-index→qdrant 描述更新為「向量存儲（dense）」；121 節點 245 連線 |
 | v1.22 | 2026-03-20 | 衰減生命週期補全：新增 `decay` 連線類型（色碼 #8B6E5A）+ 5 條衰減連線（結晶 RI、記憶 TTL、健康分數半衰期、推薦近因性、Synapse Decay）；同步 persistence-contract v1.21、blast-radius v1.28、joint-map v1.22 |
 | v1.21 | 2026-03-20 | P3 前置交織融合——Step 5.5 前置多視角收集 + system_prompt 注入，視角從「追加」變「交織」，dendritic-fusion 連線擴展至 Step 5.5 |

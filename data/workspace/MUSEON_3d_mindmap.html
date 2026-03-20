@@ -263,7 +263,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 //  SYNC META — 拓撲同步狀態
 // ═══════════════════════════════════════
 const SYNC_META = {
-  topologyVersion: 'v1.24',
+  topologyVersion: 'v1.25',
   syncDate: '2026-03-21',
   nodeCount: 0, // auto-calculated below
   linkCount: 0, // auto-calculated below
@@ -351,6 +351,9 @@ const nodes = [
   {id:"diary-store",label:"Diary Store",zh:"日記系統",group:"agent",p:"brain",r:0.9},
   {id:"primal-detector",label:"Primal Detector",zh:"八原語偵測",group:"agent",p:"brain",r:1.0},
   {id:"persona-router",label:"Persona Router",zh:"人格路由",group:"agent",p:"brain",r:1.0},
+  {id:"deep-think",label:"Deep Think",zh:"思考前置引擎（P0/P1/P2）",group:"agent",p:"brain",r:1.1},
+  {id:"roundtable",label:"Roundtable",zh:"圓桌詰問引擎",group:"agent",p:"brain",r:1.0},
+  {id:"investment-masters",label:"Investment Masters",zh:"投資軍師團",group:"agent",p:"brain",r:0.9},
   {id:"drift-detector",label:"Drift Detector",zh:"漂移偵測",group:"agent",p:"brain",r:0.8},
   {id:"okr-router",label:"OKR Router",zh:"八卦路由",group:"agent",p:"brain",r:0.9},
   {id:"pulse",label:"Pulse Engine",zh:"VITA 生命力",group:"pulse",r:2.8,hub:1},
@@ -492,6 +495,14 @@ const links = [
   {source:"brain",target:"diary-store",label:"日記記錄",type:"internal"},
   {source:"brain",target:"primal-detector",label:"八原語偵測",type:"internal"},
   {source:"brain",target:"persona-router",label:"人格路由",type:"internal"},
+  {source:"brain",target:"deep-think",label:"思考前置 P0/P1/P2",type:"internal"},
+  {source:"brain",target:"roundtable",label:"圓桌詰問",type:"internal"},
+  {source:"brain",target:"investment-masters",label:"軍師會診",type:"internal"},
+  {source:"deep-think",target:"metacognition",label:"Phase 0 元認知觀察",type:"cross"},
+  {source:"deep-think",target:"persona-router",label:"Phase 0 訊號分流→百合引擎",type:"cross"},
+  {source:"roundtable",target:"knowledge-lattice",label:"裁決軌跡結晶",type:"cross"},
+  {source:"investment-masters",target:"knowledge-lattice",label:"軍師會診結晶",type:"cross"},
+  {source:"investment-masters",target:"skill-router",label:"DNA27 RC 親和觸發",type:"cross"},
   {source:"brain",target:"drift-detector",label:"漂移檢查",type:"internal"},
   {source:"brain",target:"okr-router",label:"八卦路由",type:"internal"},
   {source:"primal-detector",target:"vector-index",label:"語義匹配",type:"cross"},
