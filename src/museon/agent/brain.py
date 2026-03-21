@@ -5830,9 +5830,9 @@ class MuseonBrain:
             "```\n\n"
             "## 規則\n"
             "1. 子任務 2-5 個，按建議執行順序排列\n"
-            "2. 情緒面 Skill（如 resonance）排最前面\n"
+            "2. 如果有情緒承接類 Skill，排最前面\n"
             "3. 預設用 haiku，只有需要深度推理的用 sonnet\n"
-            "4. 只使用可用 Skill 清單中的名稱\n"
+            "4. skill_name 只能使用上方「可用 Skill」清單中出現的確切名稱，禁止引用清單外的任何 Skill\n"
             "5. 只回覆 JSON，不要其他文字\n"
         )
 

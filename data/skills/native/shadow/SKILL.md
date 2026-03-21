@@ -1,7 +1,7 @@
 ---
 name: shadow
 type: on-demand
-layer: business
+layer: thinking
 hub: thinking
 io:
   inputs:
