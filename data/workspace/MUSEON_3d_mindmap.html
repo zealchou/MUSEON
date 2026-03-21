@@ -1800,12 +1800,12 @@ function updateHealthBadges() {
     if (count === 0) {
       div.textContent = '\u26A0';
       div.className = 'health-badge never';
-      div.style.display = '';
+      div.style.visibility = '';
     } else {
       div.textContent = '\u00D7' + count;
       div.className = 'health-badge checked';
-      // 已檢查的數字預設隱藏，點擊節點時才顯示
-      div.style.display = (selectedNode && selectedNode.id === n.id) ? '' : 'none';
+      // 已檢查的數字預設隱藏，點擊節點時才顯示（用 visibility 避免被 CSS2DRenderer 覆蓋）
+      div.style.visibility = (selectedNode && selectedNode.id === n.id) ? '' : 'hidden';
     }
   });
 }
