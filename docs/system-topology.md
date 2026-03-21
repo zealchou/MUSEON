@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.27
+# MUSEON 系統拓撲圖 v1.28
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.28 (2026-03-21)**：補全 skills 群組——7 Hub + 39 Skill 節點 + 91 條連線（從 3D 心智圖回補，修復拓撲⇄HTML 漂移）
 > **v1.27 (2026-03-21)**：Skill 鍛造膠合層修復——VectorBridge 新增 index_all_skills()；Nightly Step 8.6 skill_vector_reindex；plugin-registry v2.3（+12 Skill 註冊）
 > **v1.26 (2026-03-21)**：群組對話 DSE 三階段修復——brain.py P0 六類訊號分流 + 事實糾正偵測 + _observe_external_user v3.0；memory_manager chat_scope 隔離；multi_tenant ExternalAnimaManager v3.0；server.py 群組事實糾正+錯誤顯示啟用
 > **v1.25 (2026-03-21)**：新增 deep-think、roundtable、investment-masters 拓撲節點 + 10 條連線
@@ -39,6 +40,7 @@
 | `nightly` | Nightly 夜間 | 30+ 步夜間整合管線、演化提案、好奇心路由 | `#9A3A1C` |
 | `installer` | Installer 安裝 | 部署編排、Daemon 設定、Electron 打包 | `#5A8A3E` |
 | `external` | 外部服務 | SearXNG、Qdrant、Firecrawl、API | `#6A6880` |
+| `skills` | Skills 生態系 | 外掛 Skill 語義群組（7 子中樞 + 39 Skill） | `#8B5CF6` |
 
 ---
 
@@ -219,6 +221,82 @@
 | `firecrawl` | Firecrawl | 爬取 :3002 | - | 0.8 |
 | `anthropic-api` | Anthropic API | Claude API | - | 1.1 |
 
+### skills — Skills 生態系
+
+#### skills-thinking — 思維類
+| ID | 名稱 | 中文 | Hub | Parent | 半徑 |
+|----|------|------|-----|--------|------|
+| `skills-thinking-hub` | Thinking Hub | 思維類技能中樞 | Yes | - | 2.0 |
+| `dharma` | DHARMA | 思維轉化引擎 | - | skills-thinking-hub | 1.2 |
+| `philo-dialectic` | Philo-Dialectic | 哲學思辨引擎 | - | skills-thinking-hub | 1.2 |
+| `resonance` | Resonance | 感性共振引擎 | - | skills-thinking-hub | 1.2 |
+| `shadow` | Shadow | 人際博弈辨識引擎 | - | skills-thinking-hub | 1.2 |
+| `meta-learning` | Meta-Learning | 元學習引擎 | - | skills-thinking-hub | 1.2 |
+| `query-clarity` | Query-Clarity | 問題品質守門層 | - | skills-thinking-hub | 1.2 |
+| `user-model` | User-Model | 使用者畫像引擎 | - | skills-thinking-hub | 1.2 |
+
+#### skills-market — 市場類
+| ID | 名稱 | 中文 | Hub | Parent | 半徑 |
+|----|------|------|-----|--------|------|
+| `skills-market-hub` | Market Hub | 市場類技能中樞 | Yes | - | 2.0 |
+| `market-core` | Market-Core | 市場分析核心 | - | skills-market-hub | 1.4 |
+| `market-equity` | Market-Equity | 股票分析衛星 | - | skills-market-hub | 1.2 |
+| `market-crypto` | Market-Crypto | 加密貨幣分析 | - | skills-market-hub | 1.2 |
+| `market-macro` | Market-Macro | 總體經濟分析 | - | skills-market-hub | 1.2 |
+| `risk-matrix` | Risk-Matrix | 風險管理引擎 | - | skills-market-hub | 1.2 |
+| `sentiment-radar` | Sentiment-Radar | 市場情緒雷達 | - | skills-market-hub | 1.2 |
+
+#### skills-business — 商業類
+| ID | 名稱 | 中文 | Hub | Parent | 半徑 |
+|----|------|------|-----|--------|------|
+| `skills-business-hub` | Business Hub | 商業類技能中樞 | Yes | - | 2.0 |
+| `business-12` | Business-12 | 商模十二力 | - | skills-business-hub | 1.2 |
+| `ssa-consultant` | SSA-Consultant | 顧問式銷售引擎 | - | skills-business-hub | 1.2 |
+| `master-strategy` | Master-Strategy | 戰略判斷引擎 | - | skills-business-hub | 1.4 |
+| `consultant-communication` | Consultant-Comm | 顧問溝通引擎 | - | skills-business-hub | 1.2 |
+| `xmodel` | X-Model | 破框解方引擎 | - | skills-business-hub | 1.2 |
+| `pdeif` | PDEIF | 逆熵流引擎 | - | skills-business-hub | 1.2 |
+
+#### skills-creative — 創意類
+| ID | 名稱 | 中文 | Hub | Parent | 半徑 |
+|----|------|------|-----|--------|------|
+| `skills-creative-hub` | Creative Hub | 創意類技能中樞 | Yes | - | 2.0 |
+| `c15` | C15 | 敘事張力語言層 | - | skills-creative-hub | 1.2 |
+| `text-alchemy` | Text-Alchemy | 文字煉金系統 | - | skills-creative-hub | 1.2 |
+| `storytelling-engine` | Storytelling | 說故事引擎 | - | skills-creative-hub | 1.2 |
+| `novel-craft` | Novel-Craft | 小說工藝引擎 | - | skills-creative-hub | 1.2 |
+| `aesthetic-sense` | Aesthetic-Sense | 美感引擎 | - | skills-creative-hub | 1.2 |
+| `brand-identity` | Brand-Identity | 品牌識別引擎 | - | skills-creative-hub | 1.2 |
+
+#### skills-product — 產品類
+| ID | 名稱 | 中文 | Hub | Parent | 半徑 |
+|----|------|------|-----|--------|------|
+| `skills-product-hub` | Product Hub | 產品類技能中樞 | Yes | - | 2.0 |
+| `acsf` | ACSF | 能力結晶鑄造 | - | skills-product-hub | 1.2 |
+| `dse` | DSE | 技術融合驗證 | - | skills-product-hub | 1.2 |
+| `gap` | GAP | 缺口分析引擎 | - | skills-product-hub | 1.2 |
+| `env-radar` | Env-Radar | 環境雷達 | - | skills-product-hub | 1.2 |
+| `info-architect` | Info-Architect | 資訊架構引擎 | - | skills-product-hub | 1.2 |
+| `report-forge` | Report-Forge | 報告鍛造 | - | skills-product-hub | 1.2 |
+| `orchestrator` | Orchestrator | 編排引擎 | - | skills-product-hub | 1.2 |
+
+#### skills-evolution — 演化類
+| ID | 名稱 | 中文 | Hub | Parent | 半徑 |
+|----|------|------|-----|--------|------|
+| `skills-evolution-hub` | Evolution Hub | 演化類技能中樞 | Yes | - | 2.0 |
+| `sandbox-lab` | Sandbox-Lab | 沙盒實驗室 | - | skills-evolution-hub | 1.2 |
+| `qa-auditor` | QA-Auditor | 品質審計引擎 | - | skills-evolution-hub | 1.2 |
+| `tantra` | Tantra | 情慾治理引擎 | - | skills-evolution-hub | 1.0 |
+
+#### skills-workflow — 工作流類
+| ID | 名稱 | 中文 | Hub | Parent | 半徑 |
+|----|------|------|-----|--------|------|
+| `skills-workflow-hub` | Workflow Hub | 工作流類技能中樞 | Yes | - | 2.0 |
+| `workflow-svc-brand-marketing` | WF-SVC-01 | 品牌行銷工作流 | - | skills-workflow-hub | 1.2 |
+| `workflow-investment-analysis` | WF-INV-01 | 投資分析工作流 | - | skills-workflow-hub | 1.2 |
+| `workflow-ai-deployment` | WF-AID-01 | AI部署工作流 | - | skills-workflow-hub | 1.2 |
+| `group-meeting-notes` | WF-GMN-01 | 會議記錄引擎 | - | skills-workflow-hub | 1.2 |
+
 ---
 
 ## 連線清單（Links）
@@ -267,6 +345,7 @@
 | `event-bus` | `data-bus` | 資料事件 |
 | `event-bus` | `evolution` | 演化事件 |
 | `event-bus` | `tool-registry` | 工具事件 |
+| `event-bus` | `installer` | 安裝事件 |
 | `cron` | `nightly` | 03:00 觸發 |
 
 ### Agent 內部連線（internal）
@@ -403,6 +482,7 @@
 | `data-bus` | `group-context-db` | Store 路由 |
 | `data-bus` | `workflow-state-db` | Store 路由 |
 | `wee` | `skill-synapse` | 突觸演化 |
+| `data-bus` | `lord-profile` | Store 路由 |
 | `skills-registry` | `registry` | 技能資料表 |
 
 ### Nightly 內部連線（internal）
@@ -474,6 +554,11 @@
 | `nightly` | `skill-synapse` | Synapse Decay |
 | `nightly` | `data-watchdog` | Step 29 健康檢查 |
 | `nightly` | `blueprint-reader` | Step 30 藍圖一致性驗證 |
+| `blueprint-reader` | `doctor` | 藍圖感知（系統審計） |
+| `blueprint-reader` | `surgery` | 藍圖感知（精準手術） |
+| `blueprint-reader` | `morphenix` | 藍圖感知（演化提案） |
+| `governor` | `pulse-db` | 事件記錄 |
+| `group-session-proactive` | `telegram` | 群組追問發送 |
 | `data-bus` | `pulse-db` | Store 路由 |
 | `data-bus` | `knowledge-lattice` | Store 路由 |
 | `data-bus` | `diary-store` | Store 路由 |
@@ -516,6 +601,129 @@
 | `brain` | `lord-profile` | _observe_lord() 領域畫像寫入 |
 | `lord-profile` | `persona-router` | 百合引擎讀取領域畫像（Phase 1） |
 
+### Skills 控制連線（control）
+| Source | Target | 說明 |
+|--------|--------|------|
+| `event-bus` | `skills-thinking-hub` | 思維技能事件 |
+| `event-bus` | `skills-market-hub` | 市場技能事件 |
+| `event-bus` | `skills-business-hub` | 商業技能事件 |
+| `event-bus` | `skills-creative-hub` | 創意技能事件 |
+| `event-bus` | `skills-product-hub` | 產品技能事件 |
+| `event-bus` | `skills-evolution-hub` | 演化技能事件 |
+| `event-bus` | `skills-workflow-hub` | 工作流技能事件 |
+
+### Skills 內部連線（internal）
+
+#### Thinking Hub
+| Source | Target | 說明 |
+|--------|--------|------|
+| `skills-thinking-hub` | `dharma` | 思維轉化 |
+| `skills-thinking-hub` | `philo-dialectic` | 哲學思辨 |
+| `skills-thinking-hub` | `resonance` | 感性共振 |
+| `skills-thinking-hub` | `shadow` | 博弈辨識 |
+| `skills-thinking-hub` | `meta-learning` | 元學習 |
+| `skills-thinking-hub` | `query-clarity` | 問題品質 |
+| `skills-thinking-hub` | `user-model` | 使用者畫像 |
+
+#### Market Hub
+| Source | Target | 說明 |
+|--------|--------|------|
+| `skills-market-hub` | `market-core` | 市場核心 |
+| `skills-market-hub` | `market-equity` | 股票分析 |
+| `skills-market-hub` | `market-crypto` | 加密貨幣 |
+| `skills-market-hub` | `market-macro` | 總體經濟 |
+| `skills-market-hub` | `risk-matrix` | 風險管理 |
+| `skills-market-hub` | `sentiment-radar` | 情緒雷達 |
+| `market-core` | `market-equity` | 股票衛星 |
+| `market-core` | `market-crypto` | 加密衛星 |
+| `market-core` | `market-macro` | 總經衛星 |
+
+#### Business Hub
+| Source | Target | 說明 |
+|--------|--------|------|
+| `skills-business-hub` | `business-12` | 商模十二力 |
+| `skills-business-hub` | `ssa-consultant` | 顧問銷售 |
+| `skills-business-hub` | `master-strategy` | 戰略判斷 |
+| `skills-business-hub` | `consultant-communication` | 顧問溝通 |
+| `skills-business-hub` | `xmodel` | 破框解方 |
+| `skills-business-hub` | `pdeif` | 逆熵流 |
+
+#### Creative Hub
+| Source | Target | 說明 |
+|--------|--------|------|
+| `skills-creative-hub` | `c15` | 敘事張力 |
+| `skills-creative-hub` | `text-alchemy` | 文字煉金 |
+| `skills-creative-hub` | `storytelling-engine` | 說故事 |
+| `skills-creative-hub` | `novel-craft` | 小說工藝 |
+| `skills-creative-hub` | `aesthetic-sense` | 美感 |
+| `skills-creative-hub` | `brand-identity` | 品牌識別 |
+| `text-alchemy` | `c15` | 語言層注入 |
+| `text-alchemy` | `novel-craft` | 小說工藝 |
+| `text-alchemy` | `storytelling-engine` | 說故事 |
+
+#### Product Hub
+| Source | Target | 說明 |
+|--------|--------|------|
+| `skills-product-hub` | `acsf` | 能力結晶 |
+| `skills-product-hub` | `dse` | 技術融合 |
+| `skills-product-hub` | `gap` | 缺口分析 |
+| `skills-product-hub` | `env-radar` | 環境雷達 |
+| `skills-product-hub` | `info-architect` | 資訊架構 |
+| `skills-product-hub` | `report-forge` | 報告鍛造 |
+| `skills-product-hub` | `orchestrator` | 編排 |
+
+#### Evolution Hub
+| Source | Target | 說明 |
+|--------|--------|------|
+| `skills-evolution-hub` | `sandbox-lab` | 沙盒實驗 |
+| `skills-evolution-hub` | `qa-auditor` | 品質審計 |
+| `skills-evolution-hub` | `tantra` | 情慾治理 |
+
+#### Workflow Hub
+| Source | Target | 說明 |
+|--------|--------|------|
+| `skills-workflow-hub` | `workflow-svc-brand-marketing` | 品牌行銷 |
+| `skills-workflow-hub` | `workflow-investment-analysis` | 投資分析 |
+| `skills-workflow-hub` | `workflow-ai-deployment` | AI部署 |
+| `skills-workflow-hub` | `group-meeting-notes` | 會議記錄 |
+
+### Skills 跨群組連線（cross）
+
+> 基於 Skill Manifest 的 connects_to 定義
+
+| Source | Target | 說明 |
+|--------|--------|------|
+| `deep-think` | `resonance` | 共振觸發 |
+| `deep-think` | `dharma` | 思維轉化 |
+| `deep-think` | `philo-dialectic` | 哲學思辨 |
+| `deep-think` | `master-strategy` | 戰略判斷 |
+| `investment-masters` | `market-core` | 市場分析 |
+| `investment-masters` | `risk-matrix` | 風險管理 |
+| `investment-masters` | `sentiment-radar` | 情緒雷達 |
+| `roundtable` | `master-strategy` | 戰略詰問 |
+| `roundtable` | `shadow` | 博弈辨識 |
+| `wee` | `pdeif` | 逆熵流演化 |
+| `wee` | `xmodel` | 破框解方 |
+| `wee` | `orchestrator` | 編排演化 |
+| `morphenix` | `qa-auditor` | 品質審計 |
+| `morphenix` | `env-radar` | 環境掃描 |
+| `dna27` | `query-clarity` | 問題品質守門 |
+| `dna27` | `c15` | 敘事張力 |
+| `knowledge-lattice` | `skills-thinking-hub` | 記憶接收（思維） |
+| `knowledge-lattice` | `skills-market-hub` | 記憶接收（市場） |
+| `knowledge-lattice` | `skills-business-hub` | 記憶接收（商業） |
+| `knowledge-lattice` | `skills-creative-hub` | 記憶接收（創意） |
+| `knowledge-lattice` | `skills-product-hub` | 記憶接收（產品） |
+| `knowledge-lattice` | `skills-evolution-hub` | 記憶接收（演化） |
+| `knowledge-lattice` | `skills-workflow-hub` | 記憶接收（工作流） |
+| `skills-thinking-hub` | `brain` | 思維技能→Brain |
+| `skills-market-hub` | `brain` | 市場技能→Brain |
+| `skills-business-hub` | `brain` | 商業技能→Brain |
+| `skills-creative-hub` | `brain` | 創意技能→Brain |
+| `skills-product-hub` | `brain` | 產品技能→Brain |
+| `skills-evolution-hub` | `evolution` | 演化技能→Evolution |
+| `skills-workflow-hub` | `brain` | 工作流技能→Brain |
+
 ### Installer 內部連線（internal）
 | Source | Target | 說明 |
 |--------|--------|------|
@@ -541,6 +749,9 @@
 | `morphenix` | `event-bus` | 提案回饋 |
 | `telegram` | `user` | 回傳回應 |
 | `data-watchdog` | `event-bus` | 監控事件 |
+| `telegram` | `brain` | 推送寫入 session |
+| `fact-correction` | `proactive-bridge` | P4 自省清洗推播 |
+| `fact-correction` | `pulse` | P4 自省清洗脈搏 |
 
 ---
 
@@ -583,15 +794,15 @@
 
 | 指標 | 數值 |
 |------|------|
-| 總節點數 | 121 |
-| 總連線數 | 245 |
-| 群組數 | 13 |
-| Hub 節點 | 11 (event-bus, brain, pulse, governance, doctor, llm-router, evolution, tool-registry, nightly, data-bus, installer) |
-| 跨系統連線 | 71 |
-| 內部連線 | 115 |
+| 總節點數 | 167 (121 系統 + 46 Skills) |
+| 總連線數 | 336 (245 系統 + 91 Skills) |
+| 群組數 | 14 (含 skills) |
+| Hub 節點 | 18 (11 系統 + 7 Skills Hub) |
+| 跨系統連線 | 101 (71 系統 + 30 Skills cross) |
+| 內部連線 | 169 (115 系統 + 54 Skills internal) |
 | 非同步連線 | 5 |
 | 監控連線 | 5 |
-| 控制連線 | 9 |
+| 控制連線 | 16 (9 系統 + 7 Skills control) |
 | 資料流連線 | 4 |
 | 衰減連線 | 5 |
 | 平均連線數/節點 | 2.0 |
