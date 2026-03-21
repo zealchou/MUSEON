@@ -511,6 +511,18 @@ class MuseonBrain:
         elif source == "workflow_executor":
             self._skillhub_mode = "workflow_executor"
 
+        # ── v11.3: 環境感知 — 記錄來源 + 自我修改偵測 ──
+        self._current_source = source
+
+        self._self_modification_detected = False
+        _mod_keywords = {
+            "修改程式", "改 brain", "改 server", "fix bug", "修 bug",
+            "重構", "refactor", "改程式碼", "修改 src", "改 src", "迭代",
+            "改寫", "修改檔案", "新增功能", "改 code", "debug",
+        }
+        if any(kw in content.lower() for kw in _mod_keywords):
+            self._self_modification_detected = True
+
         # ── Step 0: 更新成長階段 ──
         self._update_growth_stage()
 
@@ -3124,6 +3136,14 @@ class MuseonBrain:
             except Exception as e:
                 logger.debug(f"治理自覺 prompt 注入失敗（降級）: {e}")
 
+        # ── Zone: buffer — 自我修改協議（v11.4）──
+        if getattr(self, '_self_modification_detected', False) and not budget.is_exhausted("buffer"):
+            mod_text = self._build_self_modification_protocol()
+            if mod_text:
+                mod_fitted = budget.fit_text_to_zone("buffer", mod_text)
+                if mod_fitted:
+                    sections.append(mod_fitted)
+
         # ── Zone: persona — ANIMA 身份 + 使用者畫像 ──
         if anima_mc:
             identity_text = self._get_identity_prompt(anima_mc)
@@ -3164,6 +3184,13 @@ class MuseonBrain:
             skill_fitted = budget.fit_text_to_zone("modules", skill_section)
             if skill_fitted:
                 sections.append(skill_fitted)
+
+        # ── Zone: modules — 環境感知清單（v11.3）──
+        env_text = self._build_environment_awareness()
+        if env_text and not budget.is_exhausted("modules"):
+            env_fitted = budget.fit_text_to_zone("modules", env_text)
+            if env_fitted:
+                sections.append(env_fitted)
 
         # ── Zone: modules — Multi-Agent 部門 prompt ──
         if self._multiagent_enabled and self._context_switcher:
@@ -3792,6 +3819,89 @@ class MuseonBrain:
         )
 
         return section
+
+    def _build_environment_awareness(self) -> str:
+        """v11.3: 環境感知能力宣告.
+
+        告訴 LLM「你是 Claude Code MAX」「可用 subagent 並行」
+        「複雜輸出用 HTML 報告」「Telegram 不要降級思考深度」。
+        source=telegram 時額外強調不要因為介面而降級。
+        """
+        source = getattr(self, '_current_source', 'unknown')
+
+        lines = [
+            "## 環境感知 — 你的真實能力（v11.3）",
+            "",
+            "你是 MUSEON，底層運行在 Claude Code MAX 方案上。",
+            "不論你透過哪個介面接收訊息（Telegram、Dashboard、MCP），",
+            "你的核心能力完全相同：",
+            "",
+            "**執行能力：**",
+            "- 多 subagent 並行：可同時啟動多個子代理執行搜尋、分析、寫入",
+            "- Shell 執行：可直接跑 Python、bash、git、pytest",
+            "- 檔案讀寫：可讀取、建立、修改專案內任何檔案",
+            "- MCP 擴充：已連線的 MCP 伺服器提供額外工具能力",
+            "",
+            "**溝通能力：**",
+            "- 複雜產出用 HTML 報告（scripts/generate_iteration_report.py → GitHub Gist）",
+            "- 計畫先行：重大修改先產出 plan.md，再逐步實作",
+            "- 迭代報告：施工完成後產出結構化迭代報告",
+            "",
+            "**工程紀律：**",
+            "- 修改前查 blast-radius.md + joint-map.md",
+            "- 修改後跑 validate_connections.py + pytest",
+            "- 藍圖（五張）與程式碼必須在同一個 commit 同步更新",
+        ]
+
+        if source == "telegram":
+            lines.extend([
+                "",
+                "⚠️ 你目前透過 Telegram 接收訊息。",
+                "Telegram 只是一個輸入通道——它不限制你的思考深度或執行能力。",
+                "不要因為介面簡潔就降級回答品質。",
+                "複雜產出無法直接在 Telegram 呈現時，用 HTML 報告 + 連結回傳。",
+                "需要跨步驟施工時，照常走完完整的迭代協議。",
+            ])
+
+        return "\n".join(lines)
+
+    def _build_self_modification_protocol(self) -> str:
+        """v11.4: 自我修改協議注入.
+
+        偵測到自我修改意圖時（修改 MUSEON 自身原始碼），
+        注入嚴格施工協議——計畫先行、查 blast-radius、禁區清單、驗證步驟。
+        """
+        lines = [
+            "## 自我修改協議 — 嚴格施工規範（v11.4）",
+            "",
+            "⚠️ 偵測到你正準備修改自身系統的原始碼。",
+            "這是高風險操作——你正在改寫自己的神經迴路。必須遵循：",
+            "",
+            "**計畫先行：**",
+            "1. 先產出修改計畫（哪些檔案、改什麼、為什麼）",
+            "2. 查 docs/blast-radius.md 確認安全分級",
+            "3. 查 docs/joint-map.md 確認共享狀態影響",
+            "4. 影響 ≥ 2 個模組 → 必須先回報使用者確認",
+            "",
+            "**禁區清單：**",
+            "- 🔴 core/event_bus.py（扇入 117，禁止修改）",
+            "- 🟠 gateway/server.py、agent/brain.py（紅區，需全量 pytest）",
+            "- 🟠 gateway/message.py、tools/tool_registry.py（紅區）",
+            "",
+            "**驗證步驟：**",
+            "1. 修改完成 → 跑 pytest（.venv/bin/python -m pytest tests/ -x）",
+            "2. 跑 scripts/validate_connections.py 確認無斷線",
+            "3. 檢查五張藍圖是否需要同步更新",
+            "4. 藍圖 + 程式碼必須在同一個 commit",
+            "",
+            "**絕對不能做的：**",
+            "- 跳過測試直接 commit",
+            "- 修改 __init__() 初始化順序",
+            "- 修改 event_bus 的 emit/on 簽名",
+            "- 修改 ANIMA_MC.json 的讀寫邏輯繞過 AnimaMCStore",
+        ]
+
+        return "\n".join(lines)
 
     def _build_mcp_tools_summary(self) -> str:
         """v11.1: 建構已連線 MCP 伺服器的能力摘要.

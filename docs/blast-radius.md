@@ -1,10 +1,11 @@
-# Blast Radius — 模組影響半徑表 v1.33
+# Blast Radius — 模組影響半徑表 v1.34
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節
+> **v1.34 (2026-03-21)**：環境感知 + 工程護欄——brain.py 新增 `_build_environment_awareness()` v11.3（modules zone 環境能力宣告）+ `_build_self_modification_protocol()` v11.4（buffer zone 自我修改協議）+ `_current_source` + `_self_modification_detected`；新增 Claude Code Hooks（PreToolUse blast-radius 自動查核 + Stop 未 commit 提醒）；新增 `scripts/generate_iteration_report.py`（迭代報告 HTML 生成器）
 > **v1.33 (2026-03-21)**：Skill 鍛造膠合層修復——VectorBridge 新增 index_all_skills()/reindex_all()；server.py startup 新增 skills 索引；nightly Step 8.6 skill_vector_reindex；plugin-registry v2.3（+12 Skill）；49 個 Skill Manifest 補齊 memory/io 欄位
 > **v1.27 (2026-03-20)**：brain.py P3 前置交織融合——新增 `_p3_gather_pre_fusion_insights()`，Phase 4.5 輕量簽名，`_execute_p3_parallel_fusion` 降級為向後相容
 
@@ -191,7 +192,7 @@
 |------|-----|
 | **扇入** | 3（server, mcp_server, __init__） |
 | **扇出** | 32+（import 32 個模組，初始化全系統——含 PrimalDetector, MultiAgentExecutor, MemoryGate） |
-| **角色** | 系統核心——LLM 對話、記憶、自我觀察、所有子系統初始化、多代理並行呼叫、記憶閘門意圖判斷、認知追蹤（trace_decision+trace_cognitive）、P3 並行融合（Step 6.2-6.5）、P0 訊號六類分流（_classify_p0_signal）、事實糾正偵測（_detect_fact_correction）、外部使用者觀察（_observe_external_user v3.0 含 trust evolution + 八原語 + L6 溝通風格） |
+| **角色** | 系統核心——LLM 對話、記憶、自我觀察、所有子系統初始化、多代理並行呼叫、記憶閘門意圖判斷、認知追蹤（trace_decision+trace_cognitive）、P3 並行融合（Step 6.2-6.5）、P0 訊號六類分流（_classify_p0_signal）、事實糾正偵測（_detect_fact_correction）、外部使用者觀察（_observe_external_user v3.0 含 trust evolution + 八原語 + L6 溝通風格）、環境感知宣告（_build_environment_awareness v11.3）、自我修改協議（_build_self_modification_protocol v11.4） |
 
 **P3 方法群：**
 - `_p3_gather_pre_fusion_insights()` (新增 v1.22: 前置融合注入 system_prompt)
@@ -214,7 +215,7 @@
 | ✅ 安全 | ❌ 危險 |
 |---------|---------|
 | 修改 `_chat()` 的回應後處理 | 修改 `__init__()` 的初始化順序 |
-| 新增獨立觀察方法（如 `_handle_fact_correction()`, `_observe_lord()`, `_observe_external_user()`, `_classify_p0_signal()`, `_detect_fact_correction()`） | 修改 `_build_soul_context()` |
+| 新增獨立觀察方法（如 `_handle_fact_correction()`, `_observe_lord()`, `_observe_external_user()`, `_classify_p0_signal()`, `_detect_fact_correction()`, `_build_environment_awareness()`, `_build_self_modification_protocol()`） | 修改 `_build_soul_context()` |
 | Step 8 trace_decision/trace_cognitive 呼叫（純寫入足跡） | 修改 trace 呼叫的觸發條件 |
 | 修改日誌格式 | 修改 `_save_anima_mc()` / `_load_anima_mc()` |
 | — | 修改 `_anima_mc_lock` 鎖策略 |
@@ -767,6 +768,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-21 | v1.34 | 環境感知 + 工程護欄落地：brain.py 新增 `_build_environment_awareness()` v11.3 + `_build_self_modification_protocol()` v11.4 + `_current_source` + `_self_modification_detected`（modules/buffer zone 注入，純新增方法不改既有流程）；新增 Claude Code Hooks（`.claude/settings.json`：PreToolUse blast-radius 自動查核 + Stop 未 commit 提醒）；新增 `scripts/generate_iteration_report.py`（迭代報告 HTML → Gist）；新增 `scripts/hooks/pre_edit_blast_check.py` + `stop_checklist.py`；brain.py 扇出不變、扇入不變、無新增共享狀態、無新增 import |
 | 2026-03-21 | v1.33 | Skill 鍛造膠合層修復：VectorBridge 新增 `index_all_skills()`/`reindex_all()`（skills collection 全量索引）；server.py startup 新增 skills 向量索引步驟；nightly Step 8.6 `skill_vector_reindex`；plugin-registry v2.3（+12 Skill 註冊）；49 個 Skill Manifest 補齊 memory/io 欄位；skills collection 寫入者從 skill_router.py 修正為 vector_bridge.py |
 | 2026-03-21 | v1.32 | 群組對話 DSE 三階段修復：brain.py 新增 `_classify_p0_signal()`（P0 六類訊號分流啟發式）+ `_detect_fact_correction()`（群組事實糾正啟用）+ `_observe_external_user()` v3.0 升級（trust evolution 四階段 + PrimalDetector 八原語 + L6 溝通風格 + L1 事實萃取）+ `_P0_SIGNAL_KEYWORDS` 四類關鍵字表 + `_FACT_CORRECTION_PATTERNS` 28 條糾正模式；memory_manager.py store() 新增 chat_scope/group_id 參數 + recall() 新增 chat_scope_filter/exclude_scopes 過濾 + _keyword_fallback()/\_vector_index() 同步支援；server.py 群組事實糾正啟用（skip_fact_correction=False）+ 錯誤顯示啟用（show_error_details=True）；governance/multi_tenant.py ExternalAnimaManager v3.0 schema（profile/relationship/seven_layers + v2→v3 遷移）；同步 joint-map v1.26、memory-router v1.1、persistence-contract v1.23、system-topology v1.26 |
 | 2026-03-21 | v1.31 | GraphRAG 社群偵測：knowledge_lattice.py 新增 `detect_communities()`（Label Propagation）+ `_summarize_community()`（Extract-based 摘要）+ `has_communities()`（快速檢查）+ `recall_with_community()`（語義社群召回）（全部為純新增方法，不改既有 API）；brain.py L3221-3233 新增 Layer 2.5 社群摘要注入（~12 行，`has_communities()` + `recall_with_community()`，降級 try/except 保護）；G5 影響範圍：brain 新增為社群摘要消費者；無新增持久層（社群偵測為即時計算）；同步 joint-map v1.25、persistence-contract v1.22（不變）、system-topology v1.23（不變） |
