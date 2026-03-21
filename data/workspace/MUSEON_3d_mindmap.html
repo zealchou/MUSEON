@@ -176,6 +176,35 @@ canvas{display:block}
   border-left:3px solid #C4402A;font-family:'IBM Plex Mono',monospace;font-size:.6rem;
 }
 .doctor-issues{white-space:pre-wrap;line-height:1.5;color:#5A5A6E}
+
+/* ═══ Sync Diff Modal ═══ */
+.sync-overlay{
+  position:fixed;inset:0;z-index:300;
+  background:rgba(18,18,26,.45);backdrop-filter:blur(4px);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.sync-overlay.show{opacity:1;pointer-events:auto}
+.sync-modal{
+  background:#FDFCFA;border:1px solid #E2E0DA;border-radius:12px;
+  padding:20px 24px;width:440px;max-height:80vh;overflow-y:auto;
+  box-shadow:0 8px 32px rgba(18,18,26,.12);
+}
+.sync-modal h3{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;color:#C4502A;margin-bottom:12px}
+.sync-stat{font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:#5A5A6E;line-height:1.8}
+.sync-stat .ok{color:#2A7A6E;font-weight:600}
+.sync-stat .warn{color:#C9943A;font-weight:600}
+.sync-stat .err{color:#C4502A;font-weight:600}
+.sync-list{font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:#5A5A6E;line-height:1.6;margin:6px 0;max-height:120px;overflow-y:auto;padding:6px 8px;background:rgba(226,224,218,.2);border-radius:6px}
+.sync-actions{display:flex;gap:8px;margin-top:14px;justify-content:flex-end}
+.sync-btn{
+  font-family:'IBM Plex Mono',monospace;font-size:.6rem;font-weight:600;
+  padding:6px 16px;border-radius:100px;cursor:pointer;transition:all .15s;
+}
+.sync-btn.primary{background:#C4502A;color:#fff;border:none}
+.sync-btn.primary:hover{background:#E0714D}
+.sync-btn.secondary{background:transparent;color:#5A5A6E;border:1.5px solid #E2E0DA}
+.sync-btn.secondary:hover{border-color:#C4502A;color:#C4502A}
 </style>
 </head>
 <body>
@@ -240,7 +269,13 @@ canvas{display:block}
   <button class="btn" onclick="clearSelection()">取消選取</button>
   <button class="btn" id="rotBtn" onclick="toggleRot()">自動旋轉：開</button>
   <button class="btn" id="simBtn" onclick="reheatSim()">重新模擬</button>
-  <button class="btn" onclick="syncTopology()">同步拓撲</button>
+  <button class="btn" id="syncBtn" onclick="syncTopology()">同步拓撲</button>
+</div>
+
+<input type="file" id="topoFileInput" accept=".md" style="display:none">
+
+<div class="sync-overlay" id="syncOverlay" onclick="if(event.target===this)closeSyncModal()">
+  <div class="sync-modal" id="syncModal"></div>
 </div>
 
 <div class="tooltip" id="tip"></div>
@@ -264,7 +299,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 //  SYNC META — 拓撲同步狀態
 // ═══════════════════════════════════════
 const SYNC_META = {
-  topologyVersion: 'v1.26',
+  topologyVersion: 'v1.28',
   syncDate: '2026-03-21',
   nodeCount: 0, // auto-calculated below
   linkCount: 0, // auto-calculated below
@@ -337,579 +372,531 @@ function lkHex(t){ return t==='cross'?0xC98980:t==='async'?0xC5A47E:t==='monitor
 function lkCSS(t){ return t==='cross'?'#C98980':t==='async'?'#C5A47E':t==='monitor'?'#84A4BA':t==='control'?'#9E9EA4':t==='flow'?'#DC9F8E':t==='decay'?'#8B6E5A':'#B5B3AD'; }
 
 const nodes = [
+  // ── center ──
   {id:"event-bus",label:"Event Bus",zh:"核心事件匯流排",group:"center",r:3.2,hub:1},
-  {id:"user",label:"User (Zeal)",zh:"使用者",group:"channel",r:2.0},
-  {id:"telegram",label:"Telegram",zh:"主通道",group:"channel",r:1.6},
-  {id:"gateway",label:"Gateway",zh:"WebSocket :8765",group:"channel",r:1.6},
+  // ── channel ──
   {id:"cron",label:"Cron",zh:"排程入口",group:"channel",r:1.2},
-  {id:"brain",label:"Agent / Brain",zh:"主判斷中樞",group:"agent",r:2.8,hub:1},
-  {id:"dna27",label:"DNA27",zh:"27反射叢集",group:"agent",p:"brain",r:1.0},
-  {id:"skill-router",label:"Skill Router",zh:"技能路由",group:"agent",p:"brain",r:1.1},
-  {id:"reflex-router",label:"Reflex Router",zh:"反射路由",group:"agent",p:"brain",r:1.0},
-  {id:"dispatch",label:"Dispatch",zh:"多技能編排",group:"agent",p:"brain",r:1.0},
-  {id:"knowledge-lattice",label:"Knowledge Lattice",zh:"知識晶格",group:"agent",p:"brain",r:1.1},
-  {id:"plan-engine",label:"Plan Engine",zh:"六階段計畫",group:"agent",p:"brain",r:1.0},
-  {id:"metacognition",label:"Metacognition",zh:"元認知審查",group:"agent",p:"brain",r:1.0},
-  {id:"intuition",label:"Intuition",zh:"五層直覺",group:"agent",p:"brain",r:0.9},
-  {id:"eval-engine",label:"Eval Engine",zh:"Q-Score",group:"agent",p:"brain",r:1.0},
-  {id:"diary-store",label:"Diary Store",zh:"日記系統",group:"agent",p:"brain",r:0.9},
-  {id:"primal-detector",label:"Primal Detector",zh:"八原語偵測",group:"agent",p:"brain",r:1.0},
-  {id:"persona-router",label:"Persona Router",zh:"人格路由",group:"agent",p:"brain",r:1.0},
-  {id:"deep-think",label:"Deep Think",zh:"思考前置引擎（P0/P1/P2）",group:"agent",p:"brain",r:1.1},
-  {id:"roundtable",label:"Roundtable",zh:"圓桌詰問引擎",group:"agent",p:"brain",r:1.0},
-  {id:"investment-masters",label:"Investment Masters",zh:"投資軍師團",group:"agent",p:"brain",r:0.9},
-  {id:"drift-detector",label:"Drift Detector",zh:"漂移偵測",group:"agent",p:"brain",r:0.8},
-  {id:"okr-router",label:"OKR Router",zh:"八卦路由",group:"agent",p:"brain",r:0.9},
-  {id:"pulse",label:"Pulse Engine",zh:"VITA 生命力",group:"pulse",r:2.8,hub:1},
-  {id:"heartbeat",label:"Heartbeat",zh:"三脈主控",group:"pulse",p:"pulse",r:1.0},
-  {id:"explorer",label:"Explorer",zh:"自主探索",group:"pulse",p:"pulse",r:1.1},
-  {id:"silent-digestion",label:"Silent Digestion",zh:"靜默消化",group:"pulse",p:"pulse",r:1.0},
-  {id:"proactive-bridge",label:"Proactive Bridge",zh:"主動推播",group:"pulse",p:"pulse",r:1.1},
-  {id:"micro-pulse",label:"Micro Pulse",zh:"秒級微脈",group:"pulse",p:"pulse",r:0.8},
-  {id:"pulse-db",label:"Pulse DB",zh:"脈搏資料庫",group:"pulse",p:"pulse",r:0.8},
-  {id:"commitment-tracker",label:"Commitment",zh:"承諾追蹤",group:"pulse",p:"pulse",r:0.9},
-  {id:"anima-mc-store",label:"AnimaMC Store",zh:"ANIMA統一存取",group:"pulse",p:"pulse",r:1.1},
-  {id:"anima-tracker",label:"Anima Tracker",zh:"八元素追蹤",group:"pulse",p:"pulse",r:1.0},
-  {id:"group-session-proactive",label:"Group Proactive",zh:"群組主動追問",group:"pulse",p:"pulse",r:0.9},
-  {id:"governance",label:"Governance",zh:"三焦式治理",group:"gov",r:2.8,hub:1},
-  {id:"governor",label:"Governor",zh:"上中下焦",group:"gov",p:"governance",r:1.0},
-  {id:"immunity",label:"Immunity",zh:"先天+後天免疫",group:"gov",p:"governance",r:1.1},
-  {id:"preflight",label:"Preflight",zh:"啟動門",group:"gov",p:"governance",r:0.9},
-  {id:"refractory",label:"Refractory",zh:"斷路器（三態+半開）",group:"gov",p:"governance",r:0.9},
-  {id:"skill-scanner",label:"Skill Scanner",zh:"技能掃描",group:"gov",p:"governance",r:0.8},
-  {id:"sandbox",label:"Sandbox",zh:"沙盒隔離",group:"gov",p:"governance",r:0.8},
-  {id:"telegram-guard",label:"TG Guard",zh:"Polling守衛",group:"gov",p:"governance",r:0.8},
-  {id:"service-health",label:"Service Health",zh:"服務監控",group:"gov",p:"governance",r:1.0},
-  {id:"doctor",label:"Doctor",zh:"自我診斷修復",group:"doctor",r:2.8,hub:1},
-  {id:"system-audit",label:"System Audit",zh:"8層49項",group:"doctor",p:"doctor",r:1.1},
-  {id:"health-check",label:"Health Check",zh:"12項基礎",group:"doctor",p:"doctor",r:0.9},
-  {id:"self-diagnosis",label:"Self Diagnosis",zh:"診斷管線",group:"doctor",p:"doctor",r:0.9},
-  {id:"auto-repair",label:"Auto Repair",zh:"自動修復",group:"doctor",p:"doctor",r:1.0},
-  {id:"surgery",label:"Surgery",zh:"精準手術",group:"doctor",p:"doctor",r:0.8},
-  {id:"log-analyzer",label:"Log Analyzer",zh:"日誌分析",group:"doctor",p:"doctor",r:0.8},
-  {id:"code-analyzer",label:"Code Analyzer",zh:"代碼品質",group:"doctor",p:"doctor",r:0.8},
-  {id:"memory-reset",label:"Memory Reset",zh:"一鍵記憶重置",group:"doctor",p:"doctor",r:0.8},
-  {id:"observatory",label:"Observatory",zh:"認知可觀測性儀表板",group:"doctor",p:"doctor",r:0.8},
-  {id:"llm-router",label:"LLM Router",zh:"智能模型選擇",group:"llm",r:2.2,hub:1},
-  {id:"budget-mgr",label:"Budget Mgr",zh:"Token預算",group:"llm",p:"llm-router",r:1.0},
-  {id:"rate-limit",label:"Rate Limit",zh:"速限守衛",group:"llm",p:"llm-router",r:0.8},
-  {id:"llm-cache",label:"Cache",zh:"LRU快取",group:"llm",p:"llm-router",r:0.8},
-  {id:"memory",label:"Memory",zh:"六層記憶",group:"data",p:"data-bus",r:1.6},
-  {id:"vector-index",label:"Vector Index",zh:"Qdrant語義",group:"data",p:"data-bus",r:1.5},
-  {id:"wee",label:"WEE",zh:"演化引擎",group:"data",p:"data-bus",r:1.2},
-  {id:"skills-registry",label:"Skills Registry",zh:"技能資料庫",group:"data",p:"data-bus",r:1.2},
-  {id:"registry",label:"Registry",zh:"SQLite",group:"data",p:"data-bus",r:1.0},
-  {id:"skill-synapse",label:"Skill Synapse",zh:"突觸網路",group:"data",p:"data-bus",r:0.9},
-  {id:"nightly",label:"Nightly Pipeline",zh:"30+步夜間整合",group:"nightly",r:2.2,hub:1},
-  {id:"morphenix",label:"Morphenix",zh:"演化提案",group:"nightly",p:"nightly",r:1.0},
-  {id:"morphenix-validator",label:"Morphenix Validator",zh:"Docker 沙盒驗證",group:"nightly",p:"nightly",r:0.7},
-  {id:"searxng",label:"SearXNG",zh:"搜尋:8888",group:"external",r:1.0},
-  {id:"qdrant",label:"Qdrant",zh:"向量DB:6333",group:"external",r:1.0},
-  {id:"firecrawl",label:"Firecrawl",zh:"爬取:3002",group:"external",r:0.8},
-  {id:"anthropic-api",label:"Anthropic API",zh:"Claude API",group:"external",r:1.1},
-  {id:"data-bus",label:"DataBus",zh:"資料層路由器",group:"data",r:1.8,hub:1},
-  {id:"data-watchdog",label:"DataWatchdog",zh:"資料層監控",group:"data",p:"data-bus",r:1.0},
-  // v1.2+ channel
+  {id:"gateway",label:"Gateway",zh:"WebSocket :8765",group:"channel",r:1.6},
   {id:"mcp-server",label:"MCP Server",zh:"Claude Code 介面",group:"channel",r:1.2},
-  // v1.2+ agent
-  {id:"onboarding",label:"Onboarding",zh:"上線儀式",group:"agent",p:"brain",r:0.9},
-  {id:"multiagent",label:"Multiagent",zh:"多代理協調",group:"agent",p:"brain",r:0.9},
-  // v1.2+ gov
-  {id:"guardian",label:"Guardian",zh:"系統守護 Daemon",group:"gov",p:"governance",r:1.1},
-  {id:"security",label:"Security",zh:"安全淨化與稽核",group:"gov",p:"governance",r:1.0},
-  {id:"dendritic-scorer",label:"Dendritic Scorer",zh:"樹突評分器",group:"gov",p:"governance",r:0.9},
-  {id:"footprint",label:"Footprint",zh:"操作足跡追蹤",group:"gov",p:"governance",r:0.9},
-  {id:"perception",label:"Perception",zh:"四診合參感知",group:"gov",p:"governance",r:0.9},
-  {id:"cognitive-receipt",label:"Cognitive Receipt",zh:"認知收據格式定義",group:"gov",p:"governance",r:0.7},
-  // v1.4 data SQLite
-  {id:"group-context-db",label:"GroupContextDB",zh:"群組上下文 SQLite",group:"data",p:"data-bus",r:1.0},
-  {id:"workflow-state-db",label:"WorkflowStateDB",zh:"工作流 SQLite",group:"data",p:"data-bus",r:1.0},
-  // evolution 群組
-  {id:"evolution",label:"Evolution",zh:"演化系統",group:"evolution",r:2.2,hub:1},
-  {id:"outward-trigger",label:"Outward Trigger",zh:"外向演化觸發",group:"evolution",p:"evolution",r:1.1},
-  {id:"intention-radar",label:"Intention Radar",zh:"意圖雷達",group:"evolution",p:"evolution",r:1.0},
-  {id:"digest-engine",label:"Digest Engine",zh:"消化結晶引擎",group:"evolution",p:"evolution",r:1.0},
-  {id:"research-engine",label:"Research Engine",zh:"外部研究引擎",group:"evolution",p:"evolution",r:1.1},
-  {id:"evolution-velocity",label:"Evolution Velocity",zh:"演化速度測量",group:"evolution",p:"evolution",r:1.0},
-  {id:"feedback-loop",label:"Feedback Loop",zh:"使用者回饋迴路",group:"evolution",p:"evolution",r:0.9},
-  {id:"parameter-tuner",label:"Parameter Tuner",zh:"參數自動調諧",group:"evolution",p:"evolution",r:0.9},
-  {id:"tool-muscle",label:"Tool Muscle",zh:"工具肌肉記憶",group:"evolution",p:"evolution",r:0.8},
-  {id:"trigger-weights",label:"Trigger Weights",zh:"觸發器權重",group:"evolution",p:"evolution",r:0.8},
-  // tools 群組
-  {id:"tool-registry",label:"Tool Registry",zh:"工具註冊中心",group:"tools",r:1.8,hub:1},
-  {id:"tool-discovery",label:"Tool Discovery",zh:"工具自動探測",group:"tools",p:"tool-registry",r:1.0},
-  {id:"dify-scheduler",label:"Dify Scheduler",zh:"Dify 排程器",group:"tools",p:"tool-registry",r:0.8},
-  {id:"image-gen",label:"Image Gen",zh:"圖像生成",group:"tools",p:"tool-registry",r:0.8},
-  {id:"rss-aggregator",label:"RSS Aggregator",zh:"RSS 聚合器",group:"tools",p:"tool-registry",r:0.8},
-  {id:"voice-clone",label:"Voice Clone",zh:"語音克隆",group:"tools",p:"tool-registry",r:0.7},
-  {id:"zotero-bridge",label:"Zotero Bridge",zh:"文獻管理橋接",group:"tools",p:"tool-registry",r:0.8},
-  {id:"mcp-dify",label:"MCP Dify",zh:"MCP-Dify 連接器",group:"tools",p:"tool-registry",r:0.7},
-  {id:"skill-market",label:"Skill Market",zh:"技能交易市場",group:"tools",p:"tool-registry",r:1.0},
-  {id:"federation-sync",label:"Federation Sync",zh:"母子體同步",group:"tools",p:"tool-registry",r:0.9},
-  // nightly 子節點
-  {id:"curiosity-router",label:"Curiosity Router",zh:"好奇心路由",group:"nightly",p:"nightly",r:0.9},
-  {id:"exploration-bridge",label:"Exploration Bridge",zh:"探索橋接",group:"nightly",p:"nightly",r:0.9},
-  {id:"skill-forge-scout",label:"Skill Forge Scout",zh:"技能鍛造偵察",group:"nightly",p:"nightly",r:0.8},
-  {id:"crystal-actuator",label:"Crystal Actuator",zh:"結晶致動器",group:"nightly",p:"nightly",r:0.8},
-  {id:"periodic-cycles",label:"Periodic Cycles",zh:"週期循環",group:"nightly",p:"nightly",r:0.9},
-  // installer 群組
-  {id:"installer",label:"Installer",zh:"安裝編排器",group:"installer",r:1.6,hub:1},
-  {id:"installer-daemon",label:"Daemon Config",zh:"Daemon 設定",group:"installer",p:"installer",r:0.8},
-  {id:"installer-electron",label:"Electron Packager",zh:"Electron 打包",group:"installer",p:"installer",r:0.8},
-  {id:"installer-env",label:"Environment",zh:"環境檢查",group:"installer",p:"installer",r:0.7},
-  {id:"installer-verifier",label:"Module Verifier",zh:"模組驗證",group:"installer",p:"installer",r:0.7},
-  // Phase 4: 飛輪多代理實質化
-  {id:"multi-agent-executor",label:"MultiAgent Executor",zh:"多代理執行器",group:"agent",p:"brain",r:1.0},
-  {id:"response-synthesizer",label:"Response Synthesizer",zh:"DNA交叉重組合成",group:"agent",p:"brain",r:0.8},
-  {id:"flywheel-coordinator",label:"Flywheel Coordinator",zh:"飛輪協調器",group:"agent",p:"brain",r:0.8},
-  // P3: 並行融合引擎
-  {id:"dendritic-fusion",label:"Dendritic Fusion",zh:"P3 並行融合引擎（MetaCog+Eval+Health）",group:"agent",p:"brain",r:1.1},
-  // P0: 事實覆寫引擎
-  {id:"fact-correction",label:"Fact Correction",zh:"事實覆寫引擎",group:"agent",p:"brain",r:0.9},
-  // 知識推薦引擎
+  {id:"telegram",label:"Telegram",zh:"主通道",group:"channel",r:1.6},
+  {id:"user",label:"User (Zeal)",zh:"使用者",group:"channel",r:2.0},
+  // ── agent ──
+  {id:"brain",label:"Agent / Brain",zh:"主判斷中樞",group:"agent",r:2.8,hub:1},
+  {id:"deep-think",label:"Deep Think",zh:"思考前置引擎（P0 訊號分流 / P1 輸入審視 / P2 決策偵測）",group:"agent",r:1.1,p:"brain"},
+  {id:"dendritic-fusion",label:"Dendritic Fusion",zh:"P3 並行融合引擎（MetaCog+Eval+Health）",group:"agent",r:1.1,p:"brain"},
+  {id:"diary-store",label:"Diary Store",zh:"日記存儲（原靈魂年輪）",group:"agent",r:0.9,p:"brain"},
+  {id:"dispatch",label:"Dispatch",zh:"多技能編排",group:"agent",r:1.0,p:"brain"},
+  {id:"dna27",label:"DNA27",zh:"27 反射叢集",group:"agent",r:1.0,p:"brain"},
+  {id:"drift-detector",label:"Drift Detector",zh:"漂移偵測",group:"agent",r:0.8,p:"brain"},
+  {id:"eval-engine",label:"Eval Engine",zh:"Q-Score",group:"agent",r:1.0,p:"brain"},
+  {id:"fact-correction",label:"Fact Correction",zh:"事實覆寫引擎",group:"agent",r:0.9,p:"brain"},
+  {id:"flywheel-coordinator",label:"Flywheel Coordinator",zh:"飛輪流動協調",group:"agent",r:0.9,p:"brain"},
+  {id:"intuition",label:"Intuition",zh:"五層直覺",group:"agent",r:0.9,p:"brain"},
+  {id:"investment-masters",label:"Investment Masters",zh:"投資軍師團（六位大師模型會診）",group:"agent",r:0.9,p:"brain"},
+  {id:"knowledge-lattice",label:"Knowledge Lattice",zh:"知識晶格",group:"agent",r:1.1,p:"brain"},
+  {id:"metacognition",label:"Metacognition",zh:"元認知審查",group:"agent",r:1.0,p:"brain"},
+  {id:"multi-agent-executor",label:"Multi Agent Executor",zh:"並行 LLM 執行器",group:"agent",r:1.0,p:"brain"},
+  {id:"multiagent",label:"Multiagent",zh:"多代理協調",group:"agent",r:0.9,p:"brain"},
+  {id:"okr-router",label:"OKR Router",zh:"八卦路由",group:"agent",r:0.9,p:"brain"},
+  {id:"onboarding",label:"Onboarding",zh:"上線儀式",group:"agent",r:0.9,p:"brain"},
+  {id:"persona-router",label:"Persona Router",zh:"人格路由 + 百合引擎決策",group:"agent",r:1.1,p:"brain"},
+  {id:"plan-engine",label:"Plan Engine",zh:"六階段計畫",group:"agent",r:1.0,p:"brain"},
+  {id:"primal-detector",label:"Primal Detector",zh:"八原語偵測",group:"agent",r:1.0,p:"brain"},
   {id:"recommender",label:"Recommender",zh:"知識推薦引擎",group:"agent",r:0.7,p:"brain"},
-  // P4: 藍圖解析器
-  {id:"blueprint-reader",label:"Blueprint Reader",zh:"藍圖解析器",group:"data",p:"data-bus",r:0.9},
-  // 主人領域畫像
-  {id:"lord-profile",label:"Lord Profile",zh:"主人領域畫像",group:"data",p:"data-bus",r:0.8},
-  // A區 #2: BM25 稀疏向量生成器
-  {id:"sparse-embedder",label:"Sparse Embedder",zh:"BM25 稀疏向量",group:"data",p:"data-bus",r:0.9},
-  // ═══ Skills 生態系（40 Skill + 7 Hub）═══
-  // ── skills-thinking Hub（思維類）──
-  {id:"skills-thinking-hub",label:"Thinking Hub",zh:"思維類技能中樞",group:"skills",r:2.0,hub:1},
-  {id:"dharma",label:"DHARMA",zh:"思維轉化引擎",group:"skills",p:"skills-thinking-hub",r:1.2},
-  {id:"philo-dialectic",label:"Philo-Dialectic",zh:"哲學思辨引擎",group:"skills",p:"skills-thinking-hub",r:1.2},
-  {id:"resonance",label:"Resonance",zh:"感性共振引擎",group:"skills",p:"skills-thinking-hub",r:1.2},
-  {id:"shadow",label:"Shadow",zh:"人際博弈辨識引擎",group:"skills",p:"skills-thinking-hub",r:1.2},
-  {id:"meta-learning",label:"Meta-Learning",zh:"元學習引擎",group:"skills",p:"skills-thinking-hub",r:1.2},
-  {id:"query-clarity",label:"Query-Clarity",zh:"問題品質守門層",group:"skills",p:"skills-thinking-hub",r:1.2},
-  {id:"user-model",label:"User-Model",zh:"使用者畫像引擎",group:"skills",p:"skills-thinking-hub",r:1.2},
-  // ── skills-market Hub（市場類）──
-  {id:"skills-market-hub",label:"Market Hub",zh:"市場類技能中樞",group:"skills",r:2.0,hub:1},
-  {id:"market-core",label:"Market-Core",zh:"市場分析核心",group:"skills",p:"skills-market-hub",r:1.4},
-  {id:"market-equity",label:"Market-Equity",zh:"股票分析衛星",group:"skills",p:"skills-market-hub",r:1.2},
-  {id:"market-crypto",label:"Market-Crypto",zh:"加密貨幣分析",group:"skills",p:"skills-market-hub",r:1.2},
-  {id:"market-macro",label:"Market-Macro",zh:"總體經濟分析",group:"skills",p:"skills-market-hub",r:1.2},
-  {id:"risk-matrix",label:"Risk-Matrix",zh:"風險管理引擎",group:"skills",p:"skills-market-hub",r:1.2},
-  {id:"sentiment-radar",label:"Sentiment-Radar",zh:"市場情緒雷達",group:"skills",p:"skills-market-hub",r:1.2},
-  // ── skills-business Hub（商業類）──
+  {id:"reflex-router",label:"Reflex Router",zh:"反射路由",group:"agent",r:1.0,p:"brain"},
+  {id:"response-synthesizer",label:"Response Synthesizer",zh:"DNA 交叉重組合成",group:"agent",r:0.8,p:"brain"},
+  {id:"roundtable",label:"Roundtable",zh:"圓桌詰問引擎（多角色交叉詰問 + 仲裁）",group:"agent",r:1.0,p:"brain"},
+  {id:"skill-router",label:"Skill Router",zh:"技能路由",group:"agent",r:1.1,p:"brain"},
+  // ── pulse ──
+  {id:"pulse",label:"Pulse Engine",zh:"VITA 生命力",group:"pulse",r:2.8,hub:1},
+  {id:"anima-mc-store",label:"AnimaMC Store",zh:"ANIMA統一存取",group:"pulse",r:1.1,p:"pulse"},
+  {id:"anima-tracker",label:"Anima Tracker",zh:"八元素追蹤",group:"pulse",r:1.0,p:"pulse"},
+  {id:"commitment-tracker",label:"Commitment",zh:"承諾追蹤",group:"pulse",r:0.9,p:"pulse"},
+  {id:"explorer",label:"Explorer",zh:"自主探索",group:"pulse",r:1.1,p:"pulse"},
+  {id:"group-session-proactive",label:"Group Session Proactive",zh:"群組後主動追問",group:"pulse",r:0.9,p:"pulse"},
+  {id:"heartbeat",label:"Heartbeat",zh:"三脈主控",group:"pulse",r:1.0,p:"pulse"},
+  {id:"micro-pulse",label:"Micro Pulse",zh:"秒級微脈",group:"pulse",r:0.8,p:"pulse"},
+  {id:"proactive-bridge",label:"Proactive Bridge",zh:"主動推播 + 百合引擎象限調適",group:"pulse",r:1.2,p:"pulse"},
+  {id:"pulse-db",label:"Pulse DB",zh:"脈搏資料庫",group:"pulse",r:0.8,p:"pulse"},
+  {id:"silent-digestion",label:"Silent Digestion",zh:"靜默消化",group:"pulse",r:1.0,p:"pulse"},
+  // ── gov ──
+  {id:"governance",label:"Governance",zh:"三焦式治理",group:"gov",r:2.8,hub:1},
+  {id:"cognitive-receipt",label:"Cognitive Receipt",zh:"認知收據格式定義",group:"gov",r:0.7,p:"governance"},
+  {id:"dendritic-scorer",label:"Dendritic Scorer",zh:"樹突評分器",group:"gov",r:0.9,p:"governance"},
+  {id:"footprint",label:"Footprint",zh:"操作足跡追蹤",group:"gov",r:0.9,p:"governance"},
+  {id:"governor",label:"Governor",zh:"上中下焦",group:"gov",r:1.0,p:"governance"},
+  {id:"guardian",label:"Guardian",zh:"系統守護 Daemon",group:"gov",r:1.1,p:"governance"},
+  {id:"immunity",label:"Immunity",zh:"先天 + 後天免疫",group:"gov",r:1.1,p:"governance"},
+  {id:"perception",label:"Perception",zh:"四診合參感知",group:"gov",r:0.9,p:"governance"},
+  {id:"preflight",label:"Preflight",zh:"啟動門",group:"gov",r:0.9,p:"governance"},
+  {id:"refractory",label:"Refractory",zh:"斷路器（三態+半開試探）",group:"gov",r:0.9,p:"governance"},
+  {id:"sandbox",label:"Sandbox",zh:"沙盒隔離",group:"gov",r:0.8,p:"governance"},
+  {id:"security",label:"Security",zh:"安全淨化與稽核",group:"gov",r:1.0,p:"governance"},
+  {id:"service-health",label:"Service Health",zh:"服務監控",group:"gov",r:1.0,p:"governance"},
+  {id:"skill-scanner",label:"Skill Scanner",zh:"技能掃描",group:"gov",r:0.8,p:"governance"},
+  {id:"telegram-guard",label:"TG Guard",zh:"Polling 守衛",group:"gov",r:0.8,p:"governance"},
+  // ── doctor ──
+  {id:"doctor",label:"Doctor",zh:"自我診斷修復",group:"doctor",r:2.8,hub:1},
+  {id:"auto-repair",label:"Auto Repair",zh:"自動修復",group:"doctor",r:1.0,p:"doctor"},
+  {id:"code-analyzer",label:"Code Analyzer",zh:"代碼品質",group:"doctor",r:0.8,p:"doctor"},
+  {id:"health-check",label:"Health Check",zh:"12 項基礎",group:"doctor",r:0.9,p:"doctor"},
+  {id:"log-analyzer",label:"Log Analyzer",zh:"日誌分析",group:"doctor",r:0.8,p:"doctor"},
+  {id:"memory-reset",label:"Memory Reset",zh:"一鍵記憶重置",group:"doctor",r:0.8,p:"doctor"},
+  {id:"observatory",label:"Observatory",zh:"認知可觀測性儀表板",group:"doctor",r:0.8,p:"doctor"},
+  {id:"self-diagnosis",label:"Self Diagnosis",zh:"診斷管線",group:"doctor",r:0.9,p:"doctor"},
+  {id:"surgery",label:"Surgery",zh:"精準手術",group:"doctor",r:0.8,p:"doctor"},
+  {id:"system-audit",label:"System Audit",zh:"7 層 46 項",group:"doctor",r:1.1,p:"doctor"},
+  // ── llm ──
+  {id:"llm-router",label:"LLM Router",zh:"智能模型選擇",group:"llm",r:2.2,hub:1},
+  {id:"budget-mgr",label:"Budget Mgr",zh:"Token 預算",group:"llm",r:1.0,p:"llm-router"},
+  {id:"llm-cache",label:"Cache",zh:"LRU 快取",group:"llm",r:0.8,p:"llm-router"},
+  {id:"rate-limit",label:"Rate Limit",zh:"速限守衛",group:"llm",r:0.8,p:"llm-router"},
+  // ── data ──
+  {id:"data-bus",label:"DataBus",zh:"資料層路由器",group:"data",r:1.8,hub:1},
+  {id:"blueprint-reader",label:"Blueprint Reader",zh:"藍圖解析器",group:"data",r:0.9,p:"data-bus"},
+  {id:"data-watchdog",label:"DataWatchdog",zh:"資料層監控",group:"data",r:1.0,p:"data-bus"},
+  {id:"group-context-db",label:"GroupContextDB",zh:"群組上下文 SQLite",group:"data",r:1.0,p:"data-bus"},
+  {id:"lord-profile",label:"Lord Profile",zh:"主人領域畫像",group:"data",r:0.8,p:"data-bus"},
+  {id:"memory",label:"Memory",zh:"六層記憶",group:"data",r:1.6,p:"data-bus"},
+  {id:"registry",label:"Registry",zh:"RegistryDB SQLite",group:"data",r:1.0,p:"data-bus"},
+  {id:"skill-synapse",label:"Skill Synapse",zh:"突觸網路",group:"data",r:0.9,p:"data-bus"},
+  {id:"skills-registry",label:"Skills Registry",zh:"技能資料庫",group:"data",r:1.2,p:"data-bus"},
+  {id:"sparse-embedder",label:"Sparse Embedder",zh:"BM25 稀疏向量",group:"data",r:0.9,p:"data-bus"},
+  {id:"vector-index",label:"Vector Index",zh:"Qdrant 語義",group:"data",r:1.5,p:"data-bus"},
+  {id:"wee",label:"WEE",zh:"演化引擎",group:"data",r:1.2,p:"data-bus"},
+  {id:"workflow-state-db",label:"WorkflowStateDB",zh:"工作流 SQLite",group:"data",r:1.0,p:"data-bus"},
+  // ── evolution ──
+  {id:"evolution",label:"Evolution",zh:"演化系統",group:"evolution",r:2.2,hub:1},
+  {id:"digest-engine",label:"Digest Engine",zh:"消化結晶引擎",group:"evolution",r:1.0,p:"evolution"},
+  {id:"evolution-velocity",label:"Evolution Velocity",zh:"演化速度測量",group:"evolution",r:1.0,p:"evolution"},
+  {id:"feedback-loop",label:"Feedback Loop",zh:"使用者回饋迴路",group:"evolution",r:0.9,p:"evolution"},
+  {id:"intention-radar",label:"Intention Radar",zh:"意圖雷達",group:"evolution",r:1.0,p:"evolution"},
+  {id:"outward-trigger",label:"Outward Trigger",zh:"外向演化觸發",group:"evolution",r:1.1,p:"evolution"},
+  {id:"parameter-tuner",label:"Parameter Tuner",zh:"參數自動調諧",group:"evolution",r:0.9,p:"evolution"},
+  {id:"research-engine",label:"Research Engine",zh:"外部研究引擎",group:"evolution",r:1.1,p:"evolution"},
+  {id:"tool-muscle",label:"Tool Muscle",zh:"工具肌肉記憶",group:"evolution",r:0.8,p:"evolution"},
+  {id:"trigger-weights",label:"Trigger Weights",zh:"觸發器權重",group:"evolution",r:0.8,p:"evolution"},
+  // ── tools ──
+  {id:"tool-registry",label:"Tool Registry",zh:"工具註冊中心",group:"tools",r:1.8,hub:1},
+  {id:"dify-scheduler",label:"Dify Scheduler",zh:"Dify 排程器",group:"tools",r:0.8,p:"tool-registry"},
+  {id:"federation-sync",label:"Federation Sync",zh:"母子體同步",group:"tools",r:0.9,p:"tool-registry"},
+  {id:"image-gen",label:"Image Gen",zh:"圖像生成",group:"tools",r:0.8,p:"tool-registry"},
+  {id:"mcp-dify",label:"MCP Dify",zh:"MCP-Dify 連接器",group:"tools",r:0.7,p:"tool-registry"},
+  {id:"rss-aggregator",label:"RSS Aggregator",zh:"RSS 聚合器",group:"tools",r:0.8,p:"tool-registry"},
+  {id:"skill-market",label:"Skill Market",zh:"技能交易市場",group:"tools",r:1.0,p:"tool-registry"},
+  {id:"tool-discovery",label:"Tool Discovery",zh:"工具自動探測",group:"tools",r:1.0,p:"tool-registry"},
+  {id:"voice-clone",label:"Voice Clone",zh:"語音克隆",group:"tools",r:0.7,p:"tool-registry"},
+  {id:"zotero-bridge",label:"Zotero Bridge",zh:"文獻管理橋接",group:"tools",r:0.8,p:"tool-registry"},
+  // ── nightly ──
+  {id:"nightly",label:"Nightly Pipeline",zh:"30+ 步夜間整合",group:"nightly",r:2.2,hub:1},
+  {id:"crystal-actuator",label:"Crystal Actuator",zh:"結晶致動器",group:"nightly",r:0.8,p:"nightly"},
+  {id:"curiosity-router",label:"Curiosity Router",zh:"好奇心路由",group:"nightly",r:0.9,p:"nightly"},
+  {id:"exploration-bridge",label:"Exploration Bridge",zh:"探索橋接",group:"nightly",r:0.9,p:"nightly"},
+  {id:"morphenix",label:"Morphenix",zh:"演化提案",group:"nightly",r:1.0,p:"nightly"},
+  {id:"morphenix-validator",label:"Morphenix Validator",zh:"Docker 沙盒驗證",group:"nightly",r:0.7,p:"nightly"},
+  {id:"periodic-cycles",label:"Periodic Cycles",zh:"週期循環",group:"nightly",r:0.9,p:"nightly"},
+  {id:"skill-forge-scout",label:"Skill Forge Scout",zh:"技能鍛造偵察",group:"nightly",r:0.8,p:"nightly"},
+  // ── installer ──
+  {id:"installer",label:"Installer",zh:"安裝編排器",group:"installer",r:1.6,hub:1},
+  {id:"installer-daemon",label:"Daemon Config",zh:"Daemon 設定",group:"installer",r:0.8,p:"installer"},
+  {id:"installer-electron",label:"Electron Packager",zh:"Electron 打包",group:"installer",r:0.8,p:"installer"},
+  {id:"installer-env",label:"Environment",zh:"環境檢查",group:"installer",r:0.7,p:"installer"},
+  {id:"installer-verifier",label:"Module Verifier",zh:"模組驗證",group:"installer",r:0.7,p:"installer"},
+  // ── external ──
+  {id:"anthropic-api",label:"Anthropic API",zh:"Claude API",group:"external",r:1.1},
+  {id:"firecrawl",label:"Firecrawl",zh:"爬取 :3002",group:"external",r:0.8},
+  {id:"qdrant",label:"Qdrant",zh:"向量 DB :6333",group:"external",r:1.0},
+  {id:"searxng",label:"SearXNG",zh:"搜尋 :8888",group:"external",r:1.0},
+  // ── skills ──
   {id:"skills-business-hub",label:"Business Hub",zh:"商業類技能中樞",group:"skills",r:2.0,hub:1},
-  {id:"business-12",label:"Business-12",zh:"商模十二力",group:"skills",p:"skills-business-hub",r:1.2},
-  {id:"ssa-consultant",label:"SSA-Consultant",zh:"顧問式銷售引擎",group:"skills",p:"skills-business-hub",r:1.2},
-  {id:"master-strategy",label:"Master-Strategy",zh:"戰略判斷引擎",group:"skills",p:"skills-business-hub",r:1.4},
-  {id:"consultant-communication",label:"Consultant-Comm",zh:"顧問溝通引擎",group:"skills",p:"skills-business-hub",r:1.2},
-  {id:"xmodel",label:"X-Model",zh:"破框解方引擎",group:"skills",p:"skills-business-hub",r:1.2},
-  {id:"pdeif",label:"PDEIF",zh:"逆熵流引擎",group:"skills",p:"skills-business-hub",r:1.2},
-  // ── skills-creative Hub（創意類）──
   {id:"skills-creative-hub",label:"Creative Hub",zh:"創意類技能中樞",group:"skills",r:2.0,hub:1},
-  {id:"c15",label:"C15",zh:"敘事張力語言層",group:"skills",p:"skills-creative-hub",r:1.2},
-  {id:"text-alchemy",label:"Text-Alchemy",zh:"文字煉金系統",group:"skills",p:"skills-creative-hub",r:1.2},
-  {id:"storytelling-engine",label:"Storytelling",zh:"說故事引擎",group:"skills",p:"skills-creative-hub",r:1.2},
-  {id:"novel-craft",label:"Novel-Craft",zh:"小說工藝引擎",group:"skills",p:"skills-creative-hub",r:1.2},
-  {id:"aesthetic-sense",label:"Aesthetic-Sense",zh:"美感引擎",group:"skills",p:"skills-creative-hub",r:1.2},
-  {id:"brand-identity",label:"Brand-Identity",zh:"品牌識別引擎",group:"skills",p:"skills-creative-hub",r:1.2},
-  // ── skills-product Hub（產品類）──
-  {id:"skills-product-hub",label:"Product Hub",zh:"產品類技能中樞",group:"skills",r:2.0,hub:1},
-  {id:"acsf",label:"ACSF",zh:"能力結晶鑄造",group:"skills",p:"skills-product-hub",r:1.2},
-  {id:"dse",label:"DSE",zh:"技術融合驗證",group:"skills",p:"skills-product-hub",r:1.2},
-  {id:"gap",label:"GAP",zh:"缺口分析引擎",group:"skills",p:"skills-product-hub",r:1.2},
-  {id:"env-radar",label:"Env-Radar",zh:"環境雷達",group:"skills",p:"skills-product-hub",r:1.2},
-  {id:"info-architect",label:"Info-Architect",zh:"資訊架構引擎",group:"skills",p:"skills-product-hub",r:1.2},
-  {id:"report-forge",label:"Report-Forge",zh:"報告鍛造",group:"skills",p:"skills-product-hub",r:1.2},
-  {id:"orchestrator",label:"Orchestrator",zh:"編排引擎",group:"skills",p:"skills-product-hub",r:1.2},
-  // ── skills-evolution Hub（演化類）──
   {id:"skills-evolution-hub",label:"Evolution Hub",zh:"演化類技能中樞",group:"skills",r:2.0,hub:1},
-  {id:"sandbox-lab",label:"Sandbox-Lab",zh:"沙盒實驗室",group:"skills",p:"skills-evolution-hub",r:1.2},
-  {id:"qa-auditor",label:"QA-Auditor",zh:"品質審計引擎",group:"skills",p:"skills-evolution-hub",r:1.2},
-  {id:"tantra",label:"Tantra",zh:"情慾治理引擎",group:"skills",p:"skills-evolution-hub",r:1.0},
-  // ── skills-workflow Hub（工作流類）──
+  {id:"skills-market-hub",label:"Market Hub",zh:"市場類技能中樞",group:"skills",r:2.0,hub:1},
+  {id:"skills-product-hub",label:"Product Hub",zh:"產品類技能中樞",group:"skills",r:2.0,hub:1},
+  {id:"skills-thinking-hub",label:"Thinking Hub",zh:"思維類技能中樞",group:"skills",r:2.0,hub:1},
   {id:"skills-workflow-hub",label:"Workflow Hub",zh:"工作流類技能中樞",group:"skills",r:2.0,hub:1},
-  {id:"workflow-svc-brand-marketing",label:"WF-SVC-01",zh:"品牌行銷工作流",group:"skills",p:"skills-workflow-hub",r:1.2},
-  {id:"workflow-investment-analysis",label:"WF-INV-01",zh:"投資分析工作流",group:"skills",p:"skills-workflow-hub",r:1.2},
-  {id:"workflow-ai-deployment",label:"WF-AID-01",zh:"AI部署工作流",group:"skills",p:"skills-workflow-hub",r:1.2},
-  {id:"group-meeting-notes",label:"WF-GMN-01",zh:"會議記錄引擎",group:"skills",p:"skills-workflow-hub",r:1.2},
+  {id:"acsf",label:"ACSF",zh:"能力結晶鑄造",group:"skills",r:1.2,p:"skills-product-hub"},
+  {id:"aesthetic-sense",label:"Aesthetic-Sense",zh:"美感引擎",group:"skills",r:1.2,p:"skills-creative-hub"},
+  {id:"brand-identity",label:"Brand-Identity",zh:"品牌識別引擎",group:"skills",r:1.2,p:"skills-creative-hub"},
+  {id:"business-12",label:"Business-12",zh:"商模十二力",group:"skills",r:1.2,p:"skills-business-hub"},
+  {id:"c15",label:"C15",zh:"敘事張力語言層",group:"skills",r:1.2,p:"skills-creative-hub"},
+  {id:"consultant-communication",label:"Consultant-Comm",zh:"顧問溝通引擎",group:"skills",r:1.2,p:"skills-business-hub"},
+  {id:"dharma",label:"DHARMA",zh:"思維轉化引擎",group:"skills",r:1.2,p:"skills-thinking-hub"},
+  {id:"dse",label:"DSE",zh:"技術融合驗證",group:"skills",r:1.2,p:"skills-product-hub"},
+  {id:"env-radar",label:"Env-Radar",zh:"環境雷達",group:"skills",r:1.2,p:"skills-product-hub"},
+  {id:"gap",label:"GAP",zh:"缺口分析引擎",group:"skills",r:1.2,p:"skills-product-hub"},
+  {id:"group-meeting-notes",label:"WF-GMN-01",zh:"會議記錄引擎",group:"skills",r:1.2,p:"skills-workflow-hub"},
+  {id:"info-architect",label:"Info-Architect",zh:"資訊架構引擎",group:"skills",r:1.2,p:"skills-product-hub"},
+  {id:"market-core",label:"Market-Core",zh:"市場分析核心",group:"skills",r:1.4,p:"skills-market-hub"},
+  {id:"market-crypto",label:"Market-Crypto",zh:"加密貨幣分析",group:"skills",r:1.2,p:"skills-market-hub"},
+  {id:"market-equity",label:"Market-Equity",zh:"股票分析衛星",group:"skills",r:1.2,p:"skills-market-hub"},
+  {id:"market-macro",label:"Market-Macro",zh:"總體經濟分析",group:"skills",r:1.2,p:"skills-market-hub"},
+  {id:"master-strategy",label:"Master-Strategy",zh:"戰略判斷引擎",group:"skills",r:1.4,p:"skills-business-hub"},
+  {id:"meta-learning",label:"Meta-Learning",zh:"元學習引擎",group:"skills",r:1.2,p:"skills-thinking-hub"},
+  {id:"novel-craft",label:"Novel-Craft",zh:"小說工藝引擎",group:"skills",r:1.2,p:"skills-creative-hub"},
+  {id:"orchestrator",label:"Orchestrator",zh:"編排引擎",group:"skills",r:1.2,p:"skills-product-hub"},
+  {id:"pdeif",label:"PDEIF",zh:"逆熵流引擎",group:"skills",r:1.2,p:"skills-business-hub"},
+  {id:"philo-dialectic",label:"Philo-Dialectic",zh:"哲學思辨引擎",group:"skills",r:1.2,p:"skills-thinking-hub"},
+  {id:"qa-auditor",label:"QA-Auditor",zh:"品質審計引擎",group:"skills",r:1.2,p:"skills-evolution-hub"},
+  {id:"query-clarity",label:"Query-Clarity",zh:"問題品質守門層",group:"skills",r:1.2,p:"skills-thinking-hub"},
+  {id:"report-forge",label:"Report-Forge",zh:"報告鍛造",group:"skills",r:1.2,p:"skills-product-hub"},
+  {id:"resonance",label:"Resonance",zh:"感性共振引擎",group:"skills",r:1.2,p:"skills-thinking-hub"},
+  {id:"risk-matrix",label:"Risk-Matrix",zh:"風險管理引擎",group:"skills",r:1.2,p:"skills-market-hub"},
+  {id:"sandbox-lab",label:"Sandbox-Lab",zh:"沙盒實驗室",group:"skills",r:1.2,p:"skills-evolution-hub"},
+  {id:"sentiment-radar",label:"Sentiment-Radar",zh:"市場情緒雷達",group:"skills",r:1.2,p:"skills-market-hub"},
+  {id:"shadow",label:"Shadow",zh:"人際博弈辨識引擎",group:"skills",r:1.2,p:"skills-thinking-hub"},
+  {id:"ssa-consultant",label:"SSA-Consultant",zh:"顧問式銷售引擎",group:"skills",r:1.2,p:"skills-business-hub"},
+  {id:"storytelling-engine",label:"Storytelling",zh:"說故事引擎",group:"skills",r:1.2,p:"skills-creative-hub"},
+  {id:"tantra",label:"Tantra",zh:"情慾治理引擎",group:"skills",r:1.0,p:"skills-evolution-hub"},
+  {id:"text-alchemy",label:"Text-Alchemy",zh:"文字煉金系統",group:"skills",r:1.2,p:"skills-creative-hub"},
+  {id:"user-model",label:"User-Model",zh:"使用者畫像引擎",group:"skills",r:1.2,p:"skills-thinking-hub"},
+  {id:"workflow-ai-deployment",label:"WF-AID-01",zh:"AI部署工作流",group:"skills",r:1.2,p:"skills-workflow-hub"},
+  {id:"workflow-investment-analysis",label:"WF-INV-01",zh:"投資分析工作流",group:"skills",r:1.2,p:"skills-workflow-hub"},
+  {id:"workflow-svc-brand-marketing",label:"WF-SVC-01",zh:"品牌行銷工作流",group:"skills",r:1.2,p:"skills-workflow-hub"},
+  {id:"xmodel",label:"X-Model",zh:"破框解方引擎",group:"skills",r:1.2,p:"skills-business-hub"},
 ];
 
 const links = [
-  {source:"user",target:"telegram",label:"訊息指令",type:"flow"},
-  {source:"telegram",target:"gateway",label:"轉發",type:"flow"},
-  {source:"gateway",target:"event-bus",label:"路由",type:"flow"},
+  // ── decay ──
+  {source:"dendritic-scorer",target:"pulse-db",label:"health_scores 表",type:"decay"},
+  {source:"knowledge-lattice",target:"crystal-actuator",label:"`crystals.json`",type:"decay"},
+  {source:"memory",target:"vector-index",label:"Qdrant memories",type:"decay"},
+  {source:"nightly",target:"skill-synapse",label:"synapses.json",type:"decay"},
+  {source:"recommender",target:"knowledge-lattice",label:"推薦排序",type:"decay"},
+  // ── flow ──
   {source:"cron",target:"event-bus",label:"定時觸發",type:"flow"},
+  {source:"gateway",target:"event-bus",label:"路由",type:"flow"},
+  {source:"telegram",target:"gateway",label:"轉發",type:"flow"},
+  {source:"user",target:"telegram",label:"訊息指令",type:"flow"},
+  // ── control ──
+  {source:"cron",target:"nightly",label:"03:00 觸發",type:"control"},
   {source:"event-bus",target:"brain",label:"事件分派",type:"control"},
-  {source:"event-bus",target:"pulse",label:"脈搏事件",type:"control"},
-  {source:"event-bus",target:"governance",label:"治理事件",type:"control"},
-  {source:"event-bus",target:"doctor",label:"診斷事件",type:"control"},
-  {source:"event-bus",target:"llm-router",label:"LLM事件",type:"control"},
   {source:"event-bus",target:"data-bus",label:"資料事件",type:"control"},
-  {source:"brain",target:"dna27",label:"載入反射",type:"internal"},
-  {source:"brain",target:"skill-router",label:"技能路由",type:"internal"},
-  {source:"brain",target:"reflex-router",label:"迴圈判定",type:"internal"},
-  {source:"brain",target:"dispatch",label:"多技能分派",type:"internal"},
-  {source:"brain",target:"knowledge-lattice",label:"結晶注入",type:"internal"},
-  {source:"brain",target:"plan-engine",label:"計畫啟動",type:"internal"},
-  {source:"brain",target:"metacognition",label:"元認知",type:"internal"},
-  {source:"brain",target:"intuition",label:"直覺感知",type:"internal"},
-  {source:"brain",target:"eval-engine",label:"品質評分",type:"internal"},
-  {source:"brain",target:"diary-store",label:"日記記錄",type:"internal"},
-  {source:"brain",target:"primal-detector",label:"八原語偵測",type:"internal"},
-  {source:"brain",target:"persona-router",label:"人格路由",type:"internal"},
-  {source:"brain",target:"deep-think",label:"思考前置 P0/P1/P2",type:"internal"},
-  {source:"brain",target:"roundtable",label:"圓桌詰問",type:"internal"},
-  {source:"brain",target:"investment-masters",label:"軍師會診",type:"internal"},
-  {source:"deep-think",target:"metacognition",label:"Phase 0 元認知觀察",type:"cross"},
-  {source:"deep-think",target:"persona-router",label:"Phase 0 訊號分流→百合引擎",type:"cross"},
-  {source:"roundtable",target:"knowledge-lattice",label:"裁決軌跡結晶",type:"cross"},
-  {source:"investment-masters",target:"knowledge-lattice",label:"軍師會診結晶",type:"cross"},
-  {source:"investment-masters",target:"skill-router",label:"DNA27 RC 親和觸發",type:"cross"},
-  {source:"brain",target:"drift-detector",label:"漂移檢查",type:"internal"},
-  {source:"brain",target:"okr-router",label:"八卦路由",type:"internal"},
-  {source:"primal-detector",target:"vector-index",label:"語義匹配",type:"cross"},
-  {source:"primal-detector",target:"skill-router",label:"原語加分",type:"cross"},
-  {source:"primal-detector",target:"persona-router",label:"原語調適",type:"cross"},
-  {source:"primal-detector",target:"reflex-router",label:"原語 boost",type:"cross"},
-  {source:"primal-detector",target:"okr-router",label:"原語路由",type:"cross"},
-  {source:"skill-router",target:"vector-index",label:"語義匹配",type:"cross"},
-  {source:"skill-router",target:"skills-registry",label:"技能查找",type:"cross"},
-  {source:"skill-router",target:"llm-router",label:"API呼叫",type:"cross"},
-  {source:"dispatch",target:"llm-router",label:"API呼叫",type:"cross"},
-  {source:"knowledge-lattice",target:"vector-index",label:"結晶存取",type:"cross"},
-  {source:"metacognition",target:"llm-router",label:"Haiku審查",type:"cross"},
-  {source:"eval-engine",target:"memory",label:"品質數據",type:"cross"},
-  {source:"diary-store",target:"memory",label:"日記寫入",type:"cross"},
-  {source:"brain",target:"llm-router",label:"生成回應",type:"cross"},
-  {source:"brain",target:"memory",label:"四通道持久化",type:"cross"},
-  {source:"brain",target:"anima-mc-store",label:"ANIMA_MC存取",type:"cross"},
-  {source:"gateway",target:"anima-mc-store",label:"API查詢ANIMA",type:"cross"},
-  {source:"commitment-tracker",target:"brain",label:"承諾自檢",type:"cross"},
-  {source:"pulse",target:"heartbeat",label:"三脈",type:"internal"},
-  {source:"pulse",target:"explorer",label:"探索",type:"internal"},
-  {source:"pulse",target:"silent-digestion",label:"消化",type:"internal"},
-  {source:"pulse",target:"proactive-bridge",label:"推播",type:"internal"},
-  {source:"pulse",target:"micro-pulse",label:"微脈",type:"internal"},
-  {source:"pulse",target:"pulse-db",label:"持久化",type:"internal"},
-  {source:"pulse",target:"commitment-tracker",label:"承諾",type:"internal"},
-  {source:"pulse",target:"anima-mc-store",label:"ANIMA存取",type:"internal"},
-  {source:"pulse",target:"anima-tracker",label:"八元素追蹤",type:"internal"},
-  {source:"anima-tracker",target:"anima-mc-store",label:"八元素經由Store",type:"internal"},
-  {source:"pulse",target:"group-session-proactive",label:"群組追問",type:"internal"},
-  {source:"group-session-proactive",target:"event-bus",label:"監聽GROUP_SESSION_END",type:"cross"},
-  {source:"group-session-proactive",target:"telegram",label:"DM追問",type:"async"},
-  {source:"telegram",target:"event-bus",label:"GROUP_SESSION_END",type:"async"},
-  {source:"nightly",target:"diary-store",label:"日記生成",type:"cross"},
-  {source:"drift-detector",target:"memory",label:"覺察日誌",type:"cross"},
-  {source:"micro-pulse",target:"anima-mc-store",label:"微脈經由Store",type:"internal"},
-  {source:"explorer",target:"searxng",label:"網路搜尋",type:"cross"},
-  {source:"explorer",target:"llm-router",label:"深度分析",type:"cross"},
-  {source:"explorer",target:"firecrawl",label:"頁面爬取",type:"cross"},
-  {source:"proactive-bridge",target:"telegram",label:"非同步推播",type:"async"},
-  {source:"silent-digestion",target:"memory",label:"反思寫入",type:"cross"},
-  {source:"governance",target:"governor",label:"三焦",type:"internal"},
-  {source:"governance",target:"immunity",label:"免疫",type:"internal"},
-  {source:"governance",target:"preflight",label:"啟動門",type:"internal"},
-  {source:"governance",target:"refractory",label:"斷路",type:"internal"},
-  {source:"governance",target:"skill-scanner",label:"掃描",type:"internal"},
-  {source:"governance",target:"sandbox",label:"沙盒",type:"internal"},
-  {source:"governance",target:"telegram-guard",label:"守衛",type:"internal"},
-  {source:"governance",target:"service-health",label:"監控",type:"internal"},
-  {source:"service-health",target:"gateway",label:"監控",type:"monitor"},
-  {source:"service-health",target:"qdrant",label:"監控",type:"monitor"},
-  {source:"service-health",target:"searxng",label:"監控",type:"monitor"},
-  {source:"service-health",target:"firecrawl",label:"監控",type:"monitor"},
-  {source:"service-health",target:"anthropic-api",label:"監控",type:"monitor"},
-  {source:"skill-scanner",target:"skills-registry",label:"安全掃描",type:"cross"},
-  {source:"doctor",target:"system-audit",label:"審計",type:"internal"},
-  {source:"doctor",target:"health-check",label:"檢查",type:"internal"},
-  {source:"doctor",target:"self-diagnosis",label:"診斷",type:"internal"},
-  {source:"doctor",target:"auto-repair",label:"修復",type:"internal"},
-  {source:"doctor",target:"surgery",label:"手術",type:"internal"},
-  {source:"doctor",target:"log-analyzer",label:"日誌",type:"internal"},
-  {source:"doctor",target:"code-analyzer",label:"代碼",type:"internal"},
-  {source:"doctor",target:"memory-reset",label:"重置",type:"internal"},
-  {source:"auto-repair",target:"gateway",label:"重啟修復",type:"cross"},
-  {source:"system-audit",target:"service-health",label:"交叉驗證",type:"cross"},
-  {source:"llm-router",target:"budget-mgr",label:"預算",type:"internal"},
-  {source:"llm-router",target:"rate-limit",label:"速限",type:"internal"},
-  {source:"llm-router",target:"llm-cache",label:"快取",type:"internal"},
-  {source:"llm-router",target:"anthropic-api",label:"API呼叫",type:"cross"},
-  {source:"memory",target:"vector-index",label:"嵌入索引",type:"cross"},
-  {source:"vector-index",target:"qdrant",label:"向量存儲（dense）",type:"cross"},
-  {source:"wee",target:"skill-synapse",label:"突觸演化",type:"internal"},
-  {source:"wee",target:"skills-registry",label:"演化追蹤",type:"cross"},
-  {source:"nightly",target:"morphenix",label:"演化提案",type:"internal"},
-  {source:"nightly",target:"morphenix-validator",label:"Docker 沙盒驗證",type:"internal"},
-  {source:"morphenix-validator",target:"morphenix",label:"驗證通過→執行",type:"internal"},
-  {source:"nightly",target:"memory",label:"記憶壓縮",type:"cross"},
-  {source:"nightly",target:"skills-registry",label:"品質檢查",type:"cross"},
-  {source:"nightly",target:"wee",label:"演化速度",type:"cross"},
-  {source:"nightly",target:"knowledge-lattice",label:"結晶固化",type:"cross"},
-  {source:"nightly",target:"budget-mgr",label:"預算結算",type:"cross"},
-  {source:"nightly",target:"immunity",label:"抗體修剪",type:"cross"},
-  {source:"nightly",target:"skill-synapse",label:"Synapse Decay",type:"decay"},
-  {source:"nightly",target:"event-bus",label:"回饋迴路",type:"async"},
-  {source:"morphenix",target:"event-bus",label:"提案回饋",type:"async"},
-  {source:"cron",target:"nightly",label:"03:00觸發",type:"control"},
-  {source:"telegram",target:"user",label:"回傳回應",type:"async"},
-  {source:"memory",target:"registry",label:"持久化儲存",type:"cross"},
-  {source:"skills-registry",target:"registry",label:"技能資料表",type:"internal"},
-  {source:"pulse-db",target:"registry",label:"脈搏記錄",type:"cross"},
-  {source:"wee",target:"registry",label:"演化狀態",type:"cross"},
-  {source:"eval-engine",target:"registry",label:"Q-Score 存取",type:"cross"},
-  {source:"commitment-tracker",target:"registry",label:"承諾記錄",type:"cross"},
-  {source:"data-bus",target:"memory",label:"Store路由",type:"internal"},
-  {source:"data-bus",target:"vector-index",label:"Store路由",type:"internal"},
-  {source:"data-bus",target:"wee",label:"Store路由",type:"internal"},
-  {source:"data-bus",target:"skills-registry",label:"Store路由",type:"internal"},
-  {source:"data-bus",target:"registry",label:"Store路由",type:"internal"},
-  {source:"data-bus",target:"skill-synapse",label:"Store路由",type:"internal"},
-  {source:"data-bus",target:"data-watchdog",label:"監控注入",type:"internal"},
-  {source:"data-bus",target:"pulse-db",label:"Store路由",type:"cross"},
-  {source:"data-bus",target:"knowledge-lattice",label:"Store路由",type:"cross"},
-  {source:"data-bus",target:"diary-store",label:"Store路由",type:"cross"},
-  {source:"data-bus",target:"eval-engine",label:"Store路由",type:"cross"},
-  {source:"nightly",target:"data-watchdog",label:"Step29健康檢查",type:"cross"},
-  {source:"data-watchdog",target:"event-bus",label:"監控事件",type:"async"},
-  // ═══ v1.2-v1.4 新增連線 ═══
-  // control — 新群組 Hub 與 event-bus
+  {source:"event-bus",target:"doctor",label:"診斷事件",type:"control"},
   {source:"event-bus",target:"evolution",label:"演化事件",type:"control"},
+  {source:"event-bus",target:"governance",label:"治理事件",type:"control"},
+  {source:"event-bus",target:"installer",label:"安裝事件",type:"control"},
+  {source:"event-bus",target:"llm-router",label:"LLM 事件",type:"control"},
+  {source:"event-bus",target:"pulse",label:"脈搏事件",type:"control"},
+  {source:"event-bus",target:"skills-business-hub",label:"商業技能事件",type:"control"},
+  {source:"event-bus",target:"skills-creative-hub",label:"創意技能事件",type:"control"},
+  {source:"event-bus",target:"skills-evolution-hub",label:"演化技能事件",type:"control"},
+  {source:"event-bus",target:"skills-market-hub",label:"市場技能事件",type:"control"},
+  {source:"event-bus",target:"skills-product-hub",label:"產品技能事件",type:"control"},
+  {source:"event-bus",target:"skills-thinking-hub",label:"思維技能事件",type:"control"},
+  {source:"event-bus",target:"skills-workflow-hub",label:"工作流技能事件",type:"control"},
   {source:"event-bus",target:"tool-registry",label:"工具事件",type:"control"},
-  // agent internal
-  {source:"brain",target:"onboarding",label:"上線儀式",type:"internal"},
+  // ── internal ──
+  {source:"anima-tracker",target:"anima-mc-store",label:"八元素經由 Store",type:"internal"},
+  {source:"brain",target:"deep-think",label:"思考前置 P0/P1/P2",type:"internal"},
+  {source:"brain",target:"dendritic-fusion",label:"P3 前置融合（Step 5.5）+ 並行融合（Step 6.2-6.5）",type:"internal"},
+  {source:"brain",target:"diary-store",label:"日記記錄",type:"internal"},
+  {source:"brain",target:"dispatch",label:"多技能分派",type:"internal"},
+  {source:"brain",target:"dna27",label:"載入反射",type:"internal"},
+  {source:"brain",target:"drift-detector",label:"漂移檢查",type:"internal"},
+  {source:"brain",target:"eval-engine",label:"品質評分",type:"internal"},
+  {source:"brain",target:"fact-correction",label:"事實更正偵測+覆寫",type:"internal"},
+  {source:"brain",target:"flywheel-coordinator",label:"飛輪流動",type:"internal"},
+  {source:"brain",target:"intuition",label:"直覺感知",type:"internal"},
+  {source:"brain",target:"investment-masters",label:"軍師會診",type:"internal"},
+  {source:"brain",target:"knowledge-lattice",label:"結晶注入",type:"internal"},
+  {source:"brain",target:"knowledge-lattice",label:"MemGPT 三層分級召回 recall_tiered()",type:"internal"},
+  {source:"brain",target:"knowledge-lattice",label:"GraphRAG 社群摘要 Layer 2.5 recall_with_community()",type:"internal"},
+  {source:"brain",target:"metacognition",label:"元認知",type:"internal"},
+  {source:"brain",target:"multi-agent-executor",label:"並行 LLM 呼叫",type:"internal"},
   {source:"brain",target:"multiagent",label:"多代理協調",type:"internal"},
-  // gov internal
-  {source:"governance",target:"guardian",label:"守護",type:"internal"},
-  {source:"governance",target:"security",label:"安全",type:"internal"},
-  {source:"governance",target:"dendritic-scorer",label:"評分",type:"internal"},
-  {source:"governance",target:"footprint",label:"足跡",type:"internal"},
-  {source:"governance",target:"perception",label:"感知",type:"internal"},
-  // evolution internal
-  {source:"evolution",target:"outward-trigger",label:"外向觸發",type:"internal"},
-  {source:"evolution",target:"intention-radar",label:"意圖偵測",type:"internal"},
+  {source:"brain",target:"okr-router",label:"八卦路由",type:"internal"},
+  {source:"brain",target:"onboarding",label:"上線儀式",type:"internal"},
+  {source:"brain",target:"persona-router",label:"人格路由",type:"internal"},
+  {source:"brain",target:"plan-engine",label:"計畫啟動",type:"internal"},
+  {source:"brain",target:"primal-detector",label:"八原語偵測",type:"internal"},
+  {source:"brain",target:"recommender",label:"知識推薦引擎",type:"internal"},
+  {source:"brain",target:"reflex-router",label:"迴圈判定",type:"internal"},
+  {source:"brain",target:"response-synthesizer",label:"回覆合成",type:"internal"},
+  {source:"brain",target:"roundtable",label:"圓桌詰問",type:"internal"},
+  {source:"brain",target:"skill-router",label:"技能路由",type:"internal"},
+  {source:"data-bus",target:"blueprint-reader",label:"Store 路由",type:"internal"},
+  {source:"data-bus",target:"data-watchdog",label:"監控注入",type:"internal"},
+  {source:"data-bus",target:"group-context-db",label:"Store 路由",type:"internal"},
+  {source:"data-bus",target:"lord-profile",label:"Store 路由",type:"internal"},
+  {source:"data-bus",target:"memory",label:"Store 路由",type:"internal"},
+  {source:"data-bus",target:"pulse-db",label:"Store 路由",type:"internal"},
+  {source:"data-bus",target:"registry",label:"Store 路由",type:"internal"},
+  {source:"data-bus",target:"skill-synapse",label:"Store 路由",type:"internal"},
+  {source:"data-bus",target:"skills-registry",label:"Store 路由",type:"internal"},
+  {source:"data-bus",target:"sparse-embedder",label:"Store 路由",type:"internal"},
+  {source:"data-bus",target:"vector-index",label:"Store 路由",type:"internal"},
+  {source:"data-bus",target:"wee",label:"Store 路由",type:"internal"},
+  {source:"data-bus",target:"workflow-state-db",label:"Store 路由",type:"internal"},
+  {source:"dendritic-fusion",target:"eval-engine",label:"並行品質評分",type:"internal"},
+  {source:"dendritic-fusion",target:"metacognition",label:"並行預認知審查",type:"internal"},
+  {source:"doctor",target:"auto-repair",label:"修復",type:"internal"},
+  {source:"doctor",target:"code-analyzer",label:"代碼",type:"internal"},
+  {source:"doctor",target:"health-check",label:"檢查",type:"internal"},
+  {source:"doctor",target:"log-analyzer",label:"日誌",type:"internal"},
+  {source:"doctor",target:"memory-reset",label:"重置",type:"internal"},
+  {source:"doctor",target:"observatory",label:"認知儀表板",type:"internal"},
+  {source:"doctor",target:"self-diagnosis",label:"診斷",type:"internal"},
+  {source:"doctor",target:"surgery",label:"手術",type:"internal"},
+  {source:"doctor",target:"system-audit",label:"審計",type:"internal"},
   {source:"evolution",target:"digest-engine",label:"消化結晶",type:"internal"},
-  {source:"evolution",target:"research-engine",label:"外部研究",type:"internal"},
   {source:"evolution",target:"evolution-velocity",label:"速度測量",type:"internal"},
   {source:"evolution",target:"feedback-loop",label:"回饋迴路",type:"internal"},
+  {source:"evolution",target:"intention-radar",label:"意圖偵測",type:"internal"},
+  {source:"evolution",target:"outward-trigger",label:"外向觸發",type:"internal"},
   {source:"evolution",target:"parameter-tuner",label:"參數調諧",type:"internal"},
+  {source:"evolution",target:"research-engine",label:"外部研究",type:"internal"},
   {source:"evolution",target:"tool-muscle",label:"肌肉記憶",type:"internal"},
   {source:"evolution",target:"trigger-weights",label:"觸發權重",type:"internal"},
-  // tools internal
-  {source:"tool-registry",target:"tool-discovery",label:"工具探測",type:"internal"},
-  {source:"tool-registry",target:"dify-scheduler",label:"Dify 排程",type:"internal"},
-  {source:"tool-registry",target:"image-gen",label:"圖像生成",type:"internal"},
-  {source:"tool-registry",target:"rss-aggregator",label:"RSS 聚合",type:"internal"},
-  {source:"tool-registry",target:"voice-clone",label:"語音克隆",type:"internal"},
-  {source:"tool-registry",target:"zotero-bridge",label:"文獻管理",type:"internal"},
-  {source:"tool-registry",target:"mcp-dify",label:"MCP-Dify",type:"internal"},
-  {source:"tool-registry",target:"skill-market",label:"技能市場",type:"internal"},
-  {source:"tool-registry",target:"federation-sync",label:"母子同步",type:"internal"},
-  // data internal — v1.4 SQLite
-  {source:"data-bus",target:"group-context-db",label:"Store 路由",type:"internal"},
-  {source:"data-bus",target:"workflow-state-db",label:"Store 路由",type:"internal"},
-  // nightly internal
-  {source:"nightly",target:"curiosity-router",label:"好奇心路由",type:"internal"},
-  {source:"nightly",target:"exploration-bridge",label:"探索橋接",type:"internal"},
-  {source:"nightly",target:"skill-forge-scout",label:"技能鍛造",type:"internal"},
-  {source:"nightly",target:"crystal-actuator",label:"結晶致動",type:"internal"},
-  {source:"nightly",target:"periodic-cycles",label:"週期循環",type:"internal"},
-  // installer internal
+  {source:"footprint",target:"cognitive-receipt",label:"認知追蹤格式定義",type:"internal"},
+  {source:"governance",target:"cognitive-receipt",label:"認知收據",type:"internal"},
+  {source:"governance",target:"dendritic-scorer",label:"評分",type:"internal"},
+  {source:"governance",target:"footprint",label:"足跡",type:"internal"},
+  {source:"governance",target:"governor",label:"三焦",type:"internal"},
+  {source:"governance",target:"guardian",label:"守護",type:"internal"},
+  {source:"governance",target:"immunity",label:"免疫",type:"internal"},
+  {source:"governance",target:"perception",label:"感知",type:"internal"},
+  {source:"governance",target:"preflight",label:"啟動門",type:"internal"},
+  {source:"governance",target:"refractory",label:"斷路",type:"internal"},
+  {source:"governance",target:"sandbox",label:"沙盒",type:"internal"},
+  {source:"governance",target:"security",label:"安全",type:"internal"},
+  {source:"governance",target:"service-health",label:"監控",type:"internal"},
+  {source:"governance",target:"skill-scanner",label:"掃描",type:"internal"},
+  {source:"governance",target:"telegram-guard",label:"守衛",type:"internal"},
+  {source:"governor",target:"dendritic-scorer",label:"immunity 未解決→健康分數",type:"internal"},
+  {source:"governor",target:"immunity",label:"learn() 抗體學習",type:"internal"},
   {source:"installer",target:"installer-daemon",label:"Daemon 設定",type:"internal"},
   {source:"installer",target:"installer-electron",label:"Electron 打包",type:"internal"},
   {source:"installer",target:"installer-env",label:"環境檢查",type:"internal"},
   {source:"installer",target:"installer-verifier",label:"模組驗證",type:"internal"},
-  // cross — evolution chain
-  {source:"outward-trigger",target:"intention-radar",label:"觸發搜尋",type:"cross"},
-  {source:"intention-radar",target:"research-engine",label:"執行研究",type:"cross"},
-  {source:"research-engine",target:"digest-engine",label:"消化結果",type:"cross"},
-  {source:"digest-engine",target:"knowledge-lattice",label:"結晶寫入",type:"cross"},
-  {source:"evolution-velocity",target:"parameter-tuner",label:"速度驅動調諧",type:"cross"},
-  {source:"nightly",target:"evolution-velocity",label:"夜間速度計算",type:"cross"},
-  {source:"nightly",target:"parameter-tuner",label:"夜間參數調諧",type:"cross"},
-  // cross — gov 新節點
-  {source:"guardian",target:"doctor",label:"修復委派",type:"cross"},
-  {source:"guardian",target:"brain",label:"ANIMA 修復",type:"cross"},
-  {source:"onboarding",target:"brain",label:"初始化身份",type:"cross"},
-  // cross — tools/channel
-  {source:"tool-registry",target:"skill-router",label:"工具查找",type:"cross"},
-  {source:"mcp-server",target:"brain",label:"ANIMA 狀態查詢",type:"cross"},
-  // cross — gov 評分/追蹤
-  {source:"dendritic-scorer",target:"eval-engine",label:"品質評分",type:"cross"},
-  {source:"footprint",target:"data-bus",label:"足跡持久化",type:"cross"},
-  {source:"perception",target:"brain",label:"四診合參",type:"cross"},
-  // cross — nightly 子節點
-  {source:"curiosity-router",target:"pulse",label:"探索主題",type:"cross"},
-  {source:"exploration-bridge",target:"skill-forge-scout",label:"技能線索",type:"cross"},
-  {source:"crystal-actuator",target:"knowledge-lattice",label:"結晶操作",type:"cross"},
-  {source:"periodic-cycles",target:"pulse",label:"週期驅動",type:"cross"},
-  // cross — tools 子節點
-  {source:"skill-market",target:"skills-registry",label:"技能打包",type:"cross"},
-  {source:"federation-sync",target:"nightly",label:"夜間同步",type:"cross"},
-  {source:"zotero-bridge",target:"vector-index",label:"文獻索引",type:"cross"},
-  // cross — installer
-  {source:"auto-repair",target:"installer",label:"修復用安裝器",type:"cross"},
-  // Phase 4: 飛輪多代理
-  {source:"brain",target:"multi-agent-executor",label:"並行 LLM 呼叫",type:"internal"},
-  {source:"brain",target:"response-synthesizer",label:"回覆合成",type:"internal"},
-  {source:"brain",target:"flywheel-coordinator",label:"飛輪流動",type:"internal"},
-  {source:"multi-agent-executor",target:"llm-router",label:"多部門 LLM",type:"cross"},
-  // 知識推薦引擎
-  {source:"brain",target:"recommender",label:"知識推薦",type:"internal"},
-  // P0: 事實覆寫引擎連線
-  {source:"brain",target:"fact-correction",label:"事實更正偵測",type:"internal"},
-  {source:"fact-correction",target:"memory",label:"記憶覆寫 supersede()",type:"cross"},
-  {source:"fact-correction",target:"vector-index",label:"向量廢棄 mark_deprecated()",type:"cross"},
-  {source:"fact-correction",target:"llm-router",label:"Haiku 矛盾判斷",type:"cross"},
-  // P1: 推送寫入 session
-  {source:"telegram",target:"brain",label:"推送寫入 session history",type:"async"},
-  // P4: 自省清洗——事實更正注入
-  {source:"fact-correction",target:"proactive-bridge",label:"事實更正→自省上下文",type:"async"},
-  {source:"fact-correction",target:"pulse",label:"事實更正→PULSE.md 過濾",type:"async"},
-  // ── 五缺陷修復（P1-P5）新增連線 ──
-  // P1: 抗體學習接通
-  {source:"governor",target:"immunity",label:"learn() 抗體學習",type:"internal"},
-  // P2: incident 回調橋接
-  {source:"governor",target:"pulse-db",label:"incident 回調→PulseDB",type:"cross"},
-  // P3: 健康分數真實化
-  {source:"governor",target:"dendritic-scorer",label:"immunity 未解決→健康分數",type:"internal"},
-  // P4: 藍圖感知
-  {source:"blueprint-reader",target:"doctor",label:"Layer 8 藍圖審計",type:"cross"},
-  {source:"blueprint-reader",target:"surgery",label:"動態扇入安全檢查",type:"cross"},
-  {source:"blueprint-reader",target:"morphenix",label:"B1 藍圖禁區審查",type:"cross"},
-  // P5: Nightly 藍圖驗證
-  {source:"nightly",target:"blueprint-reader",label:"Step 30 藍圖一致性",type:"cross"},
-  // ── DNA-Inspired 品質回饋閉環 ──
-  {source:"metacognition",target:"pulse-db",label:"品質旗標寫入 METACOGNITION_QUALITY_FLAG",type:"cross"},
-  {source:"morphenix",target:"pulse-db",label:"品質旗標讀取（品質回饋閉環）",type:"cross"},
-  {source:"response-synthesizer",target:"multi-agent-executor",label:"DNA 交叉重組（片段評分）",type:"cross"},
-  // ── 認知可觀測性（v1.10 3D 同步）──
-  {source:"governance",target:"cognitive-receipt",label:"認知收據",type:"internal"},
-  {source:"footprint",target:"cognitive-receipt",label:"認知追蹤格式定義",type:"internal"},
-  {source:"doctor",target:"observatory",label:"認知儀表板",type:"internal"},
-  {source:"brain",target:"footprint",label:"Step 8 認知追蹤",type:"cross"},
-  {source:"footprint",target:"data-bus",label:"cognitive_trace.jsonl 寫入",type:"cross"},
-  {source:"observatory",target:"footprint",label:"讀取 cognitive_trace.jsonl",type:"cross"},
-  {source:"observatory",target:"service-health",label:"讀取健康狀態",type:"cross"},
-  // ── Lord Profile 領域畫像 ──
-  {source:"brain",target:"lord-profile",label:"_observe_lord() 領域畫像寫入",type:"cross"},
-  {source:"lord-profile",target:"persona-router",label:"百合引擎讀取領域畫像",type:"cross"},
-  // ── P3 前置交織融合 + 並行融合 ──
-  {source:"brain",target:"dendritic-fusion",label:"P3 前置融合（Step 5.5）+ 並行融合（Step 6.2-6.5）",type:"internal"},
-  {source:"dendritic-fusion",target:"metacognition",label:"並行預認知審查",type:"internal"},
-  {source:"dendritic-fusion",target:"eval-engine",label:"並行品質評分",type:"internal"},
-  {source:"dendritic-fusion",target:"dendritic-scorer",label:"P3 並行融合讀取健康分數",type:"cross"},
-  // 衰減連線（decay）
-  {source:"knowledge-lattice",target:"crystal-actuator",label:"RI 指數衰減 exp(-0.03×d)",type:"decay"},
-  {source:"memory",target:"vector-index",label:"TTL 分級 + supersede 覆寫",type:"decay"},
-  {source:"dendritic-scorer",target:"pulse-db",label:"半衰期 2h 指數衰減",type:"decay"},
-  {source:"recommender",target:"knowledge-lattice",label:"近因性衰減 7d + λ=0.95",type:"decay"},
-  // ── A區迭代 #1~#3 (v1.24) ──
-  // #1 MemGPT: 三層分級召回（Hot/Warm/Cold）
-  {source:"brain",target:"knowledge-lattice",label:"三層分級召回 recall_tiered()",type:"internal"},
-  // #2 Hybrid Retrieval: BM25 稀疏向量 + RRF 融合
-  {source:"data-bus",target:"sparse-embedder",label:"Store路由",type:"internal"},
-  {source:"vector-index",target:"sparse-embedder",label:"混合檢索 BM25+Dense RRF",type:"internal"},
-  {source:"sparse-embedder",target:"qdrant",label:"稀疏向量存儲",type:"cross"},
-  // #3 GraphRAG: 社群摘要注入
-  {source:"brain",target:"knowledge-lattice",label:"社群摘要 Layer 2.5",type:"internal"},
-  // ═══ Skills 生態系連線 ═══
-  // ── Hub 與 event-bus 連線（control）──
-  {source:"event-bus",target:"skills-thinking-hub",label:"思維技能事件",type:"control"},
-  {source:"event-bus",target:"skills-market-hub",label:"市場技能事件",type:"control"},
-  {source:"event-bus",target:"skills-business-hub",label:"商業技能事件",type:"control"},
-  {source:"event-bus",target:"skills-creative-hub",label:"創意技能事件",type:"control"},
-  {source:"event-bus",target:"skills-product-hub",label:"產品技能事件",type:"control"},
-  {source:"event-bus",target:"skills-evolution-hub",label:"演化技能事件",type:"control"},
-  {source:"event-bus",target:"skills-workflow-hub",label:"工作流技能事件",type:"control"},
-  // ── skills-thinking-hub internal ──
-  {source:"skills-thinking-hub",target:"dharma",label:"思維轉化",type:"internal"},
-  {source:"skills-thinking-hub",target:"philo-dialectic",label:"哲學思辨",type:"internal"},
-  {source:"skills-thinking-hub",target:"resonance",label:"感性共振",type:"internal"},
-  {source:"skills-thinking-hub",target:"shadow",label:"博弈辨識",type:"internal"},
-  {source:"skills-thinking-hub",target:"meta-learning",label:"元學習",type:"internal"},
-  {source:"skills-thinking-hub",target:"query-clarity",label:"問題品質",type:"internal"},
-  {source:"skills-thinking-hub",target:"user-model",label:"使用者畫像",type:"internal"},
-  // ── skills-market-hub internal ──
+  {source:"llm-router",target:"budget-mgr",label:"預算",type:"internal"},
+  {source:"llm-router",target:"llm-cache",label:"快取",type:"internal"},
+  {source:"llm-router",target:"rate-limit",label:"速限",type:"internal"},
+  {source:"market-core",target:"market-crypto",label:"加密衛星",type:"internal"},
+  {source:"market-core",target:"market-equity",label:"股票衛星",type:"internal"},
+  {source:"market-core",target:"market-macro",label:"總經衛星",type:"internal"},
+  {source:"micro-pulse",target:"anima-mc-store",label:"微脈經由 Store",type:"internal"},
+  {source:"morphenix-validator",target:"morphenix",label:"驗證通過→執行",type:"internal"},
+  {source:"multi-agent-executor",target:"llm-router",label:"多部門 API 呼叫",type:"internal"},
+  {source:"nightly",target:"crystal-actuator",label:"結晶致動",type:"internal"},
+  {source:"nightly",target:"curiosity-router",label:"好奇心路由",type:"internal"},
+  {source:"nightly",target:"exploration-bridge",label:"探索橋接",type:"internal"},
+  {source:"nightly",target:"morphenix",label:"演化提案",type:"internal"},
+  {source:"nightly",target:"morphenix-validator",label:"Docker 沙盒驗證",type:"internal"},
+  {source:"nightly",target:"periodic-cycles",label:"週期循環",type:"internal"},
+  {source:"nightly",target:"skill-forge-scout",label:"技能鍛造",type:"internal"},
+  {source:"pulse",target:"anima-mc-store",label:"ANIMA 統一存取",type:"internal"},
+  {source:"pulse",target:"anima-tracker",label:"八元素追蹤",type:"internal"},
+  {source:"pulse",target:"commitment-tracker",label:"承諾",type:"internal"},
+  {source:"pulse",target:"explorer",label:"探索",type:"internal"},
+  {source:"pulse",target:"group-session-proactive",label:"群組追問",type:"internal"},
+  {source:"pulse",target:"heartbeat",label:"三脈",type:"internal"},
+  {source:"pulse",target:"micro-pulse",label:"微脈",type:"internal"},
+  {source:"pulse",target:"proactive-bridge",label:"推播",type:"internal"},
+  {source:"pulse",target:"pulse-db",label:"持久化",type:"internal"},
+  {source:"pulse",target:"silent-digestion",label:"消化",type:"internal"},
+  {source:"skills-business-hub",target:"business-12",label:"商模十二力",type:"internal"},
+  {source:"skills-business-hub",target:"consultant-communication",label:"顧問溝通",type:"internal"},
+  {source:"skills-business-hub",target:"master-strategy",label:"戰略判斷",type:"internal"},
+  {source:"skills-business-hub",target:"pdeif",label:"逆熵流",type:"internal"},
+  {source:"skills-business-hub",target:"ssa-consultant",label:"顧問銷售",type:"internal"},
+  {source:"skills-business-hub",target:"xmodel",label:"破框解方",type:"internal"},
+  {source:"skills-creative-hub",target:"aesthetic-sense",label:"美感",type:"internal"},
+  {source:"skills-creative-hub",target:"brand-identity",label:"品牌識別",type:"internal"},
+  {source:"skills-creative-hub",target:"c15",label:"敘事張力",type:"internal"},
+  {source:"skills-creative-hub",target:"novel-craft",label:"小說工藝",type:"internal"},
+  {source:"skills-creative-hub",target:"storytelling-engine",label:"說故事",type:"internal"},
+  {source:"skills-creative-hub",target:"text-alchemy",label:"文字煉金",type:"internal"},
+  {source:"skills-evolution-hub",target:"qa-auditor",label:"品質審計",type:"internal"},
+  {source:"skills-evolution-hub",target:"sandbox-lab",label:"沙盒實驗",type:"internal"},
+  {source:"skills-evolution-hub",target:"tantra",label:"情慾治理",type:"internal"},
   {source:"skills-market-hub",target:"market-core",label:"市場核心",type:"internal"},
-  {source:"skills-market-hub",target:"market-equity",label:"股票分析",type:"internal"},
   {source:"skills-market-hub",target:"market-crypto",label:"加密貨幣",type:"internal"},
+  {source:"skills-market-hub",target:"market-equity",label:"股票分析",type:"internal"},
   {source:"skills-market-hub",target:"market-macro",label:"總體經濟",type:"internal"},
   {source:"skills-market-hub",target:"risk-matrix",label:"風險管理",type:"internal"},
   {source:"skills-market-hub",target:"sentiment-radar",label:"情緒雷達",type:"internal"},
-  // ── skills-business-hub internal ──
-  {source:"skills-business-hub",target:"business-12",label:"商模十二力",type:"internal"},
-  {source:"skills-business-hub",target:"ssa-consultant",label:"顧問銷售",type:"internal"},
-  {source:"skills-business-hub",target:"master-strategy",label:"戰略判斷",type:"internal"},
-  {source:"skills-business-hub",target:"consultant-communication",label:"顧問溝通",type:"internal"},
-  {source:"skills-business-hub",target:"xmodel",label:"破框解方",type:"internal"},
-  {source:"skills-business-hub",target:"pdeif",label:"逆熵流",type:"internal"},
-  // ── skills-creative-hub internal ──
-  {source:"skills-creative-hub",target:"c15",label:"敘事張力",type:"internal"},
-  {source:"skills-creative-hub",target:"text-alchemy",label:"文字煉金",type:"internal"},
-  {source:"skills-creative-hub",target:"storytelling-engine",label:"說故事",type:"internal"},
-  {source:"skills-creative-hub",target:"novel-craft",label:"小說工藝",type:"internal"},
-  {source:"skills-creative-hub",target:"aesthetic-sense",label:"美感",type:"internal"},
-  {source:"skills-creative-hub",target:"brand-identity",label:"品牌識別",type:"internal"},
-  // ── skills-product-hub internal ──
   {source:"skills-product-hub",target:"acsf",label:"能力結晶",type:"internal"},
   {source:"skills-product-hub",target:"dse",label:"技術融合",type:"internal"},
-  {source:"skills-product-hub",target:"gap",label:"缺口分析",type:"internal"},
   {source:"skills-product-hub",target:"env-radar",label:"環境雷達",type:"internal"},
+  {source:"skills-product-hub",target:"gap",label:"缺口分析",type:"internal"},
   {source:"skills-product-hub",target:"info-architect",label:"資訊架構",type:"internal"},
-  {source:"skills-product-hub",target:"report-forge",label:"報告鍛造",type:"internal"},
   {source:"skills-product-hub",target:"orchestrator",label:"編排",type:"internal"},
-  // ── skills-evolution-hub internal ──
-  {source:"skills-evolution-hub",target:"sandbox-lab",label:"沙盒實驗",type:"internal"},
-  {source:"skills-evolution-hub",target:"qa-auditor",label:"品質審計",type:"internal"},
-  {source:"skills-evolution-hub",target:"tantra",label:"情慾治理",type:"internal"},
-  // ── skills-workflow-hub internal ──
-  {source:"skills-workflow-hub",target:"workflow-svc-brand-marketing",label:"品牌行銷",type:"internal"},
-  {source:"skills-workflow-hub",target:"workflow-investment-analysis",label:"投資分析",type:"internal"},
-  {source:"skills-workflow-hub",target:"workflow-ai-deployment",label:"AI部署",type:"internal"},
+  {source:"skills-product-hub",target:"report-forge",label:"報告鍛造",type:"internal"},
+  {source:"skills-registry",target:"registry",label:"技能資料表",type:"internal"},
+  {source:"skills-thinking-hub",target:"dharma",label:"思維轉化",type:"internal"},
+  {source:"skills-thinking-hub",target:"meta-learning",label:"元學習",type:"internal"},
+  {source:"skills-thinking-hub",target:"philo-dialectic",label:"哲學思辨",type:"internal"},
+  {source:"skills-thinking-hub",target:"query-clarity",label:"問題品質",type:"internal"},
+  {source:"skills-thinking-hub",target:"resonance",label:"感性共振",type:"internal"},
+  {source:"skills-thinking-hub",target:"shadow",label:"博弈辨識",type:"internal"},
+  {source:"skills-thinking-hub",target:"user-model",label:"使用者畫像",type:"internal"},
   {source:"skills-workflow-hub",target:"group-meeting-notes",label:"會議記錄",type:"internal"},
-  // ── 跨群組連線（cross）──基於 Skill Manifest connects_to ──
-  {source:"deep-think",target:"resonance",label:"共振觸發",type:"cross"},
+  {source:"skills-workflow-hub",target:"workflow-ai-deployment",label:"AI部署",type:"internal"},
+  {source:"skills-workflow-hub",target:"workflow-investment-analysis",label:"投資分析",type:"internal"},
+  {source:"skills-workflow-hub",target:"workflow-svc-brand-marketing",label:"品牌行銷",type:"internal"},
+  {source:"text-alchemy",target:"c15",label:"語言層注入",type:"internal"},
+  {source:"text-alchemy",target:"novel-craft",label:"小說工藝",type:"internal"},
+  {source:"text-alchemy",target:"storytelling-engine",label:"說故事",type:"internal"},
+  {source:"tool-registry",target:"dify-scheduler",label:"Dify 排程",type:"internal"},
+  {source:"tool-registry",target:"federation-sync",label:"母子同步",type:"internal"},
+  {source:"tool-registry",target:"image-gen",label:"圖像生成",type:"internal"},
+  {source:"tool-registry",target:"mcp-dify",label:"MCP-Dify",type:"internal"},
+  {source:"tool-registry",target:"rss-aggregator",label:"RSS 聚合",type:"internal"},
+  {source:"tool-registry",target:"skill-market",label:"技能市場",type:"internal"},
+  {source:"tool-registry",target:"tool-discovery",label:"工具探測",type:"internal"},
+  {source:"tool-registry",target:"voice-clone",label:"語音克隆",type:"internal"},
+  {source:"tool-registry",target:"zotero-bridge",label:"文獻管理",type:"internal"},
+  {source:"vector-index",target:"sparse-embedder",label:"混合檢索 BM25+Dense RRF 融合",type:"internal"},
+  {source:"wee",target:"skill-synapse",label:"突觸演化",type:"internal"},
+  // ── cross ──
+  {source:"auto-repair",target:"gateway",label:"重啟修復",type:"cross"},
+  {source:"auto-repair",target:"installer",label:"修復用安裝器",type:"cross"},
+  {source:"blueprint-reader",target:"doctor",label:"藍圖感知（系統審計）",type:"cross"},
+  {source:"blueprint-reader",target:"morphenix",label:"藍圖感知（演化提案）",type:"cross"},
+  {source:"blueprint-reader",target:"surgery",label:"藍圖感知（精準手術）",type:"cross"},
+  {source:"brain",target:"anima-mc-store",label:"ANIMA_MC 存取",type:"cross"},
+  {source:"brain",target:"footprint",label:"Step 8 認知追蹤（trace_decision+trace_cognitive）",type:"cross"},
+  {source:"brain",target:"llm-router",label:"生成回應",type:"cross"},
+  {source:"brain",target:"lord-profile",label:"_observe_lord() 領域畫像寫入",type:"cross"},
+  {source:"brain",target:"memory",label:"四通道持久化",type:"cross"},
+  {source:"commitment-tracker",target:"brain",label:"承諾自檢",type:"cross"},
+  {source:"commitment-tracker",target:"registry",label:"承諾記錄",type:"cross"},
+  {source:"crystal-actuator",target:"knowledge-lattice",label:"結晶操作",type:"cross"},
+  {source:"curiosity-router",target:"pulse",label:"探索主題",type:"cross"},
+  {source:"data-bus",target:"diary-store",label:"Store 路由",type:"cross"},
+  {source:"data-bus",target:"eval-engine",label:"Store 路由",type:"cross"},
+  {source:"data-bus",target:"knowledge-lattice",label:"Store 路由",type:"cross"},
+  {source:"data-bus",target:"pulse-db",label:"Store 路由",type:"cross"},
   {source:"deep-think",target:"dharma",label:"思維轉化",type:"cross"},
-  {source:"deep-think",target:"philo-dialectic",label:"哲學思辨",type:"cross"},
   {source:"deep-think",target:"master-strategy",label:"戰略判斷",type:"cross"},
+  {source:"deep-think",target:"metacognition",label:"Phase 0 元認知觀察",type:"cross"},
+  {source:"deep-think",target:"persona-router",label:"Phase 0 訊號分流→百合引擎",type:"cross"},
+  {source:"deep-think",target:"philo-dialectic",label:"哲學思辨",type:"cross"},
+  {source:"deep-think",target:"resonance",label:"共振觸發",type:"cross"},
+  {source:"dendritic-fusion",target:"dendritic-scorer",label:"P3 並行融合讀取健康分數",type:"cross"},
+  {source:"dendritic-scorer",target:"eval-engine",label:"品質評分",type:"cross"},
+  {source:"diary-store",target:"memory",label:"日記寫入",type:"cross"},
+  {source:"digest-engine",target:"knowledge-lattice",label:"結晶寫入",type:"cross"},
+  {source:"dispatch",target:"llm-router",label:"API 呼叫",type:"cross"},
+  {source:"dna27",target:"c15",label:"敘事張力",type:"cross"},
+  {source:"dna27",target:"query-clarity",label:"問題品質守門",type:"cross"},
+  {source:"drift-detector",target:"memory",label:"覺察日誌",type:"cross"},
+  {source:"eval-engine",target:"memory",label:"品質數據",type:"cross"},
+  {source:"eval-engine",target:"registry",label:"Q-Score 存取",type:"cross"},
+  {source:"evolution-velocity",target:"parameter-tuner",label:"速度驅動調諧",type:"cross"},
+  {source:"exploration-bridge",target:"skill-forge-scout",label:"技能線索",type:"cross"},
+  {source:"explorer",target:"firecrawl",label:"頁面爬取",type:"cross"},
+  {source:"explorer",target:"llm-router",label:"深度分析",type:"cross"},
+  {source:"explorer",target:"searxng",label:"網路搜尋",type:"cross"},
+  {source:"fact-correction",target:"llm-router",label:"Haiku 矛盾判斷",type:"cross"},
+  {source:"fact-correction",target:"memory",label:"記憶覆寫（supersede）",type:"cross"},
+  {source:"fact-correction",target:"vector-index",label:"向量廢棄標記（mark_deprecated）",type:"cross"},
+  {source:"federation-sync",target:"nightly",label:"夜間同步",type:"cross"},
+  {source:"footprint",target:"data-bus",label:"足跡持久化",type:"cross"},
+  {source:"footprint",target:"data-bus",label:"cognitive_trace.jsonl 寫入",type:"cross"},
+  {source:"gateway",target:"anima-mc-store",label:"API 查詢 ANIMA",type:"cross"},
+  {source:"governor",target:"pulse-db",label:"事件記錄",type:"cross"},
+  {source:"group-session-proactive",target:"event-bus",label:"GROUP_SESSION_END 訂閱",type:"cross"},
+  {source:"group-session-proactive",target:"telegram",label:"群組追問發送",type:"cross"},
+  {source:"guardian",target:"brain",label:"ANIMA 修復",type:"cross"},
+  {source:"guardian",target:"doctor",label:"修復委派",type:"cross"},
+  {source:"intention-radar",target:"research-engine",label:"執行研究",type:"cross"},
+  {source:"investment-masters",target:"knowledge-lattice",label:"軍師會診結晶",type:"cross"},
   {source:"investment-masters",target:"market-core",label:"市場分析",type:"cross"},
   {source:"investment-masters",target:"risk-matrix",label:"風險管理",type:"cross"},
   {source:"investment-masters",target:"sentiment-radar",label:"情緒雷達",type:"cross"},
-  {source:"roundtable",target:"master-strategy",label:"戰略詰問",type:"cross"},
-  {source:"roundtable",target:"shadow",label:"博弈辨識",type:"cross"},
-  {source:"wee",target:"pdeif",label:"逆熵流演化",type:"cross"},
-  {source:"wee",target:"xmodel",label:"破框解方",type:"cross"},
-  {source:"wee",target:"orchestrator",label:"編排演化",type:"cross"},
-  {source:"morphenix",target:"qa-auditor",label:"品質審計",type:"cross"},
-  {source:"morphenix",target:"env-radar",label:"環境掃描",type:"cross"},
-  {source:"dna27",target:"query-clarity",label:"問題品質守門",type:"cross"},
-  {source:"dna27",target:"c15",label:"敘事張力",type:"cross"},
-  {source:"market-core",target:"market-equity",label:"股票衛星",type:"internal"},
-  {source:"market-core",target:"market-crypto",label:"加密衛星",type:"internal"},
-  {source:"market-core",target:"market-macro",label:"總經衛星",type:"internal"},
-  {source:"text-alchemy",target:"c15",label:"語言層注入",type:"cross"},
-  {source:"text-alchemy",target:"novel-craft",label:"小說工藝",type:"cross"},
-  {source:"text-alchemy",target:"storytelling-engine",label:"說故事",type:"cross"},
-  {source:"knowledge-lattice",target:"skills-thinking-hub",label:"記憶接收（思維）",type:"cross"},
-  {source:"knowledge-lattice",target:"skills-market-hub",label:"記憶接收（市場）",type:"cross"},
+  {source:"investment-masters",target:"skill-router",label:"DNA27 RC 親和觸發",type:"cross"},
   {source:"knowledge-lattice",target:"skills-business-hub",label:"記憶接收（商業）",type:"cross"},
   {source:"knowledge-lattice",target:"skills-creative-hub",label:"記憶接收（創意）",type:"cross"},
-  {source:"knowledge-lattice",target:"skills-product-hub",label:"記憶接收（產品）",type:"cross"},
   {source:"knowledge-lattice",target:"skills-evolution-hub",label:"記憶接收（演化）",type:"cross"},
+  {source:"knowledge-lattice",target:"skills-market-hub",label:"記憶接收（市場）",type:"cross"},
+  {source:"knowledge-lattice",target:"skills-product-hub",label:"記憶接收（產品）",type:"cross"},
+  {source:"knowledge-lattice",target:"skills-thinking-hub",label:"記憶接收（思維）",type:"cross"},
   {source:"knowledge-lattice",target:"skills-workflow-hub",label:"記憶接收（工作流）",type:"cross"},
-  // ── 與現有系統的橋接連線 ──
-  {source:"skills-thinking-hub",target:"brain",label:"思維技能→Brain",type:"cross"},
-  {source:"skills-market-hub",target:"brain",label:"市場技能→Brain",type:"cross"},
+  {source:"knowledge-lattice",target:"vector-index",label:"結晶存取",type:"cross"},
+  {source:"llm-router",target:"anthropic-api",label:"API 呼叫",type:"cross"},
+  {source:"lord-profile",target:"persona-router",label:"百合引擎讀取領域畫像（Phase 1）",type:"cross"},
+  {source:"mcp-server",target:"brain",label:"ANIMA 狀態查詢",type:"cross"},
+  {source:"memory",target:"registry",label:"持久化儲存",type:"cross"},
+  {source:"memory",target:"vector-index",label:"嵌入索引",type:"cross"},
+  {source:"metacognition",target:"llm-router",label:"Haiku 審查",type:"cross"},
+  {source:"metacognition",target:"pulse-db",label:"DNA 品質旗標寫入（METACOGNITION_QUALITY_FLAG）",type:"cross"},
+  {source:"morphenix",target:"env-radar",label:"環境掃描",type:"cross"},
+  {source:"morphenix",target:"pulse-db",label:"DNA 品質旗標讀取（品質回饋閉環）",type:"cross"},
+  {source:"morphenix",target:"qa-auditor",label:"品質審計",type:"cross"},
+  {source:"nightly",target:"blueprint-reader",label:"Step 30 藍圖一致性驗證",type:"cross"},
+  {source:"nightly",target:"budget-mgr",label:"預算結算",type:"cross"},
+  {source:"nightly",target:"data-watchdog",label:"Step 29 健康檢查",type:"cross"},
+  {source:"nightly",target:"diary-store",label:"每日日記生成",type:"cross"},
+  {source:"nightly",target:"evolution-velocity",label:"夜間速度計算",type:"cross"},
+  {source:"nightly",target:"immunity",label:"抗體修剪",type:"cross"},
+  {source:"nightly",target:"knowledge-lattice",label:"結晶固化",type:"cross"},
+  {source:"nightly",target:"memory",label:"記憶壓縮",type:"cross"},
+  {source:"nightly",target:"parameter-tuner",label:"夜間參數調諧",type:"cross"},
+  {source:"nightly",target:"skill-synapse",label:"Synapse Decay",type:"cross"},
+  {source:"nightly",target:"skills-registry",label:"品質檢查",type:"cross"},
+  {source:"nightly",target:"wee",label:"演化速度",type:"cross"},
+  {source:"observatory",target:"footprint",label:"讀取 cognitive_trace.jsonl 視覺化",type:"cross"},
+  {source:"observatory",target:"service-health",label:"讀取健康狀態",type:"cross"},
+  {source:"onboarding",target:"brain",label:"初始化身份",type:"cross"},
+  {source:"outward-trigger",target:"intention-radar",label:"觸發搜尋",type:"cross"},
+  {source:"perception",target:"brain",label:"四診合參",type:"cross"},
+  {source:"periodic-cycles",target:"pulse",label:"週期驅動",type:"cross"},
+  {source:"persona-router",target:"proactive-bridge",label:"象限決策結果回饋（P1-P3）",type:"cross"},
+  {source:"primal-detector",target:"okr-router",label:"原語路由",type:"cross"},
+  {source:"primal-detector",target:"persona-router",label:"原語調適",type:"cross"},
+  {source:"primal-detector",target:"reflex-router",label:"原語 boost",type:"cross"},
+  {source:"primal-detector",target:"skill-router",label:"原語加分",type:"cross"},
+  {source:"primal-detector",target:"vector-index",label:"八原語語義匹配",type:"cross"},
+  {source:"pulse-db",target:"registry",label:"脈搏記錄",type:"cross"},
+  {source:"recommender",target:"knowledge-lattice",label:"近因性衰減 7d + 互動衰減 λ=0.95",type:"cross"},
+  {source:"research-engine",target:"digest-engine",label:"消化結果",type:"cross"},
+  {source:"response-synthesizer",target:"multi-agent-executor",label:"DNA 交叉重組（片段評分合成）",type:"cross"},
+  {source:"roundtable",target:"knowledge-lattice",label:"裁決軌跡結晶",type:"cross"},
+  {source:"roundtable",target:"master-strategy",label:"戰略詰問",type:"cross"},
+  {source:"roundtable",target:"shadow",label:"博弈辨識",type:"cross"},
+  {source:"silent-digestion",target:"memory",label:"反思寫入",type:"cross"},
+  {source:"skill-market",target:"skills-registry",label:"技能打包",type:"cross"},
+  {source:"skill-router",target:"llm-router",label:"API 呼叫",type:"cross"},
+  {source:"skill-router",target:"skills-registry",label:"技能查找",type:"cross"},
+  {source:"skill-router",target:"vector-index",label:"語義匹配",type:"cross"},
+  {source:"skill-scanner",target:"skills-registry",label:"安全掃描",type:"cross"},
   {source:"skills-business-hub",target:"brain",label:"商業技能→Brain",type:"cross"},
   {source:"skills-creative-hub",target:"brain",label:"創意技能→Brain",type:"cross"},
-  {source:"skills-product-hub",target:"brain",label:"產品技能→Brain",type:"cross"},
   {source:"skills-evolution-hub",target:"evolution",label:"演化技能→Evolution",type:"cross"},
+  {source:"skills-market-hub",target:"brain",label:"市場技能→Brain",type:"cross"},
+  {source:"skills-product-hub",target:"brain",label:"產品技能→Brain",type:"cross"},
+  {source:"skills-thinking-hub",target:"brain",label:"思維技能→Brain",type:"cross"},
   {source:"skills-workflow-hub",target:"brain",label:"工作流技能→Brain",type:"cross"},
-  // ═══ 現有問題修復 ═══
-  // #1: installer Hub 補 event-bus 連線
-  {source:"event-bus",target:"installer",label:"安裝事件",type:"control"},
-  // #2: data-bus → blueprint-reader 補 internal 連線
-  {source:"data-bus",target:"blueprint-reader",label:"Store路由",type:"internal"},
-  // #3: data-bus → lord-profile 補 internal 連線
-  {source:"data-bus",target:"lord-profile",label:"Store路由",type:"internal"},
+  {source:"sparse-embedder",target:"qdrant",label:"稀疏向量存儲（sparse collections）",type:"cross"},
+  {source:"system-audit",target:"service-health",label:"交叉驗證",type:"cross"},
+  {source:"telegram",target:"event-bus",label:"GROUP_SESSION_END 發布",type:"cross"},
+  {source:"tool-registry",target:"skill-router",label:"工具查找",type:"cross"},
+  {source:"vector-index",target:"qdrant",label:"向量存儲（dense）",type:"cross"},
+  {source:"wee",target:"orchestrator",label:"編排演化",type:"cross"},
+  {source:"wee",target:"pdeif",label:"逆熵流演化",type:"cross"},
+  {source:"wee",target:"registry",label:"演化狀態",type:"cross"},
+  {source:"wee",target:"skills-registry",label:"演化追蹤",type:"cross"},
+  {source:"wee",target:"xmodel",label:"破框解方",type:"cross"},
+  {source:"zotero-bridge",target:"vector-index",label:"文獻索引",type:"cross"},
+  // ── monitor ──
+  {source:"service-health",target:"anthropic-api",label:"監控",type:"monitor"},
+  {source:"service-health",target:"firecrawl",label:"監控",type:"monitor"},
+  {source:"service-health",target:"gateway",label:"監控",type:"monitor"},
+  {source:"service-health",target:"qdrant",label:"監控",type:"monitor"},
+  {source:"service-health",target:"searxng",label:"監控",type:"monitor"},
+  // ── async ──
+  {source:"data-watchdog",target:"event-bus",label:"監控事件",type:"async"},
+  {source:"fact-correction",target:"proactive-bridge",label:"P4 自省清洗推播",type:"async"},
+  {source:"fact-correction",target:"pulse",label:"P4 自省清洗脈搏",type:"async"},
+  {source:"morphenix",target:"event-bus",label:"提案回饋",type:"async"},
+  {source:"nightly",target:"event-bus",label:"回饋迴路",type:"async"},
+  {source:"proactive-bridge",target:"telegram",label:"非同步推播",type:"async"},
+  {source:"telegram",target:"brain",label:"推送寫入 session",type:"async"},
+  {source:"telegram",target:"user",label:"回傳回應",type:"async"},
 ];
+
 
 const nodeMap = {};
 nodes.forEach(n => nodeMap[n.id] = n);
@@ -1742,26 +1729,171 @@ window.toggleCoverageView = function() {
 };
 
 // ═══════════════════════════════════════
-//  SYNC TOPOLOGY — 同步功能
+//  SYNC TOPOLOGY — 同步功能（檔案比對版）
 // ═══════════════════════════════════════
-window.syncTopology = function() {
-  const cmd = [
-    '\uD83D\uDD04 MUSEON 拓撲同步請求',
-    '\u2501'.repeat(17),
-    '當前版本：' + SYNC_META.topologyVersion + ' \u00B7 上次同步：' + SYNC_META.syncDate,
-    '節點數：' + SYNC_META.nodeCount + ' \u00B7 連線數：' + SYNC_META.linkCount,
-    '',
-    '請執行：.venv/bin/python scripts/sync_topology_to_3d.py --apply',
-    '同步後請重新整理瀏覽器頁面。'
-  ].join('\n');
 
-  navigator.clipboard.writeText(cmd).then(() => {
-    const btns = document.querySelectorAll('.controls .btn');
-    const syncBtn = btns[btns.length - 1];
-    syncBtn.textContent = '\u2713 已複製';
-    setTimeout(() => { syncBtn.textContent = '同步拓撲'; }, 2000);
-  });
+// 拓撲解析器（JS 版，與 sync_topology_to_3d.py 邏輯一致）
+function parseTopologyMd(text) {
+  const lines = text.split('\n');
+
+  // 版本
+  const verMatch = text.match(/# MUSEON 系統拓撲圖 (v[\d.]+)/);
+  const version = verMatch ? verMatch[1] : 'unknown';
+
+  // 群組定義表中的 group IDs
+  const groupIds = new Set();
+  let inGroupTable = false;
+  for (const line of lines) {
+    if (line.includes('群組 ID') && line.includes('色碼')) { inGroupTable = true; continue; }
+    if (inGroupTable) {
+      const gm = line.match(/^\|\s*`(\w[\w-]*)`/);
+      if (gm) { groupIds.add(gm[1]); }
+      else if (!line.trim().startsWith('|') && groupIds.size > 0) break;
+    }
+  }
+
+  // 節點
+  const nodesRaw = [];
+  let curGroup = null;
+  for (const line of lines) {
+    if (/^## [^#]/.test(line) && line.includes('連線')) { curGroup = null; continue; }
+    const hm = line.match(/^#{2,4}\s+(\S+)\s*[—–-]/);
+    if (hm) {
+      const cand = hm[1];
+      if (groupIds.has(cand)) curGroup = cand;
+      else if (cand.startsWith('skills-')) curGroup = 'skills';
+      continue;
+    }
+    if (curGroup && line.startsWith('|') && line.includes('`')) {
+      let cols = line.split('|').map(c => c.trim()).filter(c => c);
+      if (cols.length < 4) continue;
+      const nid = cols[0].replace(/`/g, '');
+      if (['ID','---',''].includes(nid) || nid.startsWith('-')) continue;
+      const node = { id: nid, label: cols[1], zh: cols[2], group: curGroup };
+      if (cols[3].trim() === 'Yes') node.hub = 1;
+      if (cols.length >= 6) {
+        const pc = cols[4].trim();
+        if (pc && pc !== '-') node.p = pc;
+        node.r = parseFloat(cols[5]) || 1.0;
+      } else if (cols.length >= 5) {
+        node.r = parseFloat(cols[4]) || 1.0;
+      } else { node.r = 1.0; }
+      nodesRaw.push(node);
+    }
+  }
+  // 去重
+  const seen = new Set();
+  const nodesDe = nodesRaw.filter(n => { if (seen.has(n.id)) return false; seen.add(n.id); return true; });
+
+  // 連線
+  const linksOut = [];
+  let curType = null;
+  const typeRe = /[（(](flow|control|internal|cross|async|monitor|decay)[）)]/;
+  for (const line of lines) {
+    if (/^#{3,4}\s+/.test(line)) {
+      const tm = typeRe.exec(line);
+      if (tm) curType = tm[1];
+      continue;
+    }
+    if (curType && line.startsWith('|') && line.includes('`')) {
+      let cols = line.split('|').map(c => c.trim()).filter(c => c);
+      if (cols.length < 3) continue;
+      let src = cols[0], tgt = cols[1], desc = cols[2];
+      if (!src.includes('`')) continue;
+      if (curType === 'decay' && src.includes('\u2192')) {
+        const parts = src.split('\u2192');
+        src = parts[0].trim().replace(/`/g, '');
+        tgt = parts[1].trim().replace(/`/g, '');
+        desc = cols[1];
+      } else {
+        src = src.replace(/`/g, '');
+        tgt = tgt.replace(/`/g, '');
+      }
+      if (['Source','---',''].includes(src) || ['Target','---',''].includes(tgt)) continue;
+      linksOut.push({ source: src, target: tgt, label: desc, type: curType });
+    }
+  }
+
+  return { version, nodes: nodesDe, links: linksOut };
+}
+
+function showSyncModal(html) {
+  document.getElementById('syncModal').innerHTML = html;
+  document.getElementById('syncOverlay').classList.add('show');
+}
+window.closeSyncModal = function() {
+  document.getElementById('syncOverlay').classList.remove('show');
 };
+window.copySyncCmd = function() {
+  const cmd = '.venv/bin/python scripts/sync_topology_to_3d.py --apply';
+  navigator.clipboard.writeText(cmd).then(() => {
+    const btn = document.getElementById('syncCopyBtn');
+    if (btn) { btn.textContent = '\u2713 \u5DF2\u8907\u88FD'; setTimeout(() => { btn.textContent = '\u8907\u88FD CLI \u547D\u4EE4'; }, 2000); }
+  });
+}
+
+// 主入口
+window.syncTopology = function() {
+  document.getElementById('topoFileInput').click();
+};
+
+document.getElementById('topoFileInput').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  e.target.value = ''; // 允許重複選同一檔案
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const text = ev.target.result;
+    const topo = parseTopologyMd(text);
+
+    // 目前 HTML 的 ID 集合
+    const curNodeIds = new Set(nodes.map(n => n.id));
+    const topoNodeIds = new Set(topo.nodes.map(n => n.id));
+    const curLinkKeys = new Set(links.map(l => l.source + '\u2192' + l.target));
+    const topoLinkKeys = new Set(topo.links.map(l => l.source + '\u2192' + l.target));
+
+    const addedNodes = topo.nodes.filter(n => !curNodeIds.has(n.id));
+    const removedNodes = nodes.filter(n => !topoNodeIds.has(n.id));
+    const addedLinks = topo.links.filter(l => !curLinkKeys.has(l.source + '\u2192' + l.target));
+    const removedLinks = links.filter(l => !topoLinkKeys.has(l.source + '\u2192' + l.target));
+
+    const isSynced = addedNodes.length === 0 && removedNodes.length === 0 && addedLinks.length === 0 && removedLinks.length === 0;
+
+    let html = '<h3>' + (isSynced ? '\u2705 \u62D3\u64B2\u5DF2\u540C\u6B65' : '\u26A0\uFE0F \u5075\u6E2C\u5230\u5DEE\u7570') + '</h3>';
+    html += '<div class="sync-stat">';
+    html += '\u62D3\u64B2\u7248\u672C\uFF1A<b>' + topo.version + '</b> \u00B7 HTML \u7248\u672C\uFF1A<b>' + SYNC_META.topologyVersion + '</b><br>';
+    html += '\u62D3\u64B2\u7BC0\u9EDE\uFF1A' + topo.nodes.length + ' \u00B7 HTML \u7BC0\u9EDE\uFF1A' + nodes.length + '<br>';
+    html += '\u62D3\u64B2\u9023\u7DDA\uFF1A' + topo.links.length + ' \u00B7 HTML \u9023\u7DDA\uFF1A' + links.length;
+    html += '</div>';
+
+    if (addedNodes.length > 0) {
+      html += '<div class="sync-stat"><span class="warn">+ ' + addedNodes.length + ' \u65B0\u589E\u7BC0\u9EDE\uFF08\u62D3\u64B2\u6709\uFF0CHTML \u7121\uFF09</span></div>';
+      html += '<div class="sync-list">' + addedNodes.map(n => '+ ' + n.id + ' (' + n.zh + ')').join('<br>') + '</div>';
+    }
+    if (removedNodes.length > 0) {
+      html += '<div class="sync-stat"><span class="err">- ' + removedNodes.length + ' \u7F3A\u5C11\u7BC0\u9EDE\uFF08HTML \u6709\uFF0C\u62D3\u64B2\u7121\uFF09</span></div>';
+      html += '<div class="sync-list">' + removedNodes.map(n => '- ' + n.id + ' (' + n.zh + ')').join('<br>') + '</div>';
+    }
+    if (addedLinks.length > 0) {
+      html += '<div class="sync-stat"><span class="warn">+ ' + addedLinks.length + ' \u65B0\u589E\u9023\u7DDA\uFF08\u62D3\u64B2\u6709\uFF0CHTML \u7121\uFF09</span></div>';
+      html += '<div class="sync-list">' + addedLinks.slice(0, 20).map(l => '+ ' + l.source + ' \u2192 ' + l.target + ' (' + l.label + ')').join('<br>') + (addedLinks.length > 20 ? '<br>...\u53CA\u5176\u4ED6 ' + (addedLinks.length - 20) + ' \u689D' : '') + '</div>';
+    }
+    if (removedLinks.length > 0) {
+      html += '<div class="sync-stat"><span class="err">- ' + removedLinks.length + ' \u7F3A\u5C11\u9023\u7DDA\uFF08HTML \u6709\uFF0C\u62D3\u64B2\u7121\uFF09</span></div>';
+      html += '<div class="sync-list">' + removedLinks.slice(0, 20).map(l => '- ' + l.source + ' \u2192 ' + l.target + ' (' + l.label + ')').join('<br>') + (removedLinks.length > 20 ? '<br>...\u53CA\u5176\u4ED6 ' + (removedLinks.length - 20) + ' \u689D' : '') + '</div>';
+    }
+
+    html += '<div class="sync-actions">';
+    if (!isSynced) {
+      html += '<button class="sync-btn primary" id="syncCopyBtn" onclick="copySyncCmd()">\u8907\u88FD CLI \u547D\u4EE4</button>';
+    }
+    html += '<button class="sync-btn secondary" onclick="closeSyncModal()">\u95DC\u9589</button>';
+    html += '</div>';
+
+    showSyncModal(html);
+  };
+  reader.readAsText(file);
+});
 
 // 初始化同步狀態顯示
 function initSyncInfo() {
