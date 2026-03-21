@@ -2442,13 +2442,14 @@ def create_app() -> FastAPI:
 
     @app.post("/api/vector/reindex")
     async def vector_reindex(payload: Dict[str, Any] = {}):
-        """觸發全量重建索引."""
+        """觸發全量重建索引（ensure collections + reindex all）."""
         try:
             from museon.vector.vector_bridge import VectorBridge
             from museon.core.event_bus import get_event_bus
             vb = VectorBridge(workspace=_get_brain().data_dir, event_bus=get_event_bus())
-            result = vb.ensure_collections()
-            return {"success": True, **result}
+            collections_result = vb.ensure_collections()
+            reindex_result = vb.reindex_all()
+            return {"success": True, "collections": collections_result, **reindex_result}
         except Exception as e:
             return {"success": False, "error": str(e)}
 
@@ -2867,6 +2868,16 @@ def create_app() -> FastAPI:
             logger.info(f"DNA27 Qdrant indexed: {indexed} reflex patterns")
         except Exception as e:
             logger.warning(f"DNA27 Qdrant indexing failed (degraded): {e}")
+
+        # ── Skill 向量索引（全量，確保語意搜尋可用）──
+        try:
+            from museon.vector.vector_bridge import VectorBridge
+            from museon.core.event_bus import get_event_bus
+            vb = VectorBridge(workspace=brain.data_dir, event_bus=get_event_bus())
+            skill_idx = vb.index_all_skills()
+            logger.info(f"[startup] Skills indexed: {skill_idx}")
+        except Exception as e:
+            logger.warning(f"[startup] Skills index failed (non-fatal): {e}")
 
         # ── v10.2: Auto-connect configured MCP servers ──
         try:

@@ -7,12 +7,23 @@ io:
     - from: user
       field: organization_task
       required: true
+    - name: data_context
+      from: user-model
+      required: false
   outputs:
     - to: user
       field: organized_structure
       trigger: always
+    - name: structure_plan
+      to: knowledge-lattice
+      trigger: on_demand
 connects_to:
   - aesthetic-sense
+memory:
+  writes:
+    - knowledge-lattice
+  reads:
+    - user-model
 description: >
   資訊架構與整理引擎——DNA27 核心的外掛模組。以 Apple 設計哲學為基底，
   提供資料/檔案/Email/筆記的分類診斷、結構設計、命名規範與美感審計。

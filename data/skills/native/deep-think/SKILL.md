@@ -7,6 +7,15 @@ io:
     - from: query-clarity
       field: validated_question
       required: true
+    - from: dna27
+      field: loop_context
+      required: false
+    - from: knowledge-lattice
+      field: related_crystals
+      required: false
+    - from: user-model
+      field: thinking_preference
+      required: false
   outputs:
     - to: resonance
       field: emotional_signal

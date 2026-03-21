@@ -53,6 +53,13 @@ def parse_yaml_frontmatter(text: str) -> dict[str, Any]:
         # 頂層 key（不縮排）
         if stripped and not stripped.startswith(" ") and not stripped.startswith("-"):
             if ":" in stripped:
+                # flush 上一個 key 的未完成 item
+                if current_key == "io" and current_section and current_item:
+                    result.setdefault("io", {}).setdefault(current_section, [])
+                    result["io"][current_section].append(current_item)
+                if current_key == "memory" and current_subsection and current_item:
+                    result.setdefault("memory", {}).setdefault(current_subsection, [])
+                    result["memory"][current_subsection].append(current_item)
                 key, _, val = stripped.partition(":")
                 key = key.strip()
                 val = val.strip()
@@ -61,9 +68,10 @@ def parse_yaml_frontmatter(text: str) -> dict[str, Any]:
                 current_key = key
                 current_section = None
                 current_subsection = None
+                current_item = None
                 continue
 
-        # connects_to 列表項
+        # 頂層 key 切換時，先 flush 上一個 section 的未完成 item
         if current_key == "connects_to" and stripped.strip().startswith("- "):
             result.setdefault("connects_to", [])
             result["connects_to"].append(stripped.strip()[2:].strip())
@@ -73,6 +81,9 @@ def parse_yaml_frontmatter(text: str) -> dict[str, Any]:
         if current_key == "io":
             s = stripped.strip()
             if s in ("inputs:", "outputs:"):
+                # flush 上一個 sub-section 的最後一個 item
+                if current_item and current_section:
+                    result["io"][current_section].append(current_item)
                 current_section = s[:-1]
                 result.setdefault("io", {}).setdefault(current_section, [])
                 current_item = None
@@ -97,6 +108,9 @@ def parse_yaml_frontmatter(text: str) -> dict[str, Any]:
         if current_key == "memory":
             s = stripped.strip()
             if s in ("writes:", "reads:"):
+                # flush 上一個 sub-section 的最後一個 item
+                if current_item and current_subsection:
+                    result["memory"][current_subsection].append(current_item)
                 current_subsection = s[:-1]
                 result.setdefault("memory", {}).setdefault(current_subsection, [])
                 current_item = None

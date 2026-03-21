@@ -16,6 +16,12 @@ io:
       trigger: always
 connects_to:
   - orchestrator
+memory:
+  writes:
+    - wee
+  reads:
+    - user-model
+    - knowledge-lattice
 description: >
   Plan-Engine（計畫引擎）— DNA27 核心的外掛模組，
   工作流前段引擎，用持久化 .md 檔案將混沌起點收斂為清晰計畫後交棒。

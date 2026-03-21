@@ -7,6 +7,18 @@ io:
     - from: user
       field: market_query
       required: true
+    - from: market-crypto
+      field: crypto_analysis
+      required: false
+    - from: market-equity
+      field: equity_analysis
+      required: false
+    - from: market-macro
+      field: macro_analysis
+      required: false
+    - from: sentiment-radar
+      field: sentiment_score
+      required: false
   outputs:
     - to: investment-masters
       field: bull_bear_analysis
@@ -19,6 +31,15 @@ io:
       trigger: conditional
     - to: knowledge-lattice
       field: bull_bear_analysis
+      trigger: always
+    - to: market-equity
+      field: framework
+      trigger: always
+    - to: market-crypto
+      field: framework
+      trigger: always
+    - to: market-macro
+      field: framework
       trigger: always
     - to: user
       field: market_report
@@ -35,6 +56,9 @@ memory:
     - target: knowledge-lattice
       type: crystal
       condition: 分析報告產出時
+  reads:
+    - source: knowledge-lattice
+      field: related_crystals
 description: >
   Market-Core（市場分析核心引擎）— DNA27 核心的外掛模組，
   MUSEON 的通用市場研究與多空研判框架。提供五層蒐集引擎、多空對稱論述框架、

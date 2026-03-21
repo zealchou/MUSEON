@@ -25,6 +25,9 @@ memory:
     - target: knowledge-lattice
       type: crystal
       condition: "六步驟完成到 Align 時"
+  reads:
+    - source: knowledge-lattice
+      field: related_crystals
 description: >
   思維轉化引擎（DHARMA Engine）——DNA27 核心的外掛模組，
   融合東方達摩哲學（佛法四聖諦、道家順勢、儒家修齊治平）與

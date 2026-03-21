@@ -526,6 +526,176 @@ class VectorBridge:
             return False
 
     # ═══════════════════════════════════════════
+    # 全量索引操作
+    # ═══════════════════════════════════════════
+
+    def index_all_skills(self, skills_dir: str | Path | None = None) -> dict:
+        """全量索引所有 Skill 到 Qdrant skills collection.
+
+        讀取 data/skills/native/ 下所有 SKILL.md，
+        組合 name + description + triggers 為可搜尋文本。
+
+        Args:
+            skills_dir: Skill 目錄路徑（預設自動偵測）
+
+        Returns:
+            {"indexed": int, "errors": list[str]}
+        """
+        import re
+
+        result = {"indexed": 0, "errors": []}
+
+        if not self.is_available():
+            result["errors"].append("vector_bridge_unavailable")
+            return result
+
+        # 自動偵測 skills_dir
+        if skills_dir is None:
+            candidate = self._workspace / "skills" / "native"
+            if not candidate.exists():
+                # 嘗試上一級 data/skills/native/
+                candidate = self._workspace.parent / "data" / "skills" / "native"
+            if not candidate.exists():
+                candidate = self._workspace / "skills" / "native"
+            skills_dir = Path(candidate)
+        else:
+            skills_dir = Path(skills_dir)
+
+        if not skills_dir.exists():
+            result["errors"].append(f"skills_dir_not_found: {skills_dir}")
+            return result
+
+        # 掃描所有子目錄的 SKILL.md
+        skill_dirs = sorted(
+            d for d in skills_dir.iterdir()
+            if d.is_dir() and (d / "SKILL.md").exists()
+        )
+
+        for skill_path in skill_dirs:
+            skill_name = skill_path.name
+            skill_file = skill_path / "SKILL.md"
+
+            try:
+                raw = skill_file.read_text(encoding="utf-8")
+
+                # 解析 YAML frontmatter
+                name = skill_name
+                layer = ""
+                skill_type = ""
+                description_text = ""
+                triggers = ""
+
+                # 嘗試解析 YAML frontmatter（--- ... ---）
+                fm_match = re.match(
+                    r"^---\s*\n(.*?)\n---\s*\n(.*)",
+                    raw,
+                    re.DOTALL,
+                )
+                if fm_match:
+                    fm_block = fm_match.group(1)
+                    body = fm_match.group(2)
+
+                    # 簡易 YAML 解析（避免引入 pyyaml 依賴）
+                    for line in fm_block.splitlines():
+                        line_stripped = line.strip()
+                        if line_stripped.startswith("name:"):
+                            name = line_stripped.split(":", 1)[1].strip()
+                        elif line_stripped.startswith("layer:"):
+                            layer = line_stripped.split(":", 1)[1].strip()
+                        elif line_stripped.startswith("type:"):
+                            skill_type = line_stripped.split(":", 1)[1].strip()
+
+                    # 從 description 欄位提取（多行 YAML）
+                    desc_match = re.search(
+                        r"description:\s*>?\s*\n((?:\s{2,}.*\n)*)",
+                        fm_block,
+                    )
+                    if desc_match:
+                        description_text = desc_match.group(1).strip()
+
+                    # 如果 frontmatter description 不夠，用 body 前 500 字補充
+                    if len(description_text) < 50:
+                        description_text = body[:500]
+                else:
+                    # 沒有 frontmatter，使用整個文件前 500 字
+                    body = raw
+                    description_text = raw[:500]
+
+                # 從正文提取觸發詞段落
+                trigger_match = re.search(
+                    r"觸發[詞時條件][:：]\s*(.+?)(?:\n\n|\n#|\Z)",
+                    raw,
+                    re.DOTALL,
+                )
+                if trigger_match:
+                    triggers = trigger_match.group(1).strip()[:200]
+
+                # 組合可搜尋文本
+                searchable_text = (
+                    f"{name} {layer} {skill_type} "
+                    f"{triggers} {description_text[:500]}"
+                ).strip()
+
+                metadata = {
+                    "name": name,
+                    "layer": layer,
+                    "type": skill_type,
+                    "triggers": triggers[:200],
+                    "source": "skills/native",
+                }
+
+                # 索引到 dense collection
+                indexed = self.index(
+                    "skills", skill_name, searchable_text, metadata=metadata
+                )
+
+                # 嘗試索引到 sparse collection
+                try:
+                    self.index_sparse(
+                        "skills", skill_name, searchable_text, metadata=metadata
+                    )
+                except Exception:
+                    pass  # sparse 不可用時靜默
+
+                if indexed:
+                    result["indexed"] += 1
+                else:
+                    result["errors"].append(f"index_failed: {skill_name}")
+
+            except Exception as e:
+                result["errors"].append(f"{skill_name}: {e}")
+
+        logger.info(
+            f"[VECTOR_BRIDGE] Skills indexed: {result['indexed']}/{len(skill_dirs)}"
+            + (f", errors: {len(result['errors'])}" if result["errors"] else "")
+        )
+
+        return result
+
+    def reindex_all(self, workspace: str | Path | None = None) -> dict:
+        """全量重索引所有 collection（用於 Qdrant 重建後恢復）.
+
+        Args:
+            workspace: 工作目錄（可選，預設使用 self._workspace）
+
+        Returns:
+            {"skills": {...}, ...}
+        """
+        results = {}
+
+        # Skills 全量重索引
+        try:
+            results["skills"] = self.index_all_skills()
+        except Exception as e:
+            logger.warning(f"[VECTOR_BRIDGE] Skills reindex failed: {e}")
+            results["skills"] = {"indexed": 0, "errors": [str(e)]}
+
+        # crystals 和 memories 的重索引留給各自的模組
+        # （knowledge_lattice.py 管 crystals、memory_manager.py 管 memories）
+
+        return results
+
+    # ═══════════════════════════════════════════
     # 私有方法
     # ═══════════════════════════════════════════
 

@@ -1,10 +1,11 @@
-# Blast Radius — 模組影響半徑表 v1.32
+# Blast Radius — 模組影響半徑表 v1.33
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節
+> **v1.33 (2026-03-21)**：Skill 鍛造膠合層修復——VectorBridge 新增 index_all_skills()/reindex_all()；server.py startup 新增 skills 索引；nightly Step 8.6 skill_vector_reindex；plugin-registry v2.3（+12 Skill）；49 個 Skill Manifest 補齊 memory/io 欄位
 > **v1.27 (2026-03-20)**：brain.py P3 前置交織融合——新增 `_p3_gather_pre_fusion_insights()`，Phase 4.5 輕量簽名，`_execute_p3_parallel_fusion` 降級為向後相容
 
 ---
@@ -554,7 +555,7 @@
 |---------|------|
 | 共享狀態 | Qdrant 8 個 dense collections + N 個 sparse collections（`{name}_sparse`）；memories collection 新增 status=deprecated 軟刪除過濾 |
 | 直接 import | 7 個模組（brain, memory_manager, reflex_router, skill_router, knowledge_lattice, chromosome_index, primal_detector） |
-| 新增方法 | `mark_deprecated()` — 軟刪除；`hybrid_search()` — Dense+Sparse RRF 融合；`index_sparse()` / `backfill_sparse()` / `build_sparse_idf()` — 稀疏向量管理 |
+| 新增方法 | `mark_deprecated()` — 軟刪除；`hybrid_search()` — Dense+Sparse RRF 融合；`index_sparse()` / `backfill_sparse()` / `build_sparse_idf()` — 稀疏向量管理；`index_all_skills()` — skills collection 全量索引（Gateway startup + Nightly 8.6 + API reindex）；`reindex_all()` — 全部 collection 重索引 |
 | 降級影響 | Qdrant 離線 → 檢索降級為 TF-IDF（0.3 折扣）；Sparse 不可用 → hybrid_search 降級為純 dense |
 
 #### 修改安全邊界
@@ -766,6 +767,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-21 | v1.33 | Skill 鍛造膠合層修復：VectorBridge 新增 `index_all_skills()`/`reindex_all()`（skills collection 全量索引）；server.py startup 新增 skills 向量索引步驟；nightly Step 8.6 `skill_vector_reindex`；plugin-registry v2.3（+12 Skill 註冊）；49 個 Skill Manifest 補齊 memory/io 欄位；skills collection 寫入者從 skill_router.py 修正為 vector_bridge.py |
 | 2026-03-21 | v1.32 | 群組對話 DSE 三階段修復：brain.py 新增 `_classify_p0_signal()`（P0 六類訊號分流啟發式）+ `_detect_fact_correction()`（群組事實糾正啟用）+ `_observe_external_user()` v3.0 升級（trust evolution 四階段 + PrimalDetector 八原語 + L6 溝通風格 + L1 事實萃取）+ `_P0_SIGNAL_KEYWORDS` 四類關鍵字表 + `_FACT_CORRECTION_PATTERNS` 28 條糾正模式；memory_manager.py store() 新增 chat_scope/group_id 參數 + recall() 新增 chat_scope_filter/exclude_scopes 過濾 + _keyword_fallback()/\_vector_index() 同步支援；server.py 群組事實糾正啟用（skip_fact_correction=False）+ 錯誤顯示啟用（show_error_details=True）；governance/multi_tenant.py ExternalAnimaManager v3.0 schema（profile/relationship/seven_layers + v2→v3 遷移）；同步 joint-map v1.26、memory-router v1.1、persistence-contract v1.23、system-topology v1.26 |
 | 2026-03-21 | v1.31 | GraphRAG 社群偵測：knowledge_lattice.py 新增 `detect_communities()`（Label Propagation）+ `_summarize_community()`（Extract-based 摘要）+ `has_communities()`（快速檢查）+ `recall_with_community()`（語義社群召回）（全部為純新增方法，不改既有 API）；brain.py L3221-3233 新增 Layer 2.5 社群摘要注入（~12 行，`has_communities()` + `recall_with_community()`，降級 try/except 保護）；G5 影響範圍：brain 新增為社群摘要消費者；無新增持久層（社群偵測為即時計算）；同步 joint-map v1.25、persistence-contract v1.22（不變）、system-topology v1.23（不變） |
 | 2026-03-21 | v1.30 | 混合檢索（Hybrid Retrieval）：vector_bridge.py 新增 `hybrid_search()` + `_sparse_search()` + `_rrf_merge()` + `index_sparse()` + `backfill_sparse()` + `build_sparse_idf()`（全部為新增方法，不修改既有 API）；新增 `vector/sparse_embedder.py` 到綠區（扇入=1，僅 vector_bridge import）；Qdrant 共享狀態：新增 N 個 sparse collections（分離式 Route A，不碰原 dense schema）+ `_system/sparse_idf.json`；vector_bridge 扇入不變（7）；同步 joint-map v1.24、persistence-contract v1.22 |

@@ -7,12 +7,23 @@ io:
     - from: user
       field: explicit_activation
       required: true
+    - name: user_input
+      from: gateway
+      required: true
   outputs:
     - to: user
       field: research_output
       trigger: on-request
+    - name: response
+      to: gateway
+      trigger: always
 connects_to:
   - resonance
+memory:
+  writes:
+    - knowledge-lattice
+  reads:
+    - user-model
 description: >
   Tantra — 情慾治理與深化引擎。DNA27 核心的外掛模組，
   為未來成人版 AI 實裝預先研究的情慾完整技術棧。

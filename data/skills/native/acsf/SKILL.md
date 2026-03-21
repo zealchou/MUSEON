@@ -20,6 +20,12 @@ io:
 connects_to:
   - dse
   - plugin-registry
+memory:
+  writes:
+    - knowledge-lattice
+  reads:
+    - knowledge-lattice
+    - user-model
 description: >
   ACSF（Ability Crystallization & Skill Forge）能力結晶與 Skill 鑄造引擎。
   DNA27 核心的外掛模組，將 DSE 驗證後的技術方案鍛造成符合 DNA27 架構、

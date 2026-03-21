@@ -1,3 +1,28 @@
+---
+name: group-meeting-notes
+type: workflow
+layer: product
+io:
+  inputs:
+    - from: gateway
+      field: chat_history
+      required: true
+  outputs:
+    - to: knowledge-lattice
+      field: meeting_insights
+      trigger: always
+connects_to:
+  - knowledge-lattice
+  - user-model
+  - wee
+memory:
+  writes:
+    - knowledge-lattice
+    - wee
+  reads:
+    - user-model
+---
+
 # Group Meeting Notes (WF-GMN-01)
 **群組對話會議記錄引擎**
 

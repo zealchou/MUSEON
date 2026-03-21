@@ -26,6 +26,9 @@ memory:
     - target: knowledge-lattice
       type: crystal
       condition: 會診完成時
+  reads:
+    - source: knowledge-lattice
+      field: related_crystals
 description: >
   Investment-Masters（投資軍師團）— DNA27 核心的外掛模組，
   market-core 生態系的「第二意見」衛星，專為投資決策提供大師級多視角會診。

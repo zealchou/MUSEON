@@ -17,6 +17,12 @@ io:
 connects_to:
   - text-alchemy
   - c15
+memory:
+  writes:
+    - knowledge-lattice
+  reads:
+    - user-model
+    - knowledge-lattice
 description: >
   說故事引擎——DNA27 核心的外掛模組，text-alchemy 生態系的敘事結構專家。
   融合 Simon Sinek 黃金圈、Nancy Duarte Sparkline、Joseph Campbell 英雄旅程、

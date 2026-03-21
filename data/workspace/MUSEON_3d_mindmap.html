@@ -200,6 +200,7 @@ canvas{display:block}
   <div class="legend-item" data-g="tools"><div class="legend-dot" style="background:#B89E84"></div>Tools 工具</div>
   <div class="legend-item" data-g="nightly"><div class="legend-dot" style="background:#C58476"></div>Nightly 夜間</div>
   <div class="legend-item" data-g="installer"><div class="legend-dot" style="background:#93AC84"></div>Installer 安裝</div>
+  <div class="legend-item" data-g="skills"><div class="legend-dot" style="background:#8B5CF6"></div>Skills 生態系</div>
   <div class="legend-item" data-g="external"><div class="legend-dot" style="background:#9E9EA4"></div>外部服務</div>
   <div class="legend-div"></div>
   <div class="legend-link"><div class="legend-line" style="border-top:2px solid #B5B3AD"></div>內部連結</div>
@@ -322,13 +323,15 @@ const GC = {
   center:'#C98980', channel:'#C98980', agent:'#86ADA0', pulse:'#C5A47E',
   gov:'#84A4BA', doctor:'#80B8A8', llm:'#9A9199', data:'#A097B8',
   evolution:'#AC8EC2', tools:'#B89E84',
-  nightly:'#C58476', installer:'#93AC84', external:'#9E9EA4'
+  nightly:'#C58476', installer:'#93AC84', external:'#9E9EA4',
+  skills:'#8B5CF6'
 };
 const GN = {
   center:'核心', channel:'通道入口', agent:'Agent/Brain', pulse:'Pulse 生命力',
   gov:'Governance', doctor:'Doctor', llm:'LLM 路由', data:'資料層',
   evolution:'Evolution 演化', tools:'Tools 工具',
-  nightly:'Nightly', installer:'Installer 安裝', external:'外部服務'
+  nightly:'Nightly', installer:'Installer 安裝', external:'外部服務',
+  skills:'Skills 生態系'
 };
 function lkHex(t){ return t==='cross'?0xC98980:t==='async'?0xC5A47E:t==='monitor'?0x84A4BA:t==='control'?0x9E9EA4:t==='flow'?0xDC9F8E:t==='decay'?0x8B6E5A:0xB5B3AD; }
 function lkCSS(t){ return t==='cross'?'#C98980':t==='async'?'#C5A47E':t==='monitor'?'#84A4BA':t==='control'?'#9E9EA4':t==='flow'?'#DC9F8E':t==='decay'?'#8B6E5A':'#B5B3AD'; }
@@ -471,6 +474,60 @@ const nodes = [
   {id:"lord-profile",label:"Lord Profile",zh:"主人領域畫像",group:"data",p:"data-bus",r:0.8},
   // A區 #2: BM25 稀疏向量生成器
   {id:"sparse-embedder",label:"Sparse Embedder",zh:"BM25 稀疏向量",group:"data",p:"data-bus",r:0.9},
+  // ═══ Skills 生態系（40 Skill + 7 Hub）═══
+  // ── skills-thinking Hub（思維類）──
+  {id:"skills-thinking-hub",label:"Thinking Hub",zh:"思維類技能中樞",group:"skills",r:2.0,hub:1},
+  {id:"dharma",label:"DHARMA",zh:"思維轉化引擎",group:"skills",p:"skills-thinking-hub",r:1.2},
+  {id:"philo-dialectic",label:"Philo-Dialectic",zh:"哲學思辨引擎",group:"skills",p:"skills-thinking-hub",r:1.2},
+  {id:"resonance",label:"Resonance",zh:"感性共振引擎",group:"skills",p:"skills-thinking-hub",r:1.2},
+  {id:"shadow",label:"Shadow",zh:"人際博弈辨識引擎",group:"skills",p:"skills-thinking-hub",r:1.2},
+  {id:"meta-learning",label:"Meta-Learning",zh:"元學習引擎",group:"skills",p:"skills-thinking-hub",r:1.2},
+  {id:"query-clarity",label:"Query-Clarity",zh:"問題品質守門層",group:"skills",p:"skills-thinking-hub",r:1.2},
+  {id:"user-model",label:"User-Model",zh:"使用者畫像引擎",group:"skills",p:"skills-thinking-hub",r:1.2},
+  // ── skills-market Hub（市場類）──
+  {id:"skills-market-hub",label:"Market Hub",zh:"市場類技能中樞",group:"skills",r:2.0,hub:1},
+  {id:"market-core",label:"Market-Core",zh:"市場分析核心",group:"skills",p:"skills-market-hub",r:1.4},
+  {id:"market-equity",label:"Market-Equity",zh:"股票分析衛星",group:"skills",p:"skills-market-hub",r:1.2},
+  {id:"market-crypto",label:"Market-Crypto",zh:"加密貨幣分析",group:"skills",p:"skills-market-hub",r:1.2},
+  {id:"market-macro",label:"Market-Macro",zh:"總體經濟分析",group:"skills",p:"skills-market-hub",r:1.2},
+  {id:"risk-matrix",label:"Risk-Matrix",zh:"風險管理引擎",group:"skills",p:"skills-market-hub",r:1.2},
+  {id:"sentiment-radar",label:"Sentiment-Radar",zh:"市場情緒雷達",group:"skills",p:"skills-market-hub",r:1.2},
+  // ── skills-business Hub（商業類）──
+  {id:"skills-business-hub",label:"Business Hub",zh:"商業類技能中樞",group:"skills",r:2.0,hub:1},
+  {id:"business-12",label:"Business-12",zh:"商模十二力",group:"skills",p:"skills-business-hub",r:1.2},
+  {id:"ssa-consultant",label:"SSA-Consultant",zh:"顧問式銷售引擎",group:"skills",p:"skills-business-hub",r:1.2},
+  {id:"master-strategy",label:"Master-Strategy",zh:"戰略判斷引擎",group:"skills",p:"skills-business-hub",r:1.4},
+  {id:"consultant-communication",label:"Consultant-Comm",zh:"顧問溝通引擎",group:"skills",p:"skills-business-hub",r:1.2},
+  {id:"xmodel",label:"X-Model",zh:"破框解方引擎",group:"skills",p:"skills-business-hub",r:1.2},
+  {id:"pdeif",label:"PDEIF",zh:"逆熵流引擎",group:"skills",p:"skills-business-hub",r:1.2},
+  // ── skills-creative Hub（創意類）──
+  {id:"skills-creative-hub",label:"Creative Hub",zh:"創意類技能中樞",group:"skills",r:2.0,hub:1},
+  {id:"c15",label:"C15",zh:"敘事張力語言層",group:"skills",p:"skills-creative-hub",r:1.2},
+  {id:"text-alchemy",label:"Text-Alchemy",zh:"文字煉金系統",group:"skills",p:"skills-creative-hub",r:1.2},
+  {id:"storytelling-engine",label:"Storytelling",zh:"說故事引擎",group:"skills",p:"skills-creative-hub",r:1.2},
+  {id:"novel-craft",label:"Novel-Craft",zh:"小說工藝引擎",group:"skills",p:"skills-creative-hub",r:1.2},
+  {id:"aesthetic-sense",label:"Aesthetic-Sense",zh:"美感引擎",group:"skills",p:"skills-creative-hub",r:1.2},
+  {id:"brand-identity",label:"Brand-Identity",zh:"品牌識別引擎",group:"skills",p:"skills-creative-hub",r:1.2},
+  // ── skills-product Hub（產品類）──
+  {id:"skills-product-hub",label:"Product Hub",zh:"產品類技能中樞",group:"skills",r:2.0,hub:1},
+  {id:"acsf",label:"ACSF",zh:"能力結晶鑄造",group:"skills",p:"skills-product-hub",r:1.2},
+  {id:"dse",label:"DSE",zh:"技術融合驗證",group:"skills",p:"skills-product-hub",r:1.2},
+  {id:"gap",label:"GAP",zh:"缺口分析引擎",group:"skills",p:"skills-product-hub",r:1.2},
+  {id:"env-radar",label:"Env-Radar",zh:"環境雷達",group:"skills",p:"skills-product-hub",r:1.2},
+  {id:"info-architect",label:"Info-Architect",zh:"資訊架構引擎",group:"skills",p:"skills-product-hub",r:1.2},
+  {id:"report-forge",label:"Report-Forge",zh:"報告鍛造",group:"skills",p:"skills-product-hub",r:1.2},
+  {id:"orchestrator",label:"Orchestrator",zh:"編排引擎",group:"skills",p:"skills-product-hub",r:1.2},
+  // ── skills-evolution Hub（演化類）──
+  {id:"skills-evolution-hub",label:"Evolution Hub",zh:"演化類技能中樞",group:"skills",r:2.0,hub:1},
+  {id:"sandbox-lab",label:"Sandbox-Lab",zh:"沙盒實驗室",group:"skills",p:"skills-evolution-hub",r:1.2},
+  {id:"qa-auditor",label:"QA-Auditor",zh:"品質審計引擎",group:"skills",p:"skills-evolution-hub",r:1.2},
+  {id:"tantra",label:"Tantra",zh:"情慾治理引擎",group:"skills",p:"skills-evolution-hub",r:1.0},
+  // ── skills-workflow Hub（工作流類）──
+  {id:"skills-workflow-hub",label:"Workflow Hub",zh:"工作流類技能中樞",group:"skills",r:2.0,hub:1},
+  {id:"workflow-svc-brand-marketing",label:"WF-SVC-01",zh:"品牌行銷工作流",group:"skills",p:"skills-workflow-hub",r:1.2},
+  {id:"workflow-investment-analysis",label:"WF-INV-01",zh:"投資分析工作流",group:"skills",p:"skills-workflow-hub",r:1.2},
+  {id:"workflow-ai-deployment",label:"WF-AID-01",zh:"AI部署工作流",group:"skills",p:"skills-workflow-hub",r:1.2},
+  {id:"group-meeting-notes",label:"WF-GMN-01",zh:"會議記錄引擎",group:"skills",p:"skills-workflow-hub",r:1.2},
 ];
 
 const links = [
@@ -752,6 +809,106 @@ const links = [
   {source:"sparse-embedder",target:"qdrant",label:"稀疏向量存儲",type:"cross"},
   // #3 GraphRAG: 社群摘要注入
   {source:"brain",target:"knowledge-lattice",label:"社群摘要 Layer 2.5",type:"internal"},
+  // ═══ Skills 生態系連線 ═══
+  // ── Hub 與 event-bus 連線（control）──
+  {source:"event-bus",target:"skills-thinking-hub",label:"思維技能事件",type:"control"},
+  {source:"event-bus",target:"skills-market-hub",label:"市場技能事件",type:"control"},
+  {source:"event-bus",target:"skills-business-hub",label:"商業技能事件",type:"control"},
+  {source:"event-bus",target:"skills-creative-hub",label:"創意技能事件",type:"control"},
+  {source:"event-bus",target:"skills-product-hub",label:"產品技能事件",type:"control"},
+  {source:"event-bus",target:"skills-evolution-hub",label:"演化技能事件",type:"control"},
+  {source:"event-bus",target:"skills-workflow-hub",label:"工作流技能事件",type:"control"},
+  // ── skills-thinking-hub internal ──
+  {source:"skills-thinking-hub",target:"dharma",label:"思維轉化",type:"internal"},
+  {source:"skills-thinking-hub",target:"philo-dialectic",label:"哲學思辨",type:"internal"},
+  {source:"skills-thinking-hub",target:"resonance",label:"感性共振",type:"internal"},
+  {source:"skills-thinking-hub",target:"shadow",label:"博弈辨識",type:"internal"},
+  {source:"skills-thinking-hub",target:"meta-learning",label:"元學習",type:"internal"},
+  {source:"skills-thinking-hub",target:"query-clarity",label:"問題品質",type:"internal"},
+  {source:"skills-thinking-hub",target:"user-model",label:"使用者畫像",type:"internal"},
+  // ── skills-market-hub internal ──
+  {source:"skills-market-hub",target:"market-core",label:"市場核心",type:"internal"},
+  {source:"skills-market-hub",target:"market-equity",label:"股票分析",type:"internal"},
+  {source:"skills-market-hub",target:"market-crypto",label:"加密貨幣",type:"internal"},
+  {source:"skills-market-hub",target:"market-macro",label:"總體經濟",type:"internal"},
+  {source:"skills-market-hub",target:"risk-matrix",label:"風險管理",type:"internal"},
+  {source:"skills-market-hub",target:"sentiment-radar",label:"情緒雷達",type:"internal"},
+  // ── skills-business-hub internal ──
+  {source:"skills-business-hub",target:"business-12",label:"商模十二力",type:"internal"},
+  {source:"skills-business-hub",target:"ssa-consultant",label:"顧問銷售",type:"internal"},
+  {source:"skills-business-hub",target:"master-strategy",label:"戰略判斷",type:"internal"},
+  {source:"skills-business-hub",target:"consultant-communication",label:"顧問溝通",type:"internal"},
+  {source:"skills-business-hub",target:"xmodel",label:"破框解方",type:"internal"},
+  {source:"skills-business-hub",target:"pdeif",label:"逆熵流",type:"internal"},
+  // ── skills-creative-hub internal ──
+  {source:"skills-creative-hub",target:"c15",label:"敘事張力",type:"internal"},
+  {source:"skills-creative-hub",target:"text-alchemy",label:"文字煉金",type:"internal"},
+  {source:"skills-creative-hub",target:"storytelling-engine",label:"說故事",type:"internal"},
+  {source:"skills-creative-hub",target:"novel-craft",label:"小說工藝",type:"internal"},
+  {source:"skills-creative-hub",target:"aesthetic-sense",label:"美感",type:"internal"},
+  {source:"skills-creative-hub",target:"brand-identity",label:"品牌識別",type:"internal"},
+  // ── skills-product-hub internal ──
+  {source:"skills-product-hub",target:"acsf",label:"能力結晶",type:"internal"},
+  {source:"skills-product-hub",target:"dse",label:"技術融合",type:"internal"},
+  {source:"skills-product-hub",target:"gap",label:"缺口分析",type:"internal"},
+  {source:"skills-product-hub",target:"env-radar",label:"環境雷達",type:"internal"},
+  {source:"skills-product-hub",target:"info-architect",label:"資訊架構",type:"internal"},
+  {source:"skills-product-hub",target:"report-forge",label:"報告鍛造",type:"internal"},
+  {source:"skills-product-hub",target:"orchestrator",label:"編排",type:"internal"},
+  // ── skills-evolution-hub internal ──
+  {source:"skills-evolution-hub",target:"sandbox-lab",label:"沙盒實驗",type:"internal"},
+  {source:"skills-evolution-hub",target:"qa-auditor",label:"品質審計",type:"internal"},
+  {source:"skills-evolution-hub",target:"tantra",label:"情慾治理",type:"internal"},
+  // ── skills-workflow-hub internal ──
+  {source:"skills-workflow-hub",target:"workflow-svc-brand-marketing",label:"品牌行銷",type:"internal"},
+  {source:"skills-workflow-hub",target:"workflow-investment-analysis",label:"投資分析",type:"internal"},
+  {source:"skills-workflow-hub",target:"workflow-ai-deployment",label:"AI部署",type:"internal"},
+  {source:"skills-workflow-hub",target:"group-meeting-notes",label:"會議記錄",type:"internal"},
+  // ── 跨群組連線（cross）──基於 Skill Manifest connects_to ──
+  {source:"deep-think",target:"resonance",label:"共振觸發",type:"cross"},
+  {source:"deep-think",target:"dharma",label:"思維轉化",type:"cross"},
+  {source:"deep-think",target:"philo-dialectic",label:"哲學思辨",type:"cross"},
+  {source:"deep-think",target:"master-strategy",label:"戰略判斷",type:"cross"},
+  {source:"investment-masters",target:"market-core",label:"市場分析",type:"cross"},
+  {source:"investment-masters",target:"risk-matrix",label:"風險管理",type:"cross"},
+  {source:"investment-masters",target:"sentiment-radar",label:"情緒雷達",type:"cross"},
+  {source:"roundtable",target:"master-strategy",label:"戰略詰問",type:"cross"},
+  {source:"roundtable",target:"shadow",label:"博弈辨識",type:"cross"},
+  {source:"wee",target:"pdeif",label:"逆熵流演化",type:"cross"},
+  {source:"wee",target:"xmodel",label:"破框解方",type:"cross"},
+  {source:"wee",target:"orchestrator",label:"編排演化",type:"cross"},
+  {source:"morphenix",target:"qa-auditor",label:"品質審計",type:"cross"},
+  {source:"morphenix",target:"env-radar",label:"環境掃描",type:"cross"},
+  {source:"dna27",target:"query-clarity",label:"問題品質守門",type:"cross"},
+  {source:"dna27",target:"c15",label:"敘事張力",type:"cross"},
+  {source:"market-core",target:"market-equity",label:"股票衛星",type:"internal"},
+  {source:"market-core",target:"market-crypto",label:"加密衛星",type:"internal"},
+  {source:"market-core",target:"market-macro",label:"總經衛星",type:"internal"},
+  {source:"text-alchemy",target:"c15",label:"語言層注入",type:"cross"},
+  {source:"text-alchemy",target:"novel-craft",label:"小說工藝",type:"cross"},
+  {source:"text-alchemy",target:"storytelling-engine",label:"說故事",type:"cross"},
+  {source:"knowledge-lattice",target:"skills-thinking-hub",label:"記憶接收（思維）",type:"cross"},
+  {source:"knowledge-lattice",target:"skills-market-hub",label:"記憶接收（市場）",type:"cross"},
+  {source:"knowledge-lattice",target:"skills-business-hub",label:"記憶接收（商業）",type:"cross"},
+  {source:"knowledge-lattice",target:"skills-creative-hub",label:"記憶接收（創意）",type:"cross"},
+  {source:"knowledge-lattice",target:"skills-product-hub",label:"記憶接收（產品）",type:"cross"},
+  {source:"knowledge-lattice",target:"skills-evolution-hub",label:"記憶接收（演化）",type:"cross"},
+  {source:"knowledge-lattice",target:"skills-workflow-hub",label:"記憶接收（工作流）",type:"cross"},
+  // ── 與現有系統的橋接連線 ──
+  {source:"skills-thinking-hub",target:"brain",label:"思維技能→Brain",type:"cross"},
+  {source:"skills-market-hub",target:"brain",label:"市場技能→Brain",type:"cross"},
+  {source:"skills-business-hub",target:"brain",label:"商業技能→Brain",type:"cross"},
+  {source:"skills-creative-hub",target:"brain",label:"創意技能→Brain",type:"cross"},
+  {source:"skills-product-hub",target:"brain",label:"產品技能→Brain",type:"cross"},
+  {source:"skills-evolution-hub",target:"evolution",label:"演化技能→Evolution",type:"cross"},
+  {source:"skills-workflow-hub",target:"brain",label:"工作流技能→Brain",type:"cross"},
+  // ═══ 現有問題修復 ═══
+  // #1: installer Hub 補 event-bus 連線
+  {source:"event-bus",target:"installer",label:"安裝事件",type:"control"},
+  // #2: data-bus → blueprint-reader 補 internal 連線
+  {source:"data-bus",target:"blueprint-reader",label:"Store路由",type:"internal"},
+  // #3: data-bus → lord-profile 補 internal 連線
+  {source:"data-bus",target:"lord-profile",label:"Store路由",type:"internal"},
 ];
 
 const nodeMap = {};

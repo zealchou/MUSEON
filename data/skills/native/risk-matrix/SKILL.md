@@ -25,6 +25,9 @@ memory:
     - target: knowledge-lattice
       type: crystal
       condition: 配置建議產出時
+  reads:
+    - source: knowledge-lattice
+      field: related_crystals
 description: >
   Risk-Matrix（風險管理與資產配置引擎）— DNA27 核心的外掛模組，
   market-core 生態系的風險管理衛星，專為投資組合風險評估與資產配置特化。

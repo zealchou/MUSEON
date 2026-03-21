@@ -25,6 +25,10 @@ connects_to:
   - storytelling-engine
   - novel-craft
   - consultant-communication
+memory:
+  writes: []
+  reads:
+    - user-model
 description: >
   Text Alchemy（文字煉金系統）— DNA27 核心的語言層路由模組。
   專責處理「有明確產出」的文字任務，根據意圖、受眾、場景自動路由到適合的風格模組。

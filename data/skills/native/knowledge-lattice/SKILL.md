@@ -40,6 +40,15 @@ io:
     - from: wee
       field: workflow_lessons
       required: false
+    - from: risk-matrix
+      field: allocation_plan
+      required: false
+    - from: ssa-consultant
+      field: sales_strategy
+      required: false
+    - from: group-meeting-notes
+      field: meeting_insights
+      required: false
   outputs:
     - to: deep-think
       field: related_crystals
@@ -60,6 +69,9 @@ memory:
     - target: knowledge-lattice
       type: crystal
       condition: 結晶萃取觸發時
+  reads:
+    - source: knowledge-lattice
+      field: existing_crystals
 description: >
   Knowledge Lattice（知識晶格）— DNA27 核心的外掛模組，
   MUSEON 的結構化知識累積與再結晶引擎。將對話中驗證過的洞見、失敗教訓、成功模式，

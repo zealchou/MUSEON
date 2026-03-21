@@ -7,13 +7,25 @@ io:
     - from: user
       field: brand_task
       required: true
+    - name: brand_context
+      from: user-model, knowledge-lattice
+      required: false
   outputs:
     - to: user
       field: brand_assets
       trigger: always
+    - name: brand_guidelines
+      to: knowledge-lattice
+      trigger: on_demand
 connects_to:
   - aesthetic-sense
   - business-12
+memory:
+  writes:
+    - knowledge-lattice
+  reads:
+    - user-model
+    - knowledge-lattice
 description: >
   MUSEON Brand Identity 品牌識別治理引擎。DNA27 核心的外掛模組，
   為所有 MUSEON 對外輸出注入品牌一致性：定位宣言、視覺識別、語調光譜、訊息架構與品牌行為準則。
