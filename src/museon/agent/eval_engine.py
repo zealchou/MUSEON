@@ -2094,3 +2094,97 @@ def _safe_parse_ts(ts_str: str, fallback: datetime) -> datetime:
         return datetime.fromisoformat(ts_str)
     except (ValueError, TypeError):
         return fallback
+
+
+def get_blindspot_hint_for_query(
+    query: str,
+    matched_skills: Optional[List[str]] = None,
+) -> Optional[str]:
+    """為即時查詢生成盲點提示（P1 主動盲點提醒）.
+
+    邏輯：根據查詢涉及的 skill 類別，生成「你可能沒想到」的盲點提示。
+    此函數輕量化設計，避免重量級掃描邏輯。
+
+    Args:
+        query: 使用者查詢文字
+        matched_skills: 本次匹配的技能列表
+
+    Returns:
+        盲點提示文字（若無適用盲點則回傳 None）
+    """
+    if not query or not matched_skills:
+        return None
+
+    # Skill 類別 → 常見盲點對應表
+    BLINDSPOT_MAP = {
+        # 市場/商業相關技能
+        "market-core": [
+            "你有考慮過市場情緒和週期性波動對決策的影響嗎？",
+            "除了當前數據，你有評估過競對的隱性動作嗎？",
+            "你的假設建立在哪些可能已過時的數據基礎上？",
+        ],
+        "market-equity": [
+            "股權決策時是否納入了長期心理成本？",
+            "你考慮過創始人心態變化對決策的影響嗎？",
+            "有沒有評估最壞情況下的本金損失容限？",
+        ],
+        "market-crypto": [
+            "你有風險限制清單嗎？",
+            "認知偏誤（如 FOMO）對你的決策影響有多大？",
+            "有沒有設定過風險敞口的硬上限？",
+        ],
+        # 策略相關
+        "master-strategy": [
+            "策略假設中最脆弱的環節是什麼？",
+            "你有反向思考過「為什麼這個策略會失敗」嗎？",
+            "競對會如何直接反制你的策略？",
+        ],
+        "xmodel": [
+            "模型的前置假設可能已經過時了——你最近驗證過嗎？",
+            "時間軸對結果的影響有多大？",
+            "有沒有考慮模型本身的成本約束？",
+        ],
+        "dse": [
+            "問題陳述中是否混入了預設解答？",
+            "你有聽過反面論述嗎？",
+            "一階原則推導的結論與直覺的差距在哪？",
+        ],
+        # 其他領域
+        "shadow": [
+            "你是否高估了自己對對方心理的理解？",
+            "隱性動機可能比表面理由更決定性——你有考慮過嗎？",
+            "有沒有可能理解錯了對方最真實的需求？",
+        ],
+        "brand-identity": [
+            "品牌定位是否過度依賴當下的市場趨勢？",
+            "你有從競爭對手視角檢視過你的定位嗎？",
+            "有沒有考慮目標受眾心態的長期變化？",
+        ],
+        "workflow-ai-deployment": [
+            "自動化流程中是否預留了人工介入點？",
+            "系統故障時的降級方案是什麼？",
+            "有沒有評估過自動化帶來的新風險？",
+        ],
+        "report-forge": [
+            "報告的假設清單是否夠清晰？",
+            "數據選擇是否客觀，還是無意間為結論服務？",
+            "讀者最可能誤解哪一部分？",
+        ],
+    }
+
+    # 尋找匹配的 skill
+    for skill in matched_skills:
+        if skill in BLINDSPOT_MAP:
+            hints = BLINDSPOT_MAP[skill]
+            # 根據查詢長度簡單選擇提示（可擴展為更智慧的選擇）
+            idx = len(query) % len(hints)
+            return hints[idx]
+
+    # 通用盲點提示
+    generic_hints = [
+        "在下結論前，你有質疑過最核心的假設嗎？",
+        "有沒有考慮過時間維度對這個決策的影響？",
+        "你的決策框架中最脆弱的環節是什麼？",
+    ]
+    idx = len(query) % len(generic_hints)
+    return generic_hints[idx]
