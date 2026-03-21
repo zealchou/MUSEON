@@ -104,6 +104,7 @@ description: >
 - 偵測效率高原期並觸發逆熵破框機制
 - 管理 Workflow 完整生命週期（誕生→成長→成熟→警報→破框→演化或淘汰）
 - 確保變異 Workflow 繼承舊物種的語義智慧而非從零開始
+- 確保結晶的 Workflow 符合治理規格（`hub` 歸位 + `stages` 結構化，見 `docs/skill-routing-governance.md`）
 
 **本模組不做**：
 - 不重複定義迴圈（fast/exploration/slow）、模式（civil/evolution）、Persona 旋鈕
@@ -436,6 +437,14 @@ ID：{workflow_id}
 步驟序列：
   1. {step} → 輸入/輸出/槓桿
   2. ...
+Hub：{hub 值，見 docs/skill-routing-governance.md}
+Stages：
+  - id: 1, name: {name}, skills: [...], mode: serial|parallel
+  ...
+Speed Paths：
+  fast_loop: { stages: [...] }
+  exploration_loop: { stages: [...] }
+  slow_loop: { stages: [...] }
 初始基線：
   速度：{baseline} | 品質：{baseline}
   對齊度：{baseline} | 槓桿率：{baseline}
@@ -587,3 +596,5 @@ tone: NEUTRAL | pace: SLOW | initiative: OFFER_OPTIONS 或 CHALLENGE | challenge
 | X-Model SKILL.md | 8 個通用槓桿維度、7 欄位交換分析、Manifest 推演 | 破框階段的跨界掃描 |
 | PDEIF SKILL.md | 目的導向逆熵流 | 設計從終點逆推的 Workflow |
 | Morphenix SKILL.md | 系統級迭代引擎 | WEE 熵值報告餵入 morphenix |
+| `docs/skill-routing-governance.md` | Hub 路由規則 + Workflow Stage 規格 | 結晶 Workflow 時的治理合規參照 |
+| `docs/skill-manifest-spec.md` | Manifest 欄位定義（含 hub + stages） | 結晶卡欄位對照 |

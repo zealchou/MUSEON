@@ -342,6 +342,7 @@ Persona 硬規則（不可覆寫）：
 ## 外掛模組系統
 
 DNA27 是母體，透過外掛合約管理子模組。詳見 `references/plugin-registry.md`。
+Hub 路由與治理規則詳見 `docs/skill-routing-governance.md`；Manifest 欄位規格詳見 `docs/skill-manifest-spec.md`。
 
 ### 目前已註冊外掛（26 已部署 + 2 待部署）
 

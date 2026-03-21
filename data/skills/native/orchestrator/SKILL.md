@@ -210,6 +210,8 @@ Orchestrator 根據以下資訊決定編排：
 - **使用者狀態**（DNA27 路由）：能量、緊急度 → 影響步驟數量和深度
 - **歷史模式**（wee 提供）：這類任務過去最常走什麼路線
 - **工作流範本**：已定義的工作流（如 WF-SVC-01）作為預設編排方案
+- **Hub 歸位**（`hub` 欄位 + `docs/skill-routing-governance.md`）：同 Hub 內的 Skill 優先串聯、跨 Hub 需明確銜接點
+- **Workflow Stage 定義**（`stages` + `speed_paths`）：已定義的工作流 stages 作為預設編排骨架，speed_paths 決定迴圈深度
 
 ### 2.3 動態調整
 
