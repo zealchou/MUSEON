@@ -245,6 +245,10 @@ class EscalationQueue:
     - Tracks latest escalation per group (not global singleton)
     - resolve_latest() resolves the most recent unresolved across all groups
     - FIFO ordering ensures fairness across groups
+
+    Note: Shares queue pattern with ApprovalQueue (gateway.authorization),
+    but keeps independent implementation to avoid circular import.
+    ApprovalQueue is the generalized base for new authorization flows.
     """
 
     TIMEOUT_SECONDS = 600  # 10 minutes

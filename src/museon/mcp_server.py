@@ -212,6 +212,28 @@ def museon_federation_status() -> Dict[str, Any]:
     }
 
 
+def museon_auth_status() -> Dict[str, Any]:
+    """查詢授權系統狀態（配對使用者、待處理授權、策略設定）."""
+    try:
+        from museon.gateway.authorization import (
+            get_authorization_policy,
+            get_pairing_manager,
+            get_tool_auth_queue,
+        )
+
+        pm = get_pairing_manager()
+        taq = get_tool_auth_queue()
+        policy = get_authorization_policy()
+
+        return {
+            "paired_users": pm.list_users(),
+            "pending_authorizations": taq.pending_count(),
+            "policy": policy.list_policy(),
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+
 # ── MCP Protocol ──
 
 TOOLS = {
@@ -271,6 +293,11 @@ TOOLS = {
         "description": "取得 Federation 聯邦同步狀態",
         "inputSchema": {"type": "object", "properties": {}},
         "handler": museon_federation_status,
+    },
+    "museon_auth_status": {
+        "description": "查詢授權系統狀態（配對使用者、待處理授權、策略設定）",
+        "inputSchema": {"type": "object", "properties": {}},
+        "handler": museon_auth_status,
     },
 }
 
