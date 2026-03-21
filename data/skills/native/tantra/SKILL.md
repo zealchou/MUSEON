@@ -15,9 +15,6 @@ io:
     - to: user
       field: research_output
       trigger: on-request
-    - name: response
-      to: gateway
-      trigger: always
 connects_to:
   - resonance
 memory:

@@ -54,6 +54,9 @@ class OutwardTrigger:
         self._workspace = workspace
         self._event_bus = event_bus
 
+        # 確保狀態目錄與預設檔案存在
+        self._ensure_state_files()
+
         # 方向冷卻記錄：{direction_hash: last_triggered_iso}
         self._cooldown: Dict[str, str] = {}
         self._load_cooldown()
@@ -608,6 +611,36 @@ class OutwardTrigger:
         if self._daily_date != today:
             self._daily_count = 0
             self._daily_date = today
+
+    # ─── 狀態檔案初始化 ───
+
+    def _ensure_state_files(self) -> None:
+        """確保 outward/ 狀態目錄及預設 JSON 存在.
+
+        解決 outward/ 目錄為空時各 _load_* 方法靜默跳過，
+        導致外向演化觸發器永遠不啟動的問題。
+        """
+        outward_dir = self._workspace / "_system" / "outward"
+        outward_dir.mkdir(parents=True, exist_ok=True)
+
+        defaults: Dict[str, Any] = {
+            "direction_cooldown.json": {},
+            "daily_counter.json": {
+                "date": datetime.now(TZ8).strftime("%Y-%m-%d"),
+                "count": 0,
+            },
+            "pending_signals.json": [],
+            "behavior_shift.json": [],
+        }
+        for filename, default_content in defaults.items():
+            filepath = outward_dir / filename
+            if not filepath.exists():
+                try:
+                    with open(filepath, "w", encoding="utf-8") as fh:
+                        json.dump(default_content, fh, ensure_ascii=False, indent=2)
+                    logger.info(f"OutwardTrigger: initialized {filename}")
+                except Exception as e:
+                    logger.warning(f"OutwardTrigger: init {filename} failed: {e}")
 
     # ─── 持久化：冷卻記錄 ───
 
