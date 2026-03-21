@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260309_072958_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: **REVISE**\n\n修改方向（≤150 字）：\n\n1. **前半段保留**（很好的技術分析 + 數據）\n\n2. **「我能做到嗎？」改為行動邀請** — 不要說「局部能做」，改成「**我現在可以現場示範一個完整迴圈**：寫程式 → 執行測試 → 讀錯誤 → 修改 → 驗證」，讓使用者看見可交付物而非局限性\n\n3. **刪掉最後的 Morphenix 分支** — 太多平行軌道。改成單一反問：「",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-09T07:29:58.393528+08:00",
+  "priority": "medium"
+}

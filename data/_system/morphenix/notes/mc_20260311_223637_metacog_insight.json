@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260311_223637_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n應直接執行，而非詢問「要我執行嗎」。但需先確認：**設計規範的具體內容來自哪裡**？是前面對話已經清楚描述，還是需要你重新整理提供？確認後我立即做這兩個動作，完成持久化引用機制。\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-11T22:36:37.840920+08:00",
+  "priority": "medium"
+}

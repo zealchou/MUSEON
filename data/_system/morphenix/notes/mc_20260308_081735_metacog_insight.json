@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260308_081735_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n規則 a 成立：使用者在測試系統有沒有**主動追蹤未完成的事**，但回覆只是被動邀請他重新提。\n\n修改方向：不要等他再問，直接**主動翻出那個承諾**。掌握 commitment tracker 就應該主動補救：「我現在翻出來了——你那時說記住 42，背景是 [重現當時對話脈絡]。你想接著談嗎？」\n\n從**被動等→主動補**的姿態轉換，才能真正回應他在驗證的「系統有沒有主動性」的問\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-08T08:17:35.556219+08:00",
+  "priority": "medium"
+}

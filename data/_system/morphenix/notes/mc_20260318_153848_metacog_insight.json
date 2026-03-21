@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260318_153848_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n不要先問 3 個問題。直接去檢查 museon-reports 的實際狀態：(1) repo 是否存在、在哪、GitHub Pages 設定指向哪裡，(2) 從 clone → 放檔案 → push 實際走一遍完整流程，找出具體卡點，(3) 確認 URL 結構是否對應。行動優先於診斷。\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-18T15:38:48.466339+08:00",
+  "priority": "medium"
+}

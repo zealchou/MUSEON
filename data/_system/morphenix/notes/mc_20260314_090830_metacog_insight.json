@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260314_090830_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n此回覆推測了使用者的猶豫狀態但未驗證。建議改為：**列出具體改動清單**（哪些檔案被修改），然後提供**可複製的 git 提交指令**（如 `git add <files> && git commit -m \"...\"`），而非催促確認。用「準備好提交，指令如下」取代「只需 1 句確認」。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-14T09:08:30.835870+08:00",
+  "priority": "medium"
+}

@@ -1,0 +1,76 @@
+{
+  "session_id": "e2e_rapid_1773409749",
+  "nodes": {
+    "topic_turn_0": {
+      "node_id": "topic_turn_0",
+      "node_type": "topic",
+      "label": "turn_0",
+      "properties": {
+        "content_length": 11,
+        "detected_at": "2026-03-13T21:49:09.940313"
+      },
+      "created_at": "2026-03-13T21:49:09.940344",
+      "updated_at": "2026-03-13T21:49:09.940346"
+    },
+    "intention_求助": {
+      "node_id": "intention_求助",
+      "node_type": "intention",
+      "label": "求助",
+      "properties": {
+        "detected_at": "2026-03-13T21:49:26.627989"
+      },
+      "created_at": "2026-03-13T21:49:14.147248",
+      "updated_at": "2026-03-13T21:49:26.628069"
+    },
+    "topic_turn_2": {
+      "node_id": "topic_turn_2",
+      "node_type": "topic",
+      "label": "turn_2",
+      "properties": {
+        "content_length": 19,
+        "detected_at": "2026-03-13T21:49:14.147203"
+      },
+      "created_at": "2026-03-13T21:49:14.147269",
+      "updated_at": "2026-03-13T21:49:14.147272"
+    },
+    "topic_turn_3": {
+      "node_id": "topic_turn_3",
+      "node_type": "topic",
+      "label": "turn_3",
+      "properties": {
+        "content_length": 12,
+        "detected_at": "2026-03-13T21:49:18.306688"
+      },
+      "created_at": "2026-03-13T21:49:18.306721",
+      "updated_at": "2026-03-13T21:49:18.306724"
+    },
+    "topic_turn_4": {
+      "node_id": "topic_turn_4",
+      "node_type": "topic",
+      "label": "turn_4",
+      "properties": {
+        "content_length": 16,
+        "detected_at": "2026-03-13T21:49:22.449414"
+      },
+      "created_at": "2026-03-13T21:49:22.449503",
+      "updated_at": "2026-03-13T21:49:22.449507"
+    },
+    "topic_turn_5": {
+      "node_id": "topic_turn_5",
+      "node_type": "topic",
+      "label": "turn_5",
+      "properties": {
+        "content_length": 17,
+        "detected_at": "2026-03-13T21:49:26.627989"
+      },
+      "created_at": "2026-03-13T21:49:26.628086",
+      "updated_at": "2026-03-13T21:49:26.628089"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 5,
+    "last_content_length": 17
+  },
+  "last_updated": "2026-03-13T21:49:26.627989"
+}

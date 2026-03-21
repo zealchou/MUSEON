@@ -1,0 +1,22 @@
+{
+  "id": "04b818ff-5895-4e1c-875d-92e2bfd60732",
+  "content": "[失敗經驗] 任務：欸？ 剛才不是 P0-P3都完成了？\n只先完成了 P0 嗎？\n失敗類型：general_failure\n回應片段：不是，P0-P3 **都完成了**！\n\n那張表是我搞混了——那是**施工前的預估表**，不是當前狀態。\n\n實際已完成的 commit：\n\n| Commit | 內容 |\n|--------|------|\n| `7ad4598` | P0-P3 全部實作：思考路徑可見化 + 主動盲點提醒 + 重大決策先問後答 + 並行融合模式 |\n| `149f6dc` | 四張施工藍圖版本同步 |\n| `967",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-20T13:53:04.457205+08:00",
+  "updated_at": "2026-03-20T13:53:04.457205+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "6969045906",
+  "session_id": "",
+  "dept_id": "",
+  "archived": false
+}

@@ -1,0 +1,22 @@
+{
+  "id": "8ceb9f2a-3ed8-416f-9f6c-8a990c17e14e",
+  "content": "[失敗經驗] 任務：幫我把以下想法整理成一份完整的商業計畫摘要：\n1. 做 AI 顧問工具\n2. 目標台灣中小企業\n3. 月費制 $2999/月\n4. 第一年目標 100 家客戶\n請包含市場分析、產品定位、營收預估。\n失敗類型：general_failure\n回應片段：## AI 顧問工具商業計畫摘要\n\n---\n\n### 一、市場分析\n\n| 指標 | 數字 |\n|------|------|\n| 台灣中小企業總數 | ~163 萬家（經濟部 2024） |\n| 月營收 100 萬以上（你的甜蜜點） | 估計 3-5 萬家（待驗證） |\n| AI 工具導入意願 | 高意願但低行動——多數「想用但不知從哪開始」 |\n| 現有競品 | ChatGPT Enterpri",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-17T09:43:46.780550+08:00",
+  "updated_at": "2026-03-17T09:43:46.780550+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "boss",
+  "session_id": "",
+  "dept_id": "",
+  "archived": false
+}

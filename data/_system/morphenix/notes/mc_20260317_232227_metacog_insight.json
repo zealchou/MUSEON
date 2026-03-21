@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260317_232227_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n建議：回覆沒有確認使用者輸入的「Unicode 擴展」具體指什麼，隱含假設了脈絡（「第12次」「實際要做什麼」）。可改為先確認使用者的真實需求——是系統測試、是某個特定工作流的信號，還是別的——再給出對應回應。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-17T23:22:27.166466+08:00",
+  "priority": "medium"
+}

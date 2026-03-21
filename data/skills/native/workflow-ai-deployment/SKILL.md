@@ -2,6 +2,75 @@
 name: workflow-ai-deployment
 type: workflow
 layer: workflow
+hub: workflow
+stages:
+  - id: 1
+    name: "需求訪談"
+    skills: [ssa-consultant]
+    lens: "SSA 12 步驟前三步 + 五運快篩"
+    mode: serial
+    gate:
+      - "已識別 1-3 個具體痛點"
+      - "已評估客戶 AI 成熟度（0-4 級）"
+      - "客戶確認核心痛點"
+    output_to: [2]
+  - id: 2
+    name: "流程診斷"
+    skills: [business-12, ssa-consultant, consultant-communication, aesthetic-sense]
+    lens: "業務流程地圖 + 12 力聚焦 + AI 切入點矩陣"
+    mode: serial
+    gate:
+      - "已畫出客戶核心業務流程"
+      - "已識別至少 3 個 AI 切入點並排序"
+      - "客戶確認優先順序"
+    output_to: [3, 5]
+  - id: 3
+    name: "方案設計"
+    skills: [dse, xmodel, pdeif, consultant-communication]
+    lens: "DSE 精簡版 + 成本效益估算 + 90 天導入計畫"
+    mode: serial
+    gate:
+      - "至少 2 個方案供比較"
+      - "每個方案有 MVP 版本"
+      - "成本效益附帶風險揭露"
+      - "客戶確認選擇方案"
+    output_to: [4]
+  - id: 4
+    name: "導入執行"
+    skills: [dse, ssa-consultant, master-strategy]
+    lens: "技術指導 + 使用者培訓 + 阻力處理"
+    mode: serial
+    gate:
+      - "至少 1 人能獨立操作 AI 工具"
+      - "客戶實際業務中使用"
+      - "里程碑 M2 已通過"
+    output_to: [5]
+  - id: 5
+    name: "成效追蹤"
+    skills: [eval-engine, business-12, wee]
+    lens: "KPI 前後測 + 歸因分析 + 迭代建議"
+    mode: serial
+    gate:
+      - "至少 2 個指標前後對比"
+      - "歸因分析標註信心度"
+    output_to: [6]
+  - id: 6
+    name: "案例結晶"
+    skills: [wee, consultant-communication, brand-identity]
+    lens: "案例範本 + 工作流演化紀錄 + 知識沉澱"
+    mode: serial
+    gate:
+      - "案例已去識別化"
+speed_paths:
+  fast_loop:
+    stages: [1, 3, 5]
+    depth: "精簡"
+  exploration_loop:
+    stages: [1, 2, 3, 4, 5, 6]
+    depth: "標準"
+  slow_loop:
+    stages: [1, 2, 3, 4, 5, 6]
+    depth: "完整"
 io:
   inputs:
     - from: user

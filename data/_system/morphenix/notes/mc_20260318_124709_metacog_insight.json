@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260318_124709_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n停止討論模式，進入執行模式。使用者要「先出報告」，不是要聽規劃。應該：\n1. 先查 WEN 的背景資料（ANIMA_MC.json 或 data/ 裡有的客戶檔案）\n2. 讀 `data/_system/brand/design_spec.md` 確認色彩規範\n3. 直接生成 HTML 檔案（不要問「要不要」），交付 `~/MUSEON/data/workspace/WEN_美業報",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-18T12:47:09.461767+08:00",
+  "priority": "medium"
+}

@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260312_215714_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: **REVISE**\n\n先確認新代碼是否已同步到 `.runtime/`。根據 MUSEON 規範，修改 `src/` 後需執行 `./scripts/build-installer.sh` 打包才能生效。直接重啟可能無效。建議先檢查 bot 日誌確認卡點，或先跑打包腳本再重啟。\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-12T21:57:14.750880+08:00",
+  "priority": "medium"
+}

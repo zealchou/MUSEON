@@ -1,0 +1,22 @@
+{
+  "id": "fa88b5e4-dc55-4e98-b424-030f875b5153",
+  "content": "[失敗經驗] 任務：\\n\\t\\r\\0 轉義字元\n失敗類型：general_failure\n回應片段：我看到消息仍在重複。\n\n**這裡有個停止點：** 我不會再自動執行診斷或猜測工作項目。每次這樣做都沒有推進任何實際進展。\n\n## 我需要你的明確輸入\n\n1. **了解這些轉義字元的用法？**（`\\n` 換行、`\\t` 製表符、`\\r` 回車、`\\0` 空字元）\n2. **在某個專案中處理轉義字元的問題？**（例如資料解析、文字輸出、檔案讀寫）\n3. **還是在測試什麼？**\n\n1. **有 err",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-20T21:30:30.271133+08:00",
+  "updated_at": "2026-03-20T21:30:30.271133+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "boss",
+  "session_id": "",
+  "dept_id": "",
+  "archived": false
+}

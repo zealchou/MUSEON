@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260320_104259_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: **REVISE**\n\n建議直接走「爬官網 + HTML 報告 + DSE 層」的完整方案——不必選，全做。你要的不只是清單，是「可分享的資源工具」。\n\n修改方向：先讓我驗證 Anthropic 官網能否抓到完整 75 案例，如果 OK 馬上生成（分類清單 + HTML 報告符合 MUSEON design spec + DSE 商機分析層）。如果官網資料複雜無法自動抓，我們改用你提供的部分內容進",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-20T10:42:59.781096+08:00",
+  "priority": "medium"
+}

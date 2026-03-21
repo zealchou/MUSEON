@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260310_091043_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: **REVISE** — 改進方向（≤150 字）：\n\n回覆提了太多問題而沒有提供可交付物。使用者期望「給我鏈接」，你卻在澄清。\n\n改進方式：\n1. **先做合理假設**：基於 MUSEON 架構，列出「最可能是這些鏈接中的一個」\n2. **直接提供候選鏈接**（如 `http://localhost:8080/dashboard`、文件站點 URL 等）\n3. **如果確實不確定，採取行動而非提",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-10T09:10:43.837278+08:00",
+  "priority": "medium"
+}

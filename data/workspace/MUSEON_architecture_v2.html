@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MUSEON 系統架構全景圖</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════ Reset & Variables ═══════ */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ember:#C4502A;--ember-light:#E0714D;--ember-dark:#9A3A1C;
+  --teal:#2A7A6E;--teal-dark:#1E5C54;--teal-bg:#f0f8f6;
+  --gold:#B8923A;--gold-dark:#8A6C2A;--gold-bg:#fdf8ee;
+  --ink:#12121A;--slate:#5A5A6E;--mist:#9898A8;
+  --border:#E2E0DA;--parchment:#F7F5F0;--snow:#FDFCFA;
+  --info:#2A6A8A;--info-dark:#1E4F6A;--info-bg:#eef5f9;
+  --success:#2D8A6E;--success-dark:#1E6A52;--success-bg:#eef8f4;
+  --shadow-sm:0 1px 3px rgba(18,18,26,.06),0 4px 12px rgba(18,18,26,.04);
+  --shadow-md:0 4px 16px rgba(18,18,26,.1),0 8px 32px rgba(18,18,26,.06);
+  --radius:10px;--radius-sm:6px;
+}
+body{
+  background:var(--parchment);
+  font-family:'Outfit','Noto Sans TC',sans-serif;
+  color:var(--ink);min-height:100vh;
+  padding:0 0 80px;line-height:1.6;
+}
+
+/* ═══════ Typography ═══════ */
+.display{font-family:'Cormorant Garamond',serif}
+.mono{font-family:'IBM Plex Mono',monospace}
+
+/* ═══════ Hero Section ═══════ */
+.hero{
+  text-align:center;padding:64px 24px 48px;
+  background:linear-gradient(180deg,rgba(196,80,42,.04) 0%,transparent 100%);
+}
+.hero h1{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2rem,4vw,3.2rem);font-weight:700;
+  color:var(--ember);letter-spacing:.02em;margin-bottom:8px;
+}
+.hero .tagline{
+  font-size:.85rem;color:var(--slate);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;
+}
+.hero .philosophy{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.1rem;font-style:italic;color:var(--mist);margin-top:12px;
+}
+
+/* ═══════ Stats Bar ═══════ */
+.stats-bar{
+  display:flex;justify-content:center;gap:32px;flex-wrap:wrap;
+  padding:16px 24px;margin:0 auto 40px;max-width:900px;
+}
+.stat{text-align:center}
+.stat .num{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:1.6rem;font-weight:600;color:var(--ember);
+}
+.stat .label{font-size:.7rem;color:var(--mist);letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
+
+/* ═══════ Main Container ═══════ */
+.container{max-width:1200px;margin:0 auto;padding:0 24px;position:relative}
+
+/* ═══════ Layer Sections ═══════ */
+.layer-section{
+  margin-bottom:8px;position:relative;
+}
+.layer-header{
+  display:flex;align-items:center;gap:12px;margin-bottom:16px;
+}
+.layer-tag{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:.65rem;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ember-dark);
+  background:rgba(196,80,42,.08);border-radius:100px;
+  padding:3px 12px;white-space:nowrap;
+}
+.layer-title{font-size:.85rem;font-weight:500;color:var(--slate)}
+
+/* ═══════ Flow Connector ═══════ */
+.flow-connector{
+  display:flex;justify-content:center;padding:6px 0;
+}
+.flow-line{
+  width:2px;height:28px;border-radius:1px;
+}
+.flow-arrow{
+  display:flex;flex-direction:column;align-items:center;gap:0;
+}
+.flow-arrow .line{width:2px;height:20px}
+.flow-arrow .arrow{font-size:.6rem;line-height:1;margin-top:-2px}
+
+/* ═══════ Node Cards ═══════ */
+.node-row{
+  display:flex;justify-content:center;gap:12px;flex-wrap:wrap;
+}
+.node{
+  border-radius:var(--radius);padding:14px 20px;
+  text-align:center;position:relative;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border:1.5px solid transparent;
+  transition:transform .2s ease,box-shadow .2s ease;
+  cursor:default;min-width:120px;
+}
+.node:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.node .icon{font-size:1.4rem;margin-bottom:4px}
+.node .name{font-size:.82rem;font-weight:600;line-height:1.3}
+.node .name-zh{font-size:.68rem;margin-top:2px;opacity:.75}
+.node .desc{
+  font-size:.62rem;margin-top:4px;opacity:.55;
+  font-family:'IBM Plex Mono',monospace;letter-spacing:.02em;
+}
+
+/* Node Types */
+.node-user{
+  background:var(--ink);color:var(--parchment);border-color:var(--ink);
+  min-width:200px;padding:18px 32px;
+}
+.node-user .name{font-size:.95rem}
+
+.node-channel{
+  background:var(--snow);border-color:var(--ember);color:var(--ember);
+  min-width:105px;padding:10px 14px;
+}
+.node-channel .name{font-size:.75rem}
+.node-channel-dim{
+  background:var(--snow);border-color:var(--border);color:var(--slate);
+  min-width:80px;padding:8px 10px;opacity:.6;
+}
+.node-channel-dim .name{font-size:.68rem;font-weight:500}
+.node-channel-dim:hover{opacity:1}
+
+.node-bus{
+  background:linear-gradient(130deg,var(--ember) 0%,var(--ember-dark) 100%);
+  color:#fff;border-color:var(--ember-dark);
+  width:100%;padding:16px 32px;
+}
+.node-bus .name{font-size:1rem;letter-spacing:.03em}
+.node-bus .desc{color:rgba(255,255,255,.65)}
+
+.node-engine{padding:16px 20px;color:#fff;min-width:160px}
+.node-engine.agent{background:var(--teal);border-color:var(--teal-dark)}
+.node-engine.pulse{background:var(--gold);border-color:var(--gold-dark)}
+.node-engine.gov{background:var(--info);border-color:var(--info-dark)}
+.node-engine.doctor{background:var(--success);border-color:var(--success-dark)}
+
+.node-sub{
+  background:var(--snow);border-color:var(--border);
+  color:var(--ink);min-width:90px;padding:8px 10px;
+  font-size:.72rem;
+}
+.node-sub .name{font-size:.7rem;font-weight:600}
+.node-sub .name-zh{font-size:.58rem}
+.node-sub.teal{border-left:3px solid var(--teal);background:var(--teal-bg)}
+.node-sub.gold{border-left:3px solid var(--gold);background:var(--gold-bg)}
+.node-sub.blue{border-left:3px solid var(--info);background:var(--info-bg)}
+.node-sub.green{border-left:3px solid var(--success);background:var(--success-bg)}
+
+.node-llm{
+  background:var(--slate);color:#fff;border-color:#3A3A52;
+  min-width:260px;padding:14px 24px;
+}
+.node-model{
+  background:var(--snow);border-color:var(--border);
+  min-width:90px;padding:8px 12px;
+}
+.node-model .name{font-size:.7rem}
+.node-model .desc{font-size:.58rem}
+
+.node-data{
+  background:var(--snow);border-color:var(--border);
+  min-width:130px;color:var(--slate);
+}
+
+.node-nightly{
+  background:var(--ink);color:var(--parchment);border-color:var(--ink);
+  width:100%;padding:16px 32px;
+}
+
+/* ═══════ Pillars Grid ═══════ */
+.pillars{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:16px;
+}
+@media(max-width:900px){
+  .pillars{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:560px){
+  .pillars{grid-template-columns:1fr}
+}
+.pillar{
+  display:flex;flex-direction:column;gap:8px;
+}
+.pillar-head{
+  border-radius:var(--radius);padding:16px 16px 12px;
+  color:#fff;text-align:center;
+  transition:transform .2s ease,box-shadow .2s ease;
+}
+.pillar-head:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.pillar-head .icon{font-size:1.6rem;margin-bottom:4px}
+.pillar-head .name{font-size:.9rem;font-weight:600}
+.pillar-head .name-zh{font-size:.7rem;opacity:.8;margin-top:2px}
+.pillar-head .stat-badge{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:.58rem;font-weight:600;
+  background:rgba(255,255,255,.2);border-radius:100px;
+  padding:2px 8px;margin-top:6px;display:inline-block;
+}
+
+.pillar-head.agent{background:var(--teal)}
+.pillar-head.pulse{background:var(--gold)}
+.pillar-head.gov{background:var(--info)}
+.pillar-head.doctor{background:var(--success)}
+
+.sub-grid{
+  display:flex;flex-direction:column;gap:5px;
+}
+.sub-card{
+  display:flex;align-items:center;gap:8px;
+  background:var(--snow);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:7px 10px;
+  transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease;
+  cursor:default;
+}
+.sub-card:hover{
+  transform:translateX(3px);
+  box-shadow:var(--shadow-sm);
+}
+.sub-card .sub-icon{font-size:.85rem;flex-shrink:0;width:20px;text-align:center}
+.sub-card .sub-info{flex:1;min-width:0}
+.sub-card .sub-name{font-size:.68rem;font-weight:600;color:var(--ink);line-height:1.3}
+.sub-card .sub-zh{font-size:.58rem;color:var(--mist)}
+
+.sub-card.teal{border-left:3px solid var(--teal)}
+.sub-card.teal:hover{border-color:var(--teal)}
+.sub-card.gold{border-left:3px solid var(--gold)}
+.sub-card.gold:hover{border-color:var(--gold)}
+.sub-card.blue{border-left:3px solid var(--info)}
+.sub-card.blue:hover{border-color:var(--info)}
+.sub-card.green{border-left:3px solid var(--success)}
+.sub-card.green:hover{border-color:var(--success)}
+
+/* ═══════ Design Principles ═══════ */
+.principles{
+  margin-top:48px;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+}
+@media(max-width:768px){.principles{grid-template-columns:1fr}}
+.principle-card{
+  background:var(--snow);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px;
+  transition:transform .2s,box-shadow .2s;
+}
+.principle-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.principle-card h3{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.1rem;font-weight:600;color:var(--ember);margin-bottom:8px;
+}
+.principle-card p{font-size:.78rem;color:var(--slate);line-height:1.65}
+.principle-card .tag{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:.58rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ember-dark);background:rgba(196,80,42,.08);
+  border-radius:100px;padding:2px 8px;display:inline-block;margin-bottom:8px;
+}
+
+/* ═══════ Legend ═══════ */
+.legend{
+  margin-top:48px;padding:24px;
+  background:var(--snow);border:1px solid var(--border);
+  border-radius:var(--radius);max-width:900px;margin-left:auto;margin-right:auto;
+}
+.legend h3{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.1rem;font-weight:600;color:var(--ember);
+  margin-bottom:16px;text-align:center;
+}
+.legend-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;
+}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:.72rem;color:var(--slate)}
+.legend-swatch{
+  width:28px;height:14px;border-radius:3px;flex-shrink:0;
+}
+.legend-line{width:28px;height:0;border-top:2px solid;flex-shrink:0}
+.legend-dash{width:28px;height:0;border-top:2px dashed;flex-shrink:0}
+
+/* ═══════ Flow Map ═══════ */
+.flow-map{
+  margin-top:32px;padding:24px;
+  background:var(--snow);border:1px solid var(--border);
+  border-radius:var(--radius);max-width:900px;margin-left:auto;margin-right:auto;
+}
+.flow-map h3{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.1rem;font-weight:600;color:var(--ember);
+  margin-bottom:16px;text-align:center;
+}
+.flow-list{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:8px}
+.flow-item{
+  display:flex;align-items:center;gap:8px;
+  font-size:.72rem;color:var(--slate);padding:6px 10px;
+  border-radius:var(--radius-sm);transition:background .15s;
+}
+.flow-item:hover{background:rgba(196,80,42,.04)}
+.flow-item .arrow-icon{font-size:.8rem;flex-shrink:0}
+
+/* ═══════ Section Divider ═══════ */
+.section-divider{
+  display:flex;align-items:center;gap:16px;margin:40px 0 24px;
+}
+.section-divider .line{flex:1;height:1px;background:var(--border)}
+.section-divider .label{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1rem;font-weight:600;color:var(--ember);
+  white-space:nowrap;
+}
+
+/* ═══════ Footer ═══════ */
+.footer{
+  text-align:center;margin-top:64px;padding:24px;
+  font-size:.68rem;color:var(--mist);
+}
+.footer a{color:var(--ember);text-decoration:none}
+
+/* ═══════ Animations ═══════ */
+@keyframes fadeInUp{
+  from{opacity:0;transform:translateY(12px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.animate{animation:fadeInUp .4s ease-out both}
+.delay-1{animation-delay:.1s}
+.delay-2{animation-delay:.2s}
+.delay-3{animation-delay:.3s}
+
+/* ═══════ SVG Arrows ═══════ */
+svg.overlay-arrows{
+  position:absolute;top:0;left:0;
+  width:100%;height:100%;
+  pointer-events:none;overflow:visible;z-index:0;
+}
+
+/* ═══════ Memory Layers Visual ═══════ */
+.memory-stack{
+  display:flex;flex-direction:column;gap:2px;margin-top:6px;
+}
+.mem-layer{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:.52rem;font-weight:500;
+  padding:2px 6px;border-radius:2px;
+  text-align:center;color:#fff;line-height:1.4;
+}
+
+/* ═══════ Three Loops ═══════ */
+.loops-visual{
+  display:flex;justify-content:center;gap:16px;margin:16px 0;flex-wrap:wrap;
+}
+.loop-card{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 16px;border-radius:var(--radius);
+  background:var(--snow);border:1px solid var(--border);
+  font-size:.72rem;transition:transform .15s,box-shadow .15s;
+}
+.loop-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-sm)}
+.loop-icon{font-size:1.1rem}
+.loop-name{font-weight:600;color:var(--ink)}
+.loop-desc{font-size:.62rem;color:var(--mist)}
+</style>
+</head>
+<body>
+
+<!-- ════════════════ HERO ════════════════ -->
+<header class="hero animate">
+  <h1 class="display">MUSEON 系統架構全景圖</h1>
+  <p class="tagline">自適應 AI 生命體 · 七層架構 · 完整子系統串接</p>
+  <p class="philosophy display">"壁爐旁的精密儀器 — 溫暖的精密感"</p>
+</header>
+
+<!-- ════════════════ STATS ════════════════ -->
+<div class="stats-bar animate delay-1">
+  <div class="stat"><div class="num mono">7</div><div class="label">架構層級</div></div>
+  <div class="stat"><div class="num mono">14</div><div class="label">核心模組</div></div>
+  <div class="stat"><div class="num mono">45+</div><div class="label">子系統</div></div>
+  <div class="stat"><div class="num mono">100+</div><div class="label">事件類型</div></div>
+  <div class="stat"><div class="num mono">8</div><div class="label">通道入口</div></div>
+  <div class="stat"><div class="num mono">6</div><div class="label">記憶層級</div></div>
+</div>
+
+<div class="container">
+
+<!-- ════════════════ LAYER 0: 使用者 ════════════════ -->
+<div class="layer-section animate delay-1">
+  <div class="layer-header">
+    <span class="layer-tag mono">Layer 0</span>
+    <span class="layer-title">使用者介面</span>
+  </div>
+  <div class="node-row">
+    <div class="node node-user">
+      <div class="icon">👤</div>
+      <div class="name">使用者（Zeal）</div>
+      <div class="desc mono">Telegram 訊息 · 語音 · 指令</div>
+    </div>
+  </div>
+</div>
+
+<!-- Flow ▼ -->
+<div class="flow-connector"><div class="flow-arrow"><div class="line" style="background:var(--ember)"></div><div class="arrow" style="color:var(--ember)">▼</div></div></div>
+
+<!-- ════════════════ LAYER 1: 通道入口 ════════════════ -->
+<div class="layer-section animate delay-2">
+  <div class="layer-header">
+    <span class="layer-tag mono">Layer 1</span>
+    <span class="layer-title">通道入口 Channels</span>
+  </div>
+  <div class="node-row">
+    <div class="node node-channel">
+      <div class="icon">✈️</div>
+      <div class="name">Telegram</div>
+      <div class="name-zh">主通道</div>
+    </div>
+    <div class="node node-channel">
+      <div class="icon">⏱</div>
+      <div class="name">Gateway</div>
+      <div class="name-zh">WebSocket :8765</div>
+    </div>
+    <div class="node node-channel">
+      <div class="icon">🕐</div>
+      <div class="name">Cron</div>
+      <div class="name-zh">排程入口</div>
+    </div>
+    <div class="node node-channel-dim">
+      <div class="icon">💬</div>
+      <div class="name">Discord</div>
+    </div>
+    <div class="node node-channel-dim">
+      <div class="icon">📨</div>
+      <div class="name">Slack</div>
+    </div>
+    <div class="node node-channel-dim">
+      <div class="icon">🪝</div>
+      <div class="name">Webhook</div>
+    </div>
+    <div class="node node-channel-dim">
+      <div class="icon">📧</div>
+      <div class="name">Email</div>
+    </div>
+    <div class="node node-channel-dim">
+      <div class="icon">🖥</div>
+      <div class="name">Electron</div>
+    </div>
+  </div>
+</div>
+
+<!-- Flow ▼ -->
+<div class="flow-connector"><div class="flow-arrow"><div class="line" style="background:var(--ember)"></div><div class="arrow" style="color:var(--ember)">▼</div></div></div>
+
+<!-- ════════════════ LAYER 2: Event Bus ════════════════ -->
+<div class="layer-section animate delay-2">
+  <div class="layer-header">
+    <span class="layer-tag mono">Layer 2</span>
+    <span class="layer-title">核心匯流排</span>
+  </div>
+  <div class="node-row">
+    <div class="node node-bus" style="max-width:100%">
+      <div class="name">⚡ Core Event Bus — 核心事件匯流排</div>
+      <div class="desc" style="color:rgba(255,255,255,.65);max-width:600px;margin-top:6px">
+        發布 / 訂閱模式 · 執行緒安全 Singleton · 訂閱者隔離<br>
+        Pulse · Nightly · Workflow · WEE · Governance · Evolution · Immune 七大事件族群
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Flow ▼ -->
+<div class="flow-connector">
+  <div style="display:flex;gap:80px">
+    <div class="flow-arrow"><div class="line" style="background:var(--teal)"></div><div class="arrow" style="color:var(--teal)">▼</div></div>
+    <div class="flow-arrow"><div class="line" style="background:var(--gold)"></div><div class="arrow" style="color:var(--gold)">▼</div></div>
+    <div class="flow-arrow"><div class="line" style="background:var(--info)"></div><div class="arrow" style="color:var(--info)">▼</div></div>
+    <div class="flow-arrow"><div class="line" style="background:var(--success)"></div><div class="arrow" style="color:var(--success)">▼</div></div>
+  </div>
+</div>
+
+<!-- ════════════════ LAYER 3+4: 四大核心引擎 ════════════════ -->
+<div class="layer-section animate delay-3">
+  <div class="layer-header">
+    <span class="layer-tag mono">Layer 3-4</span>
+    <span class="layer-title">四大核心引擎 + 子系統</span>
+  </div>
+
+  <div class="pillars">
+    <!-- ─── Agent / Brain ─── -->
+    <div class="pillar">
+      <div class="pillar-head agent">
+        <div class="icon">🧠</div>
+        <div class="name">Agent / Brain</div>
+        <div class="name-zh">主判斷中樞</div>
+        <div class="stat-badge mono">10 子系統</div>
+      </div>
+      <div class="sub-grid">
+        <div class="sub-card teal">
+          <div class="sub-icon">🧬</div>
+          <div class="sub-info"><div class="sub-name">DNA27 Reflex</div><div class="sub-zh">27 反射叢集 · 三迴圈路由</div></div>
+        </div>
+        <div class="sub-card teal">
+          <div class="sub-icon">🎯</div>
+          <div class="sub-info"><div class="sub-name">Skill Router</div><div class="sub-zh">三層疊加評分 · RC 驅動 · 向量語義</div></div>
+        </div>
+        <div class="sub-card teal">
+          <div class="sub-icon">⚡</div>
+          <div class="sub-info"><div class="sub-name">Reflex Router</div><div class="sub-zh">Tier A-E 全量偵測 · Loop 選擇</div></div>
+        </div>
+        <div class="sub-card teal">
+          <div class="sub-icon">📦</div>
+          <div class="sub-info"><div class="sub-name">Dispatch</div><div class="sub-zh">多技能編排 · SERIAL/PARALLEL</div></div>
+        </div>
+        <div class="sub-card teal">
+          <div class="sub-icon">💎</div>
+          <div class="sub-info"><div class="sub-name">Knowledge Lattice</div><div class="sub-zh">知識結晶 · DAG 連結 · 共振指數</div></div>
+        </div>
+        <div class="sub-card teal">
+          <div class="sub-icon">📋</div>
+          <div class="sub-info"><div class="sub-name">Plan Engine</div><div class="sub-zh">六階段工作流 · 三迴圈適配</div></div>
+        </div>
+        <div class="sub-card teal">
+          <div class="sub-icon">🔮</div>
+          <div class="sub-info"><div class="sub-name">Metacognition</div><div class="sub-zh">PreCognition 五維審查 · 雙向觀察</div></div>
+        </div>
+        <div class="sub-card teal">
+          <div class="sub-icon">👁</div>
+          <div class="sub-info"><div class="sub-name">Intuition Engine</div><div class="sub-zh">五層感知 · L1-L5 信號架構</div></div>
+        </div>
+        <div class="sub-card teal">
+          <div class="sub-icon">📊</div>
+          <div class="sub-info"><div class="sub-name">Eval Engine</div><div class="sub-zh">Q-Score 四維評分 · A/B 比對</div></div>
+        </div>
+        <div class="sub-card teal">
+          <div class="sub-icon">🪵</div>
+          <div class="sub-info"><div class="sub-name">Soul Ring</div><div class="sub-zh">靈魂年輪 · SHA-256 Hash Chain</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Pulse Engine ─── -->
+    <div class="pillar">
+      <div class="pillar-head pulse">
+        <div class="icon">💓</div>
+        <div class="name">Pulse Engine</div>
+        <div class="name-zh">VITA 生命力引擎</div>
+        <div class="stat-badge mono">8 子系統</div>
+      </div>
+      <div class="sub-grid">
+        <div class="sub-card gold">
+          <div class="sub-icon">💗</div>
+          <div class="sub-info"><div class="sub-name">Heartbeat Engine</div><div class="sub-zh">三脈主控 · 微脈/息脈/心脈</div></div>
+        </div>
+        <div class="sub-card gold">
+          <div class="sub-icon">🔭</div>
+          <div class="sub-info"><div class="sub-name">Explorer</div><div class="sub-zh">自主探索 · SearXNG → Haiku → Sonnet</div></div>
+        </div>
+        <div class="sub-card gold">
+          <div class="sub-icon">🤫</div>
+          <div class="sub-info"><div class="sub-name">Silent Digestion</div><div class="sub-zh">靜默消化 · 後台反思學習</div></div>
+        </div>
+        <div class="sub-card gold">
+          <div class="sub-icon">📡</div>
+          <div class="sub-info"><div class="sub-name">Proactive Bridge</div><div class="sub-zh">主動推播 · 每日 15 次上限</div></div>
+        </div>
+        <div class="sub-card gold">
+          <div class="sub-icon">⚡</div>
+          <div class="sub-info"><div class="sub-name">Micro Pulse</div><div class="sub-zh">微脈 · 秒級反應</div></div>
+        </div>
+        <div class="sub-card gold">
+          <div class="sub-icon">🗄</div>
+          <div class="sub-info"><div class="sub-name">Pulse DB</div><div class="sub-zh">脈搏資料持久化</div></div>
+        </div>
+        <div class="sub-card gold">
+          <div class="sub-icon">🤝</div>
+          <div class="sub-info"><div class="sub-name">Commitment Tracker</div><div class="sub-zh">承諾追蹤 · 掃描與兌現</div></div>
+        </div>
+        <div class="sub-card gold">
+          <div class="sub-icon">📅</div>
+          <div class="sub-info"><div class="sub-name">Task Scheduler</div><div class="sub-zh">任務排程 · APScheduler</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Governance ─── -->
+    <div class="pillar">
+      <div class="pillar-head gov">
+        <div class="icon">🛡</div>
+        <div class="name">Governance</div>
+        <div class="name-zh">三焦式分層治理</div>
+        <div class="stat-badge mono">9 子系統</div>
+      </div>
+      <div class="sub-grid">
+        <div class="sub-card blue">
+          <div class="sub-icon">⚖️</div>
+          <div class="sub-info"><div class="sub-name">Governor</div><div class="sub-zh">三焦主控 · 上焦/中焦/下焦</div></div>
+        </div>
+        <div class="sub-card blue">
+          <div class="sub-icon">🦠</div>
+          <div class="sub-info"><div class="sub-name">Immunity</div><div class="sub-zh">先天 + 後天免疫 · 抗體演化</div></div>
+        </div>
+        <div class="sub-card blue">
+          <div class="sub-icon">🚦</div>
+          <div class="sub-info"><div class="sub-name">Preflight</div><div class="sub-zh">啟動前驗證門（胸腺）</div></div>
+        </div>
+        <div class="sub-card blue">
+          <div class="sub-icon">⏸</div>
+          <div class="sub-info"><div class="sub-name">Refractory</div><div class="sub-zh">跨重啟斷路器 · 遞增冷卻</div></div>
+        </div>
+        <div class="sub-card blue">
+          <div class="sub-icon">🔒</div>
+          <div class="sub-info"><div class="sub-name">Security Guardrails</div><div class="sub-zh">四層防禦 · 綠/黃/紅燈</div></div>
+        </div>
+        <div class="sub-card blue">
+          <div class="sub-icon">🔍</div>
+          <div class="sub-info"><div class="sub-name">Skill Scanner</div><div class="sub-zh">技能內容安全掃描</div></div>
+        </div>
+        <div class="sub-card blue">
+          <div class="sub-icon">📦</div>
+          <div class="sub-info"><div class="sub-name">Execution Sandbox</div><div class="sub-zh">沙盒隔離執行</div></div>
+        </div>
+        <div class="sub-card blue">
+          <div class="sub-icon">📡</div>
+          <div class="sub-info"><div class="sub-name">Telegram Guard</div><div class="sub-zh">唯一 Polling 連線守衛</div></div>
+        </div>
+        <div class="sub-card blue">
+          <div class="sub-icon">🏥</div>
+          <div class="sub-info"><div class="sub-name">Service Health</div><div class="sub-zh">Gateway/Qdrant/SearXNG 監控</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Doctor ─── -->
+    <div class="pillar">
+      <div class="pillar-head doctor">
+        <div class="icon">🩺</div>
+        <div class="name">Doctor</div>
+        <div class="name-zh">自我診斷與修復</div>
+        <div class="stat-badge mono">7 子系統</div>
+      </div>
+      <div class="sub-grid">
+        <div class="sub-card green">
+          <div class="sub-icon">🔬</div>
+          <div class="sub-info"><div class="sub-name">System Audit</div><div class="sub-zh">7 層 46 項全面體檢</div></div>
+        </div>
+        <div class="sub-card green">
+          <div class="sub-icon">❤️</div>
+          <div class="sub-info"><div class="sub-name">Health Check</div><div class="sub-zh">12 項基礎健康檢查</div></div>
+        </div>
+        <div class="sub-card green">
+          <div class="sub-icon">🧪</div>
+          <div class="sub-info"><div class="sub-name">Self Diagnosis</div><div class="sub-zh">自我診斷管線</div></div>
+        </div>
+        <div class="sub-card green">
+          <div class="sub-icon">🔧</div>
+          <div class="sub-info"><div class="sub-name">Auto Repair</div><div class="sub-zh">自動修復引擎</div></div>
+        </div>
+        <div class="sub-card green">
+          <div class="sub-icon">🪡</div>
+          <div class="sub-info"><div class="sub-name">Surgery</div><div class="sub-zh">自我手術 · 精準修改</div></div>
+        </div>
+        <div class="sub-card green">
+          <div class="sub-icon">📜</div>
+          <div class="sub-info"><div class="sub-name">Log Analyzer</div><div class="sub-zh">日誌分析引擎</div></div>
+        </div>
+        <div class="sub-card green">
+          <div class="sub-icon">🔎</div>
+          <div class="sub-info"><div class="sub-name">Code Analyzer</div><div class="sub-zh">代碼品質分析</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Flow ▼ -->
+<div class="flow-connector" style="margin-top:24px">
+  <div class="flow-arrow"><div class="line" style="background:var(--slate)"></div><div class="arrow" style="color:var(--slate)">▼</div></div>
+</div>
+
+<!-- ════════════════ LAYER 5: LLM ════════════════ -->
+<div class="layer-section">
+  <div class="layer-header">
+    <span class="layer-tag mono">Layer 5</span>
+    <span class="layer-title">LLM 智能路由層</span>
+  </div>
+  <div class="node-row" style="gap:10px">
+    <div class="node node-llm">
+      <div class="icon">⚡</div>
+      <div class="name">LLM Router + Budget Manager</div>
+      <div class="desc" style="color:rgba(255,255,255,.65)">智能模型選擇 · Token 預算追蹤 · Rate Limit Guard · Cache</div>
+    </div>
+  </div>
+  <div class="node-row" style="margin-top:10px;gap:10px">
+    <div class="node node-model" style="border-left:3px solid #7B61FF">
+      <div class="icon">🟣</div>
+      <div class="name">Opus 4.6</div>
+      <div class="desc">複雜 · 深度推理</div>
+    </div>
+    <div class="node node-model" style="border-left:3px solid var(--ember)">
+      <div class="icon">🔴</div>
+      <div class="name">Sonnet 4</div>
+      <div class="desc">中等 · 均衡品質</div>
+    </div>
+    <div class="node node-model" style="border-left:3px solid var(--gold)">
+      <div class="icon">🟡</div>
+      <div class="name">Haiku 4.5</div>
+      <div class="desc">簡單 · 高速低成本</div>
+    </div>
+    <div class="node node-model" style="border-left:3px solid var(--mist)">
+      <div class="icon">🔄</div>
+      <div class="name">Cache Layer</div>
+      <div class="desc">LRU · 重複查詢命中</div>
+    </div>
+  </div>
+</div>
+
+<!-- Flow ▼ -->
+<div class="flow-connector"><div class="flow-arrow"><div class="line" style="background:var(--slate)"></div><div class="arrow" style="color:var(--slate)">▼</div></div></div>
+
+<!-- ════════════════ LAYER 6: 資料持久層 ════════════════ -->
+<div class="layer-section">
+  <div class="layer-header">
+    <span class="layer-tag mono">Layer 6</span>
+    <span class="layer-title">資料持久層</span>
+  </div>
+  <div class="node-row" style="gap:10px;align-items:flex-start">
+    <!-- Memory -->
+    <div class="node node-data" style="min-width:180px;padding:16px">
+      <div class="icon">📂</div>
+      <div class="name" style="font-size:.78rem">Memory</div>
+      <div class="name-zh">六層記憶系統</div>
+      <div class="memory-stack">
+        <div class="mem-layer" style="background:var(--ember)">L0 Buffer · 14 天</div>
+        <div class="mem-layer" style="background:var(--ember-light)">L1 Short · 30 天</div>
+        <div class="mem-layer" style="background:var(--gold)">L2 Episodic · 90 天</div>
+        <div class="mem-layer" style="background:var(--gold-dark)">L2 Semantic · 180 天</div>
+        <div class="mem-layer" style="background:var(--teal)">L3 Procedural · ∞</div>
+        <div class="mem-layer" style="background:var(--teal-dark)">L4 Identity · ∞</div>
+      </div>
+    </div>
+    <!-- Vector -->
+    <div class="node node-data" style="min-width:150px;padding:16px">
+      <div class="icon">🔍</div>
+      <div class="name" style="font-size:.78rem">Vector Index</div>
+      <div class="name-zh">Qdrant 語義向量</div>
+      <div style="font-size:.56rem;color:var(--mist);margin-top:6px;text-align:left">
+        <div>memories</div>
+        <div>skills</div>
+        <div>dna27</div>
+        <div>crystals</div>
+        <div>workflows</div>
+        <div>documents</div>
+      </div>
+    </div>
+    <!-- WEE -->
+    <div class="node node-data" style="min-width:140px;padding:16px">
+      <div class="icon">🌱</div>
+      <div class="name" style="font-size:.78rem">WEE Evolution</div>
+      <div class="name-zh">演化引擎</div>
+      <div style="font-size:.56rem;color:var(--mist);margin-top:6px;text-align:left">
+        <div>5D 評分</div>
+        <div>Skill Synapse</div>
+        <div>Hebb's Rule</div>
+        <div>Plateau 偵測</div>
+        <div>Parameter Tuner</div>
+      </div>
+    </div>
+    <!-- Skills Registry -->
+    <div class="node node-data" style="min-width:130px;padding:16px">
+      <div class="icon">🎯</div>
+      <div class="name" style="font-size:.78rem">Skills Registry</div>
+      <div class="name-zh">技能資料庫</div>
+      <div style="font-size:.56rem;color:var(--mist);margin-top:6px;text-align:left">
+        <div>45 native skills</div>
+        <div>forged skills</div>
+        <div>lifecycle 管理</div>
+        <div>版本控制</div>
+      </div>
+    </div>
+    <!-- Registry -->
+    <div class="node node-data" style="min-width:120px;padding:16px">
+      <div class="icon">🗃</div>
+      <div class="name" style="font-size:.78rem">Registry</div>
+      <div class="name-zh">SQLite 結構化資料</div>
+      <div style="font-size:.56rem;color:var(--mist);margin-top:6px;text-align:left">
+        <div>vault</div>
+        <div>inbox</div>
+        <div>per-user DB</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Flow ▼ -->
+<div class="flow-connector"><div class="flow-arrow"><div class="line" style="background:var(--ink)"></div><div class="arrow" style="color:var(--ink)">▼</div></div></div>
+
+<!-- ════════════════ LAYER 7: 夜間整合 ════════════════ -->
+<div class="layer-section">
+  <div class="layer-header">
+    <span class="layer-tag mono">Layer 7</span>
+    <span class="layer-title">夜間整合管線</span>
+  </div>
+  <div class="node-row">
+    <div class="node node-nightly" style="max-width:100%">
+      <div class="name" style="font-size:.95rem">🌙 Nightly Pipeline — 18 步凌晨整合管線</div>
+      <div class="desc" style="color:rgba(247,245,240,.5);max-width:680px;margin-top:8px;line-height:1.6">
+        預算結算 · 記憶壓縮 · 技能品質 · 演化速度 · 知識圖譜 · 工作流突變<br>
+        技能鍛造 · Scout 偵察 · 心晴報告 · 晨報 · Morphenix 提案 · 結晶固化<br>
+        Synapse Decay · Immunity Prune · Budget Review · 演化速度報告
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;justify-content:center">
+        <span class="mono" style="font-size:.55rem;background:rgba(255,255,255,.12);padding:2px 8px;border-radius:100px;color:rgba(255,255,255,.6)">03:00 TRIGGER</span>
+        <span class="mono" style="font-size:.55rem;background:rgba(255,255,255,.12);padding:2px 8px;border-radius:100px;color:rgba(255,255,255,.6)">ZERO LLM STEPS 0-15</span>
+        <span class="mono" style="font-size:.55rem;background:rgba(255,255,255,.12);padding:2px 8px;border-radius:100px;color:rgba(255,255,255,.6)">DAG PIPELINE</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ 回饋迴路提示 ════════════════ -->
+<div style="display:flex;justify-content:center;margin:16px 0 0">
+  <div style="display:flex;align-items:center;gap:8px;font-size:.68rem;color:var(--mist)">
+    <span style="display:inline-block;width:24px;border-top:2px dashed var(--ink)"></span>
+    <span>Nightly → Event Bus 回饋迴路</span>
+    <span style="margin-left:16px;display:inline-block;width:24px;border-top:2px dashed var(--gold)"></span>
+    <span>Proactive Bridge → Telegram 非同步推播</span>
+  </div>
+</div>
+
+<!-- ════════════════ 外部工具層 ════════════════ -->
+<div class="section-divider" style="margin-top:32px">
+  <div class="line"></div>
+  <div class="label">外部工具與服務</div>
+  <div class="line"></div>
+</div>
+
+<div class="node-row" style="gap:8px;flex-wrap:wrap">
+  <div class="node node-model" style="min-width:100px;border-left:3px solid var(--mist)">
+    <div class="icon">🔎</div>
+    <div class="name">SearXNG</div>
+    <div class="desc">搜尋 :8888</div>
+  </div>
+  <div class="node node-model" style="min-width:100px;border-left:3px solid var(--mist)">
+    <div class="icon">🧊</div>
+    <div class="name">Qdrant</div>
+    <div class="desc">向量 DB :6333</div>
+  </div>
+  <div class="node node-model" style="min-width:100px;border-left:3px solid var(--mist)">
+    <div class="icon">🔥</div>
+    <div class="name">Firecrawl</div>
+    <div class="desc">爬取 :3002</div>
+  </div>
+  <div class="node node-model" style="min-width:100px;border-left:3px solid var(--mist)">
+    <div class="icon">📷</div>
+    <div class="name">PaddleOCR</div>
+    <div class="desc">文字識別</div>
+  </div>
+  <div class="node node-model" style="min-width:100px;border-left:3px solid var(--mist)">
+    <div class="icon">🎤</div>
+    <div class="name">Whisper</div>
+    <div class="desc">語音識別</div>
+  </div>
+  <div class="node node-model" style="min-width:100px;border-left:3px solid var(--mist)">
+    <div class="icon">🗣</div>
+    <div class="name">Kokoro TTS</div>
+    <div class="desc">語音合成</div>
+  </div>
+  <div class="node node-model" style="min-width:100px;border-left:3px solid var(--mist)">
+    <div class="icon">⚙️</div>
+    <div class="name">Dify</div>
+    <div class="desc">工作流引擎</div>
+  </div>
+</div>
+
+<!-- ════════════════ 設計原則 ════════════════ -->
+<div class="section-divider">
+  <div class="line"></div>
+  <div class="label">核心架構原則</div>
+  <div class="line"></div>
+</div>
+
+<!-- Three Loops -->
+<div style="text-align:center;margin-bottom:12px">
+  <span class="mono" style="font-size:.65rem;color:var(--ember-dark);background:rgba(196,80,42,.08);padding:3px 12px;border-radius:100px">DNA27 三迴圈路由</span>
+</div>
+<div class="loops-visual">
+  <div class="loop-card" style="border-left:3px solid var(--ember)">
+    <div class="loop-icon">⚡</div>
+    <div><div class="loop-name">FAST LOOP</div><div class="loop-desc">秒級 · 直覺反應 · 跳過計畫</div></div>
+  </div>
+  <div class="loop-card" style="border-left:3px solid var(--gold)">
+    <div class="loop-icon">🔭</div>
+    <div><div class="loop-name">EXPLORATION LOOP</div><div class="loop-desc">分鐘級 · Research + Plan</div></div>
+  </div>
+  <div class="loop-card" style="border-left:3px solid var(--teal)">
+    <div class="loop-icon">🌊</div>
+    <div><div class="loop-name">SLOW LOOP</div><div class="loop-desc">小時級 · 完整六階段深思</div></div>
+  </div>
+</div>
+
+<div class="principles">
+  <div class="principle-card">
+    <div class="tag mono">Life, not Tool</div>
+    <h3 class="display">生命體設計</h3>
+    <p>MUSEON 不是工具——是具備成長階段（infant → child → teen → adult）、情感共振、自我進化能力的 AI 生命體。與使用者是平等的協作夥伴關係。</p>
+  </div>
+  <div class="principle-card">
+    <div class="tag mono">Four Channels</div>
+    <h3 class="display">四通道記憶</h3>
+    <p>Meta-Thinking（思考過程）· Event（事實記錄）· Outcome（結果驗證）· Lifecycle（生命週期）。每條記憶帶信任源標記與品質加權。</p>
+  </div>
+  <div class="principle-card">
+    <div class="tag mono">Graceful Degradation</div>
+    <h3 class="display">優雅降級</h3>
+    <p>部分故障不影響核心能力。Qdrant 不可用時靜默回退；API 限流時降級到 Haiku；Nightly 某步驟失敗不阻斷後續；免疫系統自動隔離故障。</p>
+  </div>
+</div>
+
+<!-- ════════════════ Agent 回應流程 ════════════════ -->
+<div class="section-divider">
+  <div class="line"></div>
+  <div class="label">Agent 回應流程（Brain Pipeline）</div>
+  <div class="line"></div>
+</div>
+
+<div style="max-width:820px;margin:0 auto;display:flex;flex-wrap:wrap;gap:4px;justify-content:center">
+  <div class="mono" style="font-size:.58rem;background:var(--teal);color:#fff;padding:4px 8px;border-radius:4px">0 成長階段</div>
+  <div style="color:var(--mist);font-size:.6rem;display:flex;align-items:center">→</div>
+  <div class="mono" style="font-size:.58rem;background:var(--teal);color:#fff;padding:4px 8px;border-radius:4px">0.5 承諾自檢</div>
+  <div style="color:var(--mist);font-size:.6rem;display:flex;align-items:center">→</div>
+  <div class="mono" style="font-size:.58rem;background:var(--teal);color:#fff;padding:4px 8px;border-radius:4px">0.7 元認知觀察</div>
+  <div style="color:var(--mist);font-size:.6rem;display:flex;align-items:center">→</div>
+  <div class="mono" style="font-size:.58rem;background:var(--teal);color:#fff;padding:4px 8px;border-radius:4px">1 命名儀式</div>
+  <div style="color:var(--mist);font-size:.6rem;display:flex;align-items:center">→</div>
+  <div class="mono" style="font-size:.58rem;background:var(--teal);color:#fff;padding:4px 8px;border-radius:4px">1.5 直覺引擎</div>
+  <div style="color:var(--mist);font-size:.6rem;display:flex;align-items:center">→</div>
+  <div class="mono" style="font-size:.58rem;background:var(--teal);color:#fff;padding:4px 8px;border-radius:4px">2 載入 ANIMA</div>
+  <div style="color:var(--mist);font-size:.6rem;display:flex;align-items:center">→</div>
+  <div class="mono" style="font-size:.58rem;background:var(--ember);color:#fff;padding:4px 8px;border-radius:4px">3 DNA27 反射</div>
+  <div style="color:var(--mist);font-size:.6rem;display:flex;align-items:center">→</div>
+  <div class="mono" style="font-size:.58rem;background:var(--ember);color:#fff;padding:4px 8px;border-radius:4px">3.1 技能路由</div>
+  <div style="color:var(--mist);font-size:.6rem;display:flex;align-items:center">→</div>
+  <div class="mono" style="font-size:.58rem;background:var(--ember);color:#fff;padding:4px 8px;border-radius:4px">3.5 計畫引擎</div>
+  <div style="color:var(--mist);font-size:.6rem;display:flex;align-items:center">→</div>
+  <div class="mono" style="font-size:.58rem;background:var(--slate);color:#fff;padding:4px 8px;border-radius:4px">4 System Prompt</div>
+  <div style="color:var(--mist);font-size:.6rem;display:flex;align-items:center">→</div>
+  <div class="mono" style="font-size:.58rem;background:var(--slate);color:#fff;padding:4px 8px;border-radius:4px">5 對話歷史</div>
+  <div style="color:var(--mist);font-size:.6rem;display:flex;align-items:center">→</div>
+  <div class="mono" style="font-size:.58rem;background:var(--ink);color:#fff;padding:4px 8px;border-radius:4px;font-weight:600">6 Claude API</div>
+  <div style="color:var(--mist);font-size:.6rem;display:flex;align-items:center">→</div>
+  <div class="mono" style="font-size:.58rem;background:var(--gold);color:#fff;padding:4px 8px;border-radius:4px">6.2 PreCognition</div>
+  <div style="color:var(--mist);font-size:.6rem;display:flex;align-items:center">→</div>
+  <div class="mono" style="font-size:.58rem;background:var(--gold);color:#fff;padding:4px 8px;border-radius:4px">6.5 Q-Score</div>
+  <div style="color:var(--mist);font-size:.6rem;display:flex;align-items:center">→</div>
+  <div class="mono" style="font-size:.58rem;background:var(--success);color:#fff;padding:4px 8px;border-radius:4px">7 持久化</div>
+  <div style="color:var(--mist);font-size:.6rem;display:flex;align-items:center">→</div>
+  <div class="mono" style="font-size:.58rem;background:var(--success);color:#fff;padding:4px 8px;border-radius:4px">8 技能追蹤</div>
+  <div style="color:var(--mist);font-size:.6rem;display:flex;align-items:center">→</div>
+  <div class="mono" style="font-size:.58rem;background:var(--success);color:#fff;padding:4px 8px;border-radius:4px">9 ANIMA 更新</div>
+  <div style="color:var(--mist);font-size:.6rem;display:flex;align-items:center">→</div>
+  <div class="mono" style="font-size:.58rem;background:var(--success);color:#fff;padding:4px 8px;border-radius:4px">9.7 元認知預判</div>
+</div>
+
+<!-- ════════════════ 連結總覽 ════════════════ -->
+<div class="section-divider">
+  <div class="line"></div>
+  <div class="label">關鍵資料流</div>
+  <div class="line"></div>
+</div>
+
+<div class="flow-map" style="margin-top:0">
+  <ul class="flow-list">
+    <li class="flow-item"><span class="arrow-icon" style="color:var(--ember)">●</span> 使用者 → Telegram → Gateway → Event Bus</li>
+    <li class="flow-item"><span class="arrow-icon" style="color:var(--teal)">●</span> Event Bus → Agent Brain → Skill Router → LLM</li>
+    <li class="flow-item"><span class="arrow-icon" style="color:var(--gold)">●</span> Event Bus → Pulse → Explorer → SearXNG</li>
+    <li class="flow-item"><span class="arrow-icon" style="color:var(--gold)">●</span> Proactive Bridge → Telegram → 使用者（非同步推播）</li>
+    <li class="flow-item"><span class="arrow-icon" style="color:var(--info)">●</span> Governance → Immunity → Refractory（自癒迴路）</li>
+    <li class="flow-item"><span class="arrow-icon" style="color:var(--success)">●</span> Doctor → System Audit → Auto Repair</li>
+    <li class="flow-item"><span class="arrow-icon" style="color:var(--slate)">●</span> LLM Router → Memory 持久化 → Vector 索引</li>
+    <li class="flow-item"><span class="arrow-icon" style="color:var(--slate)">●</span> Knowledge Lattice ⇄ Vector Index（結晶注入）</li>
+    <li class="flow-item"><span class="arrow-icon" style="color:var(--ink)">●</span> Nightly → 記憶壓縮 → Synapse Decay → 結晶固化</li>
+    <li class="flow-item"><span class="arrow-icon" style="color:var(--ink)">●</span> Nightly → Morphenix 提案 → Event Bus 回饋</li>
+    <li class="flow-item"><span class="arrow-icon" style="color:var(--teal)">●</span> Soul Ring ← 認知突破 / 失敗教訓（append-only）</li>
+    <li class="flow-item"><span class="arrow-icon" style="color:var(--gold)">●</span> WEE → Skill Synapse → Hebb's Rule 連結演化</li>
+  </ul>
+</div>
+
+<!-- ════════════════ Legend ════════════════ -->
+<div class="legend">
+  <h3 class="display">圖例</h3>
+  <div class="legend-grid">
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--ember)"></div> 使用者 / 入口 / Event Bus</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--teal)"></div> Agent / Brain 認知層</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--gold)"></div> Pulse 生命力 / 演化層</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--info)"></div> Governance 治理 / 安全層</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--success)"></div> Doctor 診斷 / 修復層</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--slate)"></div> LLM 路由 / 資料層</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--ink)"></div> Nightly 夜間整合</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--mist)"></div> 外部工具 / 服務</div>
+    <div class="legend-item"><div class="legend-line" style="border-color:var(--ember)"></div> 同步資料流</div>
+    <div class="legend-item"><div class="legend-dash" style="border-color:var(--gold)"></div> 非同步 / 回饋迴路</div>
+  </div>
+</div>
+
+<!-- ════════════════ System Audit Layers ════════════════ -->
+<div class="section-divider">
+  <div class="line"></div>
+  <div class="label">Doctor System Audit 七層體檢</div>
+  <div class="line"></div>
+</div>
+
+<div style="max-width:820px;margin:0 auto;display:flex;flex-direction:column;gap:4px">
+  <div style="display:flex;gap:8px;align-items:center">
+    <span class="mono" style="font-size:.6rem;width:32px;text-align:right;color:var(--mist)">L1</span>
+    <div style="flex:1;background:var(--success);color:#fff;padding:6px 12px;border-radius:4px;font-size:.68rem">基礎設施 — 目錄 · 檔案 · .env · 磁碟 · Python · venv · 依賴</div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <span class="mono" style="font-size:.6rem;width:32px;text-align:right;color:var(--mist)">L2</span>
+    <div style="flex:1;background:var(--success);color:#fff;padding:6px 12px;border-radius:4px;font-size:.68rem;opacity:.92">進程層 — Gateway · Daemon · PID · Port · Electron · Docker</div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <span class="mono" style="font-size:.6rem;width:32px;text-align:right;color:var(--mist)">L3</span>
+    <div style="flex:1;background:var(--success);color:#fff;padding:6px 12px;border-radius:4px;font-size:.68rem;opacity:.84">服務層 — HTTP · Qdrant · SearXNG · Firecrawl · Telegram · MCP</div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <span class="mono" style="font-size:.6rem;width:32px;text-align:right;color:var(--mist)">L4</span>
+    <div style="flex:1;background:var(--success);color:#fff;padding:6px 12px;border-radius:4px;font-size:.68rem;opacity:.76">應用層 — API Key · Budget · Skills · Event Bus · Activity Log</div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <span class="mono" style="font-size:.6rem;width:32px;text-align:right;color:var(--mist)">L5</span>
+    <div style="flex:1;background:var(--success);color:#fff;padding:6px 12px;border-radius:4px;font-size:.68rem;opacity:.68">演化層 — Governor · Preflight · Refractory · Bulkhead · Immune</div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <span class="mono" style="font-size:.6rem;width:32px;text-align:right;color:var(--mist)">L6</span>
+    <div style="flex:1;background:var(--success);color:#fff;padding:6px 12px;border-radius:4px;font-size:.68rem;opacity:.6">安全層 — .env 權限 · Token 洩漏 · 敏感檔案 · Placeholder</div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <span class="mono" style="font-size:.6rem;width:32px;text-align:right;color:var(--mist)">L7</span>
+    <div style="flex:1;background:var(--success);color:#fff;padding:6px 12px;border-radius:4px;font-size:.68rem;opacity:.52">趨勢層 — Log 成長率 · Token 趨勢 · 啟動失敗頻率 · 磁碟</div>
+  </div>
+</div>
+
+<!-- ════════════════ Governance 三焦 ════════════════ -->
+<div class="section-divider">
+  <div class="line"></div>
+  <div class="label">Governance 三焦式治理</div>
+  <div class="line"></div>
+</div>
+
+<div style="max-width:820px;margin:0 auto;display:flex;flex-direction:column;gap:6px">
+  <div style="display:flex;gap:12px;align-items:stretch">
+    <div style="background:var(--info);color:#fff;padding:12px 16px;border-radius:var(--radius);flex:1;text-align:center">
+      <div style="font-size:.9rem;font-weight:600">上焦</div>
+      <div style="font-size:.65rem;opacity:.7;margin-top:2px">系統級 · 5-15 min</div>
+      <div style="font-size:.62rem;margin-top:6px;opacity:.85">整體健康分數 · 趨勢分析 · 警覺信號</div>
+    </div>
+    <div style="background:var(--info);color:#fff;padding:12px 16px;border-radius:var(--radius);flex:1;text-align:center;opacity:.85">
+      <div style="font-size:.9rem;font-weight:600">中焦</div>
+      <div style="font-size:.65rem;opacity:.7;margin-top:2px">服務級 · 30-60 s</div>
+      <div style="font-size:.62rem;margin-top:6px;opacity:.85">Docker 服務 · API 回應 · 端口監控</div>
+    </div>
+    <div style="background:var(--info);color:#fff;padding:12px 16px;border-radius:var(--radius);flex:1;text-align:center;opacity:.7">
+      <div style="font-size:.9rem;font-weight:600">下焦</div>
+      <div style="font-size:.65rem;opacity:.7;margin-top:2px">進程級 · 5-10 s</div>
+      <div style="font-size:.62rem;margin-top:6px;opacity:.85">PID 存活 · Singleton 保證 · 端口占用</div>
+    </div>
+  </div>
+  <div style="text-align:center;font-size:.62rem;color:var(--mist);margin-top:4px">
+    健康等級：<span class="mono" style="color:var(--success)">VITAL</span> →
+    <span class="mono" style="color:var(--teal)">STABLE</span> →
+    <span class="mono" style="color:var(--gold)">DEGRADED</span> →
+    <span class="mono" style="color:var(--ember)">CRITICAL</span> →
+    <span class="mono" style="color:#C4402A">EMERGENCY</span>
+  </div>
+</div>
+
+<!-- ════════════════ Footer ════════════════ -->
+<div class="footer">
+  <p class="mono" style="font-size:.6rem;letter-spacing:.06em">MUSEON Architecture Diagram v2.0 · 2026-03-14</p>
+  <p style="margin-top:4px">自適應 AI 生命體 — 不是工具，是夥伴</p>
+</div>
+
+</div><!-- /container -->
+
+</body>
+</html>

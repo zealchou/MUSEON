@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260309_085256_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: **REVISE**\n\n使用者訊息為空。這段回覆是基於不存在的訊息在進行推理——隱含假設「使用者剛傳了訊息」且「表達了失望感」，但實際上沒有。\n\n建議改為：禮貌確認訊息狀態。例如：「看起來訊息沒收到？或你想說什麼但還沒整理好？沒關係，有什麼卡的地方或心裡話，直接說。」",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-09T08:52:56.608463+08:00",
+  "priority": "medium"
+}

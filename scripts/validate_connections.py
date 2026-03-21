@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """
-validate_connections.py — Skill 連線驗證器
+validate_connections.py — Skill 連線驗證器 v1.1
 掃描所有 Skill 的 Manifest（YAML frontmatter），檢查：
 1. 孤立輸出：output.trigger == "always" 但無人接收
 2. 斷裂輸入：input.required == true 但無人提供
 3. 孤立 Skill：零 input + 零 output（非 reference/workflow）
 4. 幽靈連線：connects_to 中的名稱不存在
 5. 記憶無家：memory.writes.target 不在已知記憶系統列表
+6. Hub 一致性：hub 值必須在 9 種合法值中
+7. Workflow stages：type: workflow 必須有 stages 欄位
 
 用法:
     .venv/bin/python scripts/validate_connections.py
@@ -24,6 +26,12 @@ SKILLS_DIR = ROOT / "data" / "skills" / "native"
 KNOWN_MEMORY_TARGETS = {
     "knowledge-lattice", "user-model", "wee", "eval-engine",
     "session-log", "auto-memory", "morphenix", "diary",
+}
+
+# 合法的 Hub 值（對應 skill-routing-governance.md）
+VALID_HUBS = {
+    "core", "infra", "thinking", "market", "business",
+    "creative", "product", "evolution", "workflow",
 }
 
 
@@ -65,6 +73,10 @@ def parse_yaml_frontmatter(text: str) -> dict[str, Any]:
                 val = val.strip()
                 if val and val != ">":
                     result[key] = val
+                elif key not in ("io", "memory", "connects_to", "description"):
+                    # 標記有此區段存在（stages, speed_paths 等）
+                    if key not in result:
+                        result[key] = True
                 current_key = key
                 current_section = None
                 current_subsection = None
@@ -260,6 +272,22 @@ def validate(manifests: dict[str, dict]) -> tuple[list[str], list[str], list[str
                     f"⚠️  記憶無家: {name} 寫入 '{target}' 但此目標不在 memory-router.md 中"
                 )
 
+    # 規則 6：Hub 一致性
+    for name, m in manifests.items():
+        hub = m.get("hub", "")
+        if not hub or hub is True:
+            warnings.append(f"⚠️  缺少 Hub: {name} 未宣告 hub 欄位")
+        elif hub not in VALID_HUBS:
+            errors.append(f"❌ Hub 非法值: {name} 的 hub='{hub}' 不在合法值中 ({', '.join(sorted(VALID_HUBS))})")
+
+    # 規則 7：Workflow stages
+    for name, m in manifests.items():
+        skill_type = m.get("type", "on-demand")
+        if skill_type == "workflow":
+            has_stages = m.get("stages")
+            if not has_stages:
+                warnings.append(f"⚠️  Workflow 缺 stages: {name} (type=workflow) 未宣告 stages 欄位")
+
     # 統計資訊
     info.append(f"📊 Skill 總數: {len(manifests)}")
     types = {}
@@ -281,12 +309,24 @@ def validate(manifests: dict[str, dict]) -> tuple[list[str], list[str], list[str
     )
     info.append(f"📊 記憶寫入點: {memory_writes}")
 
+    # Hub 分組統計
+    hub_groups: dict[str, list[str]] = {}
+    for name, m in manifests.items():
+        hub = m.get("hub", "未分類")
+        if hub is True:
+            hub = "未分類"
+        hub_groups.setdefault(hub, []).append(name)
+    info.append("📊 Hub 分組:")
+    for hub in sorted(hub_groups.keys()):
+        skills = sorted(hub_groups[hub])
+        info.append(f"   [{hub}] ({len(skills)}): {', '.join(skills)}")
+
     return errors, warnings, info
 
 
 def main():
     print("=" * 60)
-    print("MUSEON Skill 連線驗證器 v1.0")
+    print("MUSEON Skill 連線驗證器 v1.1")
     print("=" * 60)
 
     manifests = load_all_manifests()

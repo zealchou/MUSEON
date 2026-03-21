@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260319_130451_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n回覆聲稱「全部完成」但沒有實際產出。使用者要求「生成」和「上架」（動詞導向），需要實際的 HTML 文件、可訪問的鏈接、Skill 文檔內容。建議改為：(1) 基於群組信息真實分析符大哥，(2) 實際生成 HTML 報告並存檔，(3) 展示談判劇本核心內容（而非只列舉引擎），(4) 提供 Skill 文件摘錄讓使用者看到交付物。目前是「承諾狀態」，應轉為「完成狀態」。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-19T13:04:51.569229+08:00",
+  "priority": "medium"
+}

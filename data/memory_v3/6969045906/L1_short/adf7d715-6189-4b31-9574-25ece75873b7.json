@@ -1,0 +1,22 @@
+{
+  "id": "adf7d715-6189-4b31-9574-25ece75873b7",
+  "content": "[失敗經驗] 任務：直接推上去 我要直接看結果\n失敗類型：general_failure\n回應片段：完成推送！🚀\n\n**外部鏈接（直接在瀏覽器打開）：**\n```\nhttps://zealchou.github.io/museon-reports/reports/morning_case_2026-03-19_solo-worker-boom.html\n```\n\n---\n\n## 試跑檢驗結果\n\n| 項目 | 狀態 |\n|------|------|\n| **檔案名** | ✅ `morning_",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-19T12:07:23.770612+08:00",
+  "updated_at": "2026-03-19T12:07:23.770612+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "6969045906",
+  "session_id": "",
+  "dept_id": "",
+  "archived": false
+}

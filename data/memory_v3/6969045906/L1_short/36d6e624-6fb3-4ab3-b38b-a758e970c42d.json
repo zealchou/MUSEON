@@ -1,0 +1,22 @@
+{
+  "id": "36d6e624-6fb3-4ab3-b38b-a758e970c42d",
+  "content": "[失敗經驗] 任務：報告要記得上傳的 GitHub 然後給我外部鏈接\n這是我們的默契\n失敗類型：general_failure\n回應片段：Push 失敗了——remote 指向 `https://github.com/ZEALCHOU/MUSEON.git` 但 GitHub 回報 \"Repository not found\"。\n\n可能原因：\n1. **Repo 名稱/大小寫不對** — GitHub 上是不是叫別的名字？\n2. **權限問題** — token 過期或沒有 push 權限\n3. **Repo 設為 private*",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-21T09:44:38.734862+08:00",
+  "updated_at": "2026-03-21T09:44:38.734862+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "6969045906",
+  "session_id": "",
+  "dept_id": "",
+  "archived": false
+}

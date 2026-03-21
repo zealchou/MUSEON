@@ -2,6 +2,7 @@
 name: consultant-communication
 type: on-demand
 layer: language
+hub: business
 io:
   inputs:
     - from: text-alchemy

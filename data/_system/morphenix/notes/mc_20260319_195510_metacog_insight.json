@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260319_195510_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n確認 commit 成功需展示實際 git 指令結果（git log / commit hash）。四張藍圖同步 + pytest 是強制項（不是選項），應直接列為「必完成」。避免拋「要不要」問題——等使用者指示方向。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-19T19:55:10.425781+08:00",
+  "priority": "medium"
+}

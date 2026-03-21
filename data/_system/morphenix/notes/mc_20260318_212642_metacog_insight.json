@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260318_212642_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n先直接回答 Feng 的三個技術問題（Device/License 配置、多子體設計、SDK 移除後限制），提供「功能列表 + 比較表」的實際範本或框架，說明如何轉成客戶能理解的業務場景。澤部的自我反思有價值，但應擺在完成 Feng 的功能設計後，而不是搶走主軸。現在 Feng 還在等待可以開始設計的素材。\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-18T21:26:42.524814+08:00",
+  "priority": "medium"
+}

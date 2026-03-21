@@ -1,0 +1,22 @@
+{
+  "id": "23e9e92d-1081-4c21-9172-91b770f64f0b",
+  "content": "[失敗經驗] 任務：[群組近期對話紀錄]\n  15:55 Feng: Hi hi\n  16:06 Zeal（老闆）: 已經拉進來了\n  16:17 Zeal（老闆）: 等你朋友\n  18:23 Feng: 好了\n  19\n失敗類型：general_failure\n回應片段：目前我在 Telegram 群組裡**沒辦法用 @ 標記特定人**——這是 Bot API 的限制，bot 發出的訊息無法產生可點擊的 @ mention 通知。\n\n我可以在文字裡寫「韋辰哥」或「Feng」來稱呼，但對方不會收到通知提醒。\n\n**要確保對方看到的話**，最穩的做法是你們幫忙 @ 一下，或是直接回覆他的訊息讓他收到通知。",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-21T12:15:07.824800+08:00",
+  "updated_at": "2026-03-21T12:15:07.824800+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "8252847174",
+  "session_id": "",
+  "dept_id": "",
+  "archived": false
+}

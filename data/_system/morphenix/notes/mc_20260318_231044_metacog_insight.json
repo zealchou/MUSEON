@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260318_231044_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n主動查找 Feng 的 HTML 檔案位置和八原語診斷結果（可能在 ANIMA_MC.json 或其他地方），而不是被動列三個選擇。一旦找到診斷，直接判斷「缺什麼」然後改。沒診斷就直接推薦先做診斷。偏好行動而非選擇題。\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-18T23:10:44.640441+08:00",
+  "priority": "medium"
+}

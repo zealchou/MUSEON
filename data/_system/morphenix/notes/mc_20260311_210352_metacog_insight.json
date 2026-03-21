@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260311_210352_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：\n1. 指出核心卡點：aesthetic-sense Skill 其實已在系統，問題是生成網頁時**沒有激活**（缺少設計評估 → 直接產 artifact 的流程）\n2. 提具體行動（不要問意見）：「我現在可以產出一份 MUSEON 設計規範（色系、排版、間距、組件範本），下次生成時主動走設計評估→artifact 的雙層流程」\n3. 少說「假設」和「理論」，改為「可以",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-11T21:03:52.305253+08:00",
+  "priority": "medium"
+}

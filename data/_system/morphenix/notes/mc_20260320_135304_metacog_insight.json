@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260320_135304_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n開頭加一句直接確認：「沒有，P0-P3 都完成了！」而不是直接列清單。使用者問的是是非題（「只先完成了P0嗎？」），應該先一句話回答，再列證據。\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-20T13:53:04.879174+08:00",
+  "priority": "medium"
+}

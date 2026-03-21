@@ -1,0 +1,32 @@
+{
+  "status": "done",
+  "generated_at": "2026-03-16T23:24:09.207865+08:00",
+  "explorations_analyzed": 2,
+  "connections": [
+    {
+      "exploration_a": {
+        "id": 2,
+        "topic": "深入研究「向量資料庫在 AI agent 記憶系統中的最佳實踐」的實際應用案例與最新進展"
+      },
+      "exploration_b": {
+        "id": 1,
+        "topic": "向量資料庫在 AI agent 記憶系統中的最佳實踐"
+      },
+      "overlap_score": 0.333,
+      "shared_concepts": [
+        "向量資",
+        "向量",
+        "量資",
+        "料庫",
+        "agent"
+      ]
+    }
+  ],
+  "contradictions": [],
+  "blind_spots": [],
+  "reweighted_crystals": {
+    "KL-INS-0106": 0.7434999999999999,
+    "KL-INS-0128": 0.7434999999999999
+  },
+  "summary": "發現 1 個概念交叉，最強連結：「深入研究「向量資料庫在 AI agent」↔「向量資料庫在 AI agent 記憶系統」（相似度 0.333）；更新了 2 個結晶的共振指數"
+}

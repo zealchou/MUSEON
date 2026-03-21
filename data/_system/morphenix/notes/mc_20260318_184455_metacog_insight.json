@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260318_184455_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\nFeng 問的是技術架構問題（子體設計風險、SDK 脆弱點、公鑰管理），但這段回覆全是定價策略。應先直接評估：(1) 一設備一子體設計的風險點；(2) SDK 移除造成的中斷面；(3) 公鑰傳遞機制；(4) 優化空間。定價建議可作補充。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-18T18:44:55.451607+08:00",
+  "priority": "medium"
+}

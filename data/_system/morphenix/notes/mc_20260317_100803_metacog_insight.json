@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260317_100803_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n回覆拋出 5 個同級選項讓使用者選，但簡單問好應該主動判斷優先級。建議改成：先跑 git status + 輕量審計掌握系統狀態，然後告訴使用者「根據當前狀況，建議先做 X」，而非「你選一個」。這樣更符合使用者期待的主動幫助而非建議清單。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-17T10:08:03.643288+08:00",
+  "priority": "medium"
+}

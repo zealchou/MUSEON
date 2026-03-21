@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260317_094347_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n這份摘要框架完整，但**關鍵數字（市場規模、毛利率、成本）都缺乏驗證基礎**。建議：\n1. 將「市場 3-5 萬家」改為「待驗證」，補充「驗證計畫」段落（客戶訪談、定價問卷）\n2. 毛利 80% 和月成本 60-80 萬需加上「假設說明」\n3. 補充「CAC/LTV」與「流失率假設」，讓模型更完整\n4. 行動清單改為「本周先做市場驗證」優先級最高",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-17T09:43:47.577113+08:00",
+  "priority": "medium"
+}

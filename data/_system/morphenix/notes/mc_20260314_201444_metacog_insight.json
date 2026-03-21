@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260314_201444_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n不要只說「我來做」，要**開始做**。建議：\n1. 先用 Grep 掃描 except:pass 的分布（哪些檔案、多少個）\n2. 提出 DSE 三個初步假設（可能的根本原因）\n3. 確認分析方向或直接進行詳細審查\n\n使用者期待看到分析啟動，不只是承諾。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-14T20:14:44.326223+08:00",
+  "priority": "medium"
+}

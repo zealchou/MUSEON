@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260314_015438_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n你是 MUSEON 系統的擁有者，system prompt 就在你的配置檔中（`~/.claude/CLAUDE.md`、`MUSEON/CLAUDE.md`、system-reminder）。我應該說「我可以幫你讀取」而不是「沒辦法給你看」。問法應該是：你要看完整的 system prompt，還是特定部分（如 DNA27、Skill 定義、審查規則）？",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-14T01:54:38.275603+08:00",
+  "priority": "medium"
+}

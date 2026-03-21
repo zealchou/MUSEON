@@ -2,6 +2,7 @@
 name: dna27
 type: always-on
 layer: core-extension
+hub: core
 io:
   inputs:
     - from: user

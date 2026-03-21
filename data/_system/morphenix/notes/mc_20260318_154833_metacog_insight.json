@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260318_154833_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: **REVISE**\n\n現在的回覆假設成果已存在，但使用者根本看不到它，這本身就是問題。應該改為：(1) 主動查找之前有沒有生成過這個報告，(2) 沒找到就用 DSE 研究或直接重新生成，(3) 交付實際成果 URL 或檔案，而非叫使用者自己驗證。核心偏離：把「故障排除方法」當成了「可交付物」。\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-18T15:48:33.748916+08:00",
+  "priority": "medium"
+}

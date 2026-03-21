@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260318_151151_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：直接對應使用者的「你再次試試」意圖。不要把「修改 token」留給使用者手動做，改成「我確認三個資訊後直接幫你改權限+推報告+給連結」。問題問得要明確：(1) 報告檔名是什麼？(2) GitHub 倉庫位置？(3) Pages 發布位置？\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-18T15:11:51.505052+08:00",
+  "priority": "medium"
+}

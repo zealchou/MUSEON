@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260317_130522_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE — 不要直接說「我不確定」和「我假設了」。應改為：展示你已經在思考 TA、痛點、差異化的具體維度（如「台灣中小企業中，月營收 500K-2M 的服務業老闆最想要......」），再說「但我需要驗證這些假設」。這樣既誠實又主動，符合 feedback_query_fallback 精神——主動搜尋分析而非直接認輸。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-17T13:05:22.968153+08:00",
+  "priority": "medium"
+}

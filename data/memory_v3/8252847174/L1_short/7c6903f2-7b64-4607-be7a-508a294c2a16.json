@@ -1,0 +1,22 @@
+{
+  "id": "7c6903f2-7b64-4607-be7a-508a294c2a16",
+  "content": "[失敗經驗] 任務：[群組近期對話紀錄]\n  04:01 Feng: 目前訂閱制剩下測試和金流的部份\n  04:46 Feng: 第二階段快要好了，\n等等來測試子體連線\n  32:54 Feng: @MuseonClaw\n失敗類型：general_failure\n回應片段：Feng，文件都讀完了。Integration Guide + Onboarding Steps 非常清晰，規格已經齊全。**AGENT_QUICK_CONNECT.md 還沒上傳成功**（Glob 搜尋找不到），但現在的兩份文件已經夠我開始了。\n\n---\n\n## 立即確認三個點\n\n根據文件裡提到的內容，我需要確認：\n\n1. **SDK 檔案位置** — 文件提到 `agent-sdk/muc_a",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-18T14:49:36.984846+08:00",
+  "updated_at": "2026-03-18T14:49:36.984846+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "8252847174",
+  "session_id": "",
+  "dept_id": "",
+  "archived": false
+}

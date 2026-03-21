@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260316_160917_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE。用戶明確要求「直接處理」且「不要每次都重新問」，但回覆只是要求核准、沒有交付物。應直接執行 `gh gist create` 上傳符合品牌規範的 HTML，提供 GitHub 連結，並記住此決策模式。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-16T16:09:17.265349+08:00",
+  "priority": "medium"
+}

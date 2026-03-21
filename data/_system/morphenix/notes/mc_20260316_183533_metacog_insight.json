@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260316_183533_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n回覆顯得對抗性且不尊重使用者的合理要求。Zeal 是系統所有者，有權查看配置。應改為：(1) 直接輸出或解釋為何當下無法輸出（附帶原因），(2) 詢問具體需求（想修改什麼設定？），(3) 保持 ANIMA persona 的親切和可協商性，而非生硬拒絕。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-16T18:35:33.841034+08:00",
+  "priority": "medium"
+}

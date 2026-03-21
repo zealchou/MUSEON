@@ -2,6 +2,85 @@
 name: workflow-investment-analysis
 type: workflow
 layer: workflow
+hub: workflow
+stages:
+  - id: 1
+    name: "總經環境 + 標的分析"
+    skills: [market-core, market-macro, market-equity, market-crypto]
+    lens: "五層蒐集 + 多空對稱論述"
+    mode: serial
+    gate:
+      - "五層是否都有蒐集到數據"
+      - "多空論點是否對稱（正負 1 以內）"
+      - "每個論點至少一個可查證來源"
+    output_to: [2, 3, 4, 5]
+  - id: 2
+    name: "籌碼面深度 + 估值定位"
+    skills: [market-equity, market-crypto]
+    lens: "籌碼六維度 + 估值比較定位"
+    mode: serial
+    gate:
+      - "籌碼數據標注截止日期"
+      - "至少兩個籌碼指標交叉驗證"
+    output_to: [3, 4, 5]
+  - id: 3
+    name: "情緒深度掃描"
+    skills: [sentiment-radar]
+    lens: "恐懼→貪婪光譜 + 散戶法人分歧"
+    mode: serial
+    gate:
+      - "情緒判斷至少兩個維度數據支撐"
+    output_to: [4, 5]
+    optional: true
+    skip_when: "quick 模式、長期分析（3月以上）、或使用者明確不需要"
+  - id: 4
+    name: "投資大師會診"
+    skills: [investment-masters]
+    lens: "六師會診（Buffett/Munger/Marks/Taleb/Fisher/Soros）"
+    mode: parallel
+    merge:
+      strategy: consensus
+      layers:
+        - consensus
+        - tension
+        - blind_spot
+        - action
+    gate:
+      - "不適用框架需標記適用度低"
+      - "附帶不代表大師本人觀點免責"
+      - "觀點建立在 Stage 1-3 數據之上"
+    output_to: [5]
+    optional: true
+    skip_when: "quick 模式或使用者明確不需要"
+  - id: 5
+    name: "風險矩陣 + 配置建議"
+    skills: [risk-matrix, market-core]
+    lens: "四情境壓力測試 + 凱利準則"
+    mode: serial
+    gate:
+      - "至少一個黑天鵝情境"
+      - "散戶行動清單用條件式表述"
+      - "附帶不構成投資建議免責"
+    output_to: [6]
+  - id: 6
+    name: "HTML 報告生成"
+    skills: [report-forge, aesthetic-sense]
+    lens: "雙層呈現（散戶版 + 專業版）"
+    mode: serial
+    gate:
+      - "散戶頁面 30 秒內能讀完核心結論"
+      - "專有名詞全部有白話翻譯"
+      - "免責聲明清晰可見"
+speed_paths:
+  fast_loop:
+    stages: [1, 5, 6]
+    depth: "精簡"
+  exploration_loop:
+    stages: [1, 2, 5, 6]
+    depth: "標準"
+  slow_loop:
+    stages: [1, 2, 3, 4, 5, 6]
+    depth: "完整"
 io:
   inputs:
     - from: user

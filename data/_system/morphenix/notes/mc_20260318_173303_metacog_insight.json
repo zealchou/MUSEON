@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260318_173303_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n主要改進方向：\n最後段「要我幫你寫定價方案嗎？」應直接產出座位制定價的具體框架（計費模型、License 配置、升級路徑），而不是推球回去。Feng 在忙集成工作，期待「被交付的方案」而非「被詢問的建議」。建議補充：座位制的計費細節（1座位基價、分級定價、批量折扣、與現有商業模型的整合）。\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-18T17:33:03.534010+08:00",
+  "priority": "medium"
+}

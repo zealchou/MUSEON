@@ -1,0 +1,1964 @@
+{
+  "session_id": "telegram_group_5107045509",
+  "nodes": {
+    "topic_turn_0": {
+      "node_id": "topic_turn_0",
+      "node_type": "topic",
+      "label": "turn_0",
+      "properties": {
+        "content_length": 40,
+        "detected_at": "2026-03-10T23:35:33.090597"
+      },
+      "created_at": "2026-03-10T23:35:33.090673",
+      "updated_at": "2026-03-10T23:35:33.090678"
+    },
+    "topic_turn_1": {
+      "node_id": "topic_turn_1",
+      "node_type": "topic",
+      "label": "turn_1",
+      "properties": {
+        "content_length": 38,
+        "detected_at": "2026-03-11T12:30:56.365156"
+      },
+      "created_at": "2026-03-11T12:30:56.365205",
+      "updated_at": "2026-03-11T12:30:56.365210"
+    },
+    "intention_任務委派": {
+      "node_id": "intention_任務委派",
+      "node_type": "intention",
+      "label": "任務委派",
+      "properties": {
+        "detected_at": "2026-03-17T18:46:27.034532"
+      },
+      "created_at": "2026-03-11T12:32:59.013834",
+      "updated_at": "2026-03-17T18:46:27.034692"
+    },
+    "topic_turn_3": {
+      "node_id": "topic_turn_3",
+      "node_type": "topic",
+      "label": "turn_3",
+      "properties": {
+        "content_length": 216,
+        "detected_at": "2026-03-11T12:32:59.013744"
+      },
+      "created_at": "2026-03-11T12:32:59.013850",
+      "updated_at": "2026-03-11T12:32:59.013852"
+    },
+    "topic_turn_4": {
+      "node_id": "topic_turn_4",
+      "node_type": "topic",
+      "label": "turn_4",
+      "properties": {
+        "content_length": 20,
+        "detected_at": "2026-03-11T15:37:46.745035"
+      },
+      "created_at": "2026-03-11T15:37:46.745076",
+      "updated_at": "2026-03-11T15:37:46.745080"
+    },
+    "topic_turn_5": {
+      "node_id": "topic_turn_5",
+      "node_type": "topic",
+      "label": "turn_5",
+      "properties": {
+        "content_length": 23,
+        "detected_at": "2026-03-11T15:38:27.562618"
+      },
+      "created_at": "2026-03-11T15:38:27.562666",
+      "updated_at": "2026-03-11T15:38:27.562671"
+    },
+    "topic_turn_6": {
+      "node_id": "topic_turn_6",
+      "node_type": "topic",
+      "label": "turn_6",
+      "properties": {
+        "content_length": 31,
+        "detected_at": "2026-03-11T15:46:13.043636"
+      },
+      "created_at": "2026-03-11T15:46:13.043716",
+      "updated_at": "2026-03-11T15:46:13.043721"
+    },
+    "topic_turn_7": {
+      "node_id": "topic_turn_7",
+      "node_type": "topic",
+      "label": "turn_7",
+      "properties": {
+        "content_length": 30,
+        "detected_at": "2026-03-11T17:32:25.301179"
+      },
+      "created_at": "2026-03-11T17:32:25.301227",
+      "updated_at": "2026-03-11T17:32:25.301232"
+    },
+    "topic_turn_8": {
+      "node_id": "topic_turn_8",
+      "node_type": "topic",
+      "label": "turn_8",
+      "properties": {
+        "content_length": 207,
+        "detected_at": "2026-03-11T17:48:42.488284"
+      },
+      "created_at": "2026-03-11T17:48:42.488380",
+      "updated_at": "2026-03-11T17:48:42.488385"
+    },
+    "topic_turn_9": {
+      "node_id": "topic_turn_9",
+      "node_type": "topic",
+      "label": "turn_9",
+      "properties": {
+        "content_length": 95,
+        "detected_at": "2026-03-11T17:55:04.117290"
+      },
+      "created_at": "2026-03-11T17:55:04.117356",
+      "updated_at": "2026-03-11T17:55:04.117360"
+    },
+    "topic_turn_10": {
+      "node_id": "topic_turn_10",
+      "node_type": "topic",
+      "label": "turn_10",
+      "properties": {
+        "content_length": 58,
+        "detected_at": "2026-03-11T18:02:01.958095"
+      },
+      "created_at": "2026-03-11T18:02:01.958137",
+      "updated_at": "2026-03-11T18:02:01.958140"
+    },
+    "topic_turn_11": {
+      "node_id": "topic_turn_11",
+      "node_type": "topic",
+      "label": "turn_11",
+      "properties": {
+        "content_length": 199,
+        "detected_at": "2026-03-11T18:06:22.451812"
+      },
+      "created_at": "2026-03-11T18:06:22.451889",
+      "updated_at": "2026-03-11T18:06:22.451891"
+    },
+    "topic_turn_12": {
+      "node_id": "topic_turn_12",
+      "node_type": "topic",
+      "label": "turn_12",
+      "properties": {
+        "content_length": 164,
+        "detected_at": "2026-03-11T18:08:29.753156"
+      },
+      "created_at": "2026-03-11T18:08:29.753203",
+      "updated_at": "2026-03-11T18:08:29.753206"
+    },
+    "intention_決策": {
+      "node_id": "intention_決策",
+      "node_type": "intention",
+      "label": "決策",
+      "properties": {
+        "detected_at": "2026-03-19T12:03:35.202129"
+      },
+      "created_at": "2026-03-11T18:18:31.135293",
+      "updated_at": "2026-03-19T12:03:35.202436"
+    },
+    "topic_turn_14": {
+      "node_id": "topic_turn_14",
+      "node_type": "topic",
+      "label": "turn_14",
+      "properties": {
+        "content_length": 656,
+        "detected_at": "2026-03-11T18:18:31.135008"
+      },
+      "created_at": "2026-03-11T18:18:31.135335",
+      "updated_at": "2026-03-11T18:18:31.135339"
+    },
+    "emotion_疲憊": {
+      "node_id": "emotion_疲憊",
+      "node_type": "emotion",
+      "label": "疲憊",
+      "properties": {
+        "detected_at": "2026-03-18T22:43:51.041514",
+        "source": "text_analysis"
+      },
+      "created_at": "2026-03-11T18:23:54.133695",
+      "updated_at": "2026-03-18T22:43:51.041636"
+    },
+    "topic_turn_16": {
+      "node_id": "topic_turn_16",
+      "node_type": "topic",
+      "label": "turn_16",
+      "properties": {
+        "content_length": 1199,
+        "detected_at": "2026-03-11T18:23:54.133603"
+      },
+      "created_at": "2026-03-11T18:23:54.133794",
+      "updated_at": "2026-03-11T18:23:54.133797"
+    },
+    "topic_turn_17": {
+      "node_id": "topic_turn_17",
+      "node_type": "topic",
+      "label": "turn_17",
+      "properties": {
+        "content_length": 1178,
+        "detected_at": "2026-03-11T21:33:59.440377"
+      },
+      "created_at": "2026-03-11T21:33:59.440533",
+      "updated_at": "2026-03-11T21:33:59.440534"
+    },
+    "emotion_興奮": {
+      "node_id": "emotion_興奮",
+      "node_type": "emotion",
+      "label": "興奮",
+      "properties": {
+        "detected_at": "2026-03-12T20:54:43.819547",
+        "source": "text_analysis"
+      },
+      "created_at": "2026-03-11T22:36:40.350668",
+      "updated_at": "2026-03-12T20:54:43.819593"
+    },
+    "topic_turn_19": {
+      "node_id": "topic_turn_19",
+      "node_type": "topic",
+      "label": "turn_19",
+      "properties": {
+        "content_length": 791,
+        "detected_at": "2026-03-11T22:36:40.350626"
+      },
+      "created_at": "2026-03-11T22:36:40.350735",
+      "updated_at": "2026-03-11T22:36:40.350736"
+    },
+    "topic_turn_20": {
+      "node_id": "topic_turn_20",
+      "node_type": "topic",
+      "label": "turn_20",
+      "properties": {
+        "content_length": 900,
+        "detected_at": "2026-03-11T23:21:58.902125"
+      },
+      "created_at": "2026-03-11T23:21:58.902233",
+      "updated_at": "2026-03-11T23:21:58.902234"
+    },
+    "topic_turn_21": {
+      "node_id": "topic_turn_21",
+      "node_type": "topic",
+      "label": "turn_21",
+      "properties": {
+        "content_length": 20,
+        "detected_at": "2026-03-12T19:03:03.535219"
+      },
+      "created_at": "2026-03-12T19:03:03.535291",
+      "updated_at": "2026-03-12T19:03:03.535296"
+    },
+    "intention_資訊查詢": {
+      "node_id": "intention_資訊查詢",
+      "node_type": "intention",
+      "label": "資訊查詢",
+      "properties": {
+        "detected_at": "2026-03-19T22:16:03.161073"
+      },
+      "created_at": "2026-03-12T20:54:43.819627",
+      "updated_at": "2026-03-19T22:16:03.161516"
+    },
+    "topic_turn_23": {
+      "node_id": "topic_turn_23",
+      "node_type": "topic",
+      "label": "turn_23",
+      "properties": {
+        "content_length": 838,
+        "detected_at": "2026-03-12T20:54:43.819547"
+      },
+      "created_at": "2026-03-12T20:54:43.819635",
+      "updated_at": "2026-03-12T20:54:43.819637"
+    },
+    "topic_turn_24": {
+      "node_id": "topic_turn_24",
+      "node_type": "topic",
+      "label": "turn_24",
+      "properties": {
+        "content_length": 883,
+        "detected_at": "2026-03-12T21:00:31.089125"
+      },
+      "created_at": "2026-03-12T21:00:31.089461",
+      "updated_at": "2026-03-12T21:00:31.089465"
+    },
+    "topic_turn_25": {
+      "node_id": "topic_turn_25",
+      "node_type": "topic",
+      "label": "turn_25",
+      "properties": {
+        "content_length": 918,
+        "detected_at": "2026-03-12T21:03:55.409710"
+      },
+      "created_at": "2026-03-12T21:03:55.409957",
+      "updated_at": "2026-03-12T21:03:55.409960"
+    },
+    "topic_turn_26": {
+      "node_id": "topic_turn_26",
+      "node_type": "topic",
+      "label": "turn_26",
+      "properties": {
+        "content_length": 938,
+        "detected_at": "2026-03-12T21:42:55.500600"
+      },
+      "created_at": "2026-03-12T21:42:55.500851",
+      "updated_at": "2026-03-12T21:42:55.500855"
+    },
+    "emotion_感謝": {
+      "node_id": "emotion_感謝",
+      "node_type": "emotion",
+      "label": "感謝",
+      "properties": {
+        "detected_at": "2026-03-18T11:36:21.511253",
+        "source": "text_analysis"
+      },
+      "created_at": "2026-03-12T21:49:05.444640",
+      "updated_at": "2026-03-18T11:36:21.511417"
+    },
+    "topic_turn_28": {
+      "node_id": "topic_turn_28",
+      "node_type": "topic",
+      "label": "turn_28",
+      "properties": {
+        "content_length": 1245,
+        "detected_at": "2026-03-12T21:49:05.444492"
+      },
+      "created_at": "2026-03-12T21:49:05.444784",
+      "updated_at": "2026-03-12T21:49:05.444788"
+    },
+    "topic_turn_29": {
+      "node_id": "topic_turn_29",
+      "node_type": "topic",
+      "label": "turn_29",
+      "properties": {
+        "content_length": 1244,
+        "detected_at": "2026-03-12T21:51:56.249807"
+      },
+      "created_at": "2026-03-12T21:51:56.250067",
+      "updated_at": "2026-03-12T21:51:56.250071"
+    },
+    "topic_turn_30": {
+      "node_id": "topic_turn_30",
+      "node_type": "topic",
+      "label": "turn_30",
+      "properties": {
+        "content_length": 1149,
+        "detected_at": "2026-03-12T21:57:58.013627"
+      },
+      "created_at": "2026-03-12T21:57:58.013899",
+      "updated_at": "2026-03-12T21:57:58.013903"
+    },
+    "topic_turn_31": {
+      "node_id": "topic_turn_31",
+      "node_type": "topic",
+      "label": "turn_31",
+      "properties": {
+        "content_length": 1174,
+        "detected_at": "2026-03-12T22:07:25.504184"
+      },
+      "created_at": "2026-03-12T22:07:25.504466",
+      "updated_at": "2026-03-12T22:07:25.504471"
+    },
+    "topic_turn_32": {
+      "node_id": "topic_turn_32",
+      "node_type": "topic",
+      "label": "turn_32",
+      "properties": {
+        "content_length": 1328,
+        "detected_at": "2026-03-12T22:23:52.989551"
+      },
+      "created_at": "2026-03-12T22:23:52.989680",
+      "updated_at": "2026-03-12T22:23:52.989682"
+    },
+    "topic_turn_33": {
+      "node_id": "topic_turn_33",
+      "node_type": "topic",
+      "label": "turn_33",
+      "properties": {
+        "content_length": 1284,
+        "detected_at": "2026-03-12T22:25:39.399479"
+      },
+      "created_at": "2026-03-12T22:25:39.399747",
+      "updated_at": "2026-03-12T22:25:39.399751"
+    },
+    "intention_求助": {
+      "node_id": "intention_求助",
+      "node_type": "intention",
+      "label": "求助",
+      "properties": {
+        "detected_at": "2026-03-21T11:29:52.947419"
+      },
+      "created_at": "2026-03-12T22:57:07.781802",
+      "updated_at": "2026-03-21T11:29:52.947561"
+    },
+    "topic_turn_35": {
+      "node_id": "topic_turn_35",
+      "node_type": "topic",
+      "label": "turn_35",
+      "properties": {
+        "content_length": 1268,
+        "detected_at": "2026-03-12T22:57:07.781564"
+      },
+      "created_at": "2026-03-12T22:57:07.781822",
+      "updated_at": "2026-03-12T22:57:07.781825"
+    },
+    "topic_turn_36": {
+      "node_id": "topic_turn_36",
+      "node_type": "topic",
+      "label": "turn_36",
+      "properties": {
+        "content_length": 1171,
+        "detected_at": "2026-03-12T22:58:41.577728"
+      },
+      "created_at": "2026-03-12T22:58:41.577919",
+      "updated_at": "2026-03-12T22:58:41.577923"
+    },
+    "topic_turn_37": {
+      "node_id": "topic_turn_37",
+      "node_type": "topic",
+      "label": "turn_37",
+      "properties": {
+        "content_length": 35,
+        "detected_at": "2026-03-13T11:02:13.092681"
+      },
+      "created_at": "2026-03-13T11:02:13.092746",
+      "updated_at": "2026-03-13T11:02:13.092751"
+    },
+    "topic_turn_38": {
+      "node_id": "topic_turn_38",
+      "node_type": "topic",
+      "label": "turn_38",
+      "properties": {
+        "content_length": 907,
+        "detected_at": "2026-03-14T18:19:29.012512"
+      },
+      "created_at": "2026-03-14T18:19:29.012714",
+      "updated_at": "2026-03-14T18:19:29.012719"
+    },
+    "topic_turn_39": {
+      "node_id": "topic_turn_39",
+      "node_type": "topic",
+      "label": "turn_39",
+      "properties": {
+        "content_length": 932,
+        "detected_at": "2026-03-14T18:35:57.632170"
+      },
+      "created_at": "2026-03-14T18:35:57.632404",
+      "updated_at": "2026-03-14T18:35:57.632408"
+    },
+    "topic_turn_40": {
+      "node_id": "topic_turn_40",
+      "node_type": "topic",
+      "label": "turn_40",
+      "properties": {
+        "content_length": 899,
+        "detected_at": "2026-03-14T18:40:38.768347"
+      },
+      "created_at": "2026-03-14T18:40:38.768460",
+      "updated_at": "2026-03-14T18:40:38.768461"
+    },
+    "topic_turn_41": {
+      "node_id": "topic_turn_41",
+      "node_type": "topic",
+      "label": "turn_41",
+      "properties": {
+        "content_length": 1283,
+        "detected_at": "2026-03-14T21:29:55.920125"
+      },
+      "created_at": "2026-03-14T21:29:55.920285",
+      "updated_at": "2026-03-14T21:29:55.920287"
+    },
+    "topic_turn_42": {
+      "node_id": "topic_turn_42",
+      "node_type": "topic",
+      "label": "turn_42",
+      "properties": {
+        "content_length": 1260,
+        "detected_at": "2026-03-17T16:37:11.079626"
+      },
+      "created_at": "2026-03-17T16:37:11.079740",
+      "updated_at": "2026-03-17T16:37:11.079742"
+    },
+    "topic_turn_43": {
+      "node_id": "topic_turn_43",
+      "node_type": "topic",
+      "label": "turn_43",
+      "properties": {
+        "content_length": 1169,
+        "detected_at": "2026-03-17T18:46:27.034532"
+      },
+      "created_at": "2026-03-17T18:46:27.034698",
+      "updated_at": "2026-03-17T18:46:27.034700"
+    },
+    "topic_turn_44": {
+      "node_id": "topic_turn_44",
+      "node_type": "topic",
+      "label": "turn_44",
+      "properties": {
+        "content_length": 788,
+        "detected_at": "2026-03-17T22:32:55.580267"
+      },
+      "created_at": "2026-03-17T22:32:55.580419",
+      "updated_at": "2026-03-17T22:32:55.580423"
+    },
+    "topic_turn_45": {
+      "node_id": "topic_turn_45",
+      "node_type": "topic",
+      "label": "turn_45",
+      "properties": {
+        "content_length": 821,
+        "detected_at": "2026-03-17T22:44:53.135154"
+      },
+      "created_at": "2026-03-17T22:44:53.135407",
+      "updated_at": "2026-03-17T22:44:53.135411"
+    },
+    "topic_turn_46": {
+      "node_id": "topic_turn_46",
+      "node_type": "topic",
+      "label": "turn_46",
+      "properties": {
+        "content_length": 2000,
+        "detected_at": "2026-03-18T11:17:54.959315"
+      },
+      "created_at": "2026-03-18T11:17:54.959464",
+      "updated_at": "2026-03-18T11:17:54.959465"
+    },
+    "topic_turn_47": {
+      "node_id": "topic_turn_47",
+      "node_type": "topic",
+      "label": "turn_47",
+      "properties": {
+        "content_length": 1546,
+        "detected_at": "2026-03-18T11:24:28.807449"
+      },
+      "created_at": "2026-03-18T11:24:28.807685",
+      "updated_at": "2026-03-18T11:24:28.807688"
+    },
+    "topic_turn_48": {
+      "node_id": "topic_turn_48",
+      "node_type": "topic",
+      "label": "turn_48",
+      "properties": {
+        "content_length": 1536,
+        "detected_at": "2026-03-18T11:27:36.076365"
+      },
+      "created_at": "2026-03-18T11:27:36.076583",
+      "updated_at": "2026-03-18T11:27:36.076585"
+    },
+    "topic_turn_49": {
+      "node_id": "topic_turn_49",
+      "node_type": "topic",
+      "label": "turn_49",
+      "properties": {
+        "content_length": 1628,
+        "detected_at": "2026-03-18T11:35:14.447735"
+      },
+      "created_at": "2026-03-18T11:35:14.448021",
+      "updated_at": "2026-03-18T11:35:14.448025"
+    },
+    "topic_turn_50": {
+      "node_id": "topic_turn_50",
+      "node_type": "topic",
+      "label": "turn_50",
+      "properties": {
+        "content_length": 1531,
+        "detected_at": "2026-03-18T11:36:21.511253"
+      },
+      "created_at": "2026-03-18T11:36:21.511458",
+      "updated_at": "2026-03-18T11:36:21.511459"
+    },
+    "topic_turn_51": {
+      "node_id": "topic_turn_51",
+      "node_type": "topic",
+      "label": "turn_51",
+      "properties": {
+        "content_length": 1578,
+        "detected_at": "2026-03-18T14:33:29.082830"
+      },
+      "created_at": "2026-03-18T14:33:29.082970",
+      "updated_at": "2026-03-18T14:33:29.082971"
+    },
+    "topic_turn_52": {
+      "node_id": "topic_turn_52",
+      "node_type": "topic",
+      "label": "turn_52",
+      "properties": {
+        "content_length": 1583,
+        "detected_at": "2026-03-18T14:39:55.113695"
+      },
+      "created_at": "2026-03-18T14:39:55.113960",
+      "updated_at": "2026-03-18T14:39:55.113963"
+    },
+    "topic_turn_53": {
+      "node_id": "topic_turn_53",
+      "node_type": "topic",
+      "label": "turn_53",
+      "properties": {
+        "content_length": 1727,
+        "detected_at": "2026-03-18T14:45:38.334467"
+      },
+      "created_at": "2026-03-18T14:45:38.334774",
+      "updated_at": "2026-03-18T14:45:38.334778"
+    },
+    "topic_turn_54": {
+      "node_id": "topic_turn_54",
+      "node_type": "topic",
+      "label": "turn_54",
+      "properties": {
+        "content_length": 1725,
+        "detected_at": "2026-03-18T14:46:50.943353"
+      },
+      "created_at": "2026-03-18T14:46:50.943670",
+      "updated_at": "2026-03-18T14:46:50.943674"
+    },
+    "topic_turn_55": {
+      "node_id": "topic_turn_55",
+      "node_type": "topic",
+      "label": "turn_55",
+      "properties": {
+        "content_length": 1650,
+        "detected_at": "2026-03-18T14:48:27.720560"
+      },
+      "created_at": "2026-03-18T14:48:27.720835",
+      "updated_at": "2026-03-18T14:48:27.720838"
+    },
+    "topic_turn_56": {
+      "node_id": "topic_turn_56",
+      "node_type": "topic",
+      "label": "turn_56",
+      "properties": {
+        "content_length": 1916,
+        "detected_at": "2026-03-18T14:49:41.942903"
+      },
+      "created_at": "2026-03-18T14:49:41.943379",
+      "updated_at": "2026-03-18T14:49:41.943382"
+    },
+    "topic_turn_57": {
+      "node_id": "topic_turn_57",
+      "node_type": "topic",
+      "label": "turn_57",
+      "properties": {
+        "content_length": 2596,
+        "detected_at": "2026-03-18T14:51:38.273140"
+      },
+      "created_at": "2026-03-18T14:51:38.273509",
+      "updated_at": "2026-03-18T14:51:38.273513"
+    },
+    "topic_turn_58": {
+      "node_id": "topic_turn_58",
+      "node_type": "topic",
+      "label": "turn_58",
+      "properties": {
+        "content_length": 1917,
+        "detected_at": "2026-03-18T14:53:05.729976"
+      },
+      "created_at": "2026-03-18T14:53:05.730296",
+      "updated_at": "2026-03-18T14:53:05.730299"
+    },
+    "topic_turn_59": {
+      "node_id": "topic_turn_59",
+      "node_type": "topic",
+      "label": "turn_59",
+      "properties": {
+        "content_length": 2158,
+        "detected_at": "2026-03-18T14:56:53.474141"
+      },
+      "created_at": "2026-03-18T14:56:53.474460",
+      "updated_at": "2026-03-18T14:56:53.474463"
+    },
+    "topic_turn_60": {
+      "node_id": "topic_turn_60",
+      "node_type": "topic",
+      "label": "turn_60",
+      "properties": {
+        "content_length": 1543,
+        "detected_at": "2026-03-18T15:00:51.367153"
+      },
+      "created_at": "2026-03-18T15:00:51.367279",
+      "updated_at": "2026-03-18T15:00:51.367280"
+    },
+    "topic_turn_61": {
+      "node_id": "topic_turn_61",
+      "node_type": "topic",
+      "label": "turn_61",
+      "properties": {
+        "content_length": 1616,
+        "detected_at": "2026-03-18T15:17:36.645519"
+      },
+      "created_at": "2026-03-18T15:17:36.645841",
+      "updated_at": "2026-03-18T15:17:36.645845"
+    },
+    "topic_turn_62": {
+      "node_id": "topic_turn_62",
+      "node_type": "topic",
+      "label": "turn_62",
+      "properties": {
+        "content_length": 1617,
+        "detected_at": "2026-03-18T15:18:18.310120"
+      },
+      "created_at": "2026-03-18T15:18:18.310303",
+      "updated_at": "2026-03-18T15:18:18.310305"
+    },
+    "topic_turn_63": {
+      "node_id": "topic_turn_63",
+      "node_type": "topic",
+      "label": "turn_63",
+      "properties": {
+        "content_length": 1578,
+        "detected_at": "2026-03-18T15:19:26.345979"
+      },
+      "created_at": "2026-03-18T15:19:26.346092",
+      "updated_at": "2026-03-18T15:19:26.346093"
+    },
+    "topic_turn_64": {
+      "node_id": "topic_turn_64",
+      "node_type": "topic",
+      "label": "turn_64",
+      "properties": {
+        "content_length": 1605,
+        "detected_at": "2026-03-18T15:38:50.560010"
+      },
+      "created_at": "2026-03-18T15:38:50.560347",
+      "updated_at": "2026-03-18T15:38:50.560352"
+    },
+    "topic_turn_65": {
+      "node_id": "topic_turn_65",
+      "node_type": "topic",
+      "label": "turn_65",
+      "properties": {
+        "content_length": 1639,
+        "detected_at": "2026-03-18T15:40:47.176633"
+      },
+      "created_at": "2026-03-18T15:40:47.176891",
+      "updated_at": "2026-03-18T15:40:47.176895"
+    },
+    "topic_turn_66": {
+      "node_id": "topic_turn_66",
+      "node_type": "topic",
+      "label": "turn_66",
+      "properties": {
+        "content_length": 119,
+        "detected_at": "2026-03-18T15:48:46.581638"
+      },
+      "created_at": "2026-03-18T15:48:46.581699",
+      "updated_at": "2026-03-18T15:48:46.581703"
+    },
+    "topic_turn_67": {
+      "node_id": "topic_turn_67",
+      "node_type": "topic",
+      "label": "turn_67",
+      "properties": {
+        "content_length": 1672,
+        "detected_at": "2026-03-18T15:51:22.935043"
+      },
+      "created_at": "2026-03-18T15:51:22.935407",
+      "updated_at": "2026-03-18T15:51:22.935411"
+    },
+    "topic_turn_68": {
+      "node_id": "topic_turn_68",
+      "node_type": "topic",
+      "label": "turn_68",
+      "properties": {
+        "content_length": 1534,
+        "detected_at": "2026-03-18T15:57:37.573372"
+      },
+      "created_at": "2026-03-18T15:57:37.573658",
+      "updated_at": "2026-03-18T15:57:37.573662"
+    },
+    "topic_turn_69": {
+      "node_id": "topic_turn_69",
+      "node_type": "topic",
+      "label": "turn_69",
+      "properties": {
+        "content_length": 1621,
+        "detected_at": "2026-03-18T15:58:58.146271"
+      },
+      "created_at": "2026-03-18T15:58:58.146578",
+      "updated_at": "2026-03-18T15:58:58.146581"
+    },
+    "topic_turn_70": {
+      "node_id": "topic_turn_70",
+      "node_type": "topic",
+      "label": "turn_70",
+      "properties": {
+        "content_length": 1529,
+        "detected_at": "2026-03-18T15:59:50.518401"
+      },
+      "created_at": "2026-03-18T15:59:50.518643",
+      "updated_at": "2026-03-18T15:59:50.518647"
+    },
+    "topic_turn_71": {
+      "node_id": "topic_turn_71",
+      "node_type": "topic",
+      "label": "turn_71",
+      "properties": {
+        "content_length": 1886,
+        "detected_at": "2026-03-18T16:02:24.769668"
+      },
+      "created_at": "2026-03-18T16:02:24.769871",
+      "updated_at": "2026-03-18T16:02:24.769873"
+    },
+    "topic_turn_72": {
+      "node_id": "topic_turn_72",
+      "node_type": "topic",
+      "label": "turn_72",
+      "properties": {
+        "content_length": 1334,
+        "detected_at": "2026-03-18T16:05:03.285703"
+      },
+      "created_at": "2026-03-18T16:05:03.285949",
+      "updated_at": "2026-03-18T16:05:03.285953"
+    },
+    "topic_turn_73": {
+      "node_id": "topic_turn_73",
+      "node_type": "topic",
+      "label": "turn_73",
+      "properties": {
+        "content_length": 1432,
+        "detected_at": "2026-03-18T16:11:22.611639"
+      },
+      "created_at": "2026-03-18T16:11:22.611917",
+      "updated_at": "2026-03-18T16:11:22.611920"
+    },
+    "topic_turn_74": {
+      "node_id": "topic_turn_74",
+      "node_type": "topic",
+      "label": "turn_74",
+      "properties": {
+        "content_length": 1440,
+        "detected_at": "2026-03-18T16:17:20.912020"
+      },
+      "created_at": "2026-03-18T16:17:20.912205",
+      "updated_at": "2026-03-18T16:17:20.912206"
+    },
+    "topic_turn_75": {
+      "node_id": "topic_turn_75",
+      "node_type": "topic",
+      "label": "turn_75",
+      "properties": {
+        "content_length": 118,
+        "detected_at": "2026-03-18T16:18:52.435540"
+      },
+      "created_at": "2026-03-18T16:18:52.435599",
+      "updated_at": "2026-03-18T16:18:52.435603"
+    },
+    "topic_turn_76": {
+      "node_id": "topic_turn_76",
+      "node_type": "topic",
+      "label": "turn_76",
+      "properties": {
+        "content_length": 1323,
+        "detected_at": "2026-03-18T16:21:04.670442"
+      },
+      "created_at": "2026-03-18T16:21:04.670653",
+      "updated_at": "2026-03-18T16:21:04.670656"
+    },
+    "topic_turn_77": {
+      "node_id": "topic_turn_77",
+      "node_type": "topic",
+      "label": "turn_77",
+      "properties": {
+        "content_length": 1469,
+        "detected_at": "2026-03-18T16:43:29.813678"
+      },
+      "created_at": "2026-03-18T16:43:29.814115",
+      "updated_at": "2026-03-18T16:43:29.814126"
+    },
+    "topic_turn_78": {
+      "node_id": "topic_turn_78",
+      "node_type": "topic",
+      "label": "turn_78",
+      "properties": {
+        "content_length": 1423,
+        "detected_at": "2026-03-18T16:46:01.051827"
+      },
+      "created_at": "2026-03-18T16:46:01.052059",
+      "updated_at": "2026-03-18T16:46:01.052063"
+    },
+    "topic_turn_79": {
+      "node_id": "topic_turn_79",
+      "node_type": "topic",
+      "label": "turn_79",
+      "properties": {
+        "content_length": 1401,
+        "detected_at": "2026-03-18T16:54:21.576995"
+      },
+      "created_at": "2026-03-18T16:54:21.577450",
+      "updated_at": "2026-03-18T16:54:21.577458"
+    },
+    "topic_turn_80": {
+      "node_id": "topic_turn_80",
+      "node_type": "topic",
+      "label": "turn_80",
+      "properties": {
+        "content_length": 131,
+        "detected_at": "2026-03-18T17:04:02.508297"
+      },
+      "created_at": "2026-03-18T17:04:02.508369",
+      "updated_at": "2026-03-18T17:04:02.508374"
+    },
+    "topic_turn_81": {
+      "node_id": "topic_turn_81",
+      "node_type": "topic",
+      "label": "turn_81",
+      "properties": {
+        "content_length": 1606,
+        "detected_at": "2026-03-18T17:30:11.211541"
+      },
+      "created_at": "2026-03-18T17:30:11.211886",
+      "updated_at": "2026-03-18T17:30:11.211892"
+    },
+    "topic_turn_82": {
+      "node_id": "topic_turn_82",
+      "node_type": "topic",
+      "label": "turn_82",
+      "properties": {
+        "content_length": 1556,
+        "detected_at": "2026-03-18T17:31:50.647077"
+      },
+      "created_at": "2026-03-18T17:31:50.647241",
+      "updated_at": "2026-03-18T17:31:50.647244"
+    },
+    "topic_turn_83": {
+      "node_id": "topic_turn_83",
+      "node_type": "topic",
+      "label": "turn_83",
+      "properties": {
+        "content_length": 1479,
+        "detected_at": "2026-03-18T17:33:05.650112"
+      },
+      "created_at": "2026-03-18T17:33:05.650454",
+      "updated_at": "2026-03-18T17:33:05.650459"
+    },
+    "topic_turn_84": {
+      "node_id": "topic_turn_84",
+      "node_type": "topic",
+      "label": "turn_84",
+      "properties": {
+        "content_length": 1473,
+        "detected_at": "2026-03-18T17:34:24.279904"
+      },
+      "created_at": "2026-03-18T17:34:24.280205",
+      "updated_at": "2026-03-18T17:34:24.280209"
+    },
+    "topic_turn_85": {
+      "node_id": "topic_turn_85",
+      "node_type": "topic",
+      "label": "turn_85",
+      "properties": {
+        "content_length": 1455,
+        "detected_at": "2026-03-18T17:46:07.588943"
+      },
+      "created_at": "2026-03-18T17:46:07.589311",
+      "updated_at": "2026-03-18T17:46:07.589322"
+    },
+    "topic_turn_86": {
+      "node_id": "topic_turn_86",
+      "node_type": "topic",
+      "label": "turn_86",
+      "properties": {
+        "content_length": 199,
+        "detected_at": "2026-03-18T17:51:27.066880"
+      },
+      "created_at": "2026-03-18T17:51:27.066997",
+      "updated_at": "2026-03-18T17:51:27.067002"
+    },
+    "topic_turn_87": {
+      "node_id": "topic_turn_87",
+      "node_type": "topic",
+      "label": "turn_87",
+      "properties": {
+        "content_length": 1739,
+        "detected_at": "2026-03-18T17:56:21.602910"
+      },
+      "created_at": "2026-03-18T17:56:21.603365",
+      "updated_at": "2026-03-18T17:56:21.603368"
+    },
+    "topic_turn_88": {
+      "node_id": "topic_turn_88",
+      "node_type": "topic",
+      "label": "turn_88",
+      "properties": {
+        "content_length": 1916,
+        "detected_at": "2026-03-18T18:03:52.199681"
+      },
+      "created_at": "2026-03-18T18:03:52.200056",
+      "updated_at": "2026-03-18T18:03:52.200060"
+    },
+    "topic_turn_89": {
+      "node_id": "topic_turn_89",
+      "node_type": "topic",
+      "label": "turn_89",
+      "properties": {
+        "content_length": 1955,
+        "detected_at": "2026-03-18T18:05:55.233554"
+      },
+      "created_at": "2026-03-18T18:05:55.233677",
+      "updated_at": "2026-03-18T18:05:55.233679"
+    },
+    "topic_turn_90": {
+      "node_id": "topic_turn_90",
+      "node_type": "topic",
+      "label": "turn_90",
+      "properties": {
+        "content_length": 1892,
+        "detected_at": "2026-03-18T18:11:58.152080"
+      },
+      "created_at": "2026-03-18T18:11:58.152489",
+      "updated_at": "2026-03-18T18:11:58.152499"
+    },
+    "topic_turn_91": {
+      "node_id": "topic_turn_91",
+      "node_type": "topic",
+      "label": "turn_91",
+      "properties": {
+        "content_length": 1823,
+        "detected_at": "2026-03-18T18:14:17.087545"
+      },
+      "created_at": "2026-03-18T18:14:17.087707",
+      "updated_at": "2026-03-18T18:14:17.087719"
+    },
+    "topic_turn_92": {
+      "node_id": "topic_turn_92",
+      "node_type": "topic",
+      "label": "turn_92",
+      "properties": {
+        "content_length": 1755,
+        "detected_at": "2026-03-18T18:15:32.831220"
+      },
+      "created_at": "2026-03-18T18:15:32.831368",
+      "updated_at": "2026-03-18T18:15:32.831369"
+    },
+    "topic_turn_93": {
+      "node_id": "topic_turn_93",
+      "node_type": "topic",
+      "label": "turn_93",
+      "properties": {
+        "content_length": 61,
+        "detected_at": "2026-03-18T18:22:07.959591"
+      },
+      "created_at": "2026-03-18T18:22:07.959650",
+      "updated_at": "2026-03-18T18:22:07.959653"
+    },
+    "topic_turn_94": {
+      "node_id": "topic_turn_94",
+      "node_type": "topic",
+      "label": "turn_94",
+      "properties": {
+        "content_length": 1840,
+        "detected_at": "2026-03-18T18:42:52.127017"
+      },
+      "created_at": "2026-03-18T18:42:52.127384",
+      "updated_at": "2026-03-18T18:42:52.127387"
+    },
+    "topic_turn_95": {
+      "node_id": "topic_turn_95",
+      "node_type": "topic",
+      "label": "turn_95",
+      "properties": {
+        "content_length": 1811,
+        "detected_at": "2026-03-18T18:50:31.653594"
+      },
+      "created_at": "2026-03-18T18:50:31.653838",
+      "updated_at": "2026-03-18T18:50:31.653840"
+    },
+    "topic_turn_96": {
+      "node_id": "topic_turn_96",
+      "node_type": "topic",
+      "label": "turn_96",
+      "properties": {
+        "content_length": 1759,
+        "detected_at": "2026-03-18T19:21:01.149468"
+      },
+      "created_at": "2026-03-18T19:21:01.149654",
+      "updated_at": "2026-03-18T19:21:01.149656"
+    },
+    "topic_turn_97": {
+      "node_id": "topic_turn_97",
+      "node_type": "topic",
+      "label": "turn_97",
+      "properties": {
+        "content_length": 1993,
+        "detected_at": "2026-03-18T19:26:21.876211"
+      },
+      "created_at": "2026-03-18T19:26:21.876371",
+      "updated_at": "2026-03-18T19:26:21.876372"
+    },
+    "topic_turn_98": {
+      "node_id": "topic_turn_98",
+      "node_type": "topic",
+      "label": "turn_98",
+      "properties": {
+        "content_length": 1757,
+        "detected_at": "2026-03-18T20:57:14.401064"
+      },
+      "created_at": "2026-03-18T20:57:14.401434",
+      "updated_at": "2026-03-18T20:57:14.401436"
+    },
+    "topic_turn_99": {
+      "node_id": "topic_turn_99",
+      "node_type": "topic",
+      "label": "turn_99",
+      "properties": {
+        "content_length": 93,
+        "detected_at": "2026-03-18T20:59:02.857352"
+      },
+      "created_at": "2026-03-18T20:59:02.857405",
+      "updated_at": "2026-03-18T20:59:02.857409"
+    },
+    "topic_turn_100": {
+      "node_id": "topic_turn_100",
+      "node_type": "topic",
+      "label": "turn_100",
+      "properties": {
+        "content_length": 1748,
+        "detected_at": "2026-03-18T21:00:25.437927"
+      },
+      "created_at": "2026-03-18T21:00:25.438206",
+      "updated_at": "2026-03-18T21:00:25.438210"
+    },
+    "topic_turn_101": {
+      "node_id": "topic_turn_101",
+      "node_type": "topic",
+      "label": "turn_101",
+      "properties": {
+        "content_length": 53,
+        "detected_at": "2026-03-18T21:11:31.045851"
+      },
+      "created_at": "2026-03-18T21:11:31.045920",
+      "updated_at": "2026-03-18T21:11:31.045923"
+    },
+    "topic_turn_102": {
+      "node_id": "topic_turn_102",
+      "node_type": "topic",
+      "label": "turn_102",
+      "properties": {
+        "content_length": 655,
+        "detected_at": "2026-03-18T21:20:55.973587"
+      },
+      "created_at": "2026-03-18T21:20:55.973769",
+      "updated_at": "2026-03-18T21:20:55.973774"
+    },
+    "topic_turn_103": {
+      "node_id": "topic_turn_103",
+      "node_type": "topic",
+      "label": "turn_103",
+      "properties": {
+        "content_length": 1814,
+        "detected_at": "2026-03-18T21:25:12.376966"
+      },
+      "created_at": "2026-03-18T21:25:12.377273",
+      "updated_at": "2026-03-18T21:25:12.377276"
+    },
+    "topic_turn_104": {
+      "node_id": "topic_turn_104",
+      "node_type": "topic",
+      "label": "turn_104",
+      "properties": {
+        "content_length": 1600,
+        "detected_at": "2026-03-18T21:30:18.006237"
+      },
+      "created_at": "2026-03-18T21:30:18.006425",
+      "updated_at": "2026-03-18T21:30:18.006427"
+    },
+    "topic_turn_105": {
+      "node_id": "topic_turn_105",
+      "node_type": "topic",
+      "label": "turn_105",
+      "properties": {
+        "content_length": 1502,
+        "detected_at": "2026-03-18T21:33:40.002821"
+      },
+      "created_at": "2026-03-18T21:33:40.003011",
+      "updated_at": "2026-03-18T21:33:40.003013"
+    },
+    "topic_turn_106": {
+      "node_id": "topic_turn_106",
+      "node_type": "topic",
+      "label": "turn_106",
+      "properties": {
+        "content_length": 1502,
+        "detected_at": "2026-03-18T21:37:15.661056"
+      },
+      "created_at": "2026-03-18T21:37:15.661385",
+      "updated_at": "2026-03-18T21:37:15.661389"
+    },
+    "topic_turn_107": {
+      "node_id": "topic_turn_107",
+      "node_type": "topic",
+      "label": "turn_107",
+      "properties": {
+        "content_length": 1756,
+        "detected_at": "2026-03-18T21:39:02.218291"
+      },
+      "created_at": "2026-03-18T21:39:02.218555",
+      "updated_at": "2026-03-18T21:39:02.218559"
+    },
+    "intention_閒聊": {
+      "node_id": "intention_閒聊",
+      "node_type": "intention",
+      "label": "閒聊",
+      "properties": {
+        "detected_at": "2026-03-18T22:07:18.026923"
+      },
+      "created_at": "2026-03-18T21:42:45.331858",
+      "updated_at": "2026-03-18T22:07:18.027280"
+    },
+    "topic_turn_109": {
+      "node_id": "topic_turn_109",
+      "node_type": "topic",
+      "label": "turn_109",
+      "properties": {
+        "content_length": 1581,
+        "detected_at": "2026-03-18T21:42:45.331546"
+      },
+      "created_at": "2026-03-18T21:42:45.331893",
+      "updated_at": "2026-03-18T21:42:45.331897"
+    },
+    "topic_turn_110": {
+      "node_id": "topic_turn_110",
+      "node_type": "topic",
+      "label": "turn_110",
+      "properties": {
+        "content_length": 154,
+        "detected_at": "2026-03-18T21:46:12.961898"
+      },
+      "created_at": "2026-03-18T21:46:12.961949",
+      "updated_at": "2026-03-18T21:46:12.961951"
+    },
+    "topic_turn_111": {
+      "node_id": "topic_turn_111",
+      "node_type": "topic",
+      "label": "turn_111",
+      "properties": {
+        "content_length": 1743,
+        "detected_at": "2026-03-18T21:48:36.905380"
+      },
+      "created_at": "2026-03-18T21:48:36.905534",
+      "updated_at": "2026-03-18T21:48:36.905535"
+    },
+    "topic_turn_112": {
+      "node_id": "topic_turn_112",
+      "node_type": "topic",
+      "label": "turn_112",
+      "properties": {
+        "content_length": 1601,
+        "detected_at": "2026-03-18T21:57:41.236016"
+      },
+      "created_at": "2026-03-18T21:57:41.236378",
+      "updated_at": "2026-03-18T21:57:41.236381"
+    },
+    "topic_turn_113": {
+      "node_id": "topic_turn_113",
+      "node_type": "topic",
+      "label": "turn_113",
+      "properties": {
+        "content_length": 1551,
+        "detected_at": "2026-03-18T22:07:18.026923"
+      },
+      "created_at": "2026-03-18T22:07:18.027294",
+      "updated_at": "2026-03-18T22:07:18.027298"
+    },
+    "topic_turn_114": {
+      "node_id": "topic_turn_114",
+      "node_type": "topic",
+      "label": "turn_114",
+      "properties": {
+        "content_length": 67,
+        "detected_at": "2026-03-18T22:08:45.459124"
+      },
+      "created_at": "2026-03-18T22:08:45.459161",
+      "updated_at": "2026-03-18T22:08:45.459163"
+    },
+    "topic_turn_115": {
+      "node_id": "topic_turn_115",
+      "node_type": "topic",
+      "label": "turn_115",
+      "properties": {
+        "content_length": 1561,
+        "detected_at": "2026-03-18T22:10:05.732590"
+      },
+      "created_at": "2026-03-18T22:10:05.732857",
+      "updated_at": "2026-03-18T22:10:05.732861"
+    },
+    "topic_turn_116": {
+      "node_id": "topic_turn_116",
+      "node_type": "topic",
+      "label": "turn_116",
+      "properties": {
+        "content_length": 1595,
+        "detected_at": "2026-03-18T22:11:49.976583"
+      },
+      "created_at": "2026-03-18T22:11:49.976776",
+      "updated_at": "2026-03-18T22:11:49.976778"
+    },
+    "topic_turn_117": {
+      "node_id": "topic_turn_117",
+      "node_type": "topic",
+      "label": "turn_117",
+      "properties": {
+        "content_length": 1631,
+        "detected_at": "2026-03-18T22:13:48.305738"
+      },
+      "created_at": "2026-03-18T22:13:48.306000",
+      "updated_at": "2026-03-18T22:13:48.306003"
+    },
+    "topic_turn_118": {
+      "node_id": "topic_turn_118",
+      "node_type": "topic",
+      "label": "turn_118",
+      "properties": {
+        "content_length": 1841,
+        "detected_at": "2026-03-18T22:19:10.508978"
+      },
+      "created_at": "2026-03-18T22:19:10.509077",
+      "updated_at": "2026-03-18T22:19:10.509078"
+    },
+    "topic_turn_119": {
+      "node_id": "topic_turn_119",
+      "node_type": "topic",
+      "label": "turn_119",
+      "properties": {
+        "content_length": 1967,
+        "detected_at": "2026-03-18T22:24:56.456366"
+      },
+      "created_at": "2026-03-18T22:24:56.456689",
+      "updated_at": "2026-03-18T22:24:56.456692"
+    },
+    "topic_turn_120": {
+      "node_id": "topic_turn_120",
+      "node_type": "topic",
+      "label": "turn_120",
+      "properties": {
+        "content_length": 1741,
+        "detected_at": "2026-03-18T22:36:21.140640"
+      },
+      "created_at": "2026-03-18T22:36:21.140946",
+      "updated_at": "2026-03-18T22:36:21.140950"
+    },
+    "topic_turn_121": {
+      "node_id": "topic_turn_121",
+      "node_type": "topic",
+      "label": "turn_121",
+      "properties": {
+        "content_length": 1662,
+        "detected_at": "2026-03-18T22:37:13.025033"
+      },
+      "created_at": "2026-03-18T22:37:13.025269",
+      "updated_at": "2026-03-18T22:37:13.025272"
+    },
+    "topic_turn_122": {
+      "node_id": "topic_turn_122",
+      "node_type": "topic",
+      "label": "turn_122",
+      "properties": {
+        "content_length": 299,
+        "detected_at": "2026-03-18T22:39:46.207528"
+      },
+      "created_at": "2026-03-18T22:39:46.207574",
+      "updated_at": "2026-03-18T22:39:46.207576"
+    },
+    "topic_turn_123": {
+      "node_id": "topic_turn_123",
+      "node_type": "topic",
+      "label": "turn_123",
+      "properties": {
+        "content_length": 2286,
+        "detected_at": "2026-03-18T22:40:48.885680"
+      },
+      "created_at": "2026-03-18T22:40:48.886263",
+      "updated_at": "2026-03-18T22:40:48.886266"
+    },
+    "topic_turn_124": {
+      "node_id": "topic_turn_124",
+      "node_type": "topic",
+      "label": "turn_124",
+      "properties": {
+        "content_length": 1759,
+        "detected_at": "2026-03-18T22:43:51.041514"
+      },
+      "created_at": "2026-03-18T22:43:51.041716",
+      "updated_at": "2026-03-18T22:43:51.041718"
+    },
+    "topic_turn_125": {
+      "node_id": "topic_turn_125",
+      "node_type": "topic",
+      "label": "turn_125",
+      "properties": {
+        "content_length": 1560,
+        "detected_at": "2026-03-19T10:05:41.775861"
+      },
+      "created_at": "2026-03-19T10:05:41.776201",
+      "updated_at": "2026-03-19T10:05:41.776204"
+    },
+    "topic_turn_126": {
+      "node_id": "topic_turn_126",
+      "node_type": "topic",
+      "label": "turn_126",
+      "properties": {
+        "content_length": 1567,
+        "detected_at": "2026-03-19T10:08:49.612203"
+      },
+      "created_at": "2026-03-19T10:08:49.612450",
+      "updated_at": "2026-03-19T10:08:49.612452"
+    },
+    "topic_turn_127": {
+      "node_id": "topic_turn_127",
+      "node_type": "topic",
+      "label": "turn_127",
+      "properties": {
+        "content_length": 2125,
+        "detected_at": "2026-03-19T11:56:44.736848"
+      },
+      "created_at": "2026-03-19T11:56:44.737063",
+      "updated_at": "2026-03-19T11:56:44.737064"
+    },
+    "topic_turn_128": {
+      "node_id": "topic_turn_128",
+      "node_type": "topic",
+      "label": "turn_128",
+      "properties": {
+        "content_length": 1976,
+        "detected_at": "2026-03-19T12:03:35.202129"
+      },
+      "created_at": "2026-03-19T12:03:35.202450",
+      "updated_at": "2026-03-19T12:03:35.202453"
+    },
+    "topic_turn_129": {
+      "node_id": "topic_turn_129",
+      "node_type": "topic",
+      "label": "turn_129",
+      "properties": {
+        "content_length": 490,
+        "detected_at": "2026-03-19T13:47:34.615241"
+      },
+      "created_at": "2026-03-19T13:47:34.615339",
+      "updated_at": "2026-03-19T13:47:34.615343"
+    },
+    "topic_turn_130": {
+      "node_id": "topic_turn_130",
+      "node_type": "topic",
+      "label": "turn_130",
+      "properties": {
+        "content_length": 456,
+        "detected_at": "2026-03-19T16:01:58.702846"
+      },
+      "created_at": "2026-03-19T16:01:58.703029",
+      "updated_at": "2026-03-19T16:01:58.703069"
+    },
+    "topic_turn_131": {
+      "node_id": "topic_turn_131",
+      "node_type": "topic",
+      "label": "turn_131",
+      "properties": {
+        "content_length": 1056,
+        "detected_at": "2026-03-19T16:19:32.768822"
+      },
+      "created_at": "2026-03-19T16:19:32.768967",
+      "updated_at": "2026-03-19T16:19:32.768969"
+    },
+    "topic_turn_132": {
+      "node_id": "topic_turn_132",
+      "node_type": "topic",
+      "label": "turn_132",
+      "properties": {
+        "content_length": 1268,
+        "detected_at": "2026-03-19T16:22:42.833640"
+      },
+      "created_at": "2026-03-19T16:22:42.833766",
+      "updated_at": "2026-03-19T16:22:42.833767"
+    },
+    "topic_turn_133": {
+      "node_id": "topic_turn_133",
+      "node_type": "topic",
+      "label": "turn_133",
+      "properties": {
+        "content_length": 1161,
+        "detected_at": "2026-03-19T16:27:37.038894"
+      },
+      "created_at": "2026-03-19T16:27:37.039015",
+      "updated_at": "2026-03-19T16:27:37.039017"
+    },
+    "topic_turn_134": {
+      "node_id": "topic_turn_134",
+      "node_type": "topic",
+      "label": "turn_134",
+      "properties": {
+        "content_length": 1086,
+        "detected_at": "2026-03-19T16:29:36.796221"
+      },
+      "created_at": "2026-03-19T16:29:36.796295",
+      "updated_at": "2026-03-19T16:29:36.796296"
+    },
+    "topic_turn_135": {
+      "node_id": "topic_turn_135",
+      "node_type": "topic",
+      "label": "turn_135",
+      "properties": {
+        "content_length": 1731,
+        "detected_at": "2026-03-19T16:34:33.313696"
+      },
+      "created_at": "2026-03-19T16:34:33.313984",
+      "updated_at": "2026-03-19T16:34:33.313988"
+    },
+    "topic_turn_136": {
+      "node_id": "topic_turn_136",
+      "node_type": "topic",
+      "label": "turn_136",
+      "properties": {
+        "content_length": 1369,
+        "detected_at": "2026-03-19T16:39:52.147523"
+      },
+      "created_at": "2026-03-19T16:39:52.147801",
+      "updated_at": "2026-03-19T16:39:52.147803"
+    },
+    "topic_turn_137": {
+      "node_id": "topic_turn_137",
+      "node_type": "topic",
+      "label": "turn_137",
+      "properties": {
+        "content_length": 1371,
+        "detected_at": "2026-03-19T16:46:44.440979"
+      },
+      "created_at": "2026-03-19T16:46:44.441096",
+      "updated_at": "2026-03-19T16:46:44.441098"
+    },
+    "topic_turn_138": {
+      "node_id": "topic_turn_138",
+      "node_type": "topic",
+      "label": "turn_138",
+      "properties": {
+        "content_length": 1162,
+        "detected_at": "2026-03-19T16:52:15.888493"
+      },
+      "created_at": "2026-03-19T16:52:15.888805",
+      "updated_at": "2026-03-19T16:52:15.888810"
+    },
+    "topic_turn_139": {
+      "node_id": "topic_turn_139",
+      "node_type": "topic",
+      "label": "turn_139",
+      "properties": {
+        "content_length": 1166,
+        "detected_at": "2026-03-19T16:56:13.788566"
+      },
+      "created_at": "2026-03-19T16:56:13.788686",
+      "updated_at": "2026-03-19T16:56:13.788688"
+    },
+    "topic_turn_140": {
+      "node_id": "topic_turn_140",
+      "node_type": "topic",
+      "label": "turn_140",
+      "properties": {
+        "content_length": 1162,
+        "detected_at": "2026-03-19T17:01:34.973929"
+      },
+      "created_at": "2026-03-19T17:01:34.974077",
+      "updated_at": "2026-03-19T17:01:34.974080"
+    },
+    "topic_turn_141": {
+      "node_id": "topic_turn_141",
+      "node_type": "topic",
+      "label": "turn_141",
+      "properties": {
+        "content_length": 1160,
+        "detected_at": "2026-03-19T17:05:19.702050"
+      },
+      "created_at": "2026-03-19T17:05:19.702300",
+      "updated_at": "2026-03-19T17:05:19.702304"
+    },
+    "topic_turn_142": {
+      "node_id": "topic_turn_142",
+      "node_type": "topic",
+      "label": "turn_142",
+      "properties": {
+        "content_length": 1160,
+        "detected_at": "2026-03-19T17:09:30.893282"
+      },
+      "created_at": "2026-03-19T17:09:30.893553",
+      "updated_at": "2026-03-19T17:09:30.893558"
+    },
+    "topic_turn_143": {
+      "node_id": "topic_turn_143",
+      "node_type": "topic",
+      "label": "turn_143",
+      "properties": {
+        "content_length": 1156,
+        "detected_at": "2026-03-19T17:13:41.498636"
+      },
+      "created_at": "2026-03-19T17:13:41.498920",
+      "updated_at": "2026-03-19T17:13:41.498926"
+    },
+    "topic_turn_144": {
+      "node_id": "topic_turn_144",
+      "node_type": "topic",
+      "label": "turn_144",
+      "properties": {
+        "content_length": 1160,
+        "detected_at": "2026-03-19T17:15:46.536786"
+      },
+      "created_at": "2026-03-19T17:15:46.537063",
+      "updated_at": "2026-03-19T17:15:46.537068"
+    },
+    "topic_turn_145": {
+      "node_id": "topic_turn_145",
+      "node_type": "topic",
+      "label": "turn_145",
+      "properties": {
+        "content_length": 1162,
+        "detected_at": "2026-03-19T17:18:49.823748"
+      },
+      "created_at": "2026-03-19T17:18:49.823906",
+      "updated_at": "2026-03-19T17:18:49.823908"
+    },
+    "topic_turn_146": {
+      "node_id": "topic_turn_146",
+      "node_type": "topic",
+      "label": "turn_146",
+      "properties": {
+        "content_length": 1104,
+        "detected_at": "2026-03-19T17:20:44.750872"
+      },
+      "created_at": "2026-03-19T17:20:44.751113",
+      "updated_at": "2026-03-19T17:20:44.751119"
+    },
+    "topic_turn_147": {
+      "node_id": "topic_turn_147",
+      "node_type": "topic",
+      "label": "turn_147",
+      "properties": {
+        "content_length": 1135,
+        "detected_at": "2026-03-19T17:24:21.799743"
+      },
+      "created_at": "2026-03-19T17:24:21.800076",
+      "updated_at": "2026-03-19T17:24:21.800081"
+    },
+    "topic_turn_148": {
+      "node_id": "topic_turn_148",
+      "node_type": "topic",
+      "label": "turn_148",
+      "properties": {
+        "content_length": 1325,
+        "detected_at": "2026-03-19T17:28:32.268085"
+      },
+      "created_at": "2026-03-19T17:28:32.268272",
+      "updated_at": "2026-03-19T17:28:32.268275"
+    },
+    "topic_turn_149": {
+      "node_id": "topic_turn_149",
+      "node_type": "topic",
+      "label": "turn_149",
+      "properties": {
+        "content_length": 1283,
+        "detected_at": "2026-03-19T17:53:33.087296"
+      },
+      "created_at": "2026-03-19T17:53:33.087460",
+      "updated_at": "2026-03-19T17:53:33.087463"
+    },
+    "topic_turn_150": {
+      "node_id": "topic_turn_150",
+      "node_type": "topic",
+      "label": "turn_150",
+      "properties": {
+        "content_length": 1164,
+        "detected_at": "2026-03-19T18:10:43.504145"
+      },
+      "created_at": "2026-03-19T18:10:43.504263",
+      "updated_at": "2026-03-19T18:10:43.504265"
+    },
+    "topic_turn_151": {
+      "node_id": "topic_turn_151",
+      "node_type": "topic",
+      "label": "turn_151",
+      "properties": {
+        "content_length": 1345,
+        "detected_at": "2026-03-19T18:15:25.473784"
+      },
+      "created_at": "2026-03-19T18:15:25.473961",
+      "updated_at": "2026-03-19T18:15:25.473964"
+    },
+    "topic_turn_152": {
+      "node_id": "topic_turn_152",
+      "node_type": "topic",
+      "label": "turn_152",
+      "properties": {
+        "content_length": 1409,
+        "detected_at": "2026-03-19T18:19:54.619656"
+      },
+      "created_at": "2026-03-19T18:19:54.620048",
+      "updated_at": "2026-03-19T18:19:54.620052"
+    },
+    "topic_turn_153": {
+      "node_id": "topic_turn_153",
+      "node_type": "topic",
+      "label": "turn_153",
+      "properties": {
+        "content_length": 299,
+        "detected_at": "2026-03-19T21:18:54.938059"
+      },
+      "created_at": "2026-03-19T21:18:54.938242",
+      "updated_at": "2026-03-19T21:18:54.938247"
+    },
+    "topic_turn_154": {
+      "node_id": "topic_turn_154",
+      "node_type": "topic",
+      "label": "turn_154",
+      "properties": {
+        "content_length": 1697,
+        "detected_at": "2026-03-19T21:22:11.722486"
+      },
+      "created_at": "2026-03-19T21:22:11.722663",
+      "updated_at": "2026-03-19T21:22:11.722664"
+    },
+    "topic_turn_155": {
+      "node_id": "topic_turn_155",
+      "node_type": "topic",
+      "label": "turn_155",
+      "properties": {
+        "content_length": 1677,
+        "detected_at": "2026-03-19T21:42:58.939297"
+      },
+      "created_at": "2026-03-19T21:42:58.939565",
+      "updated_at": "2026-03-19T21:42:58.939568"
+    },
+    "topic_turn_156": {
+      "node_id": "topic_turn_156",
+      "node_type": "topic",
+      "label": "turn_156",
+      "properties": {
+        "content_length": 1682,
+        "detected_at": "2026-03-19T22:07:20.101945"
+      },
+      "created_at": "2026-03-19T22:07:20.102129",
+      "updated_at": "2026-03-19T22:07:20.102131"
+    },
+    "topic_turn_157": {
+      "node_id": "topic_turn_157",
+      "node_type": "topic",
+      "label": "turn_157",
+      "properties": {
+        "content_length": 754,
+        "detected_at": "2026-03-19T22:10:44.112792"
+      },
+      "created_at": "2026-03-19T22:10:44.113014",
+      "updated_at": "2026-03-19T22:10:44.113020"
+    },
+    "topic_turn_158": {
+      "node_id": "topic_turn_158",
+      "node_type": "topic",
+      "label": "turn_158",
+      "properties": {
+        "content_length": 1935,
+        "detected_at": "2026-03-19T22:12:21.333087"
+      },
+      "created_at": "2026-03-19T22:12:21.333263",
+      "updated_at": "2026-03-19T22:12:21.333264"
+    },
+    "topic_turn_159": {
+      "node_id": "topic_turn_159",
+      "node_type": "topic",
+      "label": "turn_159",
+      "properties": {
+        "content_length": 1930,
+        "detected_at": "2026-03-19T22:16:03.161073"
+      },
+      "created_at": "2026-03-19T22:16:03.161524",
+      "updated_at": "2026-03-19T22:16:03.161525"
+    },
+    "topic_turn_160": {
+      "node_id": "topic_turn_160",
+      "node_type": "topic",
+      "label": "turn_160",
+      "properties": {
+        "content_length": 1596,
+        "detected_at": "2026-03-20T14:07:15.863764"
+      },
+      "created_at": "2026-03-20T14:07:15.864046",
+      "updated_at": "2026-03-20T14:07:15.864049"
+    },
+    "topic_turn_161": {
+      "node_id": "topic_turn_161",
+      "node_type": "topic",
+      "label": "turn_161",
+      "properties": {
+        "content_length": 1534,
+        "detected_at": "2026-03-20T14:42:36.496979"
+      },
+      "created_at": "2026-03-20T14:42:36.497318",
+      "updated_at": "2026-03-20T14:42:36.497320"
+    },
+    "topic_turn_162": {
+      "node_id": "topic_turn_162",
+      "node_type": "topic",
+      "label": "turn_162",
+      "properties": {
+        "content_length": 1201,
+        "detected_at": "2026-03-20T15:04:33.856332"
+      },
+      "created_at": "2026-03-20T15:04:33.856529",
+      "updated_at": "2026-03-20T15:04:33.856530"
+    },
+    "topic_turn_163": {
+      "node_id": "topic_turn_163",
+      "node_type": "topic",
+      "label": "turn_163",
+      "properties": {
+        "content_length": 1180,
+        "detected_at": "2026-03-20T15:06:11.905015"
+      },
+      "created_at": "2026-03-20T15:06:11.905222",
+      "updated_at": "2026-03-20T15:06:11.905226"
+    },
+    "topic_turn_164": {
+      "node_id": "topic_turn_164",
+      "node_type": "topic",
+      "label": "turn_164",
+      "properties": {
+        "content_length": 1009,
+        "detected_at": "2026-03-20T15:13:10.421960"
+      },
+      "created_at": "2026-03-20T15:13:10.422054",
+      "updated_at": "2026-03-20T15:13:10.422055"
+    },
+    "topic_turn_165": {
+      "node_id": "topic_turn_165",
+      "node_type": "topic",
+      "label": "turn_165",
+      "properties": {
+        "content_length": 1493,
+        "detected_at": "2026-03-20T15:21:35.862903"
+      },
+      "created_at": "2026-03-20T15:21:35.863052",
+      "updated_at": "2026-03-20T15:21:35.863054"
+    },
+    "topic_turn_166": {
+      "node_id": "topic_turn_166",
+      "node_type": "topic",
+      "label": "turn_166",
+      "properties": {
+        "content_length": 977,
+        "detected_at": "2026-03-20T15:32:39.824777"
+      },
+      "created_at": "2026-03-20T15:32:39.824974",
+      "updated_at": "2026-03-20T15:32:39.824975"
+    },
+    "topic_turn_167": {
+      "node_id": "topic_turn_167",
+      "node_type": "topic",
+      "label": "turn_167",
+      "properties": {
+        "content_length": 1058,
+        "detected_at": "2026-03-20T17:46:14.534734"
+      },
+      "created_at": "2026-03-20T17:46:14.535051",
+      "updated_at": "2026-03-20T17:46:14.535358"
+    },
+    "topic_turn_168": {
+      "node_id": "topic_turn_168",
+      "node_type": "topic",
+      "label": "turn_168",
+      "properties": {
+        "content_length": 1014,
+        "detected_at": "2026-03-20T19:00:44.490857"
+      },
+      "created_at": "2026-03-20T19:00:44.491008",
+      "updated_at": "2026-03-20T19:00:44.491012"
+    },
+    "topic_turn_169": {
+      "node_id": "topic_turn_169",
+      "node_type": "topic",
+      "label": "turn_169",
+      "properties": {
+        "content_length": 977,
+        "detected_at": "2026-03-20T19:02:31.284952"
+      },
+      "created_at": "2026-03-20T19:02:31.285387",
+      "updated_at": "2026-03-20T19:02:31.285391"
+    },
+    "topic_turn_170": {
+      "node_id": "topic_turn_170",
+      "node_type": "topic",
+      "label": "turn_170",
+      "properties": {
+        "content_length": 65,
+        "detected_at": "2026-03-20T19:07:42.882984"
+      },
+      "created_at": "2026-03-20T19:07:42.883071",
+      "updated_at": "2026-03-20T19:07:42.883075"
+    },
+    "topic_turn_171": {
+      "node_id": "topic_turn_171",
+      "node_type": "topic",
+      "label": "turn_171",
+      "properties": {
+        "content_length": 1156,
+        "detected_at": "2026-03-20T19:10:08.092718"
+      },
+      "created_at": "2026-03-20T19:10:08.092953",
+      "updated_at": "2026-03-20T19:10:08.092956"
+    },
+    "topic_turn_172": {
+      "node_id": "topic_turn_172",
+      "node_type": "topic",
+      "label": "turn_172",
+      "properties": {
+        "content_length": 1098,
+        "detected_at": "2026-03-20T19:11:25.854014"
+      },
+      "created_at": "2026-03-20T19:11:25.854168",
+      "updated_at": "2026-03-20T19:11:25.854169"
+    },
+    "topic_turn_173": {
+      "node_id": "topic_turn_173",
+      "node_type": "topic",
+      "label": "turn_173",
+      "properties": {
+        "content_length": 1327,
+        "detected_at": "2026-03-20T19:14:14.361415"
+      },
+      "created_at": "2026-03-20T19:14:14.361695",
+      "updated_at": "2026-03-20T19:14:14.361698"
+    },
+    "emotion_滿意": {
+      "node_id": "emotion_滿意",
+      "node_type": "emotion",
+      "label": "滿意",
+      "properties": {
+        "detected_at": "2026-03-21T11:29:52.947419",
+        "source": "text_analysis"
+      },
+      "created_at": "2026-03-21T11:19:44.089516",
+      "updated_at": "2026-03-21T11:29:52.947533"
+    },
+    "topic_turn_175": {
+      "node_id": "topic_turn_175",
+      "node_type": "topic",
+      "label": "turn_175",
+      "properties": {
+        "content_length": 1398,
+        "detected_at": "2026-03-21T11:19:44.089395"
+      },
+      "created_at": "2026-03-21T11:19:44.089581",
+      "updated_at": "2026-03-21T11:19:44.089583"
+    },
+    "topic_turn_176": {
+      "node_id": "topic_turn_176",
+      "node_type": "topic",
+      "label": "turn_176",
+      "properties": {
+        "content_length": 1093,
+        "detected_at": "2026-03-21T11:26:57.548563"
+      },
+      "created_at": "2026-03-21T11:26:57.548831",
+      "updated_at": "2026-03-21T11:26:57.548833"
+    },
+    "topic_turn_177": {
+      "node_id": "topic_turn_177",
+      "node_type": "topic",
+      "label": "turn_177",
+      "properties": {
+        "content_length": 1161,
+        "detected_at": "2026-03-21T11:29:52.947419"
+      },
+      "created_at": "2026-03-21T11:29:52.947569",
+      "updated_at": "2026-03-21T11:29:52.947571"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 169,
+    "last_content_length": 1161
+  },
+  "last_updated": "2026-03-21T11:29:52.947419"
+}

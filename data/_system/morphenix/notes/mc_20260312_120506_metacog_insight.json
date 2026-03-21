@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260312_120506_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n不該預設 4 個選項。使用者連訊息都沒有，應直接問「你想做什麼？」——簡述看到的改動狀態（agent/channel/core/data 等有改動），然後開放式詢問接下來的目標，而不是在你預設的框架內迫使用者選擇。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-12T12:05:06.917639+08:00",
+  "priority": "medium"
+}

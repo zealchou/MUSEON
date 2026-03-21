@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260313_213520_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n使用者在本段對話中未提及要記住的數字。建議回覆應先澄清：「我在我們的對話記錄中沒看到你提過數字呢——是在之前的對話裡嗎？還是你在測試我的記憶功能？」如果確實有遺漏，也可以檢查記憶系統或請使用者再提一次。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-13T21:35:20.848106+08:00",
+  "priority": "medium"
+}

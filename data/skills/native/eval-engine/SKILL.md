@@ -2,6 +2,7 @@
 name: eval-engine
 type: on-demand
 layer: evolution
+hub: infra
 io:
   inputs:
     - from: user

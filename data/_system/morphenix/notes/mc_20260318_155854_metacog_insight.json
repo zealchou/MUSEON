@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260318_155854_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n移除「檔案還沒看到」卻說「我看過了」的矛盾。直接答覆 Feng：「B 方案 ✅ 已核准，不需再測」，改用清晰的 Action Item（待 Feng 提供：muc_agent.py 路徑 + AGENT_ACCEPTANCE_TEST.md 位置），去掉催促感。使用者需要的是「下一步等什麼」，不是狀態清單。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-18T15:58:54.230901+08:00",
+  "priority": "medium"
+}

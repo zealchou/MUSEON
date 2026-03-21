@@ -2,6 +2,7 @@
 name: brand-identity
 type: on-demand
 layer: aesthetic
+hub: creative
 io:
   inputs:
     - from: user

@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260317_203616_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: **REVISE**\n\n問題：沒有先確認 Zeal 的真實需求。回覆預先假設「現在要施工」，但 Zeal 只是重申公司身份，沒要求任何行動。改成：先反向確認「目前是想審查系統、還是改程式碼、還是其他？」讓 Zeal 主導優先級，再按需啟動清單。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-17T20:36:16.682364+08:00",
+  "priority": "medium"
+}

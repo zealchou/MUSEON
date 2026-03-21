@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260309_085906_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n建議改為先診斷而非列選項。使用者的真實需求不清楚（可能想休息、想要主動建議、或有具體卡點但還沒表達）。改成：(1) 簡短早安 + (2) 「先讓我掃一下系統狀態？」或「腦子裡有什麼卡的嗎？」來發掘真實需求，而不是預設使用者已知道要做什麼。避免「給了一堆選項但都不是真正想要」的浪費。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-09T08:59:06.768383+08:00",
+  "priority": "medium"
+}

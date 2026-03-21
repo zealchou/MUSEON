@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260316_141312_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：在做診斷前先問「這個訊息是什麼意思？」。現在的回覆假設了「20 輪無進展的循環」但沒有足夠上文驗證這假設。改為：先開放式探詢（「你想要什麼?」），如果確認卡住再提三個選項。保留關懷但去掉父權診斷感。\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-16T14:13:12.714245+08:00",
+  "priority": "medium"
+}

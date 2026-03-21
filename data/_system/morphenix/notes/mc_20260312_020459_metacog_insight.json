@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260312_020459_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n改為：(1) 先給立即可用的三個行動（如優先度排序、時間塊拆分、求助清單），不是問他有沒有時間；(2) 用「我們一起調整」取代「先診斷再治療」；(3) 避免「崩潰」「失血」這類可能強化危機感的措辭，改為「我看見超載，我們快速減量」。現在他需要的是**立即可做的東西**，不是再回答一個診斷問題。\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-12T02:04:59.037466+08:00",
+  "priority": "medium"
+}

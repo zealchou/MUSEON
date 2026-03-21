@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>台灣人像攝影市場報告 2026 — MUSEON</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ember: #C4502A;
+    --ember-light: #E0714D;
+    --ember-dark: #9A3A1C;
+    --teal: #2A7A6E;
+    --gold: #B8923A;
+    --ink: #12121A;
+    --slate: #5A5A6E;
+    --mist: #9898A8;
+    --border: #E2E0DA;
+    --parchment: #F7F5F0;
+    --snow: #FDFCFA;
+    --deep-ink: #0E0E16;
+    --success: #2D8A6E;
+    --warning: #C9943A;
+    --error: #C4402A;
+    --info: #2A6A8A;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+    background: var(--parchment);
+    color: var(--ink);
+    line-height: 1.75;
+    font-size: 16px;
+  }
+
+  /* Hero Section */
+  .hero {
+    background: linear-gradient(135deg, var(--deep-ink) 0%, #1a1a2e 100%);
+    color: var(--snow);
+    padding: 96px 40px 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at 30% 50%, rgba(196,80,42,0.15) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 30%, rgba(42,122,110,0.1) 0%, transparent 50%);
+  }
+
+  .hero-content { position: relative; z-index: 1; max-width: 820px; margin: 0 auto; }
+
+  .hero-badge {
+    display: inline-block;
+    background: rgba(196,80,42,0.2);
+    color: var(--ember-light);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 100px;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 48px;
+    font-weight: 600;
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+
+  .hero p {
+    font-size: 18px;
+    color: rgba(253,252,250,0.7);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.8;
+  }
+
+  .hero-meta {
+    margin-top: 32px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: rgba(253,252,250,0.4);
+    letter-spacing: 0.05em;
+  }
+
+  /* Main Content */
+  .container {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 64px 40px;
+  }
+
+  h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: 24px;
+    color: var(--ink);
+  }
+
+  h3 {
+    font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 16px;
+    color: var(--ink);
+  }
+
+  p { margin-bottom: 16px; color: var(--slate); }
+  p.lead { font-size: 18px; line-height: 1.8; color: var(--ink); }
+
+  /* Section Divider */
+  .section { margin-bottom: 64px; }
+  .section-divider {
+    width: 48px;
+    height: 3px;
+    background: var(--ember);
+    margin-bottom: 32px;
+    border-radius: 2px;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+    transition: transform 200ms ease, box-shadow 200ms ease;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 6px rgba(18,18,26,0.08), 0 8px 24px rgba(18,18,26,0.06);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .card-icon.ember { background: rgba(196,80,42,0.1); }
+  .card-icon.teal { background: rgba(42,122,110,0.1); }
+  .card-icon.gold { background: rgba(184,146,58,0.1); }
+  .card-icon.info { background: rgba(42,106,138,0.1); }
+
+  .card-title {
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--ink);
+  }
+
+  .card-body { color: var(--slate); font-size: 15px; line-height: 1.7; }
+
+  /* Stats Grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .stat-card {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    text-align: center;
+  }
+
+  .stat-number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 600;
+    color: var(--ember);
+    line-height: 1.1;
+  }
+
+  .stat-label {
+    font-size: 13px;
+    color: var(--slate);
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+
+  .stat-note {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--mist);
+    margin-top: 4px;
+  }
+
+  /* Table */
+  .table-wrap {
+    overflow-x: auto;
+    margin-bottom: 24px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  thead th {
+    background: var(--deep-ink);
+    color: var(--snow);
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+  }
+
+  thead th:first-child { border-radius: 8px 0 0 0; }
+  thead th:last-child { border-radius: 0 8px 0 0; }
+
+  tbody td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--slate);
+  }
+
+  tbody tr:hover { background: rgba(196,80,42,0.03); }
+
+  /* Badge */
+  .badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 100px;
+  }
+
+  .badge-ember { background: rgba(196,80,42,0.1); color: var(--ember-dark); }
+  .badge-teal { background: rgba(42,122,110,0.1); color: var(--teal); }
+  .badge-gold { background: rgba(184,146,58,0.1); color: var(--gold); }
+  .badge-error { background: rgba(196,64,42,0.1); color: var(--error); }
+  .badge-info { background: rgba(42,106,138,0.1); color: var(--info); }
+
+  /* Callout */
+  .callout {
+    background: var(--snow);
+    border-left: 4px solid var(--ember);
+    border-radius: 0 10px 10px 0;
+    padding: 20px 24px;
+    margin: 24px 0;
+  }
+
+  .callout.teal { border-left-color: var(--teal); }
+  .callout.gold { border-left-color: var(--gold); }
+  .callout.warning { border-left-color: var(--warning); }
+
+  .callout-title {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  .callout-body { color: var(--slate); font-size: 14px; line-height: 1.7; }
+
+  /* Timeline */
+  .timeline { position: relative; padding-left: 32px; margin: 24px 0; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: var(--border);
+  }
+
+  .timeline-item {
+    position: relative;
+    margin-bottom: 24px;
+  }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -28px;
+    top: 8px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--ember);
+    border: 2px solid var(--parchment);
+  }
+
+  .timeline-year {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ember);
+    letter-spacing: 0.05em;
+  }
+
+  .timeline-content {
+    font-size: 14px;
+    color: var(--slate);
+    line-height: 1.7;
+    margin-top: 4px;
+  }
+
+  /* Segment Chart (CSS only) */
+  .segment-chart { margin: 24px 0; }
+
+  .segment-bar {
+    display: flex;
+    height: 32px;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+
+  .segment-bar > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: white;
+  }
+
+  .segment-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--slate);
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Two Column */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  /* Impact Meter */
+  .impact-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .impact-label {
+    width: 120px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+    flex-shrink: 0;
+  }
+
+  .impact-bar {
+    flex: 1;
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .impact-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 600ms ease;
+  }
+
+  .impact-value {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    width: 36px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* Footer */
+  .footer {
+    background: var(--deep-ink);
+    color: rgba(253,252,250,0.5);
+    padding: 48px 40px;
+    text-align: center;
+    font-size: 13px;
+    line-height: 1.8;
+  }
+
+  .footer-brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ember-light);
+    margin-bottom: 8px;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .hero { padding: 64px 24px; }
+    .hero h1 { font-size: 32px; }
+    .container { padding: 48px 24px; }
+    .stats-grid { grid-template-columns: 1fr; }
+    .two-col { grid-template-columns: 1fr; }
+    h2 { font-size: 26px; }
+  }
+
+  /* Animation */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeIn 400ms ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .delay-1 { animation-delay: 100ms; }
+  .delay-2 { animation-delay: 200ms; }
+  .delay-3 { animation-delay: 300ms; }
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-content fade-in">
+    <div class="hero-badge">MARKET RESEARCH</div>
+    <h1>台灣人像攝影<br>產業市場報告</h1>
+    <p>從婚紗到個人品牌、從底片到 AI——台灣攝影產業正在經歷結構性轉型。<br>這份報告拆解五大市場區隔、三股破壞力量、與未來三年的機會窗口。</p>
+    <div class="hero-meta">MUSEON RESEARCH · 2026-03-20 · v1.0</div>
+  </div>
+</div>
+
+<!-- Executive Summary -->
+<div class="container">
+  <div class="section fade-in">
+    <div class="section-divider"></div>
+    <h2>一、市場全景</h2>
+    <p class="lead">台灣人像攝影市場正從「低頻高價的儀式型消費」轉向「高頻中低價的日常型消費」。婚紗攝影持續萎縮，但形象照、個人品牌攝影、商業內容攝影正以兩位數成長填補缺口。</p>
+
+    <div class="stats-grid">
+      <div class="stat-card fade-in delay-1">
+        <div class="stat-number">~380 億</div>
+        <div class="stat-label">全球攝影服務市場<br>（2025, USD 38B）</div>
+        <div class="stat-note">YOY +6.1%</div>
+      </div>
+      <div class="stat-card fade-in delay-2">
+        <div class="stat-number">~100 億</div>
+        <div class="stat-label">台灣婚禮產業產值高峰<br>（含婚紗攝影）</div>
+        <div class="stat-note">持續萎縮中</div>
+      </div>
+      <div class="stat-card fade-in delay-3">
+        <div class="stat-number">28.9%</div>
+        <div class="stat-label">人像攝影佔北美<br>攝影服務營收比</div>
+        <div class="stat-note">最大單一類別</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-title">關鍵數字</div>
+      <div class="callout-body">
+        全球攝影服務市場 2025 年約 380 億美元，預估 2026 年成長至 403 億美元。人像攝影（Portrait Photography）是最大單一類別，佔北美市場近三成營收，由形象照、家庭寫真、個人品牌需求驅動。台灣雖無官方專項統計，但以人口比例與消費力推估，台灣人像攝影服務市場約在 80-120 億新台幣規模。
+      </div>
+    </div>
+  </div>
+
+  <!-- Market Segments -->
+  <div class="section fade-in">
+    <div class="section-divider"></div>
+    <h2>二、五大市場區隔</h2>
+
+    <div class="segment-chart">
+      <div class="segment-bar">
+        <div style="width:30%; background: var(--ember);">30%</div>
+        <div style="width:25%; background: var(--teal);">25%</div>
+        <div style="width:20%; background: var(--gold);">20%</div>
+        <div style="width:15%; background: var(--info);">15%</div>
+        <div style="width:10%; background: var(--slate);">10%</div>
+      </div>
+      <div class="segment-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--ember)"></div>婚紗婚禮</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>商業/電商</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div>個人品牌/形象照</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--info)"></div>家庭/寫真</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--slate)"></div>其他</div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>區隔</th>
+            <th>客單價 (TWD)</th>
+            <th>趨勢</th>
+            <th>AI 威脅程度</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>婚紗攝影</strong></td>
+            <td>30,000 – 150,000</td>
+            <td><span class="badge badge-error">萎縮</span></td>
+            <td>
+              <div class="impact-bar" style="width:100px;display:inline-block;vertical-align:middle;">
+                <div class="impact-fill" style="width:30%;background:var(--teal);"></div>
+              </div> 低
+            </td>
+          </tr>
+          <tr>
+            <td><strong>商業 / 電商攝影</strong></td>
+            <td>5,000 – 50,000</td>
+            <td><span class="badge badge-teal">成長</span></td>
+            <td>
+              <div class="impact-bar" style="width:100px;display:inline-block;vertical-align:middle;">
+                <div class="impact-fill" style="width:70%;background:var(--warning);"></div>
+              </div> 高
+            </td>
+          </tr>
+          <tr>
+            <td><strong>個人品牌 / 形象照</strong></td>
+            <td>2,000 – 8,000</td>
+            <td><span class="badge badge-teal">快速成長</span></td>
+            <td>
+              <div class="impact-bar" style="width:100px;display:inline-block;vertical-align:middle;">
+                <div class="impact-fill" style="width:85%;background:var(--error);"></div>
+              </div> 極高
+            </td>
+          </tr>
+          <tr>
+            <td><strong>家庭 / 個人寫真</strong></td>
+            <td>3,000 – 15,000</td>
+            <td><span class="badge badge-gold">持平</span></td>
+            <td>
+              <div class="impact-bar" style="width:100px;display:inline-block;vertical-align:middle;">
+                <div class="impact-fill" style="width:20%;background:var(--teal);"></div>
+              </div> 低
+            </td>
+          </tr>
+          <tr>
+            <td><strong>活動 / 紀實攝影</strong></td>
+            <td>5,000 – 30,000</td>
+            <td><span class="badge badge-gold">持平</span></td>
+            <td>
+              <div class="impact-bar" style="width:100px;display:inline-block;vertical-align:middle;">
+                <div class="impact-fill" style="width:15%;background:var(--teal);"></div>
+              </div> 極低
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout teal">
+      <div class="callout-title">最大成長引擎：個人品牌攝影</div>
+      <div class="callout-body">
+        LinkedIn、104 人力銀行、社群自媒體的普及，讓「專業形象照」從少數高階主管的需求，變成自由工作者、創業者、甚至求職者的標配。一次拍攝約 2,000-6,000 元，20 分鐘內可完成。但 AI 形象照生成工具（如 CyberLink、Pica AI）僅需 150 元即可產出 20+ 張不同風格照片——這正在從根本改變低端形象照市場。
+      </div>
+    </div>
+  </div>
+
+  <!-- Industry Timeline -->
+  <div class="section fade-in">
+    <div class="section-divider"></div>
+    <h2>三、產業演化時間軸</h2>
+    <p>台灣攝影產業在過去 20 年經歷了三次結構性轉折。</p>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-year">2005-2012 · 黃金時代</div>
+        <div class="timeline-content">
+          婚紗街全盛期，台北中山北路、高雄新崛江婚紗店林立。產業年產值衝上百億。數位相機普及但尚未衝擊專業攝影師的技術壁壘。
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-year">2013-2018 · 結構崩塌</div>
+        <div class="timeline-content">
+          結婚對數持續下滑（2023 年僅 13.5 萬對，較高峰少近 4 成）。自助婚紗崛起，客製化需求侵蝕傳統包套模式。全台婚紗街掀起倒閉潮，半數以上業者歇業。微型工作室雨後春筍般成立——市場「業者微型化、消費者分眾化」。
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-year">2019-2023 · 疫後重組</div>
+        <div class="timeline-content">
+          疫情加速線上化，商業/電商攝影需求暴增。個人品牌意識覺醒，LinkedIn 形象照需求年增 30%+。韓國品牌（如藝匠 Artiz Studio）進軍台灣，拉高消費者對攝影品質的期待。
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-year">2024-2026 · AI 衝擊元年</div>
+        <div class="timeline-content">
+          AI 形象照生成工具商業化——150 元 vs 3,000 元，品質差距快速縮小。AI 商品攝影（如 Photoroom）可自動生成場景背景，威脅低階電商攝影。但「真實互動」「情感捕捉」「現場感」仍是 AI 無法取代的核心價值。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Three Disruptive Forces -->
+  <div class="section fade-in">
+    <div class="section-divider"></div>
+    <h2>四、三股破壞力量</h2>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon ember">📉</div>
+        <div class="card-title">力量一：少子化 × 結婚率下滑</div>
+      </div>
+      <div class="card-body">
+        <p>台灣 2023 年結婚登記僅 13.5 萬對，較 2011 年的 16.5 萬對下降約 18%。婚紗攝影作為攝影產業最大營收來源，正面臨不可逆的結構性萎縮。</p>
+        <p><strong>白話版：</strong>餅在變小——結婚的人越來越少，婚紗攝影的總需求天花板每年都在降。靠婚紗吃飯的攝影師必須找到第二條腿。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon teal">🤖</div>
+        <div class="card-title">力量二：AI 生成式影像</div>
+      </div>
+      <div class="card-body">
+        <p>AI 形象照工具將「低端標準化人像」的價格從 3,000 元壓到 150 元，且品質持續進步。電商商品攝影也面臨 AI 場景合成的挑戰。</p>
+        <p><strong>但 AI 做不到的：</strong></p>
+        <ul style="padding-left:20px;margin:8px 0;">
+          <li>真實場景的光影互動和情緒捕捉</li>
+          <li>現場引導被攝者的姿態與情緒（攝影師的「導演能力」）</li>
+          <li>客製化的美學判斷和風格詮釋</li>
+          <li>104 HR 仍高度重視照片的「真實性」——AI 照片看得出來</li>
+        </ul>
+        <p><strong>白話版：</strong>AI 搶走的是「證件照等級」的市場，搶不走「有溫度的人像作品」。攝影師的競爭力在於「導演能力」，不在「按快門」。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon gold">📱</div>
+        <div class="card-title">力量三：手機攝影平權化</div>
+      </div>
+      <div class="card-body">
+        <p>iPhone / Samsung 旗艦機的人像模式已達專業機 80% 的品質。IPPAWARDS（手機攝影界奧斯卡）持續提升手機攝影的公眾認知。</p>
+        <p><strong>白話版：</strong>當每個人口袋裡都有一台「夠好的相機」，攝影師賣的就不再是「拍出好照片」的能力，而是「看見別人看不見的東西」的眼光。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Competitive Landscape -->
+  <div class="section fade-in">
+    <div class="section-divider"></div>
+    <h2>五、競爭格局</h2>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>類型</th>
+            <th>代表</th>
+            <th>優勢</th>
+            <th>劣勢</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>大型婚紗公司</strong></td>
+            <td>凱瑟琳、蘿亞、藝匠 Artiz</td>
+            <td>品牌、場景、一站式服務</td>
+            <td>成本高、缺彈性、婚紗需求下滑</td>
+          </tr>
+          <tr>
+            <td><strong>中型工作室</strong></td>
+            <td>各地知名攝影工作室</td>
+            <td>品質穩定、有固定客群</td>
+            <td>行銷弱、品牌辨識度低</td>
+          </tr>
+          <tr>
+            <td><strong>一人微型工作室</strong></td>
+            <td>自由攝影師 / 接案者</td>
+            <td>成本低、風格獨特、客製化強</td>
+            <td>產能有限、經營管理弱、行銷靠口碑</td>
+          </tr>
+          <tr>
+            <td><strong>韓系快拍店</strong></td>
+            <td>人生四格 Life4Cut</td>
+            <td>低價、快速、社群傳播力強</td>
+            <td>品質標準化、缺乏深度</td>
+          </tr>
+          <tr>
+            <td><strong>AI 生成工具</strong></td>
+            <td>CyberLink、Pica AI、Vidnoz</td>
+            <td>極低價、即時交付</td>
+            <td>缺真實感、無情感、HR 不信任</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout gold">
+      <div class="callout-title">市場 M 型化趨勢</div>
+      <div class="callout-body">
+        市場正在兩極化：<strong>高端</strong>（婚紗 10 萬+、品牌形象 5 萬+）靠品牌和品質活得好；<strong>低端</strong>被 AI 和快拍店吃掉。<strong>中間地帶最危險</strong>——報價 3,000-8,000 的攝影師，上面比不過品牌工作室，下面被 AI 追著跑。這個區間的攝影師必須選邊站：往上走差異化，或用效率打低端量。
+      </div>
+    </div>
+  </div>
+
+  <!-- Pain Points for Photographers -->
+  <div class="section fade-in">
+    <div class="section-divider"></div>
+    <h2>六、攝影師的六大經營痛點</h2>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon ember">1</div>
+          <div class="card-title">作品好但不會賣</div>
+        </div>
+        <div class="card-body">攝影師多半是藝術型人格。拍照很強，但寫文案、經營社群、做品牌定位是完全不同的技能。IG 荒廢、報價靠感覺是常態。</div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon teal">2</div>
+          <div class="card-title">一人扛所有事</div>
+        </div>
+        <div class="card-body">拍攝、修圖、客戶溝通、報價、發票、社群、行銷⋯⋯全部一個人做。80% 時間花在非核心工作上。</div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon gold">3</div>
+          <div class="card-title">案源不穩定</div>
+        </div>
+        <div class="card-body">旺季忙到爆、淡季沒案子。沒有系統化的客戶經營，老客戶不回購，新客戶靠碰運氣。</div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon info">4</div>
+          <div class="card-title">定價沒底氣</div>
+        </div>
+        <div class="card-body">不知道自己值多少錢。客戶一殺價就降，或是報太高嚇跑客戶。缺乏「讓客戶理解價值」的溝通能力。</div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon ember">5</div>
+          <div class="card-title">風格說不出口</div>
+        </div>
+        <div class="card-body">「你什麼風格？」——這個問題讓很多攝影師卡住。他們有獨特的美學直覺，但無法用文字精準描述，更無法轉化成品牌語言。</div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon teal">6</div>
+          <div class="card-title">作品累積但不會變資產</div>
+        </div>
+        <div class="card-body">拍了上千組作品，但沒有系統化整理成可搜尋、可展示、可變現的資產。每次要用還要從硬碟翻半天。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Opportunities -->
+  <div class="section fade-in">
+    <div class="section-divider"></div>
+    <h2>七、未來三年機會窗口</h2>
+
+    <div class="card" style="border-left: 4px solid var(--ember);">
+      <h3>機會 1：個人品牌攝影 × 內容訂閱制</h3>
+      <div class="card-body">
+        <p>從「一次性拍攝」轉型為「品牌視覺訂閱」——每月/每季為自由工作者、創業者提供品牌內容更新（社群素材、形象照更新、短影片）。</p>
+        <p><strong>為什麼現在：</strong>自媒體經濟讓每個人都需要持續的品牌內容，但大多數人不知道怎麼產出。攝影師從「拍一次」變「長期合作」，客戶從「花一筆錢」變「可預期的月費」。</p>
+        <p><strong>價格帶：</strong>5,000-15,000 / 月，含 1 次拍攝 + 社群素材包</p>
+      </div>
+    </div>
+
+    <div class="card" style="border-left: 4px solid var(--teal);">
+      <h3>機會 2：AI 輔助的高效攝影工作流</h3>
+      <div class="card-body">
+        <p>不是被 AI 取代，而是<strong>用 AI 武裝自己</strong>——AI 修圖批量處理（背景置換、色調統一）、AI 文案產出（IG 貼文、作品描述）、AI 報價計算。</p>
+        <p><strong>為什麼現在：</strong>AI 工具已經成熟到可以處理攝影師 50% 的非拍攝工作。早用的攝影師產能翻倍，晚用的被市場淘汰。</p>
+      </div>
+    </div>
+
+    <div class="card" style="border-left: 4px solid var(--gold);">
+      <h3>機會 3：體驗經濟 × 攝影沉浸感</h3>
+      <div class="card-body">
+        <p>韓系快拍店（人生四格 Life4Cut）爆紅證明：年輕世代願意為「拍照體驗」付費。攝影師可以設計「主題式拍攝體驗」——不只是拍照，是一場關於自我表達的 2 小時旅程。</p>
+        <p><strong>為什麼現在：</strong>消費者要的不是照片，是「被看見」的感覺。這正是人類攝影師勝過 AI 的絕對領域。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Impact Assessment -->
+  <div class="section fade-in">
+    <div class="section-divider"></div>
+    <h2>八、AI 衝擊度評估</h2>
+    <p>各細分市場受 AI 替代的風險程度：</p>
+
+    <div style="margin: 24px 0;">
+      <div class="impact-row">
+        <div class="impact-label">證件照/大頭照</div>
+        <div class="impact-bar"><div class="impact-fill" style="width:95%;background:var(--error);"></div></div>
+        <div class="impact-value" style="color:var(--error);">95%</div>
+      </div>
+      <div class="impact-row">
+        <div class="impact-label">電商白底商品</div>
+        <div class="impact-bar"><div class="impact-fill" style="width:80%;background:var(--warning);"></div></div>
+        <div class="impact-value" style="color:var(--warning);">80%</div>
+      </div>
+      <div class="impact-row">
+        <div class="impact-label">標準形象照</div>
+        <div class="impact-bar"><div class="impact-fill" style="width:70%;background:var(--warning);"></div></div>
+        <div class="impact-value" style="color:var(--warning);">70%</div>
+      </div>
+      <div class="impact-row">
+        <div class="impact-label">品牌視覺內容</div>
+        <div class="impact-bar"><div class="impact-fill" style="width:35%;background:var(--gold);"></div></div>
+        <div class="impact-value" style="color:var(--gold);">35%</div>
+      </div>
+      <div class="impact-row">
+        <div class="impact-label">個人品牌寫真</div>
+        <div class="impact-bar"><div class="impact-fill" style="width:25%;background:var(--teal);"></div></div>
+        <div class="impact-value" style="color:var(--teal);">25%</div>
+      </div>
+      <div class="impact-row">
+        <div class="impact-label">婚紗/婚禮紀錄</div>
+        <div class="impact-bar"><div class="impact-fill" style="width:10%;background:var(--success);"></div></div>
+        <div class="impact-value" style="color:var(--success);">10%</div>
+      </div>
+      <div class="impact-row">
+        <div class="impact-label">活動/現場紀實</div>
+        <div class="impact-bar"><div class="impact-fill" style="width:5%;background:var(--success);"></div></div>
+        <div class="impact-value" style="color:var(--success);">5%</div>
+      </div>
+    </div>
+
+    <div class="callout warning">
+      <div class="callout-title">攝影師的生存公式</div>
+      <div class="callout-body">
+        <strong>AI 替代風險 = 1 / (情感濃度 × 現場性 × 客製化程度)</strong><br><br>
+        越是標準化、可遠端完成、不需要現場互動的攝影工作，AI 替代風險越高。<br>
+        越是需要理解人、引導情緒、在特定場景中捕捉不可重現瞬間的工作，AI 越做不到。<br><br>
+        <strong>給攝影師的建議：</strong>把你的服務往「情感濃度高、現場性強、高度客製」的方向推。<br>
+        不要跟 AI 比「產出效率」，要比「只有人能做的事」。
+      </div>
+    </div>
+  </div>
+
+  <!-- Key Takeaways -->
+  <div class="section fade-in">
+    <div class="section-divider"></div>
+    <h2>九、攝影師自我介紹可以引用的數據</h2>
+
+    <div class="card" style="background: var(--deep-ink); color: var(--snow); border: none;">
+      <h3 style="color: var(--ember-light); font-size: 18px; margin-bottom: 16px;">拿來用的產業數據</h3>
+      <div class="card-body" style="color: rgba(253,252,250,0.8);">
+        <ul style="padding-left: 20px; line-height: 2.2;">
+          <li>全球攝影服務市場 2025 年 380 億美元，年成長 6%+</li>
+          <li>人像攝影佔全球攝影服務最大份額（近 30%）</li>
+          <li>台灣個人品牌攝影需求年增 30%+（LinkedIn + 自媒體驅動）</li>
+          <li>AI 形象照壓低低端價格（150 元 vs 3,000 元），但高端不受影響</li>
+          <li>韓系快拍店（Life4Cut）在台展店數持續增加，證明「拍照體驗」有市場</li>
+          <li>台灣結婚對數持續下滑，婚紗攝影市場需要轉型</li>
+          <li>一人微型工作室已成主流經營模式——輕資產、高彈性、靠品牌活</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top: 24px;">
+      <div class="callout-title">一句話定位建議</div>
+      <div class="callout-body">
+        「在 AI 可以用 150 元產出 20 張形象照的時代——<strong>攝影師賣的不再是照片，是讓人被真正看見的能力。</strong>」<br><br>
+        這句話可以放在自我介紹的開場。它同時做了三件事：展現你懂產業、區隔你跟 AI、定義你的價值。
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <div class="footer-brand">MUSEON</div>
+  <p>台灣人像攝影產業市場報告 · 2026-03-20</p>
+  <p style="margin-top: 8px; font-size: 12px;">
+    資料來源：Precedence Research · Business Research Insights · Kentley Insights · 行政院主計總處 · 104人力銀行 · WeddingDay · IPPAWARDS<br>
+    本報告由 MUSEON 研究引擎自動產出，數據截至 2026 年 3 月
+  </p>
+</div>
+
+</body>
+</html>

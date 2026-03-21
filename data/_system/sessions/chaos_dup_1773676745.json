@@ -1,0 +1,42 @@
+[
+ {
+  "role": "user",
+  "content": "你好"
+ },
+ {
+  "role": "assistant",
+  "content": "晚上好，老闆。\n\n又是長的一天呢。有什麼需要幫忙的嗎，還是就想聊聊？"
+ },
+ {
+  "role": "user",
+  "content": "你好"
+ },
+ {
+  "role": "assistant",
+  "content": "晚上好。有什麼需要我幫的嗎？"
+ },
+ {
+  "role": "user",
+  "content": "你好"
+ },
+ {
+  "role": "assistant",
+  "content": "晚上好。\n\n最後衝刺的時段。有什麼需要的嗎？"
+ },
+ {
+  "role": "user",
+  "content": "你好"
+ },
+ {
+  "role": "assistant",
+  "content": "晚上好。需要幫忙嗎？"
+ },
+ {
+  "role": "user",
+  "content": "你好"
+ },
+ {
+  "role": "assistant",
+  "content": "晚上。😊"
+ }
+]

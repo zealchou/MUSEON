@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260318_210022_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: **REVISE**\n\n太多未驗證假設（Claude 成本、Server 成本、用戶自訂 Max）+ 措辭「結構就崩了」可能造成被評判感 + 長篇教學而非協作推進。建議先說「確實看到這個問題」，再問一個聚焦問題：「你想重新定價、改架構、還是改成本計算方式？」再基於回答輸出方案。現在是確認邏輯，不是推動決策。\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-18T21:00:22.853090+08:00",
+  "priority": "medium"
+}

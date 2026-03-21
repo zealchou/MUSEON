@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260312_144906_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n三個改進方向：\n1. **缺少歸檔交付物** — 未提供實際的分析記錄檔案。應該產出一份 `.md` 檔案，存到 `data/_system/pulse/` 或 `data/memory/` 便於未來查詢。\n2. **決策項缺少建議** — 直接要求確認三項設定，但沒給出各選項的 trade-off 分析。應該在列出問題後附帶你的推薦（例如「建議 daily_push_limit=",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-12T14:49:06.786073+08:00",
+  "priority": "medium"
+}

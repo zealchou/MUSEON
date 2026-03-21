@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260318_215022_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n回覆被截斷了（最後一句「給 Feng 的建議」未完）。更重要的是：沒有接上 Feng 提出的「月費 NT$990/月（10 萬 token）」商業模式。建議先釐清「信任點」是內部計量單位，最終還是要映射回「token 額度 → 月費方案」；把「業務優先級」搬前面（定價方案→ 後推計費邏輯），而非先設計「5 個 Skill = 1 點」這類技術細節。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-18T21:50:22.229382+08:00",
+  "priority": "medium"
+}

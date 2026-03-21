@@ -2,6 +2,7 @@
 name: shadow
 type: on-demand
 layer: business
+hub: thinking
 io:
   inputs:
     - from: user

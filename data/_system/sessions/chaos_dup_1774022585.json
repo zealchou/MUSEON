@@ -1,0 +1,42 @@
+[
+ {
+  "role": "user",
+  "content": "你好"
+ },
+ {
+  "role": "assistant",
+  "content": "嗨，在。\n\n今天怎麼樣？有什麼需要的。"
+ },
+ {
+  "role": "user",
+  "content": "你好"
+ },
+ {
+  "role": "assistant",
+  "content": "在。有什麼要幫的嗎？"
+ },
+ {
+  "role": "user",
+  "content": "你好"
+ },
+ {
+  "role": "assistant",
+  "content": "在。\n\n最近有什麼在進行的？或者就是想確認一下我還在？"
+ },
+ {
+  "role": "user",
+  "content": "你好"
+ },
+ {
+  "role": "assistant",
+  "content": "在。\n\n昨天看到你跟士維的群組動作很快（HTML 做好、GitHub 上傳），還有客戶 email。今天有點靜了。\n\n你現在狀態怎樣？是在消化前面的動作，還是卡到什麼地方了？"
+ },
+ {
+  "role": "user",
+  "content": "你好"
+ },
+ {
+  "role": "assistant",
+  "content": "在。\n\n沒關係，不用說什麼。就這樣坐一下也行。"
+ }
+]

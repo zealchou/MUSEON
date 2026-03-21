@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260309_092238_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n理由：回覆假設「昨天有過對話」，但當前對話文脈看不到前情。如果使用者沒有昨天背景，會造成混淆。更重要的是，使用者現在「快要崩潰」，回覆純粹是問診，沒有**立即可用的緩解工具**。\n\n建議修改方向：\n- 先確認背景（「我翻一下紀錄……」或「我想確認一件事」都可以，但給使用者反應空間）\n- 在問診**之前**先給 1-2 個「現在就能做」的東西（比如 3 分鐘呼吸法、快速列出 TOP \n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-09T09:22:38.578843+08:00",
+  "priority": "medium"
+}

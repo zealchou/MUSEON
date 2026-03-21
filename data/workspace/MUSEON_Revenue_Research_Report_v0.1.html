@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MUSEON 營收研究分析報告 v0.1</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ember: #C4502A;
+    --ember-light: #E0714D;
+    --ember-dark: #9A3A1C;
+    --teal: #2A7A6E;
+    --gold: #B8923A;
+    --ink: #12121A;
+    --slate: #5A5A6E;
+    --mist: #9898A8;
+    --border: #E2E0DA;
+    --parchment: #F7F5F0;
+    --snow: #FDFCFA;
+    --deep-ink: #0E0E16;
+    --surface: #16161F;
+    --success: #2D8A6E;
+    --warning: #C9943A;
+    --error: #C4402A;
+    --info: #2A6A8A;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--parchment);
+    color: var(--ink);
+    font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+    font-size: 16px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 64px 40px;
+  }
+
+  /* Hero */
+  .hero {
+    text-align: center;
+    padding: 96px 0 64px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 64px;
+  }
+  .hero .tag {
+    display: inline-block;
+    background: rgba(196,80,42,0.1);
+    color: var(--ember-dark);
+    border-radius: 100px;
+    padding: 3px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 48px;
+    font-weight: 600;
+    line-height: 1.15;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+  .hero .subtitle {
+    font-size: 18px;
+    color: var(--slate);
+    font-weight: 300;
+    max-width: 560px;
+    margin: 0 auto;
+    line-height: 1.8;
+  }
+  .hero .meta {
+    margin-top: 32px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--mist);
+  }
+
+  /* Section */
+  h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--ink);
+    margin-top: 64px;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--ember);
+  }
+  h3 {
+    font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--ink);
+    margin-top: 32px;
+    margin-bottom: 16px;
+  }
+  h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ember-dark);
+    margin-top: 24px;
+    margin-bottom: 8px;
+  }
+
+  p { margin-bottom: 16px; }
+
+  /* Cards */
+  .card {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+  }
+  .card.highlight {
+    border-left: 4px solid var(--ember);
+  }
+  .card.teal-highlight {
+    border-left: 4px solid var(--teal);
+  }
+  .card.gold-highlight {
+    border-left: 4px solid var(--gold);
+  }
+  .card .card-title {
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 24px;
+    font-size: 14px;
+  }
+  thead { border-bottom: 2px solid var(--ember); }
+  th {
+    text-align: left;
+    padding: 10px 12px;
+    font-weight: 600;
+    color: var(--ink);
+    font-size: 13px;
+    letter-spacing: 0.02em;
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--slate);
+  }
+  tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: rgba(196,80,42,0.03); }
+
+  /* Stats */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 24px 0;
+  }
+  .stat-box {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+  }
+  .stat-box .number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 600;
+    color: var(--ember);
+    line-height: 1.1;
+  }
+  .stat-box .label {
+    font-size: 13px;
+    color: var(--slate);
+    margin-top: 4px;
+  }
+
+  /* Persona */
+  .persona-card {
+    background: var(--deep-ink);
+    color: #fff;
+    border-radius: 10px;
+    padding: 32px;
+    margin: 24px 0;
+  }
+  .persona-card h3 {
+    color: var(--ember-light);
+    margin-top: 0;
+  }
+  .persona-card p {
+    color: rgba(255,255,255,0.8);
+    font-size: 15px;
+  }
+  .persona-card .quote {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 22px;
+    color: var(--ember-light);
+    border-left: 3px solid var(--ember);
+    padding-left: 16px;
+    margin: 16px 0;
+    line-height: 1.4;
+  }
+
+  /* Gap visualization */
+  .gap-bar {
+    display: flex;
+    align-items: center;
+    margin: 24px 0;
+    padding: 16px 0;
+  }
+  .gap-left, .gap-right {
+    flex: 1;
+    padding: 16px;
+    text-align: center;
+    border-radius: 10px;
+  }
+  .gap-left {
+    background: rgba(42,122,110,0.1);
+    color: var(--teal);
+  }
+  .gap-right {
+    background: rgba(184,146,58,0.1);
+    color: var(--gold);
+  }
+  .gap-center {
+    flex: 1.5;
+    text-align: center;
+    padding: 20px 16px;
+    background: rgba(196,80,42,0.08);
+    border: 2px dashed var(--ember);
+    border-radius: 10px;
+    margin: 0 12px;
+  }
+  .gap-center .gap-label {
+    font-weight: 600;
+    color: var(--ember);
+    font-size: 14px;
+  }
+
+  /* Risk table */
+  .risk-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .risk-high { background: rgba(196,64,42,0.15); color: var(--error); }
+  .risk-med { background: rgba(201,148,58,0.15); color: var(--warning); }
+  .risk-low { background: rgba(45,138,110,0.15); color: var(--success); }
+
+  /* Blockquote */
+  blockquote {
+    border-left: 3px solid var(--ember);
+    padding: 12px 20px;
+    margin: 16px 0;
+    background: rgba(196,80,42,0.04);
+    border-radius: 0 6px 6px 0;
+    font-size: 15px;
+    color: var(--slate);
+  }
+
+  /* List */
+  ul, ol { margin: 8px 0 16px 24px; }
+  li { margin-bottom: 6px; color: var(--slate); }
+  li strong { color: var(--ink); }
+
+  /* Emphasis */
+  .ember { color: var(--ember); }
+  .teal { color: var(--teal); }
+  .gold { color: var(--gold); }
+
+  /* Verdict */
+  .verdict {
+    background: var(--deep-ink);
+    color: #fff;
+    border-radius: 10px;
+    padding: 40px 32px;
+    margin: 48px 0;
+    text-align: center;
+  }
+  .verdict h2 {
+    color: var(--ember-light);
+    border: none;
+    margin-top: 0;
+  }
+  .verdict p {
+    color: rgba(255,255,255,0.8);
+    max-width: 600px;
+    margin: 0 auto 16px;
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 64px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: 12px;
+    color: var(--mist);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* Section number */
+  .section-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ember);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .page { padding: 40px 24px; }
+    .hero h1 { font-size: 36px; }
+    h2 { font-size: 26px; }
+    .stat-grid { grid-template-columns: 1fr; }
+    .gap-bar { flex-direction: column; }
+    .gap-center { margin: 12px 0; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Hero -->
+  <div class="hero">
+    <span class="tag">RESEARCH REPORT v0.1</span>
+    <h1>MUSEON 營收可行性<br>市場研究分析</h1>
+    <p class="subtitle">
+      三個月內月營收 NT$10,000+ 的市場驗證<br>
+      TA 畫像 × 缺口分析 × 定價邏輯 × 差異化假說
+    </p>
+    <p class="meta">2026-03-17 · 霓裳 · 地部・營運後勤</p>
+  </div>
+
+  <!-- Executive Summary -->
+  <span class="section-num">Section 01</span>
+  <h2>研究摘要</h2>
+
+  <div class="card highlight">
+    <p class="card-title">一句話結論</p>
+    <p style="margin-bottom:0">
+      台灣 171 萬家中小企業中，<strong>僅 7.4% 導入 AI</strong>，但 9 成認為 AI 可提高生產力。
+      市場存在一個<strong>明確的價格真空帶</strong>——免費 ChatGPT 與 50 萬起跳的顧問之間，
+      幾乎沒有 <strong>NT$8,000-30,000</strong> 的產品化 AI 分析服務。
+      這就是 MUSEON 的切入點。
+    </p>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-box">
+      <div class="number">171萬</div>
+      <div class="label">台灣中小企業家數</div>
+    </div>
+    <div class="stat-box">
+      <div class="number">7.4%</div>
+      <div class="label">AI 導入率</div>
+    </div>
+    <div class="stat-box">
+      <div class="number">12%</div>
+      <div class="label">AI 預算用於「服務」</div>
+    </div>
+  </div>
+
+  <!-- Section 2: TA -->
+  <span class="section-num">Section 02</span>
+  <h2>TA 是誰——有臉的人</h2>
+
+  <p>「台灣中小企業主」是統計標籤，不是客戶。以下是從數據中浮現的<strong>真實畫像</strong>。</p>
+
+  <div class="persona-card">
+    <h3>林老闆，45 歲，新北市製造業</h3>
+    <div class="quote">
+      「ChatGPT 我有用啊，但就是不知道怎麼接到我們的生產線上。
+      上次去經濟部的 AI 講座，講得很好，回來就不知道怎麼做了。」
+    </div>
+    <p>
+      <strong>公司：</strong>月營收 200-400 萬｜員工 15-30 人｜製造/零售/服務業<br>
+      <strong>技術程度：</strong>自己有 ChatGPT Plus 帳號，員工零散使用，無系統化流程<br>
+      <strong>觸發焦慮：</strong>同業問「你們有沒有用 AI？」——AI FOMO 是第一推力<br>
+      <strong>預算現實：</strong>年 AI 相關投入 50-200 萬，但其中 88% 花在硬體/軟體，<strong>服務只佔 12%</strong>
+    </p>
+  </div>
+
+  <h3>TA 的行為路徑（已驗證）</h3>
+  <table>
+    <thead>
+      <tr><th>階段</th><th>行為</th><th>結果</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>1. 焦慮觸發</strong></td>
+        <td>聽到同業/新聞說 AI 時代來了</td>
+        <td>開始焦慮但不知道從哪開始</td>
+      </tr>
+      <tr>
+        <td><strong>2. 自助嘗試</strong></td>
+        <td>訂 ChatGPT Plus、叫員工用</td>
+        <td>零散使用，效果不可衡量</td>
+      </tr>
+      <tr>
+        <td><strong>3. 教育補課</strong></td>
+        <td>參加政府免費 AI 課程</td>
+        <td>「聽完很受啟發，回去不會做」</td>
+      </tr>
+      <tr>
+        <td><strong>4. 尋求外援</strong></td>
+        <td>上 PRO360 / 問顧問公司</td>
+        <td>報價 50 萬起跳，退縮</td>
+      </tr>
+      <tr>
+        <td><strong>5. 卡住</strong></td>
+        <td>停在原地，偶爾用 ChatGPT</td>
+        <td><strong class="ember">← 我們在這裡接住他</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="card teal-highlight">
+    <p class="card-title">數據支撐</p>
+    <ul style="margin-bottom:0">
+      <li><strong>9 成</strong>中小企業僅「粗淺了解」AI（2025 中小企業白皮書）</li>
+      <li><strong>45.1%</strong> 認為「缺乏技術人才」是最大挑戰</li>
+      <li><strong>36.2%</strong> 認為「目標效益難以量化」——不知道 AI 能幫他賺/省多少</li>
+      <li>雇主 55 歲以上佔 <strong>39.59%</strong>——決策者多數不是數位原住民</li>
+    </ul>
+  </div>
+
+  <!-- Section 3: Why Buy -->
+  <span class="section-num">Section 03</span>
+  <h2>為什麼需要買</h2>
+
+  <p>TA 不缺「AI 知識」。他缺的是<strong>三件事</strong>：</p>
+
+  <div class="card">
+    <p class="card-title">❶ 有人看他的業務，告訴他「你的 AI 切入點在哪」</p>
+    <p style="margin-bottom:0;color:var(--slate)">
+      ChatGPT 能回答通用問題，但不知道他的月營收 200 萬、員工 15 人、
+      主要成本在原料和人工。他需要的是<strong>針對他的情境給出具體建議</strong>。
+    </p>
+  </div>
+  <div class="card">
+    <p class="card-title">❷ 用他聽得懂的語言說明 ROI</p>
+    <p style="margin-bottom:0;color:var(--slate)">
+      不是「AI 可以提升效率」，是「你的客服每月花 8 萬人力，用 AI 可以省 5 萬，
+      三個月回本」。<strong>營收語言，不是技術語言。</strong>
+    </p>
+  </div>
+  <div class="card">
+    <p class="card-title">❸ 持續追蹤，不是「做完就走」</p>
+    <p style="margin-bottom:0;color:var(--slate)">
+      一次性報告解決不了「不知道怎麼落地」的問題。
+      他需要的是<strong>有人帶著走過前三個月</strong>。
+    </p>
+  </div>
+
+  <blockquote>
+    <strong>核心洞察：</strong>TA 的痛點不是「缺 AI 工具」（工具太多了），
+    是<strong>缺翻譯者</strong>——把 AI 能力翻譯成他的業務語言、他的成本結構、他的行動步驟。
+  </blockquote>
+
+  <!-- Section 4: Gap -->
+  <span class="section-num">Section 04</span>
+  <h2>市場缺口——價格真空帶</h2>
+
+  <div class="gap-bar">
+    <div class="gap-left">
+      <div style="font-weight:600;font-size:14px">免費 / 低價自助</div>
+      <div style="font-size:13px;margin-top:4px">ChatGPT Plus NT$690/月</div>
+      <div style="font-size:12px;color:var(--mist)">品質不穩、無行業脈絡、無落地追蹤</div>
+    </div>
+    <div class="gap-center">
+      <div class="gap-label">🔥 價格真空帶</div>
+      <div style="font-size:20px;font-weight:600;color:var(--ember);margin:8px 0">
+        NT$8,000 — 30,000
+      </div>
+      <div style="font-size:12px;color:var(--slate)">
+        產品化 AI 分析服務<br>幾乎無人佔領
+      </div>
+    </div>
+    <div class="gap-right">
+      <div style="font-weight:600;font-size:14px">傳統顧問公司</div>
+      <div style="font-size:13px;margin-top:4px">NT$50 萬起跳</div>
+      <div style="font-size:12px;color:var(--mist)">框架為大企業設計、交付 2-4 週</div>
+    </div>
+  </div>
+
+  <h3>競爭格局</h3>
+  <table>
+    <thead>
+      <tr><th>競爭者</th><th>定位</th><th>價格帶</th><th>弱點</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>ChatGPT / Claude</strong></td>
+        <td>通用 AI 工具</td>
+        <td>免費-NT$690/月</td>
+        <td>無行業脈絡、無結構化輸出、無追蹤</td>
+      </tr>
+      <tr>
+        <td><strong>戰國策集團</strong></td>
+        <td>AI 顧問（人工為主）</td>
+        <td>專案制，數十萬</td>
+        <td>對中小企業偏貴</td>
+      </tr>
+      <tr>
+        <td><strong>先行智庫</strong></td>
+        <td>企業 AI 培訓</td>
+        <td>課程制，數萬-數十萬</td>
+        <td>教學不等於落地</td>
+      </tr>
+      <tr>
+        <td><strong>萬弘資訊</strong></td>
+        <td>GPT/LLM 企業導入</td>
+        <td>PoC + 專案制</td>
+        <td>技術導向，非商業診斷</td>
+      </tr>
+      <tr>
+        <td><strong>PRO360 AI 顧問</strong></td>
+        <td>平台媒合</td>
+        <td>NT$3,000-10,000/hr</td>
+        <td>品質不穩定、無標準化產品</td>
+      </tr>
+      <tr>
+        <td><strong class="ember">MUSEON（預期定位）</strong></td>
+        <td><strong>產品化 AI 商業診斷</strong></td>
+        <td><strong>NT$8,000-30,000/份</strong></td>
+        <td>尚無品牌、無客戶驗證</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Section 5: Why Us -->
+  <span class="section-num">Section 05</span>
+  <h2>為什麼跟我買——差異化假說</h2>
+
+  <div class="card gold-highlight">
+    <p class="card-title">核心差異化命題</p>
+    <p style="margin-bottom:0">
+      <strong>用顧問公司的品質，以 1/20 的價格，在 1/20 的時間交付。</strong><br>
+      關鍵在於：MUSEON 不是「更便宜的顧問」，是<strong>「產品化的分析服務」</strong>——
+      像是 AI 版的 SaaS 商業診斷。
+    </p>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>維度</th><th>ChatGPT 直接用</th><th>MUSEON</th><th>傳統顧問</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>行業脈絡</strong></td>
+        <td>泛用，不懂台灣中小企業</td>
+        <td>business-12 + SSA 染色體<br>台灣中小企業專用框架</td>
+        <td>有，但框架為大企業設計</td>
+      </tr>
+      <tr>
+        <td><strong>輸出品質</strong></td>
+        <td>一問一答，無結構</td>
+        <td>完整 HTML 報告<br>有架構、有行動項、有視覺</td>
+        <td>完整 PDF，但等 2-4 週</td>
+      </tr>
+      <tr>
+        <td><strong>持續性</strong></td>
+        <td>無記憶，每次重來</td>
+        <td>有記憶系統<br>累積業務理解</td>
+        <td>有，但按小時收費</td>
+      </tr>
+      <tr>
+        <td><strong>速度</strong></td>
+        <td>即時但粗糙</td>
+        <td>2-4 小時交付完整報告</td>
+        <td>2-4 週</td>
+      </tr>
+      <tr>
+        <td><strong>價格</strong></td>
+        <td>免費-NT$690/月</td>
+        <td class="ember"><strong>NT$8,000-30,000/份</strong></td>
+        <td>NT$50 萬起</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>差異化的三個層次</h3>
+  <ol>
+    <li><strong>第一層（基本）：</strong>比 ChatGPT 有結構、有行業知識、有追蹤——這是入場券</li>
+    <li><strong>第二層（真正的差異）：</strong>MUSEON 的 Skill 生態系（27+ 模組）能提供<strong>多視角交叉分析</strong>，不是單一角度的回答。business-12 看商業面、master-strategy 看戰略面、xmodel 看破框路徑——這是 ChatGPT 做不到的</li>
+    <li><strong>第三層（護城河）：</strong>隨著服務客戶數增加，累積的<strong>行業 pattern</strong>（哪些建議有效、哪些沒用）會讓分析品質持續提升——這是傳統顧問難以規模化的</li>
+  </ol>
+
+  <!-- Section 6: Pricing -->
+  <span class="section-num">Section 06</span>
+  <h2>定價邏輯</h2>
+
+  <h3>錨定分析</h3>
+  <table>
+    <thead>
+      <tr><th>錨定物</th><th>市場價格</th><th>來源</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>AI 顧問 1 小時諮詢</td>
+        <td>NT$3,000-10,000</td>
+        <td>PRO360 平台</td>
+      </tr>
+      <tr>
+        <td>AI 顧問月費</td>
+        <td>NT$30,000-100,000</td>
+        <td>PRO360 平台</td>
+      </tr>
+      <tr>
+        <td>AI 導入專案</td>
+        <td>NT$100,000-1,500,000</td>
+        <td>PRO360 / 萬弘</td>
+      </tr>
+      <tr>
+        <td>管理顧問 1 小時</td>
+        <td>NT$3,000-6,000</td>
+        <td>PRO360 平台</td>
+      </tr>
+      <tr>
+        <td>企業平均年 AI 投入</td>
+        <td>NT$209-261 萬</td>
+        <td>2025 白皮書</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>建議產品線與定價</h3>
+  <table>
+    <thead>
+      <tr><th>產品</th><th>定價</th><th>定價理由</th><th>月目標</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>AI 商業切入點診斷</strong><br><span style="font-size:12px;color:var(--mist)">business-12 + SSA 分析</span></td>
+        <td class="ember"><strong>NT$8,000-12,000</strong></td>
+        <td>= 請顧問聊 1-2 小時的價格<br>但交付完整書面報告</td>
+        <td>1-2 份</td>
+      </tr>
+      <tr>
+        <td><strong>行業深度分析報告</strong><br><span style="font-size:12px;color:var(--mist)">market-core + xmodel + 多模組</span></td>
+        <td class="ember"><strong>NT$20,000-30,000</strong></td>
+        <td>= 顧問專案的 1/5-1/10<br>品質接近、速度快 10 倍</td>
+        <td>0-1 份</td>
+      </tr>
+      <tr>
+        <td><strong>月度追蹤顧問</strong><br><span style="font-size:12px;color:var(--mist)">持續分析 + 行動建議</span></td>
+        <td class="ember"><strong>NT$15,000-25,000/月</strong></td>
+        <td>低於最低月費 NT$30,000<br>但有持續累積價值</td>
+        <td>Phase 2 導入</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="card highlight">
+    <p class="card-title">達標路徑</p>
+    <p style="margin-bottom:0">
+      <strong>最低達標：</strong>每月 1 份 NT$12,000 診斷報告 = NT$12,000 ✓<br>
+      <strong>穩定達標：</strong>每月 2 份 NT$8,000 診斷 = NT$16,000 ✓<br>
+      <strong>成長目標：</strong>1 份深度報告 NT$25,000 + 1 份追蹤 NT$15,000 = NT$40,000
+    </p>
+  </div>
+
+  <!-- Section 7: Unvalidated -->
+  <span class="section-num">Section 07</span>
+  <h2>未驗證假說——必須用客戶訪談確認</h2>
+
+  <p>以上所有分析都建立在<strong>假設</strong>之上。以下是最關鍵的六個，任何一個翻盤都會改變策略。</p>
+
+  <table>
+    <thead>
+      <tr><th>#</th><th>假說</th><th>風險等級</th><th>驗證方式</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td><strong>TA 願意為「AI 商業診斷報告」付錢</strong><br>
+            <span style="font-size:12px;color:var(--mist)">他可能需要的是「有人帶他做」而不是報告</span></td>
+        <td><span class="risk-tag risk-high">HIGH</span></td>
+        <td>5 人訪談 + 1 份 beta 報告測試</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td><strong>「報告」是對的產品形式</strong><br>
+            <span style="font-size:12px;color:var(--mist)">也許他要的是 30 分鐘視訊 + 3 頁摘要</span></td>
+        <td><span class="risk-tag risk-high">HIGH</span></td>
+        <td>A/B 測試兩種交付形式</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td><strong>TA 信任 AI 產出</strong><br>
+            <span style="font-size:12px;color:var(--mist)">必須有「人」在中間才願意掏錢？</span></td>
+        <td><span class="risk-tag risk-high">HIGH</span></td>
+        <td>訪談中直接問「如果分析是 AI 做的你介意嗎」</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td><strong>NT$8,000-12,000 的價格帶被接受</strong><br>
+            <span style="font-size:12px;color:var(--mist)">也許 TA 覺得「又不是人做的，憑什麼收這麼多」</span></td>
+        <td><span class="risk-tag risk-med">MEDIUM</span></td>
+        <td>測試價 NT$3,000 → 觀察回購意願 → 逐步提價</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td><strong>TA 能找到（觸及成本可控）</strong><br>
+            <span style="font-size:12px;color:var(--mist)">你的人脈圈有足夠多符合畫像的人？</span></td>
+        <td><span class="risk-tag risk-med">MEDIUM</span></td>
+        <td>列出你認識的 15 個潛在 TA，標記匹配度</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td><strong>MUSEON 的品質確實優於 ChatGPT 直接用</strong><br>
+            <span style="font-size:12px;color:var(--mist)">必須有盲測證據，不能自己說了算</span></td>
+        <td><span class="risk-tag risk-med">MEDIUM</span></td>
+        <td>同一個案例，ChatGPT vs MUSEON，讓 TA 盲評</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Section 8: Next Steps -->
+  <span class="section-num">Section 08</span>
+  <h2>驗證行動清單</h2>
+
+  <h3>第一步：客戶驗證訪談（本週內）</h3>
+
+  <div class="card">
+    <p class="card-title">訪談問題清單（10 題）</p>
+    <ol>
+      <li>你目前怎麼用 AI？用在哪些業務環節？</li>
+      <li>你覺得 AI 對你的業務最大的幫助可能在哪？</li>
+      <li>你試過請人幫你導入 AI 嗎？結果怎樣？</li>
+      <li>如果有人幫你分析「你的業務哪裡最適合用 AI」，你有興趣嗎？</li>
+      <li>你希望這種分析用什麼形式交付？（書面報告 / 視訊解說 / 陪跑）</li>
+      <li>如果分析主要是 AI 做的，有人類專家校閱，你介意嗎？</li>
+      <li>這種服務你覺得值多少錢？</li>
+      <li>你會在哪裡找這種服務？（搜尋 / 朋友推薦 / 社群）</li>
+      <li>你最近有沒有因為「不知道 AI 怎麼用」而錯失什麼機會？</li>
+      <li>如果現在有一份免費的 beta 測試名額，你有興趣嗎？</li>
+    </ol>
+  </div>
+
+  <h3>第二步：Beta 報告產出（訪談後一週內）</h3>
+  <ul>
+    <li>選 1 個訪談中最有潛力的 TA，產出完整 demo 報告</li>
+    <li>格式：HTML 報告（符合 MUSEON 品牌規範）</li>
+    <li>內容：business-12 商模診斷 + AI 切入點建議 + 具體行動清單 + ROI 試算</li>
+    <li>讓 TA 看完後收集：「你會為這個付錢嗎？多少？」</li>
+  </ul>
+
+  <h3>第三步：人脈名單盤點</h3>
+
+  <div class="card teal-highlight">
+    <p class="card-title">需要你提供的：15 人候選名單</p>
+    <p style="margin-bottom:0">
+      從你的人脈圈中，列出 15 個符合以下條件的人：<br>
+      ✓ 中小企業主或高階主管<br>
+      ✓ 月營收 100 萬以上<br>
+      ✓ 你至少認識他、能發一則訊息<br>
+      ✓ 你覺得他「可能」對 AI 有興趣<br><br>
+      不需要他已經想買——只需要他<strong>願意花 20 分鐘跟你聊</strong>。
+    </p>
+  </div>
+
+  <!-- Verdict -->
+  <div class="verdict">
+    <span class="section-num" style="color:var(--ember-light)">VERDICT</span>
+    <h2>結論</h2>
+    <p>
+      市場缺口是真的。TA 的痛點是真的。價格真空帶是真的。<br>
+      <strong>但「他願不願意掏錢給我」——這只有客戶訪談才能回答。</strong>
+    </p>
+    <p style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--ember-light);font-style:italic">
+      研究做完了。下一步是出門問人。
+    </p>
+  </div>
+
+  <!-- Sources -->
+  <span class="section-num">Section 09</span>
+  <h2>資料來源</h2>
+
+  <div style="font-size:13px;color:var(--slate);line-height:1.8">
+    <ol>
+      <li>2025 中小企業白皮書（經濟部中小及新創企業署）</li>
+      <li>KPMG 2025 台灣產業 AI 應用趨勢與展望報告</li>
+      <li>PwC 2024 臺灣企業轉型現況及需求調查</li>
+      <li>PwC 2025 臺灣企業領袖調查</li>
+      <li>資策會 MIC 五大行業 AI 使用比例調查</li>
+      <li>先行智庫：台灣企業 AI 導入現況 5 大關鍵觀察</li>
+      <li>PRO360 AI 顧問費用 / 管理顧問費用 / AI 導入費用</li>
+      <li>Statista — Taiwan AI Market Forecast 2025-2031</li>
+      <li>Mordor Intelligence — Taiwan Management Consulting Market</li>
+      <li>OECD 2025 — AI Adoption by SMEs</li>
+      <li>Deloitte / Accenture / EY — 2026 Consulting AI Revolution</li>
+    </ol>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    MUSEON · Research Report v0.1 · 2026-03-17<br>
+    Produced by 霓裳 · 地部・營運後勤<br>
+    <span style="color:var(--ember)">本報告所有結論均為假說，需經客戶驗證方可作為決策依據。</span>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260312_214903_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n「方案 C」的上下文不明確（是否指之前的對話？此對話是否有多個方案選項？）。建議先問使用者：「方案 C 指什麼？你想達成什麼目標？」再決定是否需要讀源碼。不要自動假設。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-12T21:49:03.108680+08:00",
+  "priority": "medium"
+}

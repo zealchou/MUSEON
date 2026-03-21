@@ -28,6 +28,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "query-clarity": {
         "type": "always-on",
         "layer": "core-extension",
+        "hub": "core",
         "io": {
             "inputs": [
                 {"from": "user", "field": "raw_question", "required": True},
@@ -50,6 +51,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "deep-think": {
         "type": "always-on",
         "layer": "core-extension",
+        "hub": "core",
         "io": {
             "inputs": [
                 {"from": "query-clarity", "field": "validated_question", "required": True},
@@ -77,6 +79,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "c15": {
         "type": "always-on",
         "layer": "core-extension",
+        "hub": "core",
         "io": {
             "inputs": [
                 {"from": "deep-think", "field": "validated_output", "required": False},
@@ -93,6 +96,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "roundtable": {
         "type": "on-demand",
         "layer": "analysis",
+        "hub": "thinking",
         "io": {
             "inputs": [
                 {"from": "query-clarity", "field": "validated_question", "required": True},
@@ -119,6 +123,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "resonance": {
         "type": "on-demand",
         "layer": "thinking",
+        "hub": "thinking",
         "io": {
             "inputs": [
                 {"from": "deep-think", "field": "emotional_signal", "required": True},
@@ -139,6 +144,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "dharma": {
         "type": "on-demand",
         "layer": "thinking",
+        "hub": "thinking",
         "io": {
             "inputs": [
                 {"from": "deep-think", "field": "transformation_signal", "required": True},
@@ -160,6 +166,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "philo-dialectic": {
         "type": "on-demand",
         "layer": "thinking",
+        "hub": "thinking",
         "io": {
             "inputs": [
                 {"from": "deep-think", "field": "philosophical_signal", "required": True},
@@ -180,6 +187,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "xmodel": {
         "type": "on-demand",
         "layer": "thinking",
+        "hub": "business",
         "io": {
             "inputs": [
                 {"from": "user", "field": "stuck_problem", "required": True},
@@ -200,6 +208,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "pdeif": {
         "type": "on-demand",
         "layer": "thinking",
+        "hub": "business",
         "io": {
             "inputs": [
                 {"from": "user", "field": "goal_description", "required": True},
@@ -222,6 +231,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "business-12": {
         "type": "on-demand",
         "layer": "business",
+        "hub": "business",
         "io": {
             "inputs": [
                 {"from": "user", "field": "business_problem", "required": True},
@@ -242,6 +252,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "ssa-consultant": {
         "type": "on-demand",
         "layer": "business",
+        "hub": "business",
         "io": {
             "inputs": [
                 {"from": "user", "field": "sales_scenario", "required": True},
@@ -262,6 +273,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "master-strategy": {
         "type": "on-demand",
         "layer": "business",
+        "hub": "business",
         "io": {
             "inputs": [
                 {"from": "user", "field": "strategic_scenario", "required": True},
@@ -283,6 +295,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "shadow": {
         "type": "on-demand",
         "layer": "business",
+        "hub": "thinking",
         "io": {
             "inputs": [
                 {"from": "user", "field": "interpersonal_scenario", "required": True},
@@ -305,6 +318,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "text-alchemy": {
         "type": "on-demand",
         "layer": "language",
+        "hub": "creative",
         "io": {
             "inputs": [
                 {"from": "user", "field": "writing_task", "required": True},
@@ -322,6 +336,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "storytelling-engine": {
         "type": "on-demand",
         "layer": "language",
+        "hub": "creative",
         "io": {
             "inputs": [
                 {"from": "text-alchemy", "field": "narrative_task", "required": False},
@@ -337,6 +352,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "novel-craft": {
         "type": "on-demand",
         "layer": "language",
+        "hub": "creative",
         "io": {
             "inputs": [
                 {"from": "text-alchemy", "field": "fiction_task", "required": False},
@@ -352,6 +368,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "consultant-communication": {
         "type": "on-demand",
         "layer": "language",
+        "hub": "business",
         "io": {
             "inputs": [
                 {"from": "text-alchemy", "field": "business_comm_task", "required": False},
@@ -370,6 +387,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "aesthetic-sense": {
         "type": "on-demand",
         "layer": "aesthetic",
+        "hub": "creative",
         "io": {
             "inputs": [
                 {"from": "user", "field": "visual_output", "required": True},
@@ -384,6 +402,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "brand-identity": {
         "type": "on-demand",
         "layer": "aesthetic",
+        "hub": "creative",
         "io": {
             "inputs": [
                 {"from": "user", "field": "brand_task", "required": True},
@@ -400,6 +419,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "user-model": {
         "type": "on-demand",
         "layer": "meta",
+        "hub": "core",
         "io": {
             "inputs": [
                 {"from": "query-clarity", "field": "question_patterns", "required": False},
@@ -430,6 +450,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "meta-learning": {
         "type": "on-demand",
         "layer": "meta",
+        "hub": "thinking",
         "io": {
             "inputs": [
                 {"from": "user", "field": "learning_task", "required": True},
@@ -452,6 +473,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "morphenix": {
         "type": "on-demand",
         "layer": "evolution",
+        "hub": "infra",
         "io": {
             "inputs": [
                 {"from": "eval-engine", "field": "quality_trends", "required": False},
@@ -476,6 +498,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "wee": {
         "type": "on-demand",
         "layer": "evolution",
+        "hub": "infra",
         "io": {
             "inputs": [
                 {"from": "orchestrator", "field": "execution_trace", "required": False},
@@ -500,6 +523,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "knowledge-lattice": {
         "type": "on-demand",
         "layer": "evolution",
+        "hub": "infra",
         "io": {
             "inputs": [
                 {"from": "roundtable", "field": "verdict_with_dissent", "required": False},
@@ -532,6 +556,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "eval-engine": {
         "type": "on-demand",
         "layer": "evolution",
+        "hub": "infra",
         "io": {
             "inputs": [
                 {"from": "user", "field": "response_feedback", "required": False},
@@ -553,6 +578,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "sandbox-lab": {
         "type": "on-demand",
         "layer": "evolution",
+        "hub": "evolution",
         "io": {
             "inputs": [
                 {"from": "user", "field": "experiment_design", "required": True},
@@ -569,6 +595,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "orchestrator": {
         "type": "on-demand",
         "layer": "evolution",
+        "hub": "product",
         "io": {
             "inputs": [
                 {"from": "user", "field": "complex_task", "required": True},
@@ -590,6 +617,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "qa-auditor": {
         "type": "on-demand",
         "layer": "evolution",
+        "hub": "evolution",
         "io": {
             "inputs": [
                 {"from": "user", "field": "code_delivery", "required": True},
@@ -607,6 +635,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "gap": {
         "type": "on-demand",
         "layer": "product",
+        "hub": "product",
         "io": {
             "inputs": [
                 {"from": "user", "field": "market_scan_request", "required": True},
@@ -622,6 +651,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "dse": {
         "type": "on-demand",
         "layer": "product",
+        "hub": "product",
         "io": {
             "inputs": [
                 {"from": "gap", "field": "opportunity_list", "required": False},
@@ -644,6 +674,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "acsf": {
         "type": "on-demand",
         "layer": "product",
+        "hub": "product",
         "io": {
             "inputs": [
                 {"from": "dse", "field": "feasibility_report", "required": False},
@@ -660,6 +691,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "env-radar": {
         "type": "on-demand",
         "layer": "product",
+        "hub": "product",
         "io": {
             "inputs": [
                 {"from": "user", "field": "scan_request", "required": True},
@@ -680,6 +712,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "report-forge": {
         "type": "on-demand",
         "layer": "product",
+        "hub": "product",
         "io": {
             "inputs": [
                 {"from": "user", "field": "analysis_data", "required": True},
@@ -696,6 +729,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "market-core": {
         "type": "on-demand",
         "layer": "market",
+        "hub": "market",
         "io": {
             "inputs": [
                 {"from": "user", "field": "market_query", "required": True},
@@ -719,6 +753,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "market-equity": {
         "type": "on-demand",
         "layer": "market",
+        "hub": "market",
         "io": {
             "inputs": [
                 {"from": "market-core", "field": "framework", "required": True},
@@ -735,6 +770,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "market-crypto": {
         "type": "on-demand",
         "layer": "market",
+        "hub": "market",
         "io": {
             "inputs": [
                 {"from": "market-core", "field": "framework", "required": True},
@@ -751,6 +787,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "market-macro": {
         "type": "on-demand",
         "layer": "market",
+        "hub": "market",
         "io": {
             "inputs": [
                 {"from": "market-core", "field": "framework", "required": True},
@@ -767,6 +804,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "investment-masters": {
         "type": "on-demand",
         "layer": "market",
+        "hub": "market",
         "io": {
             "inputs": [
                 {"from": "market-core", "field": "bull_bear_analysis", "required": True},
@@ -788,6 +826,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "risk-matrix": {
         "type": "on-demand",
         "layer": "market",
+        "hub": "market",
         "io": {
             "inputs": [
                 {"from": "market-core", "field": "bull_bear_analysis", "required": True},
@@ -809,6 +848,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "sentiment-radar": {
         "type": "on-demand",
         "layer": "market",
+        "hub": "market",
         "io": {
             "inputs": [
                 {"from": "market-core", "field": "analysis_context", "required": False},
@@ -827,6 +867,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "workflow-svc-brand-marketing": {
         "type": "workflow",
         "layer": "workflow",
+        "hub": "workflow",
         "io": {
             "inputs": [
                 {"from": "user", "field": "client_brief", "required": True},
@@ -850,6 +891,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "workflow-investment-analysis": {
         "type": "workflow",
         "layer": "workflow",
+        "hub": "workflow",
         "io": {
             "inputs": [
                 {"from": "user", "field": "market_target", "required": True},
@@ -872,6 +914,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "workflow-ai-deployment": {
         "type": "workflow",
         "layer": "workflow",
+        "hub": "workflow",
         "io": {
             "inputs": [
                 {"from": "user", "field": "business_assessment", "required": True},
@@ -896,6 +939,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "tantra": {
         "type": "on-demand",
         "layer": "special",
+        "hub": "evolution",
         "io": {
             "inputs": [
                 {"from": "user", "field": "explicit_activation", "required": True},
@@ -912,6 +956,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "plugin-registry": {
         "type": "reference",
         "layer": "evolution",
+        "hub": "infra",
         "io": {
             "inputs": [
                 {"from": "acsf", "field": "new_skill_entry", "required": False},
@@ -929,6 +974,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "dna27": {
         "type": "always-on",
         "layer": "core-extension",
+        "hub": "core",
         "io": {
             "inputs": [
                 {"from": "user", "field": "all_input", "required": True},
@@ -944,6 +990,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "plan-engine": {
         "type": "on-demand",
         "layer": "evolution",
+        "hub": "infra",
         "io": {
             "inputs": [
                 {"from": "user", "field": "chaotic_start", "required": True},
@@ -959,6 +1006,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "info-architect": {
         "type": "on-demand",
         "layer": "meta",
+        "hub": "product",
         "io": {
             "inputs": [
                 {"from": "user", "field": "organization_task", "required": True},
@@ -973,6 +1021,7 @@ SKILL_MANIFESTS: dict[str, dict[str, Any]] = {
     "group-meeting-notes": {
         "type": "workflow",
         "layer": "workflow",
+        "hub": "workflow",
         "io": {
             "inputs": [
                 {"from": "user", "field": "meeting_transcript", "required": True},
@@ -1034,6 +1083,7 @@ def build_manifest_yaml(name: str, manifest: dict) -> str:
     lines = []
     lines.append(f"type: {manifest['type']}")
     lines.append(f"layer: {manifest['layer']}")
+    lines.append(f"hub: {manifest['hub']}")
 
     # io
     io_data = manifest.get("io", {})
@@ -1116,10 +1166,40 @@ def inject_manifest(skill_path: Path, manifest_yaml: str, dry_run: bool) -> str:
         return f"INJECTED: {skill_path.parent.name}"
 
 
+def update_hub_in_file(skill_path: Path, hub_value: str, dry_run: bool) -> str:
+    """在已有 manifest 的 SKILL.md 中，於 layer: 後面插入 hub: 行"""
+    content = skill_path.read_text(encoding="utf-8")
+
+    if not content.startswith("---"):
+        return f"SKIP (no YAML frontmatter): {skill_path.parent.name}"
+
+    # 檢查是否已有 hub:
+    second_dash = content.index("---", 3)
+    yaml_block = content[3:second_dash]
+
+    if "\nhub:" in yaml_block or yaml_block.strip().startswith("hub:"):
+        return f"SKIP (already has hub): {skill_path.parent.name}"
+
+    # 在 layer: xxx 後面插入 hub: xxx
+    pattern = r"(layer:\s*\S+\n)"
+    replacement = f"\\1hub: {hub_value}\n"
+    new_content = re.sub(pattern, replacement, content, count=1)
+
+    if new_content == content:
+        return f"SKIP (no layer field found): {skill_path.parent.name}"
+
+    if dry_run:
+        return f"WOULD ADD HUB: {skill_path.parent.name} → hub: {hub_value}"
+    else:
+        skill_path.write_text(new_content, encoding="utf-8")
+        return f"ADDED HUB: {skill_path.parent.name} → hub: {hub_value}"
+
+
 def main():
     parser = argparse.ArgumentParser(description="Inject Skill Manifests")
     parser.add_argument("--dry-run", action="store_true", help="只報告，不實際修改")
     parser.add_argument("--apply", action="store_true", help="實際注入")
+    parser.add_argument("--update-hub", action="store_true", help="為已有 manifest 的 SKILL.md 新增 hub 欄位")
     args = parser.parse_args()
 
     if not args.dry_run and not args.apply:
@@ -1127,29 +1207,61 @@ def main():
         sys.exit(1)
 
     dry_run = args.dry_run
+    # --update-hub 搭配 --apply 才真的寫入，搭配 --dry-run 只預覽
+    if args.update_hub:
+        dry_run = not args.apply
 
     results = {"injected": 0, "skipped": 0, "missing": 0, "errors": 0}
 
-    for skill_name, manifest in SKILL_MANIFESTS.items():
-        skill_dir = SKILLS_DIR / skill_name
-        skill_file = skill_dir / "SKILL.md"
+    if args.update_hub:
+        # update-hub 模式：為已有 manifest 的 SKILL.md 插入 hub: 行
+        for skill_name, manifest in SKILL_MANIFESTS.items():
+            skill_dir = SKILLS_DIR / skill_name
+            skill_file = skill_dir / "SKILL.md"
 
-        if not skill_file.exists():
-            print(f"  MISSING: {skill_name} (no SKILL.md)")
-            results["missing"] += 1
-            continue
+            if not skill_file.exists():
+                print(f"  MISSING: {skill_name}")
+                results["missing"] += 1
+                continue
 
-        try:
-            manifest_yaml = build_manifest_yaml(skill_name, manifest)
-            result = inject_manifest(skill_file, manifest_yaml, dry_run)
-            print(f"  {result}")
-            if "INJECT" in result:
-                results["injected"] += 1
-            else:
+            hub_value = manifest.get("hub", "")
+            if not hub_value:
+                print(f"  SKIP (no hub defined): {skill_name}")
                 results["skipped"] += 1
-        except Exception as e:
-            print(f"  ERROR: {skill_name} — {e}")
-            results["errors"] += 1
+                continue
+
+            try:
+                result = update_hub_in_file(skill_file, hub_value, dry_run)
+                print(f"  {result}")
+                if "ADDED HUB" in result or "WOULD ADD" in result:
+                    results["injected"] += 1
+                else:
+                    results["skipped"] += 1
+            except Exception as e:
+                print(f"  ERROR: {skill_name} — {e}")
+                results["errors"] += 1
+    else:
+        # 原始 inject 模式
+        for skill_name, manifest in SKILL_MANIFESTS.items():
+            skill_dir = SKILLS_DIR / skill_name
+            skill_file = skill_dir / "SKILL.md"
+
+            if not skill_file.exists():
+                print(f"  MISSING: {skill_name} (no SKILL.md)")
+                results["missing"] += 1
+                continue
+
+            try:
+                manifest_yaml = build_manifest_yaml(skill_name, manifest)
+                result = inject_manifest(skill_file, manifest_yaml, dry_run)
+                print(f"  {result}")
+                if "INJECT" in result:
+                    results["injected"] += 1
+                else:
+                    results["skipped"] += 1
+            except Exception as e:
+                print(f"  ERROR: {skill_name} — {e}")
+                results["errors"] += 1
 
     print(f"\n{'DRY RUN' if dry_run else 'APPLIED'} Summary:")
     print(f"  Injected: {results['injected']}")

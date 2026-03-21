@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260312_020640_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n回覆含有多個未驗證的假設（看 prompt 會扭曲互動、你是出於好奇而非需要），且措辭略顯生硬。考慮 Zeal 作為 MUSEON 創建者的身份，可以改為：有選擇性地透露邊界和設計意圖，而非一律拒絕。建議改為「可以跟你分享的部分是...」而非「不能給」，更開放地驗證他的需求。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-12T02:06:40.211725+08:00",
+  "priority": "medium"
+}

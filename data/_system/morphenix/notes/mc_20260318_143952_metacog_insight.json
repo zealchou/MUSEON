@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260318_143952_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：\n(1) 先確認四個方案的具體內容或讓 Feng 提供文件\n(2) 直接回答 Feng 的核心問題「這個流程適合嗎」（優/缺點）\n(3) 澄清 UUID 的角色（Device ID？用在測試計畫的哪一步？）\n(4) 確認 Feng 的前端改好了沒\n(5) **之後**才給測試計畫\n\n目前在假設條件下跳到測試，但 Feng 的問題其實是求「架構確認」而非「執行細節」。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-18T14:39:52.105600+08:00",
+  "priority": "medium"
+}

@@ -1,0 +1,22 @@
+{
+  "id": "a0637902-71e4-479e-b705-d476d32f86cc",
+  "content": "[失敗經驗] 任務：[群組近期對話紀錄]\n  22:33 Feng: 這東西用戶和管理者都不可能存的\n對接系統的時候，應該是你那邊會拿到的吧？\n新的code 0fdab39d76471c53750cb371329da93\n失敗類型：general_failure\n回應片段：Feng，**全部跑完，15/19 通過，0 失敗。**\n\n| 關卡 | 項目 | 結果 |\n|------|------|------|\n| **一** | 1.1 API JSON | ✅ |\n| | 1.2 登入 JWT | ✅ |\n| **二** | 2.1 查 License | ✅ (1 可用) |\n| | 2.2 配對碼 | ✅ |\n| | 2.3 配對設備 | ✅ (token 拿",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-18T16:25:42.132111+08:00",
+  "updated_at": "2026-03-18T16:25:42.132111+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "8252847174",
+  "session_id": "",
+  "dept_id": "",
+  "archived": false
+}

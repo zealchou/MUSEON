@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260315_220347_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n回覆混淆了「我」的指代對象。使用者問「我叫什麼名字」，應該直接回答「你叫 Zeal」；現在只說「我是霓裳」（講的是 AI 的名字）。建議改為：「你叫 **Zeal**，公司是 **MUSEON**，我是你的 AI 顧問 **霓裳**。」這樣才完整回答了使用者的兩個問題。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-15T22:03:47.763158+08:00",
+  "priority": "medium"
+}

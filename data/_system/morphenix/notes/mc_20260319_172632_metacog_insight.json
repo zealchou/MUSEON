@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260319_172632_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n三個問題：(1) 語言應為繁體中文，不是簡體。(2) 核心卡點被跳過了——老闆明確要「文字檔逐字稿」，Feng 上傳的是 PDF，應該先問 Feng 是否有原始錄音或純文本版本，而非只確認檔案位置。(3) 「方案 A/B」都在處理檔案存取，但真正的瓶頸是「PDF → 文本」的轉換，應該直接提出這個卡點。\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-19T17:26:32.670578+08:00",
+  "priority": "medium"
+}

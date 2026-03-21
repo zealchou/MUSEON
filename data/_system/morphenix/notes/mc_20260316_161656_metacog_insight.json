@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260316_161656_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n使用者明確說「你新增一個算了」= 要求你直接做，而非教他怎麼做。應該用 Bash 工具直接執行 `gh gist create` 指令建立新 gist，然後提供完成的連結給他，而不是把選項丟回去。\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-16T16:16:56.175609+08:00",
+  "priority": "medium"
+}

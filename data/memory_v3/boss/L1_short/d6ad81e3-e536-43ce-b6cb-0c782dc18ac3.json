@@ -1,0 +1,22 @@
+{
+  "id": "d6ad81e3-e536-43ce-b6cb-0c782dc18ac3",
+  "content": "[失敗經驗] 任務：我想創業，打算做一個面向台灣中小企業的 AI 顧問工具。幫我分析市場機會和競爭格局，列出前三個最關鍵的風險。\n失敗類型：general_failure\n回應片段：先確認一件事：你已經在做 MUSEON 了——這是要驗證 MUSEON 現有定位的市場機會，還是在探索新的業務線？\n\n我先用 MUSEON 現有定位來分析，如果方向不對你告訴我。\n\n---\n\n## 市場機會\n\n**規模**：台灣中小企業約 163 萬家，其中月營收 100 萬以上（你的 TA）估計 15-20 萬家。這群老闆的共同痛點：**知道 AI 時代來了，但不知道怎麼跟自己的業務接上。**\n",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-20T21:11:17.667223+08:00",
+  "updated_at": "2026-03-20T21:11:17.667223+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "boss",
+  "session_id": "",
+  "dept_id": "",
+  "archived": false
+}

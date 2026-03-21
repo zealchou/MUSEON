@@ -112,5 +112,90 @@
     "question": "**user**: @MuseonClaw_bot 你把c的架構給我，我來問看看， 另外API和Max  會有llm的差異嘛？",
     "source_date": "2026-03-18",
     "status": "pending"
+  },
+  {
+    "question": "具體問題：MemGPT 的分層記憶架構（in-context / external storage / archival）能否與 Knowledge Lattice 的 DAG 結構直接對接——讓 Crystal 的調用成為 MemGPT 的「archival retrieval」操作，並用共振指數決定哪些 Crystal 應該預載入 in-context window？",
+    "source_date": "2026-03-20",
+    "status": "researched",
+    "source": "exploration_bridge",
+    "researched_at": "2026-03-20T10:00:06.035148+08:00"
+  },
+  {
+    "question": "Museon 現在的運作上 已經能每次都即時做到這四件事情了嗎？",
+    "source_date": "2026-03-19",
+    "status": "researched",
+    "researched_at": "2026-03-20T10:00:07.440594+08:00"
+  },
+  {
+    "question": "[群組近期對話紀錄]\n  39:28 Feng: [檔案: 03-20251017蔡宗宸，補助行業.pdf] \n  39:28 Feng: [檔案: 04-20251020趙祥吉，咖啡店+教學.pdf] \n  39:28 Feng: [檔案: 05-20251020 阿福，室內設計.pdf] \n  39:28 Feng: [檔案: 06-20251021智弘，ai媒體.pdf] \n  39:28 ",
+    "source_date": "2026-03-19",
+    "status": "pending"
+  },
+  {
+    "question": "**user**: @MuseonClaw_bot 所以我這邊server要設定N 點透過後台設定 然後你那邊要在子體規劃回傳給server 點數 是吧？",
+    "source_date": "2026-03-19",
+    "status": "pending"
+  },
+  {
+    "question": "**user**: 我在跟 士維的 group 討論中問你的學習收穫 你記得你說了什麼嗎？",
+    "source_date": "2026-03-19",
+    "status": "pending"
+  },
+  {
+    "question": "養一隻柴犬需要注意什麼？",
+    "source_date": "2026-03-20",
+    "status": "researched",
+    "researched_at": "2026-03-21T10:00:18.748990+08:00"
+  },
+  {
+    "question": "我叫什麼名字？我的公司做什麼？",
+    "source_date": "2026-03-20",
+    "status": "researched",
+    "researched_at": "2026-03-21T10:00:20.536532+08:00"
+  },
+  {
+    "question": "今天天氣怎麼樣？可以推薦台北的午餐嗎？",
+    "source_date": "2026-03-20",
+    "status": "pending"
+  },
+  {
+    "question": "你的老闆是誰？",
+    "source_date": "2026-03-20",
+    "status": "pending"
+  },
+  {
+    "question": "請計算：如果月營收 150 萬，毛利率 35%，月固定成本 40 萬，請問每月淨利多少？",
+    "source_date": "2026-03-20",
+    "status": "pending"
+  },
+  {
+    "question": "你好，請問你能做什麼？",
+    "source_date": "2026-03-20",
+    "status": "pending"
+  },
+  {
+    "question": "你是基於什麼架構運作的？可以說明一下嗎？",
+    "source_date": "2026-03-20",
+    "status": "pending"
+  },
+  {
+    "question": "台積電最近表現怎麼樣？",
+    "source_date": "2026-03-20",
+    "status": "pending"
+  },
+  {
+    "question": "[群組近期對話紀錄]\n  03:52 你的資源跟手腳（老闆）: 對照 Claude ，汎用場景下 Museon 可以做到跟還做不到（其實設定一下就可以了）的清單\n  30:19 Feng: 1。南部有機會找到可以配合的ui/ux的網站公司，他們有剛好在找做系統的\n\n2。家具業有要引薦Ai的部分，下週會釐清然後去現在了解可以解決什麼？\n\n3。下午四點點會跟室設聊數位員工拉群體驗的區塊以及跟他要設計圖",
+    "source_date": "2026-03-20",
+    "status": "pending"
+  },
+  {
+    "question": "[群組近期對話紀錄]\n  47:12 Feng: @MuseonClaw_bot \n\n裁切指引模板（HTML/PDF，標示頭頂到下巴的比例線）\n可以給攝影師一個範例讓他看嗎\n  47:43 你的資源跟手腳（老闆）: 我那邊他在迭代喔\n要等他告一段落\n  47:53 Feng: Ok ok\n  59:02 你的資源跟手腳（老闆）: [檔案: photo] 迭代中\n  02:20 Feng: 結束12",
+    "source_date": "2026-03-20",
+    "status": "pending"
+  },
+  {
+    "question": "**user**: Museon 現在的運作上 已經能每次都即時做到這四件事情了嗎？",
+    "source_date": "2026-03-20",
+    "status": "pending"
   }
 ]

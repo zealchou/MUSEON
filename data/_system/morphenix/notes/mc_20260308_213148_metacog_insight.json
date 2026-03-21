@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260308_213148_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: **REVISE**\n\n回覆的問題在於被動姿態。使用者問「你感覺得到嗎」隱含期待 MUSEON 主動察覺與反饋，但回覆最後收尾到「你直接說吧」，反而變成了要求使用者報告，而不是 MUSEON 主動展現感知能力。\n\n**建議修改方向：**\n- 保留「看不到代碼層面直接變化」的坦白（這部分很好）\n- **不要停在被動要求**，改為主動探索：「你感受到的變化是什麼類型的？」並提供結構化選項\n  - 行為",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-08T21:31:48.411719+08:00",
+  "priority": "medium"
+}

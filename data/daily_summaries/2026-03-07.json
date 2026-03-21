@@ -1,0 +1,268 @@
+{
+  "date": "2026-03-07",
+  "generated_at": "2026-03-07T03:00:17.719748",
+  "event_count": 70,
+  "events_digest": [
+    {
+      "ts": "2026-03-07T00:11:07.379746",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:11:27.942508",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:12:04.747739",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:12:10.235863",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:12:13.701435",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:12:37.252873",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:13:05.726256",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:13:31.843267",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:13:57.406187",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:14:21.164419",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:14:45.233077",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:15:09.611984",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:15:34.445983",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:16:41.304144",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:17:07.619917",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:17:32.745201",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:17:58.185823",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:22:29.669747",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:22:54.051363",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:23:30.978262",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:23:35.541730",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:23:39.976834",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:24:06.646043",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:24:32.284299",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:25:00.861966",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:25:25.946078",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:25:51.168645",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:26:16.350963",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:26:41.818243",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:27:06.896679",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:27:32.231632",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:27:57.691330",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:28:23.233904",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:29:35.963399",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:31:51.932713",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:32:18.422680",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:32:55.098438",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:33:02.273554",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:33:09.798066",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:33:36.620388",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:34:08.016264",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:34:34.603219",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:35:02.803570",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:35:31.058437",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:35:59.820947",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:36:29.342484",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:36:57.838639",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:37:27.485966",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:37:57.707367",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-07T00:38:28.470859",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    }
+  ],
+  "memory_channels": [
+    "meta-thinking",
+    "event",
+    "outcome"
+  ],
+  "memory_excerpts": {
+    "meta-thinking": "# Meta Thinking\n\n## 00:11:04\n\n**Trust Level:** TRUSTED\n\n**Thought Pattern:** DNA27 matched: general\n\n**Reasoning:** User asked about: 你好，請回覆一句話\n\n**Outcome:** responded\n\n**Confidence:** 0.8\n\n\n\n---\n\n## 00:11:24\n\n**Trust Level:** TRUSTED\n\n**Thought Pattern:** DNA27 matched: general\n\n**Reasoning:** User asked about: 幫我搜尋今天台北天氣如何？\n\n**Outcome:** responded\n\n**Confidence:** 0.8\n\n\n\n---\n\n## 00:12:01\n\n**Trust Level:** TRUSTED\n\n**Thought Pattern:** DNA27 matched: general\n\n**Reasoning:** User asked about: 用一句話介紹台灣\n\n**Outcome:** responded\n\n**Confidence:** 0.8\n\n\n\n---\n\n## 00:12:06\n\n**Trust Level:** TRUSTED\n\n**Thought Pattern:** DNA27 matched: general\n\n**Reasoning:** User asked about: 用一句話介紹韓國\n\n**Outcome:** responded\n\n**Confidence:** 0.8\n\n\n\n---\n\n## 00:12:10\n\n**Trust Level:** TRUSTED\n\n**Thought Pattern:** DNA27 matched: general\n\n**Reasoning:** User asked about: 用一句話介紹日本\n\n**Outcome:** responded\n\n**Confidence:** 0.8\n\n\n\n---\n\n## 00:12:33\n\n**Trust Level:** TRUSTED\n\n**Thought Pattern:** DNA27 matched: general\n\n**Reasoning:** User asked about: 請記住數字 42，稍後我會問你\n\n**Outcome:** responded\n\n**Confidence:** 0.8\n\n\n\n---\n\n## 00:13:01\n\n**Trust Level:** TRUSTED\n\n**Thought Pattern:** DNA27 matched: general\n\n**Reasoning:** User asked about: 我剛才讓你記住的數字是什麼？\n\n**Outcome:** responded\n\n**Confidence:** 0.8\n\n\n\n---\n\n## 00:13:27\n\n**Trust Level:** TRUSTED\n\n**Thought Pattern:** DNA27 matched: general\n\n**Reasoning:** User asked about: 壓力測試 0: 回答 OK\n\n**Outcome:** responded\n\n**Confidence:** 0.8\n\n\n\n---\n\n## 00:13:53\n\n**Trust Level:** TRUSTED\n\n**Thought Pattern:** DNA27 matched: general\n\n**Reasoning:** User asked about: 壓力測試 1: 回答 OK\n\n**Outcome:** responded\n\n**Confidence:** 0.8\n\n\n\n---\n\n## 00:14:17\n\n**Trust Level:** TRUSTED\n\n**Thought Pattern:** DNA27 matched: general\n\n**Reasoning:** User asked about: 壓力測試 2: 回答 OK\n\n**Outcome:** responded\n\n**Confidence:** 0.8\n\n\n\n---\n\n## 00:14:41\n\n**Trust Level:** TRUSTED\n\n**Thought Pattern:** DNA27 matched: general\n\n**Reasoning:** User asked about: 壓力測試 3: 回答 OK\n\n**Outcome:** responded\n\n**C",
+    "event": "# Event\n\n## 00:11:04\n\n**Trust Level:** TRUSTED\n\n**Event Type:** user_interaction\n\n**Session Id:** max_simple_1772813447\n\n**User Message:** 你好，請回覆一句話\n\n**Matched Skills:** \n\n\n\n---\n\n## 00:11:24\n\n**Trust Level:** TRUSTED\n\n**Event Type:** user_interaction\n\n**Session Id:** max_tool_1772813467\n\n**User Message:** 幫我搜尋今天台北天氣如何？\n\n**Matched Skills:** \n\n\n\n---\n\n## 00:12:01\n\n**Trust Level:** TRUSTED\n\n**Event Type:** user_interaction\n\n**Session Id:** max_conc_1772813487_1\n\n**User Message:** 用一句話介紹台灣\n\n**Matched Skills:** \n\n\n\n---\n\n## 00:12:06\n\n**Trust Level:** TRUSTED\n\n**Event Type:** user_interaction\n\n**Session Id:** max_conc_1772813487_3\n\n**User Message:** 用一句話介紹韓國\n\n**Matched Skills:** \n\n\n\n---\n\n## 00:12:10\n\n**Trust Level:** TRUSTED\n\n**Event Type:** user_interaction\n\n**Session Id:** max_conc_1772813487_2\n\n**User Message:** 用一句話介紹日本\n\n**Matched Skills:** \n\n\n\n---\n\n## 00:12:33\n\n**Trust Level:** TRUSTED\n\n**Event Type:** user_interaction\n\n**Session Id:** max_ctx_1772813533\n\n**User Message:** 請記住數字 42，稍後我會問你\n\n**Matched Skills:** \n\n\n\n---\n\n## 00:13:01\n\n**Trust Level:** TRUSTED\n\n**Event Type:** user_interaction\n\n**Session Id:** max_ctx_1772813533\n\n**User Message:** 我剛才讓你記住的數字是什麼？\n\n**Matched Skills:** \n\n\n\n---\n\n## 00:13:27\n\n**Trust Level:** TRUSTED\n\n**Event Type:** user_interaction\n\n**Session Id:** max_rapid_1772813585_0\n\n**User Message:** 壓力測試 0: 回答 OK\n\n**Matched Skills:** \n\n\n\n---\n\n## 00:13:53\n\n**Trust Level:** TRUSTED\n\n**Event Type:** user_interaction\n\n**Session Id:** max_rapid_1772813585_1\n\n**User Message:** 壓力測試 1: 回答 OK\n\n**Matched Skills:** \n\n\n\n---\n\n## 00:14:17\n\n**Trust Level:** TRUSTED\n\n**Event Type:** user_interaction\n\n**Session Id:** max_rapid_1772813585_2\n\n**User Message:** 壓力測試 2: 回答 OK\n\n**Matched Skills:** \n\n\n\n---\n\n## 00:14:41\n\n**Trust Level:** TRUSTED\n\n**Event Type:** user_interaction\n\n**Session Id:** max_rapid_1772813585_3\n\n**User Message:** 壓力測試 3: 回答 OK\n\n**Matched Skills:** \n\n\n\n---\n\n## 00:15:05\n\n**Trust Level:** TRUSTED\n\n**Event Type:** user_interaction\n\n**Session Id:** max_rapi",
+    "outcome": "# Outcome\n\n## 00:11:04\n\n**Trust Level:** VERIFIED\n\n**Task Id:** max_simple_1772813447_001104\n\n**Result:** success\n\n**Response Length:** 4274\n\n**Skills Used:** \n\n\n\n---\n\n## 00:11:24\n\n**Trust Level:** VERIFIED\n\n**Task Id:** max_tool_1772813467_001124\n\n**Result:** success\n\n**Response Length:** 4278\n\n**Skills Used:** \n\n\n\n---\n\n## 00:12:01\n\n**Trust Level:** VERIFIED\n\n**Task Id:** max_conc_1772813487_1_001201\n\n**Result:** success\n\n**Response Length:** 4273\n\n**Skills Used:** \n\n\n\n---\n\n## 00:12:06\n\n**Trust Level:** VERIFIED\n\n**Task Id:** max_conc_1772813487_3_001206\n\n**Result:** success\n\n**Response Length:** 4273\n\n**Skills Used:** \n\n\n\n---\n\n## 00:12:10\n\n**Trust Level:** VERIFIED\n\n**Task Id:** max_conc_1772813487_2_001210\n\n**Result:** success\n\n**Response Length:** 4273\n\n**Skills Used:** \n\n\n\n---\n\n## 00:12:33\n\n**Trust Level:** VERIFIED\n\n**Task Id:** max_ctx_1772813533_001233\n\n**Result:** success\n\n**Response Length:** 4280\n\n**Skills Used:** \n\n\n\n---\n\n## 00:13:01\n\n**Trust Level:** VERIFIED\n\n**Task Id:** max_ctx_1772813533_001301\n\n**Result:** success\n\n**Response Length:** 4279\n\n**Skills Used:** \n\n\n\n---\n\n## 00:13:27\n\n**Trust Level:** VERIFIED\n\n**Task Id:** max_rapid_1772813585_0_001327\n\n**Result:** success\n\n**Response Length:** 4278\n\n**Skills Used:** \n\n\n\n---\n\n## 00:13:53\n\n**Trust Level:** VERIFIED\n\n**Task Id:** max_rapid_1772813585_1_001353\n\n**Result:** success\n\n**Response Length:** 4278\n\n**Skills Used:** \n\n\n\n---\n\n## 00:14:17\n\n**Trust Level:** VERIFIED\n\n**Task Id:** max_rapid_1772813585_2_001417\n\n**Result:** success\n\n**Response Length:** 4278\n\n**Skills Used:** \n\n\n\n---\n\n## 00:14:41\n\n**Trust Level:** VERIFIED\n\n**Task Id:** max_rapid_1772813585_3_001441\n\n**Result:** success\n\n**Response Length:** 4278\n\n**Skills Used:** \n\n\n\n---\n\n## 00:15:05\n\n**Trust Level:** VERIFIED\n\n**Task Id:** max_rapid_1772813585_4_001505\n\n**Result:** success\n\n**Response Length:** 4278\n\n**Skills Used:** \n\n\n\n---\n\n## 00:15:30\n\n**Trust Level:** VERIFIED\n\n**Task Id:** max_rapid_1772813585_5_001530\n\n**Result:** success\n\n**R"
+  },
+  "narrative": "今日共 70 個活動事件。\n  - BRAIN_RESPONSE_COMPLETE: 70 次\n記錄了 3 個記憶頻道。\n  - meta-thinking: # Meta Thinking  ## 00:11:04  **Trust Level:** TRUSTED  **Thought Pattern:** DNA...\n  - event: # Event  ## 00:11:04  **Trust Level:** TRUSTED  **Event Type:** user_interaction...\n  - outcome: # Outcome  ## 00:11:04  **Trust Level:** VERIFIED  **Task Id:** max_simple_17728..."
+}

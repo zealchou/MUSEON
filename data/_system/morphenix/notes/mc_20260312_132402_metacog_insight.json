@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260312_132402_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n你直接回答使用者「現在查不到」就夠了，後面不該反問「應該查哪個檔案」或「要不要建立」。改為主動提出具體選項：「我現在可以 (1) 翻你的活動日誌查他的互動足跡，或 (2) 為 goku 建立一份記憶檔案」，把決定權還給使用者，但自己帶著解法來。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-12T13:24:02.085601+08:00",
+  "priority": "medium"
+}

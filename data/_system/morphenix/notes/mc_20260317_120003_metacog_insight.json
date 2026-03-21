@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260317_120003_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n簡化到「答案 + 最多一個關鍵提問」。「水部的追問」四點完整框架對一個簡單計算問題來說太重，有過度診斷之嫌。去掉「需要進一步分析嗎」和「數字從哪來」這樣的被動句式——使用者需要時會主動要求，不需要額外任務暗示。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-17T12:00:03.249865+08:00",
+  "priority": "medium"
+}

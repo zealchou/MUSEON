@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260318_145807_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：\n1. 澄清方案B vs A的技術差異（別簡化成「邏輯一樣」，Feng可能有驗證理由）\n2. 把5個TODO明確分工：「我負責測X」「你負責準備Y」「一起驗Z」\n3. 把「有沒有準備好」改成**具體清單**：「授權資料包括[明細]，你那邊有嗎？」\n4. 加上時間預估或優先級建議（Feng提過時間成本高，需要策略）",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-18T14:58:07.242705+08:00",
+  "priority": "medium"
+}

@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260318_152016_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：Feng 上傳文件是期待妳讀完後給出**四方案分析與推薦**，而不是反問。應該先讀三份文件 → 分析四個方案的安全性與適配度 → 給出明確推薦（不問），而後提出下一步行動。目前回覆呈現被動詢問，應改為主動診斷。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-18T15:20:16.189067+08:00",
+  "priority": "medium"
+}

@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260309_091946_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: **REVISE**\n\n改進方向：回覆目前是被動反問，但使用者問「有什麼可以幫」隱含的期待是「你（MUSEON）主動發現了什麼機會」。建議補充：\n1. 主動掃描結果（檢查昨日進度、待處理項目、今日行程的交點）\n2. 提供 1-2 個具體的推進選項（而非純反問）\n3. 保留開放式邀請\n\n例如：「早安。我看到 X 昨天還卡著，或者今天的 Y 時段可以推進 Z——要先處理哪個，還是有其他優先度？」\n\n效",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-09T09:19:46.648249+08:00",
+  "priority": "medium"
+}

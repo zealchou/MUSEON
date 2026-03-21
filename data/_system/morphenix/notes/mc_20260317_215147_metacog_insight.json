@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260317_215147_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n回覆應該主動診斷異常狀態而非只提問。建議改為：直接指出「訊息重複 30+ 次無法分析，這是系統 bug」→ 具體診斷建議（執行 health_check、檢查 Telegram handler）→ 明確交付承諾「清理後用 market-macro 幫你分析台灣 AI 產業」。現版本雖禮貌但缺乏行動力，沒有可交付物。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-17T21:51:47.352453+08:00",
+  "priority": "medium"
+}

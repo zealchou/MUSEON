@@ -1,0 +1,17 @@
+{
+  "proactive_bridge": {
+    "last_run": 1774068654.623625,
+    "run_count": 578,
+    "last_error": null
+  },
+  "micro_pulse": {
+    "last_run": 1774068664.635259,
+    "run_count": 216,
+    "last_error": null
+  },
+  "proactive_daily_minimum": {
+    "last_run": 1774068531.86404,
+    "run_count": 291,
+    "last_error": null
+  }
+}

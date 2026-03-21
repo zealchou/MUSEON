@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260312_082543_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n使用者只發送「\\n\\t\\r\\0 轉義字元」，沒有明確需求。回覆假設了「使用者想迭代系統」，但實際上可能是在測試、或只是詢問狀態。應先確認使用者的真實意圖，再提供對應的行動。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-12T08:25:43.839913+08:00",
+  "priority": "medium"
+}

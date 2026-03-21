@@ -232,14 +232,14 @@
       }
     },
     "2026-03-19": {
-      "input_tokens": 28829,
-      "output_tokens": 496155,
-      "total_tokens": 524984,
+      "input_tokens": 33085,
+      "output_tokens": 571813,
+      "total_tokens": 604898,
       "models": {
         "opus": {
-          "input": 27620,
-          "output": 298509,
-          "calls": 51
+          "input": 31527,
+          "output": 329993,
+          "calls": 65
         },
         "sonnet": {
           "input": 14,
@@ -247,33 +247,77 @@
           "calls": 5
         },
         "haiku": {
-          "input": 1195,
-          "output": 178248,
-          "calls": 120
+          "input": 1544,
+          "output": 222422,
+          "calls": 155
+        }
+      }
+    },
+    "2026-03-20": {
+      "input_tokens": 15700,
+      "output_tokens": 614290,
+      "total_tokens": 629990,
+      "models": {
+        "opus": {
+          "input": 13146,
+          "output": 273024,
+          "calls": 81
+        },
+        "sonnet": {
+          "input": 31,
+          "output": 36218,
+          "calls": 11
+        },
+        "haiku": {
+          "input": 2523,
+          "output": 305048,
+          "calls": 252
+        }
+      }
+    },
+    "2026-03-21": {
+      "input_tokens": 2203,
+      "output_tokens": 267218,
+      "total_tokens": 269421,
+      "models": {
+        "opus": {
+          "input": 123,
+          "output": 22273,
+          "calls": 29
+        },
+        "sonnet": {
+          "input": 41,
+          "output": 12375,
+          "calls": 12
+        },
+        "haiku": {
+          "input": 2039,
+          "output": 232570,
+          "calls": 204
         }
       }
     }
   },
   "monthly_totals": {
-    "input_tokens": 4753683,
-    "output_tokens": 3714194,
-    "total_tokens": 8467877,
-    "estimated_cost_usd": 73.4888,
+    "input_tokens": 4775842,
+    "output_tokens": 4671360,
+    "total_tokens": 9447202,
+    "estimated_cost_usd": 101.3153,
     "models": {
       "opus": {
-        "input": 106282,
-        "output": 609713,
-        "calls": 172
+        "input": 123458,
+        "output": 936494,
+        "calls": 296
       },
       "sonnet": {
-        "input": 2914666,
-        "output": 486115,
-        "calls": 356
+        "input": 2914738,
+        "output": 534708,
+        "calls": 379
       },
       "haiku": {
-        "input": 1683436,
-        "output": 2195918,
-        "calls": 2178
+        "input": 1688347,
+        "output": 2777710,
+        "calls": 2669
       }
     }
   }

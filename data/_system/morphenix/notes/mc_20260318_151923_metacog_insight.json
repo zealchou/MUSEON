@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260318_151923_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n你的回覆承認了 Device Token ≠ 設備 ID，但缺少三個關鍵：\n1. **沒有回應 Feng 提交的三份文件** — 收到了什麼角色、怎麼用？\n2. **沒有提供 Token 取得的具體步驟** — 是 Feng 這邊要操作，還是有自動生成機制？\n3. **假設太多** — 假設測試環境已備妥、假設 B 方案最終確定、假設馬上能驗收\n\n建議補充：文件確認 + Token",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-18T15:19:23.476733+08:00",
+  "priority": "medium"
+}

@@ -2,6 +2,7 @@
 name: aesthetic-sense
 type: on-demand
 layer: aesthetic
+hub: creative
 io:
   inputs:
     - from: user

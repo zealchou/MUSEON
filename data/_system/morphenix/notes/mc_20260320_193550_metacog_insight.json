@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260320_193550_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n方向：\n1. **Chen 的需求太急**（「清完圖面然後產出報價單」暗示時間緊張），不能只給檢查清單就推球回去。改為：明確說「我需要 Excel 內容的文字版本（複製貼上表格就行），我馬上幫你檢查 + 列出修改清單，你直接改這些點就沒問題」。\n\n2. **Feng 的訊息為空**（只有 @），不清楚他在問什麼。改為：「Feng，是要讓我自介給韋辰嗎？還是先看完 Chen 的估價單\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-20T19:35:50.176438+08:00",
+  "priority": "medium"
+}

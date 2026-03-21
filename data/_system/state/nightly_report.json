@@ -1,0 +1,166 @@
+{
+  "completed_at": "2026-03-21T03:00:17.029550+08:00",
+  "elapsed_seconds": 17.02,
+  "mode": "full",
+  "steps": {
+    "step_00_budget_settlement": {
+      "status": "ok",
+      "result": "{'mode': 'max_subscription', 'daily_calls': 55, 'model_distribution': {'sonnet': 0, 'haiku': 55}, 'daily_tokens': 62476}"
+    },
+    "step_00_1_footprint_cleanup": {
+      "status": "ok",
+      "result": "{'l1_removed': 0, 'l2_removed': 0, 'remaining': {'l1_actions': 677, 'l2_decisions': 613, 'l3_evolutions': 0}}"
+    },
+    "step_01_asset_decay": {
+      "status": "ok",
+      "result": "{'decayed': 0}"
+    },
+    "step_02_archive_assets": {
+      "status": "ok",
+      "result": "{'archived': 0, 'shared_archived': 0}"
+    },
+    "step_03_memory_maintenance": {
+      "status": "ok",
+      "result": "{'maintained': True, 'result': \"{'expired': 0, 'promoted': 0, 'demoted': 0}\"}"
+    },
+    "step_04_wee_compress": {
+      "status": "ok",
+      "result": "{'compressed': True, 'crystal_id': '39d40e72-08f6-4216-b877-cc968e2fab62', 'kl_cuid': 'KL-PAT-0145', 'date': '2026-03-20', 'interactions': 29, 'avg_composite': 5.0343, 'success_rate': '28/29', 'summar"
+    },
+    "step_05_wee_fuse": {
+      "status": "ok",
+      "result": "{'fused': False, 'reason': 'insufficient_crystals', 'crystal_count': 0}"
+    },
+    "step_05_5_cross_crystallize": {
+      "status": "ok",
+      "result": "{'skipped': 'no memory directory'}"
+    },
+    "step_05_6_knowledge_lattice": {
+      "status": "ok",
+      "result": "{'total_crystals': 0, 'archived': [], 'recrystallized': 0, 'ri_updated': 893}"
+    },
+    "step_05_7_crystal_actuator": {
+      "status": "ok",
+      "result": "{'new_rules': 27, 'expired_rules': 0, 'total_active': 50, 'strengthened': 15, 'weakened': 0, 'removed': 0}"
+    },
+    "step_06_skill_forge": {
+      "status": "ok",
+      "result": "{'skipped': 'no L2_ep directory'}"
+    },
+    "step_06_5_skill_scout": {
+      "status": "ok",
+      "result": "{'processed': 3, 'deduped': 10, 'removed_duplicates': 0, 'errors': None}"
+    },
+    "step_07_curriculum": {
+      "status": "ok",
+      "result": "{'level': 'intermediate', 'avg_score': 5.0}"
+    },
+    "step_07_5_auto_course": {
+      "status": "ok",
+      "result": "{'skipped': 'no weak topics identified'}"
+    },
+    "step_08_workflow_mutation": {
+      "status": "ok",
+      "result": "{'skipped': 'no workflows directory'}"
+    },
+    "step_08_5_dna27_reindex": {
+      "status": "ok",
+      "result": "{'indexed_count': 0}"
+    },
+    "step_09_graph_consolidation": {
+      "status": "ok",
+      "result": "{'skipped': 'no graph directory'}"
+    },
+    "step_10_diary_generation": {
+      "status": "ok",
+      "result": "{'diary_generated': True, 'interaction_count': 68}"
+    },
+    "step_10_5_ring_review": {
+      "status": "ok",
+      "result": "{'skipped': 'no soul_rings.json'}"
+    },
+    "step_11_dream_engine": {
+      "status": "ok",
+      "result": "{'skipped': 'no memory for dreaming'}"
+    },
+    "step_12_heartbeat_focus": {
+      "status": "ok",
+      "result": "{'interval_hours': 6.0, 'focus_level': 'high', 'beat_count': 396}"
+    },
+    "step_13_curiosity_scan": {
+      "status": "ok",
+      "result": "{'new_questions': 11, 'queue_size': 38}"
+    },
+    "step_14_skill_lifecycle": {
+      "status": "ok",
+      "result": "{'skipped': 'no skills directory'}"
+    },
+    "step_15_dept_health": {
+      "status": "ok",
+      "result": "{'skipped': 'no departments directory'}"
+    },
+    "step_17_tool_discovery": {
+      "status": "ok",
+      "result": "{'detected': 0, 'healthy': 2, 'total_tools': 11, 'last_discovery': '2026-03-20T05:00:03.099804+08:00', 'recommended': 0}"
+    },
+    "step_18_daily_summary": {
+      "status": "ok",
+      "result": "{'date': '2026-03-21', 'event_count': 68, 'channels': 3}"
+    },
+    "step_20_synapse_decay": {
+      "status": "ok",
+      "result": "{'decayed_synapses': {'decayed': 489, 'pruned': 0}, 'top_connections': [{'skill_a': 'dharma', 'skill_b': 'risk-matrix', 'weight': 0.98, 'fire_count': 71}, {'skill_a': 'dharma', 'skill_b': 'resonance',"
+    },
+    "step_21_muscle_atrophy": {
+      "status": "ok",
+      "result": "{'atrophied_tools': {'atrophied': 46, 'pruned': 0}, 'dormant_count': 0, 'dormant_tools': []}"
+    },
+    "step_22_immune_prune": {
+      "status": "ok",
+      "result": "{'pruned_weak_rules': 0, 'total_memories': 0, 'active_defenses': 0, 'avg_confidence': 0.0}"
+    },
+    "step_23_trigger_evaluation": {
+      "status": "ok",
+      "result": "{'total_score': 3.156, 'vitality_modifier': 1.2, 'fired_triggers': ['time_cycle', 'surplus_based', 'entropy_alarm'], 'should_evolve': True, 'details': {'time_cycle': 0.64, 'surplus_based': 0.49, 'entr"
+    },
+    "step_24_evolution_velocity": {
+      "status": "ok",
+      "result": "{'composite_velocity': 0, 'trend': 'insufficient_data', 'plateau_alert': False, 'regression_alert': False}"
+    },
+    "step_25_periodic_cycle_check": {
+      "status": "ok",
+      "result": "{'checked_at': '2026-03-21T03:00:16.990615+08:00', 'weekly_cycle': {'executed': False, 'reason': 'weekday=5'}, 'monthly_cycle': {'executed': False, 'reason': 'day=21'}}"
+    },
+    "step_26_session_cleanup": {
+      "status": "ok",
+      "result": "{'removed': 0, 'kept': 106}"
+    },
+    "step_27_log_rotation": {
+      "status": "ok",
+      "result": "{'rotated': [], 'archives_cleaned': 0}"
+    },
+    "step_28_wal_checkpoint": {
+      "status": "ok",
+      "result": "{'databases': {'pulse': 'ok (wal=0B)', 'group_context': 'ok (wal=0B)', 'workflow_state': 'ok (wal=0B)', 'registry': 'ok (wal=0B)'}}"
+    },
+    "step_29_data_watchdog": {
+      "status": "ok",
+      "result": "{'status': 'ok', 'stores_checked': 3, 'alerts': 0, 'dead_write_suspects': 0, 'total_storage': 2129920}"
+    },
+    "step_30_blueprint_consistency": {
+      "status": "ok",
+      "result": "{'status': 'ok', 'issues': [], 'blueprints_checked': 4}"
+    },
+    "step_05_9_5_morphenix_validate": {
+      "status": "ok",
+      "result": "{'skipped': 'no L2+ proposals to validate', 'total_approved': 0}"
+    }
+  },
+  "summary": {
+    "total": 38,
+    "ok": 38,
+    "error": 0,
+    "skipped": 0
+  },
+  "errors": []
+}

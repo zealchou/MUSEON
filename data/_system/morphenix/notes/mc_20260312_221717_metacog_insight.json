@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260312_221717_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n使用者訊息重複異常（同句重複35次），未能推斷真實意圖。建議先確認：\n- 訊息是否意外發送\n- 想要的實際輸出是什麼（台灣AI產業分析 / MUSEON市場定位 / 具體進場策略？）\n- 回覆應等待確認後再有針對性地交付\n\n不可直接對異常訊息套用自動分析。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-12T22:17:17.681917+08:00",
+  "priority": "medium"
+}

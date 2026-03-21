@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260309_064507_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n建議方向：回覆給了清晰的問題地圖，但停留在「建議層」。使用者期待的後續應該是**立即可用的交付物**：\n- 讀取相關源碼檔案（`subagent.py`, `dispatch.py`），找出 5 個缺口的實際代碼位置（行號）\n- 產出 `SubAgent-Architecture-Audit.md`，每個缺口附帶代碼片段 + 修復方向\n- **不要問「要從哪條開始」** — 直接對",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-09T06:45:07.090379+08:00",
+  "priority": "medium"
+}

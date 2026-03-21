@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260319_172042_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n建議方向：\n1. 別問使用者「允許」，直接檢查系統有沒有 PDF 工具，沒有就裝，有就讀\n2. 不要卡在工具瓶頸，先對現有的「整理過的資料」（即使不完美）跑一套「問題背後的問題」的診斷框架，同步讀逐字稿\n3. 語氣從「我卡住等你」轉向「我現在就開始，同步這三個機會方向」\n4. 給出可交付物（診斷範本或初步發現），而不只是論述 MUSEON 能做什麼\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-19T17:20:42.468538+08:00",
+  "priority": "medium"
+}

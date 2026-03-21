@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260313_103556_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n使用者的問題是「旅行社行程設計、景點-餐廳-飯店規劃，有辦法處理嗎？」，但回覆卻在談 Trello 連接。答非所問。應先回答：**可以幫忙設計行程、規劃景點組合、推薦餐廳，具體怎麼一起運作？** 然後才談工具整合。建議確認上下文是否遺漏了 Joh 提到 Trello 的片段。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-13T10:35:56.456299+08:00",
+  "priority": "medium"
+}

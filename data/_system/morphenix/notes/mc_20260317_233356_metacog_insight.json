@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260317_233356_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n先澄清背景再診斷。這個訊息可能是：(1) 網路重複提交；(2) 你的意圖測試；(3) 系統 bug。建議改為「看起來訊息重複了，是網路問題、你在測試什麼，還是真的系統 bug？」再根據答案給出修復方案。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-17T23:33:56.727684+08:00",
+  "priority": "medium"
+}

@@ -1,0 +1,42 @@
+[
+ {
+  "role": "user",
+  "content": "你好"
+ },
+ {
+  "role": "assistant",
+  "content": "你好！\n\n我在這裡。系統目前在恢復中（qdrant 和 searxng 有連接問題），但我可以正常回應。\n\n有什麼需要幫忙的嗎？"
+ },
+ {
+  "role": "user",
+  "content": "你好"
+ },
+ {
+  "role": "assistant",
+  "content": "你好，Zeal。\n\n我在這裡。\n\n有什麼想探索或需要幫忙的嗎？"
+ },
+ {
+  "role": "user",
+  "content": "你好"
+ },
+ {
+  "role": "assistant",
+  "content": "你好，Zeal。\n\n在這裡。需要什麼？"
+ },
+ {
+  "role": "user",
+  "content": "你好"
+ },
+ {
+  "role": "assistant",
+  "content": "在。\n\n需要什麼幫忙？"
+ },
+ {
+  "role": "user",
+  "content": "你好"
+ },
+ {
+  "role": "assistant",
+  "content": "在。\n\n什麼事？"
+ }
+]

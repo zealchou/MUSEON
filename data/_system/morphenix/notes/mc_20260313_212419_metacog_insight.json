@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260313_212419_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n背景脈絡缺失——【使用者訊息】為空，無法驗證回覆是否對應真實需求。請提供使用者的原始訊息（他問了什麼？要求做什麼？），我才能確認這段審計結果呈現是否滿足他的真需。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-13T21:24:19.246863+08:00",
+  "priority": "medium"
+}

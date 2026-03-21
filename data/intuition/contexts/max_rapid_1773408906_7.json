@@ -1,0 +1,22 @@
+{
+  "session_id": "max_rapid_1773408906_7",
+  "nodes": {
+    "topic_turn_0": {
+      "node_id": "topic_turn_0",
+      "node_type": "topic",
+      "label": "turn_0",
+      "properties": {
+        "content_length": 13,
+        "detected_at": "2026-03-13T21:38:28.850629"
+      },
+      "created_at": "2026-03-13T21:38:28.850651",
+      "updated_at": "2026-03-13T21:38:28.850653"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 1,
+    "last_content_length": 13
+  },
+  "last_updated": "2026-03-13T21:38:28.850629"
+}

@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MUSEON 系統架構圖</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #F7F5F0;
+    font-family: 'Inter', sans-serif;
+    color: #12121A;
+    min-height: 100vh;
+    padding: 40px 24px 100px;
+  }
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.4rem; font-weight: 700;
+    color: #C4502A; text-align: center;
+    margin-bottom: 6px; letter-spacing: 0.02em;
+  }
+  .subtitle {
+    text-align: center; font-size: 0.78rem;
+    color: #5A5A6E; margin-bottom: 52px;
+    letter-spacing: 0.07em; text-transform: uppercase;
+  }
+  .diagram-wrap {
+    position: relative;
+    max-width: 1100px; margin: 0 auto;
+  }
+  svg.arrows {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none; overflow: visible;
+    z-index: 0;
+  }
+  .layer {
+    display: flex; justify-content: center;
+    gap: 14px; position: relative; z-index: 1;
+  }
+  .spacer { height: 60px; }
+  .spacer-sm { height: 40px; }
+
+  .node {
+    border-radius: 10px; padding: 10px 16px;
+    font-size: 0.78rem; font-weight: 500;
+    text-align: center; position: relative;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    min-width: 110px; border: 1.5px solid transparent;
+    line-height: 1.45; transition: transform .15s, box-shadow .15s;
+    cursor: default;
+  }
+  .node:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.12); }
+  .node .icon { font-size: 1.3rem; margin-bottom: 4px; }
+  .node .lbl { font-size: 0.66rem; margin-top: 2px; opacity: .65; }
+
+  .node-user {
+    background: #12121A; color: #F7F5F0; border-color: #12121A;
+    min-width: 190px; padding: 16px 28px; font-size: 0.88rem;
+  }
+  .node-gateway {
+    background: #FDFCFA; border-color: #C4502A;
+    color: #C4502A; font-weight: 600;
+  }
+  .node-bus {
+    background: linear-gradient(130deg,#C4502A 0%,#9A3A1C 100%);
+    color: #fff; border-color: #9A3A1C;
+    min-width: 540px; padding: 14px 32px;
+    font-size: 0.9rem; font-weight: 600; letter-spacing: 0.02em;
+  }
+  .node-agent { background:#2A7A6E; color:#fff; border-color:#1E5C54; min-width:132px; }
+  .node-pulse { background:#B8923A; color:#fff; border-color:#8A6C2A; min-width:132px; }
+  .node-guard { background:#2A6A8A; color:#fff; border-color:#1E4F6A; }
+  .node-doctor { background:#2D8A6E; color:#fff; border-color:#1E6A52; }
+  .node-sub {
+    background:#FDFCFA; border-color:#E2E0DA;
+    color:#12121A; font-size:0.7rem; min-width:98px; padding:9px 10px;
+  }
+  .node-sub.teal { border-color:#2A7A6E; color:#1E5C54; background:#f0f8f6; }
+  .node-sub.gold { border-color:#B8923A; color:#7A6020; background:#fdf8ee; }
+  .node-llm {
+    background:#5A5A6E; color:#fff; border-color:#3A3A52;
+    min-width:290px; padding:14px 24px;
+  }
+  .node-data {
+    background:#FDFCFA; border-color:#E2E0DA; min-width:126px; color:#5A5A6E;
+  }
+  .node-nightly {
+    background:#12121A; color:#F7F5F0; border-color:#12121A;
+    min-width:380px; padding:14px 32px; font-size:0.84rem;
+  }
+
+  /* ── Section labels ── */
+  .sect {
+    position: absolute; left: -16px; top: 50%;
+    transform: translateY(-50%) rotate(-90deg);
+    font-size: 0.6rem; color: #C4502A; letter-spacing: 0.08em;
+    text-transform: uppercase; white-space: nowrap; opacity: .6;
+  }
+
+  .legend {
+    display: flex; gap: 20px; flex-wrap: wrap;
+    justify-content: center; margin-top: 40px;
+    padding: 16px 24px;
+    background: #FDFCFA; border-radius: 10px;
+    border: 1px solid #E2E0DA;
+    max-width: 700px; margin-left: auto; margin-right: auto;
+  }
+  .legend-item { display:flex; align-items:center; gap:7px; font-size:0.7rem; color:#5A5A6E; }
+  .lline { width:22px; height:2px; border-radius:1px; }
+  .ldash {
+    width:22px; height:2px;
+    background: repeating-linear-gradient(90deg,currentColor 0,currentColor 4px,transparent 4px,transparent 8px);
+  }
+</style>
+</head>
+<body>
+
+<h1>MUSEON 系統架構</h1>
+<p class="subtitle">六大功能層 · 26 個子系統 · 串接關係圖</p>
+
+<div class="diagram-wrap" id="diagram">
+
+  <!-- L0: User -->
+  <div class="layer">
+    <div class="node node-user" id="n-user">
+      <div class="icon">👤</div>
+      <strong>使用者（Zeal）</strong>
+      <div class="lbl">Telegram 訊息 / 指令</div>
+    </div>
+  </div>
+  <div class="spacer-sm"></div>
+
+  <!-- L1: Entry -->
+  <div class="layer">
+    <div class="node node-gateway" id="n-telegram">
+      <div class="icon">✈️</div>
+      <strong>Telegram Channel</strong>
+      <div class="lbl">channels/telegram.py</div>
+    </div>
+    <div class="node node-gateway" id="n-gateway">
+      <div class="icon">⏱</div>
+      <strong>Gateway / Cron</strong>
+      <div class="lbl">排程入口 · WebSocket Server</div>
+    </div>
+  </div>
+  <div class="spacer-sm"></div>
+
+  <!-- L2: Event Bus -->
+  <div class="layer">
+    <div class="node node-bus" id="n-bus">
+      <strong>⚡ Core Event Bus　核心事件匯流排</strong>
+      <div class="lbl" style="color:rgba(255,255,255,.7)">所有模組透過 Event Bus 發送與接收訊號 · 解耦全系統</div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- L3: Main systems -->
+  <div class="layer">
+    <div class="node node-agent" id="n-brain">
+      <div class="icon">🧠</div>
+      <strong>Agent / Brain</strong>
+      <div class="lbl">主判斷中樞</div>
+    </div>
+    <div class="node node-pulse" id="n-pulse">
+      <div class="icon">💓</div>
+      <strong>Pulse Engine</strong>
+      <div class="lbl">心跳排程</div>
+    </div>
+    <div class="node node-guard" id="n-guard">
+      <div class="icon">🛡</div>
+      <strong>Guardian</strong>
+      <div class="lbl">系統守衛</div>
+    </div>
+    <div class="node node-doctor" id="n-doctor">
+      <div class="icon">🩺</div>
+      <strong>Doctor</strong>
+      <div class="lbl">自我診斷</div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- L4: Sub-systems -->
+  <div class="layer">
+    <!-- Agent children -->
+    <div class="node node-sub teal" id="n-dispatch">
+      <strong>Dispatch</strong>
+      <div class="lbl">任務分派</div>
+    </div>
+    <div class="node node-sub teal" id="n-skrouter">
+      <strong>Skill Router</strong>
+      <div class="lbl">技能路由</div>
+    </div>
+    <div class="node node-sub teal" id="n-drift">
+      <strong>Drift Detector</strong>
+      <div class="lbl">漂移偵測</div>
+    </div>
+    <div class="node node-sub teal" id="n-lattice">
+      <strong>Knowledge Lattice</strong>
+      <div class="lbl">知識晶格</div>
+    </div>
+    <div style="width:18px;flex-shrink:0"></div>
+    <!-- Pulse children -->
+    <div class="node node-sub gold" id="n-explorer">
+      <strong>Explorer</strong>
+      <div class="lbl">主動探索</div>
+    </div>
+    <div class="node node-sub gold" id="n-digest">
+      <strong>Silent Digestion</strong>
+      <div class="lbl">靜默消化</div>
+    </div>
+    <div class="node node-sub gold" id="n-bridge">
+      <strong>Proactive Bridge</strong>
+      <div class="lbl">主動推播</div>
+    </div>
+    <div class="node node-sub gold" id="n-pulsedb">
+      <strong>Pulse DB</strong>
+      <div class="lbl">心跳資料庫</div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- L5: LLM -->
+  <div class="layer">
+    <div class="node node-llm" id="n-llm">
+      <div class="icon">⚡</div>
+      <strong>LLM Router + Budget Manager</strong>
+      <div class="lbl">模型路由 · Token 預算管理 · 多模型支援</div>
+    </div>
+    <div class="node node-sub" id="n-meta" style="min-width:112px;">
+      <strong>Metacognition</strong>
+      <div class="lbl">元認知層</div>
+    </div>
+    <div class="node node-sub" id="n-reflex" style="min-width:112px;">
+      <strong>Reflex Router</strong>
+      <div class="lbl">反射路由</div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- L6: Data layer -->
+  <div class="layer">
+    <div class="node node-data" id="n-memory">
+      <div class="icon">📂</div>
+      <strong>Memory</strong>
+      <div class="lbl">記憶持久化</div>
+    </div>
+    <div class="node node-data" id="n-vector">
+      <div class="icon">🔍</div>
+      <strong>Vector Index</strong>
+      <div class="lbl">語義向量</div>
+    </div>
+    <div class="node node-data" id="n-evolution">
+      <div class="icon">🌱</div>
+      <strong>WEE Evolution</strong>
+      <div class="lbl">演化引擎</div>
+    </div>
+    <div class="node node-data" id="n-skills">
+      <div class="icon">🎯</div>
+      <strong>Skills Registry</strong>
+      <div class="lbl">技能資料庫</div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+
+  <!-- L7: Nightly -->
+  <div class="layer">
+    <div class="node node-nightly" id="n-nightly">
+      <div class="icon">🌙</div>
+      <strong>Nightly Pipeline — 夜間整合管線</strong>
+      <div class="lbl">Morphenix 迭代提案 · 結晶化 · 系統審計 · WEE 演化更新</div>
+    </div>
+  </div>
+
+  <!-- Arrow SVG overlay -->
+  <svg class="arrows" id="svg-arrows"></svg>
+</div>
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-item">
+    <div class="lline" style="background:#C4502A"></div> 使用者資料流
+  </div>
+  <div class="legend-item">
+    <div class="lline" style="background:#2A7A6E"></div> Agent 內部流
+  </div>
+  <div class="legend-item">
+    <div class="lline" style="background:#B8923A"></div> Pulse 探索流
+  </div>
+  <div class="legend-item">
+    <div class="lline" style="background:#5A5A6E"></div> LLM 呼叫
+  </div>
+  <div class="legend-item">
+    <div class="lline" style="background:#12121A"></div> 夜間整合
+  </div>
+  <div class="legend-item">
+    <div class="ldash" style="color:#B8923A"></div> 非同步 / 反饋回路
+  </div>
+  <div class="legend-item">
+    <div class="ldash" style="color:#C4502A"></div> 系統回傳使用者
+  </div>
+</div>
+
+<script>
+function G(id) {
+  const el = document.getElementById(id);
+  const wrap = document.getElementById('diagram');
+  if (!el || !wrap) return null;
+  const r = el.getBoundingClientRect();
+  const wr = wrap.getBoundingClientRect();
+  return {
+    x:  r.left - wr.left + r.width / 2,
+    y:  r.top  - wr.top  + r.height / 2,
+    top:    r.top  - wr.top,
+    bottom: r.top  - wr.top + r.height,
+    left:   r.left - wr.left,
+    right:  r.left - wr.left + r.width,
+    w: r.width, h: r.height,
+  };
+}
+
+function addMarker(svg, id, color) {
+  let defs = svg.querySelector('defs');
+  if (!defs) { defs = document.createElementNS('http://www.w3.org/2000/svg','defs'); svg.insertBefore(defs, svg.firstChild); }
+  const m = document.createElementNS('http://www.w3.org/2000/svg','marker');
+  m.setAttribute('id', id);
+  m.setAttribute('markerWidth','7'); m.setAttribute('markerHeight','7');
+  m.setAttribute('refX','6'); m.setAttribute('refY','3');
+  m.setAttribute('orient','auto');
+  const p = document.createElementNS('http://www.w3.org/2000/svg','path');
+  p.setAttribute('d','M0,0 L0,6 L7,3 z');
+  p.setAttribute('fill', color);
+  m.appendChild(p);
+  defs.appendChild(m);
+}
+
+function path(svg, d, color, mk, dashed=false) {
+  const el = document.createElementNS('http://www.w3.org/2000/svg','path');
+  el.setAttribute('d', d);
+  el.setAttribute('stroke', color);
+  el.setAttribute('stroke-width', '1.8');
+  el.setAttribute('fill', 'none');
+  el.setAttribute('marker-end', `url(#${mk})`);
+  if (dashed) el.setAttribute('stroke-dasharray', '5,3');
+  svg.appendChild(el);
+}
+
+// straight down with slight curve
+function down(svg, a, b, color, mk, dashed=false) {
+  const A=G(a), B=G(b); if(!A||!B) return;
+  path(svg, `M${A.x},${A.bottom} Q${A.x},${(A.bottom+B.top)/2} ${B.x},${B.top}`, color, mk, dashed);
+}
+
+// curved path via control points
+function curvy(svg, x1,y1,cx1,cy1,cx2,cy2,x2,y2, color, mk, dashed=false) {
+  path(svg, `M${x1},${y1} C${cx1},${cy1} ${cx2},${cy2} ${x2},${y2}`, color, mk, dashed);
+}
+
+function drawArrows() {
+  const svg = document.getElementById('svg-arrows');
+  svg.innerHTML = '';
+
+  const C = { ember:'#C4502A', teal:'#2A7A6E', gold:'#B8923A', slate:'#5A5A6E', ink:'#12121A' };
+  Object.entries(C).forEach(([k,v]) => addMarker(svg, `m-${k}`, v));
+
+  // User → Telegram
+  down(svg,'n-user','n-telegram',C.ember,'m-ember');
+
+  // Telegram ↔ Gateway horizontal
+  const tl=G('n-telegram'), gw=G('n-gateway');
+  if(tl&&gw) path(svg,`M${tl.right},${tl.y} L${gw.left},${gw.y}`,C.teal,'m-teal');
+
+  // Both → Bus
+  down(svg,'n-telegram','n-bus',C.ember,'m-ember');
+  down(svg,'n-gateway','n-bus',C.ember,'m-ember');
+
+  // Bus → main systems
+  const sys = [['n-brain',C.teal,'m-teal'],['n-pulse',C.gold,'m-gold'],['n-guard',C.slate,'m-slate'],['n-doctor',C.teal,'m-teal']];
+  sys.forEach(([id,col,mk]) => down(svg,'n-bus',id,col,mk));
+
+  // Brain → subs
+  ['n-dispatch','n-skrouter','n-drift','n-lattice'].forEach(id => down(svg,'n-brain',id,C.teal,'m-teal'));
+
+  // Pulse → subs
+  ['n-explorer','n-digest','n-bridge','n-pulsedb'].forEach(id => down(svg,'n-pulse',id,C.gold,'m-gold'));
+
+  // Subs → LLM
+  ['n-dispatch','n-skrouter','n-explorer'].forEach(id => down(svg,id,'n-llm',C.slate,'m-slate'));
+
+  // Lattice → LLM (dashed, knowledge injection)
+  down(svg,'n-lattice','n-llm',C.teal,'m-teal',true);
+
+  // Silent Digestion → Pulse (feedback loop, left side)
+  const di=G('n-digest'), pu=G('n-pulse');
+  if(di&&pu) curvy(svg, di.left,di.y, di.left-70,di.y, pu.left-70,pu.y, pu.left,pu.y, C.gold,'m-gold',true);
+
+  // Proactive Bridge → Telegram (async push up)
+  const br=G('n-bridge');
+  if(br&&tl) curvy(svg, br.left,br.y, br.left-90,br.y, tl.left-90,tl.y, tl.left,tl.y, C.gold,'m-gold',true);
+
+  // LLM → data layer
+  ['n-memory','n-vector','n-evolution','n-skills'].forEach(id => down(svg,'n-llm',id,C.slate,'m-slate'));
+
+  // Data → Nightly
+  ['n-memory','n-vector','n-evolution','n-skills'].forEach(id => down(svg,id,'n-nightly',C.ink,'m-ink'));
+
+  // Nightly → Bus (feedback, right side loop)
+  const ni=G('n-nightly'), bus=G('n-bus');
+  if(ni&&bus) curvy(svg, ni.right,ni.y, ni.right+100,ni.y, bus.right+100,bus.y, bus.right,bus.y, C.ink,'m-ink',true);
+
+  // Telegram → User (response, right side)
+  const usr=G('n-user');
+  if(tl&&usr) curvy(svg, tl.right,tl.y, tl.right+55,tl.y, usr.right+55,usr.y, usr.right,usr.y, C.ember,'m-ember',true);
+}
+
+window.addEventListener('load', () => setTimeout(drawArrows, 500));
+window.addEventListener('resize', () => setTimeout(drawArrows, 150));
+</script>
+</body>
+</html>

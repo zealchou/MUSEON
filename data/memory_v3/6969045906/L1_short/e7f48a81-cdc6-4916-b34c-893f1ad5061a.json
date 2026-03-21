@@ -1,0 +1,22 @@
+{
+  "id": "e7f48a81-cdc6-4916-b34c-893f1ad5061a",
+  "content": "[失敗經驗] 任務：今天的晨報 生成後給我外部鏈接\n失敗類型：general_failure\n回應片段：看起來 GitHub CLI 指令需要你先核准權限。能幫我按「允許」嗎？我需要：\n\n1. `gh auth status` — 確認登入狀態\n2. `gh repo list` — 找到正確的 repo 名稱\n\n之前 push 失敗就是因為 remote URL 指向一個不存在的 repo。找到正確的 repo 後，我馬上上傳晨報 + 給你外部連結。",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-21T11:15:20.532171+08:00",
+  "updated_at": "2026-03-21T11:15:20.532171+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "6969045906",
+  "session_id": "",
+  "dept_id": "",
+  "archived": false
+}

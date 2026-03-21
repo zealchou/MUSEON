@@ -1,0 +1,30 @@
+[
+  {
+    "topic": "理由**：這次探索確認了混合檢索的價值方向，但停在了「原理層」。下一步需要的是「實作層」——Qdrant 的稀疏向量（Sparse Vector）功能是 2024 年底才成熟的新特性，結合 MUSEON 現有的 `vector_bridge.py` 架構，有足夠具體的改動路徑可以評估。",
+    "routes": [
+      "skill",
+      "evolution"
+    ],
+    "timestamp": "2026-03-20T00:03:17.477295+08:00",
+    "crystallized": false
+  },
+  {
+    "topic": "知識圖譜與語義記憶的融合架構",
+    "routes": [
+      "skill",
+      "curiosity",
+      "evolution"
+    ],
+    "timestamp": "2026-03-20T01:08:25.780359+08:00",
+    "crystallized": true
+  },
+  {
+    "topic": "深入研究「深入研究「知識圖譜與語義記憶的融合架構」的實際應用案例與最新進展」的實際應用案例與最新進展",
+    "routes": [
+      "skill",
+      "evolution"
+    ],
+    "timestamp": "2026-03-20T02:13:25.786419+08:00",
+    "crystallized": false
+  }
+]

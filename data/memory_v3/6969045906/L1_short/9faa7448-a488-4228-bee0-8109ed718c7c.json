@@ -1,0 +1,22 @@
+{
+  "id": "9faa7448-a488-4228-bee0-8109ed718c7c",
+  "content": "[失敗經驗] 任務：就用這個 token 幫我講美業的研究報告上傳 GitHub 發表 然後給我第三方連結\n\n以後也要這麼作\n失敗類型：permission_denied\n回應片段：問題確認了。這個 Fine-grained PAT 只有 **Read** 權限，沒有 **Contents: Write**。\n\n---\n\n## 現況\n\n| 操作 | 狀態 |\n|------|------|\n| 讀取 Repo / 列表 | ✅ 正常 |\n| 推送檔案 | ❌ 403（缺 Contents: Write） |\n| 建 Gist | ❌ 403（缺 Gists 權限） |\n\n--",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "permission_denied"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-18T13:57:44.958218+08:00",
+  "updated_at": "2026-03-18T13:57:44.958218+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "6969045906",
+  "session_id": "",
+  "dept_id": "",
+  "archived": false
+}

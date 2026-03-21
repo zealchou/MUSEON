@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260311_225423_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n回覆假設設計規範文件已經存在，但使用者可能還沒建立完整版本。應該先確認：規範內容目前定義到什麼程度？然後直接幫使用者完成 CLAUDE.md 與 MEMORY.md 的更新，而不是要求使用者手動操作。如果規範還不完整，應該先協助建立。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-11T22:54:23.817328+08:00",
+  "priority": "medium"
+}

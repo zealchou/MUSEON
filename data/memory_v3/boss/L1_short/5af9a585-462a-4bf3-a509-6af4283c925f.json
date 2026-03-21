@@ -1,0 +1,22 @@
+{
+  "id": "5af9a585-462a-4bf3-a509-6af4283c925f",
+  "content": "[失敗經驗] 任務：   \n\t  \n  \n失敗類型：general_failure\n回應片段：✅ **Commit 成功** (commit 48f9b68)。\n\n---\n\n## 完工總結\n\n| 檢查項 | 狀態 | 說明 |\n|--------|------|------|\n| **施工前檢查** | ✅ | joint-map + blast-radius 確認無新增共享狀態、無新增 import |\n| **修改** | ✅ | CA002 + CA003 均已修正（brain.py",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-20T20:58:43.072923+08:00",
+  "updated_at": "2026-03-20T20:58:43.072923+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "boss",
+  "session_id": "",
+  "dept_id": "",
+  "archived": false
+}

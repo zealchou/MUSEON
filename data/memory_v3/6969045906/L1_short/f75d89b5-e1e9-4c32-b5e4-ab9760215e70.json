@@ -1,0 +1,22 @@
+{
+  "id": "f75d89b5-e1e9-4c32-b5e4-ab9760215e70",
+  "content": "[失敗經驗] 任務：先出WEN 的報告\n記得要精美的 HTML\n失敗類型：general_failure\n回應片段：報告已出。\n\n**路徑**：`~/MUSEON/data/workspace/WEN_美業報告_2026.html`\n\n**v2.0 升級內容**：\n- 深色 Hero 區 + 固定導覽列（品牌質感大幅提升）\n- 七層完整結構：結論先行 → 市場拆解（含 top-down/bottom-up 交叉驗證）→ 三大毛利殺手（含第一性原理拆解）→ 多視角切入 → 三個真實案例（名留集團、克麗緹娜、匿名失",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-18T12:47:08.561385+08:00",
+  "updated_at": "2026-03-18T12:47:08.561385+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "6969045906",
+  "session_id": "",
+  "dept_id": "",
+  "archived": false
+}

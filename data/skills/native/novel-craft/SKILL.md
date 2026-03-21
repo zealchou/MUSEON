@@ -2,6 +2,7 @@
 name: novel-craft
 type: on-demand
 layer: language
+hub: creative
 io:
   inputs:
     - from: text-alchemy

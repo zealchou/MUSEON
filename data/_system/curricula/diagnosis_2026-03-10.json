@@ -1,0 +1,11 @@
+{
+  "level": "intermediate",
+  "scores": {
+    "speed": 5.0,
+    "quality": 5.0,
+    "alignment": 5.0,
+    "leverage": 5.0
+  },
+  "avg": 5.0,
+  "diagnosed_at": "2026-03-10T03:00:00.486501+08:00"
+}

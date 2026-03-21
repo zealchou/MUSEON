@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260314_173029_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n直接檢查 MUSEON 排程狀態（看 gateway 日誌、cron 是否在 09:05 觸發、ANIMA 是否啟動），別只問「想解決什麼」。承諾已逾期，先驗證兌現了沒——給出診斷結果（成功/延誤/失敗）和具體修復方案。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-14T17:30:29.936758+08:00",
+  "priority": "medium"
+}

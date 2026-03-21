@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DNA 教會 AI 的事</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --dna-primary: #0A6B5C;
+    --dna-light: #E8F5F1;
+    --dna-accent: #14B8A0;
+    --dna-glow: rgba(20, 184, 160, 0.15);
+    --ai-primary: #5B3CC4;
+    --ai-light: #F0ECF9;
+    --ai-accent: #8B6CEF;
+    --ai-glow: rgba(139, 108, 239, 0.15);
+    --bg: #FAFAF8;
+    --text: #1A1A1A;
+    --text-secondary: #6B6B6B;
+    --divider: #E0DDD8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    text-align: center;
+    padding: 80px 24px 40px;
+    position: relative;
+  }
+
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--dna-accent), var(--ai-accent));
+    border-radius: 2px;
+  }
+
+  .header .eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.2s forwards;
+  }
+
+  .header h1 {
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 900;
+    line-height: 1.25;
+    margin-bottom: 16px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.4s forwards;
+  }
+
+  .header h1 .dna-text { color: var(--dna-primary); }
+  .header h1 .ai-text { color: var(--ai-primary); }
+
+  .header .subtitle {
+    font-size: 16px;
+    color: var(--text-secondary);
+    font-weight: 300;
+    max-width: 520px;
+    margin: 0 auto;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.6s forwards;
+  }
+
+  /* ── HERO STAT ── */
+  .hero-stat {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    padding: 48px 24px 32px;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.8s forwards;
+  }
+
+  .stat-block {
+    text-align: center;
+  }
+
+  .stat-number {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(36px, 6vw, 56px);
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  .stat-number.dna { color: var(--dna-primary); }
+  .stat-number.ai { color: var(--ai-primary); }
+
+  .stat-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+
+  .stat-arrow {
+    font-size: 28px;
+    color: var(--divider);
+  }
+
+  /* ── RATIO BAR ── */
+  .ratio-section {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 20px 24px 48px;
+    opacity: 0;
+    animation: fadeUp 0.6s 1.0s forwards;
+  }
+
+  .ratio-title {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+  }
+
+  .ratio-bar-container {
+    position: relative;
+    height: 48px;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+
+  .ratio-segment {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: white;
+    transition: flex 1s ease;
+  }
+
+  .ratio-segment.code {
+    flex: 1.5;
+    background: linear-gradient(135deg, #0A6B5C, #14B8A0);
+  }
+
+  .ratio-segment.regulate {
+    flex: 98.5;
+    background: linear-gradient(135deg, var(--dna-primary), #086050);
+    position: relative;
+  }
+
+  .ratio-segment .ratio-text {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(11px, 2vw, 14px);
+  }
+
+  .ratio-legend {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+
+  .legend-dot.code-dot { background: var(--dna-accent); }
+  .legend-dot.reg-dot { background: var(--dna-primary); }
+
+  /* ── COMPARISON SECTION ── */
+  .comparison-container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px 64px;
+  }
+
+  .section-label {
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 40px;
+    padding-top: 32px;
+    border-top: 1px solid var(--divider);
+  }
+
+  /* ── COMPARISON ROW ── */
+  .comp-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0;
+    margin-bottom: 40px;
+    opacity: 0;
+    animation: fadeUp 0.5s forwards;
+  }
+
+  .comp-row:nth-child(2) { animation-delay: 0.15s; }
+  .comp-row:nth-child(3) { animation-delay: 0.3s; }
+  .comp-row:nth-child(4) { animation-delay: 0.45s; }
+  .comp-row:nth-child(5) { animation-delay: 0.6s; }
+
+  .comp-card {
+    padding: 28px 24px;
+    border-radius: 16px;
+    position: relative;
+  }
+
+  .comp-card.dna-card {
+    background: var(--dna-light);
+    border: 1px solid rgba(10, 107, 92, 0.12);
+  }
+
+  .comp-card.ai-card {
+    background: var(--ai-light);
+    border: 1px solid rgba(91, 60, 196, 0.12);
+  }
+
+  .comp-card .card-icon {
+    font-size: 28px;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .comp-card .card-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .dna-card .card-title { color: var(--dna-primary); }
+  .ai-card .card-title { color: var(--ai-primary); }
+
+  .comp-card .card-body {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.75;
+  }
+
+  .comp-card .card-body strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* ── CENTER CONNECTOR ── */
+  .comp-connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 16px;
+    position: relative;
+  }
+
+  .connector-line {
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--dna-accent), var(--ai-accent));
+    border-radius: 1px;
+    position: absolute;
+    top: 0;
+    opacity: 0.3;
+  }
+
+  .connector-badge {
+    background: white;
+    border: 2px solid var(--divider);
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    z-index: 1;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+
+  /* ── KEY TAKEAWAY ── */
+  .takeaway {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 48px 32px;
+    text-align: center;
+    border-top: 1px solid var(--divider);
+  }
+
+  .takeaway-quote {
+    font-size: clamp(18px, 3.5vw, 26px);
+    font-weight: 700;
+    line-height: 1.6;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, var(--dna-primary), var(--ai-primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .takeaway-sub {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 300;
+    line-height: 1.8;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    text-align: center;
+    padding: 32px 24px 48px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 1px;
+    opacity: 0.5;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 700px) {
+    .comp-row {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+
+    .comp-connector {
+      padding: 12px 0;
+      flex-direction: row;
+    }
+
+    .connector-line {
+      width: 100%;
+      height: 2px;
+      top: 50%;
+    }
+
+    .hero-stat { gap: 20px; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="eyebrow">Infographic · 2026</div>
+    <h1><span class="dna-text">DNA</span> 教會 <span class="ai-text">AI</span> 的事</h1>
+    <div class="subtitle">人類基因組的設計智慧，如何啟發下一代 AI 架構</div>
+  </header>
+
+  <!-- HERO STAT -->
+  <div class="hero-stat">
+    <div class="stat-block">
+      <div class="stat-number dna">3.2 GB</div>
+      <div class="stat-label">人類全部的「程式碼」</div>
+    </div>
+    <div class="stat-arrow">→</div>
+    <div class="stat-block">
+      <div class="stat-number ai">70 億</div>
+      <div class="stat-label">各不相同的人類個體</div>
+    </div>
+  </div>
+
+  <!-- RATIO BAR -->
+  <div class="ratio-section">
+    <div class="ratio-title">DNA 的資源配置比例</div>
+    <div class="ratio-bar-container">
+      <div class="ratio-segment code"><span class="ratio-text">1.5%</span></div>
+      <div class="ratio-segment regulate"><span class="ratio-text">98.5% 調控區</span></div>
+    </div>
+    <div class="ratio-legend">
+      <span><span class="legend-dot code-dot"></span>編碼區（基本結構）</span>
+      <span><span class="legend-dot reg-dot"></span>非編碼區（判斷與開關）</span>
+    </div>
+  </div>
+
+  <!-- COMPARISON TABLE -->
+  <div class="comparison-container">
+    <div class="section-label">DNA 原理 → AI 腦設計原則</div>
+
+    <!-- ROW 1: 調控 vs 擴張 -->
+    <div class="comp-row">
+      <div class="comp-card dna-card">
+        <span class="card-icon">🧬</span>
+        <div class="card-title">98.5% 是「調控」不是「功能」</div>
+        <div class="card-body">
+          只有 1.5% 的基因負責製造蛋白質。其餘 98.5% 負責的是<strong>「什麼時候啟動哪個基因」</strong>的判斷邏輯。真正的複雜度在開關，不在零件。
+        </div>
+      </div>
+      <div class="comp-connector">
+        <div class="connector-line"></div>
+        <div class="connector-badge">⇄</div>
+      </div>
+      <div class="comp-card ai-card">
+        <span class="card-icon">🧠</span>
+        <div class="card-title">別堆書架，設計開關</div>
+        <div class="card-body">
+          LLM 就是那 1.5%——它已經「什麼都會一點」。接下來的勝負手在<strong>調控層</strong>：根據情境決定啟動哪些能力、抑制哪些能力、用什麼順序組合。
+        </div>
+      </div>
+    </div>
+
+    <!-- ROW 2: 表觀遺傳 -->
+    <div class="comp-row">
+      <div class="comp-card dna-card">
+        <span class="card-icon">🔬</span>
+        <div class="card-title">表觀遺傳：藍圖不變，標記變</div>
+        <div class="card-body">
+          肝細胞和神經細胞的 DNA 完全相同。差異來自<strong>「甲基化」標記</strong>——哪些基因被打開、哪些被關閉。不改藍圖，只改開關面板。
+        </div>
+      </div>
+      <div class="comp-connector">
+        <div class="connector-line"></div>
+        <div class="connector-badge">⇄</div>
+      </div>
+      <div class="comp-card ai-card">
+        <span class="card-icon">🏷️</span>
+        <div class="card-title">不重新訓練，動態切換</div>
+        <div class="card-body">
+          底層模型不動，上面加一層<strong>動態標記系統</strong>。偵測到「醫療場景」就沉默娛樂功能、活化嚴謹推理。一套核心，無數種表現型。
+        </div>
+      </div>
+    </div>
+
+    <!-- ROW 3: SNP -->
+    <div class="comp-row">
+      <div class="comp-card dna-card">
+        <span class="card-icon">🎲</span>
+        <div class="card-title">0.1% 的 SNP 差異 → 70 億獨特個體</div>
+        <div class="card-body">
+          99.9% 的基因完全相同，但微小的<strong>單核苷酸多型性</strong>差異，就足以讓每個人獨一無二。多樣性不是大改造，是微調。
+        </div>
+      </div>
+      <div class="comp-connector">
+        <div class="connector-line"></div>
+        <div class="connector-badge">⇄</div>
+      </div>
+      <div class="comp-card ai-card">
+        <span class="card-icon">🎛️</span>
+        <div class="card-title">微小擾動，讓環境篩出最適解</div>
+        <div class="card-body">
+          派出多個 Agent 時，容許<strong>微小的隨機差異</strong>——提示詞措辭略變、搜尋策略打亂。保留表現好的變體，淘汰差的。可控的不確定性本身就是能力。
+        </div>
+      </div>
+    </div>
+
+    <!-- ROW 4: 並行 -->
+    <div class="comp-row">
+      <div class="comp-card dna-card">
+        <span class="card-icon">⚡</span>
+        <div class="card-title">大規模並行：多條染色體同時工作</div>
+        <div class="card-body">
+          DNA 運算天生高度平行——數兆個分子同時進行化學反應。<strong>不是一條線跑到底</strong>，是無數條路同時展開，最後重組最佳片段。
+        </div>
+      </div>
+      <div class="comp-connector">
+        <div class="connector-line"></div>
+        <div class="connector-badge">⇄</div>
+      </div>
+      <div class="comp-card ai-card">
+        <span class="card-icon">🔀</span>
+        <div class="card-title">多路徑搜尋 + 重組最優解</div>
+        <div class="card-body">
+          面對複雜決策，同時啟動多個帶有微小變異的 Agent 各走一條路。最後用<strong>重組機制</strong>取各路最優片段組合成最終方案。
+        </div>
+      </div>
+    </div>
+
+    <!-- ROW 5: 效率 -->
+    <div class="comp-row">
+      <div class="comp-card dna-card">
+        <span class="card-icon">💾</span>
+        <div class="card-title">3.2 GB 驅動一個完整的人</div>
+        <div class="card-body">
+          一部高清電影的大小，卻能驅動有意識、有情感、能自我修復的生物體。DNA 存的不是答案，而是<strong>最精簡的指令集 + 生成演算法</strong>。
+        </div>
+      </div>
+      <div class="comp-connector">
+        <div class="connector-line"></div>
+        <div class="connector-badge">⇄</div>
+      </div>
+      <div class="comp-card ai-card">
+        <span class="card-icon">📦</span>
+        <div class="card-title">存指令，不存答案</div>
+        <div class="card-body">
+          AI 腦不該追求儲存所有知識，而該追求<strong>最精簡的核心指令集</strong>，讓複雜行為在執行時才透過調控層即時「解碼」生成。壓縮比就是智慧。
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- KEY TAKEAWAY -->
+  <div class="takeaway">
+    <div class="takeaway-quote">
+      關鍵從來不是你存了多少知識，<br>而是你有多精準地知道——<br>現在，該叫醒哪一段。
+    </div>
+    <div class="takeaway-sub">
+      一個極簡的核心指令集，加上比核心複雜 60 倍的調控網絡，<br>再加上一套允許微小突變與自然選擇的演化機制。<br>這是 DNA 用 38 億年驗證過的架構。
+    </div>
+  </div>
+
+  <div class="footer">MUSEON Research · DNA-Inspired AI Architecture · 2026</div>
+
+</body>
+</html>

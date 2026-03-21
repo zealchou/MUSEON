@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260309_070701_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: **REVISE**\n\n五維度反饋：\n\n**假設 4 個未驗證：** GitHub 帳號存在、知道怎麼建 Token、依賴環境已配好（SearXNG、Telegram）、知道怎麼 restart MUSEON。\n\n**缺真需確認：** \n- 未定義「有趣的個案」搜尋準則（何謂有趣？）\n- 未提供驗證步驟（搜尋結果品質、生成 HTML 是否達 HBR 水準）\n\n**建議補充：**\n1. 確認搜尋關鍵",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-09T07:07:01.184318+08:00",
+  "priority": "medium"
+}

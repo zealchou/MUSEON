@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260317_084459_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n你給了初稿但立即要求使用者補充信息，相當於沒完成「寫」的任務。應該直接給一個完整、馬上可用的 200 字 email，如果使用者要調整再改。讓使用者「立即有東西可用」，而非「需要補充信息才能繼續」。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-17T08:44:59.307686+08:00",
+  "priority": "medium"
+}

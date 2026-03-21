@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260319_184000_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：回覆被困在「項目交付物清單」框架中。使用者實際在問「MUSEON 如何在客戶互動中主動發現問題背後的問題 + 動態調整溝通策略」，但回覆交付了 HTML 和 git 推送指令。應該轉向：(1) 呈現 DSE 四層診斷如何轉譯成「對話中的具體 checkpoint」；(2) 示現「7 種調整信號」在真實客戶互動中的觸發點；(3) 問使用者「你想改寫哪一段客戶互動文案」而非「",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-19T18:40:00.796104+08:00",
+  "priority": "medium"
+}
