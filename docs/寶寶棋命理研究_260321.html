@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>寶寶棋 ✦ 五系統靈魂藍圖（正式版）</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700;900&family=Noto+Sans+TC:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1c1917;--cream:#fefcf8;--gold:#b8860b;--gold-l:#dfc68a;--fire:#b33a2b;--water:#1f6f99;--wood:#1a7a3a;--metal:#6b7b8d;--earth:#a68a20;--coral:#c0564a;--ocean:#2a3d52;--mist:#e4dfda;--blush:#f3ebe2;--lav:#cfc0db;--sage:#8aab8f}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--cream);color:var(--ink);line-height:1.9;font-weight:300;overflow-x:hidden}
+
+/* hero */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;position:relative;background:linear-gradient(155deg,#1c1917 0%,#2a1a10 40%,#3d1a0c 70%,#1c1917 100%);color:var(--cream);padding:2rem;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 38% 42%,rgba(184,134,11,.1) 0%,transparent 55%),radial-gradient(ellipse at 62% 65%,rgba(179,58,43,.06) 0%,transparent 50%)}
+.hero-c{position:relative;z-index:1;max-width:680px}
+.hero h1{font-family:'Cormorant Garamond','Noto Serif TC',serif;font-size:clamp(2.8rem,8vw,5.5rem);font-weight:700;letter-spacing:.15em;margin-bottom:.25em;background:linear-gradient(135deg,#f5d98e,var(--gold),#f0c040);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero .sub{font-family:'Noto Serif TC',serif;font-size:clamp(.88rem,2vw,1.1rem);letter-spacing:.28em;color:rgba(254,252,248,.45);margin-bottom:1.5rem}
+.hero .badge{display:inline-block;padding:.45em 1.5em;border:1px solid rgba(184,134,11,.28);border-radius:100px;font-size:.8rem;letter-spacing:.14em;color:var(--gold-l);margin-bottom:2rem}
+.hero .syms{display:flex;gap:1.2rem;justify-content:center;flex-wrap:wrap}
+.hero .sy{text-align:center;min-width:68px}
+.hero .sy-i{font-size:1.35rem;display:block;margin-bottom:.15em}
+.hero .sy-l{font-size:.55rem;letter-spacing:.08em;color:rgba(254,252,248,.3);text-transform:uppercase}
+.hero .sy-v{font-family:'Noto Serif TC',serif;font-size:.8rem;color:var(--gold-l);margin-top:.08em}
+
+/* content */
+.ct{max-width:760px;margin:0 auto;padding:0 1.5rem}
+section{padding:3.5rem 0}
+section+section{border-top:1px solid var(--mist)}
+.sn{font-family:'Cormorant Garamond',serif;font-size:.75rem;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;margin-bottom:.5rem}
+h2{font-family:'Noto Serif TC',serif;font-size:clamp(1.3rem,3.2vw,1.8rem);font-weight:700;margin-bottom:1.1rem;line-height:1.4}
+h3{font-family:'Noto Serif TC',serif;font-size:1.02rem;font-weight:600;margin:1.5rem 0 .5rem;color:var(--ocean)}
+p{margin-bottom:.9rem;font-size:.94rem}
+
+/* highlight box */
+.hb{border-radius:12px;padding:1.4rem 1.5rem;margin:1.4rem 0;position:relative;overflow:hidden}
+.hb-w{background:linear-gradient(135deg,var(--blush),#faf5ef)}
+.hb-c{background:linear-gradient(135deg,#eae5f2,#f2f0f7)}
+.hb-f{background:linear-gradient(135deg,#fce4ec,#fef8f6)}
+.hb-g{background:linear-gradient(135deg,#e8f0e4,#f4f7f2)}
+.hb-d{background:var(--ink);color:var(--cream);border:1px solid rgba(184,134,11,.25)}
+.hb::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:var(--gold);border-radius:2px}
+.hb p,.hb li{position:relative;z-index:1;font-family:'Noto Serif TC',serif;font-size:.95rem;line-height:2}
+.hb.no-bar::before{display:none}
+
+/* synthesis box */
+.syn-box{border:2px solid var(--gold);border-radius:12px;padding:1.4rem 1.5rem;margin:1.8rem 0;background:rgba(184,134,11,.03)}
+.syn-box .syn-title{font-family:'Cormorant Garamond',serif;font-size:.72rem;letter-spacing:.2em;color:var(--gold);text-transform:uppercase;margin-bottom:.6rem}
+.syn-box p{font-family:'Noto Serif TC',serif;font-size:.93rem;line-height:2;margin-bottom:.6rem}
+
+/* five elements ring */
+.wx-ring{display:flex;justify-content:center;flex-wrap:wrap;margin:1.2rem auto;max-width:440px}
+.wx-el{text-align:center;padding:.6rem;flex:1;min-width:78px}
+.wx-d{width:42px;height:42px;border-radius:50%;margin:0 auto .3rem;display:flex;align-items:center;justify-content:center;font-size:1.05rem;color:#fff;font-weight:700}
+.wx-d.fire{background:linear-gradient(135deg,#d44,#a33)}.wx-d.water{background:linear-gradient(135deg,#48a,#267)}.wx-d.wood{background:linear-gradient(135deg,#3b7,#1a7a3a)}.wx-d.metal{background:linear-gradient(135deg,#aab,#6b7b8d)}.wx-d.earth{background:linear-gradient(135deg,#da2,#a68a20)}
+.wx-n{font-family:'Noto Serif TC',serif;font-size:.8rem;font-weight:600}.wx-c{font-size:.68rem;color:#888;margin-top:.1rem}
+.wx-b{height:4px;border-radius:2px;background:#eee;margin-top:.25rem;overflow:hidden}.wx-f{height:100%;border-radius:2px}
+
+/* fortune section */
+.fortune-card{background:#fff;border-radius:12px;padding:1.4rem;margin:1rem 0;box-shadow:0 1px 10px rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.04)}
+.fortune-card h4{font-family:'Noto Serif TC',serif;font-weight:700;font-size:.98rem;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem}
+.fortune-card .stuck{color:var(--coral);font-size:.85rem;margin-bottom:.4rem}
+.fortune-card .gift{color:var(--wood);font-size:.85rem}
+.fortune-label{display:inline-block;font-size:.65rem;padding:.15em .5em;border-radius:100px;font-weight:600;letter-spacing:.05em}
+.fl-stuck{background:#fce4ec;color:#b71c1c}
+.fl-gift{background:#e8f5e9;color:#1b5e20}
+
+/* final */
+.final-quote{text-align:center;padding:2.5rem 1.5rem;font-family:'Noto Serif TC',serif;font-size:clamp(1.1rem,3vw,1.5rem);font-weight:700;line-height:2;color:var(--ink)}
+.final-warn{text-align:center;padding:1rem 1.5rem 2.5rem;font-family:'Noto Serif TC',serif;font-size:clamp(.88rem,2.2vw,1.05rem);color:var(--coral);line-height:1.8}
+
+.footer{text-align:center;padding:2.5rem 1.5rem;background:var(--ink);color:rgba(254,252,248,.3);font-size:.7rem;letter-spacing:.06em}
+.footer .brand{font-family:'Cormorant Garamond',serif;font-size:.9rem;color:var(--gold);margin-bottom:.3rem;letter-spacing:.18em}
+
+@media(max-width:600px){section{padding:2.5rem 0}.ct{padding:0 1rem}}
+</style>
+</head>
+<body>
+
+<!-- ═══ HERO ═══ -->
+<div class="hero">
+<div class="hero-c">
+<h1>寶寶棋</h1>
+<div class="sub">五系統融合 ✦ 靈魂藍圖</div>
+<div class="badge">丙午年 · 辛卯月 · 甲午日 · 壬申時 ✦ 2026.03.21 · 15:43 · 台北</div>
+<div class="syms">
+<div class="sy"><span class="sy-i">7</span><span class="sy-l">靈數</span><span class="sy-v">探索者</span></div>
+<div class="sy"><span class="sy-i">♈</span><span class="sy-l">星座</span><span class="sy-v">牡羊首日</span></div>
+<div class="sy"><span class="sy-i">甲</span><span class="sy-l">日主</span><span class="sy-v">甲木命</span></div>
+<div class="sy"><span class="sy-i">🐴</span><span class="sy-l">生肖</span><span class="sy-v">火馬</span></div>
+<div class="sy"><span class="sy-i">⬡</span><span class="sy-l">人類圖</span><span class="sy-v">投射者3/5</span></div>
+</div>
+</div>
+</div>
+
+<div class="ct">
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SYSTEM 1: 八字五行                         -->
+<!-- ══════════════════════════════════════════ -->
+<section>
+<div class="sn">System 01 — 天干地支・五行全局觀</div>
+<h2>她是一棵長在火山上的參天大樹</h2>
+
+<p>四柱八字是中國命理學中最精密的時間切片——她出生那一刻的宇宙能量快照。四柱分別代表祖先（年柱）、成長環境（月柱）、自己（日柱）、晚年與子女（時柱）。</p>
+
+<p><strong>她的四柱：丙午 · 辛卯 · 甲午 · 壬申。</strong></p>
+
+<p>日主是<strong>甲木</strong>——十天干中最正直的一個。甲木是參天大樹，不是小草。它筆直向上，不彎不曲，有主見、有骨氣、有格局感。它給人的感覺是可靠、正派、有原則——但同時也意味著不懂得變通，不願意低頭。</p>
+
+<p>她的甲木生在卯月（春天），木氣正旺，叫做「得令」——就像一棵樹種在最適合它的季節裡，先天底氣十足，根基穩固。月支卯木又是甲木的「祿地」（最旺的位置），再加上日干甲木本身——整個命局的木氣是偏旺的。</p>
+
+<p>但這棵大樹面對的環境，是一座火山。</p>
+
+<div class="wx-ring">
+<div class="wx-el"><div class="wx-d fire">火</div><div class="wx-n">火</div><div class="wx-c">丙+午+午 = 3</div><div class="wx-b"><div class="wx-f" style="width:82%;background:linear-gradient(90deg,#d44,#a33)"></div></div></div>
+<div class="wx-el"><div class="wx-d metal">金</div><div class="wx-n">金</div><div class="wx-c">辛+申 = 2</div><div class="wx-b"><div class="wx-f" style="width:48%;background:linear-gradient(90deg,#aab,#6b7b8d)"></div></div></div>
+<div class="wx-el"><div class="wx-d wood">木</div><div class="wx-n">木</div><div class="wx-c">甲+卯 = 2</div><div class="wx-b"><div class="wx-f" style="width:48%;background:linear-gradient(90deg,#3b7,#1a7a3a)"></div></div></div>
+<div class="wx-el"><div class="wx-d water">水</div><div class="wx-n">水</div><div class="wx-c">壬 = 1</div><div class="wx-b"><div class="wx-f" style="width:22%;background:linear-gradient(90deg,#48a,#267)"></div></div></div>
+<div class="wx-el"><div class="wx-d earth">土</div><div class="wx-n">土</div><div class="wx-c" style="color:var(--coral)">0（缺）</div><div class="wx-b"><div class="wx-f" style="width:3%;background:#ccc"></div></div></div>
+</div>
+
+<p>年柱丙午——天干丙火坐地支午火，是「雙火疊燃」。日支又是一個午火。整個命局裡有三把火。甲木生火（木生火），她的大樹不停地把自己的養分燃燒成光和熱。這是甲午日柱最核心的意象：<strong>她天生就是一個燃燒型的靈魂——把自己的能量化為光芒，照亮周圍的人，但同時也在消耗自己。</strong></p>
+
+<p>時柱壬申是她唯一的水源。壬水是大河之水，在時柱代表晚年和子女宮——意味著她的智慧、深度、和滋養自己的能力，會隨著年齡增長而愈發深厚。申金生壬水，又是她的正官——紀律、規範、和被認可的力量也在這裡。</p>
+
+<p>然後是最關鍵的一點：<strong>她的八字裡完全沒有土。</strong>五行缺土意味著缺少「落地」的力量——穩定、耐心、包容、踏實、信守承諾的能量。這不是說她不會有這些特質，而是這些特質不是天生就有的，需要後天刻意培養。</p>
+
+<p>年命納音「天河水」——干支是雙火，靈魂卻是天河水。外火內水，叫做「水火既濟」。白話說：她表面看起來熱情奔放，骨子裡其實是一個內心世界極深、需要安靜獨處的靈魂。</p>
+
+<div class="hb hb-w">
+<p><strong>五行全局觀一句話：</strong>她是一棵底氣很足的參天大樹，長在火山上，不停把養分燃燒成光——照亮了別人，卻容易把自己燒空。她最需要的是水（智慧、滋養）和土（落地、穩定），而這兩樣恰恰是她天生最少的。</p>
+</div>
+</section>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SYSTEM 2: 生肖                              -->
+<!-- ══════════════════════════════════════════ -->
+<section>
+<div class="sn">System 02 — 生肖全局觀</div>
+<h2>火馬：用速度逃避靜止的靈魂</h2>
+
+<p>丙午年生，屬馬——而且是火馬。丙是陽火（太陽），午也是陽火（烈焰），火上加火，是馬中最烈的一批。</p>
+
+<p>生肖馬的核心特質是<strong>自由、速度、獨立</strong>。馬天生不喜歡被圈養，她需要草原。火馬把這個特質推到極致——她不是在走路，她是在奔馳。性格開朗、思維敏捷、善於辭令、洞察力強，在人群中自帶聚光燈。正義感很強，敢言敢為，從很年輕就有「自己的事業」的念頭。</p>
+
+<p>但丙午年有一個特殊結構叫「午午自刑」——2026年本身就是午年，她出生在自己的生肖年裡。自刑意味著她最大的敵人不是外界，是自己。她會對自己極度苛責，好勝心強到連自己都覺得累，但又停不下來。火馬最怕的不是跑不快，是被迫停下來——因為一旦靜止，她就必須面對內心那個「我是不是不夠好」的聲音。</p>
+
+<div class="syn-box">
+<div class="syn-title">融合總結 ① ── 五行 × 生肖</div>
+<p>八字告訴我們她是一棵「不停燃燒的大樹」，生肖告訴我們她是一匹「用速度逃避靜止的火馬」。兩套系統疊加後，一個更立體的畫面出現了：<strong>她天生有巨大的能量和行動力，但這股能量的方向是「向外輸出」而非「向內滋養」。</strong>她會成為那個照顧所有人的人，但最後被忽略的往往是她自己。五行缺土＋火馬自刑＝她不是不懂得休息，是她覺得自己「不配休息」。</p>
+</div>
+</section>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SYSTEM 3: 生命靈數                          -->
+<!-- ══════════════════════════════════════════ -->
+<section>
+<div class="sn">System 03 — 生命靈數全局觀</div>
+<h2>7 號人：在喧囂中修建密室的靈魂</h2>
+
+<p>2+0+2+6+0+3+2+1 = 16 → 1+6 = <strong>7</strong>。</p>
+
+<p>如果說前面兩套系統描繪的是一個「向外燃燒」的靈魂，生命靈數7是第一個指向不同方向的聲音——它說：<strong>她的內在需求是「向內探索」。</strong></p>
+
+<p>7 號人是天生的分析者、思考者、真理的追尋者。她不滿足於表面的答案，任何事情都要「自己搞懂」才算數。她需要大量的獨處時間，不是因為社交恐懼，而是因為她的思維深度需要安靜的空間來運作。她自帶聚光燈氣場——不張揚卻總是被注意到。行事風格自成一格，不跟隨潮流，也不在意別人怎麼看。</p>
+
+<p>7 號人的靈性天賦非常強。她天生就能感知到事物表面之下的東西——直覺、第六感、或者一種「說不上來但就是知道」的能力。這個天賦如果被好好培養，可以成為她一生最強大的武器。</p>
+
+<p>但7 號人的課題也很明確：她可能過度理性，在感情上顯得冷漠；容易到手的東西不珍惜；疑心病犯了會把所有人推開；最重要的是——她太習慣活在自己的內在世界裡，可能忽略了跟外界建立真實連結的需要。</p>
+
+<div class="syn-box">
+<div class="syn-title">融合總結 ② ── 五行 × 生肖 × 靈數</div>
+<p>三套系統放在一起，一個核心矛盾浮現了。五行和生肖畫出的是一個「向外燃燒、停不下來」的火焰靈魂；靈數7畫出的是一個「需要向內探索、需要獨處充電」的深海靈魂。<strong>她的外在和內在需求是相反的。</strong>外在世界要求她衝、她表現、她輸出；內在世界需要她停、她思考、她沉澱。如果她只滿足了外在需求，她會燒空；如果她只滿足了內在需求，她會被世界遺忘。她一生的功課，就是在這兩極之間找到屬於自己的節奏——<strong>不是二選一，而是學會「在奔馳中修建密室」。</strong></p>
+</div>
+</section>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SYSTEM 4: 星座                              -->
+<!-- ══════════════════════════════════════════ -->
+<section>
+<div class="sn">System 04 — 星座全局觀</div>
+<h2>牡羊座春分首日：澄澈透明的開拓者</h2>
+
+<p>3月21日是<strong>春分</strong>——白晝與黑夜等長的那一天，黃道十二宮的起點。她出生在牡羊座的第一天，也是整個星座輪的第一天。這不是巧合，這是一個「開始者」的象徵。</p>
+
+<p>但3/21的牡羊座跟典型牡羊很不一樣。典型牡羊是猛烈的、衝鋒的、大聲的；3/21的牡羊卻是<strong>直率但不猛烈，自信但不張揚</strong>。她個性比較沈穩，我行我素，寧可獨自一人也不願意和不了解她的人周旋。她不需要解釋自己——別人如果不懂得欣賞，那是別人的損失。</p>
+
+<p>她有一點夢想家的味道，但同時也有務實的一面來平衡幻想。她對組織和結構非常有天份——但在「人」的部分，經常出乎意料地失敗。她幾乎總是高估了別人的善意，低估了人際關係的複雜度。</p>
+
+<p>最特別的一點：3/21出生的人會很古怪地期待別人有讀心術——希望不用說話就能被理解。她多半是天生的領導者，也許只需要沉默或簡單幾句話就能傳達心意。但這也意味著，當別人讀不懂她的時候，她會感到深深的孤獨。</p>
+
+<p>她位於雙魚-牡羊的交界，同時受到海王星（雙魚的守護星，代表直覺與靈性）和火星（牡羊的守護星，代表行動與勇氣）的雙重影響。她的直覺比一般牡羊敏銳得多，但行動力比一般雙魚強烈得多。</p>
+
+<div class="syn-box">
+<div class="syn-title">融合總結 ③ ── 五行 × 生肖 × 靈數 × 星座</div>
+<p>四套系統到這裡，她的人格輪廓已經非常清晰了。她是一個<strong>外表沈穩自信、內在深邃獨立</strong>的靈魂。五行的甲木給她正直的骨架，火馬給她奔馳的能量，靈數7給她深潛的需要，牡羊春分首日給她「開拓者但不張揚」的氣質。四套系統都指向同一個畫面：<strong>她不是那種大聲喊叫的領導者，而是那種安靜地站在那裡，別人自然會轉頭看向她的人。</strong>她的困境也更清楚了——她同時渴望被理解（雙魚的影響）和拒絕被定義（牡羊+7號的獨立），這讓她很容易陷入「為什麼沒有人真正懂我」的孤獨感裡。而五行缺土意味著她缺乏耐心去等待別人慢慢靠近她。</p>
+</div>
+</section>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- SYSTEM 5: 人類圖                            -->
+<!-- ══════════════════════════════════════════ -->
+<section>
+<div class="sn">System 05 — 人類圖全局觀</div>
+<h2>投射者 3/5：被邀請才發光的引導者</h2>
+
+<p>人類圖是五套系統中最具體的一套——它不只描述性格，還告訴你「該怎麼做決定」。而它給出的答案，可能是前四套系統中最出人意料的。</p>
+
+<p>她的人類圖類型是<strong>投射者</strong>——佔全世界人口約21%的少數派。投射者不像生產者有源源不絕的薦骨能量，她的能量是「聚焦式」的：不是大範圍散射，而是像雷射一樣精準地穿透特定的人和事。她最大的天賦不是「做事」，而是<strong>「看穿別人看不到的東西，然後引導方向」</strong>。</p>
+
+<p>但投射者的策略是四種類型中最違反直覺的——<strong>等待被邀請</strong>。不是被動等死，而是讓自己發光到被「認出」，然後等到正式的邀請再出手。如果她主動提供建議（沒有被邀請），結果通常是：對方不領情、她感到不被認可、然後陷入非自己主題——<strong>苦澀</strong>。</p>
+
+<p>這跟前四套系統形成了劇烈的張力。甲木要直、火馬要衝、牡羊要搶第一——但人類圖說：<strong>你最有力量的姿態，不是衝鋒，是等待。</strong></p>
+
+<h3>✦ 3/5 烈士/異端者</h3>
+<p>她的人生角色是3/5——被認為是人類圖十二種人生角色中<strong>潛力最大</strong>的一種。</p>
+
+<p>3爻在她的意識面（Personality），意味著她<strong>明確知道自己在實驗</strong>。她不是盲目地撞牆，而是有意識地試錯——「這個方法行不通？好，我知道了，換下一個。」40歲之前，她的人生會不斷經歷「闖關→失敗→學到→再來」的循環。每一次跌倒都不是意外，是她的設計——失敗是她收集數據的方式。</p>
+
+<p>5爻在她的設計面（Design），是「異端者」——天生的領導者氣場。別人會對她有巨大的投射和期待，覺得她能解決問題。5爻的人有點像救火隊——大家遇到困難就會想到她。但如果她的方案沒能落地，批判也會非常猛烈。所以她必須學會：<strong>不是每一個求助都要接，只接自己真正有能力解決的。</strong></p>
+
+<h3>✦ 情緒型權威 + 二分人 + 愛之船</h3>
+<p>她的內在權威是情緒型——任何決定都不要在情緒的浪頭或浪谷做，要等情緒走完一輪再決定。對投射者來說，這等於「雙重等待」：先等被邀請，再等情緒平穩。對一個牡羊座火馬甲木來說，這是極大的修煉。</p>
+
+<p>二分人意味著她的能量分成兩大區塊，中間有缺口——她會常常覺得「人生好像少了什麼」，需要互補的夥伴。</p>
+
+<p>輪迴交叉是「右角度交叉之愛之船 (25/46 | 10/15)」——她天生散發一種讓人敞開心扉的氣場，靠近她的人會感覺被允許做自己。這是她的人生使命：不是去拯救誰，而是讓愛流動。</p>
+
+<div class="syn-box">
+<div class="syn-title">融合總結 ④ ── 五系統全局大融合</div>
+<p>五套系統全部到位，寶寶棋的靈魂藍圖完整了。她是一個<strong>外表沈穩正直、內在深邃敏銳、天生具有引導力但必須學會等待的靈魂</strong>。甲木給她骨架，火馬給她速度，靈數7給她深度，牡羊春分給她開拓者的氣質，投射者3/5告訴她——你最強大的力量不在於自己衝出去，在於被對的人認出來之後，用你的洞見照亮他們看不到的路。</p>
+<p>她最大的天賦是<strong>洞察力</strong>——五套系統全部指向這一點。八字的甲木正直能看穿虛偽，靈數7能分析到底層，牡羊春分的直覺，投射者的聚焦穿透力，3/5的實驗精神加領導氣場——全部匯聚成一種能力：<strong>她能看見別人看不見的東西。</strong></p>
+<p>她最大的課題是<strong>「等」和「落地」</strong>。火旺缺土＝容易空轉。投射者等邀請＋情緒權威等平穩＝雙重等待。對一個甲木牡羊火馬來說，等待不是天性，是後天修煉。但這個修煉的回報是巨大的——一旦她學會了在正確的時機出手，她的影響力會比任何生產者都深遠。</p>
+</div>
+</section>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 五運實戰                                     -->
+<!-- ══════════════════════════════════════════ -->
+<section>
+<div class="sn">五運實戰分析</div>
+<h2>七個人生面向的卡點與穿越</h2>
+
+<p>以下不是「預測未來」，而是根據五套系統融合後的人格特質，推演她在人生各面向<strong>最可能遇到的卡點</strong>，以及她<strong>自身具備的穿越資源</strong>。</p>
+
+<!-- 事業 -->
+<div class="fortune-card">
+<h4>💼 事業</h4>
+<div class="stuck"><span class="fortune-label fl-stuck">卡點</span> 她會在年輕時頻繁換跑道（3爻試錯＋火馬不安定＋缺土不落地），而且容易在「主動出擊」時碰壁——因為投射者主動去推銷自己的能力，通常不會被認可。她可能會反覆經歷「明明我很厲害，為什麼沒有人看到」的挫敗。甲木的正直也讓她不願意「裝」——她不會逢迎，不會包裝自己，這在職場初期是吃虧的。</div>
+<div class="gift"><span class="fortune-label fl-gift">穿越</span> 她的事業轉折點會發生在「被對的人認出來」的那一刻。投射者的策略就是把自己磨亮，然後等待邀請。3/5的5爻讓她天生帶領導氣場，40歲後3爻的所有試錯會整合成獨一無二的經驗庫。時柱壬申（晚年智慧）也呼應這一點——她是「越老越值錢」的格局。最適合她的不是傳統職場，而是<strong>顧問、引導者、教練、分析師、策略師</strong>——任何需要「看穿問題本質並指出方向」的角色。</div>
+</div>
+
+<!-- 財富 -->
+<div class="fortune-card">
+<h4>💰 財富</h4>
+<div class="stuck"><span class="fortune-label fl-stuck">卡點</span> 甲午日柱的人天生「把自己燒在別人身上」——她會花錢在別人身上比花在自己身上大方。缺土讓她對金錢缺乏「持有」的耐心，容易賺了就花，不擅長長期儲蓄。火旺金弱（火剋金，金代表財），偏財運不算強，不適合投機。</div>
+<div class="gift"><span class="fortune-label fl-gift">穿越</span> 她的財富模式不是「快速致富」，而是「專業變現」。投射者的財富來源是<strong>被認可的專業能力</strong>——當她的洞察力被對的平台看到並邀請，收入會跳躍式增長。辛金正官在月柱代表「體制內的正當收入」——她適合有結構的收入模式（顧問費、專案制），不適合完全自由接案。時柱壬申（水金）是她的財富後盾，40歲後財運明顯轉好。</div>
+</div>
+
+<!-- 人際與戀情 -->
+<div class="fortune-card">
+<h4>💕 人際關係與戀情</h4>
+<div class="stuck"><span class="fortune-label fl-stuck">卡點</span> 這是她最容易跌倒的地方。3/21牡羊座在「人」的部分幾乎總是判斷失誤；靈數7在感情上可能過度理性或冷漠；投射者主動靠近別人容易感到苦澀；二分人又渴望夥伴。結果就是——她很需要關係，但又很容易在關係裡受傷。她期待別人有讀心術（3/21的特質），但現實是沒有人天生能讀懂她。甲木的不彎讓她在衝突中不願意先低頭，火馬的急躁讓小事也能燒成大事。</div>
+<div class="gift"><span class="fortune-label fl-gift">穿越</span> 愛之船的輪迴交叉是她最強的關係資產——她天生就能讓靠近的人敞開心扉。她不需要「學」怎麼愛人，只需要學<strong>怎麼選人</strong>。生肖三合（虎、狗）和六合（羊）是她的貴人方位。情緒型權威提醒她：所有重大的關係決定，都不要在情緒高漲或低落時做。等浪退了再看——留下來的那個人，才是對的。</div>
+</div>
+
+<!-- 家庭 -->
+<div class="fortune-card">
+<h4>🏠 家庭（親子・婆媳）</h4>
+<div class="stuck"><span class="fortune-label fl-stuck">卡點</span> 甲木的正直在家庭關係中可能變成「對錯分明、不懂得模糊」。她會用「對的標準」要求家人，但家庭不是講對錯的地方，是講感受的地方。投射者在沒被邀請時給建議會引起反感——對婆媳關係來說，這是極大的地雷。她很可能會覺得「我明明是為你好，你為什麼不領情」。5爻帶來的投射也會延伸到家庭——家人對她的期待比她能承受的更多。</div>
+<div class="gift"><span class="fortune-label fl-gift">穿越</span> 壬水正印在時柱代表她跟自己孩子的關係會非常好——她會是一個有智慧的母親，尤其在孩子長大之後。愛之船的使命在家庭中的體現是：她的家就是一個「讓每個人都能做自己」的容器。她需要學的不是怎麼管理家庭，而是怎麼<strong>退一步，讓家成為每個人的安全港</strong>——包括她自己。</div>
+</div>
+
+<!-- 身體健康 -->
+<div class="fortune-card">
+<h4>🏃‍♀️ 身體健康</h4>
+<div class="stuck"><span class="fortune-label fl-stuck">卡點</span> 火旺木燥——她容易有肝火旺、眼睛乾、失眠、頭痛等「上火」症狀。甲木對應肝膽，午火對應心臟——心血管和肝膽系統是她需要長期關注的。缺土意味著脾胃偏弱，消化系統可能是弱點。投射者本身就不是高能量類型，如果她用生產者的方式工作（不停做不停做），身體會率先抗議。</div>
+<div class="gift"><span class="fortune-label fl-gift">穿越</span> 水元素是她的解方——游泳是最好的運動，既消耗火馬過剩能量，又滋養甲木。接觸土元素（赤腳踩地、園藝、陶藝）可以補脾胃。最重要的是<strong>接受自己是投射者的能量模式</strong>——她不需要跟生產者比誰做得多，她需要的是高品質的休息和獨處時間來充電。</div>
+</div>
+
+<!-- 心理健康 -->
+<div class="fortune-card">
+<h4>🧠 心理健康</h4>
+<div class="stuck"><span class="fortune-label fl-stuck">卡點</span> 五重疊加的自我苛責風險：午午自刑（生肖）＋甲木不彎（八字）＋投射者苦澀（人類圖）＋牡羊座不認輸（星座）＋7號人高標準（靈數）。她可能是那種「對別人很寬容，對自己極嚴苛」的人。甲午日柱「把自己燒完」的特質，加上投射者沒有薦骨能量可以持續輸出——她很容易進入「心力交瘁但不允許自己停下來」的狀態。</div>
+<div class="gift"><span class="fortune-label fl-gift">穿越</span> 靈數7的深度思考力是她的心理健康護城河——如果她能把分析外在世界的能力轉向分析自己的內在，她會成為自己最好的心理諮商師。3爻的試錯精神讓她不怕面對失敗——只要她能把這個精神也用在「接受自己的不完美」上。最核心的一句話：<strong>「你不需要燃燒殆盡才配得上被愛。」</strong></div>
+</div>
+
+<!-- 靈性 -->
+<div class="fortune-card">
+<h4>✨ 靈性追求</h4>
+<div class="stuck"><span class="fortune-label fl-stuck">卡點</span> 她的靈性天賦非常強（靈數7＋雙魚牡羊交界的直覺＋天河水命的深層智慧），但火馬和甲木的實用主義可能讓她在年輕時忽略這個面向——覺得「靈性」是虛的、不值得花時間。或者走另一個極端：過度沉迷於靈性探索而忽略了現實生活（缺土的人特別容易如此）。</div>
+<div class="gift"><span class="fortune-label fl-gift">穿越</span> 她不需要「追求」靈性——靈性會自然地找到她。壬水正印在時柱代表晚年的智慧深化，7號人的分析力加上投射者的洞察力，讓她有潛力成為一個能「看見別人靈魂本質」的引導者。最適合她的靈性路徑不是宗教式的信仰，而是<strong>「在日常生活中實踐覺察」</strong>——把每一次等待、每一次試錯、每一次燃燒後的灰燼，都當作認識自己的機會。</div>
+</div>
+
+</section>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- 最終總結                                     -->
+<!-- ══════════════════════════════════════════ -->
+<section style="border-top:2px solid var(--gold);padding-top:3rem">
+<div class="sn">Final</div>
+<h2>一句話・一句警語</h2>
+
+<div class="final-quote">
+她不需要成為最快的那匹馬。<br>
+她只需要成為——<br>
+別人在迷路時，會想起的那棵樹。
+</div>
+
+<div class="final-warn">
+⚠️ 警語<br><br>
+「不要用燃燒自己來證明自己的價值。<br>
+一棵大樹最危險的死法，不是被砍倒，<br>
+是從內部燒空——外面看起來還站著，裡面已經是灰。<br>
+學會說『不』，學會停下來，學會讓別人走過來找你。<br>
+<strong>你最不需要的，就是再多一個證明自己夠好的機會。<br>
+你已經夠好了。</strong>」
+</div>
+</section>
+
+</div>
+
+<div class="footer">
+<div class="brand">MUSEON</div>
+<p>生命靈數 × 星座 × 人類圖 × 天干地支五行 × 生肖<br>
+五系統融合解讀報告（正式版）<br>
+寶寶棋 · 2026.03.21 15:43 · 台灣台北 · 女<br><br>
+⚠️ 本報告融合五套傳統/現代性格分析系統，屬個人成長參考工具，非科學定論。<br>
+每個靈魂都是獨一無二的——藍圖是地圖，不是目的地。</p>
+</div>
+
+</body>
+</html>
