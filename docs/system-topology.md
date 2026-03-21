@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.28
+# MUSEON 系統拓撲圖 v1.29
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.29 (2026-03-21)**：Skills 群組治理升級——新增 `hub` 欄位（9 種 Hub 分組）+ Workflow Stage 規格；詳見 `docs/skill-routing-governance.md`
 > **v1.28 (2026-03-21)**：補全 skills 群組——7 Hub + 39 Skill 節點 + 91 條連線（從 3D 心智圖回補，修復拓撲⇄HTML 漂移）
 > **v1.27 (2026-03-21)**：Skill 鍛造膠合層修復——VectorBridge 新增 index_all_skills()；Nightly Step 8.6 skill_vector_reindex；plugin-registry v2.3（+12 Skill 註冊）
 > **v1.26 (2026-03-21)**：群組對話 DSE 三階段修復——brain.py P0 六類訊號分流 + 事實糾正偵測 + _observe_external_user v3.0；memory_manager chat_scope 隔離；multi_tenant ExternalAnimaManager v3.0；server.py 群組事實糾正+錯誤顯示啟用
@@ -40,7 +41,7 @@
 | `nightly` | Nightly 夜間 | 30+ 步夜間整合管線、演化提案、好奇心路由 | `#9A3A1C` |
 | `installer` | Installer 安裝 | 部署編排、Daemon 設定、Electron 打包 | `#5A8A3E` |
 | `external` | 外部服務 | SearXNG、Qdrant、Firecrawl、API | `#6A6880` |
-| `skills` | Skills 生態系 | 外掛 Skill 語義群組（7 子中樞 + 39 Skill） | `#8B5CF6` |
+| `skills` | Skills 生態系 | 外掛 Skill 語義群組（7 子中樞 + 39 Skill）；治理規格見 `skill-routing-governance.md` | `#8B5CF6` |
 
 ---
 
@@ -222,6 +223,9 @@
 | `anthropic-api` | Anthropic API | Claude API | - | 1.1 |
 
 ### skills — Skills 生態系
+
+> **治理文件**：`docs/skill-routing-governance.md`（Hub 路由 + Always-on 中間件 + Workflow Stage 規格）
+> **Manifest 規格**：`docs/skill-manifest-spec.md`（YAML frontmatter 欄位定義 + 驗證規則）
 
 #### skills-thinking — 思維類
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -813,6 +817,8 @@
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.29 | 2026-03-21 | Skills 群組治理升級：新增 `hub` 欄位（9 種 Hub 分組：core/infra/thinking/market/business/creative/product/evolution/workflow）至 49 個 Skill Manifest；新增 Workflow Stage 結構化 YAML（3 個 workflow 含 stages + speed_paths）；新增治理文件 `skill-routing-governance.md`；plugin-registry v2.4（Hub 架構樹）；validate_connections.py v1.1（+2 驗證規則）；167 節點 336 連線（不變） |
+| v1.28 | 2026-03-21 | 補全 skills 群組：7 Hub + 39 Skill 節點 + 91 條連線（從 3D 心智圖回補，修復拓撲⇄HTML 漂移）；167 節點 336 連線 |
 | v1.27 | 2026-03-21 | Skill 鍛造膠合層修復：VectorBridge 新增 `index_all_skills()`（skills collection 全量索引，Gateway startup + Nightly Step 8.6 + API reindex）；Nightly Step 8.6 `skill_vector_reindex`；plugin-registry v2.3（+12 Skill 註冊）；49 個 Skill Manifest 補齊 memory/io 欄位；同步 blast-radius v1.33、joint-map v1.27、persistence-contract v1.24、memory-router v1.2 |
 | v1.25 | 2026-03-21 | 軍師互動+思考前置區拓撲補全：agent 群組新增 `deep-think`、`roundtable`、`investment-masters` 3 個節點（+3）；新增 10 條連線——internal: brain→deep-think/roundtable/investment-masters（+3）；cross: deep-think→metacognition Phase 0 元認知、deep-think→persona-router 訊號分流→百合引擎、roundtable→knowledge-lattice 裁決軌跡結晶、investment-masters→knowledge-lattice 軍師會診結晶、investment-masters→skill-router DNA27 RC 親和觸發（+5）；配套百合引擎 27 單元測試 + Telegram 端到端驗證；124 節點 255 連線 |
 | v1.24 | 2026-03-21 | A 區迭代 #1~#3 拓撲同步：data 群組新增 `sparse-embedder` 節點（BM25 稀疏向量，+1 節點）；新增 5 條連線——agent internal: brain→knowledge-lattice MemGPT recall_tiered() + GraphRAG Layer 2.5 recall_with_community()（+2）；data internal: data-bus→sparse-embedder Store 路由 + vector-index→sparse-embedder 混合檢索 RRF 融合（+2）；cross: sparse-embedder→qdrant 稀疏向量存儲（+1）；vector-index→qdrant 描述更新為「向量存儲（dense）」；121 節點 245 連線 |
