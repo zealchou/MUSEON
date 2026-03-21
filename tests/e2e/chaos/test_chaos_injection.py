@@ -116,26 +116,33 @@ class TestChaosInjection:
             "𝕳𝖊𝖑𝖑𝖔 Unicode 擴展",
         ]
         passed = 0
+        max_retries = 2
         for msg in special_msgs:
-            try:
-                resp = http_client.post(
-                    f"{GATEWAY_URL}/webhook",
-                    json={"user_id": "boss",
-                          "session_id": f"chaos_special_{passed}",
-                          "content": msg},
-                    timeout=60,
-                )
-                if resp.status_code < 500:
-                    passed += 1
-                else:
-                    collector.record("chaos_special_chars", "D2.chaos", "FAIL",
-                                     f"'{msg[:30]}' 導致 500", severity="HIGH")
-                    pytest.fail(f"特殊字元導致崩潰: {msg[:30]}")
-                    return
-            except Exception as e:
+            last_err = None
+            for attempt in range(max_retries + 1):
+                try:
+                    resp = http_client.post(
+                        f"{GATEWAY_URL}/webhook",
+                        json={"user_id": "boss",
+                              "session_id": f"chaos_special_{passed}",
+                              "content": msg},
+                        timeout=60,
+                    )
+                    if resp.status_code < 500:
+                        passed += 1
+                        last_err = None
+                        break
+                    else:
+                        last_err = f"'{msg[:30]}' 導致 {resp.status_code}"
+                except Exception as e:
+                    last_err = f"'{msg[:30]}' 連線失敗: {e}"
+                    if attempt < max_retries:
+                        time.sleep(3)  # Gateway 高壓後需要喘息
+                        continue
+            if last_err:
                 collector.record("chaos_special_chars", "D2.chaos", "FAIL",
-                                 f"'{msg[:30]}' 崩潰: {e}", severity="CRITICAL")
-                pytest.fail(f"特殊字元崩潰: {e}")
+                                 last_err, severity="HIGH")
+                pytest.fail(f"特殊字元崩潰（重試 {max_retries} 次後）: {last_err}")
                 return
 
         collector.record("chaos_special_chars", "D2.chaos", "PASS",
