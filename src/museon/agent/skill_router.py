@@ -117,12 +117,20 @@ class SkillRouter:
                         # May be multi-line (>) — grab first line
                         meta["description"] = line[12:].strip().lstrip(">").strip()
 
+                # Parse type from frontmatter
+                for line in frontmatter.splitlines():
+                    stripped = line.strip()
+                    if stripped.startswith("type:"):
+                        meta["type"] = stripped[5:].strip()
+                        break
+
                 # Extract trigger words from body
                 meta["triggers"] = self._extract_triggers(body, frontmatter)
 
-                # Check if always-on (常駐)
-                if "常駐" in content or "default=ON" in content or "每次回答前自動" in content:
-                    meta["always_on"] = True
+                # Check if always-on — 僅以 YAML frontmatter type 欄位判定
+                # 舊邏輯用子字串搜尋 "常駐" in content 有 67% 虛假正報率
+                # （text-alchemy 說「不常駐」也被誤判為 always_on）
+                meta["always_on"] = meta.get("type") == "always-on"
 
                 # Get short description from frontmatter if multi-line
                 if not meta["description"]:

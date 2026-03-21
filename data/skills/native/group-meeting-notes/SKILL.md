@@ -22,6 +22,65 @@ memory:
     - wee
   reads:
     - user-model
+stages:
+  - id: 1
+    name: "訊息萃取 + 角色識別"
+    skills: [dna27]
+    lens: "Telegram 群組 DB 讀取、發言者標記、附件清單"
+    mode: serial
+    gate:
+      - "訊息萃取完成，角色識別正確"
+    output_to: [2]
+  - id: 2
+    name: "DSE 第一性原理拆解"
+    skills: [dse]
+    lens: "底層需求、假設、商業賭注"
+    mode: serial
+    gate:
+      - "核心洞察不為空"
+    output_to: [3]
+  - id: 3
+    name: "多維度結構化分析"
+    skills: [business-12, master-strategy, ssa-consultant]
+    lens: "MECE 主題分類 + 決策紀錄 + 行動清單 + 關鍵洞見"
+    mode: serial
+    gate:
+      - "決策與行動清單完整"
+    output_to: [4, 5]
+  - id: 4
+    name: "半匿名化"
+    skills: [dna27]
+    lens: "B2B 匿名 / 內部保留全名"
+    mode: serial
+    gate:
+      - "權限標記正確"
+    output_to: [5]
+  - id: 5
+    name: "HTML 生成 + 品質檢查"
+    skills: [aesthetic-sense]
+    lens: "design_spec.md 合規、八段結構、品牌視覺"
+    mode: serial
+    gate:
+      - "HTML 結構完整且視覺合規"
+    output_to: [6]
+  - id: 6
+    name: "發佈"
+    skills: [dna27]
+    lens: "GitHub Pages 推送 + Telegram 通知"
+    mode: serial
+    gate:
+      - "URL 可訪問"
+    output_to: []
+speed_paths:
+  quick:
+    stages: [1, 3, 5]
+    depth: "精簡"
+  standard:
+    stages: [1, 2, 3, 5, 6]
+    depth: "標準"
+  deep:
+    stages: [1, 2, 3, 4, 5, 6]
+    depth: "完整"
 ---
 
 # Group Meeting Notes (WF-GMN-01)
