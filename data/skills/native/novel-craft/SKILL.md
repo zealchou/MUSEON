@@ -17,6 +17,12 @@ io:
 connects_to:
   - text-alchemy
   - c15
+memory:
+  writes:
+    - knowledge-lattice
+  reads:
+    - user-model
+    - knowledge-lattice
 description: >
   小說工藝引擎——DNA27 核心的外掛模組，text-alchemy 生態系的文字工藝專家，c15 的深度技法庫。
   融合 Hemingway 冰山理論、Raymond Carver 極簡主義、Chekhov 潛台詞與細節、

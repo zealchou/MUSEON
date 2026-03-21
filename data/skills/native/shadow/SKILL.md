@@ -22,6 +22,9 @@ memory:
     - target: knowledge-lattice
       type: crystal
       condition: 防禦/洞察分析完成時
+  reads:
+    - source: knowledge-lattice
+      field: related_crystals
 description: >
   Shadow — 人際博弈辨識引擎。DNA27 核心的外掛模組，
   融合「防禦辨識」與「博弈洞察」雙層結構，

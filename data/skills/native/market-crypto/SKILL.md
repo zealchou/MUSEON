@@ -20,6 +20,11 @@ io:
 connects_to:
   - market-core
   - investment-masters
+memory:
+  writes:
+    - knowledge-lattice
+  reads:
+    - knowledge-lattice
 description: >
   Market-Crypto（加密貨幣與預測市場分析衛星）— DNA27 核心的外掛模組，
   market-core 的加密貨幣特化衛星，專為 BTC/ETH/主流幣、DeFi 協議、

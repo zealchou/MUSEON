@@ -22,7 +22,7 @@ connects_to:
 description: >
   外掛模組註冊表（Plugin Registry）v2.0 — DNA27 核心的參考文件，
   管理所有 MUSEON 外掛模組的註冊資訊、迴圈允許規則、RC 親和對照、協作矩陣與共存規則。
-  已註冊外掛：29 個（含 3 常駐 + 26 按需）。未部署但設計中：meta-learning、info-architect。
+  已註冊外掛：41 個（含 3 常駐 + 34 按需 + 4 工作流）。未部署但設計中：meta-learning、info-architect。
   此文件為 dna27/references 底下的治理參考文件，非獨立 Skill，不可被單獨觸發。
   觸發時機：DNA27 路由、orchestrator 編排、morphenix 迭代時自動參照。
   指令觸發：無獨立指令。透過 /orchestrate、/morphenix fitness、/morphenix status 間接使用。
@@ -32,10 +32,10 @@ description: >
   與 acsf 互補：鍛造新 Skill 完成後，必須在此表新增條目才算正式上線。
 ---
 
-# 外掛模組註冊表（Plugin Registry）v2.0
+# 外掛模組註冊表（Plugin Registry）v2.3
 
-> **上次更新**：2026-02-21
-> **已註冊外掛**：28 個（含 3 常駐 + 25 按需）
+> **上次更新**：2026-03-21
+> **已註冊外掛**：41 個（含 3 常駐 + 34 按需 + 4 工作流）
 > **未部署但設計中**：meta-learning、info-architect（available_skills 有描述，/mnt/skills/user 中無 SKILL.md）
 
 DNA27 是母體作業系統，所有外掛模組透過此註冊表連接。外掛可使用 DNA27 提供的核心能力（迴圈/模式/Persona/護欄/記憶/演化引擎），但不可覆寫核心治理規則。
@@ -88,7 +88,17 @@ DNA27（核心 OS）
 │   ├── eval-engine          （效能儀表板）
 │   ├── sandbox-lab          （沙盒實驗室）
 │   ├── orchestrator         （編排引擎）
-│   └── qa-auditor           （品質審計引擎）
+│   ├── qa-auditor           （品質審計引擎）
+│   └── plan-engine          （計畫引擎）
+│
+├── 【市場分析】
+│   ├── market-core          （市場分析核心引擎）
+│   ├── market-equity        （股票市場分析衛星）
+│   ├── market-crypto        （加密貨幣分析衛星）
+│   ├── market-macro         （總體經濟分析衛星）
+│   ├── investment-masters   （投資軍師團）
+│   ├── risk-matrix          （風險管理與資產配置引擎）
+│   └── sentiment-radar      （市場情緒雷達）
 │
 ├── 【產品線】
 │   ├── gap                  （市場缺口分析引擎）
@@ -96,6 +106,12 @@ DNA27（核心 OS）
 │   ├── acsf                 （能力結晶與 Skill 鑄造引擎）
 │   ├── env-radar            （環境雷達引擎）
 │   └── report-forge         （付費級產業診斷報告鍛造引擎）
+│
+├── 【工作流範本】
+│   ├── workflow-investment-analysis    （投資分析報告工作流）
+│   ├── workflow-ai-deployment         （AI 導入與部署顧問工作流）
+│   ├── workflow-svc-brand-marketing   （服務業品牌行銷顧問工作流）
+│   └── group-meeting-notes            （群組對話會議記錄引擎）
 │
 ├── 【特殊模組】
 │   └── tantra               （情慾治理引擎，研究階段）
@@ -542,6 +558,22 @@ DNA27（核心 OS）
 | 核心能力 | 4D 審計框架（D1 邏輯功能、D2 狀態閉環、D3 時序併發、D4 跨機環境）、沙盒隔離、混沌測試、分級門禁（smoke/standard/full）、回歸沉澱 |
 | 與其他外掛 | sandbox-lab（Skill/Prompt 實驗 vs 程式碼審計）；eval-engine（Q-Score vs T-Score）；orchestrator（Skill 編排 vs 多 Agent 品質護欄） |
 
+### plan-engine — 計畫引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | PLAN_ENGINE |
+| 類別 | workflow-planning-engine |
+| 風險等級 | MEDIUM |
+| 允許迴圈 | slow_loop（主，完整六階段）、exploration_loop（lite 版 Research+Plan+1 Annotate） |
+| 禁止迴圈 | fast_loop（跳過） |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | 使用者面臨需要研究→規劃→執行的多步驟任務 |
+| 觸發指令 | /plan、/plan lite、/plan status、/plan annotate、/plan execute、/plan close、/plan revert |
+| 核心能力 | Research→Plan→Annotate→Todo→Execute→Close 六階段流程；plan.md 持久化人機共享狀態；物理隔離「想」與「做」；融合 Boris Tane Annotation Cycle 方法論 |
+| RC 親和 | RC-C3、RC-D1（偏好）；RC-A1（限制） |
+| 與其他外掛 | orchestrator（plan-engine 負責前段收斂，orchestrator 負責後段編排）；所有需要多步驟規劃的 Skill 均可透過 plan-engine 前置收斂 |
+
 ---
 
 ## 八、產品線
@@ -666,6 +698,182 @@ DNA27（核心 OS）
 
 ---
 
+## 十一、市場分析
+
+### market-core — 市場分析核心引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | MARKET_CORE |
+| 類別 | market-analysis-core-engine |
+| 風險等級 | MEDIUM |
+| 允許迴圈 | fast_loop（3 層 3 點速覽）、exploration_loop（5 層 5-6 點）、slow_loop（5 層深度 6-8 點） |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | 使用者有市場分析/研究/多空研判需求 |
+| 觸發指令 | /market、/analyze |
+| 核心能力 | 五層蒐集引擎（基本面→技術面→籌碼面→情緒面→總經面）、多空對稱論述框架、風險矩陣標準化、訊號追蹤時間軸、HTML 報告輸出；語言深度預設全白話 |
+| RC 親和 | RC-C3、RC-D1（偏好）；RC-B1（限制） |
+| 與其他外掛 | market-equity（股票衛星）；market-crypto（加密貨幣衛星）；market-macro（總經衛星）；investment-masters（大師會診）；risk-matrix（風險管理）；sentiment-radar（情緒雷達）；report-forge（報告產出） |
+
+### market-equity — 股票市場分析衛星
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | MARKET_EQUITY |
+| 類別 | equity-market-satellite |
+| 風險等級 | MEDIUM |
+| 允許迴圈 | 繼承 market-core 深度控制（fast/exploration/slow） |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | market-core 偵測到股票/ETF/指數類標的時自動載入 |
+| 觸發指令 | /equity |
+| 核心能力 | 籌碼面（法人動態、融資融券、期貨未平倉）、估值比較、法人觀點彙整、市場制度風險提醒；支援台股與美股，個股與大盤雙路由 |
+| RC 親和 | RC-C3、RC-D1（偏好）；RC-B1（限制） |
+| 與其他外掛 | market-core（母模組，提供五層框架）；investment-masters（個股會診） |
+
+### market-crypto — 加密貨幣與預測市場分析衛星
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | MARKET_CRYPTO |
+| 類別 | crypto-market-satellite |
+| 風險等級 | MEDIUM-HIGH |
+| 允許迴圈 | 繼承 market-core 深度控制（fast/exploration/slow） |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | market-core 偵測到加密貨幣/區塊鏈類標的時自動載入 |
+| 觸發指令 | /crypto |
+| 核心能力 | 鏈上數據分析（大戶動向、交易所資金流）、DeFi 協議健康度、預測市場定價偏差掃描、加密情緒指標、監管風險即時追蹤 |
+| RC 親和 | RC-C3、RC-D1（偏好）；RC-B1、RC-A2（限制） |
+| 與其他外掛 | market-core（母模組，提供五層框架）；investment-masters（加密標的會診） |
+
+### market-macro — 總體經濟分析衛星
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | MARKET_MACRO |
+| 類別 | macro-economics-satellite |
+| 風險等級 | MEDIUM |
+| 允許迴圈 | 繼承 market-core 深度控制（fast/exploration/slow） |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | market-core 偵測到總經/國家經濟/央行類標的時自動載入 |
+| 觸發指令 | /macro |
+| 核心能力 | 央行政策路徑推演、經濟數據即時翻譯（白話說明）、利率週期定位、跨國資金流向追蹤、地緣政治量化評估；支援台灣、美國、中國、歐洲、日本五大經濟體 |
+| RC 親和 | RC-C3、RC-D1（偏好）；RC-B1（限制） |
+| 與其他外掛 | market-core（母模組，提供五層框架）；investment-masters（總經觀點會診） |
+
+### investment-masters — 投資軍師團
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | INVESTMENT_MASTERS |
+| 類別 | investment-masters-consultation-engine |
+| 風險等級 | MEDIUM |
+| 允許迴圈 | fast_loop（快速 2-3 位軍師）、exploration_loop（全 6 位展開）、slow_loop（全 6 位 + 歷史回測 + 情境推演） |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | 使用者需要投資決策的多視角大師會診 |
+| 觸發指令 | /masters、/guru |
+| 核心能力 | 六位投資大師思維模型：Buffett（護城河+安全邊際）、Munger（多元心智模型+反向思考）、Marks（週期定位+第二層思考）、Taleb（反脆弱+槓鈴策略+黑天鵝防禦）、Fisher（閒聊法+成長股15點）、Soros（反身性理論+趨勢反轉）；可單獨召喚或會診 |
+| RC 親和 | RC-A2、RC-C3（偏好）；RC-B1（限制） |
+| 與其他外掛 | market-core（市場數據來源）；risk-matrix（風險管理配合）；sentiment-radar（情緒面數據） |
+
+### risk-matrix — 風險管理與資產配置引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | RISK_MATRIX |
+| 類別 | risk-management-allocation-engine |
+| 風險等級 | MEDIUM |
+| 允許迴圈 | fast_loop（快速凱利準則）、exploration_loop（完整配置）、slow_loop（完整+敏感度分析） |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | market-core 分析完成後使用者詢問配置建議；或使用者直接要求風險評估 |
+| 觸發指令 | /risk、/allocation |
+| 核心能力 | 資產相關性分析、凱利準則倉位計算、最大回撤控制、情境壓力測試、資產配置模型（等權/風險平價/核心衛星）、再平衡時機判斷；語言深度預設全白話 |
+| RC 親和 | RC-C3、RC-B2（偏好）；RC-B1、RC-A1（限制） |
+| 與其他外掛 | market-core（市場分析來源）；investment-masters（大師配置觀點） |
+
+### sentiment-radar — 市場情緒雷達
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | SENTIMENT_RADAR |
+| 類別 | market-sentiment-engine |
+| 風險等級 | LOW |
+| 允許迴圈 | fast_loop（指數+PTT快掃）、exploration_loop（完整多平台）、slow_loop（完整+歷史比對） |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | 使用者需要市場情緒分析；或 market-core Layer 4 深度展開時 |
+| 觸發指令 | /sentiment |
+| 核心能力 | 社群情緒掃描（PTT/Reddit/Twitter/X）、新聞情緒分析、恐懼貪婪綜合指數、散戶 vs 法人情緒分歧偵測、極端情緒反轉訊號；台灣在地化（PTT 股板/八卦板、Mobile01） |
+| RC 親和 | RC-C3、RC-D1（偏好）；RC-B1（限制） |
+| 與其他外掛 | market-core（Layer 4 深度展開）；investment-masters（情緒面數據供大師參考） |
+
+---
+
+## 十二、工作流範本
+
+> 工作流（Workflow）是預定義的多 Skill 協作範本，定義固定的階段流程與 Skill 調用序列。
+> 與 orchestrator 的差異：orchestrator 是即時動態編排，workflow 是預先設計好的固定流程。
+
+### workflow-investment-analysis — 投資分析報告工作流（WF-INV-01）
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | WF_INV_01 |
+| 類別 | investment-analysis-workflow |
+| 風險等級 | MEDIUM |
+| 允許迴圈 | fast_loop（單頁速覽）、exploration_loop（4 頁版略過 Stage 3+4）、slow_loop（完整 4 頁版） |
+| 允許模式 | civil_mode |
+| 入場條件 | 使用者需要針對特定市場/標的產出完整多空分析報告 |
+| 觸發指令 | /workflow invest、/workflow invest quick、/workflow invest update |
+| 核心能力 | 六階段流程：需求澄清→資料蒐集→多空分析→大師會診→風險配置→報告產出；多頁式 HTML 投資分析報告（散戶版 + 專業版雙層呈現） |
+| 涉及 Skill | market-core、market-equity、market-crypto、market-macro、investment-masters、sentiment-radar、risk-matrix、report-forge、eval-engine（共 9 個） |
+| 與其他外掛 | market-core（核心分析框架）；report-forge（報告產出引擎）；eval-engine（品質驗證） |
+
+### workflow-ai-deployment — AI 導入與部署顧問工作流（WF-AID-01）
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | WF_AID_01 |
+| 類別 | ai-deployment-consulting-workflow |
+| 風險等級 | MEDIUM |
+| 允許迴圈 | fast_loop（壓縮版）、exploration_loop（標準版）、slow_loop（深度版含完整交付物） |
+| 允許模式 | civil_mode |
+| 入場條件 | 台灣中小企業想導入 AI 但不知從何開始；或已試過 ChatGPT 但無法接上業務流程 |
+| 觸發指令 | /workflow aid、/workflow aid coach、/workflow aid gov |
+| 核心能力 | 六階段流程：現況診斷→痛點優先排序→AI 方案設計→ROI 試算→導入路線圖→成效追蹤；核心交付物：AI 導入診斷報告、方案設計書、導入執行手冊、成效追蹤報告 |
+| 涉及 Skill | ssa-consultant、business-12、dse、xmodel、pdeif、master-strategy、consultant-communication、eval-engine、orchestrator、knowledge-lattice、report-forge、aesthetic-sense（共 12 個） |
+| 與其他外掛 | ssa-consultant（顧問式需求探索）；dse（AI 技術可行性驗證）；business-12（商業診斷框架） |
+
+### workflow-svc-brand-marketing — 服務業品牌行銷顧問工作流（WF-SVC-01）
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | WF_SVC_01 |
+| 類別 | brand-marketing-consulting-workflow |
+| 風險等級 | MEDIUM |
+| 允許迴圈 | fast_loop（快速掃描）、exploration_loop（標準版）、slow_loop（深度版含完整文件） |
+| 允許模式 | civil_mode |
+| 入場條件 | 美業/餐飲/咖啡/零售等服務業，品牌模糊、行銷社群做不起來 |
+| 觸發指令 | /workflow svc、/workflow svc coach |
+| 核心能力 | 六階段流程：品牌現況診斷→品牌定位設計→行銷策略規劃→社群內容設計→自動化工具規格→成效追蹤；核心交付物：行銷策略企劃書、品牌定位文件、社群內容範本、自動化工具規格書 |
+| 涉及 Skill | ssa-consultant、business-12、brand-identity、storytelling-engine、xmodel、pdeif、master-strategy、text-alchemy、c15、aesthetic-sense、consultant-communication、eval-engine、orchestrator、knowledge-lattice（共 14 個） |
+| 與其他外掛 | brand-identity（品牌定位核心）；ssa-consultant（顧問式需求探索）；storytelling-engine（品牌故事設計） |
+
+### group-meeting-notes — 群組對話會議記錄引擎（WF-GMN-01）
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | WF_GMN_01 |
+| 類別 | meeting-notes-workflow |
+| 風險等級 | LOW |
+| 允許迴圈 | exploration_loop（標準版）、slow_loop（深度版） |
+| 允許模式 | civil_mode |
+| 入場條件 | 使用者需要將群組對話/會議內容結構化為可執行記錄 |
+| 觸發指令 | /gmn、/meeting-notes |
+| 核心能力 | 七步驟流程：接收原始對話→抽取議題→分類整理→決議標記→行動項提取→風險標記→HTML 報告產出；靈感來源 Plaud Note |
+| 涉及 Skill | dna27、dse、business-12、master-strategy、aesthetic-sense、ssa-consultant（共 6 個） |
+| 與其他外掛 | business-12（商業脈絡解讀）；master-strategy（戰略層面提取）；aesthetic-sense（報告美感） |
+
+---
+
 ## 外掛合約規範
 
 所有外掛必須遵守：
@@ -766,6 +974,31 @@ DNA27（核心 OS）
 | acsf + eval-engine | 鍛造後品質基準線驗證 |
 | dse + sandbox-lab | 技術方案的系統內驗證 |
 
+### 市場分析堆疊
+
+| 組合 | 適用情境 |
+|---|---|
+| market-core + market-equity | 股票/ETF 完整多空分析（通用框架 + 股票特化） |
+| market-core + market-crypto | 加密貨幣完整分析（通用框架 + 鏈上數據） |
+| market-core + market-macro | 總體經濟深度解讀（通用框架 + 央行/利率/地緣） |
+| market-core + investment-masters | 標的分析 + 大師多視角會診 |
+| market-core + sentiment-radar | 多空分析 + 情緒量化（Layer 4 深度展開） |
+| market-core + risk-matrix | 多空研判 → 配置建議（知道了多空，然後呢？） |
+| investment-masters + risk-matrix | 大師觀點 → 風險管理落地 |
+| market-core + market-equity + sentiment-radar + risk-matrix | 台股完整分析鏈：標的→籌碼→情緒→配置 |
+| market-core + market-crypto + investment-masters + risk-matrix | 加密貨幣完整分析鏈：標的→大師會診→風險管理 |
+
+### 工作流管線
+
+| 組合 | 適用情境 |
+|---|---|
+| plan-engine → orchestrator | 計畫收斂 → 多 Skill 動態編排（通用前段+後段） |
+| plan-engine → workflow-investment-analysis | 投資研究計畫收斂 → 投資分析報告產出 |
+| workflow-investment-analysis + report-forge | 投資分析工作流 + 報告鍛造品質 |
+| workflow-svc-brand-marketing + brand-identity + aesthetic-sense | 品牌行銷工作流 + 品牌一致性 + 美感審計 |
+| workflow-ai-deployment + dse + business-12 | AI 導入工作流 + 技術驗證 + 商業診斷 |
+| group-meeting-notes + business-12 + master-strategy | 會議記錄 + 商業脈絡 + 戰略提取 |
+
 ---
 
 ## 新增外掛指引
@@ -789,3 +1022,4 @@ DNA27（核心 OS）
 | **v2.0** | **2026-02-21** | **完整更新：新增 21 個外掛註冊（共 26 個）；新增 2 個未部署模組紀錄；重建完整協作矩陣（5 大類 20+ 組合）；新增常駐層/半常駐層分類；新增產線位置標記；新增變更紀錄** |
 | **v2.1** | **2026-03-13** | **新增 2 個外掛（共 28 個）：query-clarity（常駐層，問題品質守門）、roundtable（按需，圓桌詰問引擎）；常駐層從 2→3 個；新增「前置與決策支援」類別與協作矩陣** |
 | **v2.2** | **2026-03-18** | **新增 1 個外掛（共 29 個）：report-forge（產品線，付費級產業診斷報告鍛造引擎）；產品線管線新增 4 組協作組合** |
+| **v2.3** | **2026-03-21** | **新增 12 個外掛（共 41 個）：market-core、market-equity、market-crypto、market-macro、investment-masters、risk-matrix、sentiment-radar（市場分析群組 7 個）；plan-engine（演化與治理）；workflow-investment-analysis、workflow-ai-deployment、workflow-svc-brand-marketing、group-meeting-notes（工作流範本 4 個）。新增「市場分析」和「工作流範本」兩大章節；協作矩陣新增「市場分析堆疊」和「工作流管線」組合** |

@@ -25,6 +25,9 @@ memory:
     - target: eval-engine
       type: score
       condition: 每次回答品質評分後
+  reads:
+    - source: user-model
+      field: user_context
 description: >
   Eval-Engine（效能儀表板）— DNA27 核心的外掛模組，
   MUSEON 的系統化效能度量與品質追蹤引擎。為所有 Skill 的演化提供數據基礎：

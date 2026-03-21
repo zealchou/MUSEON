@@ -19,6 +19,12 @@ connects_to:
   - deep-think
   - c15
   - plugin-registry
+memory:
+  writes:
+    - user-model
+  reads:
+    - user-model
+    - knowledge-lattice
 description: >
   MUSEON DNA27 vNext — 核心 AI 作業系統（母體 Skill）。所有其他 MUSEON 外掛模組（xmodel、business-12 等）
   的底層依賴。提供：Kernel 治理護欄（五大不可覆寫值 + 三大權力）、三迴圈節奏路由（fast/exploration/slow）、

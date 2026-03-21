@@ -20,6 +20,11 @@ io:
 connects_to:
   - market-core
   - investment-masters
+memory:
+  writes:
+    - knowledge-lattice
+  reads:
+    - knowledge-lattice
 description: >
   Sentiment-Radar（市場情緒雷達）— DNA27 核心的外掛模組，
   market-core 生態系的情緒分析衛星，專為市場情緒量化與輿情追蹤特化。

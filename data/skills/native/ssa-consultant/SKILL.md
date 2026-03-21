@@ -22,6 +22,11 @@ memory:
     - target: knowledge-lattice
       type: crystal
       condition: 顧問/教練流程完成時
+  reads:
+    - source: knowledge-lattice
+      field: related_crystals
+    - source: user-model
+      field: user_context
 description: >
   SSA 顧問式銷售與系統創業引擎。DNA27 核心的外掛模組，融合顧問式銷售 12 步驟、系統創業方法論、
   及 27 條 SSA 專家染色體，提供銷售診斷、系統建構與全人演化的實戰指引。

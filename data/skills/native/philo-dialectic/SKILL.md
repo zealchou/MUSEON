@@ -22,6 +22,9 @@ memory:
     - target: knowledge-lattice
       type: crystal
       condition: 思辨推演完成時
+  reads:
+    - source: knowledge-lattice
+      field: related_crystals
 description: >
   哲學思辨引擎（Philosophical Dialectic Engine）— DNA27 核心的外掛模組，
   提供系統性的哲學思考方法論，用於概念澄清、論證分析、前提檢驗、思想實驗與多視角推演。

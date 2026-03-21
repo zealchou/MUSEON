@@ -7,12 +7,23 @@ io:
     - from: user
       field: visual_output
       required: true
+    - name: content_draft
+      from: text-alchemy, brand-identity, report-forge
+      required: false
   outputs:
     - to: user
       field: aesthetic_audit
       trigger: always
+    - name: aesthetic_audit
+      to: knowledge-lattice
+      trigger: on_demand
 connects_to:
   - brand-identity
+memory:
+  writes:
+    - knowledge-lattice
+  reads:
+    - user-model
 description: >
   美感引擎（Aesthetic Sense Engine）。DNA27 核心的外掛模組，為所有輸出注入美感審計與風格一致性。
   融合賈伯斯減法哲學、Dieter Rams 十大原則、千利休侘寂美學、Housen 五階段審美發展理論，

@@ -7,6 +7,12 @@ io:
     - from: user
       field: raw_question
       required: true
+    - from: dna27
+      field: routed_input
+      required: false
+    - from: user-model
+      field: user_context
+      required: false
   outputs:
     - to: deep-think
       field: validated_question

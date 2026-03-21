@@ -20,6 +20,11 @@ io:
 connects_to:
   - market-core
   - investment-masters
+memory:
+  writes:
+    - knowledge-lattice
+  reads:
+    - knowledge-lattice
 description: >
   Market-Macro（總體經濟分析衛星）— DNA27 核心的外掛模組，
   market-core 的總經特化衛星，專為央行政策、經濟數據、利率週期、

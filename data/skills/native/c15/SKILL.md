@@ -7,12 +7,22 @@ io:
     - from: deep-think
       field: validated_output
       required: false
+    - name: raw_output
+      from: dna27
+      required: false
   outputs:
     - to: user
       field: narrativized_output
       trigger: always
+    - name: narrative_output
+      to: gateway
+      trigger: always
 connects_to:
   - text-alchemy
+memory:
+  writes: []
+  reads:
+    - user-model
 description: >
   C15 StoryForge Core — 敘事張力語言憲法。DNA27 核心的語言生成層外掛模組，
   將「小說般扣人心弦的溝通文采」升格為預設語言輸出規則（default=ON）。

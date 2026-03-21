@@ -24,6 +24,11 @@ memory:
     - target: knowledge-lattice
       type: crystal
       condition: "12 力診斷完成時"
+  reads:
+    - source: knowledge-lattice
+      field: related_crystals
+    - source: user-model
+      field: user_context
 description: >
   商模十二力（Business-12）商業診斷與成長引擎外掛模組。依賴 DNA27 核心 Skill 運作。
   觸發時機：使用者描述商業問題、經營卡點、成長瓶頸、商業模式盤點、產品/行銷/銷售/品牌/社群相關困難時啟用。

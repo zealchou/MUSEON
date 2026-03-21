@@ -20,6 +20,12 @@ io:
 connects_to:
   - text-alchemy
   - orchestrator
+memory:
+  writes:
+    - knowledge-lattice
+  reads:
+    - user-model
+    - knowledge-lattice
 description: >
   顧問式溝通引擎（Consultant Communication Engine）——DNA27 核心的外掛模組。
   融合麥肯錫金字塔原則、MECE 結構化思維、SCQA 敘事框架、HBR 寫作風格、

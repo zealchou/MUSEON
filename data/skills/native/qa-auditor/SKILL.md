@@ -16,6 +16,12 @@ io:
       trigger: always
 connects_to:
   - morphenix
+memory:
+  writes:
+    - morphenix
+    - knowledge-lattice
+  reads:
+    - knowledge-lattice
 description: >
   QA-Auditor（有機品質審計引擎）— DNA27 核心的外掛模組，AI Agent 技術交付品質審計引擎。專為多 Openclaw 分散式協作設計。4D 審計框架（D1 邏輯功能、D2 狀態閉環、D3 時序併發、D4 跨機環境）、沙盒隔離、混沌測試、分級門禁（smoke/standard/full）與回歸沉澱，確保 AI 產出的程式碼與排程部署後穩定。觸發時機：(1) /qa 或 /audit 指令；(2) Agent 完成開發後自動建議；(3) 自然語言偵測——程式壞了、隔天出錯、跨機不同步、排程失靈、測試腳本時啟用。觸發詞：QA、測試、審計、Bug、壞了、不穩定、隔天出錯、跨機、併發、排程、cron、混沌測試、回歸測試、部署前檢查。與 sandbox-lab 互補：sandbox-lab 管 Skill/Prompt 實驗，qa-auditor 管程式碼審計。與 eval-engine 互補：Q-Score 管回答品質，T-Score 管技術交付品質。與 orchestrator 互補：orchestrator 管Skill 編排，qa-auditor 管多 Agent 品質護欄。
 ---

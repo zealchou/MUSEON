@@ -22,6 +22,9 @@ memory:
     - target: knowledge-lattice
       type: crystal
       condition: 多方案產出時
+  reads:
+    - source: knowledge-lattice
+      field: related_crystals
 description: >
   X-Model（vNext）通用破框解方引擎。DNA27 核心的外掛模組，用跨領域槓桿視角生成多條可行路徑，
   並把解法轉成「可承擔的小實驗」。不限商業場景——可用於人生/關係/健康/職涯/創作等任何領域。

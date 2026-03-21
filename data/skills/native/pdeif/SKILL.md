@@ -22,6 +22,9 @@ memory:
     - target: wee
       type: proficiency
       condition: 流程設計完成時
+  reads:
+    - source: user-model
+      field: user_context
 description: >
   PDEIF（Purpose-Driven Entropy-Inverse Flow）目的導向逆熵流引擎。
   DNA27 核心的外掛模組，將「終點狀態」形式化為可操作的逆熵流：

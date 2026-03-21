@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.26
+# Joint Map — 共享可變狀態接頭圖 v1.27
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -363,6 +363,7 @@
 | 模組 | 操作 | Collection |
 |------|------|-----------|
 | `vector/vector_bridge.py` | **RW** | memories, skills, documents |
+| `vector/vector_bridge.py` | **W** | skills（`index_all_skills()` 全量索引——Gateway startup + Nightly 8.6 + API reindex） |
 | `agent/brain.py` | **W** | memories（記憶持久化） |
 | `memory/memory_manager.py` | **RW** | memories |
 | `agent/skill_router.py` | **R** | skills |
@@ -793,6 +794,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-21 | v1.27 | #9 Qdrant skills collection 新增 VectorBridge.index_all_skills() 寫入路徑（Gateway startup + Nightly 8.6 + API reindex） |
 | 2026-03-21 | v1.26 | 群組對話 DSE 三階段修復：G3 記憶管線新增 chat_scope 群組隔離（memory_manager store() 新增 chat_scope/group_id 參數 + 自動注入 scope:{scope} 標籤 + recall() 新增 chat_scope_filter/exclude_scopes 過濾 + _keyword_fallback() 同步過濾 + _vector_index() metadata 注入）；#28 cognitive_trace p0_signal 欄位修復為六類判定（_classify_p0_signal 啟發式）+ meta_note 修復（thinking_path_summary[:50]）；外部使用者 ANIMA v3.0 schema 升級（governance/multi_tenant.py ExternalAnimaManager 新增 profile/relationship/seven_layers + trust_evolution 四階段 + PrimalDetector 八原語）；同步 blast-radius v1.32、memory-router v1.1、persistence-contract v1.23 |
 | 2026-03-21 | v1.25 | GraphRAG 社群偵測：#6 crystals.json 新增「GraphRAG 社群摘要」表（detect_communities + recall_with_community 四個方法）；knowledge_lattice.py 新增社群偵測（純新增，RW 不變，讀寫者不變）；brain.py Layer 2.5 新增 `has_communities()` + `recall_with_community()` 呼叫（僅讀）；無新增共享狀態（社群偵測為即時計算，不持久化）；同步 blast-radius v1.31 |
 | 2026-03-21 | v1.24 | 混合檢索（Hybrid Retrieval）：#9 Qdrant 向量庫新增 Sparse Collections 分區（`{name}_sparse`，BM25 稀疏向量）；新增 `sparse_embedder.py` 為 `_system/sparse_idf.json` 寫入者；VectorBridge 新增 `hybrid_search()`/`_sparse_search()`/`index_sparse()`/`backfill_sparse()`/`build_sparse_idf()`；Route A 分離式設計——不修改原 dense collections schema；同步 persistence-contract v1.22、blast-radius v1.30 |

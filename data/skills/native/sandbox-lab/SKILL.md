@@ -21,6 +21,12 @@ connects_to:
   - morphenix
   - eval-engine
   - orchestrator
+memory:
+  writes:
+    - morphenix
+    - knowledge-lattice
+  reads:
+    - knowledge-lattice
 description: >
   Sandbox-Lab（沙盒實驗室）— DNA27 核心的外掛模組，
   MUSEON 的安全實驗與假說驗證引擎。提供「不怕搞砸」的受控環境：

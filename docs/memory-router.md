@@ -1,4 +1,4 @@
-# Memory Router — 記憶路由表 v1.1
+# Memory Router — 記憶路由表 v1.2
 
 > **用途**：定義「什麼類型的洞見存到哪個記憶系統、什麼時候取出」。第五張工程藍圖。
 > **比喻**：郵局分揀表——每封信根據地址分到對應的信箱，不會寄丟也不會重複投遞。
@@ -55,6 +55,7 @@
 | eval-engine | 滿意度代理指標 | 每次回答品質評分後 |
 | wee | 技能熟練度維度 | 工作流熟練度升級時 |
 | knowledge-lattice | 領域專長維度 | 結晶累積跨越閾值時 |
+| persona-router (baihe) | 領主畫像 + 進諫策略 | 百合引擎路由完成時 |
 
 ### 🟡 工作流記憶 → wee
 
@@ -107,5 +108,6 @@
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.2 | 2026-03-21 | 新增 persona-router (baihe) 路由（lord_profile.json + baihe_cache.json → user-model）；Skill 鍛造膠合層修復——49 個 Skill 的 memory.writes/reads 補齊 |
 | v1.1 | 2026-03-21 | chat_scope 隔離：新增規則 5（群組記憶 chat_scope 隔離），memory_manager store/recall/vector 全路徑支援 chat_scope_filter + exclude_scopes；外部使用者 ANIMA v3.0（ExternalAnimaManager per-client 獨立八原語+七層觀察） |
 | v1.0 | 2026-03-21 | 初始版本——定義 8 大記憶系統路由表、4 條路由規則 |
