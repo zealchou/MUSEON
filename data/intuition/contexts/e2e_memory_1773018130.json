@@ -1,0 +1,22 @@
+{
+  "session_id": "e2e_memory_1773018130",
+  "nodes": {
+    "topic_turn_0": {
+      "node_id": "topic_turn_0",
+      "node_type": "topic",
+      "label": "turn_0",
+      "properties": {
+        "content_length": 25,
+        "detected_at": "2026-03-09T09:02:10.762724"
+      },
+      "created_at": "2026-03-09T09:02:10.762766",
+      "updated_at": "2026-03-09T09:02:10.762768"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 2,
+    "last_content_length": 8
+  },
+  "last_updated": "2026-03-09T09:02:49.050478"
+}

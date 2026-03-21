@@ -2,6 +2,7 @@
 name: business-12
 type: on-demand
 layer: business
+hub: business
 io:
   inputs:
     - from: user

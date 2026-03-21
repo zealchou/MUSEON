@@ -2,6 +2,68 @@
 name: workflow-svc-brand-marketing
 type: workflow
 layer: workflow
+hub: workflow
+stages:
+  - id: 1
+    name: "品牌健檢"
+    skills: [ssa-consultant, business-12]
+    lens: "SSA 顧問訪談 + 十二力快篩"
+    mode: serial
+    gate:
+      - "客戶確認：對，這就是我的問題"
+    output_to: [2]
+  - id: 2
+    name: "品牌定位"
+    skills: [brand-identity, storytelling-engine, aesthetic-sense, consultant-communication]
+    lens: "April Dunford 五要素 + 品牌金字塔 + StoryBrand"
+    mode: serial
+    gate:
+      - "客戶確認：這就是我"
+    output_to: [3, 4]
+  - id: 3
+    name: "行銷策略"
+    skills: [business-12, xmodel, pdeif, consultant-communication]
+    lens: "通路盤點 + PDEIF 逆推 + 90 天計畫"
+    mode: serial
+    gate:
+      - "客戶確認行動計畫可執行"
+    output_to: [4, 6]
+  - id: 4
+    name: "內容生產"
+    skills: [text-alchemy, c15, storytelling-engine, brand-identity, aesthetic-sense]
+    lens: "社群內容批次產出 + 品牌一致性校驗"
+    mode: serial
+    gate:
+      - "品牌一致性審計通過"
+      - "美感品質閘門通過"
+    output_to: [5, 6]
+  - id: 5
+    name: "自動化規格"
+    skills: [dse, pdeif, consultant-communication]
+    lens: "Bot 對話流程 + 技術方案比較"
+    mode: serial
+    gate:
+      - "客戶決定是否執行"
+    output_to: [6]
+    optional: true
+    skip_when: "客戶不需要自動化工具"
+  - id: 6
+    name: "成效追蹤"
+    skills: [eval-engine, business-12, wee]
+    lens: "KPI 前後測 + WEE 結果萃取五問"
+    mode: serial
+    gate:
+      - "至少 2 個指標有前後對比數據"
+speed_paths:
+  fast_loop:
+    stages: [1, 6]
+    depth: "精簡"
+  exploration_loop:
+    stages: [1, 2, 3, 4, 6]
+    depth: "標準"
+  slow_loop:
+    stages: [1, 2, 3, 4, 5, 6]
+    depth: "完整"
 io:
   inputs:
     - from: user

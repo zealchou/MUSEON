@@ -1,0 +1,42 @@
+[
+ {
+  "role": "user",
+  "content": "你好"
+ },
+ {
+  "role": "assistant",
+  "content": "早安，Zeal。\n\n今天有什麼可以幫你的嗎？"
+ },
+ {
+  "role": "user",
+  "content": "你好"
+ },
+ {
+  "role": "assistant",
+  "content": "早安，Zeal。\n\n今天有什麼可以幫你的嗎？"
+ },
+ {
+  "role": "user",
+  "content": "你好"
+ },
+ {
+  "role": "assistant",
+  "content": "早安，Zeal。\n\n今天有什麼可以幫你的嗎？"
+ },
+ {
+  "role": "user",
+  "content": "你好"
+ },
+ {
+  "role": "assistant",
+  "content": "早安。有什麼需要幫忙的嗎？"
+ },
+ {
+  "role": "user",
+  "content": "你好"
+ },
+ {
+  "role": "assistant",
+  "content": "早安，Zeal。\n\n今天狀態如何？有什麼正在想的事嗎？"
+ }
+]

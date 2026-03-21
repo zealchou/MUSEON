@@ -1,0 +1,149 @@
+{
+  "user_id": "8252847174",
+  "created_at": "2026-03-11T17:32:25.298237",
+  "interaction_count": 120,
+  "last_seen": "2026-03-21T12:20:45.022253",
+  "display_name": "Feng",
+  "context_summary": "",
+  "version": "2.0.0",
+  "eight_primals": {
+    "aspiration": {
+      "level": 28,
+      "confidence": 1.0,
+      "signal": "[群組近期對話紀錄]   15:55 Feng: Hi hi   16:06 Zeal（老闆）: 已經拉進來了   16:17 Zeal（老闆）: 等你朋友  ",
+      "last_observed": "2026-03-21T12:15:07.952980"
+    },
+    "accumulation": {
+      "level": 23,
+      "confidence": 1.0,
+      "signal": "[群組近期對話紀錄]   48:51 你的資源跟手腳（老闆）: 看起來他是一次處理一份 先讓他跑完吧   49:10 你的資源跟手腳（老闆）: 先不要重傳 除非",
+      "last_observed": "2026-03-19T22:17:44.056112"
+    },
+    "action_power": {
+      "level": 36,
+      "confidence": 1.0,
+      "signal": "[群組近期對話紀錄]   15:55 Feng: Hi hi   16:06 Zeal（老闆）: 已經拉進來了   16:17 Zeal（老闆）: 等你朋友  ",
+      "last_observed": "2026-03-21T12:15:07.952980"
+    },
+    "curiosity": {
+      "level": 100,
+      "confidence": 1.0,
+      "signal": "[群組近期對話紀錄]   15:55 Feng: Hi hi   16:06 Zeal（老闆）: 已經拉進來了   16:17 Zeal（老闆）: 等你朋友  ",
+      "last_observed": "2026-03-21T12:15:07.952980"
+    },
+    "emotion_pattern": {
+      "level": 16,
+      "confidence": 1.0,
+      "signal": "[群組近期對話紀錄]   15:46 你的資源跟手腳（老闆）: 重點不是退訂 而是要哪一個對方的使用承諾跟態度  只要他用了 我們就要讓他懂怎麼使用 怎麼發揮最",
+      "last_observed": "2026-03-19T16:30:34.580797"
+    },
+    "blindspot": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "boundary": {
+      "level": 51,
+      "confidence": 1.0,
+      "signal": "[群組近期對話紀錄]   02:57 Feng: 嗯嗯嗯測試剛剛想到的 感恩   04:43 Zeal（老闆）: 你幫我測試一下 士維 Joes  請他在 另外",
+      "last_observed": "2026-03-21T11:31:43.143518"
+    },
+    "relationship_depth": {
+      "level": 16,
+      "confidence": 1.0,
+      "signal": "[群組近期對話紀錄]   27:19 Feng: 過去採訪的內容你看一下@   27:34 Feng: 過去採訪的內容你看一下 @MuseonClaw_bot ",
+      "last_observed": "2026-03-19T17:24:19.862464"
+    }
+  },
+  "preferences": {
+    "communication_style": "detailed"
+  },
+  "recent_topics": [
+    {
+      "snippet": "有沒有其他不一樣的領域的事情呢",
+      "date": "2026-03-19T21:23:38.913977"
+    },
+    {
+      "snippet": "@MuseonClaw_bot",
+      "date": "2026-03-19T21:44:10.132180"
+    },
+    {
+      "snippet": "一個活動",
+      "date": "2026-03-19T22:08:45.124730"
+    },
+    {
+      "snippet": "做中間溝通的角色和協商的角色",
+      "date": "2026-03-19T22:13:54.268411"
+    },
+    {
+      "snippet": "如104上面的內容",
+      "date": "2026-03-19T22:17:44.056112"
+    },
+    {
+      "snippet": "@MuseonClaw_bot  你有辦法生成證件照格式嗎（攝影師問的）",
+      "date": "2026-03-20T14:43:53.222343"
+    },
+    {
+      "snippet": "你記得嗎",
+      "date": "2026-03-20T17:20:46.583204"
+    },
+    {
+      "snippet": "可以介紹自己讓韋辰哥認識你嗎",
+      "date": "2026-03-20T17:23:03.582689"
+    },
+    {
+      "snippet": "這一段我看不到內容",
+      "date": "2026-03-20T17:48:10.371946"
+    },
+    {
+      "snippet": "可以分享讓我知道嗎？",
+      "date": "2026-03-20T19:01:57.964201"
+    },
+    {
+      "snippet": "那邊給韋辰要設計圖嗎",
+      "date": "2026-03-20T19:03:35.009879"
+    },
+    {
+      "snippet": "@MuseonClaw_bot 你在裡面了",
+      "date": "2026-03-20T19:12:34.205172"
+    },
+    {
+      "snippet": "@MuseonClaw_bot",
+      "date": "2026-03-20T19:35:50.174943"
+    },
+    {
+      "snippet": "這問題如果是你你會怎麼回答呢？",
+      "date": "2026-03-21T11:20:58.992840"
+    },
+    {
+      "snippet": "@MuseonClaw_bot",
+      "date": "2026-03-21T11:28:30.558207"
+    },
+    {
+      "snippet": "@MuseonClaw_bot  需要，我要你給我的是之後都可以用的，不要限制在一個往站上。了解？",
+      "date": "2026-03-21T11:31:43.143518"
+    },
+    {
+      "snippet": "@MuseonClaw_bot 這是韋辰哥的室內設計的圖，你確認你是否可以了解在畫什麼？或需要協助確認什麼？",
+      "date": "2026-03-21T11:51:19.441412"
+    },
+    {
+      "snippet": "檔案已儲存至: /Users/ZEALCHOU/MUSEON/data/uploads/telegram/20260321_115159_總工程估價單20240314(終價).xls",
+      "date": "2026-03-21T11:53:32.391310"
+    },
+    {
+      "snippet": "@MuseonClaw_bot 給",
+      "date": "2026-03-21T11:56:29.453597"
+    },
+    {
+      "snippet": "@MuseonClaw_bot   你可以 @ 他人嘛？就是在群組對話上標示他人嘛？",
+      "date": "2026-03-21T12:15:07.952980"
+    }
+  ],
+  "groups_seen_in": [
+    -5107045509,
+    -5102016052
+  ],
+  "relationship_to_owner": ""
+}

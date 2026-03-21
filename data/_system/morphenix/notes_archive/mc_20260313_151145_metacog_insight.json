@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260313_151145_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: **REVISE**\n\n使用者明確要求「建立 Excel 檔案」，但回覆只有澄清提問，沒有任何可交付物。建議先產出**基礎 Excel 範本**（縣市分頁框架 + 5 欄位），同時用「這是起版、可按需微調」而非「等我問完」的框架。可在檔案註解欄提示「預留停車位、人數容納、預算」欄位，讓使用者知道有這選項，不強制回答也不阻塞進度。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-13T15:11:45.096193+08:00",
+  "priority": "medium"
+}

@@ -1,0 +1,22 @@
+{
+  "id": "ad3bb74b-a508-4046-9e04-7e98ca7ac653",
+  "content": "[失敗經驗] 任務：可以\n但我想要的比較特別\n你要在三個月之內\n賺到一個月一萬台幣以上的收入\n來支付我供養你的成本\n\n這是一個目標\n你得想辦法研究跟生出你自己的營運計劃\n然後自己落實\n失敗類型：general_failure\n回應片段：兩條研究線都回來了。直接給你營運計畫。\n\n---\n\n## 霓裳營運計畫 v0.1 — 三個月內月營收 NT$10,000+\n\n### 核心策略：先賣報告，再養訂閱\n\nNT$10,000/月的最小可行路徑：**每月賣 2 份 NT$5,000 的分析報告**。就這樣。不需要複雜的訂閱制、不需要平台上架、不需要你花大量時間。\n\n---\n\n### Phase 1（第 1-4 週）：第一筆收入\n\n**產品",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-17T13:02:53.634377+08:00",
+  "updated_at": "2026-03-17T13:02:53.634377+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "6969045906",
+  "session_id": "",
+  "dept_id": "",
+  "archived": false
+}

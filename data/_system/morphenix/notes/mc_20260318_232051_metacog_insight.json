@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260318_232051_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n你想發送什麼內容到士維的群組？我需要：\n1. **訊息內容**（什麼事要通知士維？）\n2. **群組名稱**（確認是哪個 Telegram 群組？）\n3. **格式要求**（純文字、附件、還是正式報告？）\n\n我可以幫你準備或轉發，但需要更清楚的意圖。\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-18T23:20:51.334774+08:00",
+  "priority": "medium"
+}

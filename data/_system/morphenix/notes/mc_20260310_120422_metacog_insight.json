@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260310_120422_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：移除「重複發送」的假設與責問感，改為溫和確認。直接說「收到了一個特殊字元，我無法解讀」，而不是指責。然後主動提供可幫忙的範圍（程式碼除錯、資料處理、文件編寫），邀請他選擇，而不是全推給他回答。音調應該是「一起搞定」而非「請你說清楚」。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-10T12:04:22.109998+08:00",
+  "priority": "medium"
+}

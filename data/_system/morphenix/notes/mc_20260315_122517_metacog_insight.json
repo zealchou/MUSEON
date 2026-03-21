@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260315_122517_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n這段回覆假設「已回答過」但在本對話中是使用者第一次提問。建議：\n\n1. 察覺重複內容，友善詢問是否有技術問題或測試目的\n2. 確認使用者真實需求（是否真的想分析台灣AI產業）\n3. 如果確認需求，立即啟動分析而非拒絕——這是使用者的真需求\n\n修改方向：承認重複，但不拒絕；反而進一步確認需求後主動完成交付。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-15T12:25:17.263440+08:00",
+  "priority": "medium"
+}

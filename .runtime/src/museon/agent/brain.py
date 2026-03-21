@@ -137,8 +137,9 @@ class MuseonBrain:
                 event_bus=self._event_bus,
             )
             self._primal_detector.ensure_indexed()
+            logger.debug("PrimalDetector 初始化成功")
         except Exception as e:
-            logger.debug(f"PrimalDetector 初始化失敗（降級到關鍵字）: {e}")
+            logger.debug(f"PrimalDetector 初始化失敗（降級到關鍵字）: {type(e).__name__}: {e}")
 
         # ★ v1.13: Memory Gate — 記憶寫入前的意圖分類閘門
         self._memory_gate = None
@@ -1144,6 +1145,31 @@ class MuseonBrain:
                 self._pre_compact_flush(session_id, dropping)
                 history[:] = history[-40:]
 
+            # ── Step 5.5: P3 前置融合 — 並行收集多視角洞察注入主回覆 ──
+            # 核心改變：視角不再「追加」在主回覆後面，而是「交織」在主回覆裡面
+            _p3_pre_fusion_ctx = ""
+            if _p3_fusion_signal and _p3_fusion_signal.should_fuse:
+                try:
+                    _p3_pre_fusion_ctx = await self._p3_gather_pre_fusion_insights(
+                        query=content,
+                        fusion_signal=_p3_fusion_signal,
+                        anima_user=anima_user,
+                    )
+                    if _p3_pre_fusion_ctx:
+                        # 注入 system prompt — 讓主 LLM 自然交織多視角
+                        system_prompt = (
+                            system_prompt
+                            + "\n\n"
+                            + _p3_pre_fusion_ctx
+                        )
+                        logger.info(
+                            f"[P3] 前置融合注入完成: "
+                            f"perspectives={_p3_fusion_signal.perspectives}, "
+                            f"ctx_len={len(_p3_pre_fusion_ctx)}"
+                        )
+                except Exception as e:
+                    logger.debug(f"[P3] 前置融合失敗（降級繼續）: {e}")
+
             # ── Step 6: 呼叫 Claude API（含 tool_use 支援）──
             # v10: 工具永遠開啟 — 讓模型自己決定要不要用工具
             _enable_tools = self._tool_executor is not None
@@ -1209,23 +1235,28 @@ class MuseonBrain:
                     matched_skills=skill_names,
                 )
 
-                # ── Phase 4.5: P3 策略層並行融合 ──
-                # 在主回覆後，並行呼叫多視角 Haiku，追加「多視角觀察」區塊
-                if _p3_fusion_signal and _p3_fusion_signal.should_fuse:
-                    try:
-                        p3_enrichment = await self._execute_p3_parallel_fusion(
-                            query=content,
-                            fusion_signal=_p3_fusion_signal,
-                            anima_user=anima_user,
-                        )
-                        if p3_enrichment:
-                            response_text = response_text + "\n\n" + p3_enrichment
-                            logger.info(
-                                f"[P3] 多視角融合已注入: "
-                                f"perspectives={_p3_fusion_signal.perspectives}"
-                            )
-                    except Exception as e:
-                        logger.debug(f"[P3] 策略層融合失敗（降級繼續）: {e}")
+                # ── Phase 4.5: P3 策略層交織融合簽名 ──
+                # v1.22: 視角已在 Step 5.5 前置注入 system_prompt，
+                # 主 LLM 回覆自然交織多視角，不再追加獨立區塊。
+                # 僅在回覆末尾加入融合來源簽名（使用者知道哪些視角參與了）。
+                if _p3_pre_fusion_ctx and _p3_fusion_signal and _p3_fusion_signal.should_fuse:
+                    _perspective_emojis = {
+                        "strategy": "🌀 wind",
+                        "human": "💧 water",
+                        "risk": "🔥 fire",
+                    }
+                    _fused_names = [
+                        _perspective_emojis.get(p, p)
+                        for p in _p3_fusion_signal.perspectives
+                    ]
+                    _fusion_tag = "、".join(_fused_names)
+                    response_text = (
+                        response_text
+                        + f"\n\n---\n🧬 *本回覆融合了{_fusion_tag}的觀點*"
+                    )
+                    logger.info(
+                        f"[P3] 交織融合完成: perspectives={_p3_fusion_signal.perspectives}"
+                    )
 
             # ── v10.5: 清理 tool-use 中間訊息 ──
             # _call_llm 會透過 messages（= history 同引用）直接
@@ -1408,14 +1439,22 @@ class MuseonBrain:
                 except Exception as e:
                     logger.debug(f"Footprint trace_action 失敗: {e}")
                 # 認知回執（Compact Cognitive Receipt）
+                # v1.1: 5 欄位從硬編碼改為動態讀取（Observatory 可觀測性實質化）
                 try:
+                    _loop_map = {"FAST_LOOP": "F", "EXPLORATION_LOOP": "E", "SLOW_LOOP": "S"}
+                    _loop_short = _loop_map.get(routing_signal.loop, "E") if routing_signal else "E"
+                    _energy_map = {"FAST_LOOP": "high", "EXPLORATION_LOOP": "neutral", "SLOW_LOOP": "deep"}
+                    _energy = _energy_map.get(routing_signal.loop, "neutral") if routing_signal else "neutral"
+                    _p0 = ""
+                    if routing_signal and routing_signal.top_clusters:
+                        _p0 = routing_signal.top_clusters[0]
                     self._footprint.trace_cognitive({
-                        "p0_signal": "",
+                        "p0_signal": _p0,
                         "qc_verdict": "pass" if not getattr(self, '_last_qc_clarify', False) else "clarify",
-                        "user_energy": "",
-                        "c15_active": True,
-                        "resonance": False,
-                        "loop": "E",
+                        "user_energy": _energy,
+                        "c15_active": "text-alchemy" not in skill_names,
+                        "resonance": "resonance" in skill_names,
+                        "loop": _loop_short,
                         "top_skills": skill_names[:3],
                         "meta_note": "",
                     })
@@ -2655,6 +2694,70 @@ class MuseonBrain:
             reason=f"策略層 Skill: {matched_strategy}, loop: {loop_mode}",
         )
 
+    async def _p3_gather_pre_fusion_insights(
+        self,
+        query: str,
+        fusion_signal: P3FusionSignal,
+        anima_user: Optional[Dict[str, Any]] = None,
+    ) -> str:
+        """P3 前置融合 — 在主 LLM 呼叫前並行收集多視角洞察.
+
+        核心改變（v1.22）：視角不再「追加」在主回覆後面，
+        而是注入 system_prompt，讓主 LLM 回覆時自然交織多視角。
+
+        Returns:
+            注入 system_prompt 的多視角上下文字串，空字串表示無補充
+        """
+        tasks = []
+        perspective_keys = []
+
+        if "strategy" in fusion_signal.perspectives:
+            tasks.append(self._p3_strategy_perspective(query))
+            perspective_keys.append("strategy")
+
+        if "human" in fusion_signal.perspectives:
+            tasks.append(self._p3_human_perspective(query, anima_user))
+            perspective_keys.append("human")
+
+        if "risk" in fusion_signal.perspectives:
+            tasks.append(self._p3_risk_perspective(query))
+            perspective_keys.append("risk")
+
+        if not tasks:
+            return ""
+
+        # 並行呼叫（asyncio.gather，return_exceptions=True 確保單個失敗不影響其他）
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        # 組裝上下文（只取有效結果）
+        perspective_labels = {
+            "strategy": "戰略破框視角（xmodel × master-strategy）",
+            "human": "人心博弈視角（shadow × 心理動機）",
+            "risk": "風險代價視角（機會成本 × 隱性風險）",
+        }
+        valid_insights = []
+        for key, result in zip(perspective_keys, results):
+            if isinstance(result, Exception) or not result:
+                continue
+            label = perspective_labels.get(key, key)
+            valid_insights.append(f"- {label}：{result.strip()}")
+
+        if not valid_insights:
+            return ""
+
+        insights_block = "\n".join(valid_insights)
+
+        return (
+            "【六層技術棧前置融合 — 多視角洞察】\n"
+            "以下是你的多部門顧問團隊針對使用者問題的預先分析。\n"
+            "你的回覆必須自然地交織這些視角的洞察——不是分開列出，"
+            "而是融入你的分析、判斷和建議中。讓讀者感受到「這個 AI "
+            "真的從多個角度想過了」，而不是「它列了一堆觀點」。\n\n"
+            f"{insights_block}\n\n"
+            "重要：不要使用「多視角觀察」「從策略角度看」之類的格式化標題，"
+            "而是讓這些洞察自然地融入你的回覆結構中。"
+        )
+
     async def _execute_p3_parallel_fusion(
         self,
         query: str,
@@ -2663,8 +2766,8 @@ class MuseonBrain:
     ) -> str:
         """P3 策略層並行融合 — 並行呼叫多視角 Haiku，組裝「多視角觀察」.
 
-        不取代主回覆，而是在主回覆後追加「MUSEON 多視角觀察」補充區塊。
-        使用 asyncio.gather 並行呼叫，盡量不增加總延遲。
+        注意：v1.22 起此方法已被 _p3_gather_pre_fusion_insights 取代，
+        僅保留供 nightly/離線場景的向後相容使用。
 
         Returns:
             多視角補充文字（追加到主回覆末尾），空字串表示無補充
@@ -6086,7 +6189,15 @@ class MuseonBrain:
                         # 無 running loop（同步 / daemon thread 情境）→ 新 thread 建立隔離 loop
                         # 避免在呼叫方 thread 上直接 asyncio.run()，防止跨 loop 物件衝突
                         def _trigger_offline(_coro=vs.on_offline_triggered(error_msg)) -> None:
-                            asyncio.run(_coro)
+                            try:
+                                loop = asyncio.new_event_loop()
+                                asyncio.set_event_loop(loop)
+                                try:
+                                    loop.run_until_complete(_coro)
+                                finally:
+                                    loop.close()
+                            except Exception as cleanup_e:
+                                logger.debug(f"Event loop cleanup failed: {cleanup_e}")
                         threading.Thread(target=_trigger_offline, daemon=True).start()
             except Exception as _e:
                 logger.debug(f"Sentinel trigger failed (non-critical): {_e}")

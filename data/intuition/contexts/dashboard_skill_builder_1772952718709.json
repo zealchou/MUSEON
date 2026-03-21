@@ -1,0 +1,32 @@
+{
+  "session_id": "dashboard_skill_builder_1772952718709",
+  "nodes": {
+    "intention_資訊查詢": {
+      "node_id": "intention_資訊查詢",
+      "node_type": "intention",
+      "label": "資訊查詢",
+      "properties": {
+        "detected_at": "2026-03-08T14:52:36.988121"
+      },
+      "created_at": "2026-03-08T14:52:36.988157",
+      "updated_at": "2026-03-08T14:52:36.988159"
+    },
+    "topic_turn_1": {
+      "node_id": "topic_turn_1",
+      "node_type": "topic",
+      "label": "turn_1",
+      "properties": {
+        "content_length": 26,
+        "detected_at": "2026-03-08T14:52:36.988121"
+      },
+      "created_at": "2026-03-08T14:52:36.988172",
+      "updated_at": "2026-03-08T14:52:36.988174"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 3,
+    "last_content_length": 8
+  },
+  "last_updated": "2026-03-08T14:58:13.875649"
+}

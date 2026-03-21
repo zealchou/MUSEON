@@ -1,0 +1,268 @@
+{
+  "date": "2026-03-14",
+  "generated_at": "2026-03-14T03:03:01.891312",
+  "event_count": 65,
+  "events_digest": [
+    {
+      "ts": "2026-03-14T00:11:16.603640",
+      "event": "PULSE_MICRO_BEAT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T00:26:02.014378",
+      "event": "PULSE_EXPLORATION_DONE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T00:41:20.298987",
+      "event": "PULSE_MICRO_BEAT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:01:02.408791",
+      "event": "PULSE_EXPLORATION_DONE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:05:15.760980",
+      "event": "WEE_CYCLE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:05:15.761362",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:05:20.391118",
+      "event": "WEE_CYCLE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:05:20.391804",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:05:22.555741",
+      "event": "WEE_CYCLE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:05:22.556525",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:05:30.648916",
+      "event": "WEE_CYCLE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:05:30.649247",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:05:46.170183",
+      "event": "WEE_CYCLE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:05:46.170490",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:06:08.759515",
+      "event": "WEE_CYCLE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:06:08.760035",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:06:29.972913",
+      "event": "WEE_CYCLE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:06:29.973235",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:06:59.577524",
+      "event": "WEE_CYCLE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:06:59.577884",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:07:20.346678",
+      "event": "WEE_CYCLE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:07:20.346973",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:07:58.058338",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:08:14.415545",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:08:41.621675",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:11:24.229072",
+      "event": "PULSE_MICRO_BEAT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:27:00.453264",
+      "event": "PULSE_EXPLORATION_DONE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:41:31.097872",
+      "event": "PULSE_MICRO_BEAT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:49:52.841039",
+      "event": "WEE_CYCLE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:49:52.841248",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:50:19.876995",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:50:48.631998",
+      "event": "WEE_CYCLE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:50:48.632374",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:51:11.705934",
+      "event": "WEE_CYCLE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:51:11.706540",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:52:01.276633",
+      "event": "WEE_CYCLE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:52:01.276940",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:52:34.543959",
+      "event": "WEE_CYCLE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:52:34.544363",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:52:55.831418",
+      "event": "WEE_CYCLE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:52:55.831793",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:53:11.117340",
+      "event": "WEE_CYCLE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:53:11.117754",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:53:28.623929",
+      "event": "WEE_CYCLE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:53:28.624346",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:53:50.286543",
+      "event": "WEE_CYCLE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:53:50.287113",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:54:38.277829",
+      "event": "WEE_CYCLE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:54:38.278271",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-14T01:55:04.128422",
+      "event": "WEE_CYCLE_COMPLETE",
+      "source": "event_bus"
+    }
+  ],
+  "memory_channels": [
+    "meta-thinking",
+    "event",
+    "outcome"
+  ],
+  "memory_excerpts": {
+    "meta-thinking": "# Meta Thinking\n\n## 01:05:15\n\n**Trust Level:** TRUSTED\n\n**Thought Pattern:** DNA27 matched: market-core, business-12, gap, market-crypto, market-equity\n\n**Reasoning:** User asked about:    \n\t  \n  \n\n**Outcome:** responded\n\n**Confidence:** 0.8\n\n\n\n---\n\n## 01:05:19\n\n**Trust Level:** TRUSTED\n\n**Thought Pattern:** DNA27 matched: workflow-ai-deployment, market-core, gap, morphenix, master-strategy\n\n**Reasoning:** User asked about: 請幫我分析以下內容：台灣的AI產業正在快速發展，台灣的AI產業正在快速發展，台灣的AI產業正在快速發展，台灣的AI產業正在快速發展，台灣的AI產業正在快速發展，台灣的AI產業正在快速發展，台灣的AI產\n\n**Outcome:** responded\n\n**Confidence:** 0.8\n\n\n\n---\n\n## 01:05:22\n\n**Trust Level:** TRUSTED\n\n**Thought Pattern:** DNA27 matched: qa-auditor, sentiment-radar, market-core, gap, investment-masters\n\n**Reasoning:** User asked about: 🎉🔥💯🚀✨ emoji 壓測\n\n**Outcome:** responded\n\n**Confidence:** 0.8\n\n\n\n---\n\n## 01:05:30\n\n**Trust Level:** TRUSTED\n\n**Thought Pattern:** DNA27 matched: business-12, dse, ssa-consultant, morphenix, master-strategy\n\n**Reasoning:** User asked about: \\n\\t\\r\\0 轉義字元\n\n**Outcome:** responded\n\n**Confidence:** 0.8\n\n\n\n---\n\n## 01:05:46\n\n**Trust Level:** TRUSTED\n\n**Thought Pattern:** DNA27 matched: business-12, master-strategy, ssa-consultant, workflow-ai-deployment, workflow-svc-brand-marketing\n\n**Reasoning:** User asked about: 𝕳𝖊𝖑𝖑𝖔 Unicode 擴展\n\n**Outcome:** responded\n\n**Confidence:** 0.8\n\n\n\n---\n\n## 01:06:08\n\n**Trust Level:** TRUSTED\n\n**Thought Pattern:** DNA27 matched: market-core, gap, market-crypto, market-equity, market-macro\n\n**Reasoning:** User asked about: 你好\n\n**Outcome:** responded\n\n**Confidence:** 0.8\n\n\n\n---\n\n## 01:06:29\n\n**Trust Level:** TRUSTED\n\n**Thought Pattern:** DNA27 matched: dse, pdeif, plan-engine, sentiment-radar, gap\n\n**Reasoning:** User asked about: 你好\n\n**Outcome:** responded\n\n**Confidence:** 0.8\n\n\n\n---\n\n## 01:06:59\n\n**Trust Level:** TRUSTED\n\n**Thought Pattern:** DNA27 matched: workflow-investment-analysis, market-core, dse, market-crypto, gap\n\n**Reasoning:** User asked about: 你好\n\n**Outcome:** responded\n\n**Confidence:** 0.8",
+    "event": "# Event\n\n## 01:05:15\n\n**Trust Level:** TRUSTED\n\n**Event Type:** user_interaction\n\n**Session Id:** chaos_ws\n\n**User Message:**    \n\t  \n  \n\n**Matched Skills:** market-core, business-12, gap, market-crypto, market-equity\n\n\n\n---\n\n## 01:05:19\n\n**Trust Level:** TRUSTED\n\n**Event Type:** user_interaction\n\n**Session Id:** chaos_long\n\n**User Message:** 請幫我分析以下內容：台灣的AI產業正在快速發展，台灣的AI產業正在快速發展，台灣的AI產業正在快速發展，台灣的AI產業正在快速發展，台灣的AI產業正在快速發展，台灣的AI產業正在快速發展，台灣的AI產業正在快速發展，台灣的AI產業正在快速發展，台灣的AI產業正在快速發展，台灣的AI產業正在快速發展，台灣的AI產業正在快速發展，台灣的AI產業正在快速發展，台灣的AI產業正在快速發展，台灣的AI產業正\n\n**Matched Skills:** workflow-ai-deployment, market-core, gap, morphenix, master-strategy\n\n\n\n---\n\n## 01:05:22\n\n**Trust Level:** TRUSTED\n\n**Event Type:** user_interaction\n\n**Session Id:** chaos_special_0\n\n**User Message:** 🎉🔥💯🚀✨ emoji 壓測\n\n**Matched Skills:** qa-auditor, sentiment-radar, market-core, gap, investment-masters\n\n\n\n---\n\n## 01:05:30\n\n**Trust Level:** TRUSTED\n\n**Event Type:** user_interaction\n\n**Session Id:** chaos_special_4\n\n**User Message:** \\n\\t\\r\\0 轉義字元\n\n**Matched Skills:** business-12, dse, ssa-consultant, morphenix, master-strategy\n\n\n\n---\n\n## 01:05:46\n\n**Trust Level:** TRUSTED\n\n**Event Type:** user_interaction\n\n**Session Id:** chaos_special_5\n\n**User Message:** 𝕳𝖊𝖑𝖑𝖔 Unicode 擴展\n\n**Matched Skills:** business-12, master-strategy, ssa-consultant, workflow-ai-deployment, workflow-svc-brand-marketing\n\n\n\n---\n\n## 01:06:08\n\n**Trust Level:** TRUSTED\n\n**Event Type:** user_interaction\n\n**Session Id:** chaos_dup_1773421546\n\n**User Message:** 你好\n\n**Matched Skills:** market-core, gap, market-crypto, market-equity, market-macro\n\n\n\n---\n\n## 01:06:29\n\n**Trust Level:** TRUSTED\n\n**Event Type:** user_interaction\n\n**Session Id:** chaos_dup_1773421546\n\n**User Message:** 你好\n\n**Matched Skills:** dse, pdeif, plan-engine, sentiment-radar, gap\n\n\n\n---\n\n## 01:06:59\n\n**Trust Level:** TRUSTED\n\n**Event Type:** user_interaction\n\n**Session Id:** chaos_dup_1773421546\n\n**User Message:** 你好\n\n**Matched Skills:** workflow-investment-analysis, market-core, ",
+    "outcome": "# Outcome\n\n## 01:05:15\n\n**Trust Level:** VERIFIED\n\n**Task Id:** chaos_ws_010515\n\n**Result:** success\n\n**Response Length:** 56\n\n**Skills Used:** market-core, business-12, gap, market-crypto, market-equity\n\n\n\n---\n\n## 01:05:19\n\n**Trust Level:** VERIFIED\n\n**Task Id:** chaos_long_010519\n\n**Result:** success\n\n**Response Length:** 146\n\n**Skills Used:** workflow-ai-deployment, market-core, gap, morphenix, master-strategy\n\n\n\n---\n\n## 01:05:22\n\n**Trust Level:** VERIFIED\n\n**Task Id:** chaos_special_0_010522\n\n**Result:** success\n\n**Response Length:** 60\n\n**Skills Used:** qa-auditor, sentiment-radar, market-core, gap, investment-masters\n\n\n\n---\n\n## 01:05:30\n\n**Trust Level:** VERIFIED\n\n**Task Id:** chaos_special_4_010530\n\n**Result:** success\n\n**Response Length:** 59\n\n**Skills Used:** business-12, dse, ssa-consultant, morphenix, master-strategy\n\n\n\n---\n\n## 01:05:46\n\n**Trust Level:** VERIFIED\n\n**Task Id:** chaos_special_5_010546\n\n**Result:** success\n\n**Response Length:** 16\n\n**Skills Used:** business-12, master-strategy, ssa-consultant, workflow-ai-deployment, workflow-svc-brand-marketing\n\n\n\n---\n\n## 01:06:08\n\n**Trust Level:** VERIFIED\n\n**Task Id:** chaos_dup_1773421546_010608\n\n**Result:** success\n\n**Response Length:** 22\n\n**Skills Used:** market-core, gap, market-crypto, market-equity, market-macro\n\n\n\n---\n\n## 01:06:29\n\n**Trust Level:** VERIFIED\n\n**Task Id:** chaos_dup_1773421546_010629\n\n**Result:** success\n\n**Response Length:** 34\n\n**Skills Used:** dse, pdeif, plan-engine, sentiment-radar, gap\n\n\n\n---\n\n## 01:06:59\n\n**Trust Level:** VERIFIED\n\n**Task Id:** chaos_dup_1773421546_010659\n\n**Result:** success\n\n**Response Length:** 63\n\n**Skills Used:** workflow-investment-analysis, market-core, dse, market-crypto, gap\n\n\n\n---\n\n## 01:07:20\n\n**Trust Level:** VERIFIED\n\n**Task Id:** chaos_dup_1773421546_010720\n\n**Result:** success\n\n**Response Length:** 23\n\n**Skills Used:** market-equity, market-macro, pdeif, plan-engine, gap\n\n\n\n---\n\n## 01:07:57\n\n**Trust Level:** VERIFIED\n\n**Task Id:** chaos_dup_177"
+  },
+  "narrative": "今日共 65 個活動事件。\n  - BRAIN_RESPONSE_COMPLETE: 28 次\n  - WEE_CYCLE_COMPLETE: 24 次\n  - PULSE_MICRO_BEAT: 6 次\n  - PULSE_EXPLORATION_DONE: 5 次\n  - NIGHTLY_STARTED: 1 次\n記錄了 3 個記憶頻道。\n  - meta-thinking: # Meta Thinking  ## 01:05:15  **Trust Level:** TRUSTED  **Thought Pattern:** DNA...\n  - event: # Event  ## 01:05:15  **Trust Level:** TRUSTED  **Event Type:** user_interaction...\n  - outcome: # Outcome  ## 01:05:15  **Trust Level:** VERIFIED  **Task Id:** chaos_ws_010515 ..."
+}

@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "museclaw",
+  "private_key_id": "b3ccec622a1e6c3d23859d5dfab79238d9cf5773",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQCmKr/3qz/ZwlT5\ni6lly/R9G8ybXcZYXbmnVLVHN3U/Eh8cPcU/JUAZeBt7S8R7IdG6LxET0In+02DJ\nqnMDaxnjfDQ3SeWP9rU1VM/hRUIDKxkau1ZJpWEQCs3WPSPKDgHVGfLbYfHUUwbn\ndZzweq8bJPaNRHBR6rnTwJatH7wLKvot9HHN+TegbLjZpA3tfSDRHa7Nw7qbt3B3\niPZigzIH8dEDNdtgWTE4Vs/grpEa4a+EvpZXgUgyLa17nasLY8m5GjoOq8d8oTFJ\njOCH61K+ISCZnh3MkWbzagO9g2be1AT+WmbGRvWiRzlTdcrwfFWXA/VNveS1vjGl\nb2lSgC0vAgMBAAECggEABzJd8KpCgrDq/GRzH1ZGLhfVIlc4rvPxYPDr105+4DNt\nuTmMO+AKts+tm1AqVsSdxy/XhxO9jSf/80nBllMHUHFhrrYxoGPfcHAFNgPJdf1i\nAfcZJ8TU5BNoSWdAxtmrmTfmohanK18koLFrNjxFdzyAKuJvglp3xHuhlCbPR7dV\nEzrP/HFcoMe0xSfkEn8Qs6uEFHdVsSzMMRGpFgd0IpzHjp7ibljhkquRH+1Z0fRb\nlRFjEJdPcnqruL7VmlwGJty8NnC3VE6cGmOOOLEMklj8jQXc/li+NvbufeM1A5OD\n6E0e4sjsLYASDCFQsnxOXU7tyWEGcCsobbDWFu4KeQKBgQDQiul7yAIUXyRL22zm\nhOYnqbVXhXbqE+AA7+kiEG6dG6FHUmrh3amH17dZawJ66uHFPXdK+MHZ/rmk/e+s\nXnN14+hcqwJ6BRJjFpqZfNskdl6cDUK/JESvpLxL1UylTrfKPXVS0swRtwGuBFnc\nDxevb2M5KZ3A6CMKnPaRQDPhMwKBgQDL+ygMIrsJ3CYhIRkqDbdzJ4RL/0+sa9aX\nQ691AQ2l4smv+QI7LJpo2q1RroOP8XfzA6n6FZ7rcYG5WynslM0h+v6xsgSLfYqr\n1iHbJx0oSrzBNQceAqfppbMQGquqQwBApTQoiTbGHjG0UJjFz2FnHtcMBbjzzd/Z\niMOKsi58FQKBgQCFI/rW5SW2vdtddtS7A6QxNF8rZnE6FsBPuNudvOHx+f7omwzT\n8QHYUXekZfZqZWUI2So9Oj4BIGiDlwAaix6p6HykFSX6oxxPGNJRJe5/A/d5J9oy\nUERt4v24aJCLhYs/Wid6XkydDrrKz8pS/WvAvJublh86Vrpwfy/IIjY9EwKBgQCI\nUcMDyToibsP0pAADQMN269PYTjnayv7QfGWH1jpewF91gP5iuX4/0NS/n9dAnWlC\nORKhlU1tn5/IVgqAlzk4GluYOZYb+rxv9l0N7ufng3r9zAiDn9bDqP8wJgLPeJN0\noHNpG7pFUOx6ytouaFd56PxihniCRvXwlRvJVycFuQKBgQCcHOA78jOLkwdQP/Vr\ng9iLnPv83fOD0cIH/VcPsgcsgt5UoXj/stN+KTR3ohU7UbmuX+HgJ0Qn9heIgGyi\nYqL4P7GuRdCpUTbyae7kMRDlK0a+NjxUTALofXQ6q1Ev8ZEWYvXkgm07UJpQ6qzd\n9BzY4q4h3jH4/H8gWcuDoM0BKw==\n-----END PRIVATE KEY-----\n",
+  "client_email": "mcp-google-drive@museclaw.iam.gserviceaccount.com",
+  "client_id": "107325965243027259486",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/mcp-google-drive%40museclaw.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

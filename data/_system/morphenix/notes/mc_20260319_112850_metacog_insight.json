@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260319_112850_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n**修改方向**：Q5 的具體問題內容被截斷，需要補完。應該明確詢問：GitHub repo 地址是否已建立？HTML 推送是即時生成（每份報告發表後立即推送）還是批次處理？外鏈格式偏好（直接 GitHub Pages URL 還是帶時間戳/版本號？）。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-19T11:28:50.727932+08:00",
+  "priority": "medium"
+}

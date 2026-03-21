@@ -2,6 +2,7 @@
 name: dse
 type: on-demand
 layer: product
+hub: product
 io:
   inputs:
     - from: gap

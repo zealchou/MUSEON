@@ -2,6 +2,7 @@
 name: orchestrator
 type: on-demand
 layer: evolution
+hub: product
 io:
   inputs:
     - from: user

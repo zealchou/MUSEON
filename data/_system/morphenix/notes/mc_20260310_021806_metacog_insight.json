@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260310_021806_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: **REVISE**\n\n訊息「就 A C C」上下文不足。回覆假設已知「A C C」對應的三個修復內容，但未澄清。建議先反問：「確認是執行 [X 修復] [Y 修復] [Z 修復] 嗎？」並列出具體項目讓使用者確認，再開始讀檔執行。這樣避免白費力氣做了不是真正想要的事。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-10T02:18:06.449855+08:00",
+  "priority": "medium"
+}

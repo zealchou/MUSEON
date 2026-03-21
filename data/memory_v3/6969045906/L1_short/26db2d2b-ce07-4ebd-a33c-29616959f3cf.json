@@ -1,0 +1,22 @@
+{
+  "id": "26db2d2b-ce07-4ebd-a33c-29616959f3cf",
+  "content": "[失敗經驗] 任務：要記起來\n\n重新打包\n運行審計\n失敗類型：general_failure\n回應片段：全部完成。\n\n---\n\n## 結果\n\n| 項目 | 狀態 |\n|------|------|\n| **記憶存檔** | ✅ `feedback_post_construction_checklist.md` 已寫入，MEMORY.md 已更新 |\n| **重新打包** | ✅ rsync 同步完成，Install-MUSEON.command 24MB |\n| **系統審計** | ✅ 14 項全",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-19T19:44:33.083899+08:00",
+  "updated_at": "2026-03-19T19:44:33.083899+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "6969045906",
+  "session_id": "",
+  "dept_id": "",
+  "archived": false
+}

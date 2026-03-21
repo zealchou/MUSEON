@@ -1,0 +1,7 @@
+{
+  "type": "exploration_insight",
+  "topic": "[Scout] 向量資料庫在 AI agent 記憶系統中的最佳實踐",
+  "observation": "## 評估結果：✅ **高價值**\n\n### 可借鏡的方法論與驗證架構\n\n**有具體可行的做法：**\n\n1. **混合儲存架構（最實用）**：SQLite 存儲結構化交互歷史（ACID 保證）+ 向量資料庫（Milvus/Qdrant/FAISS）專責語義檢索，而非向量庫單獨承載，有效分離關注點。\n\n2. **三層記憶棧**：交互履歷層（SQL）→ 語義檢索層（向量DB）→ 反思與推理層（LLM ",
+  "source": "exploration_bridge",
+  "created_at": "2026-03-20T03:01:40.668918+08:00"
+}

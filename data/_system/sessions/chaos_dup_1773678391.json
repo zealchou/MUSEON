@@ -1,0 +1,42 @@
+[
+ {
+  "role": "user",
+  "content": "你好"
+ },
+ {
+  "role": "assistant",
+  "content": "早安。\n\n剛啟動完畢，已讀完夜間的系統狀況。準備好了。\n\n有什麼需要？"
+ },
+ {
+  "role": "user",
+  "content": "你好"
+ },
+ {
+  "role": "assistant",
+  "content": "早安。準備好了，有什麼需要幫忙的嗎？"
+ },
+ {
+  "role": "user",
+  "content": "你好"
+ },
+ {
+  "role": "assistant",
+  "content": "早安，老闆。\n\n已準備妥當。今天有什麼要處理的？"
+ },
+ {
+  "role": "user",
+  "content": "你好"
+ },
+ {
+  "role": "assistant",
+  "content": "早安，老闆。\n\n隨時準備。今天想要處理什麼？"
+ },
+ {
+  "role": "user",
+  "content": "你好"
+ },
+ {
+  "role": "assistant",
+  "content": "早安，老闆。\n\n準備好了。今天要處理什麼？"
+ }
+]

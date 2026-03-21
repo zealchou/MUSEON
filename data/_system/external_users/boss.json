@@ -1,0 +1,68 @@
+{
+  "version": "2.0.0",
+  "user_id": "boss",
+  "created_at": "2026-03-21T11:48:28.955112",
+  "interaction_count": 0,
+  "last_seen": "2026-03-21T11:48:28.955117",
+  "display_name": "Feng",
+  "context_summary": "",
+  "eight_primals": {
+    "aspiration": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "accumulation": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "action_power": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "curiosity": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "emotion_pattern": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "blindspot": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "boundary": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "relationship_depth": {
+      "level": 8,
+      "confidence": 0.05,
+      "signal": "幫我寫一封感謝客戶王總的 email，感謝他上週的合作，語氣要專業但親切，大約 200 字。",
+      "last_observed": "2026-03-21T11:48:28.955117"
+    }
+  },
+  "preferences": {},
+  "recent_topics": [
+    {
+      "snippet": "幫我寫一封感謝客戶王總的 email，感謝他上週的合作，語氣要專業但親切，大約 200 字。",
+      "date": "2026-03-21T11:48:28.955117"
+    }
+  ],
+  "groups_seen_in": [],
+  "relationship_to_owner": ""
+}

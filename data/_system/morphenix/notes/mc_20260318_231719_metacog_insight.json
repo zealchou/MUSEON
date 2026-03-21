@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260318_231719_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n不要問使用者要 ID。改為先主動在系統內搜尋記錄（`data/` 內的 Telegram 日誌、git log、或既有的群組配置檔），再描述搜尋結果。只有確實找不到時，才說明已試過什麼方法，請使用者協助確認。這樣才是「我主動完成」而非「你告訴我」。\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-18T23:17:19.506837+08:00",
+  "priority": "medium"
+}

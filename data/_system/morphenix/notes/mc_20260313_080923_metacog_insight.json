@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260313_080923_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：\n- ① 先確認對話上下文而非假設「上一輪」存在\n- ② 不要用「我不會重複」的拒絕語氣，改為友善詢問真需求\n- ③ 主動列舉分析維度（競品/市場定位/進場策略等），給使用者選擇權而非要求使用者自己想\n- ④ 如果真的是重複輸入，用協助排查網路問題的語氣，而非責怪使用者",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-13T08:09:23.282089+08:00",
+  "priority": "medium"
+}

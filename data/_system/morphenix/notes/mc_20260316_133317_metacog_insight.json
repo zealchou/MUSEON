@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260316_133317_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n計算正確，但最後一句「問過兩次了、有新任務嗎？」帶有不耐煩，不符合對老闆的互動規格。建議：移除評判語氣，改為升級回覆——除了數字外，加上商業解讀（8.3% 淨利率對 12 人團隊代表什麼？人均月利潤 ~1 萬，有無優化空間？成本結構是否合理？）。讓使用者知道你在幫他「想清楚」這個數字，而非只給個答案。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-16T13:33:17.749090+08:00",
+  "priority": "medium"
+}

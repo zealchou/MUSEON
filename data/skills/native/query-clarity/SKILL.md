@@ -2,6 +2,7 @@
 name: query-clarity
 type: always-on
 layer: core-extension
+hub: core
 io:
   inputs:
     - from: user

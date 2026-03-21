@@ -2,6 +2,7 @@
 name: sandbox-lab
 type: on-demand
 layer: evolution
+hub: evolution
 io:
   inputs:
     - from: user

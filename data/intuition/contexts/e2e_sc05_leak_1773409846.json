@@ -1,0 +1,33 @@
+{
+  "session_id": "e2e_sc05_leak_1773409846",
+  "nodes": {
+    "topic_turn_0": {
+      "node_id": "topic_turn_0",
+      "node_type": "topic",
+      "label": "turn_0",
+      "properties": {
+        "content_length": 17,
+        "detected_at": "2026-03-13T21:50:46.532016"
+      },
+      "created_at": "2026-03-13T21:50:46.532073",
+      "updated_at": "2026-03-13T21:50:46.532078"
+    },
+    "topic_turn_1": {
+      "node_id": "topic_turn_1",
+      "node_type": "topic",
+      "label": "turn_1",
+      "properties": {
+        "content_length": 16,
+        "detected_at": "2026-03-13T21:50:53.394269"
+      },
+      "created_at": "2026-03-13T21:50:53.394335",
+      "updated_at": "2026-03-13T21:50:53.394339"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 3,
+    "last_content_length": 16
+  },
+  "last_updated": "2026-03-13T21:50:53.394269"
+}

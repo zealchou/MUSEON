@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260315_213312_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n理由：隱含未驗證假設（「昨晚有個承諾」），而新訊息中未提及。建議直接進入「今晚有什麼需要處理的嗎？」，更開放、不帶假設。如果確實有前次對話背景，應先確認使用者記得，再追蹤承諾。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-15T21:33:12.407336+08:00",
+  "priority": "medium"
+}

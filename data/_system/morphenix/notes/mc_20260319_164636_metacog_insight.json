@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260319_164636_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n使用者的真決策問題是「讀完全部再統一，還是分批輸出」，回覆没有直接回答。同時使用者最初要求「列清單確認能做到什麼」，而這段給了分析但没有可交付清單。\n\n建議改為：直接說「讀完全部再統一輸出」，並立即產出「MUSEON能為文做到的9大應用」清單（對標他的運營/傳承/策略/多元化四層困境），附上工期和ROI預估，這樣才符合使用者的優先級。\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-19T16:46:36.273913+08:00",
+  "priority": "medium"
+}

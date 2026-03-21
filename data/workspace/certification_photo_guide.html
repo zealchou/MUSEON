@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>證件照裁切規格指引 — MUSEON</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #F7F5F0;
+    color: #12121A;
+    line-height: 1.6;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #12121A 0%, #1E1E2A 100%);
+    color: #FDFCFA;
+    padding: 48px 32px;
+    text-align: center;
+  }
+  .header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.4rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .header .subtitle {
+    color: #9898A8;
+    font-size: 0.95rem;
+    font-weight: 300;
+  }
+  .header .brand {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 4px 16px;
+    border: 1px solid #C4502A;
+    border-radius: 4px;
+    color: #C4502A;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 40px 24px; }
+
+  .spec-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 28px;
+    margin-top: 32px;
+  }
+
+  .spec-card {
+    background: #FDFCFA;
+    border: 1px solid #E2E0DA;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: box-shadow .2s;
+  }
+  .spec-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,.08); }
+
+  .spec-card .card-header {
+    padding: 20px 24px 12px;
+    border-bottom: 1px solid #E2E0DA;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .spec-card .card-header h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+  }
+  .spec-card .card-header .badge {
+    background: #C4502A;
+    color: #fff;
+    font-size: 0.7rem;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+
+  .spec-card .card-body { padding: 20px 24px 24px; }
+
+  .photo-demo {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
+    margin: 16px 0 20px;
+  }
+
+  .photo-frame {
+    position: relative;
+    border: 2px solid #12121A;
+    background: #eaf0f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+  }
+
+  .head-silhouette {
+    position: absolute;
+    border-radius: 50%;
+    background: #c8d6e0;
+    border: 1px dashed #5A5A6E;
+  }
+  .body-silhouette {
+    position: absolute;
+    bottom: 0;
+    border-radius: 50% 50% 0 0;
+    background: #b8c6d0;
+    border: 1px dashed #5A5A6E;
+    border-bottom: none;
+  }
+
+  .guide-line {
+    position: absolute;
+    left: -28px;
+    right: -28px;
+    height: 0;
+    border-top: 1.5px dashed #C4502A;
+    z-index: 10;
+  }
+  .guide-line::before {
+    content: attr(data-label);
+    position: absolute;
+    right: -2px;
+    top: -18px;
+    font-size: 0.6rem;
+    color: #C4502A;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .guide-line-green {
+    position: absolute;
+    left: -28px;
+    right: -28px;
+    height: 0;
+    border-top: 1.5px dashed #2A7A6E;
+    z-index: 10;
+  }
+  .guide-line-green::before {
+    content: attr(data-label);
+    position: absolute;
+    left: -2px;
+    top: -18px;
+    font-size: 0.6rem;
+    color: #2A7A6E;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .dim-label {
+    position: absolute;
+    font-size: 0.65rem;
+    color: #5A5A6E;
+    font-weight: 500;
+  }
+  .dim-w { bottom: -22px; left: 50%; transform: translateX(-50%); }
+  .dim-h { top: 50%; right: -50px; transform: translateY(-50%) rotate(90deg); white-space: nowrap; }
+
+  .photo-caption {
+    text-align: center;
+    font-size: 0.8rem;
+    color: #5A5A6E;
+    margin-top: 28px;
+    font-weight: 500;
+  }
+
+  .spec-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    margin-top: 12px;
+  }
+  .spec-table th {
+    text-align: left;
+    padding: 10px 12px;
+    background: #F7F5F0;
+    border-bottom: 2px solid #E2E0DA;
+    font-weight: 600;
+    color: #5A5A6E;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .spec-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #E2E0DA;
+  }
+  .spec-table tr:last-child td { border-bottom: none; }
+  .spec-table .highlight { color: #C4502A; font-weight: 600; }
+
+  .notes-section {
+    margin-top: 40px;
+    background: #FDFCFA;
+    border: 1px solid #E2E0DA;
+    border-left: 4px solid #B8923A;
+    border-radius: 0 12px 12px 0;
+    padding: 28px 32px;
+  }
+  .notes-section h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    margin-bottom: 16px;
+    color: #B8923A;
+  }
+  .notes-section ul { list-style: none; padding: 0; }
+  .notes-section li {
+    padding: 6px 0;
+    padding-left: 20px;
+    position: relative;
+    font-size: 0.9rem;
+    color: #5A5A6E;
+  }
+  .notes-section li::before {
+    content: '▸';
+    position: absolute;
+    left: 0;
+    color: #B8923A;
+  }
+
+  .quick-ref { margin-top: 40px; }
+  .quick-ref h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    margin-bottom: 20px;
+  }
+  .ref-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    background: #FDFCFA;
+    border: 1px solid #E2E0DA;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .ref-table th {
+    background: #12121A;
+    color: #FDFCFA;
+    padding: 14px 16px;
+    text-align: left;
+    font-weight: 500;
+    font-size: 0.78rem;
+    letter-spacing: 0.5px;
+  }
+  .ref-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #E2E0DA;
+  }
+  .ref-table tr:last-child td { border-bottom: none; }
+  .ref-table tr:nth-child(even) { background: #F7F5F0; }
+
+  .bg-chip {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    vertical-align: middle;
+    margin-right: 6px;
+    border: 1px solid #E2E0DA;
+  }
+
+  .footer {
+    text-align: center;
+    padding: 40px 24px;
+    color: #9898A8;
+    font-size: 0.75rem;
+  }
+  .footer .brand-mark { color: #C4502A; font-weight: 600; }
+
+  @media (max-width: 600px) {
+    .header h1 { font-size: 1.6rem; }
+    .spec-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>證件照裁切規格指引</h1>
+  <p class="subtitle">台灣常用證件照尺寸・比例標線・背景色規範</p>
+  <span class="brand">MUSEON × 攝影工作室</span>
+</div>
+
+<div class="container">
+
+  <div class="spec-grid">
+
+    <!-- 身分證 / 護照 -->
+    <div class="spec-card">
+      <div class="card-header">
+        <h3>身分證 / 護照</h3>
+        <span class="badge">最常用</span>
+      </div>
+      <div class="card-body">
+        <div class="photo-demo">
+          <div class="photo-frame" style="width:140px; height:182px;">
+            <div class="head-silhouette" style="width:62px; height:78px; top:22px; left:39px;"></div>
+            <div class="body-silhouette" style="width:100px; height:50px; left:20px;"></div>
+            <div class="guide-line" style="top:14px;" data-label="頭頂留白"></div>
+            <div class="guide-line-green" style="top:100px;" data-label="下巴"></div>
+            <div class="guide-line" style="top:132px;" data-label="肩線"></div>
+            <span class="dim-label dim-w">3.5 cm</span>
+            <span class="dim-label dim-h">4.5 cm</span>
+          </div>
+        </div>
+        <p class="photo-caption">頭頂至下巴：3.2 ~ 3.6 cm（佔照片高度 70~80%）</p>
+        <table class="spec-table">
+          <tr><th>項目</th><th>規格</th></tr>
+          <tr><td>尺寸</td><td class="highlight">3.5 × 4.5 cm（直式）</td></tr>
+          <tr><td>解析度</td><td>300 dpi 以上</td></tr>
+          <tr><td>背景色</td><td><span class="bg-chip" style="background:#FFFFFF;"></span>白色</td></tr>
+          <tr><td>頭部佔比</td><td>頭頂至下巴 3.2~3.6 cm</td></tr>
+          <tr><td>頭頂留白</td><td>0.3~0.5 cm</td></tr>
+          <tr><td>表情</td><td>自然閉嘴、雙眼直視鏡頭</td></tr>
+          <tr><td>眼鏡</td><td>可戴，不可反光遮瞳孔</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- 駕照 -->
+    <div class="spec-card">
+      <div class="card-header">
+        <h3>駕照</h3>
+        <span class="badge" style="background:#2A7A6E;">常用</span>
+      </div>
+      <div class="card-body">
+        <div class="photo-demo">
+          <div class="photo-frame" style="width:100px; height:130px;">
+            <div class="head-silhouette" style="width:44px; height:56px; top:16px; left:28px;"></div>
+            <div class="body-silhouette" style="width:72px; height:36px; left:14px;"></div>
+            <div class="guide-line" style="top:10px;" data-label="頭頂"></div>
+            <div class="guide-line-green" style="top:72px;" data-label="下巴"></div>
+            <span class="dim-label dim-w">2.5 cm</span>
+            <span class="dim-label dim-h">3 cm</span>
+          </div>
+        </div>
+        <p class="photo-caption">頭頂至下巴佔比約 70%</p>
+        <table class="spec-table">
+          <tr><th>項目</th><th>規格</th></tr>
+          <tr><td>尺寸</td><td class="highlight">2.5 × 3 cm（直式）</td></tr>
+          <tr><td>解析度</td><td>300 dpi 以上</td></tr>
+          <tr><td>背景色</td><td><span class="bg-chip" style="background:#FFFFFF;"></span>白色</td></tr>
+          <tr><td>其他</td><td>同身分證規範</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- 美國簽證 -->
+    <div class="spec-card">
+      <div class="card-header">
+        <h3>美國簽證</h3>
+        <span class="badge" style="background:#B8923A;">出國常用</span>
+      </div>
+      <div class="card-body">
+        <div class="photo-demo">
+          <div class="photo-frame" style="width:152px; height:152px;">
+            <div class="head-silhouette" style="width:56px; height:70px; top:16px; left:48px;"></div>
+            <div class="body-silhouette" style="width:108px; height:44px; left:22px;"></div>
+            <div class="guide-line" style="top:10px;" data-label="頭頂"></div>
+            <div class="guide-line-green" style="top:86px;" data-label="下巴"></div>
+            <div class="guide-line" style="top:47px;" data-label="眼睛線"></div>
+            <span class="dim-label dim-w">5.1 × 5.1 cm（正方形）</span>
+          </div>
+        </div>
+        <p class="photo-caption">頭頂至下巴：2.5 ~ 3.5 cm（佔 50~69%）</p>
+        <table class="spec-table">
+          <tr><th>項目</th><th>規格</th></tr>
+          <tr><td>尺寸</td><td class="highlight">5.1 × 5.1 cm（2" × 2"）</td></tr>
+          <tr><td>數位尺寸</td><td>600 × 600 px（最小）</td></tr>
+          <tr><td>背景色</td><td><span class="bg-chip" style="background:#FFFFFF;"></span>白色或淺灰</td></tr>
+          <tr><td>頭部佔比</td><td>頭頂至下巴 2.5~3.5 cm</td></tr>
+          <tr><td>眼睛位置</td><td>照片底部起算 56~69%</td></tr>
+          <tr><td>眼鏡</td><td>不可戴眼鏡</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- 日本簽證 -->
+    <div class="spec-card">
+      <div class="card-header">
+        <h3>日本簽證</h3>
+        <span class="badge" style="background:#B8923A;">出國常用</span>
+      </div>
+      <div class="card-body">
+        <div class="photo-demo">
+          <div class="photo-frame" style="width:140px; height:182px;">
+            <div class="head-silhouette" style="width:62px; height:78px; top:20px; left:39px;"></div>
+            <div class="body-silhouette" style="width:100px; height:50px; left:20px;"></div>
+            <div class="guide-line" style="top:12px;" data-label="頭頂"></div>
+            <div class="guide-line-green" style="top:98px;" data-label="下巴"></div>
+            <span class="dim-label dim-w">3.5 cm</span>
+            <span class="dim-label dim-h">4.5 cm</span>
+          </div>
+        </div>
+        <p class="photo-caption">頭頂至下巴約佔 70~80%</p>
+        <table class="spec-table">
+          <tr><th>項目</th><th>規格</th></tr>
+          <tr><td>尺寸</td><td class="highlight">3.5 × 4.5 cm</td></tr>
+          <tr><td>背景色</td><td><span class="bg-chip" style="background:#FFFFFF;"></span>白色</td></tr>
+          <tr><td>拍攝時間</td><td>6 個月內</td></tr>
+          <tr><td>眼鏡</td><td>建議不戴</td></tr>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 速查表 -->
+  <div class="quick-ref">
+    <h2>各國 / 各用途速查表</h2>
+    <table class="ref-table">
+      <thead>
+        <tr>
+          <th>用途</th>
+          <th>尺寸</th>
+          <th>背景</th>
+          <th>頭部佔比</th>
+          <th>眼鏡</th>
+          <th>有效期</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>台灣身分證</strong></td>
+          <td>3.5 × 4.5 cm</td>
+          <td><span class="bg-chip" style="background:#fff;"></span>白</td>
+          <td>70~80%</td>
+          <td>可（不反光）</td>
+          <td>2 年內</td>
+        </tr>
+        <tr>
+          <td><strong>台灣護照</strong></td>
+          <td>3.5 × 4.5 cm</td>
+          <td><span class="bg-chip" style="background:#fff;"></span>白</td>
+          <td>70~80%</td>
+          <td>可（不反光）</td>
+          <td>6 個月內</td>
+        </tr>
+        <tr>
+          <td><strong>台灣駕照</strong></td>
+          <td>2.5 × 3 cm</td>
+          <td><span class="bg-chip" style="background:#fff;"></span>白</td>
+          <td>約 70%</td>
+          <td>可</td>
+          <td>2 年內</td>
+        </tr>
+        <tr>
+          <td><strong>台灣健保卡</strong></td>
+          <td>3.5 × 4.5 cm</td>
+          <td><span class="bg-chip" style="background:#fff;"></span>白</td>
+          <td>70~80%</td>
+          <td>可</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><strong>美國簽證</strong></td>
+          <td>5.1 × 5.1 cm</td>
+          <td><span class="bg-chip" style="background:#fff;"></span>白/淺灰</td>
+          <td>50~69%</td>
+          <td>不可</td>
+          <td>6 個月內</td>
+        </tr>
+        <tr>
+          <td><strong>日本簽證</strong></td>
+          <td>3.5 × 4.5 cm</td>
+          <td><span class="bg-chip" style="background:#fff;"></span>白</td>
+          <td>70~80%</td>
+          <td>建議不戴</td>
+          <td>6 個月內</td>
+        </tr>
+        <tr>
+          <td><strong>韓國簽證</strong></td>
+          <td>3.5 × 4.5 cm</td>
+          <td><span class="bg-chip" style="background:#fff;"></span>白</td>
+          <td>70~80%</td>
+          <td>不可</td>
+          <td>6 個月內</td>
+        </tr>
+        <tr>
+          <td><strong>申根簽證</strong></td>
+          <td>3.5 × 4.5 cm</td>
+          <td><span class="bg-chip" style="background:#E8E8E8;"></span>淺灰</td>
+          <td>70~80%</td>
+          <td>不可</td>
+          <td>6 個月內</td>
+        </tr>
+        <tr>
+          <td><strong>中國簽證</strong></td>
+          <td>3.3 × 4.8 cm</td>
+          <td><span class="bg-chip" style="background:#fff;"></span>白</td>
+          <td>70~80%</td>
+          <td>不可</td>
+          <td>6 個月內</td>
+        </tr>
+        <tr>
+          <td><strong>泰國簽證</strong></td>
+          <td>3.5 × 4.5 cm</td>
+          <td><span class="bg-chip" style="background:#fff;"></span>白</td>
+          <td>70~80%</td>
+          <td>不可</td>
+          <td>6 個月內</td>
+        </tr>
+        <tr>
+          <td><strong>履歷照</strong></td>
+          <td>2.5 × 3 cm 或自訂</td>
+          <td><span class="bg-chip" style="background:#D6E8F0;"></span>淺藍/白/灰</td>
+          <td>自訂</td>
+          <td>可</td>
+          <td>—</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 注意事項 -->
+  <div class="notes-section">
+    <h2>拍攝與後製注意事項</h2>
+    <ul>
+      <li><strong>光線均勻：</strong>臉部不可有陰影，雙耳需露出（女性長髮需撥到耳後）</li>
+      <li><strong>正面直視：</strong>頭部不可歪斜、不可側面，雙眼正視鏡頭</li>
+      <li><strong>表情自然：</strong>嘴巴自然閉合，不可露齒微笑（部分國家可微笑）</li>
+      <li><strong>衣著：</strong>不可穿白色上衣（白底時會融入背景），深色有領為佳</li>
+      <li><strong>頭飾：</strong>不可戴帽子、髮帶（宗教因素除外）</li>
+      <li><strong>背景：</strong>純色、無花紋、無陰影、不可有其他人或物品</li>
+      <li><strong>裁切原則：</strong>頭頂留白 0.3~0.5 cm，下巴到照片底部保留肩部空間</li>
+      <li><strong>解析度：</strong>沖印 300 dpi 以上，數位上傳依各機關規定（通常 600×600 px 以上）</li>
+      <li><strong>檔案格式：</strong>JPEG，檔案大小通常需 &lt; 500 KB（數位申請時）</li>
+    </ul>
+  </div>
+
+</div>
+
+<div class="footer">
+  <p>本指引由 <span class="brand-mark">MUSEON</span> 自動產出 — 資料更新日期：2026-03-20</p>
+  <p style="margin-top:4px;">實際規格以各國政府／機關最新公告為準</p>
+</div>
+
+</body>
+</html>

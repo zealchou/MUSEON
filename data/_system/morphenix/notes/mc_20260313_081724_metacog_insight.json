@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260313_081724_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n計算部分正確且清晰。問題在後段：(1) 假設使用者業務類型（手搖飲），未驗證；(2) 假設房租是成本最大變數，未知使用者成本結構。建議改為：保留計算，改後段為「淨利薄，最佳化方向取決於你的業務類型與成本結構。想看損平分析、產品組合優化，還是成本拆解？」—— 先確認真實需求再建議。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-13T08:17:24.892805+08:00",
+  "priority": "medium"
+}

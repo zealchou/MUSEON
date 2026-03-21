@@ -2,6 +2,7 @@
 name: meta-learning
 type: on-demand
 layer: meta
+hub: thinking
 io:
   inputs:
     - from: user

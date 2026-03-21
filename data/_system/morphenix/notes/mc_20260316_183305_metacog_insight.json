@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260316_183305_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：避免假設「之前分析過」（在此對話中使用者首次提出）。建議先展示 2026 年手搖飲市場的新變化數據（消費趨勢、新品牌動態、區域飽和度），而非只給結論。三個診斷問題很好，可補充「根據你的背景，三條路線各自的預期資本回報期是？」幫使用者快速判斷可行性，之後直接產出財務模型。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-16T18:33:05.753862+08:00",
+  "priority": "medium"
+}

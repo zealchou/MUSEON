@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260314_163006_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n直接回答時間問題即可。第二段帶著責備語氣（「已經晚了」），在使用者沒主動提起時主動揭竿，可能觸發防衛。建議改為：先確認使用者的具體時間，再以「順便——那個承諾什麼時候有空處理？」的詢問語氣（而非指責），把選擇權還給使用者。答非所問也會降低互動品質。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-14T16:30:06.638667+08:00",
+  "priority": "medium"
+}

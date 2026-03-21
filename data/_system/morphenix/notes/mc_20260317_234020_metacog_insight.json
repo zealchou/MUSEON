@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260317_234020_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：\n- 開場應先用同理（resonance）純粹承接情緒，不診斷\n- 避免一次拋出 4 個未驗證的假設（經濟能力、可外包、士維可協商等）\n- 改為「我想了解…」的驗證式提問，而非結構化問卷\n- 去掉「先停止加班。真的。」的指令口氣，改為「你有權利休息」的許可式\n- 在進入選項前，應先確認使用者現在的狀態：想傾聽、想休息、還是想馬上談方案？讓使用者主導進度",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-17T23:40:20.019703+08:00",
+  "priority": "medium"
+}

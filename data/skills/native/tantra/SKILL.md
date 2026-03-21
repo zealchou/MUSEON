@@ -2,6 +2,7 @@
 name: tantra
 type: on-demand
 layer: special
+hub: evolution
 io:
   inputs:
     - from: user

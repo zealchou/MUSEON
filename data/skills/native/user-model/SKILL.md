@@ -2,6 +2,7 @@
 name: user-model
 type: on-demand
 layer: meta
+hub: core
 io:
   inputs:
     - from: query-clarity

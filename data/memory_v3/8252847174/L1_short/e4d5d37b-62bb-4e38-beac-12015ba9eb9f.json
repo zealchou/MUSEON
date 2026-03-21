@@ -1,0 +1,22 @@
+{
+  "id": "e4d5d37b-62bb-4e38-beac-12015ba9eb9f",
+  "content": "[失敗經驗] 任務：[群組近期對話紀錄]\n  15:55 Feng: Hi hi\n  16:06 Zeal（老闆）: 已經拉進來了\n  16:17 Zeal（老闆）: 等你朋友\n  18:23 Feng: 好了\n  19\n失敗類型：general_failure\n回應片段：韋辰哥，檔案是 Excel 二進制格式，無法直接解析。\n\n**最快的做法**——三選一：\n\n1. **截圖**報價單的各大段（水電、木作、油漆等）傳過來，我逐一檢查\n2. **複製貼上**表格內容到群組（直接從 Excel 選反複製）\n3. **轉檔成 CSV** 或 Google Sheets，傳連結給我\n\n我用同樣的檢查邏輯核對：\n- ✓ 總計加總\n- ✓ 缺單價/數量/複價\n- ✓ 項次重複",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-21T11:53:32.231174+08:00",
+  "updated_at": "2026-03-21T11:53:32.231174+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "8252847174",
+  "session_id": "",
+  "dept_id": "",
+  "archived": false
+}

@@ -2,6 +2,7 @@
 name: market-core
 type: on-demand
 layer: market
+hub: market
 io:
   inputs:
     - from: user

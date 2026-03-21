@@ -1,0 +1,15 @@
+{
+  "plan_id": "dispatch_20260321_095012_telegram",
+  "user_request": "報告要記得上傳的 GitHub 然後給我外部鏈接\n這是我們的默契",
+  "session_id": "telegram_6969045906",
+  "created_at": "2026-03-21T09:50:12.895069",
+  "status": "failed",
+  "execution_mode": "serial",
+  "tasks": [],
+  "results": [],
+  "synthesis_result": null,
+  "total_token_usage": {},
+  "completed_at": null,
+  "error_message": null,
+  "meta": {}
+}

@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260315_013647_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：假設「已回答過」未驗證（無法看到完整對話歷史）。且措辭偏冷淡，不符合 ANIMA 親切風格。建議改為：先確認使用者意圖（是誤操作、測試系統、還是真的想分析台灣AI產業？），再提供具體可交付物——如果想要分析，直接問清楚分析角度（政策環境、市場規模、技術生態、投資機會等），我就立即產出分析報告。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-15T01:36:47.810710+08:00",
+  "priority": "medium"
+}

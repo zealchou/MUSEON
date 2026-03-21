@@ -1,0 +1,22 @@
+{
+  "id": "df317cfa-59c3-4d4b-9388-edc267cd55c5",
+  "content": "[失敗經驗] 任務：掠食者 這邊的內容我想多看一些\n失敗類型：general_failure\n回應片段：完整版來了。\n\n---\n\n# 掠食者在能量赤字下的策略選擇\n\n## 核心框架：最適覓食理論\n\n自然界的鐵律——**每個掠食者都在能量收支的刀口上生存**。吃什麼、怎麼獵、何時放棄，全是能量方程式的解。\n\n映射到商業：你的「能量」= **現金 + 時間 + 注意力**。資源充沛時可以容忍低效試探；進入赤字時，**選錯模型 = 滅亡**。\n\n---\n\n## 三種掠食模型\n\n### 🦁 獅群模型（追逐型",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-17T02:47:53.383518+08:00",
+  "updated_at": "2026-03-17T02:47:53.383518+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "6969045906",
+  "session_id": "",
+  "dept_id": "",
+  "archived": false
+}

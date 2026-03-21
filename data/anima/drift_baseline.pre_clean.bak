@@ -1,0 +1,198 @@
+{
+  "taken_at": "2026-03-11T14:36:37.832602+00:00",
+  "mc_primals": {
+    "乾": {
+      "absolute": 237,
+      "relative": 10.1
+    },
+    "坤": {
+      "absolute": 0,
+      "relative": 0.0
+    },
+    "震": {
+      "absolute": 213,
+      "relative": 9.1
+    },
+    "巽": {
+      "absolute": 236,
+      "relative": 10.0
+    },
+    "坎": {
+      "absolute": 2353,
+      "relative": 100.0
+    },
+    "離": {
+      "absolute": 1,
+      "relative": 0.0
+    },
+    "艮": {
+      "absolute": 706,
+      "relative": 30.0
+    },
+    "兌": {
+      "absolute": 384,
+      "relative": 16.3
+    }
+  },
+  "mc_expression": {
+    "opener_stats": {
+      "greeting": 0,
+      "direct": 0,
+      "question": 0,
+      "empathy": 0
+    },
+    "tone_temperature": 0.5,
+    "last_evolved_at": "2026-03-11T21:18:29.292165",
+    "evolution_count": 29
+  },
+  "user_primals": {
+    "aspiration": {
+      "level": 23,
+      "confidence": 1.0,
+      "signal": "你前面的設計規範 我要做什麼動作 才可以讓你未來在生成任何製作物的時候 都可以主動參考然後做出有我們一致風格的 產出物？",
+      "last_observed": "2026-03-11T22:36:37.831143"
+    },
+    "accumulation": {
+      "level": 17,
+      "confidence": 0.4,
+      "signal": "對的，關於問目的這部分，很多人類都會假裝，或者是說謊，但我們可以去觀察這個人的言行是否一致，也就是說我們必須用最小的試錯成本去驗證這個人是否值得信任，不管這個人",
+      "last_observed": "2026-03-11T15:09:39.161269"
+    },
+    "action_power": {
+      "level": 19,
+      "confidence": 0.5,
+      "signal": "[群組會議] Feng 問： @MuseonClaw_bot  我需要你幫忙，我要去商務場合介紹子體，讓商務人士可以引進子體來為他們企業內部服務， 1. 所以我",
+      "last_observed": "2026-03-11T17:50:35.080630"
+    },
+    "curiosity": {
+      "level": 100,
+      "confidence": 1.0,
+      "signal": "[群組近期對話紀錄]   01:27 Feng: @MuseonClaw_bot  好喔 另外一個問題你可以操作企業內部的系統嘛？ 給你帳號密碼，然後系統的網址",
+      "last_observed": "2026-03-11T22:35:08.884794"
+    },
+    "emotion_pattern": {
+      "level": 31,
+      "confidence": 1.0,
+      "signal": "[群組近期對話紀錄]   01:27 Feng: @MuseonClaw_bot  好喔 另外一個問題你可以操作企業內部的系統嘛？ 給你帳號密碼，然後系統的網址",
+      "last_observed": "2026-03-11T18:28:19.745390"
+    },
+    "blindspot": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "boundary": {
+      "level": 30,
+      "confidence": 1.0,
+      "signal": "[群組近期對話紀錄]   04:05 周逸達（Zeal）（老闆）: 喔對了 Telegram 是串列的 所以別的地方他在準備回答我問題的時候 這邊就會停下來  ",
+      "last_observed": "2026-03-11T19:26:16.701720"
+    },
+    "relationship_depth": {
+      "level": 16,
+      "confidence": 1.0,
+      "signal": "[群組會議] Feng 問： @MuseonClaw_bot  換個方式我問你好了， 所以我引進子體可以為我的企業做到什麼？ 或他可以做什麼？我沒有畫面？ 這是",
+      "last_observed": "2026-03-11T17:55:57.539911"
+    }
+  },
+  "user_L5": [
+    {
+      "key": "prefers_short_response",
+      "value": "prefers short response",
+      "confidence": 1.0,
+      "observed_count": 273,
+      "first_seen": "2026-03-03T22:07:50.457526",
+      "last_seen": "2026-03-11T22:35:08.884794"
+    },
+    {
+      "key": "active_late_evening",
+      "value": "active late evening",
+      "confidence": 1.0,
+      "observed_count": 114,
+      "first_seen": "2026-03-03T22:07:50.457526",
+      "last_seen": "2026-03-11T22:36:37.831143"
+    },
+    {
+      "key": "active_late_night",
+      "value": "active late night",
+      "confidence": 1.0,
+      "observed_count": 84,
+      "first_seen": "2026-03-04T00:02:17.034017",
+      "last_seen": "2026-03-11T00:12:20.164149"
+    },
+    {
+      "key": "prefers_long_response",
+      "value": "prefers long response",
+      "confidence": 1.0,
+      "observed_count": 187,
+      "first_seen": "2026-03-03T23:31:37.273126",
+      "last_seen": "2026-03-11T22:36:37.831143"
+    },
+    {
+      "key": "active_early_morning",
+      "value": "active early morning",
+      "confidence": 1.0,
+      "observed_count": 52,
+      "first_seen": "2026-03-04T08:53:45.226531",
+      "last_seen": "2026-03-11T08:59:55.276077"
+    },
+    {
+      "key": "interested_in_business",
+      "value": "interested in business",
+      "confidence": 0.7000000000000001,
+      "observed_count": 7,
+      "first_seen": "2026-03-06T23:33:25.563926",
+      "last_seen": "2026-03-11T09:03:51.553298"
+    },
+    {
+      "key": "interested_in_technical",
+      "value": "interested in technical",
+      "confidence": 0.7000000000000001,
+      "observed_count": 7,
+      "first_seen": "2026-03-05T00:18:31.770831",
+      "last_seen": "2026-03-11T22:35:08.884794"
+    },
+    {
+      "key": "interested_in_research",
+      "value": "interested in research",
+      "confidence": 0.6000000000000001,
+      "observed_count": 6,
+      "first_seen": "2026-03-05T00:18:31.770831",
+      "last_seen": "2026-03-11T22:35:08.884794"
+    }
+  ],
+  "user_L6": {
+    "detail_level": "moderate",
+    "emoji_usage": "none",
+    "language_mix": "chinese_dominant",
+    "avg_msg_length": 528,
+    "tone": "casual",
+    "question_style": "closed"
+  },
+  "user_L7": [
+    {
+      "role": "learner",
+      "active_since": "2026-03-04T00:02:17.034017",
+      "interaction_count": 3,
+      "last_seen": "2026-03-11T15:09:39.161269"
+    },
+    {
+      "role": "creator",
+      "active_since": "2026-03-05T00:18:31.770831",
+      "interaction_count": 3,
+      "last_seen": "2026-03-11T22:35:08.884794"
+    },
+    {
+      "role": "consultant",
+      "active_since": "2026-03-05T00:24:26.974767",
+      "interaction_count": 3,
+      "last_seen": "2026-03-06T23:35:26.233244"
+    },
+    {
+      "role": "entrepreneur",
+      "active_since": "2026-03-06T23:33:44.323962",
+      "interaction_count": 6,
+      "last_seen": "2026-03-11T09:04:59.001982"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "id": "a2f31754-6478-4e73-837a-4d8acf2765af",
+  "content": "[失敗經驗] 任務：我不喜歡你用 簡體中文跟我互動\n跟我講話請使用繁體中文\n失敗類型：general_failure\n回應片段：收到，抱歉。之後一律用繁體中文。\n\n剛才的報告摘要也用到了簡體字，感謝你指出來。\n\n目前進度停在：報告已交付，六個未驗證假說等你確認方向。要繼續做客戶訪談問卷，還是有其他優先項？",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-17T20:15:11.743860+08:00",
+  "updated_at": "2026-03-17T20:15:11.743860+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "6969045906",
+  "session_id": "",
+  "dept_id": "",
+  "archived": false
+}

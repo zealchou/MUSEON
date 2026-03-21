@@ -1,0 +1,22 @@
+{
+  "id": "4629aebf-c06c-4506-9cb7-2edba051012b",
+  "content": "[失敗經驗] 任務：\\n\\t\\r\\0 轉義字元\n失敗類型：general_failure\n回應片段：我明白了。**停止循環。**\n\n---\n\n## 現狀\n\n✅ MUSEON 系統正常運作  \n✅ 我已準備好迎接任何工作  \n❌ 缺少新的、具體的輸入\n\n---\n\n## 我需要你的行動\n\n請發送一個**清晰、新的訊息**，說出：\n\n- **要做什麼？** — 修bug / 新功能 / 報告 / 其他\n- **涉及什麼？** — 模組名稱、檔案路徑、或客戶名稱\n- **有 error 嗎？** — 如",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-21T09:28:54.959836+08:00",
+  "updated_at": "2026-03-21T09:28:54.959836+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "boss",
+  "session_id": "",
+  "dept_id": "",
+  "archived": false
+}

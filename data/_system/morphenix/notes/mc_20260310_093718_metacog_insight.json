@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260310_093718_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n三個問題：\n1. **「Token 有了」沒驗證來源** — 使用者還沒給，你怎麼知道有？\n2. **違反「都幫我處理就好」的需求** — 使用者想全委託你，但你卻要他自己去 GitHub 建 repo\n3. **缺少具體交付承諾** — 應該先確認 token，然後明確說「我接管全套流程，你只需給 token」\n\n建議方向：\n先檢查/要求 token → 確認後說「剩下的交給我，",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-10T09:37:18.933276+08:00",
+  "priority": "medium"
+}

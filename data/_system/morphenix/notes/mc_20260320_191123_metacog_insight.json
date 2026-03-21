@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260320_191123_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n方向：違反 ACTION_FIRST 與快速判定原則。使用者問的是「用什麼關鍵字呼叫」（具體需求），回覆卻變成「等授權」（被動等待）。改為：不等授權，改成「我建議用 XX 關鍵字存檔，權限這樣設定」的主動方案呈現。群組應該 fast_loop，不應該層層確認。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-20T19:11:23.822056+08:00",
+  "priority": "medium"
+}

@@ -1,0 +1,105 @@
+{
+  "date": "2026-03-20",
+  "generated_at": "2026-03-20T03:02:08.123278",
+  "event_count": 19,
+  "events_digest": [
+    {
+      "ts": "2026-03-20T00:03:17.485794",
+      "event": "PULSE_EXPLORATION_DONE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-20T00:03:20.658814",
+      "event": "PULSE_PROACTIVE_SENT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-20T00:08:09.584789",
+      "event": "PULSE_PROACTIVE_SENT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-20T00:08:18.664579",
+      "event": "PULSE_MICRO_BEAT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-20T00:32:09.657665",
+      "event": "PULSE_EXPLORATION_DONE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-20T00:32:10.729540",
+      "event": "PULSE_PROACTIVE_SENT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-20T00:38:23.721849",
+      "event": "PULSE_PROACTIVE_SENT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-20T00:38:32.782901",
+      "event": "PULSE_MICRO_BEAT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-20T01:08:25.785880",
+      "event": "PULSE_EXPLORATION_DONE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-20T01:08:26.927221",
+      "event": "PULSE_PROACTIVE_SENT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-20T01:08:36.843383",
+      "event": "PULSE_MICRO_BEAT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-20T01:38:41.024874",
+      "event": "PULSE_MICRO_BEAT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-20T01:43:31.928080",
+      "event": "PULSE_EXPLORATION_DONE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-20T02:08:45.061326",
+      "event": "PULSE_MICRO_BEAT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-20T02:13:25.793578",
+      "event": "PULSE_EXPLORATION_DONE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-20T02:13:26.888454",
+      "event": "PULSE_PROACTIVE_SENT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-20T02:38:49.020610",
+      "event": "PULSE_MICRO_BEAT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-20T02:47:10.025757",
+      "event": "PULSE_EXPLORATION_DONE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-20T03:00:00.083167",
+      "event": "NIGHTLY_STARTED",
+      "source": "event_bus"
+    }
+  ],
+  "memory_channels": [],
+  "memory_excerpts": {},
+  "narrative": "今日共 19 個活動事件。\n  - PULSE_EXPLORATION_DONE: 6 次\n  - PULSE_PROACTIVE_SENT: 6 次\n  - PULSE_MICRO_BEAT: 6 次\n  - NIGHTLY_STARTED: 1 次"
+}

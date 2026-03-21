@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260318_161717_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n先回答 Feng 的核心問題「deviceToken 記下來的是嗎？」與新 code 的用途，才能確認對接邏輯是否清楚。邏輯層次不對應會浪費執行時間。建議先補充：(1) 新 code 是什麼角色（refresh/auth code）(2) deviceToken 流程圖（誰存、在哪存、怎麼用）(3) 對接系統的職責邊界。待邏輯確認後再進測試清單。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-18T16:17:17.289731+08:00",
+  "priority": "medium"
+}

@@ -1,0 +1,7 @@
+{
+  "type": "exploration_insight",
+  "topic": "AI Agent 自主學習的最新架構突破",
+  "observation": "## 深度探索報告｜AI Agent 自主學習架構突破\n\n---\n\n### 1. 核心發現\n\n**MedAgent-Zero 的突破意義：打破標註數據的枷鎖**\n\n傳統 Agent 訓練依賴人工標註→成本高、擴展慢。MedAgent-Zero 的雙通道迴圈：\n- **學習通道**：自主讀取文獻，提取結構化知識\n- **實踐通道**：在虛擬環境中試錯，以結果反向修正策略\n\n這等於讓 Agent 從「被教」進化為「自學」——關鍵突破是**虛擬環境的即時回饋替代了人工標註**。\n\n---\n\n### 2. 與達達的關聯\n\nMUSEON 目前的 Skill 進化依賴 Zeal 的手動迭代（你指出問題→我修改）。MedAgent-Zero 的思路啟示：\n\n> 如果霓裳能在模擬對話環境中自主測試 Skill 效果並評分，就能減少對 Zeal 手動校正的依賴。\n\n可行性：Morphenix 已有觀察→提案→執行的雛形，缺的是**自動化的效果評估回饋環**。\n\n---\n\n### 3. 與霓裳進化的關聯\n\n當前瓶頸：霓裳的 Skill 迭代需要 Zeal 主動觸發，無法完全自主。\n\nMedAgent-Zero 的遷移可能：\n- 將 Eval-Engine 的評分標準形式化為「虛擬回饋訊號」\n- Morphenix 每次迭代後，自動執行模擬任務並以 Q-score 作為自我評判\n- 形成：**提案→執行→自評→再提案** 的閉環\n\n這是 Morphenix v2 的核心架構方向。\n\n---\n\n### 4. 結晶建議\n\n**值得結晶 ✓**\n\n> **標題**：`無標註自主進化迴路（Annotation-Free Evolution Loop）`\n>\n> **摘要**：以虛擬環境即時回饋取代人工標註，讓 Agent 透過學習+實踐雙通道自主提升能力。核心洞見：回饋訊號的設計品質決定自主進化的上限。",
+  "source": "exploration_bridge",
+  "created_at": "2026-03-12T08:35:43.503800+08:00"
+}

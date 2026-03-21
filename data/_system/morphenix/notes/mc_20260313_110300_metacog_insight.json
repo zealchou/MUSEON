@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260313_110300_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n改進方向：使用者傳來簡潔訊息（「有 200 份資料」），回覆直接拋三個問題清單，變成了「詢問-等待」的被動循環。改成：先確認 Feng 的真實意圖（「想用這資料做什麼？」），再按需發問；或直接說「給我看 1-2 份樣本，我邊看邊問關鍵細節」，體現主動協作而非「等資訊再動手」。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-13T11:03:00.353481+08:00",
+  "priority": "medium"
+}

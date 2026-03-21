@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260320_105313_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n使用者問了 68-71 號四個具體案例，這段回覆卻繞到「19 個更好的案例」，沒有直接回應。建議改為：直接評估這 4 個案例在 MUSEON 的實現方式（68/69 做不到因為需要 Chrome 插件，70/71 需要 DSE 研究），給出逐案例可行性評估，最後問「你最想先動哪個？」",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-20T10:53:13.506636+08:00",
+  "priority": "medium"
+}

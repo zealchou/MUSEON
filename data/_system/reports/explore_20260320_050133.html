@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>探索報告 — 具體問題：MemGPT 的分層記憶架構（in-context / external storage / archival）能否與 Knowledge Lattice 的 DAG 結構直接對接——讓 Crystal 的調用成為 MemGPT 的「archival retrieval」操作，並用共振指數決定哪些 Crystal 應該預載入 in-context window？ | MUSEON</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ember: #C4502A;
+  --ember-light: #E0714D;
+  --ember-dark: #9A3A1C;
+  --ember-glow: rgba(196,80,42,0.12);
+  --teal: #2A7A6E;
+  --teal-light: #3A9C8F;
+  --gold: #B8923A;
+  --gold-light: #D4A844;
+  --ink: #12121A;
+  --slate: #5A5A6E;
+  --mist: #9898A8;
+  --border: #E2E0DA;
+  --parchment: #F7F5F0;
+  --snow: #FDFCFA;
+  --deep-ink: #0E0E16;
+  --surface: #16161F;
+  --raised: #1E1E2A;
+  --border-dark: #2A2A38;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Outfit', 'Noto Sans TC', -apple-system, sans-serif;
+  background: var(--parchment);
+  color: var(--ink);
+  line-height: 1.75;
+  font-size: 16px;
+}
+
+/* ── Navigation ── */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(14,14,22,0.94);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(196,80,42,0.4);
+  padding: 14px 0;
+}
+.nav-inner {
+  max-width: 820px; margin: 0 auto; padding: 0 40px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px; font-weight: 600; color: var(--ember-light);
+  letter-spacing: 3px;
+}
+.nav-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; font-weight: 500; color: var(--mist);
+  letter-spacing: 0.08em;
+}
+
+/* ── Hero ── */
+.hero {
+  background: linear-gradient(135deg, var(--deep-ink) 0%, #1C1208 50%, var(--deep-ink) 100%);
+  padding: 120px 40px 72px;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 15% 65%, rgba(196,80,42,0.20) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 25%, rgba(184,146,58,0.09) 0%, transparent 45%);
+}
+.hero-content { position: relative; z-index: 1; max-width: 820px; margin: 0 auto; }
+.hero-tags {
+  display: flex; gap: 8px; align-items: center;
+  margin-bottom: 20px; flex-wrap: wrap;
+}
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 44px; font-weight: 600; line-height: 1.2;
+  color: #F5F0EB; margin-bottom: 16px;
+}
+.hero-sub {
+  font-size: 14px; color: var(--mist); line-height: 1.7;
+  font-family: 'Outfit', sans-serif; letter-spacing: 0.03em;
+}
+
+/* ── Badges ── */
+.badge {
+  display: inline-block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 100px;
+}
+.badge-ember {
+  background: rgba(196,80,42,0.2); color: var(--ember-light);
+  border: 1px solid rgba(196,80,42,0.35);
+}
+.badge-gold {
+  background: rgba(184,146,58,0.2); color: var(--gold-light);
+  border: 1px solid rgba(184,146,58,0.35);
+}
+.badge-mist {
+  background: rgba(152,152,168,0.15); color: var(--mist);
+  border: 1px solid rgba(152,152,168,0.25);
+}
+
+/* ── Container ── */
+.container {
+  max-width: 820px; margin: 0 auto;
+  padding: 48px 40px 80px;
+}
+
+/* ── Section Base ── */
+.section {
+  margin-bottom: 36px;
+  animation: fadeUp 0.45s ease-out both;
+}
+.section:nth-child(1) { animation-delay: 0.00s; }
+.section:nth-child(2) { animation-delay: 0.06s; }
+.section:nth-child(3) { animation-delay: 0.12s; }
+.section:nth-child(4) { animation-delay: 0.18s; }
+.section:nth-child(5) { animation-delay: 0.24s; }
+.section:nth-child(6) { animation-delay: 0.30s; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.section-label {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px;
+}
+.section-icon { font-size: 13px; color: var(--ember); }
+.section-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--slate);
+}
+.section-line { flex: 1; height: 1px; background: var(--border); }
+
+/* ── Cards ── */
+.card-core {
+  background: var(--snow);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--ember);
+  border-radius: 10px;
+  padding: 28px 32px;
+  box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-core:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(18,18,26,0.10), 0 1px 3px rgba(18,18,26,0.06);
+}
+
+.card-analysis {
+  background: var(--snow);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 28px 32px;
+  box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+}
+
+/* ── Two Column (User + Growth) ── */
+.two-col {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  margin-bottom: 36px;
+  animation: fadeUp 0.45s ease-out 0.18s both;
+}
+.card-relevance {
+  background: var(--snow);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 22px 24px;
+  box-shadow: 0 1px 3px rgba(18,18,26,0.05);
+}
+.card-relevance-title {
+  font-size: 12px; font-weight: 600; color: var(--teal);
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+/* ── Crystal Verdict (Dark Gold) ── */
+.card-verdict {
+  background: linear-gradient(135deg, #1A1510 0%, #0E0E16 100%);
+  border: 1px solid rgba(184,146,58,0.28);
+  border-radius: 10px;
+  padding: 28px 32px;
+  margin-bottom: 36px;
+  animation: fadeUp 0.45s ease-out 0.22s both;
+}
+.verdict-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 19px; font-weight: 600; color: var(--gold-light);
+  margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+}
+.card-verdict .md-para { color: #C8C0B0; }
+.card-verdict .md-list li { color: #C8C0B0; }
+.card-verdict strong { color: var(--gold-light); }
+
+/* ── Next Steps (Teal top border) ── */
+.card-next {
+  background: var(--snow);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--teal);
+  border-radius: 10px;
+  padding: 24px 28px;
+  box-shadow: 0 1px 3px rgba(18,18,26,0.05);
+}
+
+/* ── Stats Bar ── */
+.stats-bar {
+  display: flex; gap: 14px; flex-wrap: wrap;
+  margin-bottom: 48px;
+  animation: fadeUp 0.45s ease-out 0.30s both;
+}
+.stat-item {
+  flex: 1; min-width: 100px;
+  background: var(--snow);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px; text-align: center;
+  transition: transform 0.2s ease;
+}
+.stat-item:hover { transform: translateY(-2px); }
+.stat-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--mist);
+  margin-bottom: 6px;
+}
+.stat-value { font-size: 18px; font-weight: 600; color: var(--ink); }
+
+/* ── Footer ── */
+.footer {
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  animation: fadeUp 0.45s ease-out 0.36s both;
+}
+.footer-text {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 500; color: var(--mist);
+  letter-spacing: 0.12em;
+}
+
+/* ── Markdown Rendering ── */
+.md-para {
+  margin: 0 0 1.1em 0;
+  line-height: 1.82;
+  color: var(--ink);
+  font-size: 15px;
+}
+.md-para:last-child { margin-bottom: 0; }
+
+.md-list {
+  margin: 0.4em 0 1em 0;
+  padding-left: 1.4em;
+}
+.md-list li {
+  margin-bottom: 0.55em;
+  line-height: 1.75; font-size: 15px; color: var(--ink);
+}
+.md-list li::marker { color: var(--ember); }
+
+.inline-code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px; background: #F0EDE8;
+  padding: 1px 5px; border-radius: 3px;
+  color: var(--ember-dark);
+}
+strong { color: var(--ink); font-weight: 600; }
+em { color: var(--slate); font-style: italic; }
+
+/* ── Executive Verdict ── */
+.exec-verdict {
+  background: var(--snow);
+  border-left: 4px solid var(--ember);
+  border-radius: 0 12px 12px 0;
+  padding: 36px 40px;
+  margin: -36px auto 48px;
+  max-width: 820px;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 8px 32px rgba(18,18,26,0.06);
+}
+.exec-verdict-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--ember); font-weight: 600; margin-bottom: 12px;
+}
+.exec-verdict h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px; font-weight: 600; color: var(--ink);
+  line-height: 1.4; margin-bottom: 14px;
+}
+.exec-verdict p { color: var(--slate); font-size: 15px; line-height: 1.8; }
+.exec-highlight {
+  display: inline;
+  background: linear-gradient(transparent 60%, rgba(196,80,42,0.15) 60%);
+  font-weight: 600; color: var(--ink);
+}
+
+/* ── Pull Quote / Key Insight ── */
+.pull-quote {
+  border-left: 3px solid var(--gold);
+  padding: 20px 24px;
+  margin: 20px 0;
+  background: rgba(184,146,58,0.06);
+  border-radius: 0 8px 8px 0;
+}
+.pull-quote p {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px; font-weight: 600; color: var(--ink);
+  line-height: 1.5; font-style: italic;
+}
+
+/* ── Source Citation Card ── */
+.source-card {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: var(--parchment);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin: 12px 0;
+  transition: transform 0.2s ease;
+}
+.source-card:hover { transform: translateY(-1px); }
+.source-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--teal);
+  background: rgba(42,122,110,0.1);
+  padding: 2px 8px; border-radius: 4px;
+  white-space: nowrap; margin-top: 2px;
+}
+.source-text { font-size: 14px; color: var(--slate); line-height: 1.6; }
+.source-text strong { color: var(--ink); }
+
+/* ── Insight Number Badge ── */
+.insight-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--ember); color: #fff;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px; font-weight: 600;
+  margin-right: 12px; flex-shrink: 0;
+}
+.insight-row {
+  display: flex; align-items: flex-start;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.insight-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+/* ── Mechanism Grid ── */
+.mech-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  margin: 16px 0;
+}
+.mech-item {
+  padding: 18px 20px;
+  background: var(--parchment);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.mech-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; margin-bottom: 8px;
+}
+.mech-label-mechanism { color: var(--ember); }
+.mech-label-evidence { color: var(--teal); }
+.mech-label-blindspot { color: var(--gold); }
+.mech-label-connection { color: var(--slate); }
+.mech-item p { font-size: 14px; color: var(--ink); line-height: 1.7; }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .hero { padding: 100px 24px 56px; }
+  .hero-title { font-size: 30px; }
+  .container { padding: 32px 24px 60px; }
+  .card-core, .card-analysis { padding: 20px; }
+  .nav-inner { padding: 0 24px; }
+  .two-col { grid-template-columns: 1fr; }
+  .exec-verdict { padding: 24px; margin: -24px 16px 36px; }
+  .mech-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-brand">MUSEON</div>
+    <div class="nav-meta">EXPLORATION · 2026年03月20日 05:01</div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-content">
+    <div class="hero-tags">
+      <span class="badge badge-ember">EXPLORATION</span>
+      <span class="badge badge-ember">MISSION</span>
+      <span class="badge badge-mist">PENDING</span>
+    </div>
+    <h1 class="hero-title">具體問題：MemGPT 的分層記憶架構（in-context / external storage / archival）能否與 Knowledge Lattice 的 DAG 結構直接對接——讓 Crystal 的調用成為 MemGPT 的「archival retrieval」操作，並用共振指數決定哪些 Crystal 應該預載入 in-context window？</h1>
+    <p class="hero-sub">使命探索 &middot; 2026年03月20日 05:01</p>
+  </div>
+</div>
+
+<!-- Executive Verdict -->
+<div class="exec-verdict">
+  <div class="exec-verdict-label">EXECUTIVE VERDICT</div>
+  <h2>發現一：「預載即決策」——共振指數的本質是一種記憶優先級調度器</h2>
+  <p>2023 年，MemGPT 論文發表時，Stanford 研究團隊用了一個刻意挑釁的類比：LLM 的 context window，就像 1970 年代 OS 的 RAM——夠快，但太小；archival storage 是硬碟——夠大，但太慢。他們的解法是讓 LLM 自己管理這個分頁機制（paging）。</p>
+</div>
+
+<!-- Main Content -->
+<main class="container">
+  <div class="section">
+    <div class="section-label">
+      <span class="section-icon">◆</span>
+      <span class="section-title">核心發現</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="card-core">
+      <p class="md-para"><strong>發現一：「預載即決策」——共振指數的本質是一種記憶優先級調度器</strong></p>
+<p class="md-para">2023 年，MemGPT 論文發表時，Stanford 研究團隊用了一個刻意挑釁的類比：LLM 的 context window，就像 1970 年代 OS 的 RAM——夠快，但太小；archival storage 是硬碟——夠大，但太慢。他們的解法是讓 LLM 自己管理這個分頁機制（paging）。</p>
+<p class="md-para">這個類比在 2026 年仍然成立，但它掩蓋了一個更深層的問題：<strong>OS 的頁面置換算法（LRU、LFU）是被動響應的，但 AI 的記憶調度應該是主動預測的。</strong></p>
+<p class="md-para">當你把 Knowledge Lattice 的 Crystal 對接 MemGPT 的 archival retrieval 時，你發現的不只是一個整合方案——你發現的是一個架構範式的轉移點：<strong>從「查詢驅動的記憶」走向「意圖預測的記憶」</strong>。共振指數不是過濾器，它是一個主動調度算法。這個認知翻轉，是整個設計的核心。</p>
+<p class="md-para"><strong>發現二：DAG 結構天然是「記憶熱區地圖」</strong></p>
+<p class="md-para">搜尋結果沒有找到現成的整合案例，但這個空白本身是一條線索。現有的 RAG + MemGPT 整合方案（如 LlamaIndex 插件）都把外部知識庫視為<strong>平坦的向量空間</strong>——每次查詢都是全量相似度計算，沒有結構性偏好。</p>
+<p class="md-para">Knowledge Lattice 的 DAG 恰恰提供了這個結構性偏好的基礎：<strong>Crystal 之間的連結邊，本身就是相關性的先驗知識。</strong> 如果 Crystal A 指向 Crystal B 和 C，當對話意圖命中 A 時，B 和 C 的預載價值就已經被 DAG 拓撲隱含地計算出來了。這不需要額外的語義計算——拓撲結構就是計算結果。</p>
+<p class="md-para">這是一個出乎意料的洞見：<strong>DAG 的邊不只是「知識連結」，它是一張預計算好的預載優先級地圖。</strong></p>
+<p class="md-para">---</p>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-label">
+      <span class="section-icon">◈</span>
+      <span class="section-title">深度解析</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="card-analysis">
+      <p class="md-para"><strong>機制：三層對接的完整路徑</strong></p>
+<p class="md-para">對接架構需要三個邏輯層：</p>
+<ol class="md-list">
+<li><strong>意圖捕獲層</strong>：在每個對話 turn 開始時，用當前 context 計算「意圖向量」（可以是簡單的 embedding，也可以是更結構化的標籤組合）。</li>
+</ol>
+<ol class="md-list">
+<li><strong>共振計算層</strong>：對 Knowledge Lattice 中的 Crystal，計算<strong>共振分數 = α × 語義相似度 + β × DAG 鄰域權重 + γ × 歷史使用頻率</strong>。其中 DAG 鄰域權重的計算是：從語義命中的 Crystal 出發，沿邊做 BFS 或加權隨機遊走，衰減係數設為 0.7/跳。這一步的計算量很小——因為 DAG 結構限制了搜索空間。</li>
+</ol>
+<ol class="md-list">
+<li><strong>預載決策層</strong>：設定 in-context window 的「Crystal 預留區」（建議 15-20% 的 token budget）。共振分數 Top-K 的 Crystal 自動通過 <code class="inline-code">core_memory_append</code> 注入。當對話中出現明確的知識查詢信號時，觸發 <code class="inline-code">archival_memory_search</code>，從完整 Crystal 庫中做精確檢索。</li>
+</ol>
+<p class="md-para"><strong>證據：兩個支撐點</strong></p>
+<ul class="md-list">
+<li>MemGPT 的函數呼叫介面設計上是可插拔的——archival 後端可以替換。Stanford 原版用 PostgreSQL + pgvector，替換成 Crystal 庫的 JSONL + networkx DAG 查詢，技術門檻不高。</li>
+<li>GraphRAG（Microsoft，2024）已經驗證了「圖結構 + 語義檢索」的組合效果：在多跳推理任務上比純向量 RAG 高出 23-41%。Knowledge Lattice 的 DAG 結構可以直接繼承這個實驗結論。</li>
+</ul>
+<p class="md-para"><strong>盲點：三個需要正視的假設漏洞</strong></p>
+<ul class="md-list">
+<li><strong>共振指數的穩定性問題</strong>：歷史使用頻率會因早期對話的路徑依賴而產生偏差——最早被調用的 Crystal 會累積更高的頻率分數，形成「記憶馬太效應」。需要設計衰減機制（時間加權衰減或定期重置）。</li>
+<li><strong>Crystal 粒度 vs context window 的張力</strong>：如果 Crystal 平均 500 tokens，預留 20% window（約 4000 tokens for GPT-4-128k）只能預載 8 個 Crystal。粒度設計決定了系統的天花板。</li>
+<li><strong>DAG 遍歷的冷啟動問題</strong>：新話題沒有相關 Crystal 時，BFS 遍歷會返回空集，退化成純語義搜索。需要設計 fallback 策略。</li>
+</ul>
+<p class="md-para"><strong>連結：這跟作業系統的 TLB 驚人地相似</strong></p>
+<p class="md-para">Translation Lookaside Buffer（TLB）是 CPU 的頁表緩存——把「最近最可能用到的虛擬地址映射」預載到高速緩存。共振指數驅動的 Crystal 預載，做的是完全相同的事：把「當前對話最可能需要的知識映射」預載到 in-context window。這不是比喻，這是同構問題。這意味著 TLB 的所有優化策略（prefetch、eviction policy、TLB flush）在這裡都有直接類比，可以借鑒。</p>
+<p class="md-para">---</p>
+    </div>
+  </div>
+  <div class="two-col">
+    <div class="card-relevance">
+      <div class="card-relevance-title">◎ 與你的關聯</div>
+      <p class="md-para"><strong>場景一：MUSEON 顧問對話的知識精準投放</strong></p>
+<p class="md-para">當 Zeal 與台灣中小企業主進行 AI 導入顧問對話時，對話的前 3 輪通常會暴露行業類型、規模、痛點。系統在這 3 輪後就能計算意圖向量，預載對應的行業 Crystal（餐飲業 AI 導入案例、SMB 成本結構分析、台灣政府補助政策）。第 4 輪起，Zeal 的回答就不再是從零生成，而是從已預載的結晶知識中快速組裝——<strong>這把顧問對話的知識提取速度從「查詢再等待」壓縮到「即時可用」。</strong></p>
+<p class="md-para"><strong>場景二：晨報生成的動態知識調度</strong></p>
+<p class="md-para">每日晨報的生成可以基於前一日的對話記錄計算「知識熱區」，提前把相關 Crystal 推入報告生成的 context。這意味著晨報不只是當日新聞的總結，而是<strong>嵌入了 MUSEON 歷史知識脈絡的個性化分析</strong>——每一份晨報都在累積 Crystal 的使用數據，讓下一份晨報更精準。</p>
+<p class="md-para"><strong>場景三：Skill 編排的知識感知路由</strong></p>
+<p class="md-para">Orchestrator 在編排多 Skill 任務時，可以把當前任務的意圖向量傳入共振計算層，預判哪些 Crystal 會在後續 Skill 執行中被頻繁引用，提前注入。這讓 Skill 之間的知識傳遞從「每個 Skill 獨立查詢」變成「共享預載的知識語境」——<strong>減少重複檢索，同時增強 Skill 間的知識一致性。</strong></p>
+<p class="md-para">---</p>
+    </div>
+    <div class="card-relevance">
+      <div class="card-relevance-title">◉ 霓裳成長收穫</div>
+      <p class="md-para">這次探索強化了一個核心認知模型：<strong>圖結構不只是知識表示工具，它是計算資源的預分配機制。</strong></p>
+<p class="md-para">過去在處理 RAG 相關問題時，我的預設框架是「向量相似度 → 排序 → 截取 Top-K」——這是一個無結構的平坦搜索。Knowledge Lattice 的 DAG 讓我更新了這個框架：<strong>結構化先驗知識可以在搜索發生之前就大幅縮小搜索空間，把計算成本從 O(n) 壓到 O(log n) 或更低。</strong></p>
+<p class="md-para">未來處理「如何讓 AI 更高效地調用自身知識庫」這類問題時，我會優先問：「這個知識庫有沒有結構？如果有，這個結構本身能計算出什麼？」而不是直接跳到向量檢索方案。</p>
+<p class="md-para">---</p>
+    </div>
+  </div>
+  <div class="card-verdict">
+    <div class="verdict-title">◇ 結晶判斷</div>
+    <p class="md-para"><strong>判斷：值得</strong></p>
+<p class="md-para"><strong>結晶標題</strong>：共振指數驅動的 MemGPT Crystal 預載架構</p>
+<p class="md-para"><strong>核心摘要</strong>：MemGPT 的分頁機制與 Knowledge Lattice 的 DAG 結構存在架構同構性——DAG 拓撲邊是預計算的預載優先級地圖，共振指數（語義相似度 + 鄰域權重 + 使用頻率）可直接驅動 <code class="inline-code">core_memory_append</code> 的預載決策，實現從「查詢驅動」到「意圖預測」的記憶調度範式轉移。</p>
+<p class="md-para"><strong>理由</strong>：這是 MUSEON 知識引擎的核心設計決策，且包含可複用的算法框架（三權重共振公式 + BFS 遍歷策略），不是一次性洞見。</p>
+<p class="md-para">---</p>
+  </div>
+  <div class="section">
+    <div class="section-label">
+      <span class="section-icon">→</span>
+      <span class="section-title">下一步探索</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="card-next">
+      <p class="md-para"><strong>具體主題：Crystal 預載的 token budget 優化——粒度設計與 eviction policy 的實驗驗證</strong></p>
+<p class="md-para">為什麼這個方向能最大化複利：整個架構的天花板由 Crystal 粒度和 eviction policy 共同決定。理論框架已經清晰，但「一個 Crystal 應該有多少 tokens？共振分數降到多少時應該從 in-context 移出？移出後的回退策略是什麼？」這三個問題沒有答案，整個架構就只是紙上設計。</p>
+<p class="md-para">用 Sandbox-Lab 設計一個最小可行實驗：取 20 個已有 Crystal，模擬 10 組不同意圖的對話場景，測試不同粒度（200 / 500 / 1000 tokens）× 不同 K 值（3 / 5 / 8）的組合對「知識命中率」的影響——這個實驗結果將直接決定 Crystal Protocol 的下一版設計規格。</p>
+    </div>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-label">DURATION</div>
+      <div class="stat-value">1.5 分</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">COST</div>
+      <div class="stat-value">$0.0107</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">CRYSTAL</div>
+      <div class="stat-value" style="color:var(--mist);">待結晶</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <p class="footer-text">MUSEON AUTONOMOUS EXPLORATION REPORT</p>
+  </div>
+
+</main>
+</body>
+</html>

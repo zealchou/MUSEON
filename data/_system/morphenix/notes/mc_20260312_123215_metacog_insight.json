@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260312_123215_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n問候應該更自然流暢，先確認使用者的需求而非直接報告系統狀態。若有系統維護建議，應該等使用者回應後再提出（例如「想先掃一下系統狀態嗎？」而非「要我先跑一次審計」）。簡化為熱情問候 + 簡短確認可用，讓使用者主導接下來的方向。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-12T12:32:15.177210+08:00",
+  "priority": "medium"
+}

@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260319_194433_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n使用者的「要記起來」「重新打包」「運行審計」是明確指令，不是詢問。應該直接執行這兩個操作（Bash 呼叫），然後存記憶，而非等待二次確認。\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-19T19:44:33.503819+08:00",
+  "priority": "medium"
+}

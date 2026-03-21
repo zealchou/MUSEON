@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260309_232921_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: ## 審查意見：REVISE\n\n**五維度診斷：**\n\n| 維度 | 狀態 | 問題 |\n|------|------|------|\n| ① 影響 | ⚠️ | 「已經分析過兩次」「已經問了兩輪」帶有責備感，使用者可能感到被否定 |\n| ② 假設 | ⚠️ | 假設使用者記得之前的對話，但實際可能是新對話、換裝置或遺忘 |\n| ③ 視角 | ❌ | 只有「你先回答」的單向要求，沒有體察使用者可能",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-09T23:29:21.093901+08:00",
+  "priority": "medium"
+}

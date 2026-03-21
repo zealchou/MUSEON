@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260313_154244_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n改進方向：先將已收到的 3 張圖片逐項解析並列出現有理解（可交付物），同時補充請求缺失部分的具體細節，提供替代方案（Joh 口頭補充說明）。避免「等待重新上傳」讓工作流中斷——應該是「我先基於現有做 X，你確認 Y 部分」。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-13T15:42:44.303463+08:00",
+  "priority": "medium"
+}

@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260310_092959_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n建議先確認使用者是否有 GitHub 帳戶、是否真的要「網頁部署方案」。現在回覆隱含太多假設。補充：\n1. 若使用者沒 GitHub，提供 Notion / Google Docs 備選（更快、不需技術）\n2. 確保 HTML 模板代碼完整（現在看起來被截斷了）\n3. 一句話驗證需求：「你是要每天一份看得到的網頁報告？還是想在 MUSEON 系統內部生成？」\n\n這樣能確保方案真的是",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-10T09:29:59.132243+08:00",
+  "priority": "medium"
+}

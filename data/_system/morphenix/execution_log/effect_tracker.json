@@ -1,0 +1,182 @@
+{
+  "morphenix_2026-03-13_L2_007": {
+    "title": "L2 Logic 提案",
+    "level": "L2",
+    "description": "",
+    "executed_at": "2026-03-13T03:00:45.358223+08:00",
+    "safety_tag": "morphenix/pre-morphenix_2026-03-13_L2_007-20260313030045",
+    "exec_result": {
+      "action": "l2_logic_patch",
+      "count": 0
+    },
+    "evaluated": false
+  },
+  "morphenix_2026-03-13_L2_006": {
+    "title": "205 條迭代筆記待結晶",
+    "level": "L2",
+    "description": "累積 205 條迭代觀察筆記，建議結晶為具體改進提案。",
+    "executed_at": "2026-03-13T03:00:45.504647+08:00",
+    "safety_tag": "morphenix/pre-morphenix_2026-03-13_L2_006-20260313030045",
+    "exec_result": {
+      "action": "l2_logic_patch",
+      "count": 0
+    },
+    "evaluated": false
+  },
+  "morphenix_2026-03-13_L2_005": {
+    "title": "275 條迭代筆記待結晶",
+    "level": "L2",
+    "description": "累積 275 條迭代觀察筆記，建議結晶為具體改進提案。",
+    "executed_at": "2026-03-13T03:00:45.645183+08:00",
+    "safety_tag": "morphenix/pre-morphenix_2026-03-13_L2_005-20260313030045",
+    "exec_result": {
+      "action": "l2_logic_patch",
+      "count": 0
+    },
+    "evaluated": false
+  },
+  "morphenix_2026-03-13_L2_004": {
+    "title": "78 條迭代筆記待結晶",
+    "level": "L2",
+    "description": "累積 78 條迭代觀察筆記，建議結晶為具體改進提案。",
+    "executed_at": "2026-03-13T03:00:45.801738+08:00",
+    "safety_tag": "morphenix/pre-morphenix_2026-03-13_L2_004-20260313030045",
+    "exec_result": {
+      "action": "l2_logic_patch",
+      "count": 0
+    },
+    "evaluated": false
+  },
+  "morphenix_2026-03-13_L2_003": {
+    "title": "146 條迭代筆記待結晶",
+    "level": "L2",
+    "description": "累積 146 條迭代觀察筆記，建議結晶為具體改進提案。",
+    "executed_at": "2026-03-13T03:00:45.945635+08:00",
+    "safety_tag": "morphenix/pre-morphenix_2026-03-13_L2_003-20260313030045",
+    "exec_result": {
+      "action": "l2_logic_patch",
+      "count": 0
+    },
+    "evaluated": false
+  },
+  "morphenix_2026-03-13_L2_002": {
+    "title": "L2 Logic 提案",
+    "level": "L2",
+    "description": "",
+    "executed_at": "2026-03-13T03:00:46.094846+08:00",
+    "safety_tag": "morphenix/pre-morphenix_2026-03-13_L2_002-20260313030045",
+    "exec_result": {
+      "action": "l2_logic_patch",
+      "count": 0
+    },
+    "evaluated": false
+  },
+  "morphenix_2026-03-13_L2_001": {
+    "title": "L2 Logic 提案",
+    "level": "L2",
+    "description": "",
+    "executed_at": "2026-03-13T03:00:46.217245+08:00",
+    "safety_tag": "morphenix/pre-morphenix_2026-03-13_L2_001-20260313030046",
+    "exec_result": {
+      "action": "l2_logic_patch",
+      "count": 0
+    },
+    "evaluated": false
+  },
+  "morphenix_2026-03-15_L2_007": {
+    "title": "L2 Logic 提案",
+    "level": "L2",
+    "description": "",
+    "executed_at": "2026-03-15T03:00:38.078743+08:00",
+    "safety_tag": "morphenix/pre-morphenix_2026-03-15_L2_007-20260315030037",
+    "exec_result": {
+      "action": "l2_logic_patch",
+      "count": 0
+    },
+    "evaluated": false
+  },
+  "morphenix_2026-03-15_L2_006": {
+    "title": "380 條迭代筆記待結晶",
+    "level": "L2",
+    "description": "累積 380 條迭代觀察筆記，建議結晶為具體改進提案。",
+    "executed_at": "2026-03-15T03:00:38.199064+08:00",
+    "safety_tag": "morphenix/pre-morphenix_2026-03-15_L2_006-20260315030038",
+    "exec_result": {
+      "action": "l2_logic_patch",
+      "count": 0
+    },
+    "evaluated": false
+  },
+  "morphenix_2026-03-15_L2_005": {
+    "title": "205 條迭代筆記待結晶",
+    "level": "L2",
+    "description": "累積 205 條迭代觀察筆記，建議結晶為具體改進提案。",
+    "executed_at": "2026-03-15T03:00:38.351784+08:00",
+    "safety_tag": "morphenix/pre-morphenix_2026-03-15_L2_005-20260315030038",
+    "exec_result": {
+      "action": "l2_logic_patch",
+      "count": 0
+    },
+    "evaluated": false
+  },
+  "morphenix_2026-03-15_L2_004": {
+    "title": "78 條迭代筆記待結晶",
+    "level": "L2",
+    "description": "累積 78 條迭代觀察筆記，建議結晶為具體改進提案。",
+    "executed_at": "2026-03-15T03:00:38.480354+08:00",
+    "safety_tag": "morphenix/pre-morphenix_2026-03-15_L2_004-20260315030038",
+    "exec_result": {
+      "action": "l2_logic_patch",
+      "count": 0
+    },
+    "evaluated": false
+  },
+  "morphenix_2026-03-15_L2_003": {
+    "title": "146 條迭代筆記待結晶",
+    "level": "L2",
+    "description": "累積 146 條迭代觀察筆記，建議結晶為具體改進提案。",
+    "executed_at": "2026-03-15T03:00:38.590500+08:00",
+    "safety_tag": "morphenix/pre-morphenix_2026-03-15_L2_003-20260315030038",
+    "exec_result": {
+      "action": "l2_logic_patch",
+      "count": 0
+    },
+    "evaluated": false
+  },
+  "morphenix_2026-03-15_L2_002": {
+    "title": "L2 Logic 提案",
+    "level": "L2",
+    "description": "",
+    "executed_at": "2026-03-15T03:00:38.711040+08:00",
+    "safety_tag": "morphenix/pre-morphenix_2026-03-15_L2_002-20260315030038",
+    "exec_result": {
+      "action": "l2_logic_patch",
+      "count": 0
+    },
+    "evaluated": false
+  },
+  "morphenix_2026-03-15_L2_001": {
+    "title": "L2 Logic 提案",
+    "level": "L2",
+    "description": "",
+    "executed_at": "2026-03-15T03:00:38.840190+08:00",
+    "safety_tag": "morphenix/pre-morphenix_2026-03-15_L2_001-20260315030038",
+    "exec_result": {
+      "action": "l2_logic_patch",
+      "count": 0
+    },
+    "evaluated": false
+  },
+  "morphenix_2026-03-16_L2_001": {
+    "title": "419 條迭代筆記待結晶",
+    "level": "L2",
+    "description": "累積 419 條迭代觀察筆記，建議結晶為具體改進提案。",
+    "executed_at": "2026-03-16T03:00:31.163547+08:00",
+    "safety_tag": "morphenix/pre-morphenix_2026-03-16_L2_001-20260316030031",
+    "exec_result": {
+      "action": "l2_logic_patch",
+      "count": 0
+    },
+    "evaluated": false
+  }
+}

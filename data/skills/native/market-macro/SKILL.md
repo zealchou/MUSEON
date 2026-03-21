@@ -2,6 +2,7 @@
 name: market-macro
 type: on-demand
 layer: market
+hub: market
 io:
   inputs:
     - from: market-core

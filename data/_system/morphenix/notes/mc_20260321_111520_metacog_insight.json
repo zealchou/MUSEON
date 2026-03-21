@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260321_111520_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n應該先實際生成晨報內容，再處理上傳。當前回覆只討論 Git 問題，沒有交付晨報本身。建議：① 確認今天晨報主題（客戶個案、市場洞見等）→ ② 生成晨報 HTML → ③ 上傳到 GitHub + 取得連結。單位時間內應把「完成晨報」放在「解決 Git」之前。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-21T11:15:20.644164+08:00",
+  "priority": "medium"
+}

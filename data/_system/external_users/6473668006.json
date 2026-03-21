@@ -1,0 +1,148 @@
+{
+  "user_id": "6473668006",
+  "created_at": "2026-03-12T00:49:24.362400",
+  "interaction_count": 32,
+  "last_seen": "2026-03-18T16:11:19.154043",
+  "display_name": "Joh",
+  "context_summary": "",
+  "version": "2.0.0",
+  "eight_primals": {
+    "aspiration": {
+      "level": 16,
+      "confidence": 0.55,
+      "signal": "[群組近期對話紀錄]   58:30 Joh: @MuseonClaw_bot 好的👌 我現在跟Zeal想要一起推廣M U S E O N給一人公司或者是旅行社",
+      "last_observed": "2026-03-13T15:00:09.570387"
+    },
+    "accumulation": {
+      "level": 16,
+      "confidence": 0.55,
+      "signal": "[群組近期對話紀錄]   55:38 Joh: @MuseonClaw_bot 你之前都在忙什麼啊？   58:30 Joh: 好的👌 我現在跟Zeal想要一起",
+      "last_observed": "2026-03-13T14:17:05.667317"
+    },
+    "action_power": {
+      "level": 16,
+      "confidence": 0.55,
+      "signal": "[群組近期對話紀錄]   40:35 Joh: 如果需要我重新傳送，請直接跟我說   40:49 Joh: @MuseonClaw_bot 如果需要我重新傳送，",
+      "last_observed": "2026-03-18T16:11:19.154043"
+    },
+    "curiosity": {
+      "level": 100,
+      "confidence": 0.9,
+      "signal": "[群組近期對話紀錄]   09:25 周逸達（Zeal）（老闆）: 27項底層邏輯是什麼   09:40 Joh: 你上次說的，你獨家的   09:52 Joh",
+      "last_observed": "2026-03-18T16:11:19.154043"
+    },
+    "emotion_pattern": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "blindspot": {
+      "level": 16,
+      "confidence": 0.65,
+      "signal": "[群組近期對話紀錄]   37:05 Joh: [檔案: photo] @MuseonClaw_bot 你似乎在分析文件上有些問題！我另外提供行程說明的照片給你",
+      "last_observed": "2026-03-13T16:31:13.904958"
+    },
+    "boundary": {
+      "level": 30,
+      "confidence": 1.0,
+      "signal": "[群組近期對話紀錄]   40:35 Joh: 如果需要我重新傳送，請直接跟我說   40:49 Joh: @MuseonClaw_bot 如果需要我重新傳送，",
+      "last_observed": "2026-03-18T16:11:19.154043"
+    },
+    "relationship_depth": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    }
+  },
+  "preferences": {
+    "communication_style": "detailed"
+  },
+  "recent_topics": [
+    {
+      "snippet": "圖片已儲存至: /Users/ZEALCHOU/MUSEON/data/uploads/telegram/20260313_141027_AQAD2Q1rG0emmVV-.jpg",
+      "date": "2026-03-13T14:12:19.102795"
+    },
+    {
+      "snippet": "我們先討論好原則，再進行下一步",
+      "date": "2026-03-13T14:17:05.667317"
+    },
+    {
+      "snippet": "@MuseonClaw_bot 如何？需要我進一步釐清嗎？",
+      "date": "2026-03-13T15:00:09.570387"
+    },
+    {
+      "snippet": "先這樣，我再想想看還有沒有遺漏的",
+      "date": "2026-03-13T15:14:44.154245"
+    },
+    {
+      "snippet": "@MuseonClaw_bot 先把這份仙台行程套用後跑一遍",
+      "date": "2026-03-13T15:19:28.702275"
+    },
+    {
+      "snippet": "圖片已儲存至: /Users/ZEALCHOU/MUSEON/data/uploads/telegram/20260313_153707_AQADQw5rG0emoVV-.jpg",
+      "date": "2026-03-13T15:39:21.243210"
+    },
+    {
+      "snippet": "@MuseonClaw_bot 我都發送成功了，請你再檢查一遍",
+      "date": "2026-03-13T15:43:47.028091"
+    },
+    {
+      "snippet": "@MuseonClaw_bot 如果需要我重新傳送，請直接跟我說",
+      "date": "2026-03-13T15:44:46.375547"
+    },
+    {
+      "snippet": "圖片已儲存至: /Users/ZEALCHOU/MUSEON/data/uploads/telegram/20260313_154449_AQADRA5rG0emoVV-.jpg",
+      "date": "2026-03-13T15:46:39.868993"
+    },
+    {
+      "snippet": "圖片已儲存至: /Users/ZEALCHOU/MUSEON/data/uploads/telegram/20260313_154643_AQADRQ5rG0emoVV-.jpg",
+      "date": "2026-03-13T15:51:18.980608"
+    },
+    {
+      "snippet": "圖片已儲存至: /Users/ZEALCHOU/MUSEON/data/uploads/telegram/20260313_155121_AQADRg5rG0emoVV-.jpg",
+      "date": "2026-03-13T15:52:16.517178"
+    },
+    {
+      "snippet": "圖片已儲存至: /Users/ZEALCHOU/MUSEON/data/uploads/telegram/20260313_155218_AQADRw5rG0emoVV-.jpg",
+      "date": "2026-03-13T15:53:35.659156"
+    },
+    {
+      "snippet": "圖片已儲存至: /Users/ZEALCHOU/MUSEON/data/uploads/telegram/20260313_155338_AQADSA5rG0emoVV-.jpg",
+      "date": "2026-03-13T15:54:43.968587"
+    },
+    {
+      "snippet": "圖片已儲存至: /Users/ZEALCHOU/MUSEON/data/uploads/telegram/20260313_155445_AQADSQ5rG0emoVV-.jpg",
+      "date": "2026-03-13T15:56:26.390026"
+    },
+    {
+      "snippet": "@MuseonClaw_bot 請問資料完整了嗎？",
+      "date": "2026-03-13T15:57:10.732791"
+    },
+    {
+      "snippet": "圖片已儲存至: /Users/ZEALCHOU/MUSEON/data/uploads/telegram/20260313_155712_AQADUQ5rG0emoVV-.jpg",
+      "date": "2026-03-13T15:58:07.341980"
+    },
+    {
+      "snippet": "中午的午餐3300日圓",
+      "date": "2026-03-13T16:03:47.397343"
+    },
+    {
+      "snippet": "檔案已儲存至: /Users/ZEALCHOU/MUSEON/data/uploads/telegram/20260313_162823_Sample(【請選餐】MST0419-K.docx",
+      "date": "2026-03-13T16:31:13.904958"
+    },
+    {
+      "snippet": "@MuseonClaw_bot 請問你在其中看到了甚麼資訊?我想知道你看到甚麼?我要跟你討論",
+      "date": "2026-03-13T16:33:22.417130"
+    },
+    {
+      "snippet": "@MuseonClaw_bot 你在嗎？請告訴我你現在在戰略層面可以提供的功能是什麼？我要跟旅行社老闆做介紹，限制在1000個字以內。",
+      "date": "2026-03-18T16:11:19.154043"
+    }
+  ],
+  "groups_seen_in": [
+    -5223910991
+  ],
+  "relationship_to_owner": ""
+}

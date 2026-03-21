@@ -1,0 +1,130 @@
+{
+  "session_id": "telegram_group_-5107045509",
+  "nodes": {
+    "topic_turn_0": {
+      "node_id": "topic_turn_0",
+      "node_type": "topic",
+      "label": "turn_0",
+      "properties": {
+        "content_length": 29,
+        "detected_at": "2026-03-11T15:47:34.115416"
+      },
+      "created_at": "2026-03-11T15:47:34.115468",
+      "updated_at": "2026-03-11T15:47:34.115473"
+    },
+    "topic_turn_1": {
+      "node_id": "topic_turn_1",
+      "node_type": "topic",
+      "label": "turn_1",
+      "properties": {
+        "content_length": 34,
+        "detected_at": "2026-03-11T17:01:29.252481"
+      },
+      "created_at": "2026-03-11T17:01:29.252570",
+      "updated_at": "2026-03-11T17:01:29.252576"
+    },
+    "topic_turn_2": {
+      "node_id": "topic_turn_2",
+      "node_type": "topic",
+      "label": "turn_2",
+      "properties": {
+        "content_length": 193,
+        "detected_at": "2026-03-11T17:07:43.521772"
+      },
+      "created_at": "2026-03-11T17:07:43.521899",
+      "updated_at": "2026-03-11T17:07:43.521904"
+    },
+    "intention_決策": {
+      "node_id": "intention_決策",
+      "node_type": "intention",
+      "label": "決策",
+      "properties": {
+        "detected_at": "2026-03-11T17:14:52.178350"
+      },
+      "created_at": "2026-03-11T17:14:52.178567",
+      "updated_at": "2026-03-11T17:14:52.178573"
+    },
+    "topic_turn_4": {
+      "node_id": "topic_turn_4",
+      "node_type": "topic",
+      "label": "turn_4",
+      "properties": {
+        "content_length": 1159,
+        "detected_at": "2026-03-11T17:14:52.178350"
+      },
+      "created_at": "2026-03-11T17:14:52.178602",
+      "updated_at": "2026-03-11T17:14:52.178606"
+    },
+    "topic_turn_5": {
+      "node_id": "topic_turn_5",
+      "node_type": "topic",
+      "label": "turn_5",
+      "properties": {
+        "content_length": 35,
+        "detected_at": "2026-03-11T17:16:48.413422"
+      },
+      "created_at": "2026-03-11T17:16:48.413516",
+      "updated_at": "2026-03-11T17:16:48.413521"
+    },
+    "intention_求助": {
+      "node_id": "intention_求助",
+      "node_type": "intention",
+      "label": "求助",
+      "properties": {
+        "detected_at": "2026-03-11T17:23:28.179987"
+      },
+      "created_at": "2026-03-11T17:23:28.180509",
+      "updated_at": "2026-03-11T17:23:28.180516"
+    },
+    "topic_turn_7": {
+      "node_id": "topic_turn_7",
+      "node_type": "topic",
+      "label": "turn_7",
+      "properties": {
+        "content_length": 4000,
+        "detected_at": "2026-03-11T17:23:28.179987"
+      },
+      "created_at": "2026-03-11T17:23:28.180543",
+      "updated_at": "2026-03-11T17:23:28.180546"
+    },
+    "topic_turn_8": {
+      "node_id": "topic_turn_8",
+      "node_type": "topic",
+      "label": "turn_8",
+      "properties": {
+        "content_length": 246,
+        "detected_at": "2026-03-11T17:27:24.285307"
+      },
+      "created_at": "2026-03-11T17:27:24.285462",
+      "updated_at": "2026-03-11T17:27:24.285469"
+    },
+    "emotion_興奮": {
+      "node_id": "emotion_興奮",
+      "node_type": "emotion",
+      "label": "興奮",
+      "properties": {
+        "detected_at": "2026-03-11T17:31:22.873461",
+        "source": "text_analysis"
+      },
+      "created_at": "2026-03-11T17:31:22.873533",
+      "updated_at": "2026-03-11T17:31:22.873539"
+    },
+    "topic_turn_10": {
+      "node_id": "topic_turn_10",
+      "node_type": "topic",
+      "label": "turn_10",
+      "properties": {
+        "content_length": 35,
+        "detected_at": "2026-03-11T17:31:22.873461"
+      },
+      "created_at": "2026-03-11T17:31:22.873585",
+      "updated_at": "2026-03-11T17:31:22.873589"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 8,
+    "last_content_length": 35
+  },
+  "last_updated": "2026-03-11T17:31:22.873461"
+}

@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260320_213107_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n回覆假設了「訊息重複 16 次」的現象，但使用者訊息只是 Unicode 文本，沒有明確報告問題。先澄清：使用者是在測試字體嗎？還是有其他背景脈絡？不要基於推測的現象展開診斷。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-20T21:31:07.542714+08:00",
+  "priority": "medium"
+}

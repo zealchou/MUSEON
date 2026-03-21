@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260313_200821_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：簡化開局，不預設使用者在表達情緒。如果要引述 PULSE 記錄，改為更謙虛的「我注意到...」而非陳述；重點是邀請使用者自主開口，而非系統已經「讀懂」他。直接引述過往情緒片段可能踩到隱私線——即便在 ANIMA 框架中也要謹慎。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-13T20:08:21.370378+08:00",
+  "priority": "medium"
+}

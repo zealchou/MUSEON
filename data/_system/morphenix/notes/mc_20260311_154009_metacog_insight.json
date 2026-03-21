@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260311_154009_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n看不到你的改動詳細。請貼上 `git diff`、改動的檔案，或簡述迭代重點。一看到具體改動，我馬上產出針對性的測試計畫（包括測試項目、執行步驟、預期結果）。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-11T15:40:09.653278+08:00",
+  "priority": "medium"
+}

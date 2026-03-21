@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260320_211857_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n回覆提供了三個範本框架，但使用者要求「幫我寫」，現在的做法讓使用者還要自己選版本、填空、潤飾。應該改為：先用快速五問確認（客戶類型、延遲幾天、原因、新交期、補償方案），然後直接產出一封完整定製版本的道歉信，而不是給範本讓使用者自己編輯。「可交付物」是現成可發的信件，不是待填空白。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-20T21:18:57.034928+08:00",
+  "priority": "medium"
+}

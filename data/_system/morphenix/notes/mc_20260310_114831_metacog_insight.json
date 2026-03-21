@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260310_114831_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n這段回覆做了重大的心理診斷（「沒力氣了」「躲進安全循環」），但沒有驗證這些推論是否成立。如果有之前的對話脈絡支持，應該明確引用；如果是推論，應該先用開放式問題確認（「我聽出你可能...，是嗎？」）再給選項。三選一本身很好，但應該基於驗證而非假設。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-10T11:48:31.917302+08:00",
+  "priority": "medium"
+}

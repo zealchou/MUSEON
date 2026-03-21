@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260320_151447_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n缺漏：Feng 問「能不能做」，回覆確實回答了，但沒給 Feng 明確的 next step（何時能試、怎麼開始）。結構看起來是給 Zeal 的內部討論，對 Feng 這個提問者缺乏「你下一步該做什麼」的指引。建議開頭直接回應 Feng「可以，時程是…」，再接技術棧和給 Zeal 的估工。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-20T15:14:47.216814+08:00",
+  "priority": "medium"
+}

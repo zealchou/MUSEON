@@ -2,6 +2,7 @@
 name: group-meeting-notes
 type: workflow
 layer: product
+hub: workflow
 io:
   inputs:
     - from: gateway

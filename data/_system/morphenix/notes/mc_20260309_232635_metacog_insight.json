@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260309_232635_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n**修改方向：**\n使用者訊息為空，不知道真實需求。建議改為主動詢問 + 提供協助選項，而非被動等待。例如：\n\n「我在這裡。你需要什麼幫助呢？比如：\n- 分析市場/投資研判\n- 解決工作卡點  \n- 策略規劃與破框\n- 內容撰寫/創意\n- 其他？」\n\n讓使用者清楚知道可以協助的方向，而不只是情感陪伴。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-09T23:26:35.140193+08:00",
+  "priority": "medium"
+}

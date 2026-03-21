@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260310_231608_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n移除「你已經傳了好幾次相同的訊息」這句（對話記錄中不存在），直接問：「你需要我檢查程式碼中轉義字元的安全風險嗎？還是有其他具體問題？」聚焦在最可能的需求上。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-10T23:16:08.378274+08:00",
+  "priority": "medium"
+}

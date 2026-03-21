@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260317_003138_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n移除「準備好接任務」的假設。使用者只確認背景資訊，尚未表達需求。改為：確認已理解背景，用開放式提問驗證真實需求。例如「已讀背景。MUSEON 做 AI 顧問，今天有什麼具體挑戰或專案進度需要協作？」讓使用者主動定義，而非先假設有任務要做。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-17T00:31:38.651827+08:00",
+  "priority": "medium"
+}

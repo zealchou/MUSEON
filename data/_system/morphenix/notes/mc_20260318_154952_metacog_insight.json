@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260318_154952_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n**修改方向**（≤100字）：\n1. 移除「問題是」質問語氣 → 改成「為了驗簽成功，我需要先確認」的協作語氣\n2. 驗簽代碼**之前**就直接問：public_key 從哪裡拿、簽署內容是什麼（不要先教代碼）\n3. API 修正表改成「這些不一致的地方」而非「建議修正」，標註「待 Feng 團隊確認是否能改」\n4. 最後加優先級：**第一優先是驗簽成功 → entitlemen",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-18T15:49:52.927505+08:00",
+  "priority": "medium"
+}

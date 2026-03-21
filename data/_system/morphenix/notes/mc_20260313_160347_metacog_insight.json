@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260313_160347_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n**修改方向**：回覆開頭應先確認「已接收並分析了你的6張照片」，並提及「基於你提供的具體行程內容」給出建議。現在的「搜尋已執行」隱含了依賴搜尋而非你提供的行程照片，與 Joh 的要求有落差。若 bot 無法正確讀取照片，應坦誠說明並要求重新上傳，而非繞過這個問題直接給建議。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-13T16:03:47.402720+08:00",
+  "priority": "medium"
+}

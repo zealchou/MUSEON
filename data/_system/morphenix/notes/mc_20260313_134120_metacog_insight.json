@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260313_134120_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n整個思考框架很強，但缺少「技術上怎麼實現」的具體路徑。建議補充：(1) 在哪些既有系統上執行回溯（Knowledge Lattice、Morphenix、記憶系統）；(2) 第一步是什麼（如掃描過去評分曲線、分析信號模式）；(3) 產出物是什麼（圖表、觀察筆記）。將思考框架轉向可執行的行動清單。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-13T13:41:20.150240+08:00",
+  "priority": "medium"
+}

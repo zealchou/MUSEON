@@ -2,6 +2,7 @@
 name: c15
 type: always-on
 layer: core-extension
+hub: core
 io:
   inputs:
     - from: deep-think

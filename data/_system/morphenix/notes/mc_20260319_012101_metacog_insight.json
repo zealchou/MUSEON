@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260319_012101_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n回覆很誠懇，但問題在於：這不是「下次記得用工作流」就能解決的。真根本原因是 **Skill 路由失效** —— 為什麼報告生成時，storytelling-engine 和 aesthetic-sense 沒自動觸發？建議先診斷「報告生成的決策路徑」，而不是讓使用者記得喊「報告」。邀請改成「有現成報告想看被重生成嗎？」\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-19T01:21:01.990291+08:00",
+  "priority": "medium"
+}

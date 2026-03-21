@@ -1,0 +1,3762 @@
+{
+  "dharma::risk-matrix": {
+    "skill_a": "dharma",
+    "skill_b": "risk-matrix",
+    "weight": 1.0,
+    "fire_count": 72,
+    "last_fired": "2026-03-21T03:15:20.625559+00:00",
+    "created_at": "2026-03-11T01:11:07.650311+00:00"
+  },
+  "dharma::resonance": {
+    "skill_a": "dharma",
+    "skill_b": "resonance",
+    "weight": 1.0,
+    "fire_count": 58,
+    "last_fired": "2026-03-21T01:31:32.814554+00:00",
+    "created_at": "2026-03-11T01:11:07.652261+00:00"
+  },
+  "c15::text-alchemy": {
+    "skill_a": "c15",
+    "skill_b": "text-alchemy",
+    "weight": 0.8500000000000002,
+    "fire_count": 17,
+    "last_fired": "2026-03-20T13:39:23.430056+00:00",
+    "created_at": "2026-03-11T01:19:27.345640+00:00"
+  },
+  "c15::market-core": {
+    "skill_a": "c15",
+    "skill_b": "market-core",
+    "weight": 1.0,
+    "fire_count": 21,
+    "last_fired": "2026-03-17T15:34:07.554155+00:00",
+    "created_at": "2026-03-11T01:19:27.346635+00:00"
+  },
+  "c15::dse": {
+    "skill_a": "c15",
+    "skill_b": "dse",
+    "weight": 1.0,
+    "fire_count": 27,
+    "last_fired": "2026-03-20T13:07:44.207095+00:00",
+    "created_at": "2026-03-11T01:19:27.347188+00:00"
+  },
+  "c15::dharma": {
+    "skill_a": "c15",
+    "skill_b": "dharma",
+    "weight": 1.0,
+    "fire_count": 49,
+    "last_fired": "2026-03-21T01:38:42.384148+00:00",
+    "created_at": "2026-03-11T01:19:27.347656+00:00"
+  },
+  "market-core::text-alchemy": {
+    "skill_a": "market-core",
+    "skill_b": "text-alchemy",
+    "weight": 0.6,
+    "fire_count": 12,
+    "last_fired": "2026-03-21T04:08:04.291960+00:00",
+    "created_at": "2026-03-11T01:19:27.348127+00:00"
+  },
+  "dse::text-alchemy": {
+    "skill_a": "dse",
+    "skill_b": "text-alchemy",
+    "weight": 1.0,
+    "fire_count": 34,
+    "last_fired": "2026-03-21T04:08:04.294190+00:00",
+    "created_at": "2026-03-11T01:19:27.348645+00:00"
+  },
+  "dharma::text-alchemy": {
+    "skill_a": "dharma",
+    "skill_b": "text-alchemy",
+    "weight": 1.0,
+    "fire_count": 49,
+    "last_fired": "2026-03-21T04:08:04.286767+00:00",
+    "created_at": "2026-03-11T01:19:27.349157+00:00"
+  },
+  "dse::market-core": {
+    "skill_a": "dse",
+    "skill_b": "market-core",
+    "weight": 1.0,
+    "fire_count": 190,
+    "last_fired": "2026-03-21T04:08:04.290952+00:00",
+    "created_at": "2026-03-11T01:19:27.349638+00:00"
+  },
+  "dharma::market-core": {
+    "skill_a": "dharma",
+    "skill_b": "market-core",
+    "weight": 1.0,
+    "fire_count": 106,
+    "last_fired": "2026-03-21T05:03:54.975379+00:00",
+    "created_at": "2026-03-11T01:19:27.350159+00:00"
+  },
+  "dharma::dse": {
+    "skill_a": "dharma",
+    "skill_b": "dse",
+    "weight": 1.0,
+    "fire_count": 116,
+    "last_fired": "2026-03-21T04:08:04.283804+00:00",
+    "created_at": "2026-03-11T01:19:27.351271+00:00"
+  },
+  "eval-engine::sandbox-lab": {
+    "skill_a": "eval-engine",
+    "skill_b": "sandbox-lab",
+    "weight": 0.65,
+    "fire_count": 13,
+    "last_fired": "2026-03-21T03:53:32.334226+00:00",
+    "created_at": "2026-03-11T01:48:35.776198+00:00"
+  },
+  "sandbox-lab::ssa-consultant": {
+    "skill_a": "sandbox-lab",
+    "skill_b": "ssa-consultant",
+    "weight": 1.0,
+    "fire_count": 26,
+    "last_fired": "2026-03-21T03:53:32.328551+00:00",
+    "created_at": "2026-03-11T01:48:35.777009+00:00"
+  },
+  "sandbox-lab::wee": {
+    "skill_a": "sandbox-lab",
+    "skill_b": "wee",
+    "weight": 0.7500000000000001,
+    "fire_count": 15,
+    "last_fired": "2026-03-20T11:35:49.885437+00:00",
+    "created_at": "2026-03-11T01:48:35.778839+00:00"
+  },
+  "eval-engine::ssa-consultant": {
+    "skill_a": "eval-engine",
+    "skill_b": "ssa-consultant",
+    "weight": 1.0,
+    "fire_count": 42,
+    "last_fired": "2026-03-21T03:53:32.329542+00:00",
+    "created_at": "2026-03-11T01:48:35.779379+00:00"
+  },
+  "eval-engine::wee": {
+    "skill_a": "eval-engine",
+    "skill_b": "wee",
+    "weight": 1.0,
+    "fire_count": 62,
+    "last_fired": "2026-03-20T13:39:23.355311+00:00",
+    "created_at": "2026-03-11T01:48:35.780243+00:00"
+  },
+  "ssa-consultant::wee": {
+    "skill_a": "ssa-consultant",
+    "skill_b": "wee",
+    "weight": 1.0,
+    "fire_count": 92,
+    "last_fired": "2026-03-21T03:43:33.837620+00:00",
+    "created_at": "2026-03-11T01:48:35.781684+00:00"
+  },
+  "novel-craft::storytelling-engine": {
+    "skill_a": "novel-craft",
+    "skill_b": "storytelling-engine",
+    "weight": 1.0,
+    "fire_count": 67,
+    "last_fired": "2026-03-21T03:47:16.218301+00:00",
+    "created_at": "2026-03-11T03:27:36.017669+00:00"
+  },
+  "c15::novel-craft": {
+    "skill_a": "c15",
+    "skill_b": "novel-craft",
+    "weight": 0.35,
+    "fire_count": 7,
+    "last_fired": "2026-03-15T14:04:38.338443+00:00",
+    "created_at": "2026-03-11T03:27:36.018101+00:00"
+  },
+  "morphenix::novel-craft": {
+    "skill_a": "morphenix",
+    "skill_b": "novel-craft",
+    "weight": 1.0,
+    "fire_count": 30,
+    "last_fired": "2026-03-20T13:17:54.180831+00:00",
+    "created_at": "2026-03-11T03:27:36.018676+00:00"
+  },
+  "aesthetic-sense::novel-craft": {
+    "skill_a": "aesthetic-sense",
+    "skill_b": "novel-craft",
+    "weight": 1.0,
+    "fire_count": 54,
+    "last_fired": "2026-03-20T08:03:48.885510+00:00",
+    "created_at": "2026-03-11T03:27:36.019292+00:00"
+  },
+  "morphenix::storytelling-engine": {
+    "skill_a": "morphenix",
+    "skill_b": "storytelling-engine",
+    "weight": 1.0,
+    "fire_count": 21,
+    "last_fired": "2026-03-20T13:25:06.445148+00:00",
+    "created_at": "2026-03-11T03:27:36.020546+00:00"
+  },
+  "aesthetic-sense::storytelling-engine": {
+    "skill_a": "aesthetic-sense",
+    "skill_b": "storytelling-engine",
+    "weight": 1.0,
+    "fire_count": 53,
+    "last_fired": "2026-03-20T13:22:46.580488+00:00",
+    "created_at": "2026-03-11T03:27:36.021484+00:00"
+  },
+  "c15::morphenix": {
+    "skill_a": "c15",
+    "skill_b": "morphenix",
+    "weight": 1.0,
+    "fire_count": 33,
+    "last_fired": "2026-03-21T01:38:42.372197+00:00",
+    "created_at": "2026-03-11T03:27:36.022471+00:00"
+  },
+  "aesthetic-sense::c15": {
+    "skill_a": "aesthetic-sense",
+    "skill_b": "c15",
+    "weight": 0.49999999999999994,
+    "fire_count": 10,
+    "last_fired": "2026-03-19T02:57:21.558962+00:00",
+    "created_at": "2026-03-11T03:27:36.023252+00:00"
+  },
+  "aesthetic-sense::morphenix": {
+    "skill_a": "aesthetic-sense",
+    "skill_b": "morphenix",
+    "weight": 1.0,
+    "fire_count": 40,
+    "last_fired": "2026-03-21T03:51:19.383421+00:00",
+    "created_at": "2026-03-11T03:27:36.023585+00:00"
+  },
+  "business-12::sandbox-lab": {
+    "skill_a": "business-12",
+    "skill_b": "sandbox-lab",
+    "weight": 1.0,
+    "fire_count": 42,
+    "last_fired": "2026-03-21T03:53:32.335154+00:00",
+    "created_at": "2026-03-11T04:32:02.917285+00:00"
+  },
+  "dharma::sandbox-lab": {
+    "skill_a": "dharma",
+    "skill_b": "sandbox-lab",
+    "weight": 1.0,
+    "fire_count": 83,
+    "last_fired": "2026-03-20T13:42:29.932936+00:00",
+    "created_at": "2026-03-11T04:32:02.917904+00:00"
+  },
+  "business-12::eval-engine": {
+    "skill_a": "business-12",
+    "skill_b": "eval-engine",
+    "weight": 1.0,
+    "fire_count": 72,
+    "last_fired": "2026-03-21T03:53:32.336070+00:00",
+    "created_at": "2026-03-11T04:32:02.918749+00:00"
+  },
+  "dharma::eval-engine": {
+    "skill_a": "dharma",
+    "skill_b": "eval-engine",
+    "weight": 1.0,
+    "fire_count": 22,
+    "last_fired": "2026-03-18T07:48:33.669412+00:00",
+    "created_at": "2026-03-11T04:32:02.920540+00:00"
+  },
+  "business-12::ssa-consultant": {
+    "skill_a": "business-12",
+    "skill_b": "ssa-consultant",
+    "weight": 1.0,
+    "fire_count": 236,
+    "last_fired": "2026-03-21T03:53:32.330524+00:00",
+    "created_at": "2026-03-11T04:32:02.920975+00:00"
+  },
+  "business-12::dharma": {
+    "skill_a": "business-12",
+    "skill_b": "dharma",
+    "weight": 1.0,
+    "fire_count": 66,
+    "last_fired": "2026-03-20T23:01:36.613900+00:00",
+    "created_at": "2026-03-11T04:32:02.921634+00:00"
+  },
+  "dharma::ssa-consultant": {
+    "skill_a": "dharma",
+    "skill_b": "ssa-consultant",
+    "weight": 1.0,
+    "fire_count": 39,
+    "last_fired": "2026-03-20T23:01:36.619640+00:00",
+    "created_at": "2026-03-11T04:32:02.922461+00:00"
+  },
+  "dse::gap": {
+    "skill_a": "dse",
+    "skill_b": "gap",
+    "weight": 1.0,
+    "fire_count": 309,
+    "last_fired": "2026-03-21T03:45:13.355664+00:00",
+    "created_at": "2026-03-11T04:33:26.127084+00:00"
+  },
+  "dse::sandbox-lab": {
+    "skill_a": "dse",
+    "skill_b": "sandbox-lab",
+    "weight": 1.0,
+    "fire_count": 98,
+    "last_fired": "2026-03-21T03:53:32.324670+00:00",
+    "created_at": "2026-03-11T04:33:26.129094+00:00"
+  },
+  "dse::market-crypto": {
+    "skill_a": "dse",
+    "skill_b": "market-crypto",
+    "weight": 1.0,
+    "fire_count": 85,
+    "last_fired": "2026-03-21T03:15:20.628789+00:00",
+    "created_at": "2026-03-11T04:33:26.131181+00:00"
+  },
+  "gap::sandbox-lab": {
+    "skill_a": "gap",
+    "skill_b": "sandbox-lab",
+    "weight": 1.0,
+    "fire_count": 147,
+    "last_fired": "2026-03-21T01:35:50.867301+00:00",
+    "created_at": "2026-03-11T04:33:26.132066+00:00"
+  },
+  "gap::market-core": {
+    "skill_a": "gap",
+    "skill_b": "market-core",
+    "weight": 1.0,
+    "fire_count": 428,
+    "last_fired": "2026-03-21T03:49:43.036443+00:00",
+    "created_at": "2026-03-11T04:33:26.133171+00:00"
+  },
+  "gap::market-crypto": {
+    "skill_a": "gap",
+    "skill_b": "market-crypto",
+    "weight": 1.0,
+    "fire_count": 218,
+    "last_fired": "2026-03-21T01:51:01.539912+00:00",
+    "created_at": "2026-03-11T04:33:26.134407+00:00"
+  },
+  "market-core::sandbox-lab": {
+    "skill_a": "market-core",
+    "skill_b": "sandbox-lab",
+    "weight": 1.0,
+    "fire_count": 88,
+    "last_fired": "2026-03-21T01:35:50.869705+00:00",
+    "created_at": "2026-03-11T04:33:26.135413+00:00"
+  },
+  "market-crypto::sandbox-lab": {
+    "skill_a": "market-crypto",
+    "skill_b": "sandbox-lab",
+    "weight": 0.7000000000000001,
+    "fire_count": 14,
+    "last_fired": "2026-03-18T11:22:00.158151+00:00",
+    "created_at": "2026-03-11T04:33:26.135933+00:00"
+  },
+  "market-core::market-crypto": {
+    "skill_a": "market-core",
+    "skill_b": "market-crypto",
+    "weight": 1.0,
+    "fire_count": 163,
+    "last_fired": "2026-03-21T03:45:19.298989+00:00",
+    "created_at": "2026-03-11T04:33:26.136539+00:00"
+  },
+  "dharma::gap": {
+    "skill_a": "dharma",
+    "skill_b": "gap",
+    "weight": 1.0,
+    "fire_count": 121,
+    "last_fired": "2026-03-21T03:45:06.231769+00:00",
+    "created_at": "2026-03-11T04:37:14.464400+00:00"
+  },
+  "dharma::market-crypto": {
+    "skill_a": "dharma",
+    "skill_b": "market-crypto",
+    "weight": 1.0,
+    "fire_count": 24,
+    "last_fired": "2026-03-21T03:15:20.629866+00:00",
+    "created_at": "2026-03-11T04:37:14.465339+00:00"
+  },
+  "dna27::plugin-registry": {
+    "skill_a": "dna27",
+    "skill_b": "plugin-registry",
+    "weight": 1.0,
+    "fire_count": 47,
+    "last_fired": "2026-03-21T03:31:42.844004+00:00",
+    "created_at": "2026-03-11T05:16:13.857681+00:00"
+  },
+  "dse::plugin-registry": {
+    "skill_a": "dse",
+    "skill_b": "plugin-registry",
+    "weight": 1.0,
+    "fire_count": 40,
+    "last_fired": "2026-03-21T03:31:42.853010+00:00",
+    "created_at": "2026-03-11T05:16:13.859613+00:00"
+  },
+  "morphenix::plugin-registry": {
+    "skill_a": "morphenix",
+    "skill_b": "plugin-registry",
+    "weight": 1.0,
+    "fire_count": 39,
+    "last_fired": "2026-03-21T03:31:42.847707+00:00",
+    "created_at": "2026-03-11T05:16:13.861101+00:00"
+  },
+  "dna27::dse": {
+    "skill_a": "dna27",
+    "skill_b": "dse",
+    "weight": 1.0,
+    "fire_count": 38,
+    "last_fired": "2026-03-21T03:31:42.859622+00:00",
+    "created_at": "2026-03-11T05:16:13.863698+00:00"
+  },
+  "dna27::morphenix": {
+    "skill_a": "dna27",
+    "skill_b": "morphenix",
+    "weight": 1.0,
+    "fire_count": 37,
+    "last_fired": "2026-03-21T03:31:42.855274+00:00",
+    "created_at": "2026-03-11T05:16:13.865044+00:00"
+  },
+  "dse::morphenix": {
+    "skill_a": "dse",
+    "skill_b": "morphenix",
+    "weight": 1.0,
+    "fire_count": 242,
+    "last_fired": "2026-03-21T03:51:19.371650+00:00",
+    "created_at": "2026-03-11T05:16:13.867648+00:00"
+  },
+  "dse::meta-learning": {
+    "skill_a": "dse",
+    "skill_b": "meta-learning",
+    "weight": 1.0,
+    "fire_count": 164,
+    "last_fired": "2026-03-21T03:56:29.041002+00:00",
+    "created_at": "2026-03-11T05:16:13.868971+00:00"
+  },
+  "meta-learning::morphenix": {
+    "skill_a": "meta-learning",
+    "skill_b": "morphenix",
+    "weight": 1.0,
+    "fire_count": 73,
+    "last_fired": "2026-03-21T03:51:19.379901+00:00",
+    "created_at": "2026-03-11T05:16:13.869829+00:00"
+  },
+  "business-12::dse": {
+    "skill_a": "business-12",
+    "skill_b": "dse",
+    "weight": 1.0,
+    "fire_count": 216,
+    "last_fired": "2026-03-21T03:53:32.326645+00:00",
+    "created_at": "2026-03-11T05:20:20.630951+00:00"
+  },
+  "dse::master-strategy": {
+    "skill_a": "dse",
+    "skill_b": "master-strategy",
+    "weight": 1.0,
+    "fire_count": 175,
+    "last_fired": "2026-03-21T03:46:07.289374+00:00",
+    "created_at": "2026-03-11T05:20:20.632426+00:00"
+  },
+  "dse::philo-dialectic": {
+    "skill_a": "dse",
+    "skill_b": "philo-dialectic",
+    "weight": 1.0,
+    "fire_count": 90,
+    "last_fired": "2026-03-21T04:15:07.896758+00:00",
+    "created_at": "2026-03-11T05:20:20.633151+00:00"
+  },
+  "dse::xmodel": {
+    "skill_a": "dse",
+    "skill_b": "xmodel",
+    "weight": 1.0,
+    "fire_count": 142,
+    "last_fired": "2026-03-21T04:15:07.901568+00:00",
+    "created_at": "2026-03-11T05:20:20.633791+00:00"
+  },
+  "dse::wee": {
+    "skill_a": "dse",
+    "skill_b": "wee",
+    "weight": 1.0,
+    "fire_count": 181,
+    "last_fired": "2026-03-21T01:44:38.812967+00:00",
+    "created_at": "2026-03-11T05:20:20.634326+00:00"
+  },
+  "dse::ssa-consultant": {
+    "skill_a": "dse",
+    "skill_b": "ssa-consultant",
+    "weight": 1.0,
+    "fire_count": 151,
+    "last_fired": "2026-03-21T04:15:07.899659+00:00",
+    "created_at": "2026-03-11T05:20:20.635094+00:00"
+  },
+  "business-12::master-strategy": {
+    "skill_a": "business-12",
+    "skill_b": "master-strategy",
+    "weight": 1.0,
+    "fire_count": 214,
+    "last_fired": "2026-03-21T03:44:54.185352+00:00",
+    "created_at": "2026-03-11T05:20:20.635868+00:00"
+  },
+  "business-12::philo-dialectic": {
+    "skill_a": "business-12",
+    "skill_b": "philo-dialectic",
+    "weight": 1.0,
+    "fire_count": 85,
+    "last_fired": "2026-03-21T03:53:32.321513+00:00",
+    "created_at": "2026-03-11T05:20:20.636725+00:00"
+  },
+  "business-12::xmodel": {
+    "skill_a": "business-12",
+    "skill_b": "xmodel",
+    "weight": 1.0,
+    "fire_count": 86,
+    "last_fired": "2026-03-21T03:45:44.557369+00:00",
+    "created_at": "2026-03-11T05:20:20.637562+00:00"
+  },
+  "business-12::wee": {
+    "skill_a": "business-12",
+    "skill_b": "wee",
+    "weight": 1.0,
+    "fire_count": 118,
+    "last_fired": "2026-03-21T03:43:33.834428+00:00",
+    "created_at": "2026-03-11T05:20:20.638230+00:00"
+  },
+  "master-strategy::philo-dialectic": {
+    "skill_a": "master-strategy",
+    "skill_b": "philo-dialectic",
+    "weight": 1.0,
+    "fire_count": 111,
+    "last_fired": "2026-03-21T03:43:33.842749+00:00",
+    "created_at": "2026-03-11T05:20:20.639760+00:00"
+  },
+  "master-strategy::xmodel": {
+    "skill_a": "master-strategy",
+    "skill_b": "xmodel",
+    "weight": 1.0,
+    "fire_count": 101,
+    "last_fired": "2026-03-21T05:05:28.664825+00:00",
+    "created_at": "2026-03-11T05:20:20.640567+00:00"
+  },
+  "master-strategy::wee": {
+    "skill_a": "master-strategy",
+    "skill_b": "wee",
+    "weight": 1.0,
+    "fire_count": 112,
+    "last_fired": "2026-03-21T03:43:33.841707+00:00",
+    "created_at": "2026-03-11T05:20:20.641372+00:00"
+  },
+  "master-strategy::ssa-consultant": {
+    "skill_a": "master-strategy",
+    "skill_b": "ssa-consultant",
+    "weight": 1.0,
+    "fire_count": 125,
+    "last_fired": "2026-03-21T03:44:54.189255+00:00",
+    "created_at": "2026-03-11T05:20:20.642780+00:00"
+  },
+  "philo-dialectic::xmodel": {
+    "skill_a": "philo-dialectic",
+    "skill_b": "xmodel",
+    "weight": 1.0,
+    "fire_count": 78,
+    "last_fired": "2026-03-21T04:15:07.894501+00:00",
+    "created_at": "2026-03-11T05:20:20.643598+00:00"
+  },
+  "philo-dialectic::wee": {
+    "skill_a": "philo-dialectic",
+    "skill_b": "wee",
+    "weight": 1.0,
+    "fire_count": 99,
+    "last_fired": "2026-03-21T03:43:33.840677+00:00",
+    "created_at": "2026-03-11T05:20:20.644101+00:00"
+  },
+  "philo-dialectic::ssa-consultant": {
+    "skill_a": "philo-dialectic",
+    "skill_b": "ssa-consultant",
+    "weight": 1.0,
+    "fire_count": 55,
+    "last_fired": "2026-03-21T04:15:07.893063+00:00",
+    "created_at": "2026-03-11T05:20:20.645246+00:00"
+  },
+  "wee::xmodel": {
+    "skill_a": "wee",
+    "skill_b": "xmodel",
+    "weight": 1.0,
+    "fire_count": 112,
+    "last_fired": "2026-03-20T13:40:01.078792+00:00",
+    "created_at": "2026-03-11T05:20:20.646360+00:00"
+  },
+  "ssa-consultant::xmodel": {
+    "skill_a": "ssa-consultant",
+    "skill_b": "xmodel",
+    "weight": 1.0,
+    "fire_count": 63,
+    "last_fired": "2026-03-21T04:15:07.897733+00:00",
+    "created_at": "2026-03-11T05:20:20.647457+00:00"
+  },
+  "business-12::morphenix": {
+    "skill_a": "business-12",
+    "skill_b": "morphenix",
+    "weight": 1.0,
+    "fire_count": 174,
+    "last_fired": "2026-03-21T03:51:19.385740+00:00",
+    "created_at": "2026-03-11T05:21:14.326372+00:00"
+  },
+  "morphenix::ssa-consultant": {
+    "skill_a": "morphenix",
+    "skill_b": "ssa-consultant",
+    "weight": 1.0,
+    "fire_count": 111,
+    "last_fired": "2026-03-21T03:49:43.038961+00:00",
+    "created_at": "2026-03-11T05:21:14.327370+00:00"
+  },
+  "business-12::meta-learning": {
+    "skill_a": "business-12",
+    "skill_b": "meta-learning",
+    "weight": 1.0,
+    "fire_count": 61,
+    "last_fired": "2026-03-21T03:51:19.382181+00:00",
+    "created_at": "2026-03-11T05:21:14.329306+00:00"
+  },
+  "meta-learning::ssa-consultant": {
+    "skill_a": "meta-learning",
+    "skill_b": "ssa-consultant",
+    "weight": 1.0,
+    "fire_count": 41,
+    "last_fired": "2026-03-21T03:56:29.049071+00:00",
+    "created_at": "2026-03-11T05:21:14.330259+00:00"
+  },
+  "business-12::qa-auditor": {
+    "skill_a": "business-12",
+    "skill_b": "qa-auditor",
+    "weight": 0.7500000000000001,
+    "fire_count": 15,
+    "last_fired": "2026-03-19T11:39:39.246847+00:00",
+    "created_at": "2026-03-11T05:21:14.331361+00:00"
+  },
+  "gap::market-equity": {
+    "skill_a": "gap",
+    "skill_b": "market-equity",
+    "weight": 1.0,
+    "fire_count": 200,
+    "last_fired": "2026-03-21T01:28:55.014522+00:00",
+    "created_at": "2026-03-11T05:25:12.146840+00:00"
+  },
+  "gap::market-macro": {
+    "skill_a": "gap",
+    "skill_b": "market-macro",
+    "weight": 1.0,
+    "fire_count": 165,
+    "last_fired": "2026-03-20T16:08:37.383711+00:00",
+    "created_at": "2026-03-11T05:25:12.148624+00:00"
+  },
+  "gap::morphenix": {
+    "skill_a": "gap",
+    "skill_b": "morphenix",
+    "weight": 1.0,
+    "fire_count": 91,
+    "last_fired": "2026-03-21T03:49:43.035208+00:00",
+    "created_at": "2026-03-11T05:25:12.150477+00:00"
+  },
+  "market-crypto::market-equity": {
+    "skill_a": "market-crypto",
+    "skill_b": "market-equity",
+    "weight": 1.0,
+    "fire_count": 199,
+    "last_fired": "2026-03-21T03:45:19.295499+00:00",
+    "created_at": "2026-03-11T05:25:12.151484+00:00"
+  },
+  "market-crypto::market-macro": {
+    "skill_a": "market-crypto",
+    "skill_b": "market-macro",
+    "weight": 1.0,
+    "fire_count": 139,
+    "last_fired": "2026-03-21T03:45:19.297853+00:00",
+    "created_at": "2026-03-11T05:25:12.152864+00:00"
+  },
+  "market-equity::market-macro": {
+    "skill_a": "market-equity",
+    "skill_b": "market-macro",
+    "weight": 1.0,
+    "fire_count": 193,
+    "last_fired": "2026-03-21T03:45:19.299962+00:00",
+    "created_at": "2026-03-11T05:25:12.155123+00:00"
+  },
+  "info-architect::wee": {
+    "skill_a": "info-architect",
+    "skill_b": "wee",
+    "weight": 1.0,
+    "fire_count": 21,
+    "last_fired": "2026-03-17T03:59:17.200370+00:00",
+    "created_at": "2026-03-11T05:29:53.036708+00:00"
+  },
+  "info-architect::orchestrator": {
+    "skill_a": "info-architect",
+    "skill_b": "orchestrator",
+    "weight": 0.49999999999999994,
+    "fire_count": 10,
+    "last_fired": "2026-03-20T13:25:06.464864+00:00",
+    "created_at": "2026-03-11T05:29:53.038383+00:00"
+  },
+  "info-architect::workflow-ai-deployment": {
+    "skill_a": "info-architect",
+    "skill_b": "workflow-ai-deployment",
+    "weight": 1.0,
+    "fire_count": 22,
+    "last_fired": "2026-03-19T10:48:53.185266+00:00",
+    "created_at": "2026-03-11T05:29:53.040307+00:00"
+  },
+  "info-architect::morphenix": {
+    "skill_a": "info-architect",
+    "skill_b": "morphenix",
+    "weight": 1.0,
+    "fire_count": 45,
+    "last_fired": "2026-03-21T03:31:42.861780+00:00",
+    "created_at": "2026-03-11T05:29:53.041990+00:00"
+  },
+  "morphenix::wee": {
+    "skill_a": "morphenix",
+    "skill_b": "wee",
+    "weight": 1.0,
+    "fire_count": 143,
+    "last_fired": "2026-03-20T13:32:25.478456+00:00",
+    "created_at": "2026-03-11T05:29:53.046628+00:00"
+  },
+  "orchestrator::workflow-ai-deployment": {
+    "skill_a": "orchestrator",
+    "skill_b": "workflow-ai-deployment",
+    "weight": 0.44999999999999996,
+    "fire_count": 9,
+    "last_fired": "2026-03-18T14:15:58.397677+00:00",
+    "created_at": "2026-03-11T05:29:53.047983+00:00"
+  },
+  "morphenix::workflow-ai-deployment": {
+    "skill_a": "morphenix",
+    "skill_b": "workflow-ai-deployment",
+    "weight": 1.0,
+    "fire_count": 78,
+    "last_fired": "2026-03-21T05:05:28.665820+00:00",
+    "created_at": "2026-03-11T05:29:53.050081+00:00"
+  },
+  "business-12::market-core": {
+    "skill_a": "business-12",
+    "skill_b": "market-core",
+    "weight": 1.0,
+    "fire_count": 102,
+    "last_fired": "2026-03-21T03:45:44.558279+00:00",
+    "created_at": "2026-03-11T05:56:29.715221+00:00"
+  },
+  "market-core::market-equity": {
+    "skill_a": "market-core",
+    "skill_b": "market-equity",
+    "weight": 1.0,
+    "fire_count": 115,
+    "last_fired": "2026-03-21T03:45:19.300932+00:00",
+    "created_at": "2026-03-11T05:56:29.722186+00:00"
+  },
+  "business-12::gap": {
+    "skill_a": "business-12",
+    "skill_b": "gap",
+    "weight": 1.0,
+    "fire_count": 127,
+    "last_fired": "2026-03-21T01:34:17.199925+00:00",
+    "created_at": "2026-03-11T05:56:29.724197+00:00"
+  },
+  "business-12::market-crypto": {
+    "skill_a": "business-12",
+    "skill_b": "market-crypto",
+    "weight": 1.0,
+    "fire_count": 32,
+    "last_fired": "2026-03-17T00:41:17.020193+00:00",
+    "created_at": "2026-03-11T05:56:29.725513+00:00"
+  },
+  "business-12::market-equity": {
+    "skill_a": "business-12",
+    "skill_b": "market-equity",
+    "weight": 1.0,
+    "fire_count": 28,
+    "last_fired": "2026-03-17T01:25:13.732517+00:00",
+    "created_at": "2026-03-11T05:56:29.727003+00:00"
+  },
+  "eval-engine::risk-matrix": {
+    "skill_a": "eval-engine",
+    "skill_b": "risk-matrix",
+    "weight": 0.65,
+    "fire_count": 13,
+    "last_fired": "2026-03-16T13:11:10.743146+00:00",
+    "created_at": "2026-03-11T06:51:03.595141+00:00"
+  },
+  "dse::eval-engine": {
+    "skill_a": "dse",
+    "skill_b": "eval-engine",
+    "weight": 1.0,
+    "fire_count": 75,
+    "last_fired": "2026-03-21T03:53:32.325675+00:00",
+    "created_at": "2026-03-11T06:51:03.598040+00:00"
+  },
+  "business-12::risk-matrix": {
+    "skill_a": "business-12",
+    "skill_b": "risk-matrix",
+    "weight": 0.25,
+    "fire_count": 5,
+    "last_fired": "2026-03-19T08:56:06.890347+00:00",
+    "created_at": "2026-03-11T06:51:03.603115+00:00"
+  },
+  "gap::meta-learning": {
+    "skill_a": "gap",
+    "skill_b": "meta-learning",
+    "weight": 1.0,
+    "fire_count": 57,
+    "last_fired": "2026-03-21T03:49:43.033864+00:00",
+    "created_at": "2026-03-11T06:59:32.554008+00:00"
+  },
+  "info-architect::meta-learning": {
+    "skill_a": "info-architect",
+    "skill_b": "meta-learning",
+    "weight": 0.8000000000000002,
+    "fire_count": 16,
+    "last_fired": "2026-03-20T11:11:23.560402+00:00",
+    "created_at": "2026-03-11T06:59:32.561496+00:00"
+  },
+  "gap::text-alchemy": {
+    "skill_a": "gap",
+    "skill_b": "text-alchemy",
+    "weight": 1.0,
+    "fire_count": 46,
+    "last_fired": "2026-03-21T03:48:28.929170+00:00",
+    "created_at": "2026-03-11T06:59:32.563453+00:00"
+  },
+  "consultant-communication::gap": {
+    "skill_a": "consultant-communication",
+    "skill_b": "gap",
+    "weight": 1.0,
+    "fire_count": 23,
+    "last_fired": "2026-03-21T01:51:01.533032+00:00",
+    "created_at": "2026-03-11T06:59:32.565132+00:00"
+  },
+  "gap::info-architect": {
+    "skill_a": "gap",
+    "skill_b": "info-architect",
+    "weight": 1.0,
+    "fire_count": 21,
+    "last_fired": "2026-03-19T14:38:54.790864+00:00",
+    "created_at": "2026-03-11T06:59:32.568599+00:00"
+  },
+  "consultant-communication::text-alchemy": {
+    "skill_a": "consultant-communication",
+    "skill_b": "text-alchemy",
+    "weight": 0.35,
+    "fire_count": 7,
+    "last_fired": "2026-03-20T13:39:23.422047+00:00",
+    "created_at": "2026-03-11T06:59:32.570495+00:00"
+  },
+  "consultant-communication::info-architect": {
+    "skill_a": "consultant-communication",
+    "skill_b": "info-architect",
+    "weight": 0.8000000000000002,
+    "fire_count": 16,
+    "last_fired": "2026-03-20T13:25:06.449248+00:00",
+    "created_at": "2026-03-11T06:59:32.574050+00:00"
+  },
+  "dse::pdeif": {
+    "skill_a": "dse",
+    "skill_b": "pdeif",
+    "weight": 1.0,
+    "fire_count": 114,
+    "last_fired": "2026-03-20T13:32:06.822558+00:00",
+    "created_at": "2026-03-11T07:09:38.931539+00:00"
+  },
+  "pdeif::sandbox-lab": {
+    "skill_a": "pdeif",
+    "skill_b": "sandbox-lab",
+    "weight": 0.49999999999999994,
+    "fire_count": 10,
+    "last_fired": "2026-03-18T14:46:16.959251+00:00",
+    "created_at": "2026-03-11T07:09:38.936875+00:00"
+  },
+  "gap::pdeif": {
+    "skill_a": "gap",
+    "skill_b": "pdeif",
+    "weight": 1.0,
+    "fire_count": 103,
+    "last_fired": "2026-03-20T13:31:57.091148+00:00",
+    "created_at": "2026-03-11T07:09:38.942292+00:00"
+  },
+  "business-12::pdeif": {
+    "skill_a": "business-12",
+    "skill_b": "pdeif",
+    "weight": 1.0,
+    "fire_count": 38,
+    "last_fired": "2026-03-20T13:19:11.030873+00:00",
+    "created_at": "2026-03-11T07:09:38.944469+00:00"
+  },
+  "morphenix::sandbox-lab": {
+    "skill_a": "morphenix",
+    "skill_b": "sandbox-lab",
+    "weight": 1.0,
+    "fire_count": 44,
+    "last_fired": "2026-03-20T11:35:49.863859+00:00",
+    "created_at": "2026-03-11T07:38:25.363802+00:00"
+  },
+  "eval-engine::morphenix": {
+    "skill_a": "eval-engine",
+    "skill_b": "morphenix",
+    "weight": 1.0,
+    "fire_count": 61,
+    "last_fired": "2026-03-20T07:39:41.603168+00:00",
+    "created_at": "2026-03-11T07:38:25.371426+00:00"
+  },
+  "eval-engine::market-core": {
+    "skill_a": "eval-engine",
+    "skill_b": "market-core",
+    "weight": 1.0,
+    "fire_count": 25,
+    "last_fired": "2026-03-18T03:19:28.652601+00:00",
+    "created_at": "2026-03-11T07:38:25.373584+00:00"
+  },
+  "market-core::morphenix": {
+    "skill_a": "market-core",
+    "skill_b": "morphenix",
+    "weight": 1.0,
+    "fire_count": 81,
+    "last_fired": "2026-03-21T05:03:54.983073+00:00",
+    "created_at": "2026-03-11T07:38:25.377789+00:00"
+  },
+  "dharma::morphenix": {
+    "skill_a": "dharma",
+    "skill_b": "morphenix",
+    "weight": 1.0,
+    "fire_count": 89,
+    "last_fired": "2026-03-21T05:03:54.972141+00:00",
+    "created_at": "2026-03-11T07:38:25.379855+00:00"
+  },
+  "morphenix::xmodel": {
+    "skill_a": "morphenix",
+    "skill_b": "xmodel",
+    "weight": 1.0,
+    "fire_count": 73,
+    "last_fired": "2026-03-21T05:05:28.661220+00:00",
+    "created_at": "2026-03-11T07:40:09.494408+00:00"
+  },
+  "market-core::market-macro": {
+    "skill_a": "market-core",
+    "skill_b": "market-macro",
+    "weight": 1.0,
+    "fire_count": 62,
+    "last_fired": "2026-03-21T03:45:19.302023+00:00",
+    "created_at": "2026-03-11T07:46:11.100060+00:00"
+  },
+  "dse::market-equity": {
+    "skill_a": "dse",
+    "skill_b": "market-equity",
+    "weight": 1.0,
+    "fire_count": 35,
+    "last_fired": "2026-03-21T01:30:28.051303+00:00",
+    "created_at": "2026-03-11T07:46:11.108700+00:00"
+  },
+  "dse::market-macro": {
+    "skill_a": "dse",
+    "skill_b": "market-macro",
+    "weight": 1.0,
+    "fire_count": 46,
+    "last_fired": "2026-03-21T03:15:20.621047+00:00",
+    "created_at": "2026-03-11T07:46:11.110284+00:00"
+  },
+  "market-equity::sandbox-lab": {
+    "skill_a": "market-equity",
+    "skill_b": "sandbox-lab",
+    "weight": 0.5499999999999999,
+    "fire_count": 11,
+    "last_fired": "2026-03-18T14:07:10.651764+00:00",
+    "created_at": "2026-03-11T07:47:08.646127+00:00"
+  },
+  "meta-learning::wee": {
+    "skill_a": "meta-learning",
+    "skill_b": "wee",
+    "weight": 1.0,
+    "fire_count": 36,
+    "last_fired": "2026-03-20T13:39:23.365068+00:00",
+    "created_at": "2026-03-11T07:47:32.150144+00:00"
+  },
+  "meta-learning::xmodel": {
+    "skill_a": "meta-learning",
+    "skill_b": "xmodel",
+    "weight": 1.0,
+    "fire_count": 51,
+    "last_fired": "2026-03-21T03:45:44.555471+00:00",
+    "created_at": "2026-03-11T07:47:32.156640+00:00"
+  },
+  "master-strategy::sandbox-lab": {
+    "skill_a": "master-strategy",
+    "skill_b": "sandbox-lab",
+    "weight": 0.7500000000000001,
+    "fire_count": 15,
+    "last_fired": "2026-03-20T14:51:24.953485+00:00",
+    "created_at": "2026-03-11T07:49:35.754510+00:00"
+  },
+  "dharma::master-strategy": {
+    "skill_a": "dharma",
+    "skill_b": "master-strategy",
+    "weight": 1.0,
+    "fire_count": 49,
+    "last_fired": "2026-03-21T03:46:07.301836+00:00",
+    "created_at": "2026-03-11T07:49:35.759622+00:00"
+  },
+  "master-strategy::morphenix": {
+    "skill_a": "master-strategy",
+    "skill_b": "morphenix",
+    "weight": 1.0,
+    "fire_count": 164,
+    "last_fired": "2026-03-21T05:05:28.667835+00:00",
+    "created_at": "2026-03-11T07:49:35.768326+00:00"
+  },
+  "pdeif::wee": {
+    "skill_a": "pdeif",
+    "skill_b": "wee",
+    "weight": 1.0,
+    "fire_count": 20,
+    "last_fired": "2026-03-20T13:26:42.296187+00:00",
+    "created_at": "2026-03-11T07:49:58.777469+00:00"
+  },
+  "morphenix::pdeif": {
+    "skill_a": "morphenix",
+    "skill_b": "pdeif",
+    "weight": 0.49999999999999994,
+    "fire_count": 10,
+    "last_fired": "2026-03-20T13:26:42.287435+00:00",
+    "created_at": "2026-03-11T07:49:58.787876+00:00"
+  },
+  "pdeif::ssa-consultant": {
+    "skill_a": "pdeif",
+    "skill_b": "ssa-consultant",
+    "weight": 1.0,
+    "fire_count": 30,
+    "last_fired": "2026-03-20T07:54:05.259283+00:00",
+    "created_at": "2026-03-11T07:49:58.792382+00:00"
+  },
+  "c15::wee": {
+    "skill_a": "c15",
+    "skill_b": "wee",
+    "weight": 1.0,
+    "fire_count": 29,
+    "last_fired": "2026-03-20T13:39:23.381321+00:00",
+    "created_at": "2026-03-11T07:50:38.566991+00:00"
+  },
+  "c15::xmodel": {
+    "skill_a": "c15",
+    "skill_b": "xmodel",
+    "weight": 0.6,
+    "fire_count": 12,
+    "last_fired": "2026-03-20T13:07:44.252024+00:00",
+    "created_at": "2026-03-11T07:50:38.578781+00:00"
+  },
+  "pdeif::xmodel": {
+    "skill_a": "pdeif",
+    "skill_b": "xmodel",
+    "weight": 1.0,
+    "fire_count": 39,
+    "last_fired": "2026-03-20T16:06:26.487207+00:00",
+    "created_at": "2026-03-11T07:52:52.355968+00:00"
+  },
+  "plan-engine::xmodel": {
+    "skill_a": "plan-engine",
+    "skill_b": "xmodel",
+    "weight": 0.8000000000000002,
+    "fire_count": 16,
+    "last_fired": "2026-03-21T01:42:59.913376+00:00",
+    "created_at": "2026-03-11T07:52:52.358276+00:00"
+  },
+  "plan-engine::workflow-investment-analysis": {
+    "skill_a": "plan-engine",
+    "skill_b": "workflow-investment-analysis",
+    "weight": 1.0,
+    "fire_count": 36,
+    "last_fired": "2026-03-20T13:19:12.965035+00:00",
+    "created_at": "2026-03-11T07:52:52.365589+00:00"
+  },
+  "master-strategy::pdeif": {
+    "skill_a": "master-strategy",
+    "skill_b": "pdeif",
+    "weight": 0.9000000000000002,
+    "fire_count": 18,
+    "last_fired": "2026-03-20T03:58:58.744143+00:00",
+    "created_at": "2026-03-11T07:52:52.368031+00:00"
+  },
+  "master-strategy::plan-engine": {
+    "skill_a": "master-strategy",
+    "skill_b": "plan-engine",
+    "weight": 0.8500000000000002,
+    "fire_count": 17,
+    "last_fired": "2026-03-21T03:46:07.298762+00:00",
+    "created_at": "2026-03-11T07:52:52.370572+00:00"
+  },
+  "pdeif::plan-engine": {
+    "skill_a": "pdeif",
+    "skill_b": "plan-engine",
+    "weight": 1.0,
+    "fire_count": 93,
+    "last_fired": "2026-03-20T16:06:26.494275+00:00",
+    "created_at": "2026-03-11T07:52:52.372981+00:00"
+  },
+  "dse::plan-engine": {
+    "skill_a": "dse",
+    "skill_b": "plan-engine",
+    "weight": 1.0,
+    "fire_count": 114,
+    "last_fired": "2026-03-21T04:08:04.295817+00:00",
+    "created_at": "2026-03-11T08:46:29.146762+00:00"
+  },
+  "dse::novel-craft": {
+    "skill_a": "dse",
+    "skill_b": "novel-craft",
+    "weight": 0.9000000000000002,
+    "fire_count": 18,
+    "last_fired": "2026-03-21T03:56:29.039773+00:00",
+    "created_at": "2026-03-11T08:46:29.154108+00:00"
+  },
+  "novel-craft::plan-engine": {
+    "skill_a": "novel-craft",
+    "skill_b": "plan-engine",
+    "weight": 0.25,
+    "fire_count": 5,
+    "last_fired": "2026-03-20T08:03:48.879603+00:00",
+    "created_at": "2026-03-11T08:46:29.160865+00:00"
+  },
+  "gap::plan-engine": {
+    "skill_a": "gap",
+    "skill_b": "plan-engine",
+    "weight": 1.0,
+    "fire_count": 188,
+    "last_fired": "2026-03-21T03:45:06.228252+00:00",
+    "created_at": "2026-03-11T08:46:29.162448+00:00"
+  },
+  "gap::novel-craft": {
+    "skill_a": "gap",
+    "skill_b": "novel-craft",
+    "weight": 0.49999999999999994,
+    "fire_count": 10,
+    "last_fired": "2026-03-20T02:48:48.652640+00:00",
+    "created_at": "2026-03-11T08:46:29.169969+00:00"
+  },
+  "gap::workflow-ai-deployment": {
+    "skill_a": "gap",
+    "skill_b": "workflow-ai-deployment",
+    "weight": 1.0,
+    "fire_count": 160,
+    "last_fired": "2026-03-21T03:48:28.924441+00:00",
+    "created_at": "2026-03-11T09:08:14.727545+00:00"
+  },
+  "dse::workflow-ai-deployment": {
+    "skill_a": "dse",
+    "skill_b": "workflow-ai-deployment",
+    "weight": 1.0,
+    "fire_count": 92,
+    "last_fired": "2026-03-20T16:36:10.944754+00:00",
+    "created_at": "2026-03-11T09:08:14.735680+00:00"
+  },
+  "workflow-ai-deployment::xmodel": {
+    "skill_a": "workflow-ai-deployment",
+    "skill_b": "xmodel",
+    "weight": 1.0,
+    "fire_count": 31,
+    "last_fired": "2026-03-21T05:05:28.662649+00:00",
+    "created_at": "2026-03-11T09:08:14.740548+00:00"
+  },
+  "sandbox-lab::xmodel": {
+    "skill_a": "sandbox-lab",
+    "skill_b": "xmodel",
+    "weight": 0.65,
+    "fire_count": 13,
+    "last_fired": "2026-03-20T19:22:37.871442+00:00",
+    "created_at": "2026-03-11T09:08:14.743087+00:00"
+  },
+  "sandbox-lab::workflow-ai-deployment": {
+    "skill_a": "sandbox-lab",
+    "skill_b": "workflow-ai-deployment",
+    "weight": 1.0,
+    "fire_count": 52,
+    "last_fired": "2026-03-21T01:35:50.859914+00:00",
+    "created_at": "2026-03-11T09:08:14.745417+00:00"
+  },
+  "plugin-registry::workflow-ai-deployment": {
+    "skill_a": "plugin-registry",
+    "skill_b": "workflow-ai-deployment",
+    "weight": 0.8000000000000002,
+    "fire_count": 16,
+    "last_fired": "2026-03-19T08:52:07.825995+00:00",
+    "created_at": "2026-03-11T09:15:25.414861+00:00"
+  },
+  "business-12::dna27": {
+    "skill_a": "business-12",
+    "skill_b": "dna27",
+    "weight": 0.2,
+    "fire_count": 4,
+    "last_fired": "2026-03-18T07:55:39.765047+00:00",
+    "created_at": "2026-03-11T09:15:25.420503+00:00"
+  },
+  "dna27::workflow-ai-deployment": {
+    "skill_a": "dna27",
+    "skill_b": "workflow-ai-deployment",
+    "weight": 0.5499999999999999,
+    "fire_count": 11,
+    "last_fired": "2026-03-19T08:52:07.840865+00:00",
+    "created_at": "2026-03-11T09:15:25.422881+00:00"
+  },
+  "business-12::workflow-ai-deployment": {
+    "skill_a": "business-12",
+    "skill_b": "workflow-ai-deployment",
+    "weight": 1.0,
+    "fire_count": 89,
+    "last_fired": "2026-03-20T16:03:05.552230+00:00",
+    "created_at": "2026-03-11T09:15:25.427584+00:00"
+  },
+  "c15::sandbox-lab": {
+    "skill_a": "c15",
+    "skill_b": "sandbox-lab",
+    "weight": 1.0,
+    "fire_count": 29,
+    "last_fired": "2026-03-18T07:02:35.419314+00:00",
+    "created_at": "2026-03-11T09:17:27.767640+00:00"
+  },
+  "sandbox-lab::text-alchemy": {
+    "skill_a": "sandbox-lab",
+    "skill_b": "text-alchemy",
+    "weight": 0.7500000000000001,
+    "fire_count": 15,
+    "last_fired": "2026-03-21T01:32:48.131697+00:00",
+    "created_at": "2026-03-11T09:17:27.774790+00:00"
+  },
+  "pdeif::workflow-ai-deployment": {
+    "skill_a": "pdeif",
+    "skill_b": "workflow-ai-deployment",
+    "weight": 0.35,
+    "fire_count": 7,
+    "last_fired": "2026-03-20T03:58:58.723293+00:00",
+    "created_at": "2026-03-11T09:28:01.564398+00:00"
+  },
+  "consultant-communication::morphenix": {
+    "skill_a": "consultant-communication",
+    "skill_b": "morphenix",
+    "weight": 1.0,
+    "fire_count": 30,
+    "last_fired": "2026-03-20T13:25:06.428969+00:00",
+    "created_at": "2026-03-11T09:32:22.810244+00:00"
+  },
+  "consultant-communication::sandbox-lab": {
+    "skill_a": "consultant-communication",
+    "skill_b": "sandbox-lab",
+    "weight": 0.7000000000000001,
+    "fire_count": 14,
+    "last_fired": "2026-03-20T11:03:34.642002+00:00",
+    "created_at": "2026-03-11T09:32:22.816497+00:00"
+  },
+  "info-architect::sandbox-lab": {
+    "skill_a": "info-architect",
+    "skill_b": "sandbox-lab",
+    "weight": 0.8500000000000002,
+    "fire_count": 17,
+    "last_fired": "2026-03-19T14:38:54.779699+00:00",
+    "created_at": "2026-03-11T09:32:22.819264+00:00"
+  },
+  "consultant-communication::dharma": {
+    "skill_a": "consultant-communication",
+    "skill_b": "dharma",
+    "weight": 1.0,
+    "fire_count": 22,
+    "last_fired": "2026-03-20T07:34:20.636568+00:00",
+    "created_at": "2026-03-11T09:32:22.822133+00:00"
+  },
+  "dharma::info-architect": {
+    "skill_a": "dharma",
+    "skill_b": "info-architect",
+    "weight": 0.3,
+    "fire_count": 6,
+    "last_fired": "2026-03-19T04:02:23.363177+00:00",
+    "created_at": "2026-03-11T09:32:22.827831+00:00"
+  },
+  "philo-dialectic::sandbox-lab": {
+    "skill_a": "philo-dialectic",
+    "skill_b": "sandbox-lab",
+    "weight": 0.5499999999999999,
+    "fire_count": 11,
+    "last_fired": "2026-03-21T03:53:32.319370+00:00",
+    "created_at": "2026-03-11T09:34:27.854202+00:00"
+  },
+  "morphenix::philo-dialectic": {
+    "skill_a": "morphenix",
+    "skill_b": "philo-dialectic",
+    "weight": 1.0,
+    "fire_count": 73,
+    "last_fired": "2026-03-20T16:02:04.258668+00:00",
+    "created_at": "2026-03-11T09:34:27.863244+00:00"
+  },
+  "c15::philo-dialectic": {
+    "skill_a": "c15",
+    "skill_b": "philo-dialectic",
+    "weight": 1.0,
+    "fire_count": 26,
+    "last_fired": "2026-03-20T13:07:44.242815+00:00",
+    "created_at": "2026-03-11T09:34:27.866881+00:00"
+  },
+  "env-radar::master-strategy": {
+    "skill_a": "env-radar",
+    "skill_b": "master-strategy",
+    "weight": 1.0,
+    "fire_count": 42,
+    "last_fired": "2026-03-20T13:41:18.515171+00:00",
+    "created_at": "2026-03-11T09:34:27.886676+00:00"
+  },
+  "c15::master-strategy": {
+    "skill_a": "c15",
+    "skill_b": "master-strategy",
+    "weight": 0.2,
+    "fire_count": 4,
+    "last_fired": "2026-03-16T12:46:48.220709+00:00",
+    "created_at": "2026-03-11T09:34:27.889377+00:00"
+  },
+  "resonance::sandbox-lab": {
+    "skill_a": "resonance",
+    "skill_b": "sandbox-lab",
+    "weight": 0.35,
+    "fire_count": 7,
+    "last_fired": "2026-03-20T11:12:33.864943+00:00",
+    "created_at": "2026-03-11T09:37:07.232610+00:00"
+  },
+  "investment-masters::resonance": {
+    "skill_a": "investment-masters",
+    "skill_b": "resonance",
+    "weight": 1.0,
+    "fire_count": 44,
+    "last_fired": "2026-03-18T11:39:09.606078+00:00",
+    "created_at": "2026-03-11T09:37:07.236407+00:00"
+  },
+  "qa-auditor::resonance": {
+    "skill_a": "qa-auditor",
+    "skill_b": "resonance",
+    "weight": 1.0,
+    "fire_count": 44,
+    "last_fired": "2026-03-21T03:43:56.389740+00:00",
+    "created_at": "2026-03-11T09:37:07.239569+00:00"
+  },
+  "business-12::resonance": {
+    "skill_a": "business-12",
+    "skill_b": "resonance",
+    "weight": 0.2,
+    "fire_count": 4,
+    "last_fired": "2026-03-18T01:55:11.189383+00:00",
+    "created_at": "2026-03-11T09:37:07.242900+00:00"
+  },
+  "qa-auditor::sandbox-lab": {
+    "skill_a": "qa-auditor",
+    "skill_b": "sandbox-lab",
+    "weight": 1.0,
+    "fire_count": 72,
+    "last_fired": "2026-03-19T11:39:39.214340+00:00",
+    "created_at": "2026-03-11T09:37:07.247781+00:00"
+  },
+  "investment-masters::qa-auditor": {
+    "skill_a": "investment-masters",
+    "skill_b": "qa-auditor",
+    "weight": 1.0,
+    "fire_count": 82,
+    "last_fired": "2026-03-21T03:50:07.153054+00:00",
+    "created_at": "2026-03-11T09:37:07.253645+00:00"
+  },
+  "market-core::workflow-ai-deployment": {
+    "skill_a": "market-core",
+    "skill_b": "workflow-ai-deployment",
+    "weight": 1.0,
+    "fire_count": 50,
+    "last_fired": "2026-03-21T03:48:28.927799+00:00",
+    "created_at": "2026-03-11T09:50:34.866162+00:00"
+  },
+  "market-crypto::master-strategy": {
+    "skill_a": "market-crypto",
+    "skill_b": "master-strategy",
+    "weight": 1.0,
+    "fire_count": 27,
+    "last_fired": "2026-03-21T01:36:20.102289+00:00",
+    "created_at": "2026-03-11T09:55:57.374749+00:00"
+  },
+  "sandbox-lab::shadow": {
+    "skill_a": "sandbox-lab",
+    "skill_b": "shadow",
+    "weight": 0.7500000000000001,
+    "fire_count": 15,
+    "last_fired": "2026-03-18T10:52:49.339738+00:00",
+    "created_at": "2026-03-11T09:56:50.877001+00:00"
+  },
+  "dharma::shadow": {
+    "skill_a": "dharma",
+    "skill_b": "shadow",
+    "weight": 1.0,
+    "fire_count": 48,
+    "last_fired": "2026-03-21T01:40:10.295544+00:00",
+    "created_at": "2026-03-11T09:56:50.878900+00:00"
+  },
+  "novel-craft::sandbox-lab": {
+    "skill_a": "novel-craft",
+    "skill_b": "sandbox-lab",
+    "weight": 0.39999999999999997,
+    "fire_count": 8,
+    "last_fired": "2026-03-20T09:40:15.463926+00:00",
+    "created_at": "2026-03-11T10:07:45.535951+00:00"
+  },
+  "plan-engine::sandbox-lab": {
+    "skill_a": "plan-engine",
+    "skill_b": "sandbox-lab",
+    "weight": 0.49999999999999994,
+    "fire_count": 10,
+    "last_fired": "2026-03-18T10:52:49.332848+00:00",
+    "created_at": "2026-03-11T10:07:45.540649+00:00"
+  },
+  "market-core::novel-craft": {
+    "skill_a": "market-core",
+    "skill_b": "novel-craft",
+    "weight": 0.7000000000000001,
+    "fire_count": 14,
+    "last_fired": "2026-03-20T13:17:54.188778+00:00",
+    "created_at": "2026-03-11T10:07:45.548849+00:00"
+  },
+  "market-macro::plan-engine": {
+    "skill_a": "market-macro",
+    "skill_b": "plan-engine",
+    "weight": 1.0,
+    "fire_count": 101,
+    "last_fired": "2026-03-21T03:45:19.292056+00:00",
+    "created_at": "2026-03-11T10:07:45.550890+00:00"
+  },
+  "market-core::plan-engine": {
+    "skill_a": "market-core",
+    "skill_b": "plan-engine",
+    "weight": 1.0,
+    "fire_count": 70,
+    "last_fired": "2026-03-21T04:08:04.292907+00:00",
+    "created_at": "2026-03-11T10:07:45.554267+00:00"
+  },
+  "dse::orchestrator": {
+    "skill_a": "dse",
+    "skill_b": "orchestrator",
+    "weight": 0.9500000000000003,
+    "fire_count": 19,
+    "last_fired": "2026-03-20T11:16:46.101220+00:00",
+    "created_at": "2026-03-11T10:09:42.405106+00:00"
+  },
+  "dse::qa-auditor": {
+    "skill_a": "dse",
+    "skill_b": "qa-auditor",
+    "weight": 1.0,
+    "fire_count": 23,
+    "last_fired": "2026-03-21T01:35:22.338827+00:00",
+    "created_at": "2026-03-11T10:09:42.410817+00:00"
+  },
+  "qa-auditor::sentiment-radar": {
+    "skill_a": "qa-auditor",
+    "skill_b": "sentiment-radar",
+    "weight": 1.0,
+    "fire_count": 30,
+    "last_fired": "2026-03-20T13:36:44.268142+00:00",
+    "created_at": "2026-03-11T10:09:42.412578+00:00"
+  },
+  "gap::qa-auditor": {
+    "skill_a": "gap",
+    "skill_b": "qa-auditor",
+    "weight": 1.0,
+    "fire_count": 103,
+    "last_fired": "2026-03-21T03:43:56.396209+00:00",
+    "created_at": "2026-03-11T10:09:42.414303+00:00"
+  },
+  "dse::sentiment-radar": {
+    "skill_a": "dse",
+    "skill_b": "sentiment-radar",
+    "weight": 1.0,
+    "fire_count": 122,
+    "last_fired": "2026-03-21T01:28:36.841107+00:00",
+    "created_at": "2026-03-11T10:09:42.416055+00:00"
+  },
+  "gap::sentiment-radar": {
+    "skill_a": "gap",
+    "skill_b": "sentiment-radar",
+    "weight": 1.0,
+    "fire_count": 140,
+    "last_fired": "2026-03-21T01:28:36.843922+00:00",
+    "created_at": "2026-03-11T10:09:42.419413+00:00"
+  },
+  "orchestrator::sandbox-lab": {
+    "skill_a": "orchestrator",
+    "skill_b": "sandbox-lab",
+    "weight": 0.5499999999999999,
+    "fire_count": 11,
+    "last_fired": "2026-03-20T11:16:46.112562+00:00",
+    "created_at": "2026-03-11T10:19:20.621037+00:00"
+  },
+  "dharma::orchestrator": {
+    "skill_a": "dharma",
+    "skill_b": "orchestrator",
+    "weight": 0.8500000000000002,
+    "fire_count": 17,
+    "last_fired": "2026-03-19T13:23:37.295597+00:00",
+    "created_at": "2026-03-11T10:19:20.634429+00:00"
+  },
+  "dharma::qa-auditor": {
+    "skill_a": "dharma",
+    "skill_b": "qa-auditor",
+    "weight": 1.0,
+    "fire_count": 47,
+    "last_fired": "2026-03-20T16:02:13.097682+00:00",
+    "created_at": "2026-03-11T10:19:20.641022+00:00"
+  },
+  "dharma::pdeif": {
+    "skill_a": "dharma",
+    "skill_b": "pdeif",
+    "weight": 1.0,
+    "fire_count": 70,
+    "last_fired": "2026-03-20T13:37:52.523898+00:00",
+    "created_at": "2026-03-11T10:22:22.097722+00:00"
+  },
+  "sandbox-lab::workflow-investment-analysis": {
+    "skill_a": "sandbox-lab",
+    "skill_b": "workflow-investment-analysis",
+    "weight": 0.6,
+    "fire_count": 12,
+    "last_fired": "2026-03-19T10:06:32.984810+00:00",
+    "created_at": "2026-03-11T10:28:19.448944+00:00"
+  },
+  "market-core::workflow-investment-analysis": {
+    "skill_a": "market-core",
+    "skill_b": "workflow-investment-analysis",
+    "weight": 1.0,
+    "fire_count": 116,
+    "last_fired": "2026-03-21T05:03:54.982135+00:00",
+    "created_at": "2026-03-11T10:28:19.468215+00:00"
+  },
+  "consultant-communication::dse": {
+    "skill_a": "consultant-communication",
+    "skill_b": "dse",
+    "weight": 1.0,
+    "fire_count": 39,
+    "last_fired": "2026-03-21T04:15:07.902527+00:00",
+    "created_at": "2026-03-11T10:32:02.995807+00:00"
+  },
+  "aesthetic-sense::dse": {
+    "skill_a": "aesthetic-sense",
+    "skill_b": "dse",
+    "weight": 1.0,
+    "fire_count": 62,
+    "last_fired": "2026-03-21T03:51:19.368590+00:00",
+    "created_at": "2026-03-11T10:32:03.001422+00:00"
+  },
+  "morphenix::plan-engine": {
+    "skill_a": "morphenix",
+    "skill_b": "plan-engine",
+    "weight": 0.7000000000000001,
+    "fire_count": 14,
+    "last_fired": "2026-03-21T03:45:06.226783+00:00",
+    "created_at": "2026-03-11T10:32:03.005533+00:00"
+  },
+  "consultant-communication::plan-engine": {
+    "skill_a": "consultant-communication",
+    "skill_b": "plan-engine",
+    "weight": 0.39999999999999997,
+    "fire_count": 8,
+    "last_fired": "2026-03-19T10:58:43.416940+00:00",
+    "created_at": "2026-03-11T10:32:03.011476+00:00"
+  },
+  "aesthetic-sense::consultant-communication": {
+    "skill_a": "aesthetic-sense",
+    "skill_b": "consultant-communication",
+    "weight": 0.25,
+    "fire_count": 5,
+    "last_fired": "2026-03-20T11:03:34.674892+00:00",
+    "created_at": "2026-03-11T10:32:03.013675+00:00"
+  },
+  "philo-dialectic::shadow": {
+    "skill_a": "philo-dialectic",
+    "skill_b": "shadow",
+    "weight": 1.0,
+    "fire_count": 20,
+    "last_fired": "2026-03-18T11:33:06.777862+00:00",
+    "created_at": "2026-03-11T10:45:38.611409+00:00"
+  },
+  "dharma::philo-dialectic": {
+    "skill_a": "dharma",
+    "skill_b": "philo-dialectic",
+    "weight": 1.0,
+    "fire_count": 40,
+    "last_fired": "2026-03-20T09:30:11.729765+00:00",
+    "created_at": "2026-03-11T10:45:38.613180+00:00"
+  },
+  "dharma::meta-learning": {
+    "skill_a": "dharma",
+    "skill_b": "meta-learning",
+    "weight": 1.0,
+    "fire_count": 50,
+    "last_fired": "2026-03-21T01:31:32.808538+00:00",
+    "created_at": "2026-03-11T10:53:18.590967+00:00"
+  },
+  "eval-engine::meta-learning": {
+    "skill_a": "eval-engine",
+    "skill_b": "meta-learning",
+    "weight": 1.0,
+    "fire_count": 26,
+    "last_fired": "2026-03-20T13:39:23.385390+00:00",
+    "created_at": "2026-03-11T10:53:18.599615+00:00"
+  },
+  "dharma::workflow-svc-brand-marketing": {
+    "skill_a": "dharma",
+    "skill_b": "workflow-svc-brand-marketing",
+    "weight": 0.9500000000000003,
+    "fire_count": 19,
+    "last_fired": "2026-03-21T01:38:42.386160+00:00",
+    "created_at": "2026-03-11T11:01:54.599979+00:00"
+  },
+  "shadow::workflow-svc-brand-marketing": {
+    "skill_a": "shadow",
+    "skill_b": "workflow-svc-brand-marketing",
+    "weight": 0.9000000000000002,
+    "fire_count": 18,
+    "last_fired": "2026-03-18T14:11:47.316480+00:00",
+    "created_at": "2026-03-11T11:01:54.611775+00:00"
+  },
+  "sandbox-lab::workflow-svc-brand-marketing": {
+    "skill_a": "sandbox-lab",
+    "skill_b": "workflow-svc-brand-marketing",
+    "weight": 0.3,
+    "fire_count": 6,
+    "last_fired": "2026-03-20T11:08:54.285868+00:00",
+    "created_at": "2026-03-11T11:01:54.617068+00:00"
+  },
+  "gap::workflow-investment-analysis": {
+    "skill_a": "gap",
+    "skill_b": "workflow-investment-analysis",
+    "weight": 1.0,
+    "fire_count": 137,
+    "last_fired": "2026-03-21T03:48:28.931214+00:00",
+    "created_at": "2026-03-11T11:08:19.769454+00:00"
+  },
+  "dharma::workflow-investment-analysis": {
+    "skill_a": "dharma",
+    "skill_b": "workflow-investment-analysis",
+    "weight": 0.8500000000000002,
+    "fire_count": 17,
+    "last_fired": "2026-03-21T05:03:54.968922+00:00",
+    "created_at": "2026-03-11T11:08:19.785113+00:00"
+  },
+  "gap::workflow-svc-brand-marketing": {
+    "skill_a": "gap",
+    "skill_b": "workflow-svc-brand-marketing",
+    "weight": 0.8000000000000002,
+    "fire_count": 16,
+    "last_fired": "2026-03-18T14:08:41.435616+00:00",
+    "created_at": "2026-03-11T11:09:17.864570+00:00"
+  },
+  "c15::orchestrator": {
+    "skill_a": "c15",
+    "skill_b": "orchestrator",
+    "weight": 0.65,
+    "fire_count": 13,
+    "last_fired": "2026-03-19T02:57:21.546903+00:00",
+    "created_at": "2026-03-11T11:11:50.843197+00:00"
+  },
+  "c15::workflow-ai-deployment": {
+    "skill_a": "c15",
+    "skill_b": "workflow-ai-deployment",
+    "weight": 0.9000000000000002,
+    "fire_count": 18,
+    "last_fired": "2026-03-21T01:38:42.383157+00:00",
+    "created_at": "2026-03-11T11:11:50.845592+00:00"
+  },
+  "c15::pdeif": {
+    "skill_a": "c15",
+    "skill_b": "pdeif",
+    "weight": 0.6,
+    "fire_count": 12,
+    "last_fired": "2026-03-17T15:35:46.892440+00:00",
+    "created_at": "2026-03-11T11:11:50.847429+00:00"
+  },
+  "orchestrator::text-alchemy": {
+    "skill_a": "orchestrator",
+    "skill_b": "text-alchemy",
+    "weight": 0.25,
+    "fire_count": 5,
+    "last_fired": "2026-03-18T07:57:35.313560+00:00",
+    "created_at": "2026-03-11T11:11:50.849443+00:00"
+  },
+  "text-alchemy::workflow-ai-deployment": {
+    "skill_a": "text-alchemy",
+    "skill_b": "workflow-ai-deployment",
+    "weight": 1.0,
+    "fire_count": 44,
+    "last_fired": "2026-03-21T03:48:28.925706+00:00",
+    "created_at": "2026-03-11T11:11:50.852219+00:00"
+  },
+  "c15::meta-learning": {
+    "skill_a": "c15",
+    "skill_b": "meta-learning",
+    "weight": 0.9000000000000002,
+    "fire_count": 18,
+    "last_fired": "2026-03-20T13:39:23.418346+00:00",
+    "created_at": "2026-03-11T11:15:29.047867+00:00"
+  },
+  "dse::workflow-svc-brand-marketing": {
+    "skill_a": "dse",
+    "skill_b": "workflow-svc-brand-marketing",
+    "weight": 1.0,
+    "fire_count": 31,
+    "last_fired": "2026-03-21T03:56:29.038326+00:00",
+    "created_at": "2026-03-11T11:19:46.793633+00:00"
+  },
+  "meta-learning::workflow-svc-brand-marketing": {
+    "skill_a": "meta-learning",
+    "skill_b": "workflow-svc-brand-marketing",
+    "weight": 0.5499999999999999,
+    "fire_count": 11,
+    "last_fired": "2026-03-21T03:56:29.044531+00:00",
+    "created_at": "2026-03-11T11:19:46.803020+00:00"
+  },
+  "meta-learning::novel-craft": {
+    "skill_a": "meta-learning",
+    "skill_b": "novel-craft",
+    "weight": 0.5499999999999999,
+    "fire_count": 11,
+    "last_fired": "2026-03-21T03:56:29.047028+00:00",
+    "created_at": "2026-03-11T11:19:46.805220+00:00"
+  },
+  "novel-craft::workflow-svc-brand-marketing": {
+    "skill_a": "novel-craft",
+    "skill_b": "workflow-svc-brand-marketing",
+    "weight": 0.44999999999999996,
+    "fire_count": 9,
+    "last_fired": "2026-03-21T03:56:29.043189+00:00",
+    "created_at": "2026-03-11T11:19:46.809573+00:00"
+  },
+  "business-12::workflow-svc-brand-marketing": {
+    "skill_a": "business-12",
+    "skill_b": "workflow-svc-brand-marketing",
+    "weight": 1.0,
+    "fire_count": 44,
+    "last_fired": "2026-03-21T03:44:54.176326+00:00",
+    "created_at": "2026-03-11T11:19:46.812047+00:00"
+  },
+  "consultant-communication::wee": {
+    "skill_a": "consultant-communication",
+    "skill_b": "wee",
+    "weight": 0.7500000000000001,
+    "fire_count": 15,
+    "last_fired": "2026-03-21T01:51:01.528909+00:00",
+    "created_at": "2026-03-11T11:24:13.588352+00:00"
+  },
+  "novel-craft::text-alchemy": {
+    "skill_a": "novel-craft",
+    "skill_b": "text-alchemy",
+    "weight": 0.2,
+    "fire_count": 4,
+    "last_fired": "2026-03-15T09:48:56.106453+00:00",
+    "created_at": "2026-03-11T11:24:13.594107+00:00"
+  },
+  "dharma::novel-craft": {
+    "skill_a": "dharma",
+    "skill_b": "novel-craft",
+    "weight": 1.0,
+    "fire_count": 48,
+    "last_fired": "2026-03-21T03:47:16.214978+00:00",
+    "created_at": "2026-03-11T11:24:13.599455+00:00"
+  },
+  "dharma::wee": {
+    "skill_a": "dharma",
+    "skill_b": "wee",
+    "weight": 1.0,
+    "fire_count": 54,
+    "last_fired": "2026-03-20T13:32:25.548338+00:00",
+    "created_at": "2026-03-11T11:24:13.608804+00:00"
+  },
+  "consultant-communication::orchestrator": {
+    "skill_a": "consultant-communication",
+    "skill_b": "orchestrator",
+    "weight": 0.8000000000000002,
+    "fire_count": 16,
+    "last_fired": "2026-03-20T13:25:06.454688+00:00",
+    "created_at": "2026-03-11T11:26:16.519998+00:00"
+  },
+  "consultant-communication::workflow-ai-deployment": {
+    "skill_a": "consultant-communication",
+    "skill_b": "workflow-ai-deployment",
+    "weight": 0.39999999999999997,
+    "fire_count": 8,
+    "last_fired": "2026-03-19T10:58:43.422135+00:00",
+    "created_at": "2026-03-11T11:26:16.522774+00:00"
+  },
+  "business-12::consultant-communication": {
+    "skill_a": "business-12",
+    "skill_b": "consultant-communication",
+    "weight": 0.6,
+    "fire_count": 12,
+    "last_fired": "2026-03-19T08:56:06.908625+00:00",
+    "created_at": "2026-03-11T11:26:16.525008+00:00"
+  },
+  "novel-craft::workflow-ai-deployment": {
+    "skill_a": "novel-craft",
+    "skill_b": "workflow-ai-deployment",
+    "weight": 0.6,
+    "fire_count": 12,
+    "last_fired": "2026-03-20T06:43:52.868484+00:00",
+    "created_at": "2026-03-11T11:26:16.531228+00:00"
+  },
+  "consultant-communication::storytelling-engine": {
+    "skill_a": "consultant-communication",
+    "skill_b": "storytelling-engine",
+    "weight": 0.44999999999999996,
+    "fire_count": 9,
+    "last_fired": "2026-03-20T13:25:06.460908+00:00",
+    "created_at": "2026-03-11T11:33:42.783626+00:00"
+  },
+  "aesthetic-sense::ssa-consultant": {
+    "skill_a": "aesthetic-sense",
+    "skill_b": "ssa-consultant",
+    "weight": 0.8500000000000002,
+    "fire_count": 17,
+    "last_fired": "2026-03-18T09:47:24.329553+00:00",
+    "created_at": "2026-03-11T11:33:42.789224+00:00"
+  },
+  "aesthetic-sense::business-12": {
+    "skill_a": "aesthetic-sense",
+    "skill_b": "business-12",
+    "weight": 1.0,
+    "fire_count": 31,
+    "last_fired": "2026-03-21T03:51:19.384683+00:00",
+    "created_at": "2026-03-11T11:33:42.795004+00:00"
+  },
+  "consultant-communication::ssa-consultant": {
+    "skill_a": "consultant-communication",
+    "skill_b": "ssa-consultant",
+    "weight": 0.7500000000000001,
+    "fire_count": 15,
+    "last_fired": "2026-03-21T04:15:07.898693+00:00",
+    "created_at": "2026-03-11T11:33:42.797280+00:00"
+  },
+  "c15::workflow-svc-brand-marketing": {
+    "skill_a": "c15",
+    "skill_b": "workflow-svc-brand-marketing",
+    "weight": 0.49999999999999994,
+    "fire_count": 10,
+    "last_fired": "2026-03-21T01:38:42.382080+00:00",
+    "created_at": "2026-03-11T11:37:59.206136+00:00"
+  },
+  "orchestrator::workflow-svc-brand-marketing": {
+    "skill_a": "orchestrator",
+    "skill_b": "workflow-svc-brand-marketing",
+    "weight": 0.44999999999999996,
+    "fire_count": 9,
+    "last_fired": "2026-03-19T12:14:46.465121+00:00",
+    "created_at": "2026-03-11T11:37:59.216942+00:00"
+  },
+  "workflow-ai-deployment::workflow-svc-brand-marketing": {
+    "skill_a": "workflow-ai-deployment",
+    "skill_b": "workflow-svc-brand-marketing",
+    "weight": 1.0,
+    "fire_count": 66,
+    "last_fired": "2026-03-21T05:05:28.668805+00:00",
+    "created_at": "2026-03-11T11:44:16.580459+00:00"
+  },
+  "dharma::workflow-ai-deployment": {
+    "skill_a": "dharma",
+    "skill_b": "workflow-ai-deployment",
+    "weight": 1.0,
+    "fire_count": 46,
+    "last_fired": "2026-03-21T01:38:42.387693+00:00",
+    "created_at": "2026-03-11T11:44:16.589156+00:00"
+  },
+  "eval-engine::xmodel": {
+    "skill_a": "eval-engine",
+    "skill_b": "xmodel",
+    "weight": 0.6,
+    "fire_count": 12,
+    "last_fired": "2026-03-16T10:30:34.697639+00:00",
+    "created_at": "2026-03-11T11:52:46.229502+00:00"
+  },
+  "workflow-ai-deployment::workflow-investment-analysis": {
+    "skill_a": "workflow-ai-deployment",
+    "skill_b": "workflow-investment-analysis",
+    "weight": 0.7000000000000001,
+    "fire_count": 14,
+    "last_fired": "2026-03-21T03:48:28.926777+00:00",
+    "created_at": "2026-03-11T13:03:52.067726+00:00"
+  },
+  "plan-engine::workflow-ai-deployment": {
+    "skill_a": "plan-engine",
+    "skill_b": "workflow-ai-deployment",
+    "weight": 0.8000000000000002,
+    "fire_count": 16,
+    "last_fired": "2026-03-20T16:36:10.946101+00:00",
+    "created_at": "2026-03-11T13:18:29.056248+00:00"
+  },
+  "aesthetic-sense::meta-learning": {
+    "skill_a": "aesthetic-sense",
+    "skill_b": "meta-learning",
+    "weight": 1.0,
+    "fire_count": 36,
+    "last_fired": "2026-03-21T03:51:19.377219+00:00",
+    "created_at": "2026-03-11T14:36:37.654934+00:00"
+  },
+  "meta-learning::pdeif": {
+    "skill_a": "meta-learning",
+    "skill_b": "pdeif",
+    "weight": 1.0,
+    "fire_count": 31,
+    "last_fired": "2026-03-20T13:28:44.695634+00:00",
+    "created_at": "2026-03-11T14:36:37.673765+00:00"
+  },
+  "meta-learning::sandbox-lab": {
+    "skill_a": "meta-learning",
+    "skill_b": "sandbox-lab",
+    "weight": 1.0,
+    "fire_count": 39,
+    "last_fired": "2026-03-21T01:35:50.870949+00:00",
+    "created_at": "2026-03-11T14:52:05.479159+00:00"
+  },
+  "aesthetic-sense::wee": {
+    "skill_a": "aesthetic-sense",
+    "skill_b": "wee",
+    "weight": 1.0,
+    "fire_count": 21,
+    "last_fired": "2026-03-20T11:35:49.897905+00:00",
+    "created_at": "2026-03-11T14:54:23.763199+00:00"
+  },
+  "resonance::storytelling-engine": {
+    "skill_a": "resonance",
+    "skill_b": "storytelling-engine",
+    "weight": 1.0,
+    "fire_count": 56,
+    "last_fired": "2026-03-21T01:31:32.818178+00:00",
+    "created_at": "2026-03-11T14:55:37.206583+00:00"
+  },
+  "aesthetic-sense::resonance": {
+    "skill_a": "aesthetic-sense",
+    "skill_b": "resonance",
+    "weight": 1.0,
+    "fire_count": 46,
+    "last_fired": "2026-03-19T13:30:01.509413+00:00",
+    "created_at": "2026-03-11T14:55:37.220963+00:00"
+  },
+  "c15::consultant-communication": {
+    "skill_a": "c15",
+    "skill_b": "consultant-communication",
+    "weight": 0.7500000000000001,
+    "fire_count": 15,
+    "last_fired": "2026-03-20T13:39:23.439551+00:00",
+    "created_at": "2026-03-11T14:55:37.233636+00:00"
+  },
+  "market-macro::sentiment-radar": {
+    "skill_a": "market-macro",
+    "skill_b": "sentiment-radar",
+    "weight": 1.0,
+    "fire_count": 31,
+    "last_fired": "2026-03-21T03:47:16.219351+00:00",
+    "created_at": "2026-03-11T14:56:39.390518+00:00"
+  },
+  "market-core::sentiment-radar": {
+    "skill_a": "market-core",
+    "skill_b": "sentiment-radar",
+    "weight": 1.0,
+    "fire_count": 88,
+    "last_fired": "2026-03-21T05:03:54.980236+00:00",
+    "created_at": "2026-03-11T14:56:39.413222+00:00"
+  },
+  "eval-engine::gap": {
+    "skill_a": "eval-engine",
+    "skill_b": "gap",
+    "weight": 1.0,
+    "fire_count": 24,
+    "last_fired": "2026-03-19T14:38:54.810114+00:00",
+    "created_at": "2026-03-11T14:56:39.426475+00:00"
+  },
+  "investment-masters::novel-craft": {
+    "skill_a": "investment-masters",
+    "skill_b": "novel-craft",
+    "weight": 0.2,
+    "fire_count": 4,
+    "last_fired": "2026-03-15T14:08:13.627362+00:00",
+    "created_at": "2026-03-11T14:57:59.505613+00:00"
+  },
+  "dharma::investment-masters": {
+    "skill_a": "dharma",
+    "skill_b": "investment-masters",
+    "weight": 0.39999999999999997,
+    "fire_count": 8,
+    "last_fired": "2026-03-19T08:20:53.907625+00:00",
+    "created_at": "2026-03-11T14:57:59.510644+00:00"
+  },
+  "info-architect::novel-craft": {
+    "skill_a": "info-architect",
+    "skill_b": "novel-craft",
+    "weight": 0.39999999999999997,
+    "fire_count": 8,
+    "last_fired": "2026-03-15T14:07:03.961549+00:00",
+    "created_at": "2026-03-11T14:57:59.521157+00:00"
+  },
+  "master-strategy::workflow-ai-deployment": {
+    "skill_a": "master-strategy",
+    "skill_b": "workflow-ai-deployment",
+    "weight": 1.0,
+    "fire_count": 131,
+    "last_fired": "2026-03-21T05:05:28.669799+00:00",
+    "created_at": "2026-03-11T15:34:31.447494+00:00"
+  },
+  "market-core::master-strategy": {
+    "skill_a": "market-core",
+    "skill_b": "master-strategy",
+    "weight": 1.0,
+    "fire_count": 76,
+    "last_fired": "2026-03-21T03:46:07.302802+00:00",
+    "created_at": "2026-03-11T15:34:31.455733+00:00"
+  },
+  "gap::master-strategy": {
+    "skill_a": "gap",
+    "skill_b": "master-strategy",
+    "weight": 1.0,
+    "fire_count": 103,
+    "last_fired": "2026-03-20T16:01:13.889539+00:00",
+    "created_at": "2026-03-11T15:34:31.469186+00:00"
+  },
+  "market-core::qa-auditor": {
+    "skill_a": "market-core",
+    "skill_b": "qa-auditor",
+    "weight": 1.0,
+    "fire_count": 82,
+    "last_fired": "2026-03-20T16:02:13.091974+00:00",
+    "created_at": "2026-03-11T15:34:34.144388+00:00"
+  },
+  "investment-masters::sentiment-radar": {
+    "skill_a": "investment-masters",
+    "skill_b": "sentiment-radar",
+    "weight": 1.0,
+    "fire_count": 25,
+    "last_fired": "2026-03-20T13:36:44.279642+00:00",
+    "created_at": "2026-03-11T15:34:34.160117+00:00"
+  },
+  "investment-masters::market-core": {
+    "skill_a": "investment-masters",
+    "skill_b": "market-core",
+    "weight": 1.0,
+    "fire_count": 35,
+    "last_fired": "2026-03-20T13:04:42.070232+00:00",
+    "created_at": "2026-03-11T15:34:34.167387+00:00"
+  },
+  "gap::investment-masters": {
+    "skill_a": "gap",
+    "skill_b": "investment-masters",
+    "weight": 1.0,
+    "fire_count": 28,
+    "last_fired": "2026-03-16T11:51:16.505413+00:00",
+    "created_at": "2026-03-11T15:34:34.173095+00:00"
+  },
+  "master-strategy::workflow-svc-brand-marketing": {
+    "skill_a": "master-strategy",
+    "skill_b": "workflow-svc-brand-marketing",
+    "weight": 1.0,
+    "fire_count": 49,
+    "last_fired": "2026-03-21T05:05:28.670778+00:00",
+    "created_at": "2026-03-11T15:34:58.993633+00:00"
+  },
+  "ssa-consultant::workflow-ai-deployment": {
+    "skill_a": "ssa-consultant",
+    "skill_b": "workflow-ai-deployment",
+    "weight": 1.0,
+    "fire_count": 53,
+    "last_fired": "2026-03-20T16:03:05.563203+00:00",
+    "created_at": "2026-03-11T15:34:58.996493+00:00"
+  },
+  "ssa-consultant::workflow-svc-brand-marketing": {
+    "skill_a": "ssa-consultant",
+    "skill_b": "workflow-svc-brand-marketing",
+    "weight": 1.0,
+    "fire_count": 46,
+    "last_fired": "2026-03-21T03:56:29.045910+00:00",
+    "created_at": "2026-03-11T15:34:59.000807+00:00"
+  },
+  "pdeif::sentiment-radar": {
+    "skill_a": "pdeif",
+    "skill_b": "sentiment-radar",
+    "weight": 1.0,
+    "fire_count": 59,
+    "last_fired": "2026-03-19T12:33:59.949864+00:00",
+    "created_at": "2026-03-11T15:35:03.242352+00:00"
+  },
+  "plan-engine::sentiment-radar": {
+    "skill_a": "plan-engine",
+    "skill_b": "sentiment-radar",
+    "weight": 1.0,
+    "fire_count": 70,
+    "last_fired": "2026-03-18T11:28:29.330826+00:00",
+    "created_at": "2026-03-11T15:35:03.249586+00:00"
+  },
+  "dse::workflow-investment-analysis": {
+    "skill_a": "dse",
+    "skill_b": "workflow-investment-analysis",
+    "weight": 1.0,
+    "fire_count": 123,
+    "last_fired": "2026-03-20T13:31:34.993603+00:00",
+    "created_at": "2026-03-11T15:35:05.594896+00:00"
+  },
+  "market-crypto::workflow-investment-analysis": {
+    "skill_a": "market-crypto",
+    "skill_b": "workflow-investment-analysis",
+    "weight": 1.0,
+    "fire_count": 42,
+    "last_fired": "2026-03-19T10:40:00.163125+00:00",
+    "created_at": "2026-03-11T15:35:05.597920+00:00"
+  },
+  "market-equity::pdeif": {
+    "skill_a": "market-equity",
+    "skill_b": "pdeif",
+    "weight": 1.0,
+    "fire_count": 52,
+    "last_fired": "2026-03-20T13:31:57.060913+00:00",
+    "created_at": "2026-03-11T15:35:08.054905+00:00"
+  },
+  "market-equity::plan-engine": {
+    "skill_a": "market-equity",
+    "skill_b": "plan-engine",
+    "weight": 1.0,
+    "fire_count": 108,
+    "last_fired": "2026-03-21T03:45:19.289390+00:00",
+    "created_at": "2026-03-11T15:35:08.058538+00:00"
+  },
+  "market-macro::pdeif": {
+    "skill_a": "market-macro",
+    "skill_b": "pdeif",
+    "weight": 1.0,
+    "fire_count": 71,
+    "last_fired": "2026-03-20T13:31:57.072391+00:00",
+    "created_at": "2026-03-11T15:35:08.064270+00:00"
+  },
+  "sentiment-radar::workflow-investment-analysis": {
+    "skill_a": "sentiment-radar",
+    "skill_b": "workflow-investment-analysis",
+    "weight": 1.0,
+    "fire_count": 79,
+    "last_fired": "2026-03-21T05:03:54.978105+00:00",
+    "created_at": "2026-03-11T15:35:10.405413+00:00"
+  },
+  "aesthetic-sense::eval-engine": {
+    "skill_a": "aesthetic-sense",
+    "skill_b": "eval-engine",
+    "weight": 1.0,
+    "fire_count": 24,
+    "last_fired": "2026-03-20T07:39:41.567978+00:00",
+    "created_at": "2026-03-11T15:35:16.924711+00:00"
+  },
+  "dharma::xmodel": {
+    "skill_a": "dharma",
+    "skill_b": "xmodel",
+    "weight": 1.0,
+    "fire_count": 41,
+    "last_fired": "2026-03-21T01:40:10.292601+00:00",
+    "created_at": "2026-03-11T15:35:48.319362+00:00"
+  },
+  "novel-craft::resonance": {
+    "skill_a": "novel-craft",
+    "skill_b": "resonance",
+    "weight": 1.0,
+    "fire_count": 50,
+    "last_fired": "2026-03-21T01:31:32.821287+00:00",
+    "created_at": "2026-03-11T15:35:50.595797+00:00"
+  },
+  "dharma::storytelling-engine": {
+    "skill_a": "dharma",
+    "skill_b": "storytelling-engine",
+    "weight": 1.0,
+    "fire_count": 51,
+    "last_fired": "2026-03-21T03:47:16.206789+00:00",
+    "created_at": "2026-03-11T15:35:50.601383+00:00"
+  },
+  "aesthetic-sense::dharma": {
+    "skill_a": "aesthetic-sense",
+    "skill_b": "dharma",
+    "weight": 1.0,
+    "fire_count": 48,
+    "last_fired": "2026-03-18T17:21:00.804192+00:00",
+    "created_at": "2026-03-11T15:35:50.606712+00:00"
+  },
+  "market-crypto::plan-engine": {
+    "skill_a": "market-crypto",
+    "skill_b": "plan-engine",
+    "weight": 1.0,
+    "fire_count": 72,
+    "last_fired": "2026-03-21T03:45:19.286358+00:00",
+    "created_at": "2026-03-11T15:36:19.643925+00:00"
+  },
+  "pdeif::risk-matrix": {
+    "skill_a": "pdeif",
+    "skill_b": "risk-matrix",
+    "weight": 1.0,
+    "fire_count": 48,
+    "last_fired": "2026-03-20T13:37:52.531037+00:00",
+    "created_at": "2026-03-11T15:36:21.877283+00:00"
+  },
+  "eval-engine::investment-masters": {
+    "skill_a": "eval-engine",
+    "skill_b": "investment-masters",
+    "weight": 0.25,
+    "fire_count": 5,
+    "last_fired": "2026-03-16T05:18:10.064699+00:00",
+    "created_at": "2026-03-11T16:17:15.714525+00:00"
+  },
+  "investment-masters::risk-matrix": {
+    "skill_a": "investment-masters",
+    "skill_b": "risk-matrix",
+    "weight": 0.5499999999999999,
+    "fire_count": 11,
+    "last_fired": "2026-03-18T11:39:09.623211+00:00",
+    "created_at": "2026-03-11T16:17:15.720454+00:00"
+  },
+  "deep-think::sandbox-lab": {
+    "skill_a": "deep-think",
+    "skill_b": "sandbox-lab",
+    "weight": 0.5499999999999999,
+    "fire_count": 11,
+    "last_fired": "2026-03-18T07:54:21.144140+00:00",
+    "created_at": "2026-03-11T16:49:28.142325+00:00"
+  },
+  "plugin-registry::sandbox-lab": {
+    "skill_a": "plugin-registry",
+    "skill_b": "sandbox-lab",
+    "weight": 0.6,
+    "fire_count": 12,
+    "last_fired": "2026-03-20T11:03:34.626598+00:00",
+    "created_at": "2026-03-11T16:49:28.144936+00:00"
+  },
+  "c15::deep-think": {
+    "skill_a": "c15",
+    "skill_b": "deep-think",
+    "weight": 0.5499999999999999,
+    "fire_count": 11,
+    "last_fired": "2026-03-16T14:15:11.201129+00:00",
+    "created_at": "2026-03-11T16:49:28.150326+00:00"
+  },
+  "c15::plugin-registry": {
+    "skill_a": "c15",
+    "skill_b": "plugin-registry",
+    "weight": 0.5499999999999999,
+    "fire_count": 11,
+    "last_fired": "2026-03-15T14:18:45.326079+00:00",
+    "created_at": "2026-03-11T16:49:28.153656+00:00"
+  },
+  "c15::shadow": {
+    "skill_a": "c15",
+    "skill_b": "shadow",
+    "weight": 1.0,
+    "fire_count": 39,
+    "last_fired": "2026-03-20T13:37:59.838901+00:00",
+    "created_at": "2026-03-11T18:06:01.392216+00:00"
+  },
+  "c15::ssa-consultant": {
+    "skill_a": "c15",
+    "skill_b": "ssa-consultant",
+    "weight": 1.0,
+    "fire_count": 27,
+    "last_fired": "2026-03-20T13:37:59.820772+00:00",
+    "created_at": "2026-03-11T18:06:01.395680+00:00"
+  },
+  "business-12::c15": {
+    "skill_a": "business-12",
+    "skill_b": "c15",
+    "weight": 1.0,
+    "fire_count": 41,
+    "last_fired": "2026-03-20T13:37:59.831171+00:00",
+    "created_at": "2026-03-11T18:06:01.399646+00:00"
+  },
+  "shadow::ssa-consultant": {
+    "skill_a": "shadow",
+    "skill_b": "ssa-consultant",
+    "weight": 1.0,
+    "fire_count": 27,
+    "last_fired": "2026-03-20T13:37:59.824624+00:00",
+    "created_at": "2026-03-11T18:06:01.418254+00:00"
+  },
+  "business-12::shadow": {
+    "skill_a": "business-12",
+    "skill_b": "shadow",
+    "weight": 1.0,
+    "fire_count": 29,
+    "last_fired": "2026-03-20T13:37:59.835462+00:00",
+    "created_at": "2026-03-11T18:06:01.422201+00:00"
+  },
+  "master-strategy::qa-auditor": {
+    "skill_a": "master-strategy",
+    "skill_b": "qa-auditor",
+    "weight": 0.65,
+    "fire_count": 13,
+    "last_fired": "2026-03-20T13:06:54.004139+00:00",
+    "created_at": "2026-03-11T18:06:40.183493+00:00"
+  },
+  "qa-auditor::wee": {
+    "skill_a": "qa-auditor",
+    "skill_b": "wee",
+    "weight": 0.7000000000000001,
+    "fire_count": 14,
+    "last_fired": "2026-03-21T03:50:07.151791+00:00",
+    "created_at": "2026-03-11T18:06:40.191956+00:00"
+  },
+  "market-crypto::qa-auditor": {
+    "skill_a": "market-crypto",
+    "skill_b": "qa-auditor",
+    "weight": 1.0,
+    "fire_count": 22,
+    "last_fired": "2026-03-17T15:21:37.129853+00:00",
+    "created_at": "2026-03-11T18:06:40.194238+00:00"
+  },
+  "market-crypto::wee": {
+    "skill_a": "market-crypto",
+    "skill_b": "wee",
+    "weight": 0.8500000000000002,
+    "fire_count": 17,
+    "last_fired": "2026-03-21T01:51:01.535358+00:00",
+    "created_at": "2026-03-11T18:06:40.197194+00:00"
+  },
+  "info-architect::philo-dialectic": {
+    "skill_a": "info-architect",
+    "skill_b": "philo-dialectic",
+    "weight": 1.0,
+    "fire_count": 20,
+    "last_fired": "2026-03-19T09:59:03.662806+00:00",
+    "created_at": "2026-03-11T18:07:02.737193+00:00"
+  },
+  "eval-engine::info-architect": {
+    "skill_a": "eval-engine",
+    "skill_b": "info-architect",
+    "weight": 1.0,
+    "fire_count": 24,
+    "last_fired": "2026-03-20T11:11:23.515199+00:00",
+    "created_at": "2026-03-11T18:07:02.743640+00:00"
+  },
+  "c15::info-architect": {
+    "skill_a": "c15",
+    "skill_b": "info-architect",
+    "weight": 1.0,
+    "fire_count": 24,
+    "last_fired": "2026-03-18T12:58:25.705066+00:00",
+    "created_at": "2026-03-11T18:07:02.747898+00:00"
+  },
+  "business-12::info-architect": {
+    "skill_a": "business-12",
+    "skill_b": "info-architect",
+    "weight": 0.7000000000000001,
+    "fire_count": 14,
+    "last_fired": "2026-03-21T03:49:49.886686+00:00",
+    "created_at": "2026-03-11T18:07:02.750852+00:00"
+  },
+  "eval-engine::philo-dialectic": {
+    "skill_a": "eval-engine",
+    "skill_b": "philo-dialectic",
+    "weight": 1.0,
+    "fire_count": 22,
+    "last_fired": "2026-03-21T03:53:32.320450+00:00",
+    "created_at": "2026-03-11T18:07:02.763564+00:00"
+  },
+  "c15::eval-engine": {
+    "skill_a": "c15",
+    "skill_b": "eval-engine",
+    "weight": 1.0,
+    "fire_count": 33,
+    "last_fired": "2026-03-20T13:39:23.401974+00:00",
+    "created_at": "2026-03-11T18:07:02.778859+00:00"
+  },
+  "workflow-svc-brand-marketing::xmodel": {
+    "skill_a": "workflow-svc-brand-marketing",
+    "skill_b": "xmodel",
+    "weight": 1.0,
+    "fire_count": 42,
+    "last_fired": "2026-03-21T05:05:28.663800+00:00",
+    "created_at": "2026-03-11T18:07:31.595835+00:00"
+  },
+  "shadow::xmodel": {
+    "skill_a": "shadow",
+    "skill_b": "xmodel",
+    "weight": 1.0,
+    "fire_count": 20,
+    "last_fired": "2026-03-21T01:40:10.289213+00:00",
+    "created_at": "2026-03-11T18:07:31.604765+00:00"
+  },
+  "philo-dialectic::workflow-svc-brand-marketing": {
+    "skill_a": "philo-dialectic",
+    "skill_b": "workflow-svc-brand-marketing",
+    "weight": 1.0,
+    "fire_count": 20,
+    "last_fired": "2026-03-19T09:49:31.954522+00:00",
+    "created_at": "2026-03-11T18:07:31.611971+00:00"
+  },
+  "wee::workflow-svc-brand-marketing": {
+    "skill_a": "wee",
+    "skill_b": "workflow-svc-brand-marketing",
+    "weight": 1.0,
+    "fire_count": 39,
+    "last_fired": "2026-03-20T13:40:01.103854+00:00",
+    "created_at": "2026-03-11T18:07:31.618343+00:00"
+  },
+  "shadow::wee": {
+    "skill_a": "shadow",
+    "skill_b": "wee",
+    "weight": 0.9000000000000002,
+    "fire_count": 18,
+    "last_fired": "2026-03-17T04:00:03.183237+00:00",
+    "created_at": "2026-03-11T18:07:31.633813+00:00"
+  },
+  "env-radar::gap": {
+    "skill_a": "env-radar",
+    "skill_b": "gap",
+    "weight": 1.0,
+    "fire_count": 49,
+    "last_fired": "2026-03-21T01:34:17.196910+00:00",
+    "created_at": "2026-03-11T18:08:37.061931+00:00"
+  },
+  "env-radar::workflow-ai-deployment": {
+    "skill_a": "env-radar",
+    "skill_b": "workflow-ai-deployment",
+    "weight": 1.0,
+    "fire_count": 32,
+    "last_fired": "2026-03-20T13:41:18.501618+00:00",
+    "created_at": "2026-03-11T18:08:37.070662+00:00"
+  },
+  "business-12::env-radar": {
+    "skill_a": "business-12",
+    "skill_b": "env-radar",
+    "weight": 1.0,
+    "fire_count": 41,
+    "last_fired": "2026-03-21T01:34:17.207110+00:00",
+    "created_at": "2026-03-11T18:08:37.081599+00:00"
+  },
+  "market-crypto::meta-learning": {
+    "skill_a": "market-crypto",
+    "skill_b": "meta-learning",
+    "weight": 0.7500000000000001,
+    "fire_count": 15,
+    "last_fired": "2026-03-20T13:39:23.414910+00:00",
+    "created_at": "2026-03-12T00:28:13.826492+00:00"
+  },
+  "market-equity::meta-learning": {
+    "skill_a": "market-equity",
+    "skill_b": "meta-learning",
+    "weight": 0.8000000000000002,
+    "fire_count": 16,
+    "last_fired": "2026-03-20T03:01:50.007638+00:00",
+    "created_at": "2026-03-12T00:28:13.837548+00:00"
+  },
+  "market-macro::meta-learning": {
+    "skill_a": "market-macro",
+    "skill_b": "meta-learning",
+    "weight": 0.65,
+    "fire_count": 13,
+    "last_fired": "2026-03-20T03:01:50.013789+00:00",
+    "created_at": "2026-03-12T00:28:13.846994+00:00"
+  },
+  "deep-think::dharma": {
+    "skill_a": "deep-think",
+    "skill_b": "dharma",
+    "weight": 0.49999999999999994,
+    "fire_count": 10,
+    "last_fired": "2026-03-16T14:02:34.672606+00:00",
+    "created_at": "2026-03-12T04:40:43.011232+00:00"
+  },
+  "deep-think::shadow": {
+    "skill_a": "deep-think",
+    "skill_b": "shadow",
+    "weight": 0.39999999999999997,
+    "fire_count": 8,
+    "last_fired": "2026-03-16T13:30:20.186306+00:00",
+    "created_at": "2026-03-12T04:40:43.024737+00:00"
+  },
+  "info-architect::master-strategy": {
+    "skill_a": "info-architect",
+    "skill_b": "master-strategy",
+    "weight": 0.5499999999999999,
+    "fire_count": 11,
+    "last_fired": "2026-03-19T09:59:03.670122+00:00",
+    "created_at": "2026-03-12T04:47:37.588346+00:00"
+  },
+  "dharma::market-equity": {
+    "skill_a": "dharma",
+    "skill_b": "market-equity",
+    "weight": 0.5499999999999999,
+    "fire_count": 11,
+    "last_fired": "2026-03-20T13:33:14.083884+00:00",
+    "created_at": "2026-03-12T05:24:02.059834+00:00"
+  },
+  "pdeif::philo-dialectic": {
+    "skill_a": "pdeif",
+    "skill_b": "philo-dialectic",
+    "weight": 0.65,
+    "fire_count": 13,
+    "last_fired": "2026-03-20T16:06:26.493251+00:00",
+    "created_at": "2026-03-12T05:25:44.397569+00:00"
+  },
+  "aesthetic-sense::info-architect": {
+    "skill_a": "aesthetic-sense",
+    "skill_b": "info-architect",
+    "weight": 0.39999999999999997,
+    "fire_count": 8,
+    "last_fired": "2026-03-14T08:17:19.781244+00:00",
+    "created_at": "2026-03-12T05:27:08.180590+00:00"
+  },
+  "consultant-communication::market-core": {
+    "skill_a": "consultant-communication",
+    "skill_b": "market-core",
+    "weight": 0.7500000000000001,
+    "fire_count": 15,
+    "last_fired": "2026-03-20T23:41:06.304349+00:00",
+    "created_at": "2026-03-12T06:49:06.134493+00:00"
+  },
+  "info-architect::storytelling-engine": {
+    "skill_a": "info-architect",
+    "skill_b": "storytelling-engine",
+    "weight": 0.39999999999999997,
+    "fire_count": 8,
+    "last_fired": "2026-03-20T13:25:06.469725+00:00",
+    "created_at": "2026-03-12T07:30:12.821231+00:00"
+  },
+  "c15::workflow-investment-analysis": {
+    "skill_a": "c15",
+    "skill_b": "workflow-investment-analysis",
+    "weight": 0.35,
+    "fire_count": 7,
+    "last_fired": "2026-03-18T07:02:35.443721+00:00",
+    "created_at": "2026-03-12T10:43:05.600330+00:00"
+  },
+  "consultant-communication::workflow-investment-analysis": {
+    "skill_a": "consultant-communication",
+    "skill_b": "workflow-investment-analysis",
+    "weight": 0.3,
+    "fire_count": 6,
+    "last_fired": "2026-03-20T23:41:06.296205+00:00",
+    "created_at": "2026-03-12T10:43:05.611678+00:00"
+  },
+  "consultant-communication::workflow-svc-brand-marketing": {
+    "skill_a": "consultant-communication",
+    "skill_b": "workflow-svc-brand-marketing",
+    "weight": 0.39999999999999997,
+    "fire_count": 8,
+    "last_fired": "2026-03-19T10:12:20.575315+00:00",
+    "created_at": "2026-03-12T10:43:05.628234+00:00"
+  },
+  "c15::gap": {
+    "skill_a": "c15",
+    "skill_b": "gap",
+    "weight": 0.9500000000000003,
+    "fire_count": 19,
+    "last_fired": "2026-03-21T03:43:56.400479+00:00",
+    "created_at": "2026-03-12T10:43:05.633457+00:00"
+  },
+  "market-core::ssa-consultant": {
+    "skill_a": "market-core",
+    "skill_b": "ssa-consultant",
+    "weight": 1.0,
+    "fire_count": 24,
+    "last_fired": "2026-03-21T03:49:43.040116+00:00",
+    "created_at": "2026-03-12T12:50:14.400771+00:00"
+  },
+  "aesthetic-sense::sandbox-lab": {
+    "skill_a": "aesthetic-sense",
+    "skill_b": "sandbox-lab",
+    "weight": 1.0,
+    "fire_count": 20,
+    "last_fired": "2026-03-20T11:35:49.889010+00:00",
+    "created_at": "2026-03-12T12:56:08.616976+00:00"
+  },
+  "aesthetic-sense::gap": {
+    "skill_a": "aesthetic-sense",
+    "skill_b": "gap",
+    "weight": 0.8000000000000002,
+    "fire_count": 16,
+    "last_fired": "2026-03-20T13:28:22.929907+00:00",
+    "created_at": "2026-03-12T12:56:08.624212+00:00"
+  },
+  "plugin-registry::text-alchemy": {
+    "skill_a": "plugin-registry",
+    "skill_b": "text-alchemy",
+    "weight": 0.2,
+    "fire_count": 4,
+    "last_fired": "2026-03-15T14:07:58.096140+00:00",
+    "created_at": "2026-03-12T12:56:46.127551+00:00"
+  },
+  "resonance::text-alchemy": {
+    "skill_a": "resonance",
+    "skill_b": "text-alchemy",
+    "weight": 0.35,
+    "fire_count": 7,
+    "last_fired": "2026-03-20T13:34:34.490207+00:00",
+    "created_at": "2026-03-12T12:56:46.131643+00:00"
+  },
+  "consultant-communication::plugin-registry": {
+    "skill_a": "consultant-communication",
+    "skill_b": "plugin-registry",
+    "weight": 0.8500000000000002,
+    "fire_count": 17,
+    "last_fired": "2026-03-20T11:03:34.668344+00:00",
+    "created_at": "2026-03-12T12:59:49.670484+00:00"
+  },
+  "dharma::plugin-registry": {
+    "skill_a": "dharma",
+    "skill_b": "plugin-registry",
+    "weight": 0.3,
+    "fire_count": 6,
+    "last_fired": "2026-03-18T13:21:50.969950+00:00",
+    "created_at": "2026-03-12T12:59:49.676523+00:00"
+  },
+  "consultant-communication::dna27": {
+    "skill_a": "consultant-communication",
+    "skill_b": "dna27",
+    "weight": 0.7500000000000001,
+    "fire_count": 15,
+    "last_fired": "2026-03-20T11:01:56.896676+00:00",
+    "created_at": "2026-03-12T12:59:49.688990+00:00"
+  },
+  "aesthetic-sense::workflow-ai-deployment": {
+    "skill_a": "aesthetic-sense",
+    "skill_b": "workflow-ai-deployment",
+    "weight": 0.44999999999999996,
+    "fire_count": 9,
+    "last_fired": "2026-03-20T06:43:52.920109+00:00",
+    "created_at": "2026-03-12T13:04:55.280744+00:00"
+  },
+  "info-architect::plugin-registry": {
+    "skill_a": "info-architect",
+    "skill_b": "plugin-registry",
+    "weight": 0.7500000000000001,
+    "fire_count": 15,
+    "last_fired": "2026-03-21T03:31:42.850664+00:00",
+    "created_at": "2026-03-12T13:14:02.146319+00:00"
+  },
+  "dna27::info-architect": {
+    "skill_a": "dna27",
+    "skill_b": "info-architect",
+    "weight": 0.8000000000000002,
+    "fire_count": 16,
+    "last_fired": "2026-03-21T03:31:42.857517+00:00",
+    "created_at": "2026-03-12T13:14:02.165079+00:00"
+  },
+  "dse::info-architect": {
+    "skill_a": "dse",
+    "skill_b": "info-architect",
+    "weight": 1.0,
+    "fire_count": 29,
+    "last_fired": "2026-03-21T03:49:49.881522+00:00",
+    "created_at": "2026-03-12T13:14:02.175455+00:00"
+  },
+  "philo-dialectic::workflow-ai-deployment": {
+    "skill_a": "philo-dialectic",
+    "skill_b": "workflow-ai-deployment",
+    "weight": 0.9000000000000002,
+    "fire_count": 18,
+    "last_fired": "2026-03-20T16:02:04.249393+00:00",
+    "created_at": "2026-03-12T13:57:13.677461+00:00"
+  },
+  "philo-dialectic::plan-engine": {
+    "skill_a": "philo-dialectic",
+    "skill_b": "plan-engine",
+    "weight": 0.6,
+    "fire_count": 12,
+    "last_fired": "2026-03-20T16:06:26.497308+00:00",
+    "created_at": "2026-03-12T13:58:50.311496+00:00"
+  },
+  "market-core::philo-dialectic": {
+    "skill_a": "market-core",
+    "skill_b": "philo-dialectic",
+    "weight": 0.8000000000000002,
+    "fire_count": 16,
+    "last_fired": "2026-03-20T16:06:26.495289+00:00",
+    "created_at": "2026-03-12T13:58:50.323067+00:00"
+  },
+  "gap::plugin-registry": {
+    "skill_a": "gap",
+    "skill_b": "plugin-registry",
+    "weight": 0.65,
+    "fire_count": 13,
+    "last_fired": "2026-03-20T09:49:44.845012+00:00",
+    "created_at": "2026-03-12T14:58:38.069713+00:00"
+  },
+  "dna27::gap": {
+    "skill_a": "dna27",
+    "skill_b": "gap",
+    "weight": 0.6,
+    "fire_count": 12,
+    "last_fired": "2026-03-20T09:49:44.835391+00:00",
+    "created_at": "2026-03-12T14:58:38.089317+00:00"
+  },
+  "market-macro::master-strategy": {
+    "skill_a": "market-macro",
+    "skill_b": "master-strategy",
+    "weight": 1.0,
+    "fire_count": 22,
+    "last_fired": "2026-03-19T09:59:03.707668+00:00",
+    "created_at": "2026-03-13T00:08:39.600146+00:00"
+  },
+  "business-12::market-macro": {
+    "skill_a": "business-12",
+    "skill_b": "market-macro",
+    "weight": 0.44999999999999996,
+    "fire_count": 9,
+    "last_fired": "2026-03-20T23:01:36.611083+00:00",
+    "created_at": "2026-03-13T00:08:39.612148+00:00"
+  },
+  "market-equity::qa-auditor": {
+    "skill_a": "market-equity",
+    "skill_b": "qa-auditor",
+    "weight": 0.49999999999999994,
+    "fire_count": 10,
+    "last_fired": "2026-03-17T15:30:03.262346+00:00",
+    "created_at": "2026-03-13T00:09:45.380232+00:00"
+  },
+  "market-macro::qa-auditor": {
+    "skill_a": "market-macro",
+    "skill_b": "qa-auditor",
+    "weight": 0.44999999999999996,
+    "fire_count": 9,
+    "last_fired": "2026-03-17T15:30:03.268354+00:00",
+    "created_at": "2026-03-13T00:09:45.384927+00:00"
+  },
+  "plan-engine::ssa-consultant": {
+    "skill_a": "plan-engine",
+    "skill_b": "ssa-consultant",
+    "weight": 0.8000000000000002,
+    "fire_count": 16,
+    "last_fired": "2026-03-19T04:33:31.465164+00:00",
+    "created_at": "2026-03-13T00:12:46.632733+00:00"
+  },
+  "sentiment-radar::ssa-consultant": {
+    "skill_a": "sentiment-radar",
+    "skill_b": "ssa-consultant",
+    "weight": 0.6,
+    "fire_count": 12,
+    "last_fired": "2026-03-19T09:13:36.050414+00:00",
+    "created_at": "2026-03-13T00:12:46.643021+00:00"
+  },
+  "consultant-communication::master-strategy": {
+    "skill_a": "consultant-communication",
+    "skill_b": "master-strategy",
+    "weight": 0.5499999999999999,
+    "fire_count": 11,
+    "last_fired": "2026-03-21T01:44:38.808204+00:00",
+    "created_at": "2026-03-13T05:32:35.419001+00:00"
+  },
+  "business-12::text-alchemy": {
+    "skill_a": "business-12",
+    "skill_b": "text-alchemy",
+    "weight": 0.7000000000000001,
+    "fire_count": 14,
+    "last_fired": "2026-03-17T01:33:47.097991+00:00",
+    "created_at": "2026-03-13T05:38:42.839331+00:00"
+  },
+  "consultant-communication::eval-engine": {
+    "skill_a": "consultant-communication",
+    "skill_b": "eval-engine",
+    "weight": 0.39999999999999997,
+    "fire_count": 8,
+    "last_fired": "2026-03-20T13:39:23.393850+00:00",
+    "created_at": "2026-03-13T07:10:35.650457+00:00"
+  },
+  "info-architect::plan-engine": {
+    "skill_a": "info-architect",
+    "skill_b": "plan-engine",
+    "weight": 0.3,
+    "fire_count": 6,
+    "last_fired": "2026-03-19T10:40:00.173278+00:00",
+    "created_at": "2026-03-13T07:10:35.662533+00:00"
+  },
+  "info-architect::ssa-consultant": {
+    "skill_a": "info-architect",
+    "skill_b": "ssa-consultant",
+    "weight": 0.2,
+    "fire_count": 4,
+    "last_fired": "2026-03-19T10:48:53.149014+00:00",
+    "created_at": "2026-03-13T07:39:20.354333+00:00"
+  },
+  "market-core::xmodel": {
+    "skill_a": "market-core",
+    "skill_b": "xmodel",
+    "weight": 1.0,
+    "fire_count": 55,
+    "last_fired": "2026-03-21T03:45:44.559181+00:00",
+    "created_at": "2026-03-13T07:44:45.580535+00:00"
+  },
+  "meta-learning::orchestrator": {
+    "skill_a": "meta-learning",
+    "skill_b": "orchestrator",
+    "weight": 0.7500000000000001,
+    "fire_count": 15,
+    "last_fired": "2026-03-20T11:16:46.133480+00:00",
+    "created_at": "2026-03-13T07:56:25.348793+00:00"
+  },
+  "morphenix::workflow-svc-brand-marketing": {
+    "skill_a": "morphenix",
+    "skill_b": "workflow-svc-brand-marketing",
+    "weight": 1.0,
+    "fire_count": 27,
+    "last_fired": "2026-03-21T05:05:28.666833+00:00",
+    "created_at": "2026-03-13T08:03:46.670168+00:00"
+  },
+  "market-equity::sentiment-radar": {
+    "skill_a": "market-equity",
+    "skill_b": "sentiment-radar",
+    "weight": 0.9000000000000002,
+    "fire_count": 18,
+    "last_fired": "2026-03-20T23:41:06.300784+00:00",
+    "created_at": "2026-03-13T08:31:13.651874+00:00"
+  },
+  "c15::plan-engine": {
+    "skill_a": "c15",
+    "skill_b": "plan-engine",
+    "weight": 0.49999999999999994,
+    "fire_count": 10,
+    "last_fired": "2026-03-21T03:43:56.399444+00:00",
+    "created_at": "2026-03-13T08:31:13.691867+00:00"
+  },
+  "storytelling-engine::text-alchemy": {
+    "skill_a": "storytelling-engine",
+    "skill_b": "text-alchemy",
+    "weight": 0.2,
+    "fire_count": 4,
+    "last_fired": "2026-03-18T14:08:41.458514+00:00",
+    "created_at": "2026-03-13T08:33:21.809121+00:00"
+  },
+  "morphenix::text-alchemy": {
+    "skill_a": "morphenix",
+    "skill_b": "text-alchemy",
+    "weight": 0.25,
+    "fire_count": 5,
+    "last_fired": "2026-03-16T13:26:44.624362+00:00",
+    "created_at": "2026-03-13T08:33:21.854420+00:00"
+  },
+  "consultant-communication::market-crypto": {
+    "skill_a": "consultant-communication",
+    "skill_b": "market-crypto",
+    "weight": 0.44999999999999996,
+    "fire_count": 9,
+    "last_fired": "2026-03-21T01:51:01.531798+00:00",
+    "created_at": "2026-03-13T08:44:00.226508+00:00"
+  },
+  "philo-dialectic::sentiment-radar": {
+    "skill_a": "philo-dialectic",
+    "skill_b": "sentiment-radar",
+    "weight": 0.65,
+    "fire_count": 13,
+    "last_fired": "2026-03-19T12:33:59.919222+00:00",
+    "created_at": "2026-03-13T13:15:54.862659+00:00"
+  },
+  "workflow-investment-analysis::xmodel": {
+    "skill_a": "workflow-investment-analysis",
+    "skill_b": "xmodel",
+    "weight": 0.7500000000000001,
+    "fire_count": 15,
+    "last_fired": "2026-03-17T15:35:46.857467+00:00",
+    "created_at": "2026-03-13T13:24:19.192780+00:00"
+  },
+  "gap::xmodel": {
+    "skill_a": "gap",
+    "skill_b": "xmodel",
+    "weight": 1.0,
+    "fire_count": 41,
+    "last_fired": "2026-03-21T03:45:13.354753+00:00",
+    "created_at": "2026-03-13T13:24:19.211333+00:00"
+  },
+  "env-radar::market-core": {
+    "skill_a": "env-radar",
+    "skill_b": "market-core",
+    "weight": 0.7500000000000001,
+    "fire_count": 15,
+    "last_fired": "2026-03-21T01:34:17.211481+00:00",
+    "created_at": "2026-03-13T13:27:51.715714+00:00"
+  },
+  "market-equity::novel-craft": {
+    "skill_a": "market-equity",
+    "skill_b": "novel-craft",
+    "weight": 0.44999999999999996,
+    "fire_count": 9,
+    "last_fired": "2026-03-20T13:33:14.109381+00:00",
+    "created_at": "2026-03-13T13:33:23.135206+00:00"
+  },
+  "master-strategy::text-alchemy": {
+    "skill_a": "master-strategy",
+    "skill_b": "text-alchemy",
+    "weight": 0.35,
+    "fire_count": 7,
+    "last_fired": "2026-03-15T14:50:01.082501+00:00",
+    "created_at": "2026-03-13T13:33:53.880706+00:00"
+  },
+  "philo-dialectic::text-alchemy": {
+    "skill_a": "philo-dialectic",
+    "skill_b": "text-alchemy",
+    "weight": 0.49999999999999994,
+    "fire_count": 10,
+    "last_fired": "2026-03-17T01:33:47.082143+00:00",
+    "created_at": "2026-03-13T13:33:53.884660+00:00"
+  },
+  "ssa-consultant::text-alchemy": {
+    "skill_a": "ssa-consultant",
+    "skill_b": "text-alchemy",
+    "weight": 0.2,
+    "fire_count": 4,
+    "last_fired": "2026-03-15T14:50:01.090395+00:00",
+    "created_at": "2026-03-13T13:33:53.890025+00:00"
+  },
+  "risk-matrix::shadow": {
+    "skill_a": "risk-matrix",
+    "skill_b": "shadow",
+    "weight": 0.3,
+    "fire_count": 6,
+    "last_fired": "2026-03-17T00:47:01.339447+00:00",
+    "created_at": "2026-03-13T13:35:06.469394+00:00"
+  },
+  "morphenix::qa-auditor": {
+    "skill_a": "morphenix",
+    "skill_b": "qa-auditor",
+    "weight": 0.9500000000000003,
+    "fire_count": 19,
+    "last_fired": "2026-03-20T15:04:25.956149+00:00",
+    "created_at": "2026-03-13T13:35:37.367275+00:00"
+  },
+  "qa-auditor::ssa-consultant": {
+    "skill_a": "qa-auditor",
+    "skill_b": "ssa-consultant",
+    "weight": 0.6,
+    "fire_count": 12,
+    "last_fired": "2026-03-13T13:52:49.664135+00:00",
+    "created_at": "2026-03-13T13:35:37.390055+00:00"
+  },
+  "investment-masters::sandbox-lab": {
+    "skill_a": "investment-masters",
+    "skill_b": "sandbox-lab",
+    "weight": 0.44999999999999996,
+    "fire_count": 9,
+    "last_fired": "2026-03-13T13:52:47.041856+00:00",
+    "created_at": "2026-03-13T13:36:48.996105+00:00"
+  },
+  "c15::qa-auditor": {
+    "skill_a": "c15",
+    "skill_b": "qa-auditor",
+    "weight": 0.7500000000000001,
+    "fire_count": 15,
+    "last_fired": "2026-03-21T03:43:56.386431+00:00",
+    "created_at": "2026-03-13T13:38:52.467368+00:00"
+  },
+  "market-equity::storytelling-engine": {
+    "skill_a": "market-equity",
+    "skill_b": "storytelling-engine",
+    "weight": 0.35,
+    "fire_count": 7,
+    "last_fired": "2026-03-20T13:33:14.094910+00:00",
+    "created_at": "2026-03-13T13:49:12.094150+00:00"
+  },
+  "market-core::storytelling-engine": {
+    "skill_a": "market-core",
+    "skill_b": "storytelling-engine",
+    "weight": 0.49999999999999994,
+    "fire_count": 10,
+    "last_fired": "2026-03-20T13:22:25.817325+00:00",
+    "created_at": "2026-03-13T13:49:12.098244+00:00"
+  },
+  "market-equity::morphenix": {
+    "skill_a": "market-equity",
+    "skill_b": "morphenix",
+    "weight": 0.44999999999999996,
+    "fire_count": 9,
+    "last_fired": "2026-03-20T13:17:54.193088+00:00",
+    "created_at": "2026-03-13T13:49:12.101943+00:00"
+  },
+  "market-core::workflow-svc-brand-marketing": {
+    "skill_a": "market-core",
+    "skill_b": "workflow-svc-brand-marketing",
+    "weight": 0.6,
+    "fire_count": 12,
+    "last_fired": "2026-03-20T13:21:22.839444+00:00",
+    "created_at": "2026-03-13T13:49:24.538716+00:00"
+  },
+  "resonance::risk-matrix": {
+    "skill_a": "resonance",
+    "skill_b": "risk-matrix",
+    "weight": 0.44999999999999996,
+    "fire_count": 9,
+    "last_fired": "2026-03-18T11:39:09.643653+00:00",
+    "created_at": "2026-03-13T13:49:33.377682+00:00"
+  },
+  "market-equity::master-strategy": {
+    "skill_a": "market-equity",
+    "skill_b": "master-strategy",
+    "weight": 0.7000000000000001,
+    "fire_count": 14,
+    "last_fired": "2026-03-21T01:36:20.103422+00:00",
+    "created_at": "2026-03-13T13:49:44.243050+00:00"
+  },
+  "master-strategy::sentiment-radar": {
+    "skill_a": "master-strategy",
+    "skill_b": "sentiment-radar",
+    "weight": 0.35,
+    "fire_count": 7,
+    "last_fired": "2026-03-18T15:10:44.170972+00:00",
+    "created_at": "2026-03-13T13:49:44.252754+00:00"
+  },
+  "market-core::pdeif": {
+    "skill_a": "market-core",
+    "skill_b": "pdeif",
+    "weight": 0.8500000000000002,
+    "fire_count": 17,
+    "last_fired": "2026-03-20T16:06:26.492177+00:00",
+    "created_at": "2026-03-13T13:50:03.162087+00:00"
+  },
+  "market-crypto::text-alchemy": {
+    "skill_a": "market-crypto",
+    "skill_b": "text-alchemy",
+    "weight": 0.25,
+    "fire_count": 5,
+    "last_fired": "2026-03-20T13:39:23.427130+00:00",
+    "created_at": "2026-03-13T13:50:09.069937+00:00"
+  },
+  "consultant-communication::meta-learning": {
+    "skill_a": "consultant-communication",
+    "skill_b": "meta-learning",
+    "weight": 1.0,
+    "fire_count": 20,
+    "last_fired": "2026-03-20T13:39:23.410824+00:00",
+    "created_at": "2026-03-13T13:50:12.202982+00:00"
+  },
+  "eval-engine::plugin-registry": {
+    "skill_a": "eval-engine",
+    "skill_b": "plugin-registry",
+    "weight": 0.6,
+    "fire_count": 12,
+    "last_fired": "2026-03-20T11:11:23.502970+00:00",
+    "created_at": "2026-03-13T13:50:14.524844+00:00"
+  },
+  "plugin-registry::workflow-investment-analysis": {
+    "skill_a": "plugin-registry",
+    "skill_b": "workflow-investment-analysis",
+    "weight": 0.35,
+    "fire_count": 7,
+    "last_fired": "2026-03-18T09:03:18.442502+00:00",
+    "created_at": "2026-03-13T13:50:14.530259+00:00"
+  },
+  "eval-engine::workflow-ai-deployment": {
+    "skill_a": "eval-engine",
+    "skill_b": "workflow-ai-deployment",
+    "weight": 0.3,
+    "fire_count": 6,
+    "last_fired": "2026-03-15T14:18:45.336978+00:00",
+    "created_at": "2026-03-13T13:50:14.535874+00:00"
+  },
+  "eval-engine::workflow-investment-analysis": {
+    "skill_a": "eval-engine",
+    "skill_b": "workflow-investment-analysis",
+    "weight": 0.44999999999999996,
+    "fire_count": 9,
+    "last_fired": "2026-03-17T12:28:01.455292+00:00",
+    "created_at": "2026-03-13T13:50:14.544718+00:00"
+  },
+  "storytelling-engine::workflow-ai-deployment": {
+    "skill_a": "storytelling-engine",
+    "skill_b": "workflow-ai-deployment",
+    "weight": 0.25,
+    "fire_count": 5,
+    "last_fired": "2026-03-18T14:08:41.464751+00:00",
+    "created_at": "2026-03-13T13:50:21.246826+00:00"
+  },
+  "c15::risk-matrix": {
+    "skill_a": "c15",
+    "skill_b": "risk-matrix",
+    "weight": 0.2,
+    "fire_count": 4,
+    "last_fired": "2026-03-17T00:47:01.350874+00:00",
+    "created_at": "2026-03-13T13:50:27.420916+00:00"
+  },
+  "eval-engine::text-alchemy": {
+    "skill_a": "eval-engine",
+    "skill_b": "text-alchemy",
+    "weight": 0.39999999999999997,
+    "fire_count": 8,
+    "last_fired": "2026-03-20T13:39:23.388763+00:00",
+    "created_at": "2026-03-13T13:50:27.435052+00:00"
+  },
+  "risk-matrix::text-alchemy": {
+    "skill_a": "risk-matrix",
+    "skill_b": "text-alchemy",
+    "weight": 0.2,
+    "fire_count": 4,
+    "last_fired": "2026-03-16T04:34:17.110399+00:00",
+    "created_at": "2026-03-13T13:50:27.455693+00:00"
+  },
+  "qa-auditor::risk-matrix": {
+    "skill_a": "qa-auditor",
+    "skill_b": "risk-matrix",
+    "weight": 0.2,
+    "fire_count": 4,
+    "last_fired": "2026-03-18T11:39:09.652524+00:00",
+    "created_at": "2026-03-13T13:50:33.741235+00:00"
+  },
+  "market-crypto::morphenix": {
+    "skill_a": "market-crypto",
+    "skill_b": "morphenix",
+    "weight": 0.2,
+    "fire_count": 4,
+    "last_fired": "2026-03-17T04:54:33.528231+00:00",
+    "created_at": "2026-03-13T13:51:14.958201+00:00"
+  },
+  "acsf::gap": {
+    "skill_a": "acsf",
+    "skill_b": "gap",
+    "weight": 0.49999999999999994,
+    "fire_count": 10,
+    "last_fired": "2026-03-19T11:27:10.367756+00:00",
+    "created_at": "2026-03-13T13:51:42.114089+00:00"
+  },
+  "market-crypto::sentiment-radar": {
+    "skill_a": "market-crypto",
+    "skill_b": "sentiment-radar",
+    "weight": 0.49999999999999994,
+    "fire_count": 10,
+    "last_fired": "2026-03-19T12:01:51.042479+00:00",
+    "created_at": "2026-03-13T13:51:44.547440+00:00"
+  },
+  "market-core::wee": {
+    "skill_a": "market-core",
+    "skill_b": "wee",
+    "weight": 0.39999999999999997,
+    "fire_count": 8,
+    "last_fired": "2026-03-18T03:55:26.636723+00:00",
+    "created_at": "2026-03-14T08:10:55.916107+00:00"
+  },
+  "plan-engine::qa-auditor": {
+    "skill_a": "plan-engine",
+    "skill_b": "qa-auditor",
+    "weight": 0.49999999999999994,
+    "fire_count": 10,
+    "last_fired": "2026-03-21T03:43:56.393139+00:00",
+    "created_at": "2026-03-14T09:11:52.340205+00:00"
+  },
+  "dharma::plan-engine": {
+    "skill_a": "dharma",
+    "skill_b": "plan-engine",
+    "weight": 1.0,
+    "fire_count": 30,
+    "last_fired": "2026-03-21T04:08:04.289249+00:00",
+    "created_at": "2026-03-14T09:11:52.347210+00:00"
+  },
+  "market-equity::workflow-investment-analysis": {
+    "skill_a": "market-equity",
+    "skill_b": "workflow-investment-analysis",
+    "weight": 0.5499999999999999,
+    "fire_count": 11,
+    "last_fired": "2026-03-20T23:41:06.294699+00:00",
+    "created_at": "2026-03-14T16:40:48.005333+00:00"
+  },
+  "wee::workflow-ai-deployment": {
+    "skill_a": "wee",
+    "skill_b": "workflow-ai-deployment",
+    "weight": 0.9500000000000003,
+    "fire_count": 19,
+    "last_fired": "2026-03-18T03:55:26.654416+00:00",
+    "created_at": "2026-03-14T18:31:08.087196+00:00"
+  },
+  "consultant-communication::philo-dialectic": {
+    "skill_a": "consultant-communication",
+    "skill_b": "philo-dialectic",
+    "weight": 1.0,
+    "fire_count": 21,
+    "last_fired": "2026-03-21T04:15:07.895719+00:00",
+    "created_at": "2026-03-15T02:10:15.767264+00:00"
+  },
+  "investment-masters::market-crypto": {
+    "skill_a": "investment-masters",
+    "skill_b": "market-crypto",
+    "weight": 0.2,
+    "fire_count": 4,
+    "last_fired": "2026-03-16T06:11:42.962320+00:00",
+    "created_at": "2026-03-15T04:25:25.380966+00:00"
+  },
+  "market-macro::workflow-investment-analysis": {
+    "skill_a": "market-macro",
+    "skill_b": "workflow-investment-analysis",
+    "weight": 0.5499999999999999,
+    "fire_count": 11,
+    "last_fired": "2026-03-21T01:30:49.868916+00:00",
+    "created_at": "2026-03-15T04:52:25.242311+00:00"
+  },
+  "orchestrator::wee": {
+    "skill_a": "orchestrator",
+    "skill_b": "wee",
+    "weight": 0.3,
+    "fire_count": 6,
+    "last_fired": "2026-03-19T02:57:21.541893+00:00",
+    "created_at": "2026-03-15T13:35:02.387196+00:00"
+  },
+  "master-strategy::workflow-investment-analysis": {
+    "skill_a": "master-strategy",
+    "skill_b": "workflow-investment-analysis",
+    "weight": 0.3,
+    "fire_count": 6,
+    "last_fired": "2026-03-18T15:10:44.141561+00:00",
+    "created_at": "2026-03-15T13:44:56.135812+00:00"
+  },
+  "orchestrator::philo-dialectic": {
+    "skill_a": "orchestrator",
+    "skill_b": "philo-dialectic",
+    "weight": 0.3,
+    "fire_count": 6,
+    "last_fired": "2026-03-19T09:26:32.373087+00:00",
+    "created_at": "2026-03-15T13:45:26.592946+00:00"
+  },
+  "gap::ssa-consultant": {
+    "skill_a": "gap",
+    "skill_b": "ssa-consultant",
+    "weight": 0.5499999999999999,
+    "fire_count": 11,
+    "last_fired": "2026-03-21T03:49:43.030699+00:00",
+    "created_at": "2026-03-15T14:08:24.263579+00:00"
+  },
+  "qa-auditor::workflow-investment-analysis": {
+    "skill_a": "qa-auditor",
+    "skill_b": "workflow-investment-analysis",
+    "weight": 0.39999999999999997,
+    "fire_count": 8,
+    "last_fired": "2026-03-18T13:26:41.748476+00:00",
+    "created_at": "2026-03-15T16:10:57.006812+00:00"
+  },
+  "dna27::sandbox-lab": {
+    "skill_a": "dna27",
+    "skill_b": "sandbox-lab",
+    "weight": 0.5499999999999999,
+    "fire_count": 11,
+    "last_fired": "2026-03-20T09:49:44.829393+00:00",
+    "created_at": "2026-03-16T07:07:59.236966+00:00"
+  },
+  "c15::sentiment-radar": {
+    "skill_a": "c15",
+    "skill_b": "sentiment-radar",
+    "weight": 0.35,
+    "fire_count": 7,
+    "last_fired": "2026-03-17T15:34:07.541391+00:00",
+    "created_at": "2026-03-16T15:58:36.504503+00:00"
+  },
+  "c15::investment-masters": {
+    "skill_a": "c15",
+    "skill_b": "investment-masters",
+    "weight": 0.3,
+    "fire_count": 6,
+    "last_fired": "2026-03-17T15:34:07.570392+00:00",
+    "created_at": "2026-03-16T15:58:36.522538+00:00"
+  },
+  "market-crypto::pdeif": {
+    "skill_a": "market-crypto",
+    "skill_b": "pdeif",
+    "weight": 0.65,
+    "fire_count": 13,
+    "last_fired": "2026-03-20T13:31:57.048649+00:00",
+    "created_at": "2026-03-16T16:27:22.827015+00:00"
+  },
+  "market-crypto::xmodel": {
+    "skill_a": "market-crypto",
+    "skill_b": "xmodel",
+    "weight": 0.25,
+    "fire_count": 5,
+    "last_fired": "2026-03-20T22:58:11.536166+00:00",
+    "created_at": "2026-03-16T16:27:22.841120+00:00"
+  },
+  "market-equity::xmodel": {
+    "skill_a": "market-equity",
+    "skill_b": "xmodel",
+    "weight": 0.3,
+    "fire_count": 6,
+    "last_fired": "2026-03-20T22:58:11.539962+00:00",
+    "created_at": "2026-03-16T16:27:22.847735+00:00"
+  },
+  "market-macro::xmodel": {
+    "skill_a": "market-macro",
+    "skill_b": "xmodel",
+    "weight": 0.3,
+    "fire_count": 6,
+    "last_fired": "2026-03-20T13:40:01.053972+00:00",
+    "created_at": "2026-03-16T16:27:22.854492+00:00"
+  },
+  "gap::philo-dialectic": {
+    "skill_a": "gap",
+    "skill_b": "philo-dialectic",
+    "weight": 0.6,
+    "fire_count": 12,
+    "last_fired": "2026-03-21T01:51:01.538822+00:00",
+    "created_at": "2026-03-16T16:30:13.300510+00:00"
+  },
+  "gap::resonance": {
+    "skill_a": "gap",
+    "skill_b": "resonance",
+    "weight": 0.5499999999999999,
+    "fire_count": 11,
+    "last_fired": "2026-03-21T03:43:56.402414+00:00",
+    "created_at": "2026-03-16T18:20:02.489783+00:00"
+  },
+  "pdeif::workflow-investment-analysis": {
+    "skill_a": "pdeif",
+    "skill_b": "workflow-investment-analysis",
+    "weight": 0.2,
+    "fire_count": 4,
+    "last_fired": "2026-03-17T15:35:46.882791+00:00",
+    "created_at": "2026-03-16T18:21:35.146793+00:00"
+  },
+  "sentiment-radar::xmodel": {
+    "skill_a": "sentiment-radar",
+    "skill_b": "xmodel",
+    "weight": 0.5499999999999999,
+    "fire_count": 11,
+    "last_fired": "2026-03-21T01:28:36.837740+00:00",
+    "created_at": "2026-03-16T18:21:35.155314+00:00"
+  },
+  "market-core::meta-learning": {
+    "skill_a": "market-core",
+    "skill_b": "meta-learning",
+    "weight": 1.0,
+    "fire_count": 49,
+    "last_fired": "2026-03-21T03:49:43.043369+00:00",
+    "created_at": "2026-03-17T01:39:49.977719+00:00"
+  },
+  "master-strategy::meta-learning": {
+    "skill_a": "master-strategy",
+    "skill_b": "meta-learning",
+    "weight": 0.7500000000000001,
+    "fire_count": 15,
+    "last_fired": "2026-03-20T13:32:18.746425+00:00",
+    "created_at": "2026-03-17T03:32:43.462157+00:00"
+  },
+  "dna27::meta-learning": {
+    "skill_a": "dna27",
+    "skill_b": "meta-learning",
+    "weight": 0.39999999999999997,
+    "fire_count": 8,
+    "last_fired": "2026-03-20T11:01:56.877603+00:00",
+    "created_at": "2026-03-17T05:56:51.557945+00:00"
+  },
+  "meta-learning::plan-engine": {
+    "skill_a": "meta-learning",
+    "skill_b": "plan-engine",
+    "weight": 0.44999999999999996,
+    "fire_count": 9,
+    "last_fired": "2026-03-21T01:42:59.920627+00:00",
+    "created_at": "2026-03-17T12:29:28.122897+00:00"
+  },
+  "qa-auditor::workflow-ai-deployment": {
+    "skill_a": "qa-auditor",
+    "skill_b": "workflow-ai-deployment",
+    "weight": 0.25,
+    "fire_count": 5,
+    "last_fired": "2026-03-19T11:39:39.242159+00:00",
+    "created_at": "2026-03-18T03:29:05.908203+00:00"
+  },
+  "meta-learning::workflow-ai-deployment": {
+    "skill_a": "meta-learning",
+    "skill_b": "workflow-ai-deployment",
+    "weight": 0.49999999999999994,
+    "fire_count": 10,
+    "last_fired": "2026-03-21T01:35:50.856415+00:00",
+    "created_at": "2026-03-18T06:41:22.171539+00:00"
+  },
+  "consultant-communication::xmodel": {
+    "skill_a": "consultant-communication",
+    "skill_b": "xmodel",
+    "weight": 0.3,
+    "fire_count": 6,
+    "last_fired": "2026-03-21T04:15:07.900619+00:00",
+    "created_at": "2026-03-18T07:39:57.221972+00:00"
+  },
+  "market-macro::sandbox-lab": {
+    "skill_a": "market-macro",
+    "skill_b": "sandbox-lab",
+    "weight": 0.2,
+    "fire_count": 4,
+    "last_fired": "2026-03-18T14:07:10.664111+00:00",
+    "created_at": "2026-03-18T10:13:09.485042+00:00"
+  },
+  "sandbox-lab::sentiment-radar": {
+    "skill_a": "sandbox-lab",
+    "skill_b": "sentiment-radar",
+    "weight": 0.25,
+    "fire_count": 5,
+    "last_fired": "2026-03-19T10:06:32.994724+00:00",
+    "created_at": "2026-03-18T10:15:29.107382+00:00"
+  },
+  "gap::shadow": {
+    "skill_a": "gap",
+    "skill_b": "shadow",
+    "weight": 0.25,
+    "fire_count": 5,
+    "last_fired": "2026-03-19T05:04:50.409616+00:00",
+    "created_at": "2026-03-18T10:52:49.380951+00:00"
+  },
+  "brand-identity::gap": {
+    "skill_a": "brand-identity",
+    "skill_b": "gap",
+    "weight": 0.25,
+    "fire_count": 5,
+    "last_fired": "2026-03-18T13:42:40.593912+00:00",
+    "created_at": "2026-03-18T13:26:41.742640+00:00"
+  },
+  "gap::knowledge-lattice": {
+    "skill_a": "gap",
+    "skill_b": "knowledge-lattice",
+    "weight": 0.3,
+    "fire_count": 6,
+    "last_fired": "2026-03-19T11:27:10.372764+00:00",
+    "created_at": "2026-03-18T13:31:23.257387+00:00"
+  },
+  "brand-identity::env-radar": {
+    "skill_a": "brand-identity",
+    "skill_b": "env-radar",
+    "weight": 0.25,
+    "fire_count": 5,
+    "last_fired": "2026-03-20T07:22:48.116428+00:00",
+    "created_at": "2026-03-18T13:31:23.266462+00:00"
+  },
+  "env-radar::knowledge-lattice": {
+    "skill_a": "env-radar",
+    "skill_b": "knowledge-lattice",
+    "weight": 0.15000000000000002,
+    "fire_count": 3,
+    "last_fired": "2026-03-18T13:42:40.606615+00:00",
+    "created_at": "2026-03-18T13:31:23.270873+00:00"
+  },
+  "brand-identity::knowledge-lattice": {
+    "skill_a": "brand-identity",
+    "skill_b": "knowledge-lattice",
+    "weight": 0.15000000000000002,
+    "fire_count": 3,
+    "last_fired": "2026-03-18T13:42:40.610596+00:00",
+    "created_at": "2026-03-18T13:31:23.278943+00:00"
+  },
+  "acsf::morphenix": {
+    "skill_a": "acsf",
+    "skill_b": "morphenix",
+    "weight": 0.15000000000000002,
+    "fire_count": 3,
+    "last_fired": "2026-03-18T14:42:26.363892+00:00",
+    "created_at": "2026-03-18T13:44:05.917306+00:00"
+  },
+  "acsf::resonance": {
+    "skill_a": "acsf",
+    "skill_b": "resonance",
+    "weight": 0.2,
+    "fire_count": 4,
+    "last_fired": "2026-03-18T14:37:09.886179+00:00",
+    "created_at": "2026-03-18T13:59:01.711570+00:00"
+  },
+  "acsf::workflow-ai-deployment": {
+    "skill_a": "acsf",
+    "skill_b": "workflow-ai-deployment",
+    "weight": 0.2,
+    "fire_count": 4,
+    "last_fired": "2026-03-18T14:15:58.370677+00:00",
+    "created_at": "2026-03-18T13:59:01.725479+00:00"
+  },
+  "resonance::workflow-ai-deployment": {
+    "skill_a": "resonance",
+    "skill_b": "workflow-ai-deployment",
+    "weight": 0.2,
+    "fire_count": 4,
+    "last_fired": "2026-03-20T13:34:34.500396+00:00",
+    "created_at": "2026-03-18T13:59:01.736141+00:00"
+  },
+  "acsf::workflow-svc-brand-marketing": {
+    "skill_a": "acsf",
+    "skill_b": "workflow-svc-brand-marketing",
+    "weight": 0.3,
+    "fire_count": 6,
+    "last_fired": "2026-03-19T10:12:20.545494+00:00",
+    "created_at": "2026-03-18T14:11:47.299072+00:00"
+  },
+  "acsf::orchestrator": {
+    "skill_a": "acsf",
+    "skill_b": "orchestrator",
+    "weight": 0.25,
+    "fire_count": 5,
+    "last_fired": "2026-03-19T03:51:49.702311+00:00",
+    "created_at": "2026-03-18T14:15:58.356996+00:00"
+  },
+  "acsf::dharma": {
+    "skill_a": "acsf",
+    "skill_b": "dharma",
+    "weight": 0.35,
+    "fire_count": 7,
+    "last_fired": "2026-03-19T10:12:20.552368+00:00",
+    "created_at": "2026-03-18T14:21:17.955794+00:00"
+  },
+  "acsf::storytelling-engine": {
+    "skill_a": "acsf",
+    "skill_b": "storytelling-engine",
+    "weight": 0.15000000000000002,
+    "fire_count": 3,
+    "last_fired": "2026-03-18T14:38:20.991820+00:00",
+    "created_at": "2026-03-18T14:34:48.221808+00:00"
+  },
+  "meta-learning::plugin-registry": {
+    "skill_a": "meta-learning",
+    "skill_b": "plugin-registry",
+    "weight": 0.3,
+    "fire_count": 6,
+    "last_fired": "2026-03-20T11:11:23.541569+00:00",
+    "created_at": "2026-03-19T08:24:55.335192+00:00"
+  },
+  "risk-matrix::ssa-consultant": {
+    "skill_a": "risk-matrix",
+    "skill_b": "ssa-consultant",
+    "weight": 0.25,
+    "fire_count": 5,
+    "last_fired": "2026-03-19T09:15:40.531287+00:00",
+    "created_at": "2026-03-19T09:01:26.817197+00:00"
+  },
+  "consultant-communication::risk-matrix": {
+    "skill_a": "consultant-communication",
+    "skill_b": "risk-matrix",
+    "weight": 0.35,
+    "fire_count": 7,
+    "last_fired": "2026-03-21T01:44:38.806900+00:00",
+    "created_at": "2026-03-19T09:01:26.825981+00:00"
+  },
+  "philo-dialectic::risk-matrix": {
+    "skill_a": "philo-dialectic",
+    "skill_b": "risk-matrix",
+    "weight": 0.25,
+    "fire_count": 5,
+    "last_fired": "2026-03-19T09:24:19.585697+00:00",
+    "created_at": "2026-03-19T09:05:11.668601+00:00"
+  },
+  "market-macro::philo-dialectic": {
+    "skill_a": "market-macro",
+    "skill_b": "philo-dialectic",
+    "weight": 0.15000000000000002,
+    "fire_count": 3,
+    "last_fired": "2026-03-19T09:59:03.698609+00:00",
+    "created_at": "2026-03-19T09:09:22.765458+00:00"
+  },
+  "consultant-communication::market-macro": {
+    "skill_a": "consultant-communication",
+    "skill_b": "market-macro",
+    "weight": 0.15000000000000002,
+    "fire_count": 3,
+    "last_fired": "2026-03-19T09:59:03.717842+00:00",
+    "created_at": "2026-03-19T09:09:22.811535+00:00"
+  },
+  "consultant-communication::sentiment-radar": {
+    "skill_a": "consultant-communication",
+    "skill_b": "sentiment-radar",
+    "weight": 0.25,
+    "fire_count": 5,
+    "last_fired": "2026-03-20T23:41:06.302988+00:00",
+    "created_at": "2026-03-19T09:13:36.060909+00:00"
+  },
+  "dse::report-forge": {
+    "skill_a": "dse",
+    "skill_b": "report-forge",
+    "weight": 0.39999999999999997,
+    "fire_count": 8,
+    "last_fired": "2026-03-21T03:53:32.323621+00:00",
+    "created_at": "2026-03-19T13:44:09.186993+00:00"
+  },
+  "env-radar::sandbox-lab": {
+    "skill_a": "env-radar",
+    "skill_b": "sandbox-lab",
+    "weight": 0.15000000000000002,
+    "fire_count": 3,
+    "last_fired": "2026-03-20T07:14:46.690889+00:00",
+    "created_at": "2026-03-20T07:06:08.801666+00:00"
+  },
+  "meta-learning::sentiment-radar": {
+    "skill_a": "meta-learning",
+    "skill_b": "sentiment-radar",
+    "weight": 0.2,
+    "fire_count": 4,
+    "last_fired": "2026-03-20T16:36:34.416138+00:00",
+    "created_at": "2026-03-20T13:00:32.721589+00:00"
+  },
+  "meta-learning::storytelling-engine": {
+    "skill_a": "meta-learning",
+    "skill_b": "storytelling-engine",
+    "weight": 0.2,
+    "fire_count": 4,
+    "last_fired": "2026-03-21T01:31:32.815888+00:00",
+    "created_at": "2026-03-20T13:01:51.829612+00:00"
+  },
+  "market-macro::ssa-consultant": {
+    "skill_a": "market-macro",
+    "skill_b": "ssa-consultant",
+    "weight": 0.15000000000000002,
+    "fire_count": 3,
+    "last_fired": "2026-03-20T23:01:36.618076+00:00",
+    "created_at": "2026-03-20T13:08:46.695827+00:00"
+  },
+  "morphenix::sentiment-radar": {
+    "skill_a": "morphenix",
+    "skill_b": "sentiment-radar",
+    "weight": 0.44999999999999996,
+    "fire_count": 9,
+    "last_fired": "2026-03-21T05:03:54.979244+00:00",
+    "created_at": "2026-03-20T13:30:18.681588+00:00"
+  },
+  "dharma::sentiment-radar": {
+    "skill_a": "dharma",
+    "skill_b": "sentiment-radar",
+    "weight": 0.39999999999999997,
+    "fire_count": 8,
+    "last_fired": "2026-03-21T05:03:54.965016+00:00",
+    "created_at": "2026-03-20T14:50:59.947503+00:00"
+  },
+  "morphenix::workflow-investment-analysis": {
+    "skill_a": "morphenix",
+    "skill_b": "workflow-investment-analysis",
+    "weight": 0.35,
+    "fire_count": 7,
+    "last_fired": "2026-03-21T05:03:54.981201+00:00",
+    "created_at": "2026-03-20T14:50:59.958470+00:00"
+  },
+  "dharma::market-macro": {
+    "skill_a": "dharma",
+    "skill_b": "market-macro",
+    "weight": 0.2,
+    "fire_count": 4,
+    "last_fired": "2026-03-21T03:47:16.210497+00:00",
+    "created_at": "2026-03-20T23:01:36.622308+00:00"
+  },
+  "c15::resonance": {
+    "skill_a": "c15",
+    "skill_b": "resonance",
+    "weight": 0.05,
+    "fire_count": 1,
+    "last_fired": "2026-03-21T03:43:56.398271+00:00",
+    "created_at": "2026-03-21T03:43:56.398271+00:00"
+  },
+  "plan-engine::resonance": {
+    "skill_a": "plan-engine",
+    "skill_b": "resonance",
+    "weight": 0.05,
+    "fire_count": 1,
+    "last_fired": "2026-03-21T03:43:56.401464+00:00",
+    "created_at": "2026-03-21T03:43:56.401464+00:00"
+  },
+  "market-macro::storytelling-engine": {
+    "skill_a": "market-macro",
+    "skill_b": "storytelling-engine",
+    "weight": 0.05,
+    "fire_count": 1,
+    "last_fired": "2026-03-21T03:47:16.216313+00:00",
+    "created_at": "2026-03-21T03:47:16.216313+00:00"
+  },
+  "sentiment-radar::storytelling-engine": {
+    "skill_a": "sentiment-radar",
+    "skill_b": "storytelling-engine",
+    "weight": 0.05,
+    "fire_count": 1,
+    "last_fired": "2026-03-21T03:47:16.217310+00:00",
+    "created_at": "2026-03-21T03:47:16.217310+00:00"
+  },
+  "market-macro::novel-craft": {
+    "skill_a": "market-macro",
+    "skill_b": "novel-craft",
+    "weight": 0.05,
+    "fire_count": 1,
+    "last_fired": "2026-03-21T03:47:16.220328+00:00",
+    "created_at": "2026-03-21T03:47:16.220328+00:00"
+  },
+  "novel-craft::sentiment-radar": {
+    "skill_a": "novel-craft",
+    "skill_b": "sentiment-radar",
+    "weight": 0.05,
+    "fire_count": 1,
+    "last_fired": "2026-03-21T03:47:16.221287+00:00",
+    "created_at": "2026-03-21T03:47:16.221287+00:00"
+  },
+  "text-alchemy::workflow-investment-analysis": {
+    "skill_a": "text-alchemy",
+    "skill_b": "workflow-investment-analysis",
+    "weight": 0.05,
+    "fire_count": 1,
+    "last_fired": "2026-03-21T03:48:28.933781+00:00",
+    "created_at": "2026-03-21T03:48:28.933781+00:00"
+  },
+  "deep-think::report-forge": {
+    "skill_a": "deep-think",
+    "skill_b": "report-forge",
+    "weight": 0.05,
+    "fire_count": 1,
+    "last_fired": "2026-03-21T03:49:49.871529+00:00",
+    "created_at": "2026-03-21T03:49:49.871529+00:00"
+  },
+  "info-architect::report-forge": {
+    "skill_a": "info-architect",
+    "skill_b": "report-forge",
+    "weight": 0.05,
+    "fire_count": 1,
+    "last_fired": "2026-03-21T03:49:49.874112+00:00",
+    "created_at": "2026-03-21T03:49:49.874112+00:00"
+  },
+  "business-12::report-forge": {
+    "skill_a": "business-12",
+    "skill_b": "report-forge",
+    "weight": 0.1,
+    "fire_count": 2,
+    "last_fired": "2026-03-21T03:53:32.333308+00:00",
+    "created_at": "2026-03-21T03:49:49.876958+00:00"
+  },
+  "deep-think::dse": {
+    "skill_a": "deep-think",
+    "skill_b": "dse",
+    "weight": 0.05,
+    "fire_count": 1,
+    "last_fired": "2026-03-21T03:49:49.879444+00:00",
+    "created_at": "2026-03-21T03:49:49.879444+00:00"
+  },
+  "deep-think::info-architect": {
+    "skill_a": "deep-think",
+    "skill_b": "info-architect",
+    "weight": 0.05,
+    "fire_count": 1,
+    "last_fired": "2026-03-21T03:49:49.884337+00:00",
+    "created_at": "2026-03-21T03:49:49.884337+00:00"
+  },
+  "business-12::deep-think": {
+    "skill_a": "business-12",
+    "skill_b": "deep-think",
+    "weight": 0.05,
+    "fire_count": 1,
+    "last_fired": "2026-03-21T03:49:49.885506+00:00",
+    "created_at": "2026-03-21T03:49:49.885506+00:00"
+  },
+  "investment-masters::wee": {
+    "skill_a": "investment-masters",
+    "skill_b": "wee",
+    "weight": 0.05,
+    "fire_count": 1,
+    "last_fired": "2026-03-21T03:50:07.154162+00:00",
+    "created_at": "2026-03-21T03:50:07.154162+00:00"
+  },
+  "philo-dialectic::report-forge": {
+    "skill_a": "philo-dialectic",
+    "skill_b": "report-forge",
+    "weight": 0.05,
+    "fire_count": 1,
+    "last_fired": "2026-03-21T03:53:32.318274+00:00",
+    "created_at": "2026-03-21T03:53:32.318274+00:00"
+  },
+  "report-forge::ssa-consultant": {
+    "skill_a": "report-forge",
+    "skill_b": "ssa-consultant",
+    "weight": 0.05,
+    "fire_count": 1,
+    "last_fired": "2026-03-21T03:53:32.327596+00:00",
+    "created_at": "2026-03-21T03:53:32.327596+00:00"
+  },
+  "report-forge::sandbox-lab": {
+    "skill_a": "report-forge",
+    "skill_b": "sandbox-lab",
+    "weight": 0.05,
+    "fire_count": 1,
+    "last_fired": "2026-03-21T03:53:32.331474+00:00",
+    "created_at": "2026-03-21T03:53:32.331474+00:00"
+  },
+  "eval-engine::report-forge": {
+    "skill_a": "eval-engine",
+    "skill_b": "report-forge",
+    "weight": 0.05,
+    "fire_count": 1,
+    "last_fired": "2026-03-21T03:53:32.332392+00:00",
+    "created_at": "2026-03-21T03:53:32.332392+00:00"
+  },
+  "novel-craft::ssa-consultant": {
+    "skill_a": "novel-craft",
+    "skill_b": "ssa-consultant",
+    "weight": 0.05,
+    "fire_count": 1,
+    "last_fired": "2026-03-21T03:56:29.048088+00:00",
+    "created_at": "2026-03-21T03:56:29.048088+00:00"
+  },
+  "plan-engine::text-alchemy": {
+    "skill_a": "plan-engine",
+    "skill_b": "text-alchemy",
+    "weight": 0.05,
+    "fire_count": 1,
+    "last_fired": "2026-03-21T04:08:04.296907+00:00",
+    "created_at": "2026-03-21T04:08:04.296907+00:00"
+  }
+}

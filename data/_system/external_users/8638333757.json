@@ -1,0 +1,72 @@
+{
+  "version": "2.0.0",
+  "user_id": "8638333757",
+  "created_at": "2026-03-20T17:36:39.598514",
+  "interaction_count": 2,
+  "last_seen": "2026-03-20T17:39:02.339281",
+  "display_name": "Chen",
+  "context_summary": "",
+  "eight_primals": {
+    "aspiration": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "accumulation": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "action_power": {
+      "level": 8,
+      "confidence": 0.05,
+      "signal": "[群組近期對話紀錄]   15:55 Feng: Hi hi   16:06 你的資源跟手腳（老闆）: 已經拉進來了   16:17 你的資源跟手腳（老闆）: ",
+      "last_observed": "2026-03-20T17:38:59.954393"
+    },
+    "curiosity": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "emotion_pattern": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "blindspot": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "boundary": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "relationship_depth": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    }
+  },
+  "preferences": {
+    "communication_style": "detailed"
+  },
+  "recent_topics": [
+    {
+      "snippet": "檔案已儲存至: /Users/ZEALCHOU/MUSEON/data/uploads/telegram/20260320_173638_總工程估價單20241030-麻豆鄭公館-賴改1.xls",
+      "date": "2026-03-20T17:38:59.954393"
+    }
+  ],
+  "groups_seen_in": [
+    -5102016052
+  ],
+  "relationship_to_owner": ""
+}

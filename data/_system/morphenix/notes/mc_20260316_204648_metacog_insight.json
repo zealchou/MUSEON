@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260316_204648_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n刪掉第二、三句的自責解釋。使用者已經說兩次了，現在只需要簡潔確認「改好了、已刪除」，不需要重複聽「為什麼之前沒做」。改成：「改好了。MEMORY.md 已更新為『Zeal + 士維（兩人）』，刪除了所有舊的人員假設。」——一句確認，然後往下走。\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-16T20:46:48.285545+08:00",
+  "priority": "medium"
+}

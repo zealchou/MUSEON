@@ -2,6 +2,7 @@
 name: xmodel
 type: on-demand
 layer: thinking
+hub: business
 io:
   inputs:
     - from: user

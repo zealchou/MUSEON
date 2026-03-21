@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260318_175242_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n第 2 問的邏輯跳躍有點大。Feng 問「拿掉 SDK 就可以無限跑嗎？」，你說「理論上對，但關鍵在於要設計『每次都連 server』」——這實際上是在否定他的假設，但沒有明確說出「所以答案其實是『不能真的無限』」。建議先直接回答「只有完全離線才無限，但那樣無防線，更好的做法是保持連 server 的要求」。另外最後改成具體問「定價按座位月費？企業自建還是你托管？」會比問開放式的「\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-18T17:52:42.586145+08:00",
+  "priority": "medium"
+}

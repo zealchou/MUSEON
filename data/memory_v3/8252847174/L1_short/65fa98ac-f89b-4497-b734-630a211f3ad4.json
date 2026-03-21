@@ -1,0 +1,22 @@
+{
+  "id": "65fa98ac-f89b-4497-b734-630a211f3ad4",
+  "content": "[失敗經驗] 任務：[群組近期對話紀錄]\n  34:28 Feng: [檔案: 新增 文字文件.txt] \n  35:12 Feng: @MuseonClaw_bot  你看一下檔案，裡面有四個方案那一個是比較適合子體的\n失敗類型：general_failure\n回應片段：在，抱歉讓你等。\n\n我需要的是 **Device Token**，不是 Device ID。\n\nDevice Token 是配對成功那一刻 API 回傳的 `deviceToken` 欄位，只出現一次。你有存到嗎？\n\n沒存到的話，**給我一組新 Pair Code**，我重新配對，這次我會把 Token 截下來。",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-18T15:20:15.148286+08:00",
+  "updated_at": "2026-03-18T15:20:15.148286+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "8252847174",
+  "session_id": "",
+  "dept_id": "",
+  "archived": false
+}

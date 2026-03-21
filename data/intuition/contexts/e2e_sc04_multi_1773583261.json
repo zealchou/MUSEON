@@ -1,0 +1,44 @@
+{
+  "session_id": "e2e_sc04_multi_1773583261",
+  "nodes": {
+    "topic_turn_0": {
+      "node_id": "topic_turn_0",
+      "node_type": "topic",
+      "label": "turn_0",
+      "properties": {
+        "content_length": 11,
+        "detected_at": "2026-03-15T22:01:01.867415"
+      },
+      "created_at": "2026-03-15T22:01:01.867461",
+      "updated_at": "2026-03-15T22:01:01.867465"
+    },
+    "topic_turn_1": {
+      "node_id": "topic_turn_1",
+      "node_type": "topic",
+      "label": "turn_1",
+      "properties": {
+        "content_length": 20,
+        "detected_at": "2026-03-15T22:01:19.954973"
+      },
+      "created_at": "2026-03-15T22:01:19.955031",
+      "updated_at": "2026-03-15T22:01:19.955035"
+    },
+    "topic_turn_2": {
+      "node_id": "topic_turn_2",
+      "node_type": "topic",
+      "label": "turn_2",
+      "properties": {
+        "content_length": 44,
+        "detected_at": "2026-03-15T22:01:50.794366"
+      },
+      "created_at": "2026-03-15T22:01:50.794410",
+      "updated_at": "2026-03-15T22:01:50.794414"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 3,
+    "last_content_length": 44
+  },
+  "last_updated": "2026-03-15T22:01:50.794366"
+}

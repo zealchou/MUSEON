@@ -1,0 +1,22 @@
+{
+  "id": "4e6453b9-6abd-47ca-af40-f9b1902a37fe",
+  "content": "[失敗經驗] 任務：請幫我分析以下內容：台灣的AI產業正在快速發展，台灣的AI產業正在快速發展，台灣的AI產業正在快速發展，台灣的AI產業正在快速發展，台灣的AI產業正在快速發展，台灣的AI產業正在快速發展，台灣的AI產\n失敗類型：general_failure\n回應片段：## 台灣 AI 產業：硬體霸主的軟肋與機會窗口\n\n台灣在 AI 產業的位置很特殊——不是「快速發展」這四個字能概括的。更準確的說法是：**台灣在算力基礎設施層是真正的全球壟斷者，但在應用層幾乎缺席**。這兩件事同時為真，決定了接下來 3-5 年的戰略選擇。\n\n---\n\n### 真實的護城河在哪裡\n\nTSMC 掌握全球 AI 晶片 90%+ 的先進製程，廣達、緯創的 AI 伺服器出貨量全球前三，台",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-21T11:43:33.759471+08:00",
+  "updated_at": "2026-03-21T11:43:33.759471+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "boss",
+  "session_id": "",
+  "dept_id": "",
+  "archived": false
+}

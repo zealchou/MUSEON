@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260320_153420_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n【修改方向】\n\n這段假設「四個檔案已經存檔完成」，但群組對話顯示系統迭代還在進行，Feng 被告知「要等 30 分鐘以上」。建議改為：確認四個檔案的**實際生成狀態**。\n\n如果已生成完成 → 改為「四個交付物已生成完成，Feng 現在可以在 `data/workspace/` 查看：[檔案列表]」\n\n如果還在生成中 → 改為「正在生成中，預計 XX 分鐘完成。完成後用上面的檢索關",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-20T15:34:20.930904+08:00",
+  "priority": "medium"
+}

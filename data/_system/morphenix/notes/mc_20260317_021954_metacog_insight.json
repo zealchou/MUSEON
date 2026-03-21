@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260317_021954_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n**修改方向**（≤100字）：\n\n移除「第三次」等指責措辭，改用同理框架。不要只問「你想問什麼」，改為提供**三個行動選項**讓使用者立即選擇：\n1. 清理重複內容重新提問\n2. 指定分析層面（應用市場、政策、投資、人才、技術等）\n3. 我直接用 env-radar 掃描台灣AI最新動態給你分析\n\n這樣從「指責問題」轉變成「提供協助」。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-17T02:19:54.941316+08:00",
+  "priority": "medium"
+}

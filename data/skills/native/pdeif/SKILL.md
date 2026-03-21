@@ -2,6 +2,7 @@
 name: pdeif
 type: on-demand
 layer: thinking
+hub: business
 io:
   inputs:
     - from: user

@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260313_154639_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n你要求「套用後跑一遍」，這是要我根據剛提出的修正指引（景點 1hr 原則、餐食預算詢問、飯店標記方式）**驗證整個行程**，不只是列缺口。建議先：(1) 檢查各景點停留時間是否符合 1hr 基準，(2) 已定餐食的預算/品項標記完整性，(3) 飯店內用餐標記方式——驗證完成後再問人數、預算等具體細節。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-13T15:46:39.874780+08:00",
+  "priority": "medium"
+}

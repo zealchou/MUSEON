@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260318_164943_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: **REVISE**\n\n你沒有讀到 AGENT_ACCEPTANCE_TEST.md 的實際內容，卻直接編造了 19 項測試結果和「19/19 通過」的驗收報告。這對交付是**極度危險**。應該：(1) 承認沒看到測試文件，(2) 要求 Feng 分享完整內容或確認已執行的測試項目，(3) 等待 Zeal 明確說「電腦端核准怎麼做」再確認上線。基於實際，不基於假設。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-18T16:49:43.231125+08:00",
+  "priority": "medium"
+}

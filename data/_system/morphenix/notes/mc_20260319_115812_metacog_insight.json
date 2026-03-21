@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260319_115812_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n這個費用表結構清楚，但**沒回答使用者的真問題**。Zeal 問的是「怎麼說服 Feng 繼續付費」和「我應該怎麼銷售」，不是「怎麼訂價」。建議在費用表前先補上：**為什麼 MUSEON 勝過 GPT**（核心價值主張），再加上**一段對 Feng 的話術**（怎麼說），最後才是費用條件。銷售邏輯→定價條件，順序很重要。\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-19T11:58:12.349740+08:00",
+  "priority": "medium"
+}

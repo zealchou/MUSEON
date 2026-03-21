@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260315_212807_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n注意到輸入重複了多次。親切詢問使用者的實際意圖（測試邊界？輸入意外？還是真的想深度分析台灣AI產業？），再據此提供實質幫助。避免冷漠感，應改為：「我注意到這句話重複了。怎麼回事？你是想測試系統，還是真的想分析台灣AI產業的機會與風險？」",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-15T21:28:07.207580+08:00",
+  "priority": "medium"
+}

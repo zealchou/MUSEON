@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260318_224617_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n直接執行 gh gist 命令（Bash 工具），不用問用戶選哪個。用戶已在訊息明說「前面不是有成功發文的經驗了」——代表我們之前成功過。系統若提示權限，用戶會按允許。別讓用戶二次操作同一命令。且「方案 A」重複了兩次，造成混淆。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-18T22:46:17.004365+08:00",
+  "priority": "medium"
+}

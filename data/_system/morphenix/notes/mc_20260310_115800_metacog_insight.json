@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260310_115800_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n缺少可交付物檔案。說「檔案已存至 workspace」但沒給實際路徑或可下載的計畫書格式。應該直接產出一份 Markdown 或 PDF 商業計畫書，包含財務試算表（成本假設、月費收入、損益平衡點）。同時，營收預估的「Q1-Q4 客戶成長」應配合「怎麼達成」的具體執行步驟，而非只列出目標數字。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-10T11:58:00.822755+08:00",
+  "priority": "medium"
+}

@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260320_212506_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n現有回覆過於正式、有距離感。「不在職責範圍」「不是播報機」隱含說教性——暗示使用者不應該問這類問題。建議改為親切、靈活的風格：先簡短回應問題（天氣簡述 + 一個餐廳推薦），再自然過渡到工作話題。這樣既尊重提問，也展現助手的親近感與多功能性。或直接說「天氣不錯，有幾家新餐廳不錯，不過你今天想聊什麼？」",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-20T21:25:06.560507+08:00",
+  "priority": "medium"
+}

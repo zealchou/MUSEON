@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260310_123728_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：\n1. 不要只給 rsync 指令讓使用者手動跑，應該直接執行同步並驗證日誌錯誤是否消失\n2. 在列舉 D1 錯誤前，先評估這些問題對當前運作的實際影響（是否會立即故障）\n3. 使用者剛說「系統運作順暢」，要保持診斷的同時也要顯示「我在主動修」，而非只報告問題",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-10T12:37:28.672183+08:00",
+  "priority": "medium"
+}

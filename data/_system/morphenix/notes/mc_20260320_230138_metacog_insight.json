@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260320_230138_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n補充方向：\n1. **合規聲明**：爬蟲是否違反 Threads ToS，法律風險\n2. **實戰細節**：代碼範例 selector 可能失效，補充「2026年3月當前最穩定方案」\n3. **立即可用**：給出 Apify 連結 + 免費額度說明，而非只是理論範例\n4. **下一步**：「如果你現在要試，這麼做」（快速決策模式）",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-20T23:01:38.492441+08:00",
+  "priority": "medium"
+}

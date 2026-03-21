@@ -1,0 +1,32 @@
+{
+  "session_id": "e2e_sc07_resume_1773583987",
+  "nodes": {
+    "intention_求助": {
+      "node_id": "intention_求助",
+      "node_type": "intention",
+      "label": "求助",
+      "properties": {
+        "detected_at": "2026-03-15T22:13:07.513740"
+      },
+      "created_at": "2026-03-15T22:13:07.513760",
+      "updated_at": "2026-03-15T22:13:07.513762"
+    },
+    "topic_turn_1": {
+      "node_id": "topic_turn_1",
+      "node_type": "topic",
+      "label": "turn_1",
+      "properties": {
+        "content_length": 30,
+        "detected_at": "2026-03-15T22:13:07.513740"
+      },
+      "created_at": "2026-03-15T22:13:07.513770",
+      "updated_at": "2026-03-15T22:13:07.513771"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 1,
+    "last_content_length": 30
+  },
+  "last_updated": "2026-03-15T22:13:07.513740"
+}

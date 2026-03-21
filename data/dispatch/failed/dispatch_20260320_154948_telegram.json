@@ -1,0 +1,15 @@
+{
+  "plan_id": "dispatch_20260320_154948_telegram",
+  "user_request": "[回覆 霓裳 的訊息：你完全對，我沒讀清現有設計。\n\n已經實裝的四層衰減機制\n\n| 層級 | 機制 | 位置 |\n|------|------|------|\n| 記憶六層 | TTL（7-180 天）+ 訪問次數晉升 + 低相關性降級 | memory_manager.py |\n| 結晶知識 | RI = (0.3×Freq + 0.4×Depth + 0.3×Quality) × exp(-0.03×days) + RI<0.05 自動歸檔 | knowledge_lattice.py |\n| 系統健康 | 指數衰減（半衰期 2 小時） | dendritic_scorer.py |\n| 推薦引擎 | 近因性半衰期 7 天 + 交互衰減 0.95 | recommender.py |\n\n時間衰減、訪問頻率晉升、Supersede 機制都已經在了，不需要重新設計。\n\n修正後的建議：接下來驗證這三個機制是否全部啟用\n\n1. 結晶衰減是否真的在跑？ — 46 個結晶裡有沒有 RI 低於 0.05 被歸檔的紀錄？還是寫了邏輯但 maintenance 沒排程觸發？\n2. 記憶降級是否真的在跑？ — L1→L0 ...]\n\n但你會沒有查到\n是不是在 工程藍圖上、3D系統心智圖上 沒有銜接、關聯性沒有被串起來？",
+  "session_id": "telegram_6969045906",
+  "created_at": "2026-03-20T15:49:48.886701",
+  "status": "failed",
+  "execution_mode": "serial",
+  "tasks": [],
+  "results": [],
+  "synthesis_result": null,
+  "total_token_usage": {},
+  "completed_at": null,
+  "error_message": "Recovered after restart — execution interrupted",
+  "meta": {}
+}

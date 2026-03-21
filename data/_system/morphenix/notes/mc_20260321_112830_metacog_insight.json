@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260321_112830_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: **REVISE**\n\n未識別群組脈絡。Zeal 在測試 Bot 權限（不是真的在解決麵客邦 SEO）。應該快速判定：Feng 提到「室內設計」和「設計圖」，這個動態內容爬蟲問題與你測試的**權限控制**無關。建議先確認「Feng 這個問題是真實需求還是測試對話的一部分」，再決定回應深度。按 fast_loop 原則，群組內應該直接給行動指令，不是 SEO 方案。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-21T11:28:30.558509+08:00",
+  "priority": "medium"
+}

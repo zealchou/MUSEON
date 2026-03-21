@@ -2,6 +2,7 @@
 name: resonance
 type: on-demand
 layer: thinking
+hub: thinking
 io:
   inputs:
     - from: deep-think

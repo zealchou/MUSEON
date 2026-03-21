@@ -2,6 +2,7 @@
 name: text-alchemy
 type: on-demand
 layer: language
+hub: creative
 io:
   inputs:
     - from: user

@@ -2,6 +2,7 @@
 name: report-forge
 type: on-demand
 layer: product
+hub: product
 io:
   inputs:
     - from: user

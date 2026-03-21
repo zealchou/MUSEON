@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260310_120333_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n缺少驗證細節。建議確認測試內容（emoji 處理穩定性、顯示、性能？）、說明具體結果數據、詢問下一步方向（是否擴大測試範圍、改進某方面、檢查具體指標？）",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-10T12:03:33.783325+08:00",
+  "priority": "medium"
+}

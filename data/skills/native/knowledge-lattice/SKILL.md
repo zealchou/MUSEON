@@ -2,6 +2,7 @@
 name: knowledge-lattice
 type: on-demand
 layer: evolution
+hub: infra
 io:
   inputs:
     - from: roundtable

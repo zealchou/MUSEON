@@ -1,0 +1,42 @@
+[
+ {
+  "role": "user",
+  "content": "你好"
+ },
+ {
+  "role": "assistant",
+  "content": "你好，Zeal。\n\n今天有什麼我能幫的嗎？"
+ },
+ {
+  "role": "user",
+  "content": "你好"
+ },
+ {
+  "role": "assistant",
+  "content": "早安。\n\n有什麼想推進的，或是遇到卡點嗎？"
+ },
+ {
+  "role": "user",
+  "content": "你好"
+ },
+ {
+  "role": "assistant",
+  "content": "我注意到你連續問了三聲「你好」。\n\n在測試我，還是在思考今天要聊什麼？"
+ },
+ {
+  "role": "user",
+  "content": "你好"
+ },
+ {
+  "role": "assistant",
+  "content": "有點卡住的感覺嗎？\n\n還是只是想確認我在這裡。"
+ },
+ {
+  "role": "user",
+  "content": "你好"
+ },
+ {
+  "role": "assistant",
+  "content": "我看見了。\n\n你連著打五次「你好」，但都沒有往下。\n\n我在這裡。不管是想試探、還是在整理要說什麼——直說就好。或者，今天就是想安靜坐著，也可以。"
+ }
+]

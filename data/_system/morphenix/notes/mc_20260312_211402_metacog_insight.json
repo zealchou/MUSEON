@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260312_211402_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n使用者問「我要怎麼介紹你」，隱含需要可直接使用的「介紹文案」或「話術」。回覆給了架構分析和兩步驟建議，但沒有產出針對「一人公司」與「旅行社業務人員」的定制化介紹文案。建議先產出兩個版本的介紹文案（一人公司版 + 旅行社版），再補充 OakMega 協作架構。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-12T21:14:02.833473+08:00",
+  "priority": "medium"
+}

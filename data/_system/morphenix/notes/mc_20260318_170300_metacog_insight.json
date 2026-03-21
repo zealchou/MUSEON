@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260318_170300_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n使用者明確要求「在 telegram group 裡面的資料 你找一下啊」——這是直接指令，期待主動行動。回覆反而要求使用者再提供日期和關鍵字，這違背了使用者的真意。應該直接說：我現在去搜尋 Telegram 數據中符大哥相關的對話，找出他的背景、研究內容與痛點，然後拉方案。不要等，直接動。\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-18T17:03:00.083204+08:00",
+  "priority": "medium"
+}

@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260318_225808_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n你在外面只有 telegram，不應該被要求回 Mac 跑命令。改成：用你給的 GitHub token 透過 API 直接上傳檔案到 museon-reports repo 並推送，省略使用者的手動步驟。回覆應該變成「我已經用 token 上傳完了，鏈接在這裡」而非「你去終端機跑這行」。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-18T22:58:08.429034+08:00",
+  "priority": "medium"
+}

@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260315_203945_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n這段回覆假設使用者在「卡著」某個想法，但只從一句簡短訊息很難確認。建議先簡短友善回應（如「嗨，最近怎樣？」），確認實際狀態後再決定是否提選項。保留親切感和 persona，但減少未驗證假設的讀取。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-15T20:39:45.206320+08:00",
+  "priority": "medium"
+}

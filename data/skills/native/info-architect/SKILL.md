@@ -2,6 +2,7 @@
 name: info-architect
 type: on-demand
 layer: meta
+hub: product
 io:
   inputs:
     - from: user

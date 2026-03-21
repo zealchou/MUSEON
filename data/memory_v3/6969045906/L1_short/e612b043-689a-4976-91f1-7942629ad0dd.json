@@ -1,0 +1,22 @@
+{
+  "id": "e612b043-689a-4976-91f1-7942629ad0dd",
+  "content": "[失敗經驗] 任務：[群組近期對話紀錄]\n  33:26 你的資源跟手腳（老闆）: 剛才 token 被限流\n  33:39 你的資源跟手腳（老闆）: 100美金方案不太夠用\n  45:34 Feng: 看來api的部分\n失敗類型：general_failure\n回應片段：明白了。我之前搞錯方向了。\n\n配對 API **不是在 Gateway `server.py` 裡**，而是在 **MUC 後端**（`muc/backend/`），已經完整實作好了，部署在 `museon.one` 上。\n\nFeng，可以開始測了。以下是測試流程：\n\n---\n\n### 測試流程\n\n**第 1 步：確認 museon.one 健康**\n```\nGET https://museon.",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-17T22:49:40.886704+08:00",
+  "updated_at": "2026-03-17T22:49:40.886704+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "6969045906",
+  "session_id": "",
+  "dept_id": "",
+  "archived": false
+}

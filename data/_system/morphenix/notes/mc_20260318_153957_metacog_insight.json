@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260318_153957_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n先確認有沒有看懂三份新文件（AGENT_INTEGRATION_GUIDE、ONBOARDING_STEPS、QUICK_CONNECT），再選方案推進。新 Pair Code 來源也應說明。建議避免「最快 30 秒」這類催促感，改成「確認文件理解無誤，我們就直接走方案 A」。目前跳過了文件審視環節。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-18T15:39:57.472418+08:00",
+  "priority": "medium"
+}

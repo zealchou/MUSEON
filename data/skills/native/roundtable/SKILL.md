@@ -2,6 +2,7 @@
 name: roundtable
 type: on-demand
 layer: analysis
+hub: thinking
 io:
   inputs:
     - from: query-clarity

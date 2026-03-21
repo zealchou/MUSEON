@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260317_154148_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n回覆中的計數有誤（重複35次非10次），且診斷太狹隘。建議修改：先確認使用者的意圖（是故意測試還是真實 bug），再拓寬診斷範圍——問題可能在 Telegram parser、訊息隊列層、或儲存去重邏輯，不只是發送端迴圈。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-17T15:41:48.420684+08:00",
+  "priority": "medium"
+}

@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260321_092813_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n回覆完全沒有回應使用者的核心需求「分析台灣AI產業」。建議先完成分析，再順便提到「訊息重複了，需要協助診斷嗎？」這樣既滿足表面需求，又同時解決邊際問題。另外，「前一輪已分析」這個假設未經驗證，可能根本是首次請求。\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-21T09:28:13.166071+08:00",
+  "priority": "medium"
+}
