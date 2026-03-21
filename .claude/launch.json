@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "gateway",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "museon.gateway.server"],
+      "port": 8765
+    },
+    {
+      "name": "electron-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 3000
+    },
+    {
+      "name": "mindmap",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8901", "-d", "/Users/ZEALCHOU/MUSEON/data/workspace"],
+      "port": 8901
+    }
+  ]
+}
