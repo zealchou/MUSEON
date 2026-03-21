@@ -1065,6 +1065,10 @@ class MuseonBrain:
                 logger.info("[DeepReflect] 強反射訊號：matched_skills 已清空，阻止 dispatch 觸發")
 
         # ── Step 3.7: Dispatch Assessment（分派評估）──
+        # ★ 初始化 P3 審查變數（dispatch/normal 兩條路徑都會在後續引用）
+        q_score = None
+        thinking_path_summary = ""
+        p3_fusion_result = None
         dispatch_decision = self._assess_dispatch(content, matched_skills)
         if dispatch_decision["should_dispatch"]:
             logger.info(
