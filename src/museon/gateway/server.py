@@ -756,7 +756,62 @@ def create_app() -> FastAPI:
         """
         from datetime import datetime as _dt
 
-        node_map: Dict[str, Dict[str, Any]] = {}  # {node_id: {status, issues[]}}
+        # ── 預填所有拓撲節點為 ok（與 system-topology.md 同步）──
+        _ALL_TOPOLOGY_NODES = [
+            # center
+            "event-bus",
+            # channel
+            "user", "telegram", "gateway", "cron", "mcp-server",
+            # agent
+            "brain", "dna27", "skill-router", "reflex-router", "dispatch",
+            "knowledge-lattice", "plan-engine", "metacognition", "intuition",
+            "eval-engine", "diary-store", "onboarding", "multiagent",
+            "multi-agent-executor", "response-synthesizer", "flywheel-coordinator",
+            "primal-detector", "persona-router", "deep-think", "roundtable",
+            "investment-masters", "drift-detector", "okr-router", "fact-correction",
+            "dendritic-fusion", "recommender",
+            # pulse
+            "pulse", "heartbeat", "explorer", "silent-digestion", "proactive-bridge",
+            "micro-pulse", "pulse-db", "commitment-tracker", "anima-mc-store",
+            "anima-tracker", "group-session-proactive",
+            # gov
+            "governance", "governor", "immunity", "preflight", "refractory",
+            "skill-scanner", "sandbox", "telegram-guard", "service-health",
+            "guardian", "security", "dendritic-scorer", "footprint", "perception",
+            "cognitive-receipt",
+            # doctor
+            "doctor", "system-audit", "health-check", "self-diagnosis",
+            "auto-repair", "surgery", "log-analyzer", "code-analyzer",
+            "memory-reset", "observatory",
+            # llm
+            "llm-router", "budget-mgr", "rate-limit", "llm-cache",
+            # data
+            "data-bus", "data-watchdog", "memory", "vector-index",
+            "group-context-db", "workflow-state-db", "wee", "skills-registry",
+            "registry", "skill-synapse", "blueprint-reader", "lord-profile",
+            "sparse-embedder",
+            # evolution
+            "evolution", "outward-trigger", "intention-radar", "digest-engine",
+            "research-engine", "evolution-velocity", "feedback-loop",
+            "parameter-tuner", "tool-muscle", "trigger-weights",
+            # tools
+            "tool-registry", "tool-discovery", "dify-scheduler", "image-gen",
+            "rss-aggregator", "voice-clone", "zotero-bridge", "mcp-dify",
+            "skill-market", "federation-sync",
+            # nightly
+            "nightly", "morphenix", "curiosity-router", "exploration-bridge",
+            "skill-forge-scout", "crystal-actuator", "periodic-cycles",
+            "morphenix-validator",
+            # installer
+            "installer", "installer-daemon", "installer-electron",
+            "installer-env", "installer-verifier",
+            # external
+            "searxng", "qdrant", "firecrawl", "anthropic-api",
+        ]
+
+        node_map: Dict[str, Dict[str, Any]] = {
+            nid: {"status": "ok", "issues": []} for nid in _ALL_TOPOLOGY_NODES
+        }
 
         def _set_worst(nid: str, status: str, issue: str = ""):
             """設定節點狀態（只往嚴重方向升級）"""
@@ -777,16 +832,23 @@ def create_app() -> FastAPI:
             checker = HealthChecker()
             report = await _hc_aio.to_thread(checker.run_all)
 
-            # 映射表：檢查名稱關鍵字 → 節點 ID 列表
+            # 映射表：檢查名稱關鍵字 → 拓撲節點 ID 列表
             _hc_map = {
                 "gateway": ["gateway"],
-                "daemon": ["daemon"],
-                "數據完整性": ["diary-store", "pulse-db", "memory-store"],
+                "daemon": ["guardian", "installer-daemon"],
+                "數據完整性": ["diary-store", "pulse-db", "memory"],
                 "核心模組": ["brain", "skill-router", "gateway"],
-                "dashboard": ["electron"],
-                "app": ["electron"],
-                "api key": ["llm-router"],
+                "dashboard": ["installer-electron"],
+                "app": ["installer-electron"],
+                "api key": ["llm-router", "anthropic-api"],
                 ".env": ["llm-router"],
+                "目錄": ["data-bus"],
+                "venv": ["installer-env"],
+                "虛擬環境": ["installer-env"],
+                "磁碟": ["data-bus"],
+                "disk": ["data-bus"],
+                "日誌": ["log-analyzer"],
+                "log": ["log-analyzer"],
             }
 
             for chk in report.to_dict().get("checks", []):
@@ -794,15 +856,10 @@ def create_app() -> FastAPI:
                 chk_status = chk.get("status", "ok")
                 if chk_status == "ok":
                     continue
-                matched = False
                 for keyword, nids in _hc_map.items():
                     if keyword.lower() in chk_name.lower():
                         for nid in nids:
                             _set_worst(nid, chk_status, f"[健檢] {chk_name}: {chk.get('message', '')}")
-                        matched = True
-                if not matched:
-                    # 系統級問題不映射到特定節點
-                    pass
         except Exception as hc_err:
             logger.debug(f"node-status health_check failed: {hc_err}")
 
