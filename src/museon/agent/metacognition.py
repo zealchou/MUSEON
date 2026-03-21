@@ -425,6 +425,77 @@ class MetaCognitionEngine:
             )
         return ""
 
+    def extract_thinking_summary(
+        self,
+        pre_review: Dict[str, Any],
+        user_query: str = "",
+    ) -> str:
+        """從 PreCognition 審查結果提煉 1-2 項核心思維，生成 2-3 句中文摘要.
+
+        五維度審查對應（見 _PRECOG_SYSTEM_PROMPT L47-79）：
+        ① 影響 — 正面/負面影響、潛在傷害
+        ② 假設 — 未驗證的假設、使用者可能不同意的前提
+        ③ 視角 — 單一/多元觀點、遺漏的重要觀點
+        ④ 框架 — 被困的思維框架、跨領域破框思路
+        ⑤ 真需 — 回答真實需求 vs 表面文字
+
+        Args:
+            pre_review: dict with keys 'verdict', 'feedback', 'review_time_ms'
+            user_query: 使用者問題（用於上下文）
+
+        Returns:
+            2-3 句摘要文本（150 tokens 以內），例如：
+            「我考慮了你決策的中期影響，同時檢視了隱含假設」
+        """
+        if not pre_review:
+            return ""
+
+        verdict = pre_review.get("verdict", "skipped")
+        feedback = pre_review.get("feedback", "")
+
+        # verdict 為 skipped → 沒有審查，不輸出摘要
+        if verdict == "skipped":
+            return ""
+
+        # verdict 為 pass → 無重大問題，輸出簡潔確認
+        if verdict == "pass":
+            return "我確認回覆涵蓋了主要需求，無重大邏輯問題。"
+
+        # verdict 為 revise → 從 feedback 抽取 1-2 個最核心的問題類別
+        if verdict == "revise" and feedback:
+            # 分類 feedback 中包含的問題維度
+            fb_lower = feedback.lower()
+            categories = []
+
+            # 掃描五維度關鍵詞
+            if any(w in fb_lower for w in ["影響", "正面", "負面", "傷害", "impact"]):
+                categories.append("考慮了決策的中期/長期影響")
+
+            if any(w in fb_lower for w in ["假設", "驗證", "前提", "邏輯", "assumption"]):
+                categories.append("檢視了隱含假設的合理性")
+
+            if any(w in fb_lower for w in ["視角", "觀點", "遺漏", "角度", "perspective"]):
+                categories.append("納入了多元視角")
+
+            if any(w in fb_lower for w in ["框架", "破框", "跨領域", "frame"]):
+                categories.append("嘗試了跨領域思路")
+
+            if any(w in fb_lower for w in ["真需", "真正需求", "表面", "本質", "real need"]):
+                categories.append("聚焦了你的真實需求")
+
+            # 如果沒有匹配到明確維度，通用摘要
+            if not categories:
+                return "我對回覆進行了多維度審查，確保回答你的實際問題。"
+
+            # 優先挑選前 2 個最相關的維度
+            selected = categories[:2]
+            if len(selected) == 2:
+                return f"我{selected[0]}、{selected[1]}。"
+            else:
+                return f"我{selected[0]}。"
+
+        return ""
+
     # ════════════════════════════════════════
     # PostCognition — 雙向觀察迴路
     # ════════════════════════════════════════
