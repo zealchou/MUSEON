@@ -15,9 +15,6 @@ io:
     - to: user
       field: narrativized_output
       trigger: always
-    - name: narrative_output
-      to: gateway
-      trigger: always
 connects_to:
   - text-alchemy
 memory:
