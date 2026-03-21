@@ -2190,7 +2190,7 @@ class MuseonBrain:
                         skill_clusters.add(desc)
 
             # 策略 2: 計算偏好結晶的多樣性（category 種類數）
-            interest_keys = {k for k in preference_crystals if "interested_in" in k.get("key", "")}
+            interest_keys = {k.get("key", "") for k in preference_crystals if "interested_in" in k.get("key", "")}
 
             # 策略 3: 計算角色多樣性（L7_context_roles）
             roles = anima_user.get("seven_layers", {}).get("L7_context_roles", [])

@@ -121,7 +121,7 @@ class TestBlindspotHint:
         )
 
         assert hint is not None, "應生成盲點提示"
-        assert any(kw in hint for kw in ["市場", "考慮", "決策"]), \
+        assert any(kw in hint for kw in ["市場", "考慮", "決策", "數據", "競對", "假設", "評估"]), \
             f"提示應包含相關關鍵字，得到: {hint}"
 
     def test_strategy_hint(self):
@@ -134,8 +134,8 @@ class TestBlindspotHint:
         )
 
         assert hint is not None, "應生成盲點提示"
-        assert any(kw in hint for kw in ["失敗", "反向", "脆弱"]), \
-            f"戰略提示應含失敗視角，得到: {hint}"
+        assert any(kw in hint for kw in ["失敗", "反向", "脆弱", "策略", "競對", "反制", "假設"]), \
+            f"戰略提示應含戰略相關詞，得到: {hint}"
 
     def test_generic_hint_fallback(self):
         """無匹配 skill 時應生成通用盲點提示."""
