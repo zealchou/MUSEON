@@ -1392,6 +1392,7 @@ function showInfo(node) {
   }
 
   document.getElementById('info').classList.add('visible');
+  updateHealthBadges();  // 顯示選中節點的檢查數字
 }
 
 function hideInfo() { document.getElementById('info').classList.remove('visible'); }
@@ -1409,9 +1410,10 @@ window.resetView = function() {
   if (coverageViewActive) toggleCoverageView();
   if (doctorViewActive) toggleDoctorView();
   clearHighlight(); hideInfo();
+  updateHealthBadges();
   controls.reset();
 };
-window.clearSelection = function() { selectedNode = null; if (!coverageViewActive && !doctorViewActive) clearHighlight(); hideInfo(); targetGoal.set(0, 0, 0); };
+window.clearSelection = function() { selectedNode = null; if (!coverageViewActive && !doctorViewActive) clearHighlight(); hideInfo(); targetGoal.set(0, 0, 0); updateHealthBadges(); };
 window.toggleRot = function() {
   autoRotate = !autoRotate;
   document.getElementById('rotBtn').textContent = '自動旋轉：' + (autoRotate ? '開' : '關');
@@ -1798,9 +1800,12 @@ function updateHealthBadges() {
     if (count === 0) {
       div.textContent = '\u26A0';
       div.className = 'health-badge never';
+      div.style.display = '';
     } else {
       div.textContent = '\u00D7' + count;
       div.className = 'health-badge checked';
+      // 已檢查的數字預設隱藏，點擊節點時才顯示
+      div.style.display = (selectedNode && selectedNode.id === n.id) ? '' : 'none';
     }
   });
 }
