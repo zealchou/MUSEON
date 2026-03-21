@@ -3841,16 +3841,12 @@ async def _telegram_message_pump(adapter) -> None:
                 name = "MUSEON"
                 if anima_mc:
                     name = anima_mc.get("identity", {}).get("name", "MUSEON")
-                if is_group and not is_owner:
-                    # 群組外部用戶：不洩漏技術細節
-                    response_text = f"不好意思，我現在有點忙，請稍後再試。"
-                else:
-                    # Owner 或私訊：顯示錯誤細節方便除錯
-                    response_text = (
-                        f"[{name}] 處理過程發生錯誤，請稍後再試。\n\n"
-                        f"錯誤類型：{type(proc_err).__name__}\n"
-                        f"如果持續發生，請用 /reset 重新啟動。"
-                    )
+                # v3.0: 所有用戶統一顯示錯誤細節（含群組外部用戶）
+                response_text = (
+                    f"[{name}] 處理過程發生錯誤，請稍後再試。\n\n"
+                    f"錯誤類型：{type(proc_err).__name__}\n"
+                    f"如果持續發生，請用 /reset 重新啟動。"
+                )
             finally:
                 # Release session lock
                 if _session_locked and message.session_id and session_manager:

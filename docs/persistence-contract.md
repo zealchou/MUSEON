@@ -1,4 +1,4 @@
-# MUSEON Persistence Contract v1.22 — 水電圖
+# MUSEON Persistence Contract v1.23 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
@@ -295,6 +295,13 @@ Installer 編排 (orchestrator.py)
 > - `memory_manager.py` 的 `store()` 接受 `dept_id` 參數，自動注入 `dept:{dept_id}` 標籤
 > - `memory_manager.py` 的 `recall()` 接受 `dept_filter` 參數，在 Qdrant 和 TF-IDF 兩條搜尋路徑均支援過濾
 > - MultiAgentExecutor、ResponseSynthesizer、FlywheelCoordinator 均為無狀態/記憶體內狀態，不新增持久化
+>
+> **v1.23 補充（群組 chat_scope 隔離）**：
+> - W10 六層記憶條目新增 `chat_scope` + `group_id` 欄位（可選），用於群組級記憶隔離
+> - `memory_manager.py` 的 `store()` 接受 `chat_scope`/`group_id` 參數，自動注入 `scope:{chat_scope}` 標籤
+> - `memory_manager.py` 的 `recall()` 接受 `chat_scope_filter`/`exclude_scopes` 參數，三條搜尋路徑（向量+TF-IDF+keyword fallback）均支援過濾
+> - `_vector_index()` 將 chat_scope 注入 Qdrant metadata
+> - 外部使用者 ANIMA v3.0：`governance/multi_tenant.py` ExternalAnimaManager schema 升級（profile/relationship/seven_layers + trust_evolution + v2→v3 自動遷移）
 
 ### Dead Write（寫入無消費者）
 
@@ -587,6 +594,7 @@ recommender ──近因性衰減──→ 推薦排序 (in-memory)
 | v1.0 | 2026-03-15 | 初版：完整水電圖，涵蓋 23 個正常配對、3 個 Dead Write、14 個死目錄 |
 | v1.1 | 2026-03-15 | Phase 2 完成：4 個 JSON 遷移至 PulseDB（ceremony_state + eval 三件套） |
 | v1.2 | 2026-03-15 | Phase 3 完成：DataContract + DataBus 建立，10 個 Store 類統一接入 |
+| v1.23 | 2026-03-21 | 群組 chat_scope 隔離：W10 六層記憶新增 chat_scope/group_id 欄位 + scope 標籤自動注入；recall 三路徑（向量+TF-IDF+keyword）均支援 chat_scope_filter/exclude_scopes 過濾；_vector_index metadata 注入 chat_scope；外部使用者 ANIMA v3.0 schema（profile/relationship/seven_layers + trust_evolution + v2→v3 自動遷移） |
 | v1.22 | 2026-03-20 | 混合檢索（Hybrid Retrieval）：Qdrant Engine 2 新增 Sparse Collections 分區（`{name}_sparse`，BM25 稀疏向量，Route A 分離式零遷移設計）；新增 `data/_system/sparse_idf.json`（SparseEmbedder IDF 表持久化）；VectorBridge 新增 `hybrid_search()` / `index_sparse()` / `backfill_sparse()` / `build_sparse_idf()`；hybrid_search 降級策略：IDF 未建 → 純 dense |
 | v1.21 | 2026-03-20 | 衰減生命週期補全：新增「衰減與優先級模型」章節——四大衰減引擎（結晶 RI λ=0.03、記憶 TTL 離散分級、健康分數半衰期 2h、推薦近因性 7d）的公式/閾值/觸發時機/引擎間關係圖/參數速查表；同步 system-topology v1.22（新增 decay 連線類型）、blast-radius v1.28（新增 G8 衰減組）、joint-map v1.22（crystals.json 補衰減策略） |
 | v1.20 | 2026-03-20 | P3 前置交織融合：無新增持久層（_p3_pre_fusion_ctx 為 in-memory 注入，不落地） | joint-map v1.21 |

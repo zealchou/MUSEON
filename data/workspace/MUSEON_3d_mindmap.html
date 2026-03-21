@@ -263,7 +263,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 //  SYNC META — 拓撲同步狀態
 // ═══════════════════════════════════════
 const SYNC_META = {
-  topologyVersion: 'v1.25',
+  topologyVersion: 'v1.26',
   syncDate: '2026-03-21',
   nodeCount: 0, // auto-calculated below
   linkCount: 0, // auto-calculated below
@@ -277,7 +277,8 @@ const SYNC_META = {
     'decay-lifecycle v1.0: 衰減生命週期四引擎橫切補全',
     'A區 #1 MemGPT: recall_tiered() 三層分級召回（Hot≥0.7/Warm≥0.2/Cold）',
     'A區 #2 Hybrid Retrieval: sparse-embedder BM25 稀疏向量 + RRF 融合 + 分離式 sparse collections',
-    'A區 #3 GraphRAG: detect_communities() Label Propagation + recall_with_community() 社群摘要 Layer 2.5'
+    'A區 #3 GraphRAG: detect_communities() Label Propagation + recall_with_community() 社群摘要 Layer 2.5',
+    '群組對話 DSE 三階段修復：brain.py P0 六類訊號分流 + 群組事實糾正啟用 + cognitive_trace 三欄位修復；memory_manager chat_scope 群組隔離；ExternalAnimaManager v3.0 per-client 八原語+信任演化'
   ]
 };
 

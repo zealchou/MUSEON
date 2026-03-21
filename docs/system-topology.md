@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.25
+# MUSEON 系統拓撲圖 v1.26
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.26 (2026-03-21)**：群組對話 DSE 三階段修復——brain.py P0 六類訊號分流 + 事實糾正偵測 + _observe_external_user v3.0；memory_manager chat_scope 隔離；multi_tenant ExternalAnimaManager v3.0；server.py 群組事實糾正+錯誤顯示啟用
 > **v1.25 (2026-03-21)**：新增 deep-think、roundtable、investment-masters 拓撲節點 + 10 條連線
 > **v1.24 (2026-03-21)**：A 區迭代 #1~#3 拓撲同步——MemGPT recall_tiered、Hybrid Retrieval sparse-embedder、GraphRAG 社群摘要 Layer 2.5
 > **v1.23 (2026-03-20)**：補記 recommender 節點（知識推薦引擎）+ 3D 心智圖全面同步修復
