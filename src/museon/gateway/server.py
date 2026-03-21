@@ -3740,6 +3740,28 @@ async def _telegram_message_pump(adapter) -> None:
                     except Exception as _esc_err:
                         logger.debug(f"Escalation check error: {_esc_err}")
 
+                    # ── Check if owner is responding to a tool authorization ──
+                    try:
+                        from museon.gateway.authorization import get_tool_auth_queue
+                        taq = get_tool_auth_queue()
+                        if taq.has_pending():
+                            if _is_approve:
+                                tid = taq.resolve_latest(approved=True)
+                                if tid:
+                                    _tentry = taq.get(tid)
+                                    _tname = _tentry.get("tool_name", "?") if _tentry else "?"
+                                    _tusr = _tentry.get("user_name", "?") if _tentry else "?"
+                                    response_text = f"✅ 工具 {_tname} 已允許（{_tusr}）"
+                            elif _is_deny:
+                                tid = taq.resolve_latest(approved=False)
+                                if tid:
+                                    _tentry = taq.get(tid)
+                                    _tname = _tentry.get("tool_name", "?") if _tentry else "?"
+                                    _tusr = _tentry.get("user_name", "?") if _tentry else "?"
+                                    response_text = f"❌ 工具 {_tname} 已拒絕（{_tusr}）"
+                    except Exception as _auth_err:
+                        logger.debug(f"Tool auth check error: {_auth_err}")
+
                 # /start 觸發命名儀式（Brain 內部處理）
                 # /reset 強制重跑命名儀式
                 if response_text is None and message.content in ("/start", "/reset"):

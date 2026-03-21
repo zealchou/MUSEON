@@ -1,4 +1,4 @@
-# MUSEON Persistence Contract v1.24 — 水電圖
+# MUSEON Persistence Contract v1.25 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
@@ -289,6 +289,8 @@ Installer 編排 (orchestrator.py)
 | W34 | 八原語向量索引 | PrimalDetector | PrimalDetector.detect | Qdrant | ∞ | OK |
 | W35 | 認知追蹤日誌 | FootprintStore.trace_cognitive() | SystemAudit(Skill Doctor), Observatory | JSONL | 30 天 | OK |
 | W36 | 百合引擎決策快取 | Brain.Step 3.65 (baihe_decide) | ProactiveBridge._read_baihe_cache() | JSON | 2 小時（過期忽略） | OK |
+| W37 | 動態授權清單 | PairingManager (gateway/authorization.py) | PairingManager.is_paired(), TelegramAdapter.get_trust_level(), museon_auth_status() | JSON | 永久（TTL 可選） | OK |
+| W38 | 分級授權策略 | AuthorizationPolicy (gateway/authorization.py) | SecurityGate.check_tool_access(), museon_auth_status() | JSON | 永久 | OK |
 
 > **v1.10 補充（Phase 4 飛輪多代理）**：
 > - W10 六層記憶條目新增 `dept_id` 欄位（可選），用於部門級記憶隔離
@@ -445,6 +447,16 @@ recommender ──近因性衰減──→ 推薦排序 (in-memory)
 | `_system/baihe_cache.json` | `agent/brain.py` (Step 3.65 百合引擎) | 百合引擎最近決策快取——供 ProactiveBridge 讀取象限調整推送語氣（原子寫入 tmp→rename） |
 | `_system/budget/usage_{month}.json` | `llm/budget.py` | 月度 Token 用量 |
 
+### `~/.museon/auth/` 子目錄（Runtime 授權狀態）
+
+> **注意**：此目錄位於 `~/.museon/auth/`（Runtime 區），不在 `data/` 下。
+> 授權狀態為 Gateway 運行時管理，不隨 `data/` 備份或遷移。
+
+| 檔案 | 負責模組 | 用途 |
+|------|---------|------|
+| `allowlist.json` | `gateway/authorization.py` (PairingManager) | 動態授權使用者清單（user_id → display_name + trust_level + TTL）；原子寫入（tmp→rename） |
+| `policy.json` | `gateway/authorization.py` (AuthorizationPolicy) | 三級授權策略（auto/ask/block 工具分類）；原子寫入（tmp→rename） |
+
 ### `anima/` 子目錄
 
 | 檔案 | 負責模組 | 用途 |
@@ -594,6 +606,7 @@ recommender ──近因性衰減──→ 推薦排序 (in-memory)
 | v1.0 | 2026-03-15 | 初版：完整水電圖，涵蓋 23 個正常配對、3 個 Dead Write、14 個死目錄 |
 | v1.1 | 2026-03-15 | Phase 2 完成：4 個 JSON 遷移至 PulseDB（ceremony_state + eval 三件套） |
 | v1.2 | 2026-03-15 | Phase 3 完成：DataContract + DataBus 建立，10 個 Store 類統一接入 |
+| v1.25 | 2026-03-21 | 授權系統升級：新增 W37-W38 配對——W37 動態授權清單（PairingManager 寫入、TelegramAdapter+museon_auth_status 讀取，JSON 永久+可選 TTL）、W38 分級授權策略（AuthorizationPolicy 寫入、SecurityGate+museon_auth_status 讀取）；新增 `~/.museon/auth/` Runtime 子目錄（allowlist.json + policy.json，原子寫入 tmp→rename）；同步 system-topology v1.30、blast-radius v1.35、joint-map v1.28 |
 | v1.24 | 2026-03-21 | Skill 向量索引：VectorBridge.index_all_skills() 全量寫入 skills collection（Gateway 啟動 + Nightly Step 8.6 + /api/vector/reindex）；修正 skills 寫入者從 skill_router 為 vector_bridge |
 | v1.23 | 2026-03-21 | 群組 chat_scope 隔離：W10 六層記憶新增 chat_scope/group_id 欄位 + scope 標籤自動注入；recall 三路徑（向量+TF-IDF+keyword）均支援 chat_scope_filter/exclude_scopes 過濾；_vector_index metadata 注入 chat_scope；外部使用者 ANIMA v3.0 schema（profile/relationship/seven_layers + trust_evolution + v2→v3 自動遷移） |
 | v1.22 | 2026-03-20 | 混合檢索（Hybrid Retrieval）：Qdrant Engine 2 新增 Sparse Collections 分區（`{name}_sparse`，BM25 稀疏向量，Route A 分離式零遷移設計）；新增 `data/_system/sparse_idf.json`（SparseEmbedder IDF 表持久化）；VectorBridge 新增 `hybrid_search()` / `index_sparse()` / `backfill_sparse()` / `build_sparse_idf()`；hybrid_search 降級策略：IDF 未建 → 純 dense |

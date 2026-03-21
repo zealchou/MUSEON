@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.27
+# Joint Map — 共享可變狀態接頭圖 v1.28
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -41,6 +41,8 @@
 | 28 | cognitive_trace.jsonl | 🟢 | 1 | 2 | 無(append) | [→](#28-cognitive_tracejsonl) |
 | 29 | lord_profile.json | 🟢 | 1 | 1+ | 原子寫 | [→](#29-lord_profilejson) |
 | 30 | _system/baihe_cache.json | 🟢 | 1 | 2 | 原子寫 | [→](#30-_systembaihe_cachejson) |
+| 31 | ~/.museon/auth/allowlist.json | 🟢 | 1 | 2 | 原子寫 | [→](#31-museonauthallowlistjson) |
+| 32 | ~/.museon/auth/policy.json | 🟢 | 1 | 2 | 原子寫 | [→](#32-museonauthpolicyjson) |
 
 > **危險度定義**：🔴 多寫入者+高扇出+格式不一致 | 🟡 多寫入者或高扇出 | 🟢 單寫入者+低扇出
 
@@ -737,6 +739,52 @@
 
 > **鎖**：原子寫入（.json.tmp → rename），單一寫入者 brain.py
 > **TTL**：讀取時只使用 2 小時內的快取，過期忽略
+
+### 31. ~/.museon/auth/allowlist.json
+
+**路徑**：`~/.museon/auth/allowlist.json`（runtime 區，非 data/）
+**用途**：動態授權使用者清單——透過配對碼加入的 Telegram 使用者
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| `gateway/authorization.py` | **W** | `PairingManager.save()` | 配對/撤銷使用者時原子寫入（tmp→rename） | 原子寫入 |
+| `gateway/authorization.py` | **R** | `PairingManager.load()` | Gateway 啟動時載入 | — |
+| `channels/telegram.py` | **R** | `get_trust_level()` → `PairingManager.is_paired()` | 訊息處理時檢查動態信任 | — |
+
+#### 資料格式
+
+```json
+{"version": "1.0.0", "updated_at": "2026-03-21T10:00:00", "users": {"12345": {"display_name": "張三", "trust_level": "VERIFIED", "added_at": "...", "ttl": null}}}
+```
+
+> **鎖**：原子寫入（.tmp → rename），單一寫入者 PairingManager
+> **TTL**：每筆使用者可選 ttl 秒數，null 為永久
+
+---
+
+### 32. ~/.museon/auth/policy.json
+
+**路徑**：`~/.museon/auth/policy.json`（runtime 區，非 data/）
+**用途**：三級授權策略設定——auto / ask / block 工具分類
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| `gateway/authorization.py` | **W** | `AuthorizationPolicy.save()` | 透過 /auth move 指令修改時原子寫入 | 原子寫入 |
+| `gateway/authorization.py` | **R** | `AuthorizationPolicy.load()` | Gateway 啟動時載入 | — |
+| `gateway/security.py` | **R** | `check_tool_access()` → `AuthorizationPolicy.classify()` | 工具存取檢查時分類 | — |
+
+#### 資料格式
+
+```json
+{"version": "1.0.0", "updated_at": "2026-03-21T10:00:00", "auto": ["museon_memory_read", ...], "ask": ["shell_exec", ...], "block": ["modify_security", ...]}
+```
+
+> **鎖**：原子寫入（.tmp → rename），單一寫入者 AuthorizationPolicy
+> **TTL**：無，永久有效
 
 ---
 

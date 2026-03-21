@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.29
+# MUSEON 系統拓撲圖 v1.30
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.30 (2026-03-21)**：授權系統升級——gov 群組新增 `authorization` 節點（配對碼+工具授權+分級策略）+ 5 條連線；持久化 `~/.museon/auth/`
 > **v1.29 (2026-03-21)**：Skills 群組治理升級——新增 `hub` 欄位（9 種 Hub 分組）+ Workflow Stage 規格；詳見 `docs/skill-routing-governance.md`
 > **v1.28 (2026-03-21)**：補全 skills 群組——7 Hub + 39 Skill 節點 + 91 條連線（從 3D 心智圖回補，修復拓撲⇄HTML 漂移）
 > **v1.27 (2026-03-21)**：Skill 鍛造膠合層修復——VectorBridge 新增 index_all_skills()；Nightly Step 8.6 skill_vector_reindex；plugin-registry v2.3（+12 Skill 註冊）
@@ -124,6 +125,7 @@
 | `footprint` | Footprint | 操作足跡追蹤 | - | governance | 0.9 |
 | `perception` | Perception | 四診合參感知 | - | governance | 0.9 |
 | `cognitive-receipt` | Cognitive Receipt | 認知收據格式定義 | - | governance | 0.7 |
+| `authorization` | Authorization | 配對碼 + 工具授權 + 分級策略 | - | governance | 1.0 |
 
 ### doctor — Doctor 診斷
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -422,6 +424,8 @@
 | `footprint` | `cognitive-receipt` | 認知追蹤格式定義 |
 | `governor` | `immunity` | learn() 抗體學習 |
 | `governor` | `dendritic-scorer` | immunity 未解決→健康分數 |
+| `governance` | `authorization` | 授權引擎 |
+| `authorization` | `security` | 三級策略查詢 |
 
 ### Evolution 內部連線（internal）
 | Source | Target | 說明 |
@@ -599,6 +603,9 @@
 | `morphenix` | `pulse-db` | DNA 品質旗標讀取（品質回饋閉環） |
 | `response-synthesizer` | `multi-agent-executor` | DNA 交叉重組（片段評分合成） |
 | `brain` | `footprint` | Step 8 認知追蹤（trace_decision+trace_cognitive） |
+| `authorization` | `telegram` | 配對碼推送 + 授權請求 inline keyboard |
+| `authorization` | `gateway` | server.py 訊息泵授權回覆分支 |
+| `authorization` | `mcp-server` | museon_auth_status 查詢 |
 | `footprint` | `data-bus` | cognitive_trace.jsonl 寫入 |
 | `observatory` | `footprint` | 讀取 cognitive_trace.jsonl 視覺化 |
 | `observatory` | `service-health` | 讀取健康狀態 |
@@ -798,12 +805,12 @@
 
 | 指標 | 數值 |
 |------|------|
-| 總節點數 | 167 (121 系統 + 46 Skills) |
-| 總連線數 | 336 (245 系統 + 91 Skills) |
+| 總節點數 | 168 (122 系統 + 46 Skills) |
+| 總連線數 | 341 (250 系統 + 91 Skills) |
 | 群組數 | 14 (含 skills) |
 | Hub 節點 | 18 (11 系統 + 7 Skills Hub) |
-| 跨系統連線 | 101 (71 系統 + 30 Skills cross) |
-| 內部連線 | 169 (115 系統 + 54 Skills internal) |
+| 跨系統連線 | 104 (74 系統 + 30 Skills cross) |
+| 內部連線 | 171 (117 系統 + 54 Skills internal) |
 | 非同步連線 | 5 |
 | 監控連線 | 5 |
 | 控制連線 | 16 (9 系統 + 7 Skills control) |
@@ -817,6 +824,7 @@
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.30 | 2026-03-21 | 授權系統升級：gov 群組新增 `authorization` 節點（配對碼+工具授權+分級策略）；新增 5 條連線——internal: governance→authorization 授權引擎、authorization→security 三級策略查詢（+2）；cross: authorization→telegram 配對碼推送+inline keyboard、authorization→gateway 訊息泵授權回覆、authorization→mcp-server auth_status 查詢（+3）；持久化 `~/.museon/auth/`（allowlist.json + policy.json）；168 節點 341 連線 |
 | v1.29 | 2026-03-21 | Skills 群組治理升級：新增 `hub` 欄位（9 種 Hub 分組：core/infra/thinking/market/business/creative/product/evolution/workflow）至 49 個 Skill Manifest；新增 Workflow Stage 結構化 YAML（3 個 workflow 含 stages + speed_paths）；新增治理文件 `skill-routing-governance.md`；plugin-registry v2.4（Hub 架構樹）；validate_connections.py v1.1（+2 驗證規則）；167 節點 336 連線（不變） |
 | v1.28 | 2026-03-21 | 補全 skills 群組：7 Hub + 39 Skill 節點 + 91 條連線（從 3D 心智圖回補，修復拓撲⇄HTML 漂移）；167 節點 336 連線 |
 | v1.27 | 2026-03-21 | Skill 鍛造膠合層修復：VectorBridge 新增 `index_all_skills()`（skills collection 全量索引，Gateway startup + Nightly Step 8.6 + API reindex）；Nightly Step 8.6 `skill_vector_reindex`；plugin-registry v2.3（+12 Skill 註冊）；49 個 Skill Manifest 補齊 memory/io 欄位；同步 blast-radius v1.33、joint-map v1.27、persistence-contract v1.24、memory-router v1.2 |

@@ -1,10 +1,11 @@
-# Blast Radius — 模組影響半徑表 v1.34
+# Blast Radius — 模組影響半徑表 v1.35
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節
+> **v1.35 (2026-03-21)**：Telegram 授權系統升級——新增 `gateway/authorization.py`（ApprovalQueue + ToolAuthorizationQueue + PairingManager + AuthorizationPolicy）；`security.py` check_tool_access() 三級策略路由；`telegram.py` 配對/授權 handlers；`server.py` 授權回覆分支；`mcp_server.py` museon_auth_status 工具；新增持久狀態 `~/.museon/auth/`
 > **v1.34 (2026-03-21)**：環境感知 + 工程護欄——brain.py 新增 `_build_environment_awareness()` v11.3（modules zone 環境能力宣告）+ `_build_self_modification_protocol()` v11.4（buffer zone 自我修改協議）+ `_current_source` + `_self_modification_detected`；新增 Claude Code Hooks（PreToolUse blast-radius 自動查核 + Stop 未 commit 提醒）；新增 `scripts/generate_iteration_report.py`（迭代報告 HTML 生成器）
 > **v1.33 (2026-03-21)**：Skill 鍛造膠合層修復——VectorBridge 新增 index_all_skills()/reindex_all()；server.py startup 新增 skills 索引；nightly Step 8.6 skill_vector_reindex；plugin-registry v2.3（+12 Skill）；49 個 Skill Manifest 補齊 memory/io 欄位
 > **v1.27 (2026-03-20)**：brain.py P3 前置交織融合——新增 `_p3_gather_pre_fusion_insights()`，Phase 4.5 輕量簽名，`_execute_p3_parallel_fusion` 降級為向後相容
@@ -655,8 +656,9 @@
 ### Vector 層（1 個）
 `vector/sparse_embedder.py`（★ v1.30 新增，扇入=1，僅 vector_bridge.py import；BM25 稀疏向量產生器，jieba 中文分詞 + IDF 持久化）
 
-### Gateway 層（3 個）
-`gateway/cron.py`, `gateway/security.py`, `gateway/session.py`
+### Gateway 層（4 個）
+`gateway/cron.py`, `gateway/security.py`, `gateway/session.py`, `gateway/authorization.py`
+（★ v1.35 新增 `authorization.py`，扇入=2（security.py + telegram.py），授權引擎：ApprovalQueue + ToolAuthorizationQueue + PairingManager + AuthorizationPolicy）
 
 ### Installer 層
 `installer/` 下大部分模組
@@ -768,6 +770,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-21 | v1.35 | Telegram 授權系統升級：新增 `gateway/authorization.py` 到綠區（扇入=2，ApprovalQueue + ToolAuthorizationQueue + PairingManager + AuthorizationPolicy）；`gateway/security.py` check_tool_access() 新增三級策略路由（auto/ask/block + "pending" 狀態）；`channels/telegram.py` 新增 4 個 handler（pair/auth command + pairing/auth callback）+ get_trust_level() 整合動態配對；`gateway/server.py` 訊息泵新增工具授權回覆分支（~15 行）；`mcp_server.py` 新增 museon_auth_status 工具；`governance/multi_tenant.py` EscalationQueue docstring 更新（說明與 ApprovalQueue 的關係）；新增持久狀態 `~/.museon/auth/allowlist.json` + `policy.json`；同步 joint-map v1.28、persistence-contract v1.25、system-topology v1.30 |
 | 2026-03-21 | v1.34 | 環境感知 + 工程護欄落地：brain.py 新增 `_build_environment_awareness()` v11.3 + `_build_self_modification_protocol()` v11.4 + `_current_source` + `_self_modification_detected`（modules/buffer zone 注入，純新增方法不改既有流程）；新增 Claude Code Hooks（`.claude/settings.json`：PreToolUse blast-radius 自動查核 + Stop 未 commit 提醒）；新增 `scripts/generate_iteration_report.py`（迭代報告 HTML → Gist）；新增 `scripts/hooks/pre_edit_blast_check.py` + `stop_checklist.py`；brain.py 扇出不變、扇入不變、無新增共享狀態、無新增 import |
 | 2026-03-21 | v1.33 | Skill 鍛造膠合層修復：VectorBridge 新增 `index_all_skills()`/`reindex_all()`（skills collection 全量索引）；server.py startup 新增 skills 向量索引步驟；nightly Step 8.6 `skill_vector_reindex`；plugin-registry v2.3（+12 Skill 註冊）；49 個 Skill Manifest 補齊 memory/io 欄位；skills collection 寫入者從 skill_router.py 修正為 vector_bridge.py |
 | 2026-03-21 | v1.32 | 群組對話 DSE 三階段修復：brain.py 新增 `_classify_p0_signal()`（P0 六類訊號分流啟發式）+ `_detect_fact_correction()`（群組事實糾正啟用）+ `_observe_external_user()` v3.0 升級（trust evolution 四階段 + PrimalDetector 八原語 + L6 溝通風格 + L1 事實萃取）+ `_P0_SIGNAL_KEYWORDS` 四類關鍵字表 + `_FACT_CORRECTION_PATTERNS` 28 條糾正模式；memory_manager.py store() 新增 chat_scope/group_id 參數 + recall() 新增 chat_scope_filter/exclude_scopes 過濾 + _keyword_fallback()/\_vector_index() 同步支援；server.py 群組事實糾正啟用（skip_fact_correction=False）+ 錯誤顯示啟用（show_error_details=True）；governance/multi_tenant.py ExternalAnimaManager v3.0 schema（profile/relationship/seven_layers + v2→v3 遷移）；同步 joint-map v1.26、memory-router v1.1、persistence-contract v1.23、system-topology v1.26 |
