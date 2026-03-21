@@ -1,4 +1,4 @@
-# Memory Router — 記憶路由表 v1.0
+# Memory Router — 記憶路由表 v1.1
 
 > **用途**：定義「什麼類型的洞見存到哪個記憶系統、什麼時候取出」。第五張工程藍圖。
 > **比喻**：郵局分揀表——每封信根據地址分到對應的信箱，不會寄丟也不會重複投遞。
@@ -98,10 +98,14 @@
 ### 規則 4：結晶優先
 凡是「可能未來有用」的洞見，優先存 knowledge-lattice。其他記憶系統只存各自負責的特定維度。
 
+### 規則 5：chat_scope 隔離
+群組記憶帶 `chat_scope="group:{group_id}"`，recall 時用 `chat_scope_filter` 過濾，避免不同群組記憶交叉污染。無 scope 的舊記憶（向下相容）在任何 filter 下均可見。可用 `exclude_scopes` 排除指定群組。
+
 ---
 
 ## 變更紀錄
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.1 | 2026-03-21 | chat_scope 隔離：新增規則 5（群組記憶 chat_scope 隔離），memory_manager store/recall/vector 全路徑支援 chat_scope_filter + exclude_scopes；外部使用者 ANIMA v3.0（ExternalAnimaManager per-client 獨立八原語+七層觀察） |
 | v1.0 | 2026-03-21 | 初始版本——定義 8 大記憶系統路由表、4 條路由規則 |

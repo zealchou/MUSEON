@@ -1,4 +1,4 @@
-# Blast Radius — 模組影響半徑表 v1.31
+# Blast Radius — 模組影響半徑表 v1.32
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
@@ -190,7 +190,7 @@
 |------|-----|
 | **扇入** | 3（server, mcp_server, __init__） |
 | **扇出** | 32+（import 32 個模組，初始化全系統——含 PrimalDetector, MultiAgentExecutor, MemoryGate） |
-| **角色** | 系統核心——LLM 對話、記憶、自我觀察、所有子系統初始化、多代理並行呼叫、記憶閘門意圖判斷、認知追蹤（trace_decision+trace_cognitive）、P3 並行融合（Step 6.2-6.5） |
+| **角色** | 系統核心——LLM 對話、記憶、自我觀察、所有子系統初始化、多代理並行呼叫、記憶閘門意圖判斷、認知追蹤（trace_decision+trace_cognitive）、P3 並行融合（Step 6.2-6.5）、P0 訊號六類分流（_classify_p0_signal）、事實糾正偵測（_detect_fact_correction）、外部使用者觀察（_observe_external_user v3.0 含 trust evolution + 八原語 + L6 溝通風格） |
 
 **P3 方法群：**
 - `_p3_gather_pre_fusion_insights()` (新增 v1.22: 前置融合注入 system_prompt)
@@ -204,7 +204,7 @@
 
 | 影響類型 | 範圍 |
 |---------|------|
-| 共享狀態讀寫 | ANIMA_MC.json(RW), ANIMA_USER.json(RW+L8群組), PULSE.md(R), PulseDB(R), Qdrant(W), Qdrant:primals(R via PrimalDetector), diary_entries(R), synapses(R), memory(R/W+dept_id), fact_corrections.jsonl(RW), cognitive_trace.jsonl(W via footprint.trace_cognitive+trace_decision), lord_profile.json(RW: R via Step 3.65 百合引擎, W via _observe_lord) |
+| 共享狀態讀寫 | ANIMA_MC.json(RW), ANIMA_USER.json(RW+L8群組), PULSE.md(R), PulseDB(R), Qdrant(W), Qdrant:primals(R via PrimalDetector), diary_entries(R), synapses(R), memory(R/W+dept_id+chat_scope), fact_corrections.jsonl(RW), cognitive_trace.jsonl(W via footprint.trace_cognitive+trace_decision), lord_profile.json(RW: R via Step 3.65 百合引擎, W via _observe_lord), external_users/{uid}.json(RW via ExternalAnimaManager v3.0) |
 | 子系統初始化 | 31 個模組在 Brain.__init__() 中初始化（含 PrimalDetector, DiaryStore, MultiAgentExecutor, FlywheelCoordinator） |
 | System Prompt | `_build_soul_context()` + `_build_system_prompt()` 決定 AI 所有行為 |
 
@@ -213,7 +213,7 @@
 | ✅ 安全 | ❌ 危險 |
 |---------|---------|
 | 修改 `_chat()` 的回應後處理 | 修改 `__init__()` 的初始化順序 |
-| 新增獨立觀察方法（如 `_handle_fact_correction()`, `_observe_lord()`） | 修改 `_build_soul_context()` |
+| 新增獨立觀察方法（如 `_handle_fact_correction()`, `_observe_lord()`, `_observe_external_user()`, `_classify_p0_signal()`, `_detect_fact_correction()`） | 修改 `_build_soul_context()` |
 | Step 8 trace_decision/trace_cognitive 呼叫（純寫入足跡） | 修改 trace 呼叫的觸發條件 |
 | 修改日誌格式 | 修改 `_save_anima_mc()` / `_load_anima_mc()` |
 | — | 修改 `_anima_mc_lock` 鎖策略 |
@@ -766,6 +766,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-21 | v1.32 | 群組對話 DSE 三階段修復：brain.py 新增 `_classify_p0_signal()`（P0 六類訊號分流啟發式）+ `_detect_fact_correction()`（群組事實糾正啟用）+ `_observe_external_user()` v3.0 升級（trust evolution 四階段 + PrimalDetector 八原語 + L6 溝通風格 + L1 事實萃取）+ `_P0_SIGNAL_KEYWORDS` 四類關鍵字表 + `_FACT_CORRECTION_PATTERNS` 28 條糾正模式；memory_manager.py store() 新增 chat_scope/group_id 參數 + recall() 新增 chat_scope_filter/exclude_scopes 過濾 + _keyword_fallback()/\_vector_index() 同步支援；server.py 群組事實糾正啟用（skip_fact_correction=False）+ 錯誤顯示啟用（show_error_details=True）；governance/multi_tenant.py ExternalAnimaManager v3.0 schema（profile/relationship/seven_layers + v2→v3 遷移）；同步 joint-map v1.26、memory-router v1.1、persistence-contract v1.23、system-topology v1.26 |
 | 2026-03-21 | v1.31 | GraphRAG 社群偵測：knowledge_lattice.py 新增 `detect_communities()`（Label Propagation）+ `_summarize_community()`（Extract-based 摘要）+ `has_communities()`（快速檢查）+ `recall_with_community()`（語義社群召回）（全部為純新增方法，不改既有 API）；brain.py L3221-3233 新增 Layer 2.5 社群摘要注入（~12 行，`has_communities()` + `recall_with_community()`，降級 try/except 保護）；G5 影響範圍：brain 新增為社群摘要消費者；無新增持久層（社群偵測為即時計算）；同步 joint-map v1.25、persistence-contract v1.22（不變）、system-topology v1.23（不變） |
 | 2026-03-21 | v1.30 | 混合檢索（Hybrid Retrieval）：vector_bridge.py 新增 `hybrid_search()` + `_sparse_search()` + `_rrf_merge()` + `index_sparse()` + `backfill_sparse()` + `build_sparse_idf()`（全部為新增方法，不修改既有 API）；新增 `vector/sparse_embedder.py` 到綠區（扇入=1，僅 vector_bridge import）；Qdrant 共享狀態：新增 N 個 sparse collections（分離式 Route A，不碰原 dense schema）+ `_system/sparse_idf.json`；vector_bridge 扇入不變（7）；同步 joint-map v1.24、persistence-contract v1.22 |
 | 2026-03-21 | v1.29 | MemGPT 分層結晶召回：knowledge_lattice.py 新增 `recall_tiered()` 方法（Hot/Warm/Cold 三層策略）；brain.py L3208 結晶注入從 `recall_with_chains()` 切換為 `recall_tiered()`（1 行改動，降級路徑保留 auto_recall）；G5 影響範圍不變（`recall_with_chains` 仍為 `recall_tiered` 內部引擎）；同步 joint-map v1.23 |

@@ -90,16 +90,42 @@ class ExternalAnimaManager:
 
     @staticmethod
     def _default_anima(user_id: str) -> Dict[str, Any]:
-        """回傳 v2 預設結構。"""
+        """回傳 v3 預設結構 — 獨立 ANIMA（含七層精選 + 信任演化）."""
         return {
-            "version": "2.0.0",
+            "version": "3.0.0",
             "user_id": user_id,
             "created_at": datetime.now().isoformat(),
             "interaction_count": 0,
             "last_seen": None,
             "display_name": None,
             "context_summary": "",
+            # v3.0: 完整結構（與 ANIMA_USER 對齊）
+            "profile": {
+                "name": None,
+                "role": None,
+                "business_type": "unknown",
+            },
+            "relationship": {
+                "trust_level": "initial",
+                "total_interactions": 0,
+                "positive_signals": 0,
+                "negative_signals": 0,
+                "last_interaction": None,
+                "first_interaction": datetime.now().isoformat(),
+            },
             "eight_primals": {},
+            "seven_layers": {
+                "L1_facts": [],
+                "L2_personality": [],
+                "L6_communication_style": {
+                    "detail_level": "moderate",
+                    "emoji_usage": "none",
+                    "language_mix": "mixed",
+                    "avg_msg_length": 0,
+                    "question_style": "open",
+                    "tone": "casual",
+                },
+            },
             "preferences": {},
             "recent_topics": [],
             "groups_seen_in": [],
@@ -119,6 +145,35 @@ class ExternalAnimaManager:
                     data.setdefault("recent_topics", [])
                     data.setdefault("groups_seen_in", [])
                     data.setdefault("relationship_to_owner", "")
+                # Schema migration v2 → v3
+                ver = data.get("version", "2.0.0")
+                if ver.startswith("2."):
+                    data["version"] = "3.0.0"
+                    data.setdefault("profile", {
+                        "name": data.get("display_name"),
+                        "role": None,
+                        "business_type": "unknown",
+                    })
+                    data.setdefault("relationship", {
+                        "trust_level": "initial",
+                        "total_interactions": data.get("interaction_count", 0),
+                        "positive_signals": 0,
+                        "negative_signals": 0,
+                        "last_interaction": data.get("last_seen"),
+                        "first_interaction": data.get("created_at"),
+                    })
+                    data.setdefault("seven_layers", {
+                        "L1_facts": [],
+                        "L2_personality": [],
+                        "L6_communication_style": {
+                            "detail_level": "moderate",
+                            "emoji_usage": "none",
+                            "language_mix": "mixed",
+                            "avg_msg_length": 0,
+                            "question_style": "open",
+                            "tone": "casual",
+                        },
+                    })
                 return data
             except Exception as e:
                 logger.debug(f"[MULTI_TENANT] JSON failed (degraded): {e}")

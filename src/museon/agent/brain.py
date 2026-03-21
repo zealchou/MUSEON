@@ -502,6 +502,7 @@ class MuseonBrain:
         # ── Group context flag ──
         self._is_group_session = bool(metadata and metadata.get("is_group"))
         self._group_sender = (metadata or {}).get("sender_name", "")
+        self._current_metadata = metadata  # v3.0: 保存 metadata 供 chat_scope 使用
 
         # ── SkillHub: skill_builder / workflow_executor 模式偵測 ──
         self._skillhub_mode = None
@@ -1445,9 +1446,12 @@ class MuseonBrain:
                     _loop_short = _loop_map.get(routing_signal.loop, "E") if routing_signal else "E"
                     _energy_map = {"FAST_LOOP": "high", "EXPLORATION_LOOP": "neutral", "SLOW_LOOP": "deep"}
                     _energy = _energy_map.get(routing_signal.loop, "neutral") if routing_signal else "neutral"
-                    _p0 = ""
-                    if routing_signal and routing_signal.top_clusters:
-                        _p0 = routing_signal.top_clusters[0]
+                    # v3.0: Phase 0 訊號分流 — 六類判定（取代空值）
+                    _p0 = self._classify_p0_signal(content, routing_signal, skill_names)
+                    # v3.0: meta_note — 傳遞 thinking_path_summary（取代硬編碼空值）
+                    _meta = ""
+                    if thinking_path_summary:
+                        _meta = thinking_path_summary[:50]
                     self._footprint.trace_cognitive({
                         "p0_signal": _p0,
                         "qc_verdict": "pass" if not getattr(self, '_last_qc_clarify', False) else "clarify",
@@ -1456,7 +1460,7 @@ class MuseonBrain:
                         "resonance": "resonance" in skill_names,
                         "loop": _loop_short,
                         "top_skills": skill_names[:3],
-                        "meta_note": "",
+                        "meta_note": _meta,
                     })
                 except Exception as e:
                     logger.debug(f"Footprint trace_cognitive 失敗: {e}")
@@ -1618,7 +1622,8 @@ class MuseonBrain:
 
         # ── Step 9.2: 事實更正偵測（P0 記憶事實覆寫）──
         # v1.13: 提前到 Step 9 之前，確保糾正在記憶寫入前觸發
-        if not self._offline_flag and not self._is_group_session:
+        # v3.0: 群組也啟用事實更正（移除 _is_group_session 閘門）
+        if not self._offline_flag:
             try:
                 _should_correct = (
                     (_memory_action is not None and _memory_action.trigger_correction)
@@ -3350,12 +3355,19 @@ class MuseonBrain:
         max_chars = remaining * 2  # 中文 ~2字/token
 
         # Recall from memory_manager
+        # v3.0: 群組對話時只搜該群組記憶，私聊搜全域
+        _recall_scope = ""
+        if self._is_group_session and metadata:
+            _gid = metadata.get("group_id", "")
+            if _gid:
+                _recall_scope = f"group:{_gid}"
         try:
             items = self.memory_manager.recall(
                 user_id=self.memory_manager._user_id,
                 query=user_query,
                 limit=10,
                 session_id=session_id,
+                chat_scope_filter=_recall_scope,
             )
         except Exception as e:
             logger.warning(f"Memory recall 失敗: {e}")
@@ -3564,6 +3576,14 @@ class MuseonBrain:
         )
 
         try:
+            # v3.0: 注入 chat_scope 記憶隔離
+            _store_scope = ""
+            _store_gid = ""
+            if self._is_group_session and hasattr(self, '_current_metadata'):
+                _mg = (self._current_metadata or {}).get("group_id", "")
+                if _mg:
+                    _store_scope = f"group:{_mg}"
+                    _store_gid = str(_mg)
             self.memory_manager.store(
                 user_id=user_id or self.memory_manager._user_id,
                 content=content,
@@ -3572,6 +3592,8 @@ class MuseonBrain:
                 quality_tier="silver",
                 source="failure_distill",
                 outcome="failed",
+                chat_scope=_store_scope,
+                group_id=_store_gid,
             )
             logger.debug(f"Failure distilled: {failure_type}")
         except Exception as e:
@@ -6986,6 +7008,76 @@ class MuseonBrain:
             if tmp_path.exists():
                 tmp_path.unlink(missing_ok=True)
 
+    # ─── Phase 0 訊號分流（v3.0）────────────────────────
+
+    # 六類訊號關鍵字
+    _P0_SIGNAL_KEYWORDS: Dict[str, List[str]] = {
+        "感性": [
+            "煩", "累", "焦慮", "擔心", "壓力", "不爽", "崩潰", "受不了",
+            "開心", "興奮", "超爽", "太棒", "感動", "難過", "傷心", "害怕",
+            "算了", "不知道", "怪怪的", "心情", "情緒", "感覺",
+        ],
+        "思維轉化": [
+            "卡住", "卡點", "矛盾", "掙扎", "兩難", "取捨", "抉擇",
+            "想不通", "繞不出", "一直", "反覆", "糾結", "不確定",
+            "該不該", "值不值", "到底要", "怎麼選", "猶豫",
+        ],
+        "哲學": [
+            "意義", "為什麼活", "存在", "本質", "價值觀", "信念",
+            "人生", "宿命", "自由意志", "道德", "倫理", "公平",
+            "什麼是", "為什麼會", "哲學", "思辨",
+        ],
+        "戰略": [
+            "佈局", "策略", "競爭", "市場", "對手", "壁壘", "護城河",
+            "槓桿", "資源", "聯盟", "併購", "擴張", "收縮", "退場",
+            "戰略", "博弈", "勝負", "時機", "情報",
+        ],
+    }
+
+    def _classify_p0_signal(
+        self, content: str,
+        routing_signal: Any = None,
+        skill_names: Optional[List[str]] = None,
+    ) -> str:
+        """Phase 0 訊號分流 — 六類判定.
+
+        Returns:
+            "感性" | "理性" | "混合" | "思維轉化" | "哲學" | "戰略"
+        """
+        if not content:
+            return "理性"
+
+        content_lower = content.lower()
+        scores: Dict[str, int] = {}
+
+        for signal_type, keywords in self._P0_SIGNAL_KEYWORDS.items():
+            hits = sum(1 for kw in keywords if kw in content_lower)
+            if hits > 0:
+                scores[signal_type] = hits
+
+        # Skill 輔助判定
+        _skills = skill_names or []
+        if "resonance" in _skills:
+            scores["感性"] = scores.get("感性", 0) + 3
+        if "dharma" in _skills:
+            scores["思維轉化"] = scores.get("思維轉化", 0) + 3
+        if "philo-dialectic" in _skills:
+            scores["哲學"] = scores.get("哲學", 0) + 3
+        if "master-strategy" in _skills or "shadow" in _skills:
+            scores["戰略"] = scores.get("戰略", 0) + 3
+
+        if not scores:
+            return "理性"
+
+        # 多維度命中 → 混合
+        significant = {k: v for k, v in scores.items() if v >= 2}
+        if len(significant) >= 2:
+            return "混合"
+
+        # 單一最高
+        top_signal = max(scores, key=scores.get)
+        return top_signal
+
     # ─── 事實更正偵測與處理（P0 記憶事實覆寫）────────────────
 
     # 事實更正關鍵字模式（純 CPU 啟發式偵測）
@@ -7362,7 +7454,7 @@ class MuseonBrain:
     ) -> None:
         """群組外部用戶觀察 — 寫入 external_users/{user_id}.json，不碰 ANIMA_USER。
 
-        輕量觀察：八原語 + 偏好 + 近期主題。
+        v3.0 升級：完整觀察（八原語 + L1 事實 + L6 溝通風格 + 信任演化 + 偏好 + 主題）。
         Owner 在群組中的發言不觀察（群組上下文已被前綴污染）。
         """
         if not user_id:
@@ -7378,28 +7470,112 @@ class MuseonBrain:
 
             now_iso = datetime.now().isoformat()
 
-            # 更新 display_name
+            # 更新 display_name + profile
             if sender_name and not ext_anima.get("display_name"):
                 ext_anima["display_name"] = sender_name
+            profile = ext_anima.setdefault("profile", {})
+            if sender_name and not profile.get("name"):
+                profile["name"] = sender_name
 
-            # 1. 互動計數（不重複累加，update() 已做過一次）
+            # 1. 互動計數 + 信任等級演化
             ext_anima["last_seen"] = now_iso
+            rel = ext_anima.setdefault("relationship", {
+                "trust_level": "initial",
+                "total_interactions": 0,
+                "positive_signals": 0,
+                "negative_signals": 0,
+                "last_interaction": None,
+                "first_interaction": now_iso,
+            })
+            rel["total_interactions"] = rel.get("total_interactions", 0) + 1
+            rel["last_interaction"] = now_iso
+            # 信任等級演化（與 _observe_user 同邏輯）
+            total = rel["total_interactions"]
+            trust = rel.get("trust_level", "initial")
+            trust_levels = ["initial", "building", "growing", "established"]
+            idx = trust_levels.index(trust) if trust in trust_levels else 0
+            if total >= 100 and idx < 3:
+                rel["trust_level"] = "established"
+            elif total >= 30 and idx < 2:
+                rel["trust_level"] = "growing"
+            elif total >= 5 and idx < 1:
+                rel["trust_level"] = "building"
 
-            # 2. 輕量八原語觀察（復用現有關鍵字匹配）
+            # 2. 完整八原語觀察（v3.0: 含 PrimalDetector 語義偵測）
             primals = ext_anima.setdefault("eight_primals", {})
-            self._observe_user_primals(content, primals, now_iso)
+            # 嘗試使用 PrimalDetector（語義偵測，比純關鍵字更精準）
+            detected_primals = None
+            if hasattr(self, '_primal_detector') and self._primal_detector:
+                try:
+                    detected_primals = self._primal_detector.detect(content)
+                except Exception:
+                    pass
+            self._observe_user_primals(
+                content, primals, now_iso,
+                detected_primals=detected_primals,
+                obs_weight=0.5,  # 群組觀察降權
+            )
             ext_anima["eight_primals"] = primals
 
-            # 3. 簡單偏好追蹤
-            prefs = ext_anima.setdefault("preferences", {})
+            # 3. L6 溝通風格觀察
+            seven = ext_anima.setdefault("seven_layers", {})
+            l6 = seven.setdefault("L6_communication_style", {
+                "detail_level": "moderate",
+                "emoji_usage": "none",
+                "language_mix": "mixed",
+                "avg_msg_length": 0,
+                "question_style": "open",
+                "tone": "casual",
+            })
+            # Rolling average 訊息長度
             msg_len = len(content)
+            old_avg = l6.get("avg_msg_length", 0) or 0
+            l6["avg_msg_length"] = int(old_avg * 0.85 + msg_len * 0.15)
+            # Detail level
+            if msg_len > 200:
+                l6["detail_level"] = "detailed"
+            elif msg_len < 40:
+                l6["detail_level"] = "concise"
+            else:
+                l6["detail_level"] = "moderate"
+            # Question style
+            q_count = content.count("？") + content.count("?")
+            if q_count >= 2:
+                l6["question_style"] = "open"
+            elif q_count == 1:
+                l6["question_style"] = "closed"
+            else:
+                l6["question_style"] = "directive"
+
+            # 4. L1 事實提取（輕量版 — 關鍵字觸發）
+            l1_facts = seven.setdefault("L1_facts", [])
+            _fact_keywords = {
+                "occupation": ["工作", "職業", "公司", "任職", "做的是", "上班", "老闆", "創業"],
+                "family": ["家人", "老婆", "太太", "兒子", "女兒", "小孩"],
+                "location": ["住在", "在台北", "在台中", "在台灣", "搬到"],
+                "hobby": ["喜歡", "興趣", "嗜好", "運動", "旅行"],
+            }
+            for category, kws in _fact_keywords.items():
+                if any(kw in content for kw in kws):
+                    fact_entry = {
+                        "category": category,
+                        "snippet": content[:100],
+                        "date": now_iso,
+                    }
+                    l1_facts.append(fact_entry)
+                    if len(l1_facts) > 30:
+                        seven["L1_facts"] = l1_facts[-30:]
+                    break  # 一次只記一個事實類別
+
+            # 5. 偏好追蹤（向下相容）
+            prefs = ext_anima.setdefault("preferences", {})
             if msg_len > 300:
                 prefs["communication_style"] = "detailed"
             elif msg_len < 30:
                 prefs["communication_style"] = "concise"
             ext_anima["preferences"] = prefs
 
-            # 4. 近期主題記錄（保留最近 20 筆）
+            # 6. 近期主題記錄（保留最近 20 筆）
             topics = ext_anima.setdefault("recent_topics", [])
             # 清理群組前綴，只留使用者原始訊息的前 120 字元
             clean_content = content
@@ -7417,7 +7593,7 @@ class MuseonBrain:
                 ext_anima["recent_topics"] = topics[-20:]
 
             ext_mgr.save(user_id, ext_anima)
-            logger.debug(f"外部用戶觀察完成: {user_id} ({sender_name})")
+            logger.debug(f"外部用戶觀察完成（v3.0）: {user_id} ({sender_name})")
 
         except Exception as e:
             logger.warning(f"外部用戶觀察失敗 {user_id}: {e}")

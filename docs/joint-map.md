@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.25
+# Joint Map — 共享可變狀態接頭圖 v1.26
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -637,7 +637,7 @@
 | `nightly/fusion.py` (MemoryFusion) | **RW** — 讀取 `load_daily_log()` → LLM 融合 → 寫回 meta-thinking | 夜間跨通道融合 |
 | `gateway/server.py` | **W** — Chrome Extension 捕獲 → MemoryStore | 網頁片段存入 |
 | `nightly/nightly_pipeline.py` | **R** — 步驟 1-5 記憶壓縮升級 | 短期→長期記憶 |
-| `memory/memory_manager.py` | **R** — `load_daily_log()` | 六層記憶管理讀取源（支援 dept_filter 過濾） |
+| `memory/memory_manager.py` | **R** — `load_daily_log()` | 六層記憶管理讀取源（支援 dept_filter + chat_scope_filter + exclude_scopes 過濾） |
 | `pulse/micro_pulse.py` | **R** — 掃描目錄統計 | 脈衝檢測 |
 | `mcp_server.py` | **R** — REST API 暴露 | Claude Code 存取 |
 | `guardian/daemon.py` | **R** — 健康檢查 | MemoryStore 存活確認 |
@@ -682,7 +682,7 @@
 #### 資料格式
 
 ```json
-{"timestamp": "ISO8601", "p0_signal": "str", "qc_verdict": "str", "user_energy": "str", "c15_active": "str", "resonance": "str", "loop": "int", "top_skills": ["str"], "meta_note": "str"}
+{"timestamp": "ISO8601", "p0_signal": "str(六類：感性/理性/混合/思維轉化/哲學/戰略)", "qc_verdict": "str", "user_energy": "str(from cognitive_trace mapping)", "c15_active": "str", "resonance": "str", "loop": "int", "top_skills": ["str"], "meta_note": "str(thinking_path_summary[:50])"}
 ```
 
 > **鎖**：無需（Append-only，單一寫入者 FootprintStore）
@@ -747,7 +747,7 @@
 |-------|------|------|---------|
 | **G1** | ANIMA 數值 | anima_tracker + brain + server + micro_pulse + kernel_guard | ANIMA_MC.json（寫入格式 + 鎖機制必須統一） |
 | **G2** | 探索結晶管線 | pulse_engine + curiosity_router + exploration_bridge + nightly_pipeline + skill_forge_scout | question_queue.json + scout_queue/pending.json + PULSE.md 探索佇列 |
-| **G3** | 記憶管線 | memory_manager + brain + vector_bridge + reflex_router + multi_agent_executor | MemoryStore + Qdrant memories collection（memory_manager 支援 dept_id 標籤寫入 + dept_filter 過濾檢索 + supersede() 事實覆寫 + VectorBridge.mark_deprecated() 軟刪除） |
+| **G3** | 記憶管線 | memory_manager + brain + vector_bridge + reflex_router + multi_agent_executor | MemoryStore + Qdrant memories collection（memory_manager 支援 dept_id 標籤寫入 + dept_filter 過濾檢索 + chat_scope 群組隔離 + supersede() 事實覆寫 + VectorBridge.mark_deprecated() 軟刪除） |
 | **G4** | 演化速度 | evolution_velocity + parameter_tuner + periodic_cycles + metacognition | accuracy_stats.json + tuned_parameters.json + velocity_log.jsonl |
 | **G5** | 知識晶格 | knowledge_lattice + crystal_actuator + recommender | crystals.json + crystal_rules.json |
 | **G6** | 免疫系統 | immunity + immune_memory + immune_research + daemon | events.jsonl + immune_memory.json |
@@ -793,6 +793,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-21 | v1.26 | 群組對話 DSE 三階段修復：G3 記憶管線新增 chat_scope 群組隔離（memory_manager store() 新增 chat_scope/group_id 參數 + 自動注入 scope:{scope} 標籤 + recall() 新增 chat_scope_filter/exclude_scopes 過濾 + _keyword_fallback() 同步過濾 + _vector_index() metadata 注入）；#28 cognitive_trace p0_signal 欄位修復為六類判定（_classify_p0_signal 啟發式）+ meta_note 修復（thinking_path_summary[:50]）；外部使用者 ANIMA v3.0 schema 升級（governance/multi_tenant.py ExternalAnimaManager 新增 profile/relationship/seven_layers + trust_evolution 四階段 + PrimalDetector 八原語）；同步 blast-radius v1.32、memory-router v1.1、persistence-contract v1.23 |
 | 2026-03-21 | v1.25 | GraphRAG 社群偵測：#6 crystals.json 新增「GraphRAG 社群摘要」表（detect_communities + recall_with_community 四個方法）；knowledge_lattice.py 新增社群偵測（純新增，RW 不變，讀寫者不變）；brain.py Layer 2.5 新增 `has_communities()` + `recall_with_community()` 呼叫（僅讀）；無新增共享狀態（社群偵測為即時計算，不持久化）；同步 blast-radius v1.31 |
 | 2026-03-21 | v1.24 | 混合檢索（Hybrid Retrieval）：#9 Qdrant 向量庫新增 Sparse Collections 分區（`{name}_sparse`，BM25 稀疏向量）；新增 `sparse_embedder.py` 為 `_system/sparse_idf.json` 寫入者；VectorBridge 新增 `hybrid_search()`/`_sparse_search()`/`index_sparse()`/`backfill_sparse()`/`build_sparse_idf()`；Route A 分離式設計——不修改原 dense collections schema；同步 persistence-contract v1.22、blast-radius v1.30 |
 | 2026-03-21 | v1.23 | MemGPT 分層結晶召回：#6 crystals.json 新增「MemGPT 分層召回」表（Hot/Warm/Cold 三層策略）；`knowledge_lattice.py` 新增 `recall_tiered()` 方法（RW 不變，讀寫者不變）；同步 blast-radius v1.29 |
