@@ -229,6 +229,14 @@ Morphenix 不會每次對話都打擾你。只有在以下條件**全部滿足**
 - 改 3+ 個檔案或動到核心流程 = L3
 - **判斷不確定時，一律往高等級靠**
 
+### 治理合規檢查（L2/L3 必做）
+
+修改涉及 Skill 時，執行前檢查：
+- □ `hub` 欄位未被破壞或錯誤變更
+- □ 若修改 `type: workflow`：`stages` + `speed_paths` 結構完整
+- □ 若新增 Skill：Hub 歸位符合 `docs/skill-routing-governance.md`
+- □ `scripts/validate_connections.py` 規則 6-7 通過
+
 ### 影子模式（L2/L3 專用，選配）
 
 對於風險較高的 L2/L3 修改，可啟用「影子模式」：
@@ -561,3 +569,4 @@ WEE 持續追蹤修改後的效能
 | `references/dependency-graph.md` | Skill 依賴圖譜的完整關係矩陣與更新規則 | 提案影響半徑分析時 |
 | `references/shadow-mode.md` | 影子模式的技術實作規格與比對報告格式 | 啟動影子模式時 |
 | `references/iteration-log-schema.md` | 迭代日誌的完整欄位定義與版本號規則 | 記錄迭代日誌時 |
+| `docs/skill-routing-governance.md` | Hub 路由規則 + Workflow Stage 規格 | 迭代涉及 Skill 時的治理合規參照 |

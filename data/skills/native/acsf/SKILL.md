@@ -217,8 +217,9 @@ DSE（技術做得到嗎？）
 ```markdown
 ---
 name: [skill-name]
-description: > 
+description: >
   [完整描述，含觸發時機、觸發詞、使用情境、與其他 skill 的關係]
+hub: [9 種合法值之一：thinking | market | business | creative | product | evolution | workflow | core | infra，見 docs/skill-routing-governance.md]
 ---
 
 # [Skill 全名]
@@ -320,7 +321,14 @@ Skill 名稱：___________
 
 **輸出物**：品質驗證報告 + 5 個基準線測試案例（作為 references/quality-baseline.md 歸檔）
 
-**閘門規則**：品質驗證未通過的 Skill，不得進入 Stage 4 商品鍛造，也不得註冊到 plugin-registry。
+**Q5. 治理合規驗證**
+
+- □ `hub` 欄位已填寫且為 9 種合法值之一（thinking/market/business/creative/product/evolution/workflow/core/infra）
+- □ 若 `type: workflow`：`stages` + `speed_paths` 已定義（見 `docs/skill-manifest-spec.md`）
+- □ 跑 `scripts/validate_connections.py`：規則 6（Hub 一致性）+ 規則 7（Workflow stages）通過
+- □ 歸位邏輯符合 `docs/skill-routing-governance.md` 第二章鍛造歸位指引
+
+**閘門規則**：品質驗證未通過的 Skill，不得進入 Stage 4 商品鍛造，也不得註冊到 plugin-registry。治理合規未通過的 Skill，同樣不得進入 Stage 4。
 
 ### Stage 4：F — Forge（商品鍛造）
 
@@ -364,6 +372,8 @@ Price：[定價方案]
 - 通用性測試：是不是只有特定人能用？還是通用的？
 - 護城河測試：別人看了 SKILL.md 能不能直接抄？如果能，差異化在哪？
 - 美感審計：可調用 aesthetic-sense 做輸出品質檢查
+- Hub 歸位合理性：此 Skill 的 `hub` 值是否正確歸類？是否放在最合適的 Hub 下？
+- 治理文件一致性：`plugin-registry/SKILL.md` 架構樹中有此 Skill
 
 **輸出物**：完整商品套件（zip 包）
 
@@ -422,3 +432,5 @@ Price：[定價方案]
 - **meta-learning**：Stage 1 能力萃取可調用元學習的「知識萃取」方法
 - **sandbox-lab**：Stage 3.5 品質測試可調用 Skill 沙盒模式
 - **morphenix**：品質基準線為迭代提案提供回歸測試依據
+- **skill-routing-governance**（`docs/skill-routing-governance.md`）：Hub 歸位規則、Workflow Stage 規格、鍛造歸位指引
+- **skill-manifest-spec**（`docs/skill-manifest-spec.md`）：Manifest 欄位定義，含 `hub` + `stages`
