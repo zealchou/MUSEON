@@ -7,6 +7,7 @@
 import asyncio
 import json
 import logging
+import shutil
 import tempfile
 import threading
 import time
@@ -244,10 +245,34 @@ class PulseEngine:
         # 初始化 PULSE.md
         self._ensure_pulse_md()
 
+    def _backup_pulse_md(self) -> None:
+        """PULSE.md 寫入前快照 — 保留最近 10 份備份."""
+        try:
+            if not self._pulse_md or not self._pulse_md.exists():
+                return
+
+            backup_dir = self._pulse_md.parent / "_system" / "backups" / "pulse_md"
+            backup_dir.mkdir(parents=True, exist_ok=True)
+
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            backup_path = backup_dir / f"PULSE_{timestamp}.md"
+
+            shutil.copy2(self._pulse_md, backup_path)
+
+            # 保留最近 10 份，清理舊的
+            backups = sorted(backup_dir.glob("PULSE_*.md"))
+            if len(backups) > 10:
+                for old in backups[:-10]:
+                    old.unlink()
+        except Exception:
+            pass  # 降級保護，不阻斷寫入
+
     def _atomic_write_pulse_md(self, content: str) -> None:
-        """原子寫入 PULSE.md（tmp→rename + Lock）."""
+        """原子寫入 PULSE.md（快照 + tmp→rename + Lock）."""
         if not self._pulse_md:
             return
+        # 寫入前快照
+        self._backup_pulse_md()
         parent = self._pulse_md.parent
         fd, tmp_path = tempfile.mkstemp(
             dir=str(parent), prefix=".pulse_md_", suffix=".tmp"

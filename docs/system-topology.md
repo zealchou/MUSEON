@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.34
+# MUSEON 系統拓撲圖 v1.35
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.35 (2026-03-22)**：P0-P3 升級——Evolution Hub 新增 2 個 Skill 節點（system-health-check、decision-tracker）；新增 5 條跨群組連線（report-forge→knowledge-lattice、system-health-check→knowledge-lattice/morphenix、decision-tracker→knowledge-lattice/user-model）；173 節點 361 連線
 > **v1.34 (2026-03-22)**：經驗諮詢閘門——新增 1 條 cross 連線 `brain → data-bus`（經驗回放搜尋 activity_log.search()）；171 節點 351 連線
 > **v1.33 (2026-03-22)**：InteractionRequest 跨通道互動層——channel 群組新增 `line` 節點（LINE 通道適配器）；gateway 群組新增 `interaction-queue` 節點（InteractionQueue 非阻塞等待佇列）；新增 8 條連線（interaction-queue ↔ telegram/discord/line/gateway）；171 節點 358 連線
 > **v1.32 (2026-03-22)**：Recommender 激活修復——`recommender` 節點半徑 0.7→0.9（從幽靈模組升級為實際接線）；新增 cross 連線 `recommender → crystal-store`（經由 CrystalStore API 讀取結晶+連結）；brain.py `_recommender` 初始化接線確認；169 節點 350 連線
@@ -46,7 +47,7 @@
 | `nightly` | Nightly 夜間 | 30+ 步夜間整合管線、演化提案、好奇心路由 | `#9A3A1C` |
 | `installer` | Installer 安裝 | 部署編排、Daemon 設定、Electron 打包 | `#5A8A3E` |
 | `external` | 外部服務 | SearXNG、Qdrant、Firecrawl、API | `#6A6880` |
-| `skills` | Skills 生態系 | 外掛 Skill 語義群組（7 子中樞 + 39 Skill）；治理規格見 `skill-routing-governance.md` | `#8B5CF6` |
+| `skills` | Skills 生態系 | 外掛 Skill 語義群組（7 子中樞 + 41 Skill）；治理規格見 `skill-routing-governance.md` | `#8B5CF6` |
 
 ---
 
@@ -300,6 +301,8 @@
 | `sandbox-lab` | Sandbox-Lab | 沙盒實驗室 | - | skills-evolution-hub | 1.2 |
 | `qa-auditor` | QA-Auditor | 品質審計引擎 | - | skills-evolution-hub | 1.2 |
 | `tantra` | Tantra | 情慾治理引擎 | - | skills-evolution-hub | 1.0 |
+| `system-health-check` | System-Health-Check | 系統健康自檢引擎 | - | skills-evolution-hub | 1.0 |
+| `decision-tracker` | Decision-Tracker | 決策歷史追蹤引擎 | - | skills-evolution-hub | 1.0 |
 
 #### skills-workflow — 工作流類
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -713,6 +716,8 @@
 | `skills-evolution-hub` | `sandbox-lab` | 沙盒實驗 |
 | `skills-evolution-hub` | `qa-auditor` | 品質審計 |
 | `skills-evolution-hub` | `tantra` | 情慾治理 |
+| `skills-evolution-hub` | `system-health-check` | 系統健康自檢 |
+| `skills-evolution-hub` | `decision-tracker` | 決策歷史追蹤 |
 
 #### Workflow Hub
 | Source | Target | 說明 |
@@ -758,6 +763,11 @@
 | `skills-product-hub` | `brain` | 產品技能→Brain |
 | `skills-evolution-hub` | `evolution` | 演化技能→Evolution |
 | `skills-workflow-hub` | `brain` | 工作流技能→Brain |
+| `report-forge` | `knowledge-lattice` | 報告洞見結晶化 |
+| `system-health-check` | `knowledge-lattice` | 健康結晶化 |
+| `system-health-check` | `morphenix` | 修復提案 |
+| `decision-tracker` | `knowledge-lattice` | 決策結晶化 |
+| `decision-tracker` | `user-model` | 決策偏好 |
 
 ### Installer 內部連線（internal）
 | Source | Target | 說明 |
@@ -829,18 +839,18 @@
 
 | 指標 | 數值 |
 |------|------|
-| 總節點數 | 169 (123 系統 + 46 Skills) |
-| 總連線數 | 351 (260 系統 + 91 Skills) |
+| 總節點數 | 173 (123 系統 + 50 Skills) |
+| 總連線數 | 363 (260 系統 + 103 Skills) |
 | 群組數 | 14 (含 skills) |
 | Hub 節點 | 18 (11 系統 + 7 Skills Hub) |
-| 跨系統連線 | 113 (83 系統 + 30 Skills cross) |
-| 內部連線 | 172 (118 系統 + 54 Skills internal) |
+| 跨系統連線 | 118 (83 系統 + 35 Skills cross) |
+| 內部連線 | 177 (118 系統 + 59 Skills internal) |
 | 非同步連線 | 5 |
 | 監控連線 | 5 |
 | 控制連線 | 16 (9 系統 + 7 Skills control) |
 | 資料流連線 | 4 |
 | 衰減連線 | 5 |
-| 平均連線數/節點 | 2.0 |
+| 平均連線數/節點 | 2.1 |
 
 ---
 
@@ -848,6 +858,7 @@
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.35 | 2026-03-22 | P0-P3 升級：Evolution Hub 新增 2 個 Skill 節點（system-health-check 系統健康自檢引擎、decision-tracker 決策歷史追蹤引擎）+ 2 條 internal 連線；新增 5 條 cross 連線（report-forge→knowledge-lattice 報告洞見結晶化、system-health-check→knowledge-lattice 健康結晶化、system-health-check→morphenix 修復提案、decision-tracker→knowledge-lattice 決策結晶化、decision-tracker→user-model 決策偏好）；173 節點 363 連線 |
 | v1.34 | 2026-03-22 | 經驗諮詢閘門：新增 1 條 cross 連線 `brain → data-bus`（經驗回放搜尋 activity_log.search()）；無新增節點；171 節點 351 連線 |
 | v1.32 | 2026-03-22 | Recommender 激活修復：`recommender` 節點半徑 0.7→0.9（幽靈模組→實際接線）；新增 1 條 cross 連線（recommender→crystal-store 結晶讀取）；brain.py `_recommender` 初始化；server.py API 改用常駐實例；169 節點 350 連線 |
 | v1.31 | 2026-03-22 | Knowledge Lattice 持久層遷移：data 群組新增 `crystal-store` 節點（CrystalStore SQLite WAL 統一存取層，+1 節點）；新增 8 條連線——internal: data-bus→crystal-store Store 路由（+1）；cross: knowledge-lattice→crystal-store 結晶讀寫、crystal-actuator→crystal-store 結晶降級升級、nightly→crystal-store 結晶統計、evolution-velocity→crystal-store 結晶數量統計、guardian→crystal-store 結晶健康檢查、memory-reset→crystal-store 一鍵重置（+6）；decay: knowledge-lattice→crystal-actuator 描述更新 crystals.json→crystal.db（+0）；舊 JSON 檔案歸檔為 .bak；同步 persistence-contract v1.26、blast-radius v1.41、joint-map v1.29；169 節點 349 連線 |

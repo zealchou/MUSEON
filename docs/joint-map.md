@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.32
+# Joint Map — 共享可變狀態接頭圖 v1.33
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -44,6 +44,7 @@
 | 31 | ~/.museon/auth/allowlist.json | 🟢 | 1 | 2 | 原子寫 | [→](#31-museonauthallowlistjson) |
 | 32 | ~/.museon/auth/policy.json | 🟢 | 1 | 2 | 原子寫 | [→](#32-museonauthpolicyjson) |
 | 33 | _system/recommendations/interactions.json | 🟢 | 1 | 1 | 原子寫 | [→](#33-_systemrecommendationsinteractionsjson) |
+| 34 | _system/backups/ | 🟢 | 2 | 0 | 無(獨立) | [→](#34-_systembackups) |
 
 > **危險度定義**：🔴 多寫入者+高扇出+格式不一致 | 🟡 多寫入者或高扇出 | 🟢 單寫入者+低扇出
 
@@ -827,6 +828,28 @@
 
 ---
 
+### 34. _system/backups/
+
+**路徑**：`data/_system/backups/`（子目錄：`anima_mc/`、`pulse_md/`）
+**用途**：關鍵檔案寫入前自動快照備份——ANIMA_MC.json 和 PULSE.md 的時間戳快照
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| `pulse/anima_mc_store.py` | **W** | `_backup_before_write()` | 每次 save() 前自動快照 `backups/anima_mc/ANIMA_MC_{timestamp}.json`，FIFO 保留 10 份 | 無（自包含，寫入前觸發） |
+| `pulse/pulse_engine.py` | **W** | `_backup_pulse_md()` | 每次寫入前自動快照 `backups/pulse_md/PULSE_{timestamp}.md`，FIFO 保留 10 份 | 無（自包含，寫入前觸發） |
+
+#### 消費者
+
+無自動消費者——快照僅供手動恢復時讀取。
+
+> **鎖**：無需（兩個寫入者各自寫不同子目錄，無競爭）
+> **TTL**：FIFO 保留最近 10 份，超出自動刪除最舊
+> **危險度**：🟢 綠（自包含，不影響其他模組）
+
+---
+
 ## 必須同時修改的模組組（不可分批）
 
 > 修改以下任一模組時，**必須**同時檢查並調整同組所有模組。
@@ -881,6 +904,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-22 | v1.33 | P0-P3 升級：新增 #34 `_system/backups/` 目錄（🟢 危險度，2 個寫入者各自寫不同子目錄無競爭——AnimaMCStore._backup_before_write() 寫 anima_mc/、PulseEngine._backup_pulse_md() 寫 pulse_md/，各保留 10 份 FIFO）；無讀取者（手動恢復）；共享狀態 33→34 個；同步 persistence-contract v1.28、system-topology v1.35、blast-radius v1.46、memory-router v1.4 |
 | 2026-03-22 | v1.32 | 經驗諮詢閘門：#6 crystal.db 新增 Procedure 結晶 4 欄位（skills_used/preconditions/known_failures/last_success）；#25 activity_log.jsonl 讀取者新增 brain.py（search() 經驗搜尋）；#25 skill_usage_log.jsonl 從 DW2 升級（新增 outcome 欄位，Brain 消費） |
 | 2026-03-22 | v1.31 | InteractionRequest 跨通道互動層：InteractionQueue 為新共享可變狀態（記憶體中 Dict，asyncio.Event 非阻塞等待，不持久化）；寫入者 3 個（telegram/discord/line 的 callback handler 呼叫 `resolve()`）；讀取者 1 個（gateway/server.py message pump `wait_for_response()`）；危險度 🟢（單一消費者、非持久化、自動超時清理）；message.py 新增 ChoiceOption/InteractionRequest/InteractionResponse 三個 dataclass + BrainResponse.interaction 欄位（純新增，不改現有結構）；同步 system-topology v1.33、blast-radius v1.44 |
 | 2026-03-22 | v1.30 | Recommender 激活修復：新增 #33 `_system/recommendations/interactions.json`（🟢 危險度，單一寫入者 recommender.py 原子寫入，5000 條上限）；#6 crystal.db 讀取者新增 recommender（經由 CrystalStore API `load_crystals_raw()` + `load_links()`）；G5 知識晶格組 recommender 接線正式啟用；共享狀態 32→33 個 |

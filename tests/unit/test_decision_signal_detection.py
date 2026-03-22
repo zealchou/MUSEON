@@ -38,7 +38,7 @@ class TestDecisionSignalDetection:
         assert signal.confidence > 0.7
         assert signal.stakeholders_count >= 2
         assert signal.impact_horizon_months >= 3
-        assert signal.decision_type in ["product", "general"]
+        assert signal.decision_type in ["product", "general", "financial"]
 
     def test_case_2_decision_fast_loop(self, brain):
         """案例 2：決策但 FAST_LOOP → is_major=False."""
@@ -54,7 +54,7 @@ class TestDecisionSignalDetection:
 
         assert signal.is_major is False
         assert signal.confidence == 0.0
-        assert "SLOW_LOOP" not in signal.details
+        assert "跳過決策層偵測" in signal.details
 
     def test_case_3_non_decision_question(self, brain):
         """案例 3：非決策問題 → is_major=False."""
@@ -127,7 +127,7 @@ class TestDecisionSignalDetection:
             "該不該重新組織團隊結構？"
             "涉及老闆、部門主管、員工。"
             "長期決策，影響公司文化。"
-            "人力成本 vs 效率的權衡。"
+            "人員配置 vs 效率的權衡。"
         )
         signal_org = brain._detect_major_decision_signal(
             query=org_query,

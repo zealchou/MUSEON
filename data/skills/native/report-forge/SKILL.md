@@ -18,12 +18,20 @@ io:
     - name: html_report
       to: gateway
       trigger: always
+    - name: report_insight
+      to: knowledge-lattice
+      field: report_crystal
+      trigger: on_complete
 connects_to:
   - market-core
   - consultant-communication
   - aesthetic-sense
+  - knowledge-lattice
 memory:
-  writes: []
+  writes:
+    - target: knowledge-lattice
+      type: report_crystal
+      description: 報告完成後將核心洞見結晶化存入知識晶格
   reads:
     - user-model
     - knowledge-lattice
