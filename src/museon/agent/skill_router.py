@@ -119,6 +119,8 @@ class SkillRouter:
                         meta["description"] = line[12:].strip().lstrip(">").strip()
                     elif line.startswith("type:"):
                         meta["type"] = line[5:].strip()
+                    elif line.startswith("hub:"):
+                        meta["hub"] = line[4:].strip()
 
                 # Extract trigger words from body
                 meta["triggers"] = self._extract_triggers(body, frontmatter)
@@ -150,6 +152,10 @@ class SkillRouter:
                         meta["description"] = " ".join(desc_lines)
 
         return meta
+
+    def get_skills_by_hub(self, hub_name: str) -> List[Dict[str, Any]]:
+        """回傳指定 Hub 下的所有 Skill 元資料."""
+        return [s for s in self._index if s.get("hub") == hub_name]
 
     def _extract_triggers(self, body: str, frontmatter: str) -> List[str]:
         """從 SKILL.md 內容提取觸發詞."""

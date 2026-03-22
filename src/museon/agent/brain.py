@@ -5443,6 +5443,18 @@ class MuseonBrain:
             s for s in matched_skills if not s.get("always_on")
         ]
 
+        # ── 補齊同 Hub 的 Skill ──
+        # 防止 top_n=5 導致同 Hub 的 Skill 被截斷，造成 Orchestrator 引用斷裂
+        matched_hubs = {s.get("hub") for s in active_skills if s.get("hub")}
+        if matched_hubs:
+            existing_names = {s.get("name") for s in active_skills}
+            for hub_name in matched_hubs:
+                hub_skills = self.skill_router.get_skills_by_hub(hub_name)
+                for hs in hub_skills:
+                    if hs.get("name") not in existing_names and not hs.get("always_on"):
+                        active_skills.append(hs)
+                        existing_names.add(hs.get("name"))
+
         plan = DispatchPlan(
             plan_id=plan_id,
             user_request=content,
