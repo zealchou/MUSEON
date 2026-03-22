@@ -1,6 +1,7 @@
 ---
 name: master-strategy
-type: on-demand
+type: always-on
+tier: T1
 layer: business
 hub: business
 io:

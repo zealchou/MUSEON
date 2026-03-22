@@ -1,8 +1,8 @@
 ---
 name: decision-tracker
-type: on-demand
+type: always-on
 hub: evolution
-tier: T2
+tier: T1
 io:
   inputs:
     - from: brain
