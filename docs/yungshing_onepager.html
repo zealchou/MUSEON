@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>永興家具 × AI 應用觀察</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Noto+Sans+TC:wght@300;400;500;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --ember: #C4502A;
+    --ember-light: #E0714D;
+    --ember-dark: #9A3A1C;
+    --teal: #2A7A6E;
+    --gold: #B8923A;
+    --ink: #12121A;
+    --slate: #5A5A6E;
+    --mist: #9898A8;
+    --border: #E2E0DA;
+    --parchment: #F7F5F0;
+    --snow: #FDFCFA;
+  }
+
+  body {
+    font-family: 'Noto Sans TC', 'Outfit', sans-serif;
+    background: var(--parchment);
+    color: var(--ink);
+    line-height: 1.75;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 64px 32px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header .tag {
+    display: inline-block;
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ember-dark);
+    background: rgba(196,80,42,0.1);
+    padding: 3px 12px;
+    border-radius: 100px;
+    margin-bottom: 16px;
+  }
+
+  .header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+
+  .header .subtitle {
+    font-size: 15px;
+    color: var(--slate);
+    line-height: 1.6;
+  }
+
+  /* Company Profile Card */
+  .profile-card {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 40px;
+    box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+  }
+
+  .profile-card h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--mist);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 12px;
+  }
+
+  .profile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 24px;
+  }
+
+  .profile-grid .item {
+    font-size: 14px;
+    color: var(--slate);
+  }
+
+  .profile-grid .item strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  /* Section */
+  .section {
+    margin-bottom: 40px;
+  }
+
+  .section h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--ember);
+    display: inline-block;
+  }
+
+  .section p {
+    color: var(--slate);
+    font-size: 15px;
+    line-height: 1.8;
+    margin-bottom: 12px;
+  }
+
+  /* Observation Cards */
+  .obs-card {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(18,18,26,0.06);
+    position: relative;
+    border-left: 3px solid var(--ember);
+  }
+
+  .obs-card .number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 600;
+    color: rgba(196,80,42,0.15);
+    position: absolute;
+    top: 12px;
+    right: 20px;
+  }
+
+  .obs-card h4 {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  .obs-card .pain {
+    font-size: 14px;
+    color: var(--slate);
+    margin-bottom: 8px;
+    line-height: 1.7;
+  }
+
+  .obs-card .opportunity {
+    font-size: 14px;
+    color: var(--teal);
+    font-weight: 500;
+    padding: 8px 12px;
+    background: rgba(42,122,110,0.06);
+    border-radius: 6px;
+    line-height: 1.6;
+  }
+
+  /* Highlight */
+  .highlight-box {
+    background: linear-gradient(135deg, rgba(196,80,42,0.05) 0%, rgba(184,146,58,0.05) 100%);
+    border: 1px solid rgba(196,80,42,0.15);
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 40px;
+    text-align: center;
+  }
+
+  .highlight-box .big-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+
+  .highlight-box .sub-text {
+    font-size: 14px;
+    color: var(--slate);
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    margin-top: 48px;
+  }
+
+  .footer .brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ember);
+    margin-bottom: 4px;
+  }
+
+  .footer .note {
+    font-size: 12px;
+    color: var(--mist);
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .page { padding: 32px 20px; }
+    .header h1 { font-size: 28px; }
+    .profile-grid { grid-template-columns: 1fr; }
+  }
+
+  @media print {
+    body { background: white; }
+    .page { padding: 24px; max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="tag">AI 應用觀察</div>
+    <h1>傳統家具接班人的<br>AI 快速通道</h1>
+    <p class="subtitle">以永興家具 66 年累積為基礎，探索三個值得關注的 AI 應用方向</p>
+  </div>
+
+  <!-- Company Profile -->
+  <div class="profile-card">
+    <h3>企業速覽</h3>
+    <div class="profile-grid">
+      <div class="item"><strong>品牌</strong>　永興家具事業 / 青木堂</div>
+      <div class="item"><strong>創立</strong>　1958 年（66+ 年）</div>
+      <div class="item"><strong>核心</strong>　實木家具設計製造・榫卯工藝</div>
+      <div class="item"><strong>資本額</strong>　NT$ 2,000 萬</div>
+      <div class="item"><strong>代表作</strong>　總統府會客廳・臺大圖書館</div>
+      <div class="item"><strong>文化資產</strong>　祀典武廟・大天后宮修復</div>
+    </div>
+  </div>
+
+  <!-- Opening Context -->
+  <div class="section">
+    <h2>現況觀察</h2>
+    <p>永興家具擁有極少見的三重資產：<strong>66 年工藝累積</strong>、<strong>國家級代表作品</strong>、以及<strong>文化資產修復能力</strong>。這在台灣家具業幾乎沒有第二家。</p>
+    <p>但有一個很可惜的地方——<strong>這些資產在網路上幾乎是隱形的。</strong></p>
+    <p>設計師在 Google 搜尋「台灣現代東方家具」「榫卯訂製家具」，找到的不是永興。總統府、台大這些背書，藏在 Facebook 相簿裡，AI 搜尋引擎讀不到、推薦不到。</p>
+  </div>
+
+  <!-- Three Observations -->
+  <div class="section">
+    <h2>三個值得關注的方向</h2>
+
+    <div class="obs-card">
+      <div class="number">01</div>
+      <h4>案例內容化 — 讓好作品被找到</h4>
+      <div class="pain">
+        目前官網有精美的空間案例照片，但沒有結構化的文字描述。AI 搜尋引擎（Google AI Overview、Perplexity、ChatGPT）無法讀取純圖片內容，意味著潛在客戶問 AI「台灣哪裡做得好東方實木家具」，答案裡不會有永興。
+      </div>
+      <div class="opportunity">
+        → 將每個案例加上故事性描述（材質選擇、設計理念、空間搭配），讓 AI 能索引、能推薦。估計能為高端設計師詢盤帶來 20-30% 增量。
+      </div>
+    </div>
+
+    <div class="obs-card">
+      <div class="number">02</div>
+      <h4>線索自動接住 — 別讓詢問冷掉</h4>
+      <div class="pain">
+        現在客戶想詢價或預約看展間，唯一的方式是打電話或填表單。營業時間外的詢問、假日的靈感衝動——全部落空。高端客戶的決策窗口很短，錯過就很難找回來。
+      </div>
+      <div class="opportunity">
+        → 在官網加入 AI 詢問助手，能即時回答材質、工期、價格範圍，並自動預約門市體驗。24 小時接住每一個有意願的訪客。
+      </div>
+    </div>
+
+    <div class="obs-card">
+      <div class="number">03</div>
+      <h4>報價提案加速 — 從一週壓到一天</h4>
+      <div class="pain">
+        客製化家具的報價流程通常需要：量尺寸 → 出初稿 → 選材 → 報價 → 來回修改。一個完整提案可能要 1-2 週。在這段時間裡，客戶可能已經拿到別家的報價了。
+      </div>
+      <div class="opportunity">
+        → 用 AI 輔助快速產出初版提案（風格建議 + 材質選項 + 概估價格帶），讓業務在第一次接觸就能給出「有質感的快速回應」，搶下決策先機。
+      </div>
+    </div>
+  </div>
+
+  <!-- Highlight -->
+  <div class="highlight-box">
+    <div class="big-text">「好東西被看見」不是行銷問題，<br>是資產管理問題。</div>
+    <div class="sub-text">66 年的工藝累積是永興最大的護城河，AI 能做的是讓這條護城河被正確的人看見。</div>
+  </div>
+
+  <!-- Open Question -->
+  <div class="section" style="text-align: center;">
+    <h2 style="display: inline-block;">一個問題</h2>
+    <p style="font-size: 17px; color: var(--ink); margin-top: 16px; font-weight: 500;">
+      這三個方向裡，哪一個最接近你現在想優先解決的？
+    </p>
+    <p style="font-size: 14px; color: var(--mist); margin-top: 8px;">
+      不急著回答，有想法的時候聊聊就好。
+    </p>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="brand">MUSEON</div>
+    <div class="note">AI 顧問服務 · 為台灣中小企業打造數位員工</div>
+    <div class="note" style="margin-top: 4px;">本文件僅供參考交流，非正式提案</div>
+  </div>
+
+</div>
+</body>
+</html>
