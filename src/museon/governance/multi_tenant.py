@@ -13,6 +13,7 @@ Level definitions:
 
 import json
 import logging
+import threading
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -84,6 +85,7 @@ class ExternalAnimaManager:
     def __init__(self, data_dir: Path):
         self.users_dir = data_dir / "_system" / "external_users"
         self.users_dir.mkdir(parents=True, exist_ok=True)
+        self._lock = threading.Lock()
 
     def _path(self, user_id: str) -> Path:
         return self.users_dir / f"{user_id}.json"
@@ -208,27 +210,40 @@ class ExternalAnimaManager:
         return results
 
     def save(self, user_id: str, anima: Dict[str, Any]) -> None:
-        """完整覆寫外部用戶的 ANIMA 檔案。"""
+        """完整覆寫外部用戶的 ANIMA 檔案（原子寫入 + Lock 保護）."""
         try:
-            self._path(user_id).write_text(
-                json.dumps(anima, ensure_ascii=False, indent=2),
-                encoding="utf-8",
-            )
+            with self._lock:
+                target = self._path(user_id)
+                tmp = target.parent / f".{user_id}.json.tmp"
+                tmp.write_text(
+                    json.dumps(anima, ensure_ascii=False, indent=2) + "\n",
+                    encoding="utf-8",
+                )
+                tmp.rename(target)
         except Exception as e:
             logger.warning(f"ExternalAnima save failed for {user_id}: {e}")
 
     def update(self, user_id: str, display_name: str = None,
                group_id: int = None) -> None:
-        anima = self.load(user_id)
-        anima["interaction_count"] = anima.get("interaction_count", 0) + 1
-        anima["last_seen"] = datetime.now().isoformat()
-        if display_name and not anima.get("display_name"):
-            anima["display_name"] = display_name
-        if group_id:
-            groups = anima.setdefault("groups_seen_in", [])
-            if group_id not in groups:
-                groups.append(group_id)
-        self.save(user_id, anima)
+        """增量更新外部用戶（原子讀改寫，Lock 保護）."""
+        with self._lock:
+            anima = self.load(user_id)
+            anima["interaction_count"] = anima.get("interaction_count", 0) + 1
+            anima["last_seen"] = datetime.now().isoformat()
+            if display_name and not anima.get("display_name"):
+                anima["display_name"] = display_name
+            if group_id:
+                groups = anima.setdefault("groups_seen_in", [])
+                if group_id not in groups:
+                    groups.append(group_id)
+            # 原子寫入（不走 self.save 避免雙重 Lock）
+            target = self._path(user_id)
+            tmp = target.parent / f".{user_id}.json.tmp"
+            tmp.write_text(
+                json.dumps(anima, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8",
+            )
+            tmp.rename(target)
 
 
 class EscalationQueue:
