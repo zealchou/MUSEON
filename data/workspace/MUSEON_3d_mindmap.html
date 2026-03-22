@@ -2079,15 +2079,29 @@ document.addEventListener('keydown', e => {
 
   let debounceTimer = null;
 
+  // 預建搜尋索引：id + label + zh + 群組名 + 所有連線標籤
+  const _searchIndex = new Map();
+  nodes.forEach(n => {
+    const parts = [
+      n.id || '', n.label || '', n.zh || '',
+      GN[n.group] || '',
+    ];
+    // 納入此節點所有連線的標籤
+    links.forEach(l => {
+      if (l.source === n.id || l.target === n.id) {
+        if (l.label) parts.push(l.label);
+      }
+    });
+    _searchIndex.set(n.id, parts.join(' ').toLowerCase());
+  });
+
   function searchNodes(query) {
     if (!query) return nodes.slice();  // 空查詢 = 全部
     const q = query.toLowerCase();
-    return nodes.filter(n =>
-      (n.id && n.id.toLowerCase().includes(q)) ||
-      (n.label && n.label.toLowerCase().includes(q)) ||
-      (n.zh && n.zh.toLowerCase().includes(q)) ||
-      (GN[n.group] && GN[n.group].toLowerCase().includes(q))
-    );
+    return nodes.filter(n => {
+      const idx = _searchIndex.get(n.id) || '';
+      return idx.includes(q);
+    });
   }
 
   function highlightSearchResults(matched) {
