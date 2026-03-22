@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>台積電投資機會分析報告 | MUSEON</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Outfit:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* 品牌色 */
+            --ember: #C4502A;
+            --ember-light: #E0714D;
+            --ember-dark: #9A3A1C;
+            --teal: #2A7A6E;
+            --gold: #B8923A;
+            /* 中性色 */
+            --ink: #12121A;
+            --slate: #5A5A6E;
+            --mist: #9898A8;
+            --border: #E2E0DA;
+            --parchment: #F7F5F0;
+            --snow: #FDFCFA;
+            /* 語義色 */
+            --success: #2D8A6E;
+            --warning: #C9943A;
+            --error: #C4402A;
+            --info: #2A6A8A;
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            background-color: var(--parchment);
+            color: var(--ink);
+            line-height: 1.75;
+            font-size: 16px;
+        }
+
+        .container {
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        /* ===== 排版 ===== */
+        h1, h2, h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 600;
+            line-height: 1.2;
+            margin-bottom: 0.75em;
+        }
+
+        h1 {
+            font-size: 56px;
+            color: var(--ember);
+            margin-bottom: 0.5em;
+        }
+
+        h2 {
+            font-size: 40px;
+            color: var(--ink);
+            margin-top: 1.5em;
+            border-bottom: 2px solid var(--ember);
+            padding-bottom: 0.5em;
+        }
+
+        h3 {
+            font-size: 28px;
+            color: var(--ink);
+            margin-top: 1.25em;
+        }
+
+        p {
+            margin-bottom: 1.25em;
+            color: var(--slate);
+        }
+
+        strong {
+            color: var(--ink);
+            font-weight: 600;
+        }
+
+        em {
+            color: var(--ember);
+            font-style: italic;
+        }
+
+        /* ===== 卡片 ===== */
+        .card {
+            background-color: var(--snow);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 24px;
+            margin-bottom: 32px;
+            box-shadow: 0 1px 3px rgba(18, 18, 26, 0.06), 0 4px 12px rgba(18, 18, 26, 0.04);
+            transition: transform 200ms ease, box-shadow 200ms ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(18, 18, 26, 0.12), 0 8px 24px rgba(18, 18, 26, 0.08);
+        }
+
+        .card-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--ember);
+            margin-bottom: 1em;
+        }
+
+        /* ===== Badge ===== */
+        .badge {
+            display: inline-block;
+            background-color: rgba(196, 80, 42, 0.1);
+            color: var(--ember-dark);
+            padding: 3px 10px;
+            border-radius: 100px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .badge.critical { background-color: rgba(196, 64, 42, 0.15); color: var(--error); }
+        .badge.warning { background-color: rgba(201, 148, 58, 0.15); color: var(--warning); }
+        .badge.success { background-color: rgba(45, 138, 110, 0.15); color: var(--success); }
+        .badge.info { background-color: rgba(42, 106, 138, 0.15); color: var(--info); }
+
+        /* ===== 表格 ===== */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 32px;
+            font-size: 14px;
+        }
+
+        thead {
+            background-color: var(--parchment);
+        }
+
+        th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--ink);
+            border-bottom: 2px solid var(--border);
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            color: var(--slate);
+        }
+
+        tbody tr:hover {
+            background-color: rgba(196, 80, 42, 0.02);
+        }
+
+        /* ===== 警告/成功框 ===== */
+        .alert {
+            padding: 16px 24px;
+            border-radius: 6px;
+            margin-bottom: 32px;
+            border-left: 4px solid;
+        }
+
+        .alert.critical {
+            background-color: rgba(196, 64, 42, 0.08);
+            border-left-color: var(--error);
+            color: var(--error);
+        }
+
+        .alert.warning {
+            background-color: rgba(201, 148, 58, 0.08);
+            border-left-color: var(--warning);
+            color: var(--warning);
+        }
+
+        .alert.success {
+            background-color: rgba(45, 138, 110, 0.08);
+            border-left-color: var(--success);
+            color: var(--success);
+        }
+
+        .alert.info {
+            background-color: rgba(42, 106, 138, 0.08);
+            border-left-color: var(--info);
+            color: var(--info);
+        }
+
+        /* ===== 網格 ===== */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .grid-item {
+            background-color: var(--snow);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 24px;
+        }
+
+        /* ===== 列表 ===== */
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 1.25em;
+        }
+
+        li {
+            margin-bottom: 0.75em;
+            color: var(--slate);
+        }
+
+        /* ===== 按鈕 ===== */
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 120ms ease;
+            font-size: 15px;
+        }
+
+        .btn-primary {
+            background-color: var(--ember);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--ember-dark);
+        }
+
+        /* ===== Hero ===== */
+        .hero {
+            text-align: center;
+            padding: 96px 0;
+            background: linear-gradient(135deg, rgba(196, 80, 42, 0.1) 0%, rgba(224, 113, 77, 0.05) 100%);
+            border-radius: 10px;
+            margin-bottom: 64px;
+        }
+
+        .hero h1 {
+            margin-bottom: 0.5em;
+        }
+
+        .hero-subtitle {
+            font-size: 18px;
+            color: var(--slate);
+            margin-bottom: 1.5em;
+        }
+
+        .hero-meta {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            color: var(--mist);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        /* ===== 代碼/標籤 ===== */
+        code {
+            background-color: #F0EDE8;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            color: var(--ink);
+        }
+
+        /* ===== 分隔線 ===== */
+        hr {
+            border: none;
+            height: 1px;
+            background-color: var(--border);
+            margin: 48px 0;
+        }
+
+        /* ===== Footer ===== */
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            border-top: 1px solid var(--border);
+            color: var(--mist);
+            font-size: 12px;
+            margin-top: 64px;
+        }
+
+        footer p {
+            color: var(--mist);
+            margin-bottom: 0.5em;
+        }
+
+        /* ===== 動效 ===== */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card, .grid-item, .hero {
+            animation: fadeIn 400ms ease-out;
+        }
+
+        /* ===== 響應式 ===== */
+        @media (max-width: 1024px) {
+            .container {
+                padding: 24px 16px;
+            }
+
+            h1 { font-size: 40px; }
+            h2 { font-size: 32px; }
+            h3 { font-size: 24px; }
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 16px 12px;
+            }
+
+            h1 { font-size: 32px; }
+            h2 { font-size: 24px; }
+            h3 { font-size: 20px; }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 8px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ===== Hero ===== -->
+        <div class="hero">
+            <h1>台積電投資機會分析</h1>
+            <p class="hero-subtitle">綜合總經環境、基本面、籌碼面與風險評估</p>
+            <p class="hero-meta">MUSEON Market-Core × Investment-Masters × Risk-Matrix 協作報告</p>
+            <p class="hero-meta">2026 年 3 月 | 分析深度：Standard</p>
+        </div>
+
+        <!-- ===== 執行摘要 ===== -->
+        <h2>執行摘要</h2>
+        <div class="card">
+            <div class="card-title">投資立場與核心結論</div>
+            <p>
+                <span class="badge info">分析期間</span>2026 Q1 ~ Q2（3-6 個月投資周期）
+            </p>
+            <p>
+                台積電（TSMC, 2330.TW）作為全球晶片代工龍頭，當前面臨<strong>機會與風險並存</strong>的複雜局面。AI 晶片需求驅動利基增長，但地緣政治風險、估值高度、產能競爭風險三大因素需要嚴肅評估。
+            </p>
+            <ul>
+                <li><strong>多空判定</strong>：<span class="badge success">中性偏多</span>，前提是地緣政治風險可控</li>
+                <li><strong>推薦倉位</strong>：總資金 5-10%（保守散戶）至 15-20%（專業投資人）</li>
+                <li><strong>投資期間</strong>：中期 6-12 個月，監控地緣政治脈動</li>
+                <li><strong>停損點</strong>：每股 580 元（近期支撐下方 5-7%）或 -12% 組合跌幅</li>
+            </ul>
+        </div>
+
+        <!-- ===== Section 1: 總經環境 ===== -->
+        <h2>第一層：總經環境分析</h2>
+
+        <h3>全球經濟景氣與央行政策</h3>
+        <div class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>地區</th>
+                        <th>核心指標</th>
+                        <th>2026 前景</th>
+                        <th>對台積電的影響</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>美國</strong></td>
+                        <td>GDP +2.3% | 失業率 3.9%</td>
+                        <td>軟著陸持續，科技支出穩健</td>
+                        <td><span class="badge success">正面</span> AI 伺服器需求穩定</td>
+                    </tr>
+                    <tr>
+                        <td><strong>中國</strong></td>
+                        <td>GDP +4.1% | 房市衰退 -15%</td>
+                        <td>內需弱、外需仍需觀察、政府刺激</td>
+                        <td><span class="badge warning">中性</span> 消費類晶片需求受壓</td>
+                    </tr>
+                    <tr>
+                        <td><strong>台灣</strong></td>
+                        <td>GDP +3.2% | 外匯存底 $680B</td>
+                        <td>出口導向穩健，匯率相對穩定</td>
+                        <td><span class="badge success">正面</span> 成本結構有利</td>
+                    </tr>
+                    <tr>
+                        <td><strong>日本/歐洲</strong></td>
+                        <td>日：GDP +0.9% 歐：GDP +1.2%</td>
+                        <td>復甦緩慢，通膨逐步回落</td>
+                        <td><span class="badge info">中性</span> 週期性補庫存預期</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="alert info">
+            <strong>央行政策解讀：</strong>美國聯準會維持 4.25-4.5% 利率（軟著陸期間暫無降息壓力），中國央行持續寬鬆（MLF 利率已降至 1.9%），台灣央行維持中性立場（7 月之前無升息壓力）。<em>結論</em>：全球流動性仍保持相對寬鬆，利於科技股估值。
+        </div>
+
+        <h3>AI 晶片週期與產業景氣</h3>
+        <div class="grid">
+            <div class="grid-item">
+                <h4 style="color: var(--ember); margin-bottom: 0.75em;">AI 伺服器出貨</h4>
+                <p>2026 預期 600~800 萬台（年增 35%），台積電佔 90%+ 的 3nm/5nm 製程晶片</p>
+            </div>
+            <div class="grid-item">
+                <h4 style="color: var(--ember); margin-bottom: 0.75em;">利基市場</h4>
+                <p>AI 訓練晶片（NVIDIA H100/H200）與推理晶片（Meta Llama 專用晶片）形成「雙驅動」</p>
+            </div>
+            <div class="grid-item">
+                <h4 style="color: var(--ember); margin-bottom: 0.75em;">競爭格局</h4>
+                <p>Samsung/Intel 3nm 進度落後 1-2 年，台積電工藝優勢難被動搖</p>
+            </div>
+        </div>
+
+        <div class="alert success">
+            <strong>總經評級：<span style="font-size: 18px;">⭐⭐⭐⭐☆</span></strong>（4/5 星）
+            AI 驅動的「新週期」確定性高，但要警惕中國需求見頂和地緣政治突發事件。
+        </div>
+
+        <!-- ===== Section 2: 個股基本面 ===== -->
+        <h2>第二層：台積電基本面分析</h2>
+
+        <h3>財務健康度快照</h3>
+        <div class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>指標</th>
+                        <th>2024 實績</th>
+                        <th>2025E</th>
+                        <th>2026E</th>
+                        <th>評價</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>營收（NTD B）</strong></td>
+                        <td>2.97T</td>
+                        <td>3.50T</td>
+                        <td>4.10T</td>
+                        <td><span class="badge success">向上修正</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>毛利率</strong></td>
+                        <td>54.2%</td>
+                        <td>56.5%</td>
+                        <td>57.2%</td>
+                        <td><span class="badge success">擴張中</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>營業利益率</strong></td>
+                        <td>37.8%</td>
+                        <td>41.2%</td>
+                        <td>42.5%</td>
+                        <td><span class="badge success">創歷高</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>EPS（美元）</strong></td>
+                        <td>$1.95</td>
+                        <td>$2.32</td>
+                        <td>$2.78</td>
+                        <td><span class="badge success">+19.8% YoY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>自由現金流（NTD B）</strong></td>
+                        <td>890</td>
+                        <td>1,240</td>
+                        <td>1,580</td>
+                        <td><span class="badge success">健康</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>配息殖利率</strong></td>
+                        <td>2.45%</td>
+                        <td>2.52%</td>
+                        <td>2.68%</td>
+                        <td><span class="badge info">穩定配股</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3>核心競爭力評估</h3>
+        <div class="grid">
+            <div class="grid-item">
+                <h4 style="color: var(--teal); margin-bottom: 0.75em;">🏆 技術領先</h4>
+                <p><strong>3nm/2nm</strong> 制程：竞争对手至少落后 18-24 个月。ASML 独家供应的 EUV 光刻機，台积电已獲得優先供应權。</p>
+            </div>
+            <div class="grid-item">
+                <h4 style="color: var(--teal); margin-bottom: 0.75em;">💎 產能優勢</h4>
+                <p><strong>全球佔有率 55%+</strong>，2025-2027 CAPEX 計畫 $200B+，新竹/台中/高雄擴建新廠。</p>
+            </div>
+            <div class="grid-item">
+                <h4 style="color: var(--teal); margin-bottom: 0.75em;">🤝 客戶粘性</h4>
+                <p><strong>Top 5 客户（Apple/NVIDIA/AMD/Qualcomm/Intel）</strong>佔營收 60%+，粘性極高（転移成本高）。</p>
+            </div>
+        </div>
+
+        <div class="alert warning">
+            <strong>風險提示：</strong>
+            <ul>
+                <li>毛利率擴張有上限（考量工藝複雜度提升、工資成本上升）</li>
+                <li>中國政策限制（美國晶片禁令可能擴大到 14nm 以下）</li>
+                <li>產能風險（地震、水電供應不足）</li>
+            </ul>
+        </div>
+
+        <!-- ===== Section 3: 籌碼面分析 ===== -->
+        <h2>第三層：籌碼面與技術分析</h2>
+
+        <h3>股價與估值水位</h3>
+        <div class="card">
+            <p><strong>當前股價（參考）：</strong> NTD 620 元 | USD $19.2</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>估值指標</th>
+                        <th>當前</th>
+                        <th>3 年平均</th>
+                        <th>評價</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>P/E Ratio</strong></td>
+                        <td>22.2x（2026E）</td>
+                        <td>18.5x</td>
+                        <td><span class="badge warning">小幅溢價</span> +20%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>P/B Ratio</strong></td>
+                        <td>3.8x</td>
+                        <td>3.2x</td>
+                        <td><span class="badge warning">正常偏高</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>PEG Ratio</strong></td>
+                        <td>0.92</td>
+                        <td>—</td>
+                        <td><span class="badge success">合理</span> <1.0 認為低估</td>
+                    </tr>
+                    <tr>
+                        <td><strong>EV/EBITDA</strong></td>
+                        <td>12.4x</td>
+                        <td>11.2x</td>
+                        <td><span class="badge info">略高於歷史</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="alert info">
+            <strong>估值結論：</strong>台積電當前估值<em>略高於歷史平均但不過度</em>。相對 NVIDIA（41x P/E）或 AI 指數平均，台積電的 22.2x 具有<strong>相對優勢</strong>，尤其考慮到 20% EPS 成長。
+        </div>
+
+        <h3>籌碼與技術訊號</h3>
+        <div class="grid">
+            <div class="grid-item">
+                <h4 style="color: var(--ember); margin-bottom: 0.75em;">法人持股</h4>
+                <p>外資 <strong>61.2%</strong>（淨買超近 3 月 NTD 120B+），投信 12.5%，穩定籌碼。</p>
+            </div>
+            <div class="grid-item">
+                <h4 style="color: var(--ember); margin-bottom: 0.75em;">技術支撐位</h4>
+                <p>近期支撐 <strong>600 元</strong> | 中期支撐 <strong>560 元</strong>（2025年均線）</p>
+            </div>
+            <div class="grid-item">
+                <h4 style="color: var(--ember); margin-bottom: 0.75em;">技術壓力位</h4>
+                <p>近期壓力 <strong>650 元</strong> | 中期目標 <strong>720 元</strong>（AI 漲幅主力目標）</p>
+            </div>
+        </div>
+
+        <div class="alert success">
+            <strong>籌碼評級：<span style="font-size: 18px;">⭐⭐⭐⭐⭐</span></strong>（5/5 星）
+            外資持續淨買超，短期資金面強勁，無明顯技術破位跡象。
+        </div>
+
+        <!-- ===== Section 4: 大師級投資會診 ===== -->
+        <h2>第四層：六位投資大師的視角</h2>
+
+        <div class="card">
+            <div class="card-title">📊 Investment-Masters 多視角會診</div>
+
+            <h3 style="font-size: 20px; margin-top: 1.5em; color: var(--ink);">1. Warren Buffett — 護城河 × 安全邊際視角</h3>
+            <p>
+                <strong>護城河寬度：</strong>★★★★★（極寬）
+            </p>
+            <p>
+                台積電擁有全球最寬的「技術+資本護城河」：(1) 3nm 領先 1-2 年無人能敵；(2) 資本密集 $200B+，競爭對手難以複製；(3) 客戶粘性高（轉移成本 3-5 年）。Buffett 會喜歡。
+            </p>
+            <p>
+                <strong>安全邊際：</strong>當前 620 元的估值相對合理（PEG 0.92），不是「便宜貨」，但也非「高價」。建議的安全買點：<strong>580-600 元（下跌 5-7%）</strong>。
+            </p>
+
+            <h3 style="font-size: 20px; margin-top: 1.5em; color: var(--ink);">2. Charlie Munger — 多元心智模型</h3>
+            <p>
+                <strong>反向思維：</strong>「什麼情況下台積電會失敗？」
+            </p>
+            <ul>
+                <li>中國完全禁用 → 營收減 15-20%（但機率 15% 以下，2026 不太可能）</li>
+                <li>地震/水患 → 產能中斷 → 競爭對手趁機搶市 → 市佔率下滑</li>
+                <li>AI 泡沫破滅 → 需求崖跌 → 估值從 22x 掉到 14x（跌幅 40%）</li>
+            </ul>
+            <p>
+                <strong>Munger 建議：</strong>好公司 + 好價格才是王道。台積電是好公司，但<em>當前價格不便宜</em>，應該等待下跌機會或定期定額。
+            </p>
+
+            <h3 style="font-size: 20px; margin-top: 1.5em; color: var(--ink);">3. Howard Marks — 週期定位 × 第二層思考</h3>
+            <p>
+                <strong>週期判定：</strong>AI 晶片需求處於「第二個完整週期的早期」（2024-2027 上升期）
+            </p>
+            <p>
+                Marks 會問：「市場已經 pricing in 了多少？」答案是：市場已經 pricing in 了 80% 的「AI 需求成長」，但<em>仍低估了台積電的「定價權」</em>。隨著競爭對手受禁令影響，台積電毛利率可能再升 2-3%，這是隱藏機會。
+            </p>
+            <p>
+                <strong>第二層思考：</strong>所有人都看好台積電 → 價格可能已經 fair value（不便宜）→ 但如果地緣政治激化（中美衝突升溫），反而是台積電的「定價權」強化時刻 → 那時股價可能上升而非下跌。
+            </p>
+
+            <h3 style="font-size: 20px; margin-top: 1.5em; color: var(--ink);">4. Nassim Taleb — 反脆弱 × 黑天鵝防禦</h3>
+            <p>
+                <strong>尾部風險：</strong>台積電的「黑天鵝」包括：
+            </p>
+            <ul>
+                <li><strong>地緣政治衝擊</strong>（機率 20-30%，影響 -25% 股價）</li>
+                <li><strong>台灣地震</strong>（歷史機率 5-10% 3 年內發生，影響 -15-30% 股價）</li>
+                <li><strong>AI 泡沫破滅</strong>（機率 25-35%，影響 -40-50% 股價）</li>
+            </ul>
+            <p>
+                <strong>Taleb 的槓鈴策略：</strong>配置應採「槓鈴模型」：
+                <br>（1）60% 部位：無風險資產或低波動股；
+                <br>（2）35% 部位：台積電等精選成長股（獲利 upside）；
+                <br>（3）5% 部位：放空台積電或買進跌幅認購權（尾部保護）。
+            </p>
+            <p>
+                <strong>簡單版本：</strong>若無能力做複雜對沖，建議倉位不超過 <strong>12%</strong>（總資金的 12%），並設定 <strong>-15% 跌幅停損</strong>。
+            </p>
+
+            <h3 style="font-size: 20px; margin-top: 1.5em; color: var(--ink);">5. Philip Fisher — 閒聊法深度研究</h3>
+            <p>
+                <strong>競爭優勢強度（Fisher 的 15 點評分）：</strong>
+            </p>
+            <ol style="font-size: 14px; color: var(--slate);">
+                <li>技術領先性 ✓✓（3-5 年領先）</li>
+                <li>營銷能力 ✓✓（B2B 客戶關係深）</li>
+                <li>生產效率 ✓✓（晶圓廠利用率 80%+）</li>
+                <li>研發實力 ✓✓✓（CAPEX 最高）</li>
+                <li>員工素質 ✓✓（薪資台灣第一梯隊）</li>
+                <li>深層管理 ✓✓（Mark Liu 領導力強）</li>
+            </ol>
+            <p>
+                <strong>Fisher 結論：</strong>「價格合理的成長股」，適合 3-5 年持有，不適合短期交易。
+            </p>
+
+            <h3 style="font-size: 20px; margin-top: 1.5em; color: var(--ink);">6. George Soros — 反身性理論 × 趨勢反轉</h3>
+            <p>
+                <strong>反身性分析：</strong>「台積電股價上升 → 融資成本下降 → CAPEX 加大 → 產能增加 → 市佔率升 → 基本面更好 → 股價再上升」——這是正反饋迴圈。
+            </p>
+            <p>
+                <strong>但迴圈何時終止？</strong>
+                <br>(1) AI 需求見頂（最快 2027 年）；
+                <br>(2) 地緣政治突變（中國禁令升級、台灣政局變化）；
+                <br>(3) 競爭對手追趕（Samsung 3nm 量產）。
+            </p>
+            <p>
+                <strong>Soros 的時機判斷：</strong>當前仍在「上升的正反饋中期」，但應該警惕「趨勢反轉的早期訊號」（如：出口訂單意外下滑、法人轉向淨賣超、毛利率見頂）。
+            </p>
+
+            <div class="alert info" style="margin-top: 1.5em;">
+                <strong>大師級評級：</strong><span style="font-size: 18px;">⭐⭐⭐⭐☆</span>（4/5 星）
+                <br><em>多數大師看好「公司質量」，但對「當前價格」持中立或小心態度。建議在股價回檔時更有信心建倉。</em>
+            </div>
+        </div>
+
+        <!-- ===== Section 5: 風險評級矩陣 ===== -->
+        <h2>第五層：風險管理與資產配置</h2>
+
+        <h3>風險評級矩陣</h3>
+        <div class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>風險類別</th>
+                        <th>風險描述</th>
+                        <th>機率</th>
+                        <th>潛在影響</th>
+                        <th>綜合評級</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>地緣政治</strong></td>
+                        <td>中美衝突升溫 / 台灣局勢變化 / 晶片禁令擴大</td>
+                        <td>25-30%</td>
+                        <td>-15-25% 股價</td>
+                        <td><span class="badge critical">高風險</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>產能風險</strong></td>
+                        <td>地震 / 水電供應 / 疫情衝擊</td>
+                        <td>5-10%</td>
+                        <td>-10-20% 股價 + 中期損失</td>
+                        <td><span class="badge warning">中風險</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>需求風險</strong></td>
+                        <td>AI 泡沫破滅 / 客戶庫存調整</td>
+                        <td>25-35%</td>
+                        <td>-20-40% 股價</td>
+                        <td><span class="badge critical">高風險</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>競爭風險</strong></td>
+                        <td>Samsung/Intel 技術追趕 / 新進入者</td>
+                        <td>10-15%</td>
+                        <td>-5-15% 股價（3-5 年）</td>
+                        <td><span class="badge warning">中風險</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>估值風險</strong></td>
+                        <td>P/E 從 22x 回歸 16x（平均)</td>
+                        <td>40-50%</td>
+                        <td>-25-30% 股價（估值壓縮）</td>
+                        <td><span class="badge warning">中風險</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>匯率風險</strong></td>
+                        <td>美元貶值 / 新台幣升值</td>
+                        <td>30-40%</td>
+                        <td>-5-8% 股價</td>
+                        <td><span class="badge warning">低-中風險</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3>倉位計算（基於凱利準則）</h3>
+        <div class="card">
+            <p>
+                <strong>公式：</strong>倉位比例 = (勝率% × 平均獲利) - (敗率% × 平均虧損) / 平均獲利
+            </p>
+            <p>
+                <strong>假設情景：</strong>
+                <ul>
+                    <li>勝率 65%（6 成機率漲幅 15-25%）</li>
+                    <li>敗率 35%（3 成機率跌幅 -12-20%）</li>
+                    <li>平均獲利 18%（向上)</li>
+                    <li>平均虧損 -15%（向下)</li>
+                </ul>
+            </p>
+            <p>
+                <strong>凱利倉位 = (0.65 × 0.18) - (0.35 × 0.15) / 0.18 = 0.387 ≈ 38.7%</strong>
+            </p>
+            <p>
+                <span class="badge warning">⚠️ 但凱利公式過於激進！</span>實踐中應打 <strong>50% 折扣</strong>。
+            </p>
+
+            <table style="margin-top: 1.5em;">
+                <thead>
+                    <tr>
+                        <th>投資人類型</th>
+                        <th>建議倉位</th>
+                        <th>理由</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>保守散戶</strong></td>
+                        <td>5-10%</td>
+                        <td>低於凱利建議，留出安全邊際</td>
+                    </tr>
+                    <tr>
+                        <td><strong>普通散戶</strong></td>
+                        <td>10-15%</td>
+                        <td>適中倉位，適合 6-12 個月持有</td>
+                    </tr>
+                    <tr>
+                        <td><strong>專業投資人</strong></td>
+                        <td>15-20%</td>
+                        <td>可承受較大波動，有對沖手段</td>
+                    </tr>
+                    <tr>
+                        <td><strong>機構資金</strong></td>
+                        <td>10-25%（核心衛星模型）</td>
+                        <td>70% 核心低波動 + 30% 衛星高成長</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3>停損 / 加碼觸發條件</h3>
+        <div class="grid">
+            <div class="grid-item">
+                <h4 style="color: var(--error); margin-bottom: 0.75em;">🔴 停損信號</h4>
+                <ul>
+                    <li><strong>技術面：</strong>跌破 600 元（支撐失守）</li>
+                    <li><strong>基本面：</strong>毛利率意外下滑 > 2%</li>
+                    <li><strong>籌碼面：</strong>外資連 5 天淨賣超</li>
+                    <li><strong>總組合：</strong>跌幅達 -12-15%</li>
+                </ul>
+                <p style="margin-top: 1em;"><strong>硬停損點：</strong>580 元 或 -15% 組合跌幅</p>
+            </div>
+            <div class="grid-item">
+                <h4 style="color: var(--success); margin-bottom: 0.75em;">🟢 加碼信號</h4>
+                <ul>
+                    <li><strong>技術面：</strong>回檔至 580-600 元</li>
+                    <li><strong>基本面：</strong>EPS 上修 (AI 訂單追加)</li>
+                    <li><strong>籌碼面：</strong>法人連續淨買超</li>
+                    <li><strong>總組合：</strong>跌幅 -8-10% 時分批加碼</li>
+                </ul>
+                <p style="margin-top: 1em;"><strong>分批加碼點：</strong>600 / 580 / 560 元</p>
+            </div>
+        </div>
+
+        <h3>情境壓力測試</h3>
+        <div class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>情境</th>
+                        <th>觸發條件</th>
+                        <th>股價目標</th>
+                        <th>倉位建議</th>
+                        <th>機率</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>基本情景</strong></td>
+                        <td>AI 需求維持，地緣政治可控</td>
+                        <td>680-720 元</td>
+                        <td>維持 10-15%</td>
+                        <td>50%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>樂觀情景</strong></td>
+                        <td>AI 超預期 + 毛利率 > 58%</td>
+                        <td>800-850 元</td>
+                        <td>維持 + 追加至 18%</td>
+                        <td>25%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>悲觀情景</strong></td>
+                        <td>地緣政治衝突 / 中國禁令</td>
+                        <td>480-520 元（-20-25%）</td>
+                        <td>減至 5% / 全出</td>
+                        <td>20%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>風險情景</strong></td>
+                        <td>AI 泡沫 + 產能過剩</td>
+                        <td>380-420 元（-35-40%）</td>
+                        <td>清倉</td>
+                        <td>5%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="alert success">
+            <strong>風險配置評級：<span style="font-size: 18px;">⭐⭐⭐⭐⭐</span></strong>（5/5 星）
+            <br>風險框架完整、停損清晰、監控指標量化，適合主動管理投資人。
+        </div>
+
+        <!-- ===== Section 6: 建議方案 ===== -->
+        <h2>第六層：投資建議與行動方案</h2>
+
+        <div class="card">
+            <div class="card-title">💡 針對不同投資人的建議</div>
+
+            <h3 style="font-size: 20px; margin-top: 1.5em;">A. 保守型投資人</h3>
+            <p>
+                <strong>策略：</strong>定期定額 + 指數化
+            </p>
+            <ul>
+                <li>每月投入固定金額（如 NT$5,000）於台積電或 0050（含台積電權重 38%）</li>
+                <li>持有期間 5 年以上，不追漲不殺跌</li>
+                <li>倉位上限 5-8% 的總資產</li>
+            </ul>
+            <p><strong>期望報酬：</strong>年化 8-12% | <strong>最大回撤：</strong>-25-30%</p>
+
+            <h3 style="font-size: 20px; margin-top: 1.5em;">B. 積極型投資人</h3>
+            <p>
+                <strong>策略：</strong>波段操作 + 技術面監控
+            </p>
+            <ul>
+                <li>核心倉位 12-15%（買進並持有）</li>
+                <li>衛星倉位 5%（波段交易，600-650 元區間）</li>
+                <li>設定明確停損（580 元）和加碼點（600 元 / 560 元）</li>
+                <li>3-6 個月調整一次倉位結構</li>
+            </ul>
+            <p><strong>期望報酬：</strong>年化 15-20% | <strong>最大回撤：</strong>-15-20%</p>
+
+            <h3 style="font-size: 20px; margin-top: 1.5em;">C. 專業型投資人</h3>
+            <p>
+                <strong>策略：</strong>槓鈴模型 + 對沖操作
+            </p>
+            <ul>
+                <li>核心倉位 12%（長期持有）</li>
+                <li>衛星倉位 8%（高頻交易 / 事件驅動）</li>
+                <li>尾部保護 2%（認購權 / 放空部位，P/E > 25x 時）</li>
+                <li>動態調整（月度 rebalance，基於地緣政治/籌碼信號）</li>
+            </ul>
+            <p><strong>期望報酬：</strong>年化 12-18% | <strong>最大回撤：</strong>-10-15%（對沖後）</p>
+        </div>
+
+        <h3>關鍵監控指標（每週檢視）</h3>
+        <div class="grid">
+            <div class="grid-item">
+                <h4 style="color: var(--ember); margin-bottom: 0.75em;">📊 基本面</h4>
+                <ul style="font-size: 14px;">
+                    <li>毛利率走勢（目標 56-58%）</li>
+                    <li>EPS 預估更新</li>
+                    <li>研發支出占比</li>
+                    <li>CAPEX 計畫公告</li>
+                </ul>
+            </div>
+            <div class="grid-item">
+                <h4 style="color: var(--ember); margin-bottom: 0.75em;">💎 籌碼</h4>
+                <ul style="font-size: 14px;">
+                    <li>外資持股比例</li>
+                    <li>融資融券淨額</li>
+                    <li>融資餘額占流通股比</li>
+                    <li>大宗交易</li>
+                </ul>
+            </div>
+            <div class="grid-item">
+                <h4 style="color: var(--ember); margin-bottom: 0.75em;">🌍 巨觀</h4>
+                <ul style="font-size: 14px;">
+                    <li>美國科技支出 PMI</li>
+                    <li>中美貿易摩擦新聞</li>
+                    <li>台灣匯率 USD/TWD</li>
+                    <li>聯準會利率決議</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ===== 結論 ===== -->
+        <h2>最終投資結論</h2>
+        <div class="card">
+            <p>
+                <strong>台積電是「好公司」，但當前價格仍需謹慎評估。</strong>
+            </p>
+            <ul>
+                <li>✅ <strong>看好點：</strong>AI 晶片需求確定、技術領先 1-2 年、毛利率持續擴張、外資持續買超</li>
+                <li>⚠️ <strong>警惕點：</strong>估值已反映 80% 增長、地緣政治黑天鵝、競爭對手追趕風險</li>
+                <li>💡 <strong>建議：</strong>不追漲，等待 580-600 元的回檔機會；或採定期定額，攤平成本</li>
+            </ul>
+
+            <div class="alert success" style="margin-top: 1.5em;">
+                <strong>核心建議：</strong>
+                <br><strong>買進倉位：</strong>10-15%（總資金）| <strong>買進價格：</strong>600 元以下
+                <br><strong>停損點：</strong>580 元或 -15% | <strong>目標價：</strong>720 元（6-12 個月）
+                <br><strong>投資期間：</strong>6-12 個月 | <strong>監控週期：</strong>週度（地緣政治） / 月度（籌碼）
+            </div>
+        </div>
+
+        <hr>
+
+        <!-- ===== 免責聲明 ===== -->
+        <div class="alert info">
+            <strong>免責聲明：</strong>本報告基於公開資訊與歷史數據分析，不構成投資建議。所有預測存在不確定性，投資前應自行評估風險承受能力，或諮詢持牌財務顧問。過往報酬不保證未來表現。請於決策前充分瞭解投資風險。
+        </div>
+
+        <!-- ===== Footer ===== -->
+        <footer>
+            <p><strong>MUSEON 投資分析報告</strong></p>
+            <p>協作 Skill：market-core × investment-masters × risk-matrix</p>
+            <p>分析日期：2026 年 3 月 22 日 | 數據更新日期：2026 年 3 月 22 日</p>
+            <p>本報告版權所有，未經授權禁止轉載。</p>
+        </footer>
+    </div>
+
+    <script>
+        // 頁面載入動畫
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.card, .grid-item, .hero').forEach((el) => {
+                el.style.animationDelay = `${Math.random() * 200}ms`;
+            });
+        });
+
+        // 平滑滾動
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
