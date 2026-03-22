@@ -299,7 +299,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 //  SYNC META — 拓撲同步狀態
 // ═══════════════════════════════════════
 const SYNC_META = {
-  topologyVersion: 'v1.33',
+  topologyVersion: 'v1.34',
   syncDate: '2026-03-22',
   nodeCount: 0, // auto-calculated below
   linkCount: 0, // auto-calculated below
@@ -762,18 +762,13 @@ const links = [
   {source:"authorization",target:"gateway",label:"server.py 訊息泵授權回覆分支",type:"cross"},
   {source:"authorization",target:"mcp-server",label:"museon_auth_status 查詢",type:"cross"},
   {source:"authorization",target:"telegram",label:"配對碼推送 + 授權請求 inline keyboard",type:"cross"},
-  {source:"gateway",target:"interaction-queue",label:"InteractionQueue 啟動初始化",type:"cross"},
-  {source:"interaction-queue",target:"discord",label:"present_choices() Button/Select 呈現",type:"cross"},
-  {source:"interaction-queue",target:"gateway",label:"message pump 互動攔截 + asyncio.Event 等待",type:"cross"},
-  {source:"interaction-queue",target:"line",label:"present_choices() Quick Reply/Flex 呈現",type:"cross"},
-  {source:"interaction-queue",target:"telegram",label:"present_choices() InlineKeyboard 呈現",type:"cross"},
-  {source:"line",target:"event-bus",label:"LINE webhook 事件發布",type:"cross"},
   {source:"auto-repair",target:"gateway",label:"重啟修復",type:"cross"},
   {source:"auto-repair",target:"installer",label:"修復用安裝器",type:"cross"},
   {source:"blueprint-reader",target:"doctor",label:"藍圖感知（系統審計）",type:"cross"},
   {source:"blueprint-reader",target:"morphenix",label:"藍圖感知（演化提案）",type:"cross"},
   {source:"blueprint-reader",target:"surgery",label:"藍圖感知（精準手術）",type:"cross"},
   {source:"brain",target:"anima-mc-store",label:"ANIMA_MC 存取",type:"cross"},
+  {source:"brain",target:"data-bus",label:"經驗回放搜尋（activity_log.search() via ActivityLogger）",type:"cross"},
   {source:"brain",target:"footprint",label:"Step 8 認知追蹤（trace_decision+trace_cognitive）",type:"cross"},
   {source:"brain",target:"llm-router",label:"生成回應",type:"cross"},
   {source:"brain",target:"lord-profile",label:"_observe_lord() 領域畫像寫入",type:"cross"},
@@ -816,6 +811,7 @@ const links = [
   {source:"footprint",target:"data-bus",label:"足跡持久化",type:"cross"},
   {source:"footprint",target:"data-bus",label:"cognitive_trace.jsonl 寫入",type:"cross"},
   {source:"gateway",target:"anima-mc-store",label:"API 查詢 ANIMA",type:"cross"},
+  {source:"gateway",target:"interaction-queue",label:"InteractionQueue 啟動初始化",type:"cross"},
   {source:"governor",target:"pulse-db",label:"事件記錄",type:"cross"},
   {source:"group-session-proactive",target:"event-bus",label:"GROUP_SESSION_END 訂閱",type:"cross"},
   {source:"group-session-proactive",target:"telegram",label:"群組追問發送",type:"cross"},
@@ -823,6 +819,10 @@ const links = [
   {source:"guardian",target:"crystal-store",label:"結晶健康檢查",type:"cross"},
   {source:"guardian",target:"doctor",label:"修復委派",type:"cross"},
   {source:"intention-radar",target:"research-engine",label:"執行研究",type:"cross"},
+  {source:"interaction-queue",target:"discord",label:"present_choices() Button/Select 呈現",type:"cross"},
+  {source:"interaction-queue",target:"gateway",label:"message pump 互動攔截 + asyncio.Event 等待",type:"cross"},
+  {source:"interaction-queue",target:"line",label:"present_choices() Quick Reply/Flex 呈現",type:"cross"},
+  {source:"interaction-queue",target:"telegram",label:"present_choices() InlineKeyboard 呈現",type:"cross"},
   {source:"investment-masters",target:"knowledge-lattice",label:"軍師會診結晶",type:"cross"},
   {source:"investment-masters",target:"market-core",label:"市場分析",type:"cross"},
   {source:"investment-masters",target:"risk-matrix",label:"風險管理",type:"cross"},
@@ -837,6 +837,7 @@ const links = [
   {source:"knowledge-lattice",target:"skills-thinking-hub",label:"記憶接收（思維）",type:"cross"},
   {source:"knowledge-lattice",target:"skills-workflow-hub",label:"記憶接收（工作流）",type:"cross"},
   {source:"knowledge-lattice",target:"vector-index",label:"結晶存取",type:"cross"},
+  {source:"line",target:"event-bus",label:"LINE webhook 事件發布",type:"cross"},
   {source:"llm-router",target:"anthropic-api",label:"API 呼叫",type:"cross"},
   {source:"lord-profile",target:"persona-router",label:"百合引擎讀取領域畫像（Phase 1）",type:"cross"},
   {source:"mcp-server",target:"brain",label:"ANIMA 狀態查詢",type:"cross"},
@@ -921,6 +922,7 @@ const links = [
   {source:"telegram",target:"brain",label:"推送寫入 session",type:"async"},
   {source:"telegram",target:"user",label:"回傳回應",type:"async"},
 ];
+
 
 
 
