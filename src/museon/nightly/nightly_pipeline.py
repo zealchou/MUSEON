@@ -3171,9 +3171,30 @@ class NightlyPipeline:
         if rotated:
             logger.info(f"[NIGHTLY] log rotation: {rotated}")
 
+        # ── 按日期命名的 JSONL 清理（cache_log_*, routing_log_* 等）──
+        # 這些檔案每天自動產生，保留 30 天，超齡刪除
+        dated_jsonl_dirs = [
+            self._workspace / "_system" / "budget",   # cache_log_YYYY-MM-DD.jsonl
+            self._workspace / "_system" / "pulse",     # routing_log_YYYY-MM-DD.jsonl
+        ]
+        dated_removed = 0
+        for d in dated_jsonl_dirs:
+            if not d.exists():
+                continue
+            for f in d.glob("*_20??-??-??.jsonl"):
+                try:
+                    if f.stat().st_mtime < cutoff:
+                        f.unlink()
+                        dated_removed += 1
+                except Exception:
+                    pass
+        if dated_removed > 0:
+            logger.info(f"[NIGHTLY] dated JSONL cleanup: removed {dated_removed}")
+
         return {
             "rotated": rotated,
             "archives_cleaned": len(cleaned),
+            "dated_jsonl_removed": dated_removed,
         }
 
     def _step_wal_checkpoint(self) -> Dict:

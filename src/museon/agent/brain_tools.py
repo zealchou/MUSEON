@@ -20,15 +20,35 @@ class BrainToolsMixin:
     """LLM 呼叫與工具處理方法群 — Mixin for MuseonBrain."""
 
     # ═══════════════════════════════════════════
-    # 多模型 Fallback（Opus → Sonnet → Haiku → 離線）
+    # 常數定義（v1.49: 從方法內收斂至此）
     # ═══════════════════════════════════════════
 
-    # Fallback 模型鏈
+    # Fallback 模型鏈（Opus → Sonnet → Haiku → 離線）
     _MODEL_CHAIN = [
         "claude-opus-4-6",
         "claude-sonnet-4-20250514",
         "claude-haiku-4-5-20251001",
     ]
+
+    # LLM 呼叫參數
+    _MAX_TOKENS_PRIMARY = 16384       # 主要 LLM 呼叫上限
+    _MAX_TOKENS_DISPATCH = 8192       # Dispatch/Orchestrator 呼叫上限
+    _MAX_TOKENS_HEALTH_PROBE = 10     # 離線 self-probe 上限
+
+    # Tool-Use 迴圈控制
+    _MAX_TOOL_ITERATIONS_COMPLEX = 24  # 複雜任務工具迴圈上限
+    _MAX_TOOL_ITERATIONS_SIMPLE = 16   # 簡單任務工具迴圈上限
+    _TOOL_RESULT_TRUNCATE_LEN = 15000  # 工具結果截斷長度
+
+    # 複雜任務關鍵字（決定工具迴圈上限）
+    _COMPLEX_KEYWORDS = (
+        "搜尋", "查", "找", "search", "分析", "比較",
+        "研究", "調查", "趨勢", "幫我做", "產出", "報告",
+        "計畫", "企劃", "排程", "generate", "create",
+    )
+
+    # 離線模式
+    _OFFLINE_PROBE_INTERVAL = 300  # 秒（5 分鐘自動 probe 恢復）
 
     async def _call_llm(
         self,
@@ -70,7 +90,7 @@ class BrainToolsMixin:
         import time as _time
 
         # ── 離線模式 self-probe：每 5 分鐘嘗試一次 LLM 呼叫 ──
-        _OFFLINE_PROBE_INTERVAL = 300  # 5 分鐘
+        _OFFLINE_PROBE_INTERVAL = self._OFFLINE_PROBE_INTERVAL
         if self._offline_flag and self._llm_adapter:
             now = _time.time()
             if now - self._last_offline_probe_ts >= _OFFLINE_PROBE_INTERVAL:
@@ -82,7 +102,7 @@ class BrainToolsMixin:
                             system_prompt="Reply with exactly: OK",
                             messages=[{"role": "user", "content": "health check"}],
                             model="haiku",
-                            max_tokens=10,
+                            max_tokens=self._MAX_TOKENS_HEALTH_PROBE,
                         ),
                         timeout=15,
                     )
@@ -165,7 +185,7 @@ class BrainToolsMixin:
                     system_prompt=system_prompt,
                     messages=messages,
                     model=model,
-                    max_tokens=16384,
+                    max_tokens=self._MAX_TOKENS_PRIMARY,
                     tools=tool_definitions,
                 )
 
@@ -189,19 +209,17 @@ class BrainToolsMixin:
                 # Claude 可能要求調用工具（stop_reason="tool_use"），
                 # 我們執行工具後把結果送回。
                 # v10: 大幅提高迭代上限 + 失敗重試 + context 壓縮
-                _COMPLEX_KEYWORDS = (
-                    "搜尋", "查", "找", "search", "分析", "比較",
-                    "研究", "調查", "趨勢", "幫我做", "產出", "報告",
-                    "計畫", "企劃", "排程", "generate", "create",
-                )
                 _last_user_msg = ""
                 for _m in reversed(messages):
                     if _m.get("role") == "user":
                         _c = _m.get("content", "")
                         _last_user_msg = _c if isinstance(_c, str) else ""
                         break
-                _is_complex = any(kw in _last_user_msg for kw in _COMPLEX_KEYWORDS)
-                MAX_TOOL_ITERATIONS = 24 if _is_complex else 16
+                _is_complex = any(kw in _last_user_msg for kw in self._COMPLEX_KEYWORDS)
+                MAX_TOOL_ITERATIONS = (
+                    self._MAX_TOOL_ITERATIONS_COMPLEX if _is_complex
+                    else self._MAX_TOOL_ITERATIONS_SIMPLE
+                )
                 iteration = 0
                 total_tool_calls = 0
                 all_tools_failed_break = False
@@ -277,8 +295,8 @@ class BrainToolsMixin:
                                     result, ensure_ascii=False
                                 )
                                 # 截斷過長結果（避免 token 爆炸）
-                                if len(result_str) > 15000:
-                                    result_str = result_str[:15000] + '..."}'
+                                if len(result_str) > self._TOOL_RESULT_TRUNCATE_LEN:
+                                    result_str = result_str[:self._TOOL_RESULT_TRUNCATE_LEN] + '..."}'
 
                             tool_results.append({
                                 "type": "tool_result",
@@ -328,7 +346,7 @@ class BrainToolsMixin:
                         system_prompt=system_prompt,
                         messages=messages,
                         model=model,
-                        max_tokens=16384,
+                        max_tokens=self._MAX_TOKENS_PRIMARY,
                         tools=tool_definitions,
                     )
                     response = APICompatResponse(_adapter_resp)
@@ -416,7 +434,7 @@ class BrainToolsMixin:
                         system_prompt=system_prompt,
                         messages=synth_messages,
                         model=model,
-                        max_tokens=16384,
+                        max_tokens=self._MAX_TOKENS_PRIMARY,
                     )
                     response = APICompatResponse(_synth_resp)
 
