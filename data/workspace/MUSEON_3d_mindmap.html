@@ -299,7 +299,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 //  SYNC META — 拓撲同步狀態
 // ═══════════════════════════════════════
 const SYNC_META = {
-  topologyVersion: 'v1.32',
+  topologyVersion: 'v1.33',
   syncDate: '2026-03-22',
   nodeCount: 0, // auto-calculated below
   linkCount: 0, // auto-calculated below
@@ -377,6 +377,8 @@ const nodes = [
   // ── channel ──
   {id:"cron",label:"Cron",zh:"排程入口",group:"channel",r:1.2},
   {id:"gateway",label:"Gateway",zh:"WebSocket :8765",group:"channel",r:1.6},
+  {id:"interaction-queue",label:"Interaction Queue",zh:"跨通道互動佇列",group:"channel",r:1.0},
+  {id:"line",label:"LINE",zh:"LINE@ 通道",group:"channel",r:1.4},
   {id:"mcp-server",label:"MCP Server",zh:"Claude Code 介面",group:"channel",r:1.2},
   {id:"telegram",label:"Telegram",zh:"主通道",group:"channel",r:1.6},
   {id:"user",label:"User (Zeal)",zh:"使用者",group:"channel",r:2.0},
@@ -568,7 +570,9 @@ const links = [
   // ── flow ──
   {source:"cron",target:"event-bus",label:"定時觸發",type:"flow"},
   {source:"gateway",target:"event-bus",label:"路由",type:"flow"},
+  {source:"line",target:"gateway",label:"webhook 轉發",type:"flow"},
   {source:"telegram",target:"gateway",label:"轉發",type:"flow"},
+  {source:"user",target:"line",label:"LINE 訊息",type:"flow"},
   {source:"user",target:"telegram",label:"訊息指令",type:"flow"},
   // ── control ──
   {source:"cron",target:"nightly",label:"03:00 觸發",type:"control"},
@@ -758,6 +762,12 @@ const links = [
   {source:"authorization",target:"gateway",label:"server.py 訊息泵授權回覆分支",type:"cross"},
   {source:"authorization",target:"mcp-server",label:"museon_auth_status 查詢",type:"cross"},
   {source:"authorization",target:"telegram",label:"配對碼推送 + 授權請求 inline keyboard",type:"cross"},
+  {source:"gateway",target:"interaction-queue",label:"InteractionQueue 啟動初始化",type:"cross"},
+  {source:"interaction-queue",target:"discord",label:"present_choices() Button/Select 呈現",type:"cross"},
+  {source:"interaction-queue",target:"gateway",label:"message pump 互動攔截 + asyncio.Event 等待",type:"cross"},
+  {source:"interaction-queue",target:"line",label:"present_choices() Quick Reply/Flex 呈現",type:"cross"},
+  {source:"interaction-queue",target:"telegram",label:"present_choices() InlineKeyboard 呈現",type:"cross"},
+  {source:"line",target:"event-bus",label:"LINE webhook 事件發布",type:"cross"},
   {source:"auto-repair",target:"gateway",label:"重啟修復",type:"cross"},
   {source:"auto-repair",target:"installer",label:"修復用安裝器",type:"cross"},
   {source:"blueprint-reader",target:"doctor",label:"藍圖感知（系統審計）",type:"cross"},

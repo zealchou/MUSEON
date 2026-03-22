@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.30
+# Joint Map — 共享可變狀態接頭圖 v1.31
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -870,6 +870,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-22 | v1.31 | InteractionRequest 跨通道互動層：InteractionQueue 為新共享可變狀態（記憶體中 Dict，asyncio.Event 非阻塞等待，不持久化）；寫入者 3 個（telegram/discord/line 的 callback handler 呼叫 `resolve()`）；讀取者 1 個（gateway/server.py message pump `wait_for_response()`）；危險度 🟢（單一消費者、非持久化、自動超時清理）；message.py 新增 ChoiceOption/InteractionRequest/InteractionResponse 三個 dataclass + BrainResponse.interaction 欄位（純新增，不改現有結構）；同步 system-topology v1.33、blast-radius v1.44 |
 | 2026-03-22 | v1.30 | Recommender 激活修復：新增 #33 `_system/recommendations/interactions.json`（🟢 危險度，單一寫入者 recommender.py 原子寫入，5000 條上限）；#6 crystal.db 讀取者新增 recommender（經由 CrystalStore API `load_crystals_raw()` + `load_links()`）；G5 知識晶格組 recommender 接線正式啟用；共享狀態 32→33 個 |
 | 2026-03-22 | v1.29 | Knowledge Lattice 持久層遷移：#6 路徑從 `data/lattice/crystals.json` 改為 `data/lattice/crystal.db`（SQLite WAL 模式，三表 crystals/links/cuid_counters）；新增 `agent/crystal_store.py` CrystalStore 為統一存取層（threading.Lock + SQLite WAL）；所有讀寫者改為經由 CrystalStore API；危險度從 🟡 降為 🟢（鎖保護完整）；鎖一覽表更新 crystals.json→crystal.db（❌ 危險→✅ 完整）；G5 模組組新增 crystal_store；舊 JSON 檔案歸檔為 .bak；同步 persistence-contract v1.26、blast-radius v1.41、system-topology v1.31 |
 | 2026-03-21 | v1.27 | #9 Qdrant skills collection 新增 VectorBridge.index_all_skills() 寫入路徑（Gateway startup + Nightly 8.6 + API reindex） |
