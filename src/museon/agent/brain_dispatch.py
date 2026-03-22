@@ -21,6 +21,59 @@ class BrainDispatchMixin:
     # ═══════════════════════════════════════════
     """
 
+    # ═══════════════════════════════════════════
+    # Dispatch 常數（從方法體內提升，便於調參）
+    # ═══════════════════════════════════════════
+
+    # 分派觸發條件
+    _MIN_ACTIVE_SKILLS_FOR_DISPATCH = 2     # 最少 Skill 數
+    _LARGE_SKILL_SET_THRESHOLD = 3          # 觸發「多 Skill 複雜」判定
+    _LARGE_SKILL_CONTENT_TOKENS = 5000      # 認定 SKILL.md 為「大型」的 token 門檻
+    _DISPATCH_TOKEN_OVERFLOW = 40000        # 合計 token 溢出臨界值
+    _TOKEN_ESTIMATE_DIVISOR = 3             # 字元→Token 粗估除數
+
+    # 預算估算
+    _DISPATCH_BASE_BUDGET = 7000            # Orchestrator + synthesis 基礎預算
+    _DISPATCH_PER_WORKER_BASE = 1500        # 每個 Worker 基礎 token 預算
+
+    # 確定性路由
+    _MAX_DETERMINISTIC_TASKS = 5            # DeterministicRouter 最多任務數
+
+    # LLM 模型常數
+    _ORCHESTRATOR_MODEL = "claude-sonnet-4-20250514"
+    _SONNET_MODEL = "claude-sonnet-4-20250514"
+    _HAIKU_MODEL = "claude-haiku-4-5-20251001"
+    _SYNTHESIZE_MODEL = "claude-sonnet-4-20250514"
+    _LLM_MAX_TOKENS = 16384                 # 所有 dispatch LLM 呼叫的 max_tokens
+
+    # Orchestrator
+    _ORCHESTRATOR_SKILL_CONTENT_LEN = 6000  # Orchestrator prompt 中 Skill 內容限制
+    _ORCHESTRATOR_MAX_TASKS = 5             # 最多解析的任務數
+
+    # 品質門檻
+    _DEFAULT_QUALITY_SCORE = 0.7            # 品質分數預設值
+    _QUALITY_GATE_THRESHOLD = 0.5           # 品質門檻：低於此值用 Sonnet 重試
+
+    # Skill 深度對應分數
+    _SKILL_DEPTH_SCORE_MAP = {
+        "deep": 1.0,        # full
+        "standard": 0.5,    # compact
+        "quick": 0.2,       # essence
+    }
+
+    # 截斷長度
+    _HANDOFF_CONTEXT_LEN = 600              # 交接上下文截斷
+    _HANDOFF_SUMMARY_LEN = 400             # 依賴任務摘要截斷
+    _WORKER_SUMMARY_LEN = 200              # Worker 摘要截斷
+    _WORKER_RESPONSE_DIGEST_LEN = 1500     # Worker 回覆在 synthesis 中的截斷
+
+    # Fallback
+    _SESSION_HISTORY_TRIM = 40             # Session 歷史超過此值截斷
+
+    # System leakage 過濾
+    _LEAKAGE_FILTER_RATIO = 0.2            # 過濾後低於原文此比例 → 回傳原文
+    _LEAKAGE_MIN_TEXT_LEN = 50             # 最小文本長度（避免誤殺短文）
+
     def _assess_dispatch(
         self,
         content: str,
@@ -42,7 +95,7 @@ class BrainDispatchMixin:
             s for s in matched_skills if not s.get("always_on")
         ]
 
-        if len(active_skills) < 2:
+        if len(active_skills) < self._MIN_ACTIVE_SKILLS_FOR_DISPATCH:
             return {"should_dispatch": False, "reason": "insufficient_skills"}
 
         # 使用者明確觸發
@@ -52,7 +105,7 @@ class BrainDispatchMixin:
         ]
         user_explicit = any(t in content for t in explicit_triggers)
 
-        if user_explicit and len(active_skills) >= 2:
+        if user_explicit and len(active_skills) >= self._MIN_ACTIVE_SKILLS_FOR_DISPATCH:
             if self._dispatch_budget_ok(active_skills):
                 return {
                     "should_dispatch": True,
@@ -60,11 +113,11 @@ class BrainDispatchMixin:
                 }
 
         # 3+ Skill + 至少一個大型 SKILL.md
-        if len(active_skills) >= 3:
+        if len(active_skills) >= self._LARGE_SKILL_SET_THRESHOLD:
             has_large = False
             for skill in active_skills:
                 skill_text = self.skill_router.load_skill_content(skill)
-                if len(skill_text) // 3 > 5000:
+                if len(skill_text) // self._TOKEN_ESTIMATE_DIVISOR > self._LARGE_SKILL_CONTENT_TOKENS:
                     has_large = True
                     break
             if has_large and self._dispatch_budget_ok(active_skills):
@@ -74,12 +127,12 @@ class BrainDispatchMixin:
                 }
 
         # 2 Skill 但合計 token 過高
-        if len(active_skills) >= 2:
+        if len(active_skills) >= self._MIN_ACTIVE_SKILLS_FOR_DISPATCH:
             total_est = sum(
-                len(self.skill_router.load_skill_content(s)) // 3
+                len(self.skill_router.load_skill_content(s)) // self._TOKEN_ESTIMATE_DIVISOR
                 for s in active_skills
             )
-            if total_est > 40000 and self._dispatch_budget_ok(active_skills):
+            if total_est > self._DISPATCH_TOKEN_OVERFLOW and self._dispatch_budget_ok(active_skills):
                 return {
                     "should_dispatch": True,
                     "reason": "token_overflow",
@@ -94,10 +147,10 @@ class BrainDispatchMixin:
         if not self.budget_monitor:
             return True
         # 粗估：orchestrator 3K + per-worker(base 1.5K + skill) + synthesis 4K
-        estimated = 7000
+        estimated = self._DISPATCH_BASE_BUDGET
         for skill in active_skills:
             skill_text = self.skill_router.load_skill_content(skill)
-            estimated += 1500 + len(skill_text) // 3
+            estimated += self._DISPATCH_PER_WORKER_BASE + len(skill_text) // self._TOKEN_ESTIMATE_DIVISOR
         return self.budget_monitor.check_budget(estimated)
 
     async def _dispatch_mode(
@@ -156,7 +209,7 @@ class BrainDispatchMixin:
                 user_request=content,
                 matched_skills=active_skills,
                 routing_signal=getattr(self, '_last_routing_signal', None),
-                max_tasks=5,
+                max_tasks=self._MAX_DETERMINISTIC_TASKS,
             )
             if det_tasks:
                 # 確定性路由成功，直接構建 TaskPackage
@@ -309,7 +362,7 @@ class BrainDispatchMixin:
             elif result.status == TaskStatus.COMPLETED:
                 handoff_context = result.result.get(
                     "summary", ""
-                )[:600]
+                )[:self._HANDOFF_CONTEXT_LEN]
 
     async def _dispatch_execute_parallel(
         self,
@@ -422,7 +475,7 @@ class BrainDispatchMixin:
                 )
             elif dep_result.status == TaskStatus.COMPLETED:
                 parts.append(
-                    dep_result.result.get("summary", "")[:400]
+                    dep_result.result.get("summary", "")[:self._HANDOFF_SUMMARY_LEN]
                 )
         return "\n---\n".join(parts) if parts else ""
 
@@ -467,10 +520,10 @@ class BrainDispatchMixin:
             )
 
         # Quality gate: self_score < 0.5 → retry with Sonnet
-        self_score = result.quality.get("self_score", 0.7)
+        self_score = result.quality.get("self_score", self._DEFAULT_QUALITY_SCORE)
         if (
             result.status == TaskStatus.COMPLETED
-            and self_score < 0.5
+            and self_score < self._QUALITY_GATE_THRESHOLD
             and task.model_preference != "sonnet"
         ):
             logger.warning(
@@ -489,7 +542,7 @@ class BrainDispatchMixin:
                     timeout=task.timeout_seconds,
                 )
                 retry_score = retry_result.quality.get(
-                    "self_score", 0.7,
+                    "self_score", self._DEFAULT_QUALITY_SCORE,
                 )
                 if retry_score >= self_score:
                     retry_result.meta["retried"] = True
@@ -547,7 +600,7 @@ class BrainDispatchMixin:
             "## 可用 Skill\n"
             f"{skill_roster}\n"
             "## 編排方法論\n"
-            f"{orchestrator_content[:6000]}\n\n"
+            f"{orchestrator_content[:self._ORCHESTRATOR_SKILL_CONTENT_LEN]}\n\n"
             "## 輸出格式\n"
             "你必須只回覆一個 JSON 陣列，每個元素代表一個子任務：\n"
             "```json\n"
@@ -575,8 +628,8 @@ class BrainDispatchMixin:
         response_text = await self._call_llm_with_model(
             system_prompt=system_prompt,
             messages=messages,
-            model="claude-sonnet-4-20250514",
-            max_tokens=16384,
+            model=self._ORCHESTRATOR_MODEL,
+            max_tokens=self._LLM_MAX_TOKENS,
         )
 
         # 解析 JSON（只驗證 worker_skills 名單，不含 workflow 類）
@@ -603,11 +656,11 @@ class BrainDispatchMixin:
                 skill_count=len(active_skills),
                 task_count=len(tasks),
                 success=bool(tasks),
-                model="claude-sonnet-4-20250514",
+                model=self._ORCHESTRATOR_MODEL,
                 response_length=len(response_text),
             )
-        except Exception:
-            pass  # EDGE: 診斷數據寫入失敗不影響主流程
+        except Exception as e:
+            logger.warning(f"Orchestrator 診斷數據寫入失敗（不影響主流程）: {e}")
 
         return plan
 
@@ -641,17 +694,15 @@ class BrainDispatchMixin:
                     layered = build_layered_content(
                         task.skill_name, full_content,
                     )
-                    depth_score = {
-                        "deep": 1.0,      # full
-                        "standard": 0.5,  # compact
-                        "quick": 0.2,     # essence
-                    }.get(task.skill_depth, 0.5)
+                    depth_score = self._SKILL_DEPTH_SCORE_MAP.get(
+                        task.skill_depth, 0.5,
+                    )
                     skill_content = select_layer(layered, depth_score)
                     # Fallback: 如果壓縮後為空，用 full
                     if not skill_content:
                         skill_content = full_content
-                except Exception:
-                    logger.debug("skill 內容壓縮失敗，使用完整版", exc_info=True)
+                except Exception as e:
+                    logger.warning(f"Skill 內容壓縮失敗（降級為完整版）: {e}")
                     skill_content = full_content
                 break
 
@@ -699,9 +750,9 @@ class BrainDispatchMixin:
         ]
 
         model = (
-            "claude-sonnet-4-20250514"
+            self._SONNET_MODEL
             if task.model_preference == "sonnet"
-            else "claude-haiku-4-5-20251001"
+            else self._HAIKU_MODEL
         )
 
         try:
@@ -709,7 +760,7 @@ class BrainDispatchMixin:
                 system_prompt=system_prompt,
                 messages=messages,
                 model=model,
-                max_tokens=16384,
+                max_tokens=self._LLM_MAX_TOKENS,
             )
 
             elapsed_ms = int(
@@ -720,7 +771,7 @@ class BrainDispatchMixin:
 
             handoff = HandoffPackage(
                 for_next_skill="",
-                compressed_context=response_text[:600],
+                compressed_context=response_text[:self._HANDOFF_CONTEXT_LEN],
                 action_items_for_next=[],
                 excluded_topics=[],
                 user_implicit_preferences=[],
@@ -736,7 +787,7 @@ class BrainDispatchMixin:
                 task_id=task.task_id,
                 status=TaskStatus.COMPLETED,
                 result={
-                    "summary": response_text[:200],
+                    "summary": response_text[:self._WORKER_SUMMARY_LEN],
                     "full_response": response_text,
                 },
                 quality=quality,
@@ -793,7 +844,7 @@ class BrainDispatchMixin:
             if result.status == TaskStatus.COMPLETED:
                 full_resp = result.result.get(
                     "full_response", ""
-                )[:1500]
+                )[:self._WORKER_RESPONSE_DIGEST_LEN]
                 score = result.quality.get("self_score", "N/A")
                 results_digest += (
                     f"\n### 分析 {i + 1}: {skill_name} "
@@ -840,8 +891,8 @@ class BrainDispatchMixin:
         final_text = await self._call_llm_with_model(
             system_prompt=system_prompt,
             messages=messages,
-            model="claude-sonnet-4-20250514",
-            max_tokens=16384,
+            model=self._SYNTHESIZE_MODEL,
+            max_tokens=self._LLM_MAX_TOKENS,
         )
 
         final_text = self._strip_system_leakage(final_text)
@@ -866,8 +917,8 @@ class BrainDispatchMixin:
         )
         history = self._get_session_history(session_id)
         history.append({"role": "user", "content": content})
-        if len(history) > 40:
-            history[:] = history[-40:]
+        if len(history) > self._SESSION_HISTORY_TRIM:
+            history[:] = history[-self._SESSION_HISTORY_TRIM:]
         response_text = await self._call_llm(
             system_prompt=system_prompt,
             messages=history,
@@ -920,7 +971,7 @@ class BrainDispatchMixin:
 
         valid_names = {s.get("name") for s in active_skills}
         tasks = []
-        for i, td in enumerate(tasks_data[:5]):
+        for i, td in enumerate(tasks_data[:self._ORCHESTRATOR_MAX_TASKS]):
             skill_name = td.get("skill_name", "")
             if skill_name not in valid_names:
                 logger.warning(
@@ -960,7 +1011,7 @@ class BrainDispatchMixin:
                 logger.debug(f"self-assessment JSON 解析失敗: {e}")
 
         return {
-            "self_score": 0.7,
+            "self_score": self._DEFAULT_QUALITY_SCORE,
             "confidence": 0.5,
             "limitations": "self-assessment not provided",
         }
@@ -1063,7 +1114,7 @@ class BrainDispatchMixin:
         result = '\n'.join(cleaned).strip()
 
         # 如果過濾掉太多（超過 80%），回傳原文（避免誤殺）
-        if len(result) < len(text) * 0.2 and len(text) > 50:
+        if len(result) < len(text) * self._LEAKAGE_FILTER_RATIO and len(text) > self._LEAKAGE_MIN_TEXT_LEN:
             result = text.strip()
 
         # ── 最終清理：移除不應出現在對外回覆中的系統術語 ──
