@@ -317,6 +317,19 @@ class MuseonBrain:
             logger.warning(f"CrystalActuator 載入失敗（降級運行）: {e}")
             self.crystal_actuator = None
 
+        # Recommender（知識推薦引擎——依賴 KnowledgeLattice._store）
+        self._recommender = None
+        try:
+            from museon.agent.recommender import Recommender
+            _cs = self.knowledge_lattice._store if self.knowledge_lattice else None
+            self._recommender = Recommender(
+                workspace=self.data_dir,
+                event_bus=self._event_bus,
+                crystal_store=_cs,
+            )
+        except Exception as e:
+            logger.warning(f"Recommender 載入失敗（降級運行）: {e}")
+
         # LLM Adapter（工廠函數模式）
         try:
             from museon.llm.adapters import create_adapter_sync
@@ -429,7 +442,8 @@ class MuseonBrain:
             f"tool_muscle: {'ON' if self._tool_muscle else 'OFF'} | "
             f"footprint: {'ON' if self._footprint else 'OFF'} | "
             f"trigger_engine: {'ON' if self._trigger_engine else 'OFF'} | "
-            f"registry: {'ON' if self._registry_manager else 'OFF'}"
+            f"registry: {'ON' if self._registry_manager else 'OFF'} | "
+            f"recommender: {'ON' if self._recommender else 'OFF'}"
         )
 
     # ─── Phase 3a: Governor 治理層連接 ───

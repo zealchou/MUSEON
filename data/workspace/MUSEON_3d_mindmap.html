@@ -299,7 +299,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 //  SYNC META — 拓撲同步狀態
 // ═══════════════════════════════════════
 const SYNC_META = {
-  topologyVersion: 'v1.31',
+  topologyVersion: 'v1.32',
   syncDate: '2026-03-22',
   nodeCount: 0, // auto-calculated below
   linkCount: 0, // auto-calculated below
@@ -402,7 +402,7 @@ const nodes = [
   {id:"persona-router",label:"Persona Router",zh:"人格路由 + 百合引擎決策",group:"agent",r:1.1,p:"brain"},
   {id:"plan-engine",label:"Plan Engine",zh:"六階段計畫",group:"agent",r:1.0,p:"brain"},
   {id:"primal-detector",label:"Primal Detector",zh:"八原語偵測",group:"agent",r:1.0,p:"brain"},
-  {id:"recommender",label:"Recommender",zh:"知識推薦引擎",group:"agent",r:0.7,p:"brain"},
+  {id:"recommender",label:"Recommender",zh:"知識推薦引擎（CrystalStore 結晶推薦）",group:"agent",r:0.9,p:"brain"},
   {id:"reflex-router",label:"Reflex Router",zh:"反射路由",group:"agent",r:1.0,p:"brain"},
   {id:"response-synthesizer",label:"Response Synthesizer",zh:"DNA 交叉重組合成",group:"agent",r:0.8,p:"brain"},
   {id:"roundtable",label:"Roundtable",zh:"圓桌詰問引擎（多角色交叉詰問 + 仲裁）",group:"agent",r:1.0,p:"brain"},
@@ -561,7 +561,7 @@ const nodes = [
 const links = [
   // ── decay ──
   {source:"dendritic-scorer",target:"pulse-db",label:"health_scores 表",type:"decay"},
-  {source:"knowledge-lattice",target:"crystal-actuator",label:"`crystal.db`",type:"decay"},
+  {source:"knowledge-lattice",target:"crystal-actuator",label:"`crystal.db` (via CrystalStore)",type:"decay"},
   {source:"memory",target:"vector-index",label:"Qdrant memories",type:"decay"},
   {source:"nightly",target:"skill-synapse",label:"synapses.json",type:"decay"},
   {source:"recommender",target:"knowledge-lattice",label:"推薦排序",type:"decay"},
@@ -639,7 +639,6 @@ const links = [
   {source:"doctor",target:"health-check",label:"檢查",type:"internal"},
   {source:"doctor",target:"log-analyzer",label:"日誌",type:"internal"},
   {source:"doctor",target:"memory-reset",label:"重置",type:"internal"},
-  {source:"memory-reset",target:"crystal-store",label:"一鍵重置",type:"cross"},
   {source:"doctor",target:"observatory",label:"認知儀表板",type:"internal"},
   {source:"doctor",target:"self-diagnosis",label:"診斷",type:"internal"},
   {source:"doctor",target:"surgery",label:"手術",type:"internal"},
@@ -771,7 +770,7 @@ const links = [
   {source:"brain",target:"memory",label:"四通道持久化",type:"cross"},
   {source:"commitment-tracker",target:"brain",label:"承諾自檢",type:"cross"},
   {source:"commitment-tracker",target:"registry",label:"承諾記錄",type:"cross"},
-  {source:"crystal-actuator",target:"crystal-store",label:"結晶降級/升級",type:"cross"},
+  {source:"crystal-actuator",target:"crystal-store",label:"結晶降級/升級（經由 CrystalStore API）",type:"cross"},
   {source:"crystal-actuator",target:"knowledge-lattice",label:"結晶操作",type:"cross"},
   {source:"curiosity-router",target:"pulse",label:"探索主題",type:"cross"},
   {source:"data-bus",target:"diary-store",label:"Store 路由",type:"cross"},
@@ -819,6 +818,7 @@ const links = [
   {source:"investment-masters",target:"risk-matrix",label:"風險管理",type:"cross"},
   {source:"investment-masters",target:"sentiment-radar",label:"情緒雷達",type:"cross"},
   {source:"investment-masters",target:"skill-router",label:"DNA27 RC 親和觸發",type:"cross"},
+  {source:"knowledge-lattice",target:"crystal-store",label:"結晶讀寫（經由 CrystalStore API）",type:"cross"},
   {source:"knowledge-lattice",target:"skills-business-hub",label:"記憶接收（商業）",type:"cross"},
   {source:"knowledge-lattice",target:"skills-creative-hub",label:"記憶接收（創意）",type:"cross"},
   {source:"knowledge-lattice",target:"skills-evolution-hub",label:"記憶接收（演化）",type:"cross"},
@@ -826,13 +826,13 @@ const links = [
   {source:"knowledge-lattice",target:"skills-product-hub",label:"記憶接收（產品）",type:"cross"},
   {source:"knowledge-lattice",target:"skills-thinking-hub",label:"記憶接收（思維）",type:"cross"},
   {source:"knowledge-lattice",target:"skills-workflow-hub",label:"記憶接收（工作流）",type:"cross"},
-  {source:"knowledge-lattice",target:"crystal-store",label:"結晶讀寫",type:"cross"},
   {source:"knowledge-lattice",target:"vector-index",label:"結晶存取",type:"cross"},
   {source:"llm-router",target:"anthropic-api",label:"API 呼叫",type:"cross"},
   {source:"lord-profile",target:"persona-router",label:"百合引擎讀取領域畫像（Phase 1）",type:"cross"},
   {source:"mcp-server",target:"brain",label:"ANIMA 狀態查詢",type:"cross"},
   {source:"memory",target:"registry",label:"持久化儲存",type:"cross"},
   {source:"memory",target:"vector-index",label:"嵌入索引",type:"cross"},
+  {source:"memory-reset",target:"crystal-store",label:"一鍵重置（DELETE FROM 三表）",type:"cross"},
   {source:"metacognition",target:"llm-router",label:"Haiku 審查",type:"cross"},
   {source:"metacognition",target:"pulse-db",label:"DNA 品質旗標寫入（METACOGNITION_QUALITY_FLAG）",type:"cross"},
   {source:"morphenix",target:"env-radar",label:"環境掃描",type:"cross"},
@@ -840,11 +840,11 @@ const links = [
   {source:"morphenix",target:"qa-auditor",label:"品質審計",type:"cross"},
   {source:"nightly",target:"blueprint-reader",label:"Step 30 藍圖一致性驗證",type:"cross"},
   {source:"nightly",target:"budget-mgr",label:"預算結算",type:"cross"},
+  {source:"nightly",target:"crystal-store",label:"結晶統計（經由 CrystalStore API）",type:"cross"},
   {source:"nightly",target:"data-watchdog",label:"Step 29 健康檢查",type:"cross"},
   {source:"nightly",target:"diary-store",label:"每日日記生成",type:"cross"},
   {source:"nightly",target:"evolution-velocity",label:"夜間速度計算",type:"cross"},
   {source:"nightly",target:"immunity",label:"抗體修剪",type:"cross"},
-  {source:"nightly",target:"crystal-store",label:"結晶統計",type:"cross"},
   {source:"nightly",target:"knowledge-lattice",label:"結晶固化",type:"cross"},
   {source:"nightly",target:"memory",label:"記憶壓縮",type:"cross"},
   {source:"nightly",target:"parameter-tuner",label:"夜間參數調諧",type:"cross"},
@@ -864,6 +864,7 @@ const links = [
   {source:"primal-detector",target:"skill-router",label:"原語加分",type:"cross"},
   {source:"primal-detector",target:"vector-index",label:"八原語語義匹配",type:"cross"},
   {source:"pulse-db",target:"registry",label:"脈搏記錄",type:"cross"},
+  {source:"recommender",target:"crystal-store",label:"結晶讀取（load_crystals_raw + load_links）",type:"cross"},
   {source:"recommender",target:"knowledge-lattice",label:"近因性衰減 7d + 互動衰減 λ=0.95",type:"cross"},
   {source:"research-engine",target:"digest-engine",label:"消化結果",type:"cross"},
   {source:"response-synthesizer",target:"multi-agent-executor",label:"DNA 交叉重組（片段評分合成）",type:"cross"},
@@ -910,6 +911,7 @@ const links = [
   {source:"telegram",target:"brain",label:"推送寫入 session",type:"async"},
   {source:"telegram",target:"user",label:"回傳回應",type:"async"},
 ];
+
 
 
 

@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.31
+# MUSEON 系統拓撲圖 v1.32
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.32 (2026-03-22)**：Recommender 激活修復——`recommender` 節點半徑 0.7→0.9（從幽靈模組升級為實際接線）；新增 cross 連線 `recommender → crystal-store`（經由 CrystalStore API 讀取結晶+連結）；brain.py `_recommender` 初始化接線確認；169 節點 350 連線
 > **v1.31 (2026-03-22)**：Knowledge Lattice 持久層遷移——data 群組新增 `crystal-store` 節點（CrystalStore SQLite WAL 統一存取層）+ 7 條連線
 > **v1.30 (2026-03-21)**：授權系統升級——gov 群組新增 `authorization` 節點（配對碼+工具授權+分級策略）+ 5 條連線；持久化 `~/.museon/auth/`
 > **v1.29 (2026-03-21)**：Skills 群組治理升級——新增 `hub` 欄位（9 種 Hub 分組）+ Workflow Stage 規格；詳見 `docs/skill-routing-governance.md`
@@ -91,7 +92,7 @@
 | `okr-router` | OKR Router | 八卦路由 | - | brain | 0.9 |
 | `fact-correction` | Fact Correction | 事實覆寫引擎 | - | brain | 0.9 |
 | `dendritic-fusion` | Dendritic Fusion | P3 並行融合引擎（MetaCog+Eval+Health） | - | brain | 1.1 |
-| `recommender` | Recommender | 知識推薦引擎 | - | brain | 0.7 |
+| `recommender` | Recommender | 知識推薦引擎（CrystalStore 結晶推薦） | - | brain | 0.9 |
 
 ### pulse — Pulse 生命力
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -536,6 +537,7 @@
 | `eval-engine` | `registry` | Q-Score 存取 |
 | `dendritic-fusion` | `dendritic-scorer` | P3 並行融合讀取健康分數 |
 | `recommender` | `knowledge-lattice` | 近因性衰減 7d + 互動衰減 λ=0.95 |
+| `recommender` | `crystal-store` | 結晶讀取（load_crystals_raw + load_links） |
 | `diary-store` | `memory` | 日記寫入 |
 | `brain` | `llm-router` | 生成回應 |
 | `brain` | `memory` | 四通道持久化 |
@@ -815,10 +817,10 @@
 | 指標 | 數值 |
 |------|------|
 | 總節點數 | 169 (123 系統 + 46 Skills) |
-| 總連線數 | 349 (258 系統 + 91 Skills) |
+| 總連線數 | 350 (259 系統 + 91 Skills) |
 | 群組數 | 14 (含 skills) |
 | Hub 節點 | 18 (11 系統 + 7 Skills Hub) |
-| 跨系統連線 | 111 (81 系統 + 30 Skills cross) |
+| 跨系統連線 | 112 (82 系統 + 30 Skills cross) |
 | 內部連線 | 172 (118 系統 + 54 Skills internal) |
 | 非同步連線 | 5 |
 | 監控連線 | 5 |
@@ -833,6 +835,7 @@
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.32 | 2026-03-22 | Recommender 激活修復：`recommender` 節點半徑 0.7→0.9（幽靈模組→實際接線）；新增 1 條 cross 連線（recommender→crystal-store 結晶讀取）；brain.py `_recommender` 初始化；server.py API 改用常駐實例；169 節點 350 連線 |
 | v1.31 | 2026-03-22 | Knowledge Lattice 持久層遷移：data 群組新增 `crystal-store` 節點（CrystalStore SQLite WAL 統一存取層，+1 節點）；新增 8 條連線——internal: data-bus→crystal-store Store 路由（+1）；cross: knowledge-lattice→crystal-store 結晶讀寫、crystal-actuator→crystal-store 結晶降級升級、nightly→crystal-store 結晶統計、evolution-velocity→crystal-store 結晶數量統計、guardian→crystal-store 結晶健康檢查、memory-reset→crystal-store 一鍵重置（+6）；decay: knowledge-lattice→crystal-actuator 描述更新 crystals.json→crystal.db（+0）；舊 JSON 檔案歸檔為 .bak；同步 persistence-contract v1.26、blast-radius v1.41、joint-map v1.29；169 節點 349 連線 |
 | v1.30 | 2026-03-21 | 授權系統升級：gov 群組新增 `authorization` 節點（配對碼+工具授權+分級策略）；新增 5 條連線——internal: governance→authorization 授權引擎、authorization→security 三級策略查詢（+2）；cross: authorization→telegram 配對碼推送+inline keyboard、authorization→gateway 訊息泵授權回覆、authorization→mcp-server auth_status 查詢（+3）；持久化 `~/.museon/auth/`（allowlist.json + policy.json）；168 節點 341 連線 |
 | v1.29 | 2026-03-21 | Skills 群組治理升級：新增 `hub` 欄位（9 種 Hub 分組：core/infra/thinking/market/business/creative/product/evolution/workflow）至 49 個 Skill Manifest；新增 Workflow Stage 結構化 YAML（3 個 workflow 含 stages + speed_paths）；新增治理文件 `skill-routing-governance.md`；plugin-registry v2.4（Hub 架構樹）；validate_connections.py v1.1（+2 驗證規則）；167 節點 336 連線（不變） |
