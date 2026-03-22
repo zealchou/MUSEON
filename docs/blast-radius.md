@@ -1,10 +1,11 @@
-# Blast Radius — 模組影響半徑表 v1.49
+# Blast Radius — 模組影響半徑表 v1.50
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節
+> **v1.50 (2026-03-22)**：Brain Tools 健康檢查——`agent/brain_tools.py` 常數化 8 個魔術值（_MAX_TOKENS_PRIMARY/DISPATCH/HEALTH_PROBE、_MAX_TOOL_ITERATIONS_COMPLEX/SIMPLE、_TOOL_RESULT_TRUNCATE_LEN、_COMPLEX_KEYWORDS、_OFFLINE_PROBE_INTERVAL）收斂到類別頂部；`nightly/nightly_pipeline.py` Step 27 擴充按日期 JSONL 清理（cache_log_*/routing_log_* 保留 30 天超齡刪除）；新增 `tests/unit/test_brain_tools.py`（16 個測試涵蓋常數/LLM 呼叫/離線/Session）；system-topology v1.40 補齊 brain-tools→anthropic-api + brain-tools→data-bus 2 條遺漏連線。扇入扇出不變、無新增 import。
 > **v1.49 (2026-03-22)**：Zeal 節點健康檢查修復——`gateway/authorization.py` PairingManager.load() + AuthorizationPolicy.load() 首次載入時自動初始化空檔案（allowlist.json / policy.json），解決重啟後配對使用者遺忘問題；system-topology.md v1.39 補齊 3 條遺漏連線（zeal/verified-user/external-user → anima-mc-store）。扇入扇出不變、無新增 import。
 > **v1.48 (2026-03-22)**：DeterministicRouter 三項外部化——`agent/deterministic_router.py` 移除 `_CATEGORY_PRIORITY`（27 個 Skill 硬編碼）和 `force_sonnet`（5 個 Skill 硬編碼），改為：(1) 優先級由 Skill Manifest 的 `hub` 欄位透過 `_HUB_PRIORITY` 映射表驅動（9 個 Hub → 8 級優先級），新增 Skill 時無需改源碼；(2) `model_preference` 由 Manifest 欄位驅動，5 個 Skill SKILL.md 新增 `model_preference: sonnet`；(3) `depends_on` 由 `io.inputs[].from` 推導任務間依賴。`agent/skill_router.py` `_extract_metadata` 新增提取 `model_preference` + `io_inputs` 欄位，新增 `_extract_io_inputs()` 靜態方法。扇入扇出不變、無新增 import 路徑。
 > **v1.48 (2026-03-22)**：L3-A2 Brain Mixin 拆分——brain.py 從 9164 行拆分為核心（2575 行）+ 5 個 Mixin：`brain_prompt_builder.py`（1668 行，system prompt 建構）、`brain_dispatch.py`（1082 行，任務分派）、`brain_observation.py`（2003 行，觀察與演化）、`brain_p3_fusion.py`（948 行，P3 策略融合與決策層）、`brain_tools.py`（966 行，LLM 呼叫與 session 管理）。新增 `brain_types.py`（共享 dataclass：DecisionSignal、P3FusionSignal）。實作方式為 Python Mixin Pattern（多重繼承），`server.py` 的 `from museon.agent.brain import MuseonBrain` 不變。brain.py 扇入扇出不變、外部 API 不變。更新 `test_brain_observe_scope.py` 支援 Mixin 檔案 AST 掃描。
