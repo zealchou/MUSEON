@@ -1,10 +1,11 @@
-# Blast Radius — 模組影響半徑表 v1.41
+# Blast Radius — 模組影響半徑表 v1.42
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節
+> **v1.42 (2026-03-22)**：Workflow Hub 健康檢查——P0: 清除「案例結晶」幽靈殘留（Qdrant skills 1 筆、synapses.json 8 筆、PulseDB metacognition 3 筆），Business Hub 修復漏清下游資料池的根因補完；P0b: `evolution/skill_synapse.py` co_fire() 新增 Skill 名稱合法性驗證（regex `^[a-z][a-z0-9\-]{0,60}$`），防止非法名稱建立突觸；P1: `agent/brain.py` `_dispatch_orchestrate` 排除 `type: workflow` 的 Skill 不注入 Orchestrator skill_roster（Workflow 是編排範本非 Worker 候選），`_parse_orchestrator_response` 改用 worker_skills 驗證；P2: `agent/metacognition.py` `_emit_quality_flag` 新增 `_WORKFLOW_SKILL_NAMES` 白名單，過濾 workflow 類 Skill 不計入品質旗標，missing_action 類別且全為 workflow 時跳過發布；扇入扇出不變、無新增 import/共享狀態
 > **v1.40 (2026-03-22)**：Business Hub 健康檢查——skill_router.py `_extract_metadata` YAML 解析修復：只匹配頂層（未縮排）`name:`/`description:`/`type:` 欄位，防止 workflow stages 的巢狀 `name:` 覆蓋頂層 Skill 名稱（幽靈 Skill `"案例結晶"` 根因）；同時剝除 YAML 引號防止 literal quote 汙染；清理 synapses.json 3 筆幽靈條目；consultant-communication memory.writes 補齊 target/type/condition 結構；扇入不變（2）、無新增 import
 > **v1.39 (2026-03-22)**：Thinking Hub 健康檢查——brain.py `_dispatch_orchestrate` Orchestrator system prompt 移除硬編碼 Skill 名稱範例（`resonance`），Rule 4 強化約束防止 LLM 幻覺引用 roster 外 Skill；shadow SKILL.md `layer: business` → `layer: thinking` 修正欄位漂移；純 prompt 文字修改，扇入扇出不變、無新增 import/共享狀態
 > **v1.36 (2026-03-21)**：Evolution Hub 健康檢查修復——outward_trigger `_ensure_state_files()` 初始化 + tantra 孤立輸出修復 + morphenix/proposals 目錄補建

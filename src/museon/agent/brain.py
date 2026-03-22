@@ -5809,8 +5809,13 @@ class MuseonBrain:
                 break
 
         # Skill 名單（summary + token 估算）
+        # 排除 workflow 類 Skill：它們是編排範本，不是可被 Worker 執行的子任務
         skill_roster = ""
+        worker_skills = []
         for skill in active_skills:
+            if skill.get("type") == "workflow":
+                continue
+            worker_skills.append(skill)
             name = skill.get("name", "unknown")
             desc = skill.get("description", "")
             skill_text = self.skill_router.load_skill_content(skill)
@@ -5857,9 +5862,9 @@ class MuseonBrain:
             max_tokens=16384,
         )
 
-        # 解析 JSON
+        # 解析 JSON（只驗證 worker_skills 名單，不含 workflow 類）
         tasks = self._parse_orchestrator_response(
-            response_text, active_skills, plan.plan_id,
+            response_text, worker_skills or active_skills, plan.plan_id,
         )
         plan.tasks = tasks
         plan.status = (

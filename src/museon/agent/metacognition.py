@@ -376,6 +376,15 @@ class MetaCognitionEngine:
             "review_time_ms": elapsed_ms,
         }
 
+    # Workflow 類 Skill 名稱：這些是編排範本而非執行單元，
+    # missing_action 品質旗標不適用（它們不產生可觀測 action 是正常的）
+    _WORKFLOW_SKILL_NAMES = frozenset({
+        "workflow-svc-brand-marketing",
+        "workflow-investment-analysis",
+        "workflow-ai-deployment",
+        "group-meeting-notes",
+    })
+
     def _emit_quality_flag(
         self,
         feedback: str,
@@ -394,17 +403,29 @@ class MetaCognitionEngine:
                 get_event_bus,
             )
             category = self._classify_quality_category(feedback)
+
+            # 過濾 workflow 類 Skill：它們是編排範本，missing_action 不適用
+            effective_skills = [
+                s for s in (matched_skills or [])
+                if s not in self._WORKFLOW_SKILL_NAMES
+            ]
+
+            # 如果過濾後無 Skill，且品質類別是 missing_action → 跳過發布
+            if not effective_skills and category == "missing_action":
+                logger.debug("[MetaCog] Quality flag suppressed: all skills are workflow type")
+                return
+
             get_event_bus().publish(METACOGNITION_QUALITY_FLAG, {
                 "source": "metacognition",
                 "category": category,
                 "feedback": feedback[:300],
-                "skills_involved": list(matched_skills) if matched_skills else [],
+                "skills_involved": effective_skills,
                 "user_query_snippet": user_query[:100],
                 "timestamp": datetime.now(TZ8).isoformat(),
             })
             logger.info(
                 f"[MetaCog] Quality flag emitted: category={category}, "
-                f"skills={matched_skills}"
+                f"skills={effective_skills}"
             )
         except Exception as e:
             logger.debug(f"[MetaCog] quality flag emit failed (degraded): {e}")
