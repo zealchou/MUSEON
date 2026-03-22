@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.36
+# MUSEON 系統拓撲圖 v1.37
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.37 (2026-03-22)**：Brain 三層治療——agent 群組新增 `chat-context`（ChatContext dataclass，r=0.7）、`deterministic-router`（確定性任務分解器，r=1.0）2 個節點；新增 2 條 internal 連線（brain→chat-context、brain→deterministic-router）；178 節點 373 連線
 > **v1.36 (2026-03-22)**：使用者節點精細化——channel 群組 `user` 拆分為 `zeal`（CORE 主人）、`verified-user`（VERIFIED 動態配對）、`external-user`（EXTERNAL 群組外部成員）三節點；補上遺漏的 `discord` 節點；新增/更新 8 條 flow 連線反映實際使用者分流；175 節點 369 連線
 > **v1.35 (2026-03-22)**：P0-P3 升級——Evolution Hub 新增 2 個 Skill 節點（system-health-check、decision-tracker）；新增 5 條跨群組連線（report-forge→knowledge-lattice、system-health-check→knowledge-lattice/morphenix、decision-tracker→knowledge-lattice/user-model）；173 節點 361 連線
 > **v1.34 (2026-03-22)**：經驗諮詢閘門——新增 1 條 cross 連線 `brain → data-bus`（經驗回放搜尋 activity_log.search()）；171 節點 351 連線
@@ -126,6 +127,8 @@ external-user（EXTERNAL）
 | `okr-router` | OKR Router | 八卦路由 | - | brain | 0.9 |
 | `fact-correction` | Fact Correction | 事實覆寫引擎 | - | brain | 0.9 |
 | `dendritic-fusion` | Dendritic Fusion | P3 並行融合引擎（MetaCog+Eval+Health） | - | brain | 1.1 |
+| `chat-context` | Chat Context | ChatContext dataclass（輕量對話上下文資料結構） | - | brain | 0.7 |
+| `deterministic-router` | Deterministic Router | 確定性任務分解器（取代 LLM Orchestrator） | - | brain | 1.0 |
 | `recommender` | Recommender | 知識推薦引擎（CrystalStore 結晶推薦） | - | brain | 0.9 |
 
 ### pulse — Pulse 生命力
@@ -430,6 +433,8 @@ external-user（EXTERNAL）
 | `brain` | `fact-correction` | 事實更正偵測+覆寫 |
 | `brain` | `dendritic-fusion` | P3 前置融合（Step 5.5）+ 並行融合（Step 6.2-6.5） |
 | `brain` | `recommender` | 知識推薦引擎 |
+| `brain` | `chat-context` | 對話上下文封裝 |
+| `brain` | `deterministic-router` | 確定性任務分解（取代 LLM Orchestrator） |
 | `dendritic-fusion` | `metacognition` | 並行預認知審查 |
 | `dendritic-fusion` | `eval-engine` | 並行品質評分 |
 | `multi-agent-executor` | `llm-router` | 多部門 API 呼叫 |
@@ -875,12 +880,12 @@ external-user（EXTERNAL）
 
 | 指標 | 數值 |
 |------|------|
-| 總節點數 | 176 (126 系統 + 50 Skills) |
-| 總連線數 | 369 (266 系統 + 103 Skills) |
+| 總節點數 | 178 (128 系統 + 50 Skills) |
+| 總連線數 | 373 (270 系統 + 103 Skills) |
 | 群組數 | 14 (含 skills) |
 | Hub 節點 | 18 (11 系統 + 7 Skills Hub) |
 | 跨系統連線 | 118 (83 系統 + 35 Skills cross) |
-| 內部連線 | 177 (118 系統 + 59 Skills internal) |
+| 內部連線 | 179 (120 系統 + 59 Skills internal) |
 | 非同步連線 | 7 |
 | 監控連線 | 5 |
 | 控制連線 | 16 (9 系統 + 7 Skills control) |
@@ -894,6 +899,7 @@ external-user（EXTERNAL）
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.37 | 2026-03-22 | Brain 三層治療：agent 群組新增 `chat-context`（ChatContext dataclass 輕量對話上下文，r=0.7）、`deterministic-router`（確定性任務分解器取代 LLM Orchestrator，r=1.0）2 個節點（+2）；新增 2 條 internal 連線（brain→chat-context 對話上下文封裝、brain→deterministic-router 確定性任務分解）；同步 persistence-contract v1.29（PulseDB 新增 orchestrator_calls 表）、joint-map v1.34（#35 orchestrator_calls）；178 節點 373 連線 |
 | v1.36 | 2026-03-22 | 使用者節點精細化：channel 群組 `user` 拆分為 `zeal`（CORE 主人，r=2.0）、`verified-user`（VERIFIED 動態配對，r=1.2）、`external-user`（EXTERNAL 群組外部成員，r=1.4）三節點（+2 淨增，user→3）；補上遺漏的 `discord` 節點（r=1.2，+1）；flow 連線從 2 條（user→telegram/line）更新為 6 條（zeal→telegram/line、verified-user→telegram、external-user→telegram/line/discord）+ discord→gateway 1 條；async 連線新增 telegram→external-user、line→zeal 2 條；176 節點 369 連線 |
 | v1.35 | 2026-03-22 | P0-P3 升級：Evolution Hub 新增 2 個 Skill 節點（system-health-check 系統健康自檢引擎、decision-tracker 決策歷史追蹤引擎）+ 2 條 internal 連線；新增 5 條 cross 連線（report-forge→knowledge-lattice 報告洞見結晶化、system-health-check→knowledge-lattice 健康結晶化、system-health-check→morphenix 修復提案、decision-tracker→knowledge-lattice 決策結晶化、decision-tracker→user-model 決策偏好）；173 節點 363 連線 |
 | v1.34 | 2026-03-22 | 經驗諮詢閘門：新增 1 條 cross 連線 `brain → data-bus`（經驗回放搜尋 activity_log.search()）；無新增節點；171 節點 351 連線 |

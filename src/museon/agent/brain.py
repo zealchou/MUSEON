@@ -510,25 +510,24 @@ class MuseonBrain:
         Returns:
             BrainResponse（text + artifacts）或 str（向後相容降級）
         """
-        # v9.0: 初始化本次互動的 artifact 收集器
-        self._pending_artifacts = []
+        # L2-S1: ChatContext 顯式上下文物件（取代 self._* per-turn 變數）
+        from museon.agent.chat_context import ChatContext
+        self._ctx = ChatContext.from_chat_args(
+            metadata=metadata,
+            source=source,
+            session_id=session_id,
+            user_id=user_id,
+        )
 
-        # ── Group context flag ──
-        self._is_group_session = bool(metadata and metadata.get("is_group"))
-        self._group_sender = (metadata or {}).get("sender_name", "")
-        self._current_metadata = metadata  # v3.0: 保存 metadata 供 chat_scope 使用
+        # ── 向後相容 alias（逐步遷移後移除）──
+        self._pending_artifacts = self._ctx.pending_artifacts
+        self._is_group_session = self._ctx.is_group_session
+        self._group_sender = self._ctx.group_sender
+        self._current_metadata = self._ctx.metadata
+        self._skillhub_mode = self._ctx.skillhub_mode
+        self._current_source = self._ctx.current_source
 
-        # ── SkillHub: skill_builder / workflow_executor 模式偵測 ──
-        self._skillhub_mode = None
-        if source == "dashboard" and session_id.startswith("dashboard_skill_builder"):
-            self._skillhub_mode = "skill_builder"
-        elif source == "workflow_executor":
-            self._skillhub_mode = "workflow_executor"
-
-        # ── v11.3: 環境感知 — 記錄來源 + 自我修改偵測 ──
-        self._current_source = source
-
-        self._self_modification_detected = False
+        self._self_modification_detected = self._ctx.self_modification_detected
         _mod_keywords = {
             "修改程式", "改 brain", "改 server", "fix bug", "修 bug",
             "重構", "refactor", "改程式碼", "修改 src", "改 src", "迭代",
@@ -1061,7 +1060,7 @@ class MuseonBrain:
                     locals().get("_baihe_decision"), "quadrant", None
                 ),
             )
-            if root_cause_hint:
+            if root_cause_hint and root_cause_hint.strip():
                 logger.info(f"[RootCause] 偵測到重複模式: {root_cause_hint[:100]}")
         except Exception as e:
             logger.debug(f"Step 3.66 根因偵測降級: {e}")
@@ -3439,8 +3438,12 @@ class MuseonBrain:
                 )
                 if memory_text:
                     sections.append(memory_text)
+            except (OSError, ConnectionError, TimeoutError) as e:
+                # OPTIONAL: 外部依賴失敗（記憶召回、Qdrant 連線等），降級運行
+                logger.warning(f"Memory inject 失敗（外部依賴）: {e}")
             except Exception as e:
-                logger.warning(f"Memory inject 失敗: {e}")
+                # CORE: 程式碼 Bug（NameError 等），必須記錄完整 traceback
+                logger.error(f"Memory inject 異常（可能是程式碼 Bug）: {e}", exc_info=True)
 
         # ── Zone: memory — 知識結晶三層注入（演化核心）──
         # Layer 1: 動態 max_push（由 RoutingSignal 決定：5/10/30）
@@ -3621,8 +3624,8 @@ class MuseonBrain:
         # Recall from memory_manager
         # v3.0: 群組對話時只搜該群組記憶，私聊搜全域
         _recall_scope = ""
-        if self._is_group_session and metadata:
-            _gid = metadata.get("group_id", "")
+        if self._is_group_session and self._current_metadata:
+            _gid = self._current_metadata.get("group_id", "")
             if _gid:
                 _recall_scope = f"group:{_gid}"
         try:
@@ -5914,10 +5917,39 @@ class MuseonBrain:
         )
 
         try:
-            # Phase 1: Orchestrate — 分解子任務
-            plan = await self._dispatch_orchestrate(
-                plan, active_skills, anima_mc,
+            # Phase 1: Orchestrate — L3-A1 確定性路由優先，LLM fallback
+            from museon.agent.deterministic_router import decompose as det_decompose
+            det_tasks = det_decompose(
+                user_request=content,
+                matched_skills=active_skills,
+                routing_signal=getattr(self, '_last_routing_signal', None),
+                max_tasks=5,
             )
+            if det_tasks:
+                # 確定性路由成功，直接構建 TaskPackage
+                from museon.agent.dispatch import TaskPackage
+                plan.tasks = [
+                    TaskPackage(
+                        task_id=f"{plan.plan_id}_task_{t['execution_order']:02d}",
+                        skill_name=t["skill_name"],
+                        skill_focus=t["skill_focus"],
+                        skill_depth=t["skill_depth"],
+                        expected_output=t["expected_output"],
+                        execution_order=t["execution_order"],
+                        depends_on=t.get("depends_on", []),
+                        model_preference=t.get("model_preference", "haiku"),
+                    )
+                    for t in det_tasks
+                ]
+                plan.status = DispatchStatus.EXECUTING
+                logger.info(
+                    f"[DeterministicRouter] 直接路由: {len(plan.tasks)} tasks"
+                )
+            else:
+                # 確定性路由無結果，fallback 到 LLM Orchestrator
+                plan = await self._dispatch_orchestrate(
+                    plan, active_skills, anima_mc,
+                )
             persist_dispatch_plan(plan, self.data_dir)
 
             if not plan.tasks:
@@ -6302,6 +6334,7 @@ class MuseonBrain:
             "3. 預設用 haiku，只有需要深度推理的用 sonnet\n"
             "4. skill_name 只能使用上方「可用 Skill」清單中出現的確切名稱，禁止引用清單外的任何 Skill\n"
             "5. 只回覆 JSON，不要其他文字\n"
+            "\n⚠️ 你的回覆必須以 [ 開頭，以 ] 結尾。除了 JSON 陣列本身，不要包含任何其他文字。\n"
         )
 
         messages = [{"role": "user", "content": plan.user_request}]
@@ -6327,6 +6360,22 @@ class MuseonBrain:
             f"Orchestrator decomposed: {len(tasks)} tasks from "
             f"{len(active_skills)} skills"
         )
+
+        # L2-S3: 診斷數據收集
+        try:
+            from museon.pulse.pulse_db import get_pulse_db
+            _pdb = get_pulse_db(Path(self.data_dir))
+            _pdb.log_orchestrator_call(
+                plan_id=plan.plan_id,
+                skill_count=len(active_skills),
+                task_count=len(tasks),
+                success=bool(tasks),
+                model="claude-sonnet-4-20250514",
+                response_length=len(response_text),
+            )
+        except Exception:
+            pass  # EDGE: 診斷數據寫入失敗不影響主流程
+
         return plan
 
     async def _dispatch_worker(
@@ -6606,11 +6655,28 @@ class MuseonBrain:
         import re
         from museon.agent.dispatch import TaskPackage
 
-        json_match = re.search(r'\[[\s\S]*\]', response_text)
+        # L1-2: 清理 markdown code fences（LLM 常用 ```json ... ``` 包裝）
+        cleaned = response_text.strip()
+        cleaned = re.sub(r'^```(?:json)?\s*\n?', '', cleaned)
+        cleaned = re.sub(r'\n?```\s*$', '', cleaned)
+
+        json_match = re.search(r'\[[\s\S]*\]', cleaned)
+
+        # L1-2: fallback — 嘗試匹配單一 JSON 物件，包成陣列
         if not json_match:
-            logger.warning(
-                "Orchestrator 回覆中無 JSON 陣列"
-            )
+            obj_match = re.search(r'\{[\s\S]*\}', cleaned)
+            if obj_match:
+                try:
+                    obj = json.loads(obj_match.group())
+                    if "skill_name" in obj:
+                        cleaned = json.dumps([obj])
+                        json_match = re.search(r'\[[\s\S]*\]', cleaned)
+                except json.JSONDecodeError:
+                    pass
+
+        if not json_match:
+            logger.warning("Orchestrator 回覆中無 JSON 陣列")
+            logger.debug(f"Orchestrator raw response: {response_text[:500]}")
             return []
 
         try:

@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.33
+# Joint Map — 共享可變狀態接頭圖 v1.34
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -45,6 +45,7 @@
 | 32 | ~/.museon/auth/policy.json | 🟢 | 1 | 2 | 原子寫 | [→](#32-museonauthpolicyjson) |
 | 33 | _system/recommendations/interactions.json | 🟢 | 1 | 1 | 原子寫 | [→](#33-_systemrecommendationsinteractionsjson) |
 | 34 | _system/backups/ | 🟢 | 2 | 0 | 無(獨立) | [→](#34-_systembackups) |
+| 35 | orchestrator_calls（PulseDB 表） | 🟢 | 1 | 0 | SQLite WAL | [→](#35-orchestrator_callspulsedb-表) |
 
 > **危險度定義**：🔴 多寫入者+高扇出+格式不一致 | 🟡 多寫入者或高扇出 | 🟢 單寫入者+低扇出
 
@@ -331,13 +332,13 @@
 
 **路徑**：`data/pulse/pulse.db`
 **引擎**：SQLite WAL mode
-**用途**：VITA 生命力引擎結構化儲存（14 張表）
+**用途**：VITA 生命力引擎結構化儲存（15 張表）
 
 #### 寫入者
 
 | 模組 | 寫入表 |
 |------|--------|
-| `pulse/pulse_db.py` | 全部 14 表（schedules, explorations, anima_log, evolution_events, morphenix_proposals, commitments, metacognition, scout_drafts, health_scores, incidents 等） |
+| `pulse/pulse_db.py` | 全部 15 表（schedules, explorations, anima_log, evolution_events, morphenix_proposals, commitments, metacognition, scout_drafts, health_scores, incidents, orchestrator_calls 等） |
 | `nightly/nightly_pipeline.py` | evolution_events, 多表日誌 |
 | `gateway/server.py` (via Governor callback) | incidents（P2 新增：Governor 免疫迴圈 → `_bridge_incident_to_pulsedb()` → `pulse_db.save_incident()`） |
 
@@ -850,6 +851,40 @@
 
 ---
 
+### 35. orchestrator_calls（PulseDB 表）
+
+**路徑**：`data/pulse/pulse.db` — `orchestrator_calls` 表
+**用途**：L2-S3 Orchestrator 診斷數據收集——記錄每次 Orchestrator 呼叫的 plan_id、skill/task 數量、成功率、模型、回應長度
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| `agent/brain.py` | **W** | `_dispatch_orchestrate()` | 每次 Orchestrator 呼叫後寫入診斷數據 | SQLite WAL（PulseDB 共用） |
+
+#### 消費者
+
+無自動消費者——供未來 A1 確定性路由設計分析使用。
+
+#### 資料格式（Schema）
+
+| 欄位 | 型態 | 說明 |
+|------|------|------|
+| `id` | INTEGER PK | 自增主鍵 |
+| `plan_id` | TEXT | 任務計畫 ID |
+| `skill_count` | INTEGER | 計畫中的 Skill 數量 |
+| `task_count` | INTEGER | 計畫中的 Task 數量 |
+| `success` | BOOLEAN | 是否成功完成 |
+| `model` | TEXT | 使用的 LLM 模型 |
+| `response_length` | INTEGER | 回應長度（字元數） |
+| `created_at` | TEXT (ISO8601) | 建立時間戳 |
+
+> **鎖**：SQLite WAL（PulseDB 共用鎖機制）
+> **TTL**：永久（診斷數據，供長期趨勢分析）
+> **危險度**：🟢 綠（單一寫入者，無消費者競爭）
+
+---
+
 ## 必須同時修改的模組組（不可分批）
 
 > 修改以下任一模組時，**必須**同時檢查並調整同組所有模組。
@@ -904,6 +939,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-22 | v1.34 | Brain 三層治療：新增 #35 `orchestrator_calls`（PulseDB 表，🟢 危險度，單寫入者 brain.py `_dispatch_orchestrate()`，讀取者 0 供未來 A1 確定性路由）；#8 PulseDB 表數 14→15；共享狀態 34→35 個；同步 persistence-contract v1.29、system-topology v1.37 |
 | 2026-03-22 | v1.33 | P0-P3 升級：新增 #34 `_system/backups/` 目錄（🟢 危險度，2 個寫入者各自寫不同子目錄無競爭——AnimaMCStore._backup_before_write() 寫 anima_mc/、PulseEngine._backup_pulse_md() 寫 pulse_md/，各保留 10 份 FIFO）；無讀取者（手動恢復）；共享狀態 33→34 個；同步 persistence-contract v1.28、system-topology v1.35、blast-radius v1.46、memory-router v1.4 |
 | 2026-03-22 | v1.32 | 經驗諮詢閘門：#6 crystal.db 新增 Procedure 結晶 4 欄位（skills_used/preconditions/known_failures/last_success）；#25 activity_log.jsonl 讀取者新增 brain.py（search() 經驗搜尋）；#25 skill_usage_log.jsonl 從 DW2 升級（新增 outcome 欄位，Brain 消費） |
 | 2026-03-22 | v1.31 | InteractionRequest 跨通道互動層：InteractionQueue 為新共享可變狀態（記憶體中 Dict，asyncio.Event 非阻塞等待，不持久化）；寫入者 3 個（telegram/discord/line 的 callback handler 呼叫 `resolve()`）；讀取者 1 個（gateway/server.py message pump `wait_for_response()`）；危險度 🟢（單一消費者、非持久化、自動超時清理）；message.py 新增 ChoiceOption/InteractionRequest/InteractionResponse 三個 dataclass + BrainResponse.interaction 欄位（純新增，不改現有結構）；同步 system-topology v1.33、blast-radius v1.44 |

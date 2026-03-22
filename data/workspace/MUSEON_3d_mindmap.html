@@ -299,7 +299,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 //  SYNC META — 拓撲同步狀態
 // ═══════════════════════════════════════
 const SYNC_META = {
-  topologyVersion: 'v1.36',
+  topologyVersion: 'v1.37',
   syncDate: '2026-03-22',
   nodeCount: 0, // auto-calculated below
   linkCount: 0, // auto-calculated below
@@ -377,18 +377,20 @@ const nodes = [
   // ── channel ──
   {id:"cron",label:"Cron",zh:"排程入口",group:"channel",r:1.2},
   {id:"discord",label:"Discord",zh:"Discord 通道",group:"channel",r:1.2},
-  {id:"external-user",label:"External User",zh:"群組外部成員 (EXTERNAL)",group:"channel",r:1.4},
+  {id:"external-user",label:"External User",zh:"群組外部成員",group:"channel",r:1.4},
   {id:"gateway",label:"Gateway",zh:"WebSocket :8765",group:"channel",r:1.6},
   {id:"interaction-queue",label:"Interaction Queue",zh:"跨通道互動佇列",group:"channel",r:1.0},
-  {id:"line",label:"LINE",zh:"LINE@ 通道（私聊+群組+Room）",group:"channel",r:1.4},
+  {id:"line",label:"LINE",zh:"LINE@ 通道（私聊 + 群組 + Room）",group:"channel",r:1.4},
   {id:"mcp-server",label:"MCP Server",zh:"Claude Code 介面",group:"channel",r:1.2},
-  {id:"telegram",label:"Telegram",zh:"主通道（私聊+群組）",group:"channel",r:1.6},
-  {id:"verified-user",label:"Verified User",zh:"動態配對使用者 (VERIFIED)",group:"channel",r:1.2},
-  {id:"zeal",label:"Zeal (Owner)",zh:"主人 (CORE)",group:"channel",r:2.0},
+  {id:"telegram",label:"Telegram",zh:"主通道（私聊 + 群組）",group:"channel",r:1.6},
+  {id:"verified-user",label:"Verified User",zh:"動態配對使用者",group:"channel",r:1.2},
+  {id:"zeal",label:"Zeal (Owner)",zh:"主人",group:"channel",r:2.0},
   // ── agent ──
   {id:"brain",label:"Agent / Brain",zh:"主判斷中樞",group:"agent",r:2.8,hub:1},
+  {id:"chat-context",label:"Chat Context",zh:"ChatContext dataclass（輕量對話上下文資料結構）",group:"agent",r:0.7,p:"brain"},
   {id:"deep-think",label:"Deep Think",zh:"思考前置引擎（P0 訊號分流 / P1 輸入審視 / P2 決策偵測）",group:"agent",r:1.1,p:"brain"},
   {id:"dendritic-fusion",label:"Dendritic Fusion",zh:"P3 並行融合引擎（MetaCog+Eval+Health）",group:"agent",r:1.1,p:"brain"},
+  {id:"deterministic-router",label:"Deterministic Router",zh:"確定性任務分解器（取代 LLM Orchestrator）",group:"agent",r:1.0,p:"brain"},
   {id:"diary-store",label:"Diary Store",zh:"日記存儲（原靈魂年輪）",group:"agent",r:0.9,p:"brain"},
   {id:"dispatch",label:"Dispatch",zh:"多技能編排",group:"agent",r:1.0,p:"brain"},
   {id:"dna27",label:"DNA27",zh:"27 反射叢集",group:"agent",r:1.0,p:"brain"},
@@ -574,16 +576,16 @@ const links = [
   {source:"recommender",target:"knowledge-lattice",label:"推薦排序",type:"decay"},
   // ── flow ──
   {source:"cron",target:"event-bus",label:"定時觸發",type:"flow"},
-  {source:"gateway",target:"event-bus",label:"路由",type:"flow"},
   {source:"discord",target:"gateway",label:"轉發",type:"flow"},
-  {source:"external-user",target:"discord",label:"Discord 群組對話 (EXTERNAL)",type:"flow"},
-  {source:"external-user",target:"line",label:"LINE 群組對話 (EXTERNAL)",type:"flow"},
-  {source:"external-user",target:"telegram",label:"群組對話 (EXTERNAL, SensitivityChecker)",type:"flow"},
+  {source:"external-user",target:"discord",label:"Discord 群組對話（EXTERNAL trust）",type:"flow"},
+  {source:"external-user",target:"line",label:"LINE 群組對話（EXTERNAL trust）",type:"flow"},
+  {source:"external-user",target:"telegram",label:"群組對話（EXTERNAL trust, SensitivityChecker 過濾）",type:"flow"},
+  {source:"gateway",target:"event-bus",label:"路由",type:"flow"},
   {source:"line",target:"gateway",label:"webhook 轉發",type:"flow"},
-  {source:"telegram",target:"gateway",label:"轉發 (InternalMessage + metadata)",type:"flow"},
-  {source:"verified-user",target:"telegram",label:"動態配對私聊 (VERIFIED, PairingManager)",type:"flow"},
-  {source:"zeal",target:"line",label:"LINE 私聊+群組 (CORE)",type:"flow"},
-  {source:"zeal",target:"telegram",label:"私聊指令+群組 @mention (CORE)",type:"flow"},
+  {source:"telegram",target:"gateway",label:"轉發（InternalMessage + metadata: is_group, is_owner, sender_name）",type:"flow"},
+  {source:"verified-user",target:"telegram",label:"動態配對使用者私聊（VERIFIED trust, PairingManager）",type:"flow"},
+  {source:"zeal",target:"line",label:"LINE 私聊 + 群組（CORE trust）",type:"flow"},
+  {source:"zeal",target:"telegram",label:"私聊指令 + 群組 @mention（CORE trust, is_owner=True）",type:"flow"},
   // ── control ──
   {source:"cron",target:"nightly",label:"03:00 觸發",type:"control"},
   {source:"event-bus",target:"brain",label:"事件分派",type:"control"},
@@ -605,8 +607,10 @@ const links = [
   // ── internal ──
   {source:"anima-tracker",target:"anima-mc-store",label:"八元素經由 Store",type:"internal"},
   {source:"authorization",target:"security",label:"三級策略查詢",type:"internal"},
+  {source:"brain",target:"chat-context",label:"對話上下文封裝",type:"internal"},
   {source:"brain",target:"deep-think",label:"思考前置 P0/P1/P2",type:"internal"},
   {source:"brain",target:"dendritic-fusion",label:"P3 前置融合（Step 5.5）+ 並行融合（Step 6.2-6.5）",type:"internal"},
+  {source:"brain",target:"deterministic-router",label:"確定性任務分解（取代 LLM Orchestrator）",type:"internal"},
   {source:"brain",target:"diary-store",label:"日記記錄",type:"internal"},
   {source:"brain",target:"dispatch",label:"多技能分派",type:"internal"},
   {source:"brain",target:"dna27",label:"載入反射",type:"internal"},
@@ -933,14 +937,15 @@ const links = [
   {source:"data-watchdog",target:"event-bus",label:"監控事件",type:"async"},
   {source:"fact-correction",target:"proactive-bridge",label:"P4 自省清洗推播",type:"async"},
   {source:"fact-correction",target:"pulse",label:"P4 自省清洗脈搏",type:"async"},
+  {source:"line",target:"zeal",label:"LINE 回傳回應",type:"async"},
   {source:"morphenix",target:"event-bus",label:"提案回饋",type:"async"},
   {source:"nightly",target:"event-bus",label:"回饋迴路",type:"async"},
   {source:"proactive-bridge",target:"telegram",label:"非同步推播",type:"async"},
   {source:"telegram",target:"brain",label:"推送寫入 session",type:"async"},
-  {source:"line",target:"zeal",label:"LINE 回傳回應",type:"async"},
   {source:"telegram",target:"external-user",label:"群組中回覆外部使用者",type:"async"},
-  {source:"telegram",target:"zeal",label:"回傳回應（私聊+群組）",type:"async"},
+  {source:"telegram",target:"zeal",label:"回傳回應（私聊 + 群組回覆）",type:"async"},
 ];
+
 
 
 

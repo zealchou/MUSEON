@@ -375,6 +375,20 @@ class PulseDB(DataContract):
                 ON eval_alerts(created_at);
             CREATE INDEX IF NOT EXISTS idx_eval_alerts_type
                 ON eval_alerts(alert_type, created_at);
+
+            -- L2-S3: Orchestrator 診斷數據（追蹤 dispatch 成功率）
+            CREATE TABLE IF NOT EXISTS orchestrator_calls (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                plan_id TEXT,
+                skill_count INTEGER,
+                task_count INTEGER,
+                success INTEGER DEFAULT 0,
+                model TEXT,
+                response_length INTEGER DEFAULT 0,
+                created_at TEXT DEFAULT (datetime('now'))
+            );
+            CREATE INDEX IF NOT EXISTS idx_orchestrator_calls_ts
+                ON orchestrator_calls(created_at);
         """)
         conn.commit()
 
@@ -1117,6 +1131,29 @@ class PulseDB(DataContract):
         return cur.rowcount > 0
 
     # ── Health Scores CRUD（DendriticScorer 歷史）──
+
+    # ── L2-S3: Orchestrator 診斷 ──
+
+    def log_orchestrator_call(
+        self,
+        plan_id: str,
+        skill_count: int,
+        task_count: int,
+        success: bool,
+        model: str = "",
+        response_length: int = 0,
+    ) -> None:
+        """記錄一筆 Orchestrator 呼叫結果（L2-S3 診斷數據）."""
+        conn = self._get_conn()
+        conn.execute(
+            "INSERT INTO orchestrator_calls "
+            "(plan_id, skill_count, task_count, success, model, response_length) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
+            (plan_id, skill_count, task_count, int(success), model, response_length),
+        )
+        conn.commit()
+
+    # ── Health Score ──
 
     def log_health_score(
         self,

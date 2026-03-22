@@ -352,7 +352,7 @@ class TestDispatchMode:
 
     @pytest.mark.asyncio
     async def test_full_dispatch_flow(self, tmp_path):
-        """Orchestrate → Worker → Synthesize → completed plan persisted."""
+        """DeterministicRouter → Worker → Synthesize → completed plan persisted."""
         brain = _make_brain(tmp_path, skill_contents={
             "brand-identity": "x" * 6000,
             "text-alchemy": "y" * 6000,
@@ -364,11 +364,8 @@ class TestDispatchMode:
             _make_skill("orchestrator"),
         ]
 
-        # Mock LLM calls: orchestrator → worker1 → worker2 → synthesize
-        orchestrator_response = json.dumps([
-            {"skill_name": "brand-identity", "skill_focus": "品牌定位", "skill_depth": "standard"},
-            {"skill_name": "text-alchemy", "skill_focus": "文案撰寫", "skill_depth": "quick"},
-        ])
+        # L3-A1: DeterministicRouter 取代 LLM Orchestrator
+        # Mock LLM calls: worker1 → worker2 → synthesize（不再有 orchestrator LLM 呼叫）
         worker1_response = '品牌定位分析完成。\n{"self_score": 0.85, "confidence": 0.9, "limitations": "無"}'
         worker2_response = '文案撰寫完成。\n{"self_score": 0.80, "confidence": 0.8, "limitations": "無"}'
         synthesize_response = "這是最終的綜合回覆。品牌定位和文案都已完成。"
@@ -378,10 +375,8 @@ class TestDispatchMode:
             nonlocal call_count
             call_count += 1
             if call_count == 1:
-                return orchestrator_response
-            elif call_count == 2:
                 return worker1_response
-            elif call_count == 3:
+            elif call_count == 2:
                 return worker2_response
             else:
                 return synthesize_response
@@ -405,7 +400,7 @@ class TestDispatchMode:
         )
 
         assert result == synthesize_response
-        assert call_count == 4
+        assert call_count == 3  # L3-A1: worker1 + worker2 + synthesize（無 orchestrator LLM 呼叫）
 
         # Verify plan was persisted to completed/
         completed_dir = tmp_path / "dispatch" / "completed"
@@ -424,7 +419,7 @@ class TestDispatchMode:
         brain = _make_brain(tmp_path)
         brain.skill_router._index = []
 
-        # Orchestrator returns empty/invalid
+        # L3-A1: DeterministicRouter 回傳空 + LLM Orchestrator 也無效 → fallback
         async def mock_llm(system_prompt, messages, model, max_tokens):
             return "無法分解任務"
 
@@ -435,7 +430,8 @@ class TestDispatchMode:
         brain._get_session_history = MagicMock(return_value=[])
         brain._call_llm = AsyncMock(return_value="fallback response")
 
-        matched_skills = [_make_skill("a"), _make_skill("b")]
+        # 使用 always_on skills 讓 DeterministicRouter 過濾掉所有 → 回傳空
+        matched_skills = [_make_skill("a", always_on=True), _make_skill("b", always_on=True)]
 
         result = await brain._dispatch_mode(
             content="test",
@@ -501,20 +497,15 @@ class TestDispatchMode:
             _make_skill("orchestrator"),
         ]
 
+        # L3-A1: DeterministicRouter 取代 orchestrator LLM 呼叫
         call_count = 0
         async def mock_llm(system_prompt, messages, model, max_tokens):
             nonlocal call_count
             call_count += 1
             if call_count == 1:
-                # Orchestrator
-                return json.dumps([
-                    {"skill_name": "brand-identity", "skill_focus": "f", "skill_depth": "standard"},
-                    {"skill_name": "text-alchemy", "skill_focus": "f", "skill_depth": "standard"},
-                ])
-            elif call_count == 2:
                 # Worker 1 succeeds
                 return '結果。\n{"self_score": 0.8, "confidence": 0.8, "limitations": ""}'
-            elif call_count == 3:
+            elif call_count == 2:
                 # Worker 2 fails
                 raise RuntimeError("Worker 2 timeout")
             else:
@@ -537,7 +528,7 @@ class TestDispatchMode:
         )
 
         assert result == "綜合回覆（部分結果）"
-        assert call_count == 4  # orchestrator + worker1 + worker2(fail) + synthesize
+        assert call_count == 3  # worker1 + worker2(fail) + synthesize（無 orchestrator LLM）
 
         # Check results: one completed, one failed
         completed_dir = tmp_path / "dispatch" / "completed"
@@ -968,20 +959,15 @@ class TestPartialCompletion:
             _make_skill("a"), _make_skill("b"), _make_skill("orchestrator"),
         ]
 
+        # L3-A1: DeterministicRouter 取代 orchestrator LLM 呼叫
         call_count = 0
         async def mock_llm(system_prompt, messages, model, max_tokens):
             nonlocal call_count
             call_count += 1
             if call_count == 1:
-                # Orchestrator
-                return json.dumps([
-                    {"skill_name": "a", "skill_focus": "f", "skill_depth": "standard"},
-                    {"skill_name": "b", "skill_focus": "f", "skill_depth": "standard"},
-                ])
-            elif call_count == 2:
                 # Worker 1 success
                 return '好。\n{"self_score": 0.9, "confidence": 0.9, "limitations": ""}'
-            elif call_count == 3:
+            elif call_count == 2:
                 # Worker 2 fail
                 raise RuntimeError("Worker 2 died")
             else:
