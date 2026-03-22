@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.37
+# MUSEON 系統拓撲圖 v1.38
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.38 (2026-03-22)**：L3-A2 Brain Mixin 拆分——brain 節點拆分為 core + 5 Mixin 子模組 + brain_types 共享型別；agent 群組新增 `brain-prompt-builder`、`brain-dispatch`、`brain-observation`、`brain-p3-fusion`、`brain-tools`、`brain-types` 6 個節點 + 6 條 internal 連線；184 節點 379 連線
 > **v1.37 (2026-03-22)**：Brain 三層治療——agent 群組新增 `chat-context`（ChatContext dataclass，r=0.7）、`deterministic-router`（確定性任務分解器，r=1.0）2 個節點；新增 2 條 internal 連線（brain→chat-context、brain→deterministic-router）；178 節點 373 連線
 > **v1.36 (2026-03-22)**：使用者節點精細化——channel 群組 `user` 拆分為 `zeal`（CORE 主人）、`verified-user`（VERIFIED 動態配對）、`external-user`（EXTERNAL 群組外部成員）三節點；補上遺漏的 `discord` 節點；新增/更新 8 條 flow 連線反映實際使用者分流；175 節點 369 連線
 > **v1.35 (2026-03-22)**：P0-P3 升級——Evolution Hub 新增 2 個 Skill 節點（system-health-check、decision-tracker）；新增 5 條跨群組連線（report-forge→knowledge-lattice、system-health-check→knowledge-lattice/morphenix、decision-tracker→knowledge-lattice/user-model）；173 節點 361 連線
@@ -102,7 +103,13 @@ external-user（EXTERNAL）
 ### agent — Agent / Brain
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
 |----|------|------|-----|--------|------|
-| `brain` | Agent / Brain | 主判斷中樞 | Yes | - | 2.8 |
+| `brain` | Agent / Brain | 主判斷中樞（core: init + process pipeline, 2575 行） | Yes | - | 2.8 |
+| `brain-prompt-builder` | Brain Prompt Builder | Mixin: system prompt 建構（1668 行） | - | brain | 1.0 |
+| `brain-dispatch` | Brain Dispatch | Mixin: 任務分派（1082 行） | - | brain | 1.0 |
+| `brain-observation` | Brain Observation | Mixin: 觀察與演化（2003 行） | - | brain | 1.0 |
+| `brain-p3-fusion` | Brain P3 Fusion | Mixin: P3 融合與決策層（948 行） | - | brain | 1.0 |
+| `brain-tools` | Brain Tools | Mixin: LLM 呼叫與 session 管理（966 行） | - | brain | 1.0 |
+| `brain-types` | Brain Types | 共享 dataclass: DecisionSignal, P3FusionSignal | - | brain | 0.7 |
 | `dna27` | DNA27 | 27 反射叢集 | - | brain | 1.0 |
 | `skill-router` | Skill Router | 技能路由 | - | brain | 1.1 |
 | `reflex-router` | Reflex Router | 反射路由 | - | brain | 1.0 |
@@ -406,6 +413,12 @@ external-user（EXTERNAL）
 ### Agent 內部連線（internal）
 | Source | Target | 說明 |
 |--------|--------|------|
+| `brain` | `brain-prompt-builder` | Mixin: system prompt 建構 |
+| `brain` | `brain-dispatch` | Mixin: 任務分派 |
+| `brain` | `brain-observation` | Mixin: 觀察與演化 |
+| `brain` | `brain-p3-fusion` | Mixin: P3 融合與決策層 |
+| `brain` | `brain-tools` | Mixin: LLM 呼叫與 session 管理 |
+| `brain` | `brain-types` | 共享型別: DecisionSignal, P3FusionSignal |
 | `brain` | `dna27` | 載入反射 |
 | `brain` | `skill-router` | 技能路由 |
 | `brain` | `reflex-router` | 迴圈判定 |
@@ -880,12 +893,12 @@ external-user（EXTERNAL）
 
 | 指標 | 數值 |
 |------|------|
-| 總節點數 | 178 (128 系統 + 50 Skills) |
-| 總連線數 | 373 (270 系統 + 103 Skills) |
+| 總節點數 | 184 (134 系統 + 50 Skills) |
+| 總連線數 | 379 (276 系統 + 103 Skills) |
 | 群組數 | 14 (含 skills) |
 | Hub 節點 | 18 (11 系統 + 7 Skills Hub) |
 | 跨系統連線 | 118 (83 系統 + 35 Skills cross) |
-| 內部連線 | 179 (120 系統 + 59 Skills internal) |
+| 內部連線 | 185 (126 系統 + 59 Skills internal) |
 | 非同步連線 | 7 |
 | 監控連線 | 5 |
 | 控制連線 | 16 (9 系統 + 7 Skills control) |
@@ -899,6 +912,7 @@ external-user（EXTERNAL）
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.38 | 2026-03-22 | L3-A2 Brain Mixin 拆分：brain 節點拆分為 core + 5 Mixin 子模組 + brain_types 共享型別；agent 群組新增 `brain-prompt-builder`（system prompt 建構, 1668 行）、`brain-dispatch`（任務分派, 1082 行）、`brain-observation`（觀察與演化, 2003 行）、`brain-p3-fusion`（P3 融合與決策層, 948 行）、`brain-tools`（LLM 呼叫與 session 管理, 966 行）、`brain-types`（共享 dataclass: DecisionSignal, P3FusionSignal）6 個節點（+6）；新增 6 條 internal 連線；184 節點 379 連線 |
 | v1.37 | 2026-03-22 | Brain 三層治療：agent 群組新增 `chat-context`（ChatContext dataclass 輕量對話上下文，r=0.7）、`deterministic-router`（確定性任務分解器取代 LLM Orchestrator，r=1.0）2 個節點（+2）；新增 2 條 internal 連線（brain→chat-context 對話上下文封裝、brain→deterministic-router 確定性任務分解）；同步 persistence-contract v1.29（PulseDB 新增 orchestrator_calls 表）、joint-map v1.34（#35 orchestrator_calls）；178 節點 373 連線 |
 | v1.36 | 2026-03-22 | 使用者節點精細化：channel 群組 `user` 拆分為 `zeal`（CORE 主人，r=2.0）、`verified-user`（VERIFIED 動態配對，r=1.2）、`external-user`（EXTERNAL 群組外部成員，r=1.4）三節點（+2 淨增，user→3）；補上遺漏的 `discord` 節點（r=1.2，+1）；flow 連線從 2 條（user→telegram/line）更新為 6 條（zeal→telegram/line、verified-user→telegram、external-user→telegram/line/discord）+ discord→gateway 1 條；async 連線新增 telegram→external-user、line→zeal 2 條；176 節點 369 連線 |
 | v1.35 | 2026-03-22 | P0-P3 升級：Evolution Hub 新增 2 個 Skill 節點（system-health-check 系統健康自檢引擎、decision-tracker 決策歷史追蹤引擎）+ 2 條 internal 連線；新增 5 條 cross 連線（report-forge→knowledge-lattice 報告洞見結晶化、system-health-check→knowledge-lattice 健康結晶化、system-health-check→morphenix 修復提案、decision-tracker→knowledge-lattice 決策結晶化、decision-tracker→user-model 決策偏好）；173 節點 363 連線 |
