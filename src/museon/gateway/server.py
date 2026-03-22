@@ -4311,17 +4311,13 @@ def _register_external_endpoints(app, data_dir) -> None:
     # ── EXT-09: 推薦系統 ──
     @app.get("/api/recommendations")
     async def api_recommendations():
-        """取得個人化推薦."""
+        """取得個人化推薦（使用 Brain 常駐 Recommender 實例）."""
         try:
-            from museon.agent.recommender import Recommender
-            from museon.core.event_bus import get_event_bus
-
-            recommender = Recommender(
-                workspace=data_dir,
-                event_bus=get_event_bus(),
-            )
-            items = await recommender.get_recommendations(limit=5)
-            return {"recommendations": items, "count": len(items)}
+            brain = app.state.brain
+            if brain and brain._recommender:
+                items = await brain._recommender.get_recommendations(limit=5)
+                return {"recommendations": items, "count": len(items)}
+            return {"recommendations": [], "count": 0, "status": "recommender_unavailable"}
         except Exception as e:
             return {"error": str(e), "recommendations": []}
 

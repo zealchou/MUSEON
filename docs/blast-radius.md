@@ -1,10 +1,11 @@
-# Blast Radius — 模組影響半徑表 v1.42
+# Blast Radius — 模組影響半徑表 v1.43
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節
+> **v1.43 (2026-03-22)**：Recommender 激活修復——`agent/recommender.py` 資料來源從過時的 JSON 掃描（`data/crystals/*.json` + `data/skills/*.json` + `_system/knowledge_graph.json`）改為 CrystalStore API（`load_crystals_raw()` + `load_links()`）；`__init__()` 新增 `crystal_store` 參數（取代 `memory_manager`）；互動歷史路徑從 `_system/recommendations/` 改為 `data/_system/recommendations/`；`_save_interactions()` 改用原子寫入（tmp→rename）；`brain.py` `__init__()` 新增 `_recommender` 初始化（~L320，降級保護）+ init log 新增 recommender 狀態；`server.py` `/api/recommendations` 改用 Brain 常駐實例（移除每次重新實例化模式）；扇入 0→1（brain.py import），新增共享狀態 `_system/recommendations/interactions.json`
 > **v1.42 (2026-03-22)**：Workflow Hub 健康檢查——P0: 清除「案例結晶」幽靈殘留（Qdrant skills 1 筆、synapses.json 8 筆、PulseDB metacognition 3 筆），Business Hub 修復漏清下游資料池的根因補完；P0b: `evolution/skill_synapse.py` co_fire() 新增 Skill 名稱合法性驗證（regex `^[a-z][a-z0-9\-]{0,60}$`），防止非法名稱建立突觸；P1: `agent/brain.py` `_dispatch_orchestrate` 排除 `type: workflow` 的 Skill 不注入 Orchestrator skill_roster（Workflow 是編排範本非 Worker 候選），`_parse_orchestrator_response` 改用 worker_skills 驗證；P2: `agent/metacognition.py` `_emit_quality_flag` 新增 `_WORKFLOW_SKILL_NAMES` 白名單，過濾 workflow 類 Skill 不計入品質旗標，missing_action 類別且全為 workflow 時跳過發布；扇入扇出不變、無新增 import/共享狀態
 > **v1.40 (2026-03-22)**：Business Hub 健康檢查——skill_router.py `_extract_metadata` YAML 解析修復：只匹配頂層（未縮排）`name:`/`description:`/`type:` 欄位，防止 workflow stages 的巢狀 `name:` 覆蓋頂層 Skill 名稱（幽靈 Skill `"案例結晶"` 根因）；同時剝除 YAML 引號防止 literal quote 汙染；清理 synapses.json 3 筆幽靈條目；consultant-communication memory.writes 補齊 target/type/condition 結構；扇入不變（2）、無新增 import
 > **v1.39 (2026-03-22)**：Thinking Hub 健康檢查——brain.py `_dispatch_orchestrate` Orchestrator system prompt 移除硬編碼 Skill 名稱範例（`resonance`），Rule 4 強化約束防止 LLM 幻覺引用 roster 外 Skill；shadow SKILL.md `layer: business` → `layer: thinking` 修正欄位漂移；純 prompt 文字修改，扇入扇出不變、無新增 import/共享狀態
@@ -646,6 +647,7 @@
 
 ### Agent 層（9 個）
 `agent/crystal_store.py`（★ v1.41 新增，扇入=2（knowledge_lattice + crystal_actuator），CrystalStore 統一存取層——crystal.db SQLite WAL 模式，`threading.Lock` + singleton factory `get_crystal_store()`），
+`agent/recommender.py`（★ v1.43 新增，扇入=1（brain.py），知識推薦引擎——CrystalStore 經由 brain 注入，互動歷史 `data/_system/recommendations/interactions.json` 原子寫入），
 `agent/dna27.py`, `agent/drift_detector.py`, `agent/intuition.py`, `agent/kernel_guard.py`, `agent/plan_engine.py`, `agent/primal_detector.py`, `agent/routing_bridge.py`, `agent/safety_anchor.py`, `agent/sub_agent.py`
 
 ### Memory 層（1 個）
@@ -775,6 +777,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-22 | v1.43 | Recommender 激活修復：`agent/recommender.py` 從綠區扇入 0→1（brain.py import）；資料來源從過時 JSON 掃描改為 CrystalStore API；brain.py 新增 `_recommender` 初始化 + init log；server.py API 改用常駐實例；新增共享狀態 `_system/recommendations/interactions.json`；G5 知識晶格組 recommender 接線正式啟用 |
 | 2026-03-22 | v1.41 | Knowledge Lattice 持久層遷移：新增 `agent/crystal_store.py` 到綠區（扇入=2，CrystalStore SQLite WAL + threading.Lock 統一存取層）；G5 知識晶格組新增 crystal_store，共享狀態從 crystals.json 改為 crystal.db (via CrystalStore)；G8 衰減組同步更新；evolution_velocity、guardian/daemon、system_audit、nightly_pipeline、wee_engine 共享狀態引用從 crystals.json 改為 crystal.db；同步 persistence-contract v1.26、joint-map v1.29、system-topology v1.31 |
 | 2026-03-22 | v1.40 | Business Hub 健康檢查：skill_router.py `_extract_metadata` 頂層 YAML 解析修復（防 workflow stages 巢狀 name 覆蓋）+ synapses.json 幽靈條目清理（3 筆 `"案例結晶"`）+ consultant-communication memory.writes 補齊結構 |
 | 2026-03-22 | v1.39 | Thinking Hub 健康檢查：brain.py `_dispatch_orchestrate` Orchestrator prompt 移除硬編碼 `resonance` 範例 + Rule 4 強化約束（防 LLM 幻覺引用 roster 外 Skill）；shadow SKILL.md `layer: business` → `layer: thinking`；純 prompt 文字修改，扇入扇出不變 |

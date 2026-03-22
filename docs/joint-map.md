@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.29
+# Joint Map — 共享可變狀態接頭圖 v1.30
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -43,6 +43,7 @@
 | 30 | _system/baihe_cache.json | 🟢 | 1 | 2 | 原子寫 | [→](#30-_systembaihe_cachejson) |
 | 31 | ~/.museon/auth/allowlist.json | 🟢 | 1 | 2 | 原子寫 | [→](#31-museonauthallowlistjson) |
 | 32 | ~/.museon/auth/policy.json | 🟢 | 1 | 2 | 原子寫 | [→](#32-museonauthpolicyjson) |
+| 33 | _system/recommendations/interactions.json | 🟢 | 1 | 1 | 原子寫 | [→](#33-_systemrecommendationsinteractionsjson) |
 
 > **危險度定義**：🔴 多寫入者+高扇出+格式不一致 | 🟡 多寫入者或高扇出 | 🟢 單寫入者+低扇出
 
@@ -792,6 +793,29 @@
 
 ---
 
+### 33. _system/recommendations/interactions.json
+
+**路徑**：`data/_system/recommendations/interactions.json`
+**用途**：推薦引擎互動歷史——記錄使用者對推薦項目的互動（view/click/bookmark/share/rate/dismiss）
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| `agent/recommender.py` | **RW** | `_load_interactions()` / `_save_interactions()` | 載入+持久化互動歷史 | 原子寫入（.tmp → rename） |
+
+#### 資料格式
+
+```json
+[{"item_id": "INS-001", "action": "click", "rating": null, "timestamp": "2026-03-22T10:00:00+08:00"}]
+```
+
+> **鎖**：原子寫入（.json.tmp → rename），單一寫入者 Recommender
+> **TTL**：5000 條上限（超出截斷）
+> **設計**：單一模組讀寫，風險極低
+
+---
+
 ## 必須同時修改的模組組（不可分批）
 
 > 修改以下任一模組時，**必須**同時檢查並調整同組所有模組。
@@ -846,6 +870,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-22 | v1.30 | Recommender 激活修復：新增 #33 `_system/recommendations/interactions.json`（🟢 危險度，單一寫入者 recommender.py 原子寫入，5000 條上限）；#6 crystal.db 讀取者新增 recommender（經由 CrystalStore API `load_crystals_raw()` + `load_links()`）；G5 知識晶格組 recommender 接線正式啟用；共享狀態 32→33 個 |
 | 2026-03-22 | v1.29 | Knowledge Lattice 持久層遷移：#6 路徑從 `data/lattice/crystals.json` 改為 `data/lattice/crystal.db`（SQLite WAL 模式，三表 crystals/links/cuid_counters）；新增 `agent/crystal_store.py` CrystalStore 為統一存取層（threading.Lock + SQLite WAL）；所有讀寫者改為經由 CrystalStore API；危險度從 🟡 降為 🟢（鎖保護完整）；鎖一覽表更新 crystals.json→crystal.db（❌ 危險→✅ 完整）；G5 模組組新增 crystal_store；舊 JSON 檔案歸檔為 .bak；同步 persistence-contract v1.26、blast-radius v1.41、system-topology v1.31 |
 | 2026-03-21 | v1.27 | #9 Qdrant skills collection 新增 VectorBridge.index_all_skills() 寫入路徑（Gateway startup + Nightly 8.6 + API reindex） |
 | 2026-03-21 | v1.26 | 群組對話 DSE 三階段修復：G3 記憶管線新增 chat_scope 群組隔離（memory_manager store() 新增 chat_scope/group_id 參數 + 自動注入 scope:{scope} 標籤 + recall() 新增 chat_scope_filter/exclude_scopes 過濾 + _keyword_fallback() 同步過濾 + _vector_index() metadata 注入）；#28 cognitive_trace p0_signal 欄位修復為六類判定（_classify_p0_signal 啟發式）+ meta_note 修復（thinking_path_summary[:50]）；外部使用者 ANIMA v3.0 schema 升級（governance/multi_tenant.py ExternalAnimaManager 新增 profile/relationship/seven_layers + trust_evolution 四階段 + PrimalDetector 八原語）；同步 blast-radius v1.32、memory-router v1.1、persistence-contract v1.23 |

@@ -1,13 +1,14 @@
-"""Recommender — 推薦引擎 (Memory + WEE + Knowledge Graph).
+"""Recommender — 推薦引擎 (CrystalStore + Knowledge Graph).
 
-基於使用者互動歷史、知識圖譜連結、及探索性注入，
+基於使用者互動歷史、知識晶格連結、及探索性注入，
 提供混合式推薦，兼顧相關性與意外驚喜。
 
 設計原則：
 - 三路混合：協同過濾 + 內容過濾 + 偶然性注入
 - 多因子評分：近因性、相關性、新奇性
 - 所有外部依賴 try/except 包裹
-- 互動歷史持久化到 _system/recommendations/interactions.json
+- 互動歷史持久化到 data/_system/recommendations/interactions.json
+- 結晶資料來源：CrystalStore（SQLite WAL）
 """
 
 from __future__ import annotations
@@ -17,11 +18,10 @@ import logging
 import math
 import os
 import random
-import time
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set
 
 logger = logging.getLogger(__name__)
 
@@ -48,31 +48,37 @@ ACTION_WEIGHTS: Dict[str, float] = {
 }
 
 # 推薦項目類型
-ITEM_TYPES = {"crystal", "skill", "reference", "exploration", "course"}
+ITEM_TYPES = {"crystal", "reference", "exploration"}
 
 
 class Recommender:
-    """推薦引擎 — 基於 Memory + WEE + Knowledge Graph."""
+    """推薦引擎 — 基於 CrystalStore + Knowledge Graph."""
 
     def __init__(
         self,
         workspace: Optional[str] = None,
         event_bus: Any = None,
-        memory_manager: Any = None,
+        crystal_store: Any = None,
     ) -> None:
         ws = workspace or os.getenv("MUSEON_WORKSPACE", str(Path.home() / "MUSEON"))
         self._workspace = Path(ws)
         self._event_bus = event_bus
-        self._memory_manager = memory_manager
+        self._crystal_store = crystal_store
 
         # 互動歷史
-        self._interactions_dir = self._workspace / "_system" / "recommendations"
+        self._interactions_dir = self._workspace / "data" / "_system" / "recommendations"
         self._interactions_dir.mkdir(parents=True, exist_ok=True)
         self._interactions_path = self._interactions_dir / "interactions.json"
         self._interactions: List[Dict] = self._load_interactions()
 
         # 快取：item_id → 互動統計
         self._item_stats: Dict[str, Dict] = self._build_item_stats()
+
+        logger.info(
+            f"Recommender 初始化完成 "
+            f"(crystal_store={'connected' if crystal_store else 'degraded'}, "
+            f"interactions={len(self._interactions)})"
+        )
 
     # ── Persistence ─────────────────────────────────────
 
@@ -89,12 +95,14 @@ class Recommender:
         return []
 
     def _save_interactions(self) -> None:
-        """持久化互動歷史."""
+        """持久化互動歷史（原子寫入）."""
         try:
-            self._interactions_path.write_text(
+            tmp = self._interactions_path.with_suffix(".json.tmp")
+            tmp.write_text(
                 json.dumps(self._interactions[-MAX_INTERACTIONS:], ensure_ascii=False, indent=2),
                 encoding="utf-8",
             )
+            tmp.replace(self._interactions_path)
         except Exception as e:
             logger.error(f"Failed to save interactions: {e}")
 
@@ -283,9 +291,11 @@ class Recommender:
     def _collaborative_filter(self, context: Dict) -> List[Dict]:
         """協同過濾 — 基於互動模式推薦相似項目.
 
-        策略：找出使用者互動過的高分項目所關聯的其他項目。
+        策略：找出使用者互動過的高分項目，透過 crystal links 找關聯結晶。
         """
         candidates: List[Dict] = []
+        if not self._crystal_store:
+            return candidates
 
         # 找出近期互動中的高分項目
         recent = self._interactions[-50:]
@@ -295,91 +305,99 @@ class Recommender:
             if ACTION_WEIGHTS.get(action, 0) >= 0.5:
                 high_score_ids.add(ix.get("item_id", ""))
 
-        # 嘗試從 knowledge lattice 找到關聯項目
+        if not high_score_ids:
+            return candidates
+
+        # 從 CrystalStore 的 links 表找關聯結晶
         try:
-            kg_path = self._workspace / "_system" / "knowledge_graph.json"
-            if kg_path.exists():
-                kg = json.loads(kg_path.read_text(encoding="utf-8"))
-                edges = kg.get("edges", [])
-                for edge in edges:
-                    source = edge.get("source", "")
-                    target = edge.get("target", "")
-                    if source in high_score_ids and target not in high_score_ids:
-                        candidates.append({
-                            "item_id": target,
-                            "item_type": "crystal",
-                            "title": edge.get("target_title", target),
-                            "score": edge.get("weight", 0.5),
-                            "reason": "collaborative: related to items you liked",
-                            "tags": [],
-                        })
+            links = self._crystal_store.load_links()
+            # 建立 cuid → crystal 索引（懶載入）
+            crystals_by_id: Optional[Dict] = None
+
+            for link in links:
+                link_dict = link if isinstance(link, dict) else link.to_dict()
+                source = link_dict.get("from_cuid", "")
+                target = link_dict.get("to_cuid", "")
+                confidence = link_dict.get("confidence", 0.5)
+
+                if source in high_score_ids and target not in high_score_ids:
+                    # 懶載入結晶標題
+                    if crystals_by_id is None:
+                        raw = self._crystal_store.load_crystals_raw()
+                        crystals_by_id = {c["cuid"]: c for c in raw}
+
+                    crystal = crystals_by_id.get(target, {})
+                    if crystal.get("status", "active") != "active":
+                        continue
+
+                    tags = crystal.get("tags", [])
+                    if isinstance(tags, str):
+                        try:
+                            tags = json.loads(tags)
+                        except Exception:
+                            tags = []
+
+                    candidates.append({
+                        "item_id": target,
+                        "item_type": "crystal",
+                        "title": crystal.get("g1_summary", target),
+                        "score": confidence,
+                        "reason": "collaborative: linked to crystals you interacted with",
+                        "tags": tags,
+                        "description": crystal.get("g3_root_inquiry", "")[:100],
+                    })
         except Exception as e:
-            logger.debug(f"Knowledge graph not available for collab filter: {e}")
+            logger.debug(f"CrystalStore links not available for collab filter: {e}")
 
         return candidates[:20]
 
     def _content_filter(self, context: Dict) -> List[Dict]:
-        """內容過濾 — 基於知識圖譜連結推薦.
+        """內容過濾 — 從 CrystalStore 中搜尋匹配當前上下文的結晶.
 
-        策略：從知識圖譜節點中尋找與當前上下文匹配的項目。
+        策略：掃描活躍結晶的 g1_summary + tags + domain，匹配上下文關鍵字。
         """
         candidates: List[Dict] = []
         topic = context.get("topic", "")
         keywords = context.get("keywords", [])
         search_terms = ([topic] if topic else []) + keywords
 
-        if not search_terms:
+        if not search_terms or not self._crystal_store:
             return candidates
 
-        # 從 crystals 資料夾掃描
         try:
-            crystals_dir = self._workspace / "data" / "crystals"
-            if crystals_dir.exists():
-                for fp in crystals_dir.glob("*.json"):
-                    try:
-                        crystal = json.loads(fp.read_text(encoding="utf-8"))
-                        text = (crystal.get("title", "") + " " + crystal.get("content", "")).lower()
-                        for term in search_terms:
-                            if term.lower() in text:
-                                candidates.append({
-                                    "item_id": crystal.get("cuid", fp.stem),
-                                    "item_type": "crystal",
-                                    "title": crystal.get("title", fp.stem),
-                                    "score": 0.6,
-                                    "reason": f"content: matches '{term}'",
-                                    "tags": crystal.get("tags", []),
-                                    "description": crystal.get("content", "")[:100],
-                                })
-                                break
-                    except Exception:
-                        continue
-        except Exception as e:
-            logger.debug(f"Crystal scan failed: {e}")
+            raw_crystals = self._crystal_store.load_crystals_raw()
+            for crystal in raw_crystals:
+                if crystal.get("status", "active") != "active":
+                    continue
 
-        # 從技能資料夾掃描
-        try:
-            skills_dir = self._workspace / "data" / "skills"
-            if skills_dir.exists():
-                for fp in skills_dir.glob("*.json"):
+                tags = crystal.get("tags", [])
+                if isinstance(tags, str):
                     try:
-                        skill = json.loads(fp.read_text(encoding="utf-8"))
-                        text = (skill.get("name", "") + " " + skill.get("description", "")).lower()
-                        for term in search_terms:
-                            if term.lower() in text:
-                                candidates.append({
-                                    "item_id": skill.get("id", fp.stem),
-                                    "item_type": "skill",
-                                    "title": skill.get("name", fp.stem),
-                                    "score": 0.5,
-                                    "reason": f"content: skill matches '{term}'",
-                                    "tags": skill.get("tags", []),
-                                    "description": skill.get("description", "")[:100],
-                                })
-                                break
+                        tags = json.loads(tags)
                     except Exception:
-                        continue
+                        tags = []
+
+                text = (
+                    crystal.get("g1_summary", "")
+                    + " " + crystal.get("g3_root_inquiry", "")
+                    + " " + crystal.get("domain", "")
+                    + " " + " ".join(tags)
+                ).lower()
+
+                for term in search_terms:
+                    if term.lower() in text:
+                        candidates.append({
+                            "item_id": crystal.get("cuid", ""),
+                            "item_type": "crystal",
+                            "title": crystal.get("g1_summary", ""),
+                            "score": crystal.get("ri_score", 0.5),
+                            "reason": f"content: matches '{term}'",
+                            "tags": tags,
+                            "description": crystal.get("g3_root_inquiry", "")[:100],
+                        })
+                        break
         except Exception as e:
-            logger.debug(f"Skill scan failed: {e}")
+            logger.debug(f"Crystal content filter failed: {e}")
 
         return candidates[:30]
 
@@ -407,7 +425,7 @@ class Recommender:
             if item.get("item_id") not in seen_ids:
                 novel_candidates.append(item)
 
-        # 如果現有候選中沒有新奇項目，從檔案系統隨機取
+        # 如果現有候選中沒有新奇項目，從 CrystalStore 隨機取
         if not novel_candidates:
             novel_candidates = self._discover_random_items(limit=inject_count)
 
@@ -430,26 +448,29 @@ class Recommender:
         return result
 
     def _discover_random_items(self, limit: int = 3) -> List[Dict]:
-        """從檔案系統隨機發現項目."""
+        """從 CrystalStore 隨機發現結晶."""
         all_items: List[Dict] = []
+        if not self._crystal_store:
+            return all_items
         try:
-            crystals_dir = self._workspace / "data" / "crystals"
-            if crystals_dir.exists():
-                files = list(crystals_dir.glob("*.json"))
-                random.shuffle(files)
-                for fp in files[:limit]:
+            raw_crystals = self._crystal_store.load_crystals_raw()
+            active = [c for c in raw_crystals if c.get("status", "active") == "active"]
+            random.shuffle(active)
+            for crystal in active[:limit]:
+                tags = crystal.get("tags", [])
+                if isinstance(tags, str):
                     try:
-                        crystal = json.loads(fp.read_text(encoding="utf-8"))
-                        all_items.append({
-                            "item_id": crystal.get("cuid", fp.stem),
-                            "item_type": "crystal",
-                            "title": crystal.get("title", fp.stem),
-                            "score": NOVELTY_BONUS,
-                            "reason": "serendipity: random crystal",
-                            "tags": crystal.get("tags", []),
-                        })
+                        tags = json.loads(tags)
                     except Exception:
-                        continue
+                        tags = []
+                all_items.append({
+                    "item_id": crystal.get("cuid", ""),
+                    "item_type": "crystal",
+                    "title": crystal.get("g1_summary", ""),
+                    "score": NOVELTY_BONUS,
+                    "reason": "serendipity: random crystal",
+                    "tags": tags,
+                })
         except Exception as e:
-            logger.debug(f"[RECOMMENDER] crystal failed (degraded): {e}")
+            logger.debug(f"[RECOMMENDER] random crystal discovery failed (degraded): {e}")
         return all_items
