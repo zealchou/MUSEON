@@ -109,20 +109,16 @@ class SkillRouter:
                 frontmatter = parts[1]
                 body = parts[2]
 
+                # 只匹配頂層（未縮排）YAML 欄位，避免巢狀
+                # stages[].name 覆蓋頂層 name（#案例結晶 幽靈 Skill 根因）
                 for line in frontmatter.splitlines():
-                    line = line.strip()
                     if line.startswith("name:"):
-                        meta["name"] = line[5:].strip()
+                        meta["name"] = line[5:].strip().strip('"').strip("'")
                     elif line.startswith("description:"):
                         # May be multi-line (>) — grab first line
                         meta["description"] = line[12:].strip().lstrip(">").strip()
-
-                # Parse type from frontmatter
-                for line in frontmatter.splitlines():
-                    stripped = line.strip()
-                    if stripped.startswith("type:"):
-                        meta["type"] = stripped[5:].strip()
-                        break
+                    elif line.startswith("type:"):
+                        meta["type"] = line[5:].strip()
 
                 # Extract trigger words from body
                 meta["triggers"] = self._extract_triggers(body, frontmatter)

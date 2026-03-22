@@ -1,10 +1,11 @@
-# Blast Radius — 模組影響半徑表 v1.39
+# Blast Radius — 模組影響半徑表 v1.40
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節
+> **v1.40 (2026-03-22)**：Business Hub 健康檢查——skill_router.py `_extract_metadata` YAML 解析修復：只匹配頂層（未縮排）`name:`/`description:`/`type:` 欄位，防止 workflow stages 的巢狀 `name:` 覆蓋頂層 Skill 名稱（幽靈 Skill `"案例結晶"` 根因）；同時剝除 YAML 引號防止 literal quote 汙染；清理 synapses.json 3 筆幽靈條目；consultant-communication memory.writes 補齊 target/type/condition 結構；扇入不變（2）、無新增 import
 > **v1.39 (2026-03-22)**：Thinking Hub 健康檢查——brain.py `_dispatch_orchestrate` Orchestrator system prompt 移除硬編碼 Skill 名稱範例（`resonance`），Rule 4 強化約束防止 LLM 幻覺引用 roster 外 Skill；shadow SKILL.md `layer: business` → `layer: thinking` 修正欄位漂移；純 prompt 文字修改，扇入扇出不變、無新增 import/共享狀態
 > **v1.36 (2026-03-21)**：Evolution Hub 健康檢查修復——outward_trigger `_ensure_state_files()` 初始化 + tantra 孤立輸出修復 + morphenix/proposals 目錄補建
 > **v1.35 (2026-03-21)**：Telegram 授權系統升級——新增 `gateway/authorization.py`（ApprovalQueue + ToolAuthorizationQueue + PairingManager + AuthorizationPolicy）；`security.py` check_tool_access() 三級策略路由；`telegram.py` 配對/授權 handlers；`server.py` 授權回覆分支；`mcp_server.py` museon_auth_status 工具；新增持久狀態 `~/.museon/auth/`
@@ -772,6 +773,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-22 | v1.40 | Business Hub 健康檢查：skill_router.py `_extract_metadata` 頂層 YAML 解析修復（防 workflow stages 巢狀 name 覆蓋）+ synapses.json 幽靈條目清理（3 筆 `"案例結晶"`）+ consultant-communication memory.writes 補齊結構 |
 | 2026-03-22 | v1.39 | Thinking Hub 健康檢查：brain.py `_dispatch_orchestrate` Orchestrator prompt 移除硬編碼 `resonance` 範例 + Rule 4 強化約束（防 LLM 幻覺引用 roster 外 Skill）；shadow SKILL.md `layer: business` → `layer: thinking`；純 prompt 文字修改，扇入扇出不變 |
 | 2026-03-21 | v1.38 | dispatch 路徑 q_score 修復：brain.py `q_score`/`thinking_path_summary`/`p3_fusion_result` 三個 P3 審查變數的初始化從 else 分支（正常 pipeline L1297）提前到 dispatch 分支之前（L1069），修復 dispatch 路徑的 `UnboundLocalError`；純位置移動，無新增變數/方法/共享狀態；brain.py 扇入扇出不變 |
 | 2026-03-21 | v1.37 | 兩筆藍圖欠債補齊：(1) `skill_router.py` L130 always_on 判定從子字串搜尋（`"常駐" in content`，67% 虛假正報率）改為 YAML frontmatter `type == "always-on"` 精確判定（0% 虛假正報率）——純內部邏輯最佳化，扇入扇出不變、無新增 import/共享狀態；(2) `eval_engine.py` 新增 `get_blindspot_hint_for_query()`（22 Skill 盲點提示表）、`metacognition.py` 新增 `extract_thinking_summary()`（五維度思考摘要），兩個函數尚未接線（無呼叫者），扇入扇出不變 |
