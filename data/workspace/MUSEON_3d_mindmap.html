@@ -1245,10 +1245,10 @@ renderer.domElement.addEventListener('mousemove', e => {
     tip.style.left = (e.clientX + 14) + 'px';
     tip.style.top = (e.clientY + 14) + 'px';
     tip.classList.add('show');
-    if (!selectedNode && !coverageViewActive && !doctorViewActive) highlightNode(n);
+    if (!selectedNode && !coverageViewActive && !doctorViewActive && !searchActive) highlightNode(n);
   } else if (!n && !selectedNode) {
     tip.classList.remove('show');
-    if (!coverageViewActive && !doctorViewActive) clearHighlight();
+    if (!coverageViewActive && !doctorViewActive && !searchActive) clearHighlight();
   }
 });
 
@@ -1284,9 +1284,7 @@ renderer.domElement.addEventListener('click', e => {
   } else {
     // 只有真正點空白才取消（不是拖拉結束）
     selectedNode = null;
-    if (!coverageViewActive && !doctorViewActive) clearHighlight();
-    hideInfo();
-    targetGoal.set(0, 0, 0);
+    if (!coverageViewActive && !doctorViewActive && !searchActive) { clearHighlight(); hideInfo(); targetGoal.set(0, 0, 0); }
   }
   tip.classList.remove('show');
 });
@@ -1295,6 +1293,7 @@ renderer.domElement.addEventListener('click', e => {
 //  HIGHLIGHT
 // ═══════════════════════════════════════
 const dimColor = new THREE.Color('#E2E0DA');
+let searchActive = false;  // 搜尋模式中：不讓 hover/click 清除高亮
 
 function highlightNode(node) {
   const connected = new Set([node.id]);
@@ -2187,6 +2186,7 @@ document.addEventListener('keydown', e => {
     if (!q) {
       countEl.textContent = '';
       input.classList.remove('no-match');
+      searchActive = false;
       clearHighlight();
       selectedNode = null;
       hideInfo();
@@ -2196,9 +2196,11 @@ document.addEventListener('keydown', e => {
     countEl.textContent = matched.length + '/' + nodes.length;
     if (matched.length === 0) {
       input.classList.add('no-match');
+      searchActive = false;
       return;
     }
     input.classList.remove('no-match');
+    searchActive = true;
     highlightSearchResults(matched);
     focusCameraOnNodes(matched);
     // 如果只有 1 個結果，自動選中並顯示 info panel
@@ -2220,6 +2222,7 @@ document.addEventListener('keydown', e => {
   input.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       input.value = '';
+      searchActive = false;
       onSearchInput();
       input.blur();
     }
