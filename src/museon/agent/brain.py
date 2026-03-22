@@ -857,6 +857,9 @@ class MuseonBrain:
                 details=f"偵測異常: {str(e)}",
             )
 
+        # 存儲 decision_signal 供 _deliberate() 使用
+        self._last_decision_signal = decision_signal
+
         # ── Step 3.3: P2 決策層路徑短路 — 重大決策先問後答 ──
         # 若偵測到重大決策，立即進入「決策層反問模式」，不進入後續 pipeline
         if decision_signal and decision_signal.is_major:
@@ -1063,20 +1066,25 @@ class MuseonBrain:
         except Exception as e:
             logger.debug(f"Step 3.66 根因偵測降級: {e}")
 
-        # ── Step 3.8: 深度反射 — 所有路徑前執行（dispatch 之前）──
+        # ── Step 3.8: 謀定而後動 — 所有路徑前執行（dispatch 之前）──
         # 必須在 dispatch 評估前跑，確保強反射訊號能覆蓋 dispatch 決策
-        reflection_note = self._deep_reflect(
+        active_lenses = []
+        deliberation_note, active_lenses = self._deliberate(
             content=content,
             routing_signal=routing_signal,
             history=self._get_session_history(session_id),
+            anima_mc=anima_mc,
+            anima_user=anima_user,
+            matched_skills=matched_skills,
+            decision_signal=getattr(self, '_last_decision_signal', None),
         )
-        if reflection_note:
-            logger.info(f"[DeepReflect] 反射觸發: {reflection_note[:120]}")
+        if deliberation_note:
+            logger.info(f"[Deliberate] 謀定觸發: {deliberation_note[:120]}")
             # 強反射訊號：覆蓋 dispatch——問句/停頓/探詢不應分派多 Skill
             _strong_block_signals = ["停頓訊號", "能力探詢", "純提問", "行為內省", "文件待確認"]
-            if any(s in reflection_note for s in _strong_block_signals):
+            if any(s in deliberation_note for s in _strong_block_signals):
                 matched_skills = []  # 清除 Skill 觸發，阻止 dispatch
-                logger.info("[DeepReflect] 強反射訊號：matched_skills 已清空，阻止 dispatch 觸發")
+                logger.info("[Deliberate] 強反射訊號：matched_skills 已清空，阻止 dispatch 觸發")
 
         # ── Step 3.7: Dispatch Assessment（分派評估）──
         # ★ 初始化 P3 審查變數（dispatch/normal 兩條路徑都會在後續引用）
@@ -1127,7 +1135,7 @@ class MuseonBrain:
                 session_id=session_id,
                 routing_signal=routing_signal,
                 commitment_context=commitment_context,
-                reflection_note=reflection_note,
+                reflection_note=deliberation_note,
                 baihe_context=_combined_baihe,
             )
 
@@ -1316,7 +1324,7 @@ class MuseonBrain:
             thinking_path_summary = ""
             p3_fusion_result = None
 
-            if not _is_simple and (self._metacognition or self.eval_engine):
+            if self._metacognition or self.eval_engine:
                 try:
                     # ★ P3 並行融合：三個評分模組並行執行（MetaCog + Eval + Health）
                     p3_fusion_result = await self._parallel_review_synthesis(
@@ -1819,11 +1827,19 @@ class MuseonBrain:
         # P5: 偵測用戶休息/免打擾意圖 → 發布 USER_QUIET_MODE 事件
         self._detect_and_publish_quiet_mode(content)
 
-        # P0: 注入思考路徑摘要到回覆前置（50% 情況下有摘要）
+        # P0: 謀定而後動——思考軌跡分級顯示
         final_response = response_text
-        if thinking_path_summary:
-            final_response = f"【我的思考路徑】{thinking_path_summary}\n\n{response_text}"
-            logger.debug(f"[P0] 回覆前置注入思考摘要")
+        _display_loop = getattr(routing_signal, 'loop', 'EXPLORATION_LOOP') if routing_signal else 'EXPLORATION_LOOP'
+        if _display_loop != "FAST_LOOP":
+            if _display_loop == "SLOW_LOOP" and thinking_path_summary:
+                final_response = f"\U0001f9e0 {thinking_path_summary}\n\n{response_text}"
+                logger.debug(f"[P0] SLOW_LOOP 回覆前置注入思考摘要")
+            elif active_lenses:
+                non_default_lenses = [l for l in active_lenses if l != "c15"]
+                if non_default_lenses:
+                    lens_hint = " \u2192 ".join(non_default_lenses)
+                    final_response = f"\U0001f9e0 {lens_hint}\n\n{response_text}"
+                    logger.debug(f"[P0] 透鏡提示注入: {lens_hint}")
 
         # P1: 主動盲點提醒——根據探索度決定是否注入「你可能沒想到」提示
         try:
@@ -2254,13 +2270,13 @@ class MuseonBrain:
     # 系統提示詞建構
     # ═══════════════════════════════════════════
 
-    def _deep_reflect(
+    def _check_behavior_patterns(
         self,
         content: str,
         routing_signal: Optional[Any],
         history: List[Dict[str, str]],
     ) -> str:
-        """Step 3.8: 深度反射層 — 回應前的前置自我審視.
+        """行為約束層（原 _deep_reflect）— 回應前的前置自我審視.
 
         純啟發式規則，無 LLM 呼叫，零延遲。
         目的：在產出前檢查「我的意圖是否與情境對齊」。
@@ -2399,6 +2415,172 @@ class MuseonBrain:
             + "\n".join(f"- {n}" for n in notes)
             + "\n\n上述反射注解是給你自己看的，不要直接輸出到回覆中。"
         )
+
+    # ═══════════════════════════════════════════
+    # 謀定而後動引擎 — T1 透鏡輔助方法
+    # ═══════════════════════════════════════════
+
+    def _scan_emotional_state(self, content: str) -> str:
+        """resonance 透鏡：掃描情緒狀態."""
+        negative = ["煩", "累", "崩潰", "壓力", "無力", "迷茫", "心累", "卡住", "算了", "隨便", "沒事", "說不上來", "很悶", "太敏感"]
+        positive = ["開心", "興奮", "太好了", "感謝", "讚", "不錯", "成功", "突破"]
+        content_lower = content.lower()
+        neg_count = sum(1 for w in negative if w in content_lower)
+        pos_count = sum(1 for w in positive if w in content_lower)
+        if neg_count > 0 and pos_count > 0:
+            return "mixed"
+        if neg_count > 0:
+            return "negative"
+        if pos_count > 0:
+            return "positive"
+        return "neutral"
+
+    def _has_strategic_signal(self, content: str) -> bool:
+        """master-strategy 透鏡：偵測戰略層信號."""
+        keywords = ["決策", "選擇", "方案", "競爭", "佈局", "時機", "戰略", "策略", "全勝", "攻防", "虛實", "沙盤", "推演", "博弈", "談判"]
+        return any(k in content for k in keywords)
+
+    def _has_interpersonal_signal(self, content: str) -> bool:
+        """shadow 透鏡：偵測人際博弈信號."""
+        keywords = ["客戶", "對方", "談判", "合作", "衝突", "關係", "操控", "抗拒", "防衛", "利用", "不對等", "老闆", "團隊", "夥伴", "同事"]
+        return any(k in content for k in keywords)
+
+    def _has_belief_conflict_signal(self, content: str) -> bool:
+        """dharma 透鏡：偵測信念衝突信號."""
+        keywords = ["卡住", "矛盾", "不知道怎麼選", "兩難", "做不到", "價值觀", "方向", "困惑", "迷失", "意義", "轉變", "突破", "信念"]
+        return any(k in content for k in keywords)
+
+    def _has_assumption_signal(self, content: str) -> bool:
+        """philo-dialectic 透鏡：偵測未審視假設信號."""
+        keywords = ["應該", "一定", "不可能", "為什麼", "憑什麼", "這樣對嗎", "怎麼看待", "本質", "定義", "前提", "假設"]
+        return any(k in content for k in keywords)
+
+    def _quick_crystal_probe(self, content: str) -> bool:
+        """knowledge-lattice 透鏡：快速探測是否有相關結晶."""
+        try:
+            if not self.knowledge_lattice:
+                return False
+            results = self.knowledge_lattice.recall(query=content, top_k=1)
+            return bool(results)
+        except Exception:
+            return False
+
+    def _determine_response_strategy(self, loop: str, lenses: list, is_decision: bool, emotional_state: str, prefers_short: bool) -> str:
+        """謀定匯流：根據局勢和透鏡決定回應策略."""
+        if emotional_state == "negative":
+            return "先接住情緒，再處理問題"
+        if is_decision:
+            return "結構化呈現選項（甜頭/代價/風險），不代替決策"
+        if "dharma" in lenses:
+            return "不急著給答案，先幫他看清卡點"
+        if "philo" in lenses:
+            return "挑戰前提，不預設結論"
+        if "strategy" in lenses:
+            return "戰略視角切入，連結長期影響"
+        if "shadow" in lenses:
+            return "留意人際動態，提供博弈洞察"
+        if loop == "FAST_LOOP" or prefers_short:
+            return "直接核心答案，3 句以內"
+        return "正常回應，帶入相關透鏡視角"
+
+    # ═══════════════════════════════════════════
+    # 謀定而後動引擎 — 主方法
+    # ═══════════════════════════════════════════
+
+    def _deliberate(
+        self,
+        content: str,
+        routing_signal: Optional[Any],
+        history: List[Dict[str, str]],
+        anima_mc: dict = None,
+        anima_user: dict = None,
+        matched_skills: list = None,
+        decision_signal=None,
+    ) -> tuple:
+        """謀定而後動引擎 v1.0 — T1 透鏡匯流 + 行為約束 + 回應策略.
+
+        孫子兵法「謀定而後動」——快仗也要謀，只是謀的尺度不同。
+        三個 Phase：局勢掃描 → 智囊研判 → 謀定匯流。
+        全部零 LLM 成本（純規則引擎）。
+
+        Returns:
+            (deliberation_note: str, active_lenses: list[str])
+        """
+        try:
+            loop = getattr(routing_signal, 'loop', 'EXPLORATION_LOOP') if routing_signal else 'EXPLORATION_LOOP'
+
+            # ── Phase A: 局勢掃描（零成本，ALL loops）──
+            emotional_state = self._scan_emotional_state(content)
+            is_decision = getattr(decision_signal, 'is_major', False) if decision_signal else False
+            prefers_short = (
+                (anima_user or {}).get("observations", {})
+                .get("prefers_short_response", {})
+                .get("count", 0) > 50
+            )
+
+            # Phase A4: 行為約束（原有 8 項模式比對）
+            behavior_constraint = self._check_behavior_patterns(
+                content=content,
+                routing_signal=routing_signal,
+                history=history,
+            )
+
+            # ── Phase B: 智囊研判（規則引擎，ALL loops）──
+            active_lenses = []
+
+            if self._has_strategic_signal(content):
+                active_lenses.append("strategy")
+            if self._has_interpersonal_signal(content):
+                active_lenses.append("shadow")
+            if self._has_belief_conflict_signal(content):
+                active_lenses.append("dharma")
+            if self._has_assumption_signal(content):
+                active_lenses.append("philo")
+            if emotional_state in ("negative", "mixed"):
+                active_lenses.append("resonance")
+
+            # c15 常駐
+            active_lenses.append("c15")
+
+            # 記憶探測（輕量）
+            if self._quick_crystal_probe(content):
+                active_lenses.append("memory")
+
+            # ── Phase C: 謀定匯流 ──
+            strategy = self._determine_response_strategy(
+                loop=loop,
+                lenses=active_lenses,
+                is_decision=is_decision,
+                emotional_state=emotional_state,
+                prefers_short=prefers_short,
+            )
+
+            lines = ["## 謀定（回應前思考匯流）"]
+            lines.append(
+                f"- 局勢：{emotional_state} | {loop} | "
+                f"{'決策場景' if is_decision else '一般場景'}"
+            )
+            if behavior_constraint:
+                lines.append(f"- 約束：{behavior_constraint}")
+            # 只列非常駐透鏡（c15 常駐不需列出）
+            non_default = [l for l in active_lenses if l != "c15"]
+            if non_default:
+                lines.append(f"- 透鏡：{', '.join(non_default)}")
+            lines.append(f"- 策略：{strategy}")
+
+            deliberation_note = "\n".join(lines)
+            logger.info(f"[Deliberate] {emotional_state} | {loop} | lenses={non_default} | strategy={strategy[:30]}")
+
+            return deliberation_note, active_lenses
+
+        except Exception as e:
+            logger.debug(f"謀定引擎降級: {e}")
+            # 降級：嘗試舊版反射
+            try:
+                fallback = self._check_behavior_patterns(content, routing_signal, history)
+                return fallback or "", []
+            except Exception:
+                return "", []
 
     async def _handle_decision_layer_path(
         self,
@@ -5368,12 +5550,16 @@ class MuseonBrain:
             "thinking_path_summary": "",
         }
 
+        # 謀定而後動：根據 loop 分級決定審查深度
+        _loop = getattr(routing_signal, 'loop', 'EXPLORATION_LOOP') if routing_signal else 'EXPLORATION_LOOP'
+        _fast_mode = (_loop == "FAST_LOOP")
+
         # ★ P3 並行融合：準備三個異步任務
         tasks = []
         task_names = []
 
         # 任務 1: MetaCognition.pre_review()
-        if self._metacognition:
+        if self._metacognition and not _fast_mode:
             async def _meta_task():
                 try:
                     return await self._metacognition.pre_review(
@@ -5407,7 +5593,7 @@ class MuseonBrain:
             task_names.append("q_score")
 
         # 任務 3: Health Score（通過 Governor 的 DendriticScorer）
-        if self._governor and hasattr(self._governor, 'dendritic_scorer'):
+        if self._governor and hasattr(self._governor, 'dendritic_scorer') and not _fast_mode:
             def _health_task():
                 try:
                     scorer = self._governor.dendritic_scorer
