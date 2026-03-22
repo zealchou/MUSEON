@@ -345,7 +345,7 @@ class PairingManager:
         return dict(self._allowlist)
 
     def load(self) -> None:
-        """從 allowlist.json 載入."""
+        """從 allowlist.json 載入. 不存在則初始化空檔案."""
         if self._allowlist_path.exists():
             try:
                 data = json.loads(
@@ -358,6 +358,11 @@ class PairingManager:
             except Exception as e:
                 logger.warning(f"PairingManager: load failed: {e}")
                 self._allowlist = {}
+        else:
+            # 初始化空檔案，確保持久化層存在
+            self._allowlist = {}
+            self.save()
+            logger.info("PairingManager: initialized empty allowlist.json")
 
     def save(self) -> None:
         """原子寫入 allowlist.json."""
@@ -468,7 +473,7 @@ class AuthorizationPolicy:
         return dict(self._policy)
 
     def load(self) -> None:
-        """從 policy.json 載入. 不存在則使用預設."""
+        """從 policy.json 載入. 不存在則初始化預設檔案."""
         if self._policy_path.exists():
             try:
                 data = json.loads(
@@ -482,8 +487,10 @@ class AuthorizationPolicy:
                 return
             except Exception as e:
                 logger.warning(f"AuthorizationPolicy: load failed: {e}")
-        # 使用預設
+        # 使用預設並持久化，確保檔案存在
         self._policy = {k: list(v) for k, v in DEFAULT_POLICY.items()}
+        self.save()
+        logger.info("AuthorizationPolicy: initialized default policy.json")
 
     def save(self) -> None:
         """原子寫入 policy.json."""

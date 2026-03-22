@@ -299,7 +299,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 //  SYNC META — 拓撲同步狀態
 // ═══════════════════════════════════════
 const SYNC_META = {
-  topologyVersion: 'v1.38',
+  topologyVersion: 'v1.39',
   syncDate: '2026-03-22',
   nodeCount: 0, // auto-calculated below
   linkCount: 0, // auto-calculated below
@@ -947,6 +947,7 @@ const links = [
   {source:"service-health",target:"searxng",label:"監控",type:"monitor"},
   // ── async ──
   {source:"data-watchdog",target:"event-bus",label:"監控事件",type:"async"},
+  {source:"external-user",target:"anima-mc-store",label:"外部使用者互動更新 external_users/ 觀察",type:"async"},
   {source:"fact-correction",target:"proactive-bridge",label:"P4 自省清洗推播",type:"async"},
   {source:"fact-correction",target:"pulse",label:"P4 自省清洗脈搏",type:"async"},
   {source:"line",target:"zeal",label:"LINE 回傳回應",type:"async"},
@@ -956,7 +957,10 @@ const links = [
   {source:"telegram",target:"brain",label:"推送寫入 session",type:"async"},
   {source:"telegram",target:"external-user",label:"群組中回覆外部使用者",type:"async"},
   {source:"telegram",target:"zeal",label:"回傳回應（私聊 + 群組回覆）",type:"async"},
+  {source:"verified-user",target:"anima-mc-store",label:"配對使用者互動更新 ANIMA_USER（L1-L8 觀察）",type:"async"},
+  {source:"zeal",target:"anima-mc-store",label:"Owner 互動觸發 ANIMA_MC 更新（boss_name、self_awareness）",type:"async"},
 ];
+
 
 
 

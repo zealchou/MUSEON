@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.38
+# MUSEON 系統拓撲圖 v1.39
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.39 (2026-03-22)**：使用者 ↔ ANIMA 連線補齊——新增 3 條 cross 連線：zeal→anima-mc-store（Owner 互動觸發 ANIMA_MC 更新）、verified-user→anima-mc-store（配對使用者 L1-L8 觀察）、external-user→anima-mc-store（外部使用者觀察）；auth 持久化修復（PairingManager/AuthorizationPolicy 首次 load 時自動初始化空檔案）；184 節點 382 連線
 > **v1.38 (2026-03-22)**：L3-A2 Brain Mixin 拆分——brain 節點拆分為 core + 5 Mixin 子模組 + brain_types 共享型別；agent 群組新增 `brain-prompt-builder`、`brain-dispatch`、`brain-observation`、`brain-p3-fusion`、`brain-tools`、`brain-types` 6 個節點 + 6 條 internal 連線；184 節點 379 連線
 > **v1.37 (2026-03-22)**：Brain 三層治療——agent 群組新增 `chat-context`（ChatContext dataclass，r=0.7）、`deterministic-router`（確定性任務分解器，r=1.0）2 個節點；新增 2 條 internal 連線（brain→chat-context、brain→deterministic-router）；178 節點 373 連線
 > **v1.36 (2026-03-22)**：使用者節點精細化——channel 群組 `user` 拆分為 `zeal`（CORE 主人）、`verified-user`（VERIFIED 動態配對）、`external-user`（EXTERNAL 群組外部成員）三節點；補上遺漏的 `discord` 節點；新增/更新 8 條 flow 連線反映實際使用者分流；175 節點 369 連線
@@ -851,6 +852,9 @@ external-user（EXTERNAL）
 | `telegram` | `brain` | 推送寫入 session |
 | `fact-correction` | `proactive-bridge` | P4 自省清洗推播 |
 | `fact-correction` | `pulse` | P4 自省清洗脈搏 |
+| `zeal` | `anima-mc-store` | Owner 互動觸發 ANIMA_MC 更新（boss_name、self_awareness） |
+| `verified-user` | `anima-mc-store` | 配對使用者互動更新 ANIMA_USER（L1-L8 觀察） |
+| `external-user` | `anima-mc-store` | 外部使用者互動更新 external_users/ 觀察 |
 
 ---
 
