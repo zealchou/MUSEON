@@ -2,7 +2,7 @@
 name: deep-think
 type: always-on
 layer: core-extension
-hub: core
+hub: thinking
 io:
   inputs:
     - from: query-clarity
