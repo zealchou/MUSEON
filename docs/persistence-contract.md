@@ -1,4 +1,4 @@
-# MUSEON Persistence Contract v1.28 — 水電圖
+# MUSEON Persistence Contract v1.29 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
@@ -148,7 +148,7 @@ Heartbeat Timer (30s)
     ▼
 ┌─────────────────┐
 │  PulseDB         │ ──→ data/pulse/pulse.db  [SQLite]
-│  (pulse_db.py)   │     12 tables
+│  (pulse_db.py)   │     13 tables
 └─────────────────┘
     │
     ├──→ explorations table ──→ Explorer, Nightly
@@ -160,7 +160,8 @@ Heartbeat Timer (30s)
     ├──→ metacognition table ──→ Metacognition
     ├──→ scout_drafts table ──→ SkillScout, Nightly
     ├──→ health_scores table ──→ DendriticScorer, Doctor
-    └──→ incidents table ──→ SelfDiagnosis, Doctor  [P2: Governor→server callback 寫入]
+    ├──→ incidents table ──→ SelfDiagnosis, Doctor  [P2: Governor→server callback 寫入]
+    └──→ orchestrator_calls table ──→ 未來 A1 確定性路由  [L2-S3 Orchestrator 診斷]
 ```
 
 ### 管線 C：評估與追蹤管線
@@ -312,6 +313,7 @@ Installer 編排 (orchestrator.py)
 | W36 | 百合引擎決策快取 | Brain.Step 3.65 (baihe_decide) | ProactiveBridge._read_baihe_cache() | JSON | 2 小時（過期忽略） | OK |
 | W37 | 動態授權清單 | PairingManager (gateway/authorization.py) | PairingManager.is_paired(), TelegramAdapter.get_trust_level(), museon_auth_status() | JSON | 永久（TTL 可選） | OK |
 | W38 | 分級授權策略 | AuthorizationPolicy (gateway/authorization.py) | SecurityGate.check_tool_access(), museon_auth_status() | JSON | 永久 | OK |
+| W39 | Orchestrator 呼叫診斷 | brain.py（via _dispatch_orchestrate） | 未來 A1 確定性路由設計 | SQLite(PulseDB) | 永久 | OK |
 
 > **v1.10 補充（Phase 4 飛輪多代理）**：
 > - W10 六層記憶條目新增 `dept_id` 欄位（可選），用於部門級記憶隔離
@@ -628,7 +630,7 @@ recommender ──近因性衰減──→ 推薦排序 (in-memory)
 | `memory` | Markdown + JSON | ✅ 已存在 |
 | `vector-index` | Qdrant | ✅ 已存在 |
 | `registry` | RegistryDB SQLite | ✅ 已存在（v1.4 更名） |
-| `pulse-db` | PulseDB SQLite (15 表) | ✅ v1.4 新增 |
+| `pulse-db` | PulseDB SQLite (16 表) | ✅ v1.4 新增 |
 | `group-context-db` | GroupContextDB SQLite | ✅ v1.4 新增 |
 | `workflow-state-db` | WorkflowStateDB SQLite | ✅ v1.4 新增 |
 | `wee` | 演化引擎 | ✅ 已存在 |
@@ -645,6 +647,7 @@ recommender ──近因性衰減──→ 推薦排序 (in-memory)
 | v1.0 | 2026-03-15 | 初版：完整水電圖，涵蓋 23 個正常配對、3 個 Dead Write、14 個死目錄 |
 | v1.1 | 2026-03-15 | Phase 2 完成：4 個 JSON 遷移至 PulseDB（ceremony_state + eval 三件套） |
 | v1.2 | 2026-03-15 | Phase 3 完成：DataContract + DataBus 建立，10 個 Store 類統一接入 |
+| v1.29 | 2026-03-22 | Brain 三層治療——PulseDB 新增 `orchestrator_calls` 表（id/plan_id/skill_count/task_count/success/model/response_length/created_at，brain.py `_dispatch_orchestrate()` 寫入，供未來 A1 確定性路由分析）；新增 W39 配對（Orchestrator 呼叫診斷）；PulseDB 表數 15→16；管線 B 表清單新增 orchestrator_calls；拓撲對應表更新；同步 joint-map v1.34、system-topology v1.37 |
 | v1.28 | 2026-03-22 | P0-P3 升級——新增管線 F-2 寫入前快照備份（ANIMA_MC 寫入前快照 `_system/backups/anima_mc/` + PULSE.md 寫入前快照 `_system/backups/pulse_md/`，各保留 10 份 FIFO 輪替）；Brain Token 預算新增第 6 區段 Strategic Zone（1000 tokens，buffer 2800→1800）；`_system/` 子目錄新增 backups 兩個路徑條目；同步 system-topology v1.35、joint-map v1.33、blast-radius v1.46、memory-router v1.4 |
 | v1.27 | 2026-03-22 | 經驗諮詢閘門——W13 知識晶體 Schema 新增 Procedure 結晶類型（4 個選填欄位，ALTER TABLE 向後相容）；DW2 skill_usage_log.jsonl 從 Dead Write 升級為正常配對（新增 outcome 欄位） |
 | v1.26 | 2026-03-22 | Knowledge Lattice 持久層遷移：crystals.json + links.json + cuid_counter.json + archive.json → crystal.db（SQLite WAL 模式，crystals/links/cuid_counters 三表）；新增 `agent/crystal_store.py` CrystalStore 類別（singleton factory `get_crystal_store()`）；Engine 1 SQLite 引擎表新增 CrystalDB 條目；W13 知識晶體引擎從 JSON+Vector 改為 SQLite(WAL)+Vector；Phase 3 Store 表 LatticeStore 引擎從 JSON 改為 SQLite(WAL) via CrystalStore；拓撲對應表新增 crystal-store 節點；Pipeline R Memory Reset C1 從 crystals.json 改為 crystal.db 三表 DELETE；Nightly WAL checkpoint DB 數量 4→5；舊 JSON 檔案已歸檔為 .bak |
