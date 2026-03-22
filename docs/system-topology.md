@@ -593,7 +593,7 @@ external-user（EXTERNAL）
 | `roundtable` | `knowledge-lattice` | 裁決軌跡結晶 |
 | `investment-masters` | `knowledge-lattice` | 軍師會診結晶 |
 | `investment-masters` | `skill-router` | DNA27 RC 親和觸發 |
-| `drift-detector` | `memory` | 覺察日誌 |
+| ~~`drift-detector`~~ | ~~`memory`~~ | ~~覺察日誌~~ ❌ **幽靈連線 v1.43 移除**：drift_detector.py 零 cross import，純 dataclass 邏輯 |
 | `fact-correction` | `memory` | 記憶覆寫（supersede） |
 | `fact-correction` | `vector-index` | 向量廢棄標記（mark_deprecated） |
 | `fact-correction` | `llm-router` | Haiku 矛盾判斷 |
@@ -679,8 +679,8 @@ external-user（EXTERNAL）
 | `memory-reset` | `crystal-store` | 一鍵重置（DELETE FROM 三表） |
 | `periodic-cycles` | `pulse` | 週期驅動 |
 | `skill-market` | `skills-registry` | 技能打包 |
-| `federation-sync` | `nightly` | 夜間同步 |
-| `zotero-bridge` | `vector-index` | 文獻索引 |
+| `nightly` | `federation-sync` | 夜間母子同步（v1.43 方向修正：nightly import federation.sync） |
+| ~~`zotero-bridge`~~ | ~~`vector-index`~~ | ~~文獻索引~~ ❌ **幽靈連線 v1.43 移除**：zotero_bridge.py 只 import event_bus，無 vector 連線 |
 | `auto-repair` | `installer` | 修復用安裝器 |
 | `metacognition` | `pulse-db` | DNA 品質旗標寫入（METACOGNITION_QUALITY_FLAG） |
 | `morphenix` | `pulse-db` | DNA 品質旗標讀取（品質回饋閉環） |
