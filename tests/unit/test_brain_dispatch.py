@@ -8,7 +8,7 @@ from pathlib import Path
 
 # ── Helpers ──
 
-def _make_skill(name, always_on=False, content_len=0):
+def _make_skill(name, always_on=False, content_len=0, hub="", model_preference="", io_inputs=None):
     """Create a mock skill dict."""
     return {
         "name": name,
@@ -19,6 +19,9 @@ def _make_skill(name, always_on=False, content_len=0):
         "dir_name": name,
         "origin": "native",
         "_content_len": content_len,  # for mock load_skill_content
+        "hub": hub,
+        "model_preference": model_preference,
+        "io_inputs": io_inputs or [],
     }
 
 

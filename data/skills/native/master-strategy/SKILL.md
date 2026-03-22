@@ -4,6 +4,7 @@ type: always-on
 tier: T1
 layer: business
 hub: business
+model_preference: sonnet
 io:
   inputs:
     - from: user

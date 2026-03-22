@@ -121,6 +121,11 @@ class SkillRouter:
                         meta["type"] = line[5:].strip()
                     elif line.startswith("hub:"):
                         meta["hub"] = line[4:].strip()
+                    elif line.startswith("model_preference:"):
+                        meta["model_preference"] = line[17:].strip()
+
+                # 提取 io.inputs（用於 DeterministicRouter 依賴推導）
+                meta["io_inputs"] = self._extract_io_inputs(frontmatter)
 
                 # Extract trigger words from body
                 meta["triggers"] = self._extract_triggers(body, frontmatter)
@@ -156,6 +161,41 @@ class SkillRouter:
     def get_skills_by_hub(self, hub_name: str) -> List[Dict[str, Any]]:
         """回傳指定 Hub 下的所有 Skill 元資料."""
         return [s for s in self._index if s.get("hub") == hub_name]
+
+    @staticmethod
+    def _extract_io_inputs(frontmatter: str) -> List[Dict[str, str]]:
+        """從 YAML frontmatter 提取 io.inputs 列表.
+
+        解析格式：
+          io:
+            inputs:
+              - from: skill-name
+                field: field_name
+                required: true
+        回傳 [{"from": "skill-name", "field": "field_name"}, ...]
+        """
+        inputs = []
+        lines = frontmatter.splitlines()
+        in_inputs = False
+        for line in lines:
+            stripped = line.strip()
+            # 偵測 inputs: 區塊開始
+            if stripped == "inputs:":
+                in_inputs = True
+                continue
+            # 離開 inputs 區塊（遇到同級或更高層級的 key）
+            if in_inputs and stripped and not stripped.startswith("-") and not stripped.startswith("from:") and not stripped.startswith("field:") and not stripped.startswith("required:") and not stripped.startswith("trigger:"):
+                in_inputs = False
+                continue
+            if in_inputs and stripped.startswith("- from:"):
+                from_val = stripped[7:].strip().strip('"').strip("'")
+                inputs.append({"from": from_val})
+            elif in_inputs and stripped.startswith("from:") and inputs:
+                from_val = stripped[5:].strip().strip('"').strip("'")
+                inputs.append({"from": from_val})
+            elif in_inputs and stripped.startswith("field:") and inputs:
+                inputs[-1]["field"] = stripped[6:].strip()
+        return inputs
 
     def _extract_triggers(self, body: str, frontmatter: str) -> List[str]:
         """從 SKILL.md 內容提取觸發詞."""
