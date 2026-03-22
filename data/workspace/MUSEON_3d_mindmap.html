@@ -299,7 +299,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 //  SYNC META — 拓撲同步狀態
 // ═══════════════════════════════════════
 const SYNC_META = {
-  topologyVersion: 'v1.35',
+  topologyVersion: 'v1.36',
   syncDate: '2026-03-22',
   nodeCount: 0, // auto-calculated below
   linkCount: 0, // auto-calculated below
@@ -376,12 +376,15 @@ const nodes = [
   {id:"event-bus",label:"Event Bus",zh:"核心事件匯流排",group:"center",r:3.2,hub:1},
   // ── channel ──
   {id:"cron",label:"Cron",zh:"排程入口",group:"channel",r:1.2},
+  {id:"discord",label:"Discord",zh:"Discord 通道",group:"channel",r:1.2},
+  {id:"external-user",label:"External User",zh:"群組外部成員 (EXTERNAL)",group:"channel",r:1.4},
   {id:"gateway",label:"Gateway",zh:"WebSocket :8765",group:"channel",r:1.6},
   {id:"interaction-queue",label:"Interaction Queue",zh:"跨通道互動佇列",group:"channel",r:1.0},
-  {id:"line",label:"LINE",zh:"LINE@ 通道",group:"channel",r:1.4},
+  {id:"line",label:"LINE",zh:"LINE@ 通道（私聊+群組+Room）",group:"channel",r:1.4},
   {id:"mcp-server",label:"MCP Server",zh:"Claude Code 介面",group:"channel",r:1.2},
-  {id:"telegram",label:"Telegram",zh:"主通道",group:"channel",r:1.6},
-  {id:"user",label:"User (Zeal)",zh:"使用者",group:"channel",r:2.0},
+  {id:"telegram",label:"Telegram",zh:"主通道（私聊+群組）",group:"channel",r:1.6},
+  {id:"verified-user",label:"Verified User",zh:"動態配對使用者 (VERIFIED)",group:"channel",r:1.2},
+  {id:"zeal",label:"Zeal (Owner)",zh:"主人 (CORE)",group:"channel",r:2.0},
   // ── agent ──
   {id:"brain",label:"Agent / Brain",zh:"主判斷中樞",group:"agent",r:2.8,hub:1},
   {id:"deep-think",label:"Deep Think",zh:"思考前置引擎（P0 訊號分流 / P1 輸入審視 / P2 決策偵測）",group:"agent",r:1.1,p:"brain"},
@@ -572,10 +575,15 @@ const links = [
   // ── flow ──
   {source:"cron",target:"event-bus",label:"定時觸發",type:"flow"},
   {source:"gateway",target:"event-bus",label:"路由",type:"flow"},
+  {source:"discord",target:"gateway",label:"轉發",type:"flow"},
+  {source:"external-user",target:"discord",label:"Discord 群組對話 (EXTERNAL)",type:"flow"},
+  {source:"external-user",target:"line",label:"LINE 群組對話 (EXTERNAL)",type:"flow"},
+  {source:"external-user",target:"telegram",label:"群組對話 (EXTERNAL, SensitivityChecker)",type:"flow"},
   {source:"line",target:"gateway",label:"webhook 轉發",type:"flow"},
-  {source:"telegram",target:"gateway",label:"轉發",type:"flow"},
-  {source:"user",target:"line",label:"LINE 訊息",type:"flow"},
-  {source:"user",target:"telegram",label:"訊息指令",type:"flow"},
+  {source:"telegram",target:"gateway",label:"轉發 (InternalMessage + metadata)",type:"flow"},
+  {source:"verified-user",target:"telegram",label:"動態配對私聊 (VERIFIED, PairingManager)",type:"flow"},
+  {source:"zeal",target:"line",label:"LINE 私聊+群組 (CORE)",type:"flow"},
+  {source:"zeal",target:"telegram",label:"私聊指令+群組 @mention (CORE)",type:"flow"},
   // ── control ──
   {source:"cron",target:"nightly",label:"03:00 觸發",type:"control"},
   {source:"event-bus",target:"brain",label:"事件分派",type:"control"},
@@ -929,7 +937,9 @@ const links = [
   {source:"nightly",target:"event-bus",label:"回饋迴路",type:"async"},
   {source:"proactive-bridge",target:"telegram",label:"非同步推播",type:"async"},
   {source:"telegram",target:"brain",label:"推送寫入 session",type:"async"},
-  {source:"telegram",target:"user",label:"回傳回應",type:"async"},
+  {source:"line",target:"zeal",label:"LINE 回傳回應",type:"async"},
+  {source:"telegram",target:"external-user",label:"群組中回覆外部使用者",type:"async"},
+  {source:"telegram",target:"zeal",label:"回傳回應（私聊+群組）",type:"async"},
 ];
 
 
