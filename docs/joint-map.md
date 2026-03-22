@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.31
+# Joint Map — 共享可變狀態接頭圖 v1.32
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -288,6 +288,17 @@
 
 > `brain.py` Layer 2.5 在結晶不足時呼叫 `recall_with_community()` 注入社群摘要。
 > 社群偵測為即時計算（不持久化），基於 Crystal DAG 既有連結，無新增共享狀態。
+
+#### Procedure 結晶擴展欄位（v1.32 新增）
+
+| 欄位 | 型態 | 用途 |
+|------|------|------|
+| `skills_used` | TEXT (JSON array) | 操作程序使用的 Skill 清單 |
+| `preconditions` | TEXT (JSON array) | 執行前提條件 |
+| `known_failures` | TEXT (JSON array) | 已知失敗模式 |
+| `last_success` | TEXT (ISO8601) | 最近一次成功執行時間戳 |
+
+> 四個欄位均為選填（ALTER TABLE ADD COLUMN，向後相容），僅 Procedure 類型結晶使用。
 
 #### ✅ 衝突風險（已修復 — CrystalStore 遷移）
 
@@ -604,7 +615,7 @@
 
 | 子檔案 | 路徑 | 寫入者 | 讀取者 | TTL |
 |--------|------|--------|--------|-----|
-| activity_log.jsonl | `data/activity_log.jsonl` | ActivityLogger | SystemAudit | >5MB 輪替 |
+| activity_log.jsonl | `data/activity_log.jsonl` | ActivityLogger | SystemAudit, Brain (search()) | >5MB 輪替 |
 | heartbeat.jsonl | `data/heartbeat.jsonl` | PulseEngine | Doctor, Nightly | >5MB 輪替 |
 | q_scores.jsonl | `data/eval/q_scores.jsonl` | EvalEngine | EvalEngine, Nightly, ParameterTuner | >5MB 輪替 |
 | satisfaction.jsonl | `data/eval/satisfaction.jsonl` | EvalEngine | EvalEngine | >5MB 輪替 |
@@ -624,7 +635,7 @@
 | push_history.jsonl | `data/workspace/push_history.jsonl` | TelegramPusher | 去重驗證 | 永久 |
 | anima_history.jsonl | `data/_system/anima/anima_history.jsonl` | PeriodicCycles | ANIMA 追蹤 | 永久 |
 | nightly_history.jsonl | `data/_system/state/nightly_history.jsonl` | PeriodicCycles | 執行歷史 | 永久 |
-| skill_usage_log.jsonl | `data/skill_usage_log.jsonl` | Brain, PulseEngine | ⚠️ DW2 嫌疑 | >5MB 輪替 |
+| skill_usage_log.jsonl | `data/skill_usage_log.jsonl` | Brain, PulseEngine | Brain (outcome 欄位) | >5MB 輪替 |
 | signal_log.jsonl | `data/intuition/signal_log.jsonl` | Intuition | ⚠️ DW3 嫌疑 | 30 天 |
 
 > **統一清理機制**：Nightly Step 27（>5MB gzip 壓縮）+ Step 27 延伸（>30 天 .gz 刪除）
@@ -870,6 +881,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-22 | v1.32 | 經驗諮詢閘門：#6 crystal.db 新增 Procedure 結晶 4 欄位（skills_used/preconditions/known_failures/last_success）；#25 activity_log.jsonl 讀取者新增 brain.py（search() 經驗搜尋）；#25 skill_usage_log.jsonl 從 DW2 升級（新增 outcome 欄位，Brain 消費） |
 | 2026-03-22 | v1.31 | InteractionRequest 跨通道互動層：InteractionQueue 為新共享可變狀態（記憶體中 Dict，asyncio.Event 非阻塞等待，不持久化）；寫入者 3 個（telegram/discord/line 的 callback handler 呼叫 `resolve()`）；讀取者 1 個（gateway/server.py message pump `wait_for_response()`）；危險度 🟢（單一消費者、非持久化、自動超時清理）；message.py 新增 ChoiceOption/InteractionRequest/InteractionResponse 三個 dataclass + BrainResponse.interaction 欄位（純新增，不改現有結構）；同步 system-topology v1.33、blast-radius v1.44 |
 | 2026-03-22 | v1.30 | Recommender 激活修復：新增 #33 `_system/recommendations/interactions.json`（🟢 危險度，單一寫入者 recommender.py 原子寫入，5000 條上限）；#6 crystal.db 讀取者新增 recommender（經由 CrystalStore API `load_crystals_raw()` + `load_links()`）；G5 知識晶格組 recommender 接線正式啟用；共享狀態 32→33 個 |
 | 2026-03-22 | v1.29 | Knowledge Lattice 持久層遷移：#6 路徑從 `data/lattice/crystals.json` 改為 `data/lattice/crystal.db`（SQLite WAL 模式，三表 crystals/links/cuid_counters）；新增 `agent/crystal_store.py` CrystalStore 為統一存取層（threading.Lock + SQLite WAL）；所有讀寫者改為經由 CrystalStore API；危險度從 🟡 降為 🟢（鎖保護完整）；鎖一覽表更新 crystals.json→crystal.db（❌ 危險→✅ 完整）；G5 模組組新增 crystal_store；舊 JSON 檔案歸檔為 .bak；同步 persistence-contract v1.26、blast-radius v1.41、system-topology v1.31 |

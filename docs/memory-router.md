@@ -1,4 +1,4 @@
-# Memory Router — 記憶路由表 v1.2
+# Memory Router — 記憶路由表 v1.3
 
 > **用途**：定義「什麼類型的洞見存到哪個記憶系統、什麼時候取出」。第五張工程藍圖。
 > **比喻**：郵局分揀表——每封信根據地址分到對應的信箱，不會寄丟也不會重複投遞。
@@ -43,6 +43,8 @@
 | meta-learning | 學習策略 + 盲點發現 | 學習模式分析完成時 | learning_crystal |
 | dse | 技術融合可行性結論 | 驗證完成時 | tech_crystal |
 | shadow | 博弈模式辨識結論 | 防禦/洞察分析完成時 | insight_crystal |
+| brain.py (經驗回放) | 成功操作程序 + 步驟 + Skill 調用記錄 | Lesson 成功 3 次自動升級，或手動結晶 | procedure_crystal |
+| crystal_actuator | Lesson → Procedure 升級 | success_count ≥ 3 + g2_structure ≥ 2 步驟 | procedure_crystal |
 
 ### 🟢 使用者理解 → user-model
 
@@ -108,6 +110,7 @@
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.3 | 2026-03-22 | 經驗諮詢閘門——新增 Procedure 結晶路由（brain.py 經驗回放 + crystal_actuator Lesson 升級），消費者：brain.py _build_memory_inject() 第四層經驗回放 |
 | v1.2 | 2026-03-21 | 新增 persona-router (baihe) 路由（lord_profile.json + baihe_cache.json → user-model）；Skill 鍛造膠合層修復——49 個 Skill 的 memory.writes/reads 補齊 |
 | v1.1 | 2026-03-21 | chat_scope 隔離：新增規則 5（群組記憶 chat_scope 隔離），memory_manager store/recall/vector 全路徑支援 chat_scope_filter + exclude_scopes；外部使用者 ANIMA v3.0（ExternalAnimaManager per-client 獨立八原語+七層觀察） |
 | v1.0 | 2026-03-21 | 初始版本——定義 8 大記憶系統路由表、4 條路由規則 |

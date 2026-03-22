@@ -1406,10 +1406,21 @@ class MuseonBrain:
             logger.debug(f"隱式自我診斷跳過: {e}")
 
         # ── Step 8: 追蹤技能使用 ──
+        # 從 P3 融合結果推導 outcome
+        _skill_outcome = ""
+        if q_score is not None:
+            _tier = getattr(q_score, "tier", "medium")
+            if _tier in ("high", "excellent"):
+                _skill_outcome = "success"
+            elif _tier in ("low", "critical"):
+                _skill_outcome = "failed"
+            else:
+                _skill_outcome = "partial"
         self._track_skill_usage(
             skill_names=skill_names,
             user_content=content,
             response_length=len(response_text),
+            outcome=_skill_outcome,
         )
 
         # ★ v10.4 Route B: 更新 session 內 skill 使用次數（MoE 衰減用）
@@ -3543,11 +3554,147 @@ class MuseonBrain:
                 "請優先採用無 FAIL 標記的方法。"
             )
 
+        # ── 第四層：經驗回放（Procedure 結晶 + Activity Log 降級）──
+        procedure_text = ""
+        if self.knowledge_lattice and user_query:
+            try:
+                proc_crystals = self.knowledge_lattice.recall_procedures(
+                    user_query, limit=3
+                )
+                if proc_crystals:
+                    # ANIMA 過濾
+                    anima_mc = None
+                    try:
+                        anima_mc = self._load_anima_mc()
+                    except Exception:
+                        pass
+                    proc_crystals = self._anima_filter_procedures(
+                        proc_crystals, anima_user, anima_mc
+                    )
+                    if proc_crystals:
+                        proc_lines = ["\n## 過去成功的相關程序"]
+                        for pc in proc_crystals:
+                            proc_lines.append(self._format_procedure_crystal(pc))
+                        procedure_text = "\n".join(proc_lines)
+                elif hasattr(self, "_activity_logger") and self._activity_logger:
+                    # 降級：從 activity_log 搜尋相似成功事件
+                    similar = self._activity_logger.search(
+                        user_query, outcome="success", limit=3
+                    )
+                    if similar:
+                        al_lines = ["\n## 過去類似的成功經驗"]
+                        for evt in similar:
+                            ts = evt.get("ts", "")[:16]
+                            event = evt.get("event", "")
+                            data = evt.get("data", {})
+                            data_str = str(data)[:80] if data else ""
+                            al_lines.append(f"- [{ts}] {event} — {data_str}")
+                        procedure_text = "\n".join(al_lines)
+            except Exception as e:
+                logger.debug(f"經驗回放搜尋降級: {e}")
+
+        if procedure_text:
+            text += "\n" + procedure_text
+
         # 記錄使用量
         tokens_used = estimate_tokens(text)
         budget.track_usage("memory", tokens_used)
 
         return f"【相關記憶】\n{text}"
+
+    def _anima_filter_procedures(
+        self,
+        procedures: list,
+        anima_user: dict = None,
+        anima_mc: dict = None,
+    ) -> list:
+        """ANIMA 協助判斷哪些過去經驗適合當前情境.
+
+        過濾邏輯：
+        1. 能量狀態：低能量偏好步驟少的程序
+        2. 八原語匹配：震（行動力）高→複雜優先，坤（經驗）高→信心 boost
+        3. 信任等級：initial 不推薦需高權限的操作
+        """
+        if not procedures:
+            return procedures
+
+        # 取使用者能量和八原語
+        user_primals = {}
+        trust_level = "unknown"
+        if anima_user:
+            user_primals = anima_user.get("eight_primals", {})
+            trust_level = anima_user.get("relationship", {}).get(
+                "trust_level",
+                anima_user.get("trust_level", "unknown"),
+            )
+
+        # 取 MUSEON 自身的坤值（經驗累積指標）
+        mc_kun = 0
+        if anima_mc:
+            mc_primals = anima_mc.get("eight_primal_energies", {})
+            mc_kun = mc_primals.get("坤", {}).get("relative", 0) if isinstance(mc_primals.get("坤"), dict) else 0
+
+        scored = []
+        for proc in procedures:
+            score = proc.success_count * max(proc.ri_score, 0.01)
+
+            # 八原語加成
+            zhen_val = user_primals.get("zhen", {})
+            action_power = zhen_val.get("confidence", 0) if isinstance(zhen_val, dict) else 0
+            if action_power > 0.7:
+                score *= 1.2  # 行動力高 → 複雜程序也能接受
+
+            # MUSEON 坤值加成（經驗豐富 = 信心加分）
+            if mc_kun > 50:
+                score *= 1.1
+
+            # 信任等級過濾：initial 階段排序後移需要授權的
+            if trust_level == "initial":
+                preconds = proc.preconditions if isinstance(proc.preconditions, list) else []
+                has_auth = any("token" in str(p).lower() or "auth" in str(p).lower() for p in preconds)
+                if has_auth:
+                    score *= 0.5
+
+            scored.append((score, proc))
+
+        scored.sort(key=lambda x: x[0], reverse=True)
+        return [proc for _, proc in scored]
+
+    def _format_procedure_crystal(self, crystal) -> str:
+        """格式化 Procedure 結晶為 prompt 可讀格式."""
+        parts = [f"📋 {crystal.cuid}: {crystal.g1_summary}"]
+
+        # 步驟
+        steps = crystal.g2_structure if isinstance(crystal.g2_structure, list) else []
+        if steps:
+            step_str = " → ".join(f"{i+1}. {s}" for i, s in enumerate(steps[:6]))
+            parts.append(f"   步驟：{step_str}")
+
+        # 使用的 Skill
+        skills = crystal.skills_used if isinstance(crystal.skills_used, list) else []
+        if skills:
+            parts.append(f"   使用 Skill：{', '.join(skills[:5])}")
+
+        # 前置條件
+        preconds = crystal.preconditions if isinstance(crystal.preconditions, list) else []
+        if preconds:
+            parts.append(f"   前置條件：{'、'.join(str(p) for p in preconds[:3])}")
+
+        # 成功/失敗統計
+        stats = f"成功 {crystal.success_count} 次"
+        if crystal.last_success:
+            stats += f" | 上次成功：{crystal.last_success[:10]}"
+        if crystal.counter_evidence_count > 0:
+            stats += f" | 失敗 {crystal.counter_evidence_count} 次"
+        parts.append(f"   {stats}")
+
+        # 已知坑
+        failures = crystal.known_failures if isinstance(crystal.known_failures, list) else []
+        if failures:
+            reasons = [f.get("reason", str(f))[:40] if isinstance(f, dict) else str(f)[:40] for f in failures[:2]]
+            parts.append(f"   ⚠️ 已知坑：{'；'.join(reasons)}")
+
+        return "\n".join(parts)
 
     def _auto_failure_distill(
         self,
@@ -6687,14 +6834,19 @@ class MuseonBrain:
         skill_names: List[str],
         user_content: str,
         response_length: int,
+        outcome: str = "",
     ) -> None:
-        """追蹤技能使用，供 WEE/Morphenix 自我迭代."""
+        """追蹤技能使用，供 WEE/Morphenix 自我迭代.
+
+        Args:
+            outcome: 執行結果 ("success" / "partial" / "failed" / "")
+        """
         entry = {
             "timestamp": datetime.now().isoformat(),
             "skills": skill_names,
             "trigger_message": user_content[:100],
             "response_length": response_length,
-            # Future: add user_satisfaction, task_completion_rate
+            "outcome": outcome,
         }
         self._skill_usage_log.append(entry)
 
