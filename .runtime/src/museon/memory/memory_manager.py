@@ -156,6 +156,8 @@ class MemoryManager:
         outcome: str = "",
         session_id: str = "",
         dept_id: str = "",
+        chat_scope: str = "",
+        group_id: str = "",
     ) -> str:
         """存儲記憶到指定層.
 
@@ -170,6 +172,8 @@ class MemoryManager:
             outcome: 結果標記（"" / "success" / "partial" / "failed"）
             session_id: 對話 ID（用於同 session 記憶加權）
             dept_id: 部門 ID（多代理模式下的記憶命名空間）
+            chat_scope: 對話範疇（"group:{id}" / "private:{id}" / ""）
+            group_id: 群組 ID（冗餘但便於查詢）
 
         Returns:
             memory_id (UUID)
@@ -192,6 +196,9 @@ class MemoryManager:
             _tags = list(tags or [])
             if dept_id and f"dept:{dept_id}" not in _tags:
                 _tags.append(f"dept:{dept_id}")
+            # v3.0: chat_scope 標籤自動注入
+            if chat_scope and f"scope:{chat_scope}" not in _tags:
+                _tags.append(f"scope:{chat_scope}")
 
             entry = {
                 "id": memory_id,
@@ -209,6 +216,8 @@ class MemoryManager:
                 "user_id": user_id,
                 "session_id": session_id,
                 "dept_id": dept_id,
+                "chat_scope": chat_scope,
+                "group_id": group_id,
                 "archived": False,
             }
 
@@ -222,7 +231,7 @@ class MemoryManager:
             self._index.index(memory_id, content, tags)
 
             # 語義索引（VectorBridge，靜默失敗）
-            self._vector_index(memory_id, content, tags, layer)
+            self._vector_index(memory_id, content, tags, layer, chat_scope=chat_scope)
 
             logger.debug(
                 f"Memory stored: {memory_id} → {layer} "
@@ -255,6 +264,8 @@ class MemoryManager:
         limit: int = 10,
         session_id: str = "",
         dept_filter: str = "",
+        chat_scope_filter: str = "",
+        exclude_scopes: Optional[List[str]] = None,
     ) -> List[Dict]:
         """語義檢索記憶（Qdrant-primary 架構）.
 
@@ -274,6 +285,8 @@ class MemoryManager:
             limit: 回傳筆數上限
             dept_filter: 部門過濾（空字串 = 搜全局）
             session_id: 對話 ID（可選，用於同 session 加權）
+            chat_scope_filter: 對話範疇過濾（"group:{id}" / "private:{id}"）
+            exclude_scopes: 排除的對話範疇列表
 
         Returns:
             [entry_dict, ...] 按複合分數降序
@@ -303,6 +316,15 @@ class MemoryManager:
                 # Phase 4.8: 部門過濾
                 if dept_filter and entry.get("dept_id", "") != dept_filter:
                     continue
+                # v3.0: chat_scope 隔離過濾
+                if chat_scope_filter:
+                    entry_scope = entry.get("chat_scope", "")
+                    if entry_scope and entry_scope != chat_scope_filter:
+                        continue
+                if exclude_scopes:
+                    entry_scope = entry.get("chat_scope", "")
+                    if entry_scope and entry_scope in exclude_scopes:
+                        continue
 
                 seen_ids.add(memory_id)
 
@@ -339,6 +361,15 @@ class MemoryManager:
                     # Phase 4.8: 部門過濾
                     if dept_filter and entry.get("dept_id", "") != dept_filter:
                         continue
+                    # v3.0: chat_scope 隔離過濾
+                    if chat_scope_filter:
+                        entry_scope = entry.get("chat_scope", "")
+                        if entry_scope and entry_scope != chat_scope_filter:
+                            continue
+                    if exclude_scopes:
+                        entry_scope = entry.get("chat_scope", "")
+                        if entry_scope and entry_scope in exclude_scopes:
+                            continue
 
                     seen_ids.add(memory_id)
 
@@ -364,6 +395,8 @@ class MemoryManager:
                 kw_results = self._keyword_fallback(
                     user_id, query, layers, seen_ids,
                     limit - len(results),
+                    chat_scope_filter=chat_scope_filter,
+                    exclude_scopes=exclude_scopes,
                 )
                 for entry in kw_results:
                     quality = entry.get("quality_tier", "silver")
@@ -487,6 +520,8 @@ class MemoryManager:
         layers: Optional[List[str]],
         seen_ids: set,
         limit: int,
+        chat_scope_filter: str = "",
+        exclude_scopes: Optional[List[str]] = None,
     ) -> List[Dict]:
         """關鍵字 fallback 搜尋."""
         results: List[Dict] = []
@@ -512,6 +547,16 @@ class MemoryManager:
                 entry = self._storage.read(user_id, cfg["dir"], fname)
                 if entry is None or entry.get("archived", False):
                     continue
+
+                # v3.0: chat_scope 隔離過濾
+                if chat_scope_filter:
+                    entry_scope = entry.get("chat_scope", "")
+                    if entry_scope and entry_scope != chat_scope_filter:
+                        continue
+                if exclude_scopes:
+                    entry_scope = entry.get("chat_scope", "")
+                    if entry_scope and entry_scope in exclude_scopes:
+                        continue
 
                 # 檢查 content 或 tags 是否包含查詢字串
                 content = entry.get("content", "").lower()
@@ -820,6 +865,7 @@ class MemoryManager:
     def _vector_index(
         self, memory_id: str, content: str,
         tags: Optional[List[str]], layer: str,
+        chat_scope: str = "",
     ) -> None:
         """語義索引到 Qdrant（靜默失敗）."""
         try:
@@ -830,6 +876,9 @@ class MemoryManager:
             metadata = {"layer": layer}
             if tags:
                 metadata["tags"] = tags
+            # v3.0: chat_scope 注入向量 metadata
+            if chat_scope:
+                metadata["chat_scope"] = chat_scope
 
             vb.index("memories", memory_id, content, metadata=metadata)
         except Exception:

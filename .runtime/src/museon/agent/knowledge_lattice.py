@@ -1644,8 +1644,9 @@ class KnowledgeLattice:
         self.data_dir = Path(data_dir)
         self.data_dir.mkdir(parents=True, exist_ok=True)
 
-        # 持久化存儲
-        self._store = LatticeStore(data_dir=data_dir)
+        # 持久化存儲（SQLite WAL 模式，取代舊 LatticeStore JSON）
+        from museon.agent.crystal_store import CrystalStore
+        self._store = CrystalStore(data_dir=data_dir)
 
         # 載入結晶和連結
         self._crystals: Dict[str, Crystal] = self._store.load_crystals()
@@ -3019,3 +3020,328 @@ class KnowledgeLattice:
                 f"升級候選: {len(upgrade)} | "
                 f"過期假設: {len(expired)}"
             )
+
+    # ── MemGPT-style Tiered Recall（分層結晶召回）──
+
+    def recall_tiered(
+        self,
+        context: str,
+        max_push: int = 10,
+        budget_remaining: Optional[int] = None,
+    ) -> List[Crystal]:
+        """MemGPT 分層結晶召回 — Hot/Warm/Cold 三層策略.
+
+        靈感來源：MemGPT 的 in-context / external / archival 記憶分層。
+        將結晶依 RI 分為三層，以不同策略注入 context window：
+
+        - Tier-0 (Hot): RI >= 0.7（CORE）→ 無條件注入（常駐 context）
+        - Tier-1 (Warm): 0.2 <= RI < 0.7（ACTIVE）→ 語義搜尋後注入
+        - Tier-2 (Cold): RI < 0.2 → 僅在顯式查詢時才拉取（此方法不處理）
+
+        與原有 recall_with_chains 的差別：
+        - recall_with_chains：所有結晶統一語義搜尋，高 RI 的不一定被選中
+        - recall_tiered：先保證 Hot 結晶必定注入，再用剩餘名額搜尋 Warm 層
+
+        Args:
+            context: 查詢上下文
+            max_push: 結晶注入上限（含 Hot + Warm）
+            budget_remaining: 剩餘 token 預算（可選，用於動態調整）
+
+        Returns:
+            分層召回的結晶列表（Hot 在前，Warm 在後）
+        """
+        if not context or not context.strip():
+            return []
+
+        # Phase 1: 分類所有活躍結晶
+        hot_crystals: List[Crystal] = []
+        warm_cuids: Set[str] = set()
+
+        for cuid, crystal in self._crystals.items():
+            if crystal.archived:
+                continue
+            ri = ResonanceCalculator.calculate(crystal)
+            crystal.ri_score = ri  # 順便更新快取
+
+            if ri >= RI_CORE_THRESHOLD:
+                hot_crystals.append(crystal)
+            elif ri >= RI_ACTIVE_THRESHOLD:
+                warm_cuids.add(cuid)
+
+        # Phase 2: Hot 結晶無條件注入（按 RI 排序取 top）
+        hot_crystals.sort(key=lambda c: c.ri_score, reverse=True)
+        hot_budget = min(len(hot_crystals), max(1, max_push // 2))
+        selected_hot = hot_crystals[:hot_budget]
+
+        # Phase 3: 剩餘名額用語義搜尋 Warm 結晶
+        remaining_slots = max_push - len(selected_hot)
+        selected_warm: List[Crystal] = []
+
+        if remaining_slots > 0 and warm_cuids:
+            # 用 recall_with_chains 搜尋，再過濾只保留 Warm 層
+            try:
+                chain_results = self.recall_with_chains(
+                    context=context,
+                    max_push=remaining_slots * 2,  # 多取一些再過濾
+                    chain_hops=1,
+                    chain_types=["supports", "extends", "related"],
+                )
+            except Exception:
+                logger.debug("recall_tiered: chain_recall fallback", exc_info=True)
+                chain_results = self.recall(query=context, top_n=remaining_slots * 2)
+
+            seen_hot = {c.cuid for c in selected_hot}
+            for crystal in chain_results:
+                if crystal.cuid in seen_hot:
+                    continue
+                if crystal.cuid in warm_cuids:
+                    selected_warm.append(crystal)
+                    if len(selected_warm) >= remaining_slots:
+                        break
+
+        results = selected_hot + selected_warm
+
+        # 過濾低分結晶（與 brain.py 原有邏輯一致）
+        results = [c for c in results if c.ri_score >= RI_ARCHIVE_THRESHOLD]
+
+        logger.info(
+            f"分層召回: Hot={len(selected_hot)} + "
+            f"Warm={len(selected_warm)} = {len(results)} 顆 "
+            f"(max_push={max_push}, "
+            f"total_hot={len(hot_crystals)}, "
+            f"total_warm={len(warm_cuids)})"
+        )
+
+        return results
+
+    # ═══════════════════════════════════════════
+    # GraphRAG 社群偵測與摘要
+    # ═══════════════════════════════════════════
+
+    def detect_communities(self, min_community_size: int = 2) -> Dict[str, List[str]]:
+        """在 Crystal DAG 上執行 Label Propagation 社群偵測.
+
+        每個結晶初始標籤為自己的 CUID，
+        迭代時每個節點取鄰居中最多的標籤作為自己的新標籤。
+        收斂後，相同標籤的結晶形成一個社群。
+
+        Args:
+            min_community_size: 最小社群大小（預設 2，排除孤立結晶）
+
+        Returns:
+            {community_label: [cuid, ...]}，按社群大小降序。
+        """
+        # 取所有活躍結晶（未歸檔）
+        active_cuids = [
+            cuid for cuid, c in self._crystals.items()
+            if not c.archived
+        ]
+
+        if len(active_cuids) < min_community_size:
+            return {}
+
+        # 初始標籤 = 自身 CUID
+        labels: Dict[str, str] = {cuid: cuid for cuid in active_cuids}
+
+        # Label Propagation（最多 20 輪）
+        max_iterations = 20
+        for iteration in range(max_iterations):
+            changed = False
+            for cuid in active_cuids:
+                # 取鄰居標籤
+                neighbor_cuids = self._dag.get_neighbors(cuid, hops=1)
+                if not neighbor_cuids:
+                    continue
+
+                # 統計鄰居的標籤頻率
+                label_counts: Dict[str, int] = defaultdict(int)
+                for ncuid in neighbor_cuids:
+                    if ncuid in labels:
+                        label_counts[labels[ncuid]] += 1
+
+                if not label_counts:
+                    continue
+
+                # 選最多的標籤（平手取字母序最小的，確保確定性）
+                best_label = max(
+                    label_counts.keys(),
+                    key=lambda l: (label_counts[l], -hash(l)),
+                )
+
+                if labels[cuid] != best_label:
+                    labels[cuid] = best_label
+                    changed = True
+
+            if not changed:
+                logger.debug(
+                    f"Label Propagation 在第 {iteration + 1} 輪收斂"
+                )
+                break
+
+        # 聚合社群
+        communities: Dict[str, List[str]] = defaultdict(list)
+        for cuid, label in labels.items():
+            communities[label].append(cuid)
+
+        # 過濾小社群 + 按大小排序
+        result = {
+            label: cuids
+            for label, cuids in sorted(
+                communities.items(),
+                key=lambda x: -len(x[1]),
+            )
+            if len(cuids) >= min_community_size
+        }
+
+        logger.info(
+            f"社群偵測: {len(result)} 個社群 "
+            f"(from {len(active_cuids)} active crystals)"
+        )
+
+        return result
+
+    def _summarize_community(
+        self,
+        cuids: List[str],
+        max_chars: int = 200,
+    ) -> str:
+        """為一個社群生成自然語言摘要.
+
+        不依賴 LLM，直接從結晶的 content 萃取關鍵資訊。
+        策略：取 RI 最高的 top-3 結晶標題 + 類型統計。
+
+        Args:
+            cuids: 社群內的結晶 CUID 列表
+            max_chars: 最大字元數
+
+        Returns:
+            社群摘要文本
+        """
+        crystals_in_community = [
+            self._crystals[cuid]
+            for cuid in cuids
+            if cuid in self._crystals
+        ]
+
+        if not crystals_in_community:
+            return ""
+
+        # 按 RI 排序
+        crystals_in_community.sort(
+            key=lambda c: c.ri_score, reverse=True,
+        )
+
+        # 類型統計
+        type_counts: Dict[str, int] = defaultdict(int)
+        for c in crystals_in_community:
+            type_counts[c.crystal_type] += 1
+
+        type_summary = "、".join(
+            f"{t}{n}顆" for t, n in type_counts.items()
+        )
+
+        # 取 top-3 結晶的簡短內容
+        top_crystals = crystals_in_community[:3]
+        top_texts = []
+        for c in top_crystals:
+            # 取 G1 摘要的前 60 字
+            first_line = c.g1_summary.strip()[:60]
+            top_texts.append(f"- {c.cuid}({c.crystal_type}): {first_line}")
+
+        summary = (
+            f"[社群 {len(cuids)} 顆結晶, {type_summary}]\n"
+            + "\n".join(top_texts)
+        )
+
+        return summary[:max_chars]
+
+    def has_communities(self, min_community_size: int = 2) -> bool:
+        """快速檢查是否存在社群（避免完整偵測）.
+
+        條件：活躍結晶 >= min_community_size 且 DAG 有連結。
+        """
+        active_count = sum(
+            1 for c in self._crystals.values() if not c.archived
+        )
+        if active_count < min_community_size:
+            return False
+        return len(self._dag.get_all_links()) > 0
+
+    def recall_with_community(
+        self,
+        context: str,
+        max_summaries: int = 2,
+        min_community_size: int = 3,
+    ) -> List[str]:
+        """社群摘要召回 — 用語義相關度選最相關的社群摘要.
+
+        流程：
+        1. 偵測社群（Label Propagation）
+        2. 為每個社群生成摘要
+        3. 用結晶語義搜尋找最相關的社群
+        4. 回傳最相關的 top-K 社群摘要
+
+        Args:
+            context: 使用者查詢
+            max_summaries: 最多回傳幾個社群摘要
+            min_community_size: 最小社群大小
+
+        Returns:
+            社群摘要文本列表
+        """
+        communities = self.detect_communities(
+            min_community_size=min_community_size,
+        )
+
+        if not communities:
+            return []
+
+        # 為每個社群生成摘要
+        community_summaries: List[Tuple[str, List[str]]] = []
+        for label, cuids in communities.items():
+            summary = self._summarize_community(cuids)
+            if summary:
+                community_summaries.append((summary, cuids))
+
+        if not community_summaries:
+            return []
+
+        # 用語義搜尋找最相關的社群
+        # 策略：搜尋 context 最相關的結晶，看它們屬於哪些社群
+        try:
+            search_results = self.recall(query=context, top_n=10)
+        except Exception:
+            search_results = []
+
+        if not search_results:
+            # 沒有搜尋結果就回傳最大的社群
+            return [s for s, _ in community_summaries[:max_summaries]]
+
+        # 建立 CUID → community_index 映射
+        cuid_to_community: Dict[str, int] = {}
+        for idx, (_, cuids) in enumerate(community_summaries):
+            for cuid in cuids:
+                cuid_to_community[cuid] = idx
+
+        # 統計命中的社群
+        community_hits: Dict[int, float] = defaultdict(float)
+        for crystal in search_results:
+            if crystal.cuid in cuid_to_community:
+                cidx = cuid_to_community[crystal.cuid]
+                community_hits[cidx] += crystal.ri_score
+
+        if community_hits:
+            # 按命中分數排序
+            top_communities = sorted(
+                community_hits.keys(),
+                key=lambda i: -community_hits[i],
+            )[:max_summaries]
+        else:
+            # 沒有命中的社群，回傳最大的
+            top_communities = list(range(min(max_summaries, len(community_summaries))))
+
+        return [
+            community_summaries[i][0]
+            for i in top_communities
+            if i < len(community_summaries)
+        ]

@@ -700,10 +700,9 @@ class VectorBridge:
     # ═══════════════════════════════════════════
 
     def _get_embedder(self) -> Embedder:
-        """Lazy 取得 Embedder."""
-        if self._embedder is None:
-            self._embedder = Embedder()
-        return self._embedder
+        """Lazy 取得全域 Embedder Singleton."""
+        from museon.vector.embedder import get_global_embedder
+        return get_global_embedder()
 
     def _get_sparse_embedder(self) -> SparseEmbedder:
         """Lazy 取得 SparseEmbedder."""

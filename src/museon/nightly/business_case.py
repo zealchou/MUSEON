@@ -432,13 +432,20 @@ _THEME_EXTRACT_PROMPT = """\
 2. 各選出 1 個最適合深入分析的個案（成功 + 失敗各一個）
 3. 用一句話說明「兩個案例為什麼相關」
 
+【重要限制】
+- 個案必須發生在 **2023 年 1 月 1 日之後**（ChatGPT 帶動 AI 浪潮的新世代）
+- 個案來源**不限於台灣**，應優先選擇具全球代表性的案例（美國、歐洲、日本、東南亞、拉美均可）
+- 若搜尋結果中有多個候選，優先選全球知名度較高或對 AI 時代背景有關聯的案例
+- **地域多元化**：兩個案例不應來自同一個國家，除非搜尋結果確實無其他選擇
+- **禁止虛構**：只選有公開新聞報導、可查證的真實企業和真實事件。絕對不可編造公司名稱或捏造案例
+
 輸出格式（嚴格 JSON）：
 {{
   "theme": "主題一句話（15字以內）",
   "theme_slug": "english-slug-for-filename",
   "connection": "兩個案例的關聯（一句話）",
-  "success_case": "選中的成功案例簡述（公司名+事件，100字以內）",
-  "failure_case": "選中的失敗案例簡述（公司名+事件，100字以內）"
+  "success_case": "選中的成功案例簡述（公司名+事件+國家，100字以內）",
+  "failure_case": "選中的失敗案例簡述（公司名+事件+國家，100字以內）"
 }}
 
 只輸出 JSON，不加任何說明文字。
@@ -472,7 +479,10 @@ _MATERIAL_PROMPT = """\
 - 替換：真實公司名 → A公司/B公司、真實人名 → 化名（如李董、王總）
 - 模糊：精確營收數字 → 營收規模級距（千萬級/億級/十億級）
 
-若搜尋結果無法辨識具體個案，直接回覆「INSUFFICIENT」。
+【嚴格禁止虛構】
+- 只使用搜尋結果中明確提到的真實企業和真實事件
+- 如果搜尋結果不足以辨識具體個案，直接回覆「INSUFFICIENT」，絕對不可編造
+- 個案必須發生在 2023 年 1 月 1 日之後（AI 時代）
 """
 
 
@@ -670,17 +680,19 @@ class BusinessCaseDaily:
         """用 SearXNG 搜尋個案，回傳 hits list."""
         if case_type == "success":
             queries = [
-                "企業逆轉勝 創辦人決策 案例 內幕 2024 2025 2026",
-                "CEO bold decision turnaround behind the scenes case study 2024 2025",
-                "startup pivot success story founder risk bet paid off 2025",
-                "HBR case study company transformation leadership 2024 2025",
+                "CEO bold decision turnaround case study global 2023 2024 2025 AI era",
+                "startup pivot success founder risk paid off post-ChatGPT 2023 2024 2025",
+                "HBR case study company transformation leadership AI disruption 2023 2024 2025",
+                "business turnaround strategy success story Fortune 500 global 2024 2025",
+                "AI企業轉型成功 創辦人決策 全球案例 2023 2024 2025",
             ]
         else:
             queries = [
-                "企業失敗 CEO決策錯誤 內幕 復盤 案例 2024 2025 2026",
-                "company failure CEO mistake what went wrong post-mortem 2024 2025",
-                "startup shutdown founder lessons learned why failed 2025",
-                "business collapse warning signs ignored leadership failure 2024 2025",
+                "company failure CEO mistake what went wrong post-mortem global 2023 2024 2025",
+                "startup shutdown founder lessons why failed AI era 2023 2024 2025",
+                "business collapse leadership failure case study global 2024 2025",
+                "corporate strategy failure warning signs ignored 2023 2024 2025",
+                "企業失敗 CEO決策錯誤 全球案例 AI時代 2023 2024 2025",
             ]
 
         all_hits = []
@@ -690,8 +702,9 @@ class BusinessCaseDaily:
                     params = {
                         "q": q,
                         "format": "json",
-                        "language": "zh-TW" if "企業" in q else "en",
+                        "language": "auto",
                         "categories": "general",
+                        "time_range": "year",
                     }
                     try:
                         resp = await client.get(f"{searxng_url}/search", params=params)
@@ -1053,12 +1066,13 @@ class BusinessCaseDaily:
         if success_material == "INSUFFICIENT" and failure_material == "INSUFFICIENT":
             logger.warning("BusinessCase: both material collections returned insufficient data")
             success_material = (
-                "近期企業成功轉型案例：搜尋引擎暫無結果，"
-                "請以通用案例替代。主題與定價策略或數位轉型相關。"
+                "近期全球企業成功轉型案例（2023年後，AI時代）：搜尋引擎暫無結果，"
+                "請以 2023 年後的全球知名案例替代。"
+                "不限台灣，可選美國、歐洲、東亞等地的代表性案例。"
             )
             failure_material = (
-                "近期企業失敗案例：搜尋引擎暫無結果，"
-                "請以通用案例替代。與成功案例同主題。"
+                "近期全球企業失敗案例（2023年後，AI時代）：搜尋引擎暫無結果，"
+                "請以 2023 年後的全球知名案例替代，與成功案例同主題。"
             )
 
         # ── Step 3: DSE 第一性原理拆解 ──

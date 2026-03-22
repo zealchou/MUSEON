@@ -8,6 +8,7 @@ Graceful degradation：fastembed 不可用時回傳空 list，
 """
 
 import logging
+import threading
 from typing import List, Optional
 
 logger = logging.getLogger(__name__)
@@ -15,6 +16,19 @@ logger = logging.getLogger(__name__)
 # 預設模型：bge-small-zh-v1.5（512 維，~100MB，中英文雙語）
 DEFAULT_MODEL = "BAAI/bge-small-zh-v1.5"
 DEFAULT_DIMENSION = 512
+
+_GLOBAL_EMBEDDER = None
+_EMBEDDER_LOCK = threading.Lock()
+
+
+def get_global_embedder():
+    """全域 Embedder Singleton — 整個 MUSEON 只載入一次模型."""
+    global _GLOBAL_EMBEDDER
+    if _GLOBAL_EMBEDDER is None:
+        with _EMBEDDER_LOCK:
+            if _GLOBAL_EMBEDDER is None:
+                _GLOBAL_EMBEDDER = Embedder()
+    return _GLOBAL_EMBEDDER
 
 
 class Embedder:

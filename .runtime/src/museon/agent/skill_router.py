@@ -109,20 +109,26 @@ class SkillRouter:
                 frontmatter = parts[1]
                 body = parts[2]
 
+                # 只匹配頂層（未縮排）YAML 欄位，避免巢狀
+                # stages[].name 覆蓋頂層 name（#案例結晶 幽靈 Skill 根因）
                 for line in frontmatter.splitlines():
-                    line = line.strip()
                     if line.startswith("name:"):
-                        meta["name"] = line[5:].strip()
+                        meta["name"] = line[5:].strip().strip('"').strip("'")
                     elif line.startswith("description:"):
                         # May be multi-line (>) — grab first line
                         meta["description"] = line[12:].strip().lstrip(">").strip()
+                    elif line.startswith("type:"):
+                        meta["type"] = line[5:].strip()
+                    elif line.startswith("hub:"):
+                        meta["hub"] = line[4:].strip()
 
                 # Extract trigger words from body
                 meta["triggers"] = self._extract_triggers(body, frontmatter)
 
-                # Check if always-on (常駐)
-                if "常駐" in content or "default=ON" in content or "每次回答前自動" in content:
-                    meta["always_on"] = True
+                # Check if always-on — 僅以 YAML frontmatter type 欄位判定
+                # 舊邏輯用子字串搜尋 "常駐" in content 有 67% 虛假正報率
+                # （text-alchemy 說「不常駐」也被誤判為 always_on）
+                meta["always_on"] = meta.get("type") == "always-on"
 
                 # Get short description from frontmatter if multi-line
                 if not meta["description"]:
@@ -146,6 +152,10 @@ class SkillRouter:
                         meta["description"] = " ".join(desc_lines)
 
         return meta
+
+    def get_skills_by_hub(self, hub_name: str) -> List[Dict[str, Any]]:
+        """回傳指定 Hub 下的所有 Skill 元資料."""
+        return [s for s in self._index if s.get("hub") == hub_name]
 
     def _extract_triggers(self, body: str, frontmatter: str) -> List[str]:
         """從 SKILL.md 內容提取觸發詞."""

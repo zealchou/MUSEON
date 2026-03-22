@@ -3468,6 +3468,25 @@ class MuseonBrain:
                     # 過濾低分結晶（ri_score < 0.05 的噪音）
                     crystals = [c for c in crystals if c.ri_score >= 0.05] if crystals else []
 
+                # 結晶時效性過濾：超過 14 天未存取的冷結晶降權
+                if crystals:
+                    import time as _time
+                    _now = _time.time()
+                    _fresh = []
+                    for _c in crystals:
+                        _last = getattr(_c, "last_referenced", "") or getattr(_c, "updated_at", "") or getattr(_c, "created_at", "")
+                        try:
+                            from datetime import datetime as _dt
+                            _ts = _dt.fromisoformat(str(_last).replace("Z", "+00:00")).timestamp()
+                            if (_now - _ts) < 14 * 86400:
+                                _fresh.append(_c)
+                            # 冷結晶靜默跳過
+                        except Exception:
+                            _fresh.append(_c)  # 解析失敗則保留
+                    if _fresh:
+                        crystals = _fresh
+                    # 如果全部都是冷的，保留原始列表（不能全部過濾掉）
+
                 # Layer 2.5: GraphRAG 社群摘要（結晶不足時補充高層脈絡）
                 if len(crystals) < max_push and self.knowledge_lattice.has_communities():
                     try:

@@ -117,7 +117,7 @@ SKILL_ARCHIVE_INACTIVE_DAYS = 30
 _FULL_STEPS = [
     "0", "0.1",  # Budget settlement + Footprint cleanup (最先執行)
     "1", "2", "3", "4", "5", "5.5", "5.6", "5.7", "5.8", "5.9", "5.9.5", "5.10",
-    "6", "6.5", "7", "7.5", "8", "8.5", "9", "10", "10.5", "11", "12", "13", "13.5",
+    "6", "6.5", "7", "7.5", "8", "8.5", "8.6", "9", "10", "10.5", "11", "12", "13", "13.5",
     "13.6", "13.7", "13.8",  # 外向型進化：觸發掃描 → 外向研究 → 消化生命週期
     "14", "15", "16", "17",
     "18",
@@ -199,6 +199,7 @@ class NightlyPipeline:
             "7.5": ("step_07_5_auto_course", self._step_auto_course),
             "8": ("step_08_workflow_mutation", self._step_workflow_mutation),
             "8.5": ("step_08_5_dna27_reindex", self._step_dna27_reindex),
+            "8.6": ("step_08_6_skill_vector_reindex", self._step_skill_vector_reindex),
             "9": ("step_09_graph_consolidation", self._step_graph_consolidation),
             "10": ("step_10_diary_generation", self._step_diary_generation),
             "10.5": ("step_10_5_ring_review", self._step_ring_review),
@@ -849,12 +850,11 @@ class NightlyPipeline:
 
         # ═══ 信號源 2: Knowledge Lattice 降級/矛盾偵測 ═══
         try:
-            lattice_dir = self._workspace / "lattice"
-            crystals_file = lattice_dir / "crystals.json"
-            if crystals_file.exists():
+            from museon.agent.crystal_store import CrystalStore
+            _cs = CrystalStore(data_dir=str(self._workspace))
+            if _cs.is_healthy():
                 signals_scanned += 1
-                with open(crystals_file, "r", encoding="utf-8") as fh:
-                    crystals_data = json.load(fh)
+                crystals_data = _cs.load_crystals_raw()
 
                 # 統計被降級的結晶（有反證的 Insight）
                 downgraded = [
@@ -1631,6 +1631,21 @@ class NightlyPipeline:
             return {"indexed_count": indexed}
         except Exception as e:
             return {"skipped": f"DNA27 reindex failed: {e}"}
+
+    # ═══════════════════════════════════════════
+    # Step 8.6: Skill 向量重索引
+    # ═══════════════════════════════════════════
+
+    def _step_skill_vector_reindex(self) -> Dict:
+        """Step 8.6: Skill 向量重索引——全量重建 skills collection（零 LLM）."""
+        try:
+            from museon.vector.vector_bridge import VectorBridge
+            vb = VectorBridge(workspace=self._workspace, event_bus=self._event_bus)
+            result = vb.index_all_skills()
+            return {"skill_reindex": result}
+        except Exception as e:
+            logger.warning(f"Nightly skill reindex failed: {e}")
+            return {"skill_reindex": {"error": str(e)}}
 
     # ═══════════════════════════════════════════
     # Step 9: 知識圖譜睡眠整合
