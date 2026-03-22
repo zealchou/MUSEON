@@ -94,6 +94,10 @@ class TelegramAdapter(ChannelAdapter):
         self._group_session_idle_seconds = 30 * 60  # 30 分鐘無訊息 → 視為會話結束
         self._group_msg_counts: Dict[int, int] = {}  # 本次會話訊息數
 
+        # v10.0: InteractionRequest 互動佇列
+        self._interaction_queue = None  # InteractionQueue instance (set externally)
+        self._pending_freetext: Dict[str, str] = {}  # {question_id: chat_id} 等待自由文字輸入
+
     async def start(self) -> None:
         """Start the Telegram bot and begin polling."""
         if self._running:
@@ -118,6 +122,21 @@ class TelegramAdapter(ChannelAdapter):
         # Morphenix L3 inline keyboard callback
         self.application.add_handler(
             CallbackQueryHandler(self._handle_morphenix_callback, pattern=r"^morphenix:")
+        )
+
+        # 授權系統 handlers: /pair, /auth + inline keyboard callbacks
+        self.application.add_handler(CommandHandler("pair", self._handle_pair_command))
+        self.application.add_handler(CommandHandler("auth", self._handle_auth_command))
+        self.application.add_handler(
+            CallbackQueryHandler(self._handle_pairing_callback, pattern=r"^pair:")
+        )
+        self.application.add_handler(
+            CallbackQueryHandler(self._handle_auth_callback, pattern=r"^auth:")
+        )
+
+        # v10.0: InteractionRequest choice callback
+        self.application.add_handler(
+            CallbackQueryHandler(self._handle_choice_callback, pattern=r"^choice:")
         )
 
         # Start polling
@@ -157,6 +176,26 @@ class TelegramAdapter(ChannelAdapter):
         self._seen_update_ids.add(update.update_id)
         if len(self._seen_update_ids) > self._max_seen_update_ids:
             self._seen_update_ids = set(list(self._seen_update_ids)[-500:])
+
+        # ── v10.0: InteractionRequest freetext 攔截 ──
+        # 使用者選了「自己說明」後，下一則文字訊息作為自由輸入回應
+        if update.message and self._pending_freetext:
+            chat_id_str = str(update.message.chat_id)
+            for qid, pending_chat_id in list(self._pending_freetext.items()):
+                if chat_id_str == pending_chat_id:
+                    from museon.gateway.message import InteractionResponse
+                    response = InteractionResponse(
+                        question_id=qid,
+                        selected=[],
+                        free_text=update.message.text or "",
+                        responder_id=str(update.message.from_user.id) if update.message.from_user else "",
+                        channel="telegram",
+                    )
+                    if self._interaction_queue:
+                        self._interaction_queue.resolve(qid, response)
+                    del self._pending_freetext[qid]
+                    logger.debug(f"InteractionRequest freetext resolved: qid={qid}")
+                    return  # 不進入正常訊息處理流程
 
         # ── Group chat: read all, reply only when @mentioned ──
         if update.message and update.message.chat.type in ("group", "supergroup"):
@@ -950,14 +989,24 @@ class TelegramAdapter(ChannelAdapter):
         """
         Determine trust level for a Telegram user.
 
-        Args:
-            user_id: Telegram user ID
-
-        Returns:
-            TrustLevel: CORE if user is in trusted list, EXTERNAL otherwise
+        Hierarchy:
+        1. Static trusted list (.env) → CORE
+        2. Dynamic pairing (PairingManager) → VERIFIED
+        3. Otherwise → EXTERNAL
         """
         if user_id in self.trusted_user_ids:
             return TrustLevel.CORE
+        # 動態配對授權
+        try:
+            from museon.gateway.authorization import get_pairing_manager
+            pm = get_pairing_manager()
+            dynamic_trust = pm.get_dynamic_trust(user_id)
+            if dynamic_trust == "TRUSTED":
+                return TrustLevel.CORE
+            if dynamic_trust == "VERIFIED":
+                return TrustLevel.VERIFIED
+        except Exception:
+            pass
         return TrustLevel.EXTERNAL
 
     # ─── Processing Status Messages ───
@@ -1361,3 +1410,457 @@ class TelegramAdapter(ChannelAdapter):
     def mark_user_notified(self, user_id: str) -> None:
         """標記用戶已被閒置推播通知."""
         self._notified_users.add(user_id)
+
+    # ══════════════════════════════════════════════════
+    # 授權系統 Handlers
+    # ══════════════════════════════════════════════════
+
+    async def _handle_pair_command(
+        self, update: Update, context: Any,
+    ) -> None:
+        """處理 /pair 指令 — 非信任使用者請求配對."""
+        if not update.message:
+            return
+        user_id = str(update.effective_user.id)
+        display_name = update.effective_user.first_name or "Unknown"
+
+        # 已信任使用者不需配對
+        if user_id in self.trusted_user_ids:
+            await update.message.reply_text("你已經是信任使用者，不需要配對。")
+            return
+
+        # 已配對？
+        try:
+            from museon.gateway.authorization import get_pairing_manager
+            pm = get_pairing_manager()
+            if pm.is_paired(user_id):
+                await update.message.reply_text("你已完成配對，可以直接使用。")
+                return
+        except Exception as e:
+            logger.error(f"Pair command error: {e}")
+            await update.message.reply_text("授權系統暫時不可用，請稍後再試。")
+            return
+
+        # 生成配對碼
+        code = pm.generate_code(user_id, display_name)
+        await update.message.reply_text(
+            f"你的配對碼：{code}\n"
+            f"有效期 5 分鐘，已通知管理員。\n"
+            f"等待管理員批准後即可使用。"
+        )
+
+        # 推到老闆 DM（inline keyboard）
+        keyboard = InlineKeyboardMarkup([
+            [
+                InlineKeyboardButton("✅ 批准", callback_data=f"pair:approve:{code}"),
+                InlineKeyboardButton("❌ 拒絕", callback_data=f"pair:deny:{code}"),
+            ],
+            [
+                InlineKeyboardButton("⏰ 臨時 24h", callback_data=f"pair:temp:{code}"),
+            ],
+        ])
+        await self.send_dm_to_owner(
+            f"🔑 配對請求\n\n"
+            f"使用者：{display_name} (ID: {user_id})\n"
+            f"配對碼：{code}\n"
+            f"時間：{datetime.now().strftime('%Y-%m-%d %H:%M')}"
+        )
+        # 發 inline keyboard 給老闆
+        if self.application and self.trusted_user_ids:
+            try:
+                owner_id = int(self.trusted_user_ids[0])
+                await self.application.bot.send_message(
+                    chat_id=owner_id,
+                    text="選擇操作：",
+                    reply_markup=keyboard,
+                )
+            except Exception as e:
+                logger.error(f"Send pairing keyboard failed: {e}")
+
+    async def _handle_pairing_callback(
+        self, update: Update, context: Any,
+    ) -> None:
+        """處理配對 inline keyboard 回調（pair:approve/deny/temp:CODE）."""
+        query = update.callback_query
+        if not query or not query.data:
+            return
+
+        # 只有老闆可以批准
+        user_id = str(query.from_user.id)
+        if user_id not in self.trusted_user_ids:
+            await query.answer("⛔ 無權限操作", show_alert=True)
+            return
+
+        parts = query.data.split(":")
+        if len(parts) != 3:
+            await query.answer("格式錯誤")
+            return
+
+        _, action, code = parts
+
+        try:
+            from museon.gateway.authorization import get_pairing_manager
+            pm = get_pairing_manager()
+            result = pm.verify_code(code)
+
+            if not result:
+                await query.answer("配對碼無效或已過期", show_alert=True)
+                await query.edit_message_text(f"❌ 配對碼 {code} 已失效")
+                return
+
+            paired_uid = result["user_id"]
+            paired_name = result["display_name"]
+
+            if action == "approve":
+                pm.add_user(paired_uid, paired_name, trust_level="VERIFIED")
+                await query.answer("✅ 已批准配對")
+                await query.edit_message_text(
+                    f"✅ 使用者 {paired_name} 已配對\n"
+                    f"信任等級：VERIFIED（永久）"
+                )
+                # 通知被配對的使用者
+                try:
+                    await self.application.bot.send_message(
+                        chat_id=int(paired_uid),
+                        text="✅ 配對成功！你現在可以使用 MUSEON。",
+                    )
+                except Exception:
+                    pass
+
+            elif action == "temp":
+                ttl = 86400  # 24 hours
+                pm.add_user(paired_uid, paired_name, trust_level="VERIFIED", ttl=ttl)
+                await query.answer("⏰ 已授予 24h 臨時權限")
+                await query.edit_message_text(
+                    f"⏰ 使用者 {paired_name} 已臨時配對\n"
+                    f"信任等級：VERIFIED（24 小時）"
+                )
+                try:
+                    await self.application.bot.send_message(
+                        chat_id=int(paired_uid),
+                        text="✅ 臨時配對成功！你有 24 小時的使用權限。",
+                    )
+                except Exception:
+                    pass
+
+            elif action == "deny":
+                await query.answer("❌ 已拒絕")
+                await query.edit_message_text(
+                    f"❌ 使用者 {paired_name} 的配對已被拒絕"
+                )
+                try:
+                    await self.application.bot.send_message(
+                        chat_id=int(paired_uid),
+                        text="❌ 配對被拒絕。",
+                    )
+                except Exception:
+                    pass
+
+        except Exception as e:
+            logger.error(f"Pairing callback error: {e}")
+            await query.answer(f"處理失敗: {e}", show_alert=True)
+
+    async def _handle_auth_callback(
+        self, update: Update, context: Any,
+    ) -> None:
+        """處理工具授權 inline keyboard 回調（auth:approve/deny/grant:ENTRY_ID）."""
+        query = update.callback_query
+        if not query or not query.data:
+            return
+
+        user_id = str(query.from_user.id)
+        if user_id not in self.trusted_user_ids:
+            await query.answer("⛔ 無權限操作", show_alert=True)
+            return
+
+        parts = query.data.split(":")
+        if len(parts) != 3:
+            await query.answer("格式錯誤")
+            return
+
+        _, action, entry_id = parts
+
+        try:
+            from museon.gateway.authorization import get_tool_auth_queue
+            taq = get_tool_auth_queue()
+            entry = taq.get(entry_id)
+            if not entry:
+                await query.answer("授權請求不存在或已處理", show_alert=True)
+                return
+
+            tool_name = entry.get("tool_name", "unknown")
+            user_name = entry.get("user_name", "unknown")
+
+            if action == "approve":
+                taq.resolve(entry_id, approved=True)
+                await query.answer("✅ 已允許")
+                await query.edit_message_text(
+                    f"✅ 工具 {tool_name} 已允許\n"
+                    f"使用者：{user_name}"
+                )
+
+            elif action == "deny":
+                taq.resolve(entry_id, approved=False)
+                await query.answer("❌ 已拒絕")
+                await query.edit_message_text(
+                    f"❌ 工具 {tool_name} 已拒絕\n"
+                    f"使用者：{user_name}"
+                )
+
+            elif action == "grant":
+                # session-level grant
+                session_id = entry.get("session_id", "")
+                taq.resolve(entry_id, approved=True)
+                taq.grant_session(session_id, tool_name)
+                await query.answer("✅ 本工具全允許")
+                await query.edit_message_text(
+                    f"✅ 工具 {tool_name} — 本會話全允許\n"
+                    f"使用者：{user_name}"
+                )
+
+        except Exception as e:
+            logger.error(f"Auth callback error: {e}")
+            await query.answer(f"處理失敗: {e}", show_alert=True)
+
+    async def _handle_auth_command(
+        self, update: Update, context: Any,
+    ) -> None:
+        """處理 /auth 指令 — 授權管理（僅限老闆）.
+
+        /auth list — 列出當前策略
+        /auth move <tool> <tier> — 移動工具到指定級別
+        /auth users — 列出配對使用者
+        /auth revoke <user_id> — 撤銷使用者
+        """
+        if not update.message:
+            return
+        user_id = str(update.effective_user.id)
+        if user_id not in self.trusted_user_ids:
+            await update.message.reply_text("⛔ 此指令僅限管理員使用。")
+            return
+
+        args = (update.message.text or "").split()
+        sub_cmd = args[1] if len(args) > 1 else "list"
+
+        try:
+            from museon.gateway.authorization import (
+                get_authorization_policy,
+                get_pairing_manager,
+            )
+
+            if sub_cmd == "list":
+                policy = get_authorization_policy()
+                p = policy.list_policy()
+                lines = ["📋 授權策略\n"]
+                for tier_name, tools in p.items():
+                    emoji = {"auto": "🟢", "ask": "🟡", "block": "🔴"}.get(tier_name, "⚪")
+                    lines.append(f"{emoji} {tier_name}: {', '.join(tools) if tools else '(空)'}")
+                await update.message.reply_text("\n".join(lines))
+
+            elif sub_cmd == "move" and len(args) >= 4:
+                tool_name = args[2]
+                target_tier = args[3]
+                policy = get_authorization_policy()
+                if policy.move_tool(tool_name, target_tier):
+                    await update.message.reply_text(
+                        f"✅ 工具 {tool_name} 已移至 {target_tier} 級別"
+                    )
+                else:
+                    await update.message.reply_text(
+                        f"❌ 無效的級別：{target_tier}（可用：auto / ask / block）"
+                    )
+
+            elif sub_cmd == "users":
+                pm = get_pairing_manager()
+                users = pm.list_users()
+                if not users:
+                    await update.message.reply_text("目前無動態配對使用者。")
+                    return
+                lines = ["👥 動態配對使用者\n"]
+                for uid, info in users.items():
+                    name = info.get("display_name", "?")
+                    trust = info.get("trust_level", "?")
+                    ttl = info.get("ttl")
+                    ttl_str = f"（{ttl // 3600}h）" if ttl else "（永久）"
+                    lines.append(f"  {name} [{uid}] — {trust}{ttl_str}")
+                await update.message.reply_text("\n".join(lines))
+
+            elif sub_cmd == "revoke" and len(args) >= 3:
+                target_uid = args[2]
+                pm = get_pairing_manager()
+                if pm.remove_user(target_uid):
+                    await update.message.reply_text(f"✅ 使用者 {target_uid} 已撤銷")
+                else:
+                    await update.message.reply_text(f"❌ 使用者 {target_uid} 不在配對清單中")
+
+            else:
+                await update.message.reply_text(
+                    "用法：\n"
+                    "/auth list — 列出策略\n"
+                    "/auth move <tool> <tier> — 移動工具\n"
+                    "/auth users — 列出配對使用者\n"
+                    "/auth revoke <user_id> — 撤銷使用者"
+                )
+
+        except Exception as e:
+            logger.error(f"Auth command error: {e}")
+            await update.message.reply_text(f"處理失敗：{e}")
+
+    async def push_tool_auth_request(
+        self,
+        entry_id: str,
+        tool_name: str,
+        args_summary: str,
+        user_name: str,
+    ) -> None:
+        """推送工具授權請求到老闆 DM（inline keyboard）."""
+        keyboard = InlineKeyboardMarkup([
+            [
+                InlineKeyboardButton("✅ 允許", callback_data=f"auth:approve:{entry_id}"),
+                InlineKeyboardButton("❌ 拒絕", callback_data=f"auth:deny:{entry_id}"),
+            ],
+            [
+                InlineKeyboardButton("✅ 本工具全允許", callback_data=f"auth:grant:{entry_id}"),
+            ],
+        ])
+
+        text = (
+            f"🔧 工具授權請求\n\n"
+            f"使用者：{user_name}\n"
+            f"工具：{tool_name}\n"
+            f"參數：{args_summary[:200]}\n"
+            f"時間：{datetime.now().strftime('%Y-%m-%d %H:%M')}"
+        )
+
+        if self.application and self.trusted_user_ids:
+            try:
+                owner_id = int(self.trusted_user_ids[0])
+                await self.application.bot.send_message(
+                    chat_id=owner_id,
+                    text=text,
+                    reply_markup=keyboard,
+                )
+            except Exception as e:
+                logger.error(f"Push tool auth request failed: {e}")
+
+    # ══════════════════════════════════════════════════
+    # v10.0: InteractionRequest — 跨通道互動選項
+    # ══════════════════════════════════════════════════
+
+    def set_interaction_queue(self, queue) -> None:
+        """設定 InteractionQueue 實例（由 server.py 在啟動時呼叫）."""
+        self._interaction_queue = queue
+
+    async def present_choices(
+        self,
+        chat_id: str,
+        request,
+        interaction_queue,
+    ) -> None:
+        """呈現互動選項為 Telegram InlineKeyboardMarkup.
+
+        Args:
+            chat_id: Telegram chat ID
+            request: InteractionRequest 物件
+            interaction_queue: InteractionQueue 實例
+        """
+        self._interaction_queue = interaction_queue
+
+        keyboard = []
+        for opt in request.options:
+            # callback_data 格式: choice:{question_id}:{value}
+            cb_value = opt.value or opt.label
+            cb_data = f"choice:{request.question_id}:{cb_value}"
+
+            # Telegram callback_data 限制 64 bytes
+            if len(cb_data.encode("utf-8")) > 64:
+                # 截斷 value 以符合限制
+                max_val_len = 64 - len(f"choice:{request.question_id}:".encode("utf-8"))
+                cb_value_truncated = cb_value.encode("utf-8")[:max_val_len].decode("utf-8", errors="ignore")
+                cb_data = f"choice:{request.question_id}:{cb_value_truncated}"
+
+            # 按鈕顯示文字
+            btn_text = opt.label
+            if opt.description:
+                btn_text += f" — {opt.description}"
+
+            keyboard.append([InlineKeyboardButton(btn_text, callback_data=cb_data)])
+
+        # 「其他」自由輸入選項
+        if request.allow_free_text:
+            ft_data = f"choice:{request.question_id}:__freetext__"
+            keyboard.append([InlineKeyboardButton("✏️ 自己說明", callback_data=ft_data)])
+
+        # 組裝訊息文字
+        header = f"【{request.header}】\n" if request.header else ""
+        multi_hint = "\n（可多選，選完按確認）" if request.multi_select else ""
+        text = f"{header}{request.question}{multi_hint}"
+
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        try:
+            await self.application.bot.send_message(
+                chat_id=int(chat_id),
+                text=text,
+                reply_markup=reply_markup,
+            )
+            logger.debug(
+                f"InteractionRequest presented: qid={request.question_id}, "
+                f"options={len(request.options)}, chat={chat_id}"
+            )
+        except Exception as e:
+            logger.error(f"present_choices failed: {e}")
+
+    async def _handle_choice_callback(self, update: Update, context: Any) -> None:
+        """處理 InteractionRequest 的 InlineKeyboard callback.
+
+        callback_data 格式: choice:{question_id}:{selected_value}
+        """
+        query = update.callback_query
+        if not query or not query.data:
+            return
+
+        await query.answer()
+
+        parts = query.data.split(":", 2)
+        if len(parts) != 3:
+            logger.warning(f"Invalid choice callback data: {query.data}")
+            return
+
+        _, question_id, selected_value = parts
+
+        # 自由文字模式：標記等待，下一則文字訊息會被攔截
+        if selected_value == "__freetext__":
+            self._pending_freetext[question_id] = str(query.message.chat_id)
+            try:
+                await query.edit_message_text(
+                    text="✏️ 請直接輸入您的回答："
+                )
+            except Exception as e:
+                logger.debug(f"edit_message_text for freetext failed: {e}")
+            return
+
+        # 正常選擇
+        from museon.gateway.message import InteractionResponse
+        response = InteractionResponse(
+            question_id=question_id,
+            selected=[selected_value],
+            responder_id=str(query.from_user.id) if query.from_user else "",
+            channel="telegram",
+        )
+
+        # 更新原訊息顯示已選結果
+        try:
+            await query.edit_message_text(
+                text=f"✅ 已選擇：{selected_value}"
+            )
+        except Exception as e:
+            logger.debug(f"edit_message_text for choice result failed: {e}")
+
+        # 解決互動請求
+        if self._interaction_queue:
+            self._interaction_queue.resolve(question_id, response)
+        else:
+            logger.warning(
+                f"No interaction_queue set for choice callback: qid={question_id}"
+            )

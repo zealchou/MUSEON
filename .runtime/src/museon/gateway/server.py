@@ -756,7 +756,62 @@ def create_app() -> FastAPI:
         """
         from datetime import datetime as _dt
 
-        node_map: Dict[str, Dict[str, Any]] = {}  # {node_id: {status, issues[]}}
+        # ── 預填所有拓撲節點為 ok（與 system-topology.md 同步）──
+        _ALL_TOPOLOGY_NODES = [
+            # center
+            "event-bus",
+            # channel
+            "user", "telegram", "gateway", "cron", "mcp-server",
+            # agent
+            "brain", "dna27", "skill-router", "reflex-router", "dispatch",
+            "knowledge-lattice", "plan-engine", "metacognition", "intuition",
+            "eval-engine", "diary-store", "onboarding", "multiagent",
+            "multi-agent-executor", "response-synthesizer", "flywheel-coordinator",
+            "primal-detector", "persona-router", "deep-think", "roundtable",
+            "investment-masters", "drift-detector", "okr-router", "fact-correction",
+            "dendritic-fusion", "recommender",
+            # pulse
+            "pulse", "heartbeat", "explorer", "silent-digestion", "proactive-bridge",
+            "micro-pulse", "pulse-db", "commitment-tracker", "anima-mc-store",
+            "anima-tracker", "group-session-proactive",
+            # gov
+            "governance", "governor", "immunity", "preflight", "refractory",
+            "skill-scanner", "sandbox", "telegram-guard", "service-health",
+            "guardian", "security", "dendritic-scorer", "footprint", "perception",
+            "cognitive-receipt",
+            # doctor
+            "doctor", "system-audit", "health-check", "self-diagnosis",
+            "auto-repair", "surgery", "log-analyzer", "code-analyzer",
+            "memory-reset", "observatory",
+            # llm
+            "llm-router", "budget-mgr", "rate-limit", "llm-cache",
+            # data
+            "data-bus", "data-watchdog", "memory", "vector-index",
+            "group-context-db", "workflow-state-db", "wee", "skills-registry",
+            "registry", "skill-synapse", "blueprint-reader", "lord-profile",
+            "sparse-embedder",
+            # evolution
+            "evolution", "outward-trigger", "intention-radar", "digest-engine",
+            "research-engine", "evolution-velocity", "feedback-loop",
+            "parameter-tuner", "tool-muscle", "trigger-weights",
+            # tools
+            "tool-registry", "tool-discovery", "dify-scheduler", "image-gen",
+            "rss-aggregator", "voice-clone", "zotero-bridge", "mcp-dify",
+            "skill-market", "federation-sync",
+            # nightly
+            "nightly", "morphenix", "curiosity-router", "exploration-bridge",
+            "skill-forge-scout", "crystal-actuator", "periodic-cycles",
+            "morphenix-validator",
+            # installer
+            "installer", "installer-daemon", "installer-electron",
+            "installer-env", "installer-verifier",
+            # external
+            "searxng", "qdrant", "firecrawl", "anthropic-api",
+        ]
+
+        node_map: Dict[str, Dict[str, Any]] = {
+            nid: {"status": "ok", "issues": []} for nid in _ALL_TOPOLOGY_NODES
+        }
 
         def _set_worst(nid: str, status: str, issue: str = ""):
             """設定節點狀態（只往嚴重方向升級）"""
@@ -777,16 +832,23 @@ def create_app() -> FastAPI:
             checker = HealthChecker()
             report = await _hc_aio.to_thread(checker.run_all)
 
-            # 映射表：檢查名稱關鍵字 → 節點 ID 列表
+            # 映射表：檢查名稱關鍵字 → 拓撲節點 ID 列表
             _hc_map = {
                 "gateway": ["gateway"],
-                "daemon": ["daemon"],
-                "數據完整性": ["diary-store", "pulse-db", "memory-store"],
+                "daemon": ["guardian", "installer-daemon"],
+                "數據完整性": ["diary-store", "pulse-db", "memory"],
                 "核心模組": ["brain", "skill-router", "gateway"],
-                "dashboard": ["electron"],
-                "app": ["electron"],
-                "api key": ["llm-router"],
+                "dashboard": ["installer-electron"],
+                "app": ["installer-electron"],
+                "api key": ["llm-router", "anthropic-api"],
                 ".env": ["llm-router"],
+                "目錄": ["data-bus"],
+                "venv": ["installer-env"],
+                "虛擬環境": ["installer-env"],
+                "磁碟": ["data-bus"],
+                "disk": ["data-bus"],
+                "日誌": ["log-analyzer"],
+                "log": ["log-analyzer"],
             }
 
             for chk in report.to_dict().get("checks", []):
@@ -794,15 +856,10 @@ def create_app() -> FastAPI:
                 chk_status = chk.get("status", "ok")
                 if chk_status == "ok":
                     continue
-                matched = False
                 for keyword, nids in _hc_map.items():
                     if keyword.lower() in chk_name.lower():
                         for nid in nids:
                             _set_worst(nid, chk_status, f"[健檢] {chk_name}: {chk.get('message', '')}")
-                        matched = True
-                if not matched:
-                    # 系統級問題不映射到特定節點
-                    pass
         except Exception as hc_err:
             logger.debug(f"node-status health_check failed: {hc_err}")
 
@@ -2442,13 +2499,14 @@ def create_app() -> FastAPI:
 
     @app.post("/api/vector/reindex")
     async def vector_reindex(payload: Dict[str, Any] = {}):
-        """觸發全量重建索引."""
+        """觸發全量重建索引（ensure collections + reindex all）."""
         try:
             from museon.vector.vector_bridge import VectorBridge
             from museon.core.event_bus import get_event_bus
             vb = VectorBridge(workspace=_get_brain().data_dir, event_bus=get_event_bus())
-            result = vb.ensure_collections()
-            return {"success": True, **result}
+            collections_result = vb.ensure_collections()
+            reindex_result = vb.reindex_all()
+            return {"success": True, "collections": collections_result, **reindex_result}
         except Exception as e:
             return {"success": False, "error": str(e)}
 
@@ -2868,6 +2926,16 @@ def create_app() -> FastAPI:
         except Exception as e:
             logger.warning(f"DNA27 Qdrant indexing failed (degraded): {e}")
 
+        # ── Skill 向量索引（全量，確保語意搜尋可用）──
+        try:
+            from museon.vector.vector_bridge import VectorBridge
+            from museon.core.event_bus import get_event_bus
+            vb = VectorBridge(workspace=brain.data_dir, event_bus=get_event_bus())
+            skill_idx = vb.index_all_skills()
+            logger.info(f"[startup] Skills indexed: {skill_idx}")
+        except Exception as e:
+            logger.warning(f"[startup] Skills index failed (non-fatal): {e}")
+
         # ── v10.2: Auto-connect configured MCP servers ──
         try:
             if (
@@ -2970,6 +3038,15 @@ def create_app() -> FastAPI:
 
                     await adapter.start()
                     app.state.telegram_adapter = adapter
+
+                    # v10.0: 設定 InteractionQueue
+                    try:
+                        from museon.gateway.interaction import get_interaction_queue
+                        _iq = get_interaction_queue()
+                        adapter.set_interaction_queue(_iq)
+                        logger.info("InteractionQueue connected to TelegramAdapter")
+                    except Exception as _iq_err:
+                        logger.warning(f"InteractionQueue setup failed (degraded): {_iq_err}")
 
                     # 記錄啟動成功
                     import time as _time_mod
@@ -3672,6 +3749,28 @@ async def _telegram_message_pump(adapter) -> None:
                     except Exception as _esc_err:
                         logger.debug(f"Escalation check error: {_esc_err}")
 
+                    # ── Check if owner is responding to a tool authorization ──
+                    try:
+                        from museon.gateway.authorization import get_tool_auth_queue
+                        taq = get_tool_auth_queue()
+                        if taq.has_pending():
+                            if _is_approve:
+                                tid = taq.resolve_latest(approved=True)
+                                if tid:
+                                    _tentry = taq.get(tid)
+                                    _tname = _tentry.get("tool_name", "?") if _tentry else "?"
+                                    _tusr = _tentry.get("user_name", "?") if _tentry else "?"
+                                    response_text = f"✅ 工具 {_tname} 已允許（{_tusr}）"
+                            elif _is_deny:
+                                tid = taq.resolve_latest(approved=False)
+                                if tid:
+                                    _tentry = taq.get(tid)
+                                    _tname = _tentry.get("tool_name", "?") if _tentry else "?"
+                                    _tusr = _tentry.get("user_name", "?") if _tentry else "?"
+                                    response_text = f"❌ 工具 {_tname} 已拒絕（{_tusr}）"
+                    except Exception as _auth_err:
+                        logger.debug(f"Tool auth check error: {_auth_err}")
+
                 # /start 觸發命名儀式（Brain 內部處理）
                 # /reset 強制重跑命名儀式
                 if response_text is None and message.content in ("/start", "/reset"):
@@ -3827,6 +3926,102 @@ async def _telegram_message_pump(adapter) -> None:
                     else:
                         response_text = str(brain_result) if brain_result else ""
 
+                # ── v10.0: InteractionRequest 互動攔截 ──
+                if isinstance(brain_result, BrainResponse) and brain_result.has_interaction():
+                    try:
+                        from museon.gateway.interaction import get_interaction_queue
+                        interaction_req = brain_result.interaction
+                        interaction_queue = get_interaction_queue()
+
+                        # 提交到佇列
+                        interaction_queue.submit(interaction_req)
+
+                        # 先發送 Brain 的文字回應（說明為什麼要問）
+                        if response_text and response_text.strip():
+                            pre_msg = InternalMessage(
+                                source="telegram",
+                                session_id=message.session_id,
+                                user_id="museon",
+                                content=response_text,
+                                timestamp=datetime.now(),
+                                trust_level="core",
+                                metadata=message.metadata,
+                            )
+                            await adapter.send(pre_msg)
+
+                        # 呈現互動選項
+                        await adapter.present_choices(
+                            chat_id=str(chat_id),
+                            request=interaction_req,
+                            interaction_queue=interaction_queue,
+                        )
+
+                        # 停止 typing + 進度（等待使用者選擇期間不顯示 typing）
+                        if chat_id:
+                            await adapter.stop_typing(chat_id)
+                        if progress_task:
+                            progress_task.cancel()
+                            try:
+                                await progress_task
+                            except asyncio.CancelledError:
+                                pass
+                        if status_msg_id and chat_id:
+                            await adapter.delete_processing_status(chat_id, status_msg_id)
+                            status_msg_id = None
+
+                        # 等待使用者回應
+                        interaction_resp = await interaction_queue.wait_for_response(
+                            interaction_req.question_id,
+                            timeout=interaction_req.timeout_seconds,
+                        )
+
+                        # 將使用者選擇回饋給 Brain 做後續處理
+                        if interaction_resp and not interaction_resp.timed_out:
+                            choice_text = interaction_resp.get_choice_text()
+                            logger.info(
+                                f"InteractionResponse received: "
+                                f"qid={interaction_req.question_id}, choice={choice_text}"
+                            )
+
+                            # 重新啟動 typing
+                            if chat_id:
+                                await adapter.start_typing(chat_id)
+
+                            followup_result = await brain.process(
+                                content=f"[使用者選擇] {choice_text}",
+                                session_id=message.session_id,
+                                user_id=message.user_id,
+                                source="telegram",
+                                metadata={
+                                    **(message.metadata or {}),
+                                    "interaction_response": True,
+                                    "question_id": interaction_req.question_id,
+                                    "original_context": interaction_req.context,
+                                },
+                            )
+
+                            # 更新 brain_result 和 response_text 為後續回應
+                            brain_result = followup_result
+                            if isinstance(followup_result, BrainResponse):
+                                response_text = followup_result.text
+                            elif followup_result:
+                                response_text = str(followup_result)
+                            else:
+                                response_text = ""
+                        else:
+                            logger.info(
+                                f"InteractionRequest timed out: "
+                                f"qid={interaction_req.question_id}"
+                            )
+                            response_text = ""  # 超時不再發送額外訊息
+
+                    except Exception as interaction_err:
+                        logger.error(
+                            f"InteractionRequest handling failed: {interaction_err}",
+                            exc_info=True,
+                        )
+                        # 降級為純文字回應（已在上方提取）
+
                 # ── 自癒：空回應 fallback（防止 Telegram 拒絕空訊息）──
                 if not response_text or not response_text.strip():
                     logger.warning("Brain returned empty response, applying fallback")
@@ -3841,16 +4036,12 @@ async def _telegram_message_pump(adapter) -> None:
                 name = "MUSEON"
                 if anima_mc:
                     name = anima_mc.get("identity", {}).get("name", "MUSEON")
-                if is_group and not is_owner:
-                    # 群組外部用戶：不洩漏技術細節
-                    response_text = f"不好意思，我現在有點忙，請稍後再試。"
-                else:
-                    # Owner 或私訊：顯示錯誤細節方便除錯
-                    response_text = (
-                        f"[{name}] 處理過程發生錯誤，請稍後再試。\n\n"
-                        f"錯誤類型：{type(proc_err).__name__}\n"
-                        f"如果持續發生，請用 /reset 重新啟動。"
-                    )
+                # v3.0: 所有用戶統一顯示錯誤細節（含群組外部用戶）
+                response_text = (
+                    f"[{name}] 處理過程發生錯誤，請稍後再試。\n\n"
+                    f"錯誤類型：{type(proc_err).__name__}\n"
+                    f"如果持續發生，請用 /reset 重新啟動。"
+                )
             finally:
                 # Release session lock
                 if _session_locked and message.session_id and session_manager:
@@ -4225,17 +4416,13 @@ def _register_external_endpoints(app, data_dir) -> None:
     # ── EXT-09: 推薦系統 ──
     @app.get("/api/recommendations")
     async def api_recommendations():
-        """取得個人化推薦."""
+        """取得個人化推薦（使用 Brain 常駐 Recommender 實例）."""
         try:
-            from museon.agent.recommender import Recommender
-            from museon.core.event_bus import get_event_bus
-
-            recommender = Recommender(
-                workspace=data_dir,
-                event_bus=get_event_bus(),
-            )
-            items = await recommender.get_recommendations(limit=5)
-            return {"recommendations": items, "count": len(items)}
+            brain = app.state.brain
+            if brain and brain._recommender:
+                items = await brain._recommender.get_recommendations(limit=5)
+                return {"recommendations": items, "count": len(items)}
+            return {"recommendations": [], "count": 0, "status": "recommender_unavailable"}
         except Exception as e:
             return {"error": str(e), "recommendations": []}
 

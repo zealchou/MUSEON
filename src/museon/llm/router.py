@@ -118,6 +118,23 @@ class Router:
         if char_count > 300:
             return {"model": "opus", "reason": "msg_too_long", "task_type": "complex"}
 
+        # Rule 4a: 修正/否定模式 → Haiku（使用者反饋類簡單應答）
+        _CORRECTION_STARTS = [
+            "不是", "不對", "其實", "但是", "可是", "應該是",
+            "改成", "換一個", "重新", "再想想", "別的",
+            "好的", "了解", "收到", "對", "沒錯", "嗯",
+        ]
+        if any(message_lower.startswith(p) for p in _CORRECTION_STARTS):
+            return {"model": "haiku", "reason": "correction_pattern", "task_type": "clarification"}
+
+        # Rule 4b: 簡單問答模式 → Haiku
+        _SIMPLE_QA = [
+            "幾點", "什麼時候", "在哪裡", "多少錢", "怎麼說",
+            "你叫什麼", "是什麼意思", "翻譯", "怎麼念",
+        ]
+        if char_count <= 30 and any(p in message_lower for p in _SIMPLE_QA):
+            return {"model": "haiku", "reason": "simple_qa", "task_type": "qa"}
+
         # Rule 5: 超短訊息（≤ 20 字）且沒命中任何規則 → Haiku
         if char_count <= 20:
             return {"model": "haiku", "reason": "ultra_short", "task_type": "simple_ack"}

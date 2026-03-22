@@ -36,11 +36,14 @@ TZ8 = timezone(timedelta(hours=8))
 PRECOG_MODEL = "claude-haiku-4-5-20251001"
 PRECOG_MAX_TOKENS = 300
 
-# 觸發 PreCognition 的技能名稱
-_PRECOG_TRIGGER_SKILLS = frozenset({
-    "philo-dialectic", "xmodel", "deep-think",
-    "dharma", "resonance",
-})
+# 觸發 PreCognition 的技能名稱（TIER 分層）
+# TIER_A: 高影響力決策 → 必審
+# TIER_B: 思維類 Skill → 必審（僅 SLOW_LOOP）
+# TIER_C: 探索輔助 → 可選（EXPLORATION_LOOP 不強制）
+_PRECOG_TIER_A_SKILLS = frozenset({"philo-dialectic", "xmodel"})
+_PRECOG_TIER_B_SKILLS = frozenset({"deep-think", "dharma", "resonance"})
+# 向下相容：合併為完整觸發集合
+_PRECOG_TRIGGER_SKILLS = _PRECOG_TIER_A_SKILLS | _PRECOG_TIER_B_SKILLS
 
 # PreCognition 審查 System Prompt
 # 融合 deep-think Phase 2 + philo-dialectic + xmodel 核心智慧
@@ -71,6 +74,8 @@ _PRECOG_SYSTEM_PROMPT = """\
   e. 回覆使用 persona 名字（霓裳）— 這是正確行為
   f. 回覆以親切口吻互動 — 這是 ANIMA 設計
   g. 簡單問候或閒聊 — 不需要可交付物
+  h. 使用者問的是「知識型問題」（為什麼/是什麼/怎麼看）— 分析型回覆本身就是交付物
+  i. 思維類 Skill（dharma/resonance/deep-think）的引導式回應 — 引導本身就是行動
 - 輸出格式：
   - 如果五項無重大問題 → 只回覆「PASS」（一個字，不要解釋）
   - 如果需要修改 → 回覆「REVISE」加上 ≤100 字修改方向（不要重寫回覆）
@@ -248,19 +253,30 @@ class MetaCognitionEngine:
             except AttributeError as e:
                 logger.debug(f"[METACOGNITION] operation failed (degraded): {e}")
 
-        # 匹配觸發技能 → 必審
-        if skills & _PRECOG_TRIGGER_SKILLS:
+        # TIER_A 觸發技能 → 必審（高影響力決策）
+        if skills & _PRECOG_TIER_A_SKILLS:
             return True
+
+        # TIER_B 觸發技能 → 僅 SLOW_LOOP 時必審
+        # EXPLORATION_LOOP 中的 TIER_B 降為可選，減少旗標風暴
+        if skills & _PRECOG_TIER_B_SKILLS:
+            try:
+                if routing_signal and routing_signal.loop == "SLOW_LOOP":
+                    return True
+            except AttributeError:
+                pass
 
         # 複雜問題 → 審查
         if len(user_query) > 150:
             return True
 
-        # EXPLORATION_LOOP → 審查
+        # EXPLORATION_LOOP + TIER_A → 審查（非 TIER_A 不強制）
         if routing_signal:
             try:
                 if routing_signal.loop == "EXPLORATION_LOOP":
-                    return True
+                    if skills & _PRECOG_TIER_A_SKILLS:
+                        return True
+                    # TIER_B/C 在 exploration 中不強制審查
             except AttributeError as e:
                 logger.debug(f"[METACOGNITION] operation failed (degraded): {e}")
 
@@ -360,6 +376,15 @@ class MetaCognitionEngine:
             "review_time_ms": elapsed_ms,
         }
 
+    # Workflow 類 Skill 名稱：這些是編排範本而非執行單元，
+    # missing_action 品質旗標不適用（它們不產生可觀測 action 是正常的）
+    _WORKFLOW_SKILL_NAMES = frozenset({
+        "workflow-svc-brand-marketing",
+        "workflow-investment-analysis",
+        "workflow-ai-deployment",
+        "group-meeting-notes",
+    })
+
     def _emit_quality_flag(
         self,
         feedback: str,
@@ -378,17 +403,29 @@ class MetaCognitionEngine:
                 get_event_bus,
             )
             category = self._classify_quality_category(feedback)
+
+            # 過濾 workflow 類 Skill：它們是編排範本，missing_action 不適用
+            effective_skills = [
+                s for s in (matched_skills or [])
+                if s not in self._WORKFLOW_SKILL_NAMES
+            ]
+
+            # 如果過濾後無 Skill，且品質類別是 missing_action → 跳過發布
+            if not effective_skills and category == "missing_action":
+                logger.debug("[MetaCog] Quality flag suppressed: all skills are workflow type")
+                return
+
             get_event_bus().publish(METACOGNITION_QUALITY_FLAG, {
                 "source": "metacognition",
                 "category": category,
                 "feedback": feedback[:300],
-                "skills_involved": list(matched_skills) if matched_skills else [],
+                "skills_involved": effective_skills,
                 "user_query_snippet": user_query[:100],
                 "timestamp": datetime.now(TZ8).isoformat(),
             })
             logger.info(
                 f"[MetaCog] Quality flag emitted: category={category}, "
-                f"skills={matched_skills}"
+                f"skills={effective_skills}"
             )
         except Exception as e:
             logger.debug(f"[MetaCog] quality flag emit failed (degraded): {e}")

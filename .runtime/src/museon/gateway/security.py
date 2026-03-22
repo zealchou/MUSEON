@@ -152,15 +152,22 @@ class SecurityGate:
         This runs BEFORE ToolExecutor, providing a first-pass security gate.
         Works alongside guardrails.py (Layer 4) for defense-in-depth.
 
+        Three-tier policy integration:
+        - block: 永久阻擋（同 GATEWAY_BLOCKED_TOOLS）
+        - auto: VERIFIED 以上直接放行
+        - ask: TRUSTED/CORE 放行，VERIFIED 需互動授權，其餘拒絕
+
         Args:
             tool_name: Name of the tool being called
             source: Request source (telegram, webhook, etc.)
             trust_level: Caller's trust level (TRUSTED, VERIFIED, UNKNOWN, UNTRUSTED)
 
         Returns:
-            Dict with keys: allowed (bool), reason (str)
+            Dict with keys:
+            - allowed: True | False | "pending"
+            - reason: str
         """
-        # Always block RED tools at gateway
+        # ── Layer 0: 永久阻擋 RED 工具（不受策略影響） ──
         if tool_name in self.GATEWAY_BLOCKED_TOOLS:
             logger.warning(
                 f"Gateway 工具攔截: {tool_name} 被永久阻擋 "
@@ -171,7 +178,63 @@ class SecurityGate:
                 "reason": f"工具 '{tool_name}' 被 Gateway 安全策略永久阻擋",
             }
 
-        # Approval-required tools need TRUSTED level
+        # ── Layer 1: 三級授權策略 ──
+        try:
+            from museon.gateway.authorization import get_authorization_policy
+            policy = get_authorization_policy()
+            tier = policy.classify(tool_name)
+        except Exception:
+            # Fallback: 使用舊邏輯
+            tier = None
+
+        if tier == "block":
+            logger.warning(
+                f"Gateway 策略攔截: {tool_name} 被策略阻擋 "
+                f"(source={source}, trust={trust_level})"
+            )
+            return {
+                "allowed": False,
+                "reason": f"工具 '{tool_name}' 被授權策略永久阻擋",
+            }
+
+        if tier == "auto":
+            # auto 級：VERIFIED 以上直接放行
+            if trust_level in ("TRUSTED", "CORE", "VERIFIED"):
+                return {"allowed": True, "reason": "passed (auto tier)"}
+            # UNKNOWN/UNTRUSTED 仍拒絕
+            return {
+                "allowed": False,
+                "reason": f"工具 '{tool_name}' 需要至少 VERIFIED 信任等級",
+            }
+
+        if tier == "ask":
+            # ask 級：TRUSTED/CORE 直接放行
+            if trust_level in ("TRUSTED", "CORE"):
+                return {"allowed": True, "reason": "passed (trusted)"}
+            # VERIFIED 需互動授權
+            if trust_level == "VERIFIED":
+                logger.info(
+                    f"Gateway 工具授權待定: {tool_name} "
+                    f"(source={source}, trust={trust_level})"
+                )
+                return {
+                    "allowed": "pending",
+                    "reason": "awaiting_authorization",
+                }
+            # UNKNOWN/UNTRUSTED 拒絕
+            logger.warning(
+                f"Gateway 工具攔截: {tool_name} 需要 VERIFIED 以上 "
+                f"(目前: {trust_level}, source={source})"
+            )
+            return {
+                "allowed": False,
+                "reason": (
+                    f"工具 '{tool_name}' 需要 VERIFIED 以上信任等級 "
+                    f"（目前為 {trust_level}）"
+                ),
+            }
+
+        # ── Fallback: 舊邏輯（tier is None，authorization 模組未載入） ──
         if tool_name in self.APPROVAL_REQUIRED_TOOLS:
             if trust_level not in ("TRUSTED", "CORE"):
                 logger.warning(
@@ -188,7 +251,6 @@ class SecurityGate:
 
         # MCP tools: allow dynamically registered tools
         if tool_name.startswith("mcp__"):
-            # Dynamic MCP tools are allowed but logged
             logger.debug(f"Gateway: MCP 工具 {tool_name} 通過 (source={source})")
 
         return {"allowed": True, "reason": "passed"}
