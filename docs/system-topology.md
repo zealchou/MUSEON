@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.35
+# MUSEON 系統拓撲圖 v1.36
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.36 (2026-03-22)**：使用者節點精細化——channel 群組 `user` 拆分為 `zeal`（CORE 主人）、`verified-user`（VERIFIED 動態配對）、`external-user`（EXTERNAL 群組外部成員）三節點；補上遺漏的 `discord` 節點；新增/更新 8 條 flow 連線反映實際使用者分流；175 節點 369 連線
 > **v1.35 (2026-03-22)**：P0-P3 升級——Evolution Hub 新增 2 個 Skill 節點（system-health-check、decision-tracker）；新增 5 條跨群組連線（report-forge→knowledge-lattice、system-health-check→knowledge-lattice/morphenix、decision-tracker→knowledge-lattice/user-model）；173 節點 361 連線
 > **v1.34 (2026-03-22)**：經驗諮詢閘門——新增 1 條 cross 連線 `brain → data-bus`（經驗回放搜尋 activity_log.search()）；171 節點 351 連線
 > **v1.33 (2026-03-22)**：InteractionRequest 跨通道互動層——channel 群組新增 `line` 節點（LINE 通道適配器）；gateway 群組新增 `interaction-queue` 節點（InteractionQueue 非阻塞等待佇列）；新增 8 條連線（interaction-queue ↔ telegram/discord/line/gateway）；171 節點 358 連線
@@ -59,15 +60,43 @@
 | `event-bus` | Event Bus | 核心事件匯流排 | Yes | 3.2 |
 
 ### channel — 通道入口
-| ID | 名稱 | 中文 | Hub | 半徑 |
-|----|------|------|-----|------|
-| `user` | User (Zeal) | 使用者 | - | 2.0 |
-| `telegram` | Telegram | 主通道 | - | 1.6 |
-| `gateway` | Gateway | WebSocket :8765 | - | 1.6 |
-| `line` | LINE | LINE@ 通道 | - | 1.4 |
-| `cron` | Cron | 排程入口 | - | 1.2 |
-| `mcp-server` | MCP Server | Claude Code 介面 | - | 1.2 |
-| `interaction-queue` | Interaction Queue | 跨通道互動佇列 | - | 1.0 |
+
+> **使用者分層模型（v1.36）**：程式碼層已實作 TrustLevel 四層（CORE/VERIFIED/EXTERNAL/UNTRUSTED）、
+> 私聊 vs 群組分流（session_id 格式 `telegram_{id}` vs `telegram_group_{id}`）、
+> ExternalAnimaManager（外部使用者記憶 `data/_system/external_users/{uid}.json`）、
+> SensitivityChecker + EscalationQueue（敏感問題升級到 owner 私聊確認）。
+> 拓撲節點按信任層級拆分，反映訊息在 `gateway/server.py` message pump 中的實際路由決策。
+
+| ID | 名稱 | 中文 | 信任層級 | Hub | 半徑 |
+|----|------|------|---------|-----|------|
+| `zeal` | Zeal (Owner) | 主人 | CORE | - | 2.0 |
+| `verified-user` | Verified User | 動態配對使用者 | VERIFIED | - | 1.2 |
+| `external-user` | External User | 群組外部成員 | EXTERNAL | - | 1.4 |
+| `telegram` | Telegram | 主通道（私聊 + 群組） | - | - | 1.6 |
+| `gateway` | Gateway | WebSocket :8765 | - | - | 1.6 |
+| `line` | LINE | LINE@ 通道（私聊 + 群組 + Room） | - | - | 1.4 |
+| `discord` | Discord | Discord 通道 | - | - | 1.2 |
+| `cron` | Cron | 排程入口 | - | - | 1.2 |
+| `mcp-server` | MCP Server | Claude Code 介面 | - | - | 1.2 |
+| `interaction-queue` | Interaction Queue | 跨通道互動佇列 | - | - | 1.0 |
+
+#### 使用者信任層級與訊息路由
+
+```
+zeal（CORE）
+  ├─ 私聊 → telegram/line → gateway → brain.process() 直接處理
+  ├─ 群組 @mention → telegram/line → gateway → 注入群組上下文 + 標記「老闆」
+  └─ EscalationQueue 回覆 → 確認/拒絕外部使用者的敏感問題
+
+verified-user（VERIFIED，經 PairingManager 動態配對）
+  └─ 私聊 → telegram → gateway → brain.process()（信任等級略低於 CORE）
+
+external-user（EXTERNAL）
+  ├─ 群組 @mention → telegram/line → gateway → SensitivityChecker 分級
+  │    ├─ 非敏感 → ExternalAnimaManager.update() + brain 處理
+  │    └─ 敏感（L1/L2/L3）→ EscalationQueue → 等待 zeal 私聊確認
+  └─ 群組非 @mention → 只記錄到 GroupContextDB + JSONL log，不進入 brain
+```
 
 ### agent — Agent / Brain
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -345,10 +374,15 @@
 ### 主資料流（flow）
 | Source | Target | 說明 |
 |--------|--------|------|
-| `user` | `telegram` | 訊息指令 |
-| `user` | `line` | LINE 訊息 |
-| `telegram` | `gateway` | 轉發 |
+| `zeal` | `telegram` | 私聊指令 + 群組 @mention（CORE trust, is_owner=True） |
+| `zeal` | `line` | LINE 私聊 + 群組（CORE trust） |
+| `verified-user` | `telegram` | 動態配對使用者私聊（VERIFIED trust, PairingManager） |
+| `external-user` | `telegram` | 群組對話（EXTERNAL trust, SensitivityChecker 過濾） |
+| `external-user` | `line` | LINE 群組對話（EXTERNAL trust） |
+| `external-user` | `discord` | Discord 群組對話（EXTERNAL trust） |
+| `telegram` | `gateway` | 轉發（InternalMessage + metadata: is_group, is_owner, sender_name） |
 | `line` | `gateway` | webhook 轉發 |
+| `discord` | `gateway` | 轉發 |
 | `gateway` | `event-bus` | 路由 |
 | `cron` | `event-bus` | 定時觸發 |
 
@@ -792,7 +826,9 @@
 | `proactive-bridge` | `telegram` | 非同步推播 |
 | `nightly` | `event-bus` | 回饋迴路 |
 | `morphenix` | `event-bus` | 提案回饋 |
-| `telegram` | `user` | 回傳回應 |
+| `telegram` | `zeal` | 回傳回應（私聊 + 群組回覆） |
+| `telegram` | `external-user` | 群組中回覆外部使用者 |
+| `line` | `zeal` | LINE 回傳回應 |
 | `data-watchdog` | `event-bus` | 監控事件 |
 | `telegram` | `brain` | 推送寫入 session |
 | `fact-correction` | `proactive-bridge` | P4 自省清洗推播 |
@@ -839,16 +875,16 @@
 
 | 指標 | 數值 |
 |------|------|
-| 總節點數 | 173 (123 系統 + 50 Skills) |
-| 總連線數 | 363 (260 系統 + 103 Skills) |
+| 總節點數 | 176 (126 系統 + 50 Skills) |
+| 總連線數 | 369 (266 系統 + 103 Skills) |
 | 群組數 | 14 (含 skills) |
 | Hub 節點 | 18 (11 系統 + 7 Skills Hub) |
 | 跨系統連線 | 118 (83 系統 + 35 Skills cross) |
 | 內部連線 | 177 (118 系統 + 59 Skills internal) |
-| 非同步連線 | 5 |
+| 非同步連線 | 7 |
 | 監控連線 | 5 |
 | 控制連線 | 16 (9 系統 + 7 Skills control) |
-| 資料流連線 | 4 |
+| 資料流連線 | 9 |
 | 衰減連線 | 5 |
 | 平均連線數/節點 | 2.1 |
 
@@ -858,6 +894,7 @@
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.36 | 2026-03-22 | 使用者節點精細化：channel 群組 `user` 拆分為 `zeal`（CORE 主人，r=2.0）、`verified-user`（VERIFIED 動態配對，r=1.2）、`external-user`（EXTERNAL 群組外部成員，r=1.4）三節點（+2 淨增，user→3）；補上遺漏的 `discord` 節點（r=1.2，+1）；flow 連線從 2 條（user→telegram/line）更新為 6 條（zeal→telegram/line、verified-user→telegram、external-user→telegram/line/discord）+ discord→gateway 1 條；async 連線新增 telegram→external-user、line→zeal 2 條；176 節點 369 連線 |
 | v1.35 | 2026-03-22 | P0-P3 升級：Evolution Hub 新增 2 個 Skill 節點（system-health-check 系統健康自檢引擎、decision-tracker 決策歷史追蹤引擎）+ 2 條 internal 連線；新增 5 條 cross 連線（report-forge→knowledge-lattice 報告洞見結晶化、system-health-check→knowledge-lattice 健康結晶化、system-health-check→morphenix 修復提案、decision-tracker→knowledge-lattice 決策結晶化、decision-tracker→user-model 決策偏好）；173 節點 363 連線 |
 | v1.34 | 2026-03-22 | 經驗諮詢閘門：新增 1 條 cross 連線 `brain → data-bus`（經驗回放搜尋 activity_log.search()）；無新增節點；171 節點 351 連線 |
 | v1.32 | 2026-03-22 | Recommender 激活修復：`recommender` 節點半徑 0.7→0.9（幽靈模組→實際接線）；新增 1 條 cross 連線（recommender→crystal-store 結晶讀取）；brain.py `_recommender` 初始化；server.py API 改用常駐實例；169 節點 350 連線 |
