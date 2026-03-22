@@ -105,6 +105,25 @@ canvas{display:block}
   text-shadow:0 0 4px rgba(247,245,240,.95),0 0 8px rgba(247,245,240,.8);
 }
 
+/* ═══ Search Box ═══ */
+.search-box{
+  display:flex;align-items:center;gap:4px;margin-bottom:10px;
+  position:relative;
+}
+.search-box input{
+  width:100%;padding:6px 10px;border-radius:8px;
+  border:1.5px solid #E2E0DA;background:rgba(253,252,250,.95);
+  font-family:'IBM Plex Mono',monospace;font-size:.65rem;
+  color:#3A3A4E;outline:none;transition:border-color .15s;
+}
+.search-box input:focus{border-color:#C4502A;box-shadow:0 0 0 2px rgba(196,80,42,.15)}
+.search-box input.no-match{border-color:#C9543A;background:rgba(201,84,58,.05)}
+.search-count{
+  position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  font-family:'IBM Plex Mono',monospace;font-size:.5rem;color:#9898A8;
+  pointer-events:none;white-space:nowrap;
+}
+
 /* ═══ Health Check System ═══ */
 .health-row{
   display:flex;align-items:center;gap:6px;margin-bottom:10px;
@@ -211,12 +230,16 @@ canvas{display:block}
 
 <div class="topbar">
   <h1>MUSEON 3D 系統心智圖</h1>
-  <div class="hint">左鍵拖曳旋轉 · 滾輪縮放 · 點擊節點查看連結 · H 健康檢查 · D Doctor視圖 · Esc 取消</div>
+  <div class="hint">左鍵拖曳旋轉 · 滾輪縮放 · 點擊節點查看連結 · H 健康檢查 · D Doctor視圖 · / 搜尋 · Esc 取消</div>
   <div class="sync-info" id="syncInfo"></div>
   <div class="doctor-indicator" id="doctorStatus">⚪ Doctor 離線</div>
 </div>
 
 <div class="legend">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="/ 搜尋節點..." autocomplete="off">
+    <span class="search-count" id="searchCount"></span>
+  </div>
   <h3>系統群組</h3>
   <div class="legend-item" data-g="channel"><div class="legend-dot" style="background:#C98980"></div>通道入口</div>
   <div class="legend-item" data-g="agent"><div class="legend-dot" style="background:#86ADA0"></div>Agent / Brain</div>
@@ -299,7 +322,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 //  SYNC META — 拓撲同步狀態
 // ═══════════════════════════════════════
 const SYNC_META = {
-  topologyVersion: 'v1.41',
+  topologyVersion: 'v1.42',
   syncDate: '2026-03-22',
   nodeCount: 0, // auto-calculated below
   linkCount: 0, // auto-calculated below
@@ -476,7 +499,7 @@ const nodes = [
   {id:"registry",label:"Registry",zh:"RegistryDB SQLite",group:"data",r:1.0,p:"data-bus"},
   {id:"skill-synapse",label:"Skill Synapse",zh:"突觸網路",group:"data",r:0.9,p:"data-bus"},
   {id:"skills-registry",label:"Skills Registry",zh:"技能資料庫",group:"data",r:1.2,p:"data-bus"},
-  {id:"sparse-embedder",label:"Sparse Embedder",zh:"BM25 稀疏向量",group:"data",r:0.9,p:"data-bus"},
+  {id:"sparse-embedder",label:"Sparse Embedder",zh:"BM25 稀疏向量（已啟動）",group:"data",r:0.9,p:"data-bus"},
   {id:"vector-index",label:"Vector Index",zh:"Qdrant 語義",group:"data",r:1.5,p:"data-bus"},
   {id:"wee",label:"WEE",zh:"演化引擎",group:"data",r:1.2,p:"data-bus"},
   {id:"workflow-state-db",label:"WorkflowStateDB",zh:"工作流 SQLite",group:"data",r:1.0,p:"data-bus"},
@@ -877,6 +900,7 @@ const links = [
   {source:"lord-profile",target:"persona-router",label:"百合引擎讀取領域畫像（Phase 1）",type:"cross"},
   {source:"mcp-server",target:"brain",label:"ANIMA 狀態查詢",type:"cross"},
   {source:"memory",target:"registry",label:"持久化儲存",type:"cross"},
+  {source:"memory",target:"sparse-embedder",label:"記憶混合檢索（hybrid_search）",type:"cross"},
   {source:"memory",target:"vector-index",label:"嵌入索引",type:"cross"},
   {source:"memory-reset",target:"crystal-store",label:"一鍵重置（DELETE FROM 三表）",type:"cross"},
   {source:"metacognition",target:"llm-router",label:"Haiku 審查",type:"cross"},
@@ -922,6 +946,7 @@ const links = [
   {source:"skill-market",target:"skills-registry",label:"技能打包",type:"cross"},
   {source:"skill-router",target:"llm-router",label:"API 呼叫",type:"cross"},
   {source:"skill-router",target:"skills-registry",label:"技能查找",type:"cross"},
+  {source:"skill-router",target:"sparse-embedder",label:"混合檢索（hybrid_search）",type:"cross"},
   {source:"skill-router",target:"vector-index",label:"語義匹配",type:"cross"},
   {source:"skill-scanner",target:"skills-registry",label:"安全掃描",type:"cross"},
   {source:"skills-business-hub",target:"brain",label:"商業技能→Brain",type:"cross"},
@@ -965,6 +990,7 @@ const links = [
   {source:"verified-user",target:"anima-mc-store",label:"配對使用者互動更新 ANIMA_USER（L1-L8 觀察）",type:"async"},
   {source:"zeal",target:"anima-mc-store",label:"Owner 互動觸發 ANIMA_MC 更新（boss_name、self_awareness）",type:"async"},
 ];
+
 
 
 
@@ -2041,6 +2067,159 @@ document.addEventListener('keydown', e => {
       break;
   }
 });
+
+// ═══════════════════════════════════════
+//  SEARCH — 模糊搜尋 + 批量高亮 + 攝影機聚焦
+// ═══════════════════════════════════════
+
+(function initSearch() {
+  const input = document.getElementById('searchInput');
+  const countEl = document.getElementById('searchCount');
+  if (!input) return;
+
+  let debounceTimer = null;
+
+  function searchNodes(query) {
+    if (!query) return nodes.slice();  // 空查詢 = 全部
+    const q = query.toLowerCase();
+    return nodes.filter(n =>
+      (n.id && n.id.toLowerCase().includes(q)) ||
+      (n.label && n.label.toLowerCase().includes(q)) ||
+      (n.zh && n.zh.toLowerCase().includes(q)) ||
+      (GN[n.group] && GN[n.group].toLowerCase().includes(q))
+    );
+  }
+
+  function highlightSearchResults(matched) {
+    const matchSet = new Set(matched.map(n => n.id));
+    // 找出匹配節點的所有相關連結
+    const connLinks = new Set();
+    links.forEach(l => {
+      if (matchSet.has(l.source) && matchSet.has(l.target)) connLinks.add(l);
+      else if (matchSet.has(l.source) || matchSet.has(l.target)) connLinks.add(l);
+    });
+
+    nodeMeshes.forEach(m => {
+      const n = m.userData;
+      if (matchSet.has(n.id)) {
+        m.material.color.copy(n.origColor);
+        m.material.emissive.copy(n.origColor);
+        m.material.emissiveIntensity = 0.6;
+        m.material.opacity = 1;
+        m.material.transparent = false;
+        m.material.depthWrite = true;
+        m.material.needsUpdate = true;
+        m.renderOrder = 0;
+        if (n.labelDiv) {
+          n.labelDiv.style.opacity = '1';
+          const isHub = n.labelDiv.classList.contains('hub');
+          if (isHub) {
+            const enEl = n.labelDiv.querySelector('.en');
+            const zhEl = n.labelDiv.querySelector('.zh');
+            if (enEl) { enEl.style.fontSize = '13px'; enEl.style.fontWeight = '700'; }
+            if (zhEl) { zhEl.style.fontSize = '11px'; zhEl.style.fontWeight = '700'; }
+          } else {
+            n.labelDiv.style.fontSize = '10px';
+            n.labelDiv.style.fontWeight = '700';
+          }
+        }
+      } else {
+        m.material.color.copy(dimColor);
+        m.material.emissive.set(0x000000);
+        m.material.emissiveIntensity = 0;
+        m.material.opacity = 0.06;
+        m.material.transparent = true;
+        m.material.depthWrite = false;
+        m.material.needsUpdate = true;
+        m.renderOrder = -1;
+        if (n.labelDiv) n.labelDiv.style.opacity = '0';
+      }
+    });
+
+    linkMeshes.forEach(line => {
+      const l = line.userData;
+      if (connLinks.has(l)) {
+        line.material.opacity = 0.6;
+        line.material.color.set(lkHex(l.type));
+      } else {
+        line.material.opacity = 0.03;
+        line.material.color.copy(dimColor);
+      }
+    });
+    linkLabels.forEach(ll => {
+      if (connLinks.has(ll.link)) {
+        ll.div.style.opacity = '1';
+        ll.div.style.fontSize = '9px';
+        ll.div.style.fontWeight = '700';
+      } else {
+        ll.div.style.opacity = '0.1';
+        ll.div.style.fontSize = '';
+        ll.div.style.fontWeight = '';
+      }
+    });
+  }
+
+  function focusCameraOnNodes(matched) {
+    if (!matched.length) return;
+    const cx = matched.reduce((s, n) => s + (n.mesh ? n.mesh.position.x : 0), 0) / matched.length;
+    const cy = matched.reduce((s, n) => s + (n.mesh ? n.mesh.position.y : 0), 0) / matched.length;
+    const cz = matched.reduce((s, n) => s + (n.mesh ? n.mesh.position.z : 0), 0) / matched.length;
+    targetGoal.set(cx, cy, cz);
+    controls.target.set(cx, cy, cz);
+  }
+
+  function onSearchInput() {
+    const q = input.value.trim();
+    if (!q) {
+      countEl.textContent = '';
+      input.classList.remove('no-match');
+      clearHighlight();
+      selectedNode = null;
+      hideInfo();
+      return;
+    }
+    const matched = searchNodes(q);
+    countEl.textContent = matched.length + '/' + nodes.length;
+    if (matched.length === 0) {
+      input.classList.add('no-match');
+      return;
+    }
+    input.classList.remove('no-match');
+    highlightSearchResults(matched);
+    focusCameraOnNodes(matched);
+    // 如果只有 1 個結果，自動選中並顯示 info panel
+    if (matched.length === 1) {
+      selectedNode = matched[0];
+      showInfo(matched[0]);
+    } else {
+      selectedNode = null;
+      hideInfo();
+    }
+  }
+
+  input.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(onSearchInput, 200);
+  });
+
+  // ESC 在搜尋框內 → 清空搜尋
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      input.value = '';
+      onSearchInput();
+      input.blur();
+    }
+  });
+
+  // 全局 / 鍵 → 聚焦搜尋框
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === '/') {
+      e.preventDefault();
+      input.focus();
+    }
+  });
+})();
 
 // ═══════════════════════════════════════
 //  DOCTOR LIVE MONITOR — B+C 混合方案
