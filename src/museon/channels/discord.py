@@ -310,6 +310,166 @@ class DiscordAdapter(ChannelAdapter):
                 chunks.append(chunk)
         return chunks
 
+    # ══════════════════════════════════════════════════
+    # v10.0: InteractionRequest — 跨通道互動選項
+    # ══════════════════════════════════════════════════
+
+    async def present_choices(
+        self,
+        chat_id: str,
+        request,
+        interaction_queue,
+    ) -> None:
+        """呈現互動選項為 Discord Button 或 Select Menu.
+
+        - ≤ 5 個選項 且非多選 → Button 一行排列
+        - > 5 個選項 或多選 → Select Menu
+
+        Args:
+            chat_id: Discord channel ID
+            request: InteractionRequest 物件
+            interaction_queue: InteractionQueue 實例
+        """
+        if not self._client or self._client.is_closed():
+            logger.error("Discord client not connected for present_choices")
+            return
+
+        try:
+            import discord
+            from discord.ui import View, Button, Select
+        except ImportError:
+            logger.error("discord.py is required for present_choices")
+            return
+
+        try:
+            channel = self._client.get_channel(int(chat_id))
+            if channel is None:
+                channel = await self._client.fetch_channel(int(chat_id))
+            if channel is None:
+                logger.error(f"Discord channel not found: {chat_id}")
+                return
+        except Exception as e:
+            logger.error(f"Discord fetch channel failed: {e}")
+            return
+
+        use_select = request.multi_select or len(request.options) > 5
+
+        if use_select:
+            view = self._build_select_view(request, interaction_queue)
+        else:
+            view = self._build_button_view(request, interaction_queue)
+
+        header = f"**{request.header}**\n" if request.header else ""
+        multi_hint = "\n（可多選）" if request.multi_select else ""
+        text = f"{header}{request.question}{multi_hint}"
+
+        try:
+            await channel.send(text, view=view)
+            logger.debug(
+                f"InteractionRequest presented on Discord: qid={request.question_id}, "
+                f"options={len(request.options)}, channel={chat_id}"
+            )
+        except Exception as e:
+            logger.error(f"Discord present_choices send failed: {e}")
+
+    def _build_button_view(self, request, interaction_queue):
+        """建構 Discord Button View（≤5 選項）."""
+        import discord
+        from discord.ui import View, Button
+
+        view = View(timeout=request.timeout_seconds)
+        queue_ref = interaction_queue
+
+        for opt in request.options:
+            opt_value = opt.value or opt.label
+            button = Button(
+                label=opt.label[:80],
+                style=discord.ButtonStyle.secondary,
+                custom_id=f"choice:{request.question_id}:{opt_value}"[:100],
+            )
+
+            async def button_callback(
+                interaction: discord.Interaction,
+                qid=request.question_id,
+                val=opt_value,
+                q=queue_ref,
+            ):
+                from museon.gateway.message import InteractionResponse
+                resp = InteractionResponse(
+                    question_id=qid,
+                    selected=[val],
+                    responder_id=str(interaction.user.id),
+                    channel="discord",
+                )
+                try:
+                    await interaction.response.edit_message(
+                        content=f"✅ 已選擇：{val}", view=None
+                    )
+                except Exception as e:
+                    logger.debug(f"Discord edit_message failed: {e}")
+                if q:
+                    q.resolve(qid, resp)
+
+            button.callback = button_callback
+            view.add_item(button)
+
+        return view
+
+    def _build_select_view(self, request, interaction_queue):
+        """建構 Discord Select Menu View（>5 選項或多選）."""
+        import discord
+        from discord.ui import View, Select
+
+        view = View(timeout=request.timeout_seconds)
+        queue_ref = interaction_queue
+
+        options = []
+        for opt in request.options:
+            options.append(
+                discord.SelectOption(
+                    label=opt.label[:100],
+                    description=opt.description[:100] if opt.description else None,
+                    value=(opt.value or opt.label)[:100],
+                )
+            )
+
+        max_vals = len(options) if request.multi_select else 1
+        select = Select(
+            placeholder="請選擇..." if not request.multi_select else "請選擇（可多選）...",
+            options=options,
+            min_values=1,
+            max_values=max_vals,
+            custom_id=f"choice:{request.question_id}"[:100],
+        )
+
+        async def select_callback(
+            interaction: discord.Interaction,
+            qid=request.question_id,
+            q=queue_ref,
+            sel=select,
+        ):
+            from museon.gateway.message import InteractionResponse
+            resp = InteractionResponse(
+                question_id=qid,
+                selected=list(sel.values),
+                responder_id=str(interaction.user.id),
+                channel="discord",
+            )
+            selected_text = ", ".join(sel.values)
+            try:
+                await interaction.response.edit_message(
+                    content=f"✅ 已選擇：{selected_text}", view=None
+                )
+            except Exception as e:
+                logger.debug(f"Discord edit_message failed: {e}")
+            if q:
+                q.resolve(qid, resp)
+
+        select.callback = select_callback
+        view.add_item(select)
+
+        return view
+
     # ── Status ──
 
     @property

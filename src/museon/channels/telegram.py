@@ -94,6 +94,10 @@ class TelegramAdapter(ChannelAdapter):
         self._group_session_idle_seconds = 30 * 60  # 30 分鐘無訊息 → 視為會話結束
         self._group_msg_counts: Dict[int, int] = {}  # 本次會話訊息數
 
+        # v10.0: InteractionRequest 互動佇列
+        self._interaction_queue = None  # InteractionQueue instance (set externally)
+        self._pending_freetext: Dict[str, str] = {}  # {question_id: chat_id} 等待自由文字輸入
+
     async def start(self) -> None:
         """Start the Telegram bot and begin polling."""
         if self._running:
@@ -128,6 +132,11 @@ class TelegramAdapter(ChannelAdapter):
         )
         self.application.add_handler(
             CallbackQueryHandler(self._handle_auth_callback, pattern=r"^auth:")
+        )
+
+        # v10.0: InteractionRequest choice callback
+        self.application.add_handler(
+            CallbackQueryHandler(self._handle_choice_callback, pattern=r"^choice:")
         )
 
         # Start polling
@@ -167,6 +176,26 @@ class TelegramAdapter(ChannelAdapter):
         self._seen_update_ids.add(update.update_id)
         if len(self._seen_update_ids) > self._max_seen_update_ids:
             self._seen_update_ids = set(list(self._seen_update_ids)[-500:])
+
+        # ── v10.0: InteractionRequest freetext 攔截 ──
+        # 使用者選了「自己說明」後，下一則文字訊息作為自由輸入回應
+        if update.message and self._pending_freetext:
+            chat_id_str = str(update.message.chat_id)
+            for qid, pending_chat_id in list(self._pending_freetext.items()):
+                if chat_id_str == pending_chat_id:
+                    from museon.gateway.message import InteractionResponse
+                    response = InteractionResponse(
+                        question_id=qid,
+                        selected=[],
+                        free_text=update.message.text or "",
+                        responder_id=str(update.message.from_user.id) if update.message.from_user else "",
+                        channel="telegram",
+                    )
+                    if self._interaction_queue:
+                        self._interaction_queue.resolve(qid, response)
+                    del self._pending_freetext[qid]
+                    logger.debug(f"InteractionRequest freetext resolved: qid={qid}")
+                    return  # 不進入正常訊息處理流程
 
         # ── Group chat: read all, reply only when @mentioned ──
         if update.message and update.message.chat.type in ("group", "supergroup"):
@@ -1713,3 +1742,125 @@ class TelegramAdapter(ChannelAdapter):
                 )
             except Exception as e:
                 logger.error(f"Push tool auth request failed: {e}")
+
+    # ══════════════════════════════════════════════════
+    # v10.0: InteractionRequest — 跨通道互動選項
+    # ══════════════════════════════════════════════════
+
+    def set_interaction_queue(self, queue) -> None:
+        """設定 InteractionQueue 實例（由 server.py 在啟動時呼叫）."""
+        self._interaction_queue = queue
+
+    async def present_choices(
+        self,
+        chat_id: str,
+        request,
+        interaction_queue,
+    ) -> None:
+        """呈現互動選項為 Telegram InlineKeyboardMarkup.
+
+        Args:
+            chat_id: Telegram chat ID
+            request: InteractionRequest 物件
+            interaction_queue: InteractionQueue 實例
+        """
+        self._interaction_queue = interaction_queue
+
+        keyboard = []
+        for opt in request.options:
+            # callback_data 格式: choice:{question_id}:{value}
+            cb_value = opt.value or opt.label
+            cb_data = f"choice:{request.question_id}:{cb_value}"
+
+            # Telegram callback_data 限制 64 bytes
+            if len(cb_data.encode("utf-8")) > 64:
+                # 截斷 value 以符合限制
+                max_val_len = 64 - len(f"choice:{request.question_id}:".encode("utf-8"))
+                cb_value_truncated = cb_value.encode("utf-8")[:max_val_len].decode("utf-8", errors="ignore")
+                cb_data = f"choice:{request.question_id}:{cb_value_truncated}"
+
+            # 按鈕顯示文字
+            btn_text = opt.label
+            if opt.description:
+                btn_text += f" — {opt.description}"
+
+            keyboard.append([InlineKeyboardButton(btn_text, callback_data=cb_data)])
+
+        # 「其他」自由輸入選項
+        if request.allow_free_text:
+            ft_data = f"choice:{request.question_id}:__freetext__"
+            keyboard.append([InlineKeyboardButton("✏️ 自己說明", callback_data=ft_data)])
+
+        # 組裝訊息文字
+        header = f"【{request.header}】\n" if request.header else ""
+        multi_hint = "\n（可多選，選完按確認）" if request.multi_select else ""
+        text = f"{header}{request.question}{multi_hint}"
+
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        try:
+            await self.application.bot.send_message(
+                chat_id=int(chat_id),
+                text=text,
+                reply_markup=reply_markup,
+            )
+            logger.debug(
+                f"InteractionRequest presented: qid={request.question_id}, "
+                f"options={len(request.options)}, chat={chat_id}"
+            )
+        except Exception as e:
+            logger.error(f"present_choices failed: {e}")
+
+    async def _handle_choice_callback(self, update: Update, context: Any) -> None:
+        """處理 InteractionRequest 的 InlineKeyboard callback.
+
+        callback_data 格式: choice:{question_id}:{selected_value}
+        """
+        query = update.callback_query
+        if not query or not query.data:
+            return
+
+        await query.answer()
+
+        parts = query.data.split(":", 2)
+        if len(parts) != 3:
+            logger.warning(f"Invalid choice callback data: {query.data}")
+            return
+
+        _, question_id, selected_value = parts
+
+        # 自由文字模式：標記等待，下一則文字訊息會被攔截
+        if selected_value == "__freetext__":
+            self._pending_freetext[question_id] = str(query.message.chat_id)
+            try:
+                await query.edit_message_text(
+                    text="✏️ 請直接輸入您的回答："
+                )
+            except Exception as e:
+                logger.debug(f"edit_message_text for freetext failed: {e}")
+            return
+
+        # 正常選擇
+        from museon.gateway.message import InteractionResponse
+        response = InteractionResponse(
+            question_id=question_id,
+            selected=[selected_value],
+            responder_id=str(query.from_user.id) if query.from_user else "",
+            channel="telegram",
+        )
+
+        # 更新原訊息顯示已選結果
+        try:
+            await query.edit_message_text(
+                text=f"✅ 已選擇：{selected_value}"
+            )
+        except Exception as e:
+            logger.debug(f"edit_message_text for choice result failed: {e}")
+
+        # 解決互動請求
+        if self._interaction_queue:
+            self._interaction_queue.resolve(question_id, response)
+        else:
+            logger.warning(
+                f"No interaction_queue set for choice callback: qid={question_id}"
+            )

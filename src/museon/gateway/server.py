@@ -3039,6 +3039,15 @@ def create_app() -> FastAPI:
                     await adapter.start()
                     app.state.telegram_adapter = adapter
 
+                    # v10.0: 設定 InteractionQueue
+                    try:
+                        from museon.gateway.interaction import get_interaction_queue
+                        _iq = get_interaction_queue()
+                        adapter.set_interaction_queue(_iq)
+                        logger.info("InteractionQueue connected to TelegramAdapter")
+                    except Exception as _iq_err:
+                        logger.warning(f"InteractionQueue setup failed (degraded): {_iq_err}")
+
                     # 記錄啟動成功
                     import time as _time_mod
                     telegram_stats.started_at = _time_mod.time()
@@ -3916,6 +3925,102 @@ async def _telegram_message_pump(adapter) -> None:
                         response_text = brain_result.text
                     else:
                         response_text = str(brain_result) if brain_result else ""
+
+                # ── v10.0: InteractionRequest 互動攔截 ──
+                if isinstance(brain_result, BrainResponse) and brain_result.has_interaction():
+                    try:
+                        from museon.gateway.interaction import get_interaction_queue
+                        interaction_req = brain_result.interaction
+                        interaction_queue = get_interaction_queue()
+
+                        # 提交到佇列
+                        interaction_queue.submit(interaction_req)
+
+                        # 先發送 Brain 的文字回應（說明為什麼要問）
+                        if response_text and response_text.strip():
+                            pre_msg = InternalMessage(
+                                source="telegram",
+                                session_id=message.session_id,
+                                user_id="museon",
+                                content=response_text,
+                                timestamp=datetime.now(),
+                                trust_level="core",
+                                metadata=message.metadata,
+                            )
+                            await adapter.send(pre_msg)
+
+                        # 呈現互動選項
+                        await adapter.present_choices(
+                            chat_id=str(chat_id),
+                            request=interaction_req,
+                            interaction_queue=interaction_queue,
+                        )
+
+                        # 停止 typing + 進度（等待使用者選擇期間不顯示 typing）
+                        if chat_id:
+                            await adapter.stop_typing(chat_id)
+                        if progress_task:
+                            progress_task.cancel()
+                            try:
+                                await progress_task
+                            except asyncio.CancelledError:
+                                pass
+                        if status_msg_id and chat_id:
+                            await adapter.delete_processing_status(chat_id, status_msg_id)
+                            status_msg_id = None
+
+                        # 等待使用者回應
+                        interaction_resp = await interaction_queue.wait_for_response(
+                            interaction_req.question_id,
+                            timeout=interaction_req.timeout_seconds,
+                        )
+
+                        # 將使用者選擇回饋給 Brain 做後續處理
+                        if interaction_resp and not interaction_resp.timed_out:
+                            choice_text = interaction_resp.get_choice_text()
+                            logger.info(
+                                f"InteractionResponse received: "
+                                f"qid={interaction_req.question_id}, choice={choice_text}"
+                            )
+
+                            # 重新啟動 typing
+                            if chat_id:
+                                await adapter.start_typing(chat_id)
+
+                            followup_result = await brain.process(
+                                content=f"[使用者選擇] {choice_text}",
+                                session_id=message.session_id,
+                                user_id=message.user_id,
+                                source="telegram",
+                                metadata={
+                                    **(message.metadata or {}),
+                                    "interaction_response": True,
+                                    "question_id": interaction_req.question_id,
+                                    "original_context": interaction_req.context,
+                                },
+                            )
+
+                            # 更新 brain_result 和 response_text 為後續回應
+                            brain_result = followup_result
+                            if isinstance(followup_result, BrainResponse):
+                                response_text = followup_result.text
+                            elif followup_result:
+                                response_text = str(followup_result)
+                            else:
+                                response_text = ""
+                        else:
+                            logger.info(
+                                f"InteractionRequest timed out: "
+                                f"qid={interaction_req.question_id}"
+                            )
+                            response_text = ""  # 超時不再發送額外訊息
+
+                    except Exception as interaction_err:
+                        logger.error(
+                            f"InteractionRequest handling failed: {interaction_err}",
+                            exc_info=True,
+                        )
+                        # 降級為純文字回應（已在上方提取）
 
                 # ── 自癒：空回應 fallback（防止 Telegram 拒絕空訊息）──
                 if not response_text or not response_text.strip():

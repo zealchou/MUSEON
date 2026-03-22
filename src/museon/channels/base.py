@@ -1,10 +1,21 @@
-"""Base Channel Adapter interface."""
+"""Base Channel Adapter interface.
+
+v10.0: Added present_choices() for cross-channel interactive choices.
+"""
 
 from abc import ABC, abstractmethod
+from datetime import datetime
 from enum import Enum
-from typing import Any, Dict
+import logging
+from typing import Any, Dict, TYPE_CHECKING
 
 from museon.gateway.message import InternalMessage
+
+if TYPE_CHECKING:
+    from museon.gateway.interaction import InteractionQueue
+    from museon.gateway.message import InteractionRequest
+
+logger = logging.getLogger(__name__)
 
 
 class TrustLevel(str, Enum):
@@ -86,3 +97,52 @@ class ChannelAdapter(ABC):
             TrustLevel: Trust level for this user
         """
         pass
+
+    # ── v10.0: 跨通道互動選項 ──
+
+    async def present_choices(
+        self,
+        chat_id: str,
+        request: "InteractionRequest",
+        interaction_queue: "InteractionQueue",
+    ) -> None:
+        """呈現互動選項給使用者.
+
+        子類覆寫此方法以使用平台原生 UI（InlineKeyboard、Button、Quick Reply）。
+        使用者回應後，子類呼叫 interaction_queue.resolve() 觸發回應。
+
+        預設實作：降級為純文字編號清單（fallback for all adapters）。
+
+        Args:
+            chat_id: 目標聊天室 ID
+            request: InteractionRequest 物件
+            interaction_queue: InteractionQueue 實例（用於 resolve 回調）
+        """
+        # 建構純文字版本
+        header = f"【{request.header}】\n" if request.header else ""
+        multi_hint = "（可多選）" if request.multi_select else ""
+        text = f"{header}{request.question}{multi_hint}\n\n"
+
+        for i, opt in enumerate(request.options, 1):
+            text += f"  {i}. {opt.label}"
+            if opt.description:
+                text += f" — {opt.description}"
+            text += "\n"
+
+        if request.allow_free_text:
+            text += "\n請回覆數字選擇，或直接輸入文字。"
+
+        # 透過 send() 發送純文字
+        try:
+            msg = InternalMessage(
+                source="system",
+                session_id="interaction",
+                user_id="system",
+                content=text,
+                timestamp=datetime.now(),
+                trust_level="core",
+                metadata={"chat_id": chat_id, "interaction_id": request.question_id},
+            )
+            await self.send(msg)
+        except Exception as e:
+            logger.error(f"ChannelAdapter.present_choices fallback failed: {e}")
