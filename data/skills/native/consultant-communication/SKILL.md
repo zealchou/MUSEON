@@ -23,7 +23,9 @@ connects_to:
   - orchestrator
 memory:
   writes:
-    - knowledge-lattice
+    - target: knowledge-lattice
+      type: crystal
+      condition: "溝通審計或結構化分析完成時"
   reads:
     - user-model
     - knowledge-lattice
