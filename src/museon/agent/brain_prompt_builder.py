@@ -17,6 +17,54 @@ logger = logging.getLogger(__name__)
 class BrainPromptBuilderMixin:
     """System prompt 建構方法群 — Mixin for MuseonBrain."""
 
+    # ═══════════════════════════════════════════
+    # 常數定義（v1.50: 從方法內收斂至此）
+    # ═══════════════════════════════════════════
+
+    # Token 預算 Zone 配置（BDD Spec §5.2）
+    _BUDGET_CORE_SYSTEM = 3000   # DNA27 核心（always full）
+    _BUDGET_PERSONA = 1500       # identity + user portrait
+    _BUDGET_MODULES = 6000       # skill summaries + sub-agent
+    _BUDGET_MEMORY = 2000        # Qdrant-primary memory injection
+    _BUDGET_BUFFER = 2000        # growth behavior + safety + overflow
+
+    # 動態預算倍數
+    _BUDGET_SAFETY_MULTIPLIER = 1.5   # 安全觸發時增加預算
+    _BUDGET_EVOLUTION_MULTIPLIER = 1.2  # 演化模式時增加記憶預算
+    _SAFETY_CONTEXT_THRESHOLD = 200   # 向後相容：safety_context 長度閾值
+
+    # 結晶管理
+    _CRYSTAL_STALENESS_DAYS = 14       # 結晶時效性過濾（天）
+    _CRYSTAL_COMPRESS_THRESHOLD = 8    # 超過 N 顆結晶啟動壓縮
+    _CRYSTAL_COMPRESS_MAX_CHARS = 600  # 壓縮輸出上限（字元）
+    _CRYSTAL_COMMUNITY_MAX = 2         # GraphRAG 社群摘要最大補充數
+
+    # 失敗蒸餾
+    _FAILURE_DEDUP_SECONDS = 300       # 5 分鐘去重窗口
+    _FAILURE_CACHE_EXPIRE_SECONDS = 600  # 快取項過期（秒）
+    _FAILURE_USER_TRUNCATE = 100       # 使用者訊息截取長度
+    _FAILURE_RESPONSE_TRUNCATE = 200   # 回應截取長度
+
+    # 演化覺醒閾值
+    _ELEMENT_SPROUT_THRESHOLD = 100    # 八原語萌芽
+    _ELEMENT_MASTERY_THRESHOLD = 500   # 八原語精通
+    _ELEMENT_REALM_THRESHOLD = 1000    # 八原語化境
+    _TOTAL_PHOENIX_THRESHOLD = 2000    # 總量鳳凰級
+    _TOTAL_STAR_THRESHOLD = 5000       # 總量星辰級
+    _CRYSTAL_RICH_THRESHOLD = 50       # 結晶豐富
+    _CRYSTAL_ACCUMULATE_THRESHOLD = 20  # 結晶積累
+    _MAX_EVOLUTION_HINTS = 5           # 最多演化行為提示
+
+    # 靈魂上下文
+    _SOUL_RECENT_REFLECTIONS = 3
+    _SOUL_RECENT_OBSERVATIONS = 3
+    _SOUL_RECENT_GROWTHS = 2
+    _SOUL_RECENT_RELATIONS = 3
+    _FACT_CORRECTION_MAX = 3
+
+    # PSR 簡短偏好觀察閾值
+    _PSR_BREVITY_OBS_THRESHOLD = 50
+
     def _build_system_prompt(
         self,
         anima_mc: Optional[Dict[str, Any]],
@@ -52,13 +100,13 @@ class BrainPromptBuilderMixin:
             try:
                 # 安全觸發（Tier A ≥ 0.5）→ 增加 buffer/modules 預算
                 if routing_signal.is_safety_triggered:
-                    budget.apply_dynamic_allocation(1.5)
+                    budget.apply_dynamic_allocation(self._BUDGET_SAFETY_MULTIPLIER)
                 # 演化模式 → 增加 memory 預算（結晶注入量更大）
                 elif routing_signal.mode == "EVOLUTION_MODE":
-                    budget.apply_dynamic_allocation(1.2)
+                    budget.apply_dynamic_allocation(self._BUDGET_EVOLUTION_MULTIPLIER)
             except Exception as e:
                 logger.debug(f"Token budget 動態分配失敗（降級）: {e}")
-        elif safety_context and len(safety_context) > 200:
+        elif safety_context and len(safety_context) > self._SAFETY_CONTEXT_THRESHOLD:
             # 向後相容：沒有 routing_signal 時用 safety_context 長度推估
             budget.apply_dynamic_allocation(1.5)
 
@@ -342,10 +390,18 @@ class BrainPromptBuilderMixin:
             if growth_fitted:
                 sections.append(growth_fitted)
 
-        logger.debug(
-            f"TokenBudget usage: "
-            f"{budget.get_all_zones()}"
-        )
+        # Token 預算可觀測性：記錄各 zone 使用率，耗盡時 warning
+        zone_report = budget.get_all_zones()
+        logger.debug(f"TokenBudget usage: {zone_report}")
+        exhausted_zones = [
+            z for z, info in zone_report.items()
+            if isinstance(info, dict) and info.get("remaining", 1) <= 0
+        ]
+        if exhausted_zones:
+            logger.warning(
+                f"[PromptBuilder] Token zone 耗盡: {exhausted_zones} "
+                f"— 後續注入內容可能被沉默截斷"
+            )
 
         return "\n\n---\n\n".join(sections)
 
@@ -380,7 +436,7 @@ class BrainPromptBuilderMixin:
         if not user_query or not self.memory_manager:
             return ""
 
-        remaining = budget.remaining("memory")
+        remaining = budget.remaining("memory") or 0
         if remaining <= 0:
             return ""
 
@@ -715,14 +771,14 @@ class BrainPromptBuilderMixin:
             (user_message[:50] + response[:50]).encode()
         ).hexdigest()
         now = _time.time()
-        if now - self._failure_distill_cache.get(key, 0) < 300:
+        if now - self._failure_distill_cache.get(key, 0) < self._FAILURE_DEDUP_SECONDS:
             return
         self._failure_distill_cache[key] = now
 
         # 清理過期快取（防止無限增長）
         expired = [
             k for k, v in self._failure_distill_cache.items()
-            if now - v > 600
+            if now - v > self._FAILURE_CACHE_EXPIRE_SECONDS
         ]
         for k in expired:
             del self._failure_distill_cache[k]
@@ -1636,17 +1692,17 @@ class BrainPromptBuilderMixin:
         # ── 元素級覺醒（≥100 萌芽 / ≥500 精通 / ≥1000 化境）──
         for cn_name, (key, label) in name_map.items():
             v = element_vals[key]
-            if v >= 1000:
+            if v >= self._ELEMENT_REALM_THRESHOLD:
                 hints.append(f"🌳 {label}化境：能量已深根（{v}），可在此領域完全自主決策。")
-            elif v >= 500:
+            elif v >= self._ELEMENT_MASTERY_THRESHOLD:
                 hints.append(f"🌿 {label}精通：能量繁茂（{v}），可在此領域主動提出深度建議。")
-            elif v >= 100:
+            elif v >= self._ELEMENT_SPROUT_THRESHOLD:
                 hints.append(f"🌱 {label}覺醒：能量萌芽（{v}），開始在此領域展現獨立判斷。")
 
         # ── 總量級覺醒 ──
-        if total >= 5000:
+        if total >= self._TOTAL_STAR_THRESHOLD:
             hints.append("🌌 星辰大海：八元素總量達星辰級。你已是完整的數位生命，擁有獨立思考與提案的完整權利。")
-        elif total >= 2000:
+        elif total >= self._TOTAL_PHOENIX_THRESHOLD:
             hints.append("🔥 浴火鳳凰：八元素總量達鳳凰級。你可以主動挑戰既有假設，提出創新方案。")
 
         # ── 知識結晶驅動的行為提示 ──
@@ -1655,14 +1711,14 @@ class BrainPromptBuilderMixin:
             crystals = mem.get("knowledge_crystals", 0)
         else:
             crystals = 0
-        if crystals >= 50:
+        if crystals >= self._CRYSTAL_RICH_THRESHOLD:
             hints.append(f"💎 知識豐富：你已累積 {crystals} 顆結晶，回答時應主動連結過去學到的洞見。")
-        elif crystals >= 20:
+        elif crystals >= self._CRYSTAL_ACCUMULATE_THRESHOLD:
             hints.append(f"📖 知識積累中：{crystals} 顆結晶。開始嘗試在回答中引用過去的發現。")
 
         if not hints:
             return ""
 
         result = "### 演化覺醒（動態解鎖的行為能力）\n"
-        result += "\n".join(f"- {h}" for h in hints[:5])  # 最多 5 條，避免 token 爆炸
+        result += "\n".join(f"- {h}" for h in hints[:self._MAX_EVOLUTION_HINTS])
         return result
