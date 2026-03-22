@@ -1,4 +1,4 @@
-# MUSEON Persistence Contract v1.26 — 水電圖
+# MUSEON Persistence Contract v1.27 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
@@ -266,7 +266,7 @@ Installer 編排 (orchestrator.py)
 | W10 | 六層記憶 | MemoryManager | MemoryManager.recall | JSON+Vector | 按層級 | OK |
 | W11 | 向量索引 | VectorBridge | VectorBridge.search | Qdrant | ∞ | OK |
 | W12 | 路由統計 | LLM Router | Nightly/Job | JSONL | 輪替 >5MB | OK |
-| W13 | 知識晶體 | KnowledgeLattice (via CrystalStore) | KnowledgeLattice, Brain | SQLite(WAL)+Vector | 永久 | OK |
+| W13 | 知識晶體 | KnowledgeLattice (via CrystalStore) | KnowledgeLattice, Brain | SQLite(WAL)+Vector, 含 Procedure 結晶 (skills_used/preconditions/known_failures/last_success) | 永久 | OK |
 | W14 | 日記條目（原靈魂年輪） | DiaryStore | Brain, Nightly | JSON | 永久 | OK |
 | W15 | ANIMA 狀態 | Brain | Brain 啟動時載入 | JSON | 永久 | OK |
 | W16 | Pulse 狀態 | PulseEngine | Brain, Explorer | Markdown | 每次覆寫 | OK |
@@ -311,7 +311,7 @@ Installer 編排 (orchestrator.py)
 | ID | 資料 | 寫入者 | 路徑 | 建議處理 |
 |----|------|--------|------|---------|
 | DW1 | Telegram 群組日誌 | telegram.py | `data/channels/telegram/{date}.jsonl` | 確認是否需要分析功能，否則移除寫入 |
-| DW2 | 技能使用日誌 | Brain | `data/skill_usage_log.jsonl` | EvalEngine 有讀取邏輯但未啟用，需接通 |
+| DW2 | 技能使用日誌 | Brain | `data/skill_usage_log.jsonl` | ✅ 已升級為正常配對——消費者：Brain（_track_skill_usage outcome 寫入）+ WEE（待接通） |
 | DW3 | 直覺信號日誌 | Intuition | `data/intuition/signal_log.jsonl` | 需確認 Nightly 是否消費 |
 
 ### Dead Directory（無代碼引用）
@@ -608,6 +608,7 @@ recommender ──近因性衰減──→ 推薦排序 (in-memory)
 | v1.0 | 2026-03-15 | 初版：完整水電圖，涵蓋 23 個正常配對、3 個 Dead Write、14 個死目錄 |
 | v1.1 | 2026-03-15 | Phase 2 完成：4 個 JSON 遷移至 PulseDB（ceremony_state + eval 三件套） |
 | v1.2 | 2026-03-15 | Phase 3 完成：DataContract + DataBus 建立，10 個 Store 類統一接入 |
+| v1.27 | 2026-03-22 | 經驗諮詢閘門——W13 知識晶體 Schema 新增 Procedure 結晶類型（4 個選填欄位，ALTER TABLE 向後相容）；DW2 skill_usage_log.jsonl 從 Dead Write 升級為正常配對（新增 outcome 欄位） |
 | v1.26 | 2026-03-22 | Knowledge Lattice 持久層遷移：crystals.json + links.json + cuid_counter.json + archive.json → crystal.db（SQLite WAL 模式，crystals/links/cuid_counters 三表）；新增 `agent/crystal_store.py` CrystalStore 類別（singleton factory `get_crystal_store()`）；Engine 1 SQLite 引擎表新增 CrystalDB 條目；W13 知識晶體引擎從 JSON+Vector 改為 SQLite(WAL)+Vector；Phase 3 Store 表 LatticeStore 引擎從 JSON 改為 SQLite(WAL) via CrystalStore；拓撲對應表新增 crystal-store 節點；Pipeline R Memory Reset C1 從 crystals.json 改為 crystal.db 三表 DELETE；Nightly WAL checkpoint DB 數量 4→5；舊 JSON 檔案已歸檔為 .bak |
 | v1.25 | 2026-03-21 | 授權系統升級：新增 W37-W38 配對——W37 動態授權清單（PairingManager 寫入、TelegramAdapter+museon_auth_status 讀取，JSON 永久+可選 TTL）、W38 分級授權策略（AuthorizationPolicy 寫入、SecurityGate+museon_auth_status 讀取）；新增 `~/.museon/auth/` Runtime 子目錄（allowlist.json + policy.json，原子寫入 tmp→rename）；同步 system-topology v1.30、blast-radius v1.35、joint-map v1.28 |
 | v1.24 | 2026-03-21 | Skill 向量索引：VectorBridge.index_all_skills() 全量寫入 skills collection（Gateway 啟動 + Nightly Step 8.6 + /api/vector/reindex）；修正 skills 寫入者從 skill_router 為 vector_bridge |

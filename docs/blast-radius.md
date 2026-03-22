@@ -1,4 +1,4 @@
-# Blast Radius — 模組影響半徑表 v1.44
+# Blast Radius — 模組影響半徑表 v1.45
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
@@ -213,7 +213,7 @@
 
 | 影響類型 | 範圍 |
 |---------|------|
-| 共享狀態讀寫 | ANIMA_MC.json(RW), ANIMA_USER.json(RW+L8群組), PULSE.md(R), PulseDB(R), Qdrant(W), Qdrant:primals(R via PrimalDetector), diary_entries(R), synapses(R), memory(R/W+dept_id+chat_scope), fact_corrections.jsonl(RW), cognitive_trace.jsonl(W via footprint.trace_cognitive+trace_decision), lord_profile.json(RW: R via Step 3.65 百合引擎, W via _observe_lord), external_users/{uid}.json(RW via ExternalAnimaManager v3.0) |
+| 共享狀態讀寫 | ANIMA_MC.json(RW), ANIMA_USER.json(RW+L8群組), PULSE.md(R), PulseDB(R), Qdrant(W), Qdrant:primals(R via PrimalDetector), diary_entries(R), synapses(R), memory(R/W+dept_id+chat_scope), fact_corrections.jsonl(RW), cognitive_trace.jsonl(W via footprint.trace_cognitive+trace_decision), lord_profile.json(RW: R via Step 3.65 百合引擎, W via _observe_lord), external_users/{uid}.json(RW via ExternalAnimaManager v3.0), activity_log.jsonl(R via search()) |
 | 子系統初始化 | 31 個模組在 Brain.__init__() 中初始化（含 PrimalDetector, DiaryStore, MultiAgentExecutor, FlywheelCoordinator） |
 | System Prompt | `_build_soul_context()` + `_build_system_prompt()` 決定 AI 所有行為 |
 
@@ -724,7 +724,7 @@
 | **G2** | 改探索/好奇心邏輯 | pulse_engine + curiosity_router + exploration_bridge + nightly_pipeline + skill_forge_scout | question_queue.json + scout_queue/pending.json + PULSE.md |
 | **G3** | 改記憶存取 | memory_manager + brain + vector_bridge + reflex_router | MemoryStore + Qdrant |
 | **G4** | 改演化速度計算 | evolution_velocity + parameter_tuner + periodic_cycles + metacognition | accuracy_stats.json + tuned_parameters.json |
-| **G5** | 改知識晶格 | knowledge_lattice + crystal_store + crystal_actuator + recommender + brain（Layer 2.5 社群摘要） | crystal.db (via CrystalStore) |
+| **G5** | 改知識晶格 | knowledge_lattice + crystal_store + crystal_actuator + recommender + brain（Layer 2.5 社群摘要 + 經驗回放） | crystal.db (via CrystalStore)；knowledge_lattice.py 新增 `recall_procedures()` RO 方法 + 再結晶 Lesson↔Procedure 升降級規則 |
 | **G6** | 改免疫系統 | immunity + immune_memory + immune_research + daemon | events.jsonl + immune_memory.json |
 | **G7** | 改品質回饋閉環（DNA-Inspired） | metacognition + morphenix_executor + pulse_db | PulseDB.metacognition 表（`METACOGNITION_QUALITY_FLAG` 事件） |
 | **G8** | 改衰減參數或老化邏輯 | knowledge_lattice + crystal_store + crystal_actuator + recommender + memory_manager + dendritic_scorer | crystal.db(RI via CrystalStore) + Qdrant memories(TTL) + PulseDB health_scores(半衰期) + 推薦排序(近因性) |
@@ -778,6 +778,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-22 | v1.45 | 經驗諮詢閘門——brain.py 共享狀態讀取新增 activity_log.jsonl(R)；knowledge_lattice.py 新增 recall_procedures() 方法（RO）+再結晶 Lesson↔Procedure 升降級規則；crystal_store.py schema 新增 4 欄位（向後相容 ALTER TABLE）；activity_logger.py 新增 search() 方法（純讀） |
 | 2026-03-22 | v1.43 | Recommender 激活修復：`agent/recommender.py` 從綠區扇入 0→1（brain.py import）；資料來源從過時 JSON 掃描改為 CrystalStore API；brain.py 新增 `_recommender` 初始化 + init log；server.py API 改用常駐實例；新增共享狀態 `_system/recommendations/interactions.json`；G5 知識晶格組 recommender 接線正式啟用 |
 | 2026-03-22 | v1.41 | Knowledge Lattice 持久層遷移：新增 `agent/crystal_store.py` 到綠區（扇入=2，CrystalStore SQLite WAL + threading.Lock 統一存取層）；G5 知識晶格組新增 crystal_store，共享狀態從 crystals.json 改為 crystal.db (via CrystalStore)；G8 衰減組同步更新；evolution_velocity、guardian/daemon、system_audit、nightly_pipeline、wee_engine 共享狀態引用從 crystals.json 改為 crystal.db；同步 persistence-contract v1.26、joint-map v1.29、system-topology v1.31 |
 | 2026-03-22 | v1.40 | Business Hub 健康檢查：skill_router.py `_extract_metadata` 頂層 YAML 解析修復（防 workflow stages 巢狀 name 覆蓋）+ synapses.json 幽靈條目清理（3 筆 `"案例結晶"`）+ consultant-communication memory.writes 補齊結構 |

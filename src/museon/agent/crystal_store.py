@@ -95,8 +95,11 @@ class CrystalStore(DataContract):
     - data/lattice/crystal.db  -- SQLite WAL（含 crystals, links, cuid_counters 三表）
     """
 
-    # JSON 序列欄位（儲存為 JSON 字串的 list 欄位）
-    _JSON_FIELDS = frozenset({"g2_structure", "g4_insights", "tags"})
+    # JSON 序列欄位（儲存為 JSON 字串的 list/dict 欄位）
+    _JSON_FIELDS = frozenset({
+        "g2_structure", "g4_insights", "tags",
+        "skills_used", "preconditions", "known_failures",
+    })
 
     @classmethod
     def store_spec(cls) -> StoreSpec:
@@ -125,7 +128,7 @@ class CrystalStore(DataContract):
         self._init_db()
 
     def _init_db(self) -> None:
-        """初始化 SQLite 資料庫（WAL 模式 + schema）."""
+        """初始化 SQLite 資料庫（WAL 模式 + schema + 漸進遷移）."""
         conn = sqlite3.connect(str(self._db_path))
         try:
             conn.execute("PRAGMA journal_mode=WAL")
@@ -133,6 +136,23 @@ class CrystalStore(DataContract):
             conn.execute("PRAGMA foreign_keys=OFF")
             conn.executescript(_SCHEMA_SQL)
             conn.commit()
+
+            # ── 漸進遷移：Procedure 結晶欄位（v1.27） ──
+            _PROCEDURE_COLUMNS = [
+                ("skills_used", "TEXT NOT NULL DEFAULT '[]'"),
+                ("preconditions", "TEXT NOT NULL DEFAULT '[]'"),
+                ("known_failures", "TEXT NOT NULL DEFAULT '[]'"),
+                ("last_success", "TEXT NOT NULL DEFAULT ''"),
+            ]
+            for col_name, col_def in _PROCEDURE_COLUMNS:
+                try:
+                    conn.execute(
+                        f"ALTER TABLE crystals ADD COLUMN {col_name} {col_def}"
+                    )
+                    conn.commit()
+                    logger.info(f"CrystalStore: 遷移新增欄位 {col_name}")
+                except sqlite3.OperationalError:
+                    pass  # 欄位已存在，靜默跳過
         finally:
             conn.close()
 

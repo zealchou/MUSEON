@@ -36,12 +36,14 @@ CRYSTAL_TYPE_INSIGHT = "Insight"
 CRYSTAL_TYPE_PATTERN = "Pattern"
 CRYSTAL_TYPE_LESSON = "Lesson"
 CRYSTAL_TYPE_HYPOTHESIS = "Hypothesis"
+CRYSTAL_TYPE_PROCEDURE = "Procedure"
 
 CRYSTAL_TYPES = [
     CRYSTAL_TYPE_INSIGHT,
     CRYSTAL_TYPE_PATTERN,
     CRYSTAL_TYPE_LESSON,
     CRYSTAL_TYPE_HYPOTHESIS,
+    CRYSTAL_TYPE_PROCEDURE,
 ]
 
 # CUID 類型縮寫映射
@@ -50,6 +52,7 @@ CUID_TYPE_MAP = {
     CRYSTAL_TYPE_PATTERN: "PAT",
     CRYSTAL_TYPE_LESSON: "LES",
     CRYSTAL_TYPE_HYPOTHESIS: "HYP",
+    CRYSTAL_TYPE_PROCEDURE: "PRO",
 }
 
 # 反向映射：縮寫 -> 類型
@@ -74,6 +77,8 @@ ARCHIVE_STALE_DAYS = 90       # 歸檔天數閾值
 SIMILARITY_MERGE_THRESHOLD = 0.70  # 70% 相似度合併閾值
 HYPOTHESIS_UPGRADE_COUNT = 3       # 升級所需成功次數
 INSIGHT_DOWNGRADE_COUNT = 2        # 降級所需反證次數
+PROCEDURE_UPGRADE_COUNT = 3        # Lesson→Procedure 升級所需成功次數
+PROCEDURE_DOWNGRADE_COUNT = 3      # Procedure→Lesson 降級所需失敗次數
 FRAGMENT_CONSOLIDATION_COUNT = 5   # 碎片整合閾值
 RECRYSTALLIZE_INTERVAL = 20        # 每 N 顆新結晶觸發輕量再結晶
 
@@ -147,6 +152,16 @@ class Crystal:
     # ── 外向型進化欄位 ──
     # 來源追溯（outward_self / outward_service / 空=內部產生）
     origin: str = ""
+
+    # ── Procedure 結晶專用欄位 ──
+    # 使用的 Skill 列表（哪些 Skill 參與了此程序）
+    skills_used: List[str] = field(default_factory=list)
+    # 前置條件（執行此程序前必須滿足的條件）
+    preconditions: List[str] = field(default_factory=list)
+    # 已知失敗記錄（[{date, reason, ref}]）
+    known_failures: List[dict] = field(default_factory=list)
+    # 上次成功時間（ISO 8601）
+    last_success: str = ""
 
     def __post_init__(self) -> None:
         """初始化預設時間戳記."""
@@ -2747,6 +2762,58 @@ class KnowledgeLattice:
                     f"升級: {cuid} | {old_type} → {crystal.crystal_type}"
                 )
 
+        # ── 2.5. 升級 Lesson → Procedure（成功 3+ 次且有步驟）──
+        procedure_upgrade_limit = 5
+        for cuid, crystal in list(self._crystals.items()):
+            if procedure_upgrade_limit <= 0:
+                break
+            if crystal.crystal_type != CRYSTAL_TYPE_LESSON:
+                continue
+            if crystal.success_count < PROCEDURE_UPGRADE_COUNT:
+                continue
+            # 必須有可重播的步驟（g2_structure ≥ 2 項）
+            steps = crystal.g2_structure if isinstance(crystal.g2_structure, list) else []
+            if len(steps) < 2:
+                continue
+            # 升級為 Procedure
+            old_type = crystal.crystal_type
+            crystal.crystal_type = CRYSTAL_TYPE_PROCEDURE
+            crystal.verification_level = "tested"
+            crystal.ri_score = ResonanceCalculator.calculate(crystal)
+            crystal.updated_at = datetime.now().isoformat()
+            actions["upgraded"] += 1
+            procedure_upgrade_limit -= 1
+            actions["details"].append(
+                f"升級: {cuid} | {old_type} → Procedure "
+                f"(success_count={crystal.success_count}, steps={len(steps)})"
+            )
+
+        # ── 2.6. 降級 Procedure → Lesson（失敗 3+ 次）──
+        procedure_downgrade_limit = 5
+        for cuid, crystal in list(self._crystals.items()):
+            if procedure_downgrade_limit <= 0:
+                break
+            if crystal.crystal_type != CRYSTAL_TYPE_PROCEDURE:
+                continue
+            failures = crystal.known_failures if isinstance(crystal.known_failures, list) else []
+            should_downgrade = (
+                crystal.counter_evidence_count >= PROCEDURE_DOWNGRADE_COUNT
+                or (len(failures) > 0 and len(failures) > crystal.success_count)
+            )
+            if not should_downgrade:
+                continue
+            old_type = crystal.crystal_type
+            crystal.crystal_type = CRYSTAL_TYPE_LESSON
+            crystal.verification_level = "observed"
+            crystal.ri_score = ResonanceCalculator.calculate(crystal)
+            crystal.updated_at = datetime.now().isoformat()
+            actions["downgraded"] += 1
+            procedure_downgrade_limit -= 1
+            actions["details"].append(
+                f"降級: {cuid} | {old_type} → Lesson "
+                f"(counter_evidence={crystal.counter_evidence_count}, failures={len(failures)})"
+            )
+
         # ── 3. 降級 Insight → Pattern（反證 2+ 次）──
         downgrade_limit = 5
         for cuid in report.get("downgrade_candidates", [])[:downgrade_limit]:
@@ -3111,6 +3178,80 @@ class KnowledgeLattice:
             f"total_hot={len(hot_crystals)}, "
             f"total_warm={len(warm_cuids)})"
         )
+
+        return results
+
+    # ═══════════════════════════════════════════
+    # Procedure 結晶召回（經驗回放）
+    # ═══════════════════════════════════════════
+
+    def recall_procedures(
+        self,
+        query: str,
+        limit: int = 3,
+    ) -> List[Crystal]:
+        """搜尋與 query 相關的 Procedure 結晶.
+
+        優先回傳成功次數多、RI 高的程序級結晶。
+        用於 brain._build_memory_inject() 第四層經驗回放。
+
+        Args:
+            query: 使用者查詢文字
+            limit: 回傳上限
+
+        Returns:
+            Procedure 結晶列表（按 success_count × RI 降序）
+        """
+        if not query or not query.strip():
+            return []
+
+        # 1. 收集所有活躍的 Procedure 結晶
+        procedures: List[Crystal] = []
+        for crystal in self._crystals.values():
+            if crystal.archived or crystal.crystal_type != CRYSTAL_TYPE_PROCEDURE:
+                continue
+            procedures.append(crystal)
+
+        if not procedures:
+            return []
+
+        # 2. 向量語義搜尋過濾（如果 Qdrant 可用）
+        try:
+            vector_hits = self._vector_recall_crystals(query, top_n=limit * 3)
+            hit_cuids = {cuid for cuid, _ in vector_hits}
+            # 只保留語義相關的 Procedure
+            if hit_cuids:
+                semantic_procs = [p for p in procedures if p.cuid in hit_cuids]
+                if semantic_procs:
+                    procedures = semantic_procs
+        except Exception:
+            logger.debug("recall_procedures: 向量搜尋降級，使用全量排序", exc_info=True)
+
+        # 3. 關鍵字 fallback 補充（簡單 substring 匹配）
+        query_lower = query.lower()
+        for proc in procedures:
+            text = (proc.g1_summary + " " + " ".join(proc.tags)).lower()
+            if any(kw in text for kw in query_lower.split()):
+                proc._keyword_match = True  # type: ignore[attr-defined]
+            else:
+                proc._keyword_match = False  # type: ignore[attr-defined]
+
+        # 4. 排序：keyword_match 優先 → success_count × RI 降序
+        procedures.sort(
+            key=lambda p: (
+                getattr(p, "_keyword_match", False),
+                p.success_count * max(p.ri_score, 0.01),
+            ),
+            reverse=True,
+        )
+
+        results = procedures[:limit]
+
+        if results:
+            logger.info(
+                f"Procedure 召回: {len(results)} 顆 "
+                f"(query='{query[:30]}...', total_procedures={len(procedures)})"
+            )
 
         return results
 
