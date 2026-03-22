@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -34,6 +35,9 @@ DAILY_DECAY_RATE = 0.98        # 每日衰減率
 PRELOAD_THRESHOLD = 0.7        # 預載門檻
 PRUNE_THRESHOLD = 0.01         # 修剪門檻（低於此值移除）
 MAX_SYNAPSES = 500             # 最大突觸數量
+
+# Skill 名稱合法性：只允許小寫字母、數字、連字號（防幽靈 Skill 汙染）
+_VALID_SKILL_NAME_RE = re.compile(r'^[a-z][a-z0-9\-]{0,60}$')
 
 
 # ═══════════════════════════════════════════
@@ -104,6 +108,11 @@ class SynapseNetwork:
             更新後的權重
         """
         if skill_a == skill_b:
+            return 0.0
+
+        # 防護：拒絕非法 Skill 名稱（防幽靈 Skill 汙染突觸網路）
+        if not _VALID_SKILL_NAME_RE.match(skill_a) or not _VALID_SKILL_NAME_RE.match(skill_b):
+            logger.warning("co_fire 拒絕非法 Skill 名稱: %r / %r", skill_a, skill_b)
             return 0.0
 
         key = self._make_key(skill_a, skill_b)
