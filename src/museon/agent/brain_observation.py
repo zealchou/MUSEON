@@ -19,6 +19,56 @@ class BrainObservationMixin:
     """觀察與演化方法群 — Mixin for MuseonBrain."""
 
     # ═══════════════════════════════════════════
+    # 觀察引擎常數（從方法體內提升，便於調參與 A/B 測試）
+    # ═══════════════════════════════════════════
+
+    # 互動里程碑與校準週期
+    _MILESTONE_INTERVAL = 50        # 每 N 次互動沉積里程碑年輪
+    _RC_CALIBRATION_INTERVAL = 50   # 每 N 次互動校準 Safety Clusters
+    _DRIFT_CHECK_INTERVAL = 10      # 每 N 次觀察做漂移偵測
+    _L3_MATCH_INTERVAL = 20         # 每 N 次互動匹配 L3 反射
+    _VOICE_EVOLVE_INTERVAL = 15     # 每 N 次互動微調表達風格
+
+    # 信任等級閾值
+    _TRUST_THRESHOLD_BUILDING = 5       # initial → building
+    _TRUST_THRESHOLD_GROWING = 30       # building → growing
+    _TRUST_THRESHOLD_ESTABLISHED = 100  # growing → established
+
+    # 溝通風格判定閾值
+    _DETAILED_MSG_LEN = 300     # 超過此長度 → detailed
+    _CONCISE_MSG_LEN = 30       # 低於此長度 → concise
+
+    # 八原語 EMA 權重（obs_weight=1.0 時的基準值，群組 ×0.5 縮放）
+    _PRIMAL_ALPHA_SEMANTIC = 0.15   # PrimalDetector 語義偵測 EMA α
+    _PRIMAL_ALPHA_KEYWORD = 0.08    # 關鍵字 fallback EMA α
+    _PRIMAL_CONF_DELTA_SEMANTIC = 0.08  # 語義偵測信心度增量
+    _PRIMAL_CONF_DELTA_KEYWORD = 0.05   # 關鍵字信心度增量
+    _PRIMAL_KEYWORD_DELTA_BASE = 8      # 關鍵字命中基礎增量
+    _PRIMAL_KEYWORD_DELTA_MAX = 25      # 關鍵字命中增量上限
+    _PRIMAL_CURIOSITY_Q_BONUS = 3       # 問號加分倍率
+
+    # L6 溝通風格 EMA 權重
+    _MSG_LEN_EMA_OLD = 0.85     # 歷史權重
+    _MSG_LEN_EMA_NEW = 0.15     # 新訊息權重
+
+    # 群組觀察
+    _GROUP_OBS_WEIGHT = 0.5         # 群組觀察權重（DM=1.0）
+    _GROUP_FORMALITY_EMA = 0.9      # 正式度 EMA 歷史權重
+    _GROUP_INITIATIVE_EMA = 0.9     # 主動度 EMA 歷史權重
+    _GROUP_MAX_OBSERVATIONS = 50    # L8 觀察保留上限
+
+    # 外部用戶觀察
+    _EXT_L1_FACTS_MAX = 30         # 外部用戶 L1 事實上限
+    _EXT_TOPICS_MAX = 20           # 外部用戶近期主題上限
+    _EXT_DETAILED_LEN = 200        # 外部用戶 detailed 閾值
+
+    # L1 事實
+    _L1_FACTS_MAX = 50             # L1 事實上限
+
+    # 根因偵測
+    _ROOT_CAUSE_MIN_HISTORY = 6    # 最少歷史訊息數（3 輪）
+
+    # ═══════════════════════════════════════════
     # Class-level attributes
     # ═══════════════════════════════════════════
 
@@ -144,7 +194,7 @@ class BrainObservationMixin:
         "manager":      ["團隊", "員工", "管理", "績效", "指派", "安排"],
     }
 
-    # 時間模式關鍵字
+    # 時間模式關鍵字（_detect_cron_patterns 使用，目前為實驗功能）
     _CRON_KEYWORDS = [
         "每天", "每週", "每月", "每小時",
         "定期", "提醒我", "固定時間",
@@ -231,7 +281,7 @@ class BrainObservationMixin:
             return
 
         # v2.0: 群組觀察權重
-        obs_weight = 0.5 if context_type == "group" else 1.0
+        obs_weight = self._GROUP_OBS_WEIGHT if context_type == "group" else 1.0
 
         now_iso = datetime.now().isoformat()
         relationship = anima_user.get("relationship", {})
@@ -242,8 +292,8 @@ class BrainObservationMixin:
         relationship["total_interactions"] = new_total
         relationship["last_interaction"] = now_iso
 
-        # 里程碑年輪：每 50 次互動沉積一枚里程碑（斷點三修復方案C）
-        if new_total > 0 and new_total % 50 == 0 and self.ring_depositor:
+        # 里程碑年輪：每 N 次互動沉積一枚里程碑（斷點三修復方案C）
+        if new_total > 0 and new_total % self._MILESTONE_INTERVAL == 0 and self.ring_depositor:
             try:
                 self.ring_depositor.deposit_soul_ring(
                     ring_type="service_milestone",
@@ -252,15 +302,15 @@ class BrainObservationMixin:
                     impact=f"代表 {new_total} 次的信任與成長",
                     milestone_name=f"{new_total}_interactions",
                 )
-            except Exception as _e:
-                logger.warning(f"里程碑年輪寫入失敗: {_e}")
+            except Exception as e:
+                logger.warning(f"里程碑年輪寫入失敗: {e}")
 
         # 信任等級進化（四級：initial → building → growing → established）
-        if total >= 100 and relationship.get("trust_level") == "growing":
+        if total >= self._TRUST_THRESHOLD_ESTABLISHED and relationship.get("trust_level") == "growing":
             relationship["trust_level"] = "established"
-        elif total >= 30 and relationship.get("trust_level") == "building":
+        elif total >= self._TRUST_THRESHOLD_GROWING and relationship.get("trust_level") == "building":
             relationship["trust_level"] = "growing"
-        elif total >= 5 and relationship.get("trust_level") == "initial":
+        elif total >= self._TRUST_THRESHOLD_BUILDING and relationship.get("trust_level") == "initial":
             relationship["trust_level"] = "building"
 
         anima_user["relationship"] = relationship
@@ -275,7 +325,8 @@ class BrainObservationMixin:
                 try:
                     detected_primals = self._primal_detector.detect(content)
                 except Exception as _e:
-                    logger.debug(f"PrimalDetector.detect 失敗: {_e}")
+                    logger.debug(f"PrimalDetector.detect 降級（DM）: {_e}")
+                    self._primal_fallback_count = getattr(self, '_primal_fallback_count', 0) + 1
             # 用偵測結果更新長期 ANIMA_USER 八原語（EMA 平滑）
             self._observe_user_primals(
                 content, primals, now_iso, detected_primals,
@@ -296,9 +347,9 @@ class BrainObservationMixin:
         # ── 4. 偏好推斷（溝通風格 + 偏好蒸餾器）──
         prefs = anima_user.get("preferences", {})
         msg_len = len(content)
-        if msg_len > 300:
+        if msg_len > self._DETAILED_MSG_LEN:
             prefs["communication_style"] = "detailed"
-        elif msg_len < 30:
+        elif msg_len < self._CONCISE_MSG_LEN:
             prefs["communication_style"] = "concise"
         hour = datetime.now().hour
         if 6 <= hour < 12:
@@ -421,7 +472,7 @@ class BrainObservationMixin:
 
         # 取得近期 session 歷史
         history = self._get_session_history(session_id)
-        if len(history) < 6:  # 至少 3 輪（6 條訊息）
+        if len(history) < self._ROOT_CAUSE_MIN_HISTORY:  # 至少 3 輪
             return ""
 
         # CPU 前篩：提取近期用戶訊息
@@ -963,8 +1014,8 @@ class BrainObservationMixin:
         # 追加到觀察列表（保留最近 50 條）
         observations = l8.setdefault("observations", [])
         observations.append(observation)
-        if len(observations) > 50:
-            l8["observations"] = observations[-50:]
+        if len(observations) > self._GROUP_MAX_OBSERVATIONS:
+            l8["observations"] = observations[-self._GROUP_MAX_OBSERVATIONS:]
 
         # 更新群組統計
         stats = l8.setdefault("group_stats", {})
@@ -980,13 +1031,13 @@ class BrainObservationMixin:
         g_stats["interaction_count"] = new_count
 
         # EMA 更新平均值
-        old_f = g_stats.get("avg_formality", 0.5)
+        old_f = g_stats.get("avg_formality", self._GROUP_OBS_WEIGHT)
         g_stats["avg_formality"] = round(
-            old_f * 0.9 + formality_score * 0.1, 3
+            old_f * self._GROUP_FORMALITY_EMA + formality_score * (1 - self._GROUP_FORMALITY_EMA), 3
         )
         old_i = g_stats.get("avg_initiative", 0.5)
         g_stats["avg_initiative"] = round(
-            old_i * 0.9 + initiative_score * 0.1, 3
+            old_i * self._GROUP_INITIATIVE_EMA + initiative_score * (1 - self._GROUP_INITIATIVE_EMA), 3
         )
 
         # 主題分佈計數
@@ -1062,8 +1113,9 @@ class BrainObservationMixin:
             if hasattr(self, '_primal_detector') and self._primal_detector:
                 try:
                     detected_primals = self._primal_detector.detect(content)
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"PrimalDetector.detect 降級（外部用戶）: {e}")
+                    self._primal_fallback_count = getattr(self, '_primal_fallback_count', 0) + 1
             self._observe_user_primals(
                 content, primals, now_iso,
                 detected_primals=detected_primals,
@@ -1084,11 +1136,11 @@ class BrainObservationMixin:
             # Rolling average 訊息長度
             msg_len = len(content)
             old_avg = l6.get("avg_msg_length", 0) or 0
-            l6["avg_msg_length"] = int(old_avg * 0.85 + msg_len * 0.15)
+            l6["avg_msg_length"] = int(old_avg * self._MSG_LEN_EMA_OLD + msg_len * self._MSG_LEN_EMA_NEW)
             # Detail level
-            if msg_len > 200:
+            if msg_len > self._EXT_DETAILED_LEN:
                 l6["detail_level"] = "detailed"
-            elif msg_len < 40:
+            elif msg_len < self._CONCISE_MSG_LEN:
                 l6["detail_level"] = "concise"
             else:
                 l6["detail_level"] = "moderate"
@@ -1117,15 +1169,15 @@ class BrainObservationMixin:
                         "date": now_iso,
                     }
                     l1_facts.append(fact_entry)
-                    if len(l1_facts) > 30:
-                        seven["L1_facts"] = l1_facts[-30:]
+                    if len(l1_facts) > self._EXT_L1_FACTS_MAX:
+                        seven["L1_facts"] = l1_facts[-self._EXT_L1_FACTS_MAX:]
                     break  # 一次只記一個事實類別
 
             # 5. 偏好追蹤（向下相容）
             prefs = ext_anima.setdefault("preferences", {})
-            if msg_len > 300:
+            if msg_len > self._DETAILED_MSG_LEN:
                 prefs["communication_style"] = "detailed"
-            elif msg_len < 30:
+            elif msg_len < self._CONCISE_MSG_LEN:
                 prefs["communication_style"] = "concise"
             ext_anima["preferences"] = prefs
 
@@ -1143,8 +1195,8 @@ class BrainObservationMixin:
                 "snippet": clean_content[:120].replace("\n", " ").strip(),
                 "date": now_iso,
             })
-            if len(topics) > 20:
-                ext_anima["recent_topics"] = topics[-20:]
+            if len(topics) > self._EXT_TOPICS_MAX:
+                ext_anima["recent_topics"] = topics[-self._EXT_TOPICS_MAX:]
 
             ext_mgr.save(user_id, ext_anima)
             logger.debug(f"外部用戶觀察完成（v3.0）: {user_id} ({sender_name})")
@@ -1397,10 +1449,10 @@ class BrainObservationMixin:
 
         # ★ v10.5: 優先使用 PrimalDetector 語義偵測結果
         # v2.0: 群組觀察 alpha 依 obs_weight 縮放
-        alpha_semantic = 0.15 * obs_weight   # DM=0.15, group=0.075
-        alpha_keyword = 0.08 * obs_weight    # DM=0.08, group=0.04
-        conf_delta_semantic = 0.08 * obs_weight
-        conf_delta_keyword = 0.05 * obs_weight
+        alpha_semantic = self._PRIMAL_ALPHA_SEMANTIC * obs_weight
+        alpha_keyword = self._PRIMAL_ALPHA_KEYWORD * obs_weight
+        conf_delta_semantic = self._PRIMAL_CONF_DELTA_SEMANTIC * obs_weight
+        conf_delta_keyword = self._PRIMAL_CONF_DELTA_KEYWORD * obs_weight
 
         if detected_primals:
             for primal_key, det_level in detected_primals.items():
@@ -1424,7 +1476,7 @@ class BrainObservationMixin:
                 if hits > 0:
                     p = primals[primal_key]
                     old_level = p.get("level", 0)
-                    delta = int(min(hits * 8, 25) * obs_weight)
+                    delta = int(min(hits * self._PRIMAL_KEYWORD_DELTA_BASE, self._PRIMAL_KEYWORD_DELTA_MAX) * obs_weight)
                     if old_level < 10:
                         p["level"] = min(100, old_level + delta)
                     else:
@@ -1439,7 +1491,7 @@ class BrainObservationMixin:
         if q_marks >= 2:
             cur = primals.get("curiosity", {})
             old_lv = cur.get("level", 0)
-            cur["level"] = min(100, old_lv + q_marks * 3)
+            cur["level"] = min(100, old_lv + q_marks * self._PRIMAL_CURIOSITY_Q_BONUS)
             cur["last_observed"] = now_iso
             primals["curiosity"] = cur
 
@@ -1481,8 +1533,8 @@ class BrainObservationMixin:
                                 existing_facts.add(snippet)
                                 break  # 每個 category 每次最多新增一筆
             # 限制 L1 上限 50 筆，超過移除最舊的
-            if len(facts) > 50:
-                layers["L1_facts"] = facts[-50:]
+            if len(facts) > self._L1_FACTS_MAX:
+                layers["L1_facts"] = facts[-self._L1_FACTS_MAX:]
         else:
             logger.info("MemoryGate: suppress_facts=True, 跳過 L1 事實寫入")
 
@@ -1548,9 +1600,9 @@ class BrainObservationMixin:
         msg_len = len(content)
 
         # detail_level
-        if msg_len > 200:
+        if msg_len > self._EXT_DETAILED_LEN:
             style["detail_level"] = "detailed"
-        elif msg_len < 40:
+        elif msg_len < self._CONCISE_MSG_LEN:
             style["detail_level"] = "concise"
         else:
             style["detail_level"] = "moderate"
@@ -1918,34 +1970,27 @@ class BrainObservationMixin:
     def _detect_cron_patterns(self, content: str) -> None:
         """偵測使用者訊息中的時間模式 — 純 CPU.
 
-        如果偵測到重複的時間相關請求，記錄到緩衝區。
-        累積 >= 3 次同類模式後，標記為「建議自主排程」。
+        實驗功能：偵測重複的時間相關請求，記錄到緩衝區。
+        累積 >= 3 次同類模式後記錄日誌。
+        TODO: 未來連線自主排程系統時，此 buffer 應由排程引擎消費。
 
         Args:
             content: 使用者訊息
         """
         content_lower = content.lower()
-        matched = False
-
-        for keyword in self._CRON_KEYWORDS:
-            if keyword in content_lower:
-                matched = True
-                break
+        matched = any(kw in content_lower for kw in self._CRON_KEYWORDS)
 
         if matched:
-            # 提取前 50 字作為模式簽名
-            pattern_sig = content[:50]
-            self._cron_pattern_buffer.append(pattern_sig)
-
+            buf = getattr(self, '_cron_pattern_buffer', [])
+            buf.append(content[:50])
             # 保持緩衝區在 20 條以內
-            if len(self._cron_pattern_buffer) > 20:
-                self._cron_pattern_buffer = self._cron_pattern_buffer[-20:]
+            if len(buf) > 20:
+                buf = buf[-20:]
+            self._cron_pattern_buffer = buf
 
-            # 檢查是否有重複模式（簡易 CPU 比對）
-            if len(self._cron_pattern_buffer) >= 3:
+            if len(buf) >= 3:
                 logger.info(
-                    f"自主排程偵測：累積 {len(self._cron_pattern_buffer)} "
-                    f"個時間相關模式"
+                    f"自主排程偵測：累積 {len(buf)} 個時間相關模式"
                 )
 
     # ═══════════════════════════════════════════
