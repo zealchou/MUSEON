@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.28
+# Joint Map — 共享可變狀態接頭圖 v1.29
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -16,7 +16,7 @@
 | 3 | ANIMA_USER.json | 🔴 | 3 | 9 | 部分 | [→](#3-anima_userjson) |
 | 4 | question_queue.json | 🟡 | 2 | 3 | 無 | [→](#4-question_queuejson) |
 | 5 | scout_queue/pending.json | 🟡 | 2 | 2 | 無 | [→](#5-scout_queuependingjson) |
-| 6 | lattice/crystals.json | 🟡 | 2 | 5 | 無 | [→](#6-latticecrystalsjson) |
+| 6 | lattice/crystal.db | 🟢 | 2 | 5 | ✅ SQLite WAL + Lock | [→](#6-latticecrystaldb) |
 | 7 | accuracy_stats.json | 🟡 | 2 | 6 | 無 | [→](#7-accuracy_statsjson) |
 | 8 | PulseDB (pulse.db) | 🟡 | 3 | 12 | SQLite WAL | [→](#8-pulsedb-pulsedb) |
 | 9 | Qdrant 向量庫 | 🟡 | 4 | 6 | 內部 MVCC | [→](#9-qdrant-向量庫) |
@@ -235,21 +235,25 @@
 
 ---
 
-### 6. lattice/crystals.json
+### 6. lattice/crystal.db
 
-**路徑**：`data/lattice/crystals.json`
+**路徑**：`data/lattice/crystal.db`（SQLite WAL 模式，三表：crystals, links, cuid_counters）
 **用途**：知識晶格——結晶化的知識資產
+**遷移紀錄**：v1.29 從 JSON（crystals.json + links.json + cuid_counter.json + archive.json）遷移至 SQLite WAL 模式，舊檔案已歸檔為 .bak
 
 #### 讀寫表
 
 | 模組 | 操作 | 函數 | 鎖 |
 |------|------|------|-----|
-| `agent/knowledge_lattice.py` | **RW** | 結晶存取 | ❌ 無 |
-| `nightly/crystal_actuator.py` | **W** | 降級/升級 | ❌ 無 |
-| `nightly/nightly_pipeline.py` | **R** | 降級偵測 | — |
-| `nightly/evolution_velocity.py` | **R** | 結晶數量統計 | — |
-| `agent/recommender.py` | **R** | 推薦 | — |
-| `pulse/wee_engine.py` | **R** | 工作流查詢 | — |
+| `agent/crystal_store.py` (CrystalStore) | **RW** | 統一存取層（CRUD + 查詢 + 歸檔） | ✅ SQLite WAL + `threading.Lock` |
+| `agent/knowledge_lattice.py` | **RW** | 結晶存取（經由 CrystalStore API） | ✅ 經由 CrystalStore |
+| `nightly/crystal_actuator.py` | **W** | 降級/升級（經由 CrystalStore API） | ✅ 經由 CrystalStore |
+| `nightly/nightly_pipeline.py` | **R** | 降級偵測（經由 CrystalStore API） | — |
+| `nightly/evolution_velocity.py` | **R** | 結晶數量統計（經由 CrystalStore API） | — |
+| `agent/recommender.py` | **R** | 推薦（經由 CrystalStore API） | — |
+| `pulse/wee_engine.py` | **R** | 工作流查詢（經由 CrystalStore API） | — |
+| `guardian/daemon.py` | **R** | 健康檢查（經由 CrystalStore API） | — |
+| `doctor/memory_reset.py` | **W** | 一鍵重置（DELETE FROM 三表） | — |
 
 #### 衰減策略
 
@@ -284,11 +288,11 @@
 > `brain.py` Layer 2.5 在結晶不足時呼叫 `recall_with_community()` 注入社群摘要。
 > 社群偵測為即時計算（不持久化），基於 Crystal DAG 既有連結，無新增共享狀態。
 
-#### ⚠️ 衝突風險
+#### ✅ 衝突風險（已修復 — CrystalStore 遷移）
 
-- knowledge_lattice 和 crystal_actuator 都能寫入 → 無鎖保護
-- 降級邏輯可能與新增邏輯衝突
-- **衰減計算與新增寫入並發時**，crystal_actuator 可能歸檔剛被引用的結晶（低概率但存在）
+- ~~knowledge_lattice 和 crystal_actuator 都能寫入 → 無鎖保護~~ → **已修復**：統一經由 CrystalStore，SQLite WAL + `threading.Lock` 雙重保護
+- ~~降級邏輯可能與新增邏輯衝突~~ → **已修復**：CrystalStore 序列化所有寫入
+- **衰減計算與新增寫入並發時**，受 SQLite WAL 保護，不再有歸檔衝突（已降為理論風險）
 
 ---
 
@@ -798,7 +802,7 @@
 | **G2** | 探索結晶管線 | pulse_engine + curiosity_router + exploration_bridge + nightly_pipeline + skill_forge_scout | question_queue.json + scout_queue/pending.json + PULSE.md 探索佇列 |
 | **G3** | 記憶管線 | memory_manager + brain + vector_bridge + reflex_router + multi_agent_executor | MemoryStore + Qdrant memories collection（memory_manager 支援 dept_id 標籤寫入 + dept_filter 過濾檢索 + chat_scope 群組隔離 + supersede() 事實覆寫 + VectorBridge.mark_deprecated() 軟刪除） |
 | **G4** | 演化速度 | evolution_velocity + parameter_tuner + periodic_cycles + metacognition | accuracy_stats.json + tuned_parameters.json + velocity_log.jsonl |
-| **G5** | 知識晶格 | knowledge_lattice + crystal_actuator + recommender | crystals.json + crystal_rules.json |
+| **G5** | 知識晶格 | knowledge_lattice + crystal_store + crystal_actuator + recommender | crystal.db (via CrystalStore) + crystal_rules.json |
 | **G6** | 免疫系統 | immunity + immune_memory + immune_research + daemon | events.jsonl + immune_memory.json |
 
 ---
@@ -816,7 +820,7 @@
 | PULSE.md | `threading.Lock` + 原子寫入(tmp→rename+fsync) | pulse_engine | ✅ 完整（Lock + 原子寫入） |
 | question_queue.json | **無** | — | ❌ 危險 |
 | scout_queue/pending.json | **無** | — | ❌ 危險 |
-| crystals.json | **無** | — | ❌ 危險 |
+| crystal.db | **CrystalStore** (`SQLite WAL` + `threading.Lock`) | **全部寫入者** | ✅ **完整（CrystalStore 遷移）** |
 | accuracy_stats.json | **無** | — | ❌ 危險 |
 
 ---
@@ -842,6 +846,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-22 | v1.29 | Knowledge Lattice 持久層遷移：#6 路徑從 `data/lattice/crystals.json` 改為 `data/lattice/crystal.db`（SQLite WAL 模式，三表 crystals/links/cuid_counters）；新增 `agent/crystal_store.py` CrystalStore 為統一存取層（threading.Lock + SQLite WAL）；所有讀寫者改為經由 CrystalStore API；危險度從 🟡 降為 🟢（鎖保護完整）；鎖一覽表更新 crystals.json→crystal.db（❌ 危險→✅ 完整）；G5 模組組新增 crystal_store；舊 JSON 檔案歸檔為 .bak；同步 persistence-contract v1.26、blast-radius v1.41、system-topology v1.31 |
 | 2026-03-21 | v1.27 | #9 Qdrant skills collection 新增 VectorBridge.index_all_skills() 寫入路徑（Gateway startup + Nightly 8.6 + API reindex） |
 | 2026-03-21 | v1.26 | 群組對話 DSE 三階段修復：G3 記憶管線新增 chat_scope 群組隔離（memory_manager store() 新增 chat_scope/group_id 參數 + 自動注入 scope:{scope} 標籤 + recall() 新增 chat_scope_filter/exclude_scopes 過濾 + _keyword_fallback() 同步過濾 + _vector_index() metadata 注入）；#28 cognitive_trace p0_signal 欄位修復為六類判定（_classify_p0_signal 啟發式）+ meta_note 修復（thinking_path_summary[:50]）；外部使用者 ANIMA v3.0 schema 升級（governance/multi_tenant.py ExternalAnimaManager 新增 profile/relationship/seven_layers + trust_evolution 四階段 + PrimalDetector 八原語）；同步 blast-radius v1.32、memory-router v1.1、persistence-contract v1.23 |
 | 2026-03-21 | v1.25 | GraphRAG 社群偵測：#6 crystals.json 新增「GraphRAG 社群摘要」表（detect_communities + recall_with_community 四個方法）；knowledge_lattice.py 新增社群偵測（純新增，RW 不變，讀寫者不變）；brain.py Layer 2.5 新增 `has_communities()` + `recall_with_community()` 呼叫（僅讀）；無新增共享狀態（社群偵測為即時計算，不持久化）；同步 blast-radius v1.31 |

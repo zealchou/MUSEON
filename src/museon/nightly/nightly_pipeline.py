@@ -850,12 +850,11 @@ class NightlyPipeline:
 
         # ═══ 信號源 2: Knowledge Lattice 降級/矛盾偵測 ═══
         try:
-            lattice_dir = self._workspace / "lattice"
-            crystals_file = lattice_dir / "crystals.json"
-            if crystals_file.exists():
+            from museon.agent.crystal_store import CrystalStore
+            _cs = CrystalStore(data_dir=str(self._workspace))
+            if _cs.is_healthy():
                 signals_scanned += 1
-                with open(crystals_file, "r", encoding="utf-8") as fh:
-                    crystals_data = json.load(fh)
+                crystals_data = _cs.load_crystals_raw()
 
                 # 統計被降級的結晶（有反證的 Insight）
                 downgraded = [

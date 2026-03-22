@@ -363,7 +363,6 @@ class EvolutionVelocity:
           - 結晶: {workspace}/lattice/crystals.json
           - 互動: 從結晶的時間戳推算
         """
-        crystals_file = self._workspace / "lattice" / "crystals.json"
         week_start = now - timedelta(days=now.weekday(), hours=now.hour,
                                      minutes=now.minute, seconds=now.second)
 
@@ -371,30 +370,25 @@ class EvolutionVelocity:
         total_interactions = 0
 
         try:
-            if crystals_file.exists():
-                with open(crystals_file, "r", encoding="utf-8") as fh:
-                    data = json.load(fh)
+            from museon.agent.crystal_store import CrystalStore
+            _cs = CrystalStore(data_dir=str(self._workspace))
+            crystal_list = _cs.load_crystals_raw()
 
-                # 支援 list 或 dict 格式
-                crystal_list = data if isinstance(data, list) else data.get(
-                    "crystals", []
+            for crystal in crystal_list:
+                total_interactions += 1
+                created = crystal.get(
+                    "created_at",
+                    crystal.get("crystallized_at", ""),
                 )
-
-                for crystal in crystal_list:
-                    total_interactions += 1
-                    created = crystal.get(
-                        "created_at",
-                        crystal.get("crystallized_at", ""),
-                    )
-                    if created:
-                        try:
-                            ct = datetime.fromisoformat(created)
-                            if ct.tzinfo is None:
-                                ct = ct.replace(tzinfo=TZ8)
-                            if ct >= week_start:
-                                new_crystals += 1
-                        except (ValueError, TypeError) as e:
-                            logger.debug(f"[EVOLUTION_VELOCITY] crystal failed (degraded): {e}")
+                if created:
+                    try:
+                        ct = datetime.fromisoformat(created)
+                        if ct.tzinfo is None:
+                            ct = ct.replace(tzinfo=TZ8)
+                        if ct >= week_start:
+                            new_crystals += 1
+                    except (ValueError, TypeError) as e:
+                        logger.debug(f"[EVOLUTION_VELOCITY] crystal failed (degraded): {e}")
         except Exception as e:
             logger.warning(f"EvolutionVelocity: read crystals failed: {e}")
 

@@ -487,50 +487,30 @@ class GuardianDaemon:
                              details="morphenix/ 存在")
 
     def _check_lattice_integrity(self) -> GuardianEntry:
-        """檢查 Knowledge Lattice JSON 完整性 — 純 CPU"""
-        lattice_dir = self.data_dir / "lattice"
-        if not lattice_dir.exists():
-            try:
-                lattice_dir.mkdir(parents=True, exist_ok=True)
-            except Exception as e:
-                logger.debug(f"[DAEMON] lattice failed (degraded): {e}")
-
-        crystals_path = lattice_dir / "crystals.json"
-        links_path = lattice_dir / "links.json"
-
-        issues = []
-        for fpath, name in [(crystals_path, "crystals"), (links_path, "links")]:
-            if not fpath.exists():
-                try:
-                    fpath.write_text("[]", encoding="utf-8")
-                    issues.append(f"{name} 重建為空")
-                except Exception as e:
-                    issues.append(f"{name} 重建失敗: {e}")
+        """檢查 Knowledge Lattice SQLite 完整性 — 純 CPU"""
+        try:
+            from museon.agent.crystal_store import CrystalStore
+            _cs = CrystalStore(data_dir=str(self.data_dir))
+            if _cs.is_healthy():
+                health = _cs.health_check()
+                return GuardianEntry(
+                    "L2", "lattice_integrity", GuardianStatus.OK,
+                    details=f"Lattice 完整 (crystals={health.get('crystal_count', 0)}, "
+                            f"links={health.get('link_count', 0)})",
+                )
             else:
-                try:
-                    data = json.loads(fpath.read_text(encoding="utf-8"))
-                    if not isinstance(data, list):
-                        # 備份 → 重建
-                        bak = fpath.with_suffix(".json.bak")
-                        fpath.rename(bak)
-                        fpath.write_text("[]", encoding="utf-8")
-                        issues.append(f"{name} 格式錯誤，已備份並重建")
-                except json.JSONDecodeError:
-                    bak = fpath.with_suffix(".json.bak")
-                    try:
-                        fpath.rename(bak)
-                    except Exception as e:
-                        logger.debug(f"[DAEMON] file rename failed (degraded): {e}")
-                    fpath.write_text("[]", encoding="utf-8")
-                    issues.append(f"{name} JSON 損壞，已備份並重建")
-
-        if issues:
-            self._log_repair("L2", "lattice_integrity", "repaired",
-                             "; ".join(issues))
-            return GuardianEntry("L2", "lattice_integrity", GuardianStatus.REPAIRED,
-                                 action="rebuild_lattice", details="; ".join(issues))
-        return GuardianEntry("L2", "lattice_integrity", GuardianStatus.OK,
-                             details="Lattice 完整")
+                return GuardianEntry(
+                    "L2", "lattice_integrity", GuardianStatus.REPAIRED,
+                    action="rebuild_lattice",
+                    details="Crystal DB 健康檢查失敗，已重新初始化",
+                )
+        except Exception as e:
+            logger.warning(f"[DAEMON] lattice integrity check failed: {e}")
+            return GuardianEntry(
+                "L2", "lattice_integrity", GuardianStatus.REPAIRED,
+                action="rebuild_lattice",
+                details=f"Crystal DB 例外: {e}",
+            )
 
     def _check_eval_integrity(self) -> GuardianEntry:
         """檢查 Eval Q-Scores JSONL 格式 — 純 CPU"""

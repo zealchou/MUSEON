@@ -574,19 +574,19 @@ class TestSemanticRecall:
 class TestPersistence:
     """測試持久化."""
 
-    def test_crystals_saved_to_json(self, lattice, data_dir):
-        """結晶儲存到 JSON 檔案."""
+    def test_crystals_saved_to_db(self, lattice, data_dir):
+        """結晶儲存到 SQLite DB."""
         lattice.crystallize("持久化測試結晶", "", "Insight")
-        crystals_path = data_dir / "lattice" / "crystals.json"
-        assert crystals_path.exists()
+        db_path = data_dir / "lattice" / "crystal.db"
+        assert db_path.exists()
 
-    def test_links_saved_to_json(self, lattice, data_dir):
-        """連結儲存到 JSON 檔案."""
+    def test_links_saved_to_db(self, lattice, data_dir):
+        """連結儲存到 SQLite DB."""
         c1 = lattice.crystallize("結晶 A 用於連結測試", "", "Insight")
         c2 = lattice.crystallize("結晶 B 用於連結測試", "", "Insight")
         lattice.add_link(c1.cuid, c2.cuid, "supports")
-        links_path = data_dir / "lattice" / "links.json"
-        assert links_path.exists()
+        db_path = data_dir / "lattice" / "crystal.db"
+        assert db_path.exists()
 
     def test_health_report(self, lattice):
         """健康報告包含完整指標."""
