@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.35
+# Joint Map — 共享可變狀態接頭圖 v1.36
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -887,6 +887,32 @@
 
 ---
 
+### 36. external_users/{uid}.json
+
+**路徑**：`data/_system/external_users/{uid}.json`
+**用途**：群組外部用戶記憶——非 Owner 的群組參與者獨立 ANIMA（v3.0 schema：信任演化 + 八原語 + 七層精選 + 偏好）
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| `governance/multi_tenant.py` (ExternalAnimaManager) | **RW** | `save()` / `update()` | 完整覆寫 / 增量更新（互動計數、群組列表） | ✅ `threading.Lock` + 原子寫入（tmp→rename） |
+| `agent/brain_observation.py` | **W** | `_observe_external_user()` | 八原語 + L1 事實 + L6 溝通風格 + 偏好 + 主題（經由 ExternalAnimaManager.save()） | ✅ 經由 ExternalAnimaManager |
+| `agent/brain_prompt_builder.py` | **R** | `search_by_keyword()` | 私聊中引用群組成員背景（注入 system prompt） | — |
+| `gateway/server.py` | **W** | 群組訊息處理 → `ExternalAnimaManager.update()` | 非敏感群組訊息的互動計數更新 | ✅ 經由 ExternalAnimaManager |
+
+#### 資料格式
+
+```json
+{"version": "3.0.0", "user_id": "str", "interaction_count": 0, "display_name": "str", "profile": {"name": null, "role": null}, "relationship": {"trust_level": "initial|building|growing|established", "total_interactions": 0}, "eight_primals": {}, "seven_layers": {"L1_facts": [], "L6_communication_style": {}}, "recent_topics": [], "preferences": {}}
+```
+
+> **鎖**：✅ `threading.Lock` + 原子寫入（`.{uid}.json.tmp` → rename）
+> **TTL**：永久（外部用戶記憶不自動清理）
+> **危險度**：🟢 綠（Lock 保護完整，單一管理者 ExternalAnimaManager）
+
+---
+
 ## 必須同時修改的模組組（不可分批）
 
 > 修改以下任一模組時，**必須**同時檢查並調整同組所有模組。
@@ -917,6 +943,7 @@
 | scout_queue/pending.json | **無** | — | ❌ 危險 |
 | crystal.db | **CrystalStore** (`SQLite WAL` + `threading.Lock`) | **全部寫入者** | ✅ **完整（CrystalStore 遷移）** |
 | accuracy_stats.json | **無** | — | ❌ 危險 |
+| external_users/{uid}.json | **ExternalAnimaManager** (`threading.Lock` + 原子寫入) | **全部寫入者** | ✅ **完整** |
 
 ---
 
@@ -941,6 +968,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-22 | v1.36 | External User 健康檢查：新增 #36 `external_users/{uid}.json`（🟢 危險度，ExternalAnimaManager 統一管理）；ExternalAnimaManager 新增 `threading.Lock` + 原子寫入（tmp→rename）修復 TOCTOU 競態條件；鎖一覽表新增 external_users 條目；共享狀態 35→36 個 |
 | 2026-03-22 | v1.35 | Sparse Embedder 啟動：#9 Qdrant 向量庫 Sparse Collections 從「已定義未消費」升級為「全面啟動」；hybrid_search() 被 skill_router + memory_manager + knowledge_lattice + server.py 4 個消費者呼叫（取代原 pure dense search）；Nightly Step 8.7 新增 IDF 重建 + 回填步驟；Gateway startup 新增 IDF 驗證；同步 blast-radius v1.35、persistence-contract v1.30 |
 | 2026-03-22 | v1.34 | Brain 三層治療：新增 #35 `orchestrator_calls`（PulseDB 表，🟢 危險度，單寫入者 brain.py `_dispatch_orchestrate()`，讀取者 0 供未來 A1 確定性路由）；#8 PulseDB 表數 14→15；共享狀態 34→35 個；同步 persistence-contract v1.29、system-topology v1.37 |
 | 2026-03-22 | v1.33 | P0-P3 升級：新增 #34 `_system/backups/` 目錄（🟢 危險度，2 個寫入者各自寫不同子目錄無競爭——AnimaMCStore._backup_before_write() 寫 anima_mc/、PulseEngine._backup_pulse_md() 寫 pulse_md/，各保留 10 份 FIFO）；無讀取者（手動恢復）；共享狀態 33→34 個；同步 persistence-contract v1.28、system-topology v1.35、blast-radius v1.46、memory-router v1.4 |
