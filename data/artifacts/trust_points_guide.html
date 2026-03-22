@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>信任點說明｜MUSEON</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ember:        #C4502A;
+      --ember-light:  #E0714D;
+      --ember-dark:   #9A3A1C;
+      --teal:         #2A7A6E;
+      --gold:         #B8923A;
+      --ink:          #12121A;
+      --slate:        #5A5A6E;
+      --mist:         #9898A8;
+      --border:       #E2E0DA;
+      --parchment:    #F7F5F0;
+      --snow:         #FDFCFA;
+      --deep-ink:     #0E0E16;
+      --surface:      #16161F;
+      --success:      #2D8A6E;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--parchment);
+      color: var(--ink);
+      font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+      font-size: 16px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── Hero ─── */
+    .hero {
+      background: var(--deep-ink);
+      padding: 96px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(196,80,42,0.22) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(196,80,42,0.15);
+      color: var(--ember-light);
+      border: 1px solid rgba(196,80,42,0.3);
+      border-radius: 100px;
+      padding: 4px 14px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(36px, 6vw, 56px);
+      font-weight: 600;
+      color: #FDFCFA;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+    .hero h1 em { color: var(--ember-light); font-style: italic; }
+    .hero p {
+      color: rgba(253,252,250,0.65);
+      font-size: 18px;
+      max-width: 560px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+    .hero-point-display {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(253,252,250,0.06);
+      border: 1px solid rgba(253,252,250,0.1);
+      border-radius: 12px;
+      padding: 20px 32px;
+      margin-top: 40px;
+    }
+    .hero-point-number {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 64px;
+      font-weight: 600;
+      color: var(--ember-light);
+      line-height: 1;
+    }
+    .hero-point-label {
+      text-align: left;
+    }
+    .hero-point-label strong {
+      display: block;
+      color: #FDFCFA;
+      font-size: 20px;
+      font-weight: 600;
+    }
+    .hero-point-label span {
+      color: rgba(253,252,250,0.5);
+      font-size: 14px;
+    }
+
+    /* ─── Layout ─── */
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    section { padding: 64px 0; }
+    section + section { border-top: 1px solid var(--border); }
+
+    h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 40px;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+    h2 .label {
+      display: block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ember);
+      margin-bottom: 8px;
+    }
+    h3 {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 10px;
+    }
+    p { color: var(--slate); margin-bottom: 16px; }
+    p:last-child { margin-bottom: 0; }
+    strong { color: var(--ink); font-weight: 600; }
+
+    .lead {
+      font-size: 18px;
+      color: var(--slate);
+      line-height: 1.8;
+      margin-bottom: 32px;
+    }
+
+    /* ─── Card ─── */
+    .card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+      transition: transform 200ms ease, box-shadow 200ms ease;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(18,18,26,0.08);
+    }
+    .card-grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      margin-top: 32px;
+    }
+
+    /* ─── Analogy Section ─── */
+    .analogy-box {
+      background: linear-gradient(135deg, rgba(196,80,42,0.07) 0%, rgba(42,122,110,0.05) 100%);
+      border: 1px solid rgba(196,80,42,0.18);
+      border-radius: 12px;
+      padding: 32px;
+      margin: 32px 0;
+    }
+    .analogy-box h3 { color: var(--ember-dark); }
+
+    /* ─── Point Badge ─── */
+    .point-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(196,80,42,0.1);
+      color: var(--ember-dark);
+      border-radius: 100px;
+      padding: 3px 10px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+    .point-badge.teal {
+      background: rgba(42,122,110,0.1);
+      color: #1E5E55;
+    }
+    .point-badge.gold {
+      background: rgba(184,146,58,0.12);
+      color: #8A6420;
+    }
+
+    /* ─── Scenario Cards ─── */
+    .scenario {
+      border-left: 3px solid var(--ember);
+      padding: 20px 24px;
+      background: var(--snow);
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 16px;
+    }
+    .scenario-tag {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mist);
+      margin-bottom: 6px;
+    }
+    .scenario h4 { font-size: 17px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
+    .scenario .cost {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      font-size: 14px;
+      color: var(--slate);
+    }
+
+    /* ─── Skill Table ─── */
+    .skill-list { margin-top: 24px; display: flex; flex-direction: column; gap: 12px; }
+    .skill-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 18px 20px;
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .skill-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: rgba(196,80,42,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .skill-info { flex: 1; min-width: 0; }
+    .skill-name {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ember-dark);
+      margin-bottom: 4px;
+    }
+    .skill-desc { font-size: 14px; color: var(--slate); line-height: 1.6; }
+    .skill-cost {
+      flex-shrink: 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ember);
+      font-family: 'IBM Plex Mono', monospace;
+      text-align: right;
+    }
+    .skill-cost span { display: block; color: var(--mist); font-size: 11px; font-weight: 400; }
+
+    /* ─── Monthly Timeline ─── */
+    .timeline {
+      position: relative;
+      padding-left: 32px;
+      margin-top: 32px;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 10px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: var(--border);
+    }
+    .timeline-item {
+      position: relative;
+      margin-bottom: 32px;
+    }
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -26px;
+      top: 6px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--ember);
+      border: 2px solid var(--parchment);
+    }
+    .timeline-item h4 { font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+    .timeline-item p { font-size: 14px; color: var(--slate); margin-bottom: 0; }
+
+    /* ─── Progress Bar ─── */
+    .budget-visual {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      margin: 32px 0;
+    }
+    .budget-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .budget-header .label { font-size: 14px; color: var(--slate); }
+    .budget-header .value { font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 600; color: var(--ink); }
+    .bar-track {
+      height: 12px;
+      background: var(--border);
+      border-radius: 100px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 100px;
+      transition: width 600ms ease-out;
+    }
+    .bar-ticks {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--mist);
+    }
+
+    /* ─── FAQ ─── */
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+      padding: 20px 0;
+    }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-q { font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
+    .faq-a { font-size: 15px; color: var(--slate); }
+
+    /* ─── CTA ─── */
+    .cta-section {
+      background: var(--deep-ink);
+      border-radius: 16px;
+      padding: 48px;
+      text-align: center;
+      margin: 32px 0;
+    }
+    .cta-section h2 { color: #FDFCFA; font-family: 'Cormorant Garamond', serif; }
+    .cta-section p { color: rgba(253,252,250,0.6); }
+
+    /* ─── Footer ─── */
+    footer {
+      background: var(--deep-ink);
+      color: rgba(253,252,250,0.45);
+      text-align: center;
+      padding: 32px 24px;
+      font-size: 13px;
+    }
+    footer strong { color: rgba(253,252,250,0.7); }
+
+    /* ─── Table of Contents ─── */
+    .toc {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      margin-bottom: 48px;
+    }
+    .toc h4 {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mist);
+      margin-bottom: 14px;
+    }
+    .toc ol { padding-left: 20px; }
+    .toc li { margin-bottom: 6px; }
+    .toc a { color: var(--ember); text-decoration: none; font-size: 15px; }
+    .toc a:hover { text-decoration: underline; }
+
+    /* ─── Highlight Box ─── */
+    .highlight-box {
+      background: rgba(42,122,110,0.07);
+      border-left: 3px solid var(--teal);
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      margin: 20px 0;
+    }
+    .highlight-box p { color: var(--ink); font-size: 15px; }
+
+    /* ─── Warning Box ─── */
+    .warning-box {
+      background: rgba(184,146,58,0.08);
+      border-left: 3px solid var(--gold);
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      margin: 20px 0;
+    }
+    .warning-box p { color: var(--ink); font-size: 15px; }
+
+    /* ─── Animation ─── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp 400ms ease-out both; }
+    .fade-up:nth-child(2) { animation-delay: 60ms; }
+    .fade-up:nth-child(3) { animation-delay: 120ms; }
+    .fade-up:nth-child(4) { animation-delay: 180ms; }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 640px) {
+      .hero { padding: 64px 16px; }
+      h2 { font-size: 28px; }
+      .hero h1 { font-size: 32px; }
+      .hero-point-display { flex-direction: column; padding: 20px; }
+      .cta-section { padding: 32px 20px; }
+      .skill-item { flex-wrap: wrap; }
+      .skill-cost { width: 100%; text-align: left; margin-top: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- HERO -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="hero fade-up">
+  <div class="hero-badge">MUSEON 信任體系</div>
+  <h1>什麼是<em>信任點</em>？</h1>
+  <p>你與 MUSEON 之間的「對話貨幣」——<br/>每一點都代表一次深思熟慮的分析，而不是隨便說說的回覆。</p>
+  <div class="hero-point-display">
+    <div class="hero-point-number">300</div>
+    <div class="hero-point-label">
+      <strong>點 / 每月</strong>
+      <span>每位用戶的月度基礎配額</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- MAIN CONTENT -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="container">
+
+  <!-- Table of Contents -->
+  <section>
+    <div class="toc">
+      <h4>本頁內容</h4>
+      <ol>
+        <li><a href="#what-is">信任點是什麼？（白話解釋）</a></li>
+        <li><a href="#why-exist">為什麼要有信任點？</a></li>
+        <li><a href="#quota">每月 300 點怎麼用？</a></li>
+        <li><a href="#scenarios">生活化情境舉例</a></li>
+        <li><a href="#skills">調用了哪些 Skill？</a></li>
+        <li><a href="#faq">常見問題</a></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────── -->
+  <!-- SECTION 1: WHAT IS -->
+  <!-- ─────────────────────────────── -->
+  <section id="what-is">
+    <h2><span class="label">01 — 基礎概念</span>信任點是什麼？</h2>
+    <p class="lead">用最簡單的一句話說：<strong>信任點是你使用 MUSEON「深度思考能力」的消耗單位。</strong></p>
+
+    <div class="analogy-box">
+      <h3>🔋 想像 MUSEON 是你的私人顧問</h3>
+      <p>你每個月能約他開 300 分鐘的會議。</p>
+      <p>你問他「現在幾點？」他不需要思考，<strong>不扣分鐘</strong>。<br/>
+      但你問他「幫我分析競爭對手、制定策略、出一份報告」——他要深度投入，<strong>這才會花時間（扣點）</strong>。</p>
+      <p>信任點就是這個「深度投入的計量單位」。</p>
+    </div>
+
+    <div class="card-grid">
+      <div class="card fade-up">
+        <h3>🚀 不扣點的情況</h3>
+        <p style="margin-top:8px">簡單問答、查資料、閒聊、確認資訊——MUSEON 直接回答，<strong>不消耗信任點</strong>。</p>
+      </div>
+      <div class="card fade-up">
+        <h3>💡 會扣點的情況</h3>
+        <p style="margin-top:8px">啟動深度分析引擎（Skill）時才消耗——比如產出報告、市場分析、策略規劃等。</p>
+      </div>
+      <div class="card fade-up">
+        <h3>♻️ 每月重置</h3>
+        <p style="margin-top:8px">每個自然月第一天自動補滿 300 點。用不完不累積，不扣下個月。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────── -->
+  <!-- SECTION 2: WHY EXIST -->
+  <!-- ─────────────────────────────── -->
+  <section id="why-exist">
+    <h2><span class="label">02 — 設計邏輯</span>為什麼要有信任點？</h2>
+    <p class="lead">這個設計不是為了「限制你」，而是為了保證你得到的是<strong>真正有深度的回答</strong>。</p>
+
+    <div class="analogy-box">
+      <h3>📚 麥肯錫顧問 vs 隨便搜 Google</h3>
+      <p>如果麥肯錫顧問什麼問題都免費無限回答，他要嘛做不到，要嘛給你的都是敷衍的答案。</p>
+      <p>MUSEON 背後每次深度分析都呼叫了多個 AI 模組協同工作——這是有成本的。<br/>
+      信任點讓 MUSEON 知道「這個問題值得我全力投入」，而不是每次都給你快速草稿。</p>
+    </div>
+
+    <div class="highlight-box">
+      <p><strong>簡單說：</strong>信任點讓 MUSEON 對你的重要問題「傾盡全力」，而不是每次都只給你一個表面答案。</p>
+    </div>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <h4>沒有信任點的世界（假設）</h4>
+        <p>每次問問題都啟動最強引擎 → MUSEON 超載 → 回覆品質下降 → 你沒有得到真正的幫助。</p>
+      </div>
+      <div class="timeline-item">
+        <h4>有信任點的世界（現在）</h4>
+        <p>你清楚知道哪些問題值得「動用深度引擎」→ MUSEON 全力投入 → 你拿到真正值錢的洞見。</p>
+      </div>
+      <div class="timeline-item">
+        <h4>結果</h4>
+        <p>300 點對多數用戶來說<strong>綽綽有餘</strong>——因為真正需要深度分析的問題，一個月也不會超過幾十個。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────── -->
+  <!-- SECTION 3: QUOTA -->
+  <!-- ─────────────────────────────── -->
+  <section id="quota">
+    <h2><span class="label">03 — 配額說明</span>每月 300 點怎麼用？</h2>
+    <p class="lead">300 點聽起來有限，但實際上對大多數使用情境<strong>非常充裕</strong>。</p>
+
+    <!-- Budget Visual -->
+    <div class="budget-visual">
+      <div class="budget-header">
+        <span class="label">本月信任點使用示意（範例）</span>
+        <span class="value">用了 85 / 300 點</span>
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width: 28.3%; background: linear-gradient(90deg, var(--ember) 0%, var(--ember-light) 100%);"></div>
+      </div>
+      <div class="bar-ticks">
+        <span>0</span>
+        <span>75</span>
+        <span>150</span>
+        <span>225</span>
+        <span>300</span>
+      </div>
+    </div>
+
+    <p style="margin-bottom:32px">以下是不同動作大約消耗多少信任點的參考（實際依複雜度微調）：</p>
+
+    <div class="skill-list">
+      <div class="skill-item">
+        <div class="skill-icon">💬</div>
+        <div class="skill-info">
+          <div class="skill-name">日常問答 / 閒聊</div>
+          <div class="skill-desc">查資訊、確認事項、隨機提問——MUSEON 直接回，不啟動深度引擎</div>
+        </div>
+        <div class="skill-cost">0 點<span>免費</span></div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-icon">🗺️</div>
+        <div class="skill-info">
+          <div class="skill-name">輕度分析 / 建議</div>
+          <div class="skill-desc">給我一個菜單建議、幫我想三個方案、這個 Email 怎麼寫比較好</div>
+        </div>
+        <div class="skill-cost">1–5 點<span>輕量 Skill</span></div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-icon">📊</div>
+        <div class="skill-info">
+          <div class="skill-name">中度分析 / 框架診斷</div>
+          <div class="skill-desc">商業模式分析、競爭對手比較、策略規劃建議、說故事架構設計</div>
+        </div>
+        <div class="skill-cost">5–20 點<span>中量 Skill 組合</span></div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-icon">📄</div>
+        <div class="skill-info">
+          <div class="skill-name">深度報告 / 全量分析</div>
+          <div class="skill-desc">產出一份完整的產業診斷報告、投資分析報告、客戶交付文件</div>
+        </div>
+        <div class="skill-cost">20–60 點<span>Report-Forge 等重型引擎</span></div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-icon">🧠</div>
+        <div class="skill-info">
+          <div class="skill-name">超深度 / 多引擎協作</div>
+          <div class="skill-desc">同時啟動 5+ 個 Skill、跨領域複雜研究、大型工作流執行</div>
+        </div>
+        <div class="skill-cost">60–100 點<span>Orchestrator 調度</span></div>
+      </div>
+    </div>
+
+    <div class="warning-box" style="margin-top:32px">
+      <p>📌 <strong>一個月 300 點意味著：</strong>你可以做 5–6 次深度報告，或 15–30 次中度分析，或幾乎無限次日常問答。對大多數用戶來說，300 點一個月根本用不完。</p>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────── -->
+  <!-- SECTION 4: SCENARIOS -->
+  <!-- ─────────────────────────────── -->
+  <section id="scenarios">
+    <h2><span class="label">04 — 生活化例子</span>真實情境舉例</h2>
+    <p class="lead">以下用幾個不同背景的人，來展示信任點如何在日常中自然運作。</p>
+
+    <!-- Scenario 1 -->
+    <div class="scenario">
+      <div class="scenario-tag">情境 A — 餐飲老闆 陳先生</div>
+      <h4>「我要開一間咖啡廳，要怎麼做品牌？」</h4>
+      <p>陳先生想創業，他問 MUSEON：「我想開一間 10 坪的精品咖啡廳，目標客群是上班族，你覺得品牌定位該怎麼做？」</p>
+      <p>MUSEON 啟動了 <strong>Business-12（商業模式診斷）</strong> + <strong>Brand Identity（品牌識別）</strong> + <strong>Storytelling Engine（說故事架構）</strong>，幫他梳理出清晰的品牌定位、差異化方向，以及跟客戶溝通的故事框架。</p>
+      <div class="cost">
+        <span class="point-badge">消耗約 15 點</span>
+        <span>剩餘 285 點，本月還能做很多事</span>
+      </div>
+    </div>
+
+    <!-- Scenario 2 -->
+    <div class="scenario">
+      <div class="scenario-tag">情境 B — 業務主管 林小姐</div>
+      <h4>「這個客戶怎麼感覺快要跑了？」</h4>
+      <p>林小姐發現一個大客戶最近回訊越來越慢，她把對話截圖給 MUSEON 看，說：「這個客戶是不是要流失了？我該怎麼辦？」</p>
+      <p>MUSEON 啟動了 <strong>Shadow（人際博弈辨識）</strong> + <strong>SSA-Consultant（顧問式銷售）</strong>，分析客戶行為信號，給出具體的挽回對話策略。</p>
+      <div class="cost">
+        <span class="point-badge">消耗約 10 點</span>
+        <span>快速且精準，點數消耗低</span>
+      </div>
+    </div>
+
+    <!-- Scenario 3 -->
+    <div class="scenario">
+      <div class="scenario-tag">情境 C — 投資人 王大哥</div>
+      <h4>「台股最近該怎麼看？我有 50 萬想進場」</h4>
+      <p>王大哥對投資有興趣，他問 MUSEON：「你幫我分析一下台股現在的位置，我想知道多空怎麼看，以及 50 萬要怎麼配置。」</p>
+      <p>MUSEON 啟動了 <strong>Market-Core（市場分析）</strong> + <strong>Market-Equity（股票分析）</strong> + <strong>Investment-Masters（六大投資大師觀點）</strong> + <strong>Risk-Matrix（風險管理）</strong>，產出一份完整的多空分析與資產配置建議。</p>
+      <div class="cost">
+        <span class="point-badge">消耗約 35 點</span>
+        <span>多引擎協作，給出有深度的判斷</span>
+      </div>
+    </div>
+
+    <!-- Scenario 4 -->
+    <div class="scenario">
+      <div class="scenario-tag">情境 D — 一般使用者 小美</div>
+      <h4>「明天要開會，幫我準備幾個重點」</h4>
+      <p>小美明天要跟供應商開會，她跟 MUSEON 說：「我明天要談合作條件，對方是大廠，我有什麼需要注意的？」</p>
+      <p>MUSEON 直接根據經驗給建議，<strong>不啟動深度 Skill</strong>——給她三個談判重點和一個注意事項。</p>
+      <div class="cost">
+        <span class="point-badge teal">消耗 0 點</span>
+        <span>日常對話，不扣點</span>
+      </div>
+    </div>
+
+    <!-- Scenario 5 -->
+    <div class="scenario">
+      <div class="scenario-tag">情境 E — 創業者 James</div>
+      <h4>「幫我出一份可以給客戶看的完整產業報告」</h4>
+      <p>James 要去拜訪一個美業客戶，他需要一份「讓客戶覺得 MUSEON 很專業」的診斷報告。他說：「幫我做台灣美業的完整診斷，要可以直接給客戶看的等級。」</p>
+      <p>MUSEON 啟動 <strong>Report-Forge（付費級報告引擎）</strong>，搜尋 8–10 輪資料、執行三角驗證、產出 15 頁以上的完整 HTML 報告，包含產業趨勢、毛利分析、競爭格局、三種情境模擬與行動計畫。</p>
+      <div class="cost">
+        <span class="point-badge gold">消耗約 60 點</span>
+        <span>本月最重的一次使用，但交付物價值遠超點數成本</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────── -->
+  <!-- SECTION 5: SKILLS -->
+  <!-- ─────────────────────────────── -->
+  <section id="skills">
+    <h2><span class="label">05 — Skill 說明</span>信任點會調用哪些 Skill？</h2>
+    <p class="lead">「Skill」是 MUSEON 的<strong>專業能力模組</strong>——想像成不同領域的顧問，MUSEON 會根據你的問題自動找對的人來回答。</p>
+
+    <div class="highlight-box">
+      <p>你<strong>不需要記住 Skill 名稱</strong>——只要說你的需求，MUSEON 自己判斷要啟動哪些 Skill。就像你去診所不需要告訴醫生要開什麼藥，你只需要說哪裡不舒服。</p>
+    </div>
+
+    <div class="skill-list" style="margin-top:32px">
+
+      <div class="skill-item">
+        <div class="skill-icon">📈</div>
+        <div class="skill-info">
+          <div class="skill-name">Market-Core + Market-Equity</div>
+          <div class="skill-desc"><strong>白話：股市分析師</strong>。幫你看台股、美股的趨勢，多空研判，哪個產業在風口，ETF 該怎麼選。</div>
+        </div>
+        <div class="skill-cost">中量<span>5–20 點</span></div>
+      </div>
+
+      <div class="skill-item">
+        <div class="skill-icon">🏢</div>
+        <div class="skill-info">
+          <div class="skill-name">Business-12</div>
+          <div class="skill-desc"><strong>白話：商業診斷醫生</strong>。拿出 12 個維度幫你的生意做健檢：你的產品力、獲客方式、定價策略、留客手段哪裡有問題。</div>
+        </div>
+        <div class="skill-cost">中量<span>5–15 點</span></div>
+      </div>
+
+      <div class="skill-item">
+        <div class="skill-icon">🎯</div>
+        <div class="skill-info">
+          <div class="skill-name">SSA-Consultant</div>
+          <div class="skill-desc"><strong>白話：頂尖業務教練</strong>。教你怎麼跟客戶談判、成交、處理拒絕，以及顧問式銷售的 12 步驟框架。</div>
+        </div>
+        <div class="skill-cost">中量<span>5–15 點</span></div>
+      </div>
+
+      <div class="skill-item">
+        <div class="skill-icon">📝</div>
+        <div class="skill-info">
+          <div class="skill-name">Report-Forge</div>
+          <div class="skill-desc"><strong>白話：付費級報告生產機器</strong>。產出可以直接給客戶看、值得收費的完整診斷報告——有數據、有案例、有建議行動。</div>
+        </div>
+        <div class="skill-cost">重量<span>20–60 點</span></div>
+      </div>
+
+      <div class="skill-item">
+        <div class="skill-icon">🎭</div>
+        <div class="skill-info">
+          <div class="skill-name">Storytelling-Engine</div>
+          <div class="skill-desc"><strong>白話：說故事架構師</strong>。幫你把想法包裝成讓人想聽的故事，無論是簡報、自我介紹、還是品牌故事。</div>
+        </div>
+        <div class="skill-cost">輕量<span>3–10 點</span></div>
+      </div>
+
+      <div class="skill-item">
+        <div class="skill-icon">🛡️</div>
+        <div class="skill-info">
+          <div class="skill-name">Shadow（人際博弈辨識）</div>
+          <div class="skill-desc"><strong>白話：讀心術顧問</strong>。幫你辨識對方在用什麼情緒策略、有沒有在操控你、關係裡的力量對比是怎麼回事。</div>
+        </div>
+        <div class="skill-cost">中量<span>5–15 點</span></div>
+      </div>
+
+      <div class="skill-item">
+        <div class="skill-icon">♟️</div>
+        <div class="skill-info">
+          <div class="skill-name">Master-Strategy</div>
+          <div class="skill-desc"><strong>白話：孫子兵法顧問</strong>。融合東方兵法與現代戰略，幫你在競爭中找到最佳路徑，無論是商戰還是職場。</div>
+        </div>
+        <div class="skill-cost">重量<span>15–40 點</span></div>
+      </div>
+
+      <div class="skill-item">
+        <div class="skill-icon">💰</div>
+        <div class="skill-info">
+          <div class="skill-name">Investment-Masters</div>
+          <div class="skill-desc"><strong>白話：六位投資大師的聯合會診</strong>。巴菲特、芒格、霍華·馬克斯等六位大師的思維模型，同時幫你看一個投資決策。</div>
+        </div>
+        <div class="skill-cost">重量<span>20–40 點</span></div>
+      </div>
+
+      <div class="skill-item">
+        <div class="skill-icon">🧩</div>
+        <div class="skill-info">
+          <div class="skill-name">X-Model（破框解方引擎）</div>
+          <div class="skill-desc"><strong>白話：卡住時的出口設計師</strong>。當你感覺卡關、找不到出路，幫你用跨領域視角找出多條可行路徑和小實驗。</div>
+        </div>
+        <div class="skill-cost">中量<span>10–25 點</span></div>
+      </div>
+
+      <div class="skill-item">
+        <div class="skill-icon">🔮</div>
+        <div class="skill-info">
+          <div class="skill-name">Orchestrator（編排引擎）</div>
+          <div class="skill-desc"><strong>白話：多顧問協調總監</strong>。當你的問題需要同時動用多個 Skill，Orchestrator 負責決定順序、傳遞資訊、確保結果一致。</div>
+        </div>
+        <div class="skill-cost">重量<span>調度成本另計</span></div>
+      </div>
+
+    </div>
+
+    <div class="analogy-box" style="margin-top:32px">
+      <h3>💡 Skill 組合的意義</h3>
+      <p>同一個問題，不同情境下 MUSEON 會選不同的 Skill 組合。</p>
+      <p>比如「我想轉職」這個問題：<br/>
+      ・能量高、想深度思考 → 啟動 <strong>X-Model + DHARMA + Master-Strategy</strong><br/>
+      ・能量低、需要快速建議 → 直接給 3 個選項，不扣點<br/>
+      ・需要準備面試簡報 → 啟動 <strong>Storytelling-Engine + Consultant-Communication</strong></p>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────── -->
+  <!-- SECTION 6: FAQ -->
+  <!-- ─────────────────────────────── -->
+  <section id="faq">
+    <h2><span class="label">06 — 常見問題</span>你可能想問的</h2>
+
+    <div class="faq-item">
+      <div class="faq-q">Q：點數用完了怎麼辦？</div>
+      <div class="faq-a">日常問答不扣點，所以就算點數用完，你還是可以跟 MUSEON 正常對話。只有深度 Skill 會暫停，等下個月補點再啟動。你也可以購買額外點數（方案中提供）。</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Q：我怎麼知道現在還剩多少點？</div>
+      <div class="faq-a">隨時問 MUSEON「我還剩多少信任點？」就會告訴你。每次深度 Skill 啟動後，MUSEON 也會主動告知本次消耗與剩餘。</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Q：每次都會告訴我要扣幾點嗎？</div>
+      <div class="faq-a">是的。啟動深度 Skill 之前，MUSEON 會預估消耗並確認。不會在你不知情的情況下悄悄扣點。</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Q：如果 MUSEON 沒有幫到我，點數會退嗎？</div>
+      <div class="faq-a">如果啟動 Skill 後明顯沒有產出有用結果（例如搜尋失敗、系統錯誤），點數不扣或退回。正常使用後如果你對結果不滿意，可以反饋——MUSEON 會重新投入，但點數按使用計算。</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Q：跟朋友分享可以用我的點數嗎？</div>
+      <div class="faq-a">目前每個帳號的信任點是個人制，不能轉讓。企業方案有共用點數池，請洽詢 MUSEON 團隊。</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Q：300 點真的夠用嗎？</div>
+      <div class="faq-a">根據使用數據，<strong>超過 80% 的用戶每月只用到 80–150 點</strong>。300 點是留有充裕空間的設計。如果你是高強度商業用戶（每天需要深度報告），可以升級方案。</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Q：「信任點」這個名字為什麼叫「信任」？</div>
+      <div class="faq-a">因為當 MUSEON 啟動深度引擎，它在「信任你的問題值得全力投入」。同樣地，你在「信任 MUSEON 的判斷值得這個消耗」。信任是雙向的——這是一場真正的協作。</div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section>
+    <div class="cta-section">
+      <h2 style="margin-bottom:12px">準備好讓 MUSEON<br/>成為你最聰明的顧問了嗎？</h2>
+      <p style="margin-bottom:0">每月 300 點，隨時重置。<br/>深度分析從對話開始。</p>
+    </div>
+  </section>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- FOOTER -->
+<!-- ══════════════════════════════════════════════════ -->
+<footer>
+  <p><strong>MUSEON</strong> — 思維品質引擎</p>
+  <p style="margin-top:6px">信任點設計說明 · 版本 1.0 · 2026-03</p>
+  <p style="margin-top:6px">本文件為 MUSEON 產品說明，內容持續更新。實際點數消耗依系統版本調整。</p>
+</footer>
+
+</body>
+</html>
