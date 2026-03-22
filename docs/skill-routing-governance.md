@@ -278,7 +278,7 @@ io:
 
 | 層 | 認知類型 | 代表 Skill | 特徵 |
 |----|---------|-----------|------|
-| T1 認知層 | 透鏡/元認知 | deep-think, c15, resonance, meta-learning | 改變「怎麼想」，常駐影響所有輸出 |
+| T1 認知層 | 透鏡/元認知 | deep-think, c15, resonance, meta-learning, master-strategy, decision-tracker, shadow, dharma, philo-dialectic | 改變「怎麼想」，常駐影響所有輸出（10 個 always-on） |
 | T2 方法論 | 分析框架 | business-12, dse, market-core, acsf | 有領域邊界的結構化拆解 |
 | T3 操作層 | 單次動作 | risk-matrix, sentiment-radar, info-architect | 輸入→處理→輸出，不需全局脈絡 |
 | T4 流程層 | 編排 | orchestrator, workflow-*, wee | 管順序、條件、銜接，不產生內容 |

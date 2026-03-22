@@ -1,6 +1,7 @@
 ---
 name: resonance
-type: on-demand
+type: always-on
+tier: T1
 layer: thinking
 hub: thinking
 io:
