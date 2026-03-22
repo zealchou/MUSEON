@@ -750,12 +750,13 @@ class NightlyPipeline:
     def _step_morphenix_proposals(self) -> Dict:
         """Step 5.8: ★ 信號驅動的自動演化提案生成.
 
-        從五個系統信號源偵測問題，自動生成具體的 Morphenix 提案：
+        從六個系統信號源偵測問題，自動生成具體的 Morphenix 提案：
         1. Q-Score 連續低分 → 調整 prompt 策略
         2. Knowledge Lattice 降級結晶 → 修正相關 Skill
         3. MetaCognition 預判失準 → 調整預測參數
         4. Skill Router 命中率低 → 調整路由權重
         5. 迭代筆記累積 → 傳統筆記結晶提案
+        6. Nightly Report 錯誤步驟 → 管線修復提案
 
         這是從「被動記錄」跨越到「主動演化」的關鍵步驟。
         """
@@ -768,7 +769,7 @@ class NightlyPipeline:
 
         # ═══ 信號源 1: Q-Score 連續低分偵測 ═══
         try:
-            qscore_file = self._workspace / "_system" / "eval" / "qscore_history.jsonl"
+            qscore_file = self._workspace / "eval" / "q_scores.jsonl"
             if qscore_file.exists():
                 signals_scanned += 1
                 recent_scores = []
@@ -1000,6 +1001,48 @@ class NightlyPipeline:
                     diagnostics.append(f"迭代筆記: {len(notes)} 條")
         except Exception as e:
             logger.debug(f"Morphenix notes signal scan failed: {e}")
+
+        # ═══ 信號源 6: Nightly Report 錯誤步驟 → 修復提案 ═══
+        try:
+            report_file = self._workspace / "_system" / "state" / "nightly_report.json"
+            if report_file.exists():
+                signals_scanned += 1
+                with open(report_file, "r", encoding="utf-8") as fh:
+                    report_data = json.load(fh)
+
+                error_steps = []
+                for step_name, step_info in report_data.get("steps", {}).items():
+                    if isinstance(step_info, dict) and step_info.get("status") == "error":
+                        error_steps.append({
+                            "step": step_name,
+                            "result": str(step_info.get("result", ""))[:200],
+                        })
+
+                if error_steps:
+                    proposal = {
+                        "category": "L1",
+                        "source": "nightly_report_errors",
+                        "title": f"Nightly 管線 {len(error_steps)} 個步驟失敗需修復",
+                        "description": (
+                            f"上次 Nightly 執行中有 {len(error_steps)} 個步驟報錯: "
+                            f"{', '.join(s['step'] for s in error_steps[:5])}。"
+                            f"需要檢查並修復以恢復管線完整性。"
+                        ),
+                        "action": "fix_nightly_errors",
+                        "metric": {
+                            "error_count": len(error_steps),
+                            "error_steps": error_steps[:10],
+                        },
+                        "created_at": datetime.now(TZ_TAIPEI).isoformat(),
+                        "status": "pending_review",
+                    }
+                    out = proposals_dir / f"proposal_nightly_errors_{date.today().isoformat()}.json"
+                    with open(out, "w", encoding="utf-8") as fh:
+                        json.dump(proposal, fh, ensure_ascii=False, indent=2)
+                    proposals_created += 1
+                    diagnostics.append(f"Nightly Report: {len(error_steps)} 步驟失敗")
+        except Exception as e:
+            logger.debug(f"Morphenix Nightly Report signal scan failed: {e}")
 
         result = {
             "signals_scanned": signals_scanned,
