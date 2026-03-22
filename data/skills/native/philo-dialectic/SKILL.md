@@ -4,6 +4,7 @@ type: always-on
 tier: T1
 layer: thinking
 hub: thinking
+model_preference: sonnet
 io:
   inputs:
     - from: deep-think

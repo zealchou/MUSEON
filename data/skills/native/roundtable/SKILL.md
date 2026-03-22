@@ -3,6 +3,7 @@ name: roundtable
 type: on-demand
 layer: analysis
 hub: thinking
+model_preference: sonnet
 io:
   inputs:
     - from: query-clarity

@@ -3,6 +3,7 @@ name: dse
 type: on-demand
 layer: product
 hub: product
+model_preference: sonnet
 io:
   inputs:
     - from: gap

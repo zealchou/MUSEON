@@ -17,6 +17,7 @@ name: roundtable
 type: on-demand          # always-on | on-demand | reference | workflow
 layer: analysis          # （已降級）core-extension | analysis | thinking | business | language | aesthetic | meta | evolution | product | market | workflow | special
 hub: thinking            # core | infra | thinking | market | business | creative | product | evolution | workflow
+model_preference: sonnet # （選填）sonnet | haiku | opus — DeterministicRouter 讀取此欄位決定模型，未設定時由迴圈速度決定
 
 io:
   inputs:
@@ -105,6 +106,17 @@ Skill 的語義分組，對應拓撲圖中的 Skills Hub。用於粗到細兩步
 | `workflow` | Workflow Hub（預製工作流範本） | workflow-svc-brand-marketing, workflow-investment-analysis, workflow-ai-deployment, group-meeting-notes |
 
 詳見 `docs/skill-routing-governance.md` 的 Hub 定義與歸位指引。
+
+### model_preference（模型偏好）— v1.2 新增
+
+DeterministicRouter 讀取此欄位決定 Worker 使用的模型。**選填**，未設定時由迴圈速度（RoutingSignal.loop）決定。
+
+| 值 | 說明 | 適用場景 |
+|----|------|---------|
+| `sonnet` | 強制使用 Sonnet | 深度推理類：master-strategy, roundtable, dse, philo-dialectic, report-forge |
+| `haiku` | 強制使用 Haiku | 輕量執行類（目前無 Skill 顯式設定） |
+| `opus` | 強制使用 Opus | 預留（目前無 Skill 使用） |
+| （未設定） | 由 RoutingSignal 決定 | 大多數 Skill 的預設行為 |
 
 ### layer（所屬層級）— 已降級
 
