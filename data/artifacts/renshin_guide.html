@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>任信點點 — MUSEON 信任點機制完整說明</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    /* === Reset & Base === */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ember:        #C4502A;
+      --ember-light:  #E0714D;
+      --ember-dark:   #9A3A1C;
+      --teal:         #2A7A6E;
+      --gold:         #B8923A;
+      --ink:          #12121A;
+      --slate:        #5A5A6E;
+      --mist:         #9898A8;
+      --border:       #E2E0DA;
+      --parchment:    #F7F5F0;
+      --snow:         #FDFCFA;
+      --deep-ink:     #0E0E16;
+      --surface:      #16161F;
+      --raised:       #1E1E2A;
+      --border-dark:  #2A2A38;
+      --success:      #2D8A6E;
+      --warning:      #C9943A;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+      background: var(--parchment);
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.75;
+    }
+
+    /* === Layout === */
+    .container { max-width: 820px; margin: 0 auto; padding: 0 40px; }
+    @media(max-width:768px){ .container { padding: 0 24px; } }
+    @media(max-width:640px){ .container { padding: 0 16px; } }
+
+    /* === Hero === */
+    .hero {
+      background: var(--deep-ink);
+      color: var(--snow);
+      padding: 96px 0 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -40%;
+      right: -10%;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(196,80,42,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -20%;
+      left: 5%;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(42,122,110,0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(196,80,42,0.2);
+      border: 1px solid rgba(196,80,42,0.4);
+      color: var(--ember-light);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 100px;
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(40px, 7vw, 56px);
+      font-weight: 600;
+      line-height: 1.15;
+      margin-bottom: 20px;
+    }
+    .hero h1 em {
+      font-style: italic;
+      color: var(--ember-light);
+    }
+    .hero-sub {
+      font-size: 18px;
+      color: rgba(253,252,250,0.7);
+      max-width: 560px;
+      line-height: 1.8;
+      margin-bottom: 36px;
+    }
+    .hero-meta {
+      display: flex;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+    .hero-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: rgba(253,252,250,0.5);
+    }
+    .hero-meta-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--ember);
+    }
+
+    /* === Section === */
+    section { padding: 64px 0; }
+    section + section { border-top: 1px solid var(--border); }
+
+    h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 40px;
+      font-weight: 600;
+      line-height: 1.2;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+    h2 .accent { color: var(--ember); }
+
+    .section-lead {
+      font-size: 18px;
+      color: var(--slate);
+      line-height: 1.8;
+      margin-bottom: 40px;
+    }
+
+    h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 12px;
+    }
+
+    p { margin-bottom: 16px; color: var(--slate); line-height: 1.8; }
+    p:last-child { margin-bottom: 0; }
+    p strong { color: var(--ink); font-weight: 600; }
+
+    /* === Cards === */
+    .card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+      transition: transform 200ms ease, box-shadow 200ms ease;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(18,18,26,0.1), 0 8px 24px rgba(18,18,26,0.06);
+    }
+
+    .card-grid { display: grid; gap: 16px; }
+    .card-grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .card-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    @media(max-width:768px){ .card-grid-2, .card-grid-3 { grid-template-columns: 1fr; } }
+
+    /* === Analogy Cards === */
+    .analogy-card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .analogy-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 4px; height: 100%;
+      background: var(--ember);
+    }
+    .analogy-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+    .analogy-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ember-dark);
+      background: rgba(196,80,42,0.08);
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 100px;
+      margin-bottom: 10px;
+    }
+    .analogy-title { font-size: 18px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
+    .analogy-body { font-size: 15px; color: var(--slate); line-height: 1.75; }
+    .analogy-body strong { color: var(--ember-dark); }
+
+    /* === How it Works === */
+    .steps { display: flex; flex-direction: column; gap: 0; }
+    .step {
+      display: flex;
+      gap: 24px;
+      position: relative;
+    }
+    .step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 19px;
+      top: 48px;
+      bottom: 0;
+      width: 2px;
+      background: var(--border);
+    }
+    .step-num {
+      flex-shrink: 0;
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--ember);
+      color: white;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
+    }
+    .step-content {
+      padding-bottom: 40px;
+      flex: 1;
+    }
+    .step-content h4 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 8px;
+      padding-top: 8px;
+    }
+    .step-content p { font-size: 15px; margin-bottom: 8px; }
+
+    /* === Skill Cards === */
+    .skill-card {
+      background: var(--surface);
+      border: 1px solid var(--border-dark);
+      border-radius: 10px;
+      padding: 24px;
+      color: var(--snow);
+    }
+    .skill-badge {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ember-light);
+      background: rgba(196,80,42,0.15);
+      border: 1px solid rgba(196,80,42,0.25);
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 100px;
+      margin-bottom: 12px;
+    }
+    .skill-name {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--snow);
+      margin-bottom: 6px;
+    }
+    .skill-tagline {
+      font-size: 13px;
+      color: rgba(253,252,250,0.5);
+      font-style: italic;
+      margin-bottom: 14px;
+    }
+    .skill-desc {
+      font-size: 14px;
+      color: rgba(253,252,250,0.7);
+      line-height: 1.75;
+      margin-bottom: 0;
+    }
+    .skill-desc strong { color: rgba(253,252,250,0.9); }
+
+    /* === Compare Table === */
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .compare-table th {
+      background: var(--ink);
+      color: var(--snow);
+      padding: 14px 20px;
+      text-align: left;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .compare-table th:first-child { border-radius: 10px 0 0 0; }
+    .compare-table th:last-child { border-radius: 0 10px 0 0; }
+    .compare-table td {
+      padding: 14px 20px;
+      font-size: 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--slate);
+    }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table tr:nth-child(even) td { background: rgba(196,80,42,0.03); }
+    .compare-table .highlight { color: var(--ember-dark); font-weight: 600; }
+    .compare-table .dim { color: var(--mist); }
+
+    /* === FAQ === */
+    .faq-item {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .faq-q {
+      padding: 20px 24px;
+      background: var(--snow);
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--ink);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+    .faq-q::after {
+      content: '＋';
+      font-size: 20px;
+      color: var(--ember);
+      flex-shrink: 0;
+      font-weight: 400;
+    }
+    .faq-a {
+      padding: 16px 24px 20px;
+      background: rgba(247,245,240,0.5);
+      border-top: 1px solid var(--border);
+      font-size: 15px;
+      color: var(--slate);
+      line-height: 1.8;
+    }
+    .faq-a strong { color: var(--ink); }
+
+    /* === Info Box === */
+    .info-box {
+      background: rgba(42,122,110,0.08);
+      border: 1px solid rgba(42,122,110,0.25);
+      border-left: 4px solid var(--teal);
+      border-radius: 6px;
+      padding: 16px 20px;
+      margin: 20px 0;
+    }
+    .info-box p { color: var(--ink); font-size: 15px; margin: 0; }
+
+    .warning-box {
+      background: rgba(201,148,58,0.08);
+      border: 1px solid rgba(201,148,58,0.25);
+      border-left: 4px solid var(--gold);
+      border-radius: 6px;
+      padding: 16px 20px;
+      margin: 20px 0;
+    }
+    .warning-box p { color: var(--ink); font-size: 15px; margin: 0; }
+
+    /* === Trust Meter Visual === */
+    .trust-meter {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 32px;
+      text-align: center;
+    }
+    .trust-levels {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .trust-level {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .trust-level-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      width: 100px;
+      text-align: right;
+      flex-shrink: 0;
+      color: var(--slate);
+    }
+    .trust-bar-wrap {
+      flex: 1;
+      height: 12px;
+      background: var(--border);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+    .trust-bar {
+      height: 100%;
+      border-radius: 100px;
+      background: linear-gradient(90deg, var(--ember-dark), var(--ember-light));
+      transition: width 1s ease;
+    }
+    .trust-level-pts {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ember);
+      width: 60px;
+      text-align: left;
+      flex-shrink: 0;
+    }
+    .trust-level-perk {
+      font-size: 13px;
+      color: var(--slate);
+      flex: 1;
+      text-align: left;
+    }
+    @media(max-width:640px){
+      .trust-level { flex-wrap: wrap; }
+      .trust-level-perk { display: none; }
+    }
+
+    /* === Scenario Box === */
+    .scenario {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 28px;
+      margin-bottom: 16px;
+    }
+    .scenario-tag {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 100px;
+      margin-bottom: 14px;
+    }
+    .scenario-tag.user { background: rgba(42,122,110,0.1); color: #1a5e54; }
+    .scenario-tag.system { background: rgba(196,80,42,0.1); color: var(--ember-dark); }
+    .scenario-dialogue {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .bubble {
+      max-width: 85%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    .bubble.user-b {
+      background: var(--parchment);
+      border: 1px solid var(--border);
+      color: var(--ink);
+      align-self: flex-end;
+      border-radius: 12px 4px 12px 12px;
+    }
+    .bubble.museon-b {
+      background: var(--ink);
+      color: var(--snow);
+      align-self: flex-start;
+      border-radius: 4px 12px 12px 12px;
+    }
+    .bubble.museon-b .pts {
+      display: inline-block;
+      background: rgba(196,80,42,0.2);
+      color: var(--ember-light);
+      font-size: 12px;
+      font-family: 'IBM Plex Mono', monospace;
+      padding: 1px 8px;
+      border-radius: 100px;
+      margin-left: 4px;
+    }
+
+    /* === Footer === */
+    footer {
+      background: var(--deep-ink);
+      color: rgba(253,252,250,0.4);
+      padding: 48px 0;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+    footer .footer-brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      color: var(--snow);
+      margin-bottom: 8px;
+    }
+    footer .footer-brand em { color: var(--ember-light); font-style: italic; }
+    footer p { margin-bottom: 4px; color: rgba(253,252,250,0.35); }
+
+    /* === Fade in === */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .hero .container > * { animation: fadeUp 400ms ease-out both; }
+    .hero .container > *:nth-child(1) { animation-delay: 0ms; }
+    .hero .container > *:nth-child(2) { animation-delay: 80ms; }
+    .hero .container > *:nth-child(3) { animation-delay: 160ms; }
+    .hero .container > *:nth-child(4) { animation-delay: 240ms; }
+
+    /* === Utility === */
+    .tag {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(196,80,42,0.1);
+      color: var(--ember-dark);
+      padding: 3px 10px;
+      border-radius: 100px;
+      display: inline-block;
+    }
+    .divider { height: 1px; background: var(--border); margin: 32px 0; }
+    .teal-accent { color: var(--teal); font-weight: 600; }
+    .ember-accent { color: var(--ember); font-weight: 600; }
+    .gold-accent { color: var(--gold); font-weight: 600; }
+  </style>
+</head>
+<body>
+
+<!-- ============================
+     HERO
+=============================== -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">MUSEON · 任信點點系統</div>
+    <h1>一般 AI 你買了就用，<br><em>MUSEON 是你越用越懂你。</em></h1>
+    <p class="hero-sub">
+      任信點點不是傳統的「訂閱點數」，它更像是你和 MUSEON 之間慢慢建立起來的信任存款——
+      你投入越多真實的互動，它就越能幫你做到別人的 AI 做不到的事。
+    </p>
+    <div class="hero-meta">
+      <div class="hero-meta-item"><div class="hero-meta-dot"></div>完全白話說明</div>
+      <div class="hero-meta-item"><div class="hero-meta-dot"></div>設計邏輯全公開</div>
+      <div class="hero-meta-item"><div class="hero-meta-dot"></div>沒有技術背景也能看懂</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     SECTION 1：什麼是任信點點？
+=============================== -->
+<section>
+  <div class="container">
+    <div class="tag" style="margin-bottom:16px;">Part 1</div>
+    <h2>「任信點點」<span class="accent">到底是什麼？</span></h2>
+    <p class="section-lead">
+      三句話說清楚：<strong>它是你和 MUSEON 互動的「信任貨幣」。</strong>
+      你用點數和 MUSEON 說話，MUSEON 用它來記住你、認識你、更懂你。
+      點數越多、用得越深，你拿到的答案就越精準、越個人化。
+    </p>
+
+    <div class="info-box">
+      <p>💡 <strong>最白話的一句話：</strong>任信點點就是你跟 MUSEON「做生意」用的代幣。你拿代幣換對話，MUSEON 用這些對話了解你，然後給你更聰明的回答。</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <h3>用你熟悉的東西類比</h3>
+    <p style="margin-bottom:24px;">你一定用過以下這些東西——任信點點的邏輯跟它們很像，但有一個關鍵不同。</p>
+
+    <div class="card-grid card-grid-2" style="gap:16px;">
+      <div class="analogy-card">
+        <div class="analogy-icon">☕</div>
+        <div class="analogy-label">類比 1</div>
+        <div class="analogy-title">像星巴克的儲值卡</div>
+        <div class="analogy-body">
+          你先把錢存進去（買點數），每次點飲料（發問）就扣一點。
+          <br><br>
+          但星巴克不管你喝幾杯都給一樣的咖啡。<strong>MUSEON 的差別是：你用越多，它越懂你喝什麼口味，下次直接幫你推薦、甚至提前準備好。</strong>
+        </div>
+      </div>
+
+      <div class="analogy-card">
+        <div class="analogy-icon">💳</div>
+        <div class="analogy-label">類比 2</div>
+        <div class="analogy-title">像信用卡的使用額度</div>
+        <div class="analogy-body">
+          你剛辦卡的時候額度低，用久了、繳款正常了，銀行就慢慢提高你的額度。
+          <br><br>
+          <strong>任信點點也是：你跟 MUSEON 互動越多，它累積的「你的輪廓」越完整，你發一個問題它就能自動補上你沒說的背景。</strong>這就是「信任」值錢的地方。
+        </div>
+      </div>
+
+      <div class="analogy-card">
+        <div class="analogy-icon">👫</div>
+        <div class="analogy-label">類比 3</div>
+        <div class="analogy-title">像跟一個老朋友說話</div>
+        <div class="analogy-body">
+          你跟剛認識的人說「我最近有點煩」，他只能說「怎麼了？」
+          <br><br>
+          但你跟認識十年的老友說這句話，<strong>他馬上知道你在說什麼、要怎麼幫你，甚至直接說出你沒說完的那半句話。</strong>
+          任信點點就是讓 MUSEON 成為你的老朋友的機制。
+        </div>
+      </div>
+
+      <div class="analogy-card">
+        <div class="analogy-icon">🏦</div>
+        <div class="analogy-label">類比 4</div>
+        <div class="analogy-title">像往銀行帳戶存信任</div>
+        <div class="analogy-body">
+          你每次真實地跟 MUSEON 互動，等於把一點「信任存款」放進去。
+          <br><br>
+          <strong>存款越多，你能借出來的「理解力」就越大：</strong>它更能預測你要什麼、更願意主動提出你還沒想到的建議、更少問你「你是什麼意思」這種廢話問題。
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="warning-box">
+      <p>⚠️ <strong>跟普通訂閱的最大差別：</strong>一般訂閱買了就用，每個人拿到的功能一樣。任信點點設計的是「用越多、越個人化」——你的 MUSEON 跟別人的 MUSEON 會長得不一樣。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     SECTION 2：點數怎麼算？
+=============================== -->
+<section>
+  <div class="container">
+    <div class="tag" style="margin-bottom:16px;">Part 2</div>
+    <h2>點數怎麼<span class="accent">扣、怎麼用？</span></h2>
+    <p class="section-lead">
+      你問一個問題，MUSEON 在背後做的事情比你想的多很多。
+      每一個動作都有對應的「思考成本」，這就是為什麼需要點數——它代表的是 MUSEON 為你付出的實際計算資源。
+    </p>
+
+    <table class="compare-table" style="margin-bottom:32px;">
+      <thead>
+        <tr>
+          <th>你做的事</th>
+          <th>MUSEON 背後做的事</th>
+          <th>點數消耗</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>隨便問一個問題</td>
+          <td>快速查記憶、直接回答</td>
+          <td class="highlight">低（快速模式）</td>
+        </tr>
+        <tr>
+          <td>問一個複雜的商業問題</td>
+          <td>調用多個分析工具、比對資料、多角度思考</td>
+          <td class="highlight">中（探索模式）</td>
+        </tr>
+        <tr>
+          <td>要一份完整報告</td>
+          <td>搜尋資料、三角驗證、排版成 HTML、美感審計</td>
+          <td class="highlight">高（深度模式）</td>
+        </tr>
+        <tr>
+          <td>日常閒聊確認</td>
+          <td>查記憶、快速判斷、簡短回覆</td>
+          <td class="dim">最低</td>
+        </tr>
+        <tr>
+          <td>要求深度分析 + 設計建議</td>
+          <td>同時啟動多個 Skill、跨領域協作</td>
+          <td class="highlight">最高（慢思模式）</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="info-box">
+      <p>💡 <strong>白話翻譯：</strong>MUSEON 有三個「思考檔位」——快速、探索、深度。問簡單的用快速，省點數；要報告用深度，費點數。你可以自己決定用哪個檔位，或讓它自動選。</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <h3>信任等級：用越多、解鎖越多</h3>
+    <p style="margin-bottom:24px;">MUSEON 會根據你的累積互動，慢慢升級對你的「了解程度」。你不需要做任何特別的事，只要持續真實地使用就會自動提升。</p>
+
+    <div class="trust-meter">
+      <h3 style="margin-bottom:4px;">你的信任成長路徑</h3>
+      <p style="font-size:14px; color:var(--slate); margin-bottom:0;">互動越多，MUSEON 越懂你</p>
+      <div class="trust-levels" style="max-width:600px; margin:24px auto 0;">
+        <div class="trust-level">
+          <div class="trust-level-label">剛認識</div>
+          <div class="trust-bar-wrap"><div class="trust-bar" style="width:15%"></div></div>
+          <div class="trust-level-pts">Lv.1</div>
+          <div class="trust-level-perk">一般 AI 的能力</div>
+        </div>
+        <div class="trust-level">
+          <div class="trust-level-label">熟悉了</div>
+          <div class="trust-bar-wrap"><div class="trust-bar" style="width:35%"></div></div>
+          <div class="trust-level-pts">Lv.2</div>
+          <div class="trust-level-perk">記得你的偏好與背景</div>
+        </div>
+        <div class="trust-level">
+          <div class="trust-level-label">老朋友</div>
+          <div class="trust-bar-wrap"><div class="trust-bar" style="width:60%"></div></div>
+          <div class="trust-level-pts">Lv.3</div>
+          <div class="trust-level-perk">主動預測你的需求</div>
+        </div>
+        <div class="trust-level">
+          <div class="trust-level-label">深度夥伴</div>
+          <div class="trust-bar-wrap"><div class="trust-bar" style="width:85%"></div></div>
+          <div class="trust-level-pts">Lv.4</div>
+          <div class="trust-level-perk">協同你制定長期戰略</div>
+        </div>
+        <div class="trust-level">
+          <div class="trust-level-label">共同演化</div>
+          <div class="trust-bar-wrap"><div class="trust-bar" style="width:100%"></div></div>
+          <div class="trust-level-pts">Lv.5</div>
+          <div class="trust-level-perk">你的 AI 助理，完全個人化</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     SECTION 3：實際場景
+=============================== -->
+<section>
+  <div class="container">
+    <div class="tag" style="margin-bottom:16px;">Part 3</div>
+    <h2>真實情境<span class="accent">示範</span></h2>
+    <p class="section-lead">
+      與其解釋，不如直接看對話。以下是三個你可能遇到的場景，
+      點數在背後怎麼運作，一目瞭然。
+    </p>
+
+    <!-- Scenario 1 -->
+    <div class="scenario">
+      <div class="scenario-tag user">場景 A ── 快速問答</div>
+      <p style="font-size:13px; color:var(--slate); margin-bottom:20px;">你只是想快速確認一件事，不需要深度分析。</p>
+      <div class="scenario-dialogue">
+        <div class="bubble user-b">今天要見一個客戶，他是傳統製造業老闆，我該注意什麼？</div>
+        <div class="bubble museon-b">
+          根據你上次說的，你跟傳統產業老闆溝通偏好「先講數字再講故事」。
+          這次建議：開場提毛利改善的具體數字，再帶出 AI 如何實現那個數字。
+          另外，他的行業通常在意「不懂 AI 也能用」，避免講太多技術詞彙。
+          <span class="pts">-2 pts</span>
+        </div>
+      </div>
+      <div style="margin-top:16px; padding:12px 16px; background:rgba(42,122,110,0.06); border-radius:8px; border-left:3px solid var(--teal);">
+        <p style="font-size:13px; color:var(--teal); margin:0;"><strong>發生了什麼？</strong> MUSEON 從記憶裡調出你過去分享的溝通偏好，自動補上你沒說的背景。這是 Lv.3 以上才有的能力。扣了 2 點。</p>
+      </div>
+    </div>
+
+    <!-- Scenario 2 -->
+    <div class="scenario">
+      <div class="scenario-tag system">場景 B ── 深度分析</div>
+      <p style="font-size:13px; color:var(--slate); margin-bottom:20px;">你要做一個重要決策，需要完整的分析報告。</p>
+      <div class="scenario-dialogue">
+        <div class="bubble user-b">幫我分析台灣美業市場，我在考慮要不要切入這塊。</div>
+        <div class="bubble museon-b">
+          這個問題我用「深度模式」跑——會搜尋市場數據、三角驗證數字、
+          從三個角色（老闆/財務/營運）各自解讀，最後產出完整 HTML 報告。
+          預計消耗 25-35 點，要繼續嗎？
+          <span class="pts">確認中...</span>
+        </div>
+        <div class="bubble user-b">好，做吧。</div>
+        <div class="bubble museon-b">
+          [正在搜尋 2026 台灣美業市場數據...] 找到 8 個來源，
+          發現市場規模與毛利率有分歧，進行三角驗證中...
+          完成。報告已產出，連結如下 ↓ 點數消耗：28 pts
+          <span class="pts">-28 pts</span>
+        </div>
+      </div>
+      <div style="margin-top:16px; padding:12px 16px; background:rgba(196,80,42,0.06); border-radius:8px; border-left:3px solid var(--ember);">
+        <p style="font-size:13px; color:var(--ember-dark); margin:0;"><strong>發生了什麼？</strong> 深度模式啟動了多個 Skill（見下方說明），搜尋 + 分析 + 排版 + 美感審計全部自動完成。費用在動工前先告知，你同意再扣。</p>
+      </div>
+    </div>
+
+    <!-- Scenario 3 -->
+    <div class="scenario">
+      <div class="scenario-tag user">場景 C ── 主動提醒（Lv.4 專屬）</div>
+      <p style="font-size:13px; color:var(--slate); margin-bottom:20px;">你沒問，MUSEON 主動說。</p>
+      <div class="scenario-dialogue">
+        <div class="bubble museon-b">
+          早安，Zeal。根據你上週說的客戶拜訪計畫，今天下午 3 點你有個 Demo——
+          我注意到你還沒準備展示材料。要我現在幫你把上週的報告整理成 5 分鐘版本嗎？
+          <span class="pts">主動提醒</span>
+        </div>
+        <div class="bubble user-b">好，幫我弄。</div>
+        <div class="bubble museon-b">
+          整理完了，三張投影片摘要已放在你的文件夾。
+          第一張是客戶痛點，第二張是解法，第三張是下一步行動。
+          <span class="pts">-5 pts</span>
+        </div>
+      </div>
+      <div style="margin-top:16px; padding:12px 16px; background:rgba(184,146,58,0.06); border-radius:8px; border-left:3px solid var(--gold);">
+        <p style="font-size:13px; color:var(--gold); margin:0;"><strong>發生了什麼？</strong> 這是深度信任才有的「主動記憶」——MUSEON 記得你說過的事，在對的時機提醒你，不等你問。這是一般訂閱制 AI 完全做不到的。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     SECTION 4：調用了哪些 Skill？
+=============================== -->
+<section style="background: var(--deep-ink); padding: 64px 0;">
+  <div class="container">
+    <div class="tag" style="background:rgba(196,80,42,0.2); color:var(--ember-light); margin-bottom:16px;">Part 4</div>
+    <h2 style="color:var(--snow);">背後在運作的<span style="color:var(--ember-light);">能力引擎</span></h2>
+    <p style="font-size:18px; color:rgba(253,252,250,0.6); line-height:1.8; margin-bottom:40px;">
+      「Skill」是 MUSEON 的專業工具模組，就像你手機裡的 App，每個 Skill 專門做一件事，
+      任信點點啟動時會自動呼叫需要的那幾個。以下逐一說明。
+    </p>
+
+    <div class="card-grid card-grid-2" style="gap:16px;">
+      <div class="skill-card">
+        <div class="skill-badge">user-model</div>
+        <div class="skill-name">使用者畫像引擎</div>
+        <div class="skill-tagline">「它在替你建立一張動態的個人說明書」</div>
+        <div class="skill-desc">
+          每次你跟 MUSEON 說話，這個模組就在背後默默紀錄：你喜歡哪種溝通風格、
+          你的行業背景、你常用的詞彙、你做決策的習慣。
+          <br><br>
+          <strong>白話比喻：</strong>就像你第一次去一間常去的咖啡廳，老闆只是點頭打招呼；
+          去了一百次以後，你走進去他就知道你要什麼了。這個 Skill 就在做這件事。
+        </div>
+      </div>
+
+      <div class="skill-card">
+        <div class="skill-badge">knowledge-lattice</div>
+        <div class="skill-name">知識晶格</div>
+        <div class="skill-tagline">「它在替你建一個會自己成長的知識庫」</div>
+        <div class="skill-desc">
+          你每次跟 MUSEON 討論的想法、做的決定、學到的東西，
+          都會被它萃取成「結晶」，存進你的個人知識網絡。
+          <br><br>
+          <strong>白話比喻：</strong>普通筆記軟體是你把東西放進去它幫你存；
+          知識晶格是它主動幫你發現「這個想法跟你三週前說的那個想法有關聯」，
+          然後自動連起來，下次你要用就直接調。
+        </div>
+      </div>
+
+      <div class="skill-card">
+        <div class="skill-badge">memory-manager</div>
+        <div class="skill-name">記憶管理系統</div>
+        <div class="skill-tagline">「它讓 MUSEON 記住該記的、忘掉不重要的」</div>
+        <div class="skill-desc">
+          MUSEON 有六層記憶系統（短期 → 長期 → 深度 → 核心身份），
+          這個模組決定什麼事情該存進長期記憶，什麼事情用完就丟。
+          <br><br>
+          <strong>白話比喻：</strong>就像你的大腦——你不會記住今天吃飯咬了幾口，
+          但你會記住第一次創業失敗的感受。記憶管理系統在幫 MUSEON 做同樣的判斷。
+        </div>
+      </div>
+
+      <div class="skill-card">
+        <div class="skill-badge">eval-engine</div>
+        <div class="skill-name">效能評估引擎</div>
+        <div class="skill-tagline">「它在替你把關答案的品質」</div>
+        <div class="skill-desc">
+          每次 MUSEON 給你一個答案，這個模組在背後評分：
+          這個回答夠不夠清楚？夠不夠具體？對你有沒有實際幫助？
+          <br><br>
+          <strong>白話比喻：</strong>就像一個嚴格的編輯，在文章發出去之前先看過一遍，
+          發現廢話就刪掉，發現重點沒說清楚就打回去重寫。
+          這個 Skill 讓你花同樣的點數拿到更好的答案。
+        </div>
+      </div>
+
+      <div class="skill-card">
+        <div class="skill-badge">deep-think</div>
+        <div class="skill-name">深度思考引擎</div>
+        <div class="skill-tagline">「讓 MUSEON『想過才說』，不是反射回答」</div>
+        <div class="skill-desc">
+          這是 MUSEON 最核心的品質控制機制。在給你答案之前，
+          它會先做一輪「五道自我審查」：我真的理解這個問題嗎？
+          我的假設正確嗎？有沒有更好的角度？
+          <br><br>
+          <strong>白話比喻：</strong>大部分 AI 像是衝動型的朋友，你問什麼就馬上回；
+          MUSEON 更像是那種會想一秒再開口的人——那一秒的差距，就是答案品質的差距。
+        </div>
+      </div>
+
+      <div class="skill-card">
+        <div class="skill-badge">report-forge</div>
+        <div class="skill-name">報告鍛造引擎</div>
+        <div class="skill-tagline">「把對話變成可以拿出去用的正式文件」</div>
+        <div class="skill-desc">
+          當你需要一份可以給客戶看的報告，這個模組負責：
+          搜尋資料、驗證數據、排版成美觀的 HTML、加上品牌視覺。
+          <br><br>
+          <strong>白話比喻：</strong>你告訴一個助理「我要一份餐飲業分析報告」，
+          普通助理給你一個 Word 文件；Report-Forge 給你一份連排版都是專業等級的診斷書，
+          可以直接交給客戶收費。
+        </div>
+      </div>
+
+      <div class="skill-card">
+        <div class="skill-badge">morphenix</div>
+        <div class="skill-name">自主進化引擎</div>
+        <div class="skill-tagline">「MUSEON 會觀察自己哪裡不好、然後自己變好」</div>
+        <div class="skill-desc">
+          這個模組讓 MUSEON 不只是工具，而是會成長的系統。
+          它觀察哪些回答你不滿意、哪些功能沒被用到、哪裡可以改，
+          然後主動向你提案迭代方向。
+          <br><br>
+          <strong>白話比喻：</strong>一般 App 的功能是固定的，你用五年功能還是一樣；
+          MUSEON 每週都在根據你的使用方式微調自己。你越用，它越適合你。
+        </div>
+      </div>
+
+      <div class="skill-card">
+        <div class="skill-badge">aesthetic-sense</div>
+        <div class="skill-name">美感審計引擎</div>
+        <div class="skill-tagline">「確保每份對外輸出都有專業質感」</div>
+        <div class="skill-desc">
+          在任何報告、文件、視覺素材對外輸出之前，
+          這個模組會做最後一關審查：色彩對不對？留白夠不夠？
+          字型選得好嗎？整體感覺符合品牌嗎？
+          <br><br>
+          <strong>白話比喻：</strong>就像一個有品味的設計師朋友，
+          你把東西給他看之前，他會掃一眼說「這個字太擠了，這個顏色太刺眼」，
+          然後幫你改好再發出去。
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:32px; padding:24px; background:rgba(253,252,250,0.04); border:1px solid rgba(253,252,250,0.08); border-radius:10px;">
+      <p style="color:rgba(253,252,250,0.6); font-size:14px; margin:0; line-height:1.8;">
+        ℹ️ 以上這些 Skill 在你使用任信點點時，<strong style="color:rgba(253,252,250,0.85);">會根據你的問題類型自動選擇需要的幾個</strong>——你不需要手動選，也不需要知道它叫什麼名字。
+        點數消耗會根據「啟動了幾個 Skill、每個 Skill 做了多少事」來計算。
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     SECTION 5：點數怎麼取得？
+=============================== -->
+<section>
+  <div class="container">
+    <div class="tag" style="margin-bottom:16px;">Part 5</div>
+    <h2>點數怎麼<span class="accent">取得？</span></h2>
+    <p class="section-lead">
+      點數有兩種來源：你直接購買，或者系統根據你的使用行為回饋給你。
+    </p>
+
+    <div class="card-grid card-grid-2" style="gap:16px; margin-bottom:24px;">
+      <div class="card">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+          <div style="width:40px; height:40px; border-radius:8px; background:rgba(196,80,42,0.1); display:flex; align-items:center; justify-content:center; font-size:20px;">💰</div>
+          <h3 style="margin:0; font-size:18px;">直接購買</h3>
+        </div>
+        <p style="font-size:15px;">你可以選擇一次性儲值，或設定每月自動扣款（訂閱制）。點數不會過期，用多少算多少。</p>
+        <div class="info-box" style="margin-top:16px;">
+          <p style="font-size:13px;"><strong>每月自動扣款：</strong>設定好之後不用每次手動充值，系統在月初自動補滿你的帳戶，適合每天都在用的人。</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+          <div style="width:40px; height:40px; border-radius:8px; background:rgba(42,122,110,0.1); display:flex; align-items:center; justify-content:center; font-size:20px;">🎁</div>
+          <h3 style="margin:0; font-size:18px;">行為回饋</h3>
+        </div>
+        <p style="font-size:15px;">某些行為會讓系統回饋點數給你：成功邀請新用戶、完成深度互動任務、提供有價值的回饋等。</p>
+        <div class="info-box" style="background:rgba(42,122,110,0.06); border-color:rgba(42,122,110,0.2); border-left-color:var(--teal); margin-top:16px;">
+          <p style="font-size:13px; color:var(--teal);"><strong>設計邏輯：</strong>我們希望越認真使用的人成本越低——因為你的真實使用幫助 MUSEON 學到更多。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="warning-box">
+      <p>💬 <strong>關於每月自動扣款：</strong>目前自動扣款需要個別申請設定，尚未做到全自動化。如果你想啟用，請聯繫我們手動開通。這個功能我們正在改進中。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     SECTION 6：FAQ
+=============================== -->
+<section>
+  <div class="container">
+    <div class="tag" style="margin-bottom:16px;">Part 6</div>
+    <h2>你一定<span class="accent">有的疑問</span></h2>
+    <p class="section-lead">
+      以下是最常被問到的問題，全部用最白話的方式回答。
+    </p>
+
+    <div class="faq-item">
+      <div class="faq-q">點數會過期嗎？</div>
+      <div class="faq-a">
+        不會。你買的點數就是你的資產，不設使用期限。你三個月沒用，點數還在。
+        <br><br>
+        <strong>唯一的例外：</strong>如果你的帳號超過一年完全沒有任何互動記錄，系統會在到期前 30 天通知你確認帳戶狀態。
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">我怎麼知道一次問題會花多少點？</div>
+      <div class="faq-a">
+        如果 MUSEON 判斷這個問題需要超過 10 點，它會<strong>先告訴你預計費用，等你確認再動工</strong>。
+        快速問答通常 1-5 點，深度報告 20-40 點。你隨時可以問「現在我還剩幾點？」
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">這跟 ChatGPT Plus 訂閱有什麼不同？</div>
+      <div class="faq-a">
+        最關鍵的差別是<strong>記憶和個人化</strong>。ChatGPT 每次對話都從零開始，它不記得你是誰、你做什麼、你上次說什麼。
+        <br><br>
+        任信點點的設計是讓 MUSEON <strong>持續認識你</strong>——你用越久，它越懂你的習慣、語言、偏好。
+        你不需要每次都重新介紹自己是誰、在做什麼事業。
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">點數不夠了會怎樣？</div>
+      <div class="faq-a">
+        點數不足時，MUSEON 不會突然斷線或不理你。它會<strong>自動切換到低消耗模式</strong>——
+        繼續回答你的問題，但不啟動需要大量計算的深度分析功能。
+        <br><br>
+        就像你手機快沒電時，不是直接關機，而是先關掉耗電的 App，讓你能繼續打電話。
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">我的資料和記憶安全嗎？</div>
+      <div class="faq-a">
+        你的所有記憶和對話資料都存在你自己的帳戶下，MUSEON 不會把你的資料用於訓練其他人的模型，
+        也不會分享給第三方。
+        <br><br>
+        你可以隨時要求查看 MUSEON 記住了你什麼、要求刪除特定記憶，或一鍵清除所有記憶重新開始。
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">如果我不滿意 MUSEON 的答案，可以要求退點數嗎？</div>
+      <div class="faq-a">
+        可以。如果你覺得 MUSEON 的回答沒有達到你的預期，你可以直接說「這個回答不夠好，我想要退點」。
+        MUSEON 會評估後決定退還部分或全部點數。
+        <br><br>
+        <strong>這是設計的一部分：</strong>讓你放心投入點數，不用擔心「萬一它給我垃圾答案我不是虧了」。
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">這個系統適合我嗎？我只是偶爾用一下。</div>
+      <div class="faq-a">
+        偶爾用一下當然也沒問題，只是你可能感受不到「越用越懂你」的好處。
+        <br><br>
+        <strong>最能感受到價值的情況是：</strong>你有固定的工作場景（例如每週要做客戶報告、每天要回答商業問題、長期在做某個專案），讓 MUSEON 能夠持續累積你的脈絡。
+        <br><br>
+        如果你只是偶爾問一個問題，其實用一般 AI 工具就夠了——任信點點的設計是為「長期合作關係」優化的，不是為「一次性服務」。
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     SECTION 7：一張圖說清楚
+=============================== -->
+<section style="background:var(--ink); padding:64px 0;">
+  <div class="container">
+    <div class="tag" style="background:rgba(196,80,42,0.2); color:var(--ember-light); margin-bottom:16px;">設計哲學</div>
+    <h2 style="color:var(--snow); margin-bottom:16px;">為什麼這樣設計？</h2>
+    <p style="font-size:18px; color:rgba(253,252,250,0.6); line-height:1.8; margin-bottom:40px;">
+      大部分 AI 服務的邏輯是：你給錢，我提供服務，每個月重置，跟陌生人一樣。
+      <br>任信點點的邏輯是：你投入時間和對話，我記住你，關係越來越深。
+    </p>
+
+    <div class="card-grid card-grid-3" style="gap:16px;">
+      <div style="padding:24px; background:rgba(253,252,250,0.04); border:1px solid rgba(253,252,250,0.08); border-radius:10px; text-align:center;">
+        <div style="font-size:36px; margin-bottom:12px;">🌱</div>
+        <div style="font-size:16px; font-weight:600; color:var(--snow); margin-bottom:8px;">剛開始</div>
+        <div style="font-size:14px; color:rgba(253,252,250,0.5); line-height:1.7;">MUSEON 不認識你，給的是通用的高品質回答。比 ChatGPT 好，但還沒到個人化。</div>
+      </div>
+
+      <div style="padding:24px; background:rgba(196,80,42,0.08); border:1px solid rgba(196,80,42,0.2); border-radius:10px; text-align:center;">
+        <div style="font-size:36px; margin-bottom:12px;">🌿</div>
+        <div style="font-size:16px; font-weight:600; color:var(--snow); margin-bottom:8px;">用了 1-2 個月</div>
+        <div style="font-size:14px; color:rgba(253,252,250,0.65); line-height:1.7;">MUSEON 記住了你的背景、偏好、常問的問題類型。答案開始感覺「就是在對我說話」。</div>
+      </div>
+
+      <div style="padding:24px; background:rgba(42,122,110,0.08); border:1px solid rgba(42,122,110,0.2); border-radius:10px; text-align:center;">
+        <div style="font-size:36px; margin-bottom:12px;">🌳</div>
+        <div style="font-size:16px; font-weight:600; color:var(--snow); margin-bottom:8px;">長期使用</div>
+        <div style="font-size:14px; color:rgba(253,252,250,0.65); line-height:1.7;">MUSEON 開始主動提醒你、預測你的需求、在你沒問的時候幫你想到下一步。真正的 AI 助理。</div>
+      </div>
+    </div>
+
+    <div style="margin-top:40px; text-align:center;">
+      <p style="font-size:20px; color:rgba(253,252,250,0.5); font-style:italic;">
+        「一般 AI 是工具，任信點點讓 MUSEON 成為你的夥伴。」
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     FOOTER
+=============================== -->
+<footer>
+  <div class="container">
+    <div class="footer-brand">MUSEON · <em>任信點點</em></div>
+    <p>說明文件版本 v1.0 ／ 2026 年 3 月</p>
+    <p style="margin-top:8px;">本文件使用 MUSEON Report-Forge、User-Model、Aesthetic-Sense 等 Skill 協同產出。</p>
+    <p style="margin-top:16px; font-size:12px; color:rgba(253,252,250,0.2);">
+      本說明文件為 MUSEON 任信點點機制的白話介紹，設計邏輯與功能說明如有更新，以最新版本為準。
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>
