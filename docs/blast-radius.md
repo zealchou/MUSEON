@@ -1,10 +1,11 @@
-# Blast Radius — 模組影響半徑表 v1.45
+# Blast Radius — 模組影響半徑表 v1.46
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節
+> **v1.46 (2026-03-22)**：P0-P3 升級——report-forge 新增 crystal.db 寫入依賴（via knowledge-lattice API，report_crystal 結晶化）；token_optimizer.py buffer 預算 2800→1800（strategic zone 1000 新增）；brain.py 新增 `_build_strategic_context()`（純新增方法，不改既有流程）；anima_mc_store.py/pulse_engine.py 新增 `_backup_before_write()`/`_backup_pulse_md()`（寫入前快照，新增共享狀態 `_system/backups/`）；plan_engine.py bug 修復（plan.changes → plan.change_list，純內部修正）
 > **v1.44 (2026-03-22)**：InteractionRequest 跨通道互動層——新增 `gateway/interaction.py`（InteractionQueue，扇入 4：telegram/discord/line callback + server.py message pump）；`gateway/message.py` 純新增 3 個 dataclass（ChoiceOption/InteractionRequest/InteractionResponse）+ BrainResponse.interaction 欄位（不改現有消費者）；`channels/base.py` 新增 `present_choices()` 非抽象方法（帶 fallback，不影響現有 8 adapter）；`channels/telegram.py` 新增 CallbackQueryHandler `choice:` prefix + `present_choices()` 覆寫 + freetext 攔截（不改現有 `pair:/auth:/morphenix:` handlers）；`channels/discord.py` 新增 `present_choices()` + Button/Select View；新增 `channels/line.py`（LINE adapter，扇入 0）；`gateway/server.py` message pump 新增互動攔截邏輯（BrainResponse.has_interaction() → present → wait → followup）
 > **v1.43 (2026-03-22)**：Recommender 激活修復——`agent/recommender.py` 資料來源從過時的 JSON 掃描（`data/crystals/*.json` + `data/skills/*.json` + `_system/knowledge_graph.json`）改為 CrystalStore API（`load_crystals_raw()` + `load_links()`）；`__init__()` 新增 `crystal_store` 參數（取代 `memory_manager`）；互動歷史路徑從 `_system/recommendations/` 改為 `data/_system/recommendations/`；`_save_interactions()` 改用原子寫入（tmp→rename）；`brain.py` `__init__()` 新增 `_recommender` 初始化（~L320，降級保護）+ init log 新增 recommender 狀態；`server.py` `/api/recommendations` 改用 Brain 常駐實例（移除每次重新實例化模式）；扇入 0→1（brain.py import），新增共享狀態 `_system/recommendations/interactions.json`
 > **v1.42 (2026-03-22)**：Workflow Hub 健康檢查——P0: 清除「案例結晶」幽靈殘留（Qdrant skills 1 筆、synapses.json 8 筆、PulseDB metacognition 3 筆），Business Hub 修復漏清下游資料池的根因補完；P0b: `evolution/skill_synapse.py` co_fire() 新增 Skill 名稱合法性驗證（regex `^[a-z][a-z0-9\-]{0,60}$`），防止非法名稱建立突觸；P1: `agent/brain.py` `_dispatch_orchestrate` 排除 `type: workflow` 的 Skill 不注入 Orchestrator skill_roster（Workflow 是編排範本非 Worker 候選），`_parse_orchestrator_response` 改用 worker_skills 驗證；P2: `agent/metacognition.py` `_emit_quality_flag` 新增 `_WORKFLOW_SKILL_NAMES` 白名單，過濾 workflow 類 Skill 不計入品質旗標，missing_action 類別且全為 workflow 時跳過發布；扇入扇出不變、無新增 import/共享狀態
@@ -222,7 +223,7 @@
 | ✅ 安全 | ❌ 危險 |
 |---------|---------|
 | 修改 `_chat()` 的回應後處理 | 修改 `__init__()` 的初始化順序 |
-| 新增獨立觀察方法（如 `_handle_fact_correction()`, `_observe_lord()`, `_observe_external_user()`, `_classify_p0_signal()`, `_detect_fact_correction()`, `_build_environment_awareness()`, `_build_self_modification_protocol()`） | 修改 `_build_soul_context()` |
+| 新增獨立觀察方法（如 `_handle_fact_correction()`, `_observe_lord()`, `_observe_external_user()`, `_classify_p0_signal()`, `_detect_fact_correction()`, `_build_environment_awareness()`, `_build_self_modification_protocol()`, `_build_strategic_context()`） | 修改 `_build_soul_context()` |
 | Step 8 trace_decision/trace_cognitive 呼叫（純寫入足跡） | 修改 trace 呼叫的觸發條件 |
 | 修改日誌格式 | 修改 `_save_anima_mc()` / `_load_anima_mc()` |
 | — | 修改 `_anima_mc_lock` 鎖策略 |
@@ -464,7 +465,7 @@
 
 | 影響類型 | 範圍 |
 |---------|------|
-| 共享狀態寫入 | PULSE.md（7 種寫入方法）、question_queue.json(R) |
+| 共享狀態寫入 | PULSE.md（7 種寫入方法）、question_queue.json(R)、`_system/backups/pulse_md/`（寫入前快照） |
 | 事件發布 | EXPLORATION_CRYSTALLIZED, EXPLORATION_INSIGHT, PROACTIVE_MESSAGE, PULSE_EXPLORATION_DONE |
 | 下游影響 | brain.py（透過 PULSE.md → system prompt）、exploration_bridge、curiosity_router |
 
@@ -484,13 +485,13 @@
 | 屬性 | 值 |
 |------|-----|
 | **扇入** | 4（brain, anima_tracker, micro_pulse, server） |
-| **角色** | ANIMA_MC.json 統一存取層（合約 1） |
+| **角色** | ANIMA_MC.json 統一存取層（合約 1）+ 寫入前快照備份 |
 
 #### 影響半徑
 
 | 影響類型 | 範圍 |
 |---------|------|
-| 共享狀態 | ANIMA_MC.json — **所有讀寫的唯一入口** |
+| 共享狀態 | ANIMA_MC.json — **所有讀寫的唯一入口**；`_system/backups/anima_mc/`（寫入前快照） |
 | 上游依賴 | brain.py, anima_tracker.py, micro_pulse.py, server.py |
 | 鎖機制 | ✅ `threading.Lock` + KernelGuard + 原子寫入（三重保護） |
 
@@ -778,6 +779,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-22 | v1.46 | P0-P3 升級——report-forge Skill 新增 knowledge-lattice 輸出依賴（report_crystal 結晶化，via knowledge-lattice API，不改 report-forge 扇入扇出）；token_optimizer.py buffer 預算 2800→1800 + strategic zone 1000 新增（brain.py `_build_strategic_context()` 純新增方法）；anima_mc_store.py 共享狀態新增 `_system/backups/anima_mc/`（寫入前快照）；pulse_engine.py 共享狀態新增 `_system/backups/pulse_md/`（寫入前快照）；plan_engine.py bug 修復 plan.changes→plan.change_list（純內部修正，扇入不變）；共享狀態 33→34 |
 | 2026-03-22 | v1.45 | 經驗諮詢閘門——brain.py 共享狀態讀取新增 activity_log.jsonl(R)；knowledge_lattice.py 新增 recall_procedures() 方法（RO）+再結晶 Lesson↔Procedure 升降級規則；crystal_store.py schema 新增 4 欄位（向後相容 ALTER TABLE）；activity_logger.py 新增 search() 方法（純讀） |
 | 2026-03-22 | v1.43 | Recommender 激活修復：`agent/recommender.py` 從綠區扇入 0→1（brain.py import）；資料來源從過時 JSON 掃描改為 CrystalStore API；brain.py 新增 `_recommender` 初始化 + init log；server.py API 改用常駐實例；新增共享狀態 `_system/recommendations/interactions.json`；G5 知識晶格組 recommender 接線正式啟用 |
 | 2026-03-22 | v1.41 | Knowledge Lattice 持久層遷移：新增 `agent/crystal_store.py` 到綠區（扇入=2，CrystalStore SQLite WAL + threading.Lock 統一存取層）；G5 知識晶格組新增 crystal_store，共享狀態從 crystals.json 改為 crystal.db (via CrystalStore)；G8 衰減組同步更新；evolution_velocity、guardian/daemon、system_audit、nightly_pipeline、wee_engine 共享狀態引用從 crystals.json 改為 crystal.db；同步 persistence-contract v1.26、joint-map v1.29、system-topology v1.31 |

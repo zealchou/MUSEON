@@ -1392,11 +1392,11 @@ class PlanEngine:
 
         # Pass 3: 如果計畫有 changes 清單，標記超出範圍的任務
         # （保守策略：只 log 警告，不自動移除，避免誤判）
-        if plan.changes:
+        if plan.change_list:
             change_keywords = set()
-            for c in plan.changes:
+            for c in plan.change_list:
                 # 從 change 描述中提取關鍵詞
-                words = re.findall(r"[\w\u4e00-\u9fff]+", c.file_path or "")
+                words = re.findall(r"[\w\u4e00-\u9fff]+", c.path or "")
                 words += re.findall(r"[\w\u4e00-\u9fff]+", c.description or "")
                 change_keywords.update(w.lower() for w in words if len(w) > 2)
 

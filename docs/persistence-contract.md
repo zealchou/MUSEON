@@ -1,4 +1,4 @@
-# MUSEON Persistence Contract v1.27 — 水電圖
+# MUSEON Persistence Contract v1.28 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
@@ -207,6 +207,26 @@ Guardian Daemon (launchd 常駐)
     ├──→ data/_system/guardian/state.json  [JSON W]
     └──→ data/_system/guardian/mothership_queue.json  [JSON W]
 ```
+
+### 管線 F-2：寫入前快照備份管線（P3-1 新增）
+
+```
+寫入前觸發（ANIMA_MC / PULSE.md）
+    │
+    ├──→ AnimaMCStore._backup_before_write()
+    │       ──→ data/_system/backups/anima_mc/ANIMA_MC_{timestamp}.json  [JSON]
+    │       保留最近 10 份快照
+    │
+    └──→ PulseEngine._backup_pulse_md()
+            ──→ data/_system/backups/pulse_md/PULSE_{timestamp}.md  [Markdown]
+            保留最近 10 份快照
+```
+
+**寫入→消費鏈**：
+| 資料 | 寫入者 | 消費者 | TTL |
+|------|--------|--------|-----|
+| `_system/backups/anima_mc/*.json` | AnimaMCStore._backup_before_write() | 手動恢復 | 保留 10 份（FIFO 輪替） |
+| `_system/backups/pulse_md/*.md` | PulseEngine._backup_pulse_md() | 手動恢復 | 保留 10 份（FIFO 輪替） |
 
 ### 管線 G：Federation 聯邦管線
 
@@ -447,6 +467,23 @@ recommender ──近因性衰減──→ 推薦排序 (in-memory)
 | `_system/lord_profile.json` | `agent/brain.py` (`_observe_lord()`) | 主人領域強弱項畫像（軍師架構基礎層） |
 | `_system/baihe_cache.json` | `agent/brain.py` (Step 3.65 百合引擎) | 百合引擎最近決策快取——供 ProactiveBridge 讀取象限調整推送語氣（原子寫入 tmp→rename） |
 | `_system/budget/usage_{month}.json` | `llm/budget.py` | 月度 Token 用量 |
+| `_system/backups/anima_mc/*.json` | `pulse/anima_mc_store.py` | ANIMA_MC 寫入前快照（保留 10 份） |
+| `_system/backups/pulse_md/*.md` | `pulse/pulse_engine.py` | PULSE.md 寫入前快照（保留 10 份） |
+
+### Brain Token 預算分配（P2-1 更新）
+
+> `token_optimizer.py` 管理 system prompt 的 token 區段預算。v1.28 新增第 6 區段 Strategic Zone。
+
+| Zone | 預算 (tokens) | 用途 | 負責模組 |
+|------|--------------|------|---------|
+| Core Identity | 1200 | 身份+人格 | brain.py |
+| Memory | 2000 | 六層記憶注入 | brain.py |
+| Soul Context | 1500 | PULSE.md + 日記 | brain.py |
+| Skills | 800 | 技能上下文 | brain.py |
+| Buffer | 1800 | 預留彈性空間（原 2800，P2-1 壓縮） | brain.py |
+| **Strategic** | **1000** | **決策夥伴策略上下文（P2-1 新增）** | **brain.py `_build_strategic_context()`** |
+
+> **注意**：Strategic Zone 為記憶體內 token 預算分配，不產生持久化資料。`_build_strategic_context()` 從 ANIMA_MC.json、lord_profile.json 等既有持久層讀取並組裝。
 
 ### `~/.museon/auth/` 子目錄（Runtime 授權狀態）
 
@@ -608,6 +645,7 @@ recommender ──近因性衰減──→ 推薦排序 (in-memory)
 | v1.0 | 2026-03-15 | 初版：完整水電圖，涵蓋 23 個正常配對、3 個 Dead Write、14 個死目錄 |
 | v1.1 | 2026-03-15 | Phase 2 完成：4 個 JSON 遷移至 PulseDB（ceremony_state + eval 三件套） |
 | v1.2 | 2026-03-15 | Phase 3 完成：DataContract + DataBus 建立，10 個 Store 類統一接入 |
+| v1.28 | 2026-03-22 | P0-P3 升級——新增管線 F-2 寫入前快照備份（ANIMA_MC 寫入前快照 `_system/backups/anima_mc/` + PULSE.md 寫入前快照 `_system/backups/pulse_md/`，各保留 10 份 FIFO 輪替）；Brain Token 預算新增第 6 區段 Strategic Zone（1000 tokens，buffer 2800→1800）；`_system/` 子目錄新增 backups 兩個路徑條目；同步 system-topology v1.35、joint-map v1.33、blast-radius v1.46、memory-router v1.4 |
 | v1.27 | 2026-03-22 | 經驗諮詢閘門——W13 知識晶體 Schema 新增 Procedure 結晶類型（4 個選填欄位，ALTER TABLE 向後相容）；DW2 skill_usage_log.jsonl 從 Dead Write 升級為正常配對（新增 outcome 欄位） |
 | v1.26 | 2026-03-22 | Knowledge Lattice 持久層遷移：crystals.json + links.json + cuid_counter.json + archive.json → crystal.db（SQLite WAL 模式，crystals/links/cuid_counters 三表）；新增 `agent/crystal_store.py` CrystalStore 類別（singleton factory `get_crystal_store()`）；Engine 1 SQLite 引擎表新增 CrystalDB 條目；W13 知識晶體引擎從 JSON+Vector 改為 SQLite(WAL)+Vector；Phase 3 Store 表 LatticeStore 引擎從 JSON 改為 SQLite(WAL) via CrystalStore；拓撲對應表新增 crystal-store 節點；Pipeline R Memory Reset C1 從 crystals.json 改為 crystal.db 三表 DELETE；Nightly WAL checkpoint DB 數量 4→5；舊 JSON 檔案已歸檔為 .bak |
 | v1.25 | 2026-03-21 | 授權系統升級：新增 W37-W38 配對——W37 動態授權清單（PairingManager 寫入、TelegramAdapter+museon_auth_status 讀取，JSON 永久+可選 TTL）、W38 分級授權策略（AuthorizationPolicy 寫入、SecurityGate+museon_auth_status 讀取）；新增 `~/.museon/auth/` Runtime 子目錄（allowlist.json + policy.json，原子寫入 tmp→rename）；同步 system-topology v1.30、blast-radius v1.35、joint-map v1.28 |

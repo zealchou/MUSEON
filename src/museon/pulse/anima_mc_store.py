@@ -17,8 +17,10 @@
 
 import json
 import logging
+import shutil
 import threading
 import time
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Dict, Optional
 
@@ -137,12 +139,38 @@ class AnimaMCStore(DataContract):
             logger.error(f"AnimaMCStore internal load failed: {e}", exc_info=True)
             return None
 
+    def _backup_before_write(self) -> None:
+        """寫入前自動快照 — 保留最近 10 份備份."""
+        try:
+            if not self._path.exists():
+                return
+
+            backup_dir = self._path.parent / "_system" / "backups" / "anima_mc"
+            backup_dir.mkdir(parents=True, exist_ok=True)
+
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            backup_path = backup_dir / f"anima_mc_{timestamp}.json"
+
+            shutil.copy2(self._path, backup_path)
+
+            # 保留最近 10 份，清理舊的
+            backups = sorted(backup_dir.glob("anima_mc_*.json"))
+            if len(backups) > 10:
+                for old in backups[:-10]:
+                    old.unlink()
+
+            logger.debug(f"ANIMA_MC 快照已建立: {backup_path.name}")
+        except Exception as e:
+            logger.debug(f"ANIMA_MC 快照失敗（降級，不阻斷寫入）: {e}")
+
     def _save_internal(self, data: Dict[str, Any]) -> bool:
         """內部寫入（呼叫者已持有鎖）.
 
-        流程：KernelGuard 驗證 → 原子寫入（tmp → rename）
+        流程：快照 → KernelGuard 驗證 → 原子寫入（tmp → rename）
         """
         try:
+            # ── 寫入前快照 ──
+            self._backup_before_write()
             # ── KernelGuard 驗證 ──
             if self._kernel_guard:
                 old_data = self._load_internal()

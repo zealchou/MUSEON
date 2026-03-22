@@ -299,7 +299,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 //  SYNC META — 拓撲同步狀態
 // ═══════════════════════════════════════
 const SYNC_META = {
-  topologyVersion: 'v1.34',
+  topologyVersion: 'v1.35',
   syncDate: '2026-03-22',
   nodeCount: 0, // auto-calculated below
   linkCount: 0, // auto-calculated below
@@ -525,6 +525,7 @@ const nodes = [
   {id:"business-12",label:"Business-12",zh:"商模十二力",group:"skills",r:1.2,p:"skills-business-hub"},
   {id:"c15",label:"C15",zh:"敘事張力語言層",group:"skills",r:1.2,p:"skills-creative-hub"},
   {id:"consultant-communication",label:"Consultant-Comm",zh:"顧問溝通引擎",group:"skills",r:1.2,p:"skills-business-hub"},
+  {id:"decision-tracker",label:"Decision-Tracker",zh:"決策歷史追蹤引擎",group:"skills",r:1.0,p:"skills-evolution-hub"},
   {id:"dharma",label:"DHARMA",zh:"思維轉化引擎",group:"skills",r:1.2,p:"skills-thinking-hub"},
   {id:"dse",label:"DSE",zh:"技術融合驗證",group:"skills",r:1.2,p:"skills-product-hub"},
   {id:"env-radar",label:"Env-Radar",zh:"環境雷達",group:"skills",r:1.2,p:"skills-product-hub"},
@@ -551,6 +552,7 @@ const nodes = [
   {id:"shadow",label:"Shadow",zh:"人際博弈辨識引擎",group:"skills",r:1.2,p:"skills-thinking-hub"},
   {id:"ssa-consultant",label:"SSA-Consultant",zh:"顧問式銷售引擎",group:"skills",r:1.2,p:"skills-business-hub"},
   {id:"storytelling-engine",label:"Storytelling",zh:"說故事引擎",group:"skills",r:1.2,p:"skills-creative-hub"},
+  {id:"system-health-check",label:"System-Health-Check",zh:"系統健康自檢引擎",group:"skills",r:1.0,p:"skills-evolution-hub"},
   {id:"tantra",label:"Tantra",zh:"情慾治理引擎",group:"skills",r:1.0,p:"skills-evolution-hub"},
   {id:"text-alchemy",label:"Text-Alchemy",zh:"文字煉金系統",group:"skills",r:1.2,p:"skills-creative-hub"},
   {id:"user-model",label:"User-Model",zh:"使用者畫像引擎",group:"skills",r:1.2,p:"skills-thinking-hub"},
@@ -716,8 +718,10 @@ const links = [
   {source:"skills-creative-hub",target:"novel-craft",label:"小說工藝",type:"internal"},
   {source:"skills-creative-hub",target:"storytelling-engine",label:"說故事",type:"internal"},
   {source:"skills-creative-hub",target:"text-alchemy",label:"文字煉金",type:"internal"},
+  {source:"skills-evolution-hub",target:"decision-tracker",label:"決策歷史追蹤",type:"internal"},
   {source:"skills-evolution-hub",target:"qa-auditor",label:"品質審計",type:"internal"},
   {source:"skills-evolution-hub",target:"sandbox-lab",label:"沙盒實驗",type:"internal"},
+  {source:"skills-evolution-hub",target:"system-health-check",label:"系統健康自檢",type:"internal"},
   {source:"skills-evolution-hub",target:"tantra",label:"情慾治理",type:"internal"},
   {source:"skills-market-hub",target:"market-core",label:"市場核心",type:"internal"},
   {source:"skills-market-hub",target:"market-crypto",label:"加密貨幣",type:"internal"},
@@ -782,6 +786,8 @@ const links = [
   {source:"data-bus",target:"eval-engine",label:"Store 路由",type:"cross"},
   {source:"data-bus",target:"knowledge-lattice",label:"Store 路由",type:"cross"},
   {source:"data-bus",target:"pulse-db",label:"Store 路由",type:"cross"},
+  {source:"decision-tracker",target:"knowledge-lattice",label:"決策結晶化",type:"cross"},
+  {source:"decision-tracker",target:"user-model",label:"決策偏好",type:"cross"},
   {source:"deep-think",target:"dharma",label:"思維轉化",type:"cross"},
   {source:"deep-think",target:"master-strategy",label:"戰略判斷",type:"cross"},
   {source:"deep-think",target:"metacognition",label:"Phase 0 元認知觀察",type:"cross"},
@@ -877,6 +883,7 @@ const links = [
   {source:"pulse-db",target:"registry",label:"脈搏記錄",type:"cross"},
   {source:"recommender",target:"crystal-store",label:"結晶讀取（load_crystals_raw + load_links）",type:"cross"},
   {source:"recommender",target:"knowledge-lattice",label:"近因性衰減 7d + 互動衰減 λ=0.95",type:"cross"},
+  {source:"report-forge",target:"knowledge-lattice",label:"報告洞見結晶化",type:"cross"},
   {source:"research-engine",target:"digest-engine",label:"消化結果",type:"cross"},
   {source:"response-synthesizer",target:"multi-agent-executor",label:"DNA 交叉重組（片段評分合成）",type:"cross"},
   {source:"roundtable",target:"knowledge-lattice",label:"裁決軌跡結晶",type:"cross"},
@@ -897,6 +904,8 @@ const links = [
   {source:"skills-workflow-hub",target:"brain",label:"工作流技能→Brain",type:"cross"},
   {source:"sparse-embedder",target:"qdrant",label:"稀疏向量存儲（sparse collections）",type:"cross"},
   {source:"system-audit",target:"service-health",label:"交叉驗證",type:"cross"},
+  {source:"system-health-check",target:"knowledge-lattice",label:"健康結晶化",type:"cross"},
+  {source:"system-health-check",target:"morphenix",label:"修復提案",type:"cross"},
   {source:"telegram",target:"event-bus",label:"GROUP_SESSION_END 發布",type:"cross"},
   {source:"tool-registry",target:"skill-router",label:"工具查找",type:"cross"},
   {source:"vector-index",target:"qdrant",label:"向量存儲（dense）",type:"cross"},
@@ -922,6 +931,7 @@ const links = [
   {source:"telegram",target:"brain",label:"推送寫入 session",type:"async"},
   {source:"telegram",target:"user",label:"回傳回應",type:"async"},
 ];
+
 
 
 

@@ -2,7 +2,7 @@
 
 依據 DNA27 Neural Tract BDD Spec §5-6 實作：
   - LayeredContent: essence (~10%) / compact (~30%) / full (100%)
-  - TokenBudget: 五區預算（core_system/persona/modules/memory/buffer）
+  - TokenBudget: 六區預算（core_system/persona/modules/memory/buffer/strategic）
   - 零 LLM 語義重要性打分（純 regex + 位置啟發）
 
 設計原則：
@@ -29,7 +29,8 @@ _DEFAULT_ZONES: Dict[str, int] = {
     "persona": 1500,
     "modules": 6000,
     "memory": 2500,   # +500 for knowledge crystal auto_recall injection
-    "buffer": 2800,   # +800 for PULSE.md soul context injection
+    "buffer": 1800,   # +800 for PULSE.md soul context injection
+    "strategic": 1000,  # 企業決策脈絡注入
 }
 
 _DEFAULT_THRESHOLDS: Dict[str, float] = {
