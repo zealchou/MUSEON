@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.34
+# Joint Map — 共享可變狀態接頭圖 v1.35
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -400,8 +400,10 @@
 | `vector/sparse_embedder.py` | **W** | `data/_system/sparse_idf.json`（IDF 表） |
 
 - **Route A 分離式**：不修改原 dense collections 的 schema
-- `hybrid_search()` 同時查 dense + sparse → RRF 融合
+- `hybrid_search()` 同時查 dense + sparse → RRF 融合，**已被 4 個模組消費**：`skill_router.py`、`memory_manager.py`、`knowledge_lattice.py`、`server.py`（取代原 pure dense search）
 - IDF 表由 `build_sparse_idf()` 從 dense collection 語料建立
+- **Nightly Step 8.7** `_step_sparse_idf_rebuild()` 負責 IDF 重建 + 回填 sparse collections
+- **Gateway startup** 驗證 SparseEmbedder IDF 可用性（`sparse_idf.json` 存在且非空）
 
 #### 鎖與降級
 
@@ -939,6 +941,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-22 | v1.35 | Sparse Embedder 啟動：#9 Qdrant 向量庫 Sparse Collections 從「已定義未消費」升級為「全面啟動」；hybrid_search() 被 skill_router + memory_manager + knowledge_lattice + server.py 4 個消費者呼叫（取代原 pure dense search）；Nightly Step 8.7 新增 IDF 重建 + 回填步驟；Gateway startup 新增 IDF 驗證；同步 blast-radius v1.35、persistence-contract v1.30 |
 | 2026-03-22 | v1.34 | Brain 三層治療：新增 #35 `orchestrator_calls`（PulseDB 表，🟢 危險度，單寫入者 brain.py `_dispatch_orchestrate()`，讀取者 0 供未來 A1 確定性路由）；#8 PulseDB 表數 14→15；共享狀態 34→35 個；同步 persistence-contract v1.29、system-topology v1.37 |
 | 2026-03-22 | v1.33 | P0-P3 升級：新增 #34 `_system/backups/` 目錄（🟢 危險度，2 個寫入者各自寫不同子目錄無競爭——AnimaMCStore._backup_before_write() 寫 anima_mc/、PulseEngine._backup_pulse_md() 寫 pulse_md/，各保留 10 份 FIFO）；無讀取者（手動恢復）；共享狀態 33→34 個；同步 persistence-contract v1.28、system-topology v1.35、blast-radius v1.46、memory-router v1.4 |
 | 2026-03-22 | v1.32 | 經驗諮詢閘門：#6 crystal.db 新增 Procedure 結晶 4 欄位（skills_used/preconditions/known_failures/last_success）；#25 activity_log.jsonl 讀取者新增 brain.py（search() 經驗搜尋）；#25 skill_usage_log.jsonl 從 DW2 升級（新增 outcome 欄位，Brain 消費） |

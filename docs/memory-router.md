@@ -1,4 +1,4 @@
-# Memory Router — 記憶路由表 v1.4
+# Memory Router — 記憶路由表 v1.5
 
 > **用途**：定義「什麼類型的洞見存到哪個記憶系統、什麼時候取出」。第五張工程藍圖。
 > **比喻**：郵局分揀表——每封信根據地址分到對應的信箱，不會寄丟也不會重複投遞。
@@ -89,6 +89,12 @@
 | 每次 session | 工作摘要 | session-log | session 結束或重要里程碑時 |
 | 重大迭代 | 迭代紀錄 | session-log | commit 完成時 |
 
+### 🔩 系統基礎設施持久資料
+
+| 檔案路徑 | 用途 | Writer | 寫入觸發 | Reader | 讀取觸發 |
+|---------|------|--------|---------|--------|---------|
+| `data/_system/sparse_idf.json` | BM25 IDF 表（稀疏向量搜尋權重） | `vector/sparse_embedder.py` (`build_idf()` → `_save_idf()`) | Nightly Step 8.7 `_step_sparse_idf_rebuild()` (via `VectorBridge.build_sparse_idf()`) | `vector/sparse_embedder.py` (`_load_idf()`) | SparseEmbedder 初始化時自動載入 |
+
 ---
 
 ## 路由規則
@@ -114,6 +120,7 @@
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.5 | 2026-03-22 | 新增「系統基礎設施持久資料」區塊——收錄 sparse_idf.json（BM25 IDF 表），Writer: vector/sparse_embedder.py，Reader: SparseEmbedder init |
 | v1.4 | 2026-03-22 | P0-P3 升級——新增 3 條 knowledge-lattice 路由（report-forge→report_crystal、system-health-check→health_crystal、decision-tracker→decision_crystal）；新增 1 條 user-model 路由（decision-tracker→決策偏好+風險容忍度）；同步 system-topology v1.35、persistence-contract v1.28、blast-radius v1.46、joint-map v1.33 |
 | v1.3 | 2026-03-22 | 經驗諮詢閘門——新增 Procedure 結晶路由（brain.py 經驗回放 + crystal_actuator Lesson 升級），消費者：brain.py _build_memory_inject() 第四層經驗回放 |
 | v1.2 | 2026-03-21 | 新增 persona-router (baihe) 路由（lord_profile.json + baihe_cache.json → user-model）；Skill 鍛造膠合層修復——49 個 Skill 的 memory.writes/reads 補齊 |

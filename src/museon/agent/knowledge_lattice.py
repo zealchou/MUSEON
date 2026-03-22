@@ -1760,7 +1760,7 @@ class KnowledgeLattice:
             vb = self._get_vector_bridge()
             if vb is None:
                 return []
-            results = vb.search("crystals", query, limit=limit)
+            results = vb.hybrid_search("crystals", query, limit=limit)
             return [
                 (r["id"], r["score"])
                 for r in results

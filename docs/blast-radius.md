@@ -571,8 +571,8 @@
 |---------|------|
 | 共享狀態 | Qdrant 8 個 dense collections + N 個 sparse collections（`{name}_sparse`）；memories collection 新增 status=deprecated 軟刪除過濾 |
 | 直接 import | 7 個模組（brain, memory_manager, reflex_router, skill_router, knowledge_lattice, chromosome_index, primal_detector） |
-| 新增方法 | `mark_deprecated()` — 軟刪除；`hybrid_search()` — Dense+Sparse RRF 融合；`index_sparse()` / `backfill_sparse()` / `build_sparse_idf()` — 稀疏向量管理；`index_all_skills()` — skills collection 全量索引（Gateway startup + Nightly 8.6 + API reindex）；`reindex_all()` — 全部 collection 重索引 |
-| 降級影響 | Qdrant 離線 → 檢索降級為 TF-IDF（0.3 折扣）；Sparse 不可用 → hybrid_search 降級為純 dense |
+| 新增方法 | `mark_deprecated()` — 軟刪除；`hybrid_search()` — Dense+Sparse RRF 融合（已被 4 模組主動消費：skill_router、memory_manager、knowledge_lattice、server）；`index_sparse()` / `backfill_sparse()` / `build_sparse_idf()` — 稀疏向量管理；`index_all_skills()` — skills collection 全量索引（Gateway startup + Nightly 8.6 + API reindex）；`reindex_all()` — 全部 collection 重索引 |
+| 降級影響 | Qdrant 離線 → 檢索降級為 TF-IDF（0.3 折扣）；Sparse 不可用 → hybrid_search 降級為純 dense；hybrid_search 已全面啟用（skill_router、memory_manager、knowledge_lattice、server 四模組均已從 search() 切換為 hybrid_search()） |
 
 #### 修改安全邊界
 
@@ -670,7 +670,7 @@
 `MUSEON_observatory.html`（★ v1.21 新增，扇入=0，純前端儀表板；讀取 cognitive_trace.jsonl 視覺化認知追蹤）
 
 ### Vector 層（1 個）
-`vector/sparse_embedder.py`（★ v1.30 新增，扇入=1，僅 vector_bridge.py import；BM25 稀疏向量產生器，jieba 中文分詞 + IDF 持久化）
+`vector/sparse_embedder.py`（★ v1.30 新增，扇入=1，僅 vector_bridge.py import；BM25 稀疏向量產生器，jieba 中文分詞 + IDF 持久化；v1.35 起已全面啟用——hybrid_search 被 4 模組主動消費，Nightly Step 8.7 定期重建 IDF，Gateway startup 驗證 IDF 可用性）
 
 ### Gateway 層（4 個）
 `gateway/cron.py`, `gateway/security.py`, `gateway/session.py`, `gateway/authorization.py`
@@ -786,6 +786,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-22 | v1.35 | Sparse Embedder 全面啟動：skill_router.py `_vec_search()` 從 `vb.search()` 切換為 `vb.hybrid_search()`；memory_manager.py `_vector_search()` 從 `vb.search()` 切換為 `vb.hybrid_search()`；knowledge_lattice.py 結晶搜尋從 `vb.search()` 切換為 `vb.hybrid_search()`；server.py `/api/vector/search` 從 `vb.search()` 切換為 `vb.hybrid_search()`；Nightly Pipeline 新增 Step 8.7 `_step_sparse_idf_rebuild()`（build_sparse_idf + backfill_sparse）；Gateway startup 新增 SparseEmbedder IDF 驗證；sparse_embedder.py 扇入不變（1，僅 vector_bridge import）；vector_bridge.py 扇入不變（7）；同步 joint-map v1.35、persistence-contract v1.30 |
 | 2026-03-22 | v1.46 | P0-P3 升級——report-forge Skill 新增 knowledge-lattice 輸出依賴（report_crystal 結晶化，via knowledge-lattice API，不改 report-forge 扇入扇出）；token_optimizer.py buffer 預算 2800→1800 + strategic zone 1000 新增（brain.py `_build_strategic_context()` 純新增方法）；anima_mc_store.py 共享狀態新增 `_system/backups/anima_mc/`（寫入前快照）；pulse_engine.py 共享狀態新增 `_system/backups/pulse_md/`（寫入前快照）；plan_engine.py bug 修復 plan.changes→plan.change_list（純內部修正，扇入不變）；共享狀態 33→34 |
 | 2026-03-22 | v1.45 | 經驗諮詢閘門——brain.py 共享狀態讀取新增 activity_log.jsonl(R)；knowledge_lattice.py 新增 recall_procedures() 方法（RO）+再結晶 Lesson↔Procedure 升降級規則；crystal_store.py schema 新增 4 欄位（向後相容 ALTER TABLE）；activity_logger.py 新增 search() 方法（純讀） |
 | 2026-03-22 | v1.43 | Recommender 激活修復：`agent/recommender.py` 從綠區扇入 0→1（brain.py import）；資料來源從過時 JSON 掃描改為 CrystalStore API；brain.py 新增 `_recommender` 初始化 + init log；server.py API 改用常駐實例；新增共享狀態 `_system/recommendations/interactions.json`；G5 知識晶格組 recommender 接線正式啟用 |

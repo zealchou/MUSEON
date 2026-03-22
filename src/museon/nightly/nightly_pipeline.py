@@ -117,7 +117,7 @@ SKILL_ARCHIVE_INACTIVE_DAYS = 30
 _FULL_STEPS = [
     "0", "0.1",  # Budget settlement + Footprint cleanup (最先執行)
     "1", "2", "3", "4", "5", "5.5", "5.6", "5.7", "5.8", "5.9", "5.9.5", "5.10",
-    "6", "6.5", "7", "7.5", "8", "8.5", "8.6", "9", "10", "10.5", "11", "12", "13", "13.5",
+    "6", "6.5", "7", "7.5", "8", "8.5", "8.6", "8.7", "9", "10", "10.5", "11", "12", "13", "13.5",
     "13.6", "13.7", "13.8",  # 外向型進化：觸發掃描 → 外向研究 → 消化生命週期
     "14", "15", "16", "17",
     "18",
@@ -200,6 +200,7 @@ class NightlyPipeline:
             "8": ("step_08_workflow_mutation", self._step_workflow_mutation),
             "8.5": ("step_08_5_dna27_reindex", self._step_dna27_reindex),
             "8.6": ("step_08_6_skill_vector_reindex", self._step_skill_vector_reindex),
+            "8.7": ("step_08_7_sparse_idf_rebuild", self._step_sparse_idf_rebuild),
             "9": ("step_09_graph_consolidation", self._step_graph_consolidation),
             "10": ("step_10_diary_generation", self._step_diary_generation),
             "10.5": ("step_10_5_ring_review", self._step_ring_review),
@@ -1689,6 +1690,43 @@ class NightlyPipeline:
         except Exception as e:
             logger.warning(f"Nightly skill reindex failed: {e}")
             return {"skill_reindex": {"error": str(e)}}
+
+    # ═══════════════════════════════════════════
+    # Step 8.7: Sparse IDF 重建 + 回填
+    # ═══════════════════════════════════════════
+
+    def _step_sparse_idf_rebuild(self) -> Dict:
+        """Step 8.7: 重建 BM25 IDF 表 + 回填 sparse collections（零 LLM）.
+
+        從 memories dense collection 建立 IDF → 回填所有 sparse collections。
+        """
+        try:
+            from museon.vector.vector_bridge import VectorBridge
+            vb = VectorBridge(workspace=self._workspace, event_bus=self._event_bus)
+
+            # Phase 1: 從 memories 語料建立 IDF
+            vocab_size = vb.build_sparse_idf("memories")
+            if vocab_size == 0:
+                return {"sparse_idf": "skipped — no corpus or jieba unavailable"}
+
+            # Phase 2: 回填各 collection 的 sparse 版本
+            backfill_results = {}
+            for collection in ("memories", "skills", "crystals"):
+                try:
+                    count = vb.backfill_sparse(collection, batch_size=50)
+                    backfill_results[collection] = count
+                except Exception as e:
+                    backfill_results[collection] = f"error: {e}"
+
+            return {
+                "sparse_idf": {
+                    "vocab_size": vocab_size,
+                    "backfill": backfill_results,
+                }
+            }
+        except Exception as e:
+            logger.warning(f"Nightly sparse IDF rebuild failed: {e}")
+            return {"sparse_idf": {"error": str(e)}}
 
     # ═══════════════════════════════════════════
     # Step 9: 知識圖譜睡眠整合

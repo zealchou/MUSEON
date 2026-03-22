@@ -257,7 +257,7 @@ class SkillRouter:
             if vb is None:
                 logger.debug("vec_search: VectorBridge 不可用")
                 return {}
-            results = vb.search("skills", query, limit=limit)
+            results = vb.hybrid_search("skills", query, limit=limit)
             if not results:
                 logger.debug(
                     f"vec_search: 搜尋結果為空 (query={query[:50]}..., "
