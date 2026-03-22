@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>永興家具 × AI｜接班人的三個快速見效點</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500;600&family=Noto+Sans+TC:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --ember: #C4502A;
+    --ember-light: #E0714D;
+    --ember-dark: #9A3A1C;
+    --teal: #2A7A6E;
+    --gold: #B8923A;
+    --ink: #12121A;
+    --slate: #5A5A6E;
+    --mist: #9898A8;
+    --border: #E2E0DA;
+    --parchment: #F7F5F0;
+    --snow: #FDFCFA;
+  }
+
+  body {
+    font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+    background: var(--parchment);
+    color: var(--ink);
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 64px 40px;
+  }
+
+  /* Hero */
+  .hero {
+    text-align: center;
+    margin-bottom: 48px;
+    padding-bottom: 48px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hero .tag {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ember-dark);
+    background: rgba(196,80,42,0.1);
+    padding: 3px 12px;
+    border-radius: 100px;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 42px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+
+  .hero h1 span {
+    color: var(--ember);
+  }
+
+  .hero .subtitle {
+    font-size: 18px;
+    color: var(--slate);
+    max-width: 540px;
+    margin: 0 auto;
+    line-height: 1.8;
+  }
+
+  /* Context Section */
+  .context {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 32px;
+    margin-bottom: 48px;
+    box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+  }
+
+  .context h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--ink);
+  }
+
+  .context p {
+    font-size: 16px;
+    color: var(--slate);
+    margin-bottom: 12px;
+  }
+
+  .context .highlight {
+    color: var(--ember);
+    font-weight: 500;
+  }
+
+  .context .stat-row {
+    display: flex;
+    gap: 16px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .context .stat {
+    flex: 1;
+    min-width: 140px;
+    text-align: center;
+    padding: 16px;
+    background: var(--parchment);
+    border-radius: 8px;
+  }
+
+  .context .stat .number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--ember);
+    line-height: 1.2;
+  }
+
+  .context .stat .label {
+    font-size: 13px;
+    color: var(--mist);
+    margin-top: 4px;
+  }
+
+  /* Opportunities */
+  .opportunities {
+    margin-bottom: 48px;
+  }
+
+  .opportunities h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .opportunities .intro {
+    font-size: 16px;
+    color: var(--slate);
+    margin-bottom: 32px;
+  }
+
+  .opp-card {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+    transition: transform 200ms ease, box-shadow 200ms ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .opp-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 6px rgba(18,18,26,0.08), 0 8px 24px rgba(18,18,26,0.06);
+  }
+
+  .opp-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+  }
+
+  .opp-card:nth-child(2)::before { background: var(--ember); }
+  .opp-card:nth-child(3)::before { background: var(--teal); }
+  .opp-card:nth-child(4)::before { background: var(--gold); }
+
+  .opp-card .opp-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .opp-card .opp-number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--mist);
+    line-height: 1;
+  }
+
+  .opp-card h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .opp-card .pain {
+    font-size: 15px;
+    color: var(--slate);
+    margin-bottom: 12px;
+    padding-left: 16px;
+    border-left: 2px solid var(--border);
+  }
+
+  .opp-card .solution {
+    font-size: 15px;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+
+  .opp-card .impact {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--teal);
+    background: rgba(42,122,110,0.08);
+    padding: 4px 12px;
+    border-radius: 100px;
+  }
+
+  /* CTA Section */
+  .cta-section {
+    text-align: center;
+    padding: 48px 32px;
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 48px;
+    box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+  }
+
+  .cta-section .question {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 16px;
+    line-height: 1.4;
+  }
+
+  .cta-section p {
+    font-size: 16px;
+    color: var(--slate);
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.8;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+  }
+
+  .footer .brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ember);
+    letter-spacing: 0.05em;
+  }
+
+  .footer .tagline {
+    font-size: 13px;
+    color: var(--mist);
+    margin-top: 4px;
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .page { padding: 40px 20px; }
+    .hero h1 { font-size: 30px; }
+    .context .stat-row { flex-direction: column; }
+    .opp-card { padding: 20px 24px; }
+    .cta-section .question { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="tag">為永興家具整理</div>
+    <h1>傳統工藝 × <span>AI 加速</span><br>接班人的三個快速見效點</h1>
+    <p class="subtitle">
+      1958 年的榫卯工藝不需要被取代——需要被看見。<br>
+      以下是我們觀察到的三個機會，每一個都能在 30 天內見效。
+    </p>
+  </div>
+
+  <!-- Context -->
+  <div class="context">
+    <h2>我們看到的永興</h2>
+    <p>
+      從總統府會客廳到臺大圖書館，永興用 <span class="highlight">66 年的木作工藝</span> 打造了台灣最具份量的實木家具品牌。你們的案例是金字招牌——但問題是，<span class="highlight">設計師在 Google 找不到你們</span>。
+    </p>
+    <p>
+      官網有完整的產品線和案例照片，卻沒有線上詢價入口、沒有即時客服、案例沉在相簿深處。每一個沒被接住的詢問，都是一張流失的訂單。
+    </p>
+    <div class="stat-row">
+      <div class="stat">
+        <div class="number">66</div>
+        <div class="label">年品牌歷史</div>
+      </div>
+      <div class="stat">
+        <div class="number">4+</div>
+        <div class="label">產品系列</div>
+      </div>
+      <div class="stat">
+        <div class="number">0</div>
+        <div class="label">線上即時詢價入口</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Three Opportunities -->
+  <div class="opportunities">
+    <h2>三個快速見效的 AI 應用</h2>
+    <p class="intro">不需要大改系統、不需要換網站，每一項都可以獨立啟動。</p>
+
+    <!-- Opp 1 -->
+    <div class="opp-card">
+      <div class="opp-header">
+        <span class="opp-number">01</span>
+        <h3>AI 詢價助理——讓每個訪客都被接住</h3>
+      </div>
+      <p class="pain">
+        現況：客人在官網看到喜歡的家具，唯一的選擇是填表單或打電話。下班後、假日、深夜——沒人接，客人就走了。
+      </p>
+      <p class="solution">
+        在官網嵌入一個 AI 詢價助理，24 小時回應客人問題、引導需求、自動預約門市體驗。客人問「這張桌子多少錢？可以客製嗎？」，AI 秒回並收集聯絡方式，隔天業務直接跟進已篩選的高意向客戶。
+      </p>
+      <span class="impact">預估效果：詢問轉換率 +30%</span>
+    </div>
+
+    <!-- Opp 2 -->
+    <div class="opp-card">
+      <div class="opp-header">
+        <span class="opp-number">02</span>
+        <h3>案例內容化——讓你的作品自己說話</h3>
+      </div>
+      <p class="pain">
+        現況：總統府、臺大圖書館這些頂級案例，藏在 Facebook 相簿裡。設計師搜尋「台灣 現代東方 實木家具」，找不到永興。
+      </p>
+      <p class="solution">
+        用 AI 把每個案例轉化成可被搜尋的內容：故事化的案例頁面、SEO 優化的文字、結構化資料讓 Google 和 AI 搜尋引擎都能讀到。你做過的每件作品，都變成 24 小時在網路上替你招攬客戶的業務員。
+      </p>
+      <span class="impact">預估效果：自然搜尋曝光 ×3</span>
+    </div>
+
+    <!-- Opp 3 -->
+    <div class="opp-card">
+      <div class="opp-header">
+        <span class="opp-number">03</span>
+        <h3>快速提案引擎——從詢問到報價壓縮 50%</h3>
+      </div>
+      <p class="pain">
+        現況：B2B 專案從第一次接洽到出完整提案，通常要 1-2 週。設計師同時在比三家，誰先出完整方案誰就拿到案子。
+      </p>
+      <p class="solution">
+        AI 根據客戶需求（空間坪數、風格偏好、預算範圍），自動生成初步方案建議書——包含推薦產品組合、概估價格帶、過往類似案例參考。業務只需要微調，不用從零開始。
+      </p>
+      <span class="impact">預估效果：提案週期縮短 50%</span>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <p class="question">你們目前在哪個環節<br>最想優化？</p>
+    <p>
+      不急著決定。這三個方向可以各自獨立啟動，<br>
+      也可以組合成完整的數位化路徑。<br>
+      有想法的話，找個 30 分鐘聊聊就好。
+    </p>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="brand">MUSEON</div>
+    <div class="tagline">AI 顧問 · 讓傳統產業被看見</div>
+  </div>
+
+</div>
+
+</body>
+</html>
