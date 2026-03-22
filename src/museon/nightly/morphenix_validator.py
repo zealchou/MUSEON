@@ -65,6 +65,16 @@ class MorphenixValidator:
 
     async def validate_proposal(self, proposal: Dict) -> ValidationResult:
         """驗證單一提案. L1 跳過，L2+ Docker pytest."""
+        # 防禦：proposal metadata 有時從 DB 以字串形式返回
+        if isinstance(proposal, str):
+            try:
+                proposal = json.loads(proposal)
+            except (json.JSONDecodeError, TypeError):
+                return ValidationResult(
+                    passed=False,
+                    reason="invalid_proposal_format",
+                )
+
         level = proposal.get("level", "L1")
 
         # L1 不需要 Docker（只改 JSON config）

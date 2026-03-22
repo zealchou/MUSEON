@@ -18,6 +18,52 @@ class BrainP3FusionMixin:
     """P3 策略融合與決策層方法群 — Mixin for MuseonBrain."""
 
     # ═══════════════════════════════════════════════════════════════════
+    # 常數定義（P0 健康檢查常數化）
+    # ═══════════════════════════════════════════════════════════════════
+
+    # — P2 決策層 LLM 參數 —
+    _P2_QUERY_TRUNCATE_LEN = 300       # P2 視角方法的查詢截斷長度
+    _P2_MAX_TOKENS = 100               # P2 視角方法的 LLM 最大 token
+    _P2_RESPONSE_TRUNCATE_LEN = 150    # P2 視角回應截斷長度
+    _P2_MAX_DECISION_QUESTIONS = 5     # 決策反問最大數量
+    _P2_STAKEHOLDER_QUESTION_THRESHOLD = 3  # 觸發利益相關方反問的閾值
+
+    # — P3 策略層 LLM 參數 —
+    _P3_QUERY_TRUNCATE_LEN = 400       # P3 視角方法的查詢截斷長度
+    _P3_MAX_TOKENS = 150               # P3 視角方法的 LLM 最大 token
+    _P3_HAIKU_MODEL = "claude-haiku-4-5-20251001"  # 視角生成使用的輕量模型
+
+    # — P3 信號偵測閾值 —
+    _P3_MIN_QUERY_LENGTH = 15          # 觸發 P3 的最短查詢長度
+    _P3_CONFIDENCE_BASE = 0.6          # EXPLORATION_LOOP 信心基線
+    _P3_CONFIDENCE_SLOW = 0.75         # SLOW_LOOP 單策略 Skill 信心
+    _P3_CONFIDENCE_SLOW_MULTI = 0.9    # SLOW_LOOP 多策略 Skill 信心
+
+    # — P2 決策偵測閾值 —
+    _P2_MIN_STAKEHOLDERS = 2           # 觸發重大決策的最低利益相關方數
+    _P2_MIN_IMPACT_MONTHS = 3          # 觸發重大決策的最短影響時間（月）
+    _P2_DEFAULT_IMPACT_MONTHS = 3      # 預設影響時間（月）
+    _P2_CONFLICT_BONUS_STAKEHOLDERS = 2  # 衝突配對命中時的額外利益相關方數
+    _P2_CONFIDENCE_BASE = 0.6          # 決策信心基線
+    _P2_CONFIDENCE_PER_STAKEHOLDER = 0.1  # 每個利益相關方增加的信心
+    _P2_CONFIDENCE_MAX = 0.95          # 決策信心上限
+
+    # — 融合決策權重與閾值 —
+    _FUSION_SCORE_BASELINE = 0.5       # 融合分數基線
+    _FUSION_WEIGHT_METACOG = 0.4       # MetaCognition 權重 (40%)
+    _FUSION_WEIGHT_EVAL = 0.35         # EvalEngine 權重 (35%)
+    _FUSION_WEIGHT_HEALTH = 0.25       # Health Score 權重 (25%)
+    _FUSION_QSCORE_LOW_THRESHOLD = 0.5  # Q-Score 低分警告閾值
+    _FUSION_QSCORE_HIGH_BONUS = 0.1   # Q-Score 高分加分係數
+    _FUSION_HEALTH_LOW_THRESHOLD = 50  # Health Score 低分閾值
+    _FUSION_HEALTH_ALERT_THRESHOLD = 40  # Health Score 警報閾值
+    _FUSION_REVISE_THRESHOLD = 0.3     # 觸發 REVISE 的融合分數閾值
+
+    # — 精煉偏好 —
+    _BREVITY_PREF_COUNT_THRESHOLD = 50  # 啟用簡短偏好約束的計數閾值
+    _METACOG_FEEDBACK_TRUNCATE_LEN = 80  # MetaCog 回饋日誌截斷長度
+
+    # ═══════════════════════════════════════════════════════════════════
     # P2 決策層 — 重大決策先問後答
     # ═══════════════════════════════════════════════════════════════════
 
@@ -110,7 +156,7 @@ class BrainP3FusionMixin:
             questions.append(type_specific_q)
 
         # 利益相關方角度反問
-        if decision_signal.stakeholders_count >= 3:
+        if decision_signal.stakeholders_count >= self._P2_STAKEHOLDER_QUESTION_THRESHOLD:
             questions.append(
                 f"涉及 {decision_signal.stakeholders_count} 個利益相關方。"
                 "你有充分聽取每方的立場嗎？"
@@ -118,7 +164,11 @@ class BrainP3FusionMixin:
 
         # 控制在 3-5 個
         questions = [q for q in questions if q]  # 去空值
-        return questions[:5] if len(questions) > 5 else questions or ["想想還有什麼沒考慮到的嗎？"]
+        return (
+            questions[:self._P2_MAX_DECISION_QUESTIONS]
+            if len(questions) > self._P2_MAX_DECISION_QUESTIONS
+            else questions or ["想想還有什麼沒考慮到的嗎？"]
+        )
 
     def _get_decision_type_questions(self, decision_signal: DecisionSignal) -> str:
         """根據決策類型給出特定反問."""
@@ -190,7 +240,7 @@ class BrainP3FusionMixin:
         """xmodel（破框思維）角度 — 有沒有其他框架？"""
         try:
             prompt = (
-                f"使用者的決策問題：{query[:300]}\n\n"
+                f"使用者的決策問題：{query[:self._P2_QUERY_TRUNCATE_LEN]}\n\n"
                 f"決策類型：{decision_signal.decision_type}\n"
                 f"涉及利益相關方：{decision_signal.stakeholders_count} 個\n\n"
                 f"你是 xmodel（破框思維）顧問。在 1-2 句內，"
@@ -200,13 +250,13 @@ class BrainP3FusionMixin:
             response = await self._call_llm_with_model(
                 system_prompt="你是 MUSEON 的破框思維顧問（xmodel）。快速、簡潔、反問式。",
                 messages=[{"role": "user", "content": prompt}],
-                model="claude-haiku-4-5-20251001",
-                max_tokens=100,
+                model=self._P3_HAIKU_MODEL,
+                max_tokens=self._P2_MAX_TOKENS,
             )
-            return response.strip()[:150]
+            return response.strip()[:self._P2_RESPONSE_TRUNCATE_LEN]
 
         except Exception as e:
-            logger.debug(f"xmodel 角度生成失敗: {e}")
+            logger.warning(f"xmodel 角度生成失敗: {e}")
             return ""
 
     async def _master_strategy_perspective(
@@ -215,7 +265,7 @@ class BrainP3FusionMixin:
         """master-strategy（商業現實）角度 — 商業現實是什麼？"""
         try:
             prompt = (
-                f"使用者的決策問題：{query[:300]}\n\n"
+                f"使用者的決策問題：{query[:self._P2_QUERY_TRUNCATE_LEN]}\n\n"
                 f"決策類型：{decision_signal.decision_type}\n"
                 f"影響時間：{decision_signal.impact_horizon_months} 個月\n\n"
                 f"你是商業戰略顧問（master-strategy）。在 1-2 句內，"
@@ -225,13 +275,13 @@ class BrainP3FusionMixin:
             response = await self._call_llm_with_model(
                 system_prompt="你是 MUSEON 的商業戰略顧問（master-strategy）。專注商業現實與代價。",
                 messages=[{"role": "user", "content": prompt}],
-                model="claude-haiku-4-5-20251001",
-                max_tokens=100,
+                model=self._P3_HAIKU_MODEL,
+                max_tokens=self._P2_MAX_TOKENS,
             )
-            return response.strip()[:150]
+            return response.strip()[:self._P2_RESPONSE_TRUNCATE_LEN]
 
         except Exception as e:
-            logger.debug(f"master-strategy 角度生成失敗: {e}")
+            logger.warning(f"master-strategy 角度生成失敗: {e}")
             return ""
 
     async def _shadow_perspective(
@@ -252,7 +302,7 @@ class BrainP3FusionMixin:
                     user_context += f"（成長階段：{growth}）"
 
             prompt = (
-                f"使用者的決策問題：{query[:300]}\n"
+                f"使用者的決策問題：{query[:self._P2_QUERY_TRUNCATE_LEN]}\n"
                 f"{user_context}\n\n"
                 f"你是心理顧問（shadow）。在 1-2 句內，"
                 f"問一個關於「你在這個決策中的心理傾向/盲點」的反問。"
@@ -261,13 +311,13 @@ class BrainP3FusionMixin:
             response = await self._call_llm_with_model(
                 system_prompt="你是 MUSEON 的心理顧問（shadow）。幫助使用者看見自己的心理傾向。",
                 messages=[{"role": "user", "content": prompt}],
-                model="claude-haiku-4-5-20251001",
-                max_tokens=100,
+                model=self._P3_HAIKU_MODEL,
+                max_tokens=self._P2_MAX_TOKENS,
             )
-            return response.strip()[:150]
+            return response.strip()[:self._P2_RESPONSE_TRUNCATE_LEN]
 
         except Exception as e:
-            logger.debug(f"shadow 角度生成失敗: {e}")
+            logger.warning(f"shadow 角度生成失敗: {e}")
             return ""
 
     # ═══════════════════════════════════════════════════════════════════
@@ -285,7 +335,7 @@ class BrainP3FusionMixin:
         判斷條件：
         1. loop_mode 不是 FAST_LOOP（快速問答不需要多角度）
         2. matched_skills 包含至少 1 個策略層 Skill
-        3. query 長度 > 15 字（非簡短問候）
+        3. query 長度 > _P3_MIN_QUERY_LENGTH 字（非簡短問候）
 
         視角路由：
         - strategy（必選）：master-strategy × xmodel 破框戰略
@@ -305,7 +355,7 @@ class BrainP3FusionMixin:
             )
 
         # 太短的查詢不需要多角度
-        if len(query.strip()) < 15:
+        if len(query.strip()) < self._P3_MIN_QUERY_LENGTH:
             return P3FusionSignal(
                 should_fuse=False,
                 perspectives=[],
@@ -348,11 +398,11 @@ class BrainP3FusionMixin:
             perspectives.append("risk")
 
         # SLOW_LOOP 且命中 ≥2 個策略 Skill → 提高信心值
-        confidence = 0.6
+        confidence = self._P3_CONFIDENCE_BASE
         if loop_mode == "SLOW_LOOP" and len(matched_strategy) >= 2:
-            confidence = 0.9
+            confidence = self._P3_CONFIDENCE_SLOW_MULTI
         elif loop_mode == "SLOW_LOOP":
-            confidence = 0.75
+            confidence = self._P3_CONFIDENCE_SLOW
 
         return P3FusionSignal(
             should_fuse=True,
@@ -433,7 +483,7 @@ class BrainP3FusionMixin:
     ) -> str:
         """P3 策略層並行融合 — 並行呼叫多視角 Haiku，組裝「多視角觀察」.
 
-        注意：v1.22 起此方法已被 _p3_gather_pre_fusion_insights 取代，
+        DEPRECATED(v1.22): 已被 _p3_gather_pre_fusion_insights 取代。
         僅保留供 nightly/離線場景的向後相容使用。
 
         Returns:
@@ -470,15 +520,13 @@ class BrainP3FusionMixin:
         if not valid_parts:
             return ""
 
-        lines = ["---", "**MUSEON 多視角觀察**", ""]
-        lines.extend(valid_parts)
         return "\n\n".join(["---\n**MUSEON 多視角觀察**"] + valid_parts)
 
     async def _p3_strategy_perspective(self, query: str) -> str:
         """P3 策略視角 — 破框思維 × 戰略判斷的融合分析."""
         try:
             prompt = (
-                f"使用者的問題：{query[:400]}\n\n"
+                f"使用者的問題：{query[:self._P3_QUERY_TRUNCATE_LEN]}\n\n"
                 f"你同時是破框思維顧問（xmodel）和商業戰略顧問（master-strategy）。\n"
                 f"在 2-3 句內，指出「使用者可能沒想到的戰略視角或框架盲點」。"
                 f"直接切入，不重複問題本身。用繁體中文回答。"
@@ -489,12 +537,12 @@ class BrainP3FusionMixin:
                     "簡潔、精準、有洞察力。不要重複使用者說的話，直接給補充視角。繁體中文。"
                 ),
                 messages=[{"role": "user", "content": prompt}],
-                model="claude-haiku-4-5-20251001",
-                max_tokens=150,
+                model=self._P3_HAIKU_MODEL,
+                max_tokens=self._P3_MAX_TOKENS,
             )
             return response.strip()
         except Exception as e:
-            logger.debug(f"[P3] 策略視角生成失敗: {e}")
+            logger.warning(f"[P3] 策略視角生成失敗: {e}")
             return ""
 
     async def _p3_human_perspective(
@@ -511,7 +559,7 @@ class BrainP3FusionMixin:
                     user_ctx = f"（已知心理傾向：{bias}）"
 
             prompt = (
-                f"使用者的問題：{query[:400]}\n"
+                f"使用者的問題：{query[:self._P3_QUERY_TRUNCATE_LEN]}\n"
                 f"{user_ctx}\n\n"
                 f"你是心理顧問（shadow）。在 2-3 句內，"
                 f"指出「這個情境中涉及的人心動機、潛在博弈、或需要注意的心理層面」。"
@@ -523,19 +571,19 @@ class BrainP3FusionMixin:
                     "簡潔、有洞察力、針對具體情境。繁體中文。"
                 ),
                 messages=[{"role": "user", "content": prompt}],
-                model="claude-haiku-4-5-20251001",
-                max_tokens=150,
+                model=self._P3_HAIKU_MODEL,
+                max_tokens=self._P3_MAX_TOKENS,
             )
             return response.strip()
         except Exception as e:
-            logger.debug(f"[P3] 人心視角生成失敗: {e}")
+            logger.warning(f"[P3] 人心視角生成失敗: {e}")
             return ""
 
     async def _p3_risk_perspective(self, query: str) -> str:
         """P3 風險視角 — 商業代價與機會成本分析."""
         try:
             prompt = (
-                f"使用者的問題：{query[:400]}\n\n"
+                f"使用者的問題：{query[:self._P3_QUERY_TRUNCATE_LEN]}\n\n"
                 f"你是風險管理顧問。在 2-3 句內，"
                 f"指出「這個情境中容易被忽略的風險、代價或機會成本」。"
                 f"具體、可操作，不是抽象的風險清單。繁體中文。"
@@ -546,12 +594,12 @@ class BrainP3FusionMixin:
                     "簡潔、具體、針對問題。繁體中文。"
                 ),
                 messages=[{"role": "user", "content": prompt}],
-                model="claude-haiku-4-5-20251001",
-                max_tokens=150,
+                model=self._P3_HAIKU_MODEL,
+                max_tokens=self._P3_MAX_TOKENS,
             )
             return response.strip()
         except Exception as e:
-            logger.debug(f"[P3] 風險視角生成失敗: {e}")
+            logger.warning(f"[P3] 風險視角生成失敗: {e}")
             return ""
 
     def _detect_major_decision_signal(
@@ -625,9 +673,11 @@ class BrainP3FusionMixin:
             1 for sw in stakeholders_keywords if sw in query
         )
 
-        stakeholders_count = mentioned_stakeholders + (2 if has_conflict else 0)
+        stakeholders_count = mentioned_stakeholders + (
+            self._P2_CONFLICT_BONUS_STAKEHOLDERS if has_conflict else 0
+        )
 
-        if stakeholders_count < 2:
+        if stakeholders_count < self._P2_MIN_STAKEHOLDERS:
             return DecisionSignal(
                 is_major=False,
                 decision_type="",
@@ -650,13 +700,13 @@ class BrainP3FusionMixin:
             "未來": 12,
             "往後": 12,
         }
-        impact_months = 3  # 預設 3 個月
+        impact_months = self._P2_DEFAULT_IMPACT_MONTHS
         for keyword, months in time_keywords.items():
             if keyword in query:
                 impact_months = max(impact_months, months)
                 break
 
-        if impact_months <= 3:
+        if impact_months <= self._P2_MIN_IMPACT_MONTHS:
             return DecisionSignal(
                 is_major=False,
                 decision_type="",
@@ -677,7 +727,10 @@ class BrainP3FusionMixin:
         elif any(kw in query for kw in ["市場", "客戶", "品牌", "銷售"]):
             decision_type = "market"
 
-        confidence = min(0.95, 0.6 + (stakeholders_count * 0.1))
+        confidence = min(
+            self._P2_CONFIDENCE_MAX,
+            self._P2_CONFIDENCE_BASE + (stakeholders_count * self._P2_CONFIDENCE_PER_STAKEHOLDER),
+        )
 
         return DecisionSignal(
             is_major=True,
@@ -770,8 +823,8 @@ class BrainP3FusionMixin:
                     logger.debug(f"EvalEngine.evaluate 失敗: {e}")
                     return None
 
-            # 包裝同步函數為異步
-            tasks.append(asyncio.get_event_loop().run_in_executor(None, _eval_task))
+            # 包裝同步函數為異步（P2: 使用 get_running_loop 取代已棄用的 get_event_loop）
+            tasks.append(asyncio.get_running_loop().run_in_executor(None, _eval_task))
             task_names.append("q_score")
 
         # 任務 3: Health Score（通過 Governor 的 DendriticScorer）
@@ -784,7 +837,7 @@ class BrainP3FusionMixin:
                     logger.debug(f"DendriticScorer.calculate_score 失敗: {e}")
                     return None
 
-            tasks.append(asyncio.get_event_loop().run_in_executor(None, _health_task))
+            tasks.append(asyncio.get_running_loop().run_in_executor(None, _health_task))
             task_names.append("health_score")
 
         # ★ 並行執行所有任務（無阻塞等待）
@@ -821,43 +874,50 @@ class BrainP3FusionMixin:
                     logger.debug(f"提煉思考摘要失敗: {e}")
 
             # 融合三角度決策
-            # 權重分配：MetaCog (40%) + Eval (35%) + Health (25%)
-            fusion_score = 0.5  # 基線
+            fusion_score = self._FUSION_SCORE_BASELINE
 
-            # 角度 1: MetaCognition 建議修改（權重 40%）
+            # 角度 1: MetaCognition 建議修改
             if pre_review and pre_review.get("verdict") == "revise":
-                fusion_score -= 0.4
+                fusion_score -= self._FUSION_WEIGHT_METACOG
                 logger.info(
                     f"[P3-Fusion] MetaCog 建議修改: "
-                    f"{pre_review.get('feedback', '')[:80]}..."
+                    f"{pre_review.get('feedback', '')[:self._METACOG_FEEDBACK_TRUNCATE_LEN]}..."
                 )
 
-            # 角度 2: EvalEngine Q-Score（權重 35%）
+            # 角度 2: EvalEngine Q-Score
             if q_score:
-                # Q-Score 低於 0.5 → 品質警告
-                if q_score.score < 0.5:
-                    fusion_score -= 0.35 * (0.5 - q_score.score) / 0.5
+                if q_score.score < self._FUSION_QSCORE_LOW_THRESHOLD:
+                    fusion_score -= (
+                        self._FUSION_WEIGHT_EVAL
+                        * (self._FUSION_QSCORE_LOW_THRESHOLD - q_score.score)
+                        / self._FUSION_QSCORE_LOW_THRESHOLD
+                    )
                     logger.debug(
                         f"[P3-Fusion] Q-Score 低分警告: {q_score.score:.3f}"
                     )
                 else:
-                    # Q-Score 高分 → 加分
-                    fusion_score += 0.1 * (q_score.score - 0.5)
+                    fusion_score += (
+                        self._FUSION_QSCORE_HIGH_BONUS
+                        * (q_score.score - self._FUSION_QSCORE_LOW_THRESHOLD)
+                    )
 
-            # 角度 3: Health Score（權重 25%）
+            # 角度 3: Health Score
             if health_score is not None:
-                # Health Score < 50 → 系統不健康，建議修改或延後
-                if health_score < 50:
-                    fusion_score -= 0.25 * (50 - health_score) / 50
+                if health_score < self._FUSION_HEALTH_LOW_THRESHOLD:
+                    fusion_score -= (
+                        self._FUSION_WEIGHT_HEALTH
+                        * (self._FUSION_HEALTH_LOW_THRESHOLD - health_score)
+                        / self._FUSION_HEALTH_LOW_THRESHOLD
+                    )
                     logger.debug(
                         f"[P3-Fusion] Health Score 警告: {health_score:.1f}"
                     )
 
             # ★ 最終決策
-            if fusion_score < 0.3:
+            if fusion_score < self._FUSION_REVISE_THRESHOLD:
                 fusion_result["fusion_verdict"] = "revise"
                 logger.info("[P3-Fusion] 融合決策: REVISE")
-            elif health_score is not None and health_score < 40:
+            elif health_score is not None and health_score < self._FUSION_HEALTH_ALERT_THRESHOLD:
                 fusion_result["fusion_verdict"] = "alert"
                 logger.warning(
                     "[P3-Fusion] 融合決策: ALERT (系統健康度臨界)"
@@ -907,13 +967,13 @@ class BrainP3FusionMixin:
             _au = self._load_anima_user()
             if _au:
                 _psr = _au.get("observations", {}).get("prefers_short_response", {}).get("count", 0)
-                if _psr > 50:
+                if _psr > self._BREVITY_PREF_COUNT_THRESHOLD:
                     _brevity_constraint = (
                         "\n⚡ 重要：使用者偏好簡短回覆。精煉後的回覆必須控制在 2-3 句以內，"
                         "不要過度展開或列舉。"
                     )
         except Exception as e:
-            logger.debug(f"[BRAIN] operation failed (degraded): {e}")
+            logger.warning(f"[P3] 載入使用者偏好失敗（降級跳過簡短約束）: {e}")
 
         refined_prompt = (
             system_prompt
