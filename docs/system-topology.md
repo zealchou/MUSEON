@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.32
+# MUSEON 系統拓撲圖 v1.33
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.33 (2026-03-22)**：InteractionRequest 跨通道互動層——channel 群組新增 `line` 節點（LINE 通道適配器）；gateway 群組新增 `interaction-queue` 節點（InteractionQueue 非阻塞等待佇列）；新增 8 條連線（interaction-queue ↔ telegram/discord/line/gateway）；171 節點 358 連線
 > **v1.32 (2026-03-22)**：Recommender 激活修復——`recommender` 節點半徑 0.7→0.9（從幽靈模組升級為實際接線）；新增 cross 連線 `recommender → crystal-store`（經由 CrystalStore API 讀取結晶+連結）；brain.py `_recommender` 初始化接線確認；169 節點 350 連線
 > **v1.31 (2026-03-22)**：Knowledge Lattice 持久層遷移——data 群組新增 `crystal-store` 節點（CrystalStore SQLite WAL 統一存取層）+ 7 條連線
 > **v1.30 (2026-03-21)**：授權系統升級——gov 群組新增 `authorization` 節點（配對碼+工具授權+分級策略）+ 5 條連線；持久化 `~/.museon/auth/`
@@ -61,8 +62,10 @@
 | `user` | User (Zeal) | 使用者 | - | 2.0 |
 | `telegram` | Telegram | 主通道 | - | 1.6 |
 | `gateway` | Gateway | WebSocket :8765 | - | 1.6 |
+| `line` | LINE | LINE@ 通道 | - | 1.4 |
 | `cron` | Cron | 排程入口 | - | 1.2 |
 | `mcp-server` | MCP Server | Claude Code 介面 | - | 1.2 |
+| `interaction-queue` | Interaction Queue | 跨通道互動佇列 | - | 1.0 |
 
 ### agent — Agent / Brain
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -339,7 +342,9 @@
 | Source | Target | 說明 |
 |--------|--------|------|
 | `user` | `telegram` | 訊息指令 |
+| `user` | `line` | LINE 訊息 |
 | `telegram` | `gateway` | 轉發 |
+| `line` | `gateway` | webhook 轉發 |
 | `gateway` | `event-bus` | 路由 |
 | `cron` | `event-bus` | 定時觸發 |
 
@@ -622,6 +627,12 @@
 | `observatory` | `service-health` | 讀取健康狀態 |
 | `brain` | `lord-profile` | _observe_lord() 領域畫像寫入 |
 | `lord-profile` | `persona-router` | 百合引擎讀取領域畫像（Phase 1） |
+| `interaction-queue` | `telegram` | present_choices() InlineKeyboard 呈現 |
+| `interaction-queue` | `discord` | present_choices() Button/Select 呈現 |
+| `interaction-queue` | `line` | present_choices() Quick Reply/Flex 呈現 |
+| `interaction-queue` | `gateway` | message pump 互動攔截 + asyncio.Event 等待 |
+| `gateway` | `interaction-queue` | InteractionQueue 啟動初始化 |
+| `line` | `event-bus` | LINE webhook 事件發布 |
 
 ### Skills 控制連線（control）
 | Source | Target | 說明 |
