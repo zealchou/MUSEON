@@ -1,4 +1,4 @@
-# Blast Radius — 模組影響半徑表 v1.40
+# Blast Radius — 模組影響半徑表 v1.41
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
@@ -293,7 +293,7 @@
 
 | 影響類型 | 範圍 |
 |---------|------|
-| 共享狀態 | WorkflowStateDB(RW)、lattice/crystals.json(W) |
+| 共享狀態 | WorkflowStateDB(RW)、crystal.db(W via CrystalStore) |
 | 事件發布 | SKILL_QUALITY_SCORED, WEE_CYCLE_COMPLETE |
 | 跨模組依賴 | workflow/models.py, workflow/workflow_engine.py, agent/knowledge_lattice.py |
 
@@ -310,7 +310,7 @@
 
 | 影響類型 | 範圍 |
 |---------|------|
-| 共享狀態讀取 | crystals.json(R), immunity/events.jsonl(R), accuracy_stats.json(R), skill_usage_log.jsonl(R), morphenix/proposals/(R) |
+| 共享狀態讀取 | crystal.db(R via CrystalStore), immunity/events.jsonl(R), accuracy_stats.json(R), skill_usage_log.jsonl(R), morphenix/proposals/(R) |
 | 共享狀態寫入 | velocity_log.jsonl(W) |
 
 ---
@@ -326,7 +326,7 @@
 
 | 影響類型 | 範圍 |
 |---------|------|
-| 共享狀態讀寫 | ANIMA_MC.json(RW), ANIMA_USER.json(RW), lattice/crystals.json(R), diary_entries(R), workflow/workflows.json(RW) |
+| 共享狀態讀寫 | ANIMA_MC.json(RW), ANIMA_USER.json(RW), crystal.db(R via CrystalStore), diary_entries(R), workflow/workflows.json(RW) |
 | 共享狀態寫入 | guardian/repair_log.jsonl(W), guardian/unresolved.json(W), guardian/state.json(W) |
 | 跨模組依賴 | security/audit.py, doctor/code_analyzer.py |
 
@@ -354,7 +354,7 @@
 
 | 影響類型 | 範圍 |
 |---------|------|
-| 共享狀態讀取 | ANIMA_MC.json(R), ANIMA_USER.json(R), diary_entries(R), crystals.json(R), pulse.db(R), cognitive_trace.jsonl(R) |
+| 共享狀態讀取 | ANIMA_MC.json(R), ANIMA_USER.json(R), diary_entries(R), crystal.db(R via CrystalStore), pulse.db(R), cognitive_trace.jsonl(R) |
 | 事件發布 | AUDIT_COMPLETED |
 | 跨模組依賴 | service_health（交叉驗證）, data_watchdog（健康檢查）, health_check |
 | 新增方法 | `_audit_skill_doctor()` + 12 個 `_sd_check_*` 子方法（認知層檢查）；`_check_skills` glob bug 修復 |
@@ -533,7 +533,7 @@
 
 | 影響類型 | 範圍 |
 |---------|------|
-| 共享狀態讀寫 | question_queue(RW), scout_queue(R), nightly_report(W), PulseDB(RW), crystals(R), accuracy_stats(R) |
+| 共享狀態讀寫 | question_queue(RW), scout_queue(R), nightly_report(W), PulseDB(RW), crystal.db(R via CrystalStore), accuracy_stats(R) |
 | 事件發布 | 6 個：NIGHTLY_COMPLETED, IMMUNE_MEMORY_LEARNED, MORPHENIX_PROPOSAL_CREATED, SOUL_IDENTITY_TAMPERED, SYNAPSE_PRELOAD, TRIGGER_FIRED, TOOL_MUSCLE_DORMANT |
 | 子步驟呼叫 | curiosity_router, exploration_bridge, skill_forge_scout, crystal_actuator, parameter_tuner, morphenix_validator, morphenix_executor, evolution_velocity, periodic_cycles, blueprint_reader, workflow_engine(lazy) |
 
@@ -643,7 +643,8 @@
 
 > 以下模組無人 import（扇入 = 0），修改不影響任何上游，可直接修改。
 
-### Agent 層（8 個）
+### Agent 層（9 個）
+`agent/crystal_store.py`（★ v1.41 新增，扇入=2（knowledge_lattice + crystal_actuator），CrystalStore 統一存取層——crystal.db SQLite WAL 模式，`threading.Lock` + singleton factory `get_crystal_store()`），
 `agent/dna27.py`, `agent/drift_detector.py`, `agent/intuition.py`, `agent/kernel_guard.py`, `agent/plan_engine.py`, `agent/primal_detector.py`, `agent/routing_bridge.py`, `agent/safety_anchor.py`, `agent/sub_agent.py`
 
 ### Memory 層（1 個）
@@ -719,10 +720,10 @@
 | **G2** | 改探索/好奇心邏輯 | pulse_engine + curiosity_router + exploration_bridge + nightly_pipeline + skill_forge_scout | question_queue.json + scout_queue/pending.json + PULSE.md |
 | **G3** | 改記憶存取 | memory_manager + brain + vector_bridge + reflex_router | MemoryStore + Qdrant |
 | **G4** | 改演化速度計算 | evolution_velocity + parameter_tuner + periodic_cycles + metacognition | accuracy_stats.json + tuned_parameters.json |
-| **G5** | 改知識晶格 | knowledge_lattice + crystal_actuator + recommender + brain（Layer 2.5 社群摘要） | crystals.json |
+| **G5** | 改知識晶格 | knowledge_lattice + crystal_store + crystal_actuator + recommender + brain（Layer 2.5 社群摘要） | crystal.db (via CrystalStore) |
 | **G6** | 改免疫系統 | immunity + immune_memory + immune_research + daemon | events.jsonl + immune_memory.json |
 | **G7** | 改品質回饋閉環（DNA-Inspired） | metacognition + morphenix_executor + pulse_db | PulseDB.metacognition 表（`METACOGNITION_QUALITY_FLAG` 事件） |
-| **G8** | 改衰減參數或老化邏輯 | knowledge_lattice + crystal_actuator + recommender + memory_manager + dendritic_scorer | crystals.json(RI) + Qdrant memories(TTL) + PulseDB health_scores(半衰期) + 推薦排序(近因性) |
+| **G8** | 改衰減參數或老化邏輯 | knowledge_lattice + crystal_store + crystal_actuator + recommender + memory_manager + dendritic_scorer | crystal.db(RI via CrystalStore) + Qdrant memories(TTL) + PulseDB health_scores(半衰期) + 推薦排序(近因性) |
 
 > **G8 衰減組說明**：四個衰減引擎（結晶 RI、記憶 TTL、健康分數半衰期、推薦近因性）各自獨立但交叉影響——修改結晶 RI 衰減速度會間接影響 recommender 的推薦排序；修改 dendritic_scorer 半衰期會影響 governor 治理決策進而影響 brain Step 5.5 融合品質。修改任一衰減參數前，必須查閱 `persistence-contract.md` §衰減與優先級模型的完整公式表。
 
@@ -773,6 +774,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-22 | v1.41 | Knowledge Lattice 持久層遷移：新增 `agent/crystal_store.py` 到綠區（扇入=2，CrystalStore SQLite WAL + threading.Lock 統一存取層）；G5 知識晶格組新增 crystal_store，共享狀態從 crystals.json 改為 crystal.db (via CrystalStore)；G8 衰減組同步更新；evolution_velocity、guardian/daemon、system_audit、nightly_pipeline、wee_engine 共享狀態引用從 crystals.json 改為 crystal.db；同步 persistence-contract v1.26、joint-map v1.29、system-topology v1.31 |
 | 2026-03-22 | v1.40 | Business Hub 健康檢查：skill_router.py `_extract_metadata` 頂層 YAML 解析修復（防 workflow stages 巢狀 name 覆蓋）+ synapses.json 幽靈條目清理（3 筆 `"案例結晶"`）+ consultant-communication memory.writes 補齊結構 |
 | 2026-03-22 | v1.39 | Thinking Hub 健康檢查：brain.py `_dispatch_orchestrate` Orchestrator prompt 移除硬編碼 `resonance` 範例 + Rule 4 強化約束（防 LLM 幻覺引用 roster 外 Skill）；shadow SKILL.md `layer: business` → `layer: thinking`；純 prompt 文字修改，扇入扇出不變 |
 | 2026-03-21 | v1.38 | dispatch 路徑 q_score 修復：brain.py `q_score`/`thinking_path_summary`/`p3_fusion_result` 三個 P3 審查變數的初始化從 else 分支（正常 pipeline L1297）提前到 dispatch 分支之前（L1069），修復 dispatch 路徑的 `UnboundLocalError`；純位置移動，無新增變數/方法/共享狀態；brain.py 扇入扇出不變 |

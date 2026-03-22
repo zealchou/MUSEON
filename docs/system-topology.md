@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.30
+# MUSEON 系統拓撲圖 v1.31
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.31 (2026-03-22)**：Knowledge Lattice 持久層遷移——data 群組新增 `crystal-store` 節點（CrystalStore SQLite WAL 統一存取層）+ 7 條連線
 > **v1.30 (2026-03-21)**：授權系統升級——gov 群組新增 `authorization` 節點（配對碼+工具授權+分級策略）+ 5 條連線；持久化 `~/.museon/auth/`
 > **v1.29 (2026-03-21)**：Skills 群組治理升級——新增 `hub` 欄位（9 種 Hub 分組）+ Workflow Stage 規格；詳見 `docs/skill-routing-governance.md`
 > **v1.28 (2026-03-21)**：補全 skills 群組——7 Hub + 39 Skill 節點 + 91 條連線（從 3D 心智圖回補，修復拓撲⇄HTML 漂移）
@@ -153,6 +154,7 @@
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
 |----|------|------|-----|--------|------|
 | `data-bus` | DataBus | 資料層路由器 | Yes | - | 1.8 |
+| `crystal-store` | CrystalStore | 知識晶體 SQLite (WAL) | - | data-bus | 1.0 |
 | `data-watchdog` | DataWatchdog | 資料層監控 | - | data-bus | 1.0 |
 | `memory` | Memory | 六層記憶 | - | data-bus | 1.6 |
 | `vector-index` | Vector Index | Qdrant 語義 | - | data-bus | 1.5 |
@@ -326,7 +328,7 @@
 
 | Source | Target | 說明 |
 |--------|--------|------|
-| `knowledge-lattice` → `crystal-actuator` | `crystals.json` | RI 指數衰減 `exp(-0.03×days)`，RI<0.05 由 crystal-actuator 執行歸檔 |
+| `knowledge-lattice` → `crystal-actuator` | `crystal.db` (via CrystalStore) | RI 指數衰減 `exp(-0.03×days)`，RI<0.05 由 crystal-actuator 執行歸檔 |
 | `memory` → `vector-index` | Qdrant memories | TTL 分級（24h/14d/90d）+ 訪問次數晉升/降級 + supersede 事實覆寫 |
 | `dendritic-scorer` → `pulse-db` | health_scores 表 | 半衰期 2h 指數衰減，governor 每回合 tick() |
 | `recommender` → `knowledge-lattice` | 推薦排序 | 近因性半衰期 7d + 互動衰減 λ=0.95 |
@@ -485,6 +487,7 @@
 | `data-bus` | `blueprint-reader` | Store 路由 |
 | `data-bus` | `sparse-embedder` | Store 路由 |
 | `vector-index` | `sparse-embedder` | 混合檢索 BM25+Dense RRF 融合 |
+| `data-bus` | `crystal-store` | Store 路由 |
 | `data-bus` | `data-watchdog` | 監控注入 |
 | `data-bus` | `pulse-db` | Store 路由 |
 | `data-bus` | `group-context-db` | Store 路由 |
@@ -593,7 +596,13 @@
 | `perception` | `brain` | 四診合參 |
 | `curiosity-router` | `pulse` | 探索主題 |
 | `exploration-bridge` | `skill-forge-scout` | 技能線索 |
+| `crystal-actuator` | `crystal-store` | 結晶降級/升級（經由 CrystalStore API） |
 | `crystal-actuator` | `knowledge-lattice` | 結晶操作 |
+| `knowledge-lattice` | `crystal-store` | 結晶讀寫（經由 CrystalStore API） |
+| `nightly` | `crystal-store` | 結晶統計（經由 CrystalStore API） |
+| `evolution-velocity` | `crystal-store` | 結晶數量統計 |
+| `guardian` | `crystal-store` | 結晶健康檢查 |
+| `memory-reset` | `crystal-store` | 一鍵重置（DELETE FROM 三表） |
 | `periodic-cycles` | `pulse` | 週期驅動 |
 | `skill-market` | `skills-registry` | 技能打包 |
 | `federation-sync` | `nightly` | 夜間同步 |
@@ -805,12 +814,12 @@
 
 | 指標 | 數值 |
 |------|------|
-| 總節點數 | 168 (122 系統 + 46 Skills) |
-| 總連線數 | 341 (250 系統 + 91 Skills) |
+| 總節點數 | 169 (123 系統 + 46 Skills) |
+| 總連線數 | 349 (258 系統 + 91 Skills) |
 | 群組數 | 14 (含 skills) |
 | Hub 節點 | 18 (11 系統 + 7 Skills Hub) |
-| 跨系統連線 | 104 (74 系統 + 30 Skills cross) |
-| 內部連線 | 171 (117 系統 + 54 Skills internal) |
+| 跨系統連線 | 111 (81 系統 + 30 Skills cross) |
+| 內部連線 | 172 (118 系統 + 54 Skills internal) |
 | 非同步連線 | 5 |
 | 監控連線 | 5 |
 | 控制連線 | 16 (9 系統 + 7 Skills control) |
@@ -824,6 +833,7 @@
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.31 | 2026-03-22 | Knowledge Lattice 持久層遷移：data 群組新增 `crystal-store` 節點（CrystalStore SQLite WAL 統一存取層，+1 節點）；新增 8 條連線——internal: data-bus→crystal-store Store 路由（+1）；cross: knowledge-lattice→crystal-store 結晶讀寫、crystal-actuator→crystal-store 結晶降級升級、nightly→crystal-store 結晶統計、evolution-velocity→crystal-store 結晶數量統計、guardian→crystal-store 結晶健康檢查、memory-reset→crystal-store 一鍵重置（+6）；decay: knowledge-lattice→crystal-actuator 描述更新 crystals.json→crystal.db（+0）；舊 JSON 檔案歸檔為 .bak；同步 persistence-contract v1.26、blast-radius v1.41、joint-map v1.29；169 節點 349 連線 |
 | v1.30 | 2026-03-21 | 授權系統升級：gov 群組新增 `authorization` 節點（配對碼+工具授權+分級策略）；新增 5 條連線——internal: governance→authorization 授權引擎、authorization→security 三級策略查詢（+2）；cross: authorization→telegram 配對碼推送+inline keyboard、authorization→gateway 訊息泵授權回覆、authorization→mcp-server auth_status 查詢（+3）；持久化 `~/.museon/auth/`（allowlist.json + policy.json）；168 節點 341 連線 |
 | v1.29 | 2026-03-21 | Skills 群組治理升級：新增 `hub` 欄位（9 種 Hub 分組：core/infra/thinking/market/business/creative/product/evolution/workflow）至 49 個 Skill Manifest；新增 Workflow Stage 結構化 YAML（3 個 workflow 含 stages + speed_paths）；新增治理文件 `skill-routing-governance.md`；plugin-registry v2.4（Hub 架構樹）；validate_connections.py v1.1（+2 驗證規則）；167 節點 336 連線（不變） |
 | v1.28 | 2026-03-21 | 補全 skills 群組：7 Hub + 39 Skill 節點 + 91 條連線（從 3D 心智圖回補，修復拓撲⇄HTML 漂移）；167 節點 336 連線 |

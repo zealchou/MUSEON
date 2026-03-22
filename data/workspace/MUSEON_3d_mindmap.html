@@ -299,8 +299,8 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 //  SYNC META — 拓撲同步狀態
 // ═══════════════════════════════════════
 const SYNC_META = {
-  topologyVersion: 'v1.30',
-  syncDate: '2026-03-21',
+  topologyVersion: 'v1.31',
+  syncDate: '2026-03-22',
   nodeCount: 0, // auto-calculated below
   linkCount: 0, // auto-calculated below
   skillUpgrades: [
@@ -455,6 +455,7 @@ const nodes = [
   // ── data ──
   {id:"data-bus",label:"DataBus",zh:"資料層路由器",group:"data",r:1.8,hub:1},
   {id:"blueprint-reader",label:"Blueprint Reader",zh:"藍圖解析器",group:"data",r:0.9,p:"data-bus"},
+  {id:"crystal-store",label:"CrystalStore",zh:"知識晶體 SQLite (WAL)",group:"data",r:1.0,p:"data-bus"},
   {id:"data-watchdog",label:"DataWatchdog",zh:"資料層監控",group:"data",r:1.0,p:"data-bus"},
   {id:"group-context-db",label:"GroupContextDB",zh:"群組上下文 SQLite",group:"data",r:1.0,p:"data-bus"},
   {id:"lord-profile",label:"Lord Profile",zh:"主人領域畫像",group:"data",r:0.8,p:"data-bus"},
@@ -560,7 +561,7 @@ const nodes = [
 const links = [
   // ── decay ──
   {source:"dendritic-scorer",target:"pulse-db",label:"health_scores 表",type:"decay"},
-  {source:"knowledge-lattice",target:"crystal-actuator",label:"`crystals.json`",type:"decay"},
+  {source:"knowledge-lattice",target:"crystal-actuator",label:"`crystal.db`",type:"decay"},
   {source:"memory",target:"vector-index",label:"Qdrant memories",type:"decay"},
   {source:"nightly",target:"skill-synapse",label:"synapses.json",type:"decay"},
   {source:"recommender",target:"knowledge-lattice",label:"推薦排序",type:"decay"},
@@ -618,6 +619,7 @@ const links = [
   {source:"brain",target:"roundtable",label:"圓桌詰問",type:"internal"},
   {source:"brain",target:"skill-router",label:"技能路由",type:"internal"},
   {source:"data-bus",target:"blueprint-reader",label:"Store 路由",type:"internal"},
+  {source:"data-bus",target:"crystal-store",label:"Store 路由",type:"internal"},
   {source:"data-bus",target:"data-watchdog",label:"監控注入",type:"internal"},
   {source:"data-bus",target:"group-context-db",label:"Store 路由",type:"internal"},
   {source:"data-bus",target:"lord-profile",label:"Store 路由",type:"internal"},
@@ -637,6 +639,7 @@ const links = [
   {source:"doctor",target:"health-check",label:"檢查",type:"internal"},
   {source:"doctor",target:"log-analyzer",label:"日誌",type:"internal"},
   {source:"doctor",target:"memory-reset",label:"重置",type:"internal"},
+  {source:"memory-reset",target:"crystal-store",label:"一鍵重置",type:"cross"},
   {source:"doctor",target:"observatory",label:"認知儀表板",type:"internal"},
   {source:"doctor",target:"self-diagnosis",label:"診斷",type:"internal"},
   {source:"doctor",target:"surgery",label:"手術",type:"internal"},
@@ -768,6 +771,7 @@ const links = [
   {source:"brain",target:"memory",label:"四通道持久化",type:"cross"},
   {source:"commitment-tracker",target:"brain",label:"承諾自檢",type:"cross"},
   {source:"commitment-tracker",target:"registry",label:"承諾記錄",type:"cross"},
+  {source:"crystal-actuator",target:"crystal-store",label:"結晶降級/升級",type:"cross"},
   {source:"crystal-actuator",target:"knowledge-lattice",label:"結晶操作",type:"cross"},
   {source:"curiosity-router",target:"pulse",label:"探索主題",type:"cross"},
   {source:"data-bus",target:"diary-store",label:"Store 路由",type:"cross"},
@@ -790,6 +794,7 @@ const links = [
   {source:"drift-detector",target:"memory",label:"覺察日誌",type:"cross"},
   {source:"eval-engine",target:"memory",label:"品質數據",type:"cross"},
   {source:"eval-engine",target:"registry",label:"Q-Score 存取",type:"cross"},
+  {source:"evolution-velocity",target:"crystal-store",label:"結晶數量統計",type:"cross"},
   {source:"evolution-velocity",target:"parameter-tuner",label:"速度驅動調諧",type:"cross"},
   {source:"exploration-bridge",target:"skill-forge-scout",label:"技能線索",type:"cross"},
   {source:"explorer",target:"firecrawl",label:"頁面爬取",type:"cross"},
@@ -806,6 +811,7 @@ const links = [
   {source:"group-session-proactive",target:"event-bus",label:"GROUP_SESSION_END 訂閱",type:"cross"},
   {source:"group-session-proactive",target:"telegram",label:"群組追問發送",type:"cross"},
   {source:"guardian",target:"brain",label:"ANIMA 修復",type:"cross"},
+  {source:"guardian",target:"crystal-store",label:"結晶健康檢查",type:"cross"},
   {source:"guardian",target:"doctor",label:"修復委派",type:"cross"},
   {source:"intention-radar",target:"research-engine",label:"執行研究",type:"cross"},
   {source:"investment-masters",target:"knowledge-lattice",label:"軍師會診結晶",type:"cross"},
@@ -820,6 +826,7 @@ const links = [
   {source:"knowledge-lattice",target:"skills-product-hub",label:"記憶接收（產品）",type:"cross"},
   {source:"knowledge-lattice",target:"skills-thinking-hub",label:"記憶接收（思維）",type:"cross"},
   {source:"knowledge-lattice",target:"skills-workflow-hub",label:"記憶接收（工作流）",type:"cross"},
+  {source:"knowledge-lattice",target:"crystal-store",label:"結晶讀寫",type:"cross"},
   {source:"knowledge-lattice",target:"vector-index",label:"結晶存取",type:"cross"},
   {source:"llm-router",target:"anthropic-api",label:"API 呼叫",type:"cross"},
   {source:"lord-profile",target:"persona-router",label:"百合引擎讀取領域畫像（Phase 1）",type:"cross"},
@@ -837,6 +844,7 @@ const links = [
   {source:"nightly",target:"diary-store",label:"每日日記生成",type:"cross"},
   {source:"nightly",target:"evolution-velocity",label:"夜間速度計算",type:"cross"},
   {source:"nightly",target:"immunity",label:"抗體修剪",type:"cross"},
+  {source:"nightly",target:"crystal-store",label:"結晶統計",type:"cross"},
   {source:"nightly",target:"knowledge-lattice",label:"結晶固化",type:"cross"},
   {source:"nightly",target:"memory",label:"記憶壓縮",type:"cross"},
   {source:"nightly",target:"parameter-tuner",label:"夜間參數調諧",type:"cross"},

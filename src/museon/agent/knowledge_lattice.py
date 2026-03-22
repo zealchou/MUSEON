@@ -1644,8 +1644,9 @@ class KnowledgeLattice:
         self.data_dir = Path(data_dir)
         self.data_dir.mkdir(parents=True, exist_ok=True)
 
-        # 持久化存儲
-        self._store = LatticeStore(data_dir=data_dir)
+        # 持久化存儲（SQLite WAL 模式，取代舊 LatticeStore JSON）
+        from museon.agent.crystal_store import CrystalStore
+        self._store = CrystalStore(data_dir=data_dir)
 
         # 載入結晶和連結
         self._crystals: Dict[str, Crystal] = self._store.load_crystals()

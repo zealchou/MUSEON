@@ -408,21 +408,21 @@ class MemoryReset:
 
     def _reset_knowledge_lattice(self, confirm: bool):
         """清空知識晶格."""
-        layer = ResetLayer("C.知識", "crystals.json", "清空知識晶格")
+        layer = ResetLayer("C.知識", "crystal.db", "清空知識晶格")
         self.layers.append(layer)
 
-        path = self.data_dir / "lattice" / "crystals.json"
         try:
-            if path.exists():
-                data = json.loads(path.read_text(encoding="utf-8"))
-                count = len(data) if isinstance(data, list) else 0
+            from museon.agent.crystal_store import CrystalStore
+            _cs = CrystalStore(data_dir=str(self.data_dir))
+            count = _cs.count_crystals()
+            if count > 0:
                 if confirm:
-                    path.write_text("[]", encoding="utf-8")
+                    _cs.reset()
                 layer.status = "cleared"
                 layer.detail = f"清除 {count} 個 crystals"
             else:
                 layer.status = "skipped"
-                layer.detail = "檔案不存在"
+                layer.detail = "晶格為空"
         except Exception as e:
             layer.status = "error"
             layer.detail = str(e)
