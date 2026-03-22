@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.41
+# MUSEON 系統拓撲圖 v1.42
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.42 (2026-03-22)**：Sparse Embedder 全面啟動——sparse-embedder 節點升級為已啟動狀態；新增 skill-router→sparse-embedder、memory→sparse-embedder 跨系統連線（hybrid_search 消費者接線）；Nightly Pipeline 新增 Step 8.7（IDF 重建 + 回填）；184 節點 389 連線
 > **v1.41 (2026-03-22)**：Brain Prompt Builder 健康檢查——補齊 3 條遺漏連線（brain-prompt-builder→anima-mc-store/data-bus/anthropic-api）；常數化 20+ 個魔術值；Token zone 耗盡 warning 日誌；budget.remaining() None 防禦；新增單元測試；184 節點 387 連線
 > **v1.40 (2026-03-22)**：Brain Tools 健康檢查——補齊 2 條遺漏連線（brain-tools→anthropic-api LLM 呼叫、brain-tools→data-bus session/JSONL 持久化）；常數化 8 個魔術值；Nightly Step 27 擴充按日期 JSONL 清理；新增 16 個 brain_tools 單元測試；184 節點 384 連線
 > **v1.39 (2026-03-22)**：使用者 ↔ ANIMA 連線補齊——新增 3 條 cross 連線：zeal→anima-mc-store（Owner 互動觸發 ANIMA_MC 更新）、verified-user→anima-mc-store（配對使用者 L1-L8 觀察）、external-user→anima-mc-store（外部使用者觀察）；auth 持久化修復（PairingManager/AuthorizationPolicy 首次 load 時自動初始化空檔案）；184 節點 382 連線
@@ -215,7 +216,7 @@ external-user（EXTERNAL）
 | `skill-synapse` | Skill Synapse | 突觸網路 | - | data-bus | 0.9 |
 | `blueprint-reader` | Blueprint Reader | 藍圖解析器 | - | data-bus | 0.9 |
 | `lord-profile` | Lord Profile | 主人領域畫像 | - | data-bus | 0.8 |
-| `sparse-embedder` | Sparse Embedder | BM25 稀疏向量 | - | data-bus | 0.9 |
+| `sparse-embedder` | Sparse Embedder | BM25 稀疏向量（已啟動） | - | data-bus | 0.9 |
 
 ### evolution — Evolution 演化
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -624,6 +625,8 @@ external-user（EXTERNAL）
 | `memory` | `registry` | 持久化儲存 |
 | `vector-index` | `qdrant` | 向量存儲（dense） |
 | `sparse-embedder` | `qdrant` | 稀疏向量存儲（sparse collections） |
+| `skill-router` | `sparse-embedder` | 混合檢索（hybrid_search） |
+| `memory` | `sparse-embedder` | 記憶混合檢索（hybrid_search） |
 | `wee` | `skills-registry` | 演化追蹤 |
 | `wee` | `registry` | 演化狀態 |
 | `pulse-db` | `registry` | 脈搏記錄 |
@@ -923,6 +926,7 @@ external-user（EXTERNAL）
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.42 | 2026-03-22 | Sparse Embedder 全面啟動——sparse-embedder 節點升級為已啟動狀態；新增 skill-router→sparse-embedder、memory→sparse-embedder 跨系統連線（hybrid_search 消費者接線）；Nightly Pipeline 新增 Step 8.7（IDF 重建 + 回填） |
 | v1.38 | 2026-03-22 | L3-A2 Brain Mixin 拆分：brain 節點拆分為 core + 5 Mixin 子模組 + brain_types 共享型別；agent 群組新增 `brain-prompt-builder`（system prompt 建構, 1668 行）、`brain-dispatch`（任務分派, 1082 行）、`brain-observation`（觀察與演化, 2003 行）、`brain-p3-fusion`（P3 融合與決策層, 948 行）、`brain-tools`（LLM 呼叫與 session 管理, 966 行）、`brain-types`（共享 dataclass: DecisionSignal, P3FusionSignal）6 個節點（+6）；新增 6 條 internal 連線；184 節點 379 連線 |
 | v1.37 | 2026-03-22 | Brain 三層治療：agent 群組新增 `chat-context`（ChatContext dataclass 輕量對話上下文，r=0.7）、`deterministic-router`（確定性任務分解器取代 LLM Orchestrator，r=1.0）2 個節點（+2）；新增 2 條 internal 連線（brain→chat-context 對話上下文封裝、brain→deterministic-router 確定性任務分解）；同步 persistence-contract v1.29（PulseDB 新增 orchestrator_calls 表）、joint-map v1.34（#35 orchestrator_calls）；178 節點 373 連線 |
 | v1.36 | 2026-03-22 | 使用者節點精細化：channel 群組 `user` 拆分為 `zeal`（CORE 主人，r=2.0）、`verified-user`（VERIFIED 動態配對，r=1.2）、`external-user`（EXTERNAL 群組外部成員，r=1.4）三節點（+2 淨增，user→3）；補上遺漏的 `discord` 節點（r=1.2，+1）；flow 連線從 2 條（user→telegram/line）更新為 6 條（zeal→telegram/line、verified-user→telegram、external-user→telegram/line/discord）+ discord→gateway 1 條；async 連線新增 telegram→external-user、line→zeal 2 條；176 節點 369 連線 |

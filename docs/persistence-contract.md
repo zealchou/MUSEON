@@ -1,4 +1,4 @@
-# MUSEON Persistence Contract v1.29 — 水電圖
+# MUSEON Persistence Contract v1.30 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
@@ -58,6 +58,9 @@
 - IDF 表儲存：`data/_system/sparse_idf.json`（`SparseEmbedder` 持久化）
 - 零遷移設計：不修改原 dense collection 的 schema
 - Graceful degradation：IDF 未建立或 sparse collection 不存在時，`hybrid_search()` 降級為純 dense
+- IDF 表重建由 Nightly Step 8.7 `_step_sparse_idf_rebuild()` 負責
+- 回填（backfill）同步在 Step 8.7 執行，覆蓋 memories, skills, crystals 三個 collection
+- `hybrid_search()` 現在被 4 個上游消費者呼叫：`skill_router`, `memory_manager`, `knowledge_lattice`, `server.py`
 
 **共用規範**：
 - 統一透過 `VectorBridge` 操作，不直接 import qdrant_client
@@ -647,6 +650,7 @@ recommender ──近因性衰減──→ 推薦排序 (in-memory)
 | v1.0 | 2026-03-15 | 初版：完整水電圖，涵蓋 23 個正常配對、3 個 Dead Write、14 個死目錄 |
 | v1.1 | 2026-03-15 | Phase 2 完成：4 個 JSON 遷移至 PulseDB（ceremony_state + eval 三件套） |
 | v1.2 | 2026-03-15 | Phase 3 完成：DataContract + DataBus 建立，10 個 Store 類統一接入 |
+| v1.30 | 2026-03-22 | Sparse Embedder 啟動：Sparse Collections 新增 Nightly Step 8.7 IDF 重建 + 回填排程；hybrid_search() 消費者 0→4（skill_router + memory_manager + knowledge_lattice + server.py）；同步 joint-map v1.35、blast-radius v1.35 |
 | v1.29 | 2026-03-22 | Brain 三層治療——PulseDB 新增 `orchestrator_calls` 表（id/plan_id/skill_count/task_count/success/model/response_length/created_at，brain.py `_dispatch_orchestrate()` 寫入，供未來 A1 確定性路由分析）；新增 W39 配對（Orchestrator 呼叫診斷）；PulseDB 表數 15→16；管線 B 表清單新增 orchestrator_calls；拓撲對應表更新；同步 joint-map v1.34、system-topology v1.37 |
 | v1.28 | 2026-03-22 | P0-P3 升級——新增管線 F-2 寫入前快照備份（ANIMA_MC 寫入前快照 `_system/backups/anima_mc/` + PULSE.md 寫入前快照 `_system/backups/pulse_md/`，各保留 10 份 FIFO 輪替）；Brain Token 預算新增第 6 區段 Strategic Zone（1000 tokens，buffer 2800→1800）；`_system/` 子目錄新增 backups 兩個路徑條目；同步 system-topology v1.35、joint-map v1.33、blast-radius v1.46、memory-router v1.4 |
 | v1.27 | 2026-03-22 | 經驗諮詢閘門——W13 知識晶體 Schema 新增 Procedure 結晶類型（4 個選填欄位，ALTER TABLE 向後相容）；DW2 skill_usage_log.jsonl 從 Dead Write 升級為正常配對（新增 outcome 欄位） |

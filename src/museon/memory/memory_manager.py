@@ -897,7 +897,7 @@ class MemoryManager:
             if vb is None:
                 return []
 
-            results = vb.search("memories", query, limit=limit)
+            results = vb.hybrid_search("memories", query, limit=limit)
             return [
                 (r["id"], r["score"])
                 for r in results

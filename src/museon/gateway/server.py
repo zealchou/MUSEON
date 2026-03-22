@@ -2492,7 +2492,7 @@ def create_app() -> FastAPI:
             from museon.vector.vector_bridge import VectorBridge
             from museon.core.event_bus import get_event_bus
             vb = VectorBridge(workspace=_get_brain().data_dir, event_bus=get_event_bus())
-            results = vb.search(collection, query, limit=limit)
+            results = vb.hybrid_search(collection, query, limit=limit)
             return {"results": results, "count": len(results)}
         except Exception as e:
             return {"error": str(e), "results": []}
@@ -2935,6 +2935,28 @@ def create_app() -> FastAPI:
             logger.info(f"[startup] Skills indexed: {skill_idx}")
         except Exception as e:
             logger.warning(f"[startup] Skills index failed (non-fatal): {e}")
+
+        # ── Sparse IDF 驗證（混合檢索基礎設施）──
+        try:
+            from museon.vector.sparse_embedder import SparseEmbedder
+            se = SparseEmbedder(workspace=brain.data_dir)
+            if se.is_available() and se.has_idf():
+                logger.info(
+                    f"[startup] SparseEmbedder IDF ready: "
+                    f"{len(se._idf)} terms"
+                )
+            else:
+                reasons = []
+                if not se.is_available():
+                    reasons.append("jieba not installed")
+                if not se.has_idf():
+                    reasons.append("IDF table not built (run nightly to build)")
+                logger.info(
+                    f"[startup] SparseEmbedder unavailable: "
+                    f"{', '.join(reasons)} — hybrid search will degrade to pure dense"
+                )
+        except Exception as e:
+            logger.debug(f"[startup] SparseEmbedder check skipped: {e}")
 
         # ── v10.2: Auto-connect configured MCP servers ──
         try:
