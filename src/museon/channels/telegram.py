@@ -874,29 +874,12 @@ class TelegramAdapter(ChannelAdapter):
             # 去除 Markdown 語法，使用自然語言格式
             clean_text = self._strip_markdown(message.content)
 
-            # Telegram 單則訊息上限 4096 字元，超長自動分段
-            MAX_TG_LEN = 4096
-            if len(clean_text) <= MAX_TG_LEN:
-                await self.application.bot.send_message(chat_id=chat_id, text=clean_text)
-            else:
-                # 優先在段落邊界（\n\n）切，其次在換行（\n）切
-                remaining = clean_text
-                while remaining:
-                    if len(remaining) <= MAX_TG_LEN:
-                        await self.application.bot.send_message(chat_id=chat_id, text=remaining)
-                        break
-                    # 在 MAX_TG_LEN 範圍內找最後的段落邊界
-                    cut = remaining[:MAX_TG_LEN].rfind("\n\n")
-                    if cut < 500:  # 太靠前，改找換行
-                        cut = remaining[:MAX_TG_LEN].rfind("\n")
-                    if cut < 500:  # 還是太靠前，硬切
-                        cut = MAX_TG_LEN
-                    chunk = remaining[:cut].rstrip()
-                    remaining = remaining[cut:].lstrip()
-                    if chunk:
-                        await self.application.bot.send_message(chat_id=chat_id, text=chunk)
-                        if remaining:
-                            await asyncio.sleep(0.15)  # 避免 Telegram rate limit
+            # Telegram 單則訊息上限 4096 字元，超長自動分段（P0-3：統一用 _split_long_text）
+            parts = self._split_long_text(clean_text)
+            for i, part in enumerate(parts):
+                await self.application.bot.send_message(chat_id=chat_id, text=part)
+                if i < len(parts) - 1:
+                    await asyncio.sleep(0.15)  # 避免 Telegram rate limit
             return True
 
         except Exception as e:
@@ -1110,10 +1093,35 @@ class TelegramAdapter(ChannelAdapter):
 
     # ─── Push Notifications（純 CPU 模板 → Telegram）───
 
+    @staticmethod
+    def _split_long_text(text: str, max_len: int = 4096) -> list:
+        """將超長文字按段落邊界切分（P0-3：統一分段邏輯）."""
+        if not text or len(text) <= max_len:
+            return [text] if text else []
+        chunks = []
+        remaining = text
+        while remaining:
+            if len(remaining) <= max_len:
+                chunks.append(remaining)
+                break
+            # 優先在段落邊界（\n\n）切，其次在換行（\n）切
+            cut = remaining[:max_len].rfind("\n\n")
+            if cut < 500:
+                cut = remaining[:max_len].rfind("\n")
+            if cut < 500:
+                cut = max_len
+            chunk = remaining[:cut].rstrip()
+            remaining = remaining[cut:].lstrip()
+            if chunk:
+                chunks.append(chunk)
+        return chunks
+
     async def push_notification(
         self, text: str, chat_ids: Optional[list] = None
     ) -> int:
         """推播通知到指定或所有受信任使用者 — 零 Token.
+
+        P0-3 修復：超長訊息自動分段（之前直接送出會被 Telegram 截斷）。
 
         Args:
             text: 推播訊息（純文字或 Telegram Markdown）
@@ -1131,16 +1139,25 @@ class TelegramAdapter(ChannelAdapter):
             logger.warning("No push targets (trusted_user_ids empty)")
             return 0
 
+        # P0-3：超長文字分段
+        parts = self._split_long_text(text)
+        if not parts:
+            return 0
+
         sent = 0
         for cid in targets:
             try:
-                msg = await self.application.bot.send_message(
-                    chat_id=cid, text=text
-                )
+                last_msg = None
+                for i, part in enumerate(parts):
+                    last_msg = await self.application.bot.send_message(
+                        chat_id=cid, text=part
+                    )
+                    if i < len(parts) - 1:
+                        await asyncio.sleep(0.15)
                 sent += 1
                 # 追蹤主動推送 message_id（用於回覆串接）
-                if msg and msg.message_id:
-                    self._proactive_message_ids[msg.message_id] = text[:200]
+                if last_msg and last_msg.message_id:
+                    self._proactive_message_ids[last_msg.message_id] = text[:200]
                     # 維持上限
                     if len(self._proactive_message_ids) > self._max_proactive_ids:
                         oldest = next(iter(self._proactive_message_ids))
@@ -1148,7 +1165,7 @@ class TelegramAdapter(ChannelAdapter):
             except Exception as e:
                 logger.error(f"Push notification failed for chat_id={cid}: {e}")
 
-        logger.info(f"📢 Push notification sent to {sent}/{len(targets)} users")
+        logger.info(f"📢 Push notification sent to {sent}/{len(targets)} users ({len(parts)} parts)")
         return sent
 
     # ─── Pulse EventBus Integration ───
