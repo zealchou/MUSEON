@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.36
+# Joint Map — 共享可變狀態接頭圖 v1.37
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -46,6 +46,9 @@
 | 33 | _system/recommendations/interactions.json | 🟢 | 1 | 1 | 原子寫 | [→](#33-_systemrecommendationsinteractionsjson) |
 | 34 | _system/backups/ | 🟢 | 2 | 0 | 無(獨立) | [→](#34-_systembackups) |
 | 35 | orchestrator_calls（PulseDB 表） | 🟢 | 1 | 0 | SQLite WAL | [→](#35-orchestrator_callspulsedb-表) |
+| 36 | external_users/{uid}.json | 🟢 | 2 | 1 | ✅ Lock+原子寫 | [→](#36-external_usersuidjson) |
+| 37 | museon-persona.md | 🟡 | 2 | 全部 L2 subagent | 無 | [→](#37-museon-personamd) |
+| 38 | ~/.claude/skills/*/SKILL.md | 🔴 | 3 | 4+ | 無 | [→](#38-claudeskillsskillmd) |
 
 > **危險度定義**：🔴 多寫入者+高扇出+格式不一致 | 🟡 多寫入者或高扇出 | 🟢 單寫入者+低扇出
 
@@ -913,6 +916,56 @@
 
 ---
 
+### 37. museon-persona.md
+
+**路徑**：`data/_system/museon-persona.md`
+**用途**：MUSEON 核心人格定義檔——所有 L2 thinker subagent 在 spawn 時讀取此檔，作為行為準則與語氣基調
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| Zeal（手動） | **W** | — | 手動維護人格定義 | — |
+| morphenix | **W** | 人格迭代提案 | 人格迭代時由 morphenix 提案修改 | — |
+| 所有 L2 thinker subagent | **R** | spawn 時讀取 | 每次 L2 思考者 spawn 時讀取作為系統人格指令 | — |
+
+#### 資料格式
+
+Markdown 純文字，包含行為準則、語氣定義、決策原則等。
+
+> **鎖**：無（手動維護為主，寫入頻率極低）
+> **TTL**：永久
+> **危險度**：🟡 黃（無鎖但影響面廣——所有 L2 subagent 的行為基調皆由此檔決定）
+
+---
+
+### 38. ~/.claude/skills/*/SKILL.md
+
+**路徑**：`~/.claude/skills/*/SKILL.md`（51 個 Skill，約 909KB）
+**用途**：ACSF Skill 定義檔群——Claude Code session 啟動時載入、skill_router 路由匹配、vector_bridge 向量索引、nightly Step 8.6 重建索引
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| Zeal（手動） | **W** | — | 手動新增/修改 Skill 定義 | — |
+| acsf（Skill 鍛造） | **W** | Skill 鍛造流程 | 自動化 Skill 生成/更新 | — |
+| morphenix | **W** | 演化提案 | Skill 迭代時修改 SKILL.md | — |
+| Claude Code session | **R** | session 啟動 | 載入 Skill 清單作為可用工具 | — |
+| `skill_router.py` | **R** | `route()` | Skill 路由匹配 | — |
+| `vector_bridge.py` | **R** | `index_all_skills()` | 向量索引建立 | — |
+| nightly Step 8.6 | **R** | Skill 重建索引 | 夜間管線重新索引所有 Skill | — |
+
+#### 資料格式
+
+每個 SKILL.md 為獨立 Markdown 文件，包含 Skill 的 Manifest（io/connects_to/memory/hub）、使用說明、範例等。
+
+> **鎖**：無（檔案系統層級，無並發寫入機制）
+> **TTL**：永久
+> **危險度**：🔴 紅（51 個檔案 ~909KB，無鎖，3 個寫入者 + 4 個讀取者；任一 SKILL.md 格式錯誤可能導致 skill_router 路由失敗或 vector_bridge 索引損壞）
+
+---
+
 ## 必須同時修改的模組組（不可分批）
 
 > 修改以下任一模組時，**必須**同時檢查並調整同組所有模組。
@@ -968,6 +1021,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-23 | v1.37 | 三層調度員架構：新增 #37 `museon-persona.md`（🟡 危險度，Zeal/morphenix 寫入，所有 L2 thinker subagent spawn 時讀取——影響面廣但寫入頻率極低）；補登 #38 `~/.claude/skills/*/SKILL.md`（🔴 危險度，51 個 Skill ~909KB，3 寫入者 手動/acsf/morphenix，4+ 讀取者 Claude Code session/skill_router/vector_bridge/nightly 8.6）；快速索引表補齊 #36；共享狀態 36→38 個 |
 | 2026-03-22 | v1.36 | External User 健康檢查：新增 #36 `external_users/{uid}.json`（🟢 危險度，ExternalAnimaManager 統一管理）；ExternalAnimaManager 新增 `threading.Lock` + 原子寫入（tmp→rename）修復 TOCTOU 競態條件；鎖一覽表新增 external_users 條目；共享狀態 35→36 個 |
 | 2026-03-22 | v1.35 | Sparse Embedder 啟動：#9 Qdrant 向量庫 Sparse Collections 從「已定義未消費」升級為「全面啟動」；hybrid_search() 被 skill_router + memory_manager + knowledge_lattice + server.py 4 個消費者呼叫（取代原 pure dense search）；Nightly Step 8.7 新增 IDF 重建 + 回填步驟；Gateway startup 新增 IDF 驗證；同步 blast-radius v1.35、persistence-contract v1.30 |
 | 2026-03-22 | v1.34 | Brain 三層治療：新增 #35 `orchestrator_calls`（PulseDB 表，🟢 危險度，單寫入者 brain.py `_dispatch_orchestrate()`，讀取者 0 供未來 A1 確定性路由）；#8 PulseDB 表數 14→15；共享狀態 34→35 個；同步 persistence-contract v1.29、system-topology v1.37 |
