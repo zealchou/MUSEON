@@ -128,13 +128,16 @@ class BudgetMonitor:
             fd, tmp_path = tempfile.mkstemp(
                 dir=str(fp.parent), suffix=".tmp", prefix=".budget_"
             )
+            fd_closed = False
             try:
                 os.write(fd, content.encode("utf-8"))
                 os.fsync(fd)
                 os.close(fd)
+                fd_closed = True
                 os.replace(tmp_path, str(fp))
             except Exception:
-                os.close(fd) if not os.get_inheritable(fd) else None
+                if not fd_closed:
+                    os.close(fd)
                 if os.path.exists(tmp_path):
                     os.unlink(tmp_path)
                 raise

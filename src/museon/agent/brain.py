@@ -88,6 +88,12 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         self._offline_flag = False  # 離線回覆標記 — 為 True 時不持久化 session
         self._last_offline_probe_ts = 0.0  # 離線模式下上次 self-probe 時間戳
 
+        # ★ 併發安全：Brain process() 全域 lock
+        # 防止多群組併發時 self._ctx 等 instance 變數互相覆蓋
+        # 不同群組的 process() 呼叫會排隊（但每個呼叫已比之前快很多）
+        import asyncio as _asyncio
+        self._process_lock = _asyncio.Lock()
+
         # 技能使用追蹤（供 WEE/Morphenix）
         self._skill_usage_log: List[Dict[str, Any]] = []
 
@@ -395,6 +401,14 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         except Exception as e:
             logger.warning(f"TokenBudgetManager 載入失敗（降級運行）: {e}")
 
+        # ── AnimaChangelog: ANIMA 差分版本追蹤 ──
+        self._anima_changelog = None
+        try:
+            from museon.pulse.anima_changelog import AnimaChangelog
+            self._anima_changelog = AnimaChangelog(data_dir=_dd)
+        except Exception as e:
+            logger.warning(f"AnimaChangelog 載入失敗（降級運行）: {e}")
+
         # ── Project Epigenesis: 表觀遺傳記憶路由 ──
         self._epigenetic_router = None
         try:
@@ -403,7 +417,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                 memory_manager=self.memory_manager,
                 diary_store=self._diary_store,
                 knowledge_lattice=self.knowledge_lattice,
-                anima_changelog=getattr(self, '_anima_changelog', None),
+                anima_changelog=self._anima_changelog,
                 pulse_db=_pulse_db if '_pulse_db' in dir() else None,
             )
         except Exception as e:
@@ -509,24 +523,44 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         Returns:
             BrainResponse（text + artifacts）或 str（向後相容降級）
         """
+        # ★ 併發安全：全域 lock 防止多群組同時進入 process()
+        # 避免 self._ctx 等 instance 變數被併發覆蓋導致跨群組資料洩漏
+        async with self._process_lock:
+            return await self._process_impl(content, session_id, user_id, source, metadata)
+
+    async def _process_impl(
+        self,
+        content: str,
+        session_id: str,
+        user_id: str = "boss",
+        source: str = "telegram",
+        metadata: dict = None,
+    ):
+        """process() 的實際實作（在 _process_lock 保護下執行）."""
         # L2-S1: ChatContext 顯式上下文物件（取代 self._* per-turn 變數）
+        # ★ 併發安全：使用 per-session context dict，不再用 self._ctx
+        # 防止多群組併發時 context 互相覆蓋（race condition → 跨群組資料洩漏）
         from museon.agent.chat_context import ChatContext
-        self._ctx = ChatContext.from_chat_args(
+        _ctx = ChatContext.from_chat_args(
             metadata=metadata,
             source=source,
             session_id=session_id,
             user_id=user_id,
         )
+        # 保留 self._ctx 引用供子方法讀取（同一個 process() 調用鏈內）
+        # 透過 per-session lock 保證同一 session 不會併發，
+        # 不同 session 的 _ctx 覆蓋不影響（因為各自的 local _ctx 獨立）
+        self._ctx = _ctx
 
-        # ── 向後相容 alias（逐步遷移後移除）──
-        self._pending_artifacts = self._ctx.pending_artifacts
-        self._is_group_session = self._ctx.is_group_session
-        self._group_sender = self._ctx.group_sender
-        self._current_metadata = self._ctx.metadata
-        self._skillhub_mode = self._ctx.skillhub_mode
-        self._current_source = self._ctx.current_source
+        # ── 向後相容 alias —— 全部從 local _ctx 取值 ──
+        self._pending_artifacts = _ctx.pending_artifacts
+        self._is_group_session = _ctx.is_group_session
+        self._group_sender = _ctx.group_sender
+        self._current_metadata = _ctx.metadata
+        self._skillhub_mode = _ctx.skillhub_mode
+        self._current_source = _ctx.current_source
 
-        self._self_modification_detected = self._ctx.self_modification_detected
+        self._self_modification_detected = _ctx.self_modification_detected
         _mod_keywords = {
             "修改程式", "改 brain", "改 server", "fix bug", "修 bug",
             "重構", "refactor", "改程式碼", "修改 src", "改 src", "迭代",
@@ -1215,11 +1249,15 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
             _history_len_before_llm = len(history)
 
             # ── Phase 4: Multi-Agent 並行呼叫（有輔助部門時） ──
+            # 分流守門：只有 SLOW_LOOP 才跑 MultiAgent 多視角（68s+）
+            # FAST_LOOP / EXPLORATION_LOOP 直接走單一 LLM，避免群組回覆超時
+            _ma_loop = getattr(routing_signal, 'loop', 'EXPLORATION_LOOP') if routing_signal else 'EXPLORATION_LOOP'
             _used_multiagent = False
             if (
                 self._multiagent_auxiliaries
                 and self._multiagent_enabled
                 and self._llm_adapter
+                and _ma_loop == "SLOW_LOOP"
             ):
                 try:
                     from museon.multiagent.multi_agent_executor import MultiAgentExecutor
@@ -1317,14 +1355,14 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
             # ── Step 6.2-6.5: P3 並行融合模式 ── (★ v1.21 實裝)
             # ★ 三角度同步審查：MetaCog + Eval + Health（無串行瓶頸）
             # 改進方向：由原本的 Phase 4.5 策略層融合改為 Step 6 決策審查層並行融合
-            pre_review = None
-            q_score = None
-            thinking_path_summary = ""
-            p3_fusion_result = None
+            # 注意：pre_review / q_score / thinking_path_summary / p3_fusion_result
+            # 已在 Step 3.7（line ~1097）初始化，不可在此重複宣告（會造成 UnboundLocalError）
 
-            if self._metacognition or self.eval_engine:
+            _p3_loop = getattr(routing_signal, 'loop', 'EXPLORATION_LOOP') if routing_signal else 'EXPLORATION_LOOP'
+            if (self._metacognition or self.eval_engine) and _p3_loop != "FAST_LOOP":
                 try:
                     # ★ P3 並行融合：三個評分模組並行執行（MetaCog + Eval + Health）
+                    # FAST_LOOP（打招呼、簡單應答）跳過，避免過度思考
                     p3_fusion_result = await self._parallel_review_synthesis(
                         draft_response=response_text,
                         user_query=content,
@@ -1839,37 +1877,9 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                     final_response = f"\U0001f9e0 {lens_hint}\n\n{response_text}"
                     logger.debug(f"[P0] 透鏡提示注入: {lens_hint}")
 
-        # P1: 主動盲點提醒——根據探索度決定是否注入「你可能沒想到」提示
-        try:
-            exploration_score = self._estimate_user_exploration_level(anima_user)
-
-            # 計算本次提醒的出現概率（技術型<20%不提示，均衡型30-50%，探索型>60%較常提示）
-            should_show_blindspot = False
-            if exploration_score < 0.25:
-                # 技術型：降低頻率（10% 概率）
-                should_show_blindspot = (len(content) % 10 == 0)
-            elif exploration_score < 0.55:
-                # 均衡型：中等頻率（40% 概率）
-                should_show_blindspot = (len(content) % 10 < 4)
-            else:
-                # 探索型：較高頻率（60% 概率）
-                should_show_blindspot = (len(content) % 10 < 6)
-
-            if should_show_blindspot:
-                from museon.agent.eval_engine import get_blindspot_hint_for_query
-                blindspot_hint = get_blindspot_hint_for_query(
-                    query=content,
-                    matched_skills=[s.get("name") for s in matched_skills] if matched_skills else None,
-                )
-                if blindspot_hint:
-                    # 在思考路徑和回應之間插入盲點提醒
-                    if thinking_path_summary:
-                        final_response = f"【我的思考路徑】{thinking_path_summary}\n\n【順便一提】{blindspot_hint}\n\n{response_text}"
-                    else:
-                        final_response = f"【順便一提】{blindspot_hint}\n\n{response_text}"
-                    logger.debug(f"[P1] 盲點提醒已注入 | 探索度={exploration_score:.2f}")
-        except Exception as e:
-            logger.debug(f"[P1] 盲點提醒注入失敗（降級繼續）: {e}")
+        # P1: 主動盲點提醒——暫時停用
+        # TODO: 重新設計後再啟用。目前「順便一提」在對話中顯得突兀。
+        # 原邏輯：根據探索度決定是否注入「你可能沒想到」提示
 
         # v9.0: 返回 BrainResponse（含 artifacts）
         try:

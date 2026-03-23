@@ -262,7 +262,7 @@ class TestAnimaChangelogCompression:
 
         with open(path, "a") as f:
             for i in range(5):
-                ts = (old_base + timedelta(hours=i)).isoformat()
+                ts = (old_base + timedelta(minutes=i)).isoformat()
                 record = {
                     "ts": ts,
                     "trigger": "test",

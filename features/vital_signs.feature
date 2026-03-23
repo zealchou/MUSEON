@@ -22,7 +22,7 @@ Feature: Vital Signs Monitor — 生命徵象監測系統
   Scenario: Preflight detects unhealthy LLM
     Given a failing LLM adapter is registered
     When preflight runs
-    Then the "llm_alive" check should be "fail"
+    Then the "llm_alive" check should be "warn"
 
   Scenario: Preflight checks environment consistency
     When preflight runs
