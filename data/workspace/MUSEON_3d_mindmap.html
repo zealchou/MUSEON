@@ -403,37 +403,37 @@ const nodes = [
   {id:"external-user",label:"External User",zh:"群組外部成員",group:"channel",r:1.4},
   {id:"gateway",label:"Gateway",zh:"WebSocket :8765",group:"channel",r:1.6},
   {id:"interaction-queue",label:"Interaction Queue",zh:"跨通道互動佇列",group:"channel",r:1.0},
-  {id:"line",label:"LINE",zh:"LINE@ 通道（私聊 + 群組 + Room）",group:"channel",r:1.4},
+  {id:"line",label:"LINE",zh:"LINE@ 通道",group:"channel",r:1.4,desc:"LINE@ 通道（私聊 + 群組 + Room）"},
   {id:"mcp-server",label:"MCP Server",zh:"Claude Code 介面",group:"channel",r:1.2},
-  {id:"telegram",label:"Telegram",zh:"主通道（私聊 + 群組）",group:"channel",r:1.6},
+  {id:"telegram",label:"Telegram",zh:"主通道",group:"channel",r:1.6,desc:"主通道（私聊 + 群組）"},
   {id:"verified-user",label:"Verified User",zh:"動態配對使用者",group:"channel",r:1.2},
   {id:"zeal",label:"Zeal (Owner)",zh:"主人",group:"channel",r:2.0},
   // ── agent ──
-  {id:"brain",label:"Agent / Brain",zh:"主判斷中樞（core: init + process pipeline, 2575 行）",group:"agent",r:2.8,hub:1},
-  {id:"adaptive-decay",label:"Adaptive Decay",zh:"ACT-R 式統一衰減引擎（B_i = ln(Σt^{-d}) + β_i）",group:"agent",r:0.8,p:"brain"},
-  {id:"brain-dispatch",label:"Brain Dispatch",zh:"Mixin: 任務分派（1082 行）",group:"agent",r:1.0,p:"brain"},
-  {id:"brain-observation",label:"Brain Observation",zh:"Mixin: 觀察與演化（2003 行）",group:"agent",r:1.0,p:"brain"},
-  {id:"brain-p3-fusion",label:"Brain P3 Fusion",zh:"Mixin: P3 融合與決策層（948 行）",group:"agent",r:1.0,p:"brain"},
-  {id:"brain-prompt-builder",label:"Brain Prompt Builder",zh:"Mixin: system prompt 建構（1668 行）",group:"agent",r:1.0,p:"brain"},
-  {id:"brain-tools",label:"Brain Tools",zh:"Mixin: LLM 呼叫與 session 管理（966 行）",group:"agent",r:1.0,p:"brain"},
+  {id:"brain",label:"Agent / Brain",zh:"主判斷中樞",group:"agent",r:2.8,hub:1,desc:"主判斷中樞（core: init + process pipeline, 2575 行）"},
+  {id:"adaptive-decay",label:"Adaptive Decay",zh:"ACT-R 式統一衰減引擎",group:"agent",r:0.8,p:"brain",desc:"ACT-R 式統一衰減引擎（B_i = ln(Σt^{-d}) + β_i）"},
+  {id:"brain-dispatch",label:"Brain Dispatch",zh:"Mixin: 任務分派",group:"agent",r:1.0,p:"brain",desc:"Mixin: 任務分派（1082 行）"},
+  {id:"brain-observation",label:"Brain Observation",zh:"Mixin: 觀察與演化",group:"agent",r:1.0,p:"brain",desc:"Mixin: 觀察與演化（2003 行）"},
+  {id:"brain-p3-fusion",label:"Brain P3 Fusion",zh:"Mixin: P3 融合與決策層",group:"agent",r:1.0,p:"brain",desc:"Mixin: P3 融合與決策層（948 行）"},
+  {id:"brain-prompt-builder",label:"Brain Prompt Builder",zh:"Mixin: system prompt 建構",group:"agent",r:1.0,p:"brain",desc:"Mixin: system prompt 建構（1668 行）"},
+  {id:"brain-tools",label:"Brain Tools",zh:"Mixin: LLM 呼叫與 session 管理",group:"agent",r:1.0,p:"brain",desc:"Mixin: LLM 呼叫與 session 管理（966 行）"},
   {id:"brain-types",label:"Brain Types",zh:"共享 dataclass: DecisionSignal, P3FusionSignal",group:"agent",r:0.7,p:"brain"},
-  {id:"chat-context",label:"Chat Context",zh:"ChatContext dataclass（輕量對話上下文資料結構）",group:"agent",r:0.7,p:"brain"},
-  {id:"deep-think",label:"Deep Think",zh:"思考前置引擎（P0 訊號分流 / P1 輸入審視 / P2 決策偵測）",group:"agent",r:1.1,p:"brain"},
-  {id:"dendritic-fusion",label:"Dendritic Fusion",zh:"P3 並行融合引擎（MetaCog+Eval+Health）",group:"agent",r:1.1,p:"brain"},
-  {id:"deterministic-router",label:"Deterministic Router",zh:"確定性任務分解器（取代 LLM Orchestrator）",group:"agent",r:1.0,p:"brain"},
-  {id:"diary-store",label:"Diary Store",zh:"日記存儲（原靈魂年輪）",group:"agent",r:0.9,p:"brain"},
+  {id:"chat-context",label:"Chat Context",zh:"ChatContext dataclass",group:"agent",r:0.7,p:"brain",desc:"ChatContext dataclass（輕量對話上下文資料結構）"},
+  {id:"deep-think",label:"Deep Think",zh:"思考前置引擎",group:"agent",r:1.1,p:"brain",desc:"思考前置引擎（P0 訊號分流 / P1 輸入審視 / P2 決策偵測）"},
+  {id:"dendritic-fusion",label:"Dendritic Fusion",zh:"P3 並行融合引擎",group:"agent",r:1.1,p:"brain",desc:"P3 並行融合引擎（MetaCog+Eval+Health）"},
+  {id:"deterministic-router",label:"Deterministic Router",zh:"確定性任務分解器",group:"agent",r:1.0,p:"brain",desc:"確定性任務分解器（取代 LLM Orchestrator）"},
+  {id:"diary-store",label:"Diary Store",zh:"日記存儲",group:"agent",r:0.9,p:"brain",desc:"日記存儲（原靈魂年輪）"},
   {id:"dispatch",label:"Dispatch",zh:"多技能編排",group:"agent",r:1.0,p:"brain"},
-  {id:"dispatcher",label:"L1 Dispatcher",zh:"調度員：收訊 → 1 秒內 spawn L2 思考者 → 處理下一則（CLAUDE.md 定義行為）",group:"agent",r:1.2,p:"brain"},
+  {id:"dispatcher",label:"L1 Dispatcher",zh:"調度員：收訊 → 1 秒內 spawn L2 思考者 → 處理下一則",group:"agent",r:1.2,p:"brain",desc:"調度員：收訊 → 1 秒內 spawn L2 思考者 → 處理下一則（CLAUDE.md 定義行為）"},
   {id:"dna27",label:"DNA27",zh:"27 反射叢集",group:"agent",r:1.0,p:"brain"},
   {id:"drift-detector",label:"Drift Detector",zh:"漂移偵測",group:"agent",r:0.8,p:"brain"},
-  {id:"epigenetic-router",label:"Epigenetic Router",zh:"表觀遺傳路由器（MAGMA 式多圖遍歷 semantic/temporal/causal/entity）",group:"agent",r:1.1,p:"brain"},
+  {id:"epigenetic-router",label:"Epigenetic Router",zh:"表觀遺傳路由器",group:"agent",r:1.1,p:"brain",desc:"表觀遺傳路由器（MAGMA 式多圖遍歷 semantic/temporal/causal/entity）"},
   {id:"eval-engine",label:"Eval Engine",zh:"Q-Score",group:"agent",r:1.0,p:"brain"},
   {id:"fact-correction",label:"Fact Correction",zh:"事實覆寫引擎",group:"agent",r:0.9,p:"brain"},
   {id:"flywheel-coordinator",label:"Flywheel Coordinator",zh:"飛輪流動協調",group:"agent",r:0.9,p:"brain"},
   {id:"intuition",label:"Intuition",zh:"五層直覺",group:"agent",r:0.9,p:"brain"},
-  {id:"investment-masters",label:"Investment Masters",zh:"投資軍師團（六位大師模型會診）",group:"agent",r:0.9,p:"brain"},
+  {id:"investment-masters",label:"Investment Masters",zh:"投資軍師團",group:"agent",r:0.9,p:"brain",desc:"投資軍師團（六位大師模型會診）"},
   {id:"knowledge-lattice",label:"Knowledge Lattice",zh:"知識晶格",group:"agent",r:1.1,p:"brain"},
-  {id:"memory-reflector",label:"Memory Reflector",zh:"Hindsight 式反思引擎（矛盾偵測/模式發現/時間軸/Activation 排序）",group:"agent",r:1.0,p:"brain"},
+  {id:"memory-reflector",label:"Memory Reflector",zh:"Hindsight 式反思引擎",group:"agent",r:1.0,p:"brain",desc:"Hindsight 式反思引擎（矛盾偵測/模式發現/時間軸/Activation 排序）"},
   {id:"metacognition",label:"Metacognition",zh:"元認知審查",group:"agent",r:1.0,p:"brain"},
   {id:"multi-agent-executor",label:"Multi Agent Executor",zh:"並行 LLM 執行器",group:"agent",r:1.0,p:"brain"},
   {id:"multiagent",label:"Multiagent",zh:"多代理協調",group:"agent",r:0.9,p:"brain"},
@@ -442,17 +442,17 @@ const nodes = [
   {id:"persona-router",label:"Persona Router",zh:"人格路由 + 百合引擎決策",group:"agent",r:1.1,p:"brain"},
   {id:"plan-engine",label:"Plan Engine",zh:"六階段計畫",group:"agent",r:1.0,p:"brain"},
   {id:"primal-detector",label:"Primal Detector",zh:"八原語偵測",group:"agent",r:1.0,p:"brain"},
-  {id:"proactive-predictor",label:"Proactive Predictor",zh:"需求預判引擎（Skill 序列/情緒/決策循環 四維預測）",group:"agent",r:1.0,p:"brain"},
-  {id:"recommender",label:"Recommender",zh:"知識推薦引擎（CrystalStore 結晶推薦）",group:"agent",r:0.9,p:"brain"},
+  {id:"proactive-predictor",label:"Proactive Predictor",zh:"需求預判引擎",group:"agent",r:1.0,p:"brain",desc:"需求預判引擎（Skill 序列/情緒/決策循環 四維預測）"},
+  {id:"recommender",label:"Recommender",zh:"知識推薦引擎",group:"agent",r:0.9,p:"brain",desc:"知識推薦引擎（CrystalStore 結晶推薦）"},
   {id:"reflex-router",label:"Reflex Router",zh:"反射路由",group:"agent",r:1.0,p:"brain"},
   {id:"response-synthesizer",label:"Response Synthesizer",zh:"DNA 交叉重組合成",group:"agent",r:0.8,p:"brain"},
-  {id:"roundtable",label:"Roundtable",zh:"圓桌詰問引擎（多角色交叉詰問 + 仲裁）",group:"agent",r:1.0,p:"brain"},
+  {id:"roundtable",label:"Roundtable",zh:"圓桌詰問引擎",group:"agent",r:1.0,p:"brain",desc:"圓桌詰問引擎（多角色交叉詰問 + 仲裁）"},
   {id:"skill-router",label:"Skill Router",zh:"技能路由",group:"agent",r:1.1,p:"brain"},
-  {id:"thinker",label:"L2 Thinker",zh:"思考者 subagent：讀 museon-persona.md → 分析決策 → spawn L3 工人（model: sonnet, run_in_background）",group:"agent",r:1.0,p:"brain"},
-  {id:"worker",label:"L3 Worker",zh:"工人 subagent：執行 MCP 工具呼叫後銷毀（model: haiku, run_in_background）",group:"agent",r:0.8,p:"brain"},
+  {id:"thinker",label:"L2 Thinker",zh:"思考者 subagent：讀 museon-persona.md → 分析決策 → spawn L3 工人",group:"agent",r:1.0,p:"brain",desc:"思考者 subagent：讀 museon-persona.md → 分析決策 → spawn L3 工人（model: sonnet, run_in_background）"},
+  {id:"worker",label:"L3 Worker",zh:"工人 subagent：執行 MCP 工具呼叫後銷毀",group:"agent",r:0.8,p:"brain",desc:"工人 subagent：執行 MCP 工具呼叫後銷毀（model: haiku, run_in_background）"},
   // ── pulse ──
   {id:"pulse",label:"Pulse Engine",zh:"VITA 生命力",group:"pulse",r:2.8,hub:1},
-  {id:"anima-changelog",label:"Anima Changelog",zh:"ANIMA_USER 差分版本追蹤（append-only JSONL）",group:"pulse",r:0.8,p:"pulse"},
+  {id:"anima-changelog",label:"Anima Changelog",zh:"ANIMA_USER 差分版本追蹤",group:"pulse",r:0.8,p:"pulse",desc:"ANIMA_USER 差分版本追蹤（append-only JSONL）"},
   {id:"anima-mc-store",label:"AnimaMC Store",zh:"ANIMA統一存取",group:"pulse",r:1.1,p:"pulse"},
   {id:"anima-tracker",label:"Anima Tracker",zh:"八元素追蹤",group:"pulse",r:1.0,p:"pulse"},
   {id:"commitment-tracker",label:"Commitment",zh:"承諾追蹤",group:"pulse",r:0.9,p:"pulse"},
@@ -462,7 +462,7 @@ const nodes = [
   {id:"micro-pulse",label:"Micro Pulse",zh:"秒級微脈",group:"pulse",r:0.8,p:"pulse"},
   {id:"proactive-bridge",label:"Proactive Bridge",zh:"主動推播 + 百合引擎象限調適",group:"pulse",r:1.2,p:"pulse"},
   {id:"pulse-db",label:"Pulse DB",zh:"脈搏資料庫",group:"pulse",r:0.8,p:"pulse"},
-  {id:"push-budget",label:"Push Budget",zh:"全局推送預算管理器（限額+語意去重+持久化）",group:"pulse",r:1.0,p:"pulse"},
+  {id:"push-budget",label:"Push Budget",zh:"全局推送預算管理器",group:"pulse",r:1.0,p:"pulse",desc:"全局推送預算管理器（限額+語意去重+持久化）"},
   {id:"silent-digestion",label:"Silent Digestion",zh:"靜默消化",group:"pulse",r:1.0,p:"pulse"},
   // ── gov ──
   {id:"governance",label:"Governance",zh:"三焦式治理",group:"gov",r:2.8,hub:1},
@@ -475,7 +475,7 @@ const nodes = [
   {id:"immunity",label:"Immunity",zh:"先天 + 後天免疫",group:"gov",r:1.1,p:"governance"},
   {id:"perception",label:"Perception",zh:"四診合參感知",group:"gov",r:0.9,p:"governance"},
   {id:"preflight",label:"Preflight",zh:"啟動門",group:"gov",r:0.9,p:"governance"},
-  {id:"refractory",label:"Refractory",zh:"斷路器（三態+半開試探）",group:"gov",r:0.9,p:"governance"},
+  {id:"refractory",label:"Refractory",zh:"斷路器",group:"gov",r:0.9,p:"governance",desc:"斷路器（三態+半開試探）"},
   {id:"sandbox",label:"Sandbox",zh:"沙盒隔離",group:"gov",r:0.8,p:"governance"},
   {id:"security",label:"Security",zh:"安全淨化與稽核",group:"gov",r:1.0,p:"governance"},
   {id:"service-health",label:"Service Health",zh:"服務監控",group:"gov",r:1.0,p:"governance"},
@@ -500,7 +500,7 @@ const nodes = [
   // ── data ──
   {id:"data-bus",label:"DataBus",zh:"資料層路由器",group:"data",r:1.8,hub:1},
   {id:"blueprint-reader",label:"Blueprint Reader",zh:"藍圖解析器",group:"data",r:0.9,p:"data-bus"},
-  {id:"crystal-store",label:"CrystalStore",zh:"知識晶體 SQLite (WAL)",group:"data",r:1.0,p:"data-bus"},
+  {id:"crystal-store",label:"CrystalStore",zh:"知識晶體 SQLite",group:"data",r:1.0,p:"data-bus",desc:"知識晶體 SQLite (WAL)"},
   {id:"data-watchdog",label:"DataWatchdog",zh:"資料層監控",group:"data",r:1.0,p:"data-bus"},
   {id:"group-context-db",label:"GroupContextDB",zh:"群組上下文 SQLite",group:"data",r:1.0,p:"data-bus"},
   {id:"lord-profile",label:"Lord Profile",zh:"主人領域畫像",group:"data",r:0.8,p:"data-bus"},
@@ -508,7 +508,7 @@ const nodes = [
   {id:"registry",label:"Registry",zh:"RegistryDB SQLite",group:"data",r:1.0,p:"data-bus"},
   {id:"skill-synapse",label:"Skill Synapse",zh:"突觸網路",group:"data",r:0.9,p:"data-bus"},
   {id:"skills-registry",label:"Skills Registry",zh:"技能資料庫",group:"data",r:1.2,p:"data-bus"},
-  {id:"sparse-embedder",label:"Sparse Embedder",zh:"BM25 稀疏向量（已啟動）",group:"data",r:0.9,p:"data-bus"},
+  {id:"sparse-embedder",label:"Sparse Embedder",zh:"BM25 稀疏向量",group:"data",r:0.9,p:"data-bus",desc:"BM25 稀疏向量（已啟動）"},
   {id:"vector-index",label:"Vector Index",zh:"Qdrant 語義",group:"data",r:1.5,p:"data-bus"},
   {id:"wee",label:"WEE",zh:"演化引擎",group:"data",r:1.2,p:"data-bus"},
   {id:"workflow-state-db",label:"WorkflowStateDB",zh:"工作流 SQLite",group:"data",r:1.0,p:"data-bus"},
@@ -1105,6 +1105,8 @@ const links = [
 
 
 
+
+
 const nodeMap = {};
 nodes.forEach(n => nodeMap[n.id] = n);
 
@@ -1266,15 +1268,11 @@ labelRenderer.domElement.style.left = '0';
 labelRenderer.domElement.style.pointerEvents = 'none';
 document.body.appendChild(labelRenderer.domElement);
 
-// Node labels
+// Node labels — 只顯示短標題，詳細描述在 info panel 點擊查看
 nodes.forEach(n => {
   const div = document.createElement('div');
   div.className = 'node-label ' + (n.hub || n.id === 'event-bus' ? 'hub' : 'sub');
-  if (n.hub || n.id === 'event-bus') {
-    div.innerHTML = '<div class="en">' + n.label + '</div><div class="zh">' + n.zh + '</div>';
-  } else {
-    div.textContent = n.zh;
-  }
+  div.textContent = n.label;  // 只顯示英文短名
   const lbl = new CSS2DObject(div);
   lbl.position.set(0, n.r + 1.5, 0); // offset above the sphere
   n.mesh.add(lbl);
@@ -1535,6 +1533,16 @@ function showInfo(node) {
 
   document.getElementById('i-name').textContent = node.label;
   document.getElementById('i-zh').textContent = node.zh;
+  // 完整描述（desc 欄位或 zh 含括號時的 fallback）
+  const fullDesc = node.desc || '';
+  let descEl = document.getElementById('i-desc');
+  if (!descEl) {
+    descEl = document.createElement('div');
+    descEl.id = 'i-desc';
+    descEl.style.cssText = 'font-size:.72rem;color:#8A8A9A;margin-bottom:8px;line-height:1.4;word-break:break-all;';
+    document.getElementById('i-zh').after(descEl);
+  }
+  descEl.textContent = fullDesc;
   const badge = document.getElementById('i-badge');
   badge.textContent = GN[node.group];
   badge.style.background = GC[node.group] + '20';

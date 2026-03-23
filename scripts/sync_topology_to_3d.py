@@ -18,6 +18,25 @@ from pathlib import Path
 from datetime import date
 from typing import Optional
 
+
+def _sanitize_zh(zh: str) -> str:
+    """標準化 zh 欄位——截斷括號內的技術細節，保留簡潔中文名.
+
+    拓撲文件的中文名常夾帶技術細節（括號、行數、公式等），
+    3D 心智圖 info panel 只需短名，完整描述存 desc 欄位。
+
+    規則：
+    - 只截斷括號 `（` `(` 及之後的內容
+    - 不截斷冒號（"Mixin: 任務分派" 保留完整）
+    - 截斷後太短（< 2 字）則保留原文
+    """
+    # 只去除括號及之後的內容（保留冒號前後）
+    short = re.split(r'[（(]', zh, maxsplit=1)[0].strip()
+    # 如果截斷後太短（<2 字），保留原文
+    if len(short) < 2:
+        short = zh
+    return short
+
 # ── 路徑 ────────────────────────────────────────
 ROOT = Path(__file__).resolve().parent.parent
 TOPOLOGY_PATH = ROOT / "docs" / "system-topology.md"
@@ -113,14 +132,18 @@ def _parse_nodes(text: str) -> list[dict]:
                 continue
 
             label = cols[1]
-            zh = cols[2]
+            zh_raw = cols[2]
+            zh_short = _sanitize_zh(zh_raw)
+            zh_desc = zh_raw if zh_short != zh_raw else ""
 
             node: dict = {
                 "id": nid,
                 "label": label,
-                "zh": zh,
+                "zh": zh_short,
                 "group": current_group,
             }
+            if zh_desc:
+                node["desc"] = zh_desc
 
             hub_col = cols[3].strip()
             if hub_col == "Yes":
@@ -309,6 +332,9 @@ def _node_to_js(n: dict) -> str:
         parts.append(f'p:"{n["p"]}"')
     if n.get("hub"):
         parts.append("hub:1")
+    if n.get("desc"):
+        # 完整描述（括號/技術細節），info panel 點擊查看
+        parts.append(f'desc:"{n["desc"]}"')
     return "  {" + ",".join(parts) + "}"
 
 
