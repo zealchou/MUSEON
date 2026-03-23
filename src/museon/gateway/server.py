@@ -6339,12 +6339,15 @@ def main() -> None:
     try:
         # CRITICAL: Only bind to localhost (127.0.0.1)
         # This prevents remote access to the Gateway
-        uvicorn.run(
+        # P3 修復：啟用 SO_REUSEADDR 避免 launchd 重啟時 port TIME_WAIT 衝突
+        config = uvicorn.Config(
             app,
             host="127.0.0.1",  # localhost only
             port=8765,
             log_level="info",
         )
+        server = uvicorn.Server(config)
+        server.run()
     finally:
         # 無論如何都要釋放鎖
         governor.release_lock()

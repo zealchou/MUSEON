@@ -147,6 +147,7 @@
 |---------|---------|
 | 新增工具類型 | 修改 `register()` / `get()` API |
 | 新增狀態監控欄位 | 修改工具生命週期管理 |
+| Docker binary PATH 解析（v1.54） | 修改 TOOL_CONFIGS 結構 |
 
 ---
 
@@ -828,6 +829,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-23 | v1.54 | Doctor 群組健康檢查——四處修復：(1) P0 `brain_dispatch.py` `_strip_system_leakage()` NameError 修復：`@staticmethod` 內引用 `self._LEAKAGE_FILTER_RATIO` → `BrainDispatchMixin._LEAKAGE_FILTER_RATIO`，修復 dispatch 合成階段必定 crash；(2) P1 `tool_registry.py` + `service_health.py` Docker PATH 修復：launchd PATH 不含 `/usr/local/bin` 導致 docker binary 找不到，新增 `shutil.which()` + fallback 路徑解析，消除每 5 分鐘的 38000+ 行 log 噪音；(3) P2 `message.py` 空 content 防禦：Telegram 空訊息從 ValueError crash 改為 fallback `[empty]`；(4) P3 `server.py` Gateway 重啟 port reuse：`uvicorn.run()` 改為 `uvicorn.Server(Config).run()` 啟用 SO_REUSEADDR。全部為內部修復，不改公開介面/共享狀態/import 關係。扇入扇出不變。 |
 | 2026-03-23 | v1.53 | 三層並行架構實作——`_telegram_message_pump()` 從循序處理重構為並行派送：提取 `_handle_telegram_message()` 為獨立 async function，主迴圈 receive → `asyncio.create_task()` → 立刻接下一則。不同 session（群組/私訊）完全並行，同一 session 由 session_manager lock 保護。純內部重構，不改介面/import/共享狀態。 |
 | 2026-03-23 | v1.52 | 三層調度員架構——新增 dispatcher/thinker/worker 扇入扇出分析（L1 調度員扇入 0/扇出 1、L2 思考者扇入 1/扇出 2、L3 工人扇入 1/扇出 3+）；新增 museon-persona.md 影響分析（所有 L2 thinker 讀取，修改等同全域行為變更）；全部為綠區。Brain P3 Fusion 健康檢查——brain_p3_fusion.py 常數化 25+ 魔術值 + logger 提升 + asyncio 修復 + 死碼清理 + 48 個單元測試。 |
 | 2026-03-22 | v1.35 | Sparse Embedder 全面啟動：skill_router.py `_vec_search()` 從 `vb.search()` 切換為 `vb.hybrid_search()`；memory_manager.py `_vector_search()` 從 `vb.search()` 切換為 `vb.hybrid_search()`；knowledge_lattice.py 結晶搜尋從 `vb.search()` 切換為 `vb.hybrid_search()`；server.py `/api/vector/search` 從 `vb.search()` 切換為 `vb.hybrid_search()`；Nightly Pipeline 新增 Step 8.7 `_step_sparse_idf_rebuild()`（build_sparse_idf + backfill_sparse）；Gateway startup 新增 SparseEmbedder IDF 驗證；sparse_embedder.py 扇入不變（1，僅 vector_bridge import）；vector_bridge.py 扇入不變（7）；同步 joint-map v1.35、persistence-contract v1.30 |

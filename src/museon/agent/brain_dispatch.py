@@ -1114,7 +1114,7 @@ class BrainDispatchMixin:
         result = '\n'.join(cleaned).strip()
 
         # 如果過濾掉太多（超過 80%），回傳原文（避免誤殺）
-        if len(result) < len(text) * self._LEAKAGE_FILTER_RATIO and len(text) > self._LEAKAGE_MIN_TEXT_LEN:
+        if len(result) < len(text) * BrainDispatchMixin._LEAKAGE_FILTER_RATIO and len(text) > BrainDispatchMixin._LEAKAGE_MIN_TEXT_LEN:
             result = text.strip()
 
         # ── 最終清理：移除不應出現在對外回覆中的系統術語 ──

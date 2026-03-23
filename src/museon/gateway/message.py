@@ -35,7 +35,8 @@ class InternalMessage:
         if not self.user_id:
             raise ValueError("user_id cannot be empty")
         if not self.content:
-            raise ValueError("content cannot be empty")
+            # Telegram 可能發送空 content（服務訊息、媒體、系統通知）
+            self.content = "[empty]"
         if self.trust_level not in ["core", "verified", "external", "untrusted"]:
             raise ValueError(f"Invalid trust_level: {self.trust_level}")
 
