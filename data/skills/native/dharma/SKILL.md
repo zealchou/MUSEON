@@ -236,6 +236,27 @@ DHARMA 就是把這六個缺失補起來的結構化流程。
 - 每個行動附甜頭/代價/風險標籤
 - 設定回顧點（何時檢視成效）
 
+<!-- v2026.03.23 新增 -->
+## 進階核心能力
+
+### 每步驟 Prompt 範例
+六步驟各附直接可用的 Prompt 範例（顧問模式 + 教練模式各一組），讓引導者不需從零構思提問。完整範例見 `references/dharma-complete-framework.md`。
+
+### DHARMA x Resonance 銜接表
+感性→理性的過渡路徑。定義 Resonance 的情緒承接在哪個點位交棒給 DHARMA 的理性轉化，避免「接住情緒後不知道下一步」的斷裂感。銜接規則：Resonance 完成情緒命名與承接 → DHARMA 從 Hold 或 Absorb 步驟接入（視情緒深度決定入口）。
+
+### 哲學根基速查
+六步驟各對應的哲學傳統速查——
+- **Discern**：蘇格拉底（提問澄清）
+- **Hold**：道家（順勢而為、以柔克剛）
+- **Absorb**：佛教（觀受、四聖諦之苦）
+- **Reflect**：黑格爾（正反合辯證）
+- **Map**：康德（範疇組織、知性整理）
+- **Align**：儒家（修齊治平、知行合一）
+
+完整哲學根基展開與跨傳統對照見 `references/dharma-complete-framework.md`。
+<!-- /v2026.03.23 新增 -->
+
 ## 工作流程
 
 ### 顧問模式（/dharma）
@@ -314,3 +335,11 @@ Claude 引導使用者自己走完六步，不直接給答案。
 - **consultant-communication**：Align 步驟可調用其結構化表達能力輸出行動計畫
 - **philo-dialectic**：Reflect 步驟遇到深層哲學問題可交給 philo-dialectic 展開
 - **master-strategy**：Align 步驟涉及戰略決策時可調用
+
+<!-- v2026.03.23 新增 -->
+## References 導覽
+
+| 檔案 | 內容 | 何時讀取 |
+|---|---|---|
+| `references/dharma-complete-framework.md` | DHARMA 六步驟完整框架——含 Prompt 範例、Resonance 銜接、One Muse 對應、哲學根基速查 | 引導六步轉化、需要 Prompt 範例、查詢哲學根基對應、Resonance 銜接判斷時 |
+<!-- /v2026.03.23 新增 -->
