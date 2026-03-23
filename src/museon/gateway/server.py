@@ -3636,31 +3636,19 @@ async def _progress_updater(
         logger.debug(f"Progress updater stopped: {e}")
 
 
-async def _telegram_message_pump(adapter) -> None:
-    """Background task: receive Telegram messages and respond.
+async def _handle_telegram_message(adapter, message) -> None:
+    """Process a single Telegram message (runs concurrently per session).
 
-    所有訊息（包括 /start）都經過 MUSEON Brain 處理。
-    /start 會觸發命名儀式（如果尚未完成）。
+    從 _telegram_message_pump 提取的獨立處理函數，
+    每則訊息 spawn 為獨立 async task，實現多群組/多用戶並行處理。
 
-    進度顯示策略（修復版）：
+    進度顯示策略：
     1. 收到訊息 → 發送「⏳ 收到，正在思考...」+ 啟動 typing + 啟動進度更新器
     2. 處理中 → typing 持續 + 進度訊息持續更新階段
     3. 完成/失敗 → 先發送回覆 → 再刪除進度訊息 + 停止 typing
-       （關鍵：回覆送出後才清理，不留空窗期）
     """
-    logger.info("Telegram message pump started")
-
-    # ── 指數退避 + 斷路器狀態 ──
-    consecutive_errors = 0
-    CIRCUIT_BREAKER_THRESHOLD = 10   # 連續錯誤超過此值 → 斷路器開啟
-    CIRCUIT_BREAKER_COOLDOWN = 300   # 斷路器冷卻 5 分鐘
-    MAX_BACKOFF = 120                # 最大退避 2 分鐘
-
-    while True:
-        try:
-            # Wait for next message from Telegram
-            message = await adapter.receive()
-
+    progress_task = None
+    try:
             username = message.metadata.get("username", "unknown")
             chat_id = message.metadata.get("chat_id")
             is_group = message.metadata.get("is_group", False)
@@ -4124,7 +4112,39 @@ async def _telegram_message_pump(adapter) -> None:
             except Exception as notif_err:
                 logger.warning(f"推播通知發送失敗: {notif_err}")
 
-            # ── 訊息處理成功，重置退避計數器 ──
+    except Exception as handle_err:
+        logger.error(f"Message handler error for {message.session_id}: {handle_err}", exc_info=True)
+        # ── 確保 progress_task 被清理 ──
+        if progress_task and not progress_task.done():
+            progress_task.cancel()
+            try:
+                await progress_task
+            except (asyncio.CancelledError, Exception):
+                pass
+
+
+async def _telegram_message_pump(adapter) -> None:
+    """Background task: receive and dispatch Telegram messages concurrently.
+
+    三層並行架構（L1 調度員模式）：
+    - 主迴圈只負責 receive → spawn task → 立刻接下一則
+    - 每則訊息的處理（Brain 思考、回覆）在獨立 async task 中執行
+    - 不同 session（群組/私訊）完全並行
+    - 同一 session 由 session_manager lock 保護不會衝突
+    """
+    logger.info("Telegram message pump started (concurrent mode)")
+
+    # ── 指數退避 + 斷路器狀態（僅用於 receive 層級錯誤）──
+    consecutive_errors = 0
+    CIRCUIT_BREAKER_THRESHOLD = 10
+    CIRCUIT_BREAKER_COOLDOWN = 300
+    MAX_BACKOFF = 120
+
+    while True:
+        try:
+            # L1: 接收訊息，立刻 spawn handler，不等結果
+            message = await adapter.receive()
+            asyncio.create_task(_handle_telegram_message(adapter, message))
             consecutive_errors = 0
 
         except asyncio.CancelledError:
@@ -4133,24 +4153,15 @@ async def _telegram_message_pump(adapter) -> None:
         except Exception as e:
             consecutive_errors += 1
 
-            # ── 確保 progress_task 被清理 ──
-            if progress_task and not progress_task.done():
-                progress_task.cancel()
-                try:
-                    await progress_task
-                except (asyncio.CancelledError, Exception) as e:
-                    logger.debug(f"[SERVER] operation failed (degraded): {e}")
-
-            # ── 斷路器模式 ──
             if consecutive_errors >= CIRCUIT_BREAKER_THRESHOLD:
                 logger.error(
                     f"Telegram message pump 斷路器開啟：連續 {consecutive_errors} 次錯誤，"
-                    f"冷卻 {CIRCUIT_BREAKER_COOLDOWN}s。最後錯誤: {e}"
-, exc_info=True)
+                    f"冷卻 {CIRCUIT_BREAKER_COOLDOWN}s。最後錯誤: {e}",
+                    exc_info=True,
+                )
                 await asyncio.sleep(CIRCUIT_BREAKER_COOLDOWN)
-                consecutive_errors = 0  # 冷卻後重置，給一次機會
+                consecutive_errors = 0
             else:
-                # ── 指數退避 + 隨機 jitter ──
                 import random
                 backoff = min(2 ** consecutive_errors, MAX_BACKOFF)
                 jitter = random.uniform(0, backoff * 0.3)
