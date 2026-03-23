@@ -1018,10 +1018,13 @@ def create_adapter_sync(prefer_cli: bool = True) -> LLMAdapter:
             api=AnthropicAPIAdapter(api_key=api_key),
         )
 
-    # 只有 CLI
+    # 只有 CLI（仍包裝為 FallbackAdapter 以支援 extended_thinking 等進階參數）
     if claude_path:
-        logger.info(f"Using ClaudeCLIAdapter (claude CLI found at {claude_path})")
-        return ClaudeCLIAdapter(claude_path=claude_path)
+        logger.info(f"Using FallbackAdapter (CLI-only mode, no API fallback)")
+        return FallbackAdapter(
+            cli=ClaudeCLIAdapter(claude_path=claude_path),
+            api=AnthropicAPIAdapter(api_key="dummy"),  # 無效 key，但 FallbackAdapter 會處理
+        )
 
     # 只有 API
     if api_key:
