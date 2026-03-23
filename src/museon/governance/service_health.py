@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import os
 import shutil
 import subprocess
 import time
@@ -144,8 +145,15 @@ class ServiceHealthMonitor:
         self._check_in_flight = False
 
         # P2 加固：啟動時偵測外部命令可用性，缺失時降級（不重複報錯）
+        # launchd daemon PATH 可能不含 /usr/local/bin，加 fallback
         self._has_lsof = shutil.which("lsof") is not None
-        self._has_docker = shutil.which("docker") is not None
+        _docker_path = (
+            shutil.which("docker")
+            or ("/usr/local/bin/docker" if os.path.isfile("/usr/local/bin/docker") else None)
+            or ("/opt/homebrew/bin/docker" if os.path.isfile("/opt/homebrew/bin/docker") else None)
+        )
+        self._has_docker = _docker_path is not None
+        self._docker_bin = _docker_path or "docker"
         if not self._has_lsof:
             logger.warning("ServiceHealthMonitor: lsof 不可用，process restart 將被跳過")
         if not self._has_docker:
@@ -494,7 +502,7 @@ class ServiceHealthMonitor:
         try:
             result = await asyncio.to_thread(
                 subprocess.run,
-                ["docker", "restart", config.container_name],
+                [self._docker_bin, "restart", config.container_name],
                 capture_output=True,
                 text=True,
                 timeout=30,

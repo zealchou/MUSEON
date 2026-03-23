@@ -15,6 +15,7 @@
 import json
 import logging
 import os
+import shutil
 import subprocess
 import sys
 import threading
@@ -347,6 +348,14 @@ class ToolRegistry:
         self._prev_health: Dict[str, bool] = {}
         self._last_health_detail: Dict = {}
         self._load_states()
+        # Docker binary 路徑解析（launchd PATH 可能不含 /usr/local/bin）
+        self._docker_bin = (
+            shutil.which("docker")
+            or ("/usr/local/bin/docker" if os.path.isfile("/usr/local/bin/docker") else None)
+            or ("/opt/homebrew/bin/docker" if os.path.isfile("/opt/homebrew/bin/docker") else None)
+        )
+        if not self._docker_bin:
+            logger.warning("[TOOL_REGISTRY] docker binary not found, Docker tools will be skipped")
         # 首次載入時自動偵測已安裝的工具（純 CPU, 零 Token）
         if auto_detect:
             try:
@@ -388,7 +397,7 @@ class ToolRegistry:
         # 2. 檢查 Docker daemon 是否運行
         try:
             result = subprocess.run(
-                ["docker", "info"],
+                [self._docker_bin, "info"],
                 capture_output=True, text=True, timeout=10,
             )
             if result.returncode == 0:
@@ -483,7 +492,7 @@ class ToolRegistry:
         while time.time() - start_time < timeout:
             try:
                 result = subprocess.run(
-                    ["docker", "info"],
+                    [self._docker_bin, "info"],
                     capture_output=True, text=True, timeout=5,
                 )
                 if result.returncode == 0:
@@ -884,7 +893,7 @@ class ToolRegistry:
         try:
             # Pull image
             result = subprocess.run(
-                ["docker", "pull", config.docker_image],
+                [self._docker_bin, "pull", config.docker_image],
                 capture_output=True, text=True, timeout=300,
             )
             if result.returncode != 0:
@@ -895,7 +904,7 @@ class ToolRegistry:
 
             # Remove existing container if any
             subprocess.run(
-                ["docker", "rm", "-f", f"museon-{name}"],
+                [self._docker_bin, "rm", "-f", f"museon-{name}"],
                 capture_output=True, timeout=30,
             )
 
@@ -964,7 +973,7 @@ class ToolRegistry:
             logger.error(f"Docker install {name} timed out, cleaning up zombie container")
             try:
                 subprocess.run(
-                    ["docker", "rm", "-f", f"museon-{name}"],
+                    [self._docker_bin, "rm", "-f", f"museon-{name}"],
                     capture_output=True, timeout=15,
                 )
             except Exception:
@@ -1122,7 +1131,7 @@ class ToolRegistry:
         try:
             # 清除 ghcr.io 過期憑證（避免 denied 錯誤）
             subprocess.run(
-                ["docker", "logout", "ghcr.io"],
+                [self._docker_bin, "logout", "ghcr.io"],
                 capture_output=True, timeout=10,
             )
 
@@ -1185,7 +1194,7 @@ class ToolRegistry:
 
             progress_cb(20, "拉取 Firecrawl Docker Image")
             result = subprocess.run(
-                ["docker", "compose", "-f", str(compose_file),
+                [self._docker_bin, "compose", "-f", str(compose_file),
                  "pull"],
                 capture_output=True, text=True, timeout=600,
             )
@@ -1197,7 +1206,7 @@ class ToolRegistry:
 
             progress_cb(70, "啟動 Firecrawl 服務")
             result = subprocess.run(
-                ["docker", "compose", "-f", str(compose_file),
+                [self._docker_bin, "compose", "-f", str(compose_file),
                  "up", "-d"],
                 capture_output=True, text=True, timeout=120,
             )
@@ -1225,7 +1234,7 @@ class ToolRegistry:
                 compose_file = self._dir / "firecrawl" / "docker-compose.yml"
                 if compose_file.exists():
                     subprocess.run(
-                        ["docker", "compose", "-f", str(compose_file), "down"],
+                        [self._docker_bin, "compose", "-f", str(compose_file), "down"],
                         capture_output=True, timeout=30,
                     )
             except Exception:
@@ -1240,7 +1249,7 @@ class ToolRegistry:
         if config.install_type == "docker":
             try:
                 result = subprocess.run(
-                    ["docker", "start", f"museon-{name}"],
+                    [self._docker_bin, "start", f"museon-{name}"],
                     capture_output=True, text=True, timeout=30,
                 )
                 return result.returncode == 0
@@ -1255,7 +1264,7 @@ class ToolRegistry:
         if config.install_type == "docker":
             try:
                 result = subprocess.run(
-                    ["docker", "stop", f"museon-{name}"],
+                    [self._docker_bin, "stop", f"museon-{name}"],
                     capture_output=True, text=True, timeout=30,
                 )
                 return result.returncode == 0
@@ -1272,7 +1281,7 @@ class ToolRegistry:
             return False
         try:
             result = subprocess.run(
-                ["docker", "compose", "-f", str(compose_file),
+                [self._docker_bin, "compose", "-f", str(compose_file),
                  *args],
                 capture_output=True, text=True, timeout=60,
             )
@@ -1346,7 +1355,7 @@ class ToolRegistry:
             return False
         try:
             result = subprocess.run(
-                ["docker", "compose", "-f", str(compose_file),
+                [self._docker_bin, "compose", "-f", str(compose_file),
                  "ps", "--format", "json"],
                 capture_output=True, text=True, timeout=10,
             )
@@ -1359,9 +1368,11 @@ class ToolRegistry:
 
     def _check_docker_running(self, name: str) -> bool:
         """檢查 Docker 容器是否在運行."""
+        if not self._docker_bin:
+            return False
         try:
             result = subprocess.run(
-                ["docker", "inspect", "-f", "{{.State.Running}}",
+                [self._docker_bin, "inspect", "-f", "{{.State.Running}}",
                  f"museon-{name}"],
                 capture_output=True, text=True, timeout=10,
             )
@@ -1402,10 +1413,12 @@ class ToolRegistry:
             was_installed = state.installed
 
             if config.install_type == "docker":
+                if not self._docker_bin:
+                    continue  # docker 不可用，跳過
                 # 檢查容器是否存在
                 try:
                     result = subprocess.run(
-                        ["docker", "inspect", f"museon-{name}"],
+                        [self._docker_bin, "inspect", f"museon-{name}"],
                         capture_output=True, text=True, timeout=10,
                     )
                     if result.returncode == 0:

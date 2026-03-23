@@ -1,10 +1,12 @@
 """Telegram Channel Adapter using python-telegram-bot 20.x."""
 
 import asyncio
+import hashlib
 import json
 import logging
 import os
 import re
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -79,6 +81,11 @@ class TelegramAdapter(ChannelAdapter):
         # Deduplication: 追蹤已處理的 update_id，防止重複訊息
         self._seen_update_ids: set = set()
         self._max_seen_update_ids = 1000  # 避免無限成長
+
+        # Content-hash deduplication: 防止相同內容在短時間內重複送達
+        # {content_hash: last_seen_timestamp}
+        self._content_dedup: Dict[str, float] = {}
+        self._content_dedup_window = 30.0  # 30 秒內相同內容只處理一次
 
         # Bot identity cache (set after application.start())
         self._bot_username: str = ""
@@ -176,6 +183,24 @@ class TelegramAdapter(ChannelAdapter):
         self._seen_update_ids.add(update.update_id)
         if len(self._seen_update_ids) > self._max_seen_update_ids:
             self._seen_update_ids = set(list(self._seen_update_ids)[-500:])
+
+        # Content-hash deduplication: 相同 chat+user+內容 在 30 秒內只處理一次
+        if update.message:
+            _msg = update.message
+            _raw = f"{_msg.chat_id}:{getattr(_msg.from_user, 'id', '')}:{_msg.text or ''}"
+            _chash = hashlib.md5(_raw.encode()).hexdigest()
+            _now = time.time()
+            if _chash in self._content_dedup and _now - self._content_dedup[_chash] < self._content_dedup_window:
+                logger.warning(
+                    "Content-dedup: skipping repeated message (hash=%s, update_id=%s, delta=%.1fs)",
+                    _chash[:8], update.update_id, _now - self._content_dedup[_chash]
+                )
+                return
+            self._content_dedup[_chash] = _now
+            # 清理過期記錄
+            if len(self._content_dedup) > 200:
+                cutoff = _now - self._content_dedup_window
+                self._content_dedup = {k: v for k, v in self._content_dedup.items() if v > cutoff}
 
         # ── v10.0: InteractionRequest freetext 攔截 ──
         # 使用者選了「自己說明」後，下一則文字訊息作為自由輸入回應

@@ -26,6 +26,8 @@ logs/
 
 # === Python ===
 __pycache__/
+src/**/*/pycache/
+src/**/__pycache__/
 *.py[cod]
 *$py.class
 *.egg-info/
