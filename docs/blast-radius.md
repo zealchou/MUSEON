@@ -1,4 +1,4 @@
-# Blast Radius — 模組影響半徑表 v1.55
+# Blast Radius — 模組影響半徑表 v1.56
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
@@ -830,6 +830,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-23 | v1.56 | Session 自動清理升級——brain_tools.py `_save_session_to_disk()` 新增 metadata 層，記錄 `last_active` ISO 時間戳；`_load_session_from_disk()` 相容舊格式（pure list）和新格式（metadata + messages），自動轉換舊檔案；session_cleanup.py `cleanup_dormant_sessions()` 新增 `_get_session_last_active()` 優先讀 metadata.last_active、fallback 到檔案 mtime；server.py cron engine 每小時執行清理（超過 3 天未互動的 session 自動刪除）。brain_tools.py 扇入扇出不變、無新增 import；session_cleanup.py 扇入不變（1）；server.py 扇出不變（cron job 已註冊）；共享狀態讀寫格式變更（向後相容）。同步 persistence-contract v1.33 |
 | 2026-03-23 | v1.55 | Project Epigenesis 接線——brain.py `__init__()` 新增 EpigeneticRouter 初始化（注入 memory_manager/diary_store/knowledge_lattice/anima_changelog/pulse_db）；brain_prompt_builder.py `_build_memory_inject()` 新增反思摘要注入（EpigeneticRouter.activate() → reflection.summary → memory zone）。新增 G9 記憶反思組（epigenetic_router + memory_reflector + adaptive_decay + brain_prompt_builder）。brain.py 扇出 +1（epigenetic_router）；brain_prompt_builder.py 扇出 +1。memory_reflector 扇入 1（epigenetic_router）；adaptive_decay 扇入 1（memory_reflector）；epigenetic_router 扇入 1（brain.py）。同步 joint-map v1.40、memory-router v1.6、persistence-contract v1.32 |
 | 2026-03-23 | v1.54 | Doctor 群組健康檢查——四處修復：(1) P0 `brain_dispatch.py` `_strip_system_leakage()` NameError 修復：`@staticmethod` 內引用 `self._LEAKAGE_FILTER_RATIO` → `BrainDispatchMixin._LEAKAGE_FILTER_RATIO`，修復 dispatch 合成階段必定 crash；(2) P1 `tool_registry.py` + `service_health.py` Docker PATH 修復：launchd PATH 不含 `/usr/local/bin` 導致 docker binary 找不到，新增 `shutil.which()` + fallback 路徑解析，消除每 5 分鐘的 38000+ 行 log 噪音；(3) P2 `message.py` 空 content 防禦：Telegram 空訊息從 ValueError crash 改為 fallback `[empty]`；(4) P3 `server.py` Gateway 重啟 port reuse：`uvicorn.run()` 改為 `uvicorn.Server(Config).run()` 啟用 SO_REUSEADDR。全部為內部修復，不改公開介面/共享狀態/import 關係。扇入扇出不變。 |
 | 2026-03-23 | v1.53 | 三層並行架構實作——`_telegram_message_pump()` 從循序處理重構為並行派送：提取 `_handle_telegram_message()` 為獨立 async function，主迴圈 receive → `asyncio.create_task()` → 立刻接下一則。不同 session（群組/私訊）完全並行，同一 session 由 session_manager lock 保護。純內部重構，不改介面/import/共享狀態。 |
