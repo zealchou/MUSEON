@@ -375,12 +375,18 @@ class ClaudeCLIAdapter:
 
         env = os.environ.copy()
         env.pop("CLAUDECODE", None)  # 避免巢狀檢查
-        env.pop("ANTHROPIC_API_KEY", None)  # 強制 CLI 使用 OAuth token（Max 訂閱）
 
-        # 確保 OAuth token 可用（launchd daemon 沒有 Claude Desktop 注入的環境變數）
+        # 確保 OAuth token 可用（launchd daemon 環境）
+        # 策略：同時設定 CLAUDE_CODE_OAUTH_TOKEN 和 ANTHROPIC_API_KEY
+        # Claude CLI 在 daemon 環境下 OAUTH 可能失效，但 API_KEY 接受 OAuth token
         oauth_token = self._get_oauth_token()
         if oauth_token:
             env["CLAUDE_CODE_OAUTH_TOKEN"] = oauth_token
+            env["ANTHROPIC_API_KEY"] = oauth_token  # 雙保險：API_KEY 也接受 OAuth token
+            logger.info(f"[CLI] OAuth token injected ({len(oauth_token)} chars, prefix={oauth_token[:15]}...)")
+        else:
+            env.pop("ANTHROPIC_API_KEY", None)
+            logger.warning("[CLI] No OAuth token found — CLI will likely fail with 'Not logged in'")
 
         try:
             proc = await asyncio.create_subprocess_exec(
