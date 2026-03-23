@@ -171,7 +171,16 @@ class VitalSignsMonitor:
         logger.info("🩺 Vital Signs Preflight starting...")
 
         # Check 1: LLM Adapter 可用性（實際呼叫）
-        report.checks.append(await self._check_llm_alive())
+        # 啟動時 LLM 可能尚未就緒，降級為 WARN（pulse 才用 FAIL）
+        llm_check = await self._check_llm_alive()
+        if llm_check.status == CheckStatus.FAIL:
+            llm_check = CheckResult(
+                name=llm_check.name,
+                status=CheckStatus.WARN,
+                message=f"[startup grace] {llm_check.message}",
+                duration_ms=llm_check.duration_ms,
+            )
+        report.checks.append(llm_check)
 
         # Check 2: 環境變數一致性
         report.checks.append(self._check_env_consistency())
