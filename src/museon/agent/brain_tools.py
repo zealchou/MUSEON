@@ -482,7 +482,7 @@ class BrainToolsMixin:
                                 cache_fp = cache_dir / f"cache_log_{datetime.now().strftime('%Y-%m-%d')}.jsonl"
                                 cache_entry = {
                                     "ts": datetime.now().isoformat(),
-                                    "model": "haiku" if "haiku" in model else "sonnet",
+                                    "model": model,
                                     "cache_read": cache_read,
                                     "cache_create": cache_create,
                                     "input_tokens": response.usage.input_tokens,
@@ -499,7 +499,7 @@ class BrainToolsMixin:
                     try:
                         self._router.record_routing(
                             data_dir=self.data_dir,
-                            model_used="haiku" if "haiku" in model else "sonnet",
+                            model_used=model,
                             task_type=_route_decision.get("task_type", "unknown"),
                             reason=_route_decision.get("reason", "unknown"),
                             input_tokens=response.usage.input_tokens,
@@ -743,39 +743,57 @@ class BrainToolsMixin:
         """從磁碟載入 session history（如果存在）.
 
         包含汙染偵測：過濾掉異常長的訊息（可能來自 chaos test 或其他注入）。
+        v1.55: 相容舊格式（純陣列）和新格式（metadata + messages）。
         """
         session_file = self.data_dir / "_system" / "sessions" / f"{session_id}.json"
         if not session_file.exists():
             return None
         try:
             data = json.loads(session_file.read_text(encoding="utf-8"))
-            if isinstance(data, list):
-                # 汙染偵測：過濾異常長或重複模式的訊息
-                clean = []
-                stripped = 0
-                for msg in data:
-                    content = msg.get("content", "")
-                    # 超過 5000 字元且包含高度重複模式 → 視為汙染
-                    if len(content) > 5000:
-                        # 檢查是否有重複子串（取前 50 字元看是否反覆出現）
-                        sample = content[:50]
-                        if content.count(sample) > 3:
-                            stripped += 1
-                            continue
-                    clean.append(msg)
-                if stripped:
-                    logger.warning(
-                        f"Session {session_id[:8]}... 清除 {stripped} 條汙染訊息"
-                    )
-                    # 回寫清理後的資料
-                    session_file.write_text(
-                        json.dumps(clean, ensure_ascii=False, indent=2),
-                        encoding="utf-8",
-                    )
-                logger.info(
-                    f"Session {session_id[:8]}... 從磁碟載入 {len(clean)} 條歷史"
+
+            # v1.55: 相容兩種格式
+            if isinstance(data, dict) and "messages" in data:
+                # 新格式：{ "metadata": {...}, "messages": [...] }
+                messages = data.get("messages", [])
+            elif isinstance(data, list):
+                # 舊格式：直接陣列
+                messages = data
+            else:
+                return None
+
+            # 汙染偵測：過濾異常長或重複模式的訊息
+            clean = []
+            stripped = 0
+            for msg in messages:
+                content = msg.get("content", "")
+                # 超過 5000 字元且包含高度重複模式 → 視為汙染
+                if len(content) > 5000:
+                    # 檢查是否有重複子串（取前 50 字元看是否反覆出現）
+                    sample = content[:50]
+                    if content.count(sample) > 3:
+                        stripped += 1
+                        continue
+                clean.append(msg)
+            if stripped:
+                logger.warning(
+                    f"Session {session_id[:8]}... 清除 {stripped} 條汙染訊息"
                 )
-                return clean
+                # 回寫清理後的資料（用新格式）
+                from datetime import datetime as _dt
+                payload = {
+                    "metadata": {
+                        "last_active": _dt.now().isoformat(),
+                    },
+                    "messages": clean,
+                }
+                session_file.write_text(
+                    json.dumps(payload, ensure_ascii=False, indent=2),
+                    encoding="utf-8",
+                )
+            logger.info(
+                f"Session {session_id[:8]}... 從磁碟載入 {len(clean)} 條歷史"
+            )
+            return clean
         except Exception as e:
             logger.warning(f"載入 session history 失敗: {e}")
         return None
@@ -785,6 +803,8 @@ class BrainToolsMixin:
 
         每輪對話結束後呼叫。只保存 role + content（純文字），
         不保存工具中間訊息（tool_use/tool_result blocks）。
+
+        v1.55: 加入 metadata 層追蹤 last_active 時間戳（用於自動清理機制）。
         """
         history = self._sessions.get(session_id)
         if not history:
@@ -800,8 +820,17 @@ class BrainToolsMixin:
                 if isinstance(content, str):
                     clean.append({"role": msg["role"], "content": content})
                 # 跳過 content 為 list（tool_use blocks）的訊息
+
+            # v1.55: 包裝成 metadata + messages 結構
+            from datetime import datetime as _dt
+            payload = {
+                "metadata": {
+                    "last_active": _dt.now().isoformat(),
+                },
+                "messages": clean,
+            }
             session_file.write_text(
-                json.dumps(clean, ensure_ascii=False, indent=1),
+                json.dumps(payload, ensure_ascii=False, indent=1),
                 encoding="utf-8",
             )
         except Exception as e:

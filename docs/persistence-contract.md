@@ -1,4 +1,4 @@
-# MUSEON Persistence Contract v1.32 — 水電圖
+# MUSEON Persistence Contract v1.33 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
@@ -464,7 +464,7 @@ adaptive_decay ──ACT-R B_i──→ _activation 欄位 (in-memory) ←──
 | `_system/footprints/cognitive_trace.jsonl` | `governance/footprint.py` | 認知追蹤（Brain Step 8 決策迴圈的認知軌跡） |
 | `_system/morphenix/*.json` | `nightly/morphenix_executor.py` | 執行快照 |
 | `_system/outward/*.json` | `evolution/outward_trigger.py` | 外向演化狀態（behavior_shift, cooldown, counter, pending_signals 等） |
-| `_system/sessions/*.json` | `gateway/session.py` | 會話快照 |
+| `_system/sessions/*.json` | `brain_tools.py` / `session_cleanup.py` | 會話快照（v1.55 新增 metadata.last_active 自動清理） |
 | `_system/tools/registry.json` | `tools/tool_registry.py` | 工具清單 |
 | `_system/evolution/velocity_log.jsonl` | `nightly/evolution_velocity.py` | 演化速度快照 |
 | `_system/evolution/tuned_parameters.json` | `nightly/parameter_tuner.py` | 已調諧參數 |
