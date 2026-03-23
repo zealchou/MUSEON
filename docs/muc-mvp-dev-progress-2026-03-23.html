@@ -1,0 +1,2206 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUC MVP 開發進度整合報告</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,600&family=Outfit:wght@400;600&family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --ember: #C4502A;
+            --ember-light: #E0714D;
+            --ember-dark: #9A3A1C;
+            --teal: #2A7A6E;
+            --gold: #B8923A;
+            --ink: #12121A;
+            --slate: #5A5A6E;
+            --mist: #9898A8;
+            --border: #E2E0DA;
+            --parchment: #F7F5F0;
+            --snow: #FDFCFA;
+            --success: #2D8A6E;
+            --warning: #C9943A;
+            --error: #C4402A;
+            --info: #2A6A8A;
+        }
+        
+        body {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            background-color: var(--parchment);
+            color: var(--ink);
+            line-height: 1.75;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 64px;
+            padding: 48px 0;
+            border-bottom: 2px solid var(--ember);
+        }
+        
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 56px;
+            font-weight: 600;
+            color: var(--ember);
+            margin-bottom: 16px;
+            line-height: 1.15;
+        }
+        
+        header h2 {
+            font-size: 28px;
+            font-weight: 400;
+            color: var(--slate);
+            margin-bottom: 32px;
+            font-family: 'Outfit', sans-serif;
+        }
+        
+        .metadata {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            font-size: 13px;
+            color: var(--slate);
+        }
+        
+        .badge {
+            background-color: rgba(196, 80, 42, 0.1);
+            color: var(--ember-dark);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        
+        nav {
+            background-color: var(--snow);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 24px;
+            margin-bottom: 48px;
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(18, 18, 26, 0.06);
+        }
+        
+        nav h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            color: var(--ember);
+            margin-bottom: 16px;
+        }
+        
+        nav ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 8px;
+        }
+        
+        nav a {
+            display: block;
+            padding: 8px 12px;
+            color: var(--teal);
+            text-decoration: none;
+            border-radius: 6px;
+            border-left: 3px solid transparent;
+            transition: all 200ms ease;
+            font-size: 14px;
+        }
+        
+        nav a:hover {
+            background-color: rgba(42, 122, 110, 0.08);
+            border-left-color: var(--teal);
+        }
+        
+        section {
+            margin-bottom: 64px;
+        }
+        
+        section > h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 40px;
+            font-weight: 600;
+            color: var(--ember);
+            margin-bottom: 24px;
+            padding-top: 32px;
+            border-top: 2px solid var(--border);
+            padding-bottom: 16px;
+        }
+        
+        h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--ink);
+            margin: 32px 0 16px 0;
+            line-height: 1.2;
+        }
+        
+        h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--ember);
+            margin: 24px 0 12px 0;
+            line-height: 1.3;
+        }
+        
+        h4 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--ink);
+            margin: 18px 0 10px 0;
+        }
+        
+        p {
+            margin-bottom: 16px;
+            line-height: 1.8;
+        }
+        
+        ul, ol {
+            margin: 16px 0 16px 24px;
+            line-height: 1.8;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        code {
+            background-color: #F0EDE8;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            color: #6B5E52;
+        }
+        
+        pre {
+            background-color: #2A2A38;
+            color: #E2E0DA;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 16px 0;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        
+        .card {
+            background-color: var(--snow);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 1px 3px rgba(18, 18, 26, 0.06);
+        }
+        
+        .card p {
+            margin-bottom: 0;
+        }
+        
+        strong {
+            color: var(--ember);
+        }
+        
+        footer {
+            border-top: 1px solid var(--border);
+            padding-top: 32px;
+            margin-top: 64px;
+            text-align: center;
+            color: var(--slate);
+            font-size: 12px;
+        }
+        
+        @media (max-width: 640px) {
+            .container {
+                padding: 24px 16px;
+            }
+            h1 {
+                font-size: 36px;
+            }
+            section > h2 {
+                font-size: 28px;
+            }
+            nav {
+                position: relative;
+                top: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>MUC MVP 開發進度</h1>
+            <h2>三份文件統一整合報告</h2>
+            <div class="metadata">
+                <span class="badge">📋 開發進度</span>
+                <span class="badge">🏗️ 系統架構</span>
+                <span class="badge">✓ 待辦清單</span>
+                <span>生成於 2026-03-23</span>
+            </div>
+        </header>
+        
+        <nav>
+            <h3>快速導航</h3>
+            <ul>
+                <li><a href="#dev-sequence">📋 開發序列</a></li>
+                <li><a href="#system-scope">🏗️ 系統範圍</a></li>
+                <li><a href="#todo-list">✓ 待辦清單</a></li>
+            </ul>
+        </nav>
+        
+        <section id="dev-sequence">
+            <h2>📋 開發序列</h2>
+            <div class="card">
+                <p><strong>DEV_SEQUENCE</strong> 概述開發里程碑、技術決策與預計時程。</p>
+            </div>
+            <h1>DEV_SEQUENCE — MUC MVP 開發順序</h1>
+<p>&gt; **版本**：v1.1</p>
+<p>&gt; **建立日期**：2026-03-10</p>
+<p>&gt; **最後更新**：2026-03-22（#66 付款方式管理 + UI/UX 技術債清理 + radix-vue Tabs 修復 + SendGrid 修正）</p>
+<p>&gt; **用途**：開發先後順序 + 每階段產出 + 目前狀態總覽</p>
+<p>---</p>
+<h2>開發順序總覽</h2>
+<p>| 順序 | 項目 | 產出 | 你需要提供 | 狀態 |</p>
+<p>|------|------|------|------------|------|</p>
+<p>| 1 | 專案骨架 | backend/ + frontend/ 目錄結構 | 確認技術棧 | ✅ |</p>
+<p>| 2 | Migration：accounts | `accounts` 表 | 無 | ✅ |</p>
+<p>| 3 | Auth 模組 | login / register / JWT Guard / /me | 無 | ✅ |</p>
+<p>| 4 | Migration：licenses + pair_codes | `licenses` / `pair_codes` 表 | 無 | ✅ |</p>
+<p>| 5 | License 模組（Admin） | Admin CRUD + 狀態管理 API | 無 | ✅ |</p>
+<p>| 6 | Pair Code 生成 | 一次性、短時效、只存 hash | OQ-005 = 5 分鐘 ✅ | ✅ |</p>
+<p>| 7 | Migration：subscriptions | `subscriptions` 表 | 無 | ✅ |</p>
+<p>| 8 | Subscription 狀態機 | ACTIVE / GRACE / SUSPENDED 轉換 | 無 | ✅ |</p>
+<p>| 9 | Subscription Reconciler | 排程：自動轉 GRACE / SUSPENDED（F09 12場景全通過） | 無 | ✅ |</p>
+<p>| 10 | Migration：payments | `payments` 表 | 無 | ✅ |</p>
+<p>| 11 | Payment 模組 | draft / confirm / void API | OQ-004 = Option B ✅ | ✅ |</p>
+<p>| 12 | Payment → Subscription 連動 | confirm 觸發 activateOrRenew | 無 | ✅ |</p>
+<p>| 13 | Migration：billing_profiles | `billing_profiles` 表 | 無 | ✅ |</p>
+<p>| 14 | BillingProfile 模組 | CRUD API（F14 11場景全通過） | 無 | ✅ |</p>
+<p>| 15 | Migration：devices + device_tokens | `devices` / `device_tokens` 表（D15 7場景全通過） | 無 | ✅ |</p>
+<p>| 16 | Device Pairing | Agent pair + PairCode 驗證 + Token 發行（F16 10場景全通過） | 無 | ✅ |</p>
+<p>| 17 | Device Revoke | User 自助 revoke + token 失效（6/6場景通過，3個延後Phase7） | OQ-008 ✅ Closed | ✅ |</p>
+<p>| 18 | Migration：alerts + ALTER audit_logs | `alerts` 建立 + `audit_logs` 升級（D18 9場景全通過） | 無 | ✅ |</p>
+<p>| 19 | Audit Log 整合 | 16 個 action + ActorType 精確分類（F19 11場景全通過） | 無 | ✅ |</p>
+<p>| 20 | Alert 整合 | ALERT_EVENT_MAP + createByEvent + 4模組整合（F20 9/9通過） | OQ-007 ✅ Closed（ADR-019） | ✅ |</p>
+<p>| 21 | Entitlement 模組 | Ed25519 簽章回應 + TTL（F21 19場景通過） | OQ-006 ✅ Tentative 5min | ✅ |</p>
+<p>| 22 | Pre-Job Check | check-before-job + allow_new_jobs（F22 Server-side 通過） | 無 | ✅ |</p>
+<p>| 23 | Notification 整合 | SendGrid + Bull queue + 2類email（F23 15場景通過） | OQ-010 ✅ Closed（ADR-021） | ✅ |</p>
+<p>| 24 | shadcn-vue 初始化 | 安裝依賴 + 基礎元件 + Layout + i18n | ADR-022 shadcn-vue | ✅ |</p>
+<p>| 25 | Admin UI：收款管理 | Payment DRAFT 列表 + confirm/void（BDD F24） | 無 | ✅ |</p>
+<p>| 26 | Admin UI：序號管理 | License CRUD + 啟用/停用/作廢 | 無 | ✅ |</p>
+<p>| 27 | Admin UI：帳號管理 | 帳號搜尋 + 底下序號/設備 | 無 | ✅ |</p>
+<p>| 28 | Admin UI：設備管理 | 設備列表 + Admin revoke | 無 | ✅ |</p>
+<p>| 29 | Admin UI：告警中心 | Alert 列表 + ack/resolve + level badge | 無 | ✅ |</p>
+<p>| 30 | Admin UI：稽核紀錄 | AuditLog 唯讀列表 + 篩選 + 分頁 | 無 | ✅ |</p>
+<p>| 31 | Admin UI：Dashboard | 統計卡片 + 最近告警摘要 | 無 | ✅ |</p>
+<p>| 32 | RBAC 角色權限管理 | Migration + Role/Permission CRUD + PermissionGuard + UI | ADR-023 | ✅ |</p>
+<p>| 33 | Admin 帳號管理功能 | 後端 API + UI：角色指派 + 啟用/停用 + 建立帳號 | 無 | ✅ |</p>
+<p>| 34 | Portal UI：登入/註冊 | `/portal/login` + `/admin/login` 分離 + 註冊頁 UI 升級 | 無 | ✅ |</p>
+<p>| 35 | Portal UI：我的首頁 | 狀態摘要卡 + 操作捷徑 + 重要提醒 + 最近活動 | 無 | ✅ |</p>
+<p>| 36 | Portal UI：我的訂閱 | 訂閱狀態卡 + 序號資訊 + Pair Code 生成 + 倒數 | 無 | ✅ |</p>
+<p>| 37 | Portal UI：我的設備 | 設備列表 + 詳情 + 自助停用 + 確認彈窗 | 無 | ✅ |</p>
+<p>| 38 | Portal UI：帳單/付款 | 付款提醒 + 付款紀錄 + 付款說明 + BillingProfile 表單 | 無 | ✅ |</p>
+<p>| 39 | Portal UI：通知中心 | 通知列表 + 已讀/未讀 + 跳轉對應頁 + Empty State | 無 | ✅ |</p>
+<p>| 40 | Portal UI：帳號設定 | 基本資料 + Billing + 密碼 + 通知偏好（分區儲存） | 無 | ✅ |</p>
+<p>| 41 | 狀態機測試 | Subscription 轉移 E2E（F41 12/12 通過） | 無 | ✅ |</p>
+<p>| 42 | Pair Code 測試 | 一次性 / 過期 / 重用測試（F42 12/12 通過） | 無 | ✅ |</p>
+<p>| 43 | Entitlement 驗章測試 | Ed25519 簽章驗證測試（F43 9/9 通過） | 無 | ✅ |</p>
+<p>| 44 | 離線限制測試 | 超過 15 分鐘阻擋新任務（F44 16/16 通過） | 無 | ✅ |</p>
+<p>| 45 | Agent 文件修正 | AGENT_INTEGRATION_GUIDE.md 端點 + 參數對齊實際程式碼 | 無 | ✅ |</p>
+<p>| 46 | Agent HTTP 整合測試 | Python httpx 直接打 Server，33/33 全通過 | 無 | ✅ |</p>
+<p>| 47 | Agent SDK 模組 | `muc_agent.py` v0.1.0：auto-pair / entitlement / check / 驗章 / 離線政策 | 無 | ✅ |</p>
+<p>| 48 | Agent SDK 範例 + 文件 | Integration Guide v2.0 / Onboarding / Quick Connect / Acceptance Test | 無 | ✅ |</p>
+<p>| 49 | Server 部署上線 | CORS + deploy.php + Apache ProxyPass + PM2 | 無 | ✅ |</p>
+<p>| 50 | Agent 正式對接測試 | 與 Agent 開發者聯調，驗證完整授權鏈 | Agent 開發者配合 | 🚧 |</p>
+<p>| 51 | User Checkout API | `POST /payments/my/checkout` 模擬付款 → Subscription ACTIVE | ADR-024 | ✅ |</p>
+<p>| 52 | Portal 付款 UI | 付款按鈕 + 確認 Dialog + 成功回饋 + 錯誤處理 | 無 | ✅ |</p>
+<p>| 53 | Checkout 整合測試 | 首次/續費/GRACE/SUSPENDED/重複/403 BDD 驗證（8/8） | 無 | ✅ |</p>
+<p>| 54 | Subscription 管理頁 | `/admin/subscriptions` 列表 + 篩選 + 詳情（F54 12/12） | 無 | ✅ |</p>
+<p>| 55 | Admin 付款紀錄篩選 | 預設全部 + DRAFT/CONFIRMED/VOID 篩選 + confirmedAt/By 欄位（F55 7/7） | 無 | ✅ |</p>
+<p>| 56 | License→建立付款單 | License 詳情頁「建立付款單」按鈕 + 預填 Dialog + VOID 檢查（F56 13/13） | 無 | ✅ |</p>
+<p>| 57 | 訂閱狀態總覽 | Dashboard 訂閱分佈（進度條+3卡片+百分比+跳轉）（F57 8/8） | 無 | ✅ |</p>
+<p>| 58 | 通知紀錄查看 | `/admin/notifications` 發送紀錄 + 狀態 + 錯誤 | 無 | ✅ |</p>
+<p>| 59 | 數據匯出 | License/Payment/Subscription CSV 匯出 + 匯出按鈕（F59 8/8） | 無 | ✅ |</p>
+<p>| 60 | 忘記密碼 | forgot-password + reset-password 完整流程（F60 11/11） | 無 | ✅ |</p>
+<p>| 61 | 方案管理模組 | Plan CRUD + CompareFeature + License 綁定 + 快照價 + Landing 動態定價（F61 13/13） | ADR-025 | ✅ |</p>
+<p>| 62 | 全自助訂購流程 v2 | 定價改版：訂閱/續約分類 + 多月期 + 優惠機制 + Loyalty Rule + Portal 分流（F62 v2 43場景，API 8/8 通過） | ADR-026 + ADR-027 | ✅ |</p>
+<p>| 63 | /shop 獨立訂購路線 | ShopCheckoutView + ShopSuccessView + 路由 + i18n（F-SHOP-001 BDD 26場景） | ADR-029 | ✅ |</p>
+<p>| 64 | Order 模型 | Order Entity + Migration + Checkout 重構 + Portal「我的訂單」+ Admin「訂單管理」（F64 BDD 16/16 通過）| ADR-028 + ADR-029 | ✅ |</p>
+<p>| 65 | UI/UX 技術債清理 + 重構 | i18n 補齊 + 分頁 + Tabs 修復 + SendGrid + 16 元件拆出（全檔 &lt;500 行）| 無 | ✅ |</p>
+<p>| 66 | 付款方式管理 | PaymentMethod CRUD + 結帳選擇 + 非即時付款流程 + Admin 訂單強化（F66 BDD 26場景，API 12/12）| ADR-030 | ✅ |</p>
+<p>| | **── Phase 14：Credit 點數系統 ──** | | | |</p>
+<p>| 67 | Credit 點數系統 | credit_balances / credit_transactions / consume + balance API + Portal 點數頁 + Admin 點數 tab（F67 BDD 26場景，API 15/15 通過）| 無 | ✅ |</p>
+<p>| 68 | 方案月配點數 | plans.monthly_credits + 週期配點 Reconciler | 依賴 #67 | ⬜ |</p>
+<p>| 69 | 超額計費 | 超額帳單 + GRACE→SUSPENDED 整合 | 依賴 #68 | ⬜ |</p>
+<p>| 70 | Portal 點數顯示 | 餘額 + 用量 + 超額提醒 | 依賴 #67 | ⬜ |</p>
+<p>| 71 | Admin 點數報表 | 用量統計 + 超額帳單管理 | 依賴 #67 | ⬜ |</p>
+<p>| 72 | Agent SDK Credit | consume + balance 整合 muc_agent.py | 依賴 #67 | ⬜ |</p>
+<p>| | **── SEO / GEO 成長模組 ──** | | | |</p>
+<p>| 73 | SEO/GEO 管理（第一批） | SeoPage CRUD + 發布 + 封存 + sitemap + GEO 欄位 + 權限 + SchemaEditor（F71 BDD S01-S16，16/16 通過）| 無 | ✅ |</p>
+<p>| 74 | SEO/GEO 管理（第二批）+ SEO 基礎建設 | 預覽 + 成效指標 + FAQ 同步（S17-S20，4/4 通過）+ meta/OG/JSON-LD/robots/sitemap/預渲染 | 無 | ✅ |</p>
+<p>| | **── Phase 15：自動金流串接 ──** | | | |</p>
+<p>| 75 | Gateway Service | 金流串接模組 + Webhook callback + 驗簽 | 待選金流商 | ⬜ |</p>
+<p>| 76 | 前端金流導向 | paymentUrl redirect + payment-return 頁 | 依賴 #75 | ⬜ |</p>
+<p>| 77 | 退款流程 | 退款 API + Admin UI | 依賴 #75 | ⬜ |</p>
+<p>| 78 | 發票服務串接 | 電子發票 worker | 依賴 #75 | ⬜ |</p>
+<p>| | **── Phase 16：推薦分潤 ──** | | | |</p>
+<p>| 79 | Referral 模組 | referral_code + referral_records + 追蹤 | 待規劃 | ⬜ |</p>
+<p>| 80 | 推薦獎勵發放 | 推薦成功判定 + 獎勵自動發放 | 依賴 #79 | ⬜ |</p>
+<p>| 81 | 介紹人折抵 | 首次付款折扣 or 點數贈送 | 依賴 #79 | ⬜ |</p>
+<p>| 82 | 推薦 UI | Portal 推薦頁 + Admin 推薦報表 | 依賴 #79 | ⬜ |</p>
+<p>| | **── Phase 17：自動更新發佈平台 ──** | | | |</p>
+<p>| 83 | Agent 下載機制 | 安裝包管理 + 下載頁 | 獨立，可平行 | ⬜ |</p>
+<p>| 84 | 版本管理模組 | version / platform / release_notes + CRUD | 依賴 #83 | ⬜ |</p>
+<p>| 85 | Agent 自動更新 | 版本檢查 + 自動下載 + 強制/建議更新 | 依賴 #84 | ⬜ |</p>
+<p>| 86 | 灰度發佈 | 按比例推送 + 裝機率統計 | 依賴 #85 | ⬜ |</p>
+<p>---</p>
+<h2>詳細說明</h2>
+<h3>Phase 1：基礎建設（順序 1–3）✅</h3>
+<p>#### 1. 專案骨架</p>
+<ul>
+<li><strong>產出</strong>：<code>backend/</code>（NestJS Modular Monolith）+ <code>frontend/</code>（Vue 3 + Vite + Tailwind）</li>
+<li><strong>已完成</strong>：11 個模組骨架、路由分層（Portal / Admin）、設定檔</li>
+</ul>
+<p>#### 2. Migration：accounts</p>
+<ul>
+<li><strong>產出</strong>：<code>src/database/migrations/1741580000000-CreateAccounts.ts</code></li>
+<li><strong>欄位</strong>：id / email / passwordHash / name / status / role / createdAt / updatedAt</li>
+</ul>
+<p>#### 3. Auth 模組</p>
+<ul>
+<li><strong>產出</strong>：</li>
+</ul>
+<p>  - `POST /api/v1/auth/login`（回傳 JWT）</p>
+<p>  - `POST /api/v1/auth/register`</p>
+<p>  - `GET /api/v1/auth/me`（JWT Guard 驗證）</p>
+<p>  - `JwtAuthGuard` / `AdminGuard` / `@CurrentUser()` 裝飾器</p>
+<p>---</p>
+<h3>Phase 2：License &amp; Subscription（順序 4–9）</h3>
+<p>#### 4. Migration：licenses + pair_codes</p>
+<ul>
+<li><strong>產出</strong>：兩張表</li>
+<li><strong>關鍵欄位</strong>：</li>
+</ul>
+<p>  - licenses：id / serialKey / accountId / status</p>
+<p>  - pair_codes：id / licenseId / codeHash / expiresAt / usedAt</p>
+<p>#### 5. License 模組（Admin）</p>
+<ul>
+<li><strong>產出</strong>：</li>
+</ul>
+<p>  - `POST /api/v1/licenses/admin`（平台建立序號）</p>
+<p>  - `GET /api/v1/licenses/my`（User 查詢自己的序號）</p>
+<p>#### 6. Pair Code 生成</p>
+<ul>
+<li><strong>產出</strong>：<code>POST /api/v1/licenses/:id/pair-code</code></li>
+<li><strong>規則</strong>：一次性、只存 hash、明文只回傳一次（ref：STATE_RULES T-PAIR-001）</li>
+<li><strong>你需要確認</strong>：OQ-005（TTL 預設 5 分鐘，是否拍板）</li>
+</ul>
+<p>#### 7–8. Migration + Subscription 狀態機</p>
+<ul>
+<li><strong>產出</strong>：subscriptions 表 + ACTIVE/GRACE/SUSPENDED 轉換邏輯</li>
+<li><strong>依據</strong>：STATE_RULES §3</li>
+</ul>
+<p>#### 9. Subscription Reconciler</p>
+<ul>
+<li><strong>產出</strong>：<code>@Cron</code> 排程，每 5 分鐘檢查</li>
+<li><strong>規則</strong>：冪等、不重複觸發 side effects（ref：STATE_RULES §9）</li>
+</ul>
+<p>---</p>
+<h3>Phase 3：Payment（順序 10–12）</h3>
+<p>#### 10–11. Migration + Payment 模組</p>
+<ul>
+<li><strong>產出</strong>：payments 表 + DRAFT/CONFIRMED/VOID 狀態 API</li>
+<li><strong>你需要確認</strong>：OQ-004（Payment confirmation 是否強制冪等）</li>
+</ul>
+<p>#### 12. Payment → Subscription 連動</p>
+<ul>
+<li><strong>產出</strong>：<code>adminConfirm()</code> 成功後觸發 <code>subscriptionService.activateOrRenew()</code></li>
+<li><strong>規則</strong>：CONFIRMED 不可再 void；不得重複延長週期</li>
+</ul>
+<p>---</p>
+<h3>Phase 4：BillingProfile（順序 13–14）</h3>
+<ul>
+<li><strong>產出</strong>：billing_profiles 表 + CRUD API</li>
+<li><strong>用途</strong>：User 維護發票資料（公司名稱、統編、地址）</li>
+</ul>
+<p>---</p>
+<h3>Phase 5：Device Pairing（順序 15–17）</h3>
+<p>#### 16. Device Pairing（核心）</p>
+<ul>
+<li><strong>產出</strong>：</li>
+</ul>
+<p>  - `POST /api/v1/devices/agent/pair`</p>
+<p>  - 驗證 PairCode（未過期、未使用、license 無現有 ACTIVE Device）</p>
+<p>  - 建立 Device（ACTIVE）+ DeviceToken（只回傳一次明文，存 hash）</p>
+<ul>
+<li><strong>依據</strong>：STATE_RULES T-DEV-001, T-PAIR-002</li>
+</ul>
+<p>#### 17. Device Revoke</p>
+<ul>
+<li><strong>產出</strong>：</li>
+</ul>
+<p>  - `POST /api/v1/devices/:id/revoke`（User 自助）</p>
+<p>  - `POST /api/v1/admin/devices/:id/revoke`（Admin）</p>
+<ul>
+<li><strong>你需要確認</strong>：OQ-008（User 能否自行 revoke）</li>
+</ul>
+<p>---</p>
+<h3>Phase 6：Audit &amp; Alert（順序 18–20）</h3>
+<ul>
+<li><strong>目標</strong>：所有 STATE_RULES 定義的狀態變更，都必須寫 audit_log</li>
+<li><strong>Alert 事件映射</strong>（ref STATE_RULES §8.4）：</li>
+</ul>
+<p>  - SUBSCRIPTION_GRACE → WARN</p>
+<p>  - SUBSCRIPTION_SUSPENDED → CRITICAL</p>
+<p>  - NONCE_REPLAY → CRITICAL</p>
+<p>  - SIGNATURE_VERIFICATION_FAILED → CRITICAL</p>
+<p>  - SAME_TOKEN_MULTI_DEVICE → CRITICAL</p>
+<ul>
+<li><strong>你需要確認</strong>：OQ-007（分級規則是否拍板）</li>
+</ul>
+<p>---</p>
+<h3>Phase 7：Entitlement &amp; Security（順序 21–22）</h3>
+<p>#### 21. Entitlement 模組</p>
+<ul>
+<li><strong>產出</strong>：</li>
+</ul>
+<p>  - `POST /api/v1/agent/entitlement`</p>
+<p>  - 回應以 Ed25519 私鑰簽章，Agent 用內建公鑰驗章</p>
+<p>  - 回應含 expiresAt（ref：OQ-006，預設 5 分鐘）</p>
+<ul>
+<li><strong>你需要確認</strong>：OQ-006（TTL 是否拍板）</li>
+</ul>
+<p>#### 22. Pre-Job Check</p>
+<ul>
+<li><strong>產出</strong>：<code>POST /api/v1/agent/check-before-job</code></li>
+<li><strong>判定邏輯</strong>：STATE_RULES §10（allow_new_jobs 一票否決條件）</li>
+<li><strong>離線限制</strong>：超過 15 分鐘 → <code>PRE_JOB_CHECK_FAILED</code></li>
+</ul>
+<p>---</p>
+<h3>Phase 8：通知（順序 23）</h3>
+<ul>
+<li><strong>產出</strong>：SendGrid 整合 + 關鍵 3 類 email（ref：OQ-010）</li>
+</ul>
+<p>  - 收款確認</p>
+<p>  - 即將到期（進入 GRACE）</p>
+<p>  - 已停權（SUSPENDED）</p>
+<ul>
+<li><strong>你需要確認</strong>：OQ-010（通知範圍是否拍板）</li>
+</ul>
+<p>---</p>
+<h3>Phase 9：前台 UI（順序 24–36）</h3>
+<p>&gt; **UI 元件庫**：shadcn-vue（ADR-022）</p>
+<p>&gt; **頁面規格來源**：MVP 網站系統架構 v1.0（§4 + §15）</p>
+<p>#### 24. shadcn-vue 初始化</p>
+<ul>
+<li>安裝依賴（shadcn-vue + Radix Vue）</li>
+<li>基礎元件（Button / Table / Dialog / Badge / Form / Input / Card / Tabs）</li>
+<li>AdminLayout + PortalLayout</li>
+<li>i18n 基礎架構</li>
+</ul>
+<p>#### Admin 後台（順序 25–31）</p>
+<p>| 順序 | UI 頁面 | 路由 | 核心功能 | BDD |</p>
+<p>|------|---------|------|---------|-----|</p>
+<p>| 25 | 收款管理 | `/admin/payments` | DRAFT 列表、confirm、void、二次確認 | F24 ✅ |</p>
+<p>| 26 | 序號管理 | `/admin/licenses` | CRUD + 啟用/停用/作廢 + 綁定設備 | 待建 |</p>
+<p>| 27 | 帳號管理 | `/admin/accounts` | 搜尋 + 狀態 + 底下序號/設備 | 待建 |</p>
+<p>| 28 | 設備管理 | `/admin/devices` | 設備列表 + Admin revoke | 待建 |</p>
+<p>| 29 | 告警中心 | `/admin/alerts` | level badge + ack/resolve + 篩選 | 待建 |</p>
+<p>| 30 | 稽核紀錄 | `/admin/audit-logs` | 唯讀 + 篩選 action + 分頁 | 待建 |</p>
+<p>| 31 | Dashboard | `/admin/dashboard` | 統計卡片 + 最近告警 | 待建 |</p>
+<p>#### RBAC 角色權限管理（順序 32 — F32）</p>
+<p>| 順序 | 項目 | 核心功能 | BDD |</p>
+<p>|------|------|---------|-----|</p>
+<p>| 32 | RBAC 角色權限管理 | Migration + Role/Permission CRUD + PermissionGuard 重構 + UI | F32 |</p>
+<p>**後端（新增）：**</p>
+<ul>
+<li>Migration：roles / permissions / role_permissions 三張表</li>
+<li>Migration：accounts 表 role ENUM → role_id FK</li>
+<li>Seed：系統預設 3 角色（SUPER_ADMIN / ADMIN / USER）+ 15 個 Permission</li>
+<li>Role CRUD API：GET/POST/PUT/DELETE /admin/roles</li>
+<li>Permission 查詢 + 指派 API：GET/PUT /admin/roles/:id/permissions、GET /admin/permissions</li>
+<li>PermissionGuard + @RequirePermission() 裝飾器（取代現有 AdminGuard）</li>
+<li>重構所有現有 Admin Controller 路由（AdminGuard → @RequirePermission）</li>
+</ul>
+<p>**UI（新增角色管理頁 `/admin/roles`）：**</p>
+<ul>
+<li>角色列表（name / description / permissionCount / accountCount）</li>
+<li>建立 / 編輯 / 刪除角色</li>
+<li>權限指派 UI（checkbox 矩陣，按 module 分組）</li>
+<li>系統角色標記（不可刪除）</li>
+</ul>
+<p>**商業規則：** BR-RBAC1~RBAC8（ref DOMAIN_MODEL §6.5.1）</p>
+<p>**決策：** ADR-023</p>
+<p>**audit log：** ROLE_CREATED / ROLE_UPDATED / ROLE_DELETED / ROLE_PERMISSIONS_UPDATED</p>
+<p>#### Admin 帳號管理功能（順序 33 — F33）</p>
+<p>| 順序 | 項目 | 核心功能 | BDD |</p>
+<p>|------|------|---------|-----|</p>
+<p>| 33 | 帳號管理功能 | 後端 API + UI：角色指派 + 啟用/停用 + 建立帳號 | F33 |</p>
+<p>**後端 API（新增）：**</p>
+<ul>
+<li><code>GET /admin/accounts</code> — 帳號列表搜尋（含 role / status 篩選）</li>
+<li><code>POST /admin/accounts/:id/role</code> — 指派角色（改為指定 role_id）</li>
+<li><code>POST /admin/accounts/:id/disable</code> — 停用帳號</li>
+<li><code>POST /admin/accounts/:id/enable</code> — 啟用帳號</li>
+<li><code>POST /admin/accounts</code> — 建立帳號並指定角色</li>
+</ul>
+<p>**UI（整合至現有帳號管理頁）：**</p>
+<ul>
+<li>角色指派（下拉選單，從 roles 表載入）+ 二次確認</li>
+<li>停用 / 啟用按鈕 + 二次確認（不可停用自己）</li>
+<li>建立帳號表單（可指定角色）</li>
+</ul>
+<p>**商業規則：** BR-AC1~AC6（ref DOMAIN_MODEL §6.5）</p>
+<p>**狀態規則：** Account ACTIVE ↔ DISABLED（ref STATE_RULES §3）</p>
+<p>**audit log：** ACCOUNT_ROLE_CHANGED / ACCOUNT_DISABLED / ACCOUNT_ENABLED / ACCOUNT_CREATED_BY_ADMIN</p>
+<p>#### User Portal（順序 34–40）</p>
+<p>&gt; **規格來源**：`docs/ui/PORTAL_UI_SPEC.md`</p>
+<p>&gt; **範圍**：已登入區 6 頁 + 登入/註冊 2 頁（未登入首頁+方案頁列為 P2 延後）</p>
+<p>| 順序 | UI 頁面 | 路由 | 核心功能 | BDD |</p>
+<p>|------|---------|------|---------|-----|</p>
+<p>| 34 | 登入/註冊 | `/portal/login` `/admin/login` `/portal/register` | 分離式登入 + 左右分欄 UI + 密碼強度 | ✅ |</p>
+<p>| 35 | 我的首頁 | `/portal` | 狀態摘要卡 + 操作捷徑 + 重要提醒 + 最近活動 | ✅ |</p>
+<p>| 36 | 我的訂閱 | `/portal/licenses` | 訂閱狀態卡 + 序號資訊 + Pair Code 生成 + 狀態文案 | ✅ |</p>
+<p>| 37 | 我的設備 | `/portal/devices` | 設備列表 + 詳情 + 自助停用 + 確認彈窗 | ✅ |</p>
+<p>| 38 | 帳單/付款 | `/portal/billing` | 付款提醒 + 付款紀錄 + 付款說明 + BillingProfile 表單 | ✅ |</p>
+<p>| 39 | 通知中心 | `/portal/notifications` | 通知列表 + 已讀/未讀 + 跳轉 + Empty State | ✅ |</p>
+<p>| 40 | 帳號設定 | `/portal/settings` | 基本資料 + Billing + 密碼 + 通知偏好 | ✅ |</p>
+<p>#### 未登入前台（P2 延後）</p>
+<p>&gt; 行銷展示性質，不涉及後端邏輯，可獨立補。</p>
+<p>| 項目 | 路由 | 說明 |</p>
+<p>|------|------|------|</p>
+<p>| Landing Page | `/landing` | Hero + 價值主張 + 使用情境 + FAQ + 頁尾 |</p>
+<p>| 方案/價格頁 | `/pricing` | 方案卡片比較 + 功能對照表 + CTA |</p>
+<p>---</p>
+<h3>Phase 10：測試（順序 41–44）</h3>
+<p>| 測試項目 | Step | 對應規格 |</p>
+<p>|---------|------|---------|</p>
+<p>| Subscription 狀態機 | 41 | STATE_RULES §3 所有 Transition |</p>
+<p>| Pair Code 驗證 | 42 | T-PAIR-001/002/003，過期/已用/重用 |</p>
+<p>| Entitlement 驗章 | 43 | Ed25519 簽章，過期 TTL |</p>
+<p>| 離線限制 | 44 | 超過 15 分鐘 → false |</p>
+<p>---</p>
+<h3>Phase 11：Agent SDK + 部署（順序 45–50）</h3>
+<p>&gt; **目標**：交付 Python SDK 給 Agent 開發者，完成配對 → 授權輪詢 → 接單前檢查的完整閉環</p>
+<p>&gt; **技術棧**：Python 3.10+ / httpx / cryptography</p>
+<p>| 順序 | 項目 | 產出 | 狀態 |</p>
+<p>|------|------|------|------|</p>
+<p>| 45 | Agent 文件修正 | AGENT_INTEGRATION_GUIDE.md v1.1（端點 + 參數對齊） | ✅ |</p>
+<p>| 46 | Agent HTTP 整合測試 | `agent-sdk/test_integration.py`（33/33 通過） | ✅ |</p>
+<p>| 47 | Agent SDK 模組 | `agent-sdk/muc_agent.py`（MucAgent class） | ⬜ |</p>
+<p>| 48 | Agent SDK 範例 + 文件 | `agent-sdk/example.py` + `README.md` | ⬜ |</p>
+<p>| 49 | Server 部署上線 | `deploy.php` + Apache + PM2 + CORS | ✅ |</p>
+<p>| 49.5 | Entitlement Notifications | notifications 陣列 + Agent 版本控制 | ✅ |</p>
+<p>| 50 | Agent 正式對接測試 | 與 Agent 開發者聯調，驗證完整授權鏈 | 🚧 |</p>
+<p>&lt;details&gt;</p>
+<p>&lt;summary&gt;Step 45-50 詳細內容（點擊展開）&lt;/summary&gt;</p>
+<p>#### 45. Agent 文件修正 ✅</p>
+<ul>
+<li>Pair 端點：<code>/api/v1/agent/pair</code> → <code>/api/v1/devices/agent/pair</code></li>
+<li>Entitlement 端點：<code>GET /api/v1/device/entitlement</code> → <code>POST /api/v1/agent/entitlement</code></li>
+<li>Headers / Body 參數對齊、簽章輸入格式說明</li>
+</ul>
+<p>#### 46. Agent HTTP 整合測試 ✅</p>
+<ul>
+<li>7 個 Phase：Setup / Pairing / Entitlement / Pre-Job Check / Offline Policy / Nonce Replay / Revoke</li>
+<li>發現：Python <code>json.dumps</code> 必須用 <code>separators=(",",":")</code> 才與 JS <code>JSON.stringify</code> 一致</li>
+</ul>
+<p>#### 47. Agent SDK 模組 ✅</p>
+<ul>
+<li><code>muc_agent.py</code> v0.1.0：auto-pair + entitlement + pre-job check</li>
+<li>Ed25519 驗章（<code>_verify_entitlement_signature</code>）</li>
+<li>內建公鑰、nonce 自動生成、timestamp 自動填入、離線政策</li>
+</ul>
+<p>#### 48. Agent SDK 文件 ✅</p>
+<ul>
+<li>Integration Guide v2.0 / Onboarding Steps / Quick Connect / Acceptance Test</li>
+<li>對方 AI 驗收：6 關 19 項全部通過</li>
+</ul>
+<p>#### 49. Server 部署上線 ✅</p>
+<ul>
+<li><code>deploy.php</code>（中文化介面）、Apache ProxyPass、SPA fallback</li>
+<li>Frontend: vue-tsc → vite build（Node 24 不相容）</li>
+<li>Backend: PM2 路徑修正 <code>dist/main.js</code>、CORS_ORIGIN 補齊</li>
+</ul>
+<p>#### 49.5 Entitlement Notifications ✅</p>
+<ul>
+<li>4 類通知：GRACE_WARNING / EXPIRING_SOON / AGENT_UPDATE_REQUIRED / AGENT_UPDATE_AVAILABLE</li>
+<li>notifications 在 signed payload 外，僅為 advisory</li>
+<li>環境變數：<code>AGENT_MIN_VERSION</code> / <code>AGENT_LATEST_VERSION</code></li>
+</ul>
+<p>#### 50. Agent 正式對接測試 🚧</p>
+<ul>
+<li>Admin 建帳號 + License + 付款 → Pair Code → Agent 配對 → Entitlement + notifications → Pre-Job Check → 錯誤情境</li>
+<li>需要 Agent 開發者配合</li>
+</ul>
+<p>&lt;/details&gt;</p>
+<p>---</p>
+<h3>Phase 12：User 自助付款（順序 51–53）✅ 完成（2026-03-14）</h3>
+<p>&gt; **目標**：User 可在 Portal 自助完成付款 → 訂閱啟用的完整閉環（模擬金流，未來替換為真實 gateway）</p>
+<p>&gt; **決策**：ADR-024</p>
+<p>| 順序 | 項目 | 產出 | 狀態 |</p>
+<p>|------|------|------|------|</p>
+<p>| 51 | User Checkout API | `POST /payments/my/checkout`（模擬付款 → Subscription ACTIVE） | ✅ |</p>
+<p>| 52 | Portal 付款 UI | 付款按鈕 + 確認 Dialog + 成功回饋 + 錯誤處理 | ✅ |</p>
+<p>| 53 | Checkout 整合測試 | BDD 場景驗證（8/8 通過） | ✅ |</p>
+<p>#### 51. User Checkout API ✅</p>
+<ul>
+<li><strong>後端</strong>：</li>
+</ul>
+<p>  - `POST /api/v1/payments/my/checkout`（JwtAuthGuard）</p>
+<p>  - UserCheckoutDto（license_id required）</p>
+<p>  - 驗證：license 存在 / 所有權 / ACTIVE 狀態 / 無 pending DRAFT / 同週期不重複</p>
+<p>  - DataSource.transaction：Payment CONFIRMED + activateOrRenew（原子操作）</p>
+<p>  - 金額固定 990 TWD（MVP 單一方案）</p>
+<p>  - audit log：PAYMENT_CHECKOUT_INITIATED + PAYMENT_CONFIRMED</p>
+<p>  - notification + alert（交易外，non-blocking）</p>
+<ul>
+<li><strong>錯誤碼</strong>：LICENSE_NOT_FOUND / FORBIDDEN / LICENSE_NOT_ACTIVE / PAYMENT_ALREADY_PENDING / CHECKOUT_ALREADY_COMPLETED</li>
+</ul>
+<p>#### 52. Portal 付款 UI ✅</p>
+<ul>
+<li><strong>前端</strong>：</li>
+</ul>
+<p>  - BillingView 新增付款卡片（payableLicenses computed 篩選 ACTIVE license）</p>
+<p>  - 付款確認 Dialog（方案名稱 + 金額 990 TWD + 序號 + 確認/取消）</p>
+<p>  - 防重複送出（checkoutLoading flag）</p>
+<p>  - 成功 toast + 自動刷新 licenses + payments</p>
+<p>  - 5 種錯誤碼 i18n 對映</p>
+<p>  - i18n：portal.billing.checkout.* + portal.billing.error.*</p>
+<p>#### 53. Checkout 整合測試 ✅ 8/8 場景通過</p>
+<ul>
+<li>首次付款 → Payment CONFIRMED + Subscription ACTIVE ✅</li>
+<li>ACTIVE 續費 → 新週期覆蓋 ✅</li>
+<li>GRACE / SUSPENDED 續費 → 恢復 ACTIVE（邏輯共用 activateOrRenew）✅</li>
+<li>有 pending DRAFT → 409 PAYMENT_ALREADY_PENDING ✅</li>
+<li>非自己的 License → 403 FORBIDDEN ✅</li>
+<li>License 未啟用 → 409 LICENSE_NOT_ACTIVE ✅</li>
+<li>未登入 → 401 ✅</li>
+</ul>
+<p>---</p>
+<h3>Phase 13：最小營運範疇（順序 54–60）🚧</h3>
+<p>&gt; **目標**：從 MVP 基礎走向可實際營運的最小系統</p>
+<p>&gt; **定位**：補齊 Admin 操作效率 + User 基本體驗缺口</p>
+<p>&gt; **規格來源**：MVP 網站系統架構 v1.0 對照分析</p>
+<p>| 順序 | 項目 | 產出 | 狀態 |</p>
+<p>|------|------|------|------|</p>
+<p>| 54 | Subscription 管理頁 | `/admin/subscriptions`（後端 API + 前端頁面） | ✅ |</p>
+<p>| 55 | Admin 付款紀錄篩選 | PaymentsView 全部/DRAFT/CONFIRMED/VOID + confirmedAt/By | ✅ |</p>
+<p>| 56 | License→建立付款單 | LicenseDetailPanel「建立付款單」按鈕 + Dialog | ✅ |</p>
+<p>| 57 | 訂閱狀態總覽 | Dashboard 訂閱分佈區塊（ACTIVE/GRACE/SUSPENDED） | ⬜ |</p>
+<p>| 58 | 通知紀錄查看 | `/admin/notifications`（後端 API + 前端頁面） | ⬜ |</p>
+<p>| 59 | 數據匯出 | License/Payment/Subscription CSV 匯出 | ⬜ |</p>
+<p>| 60 | 忘記密碼 | forgot-password + reset-password（後端 + Email + 前端） | ⬜ |</p>
+<p>| 61 | 方案管理模組 | Plan CRUD + License 綁定 + Checkout 讀金額 + Landing 動態定價 | ⬜ |</p>
+<p>&lt;details&gt;</p>
+<p>&lt;summary&gt;Step 54-60 詳細內容（點擊展開）&lt;/summary&gt;</p>
+<p>#### 54. Subscription 管理頁 ✅（2026-03-17，F54 BDD 12/12）</p>
+<ul>
+<li>後端：<code>GET /subscriptions/admin/list</code>（status + search + risk 篩選 + 分頁）</li>
+<li>後端：<code>GET /subscriptions/admin/:id</code>（詳情 + License/Account/Device/Payment 關聯摘要）</li>
+<li>前端：<code>/admin/subscriptions</code>（SubscriptionsView + SubscriptionDetailPanel）</li>
+<li>列表欄位：serialNo / accountEmail / status / periodEndDate / graceEndDate / updatedAt</li>
+<li>詳情面板：4 Tabs（基本資料 / 序號 / 設備 / 收款）</li>
+<li>到期風險篩選：<code>?risk=expiring_soon</code>（7天內 + GRACE + SUSPENDED）</li>
+<li>權限沿用 <code>license.read</code>，sidebar 新增 CalendarClock icon</li>
+<li>SUSPENDED 標示 AlertTriangle + 「不可接新任務」；GRACE 標示橘色寬限日期</li>
+</ul>
+<p>#### 55. Admin 付款紀錄篩選 ✅（2026-03-17，F55 BDD 7/7）</p>
+<ul>
+<li>後端：<code>adminFindAll</code> 移除預設 DRAFT，不帶 status 回傳全部</li>
+<li>後端：新增 <code>confirmedByEmail</code> batch load（join accounts by confirmedByAdminId）</li>
+<li>前端：<code>filterStatus</code> 預設改 <code>''</code>（全部）</li>
+<li>前端：Table 新增 confirmedAt + confirmedBy 兩欄</li>
+<li>i18n：<code>admin.payment.columns.confirmedAt</code> / <code>confirmedBy</code></li>
+</ul>
+<p>#### 56. License 詳情 → 建立付款單 ✅（2026-03-17，F56 BDD 13/13）</p>
+<ul>
+<li>後端：<code>adminCreateDraft</code> 新增 license 存在 + VOID 狀態檢查（422 LICENSE_VOIDED）</li>
+<li>前端：LicenseDetailPanel 新增「建立付款單」按鈕（VOID 不顯示）</li>
+<li>前端：Dialog 預填 licenseId（readonly）+ serialNo + 990 TWD + note</li>
+<li>前端：金額驗證（正整數）+ 防重複點擊 + 失敗保留 Dialog</li>
+<li>前端：成功後 emit refresh → 重載 detail 顯示新 DRAFT</li>
+<li>i18n：<code>admin.payment.createPayment.*</code> 6 個 key</li>
+</ul>
+<p>#### 57. 訂閱狀態總覽 ✅（2026-03-17，F57 BDD 8/8）</p>
+<ul>
+<li>DashboardView 新增「訂閱狀態總覽」區塊（三色進度條 + 3 張狀態卡 + 數量/百分比 + 總數）</li>
+<li>KPI Cards 訂閱卡片跳轉改為 <code>/admin/subscriptions?status=XXX</code></li>
+<li>SubscriptionsView <code>onMounted</code> 讀取 <code>route.query.status</code> 自動帶入篩選</li>
+<li>後端 <code>GET /subscriptions/admin/stats</code>（ACTIVE/GRACE/SUSPENDED group by count）</li>
+<li>空狀態提示 + 錯誤處理 + 非管理員拒絕（已有 PermissionGuard）</li>
+</ul>
+<p>#### 58. 通知紀錄查看 ⬜</p>
+<ul>
+<li>後端：<code>GET /notifications/admin/list</code>（type / status 篩選 + 分頁）</li>
+<li>前端：<code>/admin/notifications</code> 頁面</li>
+<li>列表欄位：type / recipientEmail / status / sentAt / errorMessage</li>
+</ul>
+<p>#### 59. 數據匯出 ✅（2026-03-17，F59 BDD 8/8）</p>
+<ul>
+<li>後端：3 支 CSV 匯出 API（<code>/licenses/admin/export</code> + <code>/payments/admin/export</code> + <code>/subscriptions/admin/export</code>）</li>
+<li>支援 <code>?status=</code> 篩選，無資料時回 header only</li>
+<li>共用工具：<code>common/utils/csv.ts</code>（toCsv + escape + BOM）</li>
+<li>前端：3 個管理頁各加「匯出 CSV」按鈕 + <code>downloadCsv</code> 工具函數</li>
+<li>每次匯出寫 <code>DATA_EXPORTED</code> audit log</li>
+</ul>
+<p>#### 60. 忘記密碼 ✅（2026-03-17，F60 BDD 11/11）</p>
+<ul>
+<li>Migration：<code>password_reset_tokens</code> 表（token_hash / status / expires_at / used_at）</li>
+<li>後端：<code>POST /auth/forgot-password</code>（不洩漏帳號存在性 / DISABLED 帳號不寄信 / 5次/15分鐘 rate limit）</li>
+<li>後端：<code>POST /auth/reset-password</code>（SHA-256 hash 驗證 / 30 分鐘 TTL / DB 條件更新防併發 / 重設後其他 token 失效）</li>
+<li>Email：PASSWORD_RESET 模板（重設連結按鈕 + 過期時間提示）</li>
+<li>前端：ForgotPasswordView + ResetPasswordView + 登入頁「忘記密碼？」連結</li>
+<li>Audit：PASSWORD_RESET_REQUESTED / COMPLETED / REJECTED</li>
+</ul>
+<p>#### 61. 方案管理模組 ✅（2026-03-17，F61 BDD 13/13，ADR-025）</p>
+<ul>
+<li><strong>Migration</strong>：<code>plans</code> 表（code/nameI18nKey/priceAmount/currency/billingCycle/isActive/isPublic/sortOrder + targetI18nKey/isRecommended/featuresJson/compareJson/ctaI18nKey）</li>
+<li><strong>Migration</strong>：<code>compare_features</code> 表（全域功能列表：featureKey/displayName/sortOrder/isActive）</li>
+<li><strong>Migration</strong>：<code>licenses</code> 新增 <code>plan_id</code> + <code>snapshot_price</code> + <code>snapshot_currency</code></li>
+<li><strong>Seed</strong>：3 個預設方案（Basic 990 / Pro 1990 / Business 4990）+ 現有 License 自動歸入 Basic</li>
+<li><strong>後端 Plan 模組</strong>：Admin CRUD + 公開方案 API + CompareFeature CRUD</li>
+<li><strong>後端 License</strong>：建立時指定 planId + <code>adminAssignPlan</code> API（快照價） + detail 回傳 plan info</li>
+<li><strong>後端 Checkout</strong>：從 <code>license.snapshotPrice</code> 讀金額（快照價政策 B）+ <code>LICENSE_PLAN_NOT_ASSIGNED</code> 錯誤碼</li>
+<li><strong>前端</strong>：<code>/admin/plans</code> 管理頁（列表 + 獨立編輯頁 PlanEditView）</li>
+<li><strong>前端</strong>：TagInput 組件（功能列表視覺化編輯）+ KeyValueEditor 組件（比較表編輯）</li>
+<li><strong>前端</strong>：Landing <code>/pricing</code> 100% 從 API 動態讀取（方案卡片 + 功能列表 + 比較表）</li>
+<li><strong>前端</strong>：Portal checkout 顯示動態方案金額（snapshotPrice）</li>
+<li><strong>Audit</strong>：PLAN_CREATED / PLAN_UPDATED / LICENSE_PLAN_ASSIGNED</li>
+<li><strong>權限</strong>：<code>plan.read</code> + <code>plan.write</code>（seed 到 SUPER_ADMIN + ADMIN）</li>
+</ul>
+<p>#### 62. 全自助訂購流程 ✅（2026-03-17，F62 BDD 13/13，ADR-026）</p>
+<ul>
+<li><strong>後端</strong>：<code>POST /api/v1/checkout/subscribe</code>（JwtAuthGuard）</li>
+</ul>
+<p>  - 原子操作：驗證 Plan → 自動生成 serialNo（`MUC-YYYYMM-XXXXX`）→ 建立 License（ACTIVE + planId + snapshot）→ Payment CONFIRMED → Subscription ACTIVE</p>
+<p>  - 驗證：Plan 存在 + isActive + User 已登入</p>
+<p>  - Audit：LICENSE_CREATED + PAYMENT_CONFIRMED + SUBSCRIPTION_CREATED</p>
+<p>  - Alert + Notification（交易外）</p>
+<ul>
+<li><strong>前端</strong>：<code>/portal/checkout?plan=XXX</code> 確認頁（方案資訊 + 確認付款按鈕）</li>
+<li><strong>前端</strong>：成功頁（方案名稱 + 序號 + 金額 + 到期日 + 「前往配對設備」按鈕）</li>
+<li><strong>前端</strong>：<code>/pricing</code> CTA 按鈕改為帶 plan code 跳轉（未登入 → 先登入再跳 checkout）</li>
+<li><strong>商業規則</strong>：一個帳號可訂多個 License</li>
+<li><strong>不影響</strong>：Admin 手動建 License 流程保留</li>
+</ul>
+<p>&lt;/details&gt;</p>
+<p>---</p>
+<h2>待確認清單（Open Questions）</h2>
+<p>| 順序 | 問題 | OQ 編號 | 目前狀態 |</p>
+<p>|------|------|---------|---------|</p>
+<p>| 6 | Pair Code TTL 多久 | OQ-005 | ✅ Closed（5 分鐘） |</p>
+<p>| 11 | Payment confirmation 是否強制冪等 | OQ-004 | ✅ Closed（Option B） |</p>
+<p>| 17 | User 能否自行 revoke device | OQ-008 | ✅ Closed（ADR-018: User 可自助） |</p>
+<p>| 20 | 哪些 entitlement 異常建立 Alert | OQ-007 | ✅ Closed（ADR-019: 分級處理） |</p>
+<p>| 21 | Entitlement TTL 多久 | OQ-006 | Tentative（5 分鐘） |</p>
+<p>| 23 | 通知機制做到哪裡 | OQ-010 | ✅ Closed（ADR-021） |</p>
+<p>| 24 | 前端 UI 元件庫 | — | ✅ Closed（ADR-022: shadcn-vue） |</p>
+<p>| — | 方案管理模組 | OQ-011 | ✅ Closed（ADR-025: Plan CRUD + License 綁定） |</p>
+<p>---</p>
+<h2>建議開發節奏</h2>
+<pre class="code-block">
+Day 1-2  ：Phase 1（骨架 + Auth）✅ 完成
+Day 3-4  ：Phase 2（License + Pair Code + Subscription）✅ 完成
+Day 5-6  ：Phase 3-4（Payment + BillingProfile）✅ 完成
+Day 7-8  ：Phase 5（Device Pairing）✅ 完成
+Day 9-10 ：Phase 6-7（Audit + Alert + Entitlement）✅ 完成
+Day 11   ：Phase 8（Notification）✅ 完成
+Day 12   ：Phase 9-0 ~ 9-1（shadcn-vue + Admin 後台 7 頁 + Login/Register）✅ 完成
+Day 13   ：Step 32（RBAC 角色權限管理 — Migration + API + Guard 重構 + UI）✅ 完成
+Day 14   ：Step 33（Admin 帳號管理 — 後端 API + UI）✅ 完成
+Day 15-17：Phase 9-2（User Portal 8 頁：登入/註冊 + 6 已登入頁）✅ 完成
+Day 18   ：登入頁分離（/portal/login + /admin/login）+ UI 升級 ✅ 完成
+Day 19   ：Phase 10（E2E 測試 — F41~F44 共 49 場景全通過）✅ 完成
+Day 20   ：Phase 11-1（Agent 文件修正 + HTTP 整合測試 33/33）✅ 完成
+Day 20-21：Phase 11-2（Agent SDK 模組 + 文件，驗收 19/19 通過）✅ 完成
+Day 20   ：Phase 11-3（Server 部署上線 + deploy.php + Apache 設定）✅ 完成
+Day 21+  ：Phase 11-4（Agent 正式對接測試）🚧 進行中
+Day 22   ：Phase 12（User 自助模擬付款 — F51-F53，8/8 場景通過）✅ 完成
+Day 23   ：Phase 13-1（Step 54-56：Subscription 管理 + 付款篩選 + 建立付款單）✅ 完成
+Day 23   ：Phase 13-2（Step 57+59-61：Dashboard 總覽 + CSV 匯出 + 忘記密碼 + 方案管理）✅ 完成
+Day 23   ：Phase 13-3（Step 58：通知紀錄查看 + Step 62：全自助訂購流程）✅ 完成
+</pre>
+<p>---</p>
+<h3>Phase 14：Credit 點數系統 + 產品優化 ⬜</h3>
+<p>&gt; **目標**：Credit 計量系統 + Agent 下載 + 產品強化</p>
+<p>&gt; **BDD**：F63（32 個場景）</p>
+<p>| 順序 | 項目 | 產出 | 狀態 |</p>
+<p>|------|------|------|------|</p>
+<p>| 63 | Credit 點數系統 | credit_balances / credit_transactions / consume API / balance API | ⬜ |</p>
+<p>| 64 | 方案月配點數 | plans.monthly_credits + 週期配點 Reconciler | ⬜ |</p>
+<p>| 65 | 超額計費 | 超額帳單產生 + GRACE→SUSPENDED 整合 | ⬜ |</p>
+<p>| 66 | Portal 點數顯示 | 餘額 + 用量圖表 + 超額提醒 | ⬜ |</p>
+<p>| 67 | Admin 點數報表 | 用量統計 + 超額帳單管理 | ⬜ |</p>
+<p>| 68 | Agent SDK Credit 整合 | consume + balance 整合至 muc_agent.py | ⬜ |</p>
+<p>| 69 | Agent 下載機制 | 安裝包管理 + 下載頁 + 版本通知整合 | ⬜ |</p>
+<p>---</p>
+<h3>Phase 15：自動金流串接 ⬜</h3>
+<p>&gt; **前置條件**：付款方案確認後再開工</p>
+<p>| 順序 | 項目 | 產出 | 狀態 |</p>
+<p>|------|------|------|------|</p>
+<p>| 70 | 金流服務商評估 | 技術評估報告（綠界/藍新/Stripe） | ⬜ |</p>
+<p>| 71 | Payment Gateway 模組 | adapter pattern + 自動扣款 + 失敗重試 | ⬜ |</p>
+<p>| 72 | 退款流程 | 退款 API + Admin UI | ⬜ |</p>
+<p>| 73 | 發票服務串接 | 電子發票（保留 worker 骨架） | ⬜ |</p>
+<p>| 74 | 合約欄位整合 | contract_start/end_date / deposit / setup_fee / auto_renew | ⬜ |</p>
+<p>| 75 | Portal 信用卡管理 | 卡號綁定 + 管理頁 | ⬜ |</p>
+<p>---</p>
+<h3>Phase 16：推薦分潤 + 介紹人折抵 ⬜</h3>
+<p>| 順序 | 項目 | 產出 | 狀態 |</p>
+<p>|------|------|------|------|</p>
+<p>| 76 | Referral 模組 | referral_code + referral_records 表 + 追蹤邏輯 | ⬜ |</p>
+<p>| 77 | 推薦獎勵發放 | 推薦成功判定 + 獎勵自動發放 | ⬜ |</p>
+<p>| 78 | 介紹人折抵 | 首次付款折扣 or 點數贈送 | ⬜ |</p>
+<p>| 79 | 推薦 UI | Portal 推薦頁 + Admin 推薦報表 | ⬜ |</p>
+<p>---</p>
+<h3>Phase 17：自動更新發佈平台 ⬜</h3>
+<p>| 順序 | 項目 | 產出 | 狀態 |</p>
+<p>|------|------|------|------|</p>
+<p>| 80 | 版本管理模組 | version / platform / release_notes + Admin CRUD | ⬜ |</p>
+<p>| 81 | Agent 自動更新 | 版本檢查 + 自動下載 + 強制/建議更新 | ⬜ |</p>
+<p>| 82 | 灰度發佈 | 按比例推送 + 裝機率統計 | ⬜ |</p>
+<p>---</p>
+<p>📅 **建立日期**：2026-03-10</p>
+<p>📝 **最後更新**：2026-03-19（F62 v2 定價改版完成 + Phase 14-17 規劃）</p>
+<p>🔗 **參考文件**：STATE_RULES.md / API_CONTRACT_NOTES.md / OPEN_QUESTIONS.md</p>
+        </section>
+        
+        <section id="system-scope">
+            <h2>🏗️ 系統範圍</h2>
+            <div class="card">
+                <p><strong>SYSTEM_SCOPE</strong> 定義 MUC MVP 第一階段的系統包含範圍、邊界與使用情境。</p>
+            </div>
+            <h1>SYSTEM_SCOPE</h1>
+<h2>包含範圍（In Scope）</h2>
+<p>本文件定義 MUC MVP 第一階段必須交付的系統範圍。  </p>
+<p>本階段範圍以「收費閉環 + 設備授權閉環 + 最低防破解基線」為主，不追求完整 SaaS 功能，而是先確保產品能上線、能收費、能控管設備合法使用權。</p>
+<h3>1. 帳號與身分驗證</h3>
+<ul>
+<li>使用者註冊</li>
+<li>使用者登入 / 登出</li>
+<li>基本帳號狀態管理</li>
+<li>使用者可登入前台查看自己的授權與設備資訊</li>
+</ul>
+<h3>2. Billing Profile / 付款資料</h3>
+<ul>
+<li>使用者建立與維護付款資料</li>
+<li>平台可查閱付款資料以進行人工對帳與開通</li>
+<li>作為人工收款、續期、通知與後續發票作業的基礎資料</li>
+</ul>
+<h3>3. License / Serial 管理</h3>
+<ul>
+<li>平台建立序號（可指定方案）</li>
+<li>使用者查詢自己持有的序號</li>
+<li>平台查看序號綁定設備</li>
+<li>平台可啟用 / 停用 / 作廢序號</li>
+<li>明確以序號作為計費單位，而非以帳號作為計費單位</li>
+<li>License 綁定 Plan（方案決定金額、期限、信任點配額）</li>
+</ul>
+<h3>3.5 方案管理（Plan）</h3>
+<ul>
+<li>方案分兩類：<strong>訂閱</strong>（含設定費 NT$24,000）與<strong>續約</strong>（純月費 NT$6,000/月）</li>
+<li>訂閱方案：A(設定+2月) / B(設定+6月) / C(設定+12月) / D(客製)</li>
+<li>續約方案：1月 / 6月 / 12月</li>
+<li>每個方案可設定一種優惠（送月 / 送點 / 折扣，三選一不可疊加）</li>
+<li>客製方案（訂閱 D）金額和期限由 Admin 每次指定</li>
+<li>Portal 顯示邏輯：新用戶看訂閱方案，既有用戶看續約方案</li>
+<li>信任點：300 點/月（所有標準方案），超額 USD 0.1/點</li>
+</ul>
+<h3>4. Subscription 週期與狀態管理</h3>
+<ul>
+<li>每個序號各自擁有獨立訂閱週期</li>
+<li>週期起算以平台確認收款日（Asia/Taipei）為準</li>
+<li>週期長度依方案 duration_months 決定（+1/+2/+6/+12 個月）</li>
+<li>到期後進入 GRACE</li>
+<li>寬限結束後進入 SUSPENDED</li>
+<li>平台確認收款後可由任意狀態恢復為 ACTIVE</li>
+<li>狀態需支援 ACTIVE / GRACE / SUSPENDED</li>
+</ul>
+<h3>5. 人工收款與續期</h3>
+<ul>
+<li>平台建立人工收款紀錄</li>
+<li>平台確認收款後立即延長對應 Subscription 週期</li>
+<li>支援 payment_status：DRAFT / CONFIRMED / VOID</li>
+<li>收款確認後可觸發通知與後續營運動作</li>
+</ul>
+<h3>6. Device Pairing / 設備綁定</h3>
+<ul>
+<li>使用者在前台產生一次性配對碼</li>
+<li>Agent 以配對碼完成首次綁定</li>
+<li>平台建立正式 device record</li>
+<li>成功配對後僅回傳一次 device token 明文</li>
+<li>一個序號同時只允許一台 ACTIVE 設備</li>
+<li>若已有 ACTIVE 設備，需先 revoke 舊設備或明確執行取代流程</li>
+</ul>
+<h3>7. Device Token / Entitlement</h3>
+<ul>
+<li>Agent 以 device token 定期輪詢授權</li>
+<li>Token 只存 hash，不存明文</li>
+<li>Token 可被 revoke</li>
+<li>Entitlement 必須回傳可驗章之授權結果</li>
+<li>Agent 端必須驗證簽章、device_id、一致性與有效時間</li>
+<li>Entitlement 結果需回傳 allow_new_jobs、subscription_status、grace_until 等關鍵資訊</li>
+</ul>
+<h3>8. Pre-Job Check / 接單前檢查</h3>
+<ul>
+<li>Agent 每次接新任務前必須再次檢查授權</li>
+<li>可透過 pre-job check API 或短效 job grant 實現</li>
+<li>若授權失效、簽章無效、device mismatch 或 response 過期，則不得接新任務</li>
+</ul>
+<h3>9. Device Revocation / 換機與停用</h3>
+<ul>
+<li>平台或使用者可主動停用設備</li>
+<li>設備停用後 token 必須立即失效</li>
+<li>換機時新設備必須重新配對，不可直接複製既有 token 生效</li>
+<li>支援 device_status：ACTIVE / REVOKED / REPLACED</li>
+</ul>
+<h3>10. 告警中心與通知</h3>
+<ul>
+<li>收款成功 / 失敗事件</li>
+<li>到期 / 寬限 / 停用事件</li>
+<li>設備異常事件</li>
+<li>entitlement 驗證失敗事件</li>
+<li>fingerprint mismatch、nonce replay、token 異常等風險事件</li>
+<li>管理員可 ACK / RESOLVE 告警</li>
+</ul>
+<h3>11. 稽核紀錄</h3>
+<ul>
+<li>關鍵操作需寫入 append-only audit log</li>
+<li>至少涵蓋：</li>
+</ul>
+<p>  - 收款確認</p>
+<p>  - 停用設備</p>
+<p>  - 重綁設備</p>
+<p>  - 修改到期日</p>
+<p>  - 修改付款資料</p>
+<p>  - pair code 產生 / 使用 / 失敗</p>
+<p>  - token 發行 / revoke / rotation</p>
+<p>  - entitlement 驗證失敗</p>
+<ul>
+<li>不提供刪除 audit log API</li>
+</ul>
+<h3>12. 最低安全基線</h3>
+<p>本階段至少納入以下安全要求：</p>
+<p>1. 序號不能直接當授權憑證</p>
+<p>2. pair code 一次性、短時效、只存 hash</p>
+<p>3. device token 高熵亂數、只存 hash、可 revoke</p>
+<p>4. token 綁 device_id 與 fingerprint 檢查</p>
+<p>5. entitlement response 必須簽章</p>
+<p>6. Agent 端必須內建公鑰驗章</p>
+<p>7. 每次接新任務前必查授權或 grant</p>
+<p>8. 離線超過 15 分鐘後停止接新任務</p>
+<h2>不包含範圍（Out of Scope）</h2>
+<p>以下項目明確不納入 MUC MVP 第一階段：</p>
+<ul>
+<li>自動金流串接</li>
+<li>自動退款</li>
+<li>推薦分潤</li>
+<li>介紹人折抵</li>
+<li>經銷商分潤</li>
+<li>國家代理 / 區域代理</li>
+<li>客戶資料上傳母體</li>
+<li>直接讀取客戶資料庫</li>
+<li>複雜報表</li>
+<li>AI 對話儀表板</li>
+<li>自動更新發佈平台</li>
+<li>多國稅制 / 國際金流</li>
+<li>複雜企業組織與多層審批</li>
+<li>深度反逆向 / 反 hook 進階方案</li>
+<li>完整企業級 IAM / SSO</li>
+<li>多租戶代理商管理模型</li>
+<li>第二階段資料整合與更深 AI 能力</li>
+</ul>
+<h2>主要使用情境（BDD 前置）</h2>
+<h3>情境 1：新用戶開通</h3>
+<p>1. 使用者註冊帳號</p>
+<p>2. 使用者建立付款資料</p>
+<p>3. 平台建立第一個序號</p>
+<p>4. 平台確認收款</p>
+<p>5. Subscription 生效</p>
+<p>6. 使用者登入前台看到可用狀態</p>
+<h3>情境 2：設備首次配對</h3>
+<p>1. 使用者在設備中心新增設備</p>
+<p>2. 系統產生一次性配對碼</p>
+<p>3. Agent 輸入配對碼</p>
+<p>4. 平台完成設備綁定</p>
+<p>5. 平台回傳 device token</p>
+<p>6. Agent 以 token 定期查授權</p>
+<h3>情境 3：正常授權輪詢</h3>
+<p>1. Agent 定期呼叫 entitlement API</p>
+<p>2. 平台驗證 token、device_id、fingerprint、nonce、timestamp</p>
+<p>3. 平台回傳短效且可驗章的授權結果</p>
+<p>4. Agent 驗章成功後更新本地授權狀態</p>
+<h3>情境 4：接新任務前檢查</h3>
+<p>1. Agent 在接新任務前呼叫 pre-job check</p>
+<p>2. 平台再次驗證設備與訂閱狀態</p>
+<p>3. 若回傳有效授權 / job grant，則允許接新任務</p>
+<p>4. 若授權失效或驗章失敗，則停止接新任務</p>
+<h3>情境 5：續費</h3>
+<p>1. 使用者收到即將到期提醒</p>
+<p>2. 客戶付款</p>
+<p>3. 平台人工確認收款</p>
+<p>4. 系統更新訂閱期限</p>
+<p>5. Agent 在下次輪詢或接單前取得新狀態</p>
+<h3>情境 6：到期與停用</h3>
+<p>1. Subscription 到期</p>
+<p>2. 狀態轉為 GRACE</p>
+<p>3. 寬限結束仍未付款，轉為 SUSPENDED</p>
+<p>4. Agent 取得狀態後停止接新任務</p>
+<p>5. 已在跑的任務可完成，但不允許再接新工作</p>
+<h3>情境 7：設備停用 / 換機</h3>
+<p>1. 平台或使用者主動停用舊設備</p>
+<p>2. 舊 token 立即失效</p>
+<p>3. 新設備重新產生配對流程</p>
+<p>4. 新設備取得新 token 後才可恢復授權</p>
+<h3>情境 8：異常與風控</h3>
+<p>1. 發生 fingerprint mismatch、nonce replay、簽章驗證失敗或 token 異常使用</p>
+<p>2. 系統建立告警</p>
+<p>3. 依風險等級採取僅告警、要求重配、暫停接新任務、直接 revoke token 等措施</p>
+<h2>整合邊界（外部系統 / API）</h2>
+<h3>1. Agent / Device API</h3>
+<p>MVP 需提供至少以下裝置側 API：</p>
+<ul>
+<li><code>POST /api/device/pair</code></li>
+<li><code>GET /api/device/entitlement</code></li>
+<li><code>POST /api/device/check-before-job</code></li>
+</ul>
+<p>用途如下：</p>
+<ul>
+<li>配對與註冊設備</li>
+<li>取得短效且可驗章的授權資訊</li>
+<li>在接新任務前再次確認授權狀態</li>
+</ul>
+<h3>2. Admin API / 後台操作 API</h3>
+<p>MVP 需提供至少以下平台端能力：</p>
+<ul>
+<li>建立與管理序號</li>
+<li>建立與確認收款</li>
+<li>查看與停用設備</li>
+<li>查看告警與稽核紀錄</li>
+<li><code>POST /admin/devices/{id}/revoke</code></li>
+</ul>
+<h3>3. 排程 / Reconciler</h3>
+<p>平台需具備背景排程能力，用於：</p>
+<ul>
+<li>ACTIVE → GRACE 狀態校正</li>
+<li>GRACE → SUSPENDED 狀態校正</li>
+<li>通知觸發</li>
+<li>例行風控與清理任務</li>
+</ul>
+<h3>4. Notification / Invoice Worker</h3>
+<p>可先保留為平台內部模組或後續 worker 邊界：</p>
+<ul>
+<li>收款確認後通知</li>
+<li>到期 / 寬限 / 停用通知</li>
+<li>發票後續任務掛點</li>
+<li>不要求第一階段完成完整外部串接</li>
+</ul>
+<h3>5. 金流邊界</h3>
+<ul>
+<li>第一階段不串接外部 payment gateway</li>
+<li>收款來源可為人工匯款或人工對帳</li>
+<li>系統只需支援人工確認與狀態更新，不處理自動扣款</li>
+</ul>
+<h3>6. 安全邊界</h3>
+<ul>
+<li>Agent 不可信任任意可編輯 license server URL</li>
+<li>TLS 為必要但非唯一信任來源</li>
+<li>平台需提供可驗章 response</li>
+<li>Agent 需內建平台公鑰並在本地驗章</li>
+<li>可先不納入深度 anti-debug / anti-hook，但須保留後續擴充空間</li>
+</ul>
+<h2>本文件結論</h2>
+<p>MUC MVP 第一階段的系統範圍，應嚴格鎖定在：</p>
+<p>**帳號 + 序號 + Subscription + Device Pairing + Manual Payment + Entitlement + Pre-Job Check + Alerts + Audit Log**</p>
+<p>只要先把上述範圍做穩，就足以支撐第一階段上線、開始收費、開始控管設備合法使用權。</p>
+        </section>
+        
+        <section id="todo-list">
+            <h2>✓ 待辦清單</h2>
+            <div class="card">
+                <p><strong>TODO</strong> 完整的任務清單，按優先級與依賴關係排序。</p>
+            </div>
+            <h1>TODO — MUC MVP 開發待辦清單</h1>
+<p>&gt; **版本**：v1.2</p>
+<p>&gt; **建立日期**：2026-03-10</p>
+<p>&gt; **最後更新**：2026-03-22（F66 付款方式 + UI/UX 技術債 + Tabs 修復 + SendGrid 修正）</p>
+<p>&gt; **狀態**：🚧 開發中</p>
+<p>&gt;</p>
+<p>&gt; **當前重點**：Phase 14 — Credit 系統 + 產品優化（規劃完成，待開工）</p>
+<p>---</p>
+<h2>進度總覽</h2>
+<p>| 階段 | 內容 | 狀態 |</p>
+<p>|------|------|------|</p>
+<p>| Phase 1 | 專案骨架 + Auth | ✅ 完成 |</p>
+<p>| Phase 2 | License + Pair Code + Subscription | ✅ 完成 |</p>
+<p>| Phase 3 | Payment | ✅ 完成 |</p>
+<p>| Phase 4 | BillingProfile | ✅ 完成 |</p>
+<p>| Phase 5 | Device Pairing | ✅ 完成 |</p>
+<p>| Phase 6 | Audit Log + Alert 整合 | ✅ 完成 |</p>
+<p>| Phase 7 | Entitlement + Pre-Job Check | ✅ 完成 |</p>
+<p>| Phase 8 | Notification | ✅ 完成 |</p>
+<p>| Phase 9 | 前台 UI（shadcn-vue） | ✅ Admin + Portal 全完成 |</p>
+<p>| Phase 10 | 測試 | ✅ 完成 |</p>
+<p>| Phase 11 | Agent SDK + 部署 | ✅ 完成（對方驗收 19/19 通過） |</p>
+<p>| Phase 12 | User 自助付款 | ✅ 完成（F51-F53） |</p>
+<p>| Phase 13 | 最小營運範疇 + 全自助訂購 | ✅ 完成（Step 54-62） |</p>
+<p>| Phase 13.5 | F66 付款方式管理 + UI/UX 技術債 | ✅ 完成（2026-03-22） |</p>
+<p>| Phase 14 | Credit 點數系統 + 產品優化 | ⬜ 規劃完成，待開工 |</p>
+<p>| Phase 15 | 自動金流串接 | ⬜ 架構已預留（ADR-030），待選金流商 |</p>
+<p>| Phase 16 | 推薦分潤 + 介紹人折抵 | ⬜ 待規劃 |</p>
+<p>| Phase 17 | 自動更新發佈平台 | ⬜ 待規劃 |</p>
+<p>---</p>
+<h2>Phase 1：專案骨架 + Auth ✅</h2>
+<h3>P1-1：專案骨架</h3>
+<ul>
+<li>[x] 建立 <code>backend/</code> 目錄結構（NestJS Modular Monolith）</li>
+<li>[x] 建立 <code>frontend/</code> 目錄結構（Vue 3 + Vite + Tailwind）</li>
+<li>[x] 建立 11 個模組骨架（auth / account / billing-profile / license / subscription / payment / device / entitlement / notification / alert / audit-log）</li>
+<li>[x] 設定 <code>nest-cli.json</code> / <code>tsconfig.json</code> / <code>.env.example</code></li>
+<li>[x] 設定 <code>vite.config.ts</code> / <code>tailwind.config.js</code> / router / Pinia store</li>
+<li>[x] 建立 Portal Layout + Admin Layout + 所有 View 空殼</li>
+<li>[x] Backend 起動驗證（port 3100）✅</li>
+<li>[x] Frontend 起動驗證（port 5174）✅</li>
+</ul>
+<h3>P1-2：Migration — accounts</h3>
+<ul>
+<li>[x] 建立 <code>1741580000000-CreateAccounts.ts</code></li>
+<li>[x] 執行 Migration（<code>accounts</code> 表已建立）</li>
+<li>[x] 確認欄位：id / email / passwordHash / name / status / role</li>
+</ul>
+<h3>P1-3：Auth 模組</h3>
+<ul>
+<li>[x] 安裝 <code>@nestjs/jwt</code> / <code>@nestjs/passport</code> / <code>passport-jwt</code></li>
+<li>[x] 建立 <code>JwtStrategy</code>（Bearer token 驗證）</li>
+<li>[x] 建立 <code>JwtAuthGuard</code></li>
+<li>[x] 建立 <code>AdminGuard</code>（role = ADMIN 才通過）</li>
+<li>[x] 建立 <code>@CurrentUser()</code> 裝飾器</li>
+<li>[x] 實作 <code>POST /api/v1/auth/login</code>（回傳 JWT token）</li>
+<li>[x] 實作 <code>POST /api/v1/auth/register</code></li>
+<li>[x] 實作 <code>GET /api/v1/auth/me</code>（JWT Guard 保護）</li>
+<li>[x] API 測試通過（register / login / me）</li>
+</ul>
+<p>---</p>
+<h2>Phase 2：License + Pair Code + Subscription ✅</h2>
+<h3>P2-1：Migration — licenses + pair_codes ✅</h3>
+<ul>
+<li>[x] 建立 <code>CreateLicenses</code> migration（1741580300000）</li>
+</ul>
+<p>  - 欄位：id / account_id / serial_no / status(ACTIVE/INACTIVE/VOID) / note / created_at / updated_at</p>
+<p>  - 索引：UQ(serial_no)，FK(account_id → accounts.id)</p>
+<ul>
+<li>[x] 建立 <code>CreatePairCodes</code> migration（1741580400000）</li>
+</ul>
+<p>  - 欄位：id / account_id / license_id / code_hash / expires_at / used_at / created_by_user_id / created_at</p>
+<p>  - 規則：code_hash 不存明文（ref STATE_RULES §6.3）</p>
+<p>  - FK：license_id → licenses.id，account_id → accounts.id</p>
+<ul>
+<li>[x] 執行並驗證（含 up/down/up 測試）</li>
+</ul>
+<h3>P2-2：License 模組 ✅</h3>
+<ul>
+<li>[x] 實作 <code>POST /api/v1/licenses/admin</code>（Admin 建立序號，初始 INACTIVE）</li>
+<li>[x] 實作 <code>GET /api/v1/licenses/admin/list</code>（Admin 查詢全部）</li>
+<li>[x] 實作 <code>GET /api/v1/licenses/admin/:id</code>（Admin 查詢詳情，含 Account 摘要）</li>
+<li>[x] 實作 <code>POST /api/v1/licenses/admin/:id/activate</code>（INACTIVE → ACTIVE）</li>
+<li>[x] 實作 <code>POST /api/v1/licenses/admin/:id/deactivate</code>（ACTIVE → INACTIVE）</li>
+<li>[x] 實作 <code>POST /api/v1/licenses/admin/:id/void</code>（INACTIVE → VOID，不可逆）</li>
+<li>[x] 實作 <code>GET /api/v1/licenses/my</code>（User 查詢自己的序號）</li>
+<li>[x] 加上 <code>JwtAuthGuard</code> + <code>AdminGuard</code> 保護 Admin 路由</li>
+<li>[x] 所有狀態變更寫入 audit log</li>
+<li>[x] API 手動驗證通過</li>
+</ul>
+<h3>P2-3：Pair Code 生成 ✅</h3>
+<ul>
+<li>[x] 實作 <code>POST /api/v1/licenses/:id/pair-code</code></li>
+</ul>
+<p>  - 生成高熵隨機碼（crypto.randomBytes 16 bytes → 32 hex）</p>
+<p>  - 計算 SHA-256 hash，存入 DB（不存明文）</p>
+<p>  - 設定 expiresAt = now + 300 秒（OQ-005 已拍板 5 分鐘）</p>
+<p>  - 回傳明文 + expiresAt（只回傳一次）</p>
+<ul>
+<li>[x] 驗證：同一 License 不得同時存在未過期且未使用的 PairCode（PAIR_CODE_ALREADY_ACTIVE）</li>
+<li>[x] 所有權檢查：License 不屬於自己 → FORBIDDEN</li>
+<li>[x] License 狀態檢查：非 ACTIVE → PAIRING_NOT_ALLOWED</li>
+<li>[x] audit_log：PAIR_CODE_CREATED</li>
+<li>[x] API 手動驗證通過</li>
+</ul>
+<h3>P2-4：Migration — subscriptions ✅</h3>
+<ul>
+<li>[x] 建立 <code>CreateSubscriptions</code> migration（1741580500000）</li>
+</ul>
+<p>  - 欄位：id / license_id / status(ACTIVE/GRACE/SUSPENDED) / period_start_date(DATE) / period_end_date(DATE) / grace_end_date(DATE) / cancel_at_period_end(BOOLEAN) / last_state_calc_at(DATETIME nullable) / created_at / updated_at</p>
+<p>  - 索引：UQ(license_id)，idx(status)，idx(period_end_date)，idx(grace_end_date)</p>
+<p>  - FK：license_id → licenses.id</p>
+<p>  - 時區：DATE 欄位以 Asia/Taipei 日曆日為準（ref STATE_RULES §2.1 已更新）</p>
+<ul>
+<li>[x] 執行並驗證（含 up/down/up 測試）</li>
+</ul>
+<h3>P2-5：Subscription 狀態機 ✅</h3>
+<ul>
+<li>[x] 安裝 dayjs（時區處理）</li>
+<li>[x] 實作 <code>activateOrRenew(licenseId, confirmedAt)</code></li>
+</ul>
+<p>  - confirmedAt UTC → Asia/Taipei 日期 → periodStartDate</p>
+<p>  - periodEndDate = +1 calendar month（dayjs 處理月底邊界）</p>
+<p>  - graceEndDate = periodEndDate + 1 day</p>
+<p>  - 新建 → SUBSCRIPTION_CREATED / 更新 → SUBSCRIPTION_REACTIVATED</p>
+<p>  - 決策：`last_payment_confirmed_at` 不存欄位，由呼叫方參數傳入（方案 B）</p>
+<ul>
+<li>[x] 實作 <code>transitionToGrace(subscriptionId)</code></li>
+</ul>
+<p>  - 前置條件：status = ACTIVE（否則 409 INVALID_STATE_TRANSITION）</p>
+<p>  - 冪等：已是 GRACE → skip（不重複寫 audit log）</p>
+<p>  - audit_log：SUBSCRIPTION_ENTERED_GRACE</p>
+<p>  - notification：TODO（Phase 8 實作）</p>
+<ul>
+<li>[x] 實作 <code>transitionToSuspended(subscriptionId)</code></li>
+</ul>
+<p>  - 前置條件：status = GRACE（否則 409 INVALID_STATE_TRANSITION）</p>
+<p>  - 冪等：已是 SUSPENDED → skip</p>
+<p>  - audit_log：SUBSCRIPTION_SUSPENDED</p>
+<p>  - notification：TODO（Phase 8 實作）</p>
+<ul>
+<li>[x] 測試：7 個 BDD 場景全部通過</li>
+</ul>
+<p>  - Scenario 1：首次 activate → ACTIVE ✅</p>
+<p>  - Scenario 2：ACTIVE → GRACE（Reconciler）✅</p>
+<p>  - Scenario 3：GRACE → SUSPENDED（Reconciler）✅</p>
+<p>  - Scenario 4：ACTIVE/GRACE/SUSPENDED → ACTIVE（renew）✅</p>
+<p>  - Scenario 5：ACTIVE 不得直接 → SUSPENDED ✅</p>
+<p>  - Scenario 6：Reconciler 重跑不重複 side effects ✅</p>
+<p>  - Scenario 7：架構保證 DRAFT Payment 不觸發 activateOrRenew ✅</p>
+<h3>P2-6：Subscription Reconciler ✅</h3>
+<ul>
+<li>[x] <code>@Cron</code> 定時執行（預設每 5 分鐘，可透過 RECONCILER_CRON 環境變數覆寫）</li>
+<li>[x] 查詢 ACTIVE 且 Asia/Taipei today > periodEndDate → 批次轉 GRACE</li>
+<li>[x] 查詢 GRACE 且 Asia/Taipei today > graceEndDate → 批次轉 SUSPENDED</li>
+<li>[x] 冪等保證：Service 層判斷目標狀態已到達則 skip</li>
+<li>[x] 測試：重跑不產生重複 audit log ✅</li>
+<li>[x] 新增臨時 admin 端點 <code>POST /api/v1/subscriptions/admin/reconcile</code>（Phase 3 後可移除）</li>
+<li>[x] 新增臨時 admin 端點 <code>POST /api/v1/subscriptions/admin/activate</code>（Phase 3 Payment 連動後替換）</li>
+</ul>
+<p>---</p>
+<h2>Phase 3：Payment ✅</h2>
+<h3>P3-1：Migration — payments ✅</h3>
+<ul>
+<li>[x] 建立 <code>CreatePayments</code> migration（1741580600000）</li>
+</ul>
+<p>  - 欄位：id / license_id / status(DRAFT/CONFIRMED/VOID) / amount(INT) / currency(VARCHAR DEFAULT 'TWD') / note / confirmed_by_admin_id / confirmed_at / created_at / updated_at</p>
+<p>  - 索引：idx(license_id)、idx(status)</p>
+<p>  - FK：license_id → licenses.id、confirmed_by_admin_id → accounts.id</p>
+<p>  - 測試：up/down/up 通過、ENUM 驗證、nullable 驗證</p>
+<ul>
+<li>[x] 更新 Entity：amount 改 int（最小單位整數）、加 column name mapping、precision 6</li>
+</ul>
+<h3>P3-2：Payment 模組 ✅</h3>
+<ul>
+<li>[x] 實作 <code>POST /api/v1/payments/admin</code>（Admin 建立草稿）</li>
+</ul>
+<p>  - status = DRAFT，HTTP 201</p>
+<p>  - audit_log：PAYMENT_DRAFT_CREATED</p>
+<ul>
+<li>[x] 實作 <code>POST /api/v1/payments/admin/:id/confirm</code>（Admin 確認收款）</li>
+</ul>
+<p>  - 前置條件：status = DRAFT</p>
+<p>  - 已 CONFIRMED → 409 PAYMENT_ALREADY_CONFIRMED（OQ-004 Option B）</p>
+<p>  - DB 條件更新（WHERE status='DRAFT'）防並發</p>
+<p>  - 成功 → CONFIRMED + confirmedAt + 觸發 subscriptionService.activateOrRenew()</p>
+<p>  - audit_log：PAYMENT_CONFIRMED</p>
+<p>  - notification：TODO（Phase 8）</p>
+<ul>
+<li>[x] 實作 <code>POST /api/v1/payments/admin/:id/void</code>（Admin 作廢草稿）</li>
+</ul>
+<p>  - 前置條件：status = DRAFT</p>
+<p>  - CONFIRMED → 409 PAYMENT_CANNOT_BE_VOIDED</p>
+<p>  - void reason 記錄在 audit log payload</p>
+<p>  - audit_log：PAYMENT_VOIDED</p>
+<ul>
+<li>[x] 實作 <code>GET /api/v1/payments/license/:licenseId</code>（查詢付款紀錄）</li>
+<li>[x] DTO 驗證：AdminCreatePaymentDto + AdminConfirmPaymentDto</li>
+<li>[x] 所有 admin 路由加 JwtAuthGuard + AdminGuard</li>
+<li>[x] 測試：8 個 BDD 場景全部通過（含並發保護、缺欄位驗證）</li>
+</ul>
+<h3>P3-3：Payment → Subscription 連動 ✅</h3>
+<ul>
+<li>[x] F12 驗證：首次 confirm → 自動建立 Subscription（ACTIVE + 正確週期）</li>
+<li>[x] F12 驗證：ACTIVE/GRACE/SUSPENDED 任意狀態 confirm → 恢復 ACTIVE</li>
+<li>[x] F12 驗證：月底邊界（1/31 → period_end 2/28 → grace_end 3/1）</li>
+<li>[x] F12 修正：adminConfirm 用 DataSource.transaction() 包裝（Payment + Subscription + audit log 原子操作）</li>
+<li>[x] F12 驗證：重複 confirm 不重複延長、CONFIRMED 不可 void</li>
+</ul>
+<p>---</p>
+<h2>Phase 4：BillingProfile ✅</h2>
+<h3>P4-1：Migration — billing_profiles ✅</h3>
+<ul>
+<li>[x] 建立 <code>CreateBillingProfiles</code> migration（1741580700000）</li>
+</ul>
+<p>  - 欄位：id / account_id / company_name / tax_id / invoice_title / invoice_email / address / created_at / updated_at</p>
+<p>  - 約束：UQ(account_id)、FK(account_id → accounts.id)</p>
+<p>  - 變更：contactEmail → invoice_email、新增 invoice_title（BDD 驅動）</p>
+<ul>
+<li>[x] 更新 Entity：加 column name mapping、明確 type: 'varchar'、nullable 型別</li>
+<li>[x] 測試：8 個場景通過（含 FK、UNIQUE、rollback）</li>
+</ul>
+<h3>P4-2：BillingProfile 模組 ✅</h3>
+<ul>
+<li>[x] 實作 <code>GET /api/v1/billing-profiles/my</code>（User 查詢自己）</li>
+<li>[x] 實作 <code>POST /api/v1/billing-profiles</code>（建立，重複 → 409）</li>
+<li>[x] 實作 <code>PUT /api/v1/billing-profiles/:id</code>（更新，ownership check → 403）</li>
+<li>[x] 加上 <code>JwtAuthGuard</code> 保護</li>
+<li>[x] DTO 驗證：company_name 必填、tax_id 8 位數字、invoice_email 有效 email</li>
+<li>[x] audit_log：BILLING_PROFILE_UPDATED（create/update 皆寫入）</li>
+<li>[x] 修正 ValidationPipe errorHttpStatusCode: 422（與 BDD 定義一致）</li>
+<li>[x] 測試：F14 全部 11 個 BDD 場景通過</li>
+</ul>
+<p>---</p>
+<h2>Phase 5：Device Pairing ✅</h2>
+<h3>P5-1：Migration — devices + device_tokens ✅</h3>
+<ul>
+<li>[x] 建立 <code>CreateDevices</code> migration（1741580800000）</li>
+</ul>
+<p>  - 欄位：id / license_id / account_id / status(ENUM: ACTIVE/REVOKED/REPLACED) / fingerprint / revoked_at / created_at / updated_at</p>
+<p>  - FK：license_id → licenses.id、account_id → accounts.id</p>
+<p>  - 索引：idx(license_id, status)、idx(account_id)</p>
+<p>  - 修正 collation：utf8mb4_unicode_ci（與現有表一致）</p>
+<ul>
+<li>[x] 建立 <code>CreateDeviceTokens</code> migration（1741580900000）</li>
+</ul>
+<p>  - 欄位：id / device_id / token_hash / revoked_at / created_at（無 updated_at，語意正確）</p>
+<p>  - FK：device_id → devices.id（CASCADE）</p>
+<p>  - UQ：token_hash</p>
+<p>  - 規則：不存明文（ref STATE_RULES §7.2）</p>
+<ul>
+<li>[x] 測試：D15 全部 7 個 BDD 場景通過（含 rollback + re-run）</li>
+</ul>
+<h3>P5-2：Agent Pair（核心）✅</h3>
+<ul>
+<li>[x] 實作 <code>POST /api/v1/devices/agent/pair</code></li>
+</ul>
+<p>  - 驗證 timestamp（±5 分鐘容許窗口）</p>
+<p>  - 驗證 nonce（in-memory replay protection + TTL cleanup）</p>
+<p>  - 驗證 PairCode：SHA-256 hash 比對、未過期、未使用</p>
+<p>  - 驗證 License：同一 License 無現有 ACTIVE Device</p>
+<p>  - DataSource.transaction() 原子操作：建立 Device + DeviceToken + 標記 PairCode used</p>
+<p>  - DeviceToken：randomBytes(32) → hex，DB 只存 SHA-256 hash，明文只回傳一次</p>
+<p>  - audit_log：DEVICE_PAIRED + PAIR_CODE_USED</p>
+<ul>
+<li>[x] 錯誤碼全部實作：</li>
+</ul>
+<p>  - PAIR_CODE_EXPIRED / PAIR_CODE_USED / PAIR_CODE_INVALID</p>
+<p>  - LICENSE_ALREADY_BOUND / NONCE_REPLAY / VALIDATION_ERROR</p>
+<ul>
+<li>[x] DTO 驗證：AgentPairDto（pairCode / fingerprint / agentVersion / timestamp / nonce）</li>
+<li>[x] 測試：F16 全部 10 個 BDD 場景通過</li>
+</ul>
+<h3>P5-3：Device Revoke ✅</h3>
+<ul>
+<li>[x] 實作 <code>POST /api/v1/devices/:id/revoke</code>（User 自助，ref ADR-018, OQ-008）</li>
+</ul>
+<p>  - Ownership check：device.accountId === actorId</p>
+<p>  - Device status → REVOKED + revokedAt</p>
+<p>  - DeviceToken revokedAt = now（批次更新）</p>
+<p>  - audit_log：DEVICE_REVOKED（含 before/after status + reason）</p>
+<p>  - 錯誤碼：DEVICE_NOT_FOUND / DEVICE_ALREADY_REVOKED / FORBIDDEN</p>
+<p>  - Request body：optional `reason` 欄位（RevokeDeviceDto）</p>
+<p>  - Response body：`{ deviceId, status: 'REVOKED' }`</p>
+<ul>
+<li>[x] 實作 <code>GET /api/v1/devices/my</code>（User 查詢自己的設備）</li>
+<li>[x] 測試：17_device_revoke 6/6 可驗證場景通過（3 個 Entitlement 場景延後 Phase 7）</li>
+<li>[x] 實作 Admin 強制 revoke（Step 28 Admin UI 設備管理已完成）</li>
+</ul>
+<p>---</p>
+<h2>Phase 6：Audit Log + Alert 整合 ✅</h2>
+<h3>P6-1：Migration — alerts + ALTER audit_logs ✅</h3>
+<ul>
+<li>[x] 建立 <code>CreateAlerts</code> migration（1741581000000）</li>
+</ul>
+<p>  - 欄位：id / level(varchar) / type(varchar) / account_id(nullable FK) / license_id(nullable FK) / status(varchar, default OPEN) / message(text) / meta_json(json) / created_at / updated_at</p>
+<p>  - FK：account_id → accounts(ON DELETE SET NULL)、license_id → licenses(ON DELETE SET NULL)</p>
+<p>  - 索引：level / type / account_id / license_id / status</p>
+<ul>
+<li>[x] 建立 <code>AlterAuditLogs</code> migration（1741581100000）</li>
+</ul>
+<p>  - 改名：event→action、camelCase→snake_case（actor_id / target_id / target_type / created_at）</p>
+<p>  - 新增：actor_type(varchar) / ip / user_agent / request_id / before_json / after_json</p>
+<p>  - 移除：payload 欄位（拆分為 before_json + after_json）</p>
+<p>  - 索引：actor_type / actor_id / action / target_type / target_id / request_id / created_at (7 個)</p>
+<p>  - 無 updated_at（append-only）</p>
+<ul>
+<li>[x] Entity 更新：Alert（varchar 型別 + account_id/license_id/message/metaJson）+ AuditLog（新 schema）</li>
+<li>[x] AuditLogService：新增 <code>log()</code> 方法 + 保留 <code>write()</code> 向下相容</li>
+<li>[x] AlertService：更新 <code>create()</code> 簽章（level / type / message / meta）</li>
+<li>[x] 測試：D18 全部 9 個 BDD 場景通過（含 rollback + re-run）</li>
+</ul>
+<h3>P6-2：Audit Log 全面整合 ✅</h3>
+<ul>
+<li>[x] 新增 <code>ActorType</code> enum（SYSTEM / USER / PLATFORM_ADMIN / AGENT）</li>
+<li>[x] <code>write()</code> 方法新增 actorType 參數，精確區分 admin/user/system</li>
+<li>[x] 所有 target_type 統一為全大寫（PAYMENT / DEVICE / PAIR_CODE / SUBSCRIPTION / ALERT / LICENSE / ACCOUNT / BILLING_PROFILE）</li>
+<li>[x] Admin 操作傳 <code>ActorType.PLATFORM_ADMIN</code>（payment / license / alert）</li>
+<li>[x] AlertService ack/resolve 注入 AuditLogService，寫入 ALERT_ACKED / ALERT_RESOLVED</li>
+<li>[x] AlertController 加 JwtAuthGuard + AdminGuard + @CurrentUser</li>
+<li>[x] AlertModule imports AuditLogModule</li>
+<li>[x] 確認 16 個 audit action 全部正確覆蓋：</li>
+</ul>
+<p>  - ACCOUNT_LOGGED_IN / SUBSCRIPTION_CREATED / ENTERED_GRACE / SUSPENDED / REACTIVATED</p>
+<p>  - PAYMENT_DRAFT_CREATED / CONFIRMED / VOIDED</p>
+<p>  - DEVICE_PAIRED / REVOKED / LICENSE_CREATED / ACTIVATED</p>
+<p>  - PAIR_CODE_CREATED / USED / ALERT_ACKED / ALERT_RESOLVED</p>
+<ul>
+<li>[x] 測試：F19 全部 11 個 BDD 場景通過</li>
+</ul>
+<h3>P6-3：Alert 事件映射整合 ✅</h3>
+<ul>
+<li>[x] 新增 <code>ALERT_EVENT_MAP</code> 常數（9 事件→等級映射，ref ADR-019）</li>
+<li>[x] 新增 <code>createByEvent()</code> 方法（統一入口，不支援事件回傳 null）</li>
+<li>[x] 整合 Alert 至各模組（4/9 事件，其餘 5 個待 Phase 7 Entitlement）：</li>
+</ul>
+<p>  - PAYMENT_CONFIRMED → INFO Alert（PaymentService.adminConfirm）✅</p>
+<p>  - DEVICE_REGISTERED → INFO Alert（DeviceService.agentPair）✅</p>
+<p>  - SUBSCRIPTION_GRACE → WARN Alert（SubscriptionService.transitionToGrace）✅</p>
+<p>  - SUBSCRIPTION_SUSPENDED → CRITICAL Alert（SubscriptionService.transitionToSuspended）✅</p>
+<ul>
+<li>[x] 模組依賴更新：PaymentModule / DeviceModule / SubscriptionModule 加入 AlertModule</li>
+<li>[x] 測試：F20 9/9 可測場景通過（5 個 Entitlement 相關延後 Phase 7）</li>
+<li>[x] Phase 7 補齊（3/5 已完成）：</li>
+</ul>
+<p>  - FINGERPRINT_CHANGED → WARN ✅（Entitlement 驗證時偵測）</p>
+<p>  - TOKEN_REPLAY_SUSPECTED → CRITICAL ✅（Entitlement nonce 驗證）</p>
+<p>  - SAME_TOKEN_MULTI_DEVICE → CRITICAL ✅（Entitlement 偵測）</p>
+<p>  - SIGNATURE_VERIFICATION_FAILED → Agent 端行為，非 Server 實作</p>
+<p>  - FREQUENT_FAILED_PAIRING → WARN（需計數器，延後）</p>
+<p>---</p>
+<h2>Phase 7：Entitlement + Pre-Job Check ✅</h2>
+<h3>P7-1：Ed25519 Key 設定 ✅</h3>
+<ul>
+<li>[x] 生成 Ed25519 Key Pair（node crypto.generateKeyPairSync）</li>
+<li>[x] 填入 <code>.env</code>：ED25519_PRIVATE_KEY / ED25519_PUBLIC_KEY（hex-encoded DER）</li>
+<li>[x] Agent 端已內建同一把公鑰（muc_agent.py v0.1.0）</li>
+</ul>
+<h3>P7-2：Entitlement 模組 ✅</h3>
+<ul>
+<li>[x] 實作 <code>POST /api/v1/agent/entitlement</code></li>
+</ul>
+<p>  - 驗證 Bearer device_token（SHA-256 hash 比對 DeviceToken 表）</p>
+<p>  - 驗證 Device status = ACTIVE（REVOKED/REPLACED → TOKEN_REVOKED）</p>
+<p>  - 驗證 device_id 一致（不一致 → SAME_TOKEN_MULTI_DEVICE Alert + DEVICE_MISMATCH）</p>
+<p>  - 驗證 fingerprint strict policy（ref ADR-012 → DEVICE_MISMATCH + FINGERPRINT_CHANGED Alert）</p>
+<p>  - 驗證 timestamp ±5 分鐘</p>
+<p>  - 驗證 nonce 防重放（in-memory Map + 10min TTL → NONCE_REPLAY + TOKEN_REPLAY_SUSPECTED Alert）</p>
+<p>  - 驗證 Subscription status = ACTIVE or GRACE（SUSPENDED → SUBSCRIPTION_SUSPENDED）</p>
+<p>  - 回應：signed entitlement（payload + key_id + issued_at + expires_at + signature）</p>
+<p>  - Ed25519 私鑰簽章（Node.js crypto.sign）</p>
+<p>  - TTL = 5 分鐘（ref OQ-006 暫定）</p>
+<p>  - key_id = &quot;default&quot;（ref ADR-020 預留欄位）</p>
+<ul>
+<li>[x] 錯誤碼全覆蓋：TOKEN_INVALID / TOKEN_REVOKED / DEVICE_MISMATCH / NONCE_REPLAY / SUBSCRIPTION_SUSPENDED</li>
+<li>[x] Alert 整合：FINGERPRINT_CHANGED(WARN) / TOKEN_REPLAY_SUSPECTED(CRITICAL) / SAME_TOKEN_MULTI_DEVICE(CRITICAL)</li>
+<li>[x] Audit log：ENTITLEMENT_DENIED（安全事件）</li>
+<li>[x] BDD F21 測試：19/19 場景通過</li>
+</ul>
+<h3>P7-3：Pre-Job Check ✅</h3>
+<ul>
+<li>[x] 實作 <code>POST /api/v1/agent/check-before-job</code></li>
+</ul>
+<p>  - 驗證 Bearer device_token + device status + device_id + timestamp + nonce + subscription</p>
+<p>  - 回應：`{ allow_new_jobs: boolean, checked_at: string }`</p>
+<p>  - 成功 → audit log PRE_JOB_CHECK_PASSED</p>
+<p>  - 失敗 → audit log PRE_JOB_CHECK_FAILED</p>
+<p>  - nonce replay → TOKEN_REPLAY_SUSPECTED Alert</p>
+<ul>
+<li>[x] BDD 場景通過（含 SUSPENDED denied）</li>
+<li>[x] 離線 15 分鐘政策 — Agent SDK 已實作（muc_agent.py 離線政策判斷）</li>
+</ul>
+<p>---</p>
+<h2>Phase 8：Notification ✅ 完成（2026-03-11）</h2>
+<h3>P8-1：SendGrid 整合 ✅</h3>
+<ul>
+<li>[x] <code>.env</code> 已有 SENDGRID_API_KEY / EMAIL_FROM</li>
+<li>[x] Migration D23：<code>notifications</code> 表（type/status/idempotency_key/recipient_email/sent_at/provider_message_id）</li>
+<li>[x] Notification Entity + NotificationType (PAYMENT_CONFIRMED / SUBSCRIPTION_SUSPENDED)</li>
+<li>[x] NotificationService 重寫：createJob() + processJob() + resolveRecipientEmail()</li>
+<li>[x] Bull queue 整合（@nestjs/bull + BullModule.forRoot + notification queue）</li>
+<li>[x] NotificationProcessor（Bull worker，send-email job，attempts=3，exponential backoff）</li>
+<li>[x] Email 模板 2 類（ADR-021 混合策略，GRACE 只走 Agent）：</li>
+</ul>
+<p>  - 收款確認（PAYMENT_CONFIRMED）</p>
+<p>  - 已停權（SUBSCRIPTION_SUSPENDED）</p>
+<ul>
+<li>[x] 冪等：idempotency_key 唯一約束，重複 createJob 自動跳過</li>
+<li>[x] 無收件者 email → status=FAILED, errorMessage=RECIPIENT_EMAIL_MISSING</li>
+<li>[x] 收件者解析：BillingProfile.invoiceEmail > Account.email</li>
+<li>[x] AuditEvent.NOTIFICATION_SENT 新增</li>
+</ul>
+<h3>P8-2：Notification 整合至各模組 ✅</h3>
+<ul>
+<li>[x] PaymentService.adminConfirm → PAYMENT_CONFIRMED 通知（transaction 外、try/catch 非阻塞）</li>
+<li>[x] SubscriptionService.transitionToSuspended → SUBSCRIPTION_SUSPENDED 通知</li>
+<li>[x] SubscriptionService.transitionToGrace → 標註 Agent-side only（ADR-021）</li>
+<li>[x] PaymentModule + SubscriptionModule 加入 NotificationModule import</li>
+<li>[x] BDD F23 全 15 場景通過</li>
+</ul>
+<p>---</p>
+<h2>Phase 9：前台 UI ✅</h2>
+<p>&gt; **UI 元件庫**：shadcn-vue（ADR-022）</p>
+<p>&gt; **頁面規格來源**：MVP 網站系統架構 v1.0（§4 MVP 範圍 + §15 頁面清單）</p>
+<h3>P9-0：shadcn-vue 初始化 ✅</h3>
+<ul>
+<li>[x] 安裝 shadcn-vue + Radix Vue 依賴</li>
+<li>[x] 初始化 <code>components.json</code> 設定</li>
+<li>[x] 安裝常用基礎元件（Button / Table / Dialog / Badge / Form / Input / Tabs / Card / DropdownMenu）</li>
+<li>[x] 建立共用 Layout（AdminLayout / PortalLayout）</li>
+<li>[x] 設定 i18n 基礎架構（所有文字用 i18n key）</li>
+</ul>
+<h3>P9-1：Admin 後台（7 頁）✅</h3>
+<p>#### P9-1-1：收款管理頁 `/admin/payments` ✅</p>
+<ul>
+<li>[x] DRAFT 列表（payment_id / license_id / amount / currency / created_at / note）</li>
+<li>[x] confirm / void 操作 + 二次確認彈窗</li>
+<li>[x] 防重複送出（loading 狀態）</li>
+<li>[x] 錯誤處理（conflict / 權限錯誤）</li>
+<li>[x] 操作後自動刷新列表</li>
+</ul>
+<p>#### P9-1-2：序號管理頁 `/admin/licenses` ✅</p>
+<ul>
+<li>[x] License 列表（serial_no / account / status / created_at）</li>
+<li>[x] 建立序號</li>
+<li>[x] 查看序號綁定設備</li>
+<li>[x] 啟用 / 停用 / 作廢操作</li>
+</ul>
+<p>#### P9-1-3：帳號管理頁 `/admin/accounts` ✅</p>
+<ul>
+<li>[x] 帳號列表（email / role / status 篩選 + 分頁）</li>
+<li>[x] 查看帳號狀態 + 底下序號/設備</li>
+<li>[x] 建立帳號 Dialog</li>
+<li>[x] 停用 / 啟用操作 + 二次確認</li>
+</ul>
+<p>#### P9-1-4：設備管理頁 `/admin/devices` ✅</p>
+<ul>
+<li>[x] 設備列表（device_name / license / status / last_seen_at）</li>
+<li>[x] Admin 強制 revoke</li>
+</ul>
+<p>#### P9-1-5：告警中心頁 `/admin/alerts` ✅</p>
+<ul>
+<li>[x] Alert 列表（level badge / type / message / status / created_at）</li>
+<li>[x] 篩選：level / status</li>
+<li>[x] ack / resolve 操作</li>
+</ul>
+<p>#### P9-1-6：稽核紀錄頁 `/admin/audit-logs` ✅</p>
+<ul>
+<li>[x] 唯讀列表（action / actor / target / created_at）</li>
+<li>[x] 篩選 action 類型</li>
+<li>[x] 分頁</li>
+</ul>
+<p>#### P9-1-7：Dashboard `/admin/dashboard` ✅</p>
+<ul>
+<li>[x] 總覽統計卡片（帳號數 / License 數 / ACTIVE 數 / 待確認收款數）</li>
+<li>[x] 最近告警摘要</li>
+<li>[x] 6 KPI 卡片（pendingPayments/activeSubscriptions/graceSubscriptions/suspendedSubscriptions/openAlerts/todayNewDevices）</li>
+<li>[x] KPI 卡片可點擊跳轉對應管理頁</li>
+<li>[x] 3 待辦列表（待確認收款 / 即將到期 / GRACE 告警）</li>
+<li>[x] 近期事件表（audit log 最新 10 筆）</li>
+<li>[x] Skeleton loading 狀態</li>
+</ul>
+<h3>P9-1-8：RBAC 角色權限管理（獨立步驟 32 — F32）✅</h3>
+<p>&gt; 導入完整 RBAC 系統，取代硬編碼 USER/ADMIN（ref ADR-023）</p>
+<p>**Migration：** ✅</p>
+<ul>
+<li>[x] 建立 <code>roles</code> 表（id / role_code / role_name / status / note / is_system / created_at / updated_at）</li>
+<li>[x] 建立 <code>permissions</code> 表（id / permission_key / resource / action / description / created_at）</li>
+<li>[x] 建立 <code>role_permissions</code> 關聯表（role_id / permission_id）</li>
+<li>[x] ALTER <code>accounts</code>：新增 role_id FK → roles.id，遷移 role ENUM 資料</li>
+<li>[x] Seed：系統預設 3 角色（SUPER_ADMIN / ADMIN / USER，is_system=true）</li>
+<li>[x] Seed：22 個 Permission（account.read/create/update/delete, license.read/write, payment.read/create/confirm/void, device.read/revoke, alert.read/manage, audit.read, role.read/create/update/delete/assign, permission.read, dashboard.read）</li>
+</ul>
+<p>**後端 API：** ✅</p>
+<ul>
+<li>[x] <code>GET /admin/roles</code> — 角色列表（需 role.read）</li>
+<li>[x] <code>POST /admin/roles</code> — 建立角色（需 role.create，role_code 唯一）</li>
+<li>[x] <code>PUT /admin/roles/:id</code> — 更新角色名稱/描述（需 role.update，系統角色 role_code 不可改）</li>
+<li>[x] <code>POST /admin/roles/:id/disable</code> — 停用角色（需 role.delete，軟刪除 → DISABLED）</li>
+<li>[x] <code>GET /admin/roles/:id/permissions</code> — 查詢角色權限（需 role.read）</li>
+<li>[x] <code>PUT /admin/roles/:id/permissions</code> — 設定角色權限（需 role.update，全量覆蓋）</li>
+<li>[x] <code>GET /admin/permissions</code> — 列出所有可用權限（需 permission.read）</li>
+<li>[x] <code>POST /admin/accounts/:id/role</code> — 指派角色給帳號（需 role.assign）</li>
+<li>[x] audit log：ROLE_CREATED / ROLE_UPDATED / ROLE_DISABLED / ROLE_PERMISSIONS_UPDATED / ACCOUNT_ROLE_ASSIGNED / ACCOUNT_ROLE_CHANGED</li>
+<li>[x] 安全防護：SYSTEM_ROLE_IMMUTABLE / ROLE_IN_USE / LAST_PRIVILEGED_ROLE_PROTECTED / SYSTEM_ROLE_PERMISSION_PROTECTED / LAST_PRIVILEGED_ADMIN_PROTECTED</li>
+</ul>
+<p>**Guard 重構：** ✅</p>
+<ul>
+<li>[x] 建立 PermissionGuard + @RequirePermission() 裝飾器</li>
+<li>[x] 重構所有 Admin Controller（9 個）：AdminGuard → @RequirePermission('resource.action')</li>
+<li>[x] SUPER_ADMIN 自動通過所有權限檢查</li>
+<li>[x] JWT payload 調整：加入 roleId</li>
+</ul>
+<p>**UI — 角色管理頁 `/admin/roles`：** ✅</p>
+<ul>
+<li>[x] 角色列表（role_code / role_name / status / member_count / updated_at / isSystem badge）</li>
+<li>[x] 建立角色 Dialog（role_code + role_name + note）</li>
+<li>[x] 編輯角色 Dialog（role_name + note，系統角色 role_code 鎖定）</li>
+<li>[x] 停用角色 + 二次確認（非系統角色、無帳號綁定才可）</li>
+<li>[x] 權限指派 UI（checkbox 矩陣，按 resource 分組）</li>
+<li>[x] 路由：新增 <code>/admin/roles</code> 至 router + AdminLayout sidebar</li>
+<li>[x] 角色指派帳號入口（從角色頁進入）</li>
+</ul>
+<p>**BDD：** F32_admin_role_permission_management.feature（24 場景）</p>
+<p>---</p>
+<h3>P9-1-9：Admin 帳號管理功能（獨立步驟 33 — F33）</h3>
+<p>&gt; 此功能獨立於現有 Admin UI 頁面（F25-F31），包含後端 API 新增 + UI 整合至帳號管理頁。</p>
+<p>**後端 API：** ✅ 完成</p>
+<ul>
+<li>[x] <code>GET /accounts/admin/list</code> — 帳號列表搜尋（含 email / role / status 篩選 + 分頁）</li>
+<li>[x] <code>POST /admin/accounts/:id/role</code> — 指派角色（role_id，含 SELF_ROLE_DOWNGRADE_FORBIDDEN）</li>
+<li>[x] <code>POST /accounts/admin/:id/disable</code> — 停用帳號（LAST_ACTIVE_ADMIN + ALREADY_DISABLED 保護）</li>
+<li>[x] <code>POST /accounts/admin/:id/enable</code> — 啟用帳號（ALREADY_ACTIVE 保護）</li>
+<li>[x] <code>POST /accounts/admin/create</code> — 建立帳號並指定角色（INVALID_ROLE for SUPER_ADMIN）</li>
+<li>[x] audit log：ACCOUNT_CREATED / ACCOUNT_DISABLED / ACCOUNT_ENABLED / ACCOUNT_DISABLE_REJECTED / ACCOUNT_PERMISSIONS_CHANGED / ADMIN_FORBIDDEN_OPERATION</li>
+<li>[x] 登入檢查：DISABLED 帳號回傳 ACCOUNT_DISABLED（已有）</li>
+<li>[x] BDD 14/15 場景通過（permission_codes 更新為 F32 角色指派取代）</li>
+</ul>
+<p>**UI 整合（加入現有帳號管理頁）：** ✅ 完成</p>
+<ul>
+<li>[x] 帳號列表增加 role_code 欄位顯示（Badge）</li>
+<li>[x] 列表改為 admin/list API（含 email/role/status 篩選 + 分頁）</li>
+<li>[x] 停用 / 啟用按鈕 + 二次確認 Dialog</li>
+<li>[x] 建立帳號表單 Dialog（email / password / name / role 選擇）</li>
+<li>[x] 錯誤處理：EMAIL_ALREADY_EXISTS / INVALID_ROLE / LAST_ACTIVE_ADMIN / ALREADY_DISABLED / ALREADY_ACTIVE</li>
+<li>[x] i18n 新增 20+ 條翻譯</li>
+<li>[x] Build 通過</li>
+</ul>
+<p>**商業規則：** BR-AC1~AC6（ref DOMAIN_MODEL §6.5）</p>
+<p>**狀態規則：** Account ACTIVE ↔ DISABLED（ref STATE_RULES §3）</p>
+<p>**BDD：** F33_admin_account_management.feature</p>
+<h3>P9-1-10：Admin UI 增強與重構（2026-03-12）✅</h3>
+<p>&gt; 對照 ADMIN_UI_SPEC.md 進行 13 項差距修補 + 程式碼重構</p>
+<p>**共用元件抽取：** ✅</p>
+<ul>
+<li>[x] <code>usePagination</code> composable（5 個 list view 共用）</li>
+<li>[x] <code>PaginationControls.vue</code>（共用分頁 UI）</li>
+<li>[x] <code>ConfirmActionDialog.vue</code>（共用確認彈窗）</li>
+<li>[x] <code>TableSkeleton.vue</code>（共用表格骨架屏）</li>
+<li>[x] <code>Skeleton.vue</code>（shadcn-vue 基礎骨架元件）</li>
+</ul>
+<p>**Breadcrumb 導覽：** ✅</p>
+<ul>
+<li>[x] AdminLayout 加入 breadcrumb（讀取 route.meta.breadcrumb）</li>
+<li>[x] 所有 admin 路由加 meta.breadcrumb + 子頁加 meta.parent</li>
+</ul>
+<p>**列表增強：** ✅</p>
+<ul>
+<li>[x] License 列表：status / subscriptionStatus / search 篩選 + periodEndDate / graceEndDate / accountEmail 欄位</li>
+<li>[x] Payment 列表：新增 adminFindAll API（status 篩選）+ accountEmail / serialNo / status 欄位</li>
+<li>[x] Account 列表：licenseCount / activeDeviceCount / lastPaymentStatus 欄位</li>
+<li>[x] Device 列表：status / platform 篩選下拉</li>
+</ul>
+<p>**詳情 Dialog：** ✅</p>
+<ul>
+<li>[x] Alert 詳情：metaJson JSON 格式 + 跨連結到帳號/序號頁</li>
+<li>[x] Audit Log 詳情：IP / userAgent / requestId / beforeJson / afterJson + requestId 複製</li>
+</ul>
+<p>**重構：** ✅</p>
+<ul>
+<li>[x] LicensesView 684→453 行（拆出 LicenseDetailPanel.vue 200 行）</li>
+<li>[x] 所有 list view 改用 parseResponse 防禦性處理 API 回應</li>
+</ul>
+<p>**後端 API 修正：** ✅</p>
+<ul>
+<li>[x] license.service adminFindAll：改用 raw SQL 批次查詢（修復 TypeORM getRawAndEntities 500 錯誤）</li>
+<li>[x] payment.service adminFindAll：同上修正 + 新增 GET /payments/admin/list 路由</li>
+<li>[x] dashboard.service：6 KPI 查詢 + 4 待辦/事件查詢（Asia/Taipei timezone）</li>
+<li>[x] alert.service：findOne(id) + GET /admin/alerts/:id</li>
+<li>[x] account.service adminList：批次載入 licenseCount / activeDeviceCount / lastPaymentStatus</li>
+<li>[x] device.service/controller：status + platform 篩選參數</li>
+</ul>
+<p>---</p>
+<h3>P9-2：User Portal（8 頁）✅ 完成（2026-03-14）</h3>
+<p>&gt; **規格來源**：`docs/ui/PORTAL_UI_SPEC.md`</p>
+<p>&gt; **範圍**：已登入區 6 頁 + 登入/註冊（含登入頁分離）</p>
+<p>#### P9-2-1：登入頁（分離式）✅</p>
+<ul>
+<li>[x] <code>/portal/login</code> — 會員登入（左右分欄、品牌 panel + 表單）</li>
+<li>[x] <code>/admin/login</code> — 管理者登入（深色品牌 panel + Shield icon + 非 admin 擋回）</li>
+<li>[x] <code>/login</code> → redirect 至 <code>/portal/login</code>（向下相容）</li>
+<li>[x] Navigation guard 依目標區域導向對應登入頁</li>
+<li>[x] Admin 登出 → <code>/admin/login</code></li>
+<li>[x] i18n 完整翻譯</li>
+</ul>
+<p>#### P9-2-2：註冊頁 `/portal/register` ✅</p>
+<ul>
+<li>[x] 左右分欄（品牌 panel + 註冊表單）</li>
+<li>[x] 密碼強度即時指示器（弱/中/強）</li>
+<li>[x] 成功後 CheckCircle icon + 導向登入</li>
+<li>[x] Input icon（Mail / Lock / User）</li>
+</ul>
+<p>#### P9-2-3：我的首頁 `/portal` ✅</p>
+<ul>
+<li>[x] 狀態摘要卡 + 操作捷徑 + 重要提醒 + 最近活動</li>
+</ul>
+<p>#### P9-2-4：我的訂閱 `/portal/licenses` ✅</p>
+<ul>
+<li>[x] 訂閱狀態卡 + 序號資訊 + Pair Code 生成 + 倒數計時</li>
+</ul>
+<p>#### P9-2-5：我的設備 `/portal/devices` ✅（14/14 BDD）</p>
+<ul>
+<li>[x] 設備列表 + 詳情面板 + 停用確認 + SUSPENDED 警示</li>
+</ul>
+<p>#### P9-2-6：帳單/付款 `/portal/billing` ✅（18/18 BDD）</p>
+<ul>
+<li>[x] 付款提醒 + 付款紀錄 + 付款說明 + BillingProfile 表單</li>
+</ul>
+<p>#### P9-2-7：通知中心 `/portal/notifications` ✅（15/15 BDD）</p>
+<ul>
+<li>[x] 通知列表 + 篩選 + 標記已讀 + 跳轉 + Empty State</li>
+</ul>
+<p>#### P9-2-8：帳號設定 `/portal/settings` ✅（18/18 BDD）</p>
+<ul>
+<li>[x] 基本資料 / 帳單資料 / 修改密碼 / 通知偏好（4 區獨立儲存）</li>
+</ul>
+<h3>P9-3：未登入前台（P2 延後）</h3>
+<p>&gt; 行銷展示性質，不涉及後端邏輯，可獨立於 MVP 核心閉環之外。</p>
+<p>#### P9-3-1：首頁（Landing Page）</p>
+<ul>
+<li>[ ] Hero 區（主標題 + 副標 + CTA）</li>
+<li>[ ] 核心價值卡片（3-4 個）</li>
+<li>[ ] 使用情境（個人/小型團隊/中小企業）</li>
+<li>[ ] 3 步驟操作流程</li>
+<li>[ ] FAQ 區</li>
+<li>[ ] 頁尾（聯絡/條款/隱私）</li>
+</ul>
+<p>#### P9-3-2：方案/價格頁</p>
+<ul>
+<li>[ ] 方案卡片（名稱/月費/功能/適合對象/CTA）</li>
+<li>[ ] 方案比較表</li>
+<li>[ ] 推薦方案標示</li>
+</ul>
+<p>---</p>
+<h2>Phase 10：測試 ✅ 完成（2026-03-14）</h2>
+<p>&gt; **E2E 測試框架**：Jest + Supertest + 真實 MySQL 測試資料庫（museon_platform_test）</p>
+<p>&gt; **執行方式**：`npm run test:e2e`（--runInBand 串行執行）</p>
+<p>&gt; **結果**：4 Test Suites / 49 Tests 全部通過（~9 秒）</p>
+<h3>P10-1：Subscription 狀態機測試（Step 41）✅ 12/12 通過</h3>
+<ul>
+<li>[x] T-SUB-001：建立 Subscription（首次 confirm）</li>
+<li>[x] T-SUB-002：ACTIVE → GRACE（period_end 過後）</li>
+<li>[x] T-SUB-003：GRACE → SUSPENDED（grace_end 過後）</li>
+<li>[x] T-SUB-004：任意狀態 → ACTIVE（re-confirm）</li>
+<li>[x] Reconciler 冪等測試（重跑不重複 side effects）</li>
+<li>[x] 邊界條件：月底日期、audit log 驗證、side effects 驗證</li>
+</ul>
+<h3>P10-2：Pair Code 驗證測試（Step 42）✅ 12/12 通過</h3>
+<ul>
+<li>[x] 正常配對（完整流程）</li>
+<li>[x] 過期 PairCode → PAIR_CODE_EXPIRED</li>
+<li>[x] 已使用 PairCode → PAIR_CODE_USED</li>
+<li>[x] License 已有 ACTIVE Device → LICENSE_ALREADY_BOUND</li>
+<li>[x] fingerprint 回傳 + Token 一次性回傳</li>
+<li>[x] Pair Code 不可重複使用</li>
+<li>[x] 無效 Pair Code → PAIR_CODE_INVALID</li>
+<li>[x] audit log 驗證（DEVICE_PAIRED / PAIR_CODE_USED）</li>
+</ul>
+<h3>P10-3：Entitlement 驗章測試（Step 43）✅ 9/9 通過</h3>
+<ul>
+<li>[x] 正常 Entitlement（Ed25519 簽章驗證 ✅）</li>
+<li>[x] expires_at 正確（約 5 分鐘後）</li>
+<li>[x] SUSPENDED Subscription → allowNewJobs = false</li>
+<li>[x] REVOKED Device → TOKEN_REVOKED</li>
+<li>[x] fingerprint mismatch → DEVICE_MISMATCH（ref ADR-012）</li>
+<li>[x] 竄改 payload → 簽章驗證失敗（client-side）</li>
+<li>[x] 缺少簽章 → 拒絕（client-side）</li>
+</ul>
+<h3>P10-4：離線限制測試（Step 44）✅ 16/16 通過</h3>
+<ul>
+<li>[x] Server 回傳 issued_at / expires_at 時間戳</li>
+<li>[x] check-before-job 回傳 checked_at + allow_new_jobs</li>
+<li>[x] 14 分鐘內 → allowed = true</li>
+<li>[x] 15 分鐘（邊界）→ allowed = true</li>
+<li>[x] 16 分鐘 → allowed = false</li>
+<li>[x] 邊界條件表（0/1/14/15/16/60 分鐘）</li>
+<li>[x] 執行中任務不被強制終止（agent-side 邏輯模擬）</li>
+<li>[x] 快取 entitlement 不能繞過離線限制</li>
+<li>[x] PRE_JOB_CHECK_PASSED audit log 驗證</li>
+</ul>
+<p>---</p>
+<h2>Phase 11：Agent SDK ✅</h2>
+<p>&gt; **目標**：交付 Python SDK 給 Agent 開發者，完成配對 → 授權輪詢 → 接單前檢查的完整閉環</p>
+<p>&gt; **技術棧**：Python 3.10+ / httpx / cryptography</p>
+<p>&gt; **目錄**：`agent-sdk/`</p>
+<h3>P11-1：Agent 文件修正（Step 45）✅</h3>
+<ul>
+<li>[x] AGENT_INTEGRATION_GUIDE.md v1.1</li>
+<li>[x] Pair 端點修正：<code>/api/v1/agent/pair</code> → <code>/api/v1/devices/agent/pair</code></li>
+<li>[x] Entitlement 端點修正：<code>GET /api/v1/device/entitlement</code> → <code>POST /api/v1/agent/entitlement</code></li>
+<li>[x] Headers / Body 參數對齊實際程式碼</li>
+<li>[x] 簽章輸入格式說明補齊</li>
+</ul>
+<h3>P11-2：Agent HTTP 整合測試（Step 46）✅ 33/33 通過</h3>
+<ul>
+<li>[x] <code>agent-sdk/test_integration.py</code>（Python httpx → localhost:3100）</li>
+<li>[x] Phase 1: Setup（admin/user login + license + payment）</li>
+<li>[x] Phase 2: Pairing（pair code 生成 + 配對 + 碼重用拒絕）</li>
+<li>[x] Phase 3: Entitlement（授權回應 + Ed25519 驗章 + 竄改偵測 + 錯誤指紋 + 無效 token）</li>
+<li>[x] Phase 4: Pre-Job Check（接單前檢查 + job_context）</li>
+<li>[x] Phase 5: Offline Policy（7 個邊界條件：0/1/14/15/16/30/60 分鐘）</li>
+<li>[x] Phase 6: Nonce Replay（重放攻擊偵測）</li>
+<li>[x] Phase 7: Revoke（設備撤銷 + token 立即失效）</li>
+<li>[x] 發現：Python <code>json.dumps</code> 必須用 <code>separators=(",",":")</code> 才與 JS <code>JSON.stringify</code> 一致</li>
+</ul>
+<h3>P11-3：Agent SDK 模組（Step 47）✅</h3>
+<ul>
+<li>[x] <code>agent-sdk/muc_agent.py</code> v0.1.0：MucAgent class</li>
+<li>[x] auto-pair + <code>get_entitlement()</code> + <code>check_before_job()</code></li>
+<li>[x] Ed25519 驗章（<code>_verify_entitlement_signature</code>）</li>
+<li>[x] 內建公鑰 + nonce 自動生成 + timestamp 自動填入</li>
+<li>[x] 離線政策判斷</li>
+</ul>
+<h3>P11-4：Agent SDK 文件（Step 48）✅</h3>
+<ul>
+<li>[x] Integration Guide v2.0</li>
+<li>[x] Onboarding Steps</li>
+<li>[x] Quick Connect Guide</li>
+<li>[x] Acceptance Test（6 關 19 項）</li>
+<li>[x] 對方 AI 驗收：19/19 全部通過</li>
+</ul>
+<h3>P11-5：Server 部署上線（Step 49）✅</h3>
+<ul>
+<li>[x] <code>deploy.php</code> 部署腳本（中文化，7 個操作按鈕）</li>
+<li>[x] Apache ProxyPass（<code>/api/</code> → <code>127.0.0.1:3100</code>）+ SPA fallback</li>
+<li>[x] Frontend build 修正（vue-tsc 與 Node 24 不相容，改用 <code>vite build</code>）</li>
+<li>[x] Backend PM2 路徑修正（<code>dist/main.js</code>）</li>
+<li>[x] CORS_ORIGIN 環境變數補齊</li>
+<li>[x] 部署至正式環境</li>
+</ul>
+<h3>P11-5.5：Entitlement Notifications（Step 49.5）✅</h3>
+<ul>
+<li>[x] Entitlement response 加入 <code>notifications</code> 陣列（signed payload 外、advisory only）</li>
+<li>[x] 4 類通知：GRACE_WARNING / EXPIRING_SOON / AGENT_UPDATE_REQUIRED / AGENT_UPDATE_AVAILABLE</li>
+<li>[x] Agent 版本控制：<code>AGENT_MIN_VERSION</code>（強制更新）/ <code>AGENT_LATEST_VERSION</code>（建議更新）</li>
+<li>[x] Semver 比較函數（compareVersions）</li>
+<li>[x] 更新 device.lastSeenAt + device.appVersion</li>
+<li>[x] GetEntitlementDto 新增 optional <code>agent_version</code></li>
+<li>[x] AGENT_INTEGRATION_GUIDE.md 新增 §7.2 Notifications 文件</li>
+<li>[x] AGENT_ONBOARDING_STEPS.md 更新（entitlement body 加 agent_version）</li>
+<li>[x] Python 整合測試更新（驗證 notifications + key_id）</li>
+<li>[x] <code>nest build</code> 通過</li>
+</ul>
+<h3>P11-6：Agent 正式對接測試（Step 50）🚧</h3>
+<ul>
+<li>[ ] Admin 建立帳號 + License + 確認付款</li>
+<li>[ ] 產生 Pair Code 給 Agent 開發者</li>
+<li>[ ] Agent 配對成功（取得 device token）</li>
+<li>[ ] Entitlement 輪詢正常（Ed25519 驗章通過 + notifications 回傳）</li>
+<li>[ ] Pre-Job Check 正常</li>
+<li>[ ] 錯誤情境驗證（過期 / revoke / 指紋不符）</li>
+<li>[ ] Agent 版本通知驗證（AGENT_UPDATE_AVAILABLE / AGENT_UPDATE_REQUIRED）</li>
+</ul>
+<p>---</p>
+<h2>Phase 12：User 自助付款 ✅ 完成（2026-03-14）</h2>
+<h3>P12-1：User Checkout API（Step 51）✅</h3>
+<p>**後端：**</p>
+<ul>
+<li>[x] <code>POST /api/v1/payments/my/checkout</code> — User 端模擬付款</li>
+</ul>
+<p>  - 驗證 License 屬於當前 User</p>
+<p>  - 驗證 License status = ACTIVE</p>
+<p>  - 驗證無 pending DRAFT Payment（→ PAYMENT_ALREADY_PENDING）</p>
+<p>  - 驗證同一週期未重複 checkout（→ CHECKOUT_ALREADY_COMPLETED）</p>
+<p>  - DataSource.transaction：建立 Payment CONFIRMED → Subscription activateOrRenew</p>
+<p>  - 金額固定 990 TWD（MVP 單一方案）</p>
+<p>  - audit log：PAYMENT_CHECKOUT_INITIATED + PAYMENT_CONFIRMED</p>
+<p>  - notification：PAYMENT_CONFIRMED（交易外，non-blocking）</p>
+<p>  - alert：PAYMENT_CONFIRMED（交易外）</p>
+<ul>
+<li>[x] DTO：UserCheckoutDto（license_id required）</li>
+<li>[x] 錯誤碼：LICENSE_NOT_FOUND / FORBIDDEN / LICENSE_NOT_ACTIVE / PAYMENT_ALREADY_PENDING / CHECKOUT_ALREADY_COMPLETED</li>
+<li>[x] AuditEvent 新增：PAYMENT_CHECKOUT_INITIATED</li>
+</ul>
+<h3>P12-2：Portal Checkout UI（Step 52）✅</h3>
+<ul>
+<li>[x] Portal <code>/portal/billing</code> 新增付款卡片（payableLicenses computed 篩選）</li>
+<li>[x] 付款確認 Dialog（方案名稱 + 金額 990 TWD + 序號 + 確認/取消按鈕）</li>
+<li>[x] 防重複送出（checkoutLoading flag）</li>
+<li>[x] 成功 toast + 自動刷新 licenses + payments</li>
+<li>[x] 5 種錯誤碼 i18n 對映</li>
+<li>[x] i18n：portal.billing.checkout.* + portal.billing.error.*</li>
+</ul>
+<h3>P12-3：Checkout 整合測試（Step 53）✅ 8/8 場景通過</h3>
+<ul>
+<li>[x] 首次付款 → Payment CONFIRMED + Subscription ACTIVE</li>
+<li>[x] ACTIVE 續費 → 新週期覆蓋</li>
+<li>[x] GRACE 續費 → 恢復 ACTIVE（邏輯共用 activateOrRenew）</li>
+<li>[x] SUSPENDED 續費 → 恢復 ACTIVE（同上）</li>
+<li>[x] 有 pending DRAFT → 409 PAYMENT_ALREADY_PENDING</li>
+<li>[x] 非自己的 License → 403 FORBIDDEN</li>
+<li>[x] License 未啟用 → 409 LICENSE_NOT_ACTIVE</li>
+<li>[x] 未登入 → 401</li>
+</ul>
+<p>**決策**：ADR-024（User 自助模擬付款）</p>
+<p>**BDD**：F51 + F52 + F53</p>
+<p>---</p>
+<h2>技術決策摘要</h2>
+<p>| 項目 | 決策 |</p>
+<p>|------|------|</p>
+<p>| Backend | NestJS + TypeORM + TypeScript |</p>
+<p>| Frontend | Vue 3 + Vite + Tailwind CSS + shadcn-vue（ADR-022） |</p>
+<p>| Database | MySQL 8.0+（UTC 儲存，Asia/Taipei 商業計算）|</p>
+<p>| Auth | JWT + Passport（User），Bearer device_token（Agent）|</p>
+<p>| Signing | Ed25519（Entitlement response signing）|</p>
+<p>| Scheduling | @nestjs/schedule（Subscription Reconciler）|</p>
+<p>| Email | SendGrid |</p>
+<p>| Port | Backend 3100 / Frontend 5174 |</p>
+<p>---</p>
+<h2>相關文件</h2>
+<ul>
+<li><code>PROJECT_BASE.md</code> — 專案基礎與技術棧</li>
+<li><code>STATE_RULES.md</code> — 狀態機唯一對照來源</li>
+<li><code>API_CONTRACT_NOTES.md</code> — API 契約</li>
+<li><code>DECISIONS.md</code> — 已拍板決策（ADR-011/012）</li>
+<li><code>OPEN_QUESTIONS.md</code> — 待拍板問題（OQ-003 到 OQ-010）</li>
+<li><code>DEV_SEQUENCE.md</code> — 開發順序總覽</li>
+</ul>
+<p>---</p>
+<h2>Phase 13：最小營運範疇 + 全自助訂購 ✅ 完成（2026-03-17）</h2>
+<p>&gt; **目標**：從 MVP 基礎走向可實際營運的最小系統，補齊 Admin 操作效率 + User 基本體驗缺口</p>
+<p>&gt; **規格來源**：MVP 網站系統架構 v1.0 對照分析</p>
+<h3>P13-A：補齊 Admin 現有頁面缺口</h3>
+<p>#### A1：Subscription 管理頁（Step 54）✅ F54 BDD 12/12</p>
+<ul>
+<li>[x] 後端：<code>GET /subscriptions/admin/list</code>（status + search + risk 篩選 + 分頁）</li>
+<li>[x] 後端：<code>GET /subscriptions/admin/:id</code>（詳情 + License/Account/Device/Payment 關聯摘要）</li>
+<li>[x] 前端：<code>/admin/subscriptions</code>（SubscriptionsView + SubscriptionDetailPanel）</li>
+<li>[x] 列表欄位：serialNo / accountEmail / status / periodEndDate / graceEndDate / updatedAt</li>
+<li>[x] 詳情面板：4 Tabs（基本資料 / 序號 / 設備 / 收款）</li>
+<li>[x] 到期風險篩選：<code>?risk=expiring_soon</code>（7天內 + GRACE + SUSPENDED）</li>
+<li>[x] 路由 + AdminLayout sidebar 加入</li>
+</ul>
+<p>#### A2：付款紀錄篩選（Step 55）✅ F55 BDD 7/7</p>
+<ul>
+<li>[x] 後端：<code>adminFindAll</code> 移除預設 DRAFT，不帶 status 回傳全部</li>
+<li>[x] 後端：新增 <code>confirmedByEmail</code> batch load（join accounts by confirmedByAdminId）</li>
+<li>[x] 前端：<code>filterStatus</code> 預設改 <code>''</code>（全部）</li>
+<li>[x] 前端：Table 新增 confirmedAt + confirmedBy 兩欄</li>
+</ul>
+<p>#### A3：License 詳情 → 建立付款單（Step 56）✅ F56 BDD 13/13</p>
+<ul>
+<li>[x] 後端：<code>adminCreateDraft</code> 新增 license 存在 + VOID 狀態檢查（422 LICENSE_VOIDED）</li>
+<li>[x] 前端：LicenseDetailPanel 新增「建立付款單」按鈕（VOID 不顯示）</li>
+<li>[x] 前端：Dialog 預填 licenseId（readonly）+ serialNo + 990 TWD + note</li>
+<li>[x] 前端：金額驗證（正整數）+ 防重複點擊 + 失敗保留 Dialog</li>
+<li>[x] 成功後 emit refresh → 重載 detail 顯示新 DRAFT</li>
+</ul>
+<p>#### A4：訂閱狀態總覽（Step 57）✅ F57 BDD 8/8</p>
+<ul>
+<li>[x] DashboardView 新增「訂閱狀態總覽」區塊（三色進度條 + 3 張狀態卡 + 數量/百分比 + 總數）</li>
+<li>[x] KPI Cards 訂閱卡片跳轉改為 <code>/admin/subscriptions?status=XXX</code></li>
+<li>[x] SubscriptionsView <code>onMounted</code> 讀取 <code>route.query.status</code> 自動帶入篩選</li>
+<li>[x] 後端 <code>GET /subscriptions/admin/stats</code>（ACTIVE/GRACE/SUSPENDED group by count）</li>
+</ul>
+<h3>P13-B：新增 Admin 管理功能</h3>
+<p>#### B1：通知紀錄查看（Step 58）✅</p>
+<ul>
+<li>[x] 新增 <code>/admin/notifications</code> 頁面</li>
+<li>[x] 後端：<code>GET /notifications/admin/list</code>（支援 type / status 篩選 + 分頁）</li>
+<li>[x] 列表欄位：type / recipientEmail / status / sentAt / errorMessage / createdAt</li>
+</ul>
+<p>#### B2：數據匯出（Step 59）✅ F59 BDD 8/8</p>
+<ul>
+<li>[x] 後端：3 支 CSV 匯出 API（<code>/licenses/admin/export</code> + <code>/payments/admin/export</code> + <code>/subscriptions/admin/export</code>）</li>
+<li>[x] 支援 <code>?status=</code> 篩選，無資料時回 header only</li>
+<li>[x] 共用工具：<code>common/utils/csv.ts</code>（toCsv + escape + BOM）</li>
+<li>[x] 前端：3 個管理頁各加「匯出 CSV」按鈕 + <code>downloadCsv</code> 工具函數</li>
+<li>[x] 每次匯出寫 <code>DATA_EXPORTED</code> audit log</li>
+</ul>
+<h3>P13-C：User 功能</h3>
+<p>#### C1：忘記密碼（Step 60）✅ F60 BDD 11/11</p>
+<ul>
+<li>[x] Migration：<code>password_reset_tokens</code> 表（token_hash / status / expires_at / used_at）</li>
+<li>[x] 後端：<code>POST /auth/forgot-password</code>（不洩漏帳號存在性 / DISABLED 帳號不寄信 / 5次/15分鐘 rate limit）</li>
+<li>[x] 後端：<code>POST /auth/reset-password</code>（SHA-256 hash 驗證 / 30 分鐘 TTL / DB 條件更新防併發）</li>
+<li>[x] Email：PASSWORD_RESET 模板（重設連結按鈕 + 過期時間提示）</li>
+<li>[x] 前端：ForgotPasswordView + ResetPasswordView + 登入頁「忘記密碼？」連結</li>
+<li>[x] Audit：PASSWORD_RESET_REQUESTED / COMPLETED / REJECTED</li>
+</ul>
+<h3>P13-D：方案與訂購</h3>
+<p>#### D1：方案管理模組（Step 61）✅ F61 BDD 13/13，ADR-025</p>
+<ul>
+<li>[x] Migration：<code>plans</code> 表 + <code>compare_features</code> 表 + <code>licenses</code> 新增 <code>plan_id</code> / <code>snapshot_price</code></li>
+<li>[x] Seed：3 個預設方案（Basic 990 / Pro 1990 / Business 4990）</li>
+<li>[x] 後端：Plan Admin CRUD + 公開方案 API + CompareFeature CRUD</li>
+<li>[x] 後端：License 建立時指定 planId + <code>adminAssignPlan</code> API（快照價）</li>
+<li>[x] 後端：Checkout 從 <code>license.snapshotPrice</code> 讀金額</li>
+<li>[x] 前端：<code>/admin/plans</code> 管理頁（列表 + PlanEditView）</li>
+<li>[x] 前端：Landing <code>/pricing</code> 100% 從 API 動態讀取</li>
+<li>[x] 權限：<code>plan.read</code> + <code>plan.write</code></li>
+</ul>
+<p>#### D2：全自助訂購流程 v2（Step 62）✅ F62 v2 BDD 43 場景，ADR-026 + ADR-027</p>
+<ul>
+<li>[x] 後端：<code>POST /api/v1/checkout/subscribe</code>（原子操作：Plan → License → Payment → Subscription）</li>
+<li>[x] 自動生成 serialNo（<code>MUC-YYYYMM-XXXXX</code>）</li>
+<li>[x] 前端：<code>/portal/checkout?plan=XXX</code> 確認頁 + 成功頁</li>
+<li>[x] 前端：<code>/pricing</code> CTA 按鈕帶 plan code 跳轉（未登入先登入再跳）</li>
+<li>[x] 商業規則：一個帳號可訂多個 License</li>
+<li>[x] Admin 手動建 License 流程保留</li>
+</ul>
+<p>---</p>
+<h2>Phase 14：Credit 點數系統 + 產品優化 🚧</h2>
+<p>&gt; **目標**：建立 Credit 計量系統，支撐按用量計費</p>
+<p>&gt; **規劃文件**：memory/credit-system-design.md / memory/phase14-planning.md</p>
+<p>&gt; **BDD**：F67（26 個場景）</p>
+<h3>P0：Credit 點數系統 ✅ 完成（2026-03-22）</h3>
+<ul>
+<li>[x] Migration：<code>credit_balances</code> / <code>credit_transactions</code> 表（F67）</li>
+<li>[x] Credit consume API（<code>POST /api/v1/credits/consume</code>）— idempotency + FOR UPDATE 鎖 + 餘額檢查</li>
+<li>[x] Credit balance API（<code>GET /api/v1/credits/licenses/:id/balance</code>）</li>
+<li>[x] Credit transactions API（<code>GET /api/v1/credits/licenses/:id/transactions</code>）— 分頁</li>
+<li>[x] Admin balance API（<code>GET /api/v1/admin/credits/licenses/:id/balance</code>）</li>
+<li>[x] Checkout / Payment confirm 初始化 credit_balance = plan.creditsPerMonth</li>
+<li>[x] Portal <code>/portal/credits</code>（餘額卡片 + 進度條 + 交易紀錄）</li>
+<li>[x] Admin License 詳情加「點數」tab</li>
+<li>[x] Audit: CREDIT_CONSUMED / CREDIT_CONSUME_FAILED / CREDIT_GRANTED</li>
+<li>[x] API 測試 15/15 場景通過</li>
+</ul>
+<h3>P0.5：Portal 續約流程改善 ✅ 完成（2026-03-22）</h3>
+<ul>
+<li>[x] Portal /pricing 分區顯示（續約 + 首購）</li>
+<li>[x] ShopCheckoutView 支援 RENEWAL 方案 + License 選擇器</li>
+<li>[x] LicenseView 續約連結帶 licenseId</li>
+<li>[x] 重構：ShopCheckoutView 拆出 PaymentMethodSelector + LicenseSelector</li>
+<li>[x] 重構：OrdersView 拆出 OrderDetailPanel</li>
+</ul>
+<h3>P1：方案月配點數（待開工）</h3>
+<ul>
+<li>[ ] 方案月配點數設定（plans.creditsPerMonth 已有欄位）</li>
+<li>[ ] 週期開始自動配點（Reconciler 整合，type=GRANT）</li>
+<li>[ ] 超額計費（USD 0.1/點，方案設定超額上限）</li>
+<li>[ ] 超額帳單產生（獨立於訂閱帳單）</li>
+<li>[ ] Agent SDK 整合（consume + balance）</li>
+</ul>
+<h3>P1：Agent 下載機制</h3>
+<ul>
+<li>[ ] Agent 安裝包管理（版本 + 平台）</li>
+<li>[ ] 下載頁面 / 連結產生</li>
+<li>[ ] 版本更新通知整合（已有 AGENT_UPDATE_AVAILABLE 基礎）</li>
+</ul>
+<h3>P2：同設備多 License（評估中）</h3>
+<ul>
+<li>[ ] 評估一台設備綁多個 License 的影響範圍</li>
+<li>[ ] Domain Model 調整方案</li>
+</ul>
+<h3>P3：SDK 安全強化</h3>
+<ul>
+<li>[ ] Token 加密儲存強化</li>
+<li>[ ] Anti-replay 進階策略</li>
+</ul>
+<p>---</p>
+<h2>SEO / GEO 成長模組 ✅ 完成（2026-03-22）</h2>
+<p>&gt; **定位**：獨立成長模組，不影響授權、訂購、收款主流程</p>
+<p>&gt; **BDD**：F71（20 個場景，分兩批）</p>
+<h3>第一批：CRUD + 發布 + Sitemap + GEO + 權限（S01-S16）✅</h3>
+<ul>
+<li>[x] Migration：seo_pages 表（SEO + GEO + Metrics 共 ~25 欄位）</li>
+<li>[x] SeoPage Service + Controller（CRUD + 發布 + 封存 + sitemap）10 支 API</li>
+<li>[x] 驗證規則：slug 唯一、title 必填、metaDescription 長度、schema JSON 合法性</li>
+<li>[x] canonicalUrl 自動生成 + robotsPolicy → sitemap 自動同步</li>
+<li>[x] sitemap.xml 動態輸出 + GEO 欄位管理</li>
+<li>[x] 權限：seo.read / seo.create / seo.update / seo.publish / seo.metrics.read</li>
+<li>[x] Admin 列表頁 + 編輯頁（4 tab：SEO/GEO/Schema/成效）</li>
+<li>[x] SchemaEditor 視覺化元件（FAQ Q&A 編輯器 + 一般頁面表單 + 原始 JSON）</li>
+<li>[x] 7 個 Audit event + 5 筆 seed data</li>
+<li>[x] API 測試 16/16 通過</li>
+</ul>
+<h3>第二批：預覽 + 成效指標 + FAQ 同步（S17-S20）✅</h3>
+<ul>
+<li>[x] 頁面預覽 API</li>
+<li>[x] 成效指標同步 API + 查詢 UI</li>
+<li>[x] FAQ 內容同步自動更新 FAQPage schema + GEO answerSnippet</li>
+<li>[x] API 測試 4/4 通過</li>
+</ul>
+<h3>SEO 基礎建設 ✅</h3>
+<ul>
+<li>[x] index.html：完整 meta + OG + Twitter Card + 3 組 JSON-LD + noscript</li>
+<li>[x] robots.txt + sitemap 指向</li>
+<li>[x] useSeoMeta composable（動態 meta/title/OG/JSON-LD）</li>
+<li>[x] inject-seo.cjs：build 後注入靜態 HTML（首頁 + 定價頁）</li>
+<li>[x] npm run build 整合 SEO 注入</li>
+</ul>
+<p>---</p>
+<h2>Phase 15：自動金流串接 ⬜</h2>
+<p>&gt; **前置條件**：選定金流商後開工</p>
+<p>&gt; **定位**：串接真實付款（信用卡/ATM/轉帳），取代人工確認</p>
+<p>&gt; **架構基礎**：F66 已完成 PaymentMethod 管理 + 結帳流程分支（ADR-030）</p>
+<p>&gt; **預留接口**：checkout.service 的 isInstantPayment 分支 → 改為 hasGateway</p>
+<ul>
+<li>[x] PaymentMethod 管理（Admin CRUD + 結帳選擇）— F66 已完成</li>
+<li>[x] 非即時付款流程（ATM/匯款 → DRAFT → Admin 確認）— F66 已完成</li>
+<li>[ ] 金流服務商選定（台灣 Pay？綠界？藍新？）</li>
+<li>[ ] Gateway Service 模組（建立交易 → 取得付款 URL）</li>
+<li>[ ] Webhook Controller（<code>POST /payment/gateway-callback</code>）</li>
+<li>[ ] Webhook 驗簽 + Payment CONFIRMED + Subscription ACTIVE</li>
+<li>[ ] 前端：收到 paymentUrl → redirect 到金流頁</li>
+<li>[ ] 前端：<code>/shop/payment-return</code>（金流回調 landing page）</li>
+<li>[ ] 退款 API + 流程</li>
+<li>[ ] 發票服務串接（電子發票）</li>
+<li>[ ] Admin 金流紀錄頁</li>
+</ul>
+<p>---</p>
+<h2>Phase 16：推薦分潤 + 介紹人折抵 ⬜</h2>
+<p>&gt; **定位**：推薦獎勵機制，帶動口碑獲客</p>
+<ul>
+<li>[ ] Referral 模組設計（referral_code / referral_records 表）</li>
+<li>[ ] Account 新增 referral_code 欄位</li>
+<li>[ ] 推薦連結產生 + 追蹤</li>
+<li>[ ] 推薦成功判定邏輯（被推薦者首次付費 = 成功）</li>
+<li>[ ] 推薦獎勵發放（送 1 個月額外使用額度 — 具體定義待確認）</li>
+<li>[ ] 推薦紀錄查詢（User 端 + Admin 端）</li>
+<li>[ ] 介紹人折抵機制（首次付款折扣 or 點數贈送）</li>
+<li>[ ] Portal 推薦頁面（我的推薦碼 + 推薦紀錄）</li>
+<li>[ ] Admin 推薦報表</li>
+</ul>
+<p>---</p>
+<h2>Phase 17：自動更新發佈平台 ⬜</h2>
+<p>&gt; **定位**：Agent 子機自動更新機制，取代手動部署</p>
+<ul>
+<li>[ ] 版本管理模組（version / platform / release_notes / download_url）</li>
+<li>[ ] Agent 安裝包上傳 + 儲存（files 模組整合）</li>
+<li>[ ] 版本發佈 API（Admin 端）</li>
+<li>[ ] Agent 端版本檢查 + 自動下載（已有 AGENT_MIN_VERSION / AGENT_LATEST_VERSION 基礎）</li>
+<li>[ ] 強制更新 vs 建議更新邏輯</li>
+<li>[ ] 更新進度回報</li>
+<li>[ ] Admin 版本管理頁（發佈 / 歷史版本 / 裝機率統計）</li>
+<li>[ ] 灰度發佈（按比例推送）</li>
+</ul>
+<p>---</p>
+<p>📅 **建立日期**：2026-03-10</p>
+<p>📌 **目前進度**：Phase 1-13 全部完成（Step 1-62），Phase 14-17 規劃中</p>
+<p>🔗 **下一步**：Phase 14 P0 Credit 點數系統 → Phase 15 自動金流（待付款方案確認）</p>
+        </section>
+        
+        <footer>
+            <p>此報告由 MUSEON AI 系統自動生成 | 最後更新: 2026-03-23</p>
+        </footer>
+    </div>
+</body>
+</html>
