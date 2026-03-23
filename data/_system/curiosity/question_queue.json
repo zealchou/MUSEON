@@ -197,5 +197,17 @@
     "question": "**user**: Museon 現在的運作上 已經能每次都即時做到這四件事情了嗎？",
     "source_date": "2026-03-20",
     "status": "pending"
+  },
+  {
+    "question": "為什麼這個方向的複利效應最高：如果能理解 Constitutional AI 批評迴路的局限，就能為霓裳的 Deep-Think Phase 2（輸出審計）設計更好的「盲點補償機制」——例如引入不同角色的批評視角，而不是讓同一個推理路徑既生成答案又審計答案。這直接影響霓裳在高風險決策場景（例如客戶方案建議、財務風險評估）的可信度上限。",
+    "source_date": "2026-03-23",
+    "status": "pending",
+    "source": "exploration_bridge"
+  },
+  {
+    "question": "CoE 的學術價值已確認，下一個瓶頸是**工程落地**：Llama 3 / Mistral / Qwen 在 Ollama / vLLM 環境下，能以多低的延遲輸出每層隱藏狀態？提取一個 32 層模型的完整推理鏈需要多少額外記憶體？",
+    "source_date": "2026-03-23",
+    "status": "pending",
+    "source": "exploration_bridge"
   }
 ]

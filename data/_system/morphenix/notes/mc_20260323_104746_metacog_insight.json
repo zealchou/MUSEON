@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260323_104746_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n**修改方向：**\n回覆違反了「ACTION_FIRST」原則。Chen 明確要求「看一下內容是不是有哪裡不對」，Feng 要求「確認是否可以理解圖」——這些是具體的**做**，而非等待。Zeal 在場、高標準。應該立刻：\n1. 檢查上傳的估價單（驗證單價/數量/總和）\n2. 確認能否理解設計圖，回覆具體理解內容\n3. 在群組報告檢查結果和發現的問題\n\n不要說「等圖面一到」，改為立\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-23T10:47:46.282708+08:00",
+  "priority": "medium"
+}

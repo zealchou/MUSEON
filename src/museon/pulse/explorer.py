@@ -320,12 +320,11 @@ class Explorer:
             }
         """
         log_data = self._load_exploration_log()
-        normalized_topic = self._normalize_topic(topic)
 
-        # 搜尋歷史記錄
+        # 搜尋歷史記錄（使用語意相似度比對，不再只做精確匹配）
         history = [
             entry for entry in log_data.get("history", [])
-            if self._normalize_topic(entry["topic"]) == normalized_topic
+            if self._topics_similar(entry["topic"], topic)
         ]
 
         if not history:
@@ -401,6 +400,44 @@ class Explorer:
         normalized = re.sub(r"\s+", " ", normalized)
         return normalized
 
+    def _topics_similar(self, a: str, b: str) -> bool:
+        """判斷兩個主題是否語意相似（多策略比對）.
+
+        策略：
+        1. 精確匹配（normalize 後）
+        2. 字元級 n-gram 重疊（處理中文無空格的情況）
+        3. 關鍵詞重疊（空格分詞 + 中文 bigram）
+        """
+        norm_a = self._normalize_topic(a)
+        norm_b = self._normalize_topic(b)
+
+        # 策略 1: 精確匹配
+        if norm_a == norm_b:
+            return True
+
+        # 策略 2: 包含關係（短的被長的完全包含）
+        if len(norm_a) > 4 and len(norm_b) > 4:
+            if norm_a in norm_b or norm_b in norm_a:
+                return True
+
+        # 策略 3: 字元級 bigram 重疊（Dice 係數 > 0.5）
+        bigrams_a = set(norm_a[i:i+2] for i in range(len(norm_a) - 1) if not norm_a[i].isspace())
+        bigrams_b = set(norm_b[i:i+2] for i in range(len(norm_b) - 1) if not norm_b[i].isspace())
+        if bigrams_a and bigrams_b:
+            dice = 2 * len(bigrams_a & bigrams_b) / (len(bigrams_a) + len(bigrams_b))
+            if dice > 0.5:
+                return True
+
+        # 策略 4: 空格分詞的關鍵詞重疊（> 50%）
+        words_a = set(norm_a.split())
+        words_b = set(norm_b.split())
+        if words_a and words_b:
+            overlap = len(words_a & words_b) / min(len(words_a), len(words_b))
+            if overlap > 0.5:
+                return True
+
+        return False
+
     def _load_exploration_log(self) -> Dict[str, Any]:
         """讀取探索日誌 Markdown 並解析."""
         if not self._exploration_log_path or not self._exploration_log_path.exists():
@@ -411,15 +448,24 @@ class Explorer:
                 content = f.read()
 
             history = []
-            # 簡單解析 Markdown 表格
-            # 格式：| 時間 | 主題 | 動機 | 深度次數 | 狀態 | 結晶 |
+            current_date = None  # 從 ## YYYY-MM-DD 段落標題取得日期上下文
             lines = content.split("\n")
             in_table = False
+
             for line in lines:
+                # 偵測日期段落標題（## 2026-03-23）
+                date_match = re.match(r"^##\s+(\d{4}-\d{2}-\d{2})", line)
+                if date_match:
+                    current_date = date_match.group(1)
+                    in_table = False
+                    continue
+
                 if line.startswith("|") and "時間" in line:
                     in_table = True
                     continue
                 if not in_table or not line.startswith("|"):
+                    if in_table and not line.startswith("|"):
+                        in_table = False
                     continue
                 if "---" in line:  # 跳過分隔線
                     continue
@@ -429,8 +475,19 @@ class Explorer:
                     continue
 
                 try:
+                    raw_ts = parts[0]
+                    # 嘗試完整 ISO 解析
+                    try:
+                        ts = datetime.fromisoformat(raw_ts)
+                    except (ValueError, TypeError):
+                        # 舊格式 HH:MM — 用段落標題日期補全
+                        if current_date and re.match(r"^\d{1,2}:\d{2}$", raw_ts):
+                            ts = datetime.fromisoformat(f"{current_date}T{raw_ts}:00+08:00")
+                        else:
+                            continue  # 無法解析，跳過
+
                     history.append({
-                        "timestamp": parts[0],  # ISO format
+                        "timestamp": ts.isoformat(),
                         "topic": parts[1],
                         "motivation": parts[2],
                         "depth_count": int(parts[3]),
@@ -458,7 +515,7 @@ class Explorer:
             # 計算深度等級
             last_same = None
             for entry in reversed(history):
-                if self._normalize_topic(entry["topic"]) == normalized:
+                if self._topics_similar(entry["topic"], topic):
                     last_same = entry
                     break
 
@@ -473,8 +530,12 @@ class Explorer:
             else:
                 depth_count = 1
 
+            now = datetime.now(TZ8)
+            # 使用完整 ISO 時間戳（含日期），確保 _load_exploration_log 能正確解析
+            ts_iso = now.isoformat(timespec="seconds")
+
             # 新增紀錄
-            new_entry = f"| {datetime.now(TZ8).strftime('%H:%M')} | {topic} | {motivation} | {depth_count} | {result['status']} | {'yes' if result.get('crystallized') else 'no'} |"
+            new_entry = f"| {ts_iso} | {topic} | {motivation} | {depth_count} | {result['status']} | {'yes' if result.get('crystallized') else 'no'} |"
 
             # 找到日期分段，追加
             with open(self._exploration_log_path, "r", encoding="utf-8") as f:

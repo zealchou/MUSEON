@@ -1,0 +1,15 @@
+{
+  "plan_id": "dispatch_20260321_114943_e2e_cruc",
+  "user_request": "最近壓力真的很大，工作做不完，回家又要照顧小孩，覺得快要崩潰了。",
+  "session_id": "e2e_crucible",
+  "created_at": "2026-03-21T11:49:43.147459",
+  "status": "failed",
+  "execution_mode": "serial",
+  "tasks": [],
+  "results": [],
+  "synthesis_result": null,
+  "total_token_usage": {},
+  "completed_at": null,
+  "error_message": "Recovered after restart — execution interrupted",
+  "meta": {}
+}

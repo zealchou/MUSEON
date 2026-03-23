@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260323_122605_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：先直接回答「群組對話本身有沒有看到什麼問題/盲點」，而不是先解釋為什麼另一個 bot 沒回應。使用者問的是決策洞見，不是故障排查。如果確實是連線問題導致無法輸出分析，再補充診斷路徑。順序反轉：**洞見優先，故障排查次之**。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-23T12:26:05.237497+08:00",
+  "priority": "medium"
+}
