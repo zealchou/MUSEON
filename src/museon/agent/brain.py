@@ -1308,6 +1308,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
 
             # 標準單一 LLM 呼叫（無輔助部門或 Multi-Agent 失敗時）
             if not _used_multiagent:
+                _current_loop = getattr(routing_signal, 'loop', 'EXPLORATION_LOOP') if routing_signal else 'EXPLORATION_LOOP'
                 response_text = await self._call_llm(
                     system_prompt=system_prompt,
                     messages=history,
@@ -1315,6 +1316,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                     enable_tools=_enable_tools,
                     user_content=content,
                     matched_skills=skill_names,
+                    loop=_current_loop,
                 )
 
                 # ── Phase 4.5: P3 策略層交織融合簽名 ──

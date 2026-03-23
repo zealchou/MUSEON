@@ -350,6 +350,36 @@ class BudgetMonitor:
         """Get remaining tokens in budget."""
         return max(0, self._daily_limit - self._daily_usage)
 
+    async def count_tokens_precise(
+        self,
+        system_prompt: str,
+        messages: list,
+        model: str = "sonnet",
+        tools: list = None,
+    ) -> int:
+        """使用 Anthropic Token Counting API 精確計算 token 數量.
+
+        比本地字數估算 (len/4) 更準確，用於 prompt 長度優化。
+        需要 AnthropicAPIAdapter 實例（透過 _api_adapter 注入）。
+        失敗時回傳 -1（降級為本地估算）。
+        """
+        if not hasattr(self, '_api_adapter') or self._api_adapter is None:
+            return -1
+        try:
+            return await self._api_adapter.count_tokens(
+                system_prompt=system_prompt,
+                messages=messages,
+                model=model,
+                tools=tools,
+            )
+        except Exception as e:
+            logger.debug(f"[Budget] Token counting API 失敗: {e}")
+            return -1
+
+    def set_api_adapter(self, adapter) -> None:
+        """注入 AnthropicAPIAdapter 以啟用精確 token 計數."""
+        self._api_adapter = adapter
+
     def set_daily_limit(self, new_limit: int) -> None:
         """Set new daily token limit.
 

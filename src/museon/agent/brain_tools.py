@@ -58,6 +58,7 @@ class BrainToolsMixin:
         enable_tools: bool = False,
         user_content: str = "",
         matched_skills: Optional[List[str]] = None,
+        loop: str = "EXPLORATION_LOOP",
     ) -> str:
         """呼叫 Claude API — 含 Router 智能分流 + 多模型 Fallback + Prompt Caching + Tool Use.
 
@@ -180,6 +181,13 @@ class BrainToolsMixin:
         last_error = None
         for model in _ordered_chain:
             try:
+                # Extended Thinking：SLOW_LOOP 且無 tool-use 時啟用深度推理
+                _use_thinking = (
+                    loop == "SLOW_LOOP"
+                    and not tool_definitions
+                    and model in ("opus", "sonnet")
+                )
+
                 # 透過 LLMAdapter 呼叫（claude -p 或 API fallback）
                 _adapter_resp = await self._llm_adapter.call(
                     system_prompt=system_prompt,
@@ -187,6 +195,8 @@ class BrainToolsMixin:
                     model=model,
                     max_tokens=self._MAX_TOKENS_PRIMARY,
                     tools=tool_definitions,
+                    extended_thinking=_use_thinking,
+                    thinking_budget=10000 if _use_thinking else 0,
                 )
 
                 if _adapter_resp.stop_reason == "error":
