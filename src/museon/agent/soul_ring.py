@@ -317,15 +317,17 @@ class DiaryStore(DataContract):
         except Exception as e:
             return {"status": "error", "error": str(e)}
 
-    def __init__(self, data_dir: str = "data") -> None:
+    def __init__(self, data_dir: str = "data", vector_bridge=None) -> None:
         """初始化持久化層.
 
         Args:
             data_dir: 資料根目錄（預設 "data"）
+            vector_bridge: VectorBridge 實例（可選，用於 Qdrant 語義索引）
         """
         self._data_dir = Path(data_dir)
         self._anima_dir = self._data_dir / "anima"
         self._backup_dir = self._anima_dir / "backups"
+        self._vector_bridge = vector_bridge  # ★ Project Epigenesis: 語義索引
 
         # 確保目錄存在
         self._anima_dir.mkdir(parents=True, exist_ok=True)
@@ -342,7 +344,8 @@ class DiaryStore(DataContract):
         logger.info(
             f"DiaryStore initialized | "
             f"soul_rings: {self._soul_rings_path} | "
-            f"observation_rings: {self._observation_rings_path}"
+            f"observation_rings: {self._observation_rings_path} | "
+            f"vector_index: {'ON' if vector_bridge else 'OFF'}"
         )
 
     # ── 靈魂年輪 CRUD ──
@@ -376,6 +379,7 @@ class DiaryStore(DataContract):
         """追加一條靈魂年輪（append-only）.
 
         寫入後立即 fsync 確保落盤。
+        若 vector_bridge 可用，同步索引到 Qdrant soul_rings collection。
 
         Args:
             ring: 要追加的年輪
@@ -391,6 +395,9 @@ class DiaryStore(DataContract):
             f"Soul ring appended | type={ring.type} | "
             f"hash={ring.hash[:12]}..."
         )
+
+        # ★ Project Epigenesis: 語義索引到 Qdrant
+        self._index_soul_ring_to_vector(ring)
 
     def update_reinforcement_count(
         self, index: int, new_count: int
@@ -780,6 +787,129 @@ class DiaryStore(DataContract):
             if tmp_path.exists():
                 tmp_path.unlink()
             raise
+
+    # ── Project Epigenesis: 向量語義索引 ──
+
+    def set_vector_bridge(self, vector_bridge) -> None:
+        """後注入 VectorBridge（解決初始化順序問題）."""
+        self._vector_bridge = vector_bridge
+
+    def _index_soul_ring_to_vector(self, ring: SoulRing) -> None:
+        """將年輪索引到 Qdrant soul_rings collection.
+
+        在 append_soul_ring() 成功後被調用。
+        失敗靜默——不影響 Hash Chain 的完整性。
+        """
+        if not self._vector_bridge:
+            return
+        try:
+            searchable = f"{ring.description} {ring.context} {ring.impact}"
+            metadata = {
+                "type": ring.type,
+                "entry_type": getattr(ring, "entry_type", "event"),
+                "created_at": ring.created_at,
+                "ring_hash": ring.hash,
+            }
+            self._vector_bridge.index(
+                "soul_rings", ring.hash, searchable, metadata
+            )
+            logger.debug(
+                f"Soul ring indexed to Qdrant | hash={ring.hash[:12]}..."
+            )
+        except Exception as e:
+            # 降級保護：向量索引失敗不影響年輪寫入
+            logger.debug(
+                f"Soul ring vector index failed (degraded): {e}"
+            )
+
+    def recall_soul_rings(
+        self,
+        query: str,
+        limit: int = 5,
+        min_score: float = 0.3,
+    ) -> List[Dict[str, Any]]:
+        """語義搜索 Soul Ring — 根據問題找到相關的成長記錄.
+
+        Project Epigenesis: 讓「上次的失敗教訓」「關於投資決策的成長」可被搜到。
+
+        Args:
+            query: 搜索查詢（使用者問題或關鍵詞）
+            limit: 最多返回筆數
+            min_score: 最低相似度門檻（0.0~1.0）
+
+        Returns:
+            [{"score": 0.85, "ring": {...完整年輪dict...}}, ...]
+            按相似度降序排列
+        """
+        if not self._vector_bridge:
+            return []
+
+        try:
+            hits = self._vector_bridge.search(
+                "soul_rings", query, limit=limit
+            )
+            if not hits:
+                return []
+
+            # 載入所有年輪（用 hash 做快速查找）
+            all_rings = self.load_soul_rings(verify=False)
+            hash_to_ring = {
+                r.get("hash", ""): r for r in all_rings
+            }
+
+            results = []
+            for hit in hits:
+                score = getattr(hit, "score", 0.0)
+                if score < min_score:
+                    continue
+
+                payload = getattr(hit, "payload", {}) or {}
+                ring_hash = payload.get("ring_hash", "")
+                ring_data = hash_to_ring.get(ring_hash)
+
+                if ring_data:
+                    results.append({
+                        "score": round(score, 4),
+                        "ring": ring_data,
+                    })
+
+            logger.debug(
+                f"Soul ring recall | query={query[:50]}... | "
+                f"hits={len(results)}/{len(hits)}"
+            )
+            return results
+
+        except Exception as e:
+            logger.debug(f"Soul ring recall failed (degraded): {e}")
+            return []
+
+    def backfill_vector_index(self) -> int:
+        """回填所有既有 Soul Ring 到 Qdrant 索引.
+
+        由 scripts/backfill_soul_rings_to_qdrant.py 調用。
+
+        Returns:
+            成功索引的年輪數量
+        """
+        if not self._vector_bridge:
+            logger.warning("backfill_vector_index: no vector_bridge")
+            return 0
+
+        rings = self.load_soul_rings(verify=False)
+        indexed = 0
+        for ring_data in rings:
+            try:
+                ring = SoulRing.from_dict(ring_data)
+                self._index_soul_ring_to_vector(ring)
+                indexed += 1
+            except Exception as e:
+                logger.debug(f"backfill skip: {e}")
+
+        logger.info(
+            f"Soul ring backfill completed | "
+            f"indexed={indexed}/{len(rings)}"
+        )
+        return indexed
 
     # ── v2.0 新增方法 ──
 
