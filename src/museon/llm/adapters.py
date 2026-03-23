@@ -314,7 +314,7 @@ class ClaudeCLIAdapter:
         cli_model = self._map_model(model)
 
         # 組裝 command
-        cmd = [self._claude_path, "-p", "--output-format", "json", "--model", cli_model]
+        cmd = [self._claude_path, "-p", "--output-format", "json", "--model", cli_model, "--bare"]
         if session_id:
             cmd.extend(["--resume", session_id])
 
@@ -353,14 +353,21 @@ class ClaudeCLIAdapter:
                         error_detail = err_data.get("result", stdout_text[:500])
                     except json.JSONDecodeError:
                         error_detail = stdout_text[:500]
-                # 偵測 token 過期：收到 Not logged in 時清除持久化 token
-                if "Not logged in" in error_detail or "authentication" in error_detail.lower():
-                    logger.warning("OAuth token may be expired, clearing persisted token")
+                # 偵測 token 過期：僅在明確認證錯誤時清除持久化 token
+                # 排除 stdin timeout / pipe error 等非認證問題，避免誤刪有效 token
+                _AUTH_ERROR_SIGNALS = ("Not logged in", "authentication", "unauthorized", "invalid token")
+                _is_auth_error = any(sig in error_detail.lower() for sig in _AUTH_ERROR_SIGNALS)
+                _NON_AUTH_SIGNALS = ("no stdin data", "pipe", "timeout", "signal")
+                _is_non_auth = any(sig in error_detail.lower() for sig in _NON_AUTH_SIGNALS)
+                if _is_auth_error and not _is_non_auth:
+                    logger.warning("OAuth token expired/invalid, clearing persisted token")
                     if self._TOKEN_FILE.exists():
                         try:
                             self._TOKEN_FILE.unlink()
                         except Exception as e:
-                            logger.debug(f"[ADAPTERS] token failed (degraded): {e}")
+                            logger.debug(f"[ADAPTERS] token cleanup failed (degraded): {e}")
+                elif _is_auth_error and _is_non_auth:
+                    logger.info("CLI error contains auth signal but also pipe/timeout — keeping token")
                 logger.error(f"claude -p failed (exit {proc.returncode}): {error_detail}")
                 return AdapterResponse(
                     text=f"[claude -p error] {error_detail}",
@@ -458,6 +465,9 @@ class AnthropicAPIAdapter:
 
     當 claude -p 不可用（未安裝 CLI、MAX 訂閱過期等）時使用。
     需要設定 ANTHROPIC_API_KEY 環境變數。
+
+    併發控制：全域 semaphore 限制同時進行的 API 請求數，
+    防止多群組同時壓測時觸發 Anthropic 429 rate limit。
     """
 
     MODEL_MAP = {
@@ -465,6 +475,18 @@ class AnthropicAPIAdapter:
         "haiku": "claude-haiku-4-5-20251001",
         "sonnet": "claude-sonnet-4-20250514",
     }
+
+    # 全域併發控制：最多 5 個同時進行的 API 請求
+    # 超出的請求會等待（不拒絕），間隔自然拉開
+    _global_semaphore: Optional[asyncio.Semaphore] = None
+    MAX_CONCURRENT_API_CALLS = 5
+
+    @classmethod
+    def _get_semaphore(cls) -> asyncio.Semaphore:
+        """懶初始化全域 semaphore（必須在 event loop 內呼叫）."""
+        if cls._global_semaphore is None:
+            cls._global_semaphore = asyncio.Semaphore(cls.MAX_CONCURRENT_API_CALLS)
+        return cls._global_semaphore
 
     def __init__(self, api_key: Optional[str] = None):
         self._api_key = api_key or os.getenv("ANTHROPIC_API_KEY")
@@ -528,64 +550,84 @@ class AnthropicAPIAdapter:
             create_kwargs["tools"] = tools
             create_kwargs["tool_choice"] = {"type": "auto"}
 
-        try:
-            response = await client.messages.create(**create_kwargs)
+        # L2 併發控制 + L3 exponential backoff 自動重試
+        MAX_RETRIES = 3
+        for _attempt in range(MAX_RETRIES + 1):
+            try:
+                sem = self._get_semaphore()
+                async with sem:
+                    response = await client.messages.create(**create_kwargs)
 
-            # 提取文字和 tool_calls
-            text_parts = []
-            tool_calls = []
-            for block in response.content:
-                if hasattr(block, "text"):
-                    text_parts.append(block.text)
-                elif block.type == "tool_use":
-                    tool_calls.append(ToolCall(
-                        id=block.id,
-                        name=block.name,
-                        input=block.input,
-                    ))
+                # 提取文字和 tool_calls
+                text_parts = []
+                tool_calls = []
+                for block in response.content:
+                    if hasattr(block, "text"):
+                        text_parts.append(block.text)
+                    elif block.type == "tool_use":
+                        tool_calls.append(ToolCall(
+                            id=block.id,
+                            name=block.name,
+                            input=block.input,
+                        ))
 
-            usage = response.usage if hasattr(response, "usage") else None
+                usage = response.usage if hasattr(response, "usage") else None
 
-            return AdapterResponse(
-                text="\n".join(text_parts),
-                stop_reason=response.stop_reason,
-                tool_calls=tool_calls,
-                input_tokens=usage.input_tokens if usage else 0,
-                output_tokens=usage.output_tokens if usage else 0,
-                model=model_id,
-                raw={"response": response.model_dump() if hasattr(response, "model_dump") else None},
-            )
-
-        # P1: 拆分異常處理 — 區分不可重試 vs 可重試錯誤
-        except Exception as e:
-            error_type = type(e).__name__
-            error_str = str(e)
-
-            # 認證錯誤（401）— 不可重試，API key 無效
-            if "authentication" in error_str.lower() or "401" in error_str:
-                logger.error(f"API authentication error (不可重試): {e}")
                 return AdapterResponse(
-                    text=f"[API auth error] {e}",
-                    stop_reason="auth_error",
+                    text="\n".join(text_parts),
+                    stop_reason=response.stop_reason,
+                    tool_calls=tool_calls,
+                    input_tokens=usage.input_tokens if usage else 0,
+                    output_tokens=usage.output_tokens if usage else 0,
                     model=model_id,
+                    raw={"response": response.model_dump() if hasattr(response, "model_dump") else None},
                 )
 
-            # 速率限制（429）— 可重試但需等待
-            if "rate" in error_str.lower() and "limit" in error_str.lower():
-                logger.warning(f"API rate limit hit: {e}")
+            except Exception as e:
+                error_type = type(e).__name__
+                error_str = str(e)
+
+                # 認證錯誤（401）— 不可重試，API key 無效
+                if "authentication" in error_str.lower() or "401" in error_str:
+                    logger.error(f"API authentication error (不可重試): {e}")
+                    return AdapterResponse(
+                        text=f"[API auth error] {e}",
+                        stop_reason="auth_error",
+                        model=model_id,
+                    )
+
+                # 速率限制（429）或 overloaded（529）— exponential backoff 重試
+                _is_retryable = (
+                    ("rate" in error_str.lower() and "limit" in error_str.lower())
+                    or "429" in error_str
+                    or "overloaded" in error_str.lower()
+                    or "529" in error_str
+                )
+                if _is_retryable and _attempt < MAX_RETRIES:
+                    import random
+                    _backoff = (2 ** _attempt) + random.uniform(0, 1)
+                    logger.warning(
+                        f"API rate limit / overloaded (attempt {_attempt + 1}/{MAX_RETRIES}): "
+                        f"{e}. Retrying in {_backoff:.1f}s"
+                    )
+                    await asyncio.sleep(_backoff)
+                    continue
+
+                # 最終失敗或不可重試錯誤
+                if _is_retryable:
+                    logger.error(f"API rate limit exhausted after {MAX_RETRIES} retries: {e}")
+                    return AdapterResponse(
+                        text=f"[API rate limit] 重試 {MAX_RETRIES} 次後仍失敗，請稍後再試。",
+                        stop_reason="rate_limited",
+                        model=model_id,
+                    )
+
+                logger.error(f"API adapter error ({error_type}): {e}")
                 return AdapterResponse(
-                    text=f"[API rate limit] {e}",
-                    stop_reason="rate_limited",
+                    text=f"[API error] {e}",
+                    stop_reason="error",
                     model=model_id,
                 )
-
-            # 其他錯誤 — 一般性失敗
-            logger.error(f"API adapter error ({error_type}): {e}")
-            return AdapterResponse(
-                text=f"[API error] {e}",
-                stop_reason="error",
-                model=model_id,
-            )
 
     async def close(self) -> None:
         """關閉 API client."""
@@ -689,6 +731,18 @@ class FallbackAdapter:
                 self._using_api = False
                 self._cli_consecutive_fails = 0
                 return cli_resp
+
+            # 雙 adapter 同時失敗 — 返回友善降級回覆而非 raw error
+            logger.error("DUAL ADAPTER FAILURE: both CLI and API are down")
+            return AdapterResponse(
+                text=(
+                    "⚠️ 系統暫時無法連接 AI 服務（CLI 與 API 均不可用）。"
+                    "這通常是暫時性問題，我會在服務恢復後自動重新嘗試。"
+                    "如果持續出現，請檢查網路連線或 API Key 設定。"
+                ),
+                stop_reason="error",
+                model=model,
+            )
 
         return resp
 
