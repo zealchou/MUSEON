@@ -1,4 +1,4 @@
-# Blast Radius — 模組影響半徑表 v1.52
+# Blast Radius — 模組影響半徑表 v1.53
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
@@ -827,6 +827,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-23 | v1.53 | 三層並行架構實作——`_telegram_message_pump()` 從循序處理重構為並行派送：提取 `_handle_telegram_message()` 為獨立 async function，主迴圈 receive → `asyncio.create_task()` → 立刻接下一則。不同 session（群組/私訊）完全並行，同一 session 由 session_manager lock 保護。純內部重構，不改介面/import/共享狀態。 |
 | 2026-03-23 | v1.52 | 三層調度員架構——新增 dispatcher/thinker/worker 扇入扇出分析（L1 調度員扇入 0/扇出 1、L2 思考者扇入 1/扇出 2、L3 工人扇入 1/扇出 3+）；新增 museon-persona.md 影響分析（所有 L2 thinker 讀取，修改等同全域行為變更）；全部為綠區。Brain P3 Fusion 健康檢查——brain_p3_fusion.py 常數化 25+ 魔術值 + logger 提升 + asyncio 修復 + 死碼清理 + 48 個單元測試。 |
 | 2026-03-22 | v1.35 | Sparse Embedder 全面啟動：skill_router.py `_vec_search()` 從 `vb.search()` 切換為 `vb.hybrid_search()`；memory_manager.py `_vector_search()` 從 `vb.search()` 切換為 `vb.hybrid_search()`；knowledge_lattice.py 結晶搜尋從 `vb.search()` 切換為 `vb.hybrid_search()`；server.py `/api/vector/search` 從 `vb.search()` 切換為 `vb.hybrid_search()`；Nightly Pipeline 新增 Step 8.7 `_step_sparse_idf_rebuild()`（build_sparse_idf + backfill_sparse）；Gateway startup 新增 SparseEmbedder IDF 驗證；sparse_embedder.py 扇入不變（1，僅 vector_bridge import）；vector_bridge.py 扇入不變（7）；同步 joint-map v1.35、persistence-contract v1.30 |
 | 2026-03-22 | v1.46 | P0-P3 升級——report-forge Skill 新增 knowledge-lattice 輸出依賴（report_crystal 結晶化，via knowledge-lattice API，不改 report-forge 扇入扇出）；token_optimizer.py buffer 預算 2800→1800 + strategic zone 1000 新增（brain.py `_build_strategic_context()` 純新增方法）；anima_mc_store.py 共享狀態新增 `_system/backups/anima_mc/`（寫入前快照）；pulse_engine.py 共享狀態新增 `_system/backups/pulse_md/`（寫入前快照）；plan_engine.py bug 修復 plan.changes→plan.change_list（純內部修正，扇入不變）；共享狀態 33→34 |
