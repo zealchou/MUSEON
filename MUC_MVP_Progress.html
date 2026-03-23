@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUC MVP 開發進度 — MUSEON</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Outfit:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            color: #12121A;
+            background-color: #F7F5F0;
+            line-height: 1.75;
+        }
+
+        body {
+            padding: 40px 24px;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* 頁首 */
+        .header {
+            text-align: center;
+            margin-bottom: 64px;
+            padding-bottom: 48px;
+            border-bottom: 2px solid #E2E0DA;
+        }
+
+        .header h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 56px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #C4502A;
+            line-height: 1.15;
+        }
+
+        .header p {
+            font-size: 18px;
+            color: #5A5A6E;
+            margin-bottom: 24px;
+        }
+
+        .metadata {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            flex-wrap: wrap;
+            font-size: 14px;
+            color: #5A5A6E;
+        }
+
+        .metadata-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .metadata-label {
+            font-weight: 500;
+            color: #12121A;
+        }
+
+        /* 進度卡片 */
+        .progress-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 64px;
+        }
+
+        .progress-card {
+            background: #FDFCFA;
+            border: 1px solid #E2E0DA;
+            border-radius: 10px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+            transition: transform 200ms ease, box-shadow 200ms ease;
+        }
+
+        .progress-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(18,18,26,0.12), 0 8px 24px rgba(18,18,26,0.08);
+        }
+
+        .progress-card h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 28px;
+            font-weight: 600;
+            color: #C4502A;
+            margin-bottom: 16px;
+        }
+
+        .progress-stat {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .progress-number {
+            font-size: 36px;
+            font-weight: 600;
+            color: #C4502A;
+        }
+
+        .progress-label {
+            font-size: 14px;
+            color: #5A5A6E;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #E2E0DA;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 16px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #C4502A, #E0714D);
+            border-radius: 4px;
+            transition: width 600ms ease;
+        }
+
+        .progress-meta {
+            font-size: 12px;
+            color: #9898A8;
+            margin-top: 12px;
+        }
+
+        /* Section */
+        section {
+            margin-bottom: 64px;
+        }
+
+        section h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 40px;
+            font-weight: 600;
+            color: #C4502A;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #E2E0DA;
+        }
+
+        /* Phase 詳情 */
+        .phase-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 48px;
+        }
+
+        .phase-card {
+            background: #FDFCFA;
+            border: 1px solid #E2E0DA;
+            border-radius: 10px;
+            padding: 16px;
+            transition: all 200ms ease;
+        }
+
+        .phase-card:hover {
+            border-color: #C4502A;
+            box-shadow: 0 2px 8px rgba(196,80,42,0.08);
+        }
+
+        .phase-title {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #9A3A1C;
+            margin-bottom: 8px;
+            background: rgba(196,80,42,0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .phase-name {
+            font-size: 16px;
+            font-weight: 500;
+            color: #12121A;
+            margin-bottom: 4px;
+        }
+
+        .phase-status {
+            font-size: 14px;
+            color: #5A5A6E;
+        }
+
+        .phase-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-family: 'IBM Plex Mono', monospace;
+            margin-top: 8px;
+        }
+
+        .badge-done {
+            background: rgba(45,138,110,0.1);
+            color: #2D8A6E;
+        }
+
+        .badge-inprogress {
+            background: rgba(196,80,42,0.1);
+            color: #9A3A1C;
+        }
+
+        .badge-todo {
+            background: rgba(201,148,58,0.1);
+            color: #9A6B2A;
+        }
+
+        /* 表格 */
+        .table-container {
+            margin-bottom: 48px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #FDFCFA;
+            border: 1px solid #E2E0DA;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        thead {
+            background: #F7F5F0;
+            border-bottom: 2px solid #E2E0DA;
+        }
+
+        th {
+            padding: 16px 24px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            color: #12121A;
+            font-family: 'IBM Plex Mono', monospace;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 12px 24px;
+            border-bottom: 1px solid #E2E0DA;
+            font-size: 14px;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background: rgba(196,80,42,0.02);
+        }
+
+        /* 清單 */
+        .checklist {
+            margin: 24px 0;
+            padding: 24px;
+            background: #FDFCFA;
+            border-left: 4px solid #C4502A;
+            border-radius: 8px;
+        }
+
+        .checklist-item {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .checklist-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .checklist-check {
+            color: #2D8A6E;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        /* 強調框 */
+        .highlight {
+            background: rgba(196,80,42,0.08);
+            border: 1px solid #E0714D;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 32px 0;
+        }
+
+        .highlight h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 24px;
+            font-weight: 600;
+            color: #C4502A;
+            margin-bottom: 12px;
+        }
+
+        .highlight p {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #12121A;
+        }
+
+        /* 頁尾 */
+        footer {
+            margin-top: 96px;
+            padding-top: 48px;
+            border-top: 2px solid #E2E0DA;
+            text-align: center;
+            color: #5A5A6E;
+            font-size: 14px;
+        }
+
+        /* 響應式 */
+        @media (max-width: 768px) {
+            body {
+                padding: 24px 16px;
+            }
+
+            .header h1 {
+                font-size: 40px;
+            }
+
+            section h2 {
+                font-size: 28px;
+            }
+
+            .metadata {
+                gap: 16px;
+            }
+
+            th, td {
+                padding: 12px 16px;
+                font-size: 13px;
+            }
+        }
+
+        /* 動效 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        main {
+            animation: fadeIn 400ms ease-out;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <!-- 頁首 -->
+        <header class="header">
+            <h1>MUC MVP 開發進度</h1>
+            <p>多用戶客戶端授權系統 — 完整架構 + 開發序列 + 系統範圍</p>
+            <div class="metadata">
+                <div class="metadata-item">
+                    <span class="metadata-label">最後更新：</span>
+                    <span>2026-03-22</span>
+                </div>
+                <div class="metadata-item">
+                    <span class="metadata-label">文件版本：</span>
+                    <span>v1.1 / v1.2 / v1.0</span>
+                </div>
+                <div class="metadata-item">
+                    <span class="metadata-label">狀態：</span>
+                    <span>🚧 Phase 13 完成 / Phase 14+ 規劃中</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- 進度概覽 -->
+        <section>
+            <h2>進度總覽</h2>
+            <div class="progress-grid">
+                <div class="progress-card">
+                    <h3>66 ✅</h3>
+                    <p style="color: #5A5A6E; margin-bottom: 16px;">已完成的開發項目</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 77%;"></div>
+                    </div>
+                    <p style="font-size: 12px; color: #9898A8;">Phase 1–13 全部完成</p>
+                </div>
+                <div class="progress-card">
+                    <h3>20 ⬜</h3>
+                    <p style="color: #5A5A6E; margin-bottom: 16px;">規劃中的項目</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 23%; background: rgba(201,148,58,0.5);"></div>
+                    </div>
+                    <p style="font-size: 12px; color: #9898A8;">Phase 14–17（Credit / 金流 / 推薦 / 發佈）</p>
+                </div>
+                <div class="progress-card">
+                    <h3>13 / 13 ✅</h3>
+                    <p style="color: #5A5A6E; margin-bottom: 16px;">Phases 完成</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%;"></div>
+                    </div>
+                    <p style="font-size: 12px; color: #9898A8;">核心開發週期（Phase 1–13）</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- DEV_SEQUENCE 詳細進度 -->
+        <section>
+            <h2>開發順序（DEV_SEQUENCE）</h2>
+            <div class="highlight">
+                <h3>✨ 已完成 Phase 1–13</h3>
+                <p>
+                    包括：<strong>專案骨架</strong> → <strong>License & Subscription 核心</strong> → <strong>Payment 收款</strong> → <strong>Device Pairing 設備綁定</strong>
+                    → <strong>Audit & Alert 稽核告警</strong> → <strong>Entitlement 授權</strong> → <strong>通知系統</strong> → <strong>Admin UI 全功能</strong>
+                    → <strong>Portal UI 前台</strong> → <strong>完整測試與 E2E</strong> → <strong>Agent SDK 部署</strong> → <strong>自助付款</strong>
+                    → <strong>全自助訂購 + 付款方式管理</strong>
+                </p>
+            </div>
+
+            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 24px; color: #C4502A; margin: 32px 0 24px 0;">核心開發週期</h3>
+            <div class="phase-grid">
+                <div class="phase-card">
+                    <span class="phase-title">Phase 1</span>
+                    <p class="phase-name">專案骨架 + Auth</p>
+                    <p class="phase-status">項目 1–3</p>
+                    <span class="phase-badge badge-done">✅ 完成</span>
+                </div>
+                <div class="phase-card">
+                    <span class="phase-title">Phase 2</span>
+                    <p class="phase-name">License + Subscription</p>
+                    <p class="phase-status">項目 4–9</p>
+                    <span class="phase-badge badge-done">✅ 完成</span>
+                </div>
+                <div class="phase-card">
+                    <span class="phase-title">Phase 3</span>
+                    <p class="phase-name">Payment 收款</p>
+                    <p class="phase-status">項目 10–12</p>
+                    <span class="phase-badge badge-done">✅ 完成</span>
+                </div>
+                <div class="phase-card">
+                    <span class="phase-title">Phase 4</span>
+                    <p class="phase-name">BillingProfile</p>
+                    <p class="phase-status">項目 13–14</p>
+                    <span class="phase-badge badge-done">✅ 完成</span>
+                </div>
+                <div class="phase-card">
+                    <span class="phase-title">Phase 5</span>
+                    <p class="phase-name">Device Pairing</p>
+                    <p class="phase-status">項目 15–17</p>
+                    <span class="phase-badge badge-done">✅ 完成</span>
+                </div>
+                <div class="phase-card">
+                    <span class="phase-title">Phase 6</span>
+                    <p class="phase-name">Audit + Alert</p>
+                    <p class="phase-status">項目 18–20</p>
+                    <span class="phase-badge badge-done">✅ 完成</span>
+                </div>
+                <div class="phase-card">
+                    <span class="phase-title">Phase 7</span>
+                    <p class="phase-name">Entitlement</p>
+                    <p class="phase-status">項目 21–22</p>
+                    <span class="phase-badge badge-done">✅ 完成</span>
+                </div>
+                <div class="phase-card">
+                    <span class="phase-title">Phase 8</span>
+                    <p class="phase-name">Notification</p>
+                    <p class="phase-status">項目 23</p>
+                    <span class="phase-badge badge-done">✅ 完成</span>
+                </div>
+                <div class="phase-card">
+                    <span class="phase-title">Phase 9</span>
+                    <p class="phase-name">UI（Admin + Portal）</p>
+                    <p class="phase-status">項目 24–40</p>
+                    <span class="phase-badge badge-done">✅ 完成</span>
+                </div>
+                <div class="phase-card">
+                    <span class="phase-title">Phase 10</span>
+                    <p class="phase-name">E2E 測試</p>
+                    <p class="phase-status">項目 41–46</p>
+                    <span class="phase-badge badge-done">✅ 完成</span>
+                </div>
+                <div class="phase-card">
+                    <span class="phase-title">Phase 11</span>
+                    <p class="phase-name">Agent SDK + 部署</p>
+                    <p class="phase-status">項目 47–50</p>
+                    <span class="phase-badge badge-done">✅ 完成</span>
+                </div>
+                <div class="phase-card">
+                    <span class="phase-title">Phase 12</span>
+                    <p class="phase-name">User 自助付款</p>
+                    <p class="phase-status">項目 51–53</p>
+                    <span class="phase-badge badge-done">✅ 完成</span>
+                </div>
+                <div class="phase-card">
+                    <span class="phase-title">Phase 13</span>
+                    <p class="phase-name">全自助訂購 + 付款方式</p>
+                    <p class="phase-status">項目 54–66</p>
+                    <span class="phase-badge badge-done">✅ 完成</span>
+                </div>
+            </div>
+
+            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 24px; color: #C4502A; margin: 32px 0 24px 0;">後續規劃</h3>
+            <div class="phase-grid">
+                <div class="phase-card">
+                    <span class="phase-title">Phase 14</span>
+                    <p class="phase-name">Credit 點數系統</p>
+                    <p class="phase-status">項目 67–72</p>
+                    <span class="phase-badge badge-todo">⬜ 規劃完成</span>
+                </div>
+                <div class="phase-card">
+                    <span class="phase-title">Phase 15</span>
+                    <p class="phase-name">自動金流串接</p>
+                    <p class="phase-status">項目 75–78</p>
+                    <span class="phase-badge badge-todo">⬜ 待規劃</span>
+                </div>
+                <div class="phase-card">
+                    <span class="phase-title">Phase 16</span>
+                    <p class="phase-name">推薦分潤</p>
+                    <p class="phase-status">項目 79–82</p>
+                    <span class="phase-badge badge-todo">⬜ 待規劃</span>
+                </div>
+                <div class="phase-card">
+                    <span class="phase-title">Phase 17</span>
+                    <p class="phase-name">自動更新發佈</p>
+                    <p class="phase-status">項目 83–86</p>
+                    <span class="phase-badge badge-todo">⬜ 待規劃</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- SYSTEM_SCOPE 概覽 -->
+        <section>
+            <h2>系統範圍（SYSTEM_SCOPE）</h2>
+            <p style="font-size: 16px; color: #5A5A6E; margin-bottom: 24px;">
+                MUC MVP 第一階段的系統定義——聚焦「收費閉環 + 設備授權閉環 + 最低防破解基線」
+            </p>
+
+            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 24px; color: #C4502A; margin: 32px 0 24px 0;">✅ 包含範圍（In Scope）</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>模組</th>
+                            <th>核心功能</th>
+                            <th>關鍵要素</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>帳號與身分</strong></td>
+                            <td>註冊、登入、帳號管理</td>
+                            <td>使用者可查看授權與設備</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Billing Profile</strong></td>
+                            <td>付款資料維護</td>
+                            <td>支援人工對帳與開通</td>
+                        </tr>
+                        <tr>
+                            <td><strong>License 序號</strong></td>
+                            <td>序號生成 / 綁定 / 啟用停用</td>
+                            <td>序號作為計費單位</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Plan 方案</strong></td>
+                            <td>訂閱 / 續約分類 / 優惠機制</td>
+                            <td>300 點/月，超額 USD 0.1/點</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Subscription 訂閱週期</strong></td>
+                            <td>ACTIVE / GRACE / SUSPENDED</td>
+                            <td>以確認收款日為週期起算</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Payment 收款</strong></td>
+                            <td>人工記錄 / 確認 / 作廢</td>
+                            <td>DRAFT / CONFIRMED / VOID 狀態</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Device Pairing</strong></td>
+                            <td>配對碼 / 首次綁定 / Token 發行</td>
+                            <td>一序號一 ACTIVE 設備</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Device Token</strong></td>
+                            <td>授權輪詢 / Token Revoke</td>
+                            <td>高熵亂數、只存 hash、可驗章</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Pre-Job Check</strong></td>
+                            <td>接單前授權驗證</td>
+                            <td>離線超 15 分鐘停止接新任務</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Alert 告警</strong></td>
+                            <td>事件通知 / 分級 / ACK</td>
+                            <td>安全事件、到期、停用等</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Audit Log</strong></td>
+                            <td>所有狀態變更記錄</td>
+                            <td>Append-only，16 個 action 追蹤</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 24px; color: #C4502A; margin: 32px 0 24px 0;">❌ 不包含範圍（Out of Scope）</h3>
+            <div class="checklist">
+                <div class="checklist-item">
+                    <span class="checklist-check">✗</span>
+                    <span><strong>自動金流串接</strong> — 第一階段使用人工匯款 / 人工對帳</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-check">✗</span>
+                    <span><strong>自動退款</strong> — 不處理</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-check">✗</span>
+                    <span><strong>推薦分潤 / 介紹人折抵</strong> — Phase 16 規劃</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-check">✗</span>
+                    <span><strong>經銷商 / 代理商</strong> — 暫不支援</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-check">✗</span>
+                    <span><strong>複雜企業組織與多層審批</strong> — 簡化版本</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-check">✗</span>
+                    <span><strong>深度反逆向 / 反 Hook</strong> — 最低防破解基線只</span>
+                </div>
+            </div>
+
+            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 24px; color: #C4502A; margin: 32px 0 24px 0;">🔒 最低安全基線</h3>
+            <div class="checklist">
+                <div class="checklist-item">
+                    <span class="checklist-check">✓</span>
+                    <span>序號不能直接當授權憑證</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-check">✓</span>
+                    <span>Pair Code 一次性、短時效、只存 hash</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-check">✓</span>
+                    <span>Device Token 高熵亂數、只存 hash、可 revoke</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-check">✓</span>
+                    <span>Token 綁 device_id + fingerprint 檢查</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-check">✓</span>
+                    <span>Entitlement response 必須簽章（Ed25519）</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-check">✓</span>
+                    <span>Agent 內建公鑰驗章</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-check">✓</span>
+                    <span>每次接新任務前必查授權</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-check">✓</span>
+                    <span>離線超 15 分鐘停止接新任務</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- TODO 狀態概覽 -->
+        <section>
+            <h2>開發任務清單（TODO）</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Phase</th>
+                            <th>內容</th>
+                            <th>狀態</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Phase 1</strong></td>
+                            <td>專案骨架 + Auth</td>
+                            <td><span class="phase-badge badge-done">✅ 完成</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phase 2</strong></td>
+                            <td>License + Pair Code + Subscription</td>
+                            <td><span class="phase-badge badge-done">✅ 完成</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phase 3</strong></td>
+                            <td>Payment</td>
+                            <td><span class="phase-badge badge-done">✅ 完成</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phase 4</strong></td>
+                            <td>BillingProfile</td>
+                            <td><span class="phase-badge badge-done">✅ 完成</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phase 5</strong></td>
+                            <td>Device Pairing</td>
+                            <td><span class="phase-badge badge-done">✅ 完成</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phase 6</strong></td>
+                            <td>Audit Log + Alert 整合</td>
+                            <td><span class="phase-badge badge-done">✅ 完成</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phase 7</strong></td>
+                            <td>Entitlement + Pre-Job Check</td>
+                            <td><span class="phase-badge badge-done">✅ 完成</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phase 8</strong></td>
+                            <td>Notification</td>
+                            <td><span class="phase-badge badge-done">✅ 完成</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phase 9</strong></td>
+                            <td>前台 UI（shadcn-vue）</td>
+                            <td><span class="phase-badge badge-done">✅ Admin + Portal 全完成</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phase 10</strong></td>
+                            <td>測試</td>
+                            <td><span class="phase-badge badge-done">✅ 完成</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phase 11</strong></td>
+                            <td>Agent SDK + 部署</td>
+                            <td><span class="phase-badge badge-done">✅ 對方驗收 19/19 通過</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phase 12</strong></td>
+                            <td>User 自助付款</td>
+                            <td><span class="phase-badge badge-done">✅ 完成（F51-F53）</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phase 13</strong></td>
+                            <td>最小營運範疇 + 全自助訂購</td>
+                            <td><span class="phase-badge badge-done">✅ 完成（Step 54-66）</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phase 14</strong></td>
+                            <td>Credit 點數系統 + 產品優化</td>
+                            <td><span class="phase-badge badge-todo">⬜ 規劃完成，待開工</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phase 15</strong></td>
+                            <td>自動金流串接</td>
+                            <td><span class="phase-badge badge-todo">⬜ 架構已預留（ADR-030），待選金流商</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phase 16</strong></td>
+                            <td>推薦分潤 + 介紹人折抵</td>
+                            <td><span class="phase-badge badge-todo">⬜ 待規劃</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phase 17</strong></td>
+                            <td>自動更新發佈平台</td>
+                            <td><span class="phase-badge badge-todo">⬜ 待規劃</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 核心統計 -->
+        <section>
+            <h2>核心統計</h2>
+            <div class="progress-grid">
+                <div class="progress-card">
+                    <h3>86</h3>
+                    <p style="color: #5A5A6E; margin-bottom: 16px;">總開發項目數</p>
+                    <p style="font-size: 12px; color: #5A5A6E;">66 已完成 / 20 規劃中</p>
+                </div>
+                <div class="progress-card">
+                    <h3>13</h3>
+                    <p style="color: #5A5A6E; margin-bottom: 16px;">核心 Phase</p>
+                    <p style="font-size: 12px; color: #5A5A6E;">Phase 1–13（MVP 完成）</p>
+                </div>
+                <div class="progress-card">
+                    <h3>11 個模組</h3>
+                    <p style="color: #5A5A6E; margin-bottom: 16px;">後端 NestJS Modular</p>
+                    <p style="font-size: 12px; color: #5A5A6E;">auth / billing / device / entitlement 等</p>
+                </div>
+            </div>
+
+            <div class="highlight">
+                <h3>🎯 當前狀態</h3>
+                <p>
+                    <strong>Phase 13 已完成（2026-03-22）：</strong>全自助訂購流程 v2 + 付款方式管理 + UI/UX 技術債清理。
+                    系統已支援完整的付款、訂購、設備授權閉環。
+                </p>
+                <p style="margin-top: 12px;">
+                    <strong>下一步：</strong>Phase 14 Credit 點數系統規劃完成，待 Feng 開工；同時評估 Phase 15 金流商選型。
+                </p>
+            </div>
+        </section>
+
+        <!-- 頁尾 -->
+        <footer>
+            <p>
+                來源文件：<strong>DEV_SEQUENCE.md</strong> (v1.1) ·
+                <strong>TODO.md</strong> (v1.2) ·
+                <strong>SYSTEM_SCOPE.md</strong> (v1.0)
+            </p>
+            <p style="margin-top: 12px;">
+                生成於 2026-03-23 · MUSEON MUC MVP Dashboard ·
+                <a href="https://github.com/zealchou" style="color: #C4502A; text-decoration: none;">GitHub</a>
+            </p>
+        </footer>
+    </main>
+</body>
+</html>
