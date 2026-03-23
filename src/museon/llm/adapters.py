@@ -810,9 +810,25 @@ class FallbackAdapter:
         max_tokens: int = 8192,
         tools: Optional[List[Dict[str, Any]]] = None,
         session_id: Optional[str] = None,
+        *,
+        extended_thinking: bool = False,
+        thinking_budget: int = 10000,
     ) -> AdapterResponse:
+        # Extended Thinking 只在 API 模式下可用
+        # CLI 模式下忽略此參數（CLI 不支援 thinking）
+        _api_kwargs = {}
+        if extended_thinking:
+            _api_kwargs = {"extended_thinking": True, "thinking_budget": thinking_budget}
+
         # 如果 CLI 連續失敗過多，直接走 API
         if not self._using_api:
+            # CLI 不支援 extended_thinking，但如果啟用了 thinking，
+            # 直接走 API（不浪費 CLI 嘗試）
+            if extended_thinking:
+                return await self._api.call(
+                    system_prompt, messages, model, max_tokens, tools, session_id,
+                    **_api_kwargs,
+                )
             resp = await self._cli.call(
                 system_prompt, messages, model, max_tokens, tools, session_id
             )
@@ -828,7 +844,8 @@ class FallbackAdapter:
                     self._switched_to_api_at = _time.time()
                     # 立即用 API 重試這次呼叫
                     return await self._api.call(
-                        system_prompt, messages, model, max_tokens, tools, session_id
+                        system_prompt, messages, model, max_tokens, tools, session_id,
+                        **_api_kwargs,
                     )
                 return resp
             else:
@@ -838,7 +855,7 @@ class FallbackAdapter:
         # 時間型 CLI 恢復：超過 CLI_RETRY_INTERVAL 秒後自動嘗試
         import time as _time
         elapsed = _time.time() - self._switched_to_api_at
-        if elapsed >= self.CLI_RETRY_INTERVAL:
+        if elapsed >= self.CLI_RETRY_INTERVAL and not extended_thinking:
             probe = await self._cli.call(
                 "test", [{"role": "user", "content": "ping"}], "haiku", 10
             )
@@ -859,7 +876,8 @@ class FallbackAdapter:
 
         # 使用 API adapter
         resp = await self._api.call(
-            system_prompt, messages, model, max_tokens, tools, session_id
+            system_prompt, messages, model, max_tokens, tools, session_id,
+            **_api_kwargs,
         )
 
         # 若 API 也失敗，立即嘗試 CLI（可能限流已解除）
