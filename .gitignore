@@ -61,3 +61,12 @@ docker-data/
 
 # === 審計報告（可選保留，但預設排除）===
 data/_system/audit/
+
+# === 備份檔案（運行時自動生成，不該版控）===
+data/_system/backups/
+
+# === 測試暫存（pytest）===
+.pytest_cache/
+htmlcov/
+.coverage
+MagicMock/
