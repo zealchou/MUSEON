@@ -234,13 +234,12 @@ class PulseEngine:
         self._pulse_md = Path(data_dir) / "PULSE.md" if data_dir else None
         self._pulse_md_lock = threading.Lock()  # PULSE.md 寫入鎖
 
-        # 推送計數
+        # 全局推送預算（P0-1：統一三條管線的計數和去重）
+        self._push_budget = None  # 由 server.py 注入
+
+        # 向後相容：保留 _daily_push_count 屬性（供外部讀取 status 用）
         self._daily_push_count = 0
         self._last_reset_date: Optional[str] = None
-
-        # 去重：最近 24 小時推送內容（防止重複推送類似內容）
-        self._recent_pushes: List[Dict[str, Any]] = []  # [{text, timestamp}]
-        self._dedup_window = 86400  # 24 小時（秒）
 
         # 初始化 PULSE.md
         self._ensure_pulse_md()
@@ -612,9 +611,9 @@ class PulseEngine:
         result["percrl"]["renew"] = "done"
 
         # L — Link
-        if reflection and self._can_push() and len(reflection) > 100:
-            self._daily_push_count += 1
-            self._publish_message(reflection)
+        if reflection and self._can_push("soul") and len(reflection) > 100:
+            self._daily_push_count += 1  # 向後相容（實際由 PushBudget 管控）
+            self._publish_message(reflection, source="soul")
             result["percrl"]["link"] = "pushed"
             result["action"] = "pushed"
         else:
@@ -651,9 +650,9 @@ class PulseEngine:
                 model="claude-haiku-4-5-20251001",
                 max_tokens=300,
             )
-            # 晨感是陪伴基準線：只要有回覆就推送，不佔用 daily limit 配額
-            if response and self._is_active_hours():
-                self._publish_message(response)
+            # 晨感經過全局推送預算（P0-1：不再豁免，佔用配額）
+            if response and self._can_push("morning"):
+                self._publish_message(response, source="morning")
                 return {"trigger": "morning", "action": "pushed", "response": response}
         except Exception as e:
             logger.error(f"Morning trigger failed: {e}")
@@ -671,9 +670,9 @@ class PulseEngine:
                 model="claude-haiku-4-5-20251001",
                 max_tokens=300,
             )
-            # 暮感是陪伴基準線：只要有回覆就推送，不佔用 daily limit 配額
-            if response and self._is_active_hours():
-                self._publish_message(response)
+            # 暮感經過全局推送預算（P0-1：不再豁免，佔用配額）
+            if response and self._can_push("evening"):
+                self._publish_message(response, source="evening")
                 if self._anima:
                     self._anima.grow("kan", 1, "晚間回顧與使用者連結")
                 return {"trigger": "evening", "action": "pushed", "response": response}
@@ -685,12 +684,12 @@ class PulseEngine:
         """念感 — 使用者閒置 > N 小時.
 
         不走 soul_pulse 的完整 PERCRL 流程，直接用短 prompt 生成關心訊息。
-        保證推送：只檢查 _is_active_hours()，不受 daily limit 限制。
+        經過全局推送預算（P0-1：不再豁免，佔用配額）。
         """
         if not self._brain:
             return {"trigger": "idle", "action": "skip"}
-        if not self._is_active_hours():
-            return {"trigger": "idle", "action": "skip", "reason": "outside_active_hours"}
+        if not self._can_push("idle"):
+            return {"trigger": "idle", "action": "skip", "reason": "budget_exhausted"}
         try:
             context = f"達達把拔已經 {idle_hours:.1f} 小時沒有跟你互動了。現在時間：{datetime.now(TZ8).strftime('%H:%M')}。"
             if self._heartbeat_focus:
@@ -702,7 +701,7 @@ class PulseEngine:
                 max_tokens=200,
             )
             if response and len(response.strip()) > 10:
-                self._publish_message(response)
+                self._publish_message(response, source="idle")
                 if self._anima:
                     self._anima.grow("kan", 1, f"念感：閒置 {idle_hours:.1f}h 後主動關心")
                 return {"trigger": "idle", "action": "pushed", "response": response}
@@ -727,7 +726,11 @@ class PulseEngine:
             return hour >= start or hour < (end - 24)
         return start <= hour < end
 
-    def _can_push(self) -> bool:
+    def _can_push(self, source: str = "soul") -> bool:
+        """檢查是否可推送（委派給 PushBudget 全局限額）."""
+        if self._push_budget:
+            return self._push_budget.can_push(source) and self._is_active_hours()
+        # 向後相容 fallback
         self._maybe_reset_daily()
         limit = _cfg("daily_push_limit", DAILY_PUSH_LIMIT)
         return self._daily_push_count < limit and self._is_active_hours()
@@ -739,38 +742,30 @@ class PulseEngine:
             self._last_reset_date = today
 
     def _is_duplicate(self, message: str) -> bool:
-        """24 小時去重：相同或高度相似的內容不重複推送."""
-        now = time.time()
-        # 清理過期記錄
-        self._recent_pushes = [
-            p for p in self._recent_pushes
-            if now - p["timestamp"] < self._dedup_window
-        ]
-        # 比對（簡單的前 80 字比對，避免微小差異導致重複）
+        """語意去重：委派給 PushBudget 的詞級 Jaccard（P0-1 升級）."""
+        if self._push_budget:
+            return self._push_budget.is_duplicate(message)
+        # 向後相容 fallback：前 80 字精確比對
         short = message.strip()[:80]
-        for p in self._recent_pushes:
-            if p["text"][:80] == short:
-                return True
-        return False
+        return False  # 無 PushBudget 時不阻擋
 
-    def _publish_message(self, message: str) -> None:
+    def _publish_message(self, message: str, source: str = "vita") -> None:
         if self._is_duplicate(message):
-            logger.debug(f"Dedup: skipped duplicate push")
+            logger.debug("Dedup: skipped duplicate push")
             return
         if self._event_bus:
             try:
                 from museon.core.event_bus import PROACTIVE_MESSAGE
+                push_count = self._push_budget.today_count if self._push_budget else self._daily_push_count
                 self._event_bus.publish(PROACTIVE_MESSAGE, {
                     "message": message,
                     "timestamp": time.time(),
-                    "push_count": self._daily_push_count,
-                    "source": "vita",
+                    "push_count": push_count,
+                    "source": source,
                 })
-                # 記錄推送歷史
-                self._recent_pushes.append({
-                    "text": message.strip(),
-                    "timestamp": time.time(),
-                })
+                # 記錄到 PushBudget（持久化）
+                if self._push_budget:
+                    self._push_budget.record_push(source, message)
             except Exception as e:
                 logger.error(f"Publish message failed: {e}")
 
@@ -1425,6 +1420,15 @@ class PulseEngine:
                 # 明確標記為系統自主探索，區分於使用者想法
                 context_parts.append(f"[系統探索] 今日主題：「{topic}」\n發現：{findings}")
 
+            # ── P2-6：注入最近推送摘要，避免 LLM 重複話題 ──
+            if self._push_budget:
+                recent_summaries = self._push_budget.get_recent_summaries(limit=3)
+                if recent_summaries:
+                    summaries = "\n".join(f"- {s}" for s in recent_summaries)
+                    context_parts.append(
+                        f"[最近已推送] 以下內容已推送給達達，請避免重複相同話題：\n{summaries}"
+                    )
+
             context = "\n\n".join(context_parts)
 
             response = await self._brain._call_llm_with_model(
@@ -1450,6 +1454,25 @@ class PulseEngine:
             logger.error(f"Reflection failed: {e}")
             return ""
 
+    @staticmethod
+    def _sanitize_reflection(text: str) -> str:
+        """P1-4：清理 LLM 產出的 Markdown section header，避免 PULSE.md 結構污染.
+
+        LLM 反思常帶「## 感知層」「### 核心發現」等 header，
+        這些 header 會在 PULSE.md 中製造非管理 section 碎片。
+        """
+        lines = text.split("\n")
+        cleaned = []
+        for line in lines:
+            stripped = line.strip()
+            if stripped.startswith("## ") or stripped.startswith("### "):
+                content = stripped.lstrip("#").strip()
+                if content:
+                    cleaned.append(f"[{content}]")
+            else:
+                cleaned.append(line)
+        return "\n".join(cleaned)
+
     def _write_reflection_to_pulse(self, reflection: str) -> None:
         """將反思寫入 PULSE.md 的反思區塊.
 
@@ -1457,6 +1480,7 @@ class PulseEngine:
         反思 → PULSE.md → _build_soul_context() → system prompt → 行為改變
 
         P4 修復：寫入前檢查是否包含已被糾正的過期事實，避免回聲效應。
+        P1-4 修復：清理 LLM 產出的 section header，避免碎片堆疊。
         """
         if not self._pulse_md or not self._pulse_md.exists():
             return
@@ -1465,6 +1489,9 @@ class PulseEngine:
         if self._reflection_contains_stale_facts(reflection):
             logger.info("反思包含已糾正的過期事實，跳過寫入 PULSE.md")
             return
+
+        # P1-4: 清理 LLM 的 section header
+        reflection = self._sanitize_reflection(reflection)
 
         try:
             with self._pulse_md_lock:
@@ -1575,6 +1602,8 @@ class PulseEngine:
         """將觀察寫入 PULSE.md 的觀察區塊."""
         if not self._pulse_md or not self._pulse_md.exists():
             return
+        # P1-4: 清理 LLM 的 section header
+        observation = self._sanitize_reflection(observation)
         try:
             with self._pulse_md_lock:
                 text = self._pulse_md.read_text(encoding="utf-8")

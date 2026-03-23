@@ -29,6 +29,7 @@ class PulseDB(DataContract):
         "morphenix_proposals", "morphenix_rollbacks", "commitments",
         "metacognition", "scout_drafts", "health_scores", "incidents",
         "ceremony_state", "eval_baselines", "eval_blindspots", "eval_alerts",
+        "push_log",
     ]
 
     @classmethod
@@ -389,6 +390,16 @@ class PulseDB(DataContract):
             );
             CREATE INDEX IF NOT EXISTS idx_orchestrator_calls_ts
                 ON orchestrator_calls(created_at);
+
+            -- Push Log（全局推送去重 + 限額追蹤）
+            CREATE TABLE IF NOT EXISTS push_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp TEXT NOT NULL,
+                source TEXT NOT NULL,            -- 'morning'|'evening'|'soul'|'proactive'|'idle'|'alert'
+                message_preview TEXT NOT NULL     -- 前 200 字
+            );
+            CREATE INDEX IF NOT EXISTS idx_push_log_ts
+                ON push_log(timestamp);
         """)
         conn.commit()
 
@@ -1675,6 +1686,37 @@ class PulseDB(DataContract):
 
         logger.info(f"eval JSON 遷移結果: {results}")
         return results
+
+    # ── Push Log（全局推送去重 + 限額追蹤）──
+
+    def log_push(self, source: str, message_preview: str) -> None:
+        """記錄一次推送（供 PushBudget 呼叫）."""
+        conn = self._get_conn()
+        now = datetime.now(TZ8).isoformat()
+        conn.execute(
+            "INSERT INTO push_log (timestamp, source, message_preview) VALUES (?, ?, ?)",
+            (now, source, message_preview[:200]),
+        )
+        conn.commit()
+
+    def get_push_count_for_date(self, date_str: str) -> int:
+        """查詢指定日期的推送次數."""
+        conn = self._get_conn()
+        row = conn.execute(
+            "SELECT COUNT(*) FROM push_log WHERE timestamp LIKE ?",
+            (f"{date_str}%",),
+        ).fetchone()
+        return row[0] if row else 0
+
+    def get_recent_pushes(self, hours: int = 24) -> List[str]:
+        """取得最近 N 小時的推送文字（供去重比對）."""
+        conn = self._get_conn()
+        cutoff = (datetime.now(TZ8) - timedelta(hours=hours)).isoformat()
+        rows = conn.execute(
+            "SELECT message_preview FROM push_log WHERE timestamp >= ? ORDER BY timestamp DESC",
+            (cutoff,),
+        ).fetchall()
+        return [r["message_preview"] for r in rows]
 
 
 # ══════════════════════════════════════════════════

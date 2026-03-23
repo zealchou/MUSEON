@@ -405,11 +405,17 @@ class Explorer:
 
         策略：
         1. 精確匹配（normalize 後）
-        2. 字元級 n-gram 重疊（處理中文無空格的情況）
-        3. 關鍵詞重疊（空格分詞 + 中文 bigram）
+        2. 包含關係
+        3. 字元級 bigram 重疊（Dice > 0.6，P0-2 從 0.5 提升）
+        4. 關鍵詞重疊
+        P0-2 新增：長文本（>100 字元）先截取前 60 字再比對，防止 raw text 繞過去重。
         """
-        norm_a = self._normalize_topic(a)
-        norm_b = self._normalize_topic(b)
+        # P0-2：長文本（疑似 raw group chat text）先截取核心部分
+        effective_a = a[:60] if len(a) > 100 else a
+        effective_b = b[:60] if len(b) > 100 else b
+
+        norm_a = self._normalize_topic(effective_a)
+        norm_b = self._normalize_topic(effective_b)
 
         # 策略 1: 精確匹配
         if norm_a == norm_b:
@@ -420,12 +426,12 @@ class Explorer:
             if norm_a in norm_b or norm_b in norm_a:
                 return True
 
-        # 策略 3: 字元級 bigram 重疊（Dice 係數 > 0.5）
+        # 策略 3: 字元級 bigram 重疊（Dice 係數 > 0.6，P0-2 提升閾值防誤判）
         bigrams_a = set(norm_a[i:i+2] for i in range(len(norm_a) - 1) if not norm_a[i].isspace())
         bigrams_b = set(norm_b[i:i+2] for i in range(len(norm_b) - 1) if not norm_b[i].isspace())
         if bigrams_a and bigrams_b:
             dice = 2 * len(bigrams_a & bigrams_b) / (len(bigrams_a) + len(bigrams_b))
-            if dice > 0.5:
+            if dice > 0.6:
                 return True
 
         # 策略 4: 空格分詞的關鍵詞重疊（> 50%）

@@ -3161,6 +3161,21 @@ def create_app() -> FastAPI:
                             app.state.pulse_engine = pulse_engine
                             app.state.pulse_db = pulse_db
                             app.state.anima_tracker = anima_tracker
+
+                            # ── P0-1: PushBudget 全局推送預算 ──
+                            try:
+                                from museon.pulse.push_budget import PushBudget
+                                push_budget = PushBudget(pulse_db=pulse_db)
+                                pulse_engine._push_budget = push_budget
+                                proactive_bridge._push_budget = push_budget
+                                app.state.push_budget = push_budget
+                                logger.info(
+                                    f"PushBudget injected (today={push_budget.today_count}, "
+                                    f"remaining={push_budget.remaining})"
+                                )
+                            except Exception as _pb_err:
+                                logger.warning(f"PushBudget init failed (degraded): {_pb_err}")
+
                             logger.info("VITA PulseEngine initialized")
 
                             # ── P2: Governor ↔ PulseDB Incident 橋接 ──

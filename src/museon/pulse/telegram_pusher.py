@@ -21,34 +21,62 @@ class TelegramPusher:
         self.api_url = f"https://api.telegram.org/bot{bot_token}"
         self.history_file = Path(__file__).parent.parent.parent / "data" / "workspace" / "push_history.jsonl"
     
+    MAX_TG_LEN = 4096  # Telegram 單則訊息上限
+
     async def send_message(self, text: str) -> bool:
-        """发送消息到用户"""
+        """发送消息到用户（P0-3：超长自动分段）"""
         try:
             import aiohttp
-            
+
+            parts = self._split_long_text(text)
             async with aiohttp.ClientSession() as session:
-                url = f"{self.api_url}/sendMessage"
-                data = {
-                    "chat_id": self.user_id,
-                    "text": text,
-                    "parse_mode": "Markdown"
-                }
-                
-                async with session.post(url, json=data, timeout=10) as resp:
-                    if resp.status == 200:
-                        result = await resp.json()
-                        self._log_push(text, True, result)
-                        logger.info(f"✅ Message sent to {self.user_id}")
-                        return True
-                    else:
-                        self._log_push(text, False, await resp.text())
-                        logger.error(f"❌ Failed to send: {resp.status}")
-                        return False
-        
+                for i, part in enumerate(parts):
+                    url = f"{self.api_url}/sendMessage"
+                    data = {
+                        "chat_id": self.user_id,
+                        "text": part,
+                        "parse_mode": "Markdown"
+                    }
+                    async with session.post(url, json=data, timeout=10) as resp:
+                        if resp.status == 200:
+                            result = await resp.json()
+                            if i == len(parts) - 1:
+                                self._log_push(text, True, result)
+                            logger.info(f"✅ Message part {i+1}/{len(parts)} sent to {self.user_id}")
+                        else:
+                            self._log_push(text, False, await resp.text())
+                            logger.error(f"❌ Failed to send part {i+1}: {resp.status}")
+                            return False
+                    if i < len(parts) - 1:
+                        await asyncio.sleep(0.15)
+            return True
+
         except Exception as e:
             self._log_push(text, False, str(e))
             logger.error(f"❌ Error: {e}")
             return False
+
+    @staticmethod
+    def _split_long_text(text: str, max_len: int = 4096) -> list:
+        """将超长文字按段落边界切分."""
+        if not text or len(text) <= max_len:
+            return [text] if text else []
+        chunks = []
+        remaining = text
+        while remaining:
+            if len(remaining) <= max_len:
+                chunks.append(remaining)
+                break
+            cut = remaining[:max_len].rfind("\n\n")
+            if cut < 500:
+                cut = remaining[:max_len].rfind("\n")
+            if cut < 500:
+                cut = max_len
+            chunk = remaining[:cut].rstrip()
+            remaining = remaining[cut:].lstrip()
+            if chunk:
+                chunks.append(chunk)
+        return chunks
     
     def _log_push(self, text: str, success: bool, response: Any):
         """记录推送历史"""
