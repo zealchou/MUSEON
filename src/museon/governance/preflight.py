@@ -102,12 +102,12 @@ class PreflightGate:
     ]
 
     # 必要 API Key：(環境變數名, 預期前綴 or None)
-    REQUIRED_KEYS: List[Tuple[str, Optional[str]]] = [
-        ("ANTHROPIC_API_KEY", "sk-ant-"),
-    ]
+    # 注意：ANTHROPIC_API_KEY 已移至 OPTIONAL（MUSEON 使用 Max CLI OAuth，API Key 僅為備援）
+    REQUIRED_KEYS: List[Tuple[str, Optional[str]]] = []
 
     # 選填 API Key：有值就驗證格式，沒值只發警告
     OPTIONAL_KEYS: List[Tuple[str, Optional[str]]] = [
+        ("ANTHROPIC_API_KEY", "sk-ant-"),  # API 備援（Max 方案不需要）
         ("TELEGRAM_BOT_TOKEN", None),
         ("DIFY_API_KEY", None),
     ]
