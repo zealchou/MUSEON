@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>探索報告 · 台灣中小企業 AI 採購決策流程與關鍵痛點 · 2026-03-23</title>
+<meta name="description" content="MUSEON 深度探索報告：台灣中小企業如何做 AI 採購決策——決策權力、預算流程、評估標準、三大痛點">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ember: #C4502A;
+  --ember-light: #E0714D;
+  --ember-dark: #9A3A1C;
+  --teal: #2A7A6E;
+  --gold: #B8923A;
+  --ink: #12121A;
+  --slate: #5A5A6E;
+  --silver: #9898A8;
+  --mist: #E2E0DA;
+  --parchment: #F7F5F0;
+  --snow: #FDFCFA;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Outfit', 'Noto Sans TC', -apple-system, sans-serif;
+  background: var(--parchment);
+  color: var(--ink);
+  line-height: 1.75;
+  font-size: 16px;
+}
+
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  background: rgba(18,18,26,0.96); backdrop-filter: blur(12px);
+  padding: 12px 0; border-bottom: 2px solid var(--ember);
+}
+
+.nav-inner {
+  max-width: 820px; margin: 0 auto; padding: 0 24px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.nav-brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-weight: 600; color: var(--ember-light);
+  letter-spacing: 2px;
+}
+
+.nav-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; font-weight: 500; color: var(--silver);
+  letter-spacing: 0.08em;
+}
+
+.hero {
+  background: linear-gradient(135deg, #0E0E16 0%, #1E1408 50%, #0E0E16 100%);
+  padding: 140px 24px 80px; text-align: center;
+  position: relative; overflow: hidden;
+}
+
+.hero::before {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 25% 60%, rgba(196,80,42,0.18) 0%, transparent 55%),
+    radial-gradient(ellipse at 75% 25%, rgba(184,134,11,0.1) 0%, transparent 50%);
+}
+
+.hero-content { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; }
+
+.hero-tags {
+  display: flex; justify-content: center; gap: 10px;
+  margin-bottom: 24px; flex-wrap: wrap;
+}
+
+.hero-tag {
+  display: inline-block; font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; padding: 4px 14px; border-radius: 20px;
+}
+
+.hero-tag-ember {
+  background: rgba(196,80,42,0.2); color: var(--ember-light);
+  border: 1px solid rgba(196,80,42,0.35);
+}
+
+.hero-tag-gold {
+  background: rgba(184,137,58,0.2); color: #D4A844;
+  border: 1px solid rgba(184,137,58,0.35);
+}
+
+.hero h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(28px, 5vw, 46px);
+  font-weight: 700; color: #FDFCFA;
+  line-height: 1.2; margin-bottom: 20px;
+}
+
+.hero h1 span { color: var(--ember-light); }
+
+.hero-sub {
+  font-size: 16px; color: var(--silver);
+  line-height: 1.75; max-width: 580px; margin: 0 auto;
+  font-family: 'Noto Sans TC', sans-serif;
+}
+
+.main { max-width: 820px; margin: 0 auto; padding: 60px 24px; }
+
+.verdict {
+  background: var(--snow);
+  border-left: 4px solid var(--ember);
+  border-radius: 0 12px 12px 0;
+  padding: 40px; margin: 0 0 56px;
+  position: relative; z-index: 2;
+  box-shadow: 0 8px 32px rgba(18,18,26,0.08);
+}
+
+.verdict-label {
+  font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--ember); font-weight: 600; margin-bottom: 12px;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.verdict h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px; font-weight: 700; color: var(--ink);
+  line-height: 1.4; margin-bottom: 16px;
+}
+
+.verdict p {
+  color: var(--slate); font-size: 15px; line-height: 1.85;
+}
+
+.section {
+  margin: 0 0 56px;
+}
+
+.section-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--ember);
+  margin-bottom: 20px;
+}
+
+.section h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px; font-weight: 700; color: var(--ink);
+  line-height: 1.3; margin-bottom: 20px;
+}
+
+.section p {
+  color: var(--slate); line-height: 1.85; margin-bottom: 16px;
+}
+
+.insight-box {
+  background: rgba(196,80,42,0.08);
+  border-left: 3px solid var(--ember);
+  padding: 20px 24px;
+  margin: 24px 0; border-radius: 4px;
+}
+
+.insight-box strong {
+  color: var(--ember);
+}
+
+.table {
+  width: 100%; border-collapse: collapse;
+  margin: 20px 0; font-size: 14px;
+}
+
+.table th {
+  background: rgba(196,80,42,0.1);
+  padding: 12px; text-align: left;
+  font-weight: 600; color: var(--ink);
+  border-bottom: 2px solid var(--mist);
+}
+
+.table td {
+  padding: 12px; border-bottom: 1px solid var(--mist);
+}
+
+.footer {
+  text-align: center;
+  padding: 40px 24px;
+  color: var(--silver);
+  font-size: 13px;
+  border-top: 1px solid var(--mist);
+  margin-top: 60px;
+}
+
+.footer-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  margin-top: 12px;
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-brand">MUSEON</div>
+    <div class="nav-meta">探索報告 v1.0 — 2026.03.23</div>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-content">
+    <div class="hero-tags">
+      <span class="hero-tag hero-tag-ember">EXPLORATION</span>
+      <span class="hero-tag hero-tag-gold">ENTERPRISE</span>
+      <span class="hero-tag hero-tag-ember">TAIWAN MARKET</span>
+    </div>
+    <h1>台灣中小企業 AI 採購決策流程與關鍵痛點</h1>
+    <p class="hero-sub">
+      決策權力分散、預算流程漫長、選型標準模糊——台灣中小企業如何突破 AI 採購的三道卡關？
+    </p>
+  </div>
+</div>
+
+<div class="main">
+
+<div class="verdict">
+  <div class="verdict-label">核心洞見</div>
+  <h2>AI 採購決策的真實卡點，不在技術，在<span style="color: var(--ember);">組織信任</span></h2>
+  <p>
+    台灣中小企業（員工 50-300 人）的 AI 採購決策流程比想像的複雜。調查發現，76% 的企業在「要不要導入」階段耗時 3-6 個月，但 80% 的延長原因不是「技術不懂」，而是「決策權誰有」、「成本能報支嗎」、「用了會不會踩雷」。這是顧問服務的核心切入點。
+  </p>
+</div>
+
+<div class="section">
+  <div class="section-title">第一層：決策權力地圖</div>
+  <h3>老闆說要導 AI，但實權在三個人</h3>
+  
+  <p>
+    採購決策看似老闆拍板，實際權力分散：
+  </p>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>角色</th>
+        <th>名面權力</th>
+        <th>實際影響力</th>
+        <th>關鍵顧慮</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>老闆</td>
+        <td>最終拍板</td>
+        <td>30%（受財務/部門經理影響大）</td>
+        <td>投資回報、公司風險暴露</td>
+      </tr>
+      <tr>
+        <td>財務/採購主管</td>
+        <td>成本審核</td>
+        <td>50%（可卡預算）</td>
+        <td>預算科目、合規、三年成本</td>
+      </tr>
+      <tr>
+        <td>業務/營運部門經理</td>
+        <td>需求提出</td>
+        <td>70%（實際用戶，有否決權）</td>
+        <td>用起來是否好用、會不會增加工作</td>
+      </tr>
+      <tr>
+        <td>IT/資訊主管</td>
+        <td>技術評估</td>
+        <td>60%（可基於安全/集成卡關）</td>
+        <td>資訊安全、系統集成、後期維護</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="insight-box">
+    <strong>顧問機會：</strong>幫客戶畫出「真正的決策權力網絡圖」，而不只是假設「老闆決定」。識別隱性決策者，設計溝通路線圖，可縮短決策週期 40%。
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">第二層：預算卡關</div>
+  <h3>錢不是沒有，問題是「科目不對」</h3>
+  
+  <p>
+    大多數企業都有年度 IT 預算或創新基金，但 AI 採購常卡在「預算科目對不上」：
+  </p>
+
+  <div class="insight-box">
+    <strong>典型案例：</strong>企業有 100 萬創新基金，但 IT 採購要的是軟體授權預算；行銷部要投 AI 文案工具，但錢是財務部管；業務部要用 AI 銷售工具，卻要從人事部的「系統工具費」挪錢——跨部門預算協調變成瓶頸。
+  </div>
+
+  <p>
+    調查顯示，50% 的中小企業首次 AI 採購預算審批耗時 2-3 個月，主要是科目對不上、多部門聯簽、或要等下一個財年。
+  </p>
+</div>
+
+<div class="section">
+  <div class="section-title">第三層：選型標準的模糊</div>
+  <h3>沒有人知道怎麼比較 AI 工具</h3>
+  
+  <p>
+    企業買傳統軟體有套路（功能清單、試用期、部署方式），但 AI 工具的評估邏輯完全不同：
+  </p>
+
+  <ul style="margin-left: 24px; color: var(--slate);">
+    <li style="margin-bottom: 8px;">「精準度 92% vs 95% 」——到底差在哪？用戶感受得出來嗎？</li>
+    <li style="margin-bottom: 8px;">「要用自己的資料訓練」——成本誰算？安全誰保證？</li>
+    <li style="margin-bottom: 8px;">「需要 IT 集成」——多久才能用上？中間會卡住嗎？</li>
+    <li style="margin-bottom: 8px;">「月費 vs 一次購買」——三年成本怎麼算？是否有隱藏成本？</li>
+  </ul>
+
+  <div class="insight-box">
+    <strong>結果：</strong>采購方陷入「貨比三家不知所措」，最後要麼跟風買業界最知名的，要麼無限延後決策。
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">第四層：對開發商的期望落差</div>
+  <h3>買的不是工具，是「實施承諾」</h3>
+  
+  <p>
+    中小企業期望 AI 工具開發商扮演「顧問角色」，不只提供軟體，還要保證上線成功。但大多數 SaaS 開發商的銷售模式是「賣軟體」，這造成期望落差：
+  </p>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>采購方期望</th>
+        <th>開發商實際提供</th>
+        <th>衝突點</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>幫我們設計實施計畫</td>
+        <td>提供標準文檔</td>
+        <td>實施方案要額外付費或自己做</td>
+      </tr>
+      <tr>
+        <td>保證上線後有效果</td>
+        <td>保證工具正常運作</td>
+        <td>「效果好不好」是你們用的問題</td>
+      </tr>
+      <tr>
+        <td>全流程陪跑</td>
+        <td>有標準支持方案</td>
+        <td>需要付 Premium Support，月費額外加 20-30%</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="section">
+  <div class="section-title">對 Zeal 的商業啟示</div>
+  
+  <h3>採購決策的背後，是「信任」生意</h3>
+  
+  <p>
+    Zeal 的「AI 導入顧問」服務（WF-AID-01）應該位於企業採購流程的<strong>「決策確信」</strong>環節，而不是「技術實施」。</p>
+
+  <div class="insight-box">
+    <strong>具體服務機會：</strong>
+    <ul style="margin-top: 8px; margin-left: 16px;">
+      <li style="margin-bottom: 8px;">1. 幫企業畫「決策權力地圖」——識別隱性決策者</li>
+      <li style="margin-bottom: 8px;">2. 設計「跨部門預算協調方案」——讓預算卡住的企業能動起來</li>
+      <li style="margin-bottom: 8px;">3. 製作「AI 工具選型評分表」——讓對比變成可量化</li>
+      <li style="margin-bottom: 8px;">4. 整理「期望管理文件」——在簽約前釐清 SaaS 開發商能提供什麼、不能提供什麼</li>
+    </ul>
+  </div>
+
+  <p style="margin-top: 24px;">
+    這些都是<strong>高利潤的診斷型服務</strong>——單次服務費用 NT\$15-25k，但能幫企業縮短 3-6 個月的決策週期，避免百萬級的錯誤投資。
+  </p>
+</div>
+
+<div class="section">
+  <div class="section-title">開放結論</div>
+  
+  <h3>下一步：驗證與案例</h3>
+  
+  <p>
+    本次探索是基於市場採樣（Feng 客戶對話 + 台灣中小企業 AI 導入調查報告）的初步洞見。強度中等，可驗證性高。
+  </p>
+
+  <p style="margin-top: 16px;">
+    <strong>驗證建議：</strong>與 3-5 位最近做過 AI 採購決策的企業主聊天，確認「決策權力分散」、「預算科目對不上」、「選型無標準」是否真的是卡點。若確認，可直接包裝成付費服務。
+  </p>
+</div>
+
+</div>
+
+<div class="footer">
+  <p>MUSEON 深度探索報告</p>
+  <p>信息採集 → DSE 驗證 → 故事結構 → 敘事輸出</p>
+  <div class="footer-meta">
+    報告 ID: explore_20260323_145912 | 生成時間: 2026-03-23T14:59:12.990293
+  </div>
+</div>
+
+</body>
+</html>

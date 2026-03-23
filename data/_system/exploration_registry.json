@@ -1,0 +1,30 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-03-23T14:59:12.991939",
+  "today": "2026-03-23",
+  "explorations": [
+    {
+      "id": "exp_20260312_mult",
+      "topic": "AI Agent 自主學習的最新架構突破",
+      "depth": 1,
+      "count": 9,
+      "timestamp": "2026-03-12T04:25-12:04Z",
+      "status": "DUPLICATE_ALERT",
+      "note": "同一日內重複 9 次，內容重複，缺深度遞進。根因：無去重檢查。已修復。"
+    },
+    {
+      "id": "explore_20260323_145912",
+      "topic": "台灣中小企業 AI 採購決策流程與關鍵痛點",
+      "depth": 1,
+      "timestamp": "2026-03-23T14:59:12.990293",
+      "report_url": "data/_system/reports/explore_20260323_145912.html",
+      "status": "completed"
+    }
+  ],
+  "deduplication_rules": {
+    "same_topic_max_per_day": 1,
+    "max_depth": 3,
+    "depth_increment_threshold": "4_hours",
+    "note": "同主題同日最多 1 次淺層，≥4 小時後可升級深度（depth +1）"
+  }
+}
