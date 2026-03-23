@@ -1423,11 +1423,18 @@ class ToolRegistry:
                     )
                     if result.returncode == 0:
                         state.installed = True
-                        state.enabled = self._check_docker_running(name)
-                        if state.enabled:
+                        # 容器存在但可能暫停/停止 → 保持 enabled=True, 只標記 healthy
+                        _running = self._check_docker_running(name)
+                        if not state.enabled:
+                            state.enabled = _running  # 首次偵測：按運行狀態設定
+                        # 已啟用的工具：容器暫停只降級 healthy，不 disable
+                        if _running:
                             state.healthy = self._check_tool_health(
                                 name, config
                             )
+                        else:
+                            state.healthy = False
+                            logger.info(f"[TOOL_REGISTRY] {name}: container exists but not running → healthy=False (kept enabled)")
                 except Exception as e:
                     logger.warning(f"[TOOL_REGISTRY] auto-detect {name} failed: {e}")
 

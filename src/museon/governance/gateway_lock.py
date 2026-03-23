@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 # ─── 配置常量 ───
 DEFAULT_PORT = 8765
-DEFAULT_TIMEOUT_S = 5.0  # acquire 總超時
+DEFAULT_TIMEOUT_S = 30.0  # acquire 總超時（與 stale_s 對齊，避免 crash loop）
 DEFAULT_POLL_INTERVAL_S = 0.1  # 輪詢間隔
 DEFAULT_STALE_S = 30.0  # 30 秒無活動視為 stale
 PORT_PROBE_TIMEOUT_S = 1.0  # 端口探測超時

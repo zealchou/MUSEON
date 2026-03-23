@@ -6253,8 +6253,10 @@ def _pre_start_cleanup(port: int = 8765) -> None:
 
     logger.error(
         f"Pre-start cleanup: port {port} still occupied after 15s — "
-        f"server may fail to start"
+        f"aborting startup to avoid crash loop (launchd will retry)"
     )
+    import sys
+    sys.exit(1)
 
 
 def main() -> None:
