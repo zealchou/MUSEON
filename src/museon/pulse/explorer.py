@@ -8,7 +8,9 @@ VITA 的好奇心驅動模組。
 import logging
 import time
 from datetime import datetime, timezone, timedelta
-from typing import Any, Dict, Optional
+from pathlib import Path
+from typing import Any, Dict, Optional, Tuple
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -109,6 +111,7 @@ class Explorer:
         self._brain = brain
         self._data_dir = data_dir
         self._searxng_url = searxng_url
+        self._exploration_log_path = Path(data_dir) / "exploration_log.md" if data_dir else None
 
     async def explore(
         self,
@@ -137,7 +140,24 @@ class Explorer:
             "duration_ms": 0,
             "status": "exploring",
             "deep_analysis": False,
+            "depth_level": 1,
+            "duplicate_check": {},
         }
+
+        # Step 0: 去重檢查
+        dup_check = self._check_duplicate(topic)
+        result["duplicate_check"] = dup_check
+
+        if dup_check["status"] == "reject":
+            result["findings"] = dup_check["message"]
+            result["status"] = "rejected"
+            result["duration_ms"] = int((time.monotonic() - start) * 1000)
+            return result
+
+        # 如果是重複探索，提升深度等級
+        if dup_check["status"] == "allow_deeper":
+            result["depth_level"] = dup_check["depth_level"]
+            logger.info(f"探索「{topic}」：第 {result['depth_level']} 層深度")
 
         try:
             # Step 1: SearXNG 搜尋
@@ -181,6 +201,8 @@ class Explorer:
                     # 實際結晶由 PulseEngine 負責
 
             result["status"] = "done"
+            # 記錄探索完成
+            self._log_exploration(topic, motivation, result)
         except Exception as e:
             logger.error(f"Exploration failed: {e}")
             result["findings"] = f"探索失敗: {e}"
@@ -282,3 +304,199 @@ class Explorer:
         except Exception as e:
             logger.error(f"Deep analysis failed: {e}")
             return {"analysis": scout_summary, "tokens": 0, "cost": 0, "should_crystallize": False}
+
+    # ── 去重與深度遞進 ──
+
+    def _check_duplicate(self, topic: str) -> Dict[str, Any]:
+        """檢查是否重複探索，並判斷是否允許及應走的深度.
+
+        Returns:
+            {
+                "status": "allow" | "allow_deeper" | "ask" | "reject",
+                "message": "拒絕或提示信息",
+                "depth_level": 1 | 2 | 3,  # 遞進深度
+                "last_explored": "2026-03-23 10:02" | None,
+                "days_since": 整數 或 None,
+            }
+        """
+        log_data = self._load_exploration_log()
+        normalized_topic = self._normalize_topic(topic)
+
+        # 搜尋歷史記錄
+        history = [
+            entry for entry in log_data.get("history", [])
+            if self._normalize_topic(entry["topic"]) == normalized_topic
+        ]
+
+        if not history:
+            return {
+                "status": "allow",
+                "message": "新主題，允許探索",
+                "depth_level": 1,
+                "last_explored": None,
+                "days_since": None,
+            }
+
+        last_entry = history[-1]
+        last_time = datetime.fromisoformat(last_entry["timestamp"])
+        today = datetime.now(TZ8).replace(hour=0, minute=0, second=0, microsecond=0)
+        last_date = last_time.astimezone(TZ8).replace(hour=0, minute=0, second=0, microsecond=0)
+        days_since = (today - last_date).days
+
+        depth_count = last_entry.get("depth_count", 1)
+
+        # 規則判斷
+        if depth_count >= 4:
+            return {
+                "status": "reject",
+                "message": f"此主題已探索 {depth_count} 次，達上限。建議結晶為知識或選擇新主題。",
+                "depth_level": depth_count,
+                "last_explored": last_time.isoformat(),
+                "days_since": days_since,
+            }
+
+        if days_since <= 3 and depth_count >= 2:
+            return {
+                "status": "reject",
+                "message": f"最近 {days_since} 天已探索此主題 {depth_count} 次，建議新主題或等待。",
+                "depth_level": depth_count,
+                "last_explored": last_time.isoformat(),
+                "days_since": days_since,
+            }
+
+        if days_since == 0:
+            # 同天允許但深度遞進
+            next_depth = depth_count + 1
+            return {
+                "status": "allow_deeper",
+                "message": f"同天重複，進行第 {next_depth} 層深度探索",
+                "depth_level": next_depth,
+                "last_explored": last_time.isoformat(),
+                "days_since": 0,
+            }
+
+        if days_since < 7:
+            return {
+                "status": "ask",
+                "message": f"同週期主題（{days_since} 天前探索過），要深化哪個角度嗎？",
+                "depth_level": depth_count,
+                "last_explored": last_time.isoformat(),
+                "days_since": days_since,
+            }
+
+        # 超過 7 天，允許新一輪探索
+        return {
+            "status": "allow",
+            "message": f"距上次探索 {days_since} 天，允許新一輪探索",
+            "depth_level": 1,
+            "last_explored": last_time.isoformat(),
+            "days_since": days_since,
+        }
+
+    def _normalize_topic(self, topic: str) -> str:
+        """規範化主題（用於比對）."""
+        # 移除標點、統一空白、轉小寫
+        normalized = re.sub(r"[^\w\s]", "", topic).lower().strip()
+        # 多個空白化為單一空白
+        normalized = re.sub(r"\s+", " ", normalized)
+        return normalized
+
+    def _load_exploration_log(self) -> Dict[str, Any]:
+        """讀取探索日誌 Markdown 並解析."""
+        if not self._exploration_log_path or not self._exploration_log_path.exists():
+            return {"history": []}
+
+        try:
+            with open(self._exploration_log_path, "r", encoding="utf-8") as f:
+                content = f.read()
+
+            history = []
+            # 簡單解析 Markdown 表格
+            # 格式：| 時間 | 主題 | 動機 | 深度次數 | 狀態 | 結晶 |
+            lines = content.split("\n")
+            in_table = False
+            for line in lines:
+                if line.startswith("|") and "時間" in line:
+                    in_table = True
+                    continue
+                if not in_table or not line.startswith("|"):
+                    continue
+                if "---" in line:  # 跳過分隔線
+                    continue
+
+                parts = [p.strip() for p in line.split("|")[1:-1]]
+                if len(parts) < 6:
+                    continue
+
+                try:
+                    history.append({
+                        "timestamp": parts[0],  # ISO format
+                        "topic": parts[1],
+                        "motivation": parts[2],
+                        "depth_count": int(parts[3]),
+                        "status": parts[4],
+                        "crystallized": parts[5].lower() == "yes",
+                    })
+                except (ValueError, IndexError):
+                    continue
+
+            return {"history": history}
+        except Exception as e:
+            logger.warning(f"Failed to load exploration log: {e}")
+            return {"history": []}
+
+    def _log_exploration(self, topic: str, motivation: str, result: Dict[str, Any]) -> None:
+        """記錄探索結果到日誌."""
+        if not self._exploration_log_path:
+            return
+
+        try:
+            log_data = self._load_exploration_log()
+            normalized = self._normalize_topic(topic)
+            history = log_data.get("history", [])
+
+            # 計算深度等級
+            last_same = None
+            for entry in reversed(history):
+                if self._normalize_topic(entry["topic"]) == normalized:
+                    last_same = entry
+                    break
+
+            if last_same:
+                last_time = datetime.fromisoformat(last_same["timestamp"])
+                today = datetime.now(TZ8).replace(hour=0, minute=0, second=0, microsecond=0)
+                last_date = last_time.astimezone(TZ8).replace(hour=0, minute=0, second=0, microsecond=0)
+                if (today - last_date).days == 0:
+                    depth_count = last_same.get("depth_count", 1) + 1
+                else:
+                    depth_count = 1
+            else:
+                depth_count = 1
+
+            # 新增紀錄
+            new_entry = f"| {datetime.now(TZ8).strftime('%H:%M')} | {topic} | {motivation} | {depth_count} | {result['status']} | {'yes' if result.get('crystallized') else 'no'} |"
+
+            # 找到日期分段，追加
+            with open(self._exploration_log_path, "r", encoding="utf-8") as f:
+                content = f.read()
+
+            # 簡單邏輯：在第一個表格結束後插入
+            lines = content.split("\n")
+            insert_idx = 0
+            for i, line in enumerate(lines):
+                if line.startswith("|") and "時間" in line:
+                    # 找到表格結束
+                    for j in range(i + 1, len(lines)):
+                        if not lines[j].startswith("|"):
+                            insert_idx = j
+                            break
+                    break
+
+            if insert_idx > 0:
+                lines.insert(insert_idx, new_entry)
+                with open(self._exploration_log_path, "w", encoding="utf-8") as f:
+                    f.write("\n".join(lines))
+
+                logger.info(f"Exploration logged: {topic} (depth {depth_count})")
+        except Exception as e:
+            logger.error(f"Failed to log exploration: {e}")
