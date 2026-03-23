@@ -265,12 +265,7 @@ class GuardianDaemon:
 
         try:
             content = env_path.read_text(encoding="utf-8")
-            has_anthropic = any(
-                line.startswith("ANTHROPIC_API_KEY=") and
-                not line.startswith("ANTHROPIC_API_KEY=your_")
-                for line in content.splitlines()
-                if not line.strip().startswith("#")
-            )
+            # ANTHROPIC_API_KEY 已移除（MUSEON 統一使用 Claude MAX CLI OAuth）
             has_telegram = any(
                 line.startswith("TELEGRAM_BOT_TOKEN=") and
                 not line.startswith("TELEGRAM_BOT_TOKEN=your_")
@@ -279,8 +274,6 @@ class GuardianDaemon:
             )
 
             missing = []
-            if not has_anthropic:
-                missing.append("ANTHROPIC_API_KEY")
             if not has_telegram:
                 missing.append("TELEGRAM_BOT_TOKEN")
 
