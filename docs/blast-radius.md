@@ -1,11 +1,11 @@
-# Blast Radius — 模組影響半徑表 v1.51
+# Blast Radius — 模組影響半徑表 v1.52
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節
-> **v1.52 (2026-03-23)**：Brain P3 Fusion 健康檢查——`agent/brain_p3_fusion.py` 常數化 25+ 個魔術值（P2 決策層 LLM 參數/P3 策略層 LLM 參數/信號偵測閾值/決策偵測閾值/融合決策權重與閾值/精煉偏好）收斂到類別頂部；7 個 LLM 視角生成失敗從 `logger.debug` → `logger.warning`（production 不再隱藏 API 呼叫失敗）；`asyncio.get_event_loop()` → `asyncio.get_running_loop()`（2 處，修復 Python 3.10+ 棄用警告）；`_execute_p3_parallel_fusion` 死碼清理（移除未使用 `lines` 變數 + DEPRECATED 標記格式化）；`_refine_with_precog_feedback` anima_user 載入失敗從 `logger.debug` → `logger.warning`；新增 `tests/unit/test_brain_p3_fusion.py`（48 個測試涵蓋常數/P3 信號偵測/P2 決策偵測/反問綜合/融合權重/asyncio API/前置融合/精煉邏輯）。扇入扇出不變、無新增 import。
+> **v1.52 (2026-03-23)**：三層調度員架構——新增 dispatcher/thinker/worker 扇入扇出分析；新增 museon-persona.md 影響分析。Brain P3 Fusion 健康檢查——`agent/brain_p3_fusion.py` 常數化 25+ 個魔術值（P2 決策層 LLM 參數/P3 策略層 LLM 參數/信號偵測閾值/決策偵測閾值/融合決策權重與閾值/精煉偏好）收斂到類別頂部；7 個 LLM 視角生成失敗從 `logger.debug` → `logger.warning`（production 不再隱藏 API 呼叫失敗）；`asyncio.get_event_loop()` → `asyncio.get_running_loop()`（2 處，修復 Python 3.10+ 棄用警告）；`_execute_p3_parallel_fusion` 死碼清理（移除未使用 `lines` 變數 + DEPRECATED 標記格式化）；`_refine_with_precog_feedback` anima_user 載入失敗從 `logger.debug` → `logger.warning`；新增 `tests/unit/test_brain_p3_fusion.py`（48 個測試涵蓋常數/P3 信號偵測/P2 決策偵測/反問綜合/融合權重/asyncio API/前置融合/精煉邏輯）。扇入扇出不變、無新增 import。
 > **v1.51 (2026-03-22)**：Brain Prompt Builder 健康檢查——`agent/brain_prompt_builder.py` 常數化 20+ 個魔術值（Token 預算 zone/動態倍數/結晶閾值/演化覺醒閾值/失敗蒸餾）收斂到類別頂部；Token zone 耗盡時 logger.warning（提示哪些 zone 被沉默截斷）；`budget.remaining()` 返回 None 防禦（`or 0`）；新增 `tests/unit/test_brain_prompt_builder.py`（22 個測試涵蓋常數/演化覺醒/身份生成）；system-topology v1.41 補齊 brain-prompt-builder→anima-mc-store/data-bus/anthropic-api 3 條遺漏連線。扇入扇出不變、無新增 import。
 > **v1.50 (2026-03-22)**：Brain Tools 健康檢查——`agent/brain_tools.py` 常數化 8 個魔術值（_MAX_TOKENS_PRIMARY/DISPATCH/HEALTH_PROBE、_MAX_TOOL_ITERATIONS_COMPLEX/SIMPLE、_TOOL_RESULT_TRUNCATE_LEN、_COMPLEX_KEYWORDS、_OFFLINE_PROBE_INTERVAL）收斂到類別頂部；`nightly/nightly_pipeline.py` Step 27 擴充按日期 JSONL 清理（cache_log_*/routing_log_* 保留 30 天超齡刪除）；新增 `tests/unit/test_brain_tools.py`（16 個測試涵蓋常數/LLM 呼叫/離線/Session）；system-topology v1.40 補齊 brain-tools→anthropic-api + brain-tools→data-bus 2 條遺漏連線。扇入扇出不變、無新增 import。
 > **v1.49 (2026-03-22)**：Zeal 節點健康檢查修復——`gateway/authorization.py` PairingManager.load() + AuthorizationPolicy.load() 首次載入時自動初始化空檔案（allowlist.json / policy.json），解決重啟後配對使用者遺忘問題；system-topology.md v1.39 補齊 3 條遺漏連線（zeal/verified-user/external-user → anima-mc-store）。扇入扇出不變、無新增 import。
@@ -683,6 +683,46 @@
 ### LLM 層
 `llm/` 下大部分模組
 
+### 三層調度員架構（3 個）
+
+#### dispatcher（L1 調度員）
+
+| 屬性 | 值 |
+|------|-----|
+| **扇入** | 0（channels session 入口） |
+| **扇出** | 1（spawn thinker） |
+| **角色** | 收到訊息後 1 秒內 spawn L2 思考者，不做任何思考或回覆——郵局分揀員 |
+| **安全分級** | 🟢 綠區 |
+
+#### thinker（L2 思考者）
+
+| 屬性 | 值 |
+|------|-----|
+| **扇入** | 1（dispatcher spawn） |
+| **扇出** | 2（讀 `data/_system/museon-persona.md`、spawn worker） |
+| **角色** | 讀取人格檔 → 分析訊息 → 撰寫回覆 → spawn L3 工人執行 MCP 工具 |
+| **安全分級** | 🟢 綠區 |
+
+#### worker（L3 工人）
+
+| 屬性 | 值 |
+|------|-----|
+| **扇入** | 1（thinker spawn） |
+| **扇出** | 3+（MCP 工具：telegram/gmail/gcal） |
+| **角色** | 執行單一 MCP 工具呼叫後銷毀——純工具執行層 |
+| **安全分級** | 🟢 綠區 |
+
+### museon-persona.md 影響分析
+
+| 屬性 | 值 |
+|------|-----|
+| **路徑** | `data/_system/museon-persona.md` |
+| **讀取者** | 所有 L2 thinker subagent |
+| **寫入者** | 人工維護（手動編輯） |
+| **修改影響** | 改了人格檔 = 改了所有 L2 的行為——等同全域行為變更，影響所有對話回覆的語氣、判斷準則、行為模式 |
+
+> ⚠️ `museon-persona.md` 雖然不是 Python 模組，但實質上是所有 L2 thinker 的「系統提示源」。修改此檔案等同於修改紅區模組，建議視為 🟠 紅區對待。
+
 ### 其他
 各子系統的終端執行模組（無人 import 的工具、通道適配器等）
 
@@ -787,6 +827,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-23 | v1.52 | 三層調度員架構——新增 dispatcher/thinker/worker 扇入扇出分析（L1 調度員扇入 0/扇出 1、L2 思考者扇入 1/扇出 2、L3 工人扇入 1/扇出 3+）；新增 museon-persona.md 影響分析（所有 L2 thinker 讀取，修改等同全域行為變更）；全部為綠區。Brain P3 Fusion 健康檢查——brain_p3_fusion.py 常數化 25+ 魔術值 + logger 提升 + asyncio 修復 + 死碼清理 + 48 個單元測試。 |
 | 2026-03-22 | v1.35 | Sparse Embedder 全面啟動：skill_router.py `_vec_search()` 從 `vb.search()` 切換為 `vb.hybrid_search()`；memory_manager.py `_vector_search()` 從 `vb.search()` 切換為 `vb.hybrid_search()`；knowledge_lattice.py 結晶搜尋從 `vb.search()` 切換為 `vb.hybrid_search()`；server.py `/api/vector/search` 從 `vb.search()` 切換為 `vb.hybrid_search()`；Nightly Pipeline 新增 Step 8.7 `_step_sparse_idf_rebuild()`（build_sparse_idf + backfill_sparse）；Gateway startup 新增 SparseEmbedder IDF 驗證；sparse_embedder.py 扇入不變（1，僅 vector_bridge import）；vector_bridge.py 扇入不變（7）；同步 joint-map v1.35、persistence-contract v1.30 |
 | 2026-03-22 | v1.46 | P0-P3 升級——report-forge Skill 新增 knowledge-lattice 輸出依賴（report_crystal 結晶化，via knowledge-lattice API，不改 report-forge 扇入扇出）；token_optimizer.py buffer 預算 2800→1800 + strategic zone 1000 新增（brain.py `_build_strategic_context()` 純新增方法）；anima_mc_store.py 共享狀態新增 `_system/backups/anima_mc/`（寫入前快照）；pulse_engine.py 共享狀態新增 `_system/backups/pulse_md/`（寫入前快照）；plan_engine.py bug 修復 plan.changes→plan.change_list（純內部修正，扇入不變）；共享狀態 33→34 |
 | 2026-03-22 | v1.45 | 經驗諮詢閘門——brain.py 共享狀態讀取新增 activity_log.jsonl(R)；knowledge_lattice.py 新增 recall_procedures() 方法（RO）+再結晶 Lesson↔Procedure 升降級規則；crystal_store.py schema 新增 4 欄位（向後相容 ALTER TABLE）；activity_logger.py 新增 search() 方法（純讀） |

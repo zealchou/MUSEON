@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.43
+# MUSEON 系統拓撲圖 v1.44
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.44 (2026-03-23)**：三層調度員架構（腦手分離）——agent 群組新增 3 個節點（`dispatcher` L1 調度員、`thinker` L2 思考者、`worker` L3 工人）；新增 7 條 internal 連線；CLAUDE.md 改寫為 L1 調度員模式；新增 `data/_system/museon-persona.md` 人格隨身檔供 L2 載入；187 節點 463 連線
 > **v1.43 (2026-03-23)**：全系統拓撲審計——補齊 70 條遺漏 cross 連線（🔴7 結構斷裂 + 🟠20 重要遺漏 + 🟡43 文件欠債）；移除 2 條幽靈連線（drift-detector→memory、zotero-bridge→vector-index）；修正 1 條方向反轉（federation-sync→nightly 改為 nightly→federation-sync）；拓撲覆蓋率 62.8% → 100%；184 節點 456 連線
 > **v1.42 (2026-03-22)**：Sparse Embedder 全面啟動——sparse-embedder 節點升級為已啟動狀態；新增 skill-router→sparse-embedder、memory→sparse-embedder 跨系統連線（hybrid_search 消費者接線）；Nightly Pipeline 新增 Step 8.7（IDF 重建 + 回填）；184 節點 389 連線
 > **v1.41 (2026-03-22)**：Brain Prompt Builder 健康檢查——補齊 3 條遺漏連線（brain-prompt-builder→anima-mc-store/data-bus/anthropic-api）；常數化 20+ 個魔術值；Token zone 耗盡 warning 日誌；budget.remaining() None 防禦；新增單元測試；184 節點 387 連線
@@ -142,6 +143,9 @@ external-user（EXTERNAL）
 | `chat-context` | Chat Context | ChatContext dataclass（輕量對話上下文資料結構） | - | brain | 0.7 |
 | `deterministic-router` | Deterministic Router | 確定性任務分解器（取代 LLM Orchestrator） | - | brain | 1.0 |
 | `recommender` | Recommender | 知識推薦引擎（CrystalStore 結晶推薦） | - | brain | 0.9 |
+| `dispatcher` | L1 Dispatcher | 調度員：收訊 → 1 秒內 spawn L2 思考者 → 處理下一則（CLAUDE.md 定義行為） | - | brain | 1.2 |
+| `thinker` | L2 Thinker | 思考者 subagent：讀 museon-persona.md → 分析決策 → spawn L3 工人（model: sonnet, run_in_background） | - | brain | 1.0 |
+| `worker` | L3 Worker | 工人 subagent：執行 MCP 工具呼叫後銷毀（model: haiku, run_in_background） | - | brain | 0.8 |
 
 ### pulse — Pulse 生命力
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -461,6 +465,12 @@ external-user（EXTERNAL）
 | `dendritic-fusion` | `metacognition` | 並行預認知審查 |
 | `dendritic-fusion` | `eval-engine` | 並行品質評分 |
 | `multi-agent-executor` | `llm-router` | 多部門 API 呼叫 |
+| `dispatcher` | `thinker` | L1→L2：收訊後 spawn 思考者（run_in_background, model: sonnet） |
+| `thinker` | `worker` | L2→L3：思考完成後 spawn 工人執行 MCP 工具（run_in_background, model: haiku） |
+| `worker` | `telegram` | L3 透過 MCP 工具回覆 Telegram 訊息 |
+| `worker` | `gmail` | L3 透過 MCP 工具收發 Email |
+| `worker` | `gcal` | L3 透過 MCP 工具管理行程 |
+| `thinker` | `worker` | L2→L3（前景）：需要查詢結果時同步等待 L3 回傳資料 |
 
 ### Pulse 內部連線（internal）
 | Source | Target | 說明 |
