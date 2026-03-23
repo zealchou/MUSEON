@@ -237,6 +237,9 @@ class ClaudeCLIAdapter:
                         elif item.get("type") == "image":
                             # CLI 模式不支援 Vision — graceful degradation
                             parts.append("[圖片已上傳，但 CLI 模式不支援視覺分析。請改用 API 模式。]")
+                        elif item.get("type") == "document":
+                            # CLI 模式不支援 PDF 文件分析 — graceful degradation
+                            parts.append("[PDF 文件已上傳，但 CLI 模式不支援文件分析。請改用 API 模式。]")
 
         return "\n\n".join(parts)
 
