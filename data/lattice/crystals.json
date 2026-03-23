@@ -26618,5 +26618,1701 @@
       "ssa-consultant",
       "business-12"
     ]
+  },
+  {
+    "cuid": "KL-PRI-0230",
+    "crystal_type": "Principle",
+    "g1_summary": "產品力——不只是產品好，是能否對應需求+合理定價+形成價值階梯",
+    "g2_structure": [
+      "產品力",
+      "定價",
+      "價值階梯"
+    ],
+    "g3_root_inquiry": "什麼條件下「產品力」才能真正成為競爭優勢而非自嗨？",
+    "g4_insights": [
+      "產品力的核心不是品質最好，而是需求對應+定價合理+階梯完整",
+      "缺少價值階梯的產品線無法承接不同客群，導致只能靠單品硬撐",
+      "將產品力嵌入定價策略，才能從成本導向轉為價值導向"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "產品力",
+      "定價",
+      "價值階梯"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0231",
+    "crystal_type": "Principle",
+    "g1_summary": "累積力——過去做過什麼能不能成為今天賣更好的本錢",
+    "g2_structure": [
+      "累積力",
+      "信任資產",
+      "案例"
+    ],
+    "g3_root_inquiry": "如何將過去的經驗轉化為可被客戶感知的信任資產？",
+    "g4_insights": [
+      "累積力是把過去的成果系統化為可展示的信任資產",
+      "沒有被整理的案例等於沒有做過——客戶只相信看得到的證據",
+      "案例標準化格式（目標→做法→成果）是累積力的最小可行單位"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "累積力",
+      "信任資產",
+      "案例"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0232",
+    "crystal_type": "Principle",
+    "g1_summary": "整合力——不靠單打獨鬥而是能組一局一起玩大局",
+    "g2_structure": [
+      "整合力",
+      "資源串聯",
+      "合作"
+    ],
+    "g3_root_inquiry": "什麼時候該整合外部資源而非自己做？",
+    "g4_insights": [
+      "整合力的本質是看見資源互補的可能性並設計共贏結構",
+      "單打獨鬥的天花板永遠比組局低——但組局需要清晰的價值交換邏輯",
+      "能列出自己能給什麼、想換什麼的人，才有整合力的起點"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "整合力",
+      "資源串聯",
+      "合作"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0233",
+    "crystal_type": "Principle",
+    "g1_summary": "共享力——讓他人願意加入分享共創分潤的開放參與結構",
+    "g2_structure": [
+      "共享力",
+      "分潤",
+      "共創"
+    ],
+    "g3_root_inquiry": "如何設計讓他人願意主動參與的共享結構？",
+    "g4_insights": [
+      "共享力不是免費分享，而是設計出讓參與者有利可圖的開放結構",
+      "分潤機制的透明度決定了共創的持久度——模糊的利益分配會殺死合作",
+      "授權型產品結構是共享力的具體實踐形態"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "共享力",
+      "分潤",
+      "共創"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0234",
+    "crystal_type": "Principle",
+    "g1_summary": "感受力——從接觸到使用的整段體驗讓客戶從滿意升級到感動",
+    "g2_structure": [
+      "感受力",
+      "體驗設計",
+      "NPS"
+    ],
+    "g3_root_inquiry": "客戶體驗中哪些關鍵時刻決定了滿意與感動的分界？",
+    "g4_insights": [
+      "感受力是整段旅程的溫度設計，不是某個環節的驚喜",
+      "從退費抱怨原因反推流程優化，是提升感受力最務實的路徑",
+      "NPS 的提升來自於超越預期的瞬間，而非全程無瑕疵"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "感受力",
+      "體驗設計",
+      "NPS"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0235",
+    "crystal_type": "Principle",
+    "g1_summary": "感召力——讓人主動傳播願意推薦成為粉絲的吸引力",
+    "g2_structure": [
+      "感召力",
+      "裂變",
+      "品牌魅力"
+    ],
+    "g3_root_inquiry": "什麼樣的品牌特質能讓客戶從被動接受轉為主動傳播？",
+    "g4_insights": [
+      "感召力的核心是讓人覺得推薦你等於彰顯自己的品味和價值觀",
+      "品牌初心故事的多媒體化是感召力的燃料——人傳故事不傳規格",
+      "品牌大使計畫將感召力從偶發轉為系統性裂變"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "感召力",
+      "裂變",
+      "品牌魅力"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0236",
+    "crystal_type": "Principle",
+    "g1_summary": "品牌力——一致鮮明且可複製的市場印象系統",
+    "g2_structure": [
+      "品牌力",
+      "識別",
+      "一致性"
+    ],
+    "g3_root_inquiry": "品牌一致性如何在多元觸點中被維護而不僵化？",
+    "g4_insights": [
+      "品牌力是一致性×鮮明度×可複製性的乘積",
+      "品牌角色設定+語言手冊+視覺套件構成最小品牌系統",
+      "團隊不統一語言，品牌就會在每個人手上變形"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "品牌力",
+      "識別",
+      "一致性"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0237",
+    "crystal_type": "Principle",
+    "g1_summary": "優化力——根據數據持續調整讓營運從意氣用事轉為系統決策",
+    "g2_structure": [
+      "優化力",
+      "數據驅動",
+      "KPI"
+    ],
+    "g3_root_inquiry": "如何讓團隊從「憑感覺做事」轉向「用數據說話」？",
+    "g4_insights": [
+      "優化力的第一步不是買工具，而是建立「週回顧」的節奏",
+      "營運SOP地圖+痛點標註是優化力的起點——看見全貌才能改對地方",
+      "數據驅動不是什麼都量化，而是找到影響最大的3個指標持續追蹤"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "優化力",
+      "數據驅動",
+      "KPI"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0238",
+    "crystal_type": "Principle",
+    "g1_summary": "社群力——持續產生互動建立關係聚焦議題的場域營造能力",
+    "g2_structure": [
+      "社群力",
+      "互動",
+      "黏著"
+    ],
+    "g3_root_inquiry": "社群經營如何從自嗨發文轉為雙向互動的關係場域？",
+    "g4_insights": [
+      "社群力的本質是場域營造——創造一個人們願意停留和互動的空間",
+      "品牌人設決定了社群的調性，每週內容節奏表決定了社群的呼吸",
+      "社群互動專區（留言引導句+任務挑戰+Q&A）是提升黏著度的結構化方法"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "社群力",
+      "互動",
+      "黏著"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0239",
+    "crystal_type": "Principle",
+    "g1_summary": "視覺力——透過一致且具說服力的視覺傳達呈現專業信任與轉換動機",
+    "g2_structure": [
+      "視覺力",
+      "設計",
+      "信任"
+    ],
+    "g3_root_inquiry": "視覺設計如何同時傳達專業感與促進購買行動？",
+    "g4_insights": [
+      "視覺力是專業信任的第一印象——客戶在讀文字之前已經在讀設計",
+      "品牌版型套件+視覺邏輯圖讓非設計師也能產出一致品質的素材",
+      "月度設計回顧是視覺力持續進化而非停滯的關鍵機制"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "視覺力",
+      "設計",
+      "信任"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0240",
+    "crystal_type": "Principle",
+    "g1_summary": "談判力——引導對話設計選項處理異議收斂行動的說服能力",
+    "g2_structure": [
+      "談判力",
+      "成交",
+      "異議處理"
+    ],
+    "g3_root_inquiry": "談判中如何從「說服對方」轉向「讓對方說服自己」？",
+    "g4_insights": [
+      "談判力不是口才好，而是能設計對話流程讓客戶自己走到成交的能力",
+      "談判地圖將模糊的銷售直覺轉為可複製的分段話術系統",
+      "三種對話腳本（冷陌/暖身/價格攻防）覆蓋了90%的銷售場景"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "談判力",
+      "成交",
+      "異議處理"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0241",
+    "crystal_type": "Principle",
+    "g1_summary": "轉換力——設計出讓客戶立刻行動的路徑與誘因的最後一哩",
+    "g2_structure": [
+      "轉換力",
+      "CTA",
+      "行動路徑"
+    ],
+    "g3_root_inquiry": "什麼因素讓客戶從「想要」跨越到「立刻行動」？",
+    "g4_insights": [
+      "轉換力是最後一哩路的設計——所有前面的力都是為了這一刻服務",
+      "一頁式轉換地圖整合所有CTA與動線邏輯，讓轉換不靠靈感靠系統",
+      "講B賣A的策略讓客戶感受到物超所值，降低行動的心理門檻"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "轉換力",
+      "CTA",
+      "行動路徑"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0235",
+    "crystal_type": "Pattern",
+    "g1_summary": "產品金字塔——免費內容→主打商品→高單價方案",
+    "g2_structure": [
+      "產品金字塔",
+      "定價策略"
+    ],
+    "g3_root_inquiry": "如何設計讓客戶自然升級的產品階梯？",
+    "g4_insights": [
+      "產品金字塔的底層是流量入口，中層是營收主力，頂層是利潤來源",
+      "每一層之間需要設計自然的升級誘因，而非硬銷"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "產品金字塔",
+      "定價策略"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0236",
+    "crystal_type": "Pattern",
+    "g1_summary": "價格心理錨點+分層定價策略",
+    "g2_structure": [
+      "定價",
+      "心理錨點",
+      "分層"
+    ],
+    "g3_root_inquiry": "如何用錨點效應讓客戶覺得主打方案最划算？",
+    "g4_insights": [
+      "高價方案的存在不是為了賣出，而是為了讓中價方案顯得超值",
+      "分層定價的每一層都要有清晰的價值差異，不能只是數量差"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "定價",
+      "心理錨點",
+      "分層"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0237",
+    "crystal_type": "Pattern",
+    "g1_summary": "案例資料庫標準格式：目標→做法→成果",
+    "g2_structure": [
+      "案例",
+      "標準化",
+      "累積"
+    ],
+    "g3_root_inquiry": "如何讓每個案例都成為可復用的銷售彈藥？",
+    "g4_insights": [
+      "標準化格式讓案例從「故事」變成「證據」",
+      "目標→做法→成果的三段式結構最容易被客戶理解和信任"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "案例",
+      "標準化",
+      "累積"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0238",
+    "crystal_type": "Pattern",
+    "g1_summary": "客戶回訪與見證蒐集自動化流程",
+    "g2_structure": [
+      "客戶見證",
+      "自動化",
+      "回訪"
+    ],
+    "g3_root_inquiry": "如何在不增加人力的前提下系統化蒐集客戶見證？",
+    "g4_insights": [
+      "自動化回訪的時機點設計比頻率更重要——在客戶最滿意的瞬間發動",
+      "見證蒐集模板降低客戶的回覆門檻，提升回覆率"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "客戶見證",
+      "自動化",
+      "回訪"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0239",
+    "crystal_type": "Pattern",
+    "g1_summary": "資源交換表：列出能提供與想換的資源",
+    "g2_structure": [
+      "資源交換",
+      "整合",
+      "盤點"
+    ],
+    "g3_root_inquiry": "如何系統化盤點自己的可交換資源？",
+    "g4_insights": [
+      "資源交換表是整合力的起點——看不見的資源無法被交換",
+      "分類盤點（人脈/技術/通路/內容）讓交換機會最大化"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "資源交換",
+      "整合",
+      "盤點"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0240",
+    "crystal_type": "Pattern",
+    "g1_summary": "合作提案模板：價值互補+操作步驟+分潤模式",
+    "g2_structure": [
+      "合作提案",
+      "分潤",
+      "模板"
+    ],
+    "g3_root_inquiry": "如何寫出讓對方秒懂且想合作的提案？",
+    "g4_insights": [
+      "好的合作提案先說對方能得到什麼，再說自己需要什麼",
+      "分潤模式的透明度決定了合作的信任基礎"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "合作提案",
+      "分潤",
+      "模板"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0241",
+    "crystal_type": "Pattern",
+    "g1_summary": "三級推薦機制+回饋設計",
+    "g2_structure": [
+      "推薦",
+      "三級",
+      "回饋"
+    ],
+    "g3_root_inquiry": "如何設計讓客戶願意主動推薦的獎勵結構？",
+    "g4_insights": [
+      "三級推薦讓裂變不只停在第一層，而是形成網絡效應",
+      "回饋設計要讓推薦者覺得有面子而非在賺佣金"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "推薦",
+      "三級",
+      "回饋"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0242",
+    "crystal_type": "Pattern",
+    "g1_summary": "授權型產品結構：講師版/代理版/共創版",
+    "g2_structure": [
+      "授權",
+      "產品結構",
+      "共享"
+    ],
+    "g3_root_inquiry": "如何設計讓他人願意代為推廣的授權產品？",
+    "g4_insights": [
+      "講師版/代理版/共創版對應不同參與深度和利潤分配",
+      "授權結構的關鍵是品質控制機制——開放不等於放任"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "授權",
+      "產品結構",
+      "共享"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0243",
+    "crystal_type": "Pattern",
+    "g1_summary": "用戶旅程地圖+服務SOP溫度點標記",
+    "g2_structure": [
+      "用戶旅程",
+      "SOP",
+      "溫度點"
+    ],
+    "g3_root_inquiry": "如何在標準化服務流程中注入人性化溫度？",
+    "g4_insights": [
+      "溫度點是SOP中刻意設計的「超預期」時刻",
+      "用戶旅程地圖讓團隊看見客戶的情緒曲線，而非只看操作步驟"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "用戶旅程",
+      "SOP",
+      "溫度點"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0244",
+    "crystal_type": "Pattern",
+    "g1_summary": "逆旅程設計：從退費抱怨原因反推流程優化",
+    "g2_structure": [
+      "逆旅程",
+      "客訴",
+      "流程"
+    ],
+    "g3_root_inquiry": "如何從負面回饋中萃取最有價值的改善方向？",
+    "g4_insights": [
+      "退費原因分析比滿意度調查更能揭示真實痛點",
+      "逆旅程設計是從終點往回看，找出流程中的致命斷點"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "逆旅程",
+      "客訴",
+      "流程"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0245",
+    "crystal_type": "Pattern",
+    "g1_summary": "品牌初心故事多媒體化轉換",
+    "g2_structure": [
+      "品牌故事",
+      "多媒體",
+      "感召"
+    ],
+    "g3_root_inquiry": "如何將創辦人的初心轉化為有傳播力的多媒體內容？",
+    "g4_insights": [
+      "文字版初心故事是基底，影片/音頻/圖文是不同載體的放大器",
+      "好的品牌故事讓人記住「為什麼」而非「做什麼」"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "品牌故事",
+      "多媒體",
+      "感召"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0246",
+    "crystal_type": "Pattern",
+    "g1_summary": "品牌大使計畫+志工挑戰設計",
+    "g2_structure": [
+      "品牌大使",
+      "志工",
+      "感召"
+    ],
+    "g3_root_inquiry": "如何讓忠實客戶從被動消費者轉為主動傳播者？",
+    "g4_insights": [
+      "品牌大使計畫給予身分認同，志工挑戰給予行動框架",
+      "大使的動力來自歸屬感和榮譽感，而非純粹的物質回報"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "品牌大使",
+      "志工",
+      "感召"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0247",
+    "crystal_type": "Pattern",
+    "g1_summary": "品牌角色設定+語言手冊+視覺套件一頁式品牌地圖",
+    "g2_structure": [
+      "品牌系統",
+      "角色",
+      "手冊"
+    ],
+    "g3_root_inquiry": "如何用一頁紙讓所有人理解並執行品牌規範？",
+    "g4_insights": [
+      "一頁式品牌地圖是品牌系統的最小可行版本",
+      "角色設定決定了語言風格，語言手冊確保風格一致"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "品牌系統",
+      "角色",
+      "手冊"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0248",
+    "crystal_type": "Pattern",
+    "g1_summary": "品牌共識工作坊——讓團隊統一語言與表述",
+    "g2_structure": [
+      "品牌共識",
+      "團隊",
+      "工作坊"
+    ],
+    "g3_root_inquiry": "如何在最短時間內讓團隊對品牌有一致的理解和表達？",
+    "g4_insights": [
+      "品牌共識工作坊的產出不是文件，而是團隊的共同語言",
+      "沒有經過共識工作坊的品牌手冊只是牆上的裝飾"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "品牌共識",
+      "團隊",
+      "工作坊"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0249",
+    "crystal_type": "Pattern",
+    "g1_summary": "營運SOP地圖+痛點標註+優先級分層",
+    "g2_structure": [
+      "營運SOP",
+      "痛點",
+      "優化"
+    ],
+    "g3_root_inquiry": "如何從全局視角找出營運中最值得優化的環節？",
+    "g4_insights": [
+      "SOP地圖讓團隊看見全貌，痛點標註讓改善有優先級",
+      "優先級分層避免「什麼都想改結果什麼都沒改」的困境"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "營運SOP",
+      "痛點",
+      "優化"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0250",
+    "crystal_type": "Pattern",
+    "g1_summary": "週回顧系統+優化提案機制",
+    "g2_structure": [
+      "週回顧",
+      "提案",
+      "優化"
+    ],
+    "g3_root_inquiry": "如何建立持續改善的組織節奏？",
+    "g4_insights": [
+      "週回顧的價值不在於發現問題，而在於建立「持續改善是常態」的文化",
+      "優化提案機制讓一線員工的洞察能被系統性地收集和執行"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "週回顧",
+      "提案",
+      "優化"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0251",
+    "crystal_type": "Pattern",
+    "g1_summary": "社群主戰場+品牌人設+每週內容主題節奏表",
+    "g2_structure": [
+      "社群",
+      "人設",
+      "節奏"
+    ],
+    "g3_root_inquiry": "如何讓社群經營從零散發文轉為有節奏的內容系統？",
+    "g4_insights": [
+      "主戰場選擇決定了資源集中度——不是每個平台都要經營",
+      "每週內容節奏表讓團隊從「今天發什麼」變成「這週的主題是什麼」"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "社群",
+      "人設",
+      "節奏"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0252",
+    "crystal_type": "Pattern",
+    "g1_summary": "社群互動專區：留言引導句+任務挑戰+Q&A",
+    "g2_structure": [
+      "社群互動",
+      "任務",
+      "引導"
+    ],
+    "g3_root_inquiry": "如何設計讓社群成員主動參與而非被動觀看的互動機制？",
+    "g4_insights": [
+      "留言引導句降低互動門檻——問對問題比發好內容更能帶動討論",
+      "任務挑戰將被動瀏覽者轉化為主動參與者"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "社群互動",
+      "任務",
+      "引導"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0253",
+    "crystal_type": "Pattern",
+    "g1_summary": "品牌版型套件+視覺邏輯圖+月度設計回顧",
+    "g2_structure": [
+      "視覺系統",
+      "設計",
+      "回顧"
+    ],
+    "g3_root_inquiry": "如何讓非設計師也能產出符合品牌規範的視覺素材？",
+    "g4_insights": [
+      "品牌版型套件是視覺力的民主化工具",
+      "月度設計回顧確保視覺系統持續進化而非停滯退化"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "視覺系統",
+      "設計",
+      "回顧"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0254",
+    "crystal_type": "Pattern",
+    "g1_summary": "內容產製SOP：從腳本到設計一條龍",
+    "g2_structure": [
+      "內容SOP",
+      "產製",
+      "流程"
+    ],
+    "g3_root_inquiry": "如何將內容產製從個人能力轉為團隊流程？",
+    "g4_insights": [
+      "一條龍SOP讓內容產製從依賴個人變成依賴系統",
+      "從腳本到設計的每一步都有模板，降低了產出的品質波動"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "內容SOP",
+      "產製",
+      "流程"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0255",
+    "crystal_type": "Pattern",
+    "g1_summary": "談判地圖：從引起興趣到處理異議的分段話術",
+    "g2_structure": [
+      "談判",
+      "話術",
+      "分段"
+    ],
+    "g3_root_inquiry": "如何將銷售直覺轉化為可複製的對話流程？",
+    "g4_insights": [
+      "分段話術讓新手銷售也能按圖索驥完成成交流程",
+      "每個階段的轉換信號是談判地圖的關鍵——知道什麼時候該推進"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "談判",
+      "話術",
+      "分段"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0256",
+    "crystal_type": "Pattern",
+    "g1_summary": "三種對話腳本：冷陌開場/暖身提案/價格攻防",
+    "g2_structure": [
+      "對話腳本",
+      "銷售",
+      "三種"
+    ],
+    "g3_root_inquiry": "不同銷售情境需要什麼樣的對話策略？",
+    "g4_insights": [
+      "冷陌開場的目標是引發好奇而非推銷產品",
+      "價格攻防的關鍵是先建立價值認知再討論價格"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "對話腳本",
+      "銷售",
+      "三種"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0257",
+    "crystal_type": "Pattern",
+    "g1_summary": "一頁式轉換地圖：整合所有CTA與動線邏輯",
+    "g2_structure": [
+      "轉換地圖",
+      "CTA",
+      "動線"
+    ],
+    "g3_root_inquiry": "如何確保每個客戶接觸點都有清晰的下一步行動指引？",
+    "g4_insights": [
+      "一頁式轉換地圖是所有行銷動線的全局鳥瞰圖",
+      "CTA的有效性取決於上下文——同一個CTA在不同位置效果天差地別"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "轉換地圖",
+      "CTA",
+      "動線"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0258",
+    "crystal_type": "Pattern",
+    "g1_summary": "轉換腳本：需求→共鳴→行動的語句結構",
+    "g2_structure": [
+      "轉換腳本",
+      "需求",
+      "行動"
+    ],
+    "g3_root_inquiry": "如何用語言引導客戶從認知需求到採取行動？",
+    "g4_insights": [
+      "需求→共鳴→行動是最短的說服路徑",
+      "共鳴環節是關鍵——客戶需要感覺被理解才會願意行動"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "轉換腳本",
+      "需求",
+      "行動"
+    ]
+  },
+  {
+    "cuid": "KL-LES-0215",
+    "crystal_type": "Lesson",
+    "g1_summary": "十二力最弱一環拖垮全局——像人體經絡缺一不可",
+    "g2_structure": [
+      "十二力",
+      "系統",
+      "經絡"
+    ],
+    "g3_root_inquiry": "為什麼補強最弱的那一力比強化最強的更有效？",
+    "g4_insights": [
+      "十二力是乘法而非加法——任何一力為零則整體為零",
+      "經絡比喻精準：不通則痛，商業模式也是如此",
+      "優先找到最弱的那一力並補到及格線，比把強項做到滿分更能提升整體"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "十二力",
+      "系統",
+      "經絡"
+    ]
+  },
+  {
+    "cuid": "KL-LES-0216",
+    "crystal_type": "Lesson",
+    "g1_summary": "台灣市場人口萎縮+老年化——客戶不回頭不介紹生意非常辛苦",
+    "g2_structure": [
+      "台灣市場",
+      "回購",
+      "轉介紹"
+    ],
+    "g3_root_inquiry": "在縮小的市場中如何確保客戶的終身價值最大化？",
+    "g4_insights": [
+      "台灣市場結構性萎縮使得每一個客戶的終身價值比以往更重要",
+      "回購率+轉介紹率是小市場中最核心的生存指標",
+      "不回頭不介紹的生意模式在台灣市場會越來越難以為繼"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "台灣市場",
+      "回購",
+      "轉介紹"
+    ]
+  },
+  {
+    "cuid": "KL-LES-0217",
+    "crystal_type": "Lesson",
+    "g1_summary": "漲價的關鍵不是勇氣而是價值——毛利空間多的錢拿去設計更好體驗",
+    "g2_structure": [
+      "漲價",
+      "價值",
+      "毛利"
+    ],
+    "g3_root_inquiry": "漲價的正確時機和方法是什麼？",
+    "g4_insights": [
+      "漲價的底氣來自於客戶能感知的價值提升，而非成本增加",
+      "毛利空間是體驗設計的燃料——沒有利潤就沒有資源投入體驗優化",
+      "價格向上調整後多出的毛利應該回灌到感受力和感召力的建設"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "漲價",
+      "價值",
+      "毛利"
+    ]
+  },
+  {
+    "cuid": "KL-LES-0218",
+    "crystal_type": "Lesson",
+    "g1_summary": "藥局推薦普拿粉而非普拿疼——通路商推利潤最高的不是最有名的",
+    "g2_structure": [
+      "通路",
+      "利潤分配",
+      "毛利"
+    ],
+    "g3_root_inquiry": "如何讓通路商主動推薦你的產品而非競品？",
+    "g4_insights": [
+      "通路推薦邏輯是利潤導向而非品牌導向——這是殘酷的現實",
+      "設計讓通路商有足夠利潤空間的定價策略，比砸廣告更有效",
+      "品牌知名度無法替代通路利潤——兩者必須同時到位"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "通路",
+      "利潤分配",
+      "毛利"
+    ]
+  },
+  {
+    "cuid": "KL-LES-0219",
+    "crystal_type": "Lesson",
+    "g1_summary": "營業額三力一體×底盤三力貫穿——三力提供引擎底盤提供潤滑",
+    "g2_structure": [
+      "三力主幹",
+      "底盤三力",
+      "體系"
+    ],
+    "g3_root_inquiry": "十二力中哪些是引擎哪些是潤滑？如何分配資源？",
+    "g4_insights": [
+      "營業額三力（產品力+談判力+轉換力）是直接驅動收入的引擎",
+      "底盤三力（優化力+社群力+視覺力）是讓引擎穩定運轉的潤滑系統",
+      "引擎沒有潤滑會過熱爆炸，潤滑沒有引擎也跑不動——兩者缺一不可"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "三力主幹",
+      "底盤三力",
+      "體系"
+    ]
+  },
+  {
+    "cuid": "KL-LES-0220",
+    "crystal_type": "Lesson",
+    "g1_summary": "講B賣A講C賣B——先展示高價值再賣低門檻讓物超所值感爆棚",
+    "g2_structure": [
+      "銷售策略",
+      "價值展示",
+      "轉換"
+    ],
+    "g3_root_inquiry": "如何讓客戶在購買時感到物超所值？",
+    "g4_insights": [
+      "講B賣A是錨點效應的實戰應用——先展示高價值內容再提出低門檻邀請",
+      "客戶的「值不值得」判斷是相對的，永遠需要一個參照物",
+      "這個策略的關鍵是B的價值必須真實可感——虛假的高價值展示會摧毀信任"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：商模十二力知識庫（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:21:18.354140",
+    "updated_at": "2026-03-23T14:21:18.354140",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:21:18.354140",
+    "domain": "Business-12",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "商模十二力知識庫",
+    "status": "active",
+    "origin": "商模十二力",
+    "skill_affinity": [
+      "business-12",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "銷售策略",
+      "價值展示",
+      "轉換"
+    ]
   }
 ]
