@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.37
+# Joint Map — 共享可變狀態接頭圖 v1.38
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -49,6 +49,8 @@
 | 36 | external_users/{uid}.json | 🟢 | 2 | 1 | ✅ Lock+原子寫 | [→](#36-external_usersuidjson) |
 | 37 | museon-persona.md | 🟡 | 2 | 全部 L2 subagent | 無 | [→](#37-museon-personamd) |
 | 38 | ~/.claude/skills/*/SKILL.md | 🔴 | 3 | 4+ | 無 | [→](#38-claudeskillsskillmd) |
+| 39 | _system/sessions/{id}.json | 🟡 | 1 | 2 | 無 | [→](#39-_systemsessionsidjson) |
+| 40 | group_context.db | 🟡 | 1 | 2 | SQLite WAL | [→](#40-group_contextdb) |
 
 > **危險度定義**：🔴 多寫入者+高扇出+格式不一致 | 🟡 多寫入者或高扇出 | 🟢 單寫入者+低扇出
 
@@ -966,6 +968,43 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 
 ---
 
+### 39. _system/sessions/{id}.json
+
+**路徑**：`data/_system/sessions/{session_id}.json`
+**用途**：對話 session 歷史——Brain 持久化的對話記錄（role + content 陣列）
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| `agent/brain_tools.py` | **W** | `_save_session_to_disk()` | 每次回覆後序列化到磁碟 | 無（asyncio 單線程寫入） |
+| `agent/brain_tools.py` | **R** | `_load_session_from_disk()` | Gateway 啟動時 / 新對話時載入 | — |
+| `mcp_server.py` | **R** | `museon_session_history()` | L2 思考者取得對話上下文（三層架構 MCP） | — |
+
+> **鎖**：無（單一寫入者 brain_tools，MCP 為只讀）
+> **TTL**：永久（跟隨 session 生命週期）
+> **危險度**：🟡 黃（MCP server 在 Gateway 寫入過程中讀取可能讀到不完整 JSON，但概率極低且 MCP 有 try/except 保護）
+
+---
+
+### 40. group_context.db
+
+**路徑**：`data/_system/group_context/group_context.db`
+**用途**：群組對話結構化記錄——Telegram 群組的訊息、成員、群組資訊（SQLite）
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| `governance/group_context.py` | **RW** | `record_message()` / `upsert_group()` | Gateway 收到群組訊息時寫入 | SQLite WAL |
+| `mcp_server.py` | **R** | `museon_group_context()` | L2 思考者取得群組對話脈絡（三層架構 MCP） | — |
+
+> **鎖**：SQLite WAL（GroupContextStore 自帶）
+> **TTL**：永久
+> **危險度**：🟡 黃（SQLite WAL 支援並發讀寫，安全）
+
+---
+
 ## 必須同時修改的模組組（不可分批）
 
 > 修改以下任一模組時，**必須**同時檢查並調整同組所有模組。
@@ -1021,6 +1060,7 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-23 | v1.38 | 三層架構 MCP 橋接：新增 #39 `_system/sessions/{id}.json`（🟡 危險度，Brain 寫入+MCP server 只讀，L2 思考者取得對話上下文）；新增 #40 `group_context.db`（🟡 危險度，GroupContextStore 寫入+MCP server 只讀，L2 取得群組脈絡，SQLite WAL 保護）；mcp_server.py 新增 3 工具（museon_session_history/museon_group_context/museon_persona）；共享狀態 38→40 個 |
 | 2026-03-23 | v1.37 | 三層調度員架構：新增 #37 `museon-persona.md`（🟡 危險度，Zeal/morphenix 寫入，所有 L2 thinker subagent spawn 時讀取——影響面廣但寫入頻率極低）；補登 #38 `~/.claude/skills/*/SKILL.md`（🔴 危險度，51 個 Skill ~909KB，3 寫入者 手動/acsf/morphenix，4+ 讀取者 Claude Code session/skill_router/vector_bridge/nightly 8.6）；快速索引表補齊 #36；共享狀態 36→38 個 |
 | 2026-03-22 | v1.36 | External User 健康檢查：新增 #36 `external_users/{uid}.json`（🟢 危險度，ExternalAnimaManager 統一管理）；ExternalAnimaManager 新增 `threading.Lock` + 原子寫入（tmp→rename）修復 TOCTOU 競態條件；鎖一覽表新增 external_users 條目；共享狀態 35→36 個 |
 | 2026-03-22 | v1.35 | Sparse Embedder 啟動：#9 Qdrant 向量庫 Sparse Collections 從「已定義未消費」升級為「全面啟動」；hybrid_search() 被 skill_router + memory_manager + knowledge_lattice + server.py 4 個消費者呼叫（取代原 pure dense search）；Nightly Step 8.7 新增 IDF 重建 + 回填步驟；Gateway startup 新增 IDF 驗證；同步 blast-radius v1.35、persistence-contract v1.30 |
