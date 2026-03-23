@@ -1005,6 +1005,24 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 
 ---
 
+### 41. exploration_log.md
+
+**路徑**：`data/exploration_log.md`
+**用途**：探索主題去重與深度遞進追蹤——記錄最近 30 天的自主探索履歷，防止同一主題重複探索無深度
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| `pulse/explorer.py` | **W** | `_log_exploration()` | 探索完成後 append 新記錄 | 無（單寫入者） |
+| `pulse/explorer.py` | **R** | `_load_exploration_log()` | 探索前檢查去重 + 判斷深度遞進 | 無（唯讀快照） |
+
+> **鎖**：無（Markdown append-only，單一寫入者 explorer.py）
+> **TTL**：保留最近 30 天（實裝：歷史條目永久保留，查詢時過濾）
+> **危險度**：🟢 綠（單一寫入者 explorer.py，讀取者同一模組內部，無外部依賴）
+
+---
+
 ## 必須同時修改的模組組（不可分批）
 
 > 修改以下任一模組時，**必須**同時檢查並調整同組所有模組。
@@ -1060,6 +1078,7 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-23 | v1.39 | 探索去重防禦機制：新增 #41 `exploration_log.md`（🟢 危險度，Explorer 單一寫入者，去重檢查 + 深度遞進邏輯）；Explorer 新增 `_check_duplicate()` / `_normalize_topic()` / `_load_exploration_log()` / `_log_exploration()` 四個方法（防止同一主題短期內重複探索無深度——解決 2026-03-23 一天 12 次探索雷同的盲點）；共享狀態 40→41 個 |
 | 2026-03-23 | v1.38 | 三層架構 MCP 橋接：新增 #39 `_system/sessions/{id}.json`（🟡 危險度，Brain 寫入+MCP server 只讀，L2 思考者取得對話上下文）；新增 #40 `group_context.db`（🟡 危險度，GroupContextStore 寫入+MCP server 只讀，L2 取得群組脈絡，SQLite WAL 保護）；mcp_server.py 新增 3 工具（museon_session_history/museon_group_context/museon_persona）；共享狀態 38→40 個 |
 | 2026-03-23 | v1.37 | 三層調度員架構：新增 #37 `museon-persona.md`（🟡 危險度，Zeal/morphenix 寫入，所有 L2 thinker subagent spawn 時讀取——影響面廣但寫入頻率極低）；補登 #38 `~/.claude/skills/*/SKILL.md`（🔴 危險度，51 個 Skill ~909KB，3 寫入者 手動/acsf/morphenix，4+ 讀取者 Claude Code session/skill_router/vector_bridge/nightly 8.6）；快速索引表補齊 #36；共享狀態 36→38 個 |
 | 2026-03-22 | v1.36 | External User 健康檢查：新增 #36 `external_users/{uid}.json`（🟢 危險度，ExternalAnimaManager 統一管理）；ExternalAnimaManager 新增 `threading.Lock` + 原子寫入（tmp→rename）修復 TOCTOU 競態條件；鎖一覽表新增 external_users 條目；共享狀態 35→36 個 |
