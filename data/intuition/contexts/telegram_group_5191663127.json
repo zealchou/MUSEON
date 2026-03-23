@@ -1,0 +1,185 @@
+{
+  "session_id": "telegram_group_5191663127",
+  "nodes": {
+    "topic_turn_0": {
+      "node_id": "topic_turn_0",
+      "node_type": "topic",
+      "label": "turn_0",
+      "properties": {
+        "content_length": 153,
+        "detected_at": "2026-03-23T08:18:23.975352"
+      },
+      "created_at": "2026-03-23T08:18:23.975464",
+      "updated_at": "2026-03-23T08:18:23.975469"
+    },
+    "topic_turn_1": {
+      "node_id": "topic_turn_1",
+      "node_type": "topic",
+      "label": "turn_1",
+      "properties": {
+        "content_length": 245,
+        "detected_at": "2026-03-23T08:21:41.979615"
+      },
+      "created_at": "2026-03-23T08:21:41.979672",
+      "updated_at": "2026-03-23T08:21:41.979674"
+    },
+    "topic_turn_2": {
+      "node_id": "topic_turn_2",
+      "node_type": "topic",
+      "label": "turn_2",
+      "properties": {
+        "content_length": 324,
+        "detected_at": "2026-03-23T08:25:22.077689"
+      },
+      "created_at": "2026-03-23T08:25:22.077766",
+      "updated_at": "2026-03-23T08:25:22.077768"
+    },
+    "topic_turn_3": {
+      "node_id": "topic_turn_3",
+      "node_type": "topic",
+      "label": "turn_3",
+      "properties": {
+        "content_length": 427,
+        "detected_at": "2026-03-23T08:31:08.038766"
+      },
+      "created_at": "2026-03-23T08:31:08.038919",
+      "updated_at": "2026-03-23T08:31:08.038924"
+    },
+    "intention_決策": {
+      "node_id": "intention_決策",
+      "node_type": "intention",
+      "label": "決策",
+      "properties": {
+        "detected_at": "2026-03-23T09:45:26.810937"
+      },
+      "created_at": "2026-03-23T08:35:12.747047",
+      "updated_at": "2026-03-23T09:45:26.811123"
+    },
+    "topic_turn_5": {
+      "node_id": "topic_turn_5",
+      "node_type": "topic",
+      "label": "turn_5",
+      "properties": {
+        "content_length": 611,
+        "detected_at": "2026-03-23T08:35:12.746939"
+      },
+      "created_at": "2026-03-23T08:35:12.747095",
+      "updated_at": "2026-03-23T08:35:12.747101"
+    },
+    "topic_turn_6": {
+      "node_id": "topic_turn_6",
+      "node_type": "topic",
+      "label": "turn_6",
+      "properties": {
+        "content_length": 692,
+        "detected_at": "2026-03-23T08:36:57.471142"
+      },
+      "created_at": "2026-03-23T08:36:57.471293",
+      "updated_at": "2026-03-23T08:36:57.471297"
+    },
+    "topic_turn_7": {
+      "node_id": "topic_turn_7",
+      "node_type": "topic",
+      "label": "turn_7",
+      "properties": {
+        "content_length": 725,
+        "detected_at": "2026-03-23T09:37:29.377666"
+      },
+      "created_at": "2026-03-23T09:37:29.377821",
+      "updated_at": "2026-03-23T09:37:29.377822"
+    },
+    "topic_turn_8": {
+      "node_id": "topic_turn_8",
+      "node_type": "topic",
+      "label": "turn_8",
+      "properties": {
+        "content_length": 749,
+        "detected_at": "2026-03-23T09:40:59.988992"
+      },
+      "created_at": "2026-03-23T09:40:59.989981",
+      "updated_at": "2026-03-23T09:40:59.989983"
+    },
+    "topic_turn_9": {
+      "node_id": "topic_turn_9",
+      "node_type": "topic",
+      "label": "turn_9",
+      "properties": {
+        "content_length": 816,
+        "detected_at": "2026-03-23T09:45:26.810937"
+      },
+      "created_at": "2026-03-23T09:45:26.811143",
+      "updated_at": "2026-03-23T09:45:26.811146"
+    },
+    "intention_求助": {
+      "node_id": "intention_求助",
+      "node_type": "intention",
+      "label": "求助",
+      "properties": {
+        "detected_at": "2026-03-23T12:15:41.254657"
+      },
+      "created_at": "2026-03-23T10:20:25.249476",
+      "updated_at": "2026-03-23T12:15:41.254786"
+    },
+    "topic_turn_11": {
+      "node_id": "topic_turn_11",
+      "node_type": "topic",
+      "label": "turn_11",
+      "properties": {
+        "content_length": 930,
+        "detected_at": "2026-03-23T10:20:25.249327"
+      },
+      "created_at": "2026-03-23T10:20:25.249514",
+      "updated_at": "2026-03-23T10:20:25.249519"
+    },
+    "topic_turn_12": {
+      "node_id": "topic_turn_12",
+      "node_type": "topic",
+      "label": "turn_12",
+      "properties": {
+        "content_length": 957,
+        "detected_at": "2026-03-23T10:38:17.801460"
+      },
+      "created_at": "2026-03-23T10:38:17.801569",
+      "updated_at": "2026-03-23T10:38:17.801571"
+    },
+    "topic_turn_13": {
+      "node_id": "topic_turn_13",
+      "node_type": "topic",
+      "label": "turn_13",
+      "properties": {
+        "content_length": 945,
+        "detected_at": "2026-03-23T11:05:28.175289"
+      },
+      "created_at": "2026-03-23T11:05:28.175424",
+      "updated_at": "2026-03-23T11:05:28.175427"
+    },
+    "topic_turn_14": {
+      "node_id": "topic_turn_14",
+      "node_type": "topic",
+      "label": "turn_14",
+      "properties": {
+        "content_length": 1028,
+        "detected_at": "2026-03-23T12:15:41.254657"
+      },
+      "created_at": "2026-03-23T12:15:41.254797",
+      "updated_at": "2026-03-23T12:15:41.254799"
+    },
+    "topic_turn_15": {
+      "node_id": "topic_turn_15",
+      "node_type": "topic",
+      "label": "turn_15",
+      "properties": {
+        "content_length": 109,
+        "detected_at": "2026-03-23T12:23:46.418074"
+      },
+      "created_at": "2026-03-23T12:23:46.418142",
+      "updated_at": "2026-03-23T12:23:46.418144"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 14,
+    "last_content_length": 109
+  },
+  "last_updated": "2026-03-23T12:23:46.418074"
+}

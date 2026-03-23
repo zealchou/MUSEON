@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260323_104313_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n這段回覆是技術診斷，但 Zeal 在群組中問的是「可以互動了嗎」「正常了嗎」——他要的是**狀態確認 + 下一步行動**，而非根本原因分析。建議改為：\n1. 先直答「已修復，可以互動了」或「還在調整中」\n2. 簡述技術原因（一句話）\n3. 提供立即可驗證的下一步（邀請 Zeal 在群組測試、或明確告知何時可用）",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-23T10:43:13.068650+08:00",
+  "priority": "medium"
+}

@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUC MVP 架構表 | MUSEON</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --ember: #C4502A;
+            --ember-light: #E0714D;
+            --ember-dark: #9A3A1C;
+            --teal: #2A7A6E;
+            --gold: #B8923A;
+            --ink: #12121A;
+            --slate: #5A5A6E;
+            --mist: #9898A8;
+            --border: #E2E0DA;
+            --parchment: #F7F5F0;
+            --snow: #FDFCFA;
+            --success: #2D8A6E;
+            --warning: #C9943A;
+            --error: #C4402A;
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            background-color: var(--parchment);
+            color: var(--ink);
+            line-height: 1.75;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--ink);
+        }
+
+        .subtitle {
+            font-size: 1.125rem;
+            color: var(--slate);
+            margin-bottom: 3rem;
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .subtitle span {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background-color: #FFF3E6;
+            color: var(--warning);
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--ember);
+            color: var(--ink);
+        }
+
+        h3 {
+            font-size: 1.375rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--ink);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-card {
+            background-color: var(--snow);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .info-card-label {
+            font-size: 0.875rem;
+            color: var(--slate);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-card-value {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--snow);
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        thead {
+            background-color: #F0EDE8;
+            border-bottom: 2px solid var(--border);
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--ink);
+            border-right: 1px solid var(--border);
+        }
+
+        th:last-child {
+            border-right: none;
+        }
+
+        td {
+            padding: 1rem;
+            border-right: 1px solid var(--border);
+            color: var(--ink);
+        }
+
+        td:last-child {
+            border-right: none;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--border);
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background-color: #FAFAF8;
+        }
+
+        .status-done { color: var(--success); font-weight: 600; }
+        .status-pending { color: var(--warning); font-weight: 600; }
+        .status-todo { color: var(--mist); }
+
+        .architecture-diagram {
+            background-color: var(--snow);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            overflow-x: auto;
+            color: var(--slate);
+        }
+
+        .layer-box {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-left: 4px solid var(--ember);
+            background-color: #FEF8F4;
+        }
+
+        .progress-indicator {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 8px;
+            background-color: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--ember);
+            width: 76%; /* 66/86 tasks */
+        }
+
+        .progress-label {
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .section-intro {
+            background-color: #FEF8F4;
+            border-left: 4px solid var(--ember);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 4px;
+        }
+
+        .section-intro p {
+            margin-bottom: 0.5rem;
+        }
+
+        .highlight {
+            background-color: #FFF9F0;
+            padding: 0.2rem 0.4rem;
+            color: var(--ember);
+            font-weight: 600;
+        }
+
+        .footer {
+            text-align: center;
+            color: var(--slate);
+            font-size: 0.875rem;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: var(--ember);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        .cta-button:hover {
+            background-color: var(--ember-dark);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 0.875rem;
+            }
+
+            th, td {
+                padding: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <h1>MUC MVP 架構表</h1>
+        <div class="subtitle">
+            <span>🏢 <strong>專案</strong>：Museclaw User Control MVP</span>
+            <span class="status-badge">🚧 Phase 13.5 完成</span>
+            <span><strong>版本</strong>：2026-03-23</span>
+        </div>
+
+        <!-- Section 1: 專案定位 -->
+        <h2>一、專案定位</h2>
+        <div class="info-grid">
+            <div class="info-card">
+                <div class="info-card-label">核心目的</div>
+                <div class="info-card-value">設備授權 + 訂閱計費 + 安全控管</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-label">目標用戶</div>
+                <div class="info-card-value">Museclaw Agent 設備端</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-label">商業模式</div>
+                <div class="info-card-value">訂閱制 (月費/年費)</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-label">第一階段</div>
+                <div class="info-card-value">收費閉環 + 防破解基線</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-label">技術棧</div>
+                <div class="info-card-value">NestJS + Vue 3 + PostgreSQL</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-label">開發者</div>
+                <div class="info-card-value">Feng</div>
+            </div>
+        </div>
+
+        <!-- Section 2: 核心系統七層 -->
+        <h2>二、核心系統七層架構</h2>
+        <div class="section-intro">
+            <p>從 <span class="highlight">身分</span> → <span class="highlight">綁定</span> → <span class="highlight">收費</span> → <span class="highlight">授權</span> → <span class="highlight">監控</span>，完整的設備管理 SaaS 價值鏈。</p>
+        </div>
+
+        <div class="architecture-diagram">
+┌─────────────────────────────────────────────┐
+│ Layer 1：帳號認證與身分                      │
+│ ├─ Account Registration & Login             │
+│ ├─ JWT Token 簽發                           │
+│ └─ Role-Based Access Control (RBAC)         │
+└─────────────────────────────────────────────┘
+                    ↓
+┌─────────────────────────────────────────────┐
+│ Layer 2：序號管理（License）                 │
+│ ├─ Admin 建立/啟用/停用序號                  │
+│ ├─ User 查詢自己的序號                      │
+│ └─ 序號作為計費與設備綁定單位                │
+└─────────────────────────────────────────────┘
+                    ↓
+┌─────────────────────────────────────────────┐
+│ Layer 3：設備配對與令牌                      │
+│ ├─ User 產生配對碼（5 分鐘有效）            │
+│ ├─ Agent 輸入碼完成首次綁定                 │
+│ ├─ Platform 發行 Device Token                │
+│ └─ 明文只回傳一次，之後存 Hash              │
+└─────────────────────────────────────────────┘
+                    ↓
+┌─────────────────────────────────────────────┐
+│ Layer 4：訂閱管理（Subscription）            │
+│ ├─ ACTIVE / GRACE / SUSPENDED               │
+│ ├─ Reconciler 每 5 分鐘自動轉狀態            │
+│ └─ 收款後立即恢復 ACTIVE                    │
+└─────────────────────────────────────────────┘
+                    ↓
+┌─────────────────────────────────────────────┐
+│ Layer 5：付款與計費（Payment）               │
+│ ├─ Admin 建立付款單（DRAFT）                │
+│ ├─ Admin 確認收款（CONFIRMED）              │
+│ ├─ 確認後自動激活 Subscription              │
+│ └─ 支援作廢，但已確認不可逆                 │
+└─────────────────────────────────────────────┘
+                    ↓
+┌─────────────────────────────────────────────┐
+│ Layer 6：授權檢查（Entitlement）            │
+│ ├─ Agent 定期輪詢授權狀態                   │
+│ ├─ Response 用 Ed25519 簽章（5 分鐘有效）  │
+│ ├─ Agent 驗章成功才認定有效                 │
+│ └─ 接新任務前再檢查一次（pre-job check）    │
+└─────────────────────────────────────────────┘
+                    ↓
+┌─────────────────────────────────────────────┐
+│ Layer 7：監控、稽審、告警                    │
+│ ├─ Audit Log：所有操作記錄                  │
+│ ├─ Alert：告警事件分級                      │
+│ ├─ Notification：Email 通知                 │
+│ └─ Admin Dashboard：統計 + 監控              │
+└─────────────────────────────────────────────┘
+        </div>
+
+        <!-- Section 3: 進度總覽 -->
+        <h2>三、開發進度總覽</h2>
+
+        <div class="progress-indicator">
+            <div class="progress-label">已完成 66/86 工作</div>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+            <div class="progress-label" style="min-width: 50px; text-align: right;">76%</div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 25%;">階段</th>
+                    <th style="width: 50%;">內容</th>
+                    <th style="width: 25%;">狀態</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Phase 1</td>
+                    <td>專案骨架 + Auth</td>
+                    <td><span class="status-done">✅ 完成</span></td>
+                </tr>
+                <tr>
+                    <td>Phase 2</td>
+                    <td>License + Pair Code + Subscription</td>
+                    <td><span class="status-done">✅ 完成</span></td>
+                </tr>
+                <tr>
+                    <td>Phase 3</td>
+                    <td>Payment</td>
+                    <td><span class="status-done">✅ 完成</span></td>
+                </tr>
+                <tr>
+                    <td>Phase 4</td>
+                    <td>BillingProfile</td>
+                    <td><span class="status-done">✅ 完成</span></td>
+                </tr>
+                <tr>
+                    <td>Phase 5</td>
+                    <td>Device Pairing</td>
+                    <td><span class="status-done">✅ 完成</span></td>
+                </tr>
+                <tr>
+                    <td>Phase 6</td>
+                    <td>Audit Log + Alert</td>
+                    <td><span class="status-done">✅ 完成</span></td>
+                </tr>
+                <tr>
+                    <td>Phase 7</td>
+                    <td>Entitlement + Pre-Job Check</td>
+                    <td><span class="status-done">✅ 完成</span></td>
+                </tr>
+                <tr>
+                    <td>Phase 8</td>
+                    <td>Notification</td>
+                    <td><span class="status-done">✅ 完成</span></td>
+                </tr>
+                <tr>
+                    <td>Phase 9</td>
+                    <td>前台 UI（Admin + Portal）</td>
+                    <td><span class="status-done">✅ 完成</span></td>
+                </tr>
+                <tr>
+                    <td>Phase 10</td>
+                    <td>測試</td>
+                    <td><span class="status-done">✅ 完成</span></td>
+                </tr>
+                <tr>
+                    <td>Phase 11</td>
+                    <td>Agent SDK + 部署</td>
+                    <td><span class="status-done">✅ 完成</span></td>
+                </tr>
+                <tr>
+                    <td>Phase 12</td>
+                    <td>User 自助付款</td>
+                    <td><span class="status-done">✅ 完成</span></td>
+                </tr>
+                <tr>
+                    <td>Phase 13</td>
+                    <td>最小營運範疇 + 全自助訂購</td>
+                    <td><span class="status-done">✅ 完成</span></td>
+                </tr>
+                <tr>
+                    <td>Phase 13.5</td>
+                    <td>付款方式管理 + UI/UX 技術債</td>
+                    <td><span class="status-done">✅ 完成 (2026-03-22)</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Phase 14</strong></td>
+                    <td><strong>Credit 點數系統</strong></td>
+                    <td><span class="status-pending">⬜ 規劃完成，待開工</span></td>
+                </tr>
+                <tr>
+                    <td>Phase 15</td>
+                    <td>自動金流串接</td>
+                    <td><span class="status-pending">⬜ 預留架構</span></td>
+                </tr>
+                <tr>
+                    <td>Phase 16</td>
+                    <td>推薦分潤</td>
+                    <td><span class="status-pending">⬜ 待規劃</span></td>
+                </tr>
+                <tr>
+                    <td>Phase 17</td>
+                    <td>自動更新發佈平台</td>
+                    <td><span class="status-pending">⬜ 待規劃</span></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Section 4: 當前交付能力 -->
+        <h2>四、當前交付能力（Phase 13.5）</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 30%;">模組</th>
+                    <th style="width: 50%;">核心功能</th>
+                    <th style="width: 20%;">狀態</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>帳號認證</td>
+                    <td>註冊、登入、JWT Guard、RBAC</td>
+                    <td><span class="status-done">✅</span></td>
+                </tr>
+                <tr>
+                    <td>序號管理</td>
+                    <td>Admin 建立/啟用/停用，User 查詢</td>
+                    <td><span class="status-done">✅</span></td>
+                </tr>
+                <tr>
+                    <td>設備配對</td>
+                    <td>配對碼、Token 發行、Revoke</td>
+                    <td><span class="status-done">✅</span></td>
+                </tr>
+                <tr>
+                    <td>訂閱狀態機</td>
+                    <td>ACTIVE→GRACE→SUSPENDED，自動轉換</td>
+                    <td><span class="status-done">✅</span></td>
+                </tr>
+                <tr>
+                    <td>付款管理</td>
+                    <td>DRAFT/CONFIRMED/VOID，人工確認</td>
+                    <td><span class="status-done">✅</span></td>
+                </tr>
+                <tr>
+                    <td>授權檢查</td>
+                    <td>Ed25519 簽章驗證，5 分鐘有效期</td>
+                    <td><span class="status-done">✅</span></td>
+                </tr>
+                <tr>
+                    <td>稽審紀錄</td>
+                    <td>16 種操作記錄，Append-only</td>
+                    <td><span class="status-done">✅</span></td>
+                </tr>
+                <tr>
+                    <td>告警中心</td>
+                    <td>事件偵測、ACK/RESOLVE</td>
+                    <td><span class="status-done">✅</span></td>
+                </tr>
+                <tr>
+                    <td>通知系統</td>
+                    <td>SendGrid 串接，Email 發送</td>
+                    <td><span class="status-done">✅</span></td>
+                </tr>
+                <tr>
+                    <td>Admin UI</td>
+                    <td>8 張管理頁面 + Dashboard</td>
+                    <td><span class="status-done">✅</span></td>
+                </tr>
+                <tr>
+                    <td>Portal UI</td>
+                    <td>用戶自服務頁面 + 帳單查詢</td>
+                    <td><span class="status-done">✅</span></td>
+                </tr>
+                <tr>
+                    <td>付款方式</td>
+                    <td>多種付款方式支援與管理</td>
+                    <td><span class="status-done">✅</span></td>
+                </tr>
+                <tr>
+                    <td>訂購流程</td>
+                    <td>訂閱/續約分流，自助結帳</td>
+                    <td><span class="status-done">✅</span></td>
+                </tr>
+                <tr>
+                    <td>Order 模型</td>
+                    <td>訂單追蹤，完整生命週期</td>
+                    <td><span class="status-done">✅</span></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Section 5: 安全基線 -->
+        <h2>五、安全基線清單</h2>
+        <p style="margin-bottom: 1rem; color: var(--slate);">Phase 1 已實現所有防破解基線，Phase 2 將進階到自動金流與推薦分潤。</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>項目</th>
+                    <th>實作方式</th>
+                    <th>狀態</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>序號不作為直接授權憑證</td>
+                    <td>用 Device Token 代替</td>
+                    <td><span class="status-done">✅</span></td>
+                </tr>
+                <tr>
+                    <td>配對碼一次性、短時效</td>
+                    <td>5 分鐘內、Hash 存儲</td>
+                    <td><span class="status-done">✅</span></td>
+                </tr>
+                <tr>
+                    <td>Device Token 高熵亂數</td>
+                    <td>32 hex (16 bytes)</td>
+                    <td><span class="status-done">✅</span></td>
+                </tr>
+                <tr>
+                    <td>Token 綁 device_id + fingerprint</td>
+                    <td>必填驗證欄位</td>
+                    <td><span class="status-done">✅</span></td>
+                </tr>
+                <tr>
+                    <td>Entitlement 簽章</td>
+                    <td>Ed25519 簽章驗證</td>
+                    <td><span class="status-done">✅</span></td>
+                </tr>
+                <tr>
+                    <td>Agent 驗章</td>
+                    <td>內建公鑰，本地驗證</td>
+                    <td><span class="status-done">✅</span></td>
+                </tr>
+                <tr>
+                    <td>接新任務前檢查</td>
+                    <td>pre-job check API</td>
+                    <td><span class="status-done">✅</span></td>
+                </tr>
+                <tr>
+                    <td>離線超過 15 分鐘停止接任務</td>
+                    <td>Agent SDK 實現</td>
+                    <td><span class="status-done">✅</span></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Section 6: 系統邊界 -->
+        <h2>六、系統邊界與外部 API</h2>
+
+        <h3>設備側 API（Agent 呼叫）</h3>
+        <div style="background-color: #F0EDE8; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.875rem;">
+            POST   /api/device/pair           → 配對 + 取得 Token<br>
+            GET    /api/device/entitlement    → 查詢授權狀態（驗章）<br>
+            POST   /api/device/check-before-job → 接新任務前檢查
+        </div>
+
+        <h3>管理側 API（Admin 呼叫）</h3>
+        <div style="background-color: #F0EDE8; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.875rem;">
+            License 管理：CRUD、啟用/停用/作廢<br>
+            Payment 管理：建立草稿、確認、作廢<br>
+            Subscription 管理：查詢、手動調整<br>
+            Device 管理：列表、Revoke<br>
+            Alert 管理：列表、ACK、RESOLVE
+        </div>
+
+        <h3>後台排程（無需人工操作）</h3>
+        <div style="background-color: #F0EDE8; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.875rem;">
+            Reconciler (5分鐘)：ACTIVE→GRACE→SUSPENDED 狀態轉換<br>
+            Notification Worker：Email 發送
+        </div>
+
+        <h3>Phase 1 不包含（待 Phase 15+）</h3>
+        <div style="background-color: #FEE6E0; padding: 1rem; border-radius: 4px; margin-bottom: 2rem; color: var(--error);">
+            ❌ 自動金流串接（須人工確認收款）<br>
+            ❌ 自動退款<br>
+            ❌ 推薦/分潤系統<br>
+            ❌ 代理商管理<br>
+            ❌ 深度反逆向方案
+        </div>
+
+        <!-- Section 7: 下一步 -->
+        <h2>七、下一步（Phase 14 - Credit 點數系統）</h2>
+
+        <div class="section-intro">
+            <p><strong>預期開工時間</strong>：待 Feng 安排</p>
+            <p><strong>預期交付物</strong>：</p>
+            <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                <li>Credit balance 管理（月度配點、超額）</li>
+                <li>Credit transaction 紀錄</li>
+                <li>用量統計與超額提醒</li>
+                <li>Agent SDK 側的 consume / balance API</li>
+            </ul>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>MUC MVP 架構總覽 v1.0 | 生成於 2026-03-23</p>
+            <p>來自 Feng (開發) & MUSEON (架構整理)</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,4 +1,0 @@
-{"timestamp": "2026-02-27T09:39:44.448442", "layer": "L2", "check": "wee_data", "status": "repaired", "action": "create_wee_dir"}
-{"timestamp": "2026-02-27T09:39:44.449385", "layer": "L2", "check": "morphenix_data", "status": "repaired", "action": "create_morphenix_dir"}
-{"timestamp": "2026-02-27T09:39:44.450207", "layer": "L2", "check": "lattice_integrity", "status": "repaired", "action": "crystals 重建為空; links 重建為空"}
-{"timestamp": "2026-02-27T09:39:44.453734", "layer": "L2", "check": "backups", "status": "repaired", "action": "建立 2 個備份"}

@@ -132,12 +132,34 @@
       },
       "created_at": "2026-03-21T12:13:24.790852",
       "updated_at": "2026-03-21T12:13:24.790857"
+    },
+    "topic_turn_12": {
+      "node_id": "topic_turn_12",
+      "node_type": "topic",
+      "label": "turn_12",
+      "properties": {
+        "content_length": 943,
+        "detected_at": "2026-03-23T10:43:15.437939"
+      },
+      "created_at": "2026-03-23T10:43:15.438099",
+      "updated_at": "2026-03-23T10:43:15.438103"
+    },
+    "topic_turn_13": {
+      "node_id": "topic_turn_13",
+      "node_type": "topic",
+      "label": "turn_13",
+      "properties": {
+        "content_length": 990,
+        "detected_at": "2026-03-23T12:12:40.016380"
+      },
+      "created_at": "2026-03-23T12:12:40.016488",
+      "updated_at": "2026-03-23T12:12:40.016490"
     }
   },
   "edges": {},
   "metadata": {
-    "turn_count": 12,
-    "last_content_length": 893
+    "turn_count": 14,
+    "last_content_length": 990
   },
-  "last_updated": "2026-03-21T12:13:24.790608"
+  "last_updated": "2026-03-23T12:12:40.016380"
 }

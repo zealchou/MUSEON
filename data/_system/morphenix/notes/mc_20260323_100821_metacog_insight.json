@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260323_100821_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n這份白話版很有幫助，但缺少 Zeal 最急需的三個訊息：\n\n1. **決策項目太密碼化** — 「OQ-005」Zeal 還是看不懂，改成「支付邏輯方案選擇」這樣的人話\n2. **試用前的準備清單** — MVP 完成 ≠ 能給客戶試用，還需要什麼？（測試、文檔、培訓？）列出來\n3. **決策的截止日期** — 「盡快」太虛，改成「本週五前決策，才能不延期」這樣有時間壓力的說法",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-23T10:08:21.322205+08:00",
+  "priority": "medium"
+}

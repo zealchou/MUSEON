@@ -1,0 +1,97 @@
+{
+  "session_id": "telegram_group_5195907318",
+  "nodes": {
+    "topic_turn_0": {
+      "node_id": "topic_turn_0",
+      "node_type": "topic",
+      "label": "turn_0",
+      "properties": {
+        "content_length": 187,
+        "detected_at": "2026-03-23T10:47:48.702480"
+      },
+      "created_at": "2026-03-23T10:47:48.702525",
+      "updated_at": "2026-03-23T10:47:48.702528"
+    },
+    "intention_求助": {
+      "node_id": "intention_求助",
+      "node_type": "intention",
+      "label": "求助",
+      "properties": {
+        "detected_at": "2026-03-23T11:18:29.356309"
+      },
+      "created_at": "2026-03-23T11:11:11.494210",
+      "updated_at": "2026-03-23T11:18:29.356395"
+    },
+    "topic_turn_2": {
+      "node_id": "topic_turn_2",
+      "node_type": "topic",
+      "label": "turn_2",
+      "properties": {
+        "content_length": 274,
+        "detected_at": "2026-03-23T11:11:11.494179"
+      },
+      "created_at": "2026-03-23T11:11:11.494219",
+      "updated_at": "2026-03-23T11:11:11.494220"
+    },
+    "topic_turn_3": {
+      "node_id": "topic_turn_3",
+      "node_type": "topic",
+      "label": "turn_3",
+      "properties": {
+        "content_length": 279,
+        "detected_at": "2026-03-23T11:18:29.356309"
+      },
+      "created_at": "2026-03-23T11:18:29.356415",
+      "updated_at": "2026-03-23T11:18:29.356419"
+    },
+    "topic_turn_4": {
+      "node_id": "topic_turn_4",
+      "node_type": "topic",
+      "label": "turn_4",
+      "properties": {
+        "content_length": 347,
+        "detected_at": "2026-03-23T12:20:56.502509"
+      },
+      "created_at": "2026-03-23T12:20:56.502647",
+      "updated_at": "2026-03-23T12:20:56.502653"
+    },
+    "topic_turn_5": {
+      "node_id": "topic_turn_5",
+      "node_type": "topic",
+      "label": "turn_5",
+      "properties": {
+        "content_length": 510,
+        "detected_at": "2026-03-23T12:59:57.566091"
+      },
+      "created_at": "2026-03-23T12:59:57.566144",
+      "updated_at": "2026-03-23T12:59:57.566146"
+    },
+    "intention_任務委派": {
+      "node_id": "intention_任務委派",
+      "node_type": "intention",
+      "label": "任務委派",
+      "properties": {
+        "detected_at": "2026-03-23T13:03:25.584337"
+      },
+      "created_at": "2026-03-23T13:03:25.584650",
+      "updated_at": "2026-03-23T13:03:25.584656"
+    },
+    "topic_turn_7": {
+      "node_id": "topic_turn_7",
+      "node_type": "topic",
+      "label": "turn_7",
+      "properties": {
+        "content_length": 1297,
+        "detected_at": "2026-03-23T13:03:25.584337"
+      },
+      "created_at": "2026-03-23T13:03:25.584689",
+      "updated_at": "2026-03-23T13:03:25.584693"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 6,
+    "last_content_length": 1297
+  },
+  "last_updated": "2026-03-23T13:03:25.584337"
+}

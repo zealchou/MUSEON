@@ -1035,20 +1035,52 @@ class PulseEngine:
         return idx
 
     def _is_recently_explored(self, topic: str, days: int = 7) -> bool:
-        """檢查主題是否在最近 N 天內已探索過（關鍵詞重疊 > 50%）."""
+        """檢查主題是否在最近 N 天內已探索過（多策略比對）.
+
+        策略：
+        1. 包含關係（短的被長的完全包含）
+        2. 字元級 bigram Dice 係數 > 0.5
+        3. 空格分詞關鍵詞重疊 > 50%
+        """
         if not self._db:
             return False
         recent = self._db.get_recent_explorations(days=days, limit=30)
         if not topic or not recent:
             return False
-        topic_words = set(topic.replace("，", " ").replace("、", " ").split())
+
+        import re as _re
+        norm_topic = _re.sub(r"[^\w\s]", "", topic).lower().strip()
+        norm_topic = _re.sub(r"\s+", " ", norm_topic)
+        topic_bigrams = set(norm_topic[i:i+2] for i in range(len(norm_topic) - 1) if not norm_topic[i].isspace())
+        topic_words = set(norm_topic.split())
+
         for past in recent:
-            past_words = set(past.replace("，", " ").replace("、", " ").split())
-            if not topic_words or not past_words:
-                continue
-            overlap = len(topic_words & past_words) / max(len(topic_words), 1)
-            if overlap > 0.5:
+            norm_past = _re.sub(r"[^\w\s]", "", past).lower().strip()
+            norm_past = _re.sub(r"\s+", " ", norm_past)
+
+            # 精確匹配
+            if norm_topic == norm_past:
                 return True
+
+            # 包含關係
+            if len(norm_topic) > 4 and len(norm_past) > 4:
+                if norm_topic in norm_past or norm_past in norm_topic:
+                    return True
+
+            # 字元 bigram Dice 係數
+            past_bigrams = set(norm_past[i:i+2] for i in range(len(norm_past) - 1) if not norm_past[i].isspace())
+            if topic_bigrams and past_bigrams:
+                dice = 2 * len(topic_bigrams & past_bigrams) / (len(topic_bigrams) + len(past_bigrams))
+                if dice > 0.5:
+                    return True
+
+            # 空格分詞關鍵詞重疊
+            past_words = set(norm_past.split())
+            if topic_words and past_words:
+                overlap = len(topic_words & past_words) / min(len(topic_words), len(past_words))
+                if overlap > 0.5:
+                    return True
+
         return False
 
     def _get_next_explore_topic(self, trigger: str = "curiosity", skip_seed: bool = False) -> Optional[str]:

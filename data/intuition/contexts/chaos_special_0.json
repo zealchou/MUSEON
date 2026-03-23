@@ -660,12 +660,23 @@
       },
       "created_at": "2026-03-21T13:05:28.680441",
       "updated_at": "2026-03-21T13:05:28.680441"
+    },
+    "topic_turn_60": {
+      "node_id": "topic_turn_60",
+      "node_type": "topic",
+      "label": "turn_60",
+      "properties": {
+        "content_length": 14,
+        "detected_at": "2026-03-23T15:08:27.006197"
+      },
+      "created_at": "2026-03-23T15:08:27.006245",
+      "updated_at": "2026-03-23T15:08:27.006248"
     }
   },
   "edges": {},
   "metadata": {
-    "turn_count": 60,
+    "turn_count": 61,
     "last_content_length": 14
   },
-  "last_updated": "2026-03-21T13:05:28.680431"
+  "last_updated": "2026-03-23T15:08:27.006197"
 }
