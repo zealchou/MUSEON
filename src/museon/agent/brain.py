@@ -395,6 +395,20 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         except Exception as e:
             logger.warning(f"TokenBudgetManager 載入失敗（降級運行）: {e}")
 
+        # ── Project Epigenesis: 表觀遺傳記憶路由 ──
+        self._epigenetic_router = None
+        try:
+            from museon.memory.epigenetic_router import EpigeneticRouter
+            self._epigenetic_router = EpigeneticRouter(
+                memory_manager=self.memory_manager,
+                diary_store=self._diary_store,
+                knowledge_lattice=self.knowledge_lattice,
+                anima_changelog=getattr(self, '_anima_changelog', None),
+                pulse_db=_pulse_db if '_pulse_db' in dir() else None,
+            )
+        except Exception as e:
+            logger.warning(f"EpigeneticRouter 載入失敗（降級運行）: {e}")
+
         # ── Phase 3a: Governor 治理層引用 ──
         self._governor = None  # 由 set_governor() 注入
 
@@ -427,7 +441,8 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
             f"footprint: {'ON' if self._footprint else 'OFF'} | "
             f"trigger_engine: {'ON' if self._trigger_engine else 'OFF'} | "
             f"registry: {'ON' if self._registry_manager else 'OFF'} | "
-            f"recommender: {'ON' if self._recommender else 'OFF'}"
+            f"recommender: {'ON' if self._recommender else 'OFF'} | "
+            f"epigenetic: {'ON' if self._epigenetic_router else 'OFF'}"
         )
 
     # ─── Phase 3a: Governor 治理層連接 ───

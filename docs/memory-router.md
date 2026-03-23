@@ -1,4 +1,4 @@
-# Memory Router — 記憶路由表 v1.5
+# Memory Router — 記憶路由表 v1.6
 
 > **用途**：定義「什麼類型的洞見存到哪個記憶系統、什麼時候取出」。第五張工程藍圖。
 > **比喻**：郵局分揀表——每封信根據地址分到對應的信箱，不會寄丟也不會重複投遞。
@@ -114,12 +114,26 @@
 ### 規則 5：chat_scope 隔離
 群組記憶帶 `chat_scope="group:{group_id}"`，recall 時用 `chat_scope_filter` 過濾，避免不同群組記憶交叉污染。無 scope 的舊記憶（向下相容）在任何 filter 下均可見。可用 `exclude_scopes` 排除指定群組。
 
+### 規則 6：反思層路由（Project Epigenesis）
+EpigeneticRouter 在 brain.py `_build_memory_inject()` 中觸發，對已召回的記憶執行 Hindsight 反思：
+
+| 來源 | 經由 | 去向 | 說明 |
+|------|------|------|------|
+| MemoryManager.recall() | EpigeneticRouter → MemoryReflector | brain_prompt_builder memory zone | 六層記憶反思摘要（矛盾偵測/重複模式/時間軸） |
+| DiaryStore.recall_soul_rings() | EpigeneticRouter (temporal/causal graph) → MemoryReflector | brain_prompt_builder memory zone | Soul Ring 年輪的時間/因果圖遍歷結果 |
+| KnowledgeLattice.recall_tiered() | EpigeneticRouter (crystal graph) → MemoryReflector | brain_prompt_builder memory zone | 知識結晶反思（與記憶交叉比對） |
+| AnimaChangelog.get_evolution_summary() | EpigeneticRouter (temporal graph) | brain_prompt_builder memory zone | 使用者演化趨勢摘要（僅時間意圖觸發） |
+
+> **反思層不寫入任何持久狀態**——純 CPU 計算，不呼叫 LLM，延遲 < 50ms。
+> AdaptiveDecay 負責 Activation 排序（ACT-R 公式），MemoryReflector 負責交叉反思。
+
 ---
 
 ## 變更紀錄
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.6 | 2026-03-23 | Project Epigenesis 接線——新增規則 6（反思層路由）；EpigeneticRouter 在 brain.py _build_memory_inject() 中觸發 Hindsight 反思；4 條路由（memories→reflector、soul_rings→reflector、crystals→reflector、changelog→reflector）；反思摘要注入 memory zone；純 RO 計算不寫入持久層；同步 blast-radius v1.55、joint-map v1.40、persistence-contract v1.32 |
 | v1.5 | 2026-03-22 | 新增「系統基礎設施持久資料」區塊——收錄 sparse_idf.json（BM25 IDF 表），Writer: vector/sparse_embedder.py，Reader: SparseEmbedder init |
 | v1.4 | 2026-03-22 | P0-P3 升級——新增 3 條 knowledge-lattice 路由（report-forge→report_crystal、system-health-check→health_crystal、decision-tracker→decision_crystal）；新增 1 條 user-model 路由（decision-tracker→決策偏好+風險容忍度）；同步 system-topology v1.35、persistence-contract v1.28、blast-radius v1.46、joint-map v1.33 |
 | v1.3 | 2026-03-22 | 經驗諮詢閘門——新增 Procedure 結晶路由（brain.py 經驗回放 + crystal_actuator Lesson 升級），消費者：brain.py _build_memory_inject() 第四層經驗回放 |

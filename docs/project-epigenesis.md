@@ -14,7 +14,7 @@
 | 5 | Memory Reflector | ✅ 完成 | `f9646876` | Hindsight 式 Retain→Recall→Reflect |
 | 6 | Epigenetic Router | ✅ 完成 | `f9646876` | MAGMA 式多圖遍歷（semantic/temporal/causal/entity） |
 | 7 | Proactive Predictor | ✅ 完成 | `74024786` | 四維需求預判（序列/情緒/決策循環） |
-| 8 | 藍圖全面同步 + 3D 心智圖 | 🔲 待做 | — | 五張藍圖 + HTML（下次 session）|
+| 8 | 藍圖全面同步 + brain.py 接線 | ✅ 完成 | (pending) | brain.py 接入 EpigeneticRouter；brain_prompt_builder 反思摘要注入；blast-radius v1.55 + joint-map v1.40 + memory-router v1.6 + persistence-contract v1.32；system-topology v1.45 已有節點定義 |
 
 ## 架構總覽
 

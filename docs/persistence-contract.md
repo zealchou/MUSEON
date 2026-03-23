@@ -1,4 +1,4 @@
-# MUSEON Persistence Contract v1.31 — 水電圖
+# MUSEON Persistence Contract v1.32 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
@@ -396,6 +396,7 @@ Installer 編排 (orchestrator.py)
 | **記憶層級衰減** | `agent/memory_manager.py` | TTL 離散分級（見上方 TTL 分級表）+ 訪問次數晉升（L0→L1→L2）+ 低相關性降級（L2→L1→L0） | 各層 TTL 到期 / 訪問計數 < 閾值 | Nightly 清理 + MemoryManager 即時升降 |
 | **健康分數衰減** | `governance/dendritic_scorer.py` | 指數衰減，半衰期 2 小時：`score(t) = score₀ × exp(-ln2/2h × Δt)` | 無硬閾值（分數影響治理決策） | 每次 `tick()` 呼叫（governor 每回合觸發） |
 | **推薦近因性衰減** | `agent/recommender.py` | 近因性半衰期 7 天 + 互動衰減係數 λ=0.95：`recency = exp(-ln2/7d × days)` × `interaction_decay = 0.95^n` | 無硬閾值（影響推薦排序權重） | 每次推薦計算時即時計算 |
+| **ACT-R Activation 衰減** | `memory/adaptive_decay.py` | `B_i = ln(Σ t_j^{-d}) + β_i`；d=0.5（ACT-R 標準值）；β_i = ring_type_bonus + entry_type_bonus + reinforcement_bonus | activation < -2.0 → 沉降（dormant） | EpigeneticRouter.activate() 呼叫 MemoryReflector.reflect() → AdaptiveDecay.rank_by_activation()；nightly Step 32 sweep |
 
 #### 衰減引擎間的關係
 
@@ -413,6 +414,11 @@ dendritic_scorer ──半衰期──→ health_scores (PulseDB) ←── gove
                               brain Step 5.5 (P3 融合讀取)
 
 recommender ──近因性衰減──→ 推薦排序 (in-memory)
+
+adaptive_decay ──ACT-R B_i──→ _activation 欄位 (in-memory) ←── memory_reflector (排序+反思)
+                                     ↑
+                              epigenetic_router (多圖遍歷後觸發反思)
+                              brain_prompt_builder (注入 memory zone)
                                      ↑
                               crystals.json RI (交叉影響)
 ```
@@ -650,6 +656,7 @@ recommender ──近因性衰減──→ 推薦排序 (in-memory)
 | v1.0 | 2026-03-15 | 初版：完整水電圖，涵蓋 23 個正常配對、3 個 Dead Write、14 個死目錄 |
 | v1.1 | 2026-03-15 | Phase 2 完成：4 個 JSON 遷移至 PulseDB（ceremony_state + eval 三件套） |
 | v1.2 | 2026-03-15 | Phase 3 完成：DataContract + DataBus 建立，10 個 Store 類統一接入 |
+| v1.32 | 2026-03-23 | Project Epigenesis 接線——衰減引擎新增第 5 個：ACT-R Activation 衰減（`memory/adaptive_decay.py`，`B_i = ln(Σ t_j^{-d}) + β_i`，d=0.5，沉降閾值 -2.0）；衰減引擎間關係圖新增 adaptive_decay → memory_reflector → epigenetic_router → brain_prompt_builder 鏈路；純 in-memory 計算，無新增持久層寫入/消費配對；同步 blast-radius v1.55、joint-map v1.40、memory-router v1.6 |
 | v1.30 | 2026-03-22 | Sparse Embedder 啟動：Sparse Collections 新增 Nightly Step 8.7 IDF 重建 + 回填排程；hybrid_search() 消費者 0→4（skill_router + memory_manager + knowledge_lattice + server.py）；同步 joint-map v1.35、blast-radius v1.35 |
 | v1.29 | 2026-03-22 | Brain 三層治療——PulseDB 新增 `orchestrator_calls` 表（id/plan_id/skill_count/task_count/success/model/response_length/created_at，brain.py `_dispatch_orchestrate()` 寫入，供未來 A1 確定性路由分析）；新增 W39 配對（Orchestrator 呼叫診斷）；PulseDB 表數 15→16；管線 B 表清單新增 orchestrator_calls；拓撲對應表更新；同步 joint-map v1.34、system-topology v1.37 |
 | v1.28 | 2026-03-22 | P0-P3 升級——新增管線 F-2 寫入前快照備份（ANIMA_MC 寫入前快照 `_system/backups/anima_mc/` + PULSE.md 寫入前快照 `_system/backups/pulse_md/`，各保留 10 份 FIFO 輪替）；Brain Token 預算新增第 6 區段 Strategic Zone（1000 tokens，buffer 2800→1800）；`_system/` 子目錄新增 backups 兩個路徑條目；同步 system-topology v1.35、joint-map v1.33、blast-radius v1.46、memory-router v1.4 |

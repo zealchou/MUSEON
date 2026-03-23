@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.39
+# Joint Map — 共享可變狀態接頭圖 v1.40
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -1080,6 +1080,7 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-23 | v1.40 | Project Epigenesis 接線——EpigeneticRouter / MemoryReflector / AdaptiveDecay 接入 brain.py。無新增共享狀態（四個模組皆為純 RO 消費者——讀取 Qdrant memories/soul_rings/crystals + changelog，不寫入任何共享檔案）。G9 記憶反思組（epigenetic_router + memory_reflector + adaptive_decay + brain_prompt_builder）與 G3 記憶組交叉——反思層讀取 G3 相同的 Qdrant collections。共享狀態維持 41 個（不變）；同步 blast-radius v1.55、memory-router v1.6、persistence-contract v1.32 |
 | 2026-03-23 | v1.39 | 探索去重防禦機制：新增 #41 `exploration_log.md`（🟢 危險度，Explorer 單一寫入者，去重檢查 + 深度遞進邏輯）；Explorer 新增 `_check_duplicate()` / `_normalize_topic()` / `_load_exploration_log()` / `_log_exploration()` 四個方法（防止同一主題短期內重複探索無深度——解決 2026-03-23 一天 12 次探索雷同的盲點）；共享狀態 40→41 個 |
 | 2026-03-23 | v1.38 | 三層架構 MCP 橋接：新增 #39 `_system/sessions/{id}.json`（🟡 危險度，Brain 寫入+MCP server 只讀，L2 思考者取得對話上下文）；新增 #40 `group_context.db`（🟡 危險度，GroupContextStore 寫入+MCP server 只讀，L2 取得群組脈絡，SQLite WAL 保護）；mcp_server.py 新增 3 工具（museon_session_history/museon_group_context/museon_persona）；共享狀態 38→40 個 |
 | 2026-03-23 | v1.37 | 三層調度員架構：新增 #37 `museon-persona.md`（🟡 危險度，Zeal/morphenix 寫入，所有 L2 thinker subagent spawn 時讀取——影響面廣但寫入頻率極低）；補登 #38 `~/.claude/skills/*/SKILL.md`（🔴 危險度，51 個 Skill ~909KB，3 寫入者 手動/acsf/morphenix，4+ 讀取者 Claude Code session/skill_router/vector_bridge/nightly 8.6）；快速索引表補齊 #36；共享狀態 36→38 個 |
