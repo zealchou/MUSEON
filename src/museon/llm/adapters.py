@@ -93,6 +93,7 @@ class AdapterResponse:
     model: str = ""
     session_id: Optional[str] = None  # claude -p 的 session ID
     raw: Optional[Dict[str, Any]] = None  # 原始回應
+    thinking: Optional[str] = None  # Extended Thinking 的思考過程
 
 
 # ═══════════════════════════════════════════
@@ -523,6 +524,9 @@ class AnthropicAPIAdapter:
         max_tokens: int = 8192,
         tools: Optional[List[Dict[str, Any]]] = None,
         session_id: Optional[str] = None,
+        *,
+        extended_thinking: bool = False,
+        thinking_budget: int = 10000,
     ) -> AdapterResponse:
         """透過 Anthropic API 直接呼叫.
 
@@ -533,6 +537,8 @@ class AnthropicAPIAdapter:
             max_tokens: 最大回覆 token
             tools: 工具定義列表（原生 tool-use）
             session_id: 未使用（API 模式無 session 概念）
+            extended_thinking: 啟用 Extended Thinking（Claude 先思考再回答）
+            thinking_budget: 思考預算（tokens），預設 10000
 
         Returns:
             AdapterResponse
@@ -556,6 +562,18 @@ class AnthropicAPIAdapter:
             create_kwargs["tools"] = tools
             create_kwargs["tool_choice"] = {"type": "auto"}
 
+        # Extended Thinking：讓 Claude 先內部推理再回答
+        if extended_thinking:
+            create_kwargs["thinking"] = {
+                "type": "enabled",
+                "budget_tokens": thinking_budget,
+            }
+            # Extended Thinking 需要更高的 max_tokens（thinking + output）
+            create_kwargs["max_tokens"] = max(max_tokens, thinking_budget + 8192)
+            # Thinking 模式不支援 prompt caching 的 cache_control
+            if system_blocks:
+                create_kwargs["system"] = [{"type": "text", "text": system_prompt}]
+
         # L2 併發控制 + L3 exponential backoff 自動重試
         MAX_RETRIES = 3
         for _attempt in range(MAX_RETRIES + 1):
@@ -564,11 +582,14 @@ class AnthropicAPIAdapter:
                 async with sem:
                     response = await client.messages.create(**create_kwargs)
 
-                # 提取文字和 tool_calls
+                # 提取文字、thinking 和 tool_calls
                 text_parts = []
+                thinking_parts = []
                 tool_calls = []
                 for block in response.content:
-                    if hasattr(block, "text"):
+                    if getattr(block, "type", None) == "thinking":
+                        thinking_parts.append(block.thinking)
+                    elif hasattr(block, "text"):
                         text_parts.append(block.text)
                     elif block.type == "tool_use":
                         tool_calls.append(ToolCall(
@@ -587,6 +608,7 @@ class AnthropicAPIAdapter:
                     output_tokens=usage.output_tokens if usage else 0,
                     model=model_id,
                     raw={"response": response.model_dump() if hasattr(response, "model_dump") else None},
+                    thinking="\n".join(thinking_parts) if thinking_parts else None,
                 )
 
             except Exception as e:
@@ -634,6 +656,120 @@ class AnthropicAPIAdapter:
                     stop_reason="error",
                     model=model_id,
                 )
+
+    # ── Token Counting API ──────────────────────
+
+    async def count_tokens(
+        self,
+        system_prompt: str,
+        messages: List[Dict[str, Any]],
+        model: str = "sonnet",
+        tools: Optional[List[Dict[str, Any]]] = None,
+    ) -> int:
+        """精確計算 token 數量（使用 Anthropic Token Counting API）.
+
+        比本地估算更準確。用於 token 預算管理、prompt 優化。
+
+        Returns:
+            input_tokens 數量，失敗時回傳 -1
+        """
+        try:
+            client = self._get_client()
+            model_id = self._resolve_model(model)
+
+            count_kwargs: Dict[str, Any] = {
+                "model": model_id,
+                "system": [{"type": "text", "text": system_prompt}] if system_prompt else [],
+                "messages": messages,
+            }
+            if tools:
+                count_kwargs["tools"] = tools
+
+            result = await client.messages.count_tokens(**count_kwargs)
+            return result.input_tokens
+        except Exception as e:
+            logger.warning(f"[TokenCount] 計數失敗（降級為估算）: {e}")
+            return -1
+
+    # ── Batch API ──────────────────────
+
+    async def create_batch(
+        self,
+        requests: List[Dict[str, Any]],
+    ) -> Optional[Dict[str, Any]]:
+        """建立批次處理任務（50% 折扣，24 小時內完成）.
+
+        適用於 Nightly pipeline 等非即時任務。
+
+        Args:
+            requests: 批次請求列表，每個元素為：
+                {
+                    "custom_id": "unique-id",
+                    "params": {
+                        "model": "claude-sonnet-4-20250514",
+                        "max_tokens": 1024,
+                        "messages": [{"role": "user", "content": "..."}],
+                    }
+                }
+
+        Returns:
+            {"batch_id": "...", "status": "in_progress"} 或 None
+        """
+        try:
+            client = self._get_client()
+            batch = await client.messages.batches.create(requests=requests)
+            logger.info(
+                f"[Batch] 批次已建立 | id={batch.id} | "
+                f"requests={len(requests)} | status={batch.processing_status}"
+            )
+            return {
+                "batch_id": batch.id,
+                "status": batch.processing_status,
+                "created_at": batch.created_at.isoformat() if hasattr(batch, "created_at") else None,
+                "request_count": len(requests),
+            }
+        except Exception as e:
+            logger.error(f"[Batch] 批次建立失敗: {e}")
+            return None
+
+    async def get_batch_status(self, batch_id: str) -> Optional[Dict[str, Any]]:
+        """查詢批次任務狀態."""
+        try:
+            client = self._get_client()
+            batch = await client.messages.batches.retrieve(batch_id)
+            return {
+                "batch_id": batch.id,
+                "status": batch.processing_status,
+                "request_counts": {
+                    "processing": batch.request_counts.processing,
+                    "succeeded": batch.request_counts.succeeded,
+                    "errored": batch.request_counts.errored,
+                    "canceled": batch.request_counts.canceled,
+                    "expired": batch.request_counts.expired,
+                },
+            }
+        except Exception as e:
+            logger.error(f"[Batch] 狀態查詢失敗: {e}")
+            return None
+
+    async def get_batch_results(self, batch_id: str) -> List[Dict[str, Any]]:
+        """取得批次任務結果."""
+        try:
+            client = self._get_client()
+            results = []
+            async for result in client.messages.batches.results(batch_id):
+                results.append({
+                    "custom_id": result.custom_id,
+                    "type": result.result.type,
+                    "message": result.result.message.model_dump()
+                    if hasattr(result.result, "message") and result.result.message
+                    else None,
+                })
+            logger.info(f"[Batch] 取得 {len(results)} 筆結果 | batch_id={batch_id}")
+            return results
+        except Exception as e:
+            logger.error(f"[Batch] 結果取得失敗: {e}")
+            return []
 
     async def close(self) -> None:
         """關閉 API client."""
