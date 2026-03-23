@@ -537,6 +537,150 @@ class PulseDB(DataContract):
             ).fetchall()
         return [dict(r) for r in rows]
 
+    def get_anima_history_by_days(
+        self,
+        element: Optional[str] = None,
+        days: int = 30,
+        granularity: str = "daily",
+    ) -> List[Dict]:
+        """查詢八元素變化歷史（按時間範圍 + 聚合粒度）.
+
+        Project Epigenesis 迭代 2：暴露已存在的 anima_log 查詢能力。
+
+        Args:
+            element: 指定元素（None = 全部八元素）
+            days: 回看天數（預設 30）
+            granularity: 聚合粒度
+                - "raw": 原始記錄
+                - "daily": 按天聚合（每天的 total_delta + 最終 absolute）
+                - "weekly": 按週聚合
+
+        Returns:
+            raw: [{"timestamp": "...", "element": "kun", "delta": 2, "reason": "...", "absolute_after": 15}]
+            daily: [{"date": "2026-03-20", "element": "kun", "total_delta": 5, "final_absolute": 20, "change_count": 3, "reasons": ["..."]}]
+            weekly: [{"week_start": "2026-03-17", "element": "kun", "total_delta": 12, "final_absolute": 25, "change_count": 8}]
+        """
+        conn = self._get_conn()
+        cutoff = (datetime.now(TZ8) - timedelta(days=days)).isoformat()
+
+        # 構建基礎查詢
+        if element:
+            rows = conn.execute(
+                "SELECT * FROM anima_log WHERE element = ? AND timestamp >= ? ORDER BY timestamp",
+                (element, cutoff),
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT * FROM anima_log WHERE timestamp >= ? ORDER BY timestamp",
+                (cutoff,),
+            ).fetchall()
+
+        raw = [dict(r) for r in rows]
+
+        if granularity == "raw":
+            return raw
+
+        # 聚合
+        groups: Dict[str, Dict[str, list]] = {}  # key → element → records
+        for r in raw:
+            ts = r.get("timestamp", "")
+            elem = r.get("element", "")
+            if granularity == "daily":
+                key = ts[:10]  # YYYY-MM-DD
+            else:  # weekly
+                dt = datetime.fromisoformat(ts)
+                week_start = dt - timedelta(days=dt.weekday())
+                key = week_start.strftime("%Y-%m-%d")
+            groups.setdefault(key, {}).setdefault(elem, []).append(r)
+
+        results = []
+        for key in sorted(groups.keys()):
+            for elem, records in sorted(groups[key].items()):
+                total_delta = sum(r.get("delta", 0) for r in records)
+                final_abs = records[-1].get("absolute_after", 0)
+                reasons = list(set(r.get("reason", "") for r in records))
+
+                entry = {
+                    "date" if granularity == "daily" else "week_start": key,
+                    "element": elem,
+                    "total_delta": total_delta,
+                    "final_absolute": final_abs,
+                    "change_count": len(records),
+                }
+                if granularity == "daily":
+                    entry["reasons"] = reasons[:5]  # 最多 5 個原因
+                results.append(entry)
+
+        return results
+
+    def get_anima_trend(self, element: str, days: int = 30) -> Dict:
+        """計算特定元素的成長趨勢.
+
+        Args:
+            element: 八元素之一（qian/kun/zhen/xun/kan/li/gen/dui）
+            days: 回看天數
+
+        Returns:
+            {
+                "element": "kun",
+                "period_days": 30,
+                "total_growth": 45,
+                "avg_daily_growth": 1.5,
+                "start_absolute": 100,
+                "end_absolute": 145,
+                "growth_rate": 0.45,
+                "most_active_day": "2026-03-20",
+                "primary_reason": "治理: 後天免疫命中",
+            }
+        """
+        daily = self.get_anima_history_by_days(
+            element=element, days=days, granularity="daily"
+        )
+
+        if not daily:
+            return {
+                "element": element,
+                "period_days": days,
+                "total_growth": 0,
+                "avg_daily_growth": 0.0,
+                "start_absolute": 0,
+                "end_absolute": 0,
+                "growth_rate": 0.0,
+                "most_active_day": None,
+                "primary_reason": None,
+            }
+
+        total_growth = sum(d.get("total_delta", 0) for d in daily)
+        start_abs = daily[0].get("final_absolute", 0) - daily[0].get("total_delta", 0)
+        end_abs = daily[-1].get("final_absolute", 0)
+        active_days = len(daily)
+
+        # 最活躍的一天
+        most_active = max(daily, key=lambda d: d.get("total_delta", 0))
+        most_active_day = most_active.get("date", most_active.get("week_start"))
+
+        # 主要原因（從 raw 記錄統計）
+        raw = self.get_anima_history_by_days(
+            element=element, days=days, granularity="raw"
+        )
+        reason_counts: Dict[str, int] = {}
+        for r in raw:
+            reason = r.get("reason", "unknown")
+            reason_counts[reason] = reason_counts.get(reason, 0) + 1
+        primary_reason = max(reason_counts, key=reason_counts.get) if reason_counts else None
+
+        return {
+            "element": element,
+            "period_days": days,
+            "total_growth": total_growth,
+            "avg_daily_growth": round(total_growth / max(active_days, 1), 2),
+            "start_absolute": start_abs,
+            "end_absolute": end_abs,
+            "growth_rate": round(total_growth / max(start_abs, 1), 3),
+            "most_active_day": most_active_day,
+            "primary_reason": primary_reason,
+        }
+
     # ── Evolution Events ──
 
     def log_evolution_event(
