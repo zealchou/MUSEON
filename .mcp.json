@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "museon": {
+      "command": "/Users/ZEALCHOU/MUSEON/.venv/bin/python",
+      "args": ["-m", "museon.mcp_server"],
+      "env": {
+        "MUSEON_HOME": "/Users/ZEALCHOU/MUSEON"
+      }
+    }
+  }
+}

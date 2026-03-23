@@ -212,6 +212,91 @@ def museon_federation_status() -> Dict[str, Any]:
     }
 
 
+def museon_session_history(session_id: str = "", limit: int = 20) -> Dict[str, Any]:
+    """取得 session 的對話歷史（供 L2 思考者取得對話上下文）.
+
+    Args:
+        session_id: Session 識別碼（例如 telegram_6969045906 或 telegram_group_5191663127）
+        limit: 回傳最近 N 筆訊息，預設 20
+    """
+    if not session_id:
+        return {"error": "session_id is required"}
+
+    session_file = DATA_DIR / "_system" / "sessions" / f"{session_id}.json"
+
+    if not session_file.exists():
+        return {"session_id": session_id, "messages": [], "count": 0}
+
+    try:
+        data = json.loads(session_file.read_text(encoding="utf-8"))
+        if not isinstance(data, list):
+            return {"session_id": session_id, "messages": [], "count": 0}
+
+        recent = data[-limit:]
+        cleaned = []
+        for msg in recent:
+            content = msg.get("content", "")
+            if len(content) > 1000:
+                content = content[:1000] + "...(truncated)"
+            cleaned.append({
+                "role": msg.get("role", "unknown"),
+                "content": content,
+            })
+
+        return {
+            "session_id": session_id,
+            "messages": cleaned,
+            "count": len(cleaned),
+            "total": len(data),
+        }
+    except Exception as e:
+        return {"error": str(e), "session_id": session_id}
+
+
+def museon_group_context(group_id: str = "", limit: int = 30) -> Dict[str, Any]:
+    """取得 Telegram 群組的近期對話上下文（供 L2 在群組情境使用）.
+
+    Args:
+        group_id: 群組 ID（不帶負號，例如 "5191663127"）
+        limit: 回傳最近 N 筆群組訊息，預設 30
+    """
+    if not group_id:
+        return {"error": "group_id is required"}
+
+    try:
+        from museon.governance.group_context import get_group_context_store
+        store = get_group_context_store()
+
+        gid = int(group_id)
+        # Telegram supergroup ID 通常為負數
+        messages = store.get_recent_context(gid, limit)
+        if not messages:
+            messages = store.get_recent_context(-gid, limit)
+
+        members = []
+        try:
+            members = store.get_group_members(gid if messages else -gid)
+        except Exception:
+            pass
+
+        return {
+            "group_id": group_id,
+            "messages": messages[:limit],
+            "count": len(messages),
+            "members": members[:20],
+        }
+    except Exception as e:
+        return {"error": str(e), "group_id": group_id}
+
+
+def museon_persona() -> Dict[str, Any]:
+    """讀取 MUSEON 核心人格檔（供 L2 思考者載入人格）."""
+    persona_file = DATA_DIR / "_system" / "museon-persona.md"
+    if not persona_file.exists():
+        return {"error": "Persona file not found"}
+    return {"content": _read_text(persona_file, max_chars=8000)}
+
+
 def museon_auth_status() -> Dict[str, Any]:
     """查詢授權系統狀態（配對使用者、待處理授權、策略設定）."""
     try:
@@ -298,6 +383,49 @@ TOOLS = {
         "description": "查詢授權系統狀態（配對使用者、待處理授權、策略設定）",
         "inputSchema": {"type": "object", "properties": {}},
         "handler": museon_auth_status,
+    },
+    "museon_session_history": {
+        "description": "取得 session 對話歷史（最近 N 筆），供 L2 思考者理解對話上下文",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "session_id": {
+                    "type": "string",
+                    "description": "Session ID (例如 telegram_6969045906 或 telegram_group_5191663127)",
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "回傳最近 N 筆訊息，預設 20",
+                    "default": 20,
+                },
+            },
+            "required": ["session_id"],
+        },
+        "handler": museon_session_history,
+    },
+    "museon_group_context": {
+        "description": "取得 Telegram 群組的近期對話紀錄和成員資訊，供 L2 群組回覆時使用",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "group_id": {
+                    "type": "string",
+                    "description": "群組 ID (例如 5191663127，不帶負號)",
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "最近 N 筆訊息，預設 30",
+                    "default": 30,
+                },
+            },
+            "required": ["group_id"],
+        },
+        "handler": museon_group_context,
+    },
+    "museon_persona": {
+        "description": "讀取 MUSEON 核心人格檔，供 L2 思考者載入人格準則",
+        "inputSchema": {"type": "object", "properties": {}},
+        "handler": museon_persona,
     },
 }
 
