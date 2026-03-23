@@ -1,4 +1,4 @@
-# Blast Radius — 模組影響半徑表 v1.54
+# Blast Radius — 模組影響半徑表 v1.55
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
@@ -778,7 +778,8 @@
 | **G5** | 改知識晶格 | knowledge_lattice + crystal_store + crystal_actuator + recommender + brain（Layer 2.5 社群摘要 + 經驗回放） | crystal.db (via CrystalStore)；knowledge_lattice.py 新增 `recall_procedures()` RO 方法 + 再結晶 Lesson↔Procedure 升降級規則 |
 | **G6** | 改免疫系統 | immunity + immune_memory + immune_research + daemon | events.jsonl + immune_memory.json |
 | **G7** | 改品質回饋閉環（DNA-Inspired） | metacognition + morphenix_executor + pulse_db | PulseDB.metacognition 表（`METACOGNITION_QUALITY_FLAG` 事件） |
-| **G8** | 改衰減參數或老化邏輯 | knowledge_lattice + crystal_store + crystal_actuator + recommender + memory_manager + dendritic_scorer | crystal.db(RI via CrystalStore) + Qdrant memories(TTL) + PulseDB health_scores(半衰期) + 推薦排序(近因性) |
+| **G8** | 改衰減參數或老化邏輯 | knowledge_lattice + crystal_store + crystal_actuator + recommender + memory_manager + dendritic_scorer + adaptive_decay | crystal.db(RI via CrystalStore) + Qdrant memories(TTL) + PulseDB health_scores(半衰期) + 推薦排序(近因性) |
+| **G9** | 改記憶反思/表觀遺傳路由 | epigenetic_router + memory_reflector + adaptive_decay + brain_prompt_builder | Qdrant memories + soul_rings + crystals（RO）；反思摘要注入 system_prompt memory zone |
 
 > **G8 衰減組說明**：四個衰減引擎（結晶 RI、記憶 TTL、健康分數半衰期、推薦近因性）各自獨立但交叉影響——修改結晶 RI 衰減速度會間接影響 recommender 的推薦排序；修改 dendritic_scorer 半衰期會影響 governor 治理決策進而影響 brain Step 5.5 融合品質。修改任一衰減參數前，必須查閱 `persistence-contract.md` §衰減與優先級模型的完整公式表。
 
@@ -829,6 +830,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-23 | v1.55 | Project Epigenesis 接線——brain.py `__init__()` 新增 EpigeneticRouter 初始化（注入 memory_manager/diary_store/knowledge_lattice/anima_changelog/pulse_db）；brain_prompt_builder.py `_build_memory_inject()` 新增反思摘要注入（EpigeneticRouter.activate() → reflection.summary → memory zone）。新增 G9 記憶反思組（epigenetic_router + memory_reflector + adaptive_decay + brain_prompt_builder）。brain.py 扇出 +1（epigenetic_router）；brain_prompt_builder.py 扇出 +1。memory_reflector 扇入 1（epigenetic_router）；adaptive_decay 扇入 1（memory_reflector）；epigenetic_router 扇入 1（brain.py）。同步 joint-map v1.40、memory-router v1.6、persistence-contract v1.32 |
 | 2026-03-23 | v1.54 | Doctor 群組健康檢查——四處修復：(1) P0 `brain_dispatch.py` `_strip_system_leakage()` NameError 修復：`@staticmethod` 內引用 `self._LEAKAGE_FILTER_RATIO` → `BrainDispatchMixin._LEAKAGE_FILTER_RATIO`，修復 dispatch 合成階段必定 crash；(2) P1 `tool_registry.py` + `service_health.py` Docker PATH 修復：launchd PATH 不含 `/usr/local/bin` 導致 docker binary 找不到，新增 `shutil.which()` + fallback 路徑解析，消除每 5 分鐘的 38000+ 行 log 噪音；(3) P2 `message.py` 空 content 防禦：Telegram 空訊息從 ValueError crash 改為 fallback `[empty]`；(4) P3 `server.py` Gateway 重啟 port reuse：`uvicorn.run()` 改為 `uvicorn.Server(Config).run()` 啟用 SO_REUSEADDR。全部為內部修復，不改公開介面/共享狀態/import 關係。扇入扇出不變。 |
 | 2026-03-23 | v1.53 | 三層並行架構實作——`_telegram_message_pump()` 從循序處理重構為並行派送：提取 `_handle_telegram_message()` 為獨立 async function，主迴圈 receive → `asyncio.create_task()` → 立刻接下一則。不同 session（群組/私訊）完全並行，同一 session 由 session_manager lock 保護。純內部重構，不改介面/import/共享狀態。 |
 | 2026-03-23 | v1.52 | 三層調度員架構——新增 dispatcher/thinker/worker 扇入扇出分析（L1 調度員扇入 0/扇出 1、L2 思考者扇入 1/扇出 2、L3 工人扇入 1/扇出 3+）；新增 museon-persona.md 影響分析（所有 L2 thinker 讀取，修改等同全域行為變更）；全部為綠區。Brain P3 Fusion 健康檢查——brain_p3_fusion.py 常數化 25+ 魔術值 + logger 提升 + asyncio 修復 + 死碼清理 + 48 個單元測試。 |

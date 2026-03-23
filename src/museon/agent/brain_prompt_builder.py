@@ -628,6 +628,29 @@ class BrainPromptBuilderMixin:
         if procedure_text:
             text += "\n" + procedure_text
 
+        # ── Project Epigenesis: 反思摘要注入 ──
+        # 使用 EpigeneticRouter 對已召回的記憶做交叉反思
+        # （矛盾偵測 / 重複模式 / 時間軸 / Activation 排序）
+        reflection_text = ""
+        if getattr(self, '_epigenetic_router', None) and items:
+            try:
+                activation = self._epigenetic_router.activate(
+                    query=user_query,
+                    anima_user=anima_user,
+                )
+                if activation.reflection and activation.reflection.summary:
+                    reflection_text = (
+                        "\n## 記憶反思\n"
+                        + activation.reflection.summary
+                    )
+                    if activation.rationale:
+                        reflection_text += f"\n（{activation.rationale}）"
+            except Exception as e:
+                logger.debug(f"EpigeneticRouter 反思降級: {e}")
+
+        if reflection_text:
+            text += reflection_text
+
         # 記錄使用量
         tokens_used = estimate_tokens(text)
         budget.track_usage("memory", tokens_used)
