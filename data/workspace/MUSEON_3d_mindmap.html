@@ -322,7 +322,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 //  SYNC META — 拓撲同步狀態
 // ═══════════════════════════════════════
 const SYNC_META = {
-  topologyVersion: 'v1.43',
+  topologyVersion: 'v1.45',
   syncDate: '2026-03-23',
   nodeCount: 0, // auto-calculated below
   linkCount: 0, // auto-calculated below
@@ -410,6 +410,7 @@ const nodes = [
   {id:"zeal",label:"Zeal (Owner)",zh:"主人",group:"channel",r:2.0},
   // ── agent ──
   {id:"brain",label:"Agent / Brain",zh:"主判斷中樞（core: init + process pipeline, 2575 行）",group:"agent",r:2.8,hub:1},
+  {id:"adaptive-decay",label:"Adaptive Decay",zh:"ACT-R 式統一衰減引擎（B_i = ln(Σt^{-d}) + β_i）",group:"agent",r:0.8,p:"brain"},
   {id:"brain-dispatch",label:"Brain Dispatch",zh:"Mixin: 任務分派（1082 行）",group:"agent",r:1.0,p:"brain"},
   {id:"brain-observation",label:"Brain Observation",zh:"Mixin: 觀察與演化（2003 行）",group:"agent",r:1.0,p:"brain"},
   {id:"brain-p3-fusion",label:"Brain P3 Fusion",zh:"Mixin: P3 融合與決策層（948 行）",group:"agent",r:1.0,p:"brain"},
@@ -422,14 +423,17 @@ const nodes = [
   {id:"deterministic-router",label:"Deterministic Router",zh:"確定性任務分解器（取代 LLM Orchestrator）",group:"agent",r:1.0,p:"brain"},
   {id:"diary-store",label:"Diary Store",zh:"日記存儲（原靈魂年輪）",group:"agent",r:0.9,p:"brain"},
   {id:"dispatch",label:"Dispatch",zh:"多技能編排",group:"agent",r:1.0,p:"brain"},
+  {id:"dispatcher",label:"L1 Dispatcher",zh:"調度員：收訊 → 1 秒內 spawn L2 思考者 → 處理下一則（CLAUDE.md 定義行為）",group:"agent",r:1.2,p:"brain"},
   {id:"dna27",label:"DNA27",zh:"27 反射叢集",group:"agent",r:1.0,p:"brain"},
   {id:"drift-detector",label:"Drift Detector",zh:"漂移偵測",group:"agent",r:0.8,p:"brain"},
+  {id:"epigenetic-router",label:"Epigenetic Router",zh:"表觀遺傳路由器（MAGMA 式多圖遍歷 semantic/temporal/causal/entity）",group:"agent",r:1.1,p:"brain"},
   {id:"eval-engine",label:"Eval Engine",zh:"Q-Score",group:"agent",r:1.0,p:"brain"},
   {id:"fact-correction",label:"Fact Correction",zh:"事實覆寫引擎",group:"agent",r:0.9,p:"brain"},
   {id:"flywheel-coordinator",label:"Flywheel Coordinator",zh:"飛輪流動協調",group:"agent",r:0.9,p:"brain"},
   {id:"intuition",label:"Intuition",zh:"五層直覺",group:"agent",r:0.9,p:"brain"},
   {id:"investment-masters",label:"Investment Masters",zh:"投資軍師團（六位大師模型會診）",group:"agent",r:0.9,p:"brain"},
   {id:"knowledge-lattice",label:"Knowledge Lattice",zh:"知識晶格",group:"agent",r:1.1,p:"brain"},
+  {id:"memory-reflector",label:"Memory Reflector",zh:"Hindsight 式反思引擎（矛盾偵測/模式發現/時間軸/Activation 排序）",group:"agent",r:1.0,p:"brain"},
   {id:"metacognition",label:"Metacognition",zh:"元認知審查",group:"agent",r:1.0,p:"brain"},
   {id:"multi-agent-executor",label:"Multi Agent Executor",zh:"並行 LLM 執行器",group:"agent",r:1.0,p:"brain"},
   {id:"multiagent",label:"Multiagent",zh:"多代理協調",group:"agent",r:0.9,p:"brain"},
@@ -438,13 +442,17 @@ const nodes = [
   {id:"persona-router",label:"Persona Router",zh:"人格路由 + 百合引擎決策",group:"agent",r:1.1,p:"brain"},
   {id:"plan-engine",label:"Plan Engine",zh:"六階段計畫",group:"agent",r:1.0,p:"brain"},
   {id:"primal-detector",label:"Primal Detector",zh:"八原語偵測",group:"agent",r:1.0,p:"brain"},
+  {id:"proactive-predictor",label:"Proactive Predictor",zh:"需求預判引擎（Skill 序列/情緒/決策循環 四維預測）",group:"agent",r:1.0,p:"brain"},
   {id:"recommender",label:"Recommender",zh:"知識推薦引擎（CrystalStore 結晶推薦）",group:"agent",r:0.9,p:"brain"},
   {id:"reflex-router",label:"Reflex Router",zh:"反射路由",group:"agent",r:1.0,p:"brain"},
   {id:"response-synthesizer",label:"Response Synthesizer",zh:"DNA 交叉重組合成",group:"agent",r:0.8,p:"brain"},
   {id:"roundtable",label:"Roundtable",zh:"圓桌詰問引擎（多角色交叉詰問 + 仲裁）",group:"agent",r:1.0,p:"brain"},
   {id:"skill-router",label:"Skill Router",zh:"技能路由",group:"agent",r:1.1,p:"brain"},
+  {id:"thinker",label:"L2 Thinker",zh:"思考者 subagent：讀 museon-persona.md → 分析決策 → spawn L3 工人（model: sonnet, run_in_background）",group:"agent",r:1.0,p:"brain"},
+  {id:"worker",label:"L3 Worker",zh:"工人 subagent：執行 MCP 工具呼叫後銷毀（model: haiku, run_in_background）",group:"agent",r:0.8,p:"brain"},
   // ── pulse ──
   {id:"pulse",label:"Pulse Engine",zh:"VITA 生命力",group:"pulse",r:2.8,hub:1},
+  {id:"anima-changelog",label:"Anima Changelog",zh:"ANIMA_USER 差分版本追蹤（append-only JSONL）",group:"pulse",r:0.8,p:"pulse"},
   {id:"anima-mc-store",label:"AnimaMC Store",zh:"ANIMA統一存取",group:"pulse",r:1.1,p:"pulse"},
   {id:"anima-tracker",label:"Anima Tracker",zh:"八元素追蹤",group:"pulse",r:1.0,p:"pulse"},
   {id:"commitment-tracker",label:"Commitment",zh:"承諾追蹤",group:"pulse",r:0.9,p:"pulse"},
@@ -692,6 +700,7 @@ const links = [
   {source:"data-bus",target:"workflow-state-db",label:"Store 路由",type:"internal"},
   {source:"dendritic-fusion",target:"eval-engine",label:"並行品質評分",type:"internal"},
   {source:"dendritic-fusion",target:"metacognition",label:"並行預認知審查",type:"internal"},
+  {source:"dispatcher",target:"thinker",label:"L1→L2：收訊後 spawn 思考者（run_in_background, model: sonnet）",type:"internal"},
   {source:"doctor",target:"auto-repair",label:"修復",type:"internal"},
   {source:"doctor",target:"code-analyzer",label:"代碼",type:"internal"},
   {source:"doctor",target:"health-check",label:"檢查",type:"internal"},
@@ -803,6 +812,8 @@ const links = [
   {source:"text-alchemy",target:"c15",label:"語言層注入",type:"internal"},
   {source:"text-alchemy",target:"novel-craft",label:"小說工藝",type:"internal"},
   {source:"text-alchemy",target:"storytelling-engine",label:"說故事",type:"internal"},
+  {source:"thinker",target:"worker",label:"L2→L3：思考完成後 spawn 工人執行 MCP 工具（run_in_background, model: haiku）",type:"internal"},
+  {source:"thinker",target:"worker",label:"L2→L3（前景）：需要查詢結果時同步等待 L3 回傳資料",type:"internal"},
   {source:"tool-registry",target:"dify-scheduler",label:"Dify 排程",type:"internal"},
   {source:"tool-registry",target:"federation-sync",label:"母子同步",type:"internal"},
   {source:"tool-registry",target:"image-gen",label:"圖像生成",type:"internal"},
@@ -814,6 +825,9 @@ const links = [
   {source:"tool-registry",target:"zotero-bridge",label:"文獻管理",type:"internal"},
   {source:"vector-index",target:"sparse-embedder",label:"混合檢索 BM25+Dense RRF 融合",type:"internal"},
   {source:"wee",target:"skill-synapse",label:"突觸演化",type:"internal"},
+  {source:"worker",target:"gcal",label:"L3 透過 MCP 工具管理行程",type:"internal"},
+  {source:"worker",target:"gmail",label:"L3 透過 MCP 工具收發 Email",type:"internal"},
+  {source:"worker",target:"telegram",label:"L3 透過 MCP 工具回覆 Telegram 訊息",type:"internal"},
   // ── cross ──
   {source:"authorization",target:"gateway",label:"server.py 訊息泵授權回覆分支",type:"cross"},
   {source:"authorization",target:"mcp-server",label:"museon_auth_status 查詢",type:"cross"},
@@ -1046,20 +1060,32 @@ const links = [
   {source:"service-health",target:"qdrant",label:"監控",type:"monitor"},
   {source:"service-health",target:"searxng",label:"監控",type:"monitor"},
   // ── async ──
+  {source:"adaptive-decay",target:"nightly",label:"每日衰減排程（Step 32）",type:"async"},
+  {source:"brain",target:"anima-changelog",label:"_save_anima_user 前記錄差分",type:"async"},
+  {source:"brain",target:"epigenetic-router",label:"記憶注入前呼叫表觀遺傳路由（Project Epigenesis）",type:"async"},
+  {source:"brain",target:"proactive-predictor",label:"Skill 使用記錄 + 需求預判",type:"async"},
   {source:"data-watchdog",target:"event-bus",label:"監控事件",type:"async"},
+  {source:"diary-store",target:"qdrant",label:"Soul Ring 向量索引到 soul_rings collection",type:"async"},
+  {source:"epigenetic-router",target:"anima-changelog",label:"時間圖遍歷使用者演化歷史",type:"async"},
+  {source:"epigenetic-router",target:"diary-store",label:"時間圖/因果圖遍歷 Soul Ring",type:"async"},
+  {source:"epigenetic-router",target:"knowledge-lattice",label:"結晶圖遍歷",type:"async"},
+  {source:"epigenetic-router",target:"memory-reflector",label:"回憶後觸發反思",type:"async"},
   {source:"external-user",target:"anima-mc-store",label:"外部使用者互動更新 external_users/ 觀察",type:"async"},
   {source:"fact-correction",target:"proactive-bridge",label:"P4 自省清洗推播",type:"async"},
   {source:"fact-correction",target:"pulse",label:"P4 自省清洗脈搏",type:"async"},
   {source:"line",target:"zeal",label:"LINE 回傳回應",type:"async"},
+  {source:"memory-reflector",target:"adaptive-decay",label:"反思時計算 Activation 排序",type:"async"},
   {source:"morphenix",target:"event-bus",label:"提案回饋",type:"async"},
   {source:"nightly",target:"event-bus",label:"回饋迴路",type:"async"},
   {source:"proactive-bridge",target:"telegram",label:"非同步推播",type:"async"},
+  {source:"proactive-predictor",target:"metacognition",label:"預判結果回饋元認知",type:"async"},
   {source:"telegram",target:"brain",label:"推送寫入 session",type:"async"},
   {source:"telegram",target:"external-user",label:"群組中回覆外部使用者",type:"async"},
   {source:"telegram",target:"zeal",label:"回傳回應（私聊 + 群組回覆）",type:"async"},
   {source:"verified-user",target:"anima-mc-store",label:"配對使用者互動更新 ANIMA_USER（L1-L8 觀察）",type:"async"},
   {source:"zeal",target:"anima-mc-store",label:"Owner 互動觸發 ANIMA_MC 更新（boss_name、self_awareness）",type:"async"},
 ];
+
 
 
 

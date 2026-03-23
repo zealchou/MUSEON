@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.44
+# MUSEON 系統拓撲圖 v1.45
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.45 (2026-03-23)**：Project Epigenesis（DNA 式記憶系統重構）——agent 群組新增 4 個節點（epigenetic-router 表觀遺傳路由器、memory-reflector 反思引擎、proactive-predictor 需求預判、adaptive-decay ACT-R 衰減）；pulse 群組新增 1 個節點（anima-changelog 差分追蹤）；新增 12 條 cross 連線；VectorBridge 新增 soul_rings collection（第 9 個）；192 節點 475 連線
 > **v1.44 (2026-03-23)**：三層調度員架構（腦手分離）——agent 群組新增 3 個節點（`dispatcher` L1 調度員、`thinker` L2 思考者、`worker` L3 工人）；新增 7 條 internal 連線；CLAUDE.md 改寫為 L1 調度員模式；新增 `data/_system/museon-persona.md` 人格隨身檔供 L2 載入；187 節點 463 連線
 > **v1.43 (2026-03-23)**：全系統拓撲審計——補齊 70 條遺漏 cross 連線（🔴7 結構斷裂 + 🟠20 重要遺漏 + 🟡43 文件欠債）；移除 2 條幽靈連線（drift-detector→memory、zotero-bridge→vector-index）；修正 1 條方向反轉（federation-sync→nightly 改為 nightly→federation-sync）；拓撲覆蓋率 62.8% → 100%；184 節點 456 連線
 > **v1.42 (2026-03-22)**：Sparse Embedder 全面啟動——sparse-embedder 節點升級為已啟動狀態；新增 skill-router→sparse-embedder、memory→sparse-embedder 跨系統連線（hybrid_search 消費者接線）；Nightly Pipeline 新增 Step 8.7（IDF 重建 + 回填）；184 節點 389 連線
@@ -146,6 +147,10 @@ external-user（EXTERNAL）
 | `dispatcher` | L1 Dispatcher | 調度員：收訊 → 1 秒內 spawn L2 思考者 → 處理下一則（CLAUDE.md 定義行為） | - | brain | 1.2 |
 | `thinker` | L2 Thinker | 思考者 subagent：讀 museon-persona.md → 分析決策 → spawn L3 工人（model: sonnet, run_in_background） | - | brain | 1.0 |
 | `worker` | L3 Worker | 工人 subagent：執行 MCP 工具呼叫後銷毀（model: haiku, run_in_background） | - | brain | 0.8 |
+| `epigenetic-router` | Epigenetic Router | 表觀遺傳路由器（MAGMA 式多圖遍歷 semantic/temporal/causal/entity） | - | brain | 1.1 |
+| `memory-reflector` | Memory Reflector | Hindsight 式反思引擎（矛盾偵測/模式發現/時間軸/Activation 排序） | - | brain | 1.0 |
+| `proactive-predictor` | Proactive Predictor | 需求預判引擎（Skill 序列/情緒/決策循環 四維預測） | - | brain | 1.0 |
+| `adaptive-decay` | Adaptive Decay | ACT-R 式統一衰減引擎（B_i = ln(Σt^{-d}) + β_i） | - | brain | 0.8 |
 
 ### pulse — Pulse 生命力
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -161,6 +166,7 @@ external-user（EXTERNAL）
 | `anima-mc-store` | AnimaMC Store | ANIMA統一存取 | - | pulse | 1.1 |
 | `anima-tracker` | Anima Tracker | 八元素追蹤 | - | pulse | 1.0 |
 | `group-session-proactive` | Group Session Proactive | 群組後主動追問 | - | pulse | 0.9 |
+| `anima-changelog` | Anima Changelog | ANIMA_USER 差分版本追蹤（append-only JSONL） | - | pulse | 0.8 |
 
 ### gov — Governance
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -963,6 +969,17 @@ external-user（EXTERNAL）
 | `zeal` | `anima-mc-store` | Owner 互動觸發 ANIMA_MC 更新（boss_name、self_awareness） |
 | `verified-user` | `anima-mc-store` | 配對使用者互動更新 ANIMA_USER（L1-L8 觀察） |
 | `external-user` | `anima-mc-store` | 外部使用者互動更新 external_users/ 觀察 |
+| `brain` | `epigenetic-router` | 記憶注入前呼叫表觀遺傳路由（Project Epigenesis） |
+| `epigenetic-router` | `memory-reflector` | 回憶後觸發反思 |
+| `epigenetic-router` | `diary-store` | 時間圖/因果圖遍歷 Soul Ring |
+| `epigenetic-router` | `anima-changelog` | 時間圖遍歷使用者演化歷史 |
+| `epigenetic-router` | `knowledge-lattice` | 結晶圖遍歷 |
+| `memory-reflector` | `adaptive-decay` | 反思時計算 Activation 排序 |
+| `brain` | `proactive-predictor` | Skill 使用記錄 + 需求預判 |
+| `proactive-predictor` | `metacognition` | 預判結果回饋元認知 |
+| `brain` | `anima-changelog` | _save_anima_user 前記錄差分 |
+| `diary-store` | `qdrant` | Soul Ring 向量索引到 soul_rings collection |
+| `adaptive-decay` | `nightly` | 每日衰減排程（Step 32） |
 
 ---
 
