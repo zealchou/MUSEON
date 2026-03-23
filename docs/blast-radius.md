@@ -1,10 +1,11 @@
-# Blast Radius — 模組影響半徑表 v1.57
+# Blast Radius — 模組影響半徑表 v1.58
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節
+> **v1.58 (2026-03-23)**：OAuth Token 韌性重構——`adapters.py` `ClaudeCLIAdapter._get_oauth_token()` 從 2 層來源升級為 4 層：環境變數 → 持久化文件 → Claude Desktop credentials（`~/.claude/.credentials.json` 自動續期）→ 備份文件（永不刪除的最後防線）；Token 過期時不再 `unlink` 而是備份到 `.bak` + 標記 `.stale`（永不刪除策略）；`create_adapter_sync()` CLI-only 模式也包裝為 FallbackAdapter（支援 extended_thinking 等進階參數）；`preflight.py` ANTHROPIC_API_KEY 從必要降為選填（Max 方案用 CLI OAuth）。
 > **v1.57 (2026-03-23)**：Claude 原生能力全面接入——新增 `llm/vision.py`（Multimodal 圖片+PDF content block 構建，扇入 1：brain.py）；`brain.py` L1211 注入 `build_multimodal_content()` 構建 Vision/PDF content blocks（扇出 +1：vision.py）；`adapters.py` AnthropicAPIAdapter.call() 新增 `extended_thinking` + `thinking_budget` 參數，AdapterResponse 新增 `thinking` 欄位，新增 `count_tokens()` / `create_batch()` / `get_batch_status()` / `get_batch_results()` 方法（API 面不變）；FallbackAdapter.call() 新增 `extended_thinking` 傳遞（thinking 時直接走 API，CLI 不支援）；`brain_tools.py` `_call_llm()` 新增 `loop` 參數，SLOW_LOOP + 無 tool-use 時自動啟用 Extended Thinking；`budget.py` 新增 `count_tokens_precise()` + `set_api_adapter()` 接入 Token Counting API；`adapters.py` CLI `_build_prompt()` 新增 image/document type graceful degradation。
 > **v1.56 (2026-03-23)**：DSE 根因修復——`server.py` `_pre_start_cleanup` 失敗後 `sys.exit(1)` 停止 crash loop；`adapters.py` OAuth token 清除條件精準化（排除 stdin timeout）；`tool_registry.py` Docker 容器停止保持 enabled=True；`gateway_lock.py` timeout 5→30s；`adapters.py` FallbackAdapter 雙失敗友善降級回覆。
 > **v1.55 (2026-03-23)**：194 節點健康檢查——`budget.py` fd 雙重關閉修復；`server.py` 3 處 data_dir NameError 修復；`brain.py` AnimaChangelog 接線（getattr→正式初始化）；`brain_dispatch.py` @staticmethod self→類別引用；`brain_tools.py` model 記錄從二元判斷改為實際值。

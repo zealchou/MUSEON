@@ -10,6 +10,7 @@ import logging
 import os
 import time
 from dataclasses import dataclass, field
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
 
@@ -151,6 +152,12 @@ class ClaudeCLIAdapter:
 
     # OAuth token 持久化路徑
     _TOKEN_FILE = Path.home() / ".museon" / "oauth_token"
+    _TOKEN_BACKUP = Path.home() / ".museon" / "oauth_token.bak"
+    # Claude Desktop 可能存放 token 的位置
+    _CLAUDE_DESKTOP_SOURCES = [
+        Path.home() / ".claude" / ".credentials.json",
+        Path.home() / ".config" / "claude" / "credentials.json",
+    ]
 
     def __init__(self, claude_path: Optional[str] = None):
         self._claude_path = claude_path or "claude"
@@ -158,13 +165,21 @@ class ClaudeCLIAdapter:
         self._total_duration_ms = 0
 
     def _get_oauth_token(self) -> Optional[str]:
-        """取得 OAuth token（環境變數 > 持久化文件）."""
-        # 1. 環境變數（Claude Desktop 注入）
+        """取得 OAuth token — 四層來源，絕不輕易放棄.
+
+        優先順序：
+        1. 環境變數（Claude Desktop 即時注入）
+        2. 持久化文件（~/.museon/oauth_token）
+        3. Claude Desktop credentials（~/.claude/.credentials.json）
+        4. 備份文件（~/.museon/oauth_token.bak — 永不刪除的最後防線）
+        """
+        # 1. 環境變數（Claude Desktop 注入，最新鮮）
         token = os.environ.get("CLAUDE_CODE_OAUTH_TOKEN")
         if token:
             self._save_token(token)
             return token
-        # 2. 持久化文件（launchd daemon 使用）
+
+        # 2. 持久化文件
         if self._TOKEN_FILE.exists():
             try:
                 saved = self._TOKEN_FILE.read_text(encoding="utf-8").strip()
@@ -172,11 +187,44 @@ class ClaudeCLIAdapter:
                     logger.debug("Using persisted OAuth token from %s", self._TOKEN_FILE)
                     return saved
             except Exception as e:
-                logger.debug(f"[ADAPTERS] token failed (degraded): {e}")
+                logger.debug(f"[ADAPTERS] token read failed: {e}")
+
+        # 3. Claude Desktop credentials（自動續期）
+        for cred_path in self._CLAUDE_DESKTOP_SOURCES:
+            token = self._read_claude_desktop_token(cred_path)
+            if token:
+                logger.info(f"[Token] 從 Claude Desktop 取得新 token: {cred_path}")
+                self._save_token(token)
+                return token
+
+        # 4. 備份文件（最後防線 — 可能過期但值得一試）
+        if self._TOKEN_BACKUP.exists():
+            try:
+                backup = self._TOKEN_BACKUP.read_text(encoding="utf-8").strip()
+                if backup:
+                    logger.warning("[Token] 使用備份 token（可能已過期，但值得嘗試）")
+                    return backup
+            except Exception as e:
+                logger.debug(f"[ADAPTERS] backup token read failed: {e}")
+
+        return None
+
+    def _read_claude_desktop_token(self, cred_path: Path) -> Optional[str]:
+        """從 Claude Desktop credentials 文件讀取 OAuth token."""
+        if not cred_path.exists():
+            return None
+        try:
+            data = json.loads(cred_path.read_text(encoding="utf-8"))
+            # Claude Desktop 格式：{"oauthToken": "sk-ant-oat01-..."}
+            token = data.get("oauthToken") or data.get("oauth_token") or data.get("token")
+            if token and token.startswith("sk-ant-"):
+                return token
+        except Exception as e:
+            logger.debug(f"[Token] Claude Desktop credentials 讀取失敗: {e}")
         return None
 
     def _save_token(self, token: str) -> None:
-        """將 OAuth token 持久化到文件."""
+        """將 OAuth token 持久化到文件 + 備份."""
         try:
             self._TOKEN_FILE.parent.mkdir(parents=True, exist_ok=True)
             self._TOKEN_FILE.write_text(token, encoding="utf-8")
@@ -367,14 +415,23 @@ class ClaudeCLIAdapter:
                 _NON_AUTH_SIGNALS = ("no stdin data", "pipe", "timeout", "signal")
                 _is_non_auth = any(sig in error_detail.lower() for sig in _NON_AUTH_SIGNALS)
                 if _is_auth_error and not _is_non_auth:
-                    logger.warning("OAuth token expired/invalid, clearing persisted token")
+                    # P1-2: 永不刪除 token — 改為備份後標記 stale
+                    logger.warning("[Token] OAuth token expired/invalid — 備份後標記 stale（不刪除）")
                     if self._TOKEN_FILE.exists():
                         try:
-                            self._TOKEN_FILE.unlink()
+                            # 備份到 .bak（永久保留，最後防線）
+                            import shutil
+                            shutil.copy2(str(self._TOKEN_FILE), str(self._TOKEN_BACKUP))
+                            # 不刪除主檔案，只記錄為 stale
+                            _stale_marker = self._TOKEN_FILE.parent / "oauth_token.stale"
+                            _stale_marker.write_text(
+                                f"stale_at={datetime.now().isoformat()}\nreason={error_detail[:200]}",
+                                encoding="utf-8",
+                            )
                         except Exception as e:
-                            logger.debug(f"[ADAPTERS] token cleanup failed (degraded): {e}")
+                            logger.debug(f"[Token] stale 標記失敗: {e}")
                 elif _is_auth_error and _is_non_auth:
-                    logger.info("CLI error contains auth signal but also pipe/timeout — keeping token")
+                    logger.info("[Token] CLI error contains auth signal but also pipe/timeout — keeping token")
                 logger.error(f"claude -p failed (exit {proc.returncode}): {error_detail}")
                 return AdapterResponse(
                     text=f"[claude -p error] {error_detail}",
