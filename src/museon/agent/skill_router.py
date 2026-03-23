@@ -446,7 +446,11 @@ class SkillRouter:
                 # v10: 用 RCAffinityIndex（skill 自己宣告的 RC 親和）
                 if self._rc_index and fired_clusters:
                     rc_scores = self._rc_index.get_skills_for_clusters(fired_clusters)
-                    suppressed_skills = self._rc_index.get_suppressed_skills(fired_clusters)
+                    # v10.2: 傳入叢集分數，只在 RC 分數 >= 0.5 時才壓制
+                    _cs = getattr(routing_signal, "cluster_scores", None) or {}
+                    suppressed_skills = self._rc_index.get_suppressed_skills(
+                        fired_clusters, cluster_scores=_cs,
+                    )
 
                 # Mode 過濾
                 if routing_signal.mode == "EVOLUTION_MODE":

@@ -1,4 +1,4 @@
-# Blast Radius — 模組影響半徑表 v1.58
+# Blast Radius — 模組影響半徑表 v1.59
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
@@ -834,6 +834,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-23 | v1.59 | Brain 思考品質 5 項修復（DSE 分析結果落地）——(1) reflex_router.py `select_loop()` 移除 RC-D1 從 EXPLORATION_LOOP 攔截（D1 屬 D-tier 應走 SLOW_LOOP）；(2) brain.py `_check_behavior_patterns()` action_verbs 擴充 8 個高頻動詞（分析/規劃/評估/整理/計算/比較/歸納/總結）+ 移除 `len(content)<30` 短訊息誤判；(3) rc_affinity_loader.py `get_suppressed_skills()` 新增 cluster_scores + threshold 0.5 參數（低分 RC 不再壓制策略 Skill）；reflex_router.py RoutingSignal 新增 `cluster_scores` 欄位；skill_router.py 呼叫端同步傳入 cluster_scores；(4) brain_p3_fusion.py 新增 `_P3_CONFIDENCE_EXPLORE_MULTI=0.7`（EXPLORATION_LOOP + 多策略 Skill → 0.70 取代恆定 0.60）；(5) brain.py Step 3.1c P0 訊號分流提前——戰略信號自動注入 master-strategy 到 matched_skills。全部為內部邏輯修改，不改公開介面/持久層格式/import 關係。RoutingSignal 新增 optional 欄位（向後相容）。 |
 | 2026-03-23 | v1.56 | Session 自動清理升級——brain_tools.py `_save_session_to_disk()` 新增 metadata 層，記錄 `last_active` ISO 時間戳；`_load_session_from_disk()` 相容舊格式（pure list）和新格式（metadata + messages），自動轉換舊檔案；session_cleanup.py `cleanup_dormant_sessions()` 新增 `_get_session_last_active()` 優先讀 metadata.last_active、fallback 到檔案 mtime；server.py cron engine 每小時執行清理（超過 3 天未互動的 session 自動刪除）。brain_tools.py 扇入扇出不變、無新增 import；session_cleanup.py 扇入不變（1）；server.py 扇出不變（cron job 已註冊）；共享狀態讀寫格式變更（向後相容）。同步 persistence-contract v1.33 |
 | 2026-03-23 | v1.55 | Project Epigenesis 接線——brain.py `__init__()` 新增 EpigeneticRouter 初始化（注入 memory_manager/diary_store/knowledge_lattice/anima_changelog/pulse_db）；brain_prompt_builder.py `_build_memory_inject()` 新增反思摘要注入（EpigeneticRouter.activate() → reflection.summary → memory zone）。新增 G9 記憶反思組（epigenetic_router + memory_reflector + adaptive_decay + brain_prompt_builder）。brain.py 扇出 +1（epigenetic_router）；brain_prompt_builder.py 扇出 +1。memory_reflector 扇入 1（epigenetic_router）；adaptive_decay 扇入 1（memory_reflector）；epigenetic_router 扇入 1（brain.py）。同步 joint-map v1.40、memory-router v1.6、persistence-contract v1.32 |
 | 2026-03-23 | v1.54 | Doctor 群組健康檢查——四處修復：(1) P0 `brain_dispatch.py` `_strip_system_leakage()` NameError 修復：`@staticmethod` 內引用 `self._LEAKAGE_FILTER_RATIO` → `BrainDispatchMixin._LEAKAGE_FILTER_RATIO`，修復 dispatch 合成階段必定 crash；(2) P1 `tool_registry.py` + `service_health.py` Docker PATH 修復：launchd PATH 不含 `/usr/local/bin` 導致 docker binary 找不到，新增 `shutil.which()` + fallback 路徑解析，消除每 5 分鐘的 38000+ 行 log 噪音；(3) P2 `message.py` 空 content 防禦：Telegram 空訊息從 ValueError crash 改為 fallback `[empty]`；(4) P3 `server.py` Gateway 重啟 port reuse：`uvicorn.run()` 改為 `uvicorn.Server(Config).run()` 啟用 SO_REUSEADDR。全部為內部修復，不改公開介面/共享狀態/import 關係。扇入扇出不變。 |

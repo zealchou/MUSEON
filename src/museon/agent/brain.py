@@ -859,6 +859,23 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         skill_names = [s.get("name", "?") for s in matched_skills]
         logger.info(f"DNA27 matched skills: {skill_names}")
 
+        # ── Step 3.1c: P0 訊號分流 — 戰略信號注入策略 Skill（v9.1）──
+        # deep-think Phase 0 零觸發修復：P0 分類提前到此處，戰略訊號可注入策略 Skill
+        try:
+            _p0_signal = self._classify_p0_signal(content, routing_signal, skill_names)
+            _strategy_skills = {"master-strategy", "shadow", "roundtable"}
+            if _p0_signal == "戰略" and not (_strategy_skills & set(skill_names)):
+                matched_skills.append({
+                    "name": "master-strategy",
+                    "score": 0.8,
+                    "source": "p0_strategy_inject",
+                })
+                skill_names = [s.get("name", "?") for s in matched_skills]
+                logger.info(f"[P0] 戰略信號注入 master-strategy: skills={skill_names}")
+        except Exception as e:
+            logger.debug(f"Step 3.1c P0 注入降級: {e}")
+            _p0_signal = "理性"
+
         # ── Step 3.2: P2 決策層信號偵測 ──
         decision_signal = None
         try:
@@ -1540,8 +1557,11 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                     _loop_short = _loop_map.get(routing_signal.loop, "E") if routing_signal else "E"
                     _energy_map = {"FAST_LOOP": "high", "EXPLORATION_LOOP": "neutral", "SLOW_LOOP": "deep"}
                     _energy = _energy_map.get(routing_signal.loop, "neutral") if routing_signal else "neutral"
-                    # v3.0: Phase 0 訊號分流 — 六類判定（取代空值）
-                    _p0 = self._classify_p0_signal(content, routing_signal, skill_names)
+                    # v9.1: 複用 Step 3.1c 已計算的 P0 結果（避免重複計算）
+                    try:
+                        _p0 = _p0_signal
+                    except NameError:
+                        _p0 = self._classify_p0_signal(content, routing_signal, skill_names)
                     # v3.0: meta_note — 傳遞 thinking_path_summary（取代硬編碼空值）
                     _meta = ""
                     if thinking_path_summary:
@@ -2340,7 +2360,11 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
             )
 
         # 3. 純提問（問句 + 無行動動詞）
-        action_verbs = ["幫我", "請幫", "幫你", "寫", "建立", "做一個", "開始", "實作", "部署", "上傳", "產出"]
+        # v9.1: 擴充動作詞——遺漏高頻動詞導致「分析XX」「規劃XX」等指令被誤判為純提問
+        action_verbs = [
+            "幫我", "請幫", "幫你", "寫", "建立", "做一個", "開始", "實作", "部署", "上傳", "產出",
+            "分析", "規劃", "評估", "整理", "計算", "比較", "歸納", "總結",
+        ]
         is_question = content.strip().endswith("?") or content.strip().endswith("？")
         has_action = any(v in content for v in action_verbs)
         if is_question and not has_action and len(content) < 80:
@@ -2364,7 +2388,8 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
 
         # 5. 文件/圖片上傳但無明確動作指令
         upload_signals = ["上傳了", "檔案已儲存", "pdf", "PDF", ".json", ".csv", ".xlsx"]
-        has_upload = any(s in content for s in upload_signals) or len(content) < 30
+        # v9.1: 移除 `or len(content) < 30`——短訊息不應自動歸類為文件上傳
+        has_upload = any(s in content for s in upload_signals)
         explicit_action_for_upload = any(
             v in content for v in ["分析", "幫我", "請", "看看", "讀", "解析", "總結"]
         )

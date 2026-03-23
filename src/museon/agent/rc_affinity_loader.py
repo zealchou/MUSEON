@@ -211,12 +211,23 @@ class RCAffinityIndex:
         return scores
 
     def get_suppressed_skills(
-        self, fired_clusters: List[str]
+        self,
+        fired_clusters: List[str],
+        cluster_scores: Optional[Dict[str, float]] = None,
+        threshold: float = 0.5,
     ) -> Set[str]:
-        """回傳應被壓制的 skills（它們宣告禁止當前觸發的 RC）."""
+        """回傳應被壓制的 skills（它們宣告禁止當前觸發的 RC）.
+
+        v10.2: 只在 RC 分數 >= threshold 時才壓制，避免低分觸發誤殺策略 Skill。
+        """
         fired = [rc.upper() for rc in fired_clusters]
         suppressed: Set[str] = set()
         for rc in fired:
+            # v10.2: 有分數資訊時，低分 RC 不應壓制（0.1 也壓制 = 過度壓制）
+            if cluster_scores:
+                score = cluster_scores.get(rc, cluster_scores.get(rc.lower(), 0.0))
+                if score < threshold:
+                    continue
             for skill in self.prohibited_by.get(rc, []):
                 suppressed.add(skill)
         return suppressed
