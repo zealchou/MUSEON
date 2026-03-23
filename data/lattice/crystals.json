@@ -28314,5 +28314,2105 @@
       "價值展示",
       "轉換"
     ]
+  },
+  {
+    "cuid": "KL-PRI-0242",
+    "crystal_type": "Principle",
+    "g1_summary": "DHARMA 六步驟——從覺察到對齊的思維轉化完整路徑",
+    "g2_structure": [
+      "DHARMA",
+      "六步驟",
+      "思維轉化"
+    ],
+    "g3_root_inquiry": "什麼條件下 DHARMA 六步驟才能真正完成從覺察到對齊的轉化？",
+    "g4_insights": [
+      "DHARMA 不是線性流程而是螺旋迭代，每一步都可能回到前一步深化",
+      "六步驟的力量在於把抽象的靈性成長拆解為可操作的認知動作",
+      "轉化的關鍵不在速度而在每一步是否真正落地"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "DHARMA",
+      "六步驟",
+      "思維轉化"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0243",
+    "crystal_type": "Principle",
+    "g1_summary": "Discern 先觀察不貼標籤——不急於下判斷是智慧的起點",
+    "g2_structure": [
+      "Discern",
+      "覺察",
+      "不判斷"
+    ],
+    "g3_root_inquiry": "為什麼人類的第一反應總是貼標籤而非純粹觀察？",
+    "g4_insights": [
+      "貼標籤是大腦的節能機制，覺察是有意識地暫停這個自動化",
+      "Discern 的核心是在刺激與反應之間創造一個空間"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "Discern",
+      "覺察",
+      "不判斷"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0244",
+    "crystal_type": "Principle",
+    "g1_summary": "Hold 接住混亂——先穩住心境再思考才不會被情緒綁架",
+    "g2_structure": [
+      "Hold",
+      "接住",
+      "空間"
+    ],
+    "g3_root_inquiry": "為什麼多數人在混亂中選擇逃避而非接住？",
+    "g4_insights": [
+      "Hold 不是壓抑情緒而是給情緒一個安全的容器",
+      "接住混亂需要的不是勇氣而是穩定的內在結構",
+      "當你能 Hold 住混亂，混亂反而成為轉化的燃料"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "Hold",
+      "接住",
+      "空間"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0245",
+    "crystal_type": "Principle",
+    "g1_summary": "Absorb 多源吸收——不只用腦思考還要用身體感受",
+    "g2_structure": [
+      "Absorb",
+      "吸收",
+      "感受"
+    ],
+    "g3_root_inquiry": "為什麼純理性思考無法帶來真正的理解？",
+    "g4_insights": [
+      "身體是被遺忘的認知管道，Absorb 是重新啟動它",
+      "多源吸收意味著同時用邏輯、直覺和體感來處理訊息"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "Absorb",
+      "吸收",
+      "感受"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0246",
+    "crystal_type": "Principle",
+    "g1_summary": "Reflect 反思信念——問題背後的問題才是真正的問題",
+    "g2_structure": [
+      "Reflect",
+      "反思",
+      "信念"
+    ],
+    "g3_root_inquiry": "如何辨識表層問題與根本信念之間的落差？",
+    "g4_insights": [
+      "Reflect 不是回顧事件而是挖掘事件背後的信念模式",
+      "多數人解決的是症狀而非病因，反思是找到病因的唯一路徑"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "Reflect",
+      "反思",
+      "信念"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0247",
+    "crystal_type": "Principle",
+    "g1_summary": "Map 分類認知——把混亂的感受整理成可溝通的結構",
+    "g2_structure": [
+      "Map",
+      "分類",
+      "結構"
+    ],
+    "g3_root_inquiry": "為什麼結構化是從感受到行動的必經之路？",
+    "g4_insights": [
+      "Map 是把右腦的混沌翻譯成左腦能處理的語言",
+      "沒有結構的感受會停留在情緒層，有結構的感受才能轉化為策略"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "Map",
+      "分類",
+      "結構"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0248",
+    "crystal_type": "Principle",
+    "g1_summary": "Align 對齊實踐——內在的覺悟必須化為外在的行動",
+    "g2_structure": [
+      "Align",
+      "對齊",
+      "行動"
+    ],
+    "g3_root_inquiry": "為什麼知道卻做不到是最普遍的人類困境？",
+    "g4_insights": [
+      "Align 是 DHARMA 的最後一步也是最難的一步——從知到行的跳躍",
+      "對齊不是一次性事件而是持續的校準過程"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "Align",
+      "對齊",
+      "行動"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0249",
+    "crystal_type": "Principle",
+    "g1_summary": "Resonance 先接後診——感性訊號需要先被接住才能被轉化",
+    "g2_structure": [
+      "Resonance",
+      "先接後診",
+      "感性"
+    ],
+    "g3_root_inquiry": "為什麼急著分析問題反而會讓對話失敗？",
+    "g4_insights": [
+      "先接後診是教練的核心心法——人在被理解之前不會接受建議",
+      "Resonance 模組的存在證明了感性前置不是軟弱而是策略"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "Resonance",
+      "先接後診",
+      "感性"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0250",
+    "crystal_type": "Principle",
+    "g1_summary": "顯化不是奇蹟而是無數日常選擇的累積結果",
+    "g2_structure": [
+      "顯化",
+      "累積",
+      "選擇"
+    ],
+    "g3_root_inquiry": "如何區分真正的顯化與自我欺騙的妄想？",
+    "g4_insights": [
+      "顯化 = 意圖 × 行動 × 時間，缺任何一項都不成立",
+      "每一個微小的日常選擇都在為最終結果投票"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "顯化",
+      "累積",
+      "選擇"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0251",
+    "crystal_type": "Principle",
+    "g1_summary": "一念生萬象——每個念頭背後蘊含的能量會漣漪擴散影響整個湖面",
+    "g2_structure": [
+      "一念生萬象",
+      "能量",
+      "漣漪"
+    ],
+    "g3_root_inquiry": "如何在念頭層面就做出有意識的選擇？",
+    "g4_insights": [
+      "念頭不是無害的——每個念頭都是一顆投入意識湖面的石子",
+      "覺察念頭的品質比控制念頭的數量更重要"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "一念生萬象",
+      "能量",
+      "漣漪"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0252",
+    "crystal_type": "Principle",
+    "g1_summary": "2D思維只看表面4D思維看穿結構——荒謬源自平面思考",
+    "g2_structure": [
+      "2D",
+      "4D",
+      "思維升維"
+    ],
+    "g3_root_inquiry": "什麼機制讓人困在 2D 思維而無法升維？",
+    "g4_insights": [
+      "2D 思維看到的是事件，4D 思維看到的是事件背後的結構和時間軸",
+      "升維不是天賦而是可以訓練的認知習慣"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "2D",
+      "4D",
+      "思維升維"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0253",
+    "crystal_type": "Principle",
+    "g1_summary": "使命目標vs慾望目標——舒適圈內是慾望舒適圈外才是使命",
+    "g2_structure": [
+      "使命",
+      "慾望",
+      "舒適圈"
+    ],
+    "g3_root_inquiry": "如何辨識自己追求的到底是使命還是慾望？",
+    "g4_insights": [
+      "慾望目標讓你興奮但不會讓你恐懼，使命目標兩者兼具",
+      "舒適圈是檢驗使命的石蕊試紙——真正的使命必然在圈外"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "使命",
+      "慾望",
+      "舒適圈"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0254",
+    "crystal_type": "Principle",
+    "g1_summary": "行知合一——知識的價值不在考試那一刻而在能否內化為行動",
+    "g2_structure": [
+      "行知合一",
+      "內化",
+      "行動"
+    ],
+    "g3_root_inquiry": "為什麼教育系統培養了知道很多卻做不到的人？",
+    "g4_insights": [
+      "行知合一不是道德要求而是效能指標——無法行動的知識是零資產",
+      "內化的關鍵是重複實踐而非重複閱讀"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "行知合一",
+      "內化",
+      "行動"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0255",
+    "crystal_type": "Principle",
+    "g1_summary": "潛意識每天35000個選擇——你以為的自主其實多半是自動化",
+    "g2_structure": [
+      "潛意識",
+      "選擇",
+      "自動化"
+    ],
+    "g3_root_inquiry": "如何從潛意識的自動駕駛中奪回方向盤？",
+    "g4_insights": [
+      "35000 個選擇中只有極少數經過意識審核，其餘都是潛意識自動執行",
+      "覺察是打斷自動化的第一步——你無法改變你沒有察覺的東西"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "潛意識",
+      "選擇",
+      "自動化"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0256",
+    "crystal_type": "Principle",
+    "g1_summary": "X-Model的核心是校準與對齊——語言是意志的橋樑結構是意志的形體",
+    "g2_structure": [
+      "X-Model",
+      "校準",
+      "對齊"
+    ],
+    "g3_root_inquiry": "為什麼光有願景不夠，還需要結構來承載？",
+    "g4_insights": [
+      "X-Model 不是規劃工具而是校準工具——持續確保行動與意圖一致",
+      "語言負責溝通意志，結構負責固化意志，兩者缺一不可"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "X-Model",
+      "校準",
+      "對齊"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0257",
+    "crystal_type": "Principle",
+    "g1_summary": "Dharma不是解決問題的模型而是活出真實的你的導引系統",
+    "g2_structure": [
+      "Dharma",
+      "真實",
+      "導引"
+    ],
+    "g3_root_inquiry": "Dharma 與傳統問題解決框架的本質差異是什麼？",
+    "g4_insights": [
+      "問題解決是修補，Dharma 是轉化——前者維持現狀，後者創造新我",
+      "Dharma 的終點不是問題消失而是你不再是那個會被問題困住的人"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "Dharma",
+      "真實",
+      "導引"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0258",
+    "crystal_type": "Principle",
+    "g1_summary": "One Muse就是為轉化時代重新設計的達摩模型",
+    "g2_structure": [
+      "OneMuse",
+      "Dharma",
+      "轉化"
+    ],
+    "g3_root_inquiry": "One Muse 如何將古老的達摩智慧轉譯為當代可操作的系統？",
+    "g4_insights": [
+      "One Muse 是 Dharma 的數位化與系統化——把師父的心法變成可複製的流程",
+      "轉化時代需要的不是更多資訊而是更好的消化系統"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "OneMuse",
+      "Dharma",
+      "轉化"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0259",
+    "crystal_type": "Principle",
+    "g1_summary": "譚崔的核心不是肉體享受而是靈性能量的提升與身心統一",
+    "g2_structure": [
+      "譚崔",
+      "靈性",
+      "能量"
+    ],
+    "g3_root_inquiry": "為什麼譚崔在大眾認知中被嚴重誤解？",
+    "g4_insights": [
+      "譚崔被誤解是因為人們只看到入口（身體）而忽略了出口（靈性）",
+      "身心統一不是二選一而是透過身體到達靈性的完整路徑"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "譚崔",
+      "靈性",
+      "能量"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0260",
+    "crystal_type": "Principle",
+    "g1_summary": "每段關係都是一面鏡子——從八段感情看見自己的模式與盲點",
+    "g2_structure": [
+      "關係",
+      "鏡子",
+      "模式"
+    ],
+    "g3_root_inquiry": "為什麼同樣的關係模式會反覆出現直到被看見？",
+    "g4_insights": [
+      "關係鏡射的不是對方的問題而是自己尚未整合的面向",
+      "八段感情不是八次失敗而是八次照鏡子的機會"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "關係",
+      "鏡子",
+      "模式"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0261",
+    "crystal_type": "Principle",
+    "g1_summary": "先天下之憂而憂後天下之樂而樂——影響達哥一生的核心信念",
+    "g2_structure": [
+      "先天下",
+      "使命",
+      "信念"
+    ],
+    "g3_root_inquiry": "這個信念如何從座右銘轉化為實際的人生策略？",
+    "g4_insights": [
+      "先憂後樂不是自虐而是一種優先級系統——先解決系統性問題再享受成果",
+      "這個信念驅動了從武術到商業到教育的所有轉型決策"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "先天下",
+      "使命",
+      "信念"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0259",
+    "crystal_type": "Pattern",
+    "g1_summary": "DHARMA六步驟完整流程 D→H→A→R→M→A",
+    "g2_structure": [
+      "DHARMA",
+      "六步驟",
+      "流程"
+    ],
+    "g3_root_inquiry": "六步驟的順序是否固定，還是可以根據情境調整？",
+    "g4_insights": [
+      "D→H→A→R→M→A 是預設流程，但實務中常出現跳步與回溯",
+      "流程的價值不在嚴格遵守而在提供方向感"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "DHARMA",
+      "六步驟",
+      "流程"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0260",
+    "crystal_type": "Pattern",
+    "g1_summary": "Resonance五步驟 語場感測→情緒定位→能量共振→象徵鏡射→行動轉譯",
+    "g2_structure": [
+      "Resonance",
+      "五步驟"
+    ],
+    "g3_root_inquiry": "五步驟中哪一步最容易被跳過？跳過的後果是什麼？",
+    "g4_insights": [
+      "情緒定位是最常被跳過的步驟，導致後續共振失準",
+      "五步驟的精髓是每一步都在為下一步建立基礎"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "Resonance",
+      "五步驟"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0261",
+    "crystal_type": "Pattern",
+    "g1_summary": "RESONANCE九字母心理承接步驟 R-E-S-O-N-A-N-C-E",
+    "g2_structure": [
+      "RESONANCE",
+      "九步驟",
+      "承接"
+    ],
+    "g3_root_inquiry": "九字母展開後如何確保每個步驟都不流於形式？",
+    "g4_insights": [
+      "九字母不是記憶口訣而是實操清單——每個字母對應一個具體動作",
+      "承接的品質決定了後續轉化的深度"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "RESONANCE",
+      "九步驟",
+      "承接"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0262",
+    "crystal_type": "Pattern",
+    "g1_summary": "顯化四步操練 覺察→對齊→微調→顯化",
+    "g2_structure": [
+      "顯化",
+      "四步驟",
+      "操練"
+    ],
+    "g3_root_inquiry": "微調這一步在實際操練中如何執行？",
+    "g4_insights": [
+      "微調是顯化流程中最被低估的步驟——沒有微調就是盲目堅持",
+      "四步操練的價值在於把玄學概念轉為日常可練習的動作"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "顯化",
+      "四步驟",
+      "操練"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0263",
+    "crystal_type": "Pattern",
+    "g1_summary": "One Muse操練三步 每日覺察+反向目標+探索行動",
+    "g2_structure": [
+      "OneMuse",
+      "操練",
+      "三步"
+    ],
+    "g3_root_inquiry": "三步操練如何融入已經很忙的日常生活？",
+    "g4_insights": [
+      "三步的設計原則是最小可行練習——每步不超過 5 分鐘",
+      "反向目標是三步中最反直覺的——從不要什麼開始比從要什麼開始更清晰"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "OneMuse",
+      "操練",
+      "三步"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0264",
+    "crystal_type": "Pattern",
+    "g1_summary": "X-Model五步操作法 manifest→blueprint→review→iterate→govern",
+    "g2_structure": [
+      "X-Model",
+      "五步",
+      "操作"
+    ],
+    "g3_root_inquiry": "五步操作法與傳統 PDCA 的本質差異是什麼？",
+    "g4_insights": [
+      "X-Model 的 manifest 對應的是意圖而非計畫，這是與 PDCA 的根本差異",
+      "govern 不是控制而是治理——允許系統自我演化的同時保持方向"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "X-Model",
+      "五步",
+      "操作"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0265",
+    "crystal_type": "Pattern",
+    "g1_summary": "X-Model三大校準指標 Alignment+Structure+Resonance",
+    "g2_structure": [
+      "X-Model",
+      "校準",
+      "指標"
+    ],
+    "g3_root_inquiry": "三大指標之間的權重如何動態調整？",
+    "g4_insights": [
+      "三個指標不是等權的——不同階段需要不同指標的優先",
+      "當三個指標同時亮紅燈時，永遠先修 Alignment"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "X-Model",
+      "校準",
+      "指標"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0266",
+    "crystal_type": "Pattern",
+    "g1_summary": "X-Model校正迴路 初稿→校準→修正→重生→穩態→反饋→再創新",
+    "g2_structure": [
+      "X-Model",
+      "校正",
+      "迴路"
+    ],
+    "g3_root_inquiry": "校正迴路如何避免陷入無限修正的完美主義陷阱？",
+    "g4_insights": [
+      "穩態是迴路中的安全閥——到達穩態就該停止修正開始運作",
+      "再創新不是否定穩態而是在穩態基礎上的進化"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "X-Model",
+      "校正",
+      "迴路"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0267",
+    "crystal_type": "Pattern",
+    "g1_summary": "64教練對話系統 八方位×八卦=64卦象×教練對話句",
+    "g2_structure": [
+      "64教練",
+      "八方位",
+      "人類圖"
+    ],
+    "g3_root_inquiry": "64 卦象教練對話如何避免機械化套用？",
+    "g4_insights": [
+      "64 個對話句是指南針不是腳本——核心是理解能量而非背誦句子",
+      "八方位提供方向，八卦提供動態，交叉後才是完整的對話地圖"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "64教練",
+      "八方位",
+      "人類圖"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0268",
+    "crystal_type": "Pattern",
+    "g1_summary": "感性語句觸發清單 語意模糊句+情緒未具象句+防禦性斷句",
+    "g2_structure": [
+      "感性語句",
+      "觸發",
+      "辨識"
+    ],
+    "g3_root_inquiry": "如何訓練辨識感性語句而不誤判為理性陳述？",
+    "g4_insights": [
+      "三種觸發類型涵蓋了 80% 的感性訊號入口",
+      "防禦性斷句是最容易被忽略的類型——看似理性的結論往往包裹著未處理的情緒"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "感性語句",
+      "觸發",
+      "辨識"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0269",
+    "crystal_type": "Pattern",
+    "g1_summary": "內外八軸能量詞彙庫 內八軸(承受迷惘自責壓抑)+外八軸(對抗遷怒控制閃避)",
+    "g2_structure": [
+      "八軸",
+      "能量",
+      "詞彙"
+    ],
+    "g3_root_inquiry": "內外八軸的能量如何在對話中被即時辨識？",
+    "g4_insights": [
+      "內八軸是向內收縮的能量，外八軸是向外投射的能量——方向不同處理方式也不同",
+      "詞彙庫的價值是讓模糊的能量感知變成可命名的狀態"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "八軸",
+      "能量",
+      "詞彙"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0270",
+    "crystal_type": "Pattern",
+    "g1_summary": "象徵鏡射語句樣本庫 等待式+引導式+撫平式",
+    "g2_structure": [
+      "象徵鏡射",
+      "語句",
+      "樣本"
+    ],
+    "g3_root_inquiry": "三種鏡射語句在什麼時機使用最有效？",
+    "g4_insights": [
+      "等待式用於對方還在混亂中，引導式用於已穩定但缺方向，撫平式用於情緒高峰後",
+      "象徵鏡射不是複述而是用隱喻讓對方看見自己"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "象徵鏡射",
+      "語句",
+      "樣本"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0271",
+    "crystal_type": "Pattern",
+    "g1_summary": "行動轉譯語法模板 低壓力非命令式柔性指引",
+    "g2_structure": [
+      "行動轉譯",
+      "語法",
+      "模板"
+    ],
+    "g3_root_inquiry": "為什麼柔性指引比直接建議更能促進行動？",
+    "g4_insights": [
+      "命令式建議觸發防禦反應，柔性指引觸發自主動機",
+      "行動轉譯的藝術是讓對方覺得行動是自己的選擇而非被要求的"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "行動轉譯",
+      "語法",
+      "模板"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0272",
+    "crystal_type": "Pattern",
+    "g1_summary": "DHARMA×OneMuse對應表 D=八方位+H=能量場+R=八角框架+M=12力+A=顯化流程",
+    "g2_structure": [
+      "DHARMA",
+      "OneMuse",
+      "對應"
+    ],
+    "g3_root_inquiry": "DHARMA 與 OneMuse 的對應是精確映射還是概念近似？",
+    "g4_insights": [
+      "對應表是概念層的映射而非功能層的等價——同一步驟在兩個系統中的操作方式不同",
+      "對應表的價值是讓熟悉其中一個系統的人可以快速理解另一個"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "DHARMA",
+      "OneMuse",
+      "對應"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0273",
+    "crystal_type": "Pattern",
+    "g1_summary": "譚崔呼吸法五種 坐姿冥想+完全呼吸+交替鼻孔+火呼吸+昆達里尼",
+    "g2_structure": [
+      "譚崔",
+      "呼吸",
+      "五種"
+    ],
+    "g3_root_inquiry": "五種呼吸法的適用情境各是什麼？",
+    "g4_insights": [
+      "坐姿冥想適合日常，火呼吸適合需要能量提升的時刻，交替鼻孔適合需要平衡的時刻",
+      "五種呼吸法形成一個從靜到動的完整光譜"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "譚崔",
+      "呼吸",
+      "五種"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0274",
+    "crystal_type": "Pattern",
+    "g1_summary": "譚崔儀式七步驟 準備→開始→連結→喚醒→升華→結束→整合",
+    "g2_structure": [
+      "譚崔",
+      "儀式",
+      "七步驟"
+    ],
+    "g3_root_inquiry": "七步驟中最容易被省略但最重要的是哪一步？",
+    "g4_insights": [
+      "整合是最常被省略的步驟——沒有整合的體驗會像夢一樣消散",
+      "準備和結束是儀式的容器，沒有容器的能量會四處溢出"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "譚崔",
+      "儀式",
+      "七步驟"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0275",
+    "crystal_type": "Pattern",
+    "g1_summary": "品牌一致性三層檢核 VIS視覺+BIS行為+IIS理念",
+    "g2_structure": [
+      "品牌",
+      "一致性",
+      "檢核"
+    ],
+    "g3_root_inquiry": "三層檢核中哪一層的不一致最難被發現？",
+    "g4_insights": [
+      "IIS 理念層的不一致最隱蔽——視覺和行為可能完美但理念已經偏移",
+      "品牌一致性不是靜態的而是需要持續校準的動態平衡"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "品牌",
+      "一致性",
+      "檢核"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0276",
+    "crystal_type": "Pattern",
+    "g1_summary": "DHARMA六週教學設計 每週一步驟對應工具與方法",
+    "g2_structure": [
+      "DHARMA",
+      "教學",
+      "六週"
+    ],
+    "g3_root_inquiry": "六週的節奏是否適合所有學員？如何處理進度差異？",
+    "g4_insights": [
+      "六週是最小完整循環——少於六週無法完成完整轉化，多於六週容易失去動力",
+      "進度差異用平行練習而非延長時間來處理"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "DHARMA",
+      "教學",
+      "六週"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0277",
+    "crystal_type": "Pattern",
+    "g1_summary": "DHARMA教學三大支柱 可視化+語言模擬+可操作步驟",
+    "g2_structure": [
+      "DHARMA",
+      "教學",
+      "支柱"
+    ],
+    "g3_root_inquiry": "三大支柱如何確保學員從理解到實踐？",
+    "g4_insights": [
+      "可視化讓抽象概念具象，語言模擬建立肌肉記憶，可操作步驟降低行動門檻",
+      "三支柱缺一不可——只有可視化是看戲，只有步驟是考試"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "DHARMA",
+      "教學",
+      "支柱"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0278",
+    "crystal_type": "Pattern",
+    "g1_summary": "Resonance與DHARMA銜接路徑 感性前置→理性轉化",
+    "g2_structure": [
+      "Resonance",
+      "DHARMA",
+      "銜接"
+    ],
+    "g3_root_inquiry": "感性前置與理性轉化之間的轉換點如何判斷？",
+    "g4_insights": [
+      "轉換點的信號是對方從表達情緒轉為提問——這意味著他們準備好進入理性了",
+      "銜接路徑的關鍵是不要在對方還在感性模式時就切換到理性工具"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "Resonance",
+      "DHARMA",
+      "銜接"
+    ]
+  },
+  {
+    "cuid": "KL-LES-0221",
+    "crystal_type": "Lesson",
+    "g1_summary": "周文王後裔——家族傲慢之氣讓自己人看待彼此都容易看不爽",
+    "g2_structure": [
+      "家族",
+      "傲慢",
+      "覺察"
+    ],
+    "g3_root_inquiry": "家族傳承的性格模式如何影響一個人的人際關係？",
+    "g4_insights": [
+      "傲慢不是個人缺陷而是家族系統的集體程式",
+      "覺察到傲慢的來源是解除它的第一步"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "家族",
+      "傲慢",
+      "覺察"
+    ]
+  },
+  {
+    "cuid": "KL-LES-0222",
+    "crystal_type": "Lesson",
+    "g1_summary": "國中50人群架——促使決心找武術系統認真把身體練好",
+    "g2_structure": [
+      "群架",
+      "武術",
+      "決心"
+    ],
+    "g3_root_inquiry": "暴力事件如何成為正向轉化的催化劑？",
+    "g4_insights": [
+      "危機催生決心——50 人群架不是創傷而是轉型的起點",
+      "身體訓練成為後來所有系統思維的原型"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "群架",
+      "武術",
+      "決心"
+    ]
+  },
+  {
+    "cuid": "KL-LES-0223",
+    "crystal_type": "Lesson",
+    "g1_summary": "19份工作+社團經驗——為什麼企業不能有社團的凝聚力",
+    "g2_structure": [
+      "社團",
+      "企業",
+      "凝聚力"
+    ],
+    "g3_root_inquiry": "社團凝聚力的本質是什麼？為什麼企業複製不了？",
+    "g4_insights": [
+      "社團凝聚力來自共同的熱情而非共同的利益——這是企業最難複製的",
+      "19 份工作的經驗揭示了組織設計中被忽略的情感維度"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "社團",
+      "企業",
+      "凝聚力"
+    ]
+  },
+  {
+    "cuid": "KL-LES-0224",
+    "crystal_type": "Lesson",
+    "g1_summary": "八段感情的模式——從外貌偏差到家暴到遇見靖棋的覺醒旅程",
+    "g2_structure": [
+      "感情",
+      "模式",
+      "覺醒"
+    ],
+    "g3_root_inquiry": "為什麼要經歷八段才能看見自己的關係模式？",
+    "g4_insights": [
+      "模式需要足夠的樣本才能被辨識——八段感情是最小可辨識的樣本量",
+      "覺醒不是在第八段才發生而是八段的累積讓覺醒無法再被迴避"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "感情",
+      "模式",
+      "覺醒"
+    ]
+  },
+  {
+    "cuid": "KL-LES-0225",
+    "crystal_type": "Lesson",
+    "g1_summary": "學員聽懂框架但無法內化——模型要拆成感受體驗+互動演練雙引擎",
+    "g2_structure": [
+      "教學",
+      "內化",
+      "體驗"
+    ],
+    "g3_root_inquiry": "從理解到內化的瓶頸究竟在哪裡？",
+    "g4_insights": [
+      "理解是大腦的事，內化是全身的事——只靠講解永遠跨不過這道鴻溝",
+      "雙引擎設計讓學員用感受打底、用演練固化"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "教學",
+      "內化",
+      "體驗"
+    ]
+  },
+  {
+    "cuid": "KL-LES-0226",
+    "crystal_type": "Lesson",
+    "g1_summary": "曹操vs袁紹——讀書為了考試就考完就忘行知合一才是真智慧",
+    "g2_structure": [
+      "曹操",
+      "袁紹",
+      "行知合一"
+    ],
+    "g3_root_inquiry": "教育體系為什麼獎勵記住答案而非活出知識？",
+    "g4_insights": [
+      "曹操讀書為用，袁紹讀書為考——這個差別決定了天下歸屬",
+      "考試導向教育製造了大量有知識但無智慧的人"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "曹操",
+      "袁紹",
+      "行知合一"
+    ]
+  },
+  {
+    "cuid": "KL-LES-0227",
+    "crystal_type": "Lesson",
+    "g1_summary": "潛意識的荒謬循環——超過70%的人陷在集體迷思中無法看透表象",
+    "g2_structure": [
+      "潛意識",
+      "荒謬",
+      "集體迷思"
+    ],
+    "g3_root_inquiry": "什麼力量讓集體迷思如此難以打破？",
+    "g4_insights": [
+      "集體迷思的力量在於它是隱形的——你無法質疑你看不見的東西",
+      "70% 的數字說明這不是個人問題而是系統性問題"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "潛意識",
+      "荒謬",
+      "集體迷思"
+    ]
+  },
+  {
+    "cuid": "KL-LES-0228",
+    "crystal_type": "Lesson",
+    "g1_summary": "突破舒適圈的代價——開始做不願意的事+停止做習慣的事",
+    "g2_structure": [
+      "舒適圈",
+      "代價",
+      "突破"
+    ],
+    "g3_root_inquiry": "為什麼知道要突破舒適圈的人多、真正做到的人少？",
+    "g4_insights": [
+      "突破的代價不是痛苦而是失去確定感——人類比起痛苦更害怕不確定",
+      "雙向操作（開始+停止）比單向操作更有效但也更難"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "舒適圈",
+      "代價",
+      "突破"
+    ]
+  },
+  {
+    "cuid": "KL-LES-0229",
+    "crystal_type": "Lesson",
+    "g1_summary": "外婆的智慧——聽另外一半的話用客觀中立看待事情",
+    "g2_structure": [
+      "外婆",
+      "客觀",
+      "關係"
+    ],
+    "g3_root_inquiry": "為什麼最簡單的道理往往最難做到？",
+    "g4_insights": [
+      "外婆的智慧不是知識而是活出來的——這就是行知合一的典範",
+      "客觀中立不是不關心而是關心到願意放下自己的立場"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "外婆",
+      "客觀",
+      "關係"
+    ]
+  },
+  {
+    "cuid": "KL-LES-0230",
+    "crystal_type": "Lesson",
+    "g1_summary": "鴿子店第一天就損平——兩年四個月打造系統化被動收入",
+    "g2_structure": [
+      "鴿子店",
+      "被動收入",
+      "系統化"
+    ],
+    "g3_root_inquiry": "第一天損平的背後隱藏了什麼系統設計？",
+    "g4_insights": [
+      "第一天損平不是運氣而是兩年四個月系統設計的結果",
+      "被動收入不是不工作而是把工作系統化到可以自動運轉"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：OneMuse/DHARMA/Resonance/X-Model/達哥自傳（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T14:56:10.446501",
+    "updated_at": "2026-03-23T14:56:10.446501",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T14:56:10.446501",
+    "domain": "OneMuse",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "OneMuse/DHARMA/Resonance/X-Model/達哥自傳",
+    "status": "active",
+    "origin": "第三批核心素材",
+    "skill_affinity": [
+      "dharma",
+      "resonance",
+      "xmodel",
+      "ssa-consultant"
+    ],
+    "tags": [
+      "鴿子店",
+      "被動收入",
+      "系統化"
+    ]
   }
 ]
