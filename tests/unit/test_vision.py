@@ -1,4 +1,4 @@
-"""Vision 模組測試 — 圖片到 Anthropic Vision API content block."""
+"""Multimodal 模組測試 — 圖片 + PDF 到 Anthropic API content block."""
 
 import base64
 import json
@@ -10,9 +10,14 @@ import pytest
 from museon.llm.vision import (
     EXT_TO_MIME,
     MAX_IMAGE_BYTES,
+    MAX_PDF_BYTES,
+    SUPPORTED_IMAGE_TYPES,
+    SUPPORTED_DOCUMENT_TYPES,
     SUPPORTED_MEDIA_TYPES,
     build_vision_content,
+    build_multimodal_content,
     prepare_image_block,
+    prepare_pdf_block,
 )
 
 
@@ -193,6 +198,120 @@ class TestBuildVisionContent:
         })
         serialized = json.dumps(result)
         assert len(serialized) > 0
+
+
+# ═══════════════════════════════════════════
+# PDF 測試
+# ═══════════════════════════════════════════
+
+
+@pytest.fixture
+def tiny_pdf(tmp_path):
+    """建立一個最小的有效 PDF 檔案."""
+    pdf_data = b"%PDF-1.0\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n3 0 obj<</Type/Page/MediaBox[0 0 612 792]/Parent 2 0 R>>endobj\nxref\n0 4\n0000000000 65535 f \n0000000009 00000 n \n0000000058 00000 n \n0000000115 00000 n \ntrailer<</Size 4/Root 1 0 R>>\nstartxref\n190\n%%EOF"
+    fp = tmp_path / "test.pdf"
+    fp.write_bytes(pdf_data)
+    return fp, pdf_data
+
+
+class TestPreparePdfBlock:
+    """prepare_pdf_block() 的單元測試."""
+
+    def test_valid_pdf(self, tiny_pdf):
+        """有效的 PDF 應回傳 document block."""
+        fp, data = tiny_pdf
+        result = prepare_pdf_block({
+            "local_path": str(fp),
+            "mime_type": "application/pdf",
+        })
+        assert result is not None
+        assert result["type"] == "document"
+        assert result["source"]["type"] == "base64"
+        assert result["source"]["media_type"] == "application/pdf"
+        decoded = base64.standard_b64decode(result["source"]["data"])
+        assert decoded == data
+
+    def test_mime_fallback_from_extension(self, tiny_pdf):
+        """缺少 mime_type 時從副檔名推斷."""
+        fp, _ = tiny_pdf
+        result = prepare_pdf_block({
+            "local_path": str(fp),
+            "mime_type": None,
+        })
+        assert result is not None
+        assert result["source"]["media_type"] == "application/pdf"
+
+    def test_non_pdf_returns_none(self, tiny_jpeg):
+        """非 PDF 格式回傳 None."""
+        fp, _ = tiny_jpeg
+        result = prepare_pdf_block({
+            "local_path": str(fp),
+            "mime_type": "image/jpeg",
+        })
+        assert result is None
+
+    def test_file_not_exists(self):
+        """檔案不存在回傳 None."""
+        result = prepare_pdf_block({
+            "local_path": "/nonexistent.pdf",
+            "mime_type": "application/pdf",
+        })
+        assert result is None
+
+    def test_invalid_pdf_magic(self, tmp_path):
+        """非 PDF 內容回傳 None."""
+        fp = tmp_path / "fake.pdf"
+        fp.write_bytes(b"This is not a PDF")
+        result = prepare_pdf_block({
+            "local_path": str(fp),
+            "mime_type": "application/pdf",
+        })
+        assert result is None
+
+
+class TestBuildMultimodalContent:
+    """build_multimodal_content() 的混合測試."""
+
+    def test_pdf_returns_document_block(self, tiny_pdf):
+        """PDF 應回傳 document type block."""
+        fp, _ = tiny_pdf
+        result = build_multimodal_content("[📎 PDF 上傳]", {
+            "local_path": str(fp),
+            "mime_type": "application/pdf",
+        })
+        assert isinstance(result, list)
+        assert len(result) == 2
+        assert result[0]["type"] == "text"
+        assert result[1]["type"] == "document"
+
+    def test_image_returns_image_block(self, tiny_jpeg):
+        """圖片應回傳 image type block."""
+        fp, _ = tiny_jpeg
+        result = build_multimodal_content("[🖼️ 圖片]", {
+            "local_path": str(fp),
+            "mime_type": "image/jpeg",
+        })
+        assert isinstance(result, list)
+        assert result[1]["type"] == "image"
+
+    def test_unsupported_returns_text(self, tmp_path):
+        """不支援的格式回傳純文字."""
+        fp = tmp_path / "test.docx"
+        fp.write_bytes(b"PK\x03\x04" + b"\x00" * 50)
+        result = build_multimodal_content("hello", {
+            "local_path": str(fp),
+            "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        })
+        assert result == "hello"
+        assert isinstance(result, str)
+
+    def test_backward_compat_alias(self, tiny_jpeg):
+        """build_vision_content 是 build_multimodal_content 的別名."""
+        fp, _ = tiny_jpeg
+        fi = {"local_path": str(fp), "mime_type": "image/jpeg"}
+        r1 = build_vision_content("test", fi)
+        r2 = build_multimodal_content("test", fi)
+        assert type(r1) == type(r2)
 
 
 # ═══════════════════════════════════════════

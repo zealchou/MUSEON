@@ -1207,14 +1207,14 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
             # ── Step 5: 載入對話歷史 ──
             history = self._get_session_history(session_id)
 
-            # 加入使用者新訊息（Vision: 若有圖片附件，構建 multimodal content blocks）
+            # 加入使用者新訊息（Multimodal: 圖片/PDF 附件 → content blocks）
             _user_content = content
             if metadata and metadata.get("file"):
                 try:
-                    from museon.llm.vision import build_vision_content
-                    _user_content = build_vision_content(content, metadata["file"])
+                    from museon.llm.vision import build_multimodal_content
+                    _user_content = build_multimodal_content(content, metadata["file"])
                 except Exception as e:
-                    logger.debug(f"[Vision] 圖片準備失敗（降級純文字）: {e}")
+                    logger.debug(f"[Multimodal] 媒體準備失敗（降級純文字）: {e}")
             history.append({"role": "user", "content": _user_content})
 
             # 保持歷史在 token 限制內（最近 20 輪）
