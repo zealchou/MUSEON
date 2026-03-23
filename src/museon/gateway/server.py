@@ -28,6 +28,7 @@ from .message import InternalMessage
 from .session import SessionManager
 from .security import SecurityGate
 from .cron import CronEngine
+from .session_cleanup import cleanup_dormant_sessions
 
 logger = logging.getLogger("museon.gateway.server")
 
@@ -651,7 +652,7 @@ def create_app() -> FastAPI:
         """取得手術引擎狀態 — 純 CPU"""
         try:
             from museon.doctor.surgeon import SurgeryEngine
-            engine = SurgeryEngine(project_root=Path(data_dir).parent)
+            engine = SurgeryEngine(project_root=Path(_resolve_data_dir()).parent)
             return {"success": True, **engine.get_status()}
         except Exception as e:
             return {"success": False, "error": str(e)}
@@ -666,12 +667,13 @@ def create_app() -> FastAPI:
 
             brain = _get_brain()
             llm_adapter = brain._llm_adapter if hasattr(brain, "_llm_adapter") else None
-            project_root = Path(data_dir).parent
+            _data_dir = _resolve_data_dir()
+            project_root = Path(_data_dir).parent
 
             pipeline = DiagnosisPipeline(
                 source_root=project_root / "src" / "museon",
                 logs_dir=project_root / "logs",
-                heartbeat_state_path=Path(data_dir) / "pulse" / "heartbeat_engine.json",
+                heartbeat_state_path=Path(_data_dir) / "pulse" / "heartbeat_engine.json",
                 llm_adapter=llm_adapter,
             )
 
@@ -696,7 +698,7 @@ def create_app() -> FastAPI:
         """取得手術記錄"""
         try:
             from museon.doctor.surgery_log import SurgeryLog
-            log = SurgeryLog(data_dir=Path(data_dir) / "doctor")
+            log = SurgeryLog(data_dir=Path(_resolve_data_dir()) / "doctor")
             return {
                 "success": True,
                 "recent": log.recent(20),
@@ -6133,6 +6135,23 @@ def _register_system_cron_jobs(brain, app=None) -> None:
         hour=9, minute=5,
     )
 
+    # ── Session 清理：自動釋放超過 3 天未互動的舊 session ──
+    async def _session_cleanup_job():
+        """Cleanup dormant sessions (> 3 days inactive)."""
+        try:
+            stats = await cleanup_dormant_sessions()
+            logger.info(
+                f"Session cleanup complete: {stats['deleted']} deleted, "
+                f"{stats['scanned']} scanned, {stats['errors']} errors"
+            )
+        except Exception as e:
+            logger.error(f"Session cleanup job failed: {e}", exc_info=True)
+
+    cron_engine.add_job(
+        _session_cleanup_job, trigger="interval", job_id="session-cleanup",
+        hours=1,
+    )
+
     # ── 系統排程任務元資料清冊（供 /api/tasks 使用）──
     _system_cron_registry = [
         {"job_id": "nightly-fusion",         "name": "夜間整合管線",         "schedule": "每天 03:00",     "category": "maintenance", "uses_llm": True},
@@ -6165,6 +6184,7 @@ def _register_system_cron_jobs(brain, app=None) -> None:
         {"job_id": "dendritic-tick",         "name": "Dendritic 健康記錄",   "schedule": "每 5 分鐘",     "category": "maintenance", "uses_llm": False},
         {"job_id": "tool-health-check",      "name": "工具健康檢查",         "schedule": "每 5 分鐘",     "category": "maintenance", "uses_llm": False},
         {"job_id": "email-poll",             "name": "Email 郵件拉取",       "schedule": "每 5 分鐘",     "category": "external",    "uses_llm": False},
+        {"job_id": "session-cleanup",        "name": "Session 自動清理",     "schedule": "每 60 分鐘",    "category": "maintenance", "uses_llm": False},
     ]
 
     # 存到 app.state 供 /api/tasks 讀取
