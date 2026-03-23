@@ -23477,5 +23477,3146 @@
     "source_context": "session=telegram_group_5102016052",
     "status": "active",
     "origin": ""
+  },
+  {
+    "cuid": "KL-PRI-0200",
+    "crystal_type": "Principle",
+    "g1_summary": "創業是創己——企業是內在系統的外化",
+    "g2_structure": [
+      "創業",
+      "創己",
+      "系統"
+    ],
+    "g3_root_inquiry": "什麼條件下「創業是創己——企業是內在系統的」才能真正成立？",
+    "g4_insights": [
+      "當創業被忽略時，系統會失去自我校正的能力",
+      "創業是創己——企業是內在系統的外化——這不是口號而是可操作的設計原則",
+      "將此原則嵌入日常決策流程，才能從知道變成做到"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "創業",
+      "創己",
+      "系統"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0201",
+    "crystal_type": "Principle",
+    "g1_summary": "穩定是一切力量的前提",
+    "g2_structure": [
+      "穩定",
+      "力量",
+      "前提"
+    ],
+    "g3_root_inquiry": "什麼條件下「穩定是一切力量的前提」才能真正成立？",
+    "g4_insights": [
+      "當穩定被忽略時，系統會失去自我校正的能力",
+      "穩定是一切力量的前提——這不是口號而是可操作的設計原則",
+      "將此原則嵌入日常決策流程，才能從知道變成做到"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "穩定",
+      "力量",
+      "前提"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0202",
+    "crystal_type": "Principle",
+    "g1_summary": "結構是照顧人的方式",
+    "g2_structure": [
+      "結構",
+      "照顧",
+      "善意"
+    ],
+    "g3_root_inquiry": "什麼條件下「結構是照顧人的方式」才能真正成立？",
+    "g4_insights": [
+      "當結構被忽略時，系統會失去自我校正的能力",
+      "結構是照顧人的方式——這不是口號而是可操作的設計原則",
+      "將此原則嵌入日常決策流程，才能從知道變成做到"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "結構",
+      "照顧",
+      "善意"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0203",
+    "crystal_type": "Principle",
+    "g1_summary": "沒有被覺察的行動只是慣性",
+    "g2_structure": [
+      "覺察",
+      "行動",
+      "慣性"
+    ],
+    "g3_root_inquiry": "什麼條件下「沒有被覺察的行動只是慣性」才能真正成立？",
+    "g4_insights": [
+      "當覺察被忽略時，系統會失去自我校正的能力",
+      "沒有被覺察的行動只是慣性——這不是口號而是可操作的設計原則",
+      "將此原則嵌入日常決策流程，才能從知道變成做到"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "覺察",
+      "行動",
+      "慣性"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0204",
+    "crystal_type": "Principle",
+    "g1_summary": "能量不是多而是平衡",
+    "g2_structure": [
+      "能量",
+      "平衡",
+      "八方位"
+    ],
+    "g3_root_inquiry": "什麼條件下「能量不是多而是平衡」才能真正成立？",
+    "g4_insights": [
+      "當能量被忽略時，系統會失去自我校正的能力",
+      "能量不是多而是平衡——這不是口號而是可操作的設計原則",
+      "將此原則嵌入日常決策流程，才能從知道變成做到"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "能量",
+      "平衡",
+      "八方位"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0205",
+    "crystal_type": "Principle",
+    "g1_summary": "以終為始——先定義結果再設計路徑",
+    "g2_structure": [
+      "以終為始",
+      "結果導向"
+    ],
+    "g3_root_inquiry": "什麼條件下「以終為始——先定義結果再設計路」才能真正成立？",
+    "g4_insights": [
+      "當以終為始被忽略時，系統會失去自我校正的能力",
+      "以終為始——先定義結果再設計路徑——這不是口號而是可操作的設計原則",
+      "將此原則嵌入日常決策流程，才能從知道變成做到"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "以終為始",
+      "結果導向"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0206",
+    "crystal_type": "Principle",
+    "g1_summary": "產品不是銷售技巧而是讓信任有節奏地成長的結構",
+    "g2_structure": [
+      "產品",
+      "信任",
+      "節奏"
+    ],
+    "g3_root_inquiry": "什麼條件下「產品不是銷售技巧而是讓信任有節」才能真正成立？",
+    "g4_insights": [
+      "當產品被忽略時，系統會失去自我校正的能力",
+      "產品不是銷售技巧而是讓信任有節奏地成長的——這不是口號而是可操作的設計原則",
+      "將此原則嵌入日常決策流程，才能從知道變成做到"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "產品",
+      "信任",
+      "節奏"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0207",
+    "crystal_type": "Principle",
+    "g1_summary": "行銷不是推銷而是讓人感覺到價值的存在",
+    "g2_structure": [
+      "行銷",
+      "價值",
+      "感覺"
+    ],
+    "g3_root_inquiry": "什麼條件下「行銷不是推銷而是讓人感覺到價值」才能真正成立？",
+    "g4_insights": [
+      "當行銷被忽略時，系統會失去自我校正的能力",
+      "行銷不是推銷而是讓人感覺到價值的存在——這不是口號而是可操作的設計原則",
+      "將此原則嵌入日常決策流程，才能從知道變成做到"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "行銷",
+      "價值",
+      "感覺"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0208",
+    "crystal_type": "Principle",
+    "g1_summary": "社群不是留人而是讓價值在關係中持續流動",
+    "g2_structure": [
+      "社群",
+      "價值",
+      "流動"
+    ],
+    "g3_root_inquiry": "什麼條件下「社群不是留人而是讓價值在關係中」才能真正成立？",
+    "g4_insights": [
+      "當社群被忽略時，系統會失去自我校正的能力",
+      "社群不是留人而是讓價值在關係中持續流動——這不是口號而是可操作的設計原則",
+      "將此原則嵌入日常決策流程，才能從知道變成做到"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "社群",
+      "價值",
+      "流動"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0209",
+    "crystal_type": "Principle",
+    "g1_summary": "三重漏斗的整合比新增更有力量",
+    "g2_structure": [
+      "三重漏斗",
+      "整合"
+    ],
+    "g3_root_inquiry": "什麼條件下「三重漏斗的整合比新增更有力量」才能真正成立？",
+    "g4_insights": [
+      "當三重漏斗被忽略時，系統會失去自我校正的能力",
+      "三重漏斗的整合比新增更有力量——這不是口號而是可操作的設計原則",
+      "將此原則嵌入日常決策流程，才能從知道變成做到"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "三重漏斗",
+      "整合"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0210",
+    "crystal_type": "Principle",
+    "g1_summary": "價值分配——公平×激勵×共榮",
+    "g2_structure": [
+      "價值分配",
+      "公平",
+      "激勵",
+      "共榮"
+    ],
+    "g3_root_inquiry": "什麼條件下「價值分配——公平×激勵×共榮」才能真正成立？",
+    "g4_insights": [
+      "當價值分配被忽略時，系統會失去自我校正的能力",
+      "價值分配——公平×激勵×共榮——這不是口號而是可操作的設計原則",
+      "將此原則嵌入日常決策流程，才能從知道變成做到"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "價值分配",
+      "公平",
+      "激勵",
+      "共榮"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0211",
+    "crystal_type": "Principle",
+    "g1_summary": "分配清楚信任自然，信任清楚團隊才願意留下",
+    "g2_structure": [
+      "分配",
+      "信任",
+      "團隊"
+    ],
+    "g3_root_inquiry": "什麼條件下「分配清楚信任自然，信任清楚團隊」才能真正成立？",
+    "g4_insights": [
+      "當分配被忽略時，系統會失去自我校正的能力",
+      "分配清楚信任自然，信任清楚團隊才願意留下——這不是口號而是可操作的設計原則",
+      "將此原則嵌入日常決策流程，才能從知道變成做到"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "分配",
+      "信任",
+      "團隊"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0212",
+    "crystal_type": "Principle",
+    "g1_summary": "真正能留住人的不是薪水而是讓他覺得自己正在成長並被需要",
+    "g2_structure": [
+      "留人",
+      "成長",
+      "被需要"
+    ],
+    "g3_root_inquiry": "什麼條件下「真正能留住人的不是薪水而是讓他」才能真正成立？",
+    "g4_insights": [
+      "當留人被忽略時，系統會失去自我校正的能力",
+      "真正能留住人的不是薪水而是讓他覺得自己正——這不是口號而是可操作的設計原則",
+      "將此原則嵌入日常決策流程，才能從知道變成做到"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "留人",
+      "成長",
+      "被需要"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0213",
+    "crystal_type": "Principle",
+    "g1_summary": "遊戲化不是娛樂而是讓人願意自發前進的行為設計",
+    "g2_structure": [
+      "遊戲化",
+      "行為設計"
+    ],
+    "g3_root_inquiry": "什麼條件下「遊戲化不是娛樂而是讓人願意自發」才能真正成立？",
+    "g4_insights": [
+      "當遊戲化被忽略時，系統會失去自我校正的能力",
+      "遊戲化不是娛樂而是讓人願意自發前進的行為——這不是口號而是可操作的設計原則",
+      "將此原則嵌入日常決策流程，才能從知道變成做到"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "遊戲化",
+      "行為設計"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0214",
+    "crystal_type": "Principle",
+    "g1_summary": "分潤不是支出而是投資",
+    "g2_structure": [
+      "分潤",
+      "投資"
+    ],
+    "g3_root_inquiry": "什麼條件下「分潤不是支出而是投資」才能真正成立？",
+    "g4_insights": [
+      "當分潤被忽略時，系統會失去自我校正的能力",
+      "分潤不是支出而是投資——這不是口號而是可操作的設計原則",
+      "將此原則嵌入日常決策流程，才能從知道變成做到"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "分潤",
+      "投資"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0215",
+    "crystal_type": "Principle",
+    "g1_summary": "讓系統學會感覺它就會自己學會成長",
+    "g2_structure": [
+      "PCT",
+      "系統",
+      "感覺",
+      "成長"
+    ],
+    "g3_root_inquiry": "什麼條件下「讓系統學會感覺它就會自己學會成」才能真正成立？",
+    "g4_insights": [
+      "當PCT被忽略時，系統會失去自我校正的能力",
+      "讓系統學會感覺它就會自己學會成長——這不是口號而是可操作的設計原則",
+      "將此原則嵌入日常決策流程，才能從知道變成做到"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "PCT",
+      "系統",
+      "感覺",
+      "成長"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0216",
+    "crystal_type": "Principle",
+    "g1_summary": "所有行為的目的都不是改變世界而是穩定自己",
+    "g2_structure": [
+      "行為",
+      "穩定",
+      "PCT"
+    ],
+    "g3_root_inquiry": "什麼條件下「所有行為的目的都不是改變世界而」才能真正成立？",
+    "g4_insights": [
+      "當行為被忽略時，系統會失去自我校正的能力",
+      "所有行為的目的都不是改變世界而是穩定自己——這不是口號而是可操作的設計原則",
+      "將此原則嵌入日常決策流程，才能從知道變成做到"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "行為",
+      "穩定",
+      "PCT"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0217",
+    "crystal_type": "Principle",
+    "g1_summary": "口碑達90%之前不投廣告",
+    "g2_structure": [
+      "口碑",
+      "廣告"
+    ],
+    "g3_root_inquiry": "什麼條件下「口碑達90%之前不投廣告」才能真正成立？",
+    "g4_insights": [
+      "當口碑被忽略時，系統會失去自我校正的能力",
+      "口碑達90%之前不投廣告——這不是口號而是可操作的設計原則",
+      "將此原則嵌入日常決策流程，才能從知道變成做到"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "口碑",
+      "廣告"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0218",
+    "crystal_type": "Principle",
+    "g1_summary": "行銷不是放大聲量而是放大理解",
+    "g2_structure": [
+      "行銷",
+      "理解",
+      "精準"
+    ],
+    "g3_root_inquiry": "什麼條件下「行銷不是放大聲量而是放大理解」才能真正成立？",
+    "g4_insights": [
+      "當行銷被忽略時，系統會失去自我校正的能力",
+      "行銷不是放大聲量而是放大理解——這不是口號而是可操作的設計原則",
+      "將此原則嵌入日常決策流程，才能從知道變成做到"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "行銷",
+      "理解",
+      "精準"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0219",
+    "crystal_type": "Principle",
+    "g1_summary": "語言是情感的結構能被感覺到的話才能帶來行動",
+    "g2_structure": [
+      "語言",
+      "情感",
+      "行動"
+    ],
+    "g3_root_inquiry": "什麼條件下「語言是情感的結構能被感覺到的話」才能真正成立？",
+    "g4_insights": [
+      "當語言被忽略時，系統會失去自我校正的能力",
+      "語言是情感的結構能被感覺到的話才能帶來行——這不是口號而是可操作的設計原則",
+      "將此原則嵌入日常決策流程，才能從知道變成做到"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "語言",
+      "情感",
+      "行動"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0220",
+    "crystal_type": "Principle",
+    "g1_summary": "共創不是合作而是讓兩個系統產生更大的能量共振",
+    "g2_structure": [
+      "共創",
+      "共振"
+    ],
+    "g3_root_inquiry": "什麼條件下「共創不是合作而是讓兩個系統產生」才能真正成立？",
+    "g4_insights": [
+      "當共創被忽略時，系統會失去自我校正的能力",
+      "共創不是合作而是讓兩個系統產生更大的能量——這不是口號而是可操作的設計原則",
+      "將此原則嵌入日常決策流程，才能從知道變成做到"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "共創",
+      "共振"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0221",
+    "crystal_type": "Principle",
+    "g1_summary": "資源不是擁有而是設計出它能產生幾倍價值的路徑",
+    "g2_structure": [
+      "資源",
+      "槓桿",
+      "路徑"
+    ],
+    "g3_root_inquiry": "什麼條件下「資源不是擁有而是設計出它能產生」才能真正成立？",
+    "g4_insights": [
+      "當資源被忽略時，系統會失去自我校正的能力",
+      "資源不是擁有而是設計出它能產生幾倍價值的——這不是口號而是可操作的設計原則",
+      "將此原則嵌入日常決策流程，才能從知道變成做到"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "資源",
+      "槓桿",
+      "路徑"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0222",
+    "crystal_type": "Principle",
+    "g1_summary": "品牌的真實成長不在於營收暴增而在於系統開始自我循環",
+    "g2_structure": [
+      "品牌",
+      "自我循環"
+    ],
+    "g3_root_inquiry": "什麼條件下「品牌的真實成長不在於營收暴增而」才能真正成立？",
+    "g4_insights": [
+      "當品牌被忽略時，系統會失去自我校正的能力",
+      "品牌的真實成長不在於營收暴增而在於系統開——這不是口號而是可操作的設計原則",
+      "將此原則嵌入日常決策流程，才能從知道變成做到"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "品牌",
+      "自我循環"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0223",
+    "crystal_type": "Principle",
+    "g1_summary": "最強的行銷不是你在說而是別人替你說",
+    "g2_structure": [
+      "口碑",
+      "行銷"
+    ],
+    "g3_root_inquiry": "什麼條件下「最強的行銷不是你在說而是別人替」才能真正成立？",
+    "g4_insights": [
+      "當口碑被忽略時，系統會失去自我校正的能力",
+      "最強的行銷不是你在說而是別人替你說——這不是口號而是可操作的設計原則",
+      "將此原則嵌入日常決策流程，才能從知道變成做到"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "口碑",
+      "行銷"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0224",
+    "crystal_type": "Principle",
+    "g1_summary": "關係不是靠努力撐起而是靠節奏維持",
+    "g2_structure": [
+      "關係",
+      "節奏"
+    ],
+    "g3_root_inquiry": "什麼條件下「關係不是靠努力撐起而是靠節奏維」才能真正成立？",
+    "g4_insights": [
+      "當關係被忽略時，系統會失去自我校正的能力",
+      "關係不是靠努力撐起而是靠節奏維持——這不是口號而是可操作的設計原則",
+      "將此原則嵌入日常決策流程，才能從知道變成做到"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "關係",
+      "節奏"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0225",
+    "crystal_type": "Principle",
+    "g1_summary": "健康不是目標而是一種能量循環的品質",
+    "g2_structure": [
+      "健康",
+      "能量循環"
+    ],
+    "g3_root_inquiry": "什麼條件下「健康不是目標而是一種能量循環的」才能真正成立？",
+    "g4_insights": [
+      "當健康被忽略時，系統會失去自我校正的能力",
+      "健康不是目標而是一種能量循環的品質——這不是口號而是可操作的設計原則",
+      "將此原則嵌入日常決策流程，才能從知道變成做到"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "健康",
+      "能量循環"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0226",
+    "crystal_type": "Principle",
+    "g1_summary": "當人知道自己為何被回饋努力就有方向",
+    "g2_structure": [
+      "回饋",
+      "方向",
+      "透明"
+    ],
+    "g3_root_inquiry": "什麼條件下「當人知道自己為何被回饋努力就有」才能真正成立？",
+    "g4_insights": [
+      "當回饋被忽略時，系統會失去自我校正的能力",
+      "當人知道自己為何被回饋努力就有方向——這不是口號而是可操作的設計原則",
+      "將此原則嵌入日常決策流程，才能從知道變成做到"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "回饋",
+      "方向",
+      "透明"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0227",
+    "crystal_type": "Principle",
+    "g1_summary": "追風的人終究會被風帶走造風的人終會被時代記住",
+    "g2_structure": [
+      "造風",
+      "原創"
+    ],
+    "g3_root_inquiry": "什麼條件下「追風的人終究會被風帶走造風的人」才能真正成立？",
+    "g4_insights": [
+      "當造風被忽略時，系統會失去自我校正的能力",
+      "追風的人終究會被風帶走造風的人終會被時代——這不是口號而是可操作的設計原則",
+      "將此原則嵌入日常決策流程，才能從知道變成做到"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "造風",
+      "原創"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0228",
+    "crystal_type": "Principle",
+    "g1_summary": "漏斗讓你有結構旅程讓你有溫度兩者結合品牌才能有生命",
+    "g2_structure": [
+      "漏斗",
+      "旅程",
+      "品牌"
+    ],
+    "g3_root_inquiry": "什麼條件下「漏斗讓你有結構旅程讓你有溫度兩」才能真正成立？",
+    "g4_insights": [
+      "當漏斗被忽略時，系統會失去自我校正的能力",
+      "漏斗讓你有結構旅程讓你有溫度兩者結合品牌——這不是口號而是可操作的設計原則",
+      "將此原則嵌入日常決策流程，才能從知道變成做到"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "漏斗",
+      "旅程",
+      "品牌"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PRI-0229",
+    "crystal_type": "Principle",
+    "g1_summary": "會調頻的人才配擁有長期",
+    "g2_structure": [
+      "調頻",
+      "長期"
+    ],
+    "g3_root_inquiry": "什麼條件下「會調頻的人才配擁有長期」才能真正成立？",
+    "g4_insights": [
+      "當調頻被忽略時，系統會失去自我校正的能力",
+      "會調頻的人才配擁有長期——這不是口號而是可操作的設計原則",
+      "將此原則嵌入日常決策流程，才能從知道變成做到"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.75,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "調頻",
+      "長期"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0200",
+    "crystal_type": "Pattern",
+    "g1_summary": "產品漏斗三層：體驗品→核心品→高毛利品",
+    "g2_structure": [
+      "產品漏斗"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於產品漏斗之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "產品漏斗"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0201",
+    "crystal_type": "Pattern",
+    "g1_summary": "行銷漏斗三層：理念→案例→行動",
+    "g2_structure": [
+      "行銷漏斗"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於行銷漏斗之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "行銷漏斗"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0202",
+    "crystal_type": "Pattern",
+    "g1_summary": "社群漏斗三層：沉澱→餵養→再啟動",
+    "g2_structure": [
+      "社群漏斗"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於社群漏斗之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "社群漏斗"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0203",
+    "crystal_type": "Pattern",
+    "g1_summary": "語言三步節奏：共感句→對焦句→召喚句",
+    "g2_structure": [
+      "語言",
+      "文案"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於語言、文案之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "語言",
+      "文案"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0204",
+    "crystal_type": "Pattern",
+    "g1_summary": "三重螺旋：使用者→志工→共創者",
+    "g2_structure": [
+      "三重螺旋"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於三重螺旋之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "三重螺旋"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0205",
+    "crystal_type": "Pattern",
+    "g1_summary": "顧客旅程五階段×三重漏斗對位",
+    "g2_structure": [
+      "顧客旅程",
+      "漏斗"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於顧客旅程、漏斗之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "顧客旅程",
+      "漏斗"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0206",
+    "crystal_type": "Pattern",
+    "g1_summary": "PCT閉環：感知→行動→回饋",
+    "g2_structure": [
+      "PCT",
+      "閉環"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於PCT、閉環之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "PCT",
+      "閉環"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0207",
+    "crystal_type": "Pattern",
+    "g1_summary": "X模型：現況→目標→落差→解方→資源",
+    "g2_structure": [
+      "X模型",
+      "診斷"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於X模型、診斷之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "X模型",
+      "診斷"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0208",
+    "crystal_type": "Pattern",
+    "g1_summary": "內隱四感：價值感×幸福感×成就感×滿足感",
+    "g2_structure": [
+      "內隱四感"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於內隱四感之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "內隱四感"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0209",
+    "crystal_type": "Pattern",
+    "g1_summary": "八方位體檢企業版",
+    "g2_structure": [
+      "八方位",
+      "企業"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於八方位、企業之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "八方位",
+      "企業"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0210",
+    "crystal_type": "Pattern",
+    "g1_summary": "八方位關係盤",
+    "g2_structure": [
+      "八方位",
+      "關係"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於八方位、關係之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "八方位",
+      "關係"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0211",
+    "crystal_type": "Pattern",
+    "g1_summary": "八方位健康盤",
+    "g2_structure": [
+      "八方位",
+      "健康"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於八方位、健康之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "八方位",
+      "健康"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0212",
+    "crystal_type": "Pattern",
+    "g1_summary": "高毛利分潤三級：5%/15-25%/50%",
+    "g2_structure": [
+      "分潤",
+      "激勵"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於分潤、激勵之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "分潤",
+      "激勵"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0213",
+    "crystal_type": "Pattern",
+    "g1_summary": "價值分配三原則：公平×激勵×共榮",
+    "g2_structure": [
+      "價值分配"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於價值分配之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "價值分配"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0214",
+    "crystal_type": "Pattern",
+    "g1_summary": "資源盤點三層：可見→關係→認知",
+    "g2_structure": [
+      "資源",
+      "盤點"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於資源、盤點之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "資源",
+      "盤點"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0215",
+    "crystal_type": "Pattern",
+    "g1_summary": "異業共創三條件：理念契合×受眾互補×利益共榮",
+    "g2_structure": [
+      "異業",
+      "共創"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於異業、共創之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "異業",
+      "共創"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0216",
+    "crystal_type": "Pattern",
+    "g1_summary": "目標設定四層次：使命→終極→階段→行動",
+    "g2_structure": [
+      "目標",
+      "層次"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於目標、層次之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "目標",
+      "層次"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0217",
+    "crystal_type": "Pattern",
+    "g1_summary": "三重漏斗月節奏循環",
+    "g2_structure": [
+      "三重漏斗",
+      "月節奏"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於三重漏斗、月節奏之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "三重漏斗",
+      "月節奏"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0218",
+    "crystal_type": "Pattern",
+    "g1_summary": "SSA-R四步驟：覺察→對齊→微調→顯化",
+    "g2_structure": [
+      "SSA-R",
+      "關係"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於SSA-R、關係之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "SSA-R",
+      "關係"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0219",
+    "crystal_type": "Pattern",
+    "g1_summary": "健康三重循環：氣態×液態×固態",
+    "g2_structure": [
+      "健康",
+      "三重循環"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於健康、三重循環之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "健康",
+      "三重循環"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0220",
+    "crystal_type": "Pattern",
+    "g1_summary": "健康三層節奏：日×週×月",
+    "g2_structure": [
+      "健康",
+      "節奏"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於健康、節奏之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "健康",
+      "節奏"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0221",
+    "crystal_type": "Pattern",
+    "g1_summary": "PCT健康閉環每週三問",
+    "g2_structure": [
+      "PCT",
+      "健康"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於PCT、健康之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "PCT",
+      "健康"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0222",
+    "crystal_type": "Pattern",
+    "g1_summary": "90天身心重啟計畫",
+    "g2_structure": [
+      "90天",
+      "身心"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於90天、身心之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "90天",
+      "身心"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0223",
+    "crystal_type": "Pattern",
+    "g1_summary": "90天關係更新計畫",
+    "g2_structure": [
+      "90天",
+      "關係"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於90天、關係之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "90天",
+      "關係"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0224",
+    "crystal_type": "Pattern",
+    "g1_summary": "社群任務系統三核心：行動目標×反饋迴路×情感節奏",
+    "g2_structure": [
+      "社群",
+      "任務"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於社群、任務之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "社群",
+      "任務"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0225",
+    "crystal_type": "Pattern",
+    "g1_summary": "關係卡住五步驟：冷卻→觀察→感受→請求→確認",
+    "g2_structure": [
+      "關係",
+      "衝突"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於關係、衝突之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "關係",
+      "衝突"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0226",
+    "crystal_type": "Pattern",
+    "g1_summary": "關係健康三指標：安全感×信任感×回復力",
+    "g2_structure": [
+      "關係",
+      "健康"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於關係、健康之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "關係",
+      "健康"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0227",
+    "crystal_type": "Pattern",
+    "g1_summary": "內容共創計畫",
+    "g2_structure": [
+      "內容",
+      "共創"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於內容、共創之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "內容",
+      "共創"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0228",
+    "crystal_type": "Pattern",
+    "g1_summary": "教練/講師/顧問三角色區別",
+    "g2_structure": [
+      "教練",
+      "講師",
+      "顧問"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於教練、講師、顧問之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "教練",
+      "講師",
+      "顧問"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0229",
+    "crystal_type": "Pattern",
+    "g1_summary": "過度承諾解方",
+    "g2_structure": [
+      "承諾",
+      "時間管理"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於承諾、時間管理之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "承諾",
+      "時間管理"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0230",
+    "crystal_type": "Pattern",
+    "g1_summary": "品牌一致性三層面",
+    "g2_structure": [
+      "品牌",
+      "一致性"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於品牌、一致性之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "品牌",
+      "一致性"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0231",
+    "crystal_type": "Pattern",
+    "g1_summary": "鐵粉評估三標準",
+    "g2_structure": [
+      "鐵粉",
+      "評估"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於鐵粉、評估之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "鐵粉",
+      "評估"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0232",
+    "crystal_type": "Pattern",
+    "g1_summary": "自我運轉三要素：節奏×重力×共振",
+    "g2_structure": [
+      "自我運轉"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於自我運轉之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "自我運轉"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0233",
+    "crystal_type": "Pattern",
+    "g1_summary": "品牌三角：理念×產品×顧客認知",
+    "g2_structure": [
+      "品牌三角"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於品牌三角之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "品牌三角"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-PAT-0234",
+    "crystal_type": "Pattern",
+    "g1_summary": "人生三角：信念×行為×關係",
+    "g2_structure": [
+      "人生三角"
+    ],
+    "g3_root_inquiry": "這個模式在什麼情境下最能發揮作用？什麼時候會失效？",
+    "g4_insights": [
+      "此模式的核心在於人生三角之間的結構性關係",
+      "套用時需根據實際情境調整節奏與比例",
+      "模式的價值不在記住而在反覆演練直到變成直覺"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.7,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "人生三角"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-LES-0200",
+    "crystal_type": "Lesson",
+    "g1_summary": "格子店三年——拼命想證明卻從沒停下來問在經營什麼",
+    "g2_structure": [
+      "格子店",
+      "起源"
+    ],
+    "g3_root_inquiry": "這個教訓揭示了什麼被忽視的系統性問題？",
+    "g4_insights": [
+      "這個教訓的核心轉折點在於從格子店中看見系統性盲點",
+      "類似情境會反覆出現，關鍵是能否在早期就辨識出模式"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "格子店",
+      "起源"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-LES-0201",
+    "crystal_type": "Lesson",
+    "g1_summary": "聽到老闆哭著說不知道太太為什麼不快樂——愛不是交易而是對齊",
+    "g2_structure": [
+      "關係",
+      "對齊"
+    ],
+    "g3_root_inquiry": "這個教訓揭示了什麼被忽視的系統性問題？",
+    "g4_insights": [
+      "這個教訓的核心轉折點在於從關係中看見系統性盲點",
+      "類似情境會反覆出現，關鍵是能否在早期就辨識出模式"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "關係",
+      "對齊"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-LES-0202",
+    "crystal_type": "Lesson",
+    "g1_summary": "品牌三角用在關係裡",
+    "g2_structure": [
+      "品牌三角",
+      "關係",
+      "跨域"
+    ],
+    "g3_root_inquiry": "這個教訓揭示了什麼被忽視的系統性問題？",
+    "g4_insights": [
+      "這個教訓的核心轉折點在於從品牌三角中看見系統性盲點",
+      "類似情境會反覆出現，關鍵是能否在早期就辨識出模式"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "品牌三角",
+      "關係",
+      "跨域"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-LES-0203",
+    "crystal_type": "Lesson",
+    "g1_summary": "嗓子突然卡住——能量不是多而是平衡",
+    "g2_structure": [
+      "身體",
+      "能量",
+      "平衡"
+    ],
+    "g3_root_inquiry": "這個教訓揭示了什麼被忽視的系統性問題？",
+    "g4_insights": [
+      "這個教訓的核心轉折點在於從身體中看見系統性盲點",
+      "類似情境會反覆出現，關鍵是能否在早期就辨識出模式"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "身體",
+      "能量",
+      "平衡"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-LES-0204",
+    "crystal_type": "Lesson",
+    "g1_summary": "學員質疑能不能賺錢——不在贏爭論而在守住節奏",
+    "g2_structure": [
+      "質疑",
+      "節奏",
+      "定力"
+    ],
+    "g3_root_inquiry": "這個教訓揭示了什麼被忽視的系統性問題？",
+    "g4_insights": [
+      "這個教訓的核心轉折點在於從質疑中看見系統性盲點",
+      "類似情境會反覆出現，關鍵是能否在早期就辨識出模式"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "質疑",
+      "節奏",
+      "定力"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-LES-0205",
+    "crystal_type": "Lesson",
+    "g1_summary": "PCT教會的最重要的事——從反應模式變成運行模式",
+    "g2_structure": [
+      "PCT",
+      "模式轉換"
+    ],
+    "g3_root_inquiry": "這個教訓揭示了什麼被忽視的系統性問題？",
+    "g4_insights": [
+      "這個教訓的核心轉折點在於從PCT中看見系統性盲點",
+      "類似情境會反覆出現，關鍵是能否在早期就辨識出模式"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "PCT",
+      "模式轉換"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-LES-0206",
+    "crystal_type": "Lesson",
+    "g1_summary": "流量進來了卻沒人留下——價值只有被推銷出去沒有被流動回來",
+    "g2_structure": [
+      "流量",
+      "留存"
+    ],
+    "g3_root_inquiry": "這個教訓揭示了什麼被忽視的系統性問題？",
+    "g4_insights": [
+      "這個教訓的核心轉折點在於從流量中看見系統性盲點",
+      "類似情境會反覆出現，關鍵是能否在早期就辨識出模式"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "流量",
+      "留存"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-LES-0207",
+    "crystal_type": "Lesson",
+    "g1_summary": "護膚品牌月營收20萬瓶頸——有產品有行銷沒社群",
+    "g2_structure": [
+      "護膚品牌",
+      "瓶頸",
+      "社群"
+    ],
+    "g3_root_inquiry": "這個教訓揭示了什麼被忽視的系統性問題？",
+    "g4_insights": [
+      "這個教訓的核心轉折點在於從護膚品牌中看見系統性盲點",
+      "類似情境會反覆出現，關鍵是能否在早期就辨識出模式"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "護膚品牌",
+      "瓶頸",
+      "社群"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-LES-0208",
+    "crystal_type": "Lesson",
+    "g1_summary": "OneMuse四個月月營收70萬設定9000萬年目標——破局思維",
+    "g2_structure": [
+      "OneMuse",
+      "破局"
+    ],
+    "g3_root_inquiry": "這個教訓揭示了什麼被忽視的系統性問題？",
+    "g4_insights": [
+      "這個教訓的核心轉折點在於從OneMuse中看見系統性盲點",
+      "類似情境會反覆出現，關鍵是能否在早期就辨識出模式"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "OneMuse",
+      "破局"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-LES-0209",
+    "crystal_type": "Lesson",
+    "g1_summary": "果飲品牌月訂會員圈——續約率82%",
+    "g2_structure": [
+      "果飲",
+      "社群漏斗",
+      "續約"
+    ],
+    "g3_root_inquiry": "這個教訓揭示了什麼被忽視的系統性問題？",
+    "g4_insights": [
+      "這個教訓的核心轉折點在於從果飲中看見系統性盲點",
+      "類似情境會反覆出現，關鍵是能否在早期就辨識出模式"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "果飲",
+      "社群漏斗",
+      "續約"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-LES-0210",
+    "crystal_type": "Lesson",
+    "g1_summary": "教育品牌三重螺旋——行銷成本降半",
+    "g2_structure": [
+      "教育",
+      "三重螺旋"
+    ],
+    "g3_root_inquiry": "這個教訓揭示了什麼被忽視的系統性問題？",
+    "g4_insights": [
+      "這個教訓的核心轉折點在於從教育中看見系統性盲點",
+      "類似情境會反覆出現，關鍵是能否在早期就辨識出模式"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "教育",
+      "三重螺旋"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-LES-0211",
+    "crystal_type": "Lesson",
+    "g1_summary": "廣告點擊率下降20%但轉換率提升2.4倍",
+    "g2_structure": [
+      "廣告",
+      "精準",
+      "轉換"
+    ],
+    "g3_root_inquiry": "這個教訓揭示了什麼被忽視的系統性問題？",
+    "g4_insights": [
+      "這個教訓的核心轉折點在於從廣告中看見系統性盲點",
+      "類似情境會反覆出現，關鍵是能否在早期就辨識出模式"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "廣告",
+      "精準",
+      "轉換"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-LES-0212",
+    "crystal_type": "Lesson",
+    "g1_summary": "每天問自己三個問題——人生漏斗追蹤表",
+    "g2_structure": [
+      "每日三問",
+      "人生漏斗"
+    ],
+    "g3_root_inquiry": "這個教訓揭示了什麼被忽視的系統性問題？",
+    "g4_insights": [
+      "這個教訓的核心轉折點在於從每日三問中看見系統性盲點",
+      "類似情境會反覆出現，關鍵是能否在早期就辨識出模式"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "每日三問",
+      "人生漏斗"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-LES-0213",
+    "crystal_type": "Lesson",
+    "g1_summary": "火與雷太旺差點燒光自己——學會水的柔軟和地的穩定",
+    "g2_structure": [
+      "八方位",
+      "平衡"
+    ],
+    "g3_root_inquiry": "這個教訓揭示了什麼被忽視的系統性問題？",
+    "g4_insights": [
+      "這個教訓的核心轉折點在於從八方位中看見系統性盲點",
+      "類似情境會反覆出現，關鍵是能否在早期就辨識出模式"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "八方位",
+      "平衡"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
+  },
+  {
+    "cuid": "KL-LES-0214",
+    "crystal_type": "Lesson",
+    "g1_summary": "從出家念頭到生孩子——人生的下半場仍然很有得忙",
+    "g2_structure": [
+      "人生轉折",
+      "使命"
+    ],
+    "g3_root_inquiry": "這個教訓揭示了什麼被忽視的系統性問題？",
+    "g4_insights": [
+      "這個教訓的核心轉折點在於從人生轉折中看見系統性盲點",
+      "類似情境會反覆出現，關鍵是能否在早期就辨識出模式"
+    ],
+    "assumption": "verified",
+    "evidence": "來源：SSA-I 學員手冊（Zeal Chou 原創）",
+    "limitation": "",
+    "verification_level": "verified",
+    "created_at": "2026-03-23T12:59:43.248399",
+    "updated_at": "2026-03-23T12:59:43.248399",
+    "archived": false,
+    "ri_score": 0.8,
+    "reference_count": 0,
+    "last_referenced": "2026-03-23T12:59:43.248399",
+    "tags": [
+      "人生轉折",
+      "使命"
+    ],
+    "domain": "SSA",
+    "success_count": 0,
+    "counter_evidence_count": 0,
+    "source_context": "SSA-I 學員手冊",
+    "status": "active",
+    "origin": "SSA-I",
+    "skill_affinity": [
+      "ssa-consultant",
+      "business-12"
+    ]
   }
 ]
