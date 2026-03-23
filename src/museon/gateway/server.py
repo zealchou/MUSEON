@@ -3664,6 +3664,9 @@ async def _handle_telegram_message(adapter, message) -> None:
     2. 處理中 → typing 持續 + 進度訊息持續更新階段
     3. 完成/失敗 → 先發送回覆 → 再刪除進度訊息 + 停止 typing
     """
+    # ── 跨分支共用 import（避免條件分支內 import 導致 UnboundLocalError）──
+    from museon.gateway.message import BrainResponse, InternalMessage
+
     progress_task = None
     try:
             username = message.metadata.get("username", "unknown")
@@ -3746,8 +3749,7 @@ async def _handle_telegram_message(adapter, message) -> None:
                                                 source="telegram",
                                                 metadata={"permission_level": "external", "sender_name": _asker, "is_group": True},
                                             )
-                                            from museon.gateway.message import BrainResponse as _BR
-                                            if isinstance(_gr, _BR):
+                                            if isinstance(_gr, BrainResponse):
                                                 _reply = _gr.text or "好的，讓我想想看。"
                                             else:
                                                 _reply = str(_gr) if _gr else "好的，讓我想想看。"
@@ -3947,7 +3949,6 @@ async def _handle_telegram_message(adapter, message) -> None:
 
                 # v9.0: Extract text from BrainResponse
                 if brain_result is not None and response_text is None:
-                    from museon.gateway.message import BrainResponse
                     if isinstance(brain_result, BrainResponse):
                         response_text = brain_result.text
                     else:
@@ -4100,7 +4101,6 @@ async def _handle_telegram_message(adapter, message) -> None:
             )
 
             # v9.0: BrainResponse support (text + artifacts)
-            from museon.gateway.message import BrainResponse
             if isinstance(brain_result, BrainResponse):
                 if hasattr(adapter, 'send_response'):
                     success = await adapter.send_response(response_msg, brain_result)

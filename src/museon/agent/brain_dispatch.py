@@ -475,7 +475,7 @@ class BrainDispatchMixin:
                 )
             elif dep_result.status == TaskStatus.COMPLETED:
                 parts.append(
-                    dep_result.result.get("summary", "")[:self._HANDOFF_SUMMARY_LEN]
+                    dep_result.result.get("summary", "")[:BrainDispatchMixin._HANDOFF_SUMMARY_LEN]
                 )
         return "\n---\n".join(parts) if parts else ""
 
