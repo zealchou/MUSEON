@@ -697,6 +697,8 @@ class VitalSignsMonitor:
 
         t0 = time.time()
         try:
+            # 移除 --bare 後 CLI 需要載入 CLAUDE.md/hooks，每次呼叫較慢
+            # Brain pipeline 含多次 LLM 呼叫（P0+主回應+後設認知），需要更長 timeout
             result = await asyncio.wait_for(
                 self._brain_ref.process(
                     content="vital signs health check",
@@ -704,7 +706,7 @@ class VitalSignsMonitor:
                     user_id="system",
                     source="vital_signs",
                 ),
-                timeout=60,
+                timeout=180,
             )
             duration_ms = (time.time() - t0) * 1000
 
@@ -728,7 +730,7 @@ class VitalSignsMonitor:
             return CheckResult(
                 name="e2e_flow",
                 status=CheckStatus.FAIL,
-                message="E2E flow timed out (60s)",
+                message="E2E flow timed out (180s)",
                 duration_ms=(time.time() - t0) * 1000,
             )
         except Exception as e:
