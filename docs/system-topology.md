@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.45
+# MUSEON 系統拓撲圖 v1.46
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.46 (2026-03-23)**：推送品質修復——pulse 群組新增 `push-budget` 節點（PushBudget 全局推送預算管理器）；新增 3 條 internal 連線（push-budget→pulse-db、pulse-engine→push-budget、proactive-bridge→push-budget）；193 節點 478 連線
 > **v1.45 (2026-03-23)**：Project Epigenesis（DNA 式記憶系統重構）——agent 群組新增 4 個節點（epigenetic-router 表觀遺傳路由器、memory-reflector 反思引擎、proactive-predictor 需求預判、adaptive-decay ACT-R 衰減）；pulse 群組新增 1 個節點（anima-changelog 差分追蹤）；新增 12 條 cross 連線；VectorBridge 新增 soul_rings collection（第 9 個）；192 節點 475 連線
 > **v1.44 (2026-03-23)**：三層調度員架構（腦手分離）——agent 群組新增 3 個節點（`dispatcher` L1 調度員、`thinker` L2 思考者、`worker` L3 工人）；新增 7 條 internal 連線；CLAUDE.md 改寫為 L1 調度員模式；新增 `data/_system/museon-persona.md` 人格隨身檔供 L2 載入；187 節點 463 連線
 > **v1.43 (2026-03-23)**：全系統拓撲審計——補齊 70 條遺漏 cross 連線（🔴7 結構斷裂 + 🟠20 重要遺漏 + 🟡43 文件欠債）；移除 2 條幽靈連線（drift-detector→memory、zotero-bridge→vector-index）；修正 1 條方向反轉（federation-sync→nightly 改為 nightly→federation-sync）；拓撲覆蓋率 62.8% → 100%；184 節點 456 連線
@@ -160,6 +161,7 @@ external-user（EXTERNAL）
 | `explorer` | Explorer | 自主探索 | - | pulse | 1.1 |
 | `silent-digestion` | Silent Digestion | 靜默消化 | - | pulse | 1.0 |
 | `proactive-bridge` | Proactive Bridge | 主動推播 + 百合引擎象限調適 | - | pulse | 1.2 |
+| `push-budget` | Push Budget | 全局推送預算管理器（限額+語意去重+持久化） | - | pulse | 1.0 |
 | `micro-pulse` | Micro Pulse | 秒級微脈 | - | pulse | 0.8 |
 | `pulse-db` | Pulse DB | 脈搏資料庫 | - | pulse | 0.8 |
 | `commitment-tracker` | Commitment | 承諾追蹤 | - | pulse | 0.9 |
@@ -493,6 +495,9 @@ external-user（EXTERNAL）
 | `anima-tracker` | `anima-mc-store` | 八元素經由 Store |
 | `micro-pulse` | `anima-mc-store` | 微脈經由 Store |
 | `pulse` | `group-session-proactive` | 群組追問 |
+| `pulse-engine` | `push-budget` | 推送預算檢查+記錄 |
+| `proactive-bridge` | `push-budget` | 推送預算檢查+記錄 |
+| `push-budget` | `pulse-db` | push_log 表持久化 |
 
 ### Governance 內部連線（internal）
 | Source | Target | 說明 |
