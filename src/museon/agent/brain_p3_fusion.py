@@ -36,6 +36,7 @@ class BrainP3FusionMixin:
     # — P3 信號偵測閾值 —
     _P3_MIN_QUERY_LENGTH = 15          # 觸發 P3 的最短查詢長度
     _P3_CONFIDENCE_BASE = 0.6          # EXPLORATION_LOOP 信心基線
+    _P3_CONFIDENCE_EXPLORE_MULTI = 0.7  # v9.1: EXPLORATION_LOOP 多策略 Skill 信心
     _P3_CONFIDENCE_SLOW = 0.75         # SLOW_LOOP 單策略 Skill 信心
     _P3_CONFIDENCE_SLOW_MULTI = 0.9    # SLOW_LOOP 多策略 Skill 信心
 
@@ -397,12 +398,14 @@ class BrainP3FusionMixin:
         if any(kw in query for kw in risk_keywords):
             perspectives.append("risk")
 
-        # SLOW_LOOP 且命中 ≥2 個策略 Skill → 提高信心值
+        # v9.1: confidence 動態計算（修復恆定 0.60 問題）
         confidence = self._P3_CONFIDENCE_BASE
         if loop_mode == "SLOW_LOOP" and len(matched_strategy) >= 2:
             confidence = self._P3_CONFIDENCE_SLOW_MULTI
         elif loop_mode == "SLOW_LOOP":
             confidence = self._P3_CONFIDENCE_SLOW
+        elif loop_mode == "EXPLORATION_LOOP" and len(matched_strategy) >= 2:
+            confidence = self._P3_CONFIDENCE_EXPLORE_MULTI
 
         return P3FusionSignal(
             should_fuse=True,

@@ -59,6 +59,9 @@ class RoutingSignal:
     # 動態結晶注入量
     max_crystal_push: int = 5
 
+    # v9.1: 叢集原始分數（供 Skill 壓制閾值過濾用）
+    cluster_scores: Dict[str, float] = field(default_factory=dict)
+
     # 路由耗時
     route_time_ms: float = 0.0
 
@@ -520,9 +523,8 @@ def select_loop(
     if tier_scores.get("F", 0) >= T:
         return "EXPLORATION_LOOP"
 
-    # 2. Exploration signals
-    if (cluster_scores.get("RC-C3", 0) >= T or
-            cluster_scores.get("RC-D1", 0) >= T):
+    # 2. Exploration signals（v9.1: RC-D1 移除——D1 屬 D-tier，應走 SLOW_LOOP）
+    if cluster_scores.get("RC-C3", 0) >= T:
         return "EXPLORATION_LOOP"
 
     # 3. Evolution / Integration
@@ -913,6 +915,7 @@ def route(
         confidence=confidence,
         raw_message_len=len(message),
         max_crystal_push=max_push,
+        cluster_scores=dict(sorted_clusters[:8]),  # v9.1: 保留 top 8 叢集分數
         route_time_ms=round(elapsed_ms, 2),
     )
 
