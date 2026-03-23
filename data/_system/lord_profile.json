@@ -6,19 +6,19 @@
       "level": "expert",
       "confidence": 0.92,
       "classification": "strength",
-      "evidence_count": 207
+      "evidence_count": 224
     },
     "consultant_sales": {
       "level": "expert",
       "confidence": 0.88,
       "classification": "strength",
-      "evidence_count": 100
+      "evidence_count": 108
     },
     "brand_design": {
       "level": "intermediate",
       "confidence": 0.72,
       "classification": "unknown",
-      "evidence_count": 58
+      "evidence_count": 59
     },
     "ai_architecture": {
       "level": "intermediate",
@@ -30,13 +30,13 @@
       "level": "beginner",
       "confidence": 0.95,
       "classification": "weakness",
-      "evidence_count": 79
+      "evidence_count": 81
     },
     "emotional_regulation": {
       "level": "developing",
       "confidence": 0.6,
       "classification": "weakness",
-      "evidence_count": 92
+      "evidence_count": 98
     }
   },
   "domain_keywords": {

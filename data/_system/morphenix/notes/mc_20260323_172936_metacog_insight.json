@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260323_172936_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n回覆假設使用者正在做工程迭代、看過診斷，但使用者訊息只是「emoji 壓測」。應先確認使用者的真實意圖（測試系統？還是接著工程工作？），再決定是否列出三個行動選項。現在混淆了兩個不同狀態。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-23T17:29:36.312701+08:00",
+  "priority": "medium"
+}

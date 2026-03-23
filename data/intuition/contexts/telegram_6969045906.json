@@ -149,10 +149,10 @@
       "node_type": "intention",
       "label": "求助",
       "properties": {
-        "detected_at": "2026-03-23T06:13:56.878395"
+        "detected_at": "2026-03-23T16:59:04.579237"
       },
       "created_at": "2026-03-09T06:58:37.889788",
-      "updated_at": "2026-03-23T06:13:56.878503"
+      "updated_at": "2026-03-23T16:59:04.579324"
     },
     "topic_turn_14": {
       "node_id": "topic_turn_14",
@@ -324,10 +324,10 @@
       "node_type": "intention",
       "label": "資訊查詢",
       "properties": {
-        "detected_at": "2026-03-22T19:07:25.800536"
+        "detected_at": "2026-03-23T16:47:45.207973"
       },
       "created_at": "2026-03-10T00:59:55.623089",
-      "updated_at": "2026-03-22T19:07:25.800812"
+      "updated_at": "2026-03-23T16:47:45.208034"
     },
     "topic_turn_30": {
       "node_id": "topic_turn_30",
@@ -3812,12 +3812,56 @@
       },
       "created_at": "2026-03-23T15:09:22.526167",
       "updated_at": "2026-03-23T15:09:22.526171"
+    },
+    "topic_turn_347": {
+      "node_id": "topic_turn_347",
+      "node_type": "topic",
+      "label": "turn_347",
+      "properties": {
+        "content_length": 39,
+        "detected_at": "2026-03-23T16:23:30.294855"
+      },
+      "created_at": "2026-03-23T16:23:30.294883",
+      "updated_at": "2026-03-23T16:23:30.294884"
+    },
+    "topic_turn_348": {
+      "node_id": "topic_turn_348",
+      "node_type": "topic",
+      "label": "turn_348",
+      "properties": {
+        "content_length": 39,
+        "detected_at": "2026-03-23T16:47:45.207973"
+      },
+      "created_at": "2026-03-23T16:47:45.208046",
+      "updated_at": "2026-03-23T16:47:45.208048"
+    },
+    "topic_turn_349": {
+      "node_id": "topic_turn_349",
+      "node_type": "topic",
+      "label": "turn_349",
+      "properties": {
+        "content_length": 155,
+        "detected_at": "2026-03-23T16:59:04.579237"
+      },
+      "created_at": "2026-03-23T16:59:04.579337",
+      "updated_at": "2026-03-23T16:59:04.579339"
+    },
+    "topic_turn_350": {
+      "node_id": "topic_turn_350",
+      "node_type": "topic",
+      "label": "turn_350",
+      "properties": {
+        "content_length": 136,
+        "detected_at": "2026-03-23T17:03:03.457787"
+      },
+      "created_at": "2026-03-23T17:03:03.457852",
+      "updated_at": "2026-03-23T17:03:03.457854"
     }
   },
   "edges": {},
   "metadata": {
-    "turn_count": 416,
-    "last_content_length": 85
+    "turn_count": 420,
+    "last_content_length": 136
   },
-  "last_updated": "2026-03-23T15:09:22.526110"
+  "last_updated": "2026-03-23T17:03:03.457787"
 }

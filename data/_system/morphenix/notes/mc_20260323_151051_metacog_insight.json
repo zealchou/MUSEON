@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260323_151051_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE — 先確認訊息完整性。你的訊息看起來像轉義字元 (`\\n\\t\\r\\0`)，是傳送格式有問題還是你想測試系統？請重新送一次具體需求。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-23T15:10:51.645331+08:00",
+  "priority": "medium"
+}

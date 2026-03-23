@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zeal Chou — 你的事業不缺工具，缺的是思考的品質</title>
+<meta name="description" content="Zeal Chou｜AI 顧問 × 商業教練 × 系統創業加速器。三十年淬煉，幫助中小企業主從混亂走向清晰。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ===== DESIGN TOKENS (MUSEON Design Spec v1.0) ===== */
+:root {
+  --ember: #C4502A;
+  --ember-light: #E0714D;
+  --ember-dark: #9A3A1C;
+  --ember-glow: rgba(196,80,42,0.12);
+  --teal: #2A7A6E;
+  --teal-light: #3A9A8E;
+  --gold: #B8923A;
+  --gold-light: #D4A844;
+  --ink: #12121A;
+  --charcoal: #333;
+  --slate: #5A5A6E;
+  --mist: #9898A8;
+  --border: #E2E0DA;
+  --parchment: #F7F5F0;
+  --snow: #FDFCFA;
+  --cream: #FAF8F5;
+  --deep-ink: #0E0E16;
+  --surface: #16161F;
+  --raised: #1E1E2A;
+  --border-dark: #2A2A38;
+}
+
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Outfit', 'Noto Sans TC', -apple-system, sans-serif;
+  background: var(--parchment);
+  color: var(--charcoal);
+  line-height: 1.75;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== NAVIGATION ===== */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  background: rgba(14,14,22,0.92);
+  backdrop-filter: blur(16px);
+  padding: 14px 0;
+  border-bottom: 2px solid var(--ember);
+  transform: translateY(-100%);
+  transition: transform 0.3s ease;
+}
+.nav.visible { transform: translateY(0); }
+.nav-inner {
+  max-width: 960px; margin: 0 auto; padding: 0 24px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-weight: 600; color: var(--ember-light);
+  letter-spacing: 2px; text-decoration: none;
+}
+.nav-links { display: flex; gap: 24px; }
+.nav-links a {
+  color: var(--mist); text-decoration: none; font-size: 13px;
+  font-family: 'Noto Sans TC', sans-serif;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--ember-light); }
+.nav-cta {
+  background: var(--ember); color: #fff; border: none;
+  padding: 8px 20px; border-radius: 6px; font-size: 13px;
+  font-weight: 600; cursor: pointer; text-decoration: none;
+  transition: background 0.2s;
+}
+.nav-cta:hover { background: var(--ember-light); }
+
+/* ===== HERO ===== */
+.hero {
+  min-height: 100vh;
+  background: linear-gradient(160deg, #0E0E16 0%, #1A1610 40%, #0E0E16 100%);
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+  padding: 120px 24px 80px;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 25% 40%, rgba(196,80,42,0.12) 0%, transparent 55%),
+    radial-gradient(ellipse at 75% 60%, rgba(42,122,110,0.08) 0%, transparent 50%);
+}
+.hero::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 120px;
+  background: linear-gradient(transparent, var(--parchment));
+}
+.hero-content {
+  position: relative; z-index: 1;
+  max-width: 720px; text-align: center;
+}
+.hero-tag {
+  display: inline-block;
+  background: rgba(196,80,42,0.18); color: var(--ember-light);
+  padding: 6px 18px; border-radius: 100px;
+  font-size: 12px; font-weight: 600; letter-spacing: 1.5px;
+  text-transform: uppercase; margin-bottom: 28px;
+  border: 1px solid rgba(196,80,42,0.25);
+  font-family: 'IBM Plex Mono', monospace;
+}
+.hero h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(36px, 5.5vw, 56px);
+  font-weight: 700; color: var(--cream);
+  line-height: 1.15; margin-bottom: 24px;
+}
+.hero h1 em {
+  color: var(--ember-light); font-style: normal;
+  background: linear-gradient(transparent 65%, rgba(196,80,42,0.25) 65%);
+}
+.hero-sub {
+  font-size: 17px; color: #9898A8;
+  line-height: 1.8; max-width: 540px; margin: 0 auto 40px;
+  font-family: 'Noto Sans TC', sans-serif;
+}
+.hero-stats {
+  display: flex; justify-content: center; gap: 48px; flex-wrap: wrap;
+  margin-top: 48px;
+  padding-top: 40px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.hero-stat { text-align: center; }
+.hero-stat-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 42px; font-weight: 700; color: var(--ember-light);
+  line-height: 1;
+}
+.hero-stat-label {
+  font-size: 12px; color: #6B6B7B; letter-spacing: 1px;
+  text-transform: uppercase; margin-top: 8px;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.scroll-hint {
+  position: absolute; bottom: 140px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 8px; opacity: 0.4;
+  animation: float 2.5s ease-in-out infinite;
+}
+.scroll-hint span {
+  font-size: 11px; color: #6B6B7B; letter-spacing: 2px;
+  text-transform: uppercase;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.scroll-hint .arrow {
+  width: 1px; height: 32px; background: rgba(255,255,255,0.2);
+  position: relative;
+}
+.scroll-hint .arrow::after {
+  content: ''; position: absolute; bottom: 0; left: -3px;
+  border: 3px solid transparent;
+  border-top-color: rgba(255,255,255,0.3);
+}
+@keyframes float {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(8px); }
+}
+
+/* ===== MAIN CONTAINER ===== */
+.main { max-width: 820px; margin: 0 auto; padding: 0 24px; }
+
+/* ===== SECTION BASE ===== */
+.section { margin-bottom: 80px; }
+.section-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--ember);
+  margin-bottom: 12px;
+}
+.section h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px; font-weight: 700; color: var(--ink);
+  line-height: 1.25; margin-bottom: 20px;
+}
+.section h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px; font-weight: 600; color: var(--ink);
+  margin: 32px 0 16px;
+}
+.section p {
+  color: var(--charcoal); margin-bottom: 16px; font-size: 16px;
+  line-height: 1.8;
+}
+
+/* ===== OPENING VERDICT ===== */
+.verdict {
+  background: var(--snow);
+  border-left: 4px solid var(--ember);
+  border-radius: 0 12px 12px 0;
+  padding: 40px 40px 36px;
+  margin: -60px 0 64px;
+  position: relative; z-index: 2;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.06);
+}
+.verdict-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--ember); font-weight: 600; margin-bottom: 14px;
+}
+.verdict h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px; font-weight: 700; color: var(--ink);
+  line-height: 1.4; margin-bottom: 16px;
+}
+.verdict p { color: var(--slate); font-size: 15px; line-height: 1.85; }
+.verdict-highlight {
+  display: inline;
+  background: linear-gradient(transparent 60%, rgba(196,80,42,0.15) 60%);
+  font-weight: 600; color: var(--ink);
+}
+
+/* ===== PROBLEM SECTION ===== */
+.problem-grid {
+  display: grid; grid-template-columns: 1fr;
+  gap: 20px; margin: 28px 0;
+}
+.problem-card {
+  background: var(--snow);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 32px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+}
+.problem-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+}
+.problem-card .layer-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 600; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--mist);
+  margin-bottom: 12px;
+}
+.problem-card h4 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px; font-weight: 600; color: var(--ink);
+  margin-bottom: 10px;
+}
+.problem-card p {
+  font-size: 15px; color: var(--slate); line-height: 1.7;
+  margin: 0;
+}
+.problem-card .emoji-icon {
+  font-size: 32px; margin-bottom: 16px; display: block;
+}
+
+/* ===== QUOTE ===== */
+.pull-quote {
+  border-left: 3px solid var(--ember);
+  padding: 24px 32px;
+  margin: 40px 0;
+  background: var(--snow);
+  border-radius: 0 10px 10px 0;
+}
+.pull-quote p {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-weight: 600; color: var(--ink);
+  line-height: 1.5; font-style: italic;
+  margin: 0;
+}
+.pull-quote cite {
+  display: block; margin-top: 12px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px; color: var(--mist); font-style: normal;
+  letter-spacing: 1px;
+}
+
+/* ===== GUIDE / STORY SECTION ===== */
+.story-flow {
+  position: relative;
+  padding-left: 40px;
+  margin: 32px 0;
+}
+.story-flow::before {
+  content: '';
+  position: absolute; left: 14px; top: 0; bottom: 0;
+  width: 2px;
+  background: linear-gradient(var(--ember), var(--teal), var(--gold));
+}
+.story-node {
+  position: relative; margin-bottom: 36px;
+  padding: 0;
+}
+.story-node::before {
+  content: '';
+  position: absolute; left: -33px; top: 6px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--ember);
+  border: 3px solid var(--parchment);
+  box-shadow: 0 0 0 2px var(--ember);
+}
+.story-node.teal::before { background: var(--teal); box-shadow: 0 0 0 2px var(--teal); }
+.story-node.gold::before { background: var(--gold); box-shadow: 0 0 0 2px var(--gold); }
+.story-age {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; font-weight: 600; color: var(--ember);
+  letter-spacing: 1.5px; text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.story-node.teal .story-age { color: var(--teal); }
+.story-node.gold .story-age { color: var(--gold); }
+.story-node h4 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px; font-weight: 600; color: var(--ink);
+  margin-bottom: 6px;
+}
+.story-node p {
+  font-size: 15px; color: var(--slate); line-height: 1.7;
+  margin: 0;
+}
+
+/* ===== METHODOLOGY CARDS ===== */
+.method-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px; margin: 28px 0;
+}
+.method-card {
+  background: var(--snow);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 28px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border-top: 3px solid var(--ember);
+}
+.method-card:nth-child(2) { border-top-color: var(--teal); }
+.method-card:nth-child(3) { border-top-color: var(--gold); }
+.method-card:nth-child(4) { border-top-color: var(--ember-light); }
+.method-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+}
+.method-card h4 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px; font-weight: 600; color: var(--ink);
+  margin-bottom: 8px;
+}
+.method-card .method-en {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; color: var(--mist); letter-spacing: 1px;
+  margin-bottom: 12px; display: block;
+}
+.method-card p {
+  font-size: 14px; color: var(--slate); line-height: 1.7; margin: 0;
+}
+
+/* ===== MUSEON SECTION (Dark) ===== */
+.museon-section {
+  background: linear-gradient(160deg, var(--deep-ink) 0%, #1A1610 100%);
+  padding: 80px 24px;
+  margin: 0 -24px 80px;
+  position: relative;
+  overflow: hidden;
+}
+.museon-section::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(196,80,42,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 30%, rgba(42,122,110,0.06) 0%, transparent 50%);
+}
+.museon-inner {
+  max-width: 820px; margin: 0 auto;
+  position: relative; z-index: 1;
+}
+.museon-section .section-tag { color: var(--gold); }
+.museon-section h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px; font-weight: 700; color: var(--cream);
+  line-height: 1.25; margin-bottom: 20px;
+}
+.museon-section p {
+  color: #9898A8; font-size: 16px; line-height: 1.8; margin-bottom: 16px;
+}
+.museon-section p strong { color: var(--cream); }
+
+.layer-stack {
+  margin: 40px 0;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.layer-item {
+  display: flex; align-items: flex-start; gap: 16px;
+  padding: 20px 24px;
+  background: var(--surface);
+  border-radius: 10px;
+  border: 1px solid var(--border-dark);
+  transition: transform 0.2s, border-color 0.2s;
+}
+.layer-item:hover {
+  transform: translateX(4px);
+  border-color: var(--ember);
+}
+.layer-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; font-weight: 600;
+  color: var(--ember-light);
+  background: rgba(196,80,42,0.12);
+  padding: 4px 10px; border-radius: 4px;
+  white-space: nowrap; margin-top: 2px;
+}
+.layer-item:nth-child(2) .layer-num { color: var(--teal-light); background: rgba(42,122,110,0.12); }
+.layer-item:nth-child(3) .layer-num { color: var(--gold-light); background: rgba(184,146,58,0.12); }
+.layer-item:nth-child(4) .layer-num { color: var(--ember-light); background: rgba(196,80,42,0.12); }
+.layer-item:nth-child(5) .layer-num { color: var(--teal-light); background: rgba(42,122,110,0.12); }
+.layer-info h4 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-weight: 600; color: var(--cream);
+  margin-bottom: 4px;
+}
+.layer-info p {
+  font-size: 14px; color: #6B6B7B; margin: 0; line-height: 1.6;
+}
+
+/* ===== PROOF / NUMBERS ===== */
+.proof-bar {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px; margin: 32px 0;
+}
+.proof-item {
+  text-align: center;
+  background: var(--snow);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 28px 16px;
+}
+.proof-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 40px; font-weight: 700; color: var(--ember);
+  line-height: 1;
+}
+.proof-label {
+  font-size: 14px; color: var(--slate); margin-top: 8px;
+  line-height: 1.5;
+}
+
+/* ===== PERSPECTIVE / TESTIMONIAL ===== */
+.perspective-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px; margin: 28px 0;
+}
+.perspective {
+  background: var(--snow);
+  border-radius: 12px; padding: 28px;
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--ember);
+}
+.perspective:nth-child(2) { border-top-color: var(--teal); }
+.perspective:nth-child(3) { border-top-color: var(--gold); }
+.perspective .role {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--mist);
+  margin-bottom: 12px;
+}
+.perspective h4 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-weight: 600; color: var(--ink);
+  margin-bottom: 10px; line-height: 1.4;
+}
+.perspective p {
+  font-size: 14px; color: var(--slate); line-height: 1.7; margin: 0;
+}
+
+/* ===== PROCESS / PLAN ===== */
+.process-steps {
+  display: flex; flex-direction: column; gap: 24px; margin: 32px 0;
+}
+.process-step {
+  display: flex; gap: 24px; align-items: flex-start;
+  background: var(--snow);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 32px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.process-step:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+}
+.step-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 48px; font-weight: 700; color: var(--ember);
+  line-height: 1; flex-shrink: 0;
+  opacity: 0.3;
+}
+.step-content h4 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-weight: 600; color: var(--ink);
+  margin-bottom: 8px;
+}
+.step-content p {
+  font-size: 15px; color: var(--slate); line-height: 1.7; margin: 0;
+}
+.step-detail {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px; color: var(--mist);
+  margin-top: 10px; letter-spacing: 0.5px;
+}
+
+/* ===== VALUES ===== */
+.values-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px; margin: 28px 0;
+}
+.value-item {
+  padding: 24px;
+  border-radius: 10px;
+  background: var(--snow);
+  border: 1px solid var(--border);
+  text-align: center;
+}
+.value-item .value-emoji { font-size: 28px; margin-bottom: 12px; display: block; }
+.value-item h4 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-weight: 600; color: var(--ink);
+  margin-bottom: 6px;
+}
+.value-item p {
+  font-size: 13px; color: var(--slate); line-height: 1.6; margin: 0;
+}
+
+/* ===== CTA SECTION ===== */
+.cta-section {
+  background: linear-gradient(160deg, var(--deep-ink) 0%, #1A1610 100%);
+  padding: 80px 24px;
+  margin: 0 -24px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.cta-section::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(196,80,42,0.1) 0%, transparent 60%);
+}
+.cta-inner {
+  max-width: 600px; margin: 0 auto;
+  position: relative; z-index: 1;
+}
+.cta-section h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px; font-weight: 700; color: var(--cream);
+  line-height: 1.25; margin-bottom: 16px;
+}
+.cta-section p {
+  color: #9898A8; font-size: 16px; line-height: 1.8; margin-bottom: 32px;
+}
+.cta-button {
+  display: inline-block;
+  background: var(--ember); color: #fff;
+  padding: 16px 40px; border-radius: 8px;
+  font-size: 16px; font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.1s;
+  box-shadow: 0 4px 20px rgba(196,80,42,0.3);
+}
+.cta-button:hover {
+  background: var(--ember-light);
+  transform: translateY(-1px);
+}
+.cta-secondary {
+  display: block; margin-top: 16px;
+  color: #6B6B7B; font-size: 13px;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.cta-secondary:hover { color: var(--ember-light); }
+.cta-note {
+  margin-top: 40px;
+  font-size: 13px; color: #4A4A5A;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+/* ===== FOOTER ===== */
+.footer {
+  background: var(--deep-ink);
+  padding: 40px 24px;
+  text-align: center;
+  border-top: 1px solid var(--border-dark);
+}
+.footer-brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px; font-weight: 600; color: var(--ember);
+  letter-spacing: 3px; margin-bottom: 8px;
+}
+.footer p {
+  font-size: 13px; color: #4A4A5A;
+  margin-bottom: 4px;
+}
+.footer-links {
+  margin-top: 16px;
+  display: flex; justify-content: center; gap: 24px;
+}
+.footer-links a {
+  color: #6B6B7B; font-size: 13px; text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-links a:hover { color: var(--ember-light); }
+
+/* ===== SCROLL ANIMATIONS ===== */
+.fade-in {
+  opacity: 0; transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.fade-in.visible {
+  opacity: 1; transform: translateY(0);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .hero { padding: 100px 20px 60px; min-height: 90vh; }
+  .hero-stats { gap: 24px; }
+  .hero-stat-num { font-size: 32px; }
+  .verdict { padding: 28px; margin: -40px 16px 48px; }
+  .main { padding: 0 16px; }
+  .section h2 { font-size: 28px; }
+  .method-grid { grid-template-columns: 1fr; }
+  .perspective-grid { grid-template-columns: 1fr; }
+  .proof-bar { grid-template-columns: repeat(2, 1fr); }
+  .process-step { flex-direction: column; gap: 12px; }
+  .step-num { font-size: 36px; }
+  .museon-section { padding: 60px 20px; margin: 0 -16px 60px; }
+  .cta-section { padding: 60px 20px; margin: 0 -16px; }
+  .nav-links { display: none; }
+  .story-flow { padding-left: 32px; }
+  .values-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 480px) {
+  .proof-bar { grid-template-columns: 1fr; }
+  .values-grid { grid-template-columns: 1fr; }
+  .hero-stats { flex-direction: column; gap: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-brand">ZEAL CHOU</a>
+    <div class="nav-links">
+      <a href="#problem">痛點</a>
+      <a href="#story">故事</a>
+      <a href="#method">方法</a>
+      <a href="#museon">MUSEON</a>
+      <a href="#process">合作</a>
+    </div>
+    <a href="#cta" class="nav-cta">預約對話</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-tag">AI Consultant × Business Coach × System Architect</div>
+    <h1>你的事業不缺工具<br>缺的是<em>思考的品質</em></h1>
+    <p class="hero-sub">
+      三十年商業實戰。七套自研方法論。一個 AI 決策系統。<br>
+      專為月營收百萬以上的中小企業主，打造看得見盲點的思維引擎。
+    </p>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-num">30+</div>
+        <div class="hero-stat-label">年商業實戰</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">200+</div>
+        <div class="hero-stat-label">位學員</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">7</div>
+        <div class="hero-stat-label">套方法論</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">49</div>
+        <div class="hero-stat-label">個 AI 認知模組</div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="arrow"></div>
+  </div>
+</section>
+
+<!-- VERDICT -->
+<div class="main">
+  <div class="verdict fade-in">
+    <div class="verdict-label">核心主張</div>
+    <h2>大部分企業主的問題，不是缺資源，是缺清晰</h2>
+    <p>
+      你請了員工、買了軟體、上了課程——但經營的混亂感並沒有消失。
+      因為<span class="verdict-highlight">真正的瓶頸不在工具層，在思維層</span>。
+      你需要的不是更多答案，而是有人幫你問出正確的問題。
+    </p>
+  </div>
+
+  <!-- PROBLEM SECTION -->
+  <section class="section fade-in" id="problem">
+    <div class="section-tag">你正在經歷的</div>
+    <h2>這些場景，你一定不陌生</h2>
+
+    <div class="problem-grid">
+      <div class="problem-card">
+        <span class="emoji-icon">🌀</span>
+        <div class="layer-tag">外部問題</div>
+        <h4>每天忙到爆，營收卻沒有跟著成長</h4>
+        <p>你不缺努力，缺的是槓桿。80% 的時間花在 20% 的低價值事務上，但你看不到哪些可以放手——因為「每件事都很重要」的錯覺，讓你困在自己打造的忙碌牢籠裡。</p>
+      </div>
+
+      <div class="problem-card">
+        <span class="emoji-icon">🪞</span>
+        <div class="layer-tag">內部感受</div>
+        <h4>知道 AI 時代來了，但不確定跟自己有什麼關係</h4>
+        <p>你聽過 ChatGPT、Claude、各種 AI 工具——但每次試完都覺得「好像很厲害，但用在我的行業上好像不太行？」問題不是工具不夠好，是沒有人幫你把 AI 的能力翻譯成你的業務語言。</p>
+      </div>
+
+      <div class="problem-card">
+        <span class="emoji-icon">🧭</span>
+        <div class="layer-tag">哲學問題</div>
+        <h4>你不是不夠好，是缺一個「看到全貌」的夥伴</h4>
+        <p>一個人扛太久了。你需要的不是顧問給你答案（你心裡其實有答案），而是一個能幫你整理思緒、指出盲點、然後陪你一起走的人。不是替你決定，是讓你的判斷變得更精準。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PULL QUOTE -->
+  <div class="pull-quote fade-in">
+    <p>「我做了三十年的事情，就是把模糊變清晰，把複雜變簡單，把知道變做到。」</p>
+    <cite>— Zeal Chou</cite>
+  </div>
+
+  <!-- GUIDE / STORY -->
+  <section class="section fade-in" id="story">
+    <div class="section-tag">我的故事</div>
+    <h2>從設計師到思維工程師的三十年</h2>
+    <p>我不是學院派出身。我的每一套方法論，都是在實戰中被市場打出來的。</p>
+
+    <div class="story-flow">
+      <div class="story-node">
+        <div class="story-age">15 歲 — 起點</div>
+        <h4>立志創業</h4>
+        <p>那時候什麼都不懂，只知道不想替別人打工。這個決定很天真，但它定義了接下來三十年。</p>
+      </div>
+
+      <div class="story-node">
+        <div class="story-age">19 歲 — 接案</div>
+        <h4>平面設計、網頁設計</h4>
+        <p>一個人接案，學會了「客戶要的不是美，是解決問題」。設計思維從這裡開始。</p>
+      </div>
+
+      <div class="story-node teal">
+        <div class="story-age">26 歲 — 創業</div>
+        <h4>正式創業</h4>
+        <p>從自由工作者變成企業經營者，第一次體會到「做好事情」和「把事情做成生意」完全是兩回事。</p>
+      </div>
+
+      <div class="story-node teal">
+        <div class="story-age">27 歲 — 轉折</div>
+        <h4>績效教練（PCT）</h4>
+        <p>接觸 Asia Walk 三階段成長課程，成為績效教練。這個轉折改變了一切——我發現：<strong>改變人的思維模式，比教他技巧有用一百倍</strong>。持續至今。</p>
+      </div>
+
+      <div class="story-node gold">
+        <div class="story-age">35 歲 — 深化</div>
+        <h4>企業管理顧問</h4>
+        <p>主攻流程再造、組織再造。從改變個人到改變系統，從教練到顧問，能力的圈越畫越大。</p>
+      </div>
+
+      <div class="story-node gold">
+        <div class="story-age">2023 — 融合</div>
+        <h4>OneMuse 萬謬卡 × AI</h4>
+        <p>與 ChatGPT 共同研發決策卡牌系統。融合先天易經、顧問方法論、心理學與量子力學。從這裡開始，我意識到：AI 不是工具，是思維的放大器。現有 200+ 位學員（賦能師）。</p>
+      </div>
+
+      <div class="story-node">
+        <div class="story-age">2026 — 現在</div>
+        <h4>MUSEON 誕生</h4>
+        <p>把三十年淬煉的思維品質，灌注進一個 AI 決策系統。不是取代人類思考，是讓人類思考得更好。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- METHODOLOGY -->
+  <section class="section fade-in" id="method">
+    <div class="section-tag">我的武器庫</div>
+    <h2>七套方法論，一個核心</h2>
+    <p>不同名字，同一個本質——<strong>幫你看見你看不見的</strong>。每一套都經過上百個案例的實戰驗證。</p>
+
+    <div class="method-grid">
+      <div class="method-card">
+        <h4>商模十二力</h4>
+        <span class="method-en">Business-12</span>
+        <p>企業的十二個關鍵能力維度。不用猜哪裡有問題——掃一遍，全部攤開來看。哪裡弱、哪裡強、哪裡花力氣最有槓桿。</p>
+      </div>
+
+      <div class="method-card">
+        <h4>系統創業加速器</h4>
+        <span class="method-en">SSA — Systematic Startup Accelerator</span>
+        <p>顧問式銷售十二步驟 × 系統創業方法論。不是教你「怎麼賣」，是教你「怎麼讓客戶覺得你在幫他」。</p>
+      </div>
+
+      <div class="method-card">
+        <h4>萬謬卡</h4>
+        <span class="method-en">OneMuse — Decision Card System</span>
+        <p>融合易經、心理學、量子力學的決策工具。聽起來玄？200+ 位學員實證：它幫你在混沌中找到第一步。</p>
+      </div>
+
+      <div class="method-card">
+        <h4>思維轉化引擎</h4>
+        <span class="method-en">DHARMA Engine</span>
+        <p>東方思維的西方科學詮釋。六步驟思維轉化框架，從覺察到行動——讓你不只「想通」，還「做到」。</p>
+      </div>
+    </div>
+
+    <p style="color: var(--slate); font-size: 14px; text-align: center; margin-top: 8px;">
+      另有 PCT（績效教練培訓）、RESONANCE（感性共振）、VibeCoding（AI 提示詞工程）三套進階方法論
+    </p>
+  </section>
+</div>
+
+<!-- MUSEON SECTION (Dark Background) -->
+<section class="museon-section fade-in" id="museon">
+  <div class="museon-inner">
+    <div class="section-tag">我的 AI 決策夥伴</div>
+    <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 700; color: var(--cream); line-height: 1.25; margin-bottom: 20px;">
+      MUSEON — 不只是工具，是思維品質引擎
+    </h2>
+    <p>
+      市面上的 AI 工具幫你<strong>做事</strong>。MUSEON 幫你<strong>想清楚</strong>。<br>
+      它不會直接告訴你答案——它會問你沒想到的問題，指出你的盲點，然後陪你一起推演。
+    </p>
+
+    <div class="layer-stack">
+      <div class="layer-item">
+        <span class="layer-num">L1–L2</span>
+        <div class="layer-info">
+          <h4>思考的前置思考</h4>
+          <p>在你開口問之前，先判斷：這個問題問對了嗎？你的狀態適合做決策嗎？</p>
+        </div>
+      </div>
+      <div class="layer-item">
+        <span class="layer-num">L3</span>
+        <div class="layer-info">
+          <h4>主權守護</h4>
+          <p>AI 永遠不替你決定。決策權在你手上，MUSEON 只負責讓你的判斷更精準。</p>
+        </div>
+      </div>
+      <div class="layer-item">
+        <span class="layer-num">L4</span>
+        <div class="layer-info">
+          <h4>第一性原理 × 破框思維</h4>
+          <p>用逆熵流程設計、跨領域槓桿視角、第一性原理分析，拆解你以為無解的問題。</p>
+        </div>
+      </div>
+      <div class="layer-item">
+        <span class="layer-num">L5</span>
+        <div class="layer-info">
+          <h4>戰略推演</h4>
+          <p>陽謀（看得見的策略佈局）+ 陰謀（看不見的人心博弈），兩者兼備才是完整決策。</p>
+        </div>
+      </div>
+      <div class="layer-item">
+        <span class="layer-num">L6</span>
+        <div class="layer-info">
+          <h4>分析工具輸出</h4>
+          <p>市場分析、商業診斷、投資研判、品牌策略——49 個認知模組，按需載入。</p>
+        </div>
+      </div>
+    </div>
+
+    <p style="text-align: center; margin-top: 32px;">
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #4A4A5A; letter-spacing: 1px;">
+        大多數 AI 只做 Layer 6。MUSEON 的護城河在 Layer 1–5。
+      </span>
+    </p>
+  </div>
+</section>
+
+<div class="main">
+  <!-- PROOF -->
+  <section class="section fade-in" id="proof">
+    <div class="section-tag">實績</div>
+    <h2>數字會說話</h2>
+
+    <div class="proof-bar">
+      <div class="proof-item">
+        <div class="proof-num">200+</div>
+        <div class="proof-label">OneMuse 賦能師<br>持續活躍學習</div>
+      </div>
+      <div class="proof-item">
+        <div class="proof-num">15+</div>
+        <div class="proof-label">年教練經驗<br>從個人到組織</div>
+      </div>
+      <div class="proof-item">
+        <div class="proof-num">49</div>
+        <div class="proof-label">AI 認知模組<br>持續自我演化</div>
+      </div>
+      <div class="proof-item">
+        <div class="proof-num">7</div>
+        <div class="proof-label">自研方法論<br>實戰驗證體系</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHO IS THIS FOR -->
+  <section class="section fade-in">
+    <div class="section-tag">適合誰</div>
+    <h2>你可能是這樣的企業主</h2>
+
+    <div class="perspective-grid">
+      <div class="perspective">
+        <div class="role">經營者</div>
+        <h4>「公司營收破百萬了，但我還是每天救火」</h4>
+        <p>你需要的不是更多員工，是一套讓事情自己轉的系統。我幫你用商模十二力掃描，找出最高槓桿的切入點。</p>
+      </div>
+      <div class="perspective">
+        <div class="role">轉型者</div>
+        <h4>「知道要數位轉型，但不知道從哪裡開始」</h4>
+        <p>AI 導入不是買軟體，是重新設計你的決策流程。我們從你的業務痛點出發，不從技術出發。</p>
+      </div>
+      <div class="perspective">
+        <div class="role">成長者</div>
+        <h4>「想突破天花板，但找不到方向」</h4>
+        <p>有時候瓶頸不在市場、不在資金——在你看世界的角度。換一個框架，同樣的資源可以長出不同的東西。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section class="section fade-in" id="process">
+    <div class="section-tag">合作方式</div>
+    <h2>三步開始，不複雜</h2>
+
+    <div class="process-steps">
+      <div class="process-step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h4>一次深度對話</h4>
+          <p>不是推銷，是理解。我需要聽你說：你的事業在哪裡、你想去哪裡、什麼讓你卡住。60 分鐘，通常你自己會發現一些之前沒注意到的事情。</p>
+          <div class="step-detail">60 分鐘 · 線上或面對面 · 免費</div>
+        </div>
+      </div>
+      <div class="process-step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h4>客製化診斷報告</h4>
+          <p>根據我們的對話，用商模十二力 + 第一性原理分析你的事業全貌。不是泛泛的建議，是具體到「先做這一步」的行動指引。</p>
+          <div class="step-detail">3–5 個工作天交付 · 含 MUSEON AI 輔助分析</div>
+        </div>
+      </div>
+      <div class="process-step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h4>陪跑式推進</h4>
+          <p>不是丟一份報告就走。按月陪你推進，每週校準方向，確保你不只「想到」，還「做到」。MUSEON 系統 24/7 待命，隨時可以諮詢。</p>
+          <div class="step-detail">月度合約 · 每週 1 次深度對話 · MUSEON 無限使用</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VALUES -->
+  <section class="section fade-in">
+    <div class="section-tag">我的承諾</div>
+    <h2>跟我合作，你會體驗到</h2>
+
+    <div class="values-grid">
+      <div class="value-item">
+        <span class="value-emoji">🔥</span>
+        <h4>真實優先</h4>
+        <p>寧可讓你不舒服，也不說假話。真正有用的建議通常不好聽。</p>
+      </div>
+      <div class="value-item">
+        <span class="value-emoji">🔍</span>
+        <h4>代價透明</h4>
+        <p>每個選擇我都同時告訴你甜頭和代價。沒有「一定賺」的方案。</p>
+      </div>
+      <div class="value-item">
+        <span class="value-emoji">🧱</span>
+        <h4>結構化陪伴</h4>
+        <p>混亂讓人受苦，結構讓人看得清楚。我用結構幫你整理思緒。</p>
+      </div>
+      <div class="value-item">
+        <span class="value-emoji">📈</span>
+        <h4>長期複利</h4>
+        <p>不做一次性煙火。每個建議都指向可累積的資產。</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- CTA -->
+<section class="cta-section fade-in" id="cta">
+  <div class="cta-inner">
+    <h2>準備好讓思考升級了嗎？</h2>
+    <p>
+      第一步很簡單：跟我聊一次。<br>
+      60 分鐘，沒有推銷，只有對話。<br>
+      你帶著問題來，帶著清晰走。
+    </p>
+    <a href="https://lin.ee/placeholder" class="cta-button" target="_blank">預約免費深度對話</a>
+    <a href="mailto:zeal@museon.ai" class="cta-secondary">或者直接寫信給我 →</a>
+    <div class="cta-note">
+      限月營收 NT$100 萬以上的企業主。不是因為門檻，而是確保我能真正幫到你。
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-brand">ZEAL CHOU</div>
+  <p>AI 顧問 × 商業教練 × 系統創業加速器</p>
+  <p style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #3A3A4A; margin-top: 4px;">
+    Powered by MUSEON — Thinking Quality Engine
+  </p>
+  <div class="footer-links">
+    <a href="#">LinkedIn</a>
+    <a href="#">MUSEON</a>
+    <a href="#">OneMuse 萬謬卡</a>
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script>
+// Scroll-triggered fade-in
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// Nav appears after scrolling past hero
+const nav = document.getElementById('nav');
+const heroEl = document.querySelector('.hero');
+
+const navObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) {
+      nav.classList.add('visible');
+    } else {
+      nav.classList.remove('visible');
+    }
+  });
+}, { threshold: 0 });
+
+navObserver.observe(heroEl);
+
+// Smooth scroll for nav links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+</script>
+
+</body>
+</html>
