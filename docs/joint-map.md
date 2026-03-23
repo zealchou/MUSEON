@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.38
+# Joint Map — 共享可變狀態接頭圖 v1.39
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -18,7 +18,7 @@
 | 5 | scout_queue/pending.json | 🟡 | 2 | 2 | 無 | [→](#5-scout_queuependingjson) |
 | 6 | lattice/crystal.db | 🟢 | 2 | 5 | ✅ SQLite WAL + Lock | [→](#6-latticecrystaldb) |
 | 7 | accuracy_stats.json | 🟡 | 2 | 6 | 無 | [→](#7-accuracy_statsjson) |
-| 8 | PulseDB (pulse.db) | 🟡 | 3 | 12 | SQLite WAL | [→](#8-pulsedb-pulsedb) |
+| 8 | PulseDB (pulse.db) | 🟡 | 4 | 13 | SQLite WAL | [→](#8-pulsedb-pulsedb) |
 | 9 | Qdrant 向量庫 | 🟡 | 4 | 6 | 內部 MVCC | [→](#9-qdrant-向量庫) |
 | 10 | diary entries (soul_rings.json) | 🟢 | 1 | 4 | ✅ Lock | [→](#10-diary-entries) |
 | 11 | immunity/events.jsonl | 🟢 | 2 | 4 | 無 | [→](#11-immunityeventsjsonl) |
@@ -51,6 +51,7 @@
 | 38 | ~/.claude/skills/*/SKILL.md | 🔴 | 3 | 4+ | 無 | [→](#38-claudeskillsskillmd) |
 | 39 | _system/sessions/{id}.json | 🟡 | 1 | 2 | 無 | [→](#39-_systemsessionsidjson) |
 | 40 | group_context.db | 🟡 | 1 | 2 | SQLite WAL | [→](#40-group_contextdb) |
+| 41 | PushBudget 單例（記憶體+PulseDB push_log） | 🟡 | 2 | 2 | SQLite WAL | [→](#41-pushbudget) |
 
 > **危險度定義**：🔴 多寫入者+高扇出+格式不一致 | 🟡 多寫入者或高扇出 | 🟢 單寫入者+低扇出
 
@@ -337,15 +338,16 @@
 
 **路徑**：`data/pulse/pulse.db`
 **引擎**：SQLite WAL mode
-**用途**：VITA 生命力引擎結構化儲存（15 張表）
+**用途**：VITA 生命力引擎結構化儲存（16 張表，含 push_log）
 
 #### 寫入者
 
 | 模組 | 寫入表 |
 |------|--------|
-| `pulse/pulse_db.py` | 全部 15 表（schedules, explorations, anima_log, evolution_events, morphenix_proposals, commitments, metacognition, scout_drafts, health_scores, incidents, orchestrator_calls 等） |
+| `pulse/pulse_db.py` | 全部 16 表（schedules, explorations, anima_log, evolution_events, morphenix_proposals, commitments, metacognition, scout_drafts, health_scores, incidents, orchestrator_calls, push_log 等） |
 | `nightly/nightly_pipeline.py` | evolution_events, 多表日誌 |
 | `gateway/server.py` (via Governor callback) | incidents（P2 新增：Governor 免疫迴圈 → `_bridge_incident_to_pulsedb()` → `pulse_db.save_incident()`） |
+| `pulse/push_budget.py` (via PushBudget) | push_log（全局推送去重 + 限額追蹤） |
 
 #### 讀取者（12 個模組）
 
@@ -359,7 +361,7 @@
 | `nightly/nightly_pipeline.py` | 多表 |
 | `channels/telegram.py` | morphenix_proposals |
 | `gateway/server.py` | commitments |
-| `pulse/pulse_engine.py` | explorations |
+| `pulse/pulse_engine.py` | explorations, push_log (via PushBudget) |
 | `nightly/evolution_velocity.py` | evolution_events |
 | `nightly/periodic_cycles.py` | metacognition |
 | `nightly/morphenix_executor.py` | metacognition（DNA-Inspired 品質旗標閉環：`get_quality_flags()` / `get_quality_flag_summary()`） |
@@ -1083,6 +1085,7 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 | 2026-03-23 | v1.37 | 三層調度員架構：新增 #37 `museon-persona.md`（🟡 危險度，Zeal/morphenix 寫入，所有 L2 thinker subagent spawn 時讀取——影響面廣但寫入頻率極低）；補登 #38 `~/.claude/skills/*/SKILL.md`（🔴 危險度，51 個 Skill ~909KB，3 寫入者 手動/acsf/morphenix，4+ 讀取者 Claude Code session/skill_router/vector_bridge/nightly 8.6）；快速索引表補齊 #36；共享狀態 36→38 個 |
 | 2026-03-22 | v1.36 | External User 健康檢查：新增 #36 `external_users/{uid}.json`（🟢 危險度，ExternalAnimaManager 統一管理）；ExternalAnimaManager 新增 `threading.Lock` + 原子寫入（tmp→rename）修復 TOCTOU 競態條件；鎖一覽表新增 external_users 條目；共享狀態 35→36 個 |
 | 2026-03-22 | v1.35 | Sparse Embedder 啟動：#9 Qdrant 向量庫 Sparse Collections 從「已定義未消費」升級為「全面啟動」；hybrid_search() 被 skill_router + memory_manager + knowledge_lattice + server.py 4 個消費者呼叫（取代原 pure dense search）；Nightly Step 8.7 新增 IDF 重建 + 回填步驟；Gateway startup 新增 IDF 驗證；同步 blast-radius v1.35、persistence-contract v1.30 |
+| 2026-03-23 | v1.39 | 推送品質修復：新增 #41 PushBudget 單例（🟡 危險度，2 寫入者 pulse_engine+proactive_bridge 經由共用實例，2 讀取者同）；#8 PulseDB 表數 15→16（新增 push_log 表）；寫入者 3→4（+push_budget.py）；讀取者 12→13（+push_budget.py）；共享狀態 40→41 個；同步 persistence-contract v1.31、blast-radius v1.54、system-topology v1.46 |
 | 2026-03-22 | v1.34 | Brain 三層治療：新增 #35 `orchestrator_calls`（PulseDB 表，🟢 危險度，單寫入者 brain.py `_dispatch_orchestrate()`，讀取者 0 供未來 A1 確定性路由）；#8 PulseDB 表數 14→15；共享狀態 34→35 個；同步 persistence-contract v1.29、system-topology v1.37 |
 | 2026-03-22 | v1.33 | P0-P3 升級：新增 #34 `_system/backups/` 目錄（🟢 危險度，2 個寫入者各自寫不同子目錄無競爭——AnimaMCStore._backup_before_write() 寫 anima_mc/、PulseEngine._backup_pulse_md() 寫 pulse_md/，各保留 10 份 FIFO）；無讀取者（手動恢復）；共享狀態 33→34 個；同步 persistence-contract v1.28、system-topology v1.35、blast-radius v1.46、memory-router v1.4 |
 | 2026-03-22 | v1.32 | 經驗諮詢閘門：#6 crystal.db 新增 Procedure 結晶 4 欄位（skills_used/preconditions/known_failures/last_success）；#25 activity_log.jsonl 讀取者新增 brain.py（search() 經驗搜尋）；#25 skill_usage_log.jsonl 從 DW2 升級（新增 outcome 欄位，Brain 消費） |
