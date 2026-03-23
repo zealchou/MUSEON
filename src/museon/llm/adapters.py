@@ -234,6 +234,9 @@ class ClaudeCLIAdapter:
                                 f"[Tool result for {item.get('tool_use_id', '?')}]: "
                                 f"{item.get('content', '')}"
                             )
+                        elif item.get("type") == "image":
+                            # CLI 模式不支援 Vision — graceful degradation
+                            parts.append("[圖片已上傳，但 CLI 模式不支援視覺分析。請改用 API 模式。]")
 
         return "\n\n".join(parts)
 
