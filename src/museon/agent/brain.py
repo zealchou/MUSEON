@@ -1207,8 +1207,15 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
             # ── Step 5: 載入對話歷史 ──
             history = self._get_session_history(session_id)
 
-            # 加入使用者新訊息
-            history.append({"role": "user", "content": content})
+            # 加入使用者新訊息（Vision: 若有圖片附件，構建 multimodal content blocks）
+            _user_content = content
+            if metadata and metadata.get("file"):
+                try:
+                    from museon.llm.vision import build_vision_content
+                    _user_content = build_vision_content(content, metadata["file"])
+                except Exception as e:
+                    logger.debug(f"[Vision] 圖片準備失敗（降級純文字）: {e}")
+            history.append({"role": "user", "content": _user_content})
 
             # 保持歷史在 token 限制內（最近 20 輪）
             if len(history) > 40:
@@ -1874,8 +1881,8 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                 non_default_lenses = [l for l in active_lenses if l != "c15"]
                 if non_default_lenses:
                     lens_hint = " \u2192 ".join(non_default_lenses)
-                    final_response = f"\U0001f9e0 {lens_hint}\n\n{response_text}"
-                    logger.debug(f"[P0] 透鏡提示注入: {lens_hint}")
+                    # 透鏡路由資訊只記 log，不注入用戶可見的回覆
+                    logger.info(f"[P0] 透鏡路由: {lens_hint}")
 
         # P1: 主動盲點提醒——暫時停用
         # TODO: 重新設計後再啟用。目前「順便一提」在對話中顯得突兀。
