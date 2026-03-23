@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUC MVP 開發進度報告 | MUSEON</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Outfit:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --ember: #C4502A;
+            --ember-light: #E0714D;
+            --ember-dark: #9A3A1C;
+            --teal: #2A7A6E;
+            --gold: #B8923A;
+            --ink: #12121A;
+            --slate: #5A5A6E;
+            --mist: #9898A8;
+            --border: #E2E0DA;
+            --parchment: #F7F5F0;
+            --snow: #FDFCFA;
+            --success: #2D8A6E;
+            --warning: #C9943A;
+            --error: #C4402A;
+            --info: #2A6A8A;
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            background: var(--parchment);
+            color: var(--ink);
+            line-height: 1.75;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 48px 24px;
+        }
+
+        header {
+            margin-bottom: 64px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 32px;
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 48px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: var(--slate);
+            margin-bottom: 4px;
+        }
+
+        .date-updated {
+            font-size: 14px;
+            color: var(--mist);
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+
+        .stat-card {
+            background: var(--snow);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+            transition: transform 200ms ease, box-shadow 200ms ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 6px rgba(18,18,26,0.1), 0 8px 20px rgba(18,18,26,0.08);
+        }
+
+        .stat-number {
+            font-size: 42px;
+            font-weight: 600;
+            color: var(--ember);
+            margin-bottom: 4px;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--slate);
+            font-weight: 500;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: var(--border);
+            border-radius: 100px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--ember), var(--ember-light));
+            border-radius: 100px;
+            transition: width 600ms ease;
+        }
+
+        section {
+            margin-bottom: 64px;
+        }
+
+        h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 36px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+
+        .section-subtitle {
+            font-size: 14px;
+            color: var(--slate);
+            margin-bottom: 32px;
+            font-weight: 500;
+        }
+
+        .phase-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 16px;
+        }
+
+        .phase-box {
+            background: var(--snow);
+            border-left: 4px solid var(--border);
+            border-radius: 6px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(18,18,26,0.04);
+            transition: all 200ms ease;
+        }
+
+        .phase-box.completed {
+            border-left-color: var(--success);
+            background: rgba(45, 138, 110, 0.03);
+        }
+
+        .phase-box.in-progress {
+            border-left-color: var(--warning);
+            background: rgba(201, 148, 58, 0.03);
+        }
+
+        .phase-box.pending {
+            border-left-color: var(--mist);
+        }
+
+        .phase-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .phase-status {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 600;
+            font-family: 'IBM Plex Mono', monospace;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .status-done {
+            background: rgba(45, 138, 110, 0.1);
+            color: var(--success);
+        }
+
+        .status-progress {
+            background: rgba(201, 148, 58, 0.1);
+            color: var(--warning);
+        }
+
+        .status-pending {
+            background: rgba(152, 152, 168, 0.1);
+            color: var(--mist);
+        }
+
+        .phase-desc {
+            font-size: 13px;
+            color: var(--slate);
+            line-height: 1.6;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-top: 16px;
+        }
+
+        .feature-list li {
+            font-size: 13px;
+            color: var(--slate);
+            margin-bottom: 6px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .feature-list li:before {
+            content: "→";
+            position: absolute;
+            left: 4px;
+            color: var(--ember);
+            font-weight: 600;
+        }
+
+        .key-insight {
+            background: rgba(196, 80, 42, 0.05);
+            border-left: 3px solid var(--ember);
+            padding: 24px;
+            border-radius: 6px;
+            margin-bottom: 32px;
+        }
+
+        .key-insight h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--ember);
+            margin-bottom: 12px;
+        }
+
+        .key-insight p {
+            font-size: 15px;
+            color: var(--ink);
+            line-height: 1.7;
+        }
+
+        .next-steps {
+            background: var(--snow);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 32px;
+            margin-top: 32px;
+        }
+
+        .next-steps h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 20px;
+        }
+
+        .step-item {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .step-number {
+            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            background: var(--ember);
+            color: white;
+            border-radius: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 4px;
+        }
+
+        .step-desc {
+            font-size: 14px;
+            color: var(--slate);
+            line-height: 1.6;
+        }
+
+        .architecture-overview {
+            background: var(--snow);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 32px;
+            margin-bottom: 48px;
+        }
+
+        .module-group {
+            margin-bottom: 24px;
+        }
+
+        .module-group-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--slate);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-family: 'IBM Plex Mono', monospace;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .module-item {
+            font-size: 14px;
+            color: var(--ink);
+            padding: 8px 12px;
+            background: rgba(196, 80, 42, 0.04);
+            border-left: 2px solid var(--ember);
+            margin-bottom: 8px;
+            border-radius: 3px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            background: rgba(196, 80, 42, 0.1);
+            color: var(--ember-dark);
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 600;
+            font-family: 'IBM Plex Mono', monospace;
+            letter-spacing: 0.08em;
+            margin-left: 8px;
+        }
+
+        footer {
+            margin-top: 96px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            font-size: 12px;
+            color: var(--mist);
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 48px 0;
+        }
+
+        .highlight {
+            color: var(--ember);
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 36px;
+            }
+
+            h2 {
+                font-size: 28px;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .phase-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>MUC MVP 開發進度</h1>
+            <p class="subtitle">給 Zeal 的架構總覽</p>
+            <p class="date-updated">最後更新：2026-03-23 | Feng 開發版本 v1.1</p>
+        </header>
+
+        <!-- 核心統計 -->
+        <section class="hero-stats">
+            <div class="stat-card">
+                <div class="stat-number">66</div>
+                <div class="stat-label">功能已完成</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 68%"></div>
+                </div>
+                <small style="color: var(--mist); font-size: 12px; margin-top: 8px;">MVP + 早期擴展功能</small>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-number">17</div>
+                <div class="stat-label">開發階段 (Phase)</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 35%"></div>
+                </div>
+                <small style="color: var(--mist); font-size: 12px; margin-top: 8px;">進行中到規劃階段</small>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-number">30+</div>
+                <div class="stat-label">功能待開發</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 32%"></div>
+                </div>
+                <small style="color: var(--mist); font-size: 12px; margin-top: 8px;">Phase 14–17 計畫中</small>
+            </div>
+        </section>
+
+        <!-- 核心洞見 -->
+        <div class="key-insight">
+            <h3>📊 目前狀態</h3>
+            <p>Feng 已完成 <span class="highlight">完整的 MVP 系統</span>（授權管理 + 訂閱計費 + 設備配對 + 稽核告警 + 後台管理 + 前台portal），正在進入 Phase 14 的點數系統與 SEO 管理模組。</p>
+        </div>
+
+        <!-- 架構概覽 -->
+        <section>
+            <h2>系統架構概覽</h2>
+            <p class="section-subtitle">你需要知道的事：系統分為「三層」和「四大機制」</p>
+
+            <div class="architecture-overview">
+                <div class="module-group">
+                    <div class="module-group-title">基礎層（Already Done）</div>
+                    <div class="module-item">🔐 帳號與授權 (Auth) <span class="badge">LIVE</span></div>
+                    <div class="module-item">📋 序號管理 (License) <span class="badge">LIVE</span></div>
+                    <div class="module-item">💳 訂閱與計費 (Subscription / Payment) <span class="badge">LIVE</span></div>
+                    <div class="module-item">📱 設備配對 (Device Pairing) <span class="badge">LIVE</span></div>
+                </div>
+
+                <div class="module-group">
+                    <div class="module-group-title">管理層（Already Done）</div>
+                    <div class="module-item">👨‍💼 角色權限管理 (RBAC) <span class="badge">LIVE</span></div>
+                    <div class="module-item">📊 後台儀表板 (Admin Dashboard) <span class="badge">LIVE</span></div>
+                    <div class="module-item">📝 稽核與告警 (Audit Log & Alert) <span class="badge">LIVE</span></div>
+                    <div class="module-item">🎁 自助訂購與訂單管理 <span class="badge">LIVE</span></div>
+                </div>
+
+                <div class="module-group">
+                    <div class="module-group-title">使用者介面（Already Done）</div>
+                    <div class="module-item">🔑 登入 / 註冊 / 忘記密碼 <span class="badge">LIVE</span></div>
+                    <div class="module-item">🏠 使用者首頁 + 訂閱狀態 <span class="badge">LIVE</span></div>
+                    <div class="module-item">💰 帳單 / 付款管理 <span class="badge">LIVE</span></div>
+                    <div class="module-item">🔔 通知中心 <span class="badge">LIVE</span></div>
+                </div>
+
+                <div class="module-group">
+                    <div class="module-group-title">即將推出（Phase 14–17）</div>
+                    <div class="module-item">⭐ 點數系統 (Credit Balance) <span class="badge">PHASE 14</span></div>
+                    <div class="module-item">🌐 SEO / 地理位置管理 <span class="badge">PHASE 14</span></div>
+                    <div class="module-item">💰 自動金流串接 (Payment Gateway) <span class="badge">PHASE 15</span></div>
+                    <div class="module-item">👥 推薦分潤 (Referral) <span class="badge">PHASE 16</span></div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- 開發進度詳解 -->
+        <section>
+            <h2>分階段進度詳解</h2>
+            <p class="section-subtitle">看下去就知道 Feng 做了什麼</p>
+
+            <div class="phase-grid">
+                <!-- Phase 1-3 -->
+                <div class="phase-box completed">
+                    <span class="phase-status status-done">✅ 完成</span>
+                    <div class="phase-title">Phase 1–3：基礎建設</div>
+                    <div class="phase-desc">
+                        專案骨架、資料庫 Migration、帳號認證系統、序號和訂閱基礎。
+                    </div>
+                </div>
+
+                <!-- Phase 4-5 -->
+                <div class="phase-box completed">
+                    <span class="phase-status status-done">✅ 完成</span>
+                    <div class="phase-title">Phase 4–5：支付與裝置</div>
+                    <div class="phase-desc">
+                        帳單資料管理、設備配對（USB / 遠端授權）、防重複對接。
+                    </div>
+                </div>
+
+                <!-- Phase 6 -->
+                <div class="phase-box completed">
+                    <span class="phase-status status-done">✅ 完成</span>
+                    <div class="phase-title">Phase 6：稽核與告警</div>
+                    <div class="phase-desc">
+                        完整的操作日誌、自動告警觸發、多級別警示（警告/嚴重）。
+                    </div>
+                </div>
+
+                <!-- Phase 7-9 -->
+                <div class="phase-box completed">
+                    <span class="phase-status status-done">✅ 完成</span>
+                    <div class="phase-title">Phase 7–9：後台管理</div>
+                    <div class="phase-desc">
+                        6 大後台管理頁面（收款、序號、帳號、設備、告警、稽核）、角色權限。
+                    </div>
+                </div>
+
+                <!-- Phase 10-11 -->
+                <div class="phase-box completed">
+                    <span class="phase-status status-done">✅ 完成</span>
+                    <div class="phase-title">Phase 10–11：前台首頁</div>
+                    <div class="phase-desc">
+                        使用者登入、自己的訂閱狀態、帳單查詢、通知中心、帳號設定。
+                    </div>
+                </div>
+
+                <!-- Phase 12-13 -->
+                <div class="phase-box completed">
+                    <span class="phase-status status-done">✅ 完成</span>
+                    <div class="phase-title">Phase 12–13：測試與上線</div>
+                    <div class="phase-desc">
+                        完整的 BDD 與單元測試、Agent SDK、伺服器部署、實地對接驗證。
+                    </div>
+                </div>
+
+                <!-- Phase 14 Part 1 -->
+                <div class="phase-box completed">
+                    <span class="phase-status status-done">✅ 完成</span>
+                    <div class="phase-title">Phase 14.1：點數系統</div>
+                    <div class="phase-desc">
+                        使用者點數餘額、交易記錄、超額計費。
+                    </div>
+                </div>
+
+                <!-- Phase 14 Part 2 -->
+                <div class="phase-box in-progress">
+                    <span class="phase-status status-progress">🚧 進行中</span>
+                    <div class="phase-title">Phase 14.2：月配點數</div>
+                    <div class="phase-desc">
+                        訂閱方案綁定月度點數配額、自動週期配點排程。
+                    </div>
+                </div>
+
+                <!-- Phase 14 Part 3 -->
+                <div class="phase-box pending">
+                    <span class="phase-status status-pending">⬜ 待做</span>
+                    <div class="phase-title">Phase 14.3：超額計費 + UI</div>
+                    <div class="phase-desc">
+                        超額自動加費機制、前端點數面板、後台報表。
+                    </div>
+                </div>
+
+                <!-- Phase 14 Part 4 -->
+                <div class="phase-box completed">
+                    <span class="phase-status status-done">✅ 完成</span>
+                    <div class="phase-title">Phase 14.4：SEO/GEO</div>
+                    <div class="phase-desc">
+                        後台 SEO 頁面管理、Sitemap、Schema Editor、多語言支援。
+                    </div>
+                </div>
+
+                <!-- Phase 15 -->
+                <div class="phase-box pending">
+                    <span class="phase-status status-pending">⬜ 待做</span>
+                    <div class="phase-title">Phase 15：金流串接</div>
+                    <div class="phase-desc">
+                        支付寶 / 綠界 / 藍新等金流商整合、Webhook、退款、發票。
+                    </div>
+                </div>
+
+                <!-- Phase 16 -->
+                <div class="phase-box pending">
+                    <span class="phase-status status-pending">⬜ 待做</span>
+                    <div class="phase-title">Phase 16：推薦分潤</div>
+                    <div class="phase-desc">
+                        推薦碼生成、成功判定、獎勵自動發放、推薦頁與報表。
+                    </div>
+                </div>
+
+                <!-- Phase 17 -->
+                <div class="phase-box pending">
+                    <span class="phase-status status-pending">⬜ 待做</span>
+                    <div class="phase-title">Phase 17：自動更新發佈</div>
+                    <div class="phase-desc">
+                        Agent 版本管理、灰度發佈、自動更新檢查與下載。
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- 關鍵問題與決策點 -->
+        <section>
+            <h2>老闆你要知道的事</h2>
+            <p class="section-subtitle">技術決策點與風險提醒</p>
+
+            <div class="key-insight">
+                <h3>🎯 已解決的核心問題</h3>
+                <p>
+                    ✅ 使用者授權機制（Ed25519 簽章）<br>
+                    ✅ 離線 15 分鐘限制（防盜版）<br>
+                    ✅ 訂閱狀態機（ACTIVE → GRACE → SUSPENDED）<br>
+                    ✅ 一次性配對碼（不可重用）<br>
+                    ✅ 完整稽核日誌（符合企業級安全要求）
+                </p>
+            </div>
+
+            <div class="key-insight">
+                <h3>⚠️ 下一步的決策點</h3>
+                <ul style="margin-left: 20px; margin-top: 12px;">
+                    <li style="margin-bottom: 10px;">
+                        <strong>金流商選擇（Phase 15）：</strong><br>
+                        支付寶 / 綠界 / 藍新？需要決定優先順序和是否需要多家整合。
+                    </li>
+                    <li style="margin-bottom: 10px;">
+                        <strong>點數計費邏輯（Phase 14.3）：</strong><br>
+                        超額怎麼算？月初自動清零還是按使用期計算？需要產品定義。
+                    </li>
+                    <li>
+                        <strong>推薦機制（Phase 16）：</strong><br>
+                        一個用戶最多推薦多少人？獎勵是現金還是點數？
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- 行動建議 -->
+        <section class="next-steps">
+            <h3>建議給 Feng 的下一步</h3>
+
+            <div class="step-item">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <div class="step-title">確認 Phase 14.2–14.3 的產品需求</div>
+                    <div class="step-desc">
+                        月配點數的開始日期、超額計費的舍入規則、報表要看哪些維度。
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <div class="step-title">選定金流商（Phase 15 前置）</div>
+                    <div class="step-desc">
+                        決定支付寶、綠界、藍新的優先級，或者三家都要？手續費多少？
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <div class="step-title">設計推薦機制（Phase 16 前置）</div>
+                    <div class="step-desc">
+                        一個用戶的推薦上限、獎勵發放機制、是否需要 KYC 驗證。
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <div class="step-title">規劃 Phase 14–17 的交付時程</div>
+                    <div class="step-desc">
+                        現有 MVP 已經很完整，後續 30+ 功能的優先級和月度里程碑應該清晰。
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- 快速查詢表 -->
+        <section>
+            <h2>快速參考：功能清單</h2>
+            <p class="section-subtitle">如果你想查某個功能是否已做好</p>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+                <div style="background: var(--snow); padding: 20px; border-radius: 6px; border-left: 3px solid var(--success);">
+                    <div style="font-weight: 600; color: var(--success); margin-bottom: 12px;">已完成的功能</div>
+                    <ul style="list-style: none; font-size: 13px; color: var(--slate); line-height: 1.8;">
+                        <li>✅ 帳號註冊 / 登入 / 忘密</li>
+                        <li>✅ 序號生成與管理</li>
+                        <li>✅ 訂閱 / 續約 / 狀態轉移</li>
+                        <li>✅ 設備配對與撤銷</li>
+                        <li>✅ 點數餘額與交易</li>
+                        <li>✅ 自動計費排程</li>
+                        <li>✅ 稽核日誌與告警</li>
+                        <li>✅ 後台 6 大管理頁</li>
+                        <li>✅ 自助訂購流程</li>
+                        <li>✅ SEO / Sitemap</li>
+                    </ul>
+                </div>
+
+                <div style="background: var(--snow); padding: 20px; border-radius: 6px; border-left: 3px solid var(--warning);">
+                    <div style="font-weight: 600; color: var(--warning); margin-bottom: 12px;">進行中 / 待定</div>
+                    <ul style="list-style: none; font-size: 13px; color: var(--slate); line-height: 1.8;">
+                        <li>🚧 月度點數配額</li>
+                        <li>🚧 超額計費機制</li>
+                        <li>⬜ 支付寶 / 綠界串接</li>
+                        <li>⬜ 推薦碼 / 分潤系統</li>
+                        <li>⬜ 發票電子化</li>
+                        <li>⬜ 自動更新服務</li>
+                        <li>⬜ 灰度發佈</li>
+                        <li>⬜ 多語言 i18n</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>本報告由 MUSEON Claude 自動生成 | 數據來自 DEV_SEQUENCE.md v1.1 (2026-03-22)</p>
+        </footer>
+    </div>
+</body>
+</html>
