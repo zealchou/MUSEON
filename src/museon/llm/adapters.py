@@ -1,6 +1,7 @@
-"""LLM Adapters — claude -p (MAX) 主要呼叫層 + API fallback.
+"""LLM Adapters — claude -p (MAX) 唯一呼叫通道.
 
-v1: ClaudeCLIAdapter (subprocess claude -p) + AnthropicAPIAdapter (AsyncAnthropic).
+v2: 純 ClaudeCLIAdapter（subprocess claude -p）。
+已移除 AnthropicAPIAdapter + FallbackAdapter（MUSEON 統一使用 Claude MAX CLI OAuth）。
 Brain 透過統一的 AdapterResponse 格式使用，無需關心底層實現。
 """
 
@@ -351,6 +352,10 @@ class ClaudeCLIAdapter:
         max_tokens: int = 8192,
         tools: Optional[List[Dict[str, Any]]] = None,
         session_id: Optional[str] = None,
+        *,
+        extended_thinking: bool = False,
+        thinking_budget: int = 0,
+        **kwargs,
     ) -> AdapterResponse:
         """透過 claude -p subprocess 呼叫 LLM.
 
@@ -361,32 +366,34 @@ class ClaudeCLIAdapter:
             max_tokens: 最大回覆 token（claude -p 自動管理，此參數供參考）
             tools: 工具定義列表（嵌入 prompt）
             session_id: 前次 session ID（用於 --resume 繼續對話）
+            extended_thinking: CLI 模式不支援，接受但忽略
+            thinking_budget: CLI 模式不支援，接受但忽略
 
         Returns:
             AdapterResponse
         """
+        if extended_thinking:
+            logger.debug("[CLI] extended_thinking requested but CLI mode doesn't support it — ignoring")
+
         prompt = self._build_prompt(system_prompt, messages, tools)
         cli_model = self._map_model(model)
 
-        # 組裝 command
-        cmd = [self._claude_path, "-p", "--output-format", "json", "--model", cli_model, "--bare"]
+        # 組裝 command — 不使用 --bare（--bare 禁止 keychain/OAuth 認證）
+        cmd = [self._claude_path, "-p", "--output-format", "json", "--model", cli_model]
         if session_id:
             cmd.extend(["--resume", session_id])
 
         env = os.environ.copy()
         env.pop("CLAUDECODE", None)  # 避免巢狀檢查
+        # ⚠️ 關鍵：必須移除 ANTHROPIC_API_KEY，否則 claude -p 會優先用 API key
+        # 而不是 OAuth token，導致 "Invalid API key" 錯誤
+        env.pop("ANTHROPIC_API_KEY", None)
 
-        # 確保 OAuth token 可用（launchd daemon 環境）
-        # 策略：同時設定 CLAUDE_CODE_OAUTH_TOKEN 和 ANTHROPIC_API_KEY
-        # Claude CLI 在 daemon 環境下 OAUTH 可能失效，但 API_KEY 接受 OAuth token
-        oauth_token = self._get_oauth_token()
-        if oauth_token:
-            env["CLAUDE_CODE_OAUTH_TOKEN"] = oauth_token
-            env["ANTHROPIC_API_KEY"] = oauth_token  # 雙保險：API_KEY 也接受 OAuth token
-            logger.info(f"[CLI] OAuth token injected ({len(oauth_token)} chars, prefix={oauth_token[:15]}...)")
-        else:
-            env.pop("ANTHROPIC_API_KEY", None)
-            logger.warning("[CLI] No OAuth token found — CLI will likely fail with 'Not logged in'")
+        # ⚠️ launchd daemon 環境可能缺少 USER，Claude CLI 存取 keychain 需要它
+        if "USER" not in env:
+            import getpass
+            env["USER"] = getpass.getuser()
+            logger.info(f"[CLI] Injected USER={env['USER']} for keychain access")
 
         try:
             proc = await asyncio.create_subprocess_exec(
@@ -987,51 +994,36 @@ class FallbackAdapter:
 # ═══════════════════════════════════════════
 
 async def create_adapter(prefer_cli: bool = True) -> LLMAdapter:
-    """建立最佳可用的 LLM Adapter.
+    """建立 LLM Adapter（純 CLI 通道）.
 
-    優先順序：
-    1. ClaudeCLIAdapter（如果 claude CLI 可用且 prefer_cli=True）
-    2. AnthropicAPIAdapter（如果 ANTHROPIC_API_KEY 可用）
-    3. 拋出 RuntimeError
-
-    Args:
-        prefer_cli: 是否優先使用 claude -p（預設 True）
+    MUSEON 統一使用 Claude MAX CLI OAuth 通道。
 
     Returns:
-        LLMAdapter instance
+        ClaudeCLIAdapter instance
     """
-    if prefer_cli:
-        claude_path = _find_claude_cli()
-        if claude_path:
-            # 檢查 claude CLI 是否可用
-            try:
-                env = os.environ.copy()
-                env.pop("CLAUDECODE", None)
-                proc = await asyncio.create_subprocess_exec(
-                    claude_path, "--version",
-                    stdout=asyncio.subprocess.PIPE,
-                    stderr=asyncio.subprocess.PIPE,
-                    env=env,
-                )
-                stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=10)
-                if proc.returncode == 0:
-                    version = stdout.decode().strip()
-                    logger.info(f"Using ClaudeCLIAdapter (Claude Code {version} at {claude_path})")
-                    return ClaudeCLIAdapter(claude_path=claude_path)
-            except Exception as e:
-                logger.warning(f"claude CLI not available: {e}")
-        else:
-            logger.warning("claude CLI not found in PATH or common locations")
-
-    # Fallback: API
-    api_key = os.getenv("ANTHROPIC_API_KEY")
-    if api_key:
-        logger.info("Using AnthropicAPIAdapter (API Key fallback)")
-        return AnthropicAPIAdapter(api_key=api_key)
+    claude_path = _find_claude_cli()
+    if claude_path:
+        # 檢查 claude CLI 是否可用
+        try:
+            env = os.environ.copy()
+            env.pop("CLAUDECODE", None)
+            env.pop("ANTHROPIC_API_KEY", None)
+            proc = await asyncio.create_subprocess_exec(
+                claude_path, "--version",
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                env=env,
+            )
+            stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=10)
+            if proc.returncode == 0:
+                version = stdout.decode().strip()
+                logger.info(f"Using ClaudeCLIAdapter (Claude Code {version} at {claude_path})")
+                return ClaudeCLIAdapter(claude_path=claude_path)
+        except Exception as e:
+            logger.warning(f"claude CLI not available: {e}")
 
     raise RuntimeError(
-        "No LLM adapter available. "
-        "Install Claude Code CLI (MAX plan) or set ANTHROPIC_API_KEY."
+        "claude CLI not found. Install Claude Code CLI (MAX plan)."
     )
 
 
@@ -1066,34 +1058,12 @@ def _find_claude_cli() -> Optional[str]:
 def create_adapter_sync(prefer_cli: bool = True) -> LLMAdapter:
     """同步版本的 create_adapter — 用於 Brain.__init__.
 
-    當 CLI 和 API Key 同時可用時，返回 FallbackAdapter（CLI 優先，失敗自動切 API）。
+    MUSEON 統一使用 Claude MAX CLI OAuth 通道，不再使用 API Key。
     """
-    claude_path = _find_claude_cli() if prefer_cli else None
-    api_key = os.getenv("ANTHROPIC_API_KEY")
-
-    # 雙管齊下：CLI + API fallback
-    if claude_path and api_key:
-        logger.info(
-            f"Using FallbackAdapter (CLI at {claude_path} + API fallback)"
-        )
-        return FallbackAdapter(
-            cli=ClaudeCLIAdapter(claude_path=claude_path),
-            api=AnthropicAPIAdapter(api_key=api_key),
-        )
-
-    # 只有 CLI（仍包裝為 FallbackAdapter 以支援 extended_thinking 等進階參數）
-    if claude_path:
-        logger.info(f"Using FallbackAdapter (CLI-only mode, no API fallback)")
-        return FallbackAdapter(
-            cli=ClaudeCLIAdapter(claude_path=claude_path),
-            api=AnthropicAPIAdapter(api_key="dummy"),  # 無效 key，但 FallbackAdapter 會處理
-        )
-
-    # 只有 API
-    if api_key:
-        logger.info("Using AnthropicAPIAdapter (API Key)")
-        return AnthropicAPIAdapter(api_key=api_key)
-
-    logger.warning("No LLM adapter available — Brain will operate in degraded mode")
     claude_path = _find_claude_cli()
-    return ClaudeCLIAdapter(claude_path=claude_path or "claude")
+    if claude_path:
+        logger.info(f"Using ClaudeCLIAdapter (Claude MAX CLI at {claude_path})")
+        return ClaudeCLIAdapter(claude_path=claude_path)
+
+    logger.warning("claude CLI not found — Brain will operate in degraded mode")
+    return ClaudeCLIAdapter(claude_path="claude")

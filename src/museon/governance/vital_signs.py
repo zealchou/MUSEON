@@ -382,16 +382,13 @@ class VitalSignsMonitor:
             )
 
     def _check_env_consistency(self) -> CheckResult:
-        """檢查環境變數衝突（如 ANTHROPIC_API_KEY vs OAuth）."""
+        """檢查環境變數一致性."""
         issues = []
 
+        # ANTHROPIC_API_KEY 已移除。若殘留在 env 中，發出警告
         api_key = os.environ.get("ANTHROPIC_API_KEY", "")
         if api_key:
-            # 驗證 API key 格式
-            if not api_key.startswith("sk-ant-"):
-                issues.append("ANTHROPIC_API_KEY format invalid")
-            # 警告：有 API Key 可能干擾 CLI OAuth
-            issues.append("ANTHROPIC_API_KEY present — ensure CLI env isolation")
+            issues.append("ANTHROPIC_API_KEY still present in env — should be removed (MUSEON uses CLI OAuth only)")
 
         if not os.environ.get("TELEGRAM_BOT_TOKEN"):
             issues.append("TELEGRAM_BOT_TOKEN not set")

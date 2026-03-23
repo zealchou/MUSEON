@@ -965,13 +965,16 @@ def create_app() -> FastAPI:
 
     @app.get("/api/key-status")
     async def get_key_status() -> Dict[str, Any]:
-        """取得 API Key 設定狀態 — 不回傳 Key 值本身"""
-        anthropic = os.environ.get("ANTHROPIC_API_KEY", "")
+        """取得認證狀態 — 不回傳 Key 值本身"""
         telegram = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+        # OAuth token 來自 ~/.museon/oauth_token
+        oauth_path = Path.home() / ".museon" / "oauth_token"
+        oauth_exists = oauth_path.exists() and oauth_path.stat().st_size > 0
         return {
-            "ANTHROPIC_API_KEY": {
-                "configured": bool(anthropic),
-                "prefix": anthropic[:8] + "***" if len(anthropic) > 8 else "",
+            "LLM_AUTH": {
+                "method": "CLI OAuth (MAX plan)",
+                "oauth_token_file": str(oauth_path),
+                "configured": oauth_exists,
             },
             "TELEGRAM_BOT_TOKEN": {
                 "configured": bool(telegram),

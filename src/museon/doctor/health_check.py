@@ -192,11 +192,8 @@ class HealthChecker:
         env_vars = self._parse_env_file()
         issues = []
 
-        anthropic_key = env_vars.get("ANTHROPIC_API_KEY", "")
-        if not anthropic_key:
-            issues.append("ANTHROPIC_API_KEY 未設定")
-        elif not anthropic_key.startswith("sk-ant-"):
-            issues.append("ANTHROPIC_API_KEY 格式可能不正確")
+        # ANTHROPIC_API_KEY 已移除（MUSEON 統一使用 Claude MAX CLI OAuth）
+        # 不再檢查 ANTHROPIC_API_KEY
 
         telegram_token = env_vars.get("TELEGRAM_BOT_TOKEN", "")
         if not telegram_token:
@@ -206,10 +203,10 @@ class HealthChecker:
             return CheckResult(
                 name="API Keys",
                 status=CheckStatus.OK,
-                message="API keys 已設定",
+                message="API keys 已設定（MUSEON 使用 Claude MAX CLI OAuth）",
             )
 
-        has_critical = any("ANTHROPIC" in i for i in issues)
+        has_critical = False  # ANTHROPIC_API_KEY 不再是 critical
         return CheckResult(
             name="API Keys",
             status=CheckStatus.CRITICAL if has_critical else CheckStatus.WARNING,

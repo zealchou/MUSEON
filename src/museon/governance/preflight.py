@@ -106,8 +106,8 @@ class PreflightGate:
     REQUIRED_KEYS: List[Tuple[str, Optional[str]]] = []
 
     # 選填 API Key：有值就驗證格式，沒值只發警告
+    # ANTHROPIC_API_KEY 已完全移除（MUSEON 統一使用 Claude MAX CLI OAuth）
     OPTIONAL_KEYS: List[Tuple[str, Optional[str]]] = [
-        ("ANTHROPIC_API_KEY", "sk-ant-"),  # API 備援（Max 方案不需要）
         ("TELEGRAM_BOT_TOKEN", None),
         ("DIFY_API_KEY", None),
     ]
