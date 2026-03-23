@@ -1,14 +1,6 @@
 [
  {
   "role": "assistant",
-  "content": "你好！Unicode 擴展字符收到了。\n\n這看起來是一個測試訊息。有什麼我能幫你的嗎？"
- },
- {
-  "role": "user",
-  "content": "𝕳𝖊𝖑𝖑𝖔 Unicode 擴展"
- },
- {
-  "role": "assistant",
   "content": "收到了。Unicode 擴展字符運作正常，系統可以正確處理。\n\n有什麼需要幫忙的嗎？"
  },
  {
@@ -162,5 +154,13 @@
  {
   "role": "assistant",
   "content": "✓ 接收正常——Unicode 擴展字符零問題。\n\n**準備就緒。**有任務直說。"
+ },
+ {
+  "role": "user",
+  "content": "𝕳𝖊𝖑𝖑𝖔 Unicode 擴展"
+ },
+ {
+  "role": "assistant",
+  "content": "✓ 風部準備就緒。\n\n等候任務。🌀"
  }
 ]

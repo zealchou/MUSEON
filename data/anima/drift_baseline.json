@@ -1,12 +1,4 @@
 {
-  "user_L6": {
-    "detail_level": "detailed",
-    "emoji_usage": "none",
-    "tone": "casual",
-    "language_mix": "mixed",
-    "question_style": "closed",
-    "avg_msg_length": 478.3890289304676
-  },
   "user_L5": [
     {
       "key": "active_late_evening",
@@ -20,9 +12,9 @@
       "key": "prefers_short_response",
       "value": "prefers short response",
       "confidence": 1.0,
-      "observed_count": 739,
+      "observed_count": 759,
       "first_seen": "2026-03-16T22:02:34.688998",
-      "last_seen": "2026-03-23T11:12:38.743209"
+      "last_seen": "2026-03-23T17:32:36.739085"
     },
     {
       "key": "active_late_night",
@@ -36,9 +28,9 @@
       "key": "prefers_long_response",
       "value": "prefers long response",
       "confidence": 1.0,
-      "observed_count": 265,
+      "observed_count": 277,
       "first_seen": "2026-03-16T22:15:11.205456",
-      "last_seen": "2026-03-23T11:09:32.487956"
+      "last_seen": "2026-03-23T17:00:04.959322"
     },
     {
       "key": "active_early_morning",
@@ -52,25 +44,25 @@
       "key": "interested_in_technical",
       "value": "interested in technical",
       "confidence": 1.0,
-      "observed_count": 55,
+      "observed_count": 56,
       "first_seen": "2026-03-17T13:29:20.090112",
-      "last_seen": "2026-03-23T11:11:09.078949"
+      "last_seen": "2026-03-23T12:15:38.705691"
     },
     {
       "key": "interested_in_research",
       "value": "interested in research",
       "confidence": 1.0,
-      "observed_count": 30,
+      "observed_count": 31,
       "first_seen": "2026-03-17T13:02:54.496831",
-      "last_seen": "2026-03-22T12:31:24.139045"
+      "last_seen": "2026-03-23T13:07:11.780425"
     },
     {
       "key": "interested_in_creative",
       "value": "interested in creative",
       "confidence": 1.0,
-      "observed_count": 38,
+      "observed_count": 39,
       "first_seen": "2026-03-18T11:55:26.680706",
-      "last_seen": "2026-03-23T00:37:26.272782"
+      "last_seen": "2026-03-23T17:00:04.959322"
     },
     {
       "key": "interested_in_business",
@@ -81,39 +73,66 @@
       "last_seen": "2026-03-23T06:19:03.144946"
     }
   ],
-  "mc_primals": {
-    "兌": {
-      "relative": 16.60166501560034,
-      "absolute": 509.5872960843859
+  "user_primals": {
+    "blindspot": {
+      "confidence": 0.07999999991705765,
+      "level": 19.999999979264413,
+      "last_observed": "2026-03-20T15:04:30.555060",
+      "signal": "[回覆 霓裳 的訊息：藍圖和現有實作已讀完。以下是評估結果：  評估摘要  P0-P3 已有實作（在 commits 7ad4598, 149f6dc, 967"
     },
-    "乾": {
-      "relative": 4.720274041660644,
-      "absolute": 143.51553006740951
+    "emotion_pattern": {
+      "confidence": 0.9999999999998488,
+      "level": 34.14406237698999,
+      "last_observed": "2026-03-22T21:16:13.267756",
+      "signal": "最近壓力真的很大，工作做不完，回家又要照顧小孩，覺得快要崩潰了。"
     },
-    "艮": {
-      "relative": 82.24383662353905,
-      "absolute": 2501.18728571514
+    "aspiration": {
+      "confidence": 0.9999999956513643,
+      "level": 19.99999999999999,
+      "last_observed": "2026-03-23T01:06:44.027701",
+      "signal": "如果我想要你一次改寫到位呢？（全部都改好的意思，用多 subagent 的模式進行）"
     },
-    "坤": {
-      "relative": 20.20069758931886,
-      "absolute": 618.6554717111183
+    "action_power": {
+      "confidence": 0.9999999998153266,
+      "level": 17.999999995080305,
+      "last_observed": "2026-03-23T11:05:26.344249",
+      "signal": "可以了，搞定，做得漂亮。 回顧一下，最近有哪些學習跟收穫"
     },
-    "離": {
-      "relative": 3.242313102545768,
-      "absolute": 99.79110334869561
+    "curiosity": {
+      "confidence": 0.9999999999978493,
+      "level": 51.27754542439389,
+      "last_observed": "2026-03-23T13:19:05.708377",
+      "signal": "你在探索的時候 會調用到哪些技能？"
     },
-    "巽": {
-      "relative": 4.702833849719961,
-      "absolute": 142.34370216275667
+    "accumulation": {
+      "confidence": 0.5501593239313394,
+      "level": 20.11764899788409,
+      "last_observed": "2026-03-23T09:54:19.416975",
+      "signal": "[回覆霓裳的主動訊息：📰 <b>每日商業個案晨報</b> Vol.012  📅 2026-03-23 🎯 主題：AI創業的轉向決策之戰 報告已生成並儲存本地。 "
     },
-    "震": {
-      "relative": 4.100176908350306,
-      "absolute": 123.51860448403863
+    "relationship_depth": {
+      "confidence": 0.9999999999999996,
+      "level": 16.0,
+      "last_observed": "2026-03-23T17:32:07.528601",
+      "signal": "你好"
     },
-    "坎": {
-      "relative": 99.95584602549837,
-      "absolute": 3072.5396689434046
+    "boundary": {
+      "confidence": 0.4299999999725042,
+      "level": 15.999999999979874,
+      "last_observed": "2026-03-19T22:29:53.142946",
+      "signal": "不用等我 一路生成"
     }
+  },
+  "mc_expression": {
+    "opener_stats": {
+      "direct": 0.0,
+      "empathy": 0.0,
+      "question": 0.0,
+      "greeting": 0.0
+    },
+    "last_evolved_at": "2026-03-23T17:29:52.530014",
+    "tone_temperature": 0.5,
+    "evolution_count": 51.26565955341051
   },
   "user_L7": [
     {
@@ -143,70 +162,51 @@
     {
       "role": "creator",
       "active_since": "2026-03-23T00:29:30.167946",
-      "interaction_count": 1,
-      "last_seen": "2026-03-23T00:29:30.167946"
+      "interaction_count": 2,
+      "last_seen": "2026-03-23T17:00:04.959322"
     }
   ],
-  "mc_expression": {
-    "opener_stats": {
-      "direct": 0.0,
-      "greeting": 0.0,
-      "empathy": 0.0,
-      "question": 0.0
+  "mc_primals": {
+    "兌": {
+      "absolute": 537.127775081349,
+      "relative": 16.600815857644168
     },
-    "last_evolved_at": "2026-03-23T11:05:26.398566",
-    "tone_temperature": 0.5,
-    "evolution_count": 53.011550109001035
-  },
-  "user_primals": {
-    "boundary": {
-      "last_observed": "2026-03-19T22:29:53.142946",
-      "level": 15.999999999958927,
-      "confidence": 0.42999999994388616,
-      "signal": "不用等我 一路生成"
+    "坤": {
+      "absolute": 629.5411811384479,
+      "relative": 19.50734181876624
     },
-    "action_power": {
-      "last_observed": "2026-03-23T11:05:26.344249",
-      "level": 17.999999989959807,
-      "confidence": 0.9999999996231157,
-      "signal": "可以了，搞定，做得漂亮。 回顧一下，最近有哪些學習跟收穫"
+    "離": {
+      "absolute": 103.55764064086082,
+      "relative": 3.1997334202474264
     },
-    "blindspot": {
-      "last_observed": "2026-03-20T15:04:30.555060",
-      "level": 19.999999957682476,
-      "confidence": 0.0799999998307299,
-      "signal": "[回覆 霓裳 的訊息：藍圖和現有實作已讀完。以下是評估結果：  評估摘要  P0-P3 已有實作（在 commits 7ad4598, 149f6dc, 967"
+    "巽": {
+      "absolute": 143.18841405975076,
+      "relative": 4.44638858636278
     },
-    "relationship_depth": {
-      "last_observed": "2026-03-23T10:03:27.737508",
-      "level": 16.0,
-      "confidence": 0.9999999999999996,
-      "signal": "那外部連結呢"
+    "坎": {
+      "absolute": 3239.394437782268,
+      "relative": 99.9783645524942
     },
-    "aspiration": {
-      "last_observed": "2026-03-23T01:06:44.027701",
-      "level": 19.99999999999998,
-      "confidence": 0.9999999911252333,
-      "signal": "如果我想要你一次改寫到位呢？（全部都改好的意思，用多 subagent 的模式進行）"
+    "艮": {
+      "absolute": 2515.3717700004186,
+      "relative": 78.23447994553413
     },
-    "curiosity": {
-      "last_observed": "2026-03-22T21:09:07.895738",
-      "level": 40.1174396416202,
-      "confidence": 0.9999999999956108,
-      "signal": "今天天氣怎麼樣？"
+    "震": {
+      "absolute": 123.76411619717891,
+      "relative": 3.8660866850916498
     },
-    "accumulation": {
-      "last_observed": "2026-03-23T09:54:19.416975",
-      "level": 20.240099995681824,
-      "confidence": 0.5295088243496724,
-      "signal": "[回覆霓裳的主動訊息：📰 <b>每日商業個案晨報</b> Vol.012  📅 2026-03-23 🎯 主題：AI創業的轉向決策之戰 報告已生成並儲存本地。 "
-    },
-    "emotion_pattern": {
-      "last_observed": "2026-03-22T21:16:13.267756",
-      "level": 34.29400485099998,
-      "confidence": 0.9999999999996916,
-      "signal": "最近壓力真的很大，工作做不完，回家又要照顧小孩，覺得快要崩潰了。"
+    "乾": {
+      "absolute": 144.27260973303066,
+      "relative": 4.505934280413714
     }
   },
-  "taken_at": "2026-03-23T03:12:38.746645+00:00"
+  "user_L6": {
+    "question_style": "open",
+    "language_mix": "chinese_dominant",
+    "tone": "formal",
+    "detail_level": "concise",
+    "emoji_usage": "none",
+    "avg_msg_length": 294.9206241759291
+  },
+  "taken_at": "2026-03-23T09:32:36.747534+00:00"
 }
