@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MUSEON 競品策略簡報 — 32 周行動計畫</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --ember: #C4502A;
+      --ember-light: #E0714D;
+      --ember-dark: #9A3A1C;
+      --gold: #B8923A;
+      --teal: #2A7A6E;
+      --ink: #12121A;
+      --slate: #5A5A6E;
+      --mist: #9898A8;
+      --border: #E2E0DA;
+      --parchment: #F7F5F0;
+      --snow: #FDFCFA;
+      --deep-ink: #0E0E16;
+      --surface: #16161F;
+      --raised: #1E1E2A;
+    }
+
+    body {
+      font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+      background: var(--parchment);
+      color: var(--ink);
+      overflow-x: hidden;
+    }
+
+    /* ════ SLIDE CONTAINER ════ */
+    .slides {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 60px 80px;
+      background: var(--parchment);
+      opacity: 0;
+      transform: translateX(100%);
+      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+
+    .slide.prev {
+      transform: translateX(-100%);
+    }
+
+    /* ════ SLIDE TYPES ════ */
+    .slide.hero { background: linear-gradient(135deg, var(--deep-ink) 0%, #1a1a28 100%); color: #fff; }
+    .slide.divider { background: var(--deep-ink); color: #fff; }
+    .slide.content { background: var(--parchment); }
+    .slide.dark { background: var(--deep-ink); color: #fff; }
+
+    /* ════ TYPOGRAPHY ════ */
+    .slide h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 56px;
+      font-weight: 600;
+      line-height: 1.15;
+      margin-bottom: 20px;
+    }
+
+    .slide h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 40px;
+      font-weight: 600;
+      line-height: 1.2;
+      margin-bottom: 32px;
+    }
+
+    .slide h3 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .slide p {
+      font-size: 18px;
+      line-height: 1.75;
+      margin-bottom: 16px;
+      color: var(--slate);
+    }
+
+    .slide.dark p {
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    .slide em { color: var(--ember); font-style: italic; }
+    .slide.dark em { color: var(--ember-light); }
+
+    /* ════ TAGS & LABELS ════ */
+    .slide-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ember);
+      margin-bottom: 8px;
+    }
+
+    .slide.dark .slide-label {
+      color: var(--ember-light);
+    }
+
+    /* ════ LAYOUTS ════ */
+    .slide-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+    }
+
+    .card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(18,18,26,0.06);
+    }
+
+    .card.dark {
+      background: var(--raised);
+      border-color: var(--surface);
+      color: #fff;
+    }
+
+    .card.dark h3 { color: var(--ember-light); }
+    .card.dark p { color: rgba(255,255,255,0.7); }
+
+    /* ════ LISTS ════ */
+    ul { list-style: none; }
+    li {
+      padding-left: 24px;
+      position: relative;
+      font-size: 16px;
+      line-height: 1.75;
+      margin-bottom: 12px;
+    }
+
+    li::before {
+      content: '▪';
+      position: absolute;
+      left: 0;
+      color: var(--ember);
+      font-weight: 600;
+    }
+
+    /* ════ EMPHASIS ════ */
+    .hl { color: var(--ember); font-weight: 600; }
+    .hl-teal { color: var(--teal); font-weight: 600; }
+    .hl-gold { color: var(--gold); font-weight: 600; }
+
+    .badge {
+      display: inline-block;
+      background: rgba(196,80,42,0.1);
+      color: var(--ember-dark);
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+
+    /* ════ GRID / TABLE ════ */
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .stat-box {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .stat-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 36px;
+      font-weight: 600;
+      color: var(--ember);
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--slate);
+      margin-top: 8px;
+      line-height: 1.4;
+    }
+
+    /* ════ NAVIGATION ════ */
+    .slide-nav {
+      position: fixed;
+      bottom: 40px;
+      right: 40px;
+      display: flex;
+      gap: 12px;
+      z-index: 100;
+    }
+
+    .nav-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--snow);
+      border: 1.5px solid var(--border);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: var(--slate);
+      transition: all 0.2s ease;
+    }
+
+    .nav-btn:hover {
+      background: var(--ember);
+      color: #fff;
+      border-color: var(--ember);
+    }
+
+    /* ════ FOOTER ════ */
+    .slide-footer {
+      position: fixed;
+      bottom: 20px;
+      left: 40px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      color: var(--mist);
+    }
+
+    .slide-number { font-weight: 600; }
+
+    /* ════ PROGRESS ════ */
+    .progress-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      background: var(--ember);
+      width: 0%;
+      transition: width 0.3s ease;
+      z-index: 99;
+    }
+
+    @media (max-width: 1024px) {
+      .slide { padding: 40px 60px; }
+      .slide h1 { font-size: 40px; }
+      .slide h2 { font-size: 32px; }
+      .two-col { grid-template-columns: 1fr; gap: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="slides">
+
+    <!-- ════ SLIDE 01: HERO ════ -->
+    <div class="slide hero active">
+      <div class="slide-content">
+        <p class="slide-label">Strategic Briefing</p>
+        <h1>MUSEON 競品策略<br><em>與 32 周行動計畫</em></h1>
+        <p style="font-size: 20px; color: rgba(255,255,255,0.7); margin-top: 24px;">
+          市場沒人站的位置 × 護城河有多寬 × 窗口期有多長
+        </p>
+      </div>
+      <p style="color: rgba(255,255,255,0.5); font-size: 14px;">2026-03-24 | MUSEON 內部決策文件</p>
+    </div>
+
+    <!-- ════ SLIDE 02: 核心論述 ════ -->
+    <div class="slide content">
+      <div class="slide-content">
+        <p class="slide-label">Opening</p>
+        <h2>市場上沒有直接競爭者</h2>
+        <p style="font-size: 20px; margin: 24px 0 32px;">
+          但有 <span class="hl">四類間接競爭者</span> 從不同方向逼近同一個市場空間。
+        </p>
+        <div class="card">
+          <p style="font-size: 18px; line-height: 1.8;">
+            <span class="hl">「MUC 的獨特組合是」</span><br>
+            AI Agent 管理 + License 授權 + Device 綁定 + 信任點計量 + 台灣中小企業。<br><br>
+            拆開來每個元素都有人做，<br>
+            但 <span class="hl">組在一起的目前只有你</span>。
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ SLIDE 03: 最大威脅 ════ -->
+    <div class="slide content">
+      <div class="slide-content">
+        <p class="slide-label">Threat Assessment</p>
+        <h2>最大威脅不是抄你的人</h2>
+        <p style="font-size: 20px; margin-bottom: 32px;">
+          而是 <span class="hl">通用型 AI 平台</span>（ChatGPT Teams / Copilot）把價格壓到客戶覺得「差不多就好」
+        </p>
+        <div class="grid-4" style="margin-top: 48px;">
+          <div class="stat-box">
+            <div style="font-size: 14px; font-weight: 600; color: var(--ember); margin-bottom: 8px;">ChatGPT Teams</div>
+            <div class="stat-num">$25</div>
+            <div class="stat-label">/人/月</div>
+          </div>
+          <div class="stat-box">
+            <div style="font-size: 14px; font-weight: 600; color: var(--ember); margin-bottom: 8px;">Claude Teams</div>
+            <div class="stat-num">$25-30</div>
+            <div class="stat-label">/人/月</div>
+          </div>
+          <div class="stat-box">
+            <div style="font-size: 14px; font-weight: 600; color: var(--ember); margin-bottom: 8px;">Copilot</div>
+            <div class="stat-num">$21-30</div>
+            <div class="stat-label">/人/月</div>
+          </div>
+          <div class="stat-box">
+            <div style="font-size: 14px; font-weight: 600; color: var(--ember); margin-bottom: 8px;">Gemini</div>
+            <div class="stat-num">$20</div>
+            <div class="stat-label">/人/月</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ SLIDE 04: 護城河 ════ -->
+    <div class="slide content">
+      <div class="slide-content">
+        <p class="slide-label">Moat Analysis</p>
+        <h2>MUSEON 的護城河</h2>
+        <ul style="margin-top: 48px;">
+          <li><span class="hl">授權閉環</span> — 市場上沒第二家做 Ed25519 簽章 + Pre-Job Check</li>
+          <li><span class="hl">信任點計量</span> — 通用平台不做按點計費 + 超額帳單</li>
+          <li><span class="hl">台灣中小企業 + 繁體中文</span> — 國際平台的在地化很粗糙</li>
+          <li><span class="hl">記憶 + SOP 自動化</span> — 差距會縮小，但目前只有我們有</li>
+        </ul>
+        <div class="card" style="margin-top: 48px; background: rgba(196,80,42,0.08); border-color: var(--ember-light);">
+          <p style="color: var(--ink);">
+            <span class="hl">弱點</span>：品牌認知新，客戶前期容易被搶。<br>
+            但一旦 SOP 建進去、記憶累積了，轉換成本極高。
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ SLIDE 05: EgentHub ════ -->
+    <div class="slide content">
+      <div class="slide-content">
+        <p class="slide-label">Local Competitor</p>
+        <h2>EgentHub — 最接近的台灣本土對手</h2>
+        <p>已有百家企業採用，主攻製造業</p>
+        <div class="two-col" style="margin-top: 48px;">
+          <div class="card">
+            <h3 style="color: var(--ember); margin-bottom: 16px;">他們的優勢</h3>
+            <ul>
+              <li>Google 推薦</li>
+              <li>地端 + 混合雲</li>
+              <li>多模型支援</li>
+              <li>製造業深耕</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3 style="color: var(--ember); margin-bottom: 16px;">我們的差異</h3>
+            <ul>
+              <li>服務業 + 顧問業</li>
+              <li>「現成的員工」</li>
+              <li>License 綁定</li>
+              <li>中小企業定價</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ SLIDE 06: 三大缺口 ════ -->
+    <div class="slide divider">
+      <div class="slide-content">
+        <p class="slide-label">Critical Gaps</p>
+        <h2>三大市場缺口</h2>
+        <p style="font-size: 20px; color: rgba(255,255,255,0.7);">
+          不是產品缺口，是認知缺口和黏著度缺口
+        </p>
+      </div>
+    </div>
+
+    <!-- ════ SLIDE 07: 缺口 1 ════ -->
+    <div class="slide content">
+      <div class="slide-content">
+        <p class="slide-label">Gap 01</p>
+        <h2>「是什麼」vs「為什麼用」</h2>
+        <p style="font-size: 18px; margin-bottom: 32px;">Landing Page 把我們定位成「功能列表」</p>
+        <div class="card" style="background: rgba(196,80,42,0.1); border-color: var(--ember);">
+          <h3 style="color: var(--ember-dark); margin-bottom: 16px;">❌ 現狀</h3>
+          <p>「支援多模型」「設備綁定」「權限控管」<br>
+          訪客讀完還是不懂「我為什麼要用它」</p>
+        </div>
+        <div class="card" style="margin-top: 24px; background: rgba(42,122,110,0.1); border-color: var(--teal);">
+          <h3 style="color: var(--teal); margin-bottom: 16px;">✅ 解法</h3>
+          <p>用決策金字塔重新包裝訊息<br>
+          <span class="hl">"ChatGPT 幫你執行得快；MUSEON 幫你決策得對。"</span></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ SLIDE 08: 缺口 2 ════ -->
+    <div class="slide content">
+      <div class="slide-content">
+        <p class="slide-label">Gap 02</p>
+        <h2>「新鮮度」vs「可重複」</h2>
+        <p style="font-size: 18px; margin-bottom: 32px;">ChatGPT 每次都生不同答案；CEO 需要每次都一樣好的執行</p>
+        <div class="card" style="background: rgba(196,80,42,0.1); border-color: var(--ember);">
+          <h3 style="color: var(--ember-dark); margin-bottom: 16px;">❌ 問題</h3>
+          <p>電商老闆每週要上線新品，每次都要生新檢查清單。累。</p>
+        </div>
+        <div class="card" style="margin-top: 24px; background: rgba(42,122,110,0.1); border-color: var(--teal);">
+          <h3 style="color: var(--teal); margin-bottom: 16px;">✅ 解法</h3>
+          <p>收集 3-5 個真實客戶案例，展示「SOP 越用越精準」</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ SLIDE 09: 缺口 3 ════ -->
+    <div class="slide content">
+      <div class="slide-content">
+        <p class="slide-label">Gap 03</p>
+        <h2>「多功能」vs「專注一件事」</h2>
+        <p style="font-size: 18px; margin-bottom: 32px;">我們試圖 cover ChatGPT、Copilot、授權、CRM……結果樣樣鬆</p>
+        <div class="card" style="background: rgba(196,80,42,0.1); border-color: var(--ember);">
+          <h3 style="color: var(--ember-dark); margin-bottom: 16px;">❌ 現狀</h3>
+          <p>「我到底用它來做什麼？」訪客困惑。</p>
+        </div>
+        <div class="card" style="margin-top: 24px; background: rgba(42,122,110,0.1); border-color: var(--teal);">
+          <h3 style="color: var(--teal); margin-bottom: 16px;">✅ 解法：垂直細分</h3>
+          <ul style="margin: 0;">
+            <li><span class="hl-gold">顧問業</span> — 每個 case 都是重複 SOP</li>
+            <li><span class="hl-gold">服務業</span> — 客戶交付流程複雜</li>
+            <li><span class="hl-gold">電商</span> — 內容、選品、決策支援</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ SLIDE 10: 市場利多 ════ -->
+    <div class="slide content">
+      <div class="slide-content">
+        <p class="slide-label">Market Tailwinds</p>
+        <h2>市場環境正在加速對我們有利</h2>
+        <ul style="margin-top: 48px; font-size: 18px;">
+          <li>🇹🇼 台灣政府投入 NT$100 億 AI 基金</li>
+          <li>📈 中小企業 AI 導入需求爆發（已協助 2,500 家）</li>
+          <li>🤖 「數字員工」概念已被驗證（中國市場領先）</li>
+          <li>💳 SaaS 轉向訂閱制 + 按量計費（我們的模式符合趨勢）</li>
+          <li>🔒 企業對資料安全越來越在意（我們的本地部署方案符合需求）</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ════ SLIDE 11: 目標族群 ════ -->
+    <div class="slide divider">
+      <div class="slide-content">
+        <p class="slide-label">Segmentation</p>
+        <h2>目標族群細分</h2>
+        <p style="font-size: 20px; color: rgba(255,255,255,0.7);">
+          不打「所有中小企業」，打垂直
+        </p>
+      </div>
+    </div>
+
+    <!-- ════ SLIDE 12: 優先族群 ════ -->
+    <div class="slide content">
+      <div class="slide-content">
+        <p class="slide-label">Priority Segment</p>
+        <h2>優先族群：顧問 & 服務業老闆</h2>
+        <div class="two-col" style="margin-top: 48px;">
+          <div>
+            <h3 style="color: var(--ember); margin-bottom: 16px;">他們的痛點</h3>
+            <ul>
+              <li>每個案子做一遍同樣流程</li>
+              <li>員工一直問「下一步是什麼」</li>
+              <li>交付品質不一致</li>
+              <li>想擴大但招不到對的人</li>
+            </ul>
+          </div>
+          <div>
+            <h3 style="color: var(--teal); margin-bottom: 16px;">MUSEON 的價值</h3>
+            <ul>
+              <li>AI 員工自動跑每個 case 的 SOP</li>
+              <li>記住客戶偏好，每次更精準</li>
+              <li>品質穩定，效率提升 40-50%</li>
+              <li>不是「寫東西」而是「做流程」</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ SLIDE 13: 訊息框架 ════ -->
+    <div class="slide content">
+      <div class="slide-content">
+        <p class="slide-label">Messaging</p>
+        <h2>訊息框架（給顧問 / 服務業老闆）</h2>
+        <div class="card" style="margin-top: 48px; background: var(--deep-ink); color: #fff; border: 2px solid var(--ember-light); text-align: center; padding: 40px;">
+          <p style="font-size: 24px; font-weight: 500; line-height: 1.8; color: #fff;">
+            「ChatGPT 幫你執行得快。<br>
+            <span style="color: var(--ember-light);">MUSEON 幫你記住你的做事方法，</span><br>
+            每次都做得一樣好。」
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ SLIDE 14: 共同創造 ════ -->
+    <div class="slide content">
+      <div class="slide-content">
+        <p class="slide-label">Co-creation</p>
+        <h2>共同創造型客戶方案</h2>
+        <p style="font-size: 18px; margin-bottom: 32px;">「你告訴我你的 SOP，我幫你把它自動化」</p>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 32px;">
+          <div class="card">
+            <h3 style="color: var(--ember); font-size: 16px; margin-bottom: 12px;">第 1-2 周</h3>
+            <p style="font-size: 14px;">診斷：你的核心流程是什麼？哪一步最浪費時間？</p>
+          </div>
+          <div class="card">
+            <h3 style="color: var(--ember); font-size: 16px; margin-bottom: 12px;">第 3-4 周</h3>
+            <p style="font-size: 14px;">建置：協助參數化 SOP，開發 Agent 配置</p>
+          </div>
+          <div class="card">
+            <h3 style="color: var(--ember); font-size: 16px; margin-bottom: 12px;">第 5-6 周</h3>
+            <p style="font-size: 14px;">驗證：實際跑 3-5 案子，微調 SOP</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ SLIDE 15: 32 周計畫 ════ -->
+    <div class="slide divider">
+      <div class="slide-content">
+        <p class="slide-label">Roadmap</p>
+        <h2>32 周優先行動計畫</h2>
+        <p style="font-size: 20px; color: rgba(255,255,255,0.7);">
+          四個 8 周循環，從認知改造到客戶深化
+        </p>
+      </div>
+    </div>
+
+    <!-- ════ SLIDE 16: 第 1 周期 ════ -->
+    <div class="slide content">
+      <div class="slide-content">
+        <p class="slide-label">Weeks 1-8</p>
+        <h2>第一個 8 周：認知改造</h2>
+        <ul style="margin-top: 48px; font-size: 18px;">
+          <li><span class="hl">周 1-2</span> | Landing Page 重構（從功能列表改成決策金字塔）</li>
+          <li><span class="hl">周 3-4</span> | 收集 3 個客戶案例（真實、可說、可量化）</li>
+          <li><span class="hl">周 5-6</span> | Vertical Positioning（優先面向顧問 & 服務業）</li>
+          <li><span class="hl">周 7-8</span> | 定價和授權模型澄清</li>
+        </ul>
+        <div class="card" style="margin-top: 48px; background: rgba(42,122,110,0.1); border-color: var(--teal);">
+          <p style="color: var(--ink);">✅ 成功指標：新進客戶清楚「我為什麼要用 MUSEON」</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ SLIDE 17: 第 2 周期 ════ -->
+    <div class="slide content">
+      <div class="slide-content">
+        <p class="slide-label">Weeks 9-16</p>
+        <h2>第二個 8 周：客戶獲取加速</h2>
+        <ul style="margin-top: 48px; font-size: 18px;">
+          <li><span class="hl">周 9-10</span> | 免費試用機制（14 天診斷 + 30 天試用）</li>
+          <li><span class="hl">周 11-12</span> | EgentHub 監控系統</li>
+          <li><span class="hl">周 13-14</span> | 記憶 + SOP 深度文案</li>
+          <li><span class="hl">周 15-16</span> | 第 2 批客戶案例（3 個，共 6 個）</li>
+        </ul>
+        <div class="card" style="margin-top: 48px; background: rgba(42,122,110,0.1); border-color: var(--teal);">
+          <p style="color: var(--ink);">✅ 成功指標：試用轉化率 > 20%，案例庫達 6 個</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ SLIDE 18: 第 3 周期 ════ -->
+    <div class="slide content">
+      <div class="slide-content">
+        <p class="slide-label">Weeks 17-24</p>
+        <h2>第三個 8 周：行業深化</h2>
+        <ul style="margin-top: 48px; font-size: 18px;">
+          <li><span class="hl">周 17-18</span> | 顧問業 SOP 標準化模板上線</li>
+          <li><span class="hl">周 19-20</span> | 服務業（室設 / 裝修）SOP 模板上線</li>
+          <li><span class="hl">周 21-22</span> | 品牌識別強化（「思維品質引擎」敘事）</li>
+          <li><span class="hl">周 23-24</span> | API 授權模組文檔化（預研）</li>
+        </ul>
+        <div class="card" style="margin-top: 48px; background: rgba(42,122,110,0.1); border-color: var(--teal);">
+          <p style="color: var(--ink);">✅ 成功指標：有 2 個可商品化的垂直行業模板</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ SLIDE 19: 第 4 周期 ════ -->
+    <div class="slide content">
+      <div class="slide-content">
+        <p class="slide-label">Weeks 25-32</p>
+        <h2>第四個 8 周：成熟化 & 規劃</h2>
+        <ul style="margin-top: 48px; font-size: 18px;">
+          <li><span class="hl">周 25-28</span> | 內容營銷加速（每週 2 篇）</li>
+          <li><span class="hl">周 27-30</span> | 客戶成功團隊建立（定期回顧會）</li>
+          <li><span class="hl">周 31-32</span> | 32 周回顧 & Q2 規劃</li>
+        </ul>
+        <div class="card" style="margin-top: 48px; background: rgba(42,122,110,0.1); border-color: var(--teal);">
+          <p style="color: var(--ink);">✅ 成功指標：客戶續費率 > 80%，NPS > 50</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ SLIDE 20: 風險矩陣 ════ -->
+    <div class="slide content">
+      <div class="slide-content">
+        <p class="slide-label">Risk Management</p>
+        <h2>五大風險矩陣</h2>
+        <ul style="margin-top: 48px; font-size: 16px;">
+          <li>🔴 <span class="hl">高機率 + 高衝擊</span> | ChatGPT 推低價 Agent + 客戶覺得「夠用了」<br><span style="color: var(--mist);">應對：用案例證明 ROI，不打功能戰</span></li>
+          <li>🟡 <span class="hl">中機率 + 中高衝擊</span> | EgentHub 推中小企業版<br><span style="color: var(--mist);">應對：強化垂直場景優勢</span></li>
+          <li>🟡 <span class="hl">中機率 + 中衝擊</span> | 政府補助競品<br><span style="color: var(--mist);">應對：申請同類補助</span></li>
+          <li>⚠️ <span class="hl">低機率 + 高衝擊</span> | 中國平台透過代理進台灣<br><span style="color: var(--mist);">應對：資安 + 政府關係防護</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ════ SLIDE 21: 應對原則 ════ -->
+    <div class="slide dark">
+      <div class="slide-content">
+        <p class="slide-label">Crisis Response</p>
+        <h2>一旦風險發生，我們的應對原則</h2>
+        <ul style="margin-top: 48px; font-size: 18px;">
+          <li><span class="hl-gold">原則 1：不打功能戰，打效果戰</span><br>
+          <span style="font-size: 16px;">帶客戶看案例，用 MUSEON 的顧問公司效率提升 50%</span></li>
+          <li style="margin-top: 24px;"><span class="hl-gold">原則 2：客戶鎖定優先於客戶獲取</span><br>
+          <span style="font-size: 16px;">前 6 周讓 SOP 和記憶深度綁定，轉換成本越高越安全</span></li>
+          <li style="margin-top: 24px;"><span class="hl-gold">原則 3：垂直深化優於橫向擴展</span><br>
+          <span style="font-size: 16px;">在服務業做到無人能及，再慢慢橫向</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ════ SLIDE 22: 成功指標 ════ -->
+    <div class="slide content">
+      <div class="slide-content">
+        <p class="slide-label">Success Metrics</p>
+        <h2>32 周末的成功指標</h2>
+        <div class="two-col" style="margin-top: 48px;">
+          <div>
+            <h3 style="color: var(--ember); margin-bottom: 24px;">定量指標</h3>
+            <ul style="font-size: 16px;">
+              <li>簽約客戶：5-8 家</li>
+              <li>月營收（MRR）：NT$500k-800k</li>
+              <li>續費率：> 80%</li>
+              <li>NPS：> 50</li>
+              <li>案例數：6+</li>
+            </ul>
+          </div>
+          <div>
+            <h3 style="color: var(--teal); margin-bottom: 24px;">定性指標</h3>
+            <ul style="font-size: 16px;">
+              <li>✅ 「不是 ChatGPT」認知建立</li>
+              <li>✅ 客戶清晰說出使用原因</li>
+              <li>✅ 有 3+ 家願意主動推薦</li>
+              <li>✅ 團隊清晰市場定位</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ SLIDE 23: 時間窗口 ════ -->
+    <div class="slide content">
+      <div class="slide-content">
+        <p class="slide-label">Timeline</p>
+        <h2>窗口期有多長？</h2>
+        <div class="card" style="margin-top: 48px; border-left: 4px solid var(--gold); padding: 32px;">
+          <p style="font-size: 20px; line-height: 1.8; color: var(--ink);">
+            <span class="hl-gold">12-18 個月</span><br><br>
+            在這段時間內，你必須做到<br>
+            「<span class="hl">客戶的 SOP 和記憶深度綁定在 MUSEON 上</span>」<br><br>
+            不是功能綁定，而是<span class="hl">行為綁定</span>。<br>
+            客戶用得越久，越離不開。<br>
+            這就是我們的護城河。
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ SLIDE 24: 市場機會 ════ -->
+    <div class="slide dark">
+      <div class="slide-content">
+        <p class="slide-label">Market Size</p>
+        <h2>潛在市場有多大？</h2>
+        <div class="grid-4" style="margin-top: 48px;">
+          <div class="stat-box" style="background: var(--raised); border-color: var(--surface);">
+            <div style="color: #fff;">台灣中小企業</div>
+            <div class="stat-num" style="color: var(--ember-light);">133</div>
+            <div style="font-size: 12px; color: rgba(255,255,255,0.6);">萬家</div>
+          </div>
+          <div class="stat-box" style="background: var(--raised); border-color: var(--surface);">
+            <div style="color: #fff;">月營收 100+ 萬</div>
+            <div class="stat-num" style="color: var(--ember-light);">30</div>
+            <div style="font-size: 12px; color: rgba(255,255,255,0.6);">萬家</div>
+          </div>
+          <div class="stat-box" style="background: var(--raised); border-color: var(--surface);">
+            <div style="color: #fff;">已導入 AI</div>
+            <div class="stat-num" style="color: var(--ember-light);">2.5k</div>
+            <div style="font-size: 12px; color: rgba(255,255,255,0.6);">家</div>
+          </div>
+          <div class="stat-box" style="background: var(--raised); border-color: var(--surface);">
+            <div style="color: #fff;">滲透率</div>
+            <div class="stat-num" style="color: var(--ember-light);">&lt;1%</div>
+            <div style="font-size: 12px; color: rgba(255,255,255,0.6);">藍海</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ SLIDE 25: 核心行動 ════ -->
+    <div class="slide content">
+      <div class="slide-content">
+        <p class="slide-label">Priorities</p>
+        <h2>立即執行的三個核心行動</h2>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px;">
+          <div class="card" style="border-top: 3px solid var(--ember);">
+            <h3 style="color: var(--ember); margin-bottom: 16px; font-size: 18px;">1️⃣ Landing Page</h3>
+            <p style="font-size: 15px;">從功能列表改成決策金字塔。Headline：決策型 AI 員工。</p>
+            <p style="font-size: 13px; color: var(--mist); margin-top: 12px;">周 1-2</p>
+          </div>
+          <div class="card" style="border-top: 3px solid var(--ember);">
+            <h3 style="color: var(--ember); margin-bottom: 16px; font-size: 18px;">2️⃣ 客戶案例</h3>
+            <p style="font-size: 15px;">收集 3 個真實案例，展示「SOP 越用越精準」的進程。</p>
+            <p style="font-size: 13px; color: var(--mist); margin-top: 12px;">周 3-4</p>
+          </div>
+          <div class="card" style="border-top: 3px solid var(--ember);">
+            <h3 style="color: var(--ember); margin-bottom: 16px; font-size: 18px;">3️⃣ 垂直定位</h3>
+            <p style="font-size: 15px;">明確「優先面向顧問 & 服務業」，不打「所有中小企業」。</p>
+            <p style="font-size: 13px; color: var(--mist); margin-top: 12px;">周 5-6</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ SLIDE 26: 總結 ════ -->
+    <div class="slide divider">
+      <div class="slide-content">
+        <p class="slide-label">Summary</p>
+        <h2>你現在站在一個沒人站的位置</h2>
+        <p style="font-size: 20px; color: rgba(255,255,255,0.8); margin-top: 32px; line-height: 1.8;">
+          不是因為這個位置不好。<br>
+          而是因為這個組合太新、太複雜、太難。<br><br>
+          <span style="color: var(--ember-light);">但正因為難，才是護城河。</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- ════ SLIDE 27: 行動號召 ════ -->
+    <div class="slide dark">
+      <div class="slide-content">
+        <p class="slide-label">Call to Action</p>
+        <h2>接下來 32 周，我們做什麼？</h2>
+        <p style="font-size: 20px; color: rgba(255,255,255,0.8); margin-top: 48px; line-height: 1.8;">
+          不是改功能。<br>
+          而是改客戶感知。改銷售故事。改成功流程。<br><br>
+          <span class="hl-gold">每一周都很關鍵。</span><br>
+          <span class="hl-gold">窗口期只有 12-18 個月。</span><br>
+          <span class="hl-gold">現在開始。</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- ════ SLIDE 28: 感謝 ════ -->
+    <div class="slide hero" style="background: linear-gradient(135deg, var(--ember) 0%, #a73a1f 100%);">
+      <div class="slide-content">
+        <p class="slide-label">Thank You</p>
+        <h1 style="color: #fff;">加油。<em style="font-style: italic; color: #fff;">我們一起做。</em></h1>
+      </div>
+      <p style="color: rgba(255,255,255,0.5); font-size: 14px;">
+        MUSEON 內部決策文件 | 2026-03-24
+      </p>
+    </div>
+
+  </div>
+
+  <!-- ════ NAVIGATION ════ -->
+  <div class="progress-bar" id="progressBar"></div>
+  <div class="slide-footer">
+    <span class="slide-number">1</span><span> / </span><span id="totalSlides">28</span>
+  </div>
+  <div class="slide-nav">
+    <button class="nav-btn" id="prevBtn" onclick="previousSlide()">←</button>
+    <button class="nav-btn" id="nextBtn" onclick="nextSlide()">→</button>
+  </div>
+
+  <script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    document.getElementById('totalSlides').textContent = totalSlides;
+
+    function showSlide(n) {
+      slides.forEach(slide => {
+        slide.classList.remove('active', 'prev');
+      });
+
+      if (n >= totalSlides) currentSlide = 0;
+      if (n < 0) currentSlide = totalSlides - 1;
+
+      slides[currentSlide].classList.add('active');
+      if (currentSlide > 0) {
+        slides[currentSlide - 1].classList.add('prev');
+      }
+
+      document.querySelector('.slide-number').textContent = currentSlide + 1;
+      const progress = ((currentSlide + 1) / totalSlides) * 100;
+      document.getElementById('progressBar').style.width = progress + '%';
+    }
+
+    function nextSlide() {
+      currentSlide++;
+      showSlide(currentSlide);
+    }
+
+    function previousSlide() {
+      currentSlide--;
+      showSlide(currentSlide);
+    }
+
+    // 鍵盤控制
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+      if (e.key === 'ArrowLeft') previousSlide();
+    });
+
+    showSlide(0);
+  </script>
+</body>
+</html>
