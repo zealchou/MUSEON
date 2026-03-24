@@ -4187,8 +4187,8 @@ async def _handle_telegram_message(adapter, message) -> None:
             )
 
             # ⛔ v10.7 ResponseGuard：session_id ↔ chat_id 交叉驗證
-            _origin_cid = str(message.metadata.get("chat_id", ""))
-            _session_group = message.session_id.rsplit("_", 1)[-1] if "telegram_group_" in message.session_id else ""
+            _origin_cid = str(message.metadata.get("chat_id", "")).lstrip("-")
+            _session_group = message.session_id.rsplit("_", 1)[-1].lstrip("-") if "telegram_group_" in message.session_id else ""
             _cross_leak = False
             if _session_group and _origin_cid and _session_group != _origin_cid:
                 logger.critical(
