@@ -25,7 +25,7 @@ fi
 SOURCE_FILE="$1"
 DEST_NAME="${2:-$(basename "$SOURCE_FILE")}"
 MUSEON_ROOT="${MUSEON_ROOT:-$HOME/MUSEON}"
-REPORTS_DIR="$MUSEON_ROOT/docs/_reports"
+REPORTS_DIR="$MUSEON_ROOT/docs/reports"
 
 # ─── Step 1: 驗證 ─────────────────────────
 echo "📋 驗證報告檔案..."
@@ -39,7 +39,7 @@ echo "✅ 檔案存在：$SOURCE_FILE ($FILE_SIZE)"
 
 # ─── Step 2: 複製到發布目錄 ─────────────────────────
 echo ""
-echo "📋 複製報告到 docs/_reports/..."
+echo "📋 複製報告到 docs/reports/..."
 mkdir -p "$REPORTS_DIR"
 cp "$SOURCE_FILE" "$REPORTS_DIR/$DEST_NAME"
 echo "✅ 已複製：$REPORTS_DIR/$DEST_NAME"
@@ -55,7 +55,7 @@ if [ "$CURRENT_BRANCH" != "main" ]; then
     exit 1
 fi
 
-git add "docs/_reports/$DEST_NAME"
+git add "docs/reports/$DEST_NAME"
 TIMESTAMP=$(date '+%Y-%m-%d %H:%M')
 git commit -m "report: 發佈 $DEST_NAME（$TIMESTAMP）"
 echo "✅ 已提交"
@@ -64,12 +64,12 @@ echo "✅ 已提交"
 echo ""
 echo "📋 推送到 GitHub..."
 git push origin main
-echo "✅ 已推送（GitHub Actions 將自動部署）"
+echo "✅ 已推送（GitHub Pages 將自動部署）"
 
 # ─── Step 5: 驗證連結 ─────────────────────────
 echo ""
 echo "📋 等待 GitHub Pages 部署（30 秒）..."
-EXTERNAL_URL="https://zealchou.github.io/MUSEON/$DEST_NAME"
+EXTERNAL_URL="https://zealchou.github.io/MUSEON/reports/$DEST_NAME"
 sleep 30
 
 HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$EXTERNAL_URL")
