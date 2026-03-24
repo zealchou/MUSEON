@@ -5,6 +5,31 @@
 
 ---
 
+## [v9.4] 2026-03-24 — 操作記憶層架構 + 第六張藍圖
+
+### 新增檔案
+| 檔案 | 用途 |
+|------|------|
+| `docs/operational-contract.md` v1.0 | 第六張藍圖——外部操作的預期失敗 × 重試策略 × 降級方案（4 個操作契約） |
+| `docs/project-operational-memory.md` | Procedure Crystal + 操作記憶層設計文件（7 迭代計畫） |
+| `scripts/workflows/restart-gateway.sh` v1.0 | Gateway 安全重啟腳本（遵守重啟鐵律） |
+
+### 修改清單
+| # | 修改 | 檔案 | 行為變化 |
+|---|------|------|---------|
+| 1 | Tier 0 可執行性檢查 | `CLAUDE.md` | Skill Forge 最前置檢查——涉及外部操作的 Workflow 必須有可執行腳本 |
+| 2 | 驗證鐵律 | `CLAUDE.md` | 外部操作完成後必須驗證結果，失敗不推播 |
+| 3 | 操作契約表 | `docs/operational-contract.md` | OP-01~OP-04：Pages 發布、Gateway 重啟、Telegram 發送、HTML 生成 |
+| 4 | 操作記憶路由 | `docs/memory-router.md` v1.7 | 新增規則 7——PROCEDURE 結晶路由 |
+| 5 | 拓撲版本 | `docs/system-topology.md` v1.48 | 記錄操作記憶層架構變更 |
+| 6 | 爆炸圖版本 | `docs/blast-radius.md` v1.61 | 新增 scripts/workflows/ 影響分析 |
+| 7 | 3D 心智圖 | `data/workspace/MUSEON_3d_mindmap.html` | v1.48 同步 |
+
+**影響範圍**：文件層 + 腳本層 + 工程治理層。不影響 Brain/Gateway Python 運行時。
+**DSE 來源**：CodeMem (arXiv:2512.15813), ReMe (arXiv:2512.10696), SWE-Bench-CL, Devin Playbook
+
+---
+
 ## [v9.3] 2026-03-24 — GitHub Pages DSE 根因修復 + 可執行工作流架構
 
 ### DSE 根因分析（4 個系統性根因）
