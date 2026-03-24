@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.48
+# MUSEON 系統拓撲圖 v1.49
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.49 (2026-03-24)**：全面審計——修正統計摘要表（184→194 節點、456→481 連線），使摘要與版本紀錄一致。同步 blast-radius v1.62、joint-map v1.41、persistence-contract v1.34。
 > **v1.48 (2026-03-24)**：操作記憶層架構——新增第六張藍圖 `operational-contract.md`（操作契約表）；新增 `scripts/workflows/` 可執行工作流目錄（publish-report.sh v4.0, restart-gateway.sh v1.0）；CLAUDE.md 新增 Tier 0 可執行性檢查 + 驗證鐵律；新增 `project-operational-memory.md` Procedure Crystal 設計文件；194 節點 481 連線（無新節點，純文件/腳本層變更）
 > **v1.47 (2026-03-24)**：跨群組洩漏防禦——gov 群組新增 `response-guard` 節點（ResponseGuard 發送前 chat_id 二次驗證閘門，`governance/response_guard.py`）；新增 3 條連線（governance→response-guard internal、gateway→response-guard cross 發送前驗證、brain→response-guard cross 註冊 origin_chat_id）；194 節點 481 連線
 > **v1.46 (2026-03-23)**：推送品質修復——pulse 群組新增 `push-budget` 節點（PushBudget 全局推送預算管理器）；新增 3 條 internal 連線（push-budget→pulse-db、pulse-engine→push-budget、proactive-bridge→push-budget）；193 節點 478 連線
@@ -1033,8 +1034,8 @@ external-user（EXTERNAL）
 
 | 指標 | 數值 |
 |------|------|
-| 總節點數 | 184 (134 系統 + 50 Skills) |
-| 總連線數 | 456 (353 系統 + 103 Skills) |
+| 總節點數 | 194 (144 系統 + 50 Skills) |
+| 總連線數 | 481 (378 系統 + 103 Skills) |
 | 群組數 | 14 (含 skills) |
 | Hub 節點 | 18 (11 系統 + 7 Skills Hub) |
 | 跨系統連線 | 186 (151 系統 + 35 Skills cross) |

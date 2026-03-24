@@ -23,7 +23,7 @@ connects_to:
 description: >
   外掛模組註冊表（Plugin Registry）v2.4 — DNA27 核心的參考文件，
   管理所有 MUSEON 外掛模組的註冊資訊、迴圈允許規則、RC 親和對照、協作矩陣與共存規則。
-  已註冊外掛：51 個（含 10 常駐 + 36 按需 + 1 參考 + 4 工作流），分佈於 9 個 Hub。
+  已註冊外掛：53 個（含 10 常駐 + 38 按需 + 1 參考 + 4 工作流），分佈於 9 個 Hub。
   此文件為 dna27/references 底下的治理參考文件，非獨立 Skill，不可被單獨觸發。
   觸發時機：DNA27 路由、orchestrator 編排、morphenix 迭代時自動參照。
   指令觸發：無獨立指令。透過 /orchestrate、/morphenix fitness、/morphenix status 間接使用。
@@ -36,7 +36,7 @@ description: >
 # 外掛模組註冊表（Plugin Registry）v2.4
 
 > **上次更新**：2026-03-21
-> **已註冊外掛**：49 個（含 4 常駐 + 40 按需 + 1 參考 + 4 工作流），分佈於 9 個 Hub
+> **已註冊外掛**：53 個（含 10 常駐 + 38 按需 + 1 參考 + 4 工作流），分佈於 9 個 Hub
 > **治理文件**：`docs/skill-routing-governance.md`（Hub 路由 + Workflow Stage 規格）
 > **Manifest 規格**：`docs/skill-manifest-spec.md` v1.1（含 `hub` + `stages` 欄位）
 
@@ -105,11 +105,13 @@ DNA27（核心 OS）
 │   ├── orchestrator         （編排引擎）
 │   └── report-forge         （付費級產業診斷報告鍛造引擎）
 │
-├─ [Evolution Hub]（5）— 沙盒、品質審計、健康、決策
+├─ [Evolution Hub]（7）— 沙盒、品質審計、健康、決策、開發前後檢查
 │   ├── sandbox-lab          （沙盒實驗室）
 │   ├── qa-auditor           （品質審計引擎）
 │   ├── system-health-check  （系統健康自檢引擎）
 │   ├── decision-tracker     （決策歷史追蹤引擎）
+│   ├── dev-preflight        （開發前置飛行檢查，v2.4 新增）
+│   ├── dev-retro            （開發回溯引擎，v2.4 新增）
 │   └── tantra               （情慾治理引擎，研究階段）
 │
 └─ [Workflow Hub]（4）— 預製工作流範本

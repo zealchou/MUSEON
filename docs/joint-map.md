@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.40
+# Joint Map — 共享可變狀態接頭圖 v1.41
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -336,7 +336,7 @@
 
 ### 8. PulseDB (pulse.db)
 
-**路徑**：`data/pulse/pulse.db`
+**路徑**：`data/pulse/pulse.db`（注意：`data/_system/pulse/pulse.db` 為 0B 殭屍檔案，實際使用此路徑）
 **引擎**：SQLite WAL mode
 **用途**：VITA 生命力引擎結構化儲存（16 張表，含 push_log）
 
@@ -442,10 +442,10 @@
 
 ---
 
-### 11. immunity/events.jsonl
+### 11. immunity/events（v1.41 路徑修正）
 
-**路徑**：`data/_system/immunity/events.jsonl`
-**用途**：免疫系統事件日誌
+**路徑**：`data/_system/immunity.json`（v1.41 修正：原記 `events.jsonl` 目錄結構已改為扁平 JSON）
+**用途**：免疫系統事件與抗體記錄
 
 | 模組 | 操作 | 鎖 |
 |------|------|-----|
