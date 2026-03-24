@@ -154,3 +154,35 @@ L2 可以直接呼叫 MCP 工具查詢（前景等待結果）：
 | 紅區 | 扇入 ≥ 10 或 brain/server | 回報使用者 + 全量 pytest |
 | 黃區 | 扇入 2-9 | 查 blast-radius + joint-map |
 | 綠區 | 扇入 0-1 | 查 joint-map，跑單元測試 |
+
+---
+
+## 可執行工作流協議（Executable Workflow Protocol）
+
+> **教訓來源**：2026-03-24 GitHub Pages DSE——Skill 只有描述沒有可執行代碼，導致每次 Claude session 即興實作、反覆失敗。
+> **原則**：涉及外部操作的 Workflow 必須有 `scripts/workflows/<name>.sh`，Claude 執行腳本而非即興。
+
+### Tier 0: 可執行性檢查（Skill Forge 最前置）
+
+> 在 Tier 1 定義完整性之前，先過 Tier 0。外部操作 Workflow 不通過此檢查不得上線。
+
+1. □ 此 Skill/Workflow 涉及外部操作嗎？（git push、API 呼叫、檔案發送、服務重啟、網路請求）
+2. □ 如果是 → `scripts/workflows/<name>.sh` 存在嗎？
+3. □ 腳本有**驗證步驟**嗎？（不只做完，還確認做對了）
+4. □ 驗證失敗有 `exit 1` 嗎？（阻止下游推播錯誤結果）
+5. □ 腳本是 **idempotent** 的嗎？（重複執行不會壞）
+6. □ `docs/operational-contract.md` 有此操作的預期失敗清單嗎？
+
+### 鐵律：驗證通過前不可推播
+
+> Claude 和 MUSEON 都必須遵守。違反此規則 = 使用者打開 404 = 信任破產。
+
+1. 外部操作完成後，**必須驗證結果**（curl URL、檢查 API response）
+2. 驗證失敗 → 不發送連結、不通知使用者
+3. 腳本的 `VERIFIED_URL` 輸出為空 → 上層流程必須停止
+4. Gateway 報告發布 Workflow 也必須遵守此規則
+
+### 操作契約表（第六張藍圖）
+
+> `docs/operational-contract.md` 定義每個外部操作的「預期失敗 × 重試策略 × 降級方案」。
+> 類似 persistence-contract.md 的「寫入→消費」配對，改為「操作→監控→恢復」。

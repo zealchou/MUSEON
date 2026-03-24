@@ -1,10 +1,11 @@
-# Blast Radius — 模組影響半徑表 v1.60
+# Blast Radius — 模組影響半徑表 v1.61
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
-> **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節
+> **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節、`docs/operational-contract.md`（操作契約表）提供外部操作預期失敗
+> **v1.61 (2026-03-24)**：操作記憶層架構——新增第六張藍圖 `operational-contract.md`；新增 `scripts/workflows/` 可執行工作流腳本（publish-report.sh v4.0 綠區扇入=0、restart-gateway.sh v1.0 綠區扇入=0）；CLAUDE.md 新增 Tier 0 可執行性檢查 + 驗證鐵律。扇入扇出不變（純文件/腳本/CI 層變更，不影響 Python 模組）。
 > **v1.60 (2026-03-24)**：跨群組洩漏防禦 + 軍師認知升級——新增 `governance/response_guard.py` 到綠區（扇入=2：server.py + brain.py，ResponseGuard 發送前 chat_id 二次驗證閘門）；`governance/multi_tenant.py` 新增 `resolve_by_id()` 精確匹配（取代 FIFO `resolve_latest()`）；`brain.py` 新增 `_check_smart_completeness()` SMART 回答門檻 + `process()` finally 清空 `self._ctx` 及 6 個 alias（防跨群組殘留）+ `route()` 新增 `is_group` 參數傳遞；`brain_prompt_builder.py` 注入「軍師認知框架」system prompt + 群組禁止確認詞規則；`brain_p3_fusion.py` 新增 Roundtable ≥3 Skill 自動觸發融合；`reflex_router.py` `select_loop()`/`route()` 新增 `is_group` 參數（群組路由升級）；`server.py` session lock 改為 `wait_and_acquire(30s)` timeout 守衛。**注意**：軍師認知升級的修改在 `.runtime/src/museon/agent/` 中（gitignored），`src/` 合併版未同步。
 > **v1.58 (2026-03-23)**：OAuth Token 韌性重構——`adapters.py` `ClaudeCLIAdapter._get_oauth_token()` 從 2 層來源升級為 4 層：環境變數 → 持久化文件 → Claude Desktop credentials（`~/.claude/.credentials.json` 自動續期）→ 備份文件（永不刪除的最後防線）；Token 過期時不再 `unlink` 而是備份到 `.bak` + 標記 `.stale`（永不刪除策略）；`create_adapter_sync()` CLI-only 模式也包裝為 FallbackAdapter（支援 extended_thinking 等進階參數）；`preflight.py` ANTHROPIC_API_KEY 從必要降為選填（Max 方案用 CLI OAuth）。
 > **v1.57 (2026-03-23)**：Claude 原生能力全面接入——新增 `llm/vision.py`（Multimodal 圖片+PDF content block 構建，扇入 1：brain.py）；`brain.py` L1211 注入 `build_multimodal_content()` 構建 Vision/PDF content blocks（扇出 +1：vision.py）；`adapters.py` AnthropicAPIAdapter.call() 新增 `extended_thinking` + `thinking_budget` 參數，AdapterResponse 新增 `thinking` 欄位，新增 `count_tokens()` / `create_batch()` / `get_batch_status()` / `get_batch_results()` 方法（API 面不變）；FallbackAdapter.call() 新增 `extended_thinking` 傳遞（thinking 時直接走 API，CLI 不支援）；`brain_tools.py` `_call_llm()` 新增 `loop` 參數，SLOW_LOOP + 無 tool-use 時自動啟用 Extended Thinking；`budget.py` 新增 `count_tokens_precise()` + `set_api_adapter()` 接入 Token Counting API；`adapters.py` CLI `_build_prompt()` 新增 image/document type graceful degradation。

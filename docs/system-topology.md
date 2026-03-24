@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.47
+# MUSEON 系統拓撲圖 v1.48
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.48 (2026-03-24)**：操作記憶層架構——新增第六張藍圖 `operational-contract.md`（操作契約表）；新增 `scripts/workflows/` 可執行工作流目錄（publish-report.sh v4.0, restart-gateway.sh v1.0）；CLAUDE.md 新增 Tier 0 可執行性檢查 + 驗證鐵律；新增 `project-operational-memory.md` Procedure Crystal 設計文件；194 節點 481 連線（無新節點，純文件/腳本層變更）
 > **v1.47 (2026-03-24)**：跨群組洩漏防禦——gov 群組新增 `response-guard` 節點（ResponseGuard 發送前 chat_id 二次驗證閘門，`governance/response_guard.py`）；新增 3 條連線（governance→response-guard internal、gateway→response-guard cross 發送前驗證、brain→response-guard cross 註冊 origin_chat_id）；194 節點 481 連線
 > **v1.46 (2026-03-23)**：推送品質修復——pulse 群組新增 `push-budget` 節點（PushBudget 全局推送預算管理器）；新增 3 條 internal 連線（push-budget→pulse-db、pulse-engine→push-budget、proactive-bridge→push-budget）；193 節點 478 連線
 > **v1.45 (2026-03-23)**：Project Epigenesis（DNA 式記憶系統重構）——agent 群組新增 4 個節點（epigenetic-router 表觀遺傳路由器、memory-reflector 反思引擎、proactive-predictor 需求預判、adaptive-decay ACT-R 衰減）；pulse 群組新增 1 個節點（anima-changelog 差分追蹤）；新增 12 條 cross 連線；VectorBridge 新增 soul_rings collection（第 9 個）；192 節點 475 連線
