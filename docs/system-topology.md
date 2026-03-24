@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.46
+# MUSEON 系統拓撲圖 v1.47
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.47 (2026-03-24)**：跨群組洩漏防禦——gov 群組新增 `response-guard` 節點（ResponseGuard 發送前 chat_id 二次驗證閘門，`governance/response_guard.py`）；新增 3 條連線（governance→response-guard internal、gateway→response-guard cross 發送前驗證、brain→response-guard cross 註冊 origin_chat_id）；194 節點 481 連線
 > **v1.46 (2026-03-23)**：推送品質修復——pulse 群組新增 `push-budget` 節點（PushBudget 全局推送預算管理器）；新增 3 條 internal 連線（push-budget→pulse-db、pulse-engine→push-budget、proactive-bridge→push-budget）；193 節點 478 連線
 > **v1.45 (2026-03-23)**：Project Epigenesis（DNA 式記憶系統重構）——agent 群組新增 4 個節點（epigenetic-router 表觀遺傳路由器、memory-reflector 反思引擎、proactive-predictor 需求預判、adaptive-decay ACT-R 衰減）；pulse 群組新增 1 個節點（anima-changelog 差分追蹤）；新增 12 條 cross 連線；VectorBridge 新增 soul_rings collection（第 9 個）；192 節點 475 連線
 > **v1.44 (2026-03-23)**：三層調度員架構（腦手分離）——agent 群組新增 3 個節點（`dispatcher` L1 調度員、`thinker` L2 思考者、`worker` L3 工人）；新增 7 條 internal 連線；CLAUDE.md 改寫為 L1 調度員模式；新增 `data/_system/museon-persona.md` 人格隨身檔供 L2 載入；187 節點 463 連線
@@ -189,6 +190,7 @@ external-user（EXTERNAL）
 | `perception` | Perception | 四診合參感知 | - | governance | 0.9 |
 | `cognitive-receipt` | Cognitive Receipt | 認知收據格式定義 | - | governance | 0.7 |
 | `authorization` | Authorization | 配對碼 + 工具授權 + 分級策略 | - | governance | 1.0 |
+| `response-guard` | Response Guard | 發送前 chat_id 二次驗證閘門 | - | governance | 0.9 |
 
 ### doctor — Doctor 診斷
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -521,6 +523,7 @@ external-user（EXTERNAL）
 | `governor` | `dendritic-scorer` | immunity 未解決→健康分數 |
 | `governance` | `authorization` | 授權引擎 |
 | `authorization` | `security` | 三級策略查詢 |
+| `governance` | `response-guard` | 發送前 chat_id 驗證閘門 |
 
 ### Evolution 內部連線（internal）
 | Source | Target | 說明 |
@@ -795,6 +798,8 @@ external-user（EXTERNAL）
 | `gateway` | `doctor` | server.py:577+ 呼叫 doctor 全部子模組（health_check/audit/repair/surgeon 等） |
 | `gateway` | `tool-registry` | server.py:1780+ 呼叫 tools 群組 26 處 import |
 | `gateway` | `governance` | server.py:2846,:3709,:3843 bulkhead/multi_tenant/group_context |
+| `gateway` | `response-guard` | server.py 發送回覆前呼叫 ResponseGuard.validate() |
+| `brain` | `response-guard` | brain.py process() 開始時 register_origin() 註冊來源 chat_id |
 | `guardian` | `security` | daemon.py:566 安全審計日誌 |
 | `self-diagnosis` | `tool-registry` | self_diagnosis.py:246,:484 工具狀態查詢 |
 | `surgery` | `morphenix` | surgeon.py:47 morphenix_standards 引用 |

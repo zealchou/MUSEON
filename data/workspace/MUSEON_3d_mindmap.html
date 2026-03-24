@@ -323,8 +323,8 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 //  SYNC META — 拓撲同步狀態
 // ═══════════════════════════════════════
 const SYNC_META = {
-  topologyVersion: 'v1.46',
-  syncDate: '2026-03-23',
+  topologyVersion: 'v1.47',
+  syncDate: '2026-03-24',
   nodeCount: 0, // auto-calculated below
   linkCount: 0, // auto-calculated below
   skillUpgrades: [
@@ -477,6 +477,7 @@ const nodes = [
   {id:"perception",label:"Perception",zh:"四診合參感知",group:"gov",r:0.9,p:"governance"},
   {id:"preflight",label:"Preflight",zh:"啟動門",group:"gov",r:0.9,p:"governance"},
   {id:"refractory",label:"Refractory",zh:"斷路器",group:"gov",r:0.9,p:"governance",desc:"斷路器（三態+半開試探）"},
+  {id:"response-guard",label:"Response Guard",zh:"發送前 chat_id 二次驗證閘門",group:"gov",r:0.9,p:"governance"},
   {id:"sandbox",label:"Sandbox",zh:"沙盒隔離",group:"gov",r:0.8,p:"governance"},
   {id:"security",label:"Security",zh:"安全淨化與稽核",group:"gov",r:1.0,p:"governance"},
   {id:"service-health",label:"Service Health",zh:"服務監控",group:"gov",r:1.0,p:"governance"},
@@ -732,6 +733,7 @@ const links = [
   {source:"governance",target:"perception",label:"感知",type:"internal"},
   {source:"governance",target:"preflight",label:"啟動門",type:"internal"},
   {source:"governance",target:"refractory",label:"斷路",type:"internal"},
+  {source:"governance",target:"response-guard",label:"發送前 chat_id 驗證閘門",type:"internal"},
   {source:"governance",target:"sandbox",label:"沙盒",type:"internal"},
   {source:"governance",target:"security",label:"安全",type:"internal"},
   {source:"governance",target:"service-health",label:"監控",type:"internal"},
@@ -855,6 +857,7 @@ const links = [
   {source:"brain",target:"okr-router",label:"brain.py:766 OKR 路由呼叫",type:"cross"},
   {source:"brain",target:"pulse",label:"brain.py:361 async_write_queue",type:"cross"},
   {source:"brain",target:"pulse-db",label:"brain.py:393 token_budget（pulse 包下）",type:"cross"},
+  {source:"brain",target:"response-guard",label:"brain.py process() 開始時 register_origin() 註冊來源 chat_id",type:"cross"},
   {source:"brain",target:"tool-muscle",label:"brain.py:227 ModuleSpec + L1442 record_use()",type:"cross"},
   {source:"brain",target:"trigger-weights",label:"brain.py:237 ModuleSpec 觸發權重",type:"cross"},
   {source:"brain-dispatch",target:"pulse-db",label:"brain_dispatch.py:652 orchestrator_calls",type:"cross"},
@@ -915,6 +918,7 @@ const links = [
   {source:"gateway",target:"multiagent",label:"server.py:1700,:1734,:1762 department_config/shared_assets/okr_router",type:"cross"},
   {source:"gateway",target:"nightly",label:"server.py:1163+ 呼叫 10+ 個 nightly 子模組",type:"cross"},
   {source:"gateway",target:"research-engine",label:"server.py:5721 研究引擎觸發",type:"cross"},
+  {source:"gateway",target:"response-guard",label:"server.py 發送回覆前呼叫 ResponseGuard.validate()",type:"cross"},
   {source:"gateway",target:"sandbox",label:"server.py:2519,:2539 ExecutionSandbox",type:"cross"},
   {source:"gateway",target:"skill-market",label:"server.py:4456,:4471,:4491 SkillMarket API",type:"cross"},
   {source:"gateway",target:"tool-registry",label:"server.py:1780+ 呼叫 tools 群組 26 處 import",type:"cross"},
@@ -1090,6 +1094,7 @@ const links = [
   {source:"verified-user",target:"anima-mc-store",label:"配對使用者互動更新 ANIMA_USER（L1-L8 觀察）",type:"async"},
   {source:"zeal",target:"anima-mc-store",label:"Owner 互動觸發 ANIMA_MC 更新（boss_name、self_awareness）",type:"async"},
 ];
+
 
 
 
