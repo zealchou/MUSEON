@@ -302,8 +302,25 @@ class EscalationQueue:
         self._pending[escalation_id]["allowed"] = allowed
         return True
 
+    def resolve_by_id(self, escalation_id: str, allowed: bool) -> bool:
+        """精確解析指定 ID 的 escalation（優先使用）.
+
+        比 resolve_latest() 更安全：不會解析到錯誤群組的 escalation。
+        Owner 回覆 #eid 時使用此方法。
+        """
+        if escalation_id in self._pending:
+            entry = self._pending[escalation_id]
+            if not entry["resolved"] and not self.is_timed_out(escalation_id):
+                self.resolve(escalation_id, allowed)
+                return True
+        return False
+
     def resolve_latest(self, allowed: bool) -> Optional[str]:
-        """Resolve the oldest unresolved escalation (FIFO across all groups)."""
+        """Resolve the oldest unresolved escalation (FIFO across all groups).
+
+        ⚠️ 此方法為 fallback — 多群組同時有 escalation 時可能解析到錯誤群組。
+        優先使用 resolve_by_id() 精確解析。
+        """
         for eid in self._order:
             if eid in self._pending:
                 entry = self._pending[eid]
