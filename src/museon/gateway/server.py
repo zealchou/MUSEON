@@ -6252,6 +6252,72 @@ def _register_system_cron_jobs(brain, app=None) -> None:
         hours=1,
     )
 
+    # ── MuseWorker + MuseOff + MuseQA + MuseDoc（自主維運四角色）──
+    try:
+        from museon.doctor.museworker import MuseWorker
+        from museon.doctor.museoff import MuseOff
+        from museon.doctor.museqa import MuseQA
+        from museon.doctor.musedoc import MuseDoc
+
+        _muse_worker = MuseWorker(data_dir.parent)
+        _muse_off = MuseOff(data_dir.parent)
+        _muse_qa = MuseQA(data_dir.parent)
+        _muse_doc = MuseDoc(data_dir.parent)
+
+        # MuseWorker: 每 6 小時全量快照
+        cron_engine.add_job(
+            _muse_worker.full_snapshot, trigger="interval", job_id="museworker-snapshot",
+            hours=6,
+        )
+        # MuseOff L0: 每 60 秒 liveness
+        cron_engine.add_job(
+            _muse_off.probe_liveness, trigger="interval", job_id="museoff-l0",
+            seconds=60,
+        )
+        # MuseOff L1: 每 5 分鐘 readiness
+        cron_engine.add_job(
+            _muse_off.probe_readiness, trigger="interval", job_id="museoff-l1",
+            minutes=5,
+        )
+        # MuseOff L2: 每 30 分鐘 import guard
+        cron_engine.add_job(
+            _muse_off.probe_import, trigger="interval", job_id="museoff-l2",
+            minutes=30,
+        )
+        # MuseOff L3: 每 60 分鐘 config validator
+        cron_engine.add_job(
+            _muse_off.probe_config, trigger="interval", job_id="museoff-l3",
+            minutes=60,
+        )
+        # MuseOff L4: 每 2 小時 regression
+        cron_engine.add_job(
+            _muse_off.probe_regression, trigger="interval", job_id="museoff-l4",
+            hours=2,
+        )
+        # MuseOff L5: 每 6 小時 chaos
+        cron_engine.add_job(
+            _muse_off.probe_chaos, trigger="interval", job_id="museoff-l5",
+            hours=6,
+        )
+        # MuseOff L6: 每天 15:00 blueprint drift
+        cron_engine.add_job(
+            _muse_off.probe_blueprint, trigger="cron", job_id="museoff-l6",
+            hour=15, minute=0,
+        )
+        # MuseQA: 每 15 分鐘品質掃描
+        cron_engine.add_job(
+            _muse_qa.scan_recent, trigger="interval", job_id="museqa-scan",
+            minutes=15,
+        )
+        # MuseDoc: 每天 04:00 夜間手術
+        cron_engine.add_job(
+            _muse_doc.nightly_surgery, trigger="cron", job_id="musedoc-surgery",
+            hour=4, minute=0,
+        )
+        logger.info("MuseWorker + MuseOff + MuseQA + MuseDoc 自主維運系統已啟動")
+    except Exception as e:
+        logger.warning("自主維運系統啟動失敗（非致命）: %s", e)
+
     # ── 系統排程任務元資料清冊（供 /api/tasks 使用）──
     _system_cron_registry = [
         {"job_id": "nightly-fusion",         "name": "夜間整合管線",         "schedule": "每天 03:00",     "category": "maintenance", "uses_llm": True},
@@ -6285,6 +6351,16 @@ def _register_system_cron_jobs(brain, app=None) -> None:
         {"job_id": "tool-health-check",      "name": "工具健康檢查",         "schedule": "每 5 分鐘",     "category": "maintenance", "uses_llm": False},
         {"job_id": "email-poll",             "name": "Email 郵件拉取",       "schedule": "每 5 分鐘",     "category": "external",    "uses_llm": False},
         {"job_id": "session-cleanup",        "name": "Session 自動清理",     "schedule": "每 60 分鐘",    "category": "maintenance", "uses_llm": False},
+        {"job_id": "museworker-snapshot",   "name": "MuseWorker 全量快照",  "schedule": "每 6 小時",     "category": "autonomous",  "uses_llm": False},
+        {"job_id": "museoff-l0",            "name": "MuseOff L0 存活探測",  "schedule": "每 60 秒",      "category": "autonomous",  "uses_llm": False},
+        {"job_id": "museoff-l1",            "name": "MuseOff L1 就緒探測",  "schedule": "每 5 分鐘",     "category": "autonomous",  "uses_llm": False},
+        {"job_id": "museoff-l2",            "name": "MuseOff L2 import",   "schedule": "每 30 分鐘",    "category": "autonomous",  "uses_llm": False},
+        {"job_id": "museoff-l3",            "name": "MuseOff L3 config",   "schedule": "每 60 分鐘",    "category": "autonomous",  "uses_llm": False},
+        {"job_id": "museoff-l4",            "name": "MuseOff L4 回歸測試",  "schedule": "每 2 小時",     "category": "autonomous",  "uses_llm": False},
+        {"job_id": "museoff-l5",            "name": "MuseOff L5 故障注入",  "schedule": "每 6 小時",     "category": "autonomous",  "uses_llm": False},
+        {"job_id": "museoff-l6",            "name": "MuseOff L6 藍圖漂移",  "schedule": "每天 15:00",    "category": "autonomous",  "uses_llm": False},
+        {"job_id": "museqa-scan",           "name": "MuseQA 品質掃描",     "schedule": "每 15 分鐘",    "category": "autonomous",  "uses_llm": False},
+        {"job_id": "musedoc-surgery",       "name": "MuseDoc 夜間手術",    "schedule": "每天 04:00",    "category": "autonomous",  "uses_llm": False},
     ]
 
     # 存到 app.state 供 /api/tasks 讀取
