@@ -1,0 +1,24 @@
+{
+  "id": "095224da-e1bc-4d72-bcde-340b937ca9cd",
+  "content": "[失敗經驗] 任務：我想設定一個每週一早上自動執行的任務：\n1. 檢查上週的銷售數據\n2. 產出週報\n3. 發送給團隊\n你能幫我規劃這個自動化流程嗎？\n失敗類型：general_failure\n回應片段：## 週一自動週報流程規劃\n\n### 整體架構\n\n```\n每週一 08:30 cron 觸發\n  ↓\nStep 1: 拉取銷售數據（來源待確認）\n  ↓\nStep 2: 用模板產出 HTML 週報\n  ↓\nStep 3: 發送給團隊（Telegram / Email）\n  ↓\nStep 4: 驗證送達 → 完成\n```\n\n### 執行方案\n\n| 步驟 | 做什麼 | 工具 | 產出 |\n|----",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-24T17:15:53.381365+08:00",
+  "updated_at": "2026-03-24T17:15:53.381365+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "boss",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

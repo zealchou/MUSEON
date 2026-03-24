@@ -1,0 +1,24 @@
+{
+  "id": "b1accde2-bfcc-41ef-b84d-2003cc30249c",
+  "content": "[失敗經驗] 任務：我想創業，打算做一個面向台灣中小企業的 AI 顧問工具。幫我分析市場機會和競爭格局，列出前三個最關鍵的風險。\n失敗類型：general_failure\n回應片段：## 市場機會\n\n台灣中小企業的 AI 導入率估計低於 10%，遠落後全球平均的 25-30%。這個數字本身就是機會——130 萬家中小企業中，月營收百萬以上、有實際購買力的大約 3-5 萬家，而這群人「知道 AI 時代來了，但不知道怎麼用」的焦慮感已經成熟。\n\n機會窗口是 12-24 個月。現在進場的優勢不是技術領先，而是「客戶關係 + 在地案例庫」的先發優勢——這個市場的差異化不在工具廣度，而",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-24T16:46:05.014998+08:00",
+  "updated_at": "2026-03-24T16:46:05.014998+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "boss",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

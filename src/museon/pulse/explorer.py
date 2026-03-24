@@ -113,6 +113,35 @@ class Explorer:
         self._searxng_url = searxng_url
         self._exploration_log_path = Path(data_dir) / "exploration_log.md" if data_dir else None
 
+    @staticmethod
+    def validate_topic(topic: str) -> tuple[bool, str]:
+        """驗證探索主題是否為有效的可搜尋查詢.
+
+        Returns:
+            (is_valid, reason)
+        """
+        import re as _re
+        if not topic or not topic.strip():
+            return False, "empty"
+        t = topic.strip()
+        if len(t) < 10:
+            return False, f"too_short ({len(t)} chars)"
+        if len(t) > 200:
+            return False, f"too_long ({len(t)} chars)"
+        # 對話格式：timestamp + username + message
+        if _re.search(r"\d{1,2}:\d{2}\s+\S+[:：]", t):
+            return False, "dialogue_format"
+        # 多行對話碎片（含多個換行 + 編號列表）
+        if t.count("\n") >= 3 and _re.search(r"^\d[.。、]", t, _re.MULTILINE):
+            return False, "multi_line_dialogue"
+        # 以 [群組] / [對話] 開頭的原始記錄
+        if _re.match(r"\[.{2,10}(?:紀錄|記錄|對話|訊息|群組)\]", t):
+            return False, "raw_chat_record"
+        # 包含 Telegram 群組標記
+        if _re.search(r"telegram_(?:group|dm)_", t, _re.IGNORECASE):
+            return False, "internal_id"
+        return True, "ok"
+
     async def explore(
         self,
         topic: str,
@@ -127,6 +156,26 @@ class Explorer:
         Returns:
             探索結果字典
         """
+        # Step -1: 主題合法性驗證
+        is_valid, reason = self.validate_topic(topic)
+        if not is_valid:
+            logger.warning(f"探索主題驗證失敗: reason={reason}, topic={topic[:80]}")
+            return {
+                "topic": topic,
+                "motivation": motivation,
+                "query": "",
+                "findings": f"主題驗證失敗（{reason}），已跳過探索",
+                "crystallized": False,
+                "crystal_id": "",
+                "tokens_used": 0,
+                "cost_usd": 0.0,
+                "duration_ms": 0,
+                "status": "rejected",
+                "deep_analysis": False,
+                "depth_level": 0,
+                "duplicate_check": {},
+            }
+
         start = time.monotonic()
         result = {
             "topic": topic,

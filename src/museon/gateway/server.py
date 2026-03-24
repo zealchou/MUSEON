@@ -240,6 +240,20 @@ def _resolve_data_dir() -> str:
     return str(fallback)
 
 
+# 全局 LLM 併發限制：最多同時 3 個 brain.process() 呼叫
+# 防止多群組同時 @bot 時打爆 API rate limit
+_LLM_CONCURRENCY_LIMIT = 3
+_llm_semaphore: Optional[asyncio.Semaphore] = None
+
+
+def _get_llm_semaphore() -> asyncio.Semaphore:
+    """取得全局 LLM 併發 Semaphore（lazy init，確保在 event loop 內建立）."""
+    global _llm_semaphore
+    if _llm_semaphore is None:
+        _llm_semaphore = asyncio.Semaphore(_LLM_CONCURRENCY_LIMIT)
+    return _llm_semaphore
+
+
 def _get_brain():
     """Get the global brain instance (lazy, thread-safe enough for async)."""
     global _brain
@@ -3698,21 +3712,46 @@ async def _handle_telegram_message(adapter, message) -> None:
                         _progress_updater(adapter, chat_id, status_msg_id)
                     )
 
-            # ── 2. Route through MUSEON Brain (with session lock) ──
+            # ── 2. Route through MUSEON Brain (with session lock + LLM semaphore) ──
             response_text = None
             brain_result = None  # v9.0: raw BrainResponse
             brain = _get_brain()
+            _sem = _get_llm_semaphore()
 
-            # Acquire session lock — 使用 wait_and_acquire 等待（最多 30 秒）
+            # Acquire session lock — 排隊等待（不 drop 訊息）+ 優先度 + 預算檢查
             _session_locked = False
             if message.session_id and session_manager:
-                _session_locked = await session_manager.wait_and_acquire(
-                    message.session_id, timeout=30
+                # 分類優先度
+                from museon.gateway.session import classify_priority
+                _priority = classify_priority(
+                    message.session_id, is_owner=is_owner
                 )
-                if not _session_locked:
-                    logger.warning(f"Session {message.session_id} busy after 30s, dropping message")
-                    response_text = "目前系統忙碌中，請稍後再試。"
-                    # 跳過 brain.process()，直接用此 response_text 回覆
+
+                # Per-tenant 預算檢查
+                from museon.llm.rate_limiter import get_tenant_limiter
+                _tl = get_tenant_limiter()
+                if not _tl.check(message.session_id):
+                    logger.warning(
+                        f"Session {message.session_id} daily quota exceeded"
+                    )
+                    response_text = "今日的對話額度已用完，明天再聊 🌙"
+
+                _queue_depth = session_manager.get_queue_depth(message.session_id)
+                if _queue_depth > 0 and response_text is None:
+                    logger.info(
+                        f"Session {message.session_id}: queuing "
+                        f"(depth={_queue_depth + 1}, P{_priority})"
+                    )
+                    if status_msg_id and chat_id:
+                        await adapter.update_processing_status(
+                            chat_id, status_msg_id,
+                            f"⏳ 前面還有 {_queue_depth} 則訊息處理中，排隊等候..."
+                        )
+
+                if response_text is None:
+                    _session_locked = await session_manager.wait_and_acquire(
+                        message.session_id, timeout=None, priority=_priority
+                    )
 
             try:
                 # ── Check if owner is responding to a sensitivity escalation ──
@@ -3960,27 +3999,39 @@ async def _handle_telegram_message(adapter, message) -> None:
                         # brain.process() errors propagate to outer handler (line ~3834)
                         # which has proper error messages for both owner and non-owner
                         if _mt_ready and response_text is None:
+                            async with _sem:
+                                brain_result = await brain.process(
+                                    content=_brain_content,
+                                    session_id=message.session_id,
+                                    user_id=message.user_id,
+                                    source="telegram",
+                                    metadata=_brain_metadata,
+                                )
+                    else:
+                        # Normal DM processing (owner or trusted user)
+                        async with _sem:
                             brain_result = await brain.process(
-                                content=_brain_content,
+                                content=message.content,
                                 session_id=message.session_id,
                                 user_id=message.user_id,
                                 source="telegram",
-                                metadata=_brain_metadata,
+                                metadata=message.metadata if is_group else None,
                             )
-                    else:
-                        # Normal DM processing (owner or trusted user)
-                        brain_result = await brain.process(
-                            content=message.content,
-                            session_id=message.session_id,
-                            user_id=message.user_id,
-                            source="telegram",
-                            metadata=message.metadata if is_group else None,
-                        )
 
                 # v9.0: Extract text from BrainResponse
                 if brain_result is not None and response_text is None:
                     if isinstance(brain_result, BrainResponse):
                         response_text = brain_result.text
+                        # Per-tenant token 消耗追蹤
+                        _used = getattr(brain_result, 'total_tokens', 0)
+                        if _used and message.session_id:
+                            try:
+                                from museon.llm.rate_limiter import get_tenant_limiter
+                                get_tenant_limiter().consume(
+                                    message.session_id, _used
+                                )
+                            except Exception:
+                                pass
                     else:
                         response_text = str(brain_result) if brain_result else ""
 
@@ -4120,6 +4171,11 @@ async def _handle_telegram_message(adapter, message) -> None:
                 )
 
             # ── 5. Send actual response（先送回覆，再清理進度）──
+            # v10.7: 群組回覆內容清理 + metadata 深複製 + 真正的跨群驗證
+            from museon.governance.response_guard import ResponseGuard
+            _is_group = message.metadata.get("is_group", False)
+            response_text = ResponseGuard.sanitize_for_group(response_text, _is_group)
+
             response_msg = InternalMessage(
                 source="telegram",
                 session_id=message.session_id,
@@ -4127,23 +4183,20 @@ async def _handle_telegram_message(adapter, message) -> None:
                 content=response_text,
                 timestamp=datetime.now(),
                 trust_level="core",
-                metadata=message.metadata,
+                metadata={**message.metadata},  # v10.7: 深複製，不共享引用
             )
 
-            # ⛔ ResponseGuard：發送前二次驗證 — 確認 chat_id 一致
-            from museon.governance.response_guard import ResponseGuard
-            _origin_cid = message.metadata.get("chat_id")
-            _target_cid = response_msg.metadata.get("chat_id")
-            if not ResponseGuard.validate(
-                _origin_cid, _target_cid,
-                f"normal_reply session={message.session_id}"
-            ):
+            # ⛔ v10.7 ResponseGuard：session_id ↔ chat_id 交叉驗證
+            _origin_cid = str(message.metadata.get("chat_id", ""))
+            _session_group = message.session_id.rsplit("_", 1)[-1] if "telegram_group_" in message.session_id else ""
+            _cross_leak = False
+            if _session_group and _origin_cid and _session_group != _origin_cid:
                 logger.critical(
-                    f"⛔ Response BLOCKED by ResponseGuard for session {message.session_id} "
-                    f"origin_cid={_origin_cid} target_cid={_target_cid}"
+                    f"⛔ ResponseGuard v10.7: session群組({_session_group}) ≠ chat_id({_origin_cid}) "
+                    f"session={message.session_id} — 跨群污染，阻擋發送"
                 )
-                success = False
-            else:
+                _cross_leak = True
+            if _cross_leak:
                 # v9.0: BrainResponse support (text + artifacts)
                 if isinstance(brain_result, BrainResponse):
                     if hasattr(adapter, 'send_response'):
@@ -5848,7 +5901,7 @@ def _register_system_cron_jobs(brain, app=None) -> None:
     _tool_disabled: dict = {}     # {name: disabled_at_ts}
     _TOOL_RESTART_THRESHOLD = 3   # 連續 3 次失敗 → 自動重啟
     _TOOL_ESCALATE_THRESHOLD = 6  # 連續 6 次失敗 → 升級通知 + 自動停用
-    _TOOL_REPROBE_INTERVAL = 1800  # 停用後每 30 分鐘嘗試恢復
+    _TOOL_REPROBE_INTERVAL = 600  # 停用後每 10 分鐘嘗試恢復
 
     async def _tool_health_check_job():
         """定期檢查所有工具健康狀態，偵測降級/恢復.
@@ -5874,8 +5927,11 @@ def _register_system_cron_jobs(brain, app=None) -> None:
 
             for name, result in results.items():
                 # 跳過已停用或未安裝的工具 — 不計入失敗
-                _tool_status = result.get("status", "")
-                if _tool_status in ("disabled", "not_installed"):
+                _tool_reason = result.get("reason", "")
+                if _tool_reason in ("disabled", "not_running", "not_installed"):
+                    continue
+                # 跳過已被自動停用的工具（由 re-probe 負責恢復）
+                if name in _tool_disabled:
                     continue
                 if not result.get("healthy", True):
                     _tool_fail_counts[name] = _tool_fail_counts.get(name, 0) + 1
@@ -6384,12 +6440,12 @@ def main() -> None:
     try:
         governor.acquire_lock()
     except GatewayLockError as e:
-        logger.error(f"Cannot start Gateway: {e}", exc_info=True)
-        logger.error(
+        logger.warning(f"Cannot start Gateway: {e}")
+        logger.warning(
             "Another Gateway instance is already running. "
-            "Stop it first or check the lock file."
-, exc_info=True)
-        sys.exit(1)  # exit(1) 合理 — 端口衝突應由 launchd 重試
+            "Exiting gracefully (exit 0) to prevent launchd restart storm."
+        )
+        sys.exit(0)  # exit(0) — 告知 launchd 不需重試（SuccessfulExit=false 不觸發）
 
     # Fallback: 如果 lock 成功但 port 仍被佔用（邊緣情況），
     # 保留舊的清理邏輯作為安全網

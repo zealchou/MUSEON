@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260324_171912_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n核心缺失：回覆直接給了架構，但跳過了最關鍵的「需求澄清」。建議在提架構前先問：① Line 訊息怎麼自動收集（webhook/API/手動）？② 分類規則衝突怎麼解（如「咖啡」可能是食物或娛樂）？③ 你真正每週想看的核心指標是什麼（不是「功能清單」，而是「決策點」）？④ 要自己部署還是雲端化？回答這些，架構才能精準。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-24T17:19:12.795604+08:00",
+  "priority": "medium"
+}

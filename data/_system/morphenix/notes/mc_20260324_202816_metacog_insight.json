@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260324_202816_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n根據 CLAUDE.md 規則，access.json 由 `/telegram:access` skill 管理。不應詢問「批准我編輯」，而應提醒使用者執行 skill（可直接在終端跑：`/telegram:access`），由使用者親自新增群組到白名單。這樣也規避了安全風險（防止帳號被竊情況下的間接修改）。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-24T20:28:16.088361+08:00",
+  "priority": "medium"
+}

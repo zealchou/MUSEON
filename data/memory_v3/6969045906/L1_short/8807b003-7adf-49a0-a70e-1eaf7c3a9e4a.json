@@ -1,0 +1,24 @@
+{
+  "id": "8807b003-7adf-49a0-a70e-1eaf7c3a9e4a",
+  "content": "[失敗經驗] 任務：[群組近期對話紀錄]\n  31:53 Feng: 你幫我個忙，給我公式和邏輯\n再把成本加上去\n  32:15 Feng: 了解\n  33:04 Zeal（老闆）: @MuseonClaw_bot 你整\n失敗類型：general_failure\n回應片段：好，基於 v2.0 完整規則重新跑九種人格。\n\n---\n\n## V2.0 九種業務人格模擬\n\n**v2.0 關鍵變化**：簽約獎金拆為 $9k 即時 + $3k 季度留任、離職次月停月租、客戶追回分潤轉客服、客戶引薦免月租但業務照領。\n\n---\n\n### 1. 小美（穩定型）— 月穩 4 案，零流失\n\n| 月份 | 新案獎金 | 累積客戶 | 月租（@$500）| 季度留任 | 月總收入 |\n|-",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-24T17:07:33.626831+08:00",
+  "updated_at": "2026-03-24T17:07:33.626831+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "6969045906",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

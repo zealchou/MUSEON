@@ -1158,6 +1158,16 @@ class PulseEngine:
                             # 過濾非自然語言（對話格式碎片）
                             if q.startswith("**user**:") or q.startswith("**"):
                                 continue
+                            # 過濾對話記錄格式（timestamp + username）
+                            import re as _re2
+                            if _re2.search(r"\d{1,2}:\d{2}\s+\S+[:：]", q):
+                                continue
+                            # 過濾含多行編號列表的對話碎片
+                            if q.count("\n") >= 3:
+                                continue
+                            # 過濾 [群組XX紀錄] 開頭
+                            if _re2.match(r"\[.{2,10}(?:紀錄|記錄|對話|訊息|群組)\]", q):
+                                continue
                             # 必須包含問號 或 研究性關鍵詞，才算是有效探索主題
                             _has_question = "？" in q or "?" in q
                             _has_research_kw = any(kw in q for kw in (
@@ -1350,7 +1360,12 @@ class PulseEngine:
                 logger.info(f"探索主題來源: Haiku 動態生成 → {topic[:60]}")
                 return topic
         except Exception as e:
-            logger.warning(f"Dynamic topic generation failed: {e}")
+            logger.warning(
+                f"Dynamic topic generation failed: {e} | "
+                f"signals: anima={bool(anima_hint)}, user={bool(user_topics_hint)}, "
+                f"curiosity={bool(curiosity_hint)}, skill={bool(skill_hint)}",
+                exc_info=True,
+            )
         return None
 
     def _update_pulse_md_status(self) -> None:

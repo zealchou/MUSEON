@@ -91,6 +91,9 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         except Exception as e:
             logger.debug(f"AnimaChangelog 初始化失敗（降級為無追蹤）: {e}")
 
+        # v10.7: process() 並行隔離鎖 — 防止兩個群組同時 process 導致 _ctx 覆蓋
+        self._process_lock = asyncio.Lock()
+
         # 對話歷史（in-memory, per session）
         self._sessions: Dict[str, List[Dict[str, str]]] = {}
         self._offline_flag = False  # 離線回覆標記 — 為 True 時不持久化 session
@@ -529,6 +532,37 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         Returns:
             BrainResponse（text + artifacts）或 str（向後相容降級）
         """
+        # v10.7: 並行隔離 — 確保同一時間只有一個 process() 使用 self._ctx
+        async with self._process_lock:
+            return await self._process_inner(content, session_id, user_id, source, metadata)
+
+    async def _process_inner(
+        self,
+        content: str,
+        session_id: str,
+        user_id: str = "boss",
+        source: str = "telegram",
+        metadata: dict = None,
+    ):
+        """process() 的實際邏輯（被 _process_lock 保護）."""
+        try:
+            return await self._process_impl(content, session_id, user_id, source, metadata)
+        finally:
+            # v10.7: 清空 per-turn 狀態，防止跨群組殘留
+            self._ctx = None
+            self._current_metadata = None
+            self._is_group_session = False
+            self._group_sender = None
+
+    async def _process_impl(
+        self,
+        content: str,
+        session_id: str,
+        user_id: str = "boss",
+        source: str = "telegram",
+        metadata: dict = None,
+    ):
+        """process() 的核心實作."""
         # L2-S1: ChatContext 顯式上下文物件（取代 self._* per-turn 變數）
         from museon.agent.chat_context import ChatContext
         self._ctx = ChatContext.from_chat_args(

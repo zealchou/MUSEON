@@ -1,0 +1,65 @@
+{
+  "session_id": "telegram_group_5107937390",
+  "nodes": {
+    "intention_任務委派": {
+      "node_id": "intention_任務委派",
+      "node_type": "intention",
+      "label": "任務委派",
+      "properties": {
+        "detected_at": "2026-03-24T09:45:32.054345"
+      },
+      "created_at": "2026-03-24T09:45:32.054422",
+      "updated_at": "2026-03-24T09:45:32.054426"
+    },
+    "topic_turn_1": {
+      "node_id": "topic_turn_1",
+      "node_type": "topic",
+      "label": "turn_1",
+      "properties": {
+        "content_length": 198,
+        "detected_at": "2026-03-24T09:45:32.054345"
+      },
+      "created_at": "2026-03-24T09:45:32.054449",
+      "updated_at": "2026-03-24T09:45:32.054452"
+    },
+    "emotion_感謝": {
+      "node_id": "emotion_感謝",
+      "node_type": "emotion",
+      "label": "感謝",
+      "properties": {
+        "detected_at": "2026-03-24T09:55:37.736197",
+        "source": "text_analysis"
+      },
+      "created_at": "2026-03-24T09:55:37.736260",
+      "updated_at": "2026-03-24T09:55:37.736262"
+    },
+    "topic_turn_3": {
+      "node_id": "topic_turn_3",
+      "node_type": "topic",
+      "label": "turn_3",
+      "properties": {
+        "content_length": 100,
+        "detected_at": "2026-03-24T09:55:37.736197"
+      },
+      "created_at": "2026-03-24T09:55:37.736292",
+      "updated_at": "2026-03-24T09:55:37.736293"
+    },
+    "topic_turn_4": {
+      "node_id": "topic_turn_4",
+      "node_type": "topic",
+      "label": "turn_4",
+      "properties": {
+        "content_length": 27,
+        "detected_at": "2026-03-24T12:50:13.983981"
+      },
+      "created_at": "2026-03-24T12:50:13.984038",
+      "updated_at": "2026-03-24T12:50:13.984041"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 3,
+    "last_content_length": 27
+  },
+  "last_updated": "2026-03-24T12:50:13.983981"
+}

@@ -1,0 +1,140 @@
+{
+  "version": "3.0.0",
+  "user_id": "5136920548",
+  "created_at": "2026-03-24T17:03:17.496905",
+  "interaction_count": 9,
+  "last_seen": "2026-03-24T20:51:07.978975",
+  "display_name": "Amber",
+  "context_summary": "",
+  "profile": {
+    "name": "Amber",
+    "role": null,
+    "business_type": "unknown"
+  },
+  "relationship": {
+    "trust_level": "building",
+    "total_interactions": 9,
+    "positive_signals": 0,
+    "negative_signals": 0,
+    "last_interaction": "2026-03-24T20:51:07.978975",
+    "first_interaction": "2026-03-24T17:03:17.496914"
+  },
+  "eight_primals": {
+    "aspiration": {
+      "level": 8,
+      "confidence": 0.06,
+      "signal": "[群組近期對話紀錄]   03:17 Amber: @MuseonClaw_bot 產品/耗材管理|進貨流程、庫存管理、供應商清單| 這部分給我建議   29:",
+      "last_observed": "2026-03-24T19:35:01.031927"
+    },
+    "accumulation": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "action_power": {
+      "level": 10,
+      "confidence": 0.12,
+      "signal": "[群組近期對話紀錄]   58:49 Amber: [檔案: photo]    58:53 Amber: [檔案: Screenshot_2026-03-24",
+      "last_observed": "2026-03-24T20:51:07.978975"
+    },
+    "curiosity": {
+      "level": 24,
+      "confidence": 0.07,
+      "signal": "[群組近期對話紀錄]   03:17 Amber: @MuseonClaw_bot 產品/耗材管理|進貨流程、庫存管理、供應商清單| 這部分給我建議   29:",
+      "last_observed": "2026-03-24T19:56:57.145991"
+    },
+    "emotion_pattern": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "blindspot": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "boundary": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "relationship_depth": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    }
+  },
+  "seven_layers": {
+    "L1_facts": [
+      {
+        "category": "occupation",
+        "snippet": "[群組近期對話紀錄]\n  03:17 Amber: @MuseonClaw_bot 產品/耗材管理|進貨流程、庫存管理、供應商清單|\n這部分給我建議\n  29:19 Amber: @MuseonCla",
+        "date": "2026-03-24T19:56:57.145991"
+      },
+      {
+        "category": "occupation",
+        "snippet": "[群組近期對話紀錄]\n  58:49 Amber: [檔案: photo] \n  58:53 Amber: [檔案: Screenshot_2026-03-24-19-57-44-61.jpg] \n ",
+        "date": "2026-03-24T20:51:07.978975"
+      }
+    ],
+    "L2_personality": [],
+    "L6_communication_style": {
+      "detail_level": "detailed",
+      "emoji_usage": "none",
+      "language_mix": "mixed",
+      "avg_msg_length": 240,
+      "question_style": "directive",
+      "tone": "casual"
+    }
+  },
+  "preferences": {
+    "communication_style": "detailed"
+  },
+  "recent_topics": [
+    {
+      "snippet": "這部分給我建議",
+      "date": "2026-03-24T17:09:34.708963"
+    },
+    {
+      "snippet": "@MuseonClaw_bot 完全沒有記錄管理",
+      "date": "2026-03-24T17:30:25.384534"
+    },
+    {
+      "snippet": "@MuseonClaw_bot 什麼叫做可複製的系統",
+      "date": "2026-03-24T19:26:49.407863"
+    },
+    {
+      "snippet": "@MuseonClaw_bot",
+      "date": "2026-03-24T19:32:03.208423"
+    },
+    {
+      "snippet": "@MuseonClaw_bot 什麼是六大可複製系統模塊",
+      "date": "2026-03-24T19:35:01.031927"
+    },
+    {
+      "snippet": "做SOP執行，這部分我沒把握？",
+      "date": "2026-03-24T19:56:57.145991"
+    },
+    {
+      "snippet": "圖片已儲存至: /tmp/data/uploads/telegram/20260324_195904_AQADjA1rGy3OGFZ-.jpg",
+      "date": "2026-03-24T20:00:23.701928"
+    },
+    {
+      "snippet": "@MuseonClaw_bot",
+      "date": "2026-03-24T20:14:11.923070"
+    },
+    {
+      "snippet": "@MuseonClaw_bot",
+      "date": "2026-03-24T20:51:07.978975"
+    }
+  ],
+  "groups_seen_in": [
+    -5229167140
+  ],
+  "relationship_to_owner": ""
+}

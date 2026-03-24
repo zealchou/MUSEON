@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>問卷調查表</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+
+  @page {
+    size: A4;
+    margin: 2cm;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    color: #12121A;
+    background: #F7F5F0;
+    line-height: 1.6;
+    padding: 40px;
+  }
+
+  .page {
+    max-width: 720px;
+    margin: 0 auto;
+    background: #FDFCFA;
+    border-radius: 12px;
+    padding: 48px 40px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 36px;
+    padding-bottom: 24px;
+    border-bottom: 2px solid #C4502A;
+  }
+
+  .header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #C4502A;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+
+  .header p {
+    color: #5A5A6E;
+    font-size: 14px;
+  }
+
+  .intro {
+    background: #F7F5F0;
+    border-left: 3px solid #C4502A;
+    padding: 16px 20px;
+    margin-bottom: 32px;
+    border-radius: 0 8px 8px 0;
+    font-size: 14px;
+    color: #5A5A6E;
+  }
+
+  .section {
+    margin-bottom: 28px;
+  }
+
+  .section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #C4502A;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #E2E0DA;
+  }
+
+  .question {
+    margin-bottom: 20px;
+  }
+
+  .question label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #12121A;
+    margin-bottom: 8px;
+  }
+
+  .question label .q-num {
+    display: inline-block;
+    background: #C4502A;
+    color: white;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 22px;
+    font-size: 12px;
+    margin-right: 8px;
+  }
+
+  .text-input {
+    width: 100%;
+    border: 1px solid #E2E0DA;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-family: 'Noto Sans TC', sans-serif;
+    background: #FDFCFA;
+    min-height: 40px;
+  }
+
+  .text-area {
+    min-height: 80px;
+    resize: vertical;
+  }
+
+  .options {
+    list-style: none;
+    padding: 0;
+  }
+
+  .options li {
+    padding: 8px 14px;
+    margin-bottom: 6px;
+    border: 1px solid #E2E0DA;
+    border-radius: 6px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+
+  .options li:hover {
+    border-color: #C4502A;
+    background: #fdf8f6;
+  }
+
+  .checkbox, .radio {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #E2E0DA;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  .radio {
+    border-radius: 50%;
+  }
+
+  .rating {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .rating span {
+    width: 36px;
+    height: 36px;
+    border: 1px solid #E2E0DA;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #5A5A6E;
+    cursor: pointer;
+  }
+
+  .rating span:hover {
+    border-color: #C4502A;
+    color: #C4502A;
+    background: #fdf8f6;
+  }
+
+  .rating-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #9898A8;
+    margin-top: 4px;
+  }
+
+  .footer {
+    text-align: center;
+    margin-top: 36px;
+    padding-top: 24px;
+    border-top: 1px solid #E2E0DA;
+    color: #9898A8;
+    font-size: 12px;
+  }
+
+  .submit-note {
+    background: #2A7A6E;
+    color: white;
+    text-align: center;
+    padding: 14px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 24px;
+  }
+
+  @media print {
+    body { background: white; padding: 0; }
+    .page { box-shadow: none; padding: 20px 0; }
+    .options li:hover { border-color: #E2E0DA; background: transparent; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <h1>[ 問卷調查表標題 ]</h1>
+    <p>調查期間：2026 年 ＿月＿日 ～ ＿月＿日</p>
+  </div>
+
+  <div class="intro">
+    感謝您撥冗填寫本問卷。本調查約需 5-10 分鐘，您的回覆將作為＿＿＿＿之重要參考。所有資料僅供統計分析使用，不會對外揭露個人資訊。
+  </div>
+
+  <!-- ===== 第一部分：基本資料 ===== -->
+  <div class="section">
+    <div class="section-title">一、基本資料</div>
+
+    <div class="question">
+      <label><span class="q-num">1</span>您的姓名（或暱稱）</label>
+      <input type="text" class="text-input" placeholder="">
+    </div>
+
+    <div class="question">
+      <label><span class="q-num">2</span>您的聯絡方式（Email / 電話）</label>
+      <input type="text" class="text-input" placeholder="">
+    </div>
+
+    <div class="question">
+      <label><span class="q-num">3</span>您的年齡區間</label>
+      <ul class="options">
+        <li><span class="radio"></span> 20 歲以下</li>
+        <li><span class="radio"></span> 21-30 歲</li>
+        <li><span class="radio"></span> 31-40 歲</li>
+        <li><span class="radio"></span> 41-50 歲</li>
+        <li><span class="radio"></span> 51 歲以上</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== 第二部分：主題問題（依需求替換） ===== -->
+  <div class="section">
+    <div class="section-title">二、核心問題</div>
+
+    <div class="question">
+      <label><span class="q-num">4</span>【單選題範例】您最重視的是？</label>
+      <ul class="options">
+        <li><span class="radio"></span> 選項 A</li>
+        <li><span class="radio"></span> 選項 B</li>
+        <li><span class="radio"></span> 選項 C</li>
+        <li><span class="radio"></span> 選項 D</li>
+      </ul>
+    </div>
+
+    <div class="question">
+      <label><span class="q-num">5</span>【複選題範例】以下哪些項目您有使用過？（可複選）</label>
+      <ul class="options">
+        <li><span class="checkbox"></span> 選項 A</li>
+        <li><span class="checkbox"></span> 選項 B</li>
+        <li><span class="checkbox"></span> 選項 C</li>
+        <li><span class="checkbox"></span> 選項 D</li>
+        <li><span class="checkbox"></span> 其他：＿＿＿＿＿</li>
+      </ul>
+    </div>
+
+    <div class="question">
+      <label><span class="q-num">6</span>【量表題範例】整體滿意度如何？</label>
+      <div class="rating">
+        <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+      </div>
+      <div class="rating-labels">
+        <span>非常不滿意</span>
+        <span>非常滿意</span>
+      </div>
+    </div>
+
+    <div class="question">
+      <label><span class="q-num">7</span>【開放題範例】請分享您的建議或想法</label>
+      <textarea class="text-input text-area" placeholder=""></textarea>
+    </div>
+  </div>
+
+  <!-- ===== 第三部分：回饋 ===== -->
+  <div class="section">
+    <div class="section-title">三、其他回饋</div>
+
+    <div class="question">
+      <label><span class="q-num">8</span>您還有什麼想告訴我們的嗎？</label>
+      <textarea class="text-input text-area" placeholder=""></textarea>
+    </div>
+  </div>
+
+  <div class="submit-note">
+    填寫完畢後，請將本表回傳至＿＿＿＿，感謝您的參與！
+  </div>
+
+  <div class="footer">
+    <p>本問卷僅供內部統計使用，感謝您的寶貴意見。</p>
+  </div>
+
+</div>
+</body>
+</html>

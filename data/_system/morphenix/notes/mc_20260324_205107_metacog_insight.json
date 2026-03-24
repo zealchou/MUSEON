@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260324_205107_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\nL1 不應該停下來問「你想要？」。應該**直接檢查 access.json 確認群組 5107045509 是否在白名單**，如果缺失就補上，然後立刻 spawn L2 去回覆 Amber（L2 會用 `mcp__museon__museon_group_context` 讀對話、分析她的真實需求、撰寫回覆）。停滯 = 違反調度員的「1秒內轉發」職責。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-24T20:51:07.986266+08:00",
+  "priority": "medium"
+}

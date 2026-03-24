@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260324_183333_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n簡潔建議：去掉四個選項列表，主動推斷優先級。根據 git status 改動很多，首要是檢查五張藍圖同步狀態（防禦性）→ 跑審計確認無回歸 → 再決定下一步。直接說「先做什麼」而非「你想做什麼」，符合 Zeal 的行動優先偏好。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-24T18:33:33.786415+08:00",
+  "priority": "medium"
+}

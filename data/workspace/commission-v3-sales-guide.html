@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MUSEON 業務獎金制度 v3.0 — 白話版</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ember: #C4502A;
+    --ember-light: #E0714D;
+    --ember-dark: #9A3A1C;
+    --teal: #2A7A6E;
+    --gold: #B8923A;
+    --ink: #12121A;
+    --slate: #5A5A6E;
+    --mist: #9898A8;
+    --border: #E2E0DA;
+    --parchment: #F7F5F0;
+    --snow: #FDFCFA;
+    --success: #2D8A6E;
+    --warning: #C9943A;
+    --error: #C4402A;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+    background: var(--parchment);
+    color: var(--ink);
+    line-height: 1.75;
+    font-size: 16px;
+    padding: 0;
+  }
+
+  .hero {
+    background: linear-gradient(135deg, var(--ember-dark) 0%, var(--ember) 50%, var(--ember-light) 100%);
+    color: white;
+    padding: 64px 24px 48px;
+    text-align: center;
+  }
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 42px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    line-height: 1.2;
+  }
+  .hero .subtitle {
+    font-size: 18px;
+    opacity: 0.9;
+    font-weight: 300;
+  }
+  .hero .version {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: rgba(255,255,255,0.2);
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 4px;
+    margin-top: 16px;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  .tldr {
+    background: var(--snow);
+    border: 2px solid var(--ember);
+    border-radius: 12px;
+    padding: 32px;
+    margin: -32px auto 48px;
+    position: relative;
+    max-width: 750px;
+  }
+  .tldr h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    color: var(--ember);
+    margin-bottom: 16px;
+  }
+  .tldr .formula {
+    background: var(--parchment);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 16px 0;
+    border-left: 4px solid var(--ember);
+  }
+  .tldr .formula span { color: var(--ember); }
+  .tldr p { color: var(--slate); font-size: 15px; margin-top: 8px; }
+
+  section {
+    margin-bottom: 48px;
+  }
+  section h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 24px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--border);
+  }
+  section h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ember-dark);
+    margin: 24px 0 12px;
+  }
+
+  .card {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .card.highlight {
+    border-color: var(--ember);
+    border-width: 2px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 15px;
+  }
+  thead th {
+    background: var(--ink);
+    color: white;
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 500;
+    font-size: 14px;
+  }
+  thead th:first-child { border-radius: 8px 0 0 0; }
+  thead th:last-child { border-radius: 0 8px 0 0; }
+  tbody td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:nth-child(even) { background: var(--parchment); }
+
+  .tier-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 13px;
+  }
+  .tier-bronze { background: #D4A574; color: white; }
+  .tier-silver { background: #A8A8B0; color: white; }
+  .tier-gold { background: var(--gold); color: white; }
+  .tier-diamond { background: #5A8A9A; color: white; }
+
+  .example-box {
+    background: var(--parchment);
+    border-left: 4px solid var(--teal);
+    padding: 20px 24px;
+    border-radius: 0 8px 8px 0;
+    margin: 16px 0;
+  }
+  .example-box .label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--teal);
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .example-box p { font-size: 15px; color: var(--slate); margin: 4px 0; }
+  .example-box .result {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-top: 8px;
+  }
+
+  .income-chart {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .income-card {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+  }
+  .income-card .month {
+    font-size: 13px;
+    color: var(--mist);
+    font-weight: 500;
+  }
+  .income-card .amount {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--ember);
+    margin: 8px 0 4px;
+  }
+  .income-card .detail {
+    font-size: 12px;
+    color: var(--slate);
+  }
+
+  .warning-box {
+    background: #FFF8F0;
+    border: 1px solid var(--warning);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    font-size: 14px;
+    color: var(--ink);
+  }
+  .warning-box strong { color: var(--warning); }
+
+  .faq-item {
+    margin-bottom: 16px;
+  }
+  .faq-item summary {
+    font-weight: 600;
+    cursor: pointer;
+    padding: 12px 0;
+    color: var(--ink);
+    font-size: 15px;
+  }
+  .faq-item summary:hover { color: var(--ember); }
+  .faq-item p {
+    padding: 0 0 12px 20px;
+    color: var(--slate);
+    font-size: 14px;
+  }
+
+  .footer {
+    text-align: center;
+    padding: 32px;
+    color: var(--mist);
+    font-size: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    border-top: 1px solid var(--border);
+    margin-top: 48px;
+  }
+
+  .compare-arrow {
+    display: inline-block;
+    color: var(--success);
+    font-weight: 700;
+  }
+
+  @media (max-width: 600px) {
+    .hero h1 { font-size: 28px; }
+    .hero { padding: 48px 16px 36px; }
+    .tldr { margin: -24px 16px 32px; padding: 24px; }
+    .container { padding: 0 16px; }
+    table { font-size: 13px; }
+    thead th, tbody td { padding: 8px 10px; }
+    .income-chart { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>MUSEON 業務獎金制度</h1>
+  <div class="subtitle">簽新客拿獎金，養好老客拿月薪。兩邊都做，錢最多。</div>
+  <div class="version">v3.0 — 雙軸積分制 — 2026.03.24</div>
+</div>
+
+<div class="container">
+
+<!-- TL;DR -->
+<div class="tldr">
+  <h2>一句話看懂</h2>
+  <div class="formula">
+    你的分數 = 這個月簽了幾個<span>新客 x 1</span> + 手上有幾個<span>老客戶 x 0.3</span>
+  </div>
+  <p>分數越高，等級越高，每案獎金和每月被動收入都越多。<br>不只獎勵衝量的人，也獎勵把客戶養好的人。</p>
+</div>
+
+<!-- 產品定價 -->
+<section>
+  <h2>產品定價</h2>
+  <table>
+    <thead><tr><th>項目</th><th>金額</th><th>說明</th></tr></thead>
+    <tbody>
+      <tr><td>設定費</td><td style="font-weight:600;">NT$ 24,000</td><td>一次性，新客簽約時收</td></tr>
+      <tr><td>月費</td><td style="font-weight:600;">NT$ 6,000/月</td><td>每月持續收取</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 四個等級 -->
+<section>
+  <h2>四個等級 — 你的分數決定你的等級</h2>
+  <table>
+    <thead><tr><th>等級</th><th>月積分</th><th>白話說明</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tier-badge tier-bronze">銅牌</span></td><td>0 – 3.9</td><td>新人起步期</td></tr>
+      <tr><td><span class="tier-badge tier-silver">銀牌</span></td><td>4.0 – 8.9</td><td>穩定出單 or 養了一批客戶</td></tr>
+      <tr><td><span class="tier-badge tier-gold">金牌</span></td><td>9.0 – 20.9</td><td>高產量 or 大量穩定客戶</td></tr>
+      <tr><td><span class="tier-badge tier-diamond">鑽石</span></td><td>21.0+</td><td>經銷商等級（需培訓認證）</td></tr>
+    </tbody>
+  </table>
+
+  <div class="example-box">
+    <div class="label">範例</div>
+    <p>小美這個月簽了 <strong>2 個新客</strong>，手上有 <strong>30 個老客戶</strong></p>
+    <p>積分 = 2 + (30 × 0.3) = <strong>11 分</strong></p>
+    <div class="result">→ 金牌！即使新案不多，養客也能升級</div>
+  </div>
+</section>
+
+<!-- 簽約獎金 -->
+<section>
+  <h2>簽約獎金 — 每簽一案拿多少</h2>
+  <p style="color:var(--slate); margin-bottom:16px;">從設定費 $24,000 中支出，簽約收款後 7 天內發放即時部分。</p>
+  <table>
+    <thead><tr><th>等級</th><th>即時獎金</th><th>季度留任金</th><th>額外獎金</th><th>每案總收入</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tier-badge tier-bronze">銅</span></td><td>$6,000</td><td>$3,000</td><td>—</td><td style="font-weight:600;">$9,000</td></tr>
+      <tr><td><span class="tier-badge tier-silver">銀</span></td><td>$6,000</td><td>$3,000</td><td>+$3,000</td><td style="font-weight:600;">$12,000</td></tr>
+      <tr><td><span class="tier-badge tier-gold">金</span></td><td>$6,000</td><td>$3,000</td><td>+$4,000</td><td style="font-weight:600;">$13,000</td></tr>
+      <tr><td><span class="tier-badge tier-diamond">鑽</span></td><td>$6,000</td><td>$3,000</td><td>+$6,000</td><td style="font-weight:600;">$15,000</td></tr>
+    </tbody>
+  </table>
+
+  <div class="warning-box">
+    <strong>季度留任金</strong>：每季末（3/6/9/12 月底）統一發放。該季如果離職，未發部分取消。<br>
+    <strong>即時獎金 + 額外獎金</strong>：7 天內發，已發不追回。
+  </div>
+</section>
+
+<!-- 月費分潤 -->
+<section>
+  <h2>月費分潤 — 你的被動收入</h2>
+  <p style="color:var(--slate); margin-bottom:16px;">你名下<strong>每位活躍客戶</strong>，<strong>每個月</strong>都會分給你一筆錢。客戶越多，被動收入越高。</p>
+  <table>
+    <thead><tr><th>等級</th><th>每位客戶每月分你</th><th>公司保留</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tier-badge tier-bronze">銅</span></td><td style="font-weight:600;">$200</td><td>$5,800</td></tr>
+      <tr><td><span class="tier-badge tier-silver">銀</span></td><td style="font-weight:600;">$500</td><td>$5,500</td></tr>
+      <tr><td><span class="tier-badge tier-gold">金</span></td><td style="font-weight:600;">$1,000</td><td>$5,000</td></tr>
+      <tr><td><span class="tier-badge tier-diamond">鑽</span></td><td style="font-weight:600;">$1,500</td><td>$4,500</td></tr>
+    </tbody>
+  </table>
+
+  <div class="card highlight">
+    <strong style="color:var(--ember);">重點：銅牌也有被動收入！</strong>
+    <p style="color:var(--slate); font-size:14px; margin-top:4px;">只要你有活躍客戶，不管什麼等級，每個月都有錢進來。等級越高，每位客戶分你越多。</p>
+  </div>
+
+  <h3>發放時間</h3>
+  <p style="font-size:14px; color:var(--slate);">客戶月費在<strong>次月 5 日前</strong>到帳 → 該月 <strong>25 日</strong>發放你的分潤。</p>
+</section>
+
+<!-- 收入模擬 -->
+<section>
+  <h2>收入模擬 — 你一年能賺多少？</h2>
+
+  <h3>穩定型：每月簽 4 案，客戶零流失</h3>
+  <div class="income-chart">
+    <div class="income-card">
+      <div class="month">第 1 個月</div>
+      <div class="amount">$39,000</div>
+      <div class="detail">新案 $39k</div>
+    </div>
+    <div class="income-card">
+      <div class="month">第 6 個月</div>
+      <div class="amount">$60,000</div>
+      <div class="detail">新案 $40k + 月租 $20k</div>
+    </div>
+    <div class="income-card">
+      <div class="month">第 12 個月</div>
+      <div class="amount">$84,000</div>
+      <div class="detail">新案 $40k + 月租 $44k</div>
+    </div>
+    <div class="income-card">
+      <div class="month">第 24 個月</div>
+      <div class="amount">$128,000</div>
+      <div class="detail">新案 $40k + 月租 $88k</div>
+    </div>
+  </div>
+
+  <h3>養客型：每月只簽 2 案，但零流失</h3>
+  <div class="income-chart">
+    <div class="income-card">
+      <div class="month">第 1 個月</div>
+      <div class="amount">$18,000</div>
+      <div class="detail">銅牌 2 案</div>
+    </div>
+    <div class="income-card">
+      <div class="month">第 6 個月</div>
+      <div class="amount">$29,000</div>
+      <div class="detail">升銀牌！月租 $5k</div>
+    </div>
+    <div class="income-card">
+      <div class="month">第 12 個月</div>
+      <div class="amount">$35,000</div>
+      <div class="detail">月租 $11k 持續成長</div>
+    </div>
+    <div class="income-card">
+      <div class="month">第 18 個月</div>
+      <div class="amount">$60,000</div>
+      <div class="detail">升金牌！月租 $34k</div>
+    </div>
+  </div>
+
+  <div class="example-box">
+    <div class="label">關鍵洞察</div>
+    <div class="result">養客型 18 個月後，月收入追上衝量型。而且被動收入佔比越來越高。</div>
+  </div>
+</section>
+
+<!-- 升降級 -->
+<section>
+  <h2>升級快、降級慢</h2>
+  <div class="card">
+    <h3 style="color:var(--success); margin-top:0;">升級：當月生效</h3>
+    <p style="font-size:14px; color:var(--slate);">這個月積分達到更高等級 → 立刻升級，所有客戶的月費分潤跟著升。</p>
+  </div>
+  <div class="card">
+    <h3 style="color:var(--warning); margin-top:0;">降級：連續 2 個月才降</h3>
+    <p style="font-size:14px; color:var(--slate);">偶爾一個月表現差不會降級。要連續 2 個月低於門檻才降一級。</p>
+  </div>
+</section>
+
+<!-- 客戶引薦 -->
+<section>
+  <h2>客戶引薦 — 讓客戶幫你拉客</h2>
+  <table>
+    <thead><tr><th>角色</th><th>獎勵</th></tr></thead>
+    <tbody>
+      <tr><td>引薦的客戶</td><td>免 1 個月月租（公司吸收）</td></tr>
+      <tr><td>你（負責業務）</td><td><strong>$3,000 引薦獎金</strong> + 正常新案獎金 + 月費分潤照常</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:14px; color:var(--slate);">引薦帶來的新客照常算你的案件（+1 分）。引薦獎金 $3,000 是額外的，不影響積分。</p>
+</section>
+
+<!-- 客戶流失 -->
+<section>
+  <h2>客戶流失怎麼辦</h2>
+  <div class="card">
+    <p><strong>客戶不續約</strong> → 月費分潤立即停止，活躍客戶少 1 → 積分少 0.3 分。</p>
+    <p style="margin-top:8px; font-size:14px; color:var(--slate);">公司有專門的<strong>客戶追回客服</strong>。追回成功的客戶免設定費，月租分潤歸客服人員。</p>
+  </div>
+</section>
+
+<!-- 離職規則 -->
+<section>
+  <h2>離職怎麼算</h2>
+  <table>
+    <thead><tr><th>項目</th><th>處理方式</th></tr></thead>
+    <tbody>
+      <tr><td>已發的即時獎金</td><td style="color:var(--success); font-weight:500;">不追回</td></tr>
+      <tr><td>未發的季度留任金</td><td style="color:var(--error); font-weight:500;">取消</td></tr>
+      <tr><td>月費分潤</td><td style="color:var(--error); font-weight:500;">離職次月停止</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 三層架構 -->
+<section>
+  <h2>三層業務架構</h2>
+  <div class="card">
+    <p style="text-align:center; font-size:15px;">
+      <span class="tier-badge tier-diamond">經銷商</span> — 鑽石級，可招募並培訓業務團隊<br>
+      <span style="color:var(--mist);">↓</span><br>
+      <span class="tier-badge tier-gold">業務主管</span> — 銀牌以上，管理業務團隊<br>
+      <span style="color:var(--mist);">↓</span><br>
+      <span class="tier-badge tier-silver">業務人員</span> — 直接服務客戶
+    </p>
+  </div>
+  <p style="font-size:14px; color:var(--slate);">每層依自己的等級獨立抽月費分潤。同一客戶最多被三層各抽一次，不疊加。<br>帶人的好處：團隊的客戶越多，你的被動收入越高。</p>
+</section>
+
+<!-- 加掛系統 -->
+<section>
+  <h2>加掛其他系統</h2>
+  <div class="card">
+    <p>客戶買了 MUSEON 後想加掛<strong>士維開發的系統</strong> → 走士維獨立合約（金額百分比制）。</p>
+    <p style="margin-top:8px;">兩套制度<strong>完全分開、不疊加</strong>。其他外掛系統，服務費另收。</p>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section>
+  <h2>常見問題</h2>
+
+  <details class="faq-item">
+    <summary>Q：積分怎麼算？</summary>
+    <p>每月重新算。公式：當月新簽案件 x 1 + 當月活躍客戶 x 0.3。簽 1 個新客得 1 分，養 1 個老客得 0.3 分。</p>
+  </details>
+
+  <details class="faq-item">
+    <summary>Q：我只簽 2 案但養了 30 個客戶，等級會很低嗎？</summary>
+    <p>不會！你的積分 = 2 + 30 x 0.3 = 11 分，是金牌。養客也能升級。</p>
+  </details>
+
+  <details class="faq-item">
+    <summary>Q：升級後，之前的客戶分潤也跟著升嗎？</summary>
+    <p>是的。全客戶跟著等級走。你從銀牌升金牌，所有客戶的月費分潤從 $500 跳到 $1,000。</p>
+  </details>
+
+  <details class="faq-item">
+    <summary>Q：客戶跑了會怎樣？</summary>
+    <p>月費分潤立即停止，活躍客戶少 1 → 積分下降 → 可能影響等級。流失有自然懲罰，不需要額外扣錢。</p>
+  </details>
+
+  <details class="faq-item">
+    <summary>Q：銅牌也有月租分潤嗎？</summary>
+    <p>是的！$200/客戶/月。只要你有活躍客戶就有被動收入，不管你是什麼等級。</p>
+  </details>
+
+  <details class="faq-item">
+    <summary>Q：降級會很快嗎？</summary>
+    <p>不會。需要連續 2 個月積分低於門檻才降一級。偶爾一個月表現差不會降級。</p>
+  </details>
+
+  <details class="faq-item">
+    <summary>Q：引薦客戶算不算我的案件？</summary>
+    <p>引薦帶來的新客戶照常計入你的新案積分（+1 分）。額外的引薦獎金 $3,000 是一次性獎勵，不計入積分。</p>
+  </details>
+
+  <details class="faq-item">
+    <summary>Q：同一個客戶可以重複簽約嗎？</summary>
+    <p>同一統編 90 天內只算 1 次新案。90 天後續約或重簽可再計 1 次。</p>
+  </details>
+
+</section>
+
+</div>
+
+<div class="footer">
+  MUSEON &copy; 2026 &middot; v3.0 雙軸積分制 &middot; 最後更新 2026-03-24
+</div>
+
+</body>
+</html>

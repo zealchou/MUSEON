@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240" width="200" height="240">
-  <g transform="translate(100,80)">
-    <rect x="-43" y="-43" width="86" height="86" rx="10" fill="none" stroke="#9a7d4e" stroke-width="8" transform="rotate(10)"/>
-    <path d="M0,-28 L28,0 L0,28 L-28,0Z" fill="#dfc08a"/>
-  </g>
-  <text x="100" y="185" font-family="'Cormorant Garamond',Georgia,serif" font-weight="400" font-size="28" fill="#c9a96e" letter-spacing="8" text-anchor="middle">MUSEON</text>
-</svg>
