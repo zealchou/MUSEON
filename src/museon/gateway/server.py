@@ -6264,10 +6264,10 @@ def _register_system_cron_jobs(brain, app=None) -> None:
         _muse_qa = MuseQA(data_dir.parent)
         _muse_doc = MuseDoc(data_dir.parent)
 
-        # MuseWorker: 每 6 小時全量快照
+        # MuseWorker: 每 3 小時全量快照
         cron_engine.add_job(
             _muse_worker.full_snapshot, trigger="interval", job_id="museworker-snapshot",
-            hours=6,
+            hours=3,
         )
         # MuseOff L0: 每 60 秒 liveness
         cron_engine.add_job(
@@ -6351,7 +6351,7 @@ def _register_system_cron_jobs(brain, app=None) -> None:
         {"job_id": "tool-health-check",      "name": "工具健康檢查",         "schedule": "每 5 分鐘",     "category": "maintenance", "uses_llm": False},
         {"job_id": "email-poll",             "name": "Email 郵件拉取",       "schedule": "每 5 分鐘",     "category": "external",    "uses_llm": False},
         {"job_id": "session-cleanup",        "name": "Session 自動清理",     "schedule": "每 60 分鐘",    "category": "maintenance", "uses_llm": False},
-        {"job_id": "museworker-snapshot",   "name": "MuseWorker 全量快照",  "schedule": "每 6 小時",     "category": "autonomous",  "uses_llm": False},
+        {"job_id": "museworker-snapshot",   "name": "MuseWorker 全量快照",  "schedule": "每 3 小時",     "category": "autonomous",  "uses_llm": False},
         {"job_id": "museoff-l0",            "name": "MuseOff L0 存活探測",  "schedule": "每 60 秒",      "category": "autonomous",  "uses_llm": False},
         {"job_id": "museoff-l1",            "name": "MuseOff L1 就緒探測",  "schedule": "每 5 分鐘",     "category": "autonomous",  "uses_llm": False},
         {"job_id": "museoff-l2",            "name": "MuseOff L2 import",   "schedule": "每 30 分鐘",    "category": "autonomous",  "uses_llm": False},
