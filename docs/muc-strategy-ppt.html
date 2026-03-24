@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUC MVP 市場策略報告 — MUSEON</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@400;600&family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #C4502A;
+            --primary-light: #E0714D;
+            --primary-dark: #9A3A1C;
+            --teal: #2A7A6E;
+            --gold: #B8923A;
+            --ink: #12121A;
+            --slate: #5A5A6E;
+            --mist: #9898A8;
+            --border: #E2E0DA;
+            --parchment: #F7F5F0;
+            --snow: #FDFCFA;
+            --success: #2D8A6E;
+            --warning: #C9943A;
+            --error: #C4402A;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: "Outfit", "Noto Sans TC", sans-serif;
+            background: var(--parchment);
+            color: var(--ink);
+            line-height: 1.75;
+            overflow-x: hidden;
+        }
+
+        .slideshow-container {
+            position: relative;
+            max-width: 100%;
+            height: 100vh;
+            background: var(--parchment);
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            height: 100vh;
+            padding: 80px 120px;
+            background: linear-gradient(135deg, var(--parchment) 0%, #F9F5F0 100%);
+            overflow-y: auto;
+            animation: fadeIn 0.6s ease-in;
+            position: relative;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide h1 {
+            font-family: "Cormorant Garamond", serif;
+            font-size: 4em;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 30px;
+            line-height: 1.2;
+            letter-spacing: 1px;
+        }
+
+        .slide h2 {
+            font-family: "Cormorant Garamond", serif;
+            font-size: 3em;
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 40px;
+            line-height: 1.2;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 20px;
+        }
+
+        .slide h3 {
+            font-family: "Cormorant Garamond", serif;
+            font-size: 2em;
+            font-weight: 600;
+            color: var(--primary);
+            margin-top: 30px;
+            margin-bottom: 20px;
+        }
+
+        .slide p {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: var(--slate);
+        }
+
+        .slide strong {
+            color: var(--ink);
+            font-weight: 600;
+        }
+
+        .tagline {
+            font-size: 1.3em;
+            color: var(--primary);
+            font-style: italic;
+            margin-bottom: 80px;
+            font-family: "Cormorant Garamond", serif;
+        }
+
+        .subtitle {
+            font-size: 1.4em;
+            color: var(--slate);
+            margin-bottom: 20px;
+            max-width: 800px;
+        }
+
+        .nav-buttons {
+            position: fixed;
+            bottom: 40px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 0.95em;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .nav-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(196, 80, 42, 0.3);
+        }
+
+        .nav-btn.prev {
+            margin-right: auto;
+            margin-left: 40px;
+        }
+
+        .nav-btn.next {
+            margin-left: auto;
+            margin-right: 40px;
+        }
+
+        .slide-counter {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.9em;
+            color: var(--mist);
+            font-family: "IBM Plex Mono", monospace;
+            z-index: 100;
+        }
+
+        .content-box {
+            background: var(--snow);
+            padding: 40px;
+            border-radius: 10px;
+            border-left: 5px solid var(--primary);
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .card {
+            background: var(--snow);
+            padding: 30px;
+            border-radius: 10px;
+            border-top: 4px solid var(--primary);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+
+        .card h4 {
+            font-size: 1.2em;
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .card p {
+            font-size: 0.95em;
+            color: var(--slate);
+            line-height: 1.7;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(196, 80, 42, 0.1);
+            color: var(--primary-dark);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            font-family: "IBM Plex Mono", monospace;
+            margin: 5px 5px 5px 0;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .timeline-item {
+            margin-bottom: 30px;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .timeline-item::before {
+            content: "";
+            position: absolute;
+            left: -40px;
+            top: 5px;
+            width: 16px;
+            height: 16px;
+            background: var(--primary);
+            border-radius: 50%;
+            box-shadow: 0 0 0 3px var(--parchment);
+            border: 2px solid var(--parchment);
+        }
+
+        .timeline-item h4 {
+            font-size: 1.1em;
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .timeline-item p {
+            font-size: 0.95em;
+            color: var(--slate);
+        }
+
+        .list-item {
+            margin: 12px 0;
+            padding-left: 25px;
+            position: relative;
+            color: var(--slate);
+            font-size: 0.95em;
+        }
+
+        .list-item::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 0.95em;
+            background: var(--snow);
+        }
+
+        th {
+            background: var(--primary);
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        td {
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:hover {
+            background: #fafafa;
+        }
+
+        .highlight {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .number-circle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            font-size: 1.5em;
+            font-weight: 600;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .section-break {
+            margin: 60px 0;
+            padding: 40px;
+            background: linear-gradient(90deg, rgba(196, 80, 42, 0.08) 0%, rgba(139, 69, 19, 0.06) 100%);
+            border-left: 5px solid var(--primary);
+            border-radius: 8px;
+        }
+
+        .cta-box {
+            background: linear-gradient(135deg, rgba(196, 80, 42, 0.1) 0%, rgba(42, 122, 110, 0.08) 100%);
+            padding: 50px;
+            border-radius: 10px;
+            border: 2px solid var(--primary);
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .cta-box h3 {
+            margin-top: 0;
+            font-size: 2em;
+        }
+
+        .cta-box p {
+            font-size: 1.1em;
+            color: var(--slate);
+            margin-bottom: 20px;
+        }
+
+        .cta-btn {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .cta-btn:hover {
+            background: var(--primary-dark);
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(196, 80, 42, 0.3);
+        }
+
+        .meta-info {
+            background: rgba(196, 80, 42, 0.08);
+            padding: 20px;
+            border-left: 4px solid var(--primary);
+            margin: 20px 0;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: var(--slate);
+        }
+
+        .threat-level {
+            display: inline-block;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: "IBM Plex Mono", monospace;
+            margin-left: 10px;
+        }
+
+        .threat-high {
+            background: rgba(196, 64, 42, 0.2);
+            color: var(--error);
+        }
+
+        .threat-medium {
+            background: rgba(201, 148, 58, 0.2);
+            color: var(--warning);
+        }
+
+        .threat-low {
+            background: rgba(45, 138, 110, 0.2);
+            color: var(--success);
+        }
+
+        @media (max-width: 1024px) {
+            .slide {
+                padding: 60px 60px;
+                padding-bottom: 120px;
+            }
+
+            .slide h1 {
+                font-size: 3em;
+            }
+
+            .slide h2 {
+                font-size: 2.2em;
+            }
+
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .nav-btn.prev {
+                margin-left: 20px;
+            }
+
+            .nav-btn.next {
+                margin-right: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .slide {
+                padding: 40px 30px;
+                padding-bottom: 100px;
+                height: auto;
+                min-height: 100vh;
+            }
+
+            .slide.active {
+                display: block;
+            }
+
+            .slide h1 {
+                font-size: 2.2em;
+            }
+
+            .slide h2 {
+                font-size: 1.6em;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .nav-btn.prev, .nav-btn.next {
+                margin: 0 20px;
+                width: calc(100% - 40px);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
+    </style>
+</head>
+<body>
+
+<div class="slideshow-container">
+
+    <!-- Slide 1: Title -->
+    <div class="slide active">
+        <h1>MUC MVP 市場策略報告</h1>
+        <p class="tagline">競品分析 × 深層診斷 × 90 天行動計畫</p>
+        <p class="subtitle">MUSEON AI 企業授權系統的市場定位、核心缺口與執行路徑</p>
+        <div style="margin-top: 100px; color: var(--mist); font-size: 0.95em;">
+            <div>製作時間：2026 年 3 月 24 日</div>
+            <div style="margin-top: 10px;">基於 Feng 的競品分析 + Zeal 的戰略診斷</div>
+        </div>
+    </div>
+
+    <!-- Slide 2: Executive Summary -->
+    <div class="slide">
+        <h2>Executive Summary</h2>
+        <div class="grid-2">
+            <div class="card">
+                <h4>市場現狀</h4>
+                <p><strong style="color: var(--primary);">沒有直接競品</strong>——但 4 類間接競品從不同方向逼近。最大威脅是通用平台（ChatGPT Teams / Copilot）的價格戰。</p>
+            </div>
+            <div class="card">
+                <h4>MUC 的護城河</h4>
+                <p><strong style="color: var(--primary);">6 層防禦</strong>——授權閉環、信任點計量、台灣在地化、記憶 + SOP 自動化。但品牌認知弱，窗口期只有 12-18 個月。</p>
+            </div>
+        </div>
+
+        <div class="section-break">
+            <h3 style="margin-top: 0;">核心發現：三大缺口</h3>
+            <p><strong>Feng 的競品分析準確，但從「分析」跨越到「行動」有三個關鍵缺口：</strong></p>
+            <div style="display: flex; gap: 20px; margin-top: 20px;">
+                <div style="flex: 1;">
+                    <div class="number-circle">1</div>
+                    <div style="margin-left: 65px; margin-top: -50px;">
+                        <strong>族群定義</strong> — 「台灣中小企業」太模糊
+                    </div>
+                </div>
+                <div style="flex: 1;">
+                    <div class="number-circle">2</div>
+                    <div style="margin-left: 65px; margin-top: -50px;">
+                        <strong>話術轉譯</strong> — 護城河用技術語言，不是客戶語言
+                    </div>
+                </div>
+                <div style="flex: 1;">
+                    <div class="number-circle">3</div>
+                    <div style="margin-left: 65px; margin-top: -50px;">
+                        <strong>操作細節</strong> — 策略方向清，但執行步驟不清
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: Market Overview -->
+    <div class="slide">
+        <h2>市場競爭地景</h2>
+        <p style="margin-bottom: 30px;">四類間接競品，各從不同方向進攻同一個市場空間：</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>競品類型</th>
+                    <th>代表平台</th>
+                    <th>威脅程度</th>
+                    <th>對 MUC 的影響</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>AI Agent 開發框架</strong></td>
+                    <td>CrewAI, Dify, Coze</td>
+                    <td><span class="threat-level threat-low">⚠️ 低</span></td>
+                    <td>客戶是開發者，不是中小企業老闆</td>
+                </tr>
+                <tr>
+                    <td><strong>軟體授權管理</strong></td>
+                    <td>Cryptlex, Keygen.sh</td>
+                    <td><span class="threat-level threat-low">⚠️ 低</span></td>
+                    <td>通用工具，沒有 AI + 計量的完整解決方案</td>
+                </tr>
+                <tr>
+                    <td><strong>通用 AI 助手（灰犀牛）</strong></td>
+                    <td>ChatGPT Teams, Copilot</td>
+                    <td><span class="threat-level threat-high">🔴 高</span></td>
+                    <td>客戶「差不多就好」時的替代品；品牌力強、價格低</td>
+                </tr>
+                <tr>
+                    <td><strong>台灣本土 AI 平台</strong></td>
+                    <td>EgentHub, 顧問公司</td>
+                    <td><span class="threat-level threat-medium">🟡 中</span></td>
+                    <td>EgentHub 走大企業，但若推中小版本威脅升高</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="content-box">
+            <strong>結論：</strong> MUC 目前站在沒人站的位置，但這個窗口期只有 12-18 個月。6 個月後，通用平台可能推出內建 Agent + SOP 功能，屆時競爭態勢會大幅改變。
+        </div>
+    </div>
+
+    <!-- Slide 4: Moat Analysis -->
+    <div class="slide">
+        <h2>MUC 的護城河評估</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>護城河維度</th>
+                    <th>強度</th>
+                    <th>說明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>授權閉環</strong><br>(License → Device → Entitlement)</td>
+                    <td style="color: var(--success); font-weight: 600;">🟢 強</td>
+                    <td>市場上沒有第二家把 AI Agent 授權做到 Ed25519 簽章 + Pre-Job Check 等級</td>
+                </tr>
+                <tr>
+                    <td><strong>信任點計量</strong><br>(Credit + Overage)</td>
+                    <td style="color: var(--success); font-weight: 600;">🟢 強</td>
+                    <td>通用平台不做按點計費 + 超額帳單的客製計量</td>
+                </tr>
+                <tr>
+                    <td><strong>台灣在地化</strong><br>(中小企業 + 繁體中文)</td>
+                    <td style="color: var(--success); font-weight: 600;">🟢 強</td>
+                    <td>國際平台的在地化很粗糙；EgentHub 走大企業</td>
+                </tr>
+                <tr>
+                    <td><strong>記憶 + SOP 自動化</strong></td>
+                    <td style="color: var(--warning); font-weight: 600;">🟡 中</td>
+                    <td>ChatGPT Memory 在進步，Copilot 也在加 Agent 功能，差距會縮小</td>
+                </tr>
+                <tr>
+                    <td><strong>品牌認知</strong></td>
+                    <td style="color: var(--error); font-weight: 600;">🔴 弱</td>
+                    <td>新品牌，需要時間建立信任；「聽過 ChatGPT 沒聽過 MUSEON」是常態</td>
+                </tr>
+                <tr>
+                    <td><strong>客戶鎖定</strong><br>(轉換成本)</td>
+                    <td style="color: var(--warning); font-weight: 600;">🟡 中</td>
+                    <td>一旦 SOP + 記憶深度綁定，轉換成本高；但前期容易被搶</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="content-box">
+            <strong>要點：</strong> 護城河實際上很深（前 3 項 🟢），但品牌弱（🔴）是短板。現在的工作是「不是加強護城河，而是讓客戶看到護城河」。
+        </div>
+    </div>
+
+    <!-- Slide 5: Three Gaps -->
+    <div class="slide">
+        <h2>缺口 #1：族群定義太模糊</h2>
+        <div class="grid-2">
+            <div class="content-box">
+                <h4 style="margin-top: 0; color: var(--error);">問題</h4>
+                <p>「台灣中小企業」被當作一個單一族群，實際上包含 10-15 個完全不同的小族群。</p>
+                <p>眼鏡店老闆、科技顧問、餐廳經理、廠長、房產仲介、健身房老闆——決策邏輯和購買能力差異巨大。</p>
+            </div>
+            <div class="content-box">
+                <h4 style="margin-top: 0; color: var(--success);">解法</h4>
+                <p>不講「台灣中小企業」，改為瞄準 3-5 個高確定性的垂直市場。每個垂直市場有自己的語言、痛點、成功案例。</p>
+                <p style="margin-bottom: 0;"><span class="badge">優先 1</span> 顧問服務業</p>
+                <p style="margin: 5px 0;"><span class="badge">優先 2</span> 房地產仲介</p>
+                <p style="margin: 0;"><span class="badge">優先 3</span> 連鎖美業/餐飲</p>
+            </div>
+        </div>
+
+        <div class="grid-3" style="margin-top: 40px;">
+            <div class="card">
+                <h4>顧問服務業</h4>
+                <p><strong>痛點：</strong> 重複工作占時間 40%</p>
+                <p><strong>MUC 價值：</strong> 節省 300-500 小時/年</p>
+                <p><strong>衡量：</strong> 顧問可賺取更多客戶時數</p>
+            </div>
+            <div class="card">
+                <h4>房地產仲介</h4>
+                <p><strong>痛點：</strong> 重複客戶互動、資訊管理</p>
+                <p><strong>MUC 價值：</strong> 24/7 客服助手 + 帶看流程</p>
+                <p><strong>衡量：</strong> 成交率提升 + 回應時間</p>
+            </div>
+            <div class="card">
+                <h4>連鎖美業/餐飲</h4>
+                <p><strong>痛點：</strong> SOP 執行不一致</p>
+                <p><strong>MUC 價值：</strong> 品質一致性保證</p>
+                <p><strong>衡量：</strong> 新員工培訓時間</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: Three Gaps Part 2 -->
+    <div class="slide">
+        <h2>缺口 #2 & #3：話術轉譯 + 操作細節</h2>
+        <div class="content-box">
+            <h4 style="margin-top: 0;">缺口 #2：護城河用的是技術語言，不是客戶語言</h4>
+            <p><strong>問題：</strong> 「Ed25519 簽章」「Device 綁定」「Pre-Job Check」——工程師的語言，客戶聽不懂。</p>
+            <p><strong>解法：</strong> 轉譯成「你能做到什麼」的場景語言：</p>
+        </div>
+
+        <table style="margin-top: 20px;">
+            <thead>
+                <tr>
+                    <th>技術護城河</th>
+                    <th>→ 客戶語言</th>
+                    <th>客戶能感到</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>授權閉環</td>
+                    <td>「只有你公司員工能用，只有公司設備能用」</td>
+                    <td>安全感 + 控制感</td>
+                </tr>
+                <tr>
+                    <td>信任點計量</td>
+                    <td>「成本可控，不會突然爆表」</td>
+                    <td>預算安心感</td>
+                </tr>
+                <tr>
+                    <td>記憶 + SOP 自動化</td>
+                    <td>「你們特有的做事方式被記住，AI 越來越像你們」</td>
+                    <td>被理解感 + 專屬感</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="section-break" style="margin-top: 40px;">
+            <h4 style="margin-top: 0;">缺口 #3：行動方案太抽象</h4>
+            <p><strong>問題：</strong> 「強化差異化訊息」「降低嘗試門檻」——方向對，但「誰做？用什麼？給誰看？成功指標？」都不清。</p>
+            <p><strong>解法：</strong> 下一頁揭曉：「共同創造客戶計畫」——從策略到執行的完整翻譯。</p>
+        </div>
+    </div>
+
+    <!-- Slide 7: Co-Creation Program -->
+    <div class="slide">
+        <h2>解法：共同創造客戶計畫</h2>
+        <p style="margin-bottom: 30px;"><strong>核心概念：</strong> 不叫「試用」，改叫「合作研究夥伴」。找 3-5 個願意深度配合的客戶，以接近免費或極低價格使用 MUC，條件是配合記錄 SOP、提供反饋、允許作為成功案例。</p>
+
+        <div class="timeline">
+            <div class="timeline-item">
+                <h4>階段 1：客戶篩選（0-2 週）</h4>
+                <p>找 3-5 個「探險家」型客戶——願意試新東西、對 AI 有好奇心、SOP 足夠多、規模 50 人以下。</p>
+            </div>
+
+            <div class="timeline-item">
+                <h4>階段 2：需求釐清（2-3 週）</h4>
+                <p>2-3 小時 SOP 訪談，把日常 5-10 個重複工作流程寫下來，預估節省時間價值。</p>
+            </div>
+
+            <div class="timeline-item">
+                <h4>階段 3：共同創造期（4-12 週）</h4>
+                <p>MUC + 客戶一起把 SOP 集成進 MUC，每週同步會議，客戶使用並記錄反饋。</p>
+            </div>
+
+            <div class="timeline-item">
+                <h4>階段 4：案例產出（第 8-12 週）</h4>
+                <p>客戶簽署分享協議，MUSEON 產出成功故事（2 頁案例 + 5 分鐘客戶見證視頻）。複製到第 2、3 個客戶。</p>
+            </div>
+        </div>
+
+        <div class="content-box" style="margin-top: 30px; background: linear-gradient(135deg, rgba(45, 138, 110, 0.08) 0%, rgba(180, 146, 58, 0.06) 100%); border-left-color: var(--teal);">
+            <strong>成果：</strong> 3 個月後，MUSEON 擁有 3 份真實、可驗證的成功案例。為後續銷售、市場、PR 打好基礎。
+        </div>
+    </div>
+
+    <!-- Slide 8: 90-Day Roadmap P1 -->
+    <div class="slide">
+        <h2>90 天行動計畫（Q2 2026）</h2>
+        <p style="margin-bottom: 30px;">從現在（3 月 24 日）到 6 月 15 日，具體的里程碑和責任分配：</p>
+
+        <table style="font-size: 0.9em;">
+            <thead>
+                <tr>
+                    <th>時期</th>
+                    <th>工作項目</th>
+                    <th>責任人</th>
+                    <th>成功指標</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>4 月 1-15 日</strong><br><em>前 15 天</em></td>
+                    <td>
+                        <div class="list-item">確定 3 垂直市場</div>
+                        <div class="list-item">開發「族群特化版」Landing Page</div>
+                        <div class="list-item">篩選 3-5 個共同創造客戶</div>
+                    </td>
+                    <td>Feng (主) + Rita</td>
+                    <td>
+                        <div class="list-item">Landing Page 上線</div>
+                        <div class="list-item">3 客戶同意深聊</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>4 月 16-30 日</strong><br><em>中 15 天</em></td>
+                    <td>
+                        <div class="list-item">完成 3-5 客戶 SOP 訪談</div>
+                        <div class="list-item">SOP 轉化為「自動化優先級表」</div>
+                        <div class="list-item">1 號客戶開始集成</div>
+                    </td>
+                    <td>Feng (技術) + Zeal</td>
+                    <td>
+                        <div class="list-item">3-5 份「自動化清單」完成</div>
+                        <div class="list-item">1 號客戶前 2 個 SOP 進開發</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Slide 9: 90-Day Roadmap P2 -->
+    <div class="slide">
+        <h2>90 天行動計畫（續）</h2>
+        <table style="font-size: 0.9em;">
+            <thead>
+                <tr>
+                    <th>時期</th>
+                    <th>工作項目</th>
+                    <th>責任人</th>
+                    <th>成功指標</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>5 月 1-31 日</strong><br><em>中 30 天</em></td>
+                    <td>
+                        <div class="list-item">1 號客戶開始真實使用</div>
+                        <div class="list-item">2 號客戶 SOP 訪談</div>
+                        <div class="list-item">第一份「成功故事初稿」</div>
+                        <div class="list-item">收集反饋，產品迭代</div>
+                    </td>
+                    <td>Feng (技術) + 客戶</td>
+                    <td>
+                        <div class="list-item">2-3 個 SOP 在運作</div>
+                        <div class="list-item">≥10 條用戶反饋</div>
+                        <div class="list-item">案例故事初稿完成</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>6 月 1-15 日</strong><br><em>末 15 天</em></td>
+                    <td>
+                        <div class="list-item">1 號客戶進「穩定期」</div>
+                        <div class="list-item">2 號客戶開始集成</div>
+                        <div class="list-item">編寫 1 號客戶案例文章</div>
+                        <div class="list-item">客戶見證視頻錄製</div>
+                    </td>
+                    <td>Feng + Rita + 客戶</td>
+                    <td>
+                        <div class="list-item">1 號客戶 ROI 初步數據</div>
+                        <div class="list-item">案例文章 + 視頻上線</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="content-box">
+            <strong>里程碑檢查點：</strong>
+            <div class="list-item">5 月中旬：第 1 個客戶上線（概念可行）</div>
+            <div class="list-item">6 月中旬：第 1 份案例發佈（有實際客戶在用）</div>
+            <div class="list-item">7 月上旬：啟動市場推廣（PR / 科技新聞 / 論壇）</div>
+        </div>
+    </div>
+
+    <!-- Slide 10: Market Window & Urgency -->
+    <div class="slide">
+        <h2>為什麼現在必須動？</h2>
+        <div class="grid-2">
+            <div class="content-box">
+                <h4 style="margin-top: 0; color: var(--error);">灰犀牛：12-18 個月的窗口期</h4>
+                <p>通用平台（ChatGPT、Copilot）在快速升級。6 個月後，他們可能推出內建 Agent + SOP 功能。</p>
+                <p><strong>現在動 = 開創者</strong><br><strong>6 個月後動 = 追趕者</strong></p>
+            </div>
+            <div class="content-box">
+                <h4 style="margin-top: 0; color: var(--primary);">社會認同的時間投資</h4>
+                <p>中小企業老闆決策慢，但「身邊同業都用了」會快速跟進。3-5 個成功案例可撬動 20-50 個同業。</p>
+                <p><strong>早期採用者窗口</strong> 只有 9 個月。</p>
+            </div>
+        </div>
+
+        <div class="section-break">
+            <h4 style="margin-top: 0;">「不動」的代價</h4>
+            <p>如果 6 月還沒有 2-3 個客戶案例，到 9 月會面臨：</p>
+            <ul style="margin-left: 20px; margin-top: 15px;">
+                <li>通用平台搶占「AI 助手」心智，客戶傾向大品牌</li>
+                <li>EgentHub 等本土競品開始進入中小企業市場</li>
+                <li>錯失「社會認同的臨界點」——第一批 10 客戶決定後面 100 客戶的決策</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Slide 11: Success Metrics -->
+    <div class="slide">
+        <h2>成功指標與里程碑</h2>
+        <table style="font-size: 0.9em;">
+            <thead>
+                <tr>
+                    <th>里程碑</th>
+                    <th>時間</th>
+                    <th>成功指標</th>
+                    <th>市場意義</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>第 1 客戶上線</strong></td>
+                    <td>5 月中旬</td>
+                    <td>客戶認可 SOP 方案，開始 4 週試用</td>
+                    <td>證明概念可行</td>
+                </tr>
+                <tr>
+                    <td><strong>第 1 案例發佈</strong></td>
+                    <td>6 月中旬</td>
+                    <td>客戶故事文章上線，有 ROI 數據</td>
+                    <td>有實際客戶在用</td>
+                </tr>
+                <tr>
+                    <td><strong>第 2-3 客戶上線</strong></td>
+                    <td>6 月中-7 月中</td>
+                    <td>2 個新客戶進集成期</td>
+                    <td>流程可複製</td>
+                </tr>
+                <tr>
+                    <td><strong>PR 推廣啟動</strong></td>
+                    <td>7 月上旬</td>
+                    <td>案例上線，科技新聞 / 論壇推廣</td>
+                    <td>搶占心智</td>
+                </tr>
+                <tr>
+                    <td><strong>銷售轉化加速</strong></td>
+                    <td>7-9 月</td>
+                    <td>新客戶詢問量 3 倍增長</td>
+                    <td>進入增長期</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="content-box">
+            <strong>關鍵指標：</strong>
+            <div class="list-item"><span style="display: inline-block; background: rgba(196,80,42,0.1); padding: 2px 8px; border-radius: 4px; margin-right: 10px;">Q2</span> 3-5 個客戶進入評估 → 1-2 個簽約</div>
+            <div class="list-item"><span style="display: inline-block; background: rgba(196,80,42,0.1); padding: 2px 8px; border-radius: 4px; margin-right: 10px;">Q3</span> 1-2 個案例上線 → 新客戶詢問量 3x</div>
+            <div class="list-item"><span style="display: inline-block; background: rgba(196,80,42,0.1); padding: 2px 8px; border-radius: 4px; margin-right: 10px;">Q4</span> 5-10 個客戶在用 → MRR 達 $XX,XXX</div>
+        </div>
+    </div>
+
+    <!-- Slide 12: Immediate Actions -->
+    <div class="slide">
+        <h2>立即行動（本週）</h2>
+
+        <div class="cta-box">
+            <h3 style="margin-top: 0; color: var(--primary);">決策建議</h3>
+            <p><strong>立即啟動「共同創造客戶計畫」的啟動會</strong></p>
+            <p style="margin-bottom: 30px;">目標在 4 月 1 日前確定 3-5 個目標客戶、開發垂直市場版 Landing Page</p>
+        </div>
+
+        <h3>責任分配（本週）</h3>
+        <div class="grid-2">
+            <div class="card">
+                <h4>Zeal</h4>
+                <div class="list-item">確認此策略方向</div>
+                <div class="list-item">分配 Feng 30% 時間到「客戶集成」</div>
+                <div class="list-item">親自參與第 1 客戶關鍵決策</div>
+            </div>
+            <div class="card">
+                <h4>Feng</h4>
+                <div class="list-item">確定 3 個垂直市場目標樣貌</div>
+                <div class="list-item">準備「SOP 訪談文件」</div>
+                <div class="list-item">擬定技術集成 SOP</div>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="card">
+                <h4>Rita</h4>
+                <div class="list-item">篩選目標客戶名單</div>
+                <div class="list-item">初聯 5+ 個潛在客戶</div>
+                <div class="list-item">爭取 3 個客戶同意深聊</div>
+            </div>
+            <div class="card">
+                <h4>共同項目</h4>
+                <div class="list-item">開發「族群特化版」Landing Page</div>
+                <div class="list-item">準備共同創造流程 SOP</div>
+                <div class="list-item">啟動會議（本週五）</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 13: Appendix -->
+    <div class="slide">
+        <h2>參考數據</h2>
+        <p style="margin-bottom: 30px;"><strong>台灣市場利多（支撐上述策略的環境因素）：</strong></p>
+
+        <div class="timeline">
+            <div class="timeline-item">
+                <h4>政府支持</h4>
+                <p>數位部 + 經濟部投入 NT$100 億基金；2026 年目標 AI 產值破 NT$1 兆</p>
+            </div>
+
+            <div class="timeline-item">
+                <h4>企業需求爆發</h4>
+                <p>經濟部已協助 2,500 家企業導入 AI 工具，市場教育已完成</p>
+            </div>
+
+            <div class="timeline-item">
+                <h4>定價模式轉向</h4>
+                <p>Deloitte 預測 2026 年訂閱制 + 按量計費成為主流——MUC 的 License + Credit 模式符合趨勢</p>
+            </div>
+
+            <div class="timeline-item">
+                <h4>資料安全關注</h4>
+                <p>企業越來越在意資料安全，MUC 的設備綁定 + 本地部署方案正好滿足需求</p>
+            </div>
+
+            <div class="timeline-item">
+                <h4>中國市場驗證</h4>
+                <p>「矽基數位員工」已納入企業用工體系；周鴻禕預測 2026 進入「百億智能體時代」</p>
+            </div>
+        </div>
+
+        <div class="content-box" style="margin-top: 30px;">
+            <strong>結論：</strong> 市場環境利多，但競品快速進步。不是「有沒有市場」的問題，而是「有沒有搶到市場」的問題。
+        </div>
+    </div>
+
+    <!-- Slide 14: Final CTA -->
+    <div class="slide">
+        <h1 style="margin-bottom: 20px;">行動時刻</h1>
+        <p class="tagline" style="margin-bottom: 50px;">The window is now. The competition is moving fast.</p>
+
+        <div class="cta-box">
+            <h3>下一步</h3>
+            <p>本週五啟動會議，確認策略方向、分配責任、設定里程碑</p>
+            <p style="margin-bottom: 0;">
+                <button class="cta-btn" onclick="alert('會議安排請聯繫 Zeal')">了解更多</button>
+            </p>
+        </div>
+
+        <div style="text-align: center; margin-top: 80px; color: var(--mist); font-size: 0.9em;">
+            <p>MUC MVP 市場策略報告</p>
+            <p>基於 Feng 的競品分析 + Zeal 的戰略診斷</p>
+            <p style="margin-top: 20px;">發佈日期：2026 年 3 月 24 日</p>
+            <p>MUSEON AI 企業授權系統</p>
+        </div>
+    </div>
+
+</div>
+
+<div class="nav-buttons">
+    <button class="nav-btn prev" onclick="changeSlide(-1)">← 上一頁</button>
+    <div class="slide-counter">
+        <span id="current-slide">1</span> / <span id="total-slides">14</span>
+    </div>
+    <button class="nav-btn next" onclick="changeSlide(1)">下一頁 →</button>
+</div>
+
+<script>
+    let currentSlide = 1;
+    const totalSlides = document.querySelectorAll('.slide').length;
+    document.getElementById('total-slides').textContent = totalSlides;
+
+    function showSlide(n) {
+        const slides = document.querySelectorAll('.slide');
+
+        if (n > totalSlides) {
+            currentSlide = totalSlides;
+        } else if (n < 1) {
+            currentSlide = 1;
+        } else {
+            currentSlide = n;
+        }
+
+        slides.forEach(slide => slide.classList.remove('active'));
+        slides[currentSlide - 1].classList.add('active');
+
+        document.getElementById('current-slide').textContent = currentSlide;
+
+        // Disable prev button on first slide, next on last
+        document.querySelector('.nav-btn.prev').disabled = currentSlide === 1;
+        document.querySelector('.nav-btn.next').disabled = currentSlide === totalSlides;
+    }
+
+    function changeSlide(n) {
+        showSlide(currentSlide + n);
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') changeSlide(1);
+        if (e.key === 'ArrowLeft') changeSlide(-1);
+        if (e.key === ' ') {
+            e.preventDefault();
+            changeSlide(1);
+        }
+    });
+
+    // Initialize
+    showSlide(1);
+</script>
+
+</body>
+</html>
