@@ -483,6 +483,33 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
             except Exception as e:
                 logger.debug(f"Recovery notification failed (non-critical): {e}")
 
+    async def probe_health(self) -> dict:
+        """輕量健康探針 — 驗證 Brain 子系統存活，不呼叫 LLM.
+
+        供 VitalSignsMonitor._check_e2e_flow() 使用，取代原本的
+        Brain.process() 全 pipeline 呼叫，避免 180s timeout 與身份衝突。
+        """
+        checks = {}
+        try:
+            from museon.agent.chat_context import ChatContext
+            ChatContext.from_chat_args(
+                metadata=None,
+                source="vital_signs_probe",
+                session_id="__probe__",
+                user_id="system",
+            )
+            checks["chat_context"] = True
+        except Exception as e:
+            checks["chat_context"] = str(e)
+
+        checks["ceremony"] = self.ceremony is not None
+        checks["skill_router"] = self.skill_router is not None
+        checks["memory_store"] = self.memory_store is not None
+        checks["llm_adapter"] = self._llm_adapter is not None
+
+        all_ok = all(v is True for v in checks.values())
+        return {"ok": all_ok, "checks": checks}
+
     async def process(
         self,
         content: str,
