@@ -1016,9 +1016,49 @@ class BusinessCaseDaily:
                     "sha": index_sha,
                 }, headers=headers)
 
+        # ✓ 新增：GitHub Pages HTTP 驗證流程（避免 2026-03-23 Feng 報告 404 失敗）
         pages_url = f"https://{owner}.github.io/{repo}/reports/{filename}"
-        logger.info(f"GitHub Pages 推送成功: {pages_url}")
-        return pages_url
+        return self._verify_github_pages_url(pages_url, max_retries=5)
+
+    def _verify_github_pages_url(self, url: str, max_retries: int = 5) -> str:
+        """驗證 GitHub Pages URL 是否可訪問（HTTP 200）
+
+        Args:
+            url: GitHub Pages URL
+            max_retries: 最多重試次數（2-5 秒間隔）
+
+        Returns:
+            如果驗證成功，返回 URL；失敗返回空字符串
+        """
+        import requests
+        import time
+
+        for attempt in range(max_retries):
+            try:
+                resp = requests.head(url, timeout=5)
+                if resp.status_code == 200:
+                    logger.info(f"GitHub Pages URL 驗證成功 (attempt {attempt + 1}): {url}")
+                    return url
+                else:
+                    logger.warning(
+                        f"GitHub Pages URL 返回 {resp.status_code} "
+                        f"(attempt {attempt + 1}/{max_retries}): {url}"
+                    )
+            except Exception as e:
+                logger.warning(
+                    f"GitHub Pages URL 驗證失敗 (attempt {attempt + 1}/{max_retries}): {e}"
+                )
+
+            # 等待 2-3 秒後重試（讓 GitHub Pages 有足夠時間部署）
+            if attempt < max_retries - 1:
+                time.sleep(2.5)
+
+        logger.error(
+            f"GitHub Pages URL 驗證失敗，超過最大重試次數: {url}\n"
+            f"可能原因：(1) GitHub token 無效 (2) 倉庫不存在 (3) Pages 部署延遲\n"
+            f"建議：手動檢查 https://github.com/zealchou/museon-daily/actions"
+        )
+        return ""
 
     # ── 主流程 ────────────────────────────────
 
