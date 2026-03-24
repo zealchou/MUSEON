@@ -1,10 +1,11 @@
-# Blast Radius — 模組影響半徑表 v1.59
+# Blast Radius — 模組影響半徑表 v1.60
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節
+> **v1.60 (2026-03-24)**：跨群組洩漏防禦 + 軍師認知升級——新增 `governance/response_guard.py` 到綠區（扇入=2：server.py + brain.py，ResponseGuard 發送前 chat_id 二次驗證閘門）；`governance/multi_tenant.py` 新增 `resolve_by_id()` 精確匹配（取代 FIFO `resolve_latest()`）；`brain.py` 新增 `_check_smart_completeness()` SMART 回答門檻 + `process()` finally 清空 `self._ctx` 及 6 個 alias（防跨群組殘留）+ `route()` 新增 `is_group` 參數傳遞；`brain_prompt_builder.py` 注入「軍師認知框架」system prompt + 群組禁止確認詞規則；`brain_p3_fusion.py` 新增 Roundtable ≥3 Skill 自動觸發融合；`reflex_router.py` `select_loop()`/`route()` 新增 `is_group` 參數（群組路由升級）；`server.py` session lock 改為 `wait_and_acquire(30s)` timeout 守衛。**注意**：軍師認知升級的修改在 `.runtime/src/museon/agent/` 中（gitignored），`src/` 合併版未同步。
 > **v1.58 (2026-03-23)**：OAuth Token 韌性重構——`adapters.py` `ClaudeCLIAdapter._get_oauth_token()` 從 2 層來源升級為 4 層：環境變數 → 持久化文件 → Claude Desktop credentials（`~/.claude/.credentials.json` 自動續期）→ 備份文件（永不刪除的最後防線）；Token 過期時不再 `unlink` 而是備份到 `.bak` + 標記 `.stale`（永不刪除策略）；`create_adapter_sync()` CLI-only 模式也包裝為 FallbackAdapter（支援 extended_thinking 等進階參數）；`preflight.py` ANTHROPIC_API_KEY 從必要降為選填（Max 方案用 CLI OAuth）。
 > **v1.57 (2026-03-23)**：Claude 原生能力全面接入——新增 `llm/vision.py`（Multimodal 圖片+PDF content block 構建，扇入 1：brain.py）；`brain.py` L1211 注入 `build_multimodal_content()` 構建 Vision/PDF content blocks（扇出 +1：vision.py）；`adapters.py` AnthropicAPIAdapter.call() 新增 `extended_thinking` + `thinking_budget` 參數，AdapterResponse 新增 `thinking` 欄位，新增 `count_tokens()` / `create_batch()` / `get_batch_status()` / `get_batch_results()` 方法（API 面不變）；FallbackAdapter.call() 新增 `extended_thinking` 傳遞（thinking 時直接走 API，CLI 不支援）；`brain_tools.py` `_call_llm()` 新增 `loop` 參數，SLOW_LOOP + 無 tool-use 時自動啟用 Extended Thinking；`budget.py` 新增 `count_tokens_precise()` + `set_api_adapter()` 接入 Token Counting API；`adapters.py` CLI `_build_prompt()` 新增 image/document type graceful degradation。
 > **v1.56 (2026-03-23)**：DSE 根因修復——`server.py` `_pre_start_cleanup` 失敗後 `sys.exit(1)` 停止 crash loop；`adapters.py` OAuth token 清除條件精準化（排除 stdin timeout）；`tool_registry.py` Docker 容器停止保持 enabled=True；`gateway_lock.py` timeout 5→30s；`adapters.py` FallbackAdapter 雙失敗友善降級回覆。
@@ -106,6 +107,7 @@
 | 修改 API 回應格式（不影響前端時） | 修改 `_build_system_prompt()` |
 | 新增中間件（不影響既有路由） | 修改 `lifespan()` 初始化順序 |
 | 修改日誌格式 | 修改 ANIMA_MC.json 的讀寫邏輯 |
+| `wait_and_acquire()` timeout 守衛（v1.60） | 修改 `_process_lock` 鎖策略 |
 
 ---
 
@@ -237,7 +239,7 @@
 | ✅ 安全 | ❌ 危險 |
 |---------|---------|
 | 修改 `_chat()` 的回應後處理 | 修改 `__init__()` 的初始化順序 |
-| 新增獨立觀察方法（如 `_handle_fact_correction()`, `_observe_lord()`, `_observe_external_user()`, `_classify_p0_signal()`, `_detect_fact_correction()`, `_build_environment_awareness()`, `_build_self_modification_protocol()`, `_build_strategic_context()`） | 修改 `_build_soul_context()` |
+| 新增獨立觀察方法（如 `_handle_fact_correction()`, `_observe_lord()`, `_observe_external_user()`, `_classify_p0_signal()`, `_detect_fact_correction()`, `_build_environment_awareness()`, `_build_self_modification_protocol()`, `_build_strategic_context()`, `_check_smart_completeness()`） | 修改 `_build_soul_context()` |
 | Step 8 trace_decision/trace_cognitive 呼叫（純寫入足跡） | 修改 trace 呼叫的觸發條件 |
 | 修改日誌格式 | 修改 `_save_anima_mc()` / `_load_anima_mc()` |
 | — | 修改 `_anima_mc_lock` 鎖策略 |
@@ -669,8 +671,9 @@
 ### Memory 層（1 個）
 `memory/memory_gate.py`（★ v1.19 新增，扇入=1，僅 brain.py import；純 CPU 規則引擎，零 LLM 成本，判斷記憶寫入意圖）
 
-### Governance 層（1 個）
+### Governance 層（2 個）
 `governance/cognitive_receipt.py`（★ v1.21 新增，扇入=1，僅 footprint.py import；CognitiveReceipt dataclass 定義，認知追蹤的結構化收據格式）
+`governance/response_guard.py`（★ v1.60 新增，扇入=2（server.py + brain.py），ResponseGuard 發送前 chat_id 二次驗證閘門——接收時 `register_origin(chat_id)` 記錄來源，發送時 `validate(target_chat_id)` 比對，不一致即擋+CRITICAL log；防跨群組訊息洩漏的最後一道閘門）
 
 ### Doctor 層（2 個）
 `doctor/memory_reset.py`（★ v1.20 新增，扇入=0，CLI 工具；一鍵重置 25 個持久層，涵蓋 ANIMA_MC/USER、PULSE.md、PulseDB、Qdrant、sessions、memory_v3 等全部記憶/知識/行為/評估/日誌層）
@@ -834,6 +837,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-24 | v1.60 | 跨群組洩漏防禦 + 軍師認知升級——新增 `governance/response_guard.py` 到綠區（扇入=2，ResponseGuard chat_id 二次驗證閘門）；`governance/multi_tenant.py` 新增 `resolve_by_id()` 精確匹配取代 FIFO；brain.py `process()` finally 清空 `self._ctx` + 6 個 alias + 新增 `_check_smart_completeness()` + `route()` 新增 `is_group` 傳遞；server.py session lock 升級 `wait_and_acquire(30s)` timeout 守衛。軍師認知升級：`reflex_router.py` select_loop/route 新增 `is_group`；`brain_prompt_builder.py` 軍師認知框架 + 群組禁止確認詞；`brain_p3_fusion.py` ≥3 Skill Roundtable 自動融合。**注意**：認知升級修改在 `.runtime/src/museon/agent/`（gitignored）。同步 system-topology v1.47 |
 | 2026-03-23 | v1.59 | Brain 思考品質 5 項修復（DSE 分析結果落地）——(1) reflex_router.py `select_loop()` 移除 RC-D1 從 EXPLORATION_LOOP 攔截（D1 屬 D-tier 應走 SLOW_LOOP）；(2) brain.py `_check_behavior_patterns()` action_verbs 擴充 8 個高頻動詞（分析/規劃/評估/整理/計算/比較/歸納/總結）+ 移除 `len(content)<30` 短訊息誤判；(3) rc_affinity_loader.py `get_suppressed_skills()` 新增 cluster_scores + threshold 0.5 參數（低分 RC 不再壓制策略 Skill）；reflex_router.py RoutingSignal 新增 `cluster_scores` 欄位；skill_router.py 呼叫端同步傳入 cluster_scores；(4) brain_p3_fusion.py 新增 `_P3_CONFIDENCE_EXPLORE_MULTI=0.7`（EXPLORATION_LOOP + 多策略 Skill → 0.70 取代恆定 0.60）；(5) brain.py Step 3.1c P0 訊號分流提前——戰略信號自動注入 master-strategy 到 matched_skills。全部為內部邏輯修改，不改公開介面/持久層格式/import 關係。RoutingSignal 新增 optional 欄位（向後相容）。 |
 | 2026-03-23 | v1.56 | Session 自動清理升級——brain_tools.py `_save_session_to_disk()` 新增 metadata 層，記錄 `last_active` ISO 時間戳；`_load_session_from_disk()` 相容舊格式（pure list）和新格式（metadata + messages），自動轉換舊檔案；session_cleanup.py `cleanup_dormant_sessions()` 新增 `_get_session_last_active()` 優先讀 metadata.last_active、fallback 到檔案 mtime；server.py cron engine 每小時執行清理（超過 3 天未互動的 session 自動刪除）。brain_tools.py 扇入扇出不變、無新增 import；session_cleanup.py 扇入不變（1）；server.py 扇出不變（cron job 已註冊）；共享狀態讀寫格式變更（向後相容）。同步 persistence-contract v1.33 |
 | 2026-03-23 | v1.55 | Project Epigenesis 接線——brain.py `__init__()` 新增 EpigeneticRouter 初始化（注入 memory_manager/diary_store/knowledge_lattice/anima_changelog/pulse_db）；brain_prompt_builder.py `_build_memory_inject()` 新增反思摘要注入（EpigeneticRouter.activate() → reflection.summary → memory zone）。新增 G9 記憶反思組（epigenetic_router + memory_reflector + adaptive_decay + brain_prompt_builder）。brain.py 扇出 +1（epigenetic_router）；brain_prompt_builder.py 扇出 +1。memory_reflector 扇入 1（epigenetic_router）；adaptive_decay 扇入 1（memory_reflector）；epigenetic_router 扇入 1（brain.py）。同步 joint-map v1.40、memory-router v1.6、persistence-contract v1.32 |
