@@ -526,7 +526,17 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         # ★ 併發安全：全域 lock 防止多群組同時進入 process()
         # 避免 self._ctx 等 instance 變數被併發覆蓋導致跨群組資料洩漏
         async with self._process_lock:
-            return await self._process_impl(content, session_id, user_id, source, metadata)
+            try:
+                return await self._process_impl(content, session_id, user_id, source, metadata)
+            finally:
+                # ⛔ 防止跨群組殘留：lock 釋放前清空所有 per-turn instance 變數
+                # 確保下一個群組的 coroutine 不會讀到上一個群組的狀態
+                self._ctx = None
+                self._is_group_session = False
+                self._group_sender = ""
+                self._current_metadata = None
+                self._skillhub_mode = None
+                self._current_source = ""
 
     async def _process_impl(
         self,

@@ -3703,15 +3703,16 @@ async def _handle_telegram_message(adapter, message) -> None:
             brain_result = None  # v9.0: raw BrainResponse
             brain = _get_brain()
 
-            # Acquire session lock (same pattern as webhook handler)
+            # Acquire session lock — 使用 wait_and_acquire 等待（最多 30 秒）
             _session_locked = False
             if message.session_id and session_manager:
-                _session_locked = await session_manager.acquire(message.session_id)
+                _session_locked = await session_manager.wait_and_acquire(
+                    message.session_id, timeout=30
+                )
                 if not _session_locked:
-                    logger.warning(f"Session {message.session_id} busy, queuing message")
-                    # Wait briefly then retry once
-                    await asyncio.sleep(2)
-                    _session_locked = await session_manager.acquire(message.session_id)
+                    logger.warning(f"Session {message.session_id} busy after 30s, dropping message")
+                    response_text = "目前系統忙碌中，請稍後再試。"
+                    # 跳過 brain.process()，直接用此 response_text 回覆
 
             try:
                 # ── Check if owner is responding to a sensitivity escalation ──
@@ -3733,15 +3734,27 @@ async def _handle_telegram_message(adapter, message) -> None:
                         _is_deny = any(kw in content_lower for kw in _DENY_KW)
                         _is_approve = any(kw in content_lower for kw in _APPROVE_KW) and not _is_deny
 
+                        # ── Escalation 精確匹配：優先用 #eid，fallback 用 FIFO ──
+                        _target_eid = None
+                        import re as _eid_re
+                        _eid_match = _eid_re.search(r'#([a-f0-9]{8})', content_lower)
+                        if _eid_match:
+                            _target_eid = _eid_match.group(1)
+
                         if _is_approve:
-                            eid = eq.resolve_latest(allowed=True)
+                            # 精確匹配優先
+                            if _target_eid:
+                                _resolved = eq.resolve_by_id(_target_eid, allowed=True)
+                                eid = _target_eid if _resolved else None
+                            else:
+                                eid = eq.resolve_latest(allowed=True)
                             if eid:
                                 entry = eq.get(eid)
                                 if entry:
                                     _q = entry.get("question", "")
                                     _gid = entry.get("group_id")
                                     _asker = entry.get("asker_name", "對方")
-                                    response_text = f"好，正在回覆 {_asker} 的問題。"
+                                    response_text = f"好，正在回覆 {_asker} 的問題（#{eid}）。"
                                     # Actually process & reply to group
                                     if _gid and _q:
                                         try:
@@ -3756,26 +3769,39 @@ async def _handle_telegram_message(adapter, message) -> None:
                                                 _reply = _gr.text or "好的，讓我想想看。"
                                             else:
                                                 _reply = str(_gr) if _gr else "好的，讓我想想看。"
-                                            await adapter.application.bot.send_message(
-                                                chat_id=_gid, text=_reply
-                                            )
-                                            logger.info(f"Group escalation reply sent to {_gid} for {_asker}")
+                                            # ⛔ ResponseGuard：驗證 escalation 的 group_id
+                                            from museon.governance.response_guard import ResponseGuard
+                                            if ResponseGuard.validate_escalation(eid, _gid, _gid, f"escalation_approve asker={_asker}"):
+                                                await adapter.application.bot.send_message(
+                                                    chat_id=_gid, text=_reply
+                                                )
+                                                logger.info(f"Group escalation reply sent to {_gid} for {_asker} (eid={eid})")
+                                            else:
+                                                logger.critical(f"Escalation reply BLOCKED by ResponseGuard: eid={eid} gid={_gid}")
                                         except Exception as _grp_err:
                                             logger.error(f"Group reply after escalation failed: {_grp_err}", exc_info=True)
                         elif _is_deny:
-                            eid = eq.resolve_latest(allowed=False)
+                            if _target_eid:
+                                _resolved = eq.resolve_by_id(_target_eid, allowed=False)
+                                eid = _target_eid if _resolved else None
+                            else:
+                                eid = eq.resolve_latest(allowed=False)
                             if eid:
                                 entry = eq.get(eid)
                                 if entry:
                                     _gid = entry.get("group_id")
                                     _asker = entry.get("asker_name", "對方")
-                                    response_text = f"好，已記錄。{_asker} 那邊我會禮貌拒絕。"
+                                    response_text = f"好，已記錄。{_asker} 那邊我會禮貌拒絕（#{eid}）。"
                                     if _gid:
                                         try:
-                                            await adapter.application.bot.send_message(
-                                                chat_id=_gid,
-                                                text="這個問題目前不方便回答，抱歉。有其他需要歡迎繼續詢問。",
-                                            )
+                                            from museon.governance.response_guard import ResponseGuard
+                                            if ResponseGuard.validate_escalation(eid, _gid, _gid, f"escalation_deny asker={_asker}"):
+                                                await adapter.application.bot.send_message(
+                                                    chat_id=_gid,
+                                                    text="這個問題目前不方便回答，抱歉。有其他需要歡迎繼續詢問。",
+                                                )
+                                            else:
+                                                logger.critical(f"Escalation decline BLOCKED by ResponseGuard: eid={eid} gid={_gid}")
                                         except Exception as _grp_err:
                                             logger.error(f"Group decline send failed: {_grp_err}", exc_info=True)
                     except Exception as _esc_err:
@@ -3886,12 +3912,13 @@ async def _handle_telegram_message(adapter, message) -> None:
                                     eq.add(eid, message.content, sender_name, group_id or 0, level)
 
                                     dm_text = (
-                                        f"【群組敏感問題 - {level}】\n\n"
+                                        f"【群組敏感問題 - {level}】#{eid}\n\n"
                                         f"{sender_name} 在群組問了：\n「{message.content[:200]}」\n\n"
                                         f"原因：{reason}\n\n"
                                         f"可以回答嗎？\n"
-                                        f"回覆「可以」→ 我照常回答\n"
-                                        f"回覆「不行」→ 我禮貌拒絕\n"
+                                        f"回覆「#{eid} 可以」→ 精確回答此問題\n"
+                                        f"回覆「#{eid} 不行」→ 精確拒絕此問題\n"
+                                        f"或直接「可以」/「不行」→ 處理最舊一則\n"
                                         f"（10 分鐘無回應 → 預設禮貌拒絕）"
                                     )
                                     await adapter.send_dm_to_owner(dm_text)
@@ -4103,14 +4130,28 @@ async def _handle_telegram_message(adapter, message) -> None:
                 metadata=message.metadata,
             )
 
-            # v9.0: BrainResponse support (text + artifacts)
-            if isinstance(brain_result, BrainResponse):
-                if hasattr(adapter, 'send_response'):
-                    success = await adapter.send_response(response_msg, brain_result)
+            # ⛔ ResponseGuard：發送前二次驗證 — 確認 chat_id 一致
+            from museon.governance.response_guard import ResponseGuard
+            _origin_cid = message.metadata.get("chat_id")
+            _target_cid = response_msg.metadata.get("chat_id")
+            if not ResponseGuard.validate(
+                _origin_cid, _target_cid,
+                f"normal_reply session={message.session_id}"
+            ):
+                logger.critical(
+                    f"⛔ Response BLOCKED by ResponseGuard for session {message.session_id} "
+                    f"origin_cid={_origin_cid} target_cid={_target_cid}"
+                )
+                success = False
+            else:
+                # v9.0: BrainResponse support (text + artifacts)
+                if isinstance(brain_result, BrainResponse):
+                    if hasattr(adapter, 'send_response'):
+                        success = await adapter.send_response(response_msg, brain_result)
+                    else:
+                        success = await adapter.send(response_msg)
                 else:
                     success = await adapter.send(response_msg)
-            else:
-                success = await adapter.send(response_msg)
             if not success:
                 logger.error(f"Failed to send Telegram response to {message.session_id}")
 
