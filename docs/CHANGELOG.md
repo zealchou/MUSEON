@@ -5,6 +5,31 @@
 
 ---
 
+## [v9.3] 2026-03-24 — GitHub Pages DSE 根因修復 + 可執行工作流架構
+
+### DSE 根因分析（4 個系統性根因）
+| # | 根因 | 嚴重度 | 修復 |
+|---|------|--------|------|
+| RC-1 | 意圖與實作斷裂（Skill 只有描述沒有可執行代碼） | 💀致命 | 建立 `scripts/workflows/` 架構 |
+| RC-2 | 指令來源衝突（3 份互相矛盾的文件） | 🔴嚴重 | 刪除矛盾文件，統一為單一腳本 |
+| RC-3 | gh-pages 分支狀態損壞（src/tests 被推進） | 🔴嚴重 | 切換為 GitHub Actions 部署 |
+| RC-4 | Claude git 分支切換脆弱（5 個失敗點） | 🟠中高 | 不再切換分支，只推 main |
+
+### 修改清單
+| # | 修改 | 檔案 | 行為變化 |
+|---|------|------|---------|
+| 1 | GitHub Actions 自動部署 | `.github/workflows/deploy-pages.yml`（新建） | 推送 `docs/_reports/` 到 main 自動部署到 Pages |
+| 2 | 發布腳本 v3.0 | `scripts/publish-report.sh` | 不切換分支、不 stash、只推 main |
+| 3 | 可執行工作流架構 | `scripts/workflows/`（新建目錄） | Skill/Workflow 的外部操作有可執行腳本 |
+| 4 | 刪除矛盾文件 | `docs/REPORT_PUBLISHING_CHECKLIST.md` | 已刪除 |
+| 5 | 刪除矛盾文件 | `docs/PUBLISH-SYSTEM-SETUP.md` | 已刪除 |
+| 6 | GitHub Pages 來源切換 | GitHub repo 設定 | `legacy/gh-pages` → `workflow/Actions` |
+| 7 | 清理殘留 stash | git stash | 4 個殘留 stash 清除 |
+
+**影響範圍**：CI/CD 層、文件層。不影響 Brain/Gateway 運行時。
+
+---
+
 ## [v9.2] 2026-03-24 — 軍師認知升級 + 跨群組洩漏防禦 + CLI OAuth 統一
 
 ### 軍師認知升級（5 項修改）

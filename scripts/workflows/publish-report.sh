@@ -1,0 +1,1 @@
+../publish-report.sh
