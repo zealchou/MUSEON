@@ -1,10 +1,11 @@
-# Blast Radius — 模組影響半徑表 v1.61
+# Blast Radius — 模組影響半徑表 v1.62
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節、`docs/operational-contract.md`（操作契約表）提供外部操作預期失敗
+> **v1.62 (2026-03-24)**：全面審計修正——event_bus 扇入 117→45（區分直接 import vs 事件關聯度）；message 20→13、data_bus 13→16、pulse_db 14→10、brain 3→1、module_registry 4→1；tool_registry 從紅區降為黃區（18→4）；dispatch 從紅區降為黃區（11→2）；補列 8 個新模組（brain_*.py Mixin 系列 + chat_context + deterministic_router + vision + push_budget）；更新統計摘要。
 > **v1.61 (2026-03-24)**：操作記憶層架構——新增第六張藍圖 `operational-contract.md`；新增 `scripts/workflows/` 可執行工作流腳本（publish-report.sh v4.0 綠區扇入=0、restart-gateway.sh v1.0 綠區扇入=0）；CLAUDE.md 新增 Tier 0 可執行性檢查 + 驗證鐵律。扇入扇出不變（純文件/腳本/CI 層變更，不影響 Python 模組）。
 > **v1.60 (2026-03-24)**：跨群組洩漏防禦 + 軍師認知升級——新增 `governance/response_guard.py` 到綠區（扇入=2：server.py + brain.py，ResponseGuard 發送前 chat_id 二次驗證閘門）；`governance/multi_tenant.py` 新增 `resolve_by_id()` 精確匹配（取代 FIFO `resolve_latest()`）；`brain.py` 新增 `_check_smart_completeness()` SMART 回答門檻 + `process()` finally 清空 `self._ctx` 及 6 個 alias（防跨群組殘留）+ `route()` 新增 `is_group` 參數傳遞；`brain_prompt_builder.py` 注入「軍師認知框架」system prompt + 群組禁止確認詞規則；`brain_p3_fusion.py` 新增 Roundtable ≥3 Skill 自動觸發融合；`reflex_router.py` `select_loop()`/`route()` 新增 `is_group` 參數（群組路由升級）；`server.py` session lock 改為 `wait_and_acquire(30s)` timeout 守衛。**注意**：軍師認知升級的修改在 `.runtime/src/museon/agent/` 中（gitignored），`src/` 合併版未同步。
 > **v1.58 (2026-03-23)**：OAuth Token 韌性重構——`adapters.py` `ClaudeCLIAdapter._get_oauth_token()` 從 2 層來源升級為 4 層：環境變數 → 持久化文件 → Claude Desktop credentials（`~/.claude/.credentials.json` 自動續期）→ 備份文件（永不刪除的最後防線）；Token 過期時不再 `unlink` 而是備份到 `.bak` + 標記 `.stale`（永不刪除策略）；`create_adapter_sync()` CLI-only 模式也包裝為 FallbackAdapter（支援 extended_thinking 等進階參數）；`preflight.py` ANTHROPIC_API_KEY 從必要降為選填（Max 方案用 CLI OAuth）。
@@ -38,9 +39,9 @@
 | 級別 | 定義 | 模組數 | 施工規則 |
 |------|------|--------|---------|
 | 🔴 **禁區** | 扇入 ≥ 40，修改影響全系統 | 1 | 除非系統級重構計畫，**禁止修改** |
-| 🟠 **紅區** | 扇入 10-39，修改影響多個子系統 | 5 | 必須回報使用者 + 全量 pytest + 影響分析 |
-| 🟡 **黃區** | 扇入 2-9，修改影響 2+ 模組 | 60 | 查 blast-radius + joint-map，跑相關測試 |
-| 🟢 **綠區** | 扇入 0-1，修改不影響上游 | 115 | 可直接修改，跑單元測試即可 |
+| 🟠 **紅區** | 扇入 10-39 或系統核心（扇出極大） | 4 | 必須回報使用者 + 全量 pytest + 影響分析 |
+| 🟡 **黃區** | 扇入 2-9，修改影響 2+ 模組 | 62 | 查 blast-radius + joint-map，跑相關測試 |
+| 🟢 **綠區** | 扇入 0-1，修改不影響上游 | 171 | 可直接修改，跑單元測試即可 |
 
 ---
 
@@ -50,7 +51,7 @@
 
 | 屬性 | 值 |
 |------|-----|
-| **扇入** | 117（33% 的模組直接依賴它） |
+| **扇入** | 45（直接 import，19% 的模組依賴它） |
 | **角色** | 全域事件匯流排，定義 215 個事件常量 |
 | **共享狀態** | 無直接檔案讀寫，但事件流是隱性共享狀態 |
 
@@ -58,7 +59,7 @@
 
 | 影響類型 | 數量 | 說明 |
 |---------|------|------|
-| 直接 import | 43 個模組 | agent(6), channels(6), nightly(6), pulse(5), governance(4), 其他(16) |
+| 直接 import | 45 個模組 | agent(7), channels(6), nightly(7), pulse(4), governance(5), evolution(5), doctor(4), 其他(7) |
 | 間接影響 | 全系統 | 事件常量或 API 改動 → 所有訂閱/發布模組失效 |
 | 事件發布者 | 47 個模組 | 發布 59 種事件 |
 | 事件訂閱者 | 16 個模組 | 訂閱 31 種事件 |
@@ -116,14 +117,14 @@
 
 | 屬性 | 值 |
 |------|-----|
-| **扇入** | 20 |
+| **扇入** | 13 |
 | **角色** | 訊息格式定義（Message, ChatMessage 等資料類別） |
 
 #### 影響半徑
 
 | 影響類型 | 範圍 |
 |---------|------|
-| 直接 import | 20 個模組（agent, channels, gateway, tools） |
+| 直接 import | 13 個模組：server.py, brain.py, workflow_executor.py, interaction.py, webhook.py, telegram.py, slack.py, line.py, electron.py, email.py, discord.py, base.py, tools.py |
 
 #### 修改安全邊界
 
@@ -134,42 +135,18 @@
 
 ---
 
-### tools/tool_registry.py
-
-| 屬性 | 值 |
-|------|-----|
-| **扇入** | 18 |
-| **角色** | 工具註冊與管理中心 |
-
-#### 影響半徑
-
-| 影響類型 | 範圍 |
-|---------|------|
-| 直接 import | 18 個模組（所有 tool 模組 + agent/skill_router） |
-| 事件發布 | TOOL_DEGRADED, TOOL_HEALTH_CHANGED, TOOL_RECOVERED |
-
-#### 修改安全邊界
-
-| ✅ 安全 | ❌ 危險 |
-|---------|---------|
-| 新增工具類型 | 修改 `register()` / `get()` API |
-| 新增狀態監控欄位 | 修改工具生命週期管理 |
-| Docker binary PATH 解析（v1.54） | 修改 TOOL_CONFIGS 結構 |
-
----
-
 ### core/data_bus.py
 
 | 屬性 | 值 |
 |------|-----|
-| **扇入** | 13 |
+| **扇入** | 16 |
 | **角色** | 資料層路由器 + DataContract 協議 |
 
 #### 影響半徑
 
 | 影響類型 | 範圍 |
 |---------|------|
-| 直接 import | 13 個模組：agent(3), core(3), nightly(2), 其他(5) |
+| 直接 import | 16 個模組：agent(4), core(3), pulse(2), nightly(1), governance(2), memory(1), workflow(2), evolution(1) |
 | 共享狀態 | DataContract 規範所有 Store 的讀寫格式 |
 
 #### 修改安全邊界
@@ -186,7 +163,7 @@
 
 | 屬性 | 值 |
 |------|-----|
-| **扇入** | 14 |
+| **扇入** | 10 |
 | **角色** | VITA 生命力引擎的 SQLite 後端（14 張表） |
 | **共享狀態** | PulseDB (pulse.db) — 詳見 joint-map #8 |
 
@@ -194,7 +171,7 @@
 
 | 影響類型 | 範圍 |
 |---------|------|
-| 直接 import | 14 個模組（brain, nightly_pipeline, eval_engine, 等） |
+| 直接 import | 10 個模組：server.py, brain.py, nightly_pipeline.py, telegram.py, eval_engine.py, metacognition.py, brain_prompt_builder.py, brain_dispatch.py, onboarding/ceremony.py |
 | 資料依賴 | 11 個模組讀取其表 |
 
 #### 修改安全邊界
@@ -208,13 +185,13 @@
 
 ---
 
-## 🟠 紅區模組（續）
+## 🟠 紅區模組（續）— 以扇出/關鍵度入列
 
 ### agent/brain.py
 
 | 屬性 | 值 |
 |------|-----|
-| **扇入** | 3（server, mcp_server, __init__） |
+| **扇入** | 1（server.py；入列紅區因扇出 32+ 且為系統核心） |
 | **扇出** | 32+（import 32 個模組，初始化全系統——含 PrimalDetector, MultiAgentExecutor, MemoryGate） |
 | **角色** | 系統核心——LLM 對話、記憶、自我觀察、所有子系統初始化、多代理並行呼叫、記憶閘門意圖判斷、認知追蹤（trace_decision+trace_cognitive）、P3 並行融合（Step 6.2-6.5）、P0 訊號六類分流（_classify_p0_signal）、事實糾正偵測（_detect_fact_correction）、外部使用者觀察（_observe_external_user v3.0 含 trust evolution + 八原語 + L6 溝通風格）、環境感知宣告（_build_environment_awareness v11.3）、自我修改協議（_build_self_modification_protocol v11.4） |
 | **檔案數** | v1.48 起拆分為 7 個檔案：`brain.py`（核心 2575 行）+ 5 個 Mixin（`brain_prompt_builder.py` 1668 行、`brain_dispatch.py` 1082 行、`brain_observation.py` 2003 行、`brain_p3_fusion.py` 948 行、`brain_tools.py` 966 行）+ `brain_types.py`（共享 dataclass）。Python Mixin Pattern 多重繼承，外部 import 路徑不變。 |
@@ -252,31 +229,30 @@
 
 ---
 
-### agent/dispatch.py
-
-| 屬性 | 值 |
-|------|-----|
-| **扇入** | 11 |
-| **角色** | 訊息分發路由器 |
-
-#### 影響半徑
-
-| 影響類型 | 範圍 |
-|---------|------|
-| 直接 import | 11 個模組 |
-
-#### 修改安全邊界
-
-| ✅ 安全 | ❌ 危險 |
-|---------|---------|
-| 新增路由規則 | 修改分發邏輯的優先級 |
-| 新增分發目標 | 修改 dispatch 介面 |
-
 ---
 
 ## 🟡 黃區重點模組
 
 > 以下列出扇入 2-9 且觸及共享狀態的重要模組。完整黃區模組不逐一列出。
+
+### tools/tool_registry.py（v1.62 從紅區降級）
+
+| 屬性 | 值 |
+|------|-----|
+| **扇入** | 4（server.py, nightly_pipeline.py, installer/orchestrator.py, doctor/self_diagnosis.py） |
+| **角色** | 工具註冊與管理中心 |
+| **事件發布** | TOOL_DEGRADED, TOOL_HEALTH_CHANGED, TOOL_RECOVERED |
+
+---
+
+### agent/dispatch.py（v1.62 從紅區降級）
+
+| 屬性 | 值 |
+|------|-----|
+| **扇入** | 2（server.py, brain_dispatch.py） |
+| **角色** | 訊息分發路由器 |
+
+---
 
 ### evolution/outward_trigger.py
 
@@ -648,7 +624,7 @@
 
 | 屬性 | 值 |
 |------|-----|
-| **扇入** | 4 |
+| **扇入** | 1（brain.py；v1.62 從黃區降為綠區） |
 | **角色** | 模組三層信任等級管理（CORE / OPTIONAL / EDGE） |
 
 #### 修改安全邊界
@@ -664,15 +640,29 @@
 
 > 以下模組無人 import（扇入 = 0），修改不影響任何上游，可直接修改。
 
-### Agent 層（9 個）
+### Agent 層（17 個）
 `agent/crystal_store.py`（★ v1.41 新增，扇入=2（knowledge_lattice + crystal_actuator），CrystalStore 統一存取層——crystal.db SQLite WAL 模式，`threading.Lock` + singleton factory `get_crystal_store()`），
 `agent/recommender.py`（★ v1.43 新增，扇入=1（brain.py），知識推薦引擎——CrystalStore 經由 brain 注入，互動歷史 `data/_system/recommendations/interactions.json` 原子寫入），
+`agent/brain_prompt_builder.py`（★ v1.48 Mixin，扇入=1（brain.py），system prompt 建構，1668 行），
+`agent/brain_dispatch.py`（★ v1.48 Mixin，扇入=1（brain.py），任務分派，1082 行），
+`agent/brain_observation.py`（★ v1.48 Mixin，扇入=1（brain.py），觀察與演化，2003 行），
+`agent/brain_p3_fusion.py`（★ v1.48 Mixin，扇入=1（brain.py），P3 融合與決策層，948 行），
+`agent/brain_tools.py`（★ v1.48 Mixin，扇入=1（brain.py），LLM 呼叫與 session 管理，966 行），
+`agent/chat_context.py`（★ v1.47 新增，扇入=1（brain.py），ChatContext dataclass 取代 per-turn 變數），
+`agent/deterministic_router.py`（★ v1.47 新增，扇入=1（brain_dispatch.py），確定性任務分解器取代 LLM Orchestrator），
 `agent/dna27.py`, `agent/drift_detector.py`, `agent/intuition.py`, `agent/kernel_guard.py`, `agent/plan_engine.py`, `agent/primal_detector.py`, `agent/routing_bridge.py`, `agent/safety_anchor.py`, `agent/sub_agent.py`
 
 ### Memory 層（1 個）
 `memory/memory_gate.py`（★ v1.19 新增，扇入=1，僅 brain.py import；純 CPU 規則引擎，零 LLM 成本，判斷記憶寫入意圖）
 
-### Governance 層（2 個）
+### LLM 層（1 個）
+`llm/vision.py`（★ v1.57 新增，扇入=0，Multimodal 圖片+PDF content block 構建，目前未被直接 import）
+
+### Pulse 層（1 個）
+`pulse/push_budget.py`（★ v1.54 新增，扇入=1（server.py），PushBudget 全局推送預算管理器）
+
+### Governance 層（3 個）
+`governance/response_guard.py`（★ v1.60 新增，扇入=1（server.py），ResponseGuard 發送前 chat_id 二次驗證閘門），
 `governance/cognitive_receipt.py`（★ v1.21 新增，扇入=1，僅 footprint.py import；CognitiveReceipt dataclass 定義，認知追蹤的結構化收據格式）
 `governance/response_guard.py`（★ v1.60 新增，扇入=2（server.py + brain.py），ResponseGuard 發送前 chat_id 二次驗證閘門——接收時 `register_origin(chat_id)` 記錄來源，發送時 `validate(target_chat_id)` 比對，不一致即擋+CRITICAL log；防跨群組訊息洩漏的最後一道閘門）
 
@@ -819,18 +809,19 @@
 
 ---
 
-## 系統健康度快照（2026-03-15）
+## 系統健康度快照（2026-03-24 v1.62 審計更新）
 
 | 指標 | 數值 | 說明 |
 |------|------|------|
-| 總模組數 | 182 | 含所有 .py（不含 __init__.py、不含 _dead_code_archive） |
-| Hub 模組（扇入 ≥ 10） | 6 | event_bus(117), message(20), tool_registry(18), pulse_db(14), data_bus(13), dispatch(11) |
-| 中間模組（扇入 2-9） | 60 | — |
-| 單引用模組（扇入 1） | 72 | — |
-| 葉子模組（扇入 0） | 47 | 可安全修改（+memory_gate.py, +memory_reset.py, +cognitive_receipt.py, +MUSEON_observatory.html） |
-| 共享可變狀態 | 28 個 | 詳見 joint-map.md（v1.16）— 含 #25 JSONL 審計日誌群 + #26 記憶 Markdown + #27 fact_corrections.jsonl + #28 cognitive_trace.jsonl |
+| 總模組數 | 238 | 含所有 .py（不含 __init__.py、不含 _dead_code_archive） |
+| 禁區模組（扇入 ≥ 40） | 1 | event_bus(45) |
+| Hub 模組（扇入 10-39） | 4 | server(0,入口), message(13), data_bus(16), pulse_db(10)；brain(1,扇出 32+,系統核心) |
+| 中間模組（扇入 2-9） | 62 | 含 tool_registry(4), dispatch(2) 等 |
+| 單引用模組（扇入 1） | 90+ | 含 brain_*.py Mixin 系列 |
+| 葉子模組（扇入 0） | 80+ | 可安全修改 |
+| 共享可變狀態 | 41+ | 詳見 joint-map.md v1.41 |
 | 事件健康度 | 67.9% | 幽靈訂閱清零（v1.5 修復） |
-| 致命單點 | event_bus | 佔全系統 33% 依賴 |
+| 致命單點 | event_bus | 佔全系統 19% 直接依賴（45/238） |
 
 ---
 
