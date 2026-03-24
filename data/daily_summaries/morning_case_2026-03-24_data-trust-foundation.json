@@ -1,0 +1,10 @@
+{
+  "date": "2026-03-24",
+  "vol": 12,
+  "theme": "數據信任是 AI 投資的基礎",
+  "theme_slug": "data-trust-foundation",
+  "connection": "全球 88% 企業衝進 AI 投資浪潮，但 23andMe 因數據洩露信任崩壞而破產，揭示信任缺失是 AI 時代的致命傷。",
+  "quality_issues": [
+    "字數過多：8542 字（預期 ≤ 7000）"
+  ]
+}
