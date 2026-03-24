@@ -687,7 +687,15 @@ class VitalSignsMonitor:
         )
 
     async def _check_e2e_flow(self) -> CheckResult:
-        """Phase 3: 端到端自測 — 模擬一條訊息走完 Brain.process()."""
+        """Phase 3: Brain pipeline 可達性自測 — 驗證子系統存活，不呼叫 LLM.
+
+        LLM 可用性已由 _check_llm_alive() 覆蓋。此處驗證 Brain 物件
+        及其核心子系統（ChatContext、Ceremony、SkillRouter、MemoryStore、
+        LLMAdapter）是否正常初始化且可存取。
+
+        v9.3: 改用 Brain.probe_health() 取代 Brain.process()，
+              避免 180s timeout 與 CLAUDE.md 身份衝突。
+        """
         if not self._brain_ref:
             return CheckResult(
                 name="e2e_flow",
@@ -697,27 +705,19 @@ class VitalSignsMonitor:
 
         t0 = time.time()
         try:
-            # 移除 --bare 後 CLI 需要載入 CLAUDE.md/hooks，每次呼叫較慢
-            # Brain pipeline 含多次 LLM 呼叫（P0+主回應+後設認知），需要更長 timeout
             result = await asyncio.wait_for(
-                self._brain_ref.process(
-                    content="vital signs health check",
-                    session_id="__vital_signs_probe__",
-                    user_id="system",
-                    source="vital_signs",
-                ),
-                timeout=180,
+                self._brain_ref.probe_health(),
+                timeout=15,
             )
             duration_ms = (time.time() - t0) * 1000
 
-            # 檢查是否得到離線回覆
-            text = str(result.text if hasattr(result, "text") else result)
-            if "無法連線" in text or "離線" in text:
+            if not result.get("ok"):
                 return CheckResult(
                     name="e2e_flow",
                     status=CheckStatus.FAIL,
-                    message=f"E2E returned offline response ({duration_ms:.0f}ms)",
+                    message=f"Brain probe failed: {result.get('error', 'unknown')} ({duration_ms:.0f}ms)",
                     duration_ms=duration_ms,
+                    details=result,
                 )
 
             return CheckResult(
@@ -725,19 +725,20 @@ class VitalSignsMonitor:
                 status=CheckStatus.PASS,
                 message=f"E2E flow OK ({duration_ms:.0f}ms)",
                 duration_ms=duration_ms,
+                details=result,
             )
         except asyncio.TimeoutError:
             return CheckResult(
                 name="e2e_flow",
                 status=CheckStatus.FAIL,
-                message="E2E flow timed out (180s)",
+                message="Brain probe timed out (15s)",
                 duration_ms=(time.time() - t0) * 1000,
             )
         except Exception as e:
             return CheckResult(
                 name="e2e_flow",
                 status=CheckStatus.WARN,
-                message=f"E2E flow error: {e}",
+                message=f"Brain probe error: {e}",
                 duration_ms=(time.time() - t0) * 1000,
             )
 
