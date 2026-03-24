@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260324_131939_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n**修改方向**：\n開場應先表達對嚴重性的認知與歉意，而非列舉已做的動作。「補救訊息已發出」可簡述，重點轉向根本錯誤（收到模糊問題直接推斷而非確認）和具體防止機制（群組問題必須先問「是誰的」「哪個項目的」）。移除末尾與機密洩露無關的 persona 敘述——此時應還原「嚴肅檢討、負責任」的語氣，而非閒聊風格。\n[PostCognition] 預判準確率低: 0.00",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-24T13:19:39.595860+08:00",
+  "priority": "medium"
+}

@@ -1693,6 +1693,9 @@ class KnowledgeLattice:
         # 自上次再結晶以來的新增結晶計數
         self._crystals_since_last_recrystallize: int = 0
 
+        # 結晶候選去重快取：hash -> 最近嘗試時間（防止反覆結晶化同一素材）
+        self._attempted_hashes: Dict[str, float] = {}
+
         # 執行緒鎖
         self._lock = threading.Lock()
 
@@ -2603,6 +2606,18 @@ class KnowledgeLattice:
         Returns:
             成功結晶化的 CUID 列表
         """
+        import hashlib as _hl
+        import time as _time
+
+        _DEDUP_COOLDOWN = 3600  # 1 小時內不重複嘗試同一候選
+
+        # 清理過期的去重快取條目
+        now = _time.time()
+        self._attempted_hashes = {
+            h: t for h, t in self._attempted_hashes.items()
+            if now - t < _DEDUP_COOLDOWN
+        }
+
         created_cuids: List[str] = []
         for candidate in candidates:
             raw = candidate.get("raw_material", "")
@@ -2610,6 +2625,15 @@ class KnowledgeLattice:
             reason = candidate.get("reason", "")
             if not raw or len(raw) < 20:
                 continue
+
+            # 去重檢查
+            raw_hash = _hl.md5(raw.strip().encode()).hexdigest()
+            if raw_hash in self._attempted_hashes:
+                logger.debug(f"結晶候選去重跳過: hash={raw_hash[:8]}")
+                continue
+
+            self._attempted_hashes[raw_hash] = now
+
             try:
                 crystal = self.crystallize(
                     raw_material=raw,

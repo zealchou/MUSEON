@@ -1,0 +1,107 @@
+{
+  "version": "3.0.0",
+  "user_id": "378774355",
+  "created_at": "2026-03-24T13:10:18.816348",
+  "interaction_count": 190,
+  "last_seen": "2026-03-24T13:39:25.590877",
+  "display_name": "吳明憲(Alan Wu)",
+  "context_summary": "Alan Wu 是 NLP 和催眠專家，正在建構「轉念師無為」品牌。目標是幫助想改變但不知從何開始的人。MBTI: INFP-A。持有 NLP、SG 督導、Google 數位人才等證照。已提供品牌定位規劃書、品牌故事宣言、個案回饋、MBTI 結果、天賦報告等大量資料。",
+  "profile": {
+    "name": "吳明憲(Alan Wu)",
+    "role": "NLP/催眠專家，品牌「轉念師無為」創辦人",
+    "business_type": "personal_brand"
+  },
+  "relationship": {
+    "trust_level": "initial",
+    "total_interactions": 2,
+    "positive_signals": 0,
+    "negative_signals": 0,
+    "last_interaction": "2026-03-24T13:39:25.590877",
+    "first_interaction": "2026-03-24T13:10:18.816360"
+  },
+  "eight_primals": {
+    "aspiration": {
+      "level": 10,
+      "confidence": 0.04,
+      "signal": "[群組近期對話紀錄]   10:17 吳明憲(Alan Wu): @MuseonClaw_bot 目前進度?   12:15 Zeal（老闆）: @Museon",
+      "last_observed": "2026-03-24T13:39:25.590877"
+    },
+    "accumulation": {
+      "level": 10,
+      "confidence": 0.04,
+      "signal": "[群組近期對話紀錄]   10:17 吳明憲(Alan Wu): @MuseonClaw_bot 目前進度?   12:15 Zeal（老闆）: @Museon",
+      "last_observed": "2026-03-24T13:39:25.590877"
+    },
+    "action_power": {
+      "level": 10,
+      "confidence": 0.04,
+      "signal": "[群組近期對話紀錄]   10:17 吳明憲(Alan Wu): @MuseonClaw_bot 目前進度?   12:15 Zeal（老闆）: @Museon",
+      "last_observed": "2026-03-24T13:39:25.590877"
+    },
+    "curiosity": {
+      "level": 29,
+      "confidence": 0.08,
+      "signal": "[群組近期對話紀錄]   10:17 吳明憲(Alan Wu): @MuseonClaw_bot 目前進度?   12:15 Zeal（老闆）: @Museon",
+      "last_observed": "2026-03-24T13:39:25.590877"
+    },
+    "emotion_pattern": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "blindspot": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "boundary": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "relationship_depth": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    }
+  },
+  "seven_layers": {
+    "L1_facts": [
+      {
+        "category": "occupation",
+        "snippet": "[群組近期對話紀錄]\n  10:17 吳明憲(Alan Wu): @MuseonClaw_bot 目前進度?\n  12:15 Zeal（老闆）: @MuseonClaw_bot 你幹嘛把我的 Muse",
+        "date": "2026-03-24T13:39:25.590877"
+      }
+    ],
+    "L2_personality": [],
+    "L6_communication_style": {
+      "detail_level": "detailed",
+      "emoji_usage": "none",
+      "language_mix": "mixed",
+      "avg_msg_length": 236,
+      "question_style": "open",
+      "tone": "casual"
+    }
+  },
+  "preferences": {
+    "communication_style": "detailed"
+  },
+  "recent_topics": [
+    {
+      "snippet": "@MuseonClaw_bot 目前進度?",
+      "date": "2026-03-24T13:10:54.409520"
+    },
+    {
+      "snippet": "完整整理已存檔，隨時可以開始深聊品牌定位或個案見證集的整理方式。你說了算 👊",
+      "date": "2026-03-24T13:39:25.590877"
+    }
+  ],
+  "groups_seen_in": [
+    -5129430356
+  ],
+  "relationship_to_owner": "Zeal 的客戶/合作夥伴，正在接受品牌建構服務"
+}

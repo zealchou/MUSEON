@@ -6,37 +6,37 @@
       "level": "expert",
       "confidence": 0.92,
       "classification": "strength",
-      "evidence_count": 224
+      "evidence_count": 231
     },
     "consultant_sales": {
       "level": "expert",
       "confidence": 0.88,
       "classification": "strength",
-      "evidence_count": 108
+      "evidence_count": 116
     },
     "brand_design": {
       "level": "intermediate",
       "confidence": 0.72,
       "classification": "unknown",
-      "evidence_count": 59
+      "evidence_count": 62
     },
     "ai_architecture": {
       "level": "intermediate",
       "confidence": 0.78,
       "classification": "unknown",
-      "evidence_count": 75
+      "evidence_count": 79
     },
     "programming": {
       "level": "beginner",
       "confidence": 0.95,
       "classification": "weakness",
-      "evidence_count": 81
+      "evidence_count": 86
     },
     "emotional_regulation": {
       "level": "developing",
       "confidence": 0.6,
       "classification": "weakness",
-      "evidence_count": 98
+      "evidence_count": 101
     }
   },
   "domain_keywords": {

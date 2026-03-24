@@ -266,6 +266,29 @@ class GatewayLock:
             )
             return "dead"
 
+        # Layer 4: HTTP health probe — PID 活著且端口在用，
+        # 但如果 health check 失敗（卡住、死鎖），視為 stuck
+        if not port_free:
+            try:
+                with socket.create_connection(
+                    ("127.0.0.1", payload.port), timeout=PORT_PROBE_TIMEOUT_S
+                ) as s:
+                    s.sendall(b"GET /health HTTP/1.0\r\nHost: localhost\r\n\r\n")
+                    s.settimeout(3.0)
+                    resp = s.recv(256).decode("utf-8", errors="replace")
+                    if "200" not in resp:
+                        logger.warning(
+                            f"PID {owner_pid} port {payload.port} open but "
+                            f"health check failed — owner may be stuck"
+                        )
+                        return "unknown"  # 讓 stale timeout 接手判斷
+            except (OSError, UnicodeDecodeError):
+                logger.warning(
+                    f"PID {owner_pid} port {payload.port} health probe "
+                    f"failed — owner may be stuck"
+                )
+                return "unknown"
+
         # PID 活著且要嘛端口在用、要嘛確實是 gateway 進程
         return "alive"
 

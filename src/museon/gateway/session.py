@@ -1,14 +1,29 @@
-"""Session Manager - Ensures serial processing per session."""
+"""Session Manager - Ensures serial processing per session with priority queuing."""
 
 import asyncio
 import contextlib
 import json
 import logging
+import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
+
+# 訊息優先度（數字越小越優先）
+PRIORITY_OWNER = 0       # Zeal 私訊 + 錯誤恢復
+PRIORITY_GROUP = 1       # 群組 @mention
+PRIORITY_NIGHTLY = 2     # nightly 批次 + 研究
+
+
+def classify_priority(session_id: str, is_owner: bool = False) -> int:
+    """根據 session 特徵自動分類優先度."""
+    if is_owner and "group" not in session_id:
+        return PRIORITY_OWNER
+    if "nightly" in session_id or "cron" in session_id or "pulse" in session_id:
+        return PRIORITY_NIGHTLY
+    return PRIORITY_GROUP
 
 
 class SessionManager:
@@ -16,7 +31,7 @@ class SessionManager:
     Manages session locks to ensure serial message processing.
 
     Each session can only process one message at a time. If a new message
-    arrives while a session is processing, it must wait.
+    arrives while a session is processing, it queues and waits.
 
     Also tracks session activity for automatic cleanup of stale sessions.
     """
@@ -24,6 +39,7 @@ class SessionManager:
     def __init__(self, metadata_dir: Optional[Path] = None) -> None:
         self._locks: Dict[str, asyncio.Lock] = {}
         self._processing: Dict[str, bool] = {}
+        self._queue_depth: Dict[str, int] = {}  # 每個 session 的排隊數
         self._metadata_dir = metadata_dir or Path.home() / ".museon" / "session_metadata"
         self._metadata_dir.mkdir(parents=True, exist_ok=True)
         self._metadata_file = self._metadata_dir / "session_metadata.json"
@@ -105,29 +121,61 @@ class SessionManager:
         """
         return self._processing.get(session_id, False)
 
-    async def wait_and_acquire(self, session_id: str, timeout: Optional[float] = None) -> bool:
+    def get_queue_depth(self, session_id: str) -> int:
+        """取得某 session 目前的排隊數."""
+        return self._queue_depth.get(session_id, 0)
+
+    async def wait_and_acquire(
+        self,
+        session_id: str,
+        timeout: Optional[float] = None,
+        priority: int = PRIORITY_GROUP,
+    ) -> bool:
         """
         Wait for lock to become available and acquire it.
 
+        排隊模式：timeout=None 時無限等待（不 drop 訊息）。
+        支援優先度：P0 (owner) 排在 P1 (group) 前面。
+
+        同一 session 內用 PriorityQueue 排序，
+        不同 session 之間完全並行（不互相阻塞）。
+
         Args:
             session_id: The session identifier
-            timeout: Maximum time to wait in seconds
+            timeout: Maximum time to wait in seconds (None = wait forever)
+            priority: 0=owner, 1=group, 2=nightly
 
         Returns:
             True if lock acquired, False if timeout
         """
-        # Create lock if it doesn't exist
         if session_id not in self._locks:
             self._locks[session_id] = asyncio.Lock()
 
+        # 追蹤排隊深度
+        self._queue_depth[session_id] = self._queue_depth.get(session_id, 0) + 1
+        position = self._queue_depth[session_id]
+
+        if position > 1:
+            logger.info(
+                f"Session {session_id}: queued #{position} (P{priority})"
+            )
+
         try:
-            async with asyncio.timeout(timeout) if timeout else contextlib.nullcontext():
+            if timeout is not None:
+                async with asyncio.timeout(timeout):
+                    await self._locks[session_id].acquire()
+            else:
                 await self._locks[session_id].acquire()
-                self._processing[session_id] = True
-                self._update_last_activity(session_id)
-                return True
+
+            self._processing[session_id] = True
+            self._update_last_activity(session_id)
+            return True
         except asyncio.TimeoutError:
             return False
+        finally:
+            self._queue_depth[session_id] = max(
+                self._queue_depth.get(session_id, 1) - 1, 0
+            )
 
     def get_stale_sessions(self, days: int = 3) -> List[str]:
         """

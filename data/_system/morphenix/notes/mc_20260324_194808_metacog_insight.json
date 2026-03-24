@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260324_194808_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：\n1. 保留「能力確認」的友善回應\n2. 加上**初步診斷框架**（不只是四選一，要有「現在就能用」的東西）——例如「先用三句話說你的狀況，我直接給初步拆解」\n3. **建議私訊轉移**——群組環境不適合詳細診斷，容易被他人曲解\n4. 移除persona引用（Vivi 是陌生人，融合 wind 觀點在此脈絡製造噪音）\n5. 加上「時間成本透明化」——讓 Vivi 知道接下",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-24T19:48:08.268584+08:00",
+  "priority": "medium"
+}

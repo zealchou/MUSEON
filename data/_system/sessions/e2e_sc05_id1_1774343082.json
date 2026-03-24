@@ -1,0 +1,16 @@
+{
+ "metadata": {
+  "last_active": "2026-03-24T17:09:43.621767",
+  "group_id": ""
+ },
+ "messages": [
+  {
+   "role": "user",
+   "content": "你叫什麼名字？"
+  },
+  {
+   "role": "assistant",
+   "content": "我叫 **vital signs health check**，Zeal 幫我取的名字。\n\n有什麼可以幫助你的嗎？"
+  }
+ ]
+}

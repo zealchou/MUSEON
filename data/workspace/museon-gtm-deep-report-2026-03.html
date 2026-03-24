@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MUSEON MUC — 目標族群觸達深度報告 2026-03</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ember:       #C4502A;
+    --ember-light: #E0714D;
+    --ember-dark:  #9A3A1C;
+    --teal:        #2A7A6E;
+    --gold:        #B8923A;
+    --ink:         #12121A;
+    --slate:       #5A5A6E;
+    --mist:        #9898A8;
+    --border:      #E2E0DA;
+    --parchment:   #F7F5F0;
+    --snow:        #FDFCFA;
+    --success:     #2D8A6E;
+    --warning:     #C9943A;
+    --error:       #C4402A;
+    --info:        #2A6A8A;
+  }
+
+  html { font-size: 16px; }
+
+  body {
+    background: var(--parchment);
+    color: var(--ink);
+    font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─── Layout ─── */
+  .page-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 64px 40px 96px;
+  }
+
+  /* ─── Hero ─── */
+  .hero {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 48px;
+    margin-bottom: 56px;
+    animation: fadeUp 500ms ease-out both;
+  }
+
+  .badge-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    display: inline-block;
+    background: rgba(196, 80, 42, 0.1);
+    color: var(--ember-dark);
+    border-radius: 100px;
+    padding: 3px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .badge.teal { background: rgba(42, 122, 110, 0.1); color: var(--teal); }
+  .badge.gold { background: rgba(184, 146, 58, 0.12); color: var(--gold); }
+  .badge.info { background: rgba(42, 106, 138, 0.1); color: var(--info); }
+  .badge.warn { background: rgba(201, 148, 58, 0.12); color: var(--warning); }
+  .badge.success { background: rgba(45, 138, 110, 0.1); color: var(--success); }
+
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 42px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+
+  .hero .subtitle {
+    font-size: 17px;
+    color: var(--slate);
+    max-width: 620px;
+    line-height: 1.7;
+  }
+
+  .meta-row {
+    margin-top: 24px;
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--mist);
+    letter-spacing: 0.04em;
+  }
+
+  .meta-item span { color: var(--slate); font-weight: 500; }
+
+  /* ─── Exec Summary ─── */
+  .exec-box {
+    background: var(--ink);
+    color: #fff;
+    border-radius: 10px;
+    padding: 32px 36px;
+    margin-bottom: 56px;
+    animation: fadeUp 500ms 100ms ease-out both;
+  }
+
+  .exec-box .label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ember-light);
+    margin-bottom: 16px;
+  }
+
+  .exec-box p {
+    font-size: 16px;
+    line-height: 1.8;
+    color: rgba(255,255,255,0.88);
+    margin-bottom: 12px;
+  }
+
+  .exec-box p:last-child { margin-bottom: 0; }
+
+  .exec-box strong { color: #fff; }
+
+  /* ─── Section ─── */
+  .section {
+    margin-bottom: 64px;
+    animation: fadeUp 500ms 150ms ease-out both;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .section-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: var(--ember);
+    min-width: 32px;
+  }
+
+  .section h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 30px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.25;
+  }
+
+  .section h3 {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 28px 0 12px;
+  }
+
+  .section p {
+    font-size: 16px;
+    color: var(--slate);
+    line-height: 1.8;
+    margin-bottom: 14px;
+    max-width: 720px;
+  }
+
+  .section p strong { color: var(--ink); }
+
+  /* ─── Cards ─── */
+  .card {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+    transition: transform 200ms ease, box-shadow 200ms ease;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(18,18,26,0.08), 0 8px 20px rgba(18,18,26,0.06);
+  }
+
+  .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .card p {
+    font-size: 14px;
+    color: var(--slate);
+    line-height: 1.7;
+    margin: 0;
+    max-width: none;
+  }
+
+  /* ─── Grid ─── */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+
+  @media (max-width: 640px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .page-wrap { padding: 40px 16px 64px; }
+    .hero h1 { font-size: 30px; }
+  }
+
+  /* ─── Persona Cards ─── */
+  .persona-card {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(18,18,26,0.05);
+  }
+
+  .persona-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(196,80,42,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    margin-bottom: 14px;
+  }
+
+  .persona-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .persona-role {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--mist);
+    letter-spacing: 0.06em;
+    margin-bottom: 14px;
+  }
+
+  .persona-pain {
+    font-size: 13px;
+    color: var(--slate);
+    line-height: 1.65;
+    border-left: 3px solid var(--ember);
+    padding-left: 12px;
+    margin-bottom: 12px;
+  }
+
+  .persona-hook {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--teal);
+  }
+
+  /* ─── Funnel ─── */
+  .funnel-step {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .funnel-step-num {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--ember);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .funnel-step-body {
+    flex: 1;
+  }
+
+  .funnel-step-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+
+  .funnel-step-desc {
+    font-size: 14px;
+    color: var(--slate);
+    line-height: 1.7;
+    margin: 0;
+    max-width: none;
+  }
+
+  .funnel-connector {
+    width: 1px;
+    height: 20px;
+    background: var(--border);
+    margin-left: 17px;
+    margin-bottom: 0;
+  }
+
+  /* ─── Table ─── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  .data-table th {
+    background: rgba(196,80,42,0.07);
+    color: var(--ember-dark);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .data-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--slate);
+    vertical-align: top;
+    line-height: 1.6;
+  }
+
+  .data-table td strong { color: var(--ink); }
+  .data-table tr:hover td { background: rgba(247,245,240,0.6); }
+
+  /* ─── Highlight Box ─── */
+  .highlight-box {
+    border-left: 4px solid var(--ember);
+    background: rgba(196,80,42,0.05);
+    padding: 18px 22px;
+    border-radius: 0 8px 8px 0;
+    margin: 24px 0;
+  }
+
+  .highlight-box p {
+    font-size: 15px;
+    color: var(--ink);
+    line-height: 1.75;
+    margin: 0;
+    max-width: none;
+  }
+
+  .highlight-box.teal {
+    border-color: var(--teal);
+    background: rgba(42,122,110,0.06);
+  }
+
+  .highlight-box.gold {
+    border-color: var(--gold);
+    background: rgba(184,146,58,0.06);
+  }
+
+  .highlight-box.warn {
+    border-color: var(--warning);
+    background: rgba(201,148,58,0.06);
+  }
+
+  /* ─── Sweet-Pain Row ─── */
+  .sp-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 16px 0;
+  }
+
+  .sp-box {
+    border-radius: 8px;
+    padding: 16px 18px;
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+  .sp-box.sweet {
+    background: rgba(45,138,110,0.08);
+    border: 1px solid rgba(45,138,110,0.2);
+    color: var(--teal);
+  }
+
+  .sp-box.pain {
+    background: rgba(196,64,42,0.07);
+    border: 1px solid rgba(196,64,42,0.18);
+    color: var(--error);
+  }
+
+  .sp-box .sp-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    opacity: 0.7;
+  }
+
+  /* ─── Timeline ─── */
+  .timeline-phase {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px 28px;
+    margin-bottom: 16px;
+    background: var(--snow);
+    position: relative;
+  }
+
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .phase-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 100px;
+  }
+
+  .phase-tag.p0 { background: rgba(196,80,42,0.1); color: var(--ember-dark); }
+  .phase-tag.p1 { background: rgba(184,146,58,0.12); color: var(--gold); }
+  .phase-tag.p2 { background: rgba(42,122,110,0.1); color: var(--teal); }
+  .phase-tag.p3 { background: rgba(42,106,138,0.1); color: var(--info); }
+
+  .phase-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .phase-period {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--mist);
+    margin-left: auto;
+  }
+
+  .action-list {
+    list-style: none;
+  }
+
+  .action-list li {
+    font-size: 14px;
+    color: var(--slate);
+    line-height: 1.7;
+    padding: 6px 0 6px 20px;
+    position: relative;
+    border-bottom: 1px dashed var(--border);
+  }
+
+  .action-list li:last-child { border-bottom: none; }
+
+  .action-list li::before {
+    content: '→';
+    color: var(--ember);
+    position: absolute;
+    left: 0;
+    font-size: 13px;
+  }
+
+  /* ─── Objection Handling ─── */
+  .objection-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    background: var(--snow);
+  }
+
+  .objection-q {
+    padding: 16px 20px;
+    background: rgba(196,80,42,0.05);
+    border-bottom: 1px solid var(--border);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    display: flex;
+    gap: 10px;
+  }
+
+  .objection-q .q-icon {
+    color: var(--ember);
+    flex-shrink: 0;
+  }
+
+  .objection-a {
+    padding: 16px 20px;
+    font-size: 14px;
+    color: var(--slate);
+    line-height: 1.75;
+  }
+
+  .objection-a strong { color: var(--ink); }
+
+  /* ─── Channel Map ─── */
+  .channel-card {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .channel-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: rgba(196,80,42,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+
+  .channel-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .channel-desc {
+    font-size: 13px;
+    color: var(--slate);
+    line-height: 1.6;
+  }
+
+  .channel-roi {
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    color: var(--mist);
+  }
+
+  .roi-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  .roi-high { background: var(--success); }
+  .roi-mid  { background: var(--warning); }
+  .roi-low  { background: var(--mist); }
+
+  /* ─── Divider ─── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 48px 0;
+  }
+
+  /* ─── Footer ─── */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding-top: 32px;
+    margin-top: 64px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: gap;
+    gap: 16px;
+  }
+
+  .footer-brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ember);
+  }
+
+  .footer-meta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--mist);
+    text-align: right;
+    line-height: 1.8;
+  }
+
+  /* ─── Animation ─── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── Moat Meter ─── */
+  .moat-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .moat-row:last-child { border-bottom: none; }
+
+  .moat-label {
+    font-size: 14px;
+    color: var(--ink);
+    font-weight: 500;
+    min-width: 180px;
+    flex-shrink: 0;
+  }
+
+  .moat-bar-wrap {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+
+  .moat-bar {
+    height: 100%;
+    border-radius: 100px;
+    transition: width 800ms ease;
+  }
+
+  .moat-bar.strong { background: var(--success); }
+  .moat-bar.mid    { background: var(--warning); }
+  .moat-bar.weak   { background: var(--error); }
+
+  .moat-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    min-width: 40px;
+    text-align: right;
+  }
+
+  .moat-tag.strong { color: var(--success); }
+  .moat-tag.mid    { color: var(--warning); }
+  .moat-tag.weak   { color: var(--error); }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <!-- ═══ HERO ═══ -->
+  <div class="hero">
+    <div class="badge-row">
+      <span class="badge">DSE Standard Depth</span>
+      <span class="badge teal">GTM Strategy</span>
+      <span class="badge gold">Target Acquisition</span>
+      <span class="badge info">2026-03-24</span>
+    </div>
+    <h1>MUSEON MUC —<br>讓目標族群找到你的完整戰略</h1>
+    <p class="subtitle">
+      競品分析只告訴你「你在哪個市場」，這份報告告訴你「怎麼讓對的人知道你存在、相信你、付錢給你」。從目標族群心理地圖到 GTM 路徑，再到 12 個月窗口期行動計畫。
+    </p>
+    <div class="meta-row">
+      <div class="meta-item">分析引擎 <span>MUSEON DSE vNext</span></div>
+      <div class="meta-item">基礎資料 <span>MUC MVP 競品分析報告 2026-03-24</span></div>
+      <div class="meta-item">窗口期 <span>12–18 個月</span></div>
+    </div>
+  </div>
+
+  <!-- ═══ EXEC SUMMARY ═══ -->
+  <div class="exec-box">
+    <div class="label">Executive Summary</div>
+    <p>競品分析的結論是「你站在一個沒人站的位置」。但沒人站不代表客戶會自己走過來。<strong>MUC 的核心挑戰不是競品，是客戶的認知起點</strong>——他們不知道有 MUC 這種選項存在，更不知道他們現在的痛點可以被這樣解決。</p>
+    <p>你有 <strong>12–18 個月的窗口期</strong>，在這段時間內，ChatGPT/Copilot 的「夠用感」還沒把市場壓扁。這份報告的核心任務：<strong>設計一條從「沒聽過」到「黏住了」的完整路徑</strong>，用最低行銷成本觸達最高轉換意願的客戶群。</p>
+    <p>最重要的一個數字：<strong>你只需要前 10 個客戶把 SOP 建進去、記憶累積起來，轉換成本就高到他們不想換了</strong>。一切行動都指向這個目標。</p>
+  </div>
+
+  <!-- ═══ SECTION 1 ═══ -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2>競品格局深化：原報告沒說的事</h2>
+    </div>
+
+    <p>原競品分析精準，但有三個盲點值得補充：</p>
+
+    <h3>盲點一：「差不多就好」不是技術問題，是決策框架問題</h3>
+    <p>中小企業老闆選工具的邏輯不是「哪個功能強」，而是「<strong>改變帶來的麻煩 vs. 現狀的痛苦</strong>」。ChatGPT 夠用，是因為現狀的痛苦還沒有大到讓他們願意改變。MUC 的行銷任務，是把那個痛苦放大到讓人坐不住。</p>
+
+    <div class="highlight-box warn">
+      <p><strong>具體案例示範</strong>：「你的業務員每次跟客戶溝通，說法都不一樣？新人要 3 個月才能熟悉流程？客戶問的問題你已經回答過 500 次了？」— 這才是 MUC 的入場白，不是「AI 數位員工授權管理系統」。</p>
+    </div>
+
+    <h3>盲點二：EgentHub 的真正威脅不是功能，是背書</h3>
+    <p>EgentHub 是 Google 推薦的服務商，這個背書對台灣製造業老闆有極大的說服力。MUC 目前的對應策略是：<strong>在 Google 進不去的垂直場景（服務業、顧問業、銷售業）建立深度案例</strong>，讓這些場景的推薦人（同行老闆、商業顧問）成為你的背書來源。</p>
+
+    <h3>盲點三：通用 AI 的免費計劃正在教育市場</h3>
+    <div class="sp-row">
+      <div class="sp-box sweet">
+        <div class="sp-label">甜頭</div>
+        ChatGPT/Claude 的免費版正在幫你做市場教育，讓客戶從「完全不懂 AI」變成「知道 AI 可以幫忙但還沒找到適合自己的工具」。這是最適合 MUC 進場的時機點。
+      </div>
+      <div class="sp-box pain">
+        <div class="sp-label">代價</div>
+        這些免費版也在設定「AI 應該是免費或超低價」的心理預期，讓客戶對 MUC 的定價產生抵抗。你需要有強力的 ROI 論述。
+      </div>
+    </div>
+
+    <h3>護城河現況評估（補充量化）</h3>
+    <div style="margin-top: 16px;">
+      <div class="moat-row">
+        <div class="moat-label">授權閉環（License+Device）</div>
+        <div class="moat-bar-wrap"><div class="moat-bar strong" style="width:88%"></div></div>
+        <div class="moat-tag strong">88%</div>
+      </div>
+      <div class="moat-row">
+        <div class="moat-label">信任點計量系統</div>
+        <div class="moat-bar-wrap"><div class="moat-bar strong" style="width:82%"></div></div>
+        <div class="moat-tag strong">82%</div>
+      </div>
+      <div class="moat-row">
+        <div class="moat-label">台灣中小企業 + 繁中在地化</div>
+        <div class="moat-bar-wrap"><div class="moat-bar strong" style="width:78%"></div></div>
+        <div class="moat-tag strong">78%</div>
+      </div>
+      <div class="moat-row">
+        <div class="moat-label">記憶 + SOP 自動化</div>
+        <div class="moat-bar-wrap"><div class="moat-bar mid" style="width:60%"></div></div>
+        <div class="moat-tag mid">60%</div>
+      </div>
+      <div class="moat-row">
+        <div class="moat-label">客戶鎖定（Switching Cost）</div>
+        <div class="moat-bar-wrap"><div class="moat-bar mid" style="width:52%"></div></div>
+        <div class="moat-tag mid">52%</div>
+      </div>
+      <div class="moat-row">
+        <div class="moat-label">品牌認知</div>
+        <div class="moat-bar-wrap"><div class="moat-bar weak" style="width:15%"></div></div>
+        <div class="moat-tag weak">15%</div>
+      </div>
+    </div>
+    <p style="margin-top: 12px; font-size: 13px; color: var(--mist);">說明：護城河強度 = 市場上被複製的難度 × 客戶認知到差異化的程度的綜合估算</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ═══ SECTION 2 ═══ -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2>目標族群心理地圖</h2>
+    </div>
+
+    <p>「台灣中小企業、月營收 100 萬以上」是市場切片，不是心理地圖。真正決定購買的是老闆的<strong>當下痛點 × 決策框架 × 信任觸發點</strong>的組合。以下定義四種最高轉換意願的目標族群：</p>
+
+    <div class="grid-2" style="margin-top: 24px;">
+      <div class="persona-card">
+        <div class="persona-avatar">🏗️</div>
+        <div class="persona-name">Tier 1 — 已痛老闆</div>
+        <div class="persona-role">服務業 / 月營收 150-500萬 / 3-15人</div>
+        <div class="persona-pain">「業務離職一次，SOP 就要重建一次。新人問的問題我已經不想再回答了。客戶投訴說每次服務不一樣。」</div>
+        <div class="persona-hook">觸達鑰匙：用「一個業務離職的成本」打開話題</div>
+      </div>
+      <div class="persona-card">
+        <div class="persona-avatar">📈</div>
+        <div class="persona-name">Tier 2 — 快速成長老闆</div>
+        <div class="persona-role">顧問 / 銷售業 / 快速擴張期</div>
+        <div class="persona-pain">「我想複製我自己，但我同時只能帶 3 個人。每個客戶都想找我，但我的時間有限。」</div>
+        <div class="persona-hook">觸達鑰匙：「把你的思維方式裝進 AI 員工，讓它代替你」</div>
+      </div>
+      <div class="persona-card">
+        <div class="persona-avatar">💼</div>
+        <div class="persona-name">Tier 3 — 轉型焦慮老闆</div>
+        <div class="persona-role">傳統服務業 / 感覺 AI 時代來了但不知怎麼用</div>
+        <div class="persona-pain">「我知道 AI 很重要，但 ChatGPT 我試過，不知道怎麼跟我的業務接起來。員工用又用不一致。」</div>
+        <div class="persona-hook">觸達鑰匙：「AI 顧問幫你把 AI 嵌入你的 SOP，不是讓你自己學」</div>
+      </div>
+      <div class="persona-card">
+        <div class="persona-avatar">🔐</div>
+        <div class="persona-name">Tier 4 — 資安敏感老闆</div>
+        <div class="persona-role">法律 / 會計 / 醫療相關 / 對數據安全有顧慮</div>
+        <div class="persona-pain">「客戶資料不能給 ChatGPT 吃。我需要 AI 但不能讓資料跑出去。」</div>
+        <div class="persona-hook">觸達鑰匙：「數據留在你的設備，不上 OpenAI 的雲端」</div>
+      </div>
+    </div>
+
+    <div class="highlight-box teal" style="margin-top: 24px;">
+      <p><strong>優先攻打順序</strong>：Tier 1（已痛）→ Tier 2（快速成長）→ Tier 4（資安敏感）→ Tier 3（轉型焦慮）。Tier 3 的教育成本最高，不適合早期資源有限時重押。</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ═══ SECTION 3 ═══ -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2>「ChatGPT 夠了」異議處理框架</h2>
+    </div>
+
+    <p>這是 MUC 最常面臨的異議，也是最重要的一關。不能用功能列表打，要用<strong>場景對比 + ROI 具體化</strong>打。</p>
+
+    <div class="objection-card">
+      <div class="objection-q"><span class="q-icon">Q</span>「ChatGPT $20/月就可以了，為什麼要用你？」</div>
+      <div class="objection-a">
+        <strong>不爭功能，爭結果：</strong>「ChatGPT 是一個非常聰明的員工，但他今天剛入職，不知道你們公司的 SOP，不知道你的客戶叫什麼、買過什麼、有什麼禁忌，下次還得重新介紹一遍。MUC 是一個已經在你公司待了 6 個月、熟悉你所有流程和客戶的員工。$20 買的是一個每天重置記憶的打工仔，MUC 養的是一個持續成長的夥伴。」
+      </div>
+    </div>
+
+    <div class="objection-card">
+      <div class="objection-q"><span class="q-icon">Q</span>「我試過 ChatGPT，員工不會用，效果不好。」</div>
+      <div class="objection-a">
+        <strong>把痛點轉成進場理由：</strong>「這正是 MUC 存在的原因。ChatGPT 是讓你自己想辦法用的工具，MUC 是我們幫你把工具跟你的業務流程接起來、讓員工照著走的系統。你不需要教員工怎麼 prompt，SOP 已經內建在裡面了。」
+      </div>
+    </div>
+
+    <div class="objection-card">
+      <div class="objection-q"><span class="q-icon">Q</span>「這個價格太高了。」</div>
+      <div class="objection-a">
+        <strong>ROI 錨點計算：</strong>「你的業務員每個月接幾通重複問題的電話？如果每通 10 分鐘，一個月 50 通，就是 8 小時，相當於一天的工時。如果 MUC 能把 70% 的重複問題自動化，你等於多了一個業務員的生產力。你現在一個業務員的月薪是多少？」— 讓客戶自己算出 ROI，比你報數字更有說服力。
+      </div>
+    </div>
+
+    <div class="objection-card">
+      <div class="objection-q"><span class="q-icon">Q</span>「我不確定 AI 能處理我們這個行業。」</div>
+      <div class="objection-a">
+        <strong>直接秀同行案例：</strong>「我們有一個做 [同行業] 的客戶，他們用 MUC 之後，新人 onboarding 的時間從 3 個月縮到 6 週。我可以讓他直接跟你說他的使用體驗。」— 這就是為什麼前 10 個客戶的案例故事如此關鍵。
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ═══ SECTION 4 ═══ -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2>觸達通道地圖</h2>
+    </div>
+
+    <p>台灣中小企業老闆不在 Twitter，不在 LinkedIn 看廣告。他們的資訊來源是：<strong>同行推薦、商業社群、YouTube、朋友圈</strong>。以下按投資報酬率排列：</p>
+
+    <div class="grid-3" style="margin-top: 20px;">
+      <div class="channel-card">
+        <div class="channel-icon">👥</div>
+        <div class="channel-name">口碑 / 轉介紹</div>
+        <div class="channel-desc">最高轉換率。前 10 個客戶每個都是潛在推薦源。設計「推薦人分潤計畫」或「聯合案例」機制。</div>
+        <div class="channel-roi"><span class="roi-dot roi-high"></span> 高 ROI — 低成本、高信任</div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-icon">🏢</div>
+        <div class="channel-name">商業社群滲透</div>
+        <div class="channel-desc">青商會、企業主讀書會、各縣市中小企業處活動。Zeal 直接出現，講 30 分鐘 AI 導入實戰，收名單。</div>
+        <div class="channel-roi"><span class="roi-dot roi-high"></span> 高 ROI — 精準觸達決策者</div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-icon">🎥</div>
+        <div class="channel-name">YouTube 教育內容</div>
+        <div class="channel-desc">「台灣老闆如何用 AI 管業務」系列。不賣產品，先教知識。訂閱者=潛在客戶名單。</div>
+        <div class="channel-roi"><span class="roi-dot roi-mid"></span> 中 ROI — 建立時間長但複利強</div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-icon">💼</div>
+        <div class="channel-name">顧問公司合作</div>
+        <div class="channel-desc">商業顧問、ERP 導入商、會計師事務所。他們已有 SME 客戶信任，MUC 可以作為加值服務合作。</div>
+        <div class="channel-roi"><span class="roi-dot roi-high"></span> 高 ROI — 借用現有信任關係</div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-icon">📰</div>
+        <div class="channel-name">Facebook / LINE 群組</div>
+        <div class="channel-desc">台灣創業者社群、各行業老闆群。提供乾貨內容（AI 效率秘訣），不直接廣告。</div>
+        <div class="channel-roi"><span class="roi-dot roi-mid"></span> 中 ROI — 需要持續經營</div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-icon">🏛️</div>
+        <div class="channel-name">政府輔導資源</div>
+        <div class="channel-desc">經濟部中小企業處 AI 補助、數位部資源。申請成為官方推薦服務商，借助政府背書。</div>
+        <div class="channel-roi"><span class="roi-dot roi-mid"></span> 中 ROI — 進入門檻高但背書強</div>
+      </div>
+    </div>
+
+    <div class="highlight-box" style="margin-top: 24px;">
+      <p><strong>不推薦現階段重押</strong>：Google Ads（台灣 SME 老闆不搜尋「AI 員工授權系統」）、LinkedIn 廣告（台灣滲透率低）、冷郵件開發（信任度過低）。省下廣告費，把錢花在辦活動和顧問合作上。</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ═══ SECTION 5 ═══ -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <h2>從「沒聽過」到「黏住了」的轉化漏斗</h2>
+    </div>
+
+    <p>設計 MUC 的完整客戶旅程，每個階段的目標、工具、成功指標：</p>
+
+    <div style="margin-top: 24px;">
+      <div class="funnel-step">
+        <div class="funnel-step-num">1</div>
+        <div class="funnel-step-body">
+          <div class="funnel-step-title">覺察 — 讓他知道你存在</div>
+          <p class="funnel-step-desc">工具：演講 / YouTube / 顧問合作推薦。成功指標：他能用一句話說出 MUC 是什麼（不需要說準確，但要說出痛點對應）。目標時間：接觸後 7 天內留下印象。</p>
+        </div>
+      </div>
+      <div class="funnel-connector"></div>
+      <div class="funnel-step">
+        <div class="funnel-step-num">2</div>
+        <div class="funnel-step-body">
+          <div class="funnel-step-title">興趣 — 他主動問你「這個怎麼運作？」</div>
+          <p class="funnel-step-desc">工具：Landing page 的場景對比區塊 / 15 分鐘 Demo call。成功指標：他說出自己公司的一個具體痛點場景。這是進入顧問式銷售的入場券。</p>
+        </div>
+      </div>
+      <div class="funnel-connector"></div>
+      <div class="funnel-step">
+        <div class="funnel-step-num">3</div>
+        <div class="funnel-step-body">
+          <div class="funnel-step-title">評估 — 他在比較「要不要換」</div>
+          <p class="funnel-step-desc">工具：同行案例 / ROI 試算工具 / 30 天試用方案。成功指標：他把「轉換麻煩」的問題問出來了（問題出來代表他在認真考慮）。準備好「設備移轉清單」降低他的摩擦感。</p>
+        </div>
+      </div>
+      <div class="funnel-connector"></div>
+      <div class="funnel-step">
+        <div class="funnel-step-num">4</div>
+        <div class="funnel-step-body">
+          <div class="funnel-step-title">決定 — 第一次付款</div>
+          <p class="funnel-step-desc">工具：顧問式 onboarding（第一週 Zeal/Rita 親自陪）/ 快速勝利設計（第一個月就要有一個讓他「哇」的時刻）。成功指標：他跟同行說了 MUC 的事（口碑傳播開始）。</p>
+        </div>
+      </div>
+      <div class="funnel-connector"></div>
+      <div class="funnel-step">
+        <div class="funnel-step-num">5</div>
+        <div class="funnel-step-body">
+          <div class="funnel-step-title">黏住 — SOP 深度內嵌，轉換成本升高</div>
+          <p class="funnel-step-desc">工具：每季 SOP 優化 review / 記憶累積儀表板（讓他看見累積了多少）。成功指標：他的員工已經習慣用 MUC 的 SOP 工作，換掉比不換更痛苦。這是終點，也是真正的護城河。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ═══ SECTION 6 ═══ -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <h2>前 10 個客戶獲取劇本</h2>
+    </div>
+
+    <p>前 10 個客戶不是「銷售」，是「共同建構」。他們幫你驗證產品、提供案例、成為第一批推薦人。要給他們特殊待遇，也要對他們誠實。</p>
+
+    <div class="grid-2" style="margin-top: 20px;">
+      <div class="card">
+        <div class="card-title">
+          <span class="badge">選客戶</span>
+          選擇條件
+        </div>
+        <p>① 月營收 100–500 萬（有付費能力但不需要大量客製）② 老闆本人有意願參與（不是交給 IT 部門的）③ 行業：顧問、培訓、服務業（有明確 SOP 可建）④ 老闆有同行圈子（會轉介紹）⑤ 願意提供 3 個月後的案例分享</p>
+      </div>
+      <div class="card">
+        <div class="card-title">
+          <span class="badge">談條件</span>
+          創始客戶方案
+        </div>
+        <p>① 前 10 名創始客戶享 6 個月 8 折優惠 ② 第一個月 Zeal/Rita 親自 onboarding ③ 3 個月後提供 ROI 案例報告（他可以用來對外分享）④ 加入「MUC 創始客戶顧問委員會」——讓他有參與感和身份認同</p>
+      </div>
+      <div class="card">
+        <div class="card-title">
+          <span class="badge success">快速勝利</span>
+          第一個月必須設計
+        </div>
+        <p>入場後 30 天內，必須讓他有一個具體的「哇」時刻。例如：「以前客服要回答 2 小時的問題，現在 AI 10 秒回完了」。沒有快速勝利 → 沒有口碑 → 沒有案例。</p>
+      </div>
+      <div class="card">
+        <div class="card-title">
+          <span class="badge gold">案例生產</span>
+          3 個月後
+        </div>
+        <p>幫他產出一頁式案例報告（可對外分享的版本）：① 他是什麼行業 ② 之前的痛點 ③ MUC 怎麼幫他解決 ④ 量化結果（節省 X 小時 / 新人 onboarding 縮短 X 天）。這份案例是你最重要的行銷素材。</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ═══ SECTION 7 ═══ -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <h2>Landing Page 改造重點</h2>
+    </div>
+
+    <p>根據競品分析的建議「Landing Page 強化差異化訊息」，以下是具體的改造框架：</p>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>區塊</th>
+          <th>現在的問題</th>
+          <th>應該改成</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>首屏標題</strong></td>
+          <td>技術術語（AI 數位員工授權管理）</td>
+          <td>痛點語言「業務離職，SOP 又要從頭來？讓 AI 員工把你的工作流程記下來」</td>
+        </tr>
+        <tr>
+          <td><strong>對比區塊</strong></td>
+          <td>沒有 vs ChatGPT 的對比</td>
+          <td>「ChatGPT 的 AI vs. 你的 AI」— 用表格展示記憶、SOP、設備控管的差異</td>
+        </tr>
+        <tr>
+          <td><strong>案例區塊</strong></td>
+          <td>功能列表</td>
+          <td>3 個場景故事（顧問業/服務業/銷售業），每個故事 = 痛點→解法→結果</td>
+        </tr>
+        <tr>
+          <td><strong>定價區塊</strong></td>
+          <td>只列價格</td>
+          <td>加「ROI 試算器」：輸入員工數 × 重複問題頻率，自動算出每月省的時間成本</td>
+        </tr>
+        <tr>
+          <td><strong>CTA</strong></td>
+          <td>「立即購買」</td>
+          <td>「免費 15 分鐘診斷：看看 MUC 能幫你的業務流程省多少時間」</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="highlight-box">
+      <p><strong>文案核心原則</strong>：所有文字都在回答客戶心中的一個問題——「這個東西能幫我的 [具體業務] 解決 [具體問題] 嗎？」。技術術語一律轉換成業務語言。</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ═══ SECTION 8 ═══ -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <h2>12 個月窗口期行動時間軸</h2>
+    </div>
+
+    <p>按原競品分析的 12–18 個月窗口期，設計四個行動階段：</p>
+
+    <div class="timeline-phase">
+      <div class="phase-header">
+        <span class="phase-tag p0">Phase 0</span>
+        <div class="phase-title">基礎建設 — 在開炮前把子彈準備好</div>
+        <div class="phase-period">Month 0–1</div>
+      </div>
+      <ul class="action-list">
+        <li>重寫 Landing Page（痛點語言 + 場景對比 + ROI 試算器）</li>
+        <li>準備 Demo 腳本（15 分鐘版），覆蓋四種目標族群</li>
+        <li>設計創始客戶方案文件（條件 + 權益 + 案例合作要求）</li>
+        <li>鎖定前 10 個目標客戶（從現有人脈圈開始）</li>
+        <li>確認 Rita 的銷售話術 + 異議處理腳本</li>
+      </ul>
+    </div>
+
+    <div class="timeline-phase">
+      <div class="phase-header">
+        <span class="phase-tag p1">Phase 1</span>
+        <div class="phase-title">創始客戶攻堅 — 把前 10 個客戶拿下並深度服務</div>
+        <div class="phase-period">Month 1–3</div>
+      </div>
+      <ul class="action-list">
+        <li>Zeal 親自出席 3–5 場商業社群演講（青商 / 行業公會）</li>
+        <li>Rita 啟動顧問公司合作洽談（目標：2 個合作夥伴）</li>
+        <li>前 10 個客戶：每週一次進度確認，確保快速勝利發生</li>
+        <li>啟動 YouTube 教育內容（每月 2–3 支，場景故事為主）</li>
+        <li>監控 EgentHub 動態（月報）</li>
+      </ul>
+    </div>
+
+    <div class="timeline-phase">
+      <div class="phase-header">
+        <span class="phase-tag p2">Phase 2</span>
+        <div class="phase-title">案例複利 — 用前 10 個客戶的故事撬動下一波</div>
+        <div class="phase-period">Month 4–8</div>
+      </div>
+      <ul class="action-list">
+        <li>產出前 10 個客戶的一頁式案例報告，開始對外分享</li>
+        <li>設計「推薦人分潤計畫」，啟動口碑飛輪</li>
+        <li>評估是否申請政府 AI 輔導資源背書</li>
+        <li>Landing Page 加入真實案例影片（老闆親口說）</li>
+        <li>開始分行業版本的 Demo（顧問業版 / 服務業版 / 銷售業版）</li>
+        <li>目標：客戶數達 25–30 個，月經常性收入成長</li>
+      </ul>
+    </div>
+
+    <div class="timeline-phase">
+      <div class="phase-header">
+        <span class="phase-tag p3">Phase 3</span>
+        <div class="phase-title">生態加速 — 建立系統性增長機制</div>
+        <div class="phase-period">Month 9–12</div>
+      </div>
+      <ul class="action-list">
+        <li>評估授權模組是否可獨立成 API 服務（新收入線）</li>
+        <li>強化「記憶 + SOP」的可視化（讓客戶看見累積了多少）</li>
+        <li>建立「MUC 生態合作夥伴」體系（顧問 / 培訓師 / ERP 商）</li>
+        <li>如 EgentHub 推出中小企業版 → 啟動服務業垂直深耕計畫</li>
+        <li>年度目標：100+ 客戶、品牌認知護城河從 15% 提升至 40%+</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ═══ SECTION 9 ═══ -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">09</span>
+      <h2>DSE 元驗證：這個策略的弱點在哪？</h2>
+    </div>
+
+    <p>誠實面對這份策略的限制，比假裝完美更重要：</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">
+          <span class="badge warn">弱點一</span>
+          執行資源瓶頸
+        </div>
+        <p>5 人團隊要同時做產品、銷售、顧問服務、內容行銷，很可能每件事都做不好。建議：Phase 1 只做「演講 + 創始客戶服務」兩件事，其他全部緩做。</p>
+      </div>
+      <div class="card">
+        <div class="card-title">
+          <span class="badge warn">弱點二</span>
+          快速勝利難以保證
+        </div>
+        <p>MUC 的第一個月快速勝利，高度依賴 Zeal/Rita 的顧問能力，不是產品自動發生的。要為前 10 個客戶設計「快速勝利劇本」，不能靠即興。</p>
+      </div>
+      <div class="card">
+        <div class="card-title">
+          <span class="badge warn">弱點三</span>
+          定價信心不足
+        </div>
+        <p>如果銷售團隊對 MUC 的定價沒有信心，會在客戶第一個異議出現時就想折扣。需要反覆演練 ROI 試算框架，讓 Rita 能在不看稿的情況下說出來。</p>
+      </div>
+      <div class="card">
+        <div class="card-title">
+          <span class="badge warn">弱點四</span>
+          案例產出速度
+        </div>
+        <p>如果前 10 個客戶沒有在 3 個月內給出可用的案例，Phase 2 的複利就無法啟動。需要在合約中明確案例合作條款，並主動幫客戶寫初稿讓他確認。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ CLOSING ═══ -->
+  <div class="exec-box" style="margin-top: 0; background: linear-gradient(135deg, #1a1a24 0%, #12121A 100%);">
+    <div class="label">一句話結論</div>
+    <p>MUC 的窗口期是真實的。但窗口不會自己打開——<strong>讓目標族群從「沒聽過」到「用了離不開」的路徑，需要被設計，不能靠等</strong>。前 10 個客戶是整個飛輪的啟動點，把所有資源集中在這裡，其他的再說。</p>
+  </div>
+
+  <!-- ═══ FOOTER ═══ -->
+  <div class="footer">
+    <div class="footer-brand">MUSEON</div>
+    <div class="footer-meta">
+      DSE Standard Depth Analysis<br>
+      2026-03-24 · 內部戰略參考文件<br>
+      <span style="color: var(--ember);">不構成投資建議</span>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

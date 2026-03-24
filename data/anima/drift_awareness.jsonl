@@ -69,3 +69,4 @@
 {"timestamp": "2026-03-23T03:12:38.745351+00:00", "drift_score": 0.0323, "restricted": false, "awareness": "穩定 3.2%。無顯著變化。"}
 {"timestamp": "2026-03-23T07:11:42.803752+00:00", "drift_score": 0.1073, "restricted": false, "awareness": "輕微漂移 10.7%：L6_communication_style(35.9%), expression_style(9.6%), eight_primals(7.1%)。正常範圍。"}
 {"timestamp": "2026-03-23T09:32:36.746950+00:00", "drift_score": 0.1006, "restricted": false, "awareness": "輕微漂移 10.1%：L6_communication_style(36.7%), expression_style(9.5%), eight_primals(4.3%)。正常範圍。"}
+{"timestamp": "2026-03-24T11:56:57.134054+00:00", "drift_score": 0.0619, "restricted": false, "awareness": "輕微漂移 6.2%：L6_communication_style(23.0%), expression_style(9.5%)。正常範圍。"}

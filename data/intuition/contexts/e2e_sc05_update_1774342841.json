@@ -1,0 +1,22 @@
+{
+  "session_id": "e2e_sc05_update_1774342841",
+  "nodes": {
+    "topic_turn_0": {
+      "node_id": "topic_turn_0",
+      "node_type": "topic",
+      "label": "turn_0",
+      "properties": {
+        "content_length": 12,
+        "detected_at": "2026-03-24T17:02:08.895862"
+      },
+      "created_at": "2026-03-24T17:02:08.895901",
+      "updated_at": "2026-03-24T17:02:08.895905"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 1,
+    "last_content_length": 12
+  },
+  "last_updated": "2026-03-24T17:02:08.895862"
+}

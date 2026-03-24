@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260324_161437_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n方向：確認制度最終版（目前幾級？各級案件門檻和分潤數字確定了嗎？）→ 輸出「清晰的計算邏輯」給工程師（不是人格模擬）→ 列出「制度漏洞」和對應的防止規則（如客戶流失是否扣分、月租上限等）→ 提供 checklist 讓系統能自動化跑計算。人格模擬很有洞見但不符合「寫進平台系統」的實裝需求。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-24T16:14:37.535968+08:00",
+  "priority": "medium"
+}

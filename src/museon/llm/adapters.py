@@ -396,6 +396,13 @@ class ClaudeCLIAdapter:
             logger.info(f"[CLI] Injected USER={env['USER']} for keychain access")
 
         try:
+            prompt_bytes = prompt.encode("utf-8")
+            _prompt_mb = len(prompt_bytes) / (1024 * 1024)
+            if _prompt_mb > 5:
+                logger.warning(
+                    f"[CLI] Prompt size {_prompt_mb:.1f}MB — may cause stdin timeout"
+                )
+
             proc = await asyncio.create_subprocess_exec(
                 *cmd,
                 stdin=asyncio.subprocess.PIPE,
@@ -404,8 +411,27 @@ class ClaudeCLIAdapter:
                 env=env,
             )
 
+            # stdin 寫入 + drain 使用獨立短超時（30 秒），
+            # 防止超大 prompt 卡住 OS pipe buffer
+            try:
+                proc.stdin.write(prompt_bytes)
+                await asyncio.wait_for(proc.stdin.drain(), timeout=30.0)
+                proc.stdin.close()
+            except asyncio.TimeoutError:
+                logger.error(
+                    f"[CLI] stdin write timeout (30s) — prompt size {_prompt_mb:.1f}MB"
+                )
+                proc.kill()
+                return AdapterResponse(
+                    text="",
+                    model=model,
+                    stop_reason="error",
+                    input_tokens=0,
+                    output_tokens=0,
+                )
+
             stdout, stderr = await asyncio.wait_for(
-                proc.communicate(input=prompt.encode("utf-8")),
+                proc.communicate(),  # stdin 已關閉，只等 stdout/stderr
                 timeout=3600,  # 1 小時超時（複雜任務可能很久）
             )
 
@@ -644,13 +670,26 @@ class AnthropicAPIAdapter:
             if system_blocks:
                 create_kwargs["system"] = [{"type": "text", "text": system_prompt}]
 
-        # L2 併發控制 + L3 exponential backoff 自動重試
-        MAX_RETRIES = 3
-        for _attempt in range(MAX_RETRIES + 1):
+        # L2 併發控制 + L3 rate_limiter 驅動的智慧重試
+        from museon.llm.rate_limiter import get_backoff, get_monitor, get_degrader
+
+        _bo = get_backoff()
+        _mon = get_monitor()
+        _deg = get_degrader()
+        _current_model = model_id
+
+        for _attempt in range(_bo._cfg.max_retries + 1):
             try:
+                # 更新 create_kwargs 的 model（降級時會變）
+                create_kwargs["model"] = _current_model
+
                 sem = self._get_semaphore()
                 async with sem:
                     response = await client.messages.create(**create_kwargs)
+
+                # 解析 rate limit headers（如果有）
+                if hasattr(response, "_response") and hasattr(response._response, "headers"):
+                    _mon.update_from_headers(dict(response._response.headers))
 
                 # 提取文字、thinking 和 tool_calls
                 text_parts = []
@@ -676,7 +715,7 @@ class AnthropicAPIAdapter:
                     tool_calls=tool_calls,
                     input_tokens=usage.input_tokens if usage else 0,
                     output_tokens=usage.output_tokens if usage else 0,
-                    model=model_id,
+                    model=_current_model,
                     raw={"response": response.model_dump() if hasattr(response, "model_dump") else None},
                     thinking="\n".join(thinking_parts) if thinking_parts else None,
                 )
@@ -685,46 +724,68 @@ class AnthropicAPIAdapter:
                 error_type = type(e).__name__
                 error_str = str(e)
 
-                # 認證錯誤（401）— 不可重試，API key 無效
+                # 認證錯誤（401）— 不可重試
                 if "authentication" in error_str.lower() or "401" in error_str:
                     logger.error(f"API authentication error (不可重試): {e}")
                     return AdapterResponse(
                         text=f"[API auth error] {e}",
                         stop_reason="auth_error",
-                        model=model_id,
+                        model=_current_model,
                     )
 
-                # 速率限制（429）或 overloaded（529）— exponential backoff 重試
+                # 429 / 529 — 用 rate_limiter 智慧重試
                 _is_retryable = (
                     ("rate" in error_str.lower() and "limit" in error_str.lower())
                     or "429" in error_str
                     or "overloaded" in error_str.lower()
                     or "529" in error_str
                 )
-                if _is_retryable and _attempt < MAX_RETRIES:
-                    import random
-                    _backoff = (2 ** _attempt) + random.uniform(0, 1)
-                    logger.warning(
-                        f"API rate limit / overloaded (attempt {_attempt + 1}/{MAX_RETRIES}): "
-                        f"{e}. Retrying in {_backoff:.1f}s"
-                    )
-                    await asyncio.sleep(_backoff)
-                    continue
 
-                # 最終失敗或不可重試錯誤
                 if _is_retryable:
-                    logger.error(f"API rate limit exhausted after {MAX_RETRIES} retries: {e}")
+                    _mon.record_hit()
+
+                    # 嘗試從 exception 取 retry-after header
+                    _retry_after = None
+                    if hasattr(e, "response") and hasattr(e.response, "headers"):
+                        _ra = e.response.headers.get("retry-after")
+                        if _ra:
+                            try:
+                                _retry_after = float(_ra)
+                            except (ValueError, TypeError):
+                                pass
+
+                    if _bo.should_retry(_attempt):
+                        _delay = _bo.compute_delay(_attempt, _retry_after)
+                        logger.warning(
+                            f"API 429/529 (attempt {_attempt + 1}): "
+                            f"retry in {_delay:.1f}s "
+                            f"(retry-after={_retry_after}, model={_current_model})"
+                        )
+                        await asyncio.sleep(_delay)
+
+                        # 第 2 次重試後嘗試降級 model
+                        if _attempt >= 1:
+                            _degraded = _deg.degrade(_current_model, reason="rate_limit")
+                            if _degraded:
+                                _current_model = _degraded
+                        continue
+
+                    # 重試耗盡
+                    logger.error(
+                        f"API rate limit exhausted after {_bo._cfg.max_retries} retries | "
+                        f"model={_current_model} hits={_mon.hit_count}"
+                    )
                     return AdapterResponse(
-                        text=f"[API rate limit] 重試 {MAX_RETRIES} 次後仍失敗，請稍後再試。",
+                        text="[API rate limit] 重試次數已達上限，請稍後再試。",
                         stop_reason="rate_limited",
-                        model=model_id,
+                        model=_current_model,
                     )
 
                 logger.error(f"API adapter error ({error_type}): {e}")
                 return AdapterResponse(
                     text=f"[API error] {e}",
                     stop_reason="error",
-                    model=model_id,
+                    model=_current_model,
                 )
 
     # ── Token Counting API ──────────────────────

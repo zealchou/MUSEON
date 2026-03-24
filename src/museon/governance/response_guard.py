@@ -10,9 +10,38 @@
 """
 
 import logging
+import re
 from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
+
+# 群組回覆中需要清除的內部術語模式
+_INTERNAL_PATTERNS = [
+    # chat_id / session_id 數字
+    re.compile(r"(?:chat_id|session_id|group_id)[=:\s]*-?\d{5,}", re.IGNORECASE),
+    # telegram_group_NNNN / telegram_dm_NNNN session 格式
+    re.compile(r"telegram_(?:group|dm)_-?\d{5,}"),
+    # 系統狀態訊息
+    re.compile(r"(?:Gateway|PulseEngine|Nightly|ServiceHealth)\s*(?:啟動|停止|重啟|失敗|異常|crash|error)", re.IGNORECASE),
+    # PID / lock 檔案路徑
+    re.compile(r"(?:pid|lock)\s*[=:]\s*\d+", re.IGNORECASE),
+    re.compile(r"/Users/\S+/\.museon/\S+"),
+    # 內部模組路徑
+    re.compile(r"museon\.(?:agent|gateway|pulse|governance|llm)\.\w+"),
+    # L1/L2/L3 調度架構術語
+    re.compile(r"L[123]\s*(?:調度員?|思考者|工人|dispatcher|subagent|spawn|prompt\s*範本)", re.IGNORECASE),
+    re.compile(r"(?:三層架構|調度員模式|L1/L2|L2\s*回報|L2\s*思考)", re.IGNORECASE),
+    # MCP 插件 / 工具內部名稱
+    re.compile(r"(?:MCP\s*(?:插件|plugin|server|tool)|mcp__\w+)", re.IGNORECASE),
+    # debug / 內部開發術語
+    re.compile(r"(?:debug|traceback|stacktrace|exception|內部錯誤|內部架構)", re.IGNORECASE),
+    # system prompt / prompt 工程術語
+    re.compile(r"(?:system\s*prompt|prompt\s*(?:工程|injection|注入))", re.IGNORECASE),
+    # Brain / ResponseGuard / 內部元件名
+    re.compile(r"(?:ResponseGuard|EventBus|BrainModule|MemoryStore|sanitize_for_group)", re.IGNORECASE),
+    # 內部檔案路徑 (通用)
+    re.compile(r"(?:~/MUSEON/|/Users/\S+/MUSEON/)\S+"),
+]
 
 
 class ResponseGuard:
@@ -115,6 +144,36 @@ class ResponseGuard:
             return False
 
         return True
+
+    @staticmethod
+    def sanitize_for_group(response_text: str, is_group: bool) -> str:
+        """群組回覆內容清理 — 移除內部術語和敏感資訊.
+
+        非群組模式直接 passthrough；群組模式掃描並移除：
+        - chat_id / session_id 等內部識別碼
+        - 系統狀態訊息（Gateway/Pulse 等）
+        - 內部檔案路徑和模組名稱
+
+        Args:
+            response_text: 原始回覆文本
+            is_group: 是否為群組訊息
+
+        Returns:
+            清理後的回覆文本
+        """
+        if not is_group or not response_text:
+            return response_text
+
+        sanitized = response_text
+        for pattern in _INTERNAL_PATTERNS:
+            sanitized = pattern.sub("[...]", sanitized)
+
+        if sanitized != response_text:
+            logger.info(
+                f"[ResponseGuard] sanitize_for_group: 已清理群組回覆中的內部資訊"
+            )
+
+        return sanitized
 
     @staticmethod
     def validate_escalation(

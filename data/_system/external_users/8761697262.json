@@ -1,0 +1,99 @@
+{
+  "version": "3.0.0",
+  "user_id": "8761697262",
+  "created_at": "2026-03-24T19:38:17.330289",
+  "interaction_count": 2,
+  "last_seen": "2026-03-24T20:19:07.790308",
+  "display_name": "Vivi",
+  "context_summary": "",
+  "profile": {
+    "name": "Vivi",
+    "role": null,
+    "business_type": "unknown"
+  },
+  "relationship": {
+    "trust_level": "initial",
+    "total_interactions": 2,
+    "positive_signals": 0,
+    "negative_signals": 0,
+    "last_interaction": "2026-03-24T20:19:07.790308",
+    "first_interaction": "2026-03-24T19:38:17.330306"
+  },
+  "eight_primals": {
+    "aspiration": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "accumulation": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "action_power": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "curiosity": {
+      "level": 16,
+      "confidence": 0.04,
+      "signal": "[群組近期對話紀錄]   38:16 Vivi: @MuseonClaw_bot 哈囉 你會幫我資源整合嗎？ [/群組近期對話紀錄]  [群組會議] Vivi ",
+      "last_observed": "2026-03-24T19:48:08.181278"
+    },
+    "emotion_pattern": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "blindspot": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "boundary": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "relationship_depth": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    }
+  },
+  "seven_layers": {
+    "L1_facts": [],
+    "L2_personality": [],
+    "L6_communication_style": {
+      "detail_level": "moderate",
+      "emoji_usage": "none",
+      "language_mix": "mixed",
+      "avg_msg_length": 31,
+      "question_style": "directive",
+      "tone": "casual"
+    }
+  },
+  "preferences": {},
+  "recent_topics": [
+    {
+      "snippet": "你會幫我資源整合嗎？",
+      "date": "2026-03-24T19:48:08.181278"
+    },
+    {
+      "snippet": "可以幫我做pdf檔的問卷調查表嗎",
+      "date": "2026-03-24T20:19:07.790308"
+    }
+  ],
+  "groups_seen_in": [
+    -5238245035
+  ],
+  "relationship_to_owner": ""
+}

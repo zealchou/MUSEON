@@ -298,18 +298,26 @@ class TokenBudget:
         self._total_budget = total_budget
         self._usage: Dict[str, int] = {k: 0 for k in self._zones}
 
+    _BUFFER_MIN_RESERVE = 500  # buffer zone 最低保留量，防止被完全借光
+
     def apply_dynamic_allocation(self, max_tier_score: float) -> None:
         """依據最高 tier score 動態調整預算.
 
         BDD Spec §5.2: max(tier_scores) > 1.0 → modules +20% from buffer.
+        Buffer zone 保留至少 _BUFFER_MIN_RESERVE tokens 不外借。
         """
         if max_tier_score > 1.0:
+            available = max(
+                self._zones.get("buffer", 0) - self._BUFFER_MIN_RESERVE,
+                0,
+            )
             bonus = min(
-                self._zones.get("buffer", 0),
+                available,
                 self._zones.get("modules", 0) // 5,
             )
-            self._zones["modules"] = self._zones.get("modules", 0) + bonus
-            self._zones["buffer"] = self._zones.get("buffer", 0) - bonus
+            if bonus > 0:
+                self._zones["modules"] = self._zones.get("modules", 0) + bonus
+                self._zones["buffer"] = self._zones.get("buffer", 0) - bonus
             logger.debug(
                 f"TokenBudget dynamic: modules +{bonus}, "
                 f"buffer -{bonus}"
@@ -356,6 +364,7 @@ class TokenBudget:
             截斷後的文本（可能為空字串）
         """
         if self.is_exhausted(zone):
+            logger.debug(f"TokenBudget: zone '{zone}' exhausted, dropping {len(text)} chars")
             return ""
 
         tokens = estimate_tokens(text)
