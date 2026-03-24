@@ -7,14 +7,14 @@
 
 | # | 迭代 | 狀態 | Commit | 說明 |
 |---|------|------|--------|------|
-| 1 | ANIMA_USER Changelog | ✅ 完成 | `f3374f89` | 差分版本追蹤，讓使用者變化可回溯 |
-| 2 | PulseDB Anima History API | ✅ 完成 | `cbcfbece` | 暴露八元素變化歷史查詢（by_days + trend） |
-| 3 | Soul Ring → Qdrant 索引 | ✅ 完成 | `3b9f7139` | 年輪語義搜索 + 回填腳本（第 9 個 collection） |
-| 4 | Adaptive Decay Engine | ✅ 完成 | `46bb4dfc` | ACT-R 式統一衰減引擎（B_i = ln(Σt^{-d}) + β） |
-| 5 | Memory Reflector | ✅ 完成 | `f9646876` | Hindsight 式 Retain→Recall→Reflect |
-| 6 | Epigenetic Router | ✅ 完成 | `f9646876` | MAGMA 式多圖遍歷（semantic/temporal/causal/entity） |
-| 7 | Proactive Predictor | ✅ 完成 | `74024786` | 四維需求預判（序列/情緒/決策循環） |
-| 8 | 藍圖全面同步 + brain.py 接線 | ✅ 完成 | (pending) | brain.py 接入 EpigeneticRouter；brain_prompt_builder 反思摘要注入；blast-radius v1.55 + joint-map v1.40 + memory-router v1.6 + persistence-contract v1.32；system-topology v1.45 已有節點定義 |
+| 1 | ANIMA_USER Changelog | ⬜ 待做 | — | 差分版本追蹤，讓使用者變化可回溯 |
+| 2 | PulseDB Anima History API | ⬜ 待做 | — | 暴露八元素變化歷史查詢 |
+| 3 | Soul Ring → Qdrant 索引 | ⬜ 待做 | — | 年輪語義搜索 + 回填腳本 |
+| 4 | Adaptive Decay Engine | ⬜ 待做 | — | ACT-R 式統一衰減引擎 |
+| 5 | Memory Reflector | ⬜ 待做 | — | Hindsight 式 Retain→Recall→Reflect |
+| 6 | Epigenetic Router | ⬜ 待做 | — | MAGMA 式多圖遍歷 + brain.py 接入 |
+| 7 | Proactive Prediction + 人格演化 | ⬜ 待做 | — | 需求預判 + MC/USER 人格堆疊 |
+| 8 | 藍圖全面同步 + 3D 心智圖 | ⬜ 待做 | — | 五張藍圖 + HTML |
 
 ## 架構總覽
 
