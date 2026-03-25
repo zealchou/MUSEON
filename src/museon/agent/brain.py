@@ -797,6 +797,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
             if session_id not in self._routing_history:
                 self._routing_history[session_id] = []
             self._routing_history[session_id].append(routing_signal.to_dict())
+            self._last_routing_signal = routing_signal  # PDR Phase 2 消費
             # 只保留最近 5 輪
             if len(self._routing_history[session_id]) > 5:
                 self._routing_history[session_id] = self._routing_history[session_id][-5:]
