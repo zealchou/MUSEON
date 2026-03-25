@@ -213,6 +213,7 @@ external-user（EXTERNAL）
 | `log-analyzer` | Log Analyzer | 日誌分析 | - | doctor | 0.8 |
 | `code-analyzer` | Code Analyzer | 代碼品質 | - | doctor | 0.8 |
 | `memory-reset` | Memory Reset | 一鍵記憶重置 | - | doctor | 0.8 |
+| `doctor-notify` | Doctor Notify | 五虎將共用通知（DM 老闆 + 待審閱摘要） | - | doctor | 0.7 |
 | `observatory` | Observatory | 認知可觀測性儀表板 | - | doctor | 0.8 |
 
 ### llm — LLM 路由
