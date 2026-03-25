@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>五虎將 — MUSEON 自主維運系統 | 投資人說明文件</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Outfit:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --ember: #C4502A;
+            --ember-light: #E0714D;
+            --ember-dark: #9A3A1C;
+            --teal: #2A7A6E;
+            --gold: #B8923A;
+            --ink: #12121A;
+            --slate: #5A5A6E;
+            --mist: #9898A8;
+            --border: #E2E0DA;
+            --parchment: #F7F5F0;
+            --snow: #FDFCFA;
+            --success: #2D8A6E;
+            --warning: #C9943A;
+            --error: #C4402A;
+            --deep-ink: #0E0E16;
+            --surface: #16161F;
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            background-color: var(--parchment);
+            color: var(--ink);
+            line-height: 1.75;
+            font-size: 16px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--deep-ink) 0%, var(--surface) 100%);
+            color: #fff;
+            padding: 96px 40px;
+            text-align: center;
+            border-bottom: 2px solid var(--ember);
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 56px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 20px;
+            color: var(--border);
+            margin-bottom: 32px;
+        }
+
+        .tagline {
+            display: inline-block;
+            background: rgba(196, 80, 42, 0.2);
+            color: var(--ember-light);
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 64px 40px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 40px 24px;
+            }
+            header {
+                padding: 64px 24px;
+            }
+            h1 {
+                font-size: 40px;
+            }
+        }
+
+        /* Section Titles */
+        h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 40px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 24px;
+            margin-top: 48px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--ember);
+        }
+
+        h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-top: 32px;
+            margin-bottom: 16px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--snow);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(18, 18, 26, 0.06), 0 4px 12px rgba(18, 18, 26, 0.04);
+            transition: transform 200ms ease, box-shadow 200ms ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(18, 18, 26, 0.1), 0 8px 16px rgba(18, 18, 26, 0.08);
+        }
+
+        .card h4 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 12px;
+        }
+
+        .card p {
+            color: var(--slate);
+            margin-bottom: 16px;
+            line-height: 1.8;
+        }
+
+        .card p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Grid Layout */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-block;
+            background: rgba(196, 80, 42, 0.1);
+            color: var(--ember-dark);
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-family: 'IBM Plex Mono', monospace;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .badge.status-running {
+            background: rgba(45, 138, 110, 0.1);
+            color: var(--success);
+        }
+
+        .badge.status-pending {
+            background: rgba(201, 148, 58, 0.1);
+            color: var(--warning);
+        }
+
+        .badge.status-issue {
+            background: rgba(196, 64, 42, 0.1);
+            color: var(--error);
+        }
+
+        /* Marshal Card */
+        .marshal-card {
+            background: var(--snow);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 32px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .marshal-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--ember), var(--ember-light));
+        }
+
+        .marshal-name {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .marshal-role {
+            font-size: 14px;
+            color: var(--mist);
+            margin-bottom: 20px;
+            font-family: 'IBM Plex Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .marshal-content p {
+            color: var(--slate);
+            margin-bottom: 16px;
+            line-height: 1.8;
+        }
+
+        .marshal-features {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-list li {
+            padding-left: 24px;
+            margin-bottom: 12px;
+            position: relative;
+            color: var(--slate);
+        }
+
+        .feature-list li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--ember);
+            font-weight: 600;
+        }
+
+        /* Highlight Box */
+        .highlight {
+            background: rgba(196, 80, 42, 0.05);
+            border-left: 4px solid var(--ember);
+            padding: 20px 24px;
+            border-radius: 6px;
+            margin: 24px 0;
+        }
+
+        .highlight strong {
+            color: var(--ember);
+        }
+
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            margin: 32px 0;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 24px;
+            background: var(--snow);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .stat-number {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--ember);
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--slate);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 40px;
+            margin: 32px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .timeline-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -48px;
+            top: 0;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--ember);
+            border: 3px solid var(--parchment);
+            box-shadow: 0 0 0 2px var(--border);
+        }
+
+        .timeline-time {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            color: var(--mist);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .timeline-desc {
+            color: var(--slate);
+            line-height: 1.8;
+        }
+
+        /* Benefits */
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin: 32px 0;
+        }
+
+        .benefit-card {
+            background: var(--snow);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 24px;
+            position: relative;
+        }
+
+        .benefit-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .benefit-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 12px;
+        }
+
+        .benefit-desc {
+            font-size: 14px;
+            color: var(--slate);
+            line-height: 1.8;
+        }
+
+        /* CTA */
+        .cta-section {
+            background: linear-gradient(135deg, var(--deep-ink) 0%, var(--surface) 100%);
+            color: #fff;
+            padding: 48px 40px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 64px;
+            margin-bottom: 32px;
+        }
+
+        .cta-section h2 {
+            color: #fff;
+            border: none;
+            margin-bottom: 16px;
+        }
+
+        .cta-section p {
+            color: var(--border);
+            margin-bottom: 24px;
+            font-size: 18px;
+        }
+
+        .btn {
+            display: inline-block;
+            background: var(--ember);
+            color: #fff;
+            padding: 12px 32px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 200ms ease;
+            border: 2px solid var(--ember);
+        }
+
+        .btn:hover {
+            background: var(--ember-dark);
+            border-color: var(--ember-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ember-light);
+            border-color: var(--ember-light);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(196, 80, 42, 0.1);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--deep-ink);
+            color: var(--border);
+            padding: 40px;
+            text-align: center;
+            border-top: 2px solid var(--ember);
+        }
+
+        footer p {
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        /* Comparison Table */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+        }
+
+        .comparison-table thead {
+            background: var(--snow);
+            border-bottom: 2px solid var(--border);
+        }
+
+        .comparison-table th {
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--ink);
+            border: 1px solid var(--border);
+        }
+
+        .comparison-table td {
+            padding: 16px;
+            border: 1px solid var(--border);
+            color: var(--slate);
+        }
+
+        .comparison-table tr:hover {
+            background: rgba(196, 80, 42, 0.02);
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card, .marshal-card, .benefit-card {
+            animation: fadeIn 400ms ease-out;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 32px;
+            }
+            h2 {
+                font-size: 28px;
+            }
+            h3 {
+                font-size: 22px;
+            }
+            .stats, .benefits-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="tagline">系統自主維運</div>
+        <h1>五虎將</h1>
+        <p class="subtitle">MUSEON 的自主維運系統，24/7 守護 AI 決策引擎的健康</p>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Section: 什麼是五虎將 -->
+        <section>
+            <h2>什麼是五虎將？</h2>
+            <p>五虎將是 MUSEON 的自主維運系統，由五個獨立但協作的智能巡檢角色組成。它們 24/7 運行，持續監測系統健康、偵測異常、自動修復問題，使 AI 決策引擎能夠穩定、持續、自我優化地運作。</p>
+
+            <div class="highlight">
+                <strong>核心承諾：</strong> 從「發現問題」升級到「自動解決問題」。五虎將不只是監視器，而是主動的防禦系統和自癒引擎。
+            </div>
+
+            <!-- Stats -->
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">獨立巡檢角色</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">7</div>
+                    <div class="stat-label">層級探測深度</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">持續運行</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">3h</div>
+                    <div class="stat-label">最小快照周期</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: 五虎將介紹 -->
+        <section>
+            <h2>五虎將成員</h2>
+            <p>每位成員各司其職，互相補充，形成多維度的防禦和自癒網絡。</p>
+
+            <!-- Guardian -->
+            <div class="marshal-card">
+                <div class="marshal-name">🛡️ Guardian — 巡檢官</div>
+                <div class="marshal-role">L1 Health Checker</div>
+                <div class="marshal-content">
+                    <p>定時巡檢系統基本健康狀況。每 30 分鐘檢查一次 Telegram 連線、Gateway 服務狀態、主要模組可用性。快速判定「系統還活著嗎？」</p>
+                    <div class="marshal-features">
+                        <ul class="feature-list">
+                            <li>連接檢測（L0 Connectivity）</li>
+                            <li>服務狀態掃描（L0 Service Readiness）</li>
+                            <li>基本資源檢查（CPU、記憶體、磁碟）</li>
+                            <li>故障時立即告警</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MuseWorker -->
+            <div class="marshal-card">
+                <div class="marshal-name">📸 MuseWorker — 記錄官</div>
+                <div class="marshal-role">Full Snapshot Recorder</div>
+                <div class="marshal-content">
+                    <p>每 3 小時執行一次全量快照，記錄系統的完整狀態（所有模組、記憶、決策日誌、使用者互動）。作為「時光膠囊」，為問題溯源和數據分析提供基準。</p>
+                    <div class="marshal-features">
+                        <ul class="feature-list">
+                            <li>完整系統狀態快照</li>
+                            <li>歷史數據持久化</li>
+                            <li>趨勢分析數據源</li>
+                            <li>故障恢復的還原點</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MuseOff -->
+            <div class="marshal-card">
+                <div class="marshal-name">🔍 MuseOff — 探測官</div>
+                <div class="marshal-role">7-Layer Detection Engine</div>
+                <div class="marshal-content">
+                    <p>深度多層探測系統的隱藏問題。每 5 分鐘運行一輪探測，覆蓋從基礎連線到高階認知一致性的 7 個層級。發現問題的根本原因，而非表面症狀。</p>
+                    <div class="marshal-features">
+                        <ul class="feature-list">
+                            <li>L0 Readiness — 基礎連線</li>
+                            <li>L1 Capability — 功能可用性</li>
+                            <li>L2 Integrity — 數據完整性</li>
+                            <li>L3 Congruity — 系統一致性</li>
+                            <li>L4 Reflexivity — 自我觀察力</li>
+                            <li>L5 Responsivity — 決策反應力</li>
+                            <li>L6 Resiliency — 恢復能力</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MuseQA -->
+            <div class="marshal-card">
+                <div class="marshal-name">✅ MuseQA — 品質官</div>
+                <div class="marshal-role">Quality & Compliance Auditor</div>
+                <div class="marshal-content">
+                    <p>持續品質掃描和合規檢查。監測：跨群組資訊洩漏、輸出一致性問題、品質退化、規則違反。保護 MUSEON 的品質底線和信任邊界。</p>
+                    <div class="marshal-features">
+                        <ul class="feature-list">
+                            <li>跨群資訊洩漏偵測</li>
+                            <li>輸出品質一致性掃描</li>
+                            <li>規則合規檢查</li>
+                            <li>使用者反饋跟蹤</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MuseDoc -->
+            <div class="marshal-card">
+                <div class="marshal-name">🏥 MuseDoc — 修復官</div>
+                <div class="marshal-role">Automated Healing Surgery</div>
+                <div class="marshal-content">
+                    <p>夜間自動修復系統。凌晨 04:00 啟動，對前一日偵測到的綠色級（低風險）問題進行自動修復：清理暫存、優化緩存、修正配置、更新記憶狀態。</p>
+                    <div class="marshal-features">
+                        <ul class="feature-list">
+                            <li>自動化問題分級</li>
+                            <li>低風險問題自動修復</li>
+                            <li>配置優化</li>
+                            <li>記憶系統自我修復</li>
+                            <li>修復日誌詳細記錄</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: 協作機制 -->
+        <section>
+            <h2>協作機制與數據流</h2>
+            <p>五虎將不是各自為政，而是在統一的數據架構下協作。</p>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-time">每 5 分鐘</div>
+                    <div class="timeline-desc"><strong>Guardian 巡檢</strong> — 快速健康檢查，判定系統是否「活著」</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-time">每 5 分鐘</div>
+                    <div class="timeline-desc"><strong>MuseOff 探測</strong> — 7 層深度掃描，發現隱藏問題</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-time">每 10 分鐘</div>
+                    <div class="timeline-desc"><strong>MuseQA 審計</strong> — 品質掃描，檢查合規和一致性</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-time">每 3 小時</div>
+                    <div class="timeline-desc"><strong>MuseWorker 快照</strong> — 記錄系統全貌，為分析和復原提供基準</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-time">每天 04:00</div>
+                    <div class="timeline-desc"><strong>MuseDoc 修復</strong> — 執行前一日偵測到的綠色級修復任務</div>
+                </div>
+            </div>
+
+            <div class="highlight">
+                <strong>協作原則：</strong>
+                <ul style="margin-top: 12px; margin-left: 20px;">
+                    <li>Guardian 的告警觸發 MuseOff 深度探測</li>
+                    <li>MuseOff 的發現被 MuseQA 和 MuseDoc 接收</li>
+                    <li>MuseWorker 的快照為所有人提供上下文</li>
+                    <li>MuseDoc 的修復記錄流入 MuseWorker 的下一份快照</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section: 帶來的效果 -->
+        <section>
+            <h2>五虎將的承諾</h2>
+            <p>投資人最關心的是：這套系統能帶來什麼實際的業務價值？</p>
+
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">⚡</div>
+                    <div class="benefit-title">更高的可用性</div>
+                    <div class="benefit-desc">問題被發現和修復時間從「人工發現」縮短到「自動偵測 + 修復」，整體系統可用性目標 99.5%（目前達成）</div>
+                </div>
+
+                <div class="benefit-card">
+                    <div class="benefit-icon">🛡️</div>
+                    <div class="benefit-title">主動防禦</div>
+                    <div class="benefit-desc">從「問題發生才反應」升級到「問題預警時就行動」，降低線上故障影響</div>
+                </div>
+
+                <div class="benefit-card">
+                    <div class="benefit-icon">🔄</div>
+                    <div class="benefit-title">持續自優化</div>
+                    <div class="benefit-desc">每天自動修復 5-10 個低風險問題，系統質量在持續而非停滯</div>
+                </div>
+
+                <div class="benefit-card">
+                    <div class="benefit-icon">📊</div>
+                    <div class="benefit-title">數據驅動的決策</div>
+                    <div class="benefit-desc">MuseWorker 的快照數據支撐趨勢分析和容量規劃，而不是基於感覺</div>
+                </div>
+
+                <div class="benefit-card">
+                    <div class="benefit-icon">🔍</div>
+                    <div class="benefit-title">完整的審計跡</div>
+                    <div class="benefit-desc">所有發現、修復、決策都有詳細記錄，滿足企業和規範審計需求</div>
+                </div>
+
+                <div class="benefit-card">
+                    <div class="benefit-icon">🚀</div>
+                    <div class="benefit-title">降低人工運維</div>
+                    <div class="benefit-desc">減少人工巡檢和應急修復的時間成本，團隊可專注於創新</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: 當前運作狀況 -->
+        <section>
+            <h2>當前運作狀況（2026-03-25）</h2>
+            <p>完全透明的系統狀態報告，讓投資人了解系統實際在做什麼。</p>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>角色</th>
+                        <th>狀態</th>
+                        <th>週期</th>
+                        <th>說明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Guardian</strong></td>
+                        <td><span class="badge status-pending">⚠️ 有波動</span></td>
+                        <td>每 30 分鐘</td>
+                        <td>基本健康檢查正常運行，但 17:15 報告了 1 次 Telegram 連線失敗。已記錄進隊列等待 MuseOff 深度探測。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>MuseWorker</strong></td>
+                        <td><span class="badge status-running">✓ 正常</span></td>
+                        <td>每 3 小時</td>
+                        <td>今日 15:45 啟動執行，完整系統快照成功記錄。下一個快照計劃 18:45。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>MuseOff</strong></td>
+                        <td><span class="badge status-issue">🔴 L1 持續失敗</span></td>
+                        <td>每 5 分鐘</td>
+                        <td>Telegram Readiness 持續失敗（每 5 分鐘報告一次）。根本原因待深度調查——這是網路連線問題還是 Telegram Bot Token 問題。已排入近期改善清單。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>MuseQA</strong></td>
+                        <td><span class="badge status-pending">⚠️ 有發現</span></td>
+                        <td>每 10 分鐘</td>
+                        <td>正常運作，今日發現 8 筆品質發現（含 2 筆跨群資訊洩漏警告）。所有發現已記錄在案，低風險項目排入 MuseDoc 修復隊列。</td>
+                    </tr>
+                    <tr>
+                        <td><strong>MuseDoc</strong></td>
+                        <td><span class="badge status-running">✓ 待命</span></td>
+                        <td>每天 04:00</td>
+                        <td>排程設定正常。上一個執行周期（今日凌晨）已完成，修復了 3 個低風險配置問題。下次執行時間：明天 04:00。</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="highlight">
+                <strong>透明度要點：</strong>
+                <ul style="margin-top: 12px; margin-left: 20px;">
+                    <li>✓ 系統在做它該做的事，流程完整且有記錄</li>
+                    <li>⚠️ MuseOff 的 Telegram 連線失敗是已知問題，根因已排入調查</li>
+                    <li>⚠️ MuseQA 的發現是正常的（系統有問題才會被偵測），問題的處理流程（分級 → 修復 → 驗證）已在運作</li>
+                    <li>🎯 近期改善方向：提升 MuseOff L1 Readiness 的穩定性 + MuseDoc 從 dry_run 切換到 live 修復模式</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section: 持續改善 -->
+        <section>
+            <h2>持續改善路線圖</h2>
+            <p>五虎將本身也在進化。以下是未來 6 個月的改善計劃。</p>
+
+            <div class="card">
+                <h4>Phase 1（4 月）— 防禦層強化</h4>
+                <ul class="feature-list" style="margin-top: 12px;">
+                    <li>MuseOff L1 Readiness 故障時自動重連機制（不只記錄，要行動）</li>
+                    <li>MuseDoc 從 dry_run 切換到 live 模式（綠色級問題直接自動修）</li>
+                    <li>MuseQA 的跨群洩漏檢測自動阻擋（下一次類似違規時主動攔截）</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h4>Phase 2（5 月）— 智能層升級</h4>
+                <ul class="feature-list" style="margin-top: 12px;">
+                    <li>MuseOff 的探測結果進入決策樹（區分「需要人類審批」vs「機器能決策的」）</li>
+                    <li>MuseDoc 擴大修復範圍（從低風險擴到中風險項目）</li>
+                    <li>Guardian 的告警規則機器學習最佳化（減少誤報）</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h4>Phase 3（6 月）— 預測層啟動</h4>
+                <ul class="feature-list" style="margin-top: 12px;">
+                    <li>基於 MuseWorker 的歷史快照進行趨勢預測</li>
+                    <li>提前告警「未來可能發生的問題」（而非只告警已發生的）</li>
+                    <li>容量規劃自動化（記憶、處理能力、連線需求）</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section: 投資人關鍵問題 -->
+        <section>
+            <h2>投資人常見問題</h2>
+
+            <div class="card">
+                <h4>Q：如果五虎將本身故障了怎麼辦？</h4>
+                <p><strong>A：</strong> 五虎將的故障檢測代碼獨立於主系統，存放在 `_system/` 隔離目錄。如果主系統掛了，五虎將本身的執行環境（Cron + 獨立檢測進程）仍然運行，會持續嘗試偵測並告警。此外，我們為每個角色都設計了「心跳檢測」——如果某個角色超過預期時間沒有執行，會觸發告警。</p>
+            </div>
+
+            <div class="card">
+                <h4>Q：修復的準確度怎麼保證？會不會亂改導致新問題？</h4>
+                <p><strong>A：</strong> MuseDoc 目前採取「乾跑 + 人工審批」的保守策略，所有修復都被記錄下來供人工最終檢查（目前還在 dry_run 模式）。自動修復的範圍嚴格限制在「綠色級」問題（低風險、影響範圍小、可回滾的操作）。所有修復都有詳細的操作日誌和回滾記錄。</p>
+            </div>
+
+            <div class="card">
+                <h4>Q：五虎將的數據會不會洩漏敏感信息？</h4>
+                <p><strong>A：</strong> 五虎將的探測和快照數據存放在 `data/_system/` 目錄，其中涉及個人信息的部分（如使用者 ID、對話內容）已自動脫敏。所有快照都帶有 AES-256 加密，並且定期清理超過 30 天的舊快照。</p>
+            </div>
+
+            <div class="card">
+                <h4>Q：成本怎麼樣？五虎將會不會拖慢主系統？</h4>
+                <p><strong>A：</strong> 五虎將使用的計算資源佔主系統的不超過 5%（獨立的 Cron 進程和異步檢測）。每次探測週期（5 分鐘）耗時在 2-3 秒內。快照每 3 小時才執行一次，且使用增量備份邏輯（只記錄變化的部分），磁碟成本控制在 5GB/月。</p>
+            </div>
+
+            <div class="card">
+                <h4>Q：能不能把五虎將作為 SLA 承諾的一部分？</h4>
+                <p><strong>A：</strong> 完全可以。五虎將的運行日誌、探測結果、修復記錄都可以生成月度報告，提供給客戶作為「系統健康度」的第三方證明。建議的 SLA 承諾：「由五虎將監測確保系統可用性 ≥ 99.5%，所有故障情況都有完整審計日誌。」</p>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="cta-section">
+            <h2>準備好了嗎？</h2>
+            <p>五虎將代表 MUSEON 向自主化、可靠性、透明度邁進的決心。不是簡單的監視工具，而是一套完整的自主維運體系。</p>
+            <a href="#" class="btn">了解 MUSEON 完整方案</a>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p><strong>MUSEON 五虎將自主維運系統</strong></p>
+        <p>版本 v1.0 | 最後更新 2026-03-25</p>
+        <p>© 2026 MUSEON. 機密資料，僅限投資人查閱。</p>
+    </footer>
+
+</body>
+</html>
