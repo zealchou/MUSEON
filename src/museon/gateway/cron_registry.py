@@ -237,9 +237,37 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
         hour=4, minute=0,
     )
 
+    # ── 巡檢互斥鎖（guardian-l1 / museoff-l1 不同時跑）──
+    _patrol_lock_path = Path(data_dir) / ".patrol_lock"
+
+    async def _acquire_patrol_lock(timeout: int = 5) -> bool:
+        """嘗試取得巡檢鎖，避免 guardian 和 museoff 同時跑"""
+        import time as _time
+        for _ in range(timeout):
+            try:
+                if _patrol_lock_path.exists():
+                    # 超過 5 分鐘的 lock 視為 stale
+                    age = _time.time() - _patrol_lock_path.stat().st_mtime
+                    if age > 300:
+                        _patrol_lock_path.unlink(missing_ok=True)
+                    else:
+                        await asyncio.sleep(1)
+                        continue
+                _patrol_lock_path.write_text(str(os.getpid()))
+                return True
+            except Exception:
+                await asyncio.sleep(1)
+        return False
+
+    def _release_patrol_lock():
+        _patrol_lock_path.unlink(missing_ok=True)
+
     # ── Job 5: Guardian L1 巡檢（每 30 分鐘）── 純 CPU
     async def _guardian_l1():
         """Guardian L1: 基礎設施巡檢 — Gateway / Telegram / .env"""
+        if not await _acquire_patrol_lock():
+            logger.debug("Guardian L1: skipped (patrol lock held)")
+            return
         try:
             from museon.guardian.daemon import GuardianDaemon
             guardian = GuardianDaemon(data_dir=str(data_dir), brain=brain)
@@ -254,6 +282,8 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
                 logger.info("Guardian L1: all ok")
         except Exception as e:
             logger.error(f"Guardian L1 failed: {e}", exc_info=True)
+        finally:
+            _release_patrol_lock()
 
     cron_engine.add_job(
         _guardian_l1, trigger="interval", job_id="guardian-l1",
@@ -1105,7 +1135,7 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
             from museon.core.event_bus import get_event_bus
 
             auditor = SystemAuditor(
-                museon_home=str(data_dir),
+                museon_home=str(data_dir.parent),
                 event_bus=get_event_bus(),
             )
             report = auditor.run_full_audit()

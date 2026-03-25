@@ -159,12 +159,29 @@ class FindingStore:
                 continue
         return False
 
-    def is_duplicate(self, finding: Finding, window_seconds: int = 3600) -> bool:
-        """去重：同一 origin 在 window 內不重複建 finding"""
+    def is_duplicate(self, finding: Finding, window_seconds: int = 21600) -> bool:
+        """去重：同一 origin 在 window（預設 6 小時）內不重複建 finding
+
+        雙重去重：
+        1. origin_key（file:error_type）— 精確去重
+        2. probe_title_key（probe_layer:title）— 廣義去重（MuseOff 探針用）
+        """
+        now = time.monotonic()
+
         origin_key = self._origin_key(finding)
-        last_time = self._recent_origins.get(origin_key)
-        if last_time and (time.monotonic() - last_time) < window_seconds:
+        last_origin = self._recent_origins.get(origin_key)
+        if last_origin and (now - last_origin) < window_seconds:
             return True
+
+        # 廣義去重：同一探針層 + 同標題 → 視為同一問題
+        title_key = f"{finding.probe_layer}:{finding.title}"
+        last_title = self._recent_origins.get(title_key)
+        if last_title and (now - last_title) < window_seconds:
+            return True
+
+        # 記錄兩個 key
+        self._recent_origins[origin_key] = now
+        self._recent_origins[title_key] = now
         return False
 
     def _origin_key(self, finding: Finding) -> str:

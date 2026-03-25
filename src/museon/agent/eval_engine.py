@@ -896,7 +896,14 @@ class EvalEngine:
 
         # 理解度 — 回覆長度是否合理匹配使用者問題的複雜度
         if resp_len == 0:
-            understanding = 0.0
+            if is_safety_net or is_system_error:
+                # 系統性空回覆（sanitization 清空、token zone 耗盡等）→ 不計入
+                understanding = 0.3
+                logger.warning(
+                    "零值維度(系統性): understanding = 0.3 (system_empty_response)"
+                )
+            else:
+                understanding = 0.0
         elif is_safety_net or is_system_error:
             # 系統層面問題 → 不懲罰 understanding，標記為系統問題
             understanding = 0.3

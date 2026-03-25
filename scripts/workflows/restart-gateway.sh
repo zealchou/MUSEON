@@ -20,7 +20,7 @@ echo ""
 
 # ─── Step 1: 檢查 busy session ─────────────────────────
 echo "📋 Step 1: 檢查進行中的 session..."
-BUSY=$(curl -s "$GATEWAY_URL/api/sessions" 2>/dev/null | python3 -c "
+BUSY=$(curl -s --connect-timeout 5 --max-time 10 "$GATEWAY_URL/api/sessions" 2>/dev/null | python3 -c "
 import sys, json
 try:
     sessions = json.load(sys.stdin).get('sessions', [])
@@ -36,7 +36,7 @@ if [ -n "$BUSY" ]; then
     echo "   等待 60 秒讓它完成..."
     sleep 60
     # 再次檢查
-    BUSY2=$(curl -s "$GATEWAY_URL/api/sessions" 2>/dev/null | python3 -c "
+    BUSY2=$(curl -s --connect-timeout 5 --max-time 10 "$GATEWAY_URL/api/sessions" 2>/dev/null | python3 -c "
 import sys, json
 try:
     sessions = json.load(sys.stdin).get('sessions', [])
@@ -83,7 +83,7 @@ MAX_WAIT=30
 HEALTHY=false
 for i in $(seq 1 $MAX_WAIT); do
     sleep 1
-    HEALTH=$(curl -s "$GATEWAY_URL/health" 2>/dev/null | python3 -c "
+    HEALTH=$(curl -s --connect-timeout 3 --max-time 5 "$GATEWAY_URL/health" 2>/dev/null | python3 -c "
 import sys, json
 try:
     d = json.load(sys.stdin)

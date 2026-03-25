@@ -74,12 +74,16 @@ class ReadinessProbe:
             return False
 
     async def _check_telegram_bot(self) -> bool:
+        """檢查 Telegram adapter 狀態（透過 Gateway HTTP endpoint）"""
         try:
-            result = subprocess.run(
-                ["pgrep", "-f", "bun.*server.ts"],
-                capture_output=True, timeout=5,
-            )
-            return result.returncode == 0
+            import aiohttp
+            url = "http://127.0.0.1:8765/api/telegram/status"
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, timeout=aiohttp.ClientTimeout(total=5)) as resp:
+                    if resp.status == 200:
+                        data = await resp.json()
+                        return data.get("running", False)
+            return False
         except Exception:
             return False
 
