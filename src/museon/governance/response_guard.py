@@ -41,6 +41,12 @@ _INTERNAL_PATTERNS = [
     re.compile(r"(?:ResponseGuard|EventBus|BrainModule|MemoryStore|sanitize_for_group)", re.IGNORECASE),
     # 內部檔案路徑 (通用)
     re.compile(r"(?:~/MUSEON/|/Users/\S+/MUSEON/)\S+"),
+    # AI 內部思考標記（僅匹配特定 AI 術語，不誤殺一般中文【】用法）
+    re.compile(r"【(?:思考路徑|順便一提|分析|備註|內部|系統|提示|思考|觀察|規劃|反思|總結)】"),
+    # 「已成功發送/回覆...群組/訊息」等操作確認語句
+    re.compile(r"已成功(?:發送|回覆|傳送).{0,30}(?:群組|訊息|頻道)"),
+    # AI 後設描述（僅內部架構術語，保留教練模式合法詞彙如「深度思考」「思維轉化」）
+    re.compile(r"(?:多維度審查|一階原則|後設認知|認知迴圈)"),
 ]
 
 
@@ -66,7 +72,7 @@ class ResponseGuard:
             origin_chat_id: 接收訊息時的 chat_id（Telegram chat ID）
             origin_session_id: 用於日誌的 session_id
         """
-        self._origin_chat_id = str(origin_chat_id) if origin_chat_id else ""
+        self._origin_chat_id = origin_chat_id
         self._origin_session_id = origin_session_id
 
     def allow_send(self, target_chat_id: Any, context: str = "") -> bool:
@@ -80,32 +86,42 @@ class ResponseGuard:
             True = 一致，允許發送
             False = 不一致，阻擋發送
         """
-        target = str(target_chat_id) if target_chat_id else ""
+        origin = self._normalize_id(self._origin_chat_id)
+        target = self._normalize_id(target_chat_id)
 
-        if not self._origin_chat_id:
+        if not origin:
             logger.warning(
                 f"[ResponseGuard] origin_chat_id is empty — "
                 f"target={target} ctx={context} session={self._origin_session_id}"
             )
-            # origin 為空時不阻擋（可能是系統推送等非回覆場景）
             return True
 
         if not target:
             logger.critical(
                 f"[ResponseGuard] BLOCKED: target_chat_id is empty! "
-                f"origin={self._origin_chat_id} ctx={context} session={self._origin_session_id}"
+                f"origin={origin} ctx={context} session={self._origin_session_id}"
             )
             return False
 
-        if self._origin_chat_id != target:
+        if origin != target:
             logger.critical(
                 f"[ResponseGuard] ⛔ BLOCKED cross-chat leak! "
-                f"origin={self._origin_chat_id} target={target} "
+                f"origin={origin} target={target} "
                 f"ctx={context} session={self._origin_session_id}"
             )
             return False
 
         return True
+
+    @staticmethod
+    def _normalize_id(raw: Any) -> str:
+        """正規化 chat_id / group_id — abs() 去負號，統一比對."""
+        if not raw:
+            return ""
+        try:
+            return str(abs(int(raw)))
+        except (ValueError, TypeError):
+            return str(raw).lstrip("-")
 
     @staticmethod
     def validate(
@@ -115,16 +131,18 @@ class ResponseGuard:
     ) -> bool:
         """靜態驗證方法 — 不需要實例化.
 
+        兩邊都做 abs() 正規化，避免 Telegram 群組 ID 的負號差異導致誤判。
+
         Args:
-            origin_chat_id: 接收訊息時的 chat_id
-            target_chat_id: 即將發送的 chat_id
+            origin_chat_id: 接收訊息時的 chat_id（或 session 提取的 group_id）
+            target_chat_id: 即將發送的 chat_id（或 metadata 中的 chat_id）
             context: 額外上下文
 
         Returns:
             True = 允許, False = 阻擋
         """
-        origin = str(origin_chat_id) if origin_chat_id else ""
-        target = str(target_chat_id) if target_chat_id else ""
+        origin = ResponseGuard._normalize_id(origin_chat_id)
+        target = ResponseGuard._normalize_id(target_chat_id)
 
         if not origin:
             return True  # 系統推送等場景，不阻擋
@@ -166,7 +184,9 @@ class ResponseGuard:
 
         sanitized = response_text
         for pattern in _INTERNAL_PATTERNS:
-            sanitized = pattern.sub("[...]", sanitized)
+            sanitized = pattern.sub("", sanitized)
+        # 清理替換後殘留的連續空行
+        sanitized = re.sub(r"\n{3,}", "\n\n", sanitized).strip()
 
         if sanitized != response_text:
             logger.info(
@@ -192,8 +212,11 @@ class ResponseGuard:
         Returns:
             True = 一致, False = 阻擋
         """
-        expected = str(expected_group_id) if expected_group_id else ""
-        actual = str(actual_group_id) if actual_group_id else ""
+        expected = ResponseGuard._normalize_id(expected_group_id)
+        actual = ResponseGuard._normalize_id(actual_group_id)
+
+        if not expected or not actual:
+            return True  # 空值不阻擋
 
         if expected != actual:
             logger.critical(

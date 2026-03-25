@@ -1,0 +1,34 @@
+{
+  "finding_id": "MO-20260324-e9b034",
+  "timestamp": "2026-03-24T16:37:23.141329+00:00",
+  "probe_layer": "L6",
+  "severity": "LOW",
+  "title": "發現 2 個殭屍檔案",
+  "source": "museoff",
+  "blast_origin": {
+    "file": "data/",
+    "line": null,
+    "error_type": "ZombieFile",
+    "traceback": ""
+  },
+  "blast_radius": [],
+  "context": {
+    "zombies": [
+      "_system/pulse/pulse.db",
+      "_system/sessions/group_context.db"
+    ]
+  },
+  "triage_done": null,
+  "known_fix": null,
+  "prescription": {
+    "diagnosis": "0 bytes 的檔案: ['_system/pulse/pulse.db', '_system/sessions/group_context.db']",
+    "root_cause": "",
+    "suggested_fix": "刪除或重建",
+    "runbook_id": "",
+    "fix_complexity": "GREEN",
+    "pre_check": "",
+    "post_check": "",
+    "rollback": ""
+  },
+  "status": "needs_human"
+}

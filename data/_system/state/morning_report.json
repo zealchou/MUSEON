@@ -1,35 +1,51 @@
 {
-  "generated_at": "2026-03-21T03:00:17.029988+08:00",
+  "generated_at": "2026-03-25T03:03:58.320824+08:00",
   "layer1_summary": {
-    "verdict": "昨夜整合全部完成 (38/38 步驟通過)",
-    "elapsed_seconds": 17.02,
-    "one_liner": "昨夜整合全部完成 (38/38 步驟通過)，耗時 17 秒。"
+    "verdict": "昨夜整合全部完成 (48/48 步驟通過)",
+    "elapsed_seconds": 238.23,
+    "one_liner": "昨夜整合全部完成 (48/48 步驟通過)，耗時 238 秒。"
   },
   "layer2_details": {
     "highlights": [
       "  ✅ step_01_asset_decay: {'decayed': 0}",
       "  ✅ step_02_archive_assets: {'archived': 0, 'shared_archived': 0}",
-      "  ✅ step_04_wee_compress: {'compressed': True, 'crystal_id': '39d40e72-08f6-4216-b877-cc968e2fab62', 'kl_c",
       "  ✅ step_05_wee_fuse: {'fused': False, 'reason': 'insufficient_crystals', 'crystal_count': 0}",
-      "  ✅ step_05_6_knowledge_lattice: {'total_crystals': 0, 'archived': [], 'recrystallized': 0, 'ri_updated': 893}",
-      "  ✅ step_20_synapse_decay: {'decayed_synapses': {'decayed': 489, 'pruned': 0}, 'top_connections': [{'skill_",
-      "  ✅ step_21_muscle_atrophy: {'atrophied_tools': {'atrophied': 46, 'pruned': 0}, 'dormant_count': 0, 'dormant",
+      "  ✅ step_05_6_knowledge_lattice: {'total_crystals': 0, 'archived': [], 'recrystallized': 0, 'ri_updated': 1212}",
+      "  ✅ step_05_9_morphenix_gate: {'auto_approved': 2, 'needs_human': 0, 'executed': 1, 'l3_proposals': []}",
+      "  ✅ step_13_8_digest_lifecycle: {'promoted': [], 'archived': [], 'ttl_expired': [], 'active_count': 0}",
+      "  ✅ step_20_synapse_decay: {'decayed_synapses': {'decayed': 477, 'pruned': 0}, 'top_connections': [{'skill_",
+      "  ✅ step_21_muscle_atrophy: {'atrophied_tools': {'atrophied': 52, 'pruned': 0}, 'dormant_count': 0, 'dormant",
       "  ✅ step_22_immune_prune: {'pruned_weak_rules': 0, 'total_memories': 0, 'active_defenses': 0, 'avg_confide",
-      "  ✅ step_25_periodic_cycle_check: {'checked_at': '2026-03-21T03:00:16.990615+08:00', 'weekly_cycle': {'executed': "
+      "  ✅ step_25_periodic_cycle_check: {'checked_at': '2026-03-25T03:03:44.861609+08:00', 'weekly_cycle': {'executed': "
     ],
     "warnings": [],
     "step_count": {
-      "ok": 38,
+      "ok": 48,
       "error": 0,
-      "total": 38
+      "total": 48
     }
   },
   "layer3_decisions": {
-    "decisions_needed": 1,
+    "decisions_needed": 4,
     "items": [
       {
         "type": "morphenix_l3_review",
         "step": "step_00_1_footprint_cleanup",
+        "description": "有 Morphenix L3 提案需要你審查"
+      },
+      {
+        "type": "morphenix_l3_review",
+        "step": "step_05_9_morphenix_gate",
+        "description": "有 Morphenix L3 提案需要你審查"
+      },
+      {
+        "type": "morphenix_l3_review",
+        "step": "step_05_10_morphenix_execute",
+        "description": "有 Morphenix L3 提案需要你審查"
+      },
+      {
+        "type": "morphenix_l3_review",
+        "step": "step_16_claude_skill_forge",
         "description": "有 Morphenix L3 提案需要你審查"
       }
     ]

@@ -459,7 +459,7 @@ class BrainDispatchMixin:
 
     @staticmethod
     def _get_handoff_from_deps(
-        task: Any, result_map: Dict[str, Any],
+        self, task: Any, result_map: Dict[str, Any],
     ) -> str:
         """從依賴的 results 提取 handoff context."""
         from museon.agent.dispatch import TaskStatus
@@ -475,7 +475,7 @@ class BrainDispatchMixin:
                 )
             elif dep_result.status == TaskStatus.COMPLETED:
                 parts.append(
-                    dep_result.result.get("summary", "")[:BrainDispatchMixin._HANDOFF_SUMMARY_LEN]
+                    dep_result.result.get("summary", "")[:self._HANDOFF_SUMMARY_LEN]
                 )
         return "\n---\n".join(parts) if parts else ""
 

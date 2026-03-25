@@ -1,0 +1,13 @@
+[
+  "\\bL[123]\\b",
+  "\\b(調度員|思考者|subagent|spawn|dispatcher)\\b",
+  "\\b(MCP|plugin|Gateway|Brain|ResponseGuard|EventBus)\\b",
+  "\\b(PulseDB|DataBus|MuseOff|MuseDoc|MuseWorker|MuseQA)\\b",
+  "【思考路徑】",
+  "【順便一提】",
+  "\\b(一階原則|多維度審查|深度思考)\\b",
+  "\\b(debug|區塊|跑通|斷線|重啟|PID)\\b",
+  "\\b(fan.?in|扇入|扇出|blast.?radius|爆炸圖)\\b",
+  "\\bchat_id\\b",
+  "\\bsession_id\\b"
+]

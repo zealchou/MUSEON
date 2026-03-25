@@ -1,0 +1,178 @@
+{
+  "date": "2026-03-25",
+  "generated_at": "2026-03-25T03:03:44.684595",
+  "event_count": 32,
+  "events_digest": [
+    {
+      "ts": "2026-03-25T00:13:28.444159",
+      "event": "PULSE_MICRO_BEAT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-25T00:18:31.922281",
+      "event": "PULSE_EXPLORATION_DONE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-25T00:18:33.035655",
+      "event": "PULSE_PROACTIVE_SENT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-25T00:41:43.452292",
+      "event": "WEE_CYCLE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-25T00:41:43.452775",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-25T00:43:35.480571",
+      "event": "PULSE_MICRO_BEAT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-25T00:46:05.823596",
+      "event": "SOUL_RING_DEPOSITED",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-25T00:46:07.353413",
+      "event": "WEE_CYCLE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-25T00:46:07.353659",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-25T00:53:55.890415",
+      "event": "WEE_CYCLE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-25T00:53:55.891054",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-25T01:13:41.188854",
+      "event": "PULSE_MICRO_BEAT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-25T01:15:53.767165",
+      "event": "PULSE_EXPLORATION_DONE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-25T01:15:59.826827",
+      "event": "PULSE_PROACTIVE_SENT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-25T01:22:38.904689",
+      "event": "SOUL_RING_DEPOSITED",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-25T01:22:40.855478",
+      "event": "WEE_CYCLE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-25T01:22:40.856738",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-25T01:26:30.281603",
+      "event": "WEE_CYCLE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-25T01:26:30.282097",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-25T01:31:13.905431",
+      "event": "WEE_CYCLE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-25T01:31:13.905949",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-25T01:43:44.989386",
+      "event": "PULSE_MICRO_BEAT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-25T01:52:07.018130",
+      "event": "PULSE_EXPLORATION_DONE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-25T01:52:08.145309",
+      "event": "PULSE_PROACTIVE_SENT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-25T02:13:50.091030",
+      "event": "PULSE_MICRO_BEAT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-25T02:25:50.606751",
+      "event": "PULSE_EXPLORATION_DONE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-25T02:25:51.808331",
+      "event": "PULSE_PROACTIVE_SENT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-25T02:43:50.674398",
+      "event": "PULSE_MICRO_BEAT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-25T02:57:12.243553",
+      "event": "PULSE_EXPLORATION_DONE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-25T02:57:13.395785",
+      "event": "PULSE_PROACTIVE_SENT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-25T03:00:00.088268",
+      "event": "NIGHTLY_STARTED",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-25T03:02:55.932271",
+      "event": "MORPHENIX_PROPOSAL_CREATED",
+      "source": "event_bus"
+    }
+  ],
+  "memory_channels": [
+    "meta-thinking",
+    "event",
+    "outcome"
+  ],
+  "memory_excerpts": {
+    "meta-thinking": "# Meta Thinking\n\n## 00:41:42\n\n**Trust Level:** TRUSTED\n\n**Thought Pattern:** DNA27 matched: gap, morphenix, workflow-ai-deployment, dse, consultant-communication, master-strategy, roundtable, investment-masters\n\n**Reasoning:** User asked about: [群組近期對話紀錄]\n  50:34 吳明憲(Alan Wu): 好喔\n  50:35 Zeal（老闆）: 他現在沒辦法動啊\n  50:50 Zeal（老闆）: 靠 突然動了\n  50:53 吳明憲(\n\n**Outcome:** responded\n\n**Confidence:** 0.8\n\n\n\n---\n\n## 00:46:05\n\n**Trust Level:** TRUSTED\n\n**Thought Pattern:** DNA27 matched: gap, dse, workflow-ai-deployment, morphenix, sandbox-lab, investment-masters, roundtable, master-strategy\n\n**Reasoning:** User asked about: [群組近期對話紀錄]\n  50:35 Zeal（老闆）: 他現在沒辦法動啊\n  50:50 Zeal（老闆）: 靠 突然動了\n  50:53 吳明憲(Alan Wu): 那你為何cue他?\n  51:\n\n**Outcome:** responded\n\n**Confidence:** 0.8\n\n\n\n---\n\n## 00:53:54\n\n**Trust Level:** TRUSTED\n\n**Thought Pattern:** DNA27 matched: plugin-registry, dna27, morphenix, dse, novel-craft, wee, master-strategy, workflow-ai-deployment\n\n**Reasoning:** User asked about: [群組近期對話紀錄]\n  50:50 Zeal（老闆）: 靠 突然動了\n  50:53 吳明憲(Alan Wu): 那你為何cue他?\n  51:00 Zeal（老闆）: 我好奇他行不行啊\n  51:\n\n**Outcome:** responded\n\n**Confidence:** 0.8\n\n\n\n---\n\n## 01:22:38\n\n**Trust Level:** TRUSTED\n\n**Thought Pattern:** DNA27 matched: plugin-registry, dna27, morphenix, info-architect, consultant-communication, workflow-ai-deployment, wee, workflow-svc-brand-marketing\n\n**Reasoning:** User asked about: [群組近期對話紀錄]\n  51:00 Zeal（老闆）: 我好奇他行不行啊\n  51:12 Zeal（老闆）: [檔案: photo] \n  51:17 Zeal（老闆）: 但是真的剛開始跑啊\n  1\n\n**Outcome:** responded\n\n**Confidence:** 0.8\n\n\n\n---\n\n## 01:26:28\n\n**Trust Level:** TRUSTED\n\n**Thought Pattern:** DNA27 matched: plugin-registry, dna27, morphenix, dse, philo-dialectic, workflow-ai-deployment, wee, workflow-svc-brand-marketing\n\n**Reasoning:** User asked about: [群組近期對話紀錄]\n  51:00 Zeal（老闆）: 我好奇他行不行啊\n  51:12 Zeal（老闆）: [檔案: photo] \n  51:17 Zeal（老闆）: 但是真的剛開始跑啊\n  1\n\n**Outcome:** responded\n\n**Confidence:** 0.8\n\n\n\n---\n\n## 01:31:12\n\n**Trust Level:** TRUSTED\n\n**Thought Pattern:** DNA27 matched: plugin-registry, dna",
+    "event": "# Event\n\n## 00:41:42\n\n**Trust Level:** TRUSTED\n\n**Event Type:** user_interaction\n\n**Session Id:** telegram_group_5129430356\n\n**User Message:** [群組近期對話紀錄]\n  50:34 吳明憲(Alan Wu): 好喔\n  50:35 Zeal（老闆）: 他現在沒辦法動啊\n  50:50 Zeal（老闆）: 靠 突然動了\n  50:53 吳明憲(Alan Wu): 那你為何cue他?\n  51:00 Zeal（老闆）: 我好奇他行不行啊\n  51:12 Zeal（老闆）: [檔案: photo] \n  51:17 Zeal（老闆）: 但是真的\n\n**Matched Skills:** gap, morphenix, workflow-ai-deployment, dse, consultant-communication, master-strategy, roundtable, investment-masters\n\n\n\n---\n\n## 00:46:05\n\n**Trust Level:** TRUSTED\n\n**Event Type:** user_interaction\n\n**Session Id:** telegram_group_5129430356\n\n**User Message:** [群組近期對話紀錄]\n  50:35 Zeal（老闆）: 他現在沒辦法動啊\n  50:50 Zeal（老闆）: 靠 突然動了\n  50:53 吳明憲(Alan Wu): 那你為何cue他?\n  51:00 Zeal（老闆）: 我好奇他行不行啊\n  51:12 Zeal（老闆）: [檔案: photo] \n  51:17 Zeal（老闆）: 但是真的剛開始跑啊\n  14:46 Zeal（老闆）: @\n\n**Matched Skills:** gap, dse, workflow-ai-deployment, morphenix, sandbox-lab, investment-masters, roundtable, master-strategy\n\n\n\n---\n\n## 00:53:54\n\n**Trust Level:** TRUSTED\n\n**Event Type:** user_interaction\n\n**Session Id:** telegram_group_5129430356\n\n**User Message:** [群組近期對話紀錄]\n  50:50 Zeal（老闆）: 靠 突然動了\n  50:53 吳明憲(Alan Wu): 那你為何cue他?\n  51:00 Zeal（老闆）: 我好奇他行不行啊\n  51:12 Zeal（老闆）: [檔案: photo] \n  51:17 Zeal（老闆）: 但是真的剛開始跑啊\n  14:46 Zeal（老闆）: @MuseonClaw_bot 接續處理 alan 剛才\n\n**Matched Skills:** plugin-registry, dna27, morphenix, dse, novel-craft, wee, master-strategy, workflow-ai-deployment\n\n\n\n---\n\n## 01:22:38\n\n**Trust Level:** TRUSTED\n\n**Event Type:** user_interaction\n\n**Session Id:** telegram_group_5129430356\n\n**User Message:** [群組近期對話紀錄]\n  51:00 Zeal（老闆）: 我好奇他行不行啊\n  51:12 Zeal（老闆）: [檔案: photo] \n  51:17 Zeal（老闆）: 但是真的剛開始跑啊\n  14:46 Zeal（老闆）: @MuseonClaw_bot 接續處理 alan 剛才上傳的檔案\n  45:17 Zeal（老闆）: 大迭代，明天再玩了\n  45:27 Zeal（老闆）: 最後要上線\n\n**Matched Skills:** plugin-registry, dna27, morphenix, info-architect, consultant-communication, workflow-ai-deployment, wee, workflow-svc-brand-marketing\n\n\n\n---\n\n## 01:26:28\n\n**Trust Level:** TRUSTED\n\n**Event Type:** user_interaction\n\n**Se",
+    "outcome": "# Outcome\n\n## 00:41:42\n\n**Trust Level:** VERIFIED\n\n**Task Id:** telegram_group_5129430356_004142\n\n**Result:** success\n\n**Response Length:** 248\n\n**Skills Used:** gap, morphenix, workflow-ai-deployment, dse, consultant-communication, master-strategy, roundtable, investment-masters\n\n\n\n---\n\n## 00:46:05\n\n**Trust Level:** VERIFIED\n\n**Task Id:** telegram_group_5129430356_004605\n\n**Result:** success\n\n**Response Length:** 1110\n\n**Skills Used:** gap, dse, workflow-ai-deployment, morphenix, sandbox-lab, investment-masters, roundtable, master-strategy\n\n\n\n---\n\n## 00:53:54\n\n**Trust Level:** VERIFIED\n\n**Task Id:** telegram_group_5129430356_005354\n\n**Result:** success\n\n**Response Length:** 1575\n\n**Skills Used:** plugin-registry, dna27, morphenix, dse, novel-craft, wee, master-strategy, workflow-ai-deployment\n\n\n\n---\n\n## 01:22:38\n\n**Trust Level:** VERIFIED\n\n**Task Id:** telegram_group_5129430356_012238\n\n**Result:** success\n\n**Response Length:** 742\n\n**Skills Used:** plugin-registry, dna27, morphenix, info-architect, consultant-communication, workflow-ai-deployment, wee, workflow-svc-brand-marketing\n\n\n\n---\n\n## 01:26:28\n\n**Trust Level:** VERIFIED\n\n**Task Id:** telegram_group_5129430356_012628\n\n**Result:** success\n\n**Response Length:** 1000\n\n**Skills Used:** plugin-registry, dna27, morphenix, dse, philo-dialectic, workflow-ai-deployment, wee, workflow-svc-brand-marketing\n\n\n\n---\n\n## 01:31:12\n\n**Trust Level:** VERIFIED\n\n**Task Id:** telegram_group_5129430356_013112\n\n**Result:** success\n\n**Response Length:** 395\n\n**Skills Used:** plugin-registry, dna27, morphenix, dse, novel-craft, workflow-ai-deployment, workflow-svc-brand-marketing, wee\n\n\n\n---"
+  },
+  "narrative": "今日共 32 個活動事件。\n  - PULSE_MICRO_BEAT: 6 次\n  - WEE_CYCLE_COMPLETE: 6 次\n  - BRAIN_RESPONSE_COMPLETE: 6 次\n  - PULSE_EXPLORATION_DONE: 5 次\n  - PULSE_PROACTIVE_SENT: 5 次\n記錄了 3 個記憶頻道。\n  - meta-thinking: # Meta Thinking  ## 00:41:42  **Trust Level:** TRUSTED  **Thought Pattern:** DNA...\n  - event: # Event  ## 00:41:42  **Trust Level:** TRUSTED  **Event Type:** user_interaction...\n  - outcome: # Outcome  ## 00:41:42  **Trust Level:** VERIFIED  **Task Id:** telegram_group_5..."
+}

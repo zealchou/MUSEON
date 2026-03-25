@@ -6,10 +6,10 @@
       "node_type": "intention",
       "label": "求助",
       "properties": {
-        "detected_at": "2026-03-23T17:25:38.956394"
+        "detected_at": "2026-03-25T15:04:04.568575"
       },
       "created_at": "2026-03-09T08:52:51.523310",
-      "updated_at": "2026-03-23T17:25:38.956509"
+      "updated_at": "2026-03-25T15:04:04.568673"
     },
     "topic_turn_1": {
       "node_id": "topic_turn_1",
@@ -692,12 +692,23 @@
       },
       "created_at": "2026-03-23T17:25:38.956512",
       "updated_at": "2026-03-23T17:25:38.956513"
+    },
+    "topic_turn_63": {
+      "node_id": "topic_turn_63",
+      "node_type": "topic",
+      "label": "turn_63",
+      "properties": {
+        "content_length": 4210,
+        "detected_at": "2026-03-25T15:04:04.568575"
+      },
+      "created_at": "2026-03-25T15:04:04.568676",
+      "updated_at": "2026-03-25T15:04:04.568676"
     }
   },
   "edges": {},
   "metadata": {
-    "turn_count": 62,
+    "turn_count": 63,
     "last_content_length": 4210
   },
-  "last_updated": "2026-03-23T17:25:38.956394"
+  "last_updated": "2026-03-25T15:04:04.568575"
 }

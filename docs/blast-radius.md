@@ -1,10 +1,11 @@
-# Blast Radius — 模組影響半徑表 v1.62
+# Blast Radius — 模組影響半徑表 v1.64
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節、`docs/operational-contract.md`（操作契約表）提供外部操作預期失敗
+> **v1.64 (2026-03-25)**：server.py 拆分藍圖補齊 + 三層內部標記洩漏預防——server.py 從 5749→3800 行，拆出 `telegram_pump.py`（754 行，Telegram 訊息泵+ResponseGuard 整合，黃區扇入=1 扇出=8）、`routes_api.py`（689 行，SkillHub+外部整合 API 端點，綠區扇入=1）、`cron_registry.py`（1424 行，系統 cron 任務註冊，綠區扇入=1）。修正 response_guard 重複條目。三層防禦：L1 `brain_prompt_builder.py` 新增 Style Never #6/#7（禁止【】標記+操作確認句）；L2 `telegram_pump.py` v10.8 Brain 輸出結構化剝離（regex 移除思考標記區塊）；L3 `response_guard.py` `_INTERNAL_PATTERNS` 新增 3 組 pattern（【】標記/操作確認句/AI 後設描述）。`restart-gateway.sh` 新增 Step 1.5 強制 rsync（防 .runtime 過期）。
 > **v1.62 (2026-03-24)**：全面審計修正——event_bus 扇入 117→45（區分直接 import vs 事件關聯度）；message 20→13、data_bus 13→16、pulse_db 14→10、brain 3→1、module_registry 4→1；tool_registry 從紅區降為黃區（18→4）；dispatch 從紅區降為黃區（11→2）；補列 8 個新模組（brain_*.py Mixin 系列 + chat_context + deterministic_router + vision + push_budget）；更新統計摘要。
 > **v1.61 (2026-03-24)**：操作記憶層架構——新增第六張藍圖 `operational-contract.md`；新增 `scripts/workflows/` 可執行工作流腳本（publish-report.sh v4.0 綠區扇入=0、restart-gateway.sh v1.0 綠區扇入=0）；CLAUDE.md 新增 Tier 0 可執行性檢查 + 驗證鐵律。扇入扇出不變（純文件/腳本/CI 層變更，不影響 Python 模組）。
 > **v1.60 (2026-03-24)**：跨群組洩漏防禦 + 軍師認知升級——新增 `governance/response_guard.py` 到綠區（扇入=2：server.py + brain.py，ResponseGuard 發送前 chat_id 二次驗證閘門）；`governance/multi_tenant.py` 新增 `resolve_by_id()` 精確匹配（取代 FIFO `resolve_latest()`）；`brain.py` 新增 `_check_smart_completeness()` SMART 回答門檻 + `process()` finally 清空 `self._ctx` 及 6 個 alias（防跨群組殘留）+ `route()` 新增 `is_group` 參數傳遞；`brain_prompt_builder.py` 注入「軍師認知框架」system prompt + 群組禁止確認詞規則；`brain_p3_fusion.py` 新增 Roundtable ≥3 Skill 自動觸發融合；`reflex_router.py` `select_loop()`/`route()` 新增 `is_group` 參數（群組路由升級）；`server.py` session lock 改為 `wait_and_acquire(30s)` timeout 守衛。**注意**：軍師認知升級的修改在 `.runtime/src/museon/agent/` 中（gitignored），`src/` 合併版未同步。
@@ -90,8 +91,8 @@
 |------|-----|
 | **扇入** | 0（入口點，無人 import） |
 | **扇出** | 50+（import 50+ 模組） |
-| **行數** | 5749 行（上帝物件） |
-| **角色** | FastAPI 閘道器，管理 30+ app.state |
+| **行數** | 3800 行（v1.64 拆分後；原 5749 行拆出 telegram_pump/routes_api/cron_registry） |
+| **角色** | FastAPI 閘道器，管理 30+ app.state；訊息泵/API 端點/cron 註冊已拆至獨立模組 |
 
 #### 影響半徑
 
@@ -661,10 +662,9 @@
 ### Pulse 層（1 個）
 `pulse/push_budget.py`（★ v1.54 新增，扇入=1（server.py），PushBudget 全局推送預算管理器）
 
-### Governance 層（3 個）
-`governance/response_guard.py`（★ v1.60 新增，扇入=1（server.py），ResponseGuard 發送前 chat_id 二次驗證閘門），
+### Governance 層（2 個）
+`governance/response_guard.py`（★ v1.60 新增，扇入=2（telegram_pump.py + channels/telegram.py CLAUDE.md L2 prompt），ResponseGuard 發送前 chat_id 二次驗證閘門；三方法統一 _normalize_id(abs()) 正規化：validate() 靜態驗證 + allow_send() 實例驗證 + validate_escalation() escalation 專用；sanitize_for_group() 內容黑名單清理——v1.65 收窄【】pattern 避免誤殺合法中文），
 `governance/cognitive_receipt.py`（★ v1.21 新增，扇入=1，僅 footprint.py import；CognitiveReceipt dataclass 定義，認知追蹤的結構化收據格式）
-`governance/response_guard.py`（★ v1.60 新增，扇入=2（server.py + brain.py），ResponseGuard 發送前 chat_id 二次驗證閘門——接收時 `register_origin(chat_id)` 記錄來源，發送時 `validate(target_chat_id)` 比對，不一致即擋+CRITICAL log；防跨群組訊息洩漏的最後一道閘門）
 
 ### Doctor 層（2 個）
 `doctor/memory_reset.py`（★ v1.20 新增，扇入=0，CLI 工具；一鍵重置 25 個持久層，涵蓋 ANIMA_MC/USER、PULSE.md、PulseDB、Qdrant、sessions、memory_v3 等全部記憶/知識/行為/評估/日誌層）
@@ -673,9 +673,13 @@
 ### Vector 層（1 個）
 `vector/sparse_embedder.py`（★ v1.30 新增，扇入=1，僅 vector_bridge.py import；BM25 稀疏向量產生器，jieba 中文分詞 + IDF 持久化；v1.35 起已全面啟用——hybrid_search 被 4 模組主動消費，Nightly Step 8.7 定期重建 IDF，Gateway startup 驗證 IDF 可用性）
 
-### Gateway 層（4 個）
+### Gateway 層（7 個）
 `gateway/cron.py`, `gateway/security.py`, `gateway/session.py`, `gateway/authorization.py`
 （★ v1.35 新增 `authorization.py`，扇入=2（security.py + telegram.py），授權引擎：ApprovalQueue + ToolAuthorizationQueue + PairingManager + AuthorizationPolicy）
+
+`gateway/routes_api.py`（★ v1.64 從 server.py 拆出，扇入=1（server.py），689 行；SkillHub + External Integration API 端點註冊，含 `/api/market/*`、`/api/image/*`、`/api/voice/*` 等 Phase 3-5 端點），
+`gateway/cron_registry.py`（★ v1.64 從 server.py 拆出，扇入=1（server.py），1424 行；系統 cron 任務註冊，含五虎將 + Nightly + 41 項排程），
+`gateway/telegram_pump.py`（★ v1.64 從 server.py 拆出，扇入=1（server.py），754 行；Telegram 訊息泵核心邏輯——收訊→Brain 處理→ResponseGuard.validate() 驗證→發送；v1.65 移除手寫 chat_id 比對改用 ResponseGuard.validate()；lazy import 8 個模組：response_guard, rate_limiter, group_context, multi_tenant, authorization, interaction, session, message）
 
 ### Installer 層
 `installer/` 下大部分模組

@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.41
+# Joint Map — 共享可變狀態接頭圖 v1.42
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -998,8 +998,10 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 
 | 模組 | 操作 | 函數 | 說明 | 鎖 |
 |------|------|------|------|-----|
-| `governance/group_context.py` | **RW** | `record_message()` / `upsert_group()` | Gateway 收到群組訊息時寫入 | SQLite WAL |
+| `governance/group_context.py` | **RW** | `record_message()` / `upsert_group()` | channels/telegram.py 收到群組訊息時經由此模組寫入（v1.65 修正：實際觸發者為 channels/telegram.py） | SQLite WAL |
 | `mcp_server.py` | **R** | `museon_group_context()` | L2 思考者取得群組對話脈絡（三層架構 MCP） | — |
+| `channels/telegram.py` | **W** | lazy import group_context | 群組訊息接收時呼叫 upsert_group / record_message | — |
+| `gateway/telegram_pump.py` | **R** | lazy import group_context | 群組回覆時讀取 format_context_for_prompt 注入上下文 | — |
 
 > **鎖**：SQLite WAL（GroupContextStore 自帶）
 > **TTL**：永久

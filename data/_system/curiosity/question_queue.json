@@ -201,19 +201,49 @@
   {
     "question": "為什麼這個方向的複利效應最高：如果能理解 Constitutional AI 批評迴路的局限，就能為霓裳的 Deep-Think Phase 2（輸出審計）設計更好的「盲點補償機制」——例如引入不同角色的批評視角，而不是讓同一個推理路徑既生成答案又審計答案。這直接影響霓裳在高風險決策場景（例如客戶方案建議、財務風險評估）的可信度上限。",
     "source_date": "2026-03-23",
-    "status": "pending",
-    "source": "exploration_bridge"
+    "status": "researched",
+    "source": "exploration_bridge",
+    "researched_at": "2026-03-25T10:00:02.604031+08:00"
   },
   {
     "question": "CoE 的學術價值已確認，下一個瓶頸是**工程落地**：Llama 3 / Mistral / Qwen 在 Ollama / vLLM 環境下，能以多低的延遲輸出每層隱藏狀態？提取一個 32 層模型的完整推理鏈需要多少額外記憶體？",
     "source_date": "2026-03-23",
-    "status": "pending",
-    "source": "exploration_bridge"
+    "status": "researched",
+    "source": "exploration_bridge",
+    "researched_at": "2026-03-25T10:00:05.970072+08:00"
   },
   {
     "question": "。家具業有要引薦Ai的部分，下週會釐清然後去現在了解可以解決什麼？",
     "source_date": "2026-03-24",
-    "status": "pending",
-    "source": "exploration_bridge"
+    "status": "researched",
+    "source": "exploration_bridge",
+    "researched_at": "2026-03-25T03:03:42.686652+08:00"
+  },
+  {
+    "question": "具體問題：如何設計一個「前提提取演算法」——讓霓裳在生成方案前，自動列出方案成立所需的 5-8 個核心前提，並對每個前提標記「脆弱性等級」（客戶有多大可能不符合這個前提）？",
+    "source_date": "2026-03-25",
+    "status": "researched",
+    "source": "exploration_bridge",
+    "researched_at": "2026-03-25T03:03:40.306650+08:00"
+  },
+  {
+    "question": "[群組近期對話紀錄]\n  15:55 Feng: Hi hi\n  16:06 Zeal（老闆）: 已經拉進來了\n  16:17 Zeal（老闆）: 等你朋友\n  18:23 Feng: 好了\n  19:28 Feng: @MuseonClaw_bot  Chen Aaron \n就是我跟你說的台南的室內設計師。韋辰\n你記得嗎\n  22:16 Feng: @MuseonClaw_bot 好的\n可以介紹",
+    "source_date": "2026-03-24",
+    "status": "pending"
+  },
+  {
+    "question": "@MuseonClaw_bot 很好，我們這個群組的目標就是，讓韋辰哥給你設計圖然後你可以產出報價單  這是韋辰哥的最大痛點\n了解嘛？\n接下來我們如何協助你完成這個目標呢？",
+    "source_date": "2026-03-24",
+    "status": "pending"
+  },
+  {
+    "question": "[群組近期對話紀錄]\n  18:22 Zeal（老闆）: @ClaudeMuse_bot @MuseonClaw_bot 兩位互相自我介紹 彼此認識一下\n  19:48 Zeal（老闆）: @ClaudeMuse_bot ？\n  21:41 Zeal（老闆）: @MuseonClaw_bot 你是要跟 Claude 打招呼啦\n你跟自己打招呼幹嘛\n  25:21 Zeal（老闆）: @MuseonC",
+    "source_date": "2026-03-24",
+    "status": "pending"
+  },
+  {
+    "question": "[群組近期對話紀錄]\n  23:45 Zeal（老闆）: @MuseonClaw_bot 有看到什麼問題嗎？\n[/群組近期對話紀錄]\n\n[群組] Zeal（老闆）說：\n@MuseonClaw_bot 有看到什麼問題嗎？",
+    "source_date": "2026-03-24",
+    "status": "pending"
   }
 ]

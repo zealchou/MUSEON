@@ -178,5 +178,17 @@
       "count": 0
     },
     "evaluated": false
+  },
+  "morphenix_2026-03-25_L1_002": {
+    "title": "Q-Score 弱項修復: actionability 維度平均僅 0.49",
+    "level": "L1",
+    "description": "過去 7 天 356 次互動中，actionability 維度平均分數 0.49（低於 0.5 閾值）。建議在系統提示詞中強化該維度的指引。",
+    "executed_at": "2026-03-25T03:03:48.658009+08:00",
+    "safety_tag": "morphenix/pre-morphenix_2026-03-25_L1_002-20260325030348",
+    "exec_result": {
+      "action": "l1_config_update",
+      "count": 0
+    },
+    "evaluated": false
   }
 }

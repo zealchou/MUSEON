@@ -1,0 +1,101 @@
+{
+  "version": "3.0.0",
+  "user_id": "8373451173",
+  "created_at": "2026-03-25T13:26:31.581652",
+  "interaction_count": 1,
+  "last_seen": "2026-03-25T13:35:57.954655",
+  "display_name": "Evvon",
+  "context_summary": "",
+  "profile": {
+    "name": "Evvon",
+    "role": null,
+    "business_type": "unknown"
+  },
+  "relationship": {
+    "trust_level": "initial",
+    "total_interactions": 1,
+    "positive_signals": 0,
+    "negative_signals": 0,
+    "last_interaction": "2026-03-25T13:35:57.954655",
+    "first_interaction": "2026-03-25T13:26:31.581670"
+  },
+  "eight_primals": {
+    "aspiration": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "accumulation": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "action_power": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "curiosity": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "emotion_pattern": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "blindspot": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "boundary": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "relationship_depth": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    }
+  },
+  "seven_layers": {
+    "L1_facts": [
+      {
+        "category": "occupation",
+        "snippet": "[群組近期對話紀錄]\n  20:56 Zeal（老闆）: Evvon 這邊\n  21:32 Zeal（老闆）: @MuseonClaw_bot Evvon 姊姊是我們的 ESG 顧問 跟她打聲招呼吧\n",
+        "date": "2026-03-25T13:35:57.954655"
+      }
+    ],
+    "L2_personality": [],
+    "L6_communication_style": {
+      "detail_level": "detailed",
+      "emoji_usage": "none",
+      "language_mix": "mixed",
+      "avg_msg_length": 42,
+      "question_style": "directive",
+      "tone": "casual"
+    }
+  },
+  "preferences": {},
+  "recent_topics": [
+    {
+      "snippet": "@MuseonClaw_bot",
+      "date": "2026-03-25T13:35:57.954655"
+    }
+  ],
+  "groups_seen_in": [
+    -5260398061
+  ],
+  "relationship_to_owner": ""
+}

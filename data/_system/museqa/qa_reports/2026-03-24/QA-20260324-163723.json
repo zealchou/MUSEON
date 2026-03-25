@@ -1,0 +1,16 @@
+{
+  "qa_report_id": "QA-20260324-163723",
+  "timestamp": "2026-03-24T16:37:23.215070+00:00",
+  "session_id": "telegram_6969045906",
+  "issue_type": "LEAKAGE",
+  "severity": "HIGH",
+  "evidence": {
+    "bot_reply_excerpt": "好問題。讓我盤點一下我在做**探索報告**時的技能棧。\n\n---\n\n## 核心探索技能（按使用頻率排序）\n\n### 🔍 **信息採集層**\n1. **Glob** — 快速掃描檔案模式（`docs/**/*.md`、`src/**/*.py`）\n2. **Grep** — 搜索內容關鍵詞（找特定函數、概念、決策點）\n3. **Read** — 讀取檔案細節（深掘具體實作）\n4. **Agent（E",
+    "matched_patterns": [
+      "\\b(調度員|思考者|subagent|spawn|dispatcher)\\b",
+      "\\b(MCP|plugin|Gateway|Brain|ResponseGuard|EventBus)\\b"
+    ]
+  },
+  "suggested_fix": "強化 CLAUDE.md Step 3.5 禁止清單",
+  "status": "open"
+}

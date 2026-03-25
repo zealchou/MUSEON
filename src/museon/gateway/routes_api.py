@@ -7,13 +7,38 @@ API Routes — SkillHub + External Integration 端點
 原檔案：server.py（671 行）
 """
 
+import json
 import logging
+from datetime import datetime
+from typing import Any, Dict, Optional
+
+from fastapi import Body
+from fastapi.responses import JSONResponse
 
 logger = logging.getLogger("museon.gateway.routes_api")
 
 
-def _register_skillhub_endpoints(app) -> None:
-    """註冊 SkillHub 相關 API 端點."""
+def _register_skillhub_endpoints(
+    app,
+    *,
+    get_brain=None,
+    session_mgr=None,
+    cron_eng=None,
+    doctor_status_fn=None,
+) -> None:
+    """註冊 SkillHub 相關 API 端點.
+
+    Args:
+        get_brain: server.py 的 _get_brain 函數
+        session_mgr: SessionManager 實例
+        cron_eng: CronEngine 實例
+        doctor_status_fn: doctor_node_status 非同步函數
+    """
+    # 閉包捕獲注入的依賴
+    _get_brain = get_brain
+    session_manager = session_mgr
+    cron_engine = cron_eng
+    doctor_node_status = doctor_status_fn
 
     # -- 工作流 CRUD --
 

@@ -1,0 +1,24 @@
+{
+  "id": "70dadbbd-ca07-404a-ab91-885501459c8d",
+  "content": "[失敗經驗] 任務：[群組近期對話紀錄]\n  16:45 吳明憲(Alan Wu): [檔案: 2024GoogleCloud學程certificate.png] \n  16:45 吳明憲(Alan Wu): [檔案: \n失敗類型：general_failure\n回應片段：Alan，看到你上傳的這批素材，讓我先直接說清楚狀況，再給你一個可以動的方向。\n\n**我能看到什麼**\n\n目前我能讀取的是純文字格式——「無為品牌故事宣言.txt」、「過往累積.txt」、「Bizona_0306_2026.txt」這幾份；你的 6 張認證圖像也都在。但「品牌定位規劃書」、「人心十結心理地圖 v2」、「個人經歷」這三份 .docx 是二進位格式，我無法直接讀取內容。\n\n這是一個技術",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T10:24:54.081763+08:00",
+  "updated_at": "2026-03-25T10:24:54.081763+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "378774355",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

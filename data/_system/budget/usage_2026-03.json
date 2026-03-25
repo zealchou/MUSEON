@@ -320,48 +320,70 @@
       }
     },
     "2026-03-24": {
-      "input_tokens": 17998,
-      "output_tokens": 839106,
-      "total_tokens": 857104,
+      "input_tokens": 18132,
+      "output_tokens": 862134,
+      "total_tokens": 880266,
       "models": {
         "opus": {
-          "input": 7479,
-          "output": 174635,
-          "calls": 86
+          "input": 7494,
+          "output": 175295,
+          "calls": 88
         },
         "sonnet": {
-          "input": 303,
-          "output": 73991,
-          "calls": 57
+          "input": 306,
+          "output": 75728,
+          "calls": 58
         },
         "haiku": {
-          "input": 10216,
-          "output": 590480,
-          "calls": 366
+          "input": 10332,
+          "output": 611111,
+          "calls": 376
+        }
+      }
+    },
+    "2026-03-25": {
+      "input_tokens": 6593,
+      "output_tokens": 380001,
+      "total_tokens": 386594,
+      "models": {
+        "opus": {
+          "input": 76,
+          "output": 9126,
+          "calls": 7
+        },
+        "sonnet": {
+          "input": 94,
+          "output": 51797,
+          "calls": 25
+        },
+        "haiku": {
+          "input": 6423,
+          "output": 319078,
+          "calls": 156
         }
       }
     }
   },
   "monthly_totals": {
-    "input_tokens": 4822615,
-    "output_tokens": 6395054,
-    "total_tokens": 11217669,
-    "estimated_cost_usd": 128.8968,
+    "input_tokens": 4829342,
+    "output_tokens": 6798083,
+    "total_tokens": 11627425,
+    "estimated_cost_usd": 131.7995,
     "models": {
       "opus": {
-        "input": 134555,
-        "output": 1191883,
-        "calls": 436
+        "input": 134646,
+        "output": 1201669,
+        "calls": 445
       },
       "sonnet": {
-        "input": 2915458,
-        "output": 749030,
-        "calls": 512
+        "input": 2915555,
+        "output": 802564,
+        "calls": 538
       },
       "haiku": {
-        "input": 1723303,
-        "output": 4031693,
-        "calls": 3433
+        "input": 1729842,
+        "output": 4371402,
+        "calls": 3599
       }
     }
   }

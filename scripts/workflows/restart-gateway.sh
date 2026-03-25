@@ -54,6 +54,19 @@ except:
 fi
 echo "✅ 無進行中的 session"
 
+# ─── Step 1.5: 同步 src/ → .runtime/src/ ─────────────────
+echo ""
+echo "📋 Step 1.5: 同步 src/ → .runtime/src/（防止 .runtime 過期）..."
+PROJECT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
+if [ -d "$PROJECT_DIR/.runtime/src" ]; then
+    rsync -a --delete \
+        --exclude='__pycache__' --exclude='.DS_Store' \
+        "$PROJECT_DIR/src/" "$PROJECT_DIR/.runtime/src/"
+    echo "✅ .runtime 同步完成"
+else
+    echo "⚠️  .runtime/src 不存在，跳過同步"
+fi
+
 # ─── Step 2: 重啟 Gateway ─────────────────────────
 echo ""
 echo "📋 Step 2: 重啟 Gateway daemon..."

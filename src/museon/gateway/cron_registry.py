@@ -7,12 +7,15 @@ Cron Registry — 系統排程任務註冊中心
 原檔案：server.py _register_system_cron_jobs()（1410 行）
 """
 
+import asyncio
+import json
 import logging
+from datetime import datetime
 
 logger = logging.getLogger("museon.gateway.cron_registry")
 
 
-def _register_system_cron_jobs(brain, app=None) -> None:
+def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
     """註冊系統級排程任務 — Layer 1.
 
     所有 job 的設計原則：

@@ -1,0 +1,29 @@
+{
+  "finding_id": "MO-20260324-b92689",
+  "timestamp": "2026-03-24T16:32:53.564760+00:00",
+  "probe_layer": "L4",
+  "severity": "HIGH",
+  "title": "回歸測試失敗",
+  "source": "museoff",
+  "blast_origin": {
+    "file": "tests/",
+    "line": null,
+    "error_type": "TestFailure",
+    "traceback": "ERROR: usage: __main__.py [options] [file_or_dir] [file_or_dir] [...]\n__main__.py: error: unrecognized arguments: --testmon --timeout=120\n  inifile: /Users/ZEALCHOU/MUSEON/pyproject.toml\n  rootdir: /Users/ZEALCHOU/MUSEON\n\n"
+  },
+  "blast_radius": [],
+  "context": {},
+  "triage_done": null,
+  "known_fix": null,
+  "prescription": {
+    "diagnosis": "pytest-testmon 偵測到受影響測試失敗",
+    "root_cause": "",
+    "suggested_fix": "",
+    "runbook_id": "",
+    "fix_complexity": "GREEN",
+    "pre_check": "",
+    "post_check": "pytest --testmon -x",
+    "rollback": ""
+  },
+  "status": "needs_human"
+}
