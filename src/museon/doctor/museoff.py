@@ -220,13 +220,25 @@ class MuseOff:
             if mode != "600":
                 issues.append(("bad_permissions", ".env", f"mode={mode}, should be 600"))
 
-        # 檢查 DB schema（WAL 模式）
-        for db_rel in ["data/pulse/pulse.db", "data/lattice/crystal.db"]:
+        # 檢查 DB schema（WAL 模式）— 用 PRAGMA 查實際模式，不靠 .db-wal 檔案存在判斷
+        import sqlite3 as _sqlite3
+        for db_rel in [
+            "data/pulse/pulse.db",
+            "data/lattice/crystal.db",
+            "data/_system/group_context.db",
+            "data/_system/wee/workflow_state.db",
+            "data/_system/message_queue.db",
+        ]:
             db_path = self.home / db_rel
             if db_path.exists():
-                wal_path = db_path.with_suffix(".db-wal")
-                if not wal_path.exists():
-                    issues.append(("no_wal", db_rel, "WAL file missing"))
+                try:
+                    _conn = _sqlite3.connect(str(db_path))
+                    _mode = _conn.execute("PRAGMA journal_mode").fetchone()[0]
+                    _conn.close()
+                    if _mode != "wal":
+                        issues.append(("no_wal", db_rel, f"journal_mode={_mode}, should be wal"))
+                except Exception as _db_err:
+                    issues.append(("db_error", db_rel, str(_db_err)))
 
         self._stats["probes_run"] += 1
 
@@ -608,55 +620,14 @@ class MuseOff:
         self._stats["findings_created"] += 1
         logger.info("[MuseOff] Finding created: %s [%s] %s", finding.finding_id, severity, title)
 
-        # 即時 DM 通知老闆（所有 severity 都通知，讓老闆知道就好）
+        # 即時 DM 通知老闆（所有 severity 都通知）
         try:
-            self._notify_owner(severity, title, finding.finding_id)
+            from museon.doctor.notify import notify_owner
+            notify_owner(severity, title, finding.finding_id, source="museoff", home=self.home)
         except Exception:
             pass  # 通知失敗不阻擋主流程
 
         return finding
-
-    # -------------------------------------------------------------------
-    # 即時通知老闆
-    # -------------------------------------------------------------------
-
-    def _notify_owner(self, severity: str, title: str, finding_id: str) -> None:
-        """透過 Telegram Bot API 即時 DM 通知老闆。
-
-        所有 severity 都通知——讓老闆知道系統在運作、有狀況。
-        老闆不一定會立即處理，但至少知道。
-        """
-        import os
-        import urllib.request
-        import urllib.parse
-
-        token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
-        trusted_ids = os.environ.get("TELEGRAM_TRUSTED_IDS", "")
-
-        if not token or not trusted_ids:
-            # 嘗試從 .env 讀取
-            env_path = self.home / ".env"
-            if env_path.exists():
-                for line in env_path.read_text().strip().split("\n"):
-                    if line.startswith("TELEGRAM_BOT_TOKEN="):
-                        token = line.split("=", 1)[1].strip()
-                    elif line.startswith("TELEGRAM_TRUSTED_IDS="):
-                        trusted_ids = line.split("=", 1)[1].strip()
-
-        if not token or not trusted_ids:
-            return
-
-        owner_id = trusted_ids.split(",")[0].strip()
-
-        icon = {"CRITICAL": "🔴", "HIGH": "🟠", "MEDIUM": "🟡", "LOW": "🟢"}.get(severity, "⚪")
-        text = f"{icon} [{severity}] {title}\n#{finding_id}"
-
-        try:
-            url = f"https://api.telegram.org/bot{token}/sendMessage"
-            data = urllib.parse.urlencode({"chat_id": owner_id, "text": text}).encode()
-            urllib.request.urlopen(url, data, timeout=5)
-        except Exception as e:
-            logger.debug(f"[MuseOff] DM notify failed: {e}")
 
     # -------------------------------------------------------------------
     # 效能控制

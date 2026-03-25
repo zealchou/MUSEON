@@ -263,47 +263,12 @@ class MuseQA:
                 self._finding_store.save(finding)
                 # 即時 DM 通知老闆
                 try:
-                    self._notify_owner(severity, f"[QA] {issue_type} in {session_id}", finding.finding_id)
+                    from museon.doctor.notify import notify_owner
+                    notify_owner(severity, f"[QA] {issue_type} in {session_id}", finding.finding_id, source="museqa", home=self.home)
                 except Exception:
                     pass
 
         logger.info("[MuseQA] Report: %s [%s] %s in %s", report["qa_report_id"], severity, issue_type, session_id)
-
-    # -------------------------------------------------------------------
-    # 即時通知老闆
-    # -------------------------------------------------------------------
-
-    def _notify_owner(self, severity: str, title: str, finding_id: str) -> None:
-        """透過 Telegram Bot API 即時 DM 通知老闆。"""
-        import os
-        import urllib.request
-        import urllib.parse
-
-        token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
-        trusted_ids = os.environ.get("TELEGRAM_TRUSTED_IDS", "")
-
-        if not token or not trusted_ids:
-            env_path = self.home / ".env"
-            if env_path.exists():
-                for line in env_path.read_text().strip().split("\n"):
-                    if line.startswith("TELEGRAM_BOT_TOKEN="):
-                        token = line.split("=", 1)[1].strip()
-                    elif line.startswith("TELEGRAM_TRUSTED_IDS="):
-                        trusted_ids = line.split("=", 1)[1].strip()
-
-        if not token or not trusted_ids:
-            return
-
-        owner_id = trusted_ids.split(",")[0].strip()
-        icon = {"CRITICAL": "🔴", "HIGH": "🟠", "MEDIUM": "🟡", "LOW": "🟢"}.get(severity, "⚪")
-        text = f"{icon} [{severity}] {title}\n#{finding_id}"
-
-        try:
-            url = f"https://api.telegram.org/bot{token}/sendMessage"
-            data = urllib.parse.urlencode({"chat_id": owner_id, "text": text}).encode()
-            urllib.request.urlopen(url, data, timeout=5)
-        except Exception as e:
-            logger.debug(f"[MuseQA] DM notify failed: {e}")
 
     # -------------------------------------------------------------------
     # 持久化
