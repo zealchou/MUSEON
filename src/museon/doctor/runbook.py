@@ -270,12 +270,126 @@ class RB006_DeadImport(Runbook):
 # Runbook Registry
 # ---------------------------------------------------------------------------
 
+class RB007_GatewayRestart(Runbook):
+    """Gateway 不可用時安全重啟"""
+    runbook_id = "RB-007"
+    name = "Gateway 安全重啟"
+    applicable_to = "Gateway liveness|Gateway process not found|Gateway not responding"
+    severity_limit = "YELLOW"
+    blast_radius_max = 50  # Gateway 是全系統入口
+    timeout_seconds = 120
+
+    def matches(self, finding: dict) -> bool:
+        title = finding.get("title", "")
+        return any(p in title for p in ["Gateway liveness", "Gateway process not found", "Gateway not responding"])
+
+    async def pre_check(self, finding: dict, home: Path) -> bool:
+        import subprocess
+        result = subprocess.run(["pgrep", "-f", "museon.gateway"], capture_output=True, timeout=5)
+        return result.returncode != 0  # Gateway 確實不在
+
+    async def action(self, finding: dict, home: Path) -> RunbookResult:
+        import subprocess
+        script = home / "scripts" / "workflows" / "restart-gateway.sh"
+        if not script.exists():
+            return RunbookResult(success=False, message="restart script not found")
+        result = subprocess.run(["bash", str(script)], capture_output=True, text=True, timeout=120)
+        return RunbookResult(success=True, message="Gateway restart triggered")
+
+    async def post_check(self, finding: dict, home: Path) -> bool:
+        import subprocess, asyncio
+        await asyncio.sleep(20)
+        result = subprocess.run(["pgrep", "-f", "museon.gateway"], capture_output=True, timeout=5)
+        return result.returncode == 0
+
+
+class RB008_PycCleanup(Runbook):
+    """清理 __pycache__ 防止舊 bytecode 污染"""
+    runbook_id = "RB-008"
+    name = "PyCache 清理"
+    applicable_to = "NameError|ImportError|stale bytecode"
+    severity_limit = "GREEN"
+    blast_radius_max = 100
+    timeout_seconds = 30
+
+    def matches(self, finding: dict) -> bool:
+        title = finding.get("title", "")
+        context = str(finding.get("context", ""))
+        return "NameError" in title or "NameError" in context or "ImportError" in title
+
+    async def pre_check(self, finding: dict, home: Path) -> bool:
+        import subprocess
+        result = subprocess.run(
+            ["find", str(home / "src"), str(home / ".runtime" / "src"), "-name", "__pycache__", "-type", "d"],
+            capture_output=True, text=True, timeout=10,
+        )
+        return len(result.stdout.strip()) > 0  # 有 pyc 目錄存在
+
+    async def action(self, finding: dict, home: Path) -> RunbookResult:
+        import subprocess
+        subprocess.run(
+            ["find", str(home / "src"), str(home / ".runtime" / "src"),
+             "-name", "__pycache__", "-type", "d", "-exec", "rm", "-rf", "{}", "+"],
+            capture_output=True, timeout=15,
+        )
+        subprocess.run(
+            ["find", str(home / "src"), str(home / ".runtime" / "src"),
+             "-name", "*.pyc", "-delete"],
+            capture_output=True, timeout=15,
+        )
+        return RunbookResult(success=True, message="pyc cleaned")
+
+    async def post_check(self, finding: dict, home: Path) -> bool:
+        import subprocess
+        result = subprocess.run(
+            ["find", str(home / "src"), str(home / ".runtime" / "src"), "-name", "__pycache__", "-type", "d"],
+            capture_output=True, text=True, timeout=10,
+        )
+        return len(result.stdout.strip()) == 0
+
+
+class RB009_TelegramReadiness(Runbook):
+    """Telegram adapter readiness 失敗時重建連線"""
+    runbook_id = "RB-009"
+    name = "Telegram Readiness 修復"
+    applicable_to = "Readiness FAILED.*telegram|telegram.*readiness"
+    severity_limit = "YELLOW"
+    blast_radius_max = 10
+    timeout_seconds = 30
+
+    def matches(self, finding: dict) -> bool:
+        title = finding.get("title", "").lower()
+        return "readiness" in title and "telegram" in title
+
+    async def pre_check(self, finding: dict, home: Path) -> bool:
+        return True  # Readiness 問題不需要 pre-check
+
+    async def action(self, finding: dict, home: Path) -> RunbookResult:
+        # 最安全的修復：觸發 Gateway 重啟
+        import subprocess
+        script = home / "scripts" / "workflows" / "restart-gateway.sh"
+        if script.exists():
+            subprocess.run(["bash", str(script)], capture_output=True, timeout=120)
+            return RunbookResult(success=True, message="Gateway restarted for Telegram readiness")
+        return RunbookResult(success=False, message="restart script not found")
+
+    async def post_check(self, finding: dict, home: Path) -> bool:
+        import asyncio
+        await asyncio.sleep(20)
+        import subprocess
+        result = subprocess.run(["pgrep", "-f", "museon.gateway"], capture_output=True, timeout=5)
+        return result.returncode == 0
+
+
 ALL_RUNBOOKS: list[Runbook] = [
     RB001_StaticReference(),
     RB003_PathCreate(),
     RB004_ConfigKey(),
     RB005_SchemaMigrate(),
     RB006_DeadImport(),
+    RB007_GatewayRestart(),
+    RB008_PycCleanup(),
+    RB009_TelegramReadiness(),
 ]
 
 

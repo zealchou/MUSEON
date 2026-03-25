@@ -167,7 +167,8 @@ L2 可以直接呼叫 MCP 工具查詢（前景等待結果）：
 - 修改前：查 `docs/blast-radius.md` + `docs/joint-map.md`
 - 修改後：跑 `scripts/validate_connections.py` + `pytest`
 - 藍圖（五張）與程式碼必須同一個 commit 同步更新
-- 迭代協議：Pre-Flight → Pre-audit → DSE → 實作 → Post-Build → Post-audit → pytest → Build → Git commit
+- 迭代協議：Pre-Flight → Pre-audit → DSE → 實作 → Post-Build → **Fix-Verify 閉環（強制）** → 藍圖同步 → Git commit
+- **Fix-Verify 強制規則**：任何迭代/debug 完成後，必須 spawn 隔離審計員做三維 BDD 驗證（D1 行為 + D2 接線 + D3 藍圖），反覆迴圈直到 100% 通過。AI 說「修好了」不算數。
 
 ### 修改安全分級：
 | 級別 | 條件 | 規則 |

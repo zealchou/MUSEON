@@ -59,10 +59,13 @@ echo ""
 echo "📋 Step 1.5: 同步 src/ → .runtime/src/（防止 .runtime 過期）..."
 PROJECT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 if [ -d "$PROJECT_DIR/.runtime/src" ]; then
+    # 清除 pyc 快取（防止舊 bytecode 污染新代碼）
+    find "$PROJECT_DIR/src" "$PROJECT_DIR/.runtime/src" -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
+    find "$PROJECT_DIR/src" "$PROJECT_DIR/.runtime/src" -name "*.pyc" -delete 2>/dev/null || true
     rsync -a --delete \
         --exclude='__pycache__' --exclude='.DS_Store' \
         "$PROJECT_DIR/src/" "$PROJECT_DIR/.runtime/src/"
-    echo "✅ .runtime 同步完成"
+    echo "✅ pyc 清理 + .runtime 同步完成"
 else
     echo "⚠️  .runtime/src 不存在，跳過同步"
 fi

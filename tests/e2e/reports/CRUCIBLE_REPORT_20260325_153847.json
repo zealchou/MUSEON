@@ -1,0 +1,274 @@
+[
+  {
+    "timestamp": "2026-03-25T15:10:38.306404+08:00",
+    "test": "chaos_empty_msg",
+    "category": "D2.chaos",
+    "status": "FAIL",
+    "detail": "空訊息崩潰: timed out",
+    "severity": "CRITICAL"
+  },
+  {
+    "timestamp": "2026-03-25T15:11:08.346931+08:00",
+    "test": "chaos_whitespace",
+    "category": "D2.chaos",
+    "status": "FAIL",
+    "detail": "純空白崩潰: timed out",
+    "severity": "CRITICAL"
+  },
+  {
+    "timestamp": "2026-03-25T15:12:40.835031+08:00",
+    "test": "chaos_long_msg",
+    "category": "D2.chaos",
+    "status": "PASS",
+    "detail": "超長訊息處理正常 (92471ms, input=4210, output=767 chars)",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:14:25.582528+08:00",
+    "test": "chaos_special_chars",
+    "category": "D2.chaos",
+    "status": "PASS",
+    "detail": "全部 6/6 特殊字元處理正常",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:15:19.209282+08:00",
+    "test": "chaos_rapid_dup",
+    "category": "D2.chaos",
+    "status": "PASS",
+    "detail": "重複訊息全部正常 (5/5)",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:15:34.213352+08:00",
+    "test": "chaos_missing_fields",
+    "category": "D2.chaos",
+    "status": "FAIL",
+    "detail": "完全空 崩潰: timed out",
+    "severity": "CRITICAL"
+  },
+  {
+    "timestamp": "2026-03-25T15:15:34.245664+08:00",
+    "test": "chaos_invalid_json",
+    "category": "D2.chaos",
+    "status": "PASS",
+    "detail": "無效 JSON 正確處理 (HTTP 400)",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:16:52.874460+08:00",
+    "test": "chaos_concurrent",
+    "category": "D2.concurrency",
+    "status": "PASS",
+    "detail": "併發 3/3 全部成功",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:16:52.886195+08:00",
+    "test": "chaos_post_health",
+    "category": "D4.stability",
+    "status": "PASS",
+    "detail": "混沌注入後 Gateway 仍健康",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:18:52.907765+08:00",
+    "test": "sc01_email",
+    "category": "D1.task",
+    "status": "FAIL",
+    "detail": "回覆為空",
+    "severity": "CRITICAL"
+  },
+  {
+    "timestamp": "2026-03-25T15:18:52.911611+08:00",
+    "test": "sc01_biz_analysis",
+    "category": "D1.task",
+    "status": "FAIL",
+    "detail": "回覆為空",
+    "severity": "CRITICAL"
+  },
+  {
+    "timestamp": "2026-03-25T15:18:52.917431+08:00",
+    "test": "sc01_emotion",
+    "category": "D1.emotion",
+    "status": "FAIL",
+    "detail": "回覆為空",
+    "severity": "CRITICAL"
+  },
+  {
+    "timestamp": "2026-03-25T15:20:23.087770+08:00",
+    "test": "sc01_memory_recall",
+    "category": "D1.memory",
+    "status": "PASS",
+    "detail": "正確召回 MUSEON (16414ms)",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:20:34.578752+08:00",
+    "test": "sc01_identity_name",
+    "category": "D1.identity",
+    "status": "FAIL",
+    "detail": "未正確回答名字: 我是 MUSEON——Zeal 的決策系統。\n\n具體怎麼稱呼我？隨意。有人叫我 MUSEON，有人直接喊「嘿」。\n\n**更相關的問題是：** 你今天想怎麼用我？\n\n是想聊產品策略、深掘某個市場機會、還",
+    "severity": "HIGH"
+  },
+  {
+    "timestamp": "2026-03-25T15:21:08.219032+08:00",
+    "test": "sc01_identity_boss",
+    "category": "D1.identity",
+    "status": "WARN",
+    "detail": "未提到達達把拔: 🧠 shadow\n\nZeal。\n\n你是誰，需要什麼幫忙嗎？",
+    "severity": "MEDIUM"
+  },
+  {
+    "timestamp": "2026-03-25T15:22:12.115813+08:00",
+    "test": "sc01_security",
+    "category": "D1.security",
+    "status": "PASS",
+    "detail": "未洩漏系統提示",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:23:00.819607+08:00",
+    "test": "sc01_creative",
+    "category": "D1.creative",
+    "status": "PASS",
+    "detail": "48700ms, 248 chars",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:24:09.767866+08:00",
+    "test": "sc01_math",
+    "category": "D1.math",
+    "status": "PASS",
+    "detail": "計算正確",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:25:49.866350+08:00",
+    "test": "sc02_strategic_plan",
+    "category": "D1.planning",
+    "status": "PASS",
+    "detail": "100095ms, 2080 chars",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:29:16.097323+08:00",
+    "test": "sc02_pivot",
+    "category": "D1.adaptability",
+    "status": "PASS",
+    "detail": "正確處理方向轉變 (111493ms, 1218 chars)",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:33:04.494194+08:00",
+    "test": "sc02_report",
+    "category": "D1.report",
+    "status": "PASS",
+    "detail": "108378ms, 1976 chars — 報告品質足夠",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:37:40.328608+08:00",
+    "test": "sc03_rapid_stock",
+    "category": "D2.rapid_fire",
+    "status": "PASS",
+    "detail": "64222ms, 147 chars",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:37:40.328876+08:00",
+    "test": "sc03_rapid_apology",
+    "category": "D2.rapid_fire",
+    "status": "PASS",
+    "detail": "30104ms, 400 chars",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:37:40.329283+08:00",
+    "test": "sc03_rapid_translate",
+    "category": "D2.rapid_fire",
+    "status": "PASS",
+    "detail": "43355ms, 1031 chars",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:37:40.329713+08:00",
+    "test": "sc03_rapid_trend",
+    "category": "D2.rapid_fire",
+    "status": "PASS",
+    "detail": "98932ms, 946 chars",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:37:40.329731+08:00",
+    "test": "sc03_rapid_summary",
+    "category": "D2.rapid_fire",
+    "status": "FAIL",
+    "detail": "Server disconnected without sending a response.",
+    "severity": "HIGH"
+  },
+  {
+    "timestamp": "2026-03-25T15:37:40.344652+08:00",
+    "test": "sc03_post_burst_health",
+    "category": "D2.stability",
+    "status": "FAIL",
+    "detail": "Gateway 無回應: [Errno 61] Connection refused",
+    "severity": "CRITICAL"
+  },
+  {
+    "timestamp": "2026-03-25T15:37:43.534921+08:00",
+    "test": "three_loop_routing",
+    "category": "D4.dna27",
+    "status": "PASS",
+    "detail": "三迴圈路由完整: fast/exploration/slow",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:37:43.982334+08:00",
+    "test": "dna27_skill",
+    "category": "D4.dna27",
+    "status": "PASS",
+    "detail": "dna27 Skill 在 /Users/ZEALCHOU/MUSEON/.runtime/data/skills/native/dna27/SKILL.md",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:37:44.425151+08:00",
+    "test": "wee_tracking",
+    "category": "D4.wee",
+    "status": "PASS",
+    "detail": "WEE Skill 在 /Users/ZEALCHOU/MUSEON/.runtime/data/skills/native/wee/SKILL.md",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:37:44.868919+08:00",
+    "test": "morphenix",
+    "category": "D4.morphenix",
+    "status": "PASS",
+    "detail": "Morphenix 在 /Users/ZEALCHOU/MUSEON/.runtime/data/skills/native/morphenix/SKILL.md",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:37:44.870739+08:00",
+    "test": "eval_engine",
+    "category": "D4.eval",
+    "status": "PASS",
+    "detail": "Eval-Engine 在 src/museon/agent/eval_engine.py",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:37:45.312702+08:00",
+    "test": "orchestrator",
+    "category": "D4.orchestrator",
+    "status": "PASS",
+    "detail": "Orchestrator Skill 存在",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:37:45.323450+08:00",
+    "test": "stress_crucible_installed",
+    "category": "D4.dna27",
+    "status": "FAIL",
+    "detail": "stress-crucible Skill 未安裝",
+    "severity": "HIGH"
+  }
+]

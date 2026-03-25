@@ -400,6 +400,115 @@ class MuseOff:
                 pass
 
     # -------------------------------------------------------------------
+    # L7: 管線完整性探針 — 消費端→寫入端反向追蹤
+    # -------------------------------------------------------------------
+
+    async def probe_pipeline_integrity(self) -> None:
+        """L7: 管線完整性 — 從消費端倒追寫入端，驗證關鍵管線是否接通。
+
+        方法論來源：2026-03-25 session 教訓——
+        「寫入成功≠系統能用」「追完整條消費鏈」「測試通過≠系統會執行」
+        """
+        if not self._should_probe():
+            return
+
+        self._stats["probes_run"] += 1
+        broken_pipelines = []
+
+        # --- 檢查 1: Nightly _FULL_STEPS 與 self._steps 一致性 ---
+        try:
+            nightly_path = self.home / "src" / "museon" / "nightly" / "nightly_pipeline.py"
+            if nightly_path.exists():
+                content = nightly_path.read_text(encoding="utf-8")
+                # 提取 _FULL_STEPS 列表
+                import re
+                full_match = re.search(r'_FULL_STEPS\s*=\s*\[(.*?)\]', content, re.DOTALL)
+                steps_match = re.findall(r'"([\d.]+)":\s*\(', content)
+                if full_match and steps_match:
+                    full_steps = set(re.findall(r'"([\d.]+)"', full_match.group(1)))
+                    registered_steps = set(steps_match)
+                    missing = registered_steps - full_steps
+                    if missing:
+                        broken_pipelines.append(f"_FULL_STEPS 漏列: {missing}")
+        except Exception:
+            pass
+
+        # --- 檢查 2: Crystal Actuator 規則品質 ---
+        try:
+            rules_path = self.home / "data" / "_system" / "crystal_rules.json"
+            if rules_path.exists():
+                rules_data = json.loads(rules_path.read_text(encoding="utf-8"))
+                rules = rules_data.get("rules", [])
+                # 檢查是否有保護規則存在
+                boss_rules = [r for r in rules if "boss_directive" in r.get("crystal_origin", "")]
+                if len(boss_rules) == 0:
+                    broken_pipelines.append("Crystal Actuator 無 boss_directive 規則——教訓蒸餾管線可能斷裂")
+                # 檢查是否有垃圾規則（summary 太長或包含程式碼）
+                garbage = [r for r in rules if len(r.get("summary", "")) > 200 or "```" in r.get("summary", "")]
+                if len(garbage) > 5:
+                    broken_pipelines.append(f"Crystal Actuator 可能有 {len(garbage)} 條垃圾規則")
+        except Exception:
+            pass
+
+        # --- 檢查 3: memories Qdrant collection 是否有資料 ---
+        try:
+            from qdrant_client import QdrantClient
+            client = QdrantClient(host="localhost", port=6333, timeout=5)
+            info = client.get_collection("memories")
+            if info.points_count == 0:
+                broken_pipelines.append("Qdrant memories collection 是空的——語義搜索完全失效")
+            # 檢查維度是否匹配 embedder
+            if info.config.params.vectors.size != 512:
+                broken_pipelines.append(
+                    f"memories 維度={info.config.params.vectors.size}，embedder 產出 512——維度不匹配"
+                )
+        except Exception:
+            pass
+
+        # --- 檢查 4: heuristics.json 是否存在且有效 ---
+        try:
+            heur_path = self.home / "data" / "intuition" / "heuristics.json"
+            if not heur_path.exists():
+                broken_pipelines.append("heuristics.json 不存在——Intuition 注入是空殼")
+            else:
+                heur_data = json.loads(heur_path.read_text(encoding="utf-8"))
+                if len(heur_data.get("rules", [])) == 0:
+                    broken_pipelines.append("heuristics.json 規則為空——Intuition 注入無效")
+        except Exception:
+            pass
+
+        # --- 檢查 5: GroupContextStore 有 DM + bot_reply 記錄 ---
+        try:
+            import sqlite3
+            db_path = self.home / "data" / "_system" / "group_context.db"
+            if db_path.exists():
+                conn = sqlite3.connect(str(db_path), timeout=5)
+                dm_count = conn.execute(
+                    "SELECT COUNT(*) FROM messages WHERE msg_type='dm'"
+                ).fetchone()[0]
+                bot_count = conn.execute(
+                    "SELECT COUNT(*) FROM messages WHERE msg_type='bot_reply'"
+                ).fetchone()[0]
+                conn.close()
+                if dm_count == 0 and bot_count == 0:
+                    broken_pipelines.append("GroupContextStore 無 DM/bot_reply 記錄——對話持久化管線可能斷裂")
+        except Exception:
+            pass
+
+        if broken_pipelines:
+            self._create_finding(
+                probe_layer="L7",
+                severity="HIGH",
+                title=f"管線完整性問題: {len(broken_pipelines)} 條斷裂",
+                blast_origin=BlastOrigin(file="system-wide", error_type="PipelineIntegrity"),
+                context={"broken_pipelines": broken_pipelines},
+                prescription=Prescription(
+                    diagnosis="\n".join(broken_pipelines),
+                    suggested_fix="執行 /fv audit 進行三維 Fix-Verify 驗證",
+                ),
+            )
+
+    # -------------------------------------------------------------------
     # 一次全跑（CLI 用）
     # -------------------------------------------------------------------
 
@@ -414,6 +523,7 @@ class MuseOff:
             ("L4", self.probe_regression),
             ("L5", self.probe_chaos),
             ("L6", self.probe_blueprint),
+            ("L7", self.probe_pipeline_integrity),
         ]
         for name, func in probes:
             t0 = time.monotonic()
@@ -497,7 +607,56 @@ class MuseOff:
         self._store.save(finding)
         self._stats["findings_created"] += 1
         logger.info("[MuseOff] Finding created: %s [%s] %s", finding.finding_id, severity, title)
+
+        # 即時 DM 通知老闆（所有 severity 都通知，讓老闆知道就好）
+        try:
+            self._notify_owner(severity, title, finding.finding_id)
+        except Exception:
+            pass  # 通知失敗不阻擋主流程
+
         return finding
+
+    # -------------------------------------------------------------------
+    # 即時通知老闆
+    # -------------------------------------------------------------------
+
+    def _notify_owner(self, severity: str, title: str, finding_id: str) -> None:
+        """透過 Telegram Bot API 即時 DM 通知老闆。
+
+        所有 severity 都通知——讓老闆知道系統在運作、有狀況。
+        老闆不一定會立即處理，但至少知道。
+        """
+        import os
+        import urllib.request
+        import urllib.parse
+
+        token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+        trusted_ids = os.environ.get("TELEGRAM_TRUSTED_IDS", "")
+
+        if not token or not trusted_ids:
+            # 嘗試從 .env 讀取
+            env_path = self.home / ".env"
+            if env_path.exists():
+                for line in env_path.read_text().strip().split("\n"):
+                    if line.startswith("TELEGRAM_BOT_TOKEN="):
+                        token = line.split("=", 1)[1].strip()
+                    elif line.startswith("TELEGRAM_TRUSTED_IDS="):
+                        trusted_ids = line.split("=", 1)[1].strip()
+
+        if not token or not trusted_ids:
+            return
+
+        owner_id = trusted_ids.split(",")[0].strip()
+
+        icon = {"CRITICAL": "🔴", "HIGH": "🟠", "MEDIUM": "🟡", "LOW": "🟢"}.get(severity, "⚪")
+        text = f"{icon} [{severity}] {title}\n#{finding_id}"
+
+        try:
+            url = f"https://api.telegram.org/bot{token}/sendMessage"
+            data = urllib.parse.urlencode({"chat_id": owner_id, "text": text}).encode()
+            urllib.request.urlopen(url, data, timeout=5)
+        except Exception as e:
+            logger.debug(f"[MuseOff] DM notify failed: {e}")
 
     # -------------------------------------------------------------------
     # 效能控制
