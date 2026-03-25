@@ -163,6 +163,19 @@ external-user（EXTERNAL）
 | `proactive-predictor` | Proactive Predictor | 需求預判引擎（Skill 序列/情緒/決策循環 四維預測） | - | brain | 1.0 |
 | `adaptive-decay` | Adaptive Decay | ACT-R 式統一衰減引擎（B_i = ln(Σt^{-d}) + β_i） | - | brain | 0.8 |
 
+### agent — PDR (Progressive Depth Response) 模組群
+
+| ID | 名稱 | 中文 | Hub | Parent | 半徑 |
+|----|------|------|-----|--------|------|
+| `pdr-params` | PDR Params | PDR 調控參數 + 安全護欄 | - | brain | 0.9 |
+| `pdr-council` | PDR Council | 九策軍師引擎（Phase 2/3） | - | brain | 1.0 |
+| `agent-registry` | Agent Registry | 統一能力目錄 | - | brain | 0.7 |
+
+> **依賴關係**：
+> - `pdr_params` ← 被 telegram_pump, brain, pdr_council, museqa 讀取
+> - `pdr_council` ← 依賴 pdr_params + LLM adapter；被 telegram_pump 呼叫
+> - `agent_registry` ← 被 pdr_council 查詢
+
 ### pulse — Pulse 生命力
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
 |----|------|------|-----|--------|------|
