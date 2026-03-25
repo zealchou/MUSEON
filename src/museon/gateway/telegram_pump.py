@@ -280,15 +280,42 @@ async def _handle_telegram_message(adapter, message) -> None:
                         _progress_updater(adapter, chat_id, status_msg_id)
                     )
 
-            # ── 1.5. 過濾空訊息（不送進 Brain）──
+            # ── 1.5. 剝離 @bot mention + 過濾空訊息（不送進 Brain）──
+            import re as _re_mention
+            _bot_uname = getattr(adapter, '_bot_username', '') or ''
+            if _bot_uname:
+                message.content = _re_mention.sub(
+                    rf"@{_re_mention.escape(_bot_uname)}\b",
+                    "", message.content, flags=_re_mention.IGNORECASE,
+                ).strip()
+            # fallback: 剝離任何 @xxx_bot 格式的 mention
+            message.content = _re_mention.sub(
+                r"@\w+_?bot\b", "", message.content, flags=_re_mention.IGNORECASE,
+            ).strip()
+
             if message.content in ("[empty]", "") or not message.content.strip():
-                logger.info(f"[{_tid}] Skipping empty/placeholder message for session {message.session_id}")
-                try:
-                    from museon.gateway.message_queue_store import get_message_queue_store
-                    get_message_queue_store().mark_done(_tid)
-                except Exception:
-                    pass
-                return
+                is_group = message.metadata.get("is_group", False)
+                if is_group:
+                    # 群組純 @mention → 代表前面有未處理訊息，帶上下文讓 Brain 回覆
+                    logger.info(f"[{_tid}] Bare @mention in group, passing to Brain with context")
+                    message.content = "(被呼叫，請根據群組上下文回覆)"
+                else:
+                    # DM 空訊息 → 不進 Brain，清理後 return
+                    logger.info(f"[{_tid}] Skipping empty message for session {message.session_id}")
+                    if progress_task:
+                        progress_task.cancel()
+                        try:
+                            await progress_task
+                        except asyncio.CancelledError:
+                            pass
+                    if status_msg_id and chat_id:
+                        await adapter.delete_processing_status(chat_id, status_msg_id)
+                    try:
+                        from museon.gateway.message_queue_store import get_message_queue_store
+                        get_message_queue_store().mark_done(_tid)
+                    except Exception:
+                        pass
+                    return
 
             # ── 2. Route through MUSEON Brain (with session lock + LLM semaphore) ──
             response_text = None
