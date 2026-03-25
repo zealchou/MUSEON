@@ -293,6 +293,100 @@ class MuseQA:
         )
         return _DEFAULT_LEAKAGE_PATTERNS
 
+    async def analyze_pdr_health(self) -> list:
+        """分析 PDR 管線健康度，自動微調參數.
+
+        每 15 分鐘隨 MuseQA 掃描一起執行。
+        """
+        import json, time
+        from pathlib import Path
+
+        try:
+            from museon.agent.pdr_params import get_pdr_params, save_pdr_params, PDRAdjustment
+        except ImportError:
+            return []
+
+        params = get_pdr_params()
+        if not params.feature_flag:
+            return []
+
+        adjustments = []
+        audit_file = self.home / "data" / "_system" / "museqa" / "pdr_adjustments.jsonl"
+        audit_file.parent.mkdir(parents=True, exist_ok=True)
+
+        # 1. Phase 2 upgrade storm detection
+        # Read recent Phase 2 verdicts from activity_log
+        try:
+            _log_path = self.home / "data" / "activity_log.jsonl"
+            _hour_ago = time.time() - 3600
+            _p2_count = 0
+            if _log_path.exists():
+                with open(_log_path) as f:
+                    for line in f:
+                        try:
+                            entry = json.loads(line)
+                            if (entry.get("event") == "PDR_PHASE2_VERDICT"
+                                and entry.get("timestamp", 0) > _hour_ago
+                                and entry.get("verdict") != "KEEP"):
+                                _p2_count += 1
+                        except Exception:
+                            pass
+
+            if _p2_count > params.phase2_upgrade_rate_limit:
+                old_val = params.phase2_confidence_threshold
+                if params.adjust("phase2_confidence_threshold", old_val + 0.05):
+                    adj = PDRAdjustment(
+                        param="phase2_confidence_threshold",
+                        old_value=old_val,
+                        new_value=params.phase2_confidence_threshold,
+                        reason=f"PDR_UPGRADE_STORM: {_p2_count} upgrades/hr > limit {params.phase2_upgrade_rate_limit}",
+                    )
+                    adjustments.append(adj)
+        except Exception as e:
+            logger.debug(f"[MuseQA PDR] Upgrade storm check failed: {e}")
+
+        # 2. Q-Score drift detection
+        try:
+            _qscore_path = self.home / "data" / "eval" / "q_scores.jsonl"
+            _6hr_ago = time.time() - 6 * 3600
+            _scores = []
+            if _qscore_path.exists():
+                with open(_qscore_path) as f:
+                    for line in f:
+                        try:
+                            entry = json.loads(line)
+                            if entry.get("timestamp", 0) > _6hr_ago:
+                                _scores.append(entry.get("overall", 0.5))
+                        except Exception:
+                            pass
+
+            if _scores and (sum(_scores) / len(_scores)) < 0.5:
+                _avg = sum(_scores) / len(_scores)
+                old_count = params.phase2_advisor_count
+                if params.adjust("phase2_advisor_count", old_count + 1):
+                    adj = PDRAdjustment(
+                        param="phase2_advisor_count",
+                        old_value=old_count,
+                        new_value=params.phase2_advisor_count,
+                        reason=f"PDR_QSCORE_DRIFT: 6hr avg Q-Score={_avg:.3f} < 0.5",
+                    )
+                    adjustments.append(adj)
+        except Exception as e:
+            logger.debug(f"[MuseQA PDR] Q-Score drift check failed: {e}")
+
+        # Save adjustments + persist params
+        if adjustments:
+            save_pdr_params()
+            for adj in adjustments:
+                try:
+                    with open(audit_file, "a") as f:
+                        f.write(json.dumps(adj.to_dict(), ensure_ascii=False) + "\n")
+                except Exception:
+                    pass
+            logger.info(f"[MuseQA PDR] Applied {len(adjustments)} adjustments")
+
+        return adjustments
+
 
 # ---------------------------------------------------------------------------
 # CLI 入口
