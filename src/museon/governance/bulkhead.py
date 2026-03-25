@@ -325,15 +325,19 @@ class BrainCircuitBreaker:
 
     def record_success(self) -> None:
         """記錄成功 — 重置失敗計數，HALF_OPEN 恢復為 CLOSED."""
+        _pending_notify = None
         with self._lock:
             if self._state == CircuitState.HALF_OPEN:
                 logger.info("BrainCircuitBreaker: HALF_OPEN -> CLOSED (success)")
                 self._state = CircuitState.CLOSED
-                self._fire_notify("recovered")
+                _pending_notify = ("recovered", "")
             self._failure_count = 0
+        if _pending_notify:
+            self._fire_notify(*_pending_notify)
 
     def record_failure(self, error: Optional[Exception] = None) -> None:
         """記錄失敗 — 累計計數，達閾值時斷路."""
+        _pending_notify = None
         with self._lock:
             self._failure_count += 1
             self._last_failure_time = time.time()
@@ -346,10 +350,8 @@ class BrainCircuitBreaker:
                 logger.warning(
                     f"BrainCircuitBreaker: HALF_OPEN -> OPEN (probe failed: {err_msg})"
                 )
-                self._fire_notify("reopened", err_msg)
-                return
-
-            if self._failure_count >= self._failure_threshold:
+                _pending_notify = ("reopened", err_msg)
+            elif self._failure_count >= self._failure_threshold:
                 if self._state != CircuitState.OPEN:
                     self._state = CircuitState.OPEN
                     self._opened_at = time.time()
@@ -357,10 +359,12 @@ class BrainCircuitBreaker:
                         f"BrainCircuitBreaker: CLOSED -> OPEN "
                         f"({self._failure_count} consecutive failures, last: {err_msg})"
                     )
-                    self._fire_notify("opened", err_msg)
+                    _pending_notify = ("opened", err_msg)
+        if _pending_notify:
+            self._fire_notify(*_pending_notify)
 
     def _fire_notify(self, event: str, detail: str = "") -> None:
-        """觸發通知回調（lock 內呼叫，callback 應為非阻塞）."""
+        """觸發通知回調（在 lock 外呼叫，避免持鎖期間執行外部回調）."""
         if self._notify_callback:
             try:
                 self._notify_callback(event, detail)
