@@ -715,9 +715,9 @@ async def _handle_telegram_message(adapter, message) -> None:
                         )
                         # 降級為純文字回應（已在上方提取）
 
-                # ── 自癒：空回應 fallback（防止 Telegram 拒絕空訊息）──
-                if not response_text or not response_text.strip():
-                    logger.warning("Brain returned empty response, applying fallback")
+                # ── 自癒：空回應 fallback（防止 Telegram 拒絕空訊息 or [empty] 佔位符洩漏）──
+                if not response_text or not response_text.strip() or response_text.strip() == "[empty]":
+                    logger.warning(f"[{_tid}] Brain returned empty/placeholder response, applying fallback")
                     _mc = brain._load_anima_mc()
                     _name = _mc.get("identity", {}).get("name", "霓裳") if _mc else "霓裳"
                     response_text = f"[{_name}] 我剛才想了一下，但沒有組織出回應。你可以再說一次嗎？"
