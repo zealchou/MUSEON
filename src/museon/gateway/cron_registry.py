@@ -622,8 +622,7 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
             from museon.pulse.commitment_tracker import CommitmentTracker
             from museon.pulse.pulse_db import get_pulse_db
 
-            _data_dir = _resolve_data_dir()
-            _pdb = get_pulse_db(Path(_data_dir))
+            _pdb = get_pulse_db(data_dir)
             tracker = CommitmentTracker(pulse_db=_pdb)
 
             result = tracker.periodic_check()
@@ -1291,6 +1290,7 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
     async def _session_cleanup_job():
         """Cleanup dormant sessions (> 3 days inactive)."""
         try:
+            from museon.gateway.session_cleanup import cleanup_dormant_sessions
             stats = await cleanup_dormant_sessions()
             logger.info(
                 f"Session cleanup complete: {stats['deleted']} deleted, "
@@ -1355,6 +1355,11 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
         cron_engine.add_job(
             _muse_off.probe_blueprint, trigger="cron", job_id="museoff-l6",
             hour=15, minute=0,
+        )
+        # MuseOff L7: 每 4 小時管線完整性探測
+        cron_engine.add_job(
+            _muse_off.probe_pipeline_integrity, trigger="interval", job_id="museoff-l7",
+            hours=4,
         )
         # MuseQA: 每 15 分鐘品質掃描
         cron_engine.add_job(

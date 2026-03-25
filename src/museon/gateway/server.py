@@ -3002,6 +3002,42 @@ def create_app() -> FastAPI:
         except Exception as e:
             logger.warning(f"MCP auto-connect failed (degraded): {e}")
 
+        # ── 消費 Guardian mothership_queue（啟動時處理累積的問題）──
+        # Guardian daemon 寫入路徑：{data_dir}/guardian/mothership_queue.json
+        try:
+            _mq_path = brain.data_dir / "guardian" / "mothership_queue.json"
+            if _mq_path.exists():
+                import json as _json
+                _mq_data = _json.loads(_mq_path.read_text(encoding="utf-8"))
+                _mq_items = _mq_data if isinstance(_mq_data, list) else _mq_data.get("queue", [])
+                if _mq_items:
+                    logger.warning(
+                        f"[startup] Guardian mothership_queue: {len(_mq_items)} pending items"
+                    )
+                    for _mq_item in _mq_items[:5]:
+                        _mq_msg = _mq_item.get("message", "") if isinstance(_mq_item, dict) else str(_mq_item)
+                        _mq_sev = _mq_item.get("severity", "INFO") if isinstance(_mq_item, dict) else "INFO"
+                        logger.warning(f"  [Guardian:{_mq_sev}] {_mq_msg[:200]}")
+                    # 嚴重問題通知老闆
+                    _critical_items = [
+                        i for i in _mq_items
+                        if isinstance(i, dict) and i.get("severity") in ("CRITICAL", "HIGH")
+                    ]
+                    if _critical_items and hasattr(app.state, 'telegram_adapter'):
+                        _adapter = app.state.telegram_adapter
+                        _notify_text = f"Guardian 報告 {len(_critical_items)} 個嚴重問題待處理：\n"
+                        for ci in _critical_items[:3]:
+                            _notify_text += f"  [{ci.get('severity')}] {ci.get('message', '')[:100]}\n"
+                        try:
+                            await _adapter.send_dm_to_owner(_notify_text)
+                        except Exception as _notify_err:
+                            logger.warning(f"[startup] Guardian CRITICAL notification failed: {_notify_err}")
+                    # 清空已處理的 queue
+                    _mq_path.write_text("[]", encoding="utf-8")
+                    logger.info("[startup] Guardian mothership_queue consumed and cleared")
+        except Exception as _mq_err:
+            logger.warning(f"[startup] mothership_queue read failed: {_mq_err}")
+
         # ── Start CronEngine + register system jobs ──
         cron_engine.start()
         _register_system_cron_jobs(brain, app, cron_engine)

@@ -86,7 +86,9 @@ class GroupContextStore(DataContract):
                 first_seen  TEXT DEFAULT (datetime('now')),
                 last_seen   TEXT DEFAULT (datetime('now')),
                 interaction_count INTEGER DEFAULT 0,
-                notes       TEXT DEFAULT ''
+                notes       TEXT DEFAULT '',
+                personality_notes TEXT DEFAULT '',
+                communication_style TEXT DEFAULT ''
             );
 
             CREATE TABLE IF NOT EXISTS group_members (
@@ -113,6 +115,18 @@ class GroupContextStore(DataContract):
                 ON messages(user_id, created_at);
         """)
         conn.commit()
+
+        # Schema migration: add new columns to existing DB
+        try:
+            conn.execute("ALTER TABLE clients ADD COLUMN personality_notes TEXT DEFAULT ''")
+            conn.commit()
+        except sqlite3.OperationalError:
+            pass  # Column already exists
+        try:
+            conn.execute("ALTER TABLE clients ADD COLUMN communication_style TEXT DEFAULT ''")
+            conn.commit()
+        except sqlite3.OperationalError:
+            pass  # Column already exists
 
     # ── Group management ──
 
@@ -166,12 +180,15 @@ class GroupContextStore(DataContract):
         display_name: str = "",
         username: str = "",
     ) -> None:
-        """Record a group message and update client profile."""
+        """Record a message (group or DM) and update client profile.
+
+        group_id: Telegram chat_id (negative for groups, positive for DMs).
+        """
         conn = self._get_conn()
         conn.execute(
             """INSERT INTO messages (group_id, user_id, message_id, text, msg_type)
                VALUES (?, ?, ?, ?, ?)""",
-            (group_id, user_id, message_id, text[:2000], msg_type),
+            (group_id, user_id, message_id, text[:8000], msg_type),
         )
         conn.commit()
 

@@ -61,6 +61,12 @@ RI_THRESHOLD = 0.4              # 共振指數門檻
 REFERENCE_COUNT_THRESHOLD = 3   # 最低引用次數
 VERIFICATION_ELIGIBLE = {"observed", "tested", "proven"}  # 驗證等級門檻
 
+# 允許轉化為規則的結晶類型（排除 Insight/Market 等對話片段）
+ELIGIBLE_CRYSTAL_TYPES = {"Lesson", "Procedure", "Pattern", "Hypothesis"}
+
+# 受保護的規則來源（actualize 不得覆蓋）
+PROTECTED_RULE_ORIGINS = {"boss_directive", "qa_finding", "metacog_distill:", "failure_distill:"}
+
 
 # ═══════════════════════════════════════════
 # CrystalActuator
@@ -107,17 +113,19 @@ class CrystalActuator:
         # Step 2: 掃描可轉化的結晶
         eligible = self._scan_eligible_crystals(knowledge_lattice)
 
-        # Step 3: 翻譯為規則（去重）
+        # Step 3: 翻譯為規則（去重，受保護規則不計入配額）
+        non_protected_count = sum(1 for r in self._rules if not self._is_protected_rule(r))
         for crystal in eligible:
             if self._already_has_rule(crystal.cuid):
                 continue
-            if len(self._rules) >= MAX_ACTIVE_RULES:
+            if non_protected_count >= MAX_ACTIVE_RULES:
                 logger.info("Crystal Actuator: 規則數量已達上限，跳過新增")
                 break
 
             rule = self._translate_to_rule(crystal)
             if rule:
                 self._rules.append(rule)
+                non_protected_count += 1
                 result["new_rules"] += 1
                 logger.info(
                     f"Crystal Actuator: 新規則 [{rule['rule_type']}] "
@@ -259,12 +267,15 @@ class CrystalActuator:
     # ═══════════════════════════════════════════
 
     def _scan_eligible_crystals(self, lattice: Any) -> list:
-        """掃描符合轉化條件的結晶."""
+        """掃描符合轉化條件的結晶（只接受操作性結晶，排除對話片段）."""
         eligible = []
         try:
             all_crystals = lattice.get_all_crystals()
             for crystal in all_crystals:
                 if crystal.archived or crystal.status != "active":
+                    continue
+                # 類型過濾：只接受 Lesson/Procedure/Pattern/Hypothesis
+                if crystal.crystal_type not in ELIGIBLE_CRYSTAL_TYPES:
                     continue
                 if crystal.ri_score < RI_THRESHOLD:
                     continue
@@ -329,13 +340,18 @@ class CrystalActuator:
             for r in self._rules
         )
 
+    def _is_protected_rule(self, rule: Dict) -> bool:
+        """檢查規則是否來自受保護來源（boss_directive、lesson_distill 等）."""
+        origin = rule.get("crystal_origin", "")
+        return any(p in origin for p in PROTECTED_RULE_ORIGINS)
+
     def _expire_stale_rules(self) -> int:
-        """淘汰過期規則."""
+        """淘汰過期規則（受保護規則不淘汰）."""
         now = datetime.now(TZ8).isoformat()
         before = len(self._rules)
         self._rules = [
             r for r in self._rules
-            if r.get("expires_at", "9999") > now
+            if r.get("expires_at", "9999") > now or self._is_protected_rule(r)
         ]
         expired = before - len(self._rules)
         return expired

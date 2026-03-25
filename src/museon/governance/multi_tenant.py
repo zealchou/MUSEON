@@ -82,7 +82,8 @@ class ExternalAnimaManager:
     讓 owner 未來可查詢客戶/外部用戶的行為畫像。
     """
 
-    def __init__(self, data_dir: Path):
+    def __init__(self, data_dir: "Path | str"):
+        data_dir = Path(data_dir) if not isinstance(data_dir, Path) else data_dir
         self.users_dir = data_dir / "_system" / "external_users"
         self.users_dir.mkdir(parents=True, exist_ok=True)
         self._lock = threading.Lock()
@@ -196,7 +197,11 @@ class ExternalAnimaManager:
                     # 比對 display_name
                     name = (data.get("display_name") or "").lower()
                     summary = (data.get("context_summary") or "").lower()
-                    topics = " ".join(data.get("recent_topics", [])).lower()
+                    raw_topics = data.get("recent_topics", [])
+                    topics = " ".join(
+                        t.get("snippet", "") if isinstance(t, dict) else str(t)
+                        for t in raw_topics
+                    ).lower()
                     relation = (data.get("relationship_to_owner") or "").lower()
                     searchable = f"{name} {summary} {topics} {relation}"
                     if keyword_lower in searchable:

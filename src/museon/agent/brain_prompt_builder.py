@@ -493,7 +493,7 @@ class BrainPromptBuilderMixin:
                         "outcome": "",
                     })
             except Exception as e:
-                logger.debug(f"External user search in memory inject: {e}")
+                logger.warning(f"External user search in memory inject: {e}")
 
         # 今日探索上下文：注入最近探索結果，使 Brain 能討論探索發現
         if self.data_dir:
@@ -517,6 +517,24 @@ class BrainPromptBuilderMixin:
                     })
             except Exception as e:
                 logger.debug(f"Exploration context in memory inject: {e}")
+
+        # Intuition 啟發式規則注入：從歷史對話模式歸納的直覺
+        if self.data_dir:
+            try:
+                from museon.agent.intuition import IntuitionStore
+                _int_store = IntuitionStore(str(self.data_dir))
+                _heuristics = _int_store.load_heuristics()
+                # 只注入高置信度的規則（HeuristicRule 欄位：condition, prediction, confidence）
+                _strong = [h for h in _heuristics if h.confidence >= 0.7][:3]
+                for h in _strong:
+                    items.append({
+                        "content": f"直覺規則：IF {h.condition} THEN {h.prediction}（信心 {h.confidence:.0%}）",
+                        "layer": "intuition_heuristic",
+                        "tags": ["直覺", "啟發式"],
+                        "outcome": "",
+                    })
+            except Exception as e:
+                logger.warning(f"Intuition heuristic inject: {e}")
 
         if not items:
             return ""
@@ -607,6 +625,11 @@ class BrainPromptBuilderMixin:
                         proc_lines = ["\n## 過去成功的相關程序"]
                         for pc in proc_crystals:
                             proc_lines.append(self._format_procedure_crystal(pc))
+                            # 記錄 Procedure 被引用（驅動 success_count 遞增）
+                            try:
+                                self.knowledge_lattice.record_success(pc.cuid)
+                            except Exception:
+                                pass
                         procedure_text = "\n".join(proc_lines)
                 elif hasattr(self, "_activity_logger") and self._activity_logger:
                     # 降級：從 activity_log 搜尋相似成功事件

@@ -116,11 +116,11 @@ SKILL_ARCHIVE_INACTIVE_DAYS = 30
 # Federation step sets
 _FULL_STEPS = [
     "0", "0.1",  # Budget settlement + Footprint cleanup (最先執行)
-    "1", "2", "3", "4", "5", "5.5", "5.6", "5.7", "5.8", "5.9", "5.9.5", "5.10",
+    "1", "2", "3", "4", "5", "5.5", "5.6", "5.6.5", "5.7", "5.8", "5.9", "5.9.5", "5.10",
     "6", "6.5", "7", "7.5", "8", "8.5", "8.6", "8.7", "9", "10", "10.5", "11", "12", "13", "13.5",
     "13.6", "13.7", "13.8",  # 外向型進化：觸發掃描 → 外向研究 → 消化生命週期
     "14", "15", "16", "17",
-    "18",
+    "18", "18.5",  # 18.5: 客戶互動萃取（dispatch/completed → external_users + clients）
     "20", "21", "22", "23",  # 新增：synapse_decay/muscle_atrophy/immune_prune/trigger_eval
     "24", "25",  # 新增：演化速度計算 / 週月循環觸發檢查
     "26", "27", "28", "29",  # 持久層衛生：session 清理 / JSONL 輪替 / WAL checkpoint / DataWatchdog
@@ -188,6 +188,7 @@ class NightlyPipeline:
             "5": ("step_05_wee_fuse", self._step_wee_fuse),
             "5.5": ("step_05_5_cross_crystallize", self._step_cross_crystallize),
             "5.6": ("step_05_6_knowledge_lattice", self._step_knowledge_lattice),
+            "5.6.5": ("step_05_6_5_lesson_distill", self._step_lesson_distill),
             "5.7": ("step_05_7_crystal_actuator", self._step_crystal_actuator),
             "5.8": ("step_05_8_morphenix_proposals", self._step_morphenix_proposals),
             "5.9": ("step_05_9_morphenix_gate", self._step_morphenix_gate),
@@ -216,6 +217,7 @@ class NightlyPipeline:
             "16": ("step_16_claude_skill_forge", self._step_claude_skill_forge),
             "17": ("step_17_tool_discovery", self._step_tool_discovery),
             "18": ("step_18_daily_summary", self._step_daily_summary),
+            "18.5": ("step_18_5_client_profile_update", self._step_client_profile_update),
             # ── Autonomy Architecture 新增步驟 ──
             "0": ("step_00_budget_settlement", self._step_budget_settlement),
             "0.1": ("step_00_1_footprint_cleanup", self._step_footprint_cleanup),
@@ -639,10 +641,10 @@ class NightlyPipeline:
         if not memory_dir.exists():
             return {"skipped": "no memory directory"}
 
-        # 聚合 shared / owner / cli_user 三個 scope 的 L2_ep
+        # 聚合 shared / owner / cli_user / boss 四個 scope 的 L2_ep
         l2_items = []
         seen_ids = set()
-        for scope in ["shared", "owner", "cli_user"]:
+        for scope in ["shared", "owner", "cli_user", "boss"]:
             scope_dir = memory_dir / scope / "L2_ep"
             if not scope_dir.exists():
                 continue
@@ -706,6 +708,175 @@ class NightlyPipeline:
             return {"error": str(e)}
 
     # ═══════════════════════════════════════════
+    # Step 5.6.5: 教訓蒸餾 — metacog + failure → Crystal Actuator guard 規則
+    # ═══════════════════════════════════════════
+
+    def _step_lesson_distill(self) -> Dict:
+        """Step 5.6.5: 從 metacognition 洞察和失敗記憶萃取行為規則.
+
+        管線 A: morphenix/notes/mc_*_metacog_insight.json 中 REVISE 標記 → guard 規則
+        管線 B: memory_v3/*/L1_short/ 中 outcome=failed → guard 規則
+        規則寫入 crystal_rules.json 供 Crystal Actuator 注入每次對話 prompt。
+        """
+        import json
+        import glob
+        from datetime import datetime, timedelta
+
+        rules_file = self._workspace / "_system" / "crystal_rules.json"
+        stats = {"metacog_scanned": 0, "failure_scanned": 0, "new_rules": 0, "skipped_dup": 0}
+
+        # Load existing rules
+        try:
+            with open(rules_file, "r", encoding="utf-8") as f:
+                rules_data = json.load(f)
+        except Exception:
+            rules_data = {"version": "2.0", "updated_at": "", "rules": []}
+
+        existing_sources = {r.get("source_cuid", "") for r in rules_data.get("rules", [])}
+        max_rules = 30  # 總規則上限
+
+        # ── 管線 A: MetaCognition insights → guard rules ──
+        notes_dir = self._workspace / "_system" / "morphenix" / "notes"
+        cutoff = datetime.now() - timedelta(days=7)  # 只掃最近 7 天
+
+        for mc_file in sorted(notes_dir.glob("mc_*_metacog_insight.json")):
+            stats["metacog_scanned"] += 1
+            try:
+                with open(mc_file, "r", encoding="utf-8") as f:
+                    note = json.load(f)
+
+                content = note.get("content", "")
+                # 只萃取 REVISE 標記的洞察
+                if "REVISE" not in content and "revise" not in content.lower():
+                    continue
+
+                source_id = note.get("id", mc_file.stem)
+                if source_id in existing_sources:
+                    stats["skipped_dup"] += 1
+                    continue
+
+                # 檢查時間
+                created = note.get("created_at", "")
+                if created:
+                    try:
+                        dt = datetime.fromisoformat(created.replace("+08:00", "+08:00"))
+                        if dt.replace(tzinfo=None) < cutoff:
+                            continue
+                    except Exception:
+                        pass
+
+                # 萃取規則：取 REVISE 後面的修改建議作為 directive
+                directive = content
+                if "REVISE" in content:
+                    parts = content.split("REVISE", 1)
+                    directive = parts[1].strip().lstrip(":").lstrip("\n").strip() if len(parts) > 1 else content
+                directive = directive[:500]  # 截斷
+
+                if len(rules_data["rules"]) >= max_rules:
+                    break
+
+                rules_data["rules"].append({
+                    "rule_id": f"rule-MC-{source_id[-8:]}",
+                    "source_cuid": source_id,
+                    "rule_type": "methodology",
+                    "action": "guard",
+                    "summary": directive[:100],
+                    "directive": directive,
+                    "strength": 1.2,
+                    "status": "active",
+                    "created_at": created or datetime.now().isoformat(),
+                    "expires_at": (datetime.now() + timedelta(days=30)).isoformat(),
+                    "positive_count": 0,
+                    "negative_count": 0,
+                    "last_feedback": "",
+                    "crystal_ri": 0.8,
+                    "crystal_type": "Insight",
+                    "crystal_origin": f"metacog_distill:{mc_file.name}",
+                })
+                existing_sources.add(source_id)
+                stats["new_rules"] += 1
+
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] metacog parse error {mc_file.name}: {e}")
+
+        # ── 管線 B: Failure memories → guard rules ──
+        memory_root = self._workspace / "memory_v3"
+        for user_dir in memory_root.iterdir():
+            if not user_dir.is_dir():
+                continue
+            l1_dir = user_dir / "L1_short"
+            if not l1_dir.exists():
+                continue
+
+            for mem_file in l1_dir.glob("*.json"):
+                stats["failure_scanned"] += 1
+                try:
+                    with open(mem_file, "r", encoding="utf-8") as f:
+                        mem = json.load(f)
+
+                    if mem.get("outcome") != "failed":
+                        continue
+                    if mem.get("source") != "failure_distill":
+                        continue
+
+                    source_id = mem.get("id", mem_file.stem)
+                    if source_id in existing_sources:
+                        stats["skipped_dup"] += 1
+                        continue
+
+                    # 檢查時間
+                    created = mem.get("created_at", "")
+                    if created:
+                        try:
+                            dt = datetime.fromisoformat(created.replace("+08:00", "+08:00"))
+                            if dt.replace(tzinfo=None) < cutoff:
+                                continue
+                        except Exception:
+                            pass
+
+                    content = mem.get("content", "")
+                    # 從失敗經驗萃取教訓摘要
+                    summary = content[:200]
+
+                    if len(rules_data["rules"]) >= max_rules:
+                        break
+
+                    rules_data["rules"].append({
+                        "rule_id": f"rule-FAIL-{source_id[:8]}",
+                        "source_cuid": source_id,
+                        "rule_type": "anti_pattern",
+                        "action": "guard",
+                        "summary": summary[:100],
+                        "directive": f"過去失敗經驗：{summary}",
+                        "strength": 1.0,
+                        "status": "active",
+                        "created_at": created or datetime.now().isoformat(),
+                        "expires_at": (datetime.now() + timedelta(days=14)).isoformat(),
+                        "positive_count": 0,
+                        "negative_count": 0,
+                        "last_feedback": "",
+                        "crystal_ri": 0.7,
+                        "crystal_type": "Lesson",
+                        "crystal_origin": f"failure_distill:{mem_file.name}",
+                    })
+                    existing_sources.add(source_id)
+                    stats["new_rules"] += 1
+
+                except Exception as e:
+                    logger.debug(f"[NIGHTLY] failure mem parse error {mem_file.name}: {e}")
+
+        # Save updated rules
+        if stats["new_rules"] > 0:
+            rules_data["updated_at"] = datetime.now().isoformat()
+            with open(rules_file, "w", encoding="utf-8") as f:
+                json.dump(rules_data, f, ensure_ascii=False, indent=2)
+            logger.info(
+                f"[NIGHTLY] Lesson distill: +{stats['new_rules']} rules "
+                f"(metacog={stats['metacog_scanned']}, failures={stats['failure_scanned']})"
+            )
+
+        return stats
+
     # Step 5.7: Crystal Actuator — 結晶行為規則引擎
     # ═══════════════════════════════════════════
 
@@ -2844,6 +3015,156 @@ class NightlyPipeline:
         return {"mode": "max_subscription", "skipped": "no_budget_monitor"}
 
     # ═══════════════════════════════════════════
+    # Step 18.5: 客戶互動萃取 — dispatch/completed → external_users + clients
+    # ═══════════════════════════════════════════
+
+    def _step_client_profile_update(self) -> Dict:
+        """Step 18.5: 從 dispatch/completed 萃取客戶互動摘要.
+
+        管線接通：
+        - dispatch/completed/*.json（最完整的對話紀錄）→ 讀取
+        - external_users/{user_id}.json → 更新 context_summary
+        - group_context.db clients 表 → 更新 personality_notes
+        """
+        import json
+        import glob
+        from datetime import datetime, timedelta
+
+        stats = {"dispatches_scanned": 0, "profiles_updated": 0, "clients_updated": 0}
+
+        dispatch_dir = self._workspace / "dispatch" / "completed"
+        if not dispatch_dir.exists():
+            return {"skipped": "no dispatch/completed directory"}
+
+        # 只掃最近 3 天
+        cutoff = datetime.now() - timedelta(days=3)
+
+        # 收集每個 session 的互動摘要
+        session_interactions: dict = {}  # session_id → [user_request snippets]
+
+        for dfile in sorted(dispatch_dir.glob("*.json")):
+            stats["dispatches_scanned"] += 1
+            try:
+                data = json.loads(dfile.read_text(encoding="utf-8"))
+                created = data.get("created_at", "")
+                if created:
+                    try:
+                        dt = datetime.fromisoformat(created)
+                        if dt < cutoff:
+                            continue
+                    except Exception:
+                        pass
+
+                session_id = data.get("session_id", "")
+                user_req = data.get("user_request", "")[:500]
+                if session_id and user_req:
+                    session_interactions.setdefault(session_id, []).append(user_req)
+
+            except Exception:
+                continue
+
+        # 從 group_context.db 的 clients 表讀取現有用戶
+        # 用 dispatch 中的 session_id 反查 group_id → 找到互動的用戶
+        try:
+            from museon.governance.group_context import get_group_context_store
+            gc_store = get_group_context_store()
+            conn = gc_store._get_conn()
+
+            # 取最近 3 天活躍的 clients
+            active_clients = conn.execute("""
+                SELECT DISTINCT c.user_id, c.display_name, c.personality_notes
+                FROM clients c
+                JOIN messages m ON c.user_id = m.user_id
+                WHERE m.created_at > datetime('now', '-3 days')
+                  AND c.user_id != 'bot'
+                ORDER BY c.last_seen DESC
+                LIMIT 20
+            """).fetchall()
+
+            for client in active_clients:
+                user_id = client[0]
+                display_name = client[1] or ""
+                existing_notes = client[2] or ""
+
+                # 取此用戶最近的訊息做互動摘要
+                recent_msgs = conn.execute("""
+                    SELECT text FROM messages
+                    WHERE user_id = ? AND created_at > datetime('now', '-7 days')
+                    ORDER BY created_at DESC LIMIT 20
+                """, (user_id,)).fetchall()
+
+                if not recent_msgs:
+                    continue
+
+                # 簡單摘要：取最近訊息的關鍵詞
+                msg_texts = [m[0] for m in recent_msgs if m[0]]
+                topics = set()
+                for t in msg_texts[:10]:
+                    # 取每則訊息的前 30 字作為話題
+                    snippet = t[:30].strip()
+                    if snippet and len(snippet) > 3:
+                        topics.add(snippet)
+
+                if topics:
+                    topic_summary = "、".join(list(topics)[:5])
+                    new_notes = f"[{datetime.now().strftime('%m/%d')}] 近期話題：{topic_summary}"
+
+                    # 追加而非覆蓋（保留歷史，最多 500 字）
+                    if existing_notes:
+                        combined = f"{new_notes}\n{existing_notes}"[:500]
+                    else:
+                        combined = new_notes[:500]
+
+                    conn.execute(
+                        "UPDATE clients SET personality_notes = ? WHERE user_id = ?",
+                        (combined, user_id),
+                    )
+                    stats["clients_updated"] += 1
+
+            conn.commit()
+        except Exception as e:
+            logger.warning(f"[NIGHTLY] Client profile update failed: {e}")
+
+        # 更新 external_users 的 context_summary（如果是空的）
+        try:
+            from museon.governance.multi_tenant import ExternalAnimaManager
+            ext_mgr = ExternalAnimaManager(self._workspace)
+            for p in ext_mgr.users_dir.glob("*.json"):
+                try:
+                    data = json.loads(p.read_text(encoding="utf-8"))
+                    if data.get("context_summary"):
+                        continue  # 已有摘要，跳過
+                    user_id = data.get("user_id", p.stem)
+                    display_name = data.get("display_name", "")
+                    if not display_name:
+                        continue
+
+                    # 從 group_context.db 取此用戶的訊息
+                    recent = gc_store._get_conn().execute("""
+                        SELECT text FROM messages
+                        WHERE user_id = ? ORDER BY created_at DESC LIMIT 10
+                    """, (user_id,)).fetchall()
+
+                    if recent:
+                        snippets = [r[0][:50] for r in recent if r[0]][:5]
+                        if snippets:
+                            data["context_summary"] = f"{display_name} 的近期話題：{'；'.join(snippets)}"
+                            ext_mgr.save(user_id, data)
+                            stats["profiles_updated"] += 1
+                except Exception:
+                    continue
+        except Exception as e:
+            logger.warning(f"[NIGHTLY] External user update failed: {e}")
+
+        if stats["clients_updated"] > 0 or stats["profiles_updated"] > 0:
+            logger.info(
+                f"[NIGHTLY] Client profile update: clients={stats['clients_updated']}, "
+                f"external_users={stats['profiles_updated']}"
+            )
+
+        return stats
+
+    # ═══════════════════════════════════════════
     # Step 0.1: 足跡清理
     # ═══════════════════════════════════════════
 
@@ -3495,6 +3816,22 @@ class NightlyPipeline:
                 f.flush()
                 os.fsync(f.fileno())
             tmp.rename(path)
+
+            # 歷史保留：按日期存一份副本（不覆蓋）
+            history_dir = state_dir / "nightly_history"
+            history_dir.mkdir(parents=True, exist_ok=True)
+            completed = persist_report.get("completed_at", "")[:10]  # YYYY-MM-DD
+            if completed:
+                history_path = history_dir / f"nightly_report_{completed}.json"
+                if not history_path.exists():
+                    import shutil
+                    shutil.copy2(path, history_path)
+                    # 保留最近 30 份，清理更早的
+                    history_files = sorted(history_dir.glob("nightly_report_*.json"))
+                    if len(history_files) > 30:
+                        for old in history_files[:-30]:
+                            old.unlink()
+
         except Exception as e:
             logger.error(f"NightlyPipeline report persist failed: {e}")
 

@@ -1062,7 +1062,7 @@ class GuardianDaemon:
         return []
 
     def _queue_mothership(self, layer: str, check: str, details: str):
-        """預留：將事件加入母體回報佇列"""
+        """將事件加入母體回報佇列 + 即時 DM 通知老闆"""
         try:
             queue = []
             if self.mothership_queue_path.exists():
@@ -1083,6 +1083,43 @@ class GuardianDaemon:
             )
         except Exception as e:
             logger.error(f"Guardian mothership queue write failed: {e}")
+
+        # 即時 DM 通知老闆
+        try:
+            self._notify_owner_dm(layer, check, details)
+        except Exception:
+            pass
+
+    def _notify_owner_dm(self, layer: str, check: str, details: str) -> None:
+        """透過 Telegram Bot API 即時 DM 通知老闆。"""
+        import os
+        import urllib.request
+        import urllib.parse
+
+        token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+        trusted_ids = os.environ.get("TELEGRAM_TRUSTED_IDS", "")
+
+        if not token or not trusted_ids:
+            env_path = self.data_dir.parent / ".env" if hasattr(self.data_dir, 'parent') else Path(".env")
+            if env_path.exists():
+                for line in env_path.read_text().strip().split("\n"):
+                    if line.startswith("TELEGRAM_BOT_TOKEN="):
+                        token = line.split("=", 1)[1].strip()
+                    elif line.startswith("TELEGRAM_TRUSTED_IDS="):
+                        trusted_ids = line.split("=", 1)[1].strip()
+
+        if not token or not trusted_ids:
+            return
+
+        owner_id = trusted_ids.split(",")[0].strip()
+        text = f"🛡️ [Guardian {layer}] {check}\n{details[:200]}"
+
+        try:
+            url = f"https://api.telegram.org/bot{token}/sendMessage"
+            data = urllib.parse.urlencode({"chat_id": owner_id, "text": text}).encode()
+            urllib.request.urlopen(url, data, timeout=5)
+        except Exception as e:
+            logger.debug(f"[Guardian] DM notify failed: {e}")
 
     def _count_mothership_queue(self) -> int:
         try:

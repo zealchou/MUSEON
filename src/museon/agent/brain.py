@@ -338,7 +338,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
             from museon.memory.memory_manager import MemoryManager
             self.memory_manager = MemoryManager(
                 workspace=str(self.data_dir / "memory_v3"),
-                user_id="cli_user",
+                user_id="boss",
                 event_bus=self._event_bus,
             )
         except Exception as e:

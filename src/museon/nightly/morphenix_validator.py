@@ -198,6 +198,13 @@ class MorphenixValidator:
         """在沙盒中 apply 提案的變更."""
         assert self._sandbox_dir is not None
         metadata = proposal.get("metadata", {})
+        # 防禦：metadata 可能從 DB 以字串形式返回
+        if isinstance(metadata, str):
+            try:
+                metadata = json.loads(metadata)
+            except (json.JSONDecodeError, TypeError):
+                logger.warning("MorphenixValidator: metadata is str but not valid JSON")
+                return False
 
         # 方式 1：unified diff patch
         patch = metadata.get("patch", "")
