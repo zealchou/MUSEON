@@ -299,3 +299,58 @@ class SkillForgeScout:
 
         result = await self._research_and_draft(topic, findings[:1200])
         return result if result.get("status") == "done" else None
+
+    @staticmethod
+    def realtime_gap_detect(query: str, matched_skills: list, confidence: float = 0.0) -> None:
+        """即時偵測 Skill 缺口（PDR 軌道 B 調用）.
+
+        當匹配信心低（<0.4），記錄缺口。同類 gap 累計 3 次自動觸發鍛造。
+        """
+        import json, time, logging
+        from pathlib import Path
+        logger = logging.getLogger(__name__)
+
+        if confidence >= 0.4:
+            return
+
+        gap_file = Path("data/_system/realtime_gaps.jsonl")
+        gap_file.parent.mkdir(parents=True, exist_ok=True)
+
+        entry = {
+            "timestamp": time.time(),
+            "query": query[:200],
+            "matched_skills": [s.get("name", "") if isinstance(s, dict) else str(s) for s in matched_skills[:5]],
+            "confidence": confidence,
+        }
+
+        try:
+            with open(gap_file, "a") as f:
+                f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+
+            # Count similar gaps in last 7 days
+            recent_count = 0
+            cutoff = time.time() - 7 * 86400
+            if gap_file.exists():
+                with open(gap_file) as f:
+                    for line in f:
+                        try:
+                            g = json.loads(line)
+                            if g.get("timestamp", 0) > cutoff:
+                                recent_count += 1
+                        except Exception:
+                            pass
+
+            if recent_count >= 3:
+                logger.info(f"[PDR Forge] Gap threshold reached ({recent_count}), should trigger skill forge")
+                # TODO: asyncio.create_task(_forge_skill_realtime(query))
+                # For now, just log and record the trigger
+                trigger_file = Path("data/_system/forge_triggers.jsonl")
+                with open(trigger_file, "a") as f:
+                    f.write(json.dumps({
+                        "timestamp": time.time(),
+                        "trigger": "realtime_gap_3x",
+                        "query": query[:200],
+                        "gap_count": recent_count,
+                    }, ensure_ascii=False) + "\n")
+        except Exception as e:
+            logger.debug(f"[PDR Forge] Gap detect failed: {e}")
