@@ -1,0 +1,20 @@
+{
+  "id": "bb8b73d8-fb71-4ed6-859f-a817d289f0e7",
+  "content": "[失敗經驗] 任務：去做 不用問\n失敗類型：general_failure\n回應片段：找到了。我看到報告裡的六個未驗證假說，直接排優先序和設計最小驗證實驗。\n\n---\n\n## 🔥 六個假說的優先序與致命性排序\n\n**最致命的兩個（必須優先驗證）：**\n\n| # | 假說 | 風險 | 為什麼最致命 |\n|---|------|------|-----------|\n| 3 | TA 信任 AI 產出 | HIGH | 如果不信任 AI，其他都沒戲。這是根本前提 |\n| 2 | 報告",
+  "layer": "L1_short",
+  "tags": [],
+  "quality_tier": "gold",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:48.311140+08:00",
+  "updated_at": "2026-03-25T21:26:48.311140+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "backfill",
+  "outcome": "",
+  "user_id": "6969045906",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

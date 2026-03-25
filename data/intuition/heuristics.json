@@ -1,0 +1,61 @@
+{
+  "version": "1.0",
+  "updated_at": "2026-03-25T20:38:42.547073",
+  "rules": [
+    {
+      "rule_id": "heur-op-001",
+      "condition": "需要在 MUSEON 中搜尋資料",
+      "prediction": "先讀 persistence-contract.md 和 memory-router.md 定位資料位置，避免盲目搜索",
+      "confidence": 0.95,
+      "ri_score": 1.0,
+      "source_crystals": [
+        "boss_directive_20260325"
+      ],
+      "last_updated": "2026-03-25T22:00:00+08:00"
+    },
+    {
+      "rule_id": "heur-op-002",
+      "condition": "某個工具或 API 回報限制",
+      "prediction": "資料可能在本地其他位置（日誌、快取、資料庫），先窮盡替代路徑再說做不到",
+      "confidence": 0.9,
+      "ri_score": 1.0,
+      "source_crystals": [
+        "boss_directive_20260325"
+      ],
+      "last_updated": "2026-03-25T22:00:00+08:00"
+    },
+    {
+      "rule_id": "heur-op-003",
+      "condition": "新增了排程步驟或事件處理器",
+      "prediction": "需驗證執行清單（_FULL_STEPS）和觸發源是否包含新增的步驟，函數測試通過不代表系統會執行",
+      "confidence": 0.95,
+      "ri_score": 1.0,
+      "source_crystals": [
+        "boss_directive_20260325d"
+      ],
+      "last_updated": "2026-03-25T22:00:00+08:00"
+    },
+    {
+      "rule_id": "heur-op-004",
+      "condition": "寫入了新的資料到某個存儲",
+      "prediction": "需要追蹤消費端：誰讀、怎麼讀、什麼條件觸發讀取。寫入成功不等於系統能用",
+      "confidence": 0.9,
+      "ri_score": 1.0,
+      "source_crystals": [
+        "boss_directive_20260325b"
+      ],
+      "last_updated": "2026-03-25T22:00:00+08:00"
+    },
+    {
+      "rule_id": "heur-op-005",
+      "condition": "完成了任何迭代或 debug 修復",
+      "prediction": "必須執行 Fix-Verify 三維閉環——spawn 隔離審計員驗證 D1 行為+D2 接線+D3 藍圖，直到 100% 通過",
+      "confidence": 0.95,
+      "ri_score": 1.0,
+      "source_crystals": [
+        "boss_directive_20260325f"
+      ],
+      "last_updated": "2026-03-25T20:38:42.547073"
+    }
+  ]
+}

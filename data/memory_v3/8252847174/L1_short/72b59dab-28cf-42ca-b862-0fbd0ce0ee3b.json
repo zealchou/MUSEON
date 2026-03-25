@@ -1,0 +1,20 @@
+{
+  "id": "72b59dab-28cf-42ca-b862-0fbd0ce0ee3b",
+  "content": "[失敗經驗] 任務：[群組近期對話紀錄]\n  04:46 Feng: 第二階段快要好了，\n等等來測試子體連線\n  32:54 Feng: @MuseonClaw_bot 我們要來測試啦\n  44:52 你的資源跟手腳（老\n失敗類型：general_failure\n回應片段：API 通了！回 JSON 格式的 `INVALID_CREDENTIALS`，不是 HTML 了。\n\n### 現在的狀態\n\n| 項目 | 狀態 |\n|------|------|\n| API 通路 (`/api/v1/`) | ✅ 通了 |\n| 登入端點 | ✅ 回 JSON |\n| 配對碼 | ❌ 需要新的（舊的應該過期了） |\n\n### 下一步\n\nFeng，**給我一組新的配對碼**，我立刻",
+  "layer": "L1_short",
+  "tags": [],
+  "quality_tier": "gold",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:47.293401+08:00",
+  "updated_at": "2026-03-25T21:26:47.293401+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "backfill",
+  "outcome": "",
+  "user_id": "8252847174",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

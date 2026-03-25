@@ -11,41 +11,41 @@
     "main_pain_point": "unknown"
   },
   "preferences": {
-    "communication_style": "detailed",
-    "active_hours": "afternoon"
+    "communication_style": "concise",
+    "active_hours": "evening"
   },
   "relationship": {
     "trust_level": "established",
-    "total_interactions": 1165,
+    "total_interactions": 1226,
     "positive_signals": 0,
     "negative_signals": 0,
-    "last_interaction": "2026-03-25T15:04:34.683380",
+    "last_interaction": "2026-03-25T22:20:54.825716",
     "first_interaction": "2026-03-16T23:54:38.010723"
   },
   "eight_primals": {
     "aspiration": {
-      "level": 21,
+      "level": 20,
       "confidence": 1.0,
-      "signal": "[群組近期對話紀錄]   22:06 Zeal（老闆）: Luo 這邊   22:17 Luo: 好   22:49 Zeal（老闆）: @MuseonClaw",
-      "last_observed": "2026-03-25T13:31:25.856872"
+      "signal": "幫我把以下想法整理成一份完整的商業計畫摘要： 1. 做 AI 顧問工具 2. 目標台灣中小企業 3. 月費制 $2999/月 4. 第一年目標 100 家客戶 ",
+      "last_observed": "2026-03-25T15:33:04.400364"
     },
     "accumulation": {
-      "level": 27,
+      "level": 25,
       "confidence": 1.0,
-      "signal": "[群組近期對話紀錄]   16:45 吳明憲(Alan Wu): [檔案: 2024GoogleCloud學程certificate.png]    16:45",
-      "last_observed": "2026-03-25T10:34:04.514589"
+      "signal": "做一個 html 說明五虎將的運作機制，達成那些效果，我要給投資人看了有信心（當然有些地方我們還需要持續改善），完成之後推上去 GitHub 然後給我外部鏈接",
+      "last_observed": "2026-03-25T18:04:37.414932"
     },
     "action_power": {
       "level": 18,
       "confidence": 1.0,
-      "signal": "之前已經有成功上傳的工作流程 請重新再試一次",
-      "last_observed": "2026-03-25T10:22:27.087769"
+      "signal": "MUSEON 已修復完成，可以正常使用了。  修復內容： 1. telegram_pump 的 session_manager 未注入 — 導致群組訊息收到後卡",
+      "last_observed": "2026-03-25T15:50:25.434634"
     },
     "curiosity": {
-      "level": 74,
+      "level": 65,
       "confidence": 1.0,
-      "signal": "[群組近期對話紀錄]   51:17 Zeal（老闆）: 但是真的剛開始跑啊   14:46 Zeal（老闆）: @MuseonClaw_bot 接續處理 al",
-      "last_observed": "2026-03-25T01:31:13.142100"
+      "signal": "台積電最近表現怎麼樣？",
+      "last_observed": "2026-03-25T15:34:08.620685"
     },
     "emotion_pattern": {
       "level": 34,
@@ -68,60 +68,12 @@
     "relationship_depth": {
       "level": 16,
       "confidence": 1.0,
-      "signal": "你好，請問你能做什麼？",
-      "last_observed": "2026-03-24T17:01:28.910454"
+      "signal": "早安，今天有什麼可以幫我的嗎？",
+      "last_observed": "2026-03-25T15:19:01.447992"
     }
   },
   "seven_layers": {
     "L1_facts": [
-      {
-        "fact": "一天只能去探視一小時，大部分的時間都在陪老婆，空擋時間很多，來趕進度",
-        "category": "family",
-        "source": "conversation",
-        "date": "2026-03-23T12:12:38.235976",
-        "status": "active",
-        "confidence": 0.7
-      },
-      {
-        "fact": "期對話紀錄]   20:56 Zeal（老闆）: https://dailyai.tw/view-feature?slug=",
-        "category": "occupation",
-        "source": "conversation",
-        "date": "2026-03-23T13:01:50.914563",
-        "status": "active",
-        "confidence": 0.7
-      },
-      {
-        "fact": "度跟 Alan 說？他在問的是他的部分的工作進度 [/群組近期對話紀錄]  [群組] Zeal（老闆）說： @MuseonC",
-        "category": "occupation",
-        "source": "conversation",
-        "date": "2026-03-24T13:13:25.604844",
-        "status": "active",
-        "confidence": 0.7
-      },
-      {
-        "fact": "度跟 Alan 說？他在問的是他的部分的工作進度   15:04 Zeal（老闆）: 當然要補救，趕緊收回，機密資料外洩 其",
-        "category": "occupation",
-        "source": "conversation",
-        "date": "2026-03-24T13:19:39.535339",
-        "status": "active",
-        "confidence": 0.7
-      },
-      {
-        "fact": ":15 Zeal（老闆）: 協助建立三個工作流（可以慢慢來）   08:27 Zeal（老闆）: 然後 每個月 6000",
-        "category": "occupation",
-        "source": "conversation",
-        "date": "2026-03-24T13:21:01.353197",
-        "status": "active",
-        "confidence": 0.7
-      },
-      {
-        "fact": "期對話紀錄]   02:35 Zeal（老闆）: @MuseonClaw_bot 這個群組的 chat id   07:06",
-        "category": "occupation",
-        "source": "conversation",
-        "date": "2026-03-24T13:28:09.820823",
-        "status": "active",
-        "confidence": 0.7
-      },
       {
         "fact": "）: 也就是 最多就分出去 18000，公司還有 6000   28:25 Zeal（老闆）: 關鍵比較複雜是 每個月的 6",
         "category": "occupation",
@@ -313,15 +265,63 @@
         "date": "2026-03-25T13:31:25.856872",
         "status": "active",
         "confidence": 0.7
+      },
+      {
+        "fact": "記住：我的公司叫做 MUSEON，做 AI 顧問。",
+        "category": "occupation",
+        "source": "conversation",
+        "date": "2026-03-25T15:20:06.594223",
+        "status": "active",
+        "confidence": 0.7
+      },
+      {
+        "fact": "我的公司叫什麼？",
+        "category": "occupation",
+        "source": "conversation",
+        "date": "2026-03-25T15:20:23.029713",
+        "status": "active",
+        "confidence": 0.7
+      },
+      {
+        "fact": "你的老闆是誰？",
+        "category": "occupation",
+        "source": "conversation",
+        "date": "2026-03-25T15:21:08.155567",
+        "status": "active",
+        "confidence": 0.7
+      },
+      {
+        "fact": "我想創業，打算做一個面向台灣中小企業的 AI 顧問工具。幫我分析市場機會和競爭格局，列出",
+        "category": "occupation",
+        "source": "conversation",
+        "date": "2026-03-25T15:25:49.795813",
+        "status": "active",
+        "confidence": 0.7
+      },
+      {
+        "fact": "期對話紀錄]   23:45 Zeal（老闆）: @MuseonClaw_bot 有看到什麼問題嗎？   54:28 Zea",
+        "category": "occupation",
+        "source": "conversation",
+        "date": "2026-03-25T16:57:52.175390",
+        "status": "active",
+        "confidence": 0.7
+      },
+      {
+        "fact": "他跳針🤣🤣   31:53 Zeal（老闆）: 還沒改好 沒事   32:02 Zeal（老闆）: 再給他一點時間，AI",
+        "category": "occupation",
+        "source": "conversation",
+        "date": "2026-03-25T17:00:19.398975",
+        "status": "active",
+        "confidence": 0.7
       }
     ],
     "L2_personality": [
       {
         "trait": "conscientiousness",
         "tendency": "high",
-        "evidence": "[群組近期對話紀錄]   22:06 Zeal（老闆）: Luo 這邊   22:17 Luo: 好   22:49 Z",
+        "evidence": "[群組近期對話紀錄]   10:04 Feng: 已經不是在系統裡面的層次了，是在經營面跟平板面的層次   10:12 ",
         "confidence": 1.0,
-        "last_updated": "2026-03-25T13:31:25.856872"
+        "last_updated": "2026-03-25T21:21:39.033179"
       },
       {
         "trait": "openness",
@@ -333,33 +333,33 @@
       {
         "trait": "agreeableness",
         "tendency": "high",
-        "evidence": "[群組近期對話紀錄]   51:00 Zeal（老闆）: 我好奇他行不行啊   51:12 Zeal（老闆）: [檔案:",
-        "confidence": 0.7,
-        "last_updated": "2026-03-25T01:26:29.817249"
+        "evidence": "[群組近期對話紀錄]   10:04 Feng: 已經不是在系統裡面的層次了，是在經營面跟平板面的層次   10:12 ",
+        "confidence": 0.73,
+        "last_updated": "2026-03-25T21:21:39.033179"
       },
       {
         "trait": "emotional_stability",
         "tendency": "low",
-        "evidence": "[群組近期對話紀錄]   58:29 Feng: [檔案: photo]    58:32 Feng: 字   58:3",
-        "confidence": 0.9,
-        "last_updated": "2026-03-25T12:38:26.176292"
+        "evidence": "[群組近期對話紀錄]   23:32 Zeal（老闆）: @MuseonClaw_bot 看得到 羅甄前面有需要你回覆的",
+        "confidence": 0.55,
+        "last_updated": "2026-03-25T18:48:28.319925"
       },
       {
         "trait": "extraversion",
         "tendency": "high",
-        "evidence": "[群組近期對話紀錄]   58:29 Feng: [檔案: photo]    58:32 Feng: 字   58:3",
+        "evidence": "[群組近期對話紀錄]   23:32 Zeal（老闆）: @MuseonClaw_bot 看得到 羅甄前面有需要你回覆的",
         "confidence": 1.0,
-        "last_updated": "2026-03-25T12:38:26.176292"
+        "last_updated": "2026-03-25T18:48:28.319925"
       }
     ],
     "L3_values": [],
     "L4_goals": [],
     "L5_emotional_patterns": [],
     "L6_communication_style": {
-      "detail_level": "detailed",
+      "detail_level": "concise",
       "emoji_usage": "none",
       "language_mix": "chinese_dominant",
-      "avg_msg_length": 1011,
+      "avg_msg_length": 602,
       "question_style": "closed",
       "tone": "casual"
     },
@@ -373,14 +373,14 @@
       {
         "role": "entrepreneur",
         "active_since": "2026-03-17T09:43:47.498887",
-        "interaction_count": 70,
-        "last_seen": "2026-03-24T19:47:08.746490"
+        "interaction_count": 72,
+        "last_seen": "2026-03-25T15:33:04.400364"
       },
       {
         "role": "consultant",
         "active_since": "2026-03-17T09:43:47.498887",
-        "interaction_count": 52,
-        "last_seen": "2026-03-24T19:47:08.746490"
+        "interaction_count": 53,
+        "last_seen": "2026-03-25T15:33:04.400364"
       },
       {
         "role": "father",
@@ -398,221 +398,228 @@
     "L8_context_behavior_notes": [],
     "L3_decision_pattern": [
       {
-        "pattern_type": "skill_cluster",
-        "description": "skill_cluster:dse+philo-dialectic+xmodel",
-        "frequency": 1,
-        "last_seen": "2026-03-24T19:48:08.075573",
-        "confidence": 0.3
-      },
-      {
-        "pattern_type": "skill_cluster",
-        "description": "skill_cluster:dse+morphenix+ssa-consultant",
-        "frequency": 1,
-        "last_seen": "2026-03-24T20:00:23.689704",
-        "confidence": 0.3
-      },
-      {
-        "pattern_type": "skill_cluster",
-        "description": "skill_cluster:business-12+ssa-consultant+xmodel",
+        "pattern_type": "task_distribution",
+        "description": "task_type:business",
         "frequency": 2,
-        "last_seen": "2026-03-24T20:26:12.510743",
-        "confidence": 0.35
+        "last_seen": "2026-03-25T15:33:04.400364",
+        "confidence": 0.32999999999999996
       },
       {
         "pattern_type": "skill_cluster",
-        "description": "skill_cluster:dse+meta-learning+ssa-consultant",
+        "description": "skill_cluster:env-radar+gap+workflow-ai-deployment",
         "frequency": 1,
-        "last_seen": "2026-03-24T20:14:11.911804",
+        "last_seen": "2026-03-25T15:25:49.795813",
         "confidence": 0.3
       },
       {
         "pattern_type": "skill_cluster",
-        "description": "skill_cluster:dse+sandbox-lab+xmodel",
+        "description": "skill_cluster:dharma+market-core+sandbox-lab",
         "frequency": 1,
-        "last_seen": "2026-03-24T20:19:07.777855",
+        "last_seen": "2026-03-25T15:27:22.528109",
+        "confidence": 0.3
+      },
+      {
+        "pattern_type": "skill_cluster",
+        "description": "skill_cluster:dse+meta-learning+morphenix",
+        "frequency": 1,
+        "last_seen": "2026-03-25T15:29:16.003665",
+        "confidence": 0.3
+      },
+      {
+        "pattern_type": "time_distribution",
+        "description": "time_pattern:afternoon",
+        "frequency": 20,
+        "last_seen": "2026-03-25T17:51:13.483723",
+        "confidence": 0.2
+      },
+      {
+        "pattern_type": "skill_cluster",
+        "description": "skill_cluster:gap+morphenix+workflow-ai-deployment",
+        "frequency": 1,
+        "last_seen": "2026-03-25T15:32:05.631223",
+        "confidence": 0.3
+      },
+      {
+        "pattern_type": "skill_cluster",
+        "description": "skill_cluster:gap+plan-engine+workflow-ai-deployment",
+        "frequency": 1,
+        "last_seen": "2026-03-25T15:33:04.400364",
+        "confidence": 0.3
+      },
+      {
+        "pattern_type": "skill_cluster",
+        "description": "skill_cluster:morphenix+novel-craft+storytelling-engine",
+        "frequency": 1,
+        "last_seen": "2026-03-25T15:34:08.620685",
+        "confidence": 0.3
+      },
+      {
+        "pattern_type": "skill_cluster",
+        "description": "skill_cluster:dharma+gap+text-alchemy",
+        "frequency": 1,
+        "last_seen": "2026-03-25T15:34:40.764263",
+        "confidence": 0.3
+      },
+      {
+        "pattern_type": "skill_cluster",
+        "description": "skill_cluster:dse+meta-learning+pdeif",
+        "frequency": 1,
+        "last_seen": "2026-03-25T15:35:26.095183",
+        "confidence": 0.3
+      },
+      {
+        "pattern_type": "skill_cluster",
+        "description": "skill_cluster:business-12+ssa-consultant+workflow-svc-brand-marketing",
+        "frequency": 1,
+        "last_seen": "2026-03-25T15:37:07.059928",
+        "confidence": 0.3
+      },
+      {
+        "pattern_type": "task_distribution",
+        "description": "task_type:research",
+        "frequency": 1,
+        "last_seen": "2026-03-25T15:37:07.059928",
+        "confidence": 0.3
+      },
+      {
+        "pattern_type": "skill_cluster",
+        "description": "skill_cluster:business-12+sandbox-lab+workflow-investment-analysis",
+        "frequency": 1,
+        "last_seen": "2026-03-25T15:50:25.434634",
+        "confidence": 0.3
+      },
+      {
+        "pattern_type": "skill_cluster",
+        "description": "skill_cluster:morphenix+novel-craft+workflow-investment-analysis",
+        "frequency": 3,
+        "last_seen": "2026-03-25T17:25:14.435299",
+        "confidence": 0.39999999999999997
+      },
+      {
+        "pattern_type": "skill_cluster",
+        "description": "skill_cluster:dharma+market-core+resonance",
+        "frequency": 1,
+        "last_seen": "2026-03-25T15:52:34.678563",
         "confidence": 0.3
       },
       {
         "pattern_type": "skill_cluster",
         "description": "skill_cluster:meta-learning+morphenix+sandbox-lab",
         "frequency": 1,
-        "last_seen": "2026-03-24T20:28:16.077835",
+        "last_seen": "2026-03-25T17:00:19.398975",
         "confidence": 0.3
       },
       {
         "pattern_type": "skill_cluster",
-        "description": "skill_cluster:meta-learning+pdeif+ssa-consultant",
+        "description": "skill_cluster:morphenix+novel-craft+plugin-registry",
         "frequency": 1,
-        "last_seen": "2026-03-24T20:51:07.966650",
+        "last_seen": "2026-03-25T17:01:18.541845",
         "confidence": 0.3
       },
       {
         "pattern_type": "skill_cluster",
-        "description": "skill_cluster:dse+meta-learning+plan-engine",
+        "description": "skill_cluster:morphenix+sandbox-lab+workflow-ai-deployment",
         "frequency": 1,
-        "last_seen": "2026-03-24T22:54:33.468790",
+        "last_seen": "2026-03-25T17:23:40.452208",
+        "confidence": 0.3
+      },
+      {
+        "pattern_type": "skill_cluster",
+        "description": "skill_cluster:c15+morphenix+novel-craft",
+        "frequency": 1,
+        "last_seen": "2026-03-25T17:30:44.367247",
+        "confidence": 0.3
+      },
+      {
+        "pattern_type": "skill_cluster",
+        "description": "skill_cluster:dse+morphenix+sandbox-lab",
+        "frequency": 1,
+        "last_seen": "2026-03-25T17:38:48.123745",
+        "confidence": 0.3
+      },
+      {
+        "pattern_type": "skill_cluster",
+        "description": "skill_cluster:dharma+dse+plan-engine",
+        "frequency": 1,
+        "last_seen": "2026-03-25T17:41:45.412878",
+        "confidence": 0.3
+      },
+      {
+        "pattern_type": "skill_cluster",
+        "description": "skill_cluster:dharma+dse+morphenix",
+        "frequency": 1,
+        "last_seen": "2026-03-25T17:51:13.483723",
+        "confidence": 0.3
+      },
+      {
+        "pattern_type": "skill_cluster",
+        "description": "skill_cluster:market-core+market-crypto+workflow-investment-analysis",
+        "frequency": 1,
+        "last_seen": "2026-03-25T18:04:37.414932",
+        "confidence": 0.3
+      },
+      {
+        "pattern_type": "time_distribution",
+        "description": "time_pattern:evening",
+        "frequency": 7,
+        "last_seen": "2026-03-25T21:21:39.033179",
+        "confidence": 0.2
+      },
+      {
+        "pattern_type": "skill_cluster",
+        "description": "skill_cluster:acsf+dse+workflow-svc-brand-marketing",
+        "frequency": 1,
+        "last_seen": "2026-03-25T18:19:50.531367",
+        "confidence": 0.3
+      },
+      {
+        "pattern_type": "skill_cluster",
+        "description": "skill_cluster:acsf+dse+morphenix",
+        "frequency": 1,
+        "last_seen": "2026-03-25T18:30:02.174342",
+        "confidence": 0.3
+      },
+      {
+        "pattern_type": "skill_cluster",
+        "description": "skill_cluster:acsf+dharma+gap",
+        "frequency": 1,
+        "last_seen": "2026-03-25T18:40:28.379874",
+        "confidence": 0.3
+      },
+      {
+        "pattern_type": "skill_cluster",
+        "description": "skill_cluster:acsf+dharma+sandbox-lab",
+        "frequency": 1,
+        "last_seen": "2026-03-25T18:44:28.537249",
+        "confidence": 0.3
+      },
+      {
+        "pattern_type": "skill_cluster",
+        "description": "skill_cluster:aesthetic-sense+dse+morphenix",
+        "frequency": 1,
+        "last_seen": "2026-03-25T18:48:28.319925",
+        "confidence": 0.3
+      },
+      {
+        "pattern_type": "skill_cluster",
+        "description": "skill_cluster:market-core+sandbox-lab+workflow-svc-brand-marketing",
+        "frequency": 1,
+        "last_seen": "2026-03-25T21:21:39.033179",
+        "confidence": 0.3
+      },
+      {
+        "pattern_type": "skill_cluster",
+        "description": "skill_cluster:dharma+market-core+risk-matrix",
+        "frequency": 1,
+        "last_seen": "2026-03-25T22:20:54.825716",
         "confidence": 0.3
       },
       {
         "pattern_type": "time_distribution",
         "description": "time_pattern:late_night",
-        "frequency": 6,
-        "last_seen": "2026-03-24T23:26:05.460895",
+        "frequency": 1,
+        "last_seen": "2026-03-25T22:20:54.825716",
         "confidence": 0.2
-      },
-      {
-        "pattern_type": "skill_cluster",
-        "description": "skill_cluster:dse+morphenix+report-forge",
-        "frequency": 1,
-        "last_seen": "2026-03-24T23:03:26.376430",
-        "confidence": 0.3
-      },
-      {
-        "pattern_type": "skill_cluster",
-        "description": "skill_cluster:dse+meta-learning+morphenix",
-        "frequency": 2,
-        "last_seen": "2026-03-24T23:20:51.624707",
-        "confidence": 0.35
-      },
-      {
-        "pattern_type": "skill_cluster",
-        "description": "skill_cluster:dse+plan-engine+xmodel",
-        "frequency": 1,
-        "last_seen": "2026-03-24T23:17:14.084747",
-        "confidence": 0.3
-      },
-      {
-        "pattern_type": "skill_cluster",
-        "description": "skill_cluster:business-12+sandbox-lab+ssa-consultant",
-        "frequency": 1,
-        "last_seen": "2026-03-24T23:26:05.460895",
-        "confidence": 0.3
-      },
-      {
-        "pattern_type": "skill_cluster",
-        "description": "skill_cluster:gap+morphenix+workflow-ai-deployment",
-        "frequency": 1,
-        "last_seen": "2026-03-25T00:41:43.004136",
-        "confidence": 0.3
-      },
-      {
-        "pattern_type": "time_distribution",
-        "description": "time_pattern:deep_night",
-        "frequency": 6,
-        "last_seen": "2026-03-25T01:31:13.142100",
-        "confidence": 0.2
-      },
-      {
-        "pattern_type": "skill_cluster",
-        "description": "skill_cluster:gap+market-core+plan-engine",
-        "frequency": 1,
-        "last_seen": "2026-03-25T09:55:57.929292",
-        "confidence": 0.3
-      },
-      {
-        "pattern_type": "time_distribution",
-        "description": "time_pattern:morning",
-        "frequency": 10,
-        "last_seen": "2026-03-25T11:03:00.636759",
-        "confidence": 0.2
-      },
-      {
-        "pattern_type": "skill_cluster",
-        "description": "skill_cluster:dna27+morphenix+plugin-registry",
-        "frequency": 7,
-        "last_seen": "2026-03-25T10:34:04.514589",
-        "confidence": 0.6
-      },
-      {
-        "pattern_type": "task_distribution",
-        "description": "task_type:creative",
-        "frequency": 7,
-        "last_seen": "2026-03-25T10:34:04.514589",
-        "confidence": 0.4800000000000001
-      },
-      {
-        "pattern_type": "skill_cluster",
-        "description": "skill_cluster:market-core+market-macro+plan-engine",
-        "frequency": 1,
-        "last_seen": "2026-03-25T10:22:27.087769",
-        "confidence": 0.3
-      },
-      {
-        "pattern_type": "skill_cluster",
-        "description": "skill_cluster:dharma+plan-engine+sandbox-lab",
-        "frequency": 1,
-        "last_seen": "2026-03-25T11:03:00.636759",
-        "confidence": 0.3
-      },
-      {
-        "pattern_type": "skill_cluster",
-        "description": "skill_cluster:dna27+gap+plugin-registry",
-        "frequency": 1,
-        "last_seen": "2026-03-25T12:28:01.477726",
-        "confidence": 0.3
-      },
-      {
-        "pattern_type": "time_distribution",
-        "description": "time_pattern:noon",
-        "frequency": 6,
-        "last_seen": "2026-03-25T13:35:57.822731",
-        "confidence": 0.2
-      },
-      {
-        "pattern_type": "skill_cluster",
-        "description": "skill_cluster:dna27+group-meeting-notes+report-forge",
-        "frequency": 1,
-        "last_seen": "2026-03-25T12:31:40.778748",
-        "confidence": 0.3
-      },
-      {
-        "pattern_type": "skill_cluster",
-        "description": "skill_cluster:dse+group-meeting-notes+workflow-ai-deployment",
-        "frequency": 1,
-        "last_seen": "2026-03-25T12:38:26.176292",
-        "confidence": 0.3
-      },
-      {
-        "pattern_type": "skill_cluster",
-        "description": "skill_cluster:dse+sandbox-lab+ssa-consultant",
-        "frequency": 1,
-        "last_seen": "2026-03-25T13:26:29.447896",
-        "confidence": 0.3
-      },
-      {
-        "pattern_type": "skill_cluster",
-        "description": "skill_cluster:dharma+morphenix+sandbox-lab",
-        "frequency": 1,
-        "last_seen": "2026-03-25T13:31:25.856872",
-        "confidence": 0.3
-      },
-      {
-        "pattern_type": "skill_cluster",
-        "description": "skill_cluster:novel-craft+sandbox-lab+storytelling-engine",
-        "frequency": 1,
-        "last_seen": "2026-03-25T13:35:57.822731",
-        "confidence": 0.3
-      },
-      {
-        "pattern_type": "skill_cluster",
-        "description": "skill_cluster:dharma+market-core+meta-learning",
-        "frequency": 2,
-        "last_seen": "2026-03-25T15:04:04.562140",
-        "confidence": 0.35
-      },
-      {
-        "pattern_type": "time_distribution",
-        "description": "time_pattern:afternoon",
-        "frequency": 3,
-        "last_seen": "2026-03-25T15:04:34.683380",
-        "confidence": 0.2
-      },
-      {
-        "pattern_type": "skill_cluster",
-        "description": "skill_cluster:dse+gap+market-core",
-        "frequency": 1,
-        "last_seen": "2026-03-25T15:04:34.683380",
-        "confidence": 0.3
       }
     ],
     "L4_interaction_rings": [
@@ -652,17 +659,17 @@
         "key": "active_late_evening",
         "value": "active late evening",
         "confidence": 1.0,
-        "observed_count": 168,
+        "observed_count": 169,
         "first_seen": "2026-03-16T22:02:34.688998",
-        "last_seen": "2026-03-24T23:26:05.460895"
+        "last_seen": "2026-03-25T22:20:54.825716"
       },
       {
         "key": "prefers_short_response",
         "value": "prefers short response",
         "confidence": 1.0,
-        "observed_count": 830,
+        "observed_count": 873,
         "first_seen": "2026-03-16T22:02:34.688998",
-        "last_seen": "2026-03-25T15:04:34.683380"
+        "last_seen": "2026-03-25T18:48:28.319925"
       },
       {
         "key": "active_late_night",
@@ -676,9 +683,9 @@
         "key": "prefers_long_response",
         "value": "prefers long response",
         "confidence": 1.0,
-        "observed_count": 329,
+        "observed_count": 345,
         "first_seen": "2026-03-16T22:15:11.205456",
-        "last_seen": "2026-03-25T12:31:40.778748"
+        "last_seen": "2026-03-25T18:19:50.531367"
       },
       {
         "key": "active_early_morning",
@@ -700,9 +707,9 @@
         "key": "interested_in_research",
         "value": "interested in research",
         "confidence": 1.0,
-        "observed_count": 41,
+        "observed_count": 42,
         "first_seen": "2026-03-17T13:02:54.496831",
-        "last_seen": "2026-03-24T19:47:08.746490"
+        "last_seen": "2026-03-25T15:37:07.059928"
       },
       {
         "key": "interested_in_creative",
@@ -716,9 +723,9 @@
         "key": "interested_in_business",
         "value": "interested in business",
         "confidence": 1.0,
-        "observed_count": 65,
+        "observed_count": 67,
         "first_seen": "2026-03-17T09:34:33.219849",
-        "last_seen": "2026-03-24T19:47:08.746490"
+        "last_seen": "2026-03-25T15:33:04.400364"
       }
     ]
   },
@@ -727,25 +734,25 @@
     "reset_at": "2026-03-16T21:58:41.212745+08:00"
   },
   "_tone_history": {
-    "formal_total": 1,
-    "casual_total": 14,
-    "sample_count": 1165
+    "formal_total": 4,
+    "casual_total": 7,
+    "sample_count": 1226
   },
   "_pref_buffer": {
     "prefers_short_response": {
-      "count": 830,
+      "count": 873,
       "first": "2026-03-16T22:02:34.688998",
-      "last": "2026-03-25T15:04:34.683380"
+      "last": "2026-03-25T18:48:28.319925"
     },
     "active_late_evening": {
-      "count": 168,
+      "count": 169,
       "first": "2026-03-16T22:02:34.688998",
-      "last": "2026-03-24T23:26:05.460895"
+      "last": "2026-03-25T22:20:54.825716"
     },
     "prefers_long_response": {
-      "count": 329,
+      "count": 345,
       "first": "2026-03-16T22:15:11.205456",
-      "last": "2026-03-25T12:31:40.778748"
+      "last": "2026-03-25T18:19:50.531367"
     },
     "active_late_night": {
       "count": 98,
@@ -758,14 +765,14 @@
       "last": "2026-03-23T08:37:50.052424"
     },
     "interested_in_business": {
-      "count": 65,
+      "count": 67,
       "first": "2026-03-17T09:34:33.219849",
-      "last": "2026-03-24T19:47:08.746490"
+      "last": "2026-03-25T15:33:04.400364"
     },
     "interested_in_research": {
-      "count": 41,
+      "count": 42,
       "first": "2026-03-17T13:02:54.496831",
-      "last": "2026-03-24T19:47:08.746490"
+      "last": "2026-03-25T15:37:07.059928"
     },
     "interested_in_technical": {
       "count": 65,
@@ -784,138 +791,12 @@
     }
   },
   "_rc_calibration": {
-    "total_checks": 1150,
+    "total_checks": 1200,
     "trigger_counts": {},
-    "last_calibrated_at": "2026-03-25T10:22:27.153102"
+    "last_calibrated_at": "2026-03-25T15:32:05.688231"
   },
   "L8_context_behavior_notes": {
     "observations": [
-      {
-        "observed_at": "2026-03-24T16:30:00.280279",
-        "group_id": "unknown",
-        "formality_shift": 0.55,
-        "initiative_ratio": 0.7,
-        "topic": "tech",
-        "content_length": 1419,
-        "confidence": 0.3
-      },
-      {
-        "observed_at": "2026-03-24T16:42:39.560985",
-        "group_id": "unknown",
-        "formality_shift": 0.55,
-        "initiative_ratio": 0.7,
-        "topic": "tech",
-        "content_length": 1800,
-        "confidence": 0.3
-      },
-      {
-        "observed_at": "2026-03-24T16:50:02.194436",
-        "group_id": "unknown",
-        "formality_shift": 0.55,
-        "initiative_ratio": 0.7,
-        "topic": "tech",
-        "content_length": 1598,
-        "confidence": 0.3
-      },
-      {
-        "observed_at": "2026-03-24T17:07:36.505895",
-        "group_id": "unknown",
-        "formality_shift": 0.55,
-        "initiative_ratio": 0.7,
-        "topic": "tech",
-        "content_length": 1613,
-        "confidence": 0.3
-      },
-      {
-        "observed_at": "2026-03-24T17:09:34.706397",
-        "group_id": "unknown",
-        "formality_shift": 0.5,
-        "initiative_ratio": 0.7,
-        "topic": "business",
-        "content_length": 152,
-        "confidence": 0.3
-      },
-      {
-        "observed_at": "2026-03-24T17:23:36.458397",
-        "group_id": "unknown",
-        "formality_shift": 0.55,
-        "initiative_ratio": 0.85,
-        "topic": "tech",
-        "content_length": 1632,
-        "confidence": 0.3
-      },
-      {
-        "observed_at": "2026-03-24T17:30:25.381329",
-        "group_id": "unknown",
-        "formality_shift": 0.5,
-        "initiative_ratio": 0.7,
-        "topic": "business",
-        "content_length": 168,
-        "confidence": 0.3
-      },
-      {
-        "observed_at": "2026-03-24T18:49:58.753231",
-        "group_id": "unknown",
-        "formality_shift": 0.79,
-        "initiative_ratio": 0.7,
-        "topic": "tech",
-        "content_length": 1449,
-        "confidence": 0.3
-      },
-      {
-        "observed_at": "2026-03-24T19:02:31.926228",
-        "group_id": "unknown",
-        "formality_shift": 0.79,
-        "initiative_ratio": 0.7,
-        "topic": "tech",
-        "content_length": 1447,
-        "confidence": 0.3
-      },
-      {
-        "observed_at": "2026-03-24T19:09:25.108102",
-        "group_id": "unknown",
-        "formality_shift": 0.79,
-        "initiative_ratio": 0.7,
-        "topic": "tech",
-        "content_length": 1614,
-        "confidence": 0.3
-      },
-      {
-        "observed_at": "2026-03-24T19:15:37.628722",
-        "group_id": "unknown",
-        "formality_shift": 0.79,
-        "initiative_ratio": 0.7,
-        "topic": "tech",
-        "content_length": 1599,
-        "confidence": 0.3
-      },
-      {
-        "observed_at": "2026-03-24T19:25:48.040780",
-        "group_id": "unknown",
-        "formality_shift": 0.79,
-        "initiative_ratio": 0.7,
-        "topic": "tech",
-        "content_length": 1318,
-        "confidence": 0.3
-      },
-      {
-        "observed_at": "2026-03-24T19:26:49.401627",
-        "group_id": "unknown",
-        "formality_shift": 0.55,
-        "initiative_ratio": 0.7,
-        "topic": "tech",
-        "content_length": 212,
-        "confidence": 0.3
-      },
-      {
-        "observed_at": "2026-03-24T19:32:03.201631",
-        "group_id": "unknown",
-        "formality_shift": 0.55,
-        "initiative_ratio": 0.7,
-        "topic": "tech",
-        "content_length": 275,
-        "confidence": 0.3
-      },
       {
         "observed_at": "2026-03-24T19:35:01.024885",
         "group_id": "unknown",
@@ -1239,22 +1120,148 @@
         "topic": "general",
         "content_length": 286,
         "confidence": 0.3
+      },
+      {
+        "observed_at": "2026-03-25T15:52:10.077773",
+        "group_id": "unknown",
+        "formality_shift": 0.63,
+        "initiative_ratio": 0.7,
+        "topic": "tech",
+        "content_length": 1125,
+        "confidence": 0.3
+      },
+      {
+        "observed_at": "2026-03-25T16:56:05.736732",
+        "group_id": "unknown",
+        "formality_shift": 0.63,
+        "initiative_ratio": 0.7,
+        "topic": "tech",
+        "content_length": 1167,
+        "confidence": 0.3
+      },
+      {
+        "observed_at": "2026-03-25T16:57:52.255921",
+        "group_id": "unknown",
+        "formality_shift": 0.5,
+        "initiative_ratio": 0.7,
+        "topic": "general",
+        "content_length": 177,
+        "confidence": 0.3
+      },
+      {
+        "observed_at": "2026-03-25T17:00:19.524038",
+        "group_id": "unknown",
+        "formality_shift": 0.47,
+        "initiative_ratio": 0.7,
+        "topic": "tech",
+        "content_length": 295,
+        "confidence": 0.3
+      },
+      {
+        "observed_at": "2026-03-25T17:23:40.574940",
+        "group_id": "unknown",
+        "formality_shift": 0.47,
+        "initiative_ratio": 0.7,
+        "topic": "tech",
+        "content_length": 322,
+        "confidence": 0.3
+      },
+      {
+        "observed_at": "2026-03-25T17:25:14.437457",
+        "group_id": "unknown",
+        "formality_shift": 0.71,
+        "initiative_ratio": 0.7,
+        "topic": "tech",
+        "content_length": 1211,
+        "confidence": 0.3
+      },
+      {
+        "observed_at": "2026-03-25T17:30:44.372712",
+        "group_id": "unknown",
+        "formality_shift": 0.71,
+        "initiative_ratio": 0.7,
+        "topic": "tech",
+        "content_length": 1099,
+        "confidence": 0.3
+      },
+      {
+        "observed_at": "2026-03-25T17:38:48.125835",
+        "group_id": "unknown",
+        "formality_shift": 0.71,
+        "initiative_ratio": 0.7,
+        "topic": "tech",
+        "content_length": 719,
+        "confidence": 0.3
+      },
+      {
+        "observed_at": "2026-03-25T18:19:50.532951",
+        "group_id": "unknown",
+        "formality_shift": 0.71,
+        "initiative_ratio": 0.7,
+        "topic": "tech",
+        "content_length": 900,
+        "confidence": 0.3
+      },
+      {
+        "observed_at": "2026-03-25T18:30:02.175864",
+        "group_id": "unknown",
+        "formality_shift": 0.71,
+        "initiative_ratio": 0.7,
+        "topic": "tech",
+        "content_length": 846,
+        "confidence": 0.3
+      },
+      {
+        "observed_at": "2026-03-25T18:40:28.381624",
+        "group_id": "unknown",
+        "formality_shift": 0.71,
+        "initiative_ratio": 0.7,
+        "topic": "tech",
+        "content_length": 909,
+        "confidence": 0.3
+      },
+      {
+        "observed_at": "2026-03-25T18:44:28.538885",
+        "group_id": "unknown",
+        "formality_shift": 0.71,
+        "initiative_ratio": 0.7,
+        "topic": "tech",
+        "content_length": 919,
+        "confidence": 0.3
+      },
+      {
+        "observed_at": "2026-03-25T18:48:28.321793",
+        "group_id": "unknown",
+        "formality_shift": 0.71,
+        "initiative_ratio": 0.7,
+        "topic": "personal",
+        "content_length": 1123,
+        "confidence": 0.3
+      },
+      {
+        "observed_at": "2026-03-25T21:21:39.034868",
+        "group_id": "unknown",
+        "formality_shift": 0.55,
+        "initiative_ratio": 0.85,
+        "topic": "tech",
+        "content_length": 802,
+        "confidence": 0.3
       }
     ],
     "formality_baseline_dm": null,
     "group_stats": {
       "unknown": {
-        "interaction_count": 269,
-        "avg_formality": 0.527,
-        "avg_initiative": 0.704,
+        "interaction_count": 283,
+        "avg_formality": 0.624,
+        "avg_initiative": 0.719,
         "topic_distribution": {
-          "tech": 146,
+          "tech": 158,
           "creative": 24,
-          "general": 44,
-          "personal": 20,
+          "general": 45,
+          "personal": 21,
           "business": 35
         },
-        "last_interaction": "2026-03-25T13:35:57.948304"
+        "last_interaction": "2026-03-25T21:21:39.034868"
       }
     }
   }

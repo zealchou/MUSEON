@@ -1,0 +1,34 @@
+{
+  "finding_id": "QA-20260325-68ba58",
+  "timestamp": "2026-03-25T10:00:40.650038+00:00",
+  "probe_layer": "QA",
+  "severity": "HIGH",
+  "title": "[QA] LEAKAGE in e2e_crucible",
+  "source": "museqa",
+  "blast_origin": {
+    "file": "session:e2e_crucible",
+    "line": null,
+    "error_type": "LEAKAGE",
+    "traceback": ""
+  },
+  "blast_radius": [],
+  "context": {
+    "bot_reply_excerpt": "早安，Zeal。\n\n1. **戰略方向** — MUSEON 三年地圖有沒有需要調整的信號？（Feng 案例反饋、市場變化、團隊能量）\n\n**業務面**\n- 客戶跟進或提案準備\n- 群組訊息整理與回覆策略\n\n**工程面**\n- `.runtime/` 和 `src/` 有多個未提交變更（`brain.py`、`eval_engine.py`、`metacognition.py` 等），要不要整理一",
+    "matched_patterns": [
+      "\\b(MCP|plugin|Gateway|Brain|ResponseGuard|EventBus)\\b"
+    ]
+  },
+  "triage_done": null,
+  "known_fix": null,
+  "prescription": {
+    "diagnosis": "QA LEAKAGE: {\"bot_reply_excerpt\": \"早安，Zeal。\\n\\n1. **戰略方向** — MUSEON 三年地圖有沒有需要調整的信號？（Feng 案例反饋、市場變化、團隊能量）\\n\\n**業務面**\\n- 客戶跟進或提案準備\\n- 群組訊息整理與回覆策略\\n\\n**工程面**\\n- `.runtime/` 和 `src/` 有多個未提交變更（`brain.py`、`eval_engine.",
+    "root_cause": "",
+    "suggested_fix": "強化 CLAUDE.md Step 3.5 禁止清單",
+    "runbook_id": "",
+    "fix_complexity": "GREEN",
+    "pre_check": "",
+    "post_check": "",
+    "rollback": ""
+  },
+  "status": "needs_human"
+}

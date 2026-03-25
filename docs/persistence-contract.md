@@ -1,4 +1,4 @@
-# MUSEON Persistence Contract v1.34 — 水電圖
+# MUSEON Persistence Contract v1.35 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
@@ -23,7 +23,7 @@
 | 資料庫 | 路徑 | 負責模組 | 用途 | WAL |
 |--------|------|---------|------|-----|
 | **PulseDB** | `data/pulse/pulse.db` | `pulse/pulse_db.py` | 排程、探索、ANIMA、演化、承諾、後設認知、推送日誌(push_log) | Yes |
-| **GroupContextDB** | `data/_system/group_context.db`（v1.34 修正；另有 `_system/sessions/group_context.db` 副本待清理） | `governance/group_context.py` | 多租戶群組上下文 | Yes |
+| **GroupContextDB** | `data/_system/group_context.db`（v1.34 修正；另有 `_system/sessions/group_context.db` 副本待清理） | `governance/group_context.py` | 多租戶對話上下文（群組+DM+bot 回覆，v1.35 擴展） | Yes |
 | **WorkflowStateDB** | `data/_system/wee/workflow_state.db` | `evolution/wee_engine.py` | 工作流演化狀態 | Yes |
 | **CrystalDB** | `data/lattice/crystal.db` | `agent/crystal_store.py` | 知識晶體（crystals, links, cuid_counters 三表） | Yes |
 | **RegistryDB** | `data/registry/cli_user/registry.db`（v1.34 修正路徑層級） | `tools/tool_registry.py` | 使用者註冊、工具清單 | Yes |

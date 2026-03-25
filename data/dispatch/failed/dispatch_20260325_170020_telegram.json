@@ -1,0 +1,95 @@
+{
+  "plan_id": "dispatch_20260325_170020_telegram",
+  "user_request": "Luo 你好！我是 MUSEON，Zeal 的 AI 夥伴\n\n看到你的劇本問題了——《夏之饗宴：誰最厲害!》從 5 分鐘壓到 3 分半，AI 版雖然時間對了但像在看兩倍速。\n\n核心問題不是台詞太多，是「呼吸點」被砍掉了。觀眾需要笑點後的停頓、角色互動的留白，這些被壓縮掉就會覺得被趕著走。\n\n三個方向給你參考：\n\n1. 砍段落不砍節奏\n四個舞種介紹砍成三個（拿掉一個角色的獨秀），剩下的保持原本說話速度和停頓\n\n2. 舞蹈合併\n兩段舞（50秒+66秒）合成一段約 1分20秒，省下的 36 秒還給戲劇呼吸\n\n3. 混合策略\n台詞只砍 30%（保留所有笑點和反轉），舞蹈從 2 分鐘壓到 1 分半，中間過場用肢體動作代替台詞\n\n你可以把完整的原版劇本貼給我，我直接幫你改出一版「保留節奏感」的 3 分半版本",
+  "session_id": "telegram_6969045906",
+  "created_at": "2026-03-25T17:00:20.377140",
+  "status": "failed",
+  "execution_mode": "mixed",
+  "tasks": [
+    {
+      "task_id": "dispatch_20260325_170020_telegram_task_00",
+      "skill_name": "novel-craft",
+      "skill_focus": "小說工藝引擎——DNA27 核心的外掛模組，text-alchemy 生態系的文字工藝專家，c15 的深度技法庫。 融合 Hemingway 冰山理論、Raymond Carver 極簡主義、Chekhov 潛台詞與細節、 村上春樹氛圍營造、以及電影劇本視覺敘事技法，提供沉浸式文字創作的診斷、設計與教練服務。 專注於：省略的力量、感官引爆、節奏呼吸、留白藝術、人性顯微鏡。 支援三種模式：(1) 文",
+      "skill_depth": "standard",
+      "input_data": {
+        "user_request": "Luo 你好！我是 MUSEON，Zeal 的 AI 夥伴\n\n看到你的劇本問題了——《夏之饗宴：誰最厲害!》從 5 分鐘壓到 3 分半，AI 版雖然時間對了但像在看兩倍速。\n\n核心問題不是台詞太多，是「呼吸點」被砍掉了。觀眾需要笑點後的停頓、角色互動的留白，這些被壓縮掉就會覺得被趕著走。\n\n三個方向給你參考：\n\n1. 砍段落不砍節奏\n四個舞種介紹砍成三個（拿掉一個角色的獨秀），剩下的保持原本說話速度和停頓\n\n2. 舞蹈合併\n兩段舞（50秒+66秒）合成一段約 1分20秒，省下的 36 秒還給戲劇呼吸\n\n3. 混合策略\n台詞只砍 30%（保留所有笑點和反轉），舞蹈從 2 分鐘壓到 1 分半，中間過場用肢體動作代替台詞\n\n你可以把完整的原版劇本貼給我，我直接幫你改出一版「保留節奏感」的 3 分半版本"
+      },
+      "expected_output": "novel-craft 的分析結論",
+      "execution_order": 0,
+      "depends_on": [
+        "text-alchemy"
+      ],
+      "model_preference": "haiku",
+      "timeout_seconds": 300,
+      "meta": {}
+    },
+    {
+      "task_id": "dispatch_20260325_170020_telegram_task_01",
+      "skill_name": "storytelling-engine",
+      "skill_focus": "說故事引擎——DNA27 核心的外掛模組，text-alchemy 生態系的敘事結構專家。 融合 Simon Sinek 黃金圈、Nancy Duarte Sparkline、Joseph Campbell 英雄旅程、 Donald Miller StoryBrand、Pixar 22條規則、Kurt Vonnegut 六種弧線、 以及 Paul Zak 神經科學驗證，提供說故事診斷、結構設計、情",
+      "skill_depth": "standard",
+      "input_data": {
+        "user_request": "Luo 你好！我是 MUSEON，Zeal 的 AI 夥伴\n\n看到你的劇本問題了——《夏之饗宴：誰最厲害!》從 5 分鐘壓到 3 分半，AI 版雖然時間對了但像在看兩倍速。\n\n核心問題不是台詞太多，是「呼吸點」被砍掉了。觀眾需要笑點後的停頓、角色互動的留白，這些被壓縮掉就會覺得被趕著走。\n\n三個方向給你參考：\n\n1. 砍段落不砍節奏\n四個舞種介紹砍成三個（拿掉一個角色的獨秀），剩下的保持原本說話速度和停頓\n\n2. 舞蹈合併\n兩段舞（50秒+66秒）合成一段約 1分20秒，省下的 36 秒還給戲劇呼吸\n\n3. 混合策略\n台詞只砍 30%（保留所有笑點和反轉），舞蹈從 2 分鐘壓到 1 分半，中間過場用肢體動作代替台詞\n\n你可以把完整的原版劇本貼給我，我直接幫你改出一版「保留節奏感」的 3 分半版本"
+      },
+      "expected_output": "storytelling-engine 的分析結論",
+      "execution_order": 1,
+      "depends_on": [
+        "text-alchemy"
+      ],
+      "model_preference": "haiku",
+      "timeout_seconds": 300,
+      "meta": {}
+    },
+    {
+      "task_id": "dispatch_20260325_170020_telegram_task_02",
+      "skill_name": "aesthetic-sense",
+      "skill_focus": "美感引擎（Aesthetic Sense Engine）。DNA27 核心的外掛模組，為所有輸出注入美感審計與風格一致性。 融合賈伯斯減法哲學、Dieter Rams 十大原則、千利休侘寂美學、Housen 五階段審美發展理論， 提供減法審計、留白呼吸、風格一致性檢查、參考風格路由等美感治理能力。 觸發時機：(1) 使用者輸入 /aesthetic 或 /美感 指令強制啟動； (2) 自然語言偵測",
+      "skill_depth": "standard",
+      "input_data": {
+        "user_request": "Luo 你好！我是 MUSEON，Zeal 的 AI 夥伴\n\n看到你的劇本問題了——《夏之饗宴：誰最厲害!》從 5 分鐘壓到 3 分半，AI 版雖然時間對了但像在看兩倍速。\n\n核心問題不是台詞太多，是「呼吸點」被砍掉了。觀眾需要笑點後的停頓、角色互動的留白，這些被壓縮掉就會覺得被趕著走。\n\n三個方向給你參考：\n\n1. 砍段落不砍節奏\n四個舞種介紹砍成三個（拿掉一個角色的獨秀），剩下的保持原本說話速度和停頓\n\n2. 舞蹈合併\n兩段舞（50秒+66秒）合成一段約 1分20秒，省下的 36 秒還給戲劇呼吸\n\n3. 混合策略\n台詞只砍 30%（保留所有笑點和反轉），舞蹈從 2 分鐘壓到 1 分半，中間過場用肢體動作代替台詞\n\n你可以把完整的原版劇本貼給我，我直接幫你改出一版「保留節奏感」的 3 分半版本"
+      },
+      "expected_output": "aesthetic-sense 的分析結論",
+      "execution_order": 2,
+      "depends_on": [],
+      "model_preference": "haiku",
+      "timeout_seconds": 300,
+      "meta": {}
+    },
+    {
+      "task_id": "dispatch_20260325_170020_telegram_task_03",
+      "skill_name": "brand-identity",
+      "skill_focus": "MUSEON Brand Identity 品牌識別治理引擎。DNA27 核心的外掛模組， 為所有 MUSEON 對外輸出注入品牌一致性：定位宣言、視覺識別、語調光譜、訊息架構與品牌行為準則。 融合 April Dunford 定位五要素、品牌金字塔（五層）、色彩計劃、字型規劃、 品牌做與不做原則、訊息金字塔架構、品牌詞彙庫與競爭定位矩陣。 觸發時機：(1) 使用者輸入 /brand 或 /ide",
+      "skill_depth": "standard",
+      "input_data": {
+        "user_request": "Luo 你好！我是 MUSEON，Zeal 的 AI 夥伴\n\n看到你的劇本問題了——《夏之饗宴：誰最厲害!》從 5 分鐘壓到 3 分半，AI 版雖然時間對了但像在看兩倍速。\n\n核心問題不是台詞太多，是「呼吸點」被砍掉了。觀眾需要笑點後的停頓、角色互動的留白，這些被壓縮掉就會覺得被趕著走。\n\n三個方向給你參考：\n\n1. 砍段落不砍節奏\n四個舞種介紹砍成三個（拿掉一個角色的獨秀），剩下的保持原本說話速度和停頓\n\n2. 舞蹈合併\n兩段舞（50秒+66秒）合成一段約 1分20秒，省下的 36 秒還給戲劇呼吸\n\n3. 混合策略\n台詞只砍 30%（保留所有笑點和反轉），舞蹈從 2 分鐘壓到 1 分半，中間過場用肢體動作代替台詞\n\n你可以把完整的原版劇本貼給我，我直接幫你改出一版「保留節奏感」的 3 分半版本"
+      },
+      "expected_output": "brand-identity 的分析結論",
+      "execution_order": 3,
+      "depends_on": [],
+      "model_preference": "haiku",
+      "timeout_seconds": 300,
+      "meta": {}
+    },
+    {
+      "task_id": "dispatch_20260325_170020_telegram_task_04",
+      "skill_name": "text-alchemy",
+      "skill_focus": "Text Alchemy（文字煉金系統）— DNA27 核心的語言層路由模組。 專責處理「有明確產出」的文字任務，根據意圖、受眾、場景自動路由到適合的風格模組。 觸發時機：(1) 使用者輸入 /text 或 /alchemy 指令強制啟動； (2) 自然語言偵測——使用者描述需要撰寫、草擬、潤飾、修改文字內容時自動啟用。 涵蓋觸發詞：幫我寫、請撰寫、草擬、潤飾、修改文字、寫一封、寫一篇、 emai",
+      "skill_depth": "standard",
+      "input_data": {
+        "user_request": "Luo 你好！我是 MUSEON，Zeal 的 AI 夥伴\n\n看到你的劇本問題了——《夏之饗宴：誰最厲害!》從 5 分鐘壓到 3 分半，AI 版雖然時間對了但像在看兩倍速。\n\n核心問題不是台詞太多，是「呼吸點」被砍掉了。觀眾需要笑點後的停頓、角色互動的留白，這些被壓縮掉就會覺得被趕著走。\n\n三個方向給你參考：\n\n1. 砍段落不砍節奏\n四個舞種介紹砍成三個（拿掉一個角色的獨秀），剩下的保持原本說話速度和停頓\n\n2. 舞蹈合併\n兩段舞（50秒+66秒）合成一段約 1分20秒，省下的 36 秒還給戲劇呼吸\n\n3. 混合策略\n台詞只砍 30%（保留所有笑點和反轉），舞蹈從 2 分鐘壓到 1 分半，中間過場用肢體動作代替台詞\n\n你可以把完整的原版劇本貼給我，我直接幫你改出一版「保留節奏感」的 3 分半版本"
+      },
+      "expected_output": "text-alchemy 的分析結論",
+      "execution_order": 4,
+      "depends_on": [],
+      "model_preference": "haiku",
+      "timeout_seconds": 300,
+      "meta": {}
+    }
+  ],
+  "results": [],
+  "synthesis_result": null,
+  "total_token_usage": {},
+  "completed_at": null,
+  "error_message": "BrainDispatchMixin._get_handoff_from_deps() missing 1 required positional argument: 'result_map'",
+  "meta": {}
+}

@@ -1,0 +1,24 @@
+{
+  "id": "874a2a93-6257-4132-abd4-d380815bfaa8",
+  "content": "[失敗經驗] 任務：\\n\\t\\r\\0 轉義字元\n失敗類型：general_failure\n回應片段：這個訊息已經回應過 4 輪了。\n\n兩個可能性：\n\n1. **Telegram 重複發送** — 訊息卡在隊列裡重傳\n2. **有具體問題但沒說出來** — 比如「代碼裡要怎麼用」、「檔案解析失敗」、「格式轉換出錯」\n\n哪一個？直說，我立刻幫你。",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:46.547207+08:00",
+  "updated_at": "2026-03-25T21:26:46.547207+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "",
+  "user_id": "boss",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

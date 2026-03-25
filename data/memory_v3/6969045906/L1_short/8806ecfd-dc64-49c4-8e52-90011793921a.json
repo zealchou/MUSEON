@@ -1,0 +1,20 @@
+{
+  "id": "8806ecfd-dc64-49c4-8e52-90011793921a",
+  "content": "[失敗經驗] 任務：可以回覆群組裡面的 Feng\n失敗類型：general_failure\n回應片段：📡 **收到！等著你的訊息。**\n\n我已經準備好：\n- ✅ 訪談文案包（信任度 + 產品形式 A/B/C）\n- ✅ 數據紀錄模板\n- ✅ 後續分析框架\n\n1. **Feng 說了什麼？**\n2. **在哪個群組？**（Telegram、Slack 還是其他？）\n3. **你希望我用什麼語氣或內容回應？**\n\n提供這些資訊後，我可以代表澤部回覆他。\n\n這一週內就能有驗證結果，決定是否該改產品形式、要",
+  "layer": "L1_short",
+  "tags": [],
+  "quality_tier": "gold",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:49.222688+08:00",
+  "updated_at": "2026-03-25T21:26:49.222688+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "backfill",
+  "outcome": "",
+  "user_id": "6969045906",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

@@ -1,0 +1,34 @@
+{
+  "finding_id": "QA-20260325-118f79",
+  "timestamp": "2026-03-25T10:00:40.672887+00:00",
+  "probe_layer": "QA",
+  "severity": "HIGH",
+  "title": "[QA] LEAKAGE in chaos_special_4",
+  "source": "museqa",
+  "blast_origin": {
+    "file": "session:chaos_special_4",
+    "line": null,
+    "error_type": "LEAKAGE",
+    "traceback": ""
+  },
+  "blast_radius": [],
+  "context": {
+    "bot_reply_excerpt": "暫停。\n\n這個訊息重複 7 輪了。我停止重複回答，改變策略。\n\n---\n\n## 現在最重要的事是什麼？\n\n看著 git status，我看到你最近在做大規模系統重構：\n- 刪除了許多模組檔案（anima_exporter.py、loop.py、subagent.py 等）\n- 修改了大量源碼和資料檔案\n- 新增了新的目錄結構（_system/ 下的多個資料夾）\n\n這不是「轉義字元」的問題。**我猜",
+    "matched_patterns": [
+      "\\b(調度員|思考者|subagent|spawn|dispatcher)\\b"
+    ]
+  },
+  "triage_done": null,
+  "known_fix": null,
+  "prescription": {
+    "diagnosis": "QA LEAKAGE: {\"bot_reply_excerpt\": \"暫停。\\n\\n這個訊息重複 7 輪了。我停止重複回答，改變策略。\\n\\n---\\n\\n## 現在最重要的事是什麼？\\n\\n看著 git status，我看到你最近在做大規模系統重構：\\n- 刪除了許多模組檔案（anima_exporter.py、loop.py、subagent.py 等）\\n- 修改了大量源碼和資料檔案\\n- 新增了新的目錄結構（_s",
+    "root_cause": "",
+    "suggested_fix": "強化 CLAUDE.md Step 3.5 禁止清單",
+    "runbook_id": "",
+    "fix_complexity": "GREEN",
+    "pre_check": "",
+    "post_check": "",
+    "rollback": ""
+  },
+  "status": "needs_human"
+}

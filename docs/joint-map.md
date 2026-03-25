@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.42
+# Joint Map — 共享可變狀態接頭圖 v1.43
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -992,20 +992,21 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 ### 40. group_context.db
 
 **路徑**：`data/_system/group_context/group_context.db`
-**用途**：群組對話結構化記錄——Telegram 群組的訊息、成員、群組資訊（SQLite）
+**用途**：對話結構化記錄——Telegram 群組訊息 + DM 私訊 + Bot 回覆、成員、群組資訊（SQLite）
 
 #### 讀寫表
 
 | 模組 | 操作 | 函數 | 說明 | 鎖 |
 |------|------|------|------|-----|
-| `governance/group_context.py` | **RW** | `record_message()` / `upsert_group()` | channels/telegram.py 收到群組訊息時經由此模組寫入（v1.65 修正：實際觸發者為 channels/telegram.py） | SQLite WAL |
+| `governance/group_context.py` | **RW** | `record_message()` / `upsert_group()` | channels/telegram.py 收到訊息時經由此模組寫入（群組+DM+bot 回覆） | SQLite WAL |
 | `mcp_server.py` | **R** | `museon_group_context()` | L2 思考者取得群組對話脈絡（三層架構 MCP） | — |
-| `channels/telegram.py` | **W** | lazy import group_context | 群組訊息接收時呼叫 upsert_group / record_message | — |
+| `channels/telegram.py` | **W** | lazy import group_context | 群組訊息、DM 私訊、Bot 回覆三路寫入（v1.66 新增 DM+bot_reply） | — |
 | `gateway/telegram_pump.py` | **R** | lazy import group_context | 群組回覆時讀取 format_context_for_prompt 注入上下文 | — |
 
 > **鎖**：SQLite WAL（GroupContextStore 自帶）
 > **TTL**：永久
 > **危險度**：🟡 黃（SQLite WAL 支援並發讀寫，安全）
+> **v1.66 變更**：messages 表新增 DM（msg_type='dm'）和 bot 回覆（msg_type='bot_reply'）；group_id 正數=DM chat_id、負數=群組；text 截斷從 2000→8000 字元；clients 表新增 personality_notes/communication_style 欄位
 
 ---
 
@@ -1082,6 +1083,7 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-25 | v1.43 | 對話持久化+教訓蒸餾+7 條斷裂管線修復——#40 group_context.db 擴展（DM+bot_reply+8000 截斷+personality_notes/communication_style）；MemoryManager user_id cli_user→boss；Nightly Step 5.6.5 教訓蒸餾+Step 18.5 客戶互動萃取加入 _FULL_STEPS；Crystal Actuator ELIGIBLE_CRYSTAL_TYPES 過濾+PROTECTED_RULE_ORIGINS 保護；Guardian mothership_queue→Gateway 消費；ExternalAnima search dict topics 修復；Intuition heuristics→prompt 注入；Procedure 升級門檻 0+limit 20；Morphenix validator str→dict 防禦；MuseDoc Fix-Verify 整合 |
 | 2026-03-23 | v1.40 | Project Epigenesis 接線——EpigeneticRouter / MemoryReflector / AdaptiveDecay 接入 brain.py。無新增共享狀態（四個模組皆為純 RO 消費者——讀取 Qdrant memories/soul_rings/crystals + changelog，不寫入任何共享檔案）。G9 記憶反思組（epigenetic_router + memory_reflector + adaptive_decay + brain_prompt_builder）與 G3 記憶組交叉——反思層讀取 G3 相同的 Qdrant collections。共享狀態維持 41 個（不變）；同步 blast-radius v1.55、memory-router v1.6、persistence-contract v1.32 |
 | 2026-03-23 | v1.39 | 探索去重防禦機制：新增 #41 `exploration_log.md`（🟢 危險度，Explorer 單一寫入者，去重檢查 + 深度遞進邏輯）；Explorer 新增 `_check_duplicate()` / `_normalize_topic()` / `_load_exploration_log()` / `_log_exploration()` 四個方法（防止同一主題短期內重複探索無深度——解決 2026-03-23 一天 12 次探索雷同的盲點）；共享狀態 40→41 個 |
 | 2026-03-23 | v1.38 | 三層架構 MCP 橋接：新增 #39 `_system/sessions/{id}.json`（🟡 危險度，Brain 寫入+MCP server 只讀，L2 思考者取得對話上下文）；新增 #40 `group_context.db`（🟡 危險度，GroupContextStore 寫入+MCP server 只讀，L2 取得群組脈絡，SQLite WAL 保護）；mcp_server.py 新增 3 工具（museon_session_history/museon_group_context/museon_persona）；共享狀態 38→40 個 |

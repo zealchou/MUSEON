@@ -1,0 +1,20 @@
+{
+  "id": "b751139a-ca12-43a5-90d5-075943d18349",
+  "content": "[失敗經驗] 任務：你剛才前面問我的欸\n我只是回答你 \n我怎麼知道\n失敗類型：general_failure\n回應片段：確認了，實際沒有 L3 提案在隊列，全是 L2 且 count 都是 0。是我查找時判斷錯誤。\n\n不用管了。你現在需要我做什麼？",
+  "layer": "L1_short",
+  "tags": [],
+  "quality_tier": "gold",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:48.070922+08:00",
+  "updated_at": "2026-03-25T21:26:48.070922+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "backfill",
+  "outcome": "",
+  "user_id": "6969045906",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

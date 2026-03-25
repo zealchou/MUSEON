@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260325_173848_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n這段回覆與群組脈絡完全不符。Luo 是單純確認 Bot 在線（沒提劇本），Zeal 指示「查有沒未處理的問題」。該回覆應：確認在線 → 檢查歷史（無明確問題） → 邀請 Luo/Zeal 指示具體需求。劇本內容看起來被 copy-paste 錯了。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-25T17:38:48.347434+08:00",
+  "priority": "medium"
+}

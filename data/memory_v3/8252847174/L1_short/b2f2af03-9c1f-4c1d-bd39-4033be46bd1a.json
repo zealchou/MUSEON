@@ -1,0 +1,20 @@
+{
+  "id": "b2f2af03-9c1f-4c1d-bd39-4033be46bd1a",
+  "content": "[失敗經驗] 任務：[群組近期對話紀錄]\n  04:19 Feng: Zeal 20分種ok嘛？\n  05:02 Feng: @MuseonClaw_bot 先問你c方案需要給你什麼？資料或東西\n  08:31 Feng\n失敗類型：general_failure\n回應片段：Feng，在的。回你兩個問題：\n\n### 1. 20 台設備 × 3 萬 = 60 萬，企業負擔得起嗎？\n\n**不需要 20 台實體設備。**\n\n| 方案 | 每座位成本 | 20 座位總成本 |\n|------|-----------|--------------|\n| 實體 Mac Mini | ~3 萬/台 | 60 萬 ❌ 太貴 |\n| 雲端 VPS（Docker） | ~300-500/",
+  "layer": "L1_short",
+  "tags": [],
+  "quality_tier": "gold",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:47.093944+08:00",
+  "updated_at": "2026-03-25T21:26:47.093944+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "backfill",
+  "outcome": "",
+  "user_id": "8252847174",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

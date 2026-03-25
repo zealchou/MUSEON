@@ -1,0 +1,20 @@
+{
+  "id": "6a038bed-8537-4187-a1a9-99f57819961b",
+  "content": "[失敗經驗] 任務：每日企業個案晨報\n你現在撰寫的結構是怎麼設計的？條列式讓我知道\n失敗類型：general_failure\n回應片段：目前每日企業個案晨報的結構如下：\n\n---\n\n## 現有架構（`business_case.py`）\n\n### 流程鏈\n\n```\n09:05 觸發\n  ↓\nStep 1: SearXNG 搜尋（4 組中英文關鍵字 × 成功/失敗各一組）\n  ↓\nStep 2: Haiku 摘要提煉（把搜尋結果濃縮成 500 字個案素材）\n  ↓\nStep 3: Sonnet 撰寫完整 HTML（HBR 風格）\n ",
+  "layer": "L1_short",
+  "tags": [],
+  "quality_tier": "gold",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:47.905688+08:00",
+  "updated_at": "2026-03-25T21:26:47.905688+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "backfill",
+  "outcome": "",
+  "user_id": "6969045906",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

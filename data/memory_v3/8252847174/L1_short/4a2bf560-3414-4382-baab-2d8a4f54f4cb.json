@@ -1,0 +1,20 @@
+{
+  "id": "4a2bf560-3414-4382-baab-2d8a4f54f4cb",
+  "content": "[失敗經驗] 任務：[群組近期對話紀錄]\n  28:26 你的資源跟手腳（老闆）: 正在 debug 中\n  04:01 Feng: 目前訂閱制剩下測試和金流的部份\n  04:46 Feng: 第二階段快要好了，\n等等來\n失敗類型：general_failure\n回應片段：Feng，Onboarding 文件也看完了。跟 Integration Guide 對得上，沒有矛盾。\n\n兩份文件我都消化完了，重點整理：\n\n| 項目 | 值 |\n|------|------|\n| API 前綴 | `/api/v1/` |\n| 配對端點 | `POST /api/v1/devices/agent/pair` |\n| 登入端點 | `POST /api/v1/auth/logi",
+  "layer": "L1_short",
+  "tags": [],
+  "quality_tier": "gold",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:47.167947+08:00",
+  "updated_at": "2026-03-25T21:26:47.167947+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "backfill",
+  "outcome": "",
+  "user_id": "8252847174",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

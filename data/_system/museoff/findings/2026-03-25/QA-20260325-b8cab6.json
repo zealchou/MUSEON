@@ -1,0 +1,34 @@
+{
+  "finding_id": "QA-20260325-b8cab6",
+  "timestamp": "2026-03-25T13:22:21.105435+00:00",
+  "probe_layer": "QA",
+  "severity": "HIGH",
+  "title": "[QA] LEAKAGE in telegram_group_5107045509",
+  "source": "museqa",
+  "blast_origin": {
+    "file": "session:telegram_group_5107045509",
+    "line": null,
+    "error_type": "LEAKAGE",
+    "traceback": ""
+  },
+  "blast_radius": [],
+  "context": {
+    "bot_reply_excerpt": "Feng，DEV_SEQUENCE.md 收到了，另外兩份（TODO.md、SYSTEM_SCOPE.md）系統沒收到。不過光這份就夠翻了——**這是最重要的那份。**\n\n---\n\n**Zeal，白話版在這：**\n\n## MUC（麵客邦）開發進度總覽\n\n### 一句話：MVP 做完了，正在往「完整商業產品」推進。\n\n---\n\n### 目前成績：86 個功能項目，67 個已完成（78%）\n\n| 區塊",
+    "matched_patterns": [
+      "\\b(debug|區塊|跑通|斷線|重啟|PID)\\b"
+    ]
+  },
+  "triage_done": null,
+  "known_fix": null,
+  "prescription": {
+    "diagnosis": "QA LEAKAGE: {\"bot_reply_excerpt\": \"Feng，DEV_SEQUENCE.md 收到了，另外兩份（TODO.md、SYSTEM_SCOPE.md）系統沒收到。不過光這份就夠翻了——**這是最重要的那份。**\\n\\n---\\n\\n**Zeal，白話版在這：**\\n\\n## MUC（麵客邦）開發進度總覽\\n\\n### 一句話：MVP 做完了，正在往「完整商業產品」推進。\\n\\n---\\n\\n#",
+    "root_cause": "",
+    "suggested_fix": "強化 CLAUDE.md Step 3.5 禁止清單",
+    "runbook_id": "",
+    "fix_complexity": "GREEN",
+    "pre_check": "",
+    "post_check": "",
+    "rollback": ""
+  },
+  "status": "open"
+}

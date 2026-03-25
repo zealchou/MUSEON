@@ -1,0 +1,22 @@
+{
+  "session_id": "system_notification",
+  "nodes": {
+    "topic_turn_0": {
+      "node_id": "topic_turn_0",
+      "node_type": "topic",
+      "label": "turn_0",
+      "properties": {
+        "content_length": 213,
+        "detected_at": "2026-03-25T15:46:20.037573"
+      },
+      "created_at": "2026-03-25T15:46:20.037613",
+      "updated_at": "2026-03-25T15:46:20.037615"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 1,
+    "last_content_length": 213
+  },
+  "last_updated": "2026-03-25T15:46:20.037573"
+}

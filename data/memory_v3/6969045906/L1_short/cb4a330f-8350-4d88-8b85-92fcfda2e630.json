@@ -1,0 +1,20 @@
+{
+  "id": "cb4a330f-8350-4d88-8b85-92fcfda2e630",
+  "content": "[失敗經驗] 任務：試跑一次這個工作流，讓我看一下有沒有符合我的預期。\n\n這次主題由我指定：探討台灣因應國際及國內經濟、勞基法的不健全，而導致的個人工作者、一人公司越來越盛行，請員工上班不如找一人公司簽約 B2B 合作\n失敗類型：general_failure\n回應片段：完成。試跑報告已生成。\n\n**文件位置：**\n```\n/Users/ZEALCHOU/MUSEON/data/workspace/morning_case_2026-03-19_solo-worker-boom.html\n```\n\n**檢驗清單：**\n\n| 項 | 符合度 |\n|----|--------|\n| **design_spec 合規** | ✅ Ember 主色、Cormorant G",
+  "layer": "L1_short",
+  "tags": [],
+  "quality_tier": "gold",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:48.042956+08:00",
+  "updated_at": "2026-03-25T21:26:48.042956+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "backfill",
+  "outcome": "",
+  "user_id": "6969045906",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

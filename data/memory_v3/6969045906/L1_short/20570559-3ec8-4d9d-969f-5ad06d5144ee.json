@@ -1,0 +1,20 @@
+{
+  "id": "20570559-3ec8-4d9d-969f-5ad06d5144ee",
+  "content": "[失敗經驗] 任務：最近上傳了很多我的作品上去給你，你現在對我的認識是什麼呢？說一下吧，講詳細一點\n失敗類型：general_failure\n回應片段：目前無法連線到 AI 服務。你的訊息已記錄。\n等連線恢復後我會重新處理。\n\n收到的訊息：「最近上傳了很多我的作品上去給你，你現在對我的認識是什麼呢？說一下吧，講詳細一點」",
+  "layer": "L1_short",
+  "tags": [],
+  "quality_tier": "gold",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:48.766199+08:00",
+  "updated_at": "2026-03-25T21:26:48.766199+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "backfill",
+  "outcome": "",
+  "user_id": "6969045906",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

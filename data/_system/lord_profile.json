@@ -6,25 +6,25 @@
       "level": "expert",
       "confidence": 0.92,
       "classification": "strength",
-      "evidence_count": 250
+      "evidence_count": 253
     },
     "consultant_sales": {
       "level": "expert",
       "confidence": 0.88,
       "classification": "strength",
-      "evidence_count": 123
+      "evidence_count": 124
     },
     "brand_design": {
       "level": "intermediate",
       "confidence": 0.72,
-      "classification": "unknown",
-      "evidence_count": 71
+      "classification": "strength",
+      "evidence_count": 72
     },
     "ai_architecture": {
-      "level": "intermediate",
+      "level": "advanced",
       "confidence": 0.78,
-      "classification": "unknown",
-      "evidence_count": 96
+      "classification": "strength",
+      "evidence_count": 102
     },
     "programming": {
       "level": "beginner",
@@ -36,7 +36,12 @@
       "level": "developing",
       "confidence": 0.6,
       "classification": "weakness",
-      "evidence_count": 114
+      "evidence_count": 120
+    },
+    "creative_performance": {
+      "classification": "unknown",
+      "level": "beginner",
+      "observations": 0
     }
   },
   "domain_keywords": {
@@ -46,11 +51,26 @@
       "市場",
       "定位",
       "獲利",
+      "營收",
+      "投資",
       "競爭",
       "商模",
-      "佈局",
-      "利基",
-      "護城河"
+      "客群",
+      "毛利",
+      "現金流",
+      "護城河",
+      "成長",
+      "規模",
+      "KPI",
+      "ROI",
+      "經營",
+      "創業",
+      "合作",
+      "價值",
+      "機會",
+      "報告",
+      "分析",
+      "診斷"
     ],
     "consultant_sales": [
       "銷售",
@@ -58,10 +78,24 @@
       "成交",
       "提案",
       "顧問",
+      "訪談",
+      "痛點",
+      "需求",
+      "價格",
+      "報價",
+      "合約",
+      "服務",
+      "諮詢",
+      "推薦",
+      "口碑",
+      "轉介",
+      "簽約",
+      "收費",
+      "方案",
       "說服",
-      "異議",
-      "轉換",
-      "簽約"
+      "信任",
+      "關係",
+      "經銷"
     ],
     "brand_design": [
       "品牌",
@@ -69,9 +103,22 @@
       "視覺",
       "美感",
       "識別",
+      "風格",
+      "Logo",
       "色彩",
       "排版",
-      "Logo"
+      "質感",
+      "呈現",
+      "調性",
+      "簡報",
+      "文案",
+      "行銷",
+      "社群",
+      "IG",
+      "LINE",
+      "內容",
+      "故事",
+      "影片"
     ],
     "ai_architecture": [
       "AI",
@@ -79,9 +126,28 @@
       "架構",
       "系統",
       "引擎",
-      "Agent",
+      "MUSEON",
       "Skill",
-      "pipeline"
+      "Nightly",
+      "Gateway",
+      "Brain",
+      "記憶",
+      "向量",
+      "Qdrant",
+      "結晶",
+      "迭代",
+      "自動化",
+      "Agent",
+      "機器人",
+      "Bot",
+      "Claude",
+      "霓裳",
+      "LLM",
+      "prompt",
+      "管線",
+      "pipeline",
+      "部署",
+      "五虎將"
     ],
     "programming": [
       "程式",
@@ -89,9 +155,21 @@
       "code",
       "函數",
       "bug",
-      "API",
+      "測試",
       "debug",
-      "deploy",
+      "修復",
+      "git",
+      "commit",
+      "部署",
+      "API",
+      "資料庫",
+      "SQL",
+      "JSON",
+      "錯誤",
+      "error",
+      "日誌",
+      "log",
+      "腳本",
       "script"
     ],
     "emotional_regulation": [
@@ -100,15 +178,46 @@
       "焦慮",
       "關係",
       "衝突",
-      "煩",
       "累",
-      "崩潰"
+      "煩",
+      "迷茫",
+      "壓力",
+      "擔心",
+      "害怕",
+      "開心",
+      "感動",
+      "感恩",
+      "困擾",
+      "猶豫",
+      "糾結",
+      "心情",
+      "能量",
+      "休息",
+      "平衡"
+    ],
+    "creative_performance": [
+      "劇本",
+      "表演",
+      "戲劇",
+      "舞蹈",
+      "音樂",
+      "創作",
+      "排練",
+      "演出",
+      "橋段",
+      "角色",
+      "導演",
+      "舞台",
+      "改編",
+      "縮減",
+      "時間",
+      "節目"
     ]
   },
   "advise_cooldown": {
     "last_advise_ts": "2026-03-20T21:03:22.520578",
     "cooldown_minutes": 30,
-    "session_advise_count": 3,
+    "session_advise_count": 0,
     "max_per_session": 3
   }
 }

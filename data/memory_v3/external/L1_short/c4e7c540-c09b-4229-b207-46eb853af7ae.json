@@ -1,0 +1,20 @@
+{
+  "id": "c4e7c540-c09b-4229-b207-46eb853af7ae",
+  "content": "[失敗經驗] 任務：@MuseonClaw_bot \n帳號：joes@ysi-ai.com\n密碼：a123456789a\n\n兩個檔案和帳號你收一下\n\n然後\n\n「確保邊界沒缺洞」+ 「SDK 整合驗收」。\n要現在把這 4 \n失敗類型：general_failure\n回應片段：Feng，狀況清楚了。現在需要 Zeal **電腦端後台操作一件事**。\n\n## 現況速戰\n\n| 狀態 | 說明 |\n|------|------|\n| ✅ SDK 檔案 | `muc_agent.py` 收到 |\n| ✅ 依賴 | `httpx` + `cryptography` ready |\n| ✅ 測試帳號 | `joes@ysi-ai.com / a123456789a` 可用 |\n| ",
+  "layer": "L1_short",
+  "tags": [],
+  "quality_tier": "gold",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:47.769612+08:00",
+  "updated_at": "2026-03-25T21:26:47.769612+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "backfill",
+  "outcome": "",
+  "user_id": "external",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

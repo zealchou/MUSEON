@@ -1,0 +1,20 @@
+{
+  "id": "f162f824-ba97-412b-b397-c631f45cafc5",
+  "content": "[失敗經驗] 任務：[群組近期對話紀錄]\n  19:27 Feng: @MuseonClaw_bot 你算是母體，我想說，要不要給你帳密和你可操作這個網站的方式，讓你去管理，你覺得呢？\n  35:18 Feng: [檔案\n失敗類型：general_failure\n回應片段：Feng，好的，我查完了。直接說現況：\n\n---\n\n### 子體連線系統現況\n\n| 層級 | 狀態 | 說明 |\n|------|------|------|\n| 規格文件 | ✅ 完成 | `muc_mvp_coding_spec.md` 裡的配對 API 設計齊全 |\n| Gateway 端點 | ❌ 尚未實作 | `server.py` 裡還沒有 `/api/device/pair` 等配對",
+  "layer": "L1_short",
+  "tags": [],
+  "quality_tier": "gold",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:47.243086+08:00",
+  "updated_at": "2026-03-25T21:26:47.243086+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "backfill",
+  "outcome": "",
+  "user_id": "8252847174",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

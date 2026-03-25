@@ -1,0 +1,20 @@
+{
+  "id": "a507ea62-25b5-452a-9db4-4cea6e9846db",
+  "content": "[失敗經驗] 任務：[📎 檔案上傳: 業務合作合約書3.0.pdf]\n檔案已儲存至: /Users/ZEALCHOU/MUSEON/data/uploads/telegram/20260324_143305_業務合作合約\n失敗類型：general_failure\n回應片段：合約讀完了。幾個重點直接說。\n\n---\n\n**這份合約的甲方是「玥瓏云智囊有限公司」——是 Feng 的公司，不是 MUSEON。**\n\n---\n\n## 合約結構白話版\n\n| 條款 | 內容 | 注意點 |\n|------|------|--------|\n| **第五條**（軟體/SaaS） | 月累積 0-30萬@30%、30-80萬@35%、80萬+@40% | 是月累積，重新算 |\n| *",
+  "layer": "L1_short",
+  "tags": [],
+  "quality_tier": "gold",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:47.733862+08:00",
+  "updated_at": "2026-03-25T21:26:47.733862+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "backfill",
+  "outcome": "",
+  "user_id": "external",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

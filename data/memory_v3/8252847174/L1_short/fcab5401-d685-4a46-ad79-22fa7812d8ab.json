@@ -1,0 +1,20 @@
+{
+  "id": "fcab5401-d685-4a46-ad79-22fa7812d8ab",
+  "content": "[失敗經驗] 任務：[群組近期對話紀錄]\n  58:08 Feng: https://www.yungshingfurniture.com.tw/zh-tw\n\nZeal 這是下週或下下周要取談的公司，你了解一下\n他們目前\n失敗類型：general_failure\n回應片段：目前無法連線到 AI 服務。你的訊息已記錄。\n等連線恢復後我會重新處理。\n\n收到的訊息：「[群組近期對話紀錄]\n  58:08 Feng: https://www.yungshingfurniture.com.tw/zh-tw\n\nZeal 這是下週或下下周要取談的公司，你了解一下\n他們目前」",
+  "layer": "L1_short",
+  "tags": [],
+  "quality_tier": "gold",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:47.420220+08:00",
+  "updated_at": "2026-03-25T21:26:47.420220+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "backfill",
+  "outcome": "",
+  "user_id": "8252847174",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

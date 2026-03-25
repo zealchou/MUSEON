@@ -1,0 +1,20 @@
+{
+  "id": "edf727ab-27be-4c2d-923b-6dabd8abcb5b",
+  "content": "[失敗經驗] 任務：現在重新跑一次探索 然後產出 外部鏈接給我\n失敗類型：general_failure\n回應片段：目前無法連線到 AI 服務。你的訊息已記錄。\n等連線恢復後我會重新處理。\n\n收到的訊息：「現在重新跑一次探索 然後產出 外部鏈接給我」",
+  "layer": "L1_short",
+  "tags": [],
+  "quality_tier": "gold",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:48.711715+08:00",
+  "updated_at": "2026-03-25T21:26:48.711715+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "backfill",
+  "outcome": "",
+  "user_id": "6969045906",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

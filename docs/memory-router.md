@@ -1,10 +1,11 @@
-# Memory Router — 記憶路由表 v1.7
+# Memory Router — 記憶路由表 v1.9
 
 > **用途**：定義「什麼類型的洞見存到哪個記憶系統、什麼時候取出」。第五張工程藍圖。
 > **比喻**：郵局分揀表——每封信根據地址分到對應的信箱，不會寄丟也不會重複投遞。
 > **更新時機**：新增 Skill 或記憶系統時，必須在同一個 commit 中新增對應的路由規則。
 > **建立日期**：2026-03-21
 > **搭配**：`docs/skill-manifest-spec.md`（Skill I/O 合約）、各 Skill 的 `memory.writes` 欄位、`docs/operational-contract.md`（操作契約表）
+> **v1.9 (2026-03-25)**：七條斷裂管線修復——dispatch/completed → Nightly Step 18.5 客戶互動萃取 → external_users + clients personality_notes；ExternalAnima search_by_keyword dict topics 修復；Intuition heuristics → prompt 注入；Guardian mothership_queue → Gateway 啟動消費；Procedure 升級門檻 3→1
 > **v1.7 (2026-03-24)**：新增操作記憶路由規則 7——外部操作的成功/失敗經驗存入 knowledge-lattice 的 PROCEDURE 結晶；搭配第六張藍圖 `operational-contract.md`
 
 ---
@@ -81,6 +82,18 @@
 | env-radar | 外部訊號 + 演化壓力 | 環境掃描發現重要變化時 |
 | sandbox-lab | 實驗結果 | 實驗完成且有結論時 |
 | qa-auditor | 審計報告 + 回歸問題 | 審計完成時 |
+
+### 🔵 教訓蒸餾 → crystal_rules.json（v1.8 新增）
+
+| 來源 | 洞見類型 | 寫入條件 | 規則類型 |
+|------|---------|---------|---------|
+| metacognition PostCognition | REVISE 標記的修改建議 | Nightly Step 5.6.5 掃描最近 7 天 | guard（方法論） |
+| memory_v3 failure_distill | 失敗經驗教訓 | Nightly Step 5.6.5 掃描最近 7 天 | guard（反模式） |
+| boss_directive | 老闆直接下達的操作紀律 | 手動寫入 | guard（永久） |
+
+> **消費者**：Crystal Actuator → `brain_prompt_builder.py` Stage 5 `format_rules_for_prompt()` → 注入每次對話 prompt
+> **TTL**：metacog/failure 規則 14-30 天；boss_directive 規則 1 年
+> **設計理念**：「知道」→「智慧」的橋樑。教訓不靠語義搜索碰運氣，而是主動推送到每次對話的 prompt。
 
 ### ⚪ 跨 Session 持久 → auto-memory / session-log
 

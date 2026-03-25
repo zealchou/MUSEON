@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.50
+# MUSEON 系統拓撲圖 v1.51
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.51 (2026-03-25)**：教訓蒸餾+斷裂管線修復+Fix-Verify Workflow——nightly 群組新增 2 個步驟節點（`lesson-distill` Step 5.6.5 教訓蒸餾、`client-profile-update` Step 18.5 客戶互動萃取）；agent 群組 `brain-prompt-builder` 新增 3 條 cross 連線（→intuition-heuristics 注入、→knowledge-lattice record_success、→external-anima search）；gateway 群組 `server` 新增 1 條 cross 連線（→guardian mothership_queue 消費）；doctor 群組 `musedoc` 新增 `_fix_verify` 三維驗證方法；新增 `fix-verify` Workflow Skill（Evolution Hub）；`brain.py` MemoryManager user_id cli_user→boss。同步 blast-radius v1.65、joint-map v1.43、memory-router v1.9。
 > **v1.50 (2026-03-25)**：server.py 拆分藍圖補齊 + 三層洩漏預防——channel 群組新增 3 個節點（`telegram-pump` 訊息泵、`routes-api` API 端點註冊、`cron-registry` cron 任務註冊）；新增 6 條連線（gateway→telegram-pump/routes-api/cron-registry internal，telegram-pump→response-guard cross）；gateway 節點職責更新（3800 行，訊息泵/API/cron 已獨立）。三層洩漏預防架構：L1 brain-prompt-builder（prompt 約束）→ L2 telegram-pump（結構化剝離）→ L3 response-guard（黑名單安全網）；telegram-pump→response-guard 連線強化為雙重驗證（L2 剝離 + L3 sanitize）。restart-gateway.sh 新增 rsync 步驟。197 節點 487 連線。同步 blast-radius v1.64、joint-map v1.42。
 > **v1.49 (2026-03-24)**：全面審計——修正統計摘要表（184→194 節點、456→481 連線），使摘要與版本紀錄一致。同步 blast-radius v1.62、joint-map v1.41、persistence-contract v1.34。
 > **v1.48 (2026-03-24)**：操作記憶層架構——新增第六張藍圖 `operational-contract.md`（操作契約表）；新增 `scripts/workflows/` 可執行工作流目錄（publish-report.sh v4.0, restart-gateway.sh v1.0）；CLAUDE.md 新增 Tier 0 可執行性檢查 + 驗證鐵律；新增 `project-operational-memory.md` Procedure Crystal 設計文件；194 節點 481 連線（無新節點，純文件/腳本層變更）

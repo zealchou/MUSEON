@@ -1,0 +1,40 @@
+{
+  "finding": {
+    "finding_id": "MO-20260325-37a096",
+    "timestamp": "2026-03-25T07:02:12.042149+00:00",
+    "probe_layer": "L1",
+    "severity": "HIGH",
+    "title": "系統就緒檢查失敗: Failed: telegram",
+    "source": "museoff",
+    "blast_origin": {
+      "file": "gateway/server.py",
+      "line": null,
+      "error_type": "ReadinessFailure",
+      "traceback": ""
+    },
+    "blast_radius": [
+      {
+        "module": "telegram",
+        "impact": "服務降級",
+        "fan_in": "N/A"
+      }
+    ],
+    "context": {},
+    "triage_done": null,
+    "known_fix": null,
+    "prescription": {
+      "diagnosis": "Failed: telegram",
+      "root_cause": "以下服務未就緒: telegram",
+      "suggested_fix": "檢查相關服務狀態",
+      "runbook_id": "",
+      "fix_complexity": "GREEN",
+      "pre_check": "",
+      "post_check": "",
+      "rollback": ""
+    },
+    "status": "open"
+  },
+  "causal_chain": "D1 analysis: CA001: 異常被靜默吞掉（except: pass），錯誤將完全不可見; CA001: 異常被靜默吞掉（except: pass），錯誤將完全不可見; CA001: 異常被靜默吞掉（except: pass），錯誤將完全不可見",
+  "confidence": 0.5,
+  "timestamp": "2026-03-25T07:38:11.078061+00:00"
+}

@@ -1,0 +1,95 @@
+{
+  "plan_id": "dispatch_20260325_153220_e2e_cruc",
+  "user_request": "幫我把以下想法整理成一份完整的商業計畫摘要：\n1. 做 AI 顧問工具\n2. 目標台灣中小企業\n3. 月費制 $2999/月\n4. 第一年目標 100 家客戶\n請包含市場分析、產品定位、營收預估。",
+  "session_id": "e2e_crucible",
+  "created_at": "2026-03-25T15:32:20.224944",
+  "status": "failed",
+  "execution_mode": "mixed",
+  "tasks": [
+    {
+      "task_id": "dispatch_20260325_153220_e2e_cruc_task_00",
+      "skill_name": "gap",
+      "skill_focus": "GAP（Gap Analysis for Prompt-products）AI Agent 生態系缺口分析引擎。 DNA27 核心的外掛模組，專門掃描 AI Agent / Skill 市場的需求缺口， 產出可交給 DSE 深度研究的「機會清單」。 掃描範圍：Claude Skills、GPTs、Coze、Dify、及其他 AI Agent 平台。 觸發時機：(1) 使用者輸入 /gap 或 /m",
+      "skill_depth": "standard",
+      "input_data": {
+        "user_request": "幫我把以下想法整理成一份完整的商業計畫摘要：\n1. 做 AI 顧問工具\n2. 目標台灣中小企業\n3. 月費制 $2999/月\n4. 第一年目標 100 家客戶\n請包含市場分析、產品定位、營收預估。"
+      },
+      "expected_output": "gap 的分析結論",
+      "execution_order": 0,
+      "depends_on": [],
+      "model_preference": "haiku",
+      "timeout_seconds": 300,
+      "meta": {}
+    },
+    {
+      "task_id": "dispatch_20260325_153220_e2e_cruc_task_01",
+      "skill_name": "dse",
+      "skill_focus": "DSE（Dialogic Synthesis Engineering）AI 技術融合快速驗證引擎。DNA27 核心的外掛模組，專門處理 LLM、RAG、Agent、記憶系統等 AI 技術的整合研究與商業可行性驗證。 觸發時機：(1) 使用者輸入 /dse 或 /tech-fusion 指令強制啟動； (2) 自然語言偵測——使用者描述 AI 技術融合需求、要求快速原型驗證、提到技術可行性分析、SO",
+      "skill_depth": "standard",
+      "input_data": {
+        "user_request": "幫我把以下想法整理成一份完整的商業計畫摘要：\n1. 做 AI 顧問工具\n2. 目標台灣中小企業\n3. 月費制 $2999/月\n4. 第一年目標 100 家客戶\n請包含市場分析、產品定位、營收預估。"
+      },
+      "expected_output": "dse 的分析結論",
+      "execution_order": 1,
+      "depends_on": [
+        "gap"
+      ],
+      "model_preference": "sonnet",
+      "timeout_seconds": 300,
+      "meta": {}
+    },
+    {
+      "task_id": "dispatch_20260325_153220_e2e_cruc_task_02",
+      "skill_name": "business-12",
+      "skill_focus": "執行 business-12 分析",
+      "skill_depth": "standard",
+      "input_data": {
+        "user_request": "幫我把以下想法整理成一份完整的商業計畫摘要：\n1. 做 AI 顧問工具\n2. 目標台灣中小企業\n3. 月費制 $2999/月\n4. 第一年目標 100 家客戶\n請包含市場分析、產品定位、營收預估。"
+      },
+      "expected_output": "business-12 的分析結論",
+      "execution_order": 2,
+      "depends_on": [],
+      "model_preference": "haiku",
+      "timeout_seconds": 300,
+      "meta": {}
+    },
+    {
+      "task_id": "dispatch_20260325_153220_e2e_cruc_task_03",
+      "skill_name": "workflow-svc-brand-marketing",
+      "skill_focus": "執行 workflow-svc-brand-marketing 分析",
+      "skill_depth": "standard",
+      "input_data": {
+        "user_request": "幫我把以下想法整理成一份完整的商業計畫摘要：\n1. 做 AI 顧問工具\n2. 目標台灣中小企業\n3. 月費制 $2999/月\n4. 第一年目標 100 家客戶\n請包含市場分析、產品定位、營收預估。"
+      },
+      "expected_output": "workflow-svc-brand-marketing 的分析結論",
+      "execution_order": 3,
+      "depends_on": [],
+      "model_preference": "haiku",
+      "timeout_seconds": 300,
+      "meta": {}
+    },
+    {
+      "task_id": "dispatch_20260325_153220_e2e_cruc_task_04",
+      "skill_name": "acsf",
+      "skill_focus": "ACSF（Ability Crystallization & Skill Forge）能力結晶與 Skill 鑄造引擎。 DNA27 核心的外掛模組，將 DSE 驗證後的技術方案鍛造成符合 DNA27 架構、 可上架販售的 Claude Skill 商品。 觸發時機：(1) 使用者輸入 /acsf 或 /forge 指令強制啟動； (2) DSE 流程完成後自動建議啟動； (3) 自然語言偵測——",
+      "skill_depth": "standard",
+      "input_data": {
+        "user_request": "幫我把以下想法整理成一份完整的商業計畫摘要：\n1. 做 AI 顧問工具\n2. 目標台灣中小企業\n3. 月費制 $2999/月\n4. 第一年目標 100 家客戶\n請包含市場分析、產品定位、營收預估。"
+      },
+      "expected_output": "acsf 的分析結論",
+      "execution_order": 4,
+      "depends_on": [
+        "dse"
+      ],
+      "model_preference": "haiku",
+      "timeout_seconds": 300,
+      "meta": {}
+    }
+  ],
+  "results": [],
+  "synthesis_result": null,
+  "total_token_usage": {},
+  "completed_at": null,
+  "error_message": "BrainDispatchMixin._get_handoff_from_deps() missing 1 required positional argument: 'result_map'",
+  "meta": {}
+}
