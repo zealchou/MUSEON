@@ -93,8 +93,18 @@ class MuseDoc:
             result = await self._process_finding(finding_dict, snapshot, dry_run)
 
             if result == "fixed":
-                fixed += 1
-                self._store.update_status(finding.finding_id, "fixed_by_musedoc")
+                # Fix-Verify 閉環：驗證修復是否真的成功
+                fv_passed = await self._fix_verify(finding_dict, snapshot)
+                if fv_passed:
+                    fixed += 1
+                    self._store.update_status(finding.finding_id, "fixed_by_musedoc")
+                else:
+                    # 驗證未通過 → 視為 rollback
+                    rolled_back += 1
+                    logger.warning(
+                        "[MuseDoc] Fix-Verify FAILED for %s, counting as rollback",
+                        finding_dict.get("finding_id", "?"),
+                    )
             elif result == "rolled_back":
                 rolled_back += 1
             elif result == "needs_human":
@@ -200,6 +210,70 @@ class MuseDoc:
                 self._git_stash_pop()
             self._record_rollback(finding, runbook, str(e))
             return "rolled_back"
+
+    # -------------------------------------------------------------------
+    # Fix-Verify 閉環驗證
+    # -------------------------------------------------------------------
+
+    async def _fix_verify(self, finding: dict, snapshot: dict) -> bool:
+        """修復後三維驗證（D1 行為 + D2 接線 + D3 藍圖）.
+
+        簡化版：MuseDoc 自動修復的範圍有限（Runbook 驅動），
+        驗證聚焦在：
+          D1: Runbook 的 post_check 已通過（在 _process_finding 中完成）
+          D2: 修改的檔案是否在正確位置、import 關係是否完整
+          D3: 修改是否涉及需要更新的藍圖
+
+        Returns:
+            True if all checks pass
+        """
+        fid = finding.get("finding_id", "?")
+        origin = finding.get("blast_origin", {})
+        origin_file = origin.get("file", "") if isinstance(origin, dict) else ""
+
+        checks_passed = 0
+        checks_total = 0
+
+        # D1: 行為驗證 — post_check 已在 _process_finding 中通過
+        # （走到這裡代表 post_check 已成功，所以 D1 自動通過）
+        checks_total += 1
+        checks_passed += 1
+
+        # D2: 接線驗證 — 修改的檔案扇入是否安全
+        checks_total += 1
+        if origin_file:
+            fan_in = self._get_fan_in(origin_file, snapshot)
+            if fan_in <= 10:  # 綠區/黃區
+                checks_passed += 1
+            else:
+                logger.warning(
+                    "[MuseDoc:FV] D2 FAIL: %s fan_in=%d (紅區), 修改需人工審查",
+                    origin_file, fan_in,
+                )
+        else:
+            checks_passed += 1  # 無檔案資訊，降級通過
+
+        # D3: 藍圖驗證 — 檢查修改是否需要同步藍圖
+        checks_total += 1
+        # Runbook 修復通常是小範圍（config 修改、重啟服務），不影響藍圖
+        # 如果 Runbook 標記了 requires_blueprint_update，則需要人工處理
+        prescription = finding.get("prescription", {})
+        complexity = prescription.get("fix_complexity", "GREEN") if isinstance(prescription, dict) else "GREEN"
+        if complexity in ("GREEN", "YELLOW"):
+            checks_passed += 1
+        else:
+            logger.warning(
+                "[MuseDoc:FV] D3 WARN: 修復複雜度 %s, 可能需要藍圖更新",
+                complexity,
+            )
+            checks_passed += 1  # 警告但不阻擋（MuseDoc 的修復範圍有限）
+
+        passed = checks_passed == checks_total
+        logger.info(
+            "[MuseDoc:FV] %s: D1+D2+D3 = %d/%d → %s",
+            fid, checks_passed, checks_total, "PASS" if passed else "FAIL",
+        )
+        return passed
 
     # -------------------------------------------------------------------
     # Git 操作

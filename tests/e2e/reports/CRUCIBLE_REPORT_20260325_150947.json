@@ -1,0 +1,178 @@
+[
+  {
+    "timestamp": "2026-03-25T15:03:47.152819+08:00",
+    "test": "chaos_empty_msg",
+    "category": "D2.chaos",
+    "status": "PASS",
+    "detail": "空訊息處理正常 (HTTP 200)",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:04:04.565192+08:00",
+    "test": "chaos_whitespace",
+    "category": "D2.chaos",
+    "status": "PASS",
+    "detail": "純空白處理正常 (HTTP 200)",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:04:34.689112+08:00",
+    "test": "chaos_long_msg",
+    "category": "D2.chaos",
+    "status": "PASS",
+    "detail": "超長訊息處理正常 (30123ms, input=4210, output=295 chars)",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:06:07.982098+08:00",
+    "test": "chaos_special_chars",
+    "category": "D2.chaos",
+    "status": "PASS",
+    "detail": "全部 6/6 特殊字元處理正常",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:06:48.969870+08:00",
+    "test": "chaos_rapid_dup",
+    "category": "D2.chaos",
+    "status": "PASS",
+    "detail": "重複訊息全部正常 (5/5)",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:07:03.975393+08:00",
+    "test": "chaos_missing_fields",
+    "category": "D2.chaos",
+    "status": "FAIL",
+    "detail": "完全空 崩潰: timed out",
+    "severity": "CRITICAL"
+  },
+  {
+    "timestamp": "2026-03-25T15:07:04.102875+08:00",
+    "test": "chaos_invalid_json",
+    "category": "D2.chaos",
+    "status": "PASS",
+    "detail": "無效 JSON 正確處理 (HTTP 400)",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:08:11.691546+08:00",
+    "test": "chaos_concurrent",
+    "category": "D2.concurrency",
+    "status": "FAIL",
+    "detail": "併發全部失敗: [(0, 'Server disconnected without sending a response.'), (0, 'Server disconnected without sending a response.'), (0, 'Server disconnected without sending a response.')]",
+    "severity": "HIGH"
+  },
+  {
+    "timestamp": "2026-03-25T15:08:11.692760+08:00",
+    "test": "chaos_post_health",
+    "category": "D4.stability",
+    "status": "FAIL",
+    "detail": "混沌後無回應: [Errno 61] Connection refused",
+    "severity": "CRITICAL"
+  },
+  {
+    "timestamp": "2026-03-25T15:08:22.949893+08:00",
+    "test": "sc03_rapid_stock",
+    "category": "D2.rapid_fire",
+    "status": "FAIL",
+    "detail": "[Errno 61] Connection refused",
+    "severity": "HIGH"
+  },
+  {
+    "timestamp": "2026-03-25T15:08:22.949935+08:00",
+    "test": "sc03_rapid_apology",
+    "category": "D2.rapid_fire",
+    "status": "FAIL",
+    "detail": "[Errno 61] Connection refused",
+    "severity": "HIGH"
+  },
+  {
+    "timestamp": "2026-03-25T15:08:22.949943+08:00",
+    "test": "sc03_rapid_translate",
+    "category": "D2.rapid_fire",
+    "status": "FAIL",
+    "detail": "[Errno 61] Connection refused",
+    "severity": "HIGH"
+  },
+  {
+    "timestamp": "2026-03-25T15:08:22.949948+08:00",
+    "test": "sc03_rapid_trend",
+    "category": "D2.rapid_fire",
+    "status": "FAIL",
+    "detail": "[Errno 61] Connection refused",
+    "severity": "HIGH"
+  },
+  {
+    "timestamp": "2026-03-25T15:08:22.949954+08:00",
+    "test": "sc03_rapid_summary",
+    "category": "D2.rapid_fire",
+    "status": "FAIL",
+    "detail": "[Errno 61] Connection refused",
+    "severity": "HIGH"
+  },
+  {
+    "timestamp": "2026-03-25T15:08:23.047522+08:00",
+    "test": "sc03_post_burst_health",
+    "category": "D2.stability",
+    "status": "FAIL",
+    "detail": "Gateway 無回應: [Errno 61] Connection refused",
+    "severity": "CRITICAL"
+  },
+  {
+    "timestamp": "2026-03-25T15:08:27.788557+08:00",
+    "test": "three_loop_routing",
+    "category": "D4.dna27",
+    "status": "PASS",
+    "detail": "三迴圈路由完整: fast/exploration/slow",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:08:28.280230+08:00",
+    "test": "dna27_skill",
+    "category": "D4.dna27",
+    "status": "PASS",
+    "detail": "dna27 Skill 在 /Users/ZEALCHOU/MUSEON/.runtime/data/skills/native/dna27/SKILL.md",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:08:28.765654+08:00",
+    "test": "wee_tracking",
+    "category": "D4.wee",
+    "status": "PASS",
+    "detail": "WEE Skill 在 /Users/ZEALCHOU/MUSEON/.runtime/data/skills/native/wee/SKILL.md",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:08:29.274823+08:00",
+    "test": "morphenix",
+    "category": "D4.morphenix",
+    "status": "PASS",
+    "detail": "Morphenix 在 /Users/ZEALCHOU/MUSEON/.runtime/data/skills/native/morphenix/SKILL.md",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:08:29.276585+08:00",
+    "test": "eval_engine",
+    "category": "D4.eval",
+    "status": "PASS",
+    "detail": "Eval-Engine 在 src/museon/agent/eval_engine.py",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:08:29.743459+08:00",
+    "test": "orchestrator",
+    "category": "D4.orchestrator",
+    "status": "PASS",
+    "detail": "Orchestrator Skill 存在",
+    "severity": "INFO"
+  },
+  {
+    "timestamp": "2026-03-25T15:08:29.922153+08:00",
+    "test": "stress_crucible_installed",
+    "category": "D4.dna27",
+    "status": "FAIL",
+    "detail": "stress-crucible Skill 未安裝",
+    "severity": "HIGH"
+  }
+]

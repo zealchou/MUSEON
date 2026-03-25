@@ -1,0 +1,10 @@
+[
+  {
+    "timestamp": "2026-03-25T15:50:17.865144+08:00",
+    "test": "chaos_empty_msg",
+    "category": "D2.chaos",
+    "status": "PASS",
+    "detail": "空訊息處理正常 (HTTP 202)",
+    "severity": "INFO"
+  }
+]
