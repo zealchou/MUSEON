@@ -278,16 +278,15 @@ class MetaCognitionEngine:
             except AttributeError:
                 pass
 
-        # 複雜問題 → 審查
-        if len(user_query) > 150:
+        # 複雜問題 → 審查（門檻從 150 降到 50，讓更多對話被審查）
+        if len(user_query) > 50:
             return True
 
-        # EXPLORATION_LOOP + TIER_A → 審查（非 TIER_A 不強制）
+        # EXPLORATION_LOOP → 預設審查（不限 TIER_A）
         if routing_signal:
             try:
                 if routing_signal.loop == "EXPLORATION_LOOP":
-                    if skills & _PRECOG_TIER_A_SKILLS:
-                        return True
+                    return True
                     # TIER_B/C 在 exploration 中不強制審查
             except AttributeError as e:
                 logger.debug(f"[METACOGNITION] operation failed (degraded): {e}")
@@ -569,9 +568,9 @@ class MetaCognitionEngine:
             return None
 
         # 掃描回覆內容，匹配反應指標
-        best_type = "acceptance"  # 預設：使用者會接受
+        best_type = "follow_up"  # 預設改為 follow_up（比 acceptance 更中性，避免捷徑）
         best_score = 0.0
-        best_confidence = 0.4
+        best_confidence = 0.3
 
         for reaction_type, config in REACTION_INDICATORS.items():
             patterns = config["response_patterns"]
@@ -772,7 +771,7 @@ class MetaCognitionEngine:
 
         similar = _SIMILAR_TYPES.get(predicted, [])
         if actual in similar:
-            return 0.6
+            return 0.3  # 近似匹配降低到 0.3（0.6 導致準確率虛高）
 
         return 0.0
 

@@ -273,7 +273,7 @@ class TelegramAdapter(ChannelAdapter):
                 store.record_message(
                     group_id=chat_id,
                     user_id=user_id_str,
-                    text=(text or "")[:2000],
+                    text=(text or "")[:8000],
                     message_id=update.message.message_id,
                     display_name=sender_name,
                     username=username,
@@ -306,6 +306,25 @@ class TelegramAdapter(ChannelAdapter):
         # 記錄互動（HeartbeatFocus + 清除閒置推播狀態）
         if update.message and update.message.from_user:
             self.record_user_interaction(str(update.message.from_user.id))
+
+        # DM 訊息落地到 GroupContextStore（chat_id 為正數，區分群組的負數 ID）
+        if update.message and update.message.chat.type == "private":
+            try:
+                from museon.governance.group_context import get_group_context_store
+                _dm_store = get_group_context_store()
+                _dm_user = update.message.from_user
+                _dm_store.record_message(
+                    group_id=update.message.chat_id,
+                    user_id=str(_dm_user.id) if _dm_user else "unknown",
+                    text=(update.message.text or "")[:8000],
+                    message_id=update.message.message_id,
+                    msg_type="dm",
+                    display_name=_dm_user.first_name or "" if _dm_user else "",
+                    username=_dm_user.username or "" if _dm_user else "",
+                )
+            except Exception as _dm_err:
+                logger.debug(f"DM context DB write error: {_dm_err}")
+
         await self.message_queue.put(update)
 
     async def _handle_file_upload(self, update: Update, context: Any) -> None:
@@ -346,7 +365,7 @@ class TelegramAdapter(ChannelAdapter):
                 store.record_message(
                     group_id=chat_id,
                     user_id=user_id_str,
-                    text=f"[檔案: {fname}] {caption}"[:2000],
+                    text=f"[檔案: {fname}] {caption}"[:8000],
                     message_id=update.message.message_id,
                     msg_type="file",
                     display_name=sender_name,
@@ -902,9 +921,39 @@ class TelegramAdapter(ChannelAdapter):
             # Telegram 單則訊息上限 4096 字元，超長自動分段（P0-3：統一用 _split_long_text）
             parts = self._split_long_text(clean_text)
             for i, part in enumerate(parts):
-                await self.application.bot.send_message(chat_id=chat_id, text=part)
+                # Telegram Flood Control（429）防禦：RetryAfter 自動重試
+                for _retry in range(3):
+                    try:
+                        await self.application.bot.send_message(chat_id=chat_id, text=part)
+                        break
+                    except Exception as _send_err:
+                        _err_str = str(_send_err)
+                        if "Flood control" in _err_str or "429" in _err_str or "retry_after" in _err_str.lower():
+                            # 從錯誤訊息提取 retry_after 秒數
+                            import re
+                            _retry_match = re.search(r'retry.after[=: ]*(\d+)', _err_str, re.IGNORECASE)
+                            _wait = int(_retry_match.group(1)) if _retry_match else 5
+                            logger.warning(f"Telegram Flood Control: waiting {_wait}s (retry {_retry+1}/3)")
+                            await asyncio.sleep(_wait + 1)
+                        else:
+                            raise  # 非 Flood Control 錯誤，不重試
                 if i < len(parts) - 1:
-                    await asyncio.sleep(0.15)  # 避免 Telegram rate limit
+                    await asyncio.sleep(0.3)  # 間隔從 0.15s 提高到 0.3s
+
+            # Bot 回覆落地到 GroupContextStore
+            try:
+                from museon.governance.group_context import get_group_context_store
+                _reply_store = get_group_context_store()
+                _reply_store.record_message(
+                    group_id=int(chat_id),
+                    user_id="bot",
+                    text=clean_text[:8000],
+                    msg_type="bot_reply",
+                    display_name="MUSEON",
+                )
+            except Exception as _reply_err:
+                logger.debug(f"Bot reply DB write error: {_reply_err}")
+
             return True
 
         except Exception as e:

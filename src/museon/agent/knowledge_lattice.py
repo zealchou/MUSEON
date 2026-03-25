@@ -77,7 +77,7 @@ ARCHIVE_STALE_DAYS = 90       # 歸檔天數閾值
 SIMILARITY_MERGE_THRESHOLD = 0.70  # 70% 相似度合併閾值
 HYPOTHESIS_UPGRADE_COUNT = 3       # 升級所需成功次數
 INSIGHT_DOWNGRADE_COUNT = 2        # 降級所需反證次數
-PROCEDURE_UPGRADE_COUNT = 3        # Lesson→Procedure 升級所需成功次數
+PROCEDURE_UPGRADE_COUNT = 0        # Lesson→Procedure 升級：門檻 0（record_success 由 brain_prompt_builder 呼叫，引用即計數）
 PROCEDURE_DOWNGRADE_COUNT = 3      # Procedure→Lesson 降級所需失敗次數
 FRAGMENT_CONSOLIDATION_COUNT = 5   # 碎片整合閾值
 RECRYSTALLIZE_INTERVAL = 20        # 每 N 顆新結晶觸發輕量再結晶
@@ -2787,7 +2787,7 @@ class KnowledgeLattice:
                 )
 
         # ── 2.5. 升級 Lesson → Procedure（成功 3+ 次且有步驟）──
-        procedure_upgrade_limit = 5
+        procedure_upgrade_limit = 20  # 提高批量升級上限，加速管道充填
         for cuid, crystal in list(self._crystals.items()):
             if procedure_upgrade_limit <= 0:
                 break
@@ -2795,10 +2795,8 @@ class KnowledgeLattice:
                 continue
             if crystal.success_count < PROCEDURE_UPGRADE_COUNT:
                 continue
-            # 必須有可重播的步驟（g2_structure ≥ 2 項）
+            # 有可重播的步驟更好，但不阻擋升級（g2_structure 為空的 Lesson 也可升級）
             steps = crystal.g2_structure if isinstance(crystal.g2_structure, list) else []
-            if len(steps) < 2:
-                continue
             # 升級為 Procedure
             old_type = crystal.crystal_type
             crystal.crystal_type = CRYSTAL_TYPE_PROCEDURE

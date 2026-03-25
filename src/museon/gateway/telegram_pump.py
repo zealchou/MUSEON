@@ -70,7 +70,7 @@ async def _progress_updater(
         stage_idx = 0
 
         while True:
-            await asyncio.sleep(2)
+            await asyncio.sleep(5)  # 從 2s 提高到 5s，降低 API 呼叫頻率避免 Flood Control
             elapsed = asyncio.get_event_loop().time() - start
 
             # 已預定的階段
@@ -166,6 +166,11 @@ async def _handle_telegram_message(adapter, message) -> None:
                         _progress_updater(adapter, chat_id, status_msg_id)
                     )
 
+            # ── 1.5. 過濾空訊息（不送進 Brain）──
+            if message.content in ("[empty]", "") or not message.content.strip():
+                logger.info(f"Skipping empty/placeholder message for session {message.session_id}")
+                return
+
             # ── 2. Route through MUSEON Brain (with session lock + LLM semaphore) ──
             response_text = None
             brain_result = None  # v9.0: raw BrainResponse
@@ -174,7 +179,7 @@ async def _handle_telegram_message(adapter, message) -> None:
 
             # Acquire session lock — 排隊等待（不 drop 訊息）+ 優先度 + 預算檢查
             _session_locked = False
-            if message.session_id and session_manager:
+            if message.session_id and _server_ctx["session_manager"]:
                 # 分類優先度
                 from museon.gateway.session import classify_priority
                 _priority = classify_priority(
@@ -190,7 +195,7 @@ async def _handle_telegram_message(adapter, message) -> None:
                     )
                     response_text = "今日的對話額度已用完，明天再聊 🌙"
 
-                _queue_depth = session_manager.get_queue_depth(message.session_id)
+                _queue_depth = _server_ctx["session_manager"].get_queue_depth(message.session_id)
                 if _queue_depth > 0 and response_text is None:
                     logger.info(
                         f"Session {message.session_id}: queuing "
@@ -203,7 +208,7 @@ async def _handle_telegram_message(adapter, message) -> None:
                         )
 
                 if response_text is None:
-                    _session_locked = await session_manager.wait_and_acquire(
+                    _session_locked = await _server_ctx["session_manager"].wait_and_acquire(
                         message.session_id, timeout=None, priority=_priority
                     )
 
@@ -607,8 +612,8 @@ async def _handle_telegram_message(adapter, message) -> None:
                 )
             finally:
                 # Release session lock
-                if _session_locked and message.session_id and session_manager:
-                    await session_manager.release(message.session_id)
+                if _session_locked and message.session_id and _server_ctx["session_manager"]:
+                    await _server_ctx["session_manager"].release(message.session_id)
 
             # ── 3. 停止進度更新器 ──
             if progress_task:

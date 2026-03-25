@@ -376,6 +376,10 @@ class PersonaRouter:
             return TopicDomain.WEAKNESS
         if "strength" in classifications:
             return TopicDomain.STRENGTH
+        # unknown 領域命中 = 有 keyword 匹配但領域未分類
+        # 視為 WEAKNESS 讓 Museon 有機會主動輔助（而非沉默）
+        if matched:
+            return TopicDomain.WEAKNESS
         return TopicDomain.UNKNOWN
 
     def detect_lord_initiated(self, message: str) -> bool:
