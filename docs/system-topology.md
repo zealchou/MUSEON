@@ -1071,6 +1071,15 @@ external-user（EXTERNAL）
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.52 | 2026-03-25 | Brain 90s SLA + Circuit Breaker + 訊息佇列持久化 + L2 Worker 分離——新增 message-queue-store、brain-worker 2 節點 + 5 條連線；telegram-pump→message-queue-store/brain-worker、gateway→message-queue-store/brain-worker、brain-worker→brain。200 節點 488 連線 |
+| v1.51 | 2026-03-25 | 教訓蒸餾+斷裂管線修復——nightly 新增 lesson-distill/client-profile-update 步驟；brain-prompt-builder 新增 3 條 cross 連線；server→guardian mothership_queue；新增 fix-verify Workflow Skill |
+| v1.50 | 2026-03-25 | server.py 拆分——新增 telegram-pump/routes-api/cron-registry 3 節點 + 6 條連線；三層洩漏預防（L1 prompt→L2 剝離→L3 guard）。197 節點 487 連線 |
+| v1.49 | 2026-03-24 | 全面審計——統計摘要修正（184→194 節點、456→481 連線）|
+| v1.48 | 2026-03-24 | 操作記憶層——第六張藍圖 operational-contract.md + scripts/workflows/。194 節點 481 連線 |
+| v1.47 | 2026-03-24 | 跨群組洩漏防禦——新增 response-guard 節點 + 3 條連線。194 節點 481 連線 |
+| v1.46 | 2026-03-23 | 推送品質修復——新增 push-budget 節點 + 3 條連線。193 節點 478 連線 |
+| v1.45 | 2026-03-23 | Project Epigenesis——新增 5 節點（epigenetic-router/memory-reflector/proactive-predictor/adaptive-decay/anima-changelog）+ 12 條 cross 連線。192 節點 475 連線 |
+| v1.44 | 2026-03-23 | 三層調度員架構——新增 dispatcher/thinker/worker 3 節點 + 7 條連線。187 節點 463 連線 |
 | v1.43 | 2026-03-23 | 全系統拓撲審計——補齊 70 條遺漏 cross 連線（🔴7 結構斷裂 + 🟠20 重要遺漏 + 🟡43 文件欠債）；移除 2 條幽靈連線（drift-detector→memory 源碼零 import、zotero-bridge→vector-index 源碼零 import）；修正 1 條方向反轉（federation-sync→nightly → nightly→federation-sync）；拓撲覆蓋率 62.8% → 100%；184 節點 456 連線 |
 | v1.42 | 2026-03-22 | Sparse Embedder 全面啟動——sparse-embedder 節點升級為已啟動狀態；新增 skill-router→sparse-embedder、memory→sparse-embedder 跨系統連線（hybrid_search 消費者接線）；Nightly Pipeline 新增 Step 8.7（IDF 重建 + 回填） |
 | v1.38 | 2026-03-22 | L3-A2 Brain Mixin 拆分：brain 節點拆分為 core + 5 Mixin 子模組 + brain_types 共享型別；agent 群組新增 `brain-prompt-builder`（system prompt 建構, 1668 行）、`brain-dispatch`（任務分派, 1082 行）、`brain-observation`（觀察與演化, 2003 行）、`brain-p3-fusion`（P3 融合與決策層, 948 行）、`brain-tools`（LLM 呼叫與 session 管理, 966 行）、`brain-types`（共享 dataclass: DecisionSignal, P3FusionSignal）6 個節點（+6）；新增 6 條 internal 連線；184 節點 379 連線 |

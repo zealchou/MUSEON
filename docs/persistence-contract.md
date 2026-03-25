@@ -657,6 +657,10 @@ adaptive_decay ──ACT-R B_i──→ _activation 欄位 (in-memory) ←──
 | v1.0 | 2026-03-15 | 初版：完整水電圖，涵蓋 23 個正常配對、3 個 Dead Write、14 個死目錄 |
 | v1.1 | 2026-03-15 | Phase 2 完成：4 個 JSON 遷移至 PulseDB（ceremony_state + eval 三件套） |
 | v1.2 | 2026-03-15 | Phase 3 完成：DataContract + DataBus 建立，10 個 Store 類統一接入 |
+| v1.36 | 2026-03-25 | 訊息佇列持久化——新增 MessageQueueDB（`data/_system/message_queue.db`，SQLite WAL，message_queue_store.py Owner，telegram_pump.py enqueue/mark_done/mark_failed，server.py startup init）；表數 5→6 |
+| v1.35 | 2026-03-25 | 對話持久化——GroupContextDB 擴展（DM msg_type='dm' + bot_reply，text 截斷 2000→8000，clients 表新增 personality_notes/communication_style）；無新增 DB |
+| v1.34 | 2026-03-24 | 全面審計同步——group_context.db 路徑修正為 `data/_system/group_context.db`；registry.db 路徑修正為 `data/registry/cli_user/registry.db`；無新增持久層 |
+| v1.33 | 2026-03-23 | Sparse Embedder 512 維重建——sparse_idf.json 更新（2307 詞 IDF 表）；memories sparse collection 286 筆回填；無新增 DB |
 | v1.32 | 2026-03-23 | Project Epigenesis 接線——衰減引擎新增第 5 個：ACT-R Activation 衰減（`memory/adaptive_decay.py`，`B_i = ln(Σ t_j^{-d}) + β_i`，d=0.5，沉降閾值 -2.0）；衰減引擎間關係圖新增 adaptive_decay → memory_reflector → epigenetic_router → brain_prompt_builder 鏈路；純 in-memory 計算，無新增持久層寫入/消費配對；同步 blast-radius v1.55、joint-map v1.40、memory-router v1.6 |
 | v1.30 | 2026-03-22 | Sparse Embedder 啟動：Sparse Collections 新增 Nightly Step 8.7 IDF 重建 + 回填排程；hybrid_search() 消費者 0→4（skill_router + memory_manager + knowledge_lattice + server.py）；同步 joint-map v1.35、blast-radius v1.35 |
 | v1.29 | 2026-03-22 | Brain 三層治療——PulseDB 新增 `orchestrator_calls` 表（id/plan_id/skill_count/task_count/success/model/response_length/created_at，brain.py `_dispatch_orchestrate()` 寫入，供未來 A1 確定性路由分析）；新增 W39 配對（Orchestrator 呼叫診斷）；PulseDB 表數 15→16；管線 B 表清單新增 orchestrator_calls；拓撲對應表更新；同步 joint-map v1.34、system-topology v1.37 |
