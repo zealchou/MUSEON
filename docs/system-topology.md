@@ -96,6 +96,7 @@
 | `interaction-queue` | Interaction Queue | 跨通道互動佇列 | - | - | 1.0 |
 | `telegram-pump` | Telegram Pump | Telegram 訊息泵（收訊→Brain→驗證→發送） | - | - | 1.4 |
 | `message-queue-store` | Message Queue Store | SQLite 訊息佇列持久化（crash recovery） | - | - | 1.0 |
+| `brain-worker` | Brain Worker | 獨立 subprocess 運行 Brain.process()（process 隔離） | - | - | 1.0 |
 | `routes-api` | Routes API | SkillHub + External API 端點註冊 | - | - | 0.8 |
 | `cron-registry` | Cron Registry | 系統 cron 任務註冊（五虎將+41 排程） | - | - | 1.0 |
 
@@ -814,6 +815,9 @@ external-user（EXTERNAL）
 | `telegram-pump` | `interaction-queue` | telegram_pump.py lazy import: interaction queue |
 | `telegram-pump` | `message-queue-store` | telegram_pump.py lazy import: enqueue/mark_done/mark_failed/recover_pending（v1.51 訊息持久化） |
 | `gateway` | `message-queue-store` | server.py startup 初始化 MessageQueueStore singleton（v1.51） |
+| `gateway` | `brain-worker` | server.py startup 啟動 BrainWorkerManager + shutdown 停止（v1.52） |
+| `telegram-pump` | `brain-worker` | telegram_pump.py _brain_process_with_sla worker 優先路徑（v1.52） |
+| `brain-worker` | `brain` | subprocess 內 MuseonBrain(data_dir=...) 初始化 + process()（v1.52） |
 | `brain` | `response-guard` | brain.py process() 開始時 register_origin() 註冊來源 chat_id（v1.50 備註：實際 validate 在 telegram-pump 中調用） |
 | `guardian` | `security` | daemon.py:566 安全審計日誌 |
 | `self-diagnosis` | `tool-registry` | self_diagnosis.py:246,:484 工具狀態查詢 |

@@ -391,7 +391,108 @@ class ModelDegrader:
 
 
 # ═══════════════════════════════════════════
-# 5. 全局單例（Gateway 啟動時初始化一次）
+# 5. AsyncTokenBucket — API 呼叫頻率控制
+# ═══════════════════════════════════════════
+
+
+class AsyncTokenBucket:
+    """非同步 Token Bucket — 精確控制 API 呼叫頻率.
+
+    取代粗糙的 asyncio.Semaphore：
+    - Semaphore 只限並行數，不限頻率（3 個同時跑完後瞬間再發 3 個）
+    - TokenBucket 限頻率：每秒最多 N 個請求，均勻分散
+
+    使用方式::
+
+        bucket = AsyncTokenBucket(rate=5.0, capacity=10)  # 5 req/s, burst 10
+
+        async with bucket:
+            await call_api()  # 自動等待 token 可用
+
+    與 RateLimitMonitor 整合：
+    - Monitor 偵測到 429 → 調用 bucket.pause(seconds) 暫停
+    - Monitor 偵測到 near_limit → 調用 bucket.slow_down() 降速
+    """
+
+    def __init__(
+        self,
+        rate: float = 4.0,     # tokens per second (Anthropic 預設 ~5 RPM tier)
+        capacity: int = 8,     # max burst
+    ) -> None:
+        self._rate = rate
+        self._capacity = capacity
+        self._tokens = float(capacity)
+        self._last_refill = time.monotonic()
+        self._lock = asyncio.Lock()
+        self._paused_until: float = 0.0
+
+    def _refill(self) -> None:
+        """補充 tokens（依經過時間）."""
+        now = time.monotonic()
+        elapsed = now - self._last_refill
+        self._tokens = min(
+            self._capacity,
+            self._tokens + elapsed * self._rate,
+        )
+        self._last_refill = now
+
+    async def acquire(self) -> None:
+        """取得一個 token（若不足則等待）."""
+        while True:
+            async with self._lock:
+                # 檢查是否被暫停（429 回應後）
+                now = time.monotonic()
+                if now < self._paused_until:
+                    wait = self._paused_until - now
+                    logger.debug(f"TokenBucket paused, waiting {wait:.1f}s")
+                    # 釋放 lock 再等
+                else:
+                    self._refill()
+                    if self._tokens >= 1.0:
+                        self._tokens -= 1.0
+                        return
+                    # 計算需要等多久才有 1 個 token
+                    wait = (1.0 - self._tokens) / self._rate
+
+            await asyncio.sleep(wait)
+
+    def pause(self, seconds: float) -> None:
+        """暫停 bucket（收到 429 retry-after 時呼叫）."""
+        self._paused_until = time.monotonic() + seconds
+        logger.warning(f"TokenBucket paused for {seconds:.1f}s (429 response)")
+
+    def slow_down(self, factor: float = 0.5) -> None:
+        """降速（接近 rate limit 時呼叫）."""
+        old_rate = self._rate
+        self._rate = max(0.5, self._rate * factor)
+        logger.info(f"TokenBucket rate: {old_rate:.1f} -> {self._rate:.1f} req/s")
+
+    def speed_up(self, factor: float = 1.2) -> None:
+        """恢復速度."""
+        old_rate = self._rate
+        self._rate = min(10.0, self._rate * factor)
+        if self._rate != old_rate:
+            logger.info(f"TokenBucket rate: {old_rate:.1f} -> {self._rate:.1f} req/s")
+
+    async def __aenter__(self):
+        await self.acquire()
+        return self
+
+    async def __aexit__(self, *args):
+        pass
+
+    def get_status(self) -> Dict[str, Any]:
+        """取得 bucket 狀態."""
+        return {
+            "rate": self._rate,
+            "capacity": self._capacity,
+            "tokens": round(self._tokens, 2),
+            "paused_until": self._paused_until,
+        }
+
+
+# ═══════════════════════════════════════════
+# 6. 全局單例（Gateway 啟動時初始化一次）
 # ═══════════════════════════════════════════
 
 _backoff = ExponentialBackoff()
@@ -414,3 +515,14 @@ def get_tenant_limiter() -> PerTenantLimiter:
 
 def get_degrader() -> ModelDegrader:
     return _degrader
+
+
+_api_bucket: Optional[AsyncTokenBucket] = None
+
+
+def get_api_bucket() -> AsyncTokenBucket:
+    """取得 API 呼叫頻率控制 bucket."""
+    global _api_bucket
+    if _api_bucket is None:
+        _api_bucket = AsyncTokenBucket(rate=4.0, capacity=8)
+    return _api_bucket

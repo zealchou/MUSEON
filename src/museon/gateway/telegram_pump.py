@@ -158,10 +158,37 @@ async def _brain_process_with_sla(
         logger.warning(f"BrainCircuitBreaker OPEN — returning fallback for {session_id}")
         return cb.fallback_message
 
-    # ── 實際呼叫 brain.process() ──
+    # ── 實際呼叫 brain.process()（worker subprocess 優先，fallback in-process）──
     async def _do_process():
-        if semaphore:
-            async with semaphore:
+        # 嘗試用 subprocess worker（process 隔離）
+        try:
+            from museon.gateway.brain_worker import get_brain_worker_manager
+            worker = get_brain_worker_manager()
+            if worker:
+                _trace = (metadata or {}).get("trace_id", "")
+                result_dict = await worker.process(
+                    content=content,
+                    session_id=session_id,
+                    user_id=user_id,
+                    source=source,
+                    metadata=metadata,
+                    trace_id=_trace,
+                )
+                # 還原為 BrainResponse 或 str
+                from museon.gateway.message import BrainResponse
+                return BrainResponse(text=result_dict.get("text", ""))
+        except Exception as _w_err:
+            logger.warning(f"BrainWorker failed, falling back to in-process: {_w_err}")
+
+        # Fallback: in-process brain.process()（使用 token bucket 取代 semaphore）
+        try:
+            from museon.llm.rate_limiter import get_api_bucket
+            _bucket = get_api_bucket()
+        except Exception:
+            _bucket = semaphore  # 最終 fallback 回 semaphore
+
+        if _bucket:
+            async with _bucket:
                 return await brain.process(
                     content=content,
                     session_id=session_id,

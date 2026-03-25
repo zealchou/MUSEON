@@ -2893,6 +2893,17 @@ def create_app() -> FastAPI:
         # 🚢 Bulkhead: Brain 初始化成功
         bulkhead.register("brain", lambda: None, critical=True)
 
+        # 啟動 Brain Worker subprocess（process 隔離）
+        try:
+            from museon.gateway.brain_worker import init_brain_worker_manager
+            _bw = init_brain_worker_manager(data_dir=str(brain.data_dir))
+            if _bw:
+                logger.info(f"[startup] BrainWorker started, PID={_bw.get_status().get('pid')}")
+            else:
+                logger.info("[startup] BrainWorker not started, using in-process fallback")
+        except Exception as _bw_err:
+            logger.warning(f"[startup] BrainWorker init failed (non-fatal): {_bw_err}")
+
         # 初始化訊息佇列持久化 store
         try:
             from museon.gateway.message_queue_store import get_message_queue_store
@@ -3648,6 +3659,16 @@ def create_app() -> FastAPI:
     async def shutdown_event():
         """Cleanup on shutdown."""
         logger.info("Shutting down MUSEON Gateway")
+
+        # Stop Brain Worker subprocess
+        try:
+            from museon.gateway.brain_worker import get_brain_worker_manager
+            _bw = get_brain_worker_manager()
+            if _bw:
+                _bw.stop()
+                logger.info("BrainWorker stopped")
+        except Exception:
+            pass
 
         # Flush skill usage log before shutdown
         brain = _get_brain()
