@@ -775,6 +775,17 @@ async def _handle_telegram_message(adapter, message) -> None:
             _is_group = message.metadata.get("is_group", False)
             response_text = ResponseGuard.sanitize_for_group(response_text, _is_group)
 
+            # v10.9: 二次空值防護 — sanitization 後再檢查一次
+            # 根因：line 718 的空值檢查在 sanitization 之前，
+            # Brain 回覆若全由內部標記組成（【思考路徑】、Skill 路由鏈等），
+            # 經 L2 剝離 + ResponseGuard 清理後變成空字串，
+            # InternalMessage.__post_init__ 會把 "" 轉成 "[empty]" 並送出。
+            if not response_text or not response_text.strip():
+                logger.warning(f"[{_tid}] Response became empty after sanitization, applying fallback")
+                _mc = brain._load_anima_mc()
+                _name = _mc.get("identity", {}).get("name", "MUSEON") if _mc else "MUSEON"
+                response_text = f"我想了一下，但沒有組織好回應。可以再說一次嗎？"
+
             response_msg = InternalMessage(
                 source="telegram",
                 session_id=message.session_id,
