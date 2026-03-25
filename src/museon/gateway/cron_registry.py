@@ -238,7 +238,8 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
     )
 
     # ── 巡檢互斥鎖（guardian-l1 / museoff-l1 不同時跑）──
-    _patrol_lock_path = Path(data_dir) / ".patrol_lock"
+    from pathlib import Path as _Path
+    _patrol_lock_path = _Path(data_dir) / ".patrol_lock"
 
     async def _acquire_patrol_lock(timeout: int = 5) -> bool:
         """嘗試取得巡檢鎖，避免 guardian 和 museoff 同時跑"""
