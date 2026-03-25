@@ -124,6 +124,92 @@ async def _progress_updater(
         logger.debug(f"Progress updater stopped: {e}")
 
 
+# ═══════════════════════════════════════════
+# Brain 90 秒 SLA + Circuit Breaker
+# ═══════════════════════════════════════════
+
+_SLA_TIMEOUT_SECONDS = 90
+
+
+async def _brain_process_with_sla(
+    brain,
+    adapter,
+    chat_id,
+    *,
+    content: str,
+    session_id: str,
+    user_id: str,
+    source: str = "telegram",
+    metadata=None,
+    semaphore=None,
+):
+    """包裝 brain.process()，提供 90 秒 SLA 保證 + Circuit Breaker 保護.
+
+    - 90 秒未完成 → 先送暫時回覆，背景繼續等
+    - Circuit Breaker OPEN → 直接返回降級回覆
+    - brain.process() 失敗 → 記錄到 Circuit Breaker
+    """
+    from museon.governance.bulkhead import get_brain_circuit_breaker
+
+    cb = get_brain_circuit_breaker()
+
+    # ── Circuit Breaker 檢查 ──
+    if cb.is_open:
+        logger.warning(f"BrainCircuitBreaker OPEN — returning fallback for {session_id}")
+        return cb.fallback_message
+
+    # ── 實際呼叫 brain.process() ──
+    async def _do_process():
+        if semaphore:
+            async with semaphore:
+                return await brain.process(
+                    content=content,
+                    session_id=session_id,
+                    user_id=user_id,
+                    source=source,
+                    metadata=metadata,
+                )
+        else:
+            return await brain.process(
+                content=content,
+                session_id=session_id,
+                user_id=user_id,
+                source=source,
+                metadata=metadata,
+            )
+
+    brain_task = asyncio.create_task(_do_process())
+    sla_notified = False
+
+    try:
+        # 先等 90 秒
+        result = await asyncio.wait_for(
+            asyncio.shield(brain_task), timeout=_SLA_TIMEOUT_SECONDS
+        )
+        cb.record_success()
+        return result
+    except asyncio.TimeoutError:
+        # 90 秒到了，Brain 還在思考 → 送暫時回覆
+        sla_notified = True
+        if chat_id:
+            try:
+                await adapter.application.bot.send_message(
+                    chat_id=chat_id,
+                    text="這個問題需要多想一下，馬上回覆你 🧠",
+                )
+            except Exception as e:
+                logger.debug(f"SLA interim message send failed: {e}")
+
+    # 繼續等 brain 完成（無上限，由 progress_updater 的 15 分鐘提醒覆蓋）
+    try:
+        result = await brain_task
+        cb.record_success()
+        return result
+    except Exception as e:
+        cb.record_failure(e)
+        raise
+
+
 async def _handle_telegram_message(adapter, message) -> None:
     """Process a single Telegram message (runs concurrently per session).
 
@@ -458,24 +544,26 @@ async def _handle_telegram_message(adapter, message) -> None:
                         # brain.process() errors propagate to outer handler (line ~3834)
                         # which has proper error messages for both owner and non-owner
                         if _mt_ready and response_text is None:
-                            async with _sem:
-                                brain_result = await brain.process(
-                                    content=_brain_content,
-                                    session_id=message.session_id,
-                                    user_id=message.user_id,
-                                    source="telegram",
-                                    metadata=_brain_metadata,
-                                )
-                    else:
-                        # Normal DM processing (owner or trusted user)
-                        async with _sem:
-                            brain_result = await brain.process(
-                                content=message.content,
+                            brain_result = await _brain_process_with_sla(
+                                brain, adapter, chat_id,
+                                content=_brain_content,
                                 session_id=message.session_id,
                                 user_id=message.user_id,
                                 source="telegram",
-                                metadata=message.metadata if is_group else None,
+                                metadata=_brain_metadata,
+                                semaphore=_sem,
                             )
+                    else:
+                        # Normal DM processing (owner or trusted user)
+                        brain_result = await _brain_process_with_sla(
+                            brain, adapter, chat_id,
+                            content=message.content,
+                            session_id=message.session_id,
+                            user_id=message.user_id,
+                            source="telegram",
+                            metadata=message.metadata if is_group else None,
+                            semaphore=_sem,
+                        )
 
                 # v9.0: Extract text from BrainResponse
                 if brain_result is not None and response_text is None:

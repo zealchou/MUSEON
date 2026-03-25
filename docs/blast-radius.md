@@ -1,10 +1,11 @@
-# Blast Radius — 模組影響半徑表 v1.65
+# Blast Radius — 模組影響半徑表 v1.66
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節、`docs/operational-contract.md`（操作契約表）提供外部操作預期失敗
+> **v1.66 (2026-03-25)**：Brain 90 秒 SLA + Circuit Breaker——`telegram_pump.py` 新增 `_brain_process_with_sla()` wrapper（90 秒未完成送暫時回覆，繼續等待），brain.process() 兩處主要呼叫改走 SLA wrapper；`bulkhead.py` 新增 `BrainCircuitBreaker` class + `get_brain_circuit_breaker()` singleton（CLOSED→OPEN→HALF_OPEN 三態，連續 3 次失敗斷路，60 秒 cooldown 試探恢復），telegram_pump.py lazy import；`server.py` startup 新增 Circuit Breaker 通知回調（DM 老闆）+ /health 端點新增 circuit_breaker 狀態。扇入變化：bulkhead.py 扇入 1→2（server.py + telegram_pump.py）。
 > **v1.65 (2026-03-25)**：對話持久化+教訓蒸餾+斷裂管線修復——telegram.py 新增 DM/Bot 回覆落地；group_context.py 截斷 8000+personality 欄位；nightly_pipeline Step 5.6.5+18.5+_FULL_STEPS 補列+報告歷史；crystal_actuator 類型過濾+保護規則；brain_prompt_builder Intuition+record_success+logger 升級；server.py Guardian queue 消費；multi_tenant dict topics+str→Path；knowledge_lattice 門檻+limit；brain.py user_id→boss；morphenix_validator str→dict；telegram_pump session_manager→dict；cron_registry NameError 修復；musedoc Fix-Verify 整合。新增 fix-verify Workflow。
 > **v1.64 (2026-03-25)**：server.py 拆分藍圖補齊 + 三層內部標記洩漏預防——server.py 從 5749→3800 行，拆出 `telegram_pump.py`（754 行，Telegram 訊息泵+ResponseGuard 整合，黃區扇入=1 扇出=8）、`routes_api.py`（689 行，SkillHub+外部整合 API 端點，綠區扇入=1）、`cron_registry.py`（1424 行，系統 cron 任務註冊，綠區扇入=1）。修正 response_guard 重複條目。三層防禦：L1 `brain_prompt_builder.py` 新增 Style Never #6/#7（禁止【】標記+操作確認句）；L2 `telegram_pump.py` v10.8 Brain 輸出結構化剝離（regex 移除思考標記區塊）；L3 `response_guard.py` `_INTERNAL_PATTERNS` 新增 3 組 pattern（【】標記/操作確認句/AI 後設描述）。`restart-gateway.sh` 新增 Step 1.5 強制 rsync（防 .runtime 過期）。
 > **v1.62 (2026-03-24)**：全面審計修正——event_bus 扇入 117→45（區分直接 import vs 事件關聯度）；message 20→13、data_bus 13→16、pulse_db 14→10、brain 3→1、module_registry 4→1；tool_registry 從紅區降為黃區（18→4）；dispatch 從紅區降為黃區（11→2）；補列 8 個新模組（brain_*.py Mixin 系列 + chat_context + deterministic_router + vision + push_budget）；更新統計摘要。

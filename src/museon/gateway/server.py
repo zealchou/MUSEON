@@ -326,6 +326,14 @@ def create_app() -> FastAPI:
             bulkhead_status = bulkhead.get_status() if bulkhead else {}
             overall = bulkhead.overall_status if bulkhead else "healthy"
 
+            # Circuit Breaker 狀態
+            cb_status = {}
+            try:
+                from museon.governance.bulkhead import get_brain_circuit_breaker
+                cb_status = get_brain_circuit_breaker().get_status()
+            except Exception:
+                pass
+
             return {
                 "status": overall,
                 "timestamp": datetime.now().isoformat(),
@@ -335,6 +343,7 @@ def create_app() -> FastAPI:
                 "mcp": mcp_status,
                 "governance": governor_health,
                 "bulkhead": bulkhead_status,
+                "circuit_breaker": cb_status,
             }
         except Exception as e:
             logger.error(f"Health check failed: {e}", exc_info=True)
@@ -2891,6 +2900,44 @@ def create_app() -> FastAPI:
             session_manager=session_manager,
             data_dir=brain.data_dir,
         )
+
+        # Circuit Breaker 通知回調（DM 老闆）
+        try:
+            from museon.governance.bulkhead import get_brain_circuit_breaker
+            _cb = get_brain_circuit_breaker()
+
+            def _cb_notify(event: str, detail: str = ""):
+                """Circuit Breaker 狀態變更 → 非同步 DM 老闆."""
+                _msgs = {
+                    "opened": (
+                        f"⚠️ Brain Circuit Breaker 已斷路\n\n"
+                        f"連續失敗達閾值，自動切換降級回覆。\n"
+                        f"錯誤：{detail[:200]}\n\n"
+                        f"60 秒後自動試探恢復。"
+                    ),
+                    "reopened": (
+                        f"⚠️ Brain 試探恢復失敗，維持斷路\n\n"
+                        f"錯誤：{detail[:200]}"
+                    ),
+                    "recovered": (
+                        "✅ Brain Circuit Breaker 已恢復正常運作"
+                    ),
+                }
+                msg = _msgs.get(event)
+                if msg:
+                    _tg_adapter = getattr(app.state, "telegram_adapter", None)
+                    if _tg_adapter:
+                        try:
+                            loop = asyncio.get_event_loop()
+                            if loop.is_running():
+                                loop.create_task(_tg_adapter.send_dm_to_owner(msg))
+                        except Exception:
+                            pass
+
+            _cb.set_notify_callback(_cb_notify)
+            logger.info("BrainCircuitBreaker notify callback registered")
+        except Exception as _cb_err:
+            logger.warning(f"BrainCircuitBreaker setup failed (non-fatal): {_cb_err}")
 
         # ══════════════════════════════════════════════════════════
         # 🛡️ Phase 3a: Governor ↔ Brain 橋樑連接

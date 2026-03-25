@@ -22,6 +22,7 @@
 """
 from __future__ import annotations
 
+import asyncio
 import logging
 import threading
 import time
@@ -238,3 +239,157 @@ class BulkheadRegistry:
                 }
                 for name, info in self._subsystems.items()
             }
+
+
+# ═══════════════════════════════════════════
+# BrainCircuitBreaker
+# ═══════════════════════════════════════════
+
+
+class CircuitState(Enum):
+    """Circuit Breaker 狀態."""
+
+    CLOSED = "closed"        # 正常運作
+    OPEN = "open"            # 斷路（連續失敗過多）
+    HALF_OPEN = "half_open"  # 試探恢復
+
+
+class BrainCircuitBreaker:
+    """Brain 專用 Circuit Breaker.
+
+    連續失敗 >= failure_threshold 次 → OPEN（拒絕請求，返回降級回覆）
+    OPEN 狀態持續 cooldown_seconds 後 → HALF_OPEN（放一個請求試探）
+    HALF_OPEN 成功 → CLOSED；失敗 → 回到 OPEN
+
+    使用方式::
+
+        cb = BrainCircuitBreaker(failure_threshold=3, cooldown_seconds=60)
+
+        if cb.is_open:
+            # 返回降級回覆
+            return cb.fallback_message
+        try:
+            result = await brain.process(...)
+            cb.record_success()
+            return result
+        except Exception as e:
+            cb.record_failure(e)
+            raise
+    """
+
+    def __init__(
+        self,
+        failure_threshold: int = 3,
+        cooldown_seconds: float = 60.0,
+        fallback_message: str = (
+            "抱歉，目前處理能力受限，已記下你的訊息，恢復後會盡快回覆。"
+        ),
+    ) -> None:
+        self._lock = threading.Lock()
+        self._state = CircuitState.CLOSED
+        self._failure_count = 0
+        self._failure_threshold = failure_threshold
+        self._cooldown_seconds = cooldown_seconds
+        self._last_failure_time: Optional[float] = None
+        self._opened_at: Optional[float] = None
+        self._notify_callback: Optional[Callable] = None
+        self.fallback_message = fallback_message
+
+    def set_notify_callback(self, callback: Callable) -> None:
+        """設定斷路通知回調（用於 DM 老闆）."""
+        self._notify_callback = callback
+
+    @property
+    def state(self) -> CircuitState:
+        with self._lock:
+            return self._state
+
+    @property
+    def is_open(self) -> bool:
+        """是否應該拒絕請求（OPEN 且未到 cooldown）."""
+        with self._lock:
+            if self._state == CircuitState.CLOSED:
+                return False
+            if self._state == CircuitState.OPEN:
+                # 檢查 cooldown 是否已過
+                if self._opened_at and (
+                    time.time() - self._opened_at >= self._cooldown_seconds
+                ):
+                    # 轉入 HALF_OPEN，允許一個請求試探
+                    self._state = CircuitState.HALF_OPEN
+                    logger.info("BrainCircuitBreaker: OPEN -> HALF_OPEN (cooldown elapsed)")
+                    return False
+                return True
+            # HALF_OPEN: 允許請求通過
+            return False
+
+    def record_success(self) -> None:
+        """記錄成功 — 重置失敗計數，HALF_OPEN 恢復為 CLOSED."""
+        with self._lock:
+            if self._state == CircuitState.HALF_OPEN:
+                logger.info("BrainCircuitBreaker: HALF_OPEN -> CLOSED (success)")
+                self._state = CircuitState.CLOSED
+                self._fire_notify("recovered")
+            self._failure_count = 0
+
+    def record_failure(self, error: Optional[Exception] = None) -> None:
+        """記錄失敗 — 累計計數，達閾值時斷路."""
+        with self._lock:
+            self._failure_count += 1
+            self._last_failure_time = time.time()
+            err_msg = str(error)[:200] if error else "unknown"
+
+            if self._state == CircuitState.HALF_OPEN:
+                # HALF_OPEN 試探失敗 → 回到 OPEN
+                self._state = CircuitState.OPEN
+                self._opened_at = time.time()
+                logger.warning(
+                    f"BrainCircuitBreaker: HALF_OPEN -> OPEN (probe failed: {err_msg})"
+                )
+                self._fire_notify("reopened", err_msg)
+                return
+
+            if self._failure_count >= self._failure_threshold:
+                if self._state != CircuitState.OPEN:
+                    self._state = CircuitState.OPEN
+                    self._opened_at = time.time()
+                    logger.error(
+                        f"BrainCircuitBreaker: CLOSED -> OPEN "
+                        f"({self._failure_count} consecutive failures, last: {err_msg})"
+                    )
+                    self._fire_notify("opened", err_msg)
+
+    def _fire_notify(self, event: str, detail: str = "") -> None:
+        """觸發通知回調（lock 內呼叫，callback 應為非阻塞）."""
+        if self._notify_callback:
+            try:
+                self._notify_callback(event, detail)
+            except Exception as e:
+                logger.debug(f"CircuitBreaker notify callback error: {e}")
+
+    def get_status(self) -> Dict[str, Any]:
+        """取得 Circuit Breaker 狀態快照."""
+        with self._lock:
+            return {
+                "state": self._state.value,
+                "failure_count": self._failure_count,
+                "failure_threshold": self._failure_threshold,
+                "cooldown_seconds": self._cooldown_seconds,
+                "last_failure_time": self._last_failure_time,
+                "opened_at": self._opened_at,
+            }
+
+
+# ── Singleton ──
+
+_brain_circuit_breaker: Optional[BrainCircuitBreaker] = None
+_cb_lock = threading.Lock()
+
+
+def get_brain_circuit_breaker() -> BrainCircuitBreaker:
+    """取得 Brain Circuit Breaker 單例."""
+    global _brain_circuit_breaker
+    with _cb_lock:
+        if _brain_circuit_breaker is None:
+            _brain_circuit_breaker = BrainCircuitBreaker()
+        return _brain_circuit_breaker
