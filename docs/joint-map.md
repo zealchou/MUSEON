@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.45
+# Joint Map — 共享可變狀態接頭圖 v1.46
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -54,6 +54,8 @@
 | 41 | PushBudget 單例（記憶體+PulseDB push_log） | 🟡 | 2 | 2 | SQLite WAL | [→](#41-pushbudget) |
 | 42 | BrainCircuitBreaker singleton（記憶體） | 🟢 | 1 | 2 | threading.Lock | [→](#42-braincircuitbreaker-singleton記憶體) |
 | 43 | message_queue.db | 🟢 | 1 | 1 | SQLite WAL + threading.Lock | [→](#43-message_queuedb) |
+| 44 | AsyncTokenBucket singleton（記憶體） | 🟢 | 1 | 1 | asyncio.Lock | [→](#44-asynctokenbucket-singleton記憶體) |
+| 45 | BrainWorkerManager singleton（記憶體） | 🟢 | 1 | 1 | asyncio.Lock | [→](#45-brainworkermanager-singleton記憶體) |
 
 > **危險度定義**：🔴 多寫入者+高扇出+格式不一致 | 🟡 多寫入者或高扇出 | 🟢 單寫入者+低扇出
 
@@ -1069,6 +1071,43 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 
 ---
 
+### 44. AsyncTokenBucket singleton（記憶體）
+
+**路徑**：記憶體 singleton（`llm/rate_limiter.py` 模組層級 `_api_bucket`）
+**用途**：API 呼叫頻率控制——token bucket 演算法限制 LLM API 呼叫速率（取代 semaphore）
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| `llm/rate_limiter.py` | **Owner** | `get_api_bucket()` | singleton 工廠 + acquire/pause/slow_down/speed_up | `asyncio.Lock` |
+| `gateway/telegram_pump.py` | **R/W** | `_brain_process_with_sla()` fallback | `async with get_api_bucket():` 取得 token 後呼叫 brain | 經由 bucket 內部 Lock |
+
+> **鎖**：`asyncio.Lock`（rate_limiter.py 內部）
+> **TTL**：記憶體生命週期（Gateway 重啟歸零）
+> **危險度**：🟢 綠（async-safe singleton，無持久化）
+
+---
+
+### 45. BrainWorkerManager singleton（記憶體）
+
+**路徑**：記憶體 singleton（`gateway/brain_worker.py` 模組層級 `_manager`）
+**用途**：Brain subprocess 生命週期管理——啟動/停止/重啟 worker process
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| `gateway/brain_worker.py` | **Owner** | `init_brain_worker_manager()` / `get_brain_worker_manager()` | singleton 工廠 + start/stop/process | `asyncio.Lock` |
+| `gateway/telegram_pump.py` | **R** | `_brain_process_with_sla()` | `get_brain_worker_manager()` 取得 worker 發送請求 | 經由 manager 內部 Lock |
+| `gateway/server.py` | **W** | `startup_event()` / `shutdown_event()` | 啟動時 init、關閉時 stop | — |
+
+> **鎖**：`asyncio.Lock`（brain_worker.py 內部，序列化請求）
+> **TTL**：記憶體生命週期（Gateway 重啟重建）
+> **危險度**：🟢 綠（async-safe singleton，subprocess 管理）
+
+---
+
 ## 必須同時修改的模組組（不可分批）
 
 > 修改以下任一模組時，**必須**同時檢查並調整同組所有模組。
@@ -1124,6 +1163,7 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-25 | v1.46 | L2 Worker + RateLimiter：新增 #44 AsyncTokenBucket singleton（🟢 記憶體，asyncio.Lock）、#45 BrainWorkerManager singleton（🟢 記憶體，asyncio.Lock）；共享狀態 43→45 個 |
 | 2026-03-25 | v1.45 | 訊息佇列持久化：新增 #43 message_queue.db（🟢 危險度，SQLite WAL + threading.Lock，Owner message_queue_store.py，Writer/Reader telegram_pump.py，Init server.py）；共享狀態 42→43 個 |
 | 2026-03-25 | v1.44 | Brain Circuit Breaker：新增 #42 BrainCircuitBreaker singleton（記憶體，🟢 危險度，threading.Lock，寫入者 bulkhead.py，讀取者 telegram_pump.py + server.py）；共享狀態 41→42 個 |
 | 2026-03-25 | v1.43 | 對話持久化+教訓蒸餾+7 條斷裂管線修復——#40 group_context.db 擴展（DM+bot_reply+8000 截斷+personality_notes/communication_style）；MemoryManager user_id cli_user→boss；Nightly Step 5.6.5 教訓蒸餾+Step 18.5 客戶互動萃取加入 _FULL_STEPS；Crystal Actuator ELIGIBLE_CRYSTAL_TYPES 過濾+PROTECTED_RULE_ORIGINS 保護；Guardian mothership_queue→Gateway 消費；ExternalAnima search dict topics 修復；Intuition heuristics→prompt 注入；Procedure 升級門檻 0+limit 20；Morphenix validator str→dict 防禦；MuseDoc Fix-Verify 整合 |

@@ -323,7 +323,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 //  SYNC META — 拓撲同步狀態
 // ═══════════════════════════════════════
 const SYNC_META = {
-  topologyVersion: 'v1.51',
+  topologyVersion: 'v1.52',
   syncDate: '2026-03-25',
   nodeCount: 0, // auto-calculated below
   linkCount: 0, // auto-calculated below
@@ -399,6 +399,7 @@ const nodes = [
   // ── center ──
   {id:"event-bus",label:"Event Bus",zh:"核心事件匯流排",group:"center",r:3.2,hub:1},
   // ── channel ──
+  {id:"brain-worker",label:"Brain Worker",zh:"獨立 subprocess 運行 Brain.process",group:"channel",r:1.0,desc:"獨立 subprocess 運行 Brain.process()（process 隔離）"},
   {id:"cron",label:"Cron",zh:"排程入口",group:"channel",r:1.2},
   {id:"cron-registry",label:"Cron Registry",zh:"系統 cron 任務註冊",group:"channel",r:1.0,desc:"系統 cron 任務註冊（五虎將+41 排程）"},
   {id:"discord",label:"Discord",zh:"Discord 通道",group:"channel",r:1.2},
@@ -407,6 +408,7 @@ const nodes = [
   {id:"interaction-queue",label:"Interaction Queue",zh:"跨通道互動佇列",group:"channel",r:1.0},
   {id:"line",label:"LINE",zh:"LINE@ 通道",group:"channel",r:1.4,desc:"LINE@ 通道（私聊 + 群組 + Room）"},
   {id:"mcp-server",label:"MCP Server",zh:"Claude Code 介面",group:"channel",r:1.2},
+  {id:"message-queue-store",label:"Message Queue Store",zh:"SQLite 訊息佇列持久化",group:"channel",r:1.0,desc:"SQLite 訊息佇列持久化（crash recovery）"},
   {id:"routes-api",label:"Routes API",zh:"SkillHub + External API 端點註冊",group:"channel",r:0.8},
   {id:"telegram",label:"Telegram",zh:"主通道",group:"channel",r:1.6,desc:"主通道（私聊 + 群組）"},
   {id:"telegram-pump",label:"Telegram Pump",zh:"Telegram 訊息泵",group:"channel",r:1.4,desc:"Telegram 訊息泵（收訊→Brain→驗證→發送）"},
@@ -869,6 +871,7 @@ const links = [
   {source:"brain-prompt-builder",target:"governance",label:"brain_prompt_builder.py:468 外部使用者記憶",type:"cross"},
   {source:"brain-prompt-builder",target:"pulse-db",label:"brain_prompt_builder.py:501 PulseDB 脈搏數據",type:"cross"},
   {source:"brain-tools",target:"llm-router",label:"brain_tools.py:134 APICompatResponse 型別引用",type:"cross"},
+  {source:"brain-worker",target:"brain",label:"subprocess 內 MuseonBrain(data_dir=...) 初始化 + process()（v1.52）",type:"cross"},
   {source:"commitment-tracker",target:"brain",label:"承諾自檢",type:"cross"},
   {source:"commitment-tracker",target:"registry",label:"承諾記錄",type:"cross"},
   {source:"crystal-actuator",target:"crystal-store",label:"結晶降級/升級（經由 CrystalStore API）",type:"cross"},
@@ -911,6 +914,7 @@ const links = [
   {source:"footprint",target:"data-bus",label:"cognitive_trace.jsonl 寫入",type:"cross"},
   {source:"gateway",target:"anima-mc-store",label:"API 查詢 ANIMA",type:"cross"},
   {source:"gateway",target:"brain",label:"server.py 訊息泵→Brain.chat()（主要呼叫路徑）",type:"cross"},
+  {source:"gateway",target:"brain-worker",label:"server.py startup 啟動 BrainWorkerManager + shutdown 停止（v1.52）",type:"cross"},
   {source:"gateway",target:"cron",label:"server.py:5000+ cron 排程管理初始化",type:"cross"},
   {source:"gateway",target:"cron-registry",label:"server.py 從 cron_registry.py import cron 任務註冊（v1.50 拆分）",type:"cross"},
   {source:"gateway",target:"doctor",label:"server.py:577+ 呼叫 doctor 全部子模組（health_check/audit/repair/surgeon 等）",type:"cross"},
@@ -919,6 +923,7 @@ const links = [
   {source:"gateway",target:"governance",label:"server.py:2846,:3709,:3843 bulkhead/multi_tenant/group_context",type:"cross"},
   {source:"gateway",target:"immunity",label:"server.py:3233 免疫研究初始化",type:"cross"},
   {source:"gateway",target:"interaction-queue",label:"InteractionQueue 啟動初始化",type:"cross"},
+  {source:"gateway",target:"message-queue-store",label:"server.py startup 初始化 MessageQueueStore singleton（v1.51）",type:"cross"},
   {source:"gateway",target:"multiagent",label:"server.py:1700,:1734,:1762 department_config/shared_assets/okr_router",type:"cross"},
   {source:"gateway",target:"nightly",label:"server.py:1163+ 呼叫 10+ 個 nightly 子模組",type:"cross"},
   {source:"gateway",target:"research-engine",label:"server.py:5721 研究引擎觸發",type:"cross"},
@@ -1056,8 +1061,10 @@ const links = [
   {source:"telegram",target:"governance",label:"telegram.py:245,:318 群組上下文讀寫",type:"cross"},
   {source:"telegram",target:"multiagent",label:"telegram.py:444,:461,:478 飛輪部門查詢",type:"cross"},
   {source:"telegram",target:"pulse-db",label:"telegram.py:583 脈搏讀取",type:"cross"},
+  {source:"telegram-pump",target:"brain-worker",label:"telegram_pump.py _brain_process_with_sla worker 優先路徑（v1.52）",type:"cross"},
   {source:"telegram-pump",target:"governance",label:"telegram_pump.py lazy import: group_context, multi_tenant, rate_limiter",type:"cross"},
   {source:"telegram-pump",target:"interaction-queue",label:"telegram_pump.py lazy import: interaction queue",type:"cross"},
+  {source:"telegram-pump",target:"message-queue-store",label:"telegram_pump.py lazy import: enqueue/mark_done/mark_failed/recover_pending（v1.51 訊息持久化）",type:"cross"},
   {source:"telegram-pump",target:"response-guard",label:"telegram_pump.py 發送前呼叫 ResponseGuard.sanitize_for_group() + chat_id 交叉驗證",type:"cross"},
   {source:"tool-registry",target:"skill-router",label:"工具查找",type:"cross"},
   {source:"vector-index",target:"qdrant",label:"向量存儲（dense）",type:"cross"},
@@ -1102,6 +1109,7 @@ const links = [
   {source:"verified-user",target:"anima-mc-store",label:"配對使用者互動更新 ANIMA_USER（L1-L8 觀察）",type:"async"},
   {source:"zeal",target:"anima-mc-store",label:"Owner 互動觸發 ANIMA_MC 更新（boss_name、self_awareness）",type:"async"},
 ];
+
 
 
 
