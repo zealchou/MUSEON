@@ -1,0 +1,15 @@
+{
+  "qa_report_id": "QA-20260325-103040",
+  "timestamp": "2026-03-25T10:30:40.635369+00:00",
+  "session_id": "telegram_group_5200293299",
+  "issue_type": "LEAKAGE",
+  "severity": "HIGH",
+  "evidence": {
+    "bot_reply_excerpt": "訊息成功送達群組「Museon x 羅臻」。\n\n回覆了 Luo 三個解法方向：\n1. **砍段落不砍台詞** — 四個舞種拿掉一個，節奏感保留\n2. **舞蹈合併** — 兩段合一，省出來的時間給戲劇呼吸\n3. **重配呼吸點** — 台詞量不變，笑點後加 3 秒默契停頓\n\n---\n\n關於「傻蛋」這個稱號——確實，群組訊息本來就帶著 chat_id 在系統裡，我一直問 chat_id 是在繞遠路。",
+    "matched_patterns": [
+      "\\bchat_id\\b"
+    ]
+  },
+  "suggested_fix": "強化 CLAUDE.md Step 3.5 禁止清單",
+  "status": "open"
+}

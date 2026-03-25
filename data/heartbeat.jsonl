@@ -525,3 +525,57 @@
 {"timestamp": "2026-03-25T14:48:45.502947+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
 {"timestamp": "2026-03-25T14:53:45.502732+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
 {"timestamp": "2026-03-25T15:02:11.940201+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T18:00:39.747952+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T18:05:39.748324+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T18:10:39.745288+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T18:15:40.149332+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T18:15:46.411100", "gateway": "alive", "brain": "alive", "llm": "pass", "skills": 53}
+{"timestamp": "2026-03-25T18:20:39.747457+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T18:25:39.745715+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T18:30:39.746857+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T18:35:39.747578+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T18:40:39.747933+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T18:45:40.003480+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T18:45:51.826957", "gateway": "alive", "brain": "alive", "llm": "fail", "skills": 53}
+{"timestamp": "2026-03-25T18:50:39.747895+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T18:55:39.747104+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T19:00:39.746966+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T19:05:39.746838+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T19:15:30.556439+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T19:20:30.557702+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T19:25:30.556396+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T19:30:30.557765+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T19:35:30.558290+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T19:40:30.847466+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T19:40:38.994932", "gateway": "alive", "brain": "alive", "llm": "pass", "skills": 54}
+{"timestamp": "2026-03-25T19:45:30.557881+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T19:50:30.557723+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T19:55:30.558384+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T20:00:30.557249+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T20:05:30.557912+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T20:10:30.960891+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T20:10:39.162830", "gateway": "alive", "brain": "alive", "llm": "pass", "skills": 54}
+{"timestamp": "2026-03-25T20:15:30.557854+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T20:20:30.557133+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T20:25:30.556057+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T20:30:30.557573+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T20:35:30.556913+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T20:40:30.869947+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T20:40:37.541417", "gateway": "alive", "brain": "alive", "llm": "pass", "skills": 54}
+{"timestamp": "2026-03-25T20:46:36.073084+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T20:57:20.626823+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T21:02:20.627748+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T21:07:20.626441+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T21:12:20.627556+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T21:17:20.626754+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T21:22:21.020095+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T21:22:27.749212", "gateway": "alive", "brain": "alive", "llm": "pass", "skills": 55}
+{"timestamp": "2026-03-25T21:27:20.626399+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T21:33:42.509554+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T21:45:18.742507+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T21:50:18.746807+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T21:55:18.743720+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T22:02:21.310798+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T22:07:21.311521+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T22:12:21.310655+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}
+{"timestamp": "2026-03-25T22:21:24.698505+08:00", "pulse_type": "sys", "gateway": "alive", "brain": "alive"}

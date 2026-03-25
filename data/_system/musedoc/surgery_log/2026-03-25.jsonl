@@ -1,0 +1,2 @@
+{"timestamp": "2026-03-25T07:38:11.328724+00:00", "protocol": "SCALPEL", "version": "2.0.0", "fixed": 0, "rolled_back": 0, "needs_human": 9, "skipped": 0, "total_findings": 9, "duration_ms": 335, "dry_run": true}
+{"timestamp": "2026-03-25T11:25:10.855937+00:00", "fixed": 0, "rolled_back": 0, "needs_human": 19, "skipped": 0, "total_findings": 19, "duration_ms": 5, "dry_run": true}

@@ -1,0 +1,24 @@
+{
+  "id": "6d5869ad-378b-402c-bcc0-f4afaf5db5c8",
+  "content": "[失敗經驗] 任務：幫我規劃每天的工作流程：\n1. 早上 8 點整理 email\n2. 早上 9 點產出日報\n3. 下午 2 點檢查客戶回覆\n4. 下午 5 點彙整當日工作摘要\n請幫我列出具體的執行計畫。\n失敗類型：timeout\n回應片段：你的四個時間點是好骨架。補充一個觀察：**客戶訊息不會等到下午 2 點才來**，Feng 這類快決策型客戶對回應速度有隱形期望。所以建議把「固定時間檢查」改成「區塊制 + 即時 flag」，兼顧專注和反應速度。\n\n---\n\n## 每日執行計畫\n\n| 時間 | 任務 | 具體做法 | 護欄 |\n|------|------|---------|------|\n| **08:00–08:15** | ",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "timeout"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:46.188278+08:00",
+  "updated_at": "2026-03-25T21:26:46.188278+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "",
+  "user_id": "boss",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

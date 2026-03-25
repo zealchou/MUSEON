@@ -1,0 +1,25 @@
+{
+  "id": "564c39f7-2c11-4406-8a22-5fe21cca92db",
+  "content": "[教訓] 測試通過≠系統會執行——驗證時必須追蹤完整執行路徑\n\n事件：2026-03-25 修復 7 條斷裂管線，手動測試全部通過，宣布修復完成。獨立審計 subagent 反向 BDD 驗證後發現只修好 2 條。根因：(1) Step 18.5 註冊了 self._steps 但沒加入 _FULL_STEPS 執行清單→死代碼 (2) Guardian 消費端路徑用猜的，跟寫入端路徑不匹配 (3) Intuition 加了消費端但生產端（heuristic 規則生成器）不存在 (4) recall_procedures 降了門檻但 record_success() 沒有呼叫者。\n\n規則：\n1. 新增排程步驟後確認執行清單（_FULL_STEPS）包含它\n2. 新增事件處理後確認觸發源存在且路徑正確（讀寫入端代碼，不用猜）\n3. 新增消費端後確認生產端存在且有資料\n4. 降低門檻後確認計數器有遞增機制\n5. 重大修改完成後 spawn 獨立審計 subagent 做反向 BDD 驗證——自己驗自己有盲點",
+  "layer": "L1_short",
+  "tags": [
+    "lesson",
+    "verification",
+    "execution_path",
+    "bdd"
+  ],
+  "quality_tier": "gold",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:46.488506+08:00",
+  "updated_at": "2026-03-25T21:26:46.488506+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "boss_directive",
+  "outcome": "",
+  "user_id": "boss",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

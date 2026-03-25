@@ -1,0 +1,25 @@
+{
+  "id": "4f241be0-701f-45a6-b9b0-49c8dde99a5b",
+  "content": "[教訓] 任何迭代/debug 完成後強制執行 Fix-Verify 三維閉環。來自 2026-03-25 三輪迭代的教訓：第一輪自驗 29%，第二輪 57%，第三輪才 100%。自己驗自己有盲點，必須 spawn 隔離審計員。三維：D1 行為 BDD + D2 接線（消費端→寫入端路徑、排程清單、觸發源）+ D3 藍圖同步。",
+  "layer": "L1_short",
+  "tags": [
+    "lesson",
+    "fix-verify",
+    "workflow",
+    "mandatory"
+  ],
+  "quality_tier": "gold",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:46.651393+08:00",
+  "updated_at": "2026-03-25T21:26:46.651393+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "boss_directive",
+  "outcome": "",
+  "user_id": "boss",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

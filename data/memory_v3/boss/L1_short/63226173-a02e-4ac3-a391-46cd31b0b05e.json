@@ -1,0 +1,24 @@
+{
+  "id": "63226173-a02e-4ac3-a391-46cd31b0b05e",
+  "content": "[失敗經驗] 任務：   \n\t  \n  \n失敗類型：general_failure\n回應片段：我現在開始執行晨報流程。\n\n搜尋今日企業個案（成功 + 失敗）中...",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:46.021066+08:00",
+  "updated_at": "2026-03-25T21:26:46.021066+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "",
+  "user_id": "boss",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

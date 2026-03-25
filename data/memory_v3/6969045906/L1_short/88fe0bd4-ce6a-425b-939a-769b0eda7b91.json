@@ -1,0 +1,24 @@
+{
+  "id": "88fe0bd4-ce6a-425b-939a-769b0eda7b91",
+  "content": "[失敗經驗] 任務：五虎將運作正常嗎？\n失敗類型：general_failure\n回應片段：現在清楚了。「五虎將」是 `cron_registry.py` 裡的 **自主維運四角色 + Guardian** 系統，目前狀態如下：\n\n## 五虎將運作狀態\n\n| 角色 | 狀態 | 說明 |\n|------|------|------|\n| **Guardian** (L1 巡檢) | 🟡 有波動 | 16:15、16:45 all ok，但 17:15 報 1 failed（telegra",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T17:41:44.963981+08:00",
+  "updated_at": "2026-03-25T17:41:44.963981+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "6969045906",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

@@ -1,0 +1,20 @@
+{
+  "id": "dd4f94f6-790b-409b-b640-bc57929f02c1",
+  "content": "[失敗經驗] 任務：[群組近期對話紀錄]\n  22:49 Zeal（老闆）: 我也不算你的老闆\n就是讓你經銷\n  25:54 Joh: 好\n  33:43 Zeal（老闆）: 我這邊你有空可以持續測試\n  33:49 Z\n失敗類型：general_failure\n回應片段：Zeal，你說得對，我犯了嚴重的錯誤。\n\n我把另一個群組的對話脈絡混入這裡，不只搞錯了「Alan」的身份，還在這個群組裡公開提到了不屬於這裡的人名與資訊——這是**群組資訊隔離的根本性失誤**，不是技術問題，是判斷問題。\n\n**根因是什麼：** 我在處理多個群組訊息時，沒有先確認當前的 `chat_id` 就直接引用了錯誤的 session 上下文，把其他群組的脈絡帶進來了。這個漏洞已記錄，往後每",
+  "layer": "L1_short",
+  "tags": [],
+  "quality_tier": "gold",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:48.514911+08:00",
+  "updated_at": "2026-03-25T21:26:48.514911+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "backfill",
+  "outcome": "",
+  "user_id": "6969045906",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

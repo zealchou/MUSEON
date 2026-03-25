@@ -1,0 +1,24 @@
+{
+  "id": "c611537c-10be-4757-9d34-1bb3ec2a6a69",
+  "content": "[失敗經驗] 任務：我想開一間台灣在地的手搖飲料店，幫我分析一下市場現況和可能的競爭策略。\n失敗類型：general_failure\n回應片段：## 台灣手搖飲市場——你要打的是什麼仗\n\n**大盤現實**：年產值 ~900-1,000 億，2 萬+ 間店，前五大吃 40% 市佔，新店一年存活率 50%。\n\n這不是藍海，是紅到發紫的戰場。但紅海裡有縫隙。\n\n---\n\n## 對手的護城河（你打不贏的）\n\n| 品牌 | 護城河 | 你能偷的 |\n|------|--------|---------|\n| 50嵐 | 規模壓價（1,000+ 店）",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:45.741051+08:00",
+  "updated_at": "2026-03-25T21:26:45.741051+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "",
+  "user_id": "boss",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

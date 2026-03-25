@@ -1,0 +1,24 @@
+{
+  "id": "47cc6120-c4f3-4263-922a-0eb3c47a1dbe",
+  "content": "[失敗經驗] 任務：   \n\t  \n  \n失敗類型：general_failure\n回應片段：✅ **狀態同步**\n\n1. **rsync 同步** + **Gateway 重啟** ← 讓修改生效\n2. **驗證五虎將啟動**（看 logs/gateway.err）\n3. **Amber 群組跨群問題** ← 可能 ResponseGuard 仍未完全修復\n4. **MuseDoc 自動修復流程** ← 決定要不要啟用\n\n---\n\n你想按順序執行這些，還是有別的優先項？\n\n🔴 **1. ",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:46.387226+08:00",
+  "updated_at": "2026-03-25T21:26:46.387226+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "",
+  "user_id": "boss",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

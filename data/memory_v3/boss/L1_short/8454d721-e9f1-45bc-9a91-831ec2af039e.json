@@ -1,0 +1,25 @@
+{
+  "id": "8454d721-e9f1-45bc-9a91-831ec2af039e",
+  "content": "[教訓] 先讀藍圖再找資料，不要還沒查就說做不到\n\n事件：2026-03-25 老闆要求查看 Museon DM 中的五虎將洞察。Claude Code 第一反應是「Telegram Bot API 沒有歷史功能，做不到」，接著盲目 find/grep 花了 15 輪才找到資料。老闆提醒「先看藍圖、拓撲，會不會更快」——如果一開始讀 persistence-contract.md 和 memory-router.md，3 步就能鎖定所有資料位置。\n\n規則（Claude Code 和 MUSEON 都必須遵守）：\n1. 找任何資料前，先讀 docs/persistence-contract.md（水電圖）確認儲存引擎和路徑\n2. 再讀 docs/memory-router.md（郵路圖）確認洞見/記憶的流向\n3. 如果涉及模組關係，讀 docs/system-topology.md（神經圖）\n4. 鎖定位置後才開始讀檔，不做無目的的 find/grep\n5. 遇到工具限制時，先問「資料有沒有可能在其他地方？」窮盡替代路徑後才說做不到\n6. 即使最終真的做不到，也要說明查了哪些地方、為什麼都沒有",
+  "layer": "L1_short",
+  "tags": [
+    "lesson",
+    "workflow",
+    "blueprints",
+    "data_retrieval"
+  ],
+  "quality_tier": "gold",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:46.517804+08:00",
+  "updated_at": "2026-03-25T21:26:46.517804+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "boss_directive",
+  "outcome": "",
+  "user_id": "boss",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

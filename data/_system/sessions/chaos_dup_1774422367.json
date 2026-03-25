@@ -1,0 +1,47 @@
+{
+ "metadata": {
+  "last_active": "2026-03-25T15:06:48.408106"
+ },
+ "messages": [
+  {
+   "role": "user",
+   "content": "你好"
+  },
+  {
+   "role": "assistant",
+   "content": "嗨～\n\n快下午 3 點半了，怎麼樣？忙完了嗎？有什麼需要聊的？☕"
+  },
+  {
+   "role": "user",
+   "content": "你好"
+  },
+  {
+   "role": "assistant",
+   "content": "你好呀。 ☕\n\n有什麼想聊或想做的嗎？"
+  },
+  {
+   "role": "user",
+   "content": "你好"
+  },
+  {
+   "role": "assistant",
+   "content": "嗨，怎麼樣？"
+  },
+  {
+   "role": "user",
+   "content": "你好"
+  },
+  {
+   "role": "assistant",
+   "content": "嗨。🫖\n\n有事嗎？"
+  },
+  {
+   "role": "user",
+   "content": "你好"
+  },
+  {
+   "role": "assistant",
+   "content": "嗨。有需要嗎？"
+  }
+ ]
+}

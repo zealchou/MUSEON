@@ -1,0 +1,24 @@
+{
+  "id": "1c0ad3d2-5056-44a6-8ee4-a347fd4123e9",
+  "content": "[失敗經驗] 任務：我有一個做手工皂的朋友想創業，目前月營收約 3 萬元，主要在蝦皮賣。她想擴大規模但不知道怎麼做。幫我做一個簡單的商業診斷。\n失敗類型：general_failure\n回應片段：月營收 3 萬、蝦皮為主——在給方案之前，有個更根本的問題要先釐清。\n\n---\n\n## 診斷：問題不在「怎麼擴大」，在「擴大什麼」\n\n她現在的 3 萬，本質上是**租來的營收**。蝦皮的流量不是她的，演算法調一次銷量就砍一半。如果「擴大」= 在蝦皮投更多廣告、上更多品項，那她只是在替平台打工，規模越大風險越大。\n\n手工皂真正的武器是**復購黏性和轉介紹**——用過好的皂，會回來買、會推薦朋友。但這",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:45.583063+08:00",
+  "updated_at": "2026-03-25T21:26:45.583063+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "",
+  "user_id": "boss",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

@@ -1,0 +1,20 @@
+{
+  "id": "3073f990-a651-4ddc-ad02-124168eda519",
+  "content": "[失敗經驗] 任務：[群組近期對話紀錄]\n  53:04 Feng: @MuseonClaw_bot \n先測試方式 B  \nPair Code :  2a9d92af55741b7a2263300b4ce5a65d\n  \n失敗類型：general_failure\n回應片段：進度已在上面說明（19 項中 12 項通過、5 項待測、2 項待 SDK）。\n\n**現在就能做的，無需等待：**\n\n```\n3 項可立即補測（5 分鐘）\n├─ 2.4：用同一個 pair code 再試一次 → 應該 409 PAIR_CODE_USED\n├─ 3.4：送過期 timestamp（10 分鐘前） → 應該 422\n└─ 5.1-5.3：三個錯誤處理測試\n\n### 🔴 需要釐清\n1.",
+  "layer": "L1_short",
+  "tags": [],
+  "quality_tier": "gold",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:47.615530+08:00",
+  "updated_at": "2026-03-25T21:26:47.615530+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "backfill",
+  "outcome": "",
+  "user_id": "8252847174",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

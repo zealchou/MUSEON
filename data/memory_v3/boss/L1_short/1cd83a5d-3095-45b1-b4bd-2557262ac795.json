@@ -1,0 +1,24 @@
+{
+  "id": "1cd83a5d-3095-45b1-b4bd-2557262ac795",
+  "content": "[失敗經驗] 任務：最近壓力真的很大，工作做不完，回家又要照顧小孩，覺得快要崩潰了。\n失敗類型：general_failure\n回應片段：聽到了。你撐到現在已經很不容易。\n\n**今晚就做這一件事：** 找一個 30 分鐘，什麼都不做。不是滑手機，是真的放空——散步、躺著、發呆都好。讓身體知道「可以停」。\n\n**明天早上：** 只寫三件「不做會死」的事，其他全部不存在。\n\n---\n\n如果這種狀態超過兩週了，不是意志力的問題，是身體在求救。掛一次家醫科或身心科，不丟臉，是聰明的做法。\n\n工作上能丟給我的，現在就丟過來。",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:45.871137+08:00",
+  "updated_at": "2026-03-25T21:26:45.871137+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "",
+  "user_id": "boss",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

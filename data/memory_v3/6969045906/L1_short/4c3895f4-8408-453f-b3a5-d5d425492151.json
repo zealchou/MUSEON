@@ -1,0 +1,20 @@
+{
+  "id": "4c3895f4-8408-453f-b3a5-d5d425492151",
+  "content": "[失敗經驗] 任務：[回覆 霓裳 的訊息：你完全對，我沒讀清現有設計。\n\n已經實裝的四層衰減機制\n\n| 層級 | 機制 | 位置 |\n|------|------|------|\n| 記憶六層 | TTL（7-180 天\n失敗類型：general_failure\n回應片段：你的直覺完全正確。以下是驗證結果：\n\n---\n\n## 藍圖斷鏈診斷\n\n### 程式碼裡有，藍圖裡缺的\n\n| 衰減機制（程式碼中已實作） | system-topology | blast-radius | joint-map | persistence-contract | 3D 心智圖 |\n|---------------------------|:-:|:-:|:-:|:-:|:-:|\n| `",
+  "layer": "L1_short",
+  "tags": [],
+  "quality_tier": "gold",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:47.930654+08:00",
+  "updated_at": "2026-03-25T21:26:47.930654+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "backfill",
+  "outcome": "",
+  "user_id": "6969045906",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

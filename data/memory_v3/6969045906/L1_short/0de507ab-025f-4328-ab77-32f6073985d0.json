@@ -1,0 +1,20 @@
+{
+  "id": "0de507ab-025f-4328-ab77-32f6073985d0",
+  "content": "[失敗經驗] 任務：你傳錯群組了\n是士維 不是 符大哥\n失敗類型：general_failure\n回應片段：已送出！這次正確發到「MUSEON 測試 x 士維」群組了（message_id: 3987）。抱歉之前搞混群組。",
+  "layer": "L1_short",
+  "tags": [],
+  "quality_tier": "gold",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:48.019814+08:00",
+  "updated_at": "2026-03-25T21:26:48.019814+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "backfill",
+  "outcome": "",
+  "user_id": "6969045906",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

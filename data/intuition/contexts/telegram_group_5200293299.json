@@ -11,12 +11,154 @@
       },
       "created_at": "2026-03-25T13:26:29.585228",
       "updated_at": "2026-03-25T13:26:29.585238"
+    },
+    "emotion_興奮": {
+      "node_id": "emotion_興奮",
+      "node_type": "emotion",
+      "label": "興奮",
+      "properties": {
+        "detected_at": "2026-03-25T20:43:33.371486",
+        "source": "text_analysis"
+      },
+      "created_at": "2026-03-25T15:50:25.583338",
+      "updated_at": "2026-03-25T20:43:33.371654"
+    },
+    "intention_求助": {
+      "node_id": "intention_求助",
+      "node_type": "intention",
+      "label": "求助",
+      "properties": {
+        "detected_at": "2026-03-25T20:43:33.371486"
+      },
+      "created_at": "2026-03-25T15:50:25.583362",
+      "updated_at": "2026-03-25T20:43:33.371703"
+    },
+    "topic_turn_3": {
+      "node_id": "topic_turn_3",
+      "node_type": "topic",
+      "label": "turn_3",
+      "properties": {
+        "content_length": 1125,
+        "detected_at": "2026-03-25T15:50:25.583272"
+      },
+      "created_at": "2026-03-25T15:50:25.583371",
+      "updated_at": "2026-03-25T15:50:25.583373"
+    },
+    "topic_turn_4": {
+      "node_id": "topic_turn_4",
+      "node_type": "topic",
+      "label": "turn_4",
+      "properties": {
+        "content_length": 1167,
+        "detected_at": "2026-03-25T15:53:08.214058"
+      },
+      "created_at": "2026-03-25T15:53:08.214284",
+      "updated_at": "2026-03-25T15:53:08.214288"
+    },
+    "topic_turn_5": {
+      "node_id": "topic_turn_5",
+      "node_type": "topic",
+      "label": "turn_5",
+      "properties": {
+        "content_length": 1211,
+        "detected_at": "2026-03-25T17:23:43.267465"
+      },
+      "created_at": "2026-03-25T17:23:43.267705",
+      "updated_at": "2026-03-25T17:23:43.267709"
+    },
+    "topic_turn_6": {
+      "node_id": "topic_turn_6",
+      "node_type": "topic",
+      "label": "turn_6",
+      "properties": {
+        "content_length": 1099,
+        "detected_at": "2026-03-25T17:25:48.644692"
+      },
+      "created_at": "2026-03-25T17:25:48.645021",
+      "updated_at": "2026-03-25T17:25:48.645025"
+    },
+    "topic_turn_7": {
+      "node_id": "topic_turn_7",
+      "node_type": "topic",
+      "label": "turn_7",
+      "properties": {
+        "content_length": 719,
+        "detected_at": "2026-03-25T17:32:29.881522"
+      },
+      "created_at": "2026-03-25T17:32:29.881725",
+      "updated_at": "2026-03-25T17:32:29.881729"
+    },
+    "topic_turn_8": {
+      "node_id": "topic_turn_8",
+      "node_type": "topic",
+      "label": "turn_8",
+      "properties": {
+        "content_length": 900,
+        "detected_at": "2026-03-25T18:04:37.526856"
+      },
+      "created_at": "2026-03-25T18:04:37.527038",
+      "updated_at": "2026-03-25T18:04:37.527041"
+    },
+    "topic_turn_9": {
+      "node_id": "topic_turn_9",
+      "node_type": "topic",
+      "label": "turn_9",
+      "properties": {
+        "content_length": 846,
+        "detected_at": "2026-03-25T18:21:39.467844"
+      },
+      "created_at": "2026-03-25T18:21:39.467983",
+      "updated_at": "2026-03-25T18:21:39.467985"
+    },
+    "topic_turn_10": {
+      "node_id": "topic_turn_10",
+      "node_type": "topic",
+      "label": "turn_10",
+      "properties": {
+        "content_length": 909,
+        "detected_at": "2026-03-25T18:34:15.177264"
+      },
+      "created_at": "2026-03-25T18:34:15.177497",
+      "updated_at": "2026-03-25T18:34:15.177501"
+    },
+    "topic_turn_11": {
+      "node_id": "topic_turn_11",
+      "node_type": "topic",
+      "label": "turn_11",
+      "properties": {
+        "content_length": 919,
+        "detected_at": "2026-03-25T18:40:29.197683"
+      },
+      "created_at": "2026-03-25T18:40:29.197845",
+      "updated_at": "2026-03-25T18:40:29.197848"
+    },
+    "topic_turn_12": {
+      "node_id": "topic_turn_12",
+      "node_type": "topic",
+      "label": "turn_12",
+      "properties": {
+        "content_length": 1123,
+        "detected_at": "2026-03-25T18:44:29.236393"
+      },
+      "created_at": "2026-03-25T18:44:29.236583",
+      "updated_at": "2026-03-25T18:44:29.236586"
+    },
+    "topic_turn_13": {
+      "node_id": "topic_turn_13",
+      "node_type": "topic",
+      "label": "turn_13",
+      "properties": {
+        "content_length": 1743,
+        "detected_at": "2026-03-25T20:43:33.371486"
+      },
+      "created_at": "2026-03-25T20:43:33.371717",
+      "updated_at": "2026-03-25T20:43:33.371720"
     }
   },
   "edges": {},
   "metadata": {
-    "turn_count": 1,
-    "last_content_length": 197
+    "turn_count": 12,
+    "last_content_length": 1743
   },
-  "last_updated": "2026-03-25T13:26:29.584858"
+  "last_updated": "2026-03-25T20:43:33.371486"
 }

@@ -1,0 +1,20 @@
+{
+  "id": "f3abd8e2-29d9-4c4a-aae9-08387f091b1f",
+  "content": "[失敗經驗] 任務：[群組近期對話紀錄]\n  28:26 你的資源跟手腳（老闆）: 正在 debug 中\n  04:01 Feng: 目前訂閱制剩下測試和金流的部份\n  04:46 Feng: 第二階段快要好了，\n等等來\n失敗類型：general_failure\n回應片段：Feng，文件看完了。很清楚。\n\n---\n\n## 立刻確認三個點\n\n1. **Agent SDK 位置** — 檔案提到 `agent-sdk/muc_agent.py` 這個 SDK，現在在你那邊嗎？還是我需要從零寫起？\n\n2. **時鐘同步** — 文件說 timestamp 容許窗口 ±5 分鐘，Agent 端要 NTP 校正還是用「Server Time 補償」？（你有推薦的方案嗎？）\n\n",
+  "layer": "L1_short",
+  "tags": [],
+  "quality_tier": "gold",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:47.068918+08:00",
+  "updated_at": "2026-03-25T21:26:47.068918+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "backfill",
+  "outcome": "",
+  "user_id": "8252847174",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

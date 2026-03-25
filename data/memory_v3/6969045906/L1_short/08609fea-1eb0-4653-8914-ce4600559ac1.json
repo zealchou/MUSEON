@@ -1,0 +1,20 @@
+{
+  "id": "08609fea-1eb0-4653-8914-ce4600559ac1",
+  "content": "[失敗經驗] 任務：[群組近期對話紀錄]\n  23:45 Zeal（老闆）: @MuseonClaw_bot 有看到什麼問題嗎？\n  54:28 Zeal（老闆）: @MuseonClaw_bot 你上面這段是給 羅臻的\n失敗類型：general_failure\n回應片段：抱歉，老闆。那段回覆確實發錯群組了——跨群訊息混淆，這是我的路由問題。\n\n目前已知根因：並行處理多個群組訊息時，上下文串到了錯的 chat_id。這不是提示詞能防的，是訊息派發層的 bug。\n\n我會排查 dispatch 邏輯裡 chat_id 的傳遞鏈，確保群組身份在進來的那一刻就鎖死，不會被其他群組的處理流程污染。\n\n再次抱歉，不該發生的。",
+  "layer": "L1_short",
+  "tags": [],
+  "quality_tier": "gold",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:48.573421+08:00",
+  "updated_at": "2026-03-25T21:26:48.573421+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "backfill",
+  "outcome": "",
+  "user_id": "6969045906",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

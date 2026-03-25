@@ -1,0 +1,24 @@
+{
+  "id": "d22cd2e8-2b37-4d42-884e-074f44d7ee1b",
+  "content": "[失敗經驗] 任務：我想創業，打算做一個面向台灣中小企業的 AI 顧問工具。幫我分析市場機會和競爭格局，列出前三個最關鍵的風險。\n失敗類型：general_failure\n回應片段：## 台灣中小企業 AI 顧問工具——市場機會與競爭格局\n\n---\n\n### 市場機會\n\n| 指標 | 數字 |\n|------|------|\n| 台灣中小企業總數 | ~163 萬家 |\n| 月營收 100 萬以上（你的目標客群） | 估計 15-20 萬家 |\n| 目前了解 AI 的比例 | **僅 8%**（92% 不了解或僅粗淺了解）|\n| 政府 2025 年科技預算 | 49.9 億美",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:46.834604+08:00",
+  "updated_at": "2026-03-25T21:26:46.834604+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "",
+  "user_id": "boss",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

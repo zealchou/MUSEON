@@ -1,0 +1,47 @@
+{
+ "metadata": {
+  "last_active": "2026-03-25T15:15:18.469909"
+ },
+ "messages": [
+  {
+   "role": "user",
+   "content": "你好"
+  },
+  {
+   "role": "assistant",
+   "content": "你好！我在線，隨時準備。\n\n有什麼需要幫忙的嗎？"
+  },
+  {
+   "role": "user",
+   "content": "你好"
+  },
+  {
+   "role": "assistant",
+   "content": "你好！我是 MUSEON。\n\n最近在忙什麼？有什麼我能幫的嗎？"
+  },
+  {
+   "role": "user",
+   "content": "你好"
+  },
+  {
+   "role": "assistant",
+   "content": "你好！😊\n\n狀態良好。今天有什麼想探索或需要推進的嗎？"
+  },
+  {
+   "role": "user",
+   "content": "你好"
+  },
+  {
+   "role": "assistant",
+   "content": "在線。\n\n需要什麼？"
+  },
+  {
+   "role": "user",
+   "content": "你好"
+  },
+  {
+   "role": "assistant",
+   "content": "在線。\n\n有具體要推進的事嗎？"
+  }
+ ]
+}

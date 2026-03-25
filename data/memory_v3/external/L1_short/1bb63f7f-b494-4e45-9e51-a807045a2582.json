@@ -1,0 +1,20 @@
+{
+  "id": "1bb63f7f-b494-4e45-9e51-a807045a2582",
+  "content": "[失敗經驗] 任務：@MuseonClaw_bot 看來測試應該是成功了，\n1.  有要在測試的嘛？\n2. api或sdk的部份有要優化或修正的嘛？\n3. 這個sdk有辦法做到，放進去子體後，如果那掉修改，子體就壞掉嘛？\n失敗類型：general_failure\n回應片段：Feng，四個問題逐一回答：\n\n### 1. 還要再測試嗎？\n**不用了。** 19/19 全過，覆蓋了正常流程 + 安全邊界 + 錯誤處理 + SDK 自動化。除非你之後改了 API 邏輯，不然不需要再測。\n\n### 2. API 或 SDK 需要優化或修正嗎？\n\nSDK 有一個問題：**`muc_agent.py` 目前沒有做 Ed25519 簽章驗證。**\n\n`get_entitlement",
+  "layer": "L1_short",
+  "tags": [],
+  "quality_tier": "gold",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:47.702589+08:00",
+  "updated_at": "2026-03-25T21:26:47.702589+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "backfill",
+  "outcome": "",
+  "user_id": "external",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

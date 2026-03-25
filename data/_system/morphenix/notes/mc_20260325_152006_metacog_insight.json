@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260325_152006_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n**修改方向**（100字以內）：\n1. 不要丟決策給使用者，改為直接建議具體步驟（「我現在檢查 30+ 改動→分類為『必須本次』和『下次』→提交 + 打包驗證」）\n2. 補充缺失上下文：這 30+ 改動中哪些會影響 Feng 的報告？是否需要 Feng 那邊等待？\n3. 去掉「你要哪一種」的提問，改為「我建議 X 路線，理由是…」\n\n**核心缺陷**：給了意見卻沒給步驟。使用者期",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-25T15:20:06.652785+08:00",
+  "priority": "medium"
+}

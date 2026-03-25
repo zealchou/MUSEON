@@ -1,0 +1,148 @@
+{
+  "version": "3.0.0",
+  "user_id": "8271745245",
+  "created_at": "2026-03-25T17:23:43.261632",
+  "interaction_count": 6,
+  "last_seen": "2026-03-25T18:48:28.328234",
+  "display_name": "Luo",
+  "context_summary": "",
+  "profile": {
+    "name": "Luo",
+    "role": null,
+    "business_type": "unknown"
+  },
+  "relationship": {
+    "trust_level": "building",
+    "total_interactions": 6,
+    "positive_signals": 0,
+    "negative_signals": 0,
+    "last_interaction": "2026-03-25T18:48:28.328234",
+    "first_interaction": "2026-03-25T17:23:43.261646"
+  },
+  "eight_primals": {
+    "aspiration": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "accumulation": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "action_power": {
+      "level": 10,
+      "confidence": 0.12,
+      "signal": "[群組近期對話紀錄]   23:32 Zeal（老闆）: @MuseonClaw_bot 看得到 羅甄前面有需要你回覆的問題嗎？   26:04 Zeal（老闆",
+      "last_observed": "2026-03-25T18:48:28.328234"
+    },
+    "curiosity": {
+      "level": 48,
+      "confidence": 0.16,
+      "signal": "[群組近期對話紀錄]   23:32 Zeal（老闆）: @MuseonClaw_bot 看得到 羅甄前面有需要你回覆的問題嗎？   26:04 Zeal（老闆",
+      "last_observed": "2026-03-25T18:48:28.328234"
+    },
+    "emotion_pattern": {
+      "level": 10,
+      "confidence": 0.16,
+      "signal": "[群組近期對話紀錄]   23:32 Zeal（老闆）: @MuseonClaw_bot 看得到 羅甄前面有需要你回覆的問題嗎？   26:04 Zeal（老闆",
+      "last_observed": "2026-03-25T18:48:28.328234"
+    },
+    "blindspot": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "boundary": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "relationship_depth": {
+      "level": 10,
+      "confidence": 0.16,
+      "signal": "[群組近期對話紀錄]   15:47 Zeal（老闆）: 暫時不要動它   15:47 Luo: 了解沒關係   15:47 Zeal（老闆）: 是大改，整個系",
+      "last_observed": "2026-03-25T18:40:28.389189"
+    }
+  },
+  "seven_layers": {
+    "L1_facts": [
+      {
+        "category": "occupation",
+        "snippet": "[群組近期對話紀錄]\n  15:46 Luo: 我剛剛在調整學校對表演的橋段修改，我們原本總共5分鐘3分鐘的戲劇 2分鐘的舞蹈(第一段50秒 第二段1分6秒) 現在學校要我們調整成3 分半鐘的演出，我",
+        "date": "2026-03-25T17:25:14.445706"
+      },
+      {
+        "category": "occupation",
+        "snippet": "[群組近期對話紀錄]\n  15:46 Luo: ## 🎭《夏之饗宴：誰最厲害!》四人搞笑舞蹈劇本\n\n演出人數：4人（倫巴、恰恰、鬥牛、森巴）\n時間長度：3~5 分鐘\n舞種：倫巴 Rumba、恰恰 Ch",
+        "date": "2026-03-25T17:30:44.380186"
+      },
+      {
+        "category": "occupation",
+        "snippet": "[群組近期對話紀錄]\n  15:46 Luo: @MuseonClaw_bot 請協助一起討論上面三段訊息\n  15:46 Luo: @MuseonClaw_bot 你在嗎?\n  15:46 Zeal",
+        "date": "2026-03-25T17:38:48.133301"
+      },
+      {
+        "category": "occupation",
+        "snippet": "[群組近期對話紀錄]\n  15:47 Zeal（老闆）: 暫時不要動它\n  15:47 Luo: 了解沒關係\n  15:47 Zeal（老闆）: 是大改，整個系統結構\n  15:47 Luo: 好喔等",
+        "date": "2026-03-25T18:40:28.389189"
+      },
+      {
+        "category": "occupation",
+        "snippet": "[群組近期對話紀錄]\n  15:47 Zeal（老闆）: 是大改，整個系統結構\n  15:47 Luo: 好喔等你OK\n  23:32 Zeal（老闆）: @MuseonClaw_bot 看得到 羅甄",
+        "date": "2026-03-25T18:44:28.546523"
+      },
+      {
+        "category": "occupation",
+        "snippet": "[群組近期對話紀錄]\n  23:32 Zeal（老闆）: @MuseonClaw_bot 看得到 羅甄前面有需要你回覆的問題嗎？\n  26:04 Zeal（老闆）: 嗯，還在當機\n  24:00 Ze",
+        "date": "2026-03-25T18:48:28.328234"
+      }
+    ],
+    "L2_personality": [],
+    "L6_communication_style": {
+      "detail_level": "detailed",
+      "emoji_usage": "none",
+      "language_mix": "mixed",
+      "avg_msg_length": 615,
+      "question_style": "open",
+      "tone": "casual"
+    }
+  },
+  "preferences": {
+    "communication_style": "detailed"
+  },
+  "recent_topics": [
+    {
+      "snippet": "@MuseonClaw_bot 再麻煩妳",
+      "date": "2026-03-25T17:25:14.445706"
+    },
+    {
+      "snippet": "@MuseonClaw_bot 但我想要請你幫我直接改 我們先從一你來調整好了",
+      "date": "2026-03-25T17:30:44.380186"
+    },
+    {
+      "snippet": "@MuseonClaw_bot",
+      "date": "2026-03-25T17:38:48.133301"
+    },
+    {
+      "snippet": "@MuseonClaw_bot",
+      "date": "2026-03-25T18:40:28.389189"
+    },
+    {
+      "snippet": "@MuseonClaw_bot",
+      "date": "2026-03-25T18:44:28.546523"
+    },
+    {
+      "snippet": "@MuseonClaw_bot 原始劇本",
+      "date": "2026-03-25T18:48:28.328234"
+    }
+  ],
+  "groups_seen_in": [
+    -5200293299
+  ],
+  "relationship_to_owner": ""
+}

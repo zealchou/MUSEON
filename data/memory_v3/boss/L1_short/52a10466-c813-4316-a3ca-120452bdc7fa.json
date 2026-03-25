@@ -1,0 +1,24 @@
+{
+  "id": "52a10466-c813-4316-a3ca-120452bdc7fa",
+  "content": "[失敗經驗] 任務：我想開一間台灣在地的手搖飲料店，幫我分析一下市場現況和可能的競爭策略。\n失敗類型：general_failure\n回應片段：先問你三個會大幅改變分析方向的條件：\n\n1. **有無餐飲經驗？**（從零開始 vs 有底子，策略完全不同）\n2. **預算區間？**（80萬以下 / 80-150萬 / 150萬以上）\n3. **全職投入還是兼職試水？**\n\n---\n\n## 台灣手搖飲市場現況\n\n**大盤**：年產值 ~900-1,000 億，全台超 2 萬間店，前五大品牌吃 ~40% 市佔，新店一年存活率約 50%。\n\n**成",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:45.926705+08:00",
+  "updated_at": "2026-03-25T21:26:45.926705+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "",
+  "user_id": "boss",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

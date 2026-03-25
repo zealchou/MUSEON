@@ -1,0 +1,20 @@
+{
+  "id": "7f7c94db-1763-443a-8d72-f7116dd738b0",
+  "content": "[失敗經驗] 任務：Mirofish 知道嗎？DSE一下\n失敗類型：general_failure\n回應片段：知道了。MiroFish 是最近在 GitHub 爆紅的開源項目——**群體智能預測引擎**。跟你猜的「新工具/平台」方向一致，但它不是 SaaS 工具，是一個底層引擎。\n\n---\n\n## DSE 第一性原理拆解\n\n### MiroFish 是什麼\n\n北京郵電大學大四生郭航江的畢業專題。2026 年 3 月登上 GitHub Global Trending #1，28K+ Stars。**陳天橋（",
+  "layer": "L1_short",
+  "tags": [],
+  "quality_tier": "gold",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:48.867817+08:00",
+  "updated_at": "2026-03-25T21:26:48.867817+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "backfill",
+  "outcome": "",
+  "user_id": "6969045906",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

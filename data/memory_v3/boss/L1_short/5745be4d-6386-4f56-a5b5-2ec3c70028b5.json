@@ -1,0 +1,22 @@
+{
+  "id": "5745be4d-6386-4f56-a5b5-2ec3c70028b5",
+  "content": "測試：先讀藍圖再找資料的教訓",
+  "layer": "L1_short",
+  "tags": [
+    "test"
+  ],
+  "quality_tier": "gold",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T20:23:49.779010+08:00",
+  "updated_at": "2026-03-25T20:23:49.779010+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "test",
+  "outcome": "",
+  "user_id": "boss",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

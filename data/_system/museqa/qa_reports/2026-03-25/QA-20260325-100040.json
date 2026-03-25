@@ -1,0 +1,15 @@
+{
+  "qa_report_id": "QA-20260325-100040",
+  "timestamp": "2026-03-25T10:00:40.674760+00:00",
+  "session_id": "chaos_special_4",
+  "issue_type": "LEAKAGE",
+  "severity": "HIGH",
+  "evidence": {
+    "bot_reply_excerpt": "我明白了。**停止循環。**\n\n---\n\n## 現狀\n\n✅ MUSEON 系統正常運作  \n✅ 我已準備好迎接任何工作  \n❌ 缺少新的、具體的輸入\n\n---\n\n## 我需要你的行動\n\n請發送一個**清晰、新的訊息**，說出：\n\n- **要做什麼？** — 修bug / 新功能 / 報告 / 其他\n- **涉及什麼？** — 模組名稱、檔案路徑、或客戶名稱\n- **有 error 嗎？** — 如",
+    "matched_patterns": [
+      "\\b(MCP|plugin|Gateway|Brain|ResponseGuard|EventBus)\\b"
+    ]
+  },
+  "suggested_fix": "強化 CLAUDE.md Step 3.5 禁止清單",
+  "status": "open"
+}

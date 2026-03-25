@@ -1,0 +1,20 @@
+{
+  "id": "1602999c-0fea-4a4c-bb02-ab9bc05d09b4",
+  "content": "[失敗經驗] 任務：Zeal，我被安全限制擋住了——目前這個 session 只能存取 .runtime 目錄，無法操作 museon-reports repo 也無法執行 gh 指令。\n\n你幫我跑這三行就好：\n\n``b\n失敗類型：general_failure\n回應片段：確認了——這個 session 被沙盒限制在 `.runtime/` 目錄，無法存取 `~/museon-reports/` 或執行 `gh` 指令。\n\n---\n\n## 你在本地終端跑這段就好\n\n```bash\n# 1. 如果 museon-reports 不存在，先 clone\n[ ! -d ~/museon-reports ] && gh repo clone zealchou/museon-",
+  "layer": "L1_short",
+  "tags": [],
+  "quality_tier": "gold",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:48.339518+08:00",
+  "updated_at": "2026-03-25T21:26:48.339518+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "backfill",
+  "outcome": "",
+  "user_id": "6969045906",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

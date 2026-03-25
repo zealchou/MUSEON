@@ -1,0 +1,20 @@
+{
+  "id": "bbf40093-057b-46fb-8c2f-f6cb1770e488",
+  "content": "[失敗經驗] 任務：[群組近期對話紀錄]\n  32:54 Feng: @MuseonClaw_bot 我們要來測試啦\n  44:52 你的資源跟手腳（老闆）: @MuseonClaw_bot \n完成了喔，全力配合 Fen\n失敗類型：general_failure\n回應片段：Feng，結果出來了：\n\n| 項目 | 結果 |\n|------|------|\n| API 通路 | ✅ 通了（JSON 回應） |\n| HTTP 狀態 | 409 |\n| 錯誤碼 | `PAIR_CODE_USED` |\n| 意思 | 這組碼已經被用過了 |\n\n**API 是通的，路徑完全正確。** 只是這組 Pair Code 已經被消費掉了（可能你那邊測試時已經用過一次）。\n\n**再給我一",
+  "layer": "L1_short",
+  "tags": [],
+  "quality_tier": "gold",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:47.588679+08:00",
+  "updated_at": "2026-03-25T21:26:47.588679+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "backfill",
+  "outcome": "",
+  "user_id": "8252847174",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

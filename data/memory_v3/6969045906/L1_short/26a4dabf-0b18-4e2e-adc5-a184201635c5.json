@@ -1,0 +1,20 @@
+{
+  "id": "26a4dabf-0b18-4e2e-adc5-a184201635c5",
+  "content": "[失敗經驗] 任務：為什麼你的探索報告都做的很醜 沒有美感 也沒有 個案研討報告的那種深度\n失敗類型：general_failure\n回應片段：你說得對，問題很明確。我查完了整個生成鏈。\n\n---\n\n## 診斷結果：兩個根因\n\n### 1. 視覺層：用 90 年代的方式產 HTML\n\n`exploration_report.py` 用的是 **inline style 字串拼接**——所有樣式寫死在 Python f-string 裡。\n\n| | 旅行社報告 | 探索報告 |\n|--|----------|---------|\n| CSS",
+  "layer": "L1_short",
+  "tags": [],
+  "quality_tier": "gold",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T21:26:48.255321+08:00",
+  "updated_at": "2026-03-25T21:26:48.255321+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "backfill",
+  "outcome": "",
+  "user_id": "6969045906",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

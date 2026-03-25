@@ -1,0 +1,23 @@
+{
+ "metadata": {
+  "last_active": "2026-03-25T15:20:15.683960"
+ },
+ "messages": [
+  {
+   "role": "user",
+   "content": "記住：我的公司叫做 MUSEON，做 AI 顧問。"
+  },
+  {
+   "role": "assistant",
+   "content": "已經記住了。MUSEON，AI 顧問，目標客群是台灣中小企業。這些資訊都在我的記憶裡，隨時可以用。\n\n有什麼需要處理的？"
+  },
+  {
+   "role": "user",
+   "content": "我的公司叫什麼？"
+  },
+  {
+   "role": "assistant",
+   "content": "MUSEON。\n\n做 AI 顧問，服務台灣中小企業。"
+  }
+ ]
+}
