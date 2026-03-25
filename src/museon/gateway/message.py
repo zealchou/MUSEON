@@ -2,8 +2,10 @@
 
 v9.0: Added Artifact + BrainResponse for execution layer support.
 v10.0: Added InteractionRequest/Response for cross-channel interactive choices.
+v11.0: Added trace_id for end-to-end request tracing.
 """
 
+import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Dict, List, Literal, Optional
@@ -25,9 +27,12 @@ class InternalMessage:
     timestamp: datetime  # When the message was received
     trust_level: Literal["core", "verified", "external", "untrusted"]
     metadata: Dict[str, Any]  # Additional platform-specific data
+    trace_id: str = ""  # v11.0: 全鏈路追蹤 ID
 
     def __post_init__(self) -> None:
         """Validate message fields."""
+        if not self.trace_id:
+            self.trace_id = uuid.uuid4().hex[:12]
         if not self.source:
             raise ValueError("source cannot be empty")
         if not self.session_id:
@@ -50,6 +55,7 @@ class InternalMessage:
             "timestamp": self.timestamp.isoformat(),
             "trust_level": self.trust_level,
             "metadata": self.metadata,
+            "trace_id": self.trace_id,
         }
 
     @classmethod
@@ -63,6 +69,7 @@ class InternalMessage:
             timestamp=datetime.fromisoformat(data["timestamp"]),
             trust_level=data["trust_level"],
             metadata=data.get("metadata", {}),
+            trace_id=data.get("trace_id", ""),
         )
 
 

@@ -1,4 +1,4 @@
-# MUSEON 系統拓撲圖 v1.51
+# MUSEON 系統拓撲圖 v1.52
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
@@ -95,6 +95,7 @@
 | `mcp-server` | MCP Server | Claude Code 介面 | - | - | 1.2 |
 | `interaction-queue` | Interaction Queue | 跨通道互動佇列 | - | - | 1.0 |
 | `telegram-pump` | Telegram Pump | Telegram 訊息泵（收訊→Brain→驗證→發送） | - | - | 1.4 |
+| `message-queue-store` | Message Queue Store | SQLite 訊息佇列持久化（crash recovery） | - | - | 1.0 |
 | `routes-api` | Routes API | SkillHub + External API 端點註冊 | - | - | 0.8 |
 | `cron-registry` | Cron Registry | 系統 cron 任務註冊（五虎將+41 排程） | - | - | 1.0 |
 
@@ -811,6 +812,8 @@ external-user（EXTERNAL）
 | `telegram-pump` | `response-guard` | telegram_pump.py 發送前呼叫 ResponseGuard.sanitize_for_group() + chat_id 交叉驗證 |
 | `telegram-pump` | `governance` | telegram_pump.py lazy import: group_context, multi_tenant, rate_limiter |
 | `telegram-pump` | `interaction-queue` | telegram_pump.py lazy import: interaction queue |
+| `telegram-pump` | `message-queue-store` | telegram_pump.py lazy import: enqueue/mark_done/mark_failed/recover_pending（v1.51 訊息持久化） |
+| `gateway` | `message-queue-store` | server.py startup 初始化 MessageQueueStore singleton（v1.51） |
 | `brain` | `response-guard` | brain.py process() 開始時 register_origin() 註冊來源 chat_id（v1.50 備註：實際 validate 在 telegram-pump 中調用） |
 | `guardian` | `security` | daemon.py:566 安全審計日誌 |
 | `self-diagnosis` | `tool-registry` | self_diagnosis.py:246,:484 工具狀態查詢 |

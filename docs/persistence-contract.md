@@ -1,4 +1,4 @@
-# MUSEON Persistence Contract v1.35 — 水電圖
+# MUSEON Persistence Contract v1.36 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
@@ -27,6 +27,7 @@
 | **WorkflowStateDB** | `data/_system/wee/workflow_state.db` | `evolution/wee_engine.py` | 工作流演化狀態 | Yes |
 | **CrystalDB** | `data/lattice/crystal.db` | `agent/crystal_store.py` | 知識晶體（crystals, links, cuid_counters 三表） | Yes |
 | **RegistryDB** | `data/registry/cli_user/registry.db`（v1.34 修正路徑層級） | `tools/tool_registry.py` | 使用者註冊、工具清單 | Yes |
+| **MessageQueueDB** | `data/_system/message_queue.db` | `gateway/message_queue_store.py` | 訊息佇列持久化（crash recovery，pending/done/failed 三態） | Yes |
 
 **共用規範**：
 - 所有 SQLite 必須開啟 WAL 模式（`PRAGMA journal_mode=WAL`）
