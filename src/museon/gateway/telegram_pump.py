@@ -13,6 +13,32 @@ from datetime import datetime
 
 logger = logging.getLogger("museon.gateway.telegram_pump")
 
+# ═══════════════════════════════════════════
+# Brain 即時進度回報系統
+# ═══════════════════════════════════════════
+# Brain.process() 透過 metadata["_progress_cb"] 回報處理階段，
+# _progress_updater 讀取後即時編輯 Telegram 進度訊息（兩行格式）。
+
+_brain_progress: dict = {}  # {trace_id: {"stage": str, "detail": str, "ts": float}}
+
+
+def _make_progress_reporter(trace_id: str):
+    """建立 progress callback，Brain 每個 Step 呼叫一次."""
+    import time
+    def report(stage: str, detail: str = ""):
+        _brain_progress[trace_id] = {
+            "stage": stage,
+            "detail": detail,
+            "ts": time.time(),
+        }
+    return report
+
+
+def _cleanup_progress(trace_id: str):
+    """處理完成後清理 progress state."""
+    _brain_progress.pop(trace_id, None)
+
+
 # 由 server.py 在啟動時注入
 _server_ctx = {
     "get_brain": None,
@@ -42,84 +68,83 @@ def _get_llm_semaphore():
 
 
 async def _progress_updater(
-    adapter, chat_id: int, status_msg_id: int
+    adapter, chat_id: int, status_msg_id: int, trace_id: str = ""
 ) -> None:
-    """背景任務：持續更新進度狀態訊息，讓使用者知道 MUSEON 還在運作.
+    """背景任務：即時顯示 Brain 處理階段（兩行格式）.
 
-    階段設計：
-    - 0~3s:   ⏳ 收到，正在思考...（由呼叫端先發送）
-    - 3s:     🧠 正在深度思考...
-    - 10s:    🔍 正在匹配能力模組...
-    - 20s:    💭 正在組建回覆...
-    - 40s:    ⏳ 仍在處理中，請稍候...
-    - 60s+:   🔄 處理中... 已等待 N 分 M 秒
-    - 900s:   ⚠️ 已超過 15 分鐘，仍在持續處理...
-              （不中斷，繼續等待，除非使用者主動停止）
+    從 _brain_progress[trace_id] 讀取 Brain 真實處理階段，
+    每 2 秒更新一次 Telegram 進度訊息。
+
+    格式：
+      🧬 DNA27 路由中
+      └ EXPLORATION_LOOP · 匹配 7 個技能
     """
-    stages = [
-        (3, "🧠 正在深度思考..."),
-        (10, "🔍 正在匹配能力模組..."),
-        (20, "💭 正在組建回覆..."),
-        (40, "⏳ 仍在處理中，請稍候..."),
-    ]
     LONG_WAIT_THRESHOLD = 900  # 15 分鐘
     long_wait_notified = False
+    _last_text = ""
 
     try:
         start = asyncio.get_event_loop().time()
-        stage_idx = 0
 
         while True:
-            await asyncio.sleep(5)  # 從 2s 提高到 5s，降低 API 呼叫頻率避免 Flood Control
+            await asyncio.sleep(2)
             elapsed = asyncio.get_event_loop().time() - start
 
-            # 已預定的階段
-            if stage_idx < len(stages):
-                threshold, text = stages[stage_idx]
-                if elapsed >= threshold:
-                    await adapter.update_processing_status(
-                        chat_id, status_msg_id, text
-                    )
-                    stage_idx += 1
-            else:
+            # 超過 15 分鐘 → 特殊提醒
+            if elapsed >= LONG_WAIT_THRESHOLD and not long_wait_notified:
+                long_wait_notified = True
                 mins = int(elapsed) // 60
                 secs = int(elapsed) % 60
-                if mins > 0:
-                    time_str = f"{mins} 分 {secs} 秒"
-                else:
-                    time_str = f"{secs} 秒"
-
-                # 超過 15 分鐘 → 特殊提醒（但不中斷）
-                if elapsed >= LONG_WAIT_THRESHOLD and not long_wait_notified:
-                    long_wait_notified = True
-                    await adapter.update_processing_status(
-                        chat_id, status_msg_id,
-                        f"⚠️ 已持續處理 {time_str}，"
-                        f"任務仍在進行中。\n"
-                        f"如需中斷，請傳送「停止」或「暫停」。",
+                time_str = f"{mins} 分 {secs} 秒"
+                await adapter.update_processing_status(
+                    chat_id, status_msg_id,
+                    f"⚠️ 已持續處理 {time_str}，任務仍在進行中。\n"
+                    f"如需中斷，請傳送「停止」或「暫停」。",
+                )
+                try:
+                    await adapter.application.bot.send_message(
+                        chat_id=chat_id,
+                        text=f"⏰ 目前的任務已運行超過 15 分鐘，仍在持續處理中。\n"
+                             f"傳送「停止」可中斷當前任務。",
                     )
-                    # 額外發送一則獨立提醒（讓使用者收到通知）
-                    try:
-                        await adapter.application.bot.send_message(
-                            chat_id=chat_id,
-                            text=(
-                                f"⏰ 目前的任務已運行超過 15 分鐘，"
-                                f"仍在持續處理中。\n"
-                                f"傳送「停止」可中斷當前任務。"
-                            ),
+                except Exception as e:
+                    logger.debug(f"[SERVER] operation failed (degraded): {e}")
+                continue
+
+            # 讀取 Brain 真實進度
+            state = _brain_progress.get(trace_id, {})
+            stage = state.get("stage", "")
+            detail = state.get("detail", "")
+
+            if stage:
+                text = f"{stage}\n└ {detail}" if detail else stage
+            else:
+                # Brain 尚未回報（啟動中），顯示預設
+                secs = int(elapsed)
+                if secs < 3:
+                    text = "⏳ 收到，正在思考..."
+                else:
+                    text = f"⏳ 處理中... {secs}s"
+
+            # 避免重複更新相同內容（Flood Control）
+            if text != _last_text:
+                await adapter.update_processing_status(
+                    chat_id, status_msg_id, text
+                )
+                _last_text = text
+            else:
+                # 內容沒變但超過 15 秒，加上時間戳讓使用者知道還在動
+                if elapsed > 15 and stage:
+                    secs = int(elapsed)
+                    text_with_time = f"{stage}\n└ {detail} ({secs}s)" if detail else f"{stage} ({secs}s)"
+                    if text_with_time != _last_text:
+                        await adapter.update_processing_status(
+                            chat_id, status_msg_id, text_with_time
                         )
-                    except Exception as e:
-                        logger.debug(f"[SERVER] operation failed (degraded): {e}")
-                else:
-                    await adapter.update_processing_status(
-                        chat_id, status_msg_id,
-                        f"🔄 處理中... 已等待 {time_str}",
-                    )
+                        _last_text = text_with_time
 
-                await asyncio.sleep(13)  # + 前面的 2s ≈ 15s 間隔
-
-    except asyncio.CancelledError as e:
-        logger.debug(f"[SERVER] async op failed (degraded): {e}")
+    except asyncio.CancelledError:
+        pass
     except Exception as e:
         logger.debug(f"Progress updater stopped: {e}")
 
@@ -277,7 +302,7 @@ async def _handle_telegram_message(adapter, message) -> None:
                 # 啟動背景進度更新器
                 if status_msg_id:
                     progress_task = asyncio.create_task(
-                        _progress_updater(adapter, chat_id, status_msg_id)
+                        _progress_updater(adapter, chat_id, status_msg_id, _tid)
                     )
 
             # ── 1.5. 剝離 @bot mention + 過濾空訊息（不送進 Brain）──
@@ -607,6 +632,7 @@ async def _handle_telegram_message(adapter, message) -> None:
                             if _brain_metadata is None:
                                 _brain_metadata = {}
                             _brain_metadata["trace_id"] = _tid
+                            _brain_metadata["_progress_cb"] = _make_progress_reporter(_tid)
                             brain_result = await _brain_process_with_sla(
                                 brain, adapter, chat_id,
                                 content=_brain_content,
@@ -619,6 +645,7 @@ async def _handle_telegram_message(adapter, message) -> None:
                     else:
                         # Normal DM processing (owner or trusted user)
                         _dm_metadata = {**(message.metadata or {}), "trace_id": _tid} if is_group else {"trace_id": _tid}
+                        _dm_metadata["_progress_cb"] = _make_progress_reporter(_tid)
                         brain_result = await _brain_process_with_sla(
                             brain, adapter, chat_id,
                             content=message.content,
@@ -873,9 +900,11 @@ async def _handle_telegram_message(adapter, message) -> None:
                 get_message_queue_store().mark_done(_tid)
             except Exception:
                 pass
+            _cleanup_progress(_tid)
             logger.info(f"[{_tid}] Message handling completed for {message.session_id}")
 
     except Exception as handle_err:
+        _cleanup_progress(_tid)
         logger.error(f"[{_tid}] Message handler error for {message.session_id}: {handle_err}", exc_info=True)
         try:
             from museon.gateway.message_queue_store import get_message_queue_store
