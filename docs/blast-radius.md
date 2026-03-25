@@ -667,7 +667,7 @@
 `pulse/push_budget.py`（★ v1.54 新增，扇入=1（server.py），PushBudget 全局推送預算管理器）
 
 ### Governance 層（2 個）
-`governance/response_guard.py`（★ v1.60 新增，扇入=2（telegram_pump.py + channels/telegram.py CLAUDE.md L2 prompt），ResponseGuard 發送前 chat_id 二次驗證閘門；三方法統一 _normalize_id(abs()) 正規化：validate() 靜態驗證 + allow_send() 實例驗證 + validate_escalation() escalation 專用；sanitize_for_group() 內容黑名單清理——v1.65 收窄【】pattern 避免誤殺合法中文），
+`governance/response_guard.py`（★ v1.60 新增，扇入=2（telegram_pump.py + channels/telegram.py CLAUDE.md L2 prompt），ResponseGuard 發送前 chat_id 二次驗證閘門；三方法統一 _normalize_id(abs()) 正規化：validate() 靜態驗證 + allow_send() 實例驗證 + validate_escalation() escalation 專用；sanitize_for_group() 內容黑名單清理——v1.65 收窄【】pattern 避免誤殺合法中文；v1.68 新增 [empty] 佔位符 + Skill 路由鏈（emoji→arrow）過濾，且改為所有通道都過濾這兩類 pattern（不只群組）），
 `governance/cognitive_receipt.py`（★ v1.21 新增，扇入=1，僅 footprint.py import；CognitiveReceipt dataclass 定義，認知追蹤的結構化收據格式）
 
 ### Doctor 層（2 個）
