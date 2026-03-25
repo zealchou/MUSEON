@@ -295,12 +295,16 @@
 <section>
   <h2>產品定價</h2>
   <table>
-    <thead><tr><th>項目</th><th>金額</th><th>說明</th></tr></thead>
+    <thead><tr><th>項目</th><th>基準價格</th><th>說明</th></tr></thead>
     <tbody>
-      <tr><td>設定費</td><td style="font-weight:600;">NT$ 24,000</td><td>一次性，新客簽約時收</td></tr>
-      <tr><td>月費</td><td style="font-weight:600;">NT$ 6,000/月</td><td>每月持續收取</td></tr>
+      <tr><td>設定費</td><td style="font-weight:600;">NT$ 24,000</td><td>一次性，新客簽約時收（市場調整時會變更）</td></tr>
+      <tr><td>月費</td><td style="font-weight:600;">NT$ 6,000/月</td><td>每月持續收取（市場調整時會變更）</td></tr>
     </tbody>
   </table>
+  <div class="card highlight" style="margin-top:20px;">
+    <strong style="color:var(--ember);">百分比制：未來無需重新談獎金</strong>
+    <p style="color:var(--slate); font-size:14px; margin-top:4px;">無論售價如何調整，你的獎金永遠以百分比計算。價格上調 → 獎金自動增加。價格下調 → 獎金自動減少。相對性原則始終保持，無需重新簽約或談判。</p>
+  </div>
 </section>
 
 <!-- 四個等級 -->
@@ -327,16 +331,21 @@
 <!-- 簽約獎金 -->
 <section>
   <h2>簽約獎金 — 每簽一案拿多少</h2>
-  <p style="color:var(--slate); margin-bottom:16px;">從設定費 $24,000 中支出，簽約收款後 7 天內發放即時部分。</p>
+  <p style="color:var(--slate); margin-bottom:16px;"><strong>百分比制</strong>：以設定費為基數，無論售價怎麼調，你的獎金比例不變。簽約收款後 7 天內發放即時部分。</p>
   <table>
-    <thead><tr><th>等級</th><th>即時獎金</th><th>季度留任金</th><th>額外獎金</th><th>每案總收入</th></tr></thead>
+    <thead><tr><th>等級</th><th>即時獎金</th><th>季度留任金</th><th>額外獎金</th><th>每案總分</th></tr></thead>
     <tbody>
-      <tr><td><span class="tier-badge tier-bronze">銅</span></td><td>$6,000</td><td>$3,000</td><td>—</td><td style="font-weight:600;">$9,000</td></tr>
-      <tr><td><span class="tier-badge tier-silver">銀</span></td><td>$6,000</td><td>$3,000</td><td>+$3,000</td><td style="font-weight:600;">$12,000</td></tr>
-      <tr><td><span class="tier-badge tier-gold">金</span></td><td>$6,000</td><td>$3,000</td><td>+$4,000</td><td style="font-weight:600;">$13,000</td></tr>
-      <tr><td><span class="tier-badge tier-diamond">鑽</span></td><td>$6,000</td><td>$3,000</td><td>+$6,000</td><td style="font-weight:600;">$15,000</td></tr>
+      <tr><td><span class="tier-badge tier-bronze">銅</span></td><td>設定費 × 25%</td><td>設定費 × 12.5%</td><td>—</td><td style="font-weight:600;">設定費 × 37.5%</td></tr>
+      <tr><td><span class="tier-badge tier-silver">銀</span></td><td>設定費 × 25%</td><td>設定費 × 12.5%</td><td>設定費 × 12.5%</td><td style="font-weight:600;">設定費 × 50%</td></tr>
+      <tr><td><span class="tier-badge tier-gold">金</span></td><td>設定費 × 25%</td><td>設定費 × 12.5%</td><td>設定費 × 16.67%</td><td style="font-weight:600;">設定費 × 54.17%</td></tr>
+      <tr><td><span class="tier-badge tier-diamond">鑽</span></td><td>設定費 × 25%</td><td>設定費 × 12.5%</td><td>設定費 × 25%</td><td style="font-weight:600;">設定費 × 62.5%</td></tr>
     </tbody>
   </table>
+
+  <div class="card highlight" style="margin-top:20px;">
+    <strong style="color:var(--ember);">百分比舉例</strong>
+    <p style="color:var(--slate); font-size:14px; margin-top:4px;"><strong>當前設定費 $24,000 時</strong>：銀牌業務每案獲 $24,000 × 50% = $12,000。<br><strong>若調整為 $30,000</strong>：銀牌變成 $30,000 × 50% = $15,000。比例不變，金額自動調整。</p>
+  </div>
 
   <div class="warning-box">
     <strong>季度留任金</strong>：每季末（3/6/9/12 月底）統一發放。該季如果離職，未發部分取消。<br>
@@ -347,20 +356,25 @@
 <!-- 月費分潤 -->
 <section>
   <h2>月費分潤 — 你的被動收入</h2>
-  <p style="color:var(--slate); margin-bottom:16px;">你名下<strong>每位活躍客戶</strong>，<strong>每個月</strong>都會分給你一筆錢。客戶越多，被動收入越高。</p>
+  <p style="color:var(--slate); margin-bottom:16px;">你名下<strong>每位活躍客戶</strong>，<strong>每個月</strong>都會分給你一筆錢——以<strong>月費百分比</strong>計算，確保售價調整時自動跟著增減。客戶越多，被動收入越高。</p>
   <table>
     <thead><tr><th>等級</th><th>每位客戶每月分你</th><th>公司保留</th></tr></thead>
     <tbody>
-      <tr><td><span class="tier-badge tier-bronze">銅</span></td><td style="font-weight:600;">$200</td><td>$5,800</td></tr>
-      <tr><td><span class="tier-badge tier-silver">銀</span></td><td style="font-weight:600;">$500</td><td>$5,500</td></tr>
-      <tr><td><span class="tier-badge tier-gold">金</span></td><td style="font-weight:600;">$1,000</td><td>$5,000</td></tr>
-      <tr><td><span class="tier-badge tier-diamond">鑽</span></td><td style="font-weight:600;">$1,500</td><td>$4,500</td></tr>
+      <tr><td><span class="tier-badge tier-bronze">銅</span></td><td style="font-weight:600;">月費 × 3.33%</td><td>月費 × 96.67%</td></tr>
+      <tr><td><span class="tier-badge tier-silver">銀</span></td><td style="font-weight:600;">月費 × 8.33%</td><td>月費 × 91.67%</td></tr>
+      <tr><td><span class="tier-badge tier-gold">金</span></td><td style="font-weight:600;">月費 × 16.67%</td><td>月費 × 83.33%</td></tr>
+      <tr><td><span class="tier-badge tier-diamond">鑽</span></td><td style="font-weight:600;">月費 × 25%</td><td>月費 × 75%</td></tr>
     </tbody>
   </table>
 
   <div class="card highlight">
+    <strong style="color:var(--ember);">百分比舉例</strong>
+    <p style="color:var(--slate); font-size:14px; margin-top:4px;">假設月費 $6,000：銀牌 = $6,000 × 8.33% = $500 / 月。若月費調整為 $8,000，銀牌變成 $8,000 × 8.33% = $664 / 月。</p>
+  </div>
+
+  <div class="card highlight">
     <strong style="color:var(--ember);">重點：銅牌也有被動收入！</strong>
-    <p style="color:var(--slate); font-size:14px; margin-top:4px;">只要你有活躍客戶，不管什麼等級，每個月都有錢進來。等級越高，每位客戶分你越多。</p>
+    <p style="color:var(--slate); font-size:14px; margin-top:4px;">只要你有活躍客戶，不管什麼等級，每個月都有錢進來。等級越高，百分比越高。</p>
   </div>
 
   <h3>發放時間</h3>
@@ -445,10 +459,10 @@
     <thead><tr><th>角色</th><th>獎勵</th></tr></thead>
     <tbody>
       <tr><td>引薦的客戶</td><td>免 1 個月月租（公司吸收）</td></tr>
-      <tr><td>你（負責業務）</td><td><strong>$3,000 引薦獎金</strong> + 正常新案獎金 + 月費分潤照常</td></tr>
+      <tr><td>你（負責業務）</td><td><strong>引薦獎金（設定費 × 12.5%）</strong> + 正常新案獎金 + 月費分潤照常</td></tr>
     </tbody>
   </table>
-  <p style="font-size:14px; color:var(--slate);">引薦帶來的新客照常算你的案件（+1 分）。引薦獎金 $3,000 是額外的，不影響積分。</p>
+  <p style="font-size:14px; color:var(--slate);">引薦帶來的新客照常算你的案件（+1 分）。引薦獎金是額外的，不影響積分。基準售價下約 $3,000，隨售價自動調整。</p>
 </section>
 
 <!-- 客戶流失 -->
@@ -513,7 +527,7 @@
 
   <details class="faq-item">
     <summary>Q：升級後，之前的客戶分潤也跟著升嗎？</summary>
-    <p>是的。全客戶跟著等級走。你從銀牌升金牌，所有客戶的月費分潤從 $500 跳到 $1,000。</p>
+    <p>是的。全客戶跟著等級走。以月費 $6,000 為例，你從銀牌（8.33%）升金牌（16.67%），所有客戶的月費分潤從 $500 跳到 $1,000。若月費調整，分潤會自動跟著百分比浮動。</p>
   </details>
 
   <details class="faq-item">
@@ -523,7 +537,7 @@
 
   <details class="faq-item">
     <summary>Q：銅牌也有月租分潤嗎？</summary>
-    <p>是的！$200/客戶/月。只要你有活躍客戶就有被動收入，不管你是什麼等級。</p>
+    <p>是的！月費 × 3.33% / 客戶 / 月。只要你有活躍客戶就有被動收入，不管你是什麼等級。以月費 $6,000 為例，銅牌每位客戶每月 $200。</p>
   </details>
 
   <details class="faq-item">
@@ -533,7 +547,7 @@
 
   <details class="faq-item">
     <summary>Q：引薦客戶算不算我的案件？</summary>
-    <p>引薦帶來的新客戶照常計入你的新案積分（+1 分）。額外的引薦獎金 $3,000 是一次性獎勵，不計入積分。</p>
+    <p>引薦帶來的新客戶照常計入你的新案積分（+1 分）。額外的引薦獎金（設定費 × 12.5%，基準售價下約 $3,000）是一次性獎勵，不計入積分。</p>
   </details>
 
   <details class="faq-item">
