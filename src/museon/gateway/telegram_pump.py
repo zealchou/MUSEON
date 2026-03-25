@@ -289,14 +289,45 @@ async def _handle_telegram_message(adapter, message) -> None:
                 f"[{_tid}] Telegram [{username}]: {message.content[:80]}"
             )
 
-            # ── 1. Send processing status + start typing + start progress ──
+            # ── 1. Phase 0 智慧確認 + start typing + start progress ──
             status_msg_id = None
             progress_task = None
+            _phase0_used = False
 
             if chat_id:
-                status_msg_id = await adapter.send_processing_status(
-                    chat_id, "⏳ 收到，正在思考..."
-                )
+                # Phase 0: CLI Haiku 智慧確認（取代 canned「⏳ 收到，正在思考...」）
+                from museon.agent.pdr_params import get_pdr_params
+                _pdr = get_pdr_params()
+                if _pdr.feature_flag and _pdr.phase0_enabled and message.content.strip():
+                    try:
+                        _p0_prompt = (
+                            f"用一句話表達你理解使用者在問什麼。"
+                            f"不要回答問題，只確認你理解了。30 字內。繁體中文。自然口語。\n"
+                            f"使用者：{message.content[:200]}"
+                        )
+                        brain = _get_brain()
+                        _p0_resp = await brain._llm_adapter.call(
+                            system_prompt="你是 AI 助理。只做理解確認，不回答。",
+                            messages=[{"role": "user", "content": _p0_prompt}],
+                            model="haiku",
+                            max_tokens=_pdr.phase0_max_tokens,
+                        )
+                        _p0_text = _p0_resp.text.strip() if _p0_resp and _p0_resp.text else ""
+                        if _p0_text and len(_p0_text) < 100:
+                            status_msg_id = await adapter.send_processing_status(
+                                chat_id, _p0_text
+                            )
+                            _phase0_used = True
+                            logger.info(f"[{_tid}] Phase 0 smart ack: {_p0_text[:50]}")
+                    except Exception as _p0_err:
+                        logger.debug(f"[{_tid}] Phase 0 failed, fallback to canned: {_p0_err}")
+
+                # Fallback: canned message
+                if not status_msg_id:
+                    status_msg_id = await adapter.send_processing_status(
+                        chat_id, "⏳ 收到，正在思考..."
+                    )
+
                 await adapter.start_typing(chat_id)
 
                 # 啟動背景進度更新器
@@ -864,8 +895,34 @@ async def _handle_telegram_message(adapter, message) -> None:
             if _cross_leak:
                 logger.warning("跨群污染已阻擋，本次不發送回覆")
                 success = True  # 不算失敗，只是被阻擋
+            elif _phase0_used and status_msg_id and chat_id:
+                # Phase 0 智慧確認已送出 → edit 替換為完整回覆
+                try:
+                    # 短回覆直接 edit；長回覆（>4096）先 edit 前段再追加
+                    _clean = adapter._strip_markdown(response_text) if hasattr(adapter, '_strip_markdown') else response_text
+                    if len(_clean) <= 4096:
+                        await adapter.update_processing_status(chat_id, status_msg_id, _clean)
+                        success = True
+                    else:
+                        # Edit 前 4096 字，剩餘用 send 追加
+                        await adapter.update_processing_status(chat_id, status_msg_id, _clean[:4096])
+                        for chunk_start in range(4096, len(_clean), 4096):
+                            await adapter.application.bot.send_message(
+                                chat_id=chat_id, text=_clean[chunk_start:chunk_start + 4096]
+                            )
+                        success = True
+                    # 不刪除 status_msg（它已經被 edit 成回覆了）
+                    status_msg_id = None
+                    logger.info(f"[{_tid}] Phase 1 edit-replaced Phase 0 ack")
+                except Exception as _edit_err:
+                    logger.warning(f"[{_tid}] Phase 1 edit failed, fallback to send: {_edit_err}")
+                    # Fallback to normal send
+                    if isinstance(brain_result, BrainResponse) and hasattr(adapter, 'send_response'):
+                        success = await adapter.send_response(response_msg, brain_result)
+                    else:
+                        success = await adapter.send(response_msg)
             else:
-                # v9.0: BrainResponse support (text + artifacts)
+                # 原有行為：直接 send
                 if isinstance(brain_result, BrainResponse):
                     if hasattr(adapter, 'send_response'):
                         success = await adapter.send_response(response_msg, brain_result)
@@ -881,6 +938,78 @@ async def _handle_telegram_message(adapter, message) -> None:
                 await adapter.delete_processing_status(chat_id, status_msg_id)
             if chat_id:
                 await adapter.stop_typing(chat_id)
+
+            # ── 6.5. Phase 2 九策軍師背景審查（PDR）──
+            if success and _pdr.feature_flag and response_text:
+                _routing_sig = getattr(brain, '_last_routing_signal', None)
+                _loop = getattr(_routing_sig, 'loop', 'FAST_LOOP') if _routing_sig else 'FAST_LOOP'
+                if _loop in _pdr.phase2_trigger_loops and len(message.content) > 30:
+                    async def _phase2_background():
+                        try:
+                            from museon.agent.pdr_council import PDRCouncil
+                            from museon.agent.agent_registry import get_agent_registry
+                            council = PDRCouncil(brain._llm_adapter, brain)
+                            _skills_summary = get_agent_registry().summarize(max_chars=500)
+                            verdict = await council.review(
+                                routing_signal=_routing_sig,
+                                query=message.content[:500],
+                                primary_response=response_text[:1500],
+                                session_id=message.session_id,
+                                available_skills=_skills_summary,
+                            )
+                            logger.info(
+                                f"[{_tid}] Phase 2 verdict: {verdict.verdict} "
+                                f"scores={verdict.advisor_scores}"
+                            )
+                            # Apply verdict
+                            _reply_cid = message.metadata.get("chat_id")
+                            if verdict.verdict == "EDIT" and verdict.supplement and _reply_cid:
+                                # 追加「💡 補充」段落到已發送的回覆
+                                _supp = f"\n\n💡 補充：\n{verdict.supplement}"
+                                try:
+                                    if _phase0_used and not status_msg_id:
+                                        # Phase 0 edit 過，找最新 msg 追加
+                                        pass  # edit 需要原 msg_id，暫時用 send
+                                    await adapter.application.bot.send_message(
+                                        chat_id=_reply_cid, text=_supp[:4096]
+                                    )
+                                except Exception as _edit2_err:
+                                    logger.debug(f"[{_tid}] Phase 2 EDIT failed: {_edit2_err}")
+
+                            elif verdict.verdict == "APPEND" and verdict.supplement and _reply_cid:
+                                await adapter.application.bot.send_message(
+                                    chat_id=_reply_cid, text=verdict.supplement[:4096]
+                                )
+
+                            elif verdict.verdict == "ACTION" and verdict.actions:
+                                for act in verdict.actions:
+                                    logger.info(f"[{_tid}] Phase 2 ACTION: {act.type}:{act.target} ({act.reason})")
+                                    if act.type == "skill_invoke" and act.priority <= 1:
+                                        try:
+                                            _act_result = await brain.process(
+                                                content=f"[主動分析] {act.reason}",
+                                                session_id=message.session_id,
+                                                user_id=message.user_id,
+                                                source="telegram",
+                                                metadata={
+                                                    **(message.metadata or {}),
+                                                    "force_skills": [act.target],
+                                                    "trace_id": _tid,
+                                                },
+                                            )
+                                            _act_text = _act_result.text if isinstance(_act_result, BrainResponse) else str(_act_result or "")
+                                            if _act_text and _act_text.strip() and _reply_cid:
+                                                await adapter.application.bot.send_message(
+                                                    chat_id=_reply_cid,
+                                                    text=f"💡 {_act_text[:4096]}"
+                                                )
+                                        except Exception as _act_err:
+                                            logger.warning(f"[{_tid}] Phase 2 ACTION exec failed: {_act_err}")
+                        except Exception as _p2_err:
+                            logger.warning(f"[{_tid}] Phase 2 review failed: {_p2_err}")
+
+                    asyncio.create_task(_phase2_background())
+                    logger.info(f"[{_tid}] Phase 2 council spawned (loop={_loop})")
 
             # ── 7. 推播子代理通知（純 CPU 模板）──
             try:
