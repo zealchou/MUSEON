@@ -15,8 +15,10 @@
 
 | 項目 | 金額 | 說明 |
 |------|------|------|
-| 設定費 | NT$ 24,000 | 一次性，新客簽約時收取 |
-| 月費 | NT$ 6,000/月 | 持續性，每月向客戶收取 |
+| 設定費 | NT$ 24,000（或根據市場調整） | 一次性，新客簽約時收取 |
+| 月費 | NT$ 6,000/月（或根據市場調整） | 持續性，每月向客戶收取 |
+
+**百分比基準**：無論售價如何調整，獎金始終以百分比計算，確保相對性原則。
 
 ---
 
@@ -59,30 +61,34 @@
 | 金牌 | 9.0 – 20.9 分 | 高產量 or 大量穩定客戶 |
 | 鑽石 | 21.0 分以上 | 需具備經銷商資格 |
 
-### 3.2 每案一次性獎金（從設定費 $24,000 中支出）
+### 3.2 每案一次性獎金（百分比制，基於設定費計算）
 
 | 等級 | 即時獎金 | 季度留任金 | 額外獎金 | 每案總分出 | 公司保留 |
 |------|---------|-----------|---------|-----------|---------|
-| 銅牌 | $6,000 | $3,000 | — | $9,000 | $15,000 |
-| 銀牌 | $6,000 | $3,000 | +$3,000 | $12,000 | $12,000 |
-| 金牌 | $6,000 | $3,000 | +$4,000 | $13,000 | $11,000 |
-| 鑽石 | $6,000 | $3,000 | +$6,000 | $15,000 | $9,000 |
+| 銅牌 | 設定費 × 25% | 設定費 × 12.5% | — | 設定費 × 37.5% | 設定費 × 62.5% |
+| 銀牌 | 設定費 × 25% | 設定費 × 12.5% | 設定費 × 12.5% | 設定費 × 50% | 設定費 × 50% |
+| 金牌 | 設定費 × 25% | 設定費 × 12.5% | 設定費 × 16.67% | 設定費 × 54.17% | 設定費 × 45.83% |
+| 鑽石 | 設定費 × 25% | 設定費 × 12.5% | 設定費 × 25% | 設定費 × 62.5% | 設定費 × 37.5% |
 
 發放規則：
-- **即時獎金 $6,000**：簽約收款後 7 天內發放，已發不追回
-- **季度留任金 $3,000**：每季末統一發放（3/6/9/12 月底），該季內離職則未發部分取消
-- **額外獎金**：隨即時獎金一併發放
+- **即時獎金（25%）**：簽約收款後 7 天內發放，已發不追回
+- **季度留任金（12.5%）**：每季末統一發放（3/6/9/12 月底），該季內離職則未發部分取消
+- **額外獎金（12.5% ~ 25%）**：隨即時獎金一併發放
 
-### 3.3 月費分潤（每位活躍客戶每月）
+**舉例**：若設定費調整至 NT$30,000，銀牌業務每案獲得 $30,000 × 50% = $15,000（而非固定 $12,000）
+
+### 3.3 月費分潤（百分比制，基於月費計算）
 
 | 等級 | 每位客戶每月分給業務 | 公司保留 |
 |------|-------------------|---------|
-| 銅牌 | $200 | $5,800 |
-| 銀牌 | $500 | $5,500 |
-| 金牌 | $1,000 | $5,000 |
-| 鑽石 | $1,500 | $4,500 |
+| 銅牌 | 月費 × 3.33% | 月費 × 96.67% |
+| 銀牌 | 月費 × 8.33% | 月費 × 91.67% |
+| 金牌 | 月費 × 16.67% | 月費 × 83.33% |
+| 鑽石 | 月費 × 25% | 月費 × 75% |
 
-**重點**：銅牌也有月租分潤（$200/客戶/月）。只要你有活躍客戶就有被動收入，不管你是什麼等級。
+**重點**：銅牌也有月租分潤（月費 × 3.33%）。只要你有活躍客戶就有被動收入，不管你是什麼等級。
+
+**舉例**：若月費調整至 NT$8,000，銀牌每位客戶每月獲得 $8,000 × 8.33% = $664（而非固定 $500）
 
 ### 3.4 月費分潤發放時序
 
@@ -185,7 +191,7 @@
 | 對象 | 獎勵 |
 |------|------|
 | 引薦客戶（現有客戶） | 免 1 個月月租費（公司吸收） |
-| 負責業務 | 一次性引薦獎金 $3,000 + 正常新案獎金 + 月費分潤 |
+| 負責業務 | 一次性引薦獎金（設定費 × 12.5%）+ 正常新案獎金 + 月費分潤 |
 
 ### 7.2 引薦防套利規則
 
@@ -194,22 +200,31 @@
 - 引薦客戶的免月租期間，業務的月費分潤照常發放（公司吸收）
 - 引薦需主管書面確認（防止假引薦）
 
-### 7.3 計算範例
+### 7.3 計算範例（假設設定費 $24,000、月費 $6,000）
 
 ```
-客戶 A 引薦客戶 B，業務小美負責：
+客戶 A 引薦客戶 B，業務小美負責（當前銀牌）：
 
 小美獲得：
-  - 引薦獎金：$3,000（一次性，不算積分）
-  - 新案即時獎金：$6,000（7 天內發）
-  - 新案季度留任：$3,000（季末發）
-  - 額外獎金：依小美當前等級
-  - 客戶 B 月費分潤：依小美等級，每月持續
+  - 引薦獎金：$24,000 × 12.5% = $3,000（一次性，不算積分）
+  - 新案即時獎金：$24,000 × 25% = $6,000（7 天內發）
+  - 新案季度留任：$24,000 × 12.5% = $3,000（季末發）
+  - 額外獎金：$24,000 × 12.5% = $3,000（銀牌，隨即時獎金一併發）
+  - 客戶 B 月費分潤：$6,000 × 8.33% = $498/月（銀牌，每月持續）
   - 客戶 B 計入積分：+1 分（新案）+ 次月起 +0.3 分（活躍客戶）
 
 客戶 A 獲得：
   - 下個月免繳 $6,000 月租
   - 小美在客戶 A 免租期間的分潤由公司吸收
+
+---
+
+**若售價調整為設定費 $30,000、月費 $7,500**，同樣引薦情況下小美獲得：
+  - 引薦獎金：$30,000 × 12.5% = $3,750
+  - 新案即時獎金：$30,000 × 25% = $7,500
+  - 新案季度留任：$30,000 × 12.5% = $3,750
+  - 額外獎金：$30,000 × 12.5% = $3,750
+  - 客戶 B 月費分潤：$7,500 × 8.33% = $623/月
 ```
 
 ---
@@ -418,35 +433,39 @@ def evaluate_tier_change(sales_id: str, current_tier: str, year_month: str) -> s
 ### 13.4 獎金計算引擎
 
 ```python
-SIGNING_BONUS = {
-    "bronze":  {"immediate": 6000, "quarterly": 3000, "extra": 0},
-    "silver":  {"immediate": 6000, "quarterly": 3000, "extra": 3000},
-    "gold":    {"immediate": 6000, "quarterly": 3000, "extra": 4000},
-    "diamond": {"immediate": 6000, "quarterly": 3000, "extra": 6000},
+# 百分比制常數
+SIGNING_BONUS_PERCENTAGES = {
+    "bronze":  {"immediate": 0.25, "quarterly": 0.125, "extra": 0},
+    "silver":  {"immediate": 0.25, "quarterly": 0.125, "extra": 0.125},
+    "gold":    {"immediate": 0.25, "quarterly": 0.125, "extra": 0.1667},
+    "diamond": {"immediate": 0.25, "quarterly": 0.125, "extra": 0.25},
 }
 
-MONTHLY_COMMISSION = {
-    "bronze":  200,
-    "silver":  500,
-    "gold":    1000,
-    "diamond": 1500,
+MONTHLY_COMMISSION_PERCENTAGES = {
+    "bronze":  0.0333,
+    "silver":  0.0833,
+    "gold":    0.1667,
+    "diamond": 0.25,
 }
 
-REFERRAL_BONUS = 3000  # 一次性引薦獎金，不計入積分
+REFERRAL_BONUS_PERCENTAGE = 0.125  # 12.5% 的設定費
 
-def calculate_signing_bonus(tier: str) -> dict:
-    """每案簽約獎金。"""
-    b = SIGNING_BONUS[tier]
+def calculate_signing_bonus(tier: str, setup_fee: int) -> dict:
+    """每案簽約獎金（百分比制，基於 setup_fee）。"""
+    p = SIGNING_BONUS_PERCENTAGES[tier]
+    immediate = int(setup_fee * (p["immediate"] + p["extra"]))
+    quarterly = int(setup_fee * p["quarterly"])
     return {
-        "immediate": b["immediate"] + b["extra"],  # 7 天內發放
-        "quarterly": b["quarterly"],                 # 季末發放
-        "total": b["immediate"] + b["extra"] + b["quarterly"],
+        "immediate": immediate,  # 7 天內發放
+        "quarterly": quarterly,   # 季末發放
+        "total": immediate + quarterly,
     }
 
-def calculate_monthly_commission(sales_id: str, tier: str, year_month: str) -> int:
-    """月費分潤總額 = 活躍客戶數 x 等級對應金額。"""
+def calculate_monthly_commission(sales_id: str, tier: str, year_month: str, monthly_fee: int) -> int:
+    """月費分潤總額 = 活躍客戶數 × 等級對應百分比 × 月費。"""
     active = count_active_customers(sales_id, year_month)
-    per_customer = MONTHLY_COMMISSION[tier]
+    percentage = MONTHLY_COMMISSION_PERCENTAGES[tier]
+    per_customer = int(monthly_fee * percentage)
     return active * per_customer
 ```
 
@@ -480,10 +499,12 @@ def anti_fraud_check(sales_id: str, customer_tax_id: str, year_month: str) -> di
 commission_system:
   version: "3.0"
   type: "score_based"  # v2 是 "case_count_based"
+  pricing_model: "percentage_based"  # 新增：百分比制，自動適應售價變動
 
   product:
-    setup_fee: 24000
-    monthly_fee: 6000
+    setup_fee: 24000              # 當前基準價格，可隨市場調整
+    monthly_fee: 6000             # 當前基準價格，可隨市場調整
+    # 重要：改了售價後，獎金會自動按百分比重新計算，無需修改下列配置
 
   scoring:
     new_case_weight: 1.0          # 每新案 1 分
@@ -493,28 +514,28 @@ commission_system:
   tiers:
     - name: "bronze"
       min_score: 0.0
-      signing_immediate: 6000
-      signing_quarterly: 3000
-      signing_extra: 0
-      monthly_per_customer: 200
+      signing_immediate_pct: 0.25        # 25% of setup_fee
+      signing_quarterly_pct: 0.125       # 12.5% of setup_fee
+      signing_extra_pct: 0               # 0%
+      monthly_commission_pct: 0.0333     # 3.33% of monthly_fee
     - name: "silver"
       min_score: 4.0
-      signing_immediate: 6000
-      signing_quarterly: 3000
-      signing_extra: 3000
-      monthly_per_customer: 500
+      signing_immediate_pct: 0.25
+      signing_quarterly_pct: 0.125
+      signing_extra_pct: 0.125           # 12.5% of setup_fee
+      monthly_commission_pct: 0.0833     # 8.33% of monthly_fee
     - name: "gold"
       min_score: 9.0
-      signing_immediate: 6000
-      signing_quarterly: 3000
-      signing_extra: 4000
-      monthly_per_customer: 1000
+      signing_immediate_pct: 0.25
+      signing_quarterly_pct: 0.125
+      signing_extra_pct: 0.1667          # 16.67% of setup_fee
+      monthly_commission_pct: 0.1667     # 16.67% of monthly_fee
     - name: "diamond"
       min_score: 21.0
-      signing_immediate: 6000
-      signing_quarterly: 3000
-      signing_extra: 6000
-      monthly_per_customer: 1500
+      signing_immediate_pct: 0.25
+      signing_quarterly_pct: 0.125
+      signing_extra_pct: 0.25            # 25% of setup_fee
+      monthly_commission_pct: 0.25       # 25% of monthly_fee
       requires: ["dealer_certification"]
 
   tier_evaluation:
@@ -558,7 +579,7 @@ commission_system:
     commission_transfer: "to_recovery_staff"
 
   referral:
-    bonus: 3000
+    bonus_pct: 0.125              # 12.5% of setup_fee（新增百分比制）
     counted_in_score: false
     requires_approval: "manager"
     customer_reward: "1_month_free_rent"
