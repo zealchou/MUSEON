@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.44
+# Joint Map — 共享可變狀態接頭圖 v1.45
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -53,6 +53,7 @@
 | 40 | group_context.db | 🟡 | 1 | 2 | SQLite WAL | [→](#40-group_contextdb) |
 | 41 | PushBudget 單例（記憶體+PulseDB push_log） | 🟡 | 2 | 2 | SQLite WAL | [→](#41-pushbudget) |
 | 42 | BrainCircuitBreaker singleton（記憶體） | 🟢 | 1 | 2 | threading.Lock | [→](#42-braincircuitbreaker-singleton記憶體) |
+| 43 | message_queue.db | 🟢 | 1 | 1 | SQLite WAL + threading.Lock | [→](#43-message_queuedb) |
 
 > **危險度定義**：🔴 多寫入者+高扇出+格式不一致 | 🟡 多寫入者或高扇出 | 🟢 單寫入者+低扇出
 
@@ -1048,6 +1049,26 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 
 ---
 
+### 43. message_queue.db
+
+**路徑**：`data/_system/message_queue.db`
+**用途**：訊息佇列持久化——Gateway 重啟後恢復未處理的 Telegram 訊息（pending/done/failed 三態）
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| `gateway/message_queue_store.py` | **Owner** | `MessageQueueStore` singleton | SQLite 持久化佇列管理（enqueue/mark_done/mark_failed/recover_pending） | `threading.Lock` + SQLite WAL |
+| `gateway/telegram_pump.py` | **W** | pump 主迴圈 + `_handle_telegram_message` | 收訊 enqueue、完成 mark_done、失敗 mark_failed | 經由 Store 內部 Lock |
+| `gateway/telegram_pump.py` | **R** | `_recover_pending_messages()` | 啟動時讀取 pending 訊息重新排隊 | 經由 Store 內部 Lock |
+| `gateway/server.py` | **Init** | `startup_event()` | 初始化 singleton（`get_message_queue_store(data_dir=...)`) | — |
+
+> **鎖**：`threading.Lock` + SQLite WAL（MessageQueueStore 內部）
+> **TTL**：done/failed 記錄保留 7 天後由 `cleanup_old()` 清理
+> **危險度**：🟢 綠（單一 singleton 管理，所有存取經由 API，thread-safe）
+
+---
+
 ## 必須同時修改的模組組（不可分批）
 
 > 修改以下任一模組時，**必須**同時檢查並調整同組所有模組。
@@ -1103,6 +1124,7 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-25 | v1.45 | 訊息佇列持久化：新增 #43 message_queue.db（🟢 危險度，SQLite WAL + threading.Lock，Owner message_queue_store.py，Writer/Reader telegram_pump.py，Init server.py）；共享狀態 42→43 個 |
 | 2026-03-25 | v1.44 | Brain Circuit Breaker：新增 #42 BrainCircuitBreaker singleton（記憶體，🟢 危險度，threading.Lock，寫入者 bulkhead.py，讀取者 telegram_pump.py + server.py）；共享狀態 41→42 個 |
 | 2026-03-25 | v1.43 | 對話持久化+教訓蒸餾+7 條斷裂管線修復——#40 group_context.db 擴展（DM+bot_reply+8000 截斷+personality_notes/communication_style）；MemoryManager user_id cli_user→boss；Nightly Step 5.6.5 教訓蒸餾+Step 18.5 客戶互動萃取加入 _FULL_STEPS；Crystal Actuator ELIGIBLE_CRYSTAL_TYPES 過濾+PROTECTED_RULE_ORIGINS 保護；Guardian mothership_queue→Gateway 消費；ExternalAnima search dict topics 修復；Intuition heuristics→prompt 注入；Procedure 升級門檻 0+limit 20；Morphenix validator str→dict 防禦；MuseDoc Fix-Verify 整合 |
 | 2026-03-23 | v1.40 | Project Epigenesis 接線——EpigeneticRouter / MemoryReflector / AdaptiveDecay 接入 brain.py。無新增共享狀態（四個模組皆為純 RO 消費者——讀取 Qdrant memories/soul_rings/crystals + changelog，不寫入任何共享檔案）。G9 記憶反思組（epigenetic_router + memory_reflector + adaptive_decay + brain_prompt_builder）與 G3 記憶組交叉——反思層讀取 G3 相同的 Qdrant collections。共享狀態維持 41 個（不變）；同步 blast-radius v1.55、memory-router v1.6、persistence-contract v1.32 |

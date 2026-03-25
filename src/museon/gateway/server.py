@@ -2893,6 +2893,14 @@ def create_app() -> FastAPI:
         # 🚢 Bulkhead: Brain 初始化成功
         bulkhead.register("brain", lambda: None, critical=True)
 
+        # 初始化訊息佇列持久化 store
+        try:
+            from museon.gateway.message_queue_store import get_message_queue_store
+            get_message_queue_store(data_dir=brain.data_dir)
+            logger.info("[startup] MessageQueueStore initialized")
+        except Exception as _mqs_err:
+            logger.warning(f"[startup] MessageQueueStore init failed (non-fatal): {_mqs_err}")
+
         # 注入 Telegram pump 依賴
         init_telegram_pump(
             get_brain=_get_brain,

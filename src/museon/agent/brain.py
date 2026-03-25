@@ -563,6 +563,9 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         metadata: dict = None,
     ):
         """process() 的核心實作."""
+        _trace_id = (metadata or {}).get("trace_id", "no-trace")
+        logger.info(f"[{_trace_id}] Brain.process() start: session={session_id}, user={user_id}")
+
         # L2-S1: ChatContext 顯式上下文物件（取代 self._* per-turn 變數）
         from museon.agent.chat_context import ChatContext
         self._ctx = ChatContext.from_chat_args(

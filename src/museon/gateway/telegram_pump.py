@@ -225,6 +225,7 @@ async def _handle_telegram_message(adapter, message) -> None:
     from museon.gateway.message import BrainResponse, InternalMessage
 
     progress_task = None
+    _tid = message.trace_id  # 全鏈路追蹤 ID
     try:
             username = message.metadata.get("username", "unknown")
             chat_id = message.metadata.get("chat_id")
@@ -233,7 +234,7 @@ async def _handle_telegram_message(adapter, message) -> None:
             sender_name = message.metadata.get("sender_name", "")
             group_id = message.metadata.get("group_id")
             logger.info(
-                f"Telegram [{username}]: {message.content[:80]}"
+                f"[{_tid}] Telegram [{username}]: {message.content[:80]}"
             )
 
             # ── 1. Send processing status + start typing + start progress ──
@@ -254,7 +255,12 @@ async def _handle_telegram_message(adapter, message) -> None:
 
             # ── 1.5. 過濾空訊息（不送進 Brain）──
             if message.content in ("[empty]", "") or not message.content.strip():
-                logger.info(f"Skipping empty/placeholder message for session {message.session_id}")
+                logger.info(f"[{_tid}] Skipping empty/placeholder message for session {message.session_id}")
+                try:
+                    from museon.gateway.message_queue_store import get_message_queue_store
+                    get_message_queue_store().mark_done(_tid)
+                except Exception:
+                    pass
                 return
 
             # ── 2. Route through MUSEON Brain (with session lock + LLM semaphore) ──
@@ -544,6 +550,9 @@ async def _handle_telegram_message(adapter, message) -> None:
                         # brain.process() errors propagate to outer handler (line ~3834)
                         # which has proper error messages for both owner and non-owner
                         if _mt_ready and response_text is None:
+                            if _brain_metadata is None:
+                                _brain_metadata = {}
+                            _brain_metadata["trace_id"] = _tid
                             brain_result = await _brain_process_with_sla(
                                 brain, adapter, chat_id,
                                 content=_brain_content,
@@ -555,13 +564,14 @@ async def _handle_telegram_message(adapter, message) -> None:
                             )
                     else:
                         # Normal DM processing (owner or trusted user)
+                        _dm_metadata = {**(message.metadata or {}), "trace_id": _tid} if is_group else {"trace_id": _tid}
                         brain_result = await _brain_process_with_sla(
                             brain, adapter, chat_id,
                             content=message.content,
                             session_id=message.session_id,
                             user_id=message.user_id,
                             source="telegram",
-                            metadata=message.metadata if is_group else None,
+                            metadata=_dm_metadata,
                             semaphore=_sem,
                         )
 
@@ -790,10 +800,23 @@ async def _handle_telegram_message(adapter, message) -> None:
                     )
                     await adapter.push_notification(notif_text)
             except Exception as notif_err:
-                logger.warning(f"推播通知發送失敗: {notif_err}")
+                logger.warning(f"[{_tid}] 推播通知發送失敗: {notif_err}")
+
+            # ── 8. 標記訊息處理完成（持久化佇列）──
+            try:
+                from museon.gateway.message_queue_store import get_message_queue_store
+                get_message_queue_store().mark_done(_tid)
+            except Exception:
+                pass
+            logger.info(f"[{_tid}] Message handling completed for {message.session_id}")
 
     except Exception as handle_err:
-        logger.error(f"Message handler error for {message.session_id}: {handle_err}", exc_info=True)
+        logger.error(f"[{_tid}] Message handler error for {message.session_id}: {handle_err}", exc_info=True)
+        try:
+            from museon.gateway.message_queue_store import get_message_queue_store
+            get_message_queue_store().mark_failed(_tid, str(handle_err))
+        except Exception:
+            pass
         # ── 確保 progress_task 被清理 ──
         if progress_task and not progress_task.done():
             progress_task.cancel()
@@ -801,6 +824,31 @@ async def _handle_telegram_message(adapter, message) -> None:
                 await progress_task
             except (asyncio.CancelledError, Exception):
                 pass
+
+
+async def _recover_pending_messages(adapter) -> int:
+    """Gateway 重啟時恢復未處理的訊息."""
+    try:
+        from museon.gateway.message_queue_store import get_message_queue_store
+        from museon.gateway.message import InternalMessage
+        store = get_message_queue_store()
+        pending = store.recover_pending()
+        if not pending:
+            return 0
+        logger.info(f"Recovering {len(pending)} pending messages from queue store")
+        for msg_dict in pending:
+            try:
+                message = InternalMessage.from_dict(msg_dict)
+                asyncio.create_task(_handle_telegram_message(adapter, message))
+                logger.info(f"[{message.trace_id}] Recovered and re-queued")
+            except Exception as e:
+                trace_id = msg_dict.get("trace_id", "?")
+                logger.error(f"[{trace_id}] Failed to recover message: {e}")
+                store.mark_failed(trace_id, str(e))
+        return len(pending)
+    except Exception as e:
+        logger.warning(f"Message recovery failed (non-fatal): {e}")
+        return 0
 
 
 async def _telegram_message_pump(adapter) -> None:
@@ -814,6 +862,11 @@ async def _telegram_message_pump(adapter) -> None:
     """
     logger.info("Telegram message pump started (concurrent mode)")
 
+    # ── 啟動時恢復未處理訊息 ──
+    recovered = await _recover_pending_messages(adapter)
+    if recovered:
+        logger.info(f"Recovered {recovered} pending messages")
+
     # ── 指數退避 + 斷路器狀態（僅用於 receive 層級錯誤）──
     consecutive_errors = 0
     CIRCUIT_BREAKER_THRESHOLD = 10
@@ -824,6 +877,16 @@ async def _telegram_message_pump(adapter) -> None:
         try:
             # L1: 接收訊息，立刻 spawn handler，不等結果
             message = await adapter.receive()
+
+            # v11.0: 持久化到 SQLite（crash recovery）
+            try:
+                from museon.gateway.message_queue_store import get_message_queue_store
+                store = get_message_queue_store()
+                store.enqueue(message.trace_id, message.to_dict())
+            except Exception as _pq_err:
+                logger.debug(f"[{message.trace_id}] Queue persist failed (non-fatal): {_pq_err}")
+
+            logger.info(f"[{message.trace_id}] Dispatching message from {message.session_id}")
             asyncio.create_task(_handle_telegram_message(adapter, message))
             consecutive_errors = 0
 
