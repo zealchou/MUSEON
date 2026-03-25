@@ -388,3 +388,50 @@ class PDRCouncil:
             advisor_scores=scores,
             reasoning="\n".join(reasoning_parts),
         )
+
+    async def deep_think(
+        self,
+        query: str,
+        primary_response: str,
+        verdict: PDRVerdict,
+        session_id: str = "",
+    ) -> str:
+        """Phase 3: Opus deep thinking for SLOW_LOOP when verdict.should_deepen.
+
+        Returns the deep analysis text, or empty string if not triggered.
+        """
+        from museon.agent.pdr_params import get_pdr_params
+        params = get_pdr_params()
+
+        if not verdict.should_deepen:
+            return ""
+
+        _prompt = (
+            f"你是 MUSEON 的深度思考引擎。使用者問了一個需要深思的問題。\n\n"
+            f"## 使用者問題\n{query[:1000]}\n\n"
+            f"## 已發送的回覆\n{primary_response[:2000]}\n\n"
+            f"## 九策軍師的發現\n{verdict.reasoning[:1000]}\n\n"
+            f"## 你的任務\n"
+            f"進行深度分析，補充已發送回覆遺漏的重要觀點。\n"
+            f"聚焦在：\n"
+            f"1. 根本問題是什麼？（第一性原理拆解）\n"
+            f"2. 最大的風險和盲點？\n"
+            f"3. 具體可行的下一步行動？（帶時間線）\n"
+            f"4. 反直覺但值得考慮的觀點？\n\n"
+            f"用繁體中文，800 字以內。結構清晰，有重點標記。"
+        )
+
+        try:
+            response = await self._adapter.call(
+                system_prompt="你是 MUSEON 深度思考引擎。提供高品質的深度分析。",
+                messages=[{"role": "user", "content": _prompt}],
+                model="opus",
+                max_tokens=2000,
+            )
+            result = response.text.strip() if response and response.text else ""
+            if result:
+                logger.info(f"[PDR Phase 3] Deep think completed: {len(result)} chars")
+            return result
+        except Exception as e:
+            logger.warning(f"[PDR Phase 3] Deep think failed: {e}")
+            return ""
