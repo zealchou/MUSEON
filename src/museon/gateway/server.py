@@ -2907,7 +2907,13 @@ def create_app() -> FastAPI:
             _cb = get_brain_circuit_breaker()
 
             def _cb_notify(event: str, detail: str = ""):
-                """Circuit Breaker 狀態變更 → 非同步 DM 老闆."""
+                """Circuit Breaker 狀態變更 → 非同步 DM 老闆.
+
+                時序安全：此回調只在 brain.process() 失敗/成功時觸發，
+                而 brain.process() 只在 Telegram adapter 初始化完成後才會被呼叫，
+                因此 app.state.telegram_adapter 此時一定已設定。
+                仍加 None guard 作為防禦性程式設計。
+                """
                 _msgs = {
                     "opened": (
                         f"⚠️ Brain Circuit Breaker 已斷路\n\n"

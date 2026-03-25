@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.43
+# Joint Map — 共享可變狀態接頭圖 v1.44
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -52,6 +52,7 @@
 | 39 | _system/sessions/{id}.json | 🟡 | 1 | 2 | 無 | [→](#39-_systemsessionsidjson) |
 | 40 | group_context.db | 🟡 | 1 | 2 | SQLite WAL | [→](#40-group_contextdb) |
 | 41 | PushBudget 單例（記憶體+PulseDB push_log） | 🟡 | 2 | 2 | SQLite WAL | [→](#41-pushbudget) |
+| 42 | BrainCircuitBreaker singleton（記憶體） | 🟢 | 1 | 2 | threading.Lock | [→](#42-braincircuitbreaker-singleton記憶體) |
 
 > **危險度定義**：🔴 多寫入者+高扇出+格式不一致 | 🟡 多寫入者或高扇出 | 🟢 單寫入者+低扇出
 
@@ -1028,6 +1029,25 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 
 ---
 
+### 42. BrainCircuitBreaker singleton（記憶體）
+
+**路徑**：記憶體 singleton（`governance/bulkhead.py` 模組層級 `_brain_circuit_breaker`）
+**用途**：Brain 連續失敗時自動斷路，返回降級回覆，防止客戶長時間等待無回應
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| `governance/bulkhead.py` | **Owner** | `get_brain_circuit_breaker()` | singleton 工廠 + 狀態管理（record_success/record_failure） | `threading.Lock` |
+| `gateway/telegram_pump.py` | **R/W** | `_brain_process_with_sla()` | 每次 brain.process() 前檢查 `is_open`，完成後 `record_success/failure` | 經由 CB 內部 Lock |
+| `gateway/server.py` | **R** | `startup_event()` + `/health` | startup 註冊通知回調；/health 讀取 `get_status()` | 經由 CB 內部 Lock |
+
+> **鎖**：`threading.Lock`（bulkhead.py 內部，所有狀態變更均加鎖）
+> **TTL**：記憶體生命週期（Gateway 重啟歸零）
+> **危險度**：🟢 綠（thread-safe singleton，無持久化，重啟自動恢復 CLOSED）
+
+---
+
 ## 必須同時修改的模組組（不可分批）
 
 > 修改以下任一模組時，**必須**同時檢查並調整同組所有模組。
@@ -1083,6 +1103,7 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-25 | v1.44 | Brain Circuit Breaker：新增 #42 BrainCircuitBreaker singleton（記憶體，🟢 危險度，threading.Lock，寫入者 bulkhead.py，讀取者 telegram_pump.py + server.py）；共享狀態 41→42 個 |
 | 2026-03-25 | v1.43 | 對話持久化+教訓蒸餾+7 條斷裂管線修復——#40 group_context.db 擴展（DM+bot_reply+8000 截斷+personality_notes/communication_style）；MemoryManager user_id cli_user→boss；Nightly Step 5.6.5 教訓蒸餾+Step 18.5 客戶互動萃取加入 _FULL_STEPS；Crystal Actuator ELIGIBLE_CRYSTAL_TYPES 過濾+PROTECTED_RULE_ORIGINS 保護；Guardian mothership_queue→Gateway 消費；ExternalAnima search dict topics 修復；Intuition heuristics→prompt 注入；Procedure 升級門檻 0+limit 20；Morphenix validator str→dict 防禦；MuseDoc Fix-Verify 整合 |
 | 2026-03-23 | v1.40 | Project Epigenesis 接線——EpigeneticRouter / MemoryReflector / AdaptiveDecay 接入 brain.py。無新增共享狀態（四個模組皆為純 RO 消費者——讀取 Qdrant memories/soul_rings/crystals + changelog，不寫入任何共享檔案）。G9 記憶反思組（epigenetic_router + memory_reflector + adaptive_decay + brain_prompt_builder）與 G3 記憶組交叉——反思層讀取 G3 相同的 Qdrant collections。共享狀態維持 41 個（不變）；同步 blast-radius v1.55、memory-router v1.6、persistence-contract v1.32 |
 | 2026-03-23 | v1.39 | 探索去重防禦機制：新增 #41 `exploration_log.md`（🟢 危險度，Explorer 單一寫入者，去重檢查 + 深度遞進邏輯）；Explorer 新增 `_check_duplicate()` / `_normalize_topic()` / `_load_exploration_log()` / `_log_exploration()` 四個方法（防止同一主題短期內重複探索無深度——解決 2026-03-23 一天 12 次探索雷同的盲點）；共享狀態 40→41 個 |
