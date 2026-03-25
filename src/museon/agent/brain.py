@@ -564,6 +564,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
     ):
         """process() 的核心實作."""
         _trace_id = (metadata or {}).get("trace_id", "no-trace")
+        _report = (metadata or {}).get("_progress_cb") or (lambda s, d="": None)
         logger.info(f"[{_trace_id}] Brain.process() start: session={session_id}, user={user_id}")
 
         # L2-S1: ChatContext 顯式上下文物件（取代 self._* per-turn 變數）
@@ -601,6 +602,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         anima_user = None
 
         # ── Step 0.5: 承諾自檢 — 檢查到期/逾期承諾 ──
+        _report("📋 承諾自檢", "檢查待辦承諾...")
         commitment_context = ""
         if self._commitment_tracker:
             try:
@@ -611,6 +613,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                 logger.warning(f"承諾自檢失敗: {e}")
 
         # ── Step 0.7: 元認知觀察 — 比對上次預判 vs 本次使用者反應 ──
+        _report("🔮 元認知觀察", "比對預判 vs 實際反應")
         self._last_observation_accuracy = None  # v9.0: 供 Step 9.8 morphenix 橋接使用
         if self._metacognition:
             try:
@@ -681,6 +684,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
             logger.warning(f"自我檢查模組載入失敗（降級跳過）: {e}", exc_info=True)
 
         # ── Step 1.5: 直覺引擎 — Step -0.5（在 DNA27 路由之前） ──
+        _report("🔮 直覺感知", "信號掃描中...")
         intuition_report = None
         if self.intuition:
             try:
@@ -704,6 +708,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                 logger.warning(f"直覺引擎執行失敗（降級）: {e}")
 
         # ── Step 1.8: InputSanitizer — L2 輸入防線 ──
+        _report("🛡️ 輸入安全檢查", "InputSanitizer 掃描")
         if self.input_sanitizer:
             try:
                 # boss 或 Telegram owner = TRUSTED，其餘 = UNKNOWN
@@ -735,6 +740,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                 logger.warning(f"InputSanitizer 執行失敗（降級放行）: {e}")
 
         # ── Step 2: 載入 ANIMA ──
+        _report("📂 載入人格記憶", "ANIMA_MC + ANIMA_USER")
         anima_mc = self._load_anima_mc()
         anima_user = self._load_anima_user()
 
@@ -764,6 +770,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         )
 
         # ── Step 3: DNA27 反射路由器（全 27 叢集 + RoutingSignal）——靈魂先行 ──
+        _report("🧬 DNA27 路由", "27 叢集反射判斷中...")
         routing_signal = None
         safety_context = ""
         try:
@@ -832,6 +839,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                 logger.debug(f"Phase3c 健康感知路由調節失敗（降級）: {e}")
 
         # ── Step 3.0.5: Multi-Agent 自動路由 — 根據訊息內容自動切換部門 ──
+        _report("🔀 Multi-Agent 路由", "自動切換部門...")
         self._multiagent_auxiliaries = []  # 重置每 turn 的輔助部門
         if self._multiagent_enabled and self._context_switcher:
             try:
@@ -854,6 +862,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                 logger.debug(f"Multi-Agent 自動路由跳過: {e}")
 
         # ── Step 3.1: DNA27 路由 — 匹配技能（受 RoutingSignal 調節）──
+        _report("🎯 匹配技能模組", "Skill Router 運算中...")
         # ★ v10.4 Route B: 傳入 session 內 skill 使用次數（MoE 衰減）
         session_usage = self._skill_usage.get(session_id, {})
         matched_skills = self.skill_router.match(
@@ -883,6 +892,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         logger.info(f"DNA27 matched skills: {skill_names}")
 
         # ── Step 3.2: P2 決策層信號偵測 ──
+        _report("⚖️ 決策層偵測", "掃描重大決策信號...")
         decision_signal = None
         try:
             loop_mode = (
@@ -960,6 +970,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                 # 降級：繼續進行正常 pipeline
 
         # ── Step 3.4: P3 策略層並行融合信號偵測 ──
+        _report("⚗️ 策略層融合", "多視角信號偵測...")
         # 條件：非 P2 重大決策 + 非簡單訊息 + SLOW/EXPLORATION_LOOP + 有策略層 Skill
         _p3_fusion_signal = P3FusionSignal(
             should_fuse=False, perspectives=[], confidence=0.0, reason="未偵測"
@@ -986,6 +997,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                 logger.debug(f"[P3] 融合信號偵測失敗（降級跳過）: {e}")
 
         # ── Step 3.5: 計畫引擎觸發檢查 ──
+        _report("📐 計畫引擎", "觸發評估中...")
         if self.plan_engine:
             try:
                 plan_decision = self.plan_engine.assess_trigger(
@@ -1040,6 +1052,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                 logger.warning(f"SubAgent 結果收集失敗: {e}")
 
         # ── Step 3.65: 百合引擎 — 軍師四象限路由 ──
+        _report("🎭 百合引擎", "軍師四象限路由...")
         baihe_context = ""
         try:
             _lord_path = self.data_dir / "_system" / "lord_profile.json"
@@ -1105,6 +1118,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
             logger.debug(f"Step 3.65 百合引擎降級: {e}")
 
         # ── Step 3.66: 根因偵測層 — 掃描重複模式，偵測問題背後的問題 ──
+        _report("🔍 根因偵測", "掃描重複模式...")
         root_cause_hint = ""
         try:
             root_cause_hint = await self._detect_root_cause_hint(
@@ -1122,6 +1136,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
             logger.debug(f"Step 3.66 根因偵測降級: {e}")
 
         # ── Step 3.8: 謀定而後動 — 所有路徑前執行（dispatch 之前）──
+        _report("🧘 謀定而後動", "深度反思中...")
         # 必須在 dispatch 評估前跑，確保強反射訊號能覆蓋 dispatch 決策
         active_lenses = []
         deliberation_note, active_lenses = self._deliberate(
@@ -1142,6 +1157,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                 logger.info("[Deliberate] 強反射訊號：matched_skills 已清空，阻止 dispatch 觸發")
 
         # ── Step 3.7: Dispatch Assessment（分派評估）──
+        _report("📤 Dispatch 評估", "分派決策中...")
         # ★ 初始化 P3 審查變數（dispatch/normal 兩條路徑都會在後續引用）
         q_score = None
         thinking_path_summary = ""
@@ -1172,6 +1188,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         else:
 
             # ── Step 4: 組建系統提示詞（正常 pipeline）──
+            _report("📝 組建提示詞", "DNA27 + 技能 + 記憶注入...")
             # 合併百合引擎 + 根因偵測到同一區段
             _combined_baihe = baihe_context
             if root_cause_hint:
@@ -1228,6 +1245,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                     logger.warning(f"SkillHub skill_builder 注入失敗: {e}")
 
             # ── Step 5: 載入對話歷史 ──
+            _report("💾 載入對話歷史", "session 歷史載入...")
             history = self._get_session_history(session_id)
 
             # 加入使用者新訊息
@@ -1240,6 +1258,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                 history[:] = history[-40:]
 
             # ── Step 5.5: P3 前置融合 — 並行收集多視角洞察注入主回覆 ──
+            _report("⚗️ P3 前置融合", "多視角洞察收集...")
             # 核心改變：視角不再「追加」在主回覆後面，而是「交織」在主回覆裡面
             _p3_pre_fusion_ctx = ""
             if _p3_fusion_signal and _p3_fusion_signal.should_fuse:
@@ -1265,6 +1284,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                     logger.debug(f"[P3] 前置融合失敗（降級繼續）: {e}")
 
             # ── Step 6: 呼叫 Claude API（含 tool_use 支援）──
+            _report("💬 Claude 思考中", "等待 AI 回應...")
             # v10: 工具永遠開啟 — 讓模型自己決定要不要用工具
             _enable_tools = self._tool_executor is not None
 
@@ -1372,6 +1392,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                 self._offline_flag = False  # 重置
 
             # ── Step 6.2-6.5: P3 並行融合模式 ── (★ v1.21 實裝)
+            _report("🔍 品質審查", "PreCognition + Q-Score...")
             # ★ 三角度同步審查：MetaCog + Eval + Health（無串行瓶頸）
             # 改進方向：由原本的 Phase 4.5 策略層融合改為 Step 6 決策審查層並行融合
             pre_review = None
@@ -1428,6 +1449,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                     logger.warning(f"P3 並行融合異常，降級運行: {e}")
 
         # ── Step 7: 持久化到記憶 ──
+        _report("💾 寫入記憶", "四通道持久化...")
         await self._persist_memory(
             session_id=session_id,
             user_content=content,
@@ -1469,6 +1491,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
             logger.debug(f"隱式自我診斷跳過: {e}")
 
         # ── Step 8: 追蹤技能使用 ──
+        _report("📊 追蹤技能使用", "使用率統計...")
         # 從 P3 融合結果推導 outcome
         _skill_outcome = ""
         if q_score is not None:
@@ -1497,6 +1520,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                     )
 
         # ── Step 8.1: 演化數據輸入 — Synapse / ToolMuscle / Footprint ──
+        _report("🧬 演化數據", "Synapse + ToolMuscle + Footprint...")
         if skill_names and not self._offline_flag:
             # Synapse: 記錄同次對話中共同觸發的技能組合
             if self._synapse_network and len(skill_names) >= 2:
@@ -1570,6 +1594,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                     logger.debug(f"Footprint trace_cognitive 失敗: {e}")
 
         # ── Step 8.5: 靈魂日記 — 偵測日記級事件（v2.0 降低門檻版）──
+        _report("🌀 靈魂日記", "偵測年輪級事件...")
         # ★ Pipeline 短路：簡單訊息跳過 Soul Ring（q_score 已被跳過，此處自然不觸發）
         # 追蹤 Q-Score 歷史（保留最近 50 筆）並持久化
         if q_score is not None:
@@ -1617,6 +1642,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                 logger.warning(f"靈魂日記偵測失敗: {e}")
 
         # ── Step 8.6: 知識晶格 — 對話後掃描 + 自動結晶 ──
+        _report("💎 知識晶格", "對話後掃描 + 自動結晶...")
         # CASTLE Layer 2: 離線回應不進入結晶管線
         # ★ Pipeline 短路：簡單訊息跳過 KnowledgeLattice 掃描
         if self.knowledge_lattice and not self._offline_flag and not _is_simple:
@@ -1668,6 +1694,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                 logger.debug(f"Crystal Actuator 回饋記錄失敗: {e}")
 
         # ── Step 8.7: 承諾掃描 — 偵測回覆中的承諾並登記 ──
+        _report("📋 承諾掃描", "偵測回覆中的承諾...")
         if self._commitment_tracker:
             try:
                 new_commitments = self._commitment_tracker.scan_and_register(
@@ -1743,6 +1770,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                 logger.warning(f"事實更正偵測失敗: {e}")
 
         # ── Step 9: 條件式更新 ANIMA_USER（被動觀察 — 八原語 + 七層 + 四觀察引擎） ──
+        _report("👤 更新使用者畫像", "八原語 + 觀察引擎...")
         # CASTLE Layer 2: 離線回應不進入使用者觀察管線
         # v2.0: 群組訊息也更新 ANIMA_USER（權重 ×0.5），不再完全跳過
         # v1.13: Memory Gate 可 suppress 八原語和事實寫入
@@ -1777,6 +1805,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                 )
 
         # ── Step 9.5: 更新 ANIMA_MC（自我觀察 — 八原語 + 能力追蹤） ──
+        _report("🪞 自我觀察", "ANIMA_MC 八原語更新...")
         # CASTLE Layer 2: 離線/降級模式下的輸出不進入自觀察管線
         if self._offline_flag:
             logger.info(
@@ -1792,6 +1821,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                 logger.warning(f"ANIMA_MC 自我觀察失敗: {e}")
 
         # ── Step 9.7: 元認知預判 — 預測使用者對本次回覆的反應 ──
+        _report("🔮 元認知預判", "預測使用者反應...")
         # ★ 寫入排隊：predict_reaction 寫入 PulseDB，通過 WriteQueue 序列化
         if self._metacognition:
             try:
@@ -1832,6 +1862,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
             logger.debug(f"Morphenix 即時筆記跳過: {e}")
 
         # ── Step 10: 發布 BRAIN_RESPONSE_COMPLETE 事件（WEE 自動循環入口）──
+        _report("✅ 完成", "準備發送回覆...")
         if self._event_bus:
             try:
                 from museon.core.event_bus import BRAIN_RESPONSE_COMPLETE
