@@ -107,6 +107,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
 
         # ★ v10.4 Route C: 跨輪路由歷史（state-conditioned routing 用）
         self._routing_history: Dict[str, List[Dict]] = {}
+        self._last_routing_signal = None  # PDR Phase 2 消費
 
         # ── EventBus（全域事件匯流排）──
         try:

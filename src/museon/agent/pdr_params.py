@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 _PARAM_BOUNDS = {
     "phase0_enabled": (None, None, True),
     "phase0_max_tokens": (30, 150, 80),
+    "phase2_trigger_loops": (None, None, ("EXPLORATION_LOOP", "SLOW_LOOP")),
     "phase2_confidence_threshold": (0.2, 0.95, 0.6),
     "phase2_advisor_count": (1, 4, 3),
     "phase2_upgrade_rate_limit": (3, 30, 10),
@@ -48,6 +49,7 @@ class PDRTuningParams:
     phase0_max_tokens: int = 80
 
     # Phase 2
+    phase2_trigger_loops: tuple = ("EXPLORATION_LOOP", "SLOW_LOOP")
     phase2_confidence_threshold: float = 0.6
     phase2_advisor_count: int = 3
     phase2_upgrade_rate_limit: int = 10  # per hour

@@ -482,6 +482,17 @@ adaptive_decay ──ACT-R B_i──→ _activation 欄位 (in-memory) ←──
 | `_system/backups/anima_mc/*.json` | `pulse/anima_mc_store.py` | ANIMA_MC 寫入前快照（保留 10 份） |
 | `_system/backups/pulse_md/*.md` | `pulse/pulse_engine.py` | PULSE.md 寫入前快照（保留 10 份） |
 
+### PDR 持久化（v1.70 新增）
+
+| 路徑 | 格式 | 寫入者 | 讀取者 | 說明 |
+|------|------|--------|--------|------|
+| `_system/pdr_params.json` | JSON | pdr_params | telegram_pump, brain, pdr_council, museqa | PDR 調控參數 |
+| `_system/agent_registry.json` | JSON | agent_registry | pdr_council | 統一能力目錄 |
+| `_system/museqa/pdr_adjustments.jsonl` | JSONL append | museqa | nightly audit | MuseQA 自動調控審計日誌 |
+| `_system/realtime_gaps.jsonl` | JSONL append | skill_forge_scout | skill_forge_scout | 即時 Skill 缺口記錄 |
+| `_system/forge_triggers.jsonl` | JSONL append | skill_forge_scout | nightly | Skill 鍛造觸發記錄 |
+| `_system/pdr_baseline_analysis.json` | JSON | 分析腳本 | PDR 初始化 | 七天基線分析 |
+
 ### Brain Token 預算分配（P2-1 更新）
 
 > `token_optimizer.py` 管理 system prompt 的 token 區段預算。v1.28 新增第 6 區段 Strategic Zone。

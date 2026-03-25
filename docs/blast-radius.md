@@ -642,6 +642,40 @@
 
 ---
 
+## PDR 模組（Progressive Depth Response）
+
+> v1.70 新增。PDR 漸進深度回應系統，含調控參數、九策軍師、統一能力目錄三個模組。
+
+### agent/pdr_params.py
+
+| 屬性 | 值 |
+|------|-----|
+| **扇入** | 4（telegram_pump, brain, pdr_council, museqa） |
+| **扇出** | 0 |
+| **安全分級** | 🟡 黃區 |
+
+> 修改 pdr_params 會影響 telegram_pump 的回應深度判斷、brain 的 prompt 建構、pdr_council 的策略選擇、museqa 的自動調控。
+
+### agent/pdr_council.py
+
+| 屬性 | 值 |
+|------|-----|
+| **扇入** | 1（telegram_pump） |
+| **扇出** | 2（pdr_params, LLM adapter） |
+| **安全分級** | 🟢 綠區 |
+
+### agent/agent_registry.py
+
+| 屬性 | 值 |
+|------|-----|
+| **扇入** | 1（pdr_council） |
+| **扇出** | 0 |
+| **安全分級** | 🟢 綠區 |
+
+> **注意**：telegram_pump 的扇出因 PDR 增加了 pdr_council + pdr_params 兩個依賴。brain 的扇出增加了 pdr_params。museqa 的扇出增加了 pdr_params。
+
+---
+
 ## 🟢 綠區安全模組（42 個葉子模組）
 
 > 以下模組無人 import（扇入 = 0），修改不影響任何上游，可直接修改。

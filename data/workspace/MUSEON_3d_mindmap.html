@@ -324,7 +324,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 // ═══════════════════════════════════════
 const SYNC_META = {
   topologyVersion: 'v1.52',
-  syncDate: '2026-03-25',
+  syncDate: '2026-03-26',
   nodeCount: 0, // auto-calculated below
   linkCount: 0, // auto-calculated below
   skillUpgrades: [
@@ -417,6 +417,7 @@ const nodes = [
   // ── agent ──
   {id:"brain",label:"Agent / Brain",zh:"主判斷中樞",group:"agent",r:2.8,hub:1,desc:"主判斷中樞（core: init + process pipeline, 2575 行）"},
   {id:"adaptive-decay",label:"Adaptive Decay",zh:"ACT-R 式統一衰減引擎",group:"agent",r:0.8,p:"brain",desc:"ACT-R 式統一衰減引擎（B_i = ln(Σt^{-d}) + β_i）"},
+  {id:"agent-registry",label:"Agent Registry",zh:"統一能力目錄",group:"agent",r:0.7,p:"brain"},
   {id:"brain-dispatch",label:"Brain Dispatch",zh:"Mixin: 任務分派",group:"agent",r:1.0,p:"brain",desc:"Mixin: 任務分派（1082 行）"},
   {id:"brain-observation",label:"Brain Observation",zh:"Mixin: 觀察與演化",group:"agent",r:1.0,p:"brain",desc:"Mixin: 觀察與演化（2003 行）"},
   {id:"brain-p3-fusion",label:"Brain P3 Fusion",zh:"Mixin: P3 融合與決策層",group:"agent",r:1.0,p:"brain",desc:"Mixin: P3 融合與決策層（948 行）"},
@@ -445,6 +446,8 @@ const nodes = [
   {id:"multiagent",label:"Multiagent",zh:"多代理協調",group:"agent",r:0.9,p:"brain"},
   {id:"okr-router",label:"OKR Router",zh:"八卦路由",group:"agent",r:0.9,p:"brain"},
   {id:"onboarding",label:"Onboarding",zh:"上線儀式",group:"agent",r:0.9,p:"brain"},
+  {id:"pdr-council",label:"PDR Council",zh:"九策軍師引擎",group:"agent",r:1.0,p:"brain",desc:"九策軍師引擎（Phase 2/3）"},
+  {id:"pdr-params",label:"PDR Params",zh:"PDR 調控參數 + 安全護欄",group:"agent",r:0.9,p:"brain"},
   {id:"persona-router",label:"Persona Router",zh:"人格路由 + 百合引擎決策",group:"agent",r:1.1,p:"brain"},
   {id:"plan-engine",label:"Plan Engine",zh:"六階段計畫",group:"agent",r:1.0,p:"brain"},
   {id:"primal-detector",label:"Primal Detector",zh:"八原語偵測",group:"agent",r:1.0,p:"brain"},
@@ -492,6 +495,7 @@ const nodes = [
   {id:"doctor",label:"Doctor",zh:"自我診斷修復",group:"doctor",r:2.8,hub:1},
   {id:"auto-repair",label:"Auto Repair",zh:"自動修復",group:"doctor",r:1.0,p:"doctor"},
   {id:"code-analyzer",label:"Code Analyzer",zh:"代碼品質",group:"doctor",r:0.8,p:"doctor"},
+  {id:"doctor-notify",label:"Doctor Notify",zh:"五虎將共用通知",group:"doctor",r:0.7,p:"doctor",desc:"五虎將共用通知（DM 老闆 + 待審閱摘要）"},
   {id:"health-check",label:"Health Check",zh:"12 項基礎",group:"doctor",r:0.9,p:"doctor"},
   {id:"log-analyzer",label:"Log Analyzer",zh:"日誌分析",group:"doctor",r:0.8,p:"doctor"},
   {id:"memory-reset",label:"Memory Reset",zh:"一鍵記憶重置",group:"doctor",r:0.8,p:"doctor"},
@@ -1109,6 +1113,7 @@ const links = [
   {source:"verified-user",target:"anima-mc-store",label:"配對使用者互動更新 ANIMA_USER（L1-L8 觀察）",type:"async"},
   {source:"zeal",target:"anima-mc-store",label:"Owner 互動觸發 ANIMA_MC 更新（boss_name、self_awareness）",type:"async"},
 ];
+
 
 
 
