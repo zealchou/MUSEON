@@ -1,10 +1,11 @@
-# Blast Radius — 模組影響半徑表 v1.68
+# Blast Radius — 模組影響半徑表 v1.69
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節、`docs/operational-contract.md`（操作契約表）提供外部操作預期失敗
+> **v1.69 (2026-03-25)**：五虎將通知人類化——新增 `doctor/notify.py`（綠區扇入=2 from museoff+museqa，共用通知：notify_owner 中文嚴重度+來源+說明、explain_finding 15 種模式翻譯、generate_review_summary 待審閱摘要）；MuseOff WAL 偵測改 PRAGMA journal_mode（修復 .db-wal 假陽性）+新增 3 DB 檢查；MuseOff/MuseQA 刪除各自 _notify_owner 改用共用版。
 > **v1.68 (2026-03-25)**：L2 Worker 分離 + AIORateLimiter——新增 `gateway/brain_worker.py`（BrainWorkerManager，subprocess + Pipe IPC，auto-restart，綠區扇入=1 from telegram_pump.py + server.py init/shutdown）；`llm/rate_limiter.py` 新增 `AsyncTokenBucket`（token bucket 頻率控制，4 req/s 預設，支援 pause/slow_down/speed_up）+ `get_api_bucket()` singleton；`gateway/telegram_pump.py` `_brain_process_with_sla` 新增 worker 優先路徑 + fallback in-process 改用 token bucket 取代 semaphore；`gateway/server.py` startup/shutdown 新增 worker lifecycle 管理。
 > **v1.67 (2026-03-25)**：訊息佇列持久化 + 全鏈路 trace_id——新增 `gateway/message_queue_store.py`（SQLite 持久化佇列，綠區扇入=1 from telegram_pump.py + server.py lazy init）；`gateway/message.py` InternalMessage 新增 trace_id 欄位（uuid hex[:12] 自動生成）；`gateway/telegram_pump.py` 新增 `_recover_pending_messages()`（啟動恢復）+ pump 主迴圈持久化 enqueue/mark_done + 關鍵 log 全加 trace_id；`agent/brain.py` process() 入口 log trace_id；`gateway/server.py` startup 初始化 MessageQueueStore。
 > **v1.66 (2026-03-25)**：Brain 90 秒 SLA + Circuit Breaker——`telegram_pump.py` 新增 `_brain_process_with_sla()` wrapper（90 秒未完成送暫時回覆，繼續等待），brain.process() 兩處主要呼叫改走 SLA wrapper；`bulkhead.py` 新增 `BrainCircuitBreaker` class + `get_brain_circuit_breaker()` singleton（CLOSED→OPEN→HALF_OPEN 三態，連續 3 次失敗斷路，60 秒 cooldown 試探恢復），telegram_pump.py lazy import；`server.py` startup 新增 Circuit Breaker 通知回調（DM 老闆）+ /health 端點新增 circuit_breaker 狀態。扇入變化：bulkhead.py 扇入 1→2（server.py + telegram_pump.py）。
