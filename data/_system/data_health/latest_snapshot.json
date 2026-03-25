@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-03-21T03:00:17.022730+08:00",
+  "timestamp": "2026-03-25T03:03:47.041264+08:00",
   "sizes": {
-    "pulse": 1433600,
-    "group_context": 192512,
+    "pulse": 1810432,
+    "group_context": 229376,
     "workflow_state_db": 503808
   }
 }

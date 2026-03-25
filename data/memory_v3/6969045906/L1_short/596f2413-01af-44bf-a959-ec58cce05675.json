@@ -1,0 +1,24 @@
+{
+  "id": "596f2413-01af-44bf-a959-ec58cce05675",
+  "content": "[失敗經驗] 任務：[群組近期對話紀錄]\n  58:29 Feng: [檔案: photo] \n  58:32 Feng: 字\n  58:35 Feng: 哈哈哈\n  58:37 Feng: 沒事\n  58:45 Zea\n失敗類型：timeout\n回應片段：兩個連結目前都是 200（可正常開啟），但 Feng 說「還沒更新」——代表連結本身沒掛，是**內容**還是舊版本。\n\n---\n\n**關於 Telegram 不穩定的根因**\n\n現在能確認的：系統核心很健康，問題出在訊息接收這一層。初步判斷有三個可能原因：\n\n1. **Polling 佇列堆積**：高密度訊息時段，訊息進來的速度超過處理速度，導致部分訊息被跳過\n2. **@mention 偵測漏接",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "timeout"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-25T12:38:19.543309+08:00",
+  "updated_at": "2026-03-25T12:38:19.543309+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "6969045906",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260325_123141_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: **REVISE**\n\n此段落**不應該發送到群組**——這是 L1 的內部狀態報告，會暴露系統缺失資訊且完全偏離主題。\n\n**根本問題三項：**\n1. 內容是「L2 待命狀態」而非「對 Feng 的回覆」\n2. Zeal 要的是「DSE 傳直銷用詞分析 + 避免清單」，不是「服務清單推銷」  \n3. 在有外部客戶的群組暴露內部流程不專業\n\n**應該先做：** L1 從群組歷史或記憶查出 chat",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-25T12:31:41.042551+08:00",
+  "priority": "medium"
+}

@@ -1,0 +1,29 @@
+{
+  "finding_id": "MO-20260324-164d84",
+  "timestamp": "2026-03-24T16:32:53.315820+00:00",
+  "probe_layer": "L3",
+  "severity": "MEDIUM",
+  "title": "配置問題: .env — bad_permissions",
+  "source": "museoff",
+  "blast_origin": {
+    "file": "mode=644, should be 600",
+    "line": null,
+    "error_type": "bad_permissions",
+    "traceback": ""
+  },
+  "blast_radius": [],
+  "context": {},
+  "triage_done": null,
+  "known_fix": null,
+  "prescription": {
+    "diagnosis": "bad_permissions: mode=644, should be 600",
+    "root_cause": "",
+    "suggested_fix": "",
+    "runbook_id": "",
+    "fix_complexity": "GREEN",
+    "pre_check": "",
+    "post_check": "",
+    "rollback": ""
+  },
+  "status": "needs_human"
+}

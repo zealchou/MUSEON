@@ -1,8 +1,8 @@
 {
   "user_id": "8252847174",
   "created_at": "2026-03-11T17:32:25.298237",
-  "interaction_count": 122,
-  "last_seen": "2026-03-24T23:03:26.620081",
+  "interaction_count": 123,
+  "last_seen": "2026-03-25T12:31:40.787903",
   "display_name": "Feng",
   "context_summary": "",
   "version": "3.0.0",
@@ -28,8 +28,8 @@
     "curiosity": {
       "level": 100,
       "confidence": 1.0,
-      "signal": "[群組近期對話紀錄]   37:10 Zeal（老闆）: 以前的思維是 並行或者是序列 我同時在加進去一個 多層的思維  把使用者需求分工截斷   37:15 ",
-      "last_observed": "2026-03-24T23:03:26.620081"
+      "signal": "[群組近期對話紀錄]   57:50 Zeal（老闆）: 經銷啊，哪裡像直銷了？   58:11 Feng: 好喔！！ 收到   58:29 Feng: [檔案",
+      "last_observed": "2026-03-25T12:31:40.787903"
     },
     "emotion_pattern": {
       "level": 16,
@@ -60,10 +60,6 @@
     "communication_style": "detailed"
   },
   "recent_topics": [
-    {
-      "snippet": "一個活動",
-      "date": "2026-03-19T22:08:45.124730"
-    },
     {
       "snippet": "做中間溝通的角色和協商的角色",
       "date": "2026-03-19T22:13:54.268411"
@@ -139,6 +135,10 @@
     {
       "snippet": "圖片已儲存至: /Users/ZEALCHOU/MUSEON/data/uploads/telegram/20260324_225907_AQADkg1rGwLdGFZy.jpg",
       "date": "2026-03-24T23:03:26.620081"
+    },
+    {
+      "snippet": "你列出來我要給紅陽的人看的",
+      "date": "2026-03-25T12:31:40.787903"
     }
   ],
   "groups_seen_in": [
@@ -153,10 +153,10 @@
   },
   "relationship": {
     "trust_level": "established",
-    "total_interactions": 122,
+    "total_interactions": 123,
     "positive_signals": 0,
     "negative_signals": 0,
-    "last_interaction": "2026-03-24T23:03:26.620081",
+    "last_interaction": "2026-03-25T12:31:40.787903",
     "first_interaction": "2026-03-11T17:32:25.298237"
   },
   "seven_layers": {
@@ -170,6 +170,11 @@
         "category": "occupation",
         "snippet": "[群組近期對話紀錄]\n  37:10 Zeal（老闆）: 以前的思維是 並行或者是序列\n我同時在加進去一個 多層的思維\n\n把使用者需求分工截斷\n  37:15 Zeal（老闆）: 就搞定了\n  37:",
         "date": "2026-03-24T23:03:26.620081"
+      },
+      {
+        "category": "occupation",
+        "snippet": "[群組近期對話紀錄]\n  57:50 Zeal（老闆）: 經銷啊，哪裡像直銷了？\n  58:11 Feng: 好喔！！\n收到\n  58:29 Feng: [檔案: photo] \n  58:32 Fe",
+        "date": "2026-03-25T12:31:40.787903"
       }
     ],
     "L2_personality": [],
@@ -177,7 +182,7 @@
       "detail_level": "detailed",
       "emoji_usage": "none",
       "language_mix": "mixed",
-      "avg_msg_length": 324,
+      "avg_msg_length": 411,
       "question_style": "open",
       "tone": "casual"
     }

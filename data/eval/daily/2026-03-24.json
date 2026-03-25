@@ -1,0 +1,45 @@
+{
+  "date": "2026-03-24",
+  "total_interactions": 13,
+  "avg_q_score": 0.5331,
+  "satisfaction_proxy": 0.0,
+  "tier_distribution": {
+    "high": 0,
+    "medium": 9,
+    "low": 4
+  },
+  "best_score": 0.675,
+  "worst_score": 0.33,
+  "domain_breakdown": {
+    "general": 0.5331
+  },
+  "skill_usage": {
+    "dse": 10,
+    "philo-dialectic": 4,
+    "xmodel": 5,
+    "sandbox-lab": 9,
+    "master-strategy": 6,
+    "group-meeting-notes": 10,
+    "investment-masters": 7,
+    "info-architect": 1,
+    "dharma": 3,
+    "meta-learning": 10,
+    "gap": 1,
+    "business-12": 9,
+    "workflow-svc-brand-marketing": 3,
+    "ssa-consultant": 8,
+    "roundtable": 3,
+    "novel-craft": 1,
+    "decision-tracker": 2,
+    "plugin-registry": 1,
+    "morphenix": 4,
+    "user-model": 2,
+    "pdeif": 1,
+    "plan-engine": 1,
+    "sentiment-radar": 1,
+    "report-forge": 1,
+    "consultant-communication": 1
+  },
+  "alerts": [],
+  "insufficient_data": false
+}

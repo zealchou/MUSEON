@@ -2889,7 +2889,7 @@ def create_app() -> FastAPI:
             get_brain=_get_brain,
             get_llm_semaphore=_get_llm_semaphore,
             session_manager=session_manager,
-            data_dir=data_dir,
+            data_dir=brain.data_dir,
         )
 
         # ══════════════════════════════════════════════════════════
@@ -3004,7 +3004,7 @@ def create_app() -> FastAPI:
 
         # ── Start CronEngine + register system jobs ──
         cron_engine.start()
-        _register_system_cron_jobs(brain, app)
+        _register_system_cron_jobs(brain, app, cron_engine)
         _register_external_endpoints(app, brain.data_dir)
         logger.info(
             f"CronEngine started | jobs: {len(cron_engine.get_all_jobs())}"
@@ -3030,7 +3030,13 @@ def create_app() -> FastAPI:
             app.state.workflow_executor = _wf_executor
             app.state.workflow_scheduler = _wf_scheduler
 
-            _register_skillhub_endpoints(app)
+            _register_skillhub_endpoints(
+                app,
+                get_brain=_get_brain,
+                session_mgr=session_manager,
+                cron_eng=cron_engine,
+                doctor_status_fn=doctor_node_status,
+            )
 
             logger.info(f"SkillHub started | workflows: {registered_count}")
         except Exception as e:

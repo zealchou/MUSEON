@@ -1,9 +1,9 @@
 {
-  "version": "2.0.0",
+  "version": "3.0.0",
   "user_id": "external",
   "created_at": "2026-03-13T10:49:36.571679",
   "interaction_count": 0,
-  "last_seen": "2026-03-21T12:08:04.318664",
+  "last_seen": "2026-03-25T12:28:01.488110",
   "display_name": "Joh",
   "context_summary": "",
   "eight_primals": {
@@ -45,9 +45,9 @@
     },
     "boundary": {
       "level": 17,
-      "confidence": 0.3,
-      "signal": "@MuseonClaw_bot   中華國際NLP教練研究發展教育協會~森活悠遊藝文漫享二日~活動報名表    一、活動名稱：中華國際NLP教練研究發展教育協會",
-      "last_observed": "2026-03-19T22:12:00.019510"
+      "confidence": 0.33,
+      "signal": "https://raw.githubusercontent.com/zealchou/MUSEON/main/docs/muc-strategy-ppt.htm",
+      "last_observed": "2026-03-25T12:28:01.488110"
     },
     "relationship_depth": {
       "level": 0,
@@ -57,13 +57,9 @@
     }
   },
   "preferences": {
-    "communication_style": "concise"
+    "communication_style": "detailed"
   },
   "recent_topics": [
-    {
-      "snippet": "@MuseonClaw_bot 如果mission 已經可以在我本身的電腦資料庫中協助各種數位化文件的整理和資料鍵入，是不是就不用kintone的系統？",
-      "date": "2026-03-13T11:02:10.015858"
-    },
     {
       "snippet": "@MuseonClaw_bot  800多個案子  最少有200份資料",
       "date": "2026-03-13T11:03:00.349719"
@@ -139,8 +135,37 @@
     {
       "snippet": "@MuseonClaw_bot 很好，我們這個群組的目標就是，讓韋辰哥給你設計圖然後你可以產出報價單  這是韋辰哥的最大痛點 了解嘛？ 接下來我們如何協助你完成這個目標呢？",
       "date": "2026-03-21T12:08:04.318664"
+    },
+    {
+      "snippet": "https://raw.githubusercontent.com/zealchou/MUSEON/main/docs/muc-strategy-ppt.html https://zealchou.github.io/museon-repo",
+      "date": "2026-03-25T12:28:01.488110"
     }
   ],
   "groups_seen_in": [],
-  "relationship_to_owner": ""
+  "relationship_to_owner": "",
+  "profile": {
+    "name": "Joh",
+    "role": null,
+    "business_type": "unknown"
+  },
+  "relationship": {
+    "trust_level": "initial",
+    "total_interactions": 1,
+    "positive_signals": 0,
+    "negative_signals": 0,
+    "last_interaction": "2026-03-25T12:28:01.488110",
+    "first_interaction": "2026-03-13T10:49:36.571679"
+  },
+  "seven_layers": {
+    "L1_facts": [],
+    "L2_personality": [],
+    "L6_communication_style": {
+      "detail_level": "detailed",
+      "emoji_usage": "none",
+      "language_mix": "mixed",
+      "avg_msg_length": 45,
+      "question_style": "directive",
+      "tone": "casual"
+    }
+  }
 }

@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260325_102227_metacog_insight",
+  "category": "metacog_insight",
+  "content": "[PreCognition] 修改建議: REVISE\n\n邏輯矛盾：前半反問「告訴我報告名稱和失敗原因」，但後半已直接列出 6 份完成的報告連結。應刪除反問，改為直接確認「已重新發布完成，以下連結已驗證有效」，然後列出清單。這樣才符合「使用者說再試一次 = 直接執行，不反問」的 action-first 模式。",
+  "source": "metacognition_bridge",
+  "created_at": "2026-03-25T10:22:27.163641+08:00",
+  "priority": "medium"
+}
