@@ -892,6 +892,25 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         skill_names = [s.get("name", "?") for s in matched_skills]
         logger.info(f"DNA27 matched skills: {skill_names}")
 
+        # ── Step 3.15: 主動 Skill 擴展（PDR 軌道 A）──
+        from museon.agent.pdr_params import get_pdr_params
+        _pdr = get_pdr_params()
+        if _pdr.feature_flag and _pdr.proactive_skill_expand and matched_skills:
+            _report("🔗 主動擴展 Skill", "根據 connects_to 關係擴展...")
+            try:
+                _expanded = self._proactive_expand_skills(matched_skills, routing_signal)
+                if _expanded:
+                    _exp_names = [s.get("name", "?") for s in _expanded]
+                    logger.info(f"[PDR] Proactive expand: +{_exp_names}")
+                    existing_names = {s.get("name") for s in matched_skills}
+                    for s in _expanded:
+                        if s.get("name") not in existing_names:
+                            matched_skills.append(s)
+                            existing_names.add(s.get("name"))
+                    skill_names = [s.get("name", "?") for s in matched_skills]
+            except Exception as _exp_err:
+                logger.debug(f"[PDR] Proactive expand failed: {_exp_err}")
+
         # ── Step 3.2: P2 決策層信號偵測 ──
         _report("⚖️ 決策層偵測", "掃描重大決策信號...")
         decision_signal = None
@@ -1244,6 +1263,14 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                     )
                 except Exception as e:
                     logger.warning(f"SkillHub skill_builder 注入失敗: {e}")
+
+            # ── Step 4.5: 主動工具偵測（PDR 軌道 A）──
+            if _pdr.feature_flag and _pdr.proactive_tool_invoke:
+                _report("🔧 主動工具偵測", "掃描工具調用機會...")
+                _tool_hints = self._detect_tool_opportunities(content)
+                if _tool_hints:
+                    system_prompt += f"\n\n[主動工具提示 — 根據使用者訊息偵測到可用工具]\n{_tool_hints}\n如果對回覆有幫助，請主動使用上述工具。"
+                    logger.info(f"[{_trace_id}] PDR tool hints injected: {len(_tool_hints)} chars")
 
             # ── Step 5: 載入對話歷史 ──
             _report("💾 載入對話歷史", "session 歷史載入...")
@@ -2249,6 +2276,74 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
     # ═══════════════════════════════════════════
     # ANIMA 載入/儲存
     # ═══════════════════════════════════════════
+
+    # ── PDR 軌道 A: 主動擴展方法 ──
+
+    _SKILL_EXPAND_MAP = {
+        # 共現分析 top pairs + connects_to 關係
+        "ssa-consultant": ["business-12", "brand-identity"],
+        "business-12": ["ssa-consultant", "xmodel"],
+        "market-core": ["market-equity", "market-macro", "risk-matrix", "sentiment-radar"],
+        "market-equity": ["market-core", "business-12"],
+        "market-crypto": ["market-core", "risk-matrix"],
+        "market-macro": ["market-core", "market-equity"],
+        "brand-identity": ["aesthetic-sense", "storytelling-engine"],
+        "master-strategy": ["shadow", "xmodel"],
+        "xmodel": ["master-strategy", "pdeif"],
+        "dse": ["gap", "meta-learning"],
+        "gap": ["dse", "acsf"],
+        "resonance": ["dharma", "shadow"],
+        "shadow": ["resonance", "master-strategy"],
+        "investment-masters": ["market-core", "risk-matrix"],
+        "risk-matrix": ["market-core", "investment-masters"],
+        "storytelling-engine": ["novel-craft", "c15"],
+        "plan-engine": ["orchestrator", "wee"],
+        "orchestrator": ["plan-engine", "eval-engine"],
+    }
+
+    _TOOL_PATTERNS = {
+        "tool:gcal": [
+            r"明天|後天|下週|下個月|幾月幾號|會議|行程|約|見面|提案|deadline",
+        ],
+        "tool:gmail": [
+            r"email|信件|信箱|寄信|收到.*信|回信",
+        ],
+        "tool:web_search": [
+            r"最新|搜尋|查.*一下|找.*資料|目前.*趨勢",
+        ],
+    }
+
+    def _proactive_expand_skills(
+        self, matched_skills: list, routing_signal: Any
+    ) -> list:
+        """根據共現和 connects_to 關係擴展 Skill 匹配."""
+        expanded = []
+        existing = {s.get("name") for s in matched_skills}
+        for skill in matched_skills:
+            name = skill.get("name", "")
+            neighbors = self._SKILL_EXPAND_MAP.get(name, [])
+            for nb in neighbors:
+                if nb not in existing:
+                    expanded.append({"name": nb, "source": "proactive_expand"})
+                    existing.add(nb)
+        # Limit expansion to avoid prompt bloat
+        return expanded[:5]
+
+    def _detect_tool_opportunities(self, content: str) -> str:
+        """CPU-only: detect tool invocation opportunities from content keywords."""
+        import re
+        hints = []
+        for tool_id, patterns in self._TOOL_PATTERNS.items():
+            for pat in patterns:
+                if re.search(pat, content, re.IGNORECASE):
+                    if tool_id == "tool:gcal":
+                        hints.append("你可以使用 Google Calendar 工具查詢使用者的行程和空閒時間。")
+                    elif tool_id == "tool:gmail":
+                        hints.append("你可以使用 Gmail 工具搜尋使用者的信件。")
+                    elif tool_id == "tool:web_search":
+                        hints.append("你可以使用網路搜尋工具查找最新資訊。")
+                    break  # one hint per tool
+        return "\n".join(hints)
 
     def _load_anima_mc(self) -> Optional[Dict[str, Any]]:
         """載入 MUSEON 的 ANIMA（委派給 AnimaMCStore）."""
