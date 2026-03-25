@@ -1005,6 +1005,26 @@ async def _handle_telegram_message(adapter, message) -> None:
                                                 )
                                         except Exception as _act_err:
                                             logger.warning(f"[{_tid}] Phase 2 ACTION exec failed: {_act_err}")
+                            # ── Phase 3: 深思（僅 SLOW_LOOP + should_deepen）──
+                            if (_loop == "SLOW_LOOP"
+                                    and verdict.should_deepen
+                                    and _pdr.phase3_daily_budget > 0):
+                                try:
+                                    _deep = await council.deep_think(
+                                        query=message.content[:1000],
+                                        primary_response=response_text[:2000],
+                                        verdict=verdict,
+                                        session_id=message.session_id,
+                                    )
+                                    if _deep and _reply_cid:
+                                        await adapter.application.bot.send_message(
+                                            chat_id=_reply_cid,
+                                            text=f"🔬 深度分析：\n\n{_deep[:4096]}",
+                                        )
+                                        logger.info(f"[{_tid}] Phase 3 deep think sent")
+                                except Exception as _p3_err:
+                                    logger.warning(f"[{_tid}] Phase 3 deep think failed: {_p3_err}")
+
                         except Exception as _p2_err:
                             logger.warning(f"[{_tid}] Phase 2 review failed: {_p2_err}")
 
