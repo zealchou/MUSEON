@@ -973,16 +973,30 @@ class GuardianDaemon:
     # Helper: 修復計數 / 日誌 / 狀態
     # ═══════════════════════════════════════
 
+    REPAIR_TTL_SECONDS = 21600  # 6 小時後自動重置修復計數
+
     def _load_repair_counts(self):
-        """載入修復計數 — 防止無限修復迴圈"""
+        """載入修復計數 — 防止無限修復迴圈，帶 TTL 過期機制"""
         try:
             state = self._load_state()
-            self._repair_counts = state.get("repair_counts", {})
+            raw = state.get("repair_counts", {})
+            timestamps = state.get("repair_timestamps", {})
+            now = time.time()
+            # 過期的 key 自動清除
+            self._repair_counts = {}
+            self._repair_timestamps = {}
+            for key, count in raw.items():
+                ts = timestamps.get(key, 0)
+                if (now - ts) < self.REPAIR_TTL_SECONDS:
+                    self._repair_counts[key] = count
+                    self._repair_timestamps[key] = ts
         except Exception:
             self._repair_counts = {}
+            self._repair_timestamps = {}
 
     def _increment_repair_count(self, key: str):
         self._repair_counts[key] = self._repair_counts.get(key, 0) + 1
+        self._repair_timestamps[key] = time.time()
         self._save_state()
 
     def _reset_repair_count(self, key: str):
@@ -1137,6 +1151,7 @@ class GuardianDaemon:
         try:
             state = self._load_state()
             state["repair_counts"] = self._repair_counts
+            state["repair_timestamps"] = getattr(self, "_repair_timestamps", {})
             if self.last_l1_result:
                 state["last_l1_time"] = datetime.now().isoformat()
             if self.last_l2_result:

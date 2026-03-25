@@ -535,6 +535,30 @@ class ClaudeCLIAdapter:
                 model=cli_model,
             )
         except Exception as e:
+            # Transient pipe errors (WriteUnixTransport closed) — retry once
+            if "Transport" in str(e) or "handler is closed" in str(e):
+                logger.warning(f"claude -p transient error, retrying in 2s: {e}")
+                import asyncio
+                await asyncio.sleep(2)
+                try:
+                    proc2 = await asyncio.create_subprocess_exec(
+                        self._claude_path, "-p", cli_model, "--output-format", "json",
+                        stdin=asyncio.subprocess.PIPE,
+                        stdout=asyncio.subprocess.PIPE,
+                        stderr=asyncio.subprocess.PIPE,
+                    )
+                    stdout2, _ = await asyncio.wait_for(
+                        proc2.communicate(input=prompt_text.encode("utf-8")),
+                        timeout=self._timeout,
+                    )
+                    raw2 = stdout2.decode("utf-8", errors="replace").strip()
+                    if raw2:
+                        import json as _json
+                        data2 = _json.loads(raw2)
+                        text2 = data2.get("result", raw2) if isinstance(data2, dict) else raw2
+                        return AdapterResponse(text=text2, stop_reason="end_turn", model=cli_model)
+                except Exception as e2:
+                    logger.error(f"claude -p retry also failed: {e2}")
             logger.error(f"claude -p unexpected error: {e}")
             return AdapterResponse(
                 text=f"[claude -p error] {e}",

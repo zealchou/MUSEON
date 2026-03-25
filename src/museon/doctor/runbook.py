@@ -271,13 +271,18 @@ class RB006_DeadImport(Runbook):
 # ---------------------------------------------------------------------------
 
 class RB007_GatewayRestart(Runbook):
-    """Gateway 不可用時安全重啟"""
+    """Gateway 不可用時安全重啟
+
+    注意：MuseDoc 跑在 Gateway cron 內，不能用 subprocess.run 等待
+    restart-gateway.sh 完成（等於殺自己母進程再等自己回來）。
+    改用 launchctl kickstart fire-and-forget + 寫 flag 讓下一輪巡檢驗證。
+    """
     runbook_id = "RB-007"
     name = "Gateway 安全重啟"
     applicable_to = "Gateway liveness|Gateway process not found|Gateway not responding"
     severity_limit = "YELLOW"
     blast_radius_max = 50  # Gateway 是全系統入口
-    timeout_seconds = 120
+    timeout_seconds = 30   # fire-and-forget，不需要久等
 
     def matches(self, finding: dict) -> bool:
         title = finding.get("title", "")
@@ -290,11 +295,24 @@ class RB007_GatewayRestart(Runbook):
 
     async def action(self, finding: dict, home: Path) -> RunbookResult:
         import subprocess
-        script = home / "scripts" / "workflows" / "restart-gateway.sh"
-        if not script.exists():
-            return RunbookResult(success=False, message="restart script not found")
-        result = subprocess.run(["bash", str(script)], capture_output=True, text=True, timeout=120)
-        return RunbookResult(success=True, message="Gateway restart triggered")
+        import os
+        # 先同步 src/ → .runtime/（如果 .runtime 存在）
+        runtime_src = home / ".runtime" / "src"
+        if runtime_src.exists():
+            subprocess.run(
+                ["rsync", "-a", "--delete",
+                 "--exclude=__pycache__", "--exclude=.DS_Store",
+                 str(home / "src") + "/", str(runtime_src) + "/"],
+                capture_output=True, timeout=30,
+            )
+        # Fire-and-forget：用 launchctl kickstart 重啟，不等結果
+        uid = os.getuid()
+        daemon_label = "com.museon.gateway"
+        subprocess.Popen(
+            ["launchctl", "kickstart", "-k", f"gui/{uid}/{daemon_label}"],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        )
+        return RunbookResult(success=True, message="Gateway restart triggered (fire-and-forget)")
 
     async def post_check(self, finding: dict, home: Path) -> bool:
         import subprocess, asyncio
