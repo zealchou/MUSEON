@@ -47,6 +47,10 @@ _INTERNAL_PATTERNS = [
     re.compile(r"已成功(?:發送|回覆|傳送).{0,30}(?:群組|訊息|頻道)"),
     # AI 後設描述（僅內部架構術語，保留教練模式合法詞彙如「深度思考」「思維轉化」）
     re.compile(r"(?:多維度審查|一階原則|後設認知|認知迴圈)"),
+    # Skill 路由鏈洩漏（如「🎭 strategy → dharma → philo」）
+    re.compile(r"[🎭🧠🔍💭⚡🎯🛡️📊]\s*\w[\w-]*\s*→\s*\w[\w-]*(?:\s*→\s*\w[\w-]*)*"),
+    # 孤立的 [empty] 佔位符
+    re.compile(r"^\[empty\]$", re.MULTILINE),
 ]
 
 
@@ -179,18 +183,29 @@ class ResponseGuard:
         Returns:
             清理後的回覆文本
         """
-        if not is_group or not response_text:
+        if not response_text:
             return response_text
 
         sanitized = response_text
-        for pattern in _INTERNAL_PATTERNS:
-            sanitized = pattern.sub("", sanitized)
+
+        # 所有通道都過濾的危險 pattern（[empty] 佔位符、路由鏈）
+        sanitized = re.sub(r"^\[empty\]$", "", sanitized, flags=re.MULTILINE)
+        sanitized = re.sub(
+            r"[🎭🧠🔍💭⚡🎯🛡️📊]\s*\w[\w-]*\s*→\s*\w[\w-]*(?:\s*→\s*\w[\w-]*)*",
+            "", sanitized,
+        )
+
+        # 群組模式額外過濾內部術語
+        if is_group:
+            for pattern in _INTERNAL_PATTERNS:
+                sanitized = pattern.sub("", sanitized)
+
         # 清理替換後殘留的連續空行
         sanitized = re.sub(r"\n{3,}", "\n\n", sanitized).strip()
 
         if sanitized != response_text:
             logger.info(
-                f"[ResponseGuard] sanitize_for_group: 已清理群組回覆中的內部資訊"
+                f"[ResponseGuard] sanitize_for_group: 已清理回覆中的內部資訊"
             )
 
         return sanitized
