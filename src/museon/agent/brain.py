@@ -1280,11 +1280,13 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
             # 加入使用者新訊息
             history.append({"role": "user", "content": content})
 
-            # 保持歷史在 token 限制內（最近 20 輪）
-            if len(history) > 40:
-                dropping = history[:-40]
+            # 保持歷史在 token 限制內
+            _loop_mode = getattr(routing_signal, "loop", "") if routing_signal else ""
+            _max_history = 10 if _loop_mode == "FAST_LOOP" else 40
+            if len(history) > _max_history:
+                dropping = history[:-_max_history]
                 self._pre_compact_flush(session_id, dropping)
-                history[:] = history[-40:]
+                history[:] = history[-_max_history:]
 
             # ── Step 5.5: P3 前置融合 — 並行收集多視角洞察注入主回覆 ──
             _report("⚗️ P3 前置融合", "多視角洞察收集...")
@@ -1429,7 +1431,9 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
             thinking_path_summary = ""
             p3_fusion_result = None
 
-            if self._metacognition or self.eval_engine:
+            _loop = getattr(routing_signal, "loop", "") if routing_signal else ""
+            _skip_p3 = _loop == "FAST_LOOP"
+            if not _skip_p3 and (self._metacognition or self.eval_engine):
                 try:
                     # ★ P3 並行融合：三個評分模組並行執行（MetaCog + Eval + Health）
                     p3_fusion_result = await self._parallel_review_synthesis(
