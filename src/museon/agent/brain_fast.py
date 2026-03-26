@@ -180,10 +180,12 @@ class BrainFast:
                 "/opt/homebrew/bin/claude", "-p",
                 "--model", "sonnet",
                 "--output-format", "stream-json",
+                "--verbose",
                 "--tools", "",
                 stdin=asyncio.subprocess.PIPE,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
+                cwd="/tmp",  # 避免載入 MUSEON/CLAUDE.md 的 L1 調度員指令
             )
             stdout, _ = await asyncio.wait_for(
                 proc.communicate(input=prompt_text.encode("utf-8")),
