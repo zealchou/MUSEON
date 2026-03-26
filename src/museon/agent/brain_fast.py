@@ -181,14 +181,16 @@ class BrainFast:
                 "--model", "sonnet",
                 "--output-format", "stream-json",
                 "--verbose",
-                "--system-prompt", system_prompt,  # 覆蓋 CLAUDE.md 的 L1 調度員指令
+                "--system-prompt", system_prompt,
+                "--tools", "",   # 不用工具，純對話（記憶由 Layer 2 處理）
                 stdin=asyncio.subprocess.PIPE,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
+                cwd="/tmp",  # 避免載入 MUSEON 的 MCP/Skills（冷啟動 20s→2s）
             )
             stdout, _ = await asyncio.wait_for(
                 proc.communicate(input=prompt_text.encode("utf-8")),
-                timeout=30,
+                timeout=15,
             )
             # 從 stream-json 中提取 assistant text blocks
             import json as _json
