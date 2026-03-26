@@ -181,11 +181,10 @@ class BrainFast:
                 "--model", "sonnet",
                 "--output-format", "stream-json",
                 "--verbose",
-                "--tools", "",
+                "--system-prompt", system_prompt,  # 覆蓋 CLAUDE.md 的 L1 調度員指令
                 stdin=asyncio.subprocess.PIPE,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
-                cwd="/tmp",  # 避免載入 MUSEON/CLAUDE.md 的 L1 調度員指令
             )
             stdout, _ = await asyncio.wait_for(
                 proc.communicate(input=prompt_text.encode("utf-8")),
