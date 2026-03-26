@@ -642,6 +642,44 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         if rename_result:
             return rename_result
 
+        # ══════════════════════════════════════════════════════
+        # ★ Step 1.1.5: 三管線分類（Haiku 單 token）
+        # FAST → 直接極簡回覆（3 步：persona + 歷史 + LLM）
+        # STANDARD / DEEP → 繼續走後續 pipeline
+        # ══════════════════════════════════════════════════════
+        _pipeline = await self._classify_complexity(content)
+        _report("🚦 管線分類", f"{_pipeline}")
+
+        if _pipeline == "FAST":
+            # ── FAST 管線：3 步直達 ──
+            logger.info(f"[FAST] 極簡管線啟動: '{content[:30]}'")
+            try:
+                _persona = ""
+                _persona_path = self.data_dir / "_system" / "museon-persona.md"
+                if _persona_path.exists():
+                    _persona = _persona_path.read_text(encoding="utf-8")[:2000]
+                _history = self._get_session_history(session_id)[-6:]
+                _history.append({"role": "user", "content": content})
+                _fast_resp = await self._call_llm(
+                    system_prompt=f"你是 MUSEON。用繁體中文自然回覆，簡短即可。\n\n{_persona}",
+                    messages=_history,
+                    loop="FAST_LOOP",
+                )
+                if _fast_resp and _fast_resp.strip():
+                    # 寫入歷史
+                    full_history = self._get_session_history(session_id)
+                    full_history.append({"role": "user", "content": content})
+                    full_history.append({"role": "assistant", "content": _fast_resp})
+                    if len(full_history) > 40:
+                        dropping = full_history[:-40]
+                        self._pre_compact_flush(session_id, dropping)
+                        full_history[:] = full_history[-40:]
+                    logger.info(f"[FAST] 完成，回覆 {len(_fast_resp)} 字")
+                    return _fast_resp
+            except Exception as e:
+                logger.warning(f"[FAST] 失敗，降級到 STANDARD: {e}")
+                _pipeline = "STANDARD"
+
         # ── Step 1.2: 自我檢查意圖攔截（非阻塞，加 timeout）──
         try:
             from museon.doctor.self_diagnosis import (
@@ -787,6 +825,12 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                 user_primals=_user_primals or None,
             )
             safety_context = build_routing_context(routing_signal)
+            # ★ 簡單訊息強制 FAST_LOOP（覆蓋 reflex_router 的誤判）
+            if _is_simple and routing_signal.loop != "FAST_LOOP":
+                logger.info(
+                    f"[DNA27] Simple message override: {routing_signal.loop} → FAST_LOOP"
+                )
+                routing_signal.loop = "FAST_LOOP"
             logger.info(
                 f"[DNA27] RoutingSignal: loop={routing_signal.loop}, "
                 f"mode={routing_signal.mode}, "
@@ -843,7 +887,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         # ── Step 3.0.5: Multi-Agent 自動路由 — 根據訊息內容自動切換部門 ──
         _report("🔀 Multi-Agent 路由", "自動切換部門...")
         self._multiagent_auxiliaries = []  # 重置每 turn 的輔助部門
-        if self._multiagent_enabled and self._context_switcher:
+        if self._multiagent_enabled and self._context_switcher and _pipeline == "DEEP":
             try:
                 from museon.multiagent.okr_router import route_extended
                 current_dept = self._context_switcher.current_dept
@@ -1184,7 +1228,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         thinking_path_summary = ""
         p3_fusion_result = None
         dispatch_decision = self._assess_dispatch(content, matched_skills)
-        if dispatch_decision["should_dispatch"] and not _is_simple:
+        if dispatch_decision["should_dispatch"] and _pipeline == "DEEP":
             logger.info(
                 f"Dispatch mode 啟動: reason={dispatch_decision['reason']}, "
                 f"skills={[s.get('name') for s in dispatch_decision.get('active_skills', [])]}"
@@ -1280,11 +1324,13 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
             # 加入使用者新訊息
             history.append({"role": "user", "content": content})
 
-            # 保持歷史在 token 限制內（最近 20 輪）
-            if len(history) > 40:
-                dropping = history[:-40]
+            # 保持歷史在 token 限制內
+            _loop_mode = getattr(routing_signal, "loop", "") if routing_signal else ""
+            _max_history = 10 if _loop_mode == "FAST_LOOP" else 40
+            if len(history) > _max_history:
+                dropping = history[:-_max_history]
                 self._pre_compact_flush(session_id, dropping)
-                history[:] = history[-40:]
+                history[:] = history[-_max_history:]
 
             # ── Step 5.5: P3 前置融合 — 並行收集多視角洞察注入主回覆 ──
             _report("⚗️ P3 前置融合", "多視角洞察收集...")
@@ -1429,7 +1475,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
             thinking_path_summary = ""
             p3_fusion_result = None
 
-            if (self._metacognition or self.eval_engine):
+            if _pipeline == "DEEP" and (self._metacognition or self.eval_engine):
                 try:
                     # ★ P3 並行融合：三個評分模組並行執行（MetaCog + Eval + Health）
                     p3_fusion_result = await self._parallel_review_synthesis(
@@ -1674,7 +1720,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         _report("💎 知識晶格", "對話後掃描 + 自動結晶...")
         # CASTLE Layer 2: 離線回應不進入結晶管線
         # ★ Pipeline 短路：簡單訊息跳過 KnowledgeLattice 掃描
-        if self.knowledge_lattice and not self._offline_flag and not _is_simple:
+        if self.knowledge_lattice and not self._offline_flag and _pipeline == "DEEP":
             try:
                 candidates = self.knowledge_lattice.post_conversation_scan(
                     conversation_data=[

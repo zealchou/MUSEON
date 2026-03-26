@@ -795,8 +795,14 @@ class EvalEngine:
             actionability: deep-think 可行動性分數（0.0-1.0）
 
         Returns:
-            計算完成的 QScore
+            計算完成的 QScore（系統內部操作不評分，返回 None）
         """
+        # 系統內部操作不評分——只評使用者互動
+        _SYSTEM_SESSIONS = ("silent_digestion", "nightly_", "guardian_", "museoff_", "musedoc_", "cron_")
+        if session_id and any(session_id.startswith(p) for p in _SYSTEM_SESSIONS):
+            logger.debug(f"Q-Score skipped for system session: {session_id}")
+            return None
+
         now = datetime.now()
 
         # 如果 deep-think Phase 2 審計分數已提供，直接使用

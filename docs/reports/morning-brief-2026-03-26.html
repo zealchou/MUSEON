@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>今日企業個案晨報｜2026 年 3 月 26 日</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,600&family=Outfit:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ember: #C4502A;
+      --ember-light: #E0714D;
+      --ember-dark: #9A3A1C;
+      --teal: #2A7A6E;
+      --gold: #B8923A;
+      --ink: #12121A;
+      --slate: #5A5A6E;
+      --mist: #9898A8;
+      --border: #E2E0DA;
+      --parchment: #F7F5F0;
+      --snow: #FDFCFA;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+      background: var(--parchment);
+      color: var(--ink);
+      line-height: 1.75;
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #1a0f0a 0%, #2d1508 50%, #1a0f0a 100%);
+      padding: 80px 40px 60px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 60% 40%, rgba(196,80,42,0.18) 0%, transparent 70%);
+    }
+    .hero-badge {
+      display: inline-block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ember-light);
+      background: rgba(196,80,42,0.15);
+      border: 1px solid rgba(196,80,42,0.3);
+      border-radius: 100px;
+      padding: 4px 14px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(32px, 5vw, 48px);
+      font-weight: 600;
+      color: #FAF7F2;
+      line-height: 1.2;
+      position: relative;
+    }
+    .hero h1 em {
+      color: var(--ember-light);
+      font-style: italic;
+    }
+    .hero-meta {
+      margin-top: 16px;
+      font-size: 14px;
+      color: rgba(250,247,242,0.5);
+      position: relative;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── TOC ── */
+    .toc {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px 28px;
+      margin: 40px auto;
+      max-width: 820px;
+      margin-left: 24px;
+      margin-right: 24px;
+    }
+    @media (min-width: 868px) {
+      .toc { margin-left: auto; margin-right: auto; }
+    }
+    .toc-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mist);
+      margin-bottom: 12px;
+    }
+    .toc a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--slate);
+      font-size: 15px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+      transition: color 150ms ease;
+    }
+    .toc a:last-child { border-bottom: none; }
+    .toc a:hover { color: var(--ember); }
+    .toc a .num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      color: var(--ember);
+      min-width: 24px;
+    }
+
+    /* ── Article Section ── */
+    .article {
+      max-width: 820px;
+      margin: 0 auto 64px;
+      padding: 0 24px;
+      animation: fadeUp 400ms ease-out both;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-tag {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ember-dark);
+      background: rgba(196,80,42,0.08);
+      border-radius: 100px;
+      padding: 3px 12px;
+      display: inline-block;
+      margin-bottom: 16px;
+    }
+
+    .article h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(26px, 3.5vw, 36px);
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+    .article h2 em { color: var(--ember); font-style: italic; }
+
+    .article-subtitle {
+      font-size: 15px;
+      color: var(--slate);
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Story Opening Card ── */
+    .story-opening {
+      background: linear-gradient(135deg, #1e100a 0%, #2a1510 100%);
+      border-radius: 10px;
+      padding: 28px 32px;
+      margin-bottom: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+    .story-opening::before {
+      content: '"';
+      position: absolute;
+      top: -20px;
+      left: 20px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 120px;
+      color: rgba(196,80,42,0.15);
+      line-height: 1;
+    }
+    .story-opening p {
+      color: rgba(250,247,242,0.9);
+      font-size: 16px;
+      line-height: 1.8;
+      position: relative;
+    }
+    .story-opening .highlight-quote {
+      background: rgba(196,80,42,0.15);
+      border-left: 3px solid var(--ember);
+      padding: 12px 16px;
+      border-radius: 0 6px 6px 0;
+      margin: 16px 0;
+      font-style: italic;
+      color: rgba(250,247,242,0.95);
+    }
+
+    /* ── Body Text ── */
+    .article p {
+      font-size: 16px;
+      line-height: 1.8;
+      color: var(--ink);
+      margin-bottom: 16px;
+    }
+
+    /* ── Section Divider ── */
+    .divider-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 32px 0 20px;
+    }
+    .divider-label span {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mist);
+      white-space: nowrap;
+    }
+    .divider-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Character Cards ── */
+    .character-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .character-card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      transition: transform 200ms ease, box-shadow 200ms ease;
+    }
+    .character-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(18,18,26,0.08);
+    }
+    .character-name {
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+    .character-role {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--ember);
+      letter-spacing: 0.06em;
+      margin-bottom: 10px;
+    }
+    .character-desc {
+      font-size: 14px;
+      color: var(--slate);
+      line-height: 1.7;
+    }
+
+    /* ── Perspective Cards ── */
+    .perspective-grid {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .perspective-card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--ember);
+      border-radius: 0 10px 10px 0;
+      padding: 20px 24px;
+    }
+    .perspective-card.teal { border-left-color: var(--teal); }
+    .perspective-card.gold { border-left-color: var(--gold); }
+    .perspective-title {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--ink);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .perspective-title .vt {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--mist);
+      letter-spacing: 0.06em;
+    }
+    .perspective-card p {
+      font-size: 15px;
+      color: var(--slate);
+      line-height: 1.75;
+      margin-bottom: 0;
+    }
+
+    /* ── Insight Box ── */
+    .insight-box {
+      background: linear-gradient(135deg, rgba(184,146,58,0.08) 0%, rgba(42,122,110,0.06) 100%);
+      border: 1px solid rgba(184,146,58,0.2);
+      border-radius: 10px;
+      padding: 28px 32px;
+      margin-top: 32px;
+    }
+    .insight-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 14px;
+    }
+    .insight-box p {
+      font-size: 15px;
+      color: var(--ink);
+      line-height: 1.8;
+      margin-bottom: 14px;
+    }
+    .insight-box p:last-child { margin-bottom: 0; }
+    .insight-box strong { color: var(--ember); }
+
+    /* ── Bottom Line ── */
+    .bottom-line {
+      background: linear-gradient(135deg, #0e0a08 0%, #1a0f0a 100%);
+      border-radius: 10px;
+      padding: 36px 40px;
+      margin: 48px 24px 64px;
+      max-width: 820px;
+    }
+    @media (min-width: 868px) {
+      .bottom-line { margin-left: auto; margin-right: auto; }
+    }
+    .bottom-line .bl-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ember);
+      margin-bottom: 16px;
+    }
+    .bottom-line blockquote {
+      color: rgba(250,247,242,0.9);
+      font-size: 16px;
+      line-height: 1.85;
+    }
+    .bottom-line blockquote p { margin-bottom: 10px; }
+    .bottom-line blockquote p:last-child {
+      color: rgba(250,247,242,0.7);
+      font-size: 15px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(250,247,242,0.1);
+    }
+    .bottom-line blockquote strong { color: var(--ember-light); }
+
+    /* ── Separator ── */
+    .case-separator {
+      max-width: 820px;
+      margin: 0 auto 48px;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .case-separator::before, .case-separator::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+    }
+    .case-separator span {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      color: var(--mist);
+      letter-spacing: 0.1em;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 32px 24px;
+      border-top: 1px solid var(--border);
+    }
+    footer p {
+      font-size: 13px;
+      color: var(--mist);
+    }
+    footer .brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--ember);
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    /* ── Stat Callout ── */
+    .stat-callout {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 4px;
+      background: rgba(196,80,42,0.08);
+      border-radius: 6px;
+      padding: 2px 10px;
+    }
+    .stat-callout .num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--ember);
+    }
+    .stat-callout .unit {
+      font-size: 13px;
+      color: var(--ember-dark);
+    }
+
+    @media (max-width: 640px) {
+      .hero { padding: 60px 24px 48px; }
+      .story-opening { padding: 20px; }
+      .bottom-line { padding: 28px 24px; }
+      .character-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Hero ── -->
+<div class="hero">
+  <div class="hero-badge">MUSEON · 企業個案晨報</div>
+  <h1>AI 時代的減法戰爭<br><em>2026 年 3 月 26 日</em></h1>
+  <p class="hero-meta">Block · Atlassian · 裁員背後的結構性轉變</p>
+</div>
+
+<!-- ── TOC ── -->
+<nav class="toc container">
+  <div class="toc-label">今日案例</div>
+  <a href="#block"><span class="num">01</span> Block 的 40% 大裁員：AI 革命先行者，還是 AI 洗白？</a>
+  <a href="#atlassian"><span class="num">02</span> Atlassian 的生死困局：護城河被 AI 填平</a>
+</nav>
+
+<!-- ══════════════════════════════
+     CASE 01: Block
+═══════════════════════════════ -->
+<article class="article" id="block">
+  <div class="section-tag">Case 01 · Block</div>
+
+  <h2>40% 大裁員：<em>AI 革命先行者</em>，<br>還是「AI 洗白」的表演者？</h2>
+  <p class="article-subtitle">
+    財報健康，毛利年增 24%，卻砍掉近半員工。<br>Jack Dorsey 說這是 AI 時代的必然，股市鼓掌了。
+  </p>
+
+  <!-- Story Opening -->
+  <div class="story-opening">
+    <p>2026 年 2 月 26 日，Block 的 4,000 名員工收到了改變人生的通知。他們被裁了。</p>
+    <p>但這次裁員的理由，和過去每一次都不同——CEO Jack Dorsey 沒有說「市場不景氣」，直接在致股東信中寫道：</p>
+    <div class="highlight-quote">
+      「AI 工具改變了建立與運營公司的意義。用更少的人，用我們正在打造的工具，可以做得更多、做得更好。」
+    </div>
+    <p>Block 的毛利在 Q4 年增 24%。公司盈利、客戶增長、財務健康。但還是砍掉了近半員工。</p>
+    <p>市場反應：<strong style="color:var(--ember-light)">股價暴漲 24%。</strong></p>
+    <p style="margin-top:12px; font-size:14px; color:rgba(250,247,242,0.55)">Dorsey 預言：「我相信在未來一年內，大多數公司都會得出相同的結論。」一週後，Atlassian 跟進，裁員 1,600 人。</p>
+  </div>
+
+  <!-- Characters -->
+  <div class="divider-label"><span>關鍵角色</span></div>
+  <div class="character-grid">
+    <div class="character-card">
+      <div class="character-name">Jack Dorsey</div>
+      <div class="character-role">Block CEO · 先鋒或表演者</div>
+      <div class="character-desc">矽谷最具爭議的創辦人之一。這次打算用 AI 把 Block 打薄、打快，重返初創公司執行力。他承認「錯誤地把 Square 和 Cash App 建成兩套獨立架構」。</div>
+    </div>
+    <div class="character-card">
+      <div class="character-name">Naoko Takeda</div>
+      <div class="character-role">資料科學家 · 道德聲音</div>
+      <div class="character-desc">熬過了裁員，卻拒絕了公司 90% 加薪留任方案，當場辭職：「我寧願見到同事保住飯碗，也不願因為他們的苦難而受益。」</div>
+    </div>
+    <div class="character-card">
+      <div class="character-name">Sam Altman</div>
+      <div class="character-role">OpenAI CEO · 意外的良心</div>
+      <div class="character-desc">在 Dorsey 宣布裁員後幾天，主動承認「有些人是在用 AI 當裁員的藉口」——連最受益於 AI 焦慮的人都說出了這句話，耐人尋味。</div>
+    </div>
+  </div>
+
+  <!-- Perspectives -->
+  <div class="divider-label"><span>多元角度</span></div>
+  <div class="perspective-grid">
+    <div class="perspective-card">
+      <div class="perspective-title">創辦人理性 <span class="vt">視角一</span></div>
+      <p>Dorsey 的邏輯有其一致性：Block 在疫情期間過度招募，現在修正。AI 是加速器，縮減人力只是邏輯延伸。這不是背刺員工，而是提前收帳。</p>
+    </div>
+    <div class="perspective-card teal">
+      <div class="perspective-title" style="color:var(--teal)">AI 洗白假說 <span class="vt">視角二</span></div>
+      <p>2025 年數據：真正引用 AI 原因的裁員僅佔 4.5%，但 59% 的用人主管承認用「AI」包裝其他原因的決策。Dorsey 自己也承認過度招募——AI 的角色更像敘事工具，不是唯一驅動力。</p>
+    </div>
+    <div class="perspective-card gold">
+      <div class="perspective-title" style="color:var(--gold)">倖存者的道德困境 <span class="vt">視角三</span></div>
+      <p>公司強制要求所有人每天使用 AI 工具，AI 流利度納入績效評估。倖存者被要求成為讓下一批人失業的工具的熟練使用者。一名員工說：「這裡的文化正在崩潰。」</p>
+    </div>
+  </div>
+
+  <!-- Insight -->
+  <div class="insight-box">
+    <div class="insight-title">💡 開放洞見 — 給你的思考點</div>
+    <p>Block 案例拋出了你在服務中小企業時遲早會碰到的核心問題：</p>
+    <p><strong>當 AI 真的能替代人力，企業「減法」是義務還是選擇？</strong></p>
+    <p>Dorsey 的選擇是在財報好的時候就動刀，搶先一步。大多數老闆會等到不得不裁才裁——但那時往往是在壓力下做決策，代價更高。</p>
+    <p>你的客戶目前對 AI 的認知大多停留在「AI 可以幫我做事」，但 Block 案例是「AI 決定了我需要幾個人」——這個認知跳躍，是你可以提前幫客戶思考的戰略問題，也是 <strong>MUSEON 的差異化入口</strong>。</p>
+  </div>
+</article>
+
+<!-- ── Separator ── -->
+<div class="case-separator"><span>CASE 02</span></div>
+
+<!-- ══════════════════════════════
+     CASE 02: Atlassian
+═══════════════════════════════ -->
+<article class="article" id="atlassian">
+  <div class="section-tag">Case 02 · Atlassian</div>
+
+  <h2>生死困局：<em>護城河</em><br>被 AI 填平</h2>
+  <p class="article-subtitle">
+    估值蒸發 84%，CEO 在部落格公告 20 分鐘後才通知員工。<br>當基礎設施變成過時的人工填表，水電公司怎麼辦？
+  </p>
+
+  <!-- Story Opening -->
+  <div class="story-opening">
+    <p>Atlassian——Jira、Confluence、Trello 的母公司——曾是全球工程師的基礎設施。不性感，但企業運作不可或缺的水電。</p>
+    <p>但 2026 年 3 月，這家水電公司的估值下跌了 <strong style="color:var(--ember-light)">84%</strong>（從 2021 年高點計算），而且有一半的跌幅發生在 2026 年這一年。</p>
+    <p>原因：投資人相信 ChatGPT、Claude 這類 AI 正在把 Atlassian 的核心產品——專案追蹤、文件協作——變成過時的人工填表。</p>
+    <div class="highlight-quote">
+      3 月 11 日，CEO Mike Cannon-Brookes 裁員 1,600 人，在<strong>部落格貼文公告後 20 分鐘，才寄出員工通知信。</strong>
+    </div>
+  </div>
+
+  <!-- Characters -->
+  <div class="divider-label"><span>關鍵角色</span></div>
+  <div class="character-grid">
+    <div class="character-card">
+      <div class="character-name">Mike Cannon-Brookes</div>
+      <div class="character-role">Atlassian CEO · 澳洲最著名科技創辦人</div>
+      <div class="character-desc">面臨雙重壓力：向投資人展示 AI 轉型決心，同時面對「自己親手建立的文化正在被瓦解」的指控。</div>
+    </div>
+    <div class="character-card">
+      <div class="character-name">Taroon + Vikram</div>
+      <div class="character-role">繼任雙 CTO · 組織實驗</div>
+      <div class="character-desc">把技術負責人一分為二：協作工具方向 vs. 企業與信任方向。分別押注在不同的 AI 場景上——這個架構本身就是一種 AI 時代的組織實驗。</div>
+    </div>
+  </div>
+
+  <!-- Perspectives -->
+  <div class="divider-label"><span>多元角度</span></div>
+  <div class="perspective-grid">
+    <div class="perspective-card">
+      <div class="perspective-title">護城河邏輯的崩潰 <span class="vt">視角一</span></div>
+      <p>Atlassian 的商業模式建立在「黏性」上——切換成本極高。但 AI 的威脅不是另一個替代品，而是重新定義了「需求」本身。護城河被填平的方式，不是競爭者越過去，而是<strong style="color:var(--ink)">河床突然消失</strong>。</p>
+    </div>
+    <div class="perspective-card teal">
+      <div class="perspective-title" style="color:var(--teal)">通訊時機的企業倫理 <span class="vt">視角二</span></div>
+      <p>員工在部落格貼文後 20 分鐘才收到通知——這不只是 PR 失誤，而是在問：AI 重組時代，企業對員工的「尊重義務」如何重新定義？Atlassian 一向以企業文化為品牌，這個失誤傷害了他們最核心的競爭資產。</p>
+    </div>
+    <div class="perspective-card gold">
+      <div class="perspective-title" style="color:var(--gold)">估值悖論 <span class="vt">視角三</span></div>
+      <p>股價跌 84%，但 Atlassian 的實際訂閱並未大規模流失。市場的恐慌是「預期性」的——投資人押注「兩年後 Atlassian 會變得不必要」，而不是「現在就不必要」。這個落差是有趣的估值悖論：<strong style="color:var(--ink)">市場是否高估了 AI 的破壞速度？</strong></p>
+    </div>
+  </div>
+
+  <!-- Insight -->
+  <div class="insight-box">
+    <div class="insight-title">💡 開放洞見 — 給你的思考點</div>
+    <p>Atlassian 的困境，是每一家「工具公司」在 AI 時代都會面臨的拷問：</p>
+    <p><strong>你的產品是在幫人做事，還是在讓人做更多事？</strong></p>
+    <p>如果你的產品是幫人「自動化流程」，AI 就是你的替代者。但如果你的產品是幫人「更好地思考」，或者「做 AI 還做不到的判斷」，你就在不同的競爭軌道上。</p>
+    <p>這個問題對 MUSEON 也直接相關：MUSEON 的哪些部分會被通用 AI 直接替代？哪些部分因為深度連結你的認知框架、客戶個性化脈絡，反而因為 AI 能力提升而<strong>更有價值</strong>？</p>
+    <p>護城河不是功能，而是<strong>不可被替代的判斷層</strong>。</p>
+  </div>
+</article>
+
+<!-- ── Bottom Line ── -->
+<div class="bottom-line">
+  <div class="bl-label">今日底線</div>
+  <blockquote>
+    <p>Block 的 Dorsey 說：AI 讓公司用更少的人做更多的事。</p>
+    <p>Atlassian 的 Cannon-Brookes 說：AI 改變了需要哪些人。</p>
+    <p>兩個人說的是同一件事，用不同的鏡頭照在不同的公司上。</p>
+    <p><strong>2026 年的企業戰場，不是「用不用 AI」的問題，而是「AI 用完之後，你剩下什麼」的問題。</strong></p>
+  </blockquote>
+</div>
+
+<!-- ── Footer ── -->
+<footer>
+  <span class="brand">MUSEON</span>
+  <p>企業個案晨報 · 2026 年 3 月 26 日</p>
+  <p style="margin-top:6px">Powered by MUSEON · For Zeal</p>
+</footer>
+
+</body>
+</html>
