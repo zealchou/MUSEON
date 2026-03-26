@@ -294,25 +294,13 @@ class RB007_GatewayRestart(Runbook):
         return result.returncode != 0  # Gateway 確實不在
 
     async def action(self, finding: dict, home: Path) -> RunbookResult:
-        import subprocess
-        import os
-        # 先同步 src/ → .runtime/（如果 .runtime 存在）
-        runtime_src = home / ".runtime" / "src"
-        if runtime_src.exists():
-            subprocess.run(
-                ["rsync", "-a", "--delete",
-                 "--exclude=__pycache__", "--exclude=.DS_Store",
-                 str(home / "src") + "/", str(runtime_src) + "/"],
-                capture_output=True, timeout=30,
-            )
-        # Fire-and-forget：用 launchctl kickstart 重啟，不等結果
-        uid = os.getuid()
-        daemon_label = "com.museon.gateway"
-        subprocess.Popen(
-            ["launchctl", "kickstart", "-k", f"gui/{uid}/{daemon_label}"],
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        # MuseDoc 跑在 Gateway 的 cron 內，不能重啟自己的母進程。
+        # Gateway 重啟交由 launchd KeepAlive 自動處理。
+        # MuseDoc 只負責記錄 + 通知老闆。
+        return RunbookResult(
+            success=True,
+            message="Gateway 已死亡，已通知老闆。重啟由 launchd KeepAlive 處理。",
         )
-        return RunbookResult(success=True, message="Gateway restart triggered (fire-and-forget)")
 
     async def post_check(self, finding: dict, home: Path) -> bool:
         import subprocess, asyncio
