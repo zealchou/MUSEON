@@ -58,17 +58,31 @@ async def observe(
             for m in recent_history[-10:]
         )
 
-        resp = await asyncio.wait_for(
-            llm_adapter.call(
-                system_prompt=_OBSERVER_PROMPT,
-                messages=[{"role": "user", "content": f"最近對話：\n{conv_text}"}],
-                model="claude-haiku-4-5-20251001",
-                max_tokens=200,
-            ),
+        import json as _json
+        prompt = f"<system-instructions>\n{_OBSERVER_PROMPT}\n</system-instructions>\n最近對話：\n{conv_text}"
+        proc = await asyncio.create_subprocess_exec(
+            "/opt/homebrew/bin/claude", "-p",
+            "--model", "haiku",
+            "--output-format", "stream-json",
+            "--tools", "",
+            stdin=asyncio.subprocess.PIPE,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        stdout, _ = await asyncio.wait_for(
+            proc.communicate(input=prompt.encode("utf-8")),
             timeout=10.0,
         )
-
-        text = resp.text.strip() if resp and resp.text else ""
+        text = ""
+        for line in stdout.decode("utf-8", errors="replace").strip().split("\n"):
+            try:
+                obj = _json.loads(line.strip())
+                if obj.get("type") == "assistant":
+                    for block in obj.get("message", {}).get("content", []):
+                        if block.get("type") == "text" and block.get("text"):
+                            text = block["text"]
+            except _json.JSONDecodeError:
+                continue
         if not text or text == "無":
             return
 
