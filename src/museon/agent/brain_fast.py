@@ -159,15 +159,51 @@ class BrainFast:
         if len(history) > 20:
             history = history[-20:]
 
-        # ── Step 5: 呼叫 LLM ──
+        # ── Step 5: 呼叫 LLM（claude -p stream-json，從 assistant message 提取文字）──
         response = ""
         try:
-            if self._llm_adapter:
-                resp = await self._llm_adapter.call(
-                    system_prompt=system_prompt,
-                    messages=history,
-                )
-                response = resp.text if resp and resp.text else ""
+            import subprocess as _sp
+            # 組建 prompt：system + 歷史 + 當前訊息
+            prompt_parts = []
+            if system_prompt:
+                prompt_parts.append(f"<system-instructions>\n{system_prompt}\n</system-instructions>\n")
+            for m in history:
+                role = m.get("role", "user")
+                content = m.get("content", "")
+                if role == "assistant":
+                    prompt_parts.append(f"[Previous assistant response]: {content}")
+                else:
+                    prompt_parts.append(content)
+            prompt_text = "\n".join(prompt_parts)
+
+            proc = await asyncio.create_subprocess_exec(
+                "/opt/homebrew/bin/claude", "-p",
+                "--model", "sonnet",
+                "--output-format", "stream-json",
+                "--tools", "",
+                stdin=asyncio.subprocess.PIPE,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            stdout, _ = await asyncio.wait_for(
+                proc.communicate(input=prompt_text.encode("utf-8")),
+                timeout=30,
+            )
+            # 從 stream-json 中提取 assistant text blocks
+            import json as _json
+            for line in stdout.decode("utf-8", errors="replace").strip().split("\n"):
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    obj = _json.loads(line)
+                    if obj.get("type") == "assistant":
+                        msg = obj.get("message", {})
+                        for block in msg.get("content", []):
+                            if block.get("type") == "text" and block.get("text"):
+                                response = block["text"]
+                except _json.JSONDecodeError:
+                    continue
         except Exception as e:
             logger.error(f"[BrainFast] LLM call failed: {e}")
 
