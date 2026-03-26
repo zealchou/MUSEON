@@ -8,7 +8,6 @@ K8s readinessProbe 模式：沒 ready 就降級，不重啟。
 from __future__ import annotations
 
 import logging
-import subprocess
 
 import aiohttp
 
@@ -38,8 +37,7 @@ class ReadinessProbe:
         checks["pulse_db"] = self._check_db("/Users/ZEALCHOU/MUSEON/data/pulse/pulse.db")
         checks["crystal_db"] = self._check_db("/Users/ZEALCHOU/MUSEON/data/lattice/crystal.db")
 
-        # Check 5: Telegram bot reachable
-        checks["telegram"] = await self._check_telegram_bot()
+        # Telegram 偵測已由 Guardian L1 負責，不再重複檢查
 
         failed = [k for k, v in checks.items() if not v]
         ready = len(failed) == 0
@@ -70,20 +68,6 @@ class ReadinessProbe:
             async with aiohttp.ClientSession() as session:
                 async with session.get(url, timeout=aiohttp.ClientTimeout(total=5)) as resp:
                     return resp.status in (200, 204)
-        except Exception:
-            return False
-
-    async def _check_telegram_bot(self) -> bool:
-        """檢查 Telegram adapter 狀態（透過 Gateway HTTP endpoint）"""
-        try:
-            import aiohttp
-            url = "http://127.0.0.1:8765/api/telegram/status"
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url, timeout=aiohttp.ClientTimeout(total=5)) as resp:
-                    if resp.status == 200:
-                        data = await resp.json()
-                        return data.get("running", False)
-            return False
         except Exception:
             return False
 
