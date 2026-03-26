@@ -168,11 +168,9 @@ async def _brain_process_with_sla(
     metadata=None,
     semaphore=None,
 ):
-    """包裝 brain.process()，提供 90 秒 SLA 保證 + Circuit Breaker 保護.
+    """Layer 1 即時回覆 + 90 秒 SLA 保證.
 
-    - 90 秒未完成 → 先送暫時回覆，背景繼續等
-    - Circuit Breaker OPEN → 直接返回降級回覆
-    - brain.process() 失敗 → 記錄到 Circuit Breaker
+    使用 BrainFast（極簡管線）取代完整 brain.process()。
     """
     from museon.governance.bulkhead import get_brain_circuit_breaker
 
@@ -183,52 +181,19 @@ async def _brain_process_with_sla(
         logger.warning(f"BrainCircuitBreaker OPEN — returning fallback for {session_id}")
         return cb.fallback_message
 
-    # ── 實際呼叫 brain.process()（worker subprocess 優先，fallback in-process）──
+    # ── Layer 1：BrainFast 即時回覆 ──
     async def _do_process():
-        # 嘗試用 subprocess worker（process 隔離）
-        try:
-            from museon.gateway.brain_worker import get_brain_worker_manager
-            worker = get_brain_worker_manager()
-            if worker:
-                _trace = (metadata or {}).get("trace_id", "")
-                result_dict = await worker.process(
-                    content=content,
-                    session_id=session_id,
-                    user_id=user_id,
-                    source=source,
-                    metadata=metadata,
-                    trace_id=_trace,
-                )
-                # 還原為 BrainResponse 或 str
-                from museon.gateway.message import BrainResponse
-                return BrainResponse(text=result_dict.get("text", ""))
-        except Exception as _w_err:
-            logger.warning(f"BrainWorker failed, falling back to in-process: {_w_err}")
-
-        # Fallback: in-process brain.process()（使用 token bucket 取代 semaphore）
-        try:
-            from museon.llm.rate_limiter import get_api_bucket
-            _bucket = get_api_bucket()
-        except Exception:
-            _bucket = semaphore  # 最終 fallback 回 semaphore
-
-        if _bucket:
-            async with _bucket:
-                return await brain.process(
-                    content=content,
-                    session_id=session_id,
-                    user_id=user_id,
-                    source=source,
-                    metadata=metadata,
-                )
-        else:
-            return await brain.process(
-                content=content,
-                session_id=session_id,
-                user_id=user_id,
-                source=source,
-                metadata=metadata,
-            )
+        from museon.gateway.server import _get_brain_fast
+        brain_fast = _get_brain_fast()
+        text = await brain_fast.process(
+            content=content,
+            session_id=session_id,
+            user_id=user_id,
+            source=source,
+            metadata=metadata,
+        )
+        from museon.gateway.message import BrainResponse
+        return BrainResponse(text=text)
 
     brain_task = asyncio.create_task(_do_process())
     sla_notified = False
