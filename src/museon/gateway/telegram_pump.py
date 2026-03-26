@@ -804,52 +804,15 @@ async def _handle_telegram_message(adapter, message) -> None:
                     chat_id, status_msg_id, "✍️ 回覆準備完成，正在發送..."
                 )
 
-            # ── 5. Send actual response（先送回覆，再清理進度）──
-            # v10.8: L2 結構化剝離 — 移除 AI 內部思考區塊（比 L3 sanitize 更早、更精準）
-            import re as _re
-            # 剝離整段【標記】...內容（貪婪到下一個【或行尾）
-            response_text = _re.sub(
-                r"【[^】]{1,20}】[^\n]*(?:\n(?![\n【]).*)*",
-                "", response_text,
-            ).strip()
-            # 剝離「已成功...群組」操作確認句（整行移除）
-            response_text = _re.sub(
-                r"^.*已成功(?:發送|回覆|傳送).{0,30}(?:群組|訊息|頻道).*$",
-                "", response_text, flags=_re.MULTILINE,
-            ).strip()
-            # 清除剝離後可能殘留的連續空行
-            response_text = _re.sub(r"\n{3,}", "\n\n", response_text)
+            # ── 5. Send actual response ──
+            # Layer 1（BrainFast）返回乾淨文字，不含內部標記。
+            # 不再需要 L2 剝離、L3 sanitize、空回覆重試。
 
-            # v10.7: L3 群組回覆內容清理（最後防線黑名單）+ metadata 深複製 + 跨群驗證
+            # 群組回覆仍做基本安全清理（防止 persona 意外洩漏內部術語）
             from museon.governance.response_guard import ResponseGuard
             _is_group = message.metadata.get("is_group", False)
-            response_text = ResponseGuard.sanitize_for_group(response_text, _is_group)
-
-            # v10.9→v11: 空回覆兜底 — 極簡 LLM 重試（不帶結晶/Skill/DNA27）
-            # 結構性修復：不管哪條管線，永不產出空回覆。
-            # 如果完整 pipeline 的結果被 sanitize 清空，代表 prompt 太複雜導致
-            # LLM 產出全是內部標記。此時用最簡 prompt 重試一次。
-            if not response_text or not response_text.strip():
-                logger.warning(f"[{_tid}] Response empty after sanitization, retrying with minimal prompt")
-                try:
-                    _persona = ""
-                    _persona_path = brain.data_dir / "_system" / "museon-persona.md"
-                    if _persona_path.exists():
-                        _persona = _persona_path.read_text(encoding="utf-8")[:2000]
-                    _recent = brain._get_session_history(message.session_id)[-6:]
-                    _minimal_msgs = _recent + [{"role": "user", "content": message.content}]
-                    _minimal_resp = await brain._call_llm(
-                        system_prompt=f"你是 MUSEON。用繁體中文自然回覆。\n\n{_persona}",
-                        messages=_minimal_msgs,
-                    )
-                    if _minimal_resp and _minimal_resp.strip():
-                        response_text = _minimal_resp.strip()
-                        logger.info(f"[{_tid}] Minimal retry succeeded")
-                    else:
-                        response_text = "我想了一下，但沒有組織好回應。可以再說一次嗎？"
-                except Exception as _retry_err:
-                    logger.warning(f"[{_tid}] Minimal retry failed: {_retry_err}")
-                    response_text = "我想了一下，但沒有組織好回應。可以再說一次嗎？"
+            if _is_group:
+                response_text = ResponseGuard.sanitize_for_group(response_text, True)
 
             response_msg = InternalMessage(
                 source="telegram",

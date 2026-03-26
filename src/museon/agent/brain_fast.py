@@ -180,6 +180,17 @@ class BrainFast:
         history.append({"role": "assistant", "content": response})
         self._save_history(session_id, history)
 
+        # ── Layer 2: 背景觀察（fire-and-forget）──
+        try:
+            from museon.agent.brain_observer import observe
+            asyncio.create_task(observe(
+                session_id=session_id,
+                recent_history=history[-10:],
+                llm_adapter=self._llm_adapter,
+            ))
+        except Exception:
+            pass  # Layer 2 失敗靜默
+
         _elapsed = time.time() - _start
         logger.info(f"[BrainFast] done in {_elapsed:.1f}s | {len(response)} chars | session={session_id}")
 
