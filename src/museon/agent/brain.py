@@ -787,6 +787,12 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                 user_primals=_user_primals or None,
             )
             safety_context = build_routing_context(routing_signal)
+            # ★ 簡單訊息強制 FAST_LOOP（覆蓋 reflex_router 的誤判）
+            if _is_simple and routing_signal.loop != "FAST_LOOP":
+                logger.info(
+                    f"[DNA27] Simple message override: {routing_signal.loop} → FAST_LOOP"
+                )
+                routing_signal.loop = "FAST_LOOP"
             logger.info(
                 f"[DNA27] RoutingSignal: loop={routing_signal.loop}, "
                 f"mode={routing_signal.mode}, "
@@ -1184,7 +1190,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         thinking_path_summary = ""
         p3_fusion_result = None
         dispatch_decision = self._assess_dispatch(content, matched_skills)
-        if dispatch_decision["should_dispatch"]:
+        if dispatch_decision["should_dispatch"] and not _is_simple:
             logger.info(
                 f"Dispatch mode 啟動: reason={dispatch_decision['reason']}, "
                 f"skills={[s.get('name') for s in dispatch_decision.get('active_skills', [])]}"
