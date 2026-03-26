@@ -74,8 +74,9 @@ class BrainToolsMixin:
         if not self._llm_adapter or self._offline_flag:
             return "STANDARD"
         try:
-            resp = await asyncio.wait_for(
-                self._call_llm_with_model(
+            # 直接用 adapter 呼叫，繞過 SafetyAnchor（分類器不需要安全錨點）
+            adapter_resp = await asyncio.wait_for(
+                self._llm_adapter.call(
                     system_prompt=self._CLASSIFY_PROMPT,
                     messages=[{"role": "user", "content": content}],
                     model="claude-haiku-4-5-20251001",
@@ -83,9 +84,9 @@ class BrainToolsMixin:
                 ),
                 timeout=2.0,
             )
-            label = resp.strip().upper()[:1]
+            label = adapter_resp.text.strip().upper()[:1] if adapter_resp.text else ""
             result = self._CLASSIFY_MAP.get(label, "STANDARD")
-            logger.info(f"[Classifier] '{content[:20]}...' → {label} → {result}")
+            logger.info(f"[Classifier] '{content[:20]}' → {label} → {result}")
             return result
         except Exception as e:
             logger.warning(f"[Classifier] failed ({e}), fallback → STANDARD")
