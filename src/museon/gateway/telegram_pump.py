@@ -860,16 +860,31 @@ async def _handle_telegram_message(adapter, message) -> None:
             _is_group = message.metadata.get("is_group", False)
             response_text = ResponseGuard.sanitize_for_group(response_text, _is_group)
 
-            # v10.9: 二次空值防護 — sanitization 後再檢查一次
-            # 根因：line 718 的空值檢查在 sanitization 之前，
-            # Brain 回覆若全由內部標記組成（【思考路徑】、Skill 路由鏈等），
-            # 經 L2 剝離 + ResponseGuard 清理後變成空字串，
-            # InternalMessage.__post_init__ 會把 "" 轉成 "[empty]" 並送出。
+            # v10.9→v11: 空回覆兜底 — 極簡 LLM 重試（不帶結晶/Skill/DNA27）
+            # 結構性修復：不管哪條管線，永不產出空回覆。
+            # 如果完整 pipeline 的結果被 sanitize 清空，代表 prompt 太複雜導致
+            # LLM 產出全是內部標記。此時用最簡 prompt 重試一次。
             if not response_text or not response_text.strip():
-                logger.warning(f"[{_tid}] Response became empty after sanitization, applying fallback")
-                _mc = brain._load_anima_mc()
-                _name = _mc.get("identity", {}).get("name", "MUSEON") if _mc else "MUSEON"
-                response_text = f"我想了一下，但沒有組織好回應。可以再說一次嗎？"
+                logger.warning(f"[{_tid}] Response empty after sanitization, retrying with minimal prompt")
+                try:
+                    _persona = ""
+                    _persona_path = brain.data_dir / "_system" / "museon-persona.md"
+                    if _persona_path.exists():
+                        _persona = _persona_path.read_text(encoding="utf-8")[:2000]
+                    _recent = brain._get_session_history(message.session_id)[-6:]
+                    _minimal_msgs = _recent + [{"role": "user", "content": message.content}]
+                    _minimal_resp = await brain._call_llm(
+                        system_prompt=f"你是 MUSEON。用繁體中文自然回覆。\n\n{_persona}",
+                        messages=_minimal_msgs,
+                    )
+                    if _minimal_resp and _minimal_resp.strip():
+                        response_text = _minimal_resp.strip()
+                        logger.info(f"[{_tid}] Minimal retry succeeded")
+                    else:
+                        response_text = "我想了一下，但沒有組織好回應。可以再說一次嗎？"
+                except Exception as _retry_err:
+                    logger.warning(f"[{_tid}] Minimal retry failed: {_retry_err}")
+                    response_text = "我想了一下，但沒有組織好回應。可以再說一次嗎？"
 
             response_msg = InternalMessage(
                 source="telegram",
