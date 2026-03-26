@@ -50,6 +50,47 @@ class BrainToolsMixin:
     # 離線模式
     _OFFLINE_PROBE_INTERVAL = 300  # 秒（5 分鐘自動 probe 恢復）
 
+    # ═══════════════════════════════════════
+    # 三管線分類器（Haiku 單 token）
+    # ═══════════════════════════════════════
+
+    _CLASSIFY_PROMPT = (
+        "Classify the user message complexity. Reply with exactly one uppercase letter, nothing else.\n\n"
+        "F — Fast: greetings, acknowledgments, emotional expressions, very short small talk, "
+        "simple confirmations, reactions (e.g. 早安, OK, 哈哈, 好的, 謝啦, 讚, 晚安, 收到, 嗯嗯, 笑死)\n"
+        "S — Standard: questions, advice requests, information lookups, moderate conversation, "
+        "opinions, short tasks (e.g. 今天天氣怎樣, 推薦餐廳, 這個怎麼用, 你覺得呢, 幫我查一下)\n"
+        "D — Deep: strategic analysis, multi-step tasks, report generation, complex reasoning, "
+        "long detailed requests (e.g. 幫我分析投資組合, 寫一份企劃書, 比較三個方案的優缺點)\n\n"
+        "When uncertain, prefer S over F (never under-classify)."
+    )
+    _CLASSIFY_MAP = {"F": "FAST", "S": "STANDARD", "D": "DEEP"}
+
+    async def _classify_complexity(self, content: str) -> str:
+        """用 Haiku 單 token 分類訊息複雜度 → FAST / STANDARD / DEEP.
+
+        500ms timeout，失敗時 fallback 到 STANDARD。
+        """
+        if not self._llm_adapter or self._offline_flag:
+            return "STANDARD"
+        try:
+            resp = await asyncio.wait_for(
+                self._call_llm_with_model(
+                    system_prompt=self._CLASSIFY_PROMPT,
+                    messages=[{"role": "user", "content": content}],
+                    model="claude-haiku-4-5-20251001",
+                    max_tokens=1,
+                ),
+                timeout=2.0,
+            )
+            label = resp.strip().upper()[:1]
+            result = self._CLASSIFY_MAP.get(label, "STANDARD")
+            logger.info(f"[Classifier] '{content[:20]}...' → {label} → {result}")
+            return result
+        except Exception as e:
+            logger.warning(f"[Classifier] failed ({e}), fallback → STANDARD")
+            return "STANDARD"
+
     async def _call_llm(
         self,
         system_prompt: str,
