@@ -65,11 +65,12 @@ async def observe(
             "--model", "haiku",
             "--output-format", "stream-json",
             "--verbose",
-            "--tools", "",
+            "--system-prompt", _OBSERVER_PROMPT,
+            "--tools", "",  # observer 不需要工具，只觀察
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
-            cwd="/tmp",
+            cwd="/tmp",  # observer 不需要 MCP
         )
         stdout, _ = await asyncio.wait_for(
             proc.communicate(input=prompt.encode("utf-8")),
