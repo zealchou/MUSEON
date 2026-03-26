@@ -64,10 +64,12 @@ async def observe(
             "/opt/homebrew/bin/claude", "-p",
             "--model", "haiku",
             "--output-format", "stream-json",
+            "--verbose",
             "--tools", "",
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
+            cwd="/tmp",
         )
         stdout, _ = await asyncio.wait_for(
             proc.communicate(input=prompt.encode("utf-8")),
