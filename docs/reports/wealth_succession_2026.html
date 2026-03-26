@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 高資產傳承與資產配置分析報告 — MUSEON</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ember: #C4502A;
+    --ember-light: #E0714D;
+    --ember-dark: #9A3A1C;
+    --teal: #2A7A6E;
+    --gold: #B8923A;
+    --ink: #12121A;
+    --slate: #5A5A6E;
+    --mist: #9898A8;
+    --border: #E2E0DA;
+    --parchment: #F7F5F0;
+    --snow: #FDFCFA;
+    --deep-ink: #0E0E16;
+    --success: #2D8A6E;
+    --warning: #C9943A;
+    --error: #C4402A;
+    --info: #2A6A8A;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--parchment);
+    color: var(--ink);
+    font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+    font-size: 16px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page-wrapper {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 64px 40px 96px;
+  }
+
+  /* Hero */
+  .hero {
+    text-align: center;
+    padding: 96px 0 64px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 64px;
+    animation: fadeInUp 400ms ease-out;
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-badge {
+    display: inline-block;
+    background: rgba(196,80,42,0.1);
+    color: var(--ember-dark);
+    border-radius: 100px;
+    padding: 3px 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 48px;
+    font-weight: 600;
+    line-height: 1.15;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+
+  .hero .subtitle {
+    font-size: 18px;
+    color: var(--slate);
+    font-weight: 300;
+    line-height: 1.6;
+  }
+
+  .hero .meta {
+    margin-top: 32px;
+    font-size: 13px;
+    color: var(--mist);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* Section */
+  .section {
+    margin-bottom: 64px;
+    animation: fadeInUp 400ms ease-out;
+  }
+
+  h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  h2 .section-num {
+    color: var(--ember);
+    font-size: 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    display: block;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+
+  h3 {
+    font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-top: 32px;
+    margin-bottom: 12px;
+    line-height: 1.4;
+  }
+
+  h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--slate);
+    margin-top: 24px;
+    margin-bottom: 8px;
+  }
+
+  p {
+    margin-bottom: 16px;
+    color: var(--ink);
+    line-height: 1.8;
+  }
+
+  .lead {
+    font-size: 18px;
+    color: var(--slate);
+    line-height: 1.8;
+    margin-bottom: 32px;
+    border-left: 3px solid var(--ember);
+    padding-left: 20px;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+    transition: transform 200ms ease, box-shadow 200ms ease;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 6px rgba(18,18,26,0.08), 0 8px 24px rgba(18,18,26,0.06);
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 24px 0;
+  }
+
+  @media (max-width: 640px) {
+    .card-grid { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 36px; }
+    h2 { font-size: 28px; }
+    .page-wrapper { padding: 32px 16px 64px; }
+  }
+
+  /* Key Stat */
+  .stat-row {
+    display: flex;
+    gap: 16px;
+    margin: 24px 0;
+    flex-wrap: wrap;
+  }
+
+  .stat-box {
+    flex: 1;
+    min-width: 140px;
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .stat-box .number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--ember);
+    line-height: 1.2;
+  }
+
+  .stat-box .label {
+    font-size: 13px;
+    color: var(--slate);
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 24px;
+    font-size: 15px;
+  }
+
+  thead th {
+    background: var(--deep-ink);
+    color: #fff;
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+  }
+
+  thead th:first-child { border-radius: 8px 0 0 0; }
+  thead th:last-child { border-radius: 0 8px 0 0; }
+
+  tbody td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:nth-child(even) { background: rgba(247,245,240,0.5); }
+
+  /* Highlight box */
+  .highlight-box {
+    background: linear-gradient(135deg, rgba(196,80,42,0.06), rgba(184,146,58,0.06));
+    border: 1px solid rgba(196,80,42,0.15);
+    border-radius: 10px;
+    padding: 24px;
+    margin: 24px 0;
+  }
+
+  .highlight-box .title {
+    font-weight: 600;
+    color: var(--ember-dark);
+    margin-bottom: 8px;
+    font-size: 15px;
+  }
+
+  .highlight-box p {
+    margin-bottom: 0;
+    font-size: 15px;
+    color: var(--slate);
+  }
+
+  /* Warning box */
+  .warning-box {
+    background: rgba(201,148,58,0.08);
+    border-left: 4px solid var(--warning);
+    border-radius: 0 8px 8px 0;
+    padding: 16px 20px;
+    margin: 24px 0;
+  }
+
+  .warning-box .title {
+    font-weight: 600;
+    color: var(--warning);
+    margin-bottom: 4px;
+    font-size: 14px;
+  }
+
+  /* Info box */
+  .info-box {
+    background: rgba(42,106,138,0.06);
+    border-left: 4px solid var(--info);
+    border-radius: 0 8px 8px 0;
+    padding: 16px 20px;
+    margin: 24px 0;
+  }
+
+  .info-box .title {
+    font-weight: 600;
+    color: var(--info);
+    margin-bottom: 4px;
+    font-size: 14px;
+  }
+
+  /* Lists */
+  ul, ol {
+    margin: 8px 0 16px 20px;
+    color: var(--ink);
+  }
+
+  li {
+    margin-bottom: 6px;
+    line-height: 1.7;
+  }
+
+  li strong {
+    color: var(--ember-dark);
+  }
+
+  /* Divider */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 48px 0;
+  }
+
+  /* TOC */
+  .toc {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 32px;
+    margin-bottom: 48px;
+  }
+
+  .toc h3 {
+    margin-top: 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+  }
+
+  .toc ol {
+    margin: 16px 0 0 0;
+    list-style: none;
+    counter-reset: toc;
+  }
+
+  .toc li {
+    counter-increment: toc;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(226,224,218,0.5);
+    font-size: 15px;
+  }
+
+  .toc li:last-child { border-bottom: none; }
+
+  .toc li::before {
+    content: "0" counter(toc);
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    color: var(--ember);
+    margin-right: 12px;
+    font-size: 13px;
+  }
+
+  .toc a {
+    color: var(--ink);
+    text-decoration: none;
+    transition: color 120ms ease;
+  }
+
+  .toc a:hover { color: var(--ember); }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding-top: 48px;
+    border-top: 1px solid var(--border);
+    margin-top: 64px;
+  }
+
+  .footer .brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ember);
+    letter-spacing: 0.06em;
+  }
+
+  .footer .disclaimer {
+    font-size: 12px;
+    color: var(--mist);
+    margin-top: 16px;
+    line-height: 1.6;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Print */
+  @media print {
+    .page-wrapper { max-width: 100%; padding: 20px; }
+    .card:hover { transform: none; box-shadow: none; }
+    body { font-size: 14px; }
+  }
+
+  /* Badge inline */
+  .badge {
+    display: inline-block;
+    background: rgba(196,80,42,0.1);
+    color: var(--ember-dark);
+    border-radius: 100px;
+    padding: 2px 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+
+  .badge.teal {
+    background: rgba(42,122,110,0.1);
+    color: var(--teal);
+  }
+
+  .badge.gold {
+    background: rgba(184,146,58,0.1);
+    color: var(--gold);
+  }
+
+  /* Numbered insight */
+  .insight-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    counter-reset: insight;
+  }
+
+  .insight-list li {
+    counter-increment: insight;
+    padding: 16px 0 16px 48px;
+    position: relative;
+    border-bottom: 1px solid rgba(226,224,218,0.5);
+  }
+
+  .insight-list li:last-child { border-bottom: none; }
+
+  .insight-list li::before {
+    content: counter(insight);
+    position: absolute;
+    left: 0;
+    top: 16px;
+    width: 32px;
+    height: 32px;
+    background: var(--ember);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  /* Progress bar visual */
+  .alloc-bar {
+    display: flex;
+    height: 32px;
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 16px 0;
+  }
+
+  .alloc-bar .seg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- HERO -->
+  <header class="hero">
+    <span class="hero-badge">MUSEON Research</span>
+    <h1>2026 高資產傳承<br>與資產配置分析</h1>
+    <p class="subtitle">全球 $124 兆美元大移轉浪潮下的傳承策略、稅務架構與配置框架</p>
+    <p class="meta">2026-03-26 &nbsp;|&nbsp; MUSEON Intelligence Unit</p>
+  </header>
+
+  <!-- TOC -->
+  <nav class="toc">
+    <h3>報告架構</h3>
+    <ol>
+      <li><a href="#s1">全球大移轉：$124 兆的世代財富遷徙</a></li>
+      <li><a href="#s2">台灣稅務環境：遺贈稅與最新修法動態</a></li>
+      <li><a href="#s3">保險傳承架構：槓桿倍數與課稅地雷</a></li>
+      <li><a href="#s4">CRS 2.0 與跨境透明化衝擊</a></li>
+      <li><a href="#s5">亞洲家族辦公室：香港 vs 新加坡 vs 台灣</a></li>
+      <li><a href="#s6">另類資產配置：60/10/30 新範式</a></li>
+      <li><a href="#s7">AI 與數位資產：新世代傳承議題</a></li>
+      <li><a href="#s8">台灣特有工具：閉鎖性公司 + 信託組合拳</a></li>
+      <li><a href="#s9">關鍵數據速查</a></li>
+    </ol>
+  </nav>
+
+  <!-- S1: Global Wealth Transfer -->
+  <section class="section" id="s1">
+    <h2><span class="section-num">01</span>全球大移轉</h2>
+    <p class="lead">歷史上最大規模的世代財富遷徙正在發生。預估至 2048 年，全球將有 $124 兆美元從老一代流向年輕世代——其中一半來自僅佔 2% 的高資產家庭。</p>
+
+    <div class="stat-row">
+      <div class="stat-box">
+        <div class="number">$124兆</div>
+        <div class="label">全球財富移轉總規模<br>(至 2048 年)</div>
+      </div>
+      <div class="stat-box">
+        <div class="number">$62兆</div>
+        <div class="label">來自高資產家庭<br>(僅占全部家庭 2%)</div>
+      </div>
+      <div class="stat-box">
+        <div class="number">$46兆</div>
+        <div class="label">千禧世代將繼承<br>(未來 25 年)</div>
+      </div>
+    </div>
+
+    <h3>財富集中持續加劇</h3>
+    <p>高資產家庭持有全部財富的比例，從 2011 年的 33%、2020 年的 40%，攀升至 2025 年的 <strong>44%</strong>。這意味著傳承規劃的重要性只會越來越高——因為少數家庭掌握著越來越多的財富。</p>
+
+    <h3>規劃面臨的三大挑戰</h3>
+    <div class="card-grid">
+      <div class="card">
+        <h4>混合家庭複雜度</h4>
+        <p style="font-size:14px;margin:0;color:var(--slate)"><strong>71%</strong> 從業者認為混合家庭是遺產爭議首因。再婚、跨國婚姻讓傳承架構必須更精密。</p>
+      </div>
+      <div class="card">
+        <h4>跨國流動性</h4>
+        <p style="font-size:14px;margin:0;color:var(--slate)"><strong>60%</strong> 從業者觀察到客戶國際流動性增加。多法域家庭的稅務與法律複雜度倍增。</p>
+      </div>
+      <div class="card">
+        <h4>碎片化執行</h4>
+        <p style="font-size:14px;margin:0;color:var(--slate)">已簽署但未注資的信託、缺乏監督的投資組合、未準備好的繼承人——文件做了但沒落地。</p>
+      </div>
+      <div class="card">
+        <h4>美國稅制定錨</h4>
+        <p style="font-size:14px;margin:0;color:var(--slate)">OBBBA 法案永久設定免稅額 $1,500 萬/人，規劃從「趕在日落前」轉向「長期設計」。</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- S2: Taiwan Tax -->
+  <section class="section" id="s2">
+    <h2><span class="section-num">02</span>台灣稅務環境</h2>
+    <p class="lead">2025 年課稅級距因物價上漲 12.42% 而拉寬，但免稅額維持不變。憲法法庭判決擬制遺產條文違憲，2 年內須修法——這是未來最大變數。</p>
+
+    <h3>遺產稅速查</h3>
+    <table>
+      <thead>
+        <tr><th>項目</th><th>金額（新台幣）</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>免稅額</strong></td><td>1,333 萬元</td></tr>
+        <tr><td>配偶扣除額</td><td>553 萬元</td></tr>
+        <tr><td>直系血親卑親屬（每人）</td><td>56 萬元</td></tr>
+        <tr><td>父母扣除額</td><td>138 萬元</td></tr>
+        <tr><td>喪葬費扣除額</td><td>138 萬元</td></tr>
+      </tbody>
+    </table>
+
+    <h3>遺產稅率級距（2025 起調整）</h3>
+    <table>
+      <thead>
+        <tr><th>稅率</th><th>課稅淨額範圍</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>10%</strong></td><td>5,621 萬元以下</td></tr>
+        <tr><td><strong>15%</strong></td><td>5,621 萬 ~ 1 億 1,242 萬元</td></tr>
+        <tr><td><strong>20%</strong></td><td>超過 1 億 1,242 萬元</td></tr>
+      </tbody>
+    </table>
+
+    <h3>贈與稅免稅額</h3>
+    <div class="highlight-box">
+      <div class="title">每人每年 244 萬元</div>
+      <p>夫妻合計年贈 488 萬。搭配跨年度策略，兩年合計可贈與 <strong>2,352 萬元</strong>零稅金。</p>
+    </div>
+
+    <div class="warning-box">
+      <div class="title">注意：憲法法庭判決</div>
+      <p style="font-size:14px;margin:0;color:var(--slate)">2024 年 10 月判決部分擬制遺產條文違憲，立法機關須於 2 年內檢討修正。修法方向可能影響現行保險、信託等傳承架構，建議密切追蹤。</p>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- S3: Insurance -->
+  <section class="section" id="s3">
+    <h2><span class="section-num">03</span>保險傳承架構</h2>
+    <p class="lead">保險是台灣高資產族群最熟悉的傳承工具。核心機制：要保人 = 被保險人且指定受益人時，身故保險金不計入遺產總額。</p>
+
+    <div class="stat-row">
+      <div class="stat-box">
+        <div class="number">4,490萬</div>
+        <div class="label">身故保險金免稅門檻<br>(最低稅負)</div>
+      </div>
+      <div class="stat-box">
+        <div class="number">250萬人</div>
+        <div class="label">為傳承/節稅目的<br>購買保險</div>
+      </div>
+      <div class="stat-box">
+        <div class="number">2.8倍</div>
+        <div class="label">躉繳終身壽險<br>典型槓桿倍數</div>
+      </div>
+    </div>
+
+    <h3>高槓桿傳承範例</h3>
+    <div class="card">
+      <p style="margin:0;font-size:15px">第一代存款 <strong>1,000 萬</strong> → 投入 710 萬躉繳終身壽險 <strong>2,000 萬</strong> → 身故後兩子女各得 <strong>1,000 萬</strong>。槓桿倍數約 2.8 倍，且在免稅額度內不課最低稅負。</p>
+    </div>
+
+    <h3>PPLI 國際趨勢</h3>
+    <p>私人配置壽險（Private Placement Life Insurance）全球市場預估 2026 年突破 <strong>$1,000 億美元</strong>。PPLI 結合保險稅務優惠與投資彈性，是超高資產族群的進階工具。</p>
+
+    <div class="warning-box">
+      <div class="title">八大課稅地雷（需避免）</div>
+      <p style="font-size:14px;margin:0;color:var(--slate)">要保人與被保險人不同、受益人漏列法定繼承人、高齡投保、躉繳短期投保——這些都可能被國稅局以「實質課稅」原則追稅。</p>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- S4: CRS -->
+  <section class="section" id="s4">
+    <h2><span class="section-num">04</span>CRS 2.0 與跨境透明化</h2>
+    <p class="lead">2026 年 1 月 CRS 2.0 正式生效——自 2014 年標準啟動以來最重大的全球稅務透明度更新。「跨境帳戶可以永久隱形」的時代正式結束。</p>
+
+    <h3>CRS 2.0 新增涵蓋範圍</h3>
+    <table>
+      <thead>
+        <tr><th>新增項目</th><th>說明</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>電子貨幣 / CBDC</strong></td><td>數位錢包、央行數位貨幣納入存款帳戶定義</td></tr>
+        <tr><td><strong>加密資產衍生品</strong></td><td>視為金融資產，納入申報</td></tr>
+        <tr><td><strong>多重稅務居民</strong></td><td>必須報告所有居住國，不再用「打破平手」規則</td></tr>
+      </tbody>
+    </table>
+
+    <h3>台灣 CRS 現狀</h3>
+    <div class="info-box">
+      <div class="title">有限度參與</div>
+      <p style="font-size:14px;margin:0;color:var(--slate)">台灣目前僅與<strong>日本、英國、澳洲</strong>進行雙邊資訊交換，尚未加入 OECD CRS 多邊架構。2026 年起將新增 CARF（加密資產報告框架）。超過 100 個法域參與 CRS。</p>
+    </div>
+
+    <h3>對高資產族群的啟示</h3>
+    <p>2026 年的真正優勢不在隱藏資產，而在<strong>正確架構、完整文件、合法隱私保護</strong>。提前進行資產與稅務規劃，從「被動合規」轉向「主動架構設計」。</p>
+  </section>
+
+  <hr class="divider">
+
+  <!-- S5: Family Office -->
+  <section class="section" id="s5">
+    <h2><span class="section-num">05</span>亞洲家族辦公室</h2>
+    <p class="lead">亞洲家族辦公室爆發性成長。香港 3,384 家（年增 25%）、新加坡超過 2,000 家。「雙中心策略」成為主流——功能導向的配置，非二擇一。</p>
+
+    <h3>三地比較</h3>
+    <table>
+      <thead>
+        <tr><th>指標</th><th>香港</th><th>新加坡</th><th>台灣</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>數量</strong></td>
+          <td>3,384 家</td>
+          <td>2,000+ 家</td>
+          <td>起步中</td>
+        </tr>
+        <tr>
+          <td><strong>年增速</strong></td>
+          <td>25%</td>
+          <td>10 倍（數年間）</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><strong>門檻</strong></td>
+          <td>靈活</td>
+          <td>中等</td>
+          <td>5 億新台幣起</td>
+        </tr>
+        <tr>
+          <td><strong>2026 亮點</strong></td>
+          <td>稅務豁免擴展至<br>黃金、加密貨幣、私人信貸</td>
+          <td>持續強化<br>反洗錢監管</td>
+          <td>中信推出<br>家辦服務</td>
+        </tr>
+        <tr>
+          <td><strong>優勢</strong></td>
+          <td>背靠中國內地<br>深層資本市場</td>
+          <td>政治穩定<br>全球中立性</td>
+          <td>在地性<br>語言文化</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>投資策略趨勢</h3>
+    <ul>
+      <li>私人市場占家族辦公室資產比例高達 <strong>50%</strong></li>
+      <li>2026 年重點：<strong>二級市場（Secondaries）</strong>與<strong>私人信貸（Private Credit）</strong></li>
+      <li>數位資產配置分兩路：核心資產風控型 + 區塊鏈創投型</li>
+      <li><strong>地緣政治與貿易戰</strong>列為 2026 年首要投資風險</li>
+    </ul>
+  </section>
+
+  <hr class="divider">
+
+  <!-- S6: Alternative Assets -->
+  <section class="section" id="s6">
+    <h2><span class="section-num">06</span>另類資產配置</h2>
+    <p class="lead">傳統 60/40 正在被取代。2026 年高資產投資人的新範式：<strong>60% 股票 / 10% 債券現金 / 30% 另類資產</strong>。94% 的高資產投資人已配置私人與另類資產。</p>
+
+    <h3>2026 高資產投資人配置全景</h3>
+    <div class="alloc-bar">
+      <div class="seg" style="width:51%;background:var(--ink)">股票 51%</div>
+      <div class="seg" style="width:28%;background:var(--ember)">另類 28%</div>
+      <div class="seg" style="width:11%;background:var(--teal)">房產 11%</div>
+      <div class="seg" style="width:5%;background:var(--gold)">債 5%</div>
+      <div class="seg" style="width:5%;background:var(--mist)">現 5%</div>
+    </div>
+
+    <h3>依資產規模分層</h3>
+    <table>
+      <thead>
+        <tr><th>資產規模（美元）</th><th>另類配置比例</th><th>特徵</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>$200 萬 ~ $1,000 萬</td><td>24%</td><td>公開股票主導、自住房產比重高</td></tr>
+        <tr><td>$1,000 萬 ~ $2,500 萬</td><td>~28%</td><td>開始增加私募與天使投資</td></tr>
+        <tr><td><strong>$2,500 萬以上</strong></td><td><strong>34%</strong></td><td>私人公司股權占比為低檔的 3 倍</td></tr>
+      </tbody>
+    </table>
+
+    <h3>2026 年四大熱門機會</h3>
+    <div class="card-grid">
+      <div class="card">
+        <h4>公寓與工業地產</h4>
+        <p style="font-size:14px;margin:0;color:var(--slate)">倉儲物流受全球電商與供應鏈重組推動，租金穩定、空置率低。</p>
+      </div>
+      <div class="card">
+        <h4>私人信貸</h4>
+        <p style="font-size:14px;margin:0;color:var(--slate)">銀行退出中小企業融資市場，直接貸款基金填補缺口，收益率 8-12%。</p>
+      </div>
+      <div class="card">
+        <h4>二級市場</h4>
+        <p style="font-size:14px;margin:0;color:var(--slate)">PE/VC 次級份額交易提供流動性溢價機會，折價 10-20% 買入成熟基金。</p>
+      </div>
+      <div class="card">
+        <h4>基礎建設</h4>
+        <p style="font-size:14px;margin:0;color:var(--slate)">AI 數據中心 + 能源轉型需求爆發，長期穩定現金流。</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- S7: AI & Digital -->
+  <section class="section" id="s7">
+    <h2><span class="section-num">07</span>AI 與數位資產傳承</h2>
+    <p class="lead">2026 年 AI 從「能聊天」進化到「能自主執行」。同時，估計 20% 的比特幣因持有人去世且無轉移計畫而永久遺失——數位資產傳承是新世代必修課。</p>
+
+    <h3>AI 財富管理十大趨勢</h3>
+    <ul class="insight-list">
+      <li><strong>AI 增強型顧問</strong> — AI 處理組合設計與規劃，人類顧問專注情感決策時刻</li>
+      <li><strong>統一客戶大腦</strong> — 整合數據圖譜驅動全觸點個人化互動</li>
+      <li><strong>代幣化現金</strong> — 數位資產實現逐分鐘收益累計，TradFi-DeFi 混合錢包</li>
+      <li><strong>Agentic AI 崛起</strong> — 從生成式文本轉向自主執行合規檢查、投組再平衡</li>
+      <li><strong>私人市場規模化</strong> — 專業管理的曝險分層 + 適合性引擎 + 流動性工程</li>
+    </ul>
+
+    <h3>數位資產傳承解決方案</h3>
+    <table>
+      <thead>
+        <tr><th>方案</th><th>說明</th><th>適用場景</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>監管託管機構</strong></td><td>提供繼承協議的機構級託管</td><td>大額持倉</td></tr>
+        <tr><td><strong>多重簽名錢包</strong></td><td>指定共同簽署人，消除單點故障</td><td>家族共管</td></tr>
+        <tr><td><strong>MPC 錢包</strong></td><td>分布式金鑰碎片技術</td><td>安全需求高</td></tr>
+        <tr><td><strong>智能合約繼承</strong></td><td>預設條件觸發自動轉移</td><td>DeFi 原生用戶</td></tr>
+        <tr><td><strong>數位遺囑執行人</strong></td><td>指定懂加密的專業人士</td><td>混合資產</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <hr class="divider">
+
+  <!-- S8: Taiwan Specific -->
+  <section class="section" id="s8">
+    <h2><span class="section-num">08</span>台灣特有工具</h2>
+    <p class="lead">閉鎖性公司 + 信託 = 台灣家族傳承最強組合。2025 年首件高院判決肯認章程股權限制不違反繼承規定，里程碑意義重大。</p>
+
+    <h3>CFC 制度衝擊 OBU 架構</h3>
+    <div class="warning-box">
+      <div class="title">2023 年上路的 CFC 是最大變數</div>
+      <p style="font-size:14px;margin:0;color:var(--slate)">受控外國公司制度下，即使 CFC 未實際分配盈餘，仍「視同分配」，按持股比例計入所得課稅。傳統 OBU + 境外公司的避稅空間已大幅壓縮。</p>
+    </div>
+
+    <h3>閉鎖性公司八大優勢</h3>
+    <div class="stat-row">
+      <div class="stat-box">
+        <div class="number">6,506</div>
+        <div class="label">台灣閉鎖性公司<br>登記數（2025/3）</div>
+      </div>
+      <div class="stat-box">
+        <div class="number">≤50人</div>
+        <div class="label">股東人數上限<br>（核心條件）</div>
+      </div>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <h4>股份轉讓限制</h4>
+        <p style="font-size:14px;margin:0;color:var(--slate)">章程明定轉讓規範，防止股權外流至家族外部</p>
+      </div>
+      <div class="card">
+        <h4>複數表決權</h4>
+        <p style="font-size:14px;margin:0;color:var(--slate)">發行特別股確保創辦人/核心成員經營權</p>
+      </div>
+      <div class="card">
+        <h4>表決權契約</h4>
+        <p style="font-size:14px;margin:0;color:var(--slate)">股東間可訂立表決權協議，穩定治理</p>
+      </div>
+      <div class="card">
+        <h4>彈性資本結構</h4>
+        <p style="font-size:14px;margin:0;color:var(--slate)">無面額股票 + 勞務出資 + 私募公司債</p>
+      </div>
+    </div>
+
+    <h3>進階策略：閉鎖性公司 + 信託</h3>
+    <div class="highlight-box">
+      <div class="title">最強組合拳</div>
+      <p>閉鎖性公司控制經營權 + 信託控制財產權 + 家族憲法規範行為。三者結合實現「人走了，制度還在」的永續傳承。</p>
+    </div>
+
+    <h3>家族信託四種模式</h3>
+    <ol>
+      <li><strong>自益信託</strong> — 委託人即受益人，資產保全為主</li>
+      <li><strong>他益信託</strong> — 受益人為下一代，贈與稅規劃</li>
+      <li><strong>自益轉他益信託</strong> — 過渡期自用，未來轉給下一代</li>
+      <li><strong>家族控股 + 信託混合</strong> — 控股公司持有資產，信託持有股權</li>
+    </ol>
+
+    <div class="info-box">
+      <div class="title">KPMG 提醒</div>
+      <p style="font-size:14px;margin:0;color:var(--slate)">「不是僅設閉鎖性公司就以為可長治久安」——需要制度（章程/信託）與人文（家族憲法/議會）結合，否則控制欲過強的企業主會讓信託形同虛設。</p>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- S9: Quick Reference -->
+  <section class="section" id="s9">
+    <h2><span class="section-num">09</span>關鍵數據速查</h2>
+
+    <table>
+      <thead>
+        <tr><th>指標</th><th>數值</th><th>年份</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>全球財富移轉規模</td><td><strong>$124 兆美元</strong></td><td>至 2048</td></tr>
+        <tr><td>高資產家庭占移轉比例</td><td>50%（$62 兆）</td><td>—</td></tr>
+        <tr><td>美國遺產稅免稅額（個人）</td><td>$1,500 萬美元</td><td>2026</td></tr>
+        <tr><td>台灣遺產稅免稅額</td><td>1,333 萬新台幣</td><td>2025-26</td></tr>
+        <tr><td>台灣贈與稅免稅額（每人/年）</td><td>244 萬新台幣</td><td>2025-26</td></tr>
+        <tr><td>身故保險金免最低稅負門檻</td><td>4,490 萬新台幣</td><td>2025</td></tr>
+        <tr><td>PPLI 全球市場</td><td>&gt;$1,000 億美元</td><td>2026</td></tr>
+        <tr><td>香港家族辦公室</td><td>3,384 家</td><td>2025 底</td></tr>
+        <tr><td>新加坡家族辦公室</td><td>&gt;2,000 家</td><td>2024 底</td></tr>
+        <tr><td>台灣家辦門檻</td><td>5 億新台幣</td><td>2025</td></tr>
+        <tr><td>台灣億元級高資產族群</td><td>&gt;1.7 萬人</td><td>2025/9</td></tr>
+        <tr><td>台灣閉鎖性公司</td><td>6,506 家</td><td>2025/3</td></tr>
+        <tr><td>CRS 參與法域數</td><td>&gt;100</td><td>2026</td></tr>
+        <tr><td>高資產另類配置比例</td><td>28-34%</td><td>2026</td></tr>
+        <tr><td>全球另類資產 AUM</td><td>&gt;$32 兆美元</td><td>至 2030</td></tr>
+        <tr><td>加密貨幣全球市值</td><td>~$2 兆美元</td><td>2026</td></tr>
+        <tr><td>比特幣永久遺失估計</td><td>~20%</td><td>2026</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="brand">MUSEON</div>
+    <p class="disclaimer">
+      本報告基於公開資料整理，僅供研究參考，不構成任何投資或稅務建議。<br>
+      具體規劃請諮詢專業會計師與律師。<br><br>
+      資料來源：Glenmede, Fortune, ASPPA, 勤業眾信, KPMG, PwC, 安永,<br>
+      Oliver Wyman, MSCI, BlackRock, Julius Baer, Bloomberg, CNBC,<br>
+      財政部, 和眾會計師, 今周刊, 國泰世華, 全球人壽<br><br>
+      2026-03-26 &nbsp;|&nbsp; MUSEON Intelligence Unit
+    </p>
+  </footer>
+
+</div>
+</body>
+</html>
