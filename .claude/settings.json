@@ -7,7 +7,20 @@
           {
             "type": "command",
             "command": "python3 scripts/hooks/pre_edit_blast_check.py",
-            "timeout": 10
+            "timeout": 10,
+            "statusMessage": "檢查藍圖..."
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 scripts/hooks/read_blueprint_sentinel.py",
+            "timeout": 5
           }
         ]
       }
