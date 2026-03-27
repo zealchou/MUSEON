@@ -1130,4 +1130,21 @@ class BrainDispatchMixin:
             if term in result:
                 result = result.replace(term, replacement)
 
+        # ── 架構術語過濾（對標 museqa 偵測模式）──
+        _arch_patterns = [
+            (r'\bL[1234]\b', ''),               # L1, L2, L3, L4
+            (r'\b(調度員|思考者|subagent|spawn|dispatcher)\b', ''),
+            (r'\b(一階原則|多維度審查)\b', ''),
+            (r'\b(MCP|plugin|Gateway|ResponseGuard|EventBus)\b', ''),
+            (r'\b(context_cache|brain_fast|brain_deep|brain_observer)\b', ''),
+            (r'\b(BrainResponse|BrainFast|BrainDispatch)\b', ''),
+            (r'CLAUDE\.md', ''),
+        ]
+        for pat, repl in _arch_patterns:
+            result = re.sub(pat, repl, result)
+
+        # 清理替換後的多餘空格和空括號
+        result = re.sub(r'\(\s*\)', '', result)
+        result = re.sub(r'  +', ' ', result)
+
         return result
