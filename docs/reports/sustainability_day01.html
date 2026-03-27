@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sustainability English · Day 01 · Decarbonization</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@300;400;500;600&family=Noto+Sans+TC:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ember:       #C4502A;
+      --ember-light: #E0714D;
+      --ember-dark:  #9A3A1C;
+      --teal:        #2A7A6E;
+      --gold:        #B8923A;
+      --ink:         #12121A;
+      --slate:       #5A5A6E;
+      --mist:        #9898A8;
+      --border:      #E2E0DA;
+      --parchment:   #F7F5F0;
+      --snow:        #FDFCFA;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--parchment);
+      color: var(--ink);
+      font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+      font-size: 16px;
+      line-height: 1.75;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: var(--ink);
+      padding: 28px 40px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--snow);
+      letter-spacing: 0.08em;
+    }
+    .brand span { color: var(--ember-light); }
+    .series-tag {
+      background: var(--ember);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      padding: 4px 12px;
+      border-radius: 20px;
+      text-transform: uppercase;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, var(--ember-dark) 0%, var(--ember) 60%, var(--ember-light) 100%);
+      padding: 56px 40px 48px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 260px; height: 260px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; left: 10%;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.04);
+    }
+    .day-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      opacity: 0.75;
+      margin-bottom: 12px;
+    }
+    .word-display {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 52px;
+      font-weight: 600;
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+    .pronunciation {
+      font-size: 15px;
+      opacity: 0.75;
+      font-style: italic;
+      margin-bottom: 16px;
+    }
+    .pos-tag {
+      display: inline-block;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.28);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 3px 12px;
+      border-radius: 14px;
+      letter-spacing: 0.06em;
+    }
+
+    /* ── Main Content ── */
+    .main {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 40px 24px 60px;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    .layer-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .layer-num {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .layer-num.l1 { background: var(--ember); color: #fff; }
+    .layer-num.l2 { background: var(--teal); color: #fff; }
+    .layer-num.l3 { background: var(--gold); color: #fff; }
+    .layer-title {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--slate);
+    }
+
+    /* Layer 1 ── */
+    .definition-block {
+      background: var(--parchment);
+      border-left: 3px solid var(--ember);
+      border-radius: 0 10px 10px 0;
+      padding: 16px 20px;
+      margin: 16px 0;
+    }
+    .def-zh {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--ember-dark);
+      margin-bottom: 6px;
+      font-family: 'Noto Sans TC', sans-serif;
+    }
+    .def-en {
+      font-size: 15px;
+      color: var(--slate);
+      line-height: 1.6;
+    }
+
+    .example-sentence {
+      background: rgba(42, 122, 110, 0.06);
+      border: 1px solid rgba(42, 122, 110, 0.2);
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin: 16px 0;
+    }
+    .example-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 8px;
+    }
+    .example-text {
+      font-size: 16px;
+      color: var(--ink);
+      line-height: 1.7;
+      font-style: italic;
+    }
+    .example-text strong { color: var(--ember); font-style: normal; font-weight: 600; }
+    .example-zh {
+      font-size: 13px;
+      color: var(--slate);
+      margin-top: 6px;
+      font-style: normal;
+      font-family: 'Noto Sans TC', sans-serif;
+    }
+
+    .context-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .chip {
+      background: var(--parchment);
+      border: 1px solid var(--border);
+      color: var(--slate);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+    .chip.active {
+      background: var(--ember);
+      border-color: var(--ember);
+      color: #fff;
+    }
+
+    /* Layer 2 ── */
+    .scene-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .scene-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--teal), #3DA899);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .scene-info { flex: 1; }
+    .scene-name { font-weight: 600; font-size: 14px; color: var(--ink); }
+    .scene-type { font-size: 12px; color: var(--slate); }
+
+    .passage {
+      font-size: 16px;
+      line-height: 1.85;
+      color: var(--ink);
+    }
+    .passage .highlight {
+      background: linear-gradient(transparent 60%, rgba(196, 80, 42, 0.18) 60%);
+      font-weight: 600;
+      color: var(--ember-dark);
+    }
+
+    .useful-phrases {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+    .phrases-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 10px;
+    }
+    .phrase-row {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .phrase-row:last-child { border-bottom: none; }
+    .phrase-en { font-weight: 500; font-size: 14px; color: var(--ember-dark); flex: 1; }
+    .phrase-zh { font-size: 13px; color: var(--slate); font-family: 'Noto Sans TC', sans-serif; }
+
+    /* Layer 3 ── */
+    .assignment-card {
+      background: linear-gradient(135deg, rgba(184, 146, 58, 0.06) 0%, rgba(184, 146, 58, 0.02) 100%);
+      border: 2px dashed rgba(184, 146, 58, 0.4);
+      border-radius: 16px;
+    }
+
+    .mission-box {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin: 16px 0;
+    }
+    .mission-text {
+      font-size: 15px;
+      color: var(--slate);
+      line-height: 1.7;
+      font-family: 'Noto Sans TC', sans-serif;
+    }
+    .mission-word {
+      font-family: 'Outfit', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--ember);
+      display: block;
+      margin-top: 10px;
+    }
+
+    .reply-prompt {
+      background: var(--parchment);
+      border-radius: 10px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .arrow-icon { font-size: 20px; }
+    .reply-text {
+      font-size: 14px;
+      color: var(--teal);
+      font-weight: 500;
+      font-family: 'Noto Sans TC', sans-serif;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 24px 40px;
+    }
+    .progress-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 24px;
+      margin-bottom: 20px;
+    }
+    .prog-item { text-align: center; }
+    .prog-num { font-size: 24px; font-weight: 700; color: var(--ember); font-family: 'Cormorant Garamond', serif; }
+    .prog-label { font-size: 11px; color: var(--slate); font-family: 'Noto Sans TC', sans-serif; }
+    .prog-divider { width: 1px; height: 40px; background: var(--border); }
+
+    .series-note {
+      text-align: center;
+      font-size: 12px;
+      color: var(--mist);
+      font-family: 'Noto Sans TC', sans-serif;
+      line-height: 1.8;
+    }
+    .series-note strong { color: var(--slate); }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="brand">MUSEON <span>·</span> Learning</div>
+    <div class="series-tag">Sustainability English</div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="day-label">Day 01 · June Forum Prep</div>
+    <div class="word-display">Decarbonization</div>
+    <div class="pronunciation">/ˌdiːˌkɑːrbənɪˈzeɪʃən/</div>
+    <div class="pos-tag">noun</div>
+  </section>
+
+  <!-- Main Content -->
+  <main class="main">
+
+    <!-- Layer 1: Vocabulary -->
+    <div class="card">
+      <div class="layer-badge">
+        <div class="layer-num l1">1</div>
+        <div class="layer-title">詞彙植入 · Vocabulary Anchor</div>
+      </div>
+
+      <div class="definition-block">
+        <div class="def-zh">脫碳化</div>
+        <div class="def-en">The process of reducing or eliminating carbon dioxide and other greenhouse gas emissions, especially by transitioning away from fossil fuels toward renewable energy sources.</div>
+      </div>
+
+      <div class="example-sentence">
+        <div class="example-label">Forum-Ready Sentence</div>
+        <div class="example-text">
+          "Our organization has committed to full <strong>decarbonization</strong> of our operations by 2040, starting with a 50% renewable energy transition this decade."
+        </div>
+        <div class="example-zh">「我們的組織已承諾在 2040 年前完成營運的全面脫碳化，從這十年將 50% 能源轉換為再生能源開始。」</div>
+      </div>
+
+      <div style="margin-top: 16px;">
+        <div class="example-label" style="color: var(--slate);">🎯 論壇常見使用情境</div>
+        <div class="context-chips">
+          <span class="chip active">Panel Discussion</span>
+          <span class="chip active">Opening Remarks</span>
+          <span class="chip">Networking Chat</span>
+          <span class="chip">Q&A Response</span>
+          <span class="chip">Keynote Speech</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layer 2: Scene Passage -->
+    <div class="card">
+      <div class="layer-badge">
+        <div class="layer-num l2">2</div>
+        <div class="layer-title">場景短文 · Forum Scenario</div>
+      </div>
+
+      <div class="scene-header">
+        <div class="scene-icon">🎤</div>
+        <div class="scene-info">
+          <div class="scene-name">Panel Discussion — Energy Transition</div>
+          <div class="scene-type">International Sustainability Forum · Q&A Segment</div>
+        </div>
+      </div>
+
+      <div class="passage">
+        Moderator: "We've heard a lot about net-zero targets today. What does meaningful <span class="highlight">decarbonization</span> actually look like for a mid-sized company?"
+        <br><br>
+        Panelist: "That's the question every CEO is wrestling with right now. True <span class="highlight">decarbonization</span> isn't just about buying carbon offsets — it's about fundamentally redesigning how you source energy, move products, and even how you work with suppliers. For us, it started with an honest carbon audit. Once you see where your emissions actually come from, the path becomes clearer. The hard part isn't the technology — it's the organizational commitment to stay the course when short-term costs feel painful."
+        <br><br>
+        Moderator: "So you're saying <span class="highlight">decarbonization</span> is as much a culture shift as a technical one?"
+        <br><br>
+        Panelist: "Exactly. The companies that will succeed are the ones where the CEO and the frontline worker both understand why this matters."
+      </div>
+
+      <div class="useful-phrases">
+        <div class="phrases-label">💡 本段實用句型</div>
+        <div class="phrase-row">
+          <div class="phrase-en">That's the question every [role] is wrestling with</div>
+          <div class="phrase-zh">這是每位⋯都在努力解答的問題</div>
+        </div>
+        <div class="phrase-row">
+          <div class="phrase-en">It started with an honest [assessment/audit]</div>
+          <div class="phrase-zh">一切從誠實的評估開始</div>
+        </div>
+        <div class="phrase-row">
+          <div class="phrase-en">The hard part isn't X — it's Y</div>
+          <div class="phrase-zh">難的不是X，而是Y</div>
+        </div>
+        <div class="phrase-row">
+          <div class="phrase-en">Stay the course when [challenge]</div>
+          <div class="phrase-zh">在面對挑戰時堅持到底</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layer 3: Assignment -->
+    <div class="card assignment-card">
+      <div class="layer-badge">
+        <div class="layer-num l3">3</div>
+        <div class="layer-title">你的作業 · Your Output</div>
+      </div>
+
+      <div class="mission-box">
+        <div class="mission-text">
+          想像你在論壇的 Networking break，有人走過來問你：<br>
+          <em>"What's your company's approach to decarbonization?"</em><br><br>
+          用 <strong>decarbonization</strong> 寫 <strong>1-2 句</strong>你會說的回覆：
+          <span class="mission-word">→ "_________________________"</span>
+        </div>
+      </div>
+
+      <div class="reply-prompt">
+        <div class="arrow-icon">💬</div>
+        <div class="reply-text">寫完貼到群組，我幫你看語法是否自然、是否適合論壇場合</div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="progress-info">
+      <div class="prog-item">
+        <div class="prog-num">1</div>
+        <div class="prog-label">今日 Day</div>
+      </div>
+      <div class="prog-divider"></div>
+      <div class="prog-item">
+        <div class="prog-num">90</div>
+        <div class="prog-label">六月前剩餘天數</div>
+      </div>
+      <div class="prog-divider"></div>
+      <div class="prog-item">
+        <div class="prog-num">∞</div>
+        <div class="prog-label">詞彙庫（不重複）</div>
+      </div>
+    </div>
+    <div class="series-note">
+      <strong>Sustainability English</strong> · 每日 08:00 準時發布<br>
+      詞彙涵蓋：氣候政策 · 循環經濟 · ESG · 綠色金融 · 永續供應鏈<br>
+      <br>
+      Powered by <strong>MUSEON</strong> · © 2026
+    </div>
+  </footer>
+
+</body>
+</html>
