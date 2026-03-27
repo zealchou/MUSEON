@@ -323,7 +323,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 //  SYNC META — 拓撲同步狀態
 // ═══════════════════════════════════════
 const SYNC_META = {
-  topologyVersion: 'v1.54',
+  topologyVersion: 'v1.55',
   syncDate: '2026-03-27',
   nodeCount: 0, // auto-calculated below
   linkCount: 0, // auto-calculated below
@@ -561,7 +561,9 @@ const nodes = [
   {id:"skill-forge-scout",label:"Skill Forge Scout",zh:"技能鍛造偵察",group:"nightly",r:0.8,p:"nightly"},
   // ── external ──
   {id:"anthropic-api",label:"Anthropic API",zh:"Claude API",group:"external",r:1.1},
+  {id:"fetch-mcp",label:"Fetch MCP",zh:"網頁讀取",group:"external",r:0.5,desc:"網頁讀取（MCP）"},
   {id:"firecrawl",label:"Firecrawl",zh:"爬取 :3002",group:"external",r:0.8},
+  {id:"playwright-mcp",label:"Playwright MCP",zh:"瀏覽器自動化",group:"external",r:0.5,desc:"瀏覽器自動化（MCP）"},
   {id:"qdrant",label:"Qdrant",zh:"向量 DB :6333",group:"external",r:1.0},
   {id:"searxng",label:"SearXNG",zh:"搜尋 :8888",group:"external",r:1.0},
   // ── skills ──
@@ -981,6 +983,8 @@ const links = [
   {source:"llm-router",target:"anthropic-api",label:"API 呼叫",type:"cross"},
   {source:"lord-profile",target:"persona-router",label:"百合引擎讀取領域畫像（Phase 1）",type:"cross"},
   {source:"mcp-server",target:"brain",label:"ANIMA 狀態查詢",type:"cross"},
+  {source:"mcp-server",target:"fetch-mcp",label:"網頁純文字讀取",type:"cross"},
+  {source:"mcp-server",target:"playwright-mcp",label:"瀏覽器自動化（截圖/填表/點擊）",type:"cross"},
   {source:"memory",target:"registry",label:"持久化儲存",type:"cross"},
   {source:"memory",target:"sparse-embedder",label:"記憶混合檢索（hybrid_search）",type:"cross"},
   {source:"memory",target:"vector-index",label:"嵌入索引",type:"cross"},
@@ -1128,6 +1132,7 @@ const links = [
   {source:"verified-user",target:"anima-mc-store",label:"配對使用者互動更新 ANIMA_USER（L1-L8 觀察）",type:"async"},
   {source:"zeal",target:"anima-mc-store",label:"Owner 互動觸發 ANIMA_MC 更新（boss_name、self_awareness）",type:"async"},
 ];
+
 
 
 
