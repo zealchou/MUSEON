@@ -1,0 +1,12 @@
+{
+  "timestamp": "'$(date -Iseconds)'",
+  "project_name": "待更新",
+  "qa_checks": {
+    "structure_integrity": {"score": "待更新"},
+    "emotional_arc": {"score": "待更新"},
+    "character_development": {"score": "待更新"},
+    "production_feasibility": {"score": "待更新"}
+  },
+  "overall_score": "待更新",
+  "status": "PENDING_CLAUDE_INPUT"
+}

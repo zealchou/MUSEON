@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>情緒線圖表</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            font-family: 'Cormorant Garamond', serif;
+            max-width: 900px;
+            margin: 40px auto;
+            background: #FEFAF4;
+            padding: 20px;
+        }
+        #chart {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(196, 80, 42, 0.1);
+        }
+        h1 {
+            color: #C4502A;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>情緒線圖表 (待 Claude 更新)</h1>
+    <div id="chart"></div>
+    <script>
+        // Plotly 圖表將由 Claude 自動生成
+        // 此為預設空圖表
+        var layout = {
+            title: '情感曲線',
+            xaxis: { title: '場景序號' },
+            yaxis: { title: '情感強度' },
+            plot_bgcolor: '#FEFAF4',
+            paper_bgcolor: '#FEFAF4'
+        };
+        Plotly.newPlot('chart', [], layout);
+    </script>
+</body>
+</html>
