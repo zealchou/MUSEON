@@ -127,6 +127,12 @@ class BrainResponse:
     artifacts: List[Artifact] = field(default_factory=list)
     interaction: Optional["InteractionRequest"] = None  # v10.0: 互動選項
 
+    def __str__(self) -> str:
+        return self.text or ""
+
+    def __repr__(self) -> str:
+        return self.text or ""
+
     def has_artifacts(self) -> bool:
         """是否有附件."""
         return len(self.artifacts) > 0

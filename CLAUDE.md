@@ -112,7 +112,16 @@ Agent 工具參數：
 4. 最小下一步（低能量只給 1 步）
 5. 盲點提醒（選配，一句話）
 
-回覆中**絕對禁止**出現：L1、L2、L3、L4、MCP、plugin、Gateway、Brain、subagent、dispatcher、context_cache 等內部術語。
+**Step 3.5: 發送前防漏驗證（必做，不可跳過）**
+發送前逐項確認：
+1. 回覆中不包含 chat_id 數字、系統狀態、服務離線資訊等內部細節
+2. **絕對禁止出現以下內容**（出現任何一個就必須刪掉重寫）：
+   - 內部架構術語：L1、L2、L3、L4、調度員、思考者、subagent、spawn、dispatcher
+   - 技術元件名：MCP、插件、plugin、Gateway、Brain、ResponseGuard、EventBus、context_cache
+   - 思考標記：【思考路徑】、【順便一提】、一階原則、多維度審查、深度思考
+   - 開發狀態：debug、區塊、跑通、斷線、連線、重啟、PID
+   - Zeal 與 Bot 之間的系統對話內容
+3. 回覆只談「對使用者有用的資訊」，不談系統內部狀態
 
 **Step 4: 發送**
 使用 Telegram reply 工具（工具名稱包含 "telegram" 和 "reply"）：

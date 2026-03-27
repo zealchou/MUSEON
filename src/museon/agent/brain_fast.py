@@ -176,6 +176,13 @@ class BrainFast:
             response_text = "你好！有什麼我可以幫你的嗎？"
             logger.warning("[L1] empty response, using fallback")
 
+        # ── Step 5.5: 防漏過濾（所有回覆出口統一過濾）──
+        try:
+            from museon.agent.brain_dispatch import BrainDispatchMixin
+            response_text = BrainDispatchMixin._strip_system_leakage(response_text)
+        except Exception:
+            pass  # 過濾失敗不阻擋回覆
+
         # ── Step 6: 寫歷史 ──
         history.append({"role": "user", "content": content})
         history.append({"role": "assistant", "content": response_text})

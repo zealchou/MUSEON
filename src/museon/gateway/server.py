@@ -844,9 +844,7 @@ def create_app() -> FastAPI:
             "nightly", "morphenix", "curiosity-router", "exploration-bridge",
             "skill-forge-scout", "crystal-actuator", "periodic-cycles",
             "morphenix-validator",
-            # installer
-            "installer", "installer-daemon", "installer-electron",
-            "installer-env", "installer-verifier",
+
             # external
             "searxng", "qdrant", "firecrawl", "anthropic-api",
         ]
@@ -877,16 +875,12 @@ def create_app() -> FastAPI:
             # 映射表：檢查名稱關鍵字 → 拓撲節點 ID 列表
             _hc_map = {
                 "gateway": ["gateway"],
-                "daemon": ["guardian", "installer-daemon"],
+                "daemon": ["guardian"],
                 "數據完整性": ["diary-store", "pulse-db", "memory"],
                 "核心模組": ["brain", "skill-router", "gateway"],
-                "dashboard": ["installer-electron"],
-                "app": ["installer-electron"],
                 "api key": ["llm-router", "anthropic-api"],
                 ".env": ["llm-router"],
                 "目錄": ["data-bus"],
-                "venv": ["installer-env"],
-                "虛擬環境": ["installer-env"],
                 "磁碟": ["data-bus"],
                 "disk": ["data-bus"],
                 "日誌": ["log-analyzer"],

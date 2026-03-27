@@ -244,18 +244,6 @@ SkillMarket / FederationSync
     └──→ FederationSync ──→ GitHub Private Repo (museon-federation/)  [Git]
 ```
 
-### 管線 H：Installer 部署管線
-
-```
-Installer 編排 (orchestrator.py)
-    │
-    ├──→ DaemonConfigurator ──→ /Library/LaunchAgents/com.museon.gateway.plist  [plist]
-    ├──→ ApiKeyConfigurator ──→ ${MUSEON_HOME}/.env  [dotenv]
-    ├──→ InstallerPackager  ──→ ${OUTPUT_DIR}/*.command  [self-extracting archive]
-    └──→ 目錄建立          ──→ ${MUSEON_HOME}/logs/  [目錄結構]
-```
-
-> **注意**：Installer 不讀寫任何 SQLite DB 或 JSONL 日誌。產出物為部署配置（plist, .env），屬於「基礎設施」而非「資料層」。
 
 ### 管線 D：審計與足跡管線
 
