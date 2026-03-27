@@ -117,14 +117,16 @@ SKILL_ARCHIVE_INACTIVE_DAYS = 30
 _FULL_STEPS = [
     "0", "0.1",  # Budget settlement + Footprint cleanup (最先執行)
     "1", "2", "3", "4", "5", "5.5", "5.6", "5.6.5", "5.7", "5.8", "5.9", "5.9.5", "5.10",
-    "6", "6.5", "7", "7.5", "8", "8.5", "8.6", "8.7", "9", "10", "10.5", "11", "12", "13", "13.5",
+    "6", "6.5", "7", "8", "8.5", "8.6", "8.7", "9", "10", "12", "13", "13.5",
     "13.6", "13.7", "13.8",  # 外向型進化：觸發掃描 → 外向研究 → 消化生命週期
     "14", "15", "16", "17",
     "18", "18.5",  # 18.5: 客戶互動萃取（dispatch/completed → external_users + clients）
+    "19",  # 19: Morphenix 演化品質驗證（post-execution quality gate）
     "20", "21", "22", "23",  # 新增：synapse_decay/muscle_atrophy/immune_prune/trigger_eval
     "24", "25",  # 新增：演化速度計算 / 週月循環觸發檢查
     "26", "27", "28", "29",  # 持久層衛生：session 清理 / JSONL 輪替 / WAL checkpoint / DataWatchdog
     "30",  # 藍圖一致性驗證
+    "31",  # v2 context_cache 重建
 ]
 _ORIGIN_STEPS = ["5.8", "6", "7", "8", "16"]
 _NODE_STEPS = [
@@ -218,6 +220,7 @@ class NightlyPipeline:
             "17": ("step_17_tool_discovery", self._step_tool_discovery),
             "18": ("step_18_daily_summary", self._step_daily_summary),
             "18.5": ("step_18_5_client_profile_update", self._step_client_profile_update),
+            "19": ("step_19_morphenix_quality_gate", self._step_morphenix_quality_gate),
             # ── Autonomy Architecture 新增步驟 ──
             "0": ("step_00_budget_settlement", self._step_budget_settlement),
             "0.1": ("step_00_1_footprint_cleanup", self._step_footprint_cleanup),
@@ -236,6 +239,8 @@ class NightlyPipeline:
             "29": ("step_29_data_watchdog", self._step_data_watchdog),
             # ── 藍圖驗證 ──
             "30": ("step_30_blueprint_consistency", self._step_blueprint_consistency),
+            # ── v2 context_cache 重建 ──
+            "31": ("step_31_context_cache_rebuild", self._step_context_cache_rebuild),
         }
 
     def run(self, mode: str = "full") -> Dict:
@@ -270,15 +275,34 @@ class NightlyPipeline:
             try:
                 score = self._dendritic_scorer.calculate_score()
                 if score == 0.0:
-                    # score=0.0 通常表示計分器冷啟動或無足夠數據，
-                    # 降級而非最小化，避免因計分失真跳過全部核心步驟
-                    step_ids = self._get_degraded_steps()
-                    gate_mode = "degraded"
-                    logger.warning(
-                        "[NIGHTLY] Health gate: score=0.0 "
-                        "(cold start or insufficient data), "
-                        "falling back to degraded mode"
-                    )
+                    # Health Gate fallback：DendriticScorer 返回 0.0 時使用備用計分
+                    # 檢查上次 Nightly 成功完成時間，24h 內 → full mode (score=80)，否則 degraded
+                    fallback_score = 55.0  # 預設 degraded
+                    try:
+                        _last_ok = self._workspace / "_system" / "nightly_last_ok.txt"
+                        if _last_ok.exists():
+                            _last_ts = float(_last_ok.read_text(encoding="utf-8").strip())
+                            import time as _time
+                            if (_time.time() - _last_ts) < 86400:  # 24 小時內
+                                fallback_score = 80.0
+                    except Exception:
+                        pass
+
+                    if fallback_score >= 71:
+                        # 24h 內成功完成 → full mode
+                        gate_mode = "full"
+                        logger.info(
+                            "[NIGHTLY] Health gate: score=0.0 but last Nightly <24h ago, "
+                            "fallback_score=%.1f → full mode", fallback_score
+                        )
+                    else:
+                        step_ids = self._get_degraded_steps()
+                        gate_mode = "degraded"
+                        logger.warning(
+                            "[NIGHTLY] Health gate: score=0.0 "
+                            "(cold start or insufficient data), "
+                            "fallback_score=%.1f → degraded mode", fallback_score
+                        )
                 elif score <= 40:
                     # 危險：僅執行最小集合
                     step_ids = self._get_minimal_steps()
@@ -383,6 +407,34 @@ class NightlyPipeline:
             "errors": errors,
         })
 
+        # 記錄成功完成時間（供 Health Gate fallback 使用）
+        if not errors:
+            try:
+                import time as _time
+                _last_ok = self._workspace / "_system" / "nightly_last_ok.txt"
+                _last_ok.parent.mkdir(parents=True, exist_ok=True)
+                _last_ok.write_text(str(_time.time()), encoding="utf-8")
+            except Exception:
+                pass
+
+        # 寫入五虎將共享看板
+        try:
+            from museon.doctor.shared_board import update_shared_board
+            ok_count = report["summary"].get("ok", 0)
+            total_count = report["summary"].get("total", 0)
+            err_count = len(errors)
+            _status = "critical" if err_count > 3 else "warning" if err_count > 0 else "ok"
+            update_shared_board(
+                self._workspace,
+                source="nightly",
+                summary=f"Nightly {mode}: {ok_count}/{total_count} ok, {err_count} errors, {elapsed:.0f}s",
+                findings_count=err_count,
+                actions=[f"mode:{mode}", f"gate:{gate_mode}"],
+                status=_status,
+            )
+        except Exception:
+            pass
+
         return report
 
     # ═══════════════════════════════════════════
@@ -391,7 +443,7 @@ class NightlyPipeline:
 
     def _get_degraded_steps(self) -> List[str]:
         """降級模式：跳過 Morphenix、Claude Skill Forge、外向搜尋等重型步驟."""
-        skip = {"5.8", "5.9", "5.10", "13.5", "13.6", "13.7", "13.8", "16"}
+        skip = {"5.8", "5.9", "5.10", "13.5", "13.6", "13.7", "13.8", "16", "17"}
         return [s for s in _FULL_STEPS if s not in skip]
 
     def _get_minimal_steps(self) -> List[str]:
@@ -973,6 +1025,8 @@ class NightlyPipeline:
 
                     # 連續低分閾值：平均 < 0.5
                     if weakest_avg < 0.5:
+                        # 計算新權重：基於差距比例提升（最多 +50%）
+                        boost = min(1.5, 1.0 + (0.5 - weakest_avg))
                         proposal = {
                             "category": "L1",
                             "source": "qscore_signal",
@@ -984,6 +1038,16 @@ class NightlyPipeline:
                             ),
                             "action": f"increase_prompt_weight_{weakest_dim}",
                             "metric": {"dimension": weakest_dim, "current_avg": round(weakest_avg, 3)},
+                            "metadata": {
+                                "config_changes": [
+                                    {
+                                        "file": "_system/context_cache/active_rules.json",
+                                        "key": f"{weakest_dim}_weight",
+                                        "value": round(boost, 2),
+                                        "old_value": 1.0,
+                                    }
+                                ]
+                            },
                             "created_at": datetime.now(TZ_TAIPEI).isoformat(),
                             "status": "pending_review",
                         }
@@ -1083,6 +1147,16 @@ class NightlyPipeline:
                         ),
                         "action": "tune_metacognition_params",
                         "metric": {"accuracy": round(accuracy, 3), "total_predictions": total_predictions},
+                        "metadata": {
+                            "config_changes": [
+                                {
+                                    "file": "_system/metacognition/accuracy_stats.json",
+                                    "key": "prediction_confidence_threshold",
+                                    "value": round(max(0.3, accuracy - 0.1), 2),
+                                    "old_value": 0.5,
+                                }
+                            ]
+                        },
                         "created_at": datetime.now(TZ_TAIPEI).isoformat(),
                         "status": "pending_review",
                     }
@@ -1120,6 +1194,8 @@ class NightlyPipeline:
                 if total_routes >= 10:
                     hit_rate = hits / total_routes
                     if hit_rate < 0.6:
+                        # 提升 RC 倍率以增加路由命中率
+                        new_rc = round(min(2.0, 1.0 + (0.6 - hit_rate)), 2)
                         proposal = {
                             "category": "L1",
                             "source": "skill_router_hit_rate",
@@ -1131,6 +1207,16 @@ class NightlyPipeline:
                             ),
                             "action": "tune_skill_router",
                             "metric": {"hit_rate": round(hit_rate, 3), "total_routes": total_routes},
+                            "metadata": {
+                                "config_changes": [
+                                    {
+                                        "file": "_system/context_cache/active_rules.json",
+                                        "key": "skill_router_rc_multiplier",
+                                        "value": new_rc,
+                                        "old_value": 1.0,
+                                    }
+                                ]
+                            },
                             "created_at": datetime.now(TZ_TAIPEI).isoformat(),
                             "status": "pending_review",
                         }
@@ -1191,6 +1277,15 @@ class NightlyPipeline:
                         })
 
                 if error_steps:
+                    # Nightly 錯誤步驟 → 標記需修復的步驟清單
+                    config_changes = []
+                    for es in error_steps[:5]:
+                        config_changes.append({
+                            "file": "_system/state/nightly_report.json",
+                            "key": f"steps.{es['step']}.needs_repair",
+                            "value": True,
+                            "old_value": None,
+                        })
                     proposal = {
                         "category": "L1",
                         "source": "nightly_report_errors",
@@ -1204,6 +1299,9 @@ class NightlyPipeline:
                         "metric": {
                             "error_count": len(error_steps),
                             "error_steps": error_steps[:10],
+                        },
+                        "metadata": {
+                            "config_changes": config_changes,
                         },
                         "created_at": datetime.now(TZ_TAIPEI).isoformat(),
                         "status": "pending_review",
@@ -1294,6 +1392,14 @@ class NightlyPipeline:
                 if pulse_db:
                     try:
                         pid = f"morphenix_{date.today().isoformat()}_L1_{results['auto_approved']:03d}"
+                        # 傳遞 metadata（含 config_changes）讓 Executor 能實際執行
+                        _meta = proposal.get("metadata", {})
+                        if not _meta and proposal.get("action"):
+                            # fallback: 把 action/metric 打包進 metadata
+                            _meta = {
+                                "action": proposal.get("action", ""),
+                                "metric": proposal.get("metric", {}),
+                            }
                         pulse_db.save_proposal(
                             proposal_id=pid,
                             level="L1",
@@ -1301,6 +1407,7 @@ class NightlyPipeline:
                             description=proposal.get("description", proposal.get("summary", "")),
                             affected_files=proposal.get("affected_files", []) if isinstance(proposal.get("affected_files"), list) else [],
                             source_notes=proposal.get("source_notes", []) if isinstance(proposal.get("source_notes"), list) else [],
+                            metadata=_meta,
                         )
                         pulse_db.approve_proposal(pid, decided_by="auto")
                         logger.info(f"Morphenix L1 proposal saved+approved in DB: {pid}")
@@ -1318,6 +1425,12 @@ class NightlyPipeline:
                 if pulse_db:
                     try:
                         pid = f"morphenix_{date.today().isoformat()}_L2_{results['auto_approved']:03d}"
+                        _meta = proposal.get("metadata", {})
+                        if not _meta and proposal.get("action"):
+                            _meta = {
+                                "action": proposal.get("action", ""),
+                                "metric": proposal.get("metric", {}),
+                            }
                         pulse_db.save_proposal(
                             proposal_id=pid,
                             level="L2",
@@ -1325,6 +1438,7 @@ class NightlyPipeline:
                             description=proposal.get("description", proposal.get("summary", "")),
                             affected_files=proposal.get("affected_files", []) if isinstance(proposal.get("affected_files"), list) else [],
                             source_notes=proposal.get("source_notes", []) if isinstance(proposal.get("source_notes"), list) else [],
+                            metadata=_meta,
                         )
                         pulse_db.approve_proposal(pid, decided_by="auto")
                         logger.info(f"Morphenix L2 proposal saved+approved in DB: {pid}")
@@ -1353,6 +1467,7 @@ class NightlyPipeline:
                             description=description,
                             affected_files=affected if isinstance(affected, list) else [],
                             source_notes=[str(n) for n in (notes if isinstance(notes, list) else [])],
+                            metadata=proposal.get("metadata", {}),
                         )
                         results["l3_proposals"].append({
                             "id": proposal_id,
@@ -1375,6 +1490,12 @@ class NightlyPipeline:
                 if pulse_db:
                     try:
                         pid = f"morphenix_{date.today().isoformat()}_auto_{results['auto_approved']:03d}"
+                        _meta = proposal.get("metadata", {})
+                        if not _meta and proposal.get("action"):
+                            _meta = {
+                                "action": proposal.get("action", ""),
+                                "metric": proposal.get("metric", {}),
+                            }
                         pulse_db.save_proposal(
                             proposal_id=pid,
                             level="L1",
@@ -1382,6 +1503,7 @@ class NightlyPipeline:
                             description=proposal.get("description", proposal.get("summary", "")),
                             affected_files=proposal.get("affected_files", []) if isinstance(proposal.get("affected_files"), list) else [],
                             source_notes=proposal.get("source_notes", []) if isinstance(proposal.get("source_notes"), list) else [],
+                            metadata=_meta,
                         )
                         pulse_db.approve_proposal(pid, decided_by="auto")
                         logger.info(f"Morphenix uncategorized proposal saved+approved in DB: {pid}")
@@ -1549,6 +1671,168 @@ class NightlyPipeline:
         except Exception as e:
             logger.error(f"Morphenix Executor step failed: {e}")
             return {"error": str(e), "executed": 0}
+
+    # ═══════════════════════════════════════════
+    # Step 19: Morphenix 演化品質驗證
+    # ═══════════════════════════════════════════
+
+    def _step_morphenix_quality_gate(self) -> Dict:
+        """Step 19: Morphenix 執行後品質驗證.
+
+        讀取演化執行前的品質基線，與最近 10 筆互動比較。
+        品質下降 > 10% → 自動生成回滾提案。
+        """
+        try:
+            from museon.pulse.pulse_db import get_pulse_db
+            pulse_db = get_pulse_db(self._workspace)
+        except Exception as e:
+            return {"skipped": f"PulseDB init failed: {e}"}
+
+        # 讀取 effect_tracker 中最近執行的提案
+        log_dir = self._workspace / "_system" / "morphenix" / "logs"
+        tracker_file = log_dir / "effect_tracker.json"
+        if not tracker_file.exists():
+            return {"skipped": "no effect_tracker.json"}
+
+        try:
+            with open(tracker_file, "r", encoding="utf-8") as fh:
+                tracker = json.load(fh)
+        except Exception as e:
+            return {"skipped": f"effect_tracker read failed: {e}"}
+
+        # 找出過去 24 小時內執行的提案
+        now = datetime.now(TZ_TAIPEI)
+        recent_executions = []
+        for pid, entry in tracker.items():
+            if entry.get("evaluated"):
+                continue
+            try:
+                exec_at = datetime.fromisoformat(entry["executed_at"])
+                if (now - exec_at).total_seconds() < 86400:
+                    recent_executions.append((pid, entry))
+            except (KeyError, ValueError):
+                continue
+
+        if not recent_executions:
+            return {"skipped": "no recent executions to verify", "tracker_size": len(tracker)}
+
+        # 讀取品質基線：最近 10 筆 Q-Score
+        qscore_file = self._workspace / "eval" / "q_scores.jsonl"
+        if not qscore_file.exists():
+            return {
+                "skipped": "no q_scores.jsonl for comparison",
+                "recent_executions": len(recent_executions),
+            }
+
+        recent_scores = []
+        try:
+            with open(qscore_file, "r", encoding="utf-8") as fh:
+                for line in fh:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        recent_scores.append(json.loads(line))
+                    except Exception:
+                        pass
+        except Exception as e:
+            return {"skipped": f"q_scores read failed: {e}"}
+
+        if len(recent_scores) < 5:
+            return {"skipped": "insufficient q_scores data", "count": len(recent_scores)}
+
+        # 取最近 10 筆和之前 10 筆比較
+        latest_10 = recent_scores[-10:]
+        baseline_10 = recent_scores[-20:-10] if len(recent_scores) >= 20 else recent_scores[:-10]
+
+        if not baseline_10:
+            return {"skipped": "insufficient baseline data"}
+
+        dims = ["understanding", "depth", "clarity", "actionability"]
+        regression_detected = False
+        regressions = []
+
+        for dim in dims:
+            latest_avg = sum(s.get(dim, 0.5) for s in latest_10) / len(latest_10)
+            baseline_avg = sum(s.get(dim, 0.5) for s in baseline_10) / len(baseline_10)
+
+            if baseline_avg > 0 and (baseline_avg - latest_avg) / baseline_avg > 0.1:
+                regression_detected = True
+                regressions.append({
+                    "dimension": dim,
+                    "baseline_avg": round(baseline_avg, 3),
+                    "latest_avg": round(latest_avg, 3),
+                    "drop_pct": round((baseline_avg - latest_avg) / baseline_avg * 100, 1),
+                })
+
+        rollback_proposals = 0
+
+        if regression_detected:
+            # 品質下降 > 10% → 為最近執行的提案生成回滾提案
+            proposals_dir = self._workspace / "_system" / "morphenix" / "proposals"
+            proposals_dir.mkdir(parents=True, exist_ok=True)
+
+            for pid, entry in recent_executions:
+                rollback_proposal = {
+                    "category": "L1",
+                    "source": "quality_gate_rollback",
+                    "title": f"品質回滾: {entry.get('title', pid)}",
+                    "description": (
+                        f"提案 {pid} 執行後品質下降超過 10%。"
+                        f"下降維度: {', '.join(r['dimension'] + '(-' + str(r['drop_pct']) + '%)' for r in regressions)}。"
+                        f"建議回滾。"
+                    ),
+                    "action": "rollback_proposal",
+                    "metric": {
+                        "original_proposal": pid,
+                        "regressions": regressions,
+                        "safety_tag": entry.get("safety_tag", ""),
+                    },
+                    "metadata": {
+                        "rollback_target": pid,
+                        "safety_tag": entry.get("safety_tag", ""),
+                        "config_changes": entry.get("exec_result", {}).get("applied", []),
+                    },
+                    "created_at": now.isoformat(),
+                    "status": "pending_review",
+                }
+                out = proposals_dir / f"proposal_rollback_{pid}_{date.today().isoformat()}.json"
+                try:
+                    with open(out, "w", encoding="utf-8") as fh:
+                        json.dump(rollback_proposal, fh, ensure_ascii=False, indent=2)
+                    rollback_proposals += 1
+                    logger.warning(
+                        f"[MORPHENIX QG] Quality regression detected after {pid}: "
+                        f"{regressions} — rollback proposal created"
+                    )
+                except Exception as e:
+                    logger.error(f"[MORPHENIX QG] Failed to write rollback proposal: {e}")
+
+            # 透過 EventBus 警告
+            if self._event_bus and rollback_proposals > 0:
+                try:
+                    self._event_bus.publish("PROACTIVE_MESSAGE", {
+                        "message": (
+                            f"Morphenix 品質警報\n\n"
+                            f"最近執行的 {len(recent_executions)} 個演化提案導致品質下降：\n"
+                            + "\n".join(
+                                f"  - {r['dimension']}: {r['baseline_avg']:.2f} -> {r['latest_avg']:.2f} (-{r['drop_pct']}%)"
+                                for r in regressions
+                            )
+                            + f"\n\n已生成 {rollback_proposals} 個回滾提案。"
+                        ),
+                        "source": "alert",
+                        "timestamp": time.time(),
+                    })
+                except Exception as e:
+                    logger.debug(f"[MORPHENIX QG] EventBus publish failed: {e}")
+
+        return {
+            "recent_executions": len(recent_executions),
+            "regression_detected": regression_detected,
+            "regressions": regressions,
+            "rollback_proposals_created": rollback_proposals,
+        }
 
     # ═══════════════════════════════════════════
     # Step 6: 技能鍛造
@@ -3780,6 +4064,21 @@ class NightlyPipeline:
             "issues": issues,
             "blueprints_checked": len(blueprint_names),
         }
+
+    def _step_context_cache_rebuild(self) -> Dict:
+        """Step 31: v2 context_cache 重建 — 為 L1/L2 生成快取檔。
+
+        重建 persona_digest.md / active_rules.json / user_summary.json / self_summary.json。
+        """
+        try:
+            from museon.cache.context_cache_builder import ContextCacheBuilder
+            builder = ContextCacheBuilder(data_dir=str(self.data_dir))
+            result = builder.build_all()
+            logger.info(f"[NIGHTLY] ContextCache rebuilt: {result}")
+            return {"status": "ok", "result": result}
+        except Exception as e:
+            logger.warning(f"[NIGHTLY] ContextCache rebuild failed: {e}")
+            return {"status": "error", "error": str(e)}
 
     # ═══════════════════════════════════════════
     # 報告持久化

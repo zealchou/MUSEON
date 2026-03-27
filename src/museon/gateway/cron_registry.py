@@ -62,6 +62,8 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
                 adapter = getattr(app.state, "telegram_adapter", None)
                 if adapter:
                     html = build_nightly_html(pipeline_report)
+                    if hasattr(adapter, '_current_push_source'):
+                        adapter._current_push_source = "nightly"
                     for retry in range(3):
                         try:
                             await adapter.push_notification(html)
@@ -130,6 +132,8 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
 
             adapter = getattr(app.state, "telegram_adapter", None)
             if adapter:
+                if hasattr(adapter, '_current_push_source'):
+                    adapter._current_push_source = "morning"
                 try:
                     await adapter.push_notification(morning_text)
                     logger.info("Morning report pushed to Telegram")
@@ -347,6 +351,8 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
                             f"(評分: {tool.get('score', 0)}/10)\n"
                         )
                     msg += "\n在儀表板「工具庫」查看詳情"
+                    if hasattr(adapter, '_current_push_source'):
+                        adapter._current_push_source = "tool_discovery"
                     try:
                         await adapter.push_notification(msg)
                     except Exception as push_err:
@@ -520,6 +526,8 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
                     f"{_findings_preview}\n\n"
                     f"有什麼想聊的嗎？"
                 )
+                if hasattr(adapter, '_current_push_source'):
+                    adapter._current_push_source = "exploration"
                 try:
                     await adapter.push_notification(_msg)
                 except Exception as e:
@@ -559,6 +567,8 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
                                 f"🔨 【技能鍛造】探索後自動鍛造\n\n"
                                 f"產出 {forged} 份草稿，已提交 Morphenix 審核流程。"
                             )
+                            if hasattr(adapter, '_current_push_source'):
+                                adapter._current_push_source = "skill_forge"
                             try:
                                 await adapter.push_notification(_forge_msg)
                             except Exception as e:
@@ -602,6 +612,8 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
                     for pid in approved:
                         msg += f"  · {pid}\n"
                     msg += "\n霓裳將在下次整合時執行這些演化。"
+                    if hasattr(adapter, '_current_push_source'):
+                        adapter._current_push_source = "morphenix"
                     try:
                         await adapter.push_notification(msg)
                     except Exception as push_err:
@@ -640,6 +652,8 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
                         for c in overdue[:3]:
                             msg += f"- {c.get('promise_text', '?')[:60]}\n"
                         msg += "\n（霓裳正在處理中，請稍候）"
+                        if hasattr(_tg_adapter, '_current_push_source'):
+                            _tg_adapter._current_push_source = "commitment"
                         try:
                             await _tg_adapter.push_notification(msg)
                         except Exception as push_err:
@@ -780,6 +794,8 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
                     f"{_crystal_tag}\n\n"
                     f"有什麼想聊的嗎？"
                 ).strip()
+                if hasattr(adapter, '_current_push_source'):
+                    adapter._current_push_source = "free_explore"
                 try:
                     await adapter.push_notification(_msg)
                 except Exception as _e:
@@ -1019,6 +1035,8 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
                         # 通知
                         _tg = getattr(app, "state", None) and getattr(app.state, "telegram_adapter", None) if app else None
                         if _tg and hasattr(_tg, "push_notification"):
+                            if hasattr(_tg, '_current_push_source'):
+                                _tg._current_push_source = "tool_health"
                             try:
                                 await _tg.push_notification(
                                     f"⚠️ 工具 {name} 連續 {count} 次健康檢查失敗，"

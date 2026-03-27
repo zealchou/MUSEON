@@ -258,6 +258,26 @@ class BrainPromptBuilderMixin:
                 # CORE: 程式碼 Bug（NameError 等），必須記錄完整 traceback
                 logger.error(f"Memory inject 異常（可能是程式碼 Bug）: {e}", exc_info=True)
 
+        # ── Zone: memory — Phase 7 持續學習洞見注入 ──
+        if (hasattr(self, '_insight_extractor') and self._insight_extractor
+                and user_query and not budget.is_exhausted("memory")):
+            try:
+                _relevant = self._insight_extractor.get_relevant_insights(user_query, limit=3)
+                if _relevant:
+                    _insight_lines = ["## 策略洞見（從過去個案與探索中萃取）\n"]
+                    for _ins in _relevant:
+                        _conf = _ins.get("confidence", 0)
+                        _insight_lines.append(
+                            f"- [{_ins.get('domain', '?')}] {_ins.get('principle', '')} "
+                            f"(confidence: {_conf:.0%})"
+                        )
+                    _insight_block = "\n".join(_insight_lines)
+                    _insight_fitted = budget.fit_text_to_zone("memory", _insight_block)
+                    if _insight_fitted:
+                        sections.append(_insight_fitted)
+            except Exception as e:
+                logger.debug(f"Phase 7 insight inject skipped: {e}")
+
         # ── Zone: memory — 知識結晶三層注入（演化核心）──
         # Layer 1: 動態 max_push（由 RoutingSignal 決定：5/10/30）
         # Layer 2: Crystal Chain Traversal（DAG 鏈式展開）

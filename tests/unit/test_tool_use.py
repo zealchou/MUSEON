@@ -479,87 +479,9 @@ class TestBrainToolUseIntegration:
 
 
 # ═══════════════════════════════════════
-# 8. TestInstallerToolStep
+# 8. TestToolRegistryLearnings（安裝經驗迭代）
 # ═══════════════════════════════════════
-
-class TestInstallerToolStep:
-    """orchestrator _step_tools 測試."""
-
-    def test_step_tools_in_steps_list(self):
-        """_step_tools 在 STEPS 列表中."""
-        from museon.installer.orchestrator import InstallerOrchestrator
-        assert "_step_tools" in InstallerOrchestrator.STEPS
-
-    def test_step_tools_label(self):
-        """_step_tools 有正確的標籤."""
-        from museon.installer.orchestrator import InstallerOrchestrator
-        assert InstallerOrchestrator.STEP_LABELS["_step_tools"] == "工具安裝"
-
-    def test_step_tools_before_launch(self):
-        """_step_tools 在 _step_launch 之前."""
-        from museon.installer.orchestrator import InstallerOrchestrator
-        steps = InstallerOrchestrator.STEPS
-        tools_idx = steps.index("_step_tools")
-        launch_idx = steps.index("_step_launch")
-        assert tools_idx < launch_idx
-
-    def test_installer_has_10_steps(self):
-        """安裝器現在有 10 個步驟（含權限檢查 + Claude Code）."""
-        from museon.installer.orchestrator import InstallerOrchestrator
-        assert len(InstallerOrchestrator.STEPS) == 10
-
-    def test_ui_step_names_match(self):
-        """UI STEP_NAMES 數量與 STEPS 一致."""
-        from museon.installer.ui import InstallerUI
-        from museon.installer.orchestrator import InstallerOrchestrator
-        assert len(InstallerUI.STEP_NAMES) == len(InstallerOrchestrator.STEPS)
-
-    def test_ui_step_estimates_complete(self):
-        """每個 STEP_NAME 都有對應的時間估計."""
-        from museon.installer.ui import InstallerUI
-        for name in InstallerUI.STEP_NAMES:
-            assert name in InstallerUI.STEP_ESTIMATES, f"Missing estimate for: {name}"
-
-    def test_spinner_messages_count(self):
-        """spinner 訊息數量與步驟數一致."""
-        from museon.installer.__main__ import STEP_SPINNER_MESSAGES
-        from museon.installer.orchestrator import InstallerOrchestrator
-        assert len(STEP_SPINNER_MESSAGES) == len(InstallerOrchestrator.STEPS)
-
-    @patch("subprocess.run")
-    def test_step_tools_no_docker_skips(self, mock_run):
-        """Docker 不存在時 _step_tools 跳過."""
-        mock_run.side_effect = FileNotFoundError("docker not found")
-
-        from museon.installer.orchestrator import InstallerOrchestrator
-        from museon.installer.models import InstallConfig, StepStatus
-
-        with tempfile.TemporaryDirectory() as tmp:
-            config = InstallConfig(install_dir=Path(tmp))
-            orch = InstallerOrchestrator(config=config, interactive=False)
-            result = orch._step_tools()
-            assert result.status == StepStatus.SKIPPED
-
-    @patch("subprocess.run")
-    def test_step_tools_docker_unavailable_skips(self, mock_run):
-        """Docker 未啟動時 _step_tools 跳過."""
-        mock_result = MagicMock()
-        mock_result.returncode = 1
-        mock_run.return_value = mock_result
-
-        from museon.installer.orchestrator import InstallerOrchestrator
-        from museon.installer.models import InstallConfig, StepStatus
-
-        with tempfile.TemporaryDirectory() as tmp:
-            config = InstallConfig(install_dir=Path(tmp))
-            orch = InstallerOrchestrator(config=config, interactive=False)
-            result = orch._step_tools()
-            assert result.status == StepStatus.SKIPPED
-
-
-# ═══════════════════════════════════════
-# 9. TestToolRegistryLearnings（安裝經驗迭代）
-# ═══════════════════════════════════════
+# NOTE: TestInstallerToolStep 已隨 museon.installer 模組移除而刪除
 
 class TestToolRegistryLearnings:
     """根據實際安裝經驗的迭代測試."""
@@ -582,14 +504,12 @@ class TestToolRegistryLearnings:
         """PaddleOCR health URL 使用 base URL（非 POST-only 端點）."""
         from museon.tools.tool_registry import TOOL_CONFIGS
         config = TOOL_CONFIGS["paddleocr"]
-        # 不應該用 /predict/ocr_system（POST-only 會回 405）
         assert config.health_url.rstrip("/") == "http://127.0.0.1:8866"
 
     def test_health_check_handles_http_error(self):
-        """健康檢查能處理 4xx HTTPError（不視為不健康）."""
+        """健康檢查能處理 4xx HTTPError."""
         import inspect
         from museon.tools.tool_registry import ToolRegistry
-        # P4: HTTPError 處理邏輯在 _check_tool_health_detail 中
         source = inspect.getsource(ToolRegistry._check_tool_health_detail)
         assert "HTTPError" in source
 
@@ -605,34 +525,4 @@ class TestToolRegistryLearnings:
         import inspect
         from museon.tools.tool_registry import ToolRegistry
         source = inspect.getsource(ToolRegistry._install_firecrawl_compose)
-        # version: '3.8' 已被 docker compose 標為 obsolete
         assert "version:" not in source.split("compose_content")[1]
-
-    def test_step_tools_clears_ghcr_credentials(self):
-        """_step_tools 在安裝前清除 ghcr.io 憑證."""
-        import inspect
-        from museon.installer.orchestrator import InstallerOrchestrator
-        source = inspect.getsource(InstallerOrchestrator._step_tools)
-        assert "docker" in source and "logout" in source and "ghcr.io" in source
-
-    def test_packager_excludes_tools_dir(self):
-        """安裝包排除 _tools/ 目錄（防止 3GB+ 模型打包）."""
-        from museon.installer.packager import InstallerPackager
-        assert "_tools" in InstallerPackager.EXCLUDE_PATTERNS
-
-    def test_packager_has_max_file_size(self):
-        """安裝包有最大檔案大小限制."""
-        from museon.installer.packager import InstallerPackager
-        assert hasattr(InstallerPackager, "MAX_FILE_SIZE_MB")
-        assert InstallerPackager.MAX_FILE_SIZE_MB <= 100  # 不超過 100MB
-
-    def test_packager_excludes_large_files(self):
-        """_should_exclude 會排除超大檔案."""
-        from museon.installer.packager import InstallerPackager
-        packager = InstallerPackager()
-        with tempfile.TemporaryDirectory() as tmp:
-            big_file = Path(tmp) / "huge.bin"
-            with open(big_file, "wb") as f:
-                f.seek((InstallerPackager.MAX_FILE_SIZE_MB + 1) * 1024 * 1024)
-                f.write(b"\x00")
-            assert packager._should_exclude(big_file, Path(tmp)) is True

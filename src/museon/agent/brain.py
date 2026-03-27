@@ -346,6 +346,25 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
             logger.warning(f"MemoryManager 載入失敗（降級運行）: {e}")
             self.memory_manager = None
 
+        # Phase 6: Memory Graph（記憶關聯圖）
+        try:
+            from museon.memory.memory_graph import MemoryGraph
+            self._memory_graph = MemoryGraph(data_dir=str(self.data_dir))
+        except Exception as e:
+            logger.debug(f"MemoryGraph init skipped: {e}")
+            self._memory_graph = None
+
+        # Phase 7: Learning Absorption Engine（持續學習引擎）
+        try:
+            from museon.learning.insight_extractor import InsightExtractor
+            self._insight_extractor = InsightExtractor(
+                data_dir=str(self.data_dir),
+                llm_adapter=getattr(self, '_llm_adapter', None),
+            )
+        except Exception as e:
+            logger.debug(f"InsightExtractor init skipped: {e}")
+            self._insight_extractor = None
+
         # Multi-Agent ContextSwitcher
         self._multiagent_enabled = True
         self._context_switcher = None

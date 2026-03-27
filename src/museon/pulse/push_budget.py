@@ -78,6 +78,10 @@ class PushBudget:
         """語意去重：與最近 24 小時內所有推送比對。
 
         使用詞級 Jaccard（bigram + 空格分詞 + 停用詞過濾）。
+
+        NOTE（Phase 1）：Jaccard 已被 ProactiveDispatcher 的 Haiku 語意去重取代
+        作為主要去重機制。此方法保留為快速預過濾（在 Dispatcher 層之前的
+        PulseEngine / ProactiveBridge 仍會呼叫此方法做第一層篩選）。
         """
         recent = self._get_recent_pushes(hours=DEDUP_HOURS)
         if not recent:

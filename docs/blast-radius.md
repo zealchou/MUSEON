@@ -1,10 +1,12 @@
-# Blast Radius — 模組影響半徑表 v1.69
+# Blast Radius — 模組影響半徑表 v1.71
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節、`docs/operational-contract.md`（操作契約表）提供外部操作預期失敗
+> **v1.71 (2026-03-27)**：有機體進化計畫——新增 `pulse/proactive_dispatcher.py`（綠區扇入=2 from telegram+proactive_bridge）；`memory/memory_graph.py`（綠區扇入=1 from brain）；`learning/insight_extractor.py`（綠區扇入=1 from brain）；`learning/strategy_accumulator.py`（綠區扇入=0）；`doctor/shared_board.py`（綠區扇入=4 from museoff/qa/doc/worker）；`billing/trust_points.py`（綠區扇入=1 from brain_tools）；`nightly_pipeline.py` _FULL_STEPS 52→49（移除 7.5/10.5/11，新增 19）；`cron_registry.py` 9 處 push_notification 設置 source。
+> **v1.70 (2026-03-26)**：v2 Brain 四層架構 + 死碼清理——新增 `brain_deep.py`（L2 Opus 引擎，綠區扇入=1）、`brain_tool_loop.py`（獨立 tool-use 迴圈，綠區扇入=1）；`brain_fast.py` 重寫為 L1 Sonnet + escalation JSON + L4 回饋迴路；新增 `brain_observer.py`（L4 觀察者，綠區扇入=1）；`tool_schemas.py` 新增 trigger_job/memory_search/spawn_perspectives 3 個工具；`nightly_pipeline.py` 新增 Step 31 context_cache 重建。死碼移除：`federation/`（skill_market + sync）、`installer/`（整個目錄）、`nightly_v2.py`。
 > **v1.69 (2026-03-25)**：五虎將通知人類化——新增 `doctor/notify.py`（綠區扇入=2 from museoff+museqa，共用通知：notify_owner 中文嚴重度+來源+說明、explain_finding 15 種模式翻譯、generate_review_summary 待審閱摘要）；MuseOff WAL 偵測改 PRAGMA journal_mode（修復 .db-wal 假陽性）+新增 3 DB 檢查；MuseOff/MuseQA 刪除各自 _notify_owner 改用共用版。
 > **v1.68 (2026-03-25)**：L2 Worker 分離 + AIORateLimiter——新增 `gateway/brain_worker.py`（BrainWorkerManager，subprocess + Pipe IPC，auto-restart，綠區扇入=1 from telegram_pump.py + server.py init/shutdown）；`llm/rate_limiter.py` 新增 `AsyncTokenBucket`（token bucket 頻率控制，4 req/s 預設，支援 pause/slow_down/speed_up）+ `get_api_bucket()` singleton；`gateway/telegram_pump.py` `_brain_process_with_sla` 新增 worker 優先路徑 + fallback in-process 改用 token bucket 取代 semaphore；`gateway/server.py` startup/shutdown 新增 worker lifecycle 管理。
 > **v1.67 (2026-03-25)**：訊息佇列持久化 + 全鏈路 trace_id——新增 `gateway/message_queue_store.py`（SQLite 持久化佇列，綠區扇入=1 from telegram_pump.py + server.py lazy init）；`gateway/message.py` InternalMessage 新增 trace_id 欄位（uuid hex[:12] 自動生成）；`gateway/telegram_pump.py` 新增 `_recover_pending_messages()`（啟動恢復）+ pump 主迴圈持久化 enqueue/mark_done + 關鍵 log 全加 trace_id；`agent/brain.py` process() 入口 log trace_id；`gateway/server.py` startup 初始化 MessageQueueStore。
@@ -245,7 +247,7 @@
 
 | 屬性 | 值 |
 |------|-----|
-| **扇入** | 4（server.py, nightly_pipeline.py, installer/orchestrator.py, doctor/self_diagnosis.py） |
+| **扇入** | 3（server.py, nightly_pipeline.py, doctor/self_diagnosis.py） |
 | **角色** | 工具註冊與管理中心 |
 | **事件發布** | TOOL_DEGRADED, TOOL_HEALTH_CHANGED, TOOL_RECOVERED |
 
@@ -396,36 +398,6 @@
 
 ---
 
-### federation/skill_market.py
-
-| 屬性 | 值 |
-|------|-----|
-| **扇入** | 1（gateway/server.py） |
-| **角色** | 技能打包、簽章、本地市集 |
-
-#### 影響半徑
-
-| 影響類型 | 範圍 |
-|---------|------|
-| 共享狀態 | `_system/marketplace/*.json`(RW) |
-| 跨模組依賴 | gateway/server.py（API 暴露） |
-
----
-
-### federation/sync.py
-
-| 屬性 | 值 |
-|------|-----|
-| **扇入** | 1（nightly/nightly_pipeline.py） |
-| **角色** | 母子體 Git 同步引擎 |
-
-#### 影響半徑
-
-| 影響類型 | 範圍 |
-|---------|------|
-| 外部依賴 | GitHub Private Repo |
-| 跨模組依賴 | nightly_pipeline（夜間同步步驟） |
-
 ---
 
 ### nightly/morphenix_validator.py
@@ -530,7 +502,7 @@
 | 屬性 | 值 |
 |------|-----|
 | **扇入** | 2 |
-| **角色** | 夜間整合管線（46 步驟，含 Step 30 藍圖一致性驗證） |
+| **角色** | 夜間整合管線（47 步驟，含 Step 30 藍圖一致性驗證 + Step 31 context_cache 重建） |
 
 #### 影響半徑
 
@@ -538,7 +510,7 @@
 |---------|------|
 | 共享狀態讀寫 | question_queue(RW), scout_queue(R), nightly_report(W), PulseDB(RW), crystal.db(R via CrystalStore), accuracy_stats(R) |
 | 事件發布 | 6 個：NIGHTLY_COMPLETED, IMMUNE_MEMORY_LEARNED, MORPHENIX_PROPOSAL_CREATED, SOUL_IDENTITY_TAMPERED, SYNAPSE_PRELOAD, TRIGGER_FIRED, TOOL_MUSCLE_DORMANT |
-| 子步驟呼叫 | curiosity_router, exploration_bridge, skill_forge_scout, crystal_actuator, parameter_tuner, morphenix_validator, morphenix_executor, evolution_velocity, periodic_cycles, blueprint_reader, workflow_engine(lazy) |
+| 子步驟呼叫 | curiosity_router, exploration_bridge, skill_forge_scout, crystal_actuator, parameter_tuner, morphenix_validator, morphenix_executor, evolution_velocity, periodic_cycles, blueprint_reader, workflow_engine(lazy), cache/context_cache_builder(Step 31) |
 
 #### 修改安全邊界
 
@@ -676,11 +648,11 @@
 
 ---
 
-## 🟢 綠區安全模組（42 個葉子模組）
+## 🟢 綠區安全模組（45 個葉子模組）
 
 > 以下模組無人 import（扇入 = 0），修改不影響任何上游，可直接修改。
 
-### Agent 層（17 個）
+### Agent 層（22 個）
 `agent/crystal_store.py`（★ v1.41 新增，扇入=2（knowledge_lattice + crystal_actuator），CrystalStore 統一存取層——crystal.db SQLite WAL 模式，`threading.Lock` + singleton factory `get_crystal_store()`），
 `agent/recommender.py`（★ v1.43 新增，扇入=1（brain.py），知識推薦引擎——CrystalStore 經由 brain 注入，互動歷史 `data/_system/recommendations/interactions.json` 原子寫入），
 `agent/brain_prompt_builder.py`（★ v1.48 Mixin，扇入=1（brain.py），system prompt 建構，1668 行），
@@ -688,8 +660,13 @@
 `agent/brain_observation.py`（★ v1.48 Mixin，扇入=1（brain.py），觀察與演化，2003 行），
 `agent/brain_p3_fusion.py`（★ v1.48 Mixin，扇入=1（brain.py），P3 融合與決策層，948 行），
 `agent/brain_tools.py`（★ v1.48 Mixin，扇入=1（brain.py），LLM 呼叫與 session 管理，966 行），
+`agent/brain_fast.py`（★ v1.70 重寫，扇入=1（server.py/telegram_pump.py），L1 接待層——Sonnet + escalation JSON + L4 回饋迴路，扇出含 brain_deep.py（L2 委派）+ brain_observer.py（L4 觀察）），
+`agent/brain_deep.py`（★ v1.70 新增，扇入=1（brain_fast.py），L2 深度思考引擎——Opus + tool_use，扇出 3：brain_tool_loop.py, tool_schemas.py, context_cache 檔案），
+`agent/brain_tool_loop.py`（★ v1.70 新增，扇入=1（brain_deep.py），獨立 tool-use 迴圈——從 brain_tools.py 提取，扇出 2：llm/adapters.py, agent/tools.py ToolExecutor），
+`agent/brain_observer.py`（★ v1.70 新增，扇入=1（brain_fast.py），L4 觀察者——記憶落地 + 洞察偵測，扇出 1：context_cache/pending_insights.json），
 `agent/chat_context.py`（★ v1.47 新增，扇入=1（brain.py），ChatContext dataclass 取代 per-turn 變數），
 `agent/deterministic_router.py`（★ v1.47 新增，扇入=1（brain_dispatch.py），確定性任務分解器取代 LLM Orchestrator），
+`agent/tool_schemas.py`（★ v1.70 擴充，扇入=1（brain_deep.py），工具定義目錄——v1.70 新增 trigger_job/memory_search/spawn_perspectives 3 個工具），
 `agent/dna27.py`, `agent/drift_detector.py`, `agent/intuition.py`, `agent/kernel_guard.py`, `agent/plan_engine.py`, `agent/primal_detector.py`, `agent/routing_bridge.py`, `agent/safety_anchor.py`, `agent/sub_agent.py`
 
 ### Memory 層（1 個）
@@ -719,9 +696,6 @@
 `gateway/routes_api.py`（★ v1.64 從 server.py 拆出，扇入=1（server.py），689 行；SkillHub + External Integration API 端點註冊，含 `/api/market/*`、`/api/image/*`、`/api/voice/*` 等 Phase 3-5 端點），
 `gateway/cron_registry.py`（★ v1.64 從 server.py 拆出，扇入=1（server.py），1424 行；系統 cron 任務註冊，含五虎將 + Nightly + 41 項排程），
 `gateway/telegram_pump.py`（★ v1.64 從 server.py 拆出，扇入=1（server.py），754 行；Telegram 訊息泵核心邏輯——收訊→Brain 處理→ResponseGuard.validate() 驗證→發送；v1.65 移除手寫 chat_id 比對改用 ResponseGuard.validate()；lazy import 8 個模組：response_guard, rate_limiter, group_context, multi_tenant, authorization, interaction, session, message）
-
-### Installer 層
-`installer/` 下大部分模組
 
 ### LLM 層
 `llm/` 下大部分模組
@@ -872,6 +846,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-26 | v1.70 | v2 Brain 四層架構 + 死碼清理——新增 `brain_deep.py`（L2 Opus 引擎，綠區扇入=1）、`brain_tool_loop.py`（獨立 tool-use 迴圈，綠區扇入=1）、`brain_observer.py`（L4 觀察者，綠區扇入=1）、`brain_fast.py` 重寫為 L1 Sonnet + escalation JSON + L4 回饋迴路、`tool_schemas.py` 新增 3 工具（trigger_job/memory_search/spawn_perspectives）、`nightly_pipeline.py` Step 31 context_cache 重建。死碼移除：federation/（skill_market + sync）、installer/（整個目錄）、nightly_v2.py |
 | 2026-03-25 | v1.68 | L2 Worker 分離 + AIORateLimiter——新增 brain_worker.py（subprocess + Pipe IPC）、AsyncTokenBucket（token bucket 取代 semaphore）；telegram_pump worker 優先路徑 + fallback；server.py worker lifecycle。response_guard 新增 [empty]+路由鏈過濾 |
 | 2026-03-25 | v1.67 | 訊息佇列持久化 + 全鏈路 trace_id——新增 message_queue_store.py（SQLite crash recovery）；InternalMessage trace_id 欄位；telegram_pump 持久化+恢復+log trace_id；brain.py process() trace_id |
 | 2026-03-25 | v1.66 | Brain 90s SLA + Circuit Breaker——telegram_pump _brain_process_with_sla()；bulkhead.py BrainCircuitBreaker 三態機；server.py CB 通知+/health 端點。bulkhead 扇入 1→2 |

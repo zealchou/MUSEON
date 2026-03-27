@@ -167,6 +167,31 @@ class MorphenixExecutor:
                 except Exception as e:
                     logger.debug(f"[MORPHENIX_EXECUTOR] morphenix failed (degraded): {e}")
 
+        # 發布 Telegram 推播通知（用 PROACTIVE_MESSAGE + alert 確保不被限額擋住）
+        executed = results["executed"]
+        failed = results["failed"]
+        if self._event_bus and (executed > 0 or failed > 0):
+            try:
+                detail_lines = []
+                for d in results.get("details", [])[:5]:
+                    outcome = d.get("outcome", "?")
+                    title = d.get("title", d.get("proposal_id", "?"))
+                    icon = {"executed": "v", "failed": "x", "escalated": "!", "skipped": "-"}.get(outcome, "?")
+                    detail_lines.append(f"  [{icon}] {title}")
+                details_text = "\n".join(detail_lines) if detail_lines else "  (no details)"
+
+                self._event_bus.publish("PROACTIVE_MESSAGE", {
+                    "message": (
+                        f"Morphenix 執行報告\n\n"
+                        f"執行了 {executed} 個提案，{failed} 個失敗。\n\n"
+                        f"{details_text}"
+                    ),
+                    "source": "alert",
+                    "timestamp": datetime.now(TZ8).timestamp(),
+                })
+            except Exception as e:
+                logger.debug(f"[MORPHENIX_EXECUTOR] PROACTIVE_MESSAGE publish failed: {e}")
+
         return results
 
     def execute_one(self, proposal_id: str) -> Dict[str, Any]:
@@ -452,9 +477,51 @@ class MorphenixExecutor:
 
         metadata 可包含：
           - "config_changes": [{"file": "...", "key": "...", "value": ...}]
-          - 或簡單的 "action": "description"
+          - 或簡單的 "action": "description"（fallback 推斷）
         """
         changes = metadata.get("config_changes", [])
+
+        # Fallback：若無 config_changes，嘗試從 action 欄位推斷
+        if not changes:
+            action = (
+                metadata.get("action", "")
+                or proposal.get("action", "")
+            )
+            metric = metadata.get("metric", proposal.get("metric", {}))
+
+            if action.startswith("increase_prompt_weight_"):
+                dim = action.replace("increase_prompt_weight_", "")
+                current = metric.get("current_avg", 0.5)
+                boost = min(1.5, 1.0 + (0.5 - current))
+                changes = [{
+                    "file": "_system/context_cache/active_rules.json",
+                    "key": f"{dim}_weight",
+                    "value": round(boost, 2),
+                    "old_value": 1.0,
+                }]
+            elif action == "tune_metacognition_params":
+                accuracy = metric.get("accuracy", 0.5)
+                changes = [{
+                    "file": "_system/metacognition/accuracy_stats.json",
+                    "key": "prediction_confidence_threshold",
+                    "value": round(max(0.3, accuracy - 0.1), 2),
+                    "old_value": 0.5,
+                }]
+            elif action == "tune_skill_router":
+                hit_rate = metric.get("hit_rate", 0.5)
+                changes = [{
+                    "file": "_system/context_cache/active_rules.json",
+                    "key": "skill_router_rc_multiplier",
+                    "value": round(min(2.0, 1.0 + (0.6 - hit_rate)), 2),
+                    "old_value": 1.0,
+                }]
+
+            if changes:
+                logger.info(
+                    f"Morphenix L1: inferred {len(changes)} config_changes "
+                    f"from action={action}"
+                )
+
         applied = []
 
         for change in changes:
