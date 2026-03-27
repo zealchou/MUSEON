@@ -266,6 +266,76 @@ class GroupContextStore(DataContract):
         ).fetchone()
         return dict(row) if row else None
 
+    # ── Digest Service support ──
+
+    def get_messages_since(self, group_id: int, since: str, limit: int = 200) -> List[Dict[str, Any]]:
+        """取得某群組從某時間點之後的所有訊息.
+
+        Args:
+            group_id: 群組 ID（含負號）
+            since: ISO 8601 時間字串（如 '2026-03-27T10:00:00'）
+            limit: 最大筆數
+
+        Returns:
+            [{user_id, name, text, time, type}, ...]
+        """
+        conn = self._get_conn()
+        rows = conn.execute(
+            "SELECT m.user_id, c.display_name, m.text, m.created_at, m.msg_type "
+            "FROM messages m LEFT JOIN clients c ON m.user_id = c.user_id "
+            "WHERE m.group_id = ? AND m.created_at > ? "
+            "ORDER BY m.created_at ASC LIMIT ?",
+            (group_id, since, limit),
+        ).fetchall()
+        return [
+            {"user_id": r["user_id"], "name": r["display_name"] or "Unknown", "text": r["text"], "time": r["created_at"], "type": r["msg_type"]}
+            for r in rows
+        ]
+
+    def get_group_setting(self, group_id: int, key: str, default: Any = None) -> Any:
+        """讀取群組設定（從 groups.settings JSON 欄位）."""
+        conn = self._get_conn()
+        row = conn.execute(
+            "SELECT settings FROM groups WHERE group_id = ?", (group_id,)
+        ).fetchone()
+        if not row or not row["settings"]:
+            return default
+        try:
+            settings = json.loads(row["settings"])
+            return settings.get(key, default)
+        except (json.JSONDecodeError, TypeError):
+            return default
+
+    def set_group_setting(self, group_id: int, key: str, value: Any) -> None:
+        """寫入群組設定."""
+        conn = self._get_conn()
+        row = conn.execute(
+            "SELECT settings FROM groups WHERE group_id = ?", (group_id,)
+        ).fetchone()
+        settings: Dict[str, Any] = {}
+        if row and row["settings"]:
+            try:
+                settings = json.loads(row["settings"])
+            except (json.JSONDecodeError, TypeError):
+                settings = {}
+        settings[key] = value
+        conn.execute(
+            "UPDATE groups SET settings = ? WHERE group_id = ?",
+            (json.dumps(settings, ensure_ascii=False), group_id),
+        )
+        conn.commit()
+
+    def get_groups_with_owner(self, owner_user_id: str) -> List[Dict[str, Any]]:
+        """取得某使用者所在的所有群組."""
+        conn = self._get_conn()
+        rows = conn.execute(
+            "SELECT g.group_id, g.title FROM groups g "
+            "JOIN group_members gm ON g.group_id = gm.group_id "
+            "WHERE gm.user_id = ?",
+            (owner_user_id,),
+        ).fetchall()
+        return [{"group_id": r["group_id"], "title": r["title"] or ""} for r in rows]
+
     def get_group_members(self, group_id: int) -> List[Dict[str, Any]]:
         """Get all known members of a group."""
         conn = self._get_conn()
