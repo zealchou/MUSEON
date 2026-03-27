@@ -446,6 +446,93 @@ TOOL_DEFINITIONS: List[Dict[str, Any]] = [
             "required": ["git_tag"],
         },
     },
+    # ═══════════════════════════════════════
+    # L3 任務執行工具
+    # ═══════════════════════════════════════
+    {
+        "name": "trigger_job",
+        "description": (
+            "觸發 MUSEON 已註冊的背景任務（cron job）立即執行。"
+            "當使用者要求執行特定任務時使用，例如：出晨報、跑 nightly、推送報告、探索研究等。"
+            "這是 L3 執行層——你負責思考和判斷（L2），具體工作由 L3 執行後回傳結果。"
+            "常用 job_id：business-case-daily（每日企業晨報）、nightly-morning-report（nightly 摘要晨報）、"
+            "vita-morning（VITA 晨感）、curiosity-research（好奇問題研究）、vita-evening（暮感）、"
+            "nightly-pipeline（完整 nightly）、community-scan（社群掃描）。"
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "job_id": {
+                    "type": "string",
+                    "description": "要觸發的 job ID（例如 business-case-daily、nightly-morning-report）",
+                },
+            },
+            "required": ["job_id"],
+        },
+    },
+    {
+        "name": "memory_search",
+        "description": (
+            "搜尋 MUSEON 的記憶系統，查找過去的對話、使用者偏好、決策記錄等。"
+            "當使用者問「我之前說過什麼」「你記得嗎」「上次的結論」等涉及歷史記憶的問題時使用。"
+            "也適用於需要參考過去經驗做決策的場景。"
+            "回傳按相關性排序的記憶條目（含時間戳、內容摘要、來源層級）。"
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": "搜尋關鍵字或自然語言描述",
+                },
+                "scope": {
+                    "type": "string",
+                    "enum": ["all", "recent", "important"],
+                    "description": "搜尋範圍：all=全部, recent=近期短期記憶, important=語義+程序記憶",
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "回傳筆數上限（預設 5，最多 20）",
+                },
+            },
+            "required": ["query"],
+        },
+    },
+    {
+        "name": "spawn_perspectives",
+        "description": (
+            "針對複雜議題召開多角度圓桌討論。"
+            "你提供議題和 2-4 個觀點角色，系統會平行 spawn 多個分析師分別從不同角度分析，"
+            "最後彙整為統合觀點。適用於重大決策、需要多方驗證、或你自己也不確定的議題。"
+            "耗時較長（10-30秒），只在真正需要多元觀點時使用。"
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "topic": {
+                    "type": "string",
+                    "description": "議題描述",
+                },
+                "perspectives": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "role": {"type": "string", "description": "角色名稱（如：樂觀投資者、風控官）"},
+                            "instruction": {"type": "string", "description": "該角色的分析指引"},
+                        },
+                        "required": ["role", "instruction"],
+                    },
+                    "description": "2-4 個觀點角色",
+                },
+                "context": {
+                    "type": "string",
+                    "description": "背景資料（可選）",
+                },
+            },
+            "required": ["topic", "perspectives"],
+        },
+    },
 ]
 
 # 工具名稱集合（快速查找）
