@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>永續英文 Day 01 — Green | MUSEON for Evvon</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,600&family=Outfit:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ember:       #C4502A;
+      --ember-light: #E0714D;
+      --ember-dark:  #9A3A1C;
+      --teal:        #2A7A6E;
+      --gold:        #B8923A;
+      --ink:         #12121A;
+      --slate:       #5A5A6E;
+      --mist:        #9898A8;
+      --border:      #E2E0DA;
+      --parchment:   #F7F5F0;
+      --snow:        #FDFCFA;
+    }
+
+    body {
+      background: var(--parchment);
+      color: var(--ink);
+      font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+      font-size: 16px;
+      line-height: 1.75;
+      min-height: 100vh;
+      padding: 24px 16px 64px;
+    }
+
+    .container {
+      max-width: 540px;
+      margin: 0 auto;
+    }
+
+    /* ── Header ── */
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+      animation: fadeUp 0.4s ease-out both;
+    }
+
+    .header-badge {
+      display: inline-block;
+      background: rgba(196, 80, 42, 0.1);
+      color: var(--ember-dark);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-radius: 100px;
+      padding: 3px 12px;
+      margin-bottom: 12px;
+    }
+
+    .header-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 36px;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.2;
+      margin-bottom: 6px;
+    }
+
+    .header-sub {
+      font-size: 14px;
+      color: var(--slate);
+    }
+
+    /* ── Progress Bar ── */
+    .progress-wrap {
+      background: var(--border);
+      border-radius: 100px;
+      height: 6px;
+      margin: 16px 0 32px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      background: linear-gradient(90deg, var(--ember), var(--ember-light));
+      height: 100%;
+      width: 1.11%; /* 1/90 */
+      border-radius: 100px;
+    }
+    .progress-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--mist);
+      text-align: right;
+      margin-top: 4px;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+      animation: fadeUp 0.4s ease-out both;
+    }
+    .card:nth-child(2) { animation-delay: 0.08s; }
+    .card:nth-child(3) { animation-delay: 0.16s; }
+    .card:nth-child(4) { animation-delay: 0.24s; }
+
+    .layer-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ember-dark);
+      background: rgba(196, 80, 42, 0.08);
+      border-radius: 100px;
+      padding: 3px 10px;
+      margin-bottom: 20px;
+    }
+
+    /* ── Layer 1: Word ── */
+    .word-main {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 64px;
+      font-weight: 600;
+      color: var(--ember);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .word-phonetic {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 18px;
+      font-weight: 400;
+      color: var(--slate);
+      margin-bottom: 16px;
+    }
+
+    .word-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    .word-meaning-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--mist);
+      margin-bottom: 6px;
+    }
+
+    .word-meaning {
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .example-box {
+      background: rgba(42, 122, 110, 0.07);
+      border-left: 3px solid var(--teal);
+      border-radius: 0 8px 8px 0;
+      padding: 14px 16px;
+    }
+
+    .example-en {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--teal);
+      font-style: italic;
+      margin-bottom: 6px;
+    }
+
+    .example-zh {
+      font-size: 14px;
+      color: var(--slate);
+    }
+
+    /* ── Layer 2: Story ── */
+    .story-body {
+      font-size: 17px;
+      line-height: 1.9;
+      color: var(--ink);
+      margin-bottom: 16px;
+    }
+
+    .story-en {
+      font-weight: 500;
+    }
+
+    .story-zh {
+      font-size: 14px;
+      color: var(--slate);
+      line-height: 1.8;
+      border-top: 1px dashed var(--border);
+      padding-top: 14px;
+      margin-top: 14px;
+    }
+
+    /* ── Layer 3: Homework ── */
+    .hw-icon {
+      font-size: 36px;
+      margin-bottom: 12px;
+    }
+
+    .hw-main {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .hw-hint {
+      font-size: 14px;
+      color: var(--slate);
+      background: rgba(184, 146, 58, 0.08);
+      border-radius: 8px;
+      padding: 10px 14px;
+    }
+
+    .hw-hint strong {
+      color: var(--gold);
+    }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 12px;
+      color: var(--mist);
+      font-family: 'IBM Plex Mono', monospace;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Animation ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Mobile adjustments ── */
+    @media (max-width: 400px) {
+      .word-main { font-size: 52px; }
+      .card { padding: 22px 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="header-badge">永續英文 · Sustainability Vocab</div>
+      <div class="header-title">Day 01 of 90</div>
+      <div class="header-sub">2026-03-28 · for Evvon</div>
+      <div class="progress-wrap">
+        <div class="progress-fill"></div>
+      </div>
+      <div class="progress-label">1 / 90 days</div>
+    </div>
+
+    <!-- Layer 1: Today's Word -->
+    <div class="card">
+      <div class="layer-label">✦ Layer 1 · 今日單字</div>
+
+      <div class="word-main">Green</div>
+      <div class="word-phonetic">[ɡriːn]</div>
+
+      <div class="word-divider"></div>
+
+      <div class="word-meaning-label">中文意思</div>
+      <div class="word-meaning">
+        形容環境友善的、對地球好的東西。<br>
+        不只是顏色「綠色」，在永續領域裡，<span style="color:var(--ember);font-weight:600;">Green</span> 代表「愛護地球的選擇」。
+      </div>
+
+      <div class="example-box">
+        <div class="example-en">"We use green energy."</div>
+        <div class="example-zh">我們使用對地球友善的能源。</div>
+      </div>
+    </div>
+
+    <!-- Layer 2: Mini Story -->
+    <div class="card">
+      <div class="layer-label">✦ Layer 2 · 簡單小故事</div>
+
+      <div class="story-body story-en">
+        Lily loves her city.<br>
+        She plants trees and uses <span style="color:var(--teal);font-weight:700;">green</span> bags.<br>
+        She says, "Small acts make a big change."<br>
+        Her city becomes cleaner and happier.
+      </div>
+
+      <div class="story-zh">
+        莉莉很愛她的城市。<br>
+        她種樹，也用環保袋。<br>
+        她說：「小行動能帶來大改變。」<br>
+        她的城市變得更乾淨、更快樂了。
+      </div>
+    </div>
+
+    <!-- Layer 3: Homework -->
+    <div class="card">
+      <div class="layer-label">✦ Layer 3 · 你的作業</div>
+
+      <div class="hw-icon">✏️</div>
+      <div class="hw-main">
+        今天試著用 <span style="color:var(--ember);">Green</span> 造一個句子，<br>貼到群組裡！
+      </div>
+
+      <div class="hw-hint">
+        <strong>小提示：</strong>可以說你生活中有什麼 green 的事情，<br>例如：<em>"I use a green bag."</em>（我用環保袋。）
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      MUSEON · Sustainability Vocab Series · Day 01/90
+    </div>
+
+  </div>
+</body>
+</html>
