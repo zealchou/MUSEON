@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.54
+# MUSEON 系統拓撲圖 v1.55
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.55 (2026-03-27)**：MCP 工具擴充——external 群組新增 `playwright-mcp`（瀏覽器自動化）、`fetch-mcp`（網頁讀取）2 個節點 + 2 條 cross 連線（mcp-server→playwright-mcp、mcp-server→fetch-mcp）；`.mcp.json` 新增 Playwright + Fetch 伺服器設定。同步 blast-radius v1.72。
 > **v1.54 (2026-03-27)**：有機體進化計畫 Phase 1-9——新增 6 個節點（proactive-dispatcher、memory-graph、insight-extractor、strategy-accumulator、shared-board、skill-counter）；新增 learning 群組；pulse 群組 proactive-dispatcher 統一攔截推播；Nightly 精簡移除 3 個步驟（7.5/10.5/11）；五虎將共享看板協調機制；cron 直接推送全部納管 ProactiveDispatcher。
 > **v1.53 (2026-03-26)**：v2 Brain 四層架構 + 死碼清理——agent 群組新增 `brain-deep`（L2 Opus 引擎）、`brain-tool-loop`（獨立 tool-use 迴圈）、`brain-observer`（L4 觀察者）3 個節點 + 5 條連線；`brain-fast` 升級為 L1 Sonnet + escalation 機制；移除 federation 群組（skill-market + federation-sync 2 個節點）+ installer 群組（4 個子節點 + 1 個 Hub 節點）；nightly 新增 Step 31 context_cache。
 > **v1.51 (2026-03-25)**：教訓蒸餾+斷裂管線修復+Fix-Verify Workflow——nightly 群組新增 2 個步驟節點（`lesson-distill` Step 5.6.5 教訓蒸餾、`client-profile-update` Step 18.5 客戶互動萃取）；agent 群組 `brain-prompt-builder` 新增 3 條 cross 連線（→intuition-heuristics 注入、→knowledge-lattice record_success、→external-anima search）；gateway 群組 `server` 新增 1 條 cross 連線（→guardian mothership_queue 消費）；doctor 群組 `musedoc` 新增 `_fix_verify` 三維驗證方法；新增 `fix-verify` Workflow Skill（Evolution Hub）；`brain.py` MemoryManager user_id cli_user→boss。同步 blast-radius v1.65、joint-map v1.43、memory-router v1.9。
@@ -322,6 +323,8 @@ external-user（EXTERNAL）
 | `qdrant` | Qdrant | 向量 DB :6333 | - | 1.0 |
 | `firecrawl` | Firecrawl | 爬取 :3002 | - | 0.8 |
 | `anthropic-api` | Anthropic API | Claude API | - | 1.1 |
+| `playwright-mcp` | Playwright MCP | 瀏覽器自動化（MCP） | - | 0.5 |
+| `fetch-mcp` | Fetch MCP | 網頁讀取（MCP） | - | 0.5 |
 
 ### skills — Skills 生態系
 
@@ -689,6 +692,8 @@ external-user（EXTERNAL）
 | `explorer` | `searxng` | 網路搜尋 |
 | `explorer` | `llm-router` | 深度分析 |
 | `explorer` | `firecrawl` | 頁面爬取 |
+| `mcp-server` | `playwright-mcp` | 瀏覽器自動化（截圖/填表/點擊） |
+| `mcp-server` | `fetch-mcp` | 網頁純文字讀取 |
 | `silent-digestion` | `memory` | 反思寫入 |
 | `skill-scanner` | `skills-registry` | 安全掃描 |
 | `auto-repair` | `gateway` | 重啟修復 |

@@ -6,6 +6,14 @@
       "env": {
         "MUSEON_HOME": "/Users/ZEALCHOU/MUSEON"
       }
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"]
+    },
+    "fetch": {
+      "command": "uvx",
+      "args": ["mcp-server-fetch"]
     }
   }
 }
