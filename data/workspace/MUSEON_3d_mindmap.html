@@ -323,7 +323,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 //  SYNC META — 拓撲同步狀態
 // ═══════════════════════════════════════
 const SYNC_META = {
-  topologyVersion: 'v1.55',
+  topologyVersion: 'v1.56',
   syncDate: '2026-03-27',
   nodeCount: 0, // auto-calculated below
   linkCount: 0, // auto-calculated below
@@ -584,14 +584,17 @@ const nodes = [
   {id:"dharma",label:"DHARMA",zh:"思維轉化引擎",group:"skills",r:1.2,p:"skills-thinking-hub"},
   {id:"dse",label:"DSE",zh:"技術融合驗證",group:"skills",r:1.2,p:"skills-product-hub"},
   {id:"env-radar",label:"Env-Radar",zh:"環境雷達",group:"skills",r:1.2,p:"skills-product-hub"},
+  {id:"esg-architect-pro",label:"ESG-Architect-Pro",zh:"ESG 永續報告鍛造",group:"skills",r:1.2,p:"skills-business-hub"},
   {id:"gap",label:"GAP",zh:"缺口分析引擎",group:"skills",r:1.2,p:"skills-product-hub"},
   {id:"group-meeting-notes",label:"WF-GMN-01",zh:"會議記錄引擎",group:"skills",r:1.2,p:"skills-workflow-hub"},
+  {id:"human-design-blueprint",label:"HD-Blueprint",zh:"人類圖靈魂藍圖",group:"skills",r:1.2,p:"skills-creative-hub"},
   {id:"info-architect",label:"Info-Architect",zh:"資訊架構引擎",group:"skills",r:1.2,p:"skills-product-hub"},
   {id:"market-core",label:"Market-Core",zh:"市場分析核心",group:"skills",r:1.4,p:"skills-market-hub"},
   {id:"market-crypto",label:"Market-Crypto",zh:"加密貨幣分析",group:"skills",r:1.2,p:"skills-market-hub"},
   {id:"market-equity",label:"Market-Equity",zh:"股票分析衛星",group:"skills",r:1.2,p:"skills-market-hub"},
   {id:"market-macro",label:"Market-Macro",zh:"總體經濟分析",group:"skills",r:1.2,p:"skills-market-hub"},
   {id:"master-strategy",label:"Master-Strategy",zh:"戰略判斷引擎",group:"skills",r:1.4,p:"skills-business-hub"},
+  {id:"meeting-intelligence",label:"Meeting-Intel",zh:"會議情報分析",group:"skills",r:1.2,p:"skills-business-hub"},
   {id:"meta-learning",label:"Meta-Learning",zh:"元學習引擎",group:"skills",r:1.2,p:"skills-thinking-hub"},
   {id:"novel-craft",label:"Novel-Craft",zh:"小說工藝引擎",group:"skills",r:1.2,p:"skills-creative-hub"},
   {id:"orchestrator",label:"Orchestrator",zh:"編排引擎",group:"skills",r:1.2,p:"skills-product-hub"},
@@ -1132,6 +1135,9 @@ const links = [
   {source:"verified-user",target:"anima-mc-store",label:"配對使用者互動更新 ANIMA_USER（L1-L8 觀察）",type:"async"},
   {source:"zeal",target:"anima-mc-store",label:"Owner 互動觸發 ANIMA_MC 更新（boss_name、self_awareness）",type:"async"},
 ];
+
+
+
 
 
 

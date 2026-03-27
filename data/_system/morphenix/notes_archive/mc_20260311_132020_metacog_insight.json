@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260311_132020_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：跳過「要我開始嗎」的問詢階段。使用者已明確指出問題+期待修復，應直接開始 code-level 診斷（讀 escalation queue → brain 的 re-trigger 邏輯），找出斷點，產出修復 diff，而非等待二次確認。\n\n同時在修復過程中追蹤「群組實際回應」何時會出現，讓使用者看到「做完」而非「會做」。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-11T13:20:20.791118+08:00",
-  "priority": "medium"
-}

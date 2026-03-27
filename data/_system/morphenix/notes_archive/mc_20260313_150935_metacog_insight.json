@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260313_150935_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n只實現了「靜默分析」的第一層。使用者的原想法有三層遞進（分析→後向改寫→記憶被消化），但回覆只做到「後向加權」的弱版本。缺少：(1) 消化結果→Pulse喚醒的銜接流程圖，(2) 完整「後向改寫」（改變權重和連結強度）的實現說明，(3) 這套靜默系統在整個架構中的流動位置。建議補上這三個銜接點。\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-13T15:09:35.282211+08:00",
-  "priority": "medium"
-}

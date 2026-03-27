@@ -149,10 +149,10 @@
       "node_type": "intention",
       "label": "求助",
       "properties": {
-        "detected_at": "2026-03-23T16:59:04.579237"
+        "detected_at": "2026-03-25T22:39:54.385668"
       },
       "created_at": "2026-03-09T06:58:37.889788",
-      "updated_at": "2026-03-23T16:59:04.579324"
+      "updated_at": "2026-03-25T22:39:54.385833"
     },
     "topic_turn_14": {
       "node_id": "topic_turn_14",
@@ -3889,12 +3889,34 @@
       },
       "created_at": "2026-03-25T10:59:35.123876",
       "updated_at": "2026-03-25T10:59:35.123881"
+    },
+    "topic_turn_354": {
+      "node_id": "topic_turn_354",
+      "node_type": "topic",
+      "label": "turn_354",
+      "properties": {
+        "content_length": 731,
+        "detected_at": "2026-03-25T22:39:54.385668"
+      },
+      "created_at": "2026-03-25T22:39:54.385853",
+      "updated_at": "2026-03-25T22:39:54.385856"
+    },
+    "topic_turn_355": {
+      "node_id": "topic_turn_355",
+      "node_type": "topic",
+      "label": "turn_355",
+      "properties": {
+        "content_length": 14,
+        "detected_at": "2026-03-26T16:58:50.388210"
+      },
+      "created_at": "2026-03-26T16:58:50.388268",
+      "updated_at": "2026-03-26T16:58:50.388272"
     }
   },
   "edges": {},
   "metadata": {
-    "turn_count": 425,
-    "last_content_length": 6
+    "turn_count": 436,
+    "last_content_length": 8
   },
-  "last_updated": "2026-03-25T22:17:11.797551"
+  "last_updated": "2026-03-26T17:12:10.503858"
 }

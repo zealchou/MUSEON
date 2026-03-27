@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260310_095417_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: **REVISE**\n\n診斷層次夠深，但缺乏可執行的行動。建議：\n1. **驗證假設** — 實際讀 `pulse_engine.py` 確認五層假設無誤，再給診斷\n2. **給修復代碼** — 不只說「加寫入」，給改好的代碼片段（breath_pulse / soul_pulse / cron 定時 / PULSE.md 初始）\n3. **預估驗證** — 修完後如何驗證？何時應該看到 soul",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-10T09:54:17.111283+08:00",
-  "priority": "medium"
-}

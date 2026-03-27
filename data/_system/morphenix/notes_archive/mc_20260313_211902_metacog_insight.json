@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260313_211902_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n回覆過度解讀了一句簡單的 Unicode 測試。建議：(1) 直接確認「看到了，Unicode 顯示正常」；(2) 問「想測什麼？」而非假設使用者的心理狀態；(3) 保持簡潔，符合 Zeal 的溝通偏好。現在的回覆太詩意、太長，且帶有教導意味。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-13T21:19:02.822806+08:00",
-  "priority": "medium"
-}

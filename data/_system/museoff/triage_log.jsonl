@@ -1,1 +1,2 @@
-{"timestamp": "2026-03-25T13:35:42.641453+00:00", "action": "restart_gateway", "result": "success"}
+{"timestamp": "2026-03-27T08:43:57.770736+00:00", "action": "restart_gateway", "result": "failed: Command '['bash', '/Users/ZEALCHOU/MUSEON/scripts/workflows/restart-gateway.sh']' timed out after 60 seconds"}
+{"timestamp": "2026-03-27T10:43:57.677876+00:00", "action": "restart_gateway", "result": "failed: Command '['bash', '/Users/ZEALCHOU/MUSEON/scripts/workflows/restart-gateway.sh']' timed out after 60 seconds"}

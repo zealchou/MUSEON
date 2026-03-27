@@ -4,10 +4,10 @@
     "installed": true,
     "enabled": true,
     "healthy": true,
-    "last_health_check": "2026-03-25T19:05:40.608703+08:00",
+    "last_health_check": "2026-03-27T05:00:01.160663+08:00",
     "last_started": "",
-    "install_progress": 2,
-    "install_status": "installing",
+    "install_progress": 0,
+    "install_status": "",
     "error_message": ""
   },
   "qdrant": {
@@ -15,10 +15,10 @@
     "installed": true,
     "enabled": true,
     "healthy": true,
-    "last_health_check": "2026-03-25T19:05:40.611898+08:00",
-    "last_started": "2026-03-03T21:50:56.909439+08:00",
-    "install_progress": 100,
-    "install_status": "installed",
+    "last_health_check": "2026-03-27T05:00:01.163650+08:00",
+    "last_started": "",
+    "install_progress": 0,
+    "install_status": "",
     "error_message": ""
   },
   "whisper": {
@@ -26,7 +26,7 @@
     "installed": true,
     "enabled": true,
     "healthy": true,
-    "last_health_check": "2026-03-25T19:05:40.613166+08:00",
+    "last_health_check": "2026-03-27T05:00:01.166425+08:00",
     "last_started": "",
     "install_progress": 0,
     "install_status": "",
@@ -37,7 +37,7 @@
     "installed": true,
     "enabled": true,
     "healthy": true,
-    "last_health_check": "2026-03-25T19:05:40.615640+08:00",
+    "last_health_check": "2026-03-27T05:00:01.169903+08:00",
     "last_started": "",
     "install_progress": 0,
     "install_status": "",
@@ -48,7 +48,7 @@
     "installed": true,
     "enabled": true,
     "healthy": true,
-    "last_health_check": "2026-03-25T19:05:40.617166+08:00",
+    "last_health_check": "2026-03-27T05:00:01.171249+08:00",
     "last_started": "",
     "install_progress": 0,
     "install_status": "",
@@ -56,13 +56,13 @@
   },
   "firecrawl": {
     "name": "firecrawl",
-    "installed": true,
-    "enabled": true,
-    "healthy": true,
-    "last_health_check": "2026-03-25T19:05:40.621509+08:00",
-    "last_started": "2026-03-03T21:52:50.449383+08:00",
-    "install_progress": 100,
-    "install_status": "installed",
+    "installed": false,
+    "enabled": false,
+    "healthy": false,
+    "last_health_check": "",
+    "last_started": "",
+    "install_progress": 0,
+    "install_status": "",
     "error_message": ""
   },
   "dify": {
@@ -72,19 +72,19 @@
     "healthy": false,
     "last_health_check": "",
     "last_started": "",
-    "install_progress": 2,
-    "install_status": "failed",
-    "error_message": "安裝失敗"
+    "install_progress": 0,
+    "install_status": "",
+    "error_message": ""
   },
   "freshrss": {
     "name": "freshrss",
     "installed": true,
     "enabled": true,
     "healthy": true,
-    "last_health_check": "2026-03-25T19:05:40.624610+08:00",
+    "last_health_check": "2026-03-27T05:00:01.174182+08:00",
     "last_started": "",
-    "install_progress": 10,
-    "install_status": "installing",
+    "install_progress": 0,
+    "install_status": "",
     "error_message": ""
   },
   "stability": {
@@ -95,8 +95,8 @@
     "last_health_check": "",
     "last_started": "",
     "install_progress": 0,
-    "install_status": "failed",
-    "error_message": "安裝失敗"
+    "install_status": "",
+    "error_message": ""
   },
   "xtts": {
     "name": "xtts",
@@ -105,9 +105,9 @@
     "healthy": false,
     "last_health_check": "",
     "last_started": "",
-    "install_progress": 10,
-    "install_status": "failed",
-    "error_message": "安裝失敗"
+    "install_progress": 0,
+    "install_status": "",
+    "error_message": ""
   },
   "zotero": {
     "name": "zotero",
@@ -117,7 +117,7 @@
     "last_health_check": "",
     "last_started": "",
     "install_progress": 0,
-    "install_status": "failed",
-    "error_message": "安裝失敗"
+    "install_status": "",
+    "error_message": ""
   }
 }

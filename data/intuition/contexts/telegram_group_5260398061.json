@@ -22,12 +22,65 @@
       },
       "created_at": "2026-03-25T13:31:25.993990",
       "updated_at": "2026-03-25T13:31:25.993995"
+    },
+    "intention_決策": {
+      "node_id": "intention_決策",
+      "node_type": "intention",
+      "label": "決策",
+      "properties": {
+        "detected_at": "2026-03-27T14:15:53.768162"
+      },
+      "created_at": "2026-03-27T14:15:53.768297",
+      "updated_at": "2026-03-27T14:15:53.768298"
+    },
+    "topic_turn_3": {
+      "node_id": "topic_turn_3",
+      "node_type": "topic",
+      "label": "turn_3",
+      "properties": {
+        "content_length": 4078,
+        "detected_at": "2026-03-27T14:15:53.768162"
+      },
+      "created_at": "2026-03-27T14:15:53.768302",
+      "updated_at": "2026-03-27T14:15:53.768302"
+    },
+    "topic_turn_4": {
+      "node_id": "topic_turn_4",
+      "node_type": "topic",
+      "label": "turn_4",
+      "properties": {
+        "content_length": 164,
+        "detected_at": "2026-03-27T18:56:10.556766"
+      },
+      "created_at": "2026-03-27T18:56:10.556823",
+      "updated_at": "2026-03-27T18:56:10.556826"
+    },
+    "intention_閒聊": {
+      "node_id": "intention_閒聊",
+      "node_type": "intention",
+      "label": "閒聊",
+      "properties": {
+        "detected_at": "2026-03-27T18:59:20.261624"
+      },
+      "created_at": "2026-03-27T18:59:20.261649",
+      "updated_at": "2026-03-27T18:59:20.261652"
+    },
+    "topic_turn_6": {
+      "node_id": "topic_turn_6",
+      "node_type": "topic",
+      "label": "turn_6",
+      "properties": {
+        "content_length": 62,
+        "detected_at": "2026-03-27T18:59:20.261624"
+      },
+      "created_at": "2026-03-27T18:59:20.261660",
+      "updated_at": "2026-03-27T18:59:20.261661"
     }
   },
   "edges": {},
   "metadata": {
-    "turn_count": 2,
-    "last_content_length": 286
+    "turn_count": 5,
+    "last_content_length": 62
   },
-  "last_updated": "2026-03-25T13:31:25.993862"
+  "last_updated": "2026-03-27T18:59:20.261624"
 }

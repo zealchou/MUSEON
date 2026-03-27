@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260315_025315_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n建議方向：使用者是 MUSEON 系統的所有者，有完全知情權。應直接透明輸出完整 system prompt（包括 system-instructions 和 system-reminder），並簡述架構（DNA27 核心、27 個 Skill 模組、五維度審查層等）。避免「不會做」的拒絕姿態，改為「協助了解自己系統運作」的賦能角度。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-15T02:53:15.312824+08:00",
-  "priority": "medium"
-}

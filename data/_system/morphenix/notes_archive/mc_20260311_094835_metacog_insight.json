@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260311_094835_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: **REVISE**\n\n時間序列混亂。使用者剛報告「連結無法打開」，你的回覆說「成功了，現在能打開」——但沒說明自己實際做了什麼修復動作。應該改成：(1)確認診斷（`.nojekyll` 確實缺失了嗎？Gist 是設計還是 bug？），(2)執行修復，(3)驗證後再報告成功。目前讀起來像是跳過了中間步驟，直接宣佈完成。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-11T09:48:35.957447+08:00",
-  "priority": "medium"
-}

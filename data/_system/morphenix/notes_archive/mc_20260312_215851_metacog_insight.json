@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260312_215851_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n這段回覆**沒有回答 Feng 的真正需求**。Feng 問的是「看完檔案有什麼意見？」，但你回的是「Bot 要重啟」。先確認 Bot 是否真的無法存取檔案，如果無法就直接給替代方案（「建議在對話視窗直接傳我檔案」），不要讓使用者在重啟後才發現問題還沒解決。如果可以存取，則立即提供檔案評估。\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-12T21:58:51.153620+08:00",
-  "priority": "medium"
-}

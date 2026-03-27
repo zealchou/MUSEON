@@ -1,9 +1,0 @@
-use_default_settings: true
-server:
-  secret_key: "museclaw-searxng-secret"
-  limiter: false
-search:
-  safe_search: 0
-  formats:
-    - html
-    - json

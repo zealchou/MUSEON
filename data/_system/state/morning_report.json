@@ -1,28 +1,28 @@
 {
-  "generated_at": "2026-03-25T03:03:58.320824+08:00",
+  "generated_at": "2026-03-27T03:04:29.448155+08:00",
   "layer1_summary": {
-    "verdict": "昨夜整合全部完成 (48/48 步驟通過)",
-    "elapsed_seconds": 238.23,
-    "one_liner": "昨夜整合全部完成 (48/48 步驟通過)，耗時 238 秒。"
+    "verdict": "昨夜整合全部完成 (51/51 步驟通過)",
+    "elapsed_seconds": 269.35,
+    "one_liner": "昨夜整合全部完成 (51/51 步驟通過)，耗時 269 秒。"
   },
   "layer2_details": {
     "highlights": [
       "  ✅ step_01_asset_decay: {'decayed': 0}",
       "  ✅ step_02_archive_assets: {'archived': 0, 'shared_archived': 0}",
       "  ✅ step_05_wee_fuse: {'fused': False, 'reason': 'insufficient_crystals', 'crystal_count': 0}",
-      "  ✅ step_05_6_knowledge_lattice: {'total_crystals': 0, 'archived': [], 'recrystallized': 0, 'ri_updated': 1212}",
-      "  ✅ step_05_9_morphenix_gate: {'auto_approved': 2, 'needs_human': 0, 'executed': 1, 'l3_proposals': []}",
+      "  ✅ step_05_6_knowledge_lattice: {'total_crystals': 0, 'archived': [], 'recrystallized': 0, 'ri_updated': 1325}",
+      "  ✅ step_05_9_morphenix_gate: {'auto_approved': 3, 'needs_human': 0, 'executed': 1, 'l3_proposals': []}",
+      "  ✅ step_08_7_sparse_idf_rebuild: {'sparse_idf': {'vocab_size': 2320, 'backfill': {'memories': 289, 'skills': 55, ",
       "  ✅ step_13_8_digest_lifecycle: {'promoted': [], 'archived': [], 'ttl_expired': [], 'active_count': 0}",
-      "  ✅ step_20_synapse_decay: {'decayed_synapses': {'decayed': 477, 'pruned': 0}, 'top_connections': [{'skill_",
-      "  ✅ step_21_muscle_atrophy: {'atrophied_tools': {'atrophied': 52, 'pruned': 0}, 'dormant_count': 0, 'dormant",
-      "  ✅ step_22_immune_prune: {'pruned_weak_rules': 0, 'total_memories': 0, 'active_defenses': 0, 'avg_confide",
-      "  ✅ step_25_periodic_cycle_check: {'checked_at': '2026-03-25T03:03:44.861609+08:00', 'weekly_cycle': {'executed': "
+      "  ✅ step_20_synapse_decay: {'decayed_synapses': {'decayed': 93, 'pruned': 0}, 'top_connections': [{'skill_a",
+      "  ✅ step_21_muscle_atrophy: {'atrophied_tools': {'atrophied': 19, 'pruned': 0}, 'dormant_count': 0, 'dormant",
+      "  ✅ step_22_immune_prune: {'pruned_weak_rules': 0, 'total_memories': 0, 'active_defenses': 0, 'avg_confide"
     ],
     "warnings": [],
     "step_count": {
-      "ok": 48,
+      "ok": 51,
       "error": 0,
-      "total": 48
+      "total": 51
     }
   },
   "layer3_decisions": {

@@ -386,9 +386,9 @@
       }
     },
     "2026-03-27": {
-      "input_tokens": 588,
-      "output_tokens": 90240,
-      "total_tokens": 90828,
+      "input_tokens": 598,
+      "output_tokens": 91397,
+      "total_tokens": 91995,
       "models": {
         "opus": {
           "input": 6,
@@ -401,18 +401,18 @@
           "calls": 7
         },
         "haiku": {
-          "input": 559,
-          "output": 60770,
-          "calls": 42
+          "input": 569,
+          "output": 61927,
+          "calls": 43
         }
       }
     }
   },
   "monthly_totals": {
-    "input_tokens": 4840327,
-    "output_tokens": 7357070,
-    "total_tokens": 12197397,
-    "estimated_cost_usd": 138.9399,
+    "input_tokens": 4840337,
+    "output_tokens": 7358227,
+    "total_tokens": 12198564,
+    "estimated_cost_usd": 138.9445,
     "models": {
       "opus": {
         "input": 134989,
@@ -425,9 +425,9 @@
         "calls": 570
       },
       "haiku": {
-        "input": 1739283,
-        "output": 4799296,
-        "calls": 3909
+        "input": 1739293,
+        "output": 4800453,
+        "calls": 3910
       }
     }
   }
