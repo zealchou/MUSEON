@@ -12,13 +12,25 @@
         ]
       }
     ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 scripts/hooks/post_edit_tracker.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "python3 scripts/hooks/stop_checklist.py",
-            "timeout": 10
+            "command": "python3 scripts/hooks/stop_review_pass.py",
+            "timeout": 15
           }
         ]
       }
