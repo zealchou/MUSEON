@@ -86,6 +86,10 @@ class ToolWhitelist:
             "surgery_propose",      # 生成修復提案
             "surgery_apply",        # 執行手術
             "surgery_rollback",     # 回滾
+            # v2 L3 任務執行
+            "trigger_job",          # 觸發 cron job
+            "memory_search",        # 記憶搜尋
+            "spawn_perspectives",   # 圓桌討論
         }
 
         # Tools explicitly blocked
@@ -348,6 +352,12 @@ class ToolExecutor:
             return await self._execute_surgery_apply(arguments)
         elif tool_name == "surgery_rollback":
             return await self._execute_surgery_rollback(arguments)
+        elif tool_name == "trigger_job":
+            return await self._execute_trigger_job(arguments)
+        elif tool_name == "memory_search":
+            return await self._execute_memory_search(arguments)
+        elif tool_name == "spawn_perspectives":
+            return await self._execute_spawn_perspectives(arguments)
         elif tool_name in ("mcp_list_servers", "mcp_call_tool", "mcp_add_server"):
             return await self._execute_mcp_tool(tool_name, arguments)
         # v10.2: 動態 MCP 工具路由（mcp__{server}__{tool} 格式）
@@ -2026,5 +2036,164 @@ class ToolExecutor:
             "result": {
                 "git_tag": git_tag,
                 "rollback_success": success,
+            },
+        }
+
+    # ═══════════════════════════════════════
+    # L3 任務執行：trigger_job
+    # ═══════════════════════════════════════
+
+    async def _execute_trigger_job(
+        self, arguments: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """觸發已註冊的 cron job 立即執行。
+
+        透過 Gateway 的 APScheduler 取得 job 並執行。
+        這是 L3 執行層——L2 判斷需要做什麼，L3 去做。
+        """
+        job_id = arguments.get("job_id", "")
+        if not job_id:
+            return {"success": False, "error": "缺少 job_id 參數"}
+
+        try:
+            from museon.gateway.server import cron_engine
+            if not cron_engine:
+                return {"success": False, "error": "CronEngine 不可用"}
+
+            # 查找 job
+            job = cron_engine.get_job(job_id)
+            if not job:
+                # 列出可用 jobs 幫助使用者
+                all_jobs = cron_engine.get_jobs()
+                available = [j.id for j in all_jobs]
+                return {
+                    "success": False,
+                    "error": f"找不到 job '{job_id}'",
+                    "available_jobs": available[:20],
+                }
+
+            # 立即執行
+            job.modify(next_run_time=__import__("datetime").datetime.now())
+            logger.info(f"[L3 trigger_job] triggered: {job_id}")
+
+            return {
+                "success": True,
+                "result": {
+                    "job_id": job_id,
+                    "status": "triggered",
+                    "message": f"任務 '{job_id}' 已觸發執行",
+                },
+            }
+
+        except Exception as e:
+            logger.error(f"[L3 trigger_job] failed: {e}")
+            return {"success": False, "error": str(e)}
+
+    # ═══════════════════════════════════════
+    # L2 記憶搜尋：memory_search
+    # ═══════════════════════════════════════
+
+    async def _execute_memory_search(
+        self, arguments: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """搜尋 MUSEON 記憶系統。"""
+        query = arguments.get("query", "")
+        if not query:
+            return {"success": False, "error": "缺少 query 參數"}
+
+        scope = arguments.get("scope", "all")
+        limit = min(arguments.get("limit", 5), 20)
+
+        try:
+            from museon.memory.memory_manager import MemoryManager
+            data_dir = Path(self._workspace_dir).parent
+            mm = MemoryManager(str(data_dir / "memory_v3"))
+
+            # 根據 scope 決定搜尋層級
+            if scope == "recent":
+                layers = ["L0_buffer", "L1_short"]
+            elif scope == "important":
+                layers = ["L2_sem", "L3_procedural", "L4_identity"]
+            else:
+                layers = None  # 搜尋所有層級
+
+            results = mm.recall(user_id="boss", query=query, layers=layers, limit=limit)
+
+            return {
+                "success": True,
+                "result": {
+                    "query": query,
+                    "scope": scope,
+                    "count": len(results) if results else 0,
+                    "memories": results or [],
+                },
+            }
+        except Exception as e:
+            logger.error(f"[memory_search] failed: {e}")
+            return {"success": False, "error": str(e)}
+
+    # ═══════════════════════════════════════
+    # L2 圓桌討論：spawn_perspectives
+    # ═══════════════════════════════════════
+
+    async def _execute_spawn_perspectives(
+        self, arguments: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """平行 spawn 多個 Sonnet 做圓桌討論。"""
+        import asyncio
+
+        topic = arguments.get("topic", "")
+        perspectives = arguments.get("perspectives", [])
+        context = arguments.get("context", "")
+
+        if not topic or not perspectives:
+            return {"success": False, "error": "需要 topic 和 perspectives"}
+
+        if not self._brain or not hasattr(self._brain, "_llm_adapter"):
+            return {"success": False, "error": "LLM adapter 不可用"}
+
+        llm_adapter = self._brain._llm_adapter
+
+        async def _run_one(role: str, instruction: str) -> Dict:
+            prompt = (
+                f"你是「{role}」。\n"
+                f"議題：{topic}\n"
+                f"{'背景：' + context if context else ''}\n"
+                f"指引：{instruction}\n\n"
+                f"請從你的角色出發，提供 200-500 字的分析。"
+                f"必須包含：核心觀點、支持論據、風險/盲點、建議行動。"
+                f"用繁體中文回覆。"
+            )
+            try:
+                resp = await llm_adapter.call(
+                    system_prompt="你是多角度分析系統的觀點代理。用繁體中文回覆。",
+                    messages=[{"role": "user", "content": prompt}],
+                    model="sonnet",
+                    max_tokens=2048,
+                )
+                return {"role": role, "analysis": resp.text if resp else "（分析失敗）"}
+            except Exception as e:
+                return {"role": role, "analysis": f"（錯誤：{e}）"}
+
+        # 並行執行（最多 4 個）
+        tasks = [
+            _run_one(p["role"], p["instruction"])
+            for p in perspectives[:4]
+        ]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        analyses = []
+        for r in results:
+            if isinstance(r, Exception):
+                analyses.append({"role": "error", "analysis": str(r)})
+            else:
+                analyses.append(r)
+
+        return {
+            "success": True,
+            "result": {
+                "topic": topic,
+                "perspective_count": len(analyses),
+                "analyses": analyses,
             },
         }
