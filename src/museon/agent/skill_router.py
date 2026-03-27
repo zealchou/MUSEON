@@ -371,6 +371,7 @@ class SkillRouter:
         routing_signal: Any = None,
         skill_usage: Optional[Dict[str, int]] = None,
         user_primals: Optional[Dict[str, int]] = None,
+        signal_cache: Optional[Dict[str, Any]] = None,
     ) -> List[Dict[str, Any]]:
         """v10.5 四層疊加匹配 — RC 驅動 + 關鍵字 + 向量 + 八原語 + MoE 衰減.
 
@@ -561,6 +562,14 @@ class SkillRouter:
                     pass
 
             combined = rc_s * _rc_weight + kw_score + v_score * 1.5 + primal_score * 2.0
+
+            # ── ★ Layer 5: Signal Cache 訊號加權（×3.0）──
+            if signal_cache:
+                _suggested = signal_cache.get("suggested_skills", [])
+                for _skill_name in _suggested:
+                    if _skill_name == skill_name:
+                        combined += 3.0
+                        logger.debug(f"[SkillRouter] Signal boost: {skill_name} +3.0")
 
             # /command 匹配的絕對優先（不受 usage decay 影響）
             is_command_match = kw_score >= 10.0

@@ -125,6 +125,16 @@ class BrainPromptBuilderMixin:
         core_fitted = budget.fit_text_to_zone("core_system", core_text)
         sections.append(core_fitted)
 
+        # ★ 訊號感應系統（Phase 0.5）— 從 signal_cache 讀取使用者狀態
+        try:
+            _signal_context = self._build_signal_context(session_id, user_query)
+            if _signal_context:
+                _signal_fitted = budget.fit_text_to_zone("buffer", _signal_context)
+                if _signal_fitted:
+                    sections.append(_signal_fitted)
+        except Exception as _e:
+            logger.debug(f"Signal sensing skipped: {_e}")
+
         # ── Zone: buffer — 安全感知（優先於其他動態內容）──
         if safety_context:
             safety_fitted = budget.fit_text_to_zone("buffer", safety_context)
@@ -424,6 +434,111 @@ class BrainPromptBuilderMixin:
             )
 
         return "\n\n---\n\n".join(sections)
+
+    def _build_signal_context(self, session_id: str, content: str) -> str:
+        """組建訊號感應上下文（~100-150 tokens）."""
+        import json as _json
+        from datetime import datetime, timezone, timedelta
+        from museon.pulse.signal_keywords import quick_signal_scan
+        from museon.agent.signal_skill_map import SIGNAL_DESCRIPTIONS, get_suggested_skills
+
+        TZ8 = timezone(timedelta(hours=8))
+
+        # 1. 讀取 signal_cache（L4 上一輪的分析）
+        cache_dir = getattr(self, "data_dir", None)
+        if not cache_dir:
+            return ""
+
+        signal_file = (
+            Path(cache_dir)
+            / "_system"
+            / "context_cache"
+            / f"{session_id}_signals.json"
+        )
+        cached_signals: Dict[str, Any] = {}
+        trajectory = ""
+        if signal_file.exists():
+            try:
+                data = _json.loads(signal_file.read_text(encoding="utf-8"))
+                raw_signals = data.get("signals", {})
+                trajectory = data.get("trajectory", "")
+
+                # 應用衰減
+                now = datetime.now(TZ8)
+                decay_rate = data.get("decay_per_day", 0.1)
+                for sig_name, sig_info in raw_signals.items():
+                    if isinstance(sig_info, dict):
+                        last_seen = sig_info.get("last_seen", "")
+                        strength = sig_info.get("strength", 0)
+                        if last_seen:
+                            try:
+                                ls_dt = datetime.fromisoformat(last_seen)
+                                if ls_dt.tzinfo is None:
+                                    ls_dt = ls_dt.replace(tzinfo=TZ8)
+                                elapsed_days = (
+                                    (now - ls_dt).total_seconds() / 86400
+                                )
+                                strength = max(
+                                    0, strength - elapsed_days * decay_rate,
+                                )
+                            except Exception:
+                                pass
+                        if strength >= 0.2:
+                            cached_signals[sig_name] = {
+                                "strength": strength,
+                                "evidence": sig_info.get("evidence", ""),
+                            }
+            except Exception:
+                pass
+
+        # 2. L1 keyword 快篩（當下這一輪的即時補充）
+        instant_signals = quick_signal_scan(content)
+
+        # 3. 合併（取較高的 strength）
+        merged: Dict[str, Any] = dict(cached_signals)
+        for sig, score in instant_signals.items():
+            if sig not in merged or score > merged[sig].get("strength", 0):
+                merged[sig] = {"strength": score, "evidence": content[:50]}
+
+        if not merged:
+            return ""
+
+        # 4. 生成 suggested_skills
+        suggested = get_suggested_skills(merged, top_n=3)
+
+        # 5. 組建上下文文字
+        signal_lines = []
+        for sig_name, info in sorted(
+            merged.items(), key=lambda x: x[1]["strength"], reverse=True,
+        ):
+            desc = SIGNAL_DESCRIPTIONS.get(sig_name, sig_name)
+            strength = info["strength"]
+            signal_lines.append(f"- {desc} ({strength:.0%})")
+
+        skill_names = ", ".join(suggested) if suggested else "無特定建議"
+
+        # 行為取向
+        top_signal = max(merged, key=lambda k: merged[k]["strength"])
+        behavior = {
+            "decision_anxiety": "幫他收斂到 2-3 個可行方案，不要給太多選項",
+            "stuck_point": "先理解卡在哪，用跨域視角找出路，提供最小下一步",
+            "emotional_intensity": "先接住情緒，不急著給方案，確認他準備好再分析",
+            "relationship_dynamic": "辨識動態關係，提供客觀視角，不站隊",
+            "market_business": "用數據和案例佐證，直接給可行方案",
+            "growth_seeking": "連結到具體可練習的方法，不講空話",
+            "planning_mode": "結構化思考，從終點逆推，拆解成可執行步驟",
+        }.get(top_signal, "根據情況靈活應對")
+
+        result = (
+            "【使用者狀態感應】\n"
+            "活躍訊號：\n"
+            f"{chr(10).join(signal_lines)}\n"
+            f"{'思考軌跡：' + trajectory + chr(10) if trajectory else ''}"
+            f"建議能力：{skill_names}\n"
+            f"行為取向：{behavior}"
+        )
+
+        return result.strip()
 
     @staticmethod
     def _format_crystals_full(crystals: list) -> str:
