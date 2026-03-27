@@ -199,7 +199,7 @@ class GroupDigestService:
                 model="claude-haiku-4-5-20251001",
                 max_tokens=400,
             )
-            text = response if isinstance(response, str) else getattr(response, "content", str(response))
+            text = response if isinstance(response, str) else getattr(response, "text", None) or getattr(response, "content", None) or str(response)
             return text.strip()
         except Exception as e:
             logger.warning(f"[GroupDigest] LLM summary failed for {group_id}: {e}")
