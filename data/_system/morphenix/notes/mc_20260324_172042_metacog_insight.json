@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260324_172042_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n建議補充三項可交付物：(1) 旅行社報告範本（`[reference_travel_agency_report_template.md]`）作為具體參照，(2) 品質檢查清單（連結 `docs/REPORT_PUBLISHING_CHECKLIST.md`），(3) Skill Manifest 範本骨架。提議從「散戶版」開始，沿用旅行社的七層結構迭代。最後再問卡點。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-24T17:20:42.034811+08:00",
-  "priority": "medium"
-}

@@ -65,6 +65,14 @@
 | knowledge-lattice | 領域專長維度 | 結晶累積跨越閾值時 |
 | persona-router (baihe) | 領主畫像 + 進諫策略 | 百合引擎路由完成時 |
 | decision-tracker | 決策偏好 + 風險容忍度 | 決策記錄完成時（P1-1 新增） |
+| human-design-blueprint | 人類圖類型 + 策略 + 內在權威 + 人生角色 | 人類圖解讀完成時 |
+
+### 🔵 ESG 分析結晶 → knowledge-lattice
+
+| 來源 Skill | 洞見類型 | 寫入條件 | 結晶類型 |
+|-----------|---------|---------|---------|
+| esg-architect-pro | 重大性評估結論 + 碳費影響量化 + 漂綠偵測結果 | 報告產出時 | esg_crystal |
+| meeting-intelligence | 決議 + 博弈模式 + 承諾漂移 + 人格動態 | 會議分析完成時 | meeting_crystal |
 
 ### 🟡 工作流記憶 → wee
 

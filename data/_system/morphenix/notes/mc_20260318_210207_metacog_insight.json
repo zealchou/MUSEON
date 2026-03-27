@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260318_210207_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：\n1. **先答技術問題** — Feng 問 SDK 拿掉後能否無限運行、Server 能否多 License — 這些需要直接回答，不是定價問題\n2. **確認成本假設** — Claude 月費 3,200 是粗估，實際用量會變動；運營成本 3,000 沒有報表支持\n3. **去掉消沉措辭** — 「虧本邊緣」「薄利」會打擊信心，改成「方案 C 是可行的」\n4. *",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-18T21:02:07.857221+08:00",
-  "priority": "medium"
-}

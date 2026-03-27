@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260324_170037_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n回覆先問店型再給清單，但使用者原本就是問「清單」。改進方向：(1) 先給「任何店都需要」的通用核心清單作為立刻可用的交付物 (2) 再補充「按店型的規格差異」 (3) 才問細化問題。這樣使用者能立刻看到他要的東西，而非被轉向選擇。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-24T17:00:37.864725+08:00",
-  "priority": "medium"
-}

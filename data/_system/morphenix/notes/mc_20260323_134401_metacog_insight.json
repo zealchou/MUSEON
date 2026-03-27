@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260323_134401_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：你該主動查 session history、最近對話、`morphenix/notes/` 找出最近關注的主題，直接開跑而不卡著等確認。如果上下文真的找不到主題再問。**核心：用戶要的是完成的事，不是確認清單**。\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-23T13:44:01.367460+08:00",
-  "priority": "medium"
-}

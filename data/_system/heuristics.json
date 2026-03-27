@@ -1,0 +1,16 @@
+[
+  {
+    "id": "h-trust-llm",
+    "pattern": "writing python regex/rules to classify messages",
+    "action": "stop — ask if Claude can judge this itself via tool_use",
+    "source": "session_20260326",
+    "weight": 2.0
+  },
+  {
+    "id": "h-think-first",
+    "pattern": "rushing to patch a specific classification failure",
+    "action": "step back — is the classification layer itself the problem?",
+    "source": "session_20260326",
+    "weight": 2.0
+  }
+]

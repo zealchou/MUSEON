@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260327_163830_metacog_insight",
+  "category": "metacog_insight",
+  "content": "無。\n\n---\n\n**承認問題**：你說對了。上一輪說「加好了」但沒驗證實際狀態是嚴重錯誤。我現在需要：\n\n1. 讀 `.mcp.json` 查實際配置\n2. 確認 Playwright / Fetch 真正需要的設定方式\n3. 修復後驗證 ✅\n\n給我 2 分鐘，我先把現況搞清楚。",
+  "source": "L4_observer",
+  "created_at": "2026-03-27T16:38:30.716638+08:00",
+  "priority": "medium"
+}

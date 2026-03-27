@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260309_180211_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n最後一段從「要不要先...設計出來？」改成更主動的推進：「建議優先落地『聯絡人自動萃取 + 晨報摘要』MVP，這是五條商品線的共同底層。我可以馬上開始設計萃取邏輯和資料層 schema。」\n\n理由：使用者的語氣（「在不耐煩什麼」）顯示他期待行動而非協商。回覆內容技術細節已夠，但最後改成「我們該怎麼做」而非「你要不要做」會更符合期待。\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-09T18:02:11.457422+08:00",
-  "priority": "medium"
-}

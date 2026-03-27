@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260309_075510_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: **REVISE**\n\n改進方向：\n使用者指出「沒看到結果」是在要求**具體的可見產出**（診斷結果、命令輸出等），而你的回覆只是在解釋「為什麼還沒做」。應改為：\n\n1. **立刻執行**承諾的診斷命令（例如 system_audit），**直接貼上結果**給使用者看\n2. 或坦白：「上次我沒實際執行這些，現在補執行」+ 立即給結果\n3. 避免「讓我等...然後告訴你」這類只許諾、沒產出的說法",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-09T07:55:10.638120+08:00",
-  "priority": "medium"
-}

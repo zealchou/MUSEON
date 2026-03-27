@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260311_211829_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n使用者要求「起草一份設計規範給我參考」，但回覆說「規範檔案已存好」卻沒有實際產出。應該直接執行：① DSE 分析知名品牌規範（Apple/Stripe/Figma）② 根據 MUSEON 定位起草完整規範③ 輸出可用檔案（Markdown/HTML）給使用者。現在需要真正動手做，不是驗證假設已做。\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-11T21:18:29.295734+08:00",
-  "priority": "medium"
-}

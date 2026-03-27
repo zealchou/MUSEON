@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260318_173147_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n開頭有事實錯誤：「檔案好像還沒存進來」但 Feng 在 08:31 確實上傳了 `muc_agent.py` 和 `requirements.txt`。應該改為「我沒看到檔案內容，能確認一下狀態或重新上傳嗎？」其他部分（三方案對比、決策樹、追問）邏輯清晰，可保持。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-18T17:31:47.587471+08:00",
-  "priority": "medium"
-}

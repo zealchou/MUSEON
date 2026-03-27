@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260325_132629_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n根據 CLAUDE.md L1 設計，成功訊息發送不需向 Zeal 報告。L1 應靜默分派、只在失敗時通知。L2 成功傳送後，L1 應直接準備下一則訊息，無需狀態確認。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-25T13:26:29.560658+08:00",
-  "priority": "medium"
-}

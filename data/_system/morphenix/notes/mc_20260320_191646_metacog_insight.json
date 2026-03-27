@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260320_191646_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\nZeal 明確要求「整理成待辦清單」和「定時提醒」，回覆只確認了理解，沒有產出清單格式、提醒機制或存檔關鍵字。建議補充：(1) 待辦清單（項目+優先級+截止日）；(2) 定時提醒的具體設定方式；(3) 存檔的命名規則（如 `interior_ai_20260320` 或 `feng_case_ref`）；確認這些後再開始執行。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-20T19:16:46.403222+08:00",
-  "priority": "medium"
-}

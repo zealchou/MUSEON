@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260310_233651_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：直接產出進度摘要（今天修改的核心模組、數據更新、迭代方向），而不是先要求確認。使用者說「分享一下」是要進度報告，不是要求決策協助。把「今天改了什麼」列出來（3-5 點），再補充「要不要詳細審計？」更符合對話流。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-10T23:36:51.037846+08:00",
-  "priority": "medium"
-}

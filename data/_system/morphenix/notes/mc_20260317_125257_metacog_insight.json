@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260317_125257_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n先澄清使用者意圖：這是在報告生產環境 bug，還是測試訊息去重機制，還是其他情境？原因可能涉及系統層（去重邏輯失效）、網路層（重複發送）、客戶端或上游 MCP 工具。確認場景後再深入診斷。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-17T12:52:57.956388+08:00",
-  "priority": "medium"
-}

@@ -1,0 +1,45 @@
+{
+  "lord_id": "zeal",
+  "updated_at": "2026-03-26T14:43:43.462216",
+  "strengths": [
+    {
+      "domain": "business_strategy",
+      "level": "expert",
+      "confidence": 0.92
+    },
+    {
+      "domain": "consultant_sales",
+      "level": "expert",
+      "confidence": 0.88
+    },
+    {
+      "domain": "ai_architecture",
+      "level": "advanced",
+      "confidence": 0.78
+    },
+    {
+      "domain": "brand_design",
+      "level": "intermediate",
+      "confidence": 0.72
+    }
+  ],
+  "weaknesses": [
+    {
+      "domain": "programming",
+      "level": "beginner",
+      "confidence": 0.95
+    },
+    {
+      "domain": "emotional_regulation",
+      "level": "developing",
+      "confidence": 0.6
+    }
+  ],
+  "developing": [
+    {
+      "domain": "creative_performance",
+      "level": "beginner",
+      "confidence": 0
+    }
+  ]
+}

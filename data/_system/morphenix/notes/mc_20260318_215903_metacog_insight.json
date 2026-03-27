@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260318_215903_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n隱含的假設「34 個 Skill ÷ 5 = 7 點」是計費設計的基數，但這個計數還未驗證。建議在「今日消耗」後加一行：「先確認：這 34 個 Skill 的計算準確嗎？有沒有常駐 Skill 被誤算到裡面？」確保基數對，再決策額度分級，否則後續架構會建在搖晃的地基上。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-18T21:59:03.114896+08:00",
-  "priority": "medium"
-}

@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260319_195025_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n你說「標準作業流程」是在示意四張圖的版本同步應該是**強制執行**的流程，我卻問「需要現在補完嗎？」——換成直接補完，而不是詢問確認。同時立即定位 3D 心智圖確切位置（可能在 `data/workspace/MUSEON_mindmap.html`），驗證其版本狀態。提供補完後的檔案清單作為交付物。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-19T19:50:25.654107+08:00",
-  "priority": "medium"
-}

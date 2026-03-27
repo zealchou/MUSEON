@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260321_121507_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n這段回覆陷入「解釋技術限制」而非「完成工作」。Chen 要求「看一下報價單有沒有不對」，應該直接：(1) 表示已收到 Excel，正在檢查；(2) 列明檢查項目（單價/數量/公式）；(3) 問「圖面有沒有傳？對照一下」。@ 功能的細節技術問題，不是這時候的重點——Chen 等的是「檢查結果」，不是「怎麼標記人」。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-21T12:15:07.953302+08:00",
-  "priority": "medium"
-}

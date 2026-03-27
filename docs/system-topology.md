@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.55
+# MUSEON 系統拓撲圖 v1.56
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.56 (2026-03-27)**：Skills 新增——creative 群組新增 `human-design-blueprint`（人類圖靈魂藍圖分析引擎）1 個節點；plugin-registry 新增條目；memory-router 新增 user-model 路由（解讀結果→使用者畫像）。
 > **v1.55 (2026-03-27)**：MCP 工具擴充——external 群組新增 `playwright-mcp`（瀏覽器自動化）、`fetch-mcp`（網頁讀取）2 個節點 + 2 條 cross 連線（mcp-server→playwright-mcp、mcp-server→fetch-mcp）；`.mcp.json` 新增 Playwright + Fetch 伺服器設定。同步 blast-radius v1.72。
 > **v1.54 (2026-03-27)**：有機體進化計畫 Phase 1-9——新增 6 個節點（proactive-dispatcher、memory-graph、insight-extractor、strategy-accumulator、shared-board、skill-counter）；新增 learning 群組；pulse 群組 proactive-dispatcher 統一攔截推播；Nightly 精簡移除 3 個步驟（7.5/10.5/11）；五虎將共享看板協調機制；cron 直接推送全部納管 ProactiveDispatcher。
 > **v1.53 (2026-03-26)**：v2 Brain 四層架構 + 死碼清理——agent 群組新增 `brain-deep`（L2 Opus 引擎）、`brain-tool-loop`（獨立 tool-use 迴圈）、`brain-observer`（L4 觀察者）3 個節點 + 5 條連線；`brain-fast` 升級為 L1 Sonnet + escalation 機制；移除 federation 群組（skill-market + federation-sync 2 個節點）+ installer 群組（4 個子節點 + 1 個 Hub 節點）；nightly 新增 Step 31 context_cache。
@@ -375,6 +376,13 @@ external-user（EXTERNAL）
 | `novel-craft` | Novel-Craft | 小說工藝引擎 | - | skills-creative-hub | 1.2 |
 | `aesthetic-sense` | Aesthetic-Sense | 美感引擎 | - | skills-creative-hub | 1.2 |
 | `brand-identity` | Brand-Identity | 品牌識別引擎 | - | skills-creative-hub | 1.2 |
+| `human-design-blueprint` | HD-Blueprint | 人類圖靈魂藍圖 | - | skills-creative-hub | 1.2 |
+
+#### skills-business — 商業類（補充）
+| ID | 名稱 | 中文 | Hub | Parent | 半徑 |
+|----|------|------|-----|--------|------|
+| `esg-architect-pro` | ESG-Architect-Pro | ESG 永續報告鍛造 | - | skills-business-hub | 1.2 |
+| `meeting-intelligence` | Meeting-Intel | 會議情報分析 | - | skills-business-hub | 1.2 |
 
 #### skills-product — 產品類
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |

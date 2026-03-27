@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260309_090517_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: **REVISE**\n\n修改方向（≤150 字）：\n\n目前回覆過度防守。考慮這是使用者自己的專案，應提供更高透明度：\n\n1. **先澄清意圖**：想看「Claude 全局 system prompt」還是「MUSEON 的工作邏輯」？\n2. **分層說明**：\n   - 你的 `CLAUDE.md` 我已讀取遵行\n   - 全局 system prompt 涉及 Claude 核心規則（部分可解釋",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-09T09:05:17.720446+08:00",
-  "priority": "medium"
-}

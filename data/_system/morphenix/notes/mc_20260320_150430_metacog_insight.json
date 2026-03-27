@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260320_150430_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n這段回覆報告了 P3 的實作「完成」，但缺少三樣重點：\n1. **驗證**：測試通過沒？有沒有跑 pytest 驗證功能？\n2. **交付物**：能展示關鍵代碼片段或測試截圖嗎？\n3. **下一步**：打包通過了嗎？用戶要不要部署/上線測試？\n\n建議補上「施工後驗收檢查單」（參照 CLAUDE.md 的四張藍圖同步 + 審計 + 打包 + pytest），並給出可驗證的交付標誌。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-20T15:04:30.819806+08:00",
-  "priority": "medium"
-}

@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260316_203346_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：用戶明確要求「給我看」，但回覆只拒絕 + 提供替代方案。應該先主動詢問使用者的真正關切點（為什麼要看？想驗證什麼？），再用白話解釋相關邏輯。把「不輸出，這是底線」的冷淡語氣改成「樂意解釋，想了解什麼？」的積極邀請。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-16T20:33:46.972817+08:00",
-  "priority": "medium"
-}

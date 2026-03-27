@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260316_203117_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n使用者明確要求「分析市場+出策略」，現有回覆完成了分析但把**計畫產出後置**到「回答四題之後」。建議：保留現有分析內容，直接**產出一份初步 6 個月損益框架樣表**（假設一個默認組合，如社區深耕路線），讓使用者有形可用，再問四題以精細化完整版本。偏好行動，不要只給建議。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-16T20:31:17.451525+08:00",
-  "priority": "medium"
-}

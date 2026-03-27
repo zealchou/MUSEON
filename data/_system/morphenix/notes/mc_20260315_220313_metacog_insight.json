@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260315_220313_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE。回覆框架很好，但要求使用者補充資訊才能繼續（違反 a），沒有立即可交付物。建議改為：保留三方案表格 + 主動提一個預設判斷（例如「如果無其他資訊，我建議調後面那場，因為……」），或問一個快速決策問：「兩場會哪個對你的 OKR 更關鍵？」，讓回覆可以直接進到產出通知稿的階段。\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-15T22:03:13.016672+08:00",
-  "priority": "medium"
-}

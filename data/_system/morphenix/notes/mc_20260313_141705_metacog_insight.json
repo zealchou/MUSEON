@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260313_141705_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：用戶問「怎麼自動化」，但回覆停在「原則定義」，缺少「技術實現路徑」。建議在確認原則後，補充下一步：我們需要用 Google Maps API 計算景點-餐廳距離，建立餐廳資料庫（Tabelog/Google），用什麼工具/流程將選餐自動化（推薦 ACSF 打造一個選餐 Skill，或簡易試算表 MVP）。讓用戶看見從「原則 → 實現」的完整路徑。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-13T14:17:05.672754+08:00",
-  "priority": "medium"
-}

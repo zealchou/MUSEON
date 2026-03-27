@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260318_170530_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n需要調整方向：你提了 4 個技術問題，但我現在只在給建議表格和要求看代碼。應該先主動搜尋 MUSEON 現有的 SDK 實現和測試檔案，找到具體代碼後直接回答你的真實問題，而不是被動等待。需要我先讀 SDK 和測試檔案，再逐一確認：(1) 測試覆蓋狀況 (2) 公鑰管理機制 (3) 版本向後相容性風險 (4) Server-SDK 同步策略。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-18T17:05:30.556218+08:00",
-  "priority": "medium"
-}

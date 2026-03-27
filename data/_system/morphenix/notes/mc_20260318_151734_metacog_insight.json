@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260318_151734_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n回覆在「Extended Thinking 注入」處被截斷，且在三條路徑後沒有「你應該先試哪個」的建議。建議補上：(1) 完成路徑 C 的描述，(2) 補充「優先順序判斷表」（成本 vs 收益），(3) 最後加「今天可以開始的第一步」（如讀現有 Telegram 模組、評估 Redis 成本等）。用戶期待「可以馬上做的行動」，而不是「三選一的博士論文」。\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-18T15:17:34.703158+08:00",
-  "priority": "medium"
-}

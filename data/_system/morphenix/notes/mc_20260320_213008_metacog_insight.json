@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260320_213008_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：先確認使用者的真實意圖，而非直接假設「持續出現」「要加去重邏輯」。建議改為：(1) 這是無意手誤或故意測試？(2) 在群組中反覆出現還是一次性？根據回答再判斷需不需要加去重邏輯。不要讓使用者被動回答「要不要」，要主動理解情況。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-20T21:30:08.423931+08:00",
-  "priority": "medium"
-}

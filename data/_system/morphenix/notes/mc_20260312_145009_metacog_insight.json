@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260312_145009_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n不要說「我去查源碼」，改為立即從設計推理：「Layer3 的閉環需要『觀測→評估→調整』三環。沒有損失函數可用 X/Y/Z 替代。我馬上列出檢查清單，驗證你的實裝是否涵蓋，你決定要不要現在跑一遍。」這樣提供決策支持，而非延遲回答。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-12T14:50:09.865419+08:00",
-  "priority": "medium"
-}

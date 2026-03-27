@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260319_175903_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: **REVISE**\n\n不應該說「完成」 — 實際上缺少 GitHub 倉庫路徑與 Telegram 群組 ID，尚無法執行。應改為直接提問這兩個必需資訊，或檢查系統配置是否已有記錄，才能執行上傳和分享。避免誤導「已完成」。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-19T17:59:03.807321+08:00",
-  "priority": "medium"
-}

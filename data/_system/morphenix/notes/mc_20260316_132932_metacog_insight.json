@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260316_132932_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n「之前分析過」假設使用者曾對話記錄，但無法確認。建議移除此假設，改為直接給分析。\n\n更重要的是：不要把財務模型當「必答三題才交付」的條件。改為先給基礎財務模型（假設標準投資額、標準地點），讓使用者立刻可用；再提「如果你的背景/資金/地點不同，補充這三題我精準客製化」。\n\n這樣使用者今天就有可交付物，而非「先回答問卷」。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-16T13:29:32.443431+08:00",
-  "priority": "medium"
-}

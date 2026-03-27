@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260318_152254_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n使用者已明確狀態：「Repo clone 好、檔案複製、commit 建立——只差 push」。應該**直接推送**而非列出 3 個確認項。建議：①保留 token 安全提醒 ②刪除冗長確認清單 ③改成單一問題「完整路徑確認？」後立即執行 `git push` ④簡化步驟。偏好行動，不要卡在問題。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-18T15:22:54.465763+08:00",
-  "priority": "medium"
-}

@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260314_014952_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n移除推測性開場（「看你沒有新回應」暗示使用者在發呆），直接詢問當前優先級：「你現在想做什麼？想提交這些改動嗎，還是有其他待辦事項？」簡潔版建議改為：「你接著想做什麼？需要我幫忙嗎？」",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-14T01:49:52.836985+08:00",
-  "priority": "medium"
-}

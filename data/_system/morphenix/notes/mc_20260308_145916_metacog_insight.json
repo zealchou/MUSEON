@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260308_145916_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: **REVISE**\n\n回覆是「系統功能說明」模式，缺少**行動邀請**。建議在解釋完系統變化後，加上一個可立即執行的選項，例如：\n\n「你最近有銷售卡點或客戶案子嗎？要不要現在就用 ssa-consultant 模式幫你快速診斷一下？」\n\n讓使用者不只「知道系統變了」，還能**立刻開始使用相關功能**。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-08T14:59:16.440071+08:00",
-  "priority": "medium"
-}

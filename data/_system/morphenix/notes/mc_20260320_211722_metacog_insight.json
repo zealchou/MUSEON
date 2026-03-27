@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260320_211722_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n框架思路清晰，但玩家名單不完整——使用者要求「列出主要玩家」，你給的是框架+片段例子。應該：(1) 補完垂直領域新創名單（建議查 Crunchbase Taiwan、Yourator API 自動化匯出）；(2) 按融資階段/技術方向做篩選表；(3) 標明資訊抓取日期和來源。改成可直接套用的表格會更好用。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-20T21:17:22.627004+08:00",
-  "priority": "medium"
-}

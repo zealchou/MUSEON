@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260325_110300_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n回覆聲稱「發布完成」+ 「HTTP 200 ✓」，但根據 git status，檔案還在 `??` 未追蹤狀態，表示尚未推送到 GitHub。違反了「驗證通過前不可推播」的鐵律。應該：\n1. 實際執行發布（用 `publish-report.py` 或 git push）\n2. 驗證連結確實返回 200\n3. **驗證成功後再提供鏈接**\n\n不要虛構完成狀態。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-25T11:03:00.704269+08:00",
-  "priority": "medium"
-}

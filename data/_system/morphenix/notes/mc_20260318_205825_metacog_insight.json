@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260318_205825_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\nFeng 剛才問的是架構層面的先決問題（License 模式、SDK 依賴、1 設備多子體可行性），但回覆跳過直接回答，轉向功能清單。建議先澄清：(1) 20 座位如何對應 License/設備？(2) 拿掉 SDK 後子體獨立能力確認？(3) 1 設備能否跑多個子體？——確認這些後，再列功能會更踏實。現在會被讀成「架構議題被略過了」。\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-18T20:58:25.947960+08:00",
-  "priority": "medium"
-}

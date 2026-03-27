@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260318_112906_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n群組對話顯示他們要「開始測試」，但你的回覆是設計方案文檔。需要改為：①提供**測試就緒清單**（測試環境、Mock 伺服器、測試用例）；②代碼片段被截斷，需完成；③補充「先執行哪些步驟」讓他們立即可測。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-18T11:29:06.986880+08:00",
-  "priority": "medium"
-}

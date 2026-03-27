@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260319_162934_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n表很好，但最後只給建議沒產出。建議改為：(1) 補充「銷售難度 × 客戶願付價」維度，幫判斷真正容易成交的產業；(2) 完成被截斷的句子；(3) 直接給行動：「先選 3 個購買慾望最強的客戶做小規模 POC，用反饋迭代方案。」\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-19T16:29:34.820773+08:00",
-  "priority": "medium"
-}

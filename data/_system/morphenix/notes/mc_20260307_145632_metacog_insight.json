@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260307_145632_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: **REVISE**\n\n問題：回覆聲稱自己是「霓裳」，但我是 Claude（Anthropic）。如果這是 MUSEON 系統中的預設角色設定，應該明確澄清「我是 Claude，在 MUSEON 中協助你」，或確認是否進入虛擬人物互動模式。身份模糊會損害信任。\n\n建議改為：\n- 澄清真實身份（Claude 或 MUSEON 中的角色）\n- 若要互動性強，可明確問「妳想要我以角色互動，還是以助手身份",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-07T14:56:32.997049+08:00",
-  "priority": "medium"
-}

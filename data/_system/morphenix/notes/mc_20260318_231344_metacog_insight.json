@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260318_231344_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n使用者明確要求「傳進去 Feng 在的 group」（動作），但回覆只在要求資訊，沒有承諾執行。先判斷「Feng 在的 group」是否已知（查 ANIMA_MC.json 或対話歷史），如果已知→直接說「群組確認，我現在發」。如果不知→簡潔問「Feng 在哪個群組」，不要列舉三個澄清問題。移除無關的卦象解讀和 lake 署名。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-18T23:13:44.555948+08:00",
-  "priority": "medium"
-}

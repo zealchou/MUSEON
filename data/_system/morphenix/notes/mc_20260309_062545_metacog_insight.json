@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260309_062545_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: **REVISE**\n\n**問題**：b（隱含 2+ 未驗證假設）+ c（措辭削弱信任）\n\n**修改方向**：\n前半段「我沒有明確提到」顯得被動，且三個選項的列舉是猜測。改為：根據上下文直接推論「那兩個工具」最可能是 X（具體指名），「對嗎？」確認一次。如果真的缺上下文，改說「我缺少對話上文脈絡」而非「我沒有提到」。\n\n後半段（協作承諾 + 具體行動選項）保留，那部分很好。\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-09T06:25:45.341031+08:00",
-  "priority": "medium"
-}

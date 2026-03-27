@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260317_092557_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n移除指責性措辭（「第五次了」）和催促感（「直接問」）。改用同理開場：「我看到內容重複了，可能是傳送問題？」然後提供建設性幫助——問清楚他想分析台灣AI產業的哪個角度（融資、人才、應用場景、競爭力？），或確認他有沒有遇到技術問題需要解決。偏向幫助澄清，而非拒絕服務。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-17T09:25:57.489201+08:00",
-  "priority": "medium"
-}

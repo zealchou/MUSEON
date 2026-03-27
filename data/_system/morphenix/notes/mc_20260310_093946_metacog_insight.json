@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260310_093946_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: **REVISE**\n\n使用者明確要求「記錄起來」（行動要求），但回覆為空。需要：\n\n1. **確認工作流內容** — 我看不到前面對話，哪個流程是你要記錄的？\n2. **執行記錄** — 一旦確認，用 `/plan-engine` 或直接寫 `.md` 檔到 `data/_system/` \n3. **提供交付物** — 讓你能看到記錄結果\n\n建議先補充：這個工作流的名稱、關鍵步驟、適用情景。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-10T09:39:46.267490+08:00",
-  "priority": "medium"
-}

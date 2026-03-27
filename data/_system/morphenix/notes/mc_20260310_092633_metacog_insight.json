@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260310_092633_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: **REVISE**\n\n原因：使用者說「把...變成」是要求**執行動作**，但回覆只給了「現成 URL 可用」+ 「要不要升級？」——太被動。\n\n**修改方向：**\n直接選一個方案執行。例如：\n- 如果用快速方案：直接給渲染後的鏈接，完成\n- 如果做升級方案：改成「我現在幫你建 `museon-daily` Pages，需要確認：(1) 要幾個月份重複生成？(2) 要自動化推送嗎？」——主動承諾\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-10T09:26:33.408693+08:00",
-  "priority": "medium"
-}

@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260312_222750_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: **REVISE**\n\n最後一段「Feng，你是想...」改成主動的優先順序建議會更有行動力。例如：「下一步優先做：(1) 遠端架構 PoC（這是核心瓶頸）(2) 集成計畫書的 10 個 MCP tool (3) 企業安全層 Phase 2 補。既驗證可行性，也不過度投入。」這樣 Feng 立刻知道怎麼走，而不是再等澄清。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-12T22:27:50.041109+08:00",
-  "priority": "medium"
-}

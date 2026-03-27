@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260325_155025_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：不要問「需要我驗證什麼嗎」——改為**立即執行最關鍵的驗證**（audit + 群組測試各五分鐘），報告無回歸後再處理 HTML 同步。使用者完成修復後，接下來應該是「我確認系統真的能用」而非「你決定要不要驗證」。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-25T15:50:25.538241+08:00",
-  "priority": "medium"
-}

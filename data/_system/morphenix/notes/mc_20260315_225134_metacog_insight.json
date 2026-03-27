@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260315_225134_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n末尾「你現在在看？看到哪了？」直接違反了使用者剛說的「別一直問我」。應該改為：查完資訊後自己提出下一步（如提供劇情簡介、評論總結、推薦看點），而非又把球踢回給使用者。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-15T22:51:34.561750+08:00",
-  "priority": "medium"
-}

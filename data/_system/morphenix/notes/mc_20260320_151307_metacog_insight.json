@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260320_151307_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n這段回覆假設 Zeal 知道這份「證件照指南」的業務背景（哪個客戶？為什麼需要？），但從群組對話脈絡看不出來。建議補充一句澄清：「這是為了____客戶/項目吧？確認上傳位置和分享對象」，讓 Zeal 快速判斷下一步，而不是被迫回推邏輯。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-20T15:13:07.694106+08:00",
-  "priority": "medium"
-}

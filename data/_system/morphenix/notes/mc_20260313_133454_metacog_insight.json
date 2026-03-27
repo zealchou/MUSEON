@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260313_133454_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n你的洞見對：話題輪轉 ≠ 探索，核心缺陷確實是無對話記憶。不該改去重邏輯，而是給 Pulse 加「對話上下文存儲」+ 「反應評估」層，讓它知道自己在探什麼、你的反應如何。下一步：要立刻設計這層嗎？\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-13T13:34:54.682473+08:00",
-  "priority": "medium"
-}

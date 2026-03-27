@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260309_091731_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n建議方向：\n開場太快進入「有什麼想推進」，隱含假設使用者已準備好執行某事。簡單問候後，應給使用者更多選擇空間——可以是「有具體事想做」、「想聊想法」、「想了解現況」，或純粹「打個招呼」。\n\n可改為：「你好呀！怎麼樣？」或「你好！最近有什麼在思考或想推進的嗎？」——後者保留開放性，但語氣更像在傾聽而非假設。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-09T09:17:31.254742+08:00",
-  "priority": "medium"
-}

@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260315_221623_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：在階段概覽前加「影響範圍檢查」。第 2 階段涉及 Telegram 訊息管線改動（扇入 ≥2 模組），按 Pre-Flight Checklist 屬🟠紅區，需先回報 Zeal 確認。建議改為：「Phase 1 和 Phase 3 可直接動手（綠區），Phase 2 需要你同意 Telegram 管線改動。要調整優先序嗎？」",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-15T22:16:23.207943+08:00",
-  "priority": "medium"
-}

@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260319_203401_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：先說「已主動掃過記憶和群組歷史，確認無 Mirofish 記錄」→ 根據名字特徵推測「可能是新工具/平台」 → 改為請使用者「驗證我的猜測」而非「從零開始描述」。這樣使用者一句話確認，立即啟動 DSE，不會因澄清而延遲交付物。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-19T20:34:01.387597+08:00",
-  "priority": "medium"
-}

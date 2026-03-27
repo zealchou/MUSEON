@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260311_185142_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n「他就在旁邊看著呢」是未驗證的假設，可能造成誤導。建議移除此句，改為單純確認身份 + 角色，然後邀請對話。讓 Goku 知道 bot 確實理解 Zeal 是誰，但不假設 Zeal 當下在監看。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-11T18:51:42.543883+08:00",
-  "priority": "medium"
-}

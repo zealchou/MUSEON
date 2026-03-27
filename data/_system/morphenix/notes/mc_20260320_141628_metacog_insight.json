@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260320_141628_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n核心問題：Feng 問的是「NLP 教練協會活動的規劃和聯繫」，但回覆提供的是「攝影市場報告」——邏輯斷層。應直接回答：「可以協助聯繫廠商/會員/協會」+具體能做的三項（找聯繫人、起草邀請信、追蹤回覆等），而非提供無關領域的市場報告。確認是否誤讀了 Feng 的問題。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-20T14:16:28.345061+08:00",
-  "priority": "medium"
-}

@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260312_123609_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n根據迭代協議，審計應該是「在修改程式碼前執行」，但現在改動已經提交了。改法：不問「要不要審計」，直接執行審計驗證當前 Morphenix 改動的系統狀態，再根據發現提出行動清單。讓我變成一個執行者，而非徵詢者。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-12T12:36:09.799656+08:00",
-  "priority": "medium"
-}

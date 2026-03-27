@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260310_122229_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：承認重複提問反映出前面的回答可能不夠具體或可交付。不要指責使用者，改成「現在直接給你市場分析輪廓，但若補充這三點，能客製競爭策略」。先給產出（可交付物），再問補充資訊。語氣從「你沒給我資訊」改成「讓我更精準幫你」。\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-10T12:22:29.362985+08:00",
-  "priority": "medium"
-}

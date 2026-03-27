@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260327_181839_metacog_insight",
+  "category": "metacog_insight",
+  "content": "架構耦合洞察：群組摘要排程與服務生命週期耦合（APScheduler 綁定進程），重啟會漏掉已過時刻。兩個 gateway instance 需排查防止衝突。",
+  "source": "L4_observer",
+  "created_at": "2026-03-27T18:18:39.460388+08:00",
+  "priority": "medium"
+}

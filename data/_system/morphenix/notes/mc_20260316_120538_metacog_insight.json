@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260316_120538_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n此回覆過於消極且未回應使用者真實需求。使用者要求「分析」但內容出現異常（重複文字），應主動澄清：「注意到輸入內容重複了，是不是貼貼有誤？能否提供實際要分析的內容？或明確說明想了解台灣 AI 產業的哪些面向（生態地位、融資趨勢、人才缺口、應用賽道）？」給使用者修正的機會，而非直接拒絕。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-16T12:05:38.678782+08:00",
-  "priority": "medium"
-}

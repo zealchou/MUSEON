@@ -1,8 +1,0 @@
-{
-  "type": "scout_skill_draft",
-  "topic": "向量資料庫在 AI agent 記憶系統中的最佳實踐",
-  "draft": "## Scout 技能改善草稿\n\n**主題**: 向量資料庫在 AI agent 記憶系統中的最佳實踐\n**偵察模式**: Gap Detection (Mode A)\n**產出時間**: 2026-03-20 03:01\n\n### 研究摘要\n## 評估結果：✅ **高價值**\n\n### 可借鏡的方法論與驗證架構\n\n**有具體可行的做法：**\n\n1. **混合儲存架構（最實用）**：SQLite 存儲結構化交互歷史（ACID 保證）+ 向量資料庫（Milvus/Qdrant/FAISS）專責語義檢索，而非向量庫單獨承載，有效分離關注點。\n\n2. **三層記憶棧**：交互履歷層（SQL）→ 語義檢索層（向量DB）→ 反思與推理層（LLM 自動總結），其中向量資料庫只負責「相似性檢索」，不承載推理邏輯。\n\n3. **向量 DB vs 圖 DB 的混合趨勢**：單純向量資料庫難以捕捉實體間的關聯邏輯，最佳實踐是向量 DB（相似性）+ 圖 DB（關係推理）的互補方案。\n\n4. **已驗證的工具棧**：Milvus、Qdrant、FAISS 在生產環境有現成案例；AWS Bedrock AgentCore 提供託管方案作為參考。\n\n**特別價值點**：AWS 與騰訊云的文章強調「記憶系統的安全邊界定義」——向量 DB 的召回結果需要專門的置信度評估層，不可直接喂給 LLM。\n\n### 改善建議\n基於上述研究，建議檢視以下方向是否可整合到現有 Skill 中：\n1. 從研究中提煉的核心做法\n2. 與現有系統的適配度評估\n3. 具體的改善步驟（需人類確認）\n\n### 參考來源\n  - https://zhuanlan.zhihu.com/p/1954242377339363430\n  - https://developer.aliyun.com/article/1686580\n  - https://blog.csdn.net/m0_59163425/article/details/150561623\n\n### 安全聲明\n- 此草稿由 SkillForgeScout 自動產出\n- 需經 Morphenix L2 提案流程審核後方可執行\n- 絕不直接修改 SKILL.md 或任何受保護檔案\n",
-  "source": "skill_forge_scout",
-  "created_at": "2026-03-20T03:01:40.667651+08:00",
-  "auto_propose": true
-}

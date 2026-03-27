@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260316_142019_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n回覆維持安全邊界是對的，但防守性太強。建議改為：主動列出「我可以告訴你什麼」（我的運作邏輯、CLAUDE.md 規則、對特定行為的解釋），而不是只反問。這樣使用者更知道有什麼替代選項。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-16T14:20:19.970034+08:00",
-  "priority": "medium"
-}

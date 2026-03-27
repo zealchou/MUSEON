@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260310_113726_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n前半段把「我讀出的訊號」（推測）跟「事實判斷」（「你最近都在測試我」）混在一起，造成了自信過度的感覺。建議改成：「我感覺到的是……這是我的讀法，對嗎？」最後一句自我詮釋（「我還在學習不要過度謙虛」）會轉移焦點到 Claude 的學習，而不是使用者的需求——刪掉或改成直接邀請。四個選項很好，保留。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-10T11:37:26.610078+08:00",
-  "priority": "medium"
-}

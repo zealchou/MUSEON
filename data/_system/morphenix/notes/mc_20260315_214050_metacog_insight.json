@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260315_214050_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n回覆太被動。用戶在早上主動問「有什麼可以幫」，通常期待主動推薦而非反問。考慮提供選項：「要晨報嗎」「上次的項目進展如何」「有新focus area」，或根據時間/脈絡主動建議。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-15T21:40:50.436474+08:00",
-  "priority": "medium"
-}

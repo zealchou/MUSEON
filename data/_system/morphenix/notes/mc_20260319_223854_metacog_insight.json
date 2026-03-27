@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260319_223854_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n改進方向：使用者明確要求「重新生成並上傳」，回覆卻在要求資訊確認，沒有可交付物。應該直接：(1) 查詢本地倉庫配置（`.git/config`、`gh config`），(2) 檢查 museon-reports 倉庫狀態，(3) 執行推送，(4) 回報結果 URL。如遇阻礙再報告問題。遵循 ACTION_FIRST 原則。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-19T22:38:54.900091+08:00",
-  "priority": "medium"
-}

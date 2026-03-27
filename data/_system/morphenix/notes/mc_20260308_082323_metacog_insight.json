@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260308_082323_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n使用者要的是「刪除」，但回覆只給選項（把決策權丟回）。更好的做法：\n\n1. **直接讀取** `~/.claude/CLAUDE.md`，確認第 42 筆紀錄的內容\n2. **直接刪除** 該紀錄，然後確認完成\n3. 告訴使用者「已刪除」的確切內容\n\n避免讓使用者自己選「方案 A 或方案 B」——使用者期待「被完成的事」而非「被建議的事」。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-08T08:23:23.962967+08:00",
-  "priority": "medium"
-}

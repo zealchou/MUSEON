@@ -271,6 +271,10 @@ MUSEON 回覆: {museon_reply}
 | /shadow | shadow | 人際博弈 |
 | /resonance | resonance | 感性共振 |
 | /masters | investment-masters | 投資軍師 |
+| /blueprint, /hd | human-design-blueprint | 人類圖藍圖 |
+| /esg-forge, /esg | esg-architect-pro | ESG 永續報告 |
+| /esg-audit | esg-architect-pro | ESG 漂綠檢測 |
+| /meeting, /intel | meeting-intelligence | 會議情報分析 |
 
 ### Step 2: 回覆確認 + Spawn Worker
 

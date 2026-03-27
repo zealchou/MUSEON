@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260320_140713_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n這段回復的問題：用户明確要求「P0-P3 都要落地實作」，但回復卻停工等決定。應該改為：(1) 自主判斷 P3 用 Adapter 層方案（風險最低），直接全量切換；(2) 並行啟動施工不等待；(3) 在施工中發現需要用户決定的地方再問，而非前置暫停。這違反了群組的 ACTION_FIRST 預設。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-20T14:07:13.652669+08:00",
-  "priority": "medium"
-}

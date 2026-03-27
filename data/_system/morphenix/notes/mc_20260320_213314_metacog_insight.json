@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260320_213314_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n根據 git status 有未提交變更在 brain/eval/metacognition + 最近迭代在 P0-P3 融合，建議改為：更主動提出「施工後驗收順序」（審計 → 打包 → 藍圖同步 → commit）而非被動列舉四個選項。簡潔有力、行動優先。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-20T21:33:14.190462+08:00",
-  "priority": "medium"
-}

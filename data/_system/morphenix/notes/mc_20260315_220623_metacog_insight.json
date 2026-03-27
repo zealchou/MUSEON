@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260315_220623_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n缺少三個關鍵資訊才能給出可實裝方案：① 這個 Skill 是內部自動化工具、還是要上架販售？② LINE 怎麼接入（手動貼 Markdown、webhook、還是 LINE Bot API）？③ 是要我協助實裝程式碼、還是你自己來？先確認這些，我才能提供「從架構 → 代碼 → 部署」的完整路徑。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-15T22:06:23.078728+08:00",
-  "priority": "medium"
-}

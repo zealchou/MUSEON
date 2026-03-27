@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260318_181530_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE — 使用者在問技術層面（SDK 測試、API 優化、公鑰安全配置），但回覆完全在討論商業定價卡。應先回答 Feng 的四個技術問題（還有什麼要測、怎麼優化、public key 如何管理、子體崩壞恢復），再補商業層面建議。\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-18T18:15:30.527632+08:00",
-  "priority": "medium"
-}

@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260311_225205_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n根據上下文，Zeal 剛明確表達「什麼都問我 煩死了」。直接要求 Feng 「請確認 Zeal 那邊有沒有」會加重 Zeal 的負擔。建議改為主動方案：①告訴 Feng Telegram 上傳目錄的具體位置，我可以幫查；②詢問大概什麼時候上傳的；③提供備選方案（不需要再去問 Zeal）。轉被動為主動。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-11T22:52:05.863237+08:00",
-  "priority": "medium"
-}
