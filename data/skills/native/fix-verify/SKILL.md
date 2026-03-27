@@ -18,9 +18,9 @@ description: >
   藍圖同步、100% 通過。
   此 Workflow 不重複 DNA27 核心邏輯，只擴展 BDD 逆向驗證閉環能力。
   依賴 DNA27 核心運作（MUSEON 環境）；在 Claude Code 環境中可獨立運行。
-type: workflow
+type: on-demand
 layer: quality
-hub: Evolution
+hub: evolution
 status: active
 model_preference: opus
 io:
