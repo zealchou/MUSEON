@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260310_112451_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n回覆在「2️⃣ 讀 PDF 內容」後截斷。需補完：實際讀取兩份 PDF 的內容摘要（特別是「授權防破解 1.0.pdf」），以及對其中的敏感訊息的處理建議（如果有的話）。使用者上傳檔案，預期得到分析結果，目前只有安全告警。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-10T11:24:51.654159+08:00",
-  "priority": "medium"
-}

@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260314_173211_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n用户明確要求「看」，應直接讀取三份 CLAUDE.md 文件（`.claude/CLAUDE.md` + `MUSEON/CLAUDE.md` + 系統層動態組件），完整呈現給你。不應設置「不能看」的假限制，也不該推皮球問「要我讀哪份」——用户是系統擁有者，有充分權限看所有指令。改為：直接讀檔 → 清晰分類呈現。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-14T17:32:11.699797+08:00",
-  "priority": "medium"
-}

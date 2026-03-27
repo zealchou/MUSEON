@@ -148,10 +148,10 @@
       "node_type": "intention",
       "label": "決策",
       "properties": {
-        "detected_at": "2026-03-25T19:00:28.911927"
+        "detected_at": "2026-03-26T00:25:06.064020"
       },
       "created_at": "2026-03-11T18:18:31.135293",
-      "updated_at": "2026-03-25T19:00:28.912049"
+      "updated_at": "2026-03-26T00:25:06.064144"
     },
     "topic_turn_14": {
       "node_id": "topic_turn_14",
@@ -2437,12 +2437,56 @@
       },
       "created_at": "2026-03-25T21:19:08.835485",
       "updated_at": "2026-03-25T21:19:08.835489"
+    },
+    "topic_turn_222": {
+      "node_id": "topic_turn_222",
+      "node_type": "topic",
+      "label": "turn_222",
+      "properties": {
+        "content_length": 684,
+        "detected_at": "2026-03-25T23:37:45.789927"
+      },
+      "created_at": "2026-03-25T23:37:45.790094",
+      "updated_at": "2026-03-25T23:37:45.790099"
+    },
+    "topic_turn_223": {
+      "node_id": "topic_turn_223",
+      "node_type": "topic",
+      "label": "turn_223",
+      "properties": {
+        "content_length": 658,
+        "detected_at": "2026-03-26T00:05:37.255894"
+      },
+      "created_at": "2026-03-26T00:05:37.256005",
+      "updated_at": "2026-03-26T00:05:37.256007"
+    },
+    "topic_turn_224": {
+      "node_id": "topic_turn_224",
+      "node_type": "topic",
+      "label": "turn_224",
+      "properties": {
+        "content_length": 658,
+        "detected_at": "2026-03-26T00:08:43.808766"
+      },
+      "created_at": "2026-03-26T00:08:43.808924",
+      "updated_at": "2026-03-26T00:08:43.808928"
+    },
+    "topic_turn_225": {
+      "node_id": "topic_turn_225",
+      "node_type": "topic",
+      "label": "turn_225",
+      "properties": {
+        "content_length": 668,
+        "detected_at": "2026-03-26T00:25:06.064020"
+      },
+      "created_at": "2026-03-26T00:25:06.064155",
+      "updated_at": "2026-03-26T00:25:06.064157"
     }
   },
   "edges": {},
   "metadata": {
-    "turn_count": 213,
-    "last_content_length": 802
+    "turn_count": 217,
+    "last_content_length": 668
   },
-  "last_updated": "2026-03-25T21:19:08.835272"
+  "last_updated": "2026-03-26T00:25:06.064020"
 }

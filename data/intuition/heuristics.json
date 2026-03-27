@@ -56,6 +56,62 @@
         "boss_directive_20260325f"
       ],
       "last_updated": "2026-03-25T20:38:42.547073"
+    },
+    {
+      "id": "adapter_response_text",
+      "condition": "llm_response AND user_facing",
+      "action": "extract .text NOT str(response)",
+      "confidence": 0.9,
+      "source": "boss_directive_2026-03-27",
+      "created_at": "2026-03-27T11:42:03.430153"
+    },
+    {
+      "id": "unified_send_exit",
+      "condition": "new_send_path",
+      "action": "use _safe_send NOT bot.send_message",
+      "confidence": 0.9,
+      "source": "boss_directive_2026-03-27",
+      "created_at": "2026-03-27T11:42:03.430156"
+    },
+    {
+      "id": "subtraction_before_addition",
+      "condition": "bug_fix",
+      "action": "ask_can_delete_root_cause BEFORE adding_defense",
+      "confidence": 0.9,
+      "source": "boss_directive_2026-03-27",
+      "created_at": "2026-03-27T11:42:03.430158"
+    },
+    {
+      "id": "verify_consumption_chain",
+      "condition": "data_write",
+      "action": "trace_to_consumer AND verify_format_match",
+      "confidence": 0.9,
+      "source": "boss_directive_2026-03-27",
+      "created_at": "2026-03-27T11:42:03.430159"
+    },
+    {
+      "id": "dse_before_implementation",
+      "condition": "external_api OR framework",
+      "action": "dse_official_docs BEFORE coding",
+      "confidence": 0.9,
+      "source": "boss_directive_2026-03-27",
+      "created_at": "2026-03-27T11:42:03.430160"
+    },
+    {
+      "id": "auto_commit",
+      "condition": "修復完成後自動 commit",
+      "action": "Fix-Verify 通過後直接 commit，不要問使用者要不要 commit",
+      "confidence": 0.85,
+      "source": "auto_sync_from_feedback",
+      "created_at": "2026-03-27T11:44:10.936857"
+    },
+    {
+      "id": "arch_migration_breaks_wiring",
+      "condition": "架構切換時檢查舊功能接線",
+      "action": "v1→v2 架構遷移後，舊功能的生產者/消費者鏈路可能斷裂，必須逐一確認舊功能在新架構下仍然接通",
+      "confidence": 0.85,
+      "source": "auto_sync_from_feedback",
+      "created_at": "2026-03-27T14:00:09.412736"
     }
   ]
 }

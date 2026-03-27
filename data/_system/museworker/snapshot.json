@@ -1,22 +1,48 @@
 {
-  "snapshot_version": "2026-03-25T10:45:40.773625+00:00",
+  "snapshot_version": "2026-03-27T15:37:59.798193+00:00",
   "worker_version": "1.0.0",
   "trigger": "scheduled",
   "fan_in_table": {
-    "agent/brain.py": {
+    "agent/agent_registry.py": {
       "fan_in": 1,
-      "fan_out": 39,
+      "fan_out": 0,
+      "zone": "GREEN",
+      "importers": [
+        "gateway/telegram_pump.py"
+      ]
+    },
+    "agent/brain.py": {
+      "fan_in": 2,
+      "fan_out": 42,
       "zone": "RED",
       "importers": [
+        "gateway/brain_worker.py",
         "gateway/server.py"
       ]
     },
+    "agent/brain_deep.py": {
+      "fan_in": 1,
+      "fan_out": 2,
+      "zone": "GREEN",
+      "importers": [
+        "agent/brain_fast.py"
+      ]
+    },
     "agent/brain_dispatch.py": {
+      "fan_in": 2,
+      "fan_out": 4,
+      "zone": "YELLOW",
+      "importers": [
+        "agent/brain.py",
+        "agent/brain_fast.py"
+      ]
+    },
+    "agent/brain_fast.py": {
       "fan_in": 1,
       "fan_out": 4,
       "zone": "GREEN",
       "importers": [
-        "agent/brain.py"
+        "gateway/server.py"
       ]
     },
     "agent/brain_observation.py": {
@@ -25,6 +51,14 @@
       "zone": "GREEN",
       "importers": [
         "agent/brain.py"
+      ]
+    },
+    "agent/brain_observer.py": {
+      "fan_in": 1,
+      "fan_out": 1,
+      "zone": "GREEN",
+      "importers": [
+        "agent/brain_fast.py"
       ]
     },
     "agent/brain_p3_fusion.py": {
@@ -37,15 +71,23 @@
     },
     "agent/brain_prompt_builder.py": {
       "fan_in": 1,
-      "fan_out": 4,
+      "fan_out": 7,
       "zone": "GREEN",
       "importers": [
         "agent/brain.py"
       ]
     },
+    "agent/brain_tool_loop.py": {
+      "fan_in": 1,
+      "fan_out": 1,
+      "zone": "GREEN",
+      "importers": [
+        "agent/brain_deep.py"
+      ]
+    },
     "agent/brain_tools.py": {
       "fan_in": 1,
-      "fan_out": 2,
+      "fan_out": 3,
       "zone": "GREEN",
       "importers": [
         "agent/brain.py"
@@ -128,10 +170,12 @@
       ]
     },
     "agent/intuition.py": {
-      "fan_in": 0,
+      "fan_in": 1,
       "fan_out": 0,
       "zone": "GREEN",
-      "importers": []
+      "importers": [
+        "agent/brain_prompt_builder.py"
+      ]
     },
     "agent/kernel_guard.py": {
       "fan_in": 0,
@@ -169,6 +213,31 @@
       "importers": [
         "agent/brain.py"
       ]
+    },
+    "agent/pdr_council.py": {
+      "fan_in": 1,
+      "fan_out": 1,
+      "zone": "GREEN",
+      "importers": [
+        "gateway/telegram_pump.py"
+      ]
+    },
+    "agent/pdr_params.py": {
+      "fan_in": 4,
+      "fan_out": 0,
+      "zone": "YELLOW",
+      "importers": [
+        "agent/brain.py",
+        "agent/pdr_council.py",
+        "doctor/museqa.py",
+        "gateway/telegram_pump.py"
+      ]
+    },
+    "agent/pending_sayings.py": {
+      "fan_in": 0,
+      "fan_out": 0,
+      "zone": "GREEN",
+      "importers": []
     },
     "agent/persona_router.py": {
       "fan_in": 2,
@@ -249,6 +318,15 @@
         "agent/brain.py"
       ]
     },
+    "agent/signal_skill_map.py": {
+      "fan_in": 2,
+      "fan_out": 0,
+      "zone": "YELLOW",
+      "importers": [
+        "agent/brain_observer.py",
+        "agent/brain_prompt_builder.py"
+      ]
+    },
     "agent/skill_router.py": {
       "fan_in": 2,
       "fan_out": 4,
@@ -292,6 +370,23 @@
       ]
     },
     "agent/tool_schemas.py": {
+      "fan_in": 2,
+      "fan_out": 0,
+      "zone": "YELLOW",
+      "importers": [
+        "agent/brain_deep.py",
+        "agent/brain_tools.py"
+      ]
+    },
+    "agent/tools.py": {
+      "fan_in": 1,
+      "fan_out": 9,
+      "zone": "GREEN",
+      "importers": [
+        "agent/brain.py"
+      ]
+    },
+    "billing/trust_points.py": {
       "fan_in": 1,
       "fan_out": 0,
       "zone": "GREEN",
@@ -299,12 +394,12 @@
         "agent/brain_tools.py"
       ]
     },
-    "agent/tools.py": {
+    "cache/context_cache_builder.py": {
       "fan_in": 1,
-      "fan_out": 7,
+      "fan_out": 0,
       "zone": "GREEN",
       "importers": [
-        "agent/brain.py"
+        "nightly/nightly_pipeline.py"
       ]
     },
     "channels/base.py": {
@@ -369,7 +464,7 @@
     },
     "channels/telegram.py": {
       "fan_in": 1,
-      "fan_out": 8,
+      "fan_out": 9,
       "zone": "GREEN",
       "importers": [
         "gateway/server.py"
@@ -432,7 +527,7 @@
       ]
     },
     "core/event_bus.py": {
-      "fan_in": 47,
+      "fan_in": 46,
       "fan_out": 0,
       "zone": "FORBIDDEN",
       "importers": [
@@ -458,7 +553,6 @@
         "evolution/intention_radar.py",
         "evolution/outward_trigger.py",
         "evolution/wee_engine.py",
-        "federation/skill_market.py",
         "gateway/cron_registry.py",
         "gateway/routes_api.py",
         "gateway/server.py",
@@ -504,7 +598,7 @@
     },
     "doctor/auto_repair.py": {
       "fan_in": 2,
-      "fan_out": 3,
+      "fan_out": 0,
       "zone": "YELLOW",
       "importers": [
         "doctor/self_diagnosis.py",
@@ -584,7 +678,7 @@
     },
     "doctor/musedoc.py": {
       "fan_in": 1,
-      "fan_out": 2,
+      "fan_out": 3,
       "zone": "GREEN",
       "importers": [
         "gateway/cron_registry.py"
@@ -592,7 +686,7 @@
     },
     "doctor/museoff.py": {
       "fan_in": 1,
-      "fan_out": 3,
+      "fan_out": 5,
       "zone": "GREEN",
       "importers": [
         "gateway/cron_registry.py"
@@ -600,7 +694,7 @@
     },
     "doctor/museqa.py": {
       "fan_in": 1,
-      "fan_out": 1,
+      "fan_out": 4,
       "zone": "GREEN",
       "importers": [
         "gateway/cron_registry.py"
@@ -608,10 +702,19 @@
     },
     "doctor/museworker.py": {
       "fan_in": 1,
-      "fan_out": 1,
+      "fan_out": 2,
       "zone": "GREEN",
       "importers": [
         "gateway/cron_registry.py"
+      ]
+    },
+    "doctor/notify.py": {
+      "fan_in": 2,
+      "fan_out": 0,
+      "zone": "YELLOW",
+      "importers": [
+        "doctor/museoff.py",
+        "doctor/museqa.py"
       ]
     },
     "doctor/probes/liveness.py": {
@@ -651,6 +754,18 @@
       "importers": [
         "agent/brain.py",
         "gateway/server.py"
+      ]
+    },
+    "doctor/shared_board.py": {
+      "fan_in": 5,
+      "fan_out": 0,
+      "zone": "YELLOW",
+      "importers": [
+        "doctor/musedoc.py",
+        "doctor/museoff.py",
+        "doctor/museqa.py",
+        "doctor/museworker.py",
+        "nightly/nightly_pipeline.py"
       ]
     },
     "doctor/surgeon.py": {
@@ -764,22 +879,6 @@
         "nightly/nightly_pipeline.py"
       ]
     },
-    "federation/skill_market.py": {
-      "fan_in": 1,
-      "fan_out": 1,
-      "zone": "GREEN",
-      "importers": [
-        "gateway/routes_api.py"
-      ]
-    },
-    "federation/sync.py": {
-      "fan_in": 1,
-      "fan_out": 0,
-      "zone": "GREEN",
-      "importers": [
-        "nightly/nightly_pipeline.py"
-      ]
-    },
     "gateway/authorization.py": {
       "fan_in": 4,
       "fan_out": 0,
@@ -791,6 +890,14 @@
         "mcp_server.py"
       ]
     },
+    "gateway/brain_worker.py": {
+      "fan_in": 1,
+      "fan_out": 2,
+      "zone": "GREEN",
+      "importers": [
+        "gateway/server.py"
+      ]
+    },
     "gateway/cron.py": {
       "fan_in": 0,
       "fan_out": 0,
@@ -799,7 +906,7 @@
     },
     "gateway/cron_registry.py": {
       "fan_in": 0,
-      "fan_out": 25,
+      "fan_out": 28,
       "zone": "GREEN",
       "importers": []
     },
@@ -814,7 +921,7 @@
       ]
     },
     "gateway/message.py": {
-      "fan_in": 15,
+      "fan_in": 16,
       "fan_out": 0,
       "zone": "RED",
       "importers": [
@@ -828,6 +935,7 @@
         "channels/slack.py",
         "channels/telegram.py",
         "channels/webhook.py",
+        "gateway/brain_worker.py",
         "gateway/interaction.py",
         "gateway/routes_api.py",
         "gateway/server.py",
@@ -835,9 +943,18 @@
         "workflow/workflow_executor.py"
       ]
     },
+    "gateway/message_queue_store.py": {
+      "fan_in": 2,
+      "fan_out": 0,
+      "zone": "YELLOW",
+      "importers": [
+        "gateway/server.py",
+        "gateway/telegram_pump.py"
+      ]
+    },
     "gateway/routes_api.py": {
       "fan_in": 0,
-      "fan_out": 10,
+      "fan_out": 9,
       "zone": "GREEN",
       "importers": []
     },
@@ -848,11 +965,14 @@
       "importers": []
     },
     "gateway/server.py": {
-      "fan_in": 1,
-      "fan_out": 55,
+      "fan_in": 4,
+      "fan_out": 59,
       "zone": "RED",
       "importers": [
-        "channels/telegram.py"
+        "agent/brain_fast.py",
+        "agent/tools.py",
+        "channels/telegram.py",
+        "gateway/telegram_pump.py"
       ]
     },
     "gateway/session.py": {
@@ -864,14 +984,16 @@
       ]
     },
     "gateway/session_cleanup.py": {
-      "fan_in": 0,
+      "fan_in": 1,
       "fan_out": 0,
       "zone": "GREEN",
-      "importers": []
+      "importers": [
+        "gateway/cron_registry.py"
+      ]
     },
     "gateway/telegram_pump.py": {
       "fan_in": 0,
-      "fan_out": 8,
+      "fan_out": 14,
       "zone": "GREEN",
       "importers": []
     },
@@ -888,11 +1010,12 @@
       "importers": []
     },
     "governance/bulkhead.py": {
-      "fan_in": 1,
+      "fan_in": 2,
       "fan_out": 0,
-      "zone": "GREEN",
+      "zone": "YELLOW",
       "importers": [
-        "gateway/server.py"
+        "gateway/server.py",
+        "gateway/telegram_pump.py"
       ]
     },
     "governance/cognitive_receipt.py": {
@@ -938,11 +1061,12 @@
       ]
     },
     "governance/group_context.py": {
-      "fan_in": 4,
+      "fan_in": 5,
       "fan_out": 1,
       "zone": "YELLOW",
       "importers": [
         "channels/telegram.py",
+        "gateway/cron_registry.py",
         "gateway/telegram_pump.py",
         "mcp_server.py",
         "nightly/nightly_pipeline.py"
@@ -971,13 +1095,14 @@
       "importers": []
     },
     "governance/multi_tenant.py": {
-      "fan_in": 3,
+      "fan_in": 4,
       "fan_out": 0,
       "zone": "YELLOW",
       "importers": [
         "agent/brain_observation.py",
         "agent/brain_prompt_builder.py",
-        "gateway/telegram_pump.py"
+        "gateway/telegram_pump.py",
+        "nightly/nightly_pipeline.py"
       ]
     },
     "governance/perception.py": {
@@ -1015,10 +1140,11 @@
       "importers": []
     },
     "governance/response_guard.py": {
-      "fan_in": 1,
+      "fan_in": 2,
       "fan_out": 0,
-      "zone": "GREEN",
+      "zone": "YELLOW",
       "importers": [
+        "channels/telegram.py",
         "gateway/telegram_pump.py"
       ]
     },
@@ -1051,90 +1177,28 @@
         "gateway/server.py"
       ]
     },
-    "installer/__main__.py": {
-      "fan_in": 0,
+    "learning/insight_extractor.py": {
+      "fan_in": 2,
       "fan_out": 0,
-      "zone": "GREEN",
-      "importers": []
-    },
-    "installer/api_keys.py": {
-      "fan_in": 0,
-      "fan_out": 0,
-      "zone": "GREEN",
-      "importers": []
-    },
-    "installer/daemon.py": {
-      "fan_in": 1,
-      "fan_out": 0,
-      "zone": "GREEN",
+      "zone": "YELLOW",
       "importers": [
-        "doctor/auto_repair.py"
+        "agent/brain.py",
+        "learning/strategy_accumulator.py"
       ]
     },
-    "installer/electron.py": {
-      "fan_in": 1,
-      "fan_out": 0,
-      "zone": "GREEN",
-      "importers": [
-        "doctor/auto_repair.py"
-      ]
-    },
-    "installer/environment.py": {
-      "fan_in": 0,
-      "fan_out": 0,
-      "zone": "GREEN",
-      "importers": []
-    },
-    "installer/models.py": {
-      "fan_in": 1,
-      "fan_out": 0,
-      "zone": "GREEN",
-      "importers": [
-        "doctor/auto_repair.py"
-      ]
-    },
-    "installer/module_verifier.py": {
-      "fan_in": 0,
-      "fan_out": 0,
-      "zone": "GREEN",
-      "importers": []
-    },
-    "installer/orchestrator.py": {
+    "learning/strategy_accumulator.py": {
       "fan_in": 0,
       "fan_out": 1,
-      "zone": "GREEN",
-      "importers": []
-    },
-    "installer/packager.py": {
-      "fan_in": 0,
-      "fan_out": 0,
-      "zone": "GREEN",
-      "importers": []
-    },
-    "installer/permissions.py": {
-      "fan_in": 0,
-      "fan_out": 0,
-      "zone": "GREEN",
-      "importers": []
-    },
-    "installer/python_env.py": {
-      "fan_in": 0,
-      "fan_out": 0,
-      "zone": "GREEN",
-      "importers": []
-    },
-    "installer/ui.py": {
-      "fan_in": 0,
-      "fan_out": 0,
       "zone": "GREEN",
       "importers": []
     },
     "llm/adapters.py": {
-      "fan_in": 2,
+      "fan_in": 3,
       "fan_out": 1,
       "zone": "YELLOW",
       "importers": [
         "agent/brain.py",
+        "agent/brain_tool_loop.py",
         "agent/brain_tools.py"
       ]
     },
@@ -1208,12 +1272,21 @@
         "agent/brain.py"
       ]
     },
-    "memory/memory_manager.py": {
+    "memory/memory_graph.py": {
       "fan_in": 1,
-      "fan_out": 5,
+      "fan_out": 0,
       "zone": "GREEN",
       "importers": [
         "agent/brain.py"
+      ]
+    },
+    "memory/memory_manager.py": {
+      "fan_in": 2,
+      "fan_out": 5,
+      "zone": "YELLOW",
+      "importers": [
+        "agent/brain.py",
+        "agent/tools.py"
       ]
     },
     "memory/memory_reflector.py": {
@@ -1405,7 +1478,7 @@
     },
     "nightly/nightly_pipeline.py": {
       "fan_in": 2,
-      "fan_out": 39,
+      "fan_out": 41,
       "zone": "YELLOW",
       "importers": [
         "gateway/cron_registry.py",
@@ -1526,6 +1599,14 @@
         "gateway/server.py"
       ]
     },
+    "pulse/group_digest.py": {
+      "fan_in": 1,
+      "fan_out": 1,
+      "zone": "GREEN",
+      "importers": [
+        "gateway/cron_registry.py"
+      ]
+    },
     "pulse/group_session_proactive.py": {
       "fan_in": 0,
       "fan_out": 0,
@@ -1575,14 +1656,23 @@
     },
     "pulse/proactive_bridge.py": {
       "fan_in": 1,
-      "fan_out": 2,
+      "fan_out": 3,
       "zone": "GREEN",
       "importers": [
         "gateway/server.py"
       ]
     },
+    "pulse/proactive_dispatcher.py": {
+      "fan_in": 2,
+      "fan_out": 0,
+      "zone": "YELLOW",
+      "importers": [
+        "gateway/server.py",
+        "pulse/proactive_bridge.py"
+      ]
+    },
     "pulse/pulse_db.py": {
-      "fan_in": 10,
+      "fan_in": 11,
       "fan_out": 1,
       "zone": "RED",
       "importers": [
@@ -1595,7 +1685,8 @@
         "gateway/cron_registry.py",
         "gateway/server.py",
         "nightly/nightly_pipeline.py",
-        "onboarding/ceremony.py"
+        "onboarding/ceremony.py",
+        "pulse/group_digest.py"
       ]
     },
     "pulse/pulse_engine.py": {
@@ -1625,6 +1716,14 @@
       "zone": "GREEN",
       "importers": [
         "gateway/server.py"
+      ]
+    },
+    "pulse/signal_keywords.py": {
+      "fan_in": 1,
+      "fan_out": 0,
+      "zone": "GREEN",
+      "importers": [
+        "agent/brain_prompt_builder.py"
       ]
     },
     "pulse/silent_digestion.py": {
@@ -1801,14 +1900,13 @@
       ]
     },
     "tools/tool_registry.py": {
-      "fan_in": 5,
+      "fan_in": 4,
       "fan_out": 1,
       "zone": "YELLOW",
       "importers": [
         "doctor/self_diagnosis.py",
         "gateway/cron_registry.py",
         "gateway/server.py",
-        "installer/orchestrator.py",
         "nightly/nightly_pipeline.py"
       ]
     },
@@ -1909,11 +2007,11 @@
   "zone_summary": {
     "FORBIDDEN": 1,
     "RED": 5,
-    "YELLOW": 67,
-    "GREEN": 155
+    "YELLOW": 79,
+    "GREEN": 150
   },
   "connections": {
-    "total": 124,
+    "total": 134,
     "orphan_outputs": [
       "⚠️  dev-retro → knowledge-lattice.dev_lesson_crystal (trigger=always 但 knowledge-lattice 的 inputs 未接收)",
       "⚠️  report-forge → gateway. (trigger=always 但 gateway 的 inputs 未接收)",
@@ -1924,23 +2022,23 @@
   "shared_states": {
     "pulse/pulse.db": {
       "exists": true,
-      "size_kb": 1812.0,
-      "last_modified": "2026-03-25T09:58:08.987705+00:00"
+      "size_kb": 2000.0,
+      "last_modified": "2026-03-27T13:46:27.660182+00:00"
     },
     "_system/group_context.db": {
       "exists": true,
-      "size_kb": 224.0,
-      "last_modified": "2026-03-25T05:22:08.502224+00:00"
+      "size_kb": 356.0,
+      "last_modified": "2026-03-27T03:38:02.454958+00:00"
     },
     "_system/wee/workflow_state.db": {
       "exists": true,
-      "size_kb": 492.0,
-      "last_modified": "2026-03-25T03:24:56.674291+00:00"
+      "size_kb": 40.0,
+      "last_modified": "2026-03-27T14:46:53.648996+00:00"
     },
     "lattice/crystal.db": {
       "exists": true,
-      "size_kb": 1940.0,
-      "last_modified": "2026-03-25T10:44:43.215736+00:00"
+      "size_kb": 1952.0,
+      "last_modified": "2026-03-27T10:59:20.425469+00:00"
     },
     "registry/cli_user/registry.db": {
       "exists": true,
@@ -1949,33 +2047,33 @@
     },
     "ANIMA_MC.json": {
       "exists": true,
-      "size_kb": 5.2,
-      "last_modified": "2026-03-25T10:45:06.513517+00:00"
+      "size_kb": 5.3,
+      "last_modified": "2026-03-27T15:36:29.533147+00:00"
     },
     "ANIMA_USER.json": {
       "exists": true,
-      "size_kb": 40.6,
-      "last_modified": "2026-03-25T10:44:28.546365+00:00"
+      "size_kb": 41.0,
+      "last_modified": "2026-03-27T11:00:01.627893+00:00"
     },
     "_system/immunity.json": {
       "exists": true,
       "size_kb": 0.0,
-      "last_modified": "2026-03-23T02:49:15.323631+00:00"
+      "last_modified": "2026-03-26T18:30:10.228119+00:00"
     },
     "anima/soul_rings.json": {
       "exists": true,
-      "size_kb": 25.6,
-      "last_modified": "2026-03-25T09:58:08.871220+00:00"
+      "size_kb": 29.0,
+      "last_modified": "2026-03-27T06:17:05.527256+00:00"
     },
     "_system/baihe_cache.json": {
       "exists": true,
       "size_kb": 0.1,
-      "last_modified": "2026-03-25T10:44:30.387421+00:00"
+      "last_modified": "2026-03-27T10:59:20.331239+00:00"
     },
     "_system/lord_profile.json": {
       "exists": true,
-      "size_kb": 2.1,
-      "last_modified": "2026-03-25T10:44:28.544178+00:00"
+      "size_kb": 3.8,
+      "last_modified": "2026-03-27T11:00:01.627296+00:00"
     },
     "_system/museon-persona.md": {
       "exists": true,
@@ -1985,10 +2083,7 @@
   },
   "path_health": {
     "missing_paths": [],
-    "zombie_files": [
-      "_system/pulse/pulse.db",
-      "_system/sessions/group_context.db"
-    ],
+    "zombie_files": [],
     "stale_dirs": [
       "dispatch",
       "plans",
@@ -2001,305 +2096,305 @@
   },
   "recent_changes": [
     {
-      "file": "docs/reports/five-marshals-investor-v2.0.html",
-      "commit": "4e74c424",
-      "message": "feat: ScreenplayForge 劇本生成 Skill 設計完成",
-      "time": "2026-03-25 18:09:54 +0800"
-    },
-    {
-      "file": "docs/screenplay-delivery-summary.md",
-      "commit": "4e74c424",
-      "message": "feat: ScreenplayForge 劇本生成 Skill 設計完成",
-      "time": "2026-03-25 18:09:54 +0800"
-    },
-    {
-      "file": "docs/screenplay-quick-start.md",
-      "commit": "4e74c424",
-      "message": "feat: ScreenplayForge 劇本生成 Skill 設計完成",
-      "time": "2026-03-25 18:09:54 +0800"
-    },
-    {
-      "file": "docs/screenplay-research.md",
-      "commit": "4e74c424",
-      "message": "feat: ScreenplayForge 劇本生成 Skill 設計完成",
-      "time": "2026-03-25 18:09:54 +0800"
-    },
-    {
-      "file": "docs/screenplay-skill-spec.md",
-      "commit": "4e74c424",
-      "message": "feat: ScreenplayForge 劇本生成 Skill 設計完成",
-      "time": "2026-03-25 18:09:54 +0800"
-    },
-    {
-      "file": "scripts/workflows/screenplay-gen.sh",
-      "commit": "4e74c424",
-      "message": "feat: ScreenplayForge 劇本生成 Skill 設計完成",
-      "time": "2026-03-25 18:09:54 +0800"
-    },
-    {
-      "file": "docs/five-guardians-whitepaper.html",
-      "commit": "55e861bf",
-      "message": "docs: 五虎將自主維運系統白皮書 v1.0 — 投資人向完整解說",
-      "time": "2026-03-25 17:58:23 +0800"
-    },
-    {
-      "file": "five-marshals-investor.html",
-      "commit": "b3f9350a",
-      "message": "docs: 五虎將投資人說明文件 v1.0 — 發布到 GitHub Pages",
-      "time": "2026-03-25 17:57:55 +0800"
-    },
-    {
-      "file": "docs/reports/five-marshals-investor.html",
-      "commit": "69cd92f7",
-      "message": "backup: 1 files to docs/reports/",
-      "time": "2026-03-25 17:57:51 +0800"
-    },
-    {
-      "file": "docs/five-marshals-investor.html",
-      "commit": "520e7ff9",
-      "message": "docs: 五虎將投資人說明文件 v1.0 — 完整的自主維運引擎技術介紹",
-      "time": "2026-03-25 17:55:39 +0800"
-    },
-    {
-      "file": ".env",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
-    },
-    {
-      "file": ".testmondata",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
-    },
-    {
-      "file": "_system/community_scans.json",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
+      "file": "CLAUDE.md",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
     },
     {
       "file": "data/ANIMA_MC.json",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
     },
     {
       "file": "data/ANIMA_USER.json",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
     },
     {
       "file": "data/PULSE.md",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
     },
     {
       "file": "data/_system/baihe_cache.json",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
     },
     {
-      "file": "data/_system/bridge/routes_2026-03-25.json",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
+      "file": "data/_system/billing/skill_invocations_2026-03.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
     },
     {
       "file": "data/_system/budget/usage_2026-03.json",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
+    },
+    {
+      "file": "data/_system/context_cache/active_rules.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
+    },
+    {
+      "file": "data/_system/context_cache/pending_insights.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
+    },
+    {
+      "file": "data/_system/context_cache/persona_digest.md",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
+    },
+    {
+      "file": "data/_system/context_cache/telegram_6969045906_signals.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
+    },
+    {
+      "file": "data/_system/context_cache/telegram_group_5260398061_signals.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
+    },
+    {
+      "file": "data/_system/context_cache/user_summary.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
     },
     {
       "file": "data/_system/crystal_rules.json",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
     },
     {
-      "file": "data/_system/curiosity/question_queue.json",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
+      "file": "data/_system/curricula/diagnosis_2026-03-08.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
+    },
+    {
+      "file": "data/_system/curricula/diagnosis_2026-03-09.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
+    },
+    {
+      "file": "data/_system/curricula/diagnosis_2026-03-10.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
+    },
+    {
+      "file": "data/_system/curricula/diagnosis_2026-03-11.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
+    },
+    {
+      "file": "data/_system/curricula/diagnosis_2026-03-12.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
+    },
+    {
+      "file": "data/_system/curricula/diagnosis_2026-03-13.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
+    },
+    {
+      "file": "data/_system/curricula/diagnosis_2026-03-14.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
+    },
+    {
+      "file": "data/_system/curricula/diagnosis_2026-03-15.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
+    },
+    {
+      "file": "data/_system/curricula/diagnosis_2026-03-16.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
+    },
+    {
+      "file": "data/_system/curricula/diagnosis_2026-03-18.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
+    },
+    {
+      "file": "data/_system/curricula/diagnosis_2026-03-19.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
+    },
+    {
+      "file": "data/_system/curricula/diagnosis_2026-03-20.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
+    },
+    {
+      "file": "data/_system/curricula/diagnosis_2026-03-21.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
     },
     {
       "file": "data/_system/curricula/diagnosis_2026-03-25.json",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
+    },
+    {
+      "file": "data/_system/curricula/diagnosis_2026-03-27.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
     },
     {
       "file": "data/_system/data_health/latest_snapshot.json",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
     },
     {
       "file": "data/_system/data_health/snapshot_history.jsonl",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
+    },
+    {
+      "file": "data/_system/doctor/shared_board.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
     },
     {
       "file": "data/_system/evolution/velocity_log.jsonl",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
     },
     {
-      "file": "data/_system/external_users/378774355.json",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
+      "file": "data/_system/external_users/6473668006.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
+    },
+    {
+      "file": "data/_system/external_users/6989895371.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
+    },
+    {
+      "file": "data/_system/external_users/7937554134.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
     },
     {
       "file": "data/_system/external_users/8252847174.json",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
+    },
+    {
+      "file": "data/_system/external_users/8271745245.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
     },
     {
       "file": "data/_system/external_users/8373451173.json",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
+    },
+    {
+      "file": "data/_system/external_users/8638333757.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
     },
     {
       "file": "data/_system/external_users/external.json",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
     },
     {
-      "file": "data/_system/footprints/actions.jsonl",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
+      "file": "data/_system/heuristics.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
     },
     {
-      "file": "data/_system/footprints/cognitive_trace.jsonl",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
+      "file": "data/_system/morphenix/notes/exploration_20260312_042546.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
     },
     {
-      "file": "data/_system/footprints/decisions.jsonl",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
+      "file": "data/_system/morphenix/notes/exploration_20260312_053044.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
     },
     {
-      "file": "data/_system/group_context.db",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
+      "file": "data/_system/morphenix/notes/exploration_20260312_070046.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
     },
     {
-      "file": "data/_system/group_context.db-shm",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
+      "file": "data/_system/morphenix/notes/exploration_20260312_091057.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
     },
     {
-      "file": "data/_system/group_context.db-wal",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
+      "file": "data/_system/morphenix/notes/exploration_20260312_100545.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
     },
     {
-      "file": "data/_system/lord_profile.json",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
+      "file": "data/_system/morphenix/notes/exploration_20260312_104058.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
     },
     {
-      "file": "data/_system/morphenix/execution_log/effect_tracker.json",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
+      "file": "data/_system/morphenix/notes/exploration_20260312_111054.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
     },
     {
-      "file": "data/_system/morphenix/execution_log/exec_2026-03-25.jsonl",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
-    },
-    {
-      "file": "data/_system/morphenix/notes/exploration_20260325_001831.json",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
-    },
-    {
-      "file": "data/_system/morphenix/notes/exploration_20260325_011553.json",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
-    },
-    {
-      "file": "data/_system/morphenix/notes/exploration_20260325_015207.json",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
-    },
-    {
-      "file": "data/_system/morphenix/notes/exploration_20260325_025712.json",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
-    },
-    {
-      "file": "data/_system/morphenix/notes/mc_20260324_232051_metacog_insight.json",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
-    },
-    {
-      "file": "data/_system/morphenix/notes/mc_20260324_232605_metacog_insight.json",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
-    },
-    {
-      "file": "data/_system/morphenix/notes/mc_20260325_012630_metacog_insight.json",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
-    },
-    {
-      "file": "data/_system/morphenix/notes/mc_20260325_095558_metacog_insight.json",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
-    },
-    {
-      "file": "data/_system/morphenix/notes/mc_20260325_102227_metacog_insight.json",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
-    },
-    {
-      "file": "data/_system/morphenix/notes/mc_20260325_110300_metacog_insight.json",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
-    },
-    {
-      "file": "data/_system/morphenix/notes/mc_20260325_123141_metacog_insight.json",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
-    },
-    {
-      "file": "data/_system/morphenix/notes/mc_20260325_132629_metacog_insight.json",
-      "commit": "5dbf8717",
-      "message": "fix: brain_dispatch.py _get_handoff_from_deps 缺失 self 參數 — 導致派遣失敗",
-      "time": "2026-03-25 15:05:28 +0800"
+      "file": "data/_system/morphenix/notes/exploration_20260312_120414.json",
+      "commit": "467c02e5",
+      "message": "chore: 資料同步 + 藍圖補齊（memory-router v1.x + system-topology 更新）",
+      "time": "2026-03-27 23:37:59 +0800"
     }
   ],
-  "compute_duration_ms": 11027
+  "compute_duration_ms": 2067
 }

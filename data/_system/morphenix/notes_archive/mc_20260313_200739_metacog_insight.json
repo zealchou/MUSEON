@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260313_200739_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：移除對使用者意圖的假設（「特殊訊號」、「明確說明」），改為中立接收訊息。建議改成簡單的「收到」或等待，避免「快告訴我你想什麼」的質詢感。如果這是誤觸，使用者自然會補充；如果有意圖，等他們準備好再說。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-13T20:07:39.028181+08:00",
-  "priority": "medium"
-}

@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260315_221635_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n建議改成：直接進入規劃模式（EnterPlanMode）而非先問問題再延後交付。基於現有背景（12人、月營收100萬+）先寫初版plan.md，並在計畫中明確標記「待確認的假設」，讓使用者在審視藍圖時一次性調整，而不是對話中來回。這樣更符合「被完成的事」期待。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-15T22:16:35.524336+08:00",
-  "priority": "medium"
-}

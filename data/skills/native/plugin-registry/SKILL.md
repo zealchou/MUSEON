@@ -867,6 +867,50 @@ DNA27（核心 OS）
 | 涉及 Skill | ssa-consultant、business-12、brand-identity、storytelling-engine、xmodel、pdeif、master-strategy、text-alchemy、c15、aesthetic-sense、consultant-communication、eval-engine、orchestrator、knowledge-lattice（共 14 個） |
 | 與其他外掛 | brand-identity（品牌定位核心）；ssa-consultant（顧問式需求探索）；storytelling-engine（品牌故事設計） |
 
+### meeting-intelligence — 會議情報分析引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | MEETING_INTELLIGENCE |
+| 類別 | meeting-intelligence-analysis |
+| 風險等級 | LOW |
+| 允許迴圈 | 全部（fast_loop 自動降級為快速摘要） |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | 使用者提供逐字稿/音檔/會議記錄；或使用者要求會議分析 |
+| 觸發指令 | /meeting、/intel、/meeting quick、/meeting audit、/meeting history |
+| 核心能力 | 七階段管線（收錄→清理→結構化→摘要→深度分析→記憶整合→HTML 報告）；五層分析（結構化摘要 + 圓桌九策軍師 + 博弈陽謀陰謀 + ANIMA 八原語人格動態 + 跨會議記憶承諾漂移偵測）；會議類型動態軍師召集；台灣中文特化去贅字 |
+| 與其他外掛 | consultant-communication（SCQA 結構）；roundtable（多視角會診）；master-strategy（九策軍師+陽謀）；shadow（陰謀辨識）；resonance（情緒轉折）；aesthetic-sense（HTML 排版）；knowledge-lattice（跨會議記憶）；business-12（商業議題）；ssa-consultant（銷售機會） |
+
+### esg-architect-pro — ESG 永續報告書專業鍛造引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | ESG_ARCHITECT_PRO |
+| 類別 | esg-sustainability-reporting |
+| 風險等級 | LOW |
+| 允許迴圈 | exploration_loop（特定議題）、slow_loop（全本報告） |
+| 禁止迴圈 | fast_loop（降級為 KPI 儀表板） |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | 使用者提供企業數據或既有報告；或使用者要求永續報告/ESG 揭露/碳盤查/漂綠檢測 |
+| 觸發指令 | /esg-forge、/esg、/esg-audit、/esg carbon、/esg materiality、/esg greenwash |
+| 核心能力 | IFRS S1/S2 + GRI 2021 + ESRS + SASB 77 行業對標；雙重重要性評估（EFRAG IG 1）；Scope 1/2/3 盤查（GHG Protocol）；碳費試算；情境分析；漂綠五大類型偵測；確信就緒度評估（ISSA 5000） |
+| 與其他外掛 | dse（準則研究）；eval-engine（ESG 評級前後測）；fix-verify（數據邏輯 BDD 驗證）；aesthetic-sense（報告排版）；consultant-communication（SCQA 結構）；report-forge（通用報告 vs ESG 專項） |
+
+### human-design-blueprint — 人類圖靈魂藍圖分析引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | HUMAN_DESIGN_BLUEPRINT |
+| 類別 | soul-blueprint-analysis |
+| 風險等級 | LOW |
+| 允許迴圈 | exploration_loop（標準版）、slow_loop（完整六系統融合） |
+| 禁止迴圈 | fast_loop（人類圖分析需要完整展開） |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | 使用者提供出生資料或人類圖圖面數據；或使用者要求人類圖解讀/靈魂藍圖分析 |
+| 觸發指令 | /blueprint、/hd |
+| 核心能力 | 四大類型+策略+內在權威+人生角色+九大能量中心+36通道+64閘門+爻線+輪迴交叉+月之南北交+行星對應+迴路群+非自己主題+定義類型；六系統交叉融合（五行八字/生肖/西洋占星/生命靈數/三才五格）；HTML 報告輸出 |
+| 與其他外掛 | aesthetic-sense（報告排版品質審計）；consultant-communication（報告用 SCQA 框架做執行摘要）；storytelling-engine（意象描述和比喻）；resonance（解讀過程中使用者情緒承接）；user-model（解讀結果存入使用者畫像） |
+
 ### group-meeting-notes — 群組對話會議記錄引擎（WF-GMN-01）
 
 | 屬性 | 值 |

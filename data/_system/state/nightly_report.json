@@ -1,15 +1,15 @@
 {
-  "completed_at": "2026-03-25T03:03:58.318211+08:00",
-  "elapsed_seconds": 238.23,
+  "completed_at": "2026-03-27T03:04:29.444501+08:00",
+  "elapsed_seconds": 269.35,
   "mode": "full",
   "steps": {
     "step_00_budget_settlement": {
       "status": "ok",
-      "result": "{'mode': 'max_subscription', 'daily_calls': 51, 'model_distribution': {'sonnet': 12, 'haiku': 39}, 'daily_tokens': 116711}"
+      "result": "{'mode': 'max_subscription', 'daily_calls': 0, 'model_distribution': {'sonnet': 0, 'haiku': 0}, 'daily_tokens': 0}"
     },
     "step_00_1_footprint_cleanup": {
       "status": "ok",
-      "result": "{'l1_removed': 0, 'l2_removed': 0, 'remaining': {'l1_actions': 799, 'l2_decisions': 735, 'l3_evolutions': 0}}"
+      "result": "{'l1_removed': 0, 'l2_removed': 0, 'remaining': {'l1_actions': 4, 'l2_decisions': 4, 'l3_evolutions': 0}}"
     },
     "step_01_asset_decay": {
       "status": "ok",
@@ -25,7 +25,7 @@
     },
     "step_04_wee_compress": {
       "status": "ok",
-      "result": "{'compressed': False, 'reason': 'no_records_for_date'}"
+      "result": "{'compressed': False, 'reason': 'no_workflows'}"
     },
     "step_05_wee_fuse": {
       "status": "ok",
@@ -37,19 +37,19 @@
     },
     "step_05_6_knowledge_lattice": {
       "status": "ok",
-      "result": "{'total_crystals': 0, 'archived': [], 'recrystallized': 0, 'ri_updated': 1212}"
+      "result": "{'total_crystals': 0, 'archived': [], 'recrystallized': 0, 'ri_updated': 1325}"
     },
     "step_05_7_crystal_actuator": {
       "status": "ok",
-      "result": "{'new_rules': 27, 'expired_rules': 0, 'total_active': 50, 'strengthened': 15, 'weakened': 0, 'removed': 0}"
+      "result": "{'new_rules': 0, 'expired_rules': 0, 'total_active': 84, 'strengthened': 2, 'weakened': 0, 'removed': 0}"
     },
     "step_05_8_morphenix_proposals": {
       "status": "ok",
-      "result": "{'signals_scanned': 5, 'proposals_created': 2, 'diagnostics': ['Q-Score: actionability 偏弱 (0.49)', '迭代筆記: 909 條']}"
+      "result": "{'signals_scanned': 4, 'proposals_created': 3, 'diagnostics': ['Q-Score: actionability 偏弱 (0.46)', '連續低分: 4/5', '迭代筆記: 14 條']}"
     },
     "step_05_9_morphenix_gate": {
       "status": "ok",
-      "result": "{'auto_approved': 2, 'needs_human': 0, 'executed': 1, 'l3_proposals': []}"
+      "result": "{'auto_approved': 3, 'needs_human': 0, 'executed': 1, 'l3_proposals': []}"
     },
     "step_08_workflow_mutation": {
       "status": "ok",
@@ -61,11 +61,11 @@
     },
     "step_08_6_skill_vector_reindex": {
       "status": "ok",
-      "result": "{'skill_reindex': {'indexed': 53, 'errors': []}}"
+      "result": "{'skill_reindex': {'indexed': 55, 'errors': []}}"
     },
     "step_08_7_sparse_idf_rebuild": {
       "status": "ok",
-      "result": "{'sparse_idf': 'skipped — no corpus or jieba unavailable'}"
+      "result": "{'sparse_idf': {'vocab_size': 2320, 'backfill': {'memories': 289, 'skills': 55, 'crystals': 1077}}}"
     },
     "step_09_graph_consolidation": {
       "status": "ok",
@@ -73,7 +73,7 @@
     },
     "step_10_diary_generation": {
       "status": "ok",
-      "result": "{'diary_generated': True, 'interaction_count': 32}"
+      "result": "{'diary_generated': True, 'interaction_count': 15}"
     },
     "step_10_5_ring_review": {
       "status": "ok",
@@ -85,19 +85,19 @@
     },
     "step_12_heartbeat_focus": {
       "status": "ok",
-      "result": "{'interval_hours': 1.5, 'focus_level': 'high', 'beat_count': 571}"
+      "result": "{'interval_hours': 2.7857142857142856, 'focus_level': 'high', 'beat_count': 665}"
     },
     "step_13_curiosity_scan": {
       "status": "ok",
-      "result": "{'new_questions': 4, 'queue_size': 46}"
+      "result": "{'new_questions': 14, 'queue_size': 14}"
     },
     "step_13_5_curiosity_research": {
       "status": "ok",
-      "result": "{'researched': 2, 'valuable': 0}"
+      "result": "{'researched': 2, 'valuable': 1}"
     },
     "step_13_6_outward_trigger_scan": {
       "status": "ok",
-      "result": "{'triggered': 1, 'events': [{'track': 'self', 'trigger_type': 'architecture', 'priority': 'NORMAL', 'search_intent': \"架構瓶頸 'AI Agent 自主學習的最新架構突破' 反覆出現 16 次，搜尋前沿解法\", 'related_skill': '', 'related_domai"
+      "result": "{'triggered': 0, 'events': []}"
     },
     "step_13_7_outward_research": {
       "status": "ok",
@@ -113,19 +113,23 @@
     },
     "step_17_tool_discovery": {
       "status": "ok",
-      "result": "{'detected': 0, 'healthy': 7, 'total_tools': 11, 'last_discovery': '2026-03-21T05:00:00.070921+08:00', 'recommended': 0}"
+      "result": "{'detected': 0, 'healthy': 6, 'total_tools': 11, 'last_discovery': '', 'recommended': 0}"
     },
     "step_18_daily_summary": {
       "status": "ok",
-      "result": "{'date': '2026-03-25', 'event_count': 32, 'channels': 3}"
+      "result": "{'date': '2026-03-27', 'event_count': 15, 'channels': 0}"
+    },
+    "step_18_5_client_profile_update": {
+      "status": "ok",
+      "result": "{'dispatches_scanned': 58, 'profiles_updated': 1, 'clients_updated': 6}"
     },
     "step_20_synapse_decay": {
       "status": "ok",
-      "result": "{'decayed_synapses': {'decayed': 477, 'pruned': 0}, 'top_connections': [{'skill_a': 'dharma', 'skill_b': 'risk-matrix', 'weight': 0.98, 'fire_count': 104}, {'skill_a': 'dharma', 'skill_b': 'resonance'"
+      "result": "{'decayed_synapses': {'decayed': 93, 'pruned': 0}, 'top_connections': [{'skill_a': 'decision-tracker', 'skill_b': 'morphenix', 'weight': 0.147, 'fire_count': 3}, {'skill_a': 'dharma', 'skill_b': 'meta"
     },
     "step_21_muscle_atrophy": {
       "status": "ok",
-      "result": "{'atrophied_tools': {'atrophied': 52, 'pruned': 0}, 'dormant_count': 0, 'dormant_tools': []}"
+      "result": "{'atrophied_tools': {'atrophied': 19, 'pruned': 0}, 'dormant_count': 0, 'dormant_tools': []}"
     },
     "step_22_immune_prune": {
       "status": "ok",
@@ -133,7 +137,7 @@
     },
     "step_23_trigger_evaluation": {
       "status": "ok",
-      "result": "{'total_score': 3.156, 'vitality_modifier': 1.2, 'fired_triggers': ['time_cycle', 'surplus_based', 'entropy_alarm'], 'should_evolve': True, 'details': {'time_cycle': 0.64, 'surplus_based': 0.49, 'entr"
+      "result": "{'total_score': 0.339, 'vitality_modifier': 0.3, 'fired_triggers': ['time_cycle', 'surplus_based'], 'should_evolve': True, 'details': {'time_cycle': 0.64, 'surplus_based': 0.49}}"
     },
     "step_24_evolution_velocity": {
       "status": "ok",
@@ -141,11 +145,11 @@
     },
     "step_25_periodic_cycle_check": {
       "status": "ok",
-      "result": "{'checked_at': '2026-03-25T03:03:44.861609+08:00', 'weekly_cycle': {'executed': False, 'reason': 'weekday=2'}, 'monthly_cycle': {'executed': False, 'reason': 'day=25'}}"
+      "result": "{'checked_at': '2026-03-27T03:04:11.194167+08:00', 'weekly_cycle': {'executed': False, 'reason': 'weekday=4'}, 'monthly_cycle': {'executed': False, 'reason': 'day=27'}}"
     },
     "step_26_session_cleanup": {
       "status": "ok",
-      "result": "{'removed': 0, 'kept': 131}"
+      "result": "{'removed': 0, 'kept': 140}"
     },
     "step_27_log_rotation": {
       "status": "ok",
@@ -157,19 +161,27 @@
     },
     "step_29_data_watchdog": {
       "status": "ok",
-      "result": "{'status': 'ok', 'stores_checked': 3, 'alerts': 0, 'dead_write_suspects': 0, 'total_storage': 2543616}"
+      "result": "{'status': 'ok', 'stores_checked': 3, 'alerts': 0, 'dead_write_suspects': 0, 'total_storage': 2367488}"
     },
     "step_30_blueprint_consistency": {
       "status": "ok",
       "result": "{'status': 'ok', 'issues': [], 'blueprints_checked': 4}"
     },
+    "step_31_context_cache_rebuild": {
+      "status": "ok",
+      "result": "{'status': 'error', 'error': \"cannot import name 'ContextCacheBuilder' from 'museon.cache.context_cache_builder' (/Users/ZEALCHOU/MUSEON/.runtime/src/museon/cache/context_cache_builder.py)\"}"
+    },
+    "step_05_6_5_lesson_distill": {
+      "status": "ok",
+      "result": "{'metacog_scanned': 13, 'failure_scanned': 29, 'new_rules': 0, 'skipped_dup': 0}"
+    },
     "step_05_9_5_morphenix_validate": {
       "status": "ok",
-      "result": "{'validated': 1, 'passed': 0, 'failed': 1, 'details': [{'id': 'morphenix_2026-03-25_L2_001', 'passed': False, 'reason': \"validator_error: 'str' object has no attribute 'get'\", 'duration_ms': 676}]}"
+      "result": "{'validated': 2, 'passed': 0, 'failed': 2, 'details': [{'id': 'morphenix_2026-03-27_L2_003', 'passed': False, 'reason': 'pytest_failed', 'duration_ms': 4319}, {'id': 'morphenix_2026-03-27_L2_002', 'pa"
     },
     "step_05_10_morphenix_execute": {
       "status": "ok",
-      "result": "{'executed': 1, 'failed': 0, 'escalated': 0, 'skipped': 0, 'details': [{'proposal_id': 'morphenix_2026-03-25_L1_002', 'outcome': 'executed', 'level': 'L1', 'title': 'Q-Score 弱項修復: actionability 維度平均僅 "
+      "result": "{'executed': 1, 'failed': 0, 'escalated': 0, 'skipped': 0, 'details': [{'proposal_id': 'morphenix_2026-03-27_L1_001', 'outcome': 'executed', 'level': 'L1', 'title': 'Q-Score 弱項修復: actionability 維度平均僅 "
     },
     "step_06_skill_forge": {
       "status": "ok",
@@ -177,7 +189,7 @@
     },
     "step_06_5_skill_scout": {
       "status": "ok",
-      "result": "{'processed': 3, 'deduped': 13, 'removed_duplicates': 2, 'errors': None}"
+      "result": "{'processed': 1, 'deduped': 1, 'removed_duplicates': 0, 'errors': None}"
     },
     "step_07_curriculum": {
       "status": "ok",
@@ -197,8 +209,8 @@
     }
   },
   "summary": {
-    "total": 48,
-    "ok": 48,
+    "total": 51,
+    "ok": 51,
     "error": 0,
     "skipped": 0
   },

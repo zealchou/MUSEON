@@ -194,7 +194,7 @@
     },
     "坤": {
       "absolute": 898,
-      "relative": 16.2
+      "relative": 16.1
     },
     "震": {
       "absolute": 150,
@@ -205,7 +205,7 @@
       "relative": 3.1
     },
     "坎": {
-      "absolute": 5558,
+      "absolute": 5562,
       "relative": 100.0
     },
     "離": {
@@ -214,10 +214,10 @@
     },
     "艮": {
       "absolute": 2793,
-      "relative": 50.3
+      "relative": 50.2
     },
     "兌": {
-      "absolute": 899,
+      "absolute": 900,
       "relative": 16.2
     }
   },

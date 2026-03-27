@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260313_204820_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n建議加入**可交付物**：競爭對手清單模板、選址評估工作表、損益敏感度表。使用者需要的是能直接拿去用的工具，而非只有思路框架。考慮輸出 Markdown 表格或 HTML 版本，讓使用者能複製、填寫、反覆迭代，而不只是「知道該怎麼想」。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-13T20:48:20.061172+08:00",
-  "priority": "medium"
-}
