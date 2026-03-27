@@ -22,6 +22,7 @@ from pathlib import Path
 from typing import Any
 
 from museon.doctor.finding import Finding, FindingStore, BlastOrigin, Prescription
+from museon.doctor.shared_board import read_shared_board, update_shared_board
 
 logger = logging.getLogger(__name__)
 
@@ -65,11 +66,15 @@ class MuseQA:
         self.qa_dir.mkdir(parents=True, exist_ok=True)
         self.reports_dir.mkdir(parents=True, exist_ok=True)
 
+        self._data_dir = self.home / "data"
         self._finding_store = FindingStore(
             self.home / "data" / "_system" / "museoff" / "findings"
         )
         self._leakage_patterns = self._load_leakage_patterns()
         self._compiled_patterns = [re.compile(p, re.IGNORECASE) for p in self._leakage_patterns]
+
+        # 啟動時讀取共享看板，了解其他虎將狀態
+        self._recent_board = read_shared_board(self._data_dir)
 
     # -------------------------------------------------------------------
     # 主掃描入口
@@ -133,6 +138,19 @@ class MuseQA:
 
         results["duration_ms"] = int((time.monotonic() - t0) * 1000)
         self._record_scan_result(results)
+
+        # 寫入共享看板
+        issues = results["issues_found"]
+        status = "critical" if issues > 5 else "warning" if issues > 0 else "ok"
+        update_shared_board(
+            self._data_dir,
+            source="museqa",
+            summary=f"品質掃描: {results['scanned_sessions']} sessions, {results['scanned_replies']} 回覆, {issues} 問題",
+            findings_count=issues,
+            actions=[f"scanned_replies:{results['scanned_replies']}"],
+            status=status,
+        )
+
         return results
 
     # -------------------------------------------------------------------

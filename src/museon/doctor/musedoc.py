@@ -29,6 +29,7 @@ from pathlib import Path
 
 from museon.doctor.finding import FindingStore
 from museon.doctor.runbook import ALL_RUNBOOKS, match_runbook
+from museon.doctor.shared_board import read_shared_board, update_shared_board
 
 logger = logging.getLogger(__name__)
 
@@ -49,8 +50,12 @@ class MuseDoc:
         self.snapshot_path = self.home / "data" / "_system" / "museworker" / "snapshot.json"
 
         self.surgery_dir.mkdir(parents=True, exist_ok=True)
+        self._data_dir = self.home / "data"
 
         self._store = FindingStore(self.findings_dir)
+
+        # 啟動時讀取共享看板，了解其他虎將狀態
+        self._recent_board = read_shared_board(self._data_dir)
 
     # -------------------------------------------------------------------
     # 主入口：夜間手術
@@ -129,6 +134,25 @@ class MuseDoc:
             "[MuseDoc] Surgery complete: fixed=%d, rolled_back=%d, needs_human=%d, skipped=%d",
             fixed, rolled_back, needs_human, skipped,
         )
+
+        # 寫入共享看板
+        status = "critical" if rolled_back > 0 else "warning" if needs_human > 0 else "ok"
+        actions = []
+        if fixed > 0:
+            actions.append(f"fixed:{fixed}")
+        if rolled_back > 0:
+            actions.append(f"rolled_back:{rolled_back}")
+        if needs_human > 0:
+            actions.append(f"needs_human:{needs_human}")
+        update_shared_board(
+            self._data_dir,
+            source="musedoc",
+            summary=f"手術完成: {fixed} 修復, {rolled_back} 回滾, {needs_human} 需人工, {skipped} 跳過",
+            findings_count=len(findings),
+            actions=actions,
+            status=status,
+        )
+
         return summary
 
     # -------------------------------------------------------------------

@@ -78,6 +78,10 @@ class TelegramAdapter(ChannelAdapter):
         self._proactive_message_ids: Dict[int, str] = {}  # {msg_id: push_context}
         self._max_proactive_ids = 50
 
+        # ProactiveDispatcher（Phase 1：推播大總管，由 server.py 注入）
+        self._proactive_dispatcher = None
+        self._current_push_source: str = "unknown"
+
         # Deduplication: 追蹤已處理的 update_id，防止重複訊息
         self._seen_update_ids: set = set()
         self._max_seen_update_ids = 1000  # 避免無限成長
@@ -1208,6 +1212,18 @@ class TelegramAdapter(ChannelAdapter):
             logger.warning("Telegram adapter not running, cannot push notification")
             return 0
 
+        # ProactiveDispatcher 攔截（Phase 1）
+        try:
+            if self._proactive_dispatcher:
+                allowed, reason = await self._proactive_dispatcher.should_allow(
+                    text, source=self._current_push_source
+                )
+                if not allowed:
+                    logger.info(f"[Dispatcher] Push blocked: {reason}")
+                    return 0
+        except Exception as e:
+            logger.debug(f"[Dispatcher] check skipped: {e}")
+
         targets = chat_ids or [int(uid) for uid in self.trusted_user_ids if uid]
         if not targets:
             logger.warning("No push targets (trusted_user_ids empty)")
@@ -1240,6 +1256,17 @@ class TelegramAdapter(ChannelAdapter):
                 logger.error(f"Push notification failed for chat_id={cid}: {e}")
 
         logger.info(f"📢 Push notification sent to {sent}/{len(targets)} users ({len(parts)} parts)")
+
+        # 記錄到 24hr 日誌（ProactiveDispatcher Phase 1）
+        if sent > 0:
+            try:
+                if self._proactive_dispatcher:
+                    self._proactive_dispatcher.record_push(
+                        text, source=self._current_push_source
+                    )
+            except Exception:
+                pass
+
         return sent
 
     # ─── Pulse EventBus Integration ───
@@ -1288,6 +1315,8 @@ class TelegramAdapter(ChannelAdapter):
         message = data.get("message", "")
         if not message:
             return
+        # 提取推播來源供 Dispatcher 使用
+        self._current_push_source = data.get("source", "proactive")
         try:
             async def _push_and_report():
                 sent = await self.push_notification(message)

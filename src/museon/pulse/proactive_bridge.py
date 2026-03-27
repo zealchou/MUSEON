@@ -46,6 +46,14 @@ DAILY_MINIMUM_INTERVAL = 3600    # 每日最低保證檢查間隔（1 小時）
 DAILY_MINIMUM_HOUR = 14          # 14:00 後若 0 推送則觸發 companion（不用等到晚上）
 WATCHDOG_ALERT_HOURS = 3         # 看門狗：活躍時段內 N 小時沒推送 = 異常
 PROACTIVE_MODEL = "claude-haiku-4-5-20251001"
+PROACTIVE_MODEL_HIGH = "claude-sonnet-4-20250514"
+DAILY_SONNET_PUSH_LIMIT = 2
+
+# Phase 4: 高價值場景關鍵字（觸發 Sonnet 模型）
+_HIGH_VALUE_KEYWORDS = frozenset({
+    "成交", "報價", "上線", "客戶", "deadline",
+    "簽約", "合約", "付款", "交付", "里程碑",
+})
 
 
 # PI-2 熱更新讀取器
@@ -113,18 +121,21 @@ class ProactiveBridge:
         heartbeat_focus: Any = None,
         commitment_tracker: Any = None,
         metacognition: Any = None,
+        dispatcher: Any = None,
     ) -> None:
         self._brain = brain
         self._event_bus = event_bus
         self._heartbeat_focus = heartbeat_focus
         self._commitment_tracker = commitment_tracker
         self._metacognition = metacognition
+        self._dispatcher = dispatcher  # Phase 4: ProactiveDispatcher（推播分級）
 
         # 全局推送預算（P0-1：由 server.py 注入共用 PushBudget）
         self._push_budget = None
 
         # 向後相容：保留 _daily_push_count 供狀態查詢
         self._daily_push_count = 0
+        self._daily_sonnet_count = 0  # Phase 4: 每日 Sonnet 使用計數
         self._last_reset_date: Optional[str] = None
 
         # 控制
@@ -393,6 +404,10 @@ class ProactiveBridge:
             self._daily_push_count += 1  # 向後相容
             if self._push_budget:
                 self._push_budget.record_push("proactive", response)
+
+            # Phase 4: 推播分級前綴
+            response = self._add_grade_prefix(response)
+
             self._record_history("pushed", response)
 
             # 發布事件
@@ -429,9 +444,10 @@ class ProactiveBridge:
         messages: List[Dict[str, str]],
         mode: str = "functional",
     ) -> str:
-        """呼叫 Brain 的 LLM（使用 Haiku 控制成本）.
+        """呼叫 Brain 的 LLM（動態選擇 Haiku/Sonnet）.
 
         P3: 根據百合引擎象限調整推送語氣。
+        Phase 4: 高價值場景自動升級 Sonnet。
         """
         prompt = (
             _COMPANION_SYSTEM_PROMPT if mode == "companion"
@@ -458,7 +474,8 @@ class ProactiveBridge:
                 prompt += "\n除非有非常重要的事，否則回覆「OK」即可。"
 
         if hasattr(self._brain, "_call_llm_with_model"):
-            model = _cfg("proactive_model", PROACTIVE_MODEL)
+            # Phase 4: 動態模型選擇
+            model = self._select_model(messages)
             return await self._brain._call_llm_with_model(
                 system_prompt=prompt,
                 messages=messages,
@@ -467,6 +484,75 @@ class ProactiveBridge:
             )
         # Fallback: 如果 brain 沒有 _call_llm_with_model
         return ""
+
+    def _select_model(self, messages: List[Dict[str, str]]) -> str:
+        """Phase 4: 根據上下文動態選擇 Haiku 或 Sonnet.
+
+        升級條件（任一觸發）：
+        - 有未兌現承諾到期
+        - 上下文含高價值商業關鍵字
+
+        限制：每日 Sonnet 上限 DAILY_SONNET_PUSH_LIMIT 次。
+        """
+        default_model = _cfg("proactive_model", PROACTIVE_MODEL)
+        high_model = _cfg("proactive_model_high", PROACTIVE_MODEL_HIGH)
+        daily_limit = _cfg("daily_sonnet_push_limit", DAILY_SONNET_PUSH_LIMIT)
+
+        # 檢查每日 Sonnet 配額
+        if self._daily_sonnet_count >= daily_limit:
+            return default_model
+
+        # 組合所有 message 的內容進行關鍵字偵測
+        combined_text = " ".join(m.get("content", "") for m in messages)
+
+        # 條件 1: 有未兌現承諾
+        should_upgrade = "未兌現承諾" in combined_text or "逾期承諾" in combined_text
+
+        # 條件 2: 高價值商業關鍵字
+        if not should_upgrade:
+            for kw in _HIGH_VALUE_KEYWORDS:
+                if kw in combined_text:
+                    should_upgrade = True
+                    break
+
+        if should_upgrade:
+            self._daily_sonnet_count += 1
+            logger.info(
+                f"[PROACTIVE_BRIDGE] 升級 Sonnet 模型 "
+                f"({self._daily_sonnet_count}/{daily_limit})"
+            )
+            return high_model
+
+        return default_model
+
+    # Phase 4: 推播分級前綴
+    _GRADE_PREFIX = {
+        "info": "📋 ",
+        "action": "⚡ ",
+        "urgent": "🔴 ",
+    }
+
+    def _add_grade_prefix(self, response: str) -> str:
+        """Phase 4: 根據 ProactiveDispatcher 分級，在推播前加上對應前綴."""
+        if not response or not response.strip():
+            return response
+        try:
+            if self._dispatcher:
+                grade = self._dispatcher.get_push_grade(response, "proactive")
+            else:
+                # 無 dispatcher 時用簡易判定
+                grade = "info"
+                from museon.pulse.proactive_dispatcher import _ACTION_KEYWORDS
+                for kw in _ACTION_KEYWORDS:
+                    if kw in response:
+                        grade = "action"
+                        break
+            prefix = self._GRADE_PREFIX.get(grade, "")
+            if prefix and not response.startswith(prefix.strip()):
+                return prefix + response
+        except Exception:
+            pass
+        return response
 
     def _build_context_messages(
         self,
@@ -599,6 +685,80 @@ class ProactiveBridge:
                 parts.append(
                     f"[最近已推送] 以下內容已推送給達達，請避免重複相同話題：\n{summaries}"
                 )
+
+        # Phase 4: 業務脈絡注入（近期承諾、客戶動態、探索洞見）
+        _biz_context_parts: List[str] = []
+
+        # 近期未兌現承諾（從 CommitmentTracker 讀取，補充 functional 模式已有的逾期承諾）
+        if mode != "functional" and self._commitment_tracker:
+            try:
+                _overdue = self._commitment_tracker.get_overdue_commitments()
+                if _overdue:
+                    _biz_context_parts.append(
+                        f"未兌現承諾 ({len(_overdue)} 項)："
+                        + "; ".join(
+                            c.get("promise_text", "")[:50] for c in _overdue[:3]
+                        )
+                    )
+            except Exception:
+                pass
+
+        # 活躍客戶動態（從 external_users 讀取最近活躍客戶的 recent_topics）
+        try:
+            _ext_dir = None
+            if self._brain and hasattr(self._brain, "data_dir"):
+                _ext_dir = Path(self._brain.data_dir) / "_system" / "external_users"
+            if _ext_dir and _ext_dir.exists():
+                _client_snippets: List[str] = []
+                for _fp in sorted(
+                    _ext_dir.glob("*.json"),
+                    key=lambda p: p.stat().st_mtime,
+                    reverse=True,
+                )[:3]:
+                    _u = json.loads(_fp.read_text(encoding="utf-8"))
+                    _name = _u.get("display_name", "Unknown")
+                    _topics = _u.get("recent_topics", [])
+                    if _topics:
+                        _latest = _topics[-1].get("snippet", "")[:60] if isinstance(_topics[-1], dict) else str(_topics[-1])[:60]
+                        _client_snippets.append(f"{_name}: {_latest}")
+                if _client_snippets:
+                    _biz_context_parts.append(
+                        "客戶近期動態：" + " | ".join(_client_snippets)
+                    )
+        except Exception:
+            pass
+
+        # 最近探索洞見（從 pending_insights 讀取有價值的發現）
+        try:
+            if self._brain and hasattr(self._brain, "data_dir"):
+                _insights_path = (
+                    Path(self._brain.data_dir)
+                    / "_system"
+                    / "context_cache"
+                    / "pending_insights.json"
+                )
+                if _insights_path.exists():
+                    _insights_data = json.loads(
+                        _insights_path.read_text(encoding="utf-8")
+                    )
+                    _items = _insights_data.get("insights", [])
+                    if _items:
+                        _recent = [
+                            i.get("content", "")[:60]
+                            for i in _items[-3:]
+                            if i.get("content")
+                        ]
+                        if _recent:
+                            _biz_context_parts.append(
+                                "最近探索發現：" + " | ".join(_recent)
+                            )
+        except Exception:
+            pass
+
+        if _biz_context_parts:
+            parts.append(
+                "\n【業務脈絡】\n" + "\n".join(_biz_context_parts)
+            )
 
         # 額外上下文
         if context:
@@ -786,6 +946,7 @@ class ProactiveBridge:
         today = datetime.now().strftime("%Y-%m-%d")
         if self._last_reset_date != today:
             self._daily_push_count = 0
+            self._daily_sonnet_count = 0  # Phase 4: 同步重置 Sonnet 計數
             self._last_reset_date = today
 
     def _record_history(self, action: str, response: str) -> None:

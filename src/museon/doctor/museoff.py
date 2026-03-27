@@ -34,6 +34,7 @@ from museon.doctor.finding import (
     Prescription,
     TriageAction,
 )
+from museon.doctor.shared_board import read_shared_board, update_shared_board
 
 logger = logging.getLogger(__name__)
 
@@ -56,10 +57,14 @@ class MuseOff:
 
         self.findings_dir.mkdir(parents=True, exist_ok=True)
 
+        self._data_dir = self.home / "data"
         self._store = FindingStore(self.findings_dir)
         self._baseline = BaselineTracker()
         self._load_baselines()
         self._stats = {"probes_run": 0, "findings_created": 0, "triages_executed": 0}
+
+        # 啟動時讀取共享看板，了解其他虎將狀態
+        self._recent_board = read_shared_board(self._data_dir)
 
     # -------------------------------------------------------------------
     # L0: Liveness Probe（每 60 秒）
@@ -549,6 +554,19 @@ class MuseOff:
 
         self._save_baselines()
         self._save_stats()
+
+        # 寫入共享看板
+        findings_count = self._stats["findings_created"]
+        status = "critical" if findings_count > 5 else "warning" if findings_count > 0 else "ok"
+        update_shared_board(
+            self._data_dir,
+            source="museoff",
+            summary=f"巡邏完成: {self._stats['probes_run']} 探針, {findings_count} 發現, {self._stats['triages_executed']} 應急",
+            findings_count=findings_count,
+            actions=[f"triage:{self._stats['triages_executed']}"],
+            status=status,
+        )
+
         return results
 
     # -------------------------------------------------------------------

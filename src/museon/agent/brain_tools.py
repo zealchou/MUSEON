@@ -1035,7 +1035,7 @@ class BrainToolsMixin:
         response_length: int,
         outcome: str = "",
     ) -> None:
-        """追蹤技能使用，供 WEE/Morphenix 自我迭代.
+        """追蹤技能使用，供 WEE/Morphenix 自我迭代 + 信任點計量.
 
         Args:
             outcome: 執行結果 ("success" / "partial" / "failed" / "")
@@ -1048,6 +1048,20 @@ class BrainToolsMixin:
             "outcome": outcome,
         }
         self._skill_usage_log.append(entry)
+
+        # Skill 調用次數計量（信任點基礎）
+        try:
+            from museon.billing.trust_points import get_skill_counter
+            counter = get_skill_counter(
+                data_dir=str(self.data_dir) if hasattr(self, "data_dir") else None
+            )
+            counter.record(
+                skill_names=skill_names,
+                session_id=getattr(getattr(self, "_ctx", None), "session_id", ""),
+                outcome=outcome,
+            )
+        except Exception as e:
+            logger.debug(f"Skill invocation counting skipped: {e}")
 
         # 持久化到磁碟（每 10 次寫入一次）
         if len(self._skill_usage_log) % 10 == 0:

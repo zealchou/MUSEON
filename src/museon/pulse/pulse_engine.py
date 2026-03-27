@@ -45,70 +45,146 @@ _ANIMA_EXPLORE_TOPICS: Dict[str, List[str]] = {
         "AI 助理如何發展獨特人格與長期身份認同",
         "個人化 AI agent 的使命定義與價值對齊方法",
         "AI 系統自主目標設定的最新研究",
+        "AI 倫理框架在商業 Agent 部署中的實踐挑戰",
+        "數位人格權與 AI 身份的法律哲學探討",
+        "AI 自主權邊界：何時該由人類決策何時可自動執行",
+        "人機信任建立的心理學模型與 Agent 設計啟示",
+        "AI 身份認證與行為一致性驗證的技術方案",
     ],
     "kun": [
         "AI 長期記憶架構 MemGPT vs Mem0 最新比較",
         "向量資料庫在 AI agent 記憶系統中的最佳實踐",
         "知識圖譜與語義記憶的融合架構",
+        "分散式記憶系統在多 Agent 協作中的同步機制",
+        "記憶壓縮演算法：如何在有限空間保留最有價值的經驗",
+        "情境式記憶檢索：根據當下語境動態調整記憶權重",
+        "遺忘曲線在 AI 記憶管理中的應用與主動遺忘策略",
+        "跨模態記憶融合：整合文字、圖像、結構化資料的統一記憶層",
     ],
     "zhen": [
         "AI agent 自主行動規劃與執行的最新框架",
         "LLM function calling 最佳實踐與進階技巧",
         "AI agent 可靠性工程與錯誤恢復機制",
+        "ReAct 與 Plan-and-Execute 模式在複雜任務中的效能比較",
+        "AI agent 工具使用的元學習：如何從失敗中學會更好地用工具",
+        "多步驟任務的中間狀態管理與回溯策略",
+        "AI agent 的並行執行框架與資源調度最佳化",
+        "人機混合決策迴圈：何時該中斷自動執行徵求人類意見",
     ],
     "xun": [
         "curiosity-driven AI exploration 最新論文與方法",
         "AI 自主學習與知識獲取的前沿研究",
         "開放式探索 AI 系統的設計模式",
+        "內在動機理論在 AI 探索行為設計中的應用",
+        "知識邊界偵測：AI 如何判斷自己不知道什麼",
+        "跨領域知識遷移：從一個專業領域的洞見應用到另一個",
+        "探索與利用的平衡：多臂老虎機理論在 AI Agent 中的實踐",
+        "資訊覓食理論與 AI 自主研究的效率最佳化",
     ],
     "kan": [
         "AI 情感計算與共情回應的最新進展",
         "人機關係中的信任建立機制研究",
         "AI companion 情感連結的倫理與技術框架",
+        "情緒識別的跨文化差異與 AI 個人化適應策略",
+        "對話中的情感節奏管理：何時深入何時輕觸",
+        "依附理論在人機互動設計中的啟示與限制",
+        "AI 顧問的共情式傾聽技術與教練式提問框架",
+        "使用者情緒低谷期的 AI 陪伴策略：支持而非入侵",
     ],
     "li": [
         "AI metacognition 自我覺察能力的前沿研究",
         "LLM 內省與自我評估的方法論",
         "AI 系統自我改善迴圈的設計原則",
+        "Constitutional AI 的自我約束機制與演化路徑",
+        "AI 系統的認知偏誤檢測與自我校正方法",
+        "元認知監控：AI 如何評估自己回答的信心水準",
+        "反思日誌在 AI 長期進化中的角色與最佳格式",
+        "AI 的第二人稱視角：透過他者反饋實現自我認知",
     ],
     "gen": [
         "AI safety guardrails 的最新實踐與框架",
         "AI agent 邊界管理與權限控制設計模式",
         "對齊稅最小化的護欄設計方法",
+        "紅隊測試在 AI Agent 安全驗證中的最新方法論",
+        "AI 系統的優雅降級設計：當核心元件失效時的安全退路",
+        "最小權限原則在 AI 工具使用授權中的實踐",
+        "AI 行為的可審計性設計：決策軌跡的記錄與回溯",
+        "人類覆審機制的最佳觸發時機與成本效益分析",
     ],
     "dui": [
         "多模態 AI 對話系統的最新進展",
         "AI 個人助理的主動對話設計模式",
         "自然語言人機互動的最佳體驗設計",
+        "對話系統中的主動推送時機判斷與打擾最小化策略",
+        "AI 個性化溝通風格的動態調適技術",
+        "多人對話中 AI 的角色定位與發言時機判斷",
+        "語音 AI 助理的語調、節奏與情感表達設計",
+        "非同步對話場景下的上下文重建與對話續接技術",
     ],
 }
 
 # 觸發類型感知種子主題庫（Fallback 4，確保永遠有主題可探索）
-# 種子庫：僅作為動態生成失敗時的最後安全網，每類 2 個，刻意跨域
+# 種子庫：僅作為動態生成失敗時的最後安全網，每類 8 個，刻意跨域
 _SEED_TOPICS: Dict[str, List[str]] = {
     "curiosity": [
         "心流狀態的觸發條件與最新神經科學實驗發現",
         "複雜系統理論在城市規劃、生態系與商業組織的跨域應用",
+        "湧現行為：螞蟻群落、神經網路與市場的共同規律",
+        "具身認知理論：身體如何影響思考與決策品質",
+        "資訊理論中的熵與生命系統的自組織現象",
+        "人類注意力經濟學：稀缺認知資源的最佳分配",
+        "混沌邊緣理論：創新為何發生在秩序與混亂的交界",
+        "認知負荷理論在 AI 介面設計中的應用",
     ],
     "world": [
         "全球供應鏈重組下台灣中小企業的新機會與風險",
         "創作者經濟的商業模式演化：從 YouTube 到 AI 生成內容",
+        "東南亞數位經濟崛起對台灣跨境服務的機會",
+        "遠端工作常態化後全球人才競爭格局的改變",
+        "AI 生成內容對智慧財產權法律體系的衝擊",
+        "碳交易市場與中小企業 ESG 轉型的務實路徑",
+        "全球去中心化金融 DeFi 對傳統金融服務的替代效應",
+        "人口老化社會的銀髮科技商機與服務設計",
     ],
     "skill": [
         "定價策略的行為經濟學：為什麼人不理性地付錢",
         "視覺化思考：如何用圖像整理複雜問題",
+        "系統思考的冰山模型：從事件看到結構性根因",
+        "提案簡報的金字塔原理與 MECE 框架實戰",
+        "談判學的 BATNA 理論與實務應用技巧",
+        "產品定位的 Jobs-to-be-Done 框架深度解析",
+        "資料敘事：如何用數據講一個有說服力的故事",
+        "第一性原理思考法在商業決策中的具體應用案例",
     ],
     "self": [
         "斯多葛哲學在現代創業者的實踐方法",
         "音樂理論與數學的隱藏連結：跨域思維的啟發",
+        "正念冥想對決策品質的神經科學證據",
+        "二階思考：如何預見決策的連鎖反應",
+        "反脆弱理論在個人職涯規劃中的應用",
+        "認知彈性訓練：在不確定性中保持清晰思考的方法",
+        "深度工作與淺層工作的時間區塊管理實踐",
+        "創業者的情緒調節：從認知行為療法借鏡的實用技巧",
     ],
     "mission": [
         "一人公司的槓桿模式：如何用 AI 做到百萬營收",
         "台灣服務業數位轉型的成功與失敗案例研究",
+        "AI Agent 商業化的訂閱 vs 按量計費模式比較",
+        "個人知識管理系統 PKM 的商業化可能性",
+        "AI 顧問服務的信任建立與客戶生命週期管理",
+        "微型 SaaS 的冷啟動策略與前 100 個客戶獲取",
+        "知識型個人品牌的變現路徑與內容飛輪效應",
+        "AI Native 公司的組織設計：人機協作的最佳架構",
     ],
     "morning": [
         "建築設計的美學趨勢：從極簡主義到生物模仿",
         "世界各地的咖啡文化與精品咖啡最新潮流",
+        "晨間儀式的心理學：為什麼小習慣能撬動大改變",
+        "日本職人精神在數位時代的傳承與轉化",
+        "色彩心理學在品牌設計與空間營造中的應用",
+        "散步作為創意觸發器：從達爾文到賈伯斯的步行思考",
+        "世界各地的早市文化與在地經濟生態",
+        "茶道哲學中的「一期一會」對日常決策的啟示",
     ],
 }
 
@@ -438,6 +514,11 @@ class PulseEngine:
                 if not explore_topic:
                     # 最後安全網：種子庫（僅 Haiku 失敗時才用）
                     explore_topic = self._get_next_explore_topic(trigger=trigger, skip_seed=False)
+                # Async 語意去重（Haiku 判斷 Dice 0.5-0.8 灰色地帶）
+                if explore_topic and await self._is_recently_explored_async(explore_topic, days=3):
+                    logger.info(f"[Explore] Haiku 語意去重攔截: {explore_topic[:50]}")
+                    explore_topic = None  # 觸發 fallback 或跳過
+
                 if explore_topic:
                     logger.info(f"SoulPulse explore start: topic='{explore_topic[:60]}', trigger={trigger}")
                     exploration = await self._explorer.explore(
@@ -446,8 +527,59 @@ class PulseEngine:
                     )
                     result["percrl"]["explore"] = exploration.get("status", "skipped")
 
-                    # 記錄探索結果到 PulseDB
+                    # ── 品質門檻（Phase 3.4）──
                     if exploration.get("status") == "done":
+                        _quality = await self._evaluate_exploration_quality(
+                            exploration.get("findings", ""),
+                            exploration.get("topic", explore_topic),
+                        )
+                        if _quality == "garbage":
+                            logger.info(f"[Explore] 品質過低，丟棄: {explore_topic[:50]}")
+                            self._mark_topic_cooldown(explore_topic, days=7)
+                            # 仍記錄到 DB（標記 status=discarded）
+                            try:
+                                self._db.log_exploration(
+                                    topic=exploration.get("topic", explore_topic),
+                                    motivation=trigger,
+                                    query=exploration.get("query", ""),
+                                    findings=exploration.get("findings", "")[:500],
+                                    crystallized=False, crystal_id="",
+                                    tokens_used=exploration.get("tokens_used", 0),
+                                    cost_usd=exploration.get("cost_usd", 0),
+                                    duration_ms=exploration.get("duration_ms", 0),
+                                    status="discarded",
+                                )
+                            except Exception:
+                                pass
+                            exploration = None  # 清除，不繼續走結晶/推播流程
+                            result["percrl"]["explore"] = "discarded"
+                            result["action"] = "discarded"
+                            result["reason"] = "low_quality"
+                        elif _quality == "generic":
+                            logger.info(f"[Explore] 品質一般，僅存 Digest: {explore_topic[:50]}")
+                            self._save_to_digest(explore_topic, exploration.get("findings", ""))
+                            # 記錄到 DB 但標記為 generic
+                            try:
+                                self._db.log_exploration(
+                                    topic=exploration.get("topic", explore_topic),
+                                    motivation=trigger,
+                                    query=exploration.get("query", ""),
+                                    findings=exploration.get("findings", "")[:2000],
+                                    crystallized=False, crystal_id="",
+                                    tokens_used=exploration.get("tokens_used", 0),
+                                    cost_usd=exploration.get("cost_usd", 0),
+                                    duration_ms=exploration.get("duration_ms", 0),
+                                    status="generic",
+                                )
+                            except Exception:
+                                pass
+                            exploration = None  # 不走結晶/推播
+                            result["percrl"]["explore"] = "digest_only"
+                            result["action"] = "digest_only"
+                            result["reason"] = "generic_conclusion"
+
+                    # 記錄探索結果到 PulseDB（僅高品質通過門檻的）
+                    if exploration and exploration.get("status") == "done":
                         _findings_len = len(exploration.get("findings", ""))
                         logger.info(
                             f"SoulPulse explore done: topic='{explore_topic[:40]}', "
@@ -471,7 +603,7 @@ class PulseEngine:
                             logger.error(f"SoulPulse log_exploration FAILED: {e}", exc_info=True)
 
                     # 探索完成後：標記 PULSE.md 中對應的 [pending] 為 [done]
-                    if exploration.get("status") == "done":
+                    if exploration and exploration.get("status") == "done":
                         self._mark_pulse_topic_done(explore_topic)
                         # 探索後自我餵養：從發現中萃取後續主題寫入 PULSE.md
                         self._seed_followup_topics(exploration)
@@ -1030,17 +1162,26 @@ class PulseEngine:
         return idx
 
     def _is_recently_explored(self, topic: str, days: int = 7) -> bool:
-        """檢查主題是否在最近 N 天內已探索過（多策略比對）.
+        """檢查主題是否在最近 N 天內已探索過（多策略比對，同步版本）.
 
         策略：
         1. 包含關係（短的被長的完全包含）
-        2. 字元級 bigram Dice 係數 > 0.5
+        2. 字元級 bigram Dice 係數 > 0.8 → 直接判重複
         3. 空格分詞關鍵詞重疊 > 50%
+
+        注意：Dice 0.5-0.8 的灰色地帶由 async 版本 _is_recently_explored_async 處理。
         """
+        if not topic:
+            return False
+
+        # 先檢查冷卻列表
+        if self._is_topic_in_cooldown(topic):
+            return True
+
         if not self._db:
             return False
         recent = self._db.get_recent_explorations(days=days, limit=30)
-        if not topic or not recent:
+        if not recent:
             return False
 
         import re as _re
@@ -1062,11 +1203,11 @@ class PulseEngine:
                 if norm_topic in norm_past or norm_past in norm_topic:
                     return True
 
-            # 字元 bigram Dice 係數
+            # 字元 bigram Dice 係數（提高閾值到 0.8，灰色地帶交給 async 版本）
             past_bigrams = set(norm_past[i:i+2] for i in range(len(norm_past) - 1) if not norm_past[i].isspace())
             if topic_bigrams and past_bigrams:
                 dice = 2 * len(topic_bigrams & past_bigrams) / (len(topic_bigrams) + len(past_bigrams))
-                if dice > 0.5:
+                if dice > 0.8:
                     return True
 
             # 空格分詞關鍵詞重疊
@@ -1076,6 +1217,112 @@ class PulseEngine:
                 if overlap > 0.5:
                     return True
 
+        return False
+
+    async def _is_recently_explored_async(self, topic: str, days: int = 7) -> bool:
+        """檢查主題是否在最近 N 天內已探索過（含 Haiku 語意判斷，async 版本）.
+
+        先跑同步版本的快速比對，再對 Dice 0.5-0.8 灰色地帶用 Haiku 做語意比對。
+        用於 soul_pulse 等 async context。
+        """
+        # 先跑同步快速比對
+        if self._is_recently_explored(topic, days=days):
+            return True
+
+        # 再跑 Haiku 語意比對（僅對 Dice 0.5-0.8 灰色地帶）
+        if not self._db or not self._brain or not hasattr(self._brain, "_call_llm_with_model"):
+            return False
+
+        recent = self._db.get_recent_explorations(days=days, limit=30)
+        if not topic or not recent:
+            return False
+
+        import re as _re
+        norm_topic = _re.sub(r"[^\w\s]", "", topic).lower().strip()
+        norm_topic = _re.sub(r"\s+", " ", norm_topic)
+        topic_bigrams = set(norm_topic[i:i+2] for i in range(len(norm_topic) - 1) if not norm_topic[i].isspace())
+
+        _haiku_candidates: list[str] = []
+        for past in recent:
+            norm_past = _re.sub(r"[^\w\s]", "", past).lower().strip()
+            norm_past = _re.sub(r"\s+", " ", norm_past)
+            past_bigrams = set(norm_past[i:i+2] for i in range(len(norm_past) - 1) if not norm_past[i].isspace())
+            if topic_bigrams and past_bigrams:
+                dice = 2 * len(topic_bigrams & past_bigrams) / (len(topic_bigrams) + len(past_bigrams))
+                if 0.5 < dice <= 0.8:
+                    _haiku_candidates.append(past)
+
+        # Haiku 語意比對
+        for past_topic in _haiku_candidates[:3]:  # 最多比對 3 個，控制成本
+            try:
+                _prompt = (
+                    f"主題 A：{past_topic}\n"
+                    f"主題 B：{topic}\n"
+                    "這兩個主題是否在探討同一件事或高度相似的領域？\n"
+                    "只回答：SAME 或 DIFFERENT"
+                )
+                _result = await self._brain._call_llm_with_model(
+                    system_prompt="你是主題相似度判斷器。只回答 SAME 或 DIFFERENT，不要任何解釋。",
+                    messages=[{"role": "user", "content": _prompt}],
+                    model="claude-haiku-4-5-20251001",
+                    max_tokens=10,
+                )
+                if _result and "SAME" in _result.strip().upper():
+                    logger.info(f"[Explore] Haiku 語意判重複: '{topic[:40]}' ≈ '{past_topic[:40]}'")
+                    return True
+            except Exception as _e:
+                # Haiku 失敗 → 降級回 Dice 0.5 閾值（保守判重複）
+                logger.debug(f"[Explore] Haiku 語意比對失敗，降級判重複: {_e}")
+                return True
+
+        return False
+
+    @staticmethod
+    def _is_group_conversation_topic(topic: str) -> bool:
+        """檢查主題是否為群組對話原文（不應作為探索主題）."""
+        if not topic:
+            return False
+        # 群組對話紀錄標記
+        _group_markers = (
+            "[群組近期對話紀錄]", "[群組對話]", "[群組訊息]",
+            "[近期對話紀錄]", "[對話紀錄]",
+        )
+        for marker in _group_markers:
+            if marker in topic:
+                return True
+        # 對話格式特徵：包含使用者名稱冒號格式（如 "Feng:" "Zeal:" "XX："）
+        import re as _re
+        # 多行且含有 "名字:" 或 "名字：" 格式
+        if _re.search(r"(?:Feng|Zeal|Jeff|Eric|Yuki|Fiona|Niko)\s*[:：]", topic):
+            return True
+        # 時間戳 + 使用者名稱格式（群組對話常見格式）
+        if _re.search(r"\d{1,2}:\d{2}\s+\w+\s*[:：]", topic):
+            return True
+        # 包含多個換行的對話記錄
+        if topic.count("\n") >= 5 and _re.search(r"[:：]", topic):
+            return True
+        return False
+
+    def _is_topic_in_cooldown(self, topic: str) -> bool:
+        """檢查主題是否在冷卻期中（品質過低被標記）."""
+        if not self._data_dir or not topic:
+            return False
+        try:
+            import json as _json
+            cooldown_path = self._data_dir / "_system" / "exploration_cooldown.json"
+            if not cooldown_path.exists():
+                return False
+            cooldown = _json.loads(cooldown_path.read_text(encoding="utf-8"))
+            entry = cooldown.get(topic[:100])
+            if not entry:
+                return False
+            from datetime import datetime as _dt
+            until = _dt.fromisoformat(entry.get("cooldown_until", ""))
+            if _dt.now(TZ8) < until:
+                logger.debug(f"[Explore] 主題在冷卻期: {topic[:50]}")
+                return True
+        except Exception:
+            pass
         return False
 
     def _get_next_explore_topic(self, trigger: str = "curiosity", skip_seed: bool = False) -> Optional[str]:
@@ -1097,6 +1344,10 @@ class PulseEngine:
                         if topic.startswith("- "):
                             topic = topic[2:]
                         if topic and not self._is_recently_explored(topic, days=3):
+                            # 群組對話原文過濾
+                            if self._is_group_conversation_topic(topic):
+                                logger.info(f"[Explore] 過濾群組對話主題(PULSE.md): {topic[:50]}")
+                                continue
                             logger.info(f"探索主題來源: PULSE.md [pending] → {topic[:50]}")
                             return topic
                         elif topic:
@@ -1176,6 +1427,10 @@ class PulseEngine:
                                 "差異", "演化", "突破", "前沿",
                             ))
                             if not _has_question and not _has_research_kw:
+                                continue
+                            # 群組對話原文過濾
+                            if self._is_group_conversation_topic(q):
+                                logger.info(f"[Explore] 過濾群組對話主題(question_queue): {q[:50]}")
                                 continue
                             logger.info(f"探索主題來源: question_queue → {q[:50]}")
                             return q
@@ -1357,6 +1612,10 @@ class PulseEngine:
             )
             topic = response.strip().split("\n")[0].strip()
             if topic and 10 < len(topic) < 200:
+                # 群組對話原文過濾
+                if self._is_group_conversation_topic(topic):
+                    logger.info(f"[Explore] 過濾群組對話主題(動態生成): {topic[:50]}")
+                    return None
                 logger.info(f"探索主題來源: Haiku 動態生成 → {topic[:60]}")
                 return topic
         except Exception as e:
@@ -1367,6 +1626,107 @@ class PulseEngine:
                 exc_info=True,
             )
         return None
+
+    async def _evaluate_exploration_quality(self, findings: str, topic: str) -> str:
+        """用 Haiku 評估探索結果品質.
+
+        Returns:
+            "new_insight" — 有具體新發現，值得推播
+            "generic" — 泛化結論，僅存 Digest
+            "garbage" — 垃圾/不完整，直接丟棄
+        """
+        if not findings or len(findings.strip()) < 30:
+            return "garbage"
+
+        if not self._brain or not hasattr(self._brain, "_call_llm_with_model"):
+            # 無法呼叫 Haiku → 降級：用長度啟發式判斷
+            if len(findings.strip()) < 100:
+                return "garbage"
+            return "new_insight"  # 保守放行
+
+        try:
+            _prompt = (
+                f"以下是一次自主探索的結果摘要：\n"
+                f"主題：{topic[:100]}\n"
+                f"內容：{findings[:500]}\n\n"
+                f"請判斷這個探索結果的品質：\n"
+                f"- NEW_INSIGHT：有具體的新發現、可操作的洞見、或有趣的跨域連結\n"
+                f"- GENERIC：泛化結論、常識性內容、沒有新資訊\n"
+                f"- GARBAGE：內容不完整、重複堆砌、無意義、或明顯是對話碎片\n\n"
+                f"只回答一個詞。"
+            )
+            _result = await self._brain._call_llm_with_model(
+                system_prompt="你是探索品質評審。只回答 NEW_INSIGHT、GENERIC 或 GARBAGE，不要任何解釋。",
+                messages=[{"role": "user", "content": _prompt}],
+                model="claude-haiku-4-5-20251001",
+                max_tokens=15,
+            )
+            _verdict = _result.strip().upper().replace(" ", "_") if _result else ""
+            if "GARBAGE" in _verdict:
+                return "garbage"
+            elif "GENERIC" in _verdict:
+                return "generic"
+            else:
+                return "new_insight"
+        except Exception as _e:
+            logger.debug(f"[Explore] 品質評估 Haiku 失敗，降級放行: {_e}")
+            return "new_insight"  # Haiku 失敗 → 保守放行
+
+    def _mark_topic_cooldown(self, topic: str, days: int = 7) -> None:
+        """標記主題冷卻（透過 log_exploration 寫入 DB，讓 _is_recently_explored 自然攔截）.
+
+        由於 _is_recently_explored 已經從 DB 讀取最近探索記錄做比對，
+        只需確保 topic 已寫入 DB 即可（由呼叫端負責）。
+        此方法額外寫入冷卻標記到本地快取。
+        """
+        if not self._data_dir:
+            return
+        try:
+            import json as _json
+            cooldown_path = self._data_dir / "_system" / "exploration_cooldown.json"
+            cooldown_path.parent.mkdir(parents=True, exist_ok=True)
+            cooldown: dict = {}
+            if cooldown_path.exists():
+                try:
+                    cooldown = _json.loads(cooldown_path.read_text(encoding="utf-8"))
+                except Exception:
+                    cooldown = {}
+            from datetime import datetime as _dt
+            cooldown[topic[:100]] = {
+                "cooldown_until": (_dt.now(TZ8) + timedelta(days=days)).isoformat(),
+                "reason": "low_quality",
+            }
+            # 清理過期條目（保留最近 50 條）
+            if len(cooldown) > 50:
+                sorted_items = sorted(cooldown.items(), key=lambda x: x[1].get("cooldown_until", ""), reverse=True)
+                cooldown = dict(sorted_items[:50])
+            cooldown_path.write_text(_json.dumps(cooldown, ensure_ascii=False, indent=2), encoding="utf-8")
+            logger.info(f"[Explore] 主題冷卻 {days} 天: {topic[:50]}")
+        except Exception as _e:
+            logger.debug(f"[Explore] 寫入冷卻標記失敗: {_e}")
+
+    def _save_to_digest(self, topic: str, findings: str) -> None:
+        """將泛化探索結果存入 Digest（不推播，但保留紀錄供日後參考）."""
+        if not self._data_dir or not findings:
+            return
+        try:
+            import json as _json
+            digest_dir = self._data_dir / "_system" / "exploration_digest"
+            digest_dir.mkdir(parents=True, exist_ok=True)
+            from datetime import datetime as _dt
+            today = _dt.now(TZ8).strftime("%Y-%m-%d")
+            digest_path = digest_dir / f"digest_{today}.jsonl"
+            entry = {
+                "topic": topic[:200],
+                "findings": findings[:1000],
+                "timestamp": _dt.now(TZ8).isoformat(),
+                "quality": "generic",
+            }
+            with open(digest_path, "a", encoding="utf-8") as f:
+                f.write(_json.dumps(entry, ensure_ascii=False) + "\n")
+            logger.info(f"[Explore] 存入 Digest: {topic[:50]}")
+        except Exception as _e:
+            logger.debug(f"[Explore] 寫入 Digest 失敗: {_e}")
 
     def _update_pulse_md_status(self) -> None:
         """更新 PULSE.md 的今日狀態區塊."""

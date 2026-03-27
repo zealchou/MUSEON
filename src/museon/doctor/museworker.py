@@ -26,6 +26,7 @@ from pathlib import Path
 from typing import Any
 
 from museon.doctor.fan_in_scanner import FanInScanner
+from museon.doctor.shared_board import read_shared_board, update_shared_board
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +49,9 @@ class MuseWorker:
         self.history_dir.mkdir(parents=True, exist_ok=True)
 
         self._scanner = FanInScanner(self.src_dir)
+
+        # 啟動時讀取共享看板，了解其他虎將狀態
+        self._recent_board = read_shared_board(self.home / "data")
 
     # -------------------------------------------------------------------
     # 公開 API
@@ -78,6 +82,21 @@ class MuseWorker:
             len(snapshot["fan_in_table"]),
             snapshot["compute_duration_ms"],
         )
+
+        # 寫入共享看板
+        path_health = snapshot.get("path_health", {})
+        zombies = len(path_health.get("zombie_files", []))
+        missing = len(path_health.get("missing_paths", []))
+        status = "warning" if (zombies > 0 or missing > 0) else "ok"
+        update_shared_board(
+            self.home / "data",
+            source="museworker",
+            summary=f"快照完成: {len(snapshot['fan_in_table'])} 模組, {snapshot['compute_duration_ms']}ms, zombies={zombies}, missing={missing}",
+            findings_count=zombies + missing,
+            actions=[f"snapshot:{trigger}"],
+            status=status,
+        )
+
         return snapshot
 
     async def incremental_update(self, changed_files: list[str], trigger: str = "file_change") -> dict:

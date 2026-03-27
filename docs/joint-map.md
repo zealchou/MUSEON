@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.46
+# Joint Map — 共享可變狀態接頭圖 v1.48
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -53,9 +53,17 @@
 | 40 | group_context.db | 🟡 | 1 | 2 | SQLite WAL | [→](#40-group_contextdb) |
 | 41 | PushBudget 單例（記憶體+PulseDB push_log） | 🟡 | 2 | 2 | SQLite WAL | [→](#41-pushbudget) |
 | 42 | BrainCircuitBreaker singleton（記憶體） | 🟢 | 1 | 2 | threading.Lock | [→](#42-braincircuitbreaker-singleton記憶體) |
+| 46 | _system/context_cache/pending_insights.json | 🟢 | 1 | 1 | 原子寫 | [→](#46-pending_insightsjson) |
+| 47 | _system/context_cache/{4檔} | 🟡 | 2 | 2 | 無 | [→](#47-context-cache-四檔) |
 | 43 | message_queue.db | 🟢 | 1 | 1 | SQLite WAL + threading.Lock | [→](#43-message_queuedb) |
 | 44 | AsyncTokenBucket singleton（記憶體） | 🟢 | 1 | 1 | asyncio.Lock | [→](#44-asynctokenbucket-singleton記憶體) |
 | 45 | BrainWorkerManager singleton（記憶體） | 🟢 | 1 | 1 | asyncio.Lock | [→](#45-brainworkermanager-singleton記憶體) |
+| 48 | _system/pulse/push_journal_24h.json | 🟢 | 1 | 1 | 無 | [→](#48-push_journal_24hjson) |
+| 49 | _system/memory_graph/edges.json | 🟢 | 1 | 1 | 無 | [→](#49-memory_graph-edgesjson) |
+| 50 | _system/memory_graph/access_log.json | 🟢 | 1 | 1 | 無 | [→](#50-memory_graph-access_logjson) |
+| 51 | _system/learning/insights/*.json | 🟢 | 1 | 1 | 無 | [→](#51-learning-insightsjson) |
+| 52 | _system/doctor/shared_board.json | 🟡 | 4 | 5 | 無 | [→](#52-shared_boardjson) |
+| 53 | _system/billing/skill_invocations_*.json | 🟢 | 1 | 1 | 無 | [→](#53-skill_invocationsjson) |
 
 > **危險度定義**：🔴 多寫入者+高扇出+格式不一致 | 🟡 多寫入者或高扇出 | 🟢 單寫入者+低扇出
 
@@ -1108,6 +1116,152 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 
 ---
 
+### 46. pending_insights.json
+
+**路徑**：`data/_system/context_cache/pending_insights.json`
+**用途**：L4 觀察者寫入的洞察（目標/情緒/決策/教訓），L1 下次回覆時讀取並融入 prompt
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| `agent/brain_observer.py` | **W** | `_write_insights()` | L4 觀察者偵測到洞察時寫入（append + LRU 50） | 原子寫 |
+| `agent/brain_fast.py` | **R+W** | `_read_pending_insights()` / `_consume_insights()` | L1 讀取融入 prompt，回覆後清空 | 原子寫 |
+
+> **鎖**：無顯式鎖（原子寫入 + 單一寫入者 + 讀後清空模式）
+> **TTL**：由 L1 消費後清空；未消費的由 LRU 保持最多 50 筆
+> **危險度**：🟢 綠（單寫單讀，讀後清空）
+
+---
+
+### 47. context_cache 四檔
+
+**路徑**：`data/_system/context_cache/` 下四個檔案
+- `persona_digest.md` — MUSEON 核心人格濃縮版
+- `active_rules.json` — Top-10 行動規則
+- `user_summary.json` — 使用者能力摘要
+- `self_summary.json` — MUSEON 自我狀態摘要
+
+**用途**：v2 L1/L2 的快速上下文載入（取代載入 42KB ANIMA_USER）
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| `cache/context_cache_builder.py` | **W** | `build_all()` | Nightly Step 31 重建所有四檔 | 無（夜間單次執行） |
+| `agent/brain_observer.py` | **W** | `_observe()` | L4 增量更新 user_summary（選配） | 原子寫 |
+| `agent/brain_fast.py` | **R** | `_build_prompt()` | L1 每次回覆前讀取 | — |
+| `agent/brain_deep.py` | **R** | `_build_prompt()` | L2 每次處理前讀取 | — |
+
+> **鎖**：無（寫入者時間分離：nightly 凌晨、L4 即時但低頻）
+> **TTL**：每日 Nightly Step 31 全量重建
+> **危險度**：🟡 黃（多讀者 + 2 寫入者，但寫入者時間錯開）
+
+### 48. push_journal_24h.json
+
+**路徑**：`data/_system/pulse/push_journal_24h.json`
+**用途**：ProactiveDispatcher 24hr 推播日誌（語意去重 + 內容追蹤）
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| `pulse/proactive_dispatcher.py` | **W** | `_log_push()` | 每次推播寫入 | 無 |
+| `channels/telegram.py` | **R** | `push_notification()` | 推播前查詢去重 | — |
+
+> **鎖**：無（單寫入者）
+> **TTL**：24hr 自動清除過期條目
+> **危險度**：🟢
+
+### 49. memory_graph edges.json
+
+**路徑**：`data/_system/memory_graph/edges.json`
+**用途**：MemoryGraph 記憶間語意關聯邊
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| `memory/memory_graph.py` | **W** | `add_edge()` | 新增關聯邊 | 無 |
+| `agent/brain.py` | **R** | `_build_memory_inject()` | 建構記憶注入時讀取關聯 | — |
+
+> **鎖**：無（單寫入者）
+> **TTL**：永久保留
+> **危險度**：🟢
+
+### 50. memory_graph access_log.json
+
+**路徑**：`data/_system/memory_graph/access_log.json`
+**用途**：MemoryGraph 記憶存取追蹤（偵測過期記憶）
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| `memory/memory_graph.py` | **W** | `log_access()` | 記錄存取 | 無 |
+| `memory/memory_graph.py` | **R** | `detect_stale()` | 偵測過期記憶 | — |
+
+> **鎖**：無（單寫單讀）
+> **TTL**：永久保留
+> **危險度**：🟢
+
+### 51. learning insights/*.json
+
+**路徑**：`data/_system/learning/insights/*.json`
+**用途**：InsightExtractor 萃取的洞見（個別 JSON 檔案）
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| `learning/insight_extractor.py` | **W** | `extract()` | 萃取洞見寫入 | 無 |
+| `agent/brain.py` | **R** | 初始化時載入 | 洞見作為上下文 | — |
+
+> **鎖**：無（單寫入者）
+> **TTL**：永久保留
+> **危險度**：🟢
+
+### 52. shared_board.json
+
+**路徑**：`data/_system/doctor/shared_board.json`
+**用途**：五虎將共享看板（任務協調、結果共享）
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| `doctor/museoff.py` | **W** | `_write_board()` | 寫入巡邏結果 | 無 |
+| `doctor/museqa.py` | **W** | `_write_board()` | 寫入品質檢查結果 | 無 |
+| `doctor/musedoc.py` | **W** | `_write_board()` | 寫入文件同步結果 | 無 |
+| `doctor/museworker.py` | **W** | `_write_board()` | 寫入變動記錄 | 無 |
+| `doctor/museoff.py` | **R** | `_read_board()` | 啟動時讀取 | — |
+| `doctor/museqa.py` | **R** | `_read_board()` | 啟動時讀取 | — |
+| `doctor/musedoc.py` | **R** | `_read_board()` | 啟動時讀取 | — |
+| `doctor/museworker.py` | **R** | `_read_board()` | 啟動時讀取 | — |
+| `nightly/nightly_pipeline.py` | **R** | 夜間報告 | 讀取看板摘要 | — |
+
+> **鎖**：無（50 筆上限滾動，寫入者時間錯開）
+> **TTL**：50 筆上限滾動清除
+> **危險度**：🟡 黃（4 寫入者，但為不同五虎將模組，執行時間錯開）
+
+### 53. skill_invocations_*.json
+
+**路徑**：`data/_system/billing/skill_invocations_*.json`
+**用途**：Skill 調用計數月度檔案
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| `billing/trust_points.py` | **W** | `record_invocation()` | 每次 Skill 調用記錄 | 無 |
+| `billing/trust_points.py` | **R** | `get_monthly_stats()` | 讀取月度統計 | — |
+
+> **鎖**：無（單寫單讀）
+> **TTL**：永久保留（月度檔案）
+> **危險度**：🟢
+
+---
+
 ## 必須同時修改的模組組（不可分批）
 
 > 修改以下任一模組時，**必須**同時檢查並調整同組所有模組。
@@ -1195,6 +1349,8 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 | 2026-03-16 | v1.15 | Memory Reset 一鍵重置工具：新增 `doctor/memory_reset.py` 為 25 個共享狀態的重置者（#1 ANIMA_MC.json boss/self_awareness 重置、#2 ANIMA_USER.json 全量重置、#3 PULSE.md 模板重建、#9 Qdrant 全部 collections 刪除重建、#25 JSONL 審計日誌群清空、#26 記憶 Markdown 刪除、#27 fact_corrections.jsonl 清空）；同時重置 PulseDB 全表、sessions、crystals/synapses/scout_queue、diary/drift、eval/workflow_state.db、guardian/footprints/activity_log、nightly_state/outward；預設 dry-run 安全模式 |
 | 2026-03-17 | v1.15 | DNA-Inspired 品質回饋閉環：#8 PulseDB 讀取者 11→12（+morphenix_executor `get_quality_flags()`/`get_quality_flag_summary()`）；metacognition 新增 `METACOGNITION_QUALITY_FLAG` 事件發布（verdict=revise 時）；morphenix_executor 夜間管線讀取品質旗標作為演化上下文 |
 | 2026-03-16 | v1.14 | Memory Gate 記憶閘門：新增 `memory/memory_gate.py` 為 ANIMA_USER.json 間接寫入控制者；brain.py `_observe_user()` 新增 `suppress_primals`/`suppress_facts` 參數；`_observe_user_layers()` 新增 `suppress_facts` 參數；L1_facts 新增 `status`/`confidence` 欄位；Step 9.2 事實更正偵測提前到 Step 9 之前；解決「越否認越強化」記憶迴圈 |
+| 2026-03-27 | v1.48 | 有機體進化計畫 Phase 1-9——新增 #48 `push_journal_24h.json`（ProactiveDispatcher 寫入、telegram 讀取）、#49-#50 `memory_graph/` edges+access_log（MemoryGraph 單寫、Brain 讀取）、#51 `learning/insights/`（InsightExtractor 單寫、Brain 讀取）、#52 `shared_board.json`（🟡 4 寫入者 museoff/qa/doc/worker，5 讀取者）、#53 `skill_invocations_*.json`（SkillCounter 單寫單讀）。共享狀態 47→53 個 |
+| 2026-03-26 | v1.47 | v2 Brain 四層架構共享狀態——新增 #43 `pending_insights.json`（L4 觀察者寫入、L1 讀取+清空，原子寫）、#44 `context_cache/` 4 檔（nightly Step 31 重建、L1/L2 每次讀取）。刪除 federation/installer 相關引用。共享狀態 45→47 個 |
 | 2026-03-16 | v1.12 | P4 PULSE.md 自省清洗：#27 fact_corrections.jsonl 的三個讀取者已實作——brain.py `_get_fact_correction_declarations()` 注入 system prompt、proactive_bridge.py `_read_recent_fact_corrections()` 注入自省上下文、pulse_engine.py `_reflection_contains_stale_facts()` 寫入前過濾；PULSE.md 寫入新增過期事實過濾閘 |
 | 2026-03-16 | v1.11 | P1 推送上下文串接：TelegramAdapter._write_push_to_session() 推送成功後寫入 Brain session history（session_id=telegram_{owner_chat_id}），role=assistant 帶 [主動推送 HH:MM] 前綴；session history 新增間接寫入者（TelegramAdapter 經由 Brain._get_session_history()） |
 | 2026-03-16 | v1.10 | P0 記憶事實覆寫：新增 #27 fact_corrections.jsonl（Brain 寫、Brain+ProactiveBridge+PulseEngine 讀）；G3 記憶管線新增 supersede()+mark_deprecated() 事實覆寫路徑；Qdrant memories 新增 status=deprecated 過濾；共享狀態 26→27 個 |

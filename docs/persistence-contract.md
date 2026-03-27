@@ -1,4 +1,4 @@
-# MUSEON Persistence Contract v1.36 — 水電圖
+# MUSEON Persistence Contract v1.37 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
@@ -490,6 +490,17 @@ adaptive_decay ──ACT-R B_i──→ _activation 欄位 (in-memory) ←──
 | `_system/agent_registry.json` | JSON | agent_registry | pdr_council | 統一能力目錄 |
 | `_system/museqa/pdr_adjustments.jsonl` | JSONL append | museqa | nightly audit | MuseQA 自動調控審計日誌 |
 | `_system/realtime_gaps.jsonl` | JSONL append | skill_forge_scout | skill_forge_scout | 即時 Skill 缺口記錄 |
+
+### Phase 1-9 新增持久化（v1.37）
+
+| 路徑 | 格式 | 寫入者 | 讀取者 | 說明 |
+|------|------|--------|--------|------|
+| `_system/pulse/push_journal_24h.json` | JSON | `pulse/proactive_dispatcher.py` | `channels/telegram.py` | ProactiveDispatcher 24hr 推播日誌，每次推播寫入，24hr 自動清除 |
+| `_system/memory_graph/edges.json` | JSON | `memory/memory_graph.py` | `agent/brain.py` | MemoryGraph 關聯邊，永久保留 |
+| `_system/memory_graph/access_log.json` | JSON | `memory/memory_graph.py` | `memory/memory_graph.py` | MemoryGraph 存取紀錄，永久保留 |
+| `_system/learning/insights/*.json` | JSON (個別檔案) | `learning/insight_extractor.py` | `agent/brain.py` | InsightExtractor 萃取的洞見，永久保留 |
+| `_system/doctor/shared_board.json` | JSON | `doctor/museoff.py`, `doctor/museqa.py`, `doctor/musedoc.py`, `doctor/museworker.py` | 五虎將 + nightly | 五虎將共享看板，50 筆上限滾動 |
+| `_system/billing/skill_invocations_*.json` | JSON (月度檔案) | `billing/trust_points.py` | `billing/trust_points.py` | Skill 調用計數月度檔案，永久保留 |
 | `_system/forge_triggers.jsonl` | JSONL append | skill_forge_scout | nightly | Skill 鍛造觸發記錄 |
 | `_system/pdr_baseline_analysis.json` | JSON | 分析腳本 | PDR 初始化 | 七天基線分析 |
 
@@ -668,6 +679,7 @@ adaptive_decay ──ACT-R B_i──→ _activation 欄位 (in-memory) ←──
 | v1.0 | 2026-03-15 | 初版：完整水電圖，涵蓋 23 個正常配對、3 個 Dead Write、14 個死目錄 |
 | v1.1 | 2026-03-15 | Phase 2 完成：4 個 JSON 遷移至 PulseDB（ceremony_state + eval 三件套） |
 | v1.2 | 2026-03-15 | Phase 3 完成：DataContract + DataBus 建立，10 個 Store 類統一接入 |
+| v1.37 | 2026-03-27 | 有機體進化計畫 Phase 1-9——新增 6 個持久化條目：`push_journal_24h.json`（ProactiveDispatcher 24hr 推播日誌）、`memory_graph/` edges+access_log（MemoryGraph 關聯邊+存取紀錄，永久）、`learning/insights/`（InsightExtractor 洞見，永久）、`shared_board.json`（五虎將看板，50 筆滾動）、`skill_invocations_*.json`（Skill 調用計數月度檔，永久）。同步 system-topology v1.54、blast-radius v1.71、joint-map v1.48、memory-router v1.10 |
 | v1.36 | 2026-03-25 | 訊息佇列持久化——新增 MessageQueueDB（`data/_system/message_queue.db`，SQLite WAL，message_queue_store.py Owner，telegram_pump.py enqueue/mark_done/mark_failed，server.py startup init）；表數 5→6 |
 | v1.35 | 2026-03-25 | 對話持久化——GroupContextDB 擴展（DM msg_type='dm' + bot_reply，text 截斷 2000→8000，clients 表新增 personality_notes/communication_style）；無新增 DB |
 | v1.34 | 2026-03-24 | 全面審計同步——group_context.db 路徑修正為 `data/_system/group_context.db`；registry.db 路徑修正為 `data/registry/cli_user/registry.db`；無新增持久層 |

@@ -1,7 +1,9 @@
-# MUSEON 系統拓撲圖 v1.52
+# MUSEON 系統拓撲圖 v1.54
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.54 (2026-03-27)**：有機體進化計畫 Phase 1-9——新增 6 個節點（proactive-dispatcher、memory-graph、insight-extractor、strategy-accumulator、shared-board、skill-counter）；新增 learning 群組；pulse 群組 proactive-dispatcher 統一攔截推播；Nightly 精簡移除 3 個步驟（7.5/10.5/11）；五虎將共享看板協調機制；cron 直接推送全部納管 ProactiveDispatcher。
+> **v1.53 (2026-03-26)**：v2 Brain 四層架構 + 死碼清理——agent 群組新增 `brain-deep`（L2 Opus 引擎）、`brain-tool-loop`（獨立 tool-use 迴圈）、`brain-observer`（L4 觀察者）3 個節點 + 5 條連線；`brain-fast` 升級為 L1 Sonnet + escalation 機制；移除 federation 群組（skill-market + federation-sync 2 個節點）+ installer 群組（4 個子節點 + 1 個 Hub 節點）；nightly 新增 Step 31 context_cache。
 > **v1.51 (2026-03-25)**：教訓蒸餾+斷裂管線修復+Fix-Verify Workflow——nightly 群組新增 2 個步驟節點（`lesson-distill` Step 5.6.5 教訓蒸餾、`client-profile-update` Step 18.5 客戶互動萃取）；agent 群組 `brain-prompt-builder` 新增 3 條 cross 連線（→intuition-heuristics 注入、→knowledge-lattice record_success、→external-anima search）；gateway 群組 `server` 新增 1 條 cross 連線（→guardian mothership_queue 消費）；doctor 群組 `musedoc` 新增 `_fix_verify` 三維驗證方法；新增 `fix-verify` Workflow Skill（Evolution Hub）；`brain.py` MemoryManager user_id cli_user→boss。同步 blast-radius v1.65、joint-map v1.43、memory-router v1.9。
 > **v1.50 (2026-03-25)**：server.py 拆分藍圖補齊 + 三層洩漏預防——channel 群組新增 3 個節點（`telegram-pump` 訊息泵、`routes-api` API 端點註冊、`cron-registry` cron 任務註冊）；新增 6 條連線（gateway→telegram-pump/routes-api/cron-registry internal，telegram-pump→response-guard cross）；gateway 節點職責更新（3800 行，訊息泵/API/cron 已獨立）。三層洩漏預防架構：L1 brain-prompt-builder（prompt 約束）→ L2 telegram-pump（結構化剝離）→ L3 response-guard（黑名單安全網）；telegram-pump→response-guard 連線強化為雙重驗證（L2 剝離 + L3 sanitize）。restart-gateway.sh 新增 rsync 步驟。197 節點 487 連線。同步 blast-radius v1.64、joint-map v1.42。
 > **v1.49 (2026-03-24)**：全面審計——修正統計摘要表（184→194 節點、456→481 連線），使摘要與版本紀錄一致。同步 blast-radius v1.62、joint-map v1.41、persistence-contract v1.34。
@@ -59,9 +61,10 @@
 | `llm` | LLM 路由 | 模型選擇、預算、速限、快取 | `#5A5A6E` |
 | `data` | 資料持久層 | 記憶、向量索引、技能庫、SQLite | `#7A7888` |
 | `evolution` | Evolution 演化 | 外向演化、意圖雷達、研究消化、參數調諧 | `#6B3FA0` |
-| `tools` | Tools 工具 | 工具註冊、探測、排程、聯邦市場 | `#8A6A3E` |
-| `nightly` | Nightly 夜間 | 30+ 步夜間整合管線、演化提案、好奇心路由 | `#9A3A1C` |
-| `installer` | Installer 安裝 | 部署編排、Daemon 設定、Electron 打包 | `#5A8A3E` |
+| `tools` | Tools 工具 | 工具註冊、探測、排程 | `#8A6A3E` |
+| `nightly` | Nightly 夜間 | 31+ 步夜間整合管線、演化提案、好奇心路由 | `#9A3A1C` |
+| `learning` | Learning 學習 | 持續學習引擎（洞見萃取、策略累積） | `#4A8A2A` |
+| `billing` | Billing 計費 | Skill 調用計數、信任點數 | `#8A7A3E` |
 | `external` | 外部服務 | SearXNG、Qdrant、Firecrawl、API | `#6A6880` |
 | `skills` | Skills 生態系 | 外掛 Skill 語義群組（7 子中樞 + 41 Skill）；治理規格見 `skill-routing-governance.md` | `#8B5CF6` |
 
@@ -121,7 +124,7 @@ external-user（EXTERNAL）
 ### agent — Agent / Brain
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
 |----|------|------|-----|--------|------|
-| `brain` | Agent / Brain | 主判斷中樞（core: init + process pipeline, 2575 行） | Yes | - | 2.8 |
+| `brain` | Brain-Fast (L1) | L1 接待層（Sonnet + escalation JSON，簡單自答/複雜派 L2） | Yes | - | 2.8 |
 | `brain-prompt-builder` | Brain Prompt Builder | Mixin: system prompt 建構（1668 行） | - | brain | 1.0 |
 | `brain-dispatch` | Brain Dispatch | Mixin: 任務分派（1082 行） | - | brain | 1.0 |
 | `brain-observation` | Brain Observation | Mixin: 觀察與演化（2003 行） | - | brain | 1.0 |
@@ -162,6 +165,10 @@ external-user（EXTERNAL）
 | `memory-reflector` | Memory Reflector | Hindsight 式反思引擎（矛盾偵測/模式發現/時間軸/Activation 排序） | - | brain | 1.0 |
 | `proactive-predictor` | Proactive Predictor | 需求預判引擎（Skill 序列/情緒/決策循環 四維預測） | - | brain | 1.0 |
 | `adaptive-decay` | Adaptive Decay | ACT-R 式統一衰減引擎（B_i = ln(Σt^{-d}) + β_i） | - | brain | 0.8 |
+| `brain-deep` | Brain-Deep (L2) | L2 深度思考引擎（Opus + tool_use） | - | brain | 1.2 |
+| `brain-tool-loop` | Brain-Tool-Loop | 獨立 tool-use 迴圈 | - | brain | 1.0 |
+| `brain-observer` | Brain-Observer (L4) | L4 觀察者（Haiku，記憶落地 + 洞察偵測） | - | brain | 0.9 |
+| `memory-graph` | Memory Graph | 記憶關聯圖（語意關聯邊 + 存取追蹤 + 過期偵測） | - | brain | 1.0 |
 
 ### agent — PDR (Progressive Depth Response) 模組群
 
@@ -192,6 +199,7 @@ external-user（EXTERNAL）
 | `anima-tracker` | Anima Tracker | 八元素追蹤 | - | pulse | 1.0 |
 | `group-session-proactive` | Group Session Proactive | 群組後主動追問 | - | pulse | 0.9 |
 | `anima-changelog` | Anima Changelog | ANIMA_USER 差分版本追蹤（append-only JSONL） | - | pulse | 0.8 |
+| `proactive-dispatcher` | Proactive Dispatcher | 推播大總管（統一攔截推播、24hr 日誌、語意去重、分級） | - | pulse | 1.1 |
 
 ### gov — Governance
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -228,6 +236,7 @@ external-user（EXTERNAL）
 | `memory-reset` | Memory Reset | 一鍵記憶重置 | - | doctor | 0.8 |
 | `doctor-notify` | Doctor Notify | 五虎將共用通知（DM 老闆 + 待審閱摘要） | - | doctor | 0.7 |
 | `observatory` | Observatory | 認知可觀測性儀表板 | - | doctor | 0.8 |
+| `shared-board` | Shared Board | 五虎將共享看板（任務協調、50 筆上限滾動） | - | doctor | 0.9 |
 
 ### llm — LLM 路由
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -281,13 +290,11 @@ external-user（EXTERNAL）
 | `voice-clone` | Voice Clone | 語音克隆 | - | tool-registry | 0.7 |
 | `zotero-bridge` | Zotero Bridge | 文獻管理橋接 | - | tool-registry | 0.8 |
 | `mcp-dify` | MCP Dify | MCP-Dify 連接器 | - | tool-registry | 0.7 |
-| `skill-market` | Skill Market | 技能交易市場 | - | tool-registry | 1.0 |
-| `federation-sync` | Federation Sync | 母子體同步 | - | tool-registry | 0.9 |
 
 ### nightly — Nightly 夜間
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
 |----|------|------|-----|--------|------|
-| `nightly` | Nightly Pipeline | 30+ 步夜間整合 | Yes | - | 2.2 |
+| `nightly` | Nightly Pipeline | 31+ 步夜間整合 | Yes | - | 2.2 |
 | `morphenix` | Morphenix | 演化提案 | - | nightly | 1.0 |
 | `curiosity-router` | Curiosity Router | 好奇心路由 | - | nightly | 0.9 |
 | `exploration-bridge` | Exploration Bridge | 探索橋接 | - | nightly | 0.9 |
@@ -295,15 +302,18 @@ external-user（EXTERNAL）
 | `crystal-actuator` | Crystal Actuator | 結晶致動器 | - | nightly | 0.8 |
 | `periodic-cycles` | Periodic Cycles | 週期循環 | - | nightly | 0.9 |
 | `morphenix-validator` | Morphenix Validator | Docker 沙盒驗證 | - | nightly | 0.7 |
+| `context-cache-builder` | Context Cache Builder | Step 31 context_cache 重建 | - | nightly | 0.8 |
 
-### installer — Installer 安裝
+### learning — Learning 學習
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
 |----|------|------|-----|--------|------|
-| `installer` | Installer | 安裝編排器 | Yes | - | 1.6 |
-| `installer-daemon` | Daemon Config | Daemon 設定 | - | installer | 0.8 |
-| `installer-electron` | Electron Packager | Electron 打包 | - | installer | 0.8 |
-| `installer-env` | Environment | 環境檢查 | - | installer | 0.7 |
-| `installer-verifier` | Module Verifier | 模組驗證 | - | installer | 0.7 |
+| `insight-extractor` | Insight Extractor | 洞見萃取引擎（晨報+探索統一萃取） | Yes | - | 1.2 |
+| `strategy-accumulator` | Strategy Accumulator | 策略成熟度累積器（confidence → conviction/deprecated） | - | insight-extractor | 0.9 |
+
+### billing — Billing 計費
+| ID | 名稱 | 中文 | Hub | 半徑 |
+|----|------|------|-----|------|
+| `skill-counter` | Skill Counter | Skill 調用計數器（月度檔案） | Yes | 1.0 |
 
 ### external — 外部服務
 | ID | 名稱 | 中文 | Hub | 半徑 |
@@ -449,7 +459,6 @@ external-user（EXTERNAL）
 | `event-bus` | `data-bus` | 資料事件 |
 | `event-bus` | `evolution` | 演化事件 |
 | `event-bus` | `tool-registry` | 工具事件 |
-| `event-bus` | `installer` | 安裝事件 |
 | `cron` | `nightly` | 03:00 觸發 |
 
 ### Agent 內部連線（internal）
@@ -495,6 +504,10 @@ external-user（EXTERNAL）
 | `brain` | `recommender` | 知識推薦引擎 |
 | `brain` | `chat-context` | 對話上下文封裝 |
 | `brain` | `deterministic-router` | 確定性任務分解（取代 LLM Orchestrator） |
+| `brain` | `brain-deep` | L1 escalation 委派（複雜訊息→L2 Opus 深度思考） |
+| `brain` | `brain-observer` | L1→L4 fire-and-forget（記憶落地 + 洞察偵測） |
+| `brain-deep` | `brain-tool-loop` | tool-use 迴圈（L2 需要工具時委派） |
+| `brain-tool-loop` | `tool-executor` | 工具執行（MCP 工具呼叫） |
 | `dendritic-fusion` | `metacognition` | 並行預認知審查 |
 | `dendritic-fusion` | `eval-engine` | 並行品質評分 |
 | `multi-agent-executor` | `llm-router` | 多部門 API 呼叫 |
@@ -523,6 +536,17 @@ external-user（EXTERNAL）
 | `pulse-engine` | `push-budget` | 推送預算檢查+記錄 |
 | `proactive-bridge` | `push-budget` | 推送預算檢查+記錄 |
 | `push-budget` | `pulse-db` | push_log 表持久化 |
+| `pulse` | `proactive-dispatcher` | 推播大總管 |
+
+### Learning 內部連線（internal）
+| Source | Target | 說明 |
+|--------|--------|------|
+| `insight-extractor` | `strategy-accumulator` | 洞見成熟度升級 |
+
+### Doctor — shared-board 內部連線（internal）
+| Source | Target | 說明 |
+|--------|--------|------|
+| `doctor` | `shared-board` | 看板存取 |
 
 ### Governance 內部連線（internal）
 | Source | Target | 說明 |
@@ -571,8 +595,6 @@ external-user（EXTERNAL）
 | `tool-registry` | `voice-clone` | 語音克隆 |
 | `tool-registry` | `zotero-bridge` | 文獻管理 |
 | `tool-registry` | `mcp-dify` | MCP-Dify |
-| `tool-registry` | `skill-market` | 技能市場 |
-| `tool-registry` | `federation-sync` | 母子同步 |
 
 ### Doctor 內部連線（internal）
 | Source | Target | 說明 |
@@ -625,6 +647,7 @@ external-user（EXTERNAL）
 | `nightly` | `crystal-actuator` | 結晶致動 |
 | `nightly` | `periodic-cycles` | 週期循環 |
 | `nightly` | `morphenix-validator` | Docker 沙盒驗證 |
+| `nightly` | `context-cache-builder` | Step 31 context_cache 重建 |
 | `morphenix-validator` | `morphenix` | 驗證通過→執行 |
 
 ### 跨系統連線（cross）
@@ -657,6 +680,8 @@ external-user（EXTERNAL）
 | `recommender` | `knowledge-lattice` | 近因性衰減 7d + 互動衰減 λ=0.95 |
 | `recommender` | `crystal-store` | 結晶讀取（load_crystals_raw + load_links） |
 | `diary-store` | `memory` | 日記寫入 |
+| `brain-deep` | `anthropic-api` | LLM 呼叫 Opus（L2 深度思考） |
+| `brain-tool-loop` | `anthropic-api` | LLM 呼叫（tool-use 迴圈） |
 | `brain` | `llm-router` | 生成回應 |
 | `brain` | `memory` | 四通道持久化 |
 | `commitment-tracker` | `brain` | 承諾自檢 |
@@ -726,10 +751,7 @@ external-user（EXTERNAL）
 | `guardian` | `crystal-store` | 結晶健康檢查 |
 | `memory-reset` | `crystal-store` | 一鍵重置（DELETE FROM 三表） |
 | `periodic-cycles` | `pulse` | 週期驅動 |
-| `skill-market` | `skills-registry` | 技能打包 |
-| `nightly` | `federation-sync` | 夜間母子同步（v1.43 方向修正：nightly import federation.sync） |
 | ~~`zotero-bridge`~~ | ~~`vector-index`~~ | ~~文獻索引~~ ❌ **幽靈連線 v1.43 移除**：zotero_bridge.py 只 import event_bus，無 vector 連線 |
-| `auto-repair` | `installer` | 修復用安裝器 |
 | `metacognition` | `pulse-db` | DNA 品質旗標寫入（METACOGNITION_QUALITY_FLAG） |
 | `morphenix` | `pulse-db` | DNA 品質旗標讀取（品質回饋閉環） |
 | `response-synthesizer` | `multi-agent-executor` | DNA 交叉重組（片段評分合成） |
@@ -749,6 +771,17 @@ external-user（EXTERNAL）
 | `interaction-queue` | `gateway` | message pump 互動攔截 + asyncio.Event 等待 |
 | `gateway` | `interaction-queue` | InteractionQueue 啟動初始化 |
 | `line` | `event-bus` | LINE webhook 事件發布 |
+| `proactive-dispatcher` | `telegram` | 攔截 push_notification，統一推播出口 |
+| `proactive-dispatcher` | `push-budget` | 推播前去重配合 |
+| `proactive-bridge` | `proactive-dispatcher` | 推播前檢查（語意去重+分級） |
+| `brain` | `memory-graph` | 初始化記憶關聯圖 |
+| `brain` | `insight-extractor` | 初始化洞見萃取引擎 |
+| `insight-extractor` | `knowledge-lattice` | 洞見結晶化（case_crystal / exploration_crystal） |
+| `museoff` | `shared-board` | 讀寫看板（巡邏結果） |
+| `museqa` | `shared-board` | 讀寫看板（品質檢查結果） |
+| `musedoc` | `shared-board` | 讀寫看板（文件同步結果） |
+| `museworker` | `shared-board` | 讀寫看板（變動記錄） |
+| `brain-tools` | `skill-counter` | Skill 調用計量 |
 
 #### v1.43 全系統拓撲審計補齊（70 條）
 
@@ -784,7 +817,6 @@ external-user（EXTERNAL）
 | `gateway` | `nightly` | server.py:1163+ 呼叫 10+ 個 nightly 子模組 |
 | `gateway` | `workflow-state-db` | server.py:2988-2991,:4219 WorkflowStore/Engine/Executor/Scheduler |
 | `gateway` | `multiagent` | server.py:1700,:1734,:1762 department_config/shared_assets/okr_router |
-| `gateway` | `skill-market` | server.py:4456,:4471,:4491 SkillMarket API |
 | `gateway` | `sandbox` | server.py:2519,:2539 ExecutionSandbox |
 | `gateway` | `research-engine` | server.py:5721 研究引擎觸發 |
 | `brain` | `tool-muscle` | brain.py:227 ModuleSpec + L1442 record_use() |
@@ -801,7 +833,7 @@ external-user（EXTERNAL）
 | `nightly` | `group-context-db` | nightly_pipeline.py:3295 Step 28 群組上下文清理 |
 | `nightly` | `workflow-state-db` | nightly_pipeline.py:3306 Step 28.5 工作流清理 |
 | `nightly` | `tool-registry` | nightly_pipeline.py:2623-2624 Step 22 工具探測 |
-| `nightly` | `federation-sync` | nightly_pipeline.py:2751 Step 23 母子同步（v1.43 新增正向連線） |
+| ~~`nightly`~~ | ~~`federation-sync`~~ | ~~nightly_pipeline.py:2751 Step 23 母子同步~~ ❌ **v1.53 移除**：federation 模組已刪除 |
 | `nightly` | `pulse-db` | nightly_pipeline.py:1103+ 多步驟讀寫 PulseDB（5 處） |
 | `nightly` | `tool-muscle` | nightly_pipeline.py:2904 Step 24 肌肉記憶追蹤 |
 | `nightly` | `trigger-weights` | nightly_pipeline.py:2973 Step 25 觸發權重 |
@@ -979,14 +1011,6 @@ external-user（EXTERNAL）
 | `decision-tracker` | `knowledge-lattice` | 決策結晶化 |
 | `decision-tracker` | `user-model` | 決策偏好 |
 
-### Installer 內部連線（internal）
-| Source | Target | 說明 |
-|--------|--------|------|
-| `installer` | `installer-daemon` | Daemon 設定 |
-| `installer` | `installer-electron` | Electron 打包 |
-| `installer` | `installer-env` | 環境檢查 |
-| `installer` | `installer-verifier` | 模組驗證 |
-
 ### 監控連線（monitor）
 | Source | Target | 說明 |
 |--------|--------|------|
@@ -1065,15 +1089,15 @@ external-user（EXTERNAL）
 
 | 指標 | 數值 |
 |------|------|
-| 總節點數 | 194 (144 系統 + 50 Skills) |
-| 總連線數 | 481 (378 系統 + 103 Skills) |
-| 群組數 | 14 (含 skills) |
-| Hub 節點 | 18 (11 系統 + 7 Skills Hub) |
-| 跨系統連線 | 186 (151 系統 + 35 Skills cross) |
-| 內部連線 | 185 (126 系統 + 59 Skills internal) |
+| 總節點數 | 203 (153 系統 + 50 Skills) |
+| 總連線數 | 500 (397 系統 + 103 Skills) |
+| 群組數 | 15 (含 skills，新增 learning + billing) |
+| Hub 節點 | 19 (12 系統 + 7 Skills Hub) |
+| 跨系統連線 | 196 (161 系統 + 35 Skills cross) |
+| 內部連線 | 193 (134 系統 + 59 Skills internal) |
 | 非同步連線 | 14 |
 | 監控連線 | 5 |
-| 控制連線 | 16 (9 系統 + 7 Skills control) |
+| 控制連線 | 15 (8 系統 + 7 Skills control) |
 | 資料流連線 | 9 |
 | 衰減連線 | 5 |
 | 平均連線數/節點 | 2.5 |
@@ -1085,6 +1109,8 @@ external-user（EXTERNAL）
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.54 | 2026-03-27 | 有機體進化計畫 Phase 1-9——新增 6 節點（proactive-dispatcher、memory-graph、insight-extractor、strategy-accumulator、shared-board、skill-counter）+ 2 群組（learning、billing）+ 12 條跨系統連線 + 4 條內部連線；Nightly 精簡移除 3 步驟；五虎將共享看板；cron 推送納管 ProactiveDispatcher。203 節點 500 連線 |
+| v1.53 | 2026-03-26 | v2 Brain 四層架構 + 死碼清理——agent 群組新增 brain-deep（L2 Opus）、brain-tool-loop（tool-use 迴圈）、brain-observer（L4 觀察者）3 節點 + 7 條連線；brain 升級為 L1 Sonnet + escalation；移除 federation（skill-market + federation-sync 2 節點）+ installer 群組（5 節點）；nightly 新增 Step 31 context_cache + context-cache-builder 節點。197 節點 484 連線 |
 | v1.52 | 2026-03-25 | Brain 90s SLA + Circuit Breaker + 訊息佇列持久化 + L2 Worker 分離——新增 message-queue-store、brain-worker 2 節點 + 5 條連線；telegram-pump→message-queue-store/brain-worker、gateway→message-queue-store/brain-worker、brain-worker→brain。200 節點 488 連線 |
 | v1.51 | 2026-03-25 | 教訓蒸餾+斷裂管線修復——nightly 新增 lesson-distill/client-profile-update 步驟；brain-prompt-builder 新增 3 條 cross 連線；server→guardian mothership_queue；新增 fix-verify Workflow Skill |
 | v1.50 | 2026-03-25 | server.py 拆分——新增 telegram-pump/routes-api/cron-registry 3 節點 + 6 條連線；三層洩漏預防（L1 prompt→L2 剝離→L3 guard）。197 節點 487 連線 |

@@ -85,12 +85,26 @@ class FeedbackLoop:
             return
 
         content_length = data.get("content_length", 0)
-        # 從內容長度推斷基本互動資訊
+        content = data.get("content", "")
+
+        # Phase 5: 從 event data 正確提取四維品質信號
+        follow_up = data.get("follow_up_count", 0)
+        emoji_count = 0
+        if content:
+            import re
+            emoji_count = len(re.findall(
+                r'[\U0001F600-\U0001F64F\U0001F300-\U0001F5FF'
+                r'\U0001F680-\U0001F6FF\U0001F900-\U0001F9FF'
+                r'\U00002702-\U000027B0\U0001FA00-\U0001FA6F]',
+                content,
+            ))
+        response_time = data.get("response_time_ms", 0)
+
         self.record_interaction(
             response_length=content_length,
-            follow_up_count=0,  # 會在後續互動中累加
-            emoji_count=0,
-            response_time_ms=0,
+            follow_up_count=follow_up,
+            emoji_count=emoji_count,
+            response_time_ms=response_time,
         )
 
     def record_interaction(

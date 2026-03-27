@@ -3334,6 +3334,26 @@ def create_app() -> FastAPI:
                             except Exception as _pb_err:
                                 logger.warning(f"PushBudget init failed (degraded): {_pb_err}")
 
+                            # ── Phase 1: ProactiveDispatcher 推播大總管 ──
+                            try:
+                                from museon.pulse.proactive_dispatcher import ProactiveDispatcher
+                                _dispatcher = ProactiveDispatcher(
+                                    data_dir=str(brain.data_dir),
+                                    llm_adapter=None,  # Phase 2 再接 Haiku adapter
+                                )
+                                _tg = getattr(app.state, "telegram_adapter", None)
+                                if _tg:
+                                    _tg._proactive_dispatcher = _dispatcher
+                                app.state.proactive_dispatcher = _dispatcher
+                                logger.info(
+                                    f"ProactiveDispatcher injected "
+                                    f"(journal entries={len(_dispatcher._entries)})"
+                                )
+                            except Exception as _pd_err:
+                                logger.warning(
+                                    f"ProactiveDispatcher init failed (degraded): {_pd_err}"
+                                )
+
                             logger.info("VITA PulseEngine initialized")
 
                             # ── P2: Governor ↔ PulseDB Incident 橋接 ──
