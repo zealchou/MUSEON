@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260323_151125_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: **REVISE**\n\n違反規則 a：使用者訊息是「emoji 壓測」，但回覆完全不對應，反而跳到代碼診斷。\n\n如果這段回覆確實要發，應該：\n1. 先回應 emoji 壓測（什麼是壓測、結果如何？）\n2. 或明確區隔：「先處理眼前的事（emoji 壓測結果），再回到代碼診斷」\n\n此外，即使前提是代碼問題，規則也禁止提選擇題——應直接說「我現在修復」而非「要哪個？」",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-23T15:11:25.658367+08:00",
-  "priority": "medium"
-}

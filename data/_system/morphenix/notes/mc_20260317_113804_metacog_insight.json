@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260317_113804_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n1. **Persona 混淆**：使用「雷部⚡」而非既有的「霓裳」系統，這會造成身份不一致。根據 ANIMA_MC，MUSEON 已有自己的人格架構。\n2. **假需求清單**：使用者只是確認背景脈絡（「MUSEON 是 AI 顧問公司」），沒有要求「選擇任務」。回覆卻列出五個選項，這是在推銷任務而非回答真正需求。\n3. **回退方向**：簡潔確認已理解背景 → 詢問真正需求（「",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-17T11:38:04.268618+08:00",
-  "priority": "medium"
-}

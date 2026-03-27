@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260324_163229_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n回覆完全沒回應「emoji 壓測」這個實際訊息。用戶送的是簡短測試，你卻送回心理分析式長篇提問——違反 action-first 原則。應該先回應壓測結果本身，再簡潔釐清優先級（如必須），或按 CLAUDE.md L1 規則直接 spawn L2 而不自己長篇。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-24T16:32:29.774834+08:00",
-  "priority": "medium"
-}

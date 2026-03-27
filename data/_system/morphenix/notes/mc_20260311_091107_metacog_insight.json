@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260311_091107_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n改動方向：不要最後反問使用者「你希望我什麼時候主動說話」。改成提出具體承諾：(1)系統告警直接私訊；(2)3/15、3/18、3/22 前一天主動確認你需要什麼；(3)soul_pulse 發現有趣結晶就整理給你。從**承諾**出發而非**反問**出發——使用者期待的是「你會幫我做什麼」，而不是「請你告訴我該怎麼做」。\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-11T09:11:07.667096+08:00",
-  "priority": "medium"
-}

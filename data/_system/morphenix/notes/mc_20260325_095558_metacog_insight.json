@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260325_095558_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: **REVISE**\n\n這段回覆假設已執行工作流程但未說明實際步驟。應先確認使用者意圖（要重新生成今天的晨報？還是其他內容？），然後實際執行工作流程，最後再回報真實結果，而非虛構發布驗證結果。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-25T09:55:58.005028+08:00",
-  "priority": "medium"
-}

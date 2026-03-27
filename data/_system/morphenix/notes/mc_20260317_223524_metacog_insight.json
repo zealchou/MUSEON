@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260317_223524_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n這段回覆混淆了對象。標題對 Feng 說「確認了」，但內容跳到向 Zeal 請求拍板，Feng 不知道自己現在該等還是該做。建議拆成：(1) 先告訴 Feng 「配對功能還沒寫，無法測，但計畫好了，等 Zeal 確認後馬上開工」；(2) 再向 Zeal 列清單請求拍板。讓每個人清楚知道接下來輪到誰。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-17T22:35:24.801747+08:00",
-  "priority": "medium"
-}

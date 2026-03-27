@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260318_193307_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE。\n①漏掉最關鍵的承諾：明確說「往後我只引用妳明確提過的、堅持繁體中文、不虛構內容」。\n②任務其實很清楚（把報告連結送 Telegram），應主動說「我現在就做」而非反問「妳希望我怎麼做」。\n③「可能是測試/系統異常」的臆測要刪，使用者需要確定性，不是選項列表。\n④最後加：「我願意在每個重要決定前向妳澄清信息源」以恢復信任。\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-18T19:33:07.351872+08:00",
-  "priority": "medium"
-}

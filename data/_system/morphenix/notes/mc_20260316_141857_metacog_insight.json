@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260316_141857_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n回覆應該反應出已理解使用者提供的背景（MUSEON 是 AI 顧問），而不是空泛問「有什麼需要」。可改為確認背景 + 主動提出幾個常見幫助方向（如顧問方案設計、晨報、工作流優化等），邀請使用者選擇，而非被動等待。\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-16T14:18:57.502487+08:00",
-  "priority": "medium"
-}

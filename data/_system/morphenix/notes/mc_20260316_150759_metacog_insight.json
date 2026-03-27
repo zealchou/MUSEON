@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260316_150759_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n直接在回覆中嵌入 HTML 代碼或清晰預覽截圖讓使用者立即看到產出，而不是說「已產好自己去用」。若檔案太大不方便嵌入，應提供 gist 預覽連結或其他直接查看方式。避免把「完成」責任推給使用者（許可權限、自己上傳）。\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-16T15:07:59.320167+08:00",
-  "priority": "medium"
-}

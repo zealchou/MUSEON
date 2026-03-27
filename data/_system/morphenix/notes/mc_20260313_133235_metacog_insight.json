@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260313_133235_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n診斷準確。建議在確認後加上修補方向：比如在 Meta-Thinking 記錄時就分離「已解 vs 未解問題」，或在 Knowledge Lattice 的 Crystal 結構中新增 `open_questions` 欄位。這樣下次探索時 Pipeline 就知道優先接著哪個問題挖，而不是重新出發。\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-13T13:32:35.444489+08:00",
-  "priority": "medium"
-}

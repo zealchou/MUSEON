@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260320_190854_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n回覆把球踢回使用者（要你手動加我進群、問你要不要我做工作流），但使用者期待 bot 直接執行。應該改為：明確列出「我現在的行動步驟」（確認群組 → 要設計圖 → 產報價單），如果有技術限制（bot 查不到群組清單），直說「我受限於 XX，需要你 YY」而不是籠統要求幫忙。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-20T19:08:54.406178+08:00",
-  "priority": "medium"
-}

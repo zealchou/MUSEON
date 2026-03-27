@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260323_111109_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n優先完成 Zeal 的立即需求：讀三份檔案 → 根據品牌規範生成 HTML → push GitHub + 驗證連結。並行壓力測試與 L2 決策同步是後續架構優化，不是當下阻擋項。先交付物，再設計。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-23T11:11:09.089662+08:00",
-  "priority": "medium"
-}

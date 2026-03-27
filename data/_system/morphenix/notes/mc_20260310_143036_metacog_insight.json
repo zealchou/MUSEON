@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260310_143036_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n假設使用者上傳圖片（未驗證）。建議改為：澄清系統正常運作 ✓，同時主動詢問「上傳了什麼內容？希望我協助什麼？」給出預期時間和後續步驟，而非被動等待。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-10T14:30:36.487465+08:00",
-  "priority": "medium"
-}

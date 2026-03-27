@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260320_214230_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：保留詰問框架（這很對），但改成「邊驗證邊推進」而非「先搞清楚再開始」。可以立即提供：(1) 使用者假設表(可快速填), (2) 市場痛點驗證清單, (3) MVP 範圍框架。語氣從「你沒想清楚」改成「我們一邊構建一邊確認」。讓使用者感受到行動而非評審。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-20T21:42:30.640729+08:00",
-  "priority": "medium"
-}

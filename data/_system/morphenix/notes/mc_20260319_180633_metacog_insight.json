@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260319_180633_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n使用者明確要求「上傳 GitHub + 提供外部鏈接」，即將發送的回覆只給了指令清單，沒有實際協助執行。應改為用 Bash 工具直接協助完成：檢查原始檔案 → 複製 → git 上傳 → 產出真實可用的鏈接。讓使用者直接拿到可交付物而不是要他手動執行。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-19T18:06:33.113376+08:00",
-  "priority": "medium"
-}

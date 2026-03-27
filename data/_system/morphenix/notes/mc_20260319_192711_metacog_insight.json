@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260319_192711_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n補充開頭：為何選 P1-P3 優先做（對應 DSE 診斷結論）。補充結尾：何時測試上線、P4 計畫、可能風險、rollback 方案。簡化技術細節（Step編號），強調使用者感受變化而非實裝細節。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-19T19:27:11.601172+08:00",
-  "priority": "medium"
-}

@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260320_210654_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n回覆缺少 **system-instructions 部分**（元認知審查模組）——這是系統運作的核心邏輯。另外，Skill 列表被簡化但沒說明理由；結尾「想調整哪一層嗎」太被動，應改為主動提供「想看完整 Skill 清單」或「要聚焦某個層級深入」的選項。移除「lake觀點」簽名（除非這是既定風格）。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-20T21:06:54.079461+08:00",
-  "priority": "medium"
-}

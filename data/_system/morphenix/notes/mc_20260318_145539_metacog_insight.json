@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260318_145539_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: **REVISE**\n\n回覆用「下一步確認」(3 選 1) 取代直接行動，但使用者原始需求明確——想要「註冊→付錢→AI 自動拿 key」的完整流程。應該直接交付**方式 A（自動配對）的完整 SDK + 前端對接流程 + 整合測試計畫**，而非多選題。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-18T14:55:39.389687+08:00",
-  "priority": "medium"
-}

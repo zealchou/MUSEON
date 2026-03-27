@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260310_115253_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n保留診斷邏輯，但轉向**立即行動**：\n1. 先用 eval-engine 量化當前 deep-think 的實際效果（有沒有真的被跳過）\n2. 確認問題存在後，給出 brain.py 具體修改清單：注入點在哪、改哪些行、怎麼驗證\n3. 提出執行順序（修改→測試→打包的步驟）\n4. 說明 latency 風險\n\n現在回覆只說「方案 B 最好」，沒說「怎麼實現」。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-10T11:52:53.533532+08:00",
-  "priority": "medium"
-}

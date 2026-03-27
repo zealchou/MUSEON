@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260320_115900_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n四個落差的診斷非常清晰，但「三件具體可做的事」的實施路徑還不夠具體。建議為每一件事補上「這週開始做什麼」和「誰負責 / 哪個 Skill 實現」，讓它從建議變成可交付的迭代清單。特別是第 1、2 項涉及核心 Skill 的改動（deep-think、user-model），需要先明確改什麼、怎麼改、檢驗標準是什麼。\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-20T11:59:00.137051+08:00",
-  "priority": "medium"
-}

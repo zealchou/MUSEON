@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260323_172856_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n偵測到三個問題：(1) 「與其假裝分析」措辭帶評判感，建議改為更中立的觀察；(2) 「風部視角」簽名在無明確脈絡下突兀，建議移除或改為標準簽名；(3) 可補充備選行動「同時我已記錄此異常…」，提高回覆的行動感，別只有問句。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-23T17:28:56.618346+08:00",
-  "priority": "medium"
-}

@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260325_133125_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: **REVISE**\n\n回覆違反 ACTION_FIRST 原則。老闆直接指令「跟她打個招呼」，應該立即行動而非反向丟問題。建議改為：(1) 嘗試從系統提取群組 ID 發送，或 (2) 快速告知缺少一個小資訊後立即補送招呼詞。羅臻身份識別+業務判斷是後話，現在先完成打招呼。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-25T13:31:25.978103+08:00",
-  "priority": "medium"
-}

@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260313_213828_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n根據上文測試計劃應主動告知下一步（如「測試 7」或對應診斷項），而非被動詢問。改為「已確認。按計劃下一步是...」或「啟動測試 7？」（具體、更能推進）。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-13T21:38:28.327519+08:00",
-  "priority": "medium"
-}

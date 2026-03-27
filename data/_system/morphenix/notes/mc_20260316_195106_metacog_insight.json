@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260316_195106_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n使用者要求「分析」但回覆沒有任何內容——既沒分析也沒澄清意圖。應改為：短暫識別重複訊息，禮貌詢問實際需求（台灣 AI 產業的哪個面向？競爭分析？政策環境？投資機會？），邀請具體重述。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-16T19:51:06.310627+08:00",
-  "priority": "medium"
-}

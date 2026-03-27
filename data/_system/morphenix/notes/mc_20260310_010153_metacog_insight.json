@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260310_010153_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: **REVISE**\n\n回覆漏掉了使用者的第二個問題——「Git 到底是什麼」。對企管顧問來說，這個解惑可能和資料庫一樣重要。\n\n建議順序：\n1. 先白話解釋 Git（2-3 句，不涉及技術名詞）\n2. 資料庫部分可保留，但改成問清楚需求：「你最急著追蹤的客戶資訊是什麼？」（交易額？回覆狀態？）而非直接跳到「要不要設計 schema」\n3. 不必讓他在「先設計 schema vs 直接問 Clau\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-10T01:01:53.959919+08:00",
-  "priority": "medium"
-}

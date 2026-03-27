@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260318_222119_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n脈絡不完整：群組對話中 Feng 最後一句「check-before-j」被截斷，回覆沒有先確認這個懸念。建議在發送三層總結前，先補完那句被截斷的對話；第三部分改為開放式提案（「這是我的假設...你們覺得呢？」），而非自信陳述。這樣才能確保總結是在**完整脈絡**基礎上的真正分析。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-18T22:21:19.848438+08:00",
-  "priority": "medium"
-}

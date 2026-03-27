@@ -1,4 +1,505 @@
 {
-  "last_updated": "",
-  "entries": []
+  "last_updated": "2026-03-27T23:31:53.565537",
+  "entries": [
+    {
+      "source": "museworker",
+      "timestamp": "2026-03-27T13:58:03.535067",
+      "summary": "快照完成: 235 模組, 1332ms, zombies=2, missing=0",
+      "findings_count": 2,
+      "actions_taken": [
+        "snapshot:scheduled"
+      ],
+      "status": "warning"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T14:01:19.372026",
+      "summary": "品質掃描: 1 sessions, 22 回覆, 8 問題",
+      "findings_count": 8,
+      "actions_taken": [
+        "scanned_replies:22"
+      ],
+      "status": "critical"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T14:36:21.256126",
+      "summary": "品質掃描: 0 sessions, 0 回覆, 0 問題",
+      "findings_count": 0,
+      "actions_taken": [
+        "scanned_replies:0"
+      ],
+      "status": "ok"
+    },
+    {
+      "source": "museworker",
+      "timestamp": "2026-03-27T14:45:20.225399",
+      "summary": "快照完成: 235 模組, 1329ms, zombies=2, missing=0",
+      "findings_count": 2,
+      "actions_taken": [
+        "snapshot:scheduled"
+      ],
+      "status": "warning"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T14:58:12.601702",
+      "summary": "品質掃描: 0 sessions, 0 回覆, 0 問題",
+      "findings_count": 0,
+      "actions_taken": [
+        "scanned_replies:0"
+      ],
+      "status": "ok"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T15:13:12.684012",
+      "summary": "品質掃描: 0 sessions, 0 回覆, 0 問題",
+      "findings_count": 0,
+      "actions_taken": [
+        "scanned_replies:0"
+      ],
+      "status": "ok"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T15:28:13.685197",
+      "summary": "品質掃描: 1 sessions, 3 回覆, 1 問題",
+      "findings_count": 1,
+      "actions_taken": [
+        "scanned_replies:3"
+      ],
+      "status": "warning"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T15:43:13.826099",
+      "summary": "品質掃描: 2 sessions, 25 回覆, 9 問題",
+      "findings_count": 9,
+      "actions_taken": [
+        "scanned_replies:25"
+      ],
+      "status": "critical"
+    },
+    {
+      "source": "museworker",
+      "timestamp": "2026-03-27T15:54:29.708691",
+      "summary": "快照完成: 235 模組, 1272ms, zombies=2, missing=0",
+      "findings_count": 2,
+      "actions_taken": [
+        "snapshot:scheduled"
+      ],
+      "status": "warning"
+    },
+    {
+      "source": "museworker",
+      "timestamp": "2026-03-27T15:54:30.797080",
+      "summary": "快照完成: 235 模組, 1224ms, zombies=2, missing=0",
+      "findings_count": 2,
+      "actions_taken": [
+        "snapshot:scheduled"
+      ],
+      "status": "warning"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T15:58:12.605166",
+      "summary": "品質掃描: 1 sessions, 3 回覆, 1 問題",
+      "findings_count": 1,
+      "actions_taken": [
+        "scanned_replies:3"
+      ],
+      "status": "warning"
+    },
+    {
+      "source": "museworker",
+      "timestamp": "2026-03-27T16:01:34.290604",
+      "summary": "快照完成: 235 模組, 1269ms, zombies=2, missing=0",
+      "findings_count": 2,
+      "actions_taken": [
+        "snapshot:scheduled"
+      ],
+      "status": "warning"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T16:13:12.688003",
+      "summary": "品質掃描: 1 sessions, 3 回覆, 1 問題",
+      "findings_count": 1,
+      "actions_taken": [
+        "scanned_replies:3"
+      ],
+      "status": "warning"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T16:28:12.609058",
+      "summary": "品質掃描: 1 sessions, 22 回覆, 8 問題",
+      "findings_count": 8,
+      "actions_taken": [
+        "scanned_replies:22"
+      ],
+      "status": "critical"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T16:58:12.605447",
+      "summary": "品質掃描: 1 sessions, 6 回覆, 3 問題",
+      "findings_count": 3,
+      "actions_taken": [
+        "scanned_replies:6"
+      ],
+      "status": "warning"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T17:13:13.889129",
+      "summary": "品質掃描: 1 sessions, 22 回覆, 8 問題",
+      "findings_count": 8,
+      "actions_taken": [
+        "scanned_replies:22"
+      ],
+      "status": "critical"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T17:28:12.610258",
+      "summary": "品質掃描: 0 sessions, 0 回覆, 0 問題",
+      "findings_count": 0,
+      "actions_taken": [
+        "scanned_replies:0"
+      ],
+      "status": "ok"
+    },
+    {
+      "source": "museworker",
+      "timestamp": "2026-03-27T17:43:14.074144",
+      "summary": "快照完成: 235 模組, 1386ms, zombies=2, missing=0",
+      "findings_count": 2,
+      "actions_taken": [
+        "snapshot:scheduled"
+      ],
+      "status": "warning"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T17:58:12.602805",
+      "summary": "品質掃描: 0 sessions, 0 回覆, 0 問題",
+      "findings_count": 0,
+      "actions_taken": [
+        "scanned_replies:0"
+      ],
+      "status": "ok"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T18:13:14.815404",
+      "summary": "品質掃描: 2 sessions, 25 回覆, 9 問題",
+      "findings_count": 9,
+      "actions_taken": [
+        "scanned_replies:25"
+      ],
+      "status": "critical"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T18:28:12.609855",
+      "summary": "品質掃描: 2 sessions, 25 回覆, 9 問題",
+      "findings_count": 9,
+      "actions_taken": [
+        "scanned_replies:25"
+      ],
+      "status": "critical"
+    },
+    {
+      "source": "museworker",
+      "timestamp": "2026-03-27T18:55:18.738191",
+      "summary": "快照完成: 235 模組, 1297ms, zombies=0, missing=0",
+      "findings_count": 0,
+      "actions_taken": [
+        "snapshot:scheduled"
+      ],
+      "status": "ok"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T18:58:12.603745",
+      "summary": "品質掃描: 2 sessions, 10 回覆, 5 問題",
+      "findings_count": 5,
+      "actions_taken": [
+        "scanned_replies:10"
+      ],
+      "status": "warning"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T19:13:13.765818",
+      "summary": "品質掃描: 1 sessions, 5 回覆, 1 問題",
+      "findings_count": 1,
+      "actions_taken": [
+        "scanned_replies:5"
+      ],
+      "status": "warning"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T19:28:12.620033",
+      "summary": "品質掃描: 0 sessions, 0 回覆, 0 問題",
+      "findings_count": 0,
+      "actions_taken": [
+        "scanned_replies:0"
+      ],
+      "status": "ok"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T19:43:12.711759",
+      "summary": "品質掃描: 0 sessions, 0 回覆, 0 問題",
+      "findings_count": 0,
+      "actions_taken": [
+        "scanned_replies:0"
+      ],
+      "status": "ok"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T19:58:12.618609",
+      "summary": "品質掃描: 0 sessions, 0 回覆, 0 問題",
+      "findings_count": 0,
+      "actions_taken": [
+        "scanned_replies:0"
+      ],
+      "status": "ok"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T20:13:12.670773",
+      "summary": "品質掃描: 0 sessions, 0 回覆, 0 問題",
+      "findings_count": 0,
+      "actions_taken": [
+        "scanned_replies:0"
+      ],
+      "status": "ok"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T20:28:12.620460",
+      "summary": "品質掃描: 0 sessions, 0 回覆, 0 問題",
+      "findings_count": 0,
+      "actions_taken": [
+        "scanned_replies:0"
+      ],
+      "status": "ok"
+    },
+    {
+      "source": "museworker",
+      "timestamp": "2026-03-27T20:43:14.257207",
+      "summary": "快照完成: 235 模組, 1589ms, zombies=0, missing=0",
+      "findings_count": 0,
+      "actions_taken": [
+        "snapshot:scheduled"
+      ],
+      "status": "ok"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T20:58:12.603546",
+      "summary": "品質掃描: 0 sessions, 0 回覆, 0 問題",
+      "findings_count": 0,
+      "actions_taken": [
+        "scanned_replies:0"
+      ],
+      "status": "ok"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T21:13:12.701036",
+      "summary": "品質掃描: 0 sessions, 0 回覆, 0 問題",
+      "findings_count": 0,
+      "actions_taken": [
+        "scanned_replies:0"
+      ],
+      "status": "ok"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T21:28:12.608176",
+      "summary": "品質掃描: 0 sessions, 0 回覆, 0 問題",
+      "findings_count": 0,
+      "actions_taken": [
+        "scanned_replies:0"
+      ],
+      "status": "ok"
+    },
+    {
+      "source": "museworker",
+      "timestamp": "2026-03-27T21:33:03.295004",
+      "summary": "快照完成: 235 模組, 1313ms, zombies=0, missing=0",
+      "findings_count": 0,
+      "actions_taken": [
+        "snapshot:scheduled"
+      ],
+      "status": "ok"
+    },
+    {
+      "source": "museworker",
+      "timestamp": "2026-03-27T21:35:03.967543",
+      "summary": "快照完成: 235 模組, 1305ms, zombies=0, missing=0",
+      "findings_count": 0,
+      "actions_taken": [
+        "snapshot:scheduled"
+      ],
+      "status": "ok"
+    },
+    {
+      "source": "museworker",
+      "timestamp": "2026-03-27T21:35:18.645726",
+      "summary": "快照完成: 235 模組, 1323ms, zombies=0, missing=0",
+      "findings_count": 0,
+      "actions_taken": [
+        "snapshot:scheduled"
+      ],
+      "status": "ok"
+    },
+    {
+      "source": "museworker",
+      "timestamp": "2026-03-27T21:35:27.381191",
+      "summary": "快照完成: 235 模組, 1305ms, zombies=0, missing=0",
+      "findings_count": 0,
+      "actions_taken": [
+        "snapshot:scheduled"
+      ],
+      "status": "ok"
+    },
+    {
+      "source": "museworker",
+      "timestamp": "2026-03-27T21:35:44.422377",
+      "summary": "快照完成: 235 模組, 1315ms, zombies=0, missing=0",
+      "findings_count": 0,
+      "actions_taken": [
+        "snapshot:scheduled"
+      ],
+      "status": "ok"
+    },
+    {
+      "source": "museworker",
+      "timestamp": "2026-03-27T21:35:53.624761",
+      "summary": "快照完成: 235 模組, 1312ms, zombies=0, missing=0",
+      "findings_count": 0,
+      "actions_taken": [
+        "snapshot:scheduled"
+      ],
+      "status": "ok"
+    },
+    {
+      "source": "museworker",
+      "timestamp": "2026-03-27T21:36:23.007714",
+      "summary": "快照完成: 235 模組, 1320ms, zombies=0, missing=0",
+      "findings_count": 0,
+      "actions_taken": [
+        "snapshot:scheduled"
+      ],
+      "status": "ok"
+    },
+    {
+      "source": "museworker",
+      "timestamp": "2026-03-27T21:36:44.419708",
+      "summary": "快照完成: 235 模組, 1289ms, zombies=0, missing=0",
+      "findings_count": 0,
+      "actions_taken": [
+        "snapshot:scheduled"
+      ],
+      "status": "ok"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T21:43:13.798294",
+      "summary": "品質掃描: 1 sessions, 22 回覆, 8 問題",
+      "findings_count": 8,
+      "actions_taken": [
+        "scanned_replies:22"
+      ],
+      "status": "critical"
+    },
+    {
+      "source": "museworker",
+      "timestamp": "2026-03-27T21:45:33.377271",
+      "summary": "快照完成: 235 模組, 1329ms, zombies=0, missing=0",
+      "findings_count": 0,
+      "actions_taken": [
+        "snapshot:scheduled"
+      ],
+      "status": "ok"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T22:01:53.567776",
+      "summary": "品質掃描: 0 sessions, 0 回覆, 0 問題",
+      "findings_count": 0,
+      "actions_taken": [
+        "scanned_replies:0"
+      ],
+      "status": "ok"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T22:16:53.658591",
+      "summary": "品質掃描: 0 sessions, 0 回覆, 0 問題",
+      "findings_count": 0,
+      "actions_taken": [
+        "scanned_replies:0"
+      ],
+      "status": "ok"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T22:31:53.566376",
+      "summary": "品質掃描: 0 sessions, 0 回覆, 0 問題",
+      "findings_count": 0,
+      "actions_taken": [
+        "scanned_replies:0"
+      ],
+      "status": "ok"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T22:46:53.651814",
+      "summary": "品質掃描: 0 sessions, 0 回覆, 0 問題",
+      "findings_count": 0,
+      "actions_taken": [
+        "scanned_replies:0"
+      ],
+      "status": "ok"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T23:01:53.558284",
+      "summary": "品質掃描: 0 sessions, 0 回覆, 0 問題",
+      "findings_count": 0,
+      "actions_taken": [
+        "scanned_replies:0"
+      ],
+      "status": "ok"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T23:16:53.649381",
+      "summary": "品質掃描: 0 sessions, 0 回覆, 0 問題",
+      "findings_count": 0,
+      "actions_taken": [
+        "scanned_replies:0"
+      ],
+      "status": "ok"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-27T23:31:53.565527",
+      "summary": "品質掃描: 0 sessions, 0 回覆, 0 問題",
+      "findings_count": 0,
+      "actions_taken": [
+        "scanned_replies:0"
+      ],
+      "status": "ok"
+    }
+  ]
 }

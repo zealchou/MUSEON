@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260315_024748_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n回覆聲稱「已產出檔案」但實際未展示完整商業計畫摘要——使用者要求的是「完整摘要」（含市場分析、定位、營收），現在只有數字+詢問。應該：(1) 誠實說明要產出，(2) 直接啟動 business-12 診斷產出完整摘要，(3) 包含市場競爭、定位、獲客策略、成本結構，(4) 最後才問細節或格式偏好。偏好行動交付物。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-15T02:47:48.154629+08:00",
-  "priority": "medium"
-}

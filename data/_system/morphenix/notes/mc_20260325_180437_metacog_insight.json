@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260325_180437_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n你明確要求「完成之後推上去...給我外部鏈接」（行動+交付物），但我拋了 3 個選項回給你決策，沒有直接執行。應改為：(1) 確認 HTML 已生成，(2) 直接移除 secret / 重新 push，(3) 驗證外部鏈接可用，(4) 給你最終可用連結。偏好行動，不要選項。\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-25T18:04:37.499984+08:00",
-  "priority": "medium"
-}

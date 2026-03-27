@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260311_182819_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n三個問題：(1) Feng 問的是技術架構（API vs 其他方式讓子體操作系統），但回覆產出的是銷售轉換內容——需求完全不匹配；(2) 宣稱「檔案已產出」但無實際檔案創建動作——虛構交付物；(3) 沒有處理 Zeal「敏感詞需手動按下可以」的核心卡點。建議先回 Feng 技術架構方案（REST API / WebSocket / SDK 比較表），再問 Zeal 敏感詞流程的具體",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-11T18:28:19.755755+08:00",
-  "priority": "medium"
-}

@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260327_114256_metacog_insight",
+  "category": "metacog_insight",
+  "content": "你沒記錯。但我要釐清一個重點：\n\n## 你讀的不是「L4」，而是「L4 寫的快取」\n\n```\n時序流程：\n\n時刻 T：\n  L1 讀 context_cache/（由上一輪 L4 寫入）\n  → 簡單自答或 spawn L2\n  → L2 讀 context_cache/（同樣是上一輪 L4 寫入）\n  → L2 回覆\n  → spawn L4 背景做記憶落地、更新快取\n\n時刻 T+1（下一輪訊息來）：\n  L1 讀 context_cache/（現在已經被上一輪 L4 更新過）\n  → 看到最新的 user_summary、active_rules 等\n```\n\n## 所以正確的說法是：\n\n- **你直接讀**：`context_cache/persona_digest.md`, `user_summary.json`, `active_rules.json`, `self_summary.json`\n- **你不讀 L4**：L4 是背景工作流，你看不到 L4 的過程，只看結果\n- **你讀 L4 的輸出**：context_cache 裡的所有東西都是 L4（或 nightly）寫的\n\n簡單說：L4 = 黑盒寫手，你 = 讀者，讀的是它寫好的稿子。\n\n---\n\n## 無",
+  "source": "L4_observer",
+  "created_at": "2026-03-27T11:42:56.858011+08:00",
+  "priority": "medium"
+}

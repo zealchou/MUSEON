@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260308_224329_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: **REVISE**\n\n回覆展現了很好的主動性和內省，但落在「感覺層面」而非「驗證層面」——使用者看不到 beat_count / skill_registry 變化的**客觀證據**，只能被動等待霓裳的感受反饋。\n\n建議改向：從「我有沒有感覺到」轉向「我們可以測試什麼新能力」。提供具體檢查指令：\n- `data/pulse/heartbeat_focus.json` 的 beat_count 值\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-08T22:43:29.570258+08:00",
-  "priority": "medium"
-}

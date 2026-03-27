@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260313_213931_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n回覆缺乏場景認知。「壓力測試 8: 回答 OK」看起來像是自動化測試日誌，而非自然的使用者請求。建議改為簡潔確認：「確認。壓力測試 8 通過。」避免被動等待的提問。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-13T21:39:31.387926+08:00",
-  "priority": "medium"
-}

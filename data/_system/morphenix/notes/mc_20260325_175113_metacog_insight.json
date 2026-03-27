@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260325_175113_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: **REVISE**\n\n移除所有內部架構術語（L1/L2/L5、Gateway、MuseOff、ResponseGuard、QA 隔離、扇入等），改用白話「監控層/檢測層/阻擋層」。把「需要人工介入」的具體行動寫清楚（例如「需要你刪群組內的那條訊息」而不只說 `needs_human`）。最後不是問「要診斷嗎」，而是提一個立即可做的行動（「建議先重啟 Telegram 連線，再檢查那 6 筆警報」",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-25T17:51:13.542255+08:00",
-  "priority": "medium"
-}

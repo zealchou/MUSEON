@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260315_214344_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n回覆聲稱已產出但只提供檔案路徑 + 結構說明，使用者期待看到完整的信文範本（可直接使用的版本），而非被指向某個檔案。應先讀出該檔案內容並呈現，或若內容不完整則補充完整範本文本。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-15T21:43:44.025607+08:00",
-  "priority": "medium"
-}

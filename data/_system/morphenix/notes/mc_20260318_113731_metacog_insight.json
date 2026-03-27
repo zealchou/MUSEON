@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260318_113731_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n前面標記有「架構上的關鍵問題」但沒有展開說明。建議先指出問題核心（例如：為何不能在支付回調中直接拿 key？超時/會話/權限限制？），再解釋 B/C 如何規避。否則 Feng 可能被數據表格淹沒，反而看不懂真正的限制在哪。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-18T11:37:31.360367+08:00",
-  "priority": "medium"
-}

@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260311_192616_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n缺少使用者提供的創作原文。這段診斷懸空——群組對話裡沒有任何創意寫作文本，無從驗證「比喻堆在一起」「情緒反應太整齊」等具體問題。建議先確認上下文：是否用戶在別處提供過文本？若有，直接按診斷重寫；若沒有，需補充提問。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-11T19:26:16.710835+08:00",
-  "priority": "medium"
-}

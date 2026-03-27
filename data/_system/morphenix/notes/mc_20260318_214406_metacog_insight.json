@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260318_214406_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n問題：(1) 回覆最後一句被截斷，未完成；(2) 沒確認 Feng 需要的是「架構討論」還是「可實裝的點數配置」；(3) 應在末尾補充「Server 怎麼追蹤工作流完成」的實作細節，或明確下一步行動。\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-18T21:44:06.717484+08:00",
-  "priority": "medium"
-}

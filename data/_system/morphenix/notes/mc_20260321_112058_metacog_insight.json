@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260321_112058_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n違反兩個核心規則：\n1. **邊界侵犯** — Zeal 剛設定「他沒有被授權透露」，這段回覆卻直接給 Feng 一套對外說法，變相幫助突破老闆的資訊邊界\n2. **未驗證假設** — 「Zeal 在醫院生孩子」的來源不明（群組沒提到），不應洩露私人訊息；也假設士維的回答「不對」，但 Zeal 可能有特殊考量\n\n應改為：先確認這是否代表 Zeal 的指示，若純粹是機器人的糾正意見，",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-21T11:20:58.993183+08:00",
-  "priority": "medium"
-}

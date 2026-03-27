@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260320_205910_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n回覆隱含三個未驗證假設（有重複問題 + 來源是 Telegram/brain.py + 需要代碼解決），且「同樣的重複內容，繼續跳過」這句帶有不耐氛圍。應先詢問：這是實際遭遇的問題，還是測試？重複輸入來自何處？再決定是否寫防護邏輯。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-20T20:59:10.371984+08:00",
-  "priority": "medium"
-}

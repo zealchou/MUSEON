@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260315_221339_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：先審一下資料收集模組的設計本身（資料結構、格式規範、可能的卡點），而不是直接列舉下一步選項。根據審查結果給出優先級判斷，例如「資料結構需要規範化才能進報告生成」或「建議先排程驗證可靠性再做報告」。使用者可能在尋求設計評估而非方向列表。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-15T22:13:39.006594+08:00",
-  "priority": "medium"
-}

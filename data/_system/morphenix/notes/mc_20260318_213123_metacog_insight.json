@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260318_213123_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n**修改方向**（≤100字）：\n\n1. **未驗證假設過多**：Anthropic 層級（600/1,600/3,200）、超量費率（NT$5/次）需先查實或明確標註「假設為」。\n\n2. **缺失保障維度**：老闆明確提「勞健保」（保障），但回覆未回應。應補充 SLA/退款條款/服務承諾 — 這是「比 SAAS 更信任的 AAAS 模式」的關鍵。\n\n3. **推球而非產出**：不\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-18T21:31:23.786154+08:00",
-  "priority": "medium"
-}

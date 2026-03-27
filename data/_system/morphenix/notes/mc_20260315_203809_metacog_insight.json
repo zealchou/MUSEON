@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260315_203809_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n回覆有四個問題：(1) 假設「已回答過」但對話中無此紀錄；(2) 使用者明確要求「分析」，回覆未提供任何分析；(3) 語氣冷淡、拒絕性；(4) 沒有可交付物。\n\n建議改為：禮貌詢問使用者想從哪個角度分析（如市場規模、產業鏈、政策、投資趨勢），或直接提供簡短的台灣AI產業分析框架。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-15T20:38:09.560171+08:00",
-  "priority": "medium"
-}

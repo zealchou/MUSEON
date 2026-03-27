@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260314_172403_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n不只是詢問意圖，改為主動分析。比如：「看起來是測試系統穩健性。如果需要診斷、效能檢查或其他服務，我準備好了。先說你要什麼結果？」更主動、更提供價值。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-14T17:24:03.331606+08:00",
-  "priority": "medium"
-}

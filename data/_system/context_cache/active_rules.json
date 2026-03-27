@@ -1,0 +1,87 @@
+{
+  "updated_at": "2026-03-26T14:43:43.462731",
+  "total_active": 84,
+  "top_n": 10,
+  "rules": [
+    {
+      "rule_id": "rule-OP-LESSON-001",
+      "summary": "在 MUSEON 中搜尋任何資料前，先讀藍圖定位資料流向",
+      "directive": "先讀 docs/persistence-contract.md（水電圖）和 docs/memory-router.md（郵路圖）鎖定資料位置，不做無目的的 find/grep。盲目搜索 15 輪才找到的教訓。",
+      "rule_type": "methodology",
+      "action": "guard",
+      "strength": 2.0
+    },
+    {
+      "rule_id": "rule-OP-LESSON-002",
+      "summary": "遇到工具限制時，先窮盡替代路徑再回報，不可直接說做不到",
+      "directive": "工具有限制不等於任務不可能。先問：資料有沒有可能在其他地方？窮盡本地檔案、日誌、快取、資料庫等替代來源。Telegram Bot API 沒有歷史功能，但 MUSEON 本地有完整記憶系統的教訓。",
+      "rule_type": "methodology",
+      "action": "guard",
+      "strength": 2.0
+    },
+    {
+      "rule_id": "rule-OP-LESSON-005",
+      "summary": "寫入資料前，追完整條消費鏈——誰讀、怎麼讀、什麼條件觸發",
+      "directive": "寫入成功≠系統能用。確認：(1) consumer 的 user_id/scope 匹配 (2) 向量搜索有 Qdrant indexing (3) 有觸發讀取的時機。寫得進去讀不出來=死檔案。",
+      "rule_type": "methodology",
+      "action": "guard",
+      "strength": 2.0
+    },
+    {
+      "rule_id": "rule-OP-LESSON-007",
+      "summary": "測試通過≠系統會執行——驗證時必須追蹤完整執行路徑，不只是函數本身",
+      "directive": "新增排程步驟後確認執行清單（如 _FULL_STEPS）包含它。新增事件處理後確認觸發源存在且路徑正確。手動呼叫函數測試通過不代表系統會執行它。修完後 spawn 獨立審計 subagent 做反向 BDD 驗證——自己驗自己有盲點。",
+      "rule_type": "methodology",
+      "action": "guard",
+      "strength": 2.0
+    },
+    {
+      "rule_id": "rule-OP-LESSON-008",
+      "summary": "「做完」的標準是獨立審計員驗證 100%，不是自己覺得完了",
+      "directive": "重大修改後 spawn 獨立審計 subagent 做反向 BDD 驗證。審計員回報問題→修→再審計→直到 100%。不要在第一輪就說修復完成。自己驗自己天然有盲區。",
+      "rule_type": "methodology",
+      "action": "guard",
+      "strength": 2.0
+    },
+    {
+      "rule_id": "rule-OP-LESSON-009",
+      "summary": "任何迭代/debug 完成後，強制執行 Fix-Verify 三維閉環驗證",
+      "directive": "不是建議，是必須。Spawn 隔離審計員，三維驗證（D1 行為 BDD + D2 接線追蹤 + D3 藍圖同步），反覆迴圈直到 100%。自己說修好了不算數。",
+      "rule_type": "methodology",
+      "action": "guard",
+      "strength": 2.0
+    },
+    {
+      "rule_id": "rule-OP-LESSON-006",
+      "summary": "自動化產出（規則/報告）需定期抽檢內容品質，不只看狀態碼",
+      "directive": "自動化閘門的產出不是跑了就對。定期抽檢 crystal_rules.json、nightly_report 的實際內容。問「如果這步產出垃圾，誰會發現？」如果答案是沒人，加抽檢。",
+      "rule_type": "methodology",
+      "action": "guard",
+      "strength": 1.5
+    },
+    {
+      "rule_id": "rule-OP-LESSON-003",
+      "summary": "回覆老闆前，確認內部術語已轉換為白話",
+      "directive": "DM 可以用技術語言，但群組回覆絕對禁止 L1/L2/L3、Gateway、MuseOff、MCP 等內部術語。用「監控層/檢測層/阻擋層」代替。",
+      "rule_type": "methodology",
+      "action": "guard",
+      "strength": 1.5
+    },
+    {
+      "rule_id": "rule-OP-LESSON-004",
+      "summary": "老闆要求行動時，直接執行，不要拋選項回去讓老闆決策",
+      "directive": "當老闆說「做 X 然後給我結果」，應該 (1) 確認 X 已完成 (2) 驗證結果可用 (3) 給最終連結/產出。不要回問「你想要 A 方案還是 B 方案」。偏好行動，不要選項。",
+      "rule_type": "methodology",
+      "action": "guard",
+      "strength": 1.5
+    },
+    {
+      "rule_id": "rule-MC-_insight",
+      "summary": "修改方向：Feng 真正在問的是**架構設計問題**（子體能否多工並發），不是定價模型。應該先確認「子體為什麼不能多工」（代碼限制 vs. 設計選擇），再評估技術可行性，定價只是後續問題。現在的回覆有",
+      "directive": "修改方向：Feng 真正在問的是**架構設計問題**（子體能否多工並發），不是定價模型。應該先確認「子體為什麼不能多工」（代碼限制 vs. 設計選擇），再評估技術可行性，定價只是後續問題。現在的回覆有「話題轉移」之嫌。\n[PostCognition] 預判準確率低: 0.00",
+      "rule_type": "methodology",
+      "action": "guard",
+      "strength": 1.2
+    }
+  ]
+}

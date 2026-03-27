@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260323_102023_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n老闆已明確表態「看不懂複雜文檔」要去網頁看，你卻只提供 Markdown 文字版本。應直接生成：\n\n1. **HTML 視覺化報告**（一張圖秒懂進度 + 瓶頸）\n2. **金流商對比表**（費率/串接時間/推薦度）— 不要「選了我幫你」，直接列表讓他選\n\n把 Feng 的三份檔案轉化成「老闆能在 30 秒內做決策的視覺資產」，才是真正的翻譯。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-23T10:20:23.287669+08:00",
-  "priority": "medium"
-}

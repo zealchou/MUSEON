@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260318_125026_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n使用者要求「上傳到 GitHub 給我外部鏈接」是明確的**行動要求**，但回覆等待他提供資訊才動手。改進方向：主動先檢查你的 GitHub 帳號設定（或是否需要幫你建立 repo），直接說「給我 [X] 我立即推 3 分鐘內給鏈接」，把「準備工作」和「執行」分開清楚，不要讓他在中間卡著。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-18T12:50:26.163187+08:00",
-  "priority": "medium"
-}

@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260312_020213_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n用戶未發言，不應等待指令。改為：先主動跑 `system_audit` 診斷當前狀態（CLAUDE.md 迭代協議的第一步），然後根據診斷結果推薦下一步方向。更主動、更有具體可交付物。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-12T02:02:13.825755+08:00",
-  "priority": "medium"
-}

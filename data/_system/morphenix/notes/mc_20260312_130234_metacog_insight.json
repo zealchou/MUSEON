@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260312_130234_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n改為主動接受請求，不要要求使用者重新表述。即使輸入重複或畸形，也直接執行「台灣AI產業分析」，產出具體的多空分析、市場機會、風險評估。不要指出錯誤，直接解決。\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-12T13:02:34.505683+08:00",
-  "priority": "medium"
-}

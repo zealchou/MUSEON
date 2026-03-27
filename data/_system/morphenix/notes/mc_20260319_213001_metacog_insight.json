@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260319_213001_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n回覆的問題：有 2+ 未驗證假設（「三個複製的 Skill」指什麼、是否實際執行），且沒直接回答「現在」的狀態。應先澄清系統現狀（代碼改動 ✓ 在 src/、還未同步 .runtime/、需要重打包）再問「你實際改了什麼」，而非列三個猜測選項。簡潔有力比技術細節優先。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-19T21:30:01.590831+08:00",
-  "priority": "medium"
-}

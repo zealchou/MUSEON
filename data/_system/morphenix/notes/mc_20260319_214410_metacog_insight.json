@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260319_214410_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n這段回覆掉進了「解釋能力」的陷阱，但老闆的真需求是：完成逐字稿 → DSE 分析 → HTML 報告 → 推 GitHub。應該跳過「Office 格式」的討論，直接進入行動狀態。建議改為：確認任務範圍（07/08/09 基於哪六份資料？GitHub repo 位置？HTML 風格參考？），然後啟動執行。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-19T21:44:10.133350+08:00",
-  "priority": "medium"
-}

@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260316_162450_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n先確認：你現在要刪除嗎，還是只是問「能否刪」？如果現在要刪，需要 Gist ID。提供 `gh gist delete <gist_id>` 指令，強調「**不可回復**」。建議使用者給確切指令再執行，而非只要求核准。\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-16T16:24:50.637545+08:00",
-  "priority": "medium"
-}

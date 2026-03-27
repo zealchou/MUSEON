@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260324_133118_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向：前段保留（資料庫查詢確實有執行），但最後句改為「既然沒有歷史資料，我下次應該直接問 Alan（客戶），而不是問你。我會主動坦白系統缺漏，請他提供。這樣既保護機密，也尊重客戶身份」——展示防禦機制，而非再度請求。\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-24T13:31:18.513729+08:00",
-  "priority": "medium"
-}

@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260327_213215_metacog_insight",
+  "category": "metacog_insight",
+  "content": "我需要確認一個情況：我還沒有讀取過 evvon 群組今天的對話內容。\n\n根據 L1 協議，我應該先用 `mcp__museon__museon_group_context` 工具拉取對話記錄才能做判斷。但我需要群組的 **chat_id**（Telegram group ID）。\n\n你可以提供 evvon 群組的 chat_id 嗎？或者直接說：\n- 今天討論了什麼議題？\n- 有哪些重複出現、但現有 Skill 無法直接支援的能力需求？\n\n我會更準確地評估是否需要新 Skill、還是現有 Skill 的組合能覆蓋。",
+  "source": "L4_observer",
+  "created_at": "2026-03-27T21:32:15.436755+08:00",
+  "priority": "medium"
+}

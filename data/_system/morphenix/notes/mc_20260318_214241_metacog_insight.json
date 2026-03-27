@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260318_214241_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n核心問題分層待驗證：先確認「客戶自付 Claude 成本」是否已定案、「複雜度」如何定義（開發複雜?教練複雜?還是失敗率複雜）、「工作內容分類」是什麼。當前分析偏成本側，但老闆真問是「怎麼公平分配增值」——應補充「獎金結構範本」（簡中複三層）、「工作內容分類表」加「獎金係數」、「試算表」（不同內容的底薪+獎金組合）。\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-18T21:42:41.841560+08:00",
-  "priority": "medium"
-}

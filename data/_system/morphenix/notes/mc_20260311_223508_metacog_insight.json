@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260311_223508_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n對話紀錄中沒有看到 Feng 傳過 `.docx` 檔案。他最後的問題被截斷，核心在問：除了 API 以外，有沒有其他方式讓子體透過界面操作系統？這才是你應該直接回應的真需求。建議先簡短確認檔案狀況，然後切進開發方式的技術建議。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-11T22:35:08.892855+08:00",
-  "priority": "medium"
-}

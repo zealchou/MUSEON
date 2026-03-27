@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260314_024037_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n先讀 `pulse_engine.py` 驗證靜默跳過是否真實存在，再檢查 `knowledge_lattice` 等其他系統有無類似模式。這不只是 bug 修復，更是系統治理——「什麼時候該報告未知」的規則應該先清，再寫代碼。\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-14T02:40:37.977867+08:00",
-  "priority": "medium"
-}

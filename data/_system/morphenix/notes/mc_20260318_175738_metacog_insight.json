@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260318_175738_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n**修改方向：** Feng 要求「邊界沒缺洞」，這個回覆給的是建築建議而非邊界診斷。建議先停止推薦方案，回到檢視現狀：① 現在邊界最脆弱在哪？（SDK 被拿、token 洩漏、server 被繞過）② 防線優先順序？③ 才談架構升級。問清真需求再提方案。\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-18T17:57:38.199844+08:00",
-  "priority": "medium"
-}

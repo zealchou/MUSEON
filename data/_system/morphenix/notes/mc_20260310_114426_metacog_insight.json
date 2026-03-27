@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260310_114426_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n使用者已說「確認無誤，那就可以開工」，表示授權開始行動。回覆應該**立即開始具體工作**（例如「我現在為你初始化 FastAPI 專案、產出 schema.sql 和 API 骨架」），而非被動詢問「需要開工嗎？」。建議移除末尾提問，改成主動著手階段一的第一個可交付物。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-10T11:44:26.744104+08:00",
-  "priority": "medium"
-}

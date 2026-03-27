@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260310_120300_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n不要拒絕分析。即使訊息重複，使用者的核心需求是「台灣AI產業分析」。應該提供分析結果作為可交付物，再提及技術問題。避免讓使用者感到被指責，改為「檢測到訊息重複，先把分析給你」。\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-10T12:03:00.269303+08:00",
-  "priority": "medium"
-}

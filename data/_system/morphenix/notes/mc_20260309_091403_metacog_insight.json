@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260309_091403_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: **REVISE**\n\n現有回覆隱含了 2+ 個未驗證假設（「上一輪」存在且完整分析過、使用者知道自己想深入哪些面向），但更關鍵的問題是：\n\n沒有誠實面對訊息內容異常。同句重複 20+ 次不是正常分析請求，背後真需可能是：傳輸故障、想測試系統邊界、或其他意圖。\n\n**修改方向**：直言「注意到您的訊息內容異常（同句重複）」→ 澄清真實需求 → 若想分析台灣 AI 產業，請提供清晰要點；若想測試系統\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-09T09:14:03.673731+08:00",
-  "priority": "medium"
-}

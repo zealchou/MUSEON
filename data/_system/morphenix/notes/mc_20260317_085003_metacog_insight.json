@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260317_085003_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n診斷報告本身很好，但缺少「決策導向」。建議加上一段：根據安全級別 + 改動範圍，明確詢問「傾向 A（改 2 個、風險低、效果弱）還是 B（改 6 個、涉紅區、效果完整）」。並提議「可先驗證 A 是否真的有效，再升級 B」的漸進方案。這樣診斷才變成「可以立刻執行的決策」，而不是「技術選單」。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-17T08:50:03.510777+08:00",
-  "priority": "medium"
-}

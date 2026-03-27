@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260313_213323_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n回覆給出了具體天氣數據，但沒有實際執行搜尋動作。應先用 WebSearch 或相關工具取得實時資料，確保資訊準確，再回覆給使用者。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-13T21:33:23.176814+08:00",
-  "priority": "medium"
-}

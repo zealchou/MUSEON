@@ -1,0 +1,41 @@
+{
+  "version": "3.0.0",
+  "user_id": "6989895371",
+  "created_at": "2026-03-27T00:08:48.765926",
+  "interaction_count": 1,
+  "last_seen": "2026-03-27T00:08:48.765993",
+  "display_name": "Sterling",
+  "context_summary": "Sterling 的近期話題：嗯嗯\n晚安；我這週日連兩天課\n又是要到某個午夜玩了；想說我這一週忙一個段落，要來開始測試的說；喔齁齁；你可以提供什麼樣的服務",
+  "profile": {
+    "name": null,
+    "role": null,
+    "business_type": "unknown"
+  },
+  "relationship": {
+    "trust_level": "initial",
+    "total_interactions": 0,
+    "positive_signals": 0,
+    "negative_signals": 0,
+    "last_interaction": null,
+    "first_interaction": "2026-03-27T00:08:48.765942"
+  },
+  "eight_primals": {},
+  "seven_layers": {
+    "L1_facts": [],
+    "L2_personality": [],
+    "L6_communication_style": {
+      "detail_level": "moderate",
+      "emoji_usage": "none",
+      "language_mix": "mixed",
+      "avg_msg_length": 0,
+      "question_style": "open",
+      "tone": "casual"
+    }
+  },
+  "preferences": {},
+  "recent_topics": [],
+  "groups_seen_in": [
+    -5208537911
+  ],
+  "relationship_to_owner": ""
+}

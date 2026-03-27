@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260318_145136_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n**修改方向**（≤100字）：\n\n回應遺漏了 Feng 上一條的核心問題。在進入 SDK 測試前，應先澄清：(1) 上次「架構上的關鍵問題」具體是什麼、(2) SDK 實現時對 Feng 的流程（註冊→登入→選方案→付錢→AI自己去拿Key）的架構決策為何、(3) 是否已經想清楚、有無需要調整。確認架構才進測試。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-18T14:51:36.085237+08:00",
-  "priority": "medium"
-}

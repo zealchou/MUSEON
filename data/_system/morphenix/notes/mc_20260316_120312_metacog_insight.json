@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260316_120312_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n理由：回覆對「Hello Unicode」這樣簡單的訊息建立了多個未驗證假設（使用者持續發訊號、在尋求陪伴或被卡住等），且「我不會一直停在這個位置等」的措辭可能造成被催促感。建議先以開放態度回應這句 Hello，確認使用者狀態後再進入更深的詰問。保留「陪伴 vs 診斷的選擇」框架，但改為「我在這裡」而非「我不會一直等」，既尊重沈默權又不製造壓力。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-16T12:03:12.332728+08:00",
-  "priority": "medium"
-}

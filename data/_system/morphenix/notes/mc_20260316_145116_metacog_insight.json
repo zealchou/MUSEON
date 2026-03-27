@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260316_145116_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n我需要坦白：這個對話中我**沒有生成過任何 HTML**。你說「你上面給我的 html」，但我沒有對話歷史可以檢查。請分享一下你指的 HTML 是什麼（可以貼程式碼或檔案路徑），這樣我才能真實檢查它是否符合 `design_spec.md` 規範。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-16T14:51:16.187755+08:00",
-  "priority": "medium"
-}

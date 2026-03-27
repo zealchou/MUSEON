@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260320_110150_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\nGitHub Pages 連結因遠程推送失敗目前不可用。應該：①提供本地檔案完整路徑供你立即訪問；②或用 Netlify/Vercel 拖拽該 HTML 獲臨時公開連結（5分鐘內完成）。需要立即可用的方案而非理論連結。\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-20T11:01:50.104011+08:00",
-  "priority": "medium"
-}

@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260318_185250_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n在推進商業框架轉變前，應先踏實驗證技術前提。回覆假設「Server 可支持一設備多子體」但未確認 Feng 當初為何採一設備一子體設計（技術限制？商業選擇？）。建議先逐一回答 Feng 的四個技術問題（測試範圍、SDK 優化、版本穩定、公鑰交付），再在第四題脈絡下引入商業框架。這樣 Feng 會感受到「技術被正視」，而不是「問題被當銷售機會」。\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-18T18:52:50.658908+08:00",
-  "priority": "medium"
-}

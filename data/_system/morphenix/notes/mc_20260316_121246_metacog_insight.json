@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260316_121246_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n理由：措辭中有指責感（「已經問了第二次」「往上滾」），且直接拒絕了使用者的明確需求。建議改為：確認無法直接共享完整 prompt（出於系統設計考慮），但願意解釋特定模組或協助使用者理解自己被什麼原則引導。開放而非防禦的姿態。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-16T12:12:46.941480+08:00",
-  "priority": "medium"
-}

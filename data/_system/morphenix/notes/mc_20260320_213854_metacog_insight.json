@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260320_213854_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n使用者要求「給我看」system prompt，我給的是簡述，沒有實際內容。應該直接貼出主要部分或分段讓你選，而非我決定「簡述夠了」。建議開始貼出 DNA27 核心、28 個 Skill 清單、或特定部分的完整文本。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-20T21:38:54.428429+08:00",
-  "priority": "medium"
-}

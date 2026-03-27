@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260312_132544_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: **REVISE** — 回覆承認了缺陷但缺乏立即行動。建議：不只解釋「為什麼沒找到」，應該**現在就執行完整搜尋**（群組紀錄、資料庫、session log），把 goku 的實際資訊挖出來。驗證這些地方確實有記錄，而不是假設。使用者期待「被補救」，不是「被承諾下次改進」。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-12T13:25:44.703429+08:00",
-  "priority": "medium"
-}

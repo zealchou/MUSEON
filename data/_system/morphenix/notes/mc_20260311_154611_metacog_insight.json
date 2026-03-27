@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260311_154611_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n備份檔案問題不應踢回使用者。既然要「徹底刪除」，應主動建議：由於污染備份已無活用價值且可能造成混淆，建議一併刪除。或確認 git history 仍有完整備份後，直接刪除 `.polluted_backup`。\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-11T15:46:11.129669+08:00",
-  "priority": "medium"
-}

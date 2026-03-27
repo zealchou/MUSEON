@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260317_233853_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n即將發送的回覆有分析框架和數據（很好），但觸犯了 a+b+d 規則：\n- **a**：說「幫你出現金流模型」但沒立即產出\n- **b**：假設「三個問題足以判斷」+ 假設「使用者已決定開店」未驗證\n- **d**：沒有「可立即下載、改、用」的物件（Excel/Markdown）\n\n**修改方向**：直接給一份保守情景下的「手搖飲現金流初版模板」（讓他即改即用）；改用 **maste",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-17T23:38:53.783694+08:00",
-  "priority": "medium"
-}

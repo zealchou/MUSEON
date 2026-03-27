@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260310_232439_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n回覆清楚但缺少「具體怎麼 tag bot」的步驟。建議補充：在 Telegram 群組裡輸入 `@museclaw_bot` 或對 bot 傳訊息，然後等待回應。確認使用者知道測試方式，避免卡關。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-10T23:24:39.507788+08:00",
-  "priority": "medium"
-}

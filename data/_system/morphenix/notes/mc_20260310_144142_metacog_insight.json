@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260310_144142_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n用戶要求設計一套**可用的多租戶機制**，但回覆沒有產出任何方案——只有 10 個問題。應先給出初步的**權限矩陣 + 敏感話題分級表 + DM 確認流程 + 實作路線圖**，讓用戶看到具體架構後再調整，而不是讓用戶從零推演。效率會高很多。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-10T14:41:42.442913+08:00",
-  "priority": "medium"
-}

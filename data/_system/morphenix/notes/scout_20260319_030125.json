@@ -1,8 +1,0 @@
-{
-  "type": "scout_skill_draft",
-  "topic": "向量資料庫在 AI agent 記憶系統中的最佳實踐",
-  "draft": "## Scout 技能改善草稿\n\n**主題**: 向量資料庫在 AI agent 記憶系統中的最佳實踐\n**偵察模式**: Gap Detection (Mode A)\n**產出時間**: 2026-03-19 03:01\n\n### 研究摘要\n## 評估結果：✅ 有明確的可用價值\n\n### 發現總結\n\n搜尋結果包含**三層遞進的實踐智慧**：\n\n1. **生產級方案**（AWS Bedrock）：命名空間隔離 + 加密存儲，用於多租户記憶隔離\n2. **架構選型框架**：三層向量資料庫分類 + pgvector 增強方案\n3. **場景化權衡指南**：根據「實時性/複雜推理/長期學習」需求選技術\n\n---\n\n### 核心做法（3-5句提煉）\n\n**混合式記憶系統而非單向量資料庫**：實時性高的檢索用向量ANN（如Faiss），複雜因果推理用知識圖譜，長期學習用混合架構。**命名空間隔離模式**確保多Agent記憶互不汙染，是托管記憶層的關鍵設計。**優先增強而非替代**：在PostgreSQL上增加pgvector擴展，比引入獨立向量庫複雜度低。**雙通道設計**：同步支援向量嵌入（語義相似）與圖結構（因果關係），讓記憶既能找相似經驗、又能理解事件邏輯。\n\n---\n\n### 適用於MUSEON的建議\n- `knowledge_lattice` 模組可採「混合式」而非純向量設計\n- 若要多Agent共用記憶，命名空間隔離是必要保護\n\n### 改善建議\n基於上述研究，建議檢視以下方向是否可整合到現有 Skill 中：\n1. 從研究中提煉的核心做法\n2. 與現有系統的適配度評估\n3. 具體的改善步驟（需人類確認）\n\n### 參考來源\n  - https://aws.amazon.com/cn/blogs/china/agentic-ai-infrastructure-deep-practice-experience-thinking-series-three-best-practices-for-agent-memory-module/\n  - https://aws-oncloudai.com/zh_hk/full-analysis-of-aws-vector-database/\n  - https://zhuanlan.zhihu.com/p/18820678310\n\n### 安全聲明\n- 此草稿由 SkillForgeScout 自動產出\n- 需經 Morphenix L2 提案流程審核後方可執行\n- 絕不直接修改 SKILL.md 或任何受保護檔案\n",
-  "source": "skill_forge_scout",
-  "created_at": "2026-03-19T03:01:25.101123+08:00",
-  "auto_propose": true
-}

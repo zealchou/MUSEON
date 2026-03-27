@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260327_163930_metacog_insight",
+  "category": "metacog_insight",
+  "content": "無\n\n---\n\n（技術指令，不涉及新目標/決策/教訓）\n\n建議：用 `~/.claude/settings.json`（全域）更簡單，無需修改專案裡的敏感檔案。要授權嗎？",
+  "source": "L4_observer",
+  "created_at": "2026-03-27T16:39:30.633314+08:00",
+  "priority": "medium"
+}

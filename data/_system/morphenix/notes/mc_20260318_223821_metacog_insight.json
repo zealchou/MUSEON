@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260318_223821_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n回覆回答了「你現在有辦法嗎」但漏掉了 Zeal 的核心要求：「嘗試看一下今天在這邊的對話，大概會扣掉多少個信任點」。應先掃一遍對話紀錄，計算按需 Skill 觸發數、估算信用點消耗，再回到三個澄清問題。\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-18T22:38:21.847333+08:00",
-  "priority": "medium"
-}

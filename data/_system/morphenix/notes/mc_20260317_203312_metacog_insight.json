@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260317_203312_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n直接產出一封完整、可立即複製貼上的 email（不要有 `[佔位符]`）。刪除 text-alchemy 框架介紹和設計重點拆解——使用者要求「寫」不是「教怎麼寫」。可在最後簡單說如需調整歡迎告訴你。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-17T20:33:12.107456+08:00",
-  "priority": "medium"
-}

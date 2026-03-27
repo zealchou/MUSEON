@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260318_150235_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n——SDK 讀取問題先獨立解決，不要被動等待。需要確認：(1) 工作目錄結構/絕對路徑；(2) Device Token 具體位置；(3) 立刻可用的解決方案（改 sys.path、複製 SDK、軟連結等）。給出「現在就可以做」的步驟，而非等待卡點。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-18T15:02:35.483239+08:00",
-  "priority": "medium"
-}

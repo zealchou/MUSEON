@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260318_223449_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: **REVISE**\n\n群組話題軸是「session 追蹤架構設計」（Feng 最後一句未完），但回覆卻在談「HTML 上架」——脈絡漂移。建議先確認優先級：是先完成架構設計論證（Feng 的技術點）還是上架銷售頁？若上架，補充選項的利弊與前置條件；若優先架構，應先回應 session 定義的技術問題。\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-18T22:34:49.036788+08:00",
-  "priority": "medium"
-}

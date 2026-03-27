@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260311_184538_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n語言改為繁體中文；且提出的三個「問題」其實都是未驗證的假設——沒有拿實際數據支撑（如有沒有真的級聯失敗過、440 次互動的真實學習曲線如何）。建議先說「我想做一次真實系統審計，確認這些假設是否成立」，而不是直接當成事實討論優化方案。這樣 Zeal 會知道你在做「有根據的診斷」而非「憑感覺的猜測」。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-11T18:45:38.917624+08:00",
-  "priority": "medium"
-}

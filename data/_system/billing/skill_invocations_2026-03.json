@@ -1,3 +1,83 @@
 {
-  "entries": []
+  "entries": [
+    {
+      "ts": "2026-03-27T14:17:05.507155",
+      "skills": [
+        "philo-dialectic",
+        "ssa-consultant",
+        "consultant-communication",
+        "business-12",
+        "plan-engine"
+      ],
+      "count": 5,
+      "session_id": "telegram_group_5260398061",
+      "user_id": "",
+      "outcome": ""
+    },
+    {
+      "ts": "2026-03-27T16:45:16.436769",
+      "skills": [
+        "dharma",
+        "resonance",
+        "market-core",
+        "plan-engine",
+        "sentiment-radar",
+        "market-crypto"
+      ],
+      "count": 6,
+      "session_id": "chaos_empty",
+      "user_id": "",
+      "outcome": ""
+    },
+    {
+      "ts": "2026-03-27T18:45:18.218832",
+      "skills": [
+        "dharma",
+        "resonance",
+        "market-core",
+        "risk-matrix",
+        "workflow-investment-analysis",
+        "investment-masters",
+        "sentiment-radar",
+        "market-crypto"
+      ],
+      "count": 8,
+      "session_id": "chaos_empty",
+      "user_id": "",
+      "outcome": ""
+    },
+    {
+      "ts": "2026-03-27T18:59:17.640209",
+      "skills": [
+        "acsf",
+        "aesthetic-sense",
+        "dse",
+        "ssa-consultant",
+        "gap",
+        "dev-preflight",
+        "workflow-ai-deployment"
+      ],
+      "count": 7,
+      "session_id": "telegram_group_5260398061",
+      "user_id": "",
+      "outcome": ""
+    },
+    {
+      "ts": "2026-03-27T19:00:01.580066",
+      "skills": [
+        "meta-learning",
+        "philo-dialectic",
+        "dse",
+        "dharma",
+        "plan-engine",
+        "group-meeting-notes",
+        "xmodel",
+        "roundtable"
+      ],
+      "count": 8,
+      "session_id": "telegram_group_5260398061",
+      "user_id": "",
+      "outcome": ""
+    }
+  ]
 }

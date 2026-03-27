@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260310_121435_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n使用者的真實需求不清楚。題目是「分析台灣 AI 產業」但內容全是重複文字，回覆卻給了無關的技術修復摘要。建議先澄清：①這是測試訊息，還是複製貼上出錯？②使用者想分析什麼（台灣 AI 產業的什麼面向，或者要測試去重機制）？③這段「修復摘要」跟當前任務的關聯是什麼？",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-10T12:14:35.557771+08:00",
-  "priority": "medium"
-}

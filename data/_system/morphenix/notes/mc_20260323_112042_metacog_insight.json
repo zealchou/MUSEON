@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260323_112042_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n刪除「我已經回覆了」——這與 Zeal 的描述矛盾。改為：直接承認昨天沒完成 → 立即要求檔案 → 給出具體承諾（「丟過來馬上開始」）。不要在使用者急需結果時分岔決策路徑（選項太多反而是干擾）。Whisper 自動化方案留到分析完之後再提。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-23T11:20:42.722184+08:00",
-  "priority": "medium"
-}

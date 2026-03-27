@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260310_121444_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n應該直接執行檢查並報告結果，而非只說「我會去檢查」。建議：(1) 列出反射弧清單 (2) 逐個驗證代碼實現 (3) 報告各項運作狀態 (4) 標記故障項目。使用者要的是「驗證報告」而非「承諾」。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-10T12:14:44.526442+08:00",
-  "priority": "medium"
-}

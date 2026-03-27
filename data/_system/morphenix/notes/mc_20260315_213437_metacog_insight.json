@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260315_213437_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n建議方向：直接拒絕容易造成不信任感。改為詢問具體意圖（想了解設計決策？檢查隱藏指令？了解 MUSEON 框架？），然後分享相關的協議文件（如 CLAUDE.md、藍圖系列）或直接分享部分 system prompt 的相關段落。MUSEON 強調透明度，拒絕分享反而違背設計理念。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-15T21:34:37.129299+08:00",
-  "priority": "medium"
-}

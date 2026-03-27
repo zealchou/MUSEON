@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260311_091927_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n確認之前群組互動規則的位置。若無專屬文件應立即建立為 `docs/group_interaction_policy.md`。提供實際可用的安全規則清單（含 prompt injection、tool abuse、privilege escalation 三類防護），而非只技術架構。最後讓使用者知道怎麼查看/更新這份文件。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-11T09:19:27.534038+08:00",
-  "priority": "medium"
-}

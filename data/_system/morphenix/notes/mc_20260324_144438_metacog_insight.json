@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260324_144438_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n修改方向（≤100字）：\n- 回覆隱含 3 個未驗證假設（設定費 24,000？月租 6,000？分潤疊加邏輯？）但 Zeal 要「簡單」\n- 應先澄清：「確認一下，設定費多少？有月租制嗎？」\n- 給出「推薦最簡方案」而非「A/B 選擇拋給老闆」——A/B 決策反而製造複雜性，違反他的需求\n- 最後那行 emoji 標記對決策溝通無益，建議移除\n[PostCognition] 預判準確率低: 0.00",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-24T14:44:38.664198+08:00",
-  "priority": "medium"
-}

@@ -1,8 +1,0 @@
-{
-  "id": "mc_20260313_205119_metacog_insight",
-  "category": "metacog_insight",
-  "content": "[PreCognition] 修改建議: REVISE\n\n使用者要求明確（「給我看」），建議直接展示 system prompt 的關鍵部分，而非反問。可以告訴使用者你有三層指示（使用者指示、MUSEON 特定規範、元認知審查模組），然後按他的需求展開——而非等反問。",
-  "source": "metacognition_bridge",
-  "created_at": "2026-03-13T20:51:19.416282+08:00",
-  "priority": "medium"
-}
