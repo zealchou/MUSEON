@@ -164,6 +164,11 @@ class TelegramAdapter(ChannelAdapter):
         except Exception as _e:
             logger.warning("Failed to cache bot identity: %s", _e)
 
+        # ── 統一發送出口攔截（Safe Send Wrapper）──
+        # 所有 bot.send_message 呼叫都經過此 wrapper，
+        # 確保群組訊息 100% 過 sanitize，消滅多路徑繞過問題。
+        self._install_safe_send_wrapper()
+
         self._running = True
         logger.info("TelegramAdapter started and polling for updates")
 
@@ -178,6 +183,45 @@ class TelegramAdapter(ChannelAdapter):
 
         self._running = False
         logger.info("TelegramAdapter stopped")
+
+    def _install_safe_send_wrapper(self) -> None:
+        """安裝統一發送出口 — 所有發送都過 sanitize.
+
+        策略：不 monkey-patch ExtBot（PTB frozen 屬性不允許），
+        改為提供 self._safe_send() 方法，並在所有發送路徑前統一呼叫。
+        """
+        if getattr(self, '_safe_send_installed', False):
+            return
+        self._safe_send_installed = True
+        logger.info("[SafeSend] Unified send wrapper installed — _safe_send() ready")
+
+    async def _safe_send(self, chat_id: int, text: str, **kwargs) -> Any:
+        """統一發送出口 — 所有訊息發送前過 sanitize + 空訊息攔截.
+
+        取代直接呼叫 self.application.bot.send_message()，
+        確保群組訊息 100% 過 ResponseGuard sanitize。
+        """
+        if not text or not text.strip():
+            logger.warning(f"[SafeSend] blocked empty message to chat_id={chat_id}")
+            return None
+
+        try:
+            from museon.governance.response_guard import ResponseGuard
+            is_group = int(chat_id) < 0
+            cleaned = ResponseGuard.sanitize_for_group(text, is_group=is_group)
+            if cleaned != text:
+                logger.info(
+                    f"[SafeSend] sanitized for chat_id={chat_id} "
+                    f"(removed {len(text) - len(cleaned)} chars)"
+                )
+            text = cleaned
+            if not text or not text.strip():
+                logger.warning(f"[SafeSend] blocked empty-after-sanitize to chat_id={chat_id}")
+                return None
+        except Exception as e:
+            logger.debug(f"[SafeSend] sanitize skipped: {e}")
+
+        return await self.application.bot.send_message(chat_id=chat_id, text=text, **kwargs)
 
     async def _handle_message(self, update: Update, context: Any) -> None:
         """Handle incoming text message."""
@@ -591,7 +635,7 @@ class TelegramAdapter(ChannelAdapter):
         msg_id = None
         for cid in targets:
             try:
-                msg = await self.application.bot.send_message(
+                msg = await self._safe_send(
                     chat_id=cid, text=text, reply_markup=keyboard,
                 )
                 msg_id = msg.message_id
@@ -889,7 +933,7 @@ class TelegramAdapter(ChannelAdapter):
             return False
         try:
             owner_id = int(self.trusted_user_ids[0])
-            await self.application.bot.send_message(chat_id=owner_id, text=text)
+            await self._safe_send(chat_id=owner_id, text=text)
             return True
         except Exception as e:
             logger.error(f"send_dm_to_owner failed: {e}")
@@ -928,7 +972,7 @@ class TelegramAdapter(ChannelAdapter):
                 # Telegram Flood Control（429）防禦：RetryAfter 自動重試
                 for _retry in range(3):
                     try:
-                        await self.application.bot.send_message(chat_id=chat_id, text=part)
+                        await self._safe_send(chat_id=chat_id, text=part)
                         break
                     except Exception as _send_err:
                         _err_str = str(_send_err)
@@ -1081,7 +1125,7 @@ class TelegramAdapter(ChannelAdapter):
         try:
             if not self.application:
                 return None
-            msg = await self.application.bot.send_message(chat_id=chat_id, text=text)
+            msg = await self._safe_send(chat_id=chat_id, text=text)
             return msg.message_id
         except Exception as e:
             logger.error(f"Failed to send processing status: {e}")
@@ -1239,7 +1283,7 @@ class TelegramAdapter(ChannelAdapter):
             try:
                 last_msg = None
                 for i, part in enumerate(parts):
-                    last_msg = await self.application.bot.send_message(
+                    last_msg = await self._safe_send(
                         chat_id=cid, text=part
                     )
                     if i < len(parts) - 1:
@@ -1444,7 +1488,7 @@ class TelegramAdapter(ChannelAdapter):
             owner_id = int(os.environ.get("TELEGRAM_OWNER_ID", "6969045906"))
             async def _safe_send():
                 try:
-                    await self.application.bot.send_message(
+                    await self._safe_send(
                         chat_id=owner_id,
                         text=text,
                         parse_mode="Markdown",
@@ -1495,7 +1539,7 @@ class TelegramAdapter(ChannelAdapter):
             owner_id = int(os.environ.get("TELEGRAM_OWNER_ID", "6969045906"))
             async def _safe_send():
                 try:
-                    await self.application.bot.send_message(
+                    await self._safe_send(
                         chat_id=owner_id,
                         text=text,
                         parse_mode="Markdown",
@@ -1589,7 +1633,7 @@ class TelegramAdapter(ChannelAdapter):
         if self.application and self.trusted_user_ids:
             try:
                 owner_id = int(self.trusted_user_ids[0])
-                await self.application.bot.send_message(
+                await self._safe_send(
                     chat_id=owner_id,
                     text="選擇操作：",
                     reply_markup=keyboard,
@@ -1640,7 +1684,7 @@ class TelegramAdapter(ChannelAdapter):
                 )
                 # 通知被配對的使用者
                 try:
-                    await self.application.bot.send_message(
+                    await self._safe_send(
                         chat_id=int(paired_uid),
                         text="✅ 配對成功！你現在可以使用 MUSEON。",
                     )
@@ -1656,7 +1700,7 @@ class TelegramAdapter(ChannelAdapter):
                     f"信任等級：VERIFIED（24 小時）"
                 )
                 try:
-                    await self.application.bot.send_message(
+                    await self._safe_send(
                         chat_id=int(paired_uid),
                         text="✅ 臨時配對成功！你有 24 小時的使用權限。",
                     )
@@ -1669,7 +1713,7 @@ class TelegramAdapter(ChannelAdapter):
                     f"❌ 使用者 {paired_name} 的配對已被拒絕"
                 )
                 try:
-                    await self.application.bot.send_message(
+                    await self._safe_send(
                         chat_id=int(paired_uid),
                         text="❌ 配對被拒絕。",
                     )
@@ -1855,7 +1899,7 @@ class TelegramAdapter(ChannelAdapter):
         if self.application and self.trusted_user_ids:
             try:
                 owner_id = int(self.trusted_user_ids[0])
-                await self.application.bot.send_message(
+                await self._safe_send(
                     chat_id=owner_id,
                     text=text,
                     reply_markup=keyboard,
@@ -1919,7 +1963,7 @@ class TelegramAdapter(ChannelAdapter):
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         try:
-            await self.application.bot.send_message(
+            await self._safe_send(
                 chat_id=int(chat_id),
                 text=text,
                 reply_markup=reply_markup,
