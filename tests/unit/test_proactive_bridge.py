@@ -313,7 +313,8 @@ class TestEventBusIntegration:
         await bridge.proactive_think()
 
         assert len(received) == 1
-        assert received[0]["message"] == long_msg
+        # Phase 4: 推播會加分級前綴（📋 / ⚡ / 🔴）
+        assert received[0]["message"].endswith(long_msg) or long_msg in received[0]["message"]
         assert "timestamp" in received[0]
         assert received[0]["push_count"] == 1
 
