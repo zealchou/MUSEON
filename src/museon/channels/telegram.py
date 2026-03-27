@@ -16,6 +16,7 @@ from telegram.constants import ChatAction
 from telegram.ext import (
     Application,
     CallbackQueryHandler,
+    ChatMemberHandler,
     CommandHandler,
     MessageHandler,
     filters,
@@ -150,10 +151,20 @@ class TelegramAdapter(ChannelAdapter):
             CallbackQueryHandler(self._handle_choice_callback, pattern=r"^choice:")
         )
 
+        # 追蹤成員變更（偵測 Zeal 退群 → 停止摘要服務）
+        self.application.add_handler(
+            ChatMemberHandler(
+                self._handle_chat_member_updated,
+                chat_member_types=ChatMemberHandler.CHAT_MEMBER,
+            )
+        )
+
         # Start polling
         await self.application.initialize()
         await self.application.start()
-        await self.application.updater.start_polling()
+        await self.application.updater.start_polling(
+            allowed_updates=["message", "chat_member", "my_chat_member", "callback_query"],
+        )
 
         # Cache bot identity so group mention checks don't rely on context.bot
         try:
@@ -2028,3 +2039,41 @@ class TelegramAdapter(ChannelAdapter):
             logger.warning(
                 f"No interaction_queue set for choice callback: qid={question_id}"
             )
+
+    async def _handle_chat_member_updated(self, update: Update, context: Any) -> None:
+        """處理群組成員變更 — 偵測 Zeal 退群則停止摘要服務."""
+        try:
+            member = update.chat_member
+            if not member:
+                return
+
+            user = member.new_chat_member.user
+            old_status = member.old_chat_member.status
+            new_status = member.new_chat_member.status
+            chat_id = member.chat.id
+
+            # 只關心 Zeal（owner）的狀態變更
+            if str(user.id) not in self.trusted_user_ids:
+                return
+
+            # 離開或被踢
+            if old_status in ("member", "administrator", "creator") and new_status in ("left", "kicked"):
+                logger.info(f"[GroupDigest] Owner left group {chat_id}, disabling digest")
+                try:
+                    from museon.governance.group_context import get_group_context_store
+                    store = get_group_context_store()
+                    store.set_group_setting(chat_id, "digest_enabled", False)
+                except Exception as e:
+                    logger.warning(f"[GroupDigest] Failed to disable digest for {chat_id}: {e}")
+
+            # 加入
+            elif old_status in ("left", "kicked") and new_status in ("member", "administrator", "creator"):
+                logger.info(f"[GroupDigest] Owner joined group {chat_id}, enabling digest")
+                try:
+                    from museon.governance.group_context import get_group_context_store
+                    store = get_group_context_store()
+                    store.set_group_setting(chat_id, "digest_enabled", True)
+                except Exception as e:
+                    logger.warning(f"[GroupDigest] Failed to enable digest for {chat_id}: {e}")
+        except Exception as e:
+            logger.debug(f"[ChatMemberUpdated] Error: {e}")

@@ -1393,6 +1393,43 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
     except Exception as e:
         logger.warning("自主維運系統啟動失敗（非致命）: %s", e)
 
+    # ── 群組定時摘要（10:00 / 14:00 / 17:00）──
+    async def _group_digest_job():
+        """群組定時摘要推播."""
+        try:
+            from museon.pulse.group_digest import GroupDigestService
+            from museon.governance.group_context import get_group_context_store
+
+            store = get_group_context_store()
+            _llm_adapter = getattr(brain, "_api_adapter", None) or getattr(brain, "_llm_adapter", None)
+            _tg_adapter = getattr(app.state, "telegram_adapter", None) if app else None
+            service = GroupDigestService(
+                group_store=store,
+                llm_adapter=_llm_adapter,
+                telegram_adapter=_tg_adapter,
+            )
+
+            # 設定 source 給 ProactiveDispatcher
+            if _tg_adapter and hasattr(_tg_adapter, '_current_push_source'):
+                _tg_adapter._current_push_source = "group_digest"
+
+            result = await service.run_digest_cycle()
+            logger.info(
+                f"[GroupDigest] Cycle done: "
+                f"processed={result['groups_processed']}, "
+                f"sent={result['groups_sent']}, "
+                f"skipped={result['groups_skipped']}"
+            )
+        except Exception as e:
+            logger.error(f"[GroupDigest] Job failed: {e}", exc_info=True)
+
+    for _digest_hour in [10, 14, 17]:
+        cron_engine.add_job(
+            _group_digest_job, trigger="cron",
+            job_id=f"group-digest-{_digest_hour:02d}",
+            hour=_digest_hour, minute=0,
+        )
+
     # ── 系統排程任務元資料清冊（供 /api/tasks 使用）──
     _system_cron_registry = [
         {"job_id": "nightly-fusion",         "name": "夜間整合管線",         "schedule": "每天 03:00",     "category": "maintenance", "uses_llm": True},
@@ -1436,6 +1473,9 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
         {"job_id": "museoff-l6",            "name": "MuseOff L6 藍圖漂移",  "schedule": "每天 15:00",    "category": "autonomous",  "uses_llm": False},
         {"job_id": "museqa-scan",           "name": "MuseQA 品質掃描",     "schedule": "每 15 分鐘",    "category": "autonomous",  "uses_llm": False},
         {"job_id": "musedoc-surgery",       "name": "MuseDoc 夜間手術",    "schedule": "每天 04:00",    "category": "autonomous",  "uses_llm": False},
+        {"job_id": "group-digest-10",      "name": "群組摘要 10:00",     "schedule": "每天 10:00",    "category": "pulse",       "uses_llm": True},
+        {"job_id": "group-digest-14",      "name": "群組摘要 14:00",     "schedule": "每天 14:00",    "category": "pulse",       "uses_llm": True},
+        {"job_id": "group-digest-17",      "name": "群組摘要 17:00",     "schedule": "每天 17:00",    "category": "pulse",       "uses_llm": True},
     ]
 
     # 存到 app.state 供 /api/tasks 讀取
