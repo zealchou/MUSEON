@@ -358,6 +358,10 @@ class ToolExecutor:
             return await self._execute_memory_search(arguments)
         elif tool_name == "spawn_perspectives":
             return await self._execute_spawn_perspectives(arguments)
+        elif tool_name == "restart_gateway":
+            return await self._execute_restart_gateway(arguments)
+        elif tool_name == "pending_action":
+            return await self._execute_pending_action(arguments)
         elif tool_name in ("mcp_list_servers", "mcp_call_tool", "mcp_add_server"):
             return await self._execute_mcp_tool(tool_name, arguments)
         # v10.2: 動態 MCP 工具路由（mcp__{server}__{tool} 格式）
@@ -1680,6 +1684,31 @@ class ToolExecutor:
                 json.dumps(servers, ensure_ascii=False, indent=2), encoding="utf-8"
             )
 
+            # v13: 同步寫入 .mcp.json（Claude Code 的 MCP 設定檔）
+            mcp_json_path = Path(self._workspace_dir).parent.parent / ".mcp.json"
+            mcp_json_updated = False
+            try:
+                mcp_data = {}
+                if mcp_json_path.exists():
+                    mcp_data = json.loads(mcp_json_path.read_text("utf-8"))
+                mcp_servers = mcp_data.setdefault("mcpServers", {})
+                # 構建 Claude Code 格式的 MCP 設定
+                cmd_parts = command.split()
+                mcp_entry = {"command": cmd_parts[0]}
+                if len(cmd_parts) > 1:
+                    mcp_entry["args"] = cmd_parts[1:]
+                if env:
+                    mcp_entry["env"] = env
+                mcp_servers[name] = mcp_entry
+                mcp_json_path.write_text(
+                    json.dumps(mcp_data, ensure_ascii=False, indent=2) + "\n",
+                    encoding="utf-8",
+                )
+                mcp_json_updated = True
+                logger.info(f"[TOOLS] mcp_add_server: '{name}' 已寫入 .mcp.json")
+            except Exception as e:
+                logger.warning(f"[TOOLS] 寫入 .mcp.json 失敗: {e}")
+
             # v10.2: 立即嘗試連線（不需重啟）
             connect_result: Dict[str, Any] = {
                 "note": "配置已儲存。MCP SDK 不可用，無法立即連線。"
@@ -1692,7 +1721,8 @@ class ToolExecutor:
             return {
                 "success": True,
                 "result": {
-                    "message": f"MCP 伺服器 '{name}' 已配置。",
+                    "message": f"MCP 伺服器 '{name}' 已配置並寫入 .mcp.json。重啟 Claude Code 後生效。",
+                    "mcp_json_updated": mcp_json_updated,
                     "connection": connect_result,
                     "server": server_config,
                 },
@@ -2042,6 +2072,89 @@ class ToolExecutor:
     # ═══════════════════════════════════════
     # L3 任務執行：trigger_job
     # ═══════════════════════════════════════
+
+    async def _execute_restart_gateway(
+        self, arguments: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """v13: 重啟 Gateway — 背景執行 restart script."""
+        reason = arguments.get("reason", "no reason provided")
+        logger.info(f"[TOOLS] restart_gateway requested: {reason}")
+
+        restart_script = Path(self._workspace_dir).parent.parent / "scripts" / "workflows" / "restart-gateway.sh"
+        if not restart_script.exists():
+            # Fallback: 直接用 Python 重啟
+            restart_script = None
+
+        try:
+            import subprocess
+            if restart_script:
+                subprocess.Popen(
+                    ["bash", str(restart_script)],
+                    start_new_session=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+            else:
+                # 直接殺自己，讓外部 supervisor 重啟
+                subprocess.Popen(
+                    ["bash", "-c", "sleep 2 && kill $(pgrep -f 'museon.gateway.server') && sleep 3 && cd ~/MUSEON && .venv/bin/python -m museon.gateway.server &"],
+                    start_new_session=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+
+            return {
+                "success": True,
+                "result": {
+                    "message": f"Gateway 重啟已排程（原因：{reason}）。約 5 秒後恢復服務。",
+                    "reason": reason,
+                },
+            }
+        except Exception as e:
+            return {"success": False, "error": f"重啟失敗: {e}"}
+
+    async def _execute_pending_action(
+        self, arguments: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """v13: 記錄待辦事項到佇列."""
+        action = arguments.get("action", "")
+        category = arguments.get("category", "other")
+        requested_by = arguments.get("requested_by", "unknown")
+
+        if not action:
+            return {"success": False, "error": "action 為必填"}
+
+        pending_path = Path(self._workspace_dir).parent / "_system" / "pending_actions.json"
+        pending_path.parent.mkdir(parents=True, exist_ok=True)
+
+        pending = []
+        if pending_path.exists():
+            try:
+                pending = json.loads(pending_path.read_text("utf-8"))
+            except Exception:
+                pending = []
+
+        from datetime import datetime as _dt
+        entry = {
+            "action": action,
+            "category": category,
+            "requested_by": requested_by,
+            "created_at": _dt.now().isoformat(),
+            "status": "pending",
+        }
+        pending.append(entry)
+        pending_path.write_text(
+            json.dumps(pending, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+
+        logger.info(f"[TOOLS] pending_action recorded: {action}")
+        return {
+            "success": True,
+            "result": {
+                "message": f"已記錄待辦：{action}。下次 Claude Code session 會處理。",
+                "entry": entry,
+            },
+        }
 
     async def _execute_trigger_job(
         self, arguments: Dict[str, Any]

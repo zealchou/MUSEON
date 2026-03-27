@@ -1,10 +1,11 @@
-# Blast Radius — 模組影響半徑表 v1.72
+# Blast Radius — 模組影響半徑表 v1.73
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節、`docs/operational-contract.md`（操作契約表）提供外部操作預期失敗
+> **v1.73 (2026-03-27)**：MUSEON 自主能力三合一——tool_schemas.py 新增 restart_gateway + pending_action 2 個工具定義（綠區扇入=0）；tools.py 新增 3 個執行方法（_execute_restart_gateway、_execute_pending_action、mcp_add_server 同步 .mcp.json）；self_summary.json 新增 capabilities 欄位（can_do 14 項 + cannot_do 6 項）。
 > **v1.72 (2026-03-27)**：MCP 工具擴充——新增 `.mcp.json` Playwright + Fetch 外部依賴（綠區扇入=0，純 MCP 設定）；外部服務節點 playwright-mcp + fetch-mcp 經由 mcp-server 接入，不影響既有模組。
 > **v1.71 (2026-03-27)**：有機體進化計畫——新增 `pulse/proactive_dispatcher.py`（綠區扇入=2 from telegram+proactive_bridge）；`memory/memory_graph.py`（綠區扇入=1 from brain）；`learning/insight_extractor.py`（綠區扇入=1 from brain）；`learning/strategy_accumulator.py`（綠區扇入=0）；`doctor/shared_board.py`（綠區扇入=4 from museoff/qa/doc/worker）；`billing/trust_points.py`（綠區扇入=1 from brain_tools）；`nightly_pipeline.py` _FULL_STEPS 52→49（移除 7.5/10.5/11，新增 19）；`cron_registry.py` 9 處 push_notification 設置 source。
 > **v1.70 (2026-03-26)**：v2 Brain 四層架構 + 死碼清理——新增 `brain_deep.py`（L2 Opus 引擎，綠區扇入=1）、`brain_tool_loop.py`（獨立 tool-use 迴圈，綠區扇入=1）；`brain_fast.py` 重寫為 L1 Sonnet + escalation JSON + L4 回饋迴路；新增 `brain_observer.py`（L4 觀察者，綠區扇入=1）；`tool_schemas.py` 新增 trigger_job/memory_search/spawn_perspectives 3 個工具；`nightly_pipeline.py` 新增 Step 31 context_cache 重建。死碼移除：`federation/`（skill_market + sync）、`installer/`（整個目錄）、`nightly_v2.py`。
