@@ -55,7 +55,7 @@ class InsightExtractor:
                 max_tokens=500,
             )
             # 解析 JSON
-            text = response if isinstance(response, str) else getattr(response, 'content', str(response))
+            text = response if isinstance(response, str) else getattr(response, 'text', None) or getattr(response, 'content', None) or str(response)
             # 嘗試提取 JSON
             import re
             json_match = re.search(r'\{[\s\S]*\}', text)
@@ -120,7 +120,7 @@ class InsightExtractor:
                 model="claude-haiku-4-5-20251001",
                 max_tokens=400,
             )
-            text = response if isinstance(response, str) else getattr(response, 'content', str(response))
+            text = response if isinstance(response, str) else getattr(response, 'text', None) or getattr(response, 'content', None) or str(response)
             import re
             json_match = re.search(r'\{[\s\S]*\}', text)
             if json_match:
