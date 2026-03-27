@@ -1,0 +1,48 @@
+{
+  "test_id": "BDD_LIVE_V2_G06_R5",
+  "group_id": "G06",
+  "round": 5,
+  "scenario": "投資分析 — 500 萬資產配置建議（台股/美股/加密）",
+  "given": "R1-R4 已逐步建立台股/美股/加密的完整認知脈絡",
+  "when": "使用者提出具體金額（500 萬）的配置問題",
+  "then_checks": {
+    "context_continuity": {
+      "pass": true,
+      "note": "R5 是 R1-R4 的自然收束——前四輪分析各市場，第五輪整合成配置方案"
+    },
+    "concrete_numbers": {
+      "pass": true,
+      "note": "給出明確比例（40/40/10/10）和金額（200/200/50/50 萬）"
+    },
+    "rationale_per_allocation": {
+      "pass": true,
+      "note": "每個配置都有理由：台股=母港、美股=成長引擎、加密=不對稱報酬、現金=子彈"
+    },
+    "adjustment_conditions": {
+      "pass": true,
+      "note": "三個調整條件：高風險承受/偏保守/台幣看貶"
+    },
+    "options_with_tradeoffs": {
+      "pass": true,
+      "note": "加密的甜頭（不對稱報酬）和代價（可能歸零）明確"
+    },
+    "minimal_next_step": {
+      "pass": true,
+      "note": "分三個月投入、每月 167 萬，具體可執行"
+    },
+    "blindspot_reminder": {
+      "pass": true,
+      "note": "再平衡紀律比初始配置重要，大部分人做不到的是紀律"
+    },
+    "no_internal_jargon": {
+      "pass": true,
+      "note": "無內部術語，ETF 代號有說明用途"
+    },
+    "persona_consistency": {
+      "pass": true,
+      "note": "顧問姿態、「睡得著底線」先接後診、代價同框、留退路"
+    }
+  },
+  "verdict": "PASS",
+  "timestamp": "2026-03-26T15:50:00.000Z"
+}

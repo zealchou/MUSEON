@@ -1,0 +1,10 @@
+[
+  {
+    "timestamp": "2026-03-27T18:43:54.911214+08:00",
+    "test": "chaos_empty_msg",
+    "category": "D2.chaos",
+    "status": "FAIL",
+    "detail": "空訊息崩潰: timed out",
+    "severity": "CRITICAL"
+  }
+]

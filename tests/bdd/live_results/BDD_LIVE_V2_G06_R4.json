@@ -1,0 +1,44 @@
+{
+  "test_id": "BDD_LIVE_V2_G06_R4",
+  "group_id": "G06",
+  "round": 4,
+  "scenario": "投資分析 — BTC 減半週期與歷史對照",
+  "given": "R1-R3 已涵蓋台股+美股，使用者延伸到加密貨幣",
+  "when": "使用者問 BTC 減半後表現與歷史週期比較",
+  "then_checks": {
+    "context_continuity": {
+      "pass": true,
+      "note": "承接 R1-R3 投資分析脈絡，從傳統金融自然延伸到加密"
+    },
+    "fact_assumption_separation": {
+      "pass": true,
+      "note": "事實（減半時間、歷史倍數、ETF 影響）與假設（週期被拉長）明確分離"
+    },
+    "historical_comparison": {
+      "pass": true,
+      "note": "四次減半的倍數遞減趨勢、與 2020 週期同期對照"
+    },
+    "options_with_tradeoffs": {
+      "pass": true,
+      "note": "繼續持有 vs 部分獲利了結，各有甜頭/代價"
+    },
+    "minimal_next_step": {
+      "pass": true,
+      "note": "確認持倉成本、把本金拿回來變免費部位"
+    },
+    "blindspot_reminder": {
+      "pass": true,
+      "note": "樣本只有三次，信心區間寬，別把週期當信仰"
+    },
+    "no_internal_jargon": {
+      "pass": true,
+      "note": "無內部術語，專業名詞（FOMO、Beta）有白話補充"
+    },
+    "persona_consistency": {
+      "pass": true,
+      "note": "不製造虛假確定性、代價同框、留退路"
+    }
+  },
+  "verdict": "PASS",
+  "timestamp": "2026-03-26T15:40:00.000Z"
+}

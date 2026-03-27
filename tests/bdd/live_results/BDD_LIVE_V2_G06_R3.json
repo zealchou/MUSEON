@@ -1,0 +1,40 @@
+{
+  "test_id": "BDD_LIVE_V2_G06_R3",
+  "group_id": "G06",
+  "round": 3,
+  "scenario": "投資分析 — 美股科技股與 AI 題材是否過熱",
+  "given": "R1 台股盤整分析 + R2 台積電進場分析，使用者從台股延伸到美股",
+  "when": "使用者問美股科技股是否還是主流、AI 題材是否過熱",
+  "then_checks": {
+    "context_continuity": {
+      "pass": true,
+      "note": "承接 R1/R2 台股脈絡，自然延伸到美股，回覆中沒有斷裂"
+    },
+    "fact_assumption_separation": {
+      "pass": true,
+      "note": "事實面（Mag7 分歧、CapEx 加速、估值高）與判斷（篩選期開始）明確分離"
+    },
+    "options_with_tradeoffs": {
+      "pass": true,
+      "note": "兩條思路各有甜頭/代價：基礎建設層 vs AI 以外科技"
+    },
+    "minimal_next_step": {
+      "pass": true,
+      "note": "盤點美股持倉的 AI 集中度"
+    },
+    "blindspot_reminder": {
+      "pass": true,
+      "note": "指出「AI 過熱」是個框架陷阱，應問個股層級"
+    },
+    "no_internal_jargon": {
+      "pass": true,
+      "note": "無 L1/L2/MCP 等內部術語"
+    },
+    "persona_consistency": {
+      "pass": true,
+      "note": "顧問姿態、白話翻譯、代價同框、不製造虛假確定性"
+    }
+  },
+  "verdict": "PASS",
+  "timestamp": "2026-03-26T15:30:00.000Z"
+}
