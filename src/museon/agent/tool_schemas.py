@@ -447,6 +447,56 @@ TOOL_DEFINITIONS: List[Dict[str, Any]] = [
         },
     },
     # ═══════════════════════════════════════
+    # v13 系統管理工具
+    # ═══════════════════════════════════════
+    {
+        "name": "restart_gateway",
+        "description": (
+            "重啟 MUSEON Gateway 伺服器。"
+            "安裝新 MCP 工具、修改系統設定、或 Gateway 出現異常時使用。"
+            "執行後 Gateway 會在 5 秒內重新啟動，期間訊息會暫時無法處理。"
+            "重啟完成後會自動恢復所有服務。"
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "reason": {
+                    "type": "string",
+                    "description": "重啟原因（記錄用）",
+                },
+            },
+            "required": ["reason"],
+        },
+    },
+    {
+        "name": "pending_action",
+        "description": (
+            "記錄一個你目前無法執行、需要在 Claude Code session 中處理的待辦事項。"
+            "當你發現自己做不到某件事（例如修改 Claude Code 設定、需要人類操作的任務）時使用。"
+            "待辦會被記錄到佇列，下次 Claude Code session 開始時會自動讀取處理。"
+            "使用時機：遇到超出你能力範圍的請求時，誠實記錄而非假裝完成。"
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string",
+                    "description": "待辦動作描述",
+                },
+                "category": {
+                    "type": "string",
+                    "enum": ["config_change", "install", "human_required", "other"],
+                    "description": "動作類別",
+                },
+                "requested_by": {
+                    "type": "string",
+                    "description": "請求者（使用者名稱）",
+                },
+            },
+            "required": ["action", "category"],
+        },
+    },
+    # ═══════════════════════════════════════
     # L3 任務執行工具
     # ═══════════════════════════════════════
     {
