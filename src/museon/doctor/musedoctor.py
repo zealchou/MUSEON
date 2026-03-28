@@ -1,8 +1,13 @@
 """MuseDoctor — 持續巡邏員（第六虎將）
 
 職責：每次 tick 推進一個節點，執行 CPU-only 健康掃描。
-      CPU 掃描發現異常後，記入 llm_queue 等待 LLM 深挖。
-      零 Token 常態巡邏，只在發現異常時才升級到 LLM。
+      偵測到可修復異常時，先記錄 log 再立即自動修復。
+      無法自動修復的問題加入 llm_queue 等待 LLM 深挖。
+
+修復分級：
+  L1（安全可逆）→ 直接修復 + 寫 repair log
+  L2（系統重啟）→ 先記錄根因 + 修復 + 寫 repair log
+  L3（需 LLM）  → 加入 llm_queue，不動
 
 觸發條件：
   - 定時：每 8 分鐘推進一個節點（cron_registry 排程）
@@ -10,6 +15,7 @@
   - 狀態查詢：get_status() — 給 Telegram /patrol 指令
 
 狀態儲存：data/_system/doctor/patrol_state.json（單一寫入者）
+修復記錄：data/_system/doctor/patrol_repair_log.jsonl（append-only）
 """
 
 from __future__ import annotations
@@ -19,6 +25,7 @@ import json
 import logging
 import os
 import re
+import socket
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -36,6 +43,9 @@ _MAX_LLM_QUEUE = 20              # llm_queue 上限（防膨脹）
 _MAX_ANOMALIES_TODAY = 50        # 今日異常記錄上限
 _NIGHTLY_PIPELINE_PATH = "src/museon/nightly/nightly_pipeline.py"
 
+# 系統健康檢查：每 N 個節點做一次（不是每個 tick 都查 Gateway）
+_SYSTEM_CHECK_EVERY_N = 15
+
 
 class MuseDoctor:
     """持續巡邏員 — CPU-only 健康掃描，每次 tick 一個節點"""
@@ -48,6 +58,7 @@ class MuseDoctor:
         self.logs_dir = self.home / "logs"
         self.doctor_dir = self.home / "data" / "_system" / "doctor"
         self.state_path = self.doctor_dir / "patrol_state.json"
+        self.repair_log_path = self.doctor_dir / "patrol_repair_log.jsonl"
         self.topology_path = self.home / "scripts" / "topology_report.json"
 
         self.doctor_dir.mkdir(parents=True, exist_ok=True)
@@ -89,6 +100,7 @@ class MuseDoctor:
 
             if anomalies:
                 self._record_anomaly(module_path, anomalies)
+                self._attempt_auto_repair(module_path, anomalies)
                 logger.info(
                     "[MuseDoctor] %s → 異常 %d 項：%s",
                     module_path,
@@ -97,6 +109,10 @@ class MuseDoctor:
                 )
             else:
                 logger.debug("[MuseDoctor] %s → OK", module_path)
+
+            # 每 N 個節點做一次系統層健康檢查（Gateway / 目錄 / log 大小）
+            if new_cursor % _SYSTEM_CHECK_EVERY_N == 0:
+                self._system_health_check()
 
             self._save_state()
 
@@ -116,6 +132,150 @@ class MuseDoctor:
         if inserted:
             self._save_state()
             logger.info("[MuseDoctor] 熱插隊 %d 個模組", inserted)
+
+    # ─────────────────────── 自動修復 ────────────────────────────────────────
+
+    def _attempt_auto_repair(self, module: str, anomalies: list[str]) -> None:
+        """
+        根據異常類型決定是否自動修復。
+
+        L1（安全可逆）：直接修復
+        L2（系統重啟）：記錄根因 + 修復
+        L3（需 LLM）  ：不動，交給 llm_queue
+        """
+        for anomaly in anomalies:
+            if "broken import" in anomaly or "未在 _FULL_STEPS" in anomaly:
+                # L3：需要人腦或 LLM 判斷，不自動修復
+                continue
+            if "近期 log ERROR" in anomaly:
+                # L3：症狀不是病因，不自動修復
+                continue
+            if "檔案不存在" in anomaly:
+                # L3：Python 模組不見了，不能自動補回
+                continue
+
+        # （anomaly 類型層）以上是 module-level L3，無 L1/L2 需要在這裡處理
+
+    def _system_health_check(self) -> None:
+        """
+        系統層健康檢查，每 N 個節點執行一次。
+        偵測到可修復問題時，記錄後立即修復。
+        """
+        try:
+            from museon.doctor.auto_repair import AutoRepair
+            repair = AutoRepair()
+
+            # ── 1. Gateway 存活檢查 ──
+            gateway_port = 7799
+            try:
+                with socket.create_connection(("127.0.0.1", gateway_port), timeout=2):
+                    pass  # 連得上，正常
+            except (ConnectionRefusedError, OSError, TimeoutError):
+                self._write_repair_log(
+                    check="gateway_liveness",
+                    finding="Gateway port 未回應",
+                    action="start_gateway",
+                    level="L2",
+                )
+                result = repair.execute("start_gateway")
+                self._write_repair_log(
+                    check="gateway_liveness",
+                    finding="Gateway port 未回應",
+                    action="start_gateway",
+                    level="L2",
+                    repair_status=result.status.value,
+                    repair_message=result.message,
+                )
+                logger.info(
+                    "[MuseDoctor] Gateway 修復：%s — %s",
+                    result.status.value,
+                    result.message,
+                )
+
+            # ── 2. 必要目錄檢查 ──
+            required_dirs = [
+                repair.data_dir / "anima",
+                repair.data_dir / "lattice",
+                repair.logs_dir,
+            ]
+            missing = [str(d) for d in required_dirs if not d.exists()]
+            if missing:
+                self._write_repair_log(
+                    check="directories",
+                    finding=f"目錄不存在：{missing}",
+                    action="create_directories",
+                    level="L1",
+                )
+                result = repair.execute("create_directories")
+                self._write_repair_log(
+                    check="directories",
+                    finding=f"目錄不存在：{missing}",
+                    action="create_directories",
+                    level="L1",
+                    repair_status=result.status.value,
+                    repair_message=result.message,
+                )
+
+            # ── 3. Log 大小檢查 ──
+            if self.logs_dir.exists():
+                big_logs = [
+                    f.name for f in self.logs_dir.glob("*.log")
+                    if f.is_file() and f.stat().st_size > 50 * 1024 * 1024  # 50MB
+                ]
+                if big_logs:
+                    self._write_repair_log(
+                        check="log_rotation",
+                        finding=f"Log 過大（>50MB）：{big_logs}",
+                        action="rotate_logs",
+                        level="L1",
+                    )
+                    result = repair.execute("rotate_logs")
+                    self._write_repair_log(
+                        check="log_rotation",
+                        finding=f"Log 過大（>50MB）：{big_logs}",
+                        action="rotate_logs",
+                        level="L1",
+                        repair_status=result.status.value,
+                        repair_message=result.message,
+                    )
+
+        except ImportError:
+            logger.debug("[MuseDoctor] auto_repair 不可用，跳過系統修復")
+        except Exception as e:
+            logger.error("[MuseDoctor] _system_health_check error: %s", e)
+
+    def _write_repair_log(
+        self,
+        check: str,
+        finding: str,
+        action: str,
+        level: str,
+        repair_status: str | None = None,
+        repair_message: str | None = None,
+    ) -> None:
+        """
+        寫一筆修復記錄到 patrol_repair_log.jsonl。
+        repair_status=None 表示「修復前記錄」，有值表示「修復後結果」。
+        """
+        entry = {
+            "ts": datetime.now(timezone.utc).isoformat(),
+            "check": check,
+            "finding": finding,
+            "action": action,
+            "level": level,
+        }
+        if repair_status is not None:
+            entry["repair_status"] = repair_status
+            entry["repair_message"] = repair_message
+            entry["phase"] = "after"
+        else:
+            entry["phase"] = "before"
+
+        try:
+            with self.repair_log_path.open("a", encoding="utf-8") as f:
+                f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+        except Exception as e:
+            logger.error("[MuseDoctor] 無法寫修復記錄: %s", e)
 
     def get_status(self) -> dict[str, Any]:
         """給 /patrol 指令或 shared_board 讀取的狀態摘要"""
