@@ -67,6 +67,48 @@ def _get_llm_semaphore():
 # 以下函數來自 server.py 原始碼
 
 
+def _match_workflow_intent(content: str, skill_router) -> "Optional[str]":
+    """Intent Router：零 LLM 成本的群組 workflow 意圖偵測。
+
+    掃描 skill_router 已建立的索引，篩選 type=workflow 的 Skill，
+    用觸發詞匹配。回傳命中的 skill name 或 None。
+
+    設計原則：
+    - 完全複用 skill_router._index，無新依賴
+    - 至少一個觸發詞完全匹配（THRESHOLD=2.5）才命中，避免誤判
+    - 只對 type=workflow 的 Skill 生效，type=skill 走原有 BrainFast 路徑
+    """
+    from typing import Optional as _Opt
+    if not skill_router or not content:
+        return None
+
+    msg_lower = content.lower()
+    best_name = None
+    best_score = 0.0
+    THRESHOLD = 2.5  # 需要至少一個觸發詞完全匹配
+
+    for skill in getattr(skill_router, "_index", []):
+        if skill.get("type") != "workflow":
+            continue
+
+        score = 0.0
+        for trigger in skill.get("triggers", []):
+            trigger_lower = trigger.lower()
+            if trigger_lower in msg_lower:
+                score += 3.0
+            elif len(trigger_lower) > 2:
+                for word in msg_lower.split():
+                    if trigger_lower in word or word in trigger_lower:
+                        score += 1.0
+                        break
+
+        if score > best_score and score >= THRESHOLD:
+            best_score = score
+            best_name = skill.get("name")
+
+    return best_name
+
+
 async def _progress_updater(
     adapter, chat_id: int, status_msg_id: int, trace_id: str = ""
 ) -> None:
@@ -181,8 +223,21 @@ async def _brain_process_with_sla(
         logger.warning(f"BrainCircuitBreaker OPEN — returning fallback for {session_id}")
         return cb.fallback_message
 
-    # ── Layer 1：BrainFast 即時回覆 ──
+    # ── Layer 1：BrainFast 即時回覆（或 Intent Router 命中 workflow → L2）──
     async def _do_process():
+        from museon.gateway.message import BrainResponse
+        # Intent Router 命中 workflow → 跳過 BrainFast，直接走 brain.process()（L2 完整流程）
+        if (metadata or {}).get("_workflow_intent"):
+            resp = await brain.process(
+                content=content,
+                session_id=session_id,
+                user_id=user_id,
+                source=source,
+                metadata=metadata,
+            )
+            return resp if isinstance(resp, BrainResponse) else BrainResponse(text=str(resp or ""))
+
+        # 正常路徑：BrainFast L1
         from museon.gateway.server import _get_brain_fast
         brain_fast = _get_brain_fast()
         text = await brain_fast.process(
@@ -192,7 +247,6 @@ async def _brain_process_with_sla(
             source=source,
             metadata=metadata,
         )
-        from museon.gateway.message import BrainResponse
         return BrainResponse(text=text)
 
     brain_task = asyncio.create_task(_do_process())
@@ -629,6 +683,21 @@ async def _handle_telegram_message(adapter, message) -> None:
                                 _brain_metadata = {}
                             _brain_metadata["trace_id"] = _tid
                             _brain_metadata["_progress_cb"] = _make_progress_reporter(_tid)
+
+                            # ── Intent Router：群組外部訊息 workflow 意圖偵測 ──
+                            # 命中 workflow → 直接走 brain.process()（L2），跳過 BrainFast L1
+                            # 未命中 → 維持原有 BrainFast 路徑
+                            if not is_owner:
+                                _wf_match = _match_workflow_intent(
+                                    message.content, brain.skill_router
+                                )
+                                if _wf_match:
+                                    _brain_metadata["_workflow_intent"] = _wf_match
+                                    logger.info(
+                                        f"[{_tid}] Intent Router: matched workflow "
+                                        f"'{_wf_match}' for '{message.content[:40]}'"
+                                    )
+
                             brain_result = await _brain_process_with_sla(
                                 brain, adapter, chat_id,
                                 content=_brain_content,
