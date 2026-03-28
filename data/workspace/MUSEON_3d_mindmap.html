@@ -503,6 +503,7 @@ const nodes = [
   {id:"shared-board",label:"Shared Board",zh:"五虎將共享看板",group:"doctor",r:0.9,p:"doctor",desc:"五虎將共享看板（任務協調、50 筆上限滾動）",path:"src/museon/doctor/shared_board.py",fi:5},
   {id:"surgery",label:"Surgery",zh:"精準手術",group:"doctor",r:0.8,p:"doctor",path:"src/museon/doctor/surgeon.py",fi:0},
   {id:"system-audit",label:"System Audit",zh:"7 層 46 項",group:"doctor",r:1.1,p:"doctor",path:"src/museon/doctor/system_audit.py",fi:0},
+  {id:"musedoctor",label:"MuseDoctor",zh:"持續巡邏員",group:"doctor",r:1.2,p:"doctor",path:"src/museon/doctor/musedoctor.py",fi:0},
   // ── llm ──
   {id:"llm-router",label:"LLM Router",zh:"智能模型選擇",group:"llm",r:2.2,hub:1,path:"src/museon/llm/router.py",fi:0},
   {id:"budget-mgr",label:"Budget Mgr",zh:"Token 預算",group:"llm",r:1.0,p:"llm-router",path:"src/museon/llm/budget.py",fi:0},
@@ -985,6 +986,8 @@ const links = [
   {source:"museoff",target:"shared-board",label:"讀寫看板（巡邏結果）",type:"cross"},
   {source:"museqa",target:"shared-board",label:"讀寫看板（品質檢查結果）",type:"cross"},
   {source:"museworker",target:"shared-board",label:"讀寫看板（變動記錄）",type:"cross"},
+  {source:"musedoctor",target:"auto-repair",label:"修復引擎（目錄/log）",type:"cross"},
+  {source:"musedoctor",target:"nightly",label:"_FULL_STEPS 驗證",type:"cross"},
   {source:"nightly",target:"blueprint-reader",label:"Step 30 藍圖一致性驗證",type:"cross"},
   {source:"nightly",target:"budget-mgr",label:"預算結算",type:"cross"},
   {source:"nightly",target:"crystal-actuator",label:"nightly_pipeline.py:719 Step 4 結晶降級",type:"cross"},

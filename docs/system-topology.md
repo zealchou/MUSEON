@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.59
+# MUSEON 系統拓撲圖 v1.60
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.60 (2026-03-28)**：新增 MuseDoctor 第六虎將節點——`musedoctor`（持續巡邏員，綠區扇入=0）；新增 3 條連線：musedoctor→auto-repair（修復引擎）、musedoctor→nightly-pipeline（_FULL_STEPS 驗證）、cron-registry→musedoctor（每 8 分鐘排程）；免疫系統分工補注：Gateway 急症由 museoff 負責，musedoctor 專責慢循環維護。
 > **v1.59 (2026-03-28)**：死碼清理 20 個模組後拓撲同步——移除已刪除節點：channels/line（LINE 通道）、channels/electron（Electron 桌面）、agent/dna27（DNA27 反射叢集，由 reflex_router 取代）、agent/pending_sayings、agent/routing_bridge、llm/client、llm/vision、doctor/scalpel_lessons、governance/cognitive_receipt、learning/strategy_accumulator（已移入 insight-extractor 模組）、memory/epigenetic_router、memory/proactive_predictor、multiagent/flywheel_flow、pulse/heartbeat_activation、pulse/group_session_proactive、pulse/proactive_activation、pulse/telegram_pusher、security/trust、tools/document_export、tools/report_publisher；更新 fan_in 數據：event_bus 45→46、data_bus 16→15、message 13→14、pulse_db 10→11、vector_bridge 7→9；新增破損 import 告警（brain_fast.py → input_sanitizer/ceremony 待修）。
 > **v1.58 (2026-03-28)**：supervisord 進程管理層引入——架構從 `launchd → uvicorn` 升級為 `launchd → supervisord → uvicorn`；新增 `com.museon.supervisord` launchd 服務節點（KeepAlive=true）；`data/_system/supervisord.conf` 管理 museon-gateway 程序（autorestart=unexpected + exitcodes=0 + startretries=5）；`com.museon.gateway.plist` 已 unload，launchd 不再直接管理 gateway；MuseOff `_triage("restart_gateway")` 改用 `supervisorctl start`（supervisor 路徑 `/Users/ZEALCHOU/Library/Python/3.9/bin/`）；`restart-gateway.sh` v3.0 改用 `supervisorctl restart`。新增 1 個中間層節點（supervisord），其餘節點連線不變。
 > **v1.57 (2026-03-28)**：Gateway 穩定性改動——`gateway/server.py` 新增 `/health/live` 純 liveness 端點（不影響節點連線數）；`doctor/probes/liveness.py` 改查 `/health/live` + 連續 3 次閾值（不影響節點）；`scripts/workflows/restart-gateway.sh` v2.1 移除 kickstart -k；plist PATH 新增 `/usr/sbin`（macOS lsof 修復）。Gunicorn pre-fork 在 macOS 下因 objc_initializeAfterForkError 不可用，維持 launchd → uvicorn 直接管理架構。節點連線不變。
@@ -797,6 +798,9 @@ external-user（EXTERNAL）
 | `museqa` | `shared-board` | 讀寫看板（品質檢查結果） |
 | `musedoc` | `shared-board` | 讀寫看板（文件同步結果） |
 | `museworker` | `shared-board` | 讀寫看板（變動記錄） |
+| `musedoctor` | `auto-repair` | 呼叫修復引擎（目錄補建、log 輪轉） |
+| `musedoctor` | `nightly-pipeline` | 讀取 _FULL_STEPS 驗證 nightly 步驟 |
+| `cron-registry` | `musedoctor` | 排程 patrol_tick（每 8 分鐘） |
 | `brain-tools` | `skill-counter` | Skill 調用計量 |
 
 #### v1.43 全系統拓撲審計補齊（70 條）
