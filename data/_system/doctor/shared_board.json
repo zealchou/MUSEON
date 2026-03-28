@@ -1,16 +1,6 @@
 {
-  "last_updated": "2026-03-28T09:35:14.041145",
+  "last_updated": "2026-03-28T09:46:22.890281",
   "entries": [
-    {
-      "source": "museqa",
-      "timestamp": "2026-03-27T22:16:53.658591",
-      "summary": "品質掃描: 0 sessions, 0 回覆, 0 問題",
-      "findings_count": 0,
-      "actions_taken": [
-        "scanned_replies:0"
-      ],
-      "status": "ok"
-    },
     {
       "source": "museqa",
       "timestamp": "2026-03-27T22:31:53.566376",
@@ -502,6 +492,16 @@
         "scanned_replies:28"
       ],
       "status": "critical"
+    },
+    {
+      "source": "museworker",
+      "timestamp": "2026-03-28T09:46:22.890277",
+      "summary": "快照完成: 235 模組, 1460ms, zombies=0, missing=0",
+      "findings_count": 0,
+      "actions_taken": [
+        "snapshot:scheduled"
+      ],
+      "status": "ok"
     }
   ]
 }

@@ -1,5 +1,5 @@
 {
-  "snapshot_version": "2026-03-28T01:26:53.754584+00:00",
+  "snapshot_version": "2026-03-28T01:46:21.428649+00:00",
   "worker_version": "1.0.0",
   "trigger": "scheduled",
   "fan_in_table": {
@@ -2038,7 +2038,7 @@
     "lattice/crystal.db": {
       "exists": true,
       "size_kb": 1956.0,
-      "last_modified": "2026-03-28T00:46:18.864650+00:00"
+      "last_modified": "2026-03-28T01:27:18.012644+00:00"
     },
     "registry/cli_user/registry.db": {
       "exists": true,
@@ -2048,7 +2048,7 @@
     "ANIMA_MC.json": {
       "exists": true,
       "size_kb": 5.4,
-      "last_modified": "2026-03-28T01:24:25.700659+00:00"
+      "last_modified": "2026-03-28T01:44:25.769155+00:00"
     },
     "ANIMA_USER.json": {
       "exists": true,
@@ -2096,305 +2096,305 @@
   },
   "recent_changes": [
     {
-      "file": "docs/blast-radius.md",
-      "commit": "0291b4af",
-      "message": "fix: doctor 模組舊架構清除 — 防止 auto_repair 觸發雙重管理衝突",
-      "time": "2026-03-28 09:26:53 +0800"
+      "file": ".claude/hook_state/blast_radius_read",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
     },
     {
-      "file": "src/museon/doctor/auto_repair.py",
-      "commit": "0291b4af",
-      "message": "fix: doctor 模組舊架構清除 — 防止 auto_repair 觸發雙重管理衝突",
-      "time": "2026-03-28 09:26:53 +0800"
-    },
-    {
-      "file": "src/museon/doctor/health_check.py",
-      "commit": "0291b4af",
-      "message": "fix: doctor 模組舊架構清除 — 防止 auto_repair 觸發雙重管理衝突",
-      "time": "2026-03-28 09:26:53 +0800"
-    },
-    {
-      "file": "src/museon/doctor/surgeon.py",
-      "commit": "0291b4af",
-      "message": "fix: doctor 模組舊架構清除 — 防止 auto_repair 觸發雙重管理衝突",
-      "time": "2026-03-28 09:26:53 +0800"
-    },
-    {
-      "file": "data/_system/supervisord.conf",
-      "commit": "5ea63aee",
-      "message": "feat: supervisord 進程管理層 — 消除 Gateway 雙實例衝突根因",
-      "time": "2026-03-28 09:22:07 +0800"
-    },
-    {
-      "file": "data/workspace/MUSEON_3d_mindmap.html",
-      "commit": "5ea63aee",
-      "message": "feat: supervisord 進程管理層 — 消除 Gateway 雙實例衝突根因",
-      "time": "2026-03-28 09:22:07 +0800"
-    },
-    {
-      "file": "docs/blast-radius.md",
-      "commit": "5ea63aee",
-      "message": "feat: supervisord 進程管理層 — 消除 Gateway 雙實例衝突根因",
-      "time": "2026-03-28 09:22:07 +0800"
-    },
-    {
-      "file": "docs/system-topology.md",
-      "commit": "5ea63aee",
-      "message": "feat: supervisord 進程管理層 — 消除 Gateway 雙實例衝突根因",
-      "time": "2026-03-28 09:22:07 +0800"
-    },
-    {
-      "file": "scripts/workflows/restart-gateway.sh",
-      "commit": "5ea63aee",
-      "message": "feat: supervisord 進程管理層 — 消除 Gateway 雙實例衝突根因",
-      "time": "2026-03-28 09:22:07 +0800"
-    },
-    {
-      "file": "src/museon/doctor/museoff.py",
-      "commit": "5ea63aee",
-      "message": "feat: supervisord 進程管理層 — 消除 Gateway 雙實例衝突根因",
-      "time": "2026-03-28 09:22:07 +0800"
-    },
-    {
-      "file": "docs/blast-radius.md",
-      "commit": "93cfd32e",
-      "message": "fix: Gateway 穩定性三項減法 — liveness probe + restart script + lsof 修復",
-      "time": "2026-03-28 09:04:40 +0800"
-    },
-    {
-      "file": "docs/system-topology.md",
-      "commit": "93cfd32e",
-      "message": "fix: Gateway 穩定性三項減法 — liveness probe + restart script + lsof 修復",
-      "time": "2026-03-28 09:04:40 +0800"
-    },
-    {
-      "file": "scripts/gunicorn_config.py",
-      "commit": "93cfd32e",
-      "message": "fix: Gateway 穩定性三項減法 — liveness probe + restart script + lsof 修復",
-      "time": "2026-03-28 09:04:40 +0800"
-    },
-    {
-      "file": "scripts/start-gateway.sh",
-      "commit": "93cfd32e",
-      "message": "fix: Gateway 穩定性三項減法 — liveness probe + restart script + lsof 修復",
-      "time": "2026-03-28 09:04:40 +0800"
-    },
-    {
-      "file": "scripts/workflows/restart-gateway.sh",
-      "commit": "93cfd32e",
-      "message": "fix: Gateway 穩定性三項減法 — liveness probe + restart script + lsof 修復",
-      "time": "2026-03-28 09:04:40 +0800"
-    },
-    {
-      "file": "src/museon/doctor/probes/liveness.py",
-      "commit": "93cfd32e",
-      "message": "fix: Gateway 穩定性三項減法 — liveness probe + restart script + lsof 修復",
-      "time": "2026-03-28 09:04:40 +0800"
-    },
-    {
-      "file": "src/museon/gateway/server.py",
-      "commit": "93cfd32e",
-      "message": "fix: Gateway 穩定性三項減法 — liveness probe + restart script + lsof 修復",
-      "time": "2026-03-28 09:04:40 +0800"
-    },
-    {
-      "file": "docs/reports/sustainability_evvon_day02.html",
-      "commit": "2b27fe52",
-      "message": "feat: 永續英文 Day 02 — Circularity HTML 版補發",
-      "time": "2026-03-28 08:27:07 +0800"
-    },
-    {
-      "file": ".DS_Store",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
+      "file": ".claude/hook_state/joint_map_read",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
     },
     {
       "file": ".testmondata",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
-    },
-    {
-      "file": "_system/community_scans.json",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
     },
     {
       "file": "data/ANIMA_MC.json",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
+    },
+    {
+      "file": "data/ANIMA_USER.json",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
     },
     {
       "file": "data/PULSE.md",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
     },
     {
-      "file": "data/_system/bridge/routes_2026-03-13.json",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
+      "file": "data/_system/baihe_cache.json",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
     },
     {
-      "file": "data/_system/bridge/routes_2026-03-15.json",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
+      "file": "data/_system/billing/skill_invocations_2026-03.json",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
     },
     {
-      "file": "data/_system/bridge/routes_2026-03-16.json",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
-    },
-    {
-      "file": "data/_system/bridge/routes_2026-03-19.json",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
-    },
-    {
-      "file": "data/_system/bridge/routes_2026-03-20.json",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
-    },
-    {
-      "file": "data/_system/bridge/routes_2026-03-25.json",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
+      "file": "data/_system/bridge/routes_2026-03-28.json",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
     },
     {
       "file": "data/_system/bridge/scout_queue/pending.json",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
     },
     {
       "file": "data/_system/budget/usage_2026-03.json",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
+    },
+    {
+      "file": "data/_system/context_cache/active_rules.json",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
+    },
+    {
+      "file": "data/_system/context_cache/pending_insights.json",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
+    },
+    {
+      "file": "data/_system/context_cache/telegram_6969045906_signals.json",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
+    },
+    {
+      "file": "data/_system/context_cache/telegram_group_5107045509_signals.json",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
+    },
+    {
+      "file": "data/_system/context_cache/telegram_group_5260398061_signals.json",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
+    },
+    {
+      "file": "data/_system/crystal_rules.json",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
     },
     {
       "file": "data/_system/curiosity/question_queue.json",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
+    },
+    {
+      "file": "data/_system/curricula/diagnosis_2026-03-28.json",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
+    },
+    {
+      "file": "data/_system/data_health/latest_snapshot.json",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
+    },
+    {
+      "file": "data/_system/data_health/snapshot_history.jsonl",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
     },
     {
       "file": "data/_system/doctor/shared_board.json",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
     },
     {
-      "file": "data/_system/exploration_registry.json",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
+      "file": "data/_system/evolution/velocity_log.jsonl",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
+    },
+    {
+      "file": "data/_system/exploration_cooldown.json",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
+    },
+    {
+      "file": "data/_system/exploration_digest/digest_2026-03-28.jsonl",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
+    },
+    {
+      "file": "data/_system/external_users/8252847174.json",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
+    },
+    {
+      "file": "data/_system/external_users/8373451173.json",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
     },
     {
       "file": "data/_system/footprints/actions.jsonl",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
     },
     {
       "file": "data/_system/footprints/cognitive_trace.jsonl",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
     },
     {
       "file": "data/_system/footprints/decisions.jsonl",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
-    },
-    {
-      "file": "data/_system/group_context.db",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
     },
     {
       "file": "data/_system/group_context.db-shm",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
     },
     {
       "file": "data/_system/group_context.db-wal",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
     },
     {
       "file": "data/_system/lord_profile.json",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
+    },
+    {
+      "file": "data/_system/message_queue.db",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
+    },
+    {
+      "file": "data/_system/message_queue.db-shm",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
+    },
+    {
+      "file": "data/_system/message_queue.db-wal",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
     },
     {
       "file": "data/_system/morphenix/execution_log/effect_tracker.json",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
     },
     {
-      "file": "data/_system/morphenix/execution_log/exec_2026-03-13.jsonl",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
+      "file": "data/_system/morphenix/execution_log/exec_2026-03-28.jsonl",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
     },
     {
-      "file": "data/_system/morphenix/execution_log/exec_2026-03-15.jsonl",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
+      "file": "data/_system/morphenix/notes/exploration_20260328_010346.json",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
     },
     {
-      "file": "data/_system/morphenix/execution_log/exec_2026-03-16.jsonl",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
+      "file": "data/_system/morphenix/notes/exploration_20260328_031914.json",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
     },
     {
-      "file": "data/_system/morphenix/execution_log/exec_2026-03-25.jsonl",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
+      "file": "data/_system/morphenix/notes/exploration_20260328_084618.json",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
     },
     {
-      "file": "data/_system/morphenix/execution_log/exec_2026-03-27.jsonl",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
+      "file": "data/_system/morphenix/notes/mc_20260328_000703_metacog_insight.json",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
     },
     {
-      "file": "data/_system/morphenix/notes_archive/exploration_20260312_083543.json",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
+      "file": "data/_system/morphenix/notes/mc_20260328_000951_metacog_insight.json",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
     },
     {
-      "file": "data/_system/morphenix/notes_archive/exploration_20260312_134804.json",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
+      "file": "data/_system/morphenix/notes/mc_20260328_002010_metacog_insight.json",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
     },
     {
-      "file": "data/_system/morphenix/notes_archive/exploration_20260312_150801.json",
-      "commit": "894c7291",
-      "message": "chore: 資料清理 — bridge routes 過期刪除 + footprints 更新",
-      "time": "2026-03-27 23:49:01 +0800"
+      "file": "data/_system/morphenix/notes/mc_20260328_002554_metacog_insight.json",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
+    },
+    {
+      "file": "data/_system/morphenix/notes/mc_20260328_003921_metacog_insight.json",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
+    },
+    {
+      "file": "data/_system/morphenix/notes/mc_20260328_014913_metacog_insight.json",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
+    },
+    {
+      "file": "data/_system/morphenix/notes/mc_20260328_054906_metacog_insight.json",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
+    },
+    {
+      "file": "data/_system/morphenix/notes/mc_20260328_074859_metacog_insight.json",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
+    },
+    {
+      "file": "data/_system/morphenix/notes/mc_20260328_081825_metacog_insight.json",
+      "commit": "f55a6fc2",
+      "message": "chore: pre-surgery snapshot before dead code removal",
+      "time": "2026-03-28 09:46:21 +0800"
     }
   ],
-  "compute_duration_ms": 1471
+  "compute_duration_ms": 1460
 }
