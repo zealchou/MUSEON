@@ -2507,6 +2507,7 @@ class ToolExecutor:
                 "nodes": len(data["nodes"]),
                 "links": len(data["links"]),
                 "message": f"拓樸圖已生成：{len(data['nodes'])} 個人物、{len(data['links'])} 條連線",
+                "mini_app_url": "https://zealchou.github.io/MUSEON/ares/",
             }
         except ImportError:
             return {"success": False, "error": "matplotlib/networkx 未安裝，無法生成 PNG"}
