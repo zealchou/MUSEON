@@ -83,7 +83,7 @@ class HealthChecker:
             Path.home()
             / "Library"
             / "LaunchAgents"
-            / "com.museon.gateway.plist"
+            / "com.museon.supervisord.plist"
         )
 
     def run_all(self) -> HealthReport:
@@ -461,19 +461,21 @@ class HealthChecker:
         except (subprocess.TimeoutExpired, OSError) as e:
             pass  # degraded: repair
 
-        # 檢查 daemon 是否 loaded
+        # 檢查 supervisord 是否管理 Gateway
         try:
+            supervisorctl = "/Users/ZEALCHOU/Library/Python/3.9/bin/supervisorctl"
+            conf = str(self.home / "data/_system/supervisord.conf")
             result = subprocess.run(
-                ["launchctl", "list", "com.museon.gateway"],
+                [supervisorctl, "-c", conf, "status", "museon-gateway"],
                 capture_output=True,
                 text=True,
                 timeout=5,
             )
-            if result.returncode != 0:
+            if "RUNNING" not in result.stdout:
                 return CheckResult(
                     name="Daemon 設定",
                     status=CheckStatus.WARNING,
-                    message="Daemon 未載入（需要 launchctl load）",
+                    message="supervisord 未運行 Gateway（需要 supervisorctl start）",
                     repairable=True,
                     repair_action="load_daemon",
                 )

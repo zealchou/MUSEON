@@ -276,86 +276,48 @@ class AutoRepair:
         except (subprocess.TimeoutExpired, OSError) as e:
             pass  # degraded: PID check
 
-        # 嘗試 launchctl 啟動
-        plist = self.checker.plist_path
-        if plist.exists():
-            subprocess.run(
-                ["launchctl", "unload", str(plist)],
-                capture_output=True,
-                timeout=5,
-            )
-            result = subprocess.run(
-                ["launchctl", "load", str(plist)],
-                capture_output=True,
-                text=True,
-                timeout=5,
-            )
-            if result.returncode == 0:
-                return RepairResult(
-                    action="start_gateway",
-                    status=RepairStatus.SUCCESS,
-                    message="已透過 launchctl 啟動 Gateway",
-                )
-
-        # 直接啟動
-        venv_python = self._find_venv_python()
-        if venv_python:
-            src_dir = self._find_src_dir()
-            project_dir = self._find_project_dir()
-            subprocess.Popen(
-                [str(venv_python), "-m", "museon.gateway.server"],
-                cwd=str(project_dir),
-                env={
-                    **os.environ,
-                    "PYTHONPATH": str(src_dir),
-                    "MUSEON_HOME": str(self.home),
-                },
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
+        # 透過 supervisorctl 啟動（supervisord 序列化管理，不直接操作 plist）
+        supervisorctl = "/Users/ZEALCHOU/Library/Python/3.9/bin/supervisorctl"
+        conf = str(self.home / "data/_system/supervisord.conf")
+        result = subprocess.run(
+            [supervisorctl, "-c", conf, "start", "museon-gateway"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        if result.returncode == 0:
             return RepairResult(
                 action="start_gateway",
                 status=RepairStatus.SUCCESS,
-                message="已直接啟動 Gateway 進程",
+                message="已透過 supervisorctl 啟動 Gateway",
             )
 
         return RepairResult(
             action="start_gateway",
             status=RepairStatus.FAILED,
-            message="無法啟動（venv 不存在）",
+            message=f"supervisorctl start 失敗: {result.stderr[:100]}",
         )
 
     def repair_load_daemon(self) -> RepairResult:
-        """載入 launchd daemon"""
-        plist = self.checker.plist_path
-        if not plist.exists():
-            return RepairResult(
-                action="load_daemon",
-                status=RepairStatus.FAILED,
-                message="plist 不存在，需要重新安裝",
-            )
-
-        subprocess.run(
-            ["launchctl", "unload", str(plist)],
-            capture_output=True,
-            timeout=5,
-        )
+        """透過 supervisorctl 啟動 Gateway（supervisord 序列化管理）"""
+        supervisorctl = "/Users/ZEALCHOU/Library/Python/3.9/bin/supervisorctl"
+        conf = str(self.home / "data/_system/supervisord.conf")
         result = subprocess.run(
-            ["launchctl", "load", str(plist)],
+            [supervisorctl, "-c", conf, "start", "museon-gateway"],
             capture_output=True,
             text=True,
-            timeout=5,
+            timeout=10,
         )
         if result.returncode == 0:
             return RepairResult(
                 action="load_daemon",
                 status=RepairStatus.SUCCESS,
-                message="Daemon 已載入",
+                message="Gateway 已透過 supervisorctl 啟動",
             )
         return RepairResult(
             action="load_daemon",
             status=RepairStatus.FAILED,
-            message=f"launchctl load 失敗: {result.stderr[:100]}",
+            message=f"supervisorctl start 失敗: {result.stderr[:100]}",
         )
 
     def repair_rotate_logs(self) -> RepairResult:
