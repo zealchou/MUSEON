@@ -258,6 +258,9 @@ MUSEON 回覆: {museon_reply}
 | /equity | market-equity | 股票分析 |
 | /macro | market-macro | 總經分析 |
 | /brand | brand-identity | 品牌定位 |
+| /brand-discover | brand-discovery | 漸進式品牌訪談 |
+| /brand-build | brand-builder | 奧美級品牌建構 |
+| /brand-manual | workflow-brand-consulting | 品牌手冊工作流 |
 | /story | storytelling-engine | 故事設計 |
 | /text | text-alchemy | 文字煉金 |
 | /xmodel | xmodel | 破框解方 |
@@ -275,6 +278,11 @@ MUSEON 回覆: {museon_reply}
 | /esg-forge, /esg | esg-architect-pro | ESG 永續報告 |
 | /esg-audit | esg-architect-pro | ESG 漂綠檢測 |
 | /meeting, /intel | meeting-intelligence | 會議情報分析 |
+| /ares | ares | 戰神系統（人物分析+策略） |
+| /anima, /profile | anima-individual | 人物建檔/查詢 |
+| /reading, /energy | energy-reading | 能量解讀 |
+| /wan-miu, /persona-16 | wan-miu-16 | 萬謬16型人格 |
+| /combined, /match | combined-reading | 合盤比對 |
 
 ### Step 2: 回覆確認 + Spawn Worker
 

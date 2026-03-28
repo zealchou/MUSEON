@@ -583,6 +583,89 @@ TOOL_DEFINITIONS: List[Dict[str, Any]] = [
             "required": ["topic", "perspectives"],
         },
     },
+    # ═══════════════════════════════════════
+    # Ares 戰神系統工具
+    # ═══════════════════════════════════════
+    {
+        "name": "ares_search",
+        "description": (
+            "搜尋 Ares 人物檔案庫。用關鍵字比對姓名、公司、角色。"
+            "回傳匹配的人物摘要清單（姓名、人格、溫度、槓桿）。"
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "keyword": {"type": "string", "description": "搜尋關鍵字（姓名、公司、角色）"},
+                "domain": {"type": "string", "enum": ["business", "internal", "personal"], "description": "場域篩選（選填）"},
+            },
+            "required": ["keyword"],
+        },
+    },
+    {
+        "name": "ares_create",
+        "description": (
+            "在 Ares 建立新的人物檔案。提供姓名和場域標籤。"
+            "回傳新建的 profile_id 和初始七層結構。"
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string", "description": "人物姓名"},
+                "domains": {
+                    "type": "array",
+                    "items": {"type": "string", "enum": ["business", "internal", "personal"]},
+                    "description": "場域標籤（可多選）",
+                },
+                "title": {"type": "string", "description": "職稱（選填）"},
+                "company": {"type": "string", "description": "公司（選填）"},
+                "role": {"type": "string", "description": "角色描述（選填）"},
+            },
+            "required": ["name"],
+        },
+    },
+    {
+        "name": "ares_update",
+        "description": (
+            "更新 Ares 人物檔案的任意欄位。可更新人格評估、槓桿、互動記錄等。"
+            "支援 dot-notation 的巢狀欄位（如 L2_personality.wan_miu_code）。"
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "profile_id": {"type": "string", "description": "人物 profile_id"},
+                "updates": {"type": "object", "description": "要更新的欄位（巢狀 dict）"},
+            },
+            "required": ["profile_id", "updates"],
+        },
+    },
+    {
+        "name": "ares_briefing",
+        "description": (
+            "產出指定人物的戰前簡報。包含人格、溫度、建議做/別做、槓桿交換方案。"
+            "如果人物不在檔案庫中，會回傳「未找到」。"
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "keyword": {"type": "string", "description": "人物姓名關鍵字"},
+            },
+            "required": ["keyword"],
+        },
+    },
+    {
+        "name": "ares_topology",
+        "description": (
+            "產出人物拓樸圖（PNG 或 JSON）。顯示所有人物的關係網路。"
+            "PNG 模式回傳圖片路徑；JSON 模式回傳圖結構資料。"
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "format": {"type": "string", "enum": ["png", "json"], "description": "輸出格式", "default": "png"},
+                "domain": {"type": "string", "enum": ["business", "internal", "personal"], "description": "場域篩選（選填）"},
+            },
+        },
+    },
 ]
 
 # 工具名稱集合（快速查找）

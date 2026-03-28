@@ -78,6 +78,12 @@ class ToolWhitelist:
             "mcp_list_servers",     # MCP 伺服器列表
             "mcp_call_tool",        # MCP 工具呼叫
             "mcp_add_server",       # MCP 伺服器新增
+            # v13 新增：Ares 戰神系統
+            "ares_search",
+            "ares_create",
+            "ares_update",
+            "ares_briefing",
+            "ares_topology",
             # v12 新增：Self-Surgery（自我手術）
             "source_read",          # 讀取源碼
             "source_search",        # 搜尋源碼
@@ -362,6 +368,9 @@ class ToolExecutor:
             return await self._execute_restart_gateway(arguments)
         elif tool_name == "pending_action":
             return await self._execute_pending_action(arguments)
+        # v13: Ares 戰神系統
+        elif tool_name.startswith("ares_"):
+            return await self._execute_ares_tool(tool_name, arguments)
         elif tool_name in ("mcp_list_servers", "mcp_call_tool", "mcp_add_server"):
             return await self._execute_mcp_tool(tool_name, arguments)
         # v10.2: 動態 MCP 工具路由（mcp__{server}__{tool} 格式）
@@ -2310,3 +2319,194 @@ class ToolExecutor:
                 "analyses": analyses,
             },
         }
+
+    # ═══════════════════════════════════════
+    # v13: Ares 戰神系統工具
+    # ═══════════════════════════════════════
+
+    def _get_ares_store(self):
+        """Lazy init Ares ProfileStore."""
+        if not hasattr(self, "_ares_store"):
+            from museon.ares.profile_store import ProfileStore
+            self._ares_store = ProfileStore(self.data_dir)
+        return self._ares_store
+
+    async def _execute_ares_tool(
+        self, tool_name: str, arguments: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Ares 工具路由."""
+        try:
+            if tool_name == "ares_search":
+                return await self._execute_ares_search(arguments)
+            elif tool_name == "ares_create":
+                return await self._execute_ares_create(arguments)
+            elif tool_name == "ares_update":
+                return await self._execute_ares_update(arguments)
+            elif tool_name == "ares_briefing":
+                return await self._execute_ares_briefing(arguments)
+            elif tool_name == "ares_topology":
+                return await self._execute_ares_topology(arguments)
+            else:
+                return {"success": False, "error": f"Unknown ares tool: {tool_name}"}
+        except Exception as e:
+            logger.warning(f"[ARES-TOOL] {tool_name} failed: {e}")
+            return {"success": False, "error": str(e)}
+
+    async def _execute_ares_search(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
+        """搜尋人物檔案."""
+        store = self._get_ares_store()
+        keyword = arguments.get("keyword", "")
+        domain = arguments.get("domain")
+
+        if not keyword:
+            # 列出全部
+            idx = store.list_all()
+            results = [
+                {"profile_id": pid, **entry}
+                for pid, entry in idx.items()
+            ]
+        else:
+            profiles = store.search(keyword, domain=domain)
+            results = []
+            for p in profiles:
+                results.append({
+                    "profile_id": p["profile_id"],
+                    "name": p["L1_facts"]["name"],
+                    "wan_miu_code": p["L2_personality"].get("wan_miu_code"),
+                    "confidence": p["L2_personality"].get("confidence", 0),
+                    "temperature": p["temperature"]["level"],
+                    "domains": p.get("domains", []),
+                    "interactions": p["L4_interactions"]["total_count"],
+                    "title": p["L1_facts"].get("title"),
+                    "company": p["L1_facts"].get("company"),
+                })
+
+        return {"success": True, "count": len(results), "results": results}
+
+    async def _execute_ares_create(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
+        """建立新人物檔案."""
+        store = self._get_ares_store()
+        name = arguments.get("name", "")
+        if not name:
+            return {"success": False, "error": "name is required"}
+
+        domains = arguments.get("domains", ["business"])
+        profile = store.create(name, domains=domains)
+
+        # 可選的初始欄位
+        updates = {}
+        if arguments.get("title"):
+            updates.setdefault("L1_facts", {})["title"] = arguments["title"]
+        if arguments.get("company"):
+            updates.setdefault("L1_facts", {})["company"] = arguments["company"]
+        if arguments.get("role"):
+            updates.setdefault("L1_facts", {})["role"] = arguments["role"]
+        if updates:
+            store.update(profile["profile_id"], updates)
+
+        return {
+            "success": True,
+            "profile_id": profile["profile_id"],
+            "name": name,
+            "message": f"已建立 {name} 的 ANIMA 個體檔案",
+        }
+
+    async def _execute_ares_update(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
+        """更新人物檔案."""
+        store = self._get_ares_store()
+        pid = arguments.get("profile_id", "")
+        updates = arguments.get("updates", {})
+        if not pid or not updates:
+            return {"success": False, "error": "profile_id and updates are required"}
+
+        result = store.update(pid, updates)
+        if not result:
+            return {"success": False, "error": f"Profile {pid} not found"}
+
+        return {
+            "success": True,
+            "profile_id": pid,
+            "name": result["L1_facts"]["name"],
+            "message": f"已更新 {result['L1_facts']['name']} 的檔案",
+        }
+
+    async def _execute_ares_briefing(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
+        """產出戰前簡報."""
+        store = self._get_ares_store()
+        keyword = arguments.get("keyword", "")
+        profiles = store.search(keyword)
+        if not profiles:
+            return {"success": False, "error": f"找不到包含「{keyword}」的人物檔案"}
+
+        p = profiles[0]
+        persona = p["L2_personality"]
+        inter = p["L4_interactions"]
+        temp = p["temperature"]
+        leverage = p["L5_leverage"]
+        comm = p["L6_communication"]
+
+        # 組裝槓桿摘要
+        has_list = [f"{k}:{v['has']}" for k, v in leverage.items() if v.get("has")]
+        needs_list = [f"{k}:{v['needs']}" for k, v in leverage.items() if v.get("needs")]
+
+        briefing = {
+            "name": p["L1_facts"]["name"],
+            "title": p["L1_facts"].get("title"),
+            "company": p["L1_facts"].get("company"),
+            "personality": {
+                "code": persona.get("wan_miu_code"),
+                "name": persona.get("wan_miu_name"),
+                "confidence": persona.get("confidence", 0),
+                "assessment_type": persona.get("assessment_type"),
+            },
+            "temperature": {
+                "level": temp["level"],
+                "trend": temp["trend"],
+            },
+            "interactions": {
+                "total": inter["total_count"],
+                "positive": inter["positive_count"],
+                "negative": inter["negative_count"],
+            },
+            "leverage": {
+                "has": has_list or ["尚未記錄"],
+                "needs": needs_list or ["尚未記錄"],
+            },
+            "communication": {
+                "style": comm.get("style"),
+                "taboos": comm.get("taboos", []),
+                "preferences": comm.get("preferences", []),
+            },
+            "connections": [
+                {"name": c["target_name"], "type": c["relation_type"]}
+                for c in p.get("connections", [])
+            ],
+            "profile_id": p["profile_id"],
+        }
+
+        return {"success": True, "briefing": briefing}
+
+    async def _execute_ares_topology(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
+        """產出人物拓樸圖."""
+        store = self._get_ares_store()
+        fmt = arguments.get("format", "png")
+        domain = arguments.get("domain")
+        data = store.generate_topology_data(domain=domain)
+
+        if fmt == "json":
+            return {"success": True, "topology": data}
+
+        # PNG
+        try:
+            from museon.ares.graph_renderer import render_topology_png
+            out_path = Path(self.data_dir) / "ares" / "topology.png"
+            render_topology_png(data, output_path=out_path, owner_name="Zeal")
+            return {
+                "success": True,
+                "path": str(out_path),
+                "nodes": len(data["nodes"]),
+                "links": len(data["links"]),
+                "message": f"拓樸圖已生成：{len(data['nodes'])} 個人物、{len(data['links'])} 條連線",
+            }
+        except ImportError:
+            return {"success": False, "error": "matplotlib/networkx 未安裝，無法生成 PNG"}
