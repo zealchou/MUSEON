@@ -1,12 +1,11 @@
 #!/bin/bash
 # ═══════════════════════════════════════════════════
-# MUSEON Gateway 安全重啟腳本 v2.1（uvicorn + launchd 版）
+# MUSEON Gateway 安全重啟腳本 v3.0（supervisord 版）
 #
-# 核心改動（vs v1.0）：
-#   - 移除 kickstart -k（不強殺 launchd 控制的進程）
-#   - 改用 launchctl kickstart（不加 -k，讓 launchd 優雅處理）
-#   - 驗證改查 /health/live（純 liveness，不等 brain 深度檢查）
-#   - 等待時間延長至 60 秒（uvicorn + Brain 初始化需要時間）
+# 核心改動（vs v2.1）：
+#   - 改用 supervisorctl restart（取代 launchctl stop/kickstart）
+#   - supervisord 確保序列化重啟，消除雙實例衝突
+#   - 等待時間維持 60 秒，驗證改查 /health/live
 #
 # 用法：
 #   bash scripts/workflows/restart-gateway.sh
@@ -17,11 +16,12 @@ set -e
 export PATH="/usr/sbin:$PATH"
 
 GATEWAY_URL="http://127.0.0.1:8765"
-DAEMON_LABEL="com.museon.gateway"
+SUPERVISORCTL="/Users/ZEALCHOU/Library/Python/3.9/bin/supervisorctl"
+SUPERVISOR_CONF="/Users/ZEALCHOU/MUSEON/data/_system/supervisord.conf"
 PROJECT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 
 echo "═══════════════════════════════════════"
-echo "  MUSEON Gateway 安全重啟 v2.1"
+echo "  MUSEON Gateway 安全重啟 v3.0"
 echo "═══════════════════════════════════════"
 echo ""
 
@@ -59,16 +59,14 @@ else
     echo "⚠️  .runtime/src 不存在，跳過同步"
 fi
 
-# ─── Step 2: 透過 launchctl 重啟 ─────────────────
+# ─── Step 2: 透過 supervisorctl 重啟 ─────────────────
 echo ""
-echo "📋 Step 2: 重啟 Gateway（透過 launchd）..."
+echo "📋 Step 2: 重啟 Gateway（透過 supervisord）..."
 
-# 不加 -k 旗標：讓 launchd 自然停止後重啟，不強殺
-# launchctl kickstart 如果 service 已在運行，需要先 stop
-launchctl stop "gui/$(id -u)/$DAEMON_LABEL" 2>/dev/null || true
-sleep 3
-launchctl kickstart "gui/$(id -u)/$DAEMON_LABEL" 2>/dev/null || \
-    echo "   (kickstart 失敗，launchd 的 KeepAlive 會自動重啟)"
+"$SUPERVISORCTL" -c "$SUPERVISOR_CONF" restart museon-gateway 2>/dev/null || \
+    echo "   (restart 失敗，嘗試 start...)" && \
+    "$SUPERVISORCTL" -c "$SUPERVISOR_CONF" start museon-gateway 2>/dev/null || \
+    echo "   ⚠️  supervisorctl 指令失敗，請確認 supervisord 正在運行"
 echo "✅ 重啟指令已發送"
 
 # ─── Step 3: 等待 /health/live 回應 ──────────────────
@@ -96,6 +94,7 @@ if [ "$ALIVE" = true ]; then
 else
     echo "⚠️  Gateway liveness 未通過（${MAX_WAIT}s timeout）"
     echo "   請手動檢查：curl $GATEWAY_URL/health/live"
+    echo "   supervisord 狀態：$SUPERVISORCTL -c $SUPERVISOR_CONF status"
     echo "   日誌：tail -f $PROJECT_DIR/logs/gateway.err"
     exit 1
 fi
