@@ -1,8 +1,10 @@
-# MUSEON Persistence Contract v1.38 — 水電圖
+# MUSEON Persistence Contract v1.40 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
 > 與 `system-topology.md`（控制流拓撲）互補——那是「神經圖」，這是「水電圖」。
+> **v1.40 (2026-03-29)**：戰神系統（Ares）——新增 `data/ares/profiles/` 儲存路徑（JSON 個體檔案，寫入者=anima-individual Skill + external_bridge.py，讀取者=ares Skill + profile_store.py）；索引檔 `data/ares/profiles/_index.json`；新增 Python 模組 `src/museon/ares/`（profile_store.py CRUD + graph_renderer.py PNG + external_bridge.py Telegram 橋接）；knowledge-lattice 新增 2 種結晶類型（individual_crystal from anima-individual、strategy_crystal from ares）。同步 system-topology v1.62、blast-radius v1.80、joint-map v1.52、memory-router v1.13。
+> **v1.39 (2026-03-29)**：OneMuse 能量解讀技能群——新增唯讀參考資料區塊 `data/knowledge/onemuse/`（36 檔，Markdown/JSON 格式），涵蓋 OM-DNA 核心規範、模組定義、64 卦知識、AEO 行動包、品牌視覺、報告模板；讀取者：energy-reading、wan-miu-16、combined-reading 三個 Skill（唯讀參考，不寫入）。同步 system-topology v1.61、blast-radius v1.79、joint-map v1.51、memory-router v1.12。
 > **v1.38 (2026-03-28)**：死碼清理後同步——Qdrant collection `dna27` 的寫入者 `reflex_router.py` 確認（dna27.py 模組已刪，collection 由 reflex_router 維護）；移除已刪除模組的寫入者條目：channels/line（data_bus 消費者）、llm/vision、memory/epigenetic_router、multiagent/flywheel_flow、pulse/group_session_proactive、tools/document_export、tools/report_publisher；新增消費者確認：pulse_db 消費者從 10→11（新增 pulse/group_digest）。
 
 ---
@@ -280,7 +282,7 @@ SkillMarket / FederationSync
 | W10 | 六層記憶 | MemoryManager | MemoryManager.recall | JSON+Vector | 按層級 | OK |
 | W11 | 向量索引 | VectorBridge | VectorBridge.search | Qdrant | ∞ | OK |
 | W12 | 路由統計 | LLM Router | Nightly/Job | JSONL | 輪替 >5MB | OK |
-| W13 | 知識晶體 | KnowledgeLattice (via CrystalStore) | KnowledgeLattice, Brain | SQLite(WAL)+Vector, 含 Procedure 結晶 (skills_used/preconditions/known_failures/last_success) | 永久 | OK |
+| W13 | 知識晶體 | KnowledgeLattice (via CrystalStore) | KnowledgeLattice, Brain | SQLite(WAL)+Vector, 含 Procedure 結晶 (skills_used/preconditions/known_failures/last_success) + OneMuse 三結晶（energy_crystal/persona_crystal/relationship_crystal） | 永久 | OK |
 | W14 | 日記條目（原靈魂年輪） | DiaryStore | Brain, Nightly | JSON | 永久 | OK |
 | W15 | ANIMA 狀態 | Brain | Brain 啟動時載入 | JSON | 永久 | OK |
 | W16 | Pulse 狀態 | PulseEngine | Brain, Explorer | Markdown | 每次覆寫 | OK |
@@ -525,6 +527,32 @@ adaptive_decay ──ACT-R B_i──→ _activation 欄位 (in-memory) ←──
 | `anima/drift_baseline.json` | `agent/drift_detector.py` | 漂移基線 |
 | `anima/soul_rings.json` | `agent/soul_ring.py` (DiaryStore) | 日記條目序列（v2.0 新增 entry_type/highlights/learnings/tomorrow_intent） |
 
+### `knowledge/onemuse/` 子目錄（唯讀參考資料）
+
+> **注意**：此目錄為唯讀參考資料，不由任何模組寫入。Skill 僅讀取作為分析知識庫。
+
+| 路徑 | 格式 | 讀取者 | 用途 |
+|------|------|--------|------|
+| `knowledge/onemuse/` (36 檔) | Markdown / JSON | energy-reading, wan-miu-16, combined-reading | OneMuse 能量解讀知識庫 |
+
+> **內容**：OM-DNA 核心規範、模組定義、64 卦知識、AEO 行動包、品牌視覺規範、報告模板
+> **引擎**：Markdown/JSON（人類可讀參考檔案，非資料庫）
+> **寫入者**：無（唯讀參考資料，手動維護）
+
+### `ares/profiles/` 子目錄（Ares 個體檔案）
+
+> **注意**：此目錄為 ANIMA 個體追蹤引擎的持久化儲存。每個第三方人物一個 JSON 檔案。
+
+| 路徑 | 格式 | 寫入者 | 讀取者 | 說明 |
+|------|------|--------|--------|------|
+| `ares/profiles/{profile_id}.json` | JSON | `anima-individual` Skill, `src/museon/ares/profile_store.py`, `src/museon/ares/external_bridge.py` | `ares` Skill, `src/museon/ares/profile_store.py` | ANIMA 個體檔案（七層鏡像、八大槓桿、互動歷史、關係溫度） |
+| `ares/profiles/_index.json` | JSON | `src/museon/ares/profile_store.py` | `ares` Skill, `src/museon/ares/profile_store.py` | 個體索引（profile_id → 名稱/建立時間/最後更新） |
+
+> **引擎**：JSON（人類可讀個體檔案）
+> **生命週期**：永久（持續更新）
+> **結晶類型**：anima-individual → knowledge-lattice `individual_crystal`；ares → knowledge-lattice `strategy_crystal`
+> **Python 模組**：`src/museon/ares/profile_store.py`（CRUD + 槓桿 + 連線 + 路徑搜尋 + 連動模擬）、`src/museon/ares/graph_renderer.py`（networkx PNG 渲染）、`src/museon/ares/external_bridge.py`（Telegram 群組成員→Ares 個體橋接器）
+
 ### `eval/` 子目錄
 
 | 路徑 | 負責模組 | 用途 |
@@ -668,6 +696,8 @@ adaptive_decay ──ACT-R B_i──→ _activation 欄位 (in-memory) ←──
 | v1.0 | 2026-03-15 | 初版：完整水電圖，涵蓋 23 個正常配對、3 個 Dead Write、14 個死目錄 |
 | v1.1 | 2026-03-15 | Phase 2 完成：4 個 JSON 遷移至 PulseDB（ceremony_state + eval 三件套） |
 | v1.2 | 2026-03-15 | Phase 3 完成：DataContract + DataBus 建立，10 個 Store 類統一接入 |
+| v1.40 | 2026-03-29 | 戰神系統（Ares）——新增 `data/ares/profiles/` 儲存路徑（JSON 個體檔案 + _index.json 索引）；寫入者 anima-individual Skill + profile_store.py + external_bridge.py；讀取者 ares Skill + profile_store.py；knowledge-lattice 新增 individual_crystal + strategy_crystal 結晶類型；新增 Python 模組 src/museon/ares/。同步 topology v1.62、blast v1.80、joint v1.52、memory-router v1.13 |
+| v1.39 | 2026-03-29 | OneMuse 能量解讀技能群——新增唯讀參考資料 `data/knowledge/onemuse/`（36 檔 Markdown/JSON），讀取者 energy-reading/wan-miu-16/combined-reading（唯讀）。同步 topology v1.61、blast v1.79、joint v1.51、memory-router v1.12 |
 | v1.37 | 2026-03-27 | 有機體進化計畫 Phase 1-9——新增 6 個持久化條目：`push_journal_24h.json`（ProactiveDispatcher 24hr 推播日誌）、`memory_graph/` edges+access_log（MemoryGraph 關聯邊+存取紀錄，永久）、`learning/insights/`（InsightExtractor 洞見，永久）、`shared_board.json`（五虎將看板，50 筆滾動）、`skill_invocations_*.json`（Skill 調用計數月度檔，永久）。同步 system-topology v1.54、blast-radius v1.71、joint-map v1.48、memory-router v1.10 |
 | v1.36 | 2026-03-25 | 訊息佇列持久化——新增 MessageQueueDB（`data/_system/message_queue.db`，SQLite WAL，message_queue_store.py Owner，telegram_pump.py enqueue/mark_done/mark_failed，server.py startup init）；表數 5→6 |
 | v1.35 | 2026-03-25 | 對話持久化——GroupContextDB 擴展（DM msg_type='dm' + bot_reply，text 截斷 2000→8000，clients 表新增 personality_notes/communication_style）；無新增 DB |

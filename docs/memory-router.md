@@ -1,10 +1,12 @@
-# Memory Router — 記憶路由表 v1.11
+# Memory Router — 記憶路由表 v1.13
 
 > **用途**：定義「什麼類型的洞見存到哪個記憶系統、什麼時候取出」。第五張工程藍圖。
 > **比喻**：郵局分揀表——每封信根據地址分到對應的信箱，不會寄丟也不會重複投遞。
 > **更新時機**：新增 Skill 或記憶系統時，必須在同一個 commit 中新增對應的路由規則。
 > **建立日期**：2026-03-21
 > **搭配**：`docs/skill-manifest-spec.md`（Skill I/O 合約）、各 Skill 的 `memory.writes` 欄位、`docs/operational-contract.md`（操作契約表）
+> **v1.13 (2026-03-29)**：戰神系統（Ares）——新增 2 條 knowledge-lattice 路由：anima-individual→individual_crystal（ANIMA 個體分析結晶，永久）、ares→strategy_crystal（戰神戰略結晶，永久）；新增 2 條 user-model 路由：anima-individual→關係網路維度、ares→戰略偏好維度。同步 system-topology v1.62、blast-radius v1.80、joint-map v1.52、persistence-contract v1.40。
+> **v1.12 (2026-03-29)**：OneMuse 能量解讀技能群——新增 3 條 knowledge-lattice 路由：energy-reading→energy_crystal（八方位能量解讀結晶，永久）、wan-miu-16→persona_crystal（萬謬16型人格結晶，永久）、combined-reading→relationship_crystal（合盤能量比對結晶，永久）。同步 system-topology v1.61、blast-radius v1.79、joint-map v1.51、persistence-contract v1.39。
 > **v1.11 (2026-03-28)**：死碼清理後同步——移除已刪除模組的路由規則：learning/strategy_accumulator（StrategyAccumulator→heuristics 路由已刪，功能由 insight-extractor 整合）；memory/epigenetic_router（不再介入記憶注入前路由）；memory/proactive_predictor（記憶路由不再涉及需求預判）；pulse/group_session_proactive（群組記憶路由不再涉及 group_session_proactive）。
 > **v1.10 (2026-03-27)**：有機體進化計畫——新增 4 條路由規則：晨報個案→InsightExtractor→knowledge-lattice（case_crystal）+ heuristics；自主探索→InsightExtractor→knowledge-lattice（exploration_crystal）；InsightExtractor→MemoryGraph（建立洞見間關聯邊）；StrategyAccumulator→heuristics.json（升級為策略信條時）。同步 system-topology v1.54、blast-radius v1.71、joint-map v1.48、persistence-contract v1.37。
 > **v1.9 (2026-03-25)**：七條斷裂管線修復——dispatch/completed → Nightly Step 18.5 客戶互動萃取 → external_users + clients personality_notes；ExternalAnima search_by_keyword dict topics 修復；Intuition heuristics → prompt 注入；Guardian mothership_queue → Gateway 啟動消費；Procedure 升級門檻 3→1
@@ -68,12 +70,55 @@
 | decision-tracker | 決策偏好 + 風險容忍度 | 決策記錄完成時（P1-1 新增） |
 | human-design-blueprint | 人類圖類型 + 策略 + 內在權威 + 人生角色 | 人類圖解讀完成時 |
 
+### 🔵 品牌建構結晶 → knowledge-lattice + user-model
+
+| 來源 Skill | 洞見類型 | 寫入條件 | 結晶類型 |
+|-----------|---------|---------|---------|
+| brand-builder | 七框架分析結論 + 三選項定位方案 + 品牌策略包 | 品牌策略包產出時 | brand_crystal |
+| brand-discovery | 客戶品牌訪談摘要 + 競爭格局洞見 + 客戶 JTBD | 50 問訪談完成並確認時 | client_crystal |
+| workflow-brand-consulting | 品牌手冊完整交付物 + 定位決策 | HTML 手冊渲染完成時 | brand_crystal |
+
+| 來源 Skill | 更新維度 | 寫入條件 |
+|-----------|---------|---------|
+| brand-discovery | 客戶業態 + 品牌挑戰類型 + 服務行業偏好 | 訪談完成時（更新 user-model 的行業知識維度） |
+
 ### 🔵 ESG 分析結晶 → knowledge-lattice
 
 | 來源 Skill | 洞見類型 | 寫入條件 | 結晶類型 |
 |-----------|---------|---------|---------|
 | esg-architect-pro | 重大性評估結論 + 碳費影響量化 + 漂綠偵測結果 | 報告產出時 | esg_crystal |
 | meeting-intelligence | 決議 + 博弈模式 + 承諾漂移 + 人格動態 | 會議分析完成時 | meeting_crystal |
+
+### 🔵 OneMuse 能量解讀結晶 → knowledge-lattice + user-model
+
+| 來源 Skill | 洞見類型 | 寫入條件 | 結晶類型 |
+|-----------|---------|---------|---------|
+| energy-reading | 八方位能量解讀結論 + 方位能量分布 | 能量解讀完成時 | energy_crystal |
+| wan-miu-16 | 萬謬16型人格分析 + 人格特質洞見 | 人格分析完成時 | persona_crystal |
+| combined-reading | 合盤能量比對 + 關係動態分析 | 合盤比對完成時 | relationship_crystal |
+
+| 來源 Skill | 更新維度 | 寫入條件 |
+|-----------|---------|---------|
+| energy-reading | 能量狀態 + 方位偏好 | 解讀完成時（更新 user-model 的能量維度） |
+| wan-miu-16 | 人格類型 + 行為傾向 | 分析完成時（更新 user-model 的人格維度） |
+| combined-reading | 關係模式 + 互動動態 | 比對完成時（更新 user-model 的關係維度） |
+
+### 🔵 戰神系統結晶 → knowledge-lattice + user-model
+
+| 來源 Skill | 洞見類型 | 寫入條件 | 結晶類型 |
+|-----------|---------|---------|---------|
+| anima-individual | ANIMA 個體分析結論（七層鏡像 + 八大槓桿 + 關係溫度） | 個體分析完成時 | individual_crystal |
+| ares | 戰神戰略分析（人物策略 + 多層槓桿路徑 + 連動模擬） | 戰略分析/戰前簡報完成時 | strategy_crystal |
+
+| 來源 Skill | 更新維度 | 寫入條件 |
+|-----------|---------|---------|
+| anima-individual | 關係網路 + 人際互動模式 | 個體分析完成時（更新 user-model 的關係網路維度） |
+| ares | 戰略偏好 + 博弈決策風格 | 戰略分析完成時（更新 user-model 的戰略偏好維度） |
+
+> **消費者**：
+> - knowledge-lattice individual_crystal / strategy_crystal → brain.py `_build_memory_inject()` 語意檢索
+> - user-model 關係網路/戰略偏好維度 → brain.py 個人化調適
+> - data/ares/profiles/ → ares Skill 讀取個體檔案做跨人物分析
 
 ### 🟡 工作流記憶 → wee
 
@@ -190,6 +235,8 @@
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.13 | 2026-03-29 | 戰神系統（Ares）——新增 2 條 knowledge-lattice 路由（anima-individual→individual_crystal、ares→strategy_crystal）+ 2 條 user-model 路由（關係網路/戰略偏好維度更新）；新增消費者 data/ares/profiles/ 個體檔案；同步 topology v1.62、blast v1.80、joint v1.52、persist v1.40 |
+| v1.12 | 2026-03-29 | OneMuse 能量解讀技能群——新增 3 條 knowledge-lattice 路由（energy-reading→energy_crystal、wan-miu-16→persona_crystal、combined-reading→relationship_crystal）+ 3 條 user-model 路由（能量/人格/關係維度更新）；同步 topology v1.61、blast v1.79、joint v1.51、persist v1.39 |
 | v1.10 | 2026-03-27 | 持續學習引擎路由——新增 4 條路由（晨報個案→case_crystal+heuristics、自主探索→exploration_crystal、InsightExtractor→MemoryGraph edges、StrategyAccumulator→heuristics conviction）；同步 topology v1.54、blast v1.71、joint v1.48、persist v1.37 |
 | v1.7 | 2026-03-24 | 操作記憶路由——新增規則 7（外部操作 PROCEDURE 結晶路由）；搭配第六張藍圖 operational-contract.md |
 | v1.6 | 2026-03-23 | Project Epigenesis 接線——新增規則 6（反思層路由）；EpigeneticRouter 在 brain.py _build_memory_inject() 中觸發 Hindsight 反思；4 條路由（memories→reflector、soul_rings→reflector、crystals→reflector、changelog→reflector）；反思摘要注入 memory zone；純 RO 計算不寫入持久層；同步 blast-radius v1.55、joint-map v1.40、persistence-contract v1.32 |

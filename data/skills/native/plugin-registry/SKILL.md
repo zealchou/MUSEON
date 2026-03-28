@@ -23,7 +23,7 @@ connects_to:
 description: >
   外掛模組註冊表（Plugin Registry）v2.4 — DNA27 核心的參考文件，
   管理所有 MUSEON 外掛模組的註冊資訊、迴圈允許規則、RC 親和對照、協作矩陣與共存規則。
-  已註冊外掛：53 個（含 10 常駐 + 38 按需 + 1 參考 + 4 工作流），分佈於 9 個 Hub。
+  已註冊外掛：58 個（含 10 常駐 + 42 按需 + 1 參考 + 5 工作流），分佈於 9 個 Hub。
   此文件為 dna27/references 底下的治理參考文件，非獨立 Skill，不可被單獨觸發。
   觸發時機：DNA27 路由、orchestrator 編排、morphenix 迭代時自動參照。
   指令觸發：無獨立指令。透過 /orchestrate、/morphenix fitness、/morphenix status 間接使用。
@@ -36,7 +36,7 @@ description: >
 # 外掛模組註冊表（Plugin Registry）v2.4
 
 > **上次更新**：2026-03-21
-> **已註冊外掛**：53 個（含 10 常駐 + 38 按需 + 1 參考 + 4 工作流），分佈於 9 個 Hub
+> **已註冊外掛**：58 個（含 4 常駐 + 47 按需 + 1 參考 + 6 工作流），分佈於 9 個 Hub
 > **治理文件**：`docs/skill-routing-governance.md`（Hub 路由 + Workflow Stage 規格）
 > **Manifest 規格**：`docs/skill-manifest-spec.md` v1.1（含 `hub` + `stages` 欄位）
 
@@ -64,13 +64,18 @@ DNA27（核心 OS）
 │   ├── plan-engine          （計畫引擎）
 │   └── plugin-registry      （外掛模組註冊表）
 │
-├─ [Thinking Hub]（6）— 思維、轉化、共振、元認知
+├─ [Thinking Hub]（9）— 思維、轉化、共振、元認知、能量解讀
 │   ├── dharma               （思維轉化引擎）
 │   ├── philo-dialectic      （哲學思辨引擎）
 │   ├── resonance            （感性共振引擎）
 │   ├── shadow               （人際博弈辨識引擎）
 │   ├── meta-learning        （元學習引擎）
-│   └── roundtable           （圓桌詰問引擎）
+│   ├── roundtable           （圓桌詰問引擎）
+│   ├── energy-reading       （八方位能量解讀引擎）
+│   ├── wan-miu-16           （萬謬16型人格分析引擎）
+│   ├── combined-reading     （合盤能量比對引擎）
+│   ├── anima-individual     （ANIMA 個體追蹤引擎）    ← NEW
+│   └── ares                 （戰神系統工作流）         ← NEW
 │
 ├─ [Market Hub]（7）— 市場分析、風險、情緒
 │   ├── market-core          （市場分析核心引擎）
@@ -81,13 +86,15 @@ DNA27（核心 OS）
 │   ├── risk-matrix          （風險管理與資產配置引擎）
 │   └── sentiment-radar      （市場情緒雷達）
 │
-├─ [Business Hub]（6）— 商模、戰略、銷售、溝通
+├─ [Business Hub]（8）— 商模、戰略、銷售、溝通、品牌建構
 │   ├── business-12          （商模十二力診斷引擎）
 │   ├── ssa-consultant       （顧問式銷售與系統創業引擎）
 │   ├── master-strategy      （戰略判斷與心理動力引擎）
 │   ├── consultant-communication（顧問式溝通引擎）
 │   ├── xmodel               （通用破框解方引擎）
-│   └── pdeif                （目的導向逆熵流引擎）
+│   ├── pdeif                （目的導向逆熵流引擎）
+│   ├── brand-discovery      （漸進式品牌訪談引擎）
+│   └── brand-builder        （奧美級品牌建構引擎）
 │
 ├─ [Creative Hub]（5）— 語言、敘事、美感、品牌
 │   ├── text-alchemy         （文字煉金路由模組）
@@ -105,19 +112,20 @@ DNA27（核心 OS）
 │   ├── orchestrator         （編排引擎）
 │   └── report-forge         （付費級產業診斷報告鍛造引擎）
 │
-├─ [Evolution Hub]（7）— 沙盒、品質審計、健康、決策、開發前後檢查
+├─ [Evolution Hub]（7）— 沙盒、品質審計、健康、決策、開發閉環
 │   ├── sandbox-lab          （沙盒實驗室）
 │   ├── qa-auditor           （品質審計引擎）
 │   ├── system-health-check  （系統健康自檢引擎）
 │   ├── decision-tracker     （決策歷史追蹤引擎）
-│   ├── dev-preflight        （開發前置飛行檢查，v2.4 新增）
-│   ├── dev-retro            （開發回溯引擎，v2.4 新增）
+│   ├── dev-preflight        （開發前置飛行檢查）
+│   ├── dev-retro            （開發回溯引擎）
 │   └── tantra               （情慾治理引擎，研究階段）
 │
-└─ [Workflow Hub]（4）— 預製工作流範本
+└─ [Workflow Hub]（5）— 預製工作流範本
     ├── workflow-investment-analysis    （投資分析報告工作流）
     ├── workflow-ai-deployment         （AI 導入與部署顧問工作流）
     ├── workflow-svc-brand-marketing   （服務業品牌行銷顧問工作流）
+    ├── workflow-brand-consulting      （奧美級品牌手冊建構工作流）
     └── group-meeting-notes            （群組對話會議記錄引擎）
 ```
 
@@ -266,6 +274,81 @@ DNA27（核心 OS）
 | 觸發指令 | /pdeif、/flow-design |
 | 核心能力 | 終點形式化→情境邊界→MECE 遞迴拆解→多通道接觸點→封閉回饋→失效包絡 |
 | 與其他外掛 | xmodel（破框產生終點候選）→ pdeif（逆推路徑）；dharma（Align 步驟調用）；master-strategy（戰略落地為可執行流程）；wee（流程設計→演化追蹤） |
+
+### energy-reading — 八方位能量解讀引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | ENERGY_READING |
+| 類別 | energy-coaching-engine |
+| 風險等級 | LOW |
+| 允許迴圈 | slow_loop（主，Step 1→7 完整流程）、exploration_loop（單方位快讀） |
+| 禁止迴圈 | fast_loop（能量解讀需要展開空間） |
+| 允許模式 | civil_mode |
+| 入場條件 | 使用者提供八張牌數據（八方位 × 內外能量 -4~+4） |
+| 觸發指令 | /reading、/energy |
+| 核心能力 | EnergyGrammar 計算→外在四象→內在四感→四軸人格代碼→八方位深讀+逆向路由（卡點→解方）→整合合成→使用者自我總結；64 卦知識庫查表；雷達圖+HTML/PDF 報告 |
+| 與其他外掛 | wan-miu-16（四軸人格代碼共用）；combined-reading（合盤時提供個人盤數據）；dharma（認知行為行動建議）；resonance（情緒承接）；knowledge-lattice（能量結晶存入）；user-model（能量檔案更新） |
+
+### wan-miu-16 — 萬謬16型人格分析引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | WAN_MIU_16 |
+| 類別 | personality-analysis-engine |
+| 風險等級 | LOW |
+| 允許迴圈 | slow_loop（完整 28 題測驗）、exploration_loop（代理評估快速模式） |
+| 禁止迴圈 | fast_loop |
+| 允許模式 | civil_mode |
+| 入場條件 | 使用者願意回答 28 題，或提供對某人的觀察描述（代理模式） |
+| 觸發指令 | /wan-miu、/persona-16 |
+| 核心能力 | 四軸線系統（使命守護 A/P、關係動態 O/S、動力模型 E/R、情緒結構 M/U）→ 28 題二選一測驗 → 16 型人格代碼（AOEM~PSRU）→ 詳細解讀 + 應用建議；代理評估模式含置信度 |
+| 與其他外掛 | energy-reading（八方位數據→四軸計算）；combined-reading（雙方人格類型比較）；knowledge-lattice（人格結晶存入）；user-model（人格檔案更新） |
+
+### combined-reading — 合盤能量比對引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | COMBINED_READING |
+| 類別 | relationship-energy-comparison-engine |
+| 風險等級 | LOW |
+| 允許迴圈 | slow_loop（主，完整合盤七步）、exploration_loop（快速雙方位比較） |
+| 禁止迴圈 | fast_loop |
+| 允許模式 | civil_mode |
+| 入場條件 | 兩人或多人（≤20）的八方位能量數據 + 共同目標（必填） |
+| 觸發指令 | /combined、/match |
+| 核心能力 | 雙人/團隊合盤三模式；四種互動狀態判定（同頻共振/同向大落差/張力/輕微分歧）；八方位逐點合盤卡片；角色分配（誰領導/誰支持）；AEO 行動建議；教練收斂；未來橋接戰神系統（Ares） |
+| 與其他外掛 | energy-reading（個人盤數據來源）；wan-miu-16（雙方人格類型）；knowledge-lattice（關係結晶存入）；user-model（關係檔案更新） |
+
+### anima-individual — ANIMA 個體追蹤引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | ANIMA_INDIVIDUAL |
+| 類別 | individual-profile-engine |
+| 風險等級 | LOW |
+| 允許迴圈 | slow_loop（完整建檔+代理評估）、exploration_loop（快速查詢/更新）、fast_loop（戰前簡報） |
+| 允許模式 | civil_mode |
+| 入場條件 | 使用者描述某人或指定人名 |
+| 觸發指令 | /anima、/profile |
+| 核心能力 | 七層鏡像建檔（L1事實→L7情境面具）；代理評估觸發（wan-miu-16）；八大槓桿帳本（有/缺）；互動歷史追蹤；關係溫度計算；戰前簡報生成；人物拓樸圖連線管理 |
+| 持久化 | data/ares/profiles/{profile_id}.json（原子寫入，JSON） |
+| 與其他外掛 | wan-miu-16（代理評估）；energy-reading（能量掃描）；combined-reading（合盤比對）；shadow（陰謀辨識）；master-strategy（陽謀策略）；xmodel（槓桿交換）；knowledge-lattice（individual_crystal）；user-model（畫像更新） |
+
+### ares — 戰神系統工作流
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | ARES |
+| 類別 | strategic-intelligence-workflow |
+| 風險等級 | LOW |
+| 允許迴圈 | slow_loop（完整策略佈局）、exploration_loop（標準分析）、fast_loop（快速戰前簡報） |
+| 允許模式 | civil_mode |
+| 入場條件 | 目標人物 + 互動場景/目標 |
+| 觸發指令 | /ares、/strategy-person |
+| 核心能力 | 七階段工作流編排（identify→assess→compare→strategize→design→verify→output）；三種速度路徑（quick/standard/full）；多層槓桿路徑搜尋（2-4層）；連動模擬；戰前簡報+靜態拓樸圖 PNG |
+| stages | identify(anima-individual) → assess(wan-miu-16,energy-reading) → compare(combined-reading) → strategize(master-strategy,shadow,xmodel) → design(pdeif) → verify(roundtable) → output(anima-individual,c15) |
+| 與其他外掛 | 14 個 Skill 調用：anima-individual、wan-miu-16、energy-reading、combined-reading、master-strategy、shadow、xmodel、pdeif、roundtable、business-12、ssa-consultant、knowledge-lattice、user-model、c15 |
 
 ---
 
@@ -593,20 +676,20 @@ DNA27（核心 OS）
 | 產線位置 | **GAP**（找缺口）→ DSE（技術驗證）→ ACSF（鍛造商品） |
 | 與其他外掛 | dse（機會卡→技術驗證）；business-12（通用商業診斷 vs AI 市場缺口）；env-radar（環境雷達提供大環境脈絡） |
 
-### dse — AI 技術融合驗證引擎
+### dse — 通用研究驗證引擎
 
 | 屬性 | 值 |
 |---|---|
 | plus_id | DSE |
-| 類別 | ai-tech-fusion-engine |
+| 類別 | universal-research-verification-engine |
 | 風險等級 | MEDIUM |
-| 允許迴圈 | slow_loop（主，九步驟需要深度展開）、exploration_loop（顧問模式快速評估） |
+| 允許迴圈 | slow_loop（主，九步驟需要深度展開）、exploration_loop（Quick 深度或顧問模式） |
 | 允許模式 | civil_mode、evolution_mode |
-| 入場條件 | 有 AI 技術融合需求或可行性驗證需求 |
-| 觸發指令 | /dse、/dse consult、/tech-fusion、/sota-check |
-| 核心能力 | 九步驟工程方法論、技術組件拆解、SOTA 借鏡優化、專家四法驗證、架構+規格+程式碼輸出 |
-| 產線位置 | GAP（找缺口）→ **DSE**（技術驗證）→ ACSF（鍛造商品） |
-| 與其他外掛 | gap（機會卡輸入）；acsf（驗證方案→鍛造）；business-12（商業可行性交叉驗證）；sandbox-lab（技術可行性 vs 系統驗證） |
+| 入場條件 | 有系統性研究/驗證/比對需求（不限領域） |
+| 觸發指令 | /dse、/dse quick、/dse deep、/dse consult、/sota-check |
+| 核心能力 | 九步驟工程方法論（全步驟不可跳、深度三檔可調）、領域路由器（AI技術/軟體工程/學說方法論/工具平台/市場產業/流程制度/通用混合）、SOTA/最佳實踐借鏡、專家四法驗證、xmodel 交棒協議 |
+| 產線位置 | GAP（找缺口）→ **DSE**（研究驗證）→ ACSF（鍛造商品）；xmodel（發散）→ **DSE**（收斂）→ dev-preflight（行動前檢查） |
+| 與其他外掛 | xmodel（探索-驗證固定組合：xmodel 發散→DSE 收斂）；gap（機會卡輸入）；acsf（驗證方案→鍛造）；business-12（商業可行性交叉驗證）；sandbox-lab（系統內驗證）；dev-preflight（DSE 驗證通過→行動前檢查）；dev-retro（行動後教訓回饋下一輪 DSE） |
 
 ### acsf — 能力結晶與 Skill 鑄造引擎
 
@@ -651,6 +734,34 @@ DNA27（核心 OS）
 | 核心能力 | 七層報告結構（SCR→MECE→多視角→嵌入式案例→情境模擬→行動清單→暗示擴展）；三角驗證方法論（資料×方法論×研究者×理論）；HTML 品牌報告產出 |
 | 產線位置 | DSE（方法論驗證）→ **Report-Forge**（報告生產）→ ACSF（商品化包裝） |
 | 與其他外掛 | dse（方法論來源）；consultant-communication（結構工具：金字塔/MECE/SCQA）；business-12（診斷框架）；market-core（市場數據）；master-strategy（戰略推演）；storytelling-engine（案例敘事）；aesthetic-sense（美感審計） |
+
+### dev-preflight — 開發前置飛行檢查
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | DEV_PREFLIGHT |
+| 類別 | development-preflight-check-engine |
+| 風險等級 | LOW |
+| 允許迴圈 | fast_loop（精簡 2 題）、exploration_loop（標準版）、slow_loop（完整版 + 歷史比對） |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | 使用者要對 Claude Code 下開發指令、新功能、整合、重構 |
+| 觸發指令 | /preflight、/pf、/pf quick、/pf full、/pf history、/pf card |
+| 核心能力 | 五張架構藍圖白話提問（功能地圖、連線地圖、分工地圖、部署地圖、動線驗證）、任務規模自動分級（S/M/L/XL）、歷史教訓載入（dev-retro 結晶比對）、藍圖摘要卡產出 |
+| 與其他外掛 | dev-retro（閉環夥伴：retro L5 回灌 preflight 檢查項）；plan-engine（Research 階段調用）；qa-auditor（preflight 管寫前，qa-auditor 管寫後）；dse（dse 管深度研究，preflight 管廣度遺漏預防）；query-clarity（通用問題品質 vs 開發指令品質）；knowledge-lattice（dev-lesson Crystal 存取）；orchestrator（3+ 模組任務可自動觸發） |
+
+### dev-retro — 開發回溯引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | DEV_RETRO |
+| 類別 | development-retrospective-engine |
+| 風險等級 | LOW |
+| 允許迴圈 | fast_loop（L1+L3 標籤）、exploration_loop（L1-L3 + L5 快速）、slow_loop（L1-L5 完整 + 結晶化） |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | 開發任務完成後（特別是遇到問題時）；使用者描述踩坑/重複錯誤 |
+| 觸發指令 | /retro、/retro quick、/retro full、/retro list、/retro search、/retro pattern、/retro feed |
+| 核心能力 | 五層回溯法（L1 表層事件→L2 路徑紀錄→L3 根因分析→L4 模式辨識→L5 防線規則）、5-Whys + 第一性原則根因追問、教訓結晶化存入 knowledge-lattice、防線規則自動回灌 dev-preflight |
+| 與其他外掛 | dev-preflight（閉環夥伴：產出 dev-lesson Crystal 回灌 preflight）；knowledge-lattice（Crystal Type: dev-lesson 寫入）；plan-engine（Close 階段調用 retro 做經驗萃取）；wee（review 五問可銜接 retro L1-L2）；meta-learning（L3 根因分析借用第一性原則框架）；morphenix（重複模式 ≥3 次可觸發迭代筆記）；qa-auditor（retro 可觸發回歸測試）；resonance（使用者帶挫折感時先用 resonance 接住） |
 
 ---
 
@@ -852,6 +963,36 @@ DNA27（核心 OS）
 | 涉及 Skill | ssa-consultant、business-12、dse、xmodel、pdeif、master-strategy、consultant-communication、eval-engine、orchestrator、knowledge-lattice、report-forge、aesthetic-sense（共 12 個） |
 | 與其他外掛 | ssa-consultant（顧問式需求探索）；dse（AI 技術可行性驗證）；business-12（商業診斷框架） |
 
+### brand-discovery — 漸進式品牌訪談引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | BRAND_DISCOVERY |
+| 類別 | brand-interview-engine |
+| 風險等級 | LOW |
+| 允許迴圈 | exploration_loop（標準版）、slow_loop（深度版） |
+| 允許模式 | civil_mode |
+| 入場條件 | 客戶需要進行品牌建構或重塑，需系統收集品牌資訊 |
+| 觸發指令 | /brand-discover；WF-BRD-01 Phase A 自動調用 |
+| 核心能力 | 50 問漸進式訪談（6 主題：商業基礎/使命緣起/競爭格局/客戶洞察/視覺體驗/運營願景）；動態路由邏輯；每主題結束摘要確認；輸出結構化 client_brand_brief.json |
+| 涉及 Skill | brand-builder、ssa-consultant、user-model、knowledge-lattice、orchestrator |
+| 與其他外掛 | brand-builder（下游消費端）；ssa-consultant（問題設計參考）；consultant-communication（訪談框架） |
+
+### brand-builder — 奧美級品牌建構引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | BRAND_BUILDER |
+| 類別 | brand-strategy-engine |
+| 風險等級 | MEDIUM |
+| 允許迴圈 | exploration_loop（標準版）、slow_loop（深度版含三選項） |
+| 允許模式 | civil_mode |
+| 入場條件 | brand-discovery 產出 client_brand_brief.json 後；或直接輸入品牌簡報資料 |
+| 觸發指令 | /brand-build；WF-BRD-01 Phase B 自動調用 |
+| 核心能力 | 七大品牌框架（Keller 共鳴金字塔/Jung 12 原型含 Shadow/JTBD for Brand/品牌架構決策樹/Brand Purpose 五層測試/Touchpoint Lifecycle/April Dunford 強化定位）；永遠產出三個定位選項（保守/平衡/進攻）；輸出 brand_strategy_package |
+| 涉及 Skill | brand-discovery、aesthetic-sense、storytelling-engine、consultant-communication、report-forge、orchestrator、knowledge-lattice |
+| 與其他外掛 | brand-discovery（上游資料源）；aesthetic-sense（視覺識別規格）；storytelling-engine（品牌故事設計）；report-forge（手冊排版） |
+
 ### workflow-svc-brand-marketing — 服務業品牌行銷顧問工作流（WF-SVC-01）
 
 | 屬性 | 值 |
@@ -867,49 +1008,21 @@ DNA27（核心 OS）
 | 涉及 Skill | ssa-consultant、business-12、brand-identity、storytelling-engine、xmodel、pdeif、master-strategy、text-alchemy、c15、aesthetic-sense、consultant-communication、eval-engine、orchestrator、knowledge-lattice（共 14 個） |
 | 與其他外掛 | brand-identity（品牌定位核心）；ssa-consultant（顧問式需求探索）；storytelling-engine（品牌故事設計） |
 
-### meeting-intelligence — 會議情報分析引擎
+### workflow-brand-consulting — 奧美級品牌手冊建構工作流（WF-BRD-01）
 
 | 屬性 | 值 |
 |---|---|
-| plus_id | MEETING_INTELLIGENCE |
-| 類別 | meeting-intelligence-analysis |
-| 風險等級 | LOW |
-| 允許迴圈 | 全部（fast_loop 自動降級為快速摘要） |
-| 允許模式 | civil_mode、evolution_mode |
-| 入場條件 | 使用者提供逐字稿/音檔/會議記錄；或使用者要求會議分析 |
-| 觸發指令 | /meeting、/intel、/meeting quick、/meeting audit、/meeting history |
-| 核心能力 | 七階段管線（收錄→清理→結構化→摘要→深度分析→記憶整合→HTML 報告）；五層分析（結構化摘要 + 圓桌九策軍師 + 博弈陽謀陰謀 + ANIMA 八原語人格動態 + 跨會議記憶承諾漂移偵測）；會議類型動態軍師召集；台灣中文特化去贅字 |
-| 與其他外掛 | consultant-communication（SCQA 結構）；roundtable（多視角會診）；master-strategy（九策軍師+陽謀）；shadow（陰謀辨識）；resonance（情緒轉折）；aesthetic-sense（HTML 排版）；knowledge-lattice（跨會議記憶）；business-12（商業議題）；ssa-consultant（銷售機會） |
-
-### esg-architect-pro — ESG 永續報告書專業鍛造引擎
-
-| 屬性 | 值 |
-|---|---|
-| plus_id | ESG_ARCHITECT_PRO |
-| 類別 | esg-sustainability-reporting |
-| 風險等級 | LOW |
-| 允許迴圈 | exploration_loop（特定議題）、slow_loop（全本報告） |
-| 禁止迴圈 | fast_loop（降級為 KPI 儀表板） |
-| 允許模式 | civil_mode、evolution_mode |
-| 入場條件 | 使用者提供企業數據或既有報告；或使用者要求永續報告/ESG 揭露/碳盤查/漂綠檢測 |
-| 觸發指令 | /esg-forge、/esg、/esg-audit、/esg carbon、/esg materiality、/esg greenwash |
-| 核心能力 | IFRS S1/S2 + GRI 2021 + ESRS + SASB 77 行業對標；雙重重要性評估（EFRAG IG 1）；Scope 1/2/3 盤查（GHG Protocol）；碳費試算；情境分析；漂綠五大類型偵測；確信就緒度評估（ISSA 5000） |
-| 與其他外掛 | dse（準則研究）；eval-engine（ESG 評級前後測）；fix-verify（數據邏輯 BDD 驗證）；aesthetic-sense（報告排版）；consultant-communication（SCQA 結構）；report-forge（通用報告 vs ESG 專項） |
-
-### human-design-blueprint — 人類圖靈魂藍圖分析引擎
-
-| 屬性 | 值 |
-|---|---|
-| plus_id | HUMAN_DESIGN_BLUEPRINT |
-| 類別 | soul-blueprint-analysis |
-| 風險等級 | LOW |
-| 允許迴圈 | exploration_loop（標準版）、slow_loop（完整六系統融合） |
-| 禁止迴圈 | fast_loop（人類圖分析需要完整展開） |
-| 允許模式 | civil_mode、evolution_mode |
-| 入場條件 | 使用者提供出生資料或人類圖圖面數據；或使用者要求人類圖解讀/靈魂藍圖分析 |
-| 觸發指令 | /blueprint、/hd |
-| 核心能力 | 四大類型+策略+內在權威+人生角色+九大能量中心+36通道+64閘門+爻線+輪迴交叉+月之南北交+行星對應+迴路群+非自己主題+定義類型；六系統交叉融合（五行八字/生肖/西洋占星/生命靈數/三才五格）；HTML 報告輸出 |
-| 與其他外掛 | aesthetic-sense（報告排版品質審計）；consultant-communication（報告用 SCQA 框架做執行摘要）；storytelling-engine（意象描述和比喻）；resonance（解讀過程中使用者情緒承接）；user-model（解讀結果存入使用者畫像） |
+| plus_id | WF_BRD_01 |
+| 類別 | brand-consulting-workflow |
+| 風險等級 | MEDIUM |
+| 允許迴圈 | fast_loop（A+B+E 三階段）、exploration_loop（全五階段）、slow_loop（含修訂迴圈） |
+| 允許模式 | civil_mode |
+| 入場條件 | 任何行業/規模需要建立/重塑品牌，並需要可交付他人執行的品牌手冊 |
+| 觸發指令 | /brand-manual、/brand-manual fast、/brand-manual status |
+| 核心能力 | 五階段工作流：Phase A 訪談→Phase B 品牌建構→Phase C 識別系統→Phase D 運營手冊→Phase E HTML 渲染；輸出完整 HTML 品牌操作手冊 |
+| 涉及 Skill | brand-discovery、brand-builder、storytelling-engine、aesthetic-sense、text-alchemy、c15、consultant-communication、report-forge、orchestrator、knowledge-lattice、wee（共 11 個） |
+| 與其他外掛 | brand-discovery（Phase A 訪談引擎）；brand-builder（Phase B 品牌建構核心）；aesthetic-sense（HTML 渲染美感審計）；wee（工作流狀態管理） |
+| WF-SVC-01 區別 | WF-SVC = 服務業快速品牌行銷（2-4 週）；WF-BRD = 任何行業深度品牌建構，產出可傳遞手冊（4-8 週） |
 
 ### group-meeting-notes — 群組對話會議記錄引擎（WF-GMN-01）
 
@@ -992,6 +1105,7 @@ DNA27（核心 OS）
 | dharma + pdeif | 思維轉化後的行動路徑設計 |
 | dharma + philo-dialectic | 深層信念衝突需要哲學級探索 |
 | xmodel + pdeif | 破框產生終點 → 逆推路徑 |
+| xmodel + pdeif + dse | 破框找路→逆推路徑→DSE 驗證可行性 |
 | master-strategy + pdeif | 戰略判斷 → 戰略落地為可執行流程 |
 
 ### 語言與創作組合
@@ -1014,12 +1128,18 @@ DNA27（核心 OS）
 | wee + knowledge-lattice | 工作流演化中的知識結晶 |
 | orchestrator + qa-auditor | 多 Skill 編排 + 品質護欄 |
 | env-radar → morphenix | 外部演化壓力 → 內部演化行動 |
+| dev-preflight → 執行 → dev-retro | 開發閉環：認知補全→開發→教訓結晶→回灌 |
+| dev-retro + knowledge-lattice | 教訓結晶化為 dev-lesson Crystal |
+| dev-retro → morphenix | 重複模式 ≥3 次→觸發系統級迭代筆記 |
 
 ### 產品線管線
 
 | 組合 | 適用情境 |
 |---|---|
-| gap → dse → acsf | 完整產品線：找缺口 → 技術驗證 → 鍛造商品 |
+| gap → dse → acsf | 完整產品線：找缺口 → 研究驗證 → 鍛造商品 |
+| xmodel → dse | 探索-驗證迴圈：xmodel 發散找可能性 → DSE 收斂做驗證（固定組合） |
+| xmodel → dse → dev-preflight → 執行 → dev-retro | 完整行動管線：找路→驗證→檢查→執行→回溯 |
+| dse + business-12 | 研究結論的商業可行性交叉驗證 |
 | dse → report-forge → acsf | 報告產品線：方法論驗證 → 報告生產 → 商品包裝 |
 | report-forge + consultant-communication | 報告結構（金字塔/MECE/SCQA）+ 產業深度 |
 | report-forge + business-12 + market-core | 完整產業診斷：商業框架 + 市場數據 + 報告產出 |
@@ -1050,6 +1170,10 @@ DNA27（核心 OS）
 | plan-engine → workflow-investment-analysis | 投資研究計畫收斂 → 投資分析報告產出 |
 | workflow-investment-analysis + report-forge | 投資分析工作流 + 報告鍛造品質 |
 | workflow-svc-brand-marketing + brand-identity + aesthetic-sense | 品牌行銷工作流 + 品牌一致性 + 美感審計 |
+| brand-discovery → brand-builder | 品牌訪談資料收集 → 奧美級品牌策略建構（標準管線） |
+| brand-builder + aesthetic-sense + storytelling-engine | 品牌策略 + 視覺美感審計 + 品牌故事設計（完整品牌系統） |
+| workflow-brand-consulting + brand-discovery + brand-builder | 品牌手冊工作流完整鏈（適用任何行業深度品牌建構） |
+| brand-builder + ssa-consultant + business-12 | 品牌定位 + 顧問銷售接地氣 + 商模驗證（客戶服務整合包） |
 | workflow-ai-deployment + dse + business-12 | AI 導入工作流 + 技術驗證 + 商業診斷 |
 | group-meeting-notes + business-12 + master-strategy | 會議記錄 + 商業脈絡 + 戰略提取 |
 
@@ -1077,4 +1201,6 @@ DNA27（核心 OS）
 | **v2.1** | **2026-03-13** | **新增 2 個外掛（共 28 個）：query-clarity（常駐層，問題品質守門）、roundtable（按需，圓桌詰問引擎）；常駐層從 2→3 個；新增「前置與決策支援」類別與協作矩陣** |
 | **v2.2** | **2026-03-18** | **新增 1 個外掛（共 29 個）：report-forge（產品線，付費級產業診斷報告鍛造引擎）；產品線管線新增 4 組協作組合** |
 | **v2.3** | **2026-03-21** | **新增 12 個外掛（共 41 個）：market-core、market-equity、market-crypto、market-macro、investment-masters、risk-matrix、sentiment-radar（市場分析群組 7 個）；plan-engine（演化與治理）；workflow-investment-analysis、workflow-ai-deployment、workflow-svc-brand-marketing、group-meeting-notes（工作流範本 4 個）。新增「市場分析」和「工作流範本」兩大章節；協作矩陣新增「市場分析堆疊」和「工作流管線」組合** |
+| **v2.5** | **2026-03-28** | **品牌建構系統上線（共 56 個）：新增 3 個 Skill（brand-discovery、brand-builder、workflow-brand-consulting）；Business Hub 6→8；Workflow Hub 4→5；新增品牌工作流管線 4 組協作組合；memory-router 新增品牌結晶路由規則** |
 | **v2.4** | **2026-03-21** | **Hub 路由治理升級（共 49 個）：母子架構樹改為 Hub 為主軸（core/infra/thinking/market/business/creative/product/evolution/workflow 9 個 Hub）；meta-learning 和 info-architect 從「未部署」升級為已部署；新增 dna27、plugin-registry 為正式條目；引用 skill-routing-governance.md 治理文件與 skill-manifest-spec.md v1.1 Manifest 規格** |
+| **v2.5** | **2026-03-24** | **DSE vNext 升級 + 開發閉環雙引擎（共 51 個）：DSE 從 AI 技術融合引擎升級為通用研究驗證引擎（新增領域路由器 7 領域、深度旋鈕 Quick/Standard/Deep、xmodel→DSE 探索-驗證固定組合）；新增 dev-preflight（開發前置飛行檢查，五張藍圖白話提問）和 dev-retro（開發回溯引擎，五層回溯法 + 教訓結晶）；dev-preflight ↔ dev-retro 形成閉環；Evolution Hub 從 5→7 個；協作矩陣新增完整行動管線和開發閉環組合** |

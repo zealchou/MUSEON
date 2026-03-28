@@ -1,10 +1,12 @@
-# Blast Radius — 模組影響半徑表 v1.78
+# Blast Radius — 模組影響半徑表 v1.80
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節、`docs/operational-contract.md`（操作契約表）提供外部操作預期失敗
+> **v1.80 (2026-03-29)**：戰神系統（Ares）——新增 2 個 Skill 到綠區：`anima-individual`（ANIMA 個體追蹤引擎，扇入=1 from ares，扇出=8：wan-miu-16/energy-reading/combined-reading/shadow/master-strategy/xmodel/knowledge-lattice/user-model）、`ares`（戰神系統工作流，扇入=0，扇出=14：anima-individual/wan-miu-16/energy-reading/combined-reading/master-strategy/shadow/xmodel/pdeif/roundtable/business-12/ssa-consultant/knowledge-lattice/user-model/c15）。新增 Python 模組 `src/museon/ares/`（profile_store.py/graph_renderer.py/external_bridge.py）；新增儲存路徑 `data/ares/profiles/`。同步 system-topology v1.62、joint-map v1.52、memory-router v1.13、persistence-contract v1.40。
+> **v1.79 (2026-03-29)**：OneMuse 能量解讀技能群——新增 3 個 Skill 到綠區：`energy-reading`（八方位能量解讀，扇入=0，扇出=4：dharma/resonance/knowledge-lattice/user-model）、`wan-miu-16`（萬謬16型人格，扇入=0，扇出=3：energy-reading/knowledge-lattice/user-model）、`combined-reading`（合盤能量比對，扇入=0，扇出=4：energy-reading/wan-miu-16/knowledge-lattice/user-model）。唯讀參考 `data/knowledge/onemuse/`（36 檔）。同步 system-topology v1.61、joint-map v1.51、memory-router v1.12、persistence-contract v1.39。
 > **v1.78 (2026-03-28)**：新增 `doctor/musedoctor.py`（MuseDoctor 第六虎將，持續巡邏員，綠區扇入=0，扇出=2：topology_report.json 讀取 + nightly_pipeline.py 讀取）；`gateway/cron_registry.py` 新增 `musedoctor-patrol` job（每 8 分鐘）；新增共享狀態 `data/_system/doctor/patrol_state.json`（單一寫入者 musedoctor.py）。
 > **v1.77 (2026-03-28)**：死碼清理 20 個模組後藍圖同步——從 topology_report.json 更新 fan_in 數據：event_bus 45→46、data_bus 16→15（channels/line 已刪）、gateway.message 13→14、pulse_db 10→11（新增 pulse/group_digest）、vector_bridge 7→9；移除已刪除模組條目：channels/electron、channels/line、llm/client、llm/vision、agent/dna27、agent/pending_sayings、agent/routing_bridge、doctor/scalpel_lessons、governance/cognitive_receipt、learning/strategy_accumulator、memory/epigenetic_router、memory/proactive_predictor、multiagent/flywheel_flow、pulse/heartbeat_activation、pulse/group_session_proactive、pulse/proactive_activation、pulse/telegram_pusher、security/trust、tools/document_export、tools/report_publisher；破損 import 修復：brain_fast.py 的 input_sanitizer + ceremony 兩個殘留 import；系統健康度快照更新。
 > **v1.76 (2026-03-28)**：doctor 模組舊架構清除——`doctor/auto_repair.py` `repair_start_gateway()` + `repair_load_daemon()` 從 launchctl load/unload 改為 supervisorctl start（扇入不變）；`doctor/health_check.py` daemon 狀態檢查從 `launchctl list com.museon.gateway` 改為 `supervisorctl status museon-gateway`；`plist_path` 從 `com.museon.gateway.plist` 改為 `com.museon.supervisord.plist`；`doctor/surgeon.py` `_try_launchd_selfkill()` 從 launchctl 改為 supervisorctl（扇入不變）。完全消除舊 launchd-direct 架構在 doctor 模組的殘留，防止 auto_repair 觸發雙重管理衝突。
@@ -708,6 +710,15 @@
 ### LLM 層
 `llm/` 下大部分模組
 
+### OneMuse 能量解讀技能群（3 個）
+`skills/energy-reading`（★ v1.79 新增，扇入=0，扇出=4（dharma, resonance, knowledge-lattice, user-model），八方位能量解讀——唯讀參考 `data/knowledge/onemuse/`，結晶化至 knowledge-lattice energy_crystal），
+`skills/wan-miu-16`（★ v1.79 新增，扇入=1（combined-reading），扇出=3（energy-reading, knowledge-lattice, user-model），萬謬16型人格——依賴 energy-reading 能量數據，結晶化至 knowledge-lattice persona_crystal），
+`skills/combined-reading`（★ v1.79 新增，扇入=0，扇出=4（energy-reading, wan-miu-16, knowledge-lattice, user-model），合盤能量比對——同時讀取 energy-reading 與 wan-miu-16 數據，結晶化至 knowledge-lattice relationship_crystal）
+
+### 戰神系統 Ares（2 個）
+`skills/anima-individual`（★ v1.80 新增，扇入=1（ares），扇出=8（wan-miu-16, energy-reading, combined-reading, shadow, master-strategy, xmodel, knowledge-lattice, user-model），ANIMA 個體追蹤引擎——為第三方人物建立七層鏡像+八大槓桿持久化畫像，儲存 `data/ares/profiles/{profile_id}.json`，結晶化至 knowledge-lattice individual_crystal），
+`skills/ares`（★ v1.80 新增，扇入=0，扇出=14（anima-individual, wan-miu-16, energy-reading, combined-reading, master-strategy, shadow, xmodel, pdeif, roundtable, business-12, ssa-consultant, knowledge-lattice, user-model, c15），戰神系統工作流——編排 ANIMA 個體引擎+多 Skill 產出人物分析/策略建議/多層槓桿路徑/連動模擬/戰前簡報，Python 模組 `src/museon/ares/`（profile_store/graph_renderer/external_bridge），結晶化至 knowledge-lattice strategy_crystal）
+
 ### 三層調度員架構（3 個）
 
 #### dispatcher（L1 調度員）
@@ -861,6 +872,8 @@
 | 2026-03-25 | v1.66 | Brain 90s SLA + Circuit Breaker——telegram_pump _brain_process_with_sla()；bulkhead.py BrainCircuitBreaker 三態機；server.py CB 通知+/health 端點。bulkhead 扇入 1→2 |
 | 2026-03-25 | v1.65 | 對話持久化+教訓蒸餾+7 條斷裂管線修復——87 檔案 +4623/-2934 行。五虎將升級+Fix-Verify 工作流鍛造 |
 | 2026-03-25 | v1.64 | server.py 拆分（5749→3800 行）——拆出 telegram_pump/routes_api/cron_registry 三模組。三層洩漏預防（L1 prompt→L2 剝離→L3 guard） |
+| 2026-03-29 | v1.80 | 戰神系統（Ares）——新增 2 個 Skill 到綠區：anima-individual（扇入=1, 扇出=8, individual_crystal）、ares（扇入=0, 扇出=14, strategy_crystal）；新增 Python 模組 src/museon/ares/ + 儲存路徑 data/ares/profiles/。同步 topology v1.62、joint-map v1.52、memory-router v1.13、persistence-contract v1.40 |
+| 2026-03-29 | v1.79 | OneMuse 能量解讀技能群——新增 3 個 Skill 到綠區（energy-reading 扇出=4、wan-miu-16 扇出=3、combined-reading 扇出=4），唯讀參考 data/knowledge/onemuse/（36 檔）。同步 topology v1.61、joint-map v1.51、memory-router v1.12、persistence-contract v1.39 |
 | 2026-03-24 | v1.62 | 全面審計修正——扇入重算（event_bus 117→45）、8 個新模組補列 |
 | 2026-03-24 | v1.61 | 操作記憶層架構——第六張藍圖 operational-contract.md + scripts/workflows/ 可執行腳本 |
 | 2026-03-24 | v1.60 | 跨群組洩漏防禦 + 軍師認知升級——新增 `governance/response_guard.py` 到綠區（扇入=2，ResponseGuard chat_id 二次驗證閘門）；`governance/multi_tenant.py` 新增 `resolve_by_id()` 精確匹配取代 FIFO；brain.py `process()` finally 清空 `self._ctx` + 6 個 alias + 新增 `_check_smart_completeness()` + `route()` 新增 `is_group` 傳遞；server.py session lock 升級 `wait_and_acquire(30s)` timeout 守衛。軍師認知升級：`reflex_router.py` select_loop/route 新增 `is_group`；`brain_prompt_builder.py` 軍師認知框架 + 群組禁止確認詞；`brain_p3_fusion.py` ≥3 Skill Roundtable 自動融合。**注意**：認知升級修改在 `.runtime/src/museon/agent/`（gitignored）。同步 system-topology v1.47 |
