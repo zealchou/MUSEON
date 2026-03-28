@@ -25,7 +25,6 @@ import json
 import logging
 import os
 import re
-import socket
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -165,34 +164,12 @@ class MuseDoctor:
             from museon.doctor.auto_repair import AutoRepair
             repair = AutoRepair()
 
-            # ── 1. Gateway 存活檢查 ──
-            gateway_port = 7799
-            try:
-                with socket.create_connection(("127.0.0.1", gateway_port), timeout=2):
-                    pass  # 連得上，正常
-            except (ConnectionRefusedError, OSError, TimeoutError):
-                self._write_repair_log(
-                    check="gateway_liveness",
-                    finding="Gateway port 未回應",
-                    action="start_gateway",
-                    level="L2",
-                )
-                result = repair.execute("start_gateway")
-                self._write_repair_log(
-                    check="gateway_liveness",
-                    finding="Gateway port 未回應",
-                    action="start_gateway",
-                    level="L2",
-                    repair_status=result.status.value,
-                    repair_message=result.message,
-                )
-                logger.info(
-                    "[MuseDoctor] Gateway 修復：%s — %s",
-                    result.status.value,
-                    result.message,
-                )
+            # Gateway 存活檢查故意不在這裡。
+            # Gateway 是急症（秒級響應），由 MuseOff L0（每 60 秒）負責。
+            # MuseDoctor 是慢循環調理（每 8 分鐘一節點），不適合急症介入。
+            # 分工：急症 → MuseOff，維護 → MuseDoctor，手術 → MuseDoc。
 
-            # ── 2. 必要目錄檢查 ──
+            # ── 1. 必要目錄檢查 ──
             required_dirs = [
                 repair.data_dir / "anima",
                 repair.data_dir / "lattice",
