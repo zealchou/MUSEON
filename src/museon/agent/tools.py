@@ -78,6 +78,9 @@ class ToolWhitelist:
             "mcp_list_servers",     # MCP 伺服器列表
             "mcp_call_tool",        # MCP 工具呼叫
             "mcp_add_server",       # MCP 伺服器新增
+            # v11.3 新增：自主能力
+            "restart_gateway",
+            "pending_action",
             # v13 新增：Ares 戰神系統
             "ares_search",
             "ares_create",
