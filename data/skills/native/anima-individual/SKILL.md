@@ -18,17 +18,17 @@ trigger_words:
   - /anima
   - /profile
 io:
-  input:
-    - 使用者對某人的觀察描述（行為、決策風格、溝通方式）
-    - 或：已知的基本資訊（姓名、職稱、公司）
-    - 或：OneMuse 八張牌數據（如對方願意算盤）
-  output:
-    - ANIMA 七層個體檔案（L1-L7）
-    - 萬謬16型代理評估（含置信度）
-    - 八大槓桿資源清單
-    - 關係溫度指標
-    - 互動歷史時間軸
-    - 戰前簡報（一頁文字版）
+  inputs:
+    - from: ares
+      field: profile_request
+      required: false
+  outputs:
+    - to: knowledge-lattice
+      field: individual_crystal
+      trigger: on-completion
+    - to: user-model
+      field: relationship_update
+      trigger: on-completion
 connects_to:
   - wan-miu-16
   - energy-reading
