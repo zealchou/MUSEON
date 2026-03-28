@@ -383,92 +383,17 @@ class AutoRepair:
         )
 
     def repair_reinstall_daemon(self) -> RepairResult:
-        """重新建立 launchd plist"""
-        # 需要 installer 模組
-        try:
-            from museon.installer.daemon import DaemonConfigurator
-            from museon.installer.models import InstallConfig
-
-            config = InstallConfig(install_dir=self.home)
-            daemon = DaemonConfigurator()
-            result = daemon.create_plist(config)
-            if result.status.value == "success":
-                daemon.load_daemon(config)
-                return RepairResult(
-                    action="reinstall_daemon",
-                    status=RepairStatus.SUCCESS,
-                    message="Daemon plist 已重建並載入",
-                )
-            return RepairResult(
-                action="reinstall_daemon",
-                status=RepairStatus.FAILED,
-                message=f"建立 plist 失敗: {result.message}",
-            )
-        except Exception as e:
-            return RepairResult(
-                action="reinstall_daemon",
-                status=RepairStatus.FAILED,
-                message=f"修復失敗: {e}",
-            )
+        """重新建立 supervisord 服務（installer 模組已移除）."""
+        return RepairResult(
+            action="reinstall_daemon",
+            status=RepairStatus.FAILED,
+            message="請手動執行: supervisorctl -c ~/MUSEON/data/_system/supervisord.conf restart museon-gateway",
+        )
 
     def repair_rebuild_dashboard(self) -> RepairResult:
-        """重建 Dashboard App"""
-        electron_dir = self.runtime_dir / "electron"
-        if not electron_dir.exists():
-            return RepairResult(
-                action="rebuild_dashboard",
-                status=RepairStatus.FAILED,
-                message="electron/ 目錄不存在",
-            )
-
-        try:
-            from museon.installer.electron import ElectronPackager
-
-            packager = ElectronPackager()
-
-            # npm install
-            npm_result = packager.npm_install(electron_dir)
-            if npm_result.status.value != "success":
-                return RepairResult(
-                    action="rebuild_dashboard",
-                    status=RepairStatus.FAILED,
-                    message=f"npm install 失敗: {npm_result.message}",
-                )
-
-            # Build
-            build_result = packager.build(electron_dir)
-            if build_result.status.value != "success":
-                return RepairResult(
-                    action="rebuild_dashboard",
-                    status=RepairStatus.FAILED,
-                    message=f"build 失敗: {build_result.message}",
-                )
-
-            # Install
-            app_bundle = packager.find_app_bundle(electron_dir)
-            if not app_bundle:
-                return RepairResult(
-                    action="rebuild_dashboard",
-                    status=RepairStatus.FAILED,
-                    message="找不到 .app bundle",
-                )
-
-            install_result = packager.install_to_applications(app_bundle)
-            if install_result.status.value == "success":
-                return RepairResult(
-                    action="rebuild_dashboard",
-                    status=RepairStatus.SUCCESS,
-                    message="MUSEON.app 已重建並安裝",
-                )
-
-            return RepairResult(
-                action="rebuild_dashboard",
-                status=RepairStatus.FAILED,
-                message=f"安裝失敗: {install_result.message}",
-            )
-        except Exception as e:
-            return RepairResult(
-                action="rebuild_dashboard",
-                status=RepairStatus.FAILED,
-                message=f"重建失敗: {e}",
-            )
+        """重建 Dashboard（Electron 已移除，此修復不再適用）."""
+        return RepairResult(
+            action="rebuild_dashboard",
+            status=RepairStatus.FAILED,
+            message="Electron dashboard 已廢棄，不需重建",
+        )

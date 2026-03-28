@@ -318,53 +318,18 @@ def _register_external_endpoints(app, data_dir) -> None:
         except Exception as e:
             return {"error": str(e), "recommendations": []}
 
-    # ── EXT-15: 技能市場 ──
+    # ── EXT-15: 技能市場（federation 未實作）──
     @app.get("/api/market/skills")
     async def api_market_list():
-        """列出技能市場."""
-        try:
-            from museon.federation.skill_market import SkillMarket
-
-            market = SkillMarket(workspace=data_dir)
-            skills = await market.list_marketplace()
-            return {"skills": skills, "count": len(skills)}
-        except Exception as e:
-            return {"error": str(e), "skills": []}
+        return {"skills": [], "count": 0, "note": "federation not implemented"}
 
     @app.post("/api/market/publish")
     async def api_market_publish(payload: Dict[str, Any] = {}):
-        """發布技能到市場."""
-        skill_id = payload.get("skill_id", "")
-        if not skill_id:
-            return {"error": "skill_id is required"}
-        try:
-            from museon.federation.skill_market import SkillMarket
-
-            market = SkillMarket(workspace=data_dir)
-            pkg = market.package_skill(skill_id)
-            result = await market.publish_skill(
-                package_path=pkg.get("path", ""),
-                price=payload.get("price", 0.0),
-                description=payload.get("description", ""),
-            )
-            return {"success": True, **result}
-        except Exception as e:
-            return {"success": False, "error": str(e)}
+        return {"success": False, "error": "federation not implemented"}
 
     @app.post("/api/market/install")
     async def api_market_install(payload: Dict[str, Any] = {}):
-        """安裝市場技能."""
-        skill_id = payload.get("skill_id", "")
-        if not skill_id:
-            return {"error": "skill_id is required"}
-        try:
-            from museon.federation.skill_market import SkillMarket
-
-            market = SkillMarket(workspace=data_dir)
-            result = await market.install_skill(skill_id)
-            return {"success": True, **result}
-        except Exception as e:
-            return {"success": False, "error": str(e)}
+        return {"success": False, "error": "federation not implemented"}
 
     # ── EXT-01: RSS ──
     @app.get("/api/rss/status")

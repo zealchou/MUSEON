@@ -3192,79 +3192,9 @@ class NightlyPipeline:
 
         return "\n".join(lines)
 
-    # ═══════════════════════════════════════════
-    # Federation Upload（Node 專屬）
-    # ═══════════════════════════════════════════
-
     def _step_federation_upload(self) -> Dict:
-        """Federation 同步（v3 Git 模式）.
-
-        - origin 模式：收集所有子體經驗
-        - node 模式：推送匿名化經驗到 GitHub
-        """
-        try:
-            from museon.federation.sync import FederationSync
-        except ImportError as e:
-            return {"skipped": f"FederationSync not available: {e}"}
-
-        fed_mode = os.environ.get("MUSEON_FEDERATION_MODE", "")
-        if not fed_mode:
-            return {"skipped": "MUSEON_FEDERATION_MODE not set"}
-
-        try:
-            sync = FederationSync(data_dir=str(self._workspace))
-        except Exception as e:
-            return {"error": f"FederationSync init failed: {e}"}
-
-        if fed_mode == "origin":
-            # 母體：收集子體經驗
-            result = sync.collect_children()
-        else:
-            # 子體：推送同步包 + 拉取母體更新
-            push_result = sync.push_sync_package()
-            pull_result = sync.pull_evolution()
-            result = {"push": push_result, "pull": pull_result}
-
-        return result
-
-    def _step_federation_upload_legacy(self) -> Dict:
-        """[Legacy] Node 上繳知識到 Origin（HTTP 模式，已棄用）."""
-        node_id = os.environ.get("MUSEON_NODE_ID")
-        if not node_id:
-            return {"skipped": "not a federation node (no MUSEON_NODE_ID)"}
-
-        origin_url = os.environ.get("MUSEON_ORIGIN_URL", "http://127.0.0.1:9200")
-
-        upload_items = []
-        for level in ["L2_sem", "L3_procedural"]:
-            level_dir = self._workspace / "_system" / "memory" / "shared" / level
-            if not level_dir.exists():
-                continue
-            for f in level_dir.glob("*.json"):
-                try:
-                    with open(f, "r", encoding="utf-8") as fh:
-                        item = json.load(fh)
-                    if not item.get("uploaded"):
-                        upload_items.append((f, item))
-                except Exception as e:
-                    logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
-
-        if not upload_items:
-            return {"skipped": "nothing to upload"}
-
-        uploaded = 0
-        for f, item in upload_items:
-            try:
-                item["uploaded"] = True
-                item["uploaded_at"] = datetime.now(TZ_TAIPEI).isoformat()
-                item["uploaded_to"] = origin_url
-                with open(f, "w", encoding="utf-8") as fh:
-                    json.dump(item, fh, ensure_ascii=False, indent=2)
-                uploaded += 1
-            except Exception as e:
-                logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
-
-        return {"uploaded": uploaded, "node_id": node_id, "origin_url": origin_url}
+        """Federation 未實作，保留 node 模式進入點供未來擴充."""
+        return {"skipped": "federation not implemented"}
 
     # ═══════════════════════════════════════════
     # Step 0: Token 預算日結算
