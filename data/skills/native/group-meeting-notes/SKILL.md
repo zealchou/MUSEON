@@ -3,6 +3,11 @@ name: group-meeting-notes
 type: workflow
 layer: product
 hub: workflow
+description: >
+  群組對話會議記錄引擎。受 Plaud Note 啟發，針對 Telegram 群組對話（B2B 洽談、顧問互動）
+  自動生成結構化 HTML 摘要報告，比 Plaud 多一層商業策略分析。
+  涵蓋觸發詞：會議記錄、會議紀錄、整理會議、會議摘要、對話摘要、群組記錄、
+  幫我整理、出記錄、整理成記錄、出會議記錄、整理對話、整理成會議記錄
 io:
   inputs:
     - from: gateway
