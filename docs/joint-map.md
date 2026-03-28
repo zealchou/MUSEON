@@ -1,9 +1,10 @@
-# Joint Map — 共享可變狀態接頭圖 v1.48
+# Joint Map — 共享可變狀態接頭圖 v1.49
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
 > **更新時機**：改變共享檔案的讀寫者或格式時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
+> **v1.49 (2026-03-28)**：死碼清理 20 個模組後同步——移除已刪除模組（channels/line、channels/electron、llm/vision、agent/dna27、agent/routing_bridge、agent/pending_sayings、memory/epigenetic_router、memory/proactive_predictor、multiagent/flywheel_flow、pulse/group_session_proactive、pulse/heartbeat_activation、pulse/proactive_activation、pulse/telegram_pusher、security/trust、tools/document_export、tools/report_publisher、governance/cognitive_receipt、doctor/scalpel_lessons、learning/strategy_accumulator）的讀寫者條目；data_bus 消費者從 16→15（channels/line 已刪）；pulse_db 消費者從 10→11（新增 pulse/group_digest）。
 
 ---
 
@@ -180,7 +181,7 @@
 |------|------|
 | `agent/brain.py` | 載入使用者資訊 |
 | `agent/soul_ring.py` (DiaryStore) | 使用者觀察日記 |
-| `pulse/group_session_proactive.py` | L8 群組行為觀察 |
+| ~~`pulse/group_session_proactive.py`~~ | ~~L8 群組行為觀察（已刪除 v1.49）~~ |
 | `gateway/server.py` | API: `/api/anima/user/group-behaviors` |
 | `onboarding/ceremony.py` | 初始化流程 |
 | `agent/metacognition.py` | 元認知觀察 |
