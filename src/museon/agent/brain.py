@@ -652,8 +652,8 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
             except Exception as e:
                 logger.debug(f"元認知觀察跳過: {e}")
 
-        # ── Step 1: 命名儀式 ──
-        if self.ceremony.is_ceremony_needed():
+        # ── Step 1: 命名儀式（僅限私訊，群組不觸發）──
+        if self.ceremony.is_ceremony_needed() and not self._is_group_session:
             return await self._handle_ceremony(content, session_id)
 
         # ── Step 1.1: 更名 / 稱呼修正（儀式完成後隨時可改）──

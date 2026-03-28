@@ -1,7 +1,8 @@
 {
-  "stage": "not_started",
-  "completed": false,
-  "name_given": false,
+  "stage": "completed",
+  "completed": true,
+  "name_given": true,
   "questions_asked": false,
-  "answers_received": false
+  "answers_received": false,
+  "my_name": "MUSEON"
 }

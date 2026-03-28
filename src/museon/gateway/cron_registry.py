@@ -11,6 +11,7 @@ import asyncio
 import json
 import logging
 from datetime import datetime
+from pathlib import Path
 
 logger = logging.getLogger("museon.gateway.cron_registry")
 
