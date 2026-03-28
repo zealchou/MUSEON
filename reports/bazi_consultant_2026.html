@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 五行八字命理師發展報告 — MUSEON</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,600&family=Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+<style>
+  /* ─── 色彩系統 ─── */
+  :root {
+    --ember:        #C4502A;
+    --ember-light:  #E0714D;
+    --ember-dark:   #9A3A1C;
+    --teal:         #2A7A6E;
+    --gold:         #B8923A;
+    --ink:          #12121A;
+    --slate:        #5A5A6E;
+    --mist:         #9898A8;
+    --border:       #E2E0DA;
+    --parchment:    #F7F5F0;
+    --snow:         #FDFCFA;
+    --deep-ink:     #0E0E16;
+    --success:      #2D8A6E;
+    --warning:      #C9943A;
+  }
+
+  /* ─── Reset & Base ─── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--parchment);
+    color: var(--ink);
+    font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+    font-size: 16px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─── 動效 ─── */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .fade-in { animation: fadeInUp 400ms ease-out both; }
+  .fade-in-delay-1 { animation-delay: 80ms; }
+  .fade-in-delay-2 { animation-delay: 160ms; }
+  .fade-in-delay-3 { animation-delay: 240ms; }
+  .fade-in-delay-4 { animation-delay: 320ms; }
+
+  /* ─── 版面 ─── */
+  .container {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+  @media (max-width: 768px) { .container { padding: 0 24px; } }
+  @media (max-width: 640px) { .container { padding: 0 16px; } }
+
+  /* ─── Hero ─── */
+  .hero {
+    background: var(--deep-ink);
+    padding: 96px 0 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 30% 60%, rgba(196,80,42,0.18) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 80% 20%, rgba(184,146,58,0.10) 0%, transparent 60%);
+  }
+  .hero-badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ember-light);
+    background: rgba(196,80,42,0.15);
+    border: 1px solid rgba(196,80,42,0.3);
+    border-radius: 100px;
+    padding: 4px 14px;
+    margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 52px;
+    font-weight: 600;
+    color: #F7F5F0;
+    line-height: 1.15;
+    margin-bottom: 20px;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--ember-light);
+  }
+  .hero-sub {
+    font-size: 18px;
+    color: rgba(247,245,240,0.65);
+    max-width: 600px;
+    line-height: 1.7;
+    margin-bottom: 40px;
+  }
+  .hero-meta {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .hero-meta-item {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: rgba(247,245,240,0.45);
+    letter-spacing: 0.06em;
+  }
+  .hero-meta-item strong {
+    display: block;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ember-light);
+    font-family: 'Cormorant Garamond', serif;
+    letter-spacing: 0;
+  }
+
+  @media (max-width: 640px) {
+    .hero { padding: 64px 0 56px; }
+    .hero h1 { font-size: 36px; }
+  }
+
+  /* ─── Section 通用 ─── */
+  .section {
+    padding: 64px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .section:last-child { border-bottom: none; }
+
+  .section-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ember);
+    margin-bottom: 8px;
+  }
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.25;
+    margin-bottom: 8px;
+  }
+  .section-desc {
+    font-size: 16px;
+    color: var(--slate);
+    max-width: 600px;
+    margin-bottom: 40px;
+  }
+
+  /* ─── 卡片 ─── */
+  .card {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+    transition: transform 200ms ease, box-shadow 200ms ease;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(18,18,26,0.10), 0 12px 32px rgba(18,18,26,0.06);
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 640px) { .card-grid { grid-template-columns: 1fr; } }
+
+  .card-grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 768px) { .card-grid-3 { grid-template-columns: 1fr; } }
+
+  /* ─── Badge ─── */
+  .badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: rgba(196,80,42,0.1);
+    color: var(--ember-dark);
+    border-radius: 100px;
+    padding: 3px 10px;
+    margin-bottom: 12px;
+  }
+  .badge-teal {
+    background: rgba(42,122,110,0.1);
+    color: var(--teal);
+  }
+  .badge-gold {
+    background: rgba(184,146,58,0.12);
+    color: #8A6C1E;
+  }
+  .badge-dark {
+    background: rgba(18,18,26,0.08);
+    color: var(--slate);
+  }
+
+  /* ─── 數據視覺化：進度條 ─── */
+  .metric-item {
+    margin-bottom: 20px;
+  }
+  .metric-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+  }
+  .metric-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .metric-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ember);
+  }
+  .progress-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 100px;
+    background: linear-gradient(90deg, var(--ember) 0%, var(--ember-light) 100%);
+    transition: width 800ms ease;
+  }
+  .progress-fill-teal {
+    background: linear-gradient(90deg, var(--teal) 0%, #3A9E90 100%);
+  }
+  .progress-fill-gold {
+    background: linear-gradient(90deg, var(--gold) 0%, #D4A84A 100%);
+  }
+
+  /* ─── 市場規模圖 ─── */
+  .market-visual {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 32px;
+    margin-bottom: 16px;
+  }
+  .bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    height: 160px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .bar-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    height: 100%;
+    justify-content: flex-end;
+  }
+  .bar-value {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ember);
+  }
+  .bar-fill {
+    width: 100%;
+    border-radius: 4px 4px 0 0;
+    background: linear-gradient(180deg, var(--ember-light), var(--ember-dark));
+    min-height: 4px;
+  }
+  .bar-fill.projected {
+    background: linear-gradient(180deg, rgba(196,80,42,0.4), rgba(196,80,42,0.2));
+    border: 1px dashed var(--ember);
+  }
+  .bar-label {
+    font-size: 12px;
+    color: var(--slate);
+    text-align: center;
+  }
+
+  /* ─── 對比表格 ─── */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .compare-table th {
+    background: var(--deep-ink);
+    color: #F7F5F0;
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 13px;
+  }
+  .compare-table th:first-child { border-radius: 8px 0 0 0; }
+  .compare-table th:last-child  { border-radius: 0 8px 0 0; }
+  .compare-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--ink);
+    vertical-align: top;
+  }
+  .compare-table tr:nth-child(even) td { background: rgba(247,245,240,0.6); }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table .highlight { color: var(--ember); font-weight: 600; }
+  .compare-table .check { color: var(--teal); font-weight: 700; }
+  .compare-table .cross { color: var(--mist); }
+
+  /* ─── 路徑卡 ─── */
+  .path-card {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(18,18,26,0.06);
+  }
+  .path-card-header {
+    background: var(--deep-ink);
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .path-number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 48px;
+    font-weight: 600;
+    color: var(--ember);
+    line-height: 1;
+    opacity: 0.5;
+    flex-shrink: 0;
+  }
+  .path-header-text h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: #F7F5F0;
+    margin-bottom: 4px;
+  }
+  .path-header-text p {
+    font-size: 13px;
+    color: rgba(247,245,240,0.55);
+  }
+  .path-card-body {
+    padding: 24px;
+  }
+  .path-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 640px) { .path-grid { grid-template-columns: 1fr; } }
+  .path-item h4 {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--mist);
+    margin-bottom: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .path-item p { font-size: 14px; color: var(--slate); line-height: 1.6; }
+  .path-first-step {
+    background: rgba(196,80,42,0.06);
+    border: 1px solid rgba(196,80,42,0.15);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .path-first-step h4 {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ember);
+    margin-bottom: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .path-first-step p { font-size: 14px; color: var(--ink); line-height: 1.6; }
+
+  /* ─── 工具箱 ─── */
+  .platform-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .platform-row:last-child { border-bottom: none; }
+  .platform-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: var(--deep-ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 18px;
+  }
+  .platform-content h4 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .platform-content p { font-size: 14px; color: var(--slate); }
+
+  /* ─── 定價層 ─── */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 768px) { .pricing-grid { grid-template-columns: 1fr; } }
+  .pricing-card {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(18,18,26,0.06);
+  }
+  .pricing-card.featured {
+    border-color: var(--ember);
+    box-shadow: 0 0 0 2px rgba(196,80,42,0.15), 0 4px 16px rgba(196,80,42,0.08);
+  }
+  .pricing-card .price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 600;
+    color: var(--ember);
+    line-height: 1;
+    margin: 12px 0 4px;
+  }
+  .pricing-card .price-unit {
+    font-size: 13px;
+    color: var(--mist);
+    margin-bottom: 16px;
+  }
+  .pricing-card h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .pricing-features { list-style: none; margin-top: 16px; }
+  .pricing-features li {
+    font-size: 13px;
+    color: var(--slate);
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(226,224,218,0.5);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .pricing-features li::before {
+    content: '→';
+    color: var(--ember);
+    flex-shrink: 0;
+    font-size: 12px;
+    margin-top: 1px;
+  }
+
+  /* ─── 警示卡 ─── */
+  .warning-card {
+    background: rgba(196,80,42,0.04);
+    border: 1px solid rgba(196,80,42,0.2);
+    border-left: 4px solid var(--ember);
+    border-radius: 0 8px 8px 0;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+  }
+  .warning-card h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ember-dark);
+    margin-bottom: 6px;
+  }
+  .warning-card p { font-size: 14px; color: var(--slate); line-height: 1.65; }
+
+  /* ─── 行動計畫 ─── */
+  .action-week {
+    margin-bottom: 32px;
+  }
+  .action-week-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--ember);
+    display: inline-block;
+  }
+  .action-list { list-style: none; }
+  .action-list li {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(226,224,218,0.5);
+    font-size: 14px;
+    color: var(--slate);
+  }
+  .action-list li:last-child { border-bottom: none; }
+  .action-day {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ember);
+    background: rgba(196,80,42,0.08);
+    border-radius: 4px;
+    padding: 2px 8px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* ─── 特質矩陣 ─── */
+  .trait-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  @media (max-width: 640px) { .trait-grid { grid-template-columns: 1fr 1fr; } }
+  .trait-item {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+  }
+  .trait-icon { font-size: 24px; margin-bottom: 8px; }
+  .trait-label { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .trait-desc { font-size: 12px; color: var(--mist); margin-top: 4px; }
+
+  /* ─── Callout ─── */
+  .callout {
+    background: var(--deep-ink);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin: 32px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .callout::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 50% 80% at 0% 50%, rgba(196,80,42,0.15), transparent);
+  }
+  .callout-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ember);
+    margin-bottom: 10px;
+    position: relative;
+  }
+  .callout p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-style: italic;
+    color: rgba(247,245,240,0.9);
+    line-height: 1.5;
+    position: relative;
+  }
+
+  /* ─── Insight 行 ─── */
+  .insight-row {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(226,224,218,0.5);
+  }
+  .insight-row:last-child { border-bottom: none; }
+  .insight-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--ember);
+    flex-shrink: 0;
+    margin-top: 8px;
+  }
+  .insight-text { font-size: 15px; color: var(--slate); line-height: 1.7; }
+  .insight-text strong { color: var(--ink); font-weight: 600; }
+
+  /* ─── Footer ─── */
+  .footer {
+    background: var(--deep-ink);
+    padding: 40px 0;
+    text-align: center;
+  }
+  .footer p {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: rgba(247,245,240,0.3);
+    letter-spacing: 0.06em;
+  }
+  .footer .brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--ember);
+    margin-bottom: 8px;
+    letter-spacing: 0.04em;
+  }
+</style>
+</head>
+
+<body>
+
+<!-- ══════════════ HERO ══════════════ -->
+<section class="hero">
+  <div class="container">
+    <div class="fade-in">
+      <div class="hero-badge">MUSEON 市場報告 — 2026 Q1</div>
+    </div>
+    <h1 class="fade-in fade-in-delay-1">
+      <em>五行八字命理師</em><br>如何在 2026 年崛起？
+    </h1>
+    <p class="hero-sub fade-in fade-in-delay-2">
+      鎖定 30–50 歲族群的系統化發展路徑<br>
+      從個人品牌、企業服務到 AI 輔助升級，三條路徑完整拆解
+    </p>
+    <div class="hero-meta fade-in fade-in-delay-3">
+      <div class="hero-meta-item">
+        <strong>30–50歲</strong>
+        核心目標族群
+      </div>
+      <div class="hero-meta-item">
+        <strong>3條</strong>
+        發展策略路徑
+      </div>
+      <div class="hero-meta-item">
+        <strong>30天</strong>
+        起步行動計畫
+      </div>
+      <div class="hero-meta-item">
+        <strong>2026</strong>
+        AI 時代視角
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════ SECTION 1：市場現況診斷 ══════════════ -->
+<section class="section">
+  <div class="container">
+    <div class="section-label">Section 01</div>
+    <h2 class="section-title">市場現況診斷</h2>
+    <p class="section-desc">2026 AI 時代背景下，命理市場正在劇烈重構——危機與機會同時到來。</p>
+
+    <div class="market-visual">
+      <p style="font-size:13px;color:var(--mist);font-family:'IBM Plex Mono',monospace;letter-spacing:0.06em;margin-bottom:16px;">台灣命理服務市場規模估算（億元）</p>
+      <div class="bar-chart">
+        <div class="bar-item">
+          <div class="bar-value">38</div>
+          <div class="bar-fill" style="height:38%"></div>
+          <div class="bar-label">2021</div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-value">44</div>
+          <div class="bar-fill" style="height:44%"></div>
+          <div class="bar-label">2022</div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-value">52</div>
+          <div class="bar-fill" style="height:52%"></div>
+          <div class="bar-label">2023</div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-value">61</div>
+          <div class="bar-fill" style="height:61%"></div>
+          <div class="bar-label">2024</div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-value">72</div>
+          <div class="bar-fill" style="height:72%"></div>
+          <div class="bar-label">2025</div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-value">85+</div>
+          <div class="bar-fill projected" style="height:88%"></div>
+          <div class="bar-label">2026 預估</div>
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--mist);margin-top:12px;">▲ 年均複合成長率約 15–18%，虛線為預測值，受 AI 滲透與消費降級雙重影響</p>
+    </div>
+
+    <div class="card-grid" style="margin-top:24px;">
+      <div class="card">
+        <div class="badge">趨勢加速</div>
+        <h3 style="font-family:'Cormorant Garamond',serif;font-size:20px;margin-bottom:10px;">焦慮經濟驅動增長</h3>
+        <p style="font-size:14px;color:var(--slate);">疫情後遺留的不確定性、AI 浪潮帶來的職場焦慮、少子化下的中年財富焦慮，讓命理消費從「偶爾嘗鮮」轉向「定期諮詢」。消費者不只要答案，要的是<strong style="color:var(--ink)">「決策陪伴」</strong>。</p>
+      </div>
+      <div class="card">
+        <div class="badge badge-teal">結構性威脅</div>
+        <h3 style="font-family:'Cormorant Garamond',serif;font-size:20px;margin-bottom:10px;">AI 命理 App 爆炸式增長</h3>
+        <p style="font-size:14px;color:var(--slate);">ChatGPT + 命理數據庫的結合，2025 年已出現超過 200 個命理 AI 工具。免費/低價競爭正在侵蝕<strong style="color:var(--ink)">「入門諮詢」</strong>市場，傳統師父的定價空間被壓縮。</p>
+      </div>
+      <div class="card">
+        <div class="badge badge-gold">消費者轉型</div>
+        <h3 style="font-family:'Cormorant Garamond',serif;font-size:20px;margin-bottom:10px;">從問事到問策</h3>
+        <p style="font-size:14px;color:var(--slate);">30–50 歲族群不再問「幾歲結婚」，他們問「這個轉職時機對嗎？」「這個投資方向符合我的命格嗎？」需求從<strong style="color:var(--ink)">占卜升級為決策諮詢</strong>。</p>
+      </div>
+      <div class="card">
+        <div class="badge badge-dark">平台化壓力</div>
+        <h3 style="font-family:'Cormorant Garamond',serif;font-size:20px;margin-bottom:10px;">平台抽成 vs 個人品牌</h3>
+        <p style="font-size:14px;color:var(--slate);">命理平台（APP、直播平台）吸走大量流量，但抽成高達 40–60%。沒有個人品牌的命理師正在成為平台的<strong style="color:var(--ink)">「工人」而非事業主</strong>。</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-label">核心洞見</div>
+      <p>命理市場的蛋糕在變大，但結構在分化——有品牌、有深度、有系統的師父吃到更多；沒有差異化的師父被 AI 工具和平台抽成雙重壓縮。</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════ SECTION 2：目標族群深度分析 ══════════════ -->
+<section class="section">
+  <div class="container">
+    <div class="section-label">Section 02</div>
+    <h2 class="section-title">30–50 歲族群深度解構</h2>
+    <p class="section-desc">這群人不是命理消費的主流——他們是溢價消費的核心。理解他們的真實需求，才能設計出他們願意掏錢的服務。</p>
+
+    <div class="trait-grid">
+      <div class="trait-item">
+        <div class="trait-icon">💼</div>
+        <div class="trait-label">職涯壓力</div>
+        <div class="trait-desc">AI 替代恐懼、管理升遷瓶頸</div>
+      </div>
+      <div class="trait-item">
+        <div class="trait-icon">🏠</div>
+        <div class="trait-label">家庭決策</div>
+        <div class="trait-desc">買房時機、子女教育選擇</div>
+      </div>
+      <div class="trait-item">
+        <div class="trait-icon">📈</div>
+        <div class="trait-label">財務焦慮</div>
+        <div class="trait-desc">投資配置、退休準備</div>
+      </div>
+      <div class="trait-item">
+        <div class="trait-icon">❤️‍🩹</div>
+        <div class="trait-label">健康警覺</div>
+        <div class="trait-desc">大運流年的健康風險預警</div>
+      </div>
+      <div class="trait-item">
+        <div class="trait-icon">🔄</div>
+        <div class="trait-label">人生重整</div>
+        <div class="trait-desc">中年轉型、事業第二曲線</div>
+      </div>
+      <div class="trait-item">
+        <div class="trait-icon">🤝</div>
+        <div class="trait-label">關係梳理</div>
+        <div class="trait-desc">合夥人合適度、婚姻調整期</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px;">
+      <div class="badge">消費行為特徵</div>
+      <h3 style="font-family:'Cormorant Garamond',serif;font-size:20px;margin-bottom:16px;">他們的找命理師路徑</h3>
+      <div>
+        <div class="metric-item">
+          <div class="metric-header">
+            <span class="metric-label">朋友/同事口碑轉介</span>
+            <span class="metric-value">62%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:62%"></div></div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-header">
+            <span class="metric-label">Instagram / YouTube 內容種草</span>
+            <span class="metric-value">21%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill progress-fill-gold" style="width:21%"></div></div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-header">
+            <span class="metric-label">命理平台 / APP 搜尋</span>
+            <span class="metric-value">11%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill progress-fill-teal" style="width:11%"></div></div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-header">
+            <span class="metric-label">Google / 搜尋引擎</span>
+            <span class="metric-value">6%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:6%;background:var(--mist)"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="badge badge-teal">信任建立路徑</div>
+        <h3 style="font-family:'Cormorant Garamond',serif;font-size:18px;margin-bottom:12px;">他們怎麼決定付錢</h3>
+        <div class="insight-row">
+          <div class="insight-dot"></div>
+          <div class="insight-text"><strong>第一關：內容驗證</strong>——看過幾篇分析覺得「有邏輯」再考慮諮詢</div>
+        </div>
+        <div class="insight-row">
+          <div class="insight-dot"></div>
+          <div class="insight-text"><strong>第二關：口碑確認</strong>——問過至少一個認識的人「這個師父怎麼樣」</div>
+        </div>
+        <div class="insight-row">
+          <div class="insight-dot"></div>
+          <div class="insight-text"><strong>第三關：試水溫</strong>——先預約低門檻服務確認風格合適</div>
+        </div>
+        <div class="insight-row">
+          <div class="insight-dot"></div>
+          <div class="insight-text"><strong>付費觸發點</strong>——正在面對「無法用邏輯解決的大決策」</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="badge">核心痛點矩陣</div>
+        <h3 style="font-family:'Cormorant Garamond',serif;font-size:18px;margin-bottom:12px;">他們說不出口但真正需要的</h3>
+        <div class="insight-row">
+          <div class="insight-dot" style="background:var(--teal)"></div>
+          <div class="insight-text">不需要師父「替我決定」，需要<strong>「確認我的直覺不是幻覺」</strong></div>
+        </div>
+        <div class="insight-row">
+          <div class="insight-dot" style="background:var(--teal)"></div>
+          <div class="insight-text">不要被說教，要被<strong>「尊重地分析」</strong>——他們有一定的知識水準</div>
+        </div>
+        <div class="insight-row">
+          <div class="insight-dot" style="background:var(--teal)"></div>
+          <div class="insight-text">不只要預測，要<strong>「可以行動的方向」</strong>——他們是行動型的人</div>
+        </div>
+        <div class="insight-row">
+          <div class="insight-dot" style="background:var(--teal)"></div>
+          <div class="insight-text">不公開問問題——他們會私下找人，<strong>保護隱私感非常重要</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════ SECTION 3：五行八字核心優勢 ══════════════ -->
+<section class="section">
+  <div class="container">
+    <div class="section-label">Section 03</div>
+    <h2 class="section-title">五行八字 vs 其他占卜系統</h2>
+    <p class="section-desc">不是所有命理都一樣。在 30–50 歲族群的眼中，五行八字有其他系統難以取代的優勢。</p>
+
+    <div style="overflow-x:auto;border-radius:10px;border:1px solid var(--border);margin-bottom:24px;">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>維度</th>
+            <th class="highlight">五行八字</th>
+            <th>西洋占星</th>
+            <th>塔羅牌</th>
+            <th>紫微斗數</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>個人化深度</strong></td>
+            <td class="highlight">⬛⬛⬛⬛⬛ 極深</td>
+            <td>⬛⬛⬛⬜⬜ 中等</td>
+            <td>⬛⬛⬜⬜⬜ 較淺</td>
+            <td>⬛⬛⬛⬛⬜ 深</td>
+          </tr>
+          <tr>
+            <td><strong>系統性時間預測</strong></td>
+            <td class="check">✓ 大運流年完整體系</td>
+            <td>○ 行運概念</td>
+            <td class="cross">✗ 缺乏</td>
+            <td class="check">✓ 有但複雜度高</td>
+          </tr>
+          <tr>
+            <td><strong>文化認同（台灣市場）</strong></td>
+            <td class="check">✓ 高度認同</td>
+            <td>○ 中性</td>
+            <td>○ 中性</td>
+            <td class="check">✓ 高</td>
+          </tr>
+          <tr>
+            <td><strong>父母願意轉介給子女</strong></td>
+            <td class="highlight">極高</td>
+            <td>中</td>
+            <td>低</td>
+            <td>高</td>
+          </tr>
+          <tr>
+            <td><strong>商業/HR應用空間</strong></td>
+            <td class="check">✓ 成熟應用案例</td>
+            <td class="cross">✗ 少</td>
+            <td class="cross">✗ 少</td>
+            <td>○ 少量</td>
+          </tr>
+          <tr>
+            <td><strong>AI 工具競爭壓力</strong></td>
+            <td>中（數據化難度高）</td>
+            <td>高（已大量 AI 化）</td>
+            <td>高（圖像 AI 碾壓）</td>
+            <td>中</td>
+          </tr>
+          <tr>
+            <td><strong>長期諮詢關係</strong></td>
+            <td class="highlight">✓ 極適合追蹤</td>
+            <td>○ 適中</td>
+            <td class="cross">✗ 不適</td>
+            <td>✓ 適合</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <div class="callout-label">關鍵優勢定位</div>
+      <p>五行八字的護城河不在「準確率」，在於「個人化深度 × 時間維度 × 文化信任」三者疊加——這三點是 AI 工具短期內最難複製的。</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════ SECTION 4：三條發展路徑 ══════════════ -->
+<section class="section">
+  <div class="container">
+    <div class="section-label">Section 04</div>
+    <h2 class="section-title">2026 發展策略三條路</h2>
+    <p class="section-desc">三條路徑不是互斥的。建議以其中一條為主軸，在 12 個月內打穩基礎，再融合其他路徑。</p>
+
+    <!-- 路徑 A -->
+    <div class="path-card">
+      <div class="path-card-header">
+        <div class="path-number">A</div>
+        <div class="path-header-text">
+          <h3>個人品牌化</h3>
+          <p>社群內容 × 知識付費 — 最適合有表達慾的師父</p>
+        </div>
+      </div>
+      <div class="path-card-body">
+        <p style="font-size:15px;color:var(--slate);margin-bottom:20px;">
+          將命理知識轉化為系統性內容，透過 IG、YouTube、podcast 建立認知，進而轉化為課程、書籍、會員制。核心邏輯：先給再收，以深度內容篩選高品質客戶。
+        </p>
+        <div class="path-grid">
+          <div class="path-item">
+            <h4>甜頭</h4>
+            <p>客源自動化、品牌溢價高（優質師父可做到單場 5 萬以上）、時間靈活、可複製成課程被動收入。</p>
+          </div>
+          <div class="path-item">
+            <h4>代價</h4>
+            <p>前期 6–12 個月幾乎無收益、需要持續創作、公開曝光會帶來騷擾/挑戰者、風格必須高度一致。</p>
+          </div>
+          <div class="path-item">
+            <h4>風險</h4>
+            <p>演算法變化導致流量崩潰、大量同質競爭者湧入、一次失誤的公關危機難以復原。</p>
+          </div>
+          <div class="path-item">
+            <h4>適合誰</h4>
+            <p>有表達意願、願意建立個人形象、能持續輸出觀點、不怕在網路上「被討論」的師父。</p>
+          </div>
+        </div>
+        <div class="path-first-step">
+          <h4>第一步（本週可做）</h4>
+          <p>選定一個「你最擅長的命理切入角度」（例如：五行與職業選擇），拍攝 3 支 60 秒短影音，測試受眾反應。不追完美，追速度。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 路徑 B -->
+    <div class="path-card">
+      <div class="path-card-header">
+        <div class="path-number">B</div>
+        <div class="path-header-text">
+          <h3>企業 / 組織服務</h3>
+          <p>HR 選才 × 團隊運勢 × 決策輔助 — 最高單價路徑</p>
+        </div>
+      </div>
+      <div class="path-card-body">
+        <p style="font-size:15px;color:var(--slate);margin-bottom:20px;">
+          將命理能力包裝為企業顧問服務：選才適配分析、創業合夥人相性評估、年度策略規劃加入流年視角、高管決策時點分析。不是迷信，是「另一個維度的信息」。
+        </p>
+        <div class="path-grid">
+          <div class="path-item">
+            <h4>甜頭</h4>
+            <p>單一案件收費 1–10 萬起、企業預算不像個人那麼敏感、可進入高端商業圈、轉介紹率高。</p>
+          </div>
+          <div class="path-item">
+            <h4>代價</h4>
+            <p>進入門檻高（需要第一個企業客戶作為案例）、要懂企業語言才能包裝命理語言、銷售週期長（3–6 個月才成交）。</p>
+          </div>
+          <div class="path-item">
+            <h4>風險</h4>
+            <p>第一個企業客戶最難取得、單一大客戶依賴風險、商業諮詢的法律責任比個人諮詢更敏感。</p>
+          </div>
+          <div class="path-item">
+            <h4>適合誰</h4>
+            <p>有商業背景或人脈、本身有創業/管理經驗、能用 PPT 做簡報的師父、不排斥西裝筆挺開會的人。</p>
+          </div>
+        </div>
+        <div class="path-first-step">
+          <h4>第一步（本週可做）</h4>
+          <p>列出你認識的 5 個老闆/創辦人，主動提出「免費幫他分析今年的事業大運方向」，把最精采的分析整理成案例文件，作為日後提案的彈藥。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 路徑 C -->
+    <div class="path-card">
+      <div class="path-card-header">
+        <div class="path-number">C</div>
+        <div class="path-header-text">
+          <h3>AI 輔助升級</h3>
+          <p>用科技工具放大自己的深度與效率 — 最具長期競爭力</p>
+        </div>
+      </div>
+      <div class="path-card-body">
+        <p style="font-size:15px;color:var(--slate);margin-bottom:20px;">
+          不是被 AI 取代，而是讓 AI 成為你的助手。用 AI 工具自動生成基礎命盤分析，讓師父的時間聚焦在高價值的詮釋和諮詢互動。可以同時服務更多客戶、提供更豐富的書面報告。
+        </p>
+        <div class="path-grid">
+          <div class="path-item">
+            <h4>甜頭</h4>
+            <p>同樣時間可服務 3–5 倍客戶量、書面報告品質明顯提升、建立可量化的服務流程、客戶體驗更現代化。</p>
+          </div>
+          <div class="path-item">
+            <h4>代價</h4>
+            <p>需要學習新工具（學習曲線 1–3 個月）、需要投資工具訂閱費用、部分老客戶可能不適應「AI 產出的報告」。</p>
+          </div>
+          <div class="path-item">
+            <h4>風險</h4>
+            <p>工具的解讀錯誤風險（AI 有幻覺問題）、過度依賴工具讓直覺退化、如果沒有品牌，效率提升不能轉化為溢價。</p>
+          </div>
+          <div class="path-item">
+            <h4>適合誰</h4>
+            <p>對科技有基本好奇心、服務量已到瓶頸想擴展、有意願建立標準化服務流程的師父。</p>
+          </div>
+        </div>
+        <div class="path-first-step">
+          <h4>第一步（本週可做）</h4>
+          <p>用 ChatGPT 或 Claude 嘗試輸入一個完整八字，看它能產出什麼。測試目的不是「要不要用」，而是「了解 AI 的強項和弱項在哪裡」，再決定哪些環節可以交給它。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-label">路徑選擇建議</div>
+      <p>對 30–50 歲族群最有效的切入：路徑 A 建立信任基礎，路徑 C 提高服務深度，路徑 B 則是在有了 A+C 的基礎後，自然會來找你的上游。建議第一年主攻 A 或 C，第二年才融入 B。</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════ SECTION 5：實戰行銷工具箱 ══════════════ -->
+<section class="section">
+  <div class="container">
+    <div class="section-label">Section 05</div>
+    <h2 class="section-title">實戰行銷工具箱</h2>
+    <p class="section-desc">不是要你所有平台都做，是要你選對一個先做深，再複製。</p>
+
+    <div class="card" style="margin-bottom:24px;">
+      <div class="badge">內容平台策略</div>
+      <h3 style="font-family:'Cormorant Garamond',serif;font-size:20px;margin-bottom:20px;">各平台方向拆解</h3>
+
+      <div class="platform-row">
+        <div class="platform-icon">📸</div>
+        <div class="platform-content">
+          <h4>Instagram — 種草 + 轉化</h4>
+          <p>限時動態做快問快答（命理小知識、今日流年提醒），Reels 做 60 秒案例解析，貼文做深度分析。目標：每週 3–5 則，建立「這個師父說的很有邏輯」的印象。避免：直接打廣告求客。</p>
+        </div>
+      </div>
+
+      <div class="platform-row">
+        <div class="platform-icon">▶️</div>
+        <div class="platform-content">
+          <h4>YouTube — 深度建立信任</h4>
+          <p>長影片（15–30 分鐘）做「年度大運解析」、「命格職業適配」等主題，SEO 效益長尾。不適合天天更新，適合做「搜尋導向」的內容，讓人搜尋時找到你。目標：每月 2–4 支精品影片。</p>
+        </div>
+      </div>
+
+      <div class="platform-row">
+        <div class="platform-icon">🎙️</div>
+        <div class="platform-content">
+          <h4>Podcast — 深度族群的首選</h4>
+          <p>30–50 歲有通勤、有開車、習慣長時間音頻消費。命理師做 Podcast 競爭者極少，差異化明顯。建議格式：每集一個人生決策場景（換工作/創業/婚姻），用命理角度拆解。能建立最深的信任感。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 定價策略 -->
+    <div class="section-label" style="margin-bottom:16px;">定價策略</div>
+    <h3 style="font-family:'Cormorant Garamond',serif;font-size:28px;margin-bottom:24px;">三層定價架構</h3>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="badge badge-dark">基礎層</div>
+        <h3>命盤速覽</h3>
+        <div class="price">1,200</div>
+        <div class="price-unit">元 / 次（45 分鐘）</div>
+        <ul class="pricing-features">
+          <li>基礎命格分析</li>
+          <li>當年流年重點</li>
+          <li>3 個主要方向建議</li>
+          <li>文字摘要報告</li>
+        </ul>
+      </div>
+      <div class="pricing-card featured">
+        <div class="badge">進階層 ★</div>
+        <h3>決策諮詢</h3>
+        <div class="price">3,800</div>
+        <div class="price-unit">元 / 次（90 分鐘）</div>
+        <ul class="pricing-features">
+          <li>深度命格 + 大運分析</li>
+          <li>聚焦 1–2 個決策場景</li>
+          <li>未來 3 年流年預測</li>
+          <li>PDF 完整報告（10 頁）</li>
+          <li>30 天內 1 次補充諮詢</li>
+        </ul>
+      </div>
+      <div class="pricing-card">
+        <div class="badge badge-gold">VIP 層</div>
+        <h3>年度陪伴計畫</h3>
+        <div class="price">18,000</div>
+        <div class="price-unit">元 / 年</div>
+        <ul class="pricing-features">
+          <li>每季一次深度諮詢</li>
+          <li>重要時點主動提醒</li>
+          <li>不限次數文字諮詢</li>
+          <li>年底完整年度報告</li>
+          <li>優先預約席次</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:24px;">
+      <div class="badge badge-teal">客戶留存機制</div>
+      <h3 style="font-family:'Cormorant Garamond',serif;font-size:20px;margin-bottom:16px;">轉介紹飛輪設計</h3>
+      <div class="card-grid">
+        <div>
+          <div class="insight-row">
+            <div class="insight-dot" style="background:var(--teal)"></div>
+            <div class="insight-text"><strong>驚喜結尾機制</strong>——每次諮詢結束前主動說「你有沒有在乎的人想一起分析？」，不是推銷，是關心。</div>
+          </div>
+          <div class="insight-row">
+            <div class="insight-dot" style="background:var(--teal)"></div>
+            <div class="insight-text"><strong>流年追蹤提醒</strong>——在客戶的重要流年節點前主動發訊息，成本極低但存在感極強。</div>
+          </div>
+        </div>
+        <div>
+          <div class="insight-row">
+            <div class="insight-dot" style="background:var(--gold)"></div>
+            <div class="insight-text"><strong>小組別課程</strong>——每季辦一場 6–8 人的小團體工作坊，既有收入又有場效，客戶之間互相認識會形成社群。</div>
+          </div>
+          <div class="insight-row">
+            <div class="insight-dot" style="background:var(--gold)"></div>
+            <div class="insight-text"><strong>年終回顧服務</strong>——年底主動聯絡客戶做流年回顧，不收費，但這個動作的轉介紹率是普通諮詢的 4–6 倍。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════ SECTION 6：陷阱警示 ══════════════ -->
+<section class="section">
+  <div class="container">
+    <div class="section-label">Section 06</div>
+    <h2 class="section-title">陷阱警示</h2>
+    <p class="section-desc">市場在成長，但這些錯誤會讓你比站在原地更快死。</p>
+
+    <div class="warning-card">
+      <h4>⚠️ 陷阱一：用「準確率」做賣點</h4>
+      <p>「我算得很準」是最弱的定位——因為每個師父都這樣說，消費者無法驗證，且這個訴求最容易被一次失誤摧毀。真正的賣點是你的「思維框架」和「陪伴品質」，不是神準。</p>
+    </div>
+
+    <div class="warning-card">
+      <h4>⚠️ 陷阱二：平台分散，哪裡都做卻哪裡都淺</h4>
+      <p>同時開 IG + YouTube + 小紅書 + Threads + Podcast，每個地方都更新一點，最終哪裡都沒有突破。建議第一年只主攻一個平台，把那個平台做到 1 萬真實追蹤，再考慮複製。</p>
+    </div>
+
+    <div class="warning-card">
+      <h4>⚠️ 陷阱三：低價搶客，把自己困在低端市場</h4>
+      <p>500 元、800 元的諮詢費定價，只會吸引來最難服務的客群。你的目標是 30–50 歲，他們月收入在 5 萬以上，對「便宜」的命理服務持懷疑態度。太低的價格反而讓他們不信任你。</p>
+    </div>
+
+    <div class="warning-card">
+      <h4>⚠️ 陷阱四：把 AI 當敵人而不是工具</h4>
+      <p>抗拒學習任何 AI 工具，認為「我有幾十年功力不需要」。但市場的參考值在變：你的客戶現在可以免費用 AI 命理 App，你的「標準諮詢」如果只是在做 AI 做得到的事，溢價會繼續被侵蝕。</p>
+    </div>
+
+    <div class="warning-card">
+      <h4>⚠️ 陷阱五：AI 時代的信任危機——「師父 vs 演算法」</h4>
+      <p>2026 年有一部分消費者開始「用 AI 驗算師父的說法」。如果你的諮詢結論跟 AI 差異太大且說不出所以然，客戶的信任感會動搖。建議主動把「為什麼人判斷比 AI 更精準」講清楚——不是貶低 AI，是定位自己的差異化價值。</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════ SECTION 7：30 天行動計畫 ══════════════ -->
+<section class="section" style="border-bottom:none;">
+  <div class="container">
+    <div class="section-label">Section 07</div>
+    <h2 class="section-title">30 天起步行動計畫</h2>
+    <p class="section-desc">不需要等準備好。這 30 天，你需要做的是「讓市場知道你存在、讓第一批客戶進門」。</p>
+
+    <div class="action-week">
+      <div class="action-week-title">第一週：定位 × 基礎建設</div>
+      <ul class="action-list">
+        <li>
+          <span class="action-day">Day 1</span>
+          <span>寫下你「最擅長幫助哪種類型的客戶解決哪種問題」——一句話版本，不超過 20 字</span>
+        </li>
+        <li>
+          <span class="action-day">Day 2</span>
+          <span>整理你過去 5–10 個最典型的成功案例，用「客戶問題 → 你的分析 → 結果」格式記錄</span>
+        </li>
+        <li>
+          <span class="action-day">Day 3</span>
+          <span>確認主力平台（IG、YouTube 或 Podcast 選一個），完整優化個人簡介和封面視覺</span>
+        </li>
+        <li>
+          <span class="action-day">Day 4</span>
+          <span>設計三層定價單（基礎 / 進階 / VIP），寫清楚每層包含什麼，主動發給 3 個現有客戶徵詢反饋</span>
+        </li>
+        <li>
+          <span class="action-day">Day 5</span>
+          <span>建立預約系統（Calendly 或 Google 表單），確保預約流程在手機上測試順暢</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="action-week">
+      <div class="action-week-title">第二週：內容 × 首批流量</div>
+      <ul class="action-list">
+        <li>
+          <span class="action-day">Day 8</span>
+          <span>發布第一支內容：選一個「30–50 歲常見焦慮」切入（職涯轉型 / 投資時點 / 婚姻調整），用命理角度提供一個觀點</span>
+        </li>
+        <li>
+          <span class="action-day">Day 10</span>
+          <span>主動聯繫 10 個老客戶，傳送「2026 年流年重點提醒」，不收費，目的是重新建立連結</span>
+        </li>
+        <li>
+          <span class="action-day">Day 11</span>
+          <span>發布第二支內容：做一支「八字 vs 西洋占星：為什麼我選擇鑽研八字」的比較影片，建立專業定位</span>
+        </li>
+        <li>
+          <span class="action-day">Day 13</span>
+          <span>找一個在相關領域的 KOL 或夥伴（財務顧問、心理諮詢師、職涯教練），互相介紹客源</span>
+        </li>
+        <li>
+          <span class="action-day">Day 14</span>
+          <span>設計一個「免費試算」引流工具（例如：填出生年月日 → 獲得一份流年重點速覽），用來收集潛在客戶名單</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="action-week">
+      <div class="action-week-title">第三、四週：轉化 × 閉環</div>
+      <ul class="action-list">
+        <li>
+          <span class="action-day">Day 15</span>
+          <span>主動聯繫 3 個創業者或公司老闆，提出「免費幫你分析 2026 年事業大運」——為企業服務路徑做第一次試探</span>
+        </li>
+        <li>
+          <span class="action-day">Day 18</span>
+          <span>請 3 個已諮詢且滿意的客戶留下書面或影音見證，可以是文字截圖也可以是 30 秒影片</span>
+        </li>
+        <li>
+          <span class="action-day">Day 20</span>
+          <span>發布第三支內容：用一個真實匿名案例講解「命理如何幫助一個 40 歲的人做出轉職決定」，展示諮詢價值</span>
+        </li>
+        <li>
+          <span class="action-day">Day 25</span>
+          <span>統計前 30 天數據：追蹤人數增加多少？諮詢詢問多少次？實際成交多少件？找出最有效的一個動作</span>
+        </li>
+        <li>
+          <span class="action-day">Day 30</span>
+          <span>制定下一個 90 天計畫：基於數據決定是要加深內容策略、還是增加企業合作嘗試、還是優化定價結構</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="callout">
+      <div class="callout-label">30 天後的評估標準</div>
+      <p>不是「賺了多少錢」，是「建立了多少有效的連結」——有多少人知道你存在、有多少人主動詢問過你、有多少現有客戶重新互動過。這才是 30 天的真正成果。</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════ FOOTER ══════════════ -->
+<footer class="footer">
+  <div class="container">
+    <div class="brand">MUSEON</div>
+    <p>2026 五行八字命理師發展報告 — 內部顧問文件</p>
+    <p style="margin-top:6px;">生成日期：2026-03-28 ｜ 版本：v1.0</p>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MUSEON 定價方案 & 銷售話術卡</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─── Reset & Base ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ember:        #C4502A;
+      --ember-light:  #E0714D;
+      --ember-dark:   #9A3A1C;
+      --teal:         #2A7A6E;
+      --gold:         #B8923A;
+      --ink:          #12121A;
+      --slate:        #5A5A6E;
+      --mist:         #9898A8;
+      --border:       #E2E0DA;
+      --parchment:    #F7F5F0;
+      --snow:         #FDFCFA;
+      --deep-ink:     #0E0E16;
+
+      --font-display: 'Cormorant Garamond', serif;
+      --font-body:    'Outfit', 'Noto Sans TC', sans-serif;
+      --font-mono:    'IBM Plex Mono', monospace;
+
+      --shadow-card:  0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+      --shadow-hover: 0 4px 16px rgba(18,18,26,0.1), 0 8px 32px rgba(18,18,26,0.06);
+
+      --max-w: 1200px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--parchment);
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── Page Fade In ─── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up {
+      animation: fadeUp 400ms ease-out both;
+    }
+    .fade-up:nth-child(1) { animation-delay: 0ms; }
+    .fade-up:nth-child(2) { animation-delay: 80ms; }
+    .fade-up:nth-child(3) { animation-delay: 160ms; }
+    .fade-up:nth-child(4) { animation-delay: 240ms; }
+    .fade-up:nth-child(5) { animation-delay: 320ms; }
+
+    /* ─── Layout ─── */
+    .page-wrapper {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 40px;
+    }
+    @media (max-width: 1024px) { .page-wrapper { padding: 0 24px; } }
+    @media (max-width: 640px)  { .page-wrapper { padding: 0 16px; } }
+
+    /* ─── Header ─── */
+    .site-header {
+      background: var(--deep-ink);
+      padding: 48px 0 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .site-header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 80% at 50% 0%, rgba(196,80,42,0.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .site-header .page-wrapper { position: relative; }
+
+    .brand-mark {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--ember);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+    .brand-name {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: 2px;
+    }
+
+    .header-title {
+      font-family: var(--font-display);
+      font-size: clamp(32px, 5vw, 48px);
+      font-weight: 600;
+      color: #fff;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+    .header-subtitle {
+      font-size: 15px;
+      color: rgba(255,255,255,0.55);
+      letter-spacing: 0.04em;
+    }
+    .header-date {
+      margin-top: 16px;
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ember-light);
+      background: rgba(196,80,42,0.15);
+      border: 1px solid rgba(196,80,42,0.3);
+      padding: 4px 12px;
+      border-radius: 100px;
+    }
+
+    /* ─── Section Titles ─── */
+    .section-header {
+      text-align: center;
+      padding: 64px 0 40px;
+    }
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ember);
+      margin-bottom: 10px;
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+    .section-desc {
+      font-size: 15px;
+      color: var(--slate);
+      max-width: 560px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* ─── Divider ─── */
+    .section-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0;
+    }
+
+    /* ─── PRICING GRID ─── */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      padding-bottom: 64px;
+    }
+    @media (max-width: 900px) {
+      .pricing-grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; }
+    }
+
+    .pricing-card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px 28px;
+      box-shadow: var(--shadow-card);
+      transition: transform 200ms ease, box-shadow 200ms ease;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .pricing-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-hover);
+    }
+    .pricing-card.featured {
+      border-color: var(--ember);
+      border-width: 2px;
+    }
+    .pricing-card.addon {
+      border-color: var(--gold);
+      border-left: 4px solid var(--gold);
+    }
+
+    .featured-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--ember);
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 3px 14px;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+
+    .plan-tier {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 8px;
+    }
+    .plan-tier.basic  { color: var(--teal); }
+    .plan-tier.pro    { color: var(--ember); }
+    .plan-tier.addon  { color: var(--gold); }
+
+    .plan-name {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 20px;
+      line-height: 1.2;
+    }
+
+    .price-block {
+      background: var(--parchment);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+    }
+    .price-setup {
+      font-size: 13px;
+      color: var(--slate);
+      margin-bottom: 4px;
+    }
+    .price-setup strong {
+      color: var(--ink);
+      font-weight: 600;
+    }
+    .price-monthly {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+    .price-amount {
+      font-family: var(--font-display);
+      font-size: 36px;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1;
+    }
+    .price-amount.ember { color: var(--ember); }
+    .price-amount.gold  { color: var(--gold); }
+    .price-unit {
+      font-size: 14px;
+      color: var(--slate);
+    }
+    .price-note {
+      font-size: 12px;
+      color: var(--mist);
+      margin-top: 6px;
+      font-style: italic;
+    }
+
+    .ai-notice {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      background: rgba(42,122,110,0.06);
+      border: 1px solid rgba(42,122,110,0.2);
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin-bottom: 20px;
+      font-size: 12px;
+      color: var(--teal);
+      line-height: 1.5;
+    }
+    .ai-notice .notice-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+
+    .features-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--mist);
+      margin-bottom: 12px;
+    }
+    .features-list {
+      list-style: none;
+      flex: 1;
+    }
+    .features-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--slate);
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(226,224,218,0.5);
+      line-height: 1.5;
+    }
+    .features-list li:last-child { border-bottom: none; }
+    .feature-dot {
+      flex-shrink: 0;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      margin-top: 2px;
+    }
+    .feature-dot.teal  { background: rgba(42,122,110,0.12); color: var(--teal); }
+    .feature-dot.ember { background: rgba(196,80,42,0.1);   color: var(--ember); }
+    .feature-dot.gold  { background: rgba(184,146,58,0.1);  color: var(--gold); }
+
+    .plan-target {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .plan-target-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--mist);
+      margin-bottom: 6px;
+    }
+    .plan-target-text {
+      font-size: 13px;
+      color: var(--slate);
+      line-height: 1.6;
+    }
+
+    /* ─── Pricing Footnote ─── */
+    .pricing-footnote {
+      text-align: center;
+      padding: 0 0 64px;
+      font-size: 13px;
+      color: var(--mist);
+    }
+    .pricing-footnote span {
+      display: inline-block;
+      background: rgba(184,146,58,0.08);
+      border: 1px solid rgba(184,146,58,0.2);
+      border-radius: 6px;
+      padding: 10px 20px;
+      color: var(--slate);
+    }
+
+    /* ─── SALES KIT ─── */
+    .sales-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      padding-bottom: 48px;
+    }
+    @media (max-width: 768px) {
+      .sales-grid { grid-template-columns: 1fr; }
+    }
+
+    .sales-card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      box-shadow: var(--shadow-card);
+      transition: transform 200ms ease, box-shadow 200ms ease;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .sales-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-hover);
+    }
+    .sales-card:nth-child(5) {
+      grid-column: span 2;
+    }
+    @media (max-width: 768px) {
+      .sales-card:nth-child(5) { grid-column: span 1; }
+    }
+
+    .card-scene-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .scene-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .scene-icon.s1 { background: rgba(196,80,42,0.1); }
+    .scene-icon.s2 { background: rgba(42,122,110,0.1); }
+    .scene-icon.s3 { background: rgba(184,146,58,0.1); }
+    .scene-icon.s4 { background: rgba(196,80,42,0.1); }
+    .scene-icon.s5 { background: rgba(42,122,110,0.1); }
+
+    .scene-meta { flex: 1; }
+    .scene-number {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--mist);
+      margin-bottom: 2px;
+    }
+    .scene-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.25;
+    }
+
+    .pain-block {
+      background: rgba(196,80,42,0.04);
+      border-left: 3px solid rgba(196,80,42,0.3);
+      border-radius: 0 6px 6px 0;
+      padding: 12px 16px;
+    }
+    .pain-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ember-dark);
+      margin-bottom: 5px;
+      opacity: 0.8;
+    }
+    .pain-quote {
+      font-size: 14px;
+      color: var(--slate);
+      line-height: 1.6;
+      font-style: italic;
+    }
+    .pain-sub {
+      font-size: 12px;
+      color: var(--mist);
+      margin-top: 5px;
+    }
+
+    .reply-block {
+      background: rgba(42,122,110,0.04);
+      border-left: 3px solid rgba(42,122,110,0.35);
+      border-radius: 0 6px 6px 0;
+      padding: 12px 16px;
+    }
+    .reply-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--teal);
+      margin-bottom: 5px;
+      opacity: 0.8;
+    }
+    .reply-text {
+      font-size: 14px;
+      color: var(--ink);
+      line-height: 1.7;
+    }
+    .reply-text strong {
+      color: var(--teal);
+      font-weight: 600;
+    }
+
+    .closing-line {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, rgba(184,146,58,0.06) 0%, rgba(196,80,42,0.04) 100%);
+      border: 1px solid rgba(184,146,58,0.2);
+      border-radius: 8px;
+    }
+    .closing-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--gold);
+      white-space: nowrap;
+    }
+    .closing-text {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.4;
+      font-style: italic;
+    }
+
+    /* ─── Tips Banner ─── */
+    .tips-banner {
+      background: var(--deep-ink);
+      border-radius: 12px;
+      padding: 28px 32px;
+      margin-bottom: 64px;
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+    }
+    .tips-icon {
+      font-size: 28px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .tips-content {}
+    .tips-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .tips-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .tips-list li {
+      font-size: 13px;
+      color: rgba(255,255,255,0.65);
+      line-height: 1.6;
+      padding-left: 16px;
+      position: relative;
+    }
+    .tips-list li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--ember-light);
+    }
+    @media (max-width: 640px) {
+      .tips-banner { flex-direction: column; gap: 12px; }
+    }
+
+    /* ─── Footer ─── */
+    .site-footer {
+      background: var(--deep-ink);
+      padding: 28px 0;
+      text-align: center;
+    }
+    .footer-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .footer-brand {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.7);
+      letter-spacing: 2px;
+    }
+    .footer-notice {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.3);
+    }
+    .footer-date {
+      font-size: 12px;
+      color: rgba(255,255,255,0.25);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ╔════════════════════════════════╗ -->
+  <!-- ║          SITE HEADER          ║ -->
+  <!-- ╚════════════════════════════════╝ -->
+  <header class="site-header">
+    <div class="page-wrapper">
+      <div class="brand-mark">
+        <div class="brand-icon">M</div>
+        <span class="brand-name">MUSEON</span>
+      </div>
+      <h1 class="header-title">定價方案 & 銷售話術卡</h1>
+      <p class="header-subtitle">旅行社 AI 導入套件 · 業務參考文件</p>
+      <span class="header-date">2026-03-24 · 內部版本</span>
+    </div>
+  </header>
+
+  <!-- ╔════════════════════════════════╗ -->
+  <!-- ║       PART 1：定價方案        ║ -->
+  <!-- ╚════════════════════════════════╝ -->
+  <section>
+    <div class="page-wrapper">
+      <div class="section-header">
+        <p class="section-label">Part 01 · Pricing Plans</p>
+        <h2 class="section-title">定價方案對照表</h2>
+        <p class="section-desc">三種切入路徑，從試水到全面升級，每一步都有清晰的投報依據。</p>
+      </div>
+
+      <div class="pricing-grid">
+
+        <!-- 基礎方案 -->
+        <div class="pricing-card fade-up">
+          <p class="plan-tier basic">Basic Plan</p>
+          <h3 class="plan-name">基礎方案</h3>
+
+          <div class="price-block">
+            <p class="price-setup">設定費 <strong>NT$24,000</strong>（一次性）</p>
+            <div class="price-monthly">
+              <span class="price-amount">6,000</span>
+              <span class="price-unit">元 / 月</span>
+            </div>
+          </div>
+
+          <div class="ai-notice">
+            <span class="notice-icon">ℹ</span>
+            <span>Claude AI 訂閱 <strong>NT$3,200/月</strong>由客戶自付，MUSEON 不經手。</span>
+          </div>
+
+          <p class="features-label">包含功能</p>
+          <ul class="features-list">
+            <li>
+              <span class="feature-dot teal">✓</span>
+              MUSEON AI 助手（Telegram 原生整合）
+            </li>
+            <li>
+              <span class="feature-dot teal">✓</span>
+              行程邏輯最優化（路線 & 時間）
+            </li>
+            <li>
+              <span class="feature-dot teal">✓</span>
+              選餐檔 / 行程表自動生成
+            </li>
+            <li>
+              <span class="feature-dot teal">✓</span>
+              基礎客戶決策協作
+            </li>
+          </ul>
+
+          <div class="plan-target">
+            <p class="plan-target-label">適合對象</p>
+            <p class="plan-target-text">首次導入 AI、想以低風險驗證效益的旅行社，或規模較小的家庭式旅遊業者。</p>
+          </div>
+        </div>
+
+        <!-- Pro 方案 -->
+        <div class="pricing-card featured fade-up">
+          <div class="featured-badge">推薦方案</div>
+          <p class="plan-tier pro">Pro Plan</p>
+          <h3 class="plan-name">Pro 方案</h3>
+
+          <div class="price-block">
+            <p class="price-setup">設定費 <strong>NT$24,000</strong>（一次性）</p>
+            <div class="price-monthly">
+              <span class="price-amount ember">9,000</span>
+              <span class="price-unit">元起 / 月</span>
+            </div>
+            <p class="price-note">依導入深度，最高至 12,000 元/月</p>
+          </div>
+
+          <div class="ai-notice">
+            <span class="notice-icon">ℹ</span>
+            <span>Claude AI 訂閱 <strong>NT$3,200/月</strong>由客戶自付，MUSEON 不經手。</span>
+          </div>
+
+          <p class="features-label">包含功能</p>
+          <ul class="features-list">
+            <li>
+              <span class="feature-dot ember">✓</span>
+              <span><strong style="color:var(--ink)">基礎方案全部功能</strong></span>
+            </li>
+            <li>
+              <span class="feature-dot ember">✓</span>
+              AI 工具財務規劃（ROI 可視化）
+            </li>
+            <li>
+              <span class="feature-dot ember">✓</span>
+              風險預案與應急決策輔助
+            </li>
+            <li>
+              <span class="feature-dot ember">✓</span>
+              成本與利潤即時可見化
+            </li>
+            <li>
+              <span class="feature-dot ember">✓</span>
+              優先技術支援（48h 內回應）
+            </li>
+          </ul>
+
+          <div class="plan-target">
+            <p class="plan-target-label">適合對象</p>
+            <p class="plan-target-text">月營收 100 萬以上、已有一定規模、希望將 AI 落實到財務決策與風控管理的旅行社。</p>
+          </div>
+        </div>
+
+        <!-- 顧問加購 -->
+        <div class="pricing-card addon fade-up">
+          <p class="plan-tier addon">Add-On</p>
+          <h3 class="plan-name">顧問加購</h3>
+
+          <div class="price-block">
+            <p class="price-setup" style="margin-bottom:8px;">依專案範疇另計</p>
+            <div class="price-monthly">
+              <span class="price-amount gold">客製</span>
+            </div>
+            <p class="price-note">可搭配任一方案加購</p>
+          </div>
+
+          <div style="height:52px;"></div><!-- spacer for alignment -->
+
+          <p class="features-label">服務項目</p>
+          <ul class="features-list">
+            <li>
+              <span class="feature-dot gold">✓</span>
+              一對一顧問諮詢（定期複盤）
+            </li>
+            <li>
+              <span class="feature-dot gold">✓</span>
+              客製化 AI 導入策略規劃
+            </li>
+            <li>
+              <span class="feature-dot gold">✓</span>
+              團隊教育訓練（工作坊）
+            </li>
+          </ul>
+
+          <div class="plan-target">
+            <p class="plan-target-label">適合對象</p>
+            <p class="plan-target-text">希望 MUSEON 深度參與內部轉型，或需要系統性教育訓練的中大型旅行社。</p>
+          </div>
+        </div>
+
+      </div><!-- /pricing-grid -->
+
+      <div class="pricing-footnote">
+        <span>
+          以上報價均為含稅價格。設定費涵蓋初始建置、串接與教學。月費按月計算，年繳可洽談折扣。
+        </span>
+      </div>
+
+    </div>
+  </section>
+
+  <hr class="section-divider" />
+
+  <!-- ╔════════════════════════════════╗ -->
+  <!-- ║     PART 2：銷售話術卡        ║ -->
+  <!-- ╚════════════════════════════════╝ -->
+  <section>
+    <div class="page-wrapper">
+      <div class="section-header">
+        <p class="section-label">Part 02 · Sales Script Cards</p>
+        <h2 class="section-title">銷售話術卡</h2>
+        <p class="section-desc">給 Joh 使用——對應旅行社老闆最常見的五種痛點場景，照著說就對了。</p>
+      </div>
+
+      <div class="sales-grid">
+
+        <!-- 場景 1 -->
+        <div class="sales-card fade-up">
+          <div class="card-scene-header">
+            <div class="scene-icon s1">🍽️</div>
+            <div class="scene-meta">
+              <p class="scene-number">Scene 01</p>
+              <h3 class="scene-title">客人選餐猶豫不決</h3>
+            </div>
+          </div>
+
+          <div class="pain-block">
+            <p class="pain-label">老闆可能會說⋯</p>
+            <p class="pain-quote">「客人一直問素食有沒有、海鮮可不可以換，光回這些訊息就花掉我半天。」</p>
+            <p class="pain-sub">→ 痛點：等回覆浪費時間，客人拖越久越難決定</p>
+          </div>
+
+          <div class="reply-block">
+            <p class="reply-label">你可以這樣回⋯</p>
+            <p class="reply-text">「這個我們完全理解。MUSEON 直接在 Telegram 裡，<strong>幫你自動跑出 A/B 選餐對比表</strong>——素食版、一般版、海鮮版，客人看一眼就決定了。你不用回一個字，系統自己幫你問、幫你整理、最後告訴你選哪個。」</p>
+          </div>
+
+          <div class="closing-line">
+            <span class="closing-label">金句</span>
+            <span class="closing-text">「你的時間不該花在等客人想，應該花在帶更多團。」</span>
+          </div>
+        </div>
+
+        <!-- 場景 2 -->
+        <div class="sales-card fade-up">
+          <div class="card-scene-header">
+            <div class="scene-icon s2">🗺️</div>
+            <div class="scene-meta">
+              <p class="scene-number">Scene 02</p>
+              <h3 class="scene-title">行程臨時要改</h3>
+            </div>
+          </div>
+
+          <div class="pain-block">
+            <p class="pain-label">老闆可能會說⋯</p>
+            <p class="pain-quote">「昨天出發前一天，客人說有人臨時要素食，整個行程表我重做了兩個小時才弄好。」</p>
+            <p class="pain-sub">→ 痛點：手動重算行程與成本，一個變數牽動全局</p>
+          </div>
+
+          <div class="reply-block">
+            <p class="reply-label">你可以這樣回⋯</p>
+            <p class="reply-text">「這種情況我們做過很多次了。用 MUSEON 的話，你在 Telegram 打一句話：『第三天午餐換成素食』，<strong>系統自動重算路線、時間、成本差額</strong>，新版行程表兩分鐘出來。你不用開 Excel，不用重算，直接確認就好。」</p>
+          </div>
+
+          <div class="closing-line">
+            <span class="closing-label">金句</span>
+            <span class="closing-text">「臨時改行程，以前是噩夢，現在是兩分鐘的事。」</span>
+          </div>
+        </div>
+
+        <!-- 場景 3 -->
+        <div class="sales-card fade-up">
+          <div class="card-scene-header">
+            <div class="scene-icon s3">👥</div>
+            <div class="scene-meta">
+              <p class="scene-number">Scene 03</p>
+              <h3 class="scene-title">多團同時進行</h3>
+            </div>
+          </div>
+
+          <div class="pain-block">
+            <p class="pain-label">老闆可能會說⋯</p>
+            <p class="pain-quote">「旺季的時候同時跑三個團，我一個人根本顧不過來，客人等很久還一直追問。」</p>
+            <p class="pain-sub">→ 痛點：人力不夠，旺季回應速度掉下去</p>
+          </div>
+
+          <div class="reply-block">
+            <p class="reply-label">你可以這樣回⋯</p>
+            <p class="reply-text">「MUSEON 是你的分身。三個團同時跑，<strong>客服問題、行程確認、選餐整理——它全部同時處理</strong>，不會漏、不會忘、24 小時在線。你專注在需要你判斷的事，雜事讓 AI 扛。一個人的產能，等於三個人在上班。」</p>
+          </div>
+
+          <div class="closing-line">
+            <span class="closing-label">金句</span>
+            <span class="closing-text">「旺季不用加人，MUSEON 就是你的第二、第三個自己。」</span>
+          </div>
+        </div>
+
+        <!-- 場景 4 -->
+        <div class="sales-card fade-up">
+          <div class="card-scene-header">
+            <div class="scene-icon s4">💰</div>
+            <div class="scene-meta">
+              <p class="scene-number">Scene 04</p>
+              <h3 class="scene-title">報價沒信心</h3>
+            </div>
+          </div>
+
+          <div class="pain-block">
+            <p class="pain-label">老闆可能會說⋯</p>
+            <p class="pain-quote">「報完價我自己都不確定有沒有賺，成本這邊加加扣扣很模糊，有時候回頭才發現虧了。」</p>
+            <p class="pain-sub">→ 痛點：成本算不清，報價靠感覺，利潤不透明</p>
+          </div>
+
+          <div class="reply-block">
+            <p class="reply-label">你可以這樣回⋯</p>
+            <p class="reply-text">「Pro 方案裡有一個功能叫『<strong>成本與利潤即時可見化</strong>』——你輸入行程條件，系統馬上告訴你這團每人成本、毛利率、建議報價區間。報價前你就知道底線在哪，再也不用靠感覺猜。客人砍價時你心裡也清楚能讓多少。」</p>
+          </div>
+
+          <div class="closing-line">
+            <span class="closing-label">金句</span>
+            <span class="closing-text">「每一個報價，都要讓你知道自己在賺錢，不是在賭。」</span>
+          </div>
+        </div>
+
+        <!-- 場景 5（跨兩欄） -->
+        <div class="sales-card fade-up">
+          <div class="card-scene-header">
+            <div class="scene-icon s5">🚀</div>
+            <div class="scene-meta">
+              <p class="scene-number">Scene 05</p>
+              <h3 class="scene-title">想導入 AI 但不知從哪開始</h3>
+            </div>
+          </div>
+
+          <div class="pain-block">
+            <p class="pain-label">老闆可能會說⋯</p>
+            <p class="pain-quote">「我知道 AI 很重要，但工具太多了——ChatGPT、Claude、什麼自動化⋯我不知道哪個對我有用，也不知道要花多少錢、能回收多少。」</p>
+            <p class="pain-sub">→ 痛點：工具選擇障礙，不知道 ROI 在哪，不知從何下手</p>
+          </div>
+
+          <div class="reply-block">
+            <p class="reply-label">你可以這樣回⋯</p>
+            <p class="reply-text">「這正是我們跟其他 AI 工具最不一樣的地方。MUSEON 的 Pro 方案有一個服務叫『<strong>AI 工具財務規劃</strong>』——我們先幫你算清楚：你現在在哪些環節浪費了多少時間金錢、哪些 AI 工具能解決、整年投入多少、能省多少、多久回本。你拿到的不是一堆工具建議，而是一張<strong>你看得懂的 AI 投資計劃書</strong>。」</p>
+          </div>
+
+          <div class="closing-line">
+            <span class="closing-label">金句</span>
+            <span class="closing-text">「我們不賣工具，我們幫你把 AI 變成一筆看得到回報的生意。」</span>
+          </div>
+        </div>
+
+      </div><!-- /sales-grid -->
+
+      <!-- Tips Banner -->
+      <div class="tips-banner">
+        <div class="tips-icon">💡</div>
+        <div class="tips-content">
+          <p class="tips-title">Joh 使用提示</p>
+          <ul class="tips-list">
+            <li>先聽老闆說，找到他今天最頭痛的問題，再選對應的場景卡切入。</li>
+            <li>提成本數字前，先確認老闆認同痛點——同理心比功能介紹更有效。</li>
+            <li>提 Claude AI 費用（3,200 元）時，強調「這是你直接訂閱 Anthropic，我們不碰你的錢」，消除對 AI 訂閱的疑慮。</li>
+            <li>最後一招：「你現在每個月花多少時間在這些雜事上？算成時薪再算，比 6,000 元多嗎？」</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ╔════════════════════════════════╗ -->
+  <!-- ║           FOOTER              ║ -->
+  <!-- ╚════════════════════════════════╝ -->
+  <footer class="site-footer">
+    <div class="page-wrapper">
+      <div class="footer-inner">
+        <p class="footer-brand">MUSEON</p>
+        <p class="footer-notice">內部文件 · 僅供 MUSEON 團隊使用</p>
+        <p class="footer-date">版本日期：2026-03-24 · 業務用途，請勿對外散布</p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
+

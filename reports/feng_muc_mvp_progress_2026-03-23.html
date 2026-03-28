@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feng MUC MVP 開發進度 — 2026-03-23</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Outfit:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --ember: #C4502A;
+            --ember-light: #E0714D;
+            --ember-dark: #9A3A1C;
+            --teal: #2A7A6E;
+            --gold: #B8923A;
+            --ink: #12121A;
+            --slate: #5A5A6E;
+            --mist: #9898A8;
+            --border: #E2E0DA;
+            --parchment: #F7F5F0;
+            --snow: #FDFCFA;
+            --deep-ink: #0E0E16;
+            --surface: #16161F;
+            --success: #2D8A6E;
+            --warning: #C9943A;
+            --error: #C4402A;
+            --info: #2A6A8A;
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            background-color: var(--parchment);
+            color: var(--ink);
+            line-height: 1.75;
+        }
+
+        .container {
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        /* Hero Section */
+        .hero {
+            margin-bottom: 64px;
+            padding-bottom: 48px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 56px;
+            font-weight: 600;
+            line-height: 1.15;
+            color: var(--ink);
+            margin-bottom: 12px;
+        }
+
+        .hero-meta {
+            display: flex;
+            gap: 24px;
+            margin-top: 24px;
+            font-size: 14px;
+            color: var(--slate);
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badge {
+            display: inline-block;
+            background-color: rgba(196, 80, 42, 0.1);
+            color: var(--ember-dark);
+            padding: 3px 10px;
+            border-radius: 100px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .badge.complete {
+            background-color: rgba(45, 138, 110, 0.1);
+            color: var(--success);
+        }
+
+        .badge.progress {
+            background-color: rgba(201, 148, 58, 0.1);
+            color: var(--warning);
+        }
+
+        .badge.pending {
+            background-color: rgba(152, 152, 168, 0.1);
+            color: var(--mist);
+        }
+
+        /* Tabs Navigation */
+        .tabs-container {
+            margin-bottom: 48px;
+        }
+
+        .tabs-nav {
+            display: flex;
+            border-bottom: 2px solid var(--border);
+            gap: 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .tab-button {
+            padding: 16px 24px;
+            background: none;
+            border: none;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--slate);
+            cursor: pointer;
+            position: relative;
+            white-space: nowrap;
+            font-family: 'Outfit', sans-serif;
+            transition: color 120ms ease;
+        }
+
+        .tab-button:hover {
+            color: var(--ink);
+        }
+
+        .tab-button.active {
+            color: var(--ember);
+            font-weight: 600;
+        }
+
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: var(--ember);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 300ms ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Section Styles */
+        h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 40px;
+            font-weight: 600;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 24px;
+            margin-top: 48px;
+        }
+
+        h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 28px;
+            font-weight: 600;
+            line-height: 1.3;
+            color: var(--ink);
+            margin-bottom: 16px;
+            margin-top: 32px;
+        }
+
+        h4 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 12px;
+            margin-top: 20px;
+        }
+
+        p {
+            margin-bottom: 16px;
+            font-size: 16px;
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--ember);
+        }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 14px;
+        }
+
+        thead {
+            background-color: var(--snow);
+            border-bottom: 2px solid var(--border);
+        }
+
+        th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tbody tr:hover {
+            background-color: rgba(196, 80, 42, 0.02);
+        }
+
+        /* Card Styles */
+        .card {
+            background-color: var(--snow);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 24px;
+            margin: 24px 0;
+            box-shadow: 0 1px 3px rgba(18, 18, 26, 0.06), 0 4px 12px rgba(18, 18, 26, 0.04);
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-content {
+            font-size: 14px;
+            color: var(--slate);
+            line-height: 1.6;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: var(--border);
+            border-radius: 100px;
+            overflow: hidden;
+            margin: 12px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--ember) 0%, var(--ember-light) 100%);
+            border-radius: 100px;
+            transition: width 300ms ease;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        ul li {
+            list-style-type: disc;
+        }
+
+        ol li {
+            list-style-type: decimal;
+        }
+
+        /* Code blocks */
+        code {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            background-color: #F0EDE8;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--ink);
+        }
+
+        /* Summary Section */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 32px 0;
+        }
+
+        .summary-item {
+            background-color: var(--snow);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .summary-number {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--ember);
+            margin-bottom: 4px;
+        }
+
+        .summary-label {
+            font-size: 13px;
+            color: var(--slate);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 500;
+        }
+
+        /* Quick Links */
+        .quick-nav {
+            background-color: var(--snow);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 24px;
+            margin-bottom: 48px;
+        }
+
+        .quick-nav h3 {
+            margin-top: 0;
+            font-size: 18px;
+            color: var(--ink);
+        }
+
+        .quick-nav ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .quick-nav li {
+            margin-bottom: 8px;
+        }
+
+        .quick-nav a {
+            color: var(--ember);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 120ms ease;
+        }
+
+        .quick-nav a:hover {
+            color: var(--ember-dark);
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 64px;
+            padding-top: 32px;
+            border-top: 2px solid var(--border);
+            text-align: center;
+            color: var(--mist);
+            font-size: 12px;
+        }
+
+        .footer-meta {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            font-size: 13px;
+            color: var(--slate);
+            margin-bottom: 16px;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .container {
+                padding: 24px 16px;
+            }
+
+            h1 {
+                font-size: 36px;
+            }
+
+            h2 {
+                font-size: 28px;
+            }
+
+            h3 {
+                font-size: 20px;
+            }
+
+            .hero-meta {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 8px 12px;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Status colors in table */
+        .status-complete {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .status-progress {
+            color: var(--warning);
+            font-weight: 600;
+        }
+
+        .status-pending {
+            color: var(--mist);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="hero">
+            <h1>Feng MUC MVP<br>開發進度</h1>
+            <div class="hero-meta">
+                <div class="meta-item">
+                    <span class="badge complete">13 Phase 完成</span>
+                </div>
+                <div class="meta-item">
+                    <span>更新日期：2026-03-22</span>
+                </div>
+                <div class="meta-item">
+                    <span>版本：v1.1 / v1.2</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Navigation -->
+        <div class="quick-nav">
+            <h3>快速導航</h3>
+            <ul>
+                <li><a href="#tab-overview">進度總覽</a></li>
+                <li><a href="#tab-sequence">開發序列</a></li>
+                <li><a href="#tab-scope">系統範圍</a></li>
+                <li><a href="#tab-next-steps">後續步驟</a></li>
+            </ul>
+        </div>
+
+        <!-- Tabs Container -->
+        <div class="tabs-container">
+            <div class="tabs-nav">
+                <button class="tab-button active" onclick="switchTab('overview')">進度總覽</button>
+                <button class="tab-button" onclick="switchTab('sequence')">開發序列</button>
+                <button class="tab-button" onclick="switchTab('scope')">系統範圍</button>
+                <button class="tab-button" onclick="switchTab('next-steps')">後續步驟</button>
+            </div>
+
+            <!-- Tab 1: Overview -->
+            <div id="tab-overview" class="tab-content active">
+                <h2>開發進度總覽</h2>
+
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <div class="summary-number">13</div>
+                        <div class="summary-label">完成 Phase</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-number">4</div>
+                        <div class="summary-label">規劃中 Phase</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-number">66</div>
+                        <div class="summary-label">總功能點</div>
+                    </div>
+                </div>
+
+                <h3>當前狀態：Phase 13.5 完成</h3>
+                <p>最後一次更新（2026-03-22）包含 <strong>F66 付款方式管理</strong>、<strong>UI/UX 技術債清理</strong>、<strong>radix-vue Tabs 修復</strong>、<strong>SendGrid 修正</strong>，系統已完全可用於MVP上線與早期用戶收費。</p>
+
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 76.5%;"></div>
+                </div>
+
+                <h3>Phase 進度表</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>階段</th>
+                            <th>內容</th>
+                            <th style="width: 120px;">狀態</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>Phase 1</code></td>
+                            <td>專案骨架 + Auth</td>
+                            <td><span class="status-complete">✅ 完成</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>Phase 2</code></td>
+                            <td>License + Pair Code + Subscription</td>
+                            <td><span class="status-complete">✅ 完成</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>Phase 3</code></td>
+                            <td>Payment</td>
+                            <td><span class="status-complete">✅ 完成</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>Phase 4</code></td>
+                            <td>BillingProfile</td>
+                            <td><span class="status-complete">✅ 完成</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>Phase 5</code></td>
+                            <td>Device Pairing</td>
+                            <td><span class="status-complete">✅ 完成</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>Phase 6</code></td>
+                            <td>Audit Log + Alert 整合</td>
+                            <td><span class="status-complete">✅ 完成</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>Phase 7</code></td>
+                            <td>Entitlement + Pre-Job Check</td>
+                            <td><span class="status-complete">✅ 完成</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>Phase 8</code></td>
+                            <td>Notification</td>
+                            <td><span class="status-complete">✅ 完成</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>Phase 9</code></td>
+                            <td>前台 UI（shadcn-vue）</td>
+                            <td><span class="status-complete">✅ 完成</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>Phase 10</code></td>
+                            <td>測試</td>
+                            <td><span class="status-complete">✅ 完成</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>Phase 11</code></td>
+                            <td>Agent SDK + 部署</td>
+                            <td><span class="status-complete">✅ 完成</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>Phase 12</code></td>
+                            <td>User 自助付款</td>
+                            <td><span class="status-complete">✅ 完成</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>Phase 13</code></td>
+                            <td>最小營運範疇 + 全自助訂購</td>
+                            <td><span class="status-complete">✅ 完成</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>Phase 13.5</code></td>
+                            <td>F66 付款方式管理 + UI/UX 技術債</td>
+                            <td><span class="status-complete">✅ 完成</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>Phase 14</code></td>
+                            <td>Credit 點數系統 + 產品優化</td>
+                            <td><span class="status-pending">⬜ 規劃完成，待開工</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>Phase 15</code></td>
+                            <td>自動金流串接</td>
+                            <td><span class="status-pending">⬜ 架構已預留</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>Phase 16</code></td>
+                            <td>推薦分潤 + 介紹人折抵</td>
+                            <td><span class="status-pending">⬜ 待規劃</span></td>
+                        </tr>
+                        <tr>
+                            <td><code>Phase 17</code></td>
+                            <td>自動更新發佈平台</td>
+                            <td><span class="status-pending">⬜ 待規劃</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>關鍵成就</h3>
+                <ul>
+                    <li>Agent SDK 已通過對方驗收 <strong>19/19 場景</strong></li>
+                    <li>所有核心模組完成 BDD 測試（11-19 場景覆蓋）</li>
+                    <li>前台 + 後台完整 UI 已上線</li>
+                    <li>Ed25519 簽章 + 設備授權邏輯已穩定</li>
+                    <li>收費閉環已達成（人工收款 + 訂閱管理 + 續期）</li>
+                </ul>
+            </div>
+
+            <!-- Tab 2: Sequence -->
+            <div id="tab-sequence" class="tab-content">
+                <h2>開發序列（DEV_SEQUENCE）</h2>
+                <p>本文件詳細記錄所有 66 個開發步驟的執行順序、產出與當前狀態。每個步驟都標註了對應的業務需求（如 OQ-004, OQ-005）與測試覆蓋。</p>
+
+                <h3>序列總覽（Sample）</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">順序</th>
+                            <th>項目</th>
+                            <th>產出</th>
+                            <th style="width: 80px;">狀態</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>1</strong></td>
+                            <td>專案骨架</td>
+                            <td>backend/ + frontend/ 目錄結構</td>
+                            <td><span class="status-complete">✅</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>2</strong></td>
+                            <td>Migration：accounts</td>
+                            <td><code>accounts</code> 表</td>
+                            <td><span class="status-complete">✅</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>3</strong></td>
+                            <td>Auth 模組</td>
+                            <td>login / register / JWT Guard / /me</td>
+                            <td><span class="status-complete">✅</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>6</strong></td>
+                            <td>Pair Code 生成</td>
+                            <td>一次性、短時效、只存 hash</td>
+                            <td><span class="status-complete">✅</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>8</strong></td>
+                            <td>Subscription 狀態機</td>
+                            <td>ACTIVE / GRACE / SUSPENDED 轉換</td>
+                            <td><span class="status-complete">✅</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>16</strong></td>
+                            <td>Device Pairing</td>
+                            <td>Agent pair + Token 發行（F16 10場景）</td>
+                            <td><span class="status-complete">✅</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>21</strong></td>
+                            <td>Entitlement 模組</td>
+                            <td>Ed25519 簽章回應 + TTL（F21 19場景）</td>
+                            <td><span class="status-complete">✅</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>23</strong></td>
+                            <td>Notification 整合</td>
+                            <td>SendGrid + Bull queue（F23 15場景）</td>
+                            <td><span class="status-complete">✅</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>核心功能點覆蓋</h3>
+                <p>共 66 個功能點（F1-F66），分佈如下：</p>
+                <ul>
+                    <li><strong>帳號與身分：</strong> F1-F4（Auth / Account）</li>
+                    <li><strong>序號管理：</strong> F5-F6（License / Pair Code）</li>
+                    <li><strong>訂閱與付款：</strong> F7-F14（Subscription / Payment / BillingProfile）</li>
+                    <li><strong>設備綁定：</strong> F15-F18（Device / Revoke）</li>
+                    <li><strong>安全與稽核：</strong> F19-F22（Audit Log / Alert / Entitlement / Pre-Job Check）</li>
+                    <li><strong>通知與營運：</strong> F23-F53（Notification / Admin UI / Portal UI）</li>
+                    <li><strong>自助與優化：</strong> F54-F66（User Payment / Technical Debt）</li>
+                </ul>
+
+                <h3>測試覆蓋概況</h3>
+                <div class="card">
+                    <div class="card-title">開發各階段的測試情況</div>
+                    <div class="card-content">
+                        <p>• <strong>BDD 場景覆蓋</strong>：每個功能模組都經過 BDD（Behavior Driven Development）驗收，場景數視模組複雜度而異（6-19 場景不等）</p>
+                        <p>• <strong>Agent SDK 驗收</strong>：對方已驗收 19/19 場景全通過</p>
+                        <p>• <strong>Setup & Teardown</strong>：測試框架已完整搭建</p>
+                        <p>• <strong>OQ-系列決策記錄</strong>：架構決策已文檔化（OQ-004 Option B, OQ-005 5分鐘, OQ-006 TTL 等）</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Scope -->
+            <div id="tab-scope" class="tab-content">
+                <h2>系統範圍定義（SYSTEM_SCOPE）</h2>
+                <p>明確定義 MUC MVP 第一階段的包含範圍與排除範圍，以及主要使用情境。</p>
+
+                <h3>包含範圍（In Scope）</h3>
+
+                <div class="card">
+                    <div class="card-title">1. 帳號與身分驗證</div>
+                    <div class="card-content">
+                        使用者註冊、登入/登出、基本帳號狀態管理、登入前台查看授權與設備資訊
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">2. Billing Profile / 付款資料</div>
+                    <div class="card-content">
+                        使用者建立與維護付款資料，平台可查閱以進行人工對帳與開通
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">3. License / Serial 管理</div>
+                    <div class="card-content">
+                        平台建立序號（可指定方案），使用者查詢自己持有的序號，平台查看序號綁定設備，平台可啟用/停用/作廢序號
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">3.5 方案管理（Plan）</div>
+                    <div class="card-content">
+                        訂閱方案：A(設定+2月) / B(設定+6月) / C(設定+12月) / D(客製)<br>
+                        續約方案：1月 / 6月 / 12月<br>
+                        每個方案可設定一種優惠（送月/送點/折扣，三選一不可疊加）<br>
+                        信任點：300 點/月，超額 USD 0.1/點
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">4. Subscription 週期與狀態管理</div>
+                    <div class="card-content">
+                        獨立訂閱週期、狀態支援 ACTIVE / GRACE / SUSPENDED
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">5. 人工收款與續期</div>
+                    <div class="card-content">
+                        建立人工收款紀錄，支援 payment_status：DRAFT / CONFIRMED / VOID
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">6. Device Pairing / 設備綁定</div>
+                    <div class="card-content">
+                        一次性配對碼、平台建立設備記錄、成功配對回傳一次性 device token
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">7. Device Token / Entitlement</div>
+                    <div class="card-content">
+                        Token 只存 hash、可被 revoke、Entitlement 必須回傳可驗章之授權結果
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">8. Pre-Job Check / 接單前檢查</div>
+                    <div class="card-content">
+                        Agent 每次接新任務前必須再次檢查授權
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">9. Device Revocation / 換機與停用</div>
+                    <div class="card-content">
+                        支援 device_status：ACTIVE / REVOKED / REPLACED
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">10. 告警中心與通知</div>
+                    <div class="card-content">
+                        收款成功/失敗事件、到期/寬限/停用事件、設備異常事件、entitlement 驗證失敗事件、風控事件（fingerprint mismatch、nonce replay、token 異常）
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">11. 稽核紀錄</div>
+                    <div class="card-content">
+                        Append-only 日誌，涵蓋收款確認、設備停用、重綁設備、修改到期日、付款資料變更、pair code 產生/使用/失敗、token 發行/revoke/rotation、entitlement 驗證失敗
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">12. 最低安全基線</div>
+                    <div class="card-content">
+                        • 序號不能直接當授權憑證<br>
+                        • pair code 一次性、短時效、只存 hash<br>
+                        • device token 高熵亂數、只存 hash、可 revoke<br>
+                        • token 綁 device_id 與 fingerprint 檢查<br>
+                        • entitlement response 必須簽章<br>
+                        • Agent 端必須內建公鑰驗章<br>
+                        • 每次接新任務前必查授權或 grant<br>
+                        • 離線超過 15 分鐘後停止接新任務
+                    </div>
+                </div>
+
+                <h3>不包含範圍（Out of Scope）</h3>
+                <ul>
+                    <li>自動金流串接</li>
+                    <li>自動退款 / 推薦分潤 / 介紹人折抵 / 經銷商分潤</li>
+                    <li>國家代理 / 區域代理 / 多租戶代理商管理</li>
+                    <li>客戶資料上傳母體 / 直接讀取客戶資料庫</li>
+                    <li>複雜報表 / AI 對話儀表板</li>
+                    <li>自動更新發佈平台</li>
+                    <li>多國稅制 / 國際金流 / 複雜企業級 IAM / SSO</li>
+                    <li>深度反逆向 / 反 hook 進階方案</li>
+                </ul>
+
+                <h3>主要使用情境（8 個 BDD 場景）</h3>
+                <ol>
+                    <li><strong>情境 1：新用戶開通</strong> — 用戶註冊 → 付款資料 → 序號 → 收款確認 → Subscription 生效</li>
+                    <li><strong>情境 2：設備首次配對</strong> — 產生配對碼 → Agent 輸入 → 設備綁定 → Token 回傳</li>
+                    <li><strong>情境 3：正常授權輪詢</strong> — Agent 呼叫 entitlement API → 驗證 → 回傳可驗章結果</li>
+                    <li><strong>情境 4：接新任務前檢查</strong> — Pre-job check → 驗證設備 → 允許/拒絕接單</li>
+                    <li><strong>情境 5：續費</strong> — 用戶付款 → 平台確認 → 更新期限 → Agent 取得新狀態</li>
+                    <li><strong>情境 6：到期與停用</strong> — 到期 → GRACE → SUSPENDED → 停止接新任務</li>
+                    <li><strong>情境 7：設備停用 / 換機</strong> — 停用舊設備 → Token 失效 → 新設備重新配對</li>
+                    <li><strong>情境 8：異常與風控</strong> — Fingerprint mismatch / Nonce replay → 建立告警 → 採取措施</li>
+                </ol>
+
+                <h3>整合邊界（外部系統 / API）</h3>
+                <h4>1. Agent / Device API</h4>
+                <ul>
+                    <li><code>POST /api/device/pair</code> — 配對與註冊設備</li>
+                    <li><code>GET /api/device/entitlement</code> — 取得短效且可驗章的授權資訊</li>
+                    <li><code>POST /api/device/check-before-job</code> — 在接新任務前再次確認授權狀態</li>
+                </ul>
+
+                <h4>2. Admin API / 後台操作 API</h4>
+                <ul>
+                    <li>建立與管理序號</li>
+                    <li>建立與確認收款</li>
+                    <li>查看與停用設備</li>
+                    <li>查看告警與稽核紀錄</li>
+                    <li><code>POST /admin/devices/{id}/revoke</code></li>
+                </ul>
+
+                <h4>3. 排程 / Reconciler</h4>
+                <ul>
+                    <li>ACTIVE → GRACE 狀態校正</li>
+                    <li>GRACE → SUSPENDED 狀態校正</li>
+                    <li>通知觸發</li>
+                    <li>例行風控與清理任務</li>
+                </ul>
+
+                <h4>4. 通知 / Invoice Worker</h4>
+                <ul>
+                    <li>收款確認後通知</li>
+                    <li>到期 / 寬限 / 停用通知</li>
+                    <li>發票後續任務掛點</li>
+                </ul>
+
+                <h4>5. 金流邊界</h4>
+                <p>第一階段不串接外部 payment gateway，收款來源為人工匯款或人工對帳，系統只需支援人工確認與狀態更新。</p>
+
+                <h4>6. 安全邊界</h4>
+                <p>Agent 不可信任任意可編輯 license server URL，TLS 為必要但非唯一信任來源，平台需提供可驗章 response，Agent 需內建平台公鑰並在本地驗章。</p>
+            </div>
+
+            <!-- Tab 4: Next Steps -->
+            <div id="tab-next-steps" class="tab-content">
+                <h2>後續步驟與優先順序</h2>
+
+                <h3>立即推進（Week 1-2）</h3>
+                <div class="card">
+                    <div class="card-title">Phase 14：Credit 點數系統 + 產品優化</div>
+                    <div class="card-content">
+                        <p><strong>狀態：</strong> 規劃完成，待開工</p>
+                        <p><strong>範圍：</strong></p>
+                        <ul style="margin-left: 12px; margin-top: 8px;">
+                            <li>Credit（信任點）精細化管理</li>
+                            <li>Usage tracking 與 billing 整合</li>
+                            <li>預警與額度控制</li>
+                            <li>Portal 儀表板優化</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>短期規劃（Week 3-4）</h3>
+                <div class="card">
+                    <div class="card-title">Phase 15：自動金流串接</div>
+                    <div class="card-content">
+                        <p><strong>狀態：</strong> 架構已預留（ADR-030），待選金流商</p>
+                        <p><strong>下一步：</strong> 評估主流支付方案（Stripe / Newebpay / Line Pay），確定集成方向</p>
+                    </div>
+                </div>
+
+                <h3>後期規劃（Phase 16-17）</h3>
+                <div class="card">
+                    <div class="card-title">Phase 16：推薦分潤 + 介紹人折抵</div>
+                    <div class="card-content">
+                        <p><strong>狀態：</strong> 待規劃</p>
+                        <p><strong>考慮因素：</strong> 客戶獲取成本、推薦人基金、分潤結算周期</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Phase 17：自動更新發佈平台</div>
+                    <div class="card-content">
+                        <p><strong>狀態：</strong> 待規劃</p>
+                        <p><strong>考慮因素：</strong> Agent 版本管理、灰度發佈、回滾機制</p>
+                    </div>
+                </div>
+
+                <h3>系統優化方向</h3>
+                <ul>
+                    <li><strong>可觀測性：</strong> 完善 Logging / Tracing，便於營運與除錯</li>
+                    <li><strong>效能：</strong> 優化高頻 API（entitlement）的延遲</li>
+                    <li><strong>安全：</strong> 深度反逆向方案、更精細的風控規則</li>
+                    <li><strong>UX：</strong> 深化 Portal 功能、Analytics 儀表板</li>
+                    <li><strong>營運：</strong> 自動化發票、人工審單流程最佳化</li>
+                </ul>
+
+                <h3>成功標準</h3>
+                <p><strong>MVP 上線標準已達成：</strong></p>
+                <ul>
+                    <li>✅ 用戶能自助註冊、購買序號、管理設備</li>
+                    <li>✅ Agent 能安全配對、取得授權、接新任務</li>
+                    <li>✅ 平台能追蹤收費、強制執行訂閱狀態、發送通知</li>
+                    <li>✅ 稽核 & 風控基線已建立</li>
+                    <li>✅ 對方驗收 19/19 場景全通過</li>
+                </ul>
+
+                <h3>風險與緩解</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>風險</th>
+                            <th>影響</th>
+                            <th>緩解策略</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>用戶無法續期</td>
+                            <td>Revenue loss</td>
+                            <td>自動提醒 + 自助續期路徑優化</td>
+                        </tr>
+                        <tr>
+                            <td>設備偽造風險</td>
+                            <td>Churn</td>
+                            <td>Fingerprint 機制 + 告警監控</td>
+                        </tr>
+                        <tr>
+                            <td>金流對帳人工成本高</td>
+                            <td>營運</td>
+                            <td>階段 15 自動化串接</td>
+                        </tr>
+                        <tr>
+                            <td>Agent 離線超時邊界</td>
+                            <td>UX</td>
+                            <td>重新配對流程簡化</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-meta">
+                <span>生成日期：2026-03-23</span>
+                <span>•</span>
+                <span>資料來源：DEV_SEQUENCE v1.1、TODO v1.2、SYSTEM_SCOPE</span>
+            </div>
+            <p>此報告由 MUSEON 生成，整合 Feng MUC MVP 開發的三份核心文件。</p>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabName) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => button.classList.remove('active'));
+
+            // Show selected tab content
+            const selectedContent = document.getElementById('tab-' + tabName);
+            if (selectedContent) {
+                selectedContent.classList.add('active');
+            }
+
+            // Highlight active button
+            event.target.classList.add('active');
+
+            // Smooth scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

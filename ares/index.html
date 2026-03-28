@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ares - 戰略網路</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  :root {
+    --ember: #C4502A;
+    --ember-light: #E0714D;
+    --teal: #2A7A6E;
+    --gold: #B8923A;
+    --ink: #12121A;
+    --slate: #5A5A6E;
+    --parchment: #F7F5F0;
+    --snow: #FDFCFA;
+    --border: #E2E0DA;
+    --hot: #C4502A;
+    --warm: #B8923A;
+    --cold: #2A6A8A;
+    --new: #9898A8;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif;
+    background: var(--parchment);
+    color: var(--ink);
+    overflow: hidden;
+    height: 100vh;
+  }
+  #header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--snow);
+    border-bottom: 1px solid var(--border);
+    z-index: 10;
+    position: relative;
+  }
+  #header h1 { font-size: 16px; font-weight: 600; }
+  .filter-btn {
+    padding: 4px 12px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--snow);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .filter-btn.active {
+    background: var(--ember);
+    color: white;
+    border-color: var(--ember);
+  }
+  #graph { width: 100%; height: calc(100vh - 50px); }
+  .node-label {
+    font-size: 11px;
+    fill: var(--ink);
+    text-anchor: middle;
+    pointer-events: none;
+    font-weight: 500;
+  }
+  .node-sub {
+    font-size: 9px;
+    fill: var(--slate);
+    text-anchor: middle;
+    pointer-events: none;
+  }
+  /* 人物卡片浮層 */
+  #card-overlay {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--snow);
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -4px 24px rgba(0,0,0,0.12);
+    padding: 20px;
+    z-index: 100;
+    max-height: 60vh;
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+  }
+  #card-overlay.show { display: block; }
+  .card-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .card-meta { font-size: 12px; color: var(--slate); margin-bottom: 12px; }
+  .card-section { margin-bottom: 12px; }
+  .card-section-title { font-size: 11px; color: var(--slate); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .card-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; }
+  .temp-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .temp-hot { background: #fde8e3; color: var(--hot); }
+  .temp-warm { background: #fdf3e3; color: var(--warm); }
+  .temp-cold { background: #e3f0fd; color: var(--cold); }
+  .temp-new { background: #f0f0f0; color: var(--new); }
+  .card-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .card-btn {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--snow);
+    font-size: 12px;
+    text-align: center;
+    cursor: pointer;
+  }
+  .card-btn.primary {
+    background: var(--ember);
+    color: white;
+    border-color: var(--ember);
+  }
+  #backdrop {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.3);
+    z-index: 50;
+  }
+  #backdrop.show { display: block; }
+  /* 圖例 */
+  #legend {
+    position: fixed;
+    bottom: 12px;
+    left: 12px;
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 10px;
+    z-index: 10;
+    display: flex;
+    gap: 12px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 4px; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+</style>
+</head>
+<body>
+<div id="header">
+  <h1>戰略網路</h1>
+  <div style="display:flex;gap:6px;">
+    <button class="filter-btn active" data-domain="all">全部</button>
+    <button class="filter-btn" data-domain="business">商務</button>
+    <button class="filter-btn" data-domain="internal">內部</button>
+    <button class="filter-btn" data-domain="personal">私人</button>
+  </div>
+</div>
+<svg id="graph"></svg>
+<div id="backdrop"></div>
+<div id="card-overlay">
+  <div class="card-name" id="card-name"></div>
+  <div class="card-meta" id="card-meta"></div>
+  <div class="card-section">
+    <div class="card-section-title">人格</div>
+    <div id="card-personality"></div>
+  </div>
+  <div class="card-section">
+    <div class="card-section-title">槓桿</div>
+    <div id="card-leverage"></div>
+  </div>
+  <div class="card-actions">
+    <button class="card-btn primary" id="btn-analyze">策略分析</button>
+    <button class="card-btn" id="btn-briefing">戰前簡報</button>
+    <button class="card-btn" id="btn-close">關閉</button>
+  </div>
+</div>
+<div id="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--hot)"></div>熱</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--warm)"></div>溫</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--cold)"></div>冷</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--new)"></div>新</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--ink)"></div>我</div>
+</div>
+
+<script>
+// Telegram Mini App init
+if (window.Telegram && window.Telegram.WebApp) {
+  Telegram.WebApp.ready();
+  Telegram.WebApp.expand();
+}
+
+// 溫度→顏色
+const tempColor = { hot: '#C4502A', warm: '#B8923A', cold: '#2A6A8A', new: '#9898A8' };
+
+// 資料載入（從 JSON 檔案或 URL 參數指定的端點）
+let allData = { nodes: [], links: [] };
+let currentDomain = 'all';
+
+async function loadData() {
+  const params = new URLSearchParams(window.location.search);
+  const src = params.get('data') || 'topology.json';
+  try {
+    const resp = await fetch(src);
+    allData = await resp.json();
+  } catch (e) {
+    // 示範資料
+    allData = {
+      nodes: [
+        { id: 'demo1', name: '張總', wan_miu_code: 'PSRU', domains: ['business'], temperature: 'warm', title: '連鎖餐飲創辦人' },
+        { id: 'demo2', name: '李姐', wan_miu_code: 'AOEU', domains: ['business'], temperature: 'hot', title: '供應商' },
+        { id: 'demo3', name: '員工A', wan_miu_code: 'ASEM', domains: ['internal'], temperature: 'warm', title: '行銷主管' },
+      ],
+      links: [
+        { source: 'demo1', target: 'demo2', relation_type: 'supplier', strength: 7 },
+      ]
+    };
+  }
+  render();
+}
+
+function getFilteredData() {
+  if (currentDomain === 'all') return allData;
+  const nodeIds = new Set();
+  const nodes = allData.nodes.filter(n => {
+    if ((n.domains || []).includes(currentDomain)) {
+      nodeIds.add(n.id);
+      return true;
+    }
+    return false;
+  });
+  const links = allData.links.filter(l => {
+    const src = typeof l.source === 'object' ? l.source.id : l.source;
+    const tgt = typeof l.target === 'object' ? l.target.id : l.target;
+    return nodeIds.has(src) && nodeIds.has(tgt);
+  });
+  return { nodes, links };
+}
+
+function render() {
+  const svg = d3.select('#graph');
+  svg.selectAll('*').remove();
+  const width = window.innerWidth;
+  const height = window.innerHeight - 50;
+  svg.attr('width', width).attr('height', height);
+
+  const data = getFilteredData();
+  // 加入「我」節點
+  const ownerNode = { id: '__owner__', name: '我', wan_miu_code: '', domains: ['all'], temperature: 'owner', title: '' };
+  const nodes = [ownerNode, ...data.nodes];
+  const links = [
+    ...data.nodes.map(n => ({ source: '__owner__', target: n.id, relation_type: 'self', strength: 3 })),
+    ...data.links,
+  ];
+
+  const simulation = d3.forceSimulation(nodes)
+    .force('link', d3.forceLink(links).id(d => d.id).distance(100))
+    .force('charge', d3.forceManyBody().strength(-300))
+    .force('center', d3.forceCenter(width / 2, height / 2))
+    .force('collision', d3.forceCollide().radius(30));
+
+  const g = svg.append('g');
+  // Zoom
+  svg.call(d3.zoom().scaleExtent([0.3, 3]).on('zoom', e => g.attr('transform', e.transform)));
+
+  const link = g.append('g').selectAll('line').data(links).enter().append('line')
+    .attr('stroke', '#ccc')
+    .attr('stroke-width', d => Math.max(1, (d.strength || 3) / 2))
+    .attr('stroke-dasharray', d => d.relation_type === 'self' ? '' : '4,4');
+
+  const nodeGroup = g.append('g').selectAll('g').data(nodes).enter().append('g')
+    .call(d3.drag()
+      .on('start', (e, d) => { if (!e.active) simulation.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
+      .on('drag', (e, d) => { d.fx = e.x; d.fy = e.y; })
+      .on('end', (e, d) => { if (!e.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; })
+    )
+    .on('click', (e, d) => { if (d.id !== '__owner__') showCard(d); });
+
+  nodeGroup.append('circle')
+    .attr('r', d => d.id === '__owner__' ? 20 : 14)
+    .attr('fill', d => d.id === '__owner__' ? '#12121A' : (tempColor[d.temperature] || '#9898A8'))
+    .attr('stroke', '#fff')
+    .attr('stroke-width', 2);
+
+  nodeGroup.append('text')
+    .attr('class', 'node-label')
+    .attr('dy', d => d.id === '__owner__' ? 4 : -20)
+    .text(d => d.name);
+
+  nodeGroup.append('text')
+    .attr('class', 'node-sub')
+    .attr('dy', -8)
+    .text(d => d.wan_miu_code || '');
+
+  simulation.on('tick', () => {
+    link.attr('x1', d => d.source.x).attr('y1', d => d.source.y)
+        .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+    nodeGroup.attr('transform', d => `translate(${d.x},${d.y})`);
+  });
+}
+
+function showCard(d) {
+  document.getElementById('card-name').textContent = d.name;
+  document.getElementById('card-meta').innerHTML =
+    `${d.title || ''} <span class="temp-badge temp-${d.temperature}">${{hot:'🔴 熱',warm:'🟡 溫',cold:'🔵 冷',new:'⚪ 新'}[d.temperature] || d.temperature}</span>`;
+  document.getElementById('card-personality').textContent = d.wan_miu_code ? `萬謬16型：${d.wan_miu_code}` : '尚未評估';
+  document.getElementById('card-leverage').textContent = '點擊「策略分析」查看完整槓桿';
+  document.getElementById('card-overlay').classList.add('show');
+  document.getElementById('backdrop').classList.add('show');
+}
+
+function hideCard() {
+  document.getElementById('card-overlay').classList.remove('show');
+  document.getElementById('backdrop').classList.remove('show');
+}
+
+// 事件綁定
+document.getElementById('btn-close').addEventListener('click', hideCard);
+document.getElementById('backdrop').addEventListener('click', hideCard);
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentDomain = btn.dataset.domain;
+    render();
+  });
+});
+
+// Telegram WebApp 按鈕
+document.getElementById('btn-analyze').addEventListener('click', () => {
+  const name = document.getElementById('card-name').textContent;
+  if (window.Telegram && window.Telegram.WebApp) {
+    Telegram.WebApp.sendData(JSON.stringify({ action: 'analyze', target: name }));
+  }
+  hideCard();
+});
+document.getElementById('btn-briefing').addEventListener('click', () => {
+  const name = document.getElementById('card-name').textContent;
+  if (window.Telegram && window.Telegram.WebApp) {
+    Telegram.WebApp.sendData(JSON.stringify({ action: 'briefing', target: name }));
+  }
+  hideCard();
+});
+
+// 初始化
+loadData();
+window.addEventListener('resize', render);
+</script>
+</body>
+</html>
