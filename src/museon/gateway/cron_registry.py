@@ -1393,6 +1393,20 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
     except Exception as e:
         logger.warning("自主維運系統啟動失敗（非致命）: %s", e)
 
+    # ── MuseDoctor（第六虎將：持續巡邏員）──
+    try:
+        from museon.doctor.musedoctor import MuseDoctor
+
+        _muse_doctor = MuseDoctor(data_dir.parent)
+        # patrol_tick: 每 8 分鐘推進一個節點（CPU-only，零 Token）
+        cron_engine.add_job(
+            _muse_doctor.patrol_tick, trigger="interval", job_id="musedoctor-patrol",
+            minutes=8,
+        )
+        logger.info("MuseDoctor 持續巡邏員已啟動（每 8 分鐘一節點）")
+    except Exception as e:
+        logger.warning("MuseDoctor 啟動失敗（非致命）: %s", e)
+
     # ── 群組定時摘要（10:00 / 14:00 / 17:00）──
     async def _group_digest_job():
         """群組定時摘要推播."""
@@ -1473,6 +1487,7 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
         {"job_id": "museoff-l6",            "name": "MuseOff L6 藍圖漂移",  "schedule": "每天 15:00",    "category": "autonomous",  "uses_llm": False},
         {"job_id": "museqa-scan",           "name": "MuseQA 品質掃描",     "schedule": "每 15 分鐘",    "category": "autonomous",  "uses_llm": False},
         {"job_id": "musedoc-surgery",       "name": "MuseDoc 夜間手術",    "schedule": "每天 04:00",    "category": "autonomous",  "uses_llm": False},
+        {"job_id": "musedoctor-patrol",     "name": "MuseDoctor 持續巡邏",  "schedule": "每 8 分鐘",     "category": "autonomous",  "uses_llm": False},
         {"job_id": "group-digest-10",      "name": "群組摘要 10:00",     "schedule": "每天 10:00",    "category": "pulse",       "uses_llm": True},
         {"job_id": "group-digest-14",      "name": "群組摘要 14:00",     "schedule": "每天 14:00",    "category": "pulse",       "uses_llm": True},
         {"job_id": "group-digest-17",      "name": "群組摘要 17:00",     "schedule": "每天 17:00",    "category": "pulse",       "uses_llm": True},

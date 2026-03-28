@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.49
+# Joint Map — 共享可變狀態接頭圖 v1.50
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -64,6 +64,7 @@
 | 50 | _system/memory_graph/access_log.json | 🟢 | 1 | 1 | 無 | [→](#50-memory_graph-access_logjson) |
 | 51 | _system/learning/insights/*.json | 🟢 | 1 | 1 | 無 | [→](#51-learning-insightsjson) |
 | 52 | _system/doctor/shared_board.json | 🟡 | 4 | 5 | 無 | [→](#52-shared_boardjson) |
+| 54 | _system/doctor/patrol_state.json | 🟢 | 1 | 1 | 無（單寫入者） | — |
 | 53 | _system/billing/skill_invocations_*.json | 🟢 | 1 | 1 | 無 | [→](#53-skill_invocationsjson) |
 
 > **危險度定義**：🔴 多寫入者+高扇出+格式不一致 | 🟡 多寫入者或高扇出 | 🟢 單寫入者+低扇出
@@ -1350,6 +1351,7 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 | 2026-03-16 | v1.15 | Memory Reset 一鍵重置工具：新增 `doctor/memory_reset.py` 為 25 個共享狀態的重置者（#1 ANIMA_MC.json boss/self_awareness 重置、#2 ANIMA_USER.json 全量重置、#3 PULSE.md 模板重建、#9 Qdrant 全部 collections 刪除重建、#25 JSONL 審計日誌群清空、#26 記憶 Markdown 刪除、#27 fact_corrections.jsonl 清空）；同時重置 PulseDB 全表、sessions、crystals/synapses/scout_queue、diary/drift、eval/workflow_state.db、guardian/footprints/activity_log、nightly_state/outward；預設 dry-run 安全模式 |
 | 2026-03-17 | v1.15 | DNA-Inspired 品質回饋閉環：#8 PulseDB 讀取者 11→12（+morphenix_executor `get_quality_flags()`/`get_quality_flag_summary()`）；metacognition 新增 `METACOGNITION_QUALITY_FLAG` 事件發布（verdict=revise 時）；morphenix_executor 夜間管線讀取品質旗標作為演化上下文 |
 | 2026-03-16 | v1.14 | Memory Gate 記憶閘門：新增 `memory/memory_gate.py` 為 ANIMA_USER.json 間接寫入控制者；brain.py `_observe_user()` 新增 `suppress_primals`/`suppress_facts` 參數；`_observe_user_layers()` 新增 `suppress_facts` 參數；L1_facts 新增 `status`/`confidence` 欄位；Step 9.2 事實更正偵測提前到 Step 9 之前；解決「越否認越強化」記憶迴圈 |
+| 2026-03-28 | v1.50 | MuseDoctor 第六虎將——新增 #54 `data/_system/doctor/patrol_state.json`（🟢 單寫入者 musedoctor.py，讀取者：cron_registry 啟動時、Telegram /patrol 指令）；共享狀態 53→54 個 |
 | 2026-03-27 | v1.48 | 有機體進化計畫 Phase 1-9——新增 #48 `push_journal_24h.json`（ProactiveDispatcher 寫入、telegram 讀取）、#49-#50 `memory_graph/` edges+access_log（MemoryGraph 單寫、Brain 讀取）、#51 `learning/insights/`（InsightExtractor 單寫、Brain 讀取）、#52 `shared_board.json`（🟡 4 寫入者 museoff/qa/doc/worker，5 讀取者）、#53 `skill_invocations_*.json`（SkillCounter 單寫單讀）。共享狀態 47→53 個 |
 | 2026-03-26 | v1.47 | v2 Brain 四層架構共享狀態——新增 #43 `pending_insights.json`（L4 觀察者寫入、L1 讀取+清空，原子寫）、#44 `context_cache/` 4 檔（nightly Step 31 重建、L1/L2 每次讀取）。刪除 federation/installer 相關引用。共享狀態 45→47 個 |
 | 2026-03-16 | v1.12 | P4 PULSE.md 自省清洗：#27 fact_corrections.jsonl 的三個讀取者已實作——brain.py `_get_fact_correction_declarations()` 注入 system prompt、proactive_bridge.py `_read_recent_fact_corrections()` 注入自省上下文、pulse_engine.py `_reflection_contains_stale_facts()` 寫入前過濾；PULSE.md 寫入新增過期事實過濾閘 |

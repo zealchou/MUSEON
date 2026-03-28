@@ -1,10 +1,11 @@
-# Blast Radius — 模組影響半徑表 v1.77
+# Blast Radius — 模組影響半徑表 v1.78
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節、`docs/operational-contract.md`（操作契約表）提供外部操作預期失敗
+> **v1.78 (2026-03-28)**：新增 `doctor/musedoctor.py`（MuseDoctor 第六虎將，持續巡邏員，綠區扇入=0，扇出=2：topology_report.json 讀取 + nightly_pipeline.py 讀取）；`gateway/cron_registry.py` 新增 `musedoctor-patrol` job（每 8 分鐘）；新增共享狀態 `data/_system/doctor/patrol_state.json`（單一寫入者 musedoctor.py）。
 > **v1.77 (2026-03-28)**：死碼清理 20 個模組後藍圖同步——從 topology_report.json 更新 fan_in 數據：event_bus 45→46、data_bus 16→15（channels/line 已刪）、gateway.message 13→14、pulse_db 10→11（新增 pulse/group_digest）、vector_bridge 7→9；移除已刪除模組條目：channels/electron、channels/line、llm/client、llm/vision、agent/dna27、agent/pending_sayings、agent/routing_bridge、doctor/scalpel_lessons、governance/cognitive_receipt、learning/strategy_accumulator、memory/epigenetic_router、memory/proactive_predictor、multiagent/flywheel_flow、pulse/heartbeat_activation、pulse/group_session_proactive、pulse/proactive_activation、pulse/telegram_pusher、security/trust、tools/document_export、tools/report_publisher；破損 import 修復：brain_fast.py 的 input_sanitizer + ceremony 兩個殘留 import；系統健康度快照更新。
 > **v1.76 (2026-03-28)**：doctor 模組舊架構清除——`doctor/auto_repair.py` `repair_start_gateway()` + `repair_load_daemon()` 從 launchctl load/unload 改為 supervisorctl start（扇入不變）；`doctor/health_check.py` daemon 狀態檢查從 `launchctl list com.museon.gateway` 改為 `supervisorctl status museon-gateway`；`plist_path` 從 `com.museon.gateway.plist` 改為 `com.museon.supervisord.plist`；`doctor/surgeon.py` `_try_launchd_selfkill()` 從 launchctl 改為 supervisorctl（扇入不變）。完全消除舊 launchd-direct 架構在 doctor 模組的殘留，防止 auto_repair 觸發雙重管理衝突。
 > **v1.75 (2026-03-28)**：supervisord 進程管理層——新增 `data/_system/supervisord.conf`（綠區扇入=0，純設定檔）；新建 `com.museon.supervisord.plist`（launchd 服務，KeepAlive=true）；`doctor/museoff.py` `_triage("restart_gateway")` 從呼叫 restart-gateway.sh 改為 supervisorctl start（Green 扇入=2，不影響其他模組）；`scripts/workflows/restart-gateway.sh` v3.0（從 launchctl 改 supervisorctl restart）。`com.museon.gateway.plist` 已 unload，launchd 改為 launchd→supervisord→gateway 三層架構，消除雙實例衝突根因。blast-radius 無新模組扇入變化（supervisord 是 infra 層，不引入 Python import）。
