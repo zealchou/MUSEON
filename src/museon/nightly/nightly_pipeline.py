@@ -120,7 +120,7 @@ _FULL_STEPS = [
     "6", "6.5", "7", "8", "8.5", "8.6", "8.7", "9", "10", "12", "13", "13.5",
     "13.6", "13.7", "13.8",  # 外向型進化：觸發掃描 → 外向研究 → 消化生命週期
     "14", "15", "16", "17",
-    "18", "18.5",  # 18.5: 客戶互動萃取（dispatch/completed → external_users + clients）
+    "18", "18.5", "18.6",  # 18.5: 客戶互動萃取 → 18.6: Ares 橋接同步（external_users → ares/profiles）
     "19",  # 19: Morphenix 演化品質驗證（post-execution quality gate）
     "20", "21", "22", "23",  # 新增：synapse_decay/muscle_atrophy/immune_prune/trigger_eval
     "24", "25",  # 新增：演化速度計算 / 週月循環觸發檢查
@@ -220,6 +220,7 @@ class NightlyPipeline:
             "17": ("step_17_tool_discovery", self._step_tool_discovery),
             "18": ("step_18_daily_summary", self._step_daily_summary),
             "18.5": ("step_18_5_client_profile_update", self._step_client_profile_update),
+            "18.6": ("step_18_6_ares_bridge_sync", self._step_ares_bridge_sync),
             "19": ("step_19_morphenix_quality_gate", self._step_morphenix_quality_gate),
             # ── Autonomy Architecture 新增步驟 ──
             "0": ("step_00_budget_settlement", self._step_budget_settlement),
@@ -3377,6 +3378,38 @@ class NightlyPipeline:
             )
 
         return stats
+
+    # ═══════════════════════════════════════════
+    # Step 18.6: Ares 橋接同步
+    # ═══════════════════════════════════════════
+
+    def _step_ares_bridge_sync(self) -> Dict:
+        """Step 18.6: 將 external_users 同步到 Ares ProfileStore.
+
+        接在 Step 18.5 之後——18.5 更新 external_users，18.6 橋接到 Ares。
+        """
+        try:
+            from museon.ares.profile_store import ProfileStore
+            from museon.ares.external_bridge import ExternalBridge
+
+            store = ProfileStore(self._workspace)
+            ext_dir = self._workspace / "_system" / "external_users"
+            if not ext_dir.exists():
+                ext_dir = self._workspace / "data" / "_system" / "external_users"
+            if not ext_dir.exists():
+                return {"skipped": "external_users directory not found"}
+
+            bridge = ExternalBridge(store, ext_dir)
+            stats = bridge.sync_all()
+            if stats["created"] > 0 or stats["updated"] > 0:
+                logger.info(
+                    f"[NIGHTLY] Ares bridge sync: created={stats['created']}, "
+                    f"updated={stats['updated']}, errors={stats['errors']}"
+                )
+            return stats
+        except Exception as e:
+            logger.warning(f"[NIGHTLY] Ares bridge sync failed: {e}")
+            return {"skipped": str(e)}
 
     # ═══════════════════════════════════════════
     # Step 0.1: 足跡清理

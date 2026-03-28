@@ -1,7 +1,9 @@
-# MUSEON 系統拓撲圖 v1.60
+# MUSEON 系統拓撲圖 v1.62
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.62 (2026-03-29)**：戰神系統（Ares）——thinking 群組新增 `anima-individual`（ANIMA 個體追蹤引擎，plugin）、`ares`（戰神系統工作流，workflow）2 個 Skill 節點；新增 Python 模組 `src/museon/ares/`（profile_store.py, graph_renderer.py, external_bridge.py）；新增儲存路徑 `data/ares/profiles/`；新增 22 條 cross 連線（ares→anima-individual/wan-miu-16/energy-reading/combined-reading/master-strategy/shadow/xmodel/pdeif/roundtable/business-12/ssa-consultant/knowledge-lattice/user-model/c15、anima-individual→wan-miu-16/energy-reading/combined-reading/shadow/master-strategy/xmodel/knowledge-lattice/user-model）；同步 blast-radius v1.80、joint-map v1.52、memory-router v1.13、persistence-contract v1.40。
+> **v1.61 (2026-03-29)**：OneMuse 能量解讀技能群——thinking 群組新增 `energy-reading`（八方位能量解讀）、`wan-miu-16`（萬謬16型人格）、`combined-reading`（合盤能量比對）3 個 Skill 節點；新增 11 條 cross 連線（energy-reading→dharma/resonance/knowledge-lattice/user-model、wan-miu-16→energy-reading/knowledge-lattice/user-model、combined-reading→energy-reading/wan-miu-16/knowledge-lattice/user-model）；同步 blast-radius v1.79、joint-map v1.51、memory-router v1.12、persistence-contract v1.39。
 > **v1.60 (2026-03-28)**：新增 MuseDoctor 第六虎將節點——`musedoctor`（持續巡邏員，綠區扇入=0）；新增 3 條連線：musedoctor→auto-repair（修復引擎）、musedoctor→nightly-pipeline（_FULL_STEPS 驗證）、cron-registry→musedoctor（每 8 分鐘排程）；免疫系統分工補注：Gateway 急症由 museoff 負責，musedoctor 專責慢循環維護。
 > **v1.59 (2026-03-28)**：死碼清理 20 個模組後拓撲同步——移除已刪除節點：channels/line（LINE 通道）、channels/electron（Electron 桌面）、agent/dna27（DNA27 反射叢集，由 reflex_router 取代）、agent/pending_sayings、agent/routing_bridge、llm/client、llm/vision、doctor/scalpel_lessons、governance/cognitive_receipt、learning/strategy_accumulator（已移入 insight-extractor 模組）、memory/epigenetic_router、memory/proactive_predictor、multiagent/flywheel_flow、pulse/heartbeat_activation、pulse/group_session_proactive、pulse/proactive_activation、pulse/telegram_pusher、security/trust、tools/document_export、tools/report_publisher；更新 fan_in 數據：event_bus 45→46、data_bus 16→15、message 13→14、pulse_db 10→11、vector_bridge 7→9；新增破損 import 告警（brain_fast.py → input_sanitizer/ceremony 待修）。
 > **v1.58 (2026-03-28)**：supervisord 進程管理層引入——架構從 `launchd → uvicorn` 升級為 `launchd → supervisord → uvicorn`；新增 `com.museon.supervisord` launchd 服務節點（KeepAlive=true）；`data/_system/supervisord.conf` 管理 museon-gateway 程序（autorestart=unexpected + exitcodes=0 + startretries=5）；`com.museon.gateway.plist` 已 unload，launchd 不再直接管理 gateway；MuseOff `_triage("restart_gateway")` 改用 `supervisorctl start`（supervisor 路徑 `/Users/ZEALCHOU/Library/Python/3.9/bin/`）；`restart-gateway.sh` v3.0 改用 `supervisorctl restart`。新增 1 個中間層節點（supervisord），其餘節點連線不變。
@@ -347,6 +349,11 @@ external-user（EXTERNAL）
 | `meta-learning` | Meta-Learning | 元學習引擎 | - | skills-thinking-hub | 1.2 |
 | `query-clarity` | Query-Clarity | 問題品質守門層 | - | skills-thinking-hub | 1.2 |
 | `user-model` | User-Model | 使用者畫像引擎 | - | skills-thinking-hub | 1.2 |
+| `energy-reading` | Energy-Reading | 八方位能量解讀 | - | skills-thinking-hub | 1.2 |
+| `wan-miu-16` | Wan-Miu-16 | 萬謬16型人格 | - | skills-thinking-hub | 1.2 |
+| `combined-reading` | Combined-Reading | 合盤能量比對 | - | skills-thinking-hub | 1.2 |
+| `anima-individual` | Anima-Individual | ANIMA 個體追蹤引擎 | - | skills-thinking-hub | 1.2 |
+| `ares` | Ares | 戰神系統工作流 | - | skills-thinking-hub | 1.4 |
 
 #### skills-market — 市場類
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -387,6 +394,8 @@ external-user（EXTERNAL）
 |----|------|------|-----|--------|------|
 | `esg-architect-pro` | ESG-Architect-Pro | ESG 永續報告鍛造 | - | skills-business-hub | 1.2 |
 | `meeting-intelligence` | Meeting-Intel | 會議情報分析 | - | skills-business-hub | 1.2 |
+| `brand-discovery` | Brand-Discovery | 漸進式品牌訪談引擎 | - | skills-business-hub | 1.2 |
+| `brand-builder` | Brand-Builder | 奧美級品牌建構引擎 | - | skills-business-hub | 1.4 |
 
 #### skills-product — 產品類
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -417,6 +426,7 @@ external-user（EXTERNAL）
 | `workflow-svc-brand-marketing` | WF-SVC-01 | 品牌行銷工作流 | - | skills-workflow-hub | 1.2 |
 | `workflow-investment-analysis` | WF-INV-01 | 投資分析工作流 | - | skills-workflow-hub | 1.2 |
 | `workflow-ai-deployment` | WF-AID-01 | AI部署工作流 | - | skills-workflow-hub | 1.2 |
+| `workflow-brand-consulting` | WF-BRD-01 | 品牌手冊工作流 | - | skills-workflow-hub | 1.4 |
 | `group-meeting-notes` | WF-GMN-01 | 會議記錄引擎 | - | skills-workflow-hub | 1.2 |
 
 ---
@@ -924,6 +934,11 @@ external-user（EXTERNAL）
 | `skills-thinking-hub` | `meta-learning` | 元學習 |
 | `skills-thinking-hub` | `query-clarity` | 問題品質 |
 | `skills-thinking-hub` | `user-model` | 使用者畫像 |
+| `skills-thinking-hub` | `energy-reading` | 八方位能量解讀 |
+| `skills-thinking-hub` | `wan-miu-16` | 萬謬16型人格 |
+| `skills-thinking-hub` | `combined-reading` | 合盤能量比對 |
+| `skills-thinking-hub` | `anima-individual` | ANIMA 個體追蹤 |
+| `skills-thinking-hub` | `ares` | 戰神系統 |
 
 #### Market Hub
 | Source | Target | 說明 |
@@ -947,6 +962,9 @@ external-user（EXTERNAL）
 | `skills-business-hub` | `consultant-communication` | 顧問溝通 |
 | `skills-business-hub` | `xmodel` | 破框解方 |
 | `skills-business-hub` | `pdeif` | 逆熵流 |
+| `skills-business-hub` | `brand-discovery` | 品牌訪談 |
+| `skills-business-hub` | `brand-builder` | 品牌建構 |
+| `brand-discovery` | `brand-builder` | 訪談資料→品牌分析 |
 
 #### Creative Hub
 | Source | Target | 說明 |
@@ -987,7 +1005,10 @@ external-user（EXTERNAL）
 | `skills-workflow-hub` | `workflow-svc-brand-marketing` | 品牌行銷 |
 | `skills-workflow-hub` | `workflow-investment-analysis` | 投資分析 |
 | `skills-workflow-hub` | `workflow-ai-deployment` | AI部署 |
+| `skills-workflow-hub` | `workflow-brand-consulting` | 品牌手冊 |
 | `skills-workflow-hub` | `group-meeting-notes` | 會議記錄 |
+| `workflow-brand-consulting` | `brand-discovery` | 工作流→訪談 |
+| `workflow-brand-consulting` | `brand-builder` | 工作流→品牌建構 |
 
 ### Skills 跨群組連線（cross）
 
@@ -1030,6 +1051,39 @@ external-user（EXTERNAL）
 | `system-health-check` | `morphenix` | 修復提案 |
 | `decision-tracker` | `knowledge-lattice` | 決策結晶化 |
 | `decision-tracker` | `user-model` | 決策偏好 |
+| `energy-reading` | `dharma` | 思維轉化讀取 |
+| `energy-reading` | `resonance` | 感性共振讀取 |
+| `energy-reading` | `knowledge-lattice` | 能量結晶讀寫 |
+| `energy-reading` | `user-model` | 使用者畫像讀寫 |
+| `wan-miu-16` | `energy-reading` | 能量數據讀取 |
+| `wan-miu-16` | `knowledge-lattice` | 人格結晶讀寫 |
+| `wan-miu-16` | `user-model` | 使用者畫像讀寫 |
+| `combined-reading` | `energy-reading` | 能量數據讀取 |
+| `combined-reading` | `wan-miu-16` | 人格數據讀取 |
+| `combined-reading` | `knowledge-lattice` | 關係結晶讀寫 |
+| `combined-reading` | `user-model` | 使用者畫像讀寫 |
+| `anima-individual` | `wan-miu-16` | 萬謬16型人格數據 |
+| `anima-individual` | `energy-reading` | 八方位能量數據 |
+| `anima-individual` | `combined-reading` | 合盤能量比對 |
+| `anima-individual` | `shadow` | 博弈模式辨識 |
+| `anima-individual` | `master-strategy` | 戰略評估 |
+| `anima-individual` | `xmodel` | 破框解方 |
+| `anima-individual` | `knowledge-lattice` | individual_crystal 結晶讀寫 |
+| `anima-individual` | `user-model` | 使用者畫像讀寫 |
+| `ares` | `anima-individual` | 個體引擎調用 |
+| `ares` | `wan-miu-16` | 萬謬16型人格數據 |
+| `ares` | `energy-reading` | 八方位能量數據 |
+| `ares` | `combined-reading` | 合盤能量比對 |
+| `ares` | `master-strategy` | 九策軍師戰略評估 |
+| `ares` | `shadow` | 陰謀博弈辨識 |
+| `ares` | `xmodel` | 破框解方 |
+| `ares` | `pdeif` | 逆熵流路徑設計 |
+| `ares` | `roundtable` | 多角色詰問 |
+| `ares` | `business-12` | 商模十二力診斷 |
+| `ares` | `ssa-consultant` | 顧問銷售策略 |
+| `ares` | `knowledge-lattice` | strategy_crystal 結晶讀寫 |
+| `ares` | `user-model` | 使用者畫像讀寫 |
+| `ares` | `c15` | 敘事張力語言 |
 
 ### 監控連線（monitor）
 | Source | Target | 說明 |
@@ -1109,8 +1163,8 @@ external-user（EXTERNAL）
 
 | 指標 | 數值 |
 |------|------|
-| 總節點數 | 183（153 系統 - 20 已刪除 + 50 Skills） |
-| 總連線數 | 476（500 - 24 已刪除連線） |
+| 總節點數 | 188（153 系統 - 20 已刪除 + 55 Skills） |
+| 總連線數 | 512（487 + 2 internal + 23 cross Ares/ANIMA） |
 | 群組數 | 15 (含 skills，新增 learning + billing) |
 | Hub 節點 | 19 (12 系統 + 7 Skills Hub) |
 | 已刪除節點（v1.59）| 20（含 line/electron/dna27/epigenetic-router/proactive-predictor 等） |
@@ -1124,6 +1178,8 @@ external-user（EXTERNAL）
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.62 | 2026-03-29 | 戰神系統（Ares）——thinking 群組新增 anima-individual（ANIMA 個體追蹤引擎）+ ares（戰神系統工作流）2 個 Skill 節點；新增 Python 模組 src/museon/ares/（profile_store/graph_renderer/external_bridge）；新增 2 條 internal + 23 條 cross 連線。188 節點 512 連線 |
+| v1.61 | 2026-03-29 | OneMuse 能量解讀技能群——thinking 群組新增 energy-reading/wan-miu-16/combined-reading 3 個 Skill 節點 + 11 條 cross 連線。186 節點 487 連線 |
 | v1.59 | 2026-03-28 | 死碼清理 20 個模組後拓撲同步——節點 203→183（-20）；連線 500→476（-24）；更新 fan_in 數據（event_bus 45→46、data_bus 16→15、message 13→14、pulse_db 10→11、vector_bridge 7→9）；記錄破損 import 2 個（brain_fast → input_sanitizer/ceremony 待修） |
 | v1.54 | 2026-03-27 | 有機體進化計畫 Phase 1-9——新增 6 節點（proactive-dispatcher、memory-graph、insight-extractor、strategy-accumulator、shared-board、skill-counter）+ 2 群組（learning、billing）+ 12 條跨系統連線 + 4 條內部連線；Nightly 精簡移除 3 步驟；五虎將共享看板；cron 推送納管 ProactiveDispatcher。203 節點 500 連線 |
 | v1.53 | 2026-03-26 | v2 Brain 四層架構 + 死碼清理——agent 群組新增 brain-deep（L2 Opus）、brain-tool-loop（tool-use 迴圈）、brain-observer（L4 觀察者）3 節點 + 7 條連線；brain 升級為 L1 Sonnet + escalation；移除 federation（skill-market + federation-sync 2 節點）+ installer 群組（5 節點）；nightly 新增 Step 31 context_cache + context-cache-builder 節點。197 節點 484 連線 |

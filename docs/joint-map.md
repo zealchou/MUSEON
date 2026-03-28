@@ -1,9 +1,11 @@
-# Joint Map — 共享可變狀態接頭圖 v1.50
+# Joint Map — 共享可變狀態接頭圖 v1.52
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
 > **更新時機**：改變共享檔案的讀寫者或格式時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
+> **v1.52 (2026-03-29)**：戰神系統（Ares）——新增 #56 `data/ares/profiles/`（🟢 ANIMA 個體檔案，寫入者=anima-individual Skill + external_bridge.py，讀取者=ares Skill + profile_store.py）；共享狀態 55→56 個。同步 system-topology v1.62、blast-radius v1.80、memory-router v1.13、persistence-contract v1.40。
+> **v1.51 (2026-03-29)**：OneMuse 能量解讀技能群——新增 #55 `data/knowledge/onemuse/`（🟢 唯讀參考資料，36 檔 Markdown/JSON，寫入者=無（手動維護），讀取者=energy-reading/wan-miu-16/combined-reading 三個 Skill）；共享狀態 54→55 個（含唯讀參考）。同步 system-topology v1.61、blast-radius v1.79、memory-router v1.12、persistence-contract v1.39。
 > **v1.49 (2026-03-28)**：死碼清理 20 個模組後同步——移除已刪除模組（channels/line、channels/electron、llm/vision、agent/dna27、agent/routing_bridge、agent/pending_sayings、memory/epigenetic_router、memory/proactive_predictor、multiagent/flywheel_flow、pulse/group_session_proactive、pulse/heartbeat_activation、pulse/proactive_activation、pulse/telegram_pusher、security/trust、tools/document_export、tools/report_publisher、governance/cognitive_receipt、doctor/scalpel_lessons、learning/strategy_accumulator）的讀寫者條目；data_bus 消費者從 16→15（channels/line 已刪）；pulse_db 消費者從 10→11（新增 pulse/group_digest）。
 
 ---
@@ -66,6 +68,8 @@
 | 52 | _system/doctor/shared_board.json | 🟡 | 4 | 5 | 無 | [→](#52-shared_boardjson) |
 | 54 | _system/doctor/patrol_state.json | 🟢 | 1 | 1 | 無（單寫入者） | — |
 | 53 | _system/billing/skill_invocations_*.json | 🟢 | 1 | 1 | 無 | [→](#53-skill_invocationsjson) |
+| 55 | knowledge/onemuse/ (36 檔) | 🟢 | 0 | 3 | 無（唯讀） | [→](#55-knowledgeonemuse) |
+| 56 | ares/profiles/ | 🟢 | 2 | 2 | 無 | [→](#56-aresprofiles) |
 
 > **危險度定義**：🔴 多寫入者+高扇出+格式不一致 | 🟡 多寫入者或高扇出 | 🟢 單寫入者+低扇出
 
@@ -277,6 +281,9 @@
 | `pulse/wee_engine.py` | **R** | 工作流查詢（經由 CrystalStore API） | — |
 | `guardian/daemon.py` | **R** | 健康檢查（經由 CrystalStore API） | — |
 | `doctor/memory_reset.py` | **W** | 一鍵重置（DELETE FROM 三表） | — |
+| `skills/energy-reading` | **W** | Skill 執行時寫入 energy_crystal（經由 KnowledgeLattice） | ✅ 經由 CrystalStore |
+| `skills/wan-miu-16` | **W** | Skill 執行時寫入 persona_crystal（經由 KnowledgeLattice） | ✅ 經由 CrystalStore |
+| `skills/combined-reading` | **W** | Skill 執行時寫入 relationship_crystal（經由 KnowledgeLattice） | ✅ 經由 CrystalStore |
 
 #### 衰減策略
 
@@ -747,6 +754,9 @@
 | `agent/brain.py` | **W** | `_observe_lord()` | 每次 _observe_user() 尾部呼叫，根據關鍵字匹配遞增 evidence_count | 原子寫入（tmp→rename） |
 | `agent/brain.py` | **R** | `Step 3.65` | 百合引擎路由：讀取 lord_profile 傳入 baihe_decide()，進諫時原子寫回 cooldown | 原子寫入（tmp→rename） |
 | `agent/persona_router.py` | **R** | `baihe_decide()` | 接收 brain.py 傳入的 lord_profile dict，純讀不寫 | — |
+| `skills/energy-reading` | **RW** | Skill 執行時讀寫 | 讀取使用者能量狀態、寫回能量維度更新 | — |
+| `skills/wan-miu-16` | **RW** | Skill 執行時讀寫 | 讀取使用者人格狀態、寫回人格維度更新 | — |
+| `skills/combined-reading` | **RW** | Skill 執行時讀寫 | 讀取使用者關係狀態、寫回關係維度更新 | — |
 
 #### 資料格式
 
@@ -1264,6 +1274,45 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 
 ---
 
+### 55. knowledge/onemuse/
+
+**路徑**：`data/knowledge/onemuse/`（36 檔）
+**用途**：OneMuse 能量解讀知識庫——OM-DNA 核心規範、模組定義、64 卦知識、AEO 行動包、品牌視覺、報告模板
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| （無） | — | — | 唯讀參考資料，無寫入者（手動維護） | — |
+| `skills/energy-reading` | **R** | Skill 執行時讀取 | 八方位能量解讀知識參考 | — |
+| `skills/wan-miu-16` | **R** | Skill 執行時讀取 | 萬謬16型人格知識參考 | — |
+| `skills/combined-reading` | **R** | Skill 執行時讀取 | 合盤能量比對知識參考 | — |
+
+> **鎖**：無需（唯讀參考資料，無寫入競爭）
+> **TTL**：永久（手動維護更新）
+> **危險度**：🟢（唯讀，無寫入爭用風險）
+
+### 56. ares/profiles/
+
+**路徑**：`data/ares/profiles/`（{profile_id}.json 個體檔案 + _index.json 索引）
+**用途**：ANIMA 個體追蹤引擎的持久化儲存——第三方人物（客戶/供應商/合夥人/員工/私人關係）的七層鏡像、八大槓桿、互動歷史、關係溫度
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| `skills/anima-individual` | **W** | Skill 執行時寫入 | 個體分析結果持久化（七層鏡像 + 八大槓桿） | — |
+| `src/museon/ares/external_bridge.py` | **W** | `bridge_group_member()` | Telegram 群組成員自動建立/更新個體檔案 | — |
+| `src/museon/ares/profile_store.py` | **RW** | CRUD + `search_paths()` + `simulate()` | 個體 CRUD、槓桿分析、路徑搜尋、連動模擬 | — |
+| `skills/ares` | **R** | Skill 執行時讀取 | 戰略分析時讀取個體檔案做跨人物分析 | — |
+
+> **鎖**：無需（profile_store.py 為唯一 CRUD 入口，Skill 寫入經由 profile_store 路由）
+> **TTL**：永久（持續更新）
+> **危險度**：🟢（寫入者均經由 profile_store.py 統一入口，無併發寫入風險）
+> **結晶化**：anima-individual → knowledge-lattice `individual_crystal`；ares → knowledge-lattice `strategy_crystal`
+
+---
+
 ## 必須同時修改的模組組（不可分批）
 
 > 修改以下任一模組時，**必須**同時檢查並調整同組所有模組。
@@ -1351,6 +1400,8 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 | 2026-03-16 | v1.15 | Memory Reset 一鍵重置工具：新增 `doctor/memory_reset.py` 為 25 個共享狀態的重置者（#1 ANIMA_MC.json boss/self_awareness 重置、#2 ANIMA_USER.json 全量重置、#3 PULSE.md 模板重建、#9 Qdrant 全部 collections 刪除重建、#25 JSONL 審計日誌群清空、#26 記憶 Markdown 刪除、#27 fact_corrections.jsonl 清空）；同時重置 PulseDB 全表、sessions、crystals/synapses/scout_queue、diary/drift、eval/workflow_state.db、guardian/footprints/activity_log、nightly_state/outward；預設 dry-run 安全模式 |
 | 2026-03-17 | v1.15 | DNA-Inspired 品質回饋閉環：#8 PulseDB 讀取者 11→12（+morphenix_executor `get_quality_flags()`/`get_quality_flag_summary()`）；metacognition 新增 `METACOGNITION_QUALITY_FLAG` 事件發布（verdict=revise 時）；morphenix_executor 夜間管線讀取品質旗標作為演化上下文 |
 | 2026-03-16 | v1.14 | Memory Gate 記憶閘門：新增 `memory/memory_gate.py` 為 ANIMA_USER.json 間接寫入控制者；brain.py `_observe_user()` 新增 `suppress_primals`/`suppress_facts` 參數；`_observe_user_layers()` 新增 `suppress_facts` 參數；L1_facts 新增 `status`/`confidence` 欄位；Step 9.2 事實更正偵測提前到 Step 9 之前；解決「越否認越強化」記憶迴圈 |
+| 2026-03-29 | v1.52 | 戰神系統（Ares）——新增 #56 `data/ares/profiles/`（🟢 2 寫入者 anima-individual+external_bridge / 2 讀取者 ares+profile_store）；共享狀態 55→56 個 |
+| 2026-03-29 | v1.51 | OneMuse 能量解讀技能���——新增 #55 `data/knowledge/onemuse/`（🟢 唯讀，0 寫入者 / 3 讀取者 energy-reading+wan-miu-16+combined-reading）；共享狀態 54→55 個 |
 | 2026-03-28 | v1.50 | MuseDoctor 第六虎將——新增 #54 `data/_system/doctor/patrol_state.json`（🟢 單寫入者 musedoctor.py，讀取者：cron_registry 啟動時、Telegram /patrol 指令）；共享狀態 53→54 個 |
 | 2026-03-27 | v1.48 | 有機體進化計畫 Phase 1-9——新增 #48 `push_journal_24h.json`（ProactiveDispatcher 寫入、telegram 讀取）、#49-#50 `memory_graph/` edges+access_log（MemoryGraph 單寫、Brain 讀取）、#51 `learning/insights/`（InsightExtractor 單寫、Brain 讀取）、#52 `shared_board.json`（🟡 4 寫入者 museoff/qa/doc/worker，5 讀取者）、#53 `skill_invocations_*.json`（SkillCounter 單寫單讀）。共享狀態 47→53 個 |
 | 2026-03-26 | v1.47 | v2 Brain 四層架構共享狀態——新增 #43 `pending_insights.json`（L4 觀察者寫入、L1 讀取+清空，原子寫）、#44 `context_cache/` 4 檔（nightly Step 31 重建、L1/L2 每次讀取）。刪除 federation/installer 相關引用。共享狀態 45→47 個 |
