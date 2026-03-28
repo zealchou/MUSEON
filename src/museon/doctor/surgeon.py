@@ -194,28 +194,29 @@ class SurgeryRestarter:
             return False
 
     async def _try_launchd_selfkill(self) -> bool:
-        """策略 2：在 launchd KeepAlive 模式下，SIGTERM 自己.
+        """策略 2：在 supervisord autorestart 模式下，SIGTERM 自己.
 
-        launchd 會自動重新啟動服務。
+        supervisord 偵測到非 exitcodes 的退出碼（SIGTERM=15）會自動重啟。
         """
         try:
-            # 檢查是否在 launchd 管理下
+            # 檢查是否在 supervisord 管理下
+            supervisorctl = "/Users/ZEALCHOU/Library/Python/3.9/bin/supervisorctl"
+            conf = str(self._root / "data/_system/supervisord.conf")
             result = subprocess.run(
-                ["launchctl", "list", "com.museon.gateway"],
+                [supervisorctl, "-c", conf, "status", "museon-gateway"],
                 capture_output=True, text=True, timeout=5,
             )
-            if result.returncode != 0:
-                logger.debug("SurgeryRestarter: 不在 launchd 管理下")
+            if "RUNNING" not in result.stdout:
+                logger.debug("SurgeryRestarter: 不在 supervisord 管理下")
                 return False
 
-            # 確認 KeepAlive 啟用
-            logger.info("SurgeryRestarter: launchd 管理下，準備 self-kill")
-            # 延遲 2 秒後 SIGTERM 自己
+            # supervisord autorestart=unexpected 會在 SIGTERM（exit!=0）後重啟
+            logger.info("SurgeryRestarter: supervisord 管理下，準備 self-kill")
             await asyncio.sleep(0.1)
             os.kill(os.getpid(), signal.SIGTERM)
             return True
         except Exception as e:
-            logger.debug(f"SurgeryRestarter: launchd self-kill 失敗: {e}")
+            logger.debug(f"SurgeryRestarter: supervisord self-kill 失敗: {e}")
             return False
 
     async def _write_pending_marker(self, reason: str) -> bool:
