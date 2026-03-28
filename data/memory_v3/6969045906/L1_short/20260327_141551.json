@@ -1,0 +1,6 @@
+{
+  "session_id": "telegram_6969045906",
+  "user_message": "我的 FB 跟 IG 都是商業帳號",
+  "museon_reply": "n8n 跑起來了，商業帳號也確認。現在進 **Step 2：取得 Meta API Token**。\n\n---\n\n## 取得 Meta API Token（你需要做，約 15 分鐘）\n\n### 1. 建立 Meta Developer App\n\n1. 開 [developers.facebook.com](https://developers.facebook.com)\n2. 右上角「My Apps」→「Create App」\n3. App type 選「**Business**」\n4. 填 App name（例如：`MUSEON Social`）\n5. 連結你的 FB 商業帳號\n\n### 2. 加入 Instagram Graph API\n\n進去後：\n1. Dashboard 找「Add Product」→ 選「**Instagram Graph API**」\n2. 同時加入「**Facebook Login for Business**」\n\n### 3. 取得 Page Access Token\n\n1. 左側選「Tools」→「**Graph API Explorer**」\n2. ",
+  "timestamp": "2026-03-27T14:15:51.759557+08:00"
+}

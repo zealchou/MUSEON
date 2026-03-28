@@ -12,14 +12,14 @@
   },
   "preferences": {
     "communication_style": "concise",
-    "active_hours": "evening"
+    "active_hours": "morning"
   },
   "relationship": {
     "trust_level": "established",
-    "total_interactions": 1247,
+    "total_interactions": 1250,
     "positive_signals": 0,
     "negative_signals": 0,
-    "last_interaction": "2026-03-27T19:00:01.612353",
+    "last_interaction": "2026-03-28T07:48:59.558080",
     "first_interaction": "2026-03-16T23:54:38.010723"
   },
   "eight_primals": {
@@ -356,10 +356,10 @@
     "L4_goals": [],
     "L5_emotional_patterns": [],
     "L6_communication_style": {
-      "detail_level": "moderate",
+      "detail_level": "concise",
       "emoji_usage": "none",
-      "language_mix": "chinese_dominant",
-      "avg_msg_length": 394,
+      "language_mix": "english_dominant",
+      "avg_msg_length": 243,
       "question_style": "directive",
       "tone": "casual"
     },
@@ -397,13 +397,6 @@
     ],
     "L8_context_behavior_notes": [],
     "L3_decision_pattern": [
-      {
-        "pattern_type": "skill_cluster",
-        "description": "skill_cluster:dharma+dse+morphenix",
-        "frequency": 1,
-        "last_seen": "2026-03-25T17:51:13.483723",
-        "confidence": 0.3
-      },
       {
         "pattern_type": "skill_cluster",
         "description": "skill_cluster:market-core+market-crypto+workflow-investment-analysis",
@@ -512,8 +505,8 @@
       {
         "pattern_type": "time_distribution",
         "description": "time_pattern:deep_night",
-        "frequency": 4,
-        "last_seen": "2026-03-26T04:42:29.678255",
+        "frequency": 6,
+        "last_seen": "2026-03-28T05:49:06.649522",
         "confidence": 0.2
       },
       {
@@ -526,8 +519,8 @@
       {
         "pattern_type": "time_distribution",
         "description": "time_pattern:early_morning",
-        "frequency": 5,
-        "last_seen": "2026-03-26T08:58:05.432308",
+        "frequency": 6,
+        "last_seen": "2026-03-28T07:48:59.558080",
         "confidence": 0.2
       },
       {
@@ -596,9 +589,9 @@
       {
         "pattern_type": "skill_cluster",
         "description": "skill_cluster:dharma+market-core+resonance",
-        "frequency": 2,
-        "last_seen": "2026-03-27T18:45:18.243288",
-        "confidence": 0.35
+        "frequency": 4,
+        "last_seen": "2026-03-28T05:49:06.649522",
+        "confidence": 0.44999999999999996
       },
       {
         "pattern_type": "skill_cluster",
@@ -612,6 +605,13 @@
         "description": "skill_cluster:dse+meta-learning+philo-dialectic",
         "frequency": 1,
         "last_seen": "2026-03-27T19:00:01.612353",
+        "confidence": 0.3
+      },
+      {
+        "pattern_type": "skill_cluster",
+        "description": "skill_cluster:dharma+market-macro+resonance",
+        "frequency": 1,
+        "last_seen": "2026-03-28T07:48:59.558080",
         "confidence": 0.3
       }
     ],
@@ -660,17 +660,17 @@
         "key": "prefers_short_response",
         "value": "prefers short response",
         "confidence": 1.0,
-        "observed_count": 880,
+        "observed_count": 882,
         "first_seen": "2026-03-16T22:02:34.688998",
-        "last_seen": "2026-03-27T18:59:17.668488"
+        "last_seen": "2026-03-28T05:49:06.649522"
       },
       {
         "key": "active_late_night",
         "value": "active late night",
         "confidence": 1.0,
-        "observed_count": 102,
+        "observed_count": 104,
         "first_seen": "2026-03-17T00:00:05.327051",
-        "last_seen": "2026-03-26T04:42:29.678255"
+        "last_seen": "2026-03-28T05:49:06.649522"
       },
       {
         "key": "prefers_long_response",
@@ -684,9 +684,9 @@
         "key": "active_early_morning",
         "value": "active early morning",
         "confidence": 1.0,
-        "observed_count": 38,
+        "observed_count": 39,
         "first_seen": "2026-03-17T08:41:17.043113",
-        "last_seen": "2026-03-26T08:58:05.432308"
+        "last_seen": "2026-03-28T07:48:59.558080"
       },
       {
         "key": "interested_in_technical",
@@ -728,14 +728,14 @@
   },
   "_tone_history": {
     "formal_total": 0,
-    "casual_total": 2,
-    "sample_count": 1247
+    "casual_total": 0,
+    "sample_count": 1250
   },
   "_pref_buffer": {
     "prefers_short_response": {
-      "count": 880,
+      "count": 882,
       "first": "2026-03-16T22:02:34.688998",
-      "last": "2026-03-27T18:59:17.668488"
+      "last": "2026-03-28T05:49:06.649522"
     },
     "active_late_evening": {
       "count": 172,
@@ -748,14 +748,14 @@
       "last": "2026-03-27T19:00:01.612353"
     },
     "active_late_night": {
-      "count": 102,
+      "count": 104,
       "first": "2026-03-17T00:00:05.327051",
-      "last": "2026-03-26T04:42:29.678255"
+      "last": "2026-03-28T05:49:06.649522"
     },
     "active_early_morning": {
-      "count": 38,
+      "count": 39,
       "first": "2026-03-17T08:41:17.043113",
-      "last": "2026-03-26T08:58:05.432308"
+      "last": "2026-03-28T07:48:59.558080"
     },
     "interested_in_business": {
       "count": 68,
@@ -784,9 +784,9 @@
     }
   },
   "_rc_calibration": {
-    "total_checks": 1200,
+    "total_checks": 1250,
     "trigger_counts": {},
-    "last_calibrated_at": "2026-03-25T15:32:05.688231"
+    "last_calibrated_at": "2026-03-28T07:48:59.566606"
   },
   "L8_context_behavior_notes": {
     "observations": [

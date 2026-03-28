@@ -1,0 +1,24 @@
+{
+  "id": "e67fc9fc-a7ce-4192-9c63-0ce25e6a0c3d",
+  "content": "[失敗經驗] 任務：還沒好？\n失敗類型：general_failure\n回應片段：你說得對，我上次說「直接補上」但沒真的做。馬上補。\n\n## 七個問題重新整理\n\n### **第一類：基礎設施層（Telegram 性能瓶頸）**\n| 問題 | 核心關注 | 現狀 |\n|------|---------|------|\n| Q1 | 回覆速度慢 — 如何加速？分流策略是什麼？ | Telegram L1/L2 延遲 |\n| Q2 | Token 優化 — CPU > GPU > T",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-26T16:57:55.050477+08:00",
+  "updated_at": "2026-03-26T16:57:55.050477+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "6969045906",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

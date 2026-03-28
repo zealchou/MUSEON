@@ -1,0 +1,6 @@
+{
+  "session_id": "telegram_6969045906",
+  "user_message": "[回覆 霓裳 的訊息：查清楚了。問題出在這裡：\n\n原因： 沒有在跑\n\n群組摘要的程式碼是存在的，設定在 cron_registry.py 裡，排程是 10:00 / 14:00 / 17:00——但它是 MUSEON 的 APScheduler 任務，需要 服務正在運行才會執行。\n\n你現在是在 Claude Code App 裡跟我對話，這條 session 跑的是我（主持人），不是 排程器。\n\n兩條執行路徑的差異\n\n| 路徑 | 誰在跑排程 |\n|------|-----------|\n|  啟動中（python -m museon.gateway.server）| APScheduler 自動在 10/14/17 點觸發 _group_digest_job |\n| 只有 Claude Code session（現在的狀態）| 沒有 APScheduler，排程不跑 |\n\n快速確認\n\n你現在 有沒有在跑？\n\n``bash\nps aux | grep \"museon.gateway\"\n`\n\n或查 logs：\n\n`bash\ntail -50 ~/MUSEON/logs/museon.lo",
+  "museon_reply": "Museon x Evvon 摘要補發成功。\n\nAmber 和士維群組今天訊息太少（< 3 則），跳過。\n\n---\n\n**接下來確認兩件事：**\n\n1. ** 已在跑**（有兩個 instance，6:14pm 剛重啟了一個）— 10:00 / 14:00 / 17:00 的摘要應該會自動觸發\n\n2. **今天的 5pm 沒觸發的根因**：\n - 在 6:14pm 才（重）啟動\n - 5pm 的排程只在啟動那刻的 APScheduler 排隊，重啟前的 5pm 已經過了\n\n下午 5pm 之前確認 有在跑，明天就正常了。要不要順手確認一下為什麼有兩個 gateway instance 在跑？",
+  "timestamp": "2026-03-27T18:18:28.721131+08:00"
+}

@@ -1,0 +1,6 @@
+{
+  "session_id": "telegram_6969045906",
+  "user_message": "還有什麼你覺得可以先安裝的第三方 工具",
+  "museon_reply": "根據你的使用場景，最值得考慮的：\n\n## 高優先\n\n| 工具 | 為什麼裝 | 安裝指令 |\n|------|---------|---------|\n| **Notion** | 客戶交付物、知識管理、報告存放 | `npx @notionhq/notion-mcp-server` |\n| **GitHub** | MUSEON 開發、PR/issue 管理，比 gh CLI 更原生 | `npx @modelcontextprotocol/server-github` |\n| **Fetch** | 抓任何網頁原始 HTML（Playwright 是互動，這個是純讀取，更輕） | `npx @modelcontextprotocol/server-fetch` |\n\n## 中優先（依你有沒有在用）\n\n| 工具 | 用途 |\n|------|------|\n| **Airtable** | 你有在用 Airtable 管客戶/帳單嗎？ |\n| **Slack** | 你有 Slack 工作區嗎？ |\n| **Linear** | 工單管理，如果 MUSEON 開發規模大起來 |\n\n#",
+  "timestamp": "2026-03-27T16:35:25.431388+08:00"
+}

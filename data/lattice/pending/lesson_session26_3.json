@@ -1,0 +1,10 @@
+{
+  "id": "KL-LES-session26-3",
+  "type": "Lesson",
+  "title": "動手前先查實際狀態",
+  "content": "一開始沒查就用 Claude bot plugin 發訊息，完全沒確認 MUSEON 的實際 Telegram 架構。先讀藍圖、查 git log、確認現狀，再給建議。",
+  "source": "session_20260326_v2_brain",
+  "confidence": 0.95,
+  "created_at": "2026-03-26T18:26:08.580606",
+  "geo_layer": "L3_procedural"
+}

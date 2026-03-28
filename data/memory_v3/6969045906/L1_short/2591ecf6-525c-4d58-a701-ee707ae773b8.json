@@ -1,0 +1,24 @@
+{
+  "id": "2591ecf6-525c-4d58-a701-ee707ae773b8",
+  "content": "[失敗經驗] 任務：早安\n失敗類型：general_failure\n回應片段：目前無法連線到 AI 服務。你的訊息已記錄。\n等連線恢復後我會重新處理。\n\n收到的訊息：「早安」",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-26T07:49:21.952087+08:00",
+  "updated_at": "2026-03-26T07:49:21.952087+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "6969045906",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

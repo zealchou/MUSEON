@@ -1,0 +1,11 @@
+{
+  "id": "0aa5a882-8da3-4ed5-8809-0eac3fad0fa9",
+  "type": "lesson",
+  "lesson_id": "verify_consumption_chain",
+  "content": "教訓：寫入成功不等於系統能用，要追到消費端確認。來源：Morphenix 提案空執行：L1 缺 config_changes 結構 executor 讀不到",
+  "tags": [
+    "教訓",
+    "2026-03-27"
+  ],
+  "created_at": "2026-03-27T11:42:03.430906"
+}

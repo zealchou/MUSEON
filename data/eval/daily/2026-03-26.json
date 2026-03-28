@@ -1,0 +1,40 @@
+{
+  "date": "2026-03-26",
+  "total_interactions": 6,
+  "avg_q_score": 0.2625,
+  "satisfaction_proxy": 0.0,
+  "tier_distribution": {
+    "high": 0,
+    "medium": 1,
+    "low": 5
+  },
+  "best_score": 0.55,
+  "worst_score": 0.205,
+  "domain_breakdown": {
+    "general": 0.2625
+  },
+  "skill_usage": {
+    "meta-learning": 2,
+    "sandbox-lab": 2,
+    "market-core": 4,
+    "plan-engine": 3,
+    "gap": 2,
+    "workflow-svc-brand-marketing": 2,
+    "wee": 2,
+    "group-meeting-notes": 1,
+    "dev-preflight": 1,
+    "dharma": 2,
+    "resonance": 4,
+    "qa-auditor": 2,
+    "sentiment-radar": 2,
+    "market-crypto": 2,
+    "risk-matrix": 3,
+    "workflow-investment-analysis": 1,
+    "investment-masters": 3,
+    "storytelling-engine": 2,
+    "novel-craft": 2,
+    "morphenix": 2
+  },
+  "alerts": [],
+  "insufficient_data": true
+}

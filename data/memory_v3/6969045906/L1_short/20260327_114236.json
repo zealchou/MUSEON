@@ -1,0 +1,6 @@
+{
+  "session_id": "telegram_6969045906",
+  "user_message": "客戶說話後，L1, L2 不是都要先讀 L4？還是我記錯了？",
+  "museon_reply": "你沒記錯。這裡有個術語需要釐清。\n\n---\n\n## L4 不是你「讀」的對象，是它**寫**的東西你在讀\n\nL4 是一個流程，不是一份檔案。\n\n真正的讀寫關係是這樣：\n\n```\nL4（寫） → context_cache/*.json\nL4（寫） → client_situation.json（新提案）\n\nL1（讀） → context_cache/（persona_digest, user_summary, active_rules, self_summary）\nL2（讀） → context_cache/ + client_situation.json（新提案加的）\n```\n\n所以你說的「先讀 L4」，準確來說是：**L1 和 L2 都在讀 L4 留下的狀態**，只是讀不同的部分。\n\n---\n\n## 分工差異\n\n| 層 | 讀什麼 | 為什麼 |\n|----|--------|--------|\n| L1 | context_cache（4 個小檔） | 只需要判斷簡單/複雜，100ms 決策 |\n| L2 | context_cache + client_situation.js",
+  "timestamp": "2026-03-27T11:42:36.305611+08:00"
+}

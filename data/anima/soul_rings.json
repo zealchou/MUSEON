@@ -516,5 +516,38 @@
     "prev_hash": "877f44b746503a6657ae6bc4fc4baaeb46270e0d2e6ea74728afa36640af1d9b",
     "reinforcement_count": 0,
     "entry_type": "reflection"
+  },
+  {
+    "type": "service_milestone",
+    "description": "2026-03-28 日記：共 8 次互動",
+    "context": "date=2026-03-28, interactions=8",
+    "impact": "每日成長記錄",
+    "created_at": "2026-03-28T03:00:35.293716",
+    "hash": "57cfb0ab469f2c958694f708b9a51d78cb25ff03f9b2f43869d2a2ec50802681",
+    "prev_hash": "8983e7b523b06b63d834e8e8d2a860f9605aed4b8dface6aae7d139922c238f2",
+    "reinforcement_count": 0,
+    "entry_type": "daily_summary",
+    "metrics": {
+      "interaction_count": 8,
+      "avg_q_score": null,
+      "primals_snapshot": null
+    },
+    "highlights": [
+      "PULSE_MICRO_BEAT: 6 次",
+      "PULSE_EXPLORATION_DONE: 1 次",
+      "BRAIN_RESPONSE_COMPLETE: 1 次"
+    ]
+  },
+  {
+    "type": "service_milestone",
+    "description": "累積完成第 1250 次互動",
+    "context": "持續陪伴里程碑",
+    "impact": "代表 1250 次的信任與成長",
+    "created_at": "2026-03-28T07:48:59.558651",
+    "hash": "0aaaf8eb57e4ec113287f35526d741c47a3a1c714d3aa30409c88945c5514f8e",
+    "prev_hash": "57cfb0ab469f2c958694f708b9a51d78cb25ff03f9b2f43869d2a2ec50802681",
+    "reinforcement_count": 0,
+    "entry_type": "event",
+    "milestone_name": "1250_interactions"
   }
 ]

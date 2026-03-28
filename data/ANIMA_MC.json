@@ -6,7 +6,7 @@
     "name": "vital signs health check",
     "birth_date": "2026-03-16T23:37:00.325066",
     "growth_stage": "adult",
-    "days_alive": 10,
+    "days_alive": 11,
     "naming_ceremony_completed": true
   },
   "self_awareness": {
@@ -54,6 +54,7 @@
       "eval-engine",
       "gap",
       "group-meeting-notes",
+      "human-design-blueprint",
       "info-architect",
       "investment-masters",
       "knowledge-lattice",
@@ -95,38 +96,38 @@
     "forged_skills": [],
     "active_workflows": [],
     "skill_proficiency": {
-      "market-core": 250,
+      "market-core": 253,
       "business-12": 192,
       "gap": 340,
-      "market-crypto": 105,
+      "market-crypto": 108,
       "market-equity": 98,
       "workflow-ai-deployment": 139,
       "morphenix": 209,
       "master-strategy": 160,
-      "qa-auditor": 62,
-      "sentiment-radar": 89,
+      "qa-auditor": 65,
+      "sentiment-radar": 92,
       "c15": 36,
-      "investment-masters": 53,
+      "investment-masters": 54,
       "dse": 391,
       "ssa-consultant": 141,
       "workflow-svc-brand-marketing": 81,
-      "market-macro": 101,
+      "market-macro": 102,
       "pdeif": 104,
-      "plan-engine": 153,
-      "workflow-investment-analysis": 102,
+      "plan-engine": 155,
+      "workflow-investment-analysis": 103,
       "xmodel": 187,
       "wee": 123,
       "eval-engine": 31,
       "aesthetic-sense": 51,
       "philo-dialectic": 98,
-      "dharma": 219,
+      "dharma": 222,
       "novel-craft": 57,
       "storytelling-engine": 60,
-      "resonance": 70,
+      "resonance": 73,
       "text-alchemy": 32,
       "meta-learning": 179,
       "sandbox-lab": 135,
-      "risk-matrix": 48,
+      "risk-matrix": 50,
       "shadow": 18,
       "env-radar": 27,
       "info-architect": 46,
@@ -148,13 +149,14 @@
       "user-model": 3,
       "dev-preflight": 7,
       "dev-retro": 2,
-      "script-optimizer": 1
+      "script-optimizer": 1,
+      "human-design-blueprint": 2
     }
   },
   "evolution": {
     "current_stage": "adult",
     "stage_history": [],
-    "iteration_count": 913,
+    "iteration_count": 930,
     "last_self_review": null,
     "morphenix_proposals": [],
     "known_blindspots": [],
@@ -169,7 +171,7 @@
     "l3_match_updated": "2026-03-26T08:33:24.653632"
   },
   "memory_summary": {
-    "total_interactions": 913,
+    "total_interactions": 930,
     "sessions_count": 0,
     "knowledge_crystals": 524,
     "last_nightly_fusion": null
@@ -190,42 +192,42 @@
   "eight_primal_energies": {
     "乾": {
       "absolute": 177,
-      "relative": 3.2
+      "relative": 3.1
     },
     "坤": {
       "absolute": 898,
-      "relative": 16.1
+      "relative": 15.5
     },
     "震": {
       "absolute": 150,
-      "relative": 2.7
+      "relative": 2.6
     },
     "巽": {
-      "absolute": 175,
+      "absolute": 177,
       "relative": 3.1
     },
     "坎": {
-      "absolute": 5562,
+      "absolute": 5794,
       "relative": 100.0
     },
     "離": {
-      "absolute": 150,
+      "absolute": 155,
       "relative": 2.7
     },
     "艮": {
       "absolute": 2793,
-      "relative": 50.2
+      "relative": 48.2
     },
     "兌": {
-      "absolute": 900,
+      "absolute": 937,
       "relative": 16.2
     }
   },
   "_vita_triggered_thresholds": [
     "branch_500",
     "phoenix_2000",
-    "tree_1000",
     "sprout_100",
-    "star_5000"
+    "star_5000",
+    "tree_1000"
   ]
 }

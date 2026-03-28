@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "updated_at": "2026-03-27T19:00:01.611688+08:00",
+  "updated_at": "2026-03-28T09:30:20.161151",
   "rules": [
     {
       "rule_id": "rule-OP-LESSON-001",
@@ -175,9 +175,9 @@
       "status": "active",
       "created_at": "2026-03-18T19:22:00.901024+08:00",
       "expires_at": "2026-04-26T03:03:22.501867+08:00",
-      "positive_count": 41,
+      "positive_count": 43,
       "negative_count": 0,
-      "last_feedback": "2026-03-27T19:00:01.609479+08:00",
+      "last_feedback": "2026-03-28T05:49:06.648416+08:00",
       "crystal_ri": 0.8,
       "crystal_type": "Insight",
       "crystal_origin": "metacog_distill:mc_20260318_192200_metacog_insight.json"
@@ -787,9 +787,9 @@
       "status": "active",
       "created_at": "2026-03-26T03:03:18.952820+08:00",
       "expires_at": "2026-04-25T03:03:18.952820+08:00",
-      "positive_count": 3,
+      "positive_count": 5,
       "negative_count": 0,
-      "last_feedback": "2026-03-27T18:59:17.666635+08:00",
+      "last_feedback": "2026-03-28T05:49:06.648933+08:00",
       "crystal_ri": 0.4705,
       "crystal_type": "Lesson",
       "crystal_origin": "session=telegram_6969045906"
@@ -1561,6 +1561,39 @@
       "origin": "auto_sync_from_feedback",
       "created_at": "2026-03-27T11:44:10.935972",
       "source": "修復完成且 Fix-Verify 通過後，直接自動 git commit，不要問「要我 commit 嗎？」。\n\n**Why:** 使用者認為這是多餘的確認，浪費時間。修復→驗證→commit 是連續流程，不需要中斷。\n\n**How to apply:** 任何迭代/修復完成且 Fix-Verify 100% PASS 後，直接執行 git add + git commit，不詢問。"
+    },
+    {
+      "rule_id": "rule-ARCH-LESSON-001",
+      "source_cuid": "boss_directive_20260328",
+      "rule_type": "methodology",
+      "action": "guard",
+      "summary": "架構層替換必須 grep 所有呼叫方，不只讀藍圖版本號",
+      "directive": "launchctl/Gunicorn/supervisord 等 infra 層替換時，Pre-Flight 必須主動 grep 所有相關呼叫方（subprocess 呼叫、plist 引用、daemon 管理指令）。舊 API 殘留比沒遷移更危險——auto_repair 觸發舊 launchctl 造成雙重管理衝突。",
+      "strength": 2.0,
+      "origin": "boss_directive",
+      "created_at": "2026-03-28T09:30:20.161151"
+    },
+    {
+      "rule_id": "rule-FV-LESSON-001",
+      "source_cuid": "boss_directive_20260328",
+      "rule_type": "process",
+      "action": "guard",
+      "summary": "FV 必須等待結果，不能 fire-and-forget",
+      "directive": "FV 背景任務啟動後必須確認結果（PASS/FAIL）才算完成。靜默失敗 = 未完成。FV 未確認不可進入下一步。",
+      "strength": 2.0,
+      "origin": "boss_directive",
+      "created_at": "2026-03-28T09:30:20.161151"
+    },
+    {
+      "rule_id": "rule-PREFLIGHT-LESSON-001",
+      "source_cuid": "boss_directive_20260328",
+      "rule_type": "process",
+      "action": "guard",
+      "summary": "Pre-Flight 第 3 步必須主動 grep 程式碼，不只讀藍圖文件",
+      "directive": "Pre-Flight 「列出會變的和絕對不能變的」不能只靠藍圖文件——藍圖可能落後。必須 grep 程式碼確認所有實際呼叫方，尤其是 doctor/manager/tool 等輔助模組。",
+      "strength": 2.0,
+      "origin": "boss_directive",
+      "created_at": "2026-03-28T09:30:20.161151"
     }
   ]
 }

@@ -1,0 +1,13 @@
+{
+  "id": "c35eb5d2-cc92-4b75-8faa-a8fb2c3b4ef2",
+  "type": "lesson",
+  "title": "FV 不能 fire-and-forget，必須確認結果",
+  "content": "commit 93cfd32e 的 FV 在前次 session 背景任務靜默失敗，本次 session 才補驗（PASS）。FV 啟動後必須等結果；若靜默失敗未被發現，後續工作建立在未驗證基礎上。",
+  "tags": [
+    "fv",
+    "verification",
+    "background_task"
+  ],
+  "session": "2026-03-28_supervisord-migration",
+  "created_at": "2026-03-28T09:30:43.824113"
+}

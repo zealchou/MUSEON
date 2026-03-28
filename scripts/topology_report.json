@@ -1,0 +1,1096 @@
+{
+  "summary": {
+    "total_modules": 260,
+    "total_symbols": 3906,
+    "orphan_modules": 51,
+    "broken_imports": 9,
+    "parse_errors": 0
+  },
+  "orphan_modules": [
+    "museon.agent.__init__",
+    "museon.agent.dna27",
+    "museon.agent.drift_detector",
+    "museon.agent.kernel_guard",
+    "museon.agent.pending_sayings",
+    "museon.agent.plan_engine",
+    "museon.agent.routing_bridge",
+    "museon.agent.safety_anchor",
+    "museon.agent.sub_agent",
+    "museon.billing.__init__",
+    "museon.cache.__init__",
+    "museon.channels.__init__",
+    "museon.channels.line",
+    "museon.core.__init__",
+    "museon.doctor.__init__",
+    "museon.doctor.memory_reset",
+    "museon.doctor.probes.__init__",
+    "museon.doctor.scalpel_lessons",
+    "museon.evolution.__init__",
+    "museon.gateway.__init__",
+    "museon.governance.__init__",
+    "museon.governance.cognitive_receipt",
+    "museon.guardian.__init__",
+    "museon.learning.__init__",
+    "museon.learning.strategy_accumulator",
+    "museon.llm.__init__",
+    "museon.llm.budget",
+    "museon.llm.client",
+    "museon.llm.router",
+    "museon.llm.vision",
+    "museon.memory.__init__",
+    "museon.memory.epigenetic_router",
+    "museon.memory.proactive_predictor",
+    "museon.multiagent.__init__",
+    "museon.multiagent.flywheel_flow",
+    "museon.nightly.__init__",
+    "museon.onboarding.__init__",
+    "museon.pulse.__init__",
+    "museon.pulse.group_session_proactive",
+    "museon.pulse.heartbeat_activation",
+    "museon.pulse.proactive_activation",
+    "museon.pulse.telegram_pusher",
+    "museon.registry.__init__",
+    "museon.research.__init__",
+    "museon.security.__init__",
+    "museon.security.trust",
+    "museon.tools.__init__",
+    "museon.tools.document_export",
+    "museon.tools.report_publisher",
+    "museon.vector.__init__",
+    "museon.workflow.__init__"
+  ],
+  "broken_imports": [
+    {
+      "in_module": "museon.agent.brain_fast",
+      "missing_import": "museon.agent.input_sanitizer",
+      "symbol": "InputSanitizer"
+    },
+    {
+      "in_module": "museon.agent.brain_fast",
+      "missing_import": "museon.agent.ceremony",
+      "symbol": "NamingCeremony"
+    },
+    {
+      "in_module": "museon.doctor.auto_repair",
+      "missing_import": "museon.installer.daemon",
+      "symbol": "DaemonConfigurator"
+    },
+    {
+      "in_module": "museon.doctor.auto_repair",
+      "missing_import": "museon.installer.models",
+      "symbol": "InstallConfig"
+    },
+    {
+      "in_module": "museon.doctor.auto_repair",
+      "missing_import": "museon.installer.electron",
+      "symbol": "ElectronPackager"
+    },
+    {
+      "in_module": "museon.gateway.routes_api",
+      "missing_import": "museon.federation.skill_market",
+      "symbol": "SkillMarket"
+    },
+    {
+      "in_module": "museon.gateway.routes_api",
+      "missing_import": "museon.federation.skill_market",
+      "symbol": "SkillMarket"
+    },
+    {
+      "in_module": "museon.gateway.routes_api",
+      "missing_import": "museon.federation.skill_market",
+      "symbol": "SkillMarket"
+    },
+    {
+      "in_module": "museon.nightly.nightly_pipeline",
+      "missing_import": "museon.federation.sync",
+      "symbol": "FederationSync"
+    }
+  ],
+  "unused_symbols_sample": [
+    {
+      "qualified_name": "museon.agent.agent_registry.init_agent_registry",
+      "kind": "function",
+      "module": "museon.agent.agent_registry",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/agent/agent_registry.py",
+      "line": 193
+    },
+    {
+      "qualified_name": "museon.agent.deterministic_router.decompose",
+      "kind": "function",
+      "module": "museon.agent.deterministic_router",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/agent/deterministic_router.py",
+      "line": 85
+    },
+    {
+      "qualified_name": "museon.agent.dna27.DNA27",
+      "kind": "class",
+      "module": "museon.agent.dna27",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/agent/dna27.py",
+      "line": 16
+    },
+    {
+      "qualified_name": "museon.agent.drift_detector.DriftDetector",
+      "kind": "class",
+      "module": "museon.agent.drift_detector",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/agent/drift_detector.py",
+      "line": 40
+    },
+    {
+      "qualified_name": "museon.agent.intuition.IntuitionEngine",
+      "kind": "class",
+      "module": "museon.agent.intuition",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/agent/intuition.py",
+      "line": 709
+    },
+    {
+      "qualified_name": "museon.agent.kernel_guard.KernelGuard",
+      "kind": "class",
+      "module": "museon.agent.kernel_guard",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/agent/kernel_guard.py",
+      "line": 244
+    },
+    {
+      "qualified_name": "museon.agent.knowledge_lattice.LatticeStore",
+      "kind": "class",
+      "module": "museon.agent.knowledge_lattice",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/agent/knowledge_lattice.py",
+      "line": 1427
+    },
+    {
+      "qualified_name": "museon.agent.pdr_params.init_pdr_params",
+      "kind": "function",
+      "module": "museon.agent.pdr_params",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/agent/pdr_params.py",
+      "line": 253
+    },
+    {
+      "qualified_name": "museon.agent.pending_sayings.add_insight",
+      "kind": "function",
+      "module": "museon.agent.pending_sayings",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/agent/pending_sayings.py",
+      "line": 26
+    },
+    {
+      "qualified_name": "museon.agent.pending_sayings.get_pending",
+      "kind": "function",
+      "module": "museon.agent.pending_sayings",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/agent/pending_sayings.py",
+      "line": 51
+    },
+    {
+      "qualified_name": "museon.agent.plan_engine.PlanEngine",
+      "kind": "class",
+      "module": "museon.agent.plan_engine",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/agent/plan_engine.py",
+      "line": 898
+    },
+    {
+      "qualified_name": "museon.agent.reflex_router.reset_cache",
+      "kind": "function",
+      "module": "museon.agent.reflex_router",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/agent/reflex_router.py",
+      "line": 936
+    },
+    {
+      "qualified_name": "museon.agent.reflex_router.semantic_cluster_boost",
+      "kind": "function",
+      "module": "museon.agent.reflex_router",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/agent/reflex_router.py",
+      "line": 1135
+    },
+    {
+      "qualified_name": "museon.agent.safety_anchor.SafetyAnchor",
+      "kind": "class",
+      "module": "museon.agent.safety_anchor",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/agent/safety_anchor.py",
+      "line": 39
+    },
+    {
+      "qualified_name": "museon.agent.safety_clusters.build_safety_context",
+      "kind": "function",
+      "module": "museon.agent.safety_clusters",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/agent/safety_clusters.py",
+      "line": 198
+    },
+    {
+      "qualified_name": "museon.agent.sub_agent.SubAgentManager",
+      "kind": "class",
+      "module": "museon.agent.sub_agent",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/agent/sub_agent.py",
+      "line": 106
+    },
+    {
+      "qualified_name": "museon.agent.token_optimizer.clear_token_cache",
+      "kind": "function",
+      "module": "museon.agent.token_optimizer",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/agent/token_optimizer.py",
+      "line": 267
+    },
+    {
+      "qualified_name": "museon.agent.token_optimizer.build_cached_system_blocks",
+      "kind": "function",
+      "module": "museon.agent.token_optimizer",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/agent/token_optimizer.py",
+      "line": 395
+    },
+    {
+      "qualified_name": "museon.cache.context_cache_builder.read_pending_insights",
+      "kind": "function",
+      "module": "museon.cache.context_cache_builder",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/cache/context_cache_builder.py",
+      "line": 205
+    },
+    {
+      "qualified_name": "museon.cache.context_cache_builder.write_pending_insight",
+      "kind": "function",
+      "module": "museon.cache.context_cache_builder",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/cache/context_cache_builder.py",
+      "line": 214
+    },
+    {
+      "qualified_name": "museon.cache.context_cache_builder.clear_pending_insights",
+      "kind": "function",
+      "module": "museon.cache.context_cache_builder",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/cache/context_cache_builder.py",
+      "line": 232
+    },
+    {
+      "qualified_name": "museon.channels.__init__.get_slack_adapter",
+      "kind": "function",
+      "module": "museon.channels.__init__",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/channels/__init__.py",
+      "line": 19
+    },
+    {
+      "qualified_name": "museon.channels.__init__.get_discord_adapter",
+      "kind": "function",
+      "module": "museon.channels.__init__",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/channels/__init__.py",
+      "line": 24
+    },
+    {
+      "qualified_name": "museon.channels.__init__.get_email_adapter",
+      "kind": "function",
+      "module": "museon.channels.__init__",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/channels/__init__.py",
+      "line": 29
+    },
+    {
+      "qualified_name": "museon.channels.__init__.get_mqtt_adapter",
+      "kind": "function",
+      "module": "museon.channels.__init__",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/channels/__init__.py",
+      "line": 34
+    },
+    {
+      "qualified_name": "museon.channels.__init__.get_community_adapter",
+      "kind": "function",
+      "module": "museon.channels.__init__",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/channels/__init__.py",
+      "line": 39
+    },
+    {
+      "qualified_name": "museon.channels.electron.ElectronAdapter",
+      "kind": "class",
+      "module": "museon.channels.electron",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/channels/electron.py",
+      "line": 17
+    },
+    {
+      "qualified_name": "museon.channels.line.LINEAdapter",
+      "kind": "class",
+      "module": "museon.channels.line",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/channels/line.py",
+      "line": 40
+    },
+    {
+      "qualified_name": "museon.channels.webhook.WebhookAdapter",
+      "kind": "class",
+      "module": "museon.channels.webhook",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/channels/webhook.py",
+      "line": 16
+    },
+    {
+      "qualified_name": "museon.core.blueprint_reader.JointMapReader",
+      "kind": "class",
+      "module": "museon.core.blueprint_reader",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/core/blueprint_reader.py",
+      "line": 148
+    },
+    {
+      "qualified_name": "museon.doctor.notify.generate_review_summary",
+      "kind": "function",
+      "module": "museon.doctor.notify",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/doctor/notify.py",
+      "line": 142
+    },
+    {
+      "qualified_name": "museon.doctor.scalpel_lessons.LessonStore",
+      "kind": "class",
+      "module": "museon.doctor.scalpel_lessons",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/doctor/scalpel_lessons.py",
+      "line": 69
+    },
+    {
+      "qualified_name": "museon.governance.cognitive_receipt.CognitiveReceipt",
+      "kind": "class",
+      "module": "museon.governance.cognitive_receipt",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/governance/cognitive_receipt.py",
+      "line": 21
+    },
+    {
+      "qualified_name": "museon.governance.context.build_empty_context",
+      "kind": "function",
+      "module": "museon.governance.context",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/governance/context.py",
+      "line": 180
+    },
+    {
+      "qualified_name": "museon.learning.strategy_accumulator.StrategyAccumulator",
+      "kind": "class",
+      "module": "museon.learning.strategy_accumulator",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/learning/strategy_accumulator.py",
+      "line": 13
+    },
+    {
+      "qualified_name": "museon.llm.adapters.FallbackAdapter",
+      "kind": "class",
+      "module": "museon.llm.adapters",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/llm/adapters.py",
+      "line": 941
+    },
+    {
+      "qualified_name": "museon.llm.adapters.create_adapter",
+      "kind": "function",
+      "module": "museon.llm.adapters",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/llm/adapters.py",
+      "line": 1079
+    },
+    {
+      "qualified_name": "museon.llm.budget.BudgetMonitor",
+      "kind": "class",
+      "module": "museon.llm.budget",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/llm/budget.py",
+      "line": 16
+    },
+    {
+      "qualified_name": "museon.llm.client.LLMClient",
+      "kind": "class",
+      "module": "museon.llm.client",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/llm/client.py",
+      "line": 17
+    },
+    {
+      "qualified_name": "museon.llm.rate_limiter.get_api_bucket",
+      "kind": "function",
+      "module": "museon.llm.rate_limiter",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/llm/rate_limiter.py",
+      "line": 523
+    },
+    {
+      "qualified_name": "museon.llm.router.Router",
+      "kind": "class",
+      "module": "museon.llm.router",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/llm/router.py",
+      "line": 18
+    },
+    {
+      "qualified_name": "museon.memory.adaptive_decay.ActivationRecord",
+      "kind": "class",
+      "module": "museon.memory.adaptive_decay",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/memory/adaptive_decay.py",
+      "line": 75
+    },
+    {
+      "qualified_name": "museon.memory.epigenetic_router.EpigeneticRouter",
+      "kind": "class",
+      "module": "museon.memory.epigenetic_router",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/memory/epigenetic_router.py",
+      "line": 103
+    },
+    {
+      "qualified_name": "museon.memory.proactive_predictor.ProactivePredictor",
+      "kind": "class",
+      "module": "museon.memory.proactive_predictor",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/memory/proactive_predictor.py",
+      "line": 75
+    },
+    {
+      "qualified_name": "museon.memory.quality_gate.apply_weight",
+      "kind": "function",
+      "module": "museon.memory.quality_gate",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/memory/quality_gate.py",
+      "line": 92
+    },
+    {
+      "qualified_name": "museon.multiagent.department_config.get_next_dept",
+      "kind": "function",
+      "module": "museon.multiagent.department_config",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/multiagent/department_config.py",
+      "line": 450
+    },
+    {
+      "qualified_name": "museon.multiagent.department_config.get_prev_dept",
+      "kind": "function",
+      "module": "museon.multiagent.department_config",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/multiagent/department_config.py",
+      "line": 456
+    },
+    {
+      "qualified_name": "museon.multiagent.department_config.get_capability_atoms",
+      "kind": "function",
+      "module": "museon.multiagent.department_config",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/multiagent/department_config.py",
+      "line": 517
+    },
+    {
+      "qualified_name": "museon.multiagent.department_config.get_active_capabilities",
+      "kind": "function",
+      "module": "museon.multiagent.department_config",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/multiagent/department_config.py",
+      "line": 522
+    },
+    {
+      "qualified_name": "museon.multiagent.department_config.adjust_methylation",
+      "kind": "function",
+      "module": "museon.multiagent.department_config",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/multiagent/department_config.py",
+      "line": 527
+    },
+    {
+      "qualified_name": "museon.multiagent.department_config.get_methylation_snapshot",
+      "kind": "function",
+      "module": "museon.multiagent.department_config",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/multiagent/department_config.py",
+      "line": 557
+    },
+    {
+      "qualified_name": "museon.multiagent.flywheel_flow.FlywheelCoordinator",
+      "kind": "class",
+      "module": "museon.multiagent.flywheel_flow",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/multiagent/flywheel_flow.py",
+      "line": 47
+    },
+    {
+      "qualified_name": "museon.nightly.job.get_schedule_time",
+      "kind": "function",
+      "module": "museon.nightly.job",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/nightly/job.py",
+      "line": 26
+    },
+    {
+      "qualified_name": "museon.nightly.nightly_pipeline.register_nightly_tasks",
+      "kind": "function",
+      "module": "museon.nightly.nightly_pipeline",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/nightly/nightly_pipeline.py",
+      "line": 4279
+    },
+    {
+      "qualified_name": "museon.pulse.anima_mc_store.reset_anima_mc_store",
+      "kind": "function",
+      "module": "museon.pulse.anima_mc_store",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/pulse/anima_mc_store.py",
+      "line": 280
+    },
+    {
+      "qualified_name": "museon.pulse.group_session_proactive.GroupSessionProactive",
+      "kind": "class",
+      "module": "museon.pulse.group_session_proactive",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/pulse/group_session_proactive.py",
+      "line": 31
+    },
+    {
+      "qualified_name": "museon.registry.category_presets.get_categories_by_type",
+      "kind": "function",
+      "module": "museon.registry.category_presets",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/registry/category_presets.py",
+      "line": 107
+    },
+    {
+      "qualified_name": "museon.registry.category_presets.count_presets",
+      "kind": "function",
+      "module": "museon.registry.category_presets",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/registry/category_presets.py",
+      "line": 122
+    },
+    {
+      "qualified_name": "museon.registry.category_presets.get_category_tree",
+      "kind": "function",
+      "module": "museon.registry.category_presets",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/registry/category_presets.py",
+      "line": 127
+    },
+    {
+      "qualified_name": "museon.registry.planner.EventPlanner",
+      "kind": "class",
+      "module": "museon.registry.planner",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/registry/planner.py",
+      "line": 19
+    },
+    {
+      "qualified_name": "museon.registry.planner.infer_timezone",
+      "kind": "function",
+      "module": "museon.registry.planner",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/registry/planner.py",
+      "line": 152
+    },
+    {
+      "qualified_name": "museon.registry.registry_manager.RegistryManager",
+      "kind": "class",
+      "module": "museon.registry.registry_manager",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/registry/registry_manager.py",
+      "line": 30
+    },
+    {
+      "qualified_name": "museon.security.trust.TrustManager",
+      "kind": "class",
+      "module": "museon.security.trust",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/security/trust.py",
+      "line": 28
+    },
+    {
+      "qualified_name": "museon.security.trusted_bins.is_trusted_path",
+      "kind": "function",
+      "module": "museon.security.trusted_bins",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/security/trusted_bins.py",
+      "line": 95
+    },
+    {
+      "qualified_name": "museon.tools.document_export.publish_document",
+      "kind": "function",
+      "module": "museon.tools.document_export",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/tools/document_export.py",
+      "line": 242
+    },
+    {
+      "qualified_name": "museon.tools.mcp_dify.handle_tool_call",
+      "kind": "function",
+      "module": "museon.tools.mcp_dify",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/tools/mcp_dify.py",
+      "line": 339
+    },
+    {
+      "qualified_name": "museon.tools.report_publisher.PublishCheckpoint",
+      "kind": "class",
+      "module": "museon.tools.report_publisher",
+      "file": "/Users/ZEALCHOU/MUSEON/src/museon/tools/report_publisher.py",
+      "line": 23
+    }
+  ],
+  "fan_in_table": [
+    {
+      "module": "museon.core.event_bus",
+      "fan_in": 46,
+      "fan_out": 0,
+      "imported_by": [
+        "museon.agent.brain",
+        "museon.agent.brain_observation",
+        "museon.agent.eval_engine",
+        "museon.agent.knowledge_lattice",
+        "museon.agent.metacognition",
+        "museon.agent.recommender",
+        "museon.agent.skill_router",
+        "museon.agent.soul_ring",
+        "museon.channels.community",
+        "museon.channels.discord",
+        "museon.channels.email",
+        "museon.channels.slack",
+        "museon.channels.telegram",
+        "museon.doctor.diagnosis_pipeline",
+        "museon.doctor.self_diagnosis",
+        "museon.doctor.surgeon",
+        "museon.doctor.system_audit",
+        "museon.evolution.digest_engine",
+        "museon.evolution.feedback_loop",
+        "museon.evolution.intention_radar",
+        "museon.evolution.outward_trigger",
+        "museon.evolution.wee_engine",
+        "museon.gateway.cron_registry",
+        "museon.gateway.routes_api",
+        "museon.gateway.server",
+        "museon.governance.dendritic_scorer",
+        "museon.governance.governor",
+        "museon.governance.immune_memory",
+        "museon.governance.immune_research",
+        "museon.memory.memory_manager",
+        "museon.multiagent.shared_assets",
+        "museon.nightly.course_generator",
+        "museon.nightly.curiosity_router",
+        "museon.nightly.exploration_bridge",
+        "museon.nightly.morphenix_executor",
+        "museon.nightly.nightly_pipeline",
+        "museon.nightly.skill_forge_scout",
+        "museon.pulse.autonomous_queue",
+        "museon.pulse.micro_pulse",
+        "museon.pulse.proactive_bridge",
+        "museon.pulse.pulse_engine",
+        "museon.research.research_engine",
+        "museon.tools.rss_aggregator",
+        "museon.tools.tool_registry",
+        "museon.tools.zotero_bridge",
+        "museon.vector.vector_bridge"
+      ]
+    },
+    {
+      "module": "museon.gateway.message",
+      "fan_in": 16,
+      "fan_out": 0,
+      "imported_by": [
+        "museon.agent.brain",
+        "museon.agent.tools",
+        "museon.channels.base",
+        "museon.channels.discord",
+        "museon.channels.electron",
+        "museon.channels.email",
+        "museon.channels.line",
+        "museon.channels.slack",
+        "museon.channels.telegram",
+        "museon.channels.webhook",
+        "museon.gateway.brain_worker",
+        "museon.gateway.interaction",
+        "museon.gateway.routes_api",
+        "museon.gateway.server",
+        "museon.gateway.telegram_pump",
+        "museon.workflow.workflow_executor"
+      ]
+    },
+    {
+      "module": "museon.core.data_bus",
+      "fan_in": 15,
+      "fan_out": 0,
+      "imported_by": [
+        "museon.agent.crystal_store",
+        "museon.agent.eval_engine",
+        "museon.agent.knowledge_lattice",
+        "museon.agent.soul_ring",
+        "museon.core.activity_logger",
+        "museon.core.data_watchdog",
+        "museon.core.skill_manager",
+        "museon.governance.footprint",
+        "museon.governance.group_context",
+        "museon.memory.store",
+        "museon.nightly.nightly_pipeline",
+        "museon.pulse.anima_mc_store",
+        "museon.pulse.pulse_db",
+        "museon.workflow.soft_workflow",
+        "museon.workflow.workflow_engine"
+      ]
+    },
+    {
+      "module": "museon.pulse.pulse_db",
+      "fan_in": 11,
+      "fan_out": 1,
+      "imported_by": [
+        "museon.agent.brain",
+        "museon.agent.brain_dispatch",
+        "museon.agent.brain_prompt_builder",
+        "museon.agent.eval_engine",
+        "museon.agent.metacognition",
+        "museon.channels.telegram",
+        "museon.gateway.cron_registry",
+        "museon.gateway.server",
+        "museon.nightly.nightly_pipeline",
+        "museon.onboarding.ceremony",
+        "museon.pulse.group_digest"
+      ]
+    },
+    {
+      "module": "museon.vector.vector_bridge",
+      "fan_in": 9,
+      "fan_out": 3,
+      "imported_by": [
+        "museon.agent.brain",
+        "museon.agent.brain_observation",
+        "museon.agent.knowledge_lattice",
+        "museon.agent.primal_detector",
+        "museon.agent.reflex_router",
+        "museon.agent.skill_router",
+        "museon.gateway.server",
+        "museon.memory.memory_manager",
+        "museon.nightly.nightly_pipeline"
+      ]
+    },
+    {
+      "module": "museon.channels.base",
+      "fan_in": 8,
+      "fan_out": 2,
+      "imported_by": [
+        "museon.channels.__init__",
+        "museon.channels.discord",
+        "museon.channels.electron",
+        "museon.channels.email",
+        "museon.channels.line",
+        "museon.channels.slack",
+        "museon.channels.telegram",
+        "museon.channels.webhook"
+      ]
+    },
+    {
+      "module": "museon.agent.knowledge_lattice",
+      "fan_in": 7,
+      "fan_out": 4,
+      "imported_by": [
+        "museon.agent.crystal_store",
+        "museon.evolution.digest_engine",
+        "museon.evolution.wee_engine",
+        "museon.nightly.morphenix_executor",
+        "museon.nightly.nightly_pipeline",
+        "museon.nightly.periodic_cycles",
+        "museon.pulse.pulse_engine"
+      ]
+    },
+    {
+      "module": "museon.agent.crystal_store",
+      "fan_in": 5,
+      "fan_out": 2,
+      "imported_by": [
+        "museon.agent.knowledge_lattice",
+        "museon.doctor.memory_reset",
+        "museon.evolution.evolution_velocity",
+        "museon.guardian.daemon",
+        "museon.nightly.nightly_pipeline"
+      ]
+    },
+    {
+      "module": "museon.doctor.shared_board",
+      "fan_in": 5,
+      "fan_out": 0,
+      "imported_by": [
+        "museon.doctor.musedoc",
+        "museon.doctor.museoff",
+        "museon.doctor.museqa",
+        "museon.doctor.museworker",
+        "museon.nightly.nightly_pipeline"
+      ]
+    },
+    {
+      "module": "museon.governance.group_context",
+      "fan_in": 5,
+      "fan_out": 1,
+      "imported_by": [
+        "museon.channels.telegram",
+        "museon.gateway.cron_registry",
+        "museon.gateway.telegram_pump",
+        "museon.mcp_server",
+        "museon.nightly.nightly_pipeline"
+      ]
+    },
+    {
+      "module": "museon.multiagent.department_config",
+      "fan_in": 5,
+      "fan_out": 0,
+      "imported_by": [
+        "museon.channels.telegram",
+        "museon.gateway.server",
+        "museon.multiagent.context_switch",
+        "museon.multiagent.multi_agent_executor",
+        "museon.multiagent.okr_router"
+      ]
+    },
+    {
+      "module": "museon.pulse.pulse_intervention",
+      "fan_in": 5,
+      "fan_out": 0,
+      "imported_by": [
+        "museon.gateway.server",
+        "museon.nightly.morphenix_executor",
+        "museon.pulse.explorer",
+        "museon.pulse.proactive_bridge",
+        "museon.pulse.pulse_engine"
+      ]
+    },
+    {
+      "module": "museon.research.research_engine",
+      "fan_in": 5,
+      "fan_out": 1,
+      "imported_by": [
+        "museon.evolution.outward_trigger",
+        "museon.gateway.cron_registry",
+        "museon.governance.immune_research",
+        "museon.nightly.nightly_pipeline",
+        "museon.nightly.skill_forge_scout"
+      ]
+    },
+    {
+      "module": "museon.agent.pdr_params",
+      "fan_in": 4,
+      "fan_out": 0,
+      "imported_by": [
+        "museon.agent.brain",
+        "museon.agent.pdr_council",
+        "museon.doctor.museqa",
+        "museon.gateway.telegram_pump"
+      ]
+    },
+    {
+      "module": "museon.core.blueprint_reader",
+      "fan_in": 4,
+      "fan_out": 0,
+      "imported_by": [
+        "museon.doctor.surgeon",
+        "museon.doctor.system_audit",
+        "museon.nightly.morphenix_standards",
+        "museon.nightly.nightly_pipeline"
+      ]
+    },
+    {
+      "module": "museon.doctor.code_analyzer",
+      "fan_in": 4,
+      "fan_out": 0,
+      "imported_by": [
+        "museon.agent.tools",
+        "museon.doctor.diagnosis_pipeline",
+        "museon.gateway.server",
+        "museon.guardian.daemon"
+      ]
+    },
+    {
+      "module": "museon.doctor.health_check",
+      "fan_in": 4,
+      "fan_out": 0,
+      "imported_by": [
+        "museon.doctor.auto_repair",
+        "museon.doctor.self_diagnosis",
+        "museon.doctor.system_audit",
+        "museon.gateway.server"
+      ]
+    },
+    {
+      "module": "museon.gateway.authorization",
+      "fan_in": 4,
+      "fan_out": 0,
+      "imported_by": [
+        "museon.channels.telegram",
+        "museon.gateway.security",
+        "museon.gateway.telegram_pump",
+        "museon.mcp_server"
+      ]
+    },
+    {
+      "module": "museon.gateway.server",
+      "fan_in": 4,
+      "fan_out": 66,
+      "imported_by": [
+        "museon.agent.brain_fast",
+        "museon.agent.tools",
+        "museon.channels.telegram",
+        "museon.gateway.telegram_pump"
+      ]
+    },
+    {
+      "module": "museon.governance.multi_tenant",
+      "fan_in": 4,
+      "fan_out": 0,
+      "imported_by": [
+        "museon.agent.brain_observation",
+        "museon.agent.brain_prompt_builder",
+        "museon.gateway.telegram_pump",
+        "museon.nightly.nightly_pipeline"
+      ]
+    },
+    {
+      "module": "museon.governance.perception",
+      "fan_in": 4,
+      "fan_out": 1,
+      "imported_by": [
+        "museon.governance.__init__",
+        "museon.governance.governor",
+        "museon.governance.immunity",
+        "museon.governance.regulation"
+      ]
+    },
+    {
+      "module": "museon.pulse.heartbeat_engine",
+      "fan_in": 4,
+      "fan_out": 0,
+      "imported_by": [
+        "museon.agent.brain",
+        "museon.gateway.server",
+        "museon.governance.vital_signs",
+        "museon.pulse.micro_pulse"
+      ]
+    },
+    {
+      "module": "museon.tools.tool_registry",
+      "fan_in": 4,
+      "fan_out": 1,
+      "imported_by": [
+        "museon.doctor.self_diagnosis",
+        "museon.gateway.cron_registry",
+        "museon.gateway.server",
+        "museon.nightly.nightly_pipeline"
+      ]
+    },
+    {
+      "module": "museon.workflow.soft_workflow",
+      "fan_in": 4,
+      "fan_out": 1,
+      "imported_by": [
+        "museon.gateway.routes_api",
+        "museon.gateway.server",
+        "museon.workflow.workflow_executor",
+        "museon.workflow.workflow_scheduler"
+      ]
+    },
+    {
+      "module": "museon.workflow.workflow_engine",
+      "fan_in": 4,
+      "fan_out": 2,
+      "imported_by": [
+        "museon.evolution.wee_engine",
+        "museon.gateway.server",
+        "museon.nightly.nightly_pipeline",
+        "museon.workflow.workflow_executor"
+      ]
+    },
+    {
+      "module": "museon.agent.primal_detector",
+      "fan_in": 3,
+      "fan_out": 1,
+      "imported_by": [
+        "museon.agent.brain",
+        "museon.agent.brain_prompt_builder",
+        "museon.agent.skill_router"
+      ]
+    },
+    {
+      "module": "museon.agent.reflex_router",
+      "fan_in": 3,
+      "fan_out": 2,
+      "imported_by": [
+        "museon.agent.brain",
+        "museon.gateway.server",
+        "museon.nightly.nightly_pipeline"
+      ]
+    },
+    {
+      "module": "museon.agent.soul_ring",
+      "fan_in": 3,
+      "fan_out": 2,
+      "imported_by": [
+        "museon.agent.brain",
+        "museon.nightly.job",
+        "museon.nightly.nightly_pipeline"
+      ]
+    },
+    {
+      "module": "museon.doctor.diagnosis_pipeline",
+      "fan_in": 3,
+      "fan_out": 3,
+      "imported_by": [
+        "museon.agent.tools",
+        "museon.doctor.surgeon",
+        "museon.gateway.server"
+      ]
+    },
+    {
+      "module": "museon.doctor.finding",
+      "fan_in": 3,
+      "fan_out": 0,
+      "imported_by": [
+        "museon.doctor.musedoc",
+        "museon.doctor.museoff",
+        "museon.doctor.museqa"
+      ]
+    },
+    {
+      "module": "museon.gateway.interaction",
+      "fan_in": 3,
+      "fan_out": 1,
+      "imported_by": [
+        "museon.channels.base",
+        "museon.gateway.server",
+        "museon.gateway.telegram_pump"
+      ]
+    },
+    {
+      "module": "museon.governance.gateway_lock",
+      "fan_in": 3,
+      "fan_out": 1,
+      "imported_by": [
+        "museon.gateway.server",
+        "museon.governance.__init__",
+        "museon.governance.governor"
+      ]
+    },
+    {
+      "module": "museon.governance.telegram_guard",
+      "fan_in": 3,
+      "fan_out": 0,
+      "imported_by": [
+        "museon.gateway.server",
+        "museon.governance.__init__",
+        "museon.governance.governor"
+      ]
+    },
+    {
+      "module": "museon.llm.adapters",
+      "fan_in": 3,
+      "fan_out": 1,
+      "imported_by": [
+        "museon.agent.brain",
+        "museon.agent.brain_tool_loop",
+        "museon.agent.brain_tools"
+      ]
+    },
+    {
+      "module": "museon.nightly.morphenix_executor",
+      "fan_in": 3,
+      "fan_out": 4,
+      "imported_by": [
+        "museon.gateway.server",
+        "museon.governance.governor",
+        "museon.nightly.nightly_pipeline"
+      ]
+    },
+    {
+      "module": "museon.pulse.heartbeat_focus",
+      "fan_in": 3,
+      "fan_out": 0,
+      "imported_by": [
+        "museon.gateway.server",
+        "museon.governance.perception",
+        "museon.pulse.micro_pulse"
+      ]
+    },
+    {
+      "module": "museon.tools.tool_discovery",
+      "fan_in": 3,
+      "fan_out": 0,
+      "imported_by": [
+        "museon.gateway.cron_registry",
+        "museon.gateway.server",
+        "museon.nightly.nightly_pipeline"
+      ]
+    },
+    {
+      "module": "museon.workflow.models",
+      "fan_in": 3,
+      "fan_out": 0,
+      "imported_by": [
+        "museon.evolution.wee_engine",
+        "museon.workflow.workflow_engine",
+        "museon.workflow.workflow_executor"
+      ]
+    },
+    {
+      "module": "museon.agent.brain",
+      "fan_in": 2,
+      "fan_out": 42,
+      "imported_by": [
+        "museon.gateway.brain_worker",
+        "museon.gateway.server"
+      ]
+    },
+    {
+      "module": "museon.agent.brain_dispatch",
+      "fan_in": 2,
+      "fan_out": 4,
+      "imported_by": [
+        "museon.agent.brain",
+        "museon.agent.brain_fast"
+      ]
+    }
+  ],
+  "parse_errors": []
+}

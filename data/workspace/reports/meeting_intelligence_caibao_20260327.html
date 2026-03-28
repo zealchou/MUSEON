@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>財寶府庫 × MUSEON 會議情報 — 2026-03-27</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ember: #C4502A;
+      --ember-light: #E0714D;
+      --ember-dark: #9A3A1C;
+      --teal: #2A7A6E;
+      --gold: #B8923A;
+      --ink: #12121A;
+      --slate: #5A5A6E;
+      --mist: #9898A8;
+      --border: #E2E0DA;
+      --parchment: #F7F5F0;
+      --snow: #FDFCFA;
+      --deep-ink: #0E0E16;
+      --surface: #16161F;
+      --success: #2D8A6E;
+      --warning: #C9943A;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+      background: var(--parchment);
+      color: var(--ink);
+      line-height: 1.75;
+      font-size: 16px;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: var(--deep-ink);
+      padding: 64px 40px 56px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 360px; height: 360px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(196,80,42,0.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-inner {
+      max-width: 820px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    .hero-badge {
+      display: inline-block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: rgba(196,80,42,0.22);
+      color: var(--ember-light);
+      border: 1px solid rgba(196,80,42,0.35);
+      padding: 4px 12px;
+      border-radius: 100px;
+      margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 42px;
+      font-weight: 600;
+      color: #FDFCFA;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+    .hero h1 em {
+      color: var(--ember-light);
+      font-style: italic;
+    }
+    .hero-sub {
+      color: var(--mist);
+      font-size: 15px;
+      margin-bottom: 32px;
+    }
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #9898A8;
+    }
+    .meta-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--ember);
+    }
+    .meta-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ember);
+      margin-right: 2px;
+    }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 48px 40px 96px;
+    }
+
+    /* ── Nav Tabs ── */
+    .nav-tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 6px;
+      margin-bottom: 40px;
+      overflow-x: auto;
+    }
+    .nav-tab {
+      flex: 1;
+      min-width: 100px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--slate);
+      transition: all 180ms ease;
+      white-space: nowrap;
+    }
+    .nav-tab.active {
+      background: var(--ember);
+      color: white;
+    }
+    .nav-tab:hover:not(.active) {
+      background: rgba(196,80,42,0.08);
+      color: var(--ember);
+    }
+
+    /* ── Sections ── */
+    .section {
+      display: none;
+      animation: fadeUp 320ms ease-out;
+    }
+    .section.active { display: block; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .card-icon {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .card-icon.ember { background: rgba(196,80,42,0.12); }
+    .card-icon.teal { background: rgba(42,122,110,0.12); }
+    .card-icon.gold { background: rgba(184,146,58,0.12); }
+    .card-icon.slate { background: rgba(90,90,110,0.10); }
+
+    .card-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .card-subtitle {
+      font-size: 13px;
+      color: var(--slate);
+      margin-top: 2px;
+    }
+
+    /* ── Section Title ── */
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+    .section-desc {
+      font-size: 14px;
+      color: var(--slate);
+      margin-bottom: 28px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Exec Summary ── */
+    .exec-summary {
+      background: linear-gradient(135deg, rgba(196,80,42,0.07) 0%, rgba(196,80,42,0.02) 100%);
+      border: 1px solid rgba(196,80,42,0.2);
+      border-left: 4px solid var(--ember);
+      border-radius: 10px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .exec-summary p {
+      font-size: 15px;
+      line-height: 1.8;
+      color: var(--ink);
+    }
+
+    /* ── Topic Blocks ── */
+    .topic-block {
+      margin-bottom: 24px;
+    }
+    .topic-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ember);
+      margin-bottom: 6px;
+    }
+    .topic-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 12px;
+    }
+
+    ul.bullets { padding-left: 0; list-style: none; }
+    ul.bullets li {
+      padding: 6px 0 6px 20px;
+      position: relative;
+      font-size: 15px;
+      color: var(--slate);
+      line-height: 1.7;
+      border-bottom: 1px solid rgba(226,224,218,0.5);
+    }
+    ul.bullets li:last-child { border-bottom: none; }
+    ul.bullets li::before {
+      content: '·';
+      position: absolute;
+      left: 6px;
+      color: var(--ember);
+      font-weight: 700;
+    }
+
+    .quote-block {
+      border-left: 3px solid var(--gold);
+      background: rgba(184,146,58,0.06);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 12px 0;
+      font-style: italic;
+      color: var(--ink);
+      font-size: 14px;
+    }
+    .quote-attr {
+      font-style: normal;
+      font-size: 12px;
+      color: var(--slate);
+      margin-top: 6px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    /* ── Tables ── */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+    .data-table th {
+      background: rgba(18,18,26,0.04);
+      color: var(--slate);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 2px solid var(--border);
+    }
+    .data-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(226,224,218,0.6);
+      color: var(--ink);
+      vertical-align: top;
+    }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: rgba(196,80,42,0.03); }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 100px;
+    }
+    .badge-ember { background: rgba(196,80,42,0.12); color: var(--ember-dark); }
+    .badge-teal { background: rgba(42,122,110,0.12); color: var(--teal); }
+    .badge-gold { background: rgba(184,146,58,0.12); color: #8a6a20; }
+    .badge-slate { background: rgba(90,90,110,0.1); color: var(--slate); }
+    .badge-warn { background: rgba(201,148,58,0.15); color: var(--warning); }
+
+    /* ── Strategy Insight ── */
+    .insight-box {
+      background: var(--deep-ink);
+      border-radius: 10px;
+      padding: 24px;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .insight-box::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(196,80,42,0.15) 0%, transparent 70%);
+    }
+    .insight-box .insight-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ember-light);
+      margin-bottom: 10px;
+    }
+    .insight-box .insight-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: #FDFCFA;
+      margin-bottom: 12px;
+      position: relative;
+    }
+    .insight-box p {
+      color: #9898A8;
+      font-size: 14px;
+      line-height: 1.8;
+      position: relative;
+    }
+    .insight-box strong { color: #FDFCFA; }
+
+    /* ── Persona Card ── */
+    .persona-card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .persona-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--ember);
+      margin-bottom: 4px;
+    }
+    .persona-type {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--slate);
+      letter-spacing: 0.06em;
+      margin-bottom: 16px;
+    }
+    .persona-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .persona-item label {
+      display: block;
+      font-size: 11px;
+      font-family: 'IBM Plex Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--mist);
+      margin-bottom: 4px;
+    }
+    .persona-item p {
+      font-size: 14px;
+      color: var(--ink);
+      line-height: 1.6;
+    }
+
+    /* ── Signal Row ── */
+    .signal-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(226,224,218,0.5);
+    }
+    .signal-row:last-child { border-bottom: none; }
+    .signal-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+    .signal-dot.red { background: #C4402A; }
+    .signal-dot.yellow { background: var(--gold); }
+    .signal-dot.green { background: var(--success); }
+    .signal-content strong {
+      display: block;
+      font-size: 14px;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+    .signal-content p {
+      font-size: 13px;
+      color: var(--slate);
+      line-height: 1.6;
+    }
+
+    /* ── Action Items ── */
+    .action-item {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(226,224,218,0.5);
+    }
+    .action-item:last-child { border-bottom: none; }
+    .action-num {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--ember);
+      color: white;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .action-content strong {
+      display: block;
+      font-size: 15px;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+    .action-meta {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* ── Parking Lot ── */
+    .parking-item {
+      padding: 12px 16px;
+      background: rgba(90,90,110,0.07);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: var(--slate);
+    }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 64px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-brand {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--mist);
+      letter-spacing: 0.06em;
+    }
+    .footer-brand strong { color: var(--ember); }
+
+    /* ── Divider ── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 28px 0;
+    }
+
+    /* ── Highlight text ── */
+    .hl-ember { color: var(--ember); font-weight: 600; }
+    .hl-teal { color: var(--teal); font-weight: 600; }
+    .hl-gold { color: var(--gold); font-weight: 600; }
+
+    @media (max-width: 640px) {
+      .container { padding: 32px 16px 64px; }
+      .hero { padding: 48px 20px 40px; }
+      .hero h1 { font-size: 30px; }
+      .nav-tab { font-size: 10px; padding: 7px 10px; }
+      .persona-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Hero ── -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">🧠 MEETING INTELLIGENCE · 五層戰情報告</div>
+    <h1>財寶府庫 × MUSEON<br><em>商業洽談會議</em></h1>
+    <div class="hero-sub">沉香東革阿里酒 · 品牌定位 · 合作策略 · 蔡董深度解碼</div>
+    <div class="meta-row">
+      <div class="meta-item"><span class="meta-dot"></span><span class="meta-label">日期</span>2026-03-27</div>
+      <div class="meta-item"><span class="meta-dot"></span><span class="meta-label">類型</span>商業談判 / 客戶拜訪</div>
+      <div class="meta-item"><span class="meta-dot"></span><span class="meta-label">案值</span>880 萬</div>
+      <div class="meta-item"><span class="meta-dot"></span><span class="meta-label">分析深度</span>五層全開</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Container ── -->
+<div class="container">
+
+  <!-- Navigation -->
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showSection('summary')">L1 摘要</button>
+    <button class="nav-tab" onclick="showSection('topics')">L2 議題</button>
+    <button class="nav-tab" onclick="showSection('strategy')">L3 戰略</button>
+    <button class="nav-tab" onclick="showSection('persona')">L4 人格</button>
+    <button class="nav-tab" onclick="showSection('actions')">L5 行動</button>
+  </div>
+
+  <!-- ═══ L1 執行摘要 ═══ -->
+  <div id="summary" class="section active">
+    <div class="section-title">執行摘要</div>
+    <div class="section-desc">本次會議完成三件事：建立合作人格基調、深度研討核心產品、提出 880 萬案的洽談推進路徑。</div>
+
+    <div class="exec-summary">
+      <p>
+        財寶府庫創辦人蔡董（<span class="hl-ember">財神型創業者</span>）北上台北洽談，意願高度積極。
+        核心議題圍繞「沉香東革阿里酒」的品牌化策略，產品稀缺性強（庫存不到 10 件）、高端客群自發回購，
+        但尚缺一條清晰的<span class="hl-teal">主敘事線</span>。
+        Zeal 以商業顧問身份入場，下一步需將「所有案子分級」的承諾轉化為具體的<span class="hl-gold">三級分類表</span>，
+        避免承諾過重導致執行失焦。
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon ember">📋</div>
+        <div>
+          <div class="card-title">決議事項</div>
+          <div class="card-subtitle">本次會議共識</div>
+        </div>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>決議內容</th>
+            <th>提出者</th>
+            <th>共識程度</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>Zeal 擔任財寶府庫整體商業顧問，協助整合所有在進行的案子</td>
+            <td>Speaker 2</td>
+            <td><span class="badge badge-teal">全體同意</span></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>場域（這棟樓）定位為多元廠商／會員生態，長期規劃中</td>
+            <td>Speaker 3（蔡董）</td>
+            <td><span class="badge badge-gold">方向同意，細節待補</span></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>沉香東革阿里酒需建立主敘事線，「心血管暢通」視角優先</td>
+            <td>Speaker 2 + Zeal</td>
+            <td><span class="badge badge-teal">全體同意</span></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>庫存緊張（&lt;10 件）需評估補貨時程與銷售通路優先序</td>
+            <td>Speaker 2</td>
+            <td><span class="badge badge-warn">有保留，待評估</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon teal">⚡</div>
+        <div>
+          <div class="card-title">關鍵信號摘要</div>
+          <div class="card-subtitle">本次會議浮現的三個重要訊號</div>
+        </div>
+      </div>
+      <div class="signal-row">
+        <div class="signal-dot green"></div>
+        <div class="signal-content">
+          <strong>高意願信號 — 蔡董特地北上</strong>
+          <p>對方主動北上台北洽談，非單純回應，代表主觀意願積極。「臨門一腳」距離成交，下次見面前需準備好讓他「自己做決定」的收斂材料。</p>
+        </div>
+      </div>
+      <div class="signal-row">
+        <div class="signal-dot yellow"></div>
+        <div class="signal-content">
+          <strong>承諾過重風險 — 「所有案子都處理好」</strong>
+          <p>蔡董描述對顧問的期待時用了「所有」，這是一個模糊的高期待值。若未分級，未來容易產生執行落差。需要在下次會議前提交「三級分類表」主動框定邊界。</p>
+        </div>
+      </div>
+      <div class="signal-row">
+        <div class="signal-dot red"></div>
+        <div class="signal-content">
+          <strong>庫存見底警報 — 喝的比賣的多</strong>
+          <p>沉香東革阿里酒庫存不到 10 件，但主要消耗在內部自用。這既是最強的品牌證明，也是通路尚未建立的警訊。若繼續以自用為由延遲建通路，「稀缺性」會變成「供應不穩」的負面標籤。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ L2 議題詳解 ═══ -->
+  <div id="topics" class="section">
+    <div class="section-title">議題詳解</div>
+    <div class="section-desc">依主題區塊深度整理，保留關鍵引述與討論細節。</div>
+
+    <!-- Topic 1 -->
+    <div class="card">
+      <div class="topic-label">議題 01 · 開場與關係定錨</div>
+      <div class="topic-title">火柴人財神：親切性優先的品牌人格定錨</div>
+      <ul class="bullets">
+        <li>蔡董以「火柴人財神」作為開場意象——最沒有距離感的財神，既逗趣又不失莊嚴，為整場會議建立「親切、無門檻」的情境基調。</li>
+        <li>Speaker 2 透過這個暖場，隱性傳遞了品牌調性判斷：<em>只要連這個都被接受，就沒有更難親近的形象了</em>。</li>
+        <li>Zeal 被正式定位為「商業顧問」，角色說明：協助整理公司「所有正在做的案子」，不限單一專案。</li>
+        <li>蔡董透露未來對「這棟樓」有中長期規劃，吸引各行各業廠商與會員導入，形成生態。</li>
+        <li>Speaker 4 補充：各行各業「必須一定要找這邊的」，顯示對未來平台吸引力有相當信心。</li>
+      </ul>
+      <div class="quote-block">
+        「商業顧問的角色，是要把公司所有正在做的案子都處理好，不只是單一專案。」
+        <div class="quote-attr">— Speaker 2（對蔡董說明 Zeal 的定位）</div>
+      </div>
+    </div>
+
+    <!-- Topic 2 -->
+    <div class="card">
+      <div class="topic-label">議題 02 · 哲學背景</div>
+      <div class="topic-title">從《三體》延伸的敘事能力討論</div>
+      <ul class="bullets">
+        <li>Speaker 4 引述《人類大歷史》：智人的核心優勢是「說八卦」——即社會敘事建構能力，而非「說謊」。</li>
+        <li>對照《三體》外星人「不能說謊」的設定，人類的敘事能力被重新定義為文明擴張的根本驅動力。</li>
+        <li>150 人界線：自然凝聚上限，超過後必須靠「敘事共識」（八卦、信仰、故事）維持群體。</li>
+        <li>討論隱性目的：為後續「品牌需要一個可傳播的故事」鋪墊理論基礎，不是閒聊。</li>
+      </ul>
+      <div class="quote-block">
+        「人類最強的地方，就是我們可以不說真話——但這不是欺騙，是敘事建構，讓更多人相信一個共同的東西。」
+        <div class="quote-attr">— Speaker 4（從《人類大歷史》引申）</div>
+      </div>
+    </div>
+
+    <!-- Topic 3 -->
+    <div class="card">
+      <div class="topic-label">議題 03 · 核心產品</div>
+      <div class="topic-title">沉香東革阿里酒：稀缺原料 × 機能定位 × 品牌困局</div>
+      <ul class="bullets">
+        <li><strong>原料背景</strong>：馬來西亞限制東革阿里原料出口，必須在當地加工後才能合法輸出；只有大型企業能處理法規門檻。團隊持有兩噸原料，具稀缺性。</li>
+        <li><strong>配方發展</strong>：沉香與東革阿里由「麥卡倫某總監」首次嘗試結合，後經中醫師與多位老師測試，評價「真的好」，商品化信心來自此。</li>
+        <li><strong>重新詮釋視角</strong>：「壯陽」被定義為「心血管暢通」的表現——血液循環改善帶來的副效應，而非獨立訴求。同理於瑪卡的功效解讀。</li>
+        <li><strong>體感描述</strong>：濃度高、有層次、有後勁；素食者反映末梢循環改善、「冬天很安全」。</li>
+        <li><strong>中藥味</strong>：已刻意調淡，留有「中藥香」但無苦澀刺鼻，提高普遍接受度。</li>
+        <li><strong>高端背書</strong>：富衛（保險集團）某總裁級客戶每次「一箱一箱」回購，高端市場潛力明確。</li>
+        <li><strong>庫存困局</strong>：「喝的比賣的多」——團隊自用大量消耗，庫存剩不到 10 件，通路建設被擱置。</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ═══ L3 戰略分析 ═══ -->
+  <div id="strategy" class="section">
+    <div class="section-title">戰略分析</div>
+    <div class="section-desc">陽謀佈局 + 陰謀人心。超越「發生了什麼」，分析「背後發生了什麼」。</div>
+
+    <!-- 鬼谷子 -->
+    <div class="insight-box" style="margin-bottom: 20px;">
+      <div class="insight-label">🎭 鬼谷子 · 揣摩術 — 讀蔡董的真實需求</div>
+      <div class="insight-title">蔡董要的不是「顧問」，是「被看見的創業者」</div>
+      <p>
+        「火柴人財神」的選擇，是一個精心設計的<strong>自我揭示訊號</strong>：他在測試這個顧問能不能理解他的美學觀——親切、不高攀、有民間溫度。
+        <br><br>
+        「老闆要每天喝一罐」不是笑話，是<strong>產品信仰宣言</strong>。蔡董是典型的「創辦人即產品」型人格，他對產品的熱愛程度決定了合作深度的天花板。
+        <br><br>
+        Zeal 的接入策略應從<strong>「我理解你為什麼這樣設計」</strong>開始，而非直接給建議。
+      </p>
+    </div>
+
+    <!-- 孫子 -->
+    <div class="insight-box" style="margin-bottom: 20px; background: #0e1616;">
+      <div class="insight-label" style="color: #4dc4b0;">☯ 孫子 · 虛實篇 — 找對戰場</div>
+      <div class="insight-title">稀缺性是最強的護城河，但沒有通路就是空城</div>
+      <p>
+        東革阿里原物料的出口限制 + 兩噸庫存，是<strong>極難複製的進入壁壘</strong>。競爭對手要做同樣的產品，至少需要 2-3 年建立馬來西亞的法規與供應鏈關係。
+        <br><br>
+        然而「喝的比賣的多」代表<strong>護城河沒有被利用</strong>。要建立稀缺性品牌，第一步是停止讓產品沉默地消耗在內部——每一件自用，就是一個本可成為鐵粉的「富衛總裁」沒被轉化。
+        <br><br>
+        建議：<strong>把內部消耗數量量化，轉化成「創辦人自己愛喝的酒，你也值得」的品牌故事素材</strong>，而非讓它停留在廠房輕鬆話題層面。
+      </p>
+    </div>
+
+    <!-- Shadow 博弈偵測 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon ember">🕵️</div>
+        <div>
+          <div class="card-title">博弈人心偵測</div>
+          <div class="card-subtitle">shadow 模組 — 防禦型訊號掃描</div>
+        </div>
+      </div>
+      <div class="signal-row">
+        <div class="signal-dot yellow"></div>
+        <div class="signal-content">
+          <strong>「把所有案子都處理好」——期待值邊界模糊</strong>
+          <p>這句話的表面是讚美，背後是「我想要一個全能的解決方案提供者」的隱性期待。如果 Zeal 接受這個框架，未來任何一個案子沒做好都會被放大。<br>
+          <span class="hl-ember">防禦動作</span>：下次會議主動帶「案子分級表」，讓蔡董自己選 A/B/C，把邊界框定的主動權交還給他，而非被動接受無邊界委託。</p>
+        </div>
+      </div>
+      <div class="signal-row">
+        <div class="signal-dot green"></div>
+        <div class="signal-content">
+          <strong>「特地北上」——誰在追誰已很清楚</strong>
+          <p>蔡董主動北上這個事實，是籌碼的顯性呈現。Zeal 不需要過度展示能力，反而應該保持「帶著條件談」的姿態——「我能幫你，但先確認我們對彼此的期待是否對齊」。</p>
+        </div>
+      </div>
+      <div class="signal-row">
+        <div class="signal-dot yellow"></div>
+        <div class="signal-content">
+          <strong>《三體》議論——蔡董在篩選「文化頻率」</strong>
+          <p>深度科幻 + 人類學 + 敘事學的交叉討論，是一種<span class="hl-ember">精英身份篩選機制</span>。蔡董（或 Speaker 4）在測試 Zeal 是否在同一個思維層次。Zeal 能接上這個話題，說明第一關通過了。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 品牌主敘事 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon gold">📖</div>
+        <div>
+          <div class="card-title">品牌主敘事：未建立的缺口</div>
+          <div class="card-subtitle">storytelling-engine 視角</div>
+        </div>
+      </div>
+      <p style="color: var(--slate); font-size: 14px; line-height: 1.8; margin-bottom: 16px;">
+        沉香東革阿里酒目前有三個極強的品牌素材，但沒有被串成一個完整的故事弧線：
+      </p>
+      <ul class="bullets">
+        <li><strong class="hl-gold">稀缺性</strong>：兩噸東革阿里，馬來西亞出口限制，全球只有少數大廠能做到——這是「限量版的科學理由」。</li>
+        <li><strong class="hl-gold">真實用家</strong>：創辦人天天喝、庫存見底——「他自己都捨不得賣，你還能要到幾瓶？」</li>
+        <li><strong class="hl-gold">高端回購</strong>：富衛總裁一箱一箱拿——「知道的人都懂，不知道的人你也不必解釋。」</li>
+      </ul>
+      <div class="quote-block">
+        建議主敘事線：<br>
+        「一瓶本來不應該存在的酒——來自馬來西亞深林的傳說成分、通過台灣中醫師認可、在一個你可能永遠訂不到的量。現在還剩幾瓶，視乎你有沒有聽說這件事。」
+        <div class="quote-attr">— MUSEON storytelling-engine 草稿建議</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ L4 人格分析 ═══ -->
+  <div id="persona" class="section">
+    <div class="section-title">人格動態分析</div>
+    <div class="section-desc">ANIMA 八原語推斷 + 溝通策略建議。知道對方是誰，才知道怎麼說話。</div>
+
+    <div class="persona-card">
+      <div class="persona-name">蔡董（Speaker 3）</div>
+      <div class="persona-type">財神型創業者 · 信仰驅動 · 親和力優先</div>
+      <div class="divider"></div>
+      <div class="persona-grid">
+        <div class="persona-item">
+          <label>核心特質</label>
+          <p>以「親切財神」而非「威嚴財神」作為品牌錨點，顯示他清楚知道自己的客群需要「無距離感的信任」，而非仰望感。</p>
+        </div>
+        <div class="persona-item">
+          <label>決策風格</label>
+          <p>產品信仰者型——自己是最忠實的用戶，決策先靠直覺體感，後靠數字驗證。需要先讓他「感覺對了」，才能進入條件談判。</p>
+        </div>
+        <div class="persona-item">
+          <label>溝通偏好</label>
+          <p>喜歡有文化深度的對話（《三體》討論），同時期待夥伴有在地接地氣的能力（火柴人財神）。雙軌並存——不排斥精英，但不接受菁英架子。</p>
+        </div>
+        <div class="persona-item">
+          <label>潛在卡點</label>
+          <p>對「所有案子」的全面期待，可能來自過往夥伴的缺失。需要溫和地建立「優先序」共識，避免因期待值落差損耗信任。</p>
+        </div>
+        <div class="persona-item">
+          <label>最強驅動</label>
+          <p>對場域（這棟樓）的中長期願景——他在建一個生態，不只是做一個案子。Zeal 如果能幫他看清楚生態的樣子，比任何單一案子的顧問費都值錢。</p>
+        </div>
+        <div class="persona-item">
+          <label>溝通策略</label>
+          <p>不要急著給建議，先問「你覺得這棟樓三年後應該是什麼樣子？」——讓他描述願景，你再說「這條路你可能沒想到」。他自己說出來的才算數。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="persona-card">
+      <div class="persona-name">Speaker 2</div>
+      <div class="persona-type">橋接者 · 資訊整合型 · 人脈廣泛</div>
+      <div class="divider"></div>
+      <div class="persona-grid">
+        <div class="persona-item">
+          <label>角色定位</label>
+          <p>負責在蔡董與外部顧問之間建立框架——他是本次會議的「引薦者兼翻譯官」，確保雙方對彼此的期待對齊。</p>
+        </div>
+        <div class="persona-item">
+          <label>人脈資本</label>
+          <p>提及與「蔡總統敬酒」的經歷，顯示在公共政治社交場合有實際連結，未來在品牌拓展或高端客群上可能是重要的門路持有者。</p>
+        </div>
+        <div class="persona-item">
+          <label>知識背景</label>
+          <p>對沉香東革阿里酒的藥理機制、供應鏈限制、馬來西亞出口法規都有相當深度的掌握，是產品知識的主要貢獻者。</p>
+        </div>
+        <div class="persona-item">
+          <label>溝通策略</label>
+          <p>他是讓你真正進入蔡董圈子的關鍵橋樑。會後應單獨確認他對合作架構的理解，避免資訊在傳遞中失真。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="persona-card">
+      <div class="persona-name">Speaker 4</div>
+      <div class="persona-type">思想型 · 跨學科視角 · 概念連結能力強</div>
+      <div class="divider"></div>
+      <div class="persona-grid">
+        <div class="persona-item">
+          <label>角色定位</label>
+          <p>智識型成員，負責為討論注入更高維度的理論框架（《人類大歷史》、150 人效應、敘事能力），與蔡董的直覺感性形成互補。</p>
+        </div>
+        <div class="persona-item">
+          <label>影響力類型</label>
+          <p>對蔡董可能有「理念塑造者」的隱性影響力——他提的框架，蔡董接受後就變成決策基準。Zeal 應留意 Speaker 4 的意見走向。</p>
+        </div>
+        <div class="persona-item">
+          <label>潛在機會</label>
+          <p>他對「外星人心靈感應 vs 人類說謊能力」的討論，其實是在問一個商業問題：「我們的客群能不能接受我們的故事？」Zeal 可以從這個角度深入合作。</p>
+        </div>
+        <div class="persona-item">
+          <label>溝通策略</label>
+          <p>用跨域引用打動他，不用純商業邏輯。「根據 150 人理論，你們的目標生態規模在 150-500 人會員是最穩的——超過這個才需要另一套治理機制。」</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ L5 行動計畫 ═══ -->
+  <div id="actions" class="section">
+    <div class="section-title">行動計畫</div>
+    <div class="section-desc">從這場會議出來，最重要的五個下一步。按優先序排列。</div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon ember">🚀</div>
+        <div>
+          <div class="card-title">行動項目</div>
+          <div class="card-subtitle">責任人 × 期限 × 來源主題</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-num">1</div>
+        <div class="action-content">
+          <strong>製作「案子三級分類表」，下次見面前送出</strong>
+          <p style="font-size: 14px; color: var(--slate); margin-bottom: 10px;">把蔡董所有在做的案子分 A（必須親自決策）/ B（團隊可執行）/ C（可外包延後），用一頁表格呈現。主動框定顧問邊界，避免「所有案子」的無邊界期待演變為信任損耗。</p>
+          <div class="action-meta">
+            <span class="badge badge-ember">負責人：Zeal</span>
+            <span class="badge badge-slate">期限：下次見面前</span>
+            <span class="badge badge-teal">來源：開場定位討論</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-num">2</div>
+        <div class="action-content">
+          <strong>撰寫沉香東革阿里酒主敘事線草稿</strong>
+          <p style="font-size: 14px; color: var(--slate); margin-bottom: 10px;">融合三個素材（稀缺原料 + 創辦人自用 + 高端回購），以「心血管暢通」為醫理軸、「馬來西亞深林限量」為故事軸，寫出 300 字品牌核心敘事。</p>
+          <div class="action-meta">
+            <span class="badge badge-ember">負責人：Zeal + MUSEON</span>
+            <span class="badge badge-slate">期限：3 日內</span>
+            <span class="badge badge-teal">來源：產品深度研討</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-num">3</div>
+        <div class="action-content">
+          <strong>評估補貨可行性 + 銷售通路優先序</strong>
+          <p style="font-size: 14px; color: var(--slate); margin-bottom: 10px;">庫存剩不到 10 件是緊急訊號。需確認：馬來西亞原料補貨時程、加工週期、最小訂購量；同時決定第一個打通的銷售通路（建議優先高端禮品通路或富衛客群延伸）。</p>
+          <div class="action-meta">
+            <span class="badge badge-ember">負責人：Speaker 2 + 蔡董</span>
+            <span class="badge badge-slate">期限：2 週內</span>
+            <span class="badge badge-gold">來源：庫存現況討論</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-num">4</div>
+        <div class="action-content">
+          <strong>場域（這棟樓）三年藍圖初稿</strong>
+          <p style="font-size: 14px; color: var(--slate); margin-bottom: 10px;">蔡董對場域有中長期構想但尚未系統化。Zeal 可主動提一份「場域生態設計草案」，把多元廠商 + 會員機制 + 財寶府庫產品的關係畫出來。這是讓他感覺「被真正理解」的最強動作。</p>
+          <div class="action-meta">
+            <span class="badge badge-ember">負責人：Zeal</span>
+            <span class="badge badge-slate">期限：第二次會議前</span>
+            <span class="badge badge-gold">來源：場域願景討論</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-num">5</div>
+        <div class="action-content">
+          <strong>安排下次會議：帶 A/B/C 表 + 敘事線給蔡董確認</strong>
+          <p style="font-size: 14px; color: var(--slate); margin-bottom: 10px;">不要等他問，主動發起下次會議邀約。帶著第 1 和第 2 項的產出，用「給你看一個東西，看有沒有說到你心裡」的姿態而非「我有建議要告訴你」。</p>
+          <div class="action-meta">
+            <span class="badge badge-ember">負責人：Zeal</span>
+            <span class="badge badge-slate">建議：2 週內</span>
+            <span class="badge badge-teal">來源：合作關係推進</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 停車場 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon slate">🅿️</div>
+        <div>
+          <div class="card-title">停車場</div>
+          <div class="card-subtitle">離題但值得後續討論的議題</div>
+        </div>
+      </div>
+      <div class="parking-item">
+        <strong>法規合規路徑</strong>：東革阿里在台灣不在本草綱目，法規地位模糊。若要大規模銷售，合規路徑需要提前研究。建議：法務評估會議（單獨處理）。
+      </div>
+      <div class="parking-item">
+        <strong>中國市場機會</strong>：「心血管暢通」的切角在中國市場可能更具說服力，且東革阿里話題熱度高。若有出口通路，應另行評估。
+      </div>
+      <div class="parking-item">
+        <strong>麥卡倫總監的試驗記錄</strong>：這段嘗試若有記錄，是極好的背書材料（威士忌圈的高端背景 + 跨域嘗試）。值得追蹤是否有可公開引用的素材。
+      </div>
+    </div>
+
+    <!-- 下次會議建議 -->
+    <div class="card" style="border-color: var(--ember); border-width: 1.5px;">
+      <div class="card-header">
+        <div class="card-icon ember">📅</div>
+        <div>
+          <div class="card-title">下次會議建議</div>
+          <div class="card-subtitle">基於本次未完成事項推導</div>
+        </div>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr><th>項目</th><th>建議</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>建議時機</td><td>2 週內（趁蔡董北上意願熱度未退）</td></tr>
+          <tr><td>優先議程</td><td>A/B/C 案子分級確認 → 敘事線草稿拍板 → 場域藍圖討論</td></tr>
+          <tr><td>最佳姿態</td><td>帶成品去，讓他看，讓他說「對，就是這個感覺」</td></tr>
+          <tr><td>要避免的</td><td>開放式討論（會再次產生無邊界期待）；過多選項（讓他選一個就好）</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-brand">
+      <strong>MUSEON</strong> · MEETING INTELLIGENCE · 五層戰情報告<br>
+      <span style="font-size: 10px; opacity: 0.6;">Generated 2026-03-28 · Powered by DNA27 + meeting-intelligence + shadow + master-strategy</span>
+    </div>
+    <div style="font-size: 12px; color: var(--mist);">機密 · 僅供內部使用</div>
+  </div>
+</div>
+
+<script>
+  function showSection(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
+</body>
+</html>

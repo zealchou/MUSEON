@@ -1,0 +1,10 @@
+{
+  "id": "KL-LES-session26-2",
+  "type": "Lesson",
+  "title": "不要急著改，想清楚再說",
+  "content": "看到問題不要急著 patch。修分流邏輯是在錯誤架構上打補丁，拆掉分流邏輯才是正解。先退一步想根因，向使用者呈現思考結論，確認方向對了再動手。",
+  "source": "session_20260326_v2_brain",
+  "confidence": 0.95,
+  "created_at": "2026-03-26T18:26:08.580517",
+  "geo_layer": "L3_procedural"
+}

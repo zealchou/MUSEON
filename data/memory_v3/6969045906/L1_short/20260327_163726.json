@@ -1,0 +1,6 @@
+{
+  "session_id": "telegram_6969045906",
+  "user_message": "串 notion 跟 obsidan 做資料跟知識管理 要額外付費嗎",
+  "museon_reply": "兩個都免費：\n\n| 工具 | 費用 | 說明 |\n|------|------|------|\n| **Notion ** | 免費 | 開源，Notion 官方出的 |\n| **Obsidian ** | 免費 | 社群開源套件 |\n\n唯一要注意的：\n- **Notion** 本身免費方案有限制（頁面數、成員數），但 串接本身不收費\n- **Obsidian** 軟體本身個人免費，Sync 功能要付費——但 直接讀你本機的 vault，**不需要 Obsidian Sync**\n\n---\n\n要一起裝嗎？裝之前問你：\n\n1. **Notion** — 你有沒有 Notion 帳號 + API Token？（需要你去 Notion 開一個 Integration）\n2. **Obsidian** — 你的 vault 在哪個路徑？（我要指定路徑才能讀）\n\n確認後我直接設定進去。",
+  "timestamp": "2026-03-27T16:37:26.898066+08:00"
+}
