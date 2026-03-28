@@ -397,225 +397,225 @@ function lkCSS(t){ return t==='cross'?'#C98980':t==='async'?'#C5A47E':t==='monit
 
 const nodes = [
   // ── center ──
-  {id:"event-bus",label:"Event Bus",zh:"核心事件匯流排",group:"center",r:3.2,hub:1},
+  {id:"event-bus",label:"Event Bus",zh:"核心事件匯流排",group:"center",r:3.2,hub:1,path:"src/museon/core/event_bus.py",fi:46},
   // ── channel ──
-  {id:"brain-worker",label:"Brain Worker",zh:"獨立 subprocess 運行 Brain.process",group:"channel",r:1.0,desc:"獨立 subprocess 運行 Brain.process()（process 隔離）"},
-  {id:"cron",label:"Cron",zh:"排程入口",group:"channel",r:1.2},
-  {id:"cron-registry",label:"Cron Registry",zh:"系統 cron 任務註冊",group:"channel",r:1.0,desc:"系統 cron 任務註冊（五虎將+41 排程）"},
-  {id:"discord",label:"Discord",zh:"Discord 通道",group:"channel",r:1.2},
-  {id:"external-user",label:"External User",zh:"群組外部成員",group:"channel",r:1.4},
-  {id:"gateway",label:"Gateway",zh:"WebSocket :8765",group:"channel",r:1.6},
-  {id:"interaction-queue",label:"Interaction Queue",zh:"跨通道互動佇列",group:"channel",r:1.0},
-  {id:"mcp-server",label:"MCP Server",zh:"Claude Code 介面",group:"channel",r:1.2},
-  {id:"message-queue-store",label:"Message Queue Store",zh:"SQLite 訊息佇列持久化",group:"channel",r:1.0,desc:"SQLite 訊息佇列持久化（crash recovery）"},
-  {id:"routes-api",label:"Routes API",zh:"SkillHub + External API 端點註冊",group:"channel",r:0.8},
-  {id:"telegram",label:"Telegram",zh:"主通道",group:"channel",r:1.6,desc:"主通道（私聊 + 群組）"},
-  {id:"telegram-pump",label:"Telegram Pump",zh:"Telegram 訊息泵",group:"channel",r:1.4,desc:"Telegram 訊息泵（收訊→Brain→驗證→發送）"},
-  {id:"verified-user",label:"Verified User",zh:"動態配對使用者",group:"channel",r:1.2},
-  {id:"zeal",label:"Zeal (Owner)",zh:"主人",group:"channel",r:2.0},
+  {id:"brain-worker",label:"Brain Worker",zh:"獨立 subprocess 運行 Brain.process",group:"channel",r:1.0,desc:"獨立 subprocess 運行 Brain.process()（process 隔離）",path:"src/museon/gateway/brain_worker.py",fi:0},
+  {id:"cron",label:"Cron",zh:"排程入口",group:"channel",r:1.2,path:"src/museon/gateway/cron.py",fi:0},
+  {id:"cron-registry",label:"Cron Registry",zh:"系統 cron 任務註冊",group:"channel",r:1.0,desc:"系統 cron 任務註冊（五虎將+41 排程）",path:"src/museon/gateway/cron_registry.py",fi:0},
+  {id:"discord",label:"Discord",zh:"Discord 通道",group:"channel",r:1.2,path:"src/museon/channels/discord.py",fi:0},
+  {id:"external-user",label:"External User",zh:"群組外部成員",group:"channel",r:1.4,path:"",fi:0},
+  {id:"gateway",label:"Gateway",zh:"WebSocket :8765",group:"channel",r:1.6,path:"src/museon/gateway/server.py",fi:4},
+  {id:"interaction-queue",label:"Interaction Queue",zh:"跨通道互動佇列",group:"channel",r:1.0,path:"src/museon/gateway/interaction.py",fi:3},
+  {id:"mcp-server",label:"MCP Server",zh:"Claude Code 介面",group:"channel",r:1.2,path:"src/museon/mcp_server.py",fi:0},
+  {id:"message-queue-store",label:"Message Queue Store",zh:"SQLite 訊息佇列持久化",group:"channel",r:1.0,desc:"SQLite 訊息佇列持久化（crash recovery）",path:"src/museon/gateway/message_queue_store.py",fi:0},
+  {id:"routes-api",label:"Routes API",zh:"SkillHub + External API 端點註冊",group:"channel",r:0.8,path:"src/museon/gateway/routes_api.py",fi:0},
+  {id:"telegram",label:"Telegram",zh:"主通道",group:"channel",r:1.6,desc:"主通道（私聊 + 群組）",path:"src/museon/channels/telegram.py",fi:0},
+  {id:"telegram-pump",label:"Telegram Pump",zh:"Telegram 訊息泵",group:"channel",r:1.4,desc:"Telegram 訊息泵（收訊→Brain→驗證→發送）",path:"src/museon/gateway/telegram_pump.py",fi:0},
+  {id:"verified-user",label:"Verified User",zh:"動態配對使用者",group:"channel",r:1.2,path:"",fi:0},
+  {id:"zeal",label:"Zeal (Owner)",zh:"主人",group:"channel",r:2.0,path:"",fi:0},
   // ── agent ──
-  {id:"brain",label:"Brain-Fast (L1)",zh:"L1 接待層",group:"agent",r:2.8,hub:1,desc:"L1 接待層（Sonnet + escalation JSON，簡單自答/複雜派 L2）"},
-  {id:"adaptive-decay",label:"Adaptive Decay",zh:"ACT-R 式統一衰減引擎",group:"agent",r:0.8,p:"brain",desc:"ACT-R 式統一衰減引擎（B_i = ln(Σt^{-d}) + β_i）"},
-  {id:"agent-registry",label:"Agent Registry",zh:"統一能力目錄",group:"agent",r:0.7,p:"brain"},
-  {id:"brain-deep",label:"Brain-Deep (L2)",zh:"L2 深度思考引擎",group:"agent",r:1.2,p:"brain",desc:"L2 深度思考引擎（Opus + tool_use）"},
-  {id:"brain-dispatch",label:"Brain Dispatch",zh:"Mixin: 任務分派",group:"agent",r:1.0,p:"brain",desc:"Mixin: 任務分派（1082 行）"},
-  {id:"brain-observation",label:"Brain Observation",zh:"Mixin: 觀察與演化",group:"agent",r:1.0,p:"brain",desc:"Mixin: 觀察與演化（2003 行）"},
-  {id:"brain-observer",label:"Brain-Observer (L4)",zh:"L4 觀察者",group:"agent",r:0.9,p:"brain",desc:"L4 觀察者（Haiku，記憶落地 + 洞察偵測）"},
-  {id:"brain-p3-fusion",label:"Brain P3 Fusion",zh:"Mixin: P3 融合與決策層",group:"agent",r:1.0,p:"brain",desc:"Mixin: P3 融合與決策層（948 行）"},
-  {id:"brain-prompt-builder",label:"Brain Prompt Builder",zh:"Mixin: system prompt 建構",group:"agent",r:1.0,p:"brain",desc:"Mixin: system prompt 建構（1668 行）"},
-  {id:"brain-tool-loop",label:"Brain-Tool-Loop",zh:"獨立 tool-use 迴圈",group:"agent",r:1.0,p:"brain"},
-  {id:"brain-tools",label:"Brain Tools",zh:"Mixin: LLM 呼叫與 session 管理",group:"agent",r:1.0,p:"brain",desc:"Mixin: LLM 呼叫與 session 管理（966 行）"},
-  {id:"brain-types",label:"Brain Types",zh:"共享 dataclass: DecisionSignal, P3FusionSignal",group:"agent",r:0.7,p:"brain"},
-  {id:"chat-context",label:"Chat Context",zh:"ChatContext dataclass",group:"agent",r:0.7,p:"brain",desc:"ChatContext dataclass（輕量對話上下文資料結構）"},
-  {id:"deep-think",label:"Deep Think",zh:"思考前置引擎",group:"agent",r:1.1,p:"brain",desc:"思考前置引擎（P0 訊號分流 / P1 輸入審視 / P2 決策偵測）"},
-  {id:"dendritic-fusion",label:"Dendritic Fusion",zh:"P3 並行融合引擎",group:"agent",r:1.1,p:"brain",desc:"P3 並行融合引擎（MetaCog+Eval+Health）"},
-  {id:"deterministic-router",label:"Deterministic Router",zh:"確定性任務分解器",group:"agent",r:1.0,p:"brain",desc:"確定性任務分解器（取代 LLM Orchestrator）"},
-  {id:"diary-store",label:"Diary Store",zh:"日記存儲",group:"agent",r:0.9,p:"brain",desc:"日記存儲（原靈魂年輪）"},
-  {id:"dispatch",label:"Dispatch",zh:"多技能編排",group:"agent",r:1.0,p:"brain"},
-  {id:"dispatcher",label:"L1 Dispatcher",zh:"調度員：收訊 → 1 秒內 spawn L2 思考者 → 處理下一則",group:"agent",r:1.2,p:"brain",desc:"調度員：收訊 → 1 秒內 spawn L2 思考者 → 處理下一則（CLAUDE.md 定義行為）"},
-  {id:"drift-detector",label:"Drift Detector",zh:"漂移偵測",group:"agent",r:0.8,p:"brain"},
-  {id:"eval-engine",label:"Eval Engine",zh:"Q-Score",group:"agent",r:1.0,p:"brain"},
-  {id:"fact-correction",label:"Fact Correction",zh:"事實覆寫引擎",group:"agent",r:0.9,p:"brain"},
-  {id:"flywheel-coordinator",label:"Flywheel Coordinator",zh:"飛輪流動協調",group:"agent",r:0.9,p:"brain"},
-  {id:"intuition",label:"Intuition",zh:"五層直覺",group:"agent",r:0.9,p:"brain"},
-  {id:"investment-masters",label:"Investment Masters",zh:"投資軍師團",group:"agent",r:0.9,p:"brain",desc:"投資軍師團（六位大師模型會診）"},
-  {id:"knowledge-lattice",label:"Knowledge Lattice",zh:"知識晶格",group:"agent",r:1.1,p:"brain"},
-  {id:"memory-graph",label:"Memory Graph",zh:"記憶關聯圖",group:"agent",r:1.0,p:"brain",desc:"記憶關聯圖（語意關聯邊 + 存取追蹤 + 過期偵測）"},
-  {id:"memory-reflector",label:"Memory Reflector",zh:"Hindsight 式反思引擎",group:"agent",r:1.0,p:"brain",desc:"Hindsight 式反思引擎（矛盾偵測/模式發現/時間軸/Activation 排序）"},
-  {id:"metacognition",label:"Metacognition",zh:"元認知審查",group:"agent",r:1.0,p:"brain"},
-  {id:"multi-agent-executor",label:"Multi Agent Executor",zh:"並行 LLM 執行器",group:"agent",r:1.0,p:"brain"},
-  {id:"multiagent",label:"Multiagent",zh:"多代理協調",group:"agent",r:0.9,p:"brain"},
-  {id:"okr-router",label:"OKR Router",zh:"八卦路由",group:"agent",r:0.9,p:"brain"},
-  {id:"onboarding",label:"Onboarding",zh:"上線儀式",group:"agent",r:0.9,p:"brain"},
-  {id:"pdr-council",label:"PDR Council",zh:"九策軍師引擎",group:"agent",r:1.0,p:"brain",desc:"九策軍師引擎（Phase 2/3）"},
-  {id:"pdr-params",label:"PDR Params",zh:"PDR 調控參數 + 安全護欄",group:"agent",r:0.9,p:"brain"},
-  {id:"persona-router",label:"Persona Router",zh:"人格路由 + 百合引擎決策",group:"agent",r:1.1,p:"brain"},
-  {id:"plan-engine",label:"Plan Engine",zh:"六階段計畫",group:"agent",r:1.0,p:"brain"},
-  {id:"primal-detector",label:"Primal Detector",zh:"八原語偵測",group:"agent",r:1.0,p:"brain"},
-  {id:"recommender",label:"Recommender",zh:"知識推薦引擎",group:"agent",r:0.9,p:"brain",desc:"知識推薦引擎（CrystalStore 結晶推薦）"},
-  {id:"reflex-router",label:"Reflex Router",zh:"反射路由",group:"agent",r:1.0,p:"brain"},
-  {id:"response-synthesizer",label:"Response Synthesizer",zh:"DNA 交叉重組合成",group:"agent",r:0.8,p:"brain"},
-  {id:"roundtable",label:"Roundtable",zh:"圓桌詰問引擎",group:"agent",r:1.0,p:"brain",desc:"圓桌詰問引擎（多角色交叉詰問 + 仲裁）"},
-  {id:"skill-router",label:"Skill Router",zh:"技能路由",group:"agent",r:1.1,p:"brain"},
-  {id:"thinker",label:"L2 Thinker",zh:"思考者 subagent：讀 museon-persona.md → 分析決策 → spawn L3 工人",group:"agent",r:1.0,p:"brain",desc:"思考者 subagent：讀 museon-persona.md → 分析決策 → spawn L3 工人（model: sonnet, run_in_background）"},
-  {id:"worker",label:"L3 Worker",zh:"工人 subagent：執行 MCP 工具呼叫後銷毀",group:"agent",r:0.8,p:"brain",desc:"工人 subagent：執行 MCP 工具呼叫後銷毀（model: haiku, run_in_background）"},
+  {id:"brain",label:"Brain-Fast (L1)",zh:"L1 接待層",group:"agent",r:2.8,hub:1,desc:"L1 接待層（Sonnet + escalation JSON，簡單自答/複雜派 L2）",path:"src/museon/agent/brain.py",fi:2},
+  {id:"adaptive-decay",label:"Adaptive Decay",zh:"ACT-R 式統一衰減引擎",group:"agent",r:0.8,p:"brain",desc:"ACT-R 式統一衰減引擎（activation decay model）",path:"src/museon/memory/adaptive_decay.py",fi:0},
+  {id:"agent-registry",label:"Agent Registry",zh:"統一能力目錄",group:"agent",r:0.7,p:"brain",path:"src/museon/agent/agent_registry.py",fi:0},
+  {id:"brain-deep",label:"Brain-Deep (L2)",zh:"L2 深度思考引擎",group:"agent",r:1.2,p:"brain",desc:"L2 深度思考引擎（Opus + tool_use）",path:"src/museon/agent/brain_deep.py",fi:0},
+  {id:"brain-dispatch",label:"Brain Dispatch",zh:"Mixin: 任務分派",group:"agent",r:1.0,p:"brain",desc:"Mixin: 任務分派（1082 行）",path:"src/museon/agent/brain_dispatch.py",fi:2},
+  {id:"brain-observation",label:"Brain Observation",zh:"Mixin: 觀察與演化",group:"agent",r:1.0,p:"brain",desc:"Mixin: 觀察與演化（2003 行）",path:"src/museon/agent/brain_observation.py",fi:0},
+  {id:"brain-observer",label:"Brain-Observer (L4)",zh:"L4 觀察者",group:"agent",r:0.9,p:"brain",desc:"L4 觀察者（Haiku，記憶落地 + 洞察偵測）",path:"src/museon/agent/brain_observer.py",fi:0},
+  {id:"brain-p3-fusion",label:"Brain P3 Fusion",zh:"Mixin: P3 融合與決策層",group:"agent",r:1.0,p:"brain",desc:"Mixin: P3 融合與決策層（948 行）",path:"src/museon/agent/brain_p3_fusion.py",fi:0},
+  {id:"brain-prompt-builder",label:"Brain Prompt Builder",zh:"Mixin: system prompt 建構",group:"agent",r:1.0,p:"brain",desc:"Mixin: system prompt 建構（1668 行）",path:"src/museon/agent/brain_prompt_builder.py",fi:0},
+  {id:"brain-tool-loop",label:"Brain-Tool-Loop",zh:"獨立 tool-use 迴圈",group:"agent",r:1.0,p:"brain",path:"src/museon/agent/brain_tool_loop.py",fi:0},
+  {id:"brain-tools",label:"Brain Tools",zh:"Mixin: LLM 呼叫與 session 管理",group:"agent",r:1.0,p:"brain",desc:"Mixin: LLM 呼叫與 session 管理（966 行）",path:"src/museon/agent/brain_tools.py",fi:0},
+  {id:"brain-types",label:"Brain Types",zh:"共享 dataclass: DecisionSignal, P3FusionSignal",group:"agent",r:0.7,p:"brain",path:"src/museon/agent/brain_types.py",fi:0},
+  {id:"chat-context",label:"Chat Context",zh:"ChatContext dataclass",group:"agent",r:0.7,p:"brain",desc:"ChatContext dataclass（輕量對話上下文資料結構）",path:"src/museon/agent/chat_context.py",fi:0},
+  {id:"deep-think",label:"Deep Think",zh:"思考前置引擎",group:"agent",r:1.1,p:"brain",desc:"思考前置引擎（P0 訊號分流 / P1 輸入審視 / P2 決策偵測）",path:"~/.claude/skills/deep-think/SKILL.md",fi:0},
+  {id:"dendritic-fusion",label:"Dendritic Fusion",zh:"P3 並行融合引擎",group:"agent",r:1.1,p:"brain",desc:"P3 並行融合引擎（MetaCog+Eval+Health）",path:"src/museon/agent/brain_p3_fusion.py",fi:0},
+  {id:"deterministic-router",label:"Deterministic Router",zh:"確定性任務分解器",group:"agent",r:1.0,p:"brain",desc:"確定性任務分解器（取代 LLM Orchestrator）",path:"src/museon/agent/deterministic_router.py",fi:0},
+  {id:"diary-store",label:"Diary Store",zh:"日記存儲",group:"agent",r:0.9,p:"brain",desc:"日記存儲（原靈魂年輪）",path:"src/museon/memory/store.py",fi:0},
+  {id:"dispatch",label:"Dispatch",zh:"多技能編排",group:"agent",r:1.0,p:"brain",path:"src/museon/agent/dispatch.py",fi:0},
+  {id:"dispatcher",label:"L1 Dispatcher",zh:"調度員：收訊 → 1 秒內 spawn L2 思考者 → 處理下一則",group:"agent",r:1.2,p:"brain",desc:"調度員：收訊 → 1 秒內 spawn L2 思考者 → 處理下一則（CLAUDE.md 定義行為）",path:"src/museon/agent/dispatch.py",fi:0},
+  {id:"drift-detector",label:"Drift Detector",zh:"漂移偵測",group:"agent",r:0.8,p:"brain",path:"src/museon/agent/drift_detector.py",fi:0},
+  {id:"eval-engine",label:"Eval Engine",zh:"Q-Score",group:"agent",r:1.0,p:"brain",path:"src/museon/agent/eval_engine.py",fi:0},
+  {id:"fact-correction",label:"Fact Correction",zh:"事實覆寫引擎",group:"agent",r:0.9,p:"brain",path:"src/museon/agent/metacognition.py",fi:0},
+  {id:"flywheel-coordinator",label:"Flywheel Coordinator",zh:"飛輪流動協調",group:"agent",r:0.9,p:"brain",path:"src/museon/multiagent/multi_agent_executor.py",fi:0},
+  {id:"intuition",label:"Intuition",zh:"五層直覺",group:"agent",r:0.9,p:"brain",path:"src/museon/agent/intuition.py",fi:0},
+  {id:"investment-masters",label:"Investment Masters",zh:"投資軍師團",group:"agent",r:0.9,p:"brain",desc:"投資軍師團（六位大師模型會診）",path:"~/.claude/skills/investment-masters/SKILL.md",fi:0},
+  {id:"knowledge-lattice",label:"Knowledge Lattice",zh:"知識晶格",group:"agent",r:1.1,p:"brain",path:"src/museon/agent/knowledge_lattice.py",fi:7},
+  {id:"memory-graph",label:"Memory Graph",zh:"記憶關聯圖",group:"agent",r:1.0,p:"brain",desc:"記憶關聯圖（語意關聯邊 + 存取追蹤 + 過期偵測）",path:"src/museon/memory/memory_graph.py",fi:0},
+  {id:"memory-reflector",label:"Memory Reflector",zh:"Hindsight 式反思引擎",group:"agent",r:1.0,p:"brain",desc:"Hindsight 式反思引擎（矛盾偵測/模式發現/時間軸/Activation 排序）",path:"src/museon/memory/memory_reflector.py",fi:0},
+  {id:"metacognition",label:"Metacognition",zh:"元認知審查",group:"agent",r:1.0,p:"brain",path:"src/museon/agent/metacognition.py",fi:0},
+  {id:"multi-agent-executor",label:"Multi Agent Executor",zh:"並行 LLM 執行器",group:"agent",r:1.0,p:"brain",path:"src/museon/multiagent/multi_agent_executor.py",fi:0},
+  {id:"multiagent",label:"Multiagent",zh:"多代理協調",group:"agent",r:0.9,p:"brain",path:"src/museon/multiagent/multi_agent_executor.py",fi:0},
+  {id:"okr-router",label:"OKR Router",zh:"八卦路由",group:"agent",r:0.9,p:"brain",path:"src/museon/multiagent/okr_router.py",fi:0},
+  {id:"onboarding",label:"Onboarding",zh:"上線儀式",group:"agent",r:0.9,p:"brain",path:"src/museon/onboarding/ceremony.py",fi:0},
+  {id:"pdr-council",label:"PDR Council",zh:"九策軍師引擎",group:"agent",r:1.0,p:"brain",desc:"九策軍師引擎（Phase 2/3）",path:"src/museon/agent/pdr_council.py",fi:0},
+  {id:"pdr-params",label:"PDR Params",zh:"PDR 調控參數 + 安全護欄",group:"agent",r:0.9,p:"brain",path:"src/museon/agent/pdr_params.py",fi:4},
+  {id:"persona-router",label:"Persona Router",zh:"人格路由 + 百合引擎決策",group:"agent",r:1.1,p:"brain",path:"src/museon/agent/persona_router.py",fi:0},
+  {id:"plan-engine",label:"Plan Engine",zh:"六階段計畫",group:"agent",r:1.0,p:"brain",path:"src/museon/agent/plan_engine.py",fi:0},
+  {id:"primal-detector",label:"Primal Detector",zh:"八原語偵測",group:"agent",r:1.0,p:"brain",path:"src/museon/agent/primal_detector.py",fi:3},
+  {id:"recommender",label:"Recommender",zh:"知識推薦引擎",group:"agent",r:0.9,p:"brain",desc:"知識推薦引擎（CrystalStore 結晶推薦）",path:"src/museon/agent/recommender.py",fi:0},
+  {id:"reflex-router",label:"Reflex Router",zh:"反射路由",group:"agent",r:1.0,p:"brain",path:"src/museon/agent/reflex_router.py",fi:3},
+  {id:"response-synthesizer",label:"Response Synthesizer",zh:"DNA 交叉重組合成",group:"agent",r:0.8,p:"brain",path:"src/museon/multiagent/response_synthesizer.py",fi:0},
+  {id:"roundtable",label:"Roundtable",zh:"圓桌詰問引擎",group:"agent",r:1.0,p:"brain",desc:"圓桌詰問引擎（多角色交叉詰問 + 仲裁）",path:"~/.claude/skills/roundtable/SKILL.md",fi:0},
+  {id:"skill-router",label:"Skill Router",zh:"技能路由",group:"agent",r:1.1,p:"brain",path:"src/museon/agent/skill_router.py",fi:0},
+  {id:"thinker",label:"L2 Thinker",zh:"思考者 subagent：讀 museon-persona.md → 分析決策 → spawn L3 工人",group:"agent",r:1.0,p:"brain",desc:"思考者 subagent：讀 museon-persona.md → 分析決策 → spawn L3 工人（model: sonnet, run_in_background）",path:"src/museon/agent/brain_deep.py",fi:0},
+  {id:"worker",label:"L3 Worker",zh:"工人 subagent：執行 MCP 工具呼叫後銷毀",group:"agent",r:0.8,p:"brain",desc:"工人 subagent：執行 MCP 工具呼叫後銷毀（model: haiku, run_in_background）",path:"src/museon/agent/sub_agent.py",fi:0},
   // ── pulse ──
-  {id:"pulse",label:"Pulse Engine",zh:"VITA 生命力",group:"pulse",r:2.8,hub:1},
-  {id:"anima-changelog",label:"Anima Changelog",zh:"ANIMA_USER 差分版本追蹤",group:"pulse",r:0.8,p:"pulse",desc:"ANIMA_USER 差分版本追蹤（append-only JSONL）"},
-  {id:"anima-mc-store",label:"AnimaMC Store",zh:"ANIMA統一存取",group:"pulse",r:1.1,p:"pulse"},
-  {id:"anima-tracker",label:"Anima Tracker",zh:"八元素追蹤",group:"pulse",r:1.0,p:"pulse"},
-  {id:"commitment-tracker",label:"Commitment",zh:"承諾追蹤",group:"pulse",r:0.9,p:"pulse"},
-  {id:"explorer",label:"Explorer",zh:"自主探索",group:"pulse",r:1.1,p:"pulse"},
-  {id:"heartbeat",label:"Heartbeat",zh:"三脈主控",group:"pulse",r:1.0,p:"pulse"},
-  {id:"micro-pulse",label:"Micro Pulse",zh:"秒級微脈",group:"pulse",r:0.8,p:"pulse"},
-  {id:"proactive-bridge",label:"Proactive Bridge",zh:"主動推播 + 百合引擎象限調適",group:"pulse",r:1.2,p:"pulse"},
-  {id:"proactive-dispatcher",label:"Proactive Dispatcher",zh:"推播大總管",group:"pulse",r:1.1,p:"pulse",desc:"推播大總管（統一攔截推播、24hr 日誌、語意去重、分級）"},
-  {id:"pulse-db",label:"Pulse DB",zh:"脈搏資料庫",group:"pulse",r:0.8,p:"pulse"},
-  {id:"push-budget",label:"Push Budget",zh:"全局推送預算管理器",group:"pulse",r:1.0,p:"pulse",desc:"全局推送預算管理器（限額+語意去重+持久化）"},
-  {id:"silent-digestion",label:"Silent Digestion",zh:"靜默消化",group:"pulse",r:1.0,p:"pulse"},
+  {id:"pulse",label:"Pulse Engine",zh:"VITA 生命力",group:"pulse",r:2.8,hub:1,path:"src/museon/pulse/pulse_engine.py",fi:0},
+  {id:"anima-changelog",label:"Anima Changelog",zh:"ANIMA_USER 差分版本追蹤",group:"pulse",r:0.8,p:"pulse",desc:"ANIMA_USER 差分版本追蹤（append-only JSONL）",path:"src/museon/pulse/anima_changelog.py",fi:0},
+  {id:"anima-mc-store",label:"AnimaMC Store",zh:"ANIMA統一存取",group:"pulse",r:1.1,p:"pulse",path:"src/museon/pulse/anima_mc_store.py",fi:0},
+  {id:"anima-tracker",label:"Anima Tracker",zh:"八元素追蹤",group:"pulse",r:1.0,p:"pulse",path:"src/museon/pulse/anima_tracker.py",fi:0},
+  {id:"commitment-tracker",label:"Commitment",zh:"承諾追蹤",group:"pulse",r:0.9,p:"pulse",path:"src/museon/pulse/commitment_tracker.py",fi:0},
+  {id:"explorer",label:"Explorer",zh:"自主探索",group:"pulse",r:1.1,p:"pulse",path:"src/museon/pulse/explorer.py",fi:0},
+  {id:"heartbeat",label:"Heartbeat",zh:"三脈主控",group:"pulse",r:1.0,p:"pulse",path:"src/museon/pulse/heartbeat_engine.py",fi:4},
+  {id:"micro-pulse",label:"Micro Pulse",zh:"秒級微脈",group:"pulse",r:0.8,p:"pulse",path:"src/museon/pulse/micro_pulse.py",fi:0},
+  {id:"proactive-bridge",label:"Proactive Bridge",zh:"主動推播 + 百合引擎象限調適",group:"pulse",r:1.2,p:"pulse",path:"src/museon/pulse/proactive_bridge.py",fi:0},
+  {id:"proactive-dispatcher",label:"Proactive Dispatcher",zh:"推播大總管",group:"pulse",r:1.1,p:"pulse",desc:"推播大總管（統一攔截推播、24hr 日誌、語意去重、分級）",path:"src/museon/pulse/proactive_dispatcher.py",fi:0},
+  {id:"pulse-db",label:"Pulse DB",zh:"脈搏資料庫",group:"pulse",r:0.8,p:"pulse",path:"src/museon/pulse/pulse_db.py",fi:11},
+  {id:"push-budget",label:"Push Budget",zh:"全局推送預算管理器",group:"pulse",r:1.0,p:"pulse",desc:"全局推送預算管理器（限額+語意去重+持久化）",path:"src/museon/pulse/push_budget.py",fi:0},
+  {id:"silent-digestion",label:"Silent Digestion",zh:"靜默消化",group:"pulse",r:1.0,p:"pulse",path:"src/museon/pulse/silent_digestion.py",fi:0},
   // ── gov ──
-  {id:"governance",label:"Governance",zh:"三焦式治理",group:"gov",r:2.8,hub:1},
-  {id:"authorization",label:"Authorization",zh:"配對碼 + 工具授權 + 分級策略",group:"gov",r:1.0,p:"governance"},
-  {id:"dendritic-scorer",label:"Dendritic Scorer",zh:"樹突評分器",group:"gov",r:0.9,p:"governance"},
-  {id:"footprint",label:"Footprint",zh:"操作足跡追蹤",group:"gov",r:0.9,p:"governance"},
-  {id:"governor",label:"Governor",zh:"上中下焦",group:"gov",r:1.0,p:"governance"},
-  {id:"guardian",label:"Guardian",zh:"系統守護 Daemon",group:"gov",r:1.1,p:"governance"},
-  {id:"immunity",label:"Immunity",zh:"先天 + 後天免疫",group:"gov",r:1.1,p:"governance"},
-  {id:"perception",label:"Perception",zh:"四診合參感知",group:"gov",r:0.9,p:"governance"},
-  {id:"preflight",label:"Preflight",zh:"啟動門",group:"gov",r:0.9,p:"governance"},
-  {id:"refractory",label:"Refractory",zh:"斷路器",group:"gov",r:0.9,p:"governance",desc:"斷路器（三態+半開試探）"},
-  {id:"response-guard",label:"Response Guard",zh:"發送前 chat_id 二次驗證閘門",group:"gov",r:0.9,p:"governance"},
-  {id:"sandbox",label:"Sandbox",zh:"沙盒隔離",group:"gov",r:0.8,p:"governance"},
-  {id:"security",label:"Security",zh:"安全淨化與稽核",group:"gov",r:1.0,p:"governance"},
-  {id:"service-health",label:"Service Health",zh:"服務監控",group:"gov",r:1.0,p:"governance"},
-  {id:"skill-scanner",label:"Skill Scanner",zh:"技能掃描",group:"gov",r:0.8,p:"governance"},
-  {id:"telegram-guard",label:"TG Guard",zh:"Polling 守衛",group:"gov",r:0.8,p:"governance"},
+  {id:"governance",label:"Governance",zh:"三焦式治理",group:"gov",r:2.8,hub:1,path:"src/museon/governance/governor.py",fi:0},
+  {id:"authorization",label:"Authorization",zh:"配對碼 + 工具授權 + 分級策略",group:"gov",r:1.0,p:"governance",path:"",fi:0},
+  {id:"dendritic-scorer",label:"Dendritic Scorer",zh:"樹突評分器",group:"gov",r:0.9,p:"governance",path:"src/museon/governance/dendritic_scorer.py",fi:0},
+  {id:"footprint",label:"Footprint",zh:"操作足跡追蹤",group:"gov",r:0.9,p:"governance",path:"src/museon/governance/footprint.py",fi:0},
+  {id:"governor",label:"Governor",zh:"上中下焦",group:"gov",r:1.0,p:"governance",path:"src/museon/governance/governor.py",fi:0},
+  {id:"guardian",label:"Guardian",zh:"系統守護 Daemon",group:"gov",r:1.1,p:"governance",path:"src/museon/guardian/daemon.py",fi:0},
+  {id:"immunity",label:"Immunity",zh:"先天 + 後天免疫",group:"gov",r:1.1,p:"governance",path:"src/museon/governance/immunity.py",fi:0},
+  {id:"perception",label:"Perception",zh:"四診合參感知",group:"gov",r:0.9,p:"governance",path:"src/museon/governance/perception.py",fi:4},
+  {id:"preflight",label:"Preflight",zh:"啟動門",group:"gov",r:0.9,p:"governance",path:"src/museon/governance/preflight.py",fi:0},
+  {id:"refractory",label:"Refractory",zh:"斷路器",group:"gov",r:0.9,p:"governance",desc:"斷路器（三態+半開試探）",path:"src/museon/governance/refractory.py",fi:0},
+  {id:"response-guard",label:"Response Guard",zh:"發送前 chat_id 二次驗證閘門",group:"gov",r:0.9,p:"governance",path:"src/museon/governance/response_guard.py",fi:0},
+  {id:"sandbox",label:"Sandbox",zh:"沙盒隔離",group:"gov",r:0.8,p:"governance",path:"src/museon/security/execution_sandbox.py",fi:0},
+  {id:"security",label:"Security",zh:"安全淨化與稽核",group:"gov",r:1.0,p:"governance",path:"src/museon/security/audit.py",fi:0},
+  {id:"service-health",label:"Service Health",zh:"服務監控",group:"gov",r:1.0,p:"governance",path:"src/museon/governance/service_health.py",fi:0},
+  {id:"skill-scanner",label:"Skill Scanner",zh:"技能掃描",group:"gov",r:0.8,p:"governance",path:"src/museon/security/skill_scanner.py",fi:0},
+  {id:"telegram-guard",label:"TG Guard",zh:"Polling 守衛",group:"gov",r:0.8,p:"governance",path:"src/museon/governance/telegram_guard.py",fi:3},
   // ── doctor ──
-  {id:"doctor",label:"Doctor",zh:"自我診斷修復",group:"doctor",r:2.8,hub:1},
-  {id:"auto-repair",label:"Auto Repair",zh:"自動修復",group:"doctor",r:1.0,p:"doctor"},
-  {id:"code-analyzer",label:"Code Analyzer",zh:"代碼品質",group:"doctor",r:0.8,p:"doctor"},
-  {id:"doctor-notify",label:"Doctor Notify",zh:"五虎將共用通知",group:"doctor",r:0.7,p:"doctor",desc:"五虎將共用通知（DM 老闆 + 待審閱摘要）"},
-  {id:"health-check",label:"Health Check",zh:"12 項基礎",group:"doctor",r:0.9,p:"doctor"},
-  {id:"log-analyzer",label:"Log Analyzer",zh:"日誌分析",group:"doctor",r:0.8,p:"doctor"},
-  {id:"memory-reset",label:"Memory Reset",zh:"一鍵記憶重置",group:"doctor",r:0.8,p:"doctor"},
-  {id:"observatory",label:"Observatory",zh:"認知可觀測性儀表板",group:"doctor",r:0.8,p:"doctor"},
-  {id:"self-diagnosis",label:"Self Diagnosis",zh:"診斷管線",group:"doctor",r:0.9,p:"doctor"},
-  {id:"shared-board",label:"Shared Board",zh:"五虎將共享看板",group:"doctor",r:0.9,p:"doctor",desc:"五虎將共享看板（任務協調、50 筆上限滾動）"},
-  {id:"surgery",label:"Surgery",zh:"精準手術",group:"doctor",r:0.8,p:"doctor"},
-  {id:"system-audit",label:"System Audit",zh:"7 層 46 項",group:"doctor",r:1.1,p:"doctor"},
+  {id:"doctor",label:"Doctor",zh:"自我診斷修復",group:"doctor",r:2.8,hub:1,path:"src/museon/doctor/system_audit.py",fi:0},
+  {id:"auto-repair",label:"Auto Repair",zh:"自動修復",group:"doctor",r:1.0,p:"doctor",path:"src/museon/doctor/auto_repair.py",fi:0},
+  {id:"code-analyzer",label:"Code Analyzer",zh:"代碼品質",group:"doctor",r:0.8,p:"doctor",path:"src/museon/doctor/code_analyzer.py",fi:4},
+  {id:"doctor-notify",label:"Doctor Notify",zh:"五虎將共用通知",group:"doctor",r:0.7,p:"doctor",desc:"五虎將共用通知（DM 老闆 + 待審閱摘要）",path:"src/museon/doctor/notify.py",fi:0},
+  {id:"health-check",label:"Health Check",zh:"12 項基礎",group:"doctor",r:0.9,p:"doctor",path:"src/museon/doctor/health_check.py",fi:4},
+  {id:"log-analyzer",label:"Log Analyzer",zh:"日誌分析",group:"doctor",r:0.8,p:"doctor",path:"src/museon/doctor/log_analyzer.py",fi:0},
+  {id:"memory-reset",label:"Memory Reset",zh:"一鍵記憶重置",group:"doctor",r:0.8,p:"doctor",path:"src/museon/doctor/memory_reset.py",fi:0},
+  {id:"observatory",label:"Observatory",zh:"認知可觀測性儀表板",group:"doctor",r:0.8,p:"doctor",path:"src/museon/doctor/self_diagnosis.py",fi:0},
+  {id:"self-diagnosis",label:"Self Diagnosis",zh:"診斷管線",group:"doctor",r:0.9,p:"doctor",path:"src/museon/doctor/self_diagnosis.py",fi:0},
+  {id:"shared-board",label:"Shared Board",zh:"五虎將共享看板",group:"doctor",r:0.9,p:"doctor",desc:"五虎將共享看板（任務協調、50 筆上限滾動）",path:"src/museon/doctor/shared_board.py",fi:5},
+  {id:"surgery",label:"Surgery",zh:"精準手術",group:"doctor",r:0.8,p:"doctor",path:"src/museon/doctor/surgeon.py",fi:0},
+  {id:"system-audit",label:"System Audit",zh:"7 層 46 項",group:"doctor",r:1.1,p:"doctor",path:"src/museon/doctor/system_audit.py",fi:0},
   // ── llm ──
-  {id:"llm-router",label:"LLM Router",zh:"智能模型選擇",group:"llm",r:2.2,hub:1},
-  {id:"budget-mgr",label:"Budget Mgr",zh:"Token 預算",group:"llm",r:1.0,p:"llm-router"},
-  {id:"llm-cache",label:"Cache",zh:"LRU 快取",group:"llm",r:0.8,p:"llm-router"},
-  {id:"rate-limit",label:"Rate Limit",zh:"速限守衛",group:"llm",r:0.8,p:"llm-router"},
+  {id:"llm-router",label:"LLM Router",zh:"智能模型選擇",group:"llm",r:2.2,hub:1,path:"src/museon/llm/router.py",fi:0},
+  {id:"budget-mgr",label:"Budget Mgr",zh:"Token 預算",group:"llm",r:1.0,p:"llm-router",path:"src/museon/llm/budget.py",fi:0},
+  {id:"llm-cache",label:"Cache",zh:"LRU 快取",group:"llm",r:0.8,p:"llm-router",path:"src/museon/cache/context_cache_builder.py",fi:0},
+  {id:"rate-limit",label:"Rate Limit",zh:"速限守衛",group:"llm",r:0.8,p:"llm-router",path:"src/museon/llm/rate_limiter.py",fi:0},
   // ── data ──
-  {id:"data-bus",label:"DataBus",zh:"資料層路由器",group:"data",r:1.8,hub:1},
-  {id:"blueprint-reader",label:"Blueprint Reader",zh:"藍圖解析器",group:"data",r:0.9,p:"data-bus"},
-  {id:"crystal-store",label:"CrystalStore",zh:"知識晶體 SQLite",group:"data",r:1.0,p:"data-bus",desc:"知識晶體 SQLite (WAL)"},
-  {id:"data-watchdog",label:"DataWatchdog",zh:"資料層監控",group:"data",r:1.0,p:"data-bus"},
-  {id:"group-context-db",label:"GroupContextDB",zh:"群組上下文 SQLite",group:"data",r:1.0,p:"data-bus"},
-  {id:"lord-profile",label:"Lord Profile",zh:"主人領域畫像",group:"data",r:0.8,p:"data-bus"},
-  {id:"memory",label:"Memory",zh:"六層記憶",group:"data",r:1.6,p:"data-bus"},
-  {id:"registry",label:"Registry",zh:"RegistryDB SQLite",group:"data",r:1.0,p:"data-bus"},
-  {id:"skill-synapse",label:"Skill Synapse",zh:"突觸網路",group:"data",r:0.9,p:"data-bus"},
-  {id:"skills-registry",label:"Skills Registry",zh:"技能資料庫",group:"data",r:1.2,p:"data-bus"},
-  {id:"sparse-embedder",label:"Sparse Embedder",zh:"BM25 稀疏向量",group:"data",r:0.9,p:"data-bus",desc:"BM25 稀疏向量（已啟動）"},
-  {id:"vector-index",label:"Vector Index",zh:"Qdrant 語義",group:"data",r:1.5,p:"data-bus"},
-  {id:"wee",label:"WEE",zh:"演化引擎",group:"data",r:1.2,p:"data-bus"},
-  {id:"workflow-state-db",label:"WorkflowStateDB",zh:"工作流 SQLite",group:"data",r:1.0,p:"data-bus"},
+  {id:"data-bus",label:"DataBus",zh:"資料層路由器",group:"data",r:1.8,hub:1,path:"src/museon/core/data_bus.py",fi:15},
+  {id:"blueprint-reader",label:"Blueprint Reader",zh:"藍圖解析器",group:"data",r:0.9,p:"data-bus",path:"src/museon/core/blueprint_reader.py",fi:4},
+  {id:"crystal-store",label:"CrystalStore",zh:"知識晶體 SQLite",group:"data",r:1.0,p:"data-bus",desc:"知識晶體 SQLite (WAL)",path:"src/museon/agent/crystal_store.py",fi:5},
+  {id:"data-watchdog",label:"DataWatchdog",zh:"資料層監控",group:"data",r:1.0,p:"data-bus",path:"src/museon/core/data_watchdog.py",fi:0},
+  {id:"group-context-db",label:"GroupContextDB",zh:"群組上下文 SQLite",group:"data",r:1.0,p:"data-bus",path:"src/museon/governance/group_context.py",fi:5},
+  {id:"lord-profile",label:"Lord Profile",zh:"主人領域畫像",group:"data",r:0.8,p:"data-bus",path:"data/_system/lord_profile.json",fi:0},
+  {id:"memory",label:"Memory",zh:"六層記憶",group:"data",r:1.6,p:"data-bus",path:"src/museon/memory/memory_manager.py",fi:0},
+  {id:"registry",label:"Registry",zh:"RegistryDB SQLite",group:"data",r:1.0,p:"data-bus",path:"src/museon/registry/registry_manager.py",fi:0},
+  {id:"skill-synapse",label:"Skill Synapse",zh:"突觸網路",group:"data",r:0.9,p:"data-bus",path:"src/museon/evolution/skill_synapse.py",fi:0},
+  {id:"skills-registry",label:"Skills Registry",zh:"技能資料庫",group:"data",r:1.2,p:"data-bus",path:"src/museon/registry/registry_manager.py",fi:0},
+  {id:"sparse-embedder",label:"Sparse Embedder",zh:"BM25 稀疏向量",group:"data",r:0.9,p:"data-bus",desc:"BM25 稀疏向量（已啟動）",path:"src/museon/vector/sparse_embedder.py",fi:0},
+  {id:"vector-index",label:"Vector Index",zh:"Qdrant 語義",group:"data",r:1.5,p:"data-bus",path:"src/museon/vector/vector_bridge.py",fi:9},
+  {id:"wee",label:"WEE",zh:"演化引擎",group:"data",r:1.2,p:"data-bus",path:"src/museon/evolution/wee_engine.py",fi:0},
+  {id:"workflow-state-db",label:"WorkflowStateDB",zh:"工作流 SQLite",group:"data",r:1.0,p:"data-bus",path:"src/museon/workflow/workflow_engine.py",fi:4},
   // ── evolution ──
-  {id:"evolution",label:"Evolution",zh:"演化系統",group:"evolution",r:2.2,hub:1},
-  {id:"digest-engine",label:"Digest Engine",zh:"消化結晶引擎",group:"evolution",r:1.0,p:"evolution"},
-  {id:"evolution-velocity",label:"Evolution Velocity",zh:"演化速度測量",group:"evolution",r:1.0,p:"evolution"},
-  {id:"feedback-loop",label:"Feedback Loop",zh:"使用者回饋迴路",group:"evolution",r:0.9,p:"evolution"},
-  {id:"intention-radar",label:"Intention Radar",zh:"意圖雷達",group:"evolution",r:1.0,p:"evolution"},
-  {id:"outward-trigger",label:"Outward Trigger",zh:"外向演化觸發",group:"evolution",r:1.1,p:"evolution"},
-  {id:"parameter-tuner",label:"Parameter Tuner",zh:"參數自動調諧",group:"evolution",r:0.9,p:"evolution"},
-  {id:"research-engine",label:"Research Engine",zh:"外部研究引擎",group:"evolution",r:1.1,p:"evolution"},
-  {id:"tool-muscle",label:"Tool Muscle",zh:"工具肌肉記憶",group:"evolution",r:0.8,p:"evolution"},
-  {id:"trigger-weights",label:"Trigger Weights",zh:"觸發器權重",group:"evolution",r:0.8,p:"evolution"},
+  {id:"evolution",label:"Evolution",zh:"演化系統",group:"evolution",r:2.2,hub:1,path:"src/museon/evolution/feedback_loop.py",fi:0},
+  {id:"digest-engine",label:"Digest Engine",zh:"消化結晶引擎",group:"evolution",r:1.0,p:"evolution",path:"src/museon/evolution/digest_engine.py",fi:0},
+  {id:"evolution-velocity",label:"Evolution Velocity",zh:"演化速度測量",group:"evolution",r:1.0,p:"evolution",path:"src/museon/evolution/evolution_velocity.py",fi:0},
+  {id:"feedback-loop",label:"Feedback Loop",zh:"使用者回饋迴路",group:"evolution",r:0.9,p:"evolution",path:"src/museon/evolution/feedback_loop.py",fi:0},
+  {id:"intention-radar",label:"Intention Radar",zh:"意圖雷達",group:"evolution",r:1.0,p:"evolution",path:"src/museon/evolution/intention_radar.py",fi:0},
+  {id:"outward-trigger",label:"Outward Trigger",zh:"外向演化觸發",group:"evolution",r:1.1,p:"evolution",path:"src/museon/evolution/outward_trigger.py",fi:0},
+  {id:"parameter-tuner",label:"Parameter Tuner",zh:"參數自動調諧",group:"evolution",r:0.9,p:"evolution",path:"src/museon/evolution/parameter_tuner.py",fi:0},
+  {id:"research-engine",label:"Research Engine",zh:"外部研究引擎",group:"evolution",r:1.1,p:"evolution",path:"",fi:0},
+  {id:"tool-muscle",label:"Tool Muscle",zh:"工具肌肉記憶",group:"evolution",r:0.8,p:"evolution",path:"src/museon/evolution/tool_muscle.py",fi:0},
+  {id:"trigger-weights",label:"Trigger Weights",zh:"觸發器權重",group:"evolution",r:0.8,p:"evolution",path:"src/museon/evolution/trigger_weights.py",fi:0},
   // ── tools ──
-  {id:"tool-registry",label:"Tool Registry",zh:"工具註冊中心",group:"tools",r:1.8,hub:1},
-  {id:"dify-scheduler",label:"Dify Scheduler",zh:"Dify 排程器",group:"tools",r:0.8,p:"tool-registry"},
-  {id:"image-gen",label:"Image Gen",zh:"圖像生成",group:"tools",r:0.8,p:"tool-registry"},
-  {id:"mcp-dify",label:"MCP Dify",zh:"MCP-Dify 連接器",group:"tools",r:0.7,p:"tool-registry"},
-  {id:"rss-aggregator",label:"RSS Aggregator",zh:"RSS 聚合器",group:"tools",r:0.8,p:"tool-registry"},
-  {id:"tool-discovery",label:"Tool Discovery",zh:"工具自動探測",group:"tools",r:1.0,p:"tool-registry"},
-  {id:"voice-clone",label:"Voice Clone",zh:"語音克隆",group:"tools",r:0.7,p:"tool-registry"},
-  {id:"zotero-bridge",label:"Zotero Bridge",zh:"文獻管理橋接",group:"tools",r:0.8,p:"tool-registry"},
+  {id:"tool-registry",label:"Tool Registry",zh:"工具註冊中心",group:"tools",r:1.8,hub:1,path:"src/museon/tools/tool_registry.py",fi:4},
+  {id:"dify-scheduler",label:"Dify Scheduler",zh:"Dify 排程器",group:"tools",r:0.8,p:"tool-registry",path:"src/museon/tools/dify_scheduler.py",fi:0},
+  {id:"image-gen",label:"Image Gen",zh:"圖像生成",group:"tools",r:0.8,p:"tool-registry",path:"src/museon/tools/image_gen.py",fi:0},
+  {id:"mcp-dify",label:"MCP Dify",zh:"MCP-Dify 連接器",group:"tools",r:0.7,p:"tool-registry",path:"src/museon/tools/mcp_dify.py",fi:0},
+  {id:"rss-aggregator",label:"RSS Aggregator",zh:"RSS 聚合器",group:"tools",r:0.8,p:"tool-registry",path:"src/museon/tools/rss_aggregator.py",fi:0},
+  {id:"tool-discovery",label:"Tool Discovery",zh:"工具自動探測",group:"tools",r:1.0,p:"tool-registry",path:"src/museon/tools/tool_discovery.py",fi:3},
+  {id:"voice-clone",label:"Voice Clone",zh:"語音克隆",group:"tools",r:0.7,p:"tool-registry",path:"src/museon/tools/voice_clone.py",fi:0},
+  {id:"zotero-bridge",label:"Zotero Bridge",zh:"文獻管理橋接",group:"tools",r:0.8,p:"tool-registry",path:"src/museon/tools/zotero_bridge.py",fi:0},
   // ── nightly ──
-  {id:"nightly",label:"Nightly Pipeline",zh:"31+ 步夜間整合",group:"nightly",r:2.2,hub:1},
-  {id:"context-cache-builder",label:"Context Cache Builder",zh:"Step 31 context_cache 重建",group:"nightly",r:0.8,p:"nightly"},
-  {id:"crystal-actuator",label:"Crystal Actuator",zh:"結晶致動器",group:"nightly",r:0.8,p:"nightly"},
-  {id:"curiosity-router",label:"Curiosity Router",zh:"好奇心路由",group:"nightly",r:0.9,p:"nightly"},
-  {id:"exploration-bridge",label:"Exploration Bridge",zh:"探索橋接",group:"nightly",r:0.9,p:"nightly"},
-  {id:"morphenix",label:"Morphenix",zh:"演化提案",group:"nightly",r:1.0,p:"nightly"},
-  {id:"morphenix-validator",label:"Morphenix Validator",zh:"Docker 沙盒驗證",group:"nightly",r:0.7,p:"nightly"},
-  {id:"periodic-cycles",label:"Periodic Cycles",zh:"週期循環",group:"nightly",r:0.9,p:"nightly"},
-  {id:"skill-forge-scout",label:"Skill Forge Scout",zh:"技能鍛造偵察",group:"nightly",r:0.8,p:"nightly"},
+  {id:"nightly",label:"Nightly Pipeline",zh:"31+ 步夜間整合",group:"nightly",r:2.2,hub:1,path:"src/museon/nightly/nightly_pipeline.py",fi:0},
+  {id:"context-cache-builder",label:"Context Cache Builder",zh:"Step 31 context_cache 重建",group:"nightly",r:0.8,p:"nightly",path:"src/museon/cache/context_cache_builder.py",fi:0},
+  {id:"crystal-actuator",label:"Crystal Actuator",zh:"結晶致動器",group:"nightly",r:0.8,p:"nightly",path:"src/museon/agent/crystal_actuator.py",fi:0},
+  {id:"curiosity-router",label:"Curiosity Router",zh:"好奇心路由",group:"nightly",r:0.9,p:"nightly",path:"src/museon/nightly/curiosity_router.py",fi:0},
+  {id:"exploration-bridge",label:"Exploration Bridge",zh:"探索橋接",group:"nightly",r:0.9,p:"nightly",path:"src/museon/nightly/exploration_bridge.py",fi:0},
+  {id:"morphenix",label:"Morphenix",zh:"演化提案",group:"nightly",r:1.0,p:"nightly",path:"src/museon/nightly/morphenix_executor.py",fi:3},
+  {id:"morphenix-validator",label:"Morphenix Validator",zh:"Docker 沙盒驗證",group:"nightly",r:0.7,p:"nightly",path:"src/museon/nightly/morphenix_validator.py",fi:0},
+  {id:"periodic-cycles",label:"Periodic Cycles",zh:"週期循環",group:"nightly",r:0.9,p:"nightly",path:"src/museon/nightly/periodic_cycles.py",fi:0},
+  {id:"skill-forge-scout",label:"Skill Forge Scout",zh:"技能鍛造偵察",group:"nightly",r:0.8,p:"nightly",path:"src/museon/nightly/skill_forge_scout.py",fi:0},
   // ── external ──
-  {id:"anthropic-api",label:"Anthropic API",zh:"Claude API",group:"external",r:1.1},
-  {id:"fetch-mcp",label:"Fetch MCP",zh:"網頁讀取",group:"external",r:0.5,desc:"網頁讀取（MCP）"},
-  {id:"firecrawl",label:"Firecrawl",zh:"爬取 :3002",group:"external",r:0.8},
-  {id:"playwright-mcp",label:"Playwright MCP",zh:"瀏覽器自動化",group:"external",r:0.5,desc:"瀏覽器自動化（MCP）"},
-  {id:"qdrant",label:"Qdrant",zh:"向量 DB :6333",group:"external",r:1.0},
-  {id:"searxng",label:"SearXNG",zh:"搜尋 :8888",group:"external",r:1.0},
+  {id:"anthropic-api",label:"Anthropic API",zh:"Claude API",group:"external",r:1.1,path:"",fi:0},
+  {id:"fetch-mcp",label:"Fetch MCP",zh:"網頁讀取",group:"external",r:0.5,desc:"網頁讀取（MCP）",path:"",fi:0},
+  {id:"firecrawl",label:"Firecrawl",zh:"爬取 :3002",group:"external",r:0.8,path:"",fi:0},
+  {id:"playwright-mcp",label:"Playwright MCP",zh:"瀏覽器自動化",group:"external",r:0.5,desc:"瀏覽器自動化（MCP）",path:"",fi:0},
+  {id:"qdrant",label:"Qdrant",zh:"向量 DB :6333",group:"external",r:1.0,path:"",fi:0},
+  {id:"searxng",label:"SearXNG",zh:"搜尋 :8888",group:"external",r:1.0,path:"",fi:0},
   // ── skills ──
-  {id:"skills-business-hub",label:"Business Hub",zh:"商業類技能中樞",group:"skills",r:2.0,hub:1},
-  {id:"skills-creative-hub",label:"Creative Hub",zh:"創意類技能中樞",group:"skills",r:2.0,hub:1},
-  {id:"skills-evolution-hub",label:"Evolution Hub",zh:"演化類技能中樞",group:"skills",r:2.0,hub:1},
-  {id:"skills-market-hub",label:"Market Hub",zh:"市場類技能中樞",group:"skills",r:2.0,hub:1},
-  {id:"skills-product-hub",label:"Product Hub",zh:"產品類技能中樞",group:"skills",r:2.0,hub:1},
-  {id:"skills-thinking-hub",label:"Thinking Hub",zh:"思維類技能中樞",group:"skills",r:2.0,hub:1},
-  {id:"skills-workflow-hub",label:"Workflow Hub",zh:"工作流類技能中樞",group:"skills",r:2.0,hub:1},
-  {id:"acsf",label:"ACSF",zh:"能力結晶鑄造",group:"skills",r:1.2,p:"skills-product-hub"},
-  {id:"aesthetic-sense",label:"Aesthetic-Sense",zh:"美感引擎",group:"skills",r:1.2,p:"skills-creative-hub"},
-  {id:"brand-identity",label:"Brand-Identity",zh:"品牌識別引擎",group:"skills",r:1.2,p:"skills-creative-hub"},
-  {id:"business-12",label:"Business-12",zh:"商模十二力",group:"skills",r:1.2,p:"skills-business-hub"},
-  {id:"c15",label:"C15",zh:"敘事張力語言層",group:"skills",r:1.2,p:"skills-creative-hub"},
-  {id:"consultant-communication",label:"Consultant-Comm",zh:"顧問溝通引擎",group:"skills",r:1.2,p:"skills-business-hub"},
-  {id:"decision-tracker",label:"Decision-Tracker",zh:"決策歷史追蹤引擎",group:"skills",r:1.0,p:"skills-evolution-hub"},
-  {id:"dharma",label:"DHARMA",zh:"思維轉化引擎",group:"skills",r:1.2,p:"skills-thinking-hub"},
-  {id:"dse",label:"DSE",zh:"技術融合驗證",group:"skills",r:1.2,p:"skills-product-hub"},
-  {id:"env-radar",label:"Env-Radar",zh:"環境雷達",group:"skills",r:1.2,p:"skills-product-hub"},
-  {id:"esg-architect-pro",label:"ESG-Architect-Pro",zh:"ESG 永續報告鍛造",group:"skills",r:1.2,p:"skills-business-hub"},
-  {id:"gap",label:"GAP",zh:"缺口分析引擎",group:"skills",r:1.2,p:"skills-product-hub"},
-  {id:"group-meeting-notes",label:"WF-GMN-01",zh:"會議記錄引擎",group:"skills",r:1.2,p:"skills-workflow-hub"},
-  {id:"human-design-blueprint",label:"HD-Blueprint",zh:"人類圖靈魂藍圖",group:"skills",r:1.2,p:"skills-creative-hub"},
-  {id:"info-architect",label:"Info-Architect",zh:"資訊架構引擎",group:"skills",r:1.2,p:"skills-product-hub"},
-  {id:"market-core",label:"Market-Core",zh:"市場分析核心",group:"skills",r:1.4,p:"skills-market-hub"},
-  {id:"market-crypto",label:"Market-Crypto",zh:"加密貨幣分析",group:"skills",r:1.2,p:"skills-market-hub"},
-  {id:"market-equity",label:"Market-Equity",zh:"股票分析衛星",group:"skills",r:1.2,p:"skills-market-hub"},
-  {id:"market-macro",label:"Market-Macro",zh:"總體經濟分析",group:"skills",r:1.2,p:"skills-market-hub"},
-  {id:"master-strategy",label:"Master-Strategy",zh:"戰略判斷引擎",group:"skills",r:1.4,p:"skills-business-hub"},
-  {id:"meeting-intelligence",label:"Meeting-Intel",zh:"會議情報分析",group:"skills",r:1.2,p:"skills-business-hub"},
-  {id:"meta-learning",label:"Meta-Learning",zh:"元學習引擎",group:"skills",r:1.2,p:"skills-thinking-hub"},
-  {id:"novel-craft",label:"Novel-Craft",zh:"小說工藝引擎",group:"skills",r:1.2,p:"skills-creative-hub"},
-  {id:"orchestrator",label:"Orchestrator",zh:"編排引擎",group:"skills",r:1.2,p:"skills-product-hub"},
-  {id:"pdeif",label:"PDEIF",zh:"逆熵流引擎",group:"skills",r:1.2,p:"skills-business-hub"},
-  {id:"philo-dialectic",label:"Philo-Dialectic",zh:"哲學思辨引擎",group:"skills",r:1.2,p:"skills-thinking-hub"},
-  {id:"qa-auditor",label:"QA-Auditor",zh:"品質審計引擎",group:"skills",r:1.2,p:"skills-evolution-hub"},
-  {id:"query-clarity",label:"Query-Clarity",zh:"問題品質守門層",group:"skills",r:1.2,p:"skills-thinking-hub"},
-  {id:"report-forge",label:"Report-Forge",zh:"報告鍛造",group:"skills",r:1.2,p:"skills-product-hub"},
-  {id:"resonance",label:"Resonance",zh:"感性共振引擎",group:"skills",r:1.2,p:"skills-thinking-hub"},
-  {id:"risk-matrix",label:"Risk-Matrix",zh:"風險管理引擎",group:"skills",r:1.2,p:"skills-market-hub"},
-  {id:"sandbox-lab",label:"Sandbox-Lab",zh:"沙盒實驗室",group:"skills",r:1.2,p:"skills-evolution-hub"},
-  {id:"sentiment-radar",label:"Sentiment-Radar",zh:"市場情緒雷達",group:"skills",r:1.2,p:"skills-market-hub"},
-  {id:"shadow",label:"Shadow",zh:"人際博弈辨識引擎",group:"skills",r:1.2,p:"skills-thinking-hub"},
-  {id:"ssa-consultant",label:"SSA-Consultant",zh:"顧問式銷售引擎",group:"skills",r:1.2,p:"skills-business-hub"},
-  {id:"storytelling-engine",label:"Storytelling",zh:"說故事引擎",group:"skills",r:1.2,p:"skills-creative-hub"},
-  {id:"system-health-check",label:"System-Health-Check",zh:"系統健康自檢引擎",group:"skills",r:1.0,p:"skills-evolution-hub"},
-  {id:"tantra",label:"Tantra",zh:"情慾治理引擎",group:"skills",r:1.0,p:"skills-evolution-hub"},
-  {id:"text-alchemy",label:"Text-Alchemy",zh:"文字煉金系統",group:"skills",r:1.2,p:"skills-creative-hub"},
-  {id:"user-model",label:"User-Model",zh:"使用者畫像引擎",group:"skills",r:1.2,p:"skills-thinking-hub"},
-  {id:"workflow-ai-deployment",label:"WF-AID-01",zh:"AI部署工作流",group:"skills",r:1.2,p:"skills-workflow-hub"},
-  {id:"workflow-investment-analysis",label:"WF-INV-01",zh:"投資分析工作流",group:"skills",r:1.2,p:"skills-workflow-hub"},
-  {id:"workflow-svc-brand-marketing",label:"WF-SVC-01",zh:"品牌行銷工作流",group:"skills",r:1.2,p:"skills-workflow-hub"},
-  {id:"xmodel",label:"X-Model",zh:"破框解方引擎",group:"skills",r:1.2,p:"skills-business-hub"},
+  {id:"skills-business-hub",label:"Business Hub",zh:"商業類技能中樞",group:"skills",r:2.0,hub:1,path:"",fi:0},
+  {id:"skills-creative-hub",label:"Creative Hub",zh:"創意類技能中樞",group:"skills",r:2.0,hub:1,path:"",fi:0},
+  {id:"skills-evolution-hub",label:"Evolution Hub",zh:"演化類技能中樞",group:"skills",r:2.0,hub:1,path:"",fi:0},
+  {id:"skills-market-hub",label:"Market Hub",zh:"市場類技能中樞",group:"skills",r:2.0,hub:1,path:"",fi:0},
+  {id:"skills-product-hub",label:"Product Hub",zh:"產品類技能中樞",group:"skills",r:2.0,hub:1,path:"",fi:0},
+  {id:"skills-thinking-hub",label:"Thinking Hub",zh:"思維類技能中樞",group:"skills",r:2.0,hub:1,path:"",fi:0},
+  {id:"skills-workflow-hub",label:"Workflow Hub",zh:"工作流類技能中樞",group:"skills",r:2.0,hub:1,path:"",fi:0},
+  {id:"acsf",label:"ACSF",zh:"能力結晶鑄造",group:"skills",r:1.2,p:"skills-product-hub",path:"~/.claude/skills/acsf/SKILL.md",fi:0},
+  {id:"aesthetic-sense",label:"Aesthetic-Sense",zh:"美感引擎",group:"skills",r:1.2,p:"skills-creative-hub",path:"~/.claude/skills/aesthetic-sense/SKILL.md",fi:0},
+  {id:"brand-identity",label:"Brand-Identity",zh:"品牌識別引擎",group:"skills",r:1.2,p:"skills-creative-hub",path:"~/.claude/skills/brand-identity/SKILL.md",fi:0},
+  {id:"business-12",label:"Business-12",zh:"商模十二力",group:"skills",r:1.2,p:"skills-business-hub",path:"~/.claude/skills/business-12/SKILL.md",fi:0},
+  {id:"c15",label:"C15",zh:"敘事張力語言層",group:"skills",r:1.2,p:"skills-creative-hub",path:"~/.claude/skills/c15/SKILL.md",fi:0},
+  {id:"consultant-communication",label:"Consultant-Comm",zh:"顧問溝通引擎",group:"skills",r:1.2,p:"skills-business-hub",path:"~/.claude/skills/consultant-communication/SKILL.md",fi:0},
+  {id:"decision-tracker",label:"Decision-Tracker",zh:"決策歷史追蹤引擎",group:"skills",r:1.0,p:"skills-evolution-hub",path:"~/.claude/skills/decision-tracker/SKILL.md",fi:0},
+  {id:"dharma",label:"DHARMA",zh:"思維轉化引擎",group:"skills",r:1.2,p:"skills-thinking-hub",path:"~/.claude/skills/dharma/SKILL.md",fi:0},
+  {id:"dse",label:"DSE",zh:"技術融合驗證",group:"skills",r:1.2,p:"skills-product-hub",path:"~/.claude/skills/dse/SKILL.md",fi:0},
+  {id:"env-radar",label:"Env-Radar",zh:"環境雷達",group:"skills",r:1.2,p:"skills-product-hub",path:"~/.claude/skills/env-radar/SKILL.md",fi:0},
+  {id:"esg-architect-pro",label:"ESG-Architect-Pro",zh:"ESG 永續報告鍛造",group:"skills",r:1.2,p:"skills-business-hub",path:"~/.claude/skills/esg-architect-pro/SKILL.md",fi:0},
+  {id:"gap",label:"GAP",zh:"缺口分析引擎",group:"skills",r:1.2,p:"skills-product-hub",path:"~/.claude/skills/gap/SKILL.md",fi:0},
+  {id:"group-meeting-notes",label:"WF-GMN-01",zh:"會議記錄引擎",group:"skills",r:1.2,p:"skills-workflow-hub",path:"~/.claude/skills/group-meeting-notes/SKILL.md",fi:0},
+  {id:"human-design-blueprint",label:"HD-Blueprint",zh:"人類圖靈魂藍圖",group:"skills",r:1.2,p:"skills-creative-hub",path:"~/.claude/skills/human-design-blueprint/SKILL.md",fi:0},
+  {id:"info-architect",label:"Info-Architect",zh:"資訊架構引擎",group:"skills",r:1.2,p:"skills-product-hub",path:"~/.claude/skills/info-architect/SKILL.md",fi:0},
+  {id:"market-core",label:"Market-Core",zh:"市場分析核心",group:"skills",r:1.4,p:"skills-market-hub",path:"~/.claude/skills/market-core/SKILL.md",fi:0},
+  {id:"market-crypto",label:"Market-Crypto",zh:"加密貨幣分析",group:"skills",r:1.2,p:"skills-market-hub",path:"~/.claude/skills/market-crypto/SKILL.md",fi:0},
+  {id:"market-equity",label:"Market-Equity",zh:"股票分析衛星",group:"skills",r:1.2,p:"skills-market-hub",path:"~/.claude/skills/market-equity/SKILL.md",fi:0},
+  {id:"market-macro",label:"Market-Macro",zh:"總體經濟分析",group:"skills",r:1.2,p:"skills-market-hub",path:"~/.claude/skills/market-macro/SKILL.md",fi:0},
+  {id:"master-strategy",label:"Master-Strategy",zh:"戰略判斷引擎",group:"skills",r:1.4,p:"skills-business-hub",path:"~/.claude/skills/master-strategy/SKILL.md",fi:0},
+  {id:"meeting-intelligence",label:"Meeting-Intel",zh:"會議情報分析",group:"skills",r:1.2,p:"skills-business-hub",path:"~/.claude/skills/meeting-intelligence/SKILL.md",fi:0},
+  {id:"meta-learning",label:"Meta-Learning",zh:"元學習引擎",group:"skills",r:1.2,p:"skills-thinking-hub",path:"~/.claude/skills/meta-learning/SKILL.md",fi:0},
+  {id:"novel-craft",label:"Novel-Craft",zh:"小說工藝引擎",group:"skills",r:1.2,p:"skills-creative-hub",path:"~/.claude/skills/novel-craft/SKILL.md",fi:0},
+  {id:"orchestrator",label:"Orchestrator",zh:"編排引擎",group:"skills",r:1.2,p:"skills-product-hub",path:"~/.claude/skills/orchestrator/SKILL.md",fi:0},
+  {id:"pdeif",label:"PDEIF",zh:"逆熵流引擎",group:"skills",r:1.2,p:"skills-business-hub",path:"~/.claude/skills/pdeif/SKILL.md",fi:0},
+  {id:"philo-dialectic",label:"Philo-Dialectic",zh:"哲學思辨引擎",group:"skills",r:1.2,p:"skills-thinking-hub",path:"~/.claude/skills/philo-dialectic/SKILL.md",fi:0},
+  {id:"qa-auditor",label:"QA-Auditor",zh:"品質審計引擎",group:"skills",r:1.2,p:"skills-evolution-hub",path:"~/.claude/skills/qa-auditor/SKILL.md",fi:0},
+  {id:"query-clarity",label:"Query-Clarity",zh:"問題品質守門層",group:"skills",r:1.2,p:"skills-thinking-hub",path:"~/.claude/skills/query-clarity/SKILL.md",fi:0},
+  {id:"report-forge",label:"Report-Forge",zh:"報告鍛造",group:"skills",r:1.2,p:"skills-product-hub",path:"~/.claude/skills/report-forge/SKILL.md",fi:0},
+  {id:"resonance",label:"Resonance",zh:"感性共振引擎",group:"skills",r:1.2,p:"skills-thinking-hub",path:"~/.claude/skills/resonance/SKILL.md",fi:0},
+  {id:"risk-matrix",label:"Risk-Matrix",zh:"風險管理引擎",group:"skills",r:1.2,p:"skills-market-hub",path:"~/.claude/skills/risk-matrix/SKILL.md",fi:0},
+  {id:"sandbox-lab",label:"Sandbox-Lab",zh:"沙盒實驗室",group:"skills",r:1.2,p:"skills-evolution-hub",path:"~/.claude/skills/sandbox-lab/SKILL.md",fi:0},
+  {id:"sentiment-radar",label:"Sentiment-Radar",zh:"市場情緒雷達",group:"skills",r:1.2,p:"skills-market-hub",path:"~/.claude/skills/sentiment-radar/SKILL.md",fi:0},
+  {id:"shadow",label:"Shadow",zh:"人際博弈辨識引擎",group:"skills",r:1.2,p:"skills-thinking-hub",path:"~/.claude/skills/shadow/SKILL.md",fi:0},
+  {id:"ssa-consultant",label:"SSA-Consultant",zh:"顧問式銷售引擎",group:"skills",r:1.2,p:"skills-business-hub",path:"~/.claude/skills/ssa-consultant/SKILL.md",fi:0},
+  {id:"storytelling-engine",label:"Storytelling",zh:"說故事引擎",group:"skills",r:1.2,p:"skills-creative-hub",path:"~/.claude/skills/storytelling-engine/SKILL.md",fi:0},
+  {id:"system-health-check",label:"System-Health-Check",zh:"系統健康自檢引擎",group:"skills",r:1.0,p:"skills-evolution-hub",path:"~/.claude/skills/system-health-check/SKILL.md",fi:0},
+  {id:"tantra",label:"Tantra",zh:"情慾治理引擎",group:"skills",r:1.0,p:"skills-evolution-hub",path:"~/.claude/skills/tantra/SKILL.md",fi:0},
+  {id:"text-alchemy",label:"Text-Alchemy",zh:"文字煉金系統",group:"skills",r:1.2,p:"skills-creative-hub",path:"~/.claude/skills/text-alchemy/SKILL.md",fi:0},
+  {id:"user-model",label:"User-Model",zh:"使用者畫像引擎",group:"skills",r:1.2,p:"skills-thinking-hub",path:"~/.claude/skills/user-model/SKILL.md",fi:0},
+  {id:"workflow-ai-deployment",label:"WF-AID-01",zh:"AI部署工作流",group:"skills",r:1.2,p:"skills-workflow-hub",path:"~/.claude/skills/workflow-ai-deployment/SKILL.md",fi:0},
+  {id:"workflow-investment-analysis",label:"WF-INV-01",zh:"投資分析工作流",group:"skills",r:1.2,p:"skills-workflow-hub",path:"~/.claude/skills/workflow-investment-analysis/SKILL.md",fi:0},
+  {id:"workflow-svc-brand-marketing",label:"WF-SVC-01",zh:"品牌行銷工作流",group:"skills",r:1.2,p:"skills-workflow-hub",path:"~/.claude/skills/workflow-svc-brand-marketing/SKILL.md",fi:0},
+  {id:"xmodel",label:"X-Model",zh:"破框解方引擎",group:"skills",r:1.2,p:"skills-business-hub",path:"~/.claude/skills/xmodel/SKILL.md",fi:0},
   // ── learning ──
-  {id:"insight-extractor",label:"Insight Extractor",zh:"洞見萃取引擎",group:"learning",r:1.2,hub:1,desc:"洞見萃取引擎（晨報+探索統一萃取）"},
+  {id:"insight-extractor",label:"Insight Extractor",zh:"洞見萃取引擎",group:"learning",r:1.2,hub:1,desc:"洞見萃取引擎（晨報+探索統一萃取）",path:"src/museon/learning/insight_extractor.py",fi:0},
   // ── billing ──
-  {id:"skill-counter",label:"Skill Counter",zh:"Skill 調用計數器",group:"billing",r:1.0,hub:1,desc:"Skill 調用計數器（月度檔案）"},
+  {id:"skill-counter",label:"Skill Counter",zh:"Skill 調用計數器",group:"billing",r:1.0,hub:1,desc:"Skill 調用計數器（月度檔案）",path:"",fi:0},
   // ── learning ──
 ];
 
@@ -1850,63 +1850,100 @@ window.doHealthCheck = function() {
   if (!selectedNode) return;
   const node = selectedNode;
 
-  // 收集連線資訊
+  // 收集連線資訊（含 hub 子節點）
   const outLinks = [], inLinks = [];
   links.forEach(l => {
-    if (l.source === node.id) outLinks.push(l);
-    if (l.target === node.id) inLinks.push(l);
+    const src = typeof l.source === 'object' ? l.source.id : l.source;
+    const tgt = typeof l.target === 'object' ? l.target.id : l.target;
+    if (src === node.id) outLinks.push({...l, source: src, target: tgt});
+    if (tgt === node.id) inLinks.push({...l, source: src, target: tgt});
   });
-  if (node.hub || node.id === 'event-bus') {
+  if (node.hub) {
     nodes.filter(n => n.p === node.id).forEach(kid => {
       links.forEach(l => {
-        if (l.source === kid.id) outLinks.push(l);
-        if (l.target === kid.id) inLinks.push(l);
+        const src = typeof l.source === 'object' ? l.source.id : l.source;
+        const tgt = typeof l.target === 'object' ? l.target.id : l.target;
+        if (src === kid.id) outLinks.push({...l, source: src, target: tgt});
+        if (tgt === kid.id) inLinks.push({...l, source: src, target: tgt});
       });
     });
   }
 
-  // 收集相關聯節點 ID
-  const relatedIds = new Set();
-  outLinks.forEach(l => relatedIds.add(l.target));
-  inLinks.forEach(l => relatedIds.add(l.source));
-  relatedIds.delete(node.id);
-  const connNames = [...relatedIds].map(id => nodeMap[id]?.label || id).join(', ');
+  // 安全分級
+  const fi = node.fi || 0;
+  const safety = fi >= 40 ? '🔴 禁區' : fi >= 10 ? '🟠 紅區' : fi >= 2 ? '🟡 黃區' : '🟢 綠區';
 
-  // 生成剪貼簿指令
+  // 呼叫方（輸入方）列表
+  const callerLines = inLinks.slice(0,12).map(l => {
+    const srcLabel = nodeMap[l.source]?.label || l.source;
+    const lbl = l.label ? `（${l.label.substring(0,40)}）` : '';
+    return `  • ${srcLabel}${lbl}`;
+  }).join('
+');
+
+  // 被呼叫方（輸出方）列表
+  const calleeLines = outLinks.slice(0,12).map(l => {
+    const tgtLabel = nodeMap[l.target]?.label || l.target;
+    const lbl = l.label ? `（${l.label.substring(0,40)}）` : '';
+    return `  • ${tgtLabel}${lbl}`;
+  }).join('
+');
+
+  // 路徑說明
+  const pathLine = node.path
+    ? `路徑: ${node.path}`
+    : `路徑: （概念節點，無對應原始碼）`;
+
+  const isSkill = node.path && node.path.includes('.claude/skills');
+  const checkSteps = isSkill
+    ? `請：
+① 讀取上方路徑的 SKILL.md，確認 triggers / output_format / connects_to 定義完整
+② 確認此 Skill 在 plugin-registry 中已正確登錄
+③ 確認 memory-router.md 中有對應的記憶流向規則
+④ 回報：✅ 定義完整 / ⚠️ 缺漏（列出問題）`
+    : `請：
+① 讀取上方路徑的檔案，列出所有 public class / function（含參數簽名）
+② 逐一確認「呼叫我的模組」的 import 路徑存在、參數匹配
+③ 逐一確認「我呼叫的模組」的介面存在且未改變
+④ grep ~/MUSEON/logs/ 確認此模組無 ERROR / WARNING
+⑤ 確認此模組的資料輸入格式與輸出格式符合 docs/joint-map.md 的約定
+⑥ 回報：✅ 健康 / ⚠️ 有問題（列出問題與行號）`;
+
   const cmd = [
-    '\uD83D\uDD0D MUSEON 健康檢查請求',
-    '\u2501'.repeat(17),
-    '目標模組：' + node.label + '（' + node.zh + '）',
-    '所屬群組：' + GN[node.group],
-    '直接連線：' + connNames,
-    '輸出連結：' + outLinks.length + ' 條 | 輸入連結：' + inLinks.length + ' 條',
-    '',
-    '請執行：',
-    '1. 檢查相關模組的 log（~/MUSEON/logs/）',
-    '2. 讀取 blast-radius.md 確認影響範圍',
-    '3. DSE 第一性原理分析：問題背後的問題',
-    '4. 提出修復建議與 plan',
-    '5. 確認後自動迭代 + 同步更新藍圖與 3D 心智圖'
-  ].join('\n');
+    `/health [${node.label}]`,
+    `模組：${node.label}（${node.zh || ''}）`,
+    pathLine,
+    `安全分級：${safety}（fan_in=${fi}）`,
+    `所屬群組：${GN[node.group] || node.group}`,
+    ``,
+    `呼叫我的模組（${inLinks.length}）：`,
+    callerLines || `  （無）`,
+    ``,
+    `我呼叫的模組（${outLinks.length}）：`,
+    calleeLines || `  （無）`,
+    ``,
+    checkSteps,
+  ].join('
+');
 
   navigator.clipboard.writeText(cmd).then(() => {
     const btn = document.getElementById('i-health-btn');
-    btn.textContent = '\u2713 已複製';
+    btn.textContent = '✓ 已複製';
     btn.classList.add('copied');
     setTimeout(() => { btn.textContent = '健康檢查'; btn.classList.remove('copied'); }, 2000);
   });
 
-  // 計數 +1（本節點 + 相關聯節點）
+  // 計數
   incrementHealth(node.id);
-  relatedIds.forEach(id => incrementHealth(id));
+  [...new Set([...inLinks.map(l=>l.source), ...outLinks.map(l=>l.target)])]
+    .filter(id => id !== node.id)
+    .forEach(id => incrementHealth(id));
 
-  // 更新 info panel 健康顯示
+  // 更新 info panel
   const health = getNodeHealth(node.id);
   const healthEl = document.getElementById('i-health');
   healthEl.textContent = '已檢查 ' + health.count + ' 次 · 上次：' + formatTimeAgo(health.lastCheck);
   healthEl.className = 'health-status';
-
-  // 更新覆蓋率面板 & 節點徽章
   updateCoveragePanel();
   updateHealthBadges();
 };
