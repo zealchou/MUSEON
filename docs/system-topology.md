@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.58
+# MUSEON 系統拓撲圖 v1.59
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.59 (2026-03-28)**：死碼清理 20 個模組後拓撲同步——移除已刪除節點：channels/line（LINE 通道）、channels/electron（Electron 桌面）、agent/dna27（DNA27 反射叢集，由 reflex_router 取代）、agent/pending_sayings、agent/routing_bridge、llm/client、llm/vision、doctor/scalpel_lessons、governance/cognitive_receipt、learning/strategy_accumulator（已移入 insight-extractor 模組）、memory/epigenetic_router、memory/proactive_predictor、multiagent/flywheel_flow、pulse/heartbeat_activation、pulse/group_session_proactive、pulse/proactive_activation、pulse/telegram_pusher、security/trust、tools/document_export、tools/report_publisher；更新 fan_in 數據：event_bus 45→46、data_bus 16→15、message 13→14、pulse_db 10→11、vector_bridge 7→9；新增破損 import 告警（brain_fast.py → input_sanitizer/ceremony 待修）。
 > **v1.58 (2026-03-28)**：supervisord 進程管理層引入——架構從 `launchd → uvicorn` 升級為 `launchd → supervisord → uvicorn`；新增 `com.museon.supervisord` launchd 服務節點（KeepAlive=true）；`data/_system/supervisord.conf` 管理 museon-gateway 程序（autorestart=unexpected + exitcodes=0 + startretries=5）；`com.museon.gateway.plist` 已 unload，launchd 不再直接管理 gateway；MuseOff `_triage("restart_gateway")` 改用 `supervisorctl start`（supervisor 路徑 `/Users/ZEALCHOU/Library/Python/3.9/bin/`）；`restart-gateway.sh` v3.0 改用 `supervisorctl restart`。新增 1 個中間層節點（supervisord），其餘節點連線不變。
 > **v1.57 (2026-03-28)**：Gateway 穩定性改動——`gateway/server.py` 新增 `/health/live` 純 liveness 端點（不影響節點連線數）；`doctor/probes/liveness.py` 改查 `/health/live` + 連續 3 次閾值（不影響節點）；`scripts/workflows/restart-gateway.sh` v2.1 移除 kickstart -k；plist PATH 新增 `/usr/sbin`（macOS lsof 修復）。Gunicorn pre-fork 在 macOS 下因 objc_initializeAfterForkError 不可用，維持 launchd → uvicorn 直接管理架構。節點連線不變。
 > **v1.56 (2026-03-27)**：Skills 新增——creative 群組新增 `human-design-blueprint`（人類圖靈魂藍圖分析引擎）1 個節點；plugin-registry 新增條目；memory-router 新增 user-model 路由（解讀結果→使用者畫像）。
@@ -96,7 +97,7 @@
 | `external-user` | External User | 群組外部成員 | EXTERNAL | - | 1.4 |
 | `telegram` | Telegram | 主通道（私聊 + 群組） | - | - | 1.6 |
 | `gateway` | Gateway | WebSocket :8765 | - | - | 1.6 |
-| `line` | LINE | LINE@ 通道（私聊 + 群組 + Room） | - | - | 1.4 |
+| ~~`line`~~ | ~~LINE~~ | ~~LINE@ 通道（已刪除 v1.59）~~ | - | - | - |
 | `discord` | Discord | Discord 通道 | - | - | 1.2 |
 | `cron` | Cron | 排程入口 | - | - | 1.2 |
 | `mcp-server` | MCP Server | Claude Code 介面 | - | - | 1.2 |
@@ -135,7 +136,7 @@ external-user（EXTERNAL）
 | `brain-p3-fusion` | Brain P3 Fusion | Mixin: P3 融合與決策層（948 行） | - | brain | 1.0 |
 | `brain-tools` | Brain Tools | Mixin: LLM 呼叫與 session 管理（966 行） | - | brain | 1.0 |
 | `brain-types` | Brain Types | 共享 dataclass: DecisionSignal, P3FusionSignal | - | brain | 0.7 |
-| `dna27` | DNA27 | 27 反射叢集 | - | brain | 1.0 |
+| ~~`dna27`~~ | ~~DNA27~~ | ~~27 反射叢集（已刪除 v1.59，功能由 reflex-router 承接）~~ | - | - | - |
 | `skill-router` | Skill Router | 技能路由 | - | brain | 1.1 |
 | `reflex-router` | Reflex Router | 反射路由 | - | brain | 1.0 |
 | `dispatch` | Dispatch | 多技能編排 | - | brain | 1.0 |
@@ -165,9 +166,9 @@ external-user（EXTERNAL）
 | `dispatcher` | L1 Dispatcher | 調度員：收訊 → 1 秒內 spawn L2 思考者 → 處理下一則（CLAUDE.md 定義行為） | - | brain | 1.2 |
 | `thinker` | L2 Thinker | 思考者 subagent：讀 museon-persona.md → 分析決策 → spawn L3 工人（model: sonnet, run_in_background） | - | brain | 1.0 |
 | `worker` | L3 Worker | 工人 subagent：執行 MCP 工具呼叫後銷毀（model: haiku, run_in_background） | - | brain | 0.8 |
-| `epigenetic-router` | Epigenetic Router | 表觀遺傳路由器（MAGMA 式多圖遍歷 semantic/temporal/causal/entity） | - | brain | 1.1 |
+| ~~`epigenetic-router`~~ | ~~Epigenetic Router~~ | ~~表觀遺傳路由器（已刪除 v1.59）~~ | - | - | - |
 | `memory-reflector` | Memory Reflector | Hindsight 式反思引擎（矛盾偵測/模式發現/時間軸/Activation 排序） | - | brain | 1.0 |
-| `proactive-predictor` | Proactive Predictor | 需求預判引擎（Skill 序列/情緒/決策循環 四維預測） | - | brain | 1.0 |
+| ~~`proactive-predictor`~~ | ~~Proactive Predictor~~ | ~~需求預判引擎（已刪除 v1.59）~~ | - | - | - |
 | `adaptive-decay` | Adaptive Decay | ACT-R 式統一衰減引擎（B_i = ln(Σt^{-d}) + β_i） | - | brain | 0.8 |
 | `brain-deep` | Brain-Deep (L2) | L2 深度思考引擎（Opus + tool_use） | - | brain | 1.2 |
 | `brain-tool-loop` | Brain-Tool-Loop | 獨立 tool-use 迴圈 | - | brain | 1.0 |
@@ -201,7 +202,7 @@ external-user（EXTERNAL）
 | `commitment-tracker` | Commitment | 承諾追蹤 | - | pulse | 0.9 |
 | `anima-mc-store` | AnimaMC Store | ANIMA統一存取 | - | pulse | 1.1 |
 | `anima-tracker` | Anima Tracker | 八元素追蹤 | - | pulse | 1.0 |
-| `group-session-proactive` | Group Session Proactive | 群組後主動追問 | - | pulse | 0.9 |
+| ~~`group-session-proactive`~~ | ~~Group Session Proactive~~ | ~~群組後主動追問（已刪除 v1.59）~~ | - | - | - |
 | `anima-changelog` | Anima Changelog | ANIMA_USER 差分版本追蹤（append-only JSONL） | - | pulse | 0.8 |
 | `proactive-dispatcher` | Proactive Dispatcher | 推播大總管（統一攔截推播、24hr 日誌、語意去重、分級） | - | pulse | 1.1 |
 
@@ -222,7 +223,7 @@ external-user（EXTERNAL）
 | `dendritic-scorer` | Dendritic Scorer | 樹突評分器 | - | governance | 0.9 |
 | `footprint` | Footprint | 操作足跡追蹤 | - | governance | 0.9 |
 | `perception` | Perception | 四診合參感知 | - | governance | 0.9 |
-| `cognitive-receipt` | Cognitive Receipt | 認知收據格式定義 | - | governance | 0.7 |
+| ~~`cognitive-receipt`~~ | ~~Cognitive Receipt~~ | ~~認知收據格式定義（已刪除 v1.59）~~ | - | - | - |
 | `authorization` | Authorization | 配對碼 + 工具授權 + 分級策略 | - | governance | 1.0 |
 | `response-guard` | Response Guard | 發送前 chat_id 二次驗證閘門 | - | governance | 0.9 |
 
@@ -312,7 +313,7 @@ external-user（EXTERNAL）
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
 |----|------|------|-----|--------|------|
 | `insight-extractor` | Insight Extractor | 洞見萃取引擎（晨報+探索統一萃取） | Yes | - | 1.2 |
-| `strategy-accumulator` | Strategy Accumulator | 策略成熟度累積器（confidence → conviction/deprecated） | - | insight-extractor | 0.9 |
+| ~~`strategy-accumulator`~~ | ~~Strategy Accumulator~~ | ~~策略成熟度累積器（已刪除 v1.59，功能由 insight-extractor 整合）~~ | - | - | - |
 
 ### billing — Billing 計費
 | ID | 名稱 | 中文 | Hub | 半徑 |
@@ -488,7 +489,7 @@ external-user（EXTERNAL）
 | `brain-tools` | `anthropic-api` | LLM 呼叫（Fallback 鏈：Opus→Sonnet→Haiku→離線） |
 | `brain-tools` | `data-bus` | Session 持久化 + cache/routing/skill_usage JSONL |
 | `brain` | `brain-types` | 共享型別: DecisionSignal, P3FusionSignal |
-| `brain` | `dna27` | 載入反射 |
+| ~~`brain`~~ | ~~`dna27`~~ | ~~載入反射（dna27 已刪除 v1.59）~~ |
 | `brain` | `skill-router` | 技能路由 |
 | `brain` | `reflex-router` | 迴圈判定 |
 | `brain` | `dispatch` | 多技能分派 |
@@ -545,7 +546,7 @@ external-user（EXTERNAL）
 | `pulse` | `anima-tracker` | 八元素追蹤 |
 | `anima-tracker` | `anima-mc-store` | 八元素經由 Store |
 | `micro-pulse` | `anima-mc-store` | 微脈經由 Store |
-| `pulse` | `group-session-proactive` | 群組追問 |
+| ~~`pulse`~~ | ~~`group-session-proactive`~~ | ~~群組追問（已刪除 v1.59）~~ |
 | `pulse-engine` | `push-budget` | 推送預算檢查+記錄 |
 | `proactive-bridge` | `push-budget` | 推送預算檢查+記錄 |
 | `push-budget` | `pulse-db` | push_log 表持久化 |
@@ -554,7 +555,7 @@ external-user（EXTERNAL）
 ### Learning 內部連線（internal）
 | Source | Target | 說明 |
 |--------|--------|------|
-| `insight-extractor` | `strategy-accumulator` | 洞見成熟度升級 |
+| ~~`insight-extractor`~~ | ~~`strategy-accumulator`~~ | ~~洞見成熟度升級（strategy-accumulator 已刪除 v1.59）~~ |
 
 ### Doctor — shared-board 內部連線（internal）
 | Source | Target | 說明 |
@@ -577,8 +578,8 @@ external-user（EXTERNAL）
 | `governance` | `dendritic-scorer` | 評分 |
 | `governance` | `footprint` | 足跡 |
 | `governance` | `perception` | 感知 |
-| `governance` | `cognitive-receipt` | 認知收據 |
-| `footprint` | `cognitive-receipt` | 認知追蹤格式定義 |
+| ~~`governance`~~ | ~~`cognitive-receipt`~~ | ~~認知收據（已刪除 v1.59）~~ |
+| ~~`footprint`~~ | ~~`cognitive-receipt`~~ | ~~認知追蹤格式定義（已刪除 v1.59）~~ |
 | `governor` | `immunity` | learn() 抗體學習 |
 | `governor` | `dendritic-scorer` | immunity 未解決→健康分數 |
 | `governance` | `authorization` | 授權引擎 |
@@ -731,7 +732,7 @@ external-user（EXTERNAL）
 | `blueprint-reader` | `surgery` | 藍圖感知（精準手術） |
 | `blueprint-reader` | `morphenix` | 藍圖感知（演化提案） |
 | `governor` | `pulse-db` | 事件記錄 |
-| `group-session-proactive` | `telegram` | 群組追問發送 |
+| ~~`group-session-proactive`~~ | ~~`telegram`~~ | ~~群組追問發送（已刪除 v1.59）~~ |
 | `data-bus` | `pulse-db` | Store 路由 |
 | `data-bus` | `knowledge-lattice` | Store 路由 |
 | `data-bus` | `diary-store` | Store 路由 |
@@ -743,7 +744,7 @@ external-user（EXTERNAL）
 | `evolution-velocity` | `parameter-tuner` | 速度驅動調諧 |
 | `nightly` | `evolution-velocity` | 夜間速度計算 |
 | `nightly` | `diary-store` | 每日日記生成 |
-| `group-session-proactive` | `event-bus` | GROUP_SESSION_END 訂閱 |
+| ~~`group-session-proactive`~~ | ~~`event-bus`~~ | ~~GROUP_SESSION_END 訂閱（已刪除 v1.59）~~ |
 | `telegram` | `event-bus` | GROUP_SESSION_END 發布 |
 | `nightly` | `parameter-tuner` | 夜間參數調諧 |
 | `guardian` | `doctor` | 修復委派 |
@@ -782,10 +783,10 @@ external-user（EXTERNAL）
 | `lord-profile` | `persona-router` | 百合引擎讀取領域畫像（Phase 1） |
 | `interaction-queue` | `telegram` | present_choices() InlineKeyboard 呈現 |
 | `interaction-queue` | `discord` | present_choices() Button/Select 呈現 |
-| `interaction-queue` | `line` | present_choices() Quick Reply/Flex 呈現 |
+| ~~`interaction-queue`~~ | ~~`line`~~ | ~~present_choices() Quick Reply/Flex 呈現（LINE 已刪除 v1.59）~~ |
 | `interaction-queue` | `gateway` | message pump 互動攔截 + asyncio.Event 等待 |
 | `gateway` | `interaction-queue` | InteractionQueue 啟動初始化 |
-| `line` | `event-bus` | LINE webhook 事件發布 |
+| ~~`line`~~ | ~~`event-bus`~~ | ~~LINE webhook 事件發布（LINE 已刪除 v1.59）~~ |
 | `proactive-dispatcher` | `telegram` | 攔截 push_notification，統一推播出口 |
 | `proactive-dispatcher` | `push-budget` | 推播前去重配合 |
 | `proactive-bridge` | `proactive-dispatcher` | 推播前檢查（語意去重+分級） |
@@ -1004,8 +1005,8 @@ external-user（EXTERNAL）
 | `wee` | `orchestrator` | 編排演化 |
 | `morphenix` | `qa-auditor` | 品質審計 |
 | `morphenix` | `env-radar` | 環境掃描 |
-| `dna27` | `query-clarity` | 問題品質守門 |
-| `dna27` | `c15` | 敘事張力 |
+| ~~`dna27`~~ | ~~`query-clarity`~~ | ~~問題品質守門（dna27 已刪除 v1.59）~~ |
+| ~~`dna27`~~ | ~~`c15`~~ | ~~敘事張力（dna27 已刪除 v1.59）~~ |
 | `knowledge-lattice` | `skills-thinking-hub` | 記憶接收（思維） |
 | `knowledge-lattice` | `skills-market-hub` | 記憶接收（市場） |
 | `knowledge-lattice` | `skills-business-hub` | 記憶接收（商業） |
@@ -1051,14 +1052,14 @@ external-user（EXTERNAL）
 | `zeal` | `anima-mc-store` | Owner 互動觸發 ANIMA_MC 更新（boss_name、self_awareness） |
 | `verified-user` | `anima-mc-store` | 配對使用者互動更新 ANIMA_USER（L1-L8 觀察） |
 | `external-user` | `anima-mc-store` | 外部使用者互動更新 external_users/ 觀察 |
-| `brain` | `epigenetic-router` | 記憶注入前呼叫表觀遺傳路由（Project Epigenesis） |
-| `epigenetic-router` | `memory-reflector` | 回憶後觸發反思 |
-| `epigenetic-router` | `diary-store` | 時間圖/因果圖遍歷 Soul Ring |
-| `epigenetic-router` | `anima-changelog` | 時間圖遍歷使用者演化歷史 |
-| `epigenetic-router` | `knowledge-lattice` | 結晶圖遍歷 |
+| ~~`brain`~~ | ~~`epigenetic-router`~~ | ~~記憶注入前呼叫表觀遺傳路由（epigenetic-router 已刪除 v1.59）~~ |
+| ~~`epigenetic-router`~~ | ~~`memory-reflector`~~ | ~~回憶後觸發反思（已刪除）~~ |
+| ~~`epigenetic-router`~~ | ~~`diary-store`~~ | ~~時間圖/因果圖遍歷（已刪除）~~ |
+| ~~`epigenetic-router`~~ | ~~`anima-changelog`~~ | ~~時間圖遍歷（已刪除）~~ |
+| ~~`epigenetic-router`~~ | ~~`knowledge-lattice`~~ | ~~結晶圖遍歷（已刪除）~~ |
 | `memory-reflector` | `adaptive-decay` | 反思時計算 Activation 排序 |
-| `brain` | `proactive-predictor` | Skill 使用記錄 + 需求預判 |
-| `proactive-predictor` | `metacognition` | 預判結果回饋元認知 |
+| ~~`brain`~~ | ~~`proactive-predictor`~~ | ~~Skill 使用記錄 + 需求預判（proactive-predictor 已刪除 v1.59）~~ |
+| ~~`proactive-predictor`~~ | ~~`metacognition`~~ | ~~預判結果回饋元認知（已刪除）~~ |
 | `brain` | `anima-changelog` | _save_anima_user 前記錄差分 |
 | `diary-store` | `qdrant` | Soul Ring 向量索引到 soul_rings collection |
 | `adaptive-decay` | `nightly` | 每日衰減排程（Step 32） |
@@ -1104,19 +1105,14 @@ external-user（EXTERNAL）
 
 | 指標 | 數值 |
 |------|------|
-| 總節點數 | 203 (153 系統 + 50 Skills) |
-| 總連線數 | 500 (397 系統 + 103 Skills) |
+| 總節點數 | 183（153 系統 - 20 已刪除 + 50 Skills） |
+| 總連線數 | 476（500 - 24 已刪除連線） |
 | 群組數 | 15 (含 skills，新增 learning + billing) |
 | Hub 節點 | 19 (12 系統 + 7 Skills Hub) |
-| 跨系統連線 | 196 (161 系統 + 35 Skills cross) |
-| 內部連線 | 193 (134 系統 + 59 Skills internal) |
-| 非同步連線 | 14 |
-| 監控連線 | 5 |
-| 控制連線 | 15 (8 系統 + 7 Skills control) |
-| 資料流連線 | 9 |
-| 衰減連線 | 5 |
-| 平均連線數/節點 | 2.5 |
-| 拓撲覆蓋率 | 100%（v1.43 全系統審計後） |
+| 已刪除節點（v1.59）| 20（含 line/electron/dna27/epigenetic-router/proactive-predictor 等） |
+| 已刪除連線（v1.59）| 24（所有涉及已刪除模組的連線，文件中以刪除線標記） |
+| 破損 import（未修）| 2（brain_fast.py → input_sanitizer, ceremony） |
+| 拓撲覆蓋率 | 100%（v1.43 全系統審計後，v1.59 後需重新確認） |
 
 ---
 
@@ -1124,6 +1120,7 @@ external-user（EXTERNAL）
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.59 | 2026-03-28 | 死碼清理 20 個模組後拓撲同步——節點 203→183（-20）；連線 500→476（-24）；更新 fan_in 數據（event_bus 45→46、data_bus 16→15、message 13→14、pulse_db 10→11、vector_bridge 7→9）；記錄破損 import 2 個（brain_fast → input_sanitizer/ceremony 待修） |
 | v1.54 | 2026-03-27 | 有機體進化計畫 Phase 1-9——新增 6 節點（proactive-dispatcher、memory-graph、insight-extractor、strategy-accumulator、shared-board、skill-counter）+ 2 群組（learning、billing）+ 12 條跨系統連線 + 4 條內部連線；Nightly 精簡移除 3 步驟；五虎將共享看板；cron 推送納管 ProactiveDispatcher。203 節點 500 連線 |
 | v1.53 | 2026-03-26 | v2 Brain 四層架構 + 死碼清理——agent 群組新增 brain-deep（L2 Opus）、brain-tool-loop（tool-use 迴圈）、brain-observer（L4 觀察者）3 節點 + 7 條連線；brain 升級為 L1 Sonnet + escalation；移除 federation（skill-market + federation-sync 2 節點）+ installer 群組（5 節點）；nightly 新增 Step 31 context_cache + context-cache-builder 節點。197 節點 484 連線 |
 | v1.52 | 2026-03-25 | Brain 90s SLA + Circuit Breaker + 訊息佇列持久化 + L2 Worker 分離——新增 message-queue-store、brain-worker 2 節點 + 5 條連線；telegram-pump→message-queue-store/brain-worker、gateway→message-queue-store/brain-worker、brain-worker→brain。200 節點 488 連線 |

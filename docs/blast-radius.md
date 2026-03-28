@@ -1,10 +1,11 @@
-# Blast Radius — 模組影響半徑表 v1.76
+# Blast Radius — 模組影響半徑表 v1.77
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節、`docs/operational-contract.md`（操作契約表）提供外部操作預期失敗
+> **v1.77 (2026-03-28)**：死碼清理 20 個模組後藍圖同步——從 topology_report.json 更新 fan_in 數據：event_bus 45→46、data_bus 16→15（channels/line 已刪）、gateway.message 13→14、pulse_db 10→11（新增 pulse/group_digest）、vector_bridge 7→9；移除已刪除模組條目：channels/electron、channels/line、llm/client、llm/vision、agent/dna27、agent/pending_sayings、agent/routing_bridge、doctor/scalpel_lessons、governance/cognitive_receipt、learning/strategy_accumulator、memory/epigenetic_router、memory/proactive_predictor、multiagent/flywheel_flow、pulse/heartbeat_activation、pulse/group_session_proactive、pulse/proactive_activation、pulse/telegram_pusher、security/trust、tools/document_export、tools/report_publisher；破損 import 修復：brain_fast.py 的 input_sanitizer + ceremony 兩個殘留 import；系統健康度快照更新。
 > **v1.76 (2026-03-28)**：doctor 模組舊架構清除——`doctor/auto_repair.py` `repair_start_gateway()` + `repair_load_daemon()` 從 launchctl load/unload 改為 supervisorctl start（扇入不變）；`doctor/health_check.py` daemon 狀態檢查從 `launchctl list com.museon.gateway` 改為 `supervisorctl status museon-gateway`；`plist_path` 從 `com.museon.gateway.plist` 改為 `com.museon.supervisord.plist`；`doctor/surgeon.py` `_try_launchd_selfkill()` 從 launchctl 改為 supervisorctl（扇入不變）。完全消除舊 launchd-direct 架構在 doctor 模組的殘留，防止 auto_repair 觸發雙重管理衝突。
 > **v1.75 (2026-03-28)**：supervisord 進程管理層——新增 `data/_system/supervisord.conf`（綠區扇入=0，純設定檔）；新建 `com.museon.supervisord.plist`（launchd 服務，KeepAlive=true）；`doctor/museoff.py` `_triage("restart_gateway")` 從呼叫 restart-gateway.sh 改為 supervisorctl start（Green 扇入=2，不影響其他模組）；`scripts/workflows/restart-gateway.sh` v3.0（從 launchctl 改 supervisorctl restart）。`com.museon.gateway.plist` 已 unload，launchd 改為 launchd→supervisord→gateway 三層架構，消除雙實例衝突根因。blast-radius 無新模組扇入變化（supervisord 是 infra 層，不引入 Python import）。
 > **v1.74 (2026-03-28)**：Gateway 穩定性三項減法——`server.py` 新增 `/health/live` 純 liveness endpoint（不查 Brain/Telegram，綠區扇入=0，新增 endpoint）；`doctor/probes/liveness.py` 改查 `/health/live`（棄用 `/health` 深度檢查）+ 連續 3 次失敗才觸發重啟（消除暫時 timeout 誤判）；`scripts/workflows/restart-gateway.sh` v2.1（移除 `kickstart -k`，改用 `stop + kickstart`，等待改查 `/health/live`，等待時間 30→60s）；macOS fork() 限制確認 Gunicorn pre-fork 不可用（objc_initializeAfterForkError）。plist PATH 新增 `/usr/sbin`（修復 lsof 可用性）。gunicorn_config.py + start-gateway.sh 備用腳本存入 scripts/。
@@ -64,7 +65,7 @@
 
 | 屬性 | 值 |
 |------|-----|
-| **扇入** | 45（直接 import，19% 的模組依賴它） |
+| **扇入** | 46（直接 import，19% 的模組依賴它） |
 | **角色** | 全域事件匯流排，定義 215 個事件常量 |
 | **共享狀態** | 無直接檔案讀寫，但事件流是隱性共享狀態 |
 
@@ -72,7 +73,7 @@
 
 | 影響類型 | 數量 | 說明 |
 |---------|------|------|
-| 直接 import | 45 個模組 | agent(7), channels(6), nightly(7), pulse(4), governance(5), evolution(5), doctor(4), 其他(7) |
+| 直接 import | 46 個模組 | agent(7), channels(5), nightly(7), pulse(4), governance(5), evolution(5), doctor(4), tools(3), 其他(6)（注：channels/line、channels/electron 已刪除，tools/rss_aggregator、tools/zotero_bridge 已確認接線） |
 | 間接影響 | 全系統 | 事件常量或 API 改動 → 所有訂閱/發布模組失效 |
 | 事件發布者 | 47 個模組 | 發布 59 種事件 |
 | 事件訂閱者 | 16 個模組 | 訂閱 31 種事件 |
@@ -130,14 +131,14 @@
 
 | 屬性 | 值 |
 |------|-----|
-| **扇入** | 13 |
+| **扇入** | 14 |
 | **角色** | 訊息格式定義（Message, ChatMessage 等資料類別） |
 
 #### 影響半徑
 
 | 影響類型 | 範圍 |
 |---------|------|
-| 直接 import | 13 個模組：server.py, brain.py, workflow_executor.py, interaction.py, webhook.py, telegram.py, slack.py, line.py, electron.py, email.py, discord.py, base.py, tools.py |
+| 直接 import | 14 個模組：server.py, brain.py, workflow_executor.py, interaction.py, webhook.py, telegram.py, slack.py, email.py, discord.py, base.py, tools.py, brain_worker.py, routes_api.py, telegram_pump.py（注：channels/line、channels/electron 已刪除） |
 
 #### 修改安全邊界
 
@@ -159,7 +160,7 @@
 
 | 影響類型 | 範圍 |
 |---------|------|
-| 直接 import | 16 個模組：agent(4), core(3), pulse(2), nightly(1), governance(2), memory(1), workflow(2), evolution(1) |
+| 直接 import | 15 個模組：agent(3), core(3), pulse(2), nightly(1), governance(2), memory(1), workflow(2)（注：channels/line 已刪除，data_bus fan_in 從 16→15） |
 | 共享狀態 | DataContract 規範所有 Store 的讀寫格式 |
 
 #### 修改安全邊界
@@ -176,7 +177,7 @@
 
 | 屬性 | 值 |
 |------|-----|
-| **扇入** | 10 |
+| **扇入** | 11 |
 | **角色** | VITA 生命力引擎的 SQLite 後端（14 張表） |
 | **共享狀態** | PulseDB (pulse.db) — 詳見 joint-map #8 |
 
@@ -184,7 +185,7 @@
 
 | 影響類型 | 範圍 |
 |---------|------|
-| 直接 import | 10 個模組：server.py, brain.py, nightly_pipeline.py, telegram.py, eval_engine.py, metacognition.py, brain_prompt_builder.py, brain_dispatch.py, onboarding/ceremony.py |
+| 直接 import | 11 個模組：server.py, brain.py, nightly_pipeline.py, telegram.py, eval_engine.py, metacognition.py, brain_prompt_builder.py, brain_dispatch.py, onboarding/ceremony.py, cron_registry.py, pulse/group_digest.py（fan_in 從 10→11，基於 topology_report） |
 | 資料依賴 | 11 個模組讀取其表 |
 
 #### 修改安全邊界
@@ -531,7 +532,7 @@
 
 | 屬性 | 值 |
 |------|-----|
-| **扇入** | 7 |
+| **扇入** | 9 |
 | **角色** | Qdrant 向量庫的統一存取層 |
 
 #### 影響半徑
@@ -539,7 +540,7 @@
 | 影響類型 | 範圍 |
 |---------|------|
 | 共享狀態 | Qdrant 8 個 dense collections + N 個 sparse collections（`{name}_sparse`）；memories collection 新增 status=deprecated 軟刪除過濾 |
-| 直接 import | 7 個模組（brain, memory_manager, reflex_router, skill_router, knowledge_lattice, chromosome_index, primal_detector） |
+| 直接 import | 9 個模組（brain, brain_observation, memory_manager, reflex_router, skill_router, knowledge_lattice, primal_detector, server.py, nightly_pipeline.py）（fan_in 從 7→9，基於 topology_report） |
 | 新增方法 | `mark_deprecated()` — 軟刪除；`hybrid_search()` — Dense+Sparse RRF 融合（已被 4 模組主動消費：skill_router、memory_manager、knowledge_lattice、server）；`index_sparse()` / `backfill_sparse()` / `build_sparse_idf()` — 稀疏向量管理；`index_all_skills()` — skills collection 全量索引（Gateway startup + Nightly 8.6 + API reindex）；`reindex_all()` — 全部 collection 重索引 |
 | 降級影響 | Qdrant 離線 → 檢索降級為 TF-IDF（0.3 折扣）；Sparse 不可用 → hybrid_search 降級為純 dense；hybrid_search 已全面啟用（skill_router、memory_manager、knowledge_lattice、server 四模組均已從 search() 切換為 hybrid_search()） |
 
@@ -672,20 +673,21 @@
 `agent/chat_context.py`（★ v1.47 新增，扇入=1（brain.py），ChatContext dataclass 取代 per-turn 變數），
 `agent/deterministic_router.py`（★ v1.47 新增，扇入=1（brain_dispatch.py），確定性任務分解器取代 LLM Orchestrator），
 `agent/tool_schemas.py`（★ v1.70 擴充，扇入=1（brain_deep.py），工具定義目錄——v1.70 新增 trigger_job/memory_search/spawn_perspectives 3 個工具），
-`agent/dna27.py`, `agent/drift_detector.py`, `agent/intuition.py`, `agent/kernel_guard.py`, `agent/plan_engine.py`, `agent/primal_detector.py`, `agent/routing_bridge.py`, `agent/safety_anchor.py`, `agent/sub_agent.py`
+`agent/drift_detector.py`, `agent/intuition.py`, `agent/kernel_guard.py`, `agent/plan_engine.py`, `agent/primal_detector.py`, `agent/safety_anchor.py`, `agent/sub_agent.py`
+（注：`agent/dna27.py`、`agent/routing_bridge.py`、`agent/pending_sayings.py` 已於 v1.77 刪除）
 
 ### Memory 層（1 個）
 `memory/memory_gate.py`（★ v1.19 新增，扇入=1，僅 brain.py import；純 CPU 規則引擎，零 LLM 成本，判斷記憶寫入意圖）
 
-### LLM 層（1 個）
-`llm/vision.py`（★ v1.57 新增，扇入=0，Multimodal 圖片+PDF content block 構建，目前未被直接 import）
+### LLM 層（0 個）
+（注：`llm/vision.py`、`llm/client.py` 已於 v1.77 刪除）
 
 ### Pulse 層（1 個）
 `pulse/push_budget.py`（★ v1.54 新增，扇入=1（server.py），PushBudget 全局推送預算管理器）
 
 ### Governance 層（2 個）
-`governance/response_guard.py`（★ v1.60 新增，扇入=2（telegram_pump.py + channels/telegram.py CLAUDE.md L2 prompt），ResponseGuard 發送前 chat_id 二次驗證閘門；三方法統一 _normalize_id(abs()) 正規化：validate() 靜態驗證 + allow_send() 實例驗證 + validate_escalation() escalation 專用；sanitize_for_group() 內容黑名單清理——v1.65 收窄【】pattern 避免誤殺合法中文；v1.68 新增 [empty] 佔位符 + Skill 路由鏈（emoji→arrow）過濾，且改為所有通道都過濾這兩類 pattern（不只群組）），
-`governance/cognitive_receipt.py`（★ v1.21 新增，扇入=1，僅 footprint.py import；CognitiveReceipt dataclass 定義，認知追蹤的結構化收據格式）
+`governance/response_guard.py`（★ v1.60 新增，扇入=2（telegram_pump.py + channels/telegram.py CLAUDE.md L2 prompt），ResponseGuard 發送前 chat_id 二次驗證閘門；三方法統一 _normalize_id(abs()) 正規化：validate() 靜態驗證 + allow_send() 實例驗證 + validate_escalation() escalation 專用；sanitize_for_group() 內容黑名單清理——v1.65 收窄【】pattern 避免誤殺合法中文；v1.68 新增 [empty] 佔位符 + Skill 路由鏈（emoji→arrow）過濾，且改為所有通道都過濾這兩類 pattern（不只群組））
+（注：`governance/cognitive_receipt.py` 已於 v1.77 刪除）
 
 ### Doctor 層（2 個）
 `doctor/memory_reset.py`（★ v1.20 新增，扇入=0，CLI 工具；一鍵重置 25 個持久層，涵蓋 ANIMA_MC/USER、PULSE.md、PulseDB、Qdrant、sessions、memory_v3 等全部記憶/知識/行為/評估/日誌層）
@@ -799,7 +801,7 @@
 | **G6** | 改免疫系統 | immunity + immune_memory + immune_research + daemon | events.jsonl + immune_memory.json |
 | **G7** | 改品質回饋閉環（DNA-Inspired） | metacognition + morphenix_executor + pulse_db | PulseDB.metacognition 表（`METACOGNITION_QUALITY_FLAG` 事件） |
 | **G8** | 改衰減參數或老化邏輯 | knowledge_lattice + crystal_store + crystal_actuator + recommender + memory_manager + dendritic_scorer + adaptive_decay | crystal.db(RI via CrystalStore) + Qdrant memories(TTL) + PulseDB health_scores(半衰期) + 推薦排序(近因性) |
-| **G9** | 改記憶反思/表觀遺傳路由 | epigenetic_router + memory_reflector + adaptive_decay + brain_prompt_builder | Qdrant memories + soul_rings + crystals（RO）；反思摘要注入 system_prompt memory zone |
+| **G9** | 改記憶反思 | memory_reflector + adaptive_decay + brain_prompt_builder | Qdrant memories + soul_rings + crystals（RO）；反思摘要注入 system_prompt memory zone（注：epigenetic_router 已刪除） |
 
 > **G8 衰減組說明**：四個衰減引擎（結晶 RI、記憶 TTL、健康分數半衰期、推薦近因性）各自獨立但交叉影響——修改結晶 RI 衰減速度會間接影響 recommender 的推薦排序；修改 dendritic_scorer 半衰期會影響 governor 治理決策進而影響 brain Step 5.5 融合品質。修改任一衰減參數前，必須查閱 `persistence-contract.md` §衰減與優先級模型的完整公式表。
 
@@ -831,19 +833,20 @@
 
 ---
 
-## 系統健康度快照（2026-03-24 v1.62 審計更新）
+## 系統健康度快照（2026-03-28 v1.77 死碼清理後更新）
 
 | 指標 | 數值 | 說明 |
 |------|------|------|
-| 總模組數 | 238 | 含所有 .py（不含 __init__.py、不含 _dead_code_archive） |
-| 禁區模組（扇入 ≥ 40） | 1 | event_bus(45) |
-| Hub 模組（扇入 10-39） | 4 | server(0,入口), message(13), data_bus(16), pulse_db(10)；brain(1,扇出 32+,系統核心) |
-| 中間模組（扇入 2-9） | 62 | 含 tool_registry(4), dispatch(2) 等 |
+| 總模組數 | 220 | 死碼清理後（刪除 20 個模組）；topology_report: 240 含 __init__ |
+| 禁區模組（扇入 ≥ 40） | 1 | event_bus(46) |
+| Hub 模組（扇入 10-39） | 3 | message(14), data_bus(15), pulse_db(11)；brain(2,扇出 42+,系統核心) |
+| 中間模組（扇入 2-9） | 60+ | vector_bridge(9), knowledge_lattice(7), channels.base(6), crystal_store(5), doctor.shared_board(5) 等 |
 | 單引用模組（扇入 1） | 90+ | 含 brain_*.py Mixin 系列 |
 | 葉子模組（扇入 0） | 80+ | 可安全修改 |
-| 共享可變狀態 | 41+ | 詳見 joint-map.md v1.41 |
+| 共享可變狀態 | 53 | 詳見 joint-map.md v1.49 |
 | 事件健康度 | 67.9% | 幽靈訂閱清零（v1.5 修復） |
-| 致命單點 | event_bus | 佔全系統 19% 直接依賴（45/238） |
+| 致命單點 | event_bus | 佔全系統 21% 直接依賴（46/220） |
+| 破損 import | 2 | brain_fast.py → input_sanitizer, ceremony（待修復） |
 
 ---
 

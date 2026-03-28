@@ -1,10 +1,11 @@
-# Memory Router — 記憶路由表 v1.10
+# Memory Router — 記憶路由表 v1.11
 
 > **用途**：定義「什麼類型的洞見存到哪個記憶系統、什麼時候取出」。第五張工程藍圖。
 > **比喻**：郵局分揀表——每封信根據地址分到對應的信箱，不會寄丟也不會重複投遞。
 > **更新時機**：新增 Skill 或記憶系統時，必須在同一個 commit 中新增對應的路由規則。
 > **建立日期**：2026-03-21
 > **搭配**：`docs/skill-manifest-spec.md`（Skill I/O 合約）、各 Skill 的 `memory.writes` 欄位、`docs/operational-contract.md`（操作契約表）
+> **v1.11 (2026-03-28)**：死碼清理後同步——移除已刪除模組的路由規則：learning/strategy_accumulator（StrategyAccumulator→heuristics 路由已刪，功能由 insight-extractor 整合）；memory/epigenetic_router（不再介入記憶注入前路由）；memory/proactive_predictor（記憶路由不再涉及需求預判）；pulse/group_session_proactive（群組記憶路由不再涉及 group_session_proactive）。
 > **v1.10 (2026-03-27)**：有機體進化計畫——新增 4 條路由規則：晨報個案→InsightExtractor→knowledge-lattice（case_crystal）+ heuristics；自主探索→InsightExtractor→knowledge-lattice（exploration_crystal）；InsightExtractor→MemoryGraph（建立洞見間關聯邊）；StrategyAccumulator→heuristics.json（升級為策略信條時）。同步 system-topology v1.54、blast-radius v1.71、joint-map v1.48、persistence-contract v1.37。
 > **v1.9 (2026-03-25)**：七條斷裂管線修復——dispatch/completed → Nightly Step 18.5 客戶互動萃取 → external_users + clients personality_notes；ExternalAnima search_by_keyword dict topics 修復；Intuition heuristics → prompt 注入；Guardian mothership_queue → Gateway 啟動消費；Procedure 升級門檻 3→1
 > **v1.7 (2026-03-24)**：新增操作記憶路由規則 7——外部操作的成功/失敗經驗存入 knowledge-lattice 的 PROCEDURE 結晶；搭配第六張藍圖 `operational-contract.md`
@@ -100,13 +101,12 @@
 | 晨報個案（Nightly 晨報） | 可操作規則 | InsightExtractor → heuristics.json | guard（方法論） | 洞見可操作化時 |
 | 自主探索（Explorer） | 探索發現 | InsightExtractor → knowledge-lattice | exploration_crystal | 探索完成且品質 ≥ NEW_INSIGHT |
 | InsightExtractor 任何輸出 | 洞見間關聯 | InsightExtractor → MemoryGraph | edge（關聯邊） | 萃取時自動建立語意關聯 |
-| StrategyAccumulator | 策略信條 | StrategyAccumulator → heuristics.json | conviction（策略信條） | confidence 累積達 conviction 門檻 |
+| ~~StrategyAccumulator~~ | ~~策略信條~~ | ~~StrategyAccumulator → heuristics.json（已刪除 v1.11，功能由 insight-extractor 整合）~~ | - | - |
 
 > **消費者**：
 > - knowledge-lattice case_crystal / exploration_crystal → brain.py `_build_memory_inject()` 語意檢索
 > - heuristics.json → `brain_prompt_builder.py` Stage 5 `format_rules_for_prompt()` 注入每次對話 prompt
 > - MemoryGraph edges → brain.py 記憶注入時查詢關聯記憶
-> - StrategyAccumulator 追蹤 deprecated 策略（失敗 3 次自動標記）
 
 ### 🔵 教訓蒸餾 → crystal_rules.json（v1.8 新增）
 
@@ -153,15 +153,15 @@
 ### 規則 5：chat_scope 隔離
 群組記憶帶 `chat_scope="group:{group_id}"`，recall 時用 `chat_scope_filter` 過濾，避免不同群組記憶交叉污染。無 scope 的舊記憶（向下相容）在任何 filter 下均可見。可用 `exclude_scopes` 排除指定群組。
 
-### 規則 6：反思層路由（Project Epigenesis）
-EpigeneticRouter 在 brain.py `_build_memory_inject()` 中觸發，對已召回的記憶執行 Hindsight 反思：
+### 規則 6：反思層路由（MemoryReflector 直接路由，v1.11 更新）
+
+> **v1.11 更新**：EpigeneticRouter 已刪除（v1.59）。反思層現由 MemoryReflector 直接處理，不再經過多圖遍歷中間層。
 
 | 來源 | 經由 | 去向 | 說明 |
 |------|------|------|------|
-| MemoryManager.recall() | EpigeneticRouter → MemoryReflector | brain_prompt_builder memory zone | 六層記憶反思摘要（矛盾偵測/重複模式/時間軸） |
-| DiaryStore.recall_soul_rings() | EpigeneticRouter (temporal/causal graph) → MemoryReflector | brain_prompt_builder memory zone | Soul Ring 年輪的時間/因果圖遍歷結果 |
-| KnowledgeLattice.recall_tiered() | EpigeneticRouter (crystal graph) → MemoryReflector | brain_prompt_builder memory zone | 知識結晶反思（與記憶交叉比對） |
-| AnimaChangelog.get_evolution_summary() | EpigeneticRouter (temporal graph) | brain_prompt_builder memory zone | 使用者演化趨勢摘要（僅時間意圖觸發） |
+| MemoryManager.recall() | ~~EpigeneticRouter →~~ MemoryReflector | brain_prompt_builder memory zone | 六層記憶反思摘要（矛盾偵測/重複模式/時間軸） |
+| DiaryStore.recall_soul_rings() | MemoryReflector（直接） | brain_prompt_builder memory zone | Soul Ring 年輪反思 |
+| KnowledgeLattice.recall_tiered() | MemoryReflector（直接） | brain_prompt_builder memory zone | 知識結晶反思 |
 
 > **反思層不寫入任何持久狀態**——純 CPU 計算，不呼叫 LLM，延遲 < 50ms。
 > AdaptiveDecay 負責 Activation 排序（ACT-R 公式），MemoryReflector 負責交叉反思。

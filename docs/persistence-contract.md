@@ -1,8 +1,9 @@
-# MUSEON Persistence Contract v1.37 — 水電圖
+# MUSEON Persistence Contract v1.38 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
 > 與 `system-topology.md`（控制流拓撲）互補——那是「神經圖」，這是「水電圖」。
+> **v1.38 (2026-03-28)**：死碼清理後同步——Qdrant collection `dna27` 的寫入者 `reflex_router.py` 確認（dna27.py 模組已刪，collection 由 reflex_router 維護）；移除已刪除模組的寫入者條目：channels/line（data_bus 消費者）、llm/vision、memory/epigenetic_router、multiagent/flywheel_flow、pulse/group_session_proactive、tools/document_export、tools/report_publisher；新增消費者確認：pulse_db 消費者從 10→11（新增 pulse/group_digest）。
 
 ---
 
@@ -406,7 +407,7 @@ recommender ──近因性衰減──→ 推薦排序 (in-memory)
 
 adaptive_decay ──ACT-R B_i──→ _activation 欄位 (in-memory) ←── memory_reflector (排序+反思)
                                      ↑
-                              epigenetic_router (多圖遍歷後觸發反思)
+                              ~~epigenetic_router~~ (已刪除 v1.38，多圖遍歷功能移除)
                               brain_prompt_builder (注入 memory zone)
                                      ↑
                               crystals.json RI (交叉影響)
