@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.56
+# MUSEON 系統拓撲圖 v1.57
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.57 (2026-03-28)**：Gateway 穩定性改動——`gateway/server.py` 新增 `/health/live` 純 liveness 端點（不影響節點連線數）；`doctor/probes/liveness.py` 改查 `/health/live` + 連續 3 次閾值（不影響節點）；`scripts/workflows/restart-gateway.sh` v2.1 移除 kickstart -k；plist PATH 新增 `/usr/sbin`（macOS lsof 修復）。Gunicorn pre-fork 在 macOS 下因 objc_initializeAfterForkError 不可用，維持 launchd → uvicorn 直接管理架構。節點連線不變。
 > **v1.56 (2026-03-27)**：Skills 新增——creative 群組新增 `human-design-blueprint`（人類圖靈魂藍圖分析引擎）1 個節點；plugin-registry 新增條目；memory-router 新增 user-model 路由（解讀結果→使用者畫像）。
 > **v1.55 (2026-03-27)**：MCP 工具擴充——external 群組新增 `playwright-mcp`（瀏覽器自動化）、`fetch-mcp`（網頁讀取）2 個節點 + 2 條 cross 連線（mcp-server→playwright-mcp、mcp-server→fetch-mcp）；`.mcp.json` 新增 Playwright + Fetch 伺服器設定。同步 blast-radius v1.72。
 > **v1.54 (2026-03-27)**：有機體進化計畫 Phase 1-9——新增 6 個節點（proactive-dispatcher、memory-graph、insight-extractor、strategy-accumulator、shared-board、skill-counter）；新增 learning 群組；pulse 群組 proactive-dispatcher 統一攔截推播；Nightly 精簡移除 3 個步驟（7.5/10.5/11）；五虎將共享看板協調機制；cron 直接推送全部納管 ProactiveDispatcher。
