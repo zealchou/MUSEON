@@ -1869,62 +1869,88 @@ window.doHealthCheck = function() {
     });
   }
 
-  // 安全分級
   const fi = node.fi || 0;
   const safety = fi >= 40 ? '🔴 禁區' : fi >= 10 ? '🟠 紅區' : fi >= 2 ? '🟡 黃區' : '🟢 綠區';
+  const isSkill   = node.path && node.path.includes('.claude/skills');
+  const isNightly = node.path && (node.path.includes('nightly') || node.id === 'nightly');
+  const isHighRisk = fi >= 10;
 
-  // 呼叫方（輸入方）列表
+  // 呼叫方列表
   const callerLines = inLinks.slice(0,12).map(l => {
-    const srcLabel = nodeMap[l.source]?.label || l.source;
-    const lbl = l.label ? `（${l.label.substring(0,40)}）` : '';
-    return `  • ${srcLabel}${lbl}`;
-  }).join('
-');
+    const lbl = l.label ? '（' + l.label.substring(0,50) + '）' : '';
+    return '  • ' + (nodeMap[l.source]?.label || l.source) + lbl;
+  }).join('\n');
 
-  // 被呼叫方（輸出方）列表
+  // 被呼叫方列表
   const calleeLines = outLinks.slice(0,12).map(l => {
-    const tgtLabel = nodeMap[l.target]?.label || l.target;
-    const lbl = l.label ? `（${l.label.substring(0,40)}）` : '';
-    return `  • ${tgtLabel}${lbl}`;
-  }).join('
-');
+    const lbl = l.label ? '（' + l.label.substring(0,50) + '）' : '';
+    return '  • ' + (nodeMap[l.target]?.label || l.target) + lbl;
+  }).join('\n');
 
-  // 路徑說明
-  const pathLine = node.path
-    ? `路徑: ${node.path}`
-    : `路徑: （概念節點，無對應原始碼）`;
+  const pathLine = node.path ? '路徑: ' + node.path : '路徑: （概念節點）';
 
-  const isSkill = node.path && node.path.includes('.claude/skills');
-  const checkSteps = isSkill
-    ? `請：
-① 讀取上方路徑的 SKILL.md，確認 triggers / output_format / connects_to 定義完整
-② 確認此 Skill 在 plugin-registry 中已正確登錄
-③ 確認 memory-router.md 中有對應的記憶流向規則
-④ 回報：✅ 定義完整 / ⚠️ 缺漏（列出問題）`
-    : `請：
-① 讀取上方路徑的檔案，列出所有 public class / function（含參數簽名）
-② 逐一確認「呼叫我的模組」的 import 路徑存在、參數匹配
-③ 逐一確認「我呼叫的模組」的介面存在且未改變
-④ grep ~/MUSEON/logs/ 確認此模組無 ERROR / WARNING
-⑤ 確認此模組的資料輸入格式與輸出格式符合 docs/joint-map.md 的約定
-⑥ 回報：✅ 健康 / ⚠️ 有問題（列出問題與行號）`;
+  // 測試檔推算
+  let testLine = '';
+  if (node.path && node.path.startsWith('src/')) {
+    const testPath = node.path
+      .replace('src/museon/', 'tests/unit/test_')
+      .replace(/\//g, '_');
+    testLine = '\n測試檔: ' + testPath + '  （不存在則標記為 ❌ 無測試）';
+  }
 
-  const cmd = [
-    `/health [${node.label}]`,
-    `模組：${node.label}（${node.zh || ''}）`,
-    pathLine,
-    `安全分級：${safety}（fan_in=${fi}）`,
-    `所屬群組：${GN[node.group] || node.group}`,
-    ``,
-    `呼叫我的模組（${inLinks.length}）：`,
-    callerLines || `  （無）`,
-    ``,
-    `我呼叫的模組（${outLinks.length}）：`,
-    calleeLines || `  （無）`,
-    ``,
+  // git log 指令
+  let gitLine = '';
+  if (node.path && node.path.startsWith('src/')) {
+    gitLine = '\ngit log: git log --oneline -3 -- ' + node.path;
+  }
+
+  // 高扇入警告
+  const riskWarn = isHighRisk
+    ? '\n⚠️  高扇入模組（fan_in=' + fi + '）：優先確認問題，勿輕易修改；修改前必讀 docs/blast-radius.md'
+    : '';
+
+  // 步驟
+  let checkSteps;
+  if (isSkill) {
+    checkSteps = '請：\n'
+      + '① 讀取 SKILL.md，確認 triggers / output_format / connects_to 定義完整\n'
+      + '② 確認此 Skill 在 plugin-registry 中已正確登錄\n'
+      + '③ 確認 memory-router.md 中有對應的記憶流向規則\n'
+      + '④ 回報：✅ 定義完整 / ⚠️ 缺漏（列出問題）';
+  } else if (isNightly) {
+    checkSteps = '請：\n'
+      + '① 讀取檔案，列出所有 public class / function（含參數簽名）\n'
+      + '② 逐一確認「呼叫我的模組」的 import 存在、參數匹配\n'
+      + '③ 逐一確認「我呼叫的模組」介面存在且未改變\n'
+      + '④ grep ~/MUSEON/logs/ 確認此模組無 ERROR / WARNING\n'
+      + '⑤ 確認 nightly_pipeline.py 的 _FULL_STEPS 列表包含此模組的步驟 ID\n'
+      + '⑥ 回報：✅ 健康 / ⚠️ 有問題（列出問題與行號）';
+  } else {
+    checkSteps = '請：\n'
+      + '① 讀取檔案，列出所有 public class / function（含參數簽名）\n'
+      + '② 逐一確認「呼叫我的模組」的 import 存在、參數匹配\n'
+      + '③ 逐一確認「我呼叫的模組」介面存在且未改變\n'
+      + '④ grep ~/MUSEON/logs/ 確認此模組無 ERROR / WARNING\n'
+      + '⑤ 確認資料輸入/輸出格式符合 docs/joint-map.md 的約定\n'
+      + '⑥ 回報：✅ 健康 / ⚠️ 有問題（列出問題與行號）';
+  }
+
+  const lines = [
+    '/health [' + node.label + ']',
+    '模組：' + node.label + '（' + (node.zh || '') + '）',
+    pathLine + gitLine + testLine + riskWarn,
+    '安全分級：' + safety + '（fan_in=' + fi + '）',
+    '所屬群組：' + (GN[node.group] || node.group),
+    '',
+    '呼叫我的模組（' + inLinks.length + '）：',
+    callerLines || '  （無）',
+    '',
+    '我呼叫的模組（' + outLinks.length + '）：',
+    calleeLines || '  （無）',
+    '',
     checkSteps,
-  ].join('
-');
+  ];
+  const cmd = lines.join('\n');
 
   navigator.clipboard.writeText(cmd).then(() => {
     const btn = document.getElementById('i-health-btn');
@@ -1933,13 +1959,11 @@ window.doHealthCheck = function() {
     setTimeout(() => { btn.textContent = '健康檢查'; btn.classList.remove('copied'); }, 2000);
   });
 
-  // 計數
   incrementHealth(node.id);
   [...new Set([...inLinks.map(l=>l.source), ...outLinks.map(l=>l.target)])]
     .filter(id => id !== node.id)
     .forEach(id => incrementHealth(id));
 
-  // 更新 info panel
   const health = getNodeHealth(node.id);
   const healthEl = document.getElementById('i-health');
   healthEl.textContent = '已檢查 ' + health.count + ' 次 · 上次：' + formatTimeAgo(health.lastCheck);
