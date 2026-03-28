@@ -278,7 +278,9 @@ MUSEON 回覆: {museon_reply}
 | /esg-forge, /esg | esg-architect-pro | ESG 永續報告 |
 | /esg-audit | esg-architect-pro | ESG 漂綠檢測 |
 | /meeting, /intel | meeting-intelligence | 會議情報分析 |
-| /ares | ares | 戰神系統（人物分析+策略） |
+| /risk, /allocation | risk-matrix | 風險管理與資產配置 |
+| /sentiment | sentiment-radar | 市場情緒雷達 |
+| /ares, /strategy-person | ares | 戰神系統（人物分析+策略） |
 | /anima, /profile | anima-individual | 人物建檔/查詢 |
 | /reading, /energy | energy-reading | 能量解讀 |
 | /wan-miu, /persona-16 | wan-miu-16 | 萬謬16型人格 |
