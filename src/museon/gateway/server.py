@@ -308,6 +308,13 @@ def create_app() -> FastAPI:
     app.state.telegram_adapter = None
     app.state.telegram_pump_task = None
 
+    @app.get("/health/live")
+    async def liveness() -> Dict[str, Any]:
+        """L0 Liveness probe — 純 HTTP 存活確認，不查 Brain/Telegram 等外部依賴。
+        K8s livenessProbe 語義：只要 event loop 還在處理請求，就回 200。
+        """
+        return {"status": "ok"}
+
     @app.get("/health")
     async def health_check() -> Dict[str, Any]:
         """Health check endpoint."""
