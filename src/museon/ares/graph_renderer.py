@@ -131,7 +131,7 @@ def render_topology_png(
     # 圖例
     legend_items = [
         plt.Line2D([0], [0], marker="o", color="w", markerfacecolor=c, markersize=10, label=l)
-        for l, c in [("🔴 熱", "#e74c3c"), ("🟡 溫", "#f39c12"), ("🔵 冷", "#3498db"), ("⚪ 新", "#95a5a6")]
+        for l, c in [("Hot", "#e74c3c"), ("Warm", "#f39c12"), ("Cold", "#3498db"), ("New", "#95a5a6")]
     ]
     ax.legend(handles=legend_items, loc="upper left", framealpha=0.8)
 
