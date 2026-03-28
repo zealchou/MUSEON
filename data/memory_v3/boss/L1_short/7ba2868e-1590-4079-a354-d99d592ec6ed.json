@@ -1,0 +1,11 @@
+{
+  "id": "7ba2868e-1590-4079-a354-d99d592ec6ed",
+  "type": "lesson",
+  "lesson_id": "adapter_response_text",
+  "content": "教訓：LLM adapter 回傳物件取 .text 不是 .content。來源：2026-03-27 群組摘要發送 AdapterResponse 原始物件到客戶群組",
+  "tags": [
+    "教訓",
+    "2026-03-27"
+  ],
+  "created_at": "2026-03-27T11:42:03.430644"
+}

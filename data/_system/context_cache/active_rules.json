@@ -83,5 +83,6 @@
       "action": "guard",
       "strength": 1.2
     }
-  ]
+  ],
+  "actionability_weight": 1.03
 }

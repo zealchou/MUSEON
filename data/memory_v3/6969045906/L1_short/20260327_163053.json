@@ -1,0 +1,6 @@
+{
+  "session_id": "telegram_6969045906",
+  "user_message": "你覺得有哪些 openclaw 可以做到但你做不到的？ 尤其是第三方 MCP 串接",
+  "museon_reply": "誠實說，讓我用真實能力對比來回答這個問題：\n\n---\n\n## 我真正做不到的事\n\n### 1. 瀏覽器自動化（最大缺口）\nOpenClaw 有 Playwright/Puppeteer 整合——\n- 幫你登入網站、填表單、點按鈕\n- 抓網頁截圖、讀取動態內容\n- 自動化 SaaS 後台操作（沒有 API 的那種）\n\n**我做不到**：我看不到螢幕、點不了按鈕。\n\n---\n\n### 2. 動態載入第三方 \n\n| 情境 | 我 | OpenClaw |\n|------|-----|---------|\n| 現有 （Gmail/Calendar/MUSEON）| ✅ 直接用 | ✅ |\n| 新增 伺服器 | 需要改 `settings.json` 重啟 | 可能支援熱載入 |\n| 社群 （Notion/Linear/Airtable）| 需手動設定 | 可能有 marketplace |\n| 自訂 伺服器 | 支援，但需重啟 | 同上 |\n\n**關鍵差異**：如果 OpenClaw 支援不重啟就插上新 ，這對你很有用——想接 Notion、Airtable、Line Business 時不用",
+  "timestamp": "2026-03-27T16:30:53.742864+08:00"
+}

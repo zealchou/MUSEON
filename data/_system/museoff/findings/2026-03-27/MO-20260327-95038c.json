@@ -1,0 +1,29 @@
+{
+  "finding_id": "MO-20260327-95038c",
+  "timestamp": "2026-03-27T06:16:21.393944+00:00",
+  "probe_layer": "L4",
+  "severity": "HIGH",
+  "title": "回歸測試失敗",
+  "source": "museoff",
+  "blast_origin": {
+    "file": "tests/",
+    "line": null,
+    "error_type": "TestFailure",
+    "traceback": ".....................F\n=================================== FAILURES ===================================\n__________________________ test_神經圖__installer_系統已登記 ___________________________\n\nfixturefunc = <function then_topology_contains_node at 0x1082d4680>\nrequest = <FixtureRequest for <Function test_神經圖__installer_系統已登記>>\nkwargs = {'ctx': <bdd.test_blueprint_integrity.BlueprintContext object at 0x10b452450>, 'node_id': 'installer-daemon'}\n\n    def call_fixture_func(\n        fixturefunc: _FixtureFunc[FixtureValue], request: FixtureRequest, kwargs\n    ) -> FixtureValue:\n        if inspect.isgeneratorfunction(fixturefunc):\n            fixturefunc = cast(Callable[..., Generator[FixtureValue]], fixturefunc)\n            generator = fixturefunc(**kwargs)\n            try:\n                fixture_result = next(generator)\n            except StopIteration:\n                raise ValueError(f\"{request.fixturename} did not yield a value\") from None\n            finalizer = functools.partial(_teardown_y"
+  },
+  "blast_radius": [],
+  "context": {},
+  "triage_done": null,
+  "known_fix": null,
+  "prescription": {
+    "diagnosis": "pytest-testmon 偵測到受影響測試失敗",
+    "root_cause": "",
+    "suggested_fix": "",
+    "runbook_id": "",
+    "fix_complexity": "GREEN",
+    "pre_check": "",
+    "post_check": "pytest --testmon -x",
+    "rollback": ""
+  },
+  "status": "needs_human"
+}

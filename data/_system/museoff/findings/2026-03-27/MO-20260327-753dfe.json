@@ -1,0 +1,29 @@
+{
+  "finding_id": "MO-20260327-753dfe",
+  "timestamp": "2026-03-27T08:43:55.437356+00:00",
+  "probe_layer": "L4",
+  "severity": "HIGH",
+  "title": "回歸測試失敗",
+  "source": "museoff",
+  "blast_origin": {
+    "file": "tests/",
+    "line": null,
+    "error_type": "TestFailure",
+    "traceback": "...................................................................ss..s [  2%]\n...................F\n=================================== FAILURES ===================================\n____________________ TestChaosInjection.test_empty_message _____________________\n\n    @contextlib.contextmanager\n    def map_httpcore_exceptions() -> typing.Iterator[None]:\n        global HTTPCORE_EXC_MAP\n        if len(HTTPCORE_EXC_MAP) == 0:\n            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()\n        try:\n>           yield\n\n.venv/lib/python3.13/site-packages/httpx/_transports/default.py:101: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n.venv/lib/python3.13/site-packages/httpx/_transports/default.py:250: in handle_request\n    resp = self._pool.handle_request(req)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n.venv/lib/python3.13/site-packages/httpcore/_sync/connection_pool.py:256: in handle_request\n    raise exc from None\n.venv/lib/python3.13/site-packages/httpcore/_"
+  },
+  "blast_radius": [],
+  "context": {},
+  "triage_done": null,
+  "known_fix": null,
+  "prescription": {
+    "diagnosis": "pytest-testmon 偵測到受影響測試失敗",
+    "root_cause": "",
+    "suggested_fix": "",
+    "runbook_id": "",
+    "fix_complexity": "GREEN",
+    "pre_check": "",
+    "post_check": "pytest --testmon -x",
+    "rollback": ""
+  },
+  "status": "needs_human"
+}

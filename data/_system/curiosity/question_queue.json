@@ -36,12 +36,14 @@
   {
     "question": "你好，請問你能做什麼？",
     "source_date": "2026-03-26",
-    "status": "pending"
+    "status": "researched",
+    "researched_at": "2026-03-28T03:00:50.274493+08:00"
   },
   {
     "question": "你是基於什麼架構運作的？可以說明一下嗎？",
     "source_date": "2026-03-26",
-    "status": "pending"
+    "status": "researched",
+    "researched_at": "2026-03-28T03:00:52.764125+08:00"
   },
   {
     "question": "我改主意了，不做 B2C 了，改做 B2B 企業記帳解決方案。幫我分析這個轉變需要調整哪些策略？",
@@ -72,5 +74,23 @@
     "question": "[群組近期對話紀錄]\n  23:45 Zeal（老闆）: @MuseonClaw_bot 有看到什麼問題嗎？\n[/群組近期對話紀錄]\n\n[群組] Zeal（老闆）說：\n@MuseonClaw_bot 有看到什麼問題嗎？",
     "source_date": "2026-03-26",
     "status": "pending"
+  },
+  {
+    "question": "認知模型更新：記憶系統的設計不應只問「記什麼」，還要問「以什麼為索引」。以失敗為索引的記憶，在決策前比以成功為索引的記憶更能產生有效的行動調整。未來處理「記憶架構優化」類的問題時，我會先問：這個記憶設計，能讓失敗被查詢到嗎？",
+    "source_date": "2026-03-28",
+    "status": "pending",
+    "source": "exploration_bridge"
+  },
+  {
+    "question": "具體問題：當一個工具呼叫失敗時，什麼是最小可用的「情境快照」格式——既能讓未來的 Agent 查詢時找到相關案例，又不會讓記憶庫因過細的噪音而退化成「什麼工具都不敢用」的過度保守系統？",
+    "source_date": "2026-03-28",
+    "status": "pending",
+    "source": "exploration_bridge"
+  },
+  {
+    "question": "為什麼這是最高槓桿的下一步：本次探索建立了「為什麼需要失敗記憶」的理論基礎，但還沒有回答「怎麼設計才不會讓失敗記憶變成認知枷鎖」。這個問題的答案直接決定 MUSEON `footprints/tool_failures.jsonl` 的欄位設計——也就是下次 session 可以立刻動手實作的東西。複利效應在於：格式設計好了，L4 落地成本極低，MUSEON 會自然積累這個數據庫，無需額外維護。",
+    "source_date": "2026-03-28",
+    "status": "pending",
+    "source": "exploration_bridge"
   }
 ]

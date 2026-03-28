@@ -1,0 +1,6 @@
+{
+  "session_id": "telegram_6969045906",
+  "user_message": "所以是怎麼運作的？講的更清楚點，描述完整",
+  "museon_reply": "## 完整運作描述\n\n---\n\n### 一、基礎建設：每個群組有一份「活地圖」\n\n```\ndata/_system/group_sessions/{abs_chat_id}/\n  client_situation.json   ← 情境地圖（L4 寫，L2 讀）\n  thread_history.md       ← 長期脈絡摘要（定期壓縮）\n```\n\n`client_situation.json` 長這樣：\n\n```json\n{\n  \"client_name\": \"Feng\",\n  \"business_stage\": \"sales_negotiation\",\n  \"active_threads\": [\n    {\n      \"topic\": \"定價談判\",\n      \"status\": \"unresolved\",\n      \"context\": \"客戶在用對手比較來壓價，已出現三次\"\n    },\n    {\n      \"topic\": \"內部決策卡點\",\n      \"status\": \"emerging\",\n      \"context\": \"提到老闆要參與但沒見到人\"\n",
+  "timestamp": "2026-03-27T11:41:00.988798+08:00"
+}

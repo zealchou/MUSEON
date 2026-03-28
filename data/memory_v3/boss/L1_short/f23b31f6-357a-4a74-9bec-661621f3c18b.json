@@ -1,0 +1,12 @@
+{
+  "id": "f23b31f6-357a-4a74-9bec-661621f3c18b",
+  "type": "lesson",
+  "lesson_id": "auto_commit",
+  "content": "教訓：修復完成後自動 commit。Fix-Verify 通過後直接 commit，不要問使用者要不要 commit",
+  "tags": [
+    "教訓",
+    "auto_sync",
+    "2026-03-27"
+  ],
+  "created_at": "2026-03-27T11:44:10.942193"
+}

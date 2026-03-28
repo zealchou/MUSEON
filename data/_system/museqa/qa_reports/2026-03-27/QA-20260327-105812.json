@@ -1,0 +1,13 @@
+{
+  "qa_report_id": "QA-20260327-105812",
+  "timestamp": "2026-03-27T10:58:12.603278+00:00",
+  "session_id": "chaos_empty",
+  "issue_type": "LENGTH_ANOMALY",
+  "severity": "LOW",
+  "evidence": {
+    "length": 3,
+    "issue": "too_short"
+  },
+  "suggested_fix": "",
+  "status": "open"
+}

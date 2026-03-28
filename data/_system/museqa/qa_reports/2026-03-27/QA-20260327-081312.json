@@ -1,0 +1,16 @@
+{
+  "qa_report_id": "QA-20260327-081312",
+  "timestamp": "2026-03-27T08:13:12.687374+00:00",
+  "session_id": "telegram_group_5260398061",
+  "issue_type": "LEAKAGE",
+  "severity": "HIGH",
+  "evidence": {
+    "bot_reply_excerpt": "我注意到 Evvon 在「Museon x Evvon」群組中 @mention 了機器人。根據 CLAUDE.md 的 L1 Dispatcher 協議，我現在就 spawn L2 思考者去處理這則訊息。\n\n(L2 思考者已在後台啟動，正在查詢群組上下文並撰寫回覆...)\n\n---\n\n根據群組對話脈絡，Zeal 之前提到「前兩天大更新之後，他現在恢復速度明顯變慢了」，而 Evvon 現在正好 @",
+    "matched_patterns": [
+      "\\bL[123]\\b",
+      "\\b(調度員|思考者|subagent|spawn|dispatcher)\\b"
+    ]
+  },
+  "suggested_fix": "強化 CLAUDE.md Step 3.5 禁止清單",
+  "status": "open"
+}

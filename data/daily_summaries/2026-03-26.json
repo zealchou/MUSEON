@@ -1,0 +1,78 @@
+{
+  "date": "2026-03-26",
+  "generated_at": "2026-03-26T03:04:41.763021",
+  "event_count": 12,
+  "events_digest": [
+    {
+      "ts": "2026-03-26T00:03:22.887412",
+      "event": "PULSE_EXPLORATION_DONE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-26T00:18:14.158204",
+      "event": "PULSE_MICRO_BEAT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-26T00:48:30.200086",
+      "event": "PULSE_MICRO_BEAT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-26T00:51:47.895736",
+      "event": "PULSE_EXPLORATION_DONE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-26T01:18:32.922714",
+      "event": "PULSE_MICRO_BEAT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-26T01:26:24.631652",
+      "event": "PULSE_EXPLORATION_DONE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-26T01:48:37.660676",
+      "event": "PULSE_MICRO_BEAT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-26T01:56:32.758112",
+      "event": "PULSE_EXPLORATION_DONE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-26T02:18:47.660371",
+      "event": "PULSE_MICRO_BEAT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-26T02:32:24.618028",
+      "event": "PULSE_EXPLORATION_DONE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-26T02:42:37.606573",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-26T02:48:56.377927",
+      "event": "PULSE_MICRO_BEAT",
+      "source": "event_bus"
+    }
+  ],
+  "memory_channels": [
+    "meta-thinking",
+    "event",
+    "outcome"
+  ],
+  "memory_excerpts": {
+    "meta-thinking": "# Meta Thinking\n\n## 00:12:44\n\n**Trust Level:** TRUSTED\n\n**Thought Pattern:** DNA27 matched: meta-learning, sandbox-lab, market-core, plan-engine, gap, workflow-svc-brand-marketing, wee, group-meeting-notes\n\n**Reasoning:** User asked about: [群組近期對話紀錄]\n  21:46 Zeal（老闆）: 幹！\n  21:49 Feng: 不過你給的紀錄\n我真的看不出來在講系統\n是講經營成面的事情\n  21:50 Zeal（老闆）: empty \n\n**Outcome:** responded\n\n**Confidence:** 0.8\n\n\n\n---\n\n## 00:27:02\n\n**Trust Level:** TRUSTED\n\n**Thought Pattern:** DNA27 matched: sandbox-lab, meta-learning, market-core, plan-engine, gap, workflow-svc-brand-marketing, wee, dev-preflight\n\n**Reasoning:** User asked about: [群組近期對話紀錄]\n  21:50 Zeal（老闆）: empty 是什麼鬼\n  21:55 Feng: 哈哈哈🤣\n  21:58 Zeal（老闆）: 哪個紀錄\n  22:00 Feng: 他想要離\n\n**Outcome:** responded\n\n**Confidence:** 0.8\n\n\n\n---\n\n## 02:42:37\n\n**Trust Level:** TRUSTED\n\n**Thought Pattern:** DNA27 matched: dharma, resonance, market-core, plan-engine, qa-auditor, sentiment-radar, market-crypto\n\n**Reasoning:** User asked about: [empty]\n\n**Outcome:** responded\n\n**Confidence:** 0.8\n\n\n\n---",
+    "event": "# Event\n\n## 00:12:44\n\n**Trust Level:** TRUSTED\n\n**Event Type:** user_interaction\n\n**Session Id:** telegram_group_5107045509\n\n**User Message:** [群組近期對話紀錄]\n  21:46 Zeal（老闆）: 幹！\n  21:49 Feng: 不過你給的紀錄\n我真的看不出來在講系統\n是講經營成面的事情\n  21:50 Zeal（老闆）: empty 是什麼鬼\n  21:55 Feng: 哈哈哈🤣\n  21:58 Zeal（老闆）: 哪個紀錄\n  22:00 Feng: 他想要離職了\n  22:16 Feng: 美業的會議記錄\n  23:43 Ze\n\n**Matched Skills:** meta-learning, sandbox-lab, market-core, plan-engine, gap, workflow-svc-brand-marketing, wee, group-meeting-notes\n\n\n\n---\n\n## 00:27:02\n\n**Trust Level:** TRUSTED\n\n**Event Type:** user_interaction\n\n**Session Id:** telegram_group_5107045509\n\n**User Message:** [群組近期對話紀錄]\n  21:50 Zeal（老闆）: empty 是什麼鬼\n  21:55 Feng: 哈哈哈🤣\n  21:58 Zeal（老闆）: 哪個紀錄\n  22:00 Feng: 他想要離職了\n  22:16 Feng: 美業的會議記錄\n  23:43 Zeal（老闆）: 那個 empty 等一下再處理\n  23:49 Zeal（老闆）: 現在要跑得很複雜\n  23:52 Feng: \n\n**Matched Skills:** sandbox-lab, meta-learning, market-core, plan-engine, gap, workflow-svc-brand-marketing, wee, dev-preflight\n\n\n\n---\n\n## 02:42:37\n\n**Trust Level:** TRUSTED\n\n**Event Type:** user_interaction\n\n**Session Id:** chaos_empty\n\n**User Message:** [empty]\n\n**Matched Skills:** dharma, resonance, market-core, plan-engine, qa-auditor, sentiment-radar, market-crypto\n\n\n\n---",
+    "outcome": "# Outcome\n\n## 00:12:44\n\n**Trust Level:** VERIFIED\n\n**Task Id:** telegram_group_5107045509_001244\n\n**Result:** success\n\n**Response Length:** 0\n\n**Skills Used:** meta-learning, sandbox-lab, market-core, plan-engine, gap, workflow-svc-brand-marketing, wee, group-meeting-notes\n\n\n\n---\n\n## 00:27:02\n\n**Trust Level:** VERIFIED\n\n**Task Id:** telegram_group_5107045509_002702\n\n**Result:** success\n\n**Response Length:** 0\n\n**Skills Used:** sandbox-lab, meta-learning, market-core, plan-engine, gap, workflow-svc-brand-marketing, wee, dev-preflight\n\n\n\n---\n\n## 02:42:37\n\n**Trust Level:** VERIFIED\n\n**Task Id:** chaos_empty_024237\n\n**Result:** success\n\n**Response Length:** 0\n\n**Skills Used:** dharma, resonance, market-core, plan-engine, qa-auditor, sentiment-radar, market-crypto\n\n\n\n---"
+  },
+  "narrative": "今日共 12 個活動事件。\n  - PULSE_MICRO_BEAT: 6 次\n  - PULSE_EXPLORATION_DONE: 5 次\n  - BRAIN_RESPONSE_COMPLETE: 1 次\n記錄了 3 個記憶頻道。\n  - meta-thinking: # Meta Thinking  ## 00:12:44  **Trust Level:** TRUSTED  **Thought Pattern:** DNA...\n  - event: # Event  ## 00:12:44  **Trust Level:** TRUSTED  **Event Type:** user_interaction...\n  - outcome: # Outcome  ## 00:12:44  **Trust Level:** VERIFIED  **Task Id:** telegram_group_5..."
+}

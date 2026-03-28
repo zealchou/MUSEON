@@ -1,0 +1,100 @@
+{
+  "version": "v2",
+  "mode": "daily",
+  "started_at": "2026-03-26T14:43:43.177996+08:00",
+  "steps": {
+    "01_memory_compress": {
+      "status": "ok",
+      "elapsed_s": 0.0,
+      "archived": 0
+    },
+    "02_crystallize": {
+      "status": "ok",
+      "elapsed_s": 0.0,
+      "candidates": 0
+    },
+    "03_lesson_distill": {
+      "status": "ok",
+      "elapsed_s": 0.0,
+      "current_rules": 84
+    },
+    "04_crystal_rules_cache": {
+      "status": "ok",
+      "elapsed_s": 0.0,
+      "top_n": 10,
+      "total_active": 84
+    },
+    "05_anima_self_observation": {
+      "status": "ok",
+      "elapsed_s": 0.0,
+      "days_alive": 9
+    },
+    "06_self_summary_cache": {
+      "status": "ok",
+      "elapsed_s": 0.0,
+      "days_alive": 9
+    },
+    "07_idf_rebuild": {
+      "status": "exists",
+      "elapsed_s": 0.0,
+      "idf_size": 105208
+    },
+    "08_qdrant_health": {
+      "status": "skipped_v2",
+      "elapsed_s": 0.0
+    },
+    "09_wal_checkpoint": {
+      "status": "ok",
+      "elapsed_s": 0.0,
+      "group_context.db": "ok",
+      "message_queue.db": "ok"
+    },
+    "10_age_cleanup": {
+      "status": "ok",
+      "elapsed_s": 0.28,
+      "cleaned_files": 0
+    },
+    "11_group_context_truncate": {
+      "status": "ok",
+      "elapsed_s": 0.0,
+      "deleted_messages": 0
+    },
+    "12_promise_reminders": {
+      "status": "placeholder",
+      "elapsed_s": 0.0
+    },
+    "13_report": {
+      "status": "ok",
+      "elapsed_s": 0.0,
+      "date": "2026-03-26",
+      "cache_files": 4,
+      "memory_users": 11,
+      "crystal_rules": 84
+    },
+    "14_skill_vector_reindex": {
+      "status": "skipped_v2",
+      "elapsed_s": 0.0
+    },
+    "15_external_user_profile": {
+      "status": "ok",
+      "elapsed_s": 0.0,
+      "tracked_users": 10
+    },
+    "cache_rebuild": {
+      "status": "ok",
+      "elapsed_s": 0.0,
+      "user_summary": "ok",
+      "active_rules": "ok",
+      "self_summary": "ok",
+      "persona_digest": "ok"
+    },
+    "session_cleanup": {
+      "status": "ok",
+      "elapsed_s": 0.0,
+      "cleaned": 0
+    }
+  },
+  "elapsed_s": 0.3,
+  "completed_at": "2026-03-26T14:43:43.463606+08:00",
+  "summary": "17/17 steps ok in 0.3s"
+}

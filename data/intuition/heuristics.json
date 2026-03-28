@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "updated_at": "2026-03-25T20:38:42.547073",
+  "updated_at": "2026-03-28T09:30:43.824113",
   "rules": [
     {
       "rule_id": "heur-op-001",
@@ -112,6 +112,39 @@
       "confidence": 0.85,
       "source": "auto_sync_from_feedback",
       "created_at": "2026-03-27T14:00:09.412736"
+    },
+    {
+      "rule_id": "H-ARCH-MIGRATE-001",
+      "condition": "架構層替換（infra 切換：launchd/supervisord/Gunicorn 等）",
+      "prediction": "若只寫新配置而不 grep 舊呼叫方，舊 API 殘留將在觸發時造成比原問題更嚴重的衝突（如雙重進程管理）",
+      "confidence": 0.92,
+      "ri_score": 2.0,
+      "source_crystals": [
+        "rule-ARCH-LESSON-001"
+      ],
+      "last_updated": "2026-03-28T09:30:43.824113"
+    },
+    {
+      "rule_id": "H-FV-CONFIRM-001",
+      "condition": "FV 任務啟動後",
+      "prediction": "背景任務可能靜默失敗；若不確認結果就繼續，可能建立在未驗證的基礎上",
+      "confidence": 0.9,
+      "ri_score": 1.8,
+      "source_crystals": [
+        "rule-FV-LESSON-001"
+      ],
+      "last_updated": "2026-03-28T09:30:43.824113"
+    },
+    {
+      "rule_id": "H-PREFLIGHT-GREP-001",
+      "condition": "Pre-Flight 列出影響範圍時",
+      "prediction": "藍圖文件可能落後於程式碼；若只讀文件不 grep 程式碼，輔助模組（doctor/tool/manager）的舊依賴可能被忽略",
+      "confidence": 0.9,
+      "ri_score": 1.8,
+      "source_crystals": [
+        "rule-PREFLIGHT-LESSON-001"
+      ],
+      "last_updated": "2026-03-28T09:30:43.824113"
     }
   ]
 }

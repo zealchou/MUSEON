@@ -1,0 +1,11 @@
+{
+  "id": "a2dc019b-c2d7-493c-9913-4b74cbc6ea6c",
+  "type": "lesson",
+  "lesson_id": "dse_before_implementation",
+  "content": "教訓：動手前先 DSE 查清楚 API 能力和框架限制。來源：PTB ExtBot frozen 屬性不能 monkey-patch 動手後才發現",
+  "tags": [
+    "教訓",
+    "2026-03-27"
+  ],
+  "created_at": "2026-03-27T11:42:03.430971"
+}

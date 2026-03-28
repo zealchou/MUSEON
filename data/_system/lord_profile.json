@@ -6,7 +6,7 @@
       "level": "expert",
       "confidence": 0.92,
       "classification": "strength",
-      "evidence_count": 261
+      "evidence_count": 264
     },
     "consultant_sales": {
       "level": "expert",
@@ -36,7 +36,7 @@
       "level": "developing",
       "confidence": 0.6,
       "classification": "weakness",
-      "evidence_count": 133
+      "evidence_count": 136
     },
     "creative_performance": {
       "classification": "unknown",

@@ -1,0 +1,6 @@
+{
+  "session_id": "telegram_6969045906",
+  "user_message": "你在跑自我探索的時候\n會用到那些 skill 或工具？",
+  "museon_reply": "---\n\n## 探索用到的東西\n\n### 搜尋工具\n- **SearXNG**（本地隱私搜尋，跑在 `127.0.0.1:8888`）——這是唯一的外部資訊來源，不是 WebSearch，是你自己架的搜尋引擎\n\n### LLM 呼叫\n| 角色 | 模型 | 做什麼 |\n|------|------|--------|\n| Scout（快篩） | Haiku | 判斷這個主題有沒有探索價值，沒有就直接丟掉 |\n| Deep（深分析） | Sonnet | 真正的深度報告（有預算才跑，> $0.1 USD/日） |\n\n### 知識沉澱\n- **Knowledge Lattice**（`crystals.json`）——通過品質門的探索才寫進去\n- **HTML 報告**——給你看的視覺化輸出\n- **ExplorationBridge**——把探索結果分流到技能改善 or 好奇心佇列 or 演化筆記\n\n---\n\n### 沒有用到 Skill 系統\n\n探索是純管線流程（SearXNG → Haiku → Sonnet → Lattice），不走 Skill 路由。技能系統只有在你問我問題 o",
+  "timestamp": "2026-03-28T00:25:27.323303+08:00"
+}

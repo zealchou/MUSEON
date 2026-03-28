@@ -1,0 +1,58 @@
+{
+  "date": "2026-03-28",
+  "generated_at": "2026-03-28T03:00:53.389356",
+  "event_count": 8,
+  "events_digest": [
+    {
+      "ts": "2026-03-28T00:25:36.845558",
+      "event": "PULSE_MICRO_BEAT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-28T00:56:07.742640",
+      "event": "PULSE_MICRO_BEAT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-28T01:03:46.346206",
+      "event": "PULSE_EXPLORATION_DONE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-28T01:26:08.895889",
+      "event": "PULSE_MICRO_BEAT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-28T01:49:13.166540",
+      "event": "BRAIN_RESPONSE_COMPLETE",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-28T01:56:10.049337",
+      "event": "PULSE_MICRO_BEAT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-28T02:26:11.161613",
+      "event": "PULSE_MICRO_BEAT",
+      "source": "event_bus"
+    },
+    {
+      "ts": "2026-03-28T02:56:12.371671",
+      "event": "PULSE_MICRO_BEAT",
+      "source": "event_bus"
+    }
+  ],
+  "memory_channels": [
+    "meta-thinking",
+    "event",
+    "outcome"
+  ],
+  "memory_excerpts": {
+    "meta-thinking": "# Meta Thinking\n\n## 01:49:13\n\n**Trust Level:** TRUSTED\n\n**Thought Pattern:** DNA27 matched: dharma, resonance, market-core, plan-engine, qa-auditor, sentiment-radar, market-crypto\n\n**Reasoning:** User asked about: [empty]\n\n**Outcome:** responded\n\n**Confidence:** 0.8\n\n\n\n---",
+    "event": "# Event\n\n## 01:49:13\n\n**Trust Level:** TRUSTED\n\n**Event Type:** user_interaction\n\n**Session Id:** chaos_empty\n\n**User Message:** [empty]\n\n**Matched Skills:** dharma, resonance, market-core, plan-engine, qa-auditor, sentiment-radar, market-crypto\n\n\n\n---",
+    "outcome": "# Outcome\n\n## 01:49:13\n\n**Trust Level:** VERIFIED\n\n**Task Id:** chaos_empty_014913\n\n**Result:** success\n\n**Response Length:** 8\n\n**Skills Used:** dharma, resonance, market-core, plan-engine, qa-auditor, sentiment-radar, market-crypto\n\n\n\n---"
+  },
+  "narrative": "今日共 8 個活動事件。\n  - PULSE_MICRO_BEAT: 6 次\n  - PULSE_EXPLORATION_DONE: 1 次\n  - BRAIN_RESPONSE_COMPLETE: 1 次\n記錄了 3 個記憶頻道。\n  - meta-thinking: # Meta Thinking  ## 01:49:13  **Trust Level:** TRUSTED  **Thought Pattern:** DNA...\n  - event: # Event  ## 01:49:13  **Trust Level:** TRUSTED  **Event Type:** user_interaction...\n  - outcome: # Outcome  ## 01:49:13  **Trust Level:** VERIFIED  **Task Id:** chaos_empty_0149..."
+}

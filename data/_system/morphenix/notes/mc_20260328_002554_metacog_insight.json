@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260328_002554_metacog_insight",
+  "category": "metacog_insight",
+  "content": "你說的對，來完整列一下：\n\n## 探索系統的工具 + Skill 堆疊\n\n### 🔍 搜尋工具\n- **SearXNG**（本地隱私搜尋，`127.0.0.1:8888`）\n- **WebSearch**（Anthropic 搜尋 API）\n- **WebFetch**（單頁抓取）\n\n### 🧠 LLM 層\n| 角色 | 模型 | 用途 |\n|------|------|------|\n| Scout | Haiku 4.5 | 快篩主題有無探索價值 |\n| Deep | Sonnet 4.6 | 深度報告（預算 > $0.1 USD/日） |\n| Opus | Opus 4.6 | 複雜多維研究 |\n\n### 💎 知識沉澱\n- **Knowledge Lattice**（結晶化+連結+可演化）\n- **Crystal Protocol**（4 類結晶 × GEO 四層 × 再結晶演算法）\n- **Crystal Chain Protocol**（CUID × DAG × 共振指數）\n\n### 🎯 核心 Skill\n| Skill | 用途 |\n|-------|------|\n| **DSE** | 第一性原理 9 步驟研究 |\n| **GAP** | 市場缺口掃描 |\n| **Market-Core** | 五層市場分析框架 |\n| **Market-Equity / Crypto / Macro** | 特化分析 |\n| **DHARMA** | 思維轉化（困境破框） |\n| **Roundtable** | 多角色交叉詰問 |\n| **Morphenix** | 迭代提案（自我進化） |\n\n### 🔗 後設層\n- **Memory Router** 決定洞見存到哪個記憶層\n- **Eval Engine** 追蹤回答品質 A/B 趨勢\n- **Sandbox Lab** 假說驗證（不影響正式系統）\n\n**費用與節流**：探索會動用 Sonnet/Opus 預算，所以有門檻（daily budget tracking），不是無限開放。\n\n你要優化哪個環節？",
+  "source": "L4_observer",
+  "created_at": "2026-03-28T00:25:54.198634+08:00",
+  "priority": "medium"
+}

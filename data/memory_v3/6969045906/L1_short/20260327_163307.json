@@ -1,0 +1,6 @@
+{
+  "session_id": "telegram_6969045906",
+  "user_message": "你不是也正在持久的 run 嗎？ 差在哪裡？",
+  "museon_reply": "好問題，說清楚：\n\n## 差在哪裡\n\n| | 我（現在）| OpenClaw daemon |\n|---|---|---|\n| **如何持久** | Claude Code app 開著就跑 | 系統服務，開機自動起，不需要任何 app |\n| **觸發機制** | 外部 cron 呼叫我（你設的 CronCreate）| 自己監聽事件迴圈 |\n| **重啟後** | Claude Code 要重新開 | 自動重起，完全無感 |\n| **記憶體** | 每次 session 是新的 | daemon 有持續的 in-memory state |\n| **依賴** | 你的電腦要開、Claude Code 要開 | 只要主機開著就跑 |\n\n---\n\n## 實際影響\n\n**你現在的情況**：\n- Telegram 訊息進來 → 外部 cron 觸發 → Claude Code session 處理 → 回覆\n- 如果你關掉 MacBook，或 Claude Code crash，訊息就積著沒人回\n\n**OpenClaw daemon**：\n- Telegram 訊息進來 → daemon ",
+  "timestamp": "2026-03-27T16:33:07.102146+08:00"
+}

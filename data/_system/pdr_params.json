@@ -1,0 +1,21 @@
+{
+  "phase0_enabled": true,
+  "phase0_max_tokens": 80,
+  "phase2_trigger_loops": [
+    "EXPLORATION_LOOP",
+    "SLOW_LOOP"
+  ],
+  "phase2_confidence_threshold": 0.6,
+  "phase2_advisor_count": 3,
+  "phase2_upgrade_rate_limit": 10,
+  "phase3_trigger_qscore": 0.5,
+  "phase3_daily_budget": 5,
+  "proactive_skill_expand": true,
+  "proactive_tool_invoke": true,
+  "proactive_workflow_trigger": true,
+  "proactive_forge_trigger": true,
+  "cost_multiplier": 1.0,
+  "feature_flag": true,
+  "_locked": {},
+  "_last_adjusted": {}
+}

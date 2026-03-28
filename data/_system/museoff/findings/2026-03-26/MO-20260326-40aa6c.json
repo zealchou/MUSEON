@@ -1,0 +1,35 @@
+{
+  "finding_id": "MO-20260326-40aa6c",
+  "timestamp": "2026-03-26T22:50:13.391940+00:00",
+  "probe_layer": "L0",
+  "severity": "CRITICAL",
+  "title": "Gateway liveness 失敗: Gateway process not found",
+  "source": "museoff",
+  "blast_origin": {
+    "file": "gateway/server.py",
+    "line": null,
+    "error_type": "LivenessFailure",
+    "traceback": ""
+  },
+  "blast_radius": [
+    {
+      "module": "所有通道",
+      "impact": "使用者無法收到回覆",
+      "fan_in": "N/A"
+    }
+  ],
+  "context": {},
+  "triage_done": null,
+  "known_fix": null,
+  "prescription": {
+    "diagnosis": "Gateway process not found",
+    "root_cause": "Gateway 進程死亡或 HTTP 無回應",
+    "suggested_fix": "重啟 Gateway",
+    "runbook_id": "RB-restart-gateway",
+    "fix_complexity": "GREEN",
+    "pre_check": "",
+    "post_check": "",
+    "rollback": ""
+  },
+  "status": "open"
+}

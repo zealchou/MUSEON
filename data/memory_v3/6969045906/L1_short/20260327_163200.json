@@ -1,0 +1,6 @@
+{
+  "session_id": "telegram_6969045906",
+  "user_message": "Openclaw 有的功能中，會不會有一些 你有安裝一下就有了",
+  "museon_reply": "好問題，直接說清楚：\n\n## 哪些功能裝了就能用\n\n**OpenClaw 如果有提供 伺服器，加進我的設定就有了。**\n\n但其實很多功能，根本不用 OpenClaw，直接裝對應的 伺服器就夠：\n\n| 功能 | 不用 OpenClaw，直接裝這個 |\n|------|--------------------------|\n| 瀏覽器自動化 | `@playwright/mcp`（官方出的） |\n| Notion 操作 | `@notionhq/notion-mcp-server` |\n| Linear 工單 | `linear-mcp` |\n| Airtable | `airtable-mcp` |\n| Slack | `@slack/mcp` |\n| 截圖/讀畫面 | `@browserbasehq/mcp-browserbase` |\n\n**這些裝進 Claude Code 的 設定，我立刻就有。**\n\n---\n\n## OpenClaw 真正的差異\n\n它的 生態我還沒查到——如果它有獨家的 伺服器（比如某個台灣在地服務），那才有裝的理由。\n\n---\n\n## 你現在最缺的是哪個？\n\n-",
+  "timestamp": "2026-03-27T16:32:00.830502+08:00"
+}
