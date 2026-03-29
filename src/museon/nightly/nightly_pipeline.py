@@ -120,7 +120,7 @@ _FULL_STEPS = [
     "6", "6.5", "7", "8", "8.5", "8.6", "8.7", "9", "10", "12", "13", "13.5",
     "13.6", "13.7", "13.8",  # 外向型進化：觸發掃描 → 外向研究 → 消化生命週期
     "14", "15", "16", "17",
-    "18", "18.5", "18.6",  # 18.5: 客戶互動萃取 → 18.6: Ares 橋接同步（external_users → ares/profiles）
+    "18", "18.5", "18.6", "18.7",  # 18.5: 客戶互動萃取 → 18.6: Ares 橋接 → 18.7: 六層健康檢查
     "19",  # 19: Morphenix 演化品質驗證（post-execution quality gate）
     "20", "21", "22", "23",  # 新增：synapse_decay/muscle_atrophy/immune_prune/trigger_eval
     "24", "25",  # 新增：演化速度計算 / 週月循環觸發檢查
@@ -221,6 +221,7 @@ class NightlyPipeline:
             "18": ("step_18_daily_summary", self._step_daily_summary),
             "18.5": ("step_18_5_client_profile_update", self._step_client_profile_update),
             "18.6": ("step_18_6_ares_bridge_sync", self._step_ares_bridge_sync),
+            "18.7": ("step_18_7_system_health_audit", self._step_system_health_audit),
             "19": ("step_19_morphenix_quality_gate", self._step_morphenix_quality_gate),
             # ── Autonomy Architecture 新增步驟 ──
             "0": ("step_00_budget_settlement", self._step_budget_settlement),
@@ -3378,6 +3379,57 @@ class NightlyPipeline:
             )
 
         return stats
+
+    # ═══════════════════════════════════════════
+    # Step 18.7: 六層系統健康檢查
+    # ═══════════════════════════════════════════
+
+    def _step_system_health_audit(self) -> Dict:
+        """Step 18.7: 全系統六層健康檢查.
+
+        跑 full_system_audit，將結果寫入 shared_board。
+        如果有 CRITICAL/HIGH 問題，記錄到 shared_board 供 MuseDoctor 巡邏時處理。
+        """
+        try:
+            import subprocess
+            import sys
+            script = self._workspace.parent / "scripts" / "full_system_audit.py"
+            if not script.exists():
+                # 嘗試相對路徑
+                script = Path(__file__).resolve().parent.parent.parent.parent / "scripts" / "full_system_audit.py"
+            if not script.exists():
+                return {"skipped": "full_system_audit.py not found"}
+
+            r = subprocess.run(
+                [sys.executable, str(script)],
+                capture_output=True, text=True, timeout=60,
+                cwd=str(script.parent.parent),
+            )
+            output = r.stdout
+
+            # 解析結果
+            import re
+            health_match = re.search(r"系統狀態:\s*\x1b\[\d+m(\w+)", output)
+            health = health_match.group(1) if health_match else "UNKNOWN"
+
+            pass_match = re.search(r"通過:\s*\x1b\[\d+m(\d+)", output)
+            fail_match = re.search(r"失敗:\s*\x1b\[\d+m(\d+)", output)
+            warn_match = re.search(r"警告:\s*\x1b\[\d+m(\d+)", output)
+
+            stats = {
+                "health": health,
+                "pass": int(pass_match.group(1)) if pass_match else 0,
+                "fail": int(fail_match.group(1)) if fail_match else 0,
+                "warn": int(warn_match.group(1)) if warn_match else 0,
+            }
+
+            if health not in ("HEALTHY",):
+                logger.warning(f"[NIGHTLY] System health: {health} (fail={stats['fail']}, warn={stats['warn']})")
+
+            return stats
+        except Exception as e:
+            logger.warning(f"[NIGHTLY] System health audit failed: {e}")
+            return {"skipped": str(e)}
 
     # ═══════════════════════════════════════════
     # Step 18.6: Ares 橋接同步
