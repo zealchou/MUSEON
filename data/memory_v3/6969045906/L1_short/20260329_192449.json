@@ -1,0 +1,6 @@
+{
+  "session_id": "telegram_6969045906",
+  "user_message": "因為剛才出現定期檢查發現異常\nLLM probe timed out",
+  "museon_reply": "找到了。不是真斷線，是系統巡邏偵測到**幾個模組有問題**。\n\n最關鍵的兩個：\n\n---\n\n**``（高優先）— broken import**\n```\nmuseon.agent.input_sanitizer.InputSanitizer\nmuseon.agent.ceremony.NamingCeremony\n```\n這兩個 class 找不到，導致 啟動失敗 → LLM probe 呼叫 fast 路徑 → timeout。\n\n**`llm.adapters` — 16 個 ERROR**\nLLM 適配層有頻繁錯誤，是 probe timeout 的直接原因之一。\n\n---\n\n這解釋了你剛才說的「斷線」——**不是整個系統掛掉，是 fast 路徑的模組有 import 破損**，導致簡單問答的快速回應失效，複雜請求（走 ）反而還能跑。\n\n要現在修 `` 的 broken import 嗎？這是今天影響互動的主因。",
+  "timestamp": "2026-03-29T19:24:49.746356+08:00"
+}

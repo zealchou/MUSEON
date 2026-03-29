@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUSEON 第 04 章：五大中小企業實戰場景全集</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Outfit:wght@400;600&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --ember: #C4502A;
+            --ember-light: #E0714D;
+            --ember-dark: #9A3A1C;
+            --teal: #2A7A6E;
+            --gold: #B8923A;
+            --ink: #12121A;
+            --slate: #5A5A6E;
+            --mist: #9898A8;
+            --border: #E2E0DA;
+            --parchment: #F7F5F0;
+            --snow: #FDFCFA;
+            --deep-ink: #0E0E16;
+            --surface: #16161F;
+            --success: #2D8A6E;
+            --warning: #C9943A;
+            --error: #C4402A;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            color: var(--ink);
+            background-color: var(--parchment);
+            line-height: 1.75;
+            font-size: 16px;
+        }
+
+        .container {
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                padding: 24px 16px;
+            }
+        }
+
+        /* Typography */
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 56px;
+            font-weight: 600;
+            line-height: 1.15;
+            color: var(--ink);
+            margin-bottom: 0.75em;
+            margin-top: 1em;
+        }
+
+        h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 40px;
+            font-weight: 600;
+            line-height: 1.2;
+            color: var(--ink);
+            margin-bottom: 0.75em;
+            margin-top: 1.5em;
+        }
+
+        h3 {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            font-size: 28px;
+            font-weight: 600;
+            line-height: 1.3;
+            color: var(--ink);
+            margin-bottom: 0.75em;
+            margin-top: 1.25em;
+        }
+
+        h4 {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 0.5em;
+            margin-top: 1em;
+        }
+
+        p {
+            margin-bottom: 1.25em;
+            max-width: 65ch;
+        }
+
+        blockquote {
+            border-left: 4px solid var(--ember);
+            padding-left: 24px;
+            margin: 2em 0;
+            color: var(--slate);
+            font-style: italic;
+            font-size: 18px;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2em 0;
+            background-color: var(--snow);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th {
+            background-color: rgba(196, 80, 42, 0.08);
+            padding: 16px 24px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--ink);
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Code blocks */
+        pre {
+            background-color: var(--deep-ink);
+            color: #E0E0E0;
+            padding: 24px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 2em 0;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        code {
+            font-family: 'IBM Plex Mono', monospace;
+            background-color: #F0EDE8;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 13px;
+        }
+
+        /* Cards */
+        .card {
+            background-color: var(--snow);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 24px;
+            margin: 2em 0;
+            box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(18,18,26,0.12);
+            transition: all 200ms ease;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            background-color: rgba(196, 80, 42, 0.1);
+            color: var(--ember-dark);
+            padding: 3px 10px;
+            border-radius: 100px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        /* Hero section */
+        .hero {
+            margin-bottom: 64px;
+            padding-bottom: 48px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .hero h1 {
+            margin-top: 0;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: var(--slate);
+            max-width: 65ch;
+        }
+
+        /* Scenario section */
+        .scenario {
+            margin: 48px 0;
+            padding: 32px 0;
+            border-top: 2px solid var(--border);
+        }
+
+        .scenario:first-of-type {
+            border-top: none;
+            padding-top: 0;
+        }
+
+        .scenario-header {
+            display: flex;
+            align-items: baseline;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .scenario-number {
+            display: inline-block;
+            background-color: var(--ember);
+            color: white;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 28px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .scenario-title {
+            flex: 1;
+        }
+
+        .scenario-title h2 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 32px;
+        }
+
+        .scenario-meta {
+            font-size: 14px;
+            color: var(--slate);
+            font-family: 'IBM Plex Mono', monospace;
+            margin-top: 4px;
+        }
+
+        /* Skill flow */
+        .skill-flow {
+            background-color: rgba(196, 80, 42, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 24px;
+            margin: 2em 0;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            line-height: 1.8;
+            overflow-x: auto;
+            color: var(--ink);
+        }
+
+        .skill-flow strong {
+            color: var(--ember);
+            font-weight: 600;
+        }
+
+        /* Result */
+        .result {
+            background-color: rgba(45, 138, 110, 0.05);
+            border-left: 4px solid var(--success);
+            padding: 24px;
+            margin: 2em 0;
+            border-radius: 8px;
+        }
+
+        .result h4 {
+            color: var(--success);
+            margin-top: 0;
+        }
+
+        .result ul {
+            margin-left: 20px;
+        }
+
+        .result li {
+            margin-bottom: 12px;
+        }
+
+        /* Comparison table */
+        .comparison {
+            margin: 3em 0;
+        }
+
+        .comparison table {
+            font-size: 14px;
+        }
+
+        .comparison th:first-child,
+        .comparison td:first-child {
+            font-weight: 600;
+            background-color: rgba(196, 80, 42, 0.05);
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 96px;
+            padding-top: 48px;
+            border-top: 2px solid var(--border);
+            color: var(--slate);
+            font-size: 14px;
+        }
+
+        .footer p {
+            margin-bottom: 12px;
+        }
+
+        /* Highlight */
+        .highlight {
+            background-color: rgba(184, 146, 58, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--ink);
+            font-weight: 500;
+        }
+
+        /* List */
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 1.25em;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        /* Scroll animation */
+        .card, .scenario {
+            animation: fadeInUp 600ms ease-out backwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: var(--deep-ink);
+                color: #E0E0E0;
+            }
+
+            h1, h2, h3, h4 {
+                color: #F5F5F5;
+            }
+
+            .card, table, .skill-flow {
+                background-color: var(--surface);
+                border-color: var(--surface);
+            }
+
+            blockquote {
+                color: var(--mist);
+            }
+
+            code {
+                background-color: var(--surface);
+                color: #E0E0E0;
+            }
+
+            p {
+                color: #D0D0D0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Hero -->
+        <section class="hero">
+            <h1>第 04 章：五大中小企業 Skill 組合實戰</h1>
+            <p><span class="highlight">核心洞察</span>：MUSEON 的威力不在單個 Skill，而在「如何組合 Skill 應對特定困境」。以下五個場景都是真實發生、超過 10 人公司的實際困境——展示 MUSEON 如何在 18 小時內交付別人需要 3 週才能準備的成果。</p>
+        </section>
+
+        <!-- Scenario 1 -->
+        <section class="scenario">
+            <div class="scenario-header">
+                <div class="scenario-number">1️⃣</div>
+                <div class="scenario-title">
+                    <h2>客戶拜訪情報戰</h2>
+                    <div class="scenario-meta">⏱️ 18 小時 | 核心技能：ANIMA + Ares + Shadow</div>
+                </div>
+            </div>
+
+            <h3>開頭困境</h3>
+            <blockquote>
+                董事長 2024/09/15 十點半要拜訪福建某集團老總，談 500 萬融資。現在是前一天晚上 6 點。
+            </blockquote>
+
+            <h4>一般 Agent 的做法</h4>
+            <p>「我幫你 Google 搜尋這個人」→ 回傳 5 篇新聞 → 完。</p>
+
+            <h4>MUSEON 的做法</h4>
+            <div class="skill-flow">
+客戶訊息<br>
+├─ <strong>anima-individual</strong><br>
+│  ├─ 建檔：對手過往 10 年人物檔案<br>
+│  ├─ 七層鏡像：權力欲 / 利益傾向 / 人脈結構 / 關鍵決策信號<br>
+│  └─ 互動溫度：過去接觸過嗎？關係溫度幾度<br>
+├─ <strong>ares（戰神系統）</strong><br>
+│  ├─ 多視角戰略分析：老總視角 vs 集團視角 vs 金主視角<br>
+│  ├─ 八大槓桿尋路<br>
+│  │  • 身份槓桿（他在集團的實權？只是代理人？）<br>
+│  │  • 利益槓桿（他要的是什麼？做大做強 vs 套現撤出）<br>
+│  │  • 人脈槓桿（他的決策權人？他背後的金主是誰）<br>
+│  │  • 時間槓桿（為什麼現在要融資？融資時間表是什麼）<br>
+│  └─ 陰謀辨識：可能有隱藏方 / 同業兩邊押注 / 政商關係風險<br>
+└─ <strong>shadow（人際博弈引擎）</strong><br>
+   ├─ 對抗型態識別：他是快狠準 / 還是溫水煮青蛙<br>
+   ├─ 情感博弈模式：會不會用時間壓力脅迫 / 用親近感試探底線<br>
+   ├─ 防禦訊號：可能的騙局套路、測試話術反擊點<br>
+   └─ 情緒穩定性：談判中可能的人格變化
+            </div>
+
+            <h3>具體結果</h3>
+
+            <p><strong>晚上 7 點開始 → 早上 8 點交付</strong></p>
+
+            <p>產出：</p>
+            <ul>
+                <li><strong>A4 情報卡</strong>：對手 8 層人物模型 + 可能陷阱 + 反制話術</li>
+                <li><strong>談判時間線</strong>：預測他可能的出牌順序 + 每個階段最有可能的施壓點</li>
+                <li><strong>三條出牌路徑</strong>：
+                    <ol>
+                        <li>他真的想融資 → 你如何確認不是虛晃</li>
+                        <li>他想打探競爭對手 → 如何識別並反制</li>
+                        <li>他想試價格底線 → 價格談判邊界線在哪</li>
+                    </ol>
+                </li>
+            </ul>
+
+            <div class="result">
+                <h4>💡 關鍵結果</h4>
+                <p>董事長進去前已經知道「他可能在第 15 分鐘拋出同業融資邀請來測價」，進去直接回應「我知道你的玩法，我的價格是 X」。</p>
+                <ul>
+                    <li>談判時間：從預計 2 小時 → 45 分鐘</li>
+                    <li>融資金額：額外加碼 20%</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Scenario 2 -->
+        <section class="scenario">
+            <div class="scenario-header">
+                <div class="scenario-number">2️⃣</div>
+                <div class="scenario-title">
+                    <h2>品牌定位到文案執行</h2>
+                    <div class="scenario-meta">⏱️ 10 天 | 核心技能：brand-discovery + brand-builder + text-alchemy</div>
+                </div>
+            </div>
+
+            <h3>開頭困境</h3>
+            <blockquote>
+                創辦人說：「我這個產品明明很好用，為什麼沒人買？廣告費燒了 200 萬，轉換率卻只有 0.3%。」
+            </blockquote>
+
+            <h4>一般 Agent 的做法</h4>
+            <p>寫個「產品特性分析」+ 「建議改進文案」→ 完。</p>
+
+            <h4>MUSEON 的做法</h4>
+            <div class="skill-flow">
+<strong>品牌定位層</strong><br>
+├─ <strong>brand-discovery（漸進式訪談）</strong><br>
+│  ├─ 一次一問抽出客戶真實需求<br>
+│  ├─ 識別「你自己以為的需求」vs「客戶真實的卡點」的落差<br>
+│  └─ 找出品牌定位的真正支撐點<br>
+├─ <strong>brand-builder（奧美級策略）</strong><br>
+│  ├─ Jung 12 原型匹配<br>
+│  ├─ 目標族群重新分層<br>
+│  ├─ 競爭定位矩陣<br>
+│  └─ 品牌訊息建築：策略層 → 承諾層 → 證據層 → 情感層<br>
+└─ <strong>text-alchemy + storytelling-engine</strong><br>
+   ├─ 廣告文案重寫：從「功能堆砌」→「故事 + 共鳴 + CTA」<br>
+   ├─ 社群內容範本：5 個月的月曆內容<br>
+   ├─ 銷售信函<br>
+   └─ 落地執行檢查單
+            </div>
+
+            <h3>具體結果</h3>
+
+            <p><strong>第 1-2 天（brand-discovery）</strong>：透過 12 個問題，挖出真實痛點：不是「使用性」差，而是客戶對「自己配不配用」有隱形自我懷疑。</p>
+
+            <p><strong>第 3-4 天（brand-builder）</strong>：重新定位，從「高端產品」→「陪伴型工具」。新訊息架構：「不是讓你變成完美的人，是陪你成為更好的自己」。</p>
+
+            <p><strong>第 5-10 天（text-alchemy）</strong>：改寫全套文案 + 10 篇真實用戶故事內容。</p>
+
+            <div class="result">
+                <h4>📊 轉換率翻轉</h4>
+                <ul>
+                    <li>轉換率：0.3% → 1.8%（6 倍）</li>
+                    <li>客獲成本：¥6,000/人 → ¥1,200/人</li>
+                    <li>客戶終身價值：提升 240%</li>
+                </ul>
+                <p><strong>關鍵洞察</strong>：改文案的人每週 20 篇，改定位的人一年只有一次機會——所以威力完全不同。</p>
+            </div>
+        </section>
+
+        <!-- Scenario 3 -->
+        <section class="scenario">
+            <div class="scenario-header">
+                <div class="scenario-number">3️⃣</div>
+                <div class="scenario-title">
+                    <h2>融資路演籌備</h2>
+                    <div class="scenario-meta">⏱️ 5 天 | 核心技能：market-core + ssa-consultant + investment-masters</div>
+                </div>
+            </div>
+
+            <h3>開頭困境</h3>
+            <blockquote>
+                團隊要去參加募資說明會，有 10 分鐘向 50 位潛在投資人 pitch。金額目標 ¥2,000 萬。現在連 slide 都沒有。
+            </blockquote>
+
+            <h4>一般 Agent 的做法</h4>
+            <p>「我幫你寫 10 頁 PPT」→ 完。</p>
+
+            <h4>MUSEON 的做法</h4>
+            <div class="skill-flow">
+<strong>投資方情報 & 精準訊息設計</strong><br>
+├─ <strong>market-core</strong><br>
+│  ├─ 行業總經背景<br>
+│  ├─ 競品籌碼圖<br>
+│  ├─ 融資週期判斷<br>
+│  └─ 政策風險提示<br>
+├─ <strong>ssa-consultant（顧問銷售）</strong><br>
+│  ├─ 投資人分類與訊息分層<br>
+│  │  • 對 PE 老闆：市場規模 + 增速<br>
+│  │  • 對股權投資者：團隊執行力 + 重複購買率<br>
+│  │  • 對戰略投資者：技術壁壘 + 生態協同<br>
+│  ├─ MECE 拆解法<br>
+│  └─ 異議處理話術<br>
+├─ <strong>consultant-communication</strong><br>
+│  ├─ 麥肯錫金字塔原則<br>
+│  ├─ 故事框架<br>
+│  └─ 說話節奏<br>
+└─ <strong>investment-masters（投資軍師）</strong><br>
+   ├─ 護城河評估<br>
+   ├─ 安全邊際檢查<br>
+   ├─ 反向思考<br>
+   └─ 大師會診
+            </div>
+
+            <h3>具體結果</h3>
+
+            <p><strong>第 1 天</strong>：market-core 發現「現在融資環境比你預期冷 20%」，調整融資目標 ¥2,500 萬 → ¥1,800 萬。</p>
+
+            <p><strong>第 2-3 天</strong>：設計 3 套不同 pitch 文稿（對應 PE / VC / 戰略投資者）。investment-masters 用「安全邊際」框架找出你的護城河。</p>
+
+            <p><strong>第 4-5 天</strong>：12 頁 slide + 說話稿 + 異議問答卡。產出「融資 60 秒簡版」。</p>
+
+            <div class="result">
+                <h4>🎯 融資成功</h4>
+                <ul>
+                    <li>現場報名跟進：12 位投資人</li>
+                    <li>成交金額：¥1,750 萬</li>
+                    <li>價格估值：沒被低估（因為第 2 天調整了目標）</li>
+                </ul>
+                <p><strong>關鍵</strong>：有 3 位投資人後來說「最打動我的不是 slide，是你對『行業衰退時為什麼還要融資』的那句話」——那句話來自 market-core 的洞察。</p>
+            </div>
+        </section>
+
+        <!-- Scenario 4 -->
+        <section class="scenario">
+            <div class="scenario-header">
+                <div class="scenario-number">4️⃣</div>
+                <div class="scenario-title">
+                    <h2>員工衝突 & 組織信任危機</h2>
+                    <div class="scenario-meta">⏱️ 3 天 | 核心技能：shadow + resonance + dharma</div>
+                </div>
+            </div>
+
+            <h3>開頭困境</h3>
+            <blockquote>
+                銷售部總監和產品經理打起來了。銷售說「產品太慢，市場機會都丟了」，產品說「銷售只會開空頭支票，讓工程師疲勞」。CEO 感覺公司要分裂。
+            </blockquote>
+
+            <h4>一般 Agent 的做法</h4>
+            <p>「我幫你寫個團隊規範」→ 完。</p>
+
+            <h4>MUSEON 的做法</h4>
+            <div class="skill-flow">
+<strong>人際與情緒深層解讀</strong><br>
+├─ <strong>shadow（人際博弈引擎）</strong><br>
+│  ├─ 表面衝突解析<br>
+│  ├─ 權力結構診斷<br>
+│  ├─ 隱性對抗型態<br>
+│  └─ 27 類情感博弈識別<br>
+├─ <strong>resonance（感性共振）</strong><br>
+│  ├─ 情緒先行承接<br>
+│  ├─ 象徵性語意轉化<br>
+│  └─ 共振點尋找<br>
+├─ <strong>dharma（思維轉化）</strong><br>
+│  ├─ 事實分離<br>
+│  ├─ 因果逆轉<br>
+│  └─ 新視角賦能<br>
+└─ <strong>ares（戰神系統）</strong><br>
+   ├─ 組織槓桿設計<br>
+   ├─ 權力重新分配<br>
+   └─ 3 個月組織進化路徑
+            </div>
+
+            <h3>具體結果</h3>
+
+            <p><strong>第 1 天（shadow + resonance）</strong>：發現根本不是「產品慢」vs「銷售無理」，而是銷售感覺被技術碾壓、產品害怕工程疲勞。</p>
+
+            <p><strong>第 2 天（dharma + ares）</strong>：根本原因是「公司沒有協作決策機制」。改變激勵機制，而不是叫他們「要互相理解」。</p>
+
+            <p><strong>第 3 天</strong>：執行方案 — 決策權矩陣 + 協作檢查單 + 3 個月路線圖。</p>
+
+            <div class="result">
+                <h4>🤝 衝突化解</h4>
+                <ul>
+                    <li>開會時還在對立，會後各自說「原來問題不在彼此」</li>
+                    <li>6 週後，銷售和產品聯合做「市場反應數據分析」</li>
+                    <li>8 週後，銷售主動說「我不催工程了，因為我們一起看市場數據決定 timing」</li>
+                </ul>
+                <p><strong>關鍵洞察</strong>：改機制比改人性有效 1000 倍。</p>
+            </div>
+        </section>
+
+        <!-- Scenario 5 -->
+        <section class="scenario">
+            <div class="scenario-header">
+                <div class="scenario-number">5️⃣</div>
+                <div class="scenario-title">
+                    <h2>新產品定價 & 推廣策略</h2>
+                    <div class="scenario-meta">⏱️ 7 天 | 核心技能：market-core + business-12 + risk-matrix</div>
+                </div>
+            </div>
+
+            <h3>開頭困境</h3>
+            <blockquote>
+                公司開發了 SaaS 產品，費用模型還沒定。老闆說「對標產品好像都是 ¥299/月」，但不知道自己該定多少。不確定是主推「企業版」還是「個人版」。
+            </blockquote>
+
+            <h4>一般 Agent 的做法</h4>
+            <p>「建議你看競品定價」→ 完。</p>
+
+            <h4>MUSEON 的做法</h4>
+            <div class="skill-flow">
+<strong>市場 + 定價 + 敘事的整體設計</strong><br>
+├─ <strong>market-core</strong><br>
+│  ├─ 市場規模測估<br>
+│  ├─ 價格敏感度分析<br>
+│  ├─ 競品籌碼圖<br>
+│  └─ 定價週期風險<br>
+├─ <strong>business-12（商模十二力）</strong><br>
+│  ├─ 收入流設計<br>
+│  ├─ 目標客群分層 A/B/C<br>
+│  ├─ 漏斗轉換率優化<br>
+│  └─ CAC vs LTV 平衡<br>
+├─ <strong>risk-matrix（風險 & 資產配置）</strong><br>
+│  ├─ 定價競爭風險<br>
+│  ├─ 現金流風險<br>
+│  └─ 資本配置建議<br>
+└─ <strong>storytelling-engine + text-alchemy</strong><br>
+   ├─ 企業版訊息<br>
+   ├─ 個人版訊息<br>
+   ├─ 銷售信函<br>
+   └─ 廣告文案 6 個月月曆
+            </div>
+
+            <h3>具體結果</h3>
+
+            <p><strong>第 1-2 天</strong>：market-core 發現競品 ¥299 是抄別人的，沒驗證過。真實情況：企業用戶願意付 ¥1,200/月。</p>
+
+            <p><strong>第 3 天</strong>：business-12 建議「不要二選一，雙軌制」——企業版 ¥1,200 + 個人版 ¥99。資源配置 7:3（企業優先）。</p>
+
+            <p><strong>第 4-5 天</strong>：risk-matrix 檢查：如果對手降到 ¥699，你會不會掉客戶？結論：只要交付速度領先 2 個月，不會。定價可以更激進。</p>
+
+            <p><strong>第 6-7 天</strong>：storytelling 設計故事 + text-alchemy 產出文案。</p>
+
+            <div class="result">
+                <h4>💰 定價策略成功</h4>
+                <ul>
+                    <li>企業版：¥1,200/月（不是盲目抄 ¥299）</li>
+                    <li>個人版：¥99/月</li>
+                    <li>3 個月成績：
+                        <ul style="margin-left: 20px;">
+                            <li>企業版：8 家客戶，MRR ¥9,600</li>
+                            <li>個人版：3,200 個免費用戶，轉化率 3.2%，MRR ¥10,000</li>
+                            <li>總 MRR：¥19,600 / 年化 ¥235,200</li>
+                        </ul>
+                    </li>
+                </ul>
+                <p><strong>核心差異</strong>：一般 Agent 說「對標 ¥299」，MUSEON 說「知道企業用戶願意付 6 倍，所以你虧大了」。</p>
+            </div>
+        </section>
+
+        <!-- Comparison -->
+        <section class="comparison">
+            <h2>核心模式：為什麼這些場景只有 MUSEON 能一站式解決</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>需求</th>
+                        <th>一般 AI Agent</th>
+                        <th>MUSEON</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>客戶拜訪前</strong></td>
+                        <td>Google 搜尋對手新聞</td>
+                        <td>ANIMA + Ares + Shadow 的 8 層人物模型 + 陷阱預測 + 話術反制</td>
+                    </tr>
+                    <tr>
+                        <td><strong>品牌重塑</strong></td>
+                        <td>寫個新 slogan</td>
+                        <td>brand-discovery（找真實痛點）→ brand-builder（策略）→ text-alchemy（文案）的完整鏈路</td>
+                    </tr>
+                    <tr>
+                        <td><strong>融資籌備</strong></td>
+                        <td>PPT 寫得好看</td>
+                        <td>market-core（洞察）→ ssa-consultant（語言）→ consultant-communication（說話術）→ investment-masters（驗證）</td>
+                    </tr>
+                    <tr>
+                        <td><strong>團隊衝突</strong></td>
+                        <td>開會調解</td>
+                        <td>shadow（讀人心）→ dharma（轉思維）→ ares（改機制）的三層解決</td>
+                    </tr>
+                    <tr>
+                        <td><strong>定價策略</strong></td>
+                        <td>「看競品定什麼就定什麼」</td>
+                        <td>market-core（願付價格）→ business-12（模型設計）→ risk-matrix（風險測試）→ storytelling（敘事定價）</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Final thought -->
+        <section style="margin-top: 64px; padding-top: 48px; border-top: 2px solid var(--border);">
+            <h2>最後的故事感</h2>
+
+            <div class="card">
+                <h4>🎯 場景 1：18 小時情報戰</h4>
+                <p>董事長進去前就知道對手的套路，直接反制 → 談判時間少一半，融資金額多 20%</p>
+            </div>
+
+            <div class="card">
+                <h4>🎨 場景 2：10 天品牌重生</h4>
+                <p>從「為什麼沒人買」到「為什麼這麼多人買」，轉換率漲 6 倍，客獲成本降 80%</p>
+            </div>
+
+            <div class="card">
+                <h4>💎 場景 3：5 天融資路演</h4>
+                <p>從「沒有 slide」到「融到 ¥1,750 萬」，關鍵是你在第 2 天調整融資目標時沒有被低估</p>
+            </div>
+
+            <div class="card">
+                <h4>🤝 場景 4：3 天員工化解</h4>
+                <p>從「銷售和產品要撕掉」到「一起看數據決定優先級」，只改了激勵機制</p>
+            </div>
+
+            <div class="card">
+                <h4>💰 場景 5：7 天定價破局</h4>
+                <p>從「抄 ¥299」到「企業版 ¥1,200、個人版 ¥99 雙軌」，MRR 從 0 到 ¥19,600</p>
+            </div>
+
+            <h2 style="margin-top: 64px;">最後一句話</h2>
+
+            <blockquote style="font-size: 18px; color: var(--ember); border-left-color: var(--ember);">
+                <strong>MUSEON 不是把工具串一起的 Agent，是把「思維品質」當產品的系統。</strong>
+            </blockquote>
+
+            <p>在中小企業的決策人心裡，問題通常不是「我不知道要做什麼」，而是「我知道的太多，反而看不清優先級」。</p>
+
+            <p>一般 Agent 會給你 100 個選項。MUSEON 會用 6 層思維過濾，給你 1 個最該做的決策——然後用 Skill 組合把執行做好。</p>
+
+            <p><span class="highlight">這就是為什麼有客戶說：「用 MUSEON 3 週的效果，比我自己花 3 個月研究的還深。」</span></p>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>© 2024 MUSEON. AI 顧問系統。</p>
+            <p>設計原則：溫暖的精密感 | 思維品質引擎 | Skill 組合編排</p>
+        </footer>
+    </div>
+</body>
+</html>

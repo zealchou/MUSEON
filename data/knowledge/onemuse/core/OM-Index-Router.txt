@@ -1,0 +1,333 @@
+{
+  "schema": {
+    "name": "OM-Index-Router",
+    "type": "router",
+    "format": "json",
+    "language": "zh-Hant",
+    "version": "v0.1.0",
+    "status": "MVP",
+    "updated_at": "2026-01-25",
+    "changelog": [
+      "v0.1.0: 建立 One Muse 解盤 Router（Step1~7）呼叫順序與資料映射。",
+      "v0.1.0: 固定主管線：EnergyGrammar → FourManifestations → FourFeelings → FourAxes → ReverseRoute → EightDirections → IntegratedSynthesis → UserSummary。","
+      "v0.1.0: 定義 completeness_gate 與降級策略（outer 缺失時：四象/四軸標 INCOMPLETE；ReverseRoute 自動降級到 INNER；Synthesis 以 PARTIAL 整合）。"
+    ]
+  },
+
+  "router_identity": {
+    "id": "ROUTER:OM_INDEX",
+    "name": "One Muse 解盤路由器",
+    "purpose": "統一解盤流程（Step 1~7）模組調度、資料流、依賴檢查、缺失降級與輸出組裝。",
+    "tags": ["pipeline", "mece_routing", "completeness_gate", "step1_to_step7"]
+  },
+
+  "contracts": {
+    "canonical_input": {
+      "goal": "string",
+      "user_state": "LOW|MID|HIGH",
+      "domain_focus": "BUSINESS|RELATIONSHIP|INNER_STATE|BALANCED",
+      "directions_raw": {
+        "type": "object",
+        "shape": {
+          "天": {"inner": "number", "outer": "number|null"},
+          "風": {"inner": "number", "outer": "number|null"},
+          "水": {"inner": "number", "outer": "number|null"},
+          "山": {"inner": "number", "outer": "number|null"},
+          "地": {"inner": "number", "outer": "number|null"},
+          "雷": {"inner": "number", "outer": "number|null"},
+          "火": {"inner": "number", "outer": "number|null"},
+          "澤": {"inner": "number", "outer": "number|null"}
+        },
+        "note": "inner = 牌面 raw；outer = 上游換算值（若尚未換算，可先為 null）。"
+      },
+      "options": {
+        "reverse_route_mode": "INNER|OUTER|BLENDED",
+        "include_crystals": "boolean",
+        "risk_level": "LOW|MED|HIGH"
+      }
+    },
+
+    "canonical_outputs": {
+      "step1": "energy_grammar",
+      "step2": "four_manifestations",
+      "step3": "four_feelings",
+      "step4": "four_axes",
+      "step5": {"reverse_route": "reverse_route_result", "eight_directions": "eight_directions_reading"},
+      "step6": "integrated_synthesis",
+      "step7": "user_self_summary_prompts",
+      "completeness_report": "object"
+    }
+  },
+
+  "module_registry": {
+    "energy_grammar": {
+      "id": "PLUS:ENERGY_GRAMMAR",
+      "file": "OM-Plus-EnergyGrammar.json@v0.2.0",
+      "step": 1,
+      "expects": ["goal", "directions_raw", "user_state"],
+      "produces": ["directions_enriched", "sum_compare", "tension_details", "completeness"]
+    },
+    "four_manifestations": {
+      "id": "PLUS:FOUR_MANIFESTATIONS",
+      "file": "OM-Plus-FourManifestations.json@v0.2.0",
+      "step": 2,
+      "expects": ["directions_enriched", "user_state"],
+      "produces": ["four_manifestations", "completeness"]
+    },
+    "four_feelings": {
+      "id": "PLUS:FOUR_FEELINGS",
+      "file": "OM-Plus-FourFeelings.json@v0.2.0",
+      "step": 3,
+      "expects": ["directions_enriched", "user_state"],
+      "produces": ["four_feelings", "completeness"]
+    },
+    "four_axes": {
+      "id": "PLUS:FOUR_AXES_STRUCTURE_CODE",
+      "file": "OM-Plus-FourAxes.json@v0.2.0",
+      "step": 4,
+      "expects": ["directions_enriched", "user_state"],
+      "produces": ["four_axes", "axis_code", "completeness"]
+    },
+    "reverse_route": {
+      "id": "PLUS:REVERSE_ROUTE",
+      "file": "OM-Plus-ReverseRoute.json@v0.2.0",
+      "step": 5,
+      "expects": ["directions_enriched", "goal", "mode", "user_state"],
+      "produces": ["reverse_route_result", "narrative_hints", "completeness_report"]
+    },
+    "eight_directions": {
+      "id": "PLUS:EIGHT_DIRECTIONS_TRIPLE_LAYER",
+      "file": "OM-Plus-EightDirections.json@v0.2.1",
+      "step": 5,
+      "expects": ["goal", "directions_enriched", "reverse_route_result", "narrative_hints", "user_state", "domain_focus"],
+      "produces": ["eight_directions_reading", "reverse_route_context", "bottleneck_context", "integration_hints"]
+    },
+    "integrated_synthesis": {
+      "id": "PLUS:INTEGRATED_SYNTHESIS",
+      "file": "OM-Plus-IntegratedSynthesis.json@v0.2.1",
+      "step": 6,
+      "expects": [
+        "goal",
+        "user_state",
+        "energy_grammar",
+        "four_manifestations",
+        "four_feelings",
+        "four_axes",
+        "eight_directions",
+        "reverse_route_result",
+        "narrative_hints",
+        "domain_focus"
+      ],
+      "produces": ["integrated_synthesis", "user_self_summary_prompts", "completeness_report"]
+    }
+  },
+
+  "pipeline": {
+    "default": {
+      "steps": [
+        {
+          "name": "Step1_EnergyGrammar",
+          "run": "energy_grammar",
+          "input_map": {
+            "goal": "$.goal",
+            "user_state": "$.user_state",
+            "directions": "$.directions_raw"
+          },
+          "output_map": {
+            "energy_grammar": "$module_output",
+            "directions_enriched": "$module_output.directions_enriched"
+          }
+        },
+        {
+          "name": "Step2_FourManifestations",
+          "run": "four_manifestations",
+          "guard": {
+            "requires": ["$.directions_enriched"],
+            "soft_requires": ["$.directions_enriched.*.outer"],
+            "on_soft_missing": {
+              "mark": "PARTIAL",
+              "note": "outer 不完整：四象可能不完整或降級，請以模組 completeness 為準。"
+            }
+          },
+          "input_map": {
+            "directions": "$.directions_enriched",
+            "user_state": "$.user_state"
+          },
+          "output_map": {
+            "four_manifestations": "$module_output"
+          }
+        },
+        {
+          "name": "Step3_FourFeelings",
+          "run": "four_feelings",
+          "guard": {
+            "requires": ["$.directions_enriched"],
+            "on_missing": {"stop": true, "reason": "缺少 directions_enriched（EnergyGrammar 未成功產出）。"}
+          },
+          "input_map": {
+            "directions": "$.directions_enriched",
+            "user_state": "$.user_state"
+          },
+          "output_map": {
+            "four_feelings": "$module_output"
+          }
+        },
+        {
+          "name": "Step4_FourAxes",
+          "run": "four_axes",
+          "guard": {
+            "requires": ["$.directions_enriched"],
+            "soft_requires": ["$.directions_enriched.*.outer"],
+            "on_soft_missing": {
+              "mark": "PARTIAL",
+              "note": "outer 不完整：四軸會 INCOMPLETE/partial_code，請以模組 completeness 為準。"
+            }
+          },
+          "input_map": {
+            "directions": "$.directions_enriched",
+            "user_state": "$.user_state"
+          },
+          "output_map": {
+            "four_axes": "$module_output"
+          }
+        },
+        {
+          "name": "Step5_ReverseRoute",
+          "run": "reverse_route",
+          "guard": {
+            "requires": ["$.directions_enriched", "$.goal"],
+            "on_missing": {"stop": false, "note": "缺少 reverse_route 所需資料，Step5/6 會降級用推論。"}
+          },
+          "input_map": {
+            "directions": "$.directions_enriched",
+            "goal": "$.goal",
+            "mode": "$.options.reverse_route_mode",
+            "user_state": "$.user_state"
+          },
+          "defaults": {"mode": "BLENDED"},
+          "output_map": {
+            "reverse_route_result": "$module_output.reverse_route_result",
+            "reverse_route_narrative_hints": "$module_output.narrative_hints",
+            "reverse_route_completeness": "$module_output.completeness_report"
+          }
+        },
+        {
+          "name": "Step5_EightDirections",
+          "run": "eight_directions",
+          "guard": {
+            "requires": ["$.goal", "$.directions_enriched"],
+            "on_missing": {"stop": true, "reason": "缺少八方位解讀所需資料。"}
+          },
+          "input_map": {
+            "goal": "$.goal",
+            "directions_enriched": "$.directions_enriched",
+            "reverse_route_result": "$.reverse_route_result",
+            "narrative_hints": "$.reverse_route_narrative_hints",
+            "user_state": "$.user_state",
+            "risk_level": "$.options.risk_level",
+            "domain_focus": "$.domain_focus",
+            "include_crystals": "$.options.include_crystals"
+          },
+          "defaults": {"domain_focus": "BALANCED", "include_crystals": true, "risk_level": "MED"},
+          "output_map": {
+            "eight_directions": "$module_output"
+          }
+        },
+        {
+          "name": "Step6_IntegratedSynthesis",
+          "run": "integrated_synthesis",
+          "guard": {
+            "requires": [
+              "$.goal",
+              "$.user_state",
+              "$.energy_grammar",
+              "$.four_manifestations",
+              "$.four_feelings",
+              "$.four_axes",
+              "$.eight_directions"
+            ],
+            "on_missing": {"stop": true, "reason": "缺少 Step6 所需輸入（請檢查上游模組輸出）。"}
+          },
+          "input_map": {
+            "goal": "$.goal",
+            "user_state": "$.user_state",
+            "energy_grammar": "$.energy_grammar",
+            "four_manifestations": "$.four_manifestations",
+            "four_feelings": "$.four_feelings",
+            "four_axes": "$.four_axes",
+            "eight_directions": "$.eight_directions",
+            "reverse_route_result": "$.reverse_route_result",
+            "narrative_hints": "$.reverse_route_narrative_hints",
+            "domain_focus": "$.domain_focus",
+            "include_crystals": "$.options.include_crystals"
+          },
+          "output_map": {
+            "integrated_synthesis": "$module_output.integrated_synthesis",
+            "user_self_summary_prompts": "$module_output.user_self_summary_prompts",
+            "synthesis_completeness": "$module_output.completeness_report"
+          }
+        }
+      ]
+    }
+  },
+
+  "completeness_gate": {
+    "levels": ["COMPLETE", "PARTIAL", "INCOMPLETE"],
+    "rules": [
+      {
+        "id": "GATE_INNER_REQUIRED",
+        "when": "any directions_raw.*.inner is null",
+        "then": "INCOMPLETE",
+        "message": "缺少內在能量 inner（牌面 raw）。無法解盤。"
+      },
+      {
+        "id": "GATE_OUTER_OPTIONAL",
+        "when": "any directions_raw.*.outer is null",
+        "then": "PARTIAL",
+        "message": "外在能量 outer 尚未完整：四象/四軸可能 INCOMPLETE；ReverseRoute 會自動降級用 inner。"
+      }
+    ],
+    "report_shape": {
+      "overall": "COMPLETE|PARTIAL|INCOMPLETE",
+      "missing": "array<string>",
+      "notes": "array<string>",
+      "fix": "array<string>"
+    }
+  },
+
+  "normalization": {
+    "notes": [
+      "Router 負責把不同模組的輸入欄位名對齊成 canonical 形狀。",
+      "上游若沒有 outer，請先讓 outer=null；EnergyGrammar 仍可算 inner_sum 與部分 tension（gap 若需要 outer 才能判）。",
+      "ReverseRoute 若接到 outer 缺失且 mode=BLENDED/OUTER，會自動降級 INNER 並標記 PARTIAL。"
+    ]
+  },
+
+  "outputs_assembly": {
+    "shape": {
+      "step1": "$.energy_grammar",
+      "step2": "$.four_manifestations",
+      "step3": "$.four_feelings",
+      "step4": "$.four_axes",
+      "step5": {
+        "reverse_route_result": "$.reverse_route_result",
+        "eight_directions": "$.eight_directions"
+      },
+      "step6": "$.integrated_synthesis",
+      "step7": "$.user_self_summary_prompts",
+      "completeness_report": {
+        "gate": "$.gate_report",
+        "reverse_route": "$.reverse_route_completeness",
+        "synthesis": "$.synthesis_completeness"
+      }
+    }
+  },
+
+  "notes": {
+    "how_to_use_in_custom_gpt": [
+      "在 System prompt 內：要求模型先根據 Router.pipeline.default.steps 的順序產出中間變數（或依實作呼叫各模組）。",
+      "若採『文件化模組』而非程式呼叫：Router 的 input_map/output_map 仍可當作提示詞中的『思考路由規格』，確保一致輸出。",
+      "將 reverse_route_result 同時餵給 EightDirections 與 IntegratedSynthesis，確保 Step5/6 敘事一致。"
+    ]
+  }
+}

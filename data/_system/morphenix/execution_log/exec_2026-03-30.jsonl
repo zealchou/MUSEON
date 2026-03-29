@@ -1,0 +1,1 @@
+{"proposal_id": "morphenix_2026-03-30_L1_001", "outcome": "executed", "timestamp": "2026-03-30T03:05:06.492251+08:00", "result": {"action": "l1_config_update", "applied": [{"file": "_system/context_cache/active_rules.json", "key": "actionability_weight"}], "count": 1}}

@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260329_211511_metacog_insight",
+  "category": "metacog_insight",
+  "content": "多群組場景下 session 隔離失效，context 汙染導致錯誤 chat_id 推斷，修復需三步：驗證+隔離+清理。建議立即執行防止進一步混亂。",
+  "source": "L4_observer",
+  "created_at": "2026-03-29T21:15:11.368620+08:00",
+  "priority": "medium"
+}

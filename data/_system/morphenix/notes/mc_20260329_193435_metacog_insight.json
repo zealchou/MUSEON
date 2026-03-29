@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260329_193435_metacog_insight",
+  "category": "metacog_insight",
+  "content": "**教訓**：多群組並行時，context 汙染導致 chat_id 判斷錯誤。根本原因不在發送代碼，而在 L1/L2 的 session 上下文隔離。修復：加強發送前的 chat_id 驗證步驟，確認對象不混淆。",
+  "source": "L4_observer",
+  "created_at": "2026-03-29T19:34:35.398020+08:00",
+  "priority": "medium"
+}

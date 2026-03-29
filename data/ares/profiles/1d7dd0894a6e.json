@@ -1,0 +1,110 @@
+{
+  "version": "1.0.0",
+  "profile_id": "1d7dd0894a6e",
+  "created_at": "2026-03-30T03:04:48.668964",
+  "updated_at": "2026-03-30T03:04:48.672153",
+  "domains": [
+    "business"
+  ],
+  "L1_facts": {
+    "name": "Nia",
+    "title": null,
+    "company": null,
+    "role": null,
+    "industry": null,
+    "notes": []
+  },
+  "L2_personality": {
+    "wan_miu_code": null,
+    "wan_miu_name": null,
+    "four_axes": {
+      "mission": null,
+      "relation": null,
+      "drive": null,
+      "emotion": null
+    },
+    "confidence": 74,
+    "assessment_type": null,
+    "observations": [
+      "八原語 aspiration: {'level': 0, 'confidence': 0.0, 'signal': '', 'last_observed': None}",
+      "八原語 accumulation: {'level': 16, 'confidence': 0.06, 'signal': '[群組近期對話紀錄]   47:28 老闆（老闆）: Nia 這邊可以玩   47:58 老闆（老闆）: @MuseonClaw_bot Nia 小姊姊 是我之', 'last_observed': '2026-03-29T23:29:19.489829'}",
+      "八原語 action_power: {'level': 8, 'confidence': 0.06, 'signal': '[群組近期對話紀錄]   47:28 老闆（老闆）: Nia 這邊可以玩   47:58 老闆（老闆）: @MuseonClaw_bot Nia 小姊姊 是我之', 'last_observed': '2026-03-29T23:29:19.489829'}",
+      "八原語 curiosity: {'level': 0, 'confidence': 0.0, 'signal': '', 'last_observed': None}",
+      "八原語 emotion_pattern: {'level': 0, 'confidence': 0.0, 'signal': '', 'last_observed': None}",
+      "八原語 blindspot: {'level': 0, 'confidence': 0.0, 'signal': '', 'last_observed': None}",
+      "八原語 boundary: {'level': 0, 'confidence': 0.0, 'signal': '', 'last_observed': None}",
+      "八原語 relationship_depth: {'level': 0, 'confidence': 0.0, 'signal': '', 'last_observed': None}"
+    ]
+  },
+  "L3_energy": {
+    "has_reading": false,
+    "inner": {},
+    "outer": {},
+    "reading_date": null
+  },
+  "L4_interactions": {
+    "total_count": 2,
+    "positive_count": 0,
+    "negative_count": 0,
+    "neutral_count": 0,
+    "last_interaction": null,
+    "combined_reading": null,
+    "history": []
+  },
+  "L5_leverage": {
+    "channels": {
+      "has": null,
+      "needs": null,
+      "details": null
+    },
+    "technology": {
+      "has": null,
+      "needs": null,
+      "details": null
+    },
+    "capital": {
+      "has": null,
+      "needs": null,
+      "details": null
+    },
+    "network": {
+      "has": null,
+      "needs": null,
+      "details": null
+    },
+    "brand": {
+      "has": null,
+      "needs": null,
+      "details": null
+    },
+    "systems": {
+      "has": null,
+      "needs": null,
+      "details": null
+    },
+    "content": {
+      "has": null,
+      "needs": null,
+      "details": null
+    },
+    "time": {
+      "has": null,
+      "needs": null,
+      "details": null
+    }
+  },
+  "L6_communication": {
+    "style": "casual",
+    "taboos": [],
+    "preferences": [],
+    "landmines": [],
+    "effective_approaches": []
+  },
+  "L7_context_masks": {},
+  "temperature": {
+    "level": "new",
+    "trend": "stable",
+    "last_updated": "2026-03-30T03:04:48.668964"
+  },
+  "connections": []
+}

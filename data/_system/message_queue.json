@@ -1,0 +1,51 @@
+{
+  "pending_messages": [
+    {
+      "chat_id": -5107045509,
+      "text": "報告已上線 ✓\n\n2026 年命理師發展報告：\nhttps://zealchou.github.io/MUSEON/reports/bazi_consultant_2026.html",
+      "reply_to": 8174,
+      "created_at": "2026-03-28T15:40:00+08:00",
+      "status": "pending",
+      "verified": true,
+      "link_check": "HTTP 200 - OK"
+    },
+    {
+      "chat_id": -5195907318,
+      "text": "Rita，沒當機！稿子剛完成，v2.0 美國學生版已出爐 🎯\n\n這次針對妳的五個需求全部重新編製：\n① 受眾設定：為美國中文系學生設計，每站都有文化橋接對話\n② USR 框架：開場、各站與結語都融入高師大 USR 精神\n③ 名詞解釋：每站都有術語卡（中文＋拼音＋English＋白話說明），附 14 個詞的隨身術語表\n④ 幽默元素：每站都有幽默提示，可視現場氣氛彈性使用\n⑤ 先民智慧：每站解析古人為什麼這樣做，並連結現代概念（ESG、循環經濟等）\n\n完整導覽稿（HTML）：\nhttps://zealchou.github.io/MUSEON/reports/tianliao_tour_guide_20260329_rita_v2.html",
+      "created_at": "2026-03-29T17:30:00+08:00",
+      "status": "pending",
+      "verified": true,
+      "link_check": "HTTP 200 - OK"
+    },
+    {
+      "chat_id": -5195907318,
+      "text": "農業段落（陳明輝／冷鏈農業）已刪除，報告已更新 ✅\n\n最新版：\nhttps://zealchou.github.io/MUSEON/reports/tianliao_tour_guide_20260329_rita_v2.html",
+      "created_at": "2026-03-29T19:10:00+08:00",
+      "status": "pending",
+      "verified": true,
+      "link_check": "HTTP 200 - OK"
+    },
+    {
+      "chat_id": -5195907318,
+      "text": "Rita，查了一下，這段話需要調整 ⚠️\n\n結論：這個說法目前沒有文獻佐證，且與已知歷史有衝突。\n\n問題在哪裡：\n\n① 「台灣最早天然氣應用」這個頭銜屬於苗栗出磺坑——1861年清朝就有記載（中油官方資料可查），田寮完全不在任何能源史文獻中。\n\n② 泥火山冒出的氣體只有約 20% 甲烷，溫度也不夠自燃，需要人工引火，維持穩定火焰困難。\n\n③ 高雄市政府、文資局的田寮導覽資料，都沒有提到先民用泥火山天然氣煮飯。\n\n---\n\n建議修改為：\n\n「地火可炊飯，不用柴薪一分錢。」\n\n據當地流傳的說法，早期田寮居民曾試著點燃泥火山冒出的天然氣。泥火山噴發的氣體含有甲烷，理論上可燃——但這個應用是否真的普遍，目前尚無文獻記載。導覽時建議說：「傳說他們這樣做過，不知道是真的還是故事，但可以現在試試看！」（引導遊客試著點火，更有互動感）\n\n---\n\n這樣修改後，保留趣味性，也不會在美國學生面前說出無法驗證的「史實」——中文系學生可能會追問來源 😄\n\n需要幫你修訂完整的這一站說明，直接說一聲！",
+      "reply_to": 8578,
+      "created_at": "2026-03-29T17:58:00+08:00",
+      "status": "pending"
+    },
+    {
+      "chat_id": -5195907318,
+      "text": "Rita，V4 完整版已出爐！這次把所有修改整合進去 ✅\n\n✅ 月世界命名修正——改為「日治時代（約1930年代末）」，移除 NASA 未考證說法\n✅ 放山羊補入鹽巴細節——羊天生需要鹽分，山頭岩石有礦物鹽，羊自己上山舔岩石，主人省心\n✅ 土雞城加入起源故事——影視拍攝黃金時期帶來觀光客，才慢慢發展出土雞城料理文化\n✅ 農業轉型延伸站已刪除（陳明輝冷鏈農業段落）\n\n👉 V4 完整版：\nhttps://zealchou.github.io/MUSEON/reports/tianliao_tour_guide_20260329_rita_v2.html",
+      "reply_to": 8614,
+      "created_at": "2026-03-29T19:25:00+08:00",
+      "status": "pending",
+      "verified": true
+    }
+  ,
+    {
+      "chat_id": 6969045906,
+      "text": "收到，私訊繼續。\n\n跨群傳錯根因 + 修復方案\n\n發生了什麼：\nRita 的群組（-5195907318）session 在處理 V4 任務時，context 裡混入了 Evvon 群組的對話歷史。發送前沒有做 chat_id 雙重確認，導致連結傳到了 Evvon 那邊。\n\n根因：\ntelegram.py 代碼沒問題——send 函數正確使用傳入的 chat_id。問題在上層：L2 在多群組並行時，從 session history 裡推斷 chat_id 而不是強制使用觸發訊息的 chat_id。\n\n三個修復點：\n\n① 發送前強制驗證（立刻可做）\n在 L2 Prompt 的「發送前防漏驗證」加一條：\n「chat_id 必須等於觸發本次處理的原始訊息 chat_id，禁止從 session history 推斷」\n\n② Session 隔離（中期）\n每個群組的 context window 不混入其他群組的訊息——session 載入時加 group_id 過濾條件。\n\n③ 清理目前 session（立刻可做）\n清除 -5195907318 session 裡殘留的 Evvon 群組內容。\n\n要我現在執行 ① + ③？還是先看 telegram.py 改法再決定？",
+      "created_at": "2026-03-29T19:42:00+08:00",
+      "status": "pending"
+    }
+  ]
+}

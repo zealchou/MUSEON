@@ -1,0 +1,10 @@
+{
+  "date": "2026-03-29",
+  "vol": 3,
+  "theme": "技術與商業模式：AI創新的成敗分水嶺",
+  "theme_slug": "ai-innovation-commercialization-gap",
+  "connection": "OpenAI 成功將 AI 技術轉化為可持續商業模式達 $300B 估值，而 Olive 等多數 AI 新創敗於工作流整合、銷售基礎設施等 80% 的商業執行層面。",
+  "quality_issues": [
+    "字數過多：7311 字（預期 ≤ 7000）"
+  ]
+}

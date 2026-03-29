@@ -1,0 +1,8 @@
+{
+  "type": "scout_skill_draft",
+  "topic": "AI metacognition 自我覺察能力的前沿研究",
+  "draft": "## Scout 技能改善草稿\n\n**主題**: AI metacognition 自我覺察能力的前沿研究\n**偵察模式**: Gap Detection (Mode A)\n**產出時間**: 2026-03-29 03:09\n\n### 研究摘要\n## 評估結果：**HAS_VALUE** ✓\n\n### 核心發現\n\n**1. 已驗證的做法（Giskard 實證研究）**\n- 提示詞的**清晰度直接影響事實正確率**——要求「簡短」反而削弱模型的誤謬偵測能力\n- 操作法則：給足篇幅讓模型澄清問題中的錯誤前提，而非強迫簡潔\n\n**2. 已驗證的元認知激發方法**\n- **大聲思考法（Think-aloud Protocol）**：強制模型用語言解釋邏輯 → 暴露漏洞\n- **假設檢定法**：同一問題用不同 Persona 詢問 → 打破認知偏差、檢驗預設\n\n**3. 核心機制**\n提示詞結構本身就是「元認知開關」——清晰的問題設置 + 要求論證推理 + 多視角測試，能顯著提升 AI 的自我監控品質。\n\n### 可直接應用到 MUSEON\n- **Deep-Think 層**：融入「強制闡述邏輯」的結構\n- **Roundtable**：本質就是假設檢定法的實裝\n- **提示詞規範**：避免模糊需求，給足推理篇幅\n\nSources:\n- [Giskard AI測試研究](https://www.find.org.tw/tech_obser/browse/0f4ed8773504497d77bcd1e2aba5679c)\n- [大聲思考法與元認知實踐](https://grinews.com/news/%E8%B6%85%E8%B6%8A%E6%BC%94%E7%AE%97%E6%B3%95%EF%BC%9A%E5%85%83%E8%AA%8D%E7%9F%A5%EF%BC%8C%E4%BD%A0%E5%A4%A7%E8%85%A6%E6%9C%80%E5%BC%B7%E7%9A%84ai%E5%A4%96%E6%8E%9B/)\n\n### 改善建議\n基於上述研究，建議檢視以下方向是否可整合到現有 Skill 中：\n1. 從研究中提煉的核心做法\n2. 與現有系統的適配度評估\n3. 具體的改善步驟（需人類確認）\n\n### 參考來源\n  - https://medium.com/%E8%87%AA%E6%88%91%E8%A6%BA%E5%AF%9F%E7%9A%84%E5%BE%8C%E8%A8%AD%E8%AA%8D%E7%9F%A5%E8%83%BD%E5%8A%9B-meta-cognition/%E6%94%B9%E9%80%B2%E8%87%AA%E6%88%91%E8%A6%BA%E5%AF%9F%E8%83%BD%E5%8A%9B%E7%9A%84%E5%BE%8C%E8%A8%AD%E8%AA%8D%E7%9F%A5%E6%80%9D%E8%80%83-metacognition-834de1268350\n  - https://blog.csdn.net/2502_91591115/article/details/155080377\n  - https://www.find.org.tw/tech_obser/browse/0f4ed8773504497d77bcd1e2aba5679c\n\n### 安全聲明\n- 此草稿由 SkillForgeScout 自動產出\n- 需經 Morphenix L2 提案流程審核後方可執行\n- 絕不直接修改 SKILL.md 或任何受保護檔案\n",
+  "source": "skill_forge_scout",
+  "created_at": "2026-03-29T03:09:40.451314+08:00",
+  "auto_propose": true
+}

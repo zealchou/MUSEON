@@ -1,0 +1,16 @@
+{
+  "qa_report_id": "QA-20260329-200322",
+  "timestamp": "2026-03-29T20:03:22.014855+00:00",
+  "session_id": "telegram_group_5200293299",
+  "issue_type": "LEAKAGE",
+  "severity": "HIGH",
+  "evidence": {
+    "bot_reply_excerpt": "我收到了。讓我先理清狀況：\n\n我需要**群組 ID** 才能在 Telegram 群組中發送回覆。根據系統流程，L1 應該從訊息標籤中提取 `chat_id`，但當前訊息沒有提供這個資訊。\n\n**三個選項：**\n\n1. **你直接告訴我群組 ID**（格式：數字，例如 `5191663127`），我立即發送打招呼訊息\n2. **你告訴我想說什麼**，我幫你撰稿，你再自己發送\n3. **這表示系統流",
+    "matched_patterns": [
+      "\\bL[123]\\b",
+      "\\bchat_id\\b"
+    ]
+  },
+  "suggested_fix": "強化 CLAUDE.md Step 3.5 禁止清單",
+  "status": "open"
+}

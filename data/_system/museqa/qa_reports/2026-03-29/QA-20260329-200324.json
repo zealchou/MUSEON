@@ -1,0 +1,15 @@
+{
+  "qa_report_id": "QA-20260329-200324",
+  "timestamp": "2026-03-29T20:03:24.704912+00:00",
+  "session_id": "telegram_group_5191663127",
+  "issue_type": "LEAKAGE",
+  "severity": "HIGH",
+  "evidence": {
+    "bot_reply_excerpt": "有，老闆。👀\n\n**@ClaudeMuse_bot 一直沒有回應** —— 你多次 tag 他（18:22, 29:30, 33:13, 34:35, 35:11），但群組對話紀錄裡沒有看到他的任何回覆。\n\n三種可能：\n1. **連線問題** —— ClaudeMuse_bot 沒有成功連到 Telegram\n2. **權限問題** —— Bot 有消息接收但沒有發送權限\n3. **同步延遲** ",
+    "matched_patterns": [
+      "\\b(MCP|plugin|Gateway|Brain|ResponseGuard|EventBus)\\b"
+    ]
+  },
+  "suggested_fix": "強化 CLAUDE.md Step 3.5 禁止清單",
+  "status": "open"
+}

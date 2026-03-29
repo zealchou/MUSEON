@@ -1,0 +1,6 @@
+{
+  "session_id": "telegram_6969045906",
+  "user_message": "Rita 說有人踢他出去\nBot還在\n但我 Tag 他無法順利送出訊息 很怪",
+  "museon_reply": "「我 Tag 他無法順利送出訊息」——先確認一件事：\n\n**是你自己的訊息送不出去，還是訊息送出去了但 Bot 沒反應？**\n\n這兩個是完全不同的問題：\n\n---\n\n### 情況 A：你的訊息送不出去（Telegram 顯示錯誤或灰掉）\n\n→ **群組設定被改了**，可能踢 Rita 的那個人同時把「只有管理員可發訊息」打開了\n\n去群組設定確認：群組權限 → 「發送訊息」有沒有被限制\n\n---\n\n### 情況 B：你的訊息送出去了，但 Bot 沒反應\n\n→ **Privacy Mode 還沒生效**\n\n我之前說的那步還沒做的話：\n1. BotFather → `/setprivacy` → 選 Bot → Disable（關掉隱私模式）\n2. 把 Bot 踢出群組，再重新加入\n\n**Privacy Mode 改完不重踢 Bot 是不生效的**\n\n---\n\n你現在看到的是哪種情況？",
+  "timestamp": "2026-03-29T18:54:22.382963+08:00"
+}

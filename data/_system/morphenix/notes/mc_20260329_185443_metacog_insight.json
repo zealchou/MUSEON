@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260329_185443_metacog_insight",
+  "category": "metacog_insight",
+  "content": "看起來對話記錄被截斷了。我沒看到你對「是訊息送不出去 vs Bot 沒反應」的確認。\n\n**馬上試一個快速判別法**：\n\n你現在 Tag Bot 時，Telegram 介面有沒有顯示：\n1. **紅色驚嘆號 / 發送失敗** → 訊息根本送不出（群組權限問題）\n2. **訊息正常發出去（打勾），但 Bot 沒有任何反應** → Privacy Mode 問題\n\n哪一個？",
+  "source": "L4_observer",
+  "created_at": "2026-03-29T18:54:43.125930+08:00",
+  "priority": "medium"
+}

@@ -1,0 +1,130 @@
+[
+  {
+    "signal_type": "my_commitment",
+    "commitments": [
+      {
+        "type": "my_commitment",
+        "keyword": "報價",
+        "to": "",
+        "content": "[📎 檔案上傳: 財寶府庫_報價單_v7_260330.docx]\n \n請根據你週六給的週五會議紀錄內容，幫忙看看這個報價單內容是否有貼合蔡董期待的\n檔案已儲存至: /Users/ZEALCHOU/M",
+        "detected_at": "2026-03-29T14:44:39.866986",
+        "due_reminder": "2026-04-01T14:44:39.867001"
+      }
+    ],
+    "detected_at": "2026-03-29T14:44:39.867018"
+  },
+  {
+    "signal_type": "commitment",
+    "sender": "Evvon",
+    "content_snippet": "[📎 檔案上傳: 財寶府庫_報價單_v7_260330.docx]\n \n請根據你週六給的週五會議紀錄內容，幫忙看看這個報價單內容是否有貼合蔡董期待的\n檔案已儲存至: /Users/ZEALCHOU/M",
+    "suggestion": "📌 你剛對 Evvon 承諾了「報價」相關的事。要不要設個提醒確保如期完成？",
+    "urgency": "medium",
+    "chat_id": ""
+  },
+  {
+    "signal_type": "my_commitment",
+    "commitments": [
+      {
+        "type": "my_commitment",
+        "keyword": "報價",
+        "to": "",
+        "content": "[群組近期對話紀錄]\n  31:35 Evvon: Zeal 他跳針🤣🤣\n  31:53 老闆（老闆）: 還沒改好 沒事\n  32:02 老闆（老闆）: 再給他一點時間，AI 瘋狂寫程式碼中\n  33",
+        "detected_at": "2026-03-29T15:06:34.612204",
+        "due_reminder": "2026-04-01T15:06:34.612219"
+      }
+    ],
+    "detected_at": "2026-03-29T15:06:34.612246"
+  },
+  {
+    "signal_type": "commitment",
+    "sender": "Evvon",
+    "content_snippet": "[群組近期對話紀錄]\n  31:35 Evvon: Zeal 他跳針🤣🤣\n  31:53 老闆（老闆）: 還沒改好 沒事\n  32:02 老闆（老闆）: 再給他一點時間，AI 瘋狂寫程式碼中\n  33",
+    "suggestion": "📌 你剛對 Evvon 承諾了「報價」相關的事。要不要設個提醒確保如期完成？",
+    "urgency": "medium",
+    "chat_id": ""
+  },
+  {
+    "signal_type": "opportunity",
+    "sender": "Evvon",
+    "content_snippet": "[群組近期對話紀錄]\n  31:35 Evvon: Zeal 他跳針🤣🤣\n  31:53 老闆（老闆）: 還沒改好 沒事\n  32:02 老闆（老闆）: 再給他一點時間，AI 瘋狂寫程式碼中\n  33",
+    "suggestion": "💰 Evvon 提到「需要」——這可能是一個服務機會。要不要主動了解他的需求？",
+    "urgency": "medium",
+    "chat_id": ""
+  },
+  {
+    "signal_type": "my_commitment",
+    "commitments": [
+      {
+        "type": "my_commitment",
+        "keyword": "幫你",
+        "to": "",
+        "content": "[群組近期對話紀錄]\n  55:50 老闆（老闆）: 沒 token了\n  55:56 老闆（老闆）: 凌晨再來玩\n  55:52 Feng: Okok\n  25:42 老闆（老闆）: 欸？ 在你的群",
+        "detected_at": "2026-03-29T16:24:40.691798",
+        "due_reminder": "2026-04-01T16:24:40.691806"
+      }
+    ],
+    "detected_at": "2026-03-29T16:24:40.691821"
+  },
+  {
+    "signal_type": "commitment",
+    "sender": "Feng",
+    "content_snippet": "[群組近期對話紀錄]\n  55:50 老闆（老闆）: 沒 token了\n  55:56 老闆（老闆）: 凌晨再來玩\n  55:52 Feng: Okok\n  25:42 老闆（老闆）: 欸？ 在你的群",
+    "suggestion": "📌 你剛對 Feng 承諾了「幫你」相關的事。要不要設個提醒確保如期完成？",
+    "urgency": "medium",
+    "chat_id": ""
+  },
+  {
+    "signal_type": "opportunity",
+    "sender": "Feng",
+    "content_snippet": "[群組近期對話紀錄]\n  55:50 老闆（老闆）: 沒 token了\n  55:56 老闆（老闆）: 凌晨再來玩\n  55:52 Feng: Okok\n  25:42 老闆（老闆）: 欸？ 在你的群",
+    "suggestion": "💰 Feng 提到「需要」——這可能是一個服務機會。要不要主動了解他的需求？",
+    "urgency": "medium",
+    "chat_id": ""
+  },
+  {
+    "signal_type": "my_commitment",
+    "commitments": [
+      {
+        "type": "my_commitment",
+        "keyword": "報價",
+        "to": "",
+        "content": "我報價單好了，已經給瀞文(業務)了\n她晚點看過如果沒問題就會給蔡董，我這邊也會同步再請律師修一下合約\n之前合約就有初版了\nZeal",
+        "detected_at": "2026-03-29T16:33:42.785163",
+        "due_reminder": "2026-04-01T16:33:42.785171"
+      }
+    ],
+    "detected_at": "2026-03-29T16:33:42.785192"
+  },
+  {
+    "signal_type": "commitment",
+    "sender": "Evvon",
+    "content_snippet": "我報價單好了，已經給瀞文(業務)了\n她晚點看過如果沒問題就會給蔡董，我這邊也會同步再請律師修一下合約\n之前合約就有初版了\nZeal",
+    "suggestion": "📌 你剛對 Evvon 承諾了「報價」相關的事。要不要設個提醒確保如期完成？",
+    "urgency": "medium",
+    "chat_id": ""
+  },
+  {
+    "signal_type": "opportunity",
+    "sender": "HE",
+    "content_snippet": "我補充一些資訊：\n1.創立時間是創立帳號的時間，不過我頻道正式啟動，是今年的1/23開始上架第一隻影片\n\n2.目前訪談上架12集的節目，其餘的100多部影片都是用這12集節目的內容，去剪輯花絮，做成1",
+    "suggestion": "💰 HE 提到「需要」——這可能是一個服務機會。要不要主動了解他的需求？",
+    "urgency": "medium",
+    "chat_id": ""
+  },
+  {
+    "signal_type": "opportunity",
+    "sender": "Nia",
+    "content_snippet": "[群組近期對話紀錄]\n  47:28 老闆（老闆）: Nia 這邊可以玩\n  47:58 老闆（老闆）: @MuseonClaw_bot Nia 小姊姊 是我之前 OneMuse 團隊的夥伴 好好打聲",
+    "suggestion": "💰 Nia 提到「需要」——這可能是一個服務機會。要不要主動了解他的需求？",
+    "urgency": "medium",
+    "chat_id": ""
+  },
+  {
+    "signal_type": "opportunity",
+    "sender": "Nia",
+    "content_snippet": "[群組近期對話紀錄]\n  47:28 老闆（老闆）: Nia 這邊可以玩\n  47:58 老闆（老闆）: @MuseonClaw_bot Nia 小姊姊 是我之前 OneMuse 團隊的夥伴 好好打聲",
+    "suggestion": "💰 Nia 提到「需要」——這可能是一個服務機會。要不要主動了解他的需求？",
+    "urgency": "medium",
+    "chat_id": ""
+  }
+]

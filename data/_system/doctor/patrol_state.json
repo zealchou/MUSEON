@@ -1,0 +1,103 @@
+{
+  "cursor": 157,
+  "cycle_count": 0,
+  "last_tick": "2026-03-29T20:10:18.425105+00:00",
+  "llm_queue": [
+    "new_module",
+    "existing",
+    "museon.gateway.message",
+    "museon.llm.adapters",
+    "museon.nightly.morphenix_executor",
+    "museon.agent.brain",
+    "museon.agent.brain_fast",
+    "museon.agent.brain_tools",
+    "museon.agent.intuition",
+    "museon.agent.tools",
+    "museon.channels.telegram",
+    "museon.doctor.musedoc",
+    "museon.doctor.musedoctor",
+    "museon.gateway.telegram_pump"
+  ],
+  "anomalies_today": {
+    "museon.llm.adapters": {
+      "date": "2026-03-29",
+      "anomalies": [
+        "近期 log ERROR x16"
+      ],
+      "detected_at": "2026-03-29T03:43:17.651793+00:00"
+    },
+    "museon.nightly.morphenix_executor": {
+      "date": "2026-03-29",
+      "anomalies": [
+        "未在 _FULL_STEPS: morphenix_executor"
+      ],
+      "detected_at": "2026-03-29T03:51:18.245068+00:00"
+    },
+    "museon.agent.brain": {
+      "date": "2026-03-29",
+      "anomalies": [
+        "近期 log ERROR x3"
+      ],
+      "detected_at": "2026-03-29T04:26:18.562397+00:00"
+    },
+    "museon.agent.brain_fast": {
+      "date": "2026-03-29",
+      "anomalies": [
+        "broken import: museon.agent.input_sanitizer.InputSanitizer",
+        "broken import: museon.agent.ceremony.NamingCeremony"
+      ],
+      "detected_at": "2026-03-29T05:14:18.515349+00:00"
+    },
+    "museon.agent.brain_tools": {
+      "date": "2026-03-29",
+      "anomalies": [
+        "近期 log ERROR x3"
+      ],
+      "detected_at": "2026-03-29T06:02:18.512200+00:00"
+    },
+    "museon.agent.intuition": {
+      "date": "2026-03-29",
+      "anomalies": [
+        "近期 log ERROR x15"
+      ],
+      "detected_at": "2026-03-29T07:06:18.542827+00:00"
+    },
+    "museon.agent.tools": {
+      "date": "2026-03-29",
+      "anomalies": [
+        "近期 log ERROR x2"
+      ],
+      "detected_at": "2026-03-29T09:30:18.530579+00:00"
+    },
+    "museon.channels.telegram": {
+      "date": "2026-03-29",
+      "anomalies": [
+        "近期 log ERROR x688"
+      ],
+      "detected_at": "2026-03-29T11:46:18.525262+00:00"
+    },
+    "museon.doctor.musedoc": {
+      "date": "2026-03-29",
+      "anomalies": [
+        "近期 log ERROR x6"
+      ],
+      "detected_at": "2026-03-29T13:38:18.567546+00:00"
+    },
+    "museon.doctor.musedoctor": {
+      "date": "2026-03-29",
+      "anomalies": [
+        "近期 log ERROR x7"
+      ],
+      "detected_at": "2026-03-29T13:46:18.616788+00:00"
+    },
+    "museon.gateway.telegram_pump": {
+      "date": "2026-03-29",
+      "anomalies": [
+        "近期 log ERROR x2"
+      ],
+      "detected_at": "2026-03-29T18:10:18.519079+00:00"
+    }
+  },
+  "last_anomaly_reset": "2026-03-29",
+  "total_nodes": 248
+}

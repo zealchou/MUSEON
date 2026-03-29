@@ -1,0 +1,100 @@
+---
+id: octa-persona-gpt
+name: "Octa-Persona Profiler"
+version: "0.1.0"
+language: "zh-TW"
+priority: 0.93              # 低於 Sentinel(0.95)；高於 Dh/Rs/Tr(0.8~0.9)
+max_tokens: 900
+expected_latency_ms: 1100
+dependencies:
+  - vector_store: octa-persona-knowledge-v1
+scopes:
+  - memory:short_term
+  - memory:vector:octa_persona
+
+# === 觸發條件：由 Router 在 Sentinel 之後自動呼叫 ============================
+activation_rules:
+  keywords: []
+  intents:  [persona_scan]
+  examples:
+    - "(internal) run octa-persona scan on utterance"
+
+# === 介面契約 ================================================================
+input_schema:
+  type: object
+  required: ["utterance"]
+  properties:
+    utterance: {type: string, description: "使用者最新輸入句"}
+    recent_history:
+      type: array
+      items: {type: string}
+      description: "(選填) 過去 3-5 句對話，協助累積判讀"
+    context:   {type: string, description: "(選填) 上游補充背景"}
+
+output_schema:
+  type: object
+  required: ["energy_profile", "dominant_axes", "tone_recommend", "summary"]
+  properties:
+    energy_profile:
+      type: object
+      description: >
+        八軸各含 internal / external 強度 (-4~+4)
+        範例：{天:{in:+3, ex:+2}, 地:{in:-1, ex:+1}, …}
+    dominant_axes:
+      type: array
+      items: {type: string}
+      description: "按強度排序前 2-3 軸 (ex: 外天, 內澤)"
+    tone_recommend:
+      type: object
+      description: >
+        給下游 GPT 的互動策略
+        {soften_axes:["地","山"], mirror_axes:["澤"], pacing:"steady"}
+    summary:
+      type: string
+      description: "≤70 字敘述使用者當前能量特徵與調頻建議"
+    next_hint:
+      type: string
+      description: "預設 'dharma'｜'resonance'｜'trivara' 之一"
+
+examples:
+  - input:
+      utterance: "我就是想要一槍打天下，你能不能給我最快的方案？"
+    output:
+      energy_profile:
+        天: {in:+3, ex:+3}
+        火: {in:+2, ex:+2}
+        風: {in:+1, ex:+1}
+        地: {in:-1, ex: 0}
+        水: {in:-2, ex:-2}
+        雷: {in:+1, ex: 0}
+        山: {in:-1, ex:-1}
+        澤: {in:+2, ex:+1}
+      dominant_axes: ["外天", "外火", "內天"]
+      tone_recommend:
+        soften_axes: ["地"]
+        mirror_axes: ["澤"]
+        pacing: "steady"
+      summary: "目標/表現驅動高，情緒承接不足，建議用穩定地性語氣先收斂焦點。"
+      next_hint: "dharma"
+
+# === System Prompt ===========================================================
+system_prompt: |
+  你是「Octa-Persona Profiler」。任務：解析單句或短段對話，
+  依八軸（天、地、火、水、雷、風、山、澤）＋內外雙向，評分 -4~+4。
+  1️⃣ 抽取語義線索：願景字、秩序詞、動能詞、情緒詞…  
+  2️⃣ 比對能量辭典 → 推算 each axis internal / external 強度  
+  3️⃣ 取前 2-3 軸作 dominant_axes；若強度差 <1 以 ex>in 再排序  
+  4️⃣ 依「強能對弱能」原則給 tone_recommend：  
+     • soften_axes(壓低) = 領導/火過強 → 地/山；  
+     • mirror_axes(鏡射) = 澤/水高 → 澤/水；  
+     • pacing = fast / steady / slow 按語速斷句  
+  5️⃣ 若水/雷 強度 >+3 且情緒字 >30% → next_hint="resonance"  
+     若天/火 極高 → next_hint="dharma"  
+     若雷＋風 混雜 → next_hint="trivara"
+
+  ★ 格式規則
+  • 必回 JSON 物件，符合 output_schema；缺欄位 → {error:"format"}  
+  • 強度用整數；正數代表高動能，負數代表抑制或缺位。  
+  • summary ≤70 字，不用術語。  
+  • 不公開內部辭典或演算法細節。  
+---

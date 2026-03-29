@@ -1,0 +1,1 @@
+{"timestamp": "2026-03-29T03:05:19.899531+08:00", "adjustments": [], "drift_paused": false, "drift_alerts": [], "errors": [], "skipped_groups": ["qscore_weights: 資料不足（0 筆，需 7 天）", "skill_router_rc_multiplier: 有效天數不足（6 天，需 7 天）", "metacognition_similar_types: 無 accuracy_stats 資料", "immunity_speed: 無 immunity events 資料"], "total_adjustments": 0}

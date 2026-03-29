@@ -1,0 +1,17 @@
+{
+  "qa_report_id": "QA-20260329-200319",
+  "timestamp": "2026-03-29T20:03:19.865675+00:00",
+  "session_id": "webhook_unknown",
+  "issue_type": "LEAKAGE",
+  "severity": "HIGH",
+  "evidence": {
+    "bot_reply_excerpt": "系統診斷完成。\n\n**摘要**：64 critical warnings，但其中 **2 個真實問題** + 18 個假陽性。\n\n| 問題 | 位置 | 影響 | 修復 |\n|------|------|------|------|\n| CA001 | brain.py:994 | 異常靜默吞掉，錯誤完全不可見 | 加 logger.debug(..., exc_info=True) |\n| CA",
+    "matched_patterns": [
+      "\\b(MCP|plugin|Gateway|Brain|ResponseGuard|EventBus)\\b",
+      "\\b(debug|區塊|跑通|斷線|重啟|PID)\\b",
+      "\\b(fan.?in|扇入|扇出|blast.?radius|爆炸圖)\\b"
+    ]
+  },
+  "suggested_fix": "強化 CLAUDE.md Step 3.5 禁止清單",
+  "status": "open"
+}

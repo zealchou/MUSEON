@@ -1,0 +1,6 @@
+{
+  "session_id": "telegram_6969045906",
+  "user_message": "[🖼️ 圖片上傳]\n圖片已儲存至: /Users/ZEALCHOU/MUSEON/data/uploads/telegram/20260329_190111_AQADjQ9rGzwzSVZ-.jpg",
+  "museon_reply": "群組 Permissions 全部都是開的（Send Messages 是綠色），這不是問題所在。\n\n所以問題不是群組設定，而是**你個人被限制發言**。\n\n可能原因：\n\n### 最可能：你被那個踢 Rita 的人「限制」了\n\nTelegram 群組管理員可以針對**特定成員**單獨設定限制，不動全局 Permissions，所以截圖看起來正常，但你個人發不出去。\n\n確認方法：\n1. 長按你自己的名字（在成員列表）\n2. 看有沒有「Restricted」或限制標記\n\n### 另一個可能：你的帳號被 Telegram 暫時限制\n\n如果那個時段你發訊息太頻繁，Telegram 可能對你個人帳號觸發頻率限制，通常幾分鐘到幾小時自動解除。\n\n---\n\n**那個踢 Rita 的人是誰？他是你認識的人還是陌生管理員？**\n\n這件事有點不尋常——踢掉你的 BD + 可能順帶限制你發言，感覺是刻意的。",
+  "timestamp": "2026-03-29T19:01:35.417768+08:00"
+}

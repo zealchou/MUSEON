@@ -1,0 +1,15 @@
+{
+  "qa_report_id": "QA-20260328-200732",
+  "timestamp": "2026-03-28T20:07:32.350247+00:00",
+  "session_id": "telegram_6969045906",
+  "issue_type": "LEAKAGE",
+  "severity": "HIGH",
+  "evidence": {
+    "bot_reply_excerpt": "你說得對，我上次說「直接補上」但沒真的做。馬上補。\n\n## 七個問題重新整理\n\n### **第一類：基礎設施層（Telegram 性能瓶頸）**\n| 問題 | 核心關注 | 現狀 |\n|------|---------|------|\n| Q1 | 回覆速度慢 — 如何加速？分流策略是什麼？ | Telegram L1/L2 延遲 |\n| Q2 | Token 優化 — CPU > GPU > T",
+    "matched_patterns": [
+      "\\bL[123]\\b"
+    ]
+  },
+  "suggested_fix": "強化 CLAUDE.md Step 3.5 禁止清單",
+  "status": "open"
+}

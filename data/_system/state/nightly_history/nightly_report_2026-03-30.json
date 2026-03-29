@@ -1,0 +1,218 @@
+{
+  "completed_at": "2026-03-30T03:05:18.886757+08:00",
+  "elapsed_seconds": 318.77,
+  "mode": "full",
+  "steps": {
+    "step_00_budget_settlement": {
+      "status": "ok",
+      "result": "{'mode': 'max_subscription', 'daily_calls': 20, 'model_distribution': {'sonnet': 6, 'haiku': 14}, 'daily_tokens': 30284}"
+    },
+    "step_00_1_footprint_cleanup": {
+      "status": "ok",
+      "result": "{'l1_removed': 0, 'l2_removed': 0, 'remaining': {'l1_actions': 19, 'l2_decisions': 19, 'l3_evolutions': 0}}"
+    },
+    "step_01_asset_decay": {
+      "status": "ok",
+      "result": "{'decayed': 0}"
+    },
+    "step_02_archive_assets": {
+      "status": "ok",
+      "result": "{'archived': 0, 'shared_archived': 0}"
+    },
+    "step_03_memory_maintenance": {
+      "status": "ok",
+      "result": "{'maintained': True, 'result': \"{'expired': 0, 'promoted': 0, 'demoted': 0}\"}"
+    },
+    "step_04_wee_compress": {
+      "status": "ok",
+      "result": "{'compressed': False, 'reason': 'no_records_for_date'}"
+    },
+    "step_05_wee_fuse": {
+      "status": "ok",
+      "result": "{'fused': False, 'reason': 'insufficient_crystals', 'crystal_count': 0}"
+    },
+    "step_05_5_cross_crystallize": {
+      "status": "ok",
+      "result": "{'skipped': 'no memory directory'}"
+    },
+    "step_05_6_knowledge_lattice": {
+      "status": "ok",
+      "result": "{'total_crystals': 0, 'archived': [], 'recrystallized': 0, 'ri_updated': 1352}"
+    },
+    "step_05_7_crystal_actuator": {
+      "status": "ok",
+      "result": "{'new_rules': 0, 'expired_rules': 0, 'total_active': 93, 'strengthened': 25, 'weakened': 0, 'removed': 0}"
+    },
+    "step_05_8_morphenix_proposals": {
+      "status": "ok",
+      "result": "{'signals_scanned': 5, 'proposals_created': 3, 'diagnostics': ['Q-Score: actionability 偏弱 (0.45)', '連續低分: 4/5', '迭代筆記: 142 條']}"
+    },
+    "step_05_9_morphenix_gate": {
+      "status": "ok",
+      "result": "{'auto_approved': 3, 'needs_human': 0, 'executed': 1, 'l3_proposals': []}"
+    },
+    "step_08_workflow_mutation": {
+      "status": "ok",
+      "result": "{'skipped': 'no workflows directory'}"
+    },
+    "step_08_5_dna27_reindex": {
+      "status": "ok",
+      "result": "{'indexed_count': 409}"
+    },
+    "step_08_6_skill_vector_reindex": {
+      "status": "ok",
+      "result": "{'skill_reindex': {'indexed': 63, 'errors': []}}"
+    },
+    "step_08_7_sparse_idf_rebuild": {
+      "status": "ok",
+      "result": "{'sparse_idf': {'vocab_size': 2369, 'backfill': {'memories': 441, 'skills': 63, 'crystals': 1107}}}"
+    },
+    "step_09_graph_consolidation": {
+      "status": "ok",
+      "result": "{'skipped': 'no graph directory'}"
+    },
+    "step_10_diary_generation": {
+      "status": "ok",
+      "result": "{'diary_generated': True, 'interaction_count': 12}"
+    },
+    "step_12_heartbeat_focus": {
+      "status": "ok",
+      "result": "{'interval_hours': 1.5, 'focus_level': 'high', 'beat_count': 808}"
+    },
+    "step_13_curiosity_scan": {
+      "status": "ok",
+      "result": "{'new_questions': 0, 'queue_size': 21}"
+    },
+    "step_13_5_curiosity_research": {
+      "status": "ok",
+      "result": "{'researched': 2, 'valuable': 1}"
+    },
+    "step_13_6_outward_trigger_scan": {
+      "status": "ok",
+      "result": "{'triggered': 0, 'events': []}"
+    },
+    "step_13_7_outward_research": {
+      "status": "ok",
+      "result": "{'skipped': 'no pending outward queries'}"
+    },
+    "step_13_8_digest_lifecycle": {
+      "status": "ok",
+      "result": "{'promoted': [], 'archived': [], 'ttl_expired': [], 'active_count': 0}"
+    },
+    "step_15_dept_health": {
+      "status": "ok",
+      "result": "{'skipped': 'no departments directory'}"
+    },
+    "step_17_tool_discovery": {
+      "status": "ok",
+      "result": "{'detected': 0, 'healthy': 6, 'total_tools': 11, 'last_discovery': '2026-03-29T05:00:01.990649+08:00', 'recommended': 0}"
+    },
+    "step_18_daily_summary": {
+      "status": "ok",
+      "result": "{'date': '2026-03-30', 'event_count': 12, 'channels': 0}"
+    },
+    "step_18_5_client_profile_update": {
+      "status": "ok",
+      "result": "{'dispatches_scanned': 58, 'profiles_updated': 3, 'clients_updated': 8}"
+    },
+    "step_18_6_ares_bridge_sync": {
+      "status": "ok",
+      "result": "{'created': 3, 'updated': 13, 'skipped': 0, 'errors': 0}"
+    },
+    "step_18_7_system_health_audit": {
+      "status": "ok",
+      "result": "{'health': 'DEGRADED', 'pass': 304, 'fail': 2, 'warn': 12}"
+    },
+    "step_19_morphenix_quality_gate": {
+      "status": "ok",
+      "result": "{'skipped': 'no effect_tracker.json'}"
+    },
+    "step_20_synapse_decay": {
+      "status": "ok",
+      "result": "{'decayed_synapses': {'decayed': 324, 'pruned': 0}, 'top_connections': [{'skill_a': 'dharma', 'skill_b': 'qa-auditor', 'weight': 0.2891, 'fire_count': 6}, {'skill_a': 'business-12', 'skill_b': 'plugin"
+    },
+    "step_21_muscle_atrophy": {
+      "status": "ok",
+      "result": "{'atrophied_tools': {'atrophied': 46, 'pruned': 0}, 'dormant_count': 0, 'dormant_tools': []}"
+    },
+    "step_22_immune_prune": {
+      "status": "ok",
+      "result": "{'pruned_weak_rules': 0, 'total_memories': 0, 'active_defenses': 0, 'avg_confidence': 0.0}"
+    },
+    "step_23_trigger_evaluation": {
+      "status": "ok",
+      "result": "{'total_score': 1.13, 'vitality_modifier': 1.0, 'fired_triggers': ['time_cycle', 'surplus_based'], 'should_evolve': True, 'details': {'time_cycle': 0.64, 'surplus_based': 0.49}}"
+    },
+    "step_24_evolution_velocity": {
+      "status": "ok",
+      "result": "{'composite_velocity': 0, 'trend': 'insufficient_data', 'plateau_alert': False, 'regression_alert': False}"
+    },
+    "step_25_periodic_cycle_check": {
+      "status": "ok",
+      "result": "{'checked_at': '2026-03-30T03:04:53.781747+08:00', 'weekly_cycle': {'executed': False, 'reason': 'weekday=0'}, 'monthly_cycle': {'executed': False, 'reason': 'day=30'}}"
+    },
+    "step_26_session_cleanup": {
+      "status": "ok",
+      "result": "{'removed': 0, 'kept': 10}"
+    },
+    "step_27_log_rotation": {
+      "status": "ok",
+      "result": "{'rotated': [], 'archives_cleaned': 0, 'dated_jsonl_removed': 0}"
+    },
+    "step_28_wal_checkpoint": {
+      "status": "ok",
+      "result": "{'databases': {'pulse': 'ok (wal=0B)', 'group_context': 'ok (wal=0B)', 'workflow_state': 'ok (wal=0B)', 'registry': 'ok (wal=0B)'}}"
+    },
+    "step_29_data_watchdog": {
+      "status": "ok",
+      "result": "{'status': 'ok', 'stores_checked': 3, 'alerts': 0, 'dead_write_suspects': 0, 'total_storage': 421888}"
+    },
+    "step_30_blueprint_consistency": {
+      "status": "ok",
+      "result": "{'status': 'ok', 'issues': [], 'blueprints_checked': 4}"
+    },
+    "step_31_context_cache_rebuild": {
+      "status": "ok",
+      "result": "{'status': 'error', 'error': \"cannot import name 'ContextCacheBuilder' from 'museon.cache.context_cache_builder' (/Users/ZEALCHOU/MUSEON/.runtime/src/museon/cache/context_cache_builder.py)\"}"
+    },
+    "step_05_6_5_lesson_distill": {
+      "status": "ok",
+      "result": "{'metacog_scanned': 128, 'failure_scanned': 84, 'new_rules': 0, 'skipped_dup': 0}"
+    },
+    "step_05_9_5_morphenix_validate": {
+      "status": "ok",
+      "result": "{'validated': 2, 'passed': 0, 'failed': 2, 'details': [{'id': 'morphenix_2026-03-30_L2_003', 'passed': False, 'reason': 'pytest_failed', 'duration_ms': 4319}, {'id': 'morphenix_2026-03-30_L2_002', 'pa"
+    },
+    "step_05_10_morphenix_execute": {
+      "status": "ok",
+      "result": "{'executed': 1, 'failed': 0, 'escalated': 0, 'skipped': 0, 'details': [{'proposal_id': 'morphenix_2026-03-30_L1_001', 'outcome': 'executed', 'level': 'L1', 'title': 'Q-Score 弱項修復: actionability 維度平均僅 "
+    },
+    "step_06_skill_forge": {
+      "status": "ok",
+      "result": "{'skipped': 'no L2_ep directory'}"
+    },
+    "step_06_5_skill_scout": {
+      "status": "ok",
+      "result": "{'processed': 3, 'deduped': 13, 'removed_duplicates': 0, 'errors': None}"
+    },
+    "step_07_curriculum": {
+      "status": "ok",
+      "result": "{'level': 'intermediate', 'avg_score': 5.0}"
+    },
+    "step_14_skill_lifecycle": {
+      "status": "ok",
+      "result": "{'skipped': 'no skills directory'}"
+    },
+    "step_16_claude_skill_forge": {
+      "status": "ok",
+      "result": "{'skipped': 'no L3_procedural skills to refine'}"
+    }
+  },
+  "summary": {
+    "total": 51,
+    "ok": 51,
+    "error": 0,
+    "skipped": 0
+  },
+  "errors": []
+}

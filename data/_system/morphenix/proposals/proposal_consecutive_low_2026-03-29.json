@@ -1,0 +1,15 @@
+{
+  "category": "L2",
+  "source": "qscore_consecutive_low",
+  "title": "連續 4 次低分警報",
+  "description": "最近 5 次互動中有 4 次品質為 low。整體平均 0.57。需要深度檢視回應策略。",
+  "action": "review_response_strategy",
+  "metric": {
+    "consecutive_low": 4,
+    "overall_avg": 0.573
+  },
+  "created_at": "2026-03-29T03:03:40.484974+08:00",
+  "status": "approved",
+  "decided_by": "auto",
+  "decided_at": "2026-03-29T03:03:40.616294+08:00"
+}

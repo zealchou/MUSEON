@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>田寮月世界文化踏查導覽解說稿 v4.0｜美國中文系學生版</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ember: #C4502A;
+    --ember-light: #E0714D;
+    --ember-dark: #9A3A1C;
+    --teal: #2A7A6E;
+    --gold: #B8923A;
+    --ink: #12121A;
+    --slate: #5A5A6E;
+    --mist: #9898A8;
+    --border: #E2E0DA;
+    --parchment: #F7F5F0;
+    --snow: #FDFCFA;
+    --deep-ink: #0E0E16;
+    --surface: #16161F;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--parchment);
+    color: var(--ink);
+    font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+    font-size: 16px;
+    line-height: 1.75;
+  }
+
+  /* Hero */
+  .hero {
+    background: var(--deep-ink);
+    color: white;
+    padding: 96px 40px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 30% 50%, rgba(196,80,42,0.25) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(42,122,110,0.15) 0%, transparent 50%);
+  }
+  .hero-inner {
+    max-width: 820px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(196,80,42,0.2);
+    border: 1px solid rgba(196,80,42,0.4);
+    color: var(--ember-light);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 100px;
+    margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 52px;
+    font-weight: 600;
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+  .hero h1 em {
+    color: var(--ember-light);
+    font-style: italic;
+  }
+  .hero-subtitle {
+    font-size: 18px;
+    color: rgba(255,255,255,0.7);
+    max-width: 600px;
+    line-height: 1.7;
+    margin-bottom: 32px;
+  }
+  .hero-meta {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .hero-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .hero-meta-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+  }
+  .hero-meta-value {
+    font-size: 15px;
+    color: rgba(255,255,255,0.85);
+    font-weight: 500;
+  }
+
+  /* Layout */
+  .container {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+
+  /* Section */
+  section {
+    padding: 64px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  section:last-of-type { border-bottom: none; }
+
+  /* USR Box */
+  .usr-box {
+    background: linear-gradient(135deg, rgba(42,122,110,0.08) 0%, rgba(42,122,110,0.04) 100%);
+    border: 1px solid rgba(42,122,110,0.2);
+    border-left: 4px solid var(--teal);
+    border-radius: 10px;
+    padding: 24px;
+    margin: 32px 0;
+  }
+  .usr-box-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 8px;
+  }
+  .usr-box p {
+    font-size: 15px;
+    color: var(--slate);
+    line-height: 1.7;
+  }
+
+  /* Station */
+  .station {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 32px;
+    margin-bottom: 32px;
+    box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+    animation: fadeUp 0.4s ease-out both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .station-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .station-number {
+    background: var(--ember);
+    color: white;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .station-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--ink);
+  }
+  .station-en {
+    font-size: 13px;
+    color: var(--mist);
+    font-style: italic;
+    margin-top: 2px;
+  }
+
+  /* Script block */
+  .script-block {
+    background: var(--parchment);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 16px 0;
+    border-left: 3px solid var(--ember);
+  }
+  .script-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ember);
+    margin-bottom: 8px;
+  }
+  .script-text {
+    font-size: 15px;
+    line-height: 1.85;
+    color: var(--ink);
+  }
+  .script-text .humor {
+    color: var(--ember);
+    font-style: italic;
+  }
+
+  /* Term card */
+  .term-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .term-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .term-zh {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+  .term-en {
+    font-size: 12px;
+    color: var(--teal);
+    font-style: italic;
+    margin-bottom: 6px;
+  }
+  .term-def {
+    font-size: 13px;
+    color: var(--slate);
+    line-height: 1.6;
+  }
+
+  /* Wisdom block */
+  .wisdom-block {
+    background: linear-gradient(135deg, rgba(184,146,58,0.1) 0%, rgba(184,146,58,0.05) 100%);
+    border: 1px solid rgba(184,146,58,0.25);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 16px 0;
+  }
+  .wisdom-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .wisdom-text {
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--slate);
+  }
+  .wisdom-quote {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-style: italic;
+    color: var(--gold);
+    border-left: 3px solid var(--gold);
+    padding-left: 16px;
+    margin: 12px 0;
+  }
+
+  /* Interaction prompt */
+  .interaction {
+    background: rgba(196,80,42,0.06);
+    border: 1px dashed rgba(196,80,42,0.3);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 12px 0;
+  }
+  .interaction-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ember);
+    margin-bottom: 6px;
+  }
+  .interaction-text {
+    font-size: 14px;
+    color: var(--slate);
+  }
+
+  /* Transition */
+  .transition-note {
+    text-align: center;
+    color: var(--mist);
+    font-size: 13px;
+    font-style: italic;
+    padding: 16px;
+    margin: 8px 0;
+  }
+  .transition-note::before { content: '— '; }
+  .transition-note::after { content: ' —'; }
+
+  /* Section title */
+  .section-tag {
+    display: inline-block;
+    background: rgba(196,80,42,0.1);
+    color: var(--ember-dark);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 100px;
+    margin-bottom: 12px;
+  }
+  h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+  h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 20px 0 8px;
+  }
+  p {
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--slate);
+    margin-bottom: 12px;
+  }
+
+  /* Tips */
+  .tip-list {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0;
+  }
+  .tip-list li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 15px;
+    color: var(--slate);
+  }
+  .tip-list li:last-child { border-bottom: none; }
+  .tip-list li::before {
+    content: '✦';
+    color: var(--ember);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* Summary table */
+  .summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 14px;
+  }
+  .summary-table th {
+    background: var(--ink);
+    color: white;
+    padding: 10px 16px;
+    text-align: left;
+    font-weight: 500;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+  }
+  .summary-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--slate);
+    background: var(--snow);
+  }
+  .summary-table tr:hover td { background: var(--parchment); }
+
+  /* Footer */
+  .footer {
+    background: var(--deep-ink);
+    color: rgba(255,255,255,0.5);
+    text-align: center;
+    padding: 40px;
+    font-size: 13px;
+  }
+  .footer strong { color: var(--ember-light); }
+
+  /* Print */
+  @media print {
+    .hero { background: #12121A !important; }
+    .station { box-shadow: none; border: 1px solid #ccc; }
+    .interaction { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">USR 教育旅遊計畫 × 高師大</div>
+    <h1>田寮月世界<br><em>文化踏查導覽</em></h1>
+    <p class="hero-subtitle">
+      為美國中文系學生與高師大學生導覽員設計的沉浸式田野踏查腳本。
+      帶你走進一片「不像台灣」的台灣土地，讀懂泥火山、惡地，和千年前先民留下的生活智慧。
+    </p>
+    <div class="hero-meta">
+      <div class="hero-meta-item">
+        <span class="hero-meta-label">受眾</span>
+        <span class="hero-meta-value">美國中文系學生 + 高師大學生幫手</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hero-meta-label">建議時長</span>
+        <span class="hero-meta-value">120–150 分鐘</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hero-meta-label">站點數</span>
+        <span class="hero-meta-value">11 站</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hero-meta-label">版本</span>
+        <span class="hero-meta-value">v2.0 美國學生客製版</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- USR Framework -->
+<div class="container">
+  <section>
+    <div class="section-tag">USR 課程框架</div>
+    <h2>為什麼這裡是最好的課堂？</h2>
+    <p>
+      高師大 USR（大學社會責任實踐計畫）的核心精神是「讓大學走出象牙塔，讓社區進入大學」。
+      田寮月世界不是觀光景點，是一個活教室——地質學、生態學、農業史、語言文化，全都寫在這片土地上。
+    </p>
+
+    <div class="usr-box">
+      <div class="usr-box-title">USR — University Social Responsibility（大學社會責任）</div>
+      <p>
+        「USR」是台灣教育部推動的大學計畫，要求大學與在地社區合作，解決真實的社會問題。
+        高師大在田寮推動的包括：生態保育教育、在地文化傳承、農村永續發展。
+        對美國學生來說，可以理解為 Community Engagement + Experiential Learning 的結合。
+      </p>
+    </div>
+
+    <div class="usr-box">
+      <div class="usr-box-title">導覽員使用指南</div>
+      <p>
+        🟠 <strong>【口說文稿】</strong>：建議逐字朗讀或改寫成自己的語氣<br>
+        🟡 <strong>【先民智慧】</strong>：特別針對「古人為什麼這樣做」的解析<br>
+        🔵 <strong>【名詞解釋】</strong>：遇到美國學生可能不懂的詞，在此補充<br>
+        🔴 <strong>【互動問題】</strong>：丟給學生討論，不急著給答案<br>
+        😄 <strong>幽默提示</strong>：<em>以斜體標示，視現場氣氛彈性使用</em>
+      </p>
+    </div>
+  </section>
+</div>
+
+<!-- Opening -->
+<div class="container">
+  <section>
+    <div class="section-tag">集合 → 出發前</div>
+    <h2>開場白：歡迎來到「月球」</h2>
+
+    <div class="station">
+      <div class="script-label">口說文稿</div>
+      <div class="script-text">
+        <p>
+          歡迎大家！我是今天的導覽員，也是高師大的學生。
+          在我們出發之前，我想先問大家一個問題：
+        </p>
+        <p>
+          <strong>你有沒有覺得，你現在站的地方，看起來不像台灣？</strong>
+        </p>
+        <p>
+          台灣通常是什麼樣子？山很綠、到處是植物、稻田、都市。
+          但現在你們面前這片景色——灰白、光禿、起伏的山丘——
+          地質學家發現，這裡的泥岩惡地地形，跟月球表面幾乎一模一樣。
+        </p>
+        <p>
+          這就是為什麼我們叫它<strong>「月世界」（Moon World / Moonscape）</strong>。
+          <span class="humor">而且它有一個很大的優點：我們不需要火箭才能來這裡。</span>
+        </p>
+        <p>
+          今天我們要踏查的田寮月世界，是一個有著特殊地質、獨特農業、神秘民俗的地方。
+          美國來的朋友，我保證你們今天會帶走幾個故事，是你們在教科書裡從來沒讀到的。
+        </p>
+      </div>
+    </div>
+
+    <div class="interaction">
+      <div class="interaction-label">互動問題</div>
+      <div class="interaction-text">
+        「在你的家鄉，有沒有一個地方，是因為看起來很像另一個地方而出名的？」
+        （讓美國學生分享，拉近距離）
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Stations -->
+<div class="container">
+  <section>
+    <div class="section-tag">序章 + 11 站踏查 + 延伸站</div>
+    <h2>踏查路線</h2>
+
+    <!-- Prologue: History -->
+    <div class="station">
+      <div class="station-header">
+        <div class="station-number">序章</div>
+        <div>
+          <div class="station-title">誰的家？280年前的移民故事</div>
+          <div class="station-en">Whose Land? — A 280-Year Migration Story</div>
+        </div>
+      </div>
+
+      <div class="term-grid">
+        <div class="term-card">
+          <div class="term-zh">漳州（Zhāngzhōu）</div>
+          <div class="term-en">Zhangzhou, Fujian</div>
+          <div class="term-def">福建省的港口城市，清代許多移民從這裡渡海來台，是台灣漢人移民最主要的原鄉之一。</div>
+        </div>
+        <div class="term-card">
+          <div class="term-zh">平埔族（Pínpǔ zú）</div>
+          <div class="term-en">Pingpu / Plains Aborigines</div>
+          <div class="term-def">台灣原住民中居住在平原地區的族群，漢人移民來台之前，他們已在這片土地生活數千年。</div>
+        </div>
+        <div class="term-card">
+          <div class="term-zh">客家（Kèjiā）</div>
+          <div class="term-en">Hakka</div>
+          <div class="term-def">中國南方的漢族族群，以語言和文化獨特著稱，是台灣四大族群之一，在田寮地區也有早期移民足跡。</div>
+        </div>
+      </div>
+
+      <div class="script-block">
+        <div class="script-label">口說文稿</div>
+        <div class="script-text">
+          <p>
+            在我們開始踏查之前，我想先說一個故事。
+            這片土地，大約在<strong>280年前（約1740年代）</strong>，迎來了第一批漢人定居者。
+          </p>
+          <p>
+            其中最具代表性的是<strong>林氏家族</strong>，從福建漳州渡海來台。
+            今天帶著我們踏查的項老師，就是這個家族的第八代傳人。
+            八代，大概是你的高祖的高祖——一個家族的故事，跨越了七八個人的生命。
+          </p>
+          <p>
+            但這個故事的開頭，不是英雄式的冒險。
+            傳說，林氏祖先是被奸商欺騙，或者說是被「騙來台灣的」——
+            <span class="humor">如果你覺得這聽起來像電影情節，對，它確實很像。
+            只是這個主角沒有劍，沒有法力，只有一雙手和一片貧瘠的土地。</span>
+          </p>
+          <p>
+            更早之前，這片土地屬於<strong>平埔族</strong>——台灣最早的居民。
+            後來又有<strong>客家族群</strong>遷來。
+            作為後來者的漢人移民，只能在別人不要的地方落腳——
+            貧瘠的旱地、路邊的邊緣地帶。
+          </p>
+          <p>
+            田寮全境92平方公里，但可以登記耕作的土地只有「30幾帕」（公頃）。
+            這個數字，讓你理解了嗎？
+            <span class="humor">用一個比喻：如果台北市是一個大披薩，田寮的可耕地大概是邊緣那一小塊沒有料的部分。
+            先民就在那一小塊，養活了整個家族。</span>
+          </p>
+          <p>
+            今天我們走的每一步，都踩在這280年故事的土壤上。
+          </p>
+        </div>
+      </div>
+
+      <div class="wisdom-block">
+        <div class="wisdom-label">歷史敘事的複雜性（給美國學生）</div>
+        <div class="wisdom-text">
+          台灣的移民史，跟美國的移民史有一個重要的相似點：
+          它從來不是一個簡單的「英雄開拓新大陸」故事。
+          它包含了欺騙、流離、族群融合、和在限制中生存的智慧。
+          當我們重新檢視歷史，比問「誰是英雄」更重要的問題是：
+          「在什麼樣的條件下，什麼樣的人，做出了什麼樣的選擇？」
+        </div>
+      </div>
+    </div>
+
+    <div class="transition-note">讓我們踏上這片古老的土地，開始第一站</div>
+
+    <!-- Station 1 -->
+    <div class="station">
+      <div class="station-header">
+        <div class="station-number">站 01</div>
+        <div>
+          <div class="station-title">惡地地質——惡地，不是惡人住的地方</div>
+          <div class="station-en">Badlands Geology — "Bad" Land, Great Story</div>
+        </div>
+      </div>
+
+      <div class="term-grid">
+        <div class="term-card">
+          <div class="term-zh">惡地（è dì）</div>
+          <div class="term-en">Badlands</div>
+          <div class="term-def">地質術語，指土質緊實、不易植物生長、被侵蝕成溝壑狀的地形。「惡」指「不好耕種」，不是「邪惡」。</div>
+        </div>
+        <div class="term-card">
+          <div class="term-zh">泥岩（ní yán）</div>
+          <div class="term-en">Mudstone / Shale</div>
+          <div class="term-def">由細小黏土顆粒壓縮而成的岩石，遇水軟化、遇乾硬化，造就月世界的特殊地景。</div>
+        </div>
+        <div class="term-card">
+          <div class="term-zh">侵蝕（qīn shí）</div>
+          <div class="term-en">Erosion</div>
+          <div class="term-def">水流或風把土石帶走的過程。田寮的雨水讓泥岩一層一層剝落，幾千年才有今天的月球樣貌。</div>
+        </div>
+      </div>
+
+      <div class="script-block">
+        <div class="script-label">口說文稿</div>
+        <div class="script-text">
+          <p>
+            你們現在腳踩的土地，是距今約<strong>600至800萬年前</strong>的深海沉積泥沙。
+            那時候台灣還不存在——這裡是一片古老的海洋。
+            後來，地殼板塊碰撞，台灣島慢慢從海底「長」出來，把這些泥沙一起帶到了地面。
+          </p>
+          <p>
+            這種土叫做<strong>「泥岩」</strong>（在田寮，老一輩也叫它「海銀土」或「海雲土」），
+            它有一個很特別的性格：高鹽、不保水——下雨就變成爛泥、天晴就硬成岩石，植物的根很難扎進去。
+            所以每一場雨，都在雕刻這片土地的樣子。
+          </p>
+          <p>
+            有多深？中油公司在這裡探勘，挖到地下4000公尺，還是泥岩。
+            <span class="humor">你可以把它想像成一個超難搞的室友：下雨就濕軟黏人，太陽出來又變得硬邦邦。植物都不想跟它住，中油也說「往下4000公尺都是它」。</span>
+          </p>
+          <p>
+            「月世界」這個名字，源自日治時代（約1930年代末）——日本人來到這裡，看到光禿禿的泥岩山丘，以日語取名「月の世界」，沿用至今。地理學上稱這種地形為「泥岩惡地（Badlands）」，脆弱的泥岩遇雨侵蝕、乾後龜裂，造就了這片與月球表面驚人相似的景觀。
+          </p>
+          <p>
+            穿越這片地貌的是<strong>二仁溪</strong>，從內門到茄定長達62公里，曲折程度被地理學家稱為「全世界最彎曲的河流之一」——惡地的泥岩太軟，河流左右刻蝕，千萬年下來就刻出了這條蜿蜒的水路。
+          </p>
+        </div>
+      </div>
+
+      <div class="wisdom-block">
+        <div class="wisdom-label">先民智慧</div>
+        <div class="wisdom-quote">「地不養人，人養地。」</div>
+        <div class="wisdom-text">
+          早期田寮居民無法在這種土地上耕作，他們用一代一代積累的智慧，找到了與惡地共存的方式——
+          不跟土地硬碰硬，而是繞過惡地、在溪邊找可耕作的小塊土地，或者發展畜牧（如放山羊）。
+          這是典型的「順應地形、而非征服地形」的農業智慧。
+        </div>
+      </div>
+    </div>
+
+    <div class="transition-note">前往泥火山觀測區，約步行 5 分鐘</div>
+
+    <!-- Station 2 -->
+    <div class="station">
+      <div class="station-header">
+        <div class="station-number">站 02</div>
+        <div>
+          <div class="station-title">泥火山——地球在這裡打嗝</div>
+          <div class="station-en">Mud Volcanoes — Earth's Burps</div>
+        </div>
+      </div>
+
+      <div class="term-grid">
+        <div class="term-card">
+          <div class="term-zh">泥火山（ní huǒ shān）</div>
+          <div class="term-en">Mud Volcano</div>
+          <div class="term-def">地底天然氣或熱水帶著泥漿從地面噴出，形成像小火山的地貌。不是真的火山，只是「長得很像」。</div>
+        </div>
+        <div class="term-card">
+          <div class="term-zh">甲烷（jiǎ wán）</div>
+          <div class="term-en">Methane Gas</div>
+          <div class="term-def">天然氣的主要成分，無色無味可燃，是泥火山噴出的主要氣體。早期居民用它來生火。</div>
+        </div>
+      </div>
+
+      <div class="script-block">
+        <div class="script-label">口說文稿</div>
+        <div class="script-text">
+          <p>
+            大家看這個冒泡的泥坑——這就是泥火山。
+            它不是真的火山，地底下沒有岩漿，但它在做一件跟火山很像的事：
+            把地底深處的東西，帶到地面上來。
+          </p>
+          <p>
+            地底的天然氣和熱水，穿過泥岩的裂縫，一路往上衝，
+            把沿路的泥土帶出來，就形成了這個「咕嘟咕嘟」冒泡的樣子。
+          </p>
+          <p>
+            <span class="humor">如果你覺得這個聲音很熟悉，是的——地球在這裡打嗝。千萬年了，還在打。</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="wisdom-block">
+        <div class="wisdom-label">先民智慧</div>
+        <div class="wisdom-quote">「地火可炊飯，不用柴薪一分錢。」</div>
+        <div class="wisdom-text">
+          早期田寮居民發現泥火山冒出的天然氣可以燃燒，曾經直接在泥火山旁邊生火煮飯。
+          這是台灣最早的「天然氣應用」之一——遠在現代天然氣管線鋪設之前，先民就已經知道利用地熱資源。
+          這種觀察力和應用能力，今天在工程界叫做「資源利用的在地化」（localized resource utilization）。
+        </div>
+      </div>
+
+      <div class="interaction">
+        <div class="interaction-label">互動問題</div>
+        <div class="interaction-text">
+          「如果你是一千年前住在這裡的人，你第一次看到泥火山，你的第一反應是什麼？
+          是恐懼、是好奇、還是馬上想到怎麼用它？」
+        </div>
+      </div>
+    </div>
+
+    <div class="transition-note">沿著惡地稜線步道往下走，約 8 分鐘</div>
+
+    <!-- Station 3 -->
+    <div class="station">
+      <div class="station-header">
+        <div class="station-number">站 03</div>
+        <div>
+          <div class="station-title">海銀土俗諺——土地的語言</div>
+          <div class="station-en">Soil Proverbs — The Language of the Land</div>
+        </div>
+      </div>
+
+      <div class="term-grid">
+        <div class="term-card">
+          <div class="term-zh">俗諺（sú yàn）</div>
+          <div class="term-en">Folk Proverb / Saying</div>
+          <div class="term-def">世代口耳相傳的短句，濃縮了農業社會的生活智慧，類似英文的 "proverb" 或 "old saying"。</div>
+        </div>
+        <div class="term-card">
+          <div class="term-zh">海銀土（hǎi yín tǔ）</div>
+          <div class="term-en">Whitish Clay Soil</div>
+          <div class="term-def">田寮月世界的泥岩土壤，帶銀白色光澤，來自遠古海底沉積，含鹽份高，不利植物生長。</div>
+        </div>
+      </div>
+
+      <div class="script-block">
+        <div class="script-label">口說文稿</div>
+        <div class="script-text">
+          <p>
+            在台灣農村，有一個很有趣的現象：
+            農民不用課本，但他們懂得土地的性格。
+            他們把幾百年的觀察，壓縮成幾個字，讓每一代人都不用重新摸索。
+          </p>
+          <p>
+            關於這片海銀土，老一輩的田寮人說：
+          </p>
+          <p style="background: var(--parchment); padding: 12px 16px; border-radius: 6px; font-style: italic; color: var(--ink); font-size: 15px; border-left: 3px solid var(--gold);">
+            「白土種不活、黑土養萬物。」
+          </p>
+          <p>
+            這是他們描述泥岩土（白）和一般農業用土（黑）的差異。
+            用顏色區分土質，精準度絲毫不輸現代土壤學。
+          </p>
+          <p>
+            <span class="humor">在沒有 Google 的時代，農民就是用舌頭嚐土、眼睛看顏色，建立了自己的「土壤資料庫」。某種意義上，他們比我們還會資料分析。</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="wisdom-block">
+        <div class="wisdom-label">先民智慧 × USR 連結</div>
+        <div class="wisdom-text">
+          俗諺是最早的「開放源碼知識庫」——任何人都可以取用，而且每一代人都可以加入新的觀察來更新。
+          高師大 USR 計畫正在做的事情，其實跟俗諺的精神一脈相承：
+          把學術知識「翻譯」成在地社區可以用的語言。
+        </div>
+      </div>
+    </div>
+
+    <div class="transition-note">前往山坡羊群放牧區，約 10 分鐘車程</div>
+
+    <!-- Station 4 -->
+    <div class="station">
+      <div class="station-header">
+        <div class="station-number">站 04</div>
+        <div>
+          <div class="station-title">放山羊文化——月世界的原住民</div>
+          <div class="station-en">Free-Range Goat Culture — The Original Residents</div>
+        </div>
+      </div>
+
+      <div class="term-grid">
+        <div class="term-card">
+          <div class="term-zh">放山羊（fàng shān yáng）</div>
+          <div class="term-en">Free-Range Mountain Goat</div>
+          <div class="term-def">讓羊自由在山間覓食，不限制範圍，需要一定技術才能管理羊群不走散。</div>
+        </div>
+        <div class="term-card">
+          <div class="term-zh">牧羊人（mù yáng rén）</div>
+          <div class="term-en">Shepherd</div>
+          <div class="term-def">看管羊群的人，台灣農村通常是家中的長輩或孩子擔任，現在越來越少見。</div>
+        </div>
+        <div class="term-card">
+          <div class="term-zh">羊圈（yáng juàn）</div>
+          <div class="term-en">Sheepfold / Pen</div>
+          <div class="term-def">關羊的圍欄，通常在夜晚或下雨時讓羊回去休息。田寮的羊圈多用竹子或木材搭建。</div>
+        </div>
+      </div>
+
+      <div class="script-block">
+        <div class="script-label">口說文稿</div>
+        <div class="script-text">
+          <p>
+            在惡地環境裡，大多數農作物種不活。
+            但羊不同——羊很厲害，它能找到藏在石縫裡的野草，
+            甚至能消化大多數動物不吃的粗硬植物。
+          </p>
+          <p>
+            所以田寮的先民發現：如果你沒辦法種出食物，你可以養一種動物，讓那種動物去找食物。
+          </p>
+          <p>
+            他們選擇了山羊。為什麼是羊？因為山羊天生需要鹽分——鹽巴很貴，但田寮的惡地山頭，岩石裡天然含有礦物鹽。
+            羊群每天自己走上山，舔岩石、補充礦物質，根本不需要主人費心。
+            <span class="humor">這是最早的「自助餐」——羊請客，先民坐收。</span>
+          </p>
+          <p>
+            而且羊這種動物，幾乎沒有浪費：肉和奶可以吃、羊糞是最好的有機肥料、羊可以賣錢換其他生活物資。
+            <span class="humor">某種意義上，羊是農業時代的「多功能瑞士刀」。</span>
+          </p>
+          <p>
+            而放山羊需要技術——你要知道羊群的習性、懂得讀天氣、知道哪條山路安全。
+            在田寮，有些家族的放羊技術傳了好幾代，這是一種正在消失的「人類知識」。
+          </p>
+          <p>
+            這裡有一個你們可能沒聽過的故事：你吃過「<strong>岡山羊肉</strong>」嗎？在台灣很有名，到處都有「岡山羊肉爐」的招牌。
+            但行家知道，大多數岡山羊肉的羊，其實是田寮養的——田寮的山地羊才是真正的供應來源。
+            <span class="humor">這是行銷史上最成功的「產地偷換」之一：消費者買的是「岡山」的名，吃的是「田寮」的羊。
+            某種意義上，田寮的羊很委屈——默默養大，出名的是隔壁。</span>
+          </p>
+          <p>
+            這個案例告訴我們一件事：品牌、故事和行銷，有時候比產品本身更有力量。
+            如果田寮當初也把「田寮羊肉」的故事講好，或許今天我們說的是另一個名字。
+          </p>
+        </div>
+      </div>
+
+      <div class="wisdom-block">
+        <div class="wisdom-label">先民智慧</div>
+        <div class="wisdom-quote">「讓自然去做自然擅長的事，人去做人擅長的事。」</div>
+        <div class="wisdom-text">
+          放山羊的邏輯，其實是一種非常現代的「分工哲學」：
+          羊的覓食本能比人強，所以讓羊去找草；
+          人的判斷力比羊強，所以人來決定在哪裡放牧。
+          這種「把對的能力放在對的位置」的智慧，今天在管理學裡叫做「比較利益原則」（Comparative Advantage）。
+        </div>
+      </div>
+
+      <div class="interaction">
+        <div class="interaction-label">互動問題</div>
+        <div class="interaction-text">
+          「在你的家鄉，有沒有一種因為地形特殊而發展出來的農業或飲食文化？
+          （比如：在沙漠地區的游牧文化、在海邊的捕魚文化）」
+        </div>
+      </div>
+    </div>
+
+    <div class="transition-note">前往電影取景點觀景台，約 5 分鐘步行</div>
+
+    <!-- Station 5 -->
+    <div class="station">
+      <div class="station-header">
+        <div class="station-number">站 05</div>
+        <div>
+          <div class="station-title">電影取景地——當月世界變成了故事</div>
+          <div class="station-en">Film Location — When Moonscape Becomes Story</div>
+        </div>
+      </div>
+
+      <div class="script-block">
+        <div class="script-label">口說文稿</div>
+        <div class="script-text">
+          <p>
+            你們現在站的地方，已經出現在好幾部台灣電影和電視劇裡。
+            特別是<strong>民國60至70年代（1970-80年代）</strong>，這裡是台灣武俠片最熱門的取景地。
+            <strong>林青霞、秦祥林</strong>等知名演員都曾來這裡拍戲——月世界的蒼涼感，完美符合武俠世界「荒野對決」的氛圍。
+          </p>
+          <p>
+            不過，同一個時期，二仁溪流域發生了另一個故事——<strong>廢五金業</strong>興起，工廠把廢電子零件的污水排入二仁溪，讓這條河一度被稱為「<strong>台灣的黑龍江</strong>」。
+            景色蒼涼的月世界背後，是一條被污染的河流。
+            <span class="humor">田寮的土地從來不做表面功夫——好的、壞的，都攤在太陽下。</span>
+          </p>
+          <p>
+            導演們選擇田寮月世界，是因為這裡提供了台灣其他地方找不到的視覺語言：
+            <strong>蒼涼、靜默、與外在世界完全隔絕的感覺。</strong>
+          </p>
+          <p>
+            <span class="humor">有導演說：「這裡不需要特效，它本身就是最好的特效。」
+            我覺得這句話也可以用來形容田寮的居民——在這麼難生活的地方，
+            他們活了幾百年，本身就是一個奇蹟。</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="wisdom-block">
+        <div class="wisdom-label">文化對話</div>
+        <div class="wisdom-text">
+          在美國，有一個概念叫 "Sense of Place"——一個地方獨特的精神或氛圍，是任何其他地方無法複製的。
+          田寮月世界的「月球感」，正是它的 Sense of Place。
+          而這種感覺，只有親身踏上這片土地才能真正感受到，這也是為什麼 USR 計畫堅持「田野踏查」而不是「教室授課」。
+        </div>
+      </div>
+    </div>
+
+    <div class="transition-note">前往土雞城用餐區，約 5 分鐘車程</div>
+
+    <!-- Station 6 -->
+    <div class="station">
+      <div class="station-header">
+        <div class="station-number">站 06</div>
+        <div>
+          <div class="station-title">土雞城飲食文化——吃飯是一門學問</div>
+          <div class="station-en">Free-Range Chicken Restaurant Culture — Eating as Wisdom</div>
+        </div>
+      </div>
+
+      <div class="term-grid">
+        <div class="term-card">
+          <div class="term-zh">土雞（tǔ jī）</div>
+          <div class="term-en">Free-Range Chicken / Native Breed Chicken</div>
+          <div class="term-def">在台灣特指傳統品種、放養在戶外的雞，肉質比工廠飼養的「肉雞」更有彈性（chewy），台灣人認為更香甜。</div>
+        </div>
+        <div class="term-card">
+          <div class="term-zh">土雞城（tǔ jī chéng）</div>
+          <div class="term-en">Chicken Restaurant Village</div>
+          <div class="term-def">在山區或景點旁邊聚集的農家土雞料理餐廳群，田寮是全台灣最有名的土雞城聚集地之一。</div>
+        </div>
+        <div class="term-card">
+          <div class="term-zh">三杯雞（sān bēi jī）</div>
+          <div class="term-en">Three-Cup Chicken</div>
+          <div class="term-def">台灣名菜，用一杯米酒、一杯醬油、一杯麻油燉煮的雞肉，是台灣農村家庭的經典料理。</div>
+        </div>
+        <div class="term-card">
+          <div class="term-zh">放山雞（fàng shān jī）</div>
+          <div class="term-en">Mountain-Raised Chicken</div>
+          <div class="term-def">指在山區放養的雞，因為自由運動所以肌肉發達，是土雞中等級最高的類別。</div>
+        </div>
+      </div>
+
+      <div class="script-block">
+        <div class="script-label">口說文稿</div>
+        <div class="script-text">
+          <p>
+            田寮有一個其他地方很難複製的特產：土雞城。
+            在田寮月世界周邊，有超過十幾家以土雞料理為主的山區餐廳，
+            假日有時候連座位都得排隊。
+          </p>
+          <p>
+            這個飲食文化的起源，其實跟電影有關。
+            民國60至70年代（1970-80年代），月世界是武俠片和電影的熱門取景地，
+            大批劇組人員和觀光客湧入——這些人需要在這裡吃飯、休息，於是山上的土雞城料理就在那個時期慢慢形成了。
+          </p>
+          <p>
+            這背後還有一個更根本的邏輯：月世界的惡地種不了農作物，但養雞可以。
+            土雞在山坡上自由走動，吃野草、昆蟲，長大後肉質特別好。
+            居民把這個劣勢——「土地太硬、種不了東西」——轉換成了優勢。
+          </p>
+          <p>
+            <span class="humor">這大概是世界上最成功的「逆境創業案例」：
+            一塊連草都不想長的土地，最後靠著雞肉，吸引了全台灣的人來吃飯。</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="wisdom-block">
+        <div class="wisdom-label">先民智慧 × 商業智慧</div>
+        <div class="wisdom-quote">「土地給什麼，我們就用什麼。」</div>
+        <div class="wisdom-text">
+          田寮土雞城的發展史，是一個非常經典的「地方創生」（Regional Revitalization）案例。
+          居民沒有放棄這片土地，而是找到了這片土地最適合的產業。
+          在現代管理學裡，這叫做「在限制條件下找到核心競爭力」——
+          某種意義上，田寮人比許多 MBA 案例更早想通了這件事。
+        </div>
+      </div>
+    </div>
+
+    <div class="transition-note">前往竹林文化展示區</div>
+
+    <!-- Station 7 -->
+    <div class="station">
+      <div class="station-header">
+        <div class="station-number">站 07</div>
+        <div>
+          <div class="station-title">流竹文化——竹子的千種用法</div>
+          <div class="station-en">Bamboo Culture — A Thousand Uses of Bamboo</div>
+        </div>
+      </div>
+
+      <div class="term-grid">
+        <div class="term-card">
+          <div class="term-zh">桂竹（guì zhú）</div>
+          <div class="term-en">Makino Bamboo</div>
+          <div class="term-def">台灣最常見的竹種之一，桿身硬、節間長，是農村最重要的建材和工具材料。</div>
+        </div>
+        <div class="term-card">
+          <div class="term-zh">竹筍（zhú sǔn）</div>
+          <div class="term-en">Bamboo Shoot</div>
+          <div class="term-def">竹子剛長出地面的嫩芽，是台灣農村重要食材，可以炒、燉、醃漬，口感清脆。</div>
+        </div>
+        <div class="term-card">
+          <div class="term-zh">竹編（zhú biān）</div>
+          <div class="term-en">Bamboo Weaving</div>
+          <div class="term-def">將竹片劈成細條後編織成籃子、帽子、圍籬等物品的傳統工藝，需要多年練習才能精通。</div>
+        </div>
+      </div>
+
+      <div class="script-block">
+        <div class="script-label">口說文稿</div>
+        <div class="script-text">
+          <p>
+            在田寮，竹子不只是植物，它是生活的基礎建設。
+          </p>
+          <p>
+            在台灣農村的歷史上，竹子的角色類似今天的塑膠：
+            輕、強、可彎曲、生長快速、處處可得。
+            房子的牆、農具的把手、廚房的碗筷、夏天的涼扇——都可以用竹子做。
+          </p>
+          <p>
+            <span class="humor">竹子是農業時代的「全方位材料」。
+            唯一的缺點大概是：做出來的東西太耐用，讓後代沒什麼東西可以買。
+            所以古代是沒有「竹子消費主義」的。</span>
+          </p>
+          <p>
+            更重要的是：竹子的使用，展示了一種「零廢棄物」的生活哲學。
+            竹子本身可以吃（筍），長成後做工具，老了之後當柴燒，燒完的灰可以肥田。
+            整棵竹子，都可以被「循環使用」。
+          </p>
+        </div>
+      </div>
+
+      <div class="wisdom-block">
+        <div class="wisdom-label">先民智慧 × 現代 ESG</div>
+        <div class="wisdom-text">
+          今天全球流行的「循環經濟」（Circular Economy）和「零廢棄物」（Zero Waste）理念，
+          其實在台灣農村早就被實踐了幾百年——只是沒有人把它寫進論文。
+          田寮的竹子文化，是一個完整的可持續發展範本，
+          遠在 ESG 報告書出現之前，它就已經是「永續的」。
+        </div>
+      </div>
+    </div>
+
+    <div class="transition-note">前往惡地稜線觀景點，約 15 分鐘步行</div>
+
+    <!-- Station 8 -->
+    <div class="station">
+      <div class="station-header">
+        <div class="station-number">站 08</div>
+        <div>
+          <div class="station-title">農村水文管理——先民的水利工程</div>
+          <div class="station-en">Traditional Water Management — Ancient Hydraulic Engineering</div>
+        </div>
+      </div>
+
+      <div class="term-grid">
+        <div class="term-card">
+          <div class="term-zh">埤塘（pí táng）</div>
+          <div class="term-en">Irrigation Pond</div>
+          <div class="term-def">人工挖掘的蓄水池塘，台灣農業的命脈之一。田寮居民在可耕作的地方建埤塘，保留雨水以備乾季使用。</div>
+        </div>
+        <div class="term-card">
+          <div class="term-zh">圳（zhuǎn）</div>
+          <div class="term-en">Irrigation Canal / Ditch</div>
+          <div class="term-def">人工開鑿的水渠，引導水流到農田。台灣清代已有複雜的水圳系統，有些至今仍在使用。</div>
+        </div>
+      </div>
+
+      <div class="script-block">
+        <div class="script-label">口說文稿</div>
+        <div class="script-text">
+          <p>
+            在月世界這種惡地環境裡，水是最珍貴的資源。
+            雨季時水大量流失，旱季時又乾得裂縫。
+          </p>
+          <p>
+            田寮的先民解決這個問題的方式，展現了驚人的工程智慧：
+            他們在地勢低窪的地方挖建埤塘，把雨水蓄積起來；
+            再用水圳把水引到需要的農地，建立了一個沒有工程師設計的灌溉系統。
+          </p>
+          <p>
+            這套系統，完全靠觀察地形、理解水流邏輯建立起來。
+            <span class="humor">沒有 AutoCAD，沒有測量儀器，靠的是幾代人用腳走出來的地形知識。
+            現代土木工程師大概會說：「這些人憑什麼做到的？」答案是：憑經驗，憑傳承，憑對土地的愛。</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="wisdom-block">
+        <div class="wisdom-label">先民智慧</div>
+        <div class="wisdom-quote">「水往低處流，人往高處走。但智慧是：讓水流到你想要它去的地方。」</div>
+        <div class="wisdom-text">
+          水圳系統背後的智慧是「借力使力」：不對抗自然，而是理解自然的規律，
+          然後設計一個讓自然幫你工作的系統。這個原則，不管在農業、工程、還是商業上，都一樣有效。
+        </div>
+      </div>
+    </div>
+
+    <div class="transition-note">前往廟宇與民俗文化區</div>
+
+    <!-- Station 9 -->
+    <div class="station">
+      <div class="station-header">
+        <div class="station-number">站 09</div>
+        <div>
+          <div class="station-title">廟宇與民俗信仰——神明住在哪裡</div>
+          <div class="station-en">Temple & Folk Beliefs — Where the Gods Live</div>
+        </div>
+      </div>
+
+      <div class="term-grid">
+        <div class="term-card">
+          <div class="term-zh">土地公（tǔ dì gōng）</div>
+          <div class="term-en">Earth God / Tu Di Gong</div>
+          <div class="term-def">台灣最普遍的民間神明，保護土地和農業豐收。幾乎每個村子都有土地公廟，規模可以很小，只有一個小石碑。</div>
+        </div>
+        <div class="term-card">
+          <div class="term-zh">香火（xiāng huǒ）</div>
+          <div class="term-en">Incense / Religious Tradition</div>
+          <div class="term-def">燃燒香的煙，象徵信徒的祈願傳達到神明。「香火旺盛」表示廟宇很受歡迎、信徒眾多。</div>
+        </div>
+        <div class="term-card">
+          <div class="term-zh">擲筊（zhì jiǎo）</div>
+          <div class="term-en">Divination Blocks</div>
+          <div class="term-def">用兩個半月形的木製或竹製工具，拋擲後看落地方式來詢問神明旨意。一正一反為「聖筊」，代表神明同意。</div>
+        </div>
+      </div>
+
+      <div class="script-block">
+        <div class="script-label">口說文稿</div>
+        <div class="script-text">
+          <p>
+            在田寮，廟宇不只是宗教場所，它是整個社區的精神中心和情報交換站。
+          </p>
+          <p>
+            在古代，農民面對天災、疾病、作物歉收，他們沒有保險、沒有政府補貼，
+            唯一的依靠是社區和神明。
+            廟宇定期舉辦的祭典，其實也是整個村子聚集、分享資訊的機會——
+            「今年哪個品種的稻子收成好？」「哪條山路最近有土石流？」
+            這些訊息都在廟口交換。
+          </p>
+          <p>
+            <span class="humor">所以你可以說，廟宇是台灣農村最早的「社群媒體平台」。
+            只是它的演算法是擲筊，不是 AI。</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="wisdom-block">
+        <div class="wisdom-label">文化理解提示（給美國學生）</div>
+        <div class="wisdom-text">
+          台灣的民間信仰不是迷信，它是一套在現代科學出現之前，
+          幫助社區應對不確定性的文化系統。
+          就像古希臘的神話、美國原住民的精靈信仰，
+          它都在嘗試回答同一個問題：「在我們無法控制的世界裡，我們怎麼找到意義和秩序？」
+        </div>
+      </div>
+
+      <div class="interaction">
+        <div class="interaction-label">互動問題</div>
+        <div class="interaction-text">
+          「在你的文化背景中，有沒有類似的地方——一個同時是宗教場所、也是社區聚集點的地方？
+          （比如：教會、清真寺、社區中心）它扮演的角色，跟這裡的廟宇有哪些相似或不同？」
+        </div>
+      </div>
+    </div>
+
+    <div class="transition-note">前往黃麻手作體驗區</div>
+
+    <!-- Station 10 -->
+    <div class="station">
+      <div class="station-header">
+        <div class="station-number">站 10</div>
+        <div>
+          <div class="station-title">黃麻手作體驗——用手學歷史</div>
+          <div class="station-en">Jute Craft Experience — Learning History with Your Hands</div>
+        </div>
+      </div>
+
+      <div class="term-grid">
+        <div class="term-card">
+          <div class="term-zh">黃麻（huáng má）</div>
+          <div class="term-en">Jute</div>
+          <div class="term-def">熱帶植物，纖維可以製成繩子、麻布袋、地毯等。台灣日治時期曾大量栽種，是農村的重要經濟作物。</div>
+        </div>
+        <div class="term-card">
+          <div class="term-zh">麻繩（má shéng）</div>
+          <div class="term-en">Hemp / Jute Rope</div>
+          <div class="term-def">用植物纖維手工搓製的繩子，早期農村的捆綁工具，今天幾乎被塑膠繩取代。</div>
+        </div>
+      </div>
+
+      <div class="script-block">
+        <div class="script-label">口說文稿</div>
+        <div class="script-text">
+          <p>
+            現在我們要做一件事：用手搓一段麻繩。
+          </p>
+          <p>
+            我知道這聽起來很簡單。但在你動手之前，我想讓你想一件事：
+            在你的手機充電線斷掉之前，這種繩子是人類最重要的工具之一。
+            綁農具、搭棚子、曬衣服、拉船、固定牲畜——沒有繩子，農村幾乎無法運作。
+          </p>
+          <p>
+            <span class="humor">今天你們要親手做的，是人類最古老的「生產技術」之一。
+            某種意義上，你們今天比任何 AI 課程都更接近人類文明的起點。
+            而且我保證：你做完之後，會對「Amazon 快速配送」有新的感激。</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="wisdom-block">
+        <div class="wisdom-label">先民智慧 × 體驗學習</div>
+        <div class="wisdom-text">
+          USR 教育旅遊的核心理念是：有些知識，只有身體記得，大腦記不住。
+          搓麻繩需要的手感、力道、節奏——這些不在任何課本裡。
+          高師大 USR 計畫把這種「身體知識」納入課程，
+          是對傳統教育「只用大腦學習」模式的一種挑戰。
+        </div>
+      </div>
+    </div>
+
+    <div class="transition-note">回到集合點，準備結語</div>
+
+    <!-- Station 11 -->
+    <div class="station">
+      <div class="station-header">
+        <div class="station-number">站 11</div>
+        <div>
+          <div class="station-title">高師大 USR × 田寮——大學能為社區做什麼？</div>
+          <div class="station-en">NKNU × Tianliao — University Social Responsibility in Action</div>
+        </div>
+      </div>
+
+      <div class="term-grid">
+        <div class="term-card">
+          <div class="term-zh">地方創生（dì fāng chuàng shēng）</div>
+          <div class="term-en">Regional Revitalization</div>
+          <div class="term-def">政府與民間讓人口外移、老化的農村重新活化的行動，透過文化、產業、觀光等方式吸引新能量。</div>
+        </div>
+        <div class="term-card">
+          <div class="term-zh">文化資產（wén huà zī chǎn）</div>
+          <div class="term-en">Cultural Heritage / Assets</div>
+          <div class="term-def">一個地方特有的知識、技藝、故事、建築、習俗，是無法用金錢複製的獨特資源。</div>
+        </div>
+      </div>
+
+      <div class="script-block">
+        <div class="script-label">口說文稿</div>
+        <div class="script-text">
+          <p>
+            我們今天最後一站，我想跟大家說一個很重要的問題：
+            <strong>為什麼高師大要來這裡？大學跟農村，有什麼關係？</strong>
+          </p>
+          <p>
+            高師大 USR 計畫的答案是：
+            大學不應該只在城市裡做研究，寫沒有人看的論文。
+            大學應該把知識帶到需要的地方，同時，也從這些地方學到課本裡沒有的智慧。
+          </p>
+          <p>
+            田寮有太多這種智慧——關於地質、關於農業、關於水文、關於竹子、關於神明。
+            我們學生的工作，是把這些智慧記錄下來，翻譯成更多人能理解的語言，讓它不要消失。
+          </p>
+          <p>
+            <span class="humor">有人說大學生是「最沒有用的人」，因為我們什麼都沒生產。
+            但如果大學生能做到「讓一千年的智慧不要失傳」，我想這個工作，其實比很多工作更重要。</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="usr-box">
+        <div class="usr-box-title">USR 計畫發展歷程（2019 至今）</div>
+        <p>
+          高師大 USR 計畫自<strong>2019年（民國108年）</strong>正式推動，選擇田寮作為基地，原因是距燕巢校區僅半小時車程，足夠近、又夠「偏」。
+        </p>
+        <p>
+          <strong>第一階段：地方資源盤點</strong>——師生走遍田寮，把地質、農業、習俗、人物都記錄下來，建立「田寮知識庫」。
+        </p>
+        <p>
+          <strong>第二階段：教育旅遊模式</strong>——與補習班合作，讓高師大學生設計教案，帶城市孩子來田寮體驗食農活動、植物纖維取纖（香蕉、黃麻）和黃麻文創商品製作。今天你們走的踏查路線，就是學生們一站站設計出來的。
+        </p>
+        <p>
+          <strong>未來藍圖</strong>——高師大正在推動與<strong>成功大學</strong>的「二地協作」，計畫把田寮的模式串連到恆春、綠島、南方四島，開發一套完整的<strong>雙語教育旅遊課程</strong>——讓台灣的地方文化知識，可以用中英文同時被全球學習者認識。今天你們的到訪，就是這個計畫的一部分。
+        </p>
+      </div>
+
+      <div class="usr-box">
+        <div class="usr-box-title">USR 學習反思（給美國學生）</div>
+        <p>
+          台灣的 USR 計畫，跟美國大學的 Service Learning（服務學習）或 Community Engagement 很相似，
+          但強調「長期陪伴」而非「短期服務」。
+          在田寮的案例中，高師大師生與當地居民建立了持續的關係，
+          不是來「幫助」他們，而是來「一起工作」——這個差別很重要。
+        </p>
+        <p>
+          如果你們回美國後，學校有類似的社區參與計畫，
+          可以比較看看：你們的計畫是「短期服務」還是「長期共同工作」？哪一種對社區更有意義？
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Closing -->
+<div class="container">
+  <section>
+    <div class="section-tag">結語</div>
+    <h2>帶著一個問題離開</h2>
+
+    <div class="station">
+      <div class="script-label">結語口說文稿</div>
+      <div class="script-text">
+        <p>
+          我們今天走了 11 站，看了惡地、泥火山、放山羊、土雞城、竹子、廟宇……
+          但我希望你們帶走的，不是這些事實。
+        </p>
+        <p>
+          我希望你們帶走的，是一個問題：
+        </p>
+        <p style="background: var(--parchment); padding: 16px 20px; border-radius: 8px; font-family: 'Cormorant Garamond', serif; font-size: 20px; font-style: italic; color: var(--ink); border-left: 4px solid var(--ember); margin: 20px 0;">
+          「我們的祖先，是在什麼樣的限制下，發展出什麼樣的智慧？
+          而這些智慧，有多少我們已經遺忘了？」
+        </p>
+        <p>
+          田寮月世界，是台灣最誠實的一片土地。
+          它沒有掩飾它的貧瘠，它沒有假裝自己是什麼豐饒之地。
+          但正是因為它的誠實，它讓住在這裡的人，發展出了別處無法複製的生存智慧。
+        </p>
+        <p>
+          謝謝大家今天和我一起走這段路。
+          如果有任何問題，現在是最好的時候——或者，你也可以帶著問題回去，讓它慢慢發酵。
+        </p>
+        <p>
+          <span class="humor">然後下次你吃土雞的時候，你會想到今天。這我保證。</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Quick reference -->
+    <h3>快速術語表（給導覽員隨身攜帶）</h3>
+    <table class="summary-table">
+      <tr>
+        <th>中文</th>
+        <th>拼音</th>
+        <th>English</th>
+        <th>一句話解釋</th>
+      </tr>
+      <tr><td>惡地</td><td>è dì</td><td>Badlands</td><td>植物難生長的侵蝕地形</td></tr>
+      <tr><td>泥火山</td><td>ní huǒ shān</td><td>Mud Volcano</td><td>天然氣+泥漿冒出地面</td></tr>
+      <tr><td>泥岩</td><td>ní yán</td><td>Mudstone</td><td>古海底泥沙形成的岩石</td></tr>
+      <tr><td>海銀土</td><td>hǎi yín tǔ</td><td>Whitish Clay Soil</td><td>月世界的銀白色泥岩土</td></tr>
+      <tr><td>放山羊</td><td>fàng shān yáng</td><td>Free-Range Goat</td><td>讓羊在山坡自由覓食</td></tr>
+      <tr><td>土雞</td><td>tǔ jī</td><td>Free-Range Chicken</td><td>放養的傳統品種雞</td></tr>
+      <tr><td>竹編</td><td>zhú biān</td><td>Bamboo Weaving</td><td>竹片編製生活器具的工藝</td></tr>
+      <tr><td>埤塘</td><td>pí táng</td><td>Irrigation Pond</td><td>人工蓄水池塘</td></tr>
+      <tr><td>土地公</td><td>tǔ dì gōng</td><td>Earth God</td><td>保護土地的民間神明</td></tr>
+      <tr><td>擲筊</td><td>zhì jiǎo</td><td>Divination Blocks</td><td>詢問神明旨意的工具</td></tr>
+      <tr><td>黃麻</td><td>huáng má</td><td>Jute</td><td>製繩用的植物纖維</td></tr>
+      <tr><td>俗諺</td><td>sú yàn</td><td>Folk Proverb</td><td>世代相傳的農業智慧短句</td></tr>
+      <tr><td>USR</td><td>—</td><td>University Social Responsibility</td><td>大學社會責任計畫</td></tr>
+      <tr><td>地方創生</td><td>dì fāng chuàng shēng</td><td>Regional Revitalization</td><td>讓農村重新活化的行動</td></tr>
+      <tr><td>漳州</td><td>Zhāngzhōu</td><td>Zhangzhou, Fujian</td><td>清代台灣漢人移民最主要的原鄉</td></tr>
+      <tr><td>平埔族</td><td>Pínpǔ zú</td><td>Plains Aborigines</td><td>台灣平原地區的原住民族群</td></tr>
+      <tr><td>冷鏈</td><td>lěng liàn</td><td>Cold Chain</td><td>農產品全程低溫保存的物流系統</td></tr>
+      <tr><td>二仁溪</td><td>Èr rén xī</td><td>Erjin River</td><td>全球最彎曲的河流之一，貫穿田寮</td></tr>
+    </table>
+  </section>
+</div>
+
+<!-- Tips for student guides -->
+<div class="container">
+  <section>
+    <div class="section-tag">導覽員備忘</div>
+    <h2>五個讓美國學生更投入的技巧</h2>
+    <ul class="tip-list">
+      <li>每站都先問一個他們能連結到自身經驗的問題，再說田寮的故事——這叫做「橋接」（bridging）。</li>
+      <li>遇到中文詞彙，先說中文、再給拼音、再給英文翻譯，幫助中文系學生建立詞彙連結。</li>
+      <li>幽默感是打破文化隔閡的最快方式——不用怕開玩笑，但確保笑點跟當地文化相關。</li>
+      <li>「先民智慧」是美國中文系學生最感興趣的部分——把農業智慧連結到現代概念（ESG、循環經濟、比較利益），讓他們有「哇，原來如此」的頓悟感。</li>
+      <li>結束前一定要留 5-10 分鐘讓學生問問題，並鼓勵他們分享自己國家的相似文化。這是 USR 課程最珍貴的「雙向交流」時刻。</li>
+    </ul>
+  </section>
+</div>
+
+<footer class="footer">
+  <p>田寮月世界文化踏查導覽解說稿 v4.0</p>
+  <p>受眾：美國中文系學生 × 高師大 USR 計畫</p>
+  <p style="margin-top: 12px; font-size: 12px;">
+    由 <strong>MUSEON</strong> 協助編製 · 版本 2026-03-29<br>
+    v4.0 更新：月世界命名修正（日治1930年代，移除未考證NASA說）、放山羊補入礦物鹽自助覓食細節、土雞城加入影視拍攝帶動飲食文化起源、刪除未考證農業轉型延伸站
+  </p>
+</footer>
+
+</body>
+</html>

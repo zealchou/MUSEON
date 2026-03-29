@@ -1,0 +1,15 @@
+{
+  "qa_report_id": "QA-20260328-200733",
+  "timestamp": "2026-03-28T20:07:33.409476+00:00",
+  "session_id": "telegram_6969045906",
+  "issue_type": "LEAKAGE",
+  "severity": "HIGH",
+  "evidence": {
+    "bot_reply_excerpt": "[主動推送 07:30] 早安，達達把拔！🌅\n\n昨夜圓滿：全部 49 步整合通過，知識晶格梳理增進 1329 組，Morphenix 有 1 項提案已執行、3 項待你審核。能量維度方面，**深潛力**（kan）保持滿載，**承納力**（kun）也很飽滿，創意與觸發力開始回升——預示今天適合開拓新領域。\n\n**今天的節奏：**\n- 4 項 L3 提案等你簽字（在 morphenix/proposal",
+    "matched_patterns": [
+      "\\bL[123]\\b"
+    ]
+  },
+  "suggested_fix": "強化 CLAUDE.md Step 3.5 禁止清單",
+  "status": "open"
+}

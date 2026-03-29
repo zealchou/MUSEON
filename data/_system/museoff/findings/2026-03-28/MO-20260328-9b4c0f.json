@@ -1,0 +1,35 @@
+{
+  "finding_id": "MO-20260328-9b4c0f",
+  "timestamp": "2026-03-28T14:52:44.704722+00:00",
+  "probe_layer": "L1",
+  "severity": "HIGH",
+  "title": "系統就緒檢查失敗: Failed: brain",
+  "source": "museoff",
+  "blast_origin": {
+    "file": "gateway/server.py",
+    "line": null,
+    "error_type": "ReadinessFailure",
+    "traceback": ""
+  },
+  "blast_radius": [
+    {
+      "module": "brain",
+      "impact": "服務降級",
+      "fan_in": "N/A"
+    }
+  ],
+  "context": {},
+  "triage_done": null,
+  "known_fix": null,
+  "prescription": {
+    "diagnosis": "Failed: brain",
+    "root_cause": "以下服務未就緒: brain",
+    "suggested_fix": "檢查相關服務狀態",
+    "runbook_id": "",
+    "fix_complexity": "GREEN",
+    "pre_check": "",
+    "post_check": "",
+    "rollback": ""
+  },
+  "status": "open"
+}

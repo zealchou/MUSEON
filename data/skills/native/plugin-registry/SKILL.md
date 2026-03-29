@@ -75,7 +75,7 @@ DNA27（核心 OS）
 │   ├── wan-miu-16           （萬謬16型人格分析引擎）
 │   ├── combined-reading     （合盤能量比對引擎）
 │   ├── anima-individual     （ANIMA 個體追蹤引擎）    ← NEW
-│   └── ares                 （戰神系統工作流）         ← NEW
+│   └── athena               （ATHENA 智慧戰略情報平台）
 │
 ├─ [Market Hub]（8）— 市場分析、風險、情緒、模擬
 │   ├── market-core          （市場分析核心引擎）
@@ -85,7 +85,7 @@ DNA27（核心 OS）
 │   ├── investment-masters   （投資軍師團）
 │   ├── risk-matrix          （風險管理與資產配置引擎）
 │   ├── sentiment-radar      （市場情緒雷達）
-│   └── market-ares          （市場戰神策略模擬引擎）    ← NEW
+│   └── darwin               （DARWIN 策略演化模擬引擎）    ← NEW
 │
 ├─ [Business Hub]（8）— 商模、戰略、銷售、溝通、品牌建構
 │   ├── business-12          （商模十二力診斷引擎）

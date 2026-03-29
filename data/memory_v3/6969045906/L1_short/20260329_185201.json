@@ -1,0 +1,6 @@
+{
+  "session_id": "telegram_6969045906",
+  "user_message": "為什麼 Rita 在的那個群組 把Rita 踢出去了\n而且現在無法互動",
+  "museon_reply": "從 log 裡找到答案了，問題有兩層：\n\n---\n\n## Rita 被踢這件事\n\n**MUSEON 沒有任何踢人的代碼**，代碼裡只有一個 `_handle_chat_member_updated`，而且只監控 Zeal（owner）自己的進出，不會對其他成員做任何操作。\n\nRita 被踢，一定是**群組裡某個有管理員權限的人手動操作的**，不是系統自動行為。\n\n---\n\n## 無法互動這件事\n\nLog 裡看到幾個線索：\n\n1. **18:00~18:07 出現大量 Flood control exceeded**——Telegram 頻率限制，短時間發太多訊息被暫時鎖住，不是永久性問題\n2. **最後一筆成功互動是 18:08:14**，Bot 正常回覆了 Rita 的養羊那則\n3. **之後 5195907318 群組完全靜默**——可能是 Rita 沒有繼續發訊息，也可能 Bot 被踢了\n\n最有可能的情況：**Rita 被踢之後，Bot 也被踢了**（或 Rita 就是唯一活躍成員，她一走群組就沉了）。Bot 被踢不會有錯誤 log，因為 Telegram 不會再把訊息送過來。\n",
+  "timestamp": "2026-03-29T18:52:01.202736+08:00"
+}

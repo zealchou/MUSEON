@@ -1,0 +1,25 @@
+{
+  "category": "L1",
+  "source": "qscore_signal",
+  "title": "Q-Score 弱項修復: actionability 維度平均僅 0.45",
+  "description": "過去 7 天 91 次互動中，actionability 維度平均分數 0.45（低於 0.5 閾值）。建議在系統提示詞中強化該維度的指引。",
+  "action": "increase_prompt_weight_actionability",
+  "metric": {
+    "dimension": "actionability",
+    "current_avg": 0.453
+  },
+  "metadata": {
+    "config_changes": [
+      {
+        "file": "_system/context_cache/active_rules.json",
+        "key": "actionability_weight",
+        "value": 1.05,
+        "old_value": 1.0
+      }
+    ]
+  },
+  "created_at": "2026-03-30T03:03:39.998340+08:00",
+  "status": "approved",
+  "decided_by": "auto",
+  "decided_at": "2026-03-30T03:03:40.170362+08:00"
+}

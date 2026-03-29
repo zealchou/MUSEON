@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260330_001315_metacog_insight",
+  "category": "metacog_insight",
+  "content": "根據 git status，最近生成的報告有：\n\n1. `explore_20260330_000817.html` — 最新的探索報告\n2. `explore_20260329_071036.html`\n3. `explore_20260329_value_pricing.html`\n4. `group_meeting_notes_evvon_20260329.html` — 群組會議記錄\n5. `tianliao_tour_guide_20260329_rita_v2.html` — 田寮導遊報告（Rita 版本）\n6. `onemuse_reading_20260329_zeal.html`\n\n你要推哪一個？告訴我檔名或編號，我用腳本一鍵發布。",
+  "source": "L4_observer",
+  "created_at": "2026-03-30T00:13:15.220666+08:00",
+  "priority": "medium"
+}

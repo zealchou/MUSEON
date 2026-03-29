@@ -1,0 +1,43 @@
+{
+  "session_id": "telegram_group_5222433915",
+  "nodes": {
+    "intention_求助": {
+      "node_id": "intention_求助",
+      "node_type": "intention",
+      "label": "求助",
+      "properties": {
+        "detected_at": "2026-03-29T23:23:52.998059"
+      },
+      "created_at": "2026-03-29T23:11:37.378548",
+      "updated_at": "2026-03-29T23:23:52.998254"
+    },
+    "topic_turn_1": {
+      "node_id": "topic_turn_1",
+      "node_type": "topic",
+      "label": "turn_1",
+      "properties": {
+        "content_length": 673,
+        "detected_at": "2026-03-29T23:11:37.378453"
+      },
+      "created_at": "2026-03-29T23:11:37.378602",
+      "updated_at": "2026-03-29T23:11:37.378608"
+    },
+    "topic_turn_2": {
+      "node_id": "topic_turn_2",
+      "node_type": "topic",
+      "label": "turn_2",
+      "properties": {
+        "content_length": 902,
+        "detected_at": "2026-03-29T23:23:52.998059"
+      },
+      "created_at": "2026-03-29T23:23:52.998281",
+      "updated_at": "2026-03-29T23:23:52.998286"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 2,
+    "last_content_length": 902
+  },
+  "last_updated": "2026-03-29T23:23:52.998059"
+}

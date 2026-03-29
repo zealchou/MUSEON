@@ -1,36 +1,6 @@
 {
-  "last_updated": "2026-03-28T09:46:22.890281",
+  "last_updated": "2026-03-30T04:06:25.615706",
   "entries": [
-    {
-      "source": "museqa",
-      "timestamp": "2026-03-27T22:31:53.566376",
-      "summary": "品質掃描: 0 sessions, 0 回覆, 0 問題",
-      "findings_count": 0,
-      "actions_taken": [
-        "scanned_replies:0"
-      ],
-      "status": "ok"
-    },
-    {
-      "source": "museqa",
-      "timestamp": "2026-03-27T22:46:53.651814",
-      "summary": "品質掃描: 0 sessions, 0 回覆, 0 問題",
-      "findings_count": 0,
-      "actions_taken": [
-        "scanned_replies:0"
-      ],
-      "status": "ok"
-    },
-    {
-      "source": "museqa",
-      "timestamp": "2026-03-27T23:01:53.558284",
-      "summary": "品質掃描: 0 sessions, 0 回覆, 0 問題",
-      "findings_count": 0,
-      "actions_taken": [
-        "scanned_replies:0"
-      ],
-      "status": "ok"
-    },
     {
       "source": "museqa",
       "timestamp": "2026-03-27T23:16:53.649381",
@@ -497,6 +467,36 @@
       "source": "museworker",
       "timestamp": "2026-03-28T09:46:22.890277",
       "summary": "快照完成: 235 模組, 1460ms, zombies=0, missing=0",
+      "findings_count": 0,
+      "actions_taken": [
+        "snapshot:scheduled"
+      ],
+      "status": "ok"
+    },
+    {
+      "source": "musedoc",
+      "timestamp": "2026-03-30T04:00:43.771644",
+      "summary": "手術完成: 0 修復, 2 回滾, 0 需人工, 49 跳過",
+      "findings_count": 51,
+      "actions_taken": [
+        "rolled_back:2"
+      ],
+      "status": "critical"
+    },
+    {
+      "source": "museqa",
+      "timestamp": "2026-03-30T04:03:30.990556",
+      "summary": "品質掃描: 17 sessions, 226 回覆, 56 問題",
+      "findings_count": 56,
+      "actions_taken": [
+        "scanned_replies:226"
+      ],
+      "status": "critical"
+    },
+    {
+      "source": "museworker",
+      "timestamp": "2026-03-30T04:06:25.615702",
+      "summary": "快照完成: 243 模組, 1443ms, zombies=0, missing=0",
       "findings_count": 0,
       "actions_taken": [
         "snapshot:scheduled"

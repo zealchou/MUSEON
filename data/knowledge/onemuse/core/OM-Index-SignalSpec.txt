@@ -1,0 +1,642 @@
+{
+  "schema": {
+    "name": "OM-Index-SignalSpec",
+    "type": "index_spec",
+    "format": "json",
+    "language": "zh-Hant",
+    "version": "v0.1.0",
+    "status": "MVP",
+    "updated_at": "2026-01-25",
+    "changelog": [
+      "v0.1.0: å®šç¾© One Muse å…¨åŸŸ Signal è¦æ ¼ï¼šå‘½åã€å½¢ç‹€ã€ä¾†æºã€å®Œæ•´åº¦ã€å¼•ç”¨èˆ‡çµ„è£è¦å‰‡ã€‚",
+      "v0.1.0: èˆ‡ OM-Index-Router v0.1.0 å°é½Šï¼šStep1~7 çš„ canonical inputs/outputs èˆ‡ä¸­é–“è®Šæ•¸åç¨±ã€‚",
+      "v0.1.0: å»ºç«‹ Signal-ID è¦å‰‡ï¼ˆSIG:...ï¼‰ã€provenanceï¼ˆsource module + versionï¼‰èˆ‡ fact/inference æ¨™è¨»ã€‚"
+    ],
+    "depends_on": {
+      "router": "OM-Index-Router.json@v0.1.0",
+      "plus_energy_grammar": "OM-Plus-EnergyGrammar.json@v0.2.0",
+      "plus_four_manifestations": "OM-Plus-FourManifestations.json@v0.2.0",
+      "plus_four_feelings": "OM-Plus-FourFeelings.json@v0.2.0",
+      "plus_four_axes": "OM-Plus-FourAxes.json@v0.2.0",
+      "plus_reverse_route": "OM-Plus-ReverseRoute.json@v0.2.0",
+      "plus_eight_directions": "OM-Plus-EightDirections.json@v0.2.1",
+      "plus_integrated_synthesis": "OM-Plus-IntegratedSynthesis.json@v0.2.1",
+      "plus_coaching_flow": "OM-Plus-CoachingFlow-1to7.json@v0.1.0"
+    }
+  },
+
+  "purpose": {
+    "why": "æŠŠæ‰€æœ‰è§£ç›¤è¼¸å‡ºçµ±ä¸€æˆå¯ç´¢å¼•ã€å¯ä¸²æŽ¥ã€å¯é©—è­‰çš„ã€Žè¨Šè™Ÿï¼ˆsignalsï¼‰ã€ï¼Œä¾› Routerã€Synthesisã€æ™¶é«”ï¼ˆCryï¼‰èˆ‡æœ€çµ‚å›žè¦†æ¨¡æ¿ä¸€è‡´èª¿ç”¨ã€‚",
+    "what": [
+      "è¦ç¯„ï¼šsignal_id å‘½å",
+      "è¦ç¯„ï¼šsignal payload å½¢ç‹€èˆ‡è³‡æ–™åž‹åˆ¥",
+      "è¦ç¯„ï¼šprovenanceï¼ˆä¾†æº/ç‰ˆæœ¬/æ™‚é–“ï¼‰",
+      "è¦ç¯„ï¼šcompletenessï¼ˆå®Œæ•´åº¦ï¼‰",
+      "è¦ç¯„ï¼šfact vs inference çš„æ¨™è¨»",
+      "è¦ç¯„ï¼šå¼•ç”¨èˆ‡çµ„è£ï¼ˆassemblyï¼‰"
+    ],
+    "not": [
+      "ä¸è¦å®šã€Žæ€Žéº¼ç®—ã€æ¯å€‹ signalï¼ˆç”±å„ plus module è² è²¬ï¼‰ã€‚",
+      "ä¸æ‰¿è«¾å¤–éƒ¨ API æˆ–å·¥å…·å‘¼å«ï¼ˆåªåšè³‡æ–™å¥‘ç´„ï¼‰ã€‚"
+    ]
+  },
+
+  "signal_system": {
+    "naming": {
+      "signal_id_prefix": "SIG",
+      "pattern": "SIG:{SCOPE}.{STEP}.{FAMILY}.{NAME}",
+      "scopes": {
+        "OM": "One Muse å…¨åŸŸä¿¡è™Ÿ",
+        "PLUS": "plus module ç”¢å‡ºä¿¡è™Ÿï¼ˆå¯è¢« OM scope é‡æ–°å°è£ï¼‰",
+        "CR": "Crystal ä¿¡è™Ÿï¼ˆAEO/GEOï¼‰"
+      },
+      "steps": {
+        "S0": "intake",
+        "S1": "energy_grammar",
+        "S2": "four_manifestations",
+        "S3": "four_feelings",
+        "S4": "four_axes",
+        "S5": "reverse_route_and_eight_directions",
+        "S6": "integrated_synthesis",
+        "S7": "user_summary"
+      },
+      "families": {
+        "INPUT": "ä½¿ç”¨è€…è¼¸å…¥",
+        "RAW": "åŽŸå§‹æ•¸æ“š",
+        "DERIVED": "è¡ç”Ÿé‹ç®—çµæžœ",
+        "CONTEXT": "ä¸Šä¸‹æ–‡/è·¯ç”±/å®Œæ•´åº¦",
+        "NARRATIVE": "æ•˜äº‹/è§£è®€æ–‡æœ¬",
+        "ACTION": "è¡Œå‹•å»ºè­°",
+        "QA": "å•é¡Œé›†",
+        "REPORT": "å ±å‘Š/çµ„è£çµæžœ"
+      },
+      "examples": [
+        "SIG:OM.S0.INPUT.GOAL",
+        "SIG:OM.S1.DERIVED.SUM_COMPARE",
+        "SIG:OM.S5.DERIVED.REVERSE_ROUTE_RESULT",
+        "SIG:OM.S6.ACTION.FINAL_ACTION_PLAN",
+        "SIG:OM.S7.QA.USER_SELF_SUMMARY_PROMPTS"
+      ]
+    },
+
+    "metadata": {
+      "required_fields": {
+        "signal_id": "string",
+        "label": "string",
+        "type": "string",
+        "payload": "any",
+        "fact_or_inference": "FACT|INFERENCE|MIXED",
+        "confidence": "LOW|MED|HIGH",
+        "completeness": "COMPLETE|PARTIAL|INCOMPLETE",
+        "provenance": {
+          "source_module_id": "string",
+          "source_module_file": "string",
+          "source_version": "string",
+          "created_at": "string(ISO8601)",
+          "inputs_fingerprint": "string"
+        },
+        "links": {
+          "depends_on": "array<string>",
+          "consumed_by": "array<string>"
+        },
+        "notes": "string"
+      },
+      "optional_fields": {
+        "units": "string",
+        "range": "string",
+        "examples": "array<any>",
+        "constraints": "array<string>",
+        "warnings": "array<string>",
+        "tags": "array<string>",
+        "render_hints": "object"
+      }
+    },
+
+    "fact_inference_policy": {
+      "definition": {
+        "FACT": "ç›´æŽ¥ä¾†è‡ªè¼¸å…¥æ•¸å­—æˆ–æ¨¡çµ„æ˜Žç¢ºè¼¸å‡ºæ¬„ä½ï¼ˆä¸åŠ ä¸»è§€è§£è®€ï¼‰ã€‚",
+        "INFERENCE": "ç”±æ¨¡åž‹/æ¨¡çµ„æŽ¨è«–ã€æ¯”å–»ã€å› æžœã€ä¿è­·/ä»£åƒ¹ç­‰æ•˜äº‹ï¼ˆéœ€é©—è­‰ï¼‰ã€‚",
+        "MIXED": "åŒä¸€ payload å…§åŒæ™‚å«æ•¸æ“šï¼ˆFACTï¼‰èˆ‡è§£è®€ï¼ˆINFERENCEï¼‰ã€‚"
+      },
+      "requirements": [
+        "å‡¡æ¶‰åŠ 'ä¿è­·ä»€éº¼'ã€'ç‚ºä»€éº¼æœƒé€™æ¨£'ã€'ä½ å¯èƒ½' é¡žå¥ï¼Œä¸€å¾‹æ¨™è¨» INFERENCE æˆ– MIXEDã€‚",
+        "ReverseRoute çš„ bottleneck_dir/solution_entry å±¬ FACTï¼ˆç”±è¦å‰‡ç®—å‡ºï¼‰ï¼Œä½† what_it_protects å±¬ INFERENCEã€‚"
+      ],
+      "markers": {
+        "inference_words": ["å¯èƒ½", "çœ‹èµ·ä¾†", "æˆ‘æŽ¨æ¸¬", "éœ€è¦é©—è­‰", "ä¹Ÿè¨±", "å‚¾å‘"],
+        "forbidden": ["æ³¨å®š", "ä¿è­‰", "çµ•å°", "æ°¸é "]
+      }
+    },
+
+    "completeness_policy": {
+      "rule": "completeness ç”±ä¸Šæ¸¸æ¨¡çµ„è¼¸å‡ºæˆ– Router gate æ±ºå®šï¼›SignalSpec åªçµ±ä¸€æžšèˆ‰èˆ‡å‚³éžã€‚",
+      "levels": {
+        "COMPLETE": "æ‰€éœ€è¼¸å…¥é½Šå…¨ï¼Œå¯å®Œæ•´è§£é‡‹èˆ‡è·¯ç”±ã€‚",
+        "PARTIAL": "éƒ¨åˆ†è¼¸å…¥ç¼ºå¤±æˆ–é™ç´šè¨ˆç®—ï¼ˆä¾‹ï¼šouter ç¼ºå¤±å°Žè‡´å››è±¡/å››è»¸ä¸å®Œæ•´ï¼›ReverseRoute mode é™ç´šï¼‰ã€‚",
+        "INCOMPLETE": "ç¼ºå°‘æ ¸å¿ƒè¼¸å…¥ï¼ˆä¾‹ï¼šä»»ä¸€æ–¹ä½ inner ç¼ºå¤±ï¼‰ï¼Œç¦æ­¢ç”¢ç”Ÿç²¾æº–çµè«–ã€‚"
+      },
+      "propagation": [
+        "è‹¥ä¸Šæ¸¸ INCOMPLETE â†’ ä¸‹æ¸¸å¿…é ˆè‡³å°‘ PARTIAL ä¸”éœ€å¯« warningsã€‚",
+        "è‹¥ ReverseRoute completeness=PARTIAL â†’ EightDirections/IntegratedSynthesis ä»å¯è·‘ï¼Œä½†éœ€åœ¨ reverse_route_context.notes è¨»æ˜Žé™ç´šã€‚"
+      ]
+    }
+  },
+
+  "canonical_shapes": {
+    "directions": {
+      "dir_keys": ["å¤©", "é¢¨", "æ°´", "å±±", "åœ°", "é›·", "ç«", "æ¾¤"],
+      "score_scale": {
+        "allowed": [4, 3, 2, 1, -1, -2, -3, -4],
+        "no_zero": true,
+        "notes": {
+          "+4": "è‡¨ç•Œæç¤ºï¼šå¯èƒ½å¾€ +3 æ–¹å‘å›žè½ï¼ˆä¸å¯ä¿è­‰ï¼‰ã€‚",
+          "-4": "è‡¨ç•Œæç¤ºï¼šå¯èƒ½å¾€ -3 æ–¹å‘å›žå‡ï¼ˆä¸å¯ä¿è­‰ï¼‰ã€‚"
+        }
+      },
+      "raw": {
+        "shape": {
+          "<dir>": {"inner": "number", "outer": "number|null"}
+        }
+      },
+      "enriched": {
+        "shape": {
+          "<dir>": {
+            "inner": "number",
+            "outer": "number|null",
+            "gap": "number|null",
+            "tension": "boolean|null",
+            "tension_type": "INNER_GT_OUTER|OUTER_GT_INNER|NONE|null",
+            "reversal_hint": "object|null"
+          }
+        }
+      }
+    },
+
+    "sum_compare": {
+      "shape": {
+        "inner_sum": "number",
+        "outer_sum": "number|null",
+        "sum_gap": "number|null",
+        "summary_text": "string",
+        "tension_overview": "string|null"
+      }
+    },
+
+    "reverse_route_result": {
+      "shape": {
+        "mode_used": "INNER|OUTER|BLENDED",
+        "completeness": "COMPLETE|PARTIAL|INCOMPLETE",
+        "bottleneck_dir": "string|null",
+        "bottleneck_score": "number|null",
+        "reverse_route": "array<string>",
+        "solution_entry": "array<string>",
+        "entry_scores": "array<number|null>",
+        "found_two_positive_run": "boolean",
+        "fallback_used": "boolean",
+        "overlays": {
+          "tension_dirs": "array<string>",
+          "edge_reversal_dirs": "array<string>",
+          "notes": "array<string>"
+        }
+      }
+    },
+
+    "eight_directions_reading": {
+      "shape": {
+        "<dir>": {
+          "meta": {
+            "inner": "number",
+            "outer": "number|null",
+            "gap": "number|null",
+            "tension": "boolean|null",
+            "tension_type": "INNER_GT_OUTER|OUTER_GT_INNER|NONE|null",
+            "reversal_hint": "object|null",
+            "is_bottleneck": "boolean",
+            "is_solution_entry": "boolean"
+          },
+          "layers": {
+            "business": {"signal": "string", "meaning": "string", "risk": "string", "micro_action_options": "array<string>"},
+            "relationship": {"signal": "string", "meaning": "string", "risk": "string", "micro_action_options": "array<string>"},
+            "inner_state": {"signal": "string", "meaning": "string", "risk": "string", "micro_action_options": "array<string>"}
+          },
+          "coach_questions": "array<string>",
+          "recommended_crystals": "array<string>",
+          "notes": "string"
+        }
+      }
+    },
+
+    "integrated_synthesis": {
+      "shape": {
+        "zen_frame": "string",
+        "key_takeaways": "array<string>",
+        "system_weather": {"inner_outer_summary": "string", "tension_summary": "string|null", "overload_flags": "array<string>"},
+        "external_snapshot": {"overview": "string", "strongest": "string|null", "weakest": "string|null", "notes": "string"},
+        "internal_drivers": {"overview": "string", "strongest": "string|null", "weakest": "string|null", "driver_hypotheses": "array<object>", "notes": "string"},
+        "personality_structure": {"axis_code": "string", "readable": "string", "overview": "string", "verification_questions": "array<string>"},
+        "reverse_route_context": {
+          "completeness": "COMPLETE|PARTIAL|INCOMPLETE|NONE",
+          "source_used": "reverse_route_result|eight_directions|legacy_fields|inferred",
+          "mode_used": "INNER|OUTER|BLENDED|null",
+          "bottleneck_dir": "string|null",
+          "reverse_route": "array<string>",
+          "solution_entry": "array<string>",
+          "found_two_positive_run": "boolean|null",
+          "fallback_used": "boolean|null",
+          "notes": "array<string>"
+        },
+        "bottleneck_story": {
+          "bottleneck_dir": "string|null",
+          "why_it_blocks": "string",
+          "what_it_protects": "string",
+          "reverse_route_summary": "string|null",
+          "solution_entry_summary": "string|null",
+          "notes": "string"
+        },
+        "final_action_plan": {
+          "energy_adjustment": {"strategy_summary": "string", "seed_law_link": "string", "actions": "array<object>", "risk_notes": "string"},
+          "relationship_adjustment": {"strategy_summary": "string", "focus_priority": "UP|PEER|DOWN|FAMILY|PARTNER|CUSTOM", "actions": "array<object>", "risk_notes": "string"},
+          "cognition_behavior_adjustment": {"strategy_summary": "string", "cognitive_hygiene": "array<object>", "behavior_plan": "array<object>", "risk_notes": "string"},
+          "sequence_recommendation": "string",
+          "verification": "string"
+        },
+        "one_micro_action": {"choice": "FROM_ENTRY_DIRECTION|FROM_WEAKEST_MANIFESTATION|FROM_WEAKEST_FEELING", "action": "string", "why_this": "string", "timebox_minutes": "number", "success_criteria": "string"},
+        "coach_questions": "array<string>"
+      }
+    },
+
+    "user_self_summary_prompts": {
+      "shape": {
+        "prompt_set": "array<string>",
+        "reflection_structure": {
+          "discoveries": "string",
+          "problem_behind_problem": "string",
+          "learning": "string",
+          "next_step": "string"
+        }
+      }
+    }
+  },
+
+  "signal_catalog": [
+    {
+      "signal_id": "SIG:OM.S0.INPUT.GOAL",
+      "label": "å…­å€‹æœˆç›®æ¨™",
+      "type": "string",
+      "payload_shape": "string",
+      "fact_or_inference": "FACT",
+      "confidence": "HIGH",
+      "completeness": "COMPLETE",
+      "provenance_template": {
+        "source_module_id": "USER",
+        "source_module_file": "intake",
+        "source_version": "n/a",
+        "inputs_fingerprint": "hash(goal)"
+      },
+      "links": {
+        "depends_on": [],
+        "consumed_by": [
+          "SIG:OM.S1.DERIVED.DIRECTIONS_ENRICHED",
+          "SIG:OM.S5.DERIVED.REVERSE_ROUTE_RESULT",
+          "SIG:OM.S6.NARRATIVE.INTEGRATED_SYNTHESIS"
+        ]
+      },
+      "notes": "ç”¨ä¸€å¥è©±å¯è¡¡é‡ï¼›å¿…è¦æ™‚åŠ æŒ‡æ¨™ã€‚"
+    },
+
+    {
+      "signal_id": "SIG:OM.S0.RAW.DIRECTIONS_RAW",
+      "label": "å…«æ–¹ä½åŽŸå§‹å…§å¤–èƒ½é‡",
+      "type": "object",
+      "payload_shape": "canonical_shapes.directions.raw",
+      "fact_or_inference": "FACT",
+      "confidence": "HIGH",
+      "completeness": "COMPLETE|PARTIAL|INCOMPLETE",
+      "provenance_template": {
+        "source_module_id": "USER",
+        "source_module_file": "intake",
+        "source_version": "n/a",
+        "inputs_fingerprint": "hash(directions_raw)"
+      },
+      "links": {
+        "depends_on": ["SIG:OM.S0.INPUT.GOAL"],
+        "consumed_by": ["SIG:OM.S1.DERIVED.DIRECTIONS_ENRICHED"]
+      },
+      "notes": "inner å¿…å¡«ï¼›outer å¯ç‚º nullã€‚"
+    },
+
+    {
+      "signal_id": "SIG:OM.S1.DERIVED.DIRECTIONS_ENRICHED",
+      "label": "å…«æ–¹ä½ enrichedï¼ˆgap/tension/è‡¨ç•Œæç¤ºï¼‰",
+      "type": "object",
+      "payload_shape": "canonical_shapes.directions.enriched",
+      "fact_or_inference": "FACT",
+      "confidence": "HIGH",
+      "completeness": "COMPLETE|PARTIAL|INCOMPLETE",
+      "provenance_template": {
+        "source_module_id": "PLUS:ENERGY_GRAMMAR",
+        "source_module_file": "OM-Plus-EnergyGrammar.json",
+        "source_version": "v0.2.0",
+        "inputs_fingerprint": "hash(goal,directions_raw,user_state)"
+      },
+      "links": {
+        "depends_on": ["SIG:OM.S0.INPUT.GOAL", "SIG:OM.S0.RAW.DIRECTIONS_RAW"],
+        "consumed_by": [
+          "SIG:OM.S1.DERIVED.SUM_COMPARE",
+          "SIG:OM.S2.DERIVED.FOUR_MANIFESTATIONS",
+          "SIG:OM.S3.DERIVED.FOUR_FEELINGS",
+          "SIG:OM.S4.DERIVED.FOUR_AXES",
+          "SIG:OM.S5.DERIVED.REVERSE_ROUTE_RESULT",
+          "SIG:OM.S5.NARRATIVE.EIGHT_DIRECTIONS_READING"
+        ]
+      },
+      "notes": "outer ç¼ºå¤±æœƒé€ æˆ gap/tension/å¤–é¡¯æ¨¡çµ„é™ç´šã€‚"
+    },
+
+    {
+      "signal_id": "SIG:OM.S1.DERIVED.SUM_COMPARE",
+      "label": "å…§å¤–ç¸½å’Œèˆ‡ç›¤æ„Ÿå¤©æ°£",
+      "type": "object",
+      "payload_shape": "canonical_shapes.sum_compare",
+      "fact_or_inference": "MIXED",
+      "confidence": "MED",
+      "completeness": "COMPLETE|PARTIAL",
+      "provenance_template": {
+        "source_module_id": "PLUS:ENERGY_GRAMMAR",
+        "source_module_file": "OM-Plus-EnergyGrammar.json",
+        "source_version": "v0.2.0",
+        "inputs_fingerprint": "hash(directions_enriched)"
+      },
+      "links": {
+        "depends_on": ["SIG:OM.S1.DERIVED.DIRECTIONS_ENRICHED"],
+        "consumed_by": ["SIG:OM.S6.NARRATIVE.INTEGRATED_SYNTHESIS"]
+      },
+      "notes": "æ•¸å€¼å±¬ FACTï¼›summary_text/tension_overview å±¬ MIXEDï¼ˆæœ‰æ•˜äº‹ï¼‰ã€‚"
+    },
+
+    {
+      "signal_id": "SIG:OM.S2.DERIVED.FOUR_MANIFESTATIONS",
+      "label": "å¤–é¡¯å››è±¡",
+      "type": "object",
+      "payload_shape": "object (module-defined)",
+      "fact_or_inference": "MIXED",
+      "confidence": "MED",
+      "completeness": "COMPLETE|PARTIAL|INCOMPLETE",
+      "provenance_template": {
+        "source_module_id": "PLUS:FOUR_MANIFESTATIONS",
+        "source_module_file": "OM-Plus-FourManifestations.json",
+        "source_version": "v0.2.0",
+        "inputs_fingerprint": "hash(directions_enriched)"
+      },
+      "links": {
+        "depends_on": ["SIG:OM.S1.DERIVED.DIRECTIONS_ENRICHED"],
+        "consumed_by": ["SIG:OM.S6.NARRATIVE.INTEGRATED_SYNTHESIS"]
+      },
+      "notes": "outer ä¸é½Šå¯èƒ½ INCOMPLETEã€‚"
+    },
+
+    {
+      "signal_id": "SIG:OM.S3.DERIVED.FOUR_FEELINGS",
+      "label": "å…§éš±å››æ„Ÿ",
+      "type": "object",
+      "payload_shape": "object (module-defined)",
+      "fact_or_inference": "MIXED",
+      "confidence": "MED",
+      "completeness": "COMPLETE|PARTIAL",
+      "provenance_template": {
+        "source_module_id": "PLUS:FOUR_FEELINGS",
+        "source_module_file": "OM-Plus-FourFeelings.json",
+        "source_version": "v0.2.0",
+        "inputs_fingerprint": "hash(directions_enriched,goal)"
+      },
+      "links": {
+        "depends_on": ["SIG:OM.S1.DERIVED.DIRECTIONS_ENRICHED", "SIG:OM.S0.INPUT.GOAL"],
+        "consumed_by": ["SIG:OM.S6.NARRATIVE.INTEGRATED_SYNTHESIS"]
+      },
+      "notes": "driver_hypotheses å±¬ INFERENCEï¼Œéœ€è¦é©—è­‰ã€‚"
+    },
+
+    {
+      "signal_id": "SIG:OM.S4.DERIVED.FOUR_AXES",
+      "label": "å››è»¸ç·šèˆ‡çµæ§‹ä»£ç¢¼",
+      "type": "object",
+      "payload_shape": "object (module-defined)",
+      "fact_or_inference": "MIXED",
+      "confidence": "MED",
+      "completeness": "COMPLETE|PARTIAL|INCOMPLETE",
+      "provenance_template": {
+        "source_module_id": "PLUS:FOUR_AXES_STRUCTURE_CODE",
+        "source_module_file": "OM-Plus-FourAxes.json",
+        "source_version": "v0.2.0",
+        "inputs_fingerprint": "hash(directions_enriched)"
+      },
+      "links": {
+        "depends_on": ["SIG:OM.S1.DERIVED.DIRECTIONS_ENRICHED"],
+        "consumed_by": ["SIG:OM.S6.NARRATIVE.INTEGRATED_SYNTHESIS"]
+      },
+      "notes": "AxisCode æ˜¯æ¨¡å¼æè¿°ï¼Œä¸æ˜¯äººæ ¼å®šè«–ï¼›outer ä¸é½Šå¯èƒ½ partial_codeã€‚"
+    },
+
+    {
+      "signal_id": "SIG:OM.S5.DERIVED.REVERSE_ROUTE_RESULT",
+      "label": "é€†æ™‚é‡å›žæŽ¨çµæžœï¼ˆå¡é»žâ†’è·¯å¾‘â†’èµ·é»žï¼‰",
+      "type": "object",
+      "payload_shape": "canonical_shapes.reverse_route_result",
+      "fact_or_inference": "FACT",
+      "confidence": "HIGH",
+      "completeness": "COMPLETE|PARTIAL|INCOMPLETE",
+      "provenance_template": {
+        "source_module_id": "PLUS:REVERSE_ROUTE",
+        "source_module_file": "OM-Plus-ReverseRoute.json",
+        "source_version": "v0.2.0",
+        "inputs_fingerprint": "hash(directions_enriched,goal,mode)"
+      },
+      "links": {
+        "depends_on": ["SIG:OM.S1.DERIVED.DIRECTIONS_ENRICHED", "SIG:OM.S0.INPUT.GOAL"],
+        "consumed_by": [
+          "SIG:OM.S5.NARRATIVE.EIGHT_DIRECTIONS_READING",
+          "SIG:OM.S6.NARRATIVE.INTEGRATED_SYNTHESIS"
+        ]
+      },
+      "notes": "bottleneck_dir/solution_entry æ˜¯è¦å‰‡ç®—å‡ºï¼ˆFACTï¼‰ã€‚"
+    },
+
+    {
+      "signal_id": "SIG:OM.S5.NARRATIVE.EIGHT_DIRECTIONS_READING",
+      "label": "å…«æ–¹ä½é€é»žè§£é‡‹ï¼ˆä¸‰å±¤ï¼‰",
+      "type": "object",
+      "payload_shape": "canonical_shapes.eight_directions_reading",
+      "fact_or_inference": "MIXED",
+      "confidence": "MED",
+      "completeness": "COMPLETE|PARTIAL",
+      "provenance_template": {
+        "source_module_id": "PLUS:EIGHT_DIRECTIONS_TRIPLE_LAYER",
+        "source_module_file": "OM-Plus-EightDirections.json",
+        "source_version": "v0.2.1",
+        "inputs_fingerprint": "hash(goal,directions_enriched,reverse_route_result)"
+      },
+      "links": {
+        "depends_on": ["SIG:OM.S1.DERIVED.DIRECTIONS_ENRICHED", "SIG:OM.S5.DERIVED.REVERSE_ROUTE_RESULT"],
+        "consumed_by": ["SIG:OM.S6.NARRATIVE.INTEGRATED_SYNTHESIS"]
+      },
+      "notes": "meta flagsï¼ˆis_bottleneck/is_solution_entryï¼‰å±¬ FACTï¼›meaning/risk/notes å±¬ MIXEDã€‚"
+    },
+
+    {
+      "signal_id": "SIG:OM.S6.NARRATIVE.INTEGRATED_SYNTHESIS",
+      "label": "ç¶œåˆåˆ†æžï¼ˆStep6ï¼‰",
+      "type": "object",
+      "payload_shape": "canonical_shapes.integrated_synthesis",
+      "fact_or_inference": "MIXED",
+      "confidence": "MED",
+      "completeness": "COMPLETE|PARTIAL",
+      "provenance_template": {
+        "source_module_id": "PLUS:INTEGRATED_SYNTHESIS",
+        "source_module_file": "OM-Plus-IntegratedSynthesis.json",
+        "source_version": "v0.2.1",
+        "inputs_fingerprint": "hash(step1..step5 outputs)"
+      },
+      "links": {
+        "depends_on": [
+          "SIG:OM.S1.DERIVED.SUM_COMPARE",
+          "SIG:OM.S2.DERIVED.FOUR_MANIFESTATIONS",
+          "SIG:OM.S3.DERIVED.FOUR_FEELINGS",
+          "SIG:OM.S4.DERIVED.FOUR_AXES",
+          "SIG:OM.S5.NARRATIVE.EIGHT_DIRECTIONS_READING",
+          "SIG:OM.S5.DERIVED.REVERSE_ROUTE_RESULT"
+        ],
+        "consumed_by": ["SIG:OM.S7.QA.USER_SELF_SUMMARY_PROMPTS"]
+      },
+      "notes": "what_it_protects å±¬ INFERENCEï¼›final_action_plan æ˜¯ç­–ç•¥å»ºè­°ï¼ˆMIXEDï¼‰ã€‚"
+    },
+
+    {
+      "signal_id": "SIG:OM.S7.QA.USER_SELF_SUMMARY_PROMPTS",
+      "label": "ä½¿ç”¨è€…è‡ªæˆ‘ç¸½çµé¡Œçµ„ï¼ˆStep7ï¼‰",
+      "type": "object",
+      "payload_shape": "canonical_shapes.user_self_summary_prompts",
+      "fact_or_inference": "FACT",
+      "confidence": "HIGH",
+      "completeness": "COMPLETE",
+      "provenance_template": {
+        "source_module_id": "PLUS:INTEGRATED_SYNTHESIS",
+        "source_module_file": "OM-Plus-IntegratedSynthesis.json",
+        "source_version": "v0.2.1",
+        "inputs_fingerprint": "hash(integrated_synthesis)"
+      },
+      "links": {
+        "depends_on": ["SIG:OM.S6.NARRATIVE.INTEGRATED_SYNTHESIS"],
+        "consumed_by": ["SIG:OM.S7.REPORT.USER_SUMMARY"]
+      },
+      "notes": "é€™æ˜¯å¼•å°Žçµæ§‹ï¼›ä½¿ç”¨è€…çš„å›žç­”å¦æˆä¸€å€‹ report signalã€‚"
+    },
+
+    {
+      "signal_id": "SIG:OM.S7.REPORT.USER_SUMMARY",
+      "label": "ä½¿ç”¨è€…ç¸½çµå›žè¦†ï¼ˆè¼¸å‡ºå›žå¡«ï¼‰",
+      "type": "object",
+      "payload_shape": "{discoveries, problem_behind_problem, learning, next_step, commitment_sentence}",
+      "fact_or_inference": "MIXED",
+      "confidence": "MED",
+      "completeness": "COMPLETE|PARTIAL",
+      "provenance_template": {
+        "source_module_id": "USER",
+        "source_module_file": "conversation",
+        "source_version": "n/a",
+        "inputs_fingerprint": "hash(user_answers)"
+      },
+      "links": {
+        "depends_on": ["SIG:OM.S7.QA.USER_SELF_SUMMARY_PROMPTS"],
+        "consumed_by": ["SIG:OM.S0.CONTEXT.SESSION_NOTE"]
+      },
+      "notes": "å¯ç”¨æ–¼å¾ŒçºŒè¿½è¹¤èˆ‡äºŒæ¬¡è§£ç›¤ã€‚"
+    },
+
+    {
+      "signal_id": "SIG:OM.S0.CONTEXT.SESSION_NOTE",
+      "label": "Session ç´¢å¼•æ‘˜è¦ï¼ˆå¯è¨˜æ†¶/å¯è¿½è¹¤ï¼‰",
+      "type": "object",
+      "payload_shape": "{goal, bottleneck_dir, solution_entry, one_micro_action, verification_date}",
+      "fact_or_inference": "MIXED",
+      "confidence": "MED",
+      "completeness": "COMPLETE|PARTIAL",
+      "provenance_template": {
+        "source_module_id": "ROUTER:OM_INDEX",
+        "source_module_file": "OM-Index-Router.json",
+        "source_version": "v0.1.0",
+        "inputs_fingerprint": "hash(step6,step7)"
+      },
+      "links": {
+        "depends_on": [
+          "SIG:OM.S0.INPUT.GOAL",
+          "SIG:OM.S5.DERIVED.REVERSE_ROUTE_RESULT",
+          "SIG:OM.S6.NARRATIVE.INTEGRATED_SYNTHESIS",
+          "SIG:OM.S7.REPORT.USER_SUMMARY"
+        ],
+        "consumed_by": ["future_sessions"]
+      },
+      "notes": "å»ºè­°ä»¥åŽ»è­˜åˆ¥åŒ–æ–¹å¼ä¿å­˜ï¼Œé¿å…æ•æ„Ÿç´°ç¯€ã€‚"
+    }
+  ],
+
+  "assembly": {
+    "step_to_signal_map": {
+      "Step0": ["SIG:OM.S0.INPUT.GOAL", "SIG:OM.S0.RAW.DIRECTIONS_RAW"],
+      "Step1": ["SIG:OM.S1.DERIVED.DIRECTIONS_ENRICHED", "SIG:OM.S1.DERIVED.SUM_COMPARE"],
+      "Step2": ["SIG:OM.S2.DERIVED.FOUR_MANIFESTATIONS"],
+      "Step3": ["SIG:OM.S3.DERIVED.FOUR_FEELINGS"],
+      "Step4": ["SIG:OM.S4.DERIVED.FOUR_AXES"],
+      "Step5": ["SIG:OM.S5.DERIVED.REVERSE_ROUTE_RESULT", "SIG:OM.S5.NARRATIVE.EIGHT_DIRECTIONS_READING"],
+      "Step6": ["SIG:OM.S6.NARRATIVE.INTEGRATED_SYNTHESIS"],
+      "Step7": ["SIG:OM.S7.QA.USER_SELF_SUMMARY_PROMPTS", "SIG:OM.S7.REPORT.USER_SUMMARY"]
+    },
+
+    "final_report_bundle": {
+      "bundle_id": "BUNDLE:OM.READING.REPORT",
+      "include_signals": [
+        "SIG:OM.S0.INPUT.GOAL",
+        "SIG:OM.S1.DERIVED.SUM_COMPARE",
+        "SIG:OM.S2.DERIVED.FOUR_MANIFESTATIONS",
+        "SIG:OM.S3.DERIVED.FOUR_FEELINGS",
+        "SIG:OM.S4.DERIVED.FOUR_AXES",
+        "SIG:OM.S5.DERIVED.REVERSE_ROUTE_RESULT",
+        "SIG:OM.S5.NARRATIVE.EIGHT_DIRECTIONS_READING",
+        "SIG:OM.S6.NARRATIVE.INTEGRATED_SYNTHESIS",
+        "SIG:OM.S7.QA.USER_SELF_SUMMARY_PROMPTS"
+      ],
+      "render_order": [
+        "SIG:OM.S0.INPUT.GOAL",
+        "SIG:OM.S1.DERIVED.SUM_COMPARE",
+        "SIG:OM.S2.DERIVED.FOUR_MANIFESTATIONS",
+        "SIG:OM.S3.DERIVED.FOUR_FEELINGS",
+        "SIG:OM.S4.DERIVED.FOUR_AXES",
+        "SIG:OM.S5.DERIVED.REVERSE_ROUTE_RESULT",
+        "SIG:OM.S5.NARRATIVE.EIGHT_DIRECTIONS_READING",
+        "SIG:OM.S6.NARRATIVE.INTEGRATED_SYNTHESIS",
+        "SIG:OM.S7.QA.USER_SELF_SUMMARY_PROMPTS"
+      ],
+      "notes": "Step7 çš„ user summary å›žå¡«å¯åœ¨æœƒè«‡å¾Œè£œå…¥ bundleã€‚"
+    }
+  },
+
+  "crystal_alignment": {
+    "note": "AEO/GEO æ™¶é«”æ‡‰ä»¥ signal_id ä½œç‚ºç´¢å¼•éµçš„ä¸€éƒ¨åˆ†ï¼Œæ–¹ä¾¿ Router/Modules å¿«é€Ÿå¼•ç”¨ã€‚",
+    "recommended_crystal_id_pattern": "CR:{TYPE}.{SIGNAL_ID}.{NNN}",
+    "types": {
+      "AEO": "è¡Œå‹•èˆ‡å¹²é æ™¶é«”ï¼ˆAction/Experience/Operationï¼‰",
+      "GEO": "èªžç¾©èˆ‡è§£é‡‹æ™¶é«”ï¼ˆGrammar/Explanation/Orientationï¼‰"
+    },
+    "examples": [
+      "CR:GEO.SIG:OM.S5.DERIVED.REVERSE_ROUTE_RESULT.001",
+      "CR:AEO.SIG:OM.S6.ACTION.FINAL_ACTION_PLAN.001"
+    ]
+  },
+
+  "safety_and_privacy": {
+    "rules": [
+      "Session è¨˜éŒ„ï¼ˆSIG:OM.S0.CONTEXT.SESSION_NOTEï¼‰é¿å…ä¿å­˜å¯è­˜åˆ¥å€‹è³‡ã€‚",
+      "ä»»ä½•é†«ç™‚/æ³•å¾‹/æŠ•è³‡é«˜é¢¨éšªå»ºè­°ä¸å¾—ä»¥ signal çš„å½¢å¼ä½œã€Žä¿è­‰æ€§çµè«–ã€ã€‚",
+      "æ‰€æœ‰æŽ¨è«–åž‹å…§å®¹å¿…é ˆå¯è¢«ä½¿ç”¨è€…åé§æˆ–ä¿®æ­£ï¼ˆä¿ç•™ä¸»æ¬Šï¼‰ã€‚"
+    ]
+  }
+}

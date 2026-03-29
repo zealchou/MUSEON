@@ -6884,3 +6884,8 @@
 {"ts": "2026-03-28T01:34:25.732705+00:00", "action": "write", "target": "ANIMA_MC", "field": "", "old": null, "new": null, "decision": "ALLOW", "reason": "FREE layer write"}
 {"ts": "2026-03-28T01:39:25.749254+00:00", "action": "write", "target": "ANIMA_MC", "field": "", "old": null, "new": null, "decision": "ALLOW", "reason": "FREE layer write"}
 {"ts": "2026-03-28T01:44:25.767229+00:00", "action": "write", "target": "ANIMA_MC", "field": "", "old": null, "new": null, "decision": "ALLOW", "reason": "FREE layer write"}
+{"ts": "2026-03-29T20:00:19.141990+00:00", "action": "write", "target": "ANIMA_MC", "field": "", "old": null, "new": null, "decision": "ALLOW", "reason": "FREE layer write"}
+{"ts": "2026-03-29T20:05:19.157527+00:00", "action": "write", "target": "ANIMA_MC", "field": "", "old": null, "new": null, "decision": "ALLOW", "reason": "FREE layer write"}
+{"ts": "2026-03-29T20:05:19.167183+00:00", "action": "write", "target": "ANIMA_MC", "field": "", "old": null, "new": null, "decision": "ALLOW", "reason": "FREE layer write"}
+{"ts": "2026-03-29T20:10:19.181283+00:00", "action": "write", "target": "ANIMA_MC", "field": "", "old": null, "new": null, "decision": "ALLOW", "reason": "FREE layer write"}
+{"ts": "2026-03-29T20:11:07.628802+00:00", "action": "write", "target": "ANIMA_MC", "field": "", "old": null, "new": null, "decision": "ALLOW", "reason": "FREE layer write"}

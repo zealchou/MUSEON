@@ -1,0 +1,386 @@
+{
+  "schema": {
+    "name": "OM-Plus-FourAxes",
+    "type": "plus_module",
+    "domain": "four_axes",
+    "format": "json",
+    "language": "zh-Hant",
+    "version": "v0.2.0",
+    "status": "ITERATED",
+    "updated_at": "2026-01-25",
+    "changelog": [
+      "v0.2.0: 依賴與命名對齊（protocols -> M-DNA-Protocols.json；energy_grammar -> OM-Plus-EnergyGrammar.json@v0.2.0；eight_directions -> OM-Plus-EightDirections.json@v0.2.0）。",
+      "v0.2.0: 軸線計分 completeness 強化：outer 缺失即軸線 INCOMPLETE，AxisCode 支援 partial_code（缺失位以 '-'）。",
+      "v0.2.0: AxisCode 語氣改為『結構代碼』而非人格貼標，且每軸附驗證問題與最小微行動（LOW 狀態降級輸出）。",
+      "v0.2.0: 微行動與解讀提示對齊八方位最新版語義（天主權/承諾、風敘事/成交、水平衡需求/恢復、山復盤/界線、地系統/感恩、雷破框/止損、火有趣+專注+求救、澤品牌/社群+情感連結）。"
+    ],
+    "notes": [
+      "四軸線目標：用盤面資料產出『可類比 MBTI 的結構分析』，但不宣告人格本質。",
+      "軸線分數口徑（預設）：每軸分數 = (A.inner + A.outer) + (B.inner + B.outer)，範圍 -16..+16。",
+      "inner（內在）= 牌面 raw；outer（外在）= 上游換算值（抽牌方位位置×牌左側方位）。outer 缺失則該軸不判定。"
+    ],
+    "depends_on": {
+      "kernel": "OM-DNA-Kernel.json@v0.1.x",
+      "protocols": "M-DNA-Protocols.json@v0.1.x",
+      "router": "OM-Index-Router.json@v0.1.x",
+      "energy_grammar": "OM-Plus-EnergyGrammar.json@v0.2.0",
+      "eight_directions": "OM-Plus-EightDirections.json@v0.2.0"
+    },
+    "axes": {
+      "names": ["劍", "禪", "訣"],
+      "output_order_default": ["禪", "訣", "劍"]
+    }
+  },
+
+  "module_identity": {
+    "id": "PLUS:FOUR_AXES_STRUCTURE_CODE",
+    "name": "四軸線結構代碼",
+    "purpose": "計算四軸線分數，落入正/中/負段位後，輸出 4-letter AxisCode（類比 MBTI 的結構代碼），並提供跨領域（事業/財富/關係/家庭/健康）的優勢/盲點模板、驗證問題與最小可承擔行動。",
+    "step_support": [4],
+    "tags": ["four_axes", "axis_score", "structure_code", "mbti_like", "multi_domain_lens", "hypothesis_not_label"]
+  },
+
+  "config": {
+    "axis_pairs": {
+      "note": "四軸線固定對偶。",
+      "pairs": [
+        {
+          "id": "AX_TD",
+          "order": 1,
+          "name": "天地軸線",
+          "pole_a": {"key": "天", "label": "天"},
+          "pole_b": {"key": "地", "label": "地"},
+          "core_interpretation": {
+            "pos_strong": "照顧他人/承擔外部責任的慣性偏強；容易把『主權/承諾』往外放。",
+            "neg_strong": "先照顧自己與核心系統（資源池/穩定）再談照顧他人；界線感偏強。",
+            "mid": "中間態：可在主權與承擔之間調節；需要看單點內外組合決定當下偏向。",
+            "extension_rule": "對照天/地各自的內外：看是『地承載不足而過度靠天硬撐』，或『天主權不足而用地系統逃避帶動』。"
+          }
+        },
+        {
+          "id": "AX_FR",
+          "order": 2,
+          "name": "風雷軸線",
+          "pole_a": {"key": "風", "label": "風"},
+          "pole_b": {"key": "雷", "label": "雷"},
+          "core_interpretation": {
+            "pos_strong": "變動/試錯/破框的慣性偏強；容易先動再調整（適應與突破帶頭）。",
+            "neg_strong": "穩定/原則/安全感的慣性偏強；偏向先確認再行動（風的敘事/共識與雷的止損更謹慎）。",
+            "mid": "中間態：能變也能守；關鍵在是否有清楚的驗證點與止損線。",
+            "extension_rule": "風 +：傾聽、敘事、共識；風 -：原則清楚。雷 +：啟動突破；雷 -：風險敏感、避免躁進。"
+          }
+        },
+        {
+          "id": "AX_FW",
+          "order": 3,
+          "name": "火水軸線",
+          "pole_a": {"key": "火", "label": "火"},
+          "pole_b": {"key": "水", "label": "水"},
+          "core_interpretation": {
+            "pos_strong": "目標推進/效率/工具求解的慣性偏強（火：專注+求救+趣味槓桿），較容易把關係放後面。",
+            "neg_strong": "關係與需求感知/恢復節律的慣性偏強（水：共情+需求行動），較容易把效率放後面。",
+            "mid": "中間態：能在效率與關係之間切換；壓力大時會偏向其中一端。",
+            "extension_rule": "火偏群體與外部工具（趨勢/趣味/求救）；水偏親密與照顧（需求/共情/恢復）。"
+          }
+        },
+        {
+          "id": "AX_SZ",
+          "order": 4,
+          "name": "山澤軸線",
+          "pole_a": {"key": "山", "label": "山"},
+          "pole_b": {"key": "澤", "label": "澤"},
+          "core_interpretation": {
+            "pos_strong": "先答應/先投入外界（澤：社群/品牌/淺連結）再回來收斂（山：復盤/秩序）的慣性偏強。",
+            "neg_strong": "先問清楚/先規劃（山：界線/流程/儀式）再決定是否參與（澤）的慣性偏強。",
+            "mid": "中間態：能在收斂與連結間調節；看當下目標需要『沉澱』還是『曝光/連結』。",
+            "extension_rule": "澤 +：品牌與社群、活出自己、目標×情感連結；山 +：沉澱、復盤、流程與秩序。"
+          }
+        }
+      ]
+    },
+
+    "axis_score_rule": {
+      "formula": "(A.inner + A.outer) + (B.inner + B.outer)",
+      "requires_outer": true,
+      "score_range": {"min": -16, "max": 16}
+    },
+
+    "tiering": {
+      "note": "三段位：強正（+8..+16）/中間（-7..+7）/強負（-16..-8）。",
+      "tiers": {
+        "POS_STRONG": {"between": [8, 16]},
+        "MID": {"between": [-7, 7]},
+        "NEG_STRONG": {"between": [-16, -8]}
+      }
+    },
+
+    "axis_code_system": {
+      "note": "每軸三段位各有『英文 1-letter code』與中文代號。12 個英文首字母互不重複，便於無分隔組合解析成 4-letter AxisCode。",
+      "code_length": 1,
+      "axis_code_order": ["AX_TD", "AX_FR", "AX_FW", "AX_SZ"],
+      "tiers_to_code": {
+        "AX_TD": {
+          "POS_STRONG": {"en_code": "O", "en_name": "Othercare", "zh_name": "照顧他人優先", "tag": "care_others_first"},
+          "MID": {"en_code": "B", "en_name": "Balancer", "zh_name": "照顧平衡", "tag": "care_balance"},
+          "NEG_STRONG": {"en_code": "I", "en_name": "Innercare", "zh_name": "自我照護優先", "tag": "care_self_first"}
+        },
+        "AX_FR": {
+          "POS_STRONG": {"en_code": "C", "en_name": "Changeful", "zh_name": "變動試錯優先", "tag": "high_change"},
+          "MID": {"en_code": "M", "en_name": "Modulator", "zh_name": "變通調節", "tag": "adaptive_change"},
+          "NEG_STRONG": {"en_code": "A", "en_name": "Anchored", "zh_name": "穩定守成", "tag": "high_stability"}
+        },
+        "AX_FW": {
+          "POS_STRONG": {"en_code": "P", "en_name": "Purposeful", "zh_name": "目標效率優先", "tag": "goal_efficiency"},
+          "MID": {"en_code": "Q", "en_name": "QuietMediator", "zh_name": "效率關係調和", "tag": "balance_goal_relation"},
+          "NEG_STRONG": {"en_code": "N", "en_name": "Nurturer", "zh_name": "關係照顧優先", "tag": "relation_first"}
+        },
+        "AX_SZ": {
+          "POS_STRONG": {"en_code": "R", "en_name": "Responsive", "zh_name": "先回應後收斂", "tag": "yes_first"},
+          "MID": {"en_code": "U", "en_name": "Unhurried", "zh_name": "情境調節", "tag": "situational"},
+          "NEG_STRONG": {"en_code": "D", "en_name": "Deliberate", "zh_name": "先確認再開始", "tag": "ask_first"}
+        }
+      },
+      "parse_rule": "AxisCode 長度固定為 4，按 axis_code_order 逐位對應四軸，不需要分隔符。"
+    },
+
+    "completeness_policy": {
+      "statuses": ["COMPLETE", "INCOMPLETE"],
+      "rules": [
+        "若任一軸兩端 outer 缺失，該軸 tier/code=INCOMPLETE，整體 AxisCode 也標註 INCOMPLETE。",
+        "允許 partial_code：只對 COMPLETE 軸生成對應字元，其餘以 '-' 佔位（例如 O-M-）。"
+      ],
+      "placeholders": {"missing_axis_code": "-"}
+    },
+
+    "domain_lens": {
+      "note": "跨領域鏡頭：同一段位在不同領域呈現不同優勢/盲點。此處提供模板，細緻版本建議用 OM-Cry 晶體擴充。",
+      "domains": ["business", "wealth", "relationship", "family", "health"],
+      "templates": "REUSE_FROM_MVP_OR_CRY"
+    },
+
+    "check_questions_pool": {
+      "AX_TD": [
+        "你現在更常把主權放在自己身上，還是把承諾/責任往外放？",
+        "你最近的『穩定系統（地）』有在補嗎？還是用意志（天）硬撐？"
+      ],
+      "AX_FR": [
+        "你最近的改變是『有驗證點的小試驗』，還是『情緒性轉向』？",
+        "你有沒有清楚的止損線（時間/錢/承諾）？"
+      ],
+      "AX_FW": [
+        "你推進目標時，會不會忽略需求與恢復？",
+        "你照顧關係時，會不會因此拖延必要的決策？"
+      ],
+      "AX_SZ": [
+        "你比較常先答應再後悔，還是先問清楚才安心？",
+        "你現在更需要『沉澱/流程』還是『品牌/連結』？"
+      ]
+    },
+
+    "micro_actions_pool": {
+      "note": "每軸提供可承擔微行動；LOW 狀態輸出每軸只取第一條。",
+      "AX_TD": {
+        "POS_STRONG": [
+          "寫下 1 條『不做清單』：今天不再替別人扛的一件事。",
+          "把一個承諾降級：只承諾本週最重要的一件交付。"
+        ],
+        "MID": [
+          "做一次『主權×承諾對帳』：我選擇的 vs 我被期待的，各列 2 項。",
+          "把一件照顧他人的事改成『可持續版本』（有界線、有時間盒）。"
+        ],
+        "NEG_STRONG": [
+          "做一個『給出去』的小動作：主動帶動一次，而不是等資源都齊才開始。",
+          "把界線說清楚：我可以提供___，我不會___。"
+        ]
+      },
+      "AX_FR": {
+        "POS_STRONG": [
+          "把改變縮小：做 15 分鐘試驗＋寫下止損點。",
+          "為這次轉向加一個驗證點：何時算有效？何時停止？"
+        ],
+        "MID": [
+          "做『兩路徑』：A 走穩、B 試驗；各定一個最小成本。",
+          "用一句話說清楚你這週要守住的不變原則。"
+        ],
+        "NEG_STRONG": [
+          "選一個小破框：把最害怕改的那件事做 10% 版本。",
+          "把穩定變彈性：允許一個『可撤回的小承諾』。"
+        ]
+      },
+      "AX_FW": {
+        "POS_STRONG": [
+          "每完成一個效率任務，補一個『需求/恢復』動作（10 分鐘即可）。",
+          "求救一次：找一個工具/模板/人，替你省下一段硬撐。"
+        ],
+        "MID": [
+          "做『效率×關係』分配：今天 60/40（你自己定），並按表做完就停。",
+          "把一段深工前後加上 3 分鐘的關係對齊（訊息/一句話）。"
+        ],
+        "NEG_STRONG": [
+          "先做一個『可交付』：今天完成一件可完成的交付物，做完就停。",
+          "把需求說清楚：我需要的支持是___；我願意做的是___。"
+        ]
+      },
+      "AX_SZ": {
+        "POS_STRONG": [
+          "先砍一個社交/外務：把節奏收回來，留 30 分鐘沉澱（山）。",
+          "做一次『品牌一致性』：寫一句話你想被如何記得，貼到你的輸出上。"
+        ],
+        "MID": [
+          "約一個活動前先做 3 問：跟誰/多久/目的；答完才決定去不去。",
+          "做一個『沉澱×連結』配對：先沉澱 30 分鐘，再做 1 則社群輸出。"
+        ],
+        "NEG_STRONG": [
+          "允許一個『先答應』的小場景：先去 30 分鐘，感受再決定。",
+          "把流程變輕：只做最小規劃，不把確認變成拖延。"
+        ]
+      }
+    },
+
+    "language_guard": {
+      "banned_phrases": ["你就是", "你一定是", "注定", "永遠", "絕對"],
+      "preferred_phrases": ["可能傾向", "結構代碼", "需要驗證", "代價/盲點", "在這段時間"]
+    }
+  },
+
+  "io_contract": {
+    "inputs": {
+      "required": ["directions"],
+      "optional": ["user_state"],
+      "shape": {
+        "directions": {
+          "<dir>": {
+            "inner": "number",
+            "outer": "number (optional)"
+          }
+        }
+      },
+      "assumptions": [
+        "inner = 牌面 raw 值。",
+        "outer = 上游換算值（抽牌方位位置×牌左側方位），用於軸線總分與 AxisCode。"
+      ]
+    },
+
+    "outputs": {
+      "signals": ["four_axes", "axis_code"],
+      "axis_code_shape": {
+        "code": "string",
+        "readable": "string",
+        "completeness": "COMPLETE|INCOMPLETE",
+        "per_axis": {
+          "AX_TD": {"tier": "string", "en_code": "string", "zh_name": "string"},
+          "AX_FR": {"tier": "string", "en_code": "string", "zh_name": "string"},
+          "AX_FW": {"tier": "string", "en_code": "string", "zh_name": "string"},
+          "AX_SZ": {"tier": "string", "en_code": "string", "zh_name": "string"}
+        }
+      },
+      "four_axes_shape": {
+        "AX_TD": {
+          "axis_score": "number|null",
+          "tier": "POS_STRONG|MID|NEG_STRONG|INCOMPLETE",
+          "completeness": "COMPLETE|INCOMPLETE",
+          "breakdown": {
+            "A": {"dir": "string", "inner": "number", "outer": "number|null", "sum": "number|null"},
+            "B": {"dir": "string", "inner": "number", "outer": "number|null", "sum": "number|null"}
+          },
+          "core_meaning": "string",
+          "extension_hints": "array<string>",
+          "domain_lens": "object|null",
+          "check_questions": "array<string>",
+          "micro_actions": "array<string>"
+        }
+      },
+      "explainers": [
+        "axis_code_overview",
+        "four_axes_overview",
+        "four_axes_actions",
+        "four_axes_completeness_notice"
+      ]
+    },
+
+    "guards": {
+      "must_include": [
+        "若可算：每軸 axis_score + tier + 核心解讀",
+        "AxisCode（或 partial_code）與可讀名稱",
+        "至少一組驗證問題",
+        "至少 1 個最小可承擔動作（LOW 狀態只給 1 個）",
+        "outer 缺失時必須 INCOMPLETE，且不可硬推 AxisCode 結論"
+      ],
+      "forbidden": [
+        "把代碼當人格定論",
+        "outer 缺失時仍輸出完整 AxisCode 並裝作確定",
+        "把正負當好壞"
+      ]
+    }
+  },
+
+  "procedures": {
+    "compute_each_axis": {
+      "steps": [
+        "for each axis in axis_pairs.pairs:",
+        "  A = directions[pole_a.key]; B = directions[pole_b.key]",
+        "  if A.outer missing OR B.outer missing:",
+        "    axis_score=null; tier='INCOMPLETE'; completeness='INCOMPLETE'",
+        "  else:",
+        "    axis_score = (A.inner + A.outer) + (B.inner + B.outer)",
+        "    tier = POS_STRONG / MID / NEG_STRONG by tiering",
+        "    completeness='COMPLETE'",
+        "  breakdown.A.sum = (A.inner + A.outer) when outer exists else null",
+        "  breakdown.B.sum = (B.inner + B.outer) when outer exists else null",
+        "  core_meaning:",
+        "    - POS_STRONG: core_interpretation.pos_strong",
+        "    - MID: core_interpretation.mid",
+        "    - NEG_STRONG: core_interpretation.neg_strong",
+        "  extension_hints: include core_interpretation.extension_rule",
+        "  check_questions: from check_questions_pool[axis_id]",
+        "  micro_actions: from micro_actions_pool[axis_id][tier] (LOW -> first only)"
+      ]
+    },
+
+    "build_axis_code": {
+      "steps": [
+        "init code_chars = []",
+        "for axis_id in axis_code_system.axis_code_order:",
+        "  if four_axes[axis_id].completeness == 'COMPLETE':",
+        "    char = axis_code_system.tiers_to_code[axis_id][four_axes[axis_id].tier].en_code",
+        "  else:",
+        "    char = completeness_policy.placeholders.missing_axis_code",
+        "  push char",
+        "code = join(code_chars)",
+        "completeness = (code contains '-' ? 'INCOMPLETE' : 'COMPLETE')",
+        "readable = code + '（' + join(zh_name per axis or '-') + '）'"
+      ]
+    },
+
+    "compose_explainers": {
+      "steps": [
+        "axis_code_overview: 說明 AxisCode 是結構代碼（類 MBTI），必須用問題驗證，不是人格貼標。",
+        "four_axes_overview: 逐軸摘要（強段位提示代價；中段位提示需看單點）。",
+        "four_axes_actions: 每軸輸出 1-2 個微行動（LOW 只輸出 1 個）。",
+        "four_axes_completeness_notice: 若 INCOMPLETE，列出缺失 outer 的軸與需要補的方位。"
+      ]
+    }
+  },
+
+  "links": {
+    "protocols": ["P:K2.S1.STATE_DETECT", "P:K4.S1.INDEX_FIRST", "P:K6.S1.FACT_INFERENCE_SEP"],
+    "recommended_routes": ["R:4.FOUR_AXES"],
+    "neighbor_modules": [
+      "PLUS:ENERGY_GRAMMAR",
+      "PLUS:FOUR_MANIFESTATIONS",
+      "PLUS:FOUR_FEELINGS",
+      "PLUS:EIGHT_DIRECTIONS_TRIPLE_LAYER",
+      "PLUS:INTEGRATED_SYNTHESIS"
+    ],
+    "crystals": {
+      "placeholders": [
+        "CR:AEO.AXIS_CODE_SYSTEM.001",
+        "CR:AEO.AXIS_TD.001",
+        "CR:AEO.AXIS_FR.001",
+        "CR:AEO.AXIS_FW.001",
+        "CR:AEO.AXIS_SZ.001"
+      ],
+      "note": "若要更像 MBTI 的『結構分析』：下一步把常見 AxisCode 組合做成 OM-Cry 晶體（多領域優勢/盲點/驗證問題/微行動）。"
+    }
+  }
+}

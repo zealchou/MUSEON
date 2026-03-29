@@ -1,0 +1,387 @@
+{
+  "schema": {
+    "name": "OM-Plus-FourFeelings",
+    "type": "plus_module",
+    "domain": "four_feelings",
+    "format": "json",
+    "language": "zh-Hant",
+    "version": "v0.2.0",
+    "status": "ITERATED",
+    "updated_at": "2026-01-25",
+    "changelog": [
+      "v0.2.0: 對齊 OM-Plus-EnergyGrammar v0.2.0 的刻度語義與語氣規範（不以好壞評價）。",
+      "v0.2.0: 新增 completeness_policy（inner 缺失則該感標 INCOMPLETE，不硬算）。",
+      "v0.2.0: 依賴名稱統一（protocols -> M-DNA-Protocols.json；eight_directions -> OM-Plus-EightDirections.json v0.2.0）。",
+      "v0.2.0: 新增 driver_hypotheses（驅動假設需驗證）與 LOW 狀態降級輸出規則。"
+    ],
+    "depends_on": {
+      "kernel": "OM-DNA-Kernel.json@v0.1.x",
+      "protocols": "M-DNA-Protocols.json@v0.1.x",
+      "router": "OM-Index-Router.json@v0.1.x",
+      "energy_grammar": "OM-Plus-EnergyGrammar.json@v0.2.0",
+      "eight_directions": "OM-Plus-EightDirections.json@v0.2.0"
+    },
+    "axes": {
+      "names": ["劍", "禪", "訣"],
+      "output_order_default": ["禪", "訣", "劍"]
+    }
+  },
+
+  "module_identity": {
+    "id": "PLUS:FOUR_FEELINGS",
+    "name": "內隱四感",
+    "purpose": "用『內在能量（inner）』的組合，描述『在目標牽引下的內在驅動與感受結構』：價值感／幸福感／成就感／滿足感。",
+    "step_support": [3],
+    "tags": [
+      "internal_drivers",
+      "values",
+      "happiness",
+      "achievement",
+      "satisfaction",
+      "motivation"
+    ]
+  },
+
+  "config": {
+    "data_origin_rules": {
+      "inner": {
+        "source": "card_face",
+        "required": true,
+        "rule": "四感只讀取內在能量 inner（牌面直接抽出的 raw 數字）。本模組不負責任何換算。"
+      }
+    },
+
+    "score_method": {
+      "default": "simple_sum",
+      "allowed": ["simple_sum", "weighted_sum", "mean", "min", "max"],
+      "note": "四感分數計算方式；預設 simple_sum（3 方位 inner 加總）。Router 可覆寫權重或方法。"
+    },
+
+    "mapping": {
+      "note": "四感 = 3 個方位的內在能量（inner）加總；每方位刻度 -4..-1,+1..+4，因此每感理論範圍 -12..+12。Router 可覆寫方位或權重。",
+
+      "value": {
+        "name": "價值感",
+        "directions": ["澤", "天", "風"],
+        "weights": {"澤": 1, "天": 1, "風": 1},
+        "description": "價值感：我認可自己、認可所做之事的內在底座（我值得、我重要）。"
+      },
+
+      "happiness": {
+        "name": "幸福感",
+        "directions": ["風", "水", "山"],
+        "weights": {"風": 1, "水": 1, "山": 1},
+        "description": "幸福感：安全、連結、被支持與安住的感受（身心回穩/關係有流動/節奏可持續）。"
+      },
+
+      "achievement": {
+        "name": "成就感",
+        "directions": ["山", "地", "雷"],
+        "weights": {"山": 1, "地": 1, "雷": 1},
+        "description": "成就感：我完成了、我推進了、我能承擔與累積的感受（完成/落地/突破）。"
+      },
+
+      "satisfaction": {
+        "name": "滿足感",
+        "directions": ["雷", "火", "澤"],
+        "weights": {"雷": 1, "火": 1, "澤": 1},
+        "description": "滿足感：我此刻可以停下來、覺得夠了、覺得圓滿（能收斂、能享受、能回到自己）。"
+      }
+    },
+
+    "banding": {
+      "note": "以理論範圍 -12..+12 固定分段（可由 Router 覆寫）。偏強不等於好、偏弱不等於壞；看的是驅動與代價。",
+      "method": "fixed_by_theoretical_range",
+      "theoretical_range": {"min": -12, "max": 12},
+      "ranges": {
+        "very_low": {"lte": -9, "label": "明顯不足"},
+        "low": {"between": [-8, -3], "label": "偏弱"},
+        "mixed": {"between": [-2, 2], "label": "混合/搖擺"},
+        "high": {"between": [3, 8], "label": "偏強"},
+        "very_high": {"gte": 9, "label": "過強/過載"}
+      }
+    },
+
+    "language_guard": {
+      "banned_phrases": ["好", "壞", "對", "錯", "保證", "注定"],
+      "preferred_phrases": ["驅動", "底座", "補給", "代價", "可用度", "可調整", "需驗證"]
+    },
+
+    "completeness_policy": {
+      "statuses": ["COMPLETE", "INCOMPLETE"],
+      "fields": {
+        "inner": "四感所需方位 inner 是否齊全",
+        "scores": "分數是否可計算"
+      },
+      "fallback_rules": [
+        "若某一感所需的任何方位 inner 缺失：該感 score=null、band='INCOMPLETE'、completeness='INCOMPLETE'，並輸出需要補齊的方位清單。",
+        "其他感若 inner 完整則可正常輸出。",
+        "若四感全部 INCOMPLETE：僅輸出 completeness_notice，不做推論。"
+      ]
+    },
+
+    "micro_actions_pool": {
+      "value": [
+        "寫下：我追求這個目標，是因為我珍惜的三個價值是…（3 條即可）。",
+        "做一次『自我認可盤點』：最近 7 天我做得不錯的 3 件小事。",
+        "把一個『我應該』改寫成『我選擇』：重寫一次目標描述。"
+      ],
+      "happiness": [
+        "做 10 分鐘『回到身體』：呼吸/伸展/散步，先讓神經系統回穩。",
+        "建立一個『安全連結』：今天跟一個可信任的人說一句真話。",
+        "停 24 小時比較：砍掉一個讓你焦慮的訊息來源或比較行為。"
+      ],
+      "achievement": [
+        "把目標拆成 1 個『今天可完成』的交付物，完成後立刻停。",
+        "設定『完成定義』：做完就算，不追求完美加碼。",
+        "把拖延改成『先做 15 分鐘』，只求開始。"
+      ],
+      "satisfaction": [
+        "做一個『完成儀式』：把今天已做的事寫下來，然後允許自己休息。",
+        "把『還不夠』的聲音寫下來，問它：你想保護我什麼？",
+        "選一件你其實已經足夠的事，練習在那裡停下來。"
+      ]
+    },
+
+    "driver_hypotheses": {
+      "note": "用四感相對高低推測『可能被什麼驅動』。這是推論，必須用問題驗證，不能當定論。",
+      "patterns": [
+        {
+          "id": "DRV_ACH_HIGH_VAL_LOW",
+          "when": "achievement.band in ['high','very_high'] AND value.band in ['low','very_low']",
+          "hypothesis": "可能用『成就』來換取『價值感』或被認可的安全。",
+          "check_questions": [
+            "你是不是常覺得：只有做出成果我才值得？",
+            "如果今天不產出，你會感到焦慮或罪惡嗎？"
+          ],
+          "care": "先補價值感（自我認可/主權/界線），再談擴張目標。"
+        },
+        {
+          "id": "DRV_VAL_HIGH_HAP_LOW",
+          "when": "value.band in ['high','very_high'] AND happiness.band in ['low','very_low']",
+          "hypothesis": "你很清楚價值與方向，但可能缺少安全感/支持系統，走得辛苦。",
+          "check_questions": [
+            "你是不是很清楚想要什麼，但常覺得沒人懂或沒人能接住？",
+            "你現在最需要的支持是什麼？（人/資源/時間/允許）"
+          ],
+          "care": "優先補幸福感（節律恢復/支持連結/身心回穩）。"
+        },
+        {
+          "id": "DRV_SAT_LOW_ALL_HIGH",
+          "when": "satisfaction.band in ['low','very_low'] AND value.band in ['high','very_high'] AND happiness.band in ['high','very_high'] AND achievement.band in ['high','very_high']",
+          "hypothesis": "你什麼都做得到，但『停不下來』；可能被焦慮或控制感推著走。",
+          "check_questions": [
+            "你是不是很難允許自己休息？",
+            "你怕停下來會發生什麼？"
+          ],
+          "care": "練習收斂：建立完成儀式與停損線（允許夠了）。"
+        },
+        {
+          "id": "DRV_HAP_LOW_WIDE",
+          "when": "happiness.band in ['low','very_low'] AND (value.band in ['mixed','high','very_high'] OR achievement.band in ['mixed','high','very_high'])",
+          "hypothesis": "目標在推，但身心或關係補給不足；容易用意志硬撐。",
+          "check_questions": [
+            "你最近的睡眠/飲食/運動/休息，有哪一項最失衡？",
+            "你有沒有一個可以安全說真話的人？"
+          ],
+          "care": "先把幸福感補回來（節律/身體/支持），外在才推得動。"
+        }
+      ]
+    }
+  },
+
+  "io_contract": {
+    "inputs": {
+      "required": ["directions"],
+      "optional": ["user_state"],
+      "shape": {
+        "directions": {
+          "<dir>": {
+            "inner": "number",
+            "notes": "string (optional)"
+          }
+        }
+      },
+      "assumptions": [
+        "directions[*].inner 為『牌面直接抽出來的數字』，即內在能量原始值（-4..-1, +1..+4），不需要再換算。",
+        "本模組只讀取 inner 進行四感加總；不依賴 outer。"
+      ]
+    },
+
+    "outputs": {
+      "signals": ["four_feelings"],
+      "shape": {
+        "four_feelings": {
+          "value": {
+            "score": "number|null",
+            "band": "string",
+            "summary": "string",
+            "driver_hint": "string",
+            "completeness": "COMPLETE|INCOMPLETE",
+            "missing_dirs": "array<string>"
+          },
+          "happiness": {
+            "score": "number|null",
+            "band": "string",
+            "summary": "string",
+            "driver_hint": "string",
+            "completeness": "COMPLETE|INCOMPLETE",
+            "missing_dirs": "array<string>"
+          },
+          "achievement": {
+            "score": "number|null",
+            "band": "string",
+            "summary": "string",
+            "driver_hint": "string",
+            "completeness": "COMPLETE|INCOMPLETE",
+            "missing_dirs": "array<string>"
+          },
+          "satisfaction": {
+            "score": "number|null",
+            "band": "string",
+            "summary": "string",
+            "driver_hint": "string",
+            "completeness": "COMPLETE|INCOMPLETE",
+            "missing_dirs": "array<string>"
+          }
+        }
+      },
+      "explainers": [
+        "four_feelings_overview",
+        "four_feelings_driver_hypotheses",
+        "four_feelings_actions",
+        "four_feelings_completeness_notice"
+      ]
+    },
+
+    "guards": {
+      "must_include": [
+        "四感各自分數與分段（-12..+12 口徑；偏強/偏弱不代表好壞）",
+        "至少一次『驅動假設需驗證』的提醒（推論不是定論）",
+        "至少 1 個最小可承擔動作（LOW 狀態只給 1 個）",
+        "若有 INCOMPLETE：必須指出缺哪個方位 inner"
+      ],
+      "forbidden": [
+        "把四感當作人格定論",
+        "用分數直接下命定結論",
+        "在 LOW 狀態給過多作業"
+      ]
+    }
+  },
+
+  "procedures": {
+    "compute_scores": {
+      "steps": [
+        "for each feeling in mapping:",
+        "  dirs = mapping[feeling].directions",
+        "  missing = dirs where directions[dir].inner is null/undefined",
+        "  if missing not empty:",
+        "    set score=null, band='INCOMPLETE', completeness='INCOMPLETE', missing_dirs=missing",
+        "    summary='內在能量尚未完整提供（需要補齊：' + join(missing) + '），因此此感暫不判定。'",
+        "    driver_hint='（待補資料）'",
+        "  else:",
+        "    score = sum(inner[dir] * weight[dir])",
+        "    band = assign_by_banding(score)",
+        "    completeness='COMPLETE', missing_dirs=[]",
+        "    summary = build_neutral_summary(feeling, score, band)",
+        "    driver_hint = build_driver_hint(feeling, band)"
+      ]
+    },
+
+    "compose_overview": {
+      "steps": [
+        "if all feelings completeness == 'INCOMPLETE':",
+        "  overview='內在能量資料尚未補齊，因此四感暫不判定；請先補齊所需方位 inner 後再讀。'",
+        "else:",
+        "  among COMPLETE feelings find highest and lowest scores",
+        "  overview='目前內在驅動的重心偏在：' + highest.feeling + '；相對較弱的是：' + lowest.feeling + '。這不是好壞，而是你目前用什麼在推動自己，以及付出的代價分佈。'",
+        "  if any INCOMPLETE: append '（另有部分感因 inner 缺失而暫不判定）'"
+      ]
+    },
+
+    "infer_driver_hypotheses": {
+      "steps": [
+        "if any feelings INCOMPLETE: still allow hypotheses only on COMPLETE ones",
+        "evaluate driver_hypotheses.patterns",
+        "for matched patterns: output hypothesis + check_questions + care",
+        "always prepend: '以下為推論需驗證：'"
+      ]
+    },
+
+    "select_actions": {
+      "steps": [
+        "actions = {}",
+        "for each feeling:",
+        "  if completeness == 'INCOMPLETE': actions[feeling]=['先補齊該感所需的內在能量（inner），再回來判讀。']",
+        "  else:",
+        "    if user_state == 'LOW': actions[feeling]=[first micro_actions_pool[feeling]]",
+        "    else: actions[feeling]=take up to 3 micro_actions_pool[feeling]",
+        "return actions"
+      ]
+    },
+
+    "completeness_notice": {
+      "steps": [
+        "if any feeling completeness == 'INCOMPLETE':",
+        "  notice='提醒：四感只使用內在能量 inner（牌面 raw 數字）。本次缺失的方位 inner：' + list_missing",
+        "else:",
+        "  notice=null"
+      ]
+    }
+  },
+
+  "output_templates": {
+    "zen": {
+      "default": [
+        "這一段看的是『內隱四感』：它反映你在目標牽引下，內在主要靠什麼在推動自己。",
+        "我們先不評價好壞，只看：哪一感在補給你、哪一感在漏能量、以及你付出的代價。"
+      ],
+      "low_state": [
+        "如果你現在很累，我們只抓一個最小可做的補給動作，先讓內在回到可用。"
+      ]
+    },
+
+    "ketsu": {
+      "default": [
+        "四感分數來自 3 個方位的『內在能量（inner）』加總（範圍 -12..+12）。",
+        "分數高不等於好：可能代表你過度依賴這個感受作為驅動；分數低也不等於壞：可能需要修復或正在保護自己。",
+        "若我提出『驅動假設』，那只是推論，我會用問題一起驗證。"
+      ],
+      "completeness_notice": [
+        "補充：若內在能量尚未補齊，我會把該感標註 INCOMPLETE，不做推論。"
+      ]
+    },
+
+    "sword": {
+      "default": [
+        "最小一步：先從『最弱的一感（且資料完整）』挑 1 個動作做（今天能做完的），讓內在補給先回來，外在才推得動。"
+      ]
+    }
+  },
+
+  "exports": {
+    "signals_written": ["four_feelings"],
+    "explainers_written": [
+      "four_feelings_overview",
+      "four_feelings_driver_hypotheses",
+      "four_feelings_actions",
+      "four_feelings_completeness_notice"
+    ]
+  },
+
+  "links": {
+    "protocols": ["P:K2.S1.STATE_DETECT", "P:K4.S1.INDEX_FIRST", "P:K6.S1.FACT_INFERENCE_SEP"],
+    "recommended_routes": ["R:3.FOUR_FEELINGS"],
+    "neighbor_modules": [
+      "PLUS:ENERGY_GRAMMAR",
+      "PLUS:SUM_COMPARE_SEED_RULE",
+      "PLUS:FOUR_MANIFESTATIONS",
+      "PLUS:FOUR_AXES_MBTI",
+      "PLUS:INTEGRATED_SYNTHESIS"
+    ],
+    "crystals": {
+      "placeholders": ["CR:AEO.FOUR_FEELINGS.001", "CR:GEO.INTERNAL_DRIVERS.001"],
+      "note": "待 OM-Cry 建立後，以實際 crystal_id 取代 placeholders。"
+    }
+  }
+}

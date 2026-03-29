@@ -1,0 +1,107 @@
+---
+id: consolidator-gpt
+name: "Consolidator Synthesizer"
+version: "0.1.0"
+language: "zh-TW"
+priority: 0.88                  # 介於分析模組與 X 模型之間
+max_tokens: 1024
+expected_latency_ms: 1400
+dependencies:
+  - vector_store: consolidator-knowledge-v1   # 存放常用合成範式、案例
+scopes:
+  - memory:short_term
+  - memory:vector:consolidator
+
+# === 觸發條件 ================================================================
+activation_rules:
+  keywords: []                   # 由主 Router 於 Sentinel 後「自動」呼叫
+  intents:  [post_analysis_synthesis]
+  examples:
+    - "（內部呼叫）請將 dharma / resonance / trivara 輸出整合後交給 X 模型"
+
+# === 介面契約 ================================================================
+input_schema:
+  type: object
+  required: ["dharma", "resonance", "trivara"]
+  properties:
+    dharma:
+      type: object
+      description: "來自 dharma-gpt 的上一輪 JSON 輸出"
+    resonance:
+      type: object
+      description: "來自 resonance-gpt 的上一輪 JSON 輸出"
+    trivara:
+      type: object
+      description: "來自 trivara-meta-gpt 的上一輪 JSON 輸出"
+    context:
+      type: string
+      description: "（選填）額外背景或使用者原始輸入"
+
+output_schema:
+  type: object
+  required: ["summary", "key_insights", "action_gap", "handoff_payload"]
+  properties:
+    summary:
+      type: string
+      description: "≤150 字整合敘述，供使用者或日誌閱讀"
+    key_insights:
+      type: array
+      items: {type: string}
+      description: "3–5 條關鍵洞察（信念、情緒象徵、邏輯衝突…）"
+    action_gap:
+      type: string
+      description: "依 X 模型框架提煉出目標與現況落差一句話"
+    handoff_payload:
+      type: object
+      description: >
+        結構化資料包，字段包括
+        {beliefs:[], emotions:[], blockers:[], resources_needed:[]}
+        將交給 X 模型 / 八槓桿 / QBQ 連鎖使用
+    next_hint:
+      type: string
+      description: "預設 'x_model'，亦可指向其他策略模組或 'answer' 直接回覆"
+
+examples:
+  - input:
+      dharma:    {stage: "Reflect", analysis: "核心信念：責任=不允許延遲", ...}
+      resonance: {stage: "SymbolicEcho", resonance: "焦躁像繃緊的弓", ...}
+      trivara:   {module: "resonance", stage: "SignalSensing", ...}
+    output:
+      summary: "使用者因『責任=不允許延遲』信念導致高張焦躁，情緒象徵為繃緊弓弦。"
+      key_insights:
+        - "限制性信念使延遲=失敗"
+        - "身體緊繃→長期交感神經優勢"
+        - "策略與能力評估缺口未明確"
+      action_gap: "需重構責任定義並評估資源→排程"
+      handoff_payload:
+        beliefs: ["責任=不允許延遲"]
+        emotions: ["焦躁(0.78)"]
+        blockers: ["自責→拖延", "排程不明"]
+        resources_needed: ["時間槓桿", "協同工具"]
+      next_hint: "x_model"
+
+# === System Prompt ===========================================================
+system_prompt: |
+  你是「Consolidator Synthesizer」，任務：在需求確認階段結束後，
+  將 dharma-gpt、resonance-gpt、trivara-meta-gpt 的 JSON 輸出
+  進行縱向與橫向匯流，生成一份適用於 X 模型、八大槓桿、
+  7 段 QBQ 的統整資料包。
+
+  ★ 工作步驟
+  1. 讀取三份 JSON，對齊欄位 → 建立「信念-情緒-阻礙」矩陣。
+  2. 抽取 3–5 條最具影響力的洞察寫入 key_insights。
+  3. 用 X 模型觀點寫出一句 action_gap（目標-現況落差）。
+  4. 組裝 handoff_payload：
+     • beliefs      → 陣列（限制 / 支持信念）
+     • emotions     → 陣列（情緒詞＋強度）
+     • blockers     → 陣列（資源、流程、心態阻礙）
+     • resources_needed → 初步推算之八槓桿資源
+  5. 預設 next_hint 為 "x_model"；如判定可直接回答，改填 "answer"。
+
+  ★ 輸出規則
+  • 嚴格符合 output_schema，否則回傳 `error` 欄位。
+  • summary ≤150 字；key_insights 各 ≤60 字。
+  • 禁用冗長說教；重點式、可機讀。
+
+  準備完成後立即開始合成。
+---

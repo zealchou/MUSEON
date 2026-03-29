@@ -1,0 +1,112 @@
+{
+  "version": "3.0.0",
+  "user_id": "8438029395",
+  "created_at": "2026-03-29T12:51:55.489934",
+  "interaction_count": 3,
+  "last_seen": "2026-03-29T23:29:19.489829",
+  "display_name": "Nia",
+  "context_summary": "Nia 的近期話題：/business@MuseonClaw_bot；1.目前只有品牌核心理念的畫面，其他都還沒有設計\n2.以實體商品為主，體驗服務為附加價值\n3.父母自；/business@MuseonClaw_bot；品牌核心理念，每個新生兒都是承載著大家的祝福而來到這世上，我想為這些新生兒送上第一份禮物，但還沒想好；/business",
+  "profile": {
+    "name": "Nia",
+    "role": null,
+    "business_type": "unknown"
+  },
+  "relationship": {
+    "trust_level": "initial",
+    "total_interactions": 2,
+    "positive_signals": 0,
+    "negative_signals": 0,
+    "last_interaction": "2026-03-29T23:29:19.489829",
+    "first_interaction": "2026-03-29T12:51:55.489945"
+  },
+  "eight_primals": {
+    "aspiration": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "accumulation": {
+      "level": 16,
+      "confidence": 0.06,
+      "signal": "[群組近期對話紀錄]   47:28 老闆（老闆）: Nia 這邊可以玩   47:58 老闆（老闆）: @MuseonClaw_bot Nia 小姊姊 是我之",
+      "last_observed": "2026-03-29T23:29:19.489829"
+    },
+    "action_power": {
+      "level": 8,
+      "confidence": 0.06,
+      "signal": "[群組近期對話紀錄]   47:28 老闆（老闆）: Nia 這邊可以玩   47:58 老闆（老闆）: @MuseonClaw_bot Nia 小姊姊 是我之",
+      "last_observed": "2026-03-29T23:29:19.489829"
+    },
+    "curiosity": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "emotion_pattern": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "blindspot": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "boundary": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    },
+    "relationship_depth": {
+      "level": 0,
+      "confidence": 0.0,
+      "signal": "",
+      "last_observed": null
+    }
+  },
+  "seven_layers": {
+    "L1_facts": [
+      {
+        "category": "occupation",
+        "snippet": "[群組近期對話紀錄]\n  47:28 老闆（老闆）: Nia 這邊可以玩\n  47:58 老闆（老闆）: @MuseonClaw_bot Nia 小姊姊 是我之前 OneMuse 團隊的夥伴 好好打聲",
+        "date": "2026-03-29T23:16:29.489212"
+      },
+      {
+        "category": "occupation",
+        "snippet": "[群組近期對話紀錄]\n  47:28 老闆（老闆）: Nia 這邊可以玩\n  47:58 老闆（老闆）: @MuseonClaw_bot Nia 小姊姊 是我之前 OneMuse 團隊的夥伴 好好打聲",
+        "date": "2026-03-29T23:29:19.489829"
+      }
+    ],
+    "L2_personality": [],
+    "L6_communication_style": {
+      "detail_level": "detailed",
+      "emoji_usage": "none",
+      "language_mix": "mixed",
+      "avg_msg_length": 220,
+      "question_style": "directive",
+      "tone": "casual"
+    }
+  },
+  "preferences": {
+    "communication_style": "detailed"
+  },
+  "recent_topics": [
+    {
+      "snippet": "/business",
+      "date": "2026-03-29T23:16:29.489212"
+    },
+    {
+      "snippet": "/business",
+      "date": "2026-03-29T23:29:19.489829"
+    }
+  ],
+  "groups_seen_in": [
+    -5222433915
+  ],
+  "relationship_to_owner": ""
+}

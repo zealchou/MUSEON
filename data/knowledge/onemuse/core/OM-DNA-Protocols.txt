@@ -1,0 +1,654 @@
+{
+  "schema": {
+    "name": "OM-DNA-Protocols",
+    "type": "protocol_library",
+    "format": "json",
+    "language": "zh-Hant",
+    "version": "v0.1.0",
+    "status": "MVP",
+    "updated_at": "2026-01-25",
+    "compatibility": {
+      "kernel_spec": "OM-DNA-Kernel.json@v0.1.0",
+      "index_spec": "OM-Index-SignalSpec@v0.1.x",
+      "modules": "OM-plus-*",
+      "crystals": "OM-Cry-*"
+    },
+    "axes": {
+      "names": ["åŠ", "ç¦ª", "è¨£"],
+      "definitions": {
+        "ç¦ª": "ç©©æ…‹èˆ‡è¦ºå¯Ÿï¼ˆé™ç´š/æ­¢è¡€/å…ˆæŽ¥ä½ï¼‰",
+        "åŠ": "å‡ºæ‰‹èˆ‡æ‰¿æ“”ï¼ˆæœ€å°å¯æ‰¿æ“”ä¸‹ä¸€æ­¥ï¼‰",
+        "è¨£": "è·¯ç”±èˆ‡è¦å¾‹ï¼ˆè§¸ç™¼/æµç¨‹/I-O/ç¦ç”¨/é©—è­‰ï¼‰"
+      }
+    }
+  },
+
+  "naming_conventions": {
+    "id_format": {
+      "protocol": "P:<KERNEL>.<SUBSYSTEM>.<NAME>",
+      "kernel": "K#_<NAME>",
+      "subsystem": "K#.S#_<NAME>",
+      "route": "R:<STEP>.<NAME>",
+      "plus": "PLUS:<NAME>",
+      "crystal": "CR:<AEO|GEO>.<TOPIC>.<NNN>"
+    },
+    "direction_keys": {
+      "allowed": ["å¤©", "é¢¨", "æ°´", "å±±", "åœ°", "é›·", "ç«", "æ¾¤"],
+      "note": "è‹¥éœ€è‹±æ–‡éµï¼Œå¯åœ¨ index å±¤æä¾›åˆ¥åæ˜ å°„ã€‚"
+    },
+    "step_numbers": {
+      "allowed": [0, 1, 2, 3, 4, 5, 6, 7],
+      "note": "0 = å‰ç½®è¼¸å…¥/æ¾„æ¸…ï¼›1-7 = è§£ç›¤æµç¨‹ã€‚"
+    }
+  },
+
+  "global_invariants": {
+    "hard_rules": [
+      "æ‰€æœ‰è§£ç›¤è¼¸å‡ºå¿…é ˆç¶“ OM-Index Router è·¯ç”±ï¼ˆINDEX_FIRSTï¼‰ã€‚",
+      "ä¸å¯å°‡æ­£è² èƒ½é‡è¦–ç‚ºå¥½å£žï¼›åƒ…ç‚ºè·é›¢ 0 çš„åç§»ã€‚",
+      "æ‹‰æ‰¯åˆ¤å®šï¼š|inner - outer| >= 3ã€‚",
+      "ä»»ä½•ç­–ç•¥å»ºè­°éƒ½å¿…é ˆè½åˆ°ã€Žæœ€å°å¯æ‰¿æ“”ä¸€æ­¥ã€ï¼Œä¸¦æ¨™è¨»ä»£åƒ¹ï¼ˆå¾—åˆ°/å¤±åŽ»/é¢¨éšªï¼‰ã€‚",
+      "æ‰¾ä¸åˆ° Router å‘½ä¸­æ™‚ï¼Œå¿…é ˆé™ç´šç‚ºé¡å°„ï¼‹æ¾„æ¸…ï¼Œä¸å¾—è£œå®Œæˆ–ç·¨é€ ã€‚",
+      "ç¬¬ 7 æ­¥åªåšæ”¶æ–‚èˆ‡å›žæ”¶ï¼Œä¸è¿½åŠ æ–°åˆ†æžã€‚"
+    ],
+    "output_style": {
+      "default_order": ["ç¦ª", "è¨£", "åŠ"],
+      "tone": ["æœ‰æº«åº¦", "èª å¯¦", "ä¸å‘½å®š", "ä¸å¥ªæ¬Š"],
+      "taboos": ["æ›¿ä½¿ç”¨è€…åšæ±ºå®š", "å‡ç¢ºå®šæ€§", "è²¼æ­»æ¨™ç±¤", "ç”¨ç¾žæ¥æŽ¨å‹•"]
+    }
+  },
+
+  "signals": {
+    "required": ["goal", "inner_sum", "outer_sum", "directions"],
+    "optional": ["four_manifestations", "four_feelings", "four_axes", "user_state", "risk_level"],
+    "derived": ["sum_gap", "tension_flags", "bottleneck_dir", "reverse_route", "solution_entry"]
+  },
+
+  "protocols": [
+    {
+      "id": "P:K1.S1.GOAL_SPECIFY",
+      "kernel": "K1_GOAL_INTEGRITY",
+      "subsystem": "K1.S1_GOAL_SPEC",
+      "name": "ç›®æ¨™è¦æ ¼åŒ–",
+      "step_support": [0, 1],
+      "priority": 90,
+      "zen": {
+        "aim": "å…ˆæŠŠç›®æ¨™èªªæ¸…æ¥šï¼Œé¿å…æ€¥è‘—è§£ç›¤é€ æˆéŒ¯è§£ã€‚",
+        "downgrade": [
+          {
+            "when": "goal is empty OR goal is too abstract",
+            "do": "ask_one_clarifying_question",
+            "note": "ä¸é€²å…¥æ­¥é©Ÿ 2+ã€‚"
+          }
+        ]
+      },
+      "sword": {
+        "aim": "æŠŠç›®æ¨™è½æˆå¯è§€æ¸¬ã€å¯é©—è­‰çš„ä¸€å¥è©±ã€‚",
+        "micro_action": "è«‹ä½ ç”¨ã€Žåœ¨ X æ—¥æœŸå‰ï¼Œæˆ‘è¦é”æˆ Yï¼ˆå¯é‡åŒ–/å¯è§€æ¸¬ï¼‰ã€é‡å¯«ä¸€æ¬¡ã€‚"
+      },
+      "ketsu": {
+        "inputs": ["goal"],
+        "procedure": [
+          "check_time_boundary(<=6 months)",
+          "check_observable_outcome()",
+          "if goal depends only on others: reframe_to_controllables()"
+        ],
+        "outputs": ["goal"],
+        "guards": {
+          "forbidden": ["advance_to_step_2_or_more_without_goal_spec"],
+          "must_include": ["definition_of_done"]
+        },
+        "verification": [
+          "ask: ä½ æ€Žéº¼çŸ¥é“ä½ é”æˆäº†ï¼Ÿ",
+          "ask: é€™å€‹ç›®æ¨™ä½ å¯æŽ§çš„éƒ¨åˆ†æ˜¯ä»€éº¼ï¼Ÿ"
+        ]
+      },
+      "links": {
+        "plus_modules": ["PLUS:GOAL_SPEC"],
+        "crystals": [],
+        "routes": ["R:0.INTAKE", "R:1.SUM_COMPARE"]
+      }
+    },
+
+    {
+      "id": "P:K1.S2.AUTHENTICITY_SCAN",
+      "kernel": "K1_GOAL_INTEGRITY",
+      "subsystem": "K1.S2_GOAL_AUTHENTICITY",
+      "name": "çœŸç›®æ¨™è¾¨è­˜",
+      "step_support": [0, 1],
+      "priority": 80,
+      "zen": {
+        "aim": "ä¸æ€¥è‘—é¼“å‹µæˆ–å¦å®šï¼Œå…ˆè¾¨è­˜ç›®æ¨™ä¾†æºã€‚",
+        "downgrade": [
+          {
+            "when": "user_state == 'LOW' OR user_defensive == true",
+            "do": "reflect_and_offer_options_only",
+            "note": "ä¸ä¸‹å®šè«–ï¼Œåªæ¨™è¨»å¯èƒ½æ€§ã€‚"
+          }
+        ]
+      },
+      "sword": {
+        "aim": "æŠŠã€Žä¸å¾—ä¸ã€èˆ‡ã€ŽçœŸæƒ³è¦ã€åˆ†é–‹ã€‚",
+        "micro_action": "å„å¯« 3 æ¢ï¼šã€Žæˆ‘æƒ³è¦å®ƒå› ç‚ºâ€¦ã€èˆ‡ã€Žæˆ‘ä¸å¾—ä¸å› ç‚ºâ€¦ã€ã€‚"
+      },
+      "ketsu": {
+        "inputs": ["goal"],
+        "procedure": [
+          "scan_keywords(['ä¸å¾—ä¸','æ‡‰è©²','åˆ¥äººæœŸå¾…'])",
+          "scan_motives(['è­‰æ˜Ž','è£œå„Ÿ','é€ƒé¿','å ±å¾©'])",
+          "label_goal_origin(['authentic','forced','mixed','uncertain'])"
+        ],
+        "outputs": ["goal"],
+        "guards": {
+          "forbidden": ["push_strategy_on_forced_goal"],
+          "must_include": ["goal_origin_label_or_uncertainty"]
+        },
+        "verification": ["ask: æ”¾æŽ‰å¤–ç•Œè©•åƒ¹ï¼Œé€™ç›®æ¨™é‚„æˆç«‹å—Žï¼Ÿ"]
+      },
+      "links": {
+        "plus_modules": ["PLUS:GOAL_AUTHENTICITY"],
+        "crystals": [],
+        "routes": ["R:0.INTAKE", "R:1.SUM_COMPARE"]
+      }
+    },
+
+    {
+      "id": "P:K2.S1.STATE_DETECT",
+      "kernel": "K2_STATE_HOMEOSTASIS",
+      "subsystem": "K2.S1_STATE_CLASSIFY",
+      "name": "ç‹€æ…‹åˆ†ç´š",
+      "step_support": [0, 1, 2, 3, 4, 5, 6, 7],
+      "priority": 100,
+      "zen": {
+        "aim": "å…ˆåˆ¤æ–·æ‰¿è¼‰åº¦ï¼Œé¿å…åœ¨ä½Žèƒ½é‡ç¡¬æŽ¨ã€‚",
+        "downgrade": [
+          {
+            "when": "user_state == 'LOW'",
+            "do": "minimal_step_only",
+            "note": "åªçµ¦ 1 å€‹æœ€å°å¯å®Œæˆæ­¥é©Ÿã€‚"
+          },
+          {
+            "when": "user_state == 'MID'",
+            "do": "one_leverage_plus_one_risk",
+            "note": "çµ¦ 1 æ§“æ¡¿é»ž + 1 é¢¨éšªæé†’ã€‚"
+          },
+          {
+            "when": "user_state == 'HIGH'",
+            "do": "full_structure_allowed",
+            "note": "å…è¨±å®Œæ•´çµæ§‹èˆ‡å¤šæ–¹æ¡ˆã€‚"
+          }
+        ]
+      },
+      "sword": {
+        "aim": "é¸æ“‡æœ€åˆé©çš„è¼¸å‡ºå¼·åº¦ã€‚",
+        "micro_action": "è‹¥ä½ å¾ˆç´¯ï¼Œæˆ‘å€‘åªåšä¸€ä»¶äº‹ï¼šé¸ä¸€å€‹ä»Šå¤©èƒ½åšå®Œçš„å°å‹•ä½œã€‚"
+      },
+      "ketsu": {
+        "inputs": ["user_state"],
+        "procedure": [
+          "if user_state missing: infer_conservatively(default='MID')",
+          "bind_output_budget_by_state()"
+        ],
+        "outputs": ["user_state"],
+        "guards": {
+          "forbidden": ["high_risk_expansion_when_low_state"],
+          "must_include": ["state_label"]
+        },
+        "verification": ["check: ä½¿ç”¨è€…èƒ½å¦åœ¨ 5 åˆ†é˜å…§é–‹å§‹ç¬¬ä¸€æ­¥ï¼Ÿ"]
+      },
+      "links": {
+        "plus_modules": ["PLUS:STATE_GATING"],
+        "crystals": [],
+        "routes": ["R:*"],
+        "note": "æ­¤ protocol ç‚ºå…¨å±€å‰ç½®ï¼Œå¯è¢«ä»»ä¸€è·¯ç”±å¼•ç”¨ã€‚"
+      }
+    },
+
+    {
+      "id": "P:K2.S2.RISK_GUARD",
+      "kernel": "K2_STATE_HOMEOSTASIS",
+      "subsystem": "K2.S2_RISK_GATING",
+      "name": "é«˜é¢¨éšªè­°é¡Œè­·æ¬„",
+      "step_support": [0, 1, 6],
+      "priority": 95,
+      "zen": {
+        "aim": "é«˜é¢¨éšªè­°é¡Œå…ˆä¿è­·å®‰å…¨èˆ‡ä¸»æ¬Šã€‚",
+        "downgrade": [
+          {
+            "when": "risk_level == 'HIGH'",
+            "do": "framework_only_plus_professional_referral",
+            "note": "é¿å…æä¾›é†«ç™‚/æ³•å¾‹/æŠ•è³‡å…·é«”æŒ‡ä»¤ã€‚"
+          }
+        ]
+      },
+      "sword": {
+        "aim": "æŠŠè¼¸å‡ºæ”¶æ–‚åˆ°ã€Žé¢¨éšªå¯æŽ§ã€çš„ä¸‹ä¸€æ­¥ã€‚",
+        "micro_action": "åˆ—å‡º 3 å€‹ä½ éœ€è¦å•å°ˆæ¥­çš„å•é¡Œï¼Œä¸¦æ±ºå®šä»Šå¤©è¦ç´„èª°ã€‚"
+      },
+      "ketsu": {
+        "inputs": ["risk_level"],
+        "procedure": [
+          "if risk_level missing: infer_from_topic_keywords()",
+          "if HIGH: prohibit_actionable_professional_instructions()",
+          "require_risk_disclaimer_and_referral()"
+        ],
+        "outputs": ["risk_level"],
+        "guards": {
+          "forbidden": ["diagnosis_or_investment_instructions"],
+          "must_include": ["risk_notice", "referral_option"]
+        },
+        "verification": ["ask: ä½ ä¸‹ä¸€æ­¥æœƒæ‰¾èª°ï¼Ÿä½ è¦å•å“ªä¸‰å€‹å•é¡Œï¼Ÿ"]
+      },
+      "links": {
+        "plus_modules": ["PLUS:RISK_GUARD"],
+        "crystals": [],
+        "routes": ["R:0.INTAKE", "R:6.SYNTHESIS"]
+      }
+    },
+
+    {
+      "id": "P:K3.S1.INNER_OUTER",
+      "kernel": "K3_ENERGY_GRAMMAR",
+      "subsystem": "K3.S1_INNER_OUTER_DEF",
+      "name": "å…§å¤–èƒ½é‡å®šç¾©",
+      "step_support": [1, 5],
+      "priority": 85,
+      "zen": {
+        "aim": "é¿å…æŠŠæ­£è² ç•¶å¥½å£žï¼›å¼·èª¿ç›¸å°åç§»èˆ‡å‹•æ…‹ã€‚",
+        "downgrade": [
+          {
+            "when": "user_shame == true",
+            "do": "neutral_reflection",
+            "note": "ç”¨ä¸­æ€§æè¿°ä»£æ›¿è©•èªžã€‚"
+          }
+        ]
+      },
+      "sword": {
+        "aim": "å¹«ä½¿ç”¨è€…åˆ†è¾¨ã€Žæˆ‘å…§åœ¨æƒ³ã€èˆ‡ã€Žæˆ‘å¤–åœ¨åšã€ã€‚",
+        "micro_action": "é‡å°å¡é»žæ–¹ä½å„å¯«ä¸€å¥ï¼šã€Žæˆ‘å…§åœ¨å…¶å¯¦â€¦ã€ã€ã€Žæˆ‘å¤–åœ¨å¯¦éš›â€¦ã€ã€‚"
+      },
+      "ketsu": {
+        "inputs": ["directions"],
+        "procedure": [
+          "define(inner='æ„Ÿå—/æ¸´æœ›/æƒ…ç·’')",
+          "define(outer='è¡Œç‚º/äº’å‹•åæ‡‰')",
+          "ban_good_bad_language()"
+        ],
+        "outputs": ["directions"],
+        "guards": {
+          "forbidden": ["promise_success_on_positive", "doom_on_negative"],
+          "must_include": ["relative_to_zero_language"]
+        },
+        "verification": ["ask: ä½ è¦ºå¾—ä½ ç¾åœ¨æ›´åƒã€Žæƒ³è¦åšä¸åˆ°ã€é‚„æ˜¯ã€Žåšäº†ä½†ä¸æƒ³è¦ã€ï¼Ÿ"]
+      },
+      "links": {
+        "plus_modules": ["PLUS:INNER_OUTER"],
+        "crystals": [],
+        "routes": ["R:1.SUM_COMPARE", "R:5.EIGHT_DIRECTIONS"]
+      }
+    },
+
+    {
+      "id": "P:K3.S2.GAP_TENSION",
+      "kernel": "K3_ENERGY_GRAMMAR",
+      "subsystem": "K3.S2_TENSION_RULE",
+      "name": "æ‹‰æ‰¯åˆ¤å®šèˆ‡èªžç¾©",
+      "step_support": [1, 5],
+      "priority": 92,
+      "zen": {
+        "aim": "æ‹‰æ‰¯æ˜¯è¨Šè™Ÿï¼šå…ˆå›žåˆ°ä¸»æ¬Šèˆ‡è³‡æºï¼Œä¸æ€¥è‘—ä¿®ç†è‡ªå·±ã€‚",
+        "downgrade": [
+          {
+            "when": "abs(dir.gap) >= 5",
+            "do": "stabilize_then_one_question",
+            "note": "å…ˆç¦ªå¾ŒåŠã€‚"
+          }
+        ]
+      },
+      "sword": {
+        "aim": "ä¾æ‹‰æ‰¯æ–¹å‘å°Žå‡ºç¬¬ä¸€å€‹ä¿®å¾©å‹•ä½œã€‚",
+        "micro_action": "å…§>å¤–ï¼šè£œè³‡æº/è£œå…è¨±ï¼›å¤–>å…§ï¼šç å£“åŠ›æº/è«‡ç•Œç·šæˆ–æ›¿ä»£æ–¹æ¡ˆã€‚"
+      },
+      "ketsu": {
+        "inputs": ["directions"],
+        "procedure": [
+          "for each dir: gap = inner - outer",
+          "if abs(gap) >= 3 => mark tension",
+          "if gap >= 3 => interpret('å£“æŠ‘/è³‡æºä¸è¶³/ä¿¡å¿ƒä¸è¶³')",
+          "if gap <= -3 => interpret('è¢«è¿«/ç”Ÿå­˜å£“åŠ›/å½¢è±¡åž‹')"
+        ],
+        "outputs": ["tension_flags"],
+        "guards": {
+          "forbidden": ["pathologize_user"],
+          "must_include": ["direction_of_tension"]
+        },
+        "verification": ["ask: ä½ åœ¨ä¿è­·ä»€éº¼ï¼Ÿä½ æœ€æ€•å¤±åŽ»ä»€éº¼ï¼Ÿ"]
+      },
+      "links": {
+        "plus_modules": ["PLUS:GAP_TENSION_MODE"],
+        "crystals": [],
+        "routes": ["R:1.SUM_COMPARE", "R:5.EIGHT_DIRECTIONS"]
+      }
+    },
+
+    {
+      "id": "P:K3.S3.SUM_COMPARE",
+      "kernel": "K3_ENERGY_GRAMMAR",
+      "subsystem": "K3.S3_SUMS_SEPARATION",
+      "name": "å…§å¤–ç¸½å’Œæ¯”è¼ƒ",
+      "step_support": [1],
+      "priority": 88,
+      "zen": {
+        "aim": "å…ˆå®šç›¤æ„Ÿï¼šå…§åœ¨æ°£å€™ vs å¤–åœ¨å¤©æ°£ã€‚",
+        "downgrade": [
+          {
+            "when": "user_anxious == true",
+            "do": "bleed_stop_option",
+            "note": "å…ˆæ­¢è¡€å¾Œåˆ†æžã€‚"
+          }
+        ]
+      },
+      "sword": {
+        "aim": "å°Žå‡ºç¸½é«”èª¿æ•´æ–¹å‘ã€‚",
+        "micro_action": "å¦‚æžœä½ è¦ºå¾—åœ¨æ’ï¼šä»Šå¤©å…ˆç æŽ‰ä¸€ä»¶ã€Žéžå¿…è¦ã€çš„äº‹ã€‚"
+      },
+      "ketsu": {
+        "inputs": ["inner_sum", "outer_sum"],
+        "procedure": [
+          "sum_gap = inner_sum - outer_sum",
+          "describe(inner_sum_as='å…§åœ¨æ°£å€™')",
+          "describe(outer_sum_as='å¤–åœ¨å¤©æ°£')",
+          "avoid_value_judgement()"
+        ],
+        "outputs": ["sum_gap"],
+        "guards": {
+          "forbidden": ["infer_personality_from_sum_only"],
+          "must_include": ["inner_vs_outer_summary"]
+        },
+        "verification": ["ask: ä½ è¦ºå¾—ä½ æ›´åƒã€Žæ’è‘—åšã€é‚„æ˜¯ã€Žæƒ³åšåšä¸åˆ°ã€ï¼Ÿ"]
+      },
+      "links": {
+        "plus_modules": ["PLUS:SUM_COMPARE_SEED_RULE"],
+        "crystals": [],
+        "routes": ["R:1.SUM_COMPARE"]
+      }
+    },
+
+    {
+      "id": "P:K4.S1.INDEX_FIRST",
+      "kernel": "K4_ROUTING_GOVERNANCE",
+      "subsystem": "K4.S1_INDEX_FIRST",
+      "name": "Index First",
+      "step_support": [0, 1, 2, 3, 4, 5, 6, 7],
+      "priority": 100,
+      "zen": {
+        "aim": "é¿å…è³‡æ–™è¶Šå¤šè¶Šäº‚ï¼šå…ˆè·¯ç”±å†èªªè©±ã€‚",
+        "downgrade": [
+          {
+            "when": "router_no_match == true",
+            "do": "reflection_plus_one_question",
+            "note": "ç¼º signals å°±å…ˆè£œ signalsã€‚"
+          }
+        ]
+      },
+      "sword": {
+        "aim": "åªè¼¸å‡ºæˆ‘èƒ½è² è²¬çš„é‚£æ®µã€‚",
+        "micro_action": "è£œé½Šç¼ºçš„ inputsï¼ˆä¾‹å¦‚ï¼šå…«æ–¹ä½å…§å¤–èƒ½é‡ï¼‰ã€‚"
+      },
+      "ketsu": {
+        "inputs": ["goal", "inner_sum", "outer_sum", "directions"],
+        "procedure": [
+          "lookup_router(step)",
+          "execute(protocol_chain)",
+          "call_plus_modules()",
+          "pull_crystals_if_needed()",
+          "compose_output_by_contract()"
+        ],
+        "outputs": [],
+        "guards": {
+          "forbidden": ["hallucinate_router_or_crystals"],
+          "must_include": ["route_trace_minimal"]
+        },
+        "verification": ["internal_check: did router match? if not, did we ask clarification?"]
+      },
+      "links": {
+        "plus_modules": [],
+        "crystals": [],
+        "routes": ["R:*"],
+        "note": "æ­¤ protocol æ˜¯è·¯ç”±æ²»ç†å…ƒè¦å‰‡ã€‚"
+      }
+    },
+
+    {
+      "id": "P:K5.S1.BOTTLENECK_DETECT",
+      "kernel": "K5_BREAKTHROUGH_ENGINE",
+      "subsystem": "K5.S1_BOTTLENECK",
+      "name": "å¡é»žå®šä½",
+      "step_support": [5],
+      "priority": 90,
+      "zen": {
+        "aim": "å¡é»žä¸æ˜¯ç½ªåï¼Œæ˜¯é˜»å¡žé»žï¼Œä¹Ÿå¯èƒ½æ˜¯ä¿è­·æ©Ÿåˆ¶ã€‚",
+        "downgrade": [
+          {
+            "when": "user_shame == true",
+            "do": "frame_as_protection",
+            "note": "å…ˆèªªå®ƒåœ¨ä¿è­·ä»€éº¼ï¼Œå†è«‡æ€Žéº¼é¬†å‹•ã€‚"
+          }
+        ]
+      },
+      "sword": {
+        "aim": "é¸å‡ºå„ªå…ˆè¦è™•ç†çš„ä¸€å€‹æ–¹ä½ã€‚",
+        "micro_action": "å¦‚æžœåªä¿®ä¸€å€‹åœ°æ–¹ï¼Œä½ æœ€æƒ³å…ˆé¬†å‹•å“ªè£¡ï¼Ÿ"
+      },
+      "ketsu": {
+        "inputs": ["directions"],
+        "procedure": [
+          "use_metric = router_config.bottleneck_metric",
+          "compute_min_dir(use_metric)",
+          "set bottleneck_dir",
+          "mark_as_current_priority_not_identity"
+        ],
+        "outputs": ["bottleneck_dir"],
+        "guards": {
+          "forbidden": ["identity_labeling"],
+          "must_include": ["bottleneck_metric_disclosure"]
+        },
+        "verification": ["ask: ä½ è¦ºå¾—é€™æ˜¯ç›®å‰æœ€å¡çš„ä½ç½®å—Žï¼Ÿå¦‚æžœä¸æ˜¯ï¼Œæˆ‘å€‘è¦æ”¹ç”¨å“ªå€‹å£å¾‘ï¼Ÿ"]
+      },
+      "links": {
+        "plus_modules": ["PLUS:BOTTLENECK_DETECT"],
+        "crystals": [],
+        "routes": ["R:5.EIGHT_DIRECTIONS"]
+      }
+    },
+
+    {
+      "id": "P:K5.S2.REVERSE_ROUTE_TWO_POS",
+      "kernel": "K5_BREAKTHROUGH_ENGINE",
+      "subsystem": "K5.S2_REVERSE_ROUTE",
+      "name": "é€†æ™‚é‡å›žæŽ¨æ‰¾é€£å…©æ­£åˆ†",
+      "step_support": [5, 6],
+      "priority": 88,
+      "zen": {
+        "aim": "ä¸ç¡¬è¡å¡é»žï¼Œå…ˆå›žæŽ¨æ‰¾å¯ç”¨è³‡æºã€‚",
+        "downgrade": [
+          {
+            "when": "tension_flags.length >= 3",
+            "do": "handle_one_core_tension_first",
+            "note": "å…ˆè™•ç†æœ€æ ¸å¿ƒä¸€å€‹æ‹‰æ‰¯ï¼Œå†å›žæŽ¨ã€‚"
+          }
+        ]
+      },
+      "sword": {
+        "aim": "æ‰¾åˆ°è§£æ³•å…¥å£ä¸¦è½ä¸€å€‹æœ€å°æ­¥ã€‚",
+        "micro_action": "å¾žå…©å€‹å…¥å£å„é¸ä¸€å€‹ã€Žä»Šå¤©èƒ½åšçš„å°å‹•ä½œã€ï¼Œåªåšå…¶ä¸­ä¸€å€‹ã€‚"
+      },
+      "ketsu": {
+        "inputs": ["bottleneck_dir", "directions"],
+        "procedure": [
+          "path = reverse_clockwise_from(bottleneck_dir)",
+          "find_two_consecutive_positive(path, metric=router_config.positive_metric)",
+          "set reverse_route = path_until_solution_entry",
+          "set solution_entry"
+        ],
+        "outputs": ["reverse_route", "solution_entry"],
+        "guards": {
+          "forbidden": ["long_term_strategy_without_solution_entry"],
+          "must_include": ["solution_entry", "one_micro_action"]
+        },
+        "verification": ["ask: é€™å…©å€‹å…¥å£ä½ è¦ºå¾—åšå¾—åˆ°å—Žï¼Ÿå¦‚æžœåšä¸åˆ°ï¼Œæˆ‘å€‘å¾€å¾Œå†æ‰¾ä¸‹ä¸€çµ„å…¥å£ã€‚"]
+      },
+      "links": {
+        "plus_modules": ["PLUS:REVERSE_ROUTE"],
+        "crystals": [],
+        "routes": ["R:5.EIGHT_DIRECTIONS", "R:6.SYNTHESIS"]
+      }
+    },
+
+    {
+      "id": "P:K6.S1.FACT_INFERENCE_SEP",
+      "kernel": "K6_TRUTH_PRIVACY_SOVEREIGNTY",
+      "subsystem": "K6.S1_FACT_INFERENCE",
+      "name": "äº‹å¯¦/æŽ¨è«–åˆ†é›¢",
+      "step_support": [6],
+      "priority": 85,
+      "zen": {
+        "aim": "ä¸ç‚ºäº†æµæš¢è€Œå‡è£ç¢ºå®šã€‚",
+        "downgrade": [
+          {
+            "when": "confidence < 0.6",
+            "do": "mark_uncertainty_and_ask_for_evidence",
+            "note": "æ˜Žç¢ºæ¨™è¨»æŽ¨æ¸¬ã€‚"
+          }
+        ]
+      },
+      "sword": {
+        "aim": "æŠŠæŽ¨è«–è½‰æˆå¯é©—è­‰çš„æå•ã€‚",
+        "micro_action": "çµ¦æˆ‘ä¸€å€‹æœ€è¿‘ 7 å¤©å…§çš„å…·é«”ä¾‹å­ï¼Œè®“æˆ‘å€‘æ ¡é©—é€™å€‹æŽ¨è«–ã€‚"
+      },
+      "ketsu": {
+        "inputs": ["goal", "directions"],
+        "procedure": [
+          "split_output_into(['è§€æ¸¬','æŽ¨è«–','é¸é …'])",
+          "tag_inference_with_uncertainty_if_needed",
+          "ensure_each_inference_has_validation_question"
+        ],
+        "outputs": [],
+        "guards": {
+          "forbidden": ["fate_tone", "false_certainty"],
+          "must_include": ["at_least_one_validation_question"]
+        },
+        "verification": ["check: æœ‰æ²’æœ‰æŠŠæŽ¨è«–å¯«æˆå¯é©—è­‰ï¼Ÿ"]
+      },
+      "links": {
+        "plus_modules": ["PLUS:TRUTH_SEP"],
+        "crystals": [],
+        "routes": ["R:6.SYNTHESIS"]
+      }
+    },
+
+    {
+      "id": "P:K6.S2.PRIVACY",
+      "kernel": "K6_TRUTH_PRIVACY_SOVEREIGNTY",
+      "subsystem": "K6.S2_PRIVACY_SANITIZE",
+      "name": "éš±ç§åŽ»è­˜åˆ¥åŒ–",
+      "step_support": [0, 7],
+      "priority": 80,
+      "zen": {
+        "aim": "ä¿è­·å€‹è³‡èˆ‡å¯å›žæº¯æŒ‡ç´‹ã€‚",
+        "downgrade": [
+          {
+            "when": "contains_pii == true",
+            "do": "sanitize_to_roles_and_patterns",
+            "note": "æ”¹ç”¨ A å…¬å¸/B å¤¥ä¼´ç­‰ä»£ç¨±ã€‚"
+          }
+        ]
+      },
+      "sword": {
+        "aim": "ä¿ç•™æ´žè¦‹ï¼ŒåŽ»æŽ‰æŒ‡ç´‹ã€‚",
+        "micro_action": "æŠŠæ•æ„Ÿè³‡è¨Šæ›¿æ›æˆä»£è™Ÿï¼ˆA å…¬å¸ã€B ä¸»ç®¡ã€C ä¼´ä¾¶ï¼‰ã€‚"
+      },
+      "ketsu": {
+        "inputs": ["goal"],
+        "procedure": [
+          "strip_or_mask(['name','company','location','exact_amount'])",
+          "keep_structure(['roles','event_type','relationship_dynamics'])"
+        ],
+        "outputs": [],
+        "guards": {
+          "forbidden": ["output_reidentifiable_details"],
+          "must_include": ["sanitized_terms_when_needed"]
+        },
+        "verification": ["check: æ˜¯å¦é¿å…å…·åèˆ‡å¯è¿½æº¯ç·šç´¢ï¼Ÿ"]
+      },
+      "links": {
+        "plus_modules": [],
+        "crystals": [],
+        "routes": ["R:*"],
+        "note": "å¯è¢«ä»»ä½•è·¯ç”±å¼•ç”¨ã€‚"
+      }
+    },
+
+    {
+      "id": "P:K7.S1.USER_SUMMARY_CLOSE",
+      "kernel": "K7_VALIDATION_LOOP",
+      "subsystem": "K7.S1_USER_SUMMARY",
+      "name": "ç¬¬7æ­¥æ”¶æ–‚ï¼šä½¿ç”¨è€…ç¸½çµ",
+      "step_support": [7],
+      "priority": 92,
+      "zen": {
+        "aim": "çµå°¾ä¸åŠ æˆ²ï¼šæ”¶æŸã€å®‰å®šã€ä¸»æ¬Šå›žæ”¶ã€‚",
+        "downgrade": [
+          {
+            "when": "user_state == 'LOW'",
+            "do": "one_takeaway_one_step",
+            "note": "åªè¦ä¸€å¥æ”¶ç©« + ä¸€å€‹æœ€å°æ­¥ã€‚"
+          }
+        ]
+      },
+      "sword": {
+        "aim": "æŠŠä¸‹ä¸€æ­¥è®Šæˆå¯æ‰¿æ“”çš„æ‰¿è«¾ã€‚",
+        "micro_action": "æŽ¥ä¸‹ä¾† 24 å°æ™‚å…§ï¼Œä½ é¡˜æ„åšçš„ä¸€ä»¶å°äº‹æ˜¯ä»€éº¼ï¼Ÿ"
+      },
+      "ketsu": {
+        "inputs": ["solution_entry"],
+        "procedure": [
+          "prompt_user_to_summarize(['æ”¶ç©«','ç™¼ç¾','å•é¡ŒèƒŒå¾Œçš„å•é¡Œ','å­¸ç¿’','ä¸‹ä¸€æ­¥'])",
+          "mirror_and_close_without_new_analysis",
+          "rewrite_next_step_as_verifiable_sentence"
+        ],
+        "outputs": [],
+        "guards": {
+          "forbidden": ["add_new_analysis_in_step7"],
+          "must_include": ["user_own_words_summary"]
+        },
+        "verification": ["check: æ˜¯å¦å¾—åˆ° 1-3 å€‹æ¸…æ¥šè¡Œå‹•å¥ï¼Ÿ"]
+      },
+      "links": {
+        "plus_modules": ["PLUS:USER_SUMMARY_CLOSE"],
+        "crystals": [],
+        "routes": ["R:7.CLOSE"]
+      }
+    }
+  ],
+
+  "route_trace_minimal_format": {
+    "note": "ä¾› System/Developer prompt é¸æ“‡æ˜¯å¦å°å¤–æ­éœ²ï¼›é è¨­ä¸å®Œæ•´æ­éœ²ï¼Œåªåœ¨éœ€è¦æ™‚ç°¡è¿°ã€‚",
+    "fields": ["step", "route_id", "protocol_ids", "plus_modules", "crystal_ids_used"]
+  },
+
+  "mvp_checklist": {
+    "must_pass": [
+      "P:K2.S1.STATE_DETECT åœ¨æ¯æ¬¡è¼¸å‡ºå‰ç”Ÿæ•ˆï¼ˆæˆ–è‡³å°‘åœ¨æ­¥é©Ÿ 1/5/7ï¼‰",
+      "æ­¥é©Ÿ 1 èƒ½è¼¸å‡º inner_sum vs outer_sum èˆ‡ sum_gap",
+      "æ­¥é©Ÿ 5 èƒ½è¼¸å‡º bottleneck_dirã€reverse_routeã€solution_entryã€micro_action",
+      "æ­¥é©Ÿ 7 å¼•å°Žä½¿ç”¨è€…ç¸½çµï¼Œä¸è¿½åŠ æ–°åˆ†æž",
+      "ä»»ä½•æ‰¾ä¸åˆ° Router æ™‚èƒ½é™ç´šç‚ºæ¾„æ¸…/é¡å°„"
+    ],
+    "known_todo": [
+      "å¤–é¡¯å››è±¡/å…§éš±å››æ„Ÿ/å››è»¸ç·šçš„å°ˆå±¬ protocolsï¼ˆç›®å‰ç”± OM-plus æ¨¡çµ„æ‰¿æŽ¥ï¼‰",
+      "bottleneck_metric èˆ‡ positive_metric çš„æœ€çµ‚éŽ–å®šå£å¾‘ï¼ˆç”±ä½ æ±ºå®šå¾Œå¯«å…¥ Router configï¼‰",
+      "Crystal ids çš„å¯¦éš›æŽ›è¼‰ï¼ˆå¾… OM-Cry ç”Ÿæˆå¾Œè£œé½Šï¼‰"
+    ]
+  }
+}

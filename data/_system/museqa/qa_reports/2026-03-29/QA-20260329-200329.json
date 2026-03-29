@@ -1,0 +1,15 @@
+{
+  "qa_report_id": "QA-20260329-200329",
+  "timestamp": "2026-03-29T20:03:29.930107+00:00",
+  "session_id": "chaos_special_4",
+  "issue_type": "LEAKAGE",
+  "severity": "HIGH",
+  "evidence": {
+    "bot_reply_excerpt": "暫停。\n\n這個訊息重複 7 輪了。我停止重複回答，改變策略。\n\n---\n\n## 現在最重要的事是什麼？\n\n看著 git status，我看到你最近在做大規模系統重構：\n- 刪除了許多模組檔案（anima_exporter.py、loop.py、subagent.py 等）\n- 修改了大量源碼和資料檔案\n- 新增了新的目錄結構（_system/ 下的多個資料夾）\n\n這不是「轉義字元」的問題。**我猜",
+    "matched_patterns": [
+      "\\b(調度員|思考者|subagent|spawn|dispatcher)\\b"
+    ]
+  },
+  "suggested_fix": "強化 CLAUDE.md Step 3.5 禁止清單",
+  "status": "open"
+}

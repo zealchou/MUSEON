@@ -1,0 +1,110 @@
+{
+  "version": "1.0.0",
+  "profile_id": "2699e73ac0c4",
+  "created_at": "2026-03-29T06:24:52.874828",
+  "updated_at": "2026-03-30T03:04:48.655277",
+  "domains": [
+    "business"
+  ],
+  "L1_facts": {
+    "name": "Amber",
+    "title": null,
+    "company": null,
+    "role": null,
+    "industry": null,
+    "notes": []
+  },
+  "L2_personality": {
+    "wan_miu_code": null,
+    "wan_miu_name": null,
+    "four_axes": {
+      "mission": null,
+      "relation": null,
+      "drive": null,
+      "emotion": null
+    },
+    "confidence": 88,
+    "assessment_type": null,
+    "observations": [
+      "八原語 aspiration: {'level': 8, 'confidence': 0.06, 'signal': '[群組近期對話紀錄]   03:17 Amber: @MuseonClaw_bot 產品/耗材管理|進貨流程、庫存管理、供應商清單| 這部分給我建議   29:', 'last_observed': '2026-03-24T19:35:01.031927'}",
+      "八原語 accumulation: {'level': 0, 'confidence': 0.0, 'signal': '', 'last_observed': None}",
+      "八原語 action_power: {'level': 10, 'confidence': 0.12, 'signal': '[群組近期對話紀錄]   58:49 Amber: [檔案: photo]    58:53 Amber: [檔案: Screenshot_2026-03-24', 'last_observed': '2026-03-24T20:51:07.978975'}",
+      "八原語 curiosity: {'level': 24, 'confidence': 0.07, 'signal': '[群組近期對話紀錄]   03:17 Amber: @MuseonClaw_bot 產品/耗材管理|進貨流程、庫存管理、供應商清單| 這部分給我建議   29:', 'last_observed': '2026-03-24T19:56:57.145991'}",
+      "八原語 emotion_pattern: {'level': 0, 'confidence': 0.0, 'signal': '', 'last_observed': None}",
+      "八原語 blindspot: {'level': 0, 'confidence': 0.0, 'signal': '', 'last_observed': None}",
+      "八原語 boundary: {'level': 0, 'confidence': 0.0, 'signal': '', 'last_observed': None}",
+      "八原語 relationship_depth: {'level': 0, 'confidence': 0.0, 'signal': '', 'last_observed': None}"
+    ]
+  },
+  "L3_energy": {
+    "has_reading": false,
+    "inner": {},
+    "outer": {},
+    "reading_date": null
+  },
+  "L4_interactions": {
+    "total_count": 9,
+    "positive_count": 0,
+    "negative_count": 0,
+    "neutral_count": 0,
+    "last_interaction": null,
+    "combined_reading": null,
+    "history": []
+  },
+  "L5_leverage": {
+    "channels": {
+      "has": null,
+      "needs": null,
+      "details": null
+    },
+    "technology": {
+      "has": null,
+      "needs": null,
+      "details": null
+    },
+    "capital": {
+      "has": null,
+      "needs": null,
+      "details": null
+    },
+    "network": {
+      "has": null,
+      "needs": null,
+      "details": null
+    },
+    "brand": {
+      "has": null,
+      "needs": null,
+      "details": null
+    },
+    "systems": {
+      "has": null,
+      "needs": null,
+      "details": null
+    },
+    "content": {
+      "has": null,
+      "needs": null,
+      "details": null
+    },
+    "time": {
+      "has": null,
+      "needs": null,
+      "details": null
+    }
+  },
+  "L6_communication": {
+    "style": "casual",
+    "taboos": [],
+    "preferences": [],
+    "landmines": [],
+    "effective_approaches": []
+  },
+  "L7_context_masks": {},
+  "temperature": {
+    "level": "new",
+    "trend": "stable",
+    "last_updated": "2026-03-29T06:24:52.874828"
+  },
+  "connections": []
+}

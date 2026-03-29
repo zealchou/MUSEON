@@ -1,0 +1,110 @@
+{
+  "version": "1.0.0",
+  "profile_id": "9fb5f4233b9c",
+  "created_at": "2026-03-29T06:24:52.867504",
+  "updated_at": "2026-03-30T03:04:48.614915",
+  "domains": [
+    "business"
+  ],
+  "L1_facts": {
+    "name": "Feng",
+    "title": null,
+    "company": null,
+    "role": null,
+    "industry": null,
+    "notes": []
+  },
+  "L2_personality": {
+    "wan_miu_code": "POEM",
+    "wan_miu_name": "創新探索者",
+    "four_axes": {
+      "mission": -1,
+      "relation": 2,
+      "drive": 3,
+      "emotion": 2
+    },
+    "confidence": 95,
+    "assessment_type": "proxy",
+    "observations": [
+      "八原語 aspiration: {'level': 27, 'confidence': 1.0, 'signal': '[群組近期對話紀錄]   34:58 Feng: Phase 15：自動金流串接 Phase 16：推薦分潤 Phase 17：自動更新發佈平台   35:13', 'last_observed': '2026-03-24T19:47:08.755439'}",
+      "八原語 accumulation: {'level': 22, 'confidence': 1.0, 'signal': '[群組近期對話紀錄]   34:58 Feng: Phase 15：自動金流串接 Phase 16：推薦分潤 Phase 17：自動更新發佈平台   35:13', 'last_observed': '2026-03-24T19:47:08.755439'}",
+      "八原語 action_power: {'level': 34, 'confidence': 1.0, 'signal': '[群組近期對話紀錄]   34:58 Feng: Phase 15：自動金流串接 Phase 16：推薦分潤 Phase 17：自動更新發佈平台   35:13', 'last_observed': '2026-03-24T19:47:08.755439'}",
+      "八原語 curiosity: {'level': 100, 'confidence': 1.0, 'signal': '[群組近期對話紀錄]   57:50 Zeal（老闆）: 經銷啊，哪裡像直銷了？   58:11 Feng: 好喔！！ 收到   58:29 Feng: [檔案', 'last_observed': '2026-03-25T12:31:40.787903'}",
+      "八原語 emotion_pattern: {'level': 16, 'confidence': 1.0, 'signal': '[群組近期對話紀錄]   15:46 你的資源跟手腳（老闆）: 重點不是退訂 而是要哪一個對方的使用承諾跟態度  只要他用了 我們就要讓他懂怎麼使用 怎麼發揮最', 'last_observed': '2026-03-19T16:30:34.580797'}",
+      "八原語 blindspot: {'level': 0, 'confidence': 0.0, 'signal': '', 'last_observed': None}",
+      "八原語 boundary: {'level': 51, 'confidence': 1.0, 'signal': '[群組近期對話紀錄]   02:57 Feng: 嗯嗯嗯測試剛剛想到的 感恩   04:43 Zeal（老闆）: 你幫我測試一下 士維 Joes  請他在 另外', 'last_observed': '2026-03-21T11:31:43.143518'}",
+      "八原語 relationship_depth: {'level': 17, 'confidence': 1.0, 'signal': '[群組近期對話紀錄]   34:58 Feng: Phase 15：自動金流串接 Phase 16：推薦分潤 Phase 17：自動更新發佈平台   35:13', 'last_observed': '2026-03-24T19:47:08.755439'}"
+    ]
+  },
+  "L3_energy": {
+    "has_reading": false,
+    "inner": {},
+    "outer": {},
+    "reading_date": null
+  },
+  "L4_interactions": {
+    "total_count": 124,
+    "positive_count": 0,
+    "negative_count": 0,
+    "neutral_count": 0,
+    "last_interaction": null,
+    "combined_reading": null,
+    "history": []
+  },
+  "L5_leverage": {
+    "channels": {
+      "has": null,
+      "needs": null,
+      "details": null
+    },
+    "technology": {
+      "has": null,
+      "needs": null,
+      "details": null
+    },
+    "capital": {
+      "has": null,
+      "needs": null,
+      "details": null
+    },
+    "network": {
+      "has": null,
+      "needs": null,
+      "details": null
+    },
+    "brand": {
+      "has": null,
+      "needs": null,
+      "details": null
+    },
+    "systems": {
+      "has": null,
+      "needs": null,
+      "details": null
+    },
+    "content": {
+      "has": null,
+      "needs": null,
+      "details": null
+    },
+    "time": {
+      "has": null,
+      "needs": null,
+      "details": null
+    }
+  },
+  "L6_communication": {
+    "style": "casual",
+    "taboos": [],
+    "preferences": [],
+    "landmines": [],
+    "effective_approaches": []
+  },
+  "L7_context_masks": {},
+  "temperature": {
+    "level": "new",
+    "trend": "stable",
+    "last_updated": "2026-03-29T06:24:52.867504"
+  },
+  "connections": []
+}

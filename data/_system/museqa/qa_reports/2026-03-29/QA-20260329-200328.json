@@ -1,0 +1,16 @@
+{
+  "qa_report_id": "QA-20260329-200328",
+  "timestamp": "2026-03-29T20:03:28.739125+00:00",
+  "session_id": "telegram_group_5107045509",
+  "issue_type": "LEAKAGE",
+  "severity": "HIGH",
+  "evidence": {
+    "bot_reply_excerpt": "看到你的三層架構圖了。微型作業系統的比喻很精準——L1 是 kernel、L2 是 process、L3 是 syscall。\n\n**下一步建議，按優先序：**\n\n### 1. 先穩定 L1→L2 的 spawn 機制（今天）\n\n你的 CLAUDE.md 已經寫好 L1 調度員的 prompt 範本了，但目前實際運作還是「收到訊息 → 整個主 session 思考 → 回覆」。要真正變成三層，需要",
+    "matched_patterns": [
+      "\\bL[123]\\b",
+      "\\b(調度員|思考者|subagent|spawn|dispatcher)\\b"
+    ]
+  },
+  "suggested_fix": "強化 CLAUDE.md Step 3.5 禁止清單",
+  "status": "open"
+}

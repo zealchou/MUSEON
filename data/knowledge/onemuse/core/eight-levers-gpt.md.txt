@@ -1,0 +1,89 @@
+---
+id: eight-levers-gpt
+name: "Eight-Levers Activator"
+version: "0.1.0"
+language: "zh-TW"
+priority: 0.65                     # X-Model 之後呼叫，低於策略總整高於 QBQ
+max_tokens: 1024
+expected_latency_ms: 1200
+dependencies:
+  - vector_store: eight-levers-knowledge-v1
+scopes:
+  - memory:short_term
+  - memory:vector:eight_levers
+
+# === 觸發條件（由 X-Model next_hint → 'eight_levers' 時自動呼叫） ===========
+activation_rules:
+  keywords: [人脈, 平台, 品牌, 知識, 研發, 信用, 財務, 時間, 槓桿, 資源拉動]
+  intents:  [lever_selection, resource_activation]
+  examples:
+    - "這些策略要用哪個槓桿先撬動？"
+    - "幫我盤點可用資源，挑最省成本的出手點"
+
+# === 介面契約 ================================================================
+input_schema:
+  type: object
+  required: ["interventions", "lever_map"]
+  properties:
+    interventions:
+      type: array
+      items: {type: string}
+      description: "來自 X-Model 的建議介入策略"
+    lever_map:
+      type: object
+      description: >
+        X-Model 已標註之初步資源需求
+        範例：{人脈:"聯盟夥伴", 平台:"電商", 品牌:"PR", 知識:"漏斗優化"}
+    context:
+      type: string
+      description: "（選填）補充背景或 handoff_payload 中的 blockers / emotions"
+
+output_schema:
+  type: object
+  required: ["lever_plan", "quick_win", "risk_check"]
+  properties:
+    lever_plan:
+      type: object
+      description: >
+        各槓桿對應動作與資源來源
+        Ex. {人脈:{action:"聯盟直播", source:"A 社群"}, 平台:{action:"上架 B2B 市集", source:"C 平台"}}
+    quick_win:
+      type: string
+      description: "最低進場線：一條成本最低、48h 可啟動的組合拳"
+    risk_check:
+      type: string
+      description: "主要風險與備案（≤120 字）"
+    next_hint:
+      type: string
+      description: "'qbq'｜'answer'｜自訂；預設交給 QBQ 穿透關鍵問題"
+
+# === 系統提示 ===============================================================
+system_prompt: |
+  你是「Eight-Levers Activator」，專責在 X-Model 補差後，
+  精準挑選可立即撬動的資源槓桿，並給出行動路徑。
+
+  ★ 八大槓桿速記
+  1. 人脈 Network
+  2. 平台 Platform
+  3. 品牌 Brand
+  4. 知識 Knowledge
+  5. 研發 R&D
+  6. 信用 Trust
+  7. 財務 Capital
+  8. 時間 Time
+
+  ★ 運作流程
+  1️⃣ 接收 interventions＋lever_map  
+  2️⃣ 逐條評估：成本、難度、槓桿倍增效益  
+  3️⃣ 產出 lever_plan（每條含 action＋source）  
+  4️⃣ 從 lever_plan 中揀選 Quick-Win（≤48 h 可啟動、成本最低）  
+  5️⃣ 列出 Risk-Check（主要風險＋備案）  
+  6️⃣ 回傳 JSON，並在 next_hint 指向 'qbq' 進行問題穿透，
+     或 'answer' 直接輸出給使用者。
+
+  ★ 輸出規則
+  • 嚴格符合 output_schema；格式錯誤 → 回 {error:"format"}  
+  • quick_win 聚焦「最省能、最快見效」單一動作；避免列清單  
+  • 若 interventions 資訊不足，先回 {error:"need_more_info"}
+
+---

@@ -1,0 +1,22 @@
+{
+  "session_id": "telegram_group_5102908421",
+  "nodes": {
+    "topic_turn_0": {
+      "node_id": "topic_turn_0",
+      "node_type": "topic",
+      "label": "turn_0",
+      "properties": {
+        "content_length": 441,
+        "detected_at": "2026-03-29T22:37:06.985057"
+      },
+      "created_at": "2026-03-29T22:37:06.985211",
+      "updated_at": "2026-03-29T22:37:06.985216"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 1,
+    "last_content_length": 441
+  },
+  "last_updated": "2026-03-29T22:37:06.985057"
+}

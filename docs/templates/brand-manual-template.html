@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{BRAND_NAME}} 品牌手冊 — Brand Manual</title>
+<style>
+/* ============================================================
+   MUSEON Brand Manual Template v1.0
+   依 ~/MUSEON/data/_system/brand/design_spec.md
+   ============================================================ */
+
+/* --- 設計系統變數 --- */
+:root {
+  /* 主色 Ember */
+  --ember:        #C4502A;
+  --ember-light:  #E0714D;
+  --ember-dark:   #9A3A1C;
+
+  /* 輔助色 */
+  --teal:         #2A7A6E;
+  --gold:         #B8923A;
+  --gold-light:   #D4AE5A;
+
+  /* 中性色 */
+  --ink:          #12121A;
+  --slate:        #5A5A6E;
+  --mist:         #9898A8;
+  --border:       #E2E0DA;
+  --parchment:    #F7F5F0;
+  --snow:         #FDFCFA;
+
+  /* 語義色 */
+  --success:      #2D8A6E;
+  --warning:      #C9943A;
+  --error:        #C4402A;
+
+  /* 字型 */
+  --font-display: 'Cormorant Garamond', 'Noto Serif TC', serif;
+  --font-body:    'Outfit', 'Noto Sans TC', sans-serif;
+  --font-mono:    'IBM Plex Mono', monospace;
+
+  /* 間距 */
+  --space-xs:  0.25rem;
+  --space-sm:  0.5rem;
+  --space-md:  1rem;
+  --space-lg:  2rem;
+  --space-xl:  4rem;
+  --space-2xl: 6rem;
+
+  /* 尺寸 */
+  --nav-width:  260px;
+  --max-width:  900px;
+  --radius-sm:  4px;
+  --radius-md:  8px;
+  --radius-lg:  16px;
+}
+
+/* --- 基礎重置 --- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: var(--font-body);
+  background: var(--parchment);
+  color: var(--ink);
+  line-height: 1.7;
+  display: flex;
+  min-height: 100vh;
+}
+
+/* --- 側邊導覽 --- */
+.nav-sidebar {
+  position: fixed;
+  top: 0; left: 0;
+  width: var(--nav-width);
+  height: 100vh;
+  background: var(--ink);
+  overflow-y: auto;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-lg) 0;
+}
+
+.nav-brand {
+  padding: 0 var(--space-lg) var(--space-lg);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  margin-bottom: var(--space-md);
+}
+.nav-brand-name {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ember);
+  margin-bottom: var(--space-xs);
+}
+.nav-brand-title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: white;
+  line-height: 1.3;
+}
+.nav-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--mist);
+  padding: var(--space-sm) var(--space-lg);
+  margin-top: var(--space-sm);
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 0.6rem var(--space-lg);
+  color: rgba(255,255,255,0.6);
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+  border-left: 3px solid transparent;
+}
+.nav-item:hover { color: white; background: rgba(255,255,255,0.05); }
+.nav-item.active { color: white; border-left-color: var(--ember); background: rgba(196,80,42,0.1); }
+.nav-item-num {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--ember-light);
+  min-width: 1.5rem;
+}
+
+/* --- 主內容區 --- */
+.main-content {
+  margin-left: var(--nav-width);
+  flex: 1;
+  max-width: calc(var(--nav-width) + var(--max-width));
+}
+
+/* --- 章節容器 --- */
+.chapter {
+  min-height: 100vh;
+  padding: var(--space-2xl) var(--space-xl);
+  border-bottom: 1px solid var(--border);
+}
+.chapter:last-child { border-bottom: none; }
+
+/* --- 章節標題 --- */
+.chapter-header {
+  margin-bottom: var(--space-xl);
+}
+.chapter-number {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ember);
+  margin-bottom: var(--space-sm);
+}
+.chapter-title {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--ink);
+  margin-bottom: var(--space-md);
+}
+.chapter-subtitle {
+  font-size: 1.125rem;
+  color: var(--slate);
+  max-width: 640px;
+}
+
+/* --- 品牌概覽（第一章特殊樣式）--- */
+.brand-hero {
+  background: var(--ink);
+  margin: calc(-1 * var(--space-2xl)) calc(-1 * var(--space-xl)) var(--space-xl);
+  padding: var(--space-2xl) var(--space-xl);
+  color: white;
+}
+.brand-hero .chapter-number { color: var(--ember-light); }
+.brand-hero .chapter-title { color: white; font-size: 3.5rem; font-style: italic; }
+.brand-tagline {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-style: italic;
+  color: var(--gold-light);
+  margin-top: var(--space-lg);
+}
+.brand-purpose-block {
+  background: rgba(255,255,255,0.06);
+  border-left: 4px solid var(--ember);
+  padding: var(--space-lg) var(--space-xl);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  margin-top: var(--space-xl);
+}
+.brand-purpose-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ember-light);
+  margin-bottom: var(--space-sm);
+}
+.brand-purpose-text {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  line-height: 1.6;
+  color: white;
+}
+
+/* --- 快速索引卡 --- */
+.quick-index {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+  margin-top: var(--space-xl);
+}
+.index-card {
+  background: var(--snow);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  text-decoration: none;
+  color: var(--ink);
+  transition: all 0.2s;
+}
+.index-card:hover {
+  border-color: var(--ember);
+  box-shadow: 0 4px 20px rgba(196,80,42,0.1);
+  transform: translateY(-2px);
+}
+.index-card-num {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--ember);
+  margin-bottom: var(--space-sm);
+}
+.index-card-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: var(--space-xs);
+}
+.index-card-desc {
+  font-size: 0.8rem;
+  color: var(--slate);
+}
+
+/* --- 品牌原型徽章 --- */
+.archetype-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  background: linear-gradient(135deg, var(--ember-dark), var(--ember));
+  color: white;
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: 100px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-right: var(--space-sm);
+}
+.archetype-badge.secondary {
+  background: linear-gradient(135deg, var(--teal), #3A9A8E);
+}
+
+/* --- 通用卡片 --- */
+.card {
+  background: var(--snow);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  margin-bottom: var(--space-lg);
+}
+.card-title {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ember);
+  margin-bottom: var(--space-md);
+}
+
+/* --- 競爭定位矩陣 --- */
+.positioning-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-md);
+  margin: var(--space-lg) 0;
+}
+.positioning-item {
+  background: var(--parchment);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  text-align: center;
+}
+.positioning-item.highlight {
+  background: var(--ember);
+  border-color: var(--ember-dark);
+  color: white;
+}
+.positioning-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: var(--space-xs);
+}
+.positioning-attr {
+  font-size: 0.8rem;
+  color: var(--slate);
+}
+.positioning-item.highlight .positioning-attr { color: rgba(255,255,255,0.8); }
+
+/* --- JTBD 三層 --- */
+.jtbd-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin: var(--space-lg) 0;
+}
+.jtbd-layer {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--snow);
+}
+.jtbd-layer.functional { border-left: 4px solid var(--teal); }
+.jtbd-layer.emotional  { border-left: 4px solid var(--ember); }
+.jtbd-layer.social     { border-left: 4px solid var(--gold); }
+.jtbd-icon {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  min-width: 80px;
+  padding-top: 2px;
+}
+.jtbd-layer.functional .jtbd-icon { color: var(--teal); }
+.jtbd-layer.emotional  .jtbd-icon { color: var(--ember); }
+.jtbd-layer.social     .jtbd-icon { color: var(--gold); }
+
+/* --- Keller 金字塔 --- */
+.keller-pyramid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-width: 640px;
+  margin: var(--space-lg) 0;
+}
+.keller-level {
+  display: flex;
+  align-items: stretch;
+}
+.keller-label {
+  width: 120px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--slate);
+  display: flex;
+  align-items: center;
+  padding-right: var(--space-md);
+  flex-shrink: 0;
+}
+.keller-bar {
+  flex: 1;
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.keller-level:nth-child(1) .keller-bar { background: #2d1a0e; color: #fff; margin: 0 40px; }
+.keller-level:nth-child(2) .keller-bar { background: var(--ember-dark); color: #fff; margin: 0 30px; }
+.keller-level:nth-child(3) .keller-bar { background: var(--ember); color: #fff; margin: 0 20px; }
+.keller-level:nth-child(4) .keller-bar { background: var(--ember-light); color: #fff; margin: 0 10px; }
+.keller-level:nth-child(5) .keller-bar { background: #E8A080; color: var(--ink); margin: 0 5px; }
+.keller-level:nth-child(6) .keller-bar { background: #F2C4B0; color: var(--ink); margin: 0; }
+
+/* --- 色彩系統 --- */
+.color-system {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  margin: var(--space-lg) 0;
+}
+.color-group-title {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--slate);
+  margin-bottom: var(--space-sm);
+}
+.color-swatches {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+.color-swatch {
+  display: flex;
+  flex-direction: column;
+}
+.swatch-block {
+  width: 80px;
+  height: 56px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(0,0,0,0.06);
+}
+.swatch-label {
+  margin-top: var(--space-xs);
+  font-size: 0.75rem;
+  color: var(--slate);
+}
+.swatch-hex {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--mist);
+}
+
+/* --- 字型系統 --- */
+.type-showcase {
+  margin: var(--space-lg) 0;
+}
+.type-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-xl);
+  padding: var(--space-lg) 0;
+  border-bottom: 1px solid var(--border);
+}
+.type-row:last-child { border-bottom: none; }
+.type-meta {
+  width: 120px;
+  flex-shrink: 0;
+}
+.type-meta-name {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ember);
+  margin-bottom: var(--space-xs);
+}
+.type-meta-detail { font-size: 0.75rem; color: var(--slate); }
+.type-display-sample  { font-family: var(--font-display); font-size: 2rem; font-style: italic; }
+.type-body-sample     { font-family: var(--font-body); font-size: 1.125rem; }
+.type-mono-sample     { font-family: var(--font-mono); font-size: 0.875rem; letter-spacing: 0.05em; color: var(--ember); }
+
+/* --- Do / Don't 對比 --- */
+.do-dont-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+  margin: var(--space-lg) 0;
+}
+.do-block, .dont-block {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.do-header, .dont-header {
+  padding: var(--space-sm) var(--space-lg);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.do-header   { background: var(--success); color: white; }
+.dont-header { background: var(--error); color: white; }
+.do-content, .dont-content {
+  padding: var(--space-lg);
+  font-size: 0.875rem;
+  line-height: 1.7;
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  background: var(--snow);
+}
+.do-example {
+  font-style: italic;
+  color: var(--teal);
+  margin-top: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: rgba(42,122,110,0.08);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--teal);
+}
+.dont-example {
+  font-style: italic;
+  color: var(--error);
+  margin-top: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: rgba(196,64,42,0.08);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--error);
+  text-decoration: line-through;
+  text-decoration-color: var(--error);
+}
+
+/* --- 語調光譜可視化 --- */
+.tone-spectrum {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin: var(--space-lg) 0;
+}
+.tone-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+}
+.tone-label-left, .tone-label-right {
+  font-size: 0.8rem;
+  color: var(--slate);
+  width: 80px;
+  flex-shrink: 0;
+}
+.tone-label-right { text-align: right; }
+.tone-track {
+  flex: 1;
+  height: 6px;
+  background: var(--border);
+  border-radius: 100px;
+  position: relative;
+}
+.tone-fill {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  background: linear-gradient(90deg, var(--ember-dark), var(--ember));
+  border-radius: 100px;
+}
+.tone-marker {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: white;
+  border: 3px solid var(--ember);
+  box-shadow: 0 2px 8px rgba(196,80,42,0.3);
+}
+.tone-axis-name {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  width: 80px;
+  flex-shrink: 0;
+}
+
+/* --- 訊息金字塔 --- */
+.message-pyramid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  max-width: 600px;
+  margin: var(--space-lg) 0;
+}
+.msg-tier {
+  padding: var(--space-lg);
+  border-radius: var(--radius-md);
+}
+.msg-tier-1 {
+  background: var(--ember);
+  color: white;
+  text-align: center;
+}
+.msg-tier-2 {
+  background: rgba(196,80,42,0.12);
+  border: 1px solid rgba(196,80,42,0.2);
+}
+.msg-tier-3 {
+  background: var(--snow);
+  border: 1px solid var(--border);
+  font-size: 0.875rem;
+  color: var(--slate);
+}
+.msg-tier-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin-bottom: var(--space-xs);
+}
+.msg-tier-1 .msg-tier-label { color: rgba(255,255,255,0.8); }
+
+/* --- 詞彙庫 --- */
+.vocab-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+  margin: var(--space-lg) 0;
+}
+.vocab-col-title {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-md);
+  padding-bottom: var(--space-sm);
+  border-bottom: 2px solid;
+}
+.vocab-col-title.yes { color: var(--success); border-color: var(--success); }
+.vocab-col-title.no  { color: var(--error); border-color: var(--error); }
+.vocab-tags { display: flex; flex-wrap: wrap; gap: var(--space-sm); }
+.vocab-tag {
+  padding: var(--space-xs) var(--space-md);
+  border-radius: 100px;
+  font-size: 0.8rem;
+}
+.vocab-tag.yes { background: rgba(45,138,110,0.1); color: var(--success); }
+.vocab-tag.no  { background: rgba(196,64,42,0.1); color: var(--error); }
+
+/* --- 觸點地圖 --- */
+.touchpoint-flow {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  overflow-x: auto;
+  margin: var(--space-lg) 0;
+  padding-bottom: var(--space-sm);
+}
+.tp-stage {
+  flex: 1;
+  min-width: 140px;
+  background: var(--snow);
+  border: 1px solid var(--border);
+  border-right: none;
+  padding: var(--space-lg) var(--space-md);
+  position: relative;
+}
+.tp-stage:first-child { border-radius: var(--radius-md) 0 0 var(--radius-md); }
+.tp-stage:last-child  { border-radius: 0 var(--radius-md) var(--radius-md) 0; border-right: 1px solid var(--border); }
+.tp-stage.highlight { background: var(--ember); border-color: var(--ember-dark); }
+.tp-num {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--ember);
+  margin-bottom: var(--space-xs);
+}
+.tp-stage.highlight .tp-num { color: rgba(255,255,255,0.6); }
+.tp-name {
+  font-weight: 700;
+  font-size: 0.8rem;
+  margin-bottom: var(--space-sm);
+}
+.tp-stage.highlight .tp-name { color: white; }
+.tp-rule {
+  font-size: 0.75rem;
+  color: var(--slate);
+  line-height: 1.5;
+}
+.tp-stage.highlight .tp-rule { color: rgba(255,255,255,0.85); }
+
+/* --- 內容策略矩陣 --- */
+.content-matrix {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--space-lg) 0;
+  font-size: 0.875rem;
+}
+.content-matrix th {
+  background: var(--ink);
+  color: white;
+  padding: var(--space-md) var(--space-lg);
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.content-matrix td {
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.content-matrix tr:hover td { background: rgba(196,80,42,0.04); }
+.content-type-badge {
+  display: inline-block;
+  padding: 2px var(--space-sm);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(196,80,42,0.1);
+  color: var(--ember);
+}
+
+/* --- 貼文範本 --- */
+.post-template {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: var(--space-lg);
+}
+.post-template-header {
+  background: var(--parchment);
+  padding: var(--space-sm) var(--space-lg);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--slate);
+}
+.post-type-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--ember);
+}
+.post-body { padding: var(--space-lg); }
+.post-text {
+  font-size: 0.9rem;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  color: var(--ink);
+}
+.post-image-note {
+  margin-top: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background: rgba(184,146,58,0.08);
+  border-left: 3px solid var(--gold);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: 0.8rem;
+  color: var(--slate);
+}
+.post-hashtags {
+  margin-top: var(--space-sm);
+  font-size: 0.8rem;
+  color: var(--teal);
+}
+.post-cta {
+  margin-top: var(--space-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ember);
+}
+
+/* --- 審計清單 --- */
+.audit-section {
+  background: var(--snow);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-xl);
+  margin-bottom: var(--space-lg);
+}
+.audit-section-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: var(--space-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.audit-section-title::before {
+  content: '';
+  display: block;
+  width: 4px; height: 20px;
+  background: var(--ember);
+  border-radius: 2px;
+}
+.audit-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-sm) 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.875rem;
+}
+.audit-item:last-child { border-bottom: none; }
+.audit-checkbox {
+  width: 18px; height: 18px;
+  min-width: 18px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-top: 2px;
+}
+
+/* --- 章節分隔 --- */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, var(--ember) 0%, transparent 100%);
+  margin: var(--space-xl) 0;
+  opacity: 0.3;
+}
+
+/* --- 引言區塊 --- */
+.quote-block {
+  border-left: 4px solid var(--ember);
+  padding: var(--space-lg) var(--space-xl);
+  margin: var(--space-xl) 0;
+  background: rgba(196,80,42,0.04);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+.quote-text {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--ink);
+  margin-bottom: var(--space-sm);
+}
+.quote-attr {
+  font-size: 0.8rem;
+  color: var(--slate);
+}
+
+/* --- 頁腳 --- */
+.manual-footer {
+  background: var(--ink);
+  color: rgba(255,255,255,0.4);
+  padding: var(--space-xl) var(--space-xl);
+  margin-left: 0;
+  font-size: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.footer-brand {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ember);
+}
+
+/* --- 工具類 --- */
+.mt-lg   { margin-top: var(--space-lg); }
+.mt-xl   { margin-top: var(--space-xl); }
+.mb-lg   { margin-bottom: var(--space-lg); }
+.grid-2  { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg); }
+.grid-3  { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-md); }
+.text-sm { font-size: 0.875rem; }
+.text-muted { color: var(--slate); }
+.font-mono { font-family: var(--font-mono); }
+.ember  { color: var(--ember); }
+.teal   { color: var(--teal); }
+.gold   { color: var(--gold); }
+
+/* --- 響應式 --- */
+@media (max-width: 960px) {
+  .nav-sidebar { display: none; }
+  .main-content { margin-left: 0; }
+  .chapter { padding: var(--space-xl) var(--space-lg); }
+  .quick-index { grid-template-columns: 1fr 1fr; }
+  .do-dont-grid { grid-template-columns: 1fr; }
+  .vocab-columns { grid-template-columns: 1fr; }
+  .touchpoint-flow { flex-direction: column; }
+  .tp-stage { border-right: 1px solid var(--border); border-bottom: none; border-radius: 0; }
+  .tp-stage:first-child { border-radius: var(--radius-md) var(--radius-md) 0 0; }
+  .tp-stage:last-child  { border-radius: 0 0 var(--radius-md) var(--radius-md); border-bottom: 1px solid var(--border); }
+}
+
+/* --- 列印樣式 --- */
+@media print {
+  .nav-sidebar { display: none; }
+  .main-content { margin-left: 0; }
+  .chapter { page-break-before: always; min-height: auto; }
+  .chapter:first-child { page-break-before: avoid; }
+}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;700&family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- ===== 側邊導覽 ===== -->
+<nav class="nav-sidebar">
+  <div class="nav-brand">
+    <div class="nav-brand-name">Brand Manual</div>
+    <div class="nav-brand-title">{{BRAND_NAME}}</div>
+  </div>
+
+  <div class="nav-label">目錄 Contents</div>
+  <a href="#ch1" class="nav-item active"><span class="nav-item-num">01</span> 品牌概覽</a>
+  <a href="#ch2" class="nav-item"><span class="nav-item-num">02</span> 品牌策略</a>
+  <a href="#ch3" class="nav-item"><span class="nav-item-num">03</span> 視覺識別</a>
+  <a href="#ch4" class="nav-item"><span class="nav-item-num">04</span> 語言識別</a>
+  <a href="#ch5" class="nav-item"><span class="nav-item-num">05</span> 觸點規範</a>
+  <a href="#ch6" class="nav-item"><span class="nav-item-num">06</span> 操作手冊</a>
+</nav>
+
+<!-- ===== 主內容 ===== -->
+<main class="main-content">
+
+<!-- =====================================================
+     第 1 章：品牌概覽 Brand Overview
+     ===================================================== -->
+<section class="chapter" id="ch1">
+  <div class="brand-hero">
+    <div class="chapter-number">Chapter 01 / Brand Overview</div>
+    <h1 class="chapter-title">{{BRAND_NAME}}</h1>
+    <p class="brand-tagline">{{TAGLINE}}</p>
+
+    <div class="brand-purpose-block">
+      <div class="brand-purpose-label">Brand Purpose</div>
+      <div class="brand-purpose-text">{{BRAND_PURPOSE}}</div>
+    </div>
+  </div>
+
+  <!-- 品牌原型 -->
+  <div class="card mt-xl">
+    <div class="card-title">Brand Archetype · 品牌原型</div>
+    <div>
+      <span class="archetype-badge">{{ARCHETYPE_PRIMARY}}</span>
+      <span class="archetype-badge secondary">{{ARCHETYPE_SECONDARY}}</span>
+    </div>
+    <p class="text-sm text-muted mt-lg">{{ARCHETYPE_DESCRIPTION}}</p>
+  </div>
+
+  <!-- 快速索引 -->
+  <div class="quick-index">
+    <a href="#ch2" class="index-card">
+      <div class="index-card-num">02</div>
+      <div class="index-card-title">品牌策略</div>
+      <div class="index-card-desc">定位、Purpose、競爭格局</div>
+    </a>
+    <a href="#ch3" class="index-card">
+      <div class="index-card-num">03</div>
+      <div class="index-card-title">視覺識別</div>
+      <div class="index-card-desc">色彩、字型、圖像規範</div>
+    </a>
+    <a href="#ch4" class="index-card">
+      <div class="index-card-num">04</div>
+      <div class="index-card-title">語言識別</div>
+      <div class="index-card-desc">語調、詞彙、訊息架構</div>
+    </a>
+    <a href="#ch5" class="index-card">
+      <div class="index-card-num">05</div>
+      <div class="index-card-title">觸點規範</div>
+      <div class="index-card-desc">客戶旅程各階段行為</div>
+    </a>
+    <a href="#ch6" class="index-card">
+      <div class="index-card-num">06</div>
+      <div class="index-card-title">操作手冊</div>
+      <div class="index-card-desc">貼文範本、審計清單</div>
+    </a>
+    <a href="#ch6" class="index-card">
+      <div class="index-card-num">→</div>
+      <div class="index-card-title">馬上使用</div>
+      <div class="index-card-desc">品牌審計自查清單</div>
+    </a>
+  </div>
+</section>
+
+<!-- =====================================================
+     第 2 章：品牌策略 Brand Strategy
+     ===================================================== -->
+<section class="chapter" id="ch2">
+  <div class="chapter-header">
+    <div class="chapter-number">Chapter 02 / Brand Strategy</div>
+    <h2 class="chapter-title">品牌策略</h2>
+    <p class="chapter-subtitle">定義我們是誰、為誰存在、與競爭者有何不同。</p>
+  </div>
+
+  <!-- WHY / HOW / WHAT -->
+  <div class="card">
+    <div class="card-title">Simon Sinek Golden Circle · 黃金圈</div>
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div>
+        <div class="font-mono text-sm ember" style="margin-bottom:.25rem;">WHY — 我們為什麼存在</div>
+        <p>{{WHY_STATEMENT}}</p>
+      </div>
+      <div class="section-divider"></div>
+      <div>
+        <div class="font-mono text-sm teal" style="margin-bottom:.25rem;">HOW — 我們怎麼做到</div>
+        <p>{{HOW_STATEMENT}}</p>
+      </div>
+      <div class="section-divider"></div>
+      <div>
+        <div class="font-mono text-sm text-muted" style="margin-bottom:.25rem;">WHAT — 我們做什麼</div>
+        <p>{{WHAT_STATEMENT}}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Keller 金字塔 -->
+  <div class="card mt-lg">
+    <div class="card-title">Keller Brand Resonance · 品牌共鳴金字塔</div>
+    <div class="keller-pyramid">
+      <div class="keller-level">
+        <div class="keller-label">Resonance</div>
+        <div class="keller-bar">{{KELLER_RESONANCE}}</div>
+      </div>
+      <div class="keller-level">
+        <div class="keller-label">Judgments</div>
+        <div class="keller-bar">{{KELLER_JUDGMENTS}}</div>
+      </div>
+      <div class="keller-level">
+        <div class="keller-label">Feelings</div>
+        <div class="keller-bar">{{KELLER_FEELINGS}}</div>
+      </div>
+      <div class="keller-level">
+        <div class="keller-label">Performance</div>
+        <div class="keller-bar">{{KELLER_PERFORMANCE}}</div>
+      </div>
+      <div class="keller-level">
+        <div class="keller-label">Imagery</div>
+        <div class="keller-bar">{{KELLER_IMAGERY}}</div>
+      </div>
+      <div class="keller-level">
+        <div class="keller-label">Salience</div>
+        <div class="keller-bar">{{KELLER_SALIENCE}}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JTBD 三層 -->
+  <div class="card mt-lg">
+    <div class="card-title">Jobs-to-be-Done · 客戶雇用我們做什麼</div>
+    <div class="jtbd-stack">
+      <div class="jtbd-layer functional">
+        <div class="jtbd-icon">功能</div>
+        <div>{{JTBD_FUNCTIONAL}}</div>
+      </div>
+      <div class="jtbd-layer emotional">
+        <div class="jtbd-icon">情感</div>
+        <div>{{JTBD_EMOTIONAL}}</div>
+      </div>
+      <div class="jtbd-layer social">
+        <div class="jtbd-icon">社會</div>
+        <div>{{JTBD_SOCIAL}}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 競爭定位矩陣 -->
+  <div class="card mt-lg">
+    <div class="card-title">Competitive Positioning · 競爭定位圖</div>
+    <div class="positioning-grid">
+      <div class="positioning-item highlight">
+        <div class="positioning-name">{{BRAND_NAME}}</div>
+        <div class="positioning-attr">{{BRAND_POSITION}}</div>
+      </div>
+      <!-- 以下由品牌建構引擎填入競品 -->
+      <div class="positioning-item">
+        <div class="positioning-name">{{COMPETITOR_1}}</div>
+        <div class="positioning-attr">{{COMPETITOR_1_POSITION}}</div>
+      </div>
+      <div class="positioning-item">
+        <div class="positioning-name">{{COMPETITOR_2}}</div>
+        <div class="positioning-attr">{{COMPETITOR_2_POSITION}}</div>
+      </div>
+      <div class="positioning-item">
+        <div class="positioning-name">{{COMPETITOR_3}}</div>
+        <div class="positioning-attr">{{COMPETITOR_3_POSITION}}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 品牌宣言 -->
+  <div class="quote-block mt-xl">
+    <div class="quote-text">{{POSITIONING_STATEMENT}}</div>
+    <div class="quote-attr">Brand Positioning Statement · 品牌定位宣言</div>
+  </div>
+</section>
+
+<!-- =====================================================
+     第 3 章：視覺識別 Visual Identity
+     ===================================================== -->
+<section class="chapter" id="ch3">
+  <div class="chapter-header">
+    <div class="chapter-number">Chapter 03 / Visual Identity</div>
+    <h2 class="chapter-title">視覺識別</h2>
+    <p class="chapter-subtitle">每一個視覺決定，都在說同一個故事。</p>
+  </div>
+
+  <!-- 色彩系統 -->
+  <div class="card">
+    <div class="card-title">Color System · 色彩系統</div>
+    <div class="color-system">
+      <div>
+        <div class="color-group-title">Primary · 主色</div>
+        <div class="color-swatches" id="primary-colors">
+          <!-- 由品牌建構引擎填入 -->
+          <div class="color-swatch">
+            <div class="swatch-block" style="background:{{PRIMARY_COLOR_1}}"></div>
+            <div class="swatch-label">{{PRIMARY_NAME_1}}</div>
+            <div class="swatch-hex">{{PRIMARY_HEX_1}}</div>
+          </div>
+          <div class="color-swatch">
+            <div class="swatch-block" style="background:{{PRIMARY_COLOR_2}}"></div>
+            <div class="swatch-label">{{PRIMARY_NAME_2}}</div>
+            <div class="swatch-hex">{{PRIMARY_HEX_2}}</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="color-group-title">Secondary · 輔助色</div>
+        <div class="color-swatches">
+          <div class="color-swatch">
+            <div class="swatch-block" style="background:{{SECONDARY_COLOR_1}}"></div>
+            <div class="swatch-label">{{SECONDARY_NAME_1}}</div>
+            <div class="swatch-hex">{{SECONDARY_HEX_1}}</div>
+          </div>
+          <div class="color-swatch">
+            <div class="swatch-block" style="background:{{SECONDARY_COLOR_2}}"></div>
+            <div class="swatch-label">{{SECONDARY_NAME_2}}</div>
+            <div class="swatch-hex">{{SECONDARY_HEX_2}}</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="color-group-title">Neutral · 中性色</div>
+        <div class="color-swatches">
+          <div class="color-swatch">
+            <div class="swatch-block" style="background:{{NEUTRAL_1}}"></div>
+            <div class="swatch-label">{{NEUTRAL_NAME_1}}</div>
+            <div class="swatch-hex">{{NEUTRAL_HEX_1}}</div>
+          </div>
+          <div class="color-swatch">
+            <div class="swatch-block" style="background:{{NEUTRAL_2}}"></div>
+            <div class="swatch-label">{{NEUTRAL_NAME_2}}</div>
+            <div class="swatch-hex">{{NEUTRAL_HEX_2}}</div>
+          </div>
+          <div class="color-swatch">
+            <div class="swatch-block" style="background:{{NEUTRAL_3}}"></div>
+            <div class="swatch-label">{{NEUTRAL_NAME_3}}</div>
+            <div class="swatch-hex">{{NEUTRAL_HEX_3}}</div>
+          </div>
+          <div class="color-swatch">
+            <div class="swatch-block" style="background:{{NEUTRAL_4}}"></div>
+            <div class="swatch-label">{{NEUTRAL_NAME_4}}</div>
+            <div class="swatch-hex">{{NEUTRAL_HEX_4}}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 字型系統 -->
+  <div class="card mt-lg">
+    <div class="card-title">Typography System · 字型系統</div>
+    <div class="type-showcase">
+      <div class="type-row">
+        <div class="type-meta">
+          <div class="type-meta-name">Display</div>
+          <div class="type-meta-detail">{{FONT_DISPLAY_NAME}}<br>標題、Slogan</div>
+        </div>
+        <div class="type-display-sample">{{FONT_DISPLAY_SAMPLE}}</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">
+          <div class="type-meta-name">Body</div>
+          <div class="type-meta-detail">{{FONT_BODY_NAME}}<br>正文、說明</div>
+        </div>
+        <div class="type-body-sample">{{FONT_BODY_SAMPLE}}</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">
+          <div class="type-meta-name">Accent</div>
+          <div class="type-meta-detail">{{FONT_ACCENT_NAME}}<br>標籤、強調</div>
+        </div>
+        <div class="type-mono-sample">{{FONT_ACCENT_SAMPLE}}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 圖像規範 Do/Don't -->
+  <div class="card mt-lg">
+    <div class="card-title">Imagery Direction · 圖像風格規範</div>
+    <div class="do-dont-grid">
+      <div class="do-block">
+        <div class="do-header">✓ Do · 應採用</div>
+        <div class="do-content">
+          <p>{{IMAGE_DO_DESCRIPTION}}</p>
+          <div class="do-example">{{IMAGE_DO_EXAMPLE}}</div>
+        </div>
+      </div>
+      <div class="dont-block">
+        <div class="dont-header">✗ Don't · 禁止使用</div>
+        <div class="dont-content">
+          <p>{{IMAGE_DONT_DESCRIPTION}}</p>
+          <div class="dont-example">{{IMAGE_DONT_EXAMPLE}}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Logo 方向建議 -->
+  <div class="card mt-lg">
+    <div class="card-title">Logo Direction · Logo 方向建議（供設計師）</div>
+    <div class="grid-2">
+      <div>
+        <div class="font-mono text-sm ember mb-lg">形狀方向</div>
+        <p class="text-sm">{{LOGO_SHAPE_DIRECTION}}</p>
+      </div>
+      <div>
+        <div class="font-mono text-sm ember mb-lg">字型方向</div>
+        <p class="text-sm">{{LOGO_FONT_DIRECTION}}</p>
+      </div>
+      <div>
+        <div class="font-mono text-sm ember mb-lg">符號/圖形方向</div>
+        <p class="text-sm">{{LOGO_SYMBOL_DIRECTION}}</p>
+      </div>
+      <div>
+        <div class="font-mono text-sm" style="color:var(--error)">禁止方向</div>
+        <p class="text-sm mt-lg">{{LOGO_DONT_DIRECTION}}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================
+     第 4 章：語言識別 Verbal Identity
+     ===================================================== -->
+<section class="chapter" id="ch4">
+  <div class="chapter-header">
+    <div class="chapter-number">Chapter 04 / Verbal Identity</div>
+    <h2 class="chapter-title">語言識別</h2>
+    <p class="chapter-subtitle">我們說什麼、怎麼說——讓任何文字都像同一個人在說話。</p>
+  </div>
+
+  <!-- 語調光譜 -->
+  <div class="card">
+    <div class="card-title">Tone of Voice · 語調光譜</div>
+    <div class="tone-spectrum">
+      <!-- 溫度 -->
+      <div class="tone-row">
+        <div class="tone-axis-name">溫度</div>
+        <div class="tone-label-left">冰冷理性</div>
+        <div class="tone-track">
+          <div class="tone-fill" style="width:{{TONE_WARMTH}}%"></div>
+          <div class="tone-marker" style="left:{{TONE_WARMTH}}%"></div>
+        </div>
+        <div class="tone-label-right">溫暖感性</div>
+      </div>
+      <!-- 嚴肅度 -->
+      <div class="tone-row">
+        <div class="tone-axis-name">語氣</div>
+        <div class="tone-label-left">嚴肅學術</div>
+        <div class="tone-track">
+          <div class="tone-fill" style="width:{{TONE_FORMAL}}%"></div>
+          <div class="tone-marker" style="left:{{TONE_FORMAL}}%"></div>
+        </div>
+        <div class="tone-label-right">輕鬆口語</div>
+      </div>
+      <!-- 主動性 -->
+      <div class="tone-row">
+        <div class="tone-axis-name">主動性</div>
+        <div class="tone-label-left">被動回應</div>
+        <div class="tone-track">
+          <div class="tone-fill" style="width:{{TONE_PROACTIVE}}%"></div>
+          <div class="tone-marker" style="left:{{TONE_PROACTIVE}}%"></div>
+        </div>
+        <div class="tone-label-right">主動引導</div>
+      </div>
+      <!-- 專業度 -->
+      <div class="tone-row">
+        <div class="tone-axis-name">專業度</div>
+        <div class="tone-label-left">大眾通俗</div>
+        <div class="tone-track">
+          <div class="tone-fill" style="width:{{TONE_EXPERTISE}}%"></div>
+          <div class="tone-marker" style="left:{{TONE_EXPERTISE}}%"></div>
+        </div>
+        <div class="tone-label-right">行業術語</div>
+      </div>
+      <!-- 在地性 -->
+      <div class="tone-row">
+        <div class="tone-axis-name">在地性</div>
+        <div class="tone-label-left">國際語境</div>
+        <div class="tone-track">
+          <div class="tone-fill" style="width:{{TONE_LOCAL}}%"></div>
+          <div class="tone-marker" style="left:{{TONE_LOCAL}}%"></div>
+        </div>
+        <div class="tone-label-right">在地語境</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 品牌聲音六特徵 -->
+  <div class="card mt-lg">
+    <div class="card-title">Brand Voice · 品牌聲音六特徵</div>
+    <div class="grid-3">
+      <div style="padding:1rem;border:1px solid var(--border);border-radius:8px;">
+        <div class="font-mono text-sm ember mb-lg">01</div>
+        <div>{{VOICE_1}}</div>
+      </div>
+      <div style="padding:1rem;border:1px solid var(--border);border-radius:8px;">
+        <div class="font-mono text-sm ember mb-lg">02</div>
+        <div>{{VOICE_2}}</div>
+      </div>
+      <div style="padding:1rem;border:1px solid var(--border);border-radius:8px;">
+        <div class="font-mono text-sm ember mb-lg">03</div>
+        <div>{{VOICE_3}}</div>
+      </div>
+      <div style="padding:1rem;border:1px solid var(--border);border-radius:8px;">
+        <div class="font-mono text-sm ember mb-lg">04</div>
+        <div>{{VOICE_4}}</div>
+      </div>
+      <div style="padding:1rem;border:1px solid var(--border);border-radius:8px;">
+        <div class="font-mono text-sm ember mb-lg">05</div>
+        <div>{{VOICE_5}}</div>
+      </div>
+      <div style="padding:1rem;border:1px solid var(--border);border-radius:8px;">
+        <div class="font-mono text-sm ember mb-lg">06</div>
+        <div>{{VOICE_6}}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 訊息金字塔 -->
+  <div class="card mt-lg">
+    <div class="card-title">Message Hierarchy · 訊息金字塔</div>
+    <div class="message-pyramid">
+      <div class="msg-tier msg-tier-1">
+        <div class="msg-tier-label">Tier 1 · 品牌承諾</div>
+        <div>{{MESSAGE_TIER1}}</div>
+      </div>
+      <div class="msg-tier msg-tier-2">
+        <div class="msg-tier-label">Tier 2 · 分眾訊息</div>
+        <div>{{MESSAGE_TIER2}}</div>
+      </div>
+      <div class="msg-tier msg-tier-3">
+        <div class="msg-tier-label">Tier 3 · 信任證據</div>
+        <div>{{MESSAGE_TIER3}}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 詞彙庫 -->
+  <div class="card mt-lg">
+    <div class="card-title">Vocabulary Library · 品牌詞彙庫</div>
+    <div class="vocab-columns">
+      <div>
+        <div class="vocab-col-title yes">✓ 我們說</div>
+        <div class="vocab-tags" id="vocab-yes">
+          <!-- 由品牌建構引擎填入 -->
+          {{VOCAB_YES_TAGS}}
+        </div>
+      </div>
+      <div>
+        <div class="vocab-col-title no">✗ 我們不說</div>
+        <div class="vocab-tags" id="vocab-no">
+          {{VOCAB_NO_TAGS}}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 語言 Do/Don't -->
+  <div class="card mt-lg">
+    <div class="card-title">Language Examples · 語言規範示範</div>
+    <div class="do-dont-grid">
+      <div class="do-block">
+        <div class="do-header">✓ 這樣說</div>
+        <div class="do-content">
+          <div class="do-example">{{LANGUAGE_DO_EXAMPLE_1}}</div>
+          <div class="do-example" style="margin-top:.5rem">{{LANGUAGE_DO_EXAMPLE_2}}</div>
+        </div>
+      </div>
+      <div class="dont-block">
+        <div class="dont-header">✗ 不這樣說</div>
+        <div class="dont-content">
+          <div class="dont-example">{{LANGUAGE_DONT_EXAMPLE_1}}</div>
+          <div class="dont-example" style="margin-top:.5rem">{{LANGUAGE_DONT_EXAMPLE_2}}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tagline 候選 -->
+  <div class="card mt-lg">
+    <div class="card-title">Tagline Options · Tagline 候選</div>
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div style="padding:1rem 1.5rem;border-left:3px solid var(--ember);background:rgba(196,80,42,0.04)">
+        <div class="font-mono text-sm ember" style="margin-bottom:.25rem">Option A</div>
+        <div style="font-family:var(--font-display);font-size:1.5rem;font-style:italic">{{TAGLINE_A}}</div>
+      </div>
+      <div style="padding:1rem 1.5rem;border-left:3px solid var(--teal);background:rgba(42,122,110,0.04)">
+        <div class="font-mono text-sm teal" style="margin-bottom:.25rem">Option B</div>
+        <div style="font-family:var(--font-display);font-size:1.5rem;font-style:italic">{{TAGLINE_B}}</div>
+      </div>
+      <div style="padding:1rem 1.5rem;border-left:3px solid var(--gold);background:rgba(184,146,58,0.04)">
+        <div class="font-mono text-sm gold" style="margin-bottom:.25rem">Option C</div>
+        <div style="font-family:var(--font-display);font-size:1.5rem;font-style:italic">{{TAGLINE_C}}</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================
+     第 5 章：觸點規範 Touchpoint Standards
+     ===================================================== -->
+<section class="chapter" id="ch5">
+  <div class="chapter-header">
+    <div class="chapter-number">Chapter 05 / Touchpoint Standards</div>
+    <h2 class="chapter-title">觸點規範</h2>
+    <p class="chapter-subtitle">品牌在每個接觸點的行為，決定了客戶對你的全部印象。</p>
+  </div>
+
+  <!-- 觸點流程圖 -->
+  <div class="card">
+    <div class="card-title">Customer Journey · 客戶旅程觸點地圖</div>
+    <div class="touchpoint-flow">
+      <div class="tp-stage">
+        <div class="tp-num">01</div>
+        <div class="tp-name">Awareness 意識</div>
+        <div class="tp-rule">{{TP_AWARENESS_RULE}}</div>
+      </div>
+      <div class="tp-stage">
+        <div class="tp-num">02</div>
+        <div class="tp-name">Consideration 考慮</div>
+        <div class="tp-rule">{{TP_CONSIDERATION_RULE}}</div>
+      </div>
+      <div class="tp-stage highlight">
+        <div class="tp-num">03</div>
+        <div class="tp-name">Purchase 購買</div>
+        <div class="tp-rule">{{TP_PURCHASE_RULE}}</div>
+      </div>
+      <div class="tp-stage">
+        <div class="tp-num">04</div>
+        <div class="tp-name">Onboarding 體驗</div>
+        <div class="tp-rule">{{TP_ONBOARDING_RULE}}</div>
+      </div>
+      <div class="tp-stage">
+        <div class="tp-num">05</div>
+        <div class="tp-name">Loyalty 忠誠</div>
+        <div class="tp-rule">{{TP_LOYALTY_RULE}}</div>
+      </div>
+      <div class="tp-stage">
+        <div class="tp-num">06</div>
+        <div class="tp-name">Advocacy 推薦</div>
+        <div class="tp-rule">{{TP_ADVOCACY_RULE}}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 品牌做與不做 -->
+  <div class="card mt-lg">
+    <div class="card-title">Brand Do / Don't · 品牌行為準則</div>
+    <div class="grid-2">
+      <div>
+        <div class="vocab-col-title yes" style="margin-bottom:1rem">✓ 我們做的事</div>
+        <div style="display:flex;flex-direction:column;gap:.5rem" id="brand-dos">
+          {{BRAND_DOS_LIST}}
+        </div>
+      </div>
+      <div>
+        <div class="vocab-col-title no" style="margin-bottom:1rem">✗ 我們不做的事</div>
+        <div style="display:flex;flex-direction:column;gap:.5rem" id="brand-donts">
+          {{BRAND_DONTS_LIST}}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================
+     第 6 章：操作手冊 Operations Guide
+     ===================================================== -->
+<section class="chapter" id="ch6">
+  <div class="chapter-header">
+    <div class="chapter-number">Chapter 06 / Operations Guide</div>
+    <h2 class="chapter-title">操作手冊</h2>
+    <p class="chapter-subtitle">拿著這份手冊，任何人都能像品牌本身一樣說話。</p>
+  </div>
+
+  <!-- 內容策略矩陣 -->
+  <div class="card">
+    <div class="card-title">Content Strategy Matrix · 內容策略矩陣</div>
+    <table class="content-matrix">
+      <thead>
+        <tr>
+          <th>內容類型</th>
+          <th>比例</th>
+          <th>頻率</th>
+          <th>目的</th>
+          <th>範例方向</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{CONTENT_MATRIX_ROWS}}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 貼文範本 -->
+  <div class="card mt-lg">
+    <div class="card-title">Post Templates · 貼文範本</div>
+
+    <!-- 範本 1 -->
+    <div class="post-template">
+      <div class="post-template-header">
+        <div class="post-type-dot"></div>
+        <span>範本 01 · {{POST_1_TYPE}} · {{POST_1_PLATFORM}}</span>
+      </div>
+      <div class="post-body">
+        <div class="post-text">{{POST_1_TEXT}}</div>
+        <div class="post-image-note">📷 圖片方向：{{POST_1_IMAGE}}</div>
+        <div class="post-hashtags">{{POST_1_HASHTAGS}}</div>
+        <div class="post-cta">→ {{POST_1_CTA}}</div>
+      </div>
+    </div>
+
+    <!-- 範本 2 -->
+    <div class="post-template">
+      <div class="post-template-header">
+        <div class="post-type-dot" style="background:var(--teal)"></div>
+        <span>範本 02 · {{POST_2_TYPE}} · {{POST_2_PLATFORM}}</span>
+      </div>
+      <div class="post-body">
+        <div class="post-text">{{POST_2_TEXT}}</div>
+        <div class="post-image-note">📷 圖片方向：{{POST_2_IMAGE}}</div>
+        <div class="post-hashtags">{{POST_2_HASHTAGS}}</div>
+        <div class="post-cta">→ {{POST_2_CTA}}</div>
+      </div>
+    </div>
+
+    <!-- 更多範本由品牌建構引擎依此格式增加至 10 篇 -->
+    <p class="text-sm text-muted mt-lg" style="text-align:center">貼文範本 03-10 依此結構繼續 ···</p>
+  </div>
+
+  <!-- 品牌審計自查清單 -->
+  <div class="mt-xl">
+    <div class="card-title" style="margin-bottom:1rem">Brand Audit Checklist · 品牌審計自查清單</div>
+
+    <div class="audit-section">
+      <div class="audit-section-title">每次發文前確認（3 分鐘）</div>
+      {{AUDIT_PRE_POST_ITEMS}}
+    </div>
+
+    <div class="audit-section">
+      <div class="audit-section-title">每月品牌一致性審計（30 分鐘）</div>
+      {{AUDIT_MONTHLY_ITEMS}}
+    </div>
+
+    <div class="audit-section">
+      <div class="audit-section-title">季度品牌健康檢查（2 小時）</div>
+      {{AUDIT_QUARTERLY_ITEMS}}
+    </div>
+  </div>
+</section>
+
+<!-- ===== 頁腳 ===== -->
+<footer class="manual-footer">
+  <div class="footer-brand">MUSEON Brand Manual Engine · WF-BRD-01</div>
+  <div>{{BRAND_NAME}} Brand Manual · {{MANUAL_DATE}} · Confidential</div>
+</footer>
+
+</main>
+
+<script>
+/* 側邊導覽高亮 */
+const sections = document.querySelectorAll('.chapter');
+const navItems = document.querySelectorAll('.nav-item');
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      navItems.forEach(item => {
+        item.classList.toggle('active', item.getAttribute('href') === '#' + id);
+      });
+    }
+  });
+}, { threshold: 0.3 });
+
+sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

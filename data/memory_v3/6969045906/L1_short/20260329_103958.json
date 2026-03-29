@@ -1,0 +1,6 @@
+{
+  "session_id": "telegram_6969045906",
+  "user_message": "在群組 @museon 再加上功能的 / 為什麼不能使用功能？ DSE 一下 telegram 官方資訊後跟我說",
+  "museon_reply": "根據官方文件的 DSE 結論，群組 `/指令` 無法使用主要有**兩層問題**同時存在：\n\n---\n\n## 根因一：Privacy Mode（最常見，你大概踩到這個）\n\n所有新 Bot 預設開啟隱私模式，群組中 Bot 只能接收 `/指令@bot_name` 格式，而不是純粹的 `/指令`。\n\n**解法**：\n1. 開 @BotFather → `/setprivacy` → 選你的 Bot → Disable\n2. **把 Bot 踢出群組，重新加入**（設定才生效）\n\n---\n\n## 根因二：setMyCommands 沒設 AllGroupChats scope\n\n我們的 Bot 在 `adapter.start` 裡設定指令時，大概只設了 `default` scope，沒有針對 `BotCommandScopeAllGroupChats` 設定，所以群組裡按 `/` 是空的。\n\n**Telegram 的解析優先順序**：\n```\n群組一般成員看到的指令：\nCopyChatMember → Chat → AllGroupChats → Default（fallback）\n```",
+  "timestamp": "2026-03-29T10:39:58.647680+08:00"
+}

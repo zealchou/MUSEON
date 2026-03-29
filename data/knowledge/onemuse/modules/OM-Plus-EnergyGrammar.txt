@@ -1,0 +1,474 @@
+{
+  "schema": {
+    "name": "OM-Plus-EnergyGrammar",
+    "type": "plus_module",
+    "domain": "energy_grammar",
+    "format": "json",
+    "language": "zh-Hant",
+    "version": "v0.2.0",
+    "status": "ITERATED",
+    "updated_at": "2026-01-25",
+    "changelog": [
+      "v0.2.0: 對齊 OM-Plus-EightDirections v0.2.0 的八方位定義，新增 direction_action_hints（依方位提供更精準的微行動）。",
+      "v0.2.0: 保留 v0.1.1 的 completeness 政策，避免 outer 缺失時硬算 gap/tension/sums。",
+      "v0.2.0: 新增 system_micro_actions（總和層級的最小步），並讓 tension 微行動同時支援『通用』與『方位特化』兩種輸出。"
+    ],
+    "depends_on": {
+      "kernel": "OM-DNA-Kernel.json@v0.1.x",
+      "protocols": "M-DNA-Protocols.json@v0.1.0",
+      "index": "OM-Index-Router.json@v0.1.x",
+      "eight_directions": "OM-Plus-EightDirections.json@v0.2.0"
+    },
+    "axes": {
+      "names": ["劍", "禪", "訣"],
+      "definitions": {
+        "禪": "穩態與覺察（降級/止血/先接住）",
+        "劍": "出手與承擔（最小可承擔下一步）",
+        "訣": "路由與規律（觸發/流程/I-O/禁用/驗證）"
+      },
+      "output_order_default": ["禪", "訣", "劍"]
+    }
+  },
+
+  "module_identity": {
+    "id": "PLUS:ENERGY_GRAMMAR",
+    "name": "能量語法模組（對齊八方位定義）",
+    "purpose": "提供 One Muse 解盤的能量刻度語義、內外能量拆分、拉扯判定、總和口徑、循環序列工具，以及可供 Router/後續模組（八方位、四象、四感、軸線）調用的衍生 signals（含 completeness 狀態）。",
+    "step_support": [1, 5],
+    "tags": [
+      "scale_semantics",
+      "inner_outer",
+      "tension_gap",
+      "sums",
+      "direction_cycle",
+      "reversal_edges",
+      "completeness",
+      "direction_micro_actions"
+    ]
+  },
+
+  "config": {
+    "scale": {
+      "allowed_values": [-4, -3, -2, -1, 1, 2, 3, 4],
+      "zero_absent": true,
+      "meaning": {
+        "sign": {
+          "positive": "相對靠近正向區的偏移（不等於好）",
+          "negative": "相對靠近負向區的偏移（不等於壞）"
+        },
+        "magnitude": {
+          "1": "輕微偏移（小幅趨勢）",
+          "2": "中度偏移（需要留意代價）",
+          "3": "強偏移（慣性強、張力大）",
+          "4": "臨界點（達到極端，傾向回到可用）"
+        },
+        "edge_reversal": {
+          "+4": "臨界提示：趨勢將往 +3 回落（從極端回到可用）",
+          "-4": "臨界提示：趨勢將往 -3 回升（從極端回到可用）"
+        }
+      },
+      "language_guard": {
+        "banned_phrases": ["好", "壞", "對", "錯", "成功保證", "注定失敗"],
+        "preferred_phrases": ["偏移", "趨勢", "代價", "可用度", "臨界", "回到可用"]
+      }
+    },
+
+    "directions": {
+      "keys": ["天", "風", "水", "山", "地", "雷", "火", "澤"],
+      "cycle": {
+        "clockwise": ["天", "風", "水", "山", "地", "雷", "火", "澤"],
+        "counterclockwise": ["天", "澤", "火", "雷", "地", "山", "水", "風"],
+        "note": "cycle 僅定義順序；卡點回推與連兩正分規則由 Router / PLUS:REVERSE_ROUTE 管理。"
+      }
+    },
+
+    "data_origin_rules": {
+      "inner": {
+        "source": "card_face",
+        "rule": "內在能量 inner = 牌面直接抽出來的數字（raw）。",
+        "needs_transform": false
+      },
+      "outer": {
+        "source": "derived",
+        "rule": "外在能量 outer 需由上游計算：抽牌方位位置 × 牌左側方位換算得出。",
+        "needs_transform": true,
+        "computed_upstream": true
+      }
+    },
+
+    "tension_rule": {
+      "gap_formula": "inner - outer",
+      "threshold": 3,
+      "interpretation": {
+        "inner_higher": {
+          "condition": "gap >= threshold",
+          "labels": ["內在很想要但行為出不來", "可能被壓抑", "資源不足", "信心/允許度不足"],
+          "micro_actions_generic": [
+            "補資源：時間/金錢/支持/工具",
+            "補允許：先做 10% 版本",
+            "補信心：做一個低風險試投（小步快跑）"
+          ]
+        },
+        "outer_higher": {
+          "condition": "gap <= -threshold",
+          "labels": ["外在行為高於內在感受", "可能被逼迫", "生活/角色壓力", "公關型表現"],
+          "micro_actions_generic": [
+            "砍負荷：減少非必要承諾",
+            "談界線：清楚可交付/不可交付",
+            "找替代：把外在要求轉成更可承擔的形式"
+          ]
+        },
+        "no_tension": {
+          "condition": "abs(gap) < threshold",
+          "labels": ["內外相對一致", "可用度較高"],
+          "micro_actions_generic": ["維持節奏：小步連續"]
+        }
+      }
+    },
+
+    "sum_rules": {
+      "inner_sum": "sum(directions[*].inner)",
+      "outer_sum": "sum(directions[*].outer)",
+      "sum_gap": "inner_sum - outer_sum",
+      "narrative": {
+        "inner": "內在氣候（感受/渴望/情緒密度）",
+        "outer": "外在天氣（行為負荷/互動密度）",
+        "gap": "內外一致性差（偏移幅度，不代表好壞）"
+      }
+    },
+
+    "polarity_metrics": {
+      "positive_condition_default": "> 0",
+      "negative_condition_default": "< 0",
+      "note": "正分/負分口徑可由 Router 覆寫（例如只看 inner 或 outer）。"
+    },
+
+    "completeness_policy": {
+      "statuses": ["COMPLETE", "INCOMPLETE"],
+      "fields": {
+        "outer": "outer 是否全數提供",
+        "gap": "gap 是否可計算（需 outer）",
+        "tension": "tension_flags 是否可判定（需 gap 完整）",
+        "sums": "outer_sum/sum_gap 是否可計算（需 outer 完整）"
+      },
+      "fallback_rules": [
+        "若 outer 不完整：仍可輸出 inner 的 polarity / edge_reversal、以及刻度語義說明。",
+        "若 outer 不完整：gap/tension/sums 相關輸出以 null 表示，並標註 completeness.* = 'INCOMPLETE'。",
+        "Router 若需要拉扯/四象等依賴 outer 的步驟，必須先確保 outer 已由上游換算完成。"
+      ]
+    }
+  },
+
+  "direction_action_hints": {
+    "note": "此區塊將『拉扯的通用微行動』做成『方位特化版本』，以對齊你在八方位定義中期待的操練方向。",
+
+    "inner_gt_outer": {
+      "天": [
+        "把目標寫成一句『六個月內的北極星』，再補一條『不做清單』（主權）。",
+        "做一個『示範式行動』：你希望他人跟上什麼，你先做 10% 版本。"
+      ],
+      "風": [
+        "寫下對方/客戶真正需求的 3 句話，然後把你的敘事改成『對方聽得懂』的版本。",
+        "做一個低成本成交動作：發出一則清楚的邀請/提案（不是聊天）。"
+      ],
+      "水": [
+        "主動問一句需求題：『你現在最需要我怎麼支持？』並做一個對應的小行動。",
+        "安排一段恢復節律：睡眠/散步/呼吸 10 分鐘，讓感受回到可用。"
+      ],
+      "山": [
+        "做一次 10 分鐘復盤：本週重複錯誤是什麼？下一次要改的流程節點是什麼？",
+        "建立一個小儀式：固定的開始/結束動作（例如：關機前 3 行摘要）。"
+      ],
+      "地": [
+        "把資源池寫出來：時間/錢/注意力/人脈各一項，挑一項今天補 5%。",
+        "做一個『對自己好』的行動（感恩練習）：買一個小禮物或安排休息。"
+      ],
+      "雷": [
+        "做一個『啟動式冒險』：把風險縮小到可承擔，做 15 分鐘試驗（含止損點）。",
+        "寫下 1 個破框假設：如果反過來做會怎樣？選一個最小測試。"
+      ],
+      "火": [
+        "把『有趣/趨勢』變成一個可交付的小作品：一頁稿/一段 demo/一則內容。",
+        "做一次『求救』：向一個人要一個工具/模板/解法（只要 1 個）。"
+      ],
+      "澤": [
+        "做一個淺連結輸出：發一則真實一致的貼文/訊息，讓人知道你在做什麼。",
+        "把目標跟情感連結：寫下『我想要它，是因為我在乎___』。"
+      ]
+    },
+
+    "outer_gt_inner": {
+      "天": [
+        "界線盤點：你現在在替誰扛『方向/責任』？把其中一項還回去（授權/拒絕）。",
+        "把『承諾』降級成可承擔版本：本週只承諾一件最重要的。"
+      ],
+      "風": [
+        "停止迎合：把正在做的 1 個『不是必要的溝通/社交』刪掉。",
+        "把話術改成『清楚』而非『好聽』：一句話說明你的條件與界線。"
+      ],
+      "水": [
+        "界線：你是不是在替對方感受負責？退一步，只做你可做的那一小段支持。",
+        "恢復節律：先補睡眠/休息，再談照顧他人。"
+      ],
+      "山": [
+        "減少內耗流程：停止反覆檢討同一件事，改成寫下『一次就好』的修正規則。",
+        "把規劃縮小：只規劃今天 1 個區塊（30–60 分鐘）。"
+      ],
+      "地": [
+        "別再硬撐穩定：把一個『不必要的承載』放下（有人可以分擔）。",
+        "回到感恩但不犧牲：做一個小小的自我滋養，而不是再多給出去。"
+      ],
+      "雷": [
+        "停止躁進：先設定止損（時間/錢/承諾）再做任何冒險。",
+        "把『破框』降級：只做一個最小測試，不做全面翻盤。"
+      ],
+      "火": [
+        "停止追趕趨勢：先選一個最小作品交付，再談更多新奇。",
+        "允許求救：把你正在硬扛的部分拆出來，找一個工具替代。"
+      ],
+      "澤": [
+        "社交減量：把一個社交活動取消或縮短，改成把自己活回來。",
+        "把目標拉回情感：問自己『我為了被喜歡才做？還是真的在乎？』"
+      ]
+    }
+  },
+
+  "system_micro_actions": {
+    "note": "總和層級的最小步（用於 Step 1：內在總和 vs 外在總和）。",
+    "if_inner_gt_outer": [
+      "把今天要做的事降級成『10% 版本』，讓行為先出來。",
+      "補一個資源：時間/工具/支持，選一個就好。"
+    ],
+    "if_outer_gt_inner": [
+      "砍掉一個非必要承諾（讓外在負荷降下來）。",
+      "用一句話設界線：我可以___，我不會___。"
+    ],
+    "if_close_to_zero": [
+      "維持節奏：連續 3 天做同一個小步（小步連續）。"
+    ]
+  },
+
+  "io_contract": {
+    "inputs": {
+      "required": ["directions"],
+      "optional": ["inner_sum", "outer_sum", "user_state"],
+      "shape": {
+        "directions": {
+          "type": "object",
+          "properties": {
+            "<dir>": {
+              "inner": "number",
+              "outer": "number (optional)",
+              "gap": "number (optional)",
+              "notes": "string (optional)"
+            }
+          }
+        }
+      },
+      "assumptions": [
+        "directions[*].inner 為牌面直接抽出來的 raw 值（-4..-1, +1..+4），不需要再換算。",
+        "directions[*].outer 必須由上游依『抽牌方位位置 × 牌左側方位』換算後提供；若未提供，本模組不會硬算 outer。"
+      ]
+    },
+    "outputs": {
+      "signals": [
+        "completeness",
+        "inner_sum",
+        "outer_sum",
+        "sum_gap",
+        "tension_flags",
+        "tension_details",
+        "directions[*].gap",
+        "directions[*].polarity_inner",
+        "directions[*].polarity_outer",
+        "directions[*].edge_reversal_inner",
+        "directions[*].edge_reversal_outer"
+      ],
+      "explainers": [
+        "scale_semantics_summary",
+        "sum_summary",
+        "tension_summary",
+        "completeness_notice"
+      ]
+    },
+    "guards": {
+      "must_include": [
+        "不以好壞評價正負",
+        "±4 臨界提示語義",
+        "若 outer 不完整：必須輸出 completeness_notice",
+        "若可判定拉扯：需說明 gap 閾值與方向（內>外 or 外>內）",
+        "若可判定拉扯：至少提供 1 個『方位特化微行動』"
+      ],
+      "forbidden": [
+        "在 outer 缺失時仍輸出看似精準的 gap/tension/sums 結論",
+        "保證式語言或命定化",
+        "以能量數字替代專業醫療/法律/投資建議"
+      ]
+    }
+  },
+
+  "procedures": {
+    "init_completeness": {
+      "steps": [
+        "set completeness = { outer: 'INCOMPLETE', gap: 'INCOMPLETE', tension: 'INCOMPLETE', sums: 'INCOMPLETE' }",
+        "if every dir has outer => completeness.outer='COMPLETE'"
+      ]
+    },
+
+    "compute_polarities_and_edges": {
+      "steps": [
+        "for each dir:",
+        "  polarity_inner = (inner > 0 ? 'POS' : 'NEG')",
+        "  edge_reversal_inner = (inner == 4 ? '+4->+3' : inner == -4 ? '-4->-3' : null)",
+        "  if outer exists:",
+        "    polarity_outer = (outer > 0 ? 'POS' : 'NEG')",
+        "    edge_reversal_outer = (outer == 4 ? '+4->+3' : outer == -4 ? '-4->-3' : null)",
+        "  else:",
+        "    polarity_outer = null",
+        "    edge_reversal_outer = null"
+      ]
+    },
+
+    "compute_gap_per_direction": {
+      "steps": [
+        "if completeness.outer != 'COMPLETE':",
+        "  for each dir: set directions[dir].gap = null",
+        "  completeness.gap = 'INCOMPLETE'",
+        "else:",
+        "  for each dir:",
+        "    if gap missing => gap = inner - outer",
+        "    attach directions[dir].gap",
+        "  completeness.gap = 'COMPLETE'"
+      ]
+    },
+
+    "compute_sums": {
+      "steps": [
+        "if inner_sum missing => inner_sum = sum(inner)",
+        "if completeness.outer == 'COMPLETE':",
+        "  if outer_sum missing => outer_sum = sum(outer)",
+        "  sum_gap = inner_sum - outer_sum",
+        "  completeness.sums = 'COMPLETE'",
+        "else:",
+        "  outer_sum = null",
+        "  sum_gap = null",
+        "  completeness.sums = 'INCOMPLETE'"
+      ]
+    },
+
+    "detect_tension_flags_and_details": {
+      "steps": [
+        "tension_flags = []",
+        "tension_details = null",
+        "if completeness.gap != 'COMPLETE':",
+        "  tension_flags = null",
+        "  completeness.tension = 'INCOMPLETE'",
+        "else:",
+        "  tension_details = {}",
+        "  for each dir:",
+        "    if abs(gap) >= threshold:",
+        "      tension_flags.push(dir)",
+        "      if gap >= threshold: type='INNER_GT_OUTER' else type='OUTER_GT_INNER'",
+        "      action_hint = (type=='INNER_GT_OUTER' ? direction_action_hints.inner_gt_outer[dir] : direction_action_hints.outer_gt_inner[dir])",
+        "      tension_details[dir] = { gap: gap, type: type, actions: action_hint }",
+        "  completeness.tension = 'COMPLETE'"
+      ]
+    },
+
+    "build_narratives": {
+      "steps": [
+        "scale_semantics_summary: 用中性語言說明 ± 偏移、±4 臨界提示",
+        "sum_summary:",
+        "  - always describe inner_sum as 內在氣候",
+        "  - if completeness.sums == 'COMPLETE': describe outer_sum as 外在天氣 and sum_gap as 一致性差",
+        "  - else: mention outer not ready, skip outer-related claims",
+        "tension_summary:",
+        "  - if completeness.tension == 'COMPLETE': for each tension dir provide inner>outer or outer>inner explanation + 1 direction-specific action",
+        "  - else: set tension_summary = '外在能量尚未完成換算，因此本次不判定拉扯（gap/tension）。'",
+        "completeness_notice:",
+        "  - if any completeness field INCOMPLETE: output a brief notice explaining which parts were skipped and what input is needed"
+      ]
+    }
+  },
+
+  "output_templates": {
+    "zen": {
+      "default": [
+        "我先用『內在氣候/外在天氣』幫你把盤感定下來：這裡不分好壞，只看偏移、可用度與代價。",
+        "如果有拉扯（內外落差），我們把它當作訊號：它通常在保護你或提醒你資源/界線需要調整。"
+      ],
+      "low_state": [
+        "我先不急著解很多，我們只抓一個你今天做得到的小步，讓能量先回到可用。"
+      ]
+    },
+
+    "ketsu": {
+      "default": [
+        "刻度語義：± 是相對 0 的偏移；±4 是臨界提示（+4→+3、-4→-3），代表趨勢傾向回到可用，但不保證未來。",
+        "內在能量（inner）是牌面原始數字；外在能量（outer）需要『位置×左側方位』換算後才可用於 gap/拉扯/外顯四象等分析。"
+      ],
+      "completeness_notice": [
+        "補充：因為外在能量尚未完整提供/換算，本次我不判定拉扯（gap/tension）與外在總和；你只要補齊外在能量，我就能把那一段算出來。"
+      ]
+    },
+
+    "sword": {
+      "default": [
+        "最小一步（擇一）：\n1) 10% 版本：把想做的事縮小到可完成的小版本。\n2) 設界線：用一句話說清楚可做/不可做。\n3) 要工具/求救：找一個人或一個工具，替你減少負荷。"
+      ],
+      "direction_specific": {
+        "note": "當某方位被標記 tension 時，優先輸出該方位的 direction_action_hints 作為劍式一步。"
+      }
+    }
+  },
+
+  "exports": {
+    "signals_written": [
+      "completeness",
+      "inner_sum",
+      "outer_sum",
+      "sum_gap",
+      "tension_flags",
+      "tension_details",
+      "directions[*].gap",
+      "directions[*].polarity_inner",
+      "directions[*].polarity_outer",
+      "directions[*].edge_reversal_inner",
+      "directions[*].edge_reversal_outer"
+    ],
+    "explainers_written": [
+      "scale_semantics_summary",
+      "sum_summary",
+      "tension_summary",
+      "completeness_notice"
+    ]
+  },
+
+  "links": {
+    "protocols": [
+      "P:K3.S1.INNER_OUTER",
+      "P:K3.S2.GAP_TENSION",
+      "P:K3.S3.SUM_COMPARE",
+      "P:K4.S1.INDEX_FIRST"
+    ],
+    "recommended_routes": ["R:1.SUM_COMPARE", "R:5.EIGHT_DIRECTIONS"],
+    "neighbor_modules": [
+      "PLUS:EIGHT_DIRECTIONS_TRIPLE_LAYER",
+      "PLUS:SUM_COMPARE_SEED_RULE",
+      "PLUS:FOUR_MANIFESTATIONS",
+      "PLUS:FOUR_FEELINGS",
+      "PLUS:BOTTLENECK_DETECT",
+      "PLUS:REVERSE_ROUTE"
+    ],
+    "crystals": {
+      "placeholders": [
+        "CR:AEO.SCALE_SEMANTICS.001",
+        "CR:AEO.OUTER_DERIVATION_RULE.001",
+        "CR:AEO.TENSION_RULE.001",
+        "CR:AEO.DIRECTION_MICRO_ACTIONS.001",
+        "CR:GEO.SUMS_NARRATIVE.001"
+      ],
+      "note": "待 OM-Cry 建立後，以實際 crystal_id 取代 placeholders。"
+    }
+  }
+}

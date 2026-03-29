@@ -1,0 +1,15 @@
+{
+  "id": "729748ac-9ff9-4d3f-a0f6-c0ba444f3327",
+  "type": "lesson",
+  "title": "統一出口防漏：安全過濾放唯一出口，全通道覆蓋",
+  "content": "2026-03-29 DSE 發現 ResponseGuard 只守 1/14 出口。sanitize_for_group() 的 if is_group 條件讓私訊全跳過；telegram_pump 有 9 處 bot.send_message() 繞過 _safe_send()。修復：取消群組/私訊分流 + 13 處直送改走 _safe_send()。教訓：(1) 安全閘放唯一出口 (2) 修一個洞要 grep 全部同類 (3) 函數命名不要暗示作用範圍限制 (4) DSE 做兩輪，第一輪給方向第二輪給精度。",
+  "tags": [
+    "response_guard",
+    "security",
+    "architecture",
+    "single_exit",
+    "dse"
+  ],
+  "session": "2026-03-29_unified_send_exit_fix",
+  "created_at": "2026-03-29T22:23:33.175177"
+}

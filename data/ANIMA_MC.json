@@ -3,7 +3,7 @@
     "name": "MUSEON",
     "birth_date": "2026-03-28T17:15:24.287821",
     "growth_stage": "adult",
-    "days_alive": 0
+    "days_alive": 1
   },
   "self_awareness": {
     "who_am_i": "我是 MUSEON，由 達達大師 命名",
@@ -36,42 +36,42 @@
   "eight_primal_energies": {
     "乾": {
       "absolute": 177,
-      "relative": 2.8
+      "relative": 2.6
     },
     "坤": {
       "absolute": 898,
-      "relative": 14.3
+      "relative": 13.2
     },
     "震": {
       "absolute": 150,
-      "relative": 2.4
+      "relative": 2.2
     },
     "巽": {
-      "absolute": 181,
-      "relative": 2.9
+      "absolute": 187,
+      "relative": 2.7
     },
     "坎": {
-      "absolute": 6300,
+      "absolute": 6803,
       "relative": 100.0
     },
     "離": {
-      "absolute": 168,
-      "relative": 2.7
+      "absolute": 179,
+      "relative": 2.6
     },
     "艮": {
       "absolute": 2793,
-      "relative": 44.3
+      "relative": 41.1
     },
     "兌": {
-      "absolute": 1022,
+      "absolute": 1104,
       "relative": 16.2
     }
   },
   "_vita_triggered_thresholds": [
-    "tree_1000",
-    "phoenix_2000",
-    "branch_500",
     "sprout_100",
-    "star_5000"
+    "star_5000",
+    "branch_500",
+    "phoenix_2000",
+    "tree_1000"
   ]
 }

@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260329_234639_metacog_insight",
+  "category": "metacog_insight",
+  "content": "群組內容轉發前應先確認意圖。使用者的責備語氣表示 MUSEON 不應自動推轉群組內容，需建立「確認→轉發」的雙步驟。此規則應加入 persona_digest 的行動準則。",
+  "source": "L4_observer",
+  "created_at": "2026-03-29T23:46:39.223445+08:00",
+  "priority": "medium"
+}

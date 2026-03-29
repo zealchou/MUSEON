@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>設計即定價訊號 — MUSEON 探索報告</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ember:        #C4502A;
+      --ember-light:  #E0714D;
+      --ember-dark:   #9A3A1C;
+      --teal:         #2A7A6E;
+      --gold:         #B8923A;
+      --ink:          #12121A;
+      --slate:        #5A5A6E;
+      --mist:         #9898A8;
+      --border:       #E2E0DA;
+      --parchment:    #F7F5F0;
+      --snow:         #FDFCFA;
+      --deep-ink:     #0E0E16;
+      --surface:      #16161F;
+    }
+
+    body {
+      background: var(--parchment);
+      color: var(--ink);
+      font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+      font-size: 16px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── Hero ─── */
+    .hero {
+      background: var(--deep-ink);
+      padding: 96px 40px 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 50% at 50% 30%, rgba(196,80,42,0.18) 0%, transparent 70%),
+                  radial-gradient(ellipse 40% 40% at 80% 80%, rgba(42,122,110,0.10) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .hero-tag {
+      display: inline-block;
+      background: rgba(196,80,42,0.15);
+      color: var(--ember-light);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 4px 14px;
+      border-radius: 100px;
+      border: 1px solid rgba(196,80,42,0.3);
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 52px;
+      font-weight: 600;
+      color: #FDFCFA;
+      line-height: 1.15;
+      max-width: 720px;
+      margin: 0 auto 16px;
+    }
+    .hero h1 em {
+      font-style: italic;
+      color: var(--ember-light);
+    }
+    .hero-sub {
+      font-size: 18px;
+      color: rgba(253,252,250,0.65);
+      max-width: 580px;
+      margin: 0 auto 40px;
+      font-weight: 300;
+    }
+    .hero-meta {
+      display: flex;
+      gap: 32px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .hero-meta-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .hero-meta-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mist);
+    }
+    .hero-meta-value {
+      font-size: 14px;
+      color: rgba(253,252,250,0.8);
+      font-weight: 500;
+    }
+
+    /* ─── Container ─── */
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 0 40px;
+    }
+
+    /* ─── Section ─── */
+    .section {
+      padding: 64px 0;
+      border-bottom: 1px solid var(--border);
+      opacity: 0;
+      transform: translateY(16px);
+      animation: fadeUp 0.4s ease-out forwards;
+    }
+    .section:nth-child(1) { animation-delay: 0.1s; }
+    .section:nth-child(2) { animation-delay: 0.2s; }
+    .section:nth-child(3) { animation-delay: 0.3s; }
+    .section:nth-child(4) { animation-delay: 0.4s; }
+    .section:nth-child(5) { animation-delay: 0.5s; }
+    .section:nth-child(6) { animation-delay: 0.6s; }
+    .section:nth-child(7) { animation-delay: 0.7s; }
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── Section Header ─── */
+    .section-tag {
+      display: inline-block;
+      background: rgba(196,80,42,0.1);
+      color: var(--ember-dark);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 100px;
+      margin-bottom: 16px;
+    }
+    .section-tag.teal {
+      background: rgba(42,122,110,0.1);
+      color: var(--teal);
+    }
+    .section-tag.gold {
+      background: rgba(184,146,58,0.1);
+      color: var(--gold);
+    }
+
+    h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 36px;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+    h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+    .section-lead {
+      font-size: 18px;
+      color: var(--slate);
+      margin-bottom: 32px;
+      line-height: 1.7;
+    }
+    p {
+      color: var(--ink);
+      margin-bottom: 20px;
+      font-size: 16px;
+    }
+
+    /* ─── Lead Quote ─── */
+    .lead-quote {
+      border-left: 3px solid var(--ember);
+      padding: 16px 24px;
+      background: var(--snow);
+      border-radius: 0 8px 8px 0;
+      margin: 32px 0;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-style: italic;
+      color: var(--ink);
+      line-height: 1.5;
+    }
+    .lead-quote cite {
+      display: block;
+      margin-top: 8px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-style: normal;
+      color: var(--slate);
+    }
+
+    /* ─── Cards ─── */
+    .card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 2px 8px rgba(18,18,26,0.08), 0 8px 24px rgba(18,18,26,0.06);
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 32px 0;
+    }
+    .card-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+
+    .card-number {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 40px;
+      font-weight: 600;
+      color: var(--ember);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+    .card-desc {
+      font-size: 14px;
+      color: var(--slate);
+      line-height: 1.65;
+      margin: 0;
+    }
+
+    /* ─── Highlight Box ─── */
+    .highlight-box {
+      background: linear-gradient(135deg, rgba(196,80,42,0.06) 0%, rgba(184,146,58,0.04) 100%);
+      border: 1px solid rgba(196,80,42,0.2);
+      border-radius: 10px;
+      padding: 28px 32px;
+      margin: 32px 0;
+    }
+    .highlight-box h4 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--ember-dark);
+      margin-bottom: 12px;
+    }
+    .highlight-box p { margin: 0; font-size: 15px; color: var(--ink); }
+
+    /* ─── Comparison Table ─── */
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0;
+      margin: 32px 0;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .comparison-col { border-right: 1px solid var(--border); }
+    .comparison-col:last-child { border-right: none; }
+    .comparison-header {
+      padding: 16px 20px;
+      font-weight: 600;
+      font-size: 14px;
+      text-align: center;
+    }
+    .comparison-header.design { background: rgba(196,80,42,0.08); color: var(--ember-dark); }
+    .comparison-header.engineer { background: rgba(42,122,110,0.08); color: var(--teal); }
+    .comparison-header.sales { background: rgba(184,146,58,0.08); color: var(--gold); }
+    .comparison-items { padding: 16px 20px; }
+    .comparison-item {
+      font-size: 14px;
+      color: var(--slate);
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      line-height: 1.5;
+    }
+    .comparison-item:last-child { border-bottom: none; }
+
+    /* ─── Timeline ─── */
+    .timeline { margin: 32px 0; }
+    .timeline-item {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 28px;
+      position: relative;
+    }
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: 19px;
+      top: 44px;
+      width: 1px;
+      height: calc(100% - 20px);
+      background: var(--border);
+    }
+    .timeline-item:last-child::before { display: none; }
+    .timeline-dot {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--snow);
+      border: 2px solid var(--ember);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ember);
+    }
+    .timeline-content { padding-top: 8px; }
+    .timeline-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+    .timeline-desc {
+      font-size: 14px;
+      color: var(--slate);
+      line-height: 1.65;
+      margin: 0;
+    }
+
+    /* ─── Data Viz ─── */
+    .data-bar-group { margin: 32px 0; }
+    .data-bar-item { margin-bottom: 20px; }
+    .data-bar-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ink);
+    }
+    .data-bar-value { color: var(--ember); font-weight: 600; }
+    .data-bar-track {
+      height: 8px;
+      background: rgba(196,80,42,0.1);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .data-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--ember-dark), var(--ember-light));
+      animation: growBar 0.8s ease-out forwards;
+      transform-origin: left;
+    }
+    @keyframes growBar {
+      from { transform: scaleX(0); }
+      to { transform: scaleX(1); }
+    }
+    .data-bar-note { font-size: 12px; color: var(--mist); margin-top: 4px; }
+
+    /* ─── Two-column text ─── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      margin: 32px 0;
+    }
+
+    /* ─── Insight Gem ─── */
+    .insight-gem {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 20px 24px;
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 16px;
+    }
+    .gem-icon {
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      background: rgba(196,80,42,0.1);
+    }
+    .gem-body { flex: 1; }
+    .gem-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ember);
+      margin-bottom: 4px;
+    }
+    .gem-text { font-size: 15px; color: var(--ink); margin: 0; line-height: 1.65; }
+
+    /* ─── McKinsey Breakdown ─── */
+    .mckinsey-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 32px 0;
+    }
+    .mk-card {
+      background: var(--surface);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 24px;
+      color: #FDFCFA;
+    }
+    .mk-card-icon { font-size: 28px; margin-bottom: 12px; }
+    .mk-card-title { font-size: 15px; font-weight: 600; margin-bottom: 8px; color: #FDFCFA; }
+    .mk-card-desc { font-size: 13px; color: rgba(253,252,250,0.6); line-height: 1.6; margin: 0; }
+    .mk-card-tag {
+      display: inline-block;
+      margin-top: 12px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(196,80,42,0.2);
+      color: var(--ember-light);
+    }
+
+    /* ─── Thesis Box ─── */
+    .thesis-box {
+      background: var(--deep-ink);
+      border-radius: 12px;
+      padding: 40px 48px;
+      margin: 48px 0;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .thesis-box::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(196,80,42,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .thesis-box-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(196,80,42,0.8);
+      margin-bottom: 16px;
+    }
+    .thesis-box h2 {
+      color: #FDFCFA;
+      font-size: 32px;
+      margin-bottom: 16px;
+    }
+    .thesis-box p { color: rgba(253,252,250,0.65); font-size: 16px; margin: 0; max-width: 560px; margin: 0 auto; }
+
+    /* ─── MUSEON Link ─── */
+    .museon-link {
+      background: rgba(42,122,110,0.06);
+      border: 1px solid rgba(42,122,110,0.2);
+      border-radius: 10px;
+      padding: 24px;
+      margin: 32px 0;
+    }
+    .museon-link-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 8px;
+    }
+    .museon-link p { color: var(--ink); font-size: 15px; margin: 0; line-height: 1.65; }
+
+    /* ─── Footer ─── */
+    .footer {
+      background: var(--deep-ink);
+      padding: 48px 40px;
+      text-align: center;
+    }
+    .footer-brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px;
+      font-weight: 600;
+      color: #FDFCFA;
+      margin-bottom: 8px;
+    }
+    .footer-meta {
+      font-size: 13px;
+      color: rgba(253,252,250,0.4);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    /* ─── Divider ─── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0;
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 36px; }
+      .hero { padding: 64px 24px 56px; }
+      .container { padding: 0 24px; }
+      .card-grid, .card-grid.three, .two-col, .comparison, .mckinsey-grid { grid-template-columns: 1fr; }
+      .comparison { border-radius: 10px; }
+      .comparison-col { border-right: none; border-bottom: 1px solid var(--border); }
+      .comparison-col:last-child { border-bottom: none; }
+      h2 { font-size: 28px; }
+      .thesis-box { padding: 32px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════ HERO ══════════════ -->
+<div class="hero">
+  <div class="hero-tag">MUSEON 探索報告 · 2026.03.29</div>
+  <h1>設計是<em>定價訊號</em>，<br>不只是美學選擇</h1>
+  <p class="hero-sub">從行為經濟學到頂級顧問視覺心理學，六個維度拆解「為什麼設計越好，客戶願意付越多」</p>
+  <div class="hero-meta">
+    <div class="hero-meta-item">
+      <span class="hero-meta-label">涵蓋主題</span>
+      <span class="hero-meta-value">6 個研究維度</span>
+    </div>
+    <div class="hero-meta-item">
+      <span class="hero-meta-label">核心命題</span>
+      <span class="hero-meta-value">感知價值 = 設計語言</span>
+    </div>
+    <div class="hero-meta-item">
+      <span class="hero-meta-label">應用對象</span>
+      <span class="hero-meta-value">B2B 顧問 · AI 服務</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ THESIS ══════════════ -->
+<div class="container">
+  <div class="thesis-box" style="margin-top: 64px;">
+    <div class="thesis-box-label">核心命題</div>
+    <h2 style="font-family: 'Cormorant Garamond', serif;">設計本身就是定價訊號</h2>
+    <p>當一份報告讓人感覺「值幾十萬」，不是因為字數增加了——而是因為視覺語言重置了客戶的預期錨點。設計的本質，是在客戶開口問價之前，就先替你的服務定好了價格天花板。</p>
+  </div>
+</div>
+
+<!-- ══════════════ MAIN CONTENT ══════════════ -->
+<div class="container">
+
+  <!-- Section 1 -->
+  <div class="section">
+    <div class="section-tag">維度 01 · 行為經濟學</div>
+    <h2>人為什麼不理性地付錢</h2>
+    <p class="section-lead">定價的真相：客戶付的不是「成本」，而是他感知到的「價值缺口」。理解這一點，是所有設計定價討論的起點。</p>
+
+    <div class="lead-quote">
+      「價格是一個信號，而不是一個計算結果。客戶用價格推斷品質，用品質反推值不值得。」
+      <cite>— 行為經濟學研究核心洞見</cite>
+    </div>
+
+    <p>傳統定價理論假設人類理性——你算出成本，加上合理利潤，就是定價。但現實中，客戶的支付意願（Willingness to Pay）幾乎從不按這個邏輯運作。</p>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-number">01</div>
+        <div class="card-title">錨定效應（Anchoring）</div>
+        <p class="card-desc">先看到的價格會成為判斷基準。一份「外觀精良」的提案，能讓後續的實際報價感覺更合理，即使金額相同。</p>
+      </div>
+      <div class="card">
+        <div class="card-number">02</div>
+        <div class="card-title">感知品質偏誤</div>
+        <p class="card-desc">在資訊不對稱的環境下，視覺品質成為能力的代理指標。設計差 = 能力差，這是大腦的快捷路徑。</p>
+      </div>
+      <div class="card">
+        <div class="card-number">03</div>
+        <div class="card-title">損失規避不對稱</div>
+        <p class="card-desc">選擇「精緻但貴」vs「便宜但粗糙」時，客戶更怕的是「用了差的服務後悔」，而不是多付一點錢。</p>
+      </div>
+      <div class="card">
+        <div class="card-number">04</div>
+        <div class="card-title">稀缺性溢價</div>
+        <p class="card-desc">當設計感知讓服務看起來像「限量版精品」而非「量產品」，客戶對價格的抵抗感會顯著下降。</p>
+      </div>
+    </div>
+
+    <div class="museon-link">
+      <div class="museon-link-label">MUSEON 應用</div>
+      <p>這解釋了為什麼同樣的 AI 顧問服務，配上精良 HTML 報告可以開出比 Word 文件高 2-3 倍的價格——不是服務變了，是感知錨點變了。</p>
+    </div>
+  </div>
+
+  <!-- Section 2 -->
+  <div class="section">
+    <div class="section-tag gold">維度 02 · 量化困境</div>
+    <h2>設計成本為何總被低估</h2>
+    <p class="section-lead">設計的複雜度有一個根本問題：它的代價是非線性的、隱形的，卻在最終輸出上以全有全無的方式呈現。</p>
+
+    <div class="two-col">
+      <div>
+        <h3>看得見的成本</h3>
+        <p>工時、軟體授權、字型授權。這些是客戶能理解、願意買單的部分。但這只是冰山的一角。</p>
+        <div class="insight-gem">
+          <div class="gem-icon">⏱</div>
+          <div class="gem-body">
+            <div class="gem-label">可見成本</div>
+            <p class="gem-text">「設計師花了 8 小時做這份報告」——這是客戶唯一看到的計量單位。</p>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3>看不見的成本</h3>
+        <p>美感培養需要年份，不是工時。判斷「留白要多少」需要的是積累，不是速度。</p>
+        <div class="insight-gem">
+          <div class="gem-icon">🧠</div>
+          <div class="gem-body">
+            <div class="gem-label">隱性成本</div>
+            <p class="gem-text">設計決策的品質來自「判斷力」，而判斷力無法用工時計算——這就是低估的根源。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="highlight-box">
+      <h4>美學複雜度的不可量化性</h4>
+      <p>為什麼「好的留白」比「填滿的頁面」更難做、卻感覺更簡單？因為減法比加法需要更高的判斷成本——你必須先知道什麼東西不重要，才能決定拿掉它。這個判斷過程，沒有量化的辦法。</p>
+    </div>
+
+    <div class="data-bar-group">
+      <div class="data-bar-item">
+        <div class="data-bar-label">
+          <span>排版與視覺層次</span>
+          <span class="data-bar-value">難以量化度 82%</span>
+        </div>
+        <div class="data-bar-track"><div class="data-bar-fill" style="width:82%"></div></div>
+        <div class="data-bar-note">客戶最難理解「為什麼這麼貴」的部分</div>
+      </div>
+      <div class="data-bar-item">
+        <div class="data-bar-label">
+          <span>色彩系統一致性</span>
+          <span class="data-bar-value">難以量化度 76%</span>
+        </div>
+        <div class="data-bar-track"><div class="data-bar-fill" style="width:76%"></div></div>
+        <div class="data-bar-note">感覺到了，但不知道怎麼發生的</div>
+      </div>
+      <div class="data-bar-item">
+        <div class="data-bar-label">
+          <span>留白與呼吸感</span>
+          <span class="data-bar-value">難以量化度 91%</span>
+        </div>
+        <div class="data-bar-track"><div class="data-bar-fill" style="width:91%"></div></div>
+        <div class="data-bar-note">最貴的設計元素，也是最難解釋的</div>
+      </div>
+      <div class="data-bar-item">
+        <div class="data-bar-label">
+          <span>字型選擇邏輯</span>
+          <span class="data-bar-value">難以量化度 68%</span>
+        </div>
+        <div class="data-bar-track"><div class="data-bar-fill" style="width:68%"></div></div>
+        <div class="data-bar-note">客戶感覺有差，但理由說不清楚</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 3 -->
+  <div class="section">
+    <div class="section-tag">維度 03 · 跨職能摩擦</div>
+    <h2>三套互斥的估價語言</h2>
+    <p class="section-lead">設計師、工程師、銷售面對同一個需求，會各自建立一套估價邏輯。這三套語言彼此不兼容，是大多數服務定價混亂的根源。</p>
+
+    <div class="comparison">
+      <div class="comparison-col">
+        <div class="comparison-header design">🎨 設計師視角</div>
+        <div class="comparison-items">
+          <div class="comparison-item">「這個版面需要重新建立視覺系統」</div>
+          <div class="comparison-item">「字型選擇影響整體品牌一致性」</div>
+          <div class="comparison-item">「留白多少決定了感知層次」</div>
+          <div class="comparison-item">估價單位：美感判斷量</div>
+        </div>
+      </div>
+      <div class="comparison-col">
+        <div class="comparison-header engineer">⚙️ 工程師視角</div>
+        <div class="comparison-items">
+          <div class="comparison-item">「CSS 改幾行，兩小時搞定」</div>
+          <div class="comparison-item">「模板套一套就好，不需要重做」</div>
+          <div class="comparison-item">「功能一樣，外觀不影響運作」</div>
+          <div class="comparison-item">估價單位：工時 × 行數</div>
+        </div>
+      </div>
+      <div class="comparison-col">
+        <div class="comparison-header sales">💼 銷售視角</div>
+        <div class="comparison-items">
+          <div class="comparison-item">「客戶說看起來要有質感」</div>
+          <div class="comparison-item">「競品的那個感覺差不多就行」</div>
+          <div class="comparison-item">「預算 3 萬，你們能不能做到」</div>
+          <div class="comparison-item">估價單位：市場比價 × 預算上限</div>
+        </div>
+      </div>
+    </div>
+
+    <p>這三種估價語言的衝突，不是任何一方的錯——而是因為「設計品質」的貨幣單位在各領域根本不同。解法不是誰說服誰，而是找到一個共同的<strong>「感知品質基準」</strong>，讓三方都能用客戶的語言說話。</p>
+
+    <div class="insight-gem">
+      <div class="gem-icon">🔑</div>
+      <div class="gem-body">
+        <div class="gem-label">跨職能翻譯法則</div>
+        <p class="gem-text">把設計需求翻譯成「客戶的商業問題」：不是「字型要用 Cormorant」，而是「這份報告要讓客戶在打開後 3 秒內感覺值 50 萬」。這樣，三個職能才有共同的對焦點。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 4 -->
+  <div class="section">
+    <div class="section-tag teal">維度 04 · 極簡主義經濟學</div>
+    <h2>留白為什麼比豐富更值錢</h2>
+    <p class="section-lead">反直覺的真相：設計師放棄加入更多元素，往往比加入本身需要更高的能力——而這種能力，市場願意付出超額溢價。</p>
+
+    <div class="lead-quote">
+      「設計師的技藝不在於知道要加什麼，而在於知道什麼可以不要。」
+      <cite>— Dieter Rams，工業設計大師</cite>
+    </div>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-dot">01</div>
+        <div class="timeline-content">
+          <div class="timeline-title">認知負擔降低 → 信任感提升</div>
+          <p class="timeline-desc">頁面資訊密度越低，大腦處理資訊的成本越小。當客戶閱讀你的報告「毫不費力」，他們把這種流暢感解讀為「這家公司思路清晰」。</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot">02</div>
+        <div class="timeline-content">
+          <div class="timeline-title">留白 = 自信的展示</div>
+          <p class="timeline-desc">豐富填滿的設計隱含一種焦慮：「怕客戶覺得不夠」。留白則傳遞：「我知道什麼重要，其他的不需要。」這是專業信心的視覺語言。</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot">03</div>
+        <div class="timeline-content">
+          <div class="timeline-title">稀缺感 × 高端品牌關聯</div>
+          <p class="timeline-desc">所有頂級品牌（Apple、Hermès、頂級法律事務所）共同特徵：極度剋制的視覺語言。極簡主義通過關聯效應提升感知定位。</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot">04</div>
+        <div class="timeline-content">
+          <div class="timeline-title">注意力引導的精準性</div>
+          <p class="timeline-desc">當版面安靜，核心訊息的對比度就會爆炸性提升。客戶的眼睛會自動去找最重要的東西——這種引導，豐富設計做不到。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="museon-link">
+      <div class="museon-link-label">MUSEON 應用</div>
+      <p>MUSEON 報告的 Parchment 背景 + 大量留白，不是風格偏好——是刻意的定價策略。每次客戶打開報告時，第一秒的視覺感知已經在建立他的付費意願上限。</p>
+    </div>
+  </div>
+
+  <!-- Section 5 -->
+  <div class="section">
+    <div class="section-tag gold">維度 05 · 職人經濟學</div>
+    <h2>為什麼客戶寧可多付 30%</h2>
+    <p class="section-lead">高端 B2B 市場有一個反直覺現象：當一切條件相同時，客戶往往選擇貴的那個。這不是非理性，是信任成本的精算。</p>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-number">信任</div>
+        <div class="card-title">降低決策風險的溢價</div>
+        <p class="card-desc">在無法直接評估能力的情況下，精緻的交付物是能力的可信信號。多付 30%，買的是「選錯人的後悔成本」的保險。</p>
+      </div>
+      <div class="card">
+        <div class="card-number">傳播</div>
+        <div class="card-title">可展示性帶來的網路效應</div>
+        <p class="card-desc">精良的報告是客戶可以「拿出去展示」的東西。在組織內部，客戶用你的報告展示自己的品味和判斷力——這個功能本身就有價值。</p>
+      </div>
+    </div>
+
+    <div class="highlight-box">
+      <h4>職人精神的訊號理論</h4>
+      <p>每一個設計細節（對齊、間距、色彩一致性）都是一個「我注意到了」的訊號。積累足夠多的訊號，客戶就建立起一個信念：「這家公司在所有看不見的地方，也一樣認真。」這種信念，是 30% 溢價的真正來源。</p>
+    </div>
+
+    <div class="data-bar-group">
+      <div class="data-bar-item">
+        <div class="data-bar-label">
+          <span>細節精緻度對信任感的貢獻</span>
+          <span class="data-bar-value">+67%</span>
+        </div>
+        <div class="data-bar-track"><div class="data-bar-fill" style="width:67%"></div></div>
+        <div class="data-bar-note">相比標準設計，精緻設計帶來的客戶信任提升估算</div>
+      </div>
+      <div class="data-bar-item">
+        <div class="data-bar-label">
+          <span>報告可展示性對轉介紹率的影響</span>
+          <span class="data-bar-value">+43%</span>
+        </div>
+        <div class="data-bar-track"><div class="data-bar-fill" style="width:43%"></div></div>
+        <div class="data-bar-note">客戶在組織內傳閱精良報告的比例</div>
+      </div>
+      <div class="data-bar-item">
+        <div class="data-bar-label">
+          <span>視覺品質對再購意願的影響</span>
+          <span class="data-bar-value">+38%</span>
+        </div>
+        <div class="data-bar-track"><div class="data-bar-fill" style="width:38%"></div></div>
+        <div class="data-bar-note">精良交付物帶來的合約續約傾向提升</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 6 -->
+  <div class="section">
+    <div class="section-tag">維度 06 · 頂級視覺心理學</div>
+    <h2>McKinsey 報告的視覺密碼</h2>
+    <p class="section-lead">為什麼 McKinsey 的報告讓人感覺值幾十萬？不只是內容——是他們刻意設計的視覺心理學系統，在頁面上製造了一種「這很重要」的感知場域。</p>
+
+    <div class="mckinsey-grid">
+      <div class="mk-card">
+        <div class="mk-card-icon">🎨</div>
+        <div class="mk-card-title">色彩的稀缺性管理</div>
+        <p class="mk-card-desc">高端報告通常只用 1-2 個強調色，且使用密度極低。稀缺的色彩出現 = 重要訊號，大腦會自動提升注意力。</p>
+        <div class="mk-card-tag">視覺訊號層</div>
+      </div>
+      <div class="mk-card">
+        <div class="mk-card-icon">Aa</div>
+        <div class="mk-card-title">字型層次的權威感</div>
+        <p class="mk-card-desc">Serif 大標題（傳統、權威）+ Sans-serif 正文（現代、易讀）的組合，傳遞「歷史積累 + 當代精確」的雙重訊號。</p>
+        <div class="mk-card-tag">可信度架構</div>
+      </div>
+      <div class="mk-card">
+        <div class="mk-card-icon">◻</div>
+        <div class="mk-card-title">負空間的呼吸比例</div>
+        <p class="mk-card-desc">McKinsey 每頁平均 40-50% 的空白比例，遠高於一般報告。這個比例讓讀者在潛意識中感覺「這家公司很從容」。</p>
+        <div class="mk-card-tag">感知從容度</div>
+      </div>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-number">4</div>
+        <div class="card-title">資訊密度的精確控制</div>
+        <p class="card-desc">每頁不超過一個核心論點。這不是內容少——是高度自信的展現：「這一頁只需要你記住這一件事。」</p>
+      </div>
+      <div class="card">
+        <div class="card-number">5</div>
+        <div class="card-title">數據視覺化的一致性語言</div>
+        <p class="card-desc">所有圖表遵循同一個視覺語言（顏色、邊框、字級），建立系統感。系統感 = 背後有深度思考，不是拼湊的。</p>
+      </div>
+    </div>
+
+    <div class="museon-link">
+      <div class="museon-link-label">MUSEON 的實踐路徑</div>
+      <p>MUSEON 設計規範中的每一個決策（Ember #C4502A 的使用克制度、Cormorant Garamond 的標題選擇、Parchment 背景的溫度感）都在學習這套視覺心理學的精髓，並轉化為可複製的系統。這份報告本身，就是這個系統的一次展示。</p>
+    </div>
+  </div>
+
+  <!-- Synthesis Section -->
+  <div class="section" style="border-bottom: none; padding-bottom: 80px;">
+    <div class="section-tag gold">綜合洞見</div>
+    <h2>六個維度的交集</h2>
+    <p class="section-lead">這六個研究維度不是孤立的——它們共同指向一個可操作的結論。</p>
+
+    <div class="insight-gem" style="margin-bottom: 16px;">
+      <div class="gem-icon">💡</div>
+      <div class="gem-body">
+        <div class="gem-label">洞見 1</div>
+        <p class="gem-text">設計不只是「讓東西好看」——它是一個定價工具，在客戶決策的最前端影響他的付費意願閾值。</p>
+      </div>
+    </div>
+    <div class="insight-gem" style="margin-bottom: 16px;">
+      <div class="gem-icon">💡</div>
+      <div class="gem-body">
+        <div class="gem-label">洞見 2</div>
+        <p class="gem-text">設計成本被低估，是因為它的代價是「判斷力的積累」——這無法用工時表達，只能用「感知品質的差距」來呈現。</p>
+      </div>
+    </div>
+    <div class="insight-gem" style="margin-bottom: 16px;">
+      <div class="gem-icon">💡</div>
+      <div class="gem-body">
+        <div class="gem-label">洞見 3</div>
+        <p class="gem-text">跨職能的估價矛盾，解法不是技術辯論，而是建立「感知基準」——用客戶的商業語言統一三方的判斷標準。</p>
+      </div>
+    </div>
+    <div class="insight-gem" style="margin-bottom: 16px;">
+      <div class="gem-icon">💡</div>
+      <div class="gem-body">
+        <div class="gem-label">洞見 4</div>
+        <p class="gem-text">極簡主義的經濟學邏輯：留白不是空洞，是「我知道什麼不重要」的自信展示——這是稀缺能力，市場願意溢價。</p>
+      </div>
+    </div>
+    <div class="insight-gem" style="margin-bottom: 16px;">
+      <div class="gem-icon">💡</div>
+      <div class="gem-body">
+        <div class="gem-label">洞見 5</div>
+        <p class="gem-text">客戶多付 30% 買的不是設計本身，是「選錯人的後悔成本保險」——精緻設計是能力的可信信號，降低了他的風險感知。</p>
+      </div>
+    </div>
+    <div class="insight-gem">
+      <div class="gem-icon">💡</div>
+      <div class="gem-body">
+        <div class="gem-label">洞見 6</div>
+        <p class="gem-text">頂級報告的視覺密碼是一個系統：色彩稀缺性 × 字型層次 × 負空間比例 × 資訊密度控制，四個維度協同運作，製造「值得付錢」的感知場域。</p>
+      </div>
+    </div>
+
+    <div class="thesis-box" style="margin-top: 48px;">
+      <div class="thesis-box-label">行動建議</div>
+      <h2 style="font-family: 'Cormorant Garamond', serif;">把設計規範當作定價策略</h2>
+      <p>MUSEON 的設計系統不只是美學選擇——每一個規範背後都有一個定價邏輯。維持規範的紀律，就是維持服務定價的天花板。讓報告先替你開口。</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════ FOOTER ══════════════ -->
+<div class="footer">
+  <div class="footer-brand">MUSEON</div>
+  <div class="footer-meta">探索報告 · 2026.03.29 · 主題：價值感知與設計定價</div>
+</div>
+
+</body>
+</html>

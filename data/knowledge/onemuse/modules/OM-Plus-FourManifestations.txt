@@ -1,0 +1,324 @@
+{
+  "schema": {
+    "name": "OM-Plus-FourManifestations",
+    "type": "plus_module",
+    "domain": "four_manifestations",
+    "format": "json",
+    "language": "zh-Hant",
+    "version": "v0.2.0",
+    "status": "ITERATED",
+    "updated_at": "2026-01-25",
+    "changelog": [
+      "v0.2.0: 對齊 OM-Plus-EnergyGrammar v0.2.0 的 completeness 與語氣規範（outer 不完整不硬算）。",
+      "v0.2.0: schema/依賴名稱統一（protocols -> M-DNA-Protocols.json；energy_grammar -> OM-Plus-EnergyGrammar.json v0.2.0）。",
+      "v0.2.0: 四象輸出改為『現況形成』語態＋提供可承擔微行動（禪→訣→劍）。"
+    ],
+    "depends_on": {
+      "kernel": "OM-DNA-Kernel.json@v0.1.x",
+      "protocols": "M-DNA-Protocols.json@v0.1.x",
+      "router": "OM-Index-Router.json@v0.1.x",
+      "energy_grammar": "OM-Plus-EnergyGrammar.json@v0.2.0",
+      "eight_directions": "OM-Plus-EightDirections.json@v0.2.0"
+    },
+    "axes": {
+      "names": ["劍", "禪", "訣"],
+      "output_order_default": ["禪", "訣", "劍"]
+    }
+  },
+
+  "module_identity": {
+    "id": "PLUS:FOUR_MANIFESTATIONS",
+    "name": "外顯四象",
+    "purpose": "用『外在能量（outer）』的組合，描述『因自己的行為與經驗累積出來的現況』：顯化／貴人／規劃／掌握。",
+    "step_support": [2],
+    "tags": [
+      "external_state",
+      "situation_snapshot",
+      "manifestation",
+      "benefactors",
+      "planning",
+      "control"
+    ]
+  },
+
+  "config": {
+    "data_origin_rules": {
+      "outer": {
+        "source": "derived",
+        "required": true,
+        "rule": "四象只讀取外在能量 outer（上游依『抽牌方位位置×牌左側方位』換算完成）；本模組不負責換算。"
+      }
+    },
+
+    "score_method": {
+      "default": "simple_sum",
+      "allowed": ["simple_sum", "weighted_sum", "mean", "min", "max"],
+      "note": "四象預設為三個方位 outer 直接加總（simple_sum）。Router 可覆寫權重或方法。"
+    },
+
+    "mapping": {
+      "note": "四象 = 3 個方位的外在能量（outer）加總；每方位 outer 刻度 -4..-1,+1..+4，因此每象理論範圍 -12..+12。",
+      "manifestation": {
+        "name": "顯化",
+        "directions": ["火", "澤", "天"],
+        "weights": {"火": 1, "澤": 1, "天": 1},
+        "description": "顯化：把意圖落地、把想法做成可見成果的外在推進。"
+      },
+      "benefactors": {
+        "name": "貴人",
+        "directions": ["天", "風", "水"],
+        "weights": {"天": 1, "風": 1, "水": 1},
+        "description": "貴人：外部資源、人脈、合作與機會匯流（多由互動與信任累積）。"
+      },
+      "planning": {
+        "name": "規劃",
+        "directions": ["地", "雷", "火"],
+        "weights": {"地": 1, "雷": 1, "火": 1},
+        "description": "規劃：把路徑拆解、設定節奏、在不確定中做出可走的路。"
+      },
+      "control": {
+        "name": "掌握",
+        "directions": ["水", "山", "地"],
+        "weights": {"水": 1, "山": 1, "地": 1},
+        "description": "掌握：把事情拿回來（界線、節律、承載與可交付），避免被追著跑。"
+      }
+    },
+
+    "banding": {
+      "note": "以理論範圍 -12..+12 固定分段（可由 Router 覆寫）。",
+      "method": "fixed_by_theoretical_range",
+      "theoretical_range": {"min": -12, "max": 12},
+      "ranges": {
+        "very_low": {"lte": -9, "label": "明顯不足"},
+        "low": {"between": [-8, -3], "label": "偏弱"},
+        "mixed": {"between": [-2, 2], "label": "混合/搖擺"},
+        "high": {"between": [3, 8], "label": "偏強"},
+        "very_high": {"gte": 9, "label": "過強/過載"}
+      },
+      "interpretation_note": "偏強不等於好（可能過載/靠意志硬撐）；偏弱不等於壞（可能缺資源/正在回收）。"
+    },
+
+    "language_guard": {
+      "banned_phrases": ["好", "壞", "對", "錯", "保證", "注定"],
+      "preferred_phrases": ["偏移", "可用度", "代價", "現況形成", "可調整"]
+    },
+
+    "completeness_policy": {
+      "statuses": ["COMPLETE", "INCOMPLETE"],
+      "fields": {
+        "outer": "四象所需方位 outer 是否齊全",
+        "scores": "分數是否可計算"
+      },
+      "fallback_rules": [
+        "若某一象所需的任何方位 outer 缺失：該象 score=null、band='INCOMPLETE'、completeness='INCOMPLETE'，並輸出需要補齊的方位清單。",
+        "其他象若 outer 完整則可正常輸出。",
+        "若四象全部 INCOMPLETE：僅輸出 completeness_notice，不做推論。"
+      ]
+    },
+
+    "micro_actions_pool": {
+      "manifestation": [
+        "把目標拆成『可交付物』：今天做出一個可看見的雛形（最小版本）。",
+        "設一個 30 分鐘『顯化窗口』：只做產出，不做研究與比較。",
+        "把『想做』改成『交付』：寫下你要交付給誰、交付什麼、什麼時候。"
+      ],
+      "benefactors": [
+        "列出 3 個你需要的資源（資訊/人/渠道），各找 1 個人問一次。",
+        "把求助訊息寫成 3 句：你在做什麼、你卡在哪、你希望對方提供什麼。",
+        "做一個『互惠名單』：5 個你願意長期互惠的人，先主動給出一個小價值。"
+      ],
+      "planning": [
+        "把未來 2 週只排 3 件事：一件必做、一件加分、一件恢復。",
+        "寫『路徑假設』：A 路線要花什麼、失去什麼、驗證點是什麼。",
+        "做『節奏表』：每週固定 2 個深工時段，不再用意志硬撐。"
+      ],
+      "control": [
+        "列出你目前能掌控的 3 件事，先砍掉 1 件你其實掌控不了的。",
+        "設定界線：你願意交付到什麼程度、超過就要重新談條件。",
+        "把『被追著跑』改成『主動回覆窗口』：每天兩個固定時段回訊息。"
+      ]
+    }
+  },
+
+  "io_contract": {
+    "inputs": {
+      "required": ["directions"],
+      "optional": ["user_state"],
+      "shape": {
+        "directions": {
+          "<dir>": {
+            "outer": "number",
+            "notes": "string (optional)"
+          }
+        }
+      },
+      "assumptions": [
+        "directions[*].outer 為上游換算完成的外在能量（-4..-1,+1..+4）。",
+        "本模組只用 outer；不依賴 inner。"
+      ]
+    },
+
+    "outputs": {
+      "signals": ["four_manifestations"],
+      "shape": {
+        "four_manifestations": {
+          "manifestation": {
+            "score": "number|null",
+            "band": "string",
+            "summary": "string",
+            "completeness": "COMPLETE|INCOMPLETE",
+            "missing_dirs": "array<string>"
+          },
+          "benefactors": {
+            "score": "number|null",
+            "band": "string",
+            "summary": "string",
+            "completeness": "COMPLETE|INCOMPLETE",
+            "missing_dirs": "array<string>"
+          },
+          "planning": {
+            "score": "number|null",
+            "band": "string",
+            "summary": "string",
+            "completeness": "COMPLETE|INCOMPLETE",
+            "missing_dirs": "array<string>"
+          },
+          "control": {
+            "score": "number|null",
+            "band": "string",
+            "summary": "string",
+            "completeness": "COMPLETE|INCOMPLETE",
+            "missing_dirs": "array<string>"
+          }
+        }
+      },
+      "explainers": [
+        "four_manifestations_overview",
+        "four_manifestations_actions",
+        "four_manifestations_completeness_notice"
+      ]
+    },
+
+    "guards": {
+      "must_include": [
+        "四象各自用『現況形成』語態描述（因行為與經驗累積）",
+        "至少 1 個可承擔微行動（LOW 狀態也能做完）",
+        "避免好壞評價與命定語氣",
+        "若有 INCOMPLETE：必須指出缺哪個方位 outer"
+      ],
+      "forbidden": [
+        "outer 缺失時硬算並裝作確定",
+        "把四象當作人格定論",
+        "保證貴人/顯化一定發生"
+      ]
+    }
+  },
+
+  "procedures": {
+    "compute_scores": {
+      "steps": [
+        "for each aspect in mapping:",
+        "  dirs = mapping[aspect].directions",
+        "  missing = dirs where directions[dir].outer is null/undefined",
+        "  if missing not empty:",
+        "    set score=null, band='INCOMPLETE', completeness='INCOMPLETE', missing_dirs=missing",
+        "    summary='外在能量尚未完整提供（需要補齊：' + join(missing) + '），因此此象暫不判定。'",
+        "  else:",
+        "    score = sum(outer[dir] * weight[dir])",
+        "    band = assign_by_banding(score)",
+        "    completeness='COMPLETE', missing_dirs=[]",
+        "    summary = build_neutral_summary(aspect, score, band)"
+      ]
+    },
+
+    "compose_overview": {
+      "steps": [
+        "if all aspects completeness == 'INCOMPLETE':",
+        "  overview='外在能量尚未完成換算/補齊，因此四象暫不判定；請先補齊所需方位 outer 後再讀。'",
+        "else:",
+        "  among COMPLETE aspects find highest and lowest scores",
+        "  overview='目前外顯現況的重心偏在：' + highest.aspect + '；相對較弱的是：' + lowest.aspect + '。這不是好壞，而是現況形成與代價的分佈。'",
+        "  if any INCOMPLETE: append '（另有部分象因 outer 缺失而暫不判定）'"
+      ]
+    },
+
+    "select_actions": {
+      "steps": [
+        "actions = {}",
+        "for each aspect:",
+        "  if completeness == 'INCOMPLETE': actions[aspect]=['先補齊該象所需的外在能量（outer），再回來判讀。']",
+        "  else:",
+        "    if user_state == 'LOW': actions[aspect]=[first micro_actions_pool[aspect]]",
+        "    else: actions[aspect]=take up to 3 micro_actions_pool[aspect]",
+        "return actions"
+      ]
+    },
+
+    "completeness_notice": {
+      "steps": [
+        "if any aspect completeness == 'INCOMPLETE':",
+        "  notice='提醒：四象只使用外在能量 outer（需上游換算）。本次缺失的方位 outer：' + list_missing",
+        "else:",
+        "  notice=null"
+      ]
+    }
+  },
+
+  "output_templates": {
+    "zen": {
+      "default": [
+        "這一段看的是『外顯四象』：它不是你的人格，而是你在這段時間用行為與經驗累積出來的現況。",
+        "我們先不評價好壞，只看：哪一象可用、哪一象在漏能量、以及代價在哪。"
+      ],
+      "low_state": [
+        "如果你現在很累，我們只抓一個最小可做的動作，把其中一象先拉回可用。"
+      ]
+    },
+
+    "ketsu": {
+      "default": [
+        "四象分數來自 3 個方位的『外在能量（outer）』加總（理論範圍 -12..+12）。",
+        "外在能量不是牌面直接數字，而是需要先完成『抽牌方位位置×牌左側方位』換算後才能使用。",
+        "分數高不等於好，可能代表過載或靠意志硬撐；分數低也不等於壞，可能是缺資源或在回收。"
+      ],
+      "completeness_notice": [
+        "補充：本次四象中有部分外在能量尚未補齊，因此那一象我會標註 INCOMPLETE，不做推論。"
+      ]
+    },
+
+    "sword": {
+      "default": [
+        "最小一步：先從『最弱的一象（且資料完整）』挑 1 個動作做（今天能做完的那種），讓整體現況先回到可用。"
+      ]
+    }
+  },
+
+  "exports": {
+    "signals_written": ["four_manifestations"],
+    "explainers_written": [
+      "four_manifestations_overview",
+      "four_manifestations_actions",
+      "four_manifestations_completeness_notice"
+    ]
+  },
+
+  "links": {
+    "protocols": ["P:K2.S1.STATE_DETECT", "P:K4.S1.INDEX_FIRST"],
+    "recommended_routes": ["R:2.FOUR_MANIFESTATIONS"],
+    "neighbor_modules": [
+      "PLUS:ENERGY_GRAMMAR",
+      "PLUS:SUM_COMPARE_SEED_RULE",
+      "PLUS:FOUR_FEELINGS",
+      "PLUS:FOUR_AXES_MBTI",
+      "PLUS:EIGHT_DIRECTIONS_TRIPLE_LAYER"
+    ],
+    "crystals": {
+      "placeholders": [
+        "CR:AEO.FOUR_MANIFESTATIONS.001",
+        "CR:AEO.OUTER_DERIVATION_RULE.001",
+        "CR:GEO.EXTERNAL_STATE_FORMATION.001"
+      ],
+      "note": "待 OM-Cry 建立後，以實際 crystal_id 取代 placeholders。"
+    }
+  }
+}

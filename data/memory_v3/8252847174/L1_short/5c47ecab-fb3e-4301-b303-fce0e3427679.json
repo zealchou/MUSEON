@@ -1,0 +1,24 @@
+{
+  "id": "5c47ecab-fb3e-4301-b303-fce0e3427679",
+  "content": "[失敗經驗] 任務：[群組近期對話紀錄]\n  55:50 老闆（老闆）: 沒 token了\n  55:56 老闆（老闆）: 凌晨再來玩\n  55:52 Feng: Okok\n  25:42 老闆（老闆）: 欸？ 在你的群\n失敗類型：general_failure\n回應片段：可以，這 10 題幫你設計成「從懷疑到好奇」的漸進結構，讓理性型聽眾跟著對話自然打開：\n\n---\n\n**開場破冰（建立共鳴）**\n\n1. **你第一次接觸八字的時候，自己信嗎？** —— 讓來賓先承認自己也曾懷疑，拉近跟聽眾的距離。\n\n2. **身邊的人知道你在做命理，最常給你什麼反應？** —— 把「被質疑」的經驗搬上台，聽眾會覺得「對，我也是這樣想的」。\n\n3. **算命跟命理分析，你自己怎麼",
+  "layer": "L1_short",
+  "tags": [
+    "failure",
+    "anti_pattern",
+    "general_failure"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-03-29T16:24:40.146962+08:00",
+  "updated_at": "2026-03-29T16:24:40.146962+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "failure_distill",
+  "outcome": "failed",
+  "user_id": "8252847174",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

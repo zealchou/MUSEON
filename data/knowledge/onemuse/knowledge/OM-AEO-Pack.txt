@@ -1,0 +1,2967 @@
+{
+  "meta": {
+    "pack_id": "OM-AEO-Pack",
+    "version": "0.2.0",
+    "language": "zh-Hant",
+    "updated_at": "2026-01-25",
+    "purpose": "One Muse Custom GPT è¡Œå‹•åŒ…ï¼ˆAEOï¼‰ï¼šæä¾› 64 å¼µç‰Œå°æ‡‰çš„æ•™ç·´æå•èˆ‡å¾®è¡Œå‹•ç·´ç¿’ï¼Œç”¨æ–¼è§£ç›¤ Step6ï¼ˆè¡Œå‹•æ–¹æ¡ˆï¼‰èˆ‡ Step7ï¼ˆè‡ªæˆ‘ç¸½çµï¼‰ã€‚æ­¤æª”ä¿æŒè¼•é‡ï¼šä¸é‡è¤‡é•·ç¯‡ç‰Œç¾©ï¼Œå¿…è¦æ™‚ä»¥ knowledge_pack_ref å›žæŸ¥ OM-Knowledge-Packã€‚",
+    "depends_on": {
+      "knowledge_pack": "OM-Knowledge-Pack.v0.1.1.json"
+    },
+    "generation_note": "æœ¬ç‰ˆæœ¬ä»¥ geo64.entries[*].om_primary.i_ching.raw_block ä¸­çš„é—œéµè©žï¼ˆè‹¥å­˜åœ¨ã€Žâ€¦ã€ï¼‰ç”Ÿæˆæ¨™é¡Œï¼›å•å¥èˆ‡å¾®è¡Œå‹•æŽ¡ä¸­ç«‹æ•™ç·´èªžæ³•æ¨¡æ¿ï¼Œä¸¦ä¾èƒ½é‡æ­£è² åšè¼•é‡èª¿æ•´ã€‚"
+  },
+  "policies": {
+    "safety": {
+      "no_medical_or_legal_claims": true,
+      "no_deterministic_fate": true,
+      "keep_user_agency": true,
+      "micro_action_first": true
+    },
+    "formatting": {
+      "coach_questions_max": 3,
+      "micro_action_max": 1,
+      "micro_action_timebox_minutes_default": 15,
+      "language_style": "neutral_coaching"
+    }
+  },
+  "direction_core": {
+    "å¤©": {
+      "title": "ä¸»æ¬Šèˆ‡æ‰¿è«¾",
+      "coach_questions": [
+        "é€™å…­å€‹æœˆæˆ‘çœŸæ­£æƒ³è² è²¬çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "æˆ‘é¡˜æ„ä¸åšçš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ä»Šå¤©æœ€å°çš„ã€Žæ‰¿è«¾å¥ã€æ˜¯ä»€éº¼ï¼Ÿ"
+      ],
+      "micro_action": "å¯«ä¸‹ 1 å¥æ‰¿è«¾ï¼ˆå¯è¡¡é‡ï¼‰ï¼‹ 1 å¥ç•Œç·šï¼ˆä¸åšä»€éº¼ï¼‰ï¼Œå‚³çµ¦ 1 ä½è¦‹è­‰è€…ã€‚",
+      "tags": [
+        "direction:å¤©",
+        "need:ä¸»æ¬Š",
+        "need:æ‰¿è«¾",
+        "stage:step6"
+      ]
+    },
+    "é¢¨": {
+      "title": "å‚¾è½èˆ‡å…±è­˜",
+      "coach_questions": [
+        "æˆ‘çœŸæ­£æƒ³è¢«å¦‚ä½•ç†è§£ï¼Ÿ",
+        "å°æ–¹æ­¤åˆ»æœ€åœ¨æ„çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "æˆ‘èƒ½ç”¨ä¸€å¥ã€Žæˆ‘è½è¦‹â€¦æ˜¯å¦æ­£ç¢ºï¼Ÿã€ä¾†å°é½Šå—Žï¼Ÿ"
+      ],
+      "micro_action": "åš 1 æ¬¡å›žè²ç¢ºèªï¼šç”¨å°æ–¹çš„è©±é‡è¿°é‡é»žä¸¦è«‹å°æ–¹æ ¡æ­£ã€‚",
+      "tags": [
+        "direction:é¢¨",
+        "need:æºé€š",
+        "need:å…±è­˜",
+        "stage:step6"
+      ]
+    },
+    "æ°´": {
+      "title": "å…±æƒ…èˆ‡éœ€æ±‚",
+      "coach_questions": [
+        "æ­¤åˆ»æˆ‘æ„Ÿè¦ºåˆ°çš„æ˜¯ä»€éº¼ï¼Ÿï¼ˆå‘½åï¼‰",
+        "å°æ–¹çœŸæ­£çš„éœ€æ±‚å¯èƒ½æ˜¯ä»€éº¼ï¼Ÿ",
+        "æˆ‘èƒ½åšçš„ã€Žä¸€å€‹ã€å°æ‡‰è¡Œå‹•æ˜¯ä»€éº¼ï¼Ÿ"
+      ],
+      "micro_action": "ä¸»å‹•åš 1 å€‹ã€Žå°éœ€æ±‚çš„å›žæ‡‰ã€ï¼šç¢ºèªéœ€æ±‚â†’çµ¦å‡ºä¸€å€‹å¯å®Œæˆå›žæ‡‰ã€‚",
+      "tags": [
+        "direction:æ°´",
+        "need:å…±æƒ…",
+        "need:éœ€æ±‚",
+        "stage:step6"
+      ]
+    },
+    "å±±": {
+      "title": "ç•Œç·šèˆ‡ç§©åº",
+      "coach_questions": [
+        "æˆ‘éœ€è¦å®ˆä½çš„ç•Œç·šæ˜¯ä»€éº¼ï¼Ÿ",
+        "æˆ‘ç¾åœ¨æœ€è©²å…ˆåœä¸‹ä¾†æ•´ç†çš„æ˜¯å“ªä¸€å¡Šï¼Ÿ",
+        "æˆ‘èƒ½ç‚ºæµç¨‹/æ—¥å¸¸å»ºç«‹ä¸€å€‹ 3 åˆ†é˜å„€å¼å—Žï¼Ÿ"
+      ],
+      "micro_action": "å¯« 1 å¥ç•Œç·šèªžï¼‹å»ºç«‹ 1 å€‹ 3 åˆ†é˜å„€å¼ï¼ˆæ”¶ç´/å¾©ç›¤/è¦åŠƒï¼‰ã€‚",
+      "tags": [
+        "direction:å±±",
+        "need:ç•Œç·š",
+        "need:ç§©åº",
+        "stage:step6"
+      ]
+    },
+    "åœ°": {
+      "title": "æ‰¿è¼‰èˆ‡æ»‹é¤Š",
+      "coach_questions": [
+        "æˆ‘æ­£åœ¨æ‰¿æŽ¥ä»€éº¼ï¼Ÿå®ƒåˆç†å—Žï¼Ÿ",
+        "æˆ‘èƒ½æŠŠè² æ“”äº¤é‚„åˆ°å“ªè£¡ï¼Ÿ",
+        "æˆ‘ä»Šå¤©é¡˜æ„å°è‡ªå·±å¥½çš„ä¸€ä»¶äº‹æ˜¯ä»€éº¼ï¼Ÿ"
+      ],
+      "micro_action": "åš 1 å€‹æ»‹é¤Šå‹•ä½œï¼ˆç¡/åƒ/èµ°/æ³¡/æ•´ç†ï¼‰ä¸¦å¯«ä¸‹ã€Žæˆ‘å€¼å¾—è¢«æ‰¿è¼‰ã€ä¸€å¥è©±ã€‚",
+      "tags": [
+        "direction:åœ°",
+        "need:æ‰¿è¼‰",
+        "need:æ»‹é¤Š",
+        "stage:step6"
+      ]
+    },
+    "é›·": {
+      "title": "å•Ÿå‹•èˆ‡çªç ´",
+      "coach_questions": [
+        "æœ€å°ç¬¬ä¸€æ­¥æ˜¯ä»€éº¼ï¼Ÿ",
+        "å¦‚æžœåªåš 2 åˆ†é˜ï¼Œæˆ‘æœƒåšä»€éº¼ï¼Ÿ",
+        "æˆ‘éœ€è¦å“ªä¸€å€‹è­·æ¬„ä¾†æŽ§é¢¨éšªï¼Ÿ"
+      ],
+      "micro_action": "è¨­å®š 2 åˆ†é˜è¨ˆæ™‚ç«‹åˆ»é–‹å§‹ï¼Œä¸¦è£œä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™ï¼‰ã€‚",
+      "tags": [
+        "direction:é›·",
+        "need:å•Ÿå‹•",
+        "need:çªç ´",
+        "stage:step6"
+      ]
+    },
+    "ç«": {
+      "title": "å·¥å…·èˆ‡æ±‚æ•‘",
+      "coach_questions": [
+        "æˆ‘éœ€è¦çš„å”åŠ©æ˜¯ä»€éº¼ï¼Ÿï¼ˆå…·é«”ï¼‰",
+        "æˆ‘å¯ä»¥å‘èª°æ±‚æ•‘ï¼Ÿ",
+        "æˆ‘é¡˜æ„äº¤ä»˜ä»€éº¼ä½œç‚ºäº¤æ›ï¼Ÿ"
+      ],
+      "micro_action": "ç™¼å‡º 1 å‰‡å…·é«”æ±‚åŠ©è¨Šæ¯ï¼ˆéœ€æ±‚+æœŸé™+äº¤ä»˜ï¼‰ã€‚",
+      "tags": [
+        "direction:ç«",
+        "need:å·¥å…·",
+        "need:æ±‚æ•‘",
+        "stage:step6"
+      ]
+    },
+    "æ¾¤": {
+      "title": "é€£çµèˆ‡å›žé¥‹",
+      "coach_questions": [
+        "æˆ‘æƒ³é€£çµçš„æ˜¯èª°ï¼Ÿ",
+        "æˆ‘æƒ³è¢«çœ‹è¦‹çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "æˆ‘é¡˜æ„å…ˆä»˜å‡ºçš„äº’å‹•æ˜¯ä»€éº¼ï¼Ÿ"
+      ],
+      "micro_action": "åš 1 å€‹ä½Žæˆæœ¬äº’å‹•ï¼ˆç•™è¨€/åˆ†äº«/ç§è¨Š/é‚€ç´„ï¼‰ä¸¦æ”¶å›ž 1 å€‹å›žé¥‹ã€‚",
+      "tags": [
+        "direction:æ¾¤",
+        "need:é€£çµ",
+        "need:å›žé¥‹",
+        "stage:step6"
+      ]
+    }
+  },
+  "cards": [
+    {
+      "card_id": "AEO-01",
+      "hex_key": "å±±å±±",
+      "direction_hint": "å±±",
+      "title": "è‡ªåˆ¶åŠ›ï½œå±±å±±",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žè‡ªåˆ¶åŠ›ã€é †å‹¢æ™‚ï¼Œæˆ‘å¯ä»¥ç”¨ä»€éº¼æ–¹å¼æŠŠå®ƒè½åœ°è€Œä¸é€æ”¯ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "å¯« 1 å¥ç•Œç·šèªžï¼‹å»ºç«‹ 1 å€‹ 3 åˆ†é˜å„€å¼ï¼ˆæ”¶ç´/å¾©ç›¤/è¦åŠƒï¼‰ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:å±±",
+        "stage:step6",
+        "gate:52",
+        "energy:positive",
+        "energy:4"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[0]",
+        "gate": 52
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-02",
+      "hex_key": "å±±å¤©",
+      "direction_hint": "å¤©",
+      "title": "å±±å¤©ï½œè¡Œå‹•å¡",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "æˆ‘ç¾åœ¨æœ€å®¹æ˜“å¤±è¡¡çš„åœ°æ–¹æ˜¯ä»€éº¼ï¼Ÿæˆ‘éœ€è¦çš„è­·æ¬„æ˜¯ä»€éº¼ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ­¥é©Ÿå…ˆæ­¢è¡€/å›žç©©ï¼Ÿ"
+      ],
+      "micro_action": "å¯«ä¸‹ 1 å¥æ‰¿è«¾ï¼ˆå¯è¡¡é‡ï¼‰ï¼‹ 1 å¥ç•Œç·šï¼ˆä¸åšä»€éº¼ï¼‰ï¼Œå‚³çµ¦ 1 ä½è¦‹è­‰è€…ã€‚ åŒæ™‚åŠ ä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™/ç•Œç·šå¥ï¼‰ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:å¤©",
+        "stage:step6",
+        "gate:26",
+        "energy:negative",
+        "energy:-3"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[1]",
+        "gate": 26
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-03",
+      "hex_key": "å±±æ°´",
+      "direction_hint": "æ°´",
+      "title": "å±±æ°´ï½œè¡Œå‹•å¡",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "æˆ‘ç¾åœ¨æœ€å®¹æ˜“å¤±è¡¡çš„åœ°æ–¹æ˜¯ä»€éº¼ï¼Ÿæˆ‘éœ€è¦çš„è­·æ¬„æ˜¯ä»€éº¼ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ­¥é©Ÿå…ˆæ­¢è¡€/å›žç©©ï¼Ÿ"
+      ],
+      "micro_action": "ä¸»å‹•åš 1 å€‹ã€Žå°éœ€æ±‚çš„å›žæ‡‰ã€ï¼šç¢ºèªéœ€æ±‚â†’çµ¦å‡ºä¸€å€‹å¯å®Œæˆå›žæ‡‰ã€‚ åŒæ™‚åŠ ä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™/ç•Œç·šå¥ï¼‰ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:æ°´",
+        "stage:step6",
+        "gate:4",
+        "energy:negative",
+        "energy:-1"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[2]",
+        "gate": 4
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-04",
+      "hex_key": "å±±ç«",
+      "direction_hint": "ç«",
+      "title": "å’Œè—¹ï½œå±±ç«",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žå’Œè—¹ã€é †å‹¢æ™‚ï¼Œæˆ‘å¯ä»¥ç”¨ä»€éº¼æ–¹å¼æŠŠå®ƒè½åœ°è€Œä¸é€æ”¯ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "ç™¼å‡º 1 å‰‡å…·é«”æ±‚åŠ©è¨Šæ¯ï¼ˆéœ€æ±‚+æœŸé™+äº¤ä»˜ï¼‰ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:ç«",
+        "stage:step6",
+        "gate:22",
+        "energy:positive",
+        "energy:3"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[3]",
+        "gate": 22
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-05",
+      "hex_key": "å±±åœ°",
+      "direction_hint": "åœ°",
+      "title": "æ¥µç°¡ï½œå±±åœ°",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žæ¥µç°¡ã€é †å‹¢æ™‚ï¼Œæˆ‘å¯ä»¥ç”¨ä»€éº¼æ–¹å¼æŠŠå®ƒè½åœ°è€Œä¸é€æ”¯ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "åš 1 å€‹æ»‹é¤Šå‹•ä½œï¼ˆç¡/åƒ/èµ°/æ³¡/æ•´ç†ï¼‰ä¸¦å¯«ä¸‹ã€Žæˆ‘å€¼å¾—è¢«æ‰¿è¼‰ã€ä¸€å¥è©±ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:åœ°",
+        "stage:step6",
+        "gate:23",
+        "energy:positive",
+        "energy:1"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[4]",
+        "gate": 23
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-06",
+      "hex_key": "å±±é¢¨",
+      "direction_hint": "é¢¨",
+      "title": "æ­£ç›´ï½œå±±é¢¨",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žæ­£ç›´ã€å¤±è¡¡æ™‚ï¼Œæˆ‘æœƒç”¨å“ªç¨®æ–¹å¼ç¡¬æ’æˆ–é€€ç¸®ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ­¥é©Ÿå…ˆæ­¢è¡€/å›žç©©ï¼Ÿ"
+      ],
+      "micro_action": "åš 1 æ¬¡å›žè²ç¢ºèªï¼šç”¨å°æ–¹çš„è©±é‡è¿°é‡é»žä¸¦è«‹å°æ–¹æ ¡æ­£ã€‚ åŒæ™‚åŠ ä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™/ç•Œç·šå¥ï¼‰ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:é¢¨",
+        "stage:step6",
+        "gate:18",
+        "energy:negative",
+        "energy:-2"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[5]",
+        "gate": 18
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-07",
+      "hex_key": "å±±é›·",
+      "direction_hint": "é›·",
+      "title": "å±±é›·ï½œè¡Œå‹•å¡",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "æˆ‘ç¾åœ¨æœ€è©²æŠŠåŠ›æ°£ç”¨åœ¨å“ªä¸€ä»¶äº‹ï¼Œæ‰æœƒæœ‰å›žå ±ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "è¨­å®š 2 åˆ†é˜è¨ˆæ™‚ç«‹åˆ»é–‹å§‹ï¼Œä¸¦è£œä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™ï¼‰ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:é›·",
+        "stage:step6",
+        "gate:27",
+        "energy:positive",
+        "energy:2"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[6]",
+        "gate": 27
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-08",
+      "hex_key": "å±±æ¾¤",
+      "direction_hint": "æ¾¤",
+      "title": "é æ„Ÿï½œå±±æ¾¤",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žé æ„Ÿã€å¤±è¡¡æ™‚ï¼Œæˆ‘æœƒç”¨å“ªç¨®æ–¹å¼ç¡¬æ’æˆ–é€€ç¸®ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ­¥é©Ÿå…ˆæ­¢è¡€/å›žç©©ï¼Ÿ"
+      ],
+      "micro_action": "åš 1 å€‹ä½Žæˆæœ¬äº’å‹•ï¼ˆç•™è¨€/åˆ†äº«/ç§è¨Š/é‚€ç´„ï¼‰ä¸¦æ”¶å›ž 1 å€‹å›žé¥‹ã€‚ åŒæ™‚åŠ ä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™/ç•Œç·šå¥ï¼‰ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:æ¾¤",
+        "stage:step6",
+        "gate:41",
+        "energy:negative",
+        "energy:-4"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[7]",
+        "gate": 41
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-09",
+      "hex_key": "å¤©å±±",
+      "direction_hint": "å±±",
+      "title": "è¬¹æ…Žï½œå¤©å±±",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žè¬¹æ…Žã€é †å‹¢æ™‚ï¼Œæˆ‘å¯ä»¥ç”¨ä»€éº¼æ–¹å¼æŠŠå®ƒè½åœ°è€Œä¸é€æ”¯ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "å¯« 1 å¥ç•Œç·šèªžï¼‹å»ºç«‹ 1 å€‹ 3 åˆ†é˜å„€å¼ï¼ˆæ”¶ç´/å¾©ç›¤/è¦åŠƒï¼‰ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:å±±",
+        "stage:step6",
+        "gate:33",
+        "energy:positive",
+        "energy:3"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[8]",
+        "gate": 33
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-10",
+      "hex_key": "å¤©å¤©",
+      "direction_hint": "å¤©",
+      "title": "å¤©å¤©ï½œè¡Œå‹•å¡",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "æˆ‘ç¾åœ¨æœ€è©²æŠŠåŠ›æ°£ç”¨åœ¨å“ªä¸€ä»¶äº‹ï¼Œæ‰æœƒæœ‰å›žå ±ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "å¯«ä¸‹ 1 å¥æ‰¿è«¾ï¼ˆå¯è¡¡é‡ï¼‰ï¼‹ 1 å¥ç•Œç·šï¼ˆä¸åšä»€éº¼ï¼‰ï¼Œå‚³çµ¦ 1 ä½è¦‹è­‰è€…ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:å¤©",
+        "stage:step6",
+        "gate:1",
+        "energy:positive",
+        "energy:4"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[9]",
+        "gate": 1
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-11",
+      "hex_key": "å¤©æ°´",
+      "direction_hint": "æ°´",
+      "title": "å¤©æ°´ï½œè¡Œå‹•å¡",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "æˆ‘ç¾åœ¨æœ€è©²æŠŠåŠ›æ°£ç”¨åœ¨å“ªä¸€ä»¶äº‹ï¼Œæ‰æœƒæœ‰å›žå ±ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "ä¸»å‹•åš 1 å€‹ã€Žå°éœ€æ±‚çš„å›žæ‡‰ã€ï¼šç¢ºèªéœ€æ±‚â†’çµ¦å‡ºä¸€å€‹å¯å®Œæˆå›žæ‡‰ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:æ°´",
+        "stage:step6",
+        "gate:6",
+        "energy:positive",
+        "energy:2"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[10]",
+        "gate": 6
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-12",
+      "hex_key": "å¤©ç«",
+      "direction_hint": "ç«",
+      "title": "æ´žå¯ŸåŠ›ï½œå¤©ç«",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žæ´žå¯ŸåŠ›ã€å¤±è¡¡æ™‚ï¼Œæˆ‘æœƒç”¨å“ªç¨®æ–¹å¼ç¡¬æ’æˆ–é€€ç¸®ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ­¥é©Ÿå…ˆæ­¢è¡€/å›žç©©ï¼Ÿ"
+      ],
+      "micro_action": "ç™¼å‡º 1 å‰‡å…·é«”æ±‚åŠ©è¨Šæ¯ï¼ˆéœ€æ±‚+æœŸé™+äº¤ä»˜ï¼‰ã€‚ åŒæ™‚åŠ ä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™/ç•Œç·šå¥ï¼‰ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:ç«",
+        "stage:step6",
+        "gate:13",
+        "energy:negative",
+        "energy:-2"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[11]",
+        "gate": 13
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-13",
+      "hex_key": "å¤©åœ°",
+      "direction_hint": "åœ°",
+      "title": "åˆ¤æ–·åŠ›ï½œå¤©åœ°",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žåˆ¤æ–·åŠ›ã€å¤±è¡¡æ™‚ï¼Œæˆ‘æœƒç”¨å“ªç¨®æ–¹å¼ç¡¬æ’æˆ–é€€ç¸®ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ­¥é©Ÿå…ˆæ­¢è¡€/å›žç©©ï¼Ÿ"
+      ],
+      "micro_action": "åš 1 å€‹æ»‹é¤Šå‹•ä½œï¼ˆç¡/åƒ/èµ°/æ³¡/æ•´ç†ï¼‰ä¸¦å¯«ä¸‹ã€Žæˆ‘å€¼å¾—è¢«æ‰¿è¼‰ã€ä¸€å¥è©±ã€‚ åŒæ™‚åŠ ä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™/ç•Œç·šå¥ï¼‰ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:åœ°",
+        "stage:step6",
+        "gate:12",
+        "energy:negative",
+        "energy:-4"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[12]",
+        "gate": 12
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-14",
+      "hex_key": "å¤©é¢¨",
+      "direction_hint": "é¢¨",
+      "title": "å¼•å°Žçœ¾äººåˆç¾¤ï½œå¤©é¢¨",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žå¼•å°Žçœ¾äººåˆç¾¤ã€é †å‹¢æ™‚ï¼Œæˆ‘å¯ä»¥ç”¨ä»€éº¼æ–¹å¼æŠŠå®ƒè½åœ°è€Œä¸é€æ”¯ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "åš 1 æ¬¡å›žè²ç¢ºèªï¼šç”¨å°æ–¹çš„è©±é‡è¿°é‡é»žä¸¦è«‹å°æ–¹æ ¡æ­£ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:é¢¨",
+        "stage:step6",
+        "gate:44",
+        "energy:positive",
+        "energy:1"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[13]",
+        "gate": 44
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-15",
+      "hex_key": "å¤©é›·",
+      "direction_hint": "é›·",
+      "title": "å—æ­¡è¿Žï½œå¤©é›·",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žå—æ­¡è¿Žã€å¤±è¡¡æ™‚ï¼Œæˆ‘æœƒç”¨å“ªç¨®æ–¹å¼ç¡¬æ’æˆ–é€€ç¸®ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ­¥é©Ÿå…ˆæ­¢è¡€/å›žç©©ï¼Ÿ"
+      ],
+      "micro_action": "è¨­å®š 2 åˆ†é˜è¨ˆæ™‚ç«‹åˆ»é–‹å§‹ï¼Œä¸¦è£œä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™ï¼‰ã€‚ åŒæ™‚åŠ ä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™/ç•Œç·šå¥ï¼‰ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:é›·",
+        "stage:step6",
+        "gate:25",
+        "energy:negative",
+        "energy:-3"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[14]",
+        "gate": 25
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-16",
+      "hex_key": "å¤©æ¾¤",
+      "direction_hint": "æ¾¤",
+      "title": "å¤©ç„¶ï½œå¤©æ¾¤",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žå¤©ç„¶ã€å¤±è¡¡æ™‚ï¼Œæˆ‘æœƒç”¨å“ªç¨®æ–¹å¼ç¡¬æ’æˆ–é€€ç¸®ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ­¥é©Ÿå…ˆæ­¢è¡€/å›žç©©ï¼Ÿ"
+      ],
+      "micro_action": "åš 1 å€‹ä½Žæˆæœ¬äº’å‹•ï¼ˆç•™è¨€/åˆ†äº«/ç§è¨Š/é‚€ç´„ï¼‰ä¸¦æ”¶å›ž 1 å€‹å›žé¥‹ã€‚ åŒæ™‚åŠ ä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™/ç•Œç·šå¥ï¼‰ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:æ¾¤",
+        "stage:step6",
+        "gate:10",
+        "energy:negative",
+        "energy:-1"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[15]",
+        "gate": 10
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-17",
+      "hex_key": "æ°´å±±",
+      "direction_hint": "å±±",
+      "title": "æŽ¨å‹•åŠ›ï½œæ°´å±±",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€ŽæŽ¨å‹•åŠ›ã€é †å‹¢æ™‚ï¼Œæˆ‘å¯ä»¥ç”¨ä»€éº¼æ–¹å¼æŠŠå®ƒè½åœ°è€Œä¸é€æ”¯ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "å¯« 1 å¥ç•Œç·šèªžï¼‹å»ºç«‹ 1 å€‹ 3 åˆ†é˜å„€å¼ï¼ˆæ”¶ç´/å¾©ç›¤/è¦åŠƒï¼‰ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:å±±",
+        "stage:step6",
+        "gate:39",
+        "energy:positive",
+        "energy:1"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[16]",
+        "gate": 39
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-18",
+      "hex_key": "æ°´å¤©",
+      "direction_hint": "å¤©",
+      "title": "è€æ€§ï½œæ°´å¤©",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žè€æ€§ã€å¤±è¡¡æ™‚ï¼Œæˆ‘æœƒç”¨å“ªç¨®æ–¹å¼ç¡¬æ’æˆ–é€€ç¸®ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ­¥é©Ÿå…ˆæ­¢è¡€/å›žç©©ï¼Ÿ"
+      ],
+      "micro_action": "å¯«ä¸‹ 1 å¥æ‰¿è«¾ï¼ˆå¯è¡¡é‡ï¼‰ï¼‹ 1 å¥ç•Œç·šï¼ˆä¸åšä»€éº¼ï¼‰ï¼Œå‚³çµ¦ 1 ä½è¦‹è­‰è€…ã€‚ åŒæ™‚åŠ ä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™/ç•Œç·šå¥ï¼‰ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:å¤©",
+        "stage:step6",
+        "gate:5",
+        "energy:negative",
+        "energy:-2"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[17]",
+        "gate": 5
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-19",
+      "hex_key": "æ°´æ°´",
+      "direction_hint": "æ°´",
+      "title": "æ°´æ°´ï½œè¡Œå‹•å¡",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "æˆ‘ç¾åœ¨æœ€è©²æŠŠåŠ›æ°£ç”¨åœ¨å“ªä¸€ä»¶äº‹ï¼Œæ‰æœƒæœ‰å›žå ±ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "ä¸»å‹•åš 1 å€‹ã€Žå°éœ€æ±‚çš„å›žæ‡‰ã€ï¼šç¢ºèªéœ€æ±‚â†’çµ¦å‡ºä¸€å€‹å¯å®Œæˆå›žæ‡‰ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:æ°´",
+        "stage:step6",
+        "gate:29",
+        "energy:positive",
+        "energy:4"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[18]",
+        "gate": 29
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-20",
+      "hex_key": "æ°´ç«",
+      "direction_hint": "ç«",
+      "title": "æŽ¢ç´¢ï½œæ°´ç«",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€ŽæŽ¢ç´¢ã€å¤±è¡¡æ™‚ï¼Œæˆ‘æœƒç”¨å“ªç¨®æ–¹å¼ç¡¬æ’æˆ–é€€ç¸®ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ­¥é©Ÿå…ˆæ­¢è¡€/å›žç©©ï¼Ÿ"
+      ],
+      "micro_action": "ç™¼å‡º 1 å‰‡å…·é«”æ±‚åŠ©è¨Šæ¯ï¼ˆéœ€æ±‚+æœŸé™+äº¤ä»˜ï¼‰ã€‚ åŒæ™‚åŠ ä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™/ç•Œç·šå¥ï¼‰ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:ç«",
+        "stage:step6",
+        "gate:63",
+        "energy:negative",
+        "energy:-4"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[19]",
+        "gate": 63
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-21",
+      "hex_key": "æ°´åœ°",
+      "direction_hint": "åœ°",
+      "title": "è¡¨é”é«”é¢ï½œæ°´åœ°",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žè¡¨é”é«”é¢ã€é †å‹¢æ™‚ï¼Œæˆ‘å¯ä»¥ç”¨ä»€éº¼æ–¹å¼æŠŠå®ƒè½åœ°è€Œä¸é€æ”¯ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "åš 1 å€‹æ»‹é¤Šå‹•ä½œï¼ˆç¡/åƒ/èµ°/æ³¡/æ•´ç†ï¼‰ä¸¦å¯«ä¸‹ã€Žæˆ‘å€¼å¾—è¢«æ‰¿è¼‰ã€ä¸€å¥è©±ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:åœ°",
+        "stage:step6",
+        "gate:8",
+        "energy:positive",
+        "energy:2"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[20]",
+        "gate": 8
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-22",
+      "hex_key": "æ°´é¢¨",
+      "direction_hint": "é¢¨",
+      "title": "æ°´é¢¨ï½œè¡Œå‹•å¡",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "æˆ‘ç¾åœ¨æœ€å®¹æ˜“å¤±è¡¡çš„åœ°æ–¹æ˜¯ä»€éº¼ï¼Ÿæˆ‘éœ€è¦çš„è­·æ¬„æ˜¯ä»€éº¼ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ­¥é©Ÿå…ˆæ­¢è¡€/å›žç©©ï¼Ÿ"
+      ],
+      "micro_action": "åš 1 æ¬¡å›žè²ç¢ºèªï¼šç”¨å°æ–¹çš„è©±é‡è¿°é‡é»žä¸¦è«‹å°æ–¹æ ¡æ­£ã€‚ åŒæ™‚åŠ ä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™/ç•Œç·šå¥ï¼‰ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:é¢¨",
+        "stage:step6",
+        "gate:48",
+        "energy:negative",
+        "energy:-1"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[21]",
+        "gate": 48
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-23",
+      "hex_key": "æ°´é›·",
+      "direction_hint": "é›·",
+      "title": "å‰µæ–°ï½œæ°´é›·",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žå‰µæ–°ã€é †å‹¢æ™‚ï¼Œæˆ‘å¯ä»¥ç”¨ä»€éº¼æ–¹å¼æŠŠå®ƒè½åœ°è€Œä¸é€æ”¯ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "è¨­å®š 2 åˆ†é˜è¨ˆæ™‚ç«‹åˆ»é–‹å§‹ï¼Œä¸¦è£œä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™ï¼‰ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:é›·",
+        "stage:step6",
+        "gate:3",
+        "energy:positive",
+        "energy:3"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[22]",
+        "gate": 3
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-24",
+      "hex_key": "æ°´æ¾¤",
+      "direction_hint": "æ¾¤",
+      "title": "å¯¦éš›ï½œæ°´æ¾¤",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žå¯¦éš›ã€å¤±è¡¡æ™‚ï¼Œæˆ‘æœƒç”¨å“ªç¨®æ–¹å¼ç¡¬æ’æˆ–é€€ç¸®ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ­¥é©Ÿå…ˆæ­¢è¡€/å›žç©©ï¼Ÿ"
+      ],
+      "micro_action": "åš 1 å€‹ä½Žæˆæœ¬äº’å‹•ï¼ˆç•™è¨€/åˆ†äº«/ç§è¨Š/é‚€ç´„ï¼‰ä¸¦æ”¶å›ž 1 å€‹å›žé¥‹ã€‚ åŒæ™‚åŠ ä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™/ç•Œç·šå¥ï¼‰ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:æ¾¤",
+        "stage:step6",
+        "gate:60",
+        "energy:negative",
+        "energy:-3"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[23]",
+        "gate": 60
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-25",
+      "hex_key": "ç«å±±",
+      "direction_hint": "å±±",
+      "title": "è±å¯Œå¤šé‡‡ï½œç«å±±",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žè±å¯Œå¤šé‡‡ã€å¤±è¡¡æ™‚ï¼Œæˆ‘æœƒç”¨å“ªç¨®æ–¹å¼ç¡¬æ’æˆ–é€€ç¸®ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ­¥é©Ÿå…ˆæ­¢è¡€/å›žç©©ï¼Ÿ"
+      ],
+      "micro_action": "å¯« 1 å¥ç•Œç·šèªžï¼‹å»ºç«‹ 1 å€‹ 3 åˆ†é˜å„€å¼ï¼ˆæ”¶ç´/å¾©ç›¤/è¦åŠƒï¼‰ã€‚ åŒæ™‚åŠ ä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™/ç•Œç·šå¥ï¼‰ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:å±±",
+        "stage:step6",
+        "gate:56",
+        "energy:negative",
+        "energy:-3"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[24]",
+        "gate": 56
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-26",
+      "hex_key": "ç«å¤©",
+      "direction_hint": "å¤©",
+      "title": "å¾ˆæœ‰èƒ½åŠ›ï½œç«å¤©",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žå¾ˆæœ‰èƒ½åŠ›ã€é †å‹¢æ™‚ï¼Œæˆ‘å¯ä»¥ç”¨ä»€éº¼æ–¹å¼æŠŠå®ƒè½åœ°è€Œä¸é€æ”¯ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "å¯«ä¸‹ 1 å¥æ‰¿è«¾ï¼ˆå¯è¡¡é‡ï¼‰ï¼‹ 1 å¥ç•Œç·šï¼ˆä¸åšä»€éº¼ï¼‰ï¼Œå‚³çµ¦ 1 ä½è¦‹è­‰è€…ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:å¤©",
+        "stage:step6",
+        "gate:14",
+        "energy:positive",
+        "energy:2"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[25]",
+        "gate": 14
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-27",
+      "hex_key": "ç«æ°´",
+      "direction_hint": "æ°´",
+      "title": "ç«æ°´ï½œè¡Œå‹•å¡",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "æˆ‘ç¾åœ¨æœ€å®¹æ˜“å¤±è¡¡çš„åœ°æ–¹æ˜¯ä»€éº¼ï¼Ÿæˆ‘éœ€è¦çš„è­·æ¬„æ˜¯ä»€éº¼ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ­¥é©Ÿå…ˆæ­¢è¡€/å›žç©©ï¼Ÿ"
+      ],
+      "micro_action": "ä¸»å‹•åš 1 å€‹ã€Žå°éœ€æ±‚çš„å›žæ‡‰ã€ï¼šç¢ºèªéœ€æ±‚â†’çµ¦å‡ºä¸€å€‹å¯å®Œæˆå›žæ‡‰ã€‚ åŒæ™‚åŠ ä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™/ç•Œç·šå¥ï¼‰ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:æ°´",
+        "stage:step6",
+        "gate:64",
+        "energy:negative",
+        "energy:-4"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[26]",
+        "gate": 64
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-28",
+      "hex_key": "ç«ç«",
+      "direction_hint": "ç«",
+      "title": "ç«ç«ï½œè¡Œå‹•å¡",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "æˆ‘ç¾åœ¨æœ€è©²æŠŠåŠ›æ°£ç”¨åœ¨å“ªä¸€ä»¶äº‹ï¼Œæ‰æœƒæœ‰å›žå ±ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "ç™¼å‡º 1 å‰‡å…·é«”æ±‚åŠ©è¨Šæ¯ï¼ˆéœ€æ±‚+æœŸé™+äº¤ä»˜ï¼‰ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:ç«",
+        "stage:step6",
+        "gate:30",
+        "energy:positive",
+        "energy:4"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[27]",
+        "gate": 30
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-29",
+      "hex_key": "ç«åœ°",
+      "direction_hint": "åœ°",
+      "title": "ç«åœ°ï½œè¡Œå‹•å¡",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "æˆ‘ç¾åœ¨æœ€å®¹æ˜“å¤±è¡¡çš„åœ°æ–¹æ˜¯ä»€éº¼ï¼Ÿæˆ‘éœ€è¦çš„è­·æ¬„æ˜¯ä»€éº¼ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ­¥é©Ÿå…ˆæ­¢è¡€/å›žç©©ï¼Ÿ"
+      ],
+      "micro_action": "åš 1 å€‹æ»‹é¤Šå‹•ä½œï¼ˆç¡/åƒ/èµ°/æ³¡/æ•´ç†ï¼‰ä¸¦å¯«ä¸‹ã€Žæˆ‘å€¼å¾—è¢«æ‰¿è¼‰ã€ä¸€å¥è©±ã€‚ åŒæ™‚åŠ ä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™/ç•Œç·šå¥ï¼‰ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:åœ°",
+        "stage:step6",
+        "gate:35",
+        "energy:negative",
+        "energy:-2"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[28]",
+        "gate": 35
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-30",
+      "hex_key": "ç«é¢¨",
+      "direction_hint": "é¢¨",
+      "title": "å¹³è¡¡åŠ›ï½œç«é¢¨",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žå¹³è¡¡åŠ›ã€é †å‹¢æ™‚ï¼Œæˆ‘å¯ä»¥ç”¨ä»€éº¼æ–¹å¼æŠŠå®ƒè½åœ°è€Œä¸é€æ”¯ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "åš 1 æ¬¡å›žè²ç¢ºèªï¼šç”¨å°æ–¹çš„è©±é‡è¿°é‡é»žä¸¦è«‹å°æ–¹æ ¡æ­£ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:é¢¨",
+        "stage:step6",
+        "gate:50",
+        "energy:positive",
+        "energy:3"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[29]",
+        "gate": 50
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-31",
+      "hex_key": "ç«é›·",
+      "direction_hint": "é›·",
+      "title": "ç«é›·ï½œè¡Œå‹•å¡",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "æˆ‘ç¾åœ¨æœ€å®¹æ˜“å¤±è¡¡çš„åœ°æ–¹æ˜¯ä»€éº¼ï¼Ÿæˆ‘éœ€è¦çš„è­·æ¬„æ˜¯ä»€éº¼ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ­¥é©Ÿå…ˆæ­¢è¡€/å›žç©©ï¼Ÿ"
+      ],
+      "micro_action": "è¨­å®š 2 åˆ†é˜è¨ˆæ™‚ç«‹åˆ»é–‹å§‹ï¼Œä¸¦è£œä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™ï¼‰ã€‚ åŒæ™‚åŠ ä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™/ç•Œç·šå¥ï¼‰ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:é›·",
+        "stage:step6",
+        "gate:21",
+        "energy:negative",
+        "energy:-1"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[30]",
+        "gate": 21
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-32",
+      "hex_key": "ç«æ¾¤",
+      "direction_hint": "æ¾¤",
+      "title": "é¸æ“‡ï½œç«æ¾¤",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žé¸æ“‡ã€é †å‹¢æ™‚ï¼Œæˆ‘å¯ä»¥ç”¨ä»€éº¼æ–¹å¼æŠŠå®ƒè½åœ°è€Œä¸é€æ”¯ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "åš 1 å€‹ä½Žæˆæœ¬äº’å‹•ï¼ˆç•™è¨€/åˆ†äº«/ç§è¨Š/é‚€ç´„ï¼‰ä¸¦æ”¶å›ž 1 å€‹å›žé¥‹ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:æ¾¤",
+        "stage:step6",
+        "gate:38",
+        "energy:positive",
+        "energy:1"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[31]",
+        "gate": 38
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-33",
+      "hex_key": "åœ°å±±",
+      "direction_hint": "å±±",
+      "title": "é­…åŠ›ï½œåœ°å±±",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žé­…åŠ›ã€å¤±è¡¡æ™‚ï¼Œæˆ‘æœƒç”¨å“ªç¨®æ–¹å¼ç¡¬æ’æˆ–é€€ç¸®ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ­¥é©Ÿå…ˆæ­¢è¡€/å›žç©©ï¼Ÿ"
+      ],
+      "micro_action": "å¯« 1 å¥ç•Œç·šèªžï¼‹å»ºç«‹ 1 å€‹ 3 åˆ†é˜å„€å¼ï¼ˆæ”¶ç´/å¾©ç›¤/è¦åŠƒï¼‰ã€‚ åŒæ™‚åŠ ä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™/ç•Œç·šå¥ï¼‰ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:å±±",
+        "stage:step6",
+        "gate:15",
+        "energy:negative",
+        "energy:-1"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[32]",
+        "gate": 15
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-34",
+      "hex_key": "åœ°å¤©",
+      "direction_hint": "å¤©",
+      "title": "ç†æƒ³ä¸»ç¾©ï½œåœ°å¤©",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žç†æƒ³ä¸»ç¾©ã€å¤±è¡¡æ™‚ï¼Œæˆ‘æœƒç”¨å“ªç¨®æ–¹å¼ç¡¬æ’æˆ–é€€ç¸®ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ­¥é©Ÿå…ˆæ­¢è¡€/å›žç©©ï¼Ÿ"
+      ],
+      "micro_action": "å¯«ä¸‹ 1 å¥æ‰¿è«¾ï¼ˆå¯è¡¡é‡ï¼‰ï¼‹ 1 å¥ç•Œç·šï¼ˆä¸åšä»€éº¼ï¼‰ï¼Œå‚³çµ¦ 1 ä½è¦‹è­‰è€…ã€‚ åŒæ™‚åŠ ä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™/ç•Œç·šå¥ï¼‰ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:å¤©",
+        "stage:step6",
+        "gate:11",
+        "energy:negative",
+        "energy:-4"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[33]",
+        "gate": 11
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-35",
+      "hex_key": "åœ°æ°´",
+      "direction_hint": "æ°´",
+      "title": "é ˜å°Žï½œåœ°æ°´",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žé ˜å°Žã€å¤±è¡¡æ™‚ï¼Œæˆ‘æœƒç”¨å“ªç¨®æ–¹å¼ç¡¬æ’æˆ–é€€ç¸®ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ­¥é©Ÿå…ˆæ­¢è¡€/å›žç©©ï¼Ÿ"
+      ],
+      "micro_action": "ä¸»å‹•åš 1 å€‹ã€Žå°éœ€æ±‚çš„å›žæ‡‰ã€ï¼šç¢ºèªéœ€æ±‚â†’çµ¦å‡ºä¸€å€‹å¯å®Œæˆå›žæ‡‰ã€‚ åŒæ™‚åŠ ä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™/ç•Œç·šå¥ï¼‰ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:æ°´",
+        "stage:step6",
+        "gate:7",
+        "energy:negative",
+        "energy:-2"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[34]",
+        "gate": 7
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-36",
+      "hex_key": "åœ°ç«",
+      "direction_hint": "ç«",
+      "title": "ä»æ…ˆï½œåœ°ç«",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žä»æ…ˆã€é †å‹¢æ™‚ï¼Œæˆ‘å¯ä»¥ç”¨ä»€éº¼æ–¹å¼æŠŠå®ƒè½åœ°è€Œä¸é€æ”¯ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "ç™¼å‡º 1 å‰‡å…·é«”æ±‚åŠ©è¨Šæ¯ï¼ˆéœ€æ±‚+æœŸé™+äº¤ä»˜ï¼‰ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:ç«",
+        "stage:step6",
+        "gate:36",
+        "energy:positive",
+        "energy:2"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[35]",
+        "gate": 36
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-37",
+      "hex_key": "åœ°åœ°",
+      "direction_hint": "åœ°",
+      "title": "çŸ¥é“å®šä½ï½œåœ°åœ°",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€ŽçŸ¥é“å®šä½ã€é †å‹¢æ™‚ï¼Œæˆ‘å¯ä»¥ç”¨ä»€éº¼æ–¹å¼æŠŠå®ƒè½åœ°è€Œä¸é€æ”¯ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "åš 1 å€‹æ»‹é¤Šå‹•ä½œï¼ˆç¡/åƒ/èµ°/æ³¡/æ•´ç†ï¼‰ä¸¦å¯«ä¸‹ã€Žæˆ‘å€¼å¾—è¢«æ‰¿è¼‰ã€ä¸€å¥è©±ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:åœ°",
+        "stage:step6",
+        "gate:2",
+        "energy:positive",
+        "energy:4"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[36]",
+        "gate": 2
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-38",
+      "hex_key": "åœ°é¢¨",
+      "direction_hint": "é¢¨",
+      "title": "èº«é«”æ­¡æ„‰ï½œåœ°é¢¨",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žèº«é«”æ­¡æ„‰ã€å¤±è¡¡æ™‚ï¼Œæˆ‘æœƒç”¨å“ªç¨®æ–¹å¼ç¡¬æ’æˆ–é€€ç¸®ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ­¥é©Ÿå…ˆæ­¢è¡€/å›žç©©ï¼Ÿ"
+      ],
+      "micro_action": "åš 1 æ¬¡å›žè²ç¢ºèªï¼šç”¨å°æ–¹çš„è©±é‡è¿°é‡é»žä¸¦è«‹å°æ–¹æ ¡æ­£ã€‚ åŒæ™‚åŠ ä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™/ç•Œç·šå¥ï¼‰ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:é¢¨",
+        "stage:step6",
+        "gate:46",
+        "energy:negative",
+        "energy:-3"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[37]",
+        "gate": 46
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-39",
+      "hex_key": "åœ°é›·",
+      "direction_hint": "é›·",
+      "title": "åœ°é›·ï½œè¡Œå‹•å¡",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "æˆ‘ç¾åœ¨æœ€è©²æŠŠåŠ›æ°£ç”¨åœ¨å“ªä¸€ä»¶äº‹ï¼Œæ‰æœƒæœ‰å›žå ±ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "è¨­å®š 2 åˆ†é˜è¨ˆæ™‚ç«‹åˆ»é–‹å§‹ï¼Œä¸¦è£œä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™ï¼‰ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:é›·",
+        "stage:step6",
+        "gate:24",
+        "energy:positive",
+        "energy:1"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[38]",
+        "gate": 24
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-40",
+      "hex_key": "åœ°æ¾¤",
+      "direction_hint": "æ¾¤",
+      "title": "æ•æ„Ÿï½œåœ°æ¾¤",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žæ•æ„Ÿã€é †å‹¢æ™‚ï¼Œæˆ‘å¯ä»¥ç”¨ä»€éº¼æ–¹å¼æŠŠå®ƒè½åœ°è€Œä¸é€æ”¯ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "åš 1 å€‹ä½Žæˆæœ¬äº’å‹•ï¼ˆç•™è¨€/åˆ†äº«/ç§è¨Š/é‚€ç´„ï¼‰ä¸¦æ”¶å›ž 1 å€‹å›žé¥‹ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:æ¾¤",
+        "stage:step6",
+        "gate:19",
+        "energy:positive",
+        "energy:3"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[39]",
+        "gate": 19
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-41",
+      "hex_key": "é¢¨å±±",
+      "direction_hint": "å±±",
+      "title": "ç™¼èµ·ï½œé¢¨å±±",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žç™¼èµ·ã€é †å‹¢æ™‚ï¼Œæˆ‘å¯ä»¥ç”¨ä»€éº¼æ–¹å¼æŠŠå®ƒè½åœ°è€Œä¸é€æ”¯ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "å¯« 1 å¥ç•Œç·šèªžï¼‹å»ºç«‹ 1 å€‹ 3 åˆ†é˜å„€å¼ï¼ˆæ”¶ç´/å¾©ç›¤/è¦åŠƒï¼‰ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:å±±",
+        "stage:step6",
+        "gate:53",
+        "energy:positive",
+        "energy:2"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[40]",
+        "gate": 53
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-42",
+      "hex_key": "é¢¨å¤©",
+      "direction_hint": "å¤©",
+      "title": "æ±ºå¿ƒï½œé¢¨å¤©",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žæ±ºå¿ƒã€å¤±è¡¡æ™‚ï¼Œæˆ‘æœƒç”¨å“ªç¨®æ–¹å¼ç¡¬æ’æˆ–é€€ç¸®ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ­¥é©Ÿå…ˆæ­¢è¡€/å›žç©©ï¼Ÿ"
+      ],
+      "micro_action": "å¯«ä¸‹ 1 å¥æ‰¿è«¾ï¼ˆå¯è¡¡é‡ï¼‰ï¼‹ 1 å¥ç•Œç·šï¼ˆä¸åšä»€éº¼ï¼‰ï¼Œå‚³çµ¦ 1 ä½è¦‹è­‰è€…ã€‚ åŒæ™‚åŠ ä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™/ç•Œç·šå¥ï¼‰ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:å¤©",
+        "stage:step6",
+        "gate:9",
+        "energy:negative",
+        "energy:-1"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[41]",
+        "gate": 9
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-43",
+      "hex_key": "é¢¨æ°´",
+      "direction_hint": "æ°´",
+      "title": "è¦ªå¯†ï½œé¢¨æ°´",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žè¦ªå¯†ã€é †å‹¢æ™‚ï¼Œæˆ‘å¯ä»¥ç”¨ä»€éº¼æ–¹å¼æŠŠå®ƒè½åœ°è€Œä¸é€æ”¯ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "ä¸»å‹•åš 1 å€‹ã€Žå°éœ€æ±‚çš„å›žæ‡‰ã€ï¼šç¢ºèªéœ€æ±‚â†’çµ¦å‡ºä¸€å€‹å¯å®Œæˆå›žæ‡‰ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:æ°´",
+        "stage:step6",
+        "gate:59",
+        "energy:positive",
+        "energy:1"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[42]",
+        "gate": 59
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-44",
+      "hex_key": "é¢¨ç«",
+      "direction_hint": "ç«",
+      "title": "å¹³ç­‰ï½œé¢¨ç«",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žå¹³ç­‰ã€å¤±è¡¡æ™‚ï¼Œæˆ‘æœƒç”¨å“ªç¨®æ–¹å¼ç¡¬æ’æˆ–é€€ç¸®ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ­¥é©Ÿå…ˆæ­¢è¡€/å›žç©©ï¼Ÿ"
+      ],
+      "micro_action": "ç™¼å‡º 1 å‰‡å…·é«”æ±‚åŠ©è¨Šæ¯ï¼ˆéœ€æ±‚+æœŸé™+äº¤ä»˜ï¼‰ã€‚ åŒæ™‚åŠ ä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™/ç•Œç·šå¥ï¼‰ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:ç«",
+        "stage:step6",
+        "gate:37",
+        "energy:negative",
+        "energy:-3"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[43]",
+        "gate": 37
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-45",
+      "hex_key": "é¢¨åœ°",
+      "direction_hint": "åœ°",
+      "title": "è‡ªä¿¡ï½œé¢¨åœ°",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žè‡ªä¿¡ã€é †å‹¢æ™‚ï¼Œæˆ‘å¯ä»¥ç”¨ä»€éº¼æ–¹å¼æŠŠå®ƒè½åœ°è€Œä¸é€æ”¯ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "åš 1 å€‹æ»‹é¤Šå‹•ä½œï¼ˆç¡/åƒ/èµ°/æ³¡/æ•´ç†ï¼‰ä¸¦å¯«ä¸‹ã€Žæˆ‘å€¼å¾—è¢«æ‰¿è¼‰ã€ä¸€å¥è©±ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:åœ°",
+        "stage:step6",
+        "gate:20",
+        "energy:positive",
+        "energy:3"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[44]",
+        "gate": 20
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-46",
+      "hex_key": "é¢¨é¢¨",
+      "direction_hint": "é¢¨",
+      "title": "ç›´è¦ºè½åŠ›ï½œé¢¨é¢¨",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žç›´è¦ºè½åŠ›ã€é †å‹¢æ™‚ï¼Œæˆ‘å¯ä»¥ç”¨ä»€éº¼æ–¹å¼æŠŠå®ƒè½åœ°è€Œä¸é€æ”¯ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "åš 1 æ¬¡å›žè²ç¢ºèªï¼šç”¨å°æ–¹çš„è©±é‡è¿°é‡é»žä¸¦è«‹å°æ–¹æ ¡æ­£ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:é¢¨",
+        "stage:step6",
+        "gate:57",
+        "energy:positive",
+        "energy:4"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[45]",
+        "gate": 57
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-47",
+      "hex_key": "é¢¨é›·",
+      "direction_hint": "é›·",
+      "title": "ç¨ç«‹ï½œé¢¨é›·",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žç¨ç«‹ã€å¤±è¡¡æ™‚ï¼Œæˆ‘æœƒç”¨å“ªç¨®æ–¹å¼ç¡¬æ’æˆ–é€€ç¸®ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ­¥é©Ÿå…ˆæ­¢è¡€/å›žç©©ï¼Ÿ"
+      ],
+      "micro_action": "è¨­å®š 2 åˆ†é˜è¨ˆæ™‚ç«‹åˆ»é–‹å§‹ï¼Œä¸¦è£œä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™ï¼‰ã€‚ åŒæ™‚åŠ ä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™/ç•Œç·šå¥ï¼‰ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:é›·",
+        "stage:step6",
+        "gate:42",
+        "energy:negative",
+        "energy:-4"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[46]",
+        "gate": 42
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-48",
+      "hex_key": "é¢¨æ¾¤",
+      "direction_hint": "æ¾¤",
+      "title": "é¢¨æ¾¤ï½œè¡Œå‹•å¡",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "æˆ‘ç¾åœ¨æœ€å®¹æ˜“å¤±è¡¡çš„åœ°æ–¹æ˜¯ä»€éº¼ï¼Ÿæˆ‘éœ€è¦çš„è­·æ¬„æ˜¯ä»€éº¼ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ­¥é©Ÿå…ˆæ­¢è¡€/å›žç©©ï¼Ÿ"
+      ],
+      "micro_action": "åš 1 å€‹ä½Žæˆæœ¬äº’å‹•ï¼ˆç•™è¨€/åˆ†äº«/ç§è¨Š/é‚€ç´„ï¼‰ä¸¦æ”¶å›ž 1 å€‹å›žé¥‹ã€‚ åŒæ™‚åŠ ä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™/ç•Œç·šå¥ï¼‰ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:æ¾¤",
+        "stage:step6",
+        "gate:61",
+        "energy:negative",
+        "energy:-2"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[47]",
+        "gate": 61
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-49",
+      "hex_key": "é›·å±±",
+      "direction_hint": "å±±",
+      "title": "ç²¾ç¢ºï½œé›·å±±",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žç²¾ç¢ºã€å¤±è¡¡æ™‚ï¼Œæˆ‘æœƒç”¨å“ªç¨®æ–¹å¼ç¡¬æ’æˆ–é€€ç¸®ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ­¥é©Ÿå…ˆæ­¢è¡€/å›žç©©ï¼Ÿ"
+      ],
+      "micro_action": "å¯« 1 å¥ç•Œç·šèªžï¼‹å»ºç«‹ 1 å€‹ 3 åˆ†é˜å„€å¼ï¼ˆæ”¶ç´/å¾©ç›¤/è¦åŠƒï¼‰ã€‚ åŒæ™‚åŠ ä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™/ç•Œç·šå¥ï¼‰ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:å±±",
+        "stage:step6",
+        "gate:62",
+        "energy:negative",
+        "energy:-2"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[48]",
+        "gate": 62
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-50",
+      "hex_key": "é›·å¤©",
+      "direction_hint": "å¤©",
+      "title": "åŠ›é‡ï½œé›·å¤©",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€ŽåŠ›é‡ã€é †å‹¢æ™‚ï¼Œæˆ‘å¯ä»¥ç”¨ä»€éº¼æ–¹å¼æŠŠå®ƒè½åœ°è€Œä¸é€æ”¯ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "å¯«ä¸‹ 1 å¥æ‰¿è«¾ï¼ˆå¯è¡¡é‡ï¼‰ï¼‹ 1 å¥ç•Œç·šï¼ˆä¸åšä»€éº¼ï¼‰ï¼Œå‚³çµ¦ 1 ä½è¦‹è­‰è€…ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:å¤©",
+        "stage:step6",
+        "gate:34",
+        "energy:positive",
+        "energy:3"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[49]",
+        "gate": 34
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-51",
+      "hex_key": "é›·æ°´",
+      "direction_hint": "æ°´",
+      "title": "è§£æ±ºèƒ½åŠ›ï½œé›·æ°´",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žè§£æ±ºèƒ½åŠ›ã€å¤±è¡¡æ™‚ï¼Œæˆ‘æœƒç”¨å“ªç¨®æ–¹å¼ç¡¬æ’æˆ–é€€ç¸®ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ­¥é©Ÿå…ˆæ­¢è¡€/å›žç©©ï¼Ÿ"
+      ],
+      "micro_action": "ä¸»å‹•åš 1 å€‹ã€Žå°éœ€æ±‚çš„å›žæ‡‰ã€ï¼šç¢ºèªéœ€æ±‚â†’çµ¦å‡ºä¸€å€‹å¯å®Œæˆå›žæ‡‰ã€‚ åŒæ™‚åŠ ä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™/ç•Œç·šå¥ï¼‰ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:æ°´",
+        "stage:step6",
+        "gate:40",
+        "energy:negative",
+        "energy:-3"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[50]",
+        "gate": 40
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-52",
+      "hex_key": "é›·ç«",
+      "direction_hint": "ç«",
+      "title": "é›·ç«ï½œè¡Œå‹•å¡",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "æˆ‘ç¾åœ¨æœ€è©²æŠŠåŠ›æ°£ç”¨åœ¨å“ªä¸€ä»¶äº‹ï¼Œæ‰æœƒæœ‰å›žå ±ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "ç™¼å‡º 1 å‰‡å…·é«”æ±‚åŠ©è¨Šæ¯ï¼ˆéœ€æ±‚+æœŸé™+äº¤ä»˜ï¼‰ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:ç«",
+        "stage:step6",
+        "gate:55",
+        "energy:positive",
+        "energy:1"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[51]",
+        "gate": 55
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-53",
+      "hex_key": "é›·åœ°",
+      "direction_hint": "åœ°",
+      "title": "å¤šæ‰å¤šè—ï½œé›·åœ°",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žå¤šæ‰å¤šè—ã€é †å‹¢æ™‚ï¼Œæˆ‘å¯ä»¥ç”¨ä»€éº¼æ–¹å¼æŠŠå®ƒè½åœ°è€Œä¸é€æ”¯ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "åš 1 å€‹æ»‹é¤Šå‹•ä½œï¼ˆç¡/åƒ/èµ°/æ³¡/æ•´ç†ï¼‰ä¸¦å¯«ä¸‹ã€Žæˆ‘å€¼å¾—è¢«æ‰¿è¼‰ã€ä¸€å¥è©±ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:åœ°",
+        "stage:step6",
+        "gate:16",
+        "energy:positive",
+        "energy:1"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[52]",
+        "gate": 16
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-54",
+      "hex_key": "é›·é¢¨",
+      "direction_hint": "é¢¨",
+      "title": "ä¿è­·ï½œé›·é¢¨",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žä¿è­·ã€å¤±è¡¡æ™‚ï¼Œæˆ‘æœƒç”¨å“ªç¨®æ–¹å¼ç¡¬æ’æˆ–é€€ç¸®ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ­¥é©Ÿå…ˆæ­¢è¡€/å›žç©©ï¼Ÿ"
+      ],
+      "micro_action": "åš 1 æ¬¡å›žè²ç¢ºèªï¼šç”¨å°æ–¹çš„è©±é‡è¿°é‡é»žä¸¦è«‹å°æ–¹æ ¡æ­£ã€‚ åŒæ™‚åŠ ä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™/ç•Œç·šå¥ï¼‰ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:é¢¨",
+        "stage:step6",
+        "gate:32",
+        "energy:negative",
+        "energy:-4"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[53]",
+        "gate": 32
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-55",
+      "hex_key": "é›·é›·",
+      "direction_hint": "é›·",
+      "title": "é€²å–ï½œé›·é›·",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žé€²å–ã€é †å‹¢æ™‚ï¼Œæˆ‘å¯ä»¥ç”¨ä»€éº¼æ–¹å¼æŠŠå®ƒè½åœ°è€Œä¸é€æ”¯ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "è¨­å®š 2 åˆ†é˜è¨ˆæ™‚ç«‹åˆ»é–‹å§‹ï¼Œä¸¦è£œä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™ï¼‰ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:é›·",
+        "stage:step6",
+        "gate:51",
+        "energy:positive",
+        "energy:4"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[54]",
+        "gate": 51
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-56",
+      "hex_key": "é›·æ¾¤",
+      "direction_hint": "æ¾¤",
+      "title": "æœ‰å¿—æ°£ï½œé›·æ¾¤",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žæœ‰å¿—æ°£ã€é †å‹¢æ™‚ï¼Œæˆ‘å¯ä»¥ç”¨ä»€éº¼æ–¹å¼æŠŠå®ƒè½åœ°è€Œä¸é€æ”¯ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "åš 1 å€‹ä½Žæˆæœ¬äº’å‹•ï¼ˆç•™è¨€/åˆ†äº«/ç§è¨Š/é‚€ç´„ï¼‰ä¸¦æ”¶å›ž 1 å€‹å›žé¥‹ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:æ¾¤",
+        "stage:step6",
+        "gate:54",
+        "energy:positive",
+        "energy:2"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[55]",
+        "gate": 54
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-57",
+      "hex_key": "æ¾¤å±±",
+      "direction_hint": "å±±",
+      "title": "æ¾¤å±±ï½œè¡Œå‹•å¡",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "æˆ‘ç¾åœ¨æœ€å®¹æ˜“å¤±è¡¡çš„åœ°æ–¹æ˜¯ä»€éº¼ï¼Ÿæˆ‘éœ€è¦çš„è­·æ¬„æ˜¯ä»€éº¼ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ­¥é©Ÿå…ˆæ­¢è¡€/å›žç©©ï¼Ÿ"
+      ],
+      "micro_action": "å¯« 1 å¥ç•Œç·šèªžï¼‹å»ºç«‹ 1 å€‹ 3 åˆ†é˜å„€å¼ï¼ˆæ”¶ç´/å¾©ç›¤/è¦åŠƒï¼‰ã€‚ åŒæ™‚åŠ ä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™/ç•Œç·šå¥ï¼‰ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:å±±",
+        "stage:step6",
+        "gate:31",
+        "energy:negative",
+        "energy:-4"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[56]",
+        "gate": 31
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-58",
+      "hex_key": "æ¾¤å¤©",
+      "direction_hint": "å¤©",
+      "title": "è§€å¯ŸåŠ›ï½œæ¾¤å¤©",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žè§€å¯ŸåŠ›ã€é †å‹¢æ™‚ï¼Œæˆ‘å¯ä»¥ç”¨ä»€éº¼æ–¹å¼æŠŠå®ƒè½åœ°è€Œä¸é€æ”¯ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "å¯«ä¸‹ 1 å¥æ‰¿è«¾ï¼ˆå¯è¡¡é‡ï¼‰ï¼‹ 1 å¥ç•Œç·šï¼ˆä¸åšä»€éº¼ï¼‰ï¼Œå‚³çµ¦ 1 ä½è¦‹è­‰è€…ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:å¤©",
+        "stage:step6",
+        "gate:43",
+        "energy:positive",
+        "energy:1"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[57]",
+        "gate": 43
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-59",
+      "hex_key": "æ¾¤æ°´",
+      "direction_hint": "æ°´",
+      "title": "è½‰åŒ–ï½œæ¾¤æ°´",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žè½‰åŒ–ã€é †å‹¢æ™‚ï¼Œæˆ‘å¯ä»¥ç”¨ä»€éº¼æ–¹å¼æŠŠå®ƒè½åœ°è€Œä¸é€æ”¯ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "ä¸»å‹•åš 1 å€‹ã€Žå°éœ€æ±‚çš„å›žæ‡‰ã€ï¼šç¢ºèªéœ€æ±‚â†’çµ¦å‡ºä¸€å€‹å¯å®Œæˆå›žæ‡‰ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:æ°´",
+        "stage:step6",
+        "gate:47",
+        "energy:positive",
+        "energy:3"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[58]",
+        "gate": 47
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-60",
+      "hex_key": "æ¾¤ç«",
+      "direction_hint": "ç«",
+      "title": "é©å‘½ï½œæ¾¤ç«",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žé©å‘½ã€å¤±è¡¡æ™‚ï¼Œæˆ‘æœƒç”¨å“ªç¨®æ–¹å¼ç¡¬æ’æˆ–é€€ç¸®ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ­¥é©Ÿå…ˆæ­¢è¡€/å›žç©©ï¼Ÿ"
+      ],
+      "micro_action": "ç™¼å‡º 1 å‰‡å…·é«”æ±‚åŠ©è¨Šæ¯ï¼ˆéœ€æ±‚+æœŸé™+äº¤ä»˜ï¼‰ã€‚ åŒæ™‚åŠ ä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™/ç•Œç·šå¥ï¼‰ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:ç«",
+        "stage:step6",
+        "gate:49",
+        "energy:negative",
+        "energy:-1"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[59]",
+        "gate": 49
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-61",
+      "hex_key": "æ¾¤åœ°",
+      "direction_hint": "åœ°",
+      "title": "èžåˆï½œæ¾¤åœ°",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žèžåˆã€å¤±è¡¡æ™‚ï¼Œæˆ‘æœƒç”¨å“ªç¨®æ–¹å¼ç¡¬æ’æˆ–é€€ç¸®ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ­¥é©Ÿå…ˆæ­¢è¡€/å›žç©©ï¼Ÿ"
+      ],
+      "micro_action": "åš 1 å€‹æ»‹é¤Šå‹•ä½œï¼ˆç¡/åƒ/èµ°/æ³¡/æ•´ç†ï¼‰ä¸¦å¯«ä¸‹ã€Žæˆ‘å€¼å¾—è¢«æ‰¿è¼‰ã€ä¸€å¥è©±ã€‚ åŒæ™‚åŠ ä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™/ç•Œç·šå¥ï¼‰ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:åœ°",
+        "stage:step6",
+        "gate:45",
+        "energy:negative",
+        "energy:-3"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[60]",
+        "gate": 45
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-62",
+      "hex_key": "æ¾¤é¢¨",
+      "direction_hint": "é¢¨",
+      "title": "æ¾¤é¢¨ï½œè¡Œå‹•å¡",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "æˆ‘ç¾åœ¨æœ€è©²æŠŠåŠ›æ°£ç”¨åœ¨å“ªä¸€ä»¶äº‹ï¼Œæ‰æœƒæœ‰å›žå ±ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "åš 1 æ¬¡å›žè²ç¢ºèªï¼šç”¨å°æ–¹çš„è©±é‡è¿°é‡é»žä¸¦è«‹å°æ–¹æ ¡æ­£ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:é¢¨",
+        "stage:step6",
+        "gate:28",
+        "energy:positive",
+        "energy:2"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[61]",
+        "gate": 28
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-63",
+      "hex_key": "æ¾¤é›·",
+      "direction_hint": "é›·",
+      "title": "é è¦‹ï½œæ¾¤é›·",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žé è¦‹ã€å¤±è¡¡æ™‚ï¼Œæˆ‘æœƒç”¨å“ªç¨®æ–¹å¼ç¡¬æ’æˆ–é€€ç¸®ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ­¥é©Ÿå…ˆæ­¢è¡€/å›žç©©ï¼Ÿ"
+      ],
+      "micro_action": "è¨­å®š 2 åˆ†é˜è¨ˆæ™‚ç«‹åˆ»é–‹å§‹ï¼Œä¸¦è£œä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™ï¼‰ã€‚ åŒæ™‚åŠ ä¸€æ¢è­·æ¬„ï¼ˆåœæ­¢æ¢ä»¶/æˆæœ¬ä¸Šé™/ç•Œç·šå¥ï¼‰ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:é›·",
+        "stage:step6",
+        "gate:17",
+        "energy:negative",
+        "energy:-2"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[62]",
+        "gate": 17
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    },
+    {
+      "card_id": "AEO-64",
+      "hex_key": "æ¾¤æ¾¤",
+      "direction_hint": "æ¾¤",
+      "title": "å……æ»¿æ´»åŠ›ï½œæ¾¤æ¾¤",
+      "coach_questions": [
+        "åœ¨é€™å€‹ç‹€æ…‹è£¡ï¼Œæˆ‘æœ€æƒ³å®ˆä½/æŽ¨é€²çš„æ˜¯ä»€éº¼ï¼Ÿ",
+        "ç•¶ã€Žå……æ»¿æ´»åŠ›ã€é †å‹¢æ™‚ï¼Œæˆ‘å¯ä»¥ç”¨ä»€éº¼æ–¹å¼æŠŠå®ƒè½åœ°è€Œä¸é€æ”¯ï¼Ÿ",
+        "æˆ‘å¯ä»¥ç”¨å“ªå€‹æœ€å°æ‰¿è«¾è®“é€²å±•å¯è¡¡é‡ï¼Ÿ"
+      ],
+      "micro_action": "åš 1 å€‹ä½Žæˆæœ¬äº’å‹•ï¼ˆç•™è¨€/åˆ†äº«/ç§è¨Š/é‚€ç´„ï¼‰ä¸¦æ”¶å›ž 1 å€‹å›žé¥‹ã€‚ æœ€å¾Œæ”¶ä¸€å€‹å›žé¥‹ï¼ˆè‡ªè©•æˆ–ä»–è©•ï¼‰åšå¾®èª¿ã€‚",
+      "timebox_minutes": 15,
+      "tags": [
+        "direction:æ¾¤",
+        "stage:step6",
+        "gate:58",
+        "energy:positive",
+        "energy:4"
+      ],
+      "links": {
+        "knowledge_pack_ref": "OM-Knowledge-Pack.v0.1.1.json#/geo64/entries[63]",
+        "gate": 58
+      },
+      "numerology_scaling": {
+        "overload_sensitive_numbers": [
+          7,
+          8
+        ],
+        "grounding_sensitive_numbers": [
+          1,
+          5
+        ],
+        "timebox_multiplier": {
+          "resonance": 0.7,
+          "compensation": 1.0,
+          "tension": 0.8
+        },
+        "add_on": {
+          "resonance": "åŠ ä¸€å€‹æ¢å¾©/åœè¡¨/å‘¼å¸å‹•ä½œ",
+          "tension": "åŠ ä¸€å€‹ç•Œç·š/è­·æ¬„å¥",
+          "compensation": "åŠ ä¸€å€‹å°å¯¦é©—é©—è­‰"
+        }
+      }
+    }
+  ]
+}

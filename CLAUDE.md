@@ -254,7 +254,7 @@ MUSEON 回覆: {museon_reply}
 | /strategy | master-strategy | 戰略分析 |
 | /dse | dse | 深度研究驗證 |
 | /market | market-core | 市場分析 |
-| /market-ares, /simulate | market-ares | 市場戰神策略模擬 |
+| /darwin, /simulate | darwin | DARWIN 策略演化模擬 |
 | /crypto | market-crypto | 加密貨幣分析 |
 | /equity | market-equity | 股票分析 |
 | /macro | market-macro | 總經分析 |
@@ -281,7 +281,7 @@ MUSEON 回覆: {museon_reply}
 | /meeting, /intel | meeting-intelligence | 會議情報分析 |
 | /risk, /allocation | risk-matrix | 風險管理與資產配置 |
 | /sentiment | sentiment-radar | 市場情緒雷達 |
-| /ares, /strategy-person | ares | 戰神系統（人物分析+策略） |
+| /athena, /athena-person | athena | ATHENA 智慧戰略情報 |
 | /anima, /profile | anima-individual | 人物建檔/查詢 |
 | /reading, /energy | energy-reading | 能量解讀 |
 | /wan-miu, /persona-16 | wan-miu-16 | 萬謬16型人格 |

@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260330_021718_metacog_insight",
+  "category": "metacog_insight",
+  "content": "## 完成！提供了兩個版本：\n\n**已產出：**\n\n1. **📄 Markdown 版本** — `/MUSEON/docs/chapter-04-five-scenarios-complete.md`\n   - 便於版本控制 + Git tracking\n   - 可以直接在 IDE 中編輯\n\n2. **🌐 HTML 版本** — `/MUSEON/data/reports/museon_genesis_ch04_complete.html`\n   - 符合設計規範（Ember 配色、Cormorant Garamond、響應式）\n   - 可直接在瀏覽器中打開預覽\n\n---\n\n## 核心亮點（相比原本的表格）\n\n| 面向 | 補充內容 |\n|------|---------|\n| **Skill 組合** | 從表格 → 詳細的組合邏輯樹（每個 Skill 做什麼） |\n| **敘事感** | 從「功能列表」→ 「開頭困境 → 具體過程 → 結果轉折」的故事弧 |\n| **量化證據** | 每個場景都有具體數字（融資額、轉換率、時間縮減、金額提升） |\n| **為什麼 MUSEON** | 對比一般 Agent 的做法，說清楚差在哪 |\n| **可用性** | 5 張對比卡 + 最後的「故事感」總結 |\n\n---\n\n## 下一步？\n\n想要：\n1. **發布到 GitHub Pages**？→ 我用 `publish-report.py` 上傳並驗證連結\n2. **整合到原本的 genesis.html**？→ 我幫你拆成章節模組\n3. **生成 PDF 版本**？→ 可以轉換\n4. **改寫某個場景的細節**？→ 說要改哪個\n\n無",
+  "source": "L4_observer",
+  "created_at": "2026-03-30T02:17:18.402506+08:00",
+  "priority": "medium"
+}

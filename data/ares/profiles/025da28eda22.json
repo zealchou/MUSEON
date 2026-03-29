@@ -1,0 +1,110 @@
+{
+  "version": "1.0.0",
+  "profile_id": "025da28eda22",
+  "created_at": "2026-03-29T06:24:52.872187",
+  "updated_at": "2026-03-30T03:04:48.644593",
+  "domains": [
+    "business"
+  ],
+  "L1_facts": {
+    "name": "Joh",
+    "title": null,
+    "company": null,
+    "role": null,
+    "industry": null,
+    "notes": []
+  },
+  "L2_personality": {
+    "wan_miu_code": null,
+    "wan_miu_name": null,
+    "four_axes": {
+      "mission": null,
+      "relation": null,
+      "drive": null,
+      "emotion": null
+    },
+    "confidence": 95,
+    "assessment_type": null,
+    "observations": [
+      "八原語 aspiration: {'level': 16, 'confidence': 0.55, 'signal': '[群組近期對話紀錄]   58:30 Joh: @MuseonClaw_bot 好的👌 我現在跟Zeal想要一起推廣M U S E O N給一人公司或者是旅行社', 'last_observed': '2026-03-13T15:00:09.570387'}",
+      "八原語 accumulation: {'level': 16, 'confidence': 0.55, 'signal': '[群組近期對話紀錄]   55:38 Joh: @MuseonClaw_bot 你之前都在忙什麼啊？   58:30 Joh: 好的👌 我現在跟Zeal想要一起', 'last_observed': '2026-03-13T14:17:05.667317'}",
+      "八原語 action_power: {'level': 16, 'confidence': 0.55, 'signal': '[群組近期對話紀錄]   40:35 Joh: 如果需要我重新傳送，請直接跟我說   40:49 Joh: @MuseonClaw_bot 如果需要我重新傳送，', 'last_observed': '2026-03-18T16:11:19.154043'}",
+      "八原語 curiosity: {'level': 100, 'confidence': 0.9, 'signal': '[群組近期對話紀錄]   09:25 周逸達（Zeal）（老闆）: 27項底層邏輯是什麼   09:40 Joh: 你上次說的，你獨家的   09:52 Joh', 'last_observed': '2026-03-18T16:11:19.154043'}",
+      "八原語 emotion_pattern: {'level': 0, 'confidence': 0.0, 'signal': '', 'last_observed': None}",
+      "八原語 blindspot: {'level': 16, 'confidence': 0.65, 'signal': '[群組近期對話紀錄]   37:05 Joh: [檔案: photo] @MuseonClaw_bot 你似乎在分析文件上有些問題！我另外提供行程說明的照片給你', 'last_observed': '2026-03-13T16:31:13.904958'}",
+      "八原語 boundary: {'level': 30, 'confidence': 1.0, 'signal': '[群組近期對話紀錄]   40:35 Joh: 如果需要我重新傳送，請直接跟我說   40:49 Joh: @MuseonClaw_bot 如果需要我重新傳送，', 'last_observed': '2026-03-18T16:11:19.154043'}",
+      "八原語 relationship_depth: {'level': 0, 'confidence': 0.0, 'signal': '', 'last_observed': None}"
+    ]
+  },
+  "L3_energy": {
+    "has_reading": false,
+    "inner": {},
+    "outer": {},
+    "reading_date": null
+  },
+  "L4_interactions": {
+    "total_count": 32,
+    "positive_count": 0,
+    "negative_count": 0,
+    "neutral_count": 0,
+    "last_interaction": null,
+    "combined_reading": null,
+    "history": []
+  },
+  "L5_leverage": {
+    "channels": {
+      "has": null,
+      "needs": null,
+      "details": null
+    },
+    "technology": {
+      "has": null,
+      "needs": null,
+      "details": null
+    },
+    "capital": {
+      "has": null,
+      "needs": null,
+      "details": null
+    },
+    "network": {
+      "has": null,
+      "needs": null,
+      "details": null
+    },
+    "brand": {
+      "has": null,
+      "needs": null,
+      "details": null
+    },
+    "systems": {
+      "has": null,
+      "needs": null,
+      "details": null
+    },
+    "content": {
+      "has": null,
+      "needs": null,
+      "details": null
+    },
+    "time": {
+      "has": null,
+      "needs": null,
+      "details": null
+    }
+  },
+  "L6_communication": {
+    "style": null,
+    "taboos": [],
+    "preferences": [],
+    "landmines": [],
+    "effective_approaches": []
+  },
+  "L7_context_masks": {},
+  "temperature": {
+    "level": "new",
+    "trend": "stable",
+    "last_updated": "2026-03-29T06:24:52.872187"
+  },
+  "connections": []
+}

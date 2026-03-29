@@ -1,0 +1,604 @@
+{
+  "schema": {
+    "name": "OM-Plus-IntegratedSynthesis",
+    "type": "plus_module",
+    "domain": "integrated_synthesis",
+    "format": "json",
+    "language": "zh-Hant",
+    "version": "v0.2.0",
+    "status": "ITERATED",
+    "updated_at": "2026-01-25",
+    "changelog": [
+      "v0.2.0: 建立 Step 6 綜合分析模組：統合 Step1~5 的 signals（sum compare / 四象 / 四感 / 四軸 / 八方位）。",
+      "v0.2.0: 新增『卡點→逆時針回推→起點』敘事整合介面（計算由 Router/Protocols 負責；本模組做整合與說法）。",
+      "v0.2.0: 新增決策層級（禪→訣→劍）：先定盤感與代價，再給驗證與一個最小動作，避免跳步。",
+      "v0.2.0: 新增 INCOMPLETE 守門：任何缺資料的環節都不硬推，改給『可補齊清單』與降級綜合。",
+      "v0.2.0: 新增 Step 7 自我總結提問模板（使用者總結/收穫/下一步）。"
+    ],
+    "depends_on": {
+      "kernel": "OM-DNA-Kernel.json@v0.1.x",
+      "protocols": "M-DNA-Protocols.json@v0.1.x",
+      "router": "OM-Index-Router.json@v0.1.x",
+      "energy_grammar": "OM-Plus-EnergyGrammar.json@v0.2.0",
+      "eight_directions": "OM-Plus-EightDirections.json@v0.2.0",
+      "four_manifestations": "OM-Plus-FourManifestations.json@v0.2.0",
+      "four_feelings": "OM-Plus-FourFeelings.json@v0.2.0",
+      "four_axes": "OM-Plus-FourAxes.json@v0.2.0"
+    },
+    "axes": {
+      "names": ["劍", "禪", "訣"],
+      "output_order_default": ["禪", "訣", "劍"],
+      "notes": {
+        "禪": "先接住現況（不評價），確認盤感重心與代價。",
+        "訣": "把推論與事實拆開；指出缺資料處與需要補齊的 input。",
+        "劍": "只給一個最小可承擔行動；可選擇從起點方位/最弱象/最弱感切入。"
+      }
+    }
+  },
+
+  "module_identity": {
+    "id": "PLUS:INTEGRATED_SYNTHESIS",
+    "name": "綜合分析",
+    "purpose": "把 One Muse 解盤的 Step 1~5 的輸出整合成 Step 6 的整體敘事與對策方向（含卡點、起點、優先順序、風險提醒、驗證問題），並生成 Step 7 的使用者自我總結引導。",
+    "step_support": [6, 7],
+    "tags": [
+      "synthesis",
+      "integration",
+      "bottleneck_story",
+      "reverse_route_narrative",
+      "priority",
+      "one_micro_action",
+      "user_summary_prompts"
+    ]
+  },
+
+  "config": {
+    "integration_principles": {
+      "truth_alignment": "清楚區分：事實（輸入/分數/缺失） vs 推論（假設/解讀）。",
+      "non_judgement": "正負不代表好壞，只是偏移與可用度；高也可能過載，低也可能回收/保護。",
+      "state_first": "若 user_state=LOW，輸出降級：少框架、多一個可做的小步。",
+      "no_jump": "沒有 Step 1/outer 完整就不硬做依賴 outer 的結論（四象/軸線若 outer 缺失就 INCOMPLETE）。"
+    },
+
+    "prioritization": {
+      "note": "Step 6 的優先順序：先盤感（sum）→外顯（四象）→內隱（四感）→人格結構（四軸）→單點（八方位）→卡點與起點整合。",
+      "order": [
+        "sum_compare",
+        "four_manifestations",
+        "four_feelings",
+        "four_axes",
+        "eight_directions",
+        "bottleneck_and_entry",
+        "one_micro_action"
+      ]
+    },
+
+    "bottleneck_narrative_rules": {
+      "note": "卡點計算由 Router/Protocols 提供（bottleneck_dir、reverse_route、solution_entry）。本模組只做敘事整合。",
+      "framing": {
+        "bottleneck": "卡點不是缺陷，是『阻塞點/保護點』：它通常在保護你避免某種代價。",
+        "reverse_route": "逆時針回推不是迷信，而是『在能量循環中找可用的起點』：先用得上的地方先動。",
+        "entry": "起點方位是『最小可動槓桿』，不是終點；先把循環轉起來再談全面優化。"
+      },
+      "if_missing": {
+        "fallback": "若未提供 bottleneck_dir 等欄位：本模組用『最負分或拉扯最大的方位（依 inputs 提供的 enriched）』作暫代敘事，但會標註為推論需驗證。"
+      }
+    },
+
+    "risk_checks": {
+      "note": "用來提醒『偏強的代價』與『拉扯的耗損』。",
+      "signals": {
+        "overload": "若某象/感/軸/方位落在 very_high 或 |score| 接近上界，提醒過載/透支風險。",
+        "tension": "若存在 tension_flags，提醒內外不一致的耗損與需補資源/界線。",
+        "edge_reversal": "若存在 ±4，提醒臨界（可能回到可用），避免保證語句。"
+      }
+    },
+
+    "micro_action_policy": {
+      "note": "Step 6 最終只給一個『最小可承擔動作』，可從三種入口選一：起點方位/最弱外顯象/最弱內隱感。",
+      "choices": ["FROM_ENTRY_DIRECTION", "FROM_WEAKEST_MANIFESTATION", "FROM_WEAKEST_FEELING"],
+      "default": "FROM_ENTRY_DIRECTION",
+      "low_state_rule": "user_state=LOW 時必須只給 1 個動作，且 15 分鐘內能完成。"
+    },
+
+    "language_guard": {
+      "banned_phrases": ["你就是", "你一定", "注定", "保證", "永遠", "絕對", "好壞"],
+      "preferred_phrases": ["目前", "在這段時間", "可能", "需要驗證", "可用度", "代價", "最小一步"]
+    }
+  },
+
+  "io_contract": {
+    "inputs": {
+      "required": {
+        "goal": "string",
+        "user_state": "LOW|MID|HIGH",
+        "energy_grammar": {
+          "type": "object",
+          "description": "來自 OM-Plus-EnergyGrammar outputs.signals + explainers（至少要有 completeness、inner_sum、outer_sum、sum_gap、tension_details 或 completeness_notice）。"
+        },
+        "eight_directions": {
+          "type": "object",
+          "description": "來自 OM-Plus-EightDirections outputs（至少要有 eight_directions_reading 或 direction meta 的 enriched 結果）。"
+        },
+        "four_manifestations": {
+          "type": "object",
+          "description": "來自 OM-Plus-FourManifestations outputs（含 completeness）。"
+        },
+        "four_feelings": {
+          "type": "object",
+          "description": "來自 OM-Plus-FourFeelings outputs（含 driver_hypotheses 或 overview）。"
+        },
+        "four_axes": {
+          "type": "object",
+          "description": "來自 OM-Plus-FourAxes outputs（含 axis_code 與 per-axis completeness）。"
+        }
+      },
+      "optional": {
+        "bottleneck_dir": "string",
+        "reverse_route": "array<string>",
+        "solution_entry": "array<string>",
+        "router_notes": "string",
+        "domain_focus": {
+          "type": "string",
+          "enum": ["BUSINESS", "RELATIONSHIP", "INNER_STATE", "BALANCED"],
+          "default": "BALANCED"
+        },
+        "include_crystals": {"type": "boolean", "default": true}
+      }
+    },
+
+    "outputs": {
+      "type": "object",
+      "fields": {
+        "integrated_synthesis": {
+          "type": "object",
+          "fields": {
+            "zen_frame": "string",
+            "key_takeaways": "array<string>",
+            "system_weather": {
+              "inner_outer_summary": "string",
+              "tension_summary": "string|null",
+              "overload_flags": "array<string>"
+            },
+            "external_snapshot": {
+              "overview": "string",
+              "strongest": "string|null",
+              "weakest": "string|null",
+              "notes": "string"
+            },
+            "internal_drivers": {
+              "overview": "string",
+              "strongest": "string|null",
+              "weakest": "string|null",
+              "driver_hypotheses": "array<object>",
+              "notes": "string"
+            },
+            "personality_structure": {
+              "axis_code": "string",
+              "readable": "string",
+              "overview": "string",
+              "verification_questions": "array<string>"
+            },
+            "bottleneck_story": {
+              "bottleneck_dir": "string|null",
+              "why_it_blocks": "string",
+              "what_it_protects": "string",
+              "reverse_route_summary": "string|null",
+              "solution_entry_summary": "string|null",
+              "notes": "string"
+            },
+            "final_action_plan": {
+              "energy_adjustment": {
+                "strategy_summary": "string",
+                "seed_law_link": "string",
+                "actions": "array<object>",
+                "risk_notes": "string"
+              },
+              "relationship_adjustment": {
+                "strategy_summary": "string",
+                "focus_priority": "UP|PEER|DOWN|FAMILY|PARTNER|CUSTOM",
+                "actions": "array<object>",
+                "risk_notes": "string"
+              },
+              "cognition_behavior_adjustment": {
+                "strategy_summary": "string",
+                "cognitive_hygiene": "array<object>",
+                "behavior_plan": "array<object>",
+                "risk_notes": "string"
+              },
+              "sequence_recommendation": "string",
+              "verification": "string"
+            },
+            "one_micro_action": {
+              "choice": "FROM_ENTRY_DIRECTION|FROM_WEAKEST_MANIFESTATION|FROM_WEAKEST_FEELING",
+              "action": "string",
+              "why_this": "string",
+              "timebox_minutes": "number",
+              "success_criteria": "string"
+            },
+            "coach_questions": "array<string>"
+          }
+        },
+        "user_self_summary_prompts": {
+          "type": "object",
+          "fields": {
+            "prompt_set": "array<string>",
+            "reflection_structure": {
+              "discoveries": "string",
+              "problem_behind_problem": "string",
+              "learning": "string",
+              "next_step": "string"
+            }
+          }
+        },
+        "completeness_report": {
+          "type": "object",
+          "fields": {
+            "overall": "COMPLETE|PARTIAL",
+            "missing": "array<string>",
+            "skipped": "array<string>",
+            "how_to_fix": "array<string>"
+          }
+        }
+      }
+    },
+
+    "guards": {
+      "must_include": [
+        "至少 1 句『正負非好壞』",
+        "至少 1 個『推論需驗證』提醒",
+        "若任何模組 INCOMPLETE：必須輸出 completeness_report 並在綜合內降級（不硬推）",
+        "必須產出 final_action_plan（三面向：能量/關係/認知行為）",
+        "必須產出 one_micro_action（且 LOW 狀態可 15 分鐘內完成）",
+        "必須提供使用者自我總結 prompts（Step 7）"
+      ],
+      "forbidden": [
+        "把人格/代碼當定論",
+        "outer 缺失仍做四象/軸線確定結論",
+        "命定化/保證式語言",
+        "在 LOW 狀態輸出過多框架或作業"
+      ]
+    }
+  },
+
+  "procedures": {
+      "collect_completeness": {
+        "steps": [
+          "read completeness from energy_grammar and each module outputs",
+          "build completeness_report.overall:",
+          "  - COMPLETE if all required sections have completeness COMPLETE",
+          "  - PARTIAL otherwise",
+          "missing: list missing fields (e.g., outer not complete, axis_code incomplete, manifestation incomplete)",
+          "skipped: list analyses that were skipped due to missing",
+          "how_to_fix: minimal input checklist (e.g., provide outer for all directions)"
+        ]
+      },
+
+      "build_zen_frame": {
+        "steps": [
+          "compose 2-4 sentences: goal anchoring + non-judgement + state-aware pacing",
+          "if user_state == 'LOW': shorten and emphasize one small step"
+        ]
+      },
+
+      "summarize_system_weather": {
+        "steps": [
+          "use energy_grammar.sum_summary and tension_summary if available",
+          "set overload_flags if any very_high / near-boundary signals appear in inputs",
+          "if energy_grammar completeness.sums incomplete: mention outer not ready and keep summary inner-only"
+        ]
+      },
+
+      "summarize_external_snapshot": {
+        "steps": [
+          "if four_manifestations has overview: use it",
+          "else: mark skipped",
+          "identify strongest/weakest among COMPLETE aspects"
+        ]
+      },
+
+      "summarize_internal_drivers": {
+        "steps": [
+          "use four_feelings.overview; include driver_hypotheses (as hypothesis not label)",
+          "identify strongest/weakest among COMPLETE feelings"
+        ]
+      },
+
+      "summarize_personality_structure": {
+        "steps": [
+          "use four_axes.axis_code and overviews",
+          "if incomplete: use partial_code and mention verification",
+          "collect 2-4 verification questions from axis pools"
+        ]
+      },
+
+      "compose_bottleneck_story": {
+        "steps": [
+          "if bottleneck_dir provided: use it",
+          "else: infer candidate using eight_directions meta (most negative or highest tension) and mark as hypothesis",
+          "why_it_blocks: tie to direction meaning + current weather/feelings",
+          "what_it_protects: frame as protection from a cost",
+          "reverse_route_summary: if reverse_route present summarize in plain language",
+          "solution_entry_summary: if solution_entry present pick first/primary entry and explain why it's usable"
+        ]
+      },
+
+      "build_final_action_plan": {
+        "steps": [
+          "Energy stream: map to seed-law logic (C圈→選擇→行為→事件→體驗→信念→能量); pick 1-3 low-cost practices that match the盘面（例如：早睡早起/儀式感/情緒流動/感恩/不帶犧牲的付出/走出舒適圈）。",
+          "Relationship stream: identify the most leveraged relationship layer (UP/PEER/DOWN/FAMILY/PARTNER) based on tension + bottleneck; propose 1-3 repair/maintenance actions (回覆窗/每週修復會/界線/送禮或支持/投其所好等)。",
+          "Cognition+Behavior stream: apply cognitive hygiene (事實/演繹分離、偏誤守門、模糊詞消毒) then translate to a behavior plan with realistic timebox (avoid overcommit; allocate time after subtracting core commitments; weekly review loop)。",
+          "Sequence recommendation: choose order (usually 先能量穩態→再關係修復→再策略行動；或依盤勢反轉點調整)。",
+          "Verification: add one short statement marking assumptions to validate in 7 days."
+        ]
+      },
+
+      "select_one_micro_action": {
+        "steps": [
+          "prefer selecting from final_action_plan in this priority: entry-direction action → relationship highest leverage action → cognition/behavior smallest plan → energy practice",
+          "timebox: 15 if user_state == 'LOW' else 30",
+          "success_criteria: define observable completion (e.g., message sent / list written / 10% draft produced)"
+        ]
+      },
+
+      "build_coach_questions": {
+        "steps": [
+          "merge 6-10 questions: 3 base + 2 from tension + 2 from axis + 1 from bottleneck protection",
+          "if user_state == 'LOW': cap at 3-5"
+        ]
+      },
+
+      "build_user_self_summary_prompts": {
+        "steps": [
+          "output prompt_set of 6-10 items; LOW cap at 4-6",
+          "provide reflection_structure template fields: discoveries/problem_behind_problem/learning/next_step"
+        ]
+      }
+    }
+: {
+              "overview": "string",
+              "strongest": "string|null",
+              "weakest": "string|null",
+              "notes": "string"
+            },
+            "internal_drivers": {
+              "overview": "string",
+              "strongest": "string|null",
+              "weakest": "string|null",
+              "driver_hypotheses": "array<object>",
+              "notes": "string"
+            },
+            "personality_structure": {
+              "axis_code": "string",
+              "readable": "string",
+              "overview": "string",
+              "verification_questions": "array<string>"
+            },
+            "bottleneck_story": {
+              "bottleneck_dir": "string|null",
+              "why_it_blocks": "string",
+              "what_it_protects": "string",
+              "reverse_route_summary": "string|null",
+              "solution_entry_summary": "string|null",
+              "notes": "string"
+            },
+            "one_micro_action": {
+              "choice": "FROM_ENTRY_DIRECTION|FROM_WEAKEST_MANIFESTATION|FROM_WEAKEST_FEELING",
+              "action": "string",
+              "why_this": "string",
+              "timebox_minutes": "number",
+              "success_criteria": "string"
+            },
+            "coach_questions": "array<string>"
+          }
+        },
+        "user_self_summary_prompts": {
+          "type": "object",
+          "fields": {
+            "prompt_set": "array<string>",
+            "reflection_structure": {
+              "discoveries": "string",
+              "problem_behind_problem": "string",
+              "learning": "string",
+              "next_step": "string"
+            }
+          }
+        },
+        "completeness_report": {
+          "type": "object",
+          "fields": {
+            "overall": "COMPLETE|PARTIAL",
+            "missing": "array<string>",
+            "skipped": "array<string>",
+            "how_to_fix": "array<string>"
+          }
+        }
+      }
+    },
+
+    "guards": {
+      "must_include": [
+        "至少 1 句『正負非好壞』",
+        "至少 1 個『推論需驗證』提醒",
+        "若任何模組 INCOMPLETE：必須輸出 completeness_report 並在綜合內降級（不硬推）",
+        "必須產出 one_micro_action（且 LOW 狀態可 15 分鐘內完成）",
+        "必須提供使用者自我總結 prompts（Step 7）"
+      ],
+      "forbidden": [
+        "把人格/代碼當定論",
+        "outer 缺失仍做四象/軸線確定結論",
+        "命定化/保證式語言",
+        "在 LOW 狀態輸出過多框架或作業"
+      ]
+    }
+  },
+
+  "procedures": {
+    "collect_completeness": {
+      "steps": [
+        "read completeness from energy_grammar and each module outputs",
+        "build completeness_report.overall:",
+        "  - COMPLETE if all required sections have completeness COMPLETE",
+        "  - PARTIAL otherwise",
+        "missing: list missing fields (e.g., outer not complete, axis_code incomplete, manifestation incomplete)",
+        "skipped: list analyses that were skipped due to missing",
+        "how_to_fix: minimal input checklist (e.g., provide outer for all directions)"
+      ]
+    },
+
+    "build_zen_frame": {
+      "steps": [
+        "compose 2-4 sentences: goal anchoring + non-judgement + state-aware pacing",
+        "if user_state == 'LOW': shorten and emphasize one small step"
+      ]
+    },
+
+    "summarize_system_weather": {
+      "steps": [
+        "use energy_grammar.sum_summary and tension_summary if available",
+        "set overload_flags if any very_high / near-boundary signals appear in inputs",
+        "if energy_grammar completeness.sums incomplete: mention outer not ready and keep summary inner-only"
+      ]
+    },
+
+    "summarize_external_snapshot": {
+      "steps": [
+        "if four_manifestations has overview: use it",
+        "else: mark skipped",
+        "identify strongest/weakest among COMPLETE aspects"
+      ]
+    },
+
+    "summarize_internal_drivers": {
+      "steps": [
+        "use four_feelings.overview; include driver_hypotheses (as hypothesis not label)",
+        "identify strongest/weakest among COMPLETE feelings"
+      ]
+    },
+
+    "summarize_personality_structure": {
+      "steps": [
+        "use four_axes.axis_code and overviews",
+        "if incomplete: use partial_code and mention verification",
+        "collect 2-4 verification questions from axis pools"
+      ]
+    },
+
+    "compose_bottleneck_story": {
+      "steps": [
+        "if bottleneck_dir provided: use it",
+        "else: infer candidate using eight_directions meta (most negative or highest tension) and mark as hypothesis",
+        "why_it_blocks: tie to direction meaning + current weather/feelings",
+        "what_it_protects: frame as protection from a cost",
+        "reverse_route_summary: if reverse_route present summarize in plain language",
+        "solution_entry_summary: if solution_entry present pick first/primary entry and explain why it's usable"
+      ]
+    },
+
+    "select_one_micro_action": {
+      "steps": [
+        "choose source by micro_action_policy.default unless overridden",
+        "FROM_ENTRY_DIRECTION: pull first action from eight_directions reading OR energy_grammar.direction_action_hints",
+        "FROM_WEAKEST_MANIFESTATION: pull first action from four_manifestations micro_action_pool",
+        "FROM_WEAKEST_FEELING: pull first action from four_feelings micro_action_pool",
+        "timebox: 15 if user_state == 'LOW' else 30",
+        "success_criteria: define observable completion (e.g., message sent / list written / 10% draft produced)"
+      ]
+    },
+
+    "build_coach_questions": {
+      "steps": [
+        "merge 6-10 questions: 3 base + 2 from tension + 2 from axis + 1 from bottleneck protection",
+        "if user_state == 'LOW': cap at 3-5"
+      ]
+    },
+
+    "build_user_self_summary_prompts": {
+      "steps": [
+        "output prompt_set of 6-10 items; LOW cap at 4-6",
+        "provide reflection_structure template fields: discoveries/problem_behind_problem/learning/next_step"
+      ]
+    }
+  },
+
+  "prompt_sets": {
+    "coach_questions": {
+      "base": [
+        "如果這整張盤只帶走一個提醒，你覺得會是什麼？",
+        "你現在最想要的，是更靠近哪一種『可用度』？（更穩、更快、更親密、更自在…）",
+        "如果我們不急著解決問題，你覺得這個問題在保護你什麼？"
+      ],
+      "tension": {
+        "inner_gt_outer": [
+          "你想做但做不出來，最缺的是資源、允許、信心，還是安全感？",
+          "如果只做 10% 版本，你願意先做哪一段？"
+        ],
+        "outer_gt_inner": [
+          "你正在為誰/為了什麼撐住？停下來最怕失去什麼？",
+          "最小的界線調整會是什麼？（時間/承諾/交付標準）"
+        ]
+      },
+      "axis": [
+        "你比較常『先答應再收斂』，還是『先問清楚才安心』？這一點最近帶來的代價是什麼？",
+        "你最近的改變，是『有驗證點的試驗』還是『情緒性的轉向』？"
+      ],
+      "bottleneck": [
+        "如果卡點不被拿掉，而是被你『善用』，它會怎麼幫你？",
+        "你願不願意把『保護成本』講清楚，換一個更可承擔的保護方式？"
+      ]
+    },
+
+    "user_self_summary": {
+      "default": [
+        "今天最讓你有感的一句話/一個畫面是什麼？",
+        "你看到的『問題背後的問題』是什麼？",
+        "你發現自己在哪個方位最容易耗損？它在保護你什麼？",
+        "你覺得你目前最強的資源/優勢是什麼？",
+        "如果只做一件事讓盤勢轉起來，你選哪一件？",
+        "你願意在 48 小時內完成的最小一步是什麼？",
+        "你需要誰/什麼支持你完成這一步？",
+        "這一步做完，你怎麼判斷它是有效的？"
+      ],
+      "low_state": [
+        "你現在最需要被接住的是什麼？",
+        "如果只做 10% 的一步，你願意做哪個？",
+        "你需要什麼支持才能做完它？",
+        "做完後，你希望自己感覺到什麼改變？"
+      ]
+    }
+  },
+
+  "crystal_hooks": {
+    "note": "整合層建議把常見組合與敘事模板做成 OM-Cry（AEO/GEO）晶體，以快速路由與引用。",
+    "placeholders": [
+      "CR:AEO.SYNTHESIS.NARRATIVE.001",
+      "CR:AEO.BOTTLENECK_STORY.001",
+      "CR:AEO.ONE_MICRO_ACTION.001",
+      "CR:GEO.SUM_WEATHER.001",
+      "CR:GEO.DRIVER_HYPOTHESES.001"
+    ]
+  },
+
+  "exports": {
+    "signals_written": ["integrated_synthesis", "user_self_summary_prompts", "completeness_report"],
+    "explainers_written": ["zen_frame", "key_takeaways", "one_micro_action"]
+  },
+
+  "links": {
+    "protocols": [
+      "P:K2.S1.STATE_DETECT",
+      "P:K3.S3.SUM_COMPARE",
+      "P:K5.S1.BOTTLENECK_DETECT",
+      "P:K5.S2.REVERSE_ROUTE_TWO_POS",
+      "P:K6.S1.FACT_INFERENCE_SEP"
+    ],
+    "recommended_routes": ["R:6.SYNTHESIS", "R:7.USER_SUMMARY"],
+    "neighbor_modules": [
+      "PLUS:ENERGY_GRAMMAR",
+      "PLUS:FOUR_MANIFESTATIONS",
+      "PLUS:FOUR_FEELINGS",
+      "PLUS:FOUR_AXES_STRUCTURE_CODE",
+      "PLUS:EIGHT_DIRECTIONS_TRIPLE_LAYER"
+    ]
+  }
+}

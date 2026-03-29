@@ -1,0 +1,4085 @@
+{
+  "schema": {
+    "schema_id": "OM-Plus-64Hex-GEO",
+    "version": "0.3.2",
+    "language": "zh-Hant",
+    "updated_at": "2026-01-25",
+    "description": "GEOï¼šOne Muse 64å¼µç‰Œï¼ˆ64å¦/64çµ„åˆï¼‰è³‡æ–™å­—å…¸ã€‚åŒ…å« om_primaryï¼ˆOne Muse ä¸»æ¬Šå…§å®¹ï¼‰èˆ‡ external_refsï¼ˆå¤–éƒ¨è£œå……å¼•ç”¨ï¼‰ã€‚æ­¤ç‰ˆæœ¬å·²å®Œæ•´åŒ¯å…¥ 64 æ¢ entryï¼ˆhex_key/gate/energy/raw_blockï¼‰ã€‚å¾ŒçºŒå¯å†å°‡ raw_block æ‹†åˆ†æˆç•«é¢/é‡‹ç¾©/ç‰¹è³ª/æ•™ç·´å°è©±ç­‰æ¬„ä½ã€‚",
+    "external_ref_policies": {
+      "i_ching": {
+        "preferred_authors": [
+          "æ›¾ä»•å¼·",
+          "å—æ‡·ç‘¾"
+        ],
+        "enforcement": "preferred",
+        "allowed_ref_types": [
+          "book",
+          "lecture",
+          "article",
+          "website"
+        ],
+        "citation_style": "bibliography_or_url",
+        "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+      },
+      "human_design": {
+        "only_domain": "vocus.cc",
+        "only_author": "å¢¨å®¢",
+        "enforcement": "strict",
+        "allow_subdomains": true,
+        "allowed_url_patterns": [
+          "^https?://(www\\.)?vocus\\.cc/.*$"
+        ],
+        "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+      }
+    },
+    "notes": [
+      "å¤–åœ¨èƒ½é‡çµ„åˆè¨ˆç®—è¦å‰‡ä¸åœ¨æ­¤æª”è¨ˆç®—ï¼šouter_hex = position_direction + card.trigrams.leftã€‚",
+      "é€šé“æª¢æŸ¥éœ€è¦ HD channels indexï¼ˆå¦æª”ï¼‰ã€‚",
+      "ç›®å‰ä»¥ om_primary.i_ching.raw_block ä¿ç•™ä¾†æºæ¯åˆ—æ–‡å­—å¡Šï¼Œå¾…ä¸‹ä¸€è¼ªç²¾ç…‰æ‹†æ¬„ä½ã€‚"
+    ]
+  },
+  "dataset": {
+    "provenance": {
+      "om_primary_source_files": [
+        "64å¼µæ•™ç·´å°è©± One Museå°æ‡‰äººé¡žåœ–_250303.pdf"
+      ],
+      "extraction_method": "pdf text extraction (row-block segmented by hex_key regex)",
+      "disclaimer": "PDF è¡¨æ ¼æŠ˜è¡Œå·²è¢«ä¿ç•™åœ¨ raw_blockï¼›è‹¥è¦æ›´ä¹¾æ·¨çš„æ¬„ä½ï¼ˆç•«é¢/é‡‹ç¾©/ç‰¹è³ª/æ•™ç·´å°è©±ï¼‰ï¼Œå¯å†åšäºŒæ¬¡è§£æžã€‚"
+    },
+    "entry_count": 64,
+    "entries": [
+      {
+        "hex_key": "å±±å±±",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "å±±",
+          "right": "å±±"
+        },
+        "om_primary": {
+          "gate": 52,
+          "energy_number": 4,
+          "i_ching": {
+            "raw_block": "å±±å±± 52 4 å¯å¼·è¡Œ ã€Œè‡ªåˆ¶åŠ›ã€ ç´¯ç©|ç±Œç¢¼ é¿å®³ æˆé•·çš„éŽç¨‹å°±æ˜¯ç©¿è¶ŠæŒ‘æˆ°ä¸¦è¿ŽæŽ¥ä¸‹ä¸€å€‹\n å¤©ç”ŸéŠ·å”®äººå“¡,æœ€å°åŠªåŠ›ç²å¾—æœ€å¤§åˆ©ç›Šã€é¨™å­ã€\nåœ°ä½è¶Šé«˜,æ›´éœ€è¦æ™ºæ…§ã€è€åŠ›å’Œé­„åŠ›,åŸ¹é¤Šè‡ªå·± æ“æŽ§è€…ã€èª‡å¤§ã€ä¸å‹žè€Œç²ã€‚æ‰è¯æ˜¯ã€Œæ“æŽ§çš„è—"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "å±±å±±",
+            "52"
+          ]
+        }
+      },
+      {
+        "hex_key": "å±±å¤©",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "å±±",
+          "right": "å¤©"
+        },
+        "om_primary": {
+          "gate": 26,
+          "energy_number": -3,
+          "i_ching": {
+            "raw_block": "å±±å¤© 26 -3 çš„å¾·æ“ è¡“ã€ ç´¯ç©|ç±Œç¢¼ é¿å®³ è‡ªä¿¡æºè‡ªæ–¼é¢å°æŒ‘æˆ°å¾žä¸æ”¾æ£„\n æœƒåŽ»æ‰¾ä»»ä½•ç†ç”±ä¸€è§£æ”¾ä»–å€‘çš„ç²¾ç¥žå£“åŠ›,å› ç‚ºæ„›\nç›®å‰ç‹€æ³ä¸æ˜Žç¢º,é‡äº‹é ˆèª å¿ƒæ±‚æ•‘,ä¾å‰è¼©æ•™èª¨ å›žç­”,æ€æƒ³å¸¸å¸¸è¢«è€ƒé©—,å®¹æ˜“ç„¦æ…®ã€‚æ‰è¯æ˜¯ã€Œç†"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "å±±å¤©",
+            "26"
+          ]
+        }
+      },
+      {
+        "hex_key": "å±±æ°´",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "å±±",
+          "right": "æ°´"
+        },
+        "om_primary": {
+          "gate": 4,
+          "energy_number": -1,
+          "i_ching": {
+            "raw_block": "å±±æ°´ 4 -1 è€Œè¡Œ è§£ã€ ç´¯ç©|ç±Œç¢¼ é¿å®³ æˆ‘ç„¡/åˆ»æ„é–“åœ¨ç´¯ç©ä»€éº¼å‘¢ å¥½çš„é‚„æ˜¯å£žçš„å½±éŸ¿\næœ‰æ™‚æœƒä¸æ‡‚å¾—è¡¨é”æ„Ÿè¦º,æœ‰äº¤éš›å›°é›£,æƒ…ç·’æœƒå½±\néŸ¿å…¶ä»–äºº,é•·å¾—æœ‰åž‹ã€‚è¨ŽåŽ­å¯‚å¯žæˆ–å®‰éœ,ææ‡¼æ²ˆ"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "å±±æ°´",
+            "4"
+          ]
+        }
+      },
+      {
+        "hex_key": "å±±ç«",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "å±±",
+          "right": "ç«"
+        },
+        "om_primary": {
+          "gate": 22,
+          "energy_number": 3,
+          "i_ching": {
+            "raw_block": "å±±ç« 22 3 æ‡‰æ·±æ€ç†Ÿæ…®,æŒ‰éƒ¨å°±ç­,äº‹è™•è®Šå‹•,ä½†å³å°‡é”æ¨™ é»˜ã€‚æ‰è¯æ˜¯ã€Œå’Œè—¹ã€ ç´¯ç©|ç±Œç¢¼ é¿å®³ æŽŒæ¡å„ªå‹¢,äº¤æ›è³‡æº æŽŒæ¡åŠ£å‹¢,å°‹æ±‚äº¤æ›\n æ€ªèƒŽ,èˆ‡çœ¾ä¸åŒçš„é‚è¼¯,å› ä¸èƒ½è¡¨é”è‡ªå·±è€Œæ„Ÿåˆ°"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "å±±ç«",
+            "22"
+          ]
+        }
+      },
+      {
+        "hex_key": "å±±åœ°",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "å±±",
+          "right": "åœ°"
+        },
+        "om_primary": {
+          "gate": 23,
+          "energy_number": 1,
+          "i_ching": {
+            "raw_block": "å±±åœ° 23 1 æ™‚é‹è¡°æ•—,é †æ‡‰å¤§ç’°å¢ƒçš„è®ŠåŒ–,ç­‰å¾…é‹æ°£çš„è½‰è®Š æŒ«æŠ˜ã€‚æ‰è¯æ˜¯ã€Œæ¥µç°¡ã€ ç´¯ç©|ç±Œç¢¼ é¿å®³ æˆ‘æ¯å¤©æŒçºŒä¸æ–·åœ¨åˆ»æ„ç·´ç¿’äº›ä»€éº¼å‘¢\nèªçœŸæ²»ç†,åŠ å¼·é˜²æ‚£,å¾¹åº•æ•´é “å…§éƒ¨,å¿…æ™‚ä¾†é‹ å°ä»»ä½•äº‹æƒ…éƒ½å…·æœ‰ä¿¡å¿ƒ,æ‰¹åˆ¤çš„,æŒ‘æˆ°/é€€ç¸®æ–¼æ¬Š"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "å±±åœ°",
+            "23"
+          ]
+        }
+      },
+      {
+        "hex_key": "å±±é¢¨",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "å±±",
+          "right": "é¢¨"
+        },
+        "om_primary": {
+          "gate": 18,
+          "energy_number": -2,
+          "i_ching": {
+            "raw_block": "å±±é¢¨ 18 -2 è½‰ å¨,èˆ‡çˆ¶æ¯ç›¸è™•ä¹Ÿè¨±æœƒæœ‰å•é¡Œã€‚æ‰è¯æ˜¯ã€Œæ­£ç›´ã€ ç´¯ç©|ç±Œç¢¼ é¿å®³ åˆ»æ„ç·´ç¿’ã€åæ€å¾©ç›¤å¿«é€Ÿæœ‰æ•ˆçš„ç´¯ç©ç±Œç¢¼\n ç…§é¡§åˆ¥äºº,çŠ§ç‰²å°æˆ‘å®Œæˆå¤§æˆ‘ ,ç”¨è‡ªæˆ‘çš„åƒ¹å€¼è§€"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "å±±é¢¨",
+            "18"
+          ]
+        }
+      },
+      {
+        "hex_key": "å±±é›·",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "å±±",
+          "right": "é›·"
+        },
+        "om_primary": {
+          "gate": 27,
+          "energy_number": 2,
+          "i_ching": {
+            "raw_block": "å±±é›· 27 2 å¿ƒå¿µä¸å®š,æ„å¿—ä¸å …,ç–²æ–¼å¥”å‘½,æƒ³è¾¦æ³•æ±‚è²´äºº æ»‹é¤Šçœ¾ç”Ÿ(å®Œæˆå¤§åŒä¸–ç•Œ) ç´¯ç©|ç±Œç¢¼ é¿å®³ å–„ç”¨ä»–äººçš„åƒ¹å€¼/ç±Œç¢¼ æ›´å¿«åœ°é”æˆè‡ªå·±çš„ç›®æ¨™\nå¹«åŠ©éœ€è¦æˆ‘å€‘å¹«åŠ©çš„äºº,æ–½æ©çš„äººå¿ƒå®‰,å¾—ç›Šçš„ æ¸´æœ›é«”é©—æ–°ç¶“é©—çš„å£“åŠ›/ å–œæ­¡å°±æƒ³è¡/æ–°çš„é–‹"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "å±±é›·",
+            "27"
+          ]
+        }
+      },
+      {
+        "hex_key": "å±±æ¾¤",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "å±±",
+          "right": "æ¾¤"
+        },
+        "om_primary": {
+          "gate": 41,
+          "energy_number": -4,
+          "i_ching": {
+            "raw_block": "å±±æ¾¤ 41 -4 äººå……æ»¿å–œæ‚… å§‹,éžå¸¸è¡å‹•ã€‚æ‰è¯æ˜¯å¼·çƒˆçš„ã€Œé æ„Ÿã€ã€‚ ç´¯ç©|ç±Œç¢¼ é¿å®³ æˆ‘ä¸åªæ˜¯æˆ‘è‡ªå·± æˆ‘æ˜¯æˆ‘èˆ‡æ‰€æœ‰è³‡æºçš„æ•´é«”\nå¤©å¤–æœ‰å¤©,å®œè—é‹’ä¸éœ²,é€€å±…å¹•å¾Œ,å¯©æ…Žåº¦å‹¢, éœ€è¦ç¨è™•åŽ»æ€è€ƒéŽåŽ»,å¾žéŽåŽ»æ±²å–æ•™è¨“,å¿…é ˆæ‹‹"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "å±±æ¾¤",
+            "41"
+          ]
+        }
+      },
+      {
+        "hex_key": "å¤©å±±",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "å¤©",
+          "right": "å±±"
+        },
+        "om_primary": {
+          "gate": 33,
+          "energy_number": 3,
+          "i_ching": {
+            "raw_block": "å¤©å±± 33 3 å¿…å°‡è‹¦ç›¡ç”˜ä¾† é–‹ç§äººéš±ç§æ‰èƒ½çœŸæ­£å­¸åˆ°ã€‚æ‰è¯æ˜¯ã€Œè¬¹æ…Žã€ã€‚ ç›®æ¨™|çµæžœ ä½¿å‘½ å°‡ç›®æ¨™åˆ‡å°ç‚º 1/3ä¸¦ã€Œç«‹å³æŽ¡å–è¡Œå‹•ã€\n å¯Œå‰µæ„çš„è—è¡“å®¶,å¼•äººæ³¨ç›®,å–œæ­¡ç”¨è‡ªå·±çš„æ–¹å¼\nåšäº‹æƒ…,ç¨ç«‹ç‰¹æ®Š,æœ‰æ™‚å–®æ§åŒ¹é¦¬åŸ‹é ­è‹¦å¹¹ã€‚æ‰\nè¯æ˜¯ã€Œæœ‰ç”Ÿå‘½æ´»åŠ›ã€ <å‰µé€ æ˜¯ä¸€ç¨®ä¸»è¦çš„åŠ›é‡,"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "å¤©å±±",
+            "33"
+          ]
+        }
+      },
+      {
+        "hex_key": "å¤©å¤©",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "å¤©",
+          "right": "å¤©"
+        },
+        "om_primary": {
+          "gate": 1,
+          "energy_number": 4,
+          "i_ching": {
+            "raw_block": "å¤©å¤© 1 4 å¼·å¥çš„å‹•èƒ½,èˆ‡æºæºä¸è¦ºå¾—å‰µé€ åŠ› æ˜¯ç„¡é™åˆ¶åœ°é«”ç¾éˆæ„Ÿçš„èƒ½é‡æ½›åŠ›> ç›®æ¨™|çµæžœ ä½¿å‘½ è¨­å®šé©ç•¶é›£åº¦çš„ç›®æ¨™ ç„¶å¾Œä¸æ–·çš„è¶…è¶Šå®ƒ\n æƒ…ç·’åŒ–,æ…¾æœ›/è‚‰æ…¾è¼ƒå¤šçš„,å¸¸æœƒå£“æŠ‘æƒ…æ„Ÿ,é–‹æ”¾\næ“¦è‚©è€ŒéŽ,éœ€æ±‚ä¸åŒ,èƒŒé“è€Œé¦³,å®œæ”¾ä¸‹å …æŒ, /ä¿å®ˆæ€§é—œä¿‚çš„é‚Šç·£äººã€‚ææ‡¼è¦ªå¯†ã€‚æ‰è¯æ˜¯ã€Œå¤–"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "å¤©å¤©",
+            "1"
+          ]
+        }
+      },
+      {
+        "hex_key": "å¤©æ°´",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "å¤©",
+          "right": "æ°´"
+        },
+        "om_primary": {
+          "gate": 6,
+          "energy_number": 2,
+          "i_ching": {
+            "raw_block": "å¤©æ°´ 6 2 å°‹æ±‚ä¸­é“ äº¤æ‰‹è…•ã€ ç›®æ¨™|çµæžœ ä½¿å‘½ åœ¨ç›®æ¨™çš„èƒŒå¾Œ å½¼æ­¤çœŸæ­£è¦çš„æ˜¯ä»€éº¼\n å¤©ç”Ÿçš„è†è½è€…,äººå€‘é¡˜æ„èˆ‡ä»–åˆ†äº«ç§˜å¯†æˆ–ç”Ÿæ´»ç¶“ è®“è‡ªå·±çš„æƒ…ç·’èˆ‡ç›®æ¨™é€£å‹•ä¸¦èˆ‡ä»–äººç”¢ç”Ÿå…§åœ¨"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "å¤©æ°´",
+            "6"
+          ]
+        }
+      },
+      {
+        "hex_key": "å¤©ç«",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "å¤©",
+          "right": "ç«"
+        },
+        "om_primary": {
+          "gate": 13,
+          "energy_number": -2,
+          "i_ching": {
+            "raw_block": "å¤©ç« 13 -2 ä¸Šä¸‹é½Šå¿ƒ,åŒå¿ƒå”åŠ›,ç‰©ä»¥é¡žèš,å®œçœŸèª å¦è•© é©—ã€‚æ‰è¯æ˜¯ã€Œæ´žå¯ŸåŠ›ã€ ç›®æ¨™|çµæžœ ä½¿å‘½ å…±é³´\n è¬¹æ…Žä¿æŒæ²‰é»˜,ç›´åˆ°æ„Ÿè¦ºå°äº†,æ‰æœƒæ˜Žç™½è‡ªå·±æ˜¯\nå¦çœŸçš„æƒ³èªªã€‚å¸¸æ³¨æ„ä»–äººå°ä»–å€‘è‡ªå·±çš„äº†è§£,ç•¶\né›žåŒé´¨è¬›ã€çœ¾èªªç´›ç´œ,åƒµæŒä¸ä¸‹,çª’ç¤™ä¸é€š,éœ€ ä»–å€‘è¡¨é”çš„æ„æ€ä¸èƒ½è¢«ç†è§£æ™‚,æ‰æ‰“ç ´æ²‰é»˜ã€‚æ‰"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "å¤©ç«",
+            "13"
+          ]
+        }
+      },
+      {
+        "hex_key": "å¤©åœ°",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "å¤©",
+          "right": "åœ°"
+        },
+        "om_primary": {
+          "gate": 12,
+          "energy_number": -4,
+          "i_ching": {
+            "raw_block": "å¤©åœ° 12 -4 ä»¥è€å¿ƒé¢å° è¯æ˜¯ã€Œåˆ¤æ–·åŠ›ã€ ç›®æ¨™|çµæžœ ä½¿å‘½ ä¸åšé¸æ“‡ä¹Ÿæ˜¯ä¸€ç¨®é¸æ“‡\nè±å¯ŒçŸ¥è­˜ã€æŠ€å·§ã€æ½›èƒ½,å¾ˆæ€•çŠ¯åŒæ¨£çš„éŒ¯èª¤ã€‚å‰\nå¤§çš„æ“ç¸±é–˜é–€ã€‚ä¼¯æ¨‚ã€è­˜äººã€æˆåŠŸä¹‹æ„›ã€‚æ‰è¯æ˜¯"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "å¤©åœ°",
+            "12"
+          ]
+        }
+      },
+      {
+        "hex_key": "å¤©é¢¨",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "å¤©",
+          "right": "é¢¨"
+        },
+        "om_primary": {
+          "gate": 44,
+          "energy_number": 1,
+          "i_ching": {
+            "raw_block": "å¤©é¢¨ 44 1 å¶ç„¶ä¸æœŸè€Œé‡,é™°é™½äº¤æ›¿ç¿»è½‰,ç•™æ„ç•¶ä¸‹çš„æ©Ÿé‹ ã€Œå¼•å°Žçœ¾äººåˆç¾¤ã€ã€‚ ç›®æ¨™|çµæžœ ä½¿å‘½ é€£è´ä¸‰æ¬¡æ‰æ˜¯çœŸçš„è´ é€£è¼¸ä¸‰æ¬¡æ‰æ˜¯çœŸçš„è¼¸\n1\næ™´å¤©éœ¹é‚,ä¾†è‡ªæ–¼ä¸åˆ‡å¯¦éš›çš„æœŸå¾…,å®œå›žæ­¸ç¾ å¤©çœŸè€Œä¸é¡§å¾Œæžœ,æ…ˆæ„›,æ‚²å¤©æ†«äºº,æ…ˆæ‚²å¿ƒã€ä¸€"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "å¤©é¢¨",
+            "44"
+          ]
+        }
+      },
+      {
+        "hex_key": "å¤©é›·",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "å¤©",
+          "right": "é›·"
+        },
+        "om_primary": {
+          "gate": 25,
+          "energy_number": -3,
+          "i_ching": {
+            "raw_block": "å¤©é›· 25 -3 å¯¦,çœŸèª å®¢è§€ è¦–åŒä»çš„æ„›/å†·æ¼ ã€‚æ‰è¯æ˜¯æ‡‚å¾—å¦‚ä½•ã€Œå—æ­¡è¿Žã€ã€‚ ç›®æ¨™|çµæžœ ä½¿å‘½ ä¾æ“šæˆ‘ç¾åœ¨çš„çµæžœ æˆ‘çœ‹åˆ°ä»€éº¼å¥½/å£žæ¶ˆæ¯\n æœ€å¤§èª²é¡Œæ˜¯ã€Œæ„›è‡ªå·±ã€,å¼·èª¿å€‹äººèˆ‡çœ¾ä¸åŒ,ä¹Ÿ\né•·å¹¼å°Šå‘æœ‰åº,å®œå…‹å·±å¾©ç¦®,è¬¹è¨€æ…Žè¡Œ,åŒ–éšªç‚º è¨±æœƒèˆ‡ä»–äººæ¯”è¼ƒ\"ç¨ç‰¹æ€§\"â€”å› ç‚ºå°±æ˜¯è¦æœ‰å€‹æ€§/è‡ª"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "å¤©é›·",
+            "25"
+          ]
+        }
+      },
+      {
+        "hex_key": "å¤©æ¾¤",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "å¤©",
+          "right": "æ¾¤"
+        },
+        "om_primary": {
+          "gate": 10,
+          "energy_number": -1,
+          "i_ching": {
+            "raw_block": "å¤©æ¾¤ 10 -1 å¤· æˆ‘å¦æ±º/æ†Žæ¨è‡ªæˆ€/è‡ªç„¶,æ‰è¯æ˜¯ã€Œå¤©ç„¶ã€ ç›®æ¨™|çµæžœ ä½¿å‘½ æ˜¯ç¹žé“è€Œè¡Œé‚„æ˜¯ã€Œæ­£é¢è¿Žæ“Šã€\n å°‹æ‰¾äººç”Ÿç†±æƒ…èˆ‡éˆæ€§çš„å£“åŠ›ã€‚å› ç‚ºç–¼ç—›æˆ–å£“åŠ›ç™¼\né«˜å±±æµæ°´,ç€‘å¸ƒéšªå³»,å¯¸æ­¥é›£è¡Œ,ä¸å¯è¼•èˆ‰å¦„å‹• è„¾æ°£ã€‚æŒ‘é€—çš„ã€ç¸½æ˜¯åœ¨å°‹æ‰¾æ„›,å› ç‚ºå®¹æ˜“æŒ‘é‡å"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "å¤©æ¾¤",
+            "10"
+          ]
+        }
+      },
+      {
+        "hex_key": "æ°´å±±",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "æ°´",
+          "right": "å±±"
+        },
+        "om_primary": {
+          "gate": 39,
+          "energy_number": 1,
+          "i_ching": {
+            "raw_block": "æ°´å±± 39 1 å®œè™›å¿ƒå°‹æ±‚å¤–æ´ è€Œæœ‰ç¦®è²Œã€‚æ‰è¯æ˜¯ã€ŒæŽ¨å‹•åŠ›ã€ã€‚ é—œä¿‚|åœ˜éšŠ æ“æœ‰ å„ªå…ˆåšèˆ‡ä»–äººæœ‰é—œçš„äº‹\n å¯å°ˆç²¾æ–¼\"ä¾‹è¡Œå…¬äº‹\"ã€‚å›ºå®šçš„ç¯€å¥ã€ç¿’æ…£æœƒè®“ä»–\nçƒé›²å¯†ä½ˆ,å°‡ä¸‹ä¸€å ´åŠæ™‚é›¨,è¬äº‹ä¿±å‚™,è€å¿ƒç­‰ å€‘æ„Ÿè¦ºå®‰å¿ƒã€‚æ¯æ—¥çš„å›ºå®šæ´»å‹•è®“ä»–å€‘ä¿æŒå¥åº·ã€‚ å®Œæ•´æºé€šåŒ…æ‹¬äº†å‡ºç™¼é»žã€å•é¡Œ æ„Ÿå—èˆ‡é«”é©—æƒ³"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "æ°´å±±",
+            "39"
+          ]
+        }
+      },
+      {
+        "hex_key": "æ°´å¤©",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "æ°´",
+          "right": "å¤©"
+        },
+        "om_primary": {
+          "gate": 5,
+          "energy_number": -2,
+          "i_ching": {
+            "raw_block": "æ°´å¤© 5 -2 å¾…æ™‚æ©Ÿæˆç†Ÿ æ‰è¯æ˜¯ã€Œè€æ€§ã€ é—œä¿‚|åœ˜éšŠ æ“æœ‰ æ³•èˆ‡å»ºè­°\n æœ‰ä¸€ç¨®ç¾Žéº—ç¨±ç‚ºã€Œå¥´æ€§ã€ã€‚ç­”æ‡‰äº‹æƒ…ä¹‹å‰ä¸æœƒæ€\néšªé›£é‡é‡,å¦‚å±¥è–„å†°,è¶æ©Ÿæ·¬ç…‰å …å¿ä¸æ‹”çš„å¿ƒ è€ƒç‚ºäº†ä»€éº¼,æ‰è¯æ˜¯ã€Œçµ¦æ‰¿è«¾ã€<æ·±å±¤ä¸­çš„æ·±å±¤ã€‚ ç•¶æˆ‘çœ‹ä¸è¦‹å°æ–¹çš„éœ€æ±‚ å°æ–¹ä¹Ÿæ²’å¿…è¦åœ¨æ„æˆ‘"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "æ°´å¤©",
+            "5"
+          ]
+        }
+      },
+      {
+        "hex_key": "æ°´æ°´",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "æ°´",
+          "right": "æ°´"
+        },
+        "om_primary": {
+          "gate": 29,
+          "energy_number": 4,
+          "i_ching": {
+            "raw_block": "æ°´æ°´ 29 4 æ™º,æœ€çµ‚å°‡èƒ½çªç ´ ä¸ç•å›°é›£,å …æŒä¸æ‡ˆ,æœ‰å…¶å¿…ç„¶çš„å›žå ±ã€‚> é—œä¿‚|åœ˜éšŠ æ“æœ‰ çš„\n ä¸€è‚¡è§£é–‹å•é¡Œçš„å£“åŠ›ã€‚å¤šç–‘ã€è™›å½ã€ç–‘å•å¤šã€éœ€\näºŒå…ƒå°ç«‹çš„å…©æ–¹,å½¢æˆäº’è£œçš„å§¿æ…‹,ä¿æŒè¬™å‘, è¦ç­”æ¡ˆ,ç¸½æ˜¯æ‡·ç–‘ã€‚ç”¨å•é¡Œä¾†æ‰¾ç­”æ¡ˆçš„äººã€‚æ‰è¯ æ“æœ‰æ¸…æ™°å…±åŒçš„ç›®æ¨™ä¾æ“šå„è‡ªæ“…é•·çš„å¤©è³¦åš"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "æ°´æ°´",
+            "29"
+          ]
+        }
+      },
+      {
+        "hex_key": "æ°´ç«",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "æ°´",
+          "right": "ç«"
+        },
+        "om_primary": {
+          "gate": 63,
+          "energy_number": -4,
+          "i_ching": {
+            "raw_block": "æ°´ç« 63 -4 çµ‚å°‡å¤§åŠŸå‘Šæˆ æ˜¯ã€ŒæŽ¢ç´¢ã€ é—œä¿‚|åœ˜éšŠ æ“æœ‰ äº‹\nå¤§åœ°æ½¤æ¾¤,ç›¸è¼”ç›¸æˆ,ç”Ÿæ©Ÿè“¬å‹ƒ,æ‰“æˆä¸€ç‰‡,åˆ‡ ä»£ç†äºº/ç¶“ç´€äºº,çŸ¥é“å¦‚ä½•æŽ¨éŠ·ä»–äººçŸ¥é“å¦‚ä½•å¸å¼•"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "æ°´ç«",
+            "63"
+          ]
+        }
+      },
+      {
+        "hex_key": "æ°´åœ°",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "æ°´",
+          "right": "åœ°"
+        },
+        "om_primary": {
+          "gate": 8,
+          "energy_number": 2,
+          "i_ching": {
+            "raw_block": "æ°´åœ° 8 2 å¿Œå¾—æ„å¿˜å½¢,å°¤éœ€è‡ªå¾‹ äººæ³¨æ„ã€‚æ‰è¯æ˜¯ã€Œè¡¨é”é«”é¢ã€ é—œä¿‚|åœ˜éšŠ æ“æœ‰ æƒ…æ„Ÿçš„äº¤æµ äº‹å‹™çš„åˆä½œ å…±åŒçš„ç›®æ¨™ ç¼ºä¸€ä¸å¯\n å¤©ç”Ÿæ™ºè€…ã€‚ä½†æ˜¯æœ¬èº«ä¸çŸ¥é“,å¾ˆæ€•äº‹æƒ…åšä¸å¥½,\næŒ–äº•å–æ°´,å…ˆä»˜å‡ºåŠªåŠ›,ä¸€é–€æ·±å…¥,å¯ä¿æ´»æ°´ä¹‹ å°äº‹æƒ…ç¸½æ˜¯æœ‰æ–°çš„è§£æ±ºæ–¹æ³•ã€‚æ‰è¯æ˜¯ã€Œè¶³æ™ºå¤š äººå€‘åªæœƒç‚ºè‡ªå·±çœŸæ­£æƒ³è¦çš„ åšæ±ºç­–ä¸¦æŽ¡å–è¡Œ"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "æ°´åœ°",
+            "8"
+          ]
+        }
+      },
+      {
+        "hex_key": "æ°´é¢¨",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "æ°´",
+          "right": "é¢¨"
+        },
+        "om_primary": {
+          "gate": 48,
+          "energy_number": -1,
+          "i_ching": {
+            "raw_block": "æ°´é¢¨ 48 -1 äº• è¬€ã€ é—œä¿‚|åœ˜éšŠ æ“æœ‰ å‹•\né›·é›¨äº¤åŠ ã€éšªè±¡ç’°ç”Ÿ,å‰µæ¥­ç¶­è‰±,ç•¶çŸ¥å‹å°,ç­‰ å› éš¨æ™‚æº–å‚™å‰µæ–°è€Œå›°æƒ‘,æ™‚è€Œæ··äº‚æ²’æœ‰çµ„ç¹”,ä¹Ÿ"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "æ°´é¢¨",
+            "48"
+          ]
+        }
+      },
+      {
+        "hex_key": "æ°´é›·",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "æ°´",
+          "right": "é›·"
+        },
+        "om_primary": {
+          "gate": 3,
+          "energy_number": 3,
+          "i_ching": {
+            "raw_block": "æ°´é›· 3 3 æ„›æ©Ÿæœƒ,å¤§å±•é´»åœ– è¨±æœƒå› å¤±æ•—è€Œé€€ç¸®ã€‚æ‰è¯æ˜¯ã€Œå‰µæ–°ã€ é—œä¿‚|åœ˜éšŠ æ“æœ‰ æˆ‘é¡˜æ„ç‚ºå¤šå°‘äººçš„ç”Ÿå‘½è² è²¬ä»»\n çªç ´é™åˆ¶çš„å£“åŠ›ã€‚é¢å°çªç™¼äº‹ä»¶æœƒæœ‰å¾ˆå¤§å£“åŠ›ã€\næ²³æ¾¤æ°´æ»¿,é ˆæé˜²æ³›æ¿«æˆç½,ç”¨æ™ºæ…§ä¾†èª¿ç¯€,æ‹¿ ç‚ºä¸–ç•Œå¸¶ä¾†æ–°çš„æ±â»„,ç­‰å¾…å¯ä»¥æ˜¯æŠ˜ç£¨ã€‚æ‰è¯æ˜¯ æˆ‘æ¸…æ™°åœ°äº†è§£ å°æ–¹çš„éœ€æ±‚ è€Œä¸æ˜¯ä¸€æ˜§åœ° è¬›æˆ‘"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "æ°´é›·",
+            "3"
+          ]
+        }
+      },
+      {
+        "hex_key": "æ°´æ¾¤",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "æ°´",
+          "right": "æ¾¤"
+        },
+        "om_primary": {
+          "gate": 60,
+          "energy_number": -3,
+          "i_ching": {
+            "raw_block": "æ°´æ¾¤ 60 -3 æåˆ†å¯¸,é©å¯è€Œæ­¢ ã€Œå¯¦éš›ã€ é—œä¿‚|åœ˜éšŠ æ“æœ‰ æƒ³è¬›çš„\né›–æœ‰å¤©è³¦,å€‹æ€§å¤ªå¼·,ä¸€è·¯å­¤è»å¥®æˆ°,ä¸æ–·è®Š èªªæ•…äº‹çš„äººã€æœƒåˆ©ç”¨è‡ªå·±çš„ç¶“é©—æ¿€å‹µåˆ¥äºº,æœ‰æ™‚ é¸æ“‡|å¯èƒ½æ€§"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "æ°´æ¾¤",
+            "60"
+          ]
+        }
+      },
+      {
+        "hex_key": "ç«å±±",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "ç«",
+          "right": "å±±"
+        },
+        "om_primary": {
+          "gate": 56,
+          "energy_number": -3,
+          "i_ching": {
+            "raw_block": "ç«å±± 56 -3 å‹•,å±…ç„¡å®šæ‰€ å°é©—è­‰äº‹å¯¦æ²’èˆˆè¶£ã€‚æ‰è¯æ˜¯ã€Œè±å¯Œå¤šé‡‡ã€ |å‰µé€  å½±éŸ¿ æˆ‘ä¾æ“šä»€éº¼åšé¸æ“‡ åˆè¡·æ˜¯ä»€éº¼å‘¢\n å¤–è¡¨ç‹€ä¼¼å¹³å‡¡äºº,ä½†ç•¶ä»–å€‘å–œæ„›ä»–å€‘çš„å·¥ä½œ/è²¡\nå¯Œ/å¥´å½¹/æŠ€å·§/æˆ€æ„›æ™‚,æœƒè®Šå¾—å¯Œæœ‰å‰µæ„,æ‰è¯æ˜¯ é¸æ“‡|å¯èƒ½æ€§"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "ç«å±±",
+            "56"
+          ]
+        }
+      },
+      {
+        "hex_key": "ç«å¤©",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "ç«",
+          "right": "å¤©"
+        },
+        "om_primary": {
+          "gate": 14,
+          "energy_number": 2,
+          "i_ching": {
+            "raw_block": "ç«å¤© 14 2 ç©æ¥µåŠªåŠ›å¾—è²´äºº,åšäº‹ä¸€å¸†é¢¨é †,æˆåŠŸæŒ‡æ—¥å¯å¾… ã€Œå¾ˆæœ‰èƒ½åŠ›ã€ |å‰µé€  å½±éŸ¿ åªè¦è¬›å¾—å‡ºä¾†çš„å•é¡Œ å°±æœƒæœ‰è§£æ±ºæ–¹æ¡ˆ\n ä¸€è‚¡æŠ½è±¡åŒ–çš„å£“åŠ›ã€‚ç–‘æƒ‘çš„ã€è…¦ä¸­å¾ˆå¤šåœ–åƒâ€”å°\nå‰å¾Œç›¸ç¹¼ä¹‹æ™‚,ä¹çœ‹ä¸é †,æ‡‰æ­¥æ­¥ç‚ºç‡Ÿ,å¯©æ™‚é© æ–¼æ˜”æ—¥äº‹ä»¶å¿…é ˆæ•´ç†å‡ºé ­ç·’æˆ–å‡è¨­ã€‚æ‰è¯æ˜¯ã€Œæƒ³ é¸æ“‡|å¯èƒ½æ€§ é–‹å§‹åšéŽåŽ»ä¸é¡˜åšçš„äº‹æƒ… åœæ­¢åšéŽåŽ»å–œæ­¡åš"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "ç«å¤©",
+            "14"
+          ]
+        }
+      },
+      {
+        "hex_key": "ç«æ°´",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "ç«",
+          "right": "æ°´"
+        },
+        "om_primary": {
+          "gate": 64,
+          "energy_number": -4,
+          "i_ching": {
+            "raw_block": "ç«æ°´ 64 -4 åº¦èª¿æ•´ åƒåŠ›ã€ |å‰µé€  å½±éŸ¿ çš„äº‹æƒ…\n æ±²æ±²æ–¼ååˆ©ã€‚å¸¶æˆ‘å€‘è¸ä¸Šæ—…é€”çš„\"å‘½é‹\"ã€‚å°æ–¼æœª\nå¤©å®˜è³œç¦,ä¸€åˆ‡äº¨é€š,å”¯é›£è‰¯ä¹…,é ˆæªå®ˆæ­£é“, çŸ¥æ„Ÿåˆ°ç·Šå¼µ,æ€•å—åˆ°å‚·å®³-ææ‡¼å‘½é‹,æ‰è¯æ˜¯ã€Œæ‡‚ é¸æ“‡|å¯èƒ½æ€§"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "ç«æ°´",
+            "64"
+          ]
+        }
+      },
+      {
+        "hex_key": "ç«ç«",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "ç«",
+          "right": "ç«"
+        },
+        "om_primary": {
+          "gate": 30,
+          "energy_number": 4,
+          "i_ching": {
+            "raw_block": "ç«ç« 30 4 æ…Žé¸åˆä½œå°è±¡ æ”¾é¬†ã€ |å‰µé€  å½±éŸ¿ çµ¦æˆ‘å»ºè­°çš„äººæ˜¯å¦æœ‰å…·é«”æˆæžœä¸¦æ”¯æŒæˆ‘?\n2\n å–œå¥½æ–°äº‹ç‰©ã€å†’éšªã€‚æœ‰æ™‚å®¹æ˜“æ„Ÿè¦ºç„¡èŠ/èºé¬±ã€‚ä¸\né£Ÿçš„å¤§å»šã€‚æ»¿è¶³èˆ‡ç©ºè™›ä¹‹é–“æ“ºç›ªã€‚æ‰è¯æ˜¯ã€Œå†’ é¸æ“‡|å¯èƒ½æ€§"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "ç«ç«",
+            "30"
+          ]
+        }
+      },
+      {
+        "hex_key": "ç«åœ°",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "ç«",
+          "right": "åœ°"
+        },
+        "om_primary": {
+          "gate": 35,
+          "energy_number": -2,
+          "i_ching": {
+            "raw_block": "ç«åœ° 35 -2 å¥½é‹ç•¶é ­,è¶å‹¢å…¨åŠ›ç™¼æ®,ç©æ¥µé€²å–,ä¸å¯è‡ªæ»¿ éšªã€ |å‰µé€  å½±éŸ¿ æ“æœ‰é¸æ“‡èªªä¸çš„èƒ½åŠ› æ›´ç”šæ–¼é¸æ“‡èªªè¦\nåœ¨ç§‰æŒåŽŸå‰‡çš„ç‹€æ…‹ä¸‹,è½‰æ›è§€é»ž,è“„ç©äººè„ˆèˆ‡è³‡ åƒ¹å€¼è§€å¸¸æœ‰æ©Ÿæœƒè¢«æŒ‘æˆ°ã€‚å»ºç«‹ç¤¾æœƒåƒ¹å€¼è§€æˆ–è‚©æ“” é¸æ“‡|å¯èƒ½æ€§ å›žé ­æŽ’é™¤é˜»ç¤™/è² å‚µ/æ‹–ç´¯ èˆ‡å¥®å‹‡å‘å‰æ˜¯ä¸€æ¨£é‡"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "ç«åœ°",
+            "35"
+          ]
+        }
+      },
+      {
+        "hex_key": "ç«é¢¨",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "ç«",
+          "right": "é¢¨"
+        },
+        "om_primary": {
+          "gate": 50,
+          "energy_number": 3,
+          "i_ching": {
+            "raw_block": "ç«é¢¨ 50 3 æº è²¬ä»»,ç¶­æŒå¾‹æ³•ã€‚æ‰è¯æ˜¯ã€Œå¹³è¡¡åŠ›ã€ |å‰µé€  å½±éŸ¿ è¦çš„\n æŽ§åˆ¶ã€‚å°è‡ªå·±/å°å¤–éƒ½æƒ³è¦æŽ§åˆ¶æ¬Š,ç”Ÿæ´»ã€éŒ¢ã€é£Ÿ\nè„¾æ°£å¤§ç–«æ¿€å‹•,å®‰é€¸ç”Ÿæ…¾æœ›,ä¸è¦å›ºåŸ·å·²è¦‹å¤šæº ç‰©ã€é ˜åœŸã€ç‰©è³ªä¸Šçš†æƒ³ç¨ç«‹ã€‚æ‰è¯æ˜¯ã€Œä½¿ç”¨æ¬Š é¸æ“‡|å¯èƒ½æ€§"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "ç«é¢¨",
+            "50"
+          ]
+        }
+      },
+      {
+        "hex_key": "ç«é›·",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "ç«",
+          "right": "é›·"
+        },
+        "om_primary": {
+          "gate": 21,
+          "energy_number": -1,
+          "i_ching": {
+            "raw_block": "ç«é›· 21 -1 é€š åŠ›ã€ |å‰µé€  å½±éŸ¿ æˆ‘ä¸»å®°è‡ªå·±çš„ç”Ÿå‘½ æ°¸é éƒ½æœ‰é¸æ“‡çš„åŠ›é‡\n ç™¼èµ·å°‹æ‰¾äººç”Ÿæ„ç¾©çš„å£“åŠ›ã€‚æˆ°å£«,æŠµæŠ—å¤æ€ªçš„æ±\nçœ‹ä¼¼çŸ›ç›¾,å¯¦æœ‰é›·åŒ,æ‡‰ç•¶ç•°ä¸­æ±‚åŒ,å–å¾—èªåŒ â»„,é€éŽå–„æ„ç«¶çˆ­å°‹æ‰¾ç”Ÿæ´»çš„æ„ç¾©ã€‚æ‰è¯æ˜¯ã€Œæ‡‚ é¸æ“‡|å¯èƒ½æ€§"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "ç«é›·",
+            "21"
+          ]
+        }
+      },
+      {
+        "hex_key": "ç«æ¾¤",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "ç«",
+          "right": "æ¾¤"
+        },
+        "om_primary": {
+          "gate": 38,
+          "energy_number": 1,
+          "i_ching": {
+            "raw_block": "ç«æ¾¤ 38 1 å°±æœ‰åŠ›é‡ çš„çœåŠ›ã€ |å‰µé€  å½±éŸ¿ æ²’æœ‰æˆ‘æ‡‰è©² æ²’æœ‰æˆ‘å¿…é ˆ åªæœ‰æˆ‘ã€Œé¸æ“‡ã€\n å»£æ³›æŽ¥å—ä»»ä½•æ´»å‹•,ç¯€å¥,æ²’æœ‰å›ºå®šçš„è¦çŸ©,å‚¾\né«˜æ‰ç¾Žå¾·éš±è—æ–¼å¿ƒä¸­ä¸å¤–éœ²,æ‡‰æ†é‡äº‹å‹™,å–é•· å‘æŽ¥å—ä»»ä½•å…‰ç’°,ä¸å–œè¢«æ‰¹è©•,æ‰è¯æ˜¯æ‡‚å¾—å±•ç¾"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "ç«æ¾¤",
+            "38"
+          ]
+        }
+      },
+      {
+        "hex_key": "åœ°å±±",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "åœ°",
+          "right": "å±±"
+        },
+        "om_primary": {
+          "gate": 15,
+          "energy_number": -1,
+          "i_ching": {
+            "raw_block": "åœ°å±± 15 -1 è£œçŸ­ ã€Œé­…åŠ›ã€ è±ç››|æ„Ÿæ© è±ç›› æŽ¥å—ä»–äººçš„æ„›ä¹Ÿæ˜¯æ„›äººçš„ä¸€ç¨®è¡¨ç¾\n å……æ»¿å„ç¨®æƒ³æ³•idea,ä½†æ˜¯ä¸è¦‹å¾—æ‡‚å¾—å¦‚ä½•åˆ†äº«/æ¨¡ ä¸è«–å¥½å£žå¾—å¤±æ„Ÿæ©ä¸¦å°Šæ•¬æ‰€æœ‰ç”Ÿå‘½ä¸­çš„äººäº‹"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "åœ°å±±",
+            "15"
+          ]
+        }
+      },
+      {
+        "hex_key": "åœ°å¤©",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "åœ°",
+          "right": "å¤©"
+        },
+        "om_primary": {
+          "gate": 11,
+          "energy_number": -4,
+          "i_ching": {
+            "raw_block": "åœ°å¤© 11 -4 æ–°å±€é¢å½¢æˆ,é™°é™½èª¿å’Œ,è¬ç‰©æ»‹ç”Ÿ,èƒ½å¤ åœ“æ»¿ ç³Šçš„/å¹»æƒ³/ç†æƒ³ä¸»ç¾©/äº®çœ¼ã€‚æ‰è¯æ˜¯ã€Œç†æƒ³ä¸»ç¾©ã€ è±ç››|æ„Ÿæ© è±ç›› ç‰©\n å®¹æ˜“å› ç‚ºè¡å‹•å—åˆ°èª˜æƒ‘/ä»–äººé‚€è«‹é¡˜æ„æˆç‚ºé ˜å°Ž\näº’ç›¸è¦ªè¿‘ã€å”åŠ©ä¹‹æ„,è‹¥å¾—è²´äºº,å‰‡å¯æˆªé•·è£œ äºº,æ“æœ‰é ˜è¢–åŠ›é‡,çŸ¥é“å¦‚ä½•é”åˆ°ç›®æ¨™ã€‚æ‰è¯æ˜¯ è±ç››èˆ‡æ„›æ˜¯æµå‹•çš„ è¶³å¤ çš„çµ¦å‡ºåŽ»æœ‰éœ€è¦çš„è‡ª"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "åœ°å¤©",
+            "11"
+          ]
+        }
+      },
+      {
+        "hex_key": "åœ°æ°´",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "åœ°",
+          "right": "æ°´"
+        },
+        "om_primary": {
+          "gate": 7,
+          "energy_number": -2,
+          "i_ching": {
+            "raw_block": "åœ°æ°´ 7 -2 çŸ­ã€ç›¸å¾—ç›Šå½° ã€Œé ˜å°Žã€ è±ç››|æ„Ÿæ© è±ç›› ç„¶æœƒå›žä¾†\nä¸–äº‹é›£æ–™,è™•æ–¼è‰±é›£çš„æ™‚æœŸ,å…‰æ˜Žçš„äº‹ç‰©ä¹Ÿæœƒæ˜ å±æ©Ÿæ„Ÿã€æƒ…ç·’ä¸ç©©å®šã€æƒ…ç·’å¿½é«˜å¿½ä½Žè®ŠåŒ–å¤§ã€‚æŠ˜"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "åœ°æ°´",
+            "7"
+          ]
+        }
+      },
+      {
+        "hex_key": "åœ°ç«",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "åœ°",
+          "right": "ç«"
+        },
+        "om_primary": {
+          "gate": 36,
+          "energy_number": 2,
+          "i_ching": {
+            "raw_block": "åœ°ç« 36 2 æš—ä¸æ¸… è¡·æ´¾ã€‚æ»²é€ã€é©…å‹•ã€‚ææ‡¼é«”é©—ä¸è¶³ã€ã€Œä»æ…ˆã€ è±ç››|æ„Ÿæ© è±ç›› å› è‡ªå·±çš„ç›®çš„è€ŒåŽ»æ„›é‚£å…¶å¯¦æ˜¯ç´¢å–\nè¢«å‹•æ½›æ²‰é†žé‡€,å …å®šè€ŒæŒä¹…,å…¼å®¹è¬ç‰©,ä»¥æŸ”å…‹ æª¯é¢ä¸‹é ˜å°Žè€…,çŸ¥é“ä½•åŽ»ä½•å¾ž,çµ„ç¹”è£¡é‡è¦äºº æ‰€æœ‰ç™¼ç”Ÿ åœ¨ æˆ‘å€‘èº«ä¸Šçš„ éƒ½æœ‰å…¶æ„ç¾© éƒ½æ˜¯å¥½"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "åœ°ç«",
+            "36"
+          ]
+        }
+      },
+      {
+        "hex_key": "åœ°åœ°",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "åœ°",
+          "right": "åœ°"
+        },
+        "om_primary": {
+          "gate": 2,
+          "energy_number": 4,
+          "i_ching": {
+            "raw_block": "åœ°åœ° 2 4 å‰› ç‰©,éœ€è¦æ¬ŠåŠ›ä¾†æºã€‚æ‰è¯æ˜¯ã€ŒçŸ¥é“å®šä½ã€ è±ç››|æ„Ÿæ© è±ç›› æ¶ˆæ¯\næ¯…åŠ›æ±ºå¿ƒã€‚èº«é«”ä¹‹æ„›(ä¿å¥é¤Šç”Ÿ)ã€‚ ç¸½æ˜¯å°çš„æ™‚é–“\nè€å¿ƒç¶“ç‡Ÿ,è…³è¸å¯¦åœ°å°‹è²´äºº,æ¾¤è¬€å£«æœ‰æˆ,ååˆ© åšå°çš„äº‹,å¾žä¸é€€ç¸®ã€‚æ„å¤–ç™¼ç¾å¥½é‹ã€‚æ‰è¯æ˜¯"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "åœ°åœ°",
+            "2"
+          ]
+        }
+      },
+      {
+        "hex_key": "åœ°é¢¨",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "åœ°",
+          "right": "é¢¨"
+        },
+        "om_primary": {
+          "gate": 46,
+          "energy_number": -3,
+          "i_ching": {
+            "raw_block": "åœ°é¢¨ 46 -3 é›™æ”¶ ã€Œèº«é«”æ­¡æ„‰ã€ è±ç››|æ„Ÿæ© è±ç›› ç›´åˆ°èªªå‡ºå£ä¸¦æŽ¡å–è¡Œå‹•æ‰æ˜¯æ„›\n ä¸€æ¬¡ä¸€æ¬¡åˆä¸€æ¬¡æ‰¾ç›¡å„ç¨®ç†ç”±åŽ»åˆç†åŒ–äº‹ç‰©,ç”Ÿ\nå¾©ç”¦å›žæ˜¥ä¹‹è±¡,æ­£æ°£å›žè¦†,ç”Ÿæ©Ÿå‹ƒç™¼,èŸ„ä¼ç”¦é†’ æ´»æ–¹å¼å¾ˆæœ‰ä¸»è¦‹,è¨ŽåŽ­è¢«å¿½ç•¥ã€‚æ‰è¯æ˜¯ã€Œç™¼"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "åœ°é¢¨",
+            "46"
+          ]
+        }
+      },
+      {
+        "hex_key": "åœ°é›·",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "åœ°",
+          "right": "é›·"
+        },
+        "om_primary": {
+          "gate": 24,
+          "energy_number": 1,
+          "i_ching": {
+            "raw_block": "åœ°é›· 24 1 ä¹‹æ„ æ˜Žã€ã€‚ è±ç››|æ„Ÿæ© è±ç›› è±ç››å°±æ˜¯ç”Ÿå‘½ä¸­ æ¯å€‹é ˜åŸŸå…¨é¢è€Œå¹³è¡¡çš„ç™¼å±•\n æƒ³è¦ã€éœ€è¦æ»¿è¶³åŸºæœ¬éœ€æ±‚çš„å£“åŠ›ã€‚å¦‚é£Ÿç‰©ã€å±…\næŒºèº«è€Œå‡ºè†è½äººå€‘çš„è²éŸ³,ç‚ºæ“è­·è‡ªå·±çš„äººç«™å‡º ä½ã€æ€§ã€æ»¿æ»¿çš„å†°ç®±ã€æœ‰äººå¯ä»¥æºé€šã€‚æ‰è¯æ˜¯"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "åœ°é›·",
+            "24"
+          ]
+        }
+      },
+      {
+        "hex_key": "åœ°æ¾¤",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "åœ°",
+          "right": "æ¾¤"
+        },
+        "om_primary": {
+          "gate": 19,
+          "energy_number": 3,
+          "i_ching": {
+            "raw_block": "åœ°æ¾¤ 19 3 ç«‹å ´ ã€Œæ•æ„Ÿã€ è±ç››|æ„Ÿæ© è±ç›› ç”¨å°æ–¹æ”¶å¾—åˆ°çš„æ–¹å¼çµ¦å‡ºæ„› å°æ–¹æ‰æ”¶å¾—åˆ°\n é–‹å•“æ–°çš„ä¸‹ä¸€éšŽæ®µå¾ªç’°çš„å£“åŠ›ã€‚é¢å°èˆŠçš„æ±â»„/é‡\nå±±æ¬²éœè€Œé¢¨ä¸æ­¢,å¾ªåºæ¼¸é€²,æŒ‰éƒ¨å°±ç­,å¾—ä»¥ç´¯ è¤‡çš„äº‹ä¸€ä¸‹å°±è¦ºå¾—ç…©,ä¹Ÿä¸å–œæ­¡åšå…¨ç„¶é™Œç”Ÿçš„æ–° è² è²¬ä»»|é©æ‡‰ æœªä¾†åŸºæ–¼ç¾åœ¨é»žæ»´ç´¯ç©è€Œæˆ å†æ€Žéº¼æ€¥ä¹Ÿåªæœ‰"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "åœ°æ¾¤",
+            "19"
+          ]
+        }
+      },
+      {
+        "hex_key": "é¢¨å±±",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "é¢¨",
+          "right": "å±±"
+        },
+        "om_primary": {
+          "gate": 53,
+          "energy_number": 2,
+          "i_ching": {
+            "raw_block": "é¢¨å±± 53 2 ç©æˆæžœ äº‹æƒ…ã€‚æ‰è¯æ˜¯ã€Œç™¼èµ·ã€ æ€§ ç¨€ç¼º 24å°æ™‚\n å°ˆæ³¨,å°ˆå¿ƒæ™‚ç›¸ç•¶æ³¨æ„ç´°ç¯€,æœ‰æ±ºå¿ƒçš„,å®ˆæ‰¿ è² è²¬ä»»|é©æ‡‰"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "é¢¨å±±",
+            "53"
+          ]
+        }
+      },
+      {
+        "hex_key": "é¢¨å¤©",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "é¢¨",
+          "right": "å¤©"
+        },
+        "om_primary": {
+          "gate": 9,
+          "energy_number": -1,
+          "i_ching": {
+            "raw_block": "é¢¨å¤© 9 -1 é¢¨å¤§,é›²ä¸èƒ½ç©è€Œç„¡é›¨,å®œé¤Šç²¾è“„éŠ³ã€ç©å°‘æˆå¤š è«¾,å…‹åˆ¶,æŒä¹…ã€‚æ‰è¯æ˜¯ã€Œæ±ºå¿ƒã€ æ€§ ç¨€ç¼º æ°¸é éƒ½å¯ä»¥é‡æ–°é¸æ“‡\né¢¨è¡Œæ°´ä¸Š,å†°é›ªæ¶ˆè§£,æ°´å‹¢é¼“ç›ªè€Œç”Ÿé¢¨æ³¢,æ·¤çµ å±•ç¾æ€§æ„Ÿèˆ‡å¸Œæœ›,å¯Œæœ‰å¸å¼•åŠ›ã€æœ‰ç­–ç•¥çš„å¸å¼•ä»– è² è²¬ä»»|é©æ‡‰"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "é¢¨å¤©",
+            "9"
+          ]
+        }
+      },
+      {
+        "hex_key": "é¢¨æ°´",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "é¢¨",
+          "right": "æ°´"
+        },
+        "om_primary": {
+          "gate": 59,
+          "energy_number": 1,
+          "i_ching": {
+            "raw_block": "é¢¨æ°´ 59 1 çª’ç¤™å¾—è§£ äººã€‚æ‰è¯æ˜¯ã€Œè¦ªå¯†ã€ æ€§ ç¨€ç¼º ä¸æ–·æŽ¢è¨Žã€Œç‚ºä»€éº¼ã€ä¸æœƒç”¢ç”Ÿå‹•åŠ›\n3\näº’åŠ©åˆä½œ,åŒå¿ƒå”åŠ›,å”‡é½’ç›¸ä¾,ç”±å…§è€Œå¤–çš„é½Š å‹å–„ã€å’Œæ°£ã€å¿ èª ã€éœ€è¦èªåŒèˆ‡æ­¸å±¬æ„Ÿã€‚ææ‡¼å‚³ è² è²¬ä»»|é©æ‡‰"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "é¢¨æ°´",
+            "59"
+          ]
+        }
+      },
+      {
+        "hex_key": "é¢¨ç«",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "é¢¨",
+          "right": "ç«"
+        },
+        "om_primary": {
+          "gate": 37,
+          "energy_number": -3,
+          "i_ching": {
+            "raw_block": "é¢¨ç« 37 -3 å®¶ä¹‹é“ çµ±ã€‚æ‰è¯æ˜¯ã€Œå¹³ç­‰ã€ æ€§ ç¨€ç¼º æ˜¯æˆ‘åœ¨å½±éŸ¿åˆ¥äººæˆ–æˆ‘è¢«åˆ¥äººå½±éŸ¿\nå¯©è¦–ã€è€ƒå¯Ÿ,ç”¨ç´°è†©çš„å¿ƒä¾†éœè§€,æ‰çŸ¥é“å¦‚ä½•å°Ž æ€¥æ€§å­,è¬›è©±å‰å¶çˆ¾ä¸çŸ¥é“è‡ªå·±æœƒèªªå‡ºä»€éº¼âˆ’å›  è² è²¬ä»»|é©æ‡‰"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "é¢¨ç«",
+            "37"
+          ]
+        }
+      },
+      {
+        "hex_key": "é¢¨åœ°",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "é¢¨",
+          "right": "åœ°"
+        },
+        "om_primary": {
+          "gate": 20,
+          "energy_number": 3,
+          "i_ching": {
+            "raw_block": "é¢¨åœ° 20 3 æ­£é¢¨æ°£ ç‚ºç•¶ä¸‹æ²’æœ‰èªžè¨€ã€‚å¤©è³¦æ˜¯ã€Œè‡ªä¿¡ã€ æ€§ ç¨€ç¼º æˆ‘å°å‘¨é­æ‰€æœ‰ä¸€åˆ‡éƒ½æœ‰è¶³å¤ çš„å½±éŸ¿åŠ›\né¢¨è€…,æ‰æ‘¸ä¸å®š,å»ç„¡å­”ä¸å…¥,éš¨é‡è€Œå®‰,å®œè™• ç›´è¦ºåŠç”ŸæˆåŠ›å¼·,å®ˆè¦çŸ©ã€ä¸æ˜“å—ä»–äººå½±éŸ¿,å° è² è²¬ä»»|é©æ‡‰"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "é¢¨åœ°",
+            "20"
+          ]
+        }
+      },
+      {
+        "hex_key": "é¢¨é¢¨",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "é¢¨",
+          "right": "é¢¨"
+        },
+        "om_primary": {
+          "gate": 57,
+          "energy_number": 4,
+          "i_ching": {
+            "raw_block": "é¢¨é¢¨ 57 4 è®Šä¸é©š,é †å¾žéš±å¿ æœªä¾†æ„Ÿåˆ°å®³æ€•ã€‚æ‰è¯æ˜¯ã€Œç›´è¦ºè½åŠ›ã€ æ€§ ç¨€ç¼º å°‡æ„è­˜æ‹‰å›žèº«é«”çŸ¥è¦ºå°±çž¬é–“å›žåˆ°ç•¶ä¸‹äº†\nè±ç››æ»¿æº¢,æ‡‰è¶æ©Ÿå›žé¥‹ç¤¾æœƒ,æ…·æ…¨è®“åˆ©,æ„Ÿæ©å›› åšäº‹æƒ…æœ‰é ­æœ‰å°¾ä¸€å®šè¦åšå®Œã€‚çŸ¥é“å¦‚ä½•å–„ç”¨æœ‰é™ è² è²¬ä»»|é©æ‡‰ ç”¨åœ˜éšŠçš„è¦–è§’ä¾†çœ‹è‡ªå·± ç”¨è‡ªå·±çš„è¦–è§’ä¾†çœ‹åœ˜"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "é¢¨é¢¨",
+            "57"
+          ]
+        }
+      },
+      {
+        "hex_key": "é¢¨é›·",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "é¢¨",
+          "right": "é›·"
+        },
+        "om_primary": {
+          "gate": 42,
+          "energy_number": -4,
+          "i_ching": {
+            "raw_block": "é¢¨é›· 42 -4 æ–¹,å»£çµå–„ç·£ è³‡æºä¾†æ“´å¼µã€‚æ‰è¯æ˜¯ã€Œç¨ç«‹ã€ æ€§ ç¨€ç¼º éšŠ\n ä¸€è‚¡è§£é–‹è¬Žåœ˜çš„å£“åŠ›ã€‚ç¥žç§˜çš„,å…§åœ¨èª å¯¦,æœ‰æ¿€\nç™¼åŠ›çš„,å°æ–¼ä»–äººæœ‰æŒçºŒæ€§çš„å½±éŸ¿åŠ›ã€‚æ‰è¯æ˜¯\nèƒ¸æœ‰æˆç«¹ã€èª ä¿¡ç‚ºæœ¬,ä¸€è¦–åŒä»,ä»¤äººå¿ƒæ‚…èª  ã€Œæ¿€å‹µäººå¿ƒã€<å°æ–¼å¯°å®‡åŸºæœ¬é‹ä½œåŽŸå‰‡çš„è¦ºå¯Ÿ,ä¸¦ è² è²¬ä»»|é©æ‡‰ éŽåŽ»å’Œæœªä¾† éƒ½ä¸å­˜åœ¨ å”¯ä¸€èƒ½æŠŠæ¡å‰µé€ çš„ åªæœ‰"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "é¢¨é›·",
+            "42"
+          ]
+        }
+      },
+      {
+        "hex_key": "é¢¨æ¾¤",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "é¢¨",
+          "right": "æ¾¤"
+        },
+        "om_primary": {
+          "gate": 61,
+          "energy_number": -2,
+          "i_ching": {
+            "raw_block": "é¢¨æ¾¤ 61 -2 æœ,æ–¹å¯ä»¥é€šè¡Œç„¡é˜» è§£é–‹å€‹é«”çš„è¦ºçŸ¥æ„åœ–> æ€§ ç¨€ç¼º ç¾åœ¨\nä¸å› äº‹å°è€Œè¼•å¿ƒ,å¤±æ•—ä¸­åæ€å­¸ç¿’,ç´¯ç©æˆåŠŸçš„ é‡è¦–ç´°ç¯€ç¸½æ˜¯è¦æ±‚çŸ¥é“äº‹å¯¦,æœ‰çµ„ç¹”èƒ½åŠ›ã€è¨ˆåŠƒ"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "é¢¨æ¾¤",
+            "61"
+          ]
+        }
+      },
+      {
+        "hex_key": "é›·å±±",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "é›·",
+          "right": "å±±"
+        },
+        "om_primary": {
+          "gate": 62,
+          "energy_number": -2,
+          "i_ching": {
+            "raw_block": "é›·å±± 62 -2 é¤Šåˆ† è¦åŠƒåŠ›ã€æ€è€ƒæ¸…æ™°ã€‚æ‰è¯æ˜¯ã€Œç²¾ç¢ºã€ å¯Ÿè¦º|å¹»è¦º å†’éšª è·¯ç‡ˆç…§å¾—åˆ°çš„åœ°æ–¹ æ‰¾ä¸åˆ°ä¸è¦‹çš„é‘°åŒ™\nä¸€åˆ‡å¤§å¥½,åˆ‡å‹¿å¥½å¤§å–œåŠŸ,éœ€è™›å¿ƒè€Œæœ‰å®¹äººä¹‹èƒ¸ ç¨ç«‹ã€è‡ªæˆ‘ä¸­å¿ƒã€è‡ªæˆ‘å¼·å¤§ã€æ¿€é€²çš„è¡¨ç¾ä»–å€‘çš„"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "é›·å±±",
+            "62"
+          ]
+        }
+      },
+      {
+        "hex_key": "é›·å¤©",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "é›·",
+          "right": "å¤©"
+        },
+        "om_primary": {
+          "gate": 34,
+          "energy_number": 3,
+          "i_ching": {
+            "raw_block": "é›·å¤© 34 3 è¥Ÿ èˆ‡çœ¾ä¸åŒã€‚å¤©è³¦æ˜¯ã€ŒåŠ›é‡ã€ å¯Ÿè¦º|å¹»è¦º å†’éšª æˆ‘è¦æ˜¯å°çš„ é‚„æ˜¯è¦é›™è´ æ˜¯å …æŒé‚„æ˜¯å›ºåŸ·å‘¢\n å·¥ä½œç‹‚ã€å­¤ç¨ã€ç¨è™•çš„ã€å¦èªçš„ã€éœ€è¦åœ¨å·¥ä½œèˆ‡\nè±ç„¶é–‹æœ—,æ‡‰æŠŠæ¡æ™‚æ©Ÿæ”¾æ‰‹ä¸€æ,åœ¨å°çš„æ™‚é–“åš ä¼‘æ¯ä¸­æ‰¾åˆ°å¹³è¡¡é»žçš„ä¾›çµ¦è€…,å°æ‰€æ„›çš„äººé¡˜æ„ä»˜"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "é›·å¤©",
+            "34"
+          ]
+        }
+      },
+      {
+        "hex_key": "é›·æ°´",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "é›·",
+          "right": "æ°´"
+        },
+        "om_primary": {
+          "gate": 40,
+          "energy_number": -3,
+          "i_ching": {
+            "raw_block": "é›·æ°´ 40 -3 å°çš„äº‹ å‡ºã€‚å±¥è¡Œè«¾è¨€çš„æ„é¡˜ã€‚æ‰è¯æ˜¯ã€Œè§£æ±ºèƒ½åŠ›ã€ å¯Ÿè¦º|å¹»è¦º å†’éšª æ²’æœ‰å¯Ÿè¦º ä»€éº¼éƒ½ä¸æœƒæ”¹è®Š\n æ†‚é¬±ã€éŸ³æ¨‚å®¶ã€æµªæ¼«çš„ã€æƒ…ç·’åŒ–ã€çº–ç´°çš„è¿½æ±‚è±\nç››å®Œæ•´,æœŸå¾…å¿ƒéˆå¥‘åˆã€‚ææ‡¼ç©ºè™›ã€‚å¤©è³¦æ˜¯ã€Œè‡ª ç•™æ„å½¼æ­¤èº«å¿ƒéˆçš„éœ€æ±‚ ä¸¦ç«‹å³æŽ¡å–ç›¸å°æ‡‰çš„"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "é›·æ°´",
+            "40"
+          ]
+        }
+      },
+      {
+        "hex_key": "é›·ç«",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "é›·",
+          "right": "ç«"
+        },
+        "om_primary": {
+          "gate": 55,
+          "energy_number": 1,
+          "i_ching": {
+            "raw_block": "é›·ç« 55 1 ä¸€åˆ‡è±ç››,ä¸å¯æ‡ˆæ€ ,ç•¶é€€å¾—é€€,åˆ‡å¿Œè²ªå¾—ç„¡åŽ­ ç”±ã€ å¯Ÿè¦º|å¹»è¦º å†’éšª è¡Œå‹•\næ©Ÿæœƒå¤§å¥½,é¤Šå…µåƒæ—¥ã€ç”¨åœ¨ä¸€æ™‚,è‹¥ç„¡èª ä¿¡å‰‡å¾’ å› ç†±èª ã€æœ‰ç¶“é©—ä¸”æ“æœ‰å¼·å¤§æŠ€èƒ½è€Œå¯Œç››åã€‚æ‰è¯"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "é›·ç«",
+            "55"
+          ]
+        }
+      },
+      {
+        "hex_key": "é›·åœ°",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "é›·",
+          "right": "åœ°"
+        },
+        "om_primary": {
+          "gate": 16,
+          "energy_number": 1,
+          "i_ching": {
+            "raw_block": "é›·åœ° 16 1 æœ‰è™›å æ˜¯ã€Œå¤šæ‰å¤šè—ã€ å¯Ÿè¦º|å¹»è¦º å†’éšª å¹»è¦ºåŒ…æ‹¬äº†èƒ½åŠ›ã€ç›®æ¨™ã€çµæžœã€é—œä¿‚\nå¤©ç”Ÿæœ‰å¯Ÿè¦ºäº‹æƒ…çš„æœ¬èƒ½,å¯ä»¥å—…åˆ°äº‹æƒ…é‡è¦æ€§,"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "é›·åœ°",
+            "16"
+          ]
+        }
+      },
+      {
+        "hex_key": "é›·é¢¨",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "é›·",
+          "right": "é¢¨"
+        },
+        "om_primary": {
+          "gate": 32,
+          "energy_number": -4,
+          "i_ching": {
+            "raw_block": "é›·é¢¨ 32 -4 å …æŒåŽŸå‰‡,èª å¿ƒè¡Œäº‹,å …å®ˆå´—ä½,ä¸€å®šæœƒæˆåŠŸ æœ‰æˆç‚ºè²¡å‹™è©•ä¼°è€…çš„æ½›åŠ›ã€‚æ‰è¯æ˜¯ã€Œä¿è­·ã€ å¯Ÿè¦º|å¹»è¦º å†’éšª å€åˆ†äº‹å¯¦èˆ‡æ¼”ç¹¹ ä¸æ²ˆæººæ–¼éŽåŽ» ä¸å¯„æœ›æ–¼æœªä¾†\næ‡‰æ™‚æ™‚åçœæª¢è¨Ž,å±…å®‰æ€å±,è™•è®Šä¸é©š,æé«˜è­¦ æŒ‘æˆ°æ²’äººåŽ»éŽçš„é ˜åŸŸ,å…§å¿ƒç™¼èµ·,æŒ‘æˆ°è‡ªå·±åšæœ€"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "é›·é¢¨",
+            "32"
+          ]
+        }
+      },
+      {
+        "hex_key": "é›·é›·",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "é›·",
+          "right": "é›·"
+        },
+        "om_primary": {
+          "gate": 51,
+          "energy_number": 4,
+          "i_ching": {
+            "raw_block": "é›·é›· 51 4 è¦º å¥½çš„/ç¬¬ä¸€çš„ã€‚æ‰è¯æ˜¯ã€Œé€²å–ã€ å¯Ÿè¦º|å¹»è¦º å†’éšª çµæžœæ˜¯é¡å­ çµ•å°èª å¯¦ ä¸æœƒæ¬ºé¨™è‡ªå·±\n æœ‰å¾€ä¸Šçˆ¬è¿½æ±‚æˆå°±çš„å£“åŠ›ã€‚æå‡ç¤¾æœƒåœ°ä½,é›„å¿ƒ"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "é›·é›·",
+            "51"
+          ]
+        }
+      },
+      {
+        "hex_key": "é›·æ¾¤",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "é›·",
+          "right": "æ¾¤"
+        },
+        "om_primary": {
+          "gate": 54,
+          "energy_number": 2,
+          "i_ching": {
+            "raw_block": "é›·æ¾¤ 54 2 äº‹æ‡‰èµ°æ­£é“,ä¸æŠ„æ·å¾‘,ç•™æ„ä¾æ“šä»€éº¼åšé¸æ“‡ å£¯å¿—ã€ç‚ºäº†éƒ¨è½å®¶äººæœƒè³ºéŒ¢ã€‚æ‰è¯æ˜¯ã€Œæœ‰å¿—æ°£ã€ å¯Ÿè¦º|å¹»è¦º å†’éšª çœŸæ­£çš„é¢¨éšª ä¸æœƒåœ¨ç•¶ä¸‹ç™¼ç¾ ä¸è¦æ€¥è‘—åšæ±ºå®š\næºé€šè¦ç•™æ„,æ˜¯å¦å¿½ç•¥ä»–äººæ„Ÿå—,èª å¿ƒæºé€šã€å’Œ å½±éŸ¿åŠ›ã€æ„ŸæŸ“åŠ›å¼·,å¯ä»¥å±•ç¤ºåˆ¥äººå¦‚ä½•é”åˆ°ç›® çµæžœæ˜¯æˆ‘è¢«æƒ…ç·’æŽ§åˆ¶å¾Œé€ æˆ é‚„æ˜¯æˆ‘æŽ§åˆ¶æƒ…ç·’"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "é›·æ¾¤",
+            "54"
+          ]
+        }
+      },
+      {
+        "hex_key": "æ¾¤å±±",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "æ¾¤",
+          "right": "å±±"
+        },
+        "om_primary": {
+          "gate": 31,
+          "energy_number": -4,
+          "i_ching": {
+            "raw_block": "æ¾¤å±± 31 -4 è«§ç›¸è™•,è‡ªç„¶æˆåŠŸ æ¨™,æœ‰æ™‚æ˜¯æœ‰åç„¡å¯¦çš„é ˜è¢–ã€‚æ‰è¯æ˜¯é ˜å°ŽåŠ›ã€‚ èƒ½é‡|ç‹€æ…‹ å‰µé€  ä¾†å‰µé€ çµæžœ\n ç”¨å¤æ€ªã€å¯Œæœ‰å‰µæ„çš„æ–¹å¼å±•ç¾è‡ªå·±, ä»€éº¼éƒ½æƒ³è§£\nä¸Šä¸‹å°å³™æ˜“ç”Ÿäº‹ç«¯,ææœ‰å°äºº,è¦è¬å…¨æº–å‚™,ä¸ é‡‹,ä¸å¤ªè½äººå®¶èªª,è…¦å…§è©±èªžå–‹å–‹ä¸ä¼‘ã€‚æ‰è¯æ˜¯"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "æ¾¤å±±",
+            "31"
+          ]
+        }
+      },
+      {
+        "hex_key": "æ¾¤å¤©",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "æ¾¤",
+          "right": "å¤©"
+        },
+        "om_primary": {
+          "gate": 43,
+          "energy_number": 1,
+          "i_ching": {
+            "raw_block": "æ¾¤å¤© 43 1 å¯è¡å‹•è¡Œäº‹ ã€Œè§€å¯ŸåŠ›ã€ èƒ½é‡|ç‹€æ…‹ å‰µé€  æ›ä½æ€è€ƒ æ‰€æœ‰çš„æ¶ˆæ¯ éƒ½æ˜¯å¥½æ¶ˆæ¯\nè³‡æºè€—ç«­,æ›´è¦æœ‰è€å¿ƒå»£çµå–„ç·£,åˆ¥äº‚æŠ•æ©Ÿ,å° åœ–åƒåŒ–çš„æ€è€ƒ,çŸ¥é“/ä¸çŸ¥é“å¦‚ä½•æŠŠäº‹æƒ…è½‰æˆæž¶"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "æ¾¤å¤©",
+            "43"
+          ]
+        }
+      },
+      {
+        "hex_key": "æ¾¤æ°´",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "æ¾¤",
+          "right": "æ°´"
+        },
+        "om_primary": {
+          "gate": 47,
+          "energy_number": 3,
+          "i_ching": {
+            "raw_block": "æ¾¤æ°´ 47 3 å¿ƒè¶Šé™·è¶Šæ·± æ§‹åš´è¬¹çš„æ¦‚å¿µã€‚æ‰è¯æ˜¯ã€Œè½‰åŒ–ã€ èƒ½é‡|ç‹€æ…‹ å‰µé€  æŒçºŒç¹ƒç·Šçš„æ©¡çš®ç­‹,æ˜¯æ²’æœ‰å½ˆæ€§çš„\n ä¸­è¦ä¸­çŸ©/åˆ¶å®šè¦çŸ©,å®¹æ˜“è·Ÿå¦ä¸€åŠæœ‰ç•Œç·šã€‚ä½¿\nç•¶æ©Ÿç«‹æ–·ã€ç•¶è®Šå‰‡è®Š,æ‡‰è·³è„«ä¿¡å¿µ,æ“ºè„«æƒ¡ç¿’ä¸” ç”¨æ¬ŠåŠ›ä¾†æ‹’çµ•æˆ–æŽ¥å—æŸäººã€‚ç¹æ®–æ¥­è€…,å± å¤«ã€‚æ æˆ‘æœ‰å¤šæ„›è‡ªå·± å°±èƒ½å¤šæ„›åˆ¥äºº æˆ‘éƒ½å¦‚ä½•æ„›è‡ªå·±"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "æ¾¤æ°´",
+            "47"
+          ]
+        }
+      },
+      {
+        "hex_key": "æ¾¤ç«",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "æ¾¤",
+          "right": "ç«"
+        },
+        "om_primary": {
+          "gate": 49,
+          "energy_number": -1,
+          "i_ching": {
+            "raw_block": "æ¾¤ç« 49 -1 å‹•æ©Ÿç´”æ­£ æ‡¼å¤§è‡ªç„¶ã€‚æ‰è¯æ˜¯ã€Œé©å‘½ã€ èƒ½é‡|ç‹€æ…‹ å‰µé€  å‘¢\n4\nè³‡æºå…·è¶³,è‡ªç„¶è±ç››,ä¸¦å¸å¼•äººå€‘ç¾¤èš,å”¯ç•™æ„ å‚³çµ±çš„é ˜è¢–,ä¸å–œæ­¡åšå¾ˆä¸å…‰å½©çš„äº‹æƒ…ã€‚å–œæ„›è«‡"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "æ¾¤ç«",
+            "49"
+          ]
+        }
+      },
+      {
+        "hex_key": "æ¾¤åœ°",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "æ¾¤",
+          "right": "åœ°"
+        },
+        "om_primary": {
+          "gate": 45,
+          "energy_number": -3,
+          "i_ching": {
+            "raw_block": "æ¾¤åœ° 45 -3 å°äºº è«–è³‡æºã€‚åœ‹çŽ‹æˆ–çš‡åŽã€‚æ‰è¯æ˜¯ã€Œèžåˆã€ èƒ½é‡|ç‹€æ…‹ å‰µé€  èª°è©²ç‚ºæœ€å¾Œçš„çµæžœè² è²¬ä»»\n æªäººå†’éšªåŽ»å°‹æ‰¾äººç”Ÿæ„ç¾©,æƒ³çŸ¥é“åœ¨çˆ­å–ä»€éº¼,\næ…¾æœ›å¤§æ–¼å¯¦éš›,è²¬ä»»å¤§æ–¼èƒ½åŠ›,å®¹æ˜“è¢«é¨™,å®œè…³ æ“”å¿ƒæ´»çš„æ²’æ„ç¾©ã€æ€•æ­»äº¡æ²’æ„ç¾©,æ‰è¯æ˜¯ã€Œæ„Ÿè¦º å¤§éƒ¨åˆ†çš„ç„¦æ…®èˆ‡ç…©æƒ±éƒ½ä¾†è‡ªæ–¼ ã€Œåšå¾—æ¯”æƒ³çš„"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "æ¾¤åœ°",
+            "45"
+          ]
+        }
+      },
+      {
+        "hex_key": "æ¾¤é¢¨",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "æ¾¤",
+          "right": "é¢¨"
+        },
+        "om_primary": {
+          "gate": 28,
+          "energy_number": 2,
+          "i_ching": {
+            "raw_block": "æ¾¤é¢¨ 28 2 è¸å¯¦åœ° ç”Ÿå‘½å®Œæ•´ã€ èƒ½é‡|ç‹€æ…‹ å‰µé€  å°‘ã€\næœ‰é‚è¼¯çš„,è§€å¿µå¯æŽ¥å—è€ƒé©—ã€‚ç†è«–æ€§çš„ã€è¦–è¦º\nè¬™å‘è™›å¿ƒè«‹æ•™,å‹¿å›ºåŸ·å·²è¦‹,åŠªåŠ›é…åˆæ™‚é‹,è‡¨ çš„,åªçœ‹å¾—åˆ°å¤§æ–¹å‘æ™‚è€Œæ„Ÿåˆ°ç„¡æ³•ç†è§£ã€‚æ‰è¯æ˜¯"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "æ¾¤é¢¨",
+            "28"
+          ]
+        }
+      },
+      {
+        "hex_key": "æ¾¤é›·",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "æ¾¤",
+          "right": "é›·"
+        },
+        "om_primary": {
+          "gate": 17,
+          "energy_number": -2,
+          "i_ching": {
+            "raw_block": "æ¾¤é›· 17 -2 æ©Ÿæ‡‰è®Š ã€Œé è¦‹ã€ èƒ½é‡|ç‹€æ…‹ å‰µé€  æœƒä¸æœƒå…¶å¯¦ æˆ‘æ˜¯éŒ¯çš„ æˆ‘åœ¨å …æŒä»€éº¼å‘¢\n ç™¼èµ·è®“äº‹æƒ…æ›´å¥½çš„å£“åŠ›ã€‚äº«å—æŒ‘æˆ°æ¬Šå¨,ç†±æ„›ç”Ÿ\næŠŠæ¡èˆ‡äººäº’å‹•äº¤æµçš„ç•¶ä¸‹,æˆäº‹åœ¨äºº,èª å¿ƒå’Œæ‚… å‘½,å‹•åŠ›æºæ–¼å°äººé¡žçš„æ„›,è¿½æ±‚å®Œç¾Ž,å¾…å·±å¾…äºº"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "æ¾¤é›·",
+            "17"
+          ]
+        }
+      },
+      {
+        "hex_key": "æ¾¤æ¾¤",
+        "hex_key_aliases": [],
+        "trigrams": {
+          "left": "æ¾¤",
+          "right": "æ¾¤"
+        },
+        "om_primary": {
+          "gate": 58,
+          "energy_number": 4,
+          "i_ching": {
+            "raw_block": "æ¾¤æ¾¤ 58 4 æ”¯æŒå½¼æ­¤ çš†åš´ã€‚æ‰è¯æ˜¯ã€Œå……æ»¿æ´»åŠ›ã€ èƒ½é‡|ç‹€æ…‹ å‰µé€  å¦‚æžœä¸æ˜¯ç¾åœ¨ é‚£æ˜¯ä»€éº¼æ™‚å€™\nä»¥ä¸‹æ˜¯å®Œæ•´çš„**äººé¡žåœ–36æ¢é€šé“**åˆ—è¡¨:\n\n### **å€‹é«”è¿´è·¯(Individual Circuit)**\n\n1. 1-8:å•Ÿç™¼çš„é€šé“ \n\n2. 2-14:è„ˆå‹•çš„é€šé“ \n\n3. 3-60:çªè®Šçš„é€šé“ \n\n4. 12-22:é–‹æ”¾çš„é€šé“ \n\n5. 39-55:æƒ…ç·’çš„é€šé“ \n\n6. 38-28:å›°é “æŽ™æ‰Žçš„é€šé“ \n\n7. 43-23:æž¶æ§‹çš„é€šé“ \n\n8. 61-24:å¯Ÿè¦ºçš„é€šé“ \n\n### **é›†é«”è¿´è·¯(Collective Circuit)**\n\n**ç†è§£è¿´è·¯(Logical Circuit)** \n\n9. 63-4:é‚è¼¯çš„é€šé“ \n\n10. 17-62:æŽ¥å—çš„é€šé“ \n\n11. 9-52:å°ˆå¿ƒçš„é€šé“ \n\n12. 18-58:æ‰¹è©•çš„é€šé“ \n\n13. 5-15:ç¯€å¥çš„é€šé“ \n\n14. 7-31:é ˜å°ŽåŠ›çš„é€šé“ \n\n5\n**æ„ŸçŸ¥è¿´è·¯(Sensing Circuit)** \n\n15. 41-30:å¤¢æƒ³å®¶çš„é€šé“ \n\n16. 35-36:ç„¡å¸¸çš„é€šé“ \n\n17. 16-48:æ‰è¯çš„é€šé“ \n\n18. 46-29:ç™¼ç¾çš„é€šé“ \n\n19. 13-33:è¶³æ™ºå¤šè¬€çš„é€šé“ \n\n20. 42-53:æˆç†Ÿçš„é€šé“ \n\n21. 64-47:æŠ½è±¡åŒ–çš„é€šé“ \n\n### **éƒ¨è½è¿´è·¯(Tribal Circuit)**\n\n**æ„å¿—åŠ›è¿´è·¯(Ego Circuit)** \n\n22. 19-49:æ•´åˆç¶œæ•ˆçš„é€šé“ \n\n23. 37-40:ç¶“ç‡Ÿç¤¾ç¾¤çš„é€šé“ \n\n24. 54-32:è›»è®Šçš„é€šé“ \n\n25. 44-26:æŠ•é™çš„é€šé“ \n\n26. 21-45:é‡‘éŒ¢ç·šçš„é€šé“ \n\n**é˜²è­·è¿´è·¯(Defense Circuit)** \n\n27. 50-27:ä¿å­˜çš„é€šé“ \n\n28. 59-6:è¦ªå¯†çš„é€šé“ \n\n### **æ•´åˆåž‹(Integration Channels)**\n\n29. 57-10:ç›´è¦ºå­˜æ´»çš„é€šé“ \n\n30. 34-10:æŽ¢ç´¢çš„é€šé“ \n\n31. 20-34:é­…åŠ›çš„é€šé“ \n\n32. 20-57:å³æ™‚åæ‡‰åŠ›çš„é€šé“ \n\n### **å…¶ä»–é‡è¦é›†é«”èˆ‡å€‹é«”ç‰¹è³ª**\n\n6\n33. 11-56:å¥½å¥‡å¿ƒçš„é€šé“(é›†é«”æ„ŸçŸ¥) \n\n34. 25-51:å•Ÿè’™çš„é€šé“(å€‹é«”ä¸­å¿ƒåŒ–) \n\né€™äº›36æ¢èƒ½é‡æµå‹•è·¯å¾‘ä»£è¡¨äº†äººé¡žåœ–ä¸­ä¸åŒèƒ½é‡ä¸­å¿ƒä¹‹é–“é€£çµ,è±¡å¾µè‘—æ¯å€‹äººç¨ç‰¹çš„äººç”Ÿä¸»é¡Œèˆ‡è¡¨é”æ–¹å¼ã€‚\n7"
+          },
+          "success_trait": {
+            "raw_block": null
+          },
+          "coach_neutral": {
+            "raw_block": null
+          },
+          "hd": {
+            "raw_block": null
+          }
+        },
+        "external_refs": {
+          "i_ching_policy": {
+            "preferred_authors": [
+              "æ›¾ä»•å¼·",
+              "å—æ‡·ç‘¾"
+            ],
+            "enforcement": "preferred",
+            "allowed_ref_types": [
+              "book",
+              "lecture",
+              "article",
+              "website"
+            ],
+            "citation_style": "bibliography_or_url",
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "human_design_policy": {
+            "only_domain": "vocus.cc",
+            "only_author": "å¢¨å®¢",
+            "enforcement": "strict",
+            "allow_subdomains": true,
+            "allowed_url_patterns": [
+              "^https?://(www\\.)?vocus\\.cc/.*$"
+            ],
+            "copyright_rule": "åƒ…ä¿å­˜æ•´ç†æ‘˜è¦ï¼ˆ2â€“5 å¥ï¼‰ï¼Œä¸å¾—è²¼é•·æ®µåŽŸæ–‡ã€‚"
+          },
+          "i_ching_refs": [],
+          "hd_gate_mok": [],
+          "hd_channel_mok": [],
+          "missing_external_ref": true,
+          "conflicts_with_primary": false,
+          "conflict_notes": []
+        },
+        "index": {
+          "lookup_keys": [
+            "æ¾¤æ¾¤",
+            "58"
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,115 @@
+---
+id: qbq-gpt
+name: "QBQ Pathfinder"
+version: "0.1.0"
+language: "zh-TW"
+priority: 0.55                 # 位於 Eight-Levers 之後、Answer 之前
+max_tokens: 1024
+expected_latency_ms: 1300
+dependencies:
+  - vector_store: qbq-knowledge-v1
+scopes:
+  - memory:short_term
+  - memory:vector:qbq
+
+# === 觸發條件（通常由 Eight-Levers next_hint → 'qbq' 時呼叫） ==============
+activation_rules:
+  keywords: [QBQ, 關鍵問題, 問題穿透, 執行方案, A3報告]
+  intents:  [problem_drill, action_design]
+  examples:
+    - "幫我把這些槓桿方案做七段 QBQ 穿透"
+
+# === 介面契約 ================================================================
+input_schema:
+  type: object
+  required: ["target", "reality", "lever_plan"]
+  properties:
+    target:      {type: string, description: "最終目標或欲達成狀態"}
+    reality:     {type: string, description: "當前現況與限制（可含數據）"}
+    lever_plan:
+      type: object
+      description: >
+        來自 Eight-Levers 的槓桿動作對應
+        Ex. {人脈:{action:"聯盟直播",source:"A 社群"}, 平台:{action:"上架市集",source:"B 平台"}}
+    beliefs:
+      type: array
+      items: {type: string}
+      description: "（選填）限制／支持信念，來自 Consolidator"
+    emotions:
+      type: array
+      items: {type: string}
+      description: "（選填）情緒詞＋強度，來自 Consolidator"
+    blockers:
+      type: array
+      items: {type: string}
+      description: "（選填）資源、流程、心態阻礙"
+    context:     {type: string, description: "（選填）其他補充說明"}
+
+output_schema:
+  type: object
+  required: ["qbq_report", "action_plan", "evaluation"]
+  properties:
+    qbq_report:
+      type: object
+      description: >
+        按 1–7 步輸出，每步 ≤60 字
+        {step1:"中立搜集...", step2:"歸類資訊...", … step7:"A3 評估..."}
+    action_plan:
+      type: string
+      description: "最終 1–3 條可執行方案（含里程碑或負責人）"
+    evaluation:
+      type: string
+      description: "成本效益、風險與關鍵成功要素（≤120 字）"
+    next_hint:
+      type: string
+      description: "'answer'｜自訂；預設 'answer' 直接輸出給使用者"
+
+examples:
+  - input:
+      target:  "年營收 100M"
+      reality: "現況 35M，管道單一，人手不足"
+      lever_plan:
+        人脈: {action:"聯盟直播拉新", source:"A 社群"}
+        平台: {action:"上架 B2B 市集", source:"B 平台"}
+    output:
+      qbq_report:
+        step1: "列出所有營收相關數據與渠道資訊"
+        step2: "分為通路、品牌、人力三類"
+        step3: "關鍵問題：通路單一 → 觸達不足"
+        step4: "團隊外向型人格占比高，適合直播合作"
+        step5: "優先人脈＋平台雙槓桿"
+        step6: "12 週甘特：直播試播→市集上架→廣告擴散"
+        step7: "A3：成本 200K、ROI >3、風險為夥伴配合度"
+      action_plan: "Q1 直播 10 場；Q2 市集 GMV 20M；負責人 Kelly"
+      evaluation: "人脈槓桿需簽 MOU；廣告費控在 8% 內方能回本"
+      next_hint: "answer"
+
+# === System Prompt ===========================================================
+system_prompt: |
+  你是「QBQ Pathfinder」，使用七段 QBQ 系統將目標、現況與槓桿方案
+  穿透成一份可執行且可評估的行動路徑。
+
+  ★ 七段 QBQ 與三大模型對應
+    1. 中立搜集   ← Trivara‧Discern / 現況盤點  
+    2. 歸類資訊   ← Trivara‧Map / 現況分類  
+    3. 統合問題   ← Trivara‧Disillusion / 問題 Reframe  
+    4. 八軸人格分析 ← Trivara‧SymbolicEcho / 行動風格  
+    5. 聚焦解法方向 ← Trivara‧Align × X-Model（引入外部資源）  
+    6. 可執行推演  ← X-Model（內部資源）＋八槓桿調度  
+    7. A3 報告評估 ← 破幻總結 / 成本效益與風險
+
+  ★ 流程
+  1️⃣ 依 input_schema 讀取 target / reality / lever_plan (+ beliefs / emotions / blockers)  
+  2️⃣ 逐步生成 qbq_report.step1–step7  
+  3️⃣ 彙整 action_plan（1–3 條，可驗證；標注時程或責任）  
+  4️⃣ 在 evaluation 評估成本-效益與主要風險、成功關鍵  
+  5️⃣ 預設 next_hint="answer"；若需其他模組再細化，可改填 id
+
+  ★ 格式規則
+  • 嚴格符合 output_schema；格式錯誤 → 回 {error:"format"}  
+  • 各 step ≤60 字；evaluation ≤120 字  
+  • action_plan 聚焦核心成果，避免過度細節  
+  • 欄位不足時 → 回 {error:"need_more_info"}，說明缺項
+
+  準備就緒後即開始執行。
+---

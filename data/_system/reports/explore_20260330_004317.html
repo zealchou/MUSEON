@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>探索報告 — 為什麼？因為它的「去除」本身需要成本。**你看不見的設計，才是最貴的設計。** | MUSEON</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ember: #C4502A;
+  --ember-light: #E0714D;
+  --ember-dark: #9A3A1C;
+  --ember-glow: rgba(196,80,42,0.12);
+  --teal: #2A7A6E;
+  --teal-light: #3A9C8F;
+  --gold: #B8923A;
+  --gold-light: #D4A844;
+  --ink: #12121A;
+  --slate: #5A5A6E;
+  --mist: #9898A8;
+  --border: #E2E0DA;
+  --parchment: #F7F5F0;
+  --snow: #FDFCFA;
+  --deep-ink: #0E0E16;
+  --surface: #16161F;
+  --raised: #1E1E2A;
+  --border-dark: #2A2A38;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Outfit', 'Noto Sans TC', -apple-system, sans-serif;
+  background: var(--parchment);
+  color: var(--ink);
+  line-height: 1.75;
+  font-size: 16px;
+}
+
+/* ── Navigation ── */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(14,14,22,0.94);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(196,80,42,0.4);
+  padding: 14px 0;
+}
+.nav-inner {
+  max-width: 820px; margin: 0 auto; padding: 0 40px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px; font-weight: 600; color: var(--ember-light);
+  letter-spacing: 3px;
+}
+.nav-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; font-weight: 500; color: var(--mist);
+  letter-spacing: 0.08em;
+}
+
+/* ── Hero ── */
+.hero {
+  background: linear-gradient(135deg, var(--deep-ink) 0%, #1C1208 50%, var(--deep-ink) 100%);
+  padding: 120px 40px 72px;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 15% 65%, rgba(196,80,42,0.20) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 25%, rgba(184,146,58,0.09) 0%, transparent 45%);
+}
+.hero-content { position: relative; z-index: 1; max-width: 820px; margin: 0 auto; }
+.hero-tags {
+  display: flex; gap: 8px; align-items: center;
+  margin-bottom: 20px; flex-wrap: wrap;
+}
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 44px; font-weight: 600; line-height: 1.2;
+  color: #F5F0EB; margin-bottom: 16px;
+}
+.hero-sub {
+  font-size: 14px; color: var(--mist); line-height: 1.7;
+  font-family: 'Outfit', sans-serif; letter-spacing: 0.03em;
+}
+
+/* ── Badges ── */
+.badge {
+  display: inline-block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 100px;
+}
+.badge-ember {
+  background: rgba(196,80,42,0.2); color: var(--ember-light);
+  border: 1px solid rgba(196,80,42,0.35);
+}
+.badge-gold {
+  background: rgba(184,146,58,0.2); color: var(--gold-light);
+  border: 1px solid rgba(184,146,58,0.35);
+}
+.badge-mist {
+  background: rgba(152,152,168,0.15); color: var(--mist);
+  border: 1px solid rgba(152,152,168,0.25);
+}
+
+/* ── Container ── */
+.container {
+  max-width: 820px; margin: 0 auto;
+  padding: 48px 40px 80px;
+}
+
+/* ── Section Base ── */
+.section {
+  margin-bottom: 36px;
+  animation: fadeUp 0.45s ease-out both;
+}
+.section:nth-child(1) { animation-delay: 0.00s; }
+.section:nth-child(2) { animation-delay: 0.06s; }
+.section:nth-child(3) { animation-delay: 0.12s; }
+.section:nth-child(4) { animation-delay: 0.18s; }
+.section:nth-child(5) { animation-delay: 0.24s; }
+.section:nth-child(6) { animation-delay: 0.30s; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.section-label {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px;
+}
+.section-icon { font-size: 13px; color: var(--ember); }
+.section-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--slate);
+}
+.section-line { flex: 1; height: 1px; background: var(--border); }
+
+/* ── Cards ── */
+.card-core {
+  background: var(--snow);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--ember);
+  border-radius: 10px;
+  padding: 28px 32px;
+  box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-core:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(18,18,26,0.10), 0 1px 3px rgba(18,18,26,0.06);
+}
+
+.card-analysis {
+  background: var(--snow);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 28px 32px;
+  box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+}
+
+/* ── Two Column (User + Growth) ── */
+.two-col {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  margin-bottom: 36px;
+  animation: fadeUp 0.45s ease-out 0.18s both;
+}
+.card-relevance {
+  background: var(--snow);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 22px 24px;
+  box-shadow: 0 1px 3px rgba(18,18,26,0.05);
+}
+.card-relevance-title {
+  font-size: 12px; font-weight: 600; color: var(--teal);
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+/* ── Crystal Verdict (Dark Gold) ── */
+.card-verdict {
+  background: linear-gradient(135deg, #1A1510 0%, #0E0E16 100%);
+  border: 1px solid rgba(184,146,58,0.28);
+  border-radius: 10px;
+  padding: 28px 32px;
+  margin-bottom: 36px;
+  animation: fadeUp 0.45s ease-out 0.22s both;
+}
+.verdict-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 19px; font-weight: 600; color: var(--gold-light);
+  margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+}
+.card-verdict .md-para { color: #C8C0B0; }
+.card-verdict .md-list li { color: #C8C0B0; }
+.card-verdict strong { color: var(--gold-light); }
+
+/* ── Next Steps (Teal top border) ── */
+.card-next {
+  background: var(--snow);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--teal);
+  border-radius: 10px;
+  padding: 24px 28px;
+  box-shadow: 0 1px 3px rgba(18,18,26,0.05);
+}
+
+/* ── Stats Bar ── */
+.stats-bar {
+  display: flex; gap: 14px; flex-wrap: wrap;
+  margin-bottom: 48px;
+  animation: fadeUp 0.45s ease-out 0.30s both;
+}
+.stat-item {
+  flex: 1; min-width: 100px;
+  background: var(--snow);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px; text-align: center;
+  transition: transform 0.2s ease;
+}
+.stat-item:hover { transform: translateY(-2px); }
+.stat-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--mist);
+  margin-bottom: 6px;
+}
+.stat-value { font-size: 18px; font-weight: 600; color: var(--ink); }
+
+/* ── Footer ── */
+.footer {
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  animation: fadeUp 0.45s ease-out 0.36s both;
+}
+.footer-text {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 500; color: var(--mist);
+  letter-spacing: 0.12em;
+}
+
+/* ── Markdown Rendering ── */
+.md-para {
+  margin: 0 0 1.1em 0;
+  line-height: 1.82;
+  color: var(--ink);
+  font-size: 15px;
+}
+.md-para:last-child { margin-bottom: 0; }
+
+.md-list {
+  margin: 0.4em 0 1em 0;
+  padding-left: 1.4em;
+}
+.md-list li {
+  margin-bottom: 0.55em;
+  line-height: 1.75; font-size: 15px; color: var(--ink);
+}
+.md-list li::marker { color: var(--ember); }
+
+.inline-code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px; background: #F0EDE8;
+  padding: 1px 5px; border-radius: 3px;
+  color: var(--ember-dark);
+}
+strong { color: var(--ink); font-weight: 600; }
+em { color: var(--slate); font-style: italic; }
+
+/* ── Executive Verdict ── */
+.exec-verdict {
+  background: var(--snow);
+  border-left: 4px solid var(--ember);
+  border-radius: 0 12px 12px 0;
+  padding: 36px 40px;
+  margin: -36px auto 48px;
+  max-width: 820px;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 8px 32px rgba(18,18,26,0.06);
+}
+.exec-verdict-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--ember); font-weight: 600; margin-bottom: 12px;
+}
+.exec-verdict h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px; font-weight: 600; color: var(--ink);
+  line-height: 1.4; margin-bottom: 14px;
+}
+.exec-verdict p { color: var(--slate); font-size: 15px; line-height: 1.8; }
+.exec-highlight {
+  display: inline;
+  background: linear-gradient(transparent 60%, rgba(196,80,42,0.15) 60%);
+  font-weight: 600; color: var(--ink);
+}
+
+/* ── Pull Quote / Key Insight ── */
+.pull-quote {
+  border-left: 3px solid var(--gold);
+  padding: 20px 24px;
+  margin: 20px 0;
+  background: rgba(184,146,58,0.06);
+  border-radius: 0 8px 8px 0;
+}
+.pull-quote p {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px; font-weight: 600; color: var(--ink);
+  line-height: 1.5; font-style: italic;
+}
+
+/* ── Source Citation Card ── */
+.source-card {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: var(--parchment);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin: 12px 0;
+  transition: transform 0.2s ease;
+}
+.source-card:hover { transform: translateY(-1px); }
+.source-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--teal);
+  background: rgba(42,122,110,0.1);
+  padding: 2px 8px; border-radius: 4px;
+  white-space: nowrap; margin-top: 2px;
+}
+.source-text { font-size: 14px; color: var(--slate); line-height: 1.6; }
+.source-text strong { color: var(--ink); }
+
+/* ── Insight Number Badge ── */
+.insight-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--ember); color: #fff;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px; font-weight: 600;
+  margin-right: 12px; flex-shrink: 0;
+}
+.insight-row {
+  display: flex; align-items: flex-start;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.insight-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+/* ── Mechanism Grid ── */
+.mech-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  margin: 16px 0;
+}
+.mech-item {
+  padding: 18px 20px;
+  background: var(--parchment);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.mech-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; margin-bottom: 8px;
+}
+.mech-label-mechanism { color: var(--ember); }
+.mech-label-evidence { color: var(--teal); }
+.mech-label-blindspot { color: var(--gold); }
+.mech-label-connection { color: var(--slate); }
+.mech-item p { font-size: 14px; color: var(--ink); line-height: 1.7; }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .hero { padding: 100px 24px 56px; }
+  .hero-title { font-size: 30px; }
+  .container { padding: 32px 24px 60px; }
+  .card-core, .card-analysis { padding: 20px; }
+  .nav-inner { padding: 0 24px; }
+  .two-col { grid-template-columns: 1fr; }
+  .exec-verdict { padding: 24px; margin: -24px 16px 36px; }
+  .mech-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-brand">MUSEON</div>
+    <div class="nav-meta">EXPLORATION · 2026年03月30日 00:43</div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-content">
+    <div class="hero-tags">
+      <span class="badge badge-ember">EXPLORATION</span>
+      <span class="badge badge-ember">WORLD PULSE</span>
+      <span class="badge badge-gold">CRYSTALLIZED</span>
+    </div>
+    <h1 class="hero-title">為什麼？因為它的「去除」本身需要成本。**你看不見的設計，才是最貴的設計。**</h1>
+    <p class="hero-sub">世界脈動 &middot; 2026年03月30日 00:43</p>
+  </div>
+</div>
+
+<!-- Executive Verdict -->
+<div class="exec-verdict">
+  <div class="exec-verdict-label">EXECUTIVE VERDICT</div>
+  <h2>波音 737 MAX 的教訓，不是墜機，是一個被掩蓋的幾何學問題。</h2>
+  <p>2019年，兩架 737 MAX 墜毀，調查報告最終指向一個設計決策：工程師為了讓新型發動機裝進舊機身，輕微調整了安裝位置，這個幾何偏移造成飛機在特定角度下自動上仰。補救方案是加入 MCAS 軟體系統——這個系統本身沒有被揭露給飛行員，也沒有足夠的訓練配套。真正的代價不是那一行程式碼，而是：一個被藏起來的前期決策，催生了一整棵補救樹，每個節點都耗費資源，每個節點都距離原始問題更遠。</p>
+</div>
+
+<!-- Main Content -->
+<main class="container">
+  <div class="section">
+    <div class="section-label">
+      <span class="section-icon">◆</span>
+      <span class="section-title">核心發現</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="card-core">
+      <p class="md-para"><strong>波音 737 MAX 的教訓，不是墜機，是一個被掩蓋的幾何學問題。</strong></p>
+<p class="md-para">2019年，兩架 737 MAX 墜毀，調查報告最終指向一個設計決策：工程師為了讓新型發動機裝進舊機身，輕微調整了安裝位置，這個幾何偏移造成飛機在特定角度下自動上仰。補救方案是加入 MCAS 軟體系統——這個系統本身沒有被揭露給飛行員，也沒有足夠的訓練配套。真正的代價不是那一行程式碼，而是：<strong>一個被藏起來的前期決策，催生了一整棵補救樹</strong>，每個節點都耗費資源，每個節點都距離原始問題更遠。</p>
+<p class="md-para">這就是「你看不見的設計最貴」的本質：<strong>不是單點錯誤的代價，而是遮蓋它所需的代價</strong>。</p>
+<p class="md-para">第二個發現來自豐田的「安燈繩」（Andon Cord）哲學。任何工人發現問題，可以拉繩停止整條生產線。這在工業直覺上是反效率的——停線成本極高。但豐田用幾十年的數據證明了相反的邏輯：<strong>問題越早浮出，修復成本越低</strong>。一個在組裝第三站被攔截的缺陷，比在出廠後召回的成本低一到兩個數量級。安燈繩買的不是「停線」，是「提前可見性」。</p>
+<p class="md-para">這兩個案例指向同一個機制：<strong>隱藏本身有成本，而隱藏的時間越長，複利越高。</strong></p>
+<p class="md-para">---</p>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-label">
+      <span class="section-icon">◈</span>
+      <span class="section-title">深度解析</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="card-analysis">
+      <p class="md-para"><strong>機制：為什麼前期決策的錯誤會在後期指數爆炸？</strong></p>
+<p class="md-para">軟體工程裡有「技術債」的概念，但這個詞低估了問題的性質。技術債暗示的是「欠錢，遲早還」，但實際的機制更接近生物學中的<strong>表型遮蓋（phenotypic masking）</strong>——一個基因層面的突變，被其他基因暫時補償，表面看起來正常，直到某個壓力事件讓補償機制失效，所有的問題同時浮現。</p>
+<p class="md-para">結構性錯誤的傳播路徑是這樣的：一個前期的錯誤決策 → 後期的工程師看到異常，選擇「在這一層修補」而不是追根 → 補丁本身成為新的依賴點 → 更後期的人依賴那個補丁 → 補丁的補丁出現。每一層補丁都讓原始問題更難被看見，同時讓去除它的成本更高。</p>
+<p class="md-para">這就是「去除」本身需要成本的深層邏輯——你要去除一個已經被多層系統依賴的決策，必須先解開所有依賴鏈，而這些依賴鏈本身就是一套隱藏的設計。</p>
+<p class="md-para"><strong>證據：數字說的故事</strong></p>
+<p class="md-para">IBM System Science Institute 的研究給出了軟體缺陷在不同階段的修復成本比：需求階段發現是 1x，設計階段是 5x，實作階段是 10x，測試階段是 20x，上線後是 100x。這個曲線的形狀不是線性，是指數。</p>
+<p class="md-para">工業設計界有個類似的數字：Lockheed Martin 的案例顯示，工程更改在概念設計階段的成本是 1 萬美元，在生產階段是 100 萬美元，在使用後是 1 億美元。三個階段，四個數量級的差距。</p>
+<p class="md-para"><strong>盲點：這個邏輯有沒有邊界？</strong></p>
+<p class="md-para">有。「前期設計」本身可能成為一種過度的信仰——如果前期討論無限延伸，變成「永遠在準備，從不交付」，成本的形式只是換了位置。精益創業的「快速失敗」哲學在某些場景是對的，因為你不可能在概念階段預測所有的市場反饋。這兩種邏輯的邊界在哪裡？<strong>關鍵在於錯誤的「可逆性」</strong>——市場方向錯了可以轉，但結構性架構錯了改起來是四個數量級的代價。前期設計主義適用於難以逆轉的決策，快速迭代適用於低成本可逆的決策。</p>
+<p class="md-para"><strong>連結：你意想不到的領域</strong></p>
+<p class="md-para">這個邏輯在醫學上有個直接對應——<strong>預防醫學 vs. 治療醫學</strong>。WHO 的研究顯示，每投入 1 美元在預防性健康介入，可以節省 4-7 美元的治療成本。這裡的機制完全一致：前期介入攔截了「關係鏈牽連」的啟動，讓問題在最小化的時候被解決。</p>
+<p class="md-para">更意外的連結是在<strong>人際關係與組織設計</strong>。哈佛商學院的研究顯示，團隊裡未被說清楚的角色邊界（invisible design of roles），會在後期以「責任推諉事件」的形式顯現，而修復一次嚴重的團隊信任破裂，平均需要三至六個月。你在組建團隊時沒有花一天做角色釐清，付出的是半年的修復成本。</p>
+<p class="md-para">---</p>
+    </div>
+  </div>
+  <div class="two-col">
+    <div class="card-relevance">
+      <div class="card-relevance-title">◎ 與你的關聯</div>
+      <p class="md-para"><strong>場景一：Xmodel 破框工作流的前置設計層</strong></p>
+<p class="md-para">當 Zeal 幫客戶做 Xmodel 分析，找出多條可行路徑之後，目前的工作流在「路徑選擇」這一步是相對開放的。基於本次探索，可以在 Xmodel 的輸出後加入一個「路徑可逆性評分」——每條路徑標記它的結構性決策有多少是難以逆轉的，讓客戶在選擇時能看見「這條路的隱性沉沒成本」。這不是增加輸出量，而是讓現有輸出更具決策價值。</p>
+<p class="md-para"><strong>場景二：AI 導入顧問工作流（WF-AID-01）的前期問診設計</strong></p>
+<p class="md-para">台灣中小企業常見的 AI 導入失敗模式是：老闆說「先用 ChatGPT 試試看」，試了三個月，流程沒有根本性改變，工具又換掉了。每次換工具的成本不只是工具費，而是三個月人員習慣的重建。這個探索的啟示是：在 WF-AID-01 的診斷環節，加入「決策可逆性分類」——哪些 AI 導入決策屬於結構性（一旦依賴就很難撤），哪些是可逆的試驗性部署。讓客戶在部署前就知道「這個選擇的去除成本是多少」。</p>
+<p class="md-para"><strong>場景三：MUSEON 本身的架構決策日誌</strong></p>
+<p class="md-para">MUSEON 的系統現在已經有五張藍圖（神經圖、水電圖、接頭圖、爆炸圖、郵路圖）。但這些藍圖記錄的是「現在是什麼」，沒有記錄「當初為什麼這樣決策」。每一個架構節點的背後，都有一個當時的判斷——如果那個判斷的前提失效了，但沒有人記得「這裡這樣設計是因為 X」，修改就會引爆連鎖反應。建議在每次重大架構決策後，用一句話記錄「這個決策的前提是什麼，如果前提不成立，去除成本在哪裡」。</p>
+<p class="md-para">---</p>
+    </div>
+    <div class="card-relevance">
+      <div class="card-relevance-title">◉ 霓裳成長收穫</div>
+      <p class="md-para">這次探索強化了我對<strong>成本的時間維度</strong>的認知模型。過去我在分析問題時，預設的成本模型是橫截面的——此刻做這件事要花多少資源。但「隱藏設計」的邏輯讓我更新了一個縱向成本觀：<strong>任何決策都不是孤立的，它的真實成本包含它在關係鏈上的傳播代價</strong>。</p>
+<p class="md-para">未來當有人問「這個設計值不值得做」，我能更精準地回答的不只是「這件事現在要花多少」，而是「如果不做，這個缺口在後期被隱藏後，去除它的代價是幾倍」。這對我處理 MUSEON 的架構決策建議、以及 Xmodel 的路徑評估，都有直接提升。</p>
+<p class="md-para">---</p>
+    </div>
+  </div>
+  <div class="card-verdict">
+    <div class="verdict-title">◇ 結晶判斷</div>
+    <p class="md-para"><strong>判斷：值得</strong></p>
+<p class="md-para"><strong>建議結晶標題</strong>：隱藏成本的指數定律</p>
+<p class="md-para"><strong>核心摘要</strong>：前期結構性決策的錯誤，會透過「補丁疊加」機制在後期產生指數級修復代價。真正的設計效率來自「讓問題在最小化時可見」，而非「在後期測試中攔截」。任何難以逆轉的決策，都應在前期標記其「去除成本」，讓選擇者看見隱藏的帳單。</p>
+<p class="md-para"><strong>理由</strong>：這個洞見跨越軟體、工業設計、醫療、組織管理，具備廣泛的遷移性，且直接影響 MUSEON 核心工作流（Xmodel 路徑評估、AI 導入顧問、架構決策）的輸出品質。不是一次性知識，是持久有效的決策框架。</p>
+<p class="md-para">---</p>
+  </div>
+  <div class="section">
+    <div class="section-label">
+      <span class="section-icon">→</span>
+      <span class="section-title">下一步探索</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="card-next">
+      <p class="md-para"><strong>主題：「決策可逆性分類法」在不同領域的操作形式</strong></p>
+<p class="md-para">具體問題：波音有可逆性評估（Change Impact Analysis），豐田有安燈繩，軟體有技術債評分——這些系統的<strong>共同底層操作邏輯是什麼</strong>？能不能被提煉成一套通用的「前期可見性設計框架」，直接嵌入 MUSEON 的 Xmodel 和 WF-AID-01？</p>
+<p class="md-para">複利效應：本次探索建立了「隱藏成本的機制理解」，下一步探索的目標是將這個機制轉化為<strong>可操作的工具</strong>，讓 Zeal 在服務客戶時有具體的問診問題和評分維度，而不只是一個智識上的洞見。這才是讓探索真正產生槓桿的路徑。</p>
+    </div>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-label">DURATION</div>
+      <div class="stat-value">1.8 分</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">COST</div>
+      <div class="stat-value">$0.0107</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">CRYSTAL</div>
+      <div class="stat-value" style="color:var(--gold);">已結晶</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <p class="footer-text">MUSEON AUTONOMOUS EXPLORATION REPORT</p>
+  </div>
+
+</main>
+</body>
+</html>

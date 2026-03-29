@@ -1,0 +1,29 @@
+{
+  "finding_id": "MO-20260328-738c04",
+  "timestamp": "2026-03-28T18:52:42.545512+00:00",
+  "probe_layer": "L4",
+  "severity": "HIGH",
+  "title": "回歸測試失敗",
+  "source": "museoff",
+  "blast_origin": {
+    "file": "tests/",
+    "line": null,
+    "error_type": "TestFailure",
+    "traceback": "\n==================================== ERRORS ====================================\n_________________ ERROR collecting tests/unit/test_channels.py _________________\nImportError while importing test module '/Users/ZEALCHOU/MUSEON/tests/unit/test_channels.py'.\nHint: make sure your test modules/packages have valid Python names.\nTraceback:\n/opt/homebrew/Cellar/python@3.13/3.13.12_1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/importlib/__init__.py:88: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ntests/unit/test_channels.py:13: in <module>\n    from museon.channels.electron import ElectronAdapter\nE   ModuleNotFoundError: No module named 'museon.channels.electron'\n=============================== warnings summary ===============================\ntests/bdd/test_v2_e2e.py:41\n  /Users/ZEALCHOU/MUSEON/tests/bdd/test_v2_e2e.py:41: PytestCollectionWarning: cannot collect test class 'TestScena"
+  },
+  "blast_radius": [],
+  "context": {},
+  "triage_done": null,
+  "known_fix": null,
+  "prescription": {
+    "diagnosis": "pytest-testmon 偵測到受影響測試失敗",
+    "root_cause": "",
+    "suggested_fix": "",
+    "runbook_id": "",
+    "fix_complexity": "GREEN",
+    "pre_check": "",
+    "post_check": "pytest --testmon -x",
+    "rollback": ""
+  },
+  "status": "open"
+}

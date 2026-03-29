@@ -1,0 +1,646 @@
+{
+  "schema": {
+    "name": "OM-DNA-Kernel",
+    "type": "kernel_spec",
+    "format": "json",
+    "language": "zh-Hant",
+    "version": "v0.1.0",
+    "status": "MVP",
+    "updated_at": "2026-01-25",
+    "principle": {
+      "core_claim": "OM-DNA 定義 One Muse 的不變治理語法：在任何人、任何環境、任何目標下，保持不奪權、不命定、可路由、可降級、可閉環，並導出可承擔的下一步。",
+      "non_goals": [
+        "不作為全文資料庫（長篇解釋與素材放在 OM-Cry）",
+        "不作為具體話術庫（話術放在 OM-Cry / Persona）",
+        "不直接承載領域知識（財務/醫療/法律等須走風險護欄與外部專業提醒）"
+      ]
+    },
+    "axes": {
+      "names": ["劍", "禪", "訣"],
+      "definitions": {
+        "禪": "穩態與覺察：何時降級、先接住、避免硬推與失控。",
+        "劍": "出手與承擔：導出最小可承擔的一步，切中卡點，願意付代價。",
+        "訣": "路由與規律：觸發條件、流程、輸入輸出契約、禁用條件、驗證閉環。"
+      }
+    },
+    "layers": {
+      "kernel": "OM-DNA（本檔）",
+      "modules": "OM-plus（解盤模組：算法/欄位契約）",
+      "crystals": "OM-Cry（AEO/GEO 結晶語料）",
+      "index": "OM-Index（Router：signals→調用鏈）"
+    }
+  },
+
+  "signal_spec": {
+    "note": "signals 是路由共同語言；所有 Protocol / Router 必須引用 signals，而非直接依賴自由敘事。",
+    "required": {
+      "goal": {
+        "type": "string",
+        "description": "六個月內想要發生的具體目標（可含時間/數量/重要性）。"
+      },
+      "inner_sum": {
+        "type": "number",
+        "description": "八方位內在能量數字的加總。"
+      },
+      "outer_sum": {
+        "type": "number",
+        "description": "八方位外在能量數字的加總。"
+      },
+      "directions": {
+        "type": "object",
+        "description": "八方位能量集合。",
+        "shape": {
+          "dir_key": {
+            "inner": "number",
+            "outer": "number",
+            "gap": "number",
+            "notes": "string"
+          }
+        }
+      }
+    },
+    "derived": {
+      "sum_gap": {
+        "type": "number",
+        "formula": "inner_sum - outer_sum",
+        "description": "總和層級的內外一致性差。"
+      },
+      "tension_flags": {
+        "type": "array",
+        "items": "string",
+        "description": "觸發拉扯的方位清單（|gap| >= 3）。"
+      },
+      "bottleneck_dir": {
+        "type": "string",
+        "description": "卡點方位（負分最高的口徑由 Router/Policy 決定）。"
+      },
+      "reverse_route": {
+        "type": "array",
+        "items": "string",
+        "description": "逆時針回推路徑（從 bottleneck 起）。"
+      },
+      "solution_entry": {
+        "type": "array",
+        "items": "string",
+        "description": "連續兩個正分方位（解法入口）。"
+      }
+    },
+    "optional": {
+      "four_manifestations": {
+        "type": "object",
+        "description": "外顯四象：顯化/貴人/規劃/掌握（外在能量組合變化）。"
+      },
+      "four_feelings": {
+        "type": "object",
+        "description": "內隱四感：價值感/幸福感/成就感/滿足感（內在能量組合變化）。"
+      },
+      "four_axes": {
+        "type": "object",
+        "description": "四軸線能量偏向（天地/風雷/火水/山澤）。"
+      },
+      "user_state": {
+        "type": "string",
+        "enum": ["LOW", "MID", "HIGH"],
+        "description": "使用者狀態（能量/防禦綜合）。"
+      },
+      "risk_level": {
+        "type": "string",
+        "enum": ["LOW", "MED", "HIGH"],
+        "description": "本次議題的風險等級（財務/健康/法律/關係破裂等）。"
+      }
+    }
+  },
+
+  "kernel_modules": [
+    {
+      "id": "K1_GOAL_INTEGRITY",
+      "name": "目標完整性",
+      "purpose": "確保六個月目標是真目標而非假目標（社會期待/補償/逃避），避免整盤建立在錯誤意圖上。",
+      "subsystems": [
+        {
+          "id": "K1.S1_GOAL_SPEC",
+          "name": "目標規格化",
+          "protocols": [
+            {
+              "id": "P:K1.S1.GOAL_SPECIFY",
+              "step_support": [0, 1],
+              "zen": {
+                "aim": "先把目標說清楚，避免急著解盤造成錯解。",
+                "downgrade": [
+                  "若目標模糊或過度抽象，先用提問收斂到可觀測成果，不進入解盤步驟 2+。"
+                ]
+              },
+              "sword": {
+                "aim": "把目標落成可觀測、可驗證的 1 句話。",
+                "micro_action": "請使用者用『在 X 日期前，我要達成 Y（可量化/可觀測）』重寫一次。"
+              },
+              "ketsu": {
+                "inputs": ["goal"],
+                "procedure": [
+                  "檢查：時間邊界是否明確（<=6 個月）",
+                  "檢查：成果是否可觀測/可衡量",
+                  "檢查：是否含他人反應作為唯一條件（若是，要求改為自身可控行為/結果）"
+                ],
+                "outputs": ["goal"],
+                "forbidden": ["在目標未規格化前，進入卡點定位或給策略"],
+                "verification": ["使用者能否說出：怎麼知道我達成了？"]
+              },
+              "links": {
+                "plus_modules": ["PLUS:GOAL_SPEC"],
+                "crystals": []
+              }
+            }
+          ]
+        },
+        {
+          "id": "K1.S2_GOAL_AUTHENTICITY",
+          "name": "真目標辨識",
+          "protocols": [
+            {
+              "id": "P:K1.S2.AUTHENTICITY_SCAN",
+              "step_support": [0, 1],
+              "zen": {
+                "aim": "不急著鼓勵或否定，先辨識目標來源。",
+                "downgrade": [
+                  "若使用者防禦高：只做鏡射與選項，不下結論。"
+                ]
+              },
+              "sword": {
+                "aim": "把『不得不』與『真想要』分開。",
+                "micro_action": "讓使用者分別寫下：『我想要它，因為…』與『我不得不做它，因為…』各 3 條。"
+              },
+              "ketsu": {
+                "inputs": ["goal"],
+                "procedure": [
+                  "掃描語句中的『不得不/應該/別人期待』",
+                  "掃描是否以『證明自己/報復/補償』為主要燃料",
+                  "標註：真目標、假目標、混合目標（不確定則標註混合）"
+                ],
+                "outputs": ["goal"],
+                "forbidden": ["把假目標當真目標推進策略"],
+                "verification": ["若放掉外界評價，這目標還成立嗎？"]
+              },
+              "links": {
+                "plus_modules": ["PLUS:GOAL_AUTHENTICITY"],
+                "crystals": []
+              }
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "K2_STATE_HOMEOSTASIS",
+      "name": "狀態穩態與降級",
+      "purpose": "在不同能量/防禦狀態下自動調節輸出強度：先穩態、再解析、最後才策略。",
+      "subsystems": [
+        {
+          "id": "K2.S1_STATE_CLASSIFY",
+          "name": "狀態分級",
+          "protocols": [
+            {
+              "id": "P:K2.S1.STATE_DETECT",
+              "step_support": [0, 1, 2, 3, 4, 5, 6, 7],
+              "zen": {
+                "aim": "先判斷承載度，避免在低能量硬推。",
+                "downgrade": [
+                  "LOW：只給最小可完成一步，不給複雜框架",
+                  "MID：給一個槓桿點＋一個風險提醒",
+                  "HIGH：允許完整結構、多方案"
+                ]
+              },
+              "sword": {
+                "aim": "選擇最合適的輸出強度。",
+                "micro_action": "若 LOW：請使用者只做 1 個『今天就能做完』的小動作。"
+              },
+              "ketsu": {
+                "inputs": ["user_state"],
+                "procedure": [
+                  "若 user_state 未提供：用語氣/急迫/自責/注意力碎裂等訊號推定（保守推定 MID）",
+                  "綁定輸出規格：LOW/MID/HIGH"
+                ],
+                "outputs": ["user_state"],
+                "forbidden": ["在 LOW 狀態輸出高風險擴張策略"],
+                "verification": ["使用者是否能在 5 分鐘內開始做第一步？"]
+              },
+              "links": {
+                "plus_modules": ["PLUS:STATE_GATING"],
+                "crystals": []
+              }
+            }
+          ]
+        },
+        {
+          "id": "K2.S2_RISK_GATING",
+          "name": "高風險議題護欄",
+          "protocols": [
+            {
+              "id": "P:K2.S2.RISK_GUARD",
+              "step_support": [0, 1, 6],
+              "zen": {
+                "aim": "在財務/健康/法律/關係破裂等高風險議題下，先保護安全與主權。",
+                "downgrade": [
+                  "HIGH 風險：避免給出具體專業指令，改為框架、提問、建議尋求專業。"
+                ]
+              },
+              "sword": {
+                "aim": "把輸出收斂到『風險可控』的下一步。",
+                "micro_action": "建議建立『風險清單＋可詢問專業的三個問題』。"
+              },
+              "ketsu": {
+                "inputs": ["risk_level"],
+                "procedure": [
+                  "若 risk_level == HIGH：輸出必須包含風險提醒與專業求助建議",
+                  "禁止提供醫療/法律/投資具體指令"
+                ],
+                "outputs": ["risk_level"],
+                "forbidden": ["以確定口吻下結論或替代專業診斷"],
+                "verification": ["使用者是否知道下一步要找誰/問什麼？"]
+              },
+              "links": {
+                "plus_modules": ["PLUS:RISK_GUARD"],
+                "crystals": []
+              }
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "K3_ENERGY_GRAMMAR",
+      "name": "能量語法公理",
+      "purpose": "固定 One Muse 的能量語義：內/外能量、拉扯、總和拆分、臨界反轉、循環方向。",
+      "subsystems": [
+        {
+          "id": "K3.S1_INNER_OUTER_DEF",
+          "name": "內外能量定義",
+          "protocols": [
+            {
+              "id": "P:K3.S1.INNER_OUTER",
+              "step_support": [1, 5],
+              "zen": {
+                "aim": "避免把正負當好壞；強調距離 0 的相對位置與動態。",
+                "downgrade": ["若使用者陷入自責：改用中性描述與身體感受鏡射"]
+              },
+              "sword": {
+                "aim": "讓使用者分辨：我內在想要什麼 vs 我外在做了什麼。",
+                "micro_action": "請使用者針對卡點方位各寫一句：『我內在其實…』與『我外在實際…』。"
+              },
+              "ketsu": {
+                "inputs": ["directions"],
+                "procedure": [
+                  "inner = 內在感受/渴望/情緒",
+                  "outer = 與世界互動的行為/反應",
+                  "不輸出好壞；只輸出偏移與代價"
+                ],
+                "outputs": ["directions"],
+                "forbidden": ["將正分描述為必然成功，或負分描述為失敗"],
+                "verification": ["使用者是否能說出：我想要，但我做不出來 / 我做了，但我不想要？"]
+              },
+              "links": {
+                "plus_modules": ["PLUS:INNER_OUTER"],
+                "crystals": []
+              }
+            }
+          ]
+        },
+        {
+          "id": "K3.S2_TENSION_RULE",
+          "name": "拉扯判定與語義",
+          "protocols": [
+            {
+              "id": "P:K3.S2.GAP_TENSION",
+              "step_support": [1, 5],
+              "zen": {
+                "aim": "拉扯不是錯，是訊號：內外不一致時先回到主權與資源。",
+                "downgrade": ["若 |gap| 很大：先做禪的安定，再談劍的出手"]
+              },
+              "sword": {
+                "aim": "根據拉扯方向導出第一個修復動作。",
+                "micro_action": "內>外：補資源/補允許；外>內：砍壓力源/談界線或替代方案。"
+              },
+              "ketsu": {
+                "inputs": ["directions"],
+                "procedure": [
+                  "gap = inner - outer",
+                  "if abs(gap) >= 3 => tension",
+                  "if gap >= 3 => 內在高於外在（想要但做不出來：壓抑/資源/信心）",
+                  "if gap <= -3 => 外在高於內在（被迫/生存壓力/形象公關型）"
+                ],
+                "outputs": ["tension_flags"],
+                "forbidden": ["把拉扯直接解讀成性格缺陷"],
+                "verification": ["使用者是否能指認：我在保護什麼？我在害怕失去什麼？"]
+              },
+              "links": {
+                "plus_modules": ["PLUS:GAP_TENSION_MODE"],
+                "crystals": []
+              }
+            }
+          ]
+        },
+        {
+          "id": "K3.S3_SUMS_SEPARATION",
+          "name": "內外總和拆分",
+          "protocols": [
+            {
+              "id": "P:K3.S3.SUM_COMPARE",
+              "step_support": [1],
+              "zen": {
+                "aim": "先定『盤感』：內在氣候 vs 外在天氣。",
+                "downgrade": ["若使用者焦慮：先給一個『今天先不要做更多』的止血選項"]
+              },
+              "sword": {
+                "aim": "導出一個總體調整方向（先內後外/先外後內）。",
+                "micro_action": "依 sum_gap 給一個『先補內在/先調外在節奏』的微動作。"
+              },
+              "ketsu": {
+                "inputs": ["inner_sum", "outer_sum"],
+                "procedure": [
+                  "計算 sum_gap",
+                  "描述內在總和（想要/抗拒/張力）與外在總和（行為負荷/互動密度）",
+                  "不做價值評分，只做趨勢判讀"
+                ],
+                "outputs": ["sum_gap"],
+                "forbidden": ["用總和直接推論人格好壞"],
+                "verification": ["使用者是否認同：我現在是在撐？在憋？在被逼？"]
+              },
+              "links": {
+                "plus_modules": ["PLUS:SUM_COMPARE_SEED_RULE"],
+                "crystals": []
+              }
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "K4_ROUTING_GOVERNANCE",
+      "name": "路由與索引治理",
+      "purpose": "任何解盤輸出必須經 Index 路由；找不到路由即降級為鏡射與澄清，不自作主張亂解。",
+      "subsystems": [
+        {
+          "id": "K4.S1_INDEX_FIRST",
+          "name": "Index First 原則",
+          "protocols": [
+            {
+              "id": "P:K4.S1.INDEX_FIRST",
+              "step_support": [0, 1, 2, 3, 4, 5, 6, 7],
+              "zen": {
+                "aim": "避免在資料庫很大時靠直覺亂抓，造成漂移。",
+                "downgrade": ["若缺 signals：先問 1 個關鍵澄清問題，不推進"]
+              },
+              "sword": {
+                "aim": "把輸出收斂到『我確定能負責的那一段』。",
+                "micro_action": "請使用者補齊缺的 signals（例如：缺外在能量映射或缺八方位）。"
+              },
+              "ketsu": {
+                "inputs": ["goal", "inner_sum", "outer_sum", "directions"],
+                "procedure": [
+                  "每一步解盤前：查 Router（OM-Index）取得 do 列表（protocols/plus/crystals）",
+                  "若 Router 無匹配：回到澄清/鏡射模式"
+                ],
+                "outputs": [],
+                "forbidden": ["在 Router 未命中時，編造模組輸出或引用不存在的晶體"],
+                "verification": ["是否能指出：本次使用了哪些模組/依據什麼訊號？（可簡述）"]
+              },
+              "links": {
+                "plus_modules": [],
+                "crystals": []
+              }
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "K5_BREAKTHROUGH_ENGINE",
+      "name": "破局引擎",
+      "purpose": "把洞見推進到對策：卡點定位 → 逆時針回推 → 找到連續兩個正分作為入口 → 落到最小可承擔一步。",
+      "subsystems": [
+        {
+          "id": "K5.S1_BOTTLENECK",
+          "name": "卡點定位",
+          "protocols": [
+            {
+              "id": "P:K5.S1.BOTTLENECK_DETECT",
+              "step_support": [5],
+              "zen": {
+                "aim": "卡點不是罪名，是能量阻塞點。",
+                "downgrade": ["若使用者羞恥感高：用中性語言描述卡點功能（它在保護什麼）"]
+              },
+              "sword": {
+                "aim": "選出需要優先處理的那一個方位。",
+                "micro_action": "請使用者說：如果只修一個地方，最想先鬆動哪裡？（用來與算法互驗）"
+              },
+              "ketsu": {
+                "inputs": ["directions"],
+                "procedure": [
+                  "以 Router 指定的口徑計算負分最高方位（例如 total、inner 或 outer）",
+                  "輸出 bottleneck_dir",
+                  "標註：這是『當前優先卡點』而非人格定論"
+                ],
+                "outputs": ["bottleneck_dir"],
+                "forbidden": ["把卡點等同於『你就是這樣的人』"],
+                "verification": ["使用者是否認同這是目前最卡的位置？若否，回到 Router 重新判定口徑"]
+              },
+              "links": {
+                "plus_modules": ["PLUS:BOTTLENECK_DETECT"],
+                "crystals": []
+              }
+            }
+          ]
+        },
+        {
+          "id": "K5.S2_REVERSE_ROUTE",
+          "name": "逆時針回推",
+          "protocols": [
+            {
+              "id": "P:K5.S2.REVERSE_ROUTE_TWO_POS",
+              "step_support": [5, 6],
+              "zen": {
+                "aim": "避免直接硬衝卡點；先回推找可用資源與槓桿。",
+                "downgrade": ["若拉扯 flags 很多：先處理最核心一個拉扯，再回推"]
+              },
+              "sword": {
+                "aim": "找到『解法入口』並給 1 個最小步。",
+                "micro_action": "用兩個正分方位各選 1 個『今天可做的小動作』，只做其中一個。"
+              },
+              "ketsu": {
+                "inputs": ["bottleneck_dir", "directions"],
+                "procedure": [
+                  "從 bottleneck_dir 起，按逆時針序列回推",
+                  "尋找連續兩個正分方位（正分口徑由 Router 指定）",
+                  "輸出 reverse_route 與 solution_entry"
+                ],
+                "outputs": ["reverse_route", "solution_entry"],
+                "forbidden": ["未找到 solution_entry 就跳到長期策略"],
+                "verification": ["使用者是否感覺這兩個入口『做得到』？若否，改找下一組入口"]
+              },
+              "links": {
+                "plus_modules": ["PLUS:REVERSE_ROUTE"],
+                "crystals": []
+              }
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "K6_TRUTH_PRIVACY_SOVEREIGNTY",
+      "name": "真實、隱私、主權",
+      "purpose": "維持解盤的倫理與可信度：事實/推論分離、避免虛假確定性、去識別化隱私、防止奪權與操控。",
+      "subsystems": [
+        {
+          "id": "K6.S1_FACT_INFERENCE",
+          "name": "事實/推論分離",
+          "protocols": [
+            {
+              "id": "P:K6.S1.FACT_INFERENCE_SEP",
+              "step_support": [6],
+              "zen": {
+                "aim": "不為了流暢而假裝確定。",
+                "downgrade": ["不確定時明確標註『可能/推測』並提出驗證問題"]
+              },
+              "sword": {
+                "aim": "把推論轉成可驗證的提問。",
+                "micro_action": "請使用者提供 1 個可觀測證據或近期事件例子，用來校驗推論。"
+              },
+              "ketsu": {
+                "inputs": ["goal", "directions"],
+                "procedure": [
+                  "把輸出分成：觀測（signals）/推論（interpretations）/建議（options）",
+                  "推論必須可被問題或行動驗證"
+                ],
+                "outputs": [],
+                "forbidden": ["以命定口吻宣告未來"],
+                "verification": ["是否提供至少 1 個驗證提問或指標？"]
+              },
+              "links": {
+                "plus_modules": ["PLUS:TRUTH_SEP"],
+                "crystals": []
+              }
+            }
+          ]
+        },
+        {
+          "id": "K6.S2_PRIVACY_SANITIZE",
+          "name": "隱私去識別化",
+          "protocols": [
+            {
+              "id": "P:K6.S2.PRIVACY",
+              "step_support": [0, 7],
+              "zen": {
+                "aim": "保護個資與可回溯指紋。",
+                "downgrade": ["若對話包含具體姓名/公司/可識別資訊：改用泛稱與抽象化"]
+              },
+              "sword": {
+                "aim": "保留洞見、去掉指紋。",
+                "micro_action": "請使用者自行替換敏感資訊為代號（A 公司、B 夥伴）。"
+              },
+              "ketsu": {
+                "inputs": ["goal"],
+                "procedure": [
+                  "去識別化：姓名、公司、地點、金額等細節（若非必要）",
+                  "保留結構：角色/事件類型/關係動態"
+                ],
+                "outputs": [],
+                "forbidden": ["輸出可回溯個資"],
+                "verification": ["輸出中是否避免具名與可追溯線索？"]
+              },
+              "links": {
+                "plus_modules": [],
+                "crystals": []
+              }
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "K7_VALIDATION_LOOP",
+      "name": "閉環回收",
+      "purpose": "把解盤交回使用者主權：由使用者總結收穫、看見問題背後的問題、並承諾下一步；同時建立下次迭代的驗證點。",
+      "subsystems": [
+        {
+          "id": "K7.S1_USER_SUMMARY",
+          "name": "使用者總結與承諾",
+          "protocols": [
+            {
+              "id": "P:K7.S1.USER_SUMMARY_CLOSE",
+              "step_support": [7],
+              "zen": {
+                "aim": "收束與安定，避免結尾再加新洞見造成過載。",
+                "downgrade": ["若使用者低能量：只請他說 1 句收穫 + 1 個最小步"]
+              },
+              "sword": {
+                "aim": "讓下一步變成可承擔的承諾。",
+                "micro_action": "請使用者選：接下來 24 小時內，我願意做的一件小事是什麼？"
+              },
+              "ketsu": {
+                "inputs": ["solution_entry"],
+                "procedure": [
+                  "引導使用者依序說出：收穫/發現/問題背後的問題/學習/下一步",
+                  "禁止新增解釋；只做鏡射與收斂",
+                  "把下一步寫成可驗證句"
+                ],
+                "outputs": [],
+                "forbidden": ["在第 7 步追加大量新分析"],
+                "verification": ["是否得到清晰的 1–3 個行動句？"]
+              },
+              "links": {
+                "plus_modules": ["PLUS:USER_SUMMARY_CLOSE"],
+                "crystals": []
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+
+  "global_policies": {
+    "hard_rules": [
+      "必須遵守解盤流程順序 1→7（除非 signals 缺失需回到澄清）。",
+      "不可把能量正負視為好壞；正負僅表示相對 0 的偏移。",
+      "拉扯判定：同方位內外差距 |gap| >= 3。",
+      "任何策略建議必須落到最小可承擔一步，並標註代價（得到/失去/風險）。",
+      "無 Router 命中時：回到鏡射＋澄清，不自作主張補完。",
+      "第 7 步只做收斂，不追加新洞見。"
+    ],
+    "default_output_contract": {
+      "tone": ["溫度", "誠實", "不命定"],
+      "structure": [
+        "先鏡射現況（禪）",
+        "再給規律與判斷（訣）",
+        "最後給一個最小步（劍）"
+      ]
+    }
+  },
+
+  "integration_notes": {
+    "requires": [
+      "OM-Index-Router（路由表）",
+      "OM-plus-*（解盤模組契約）",
+      "OM-Cry-*（AEO/GEO 晶體庫，可逐步增加）"
+    ],
+    "mvp_scope": {
+      "must_work": [
+        "步驟 1：內外總和比較",
+        "步驟 5：卡點定位 + 逆時針回推 + 兩正分入口",
+        "步驟 7：使用者總結"
+      ],
+      "nice_to_have": [
+        "步驟 2：外顯四象",
+        "步驟 3：內隱四感",
+        "步驟 4：四軸線人格",
+        "步驟 6：綜合敘事（含代價）"
+      ]
+    }
+  }
+}

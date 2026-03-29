@@ -1,0 +1,335 @@
+{
+  "schema": {
+    "name": "OM-Plus-ReverseRoute",
+    "type": "plus_module",
+    "domain": "reverse_route",
+    "format": "json",
+    "language": "zh-Hant",
+    "version": "v0.2.0",
+    "status": "DRAFT",
+    "updated_at": "2026-01-25",
+    "changelog": [
+      "v0.2.0: 建立 Step 5 的『逆時針回推』規則模組（卡點定位→逆時針找連續兩個正分→起點）。",
+      "v0.2.0: 支援多口徑（inner/outer/blended）與 completeness（outer 缺失則自動降級到 inner）。",
+      "v0.2.0: 產出 reverse_route / solution_entry / narrative_hints，供 EightDirections 與 IntegratedSynthesis 敘事整合。"
+    ],
+    "depends_on": {
+      "kernel": "OM-DNA-Kernel.json@v0.1.x",
+      "protocols": "M-DNA-Protocols.json@v0.1.x",
+      "router": "OM-Index-Router.json@v0.1.x",
+      "energy_grammar": "OM-Plus-EnergyGrammar.json@v0.2.0",
+      "eight_directions": "OM-Plus-EightDirections.json@v0.2.0"
+    },
+    "axes": {
+      "names": ["劍", "禪", "訣"],
+      "output_order_default": ["禪", "訣", "劍"]
+    }
+  },
+
+  "module_identity": {
+    "id": "PLUS:REVERSE_ROUTE",
+    "name": "逆時針回推（卡點→起點）",
+    "purpose": "在 Step 5 逐點解釋時，用一致規則找出：卡點方位（最負分/最耗損）→逆時針回推路徑→連續兩個正分作為『解決方案起點』。本模組只負責『定位與路由』，具體解釋由 EightDirections/IntegratedSynthesis 承接。",
+    "step_support": [5],
+    "tags": ["bottleneck_detect", "counter_clockwise", "two_positive_run", "solution_entry", "routing"]
+  },
+
+  "config": {
+    "direction_cycle": {
+      "clockwise": ["天", "風", "水", "山", "地", "雷", "火", "澤"],
+      "counterclockwise": ["天", "澤", "火", "雷", "地", "山", "水", "風"],
+      "note": "可由 Router 覆寫；本模組提供預設。"
+    },
+
+    "score_channels": {
+      "note": "可用不同口徑做卡點/正負判定。",
+      "modes": ["INNER", "OUTER", "BLENDED"],
+      "default_mode": "BLENDED",
+      "blended_rule": {
+        "formula": "inner + outer",
+        "requires_outer": true,
+        "fallback_if_outer_missing": "INNER",
+        "note": "BLENDED 更貼近『行為+感受』整體卡點；outer 缺失時自動降級用 inner。"
+      },
+      "polarity_rule": {
+        "positive": "> 0",
+        "negative": "< 0",
+        "note": "0 不存在；若未來引入 0，則視為 NEUTRAL（需 Router 擴充）。"
+      }
+    },
+
+    "bottleneck_detection": {
+      "note": "卡點定位規則（可覆寫）。",
+      "method": "most_negative",
+      "tie_breakers": [
+        "highest_abs_gap_if_available",
+        "most_negative_outer_if_available",
+        "most_negative_inner",
+        "first_in_counterclockwise_from_heaven"
+      ],
+      "options": {
+        "most_negative": "取 score 最小者（最負）。",
+        "most_costly": "（可擴充）同時考慮 tension、過載與重複模式。"
+      },
+      "exclude": {
+        "dirs": [],
+        "note": "若特定方位暫不納入卡點判定，可放在此處（預設空）。"
+      }
+    },
+
+    "reverse_route_logic": {
+      "note": "逆時針回推：從卡點開始往 counterclockwise 走，直到找到連續兩個正分（two_positive_run）。",
+      "run_length": 2,
+      "max_steps": 16,
+      "wrap_around": true,
+      "stop_when_found": true,
+      "if_not_found": {
+        "fallback": "best_available_run",
+        "definition": "若找不到連兩正分，選擇『最接近正分』的連續段（例如 -1,-1 或 +1,-1 取絕對值總和最大者），並標註為『可用起點（暫代）』。"
+      },
+      "include_path": {
+        "enabled": true,
+        "path_type": "from_bottleneck_to_entry",
+        "note": "reverse_route 會包含從 bottleneck 起走直到 entry 的完整序列（含起點與終點）。"
+      }
+    },
+
+    "tension_overlay": {
+      "note": "若有拉扯（gap>=3），可加權為『耗損』，但不改變原始規則，僅作 tie-break 或提示。",
+      "enabled": true,
+      "usage": ["tie_break", "narrative_hint"],
+      "weights": {
+        "INNER_GT_OUTER": 1.2,
+        "OUTER_GT_INNER": 1.1
+      }
+    },
+
+    "edge_reversal_overlay": {
+      "note": "若 ±4 出現，視為臨界提示：可能回到可用，敘事上可用『趨勢回落/回升』語句，但不可保證。",
+      "enabled": true,
+      "usage": ["narrative_hint"]
+    },
+
+    "completeness_policy": {
+      "statuses": ["COMPLETE", "PARTIAL", "INCOMPLETE"],
+      "rules": [
+        "若 mode=OUTER 或 BLENDED 但 outer 不完整：自動降級使用 INNER 口徑，並標記 overall=PARTIAL。",
+        "若 directions 內缺少任何 inner：overall=INCOMPLETE（無法路由）。",
+        "若缺 gap/tension：仍可路由，但 overlays 不啟用。"
+      ]
+    },
+
+    "language_guard": {
+      "banned_phrases": ["好壞", "注定", "保證"],
+      "preferred_phrases": ["卡點", "保護", "耗損", "可用起點", "趨勢", "需驗證"]
+    }
+  },
+
+  "io_contract": {
+    "inputs": {
+      "required": {
+        "directions": {
+          "type": "object",
+          "shape": {
+            "天": {"inner": "number", "outer": "number|null", "gap": "number|null", "tension": "boolean|null"},
+            "風": {"inner": "number", "outer": "number|null", "gap": "number|null", "tension": "boolean|null"},
+            "水": {"inner": "number", "outer": "number|null", "gap": "number|null", "tension": "boolean|null"},
+            "山": {"inner": "number", "outer": "number|null", "gap": "number|null", "tension": "boolean|null"},
+            "地": {"inner": "number", "outer": "number|null", "gap": "number|null", "tension": "boolean|null"},
+            "雷": {"inner": "number", "outer": "number|null", "gap": "number|null", "tension": "boolean|null"},
+            "火": {"inner": "number", "outer": "number|null", "gap": "number|null", "tension": "boolean|null"},
+            "澤": {"inner": "number", "outer": "number|null", "gap": "number|null", "tension": "boolean|null"}
+          },
+          "description": "建議直接傳入 OM-Plus-EnergyGrammar.outputs.signals.directions_enriched（或同等結構）。"
+        },
+        "goal": "string"
+      },
+      "optional": {
+        "mode": "INNER|OUTER|BLENDED",
+        "cycle_override": {"clockwise": "array<string>", "counterclockwise": "array<string>"},
+        "exclude_dirs": "array<string>",
+        "user_state": "LOW|MID|HIGH",
+        "prefer_bottleneck": "string",
+        "prefer_entry": "array<string>",
+        "notes": "string"
+      }
+    },
+
+    "outputs": {
+      "type": "object",
+      "fields": {
+        "reverse_route_result": {
+          "type": "object",
+          "fields": {
+            "mode_used": "INNER|OUTER|BLENDED",
+            "completeness": "COMPLETE|PARTIAL|INCOMPLETE",
+            "bottleneck_dir": "string|null",
+            "bottleneck_score": "number|null",
+            "bottleneck_reason": "string",
+            "reverse_route": "array<string>",
+            "solution_entry": "array<string>",
+            "entry_scores": "array<number|null>",
+            "found_two_positive_run": "boolean",
+            "fallback_used": "boolean",
+            "overlays": {
+              "tension_dirs": "array<string>",
+              "edge_reversal_dirs": "array<string>",
+              "notes": "array<string>"
+            }
+          }
+        },
+        "narrative_hints": {
+          "type": "object",
+          "fields": {
+            "bottleneck_frame": "string",
+            "reverse_route_frame": "string",
+            "entry_frame": "string",
+            "one_micro_action_suggestion": "string"
+          }
+        },
+        "completeness_report": {
+          "type": "object",
+          "fields": {
+            "overall": "COMPLETE|PARTIAL|INCOMPLETE",
+            "missing": "array<string>",
+            "skipped": "array<string>",
+            "how_to_fix": "array<string>"
+          }
+        }
+      }
+    },
+
+    "guards": {
+      "must_include": [
+        "卡點與起點的『保護/代價』框架（非缺陷）",
+        "reverse_route 與 solution_entry 必須一致（entry 應為 route 終點的連續段）",
+        "若 outer 不完整且 mode=BLENDED/OUTER：必須降級並標記 PARTIAL",
+        "不得用正負當好壞"
+      ],
+      "forbidden": [
+        "在資料 INCOMPLETE 時仍輸出看似精準的 bottleneck/entry 結論",
+        "命定化語句（保證成功/必然反轉）"
+      ]
+    }
+  },
+
+  "procedures": {
+    "validate_and_set_mode": {
+      "steps": [
+        "if any direction missing inner => completeness=INCOMPLETE and stop",
+        "mode_used = inputs.mode or default_mode",
+        "if mode_used in ['OUTER','BLENDED'] and any outer missing => mode_used = fallback_if_outer_missing; completeness=PARTIAL",
+        "else completeness=COMPLETE"
+      ]
+    },
+
+    "compute_scores": {
+      "steps": [
+        "for each dir:",
+        "  if mode_used=='INNER': score=inner",
+        "  if mode_used=='OUTER': score=outer",
+        "  if mode_used=='BLENDED': score=inner+outer",
+        "store score_by_dir"
+      ]
+    },
+
+    "detect_bottleneck": {
+      "steps": [
+        "if prefer_bottleneck provided and not excluded: bottleneck_dir=prefer_bottleneck",
+        "else pick dir with minimum score (most negative) excluding exclude_dirs",
+        "tie-break: if gap available pick highest abs(gap); else if outer available pick most negative outer; else pick most negative inner; else pick first in counterclockwise from '天'",
+        "bottleneck_score = score_by_dir[bottleneck_dir]",
+        "bottleneck_reason = build_reason_from_rule"
+      ]
+    },
+
+    "walk_counterclockwise_find_entry": {
+      "steps": [
+        "start from bottleneck_dir",
+        "route=[bottleneck_dir]",
+        "walk up to max_steps:",
+        "  next = next dir in counterclockwise",
+        "  append next to route",
+        "  check last run_length dirs in route: if all scores > 0 => found entry segment",
+        "  if found and stop_when_found: break",
+        "if found: solution_entry = last run_length dirs",
+        "else: apply fallback best_available_run; mark fallback_used=true"
+      ]
+    },
+
+    "build_overlays": {
+      "steps": [
+        "tension_dirs = dirs where tension==true (if available)",
+        "edge_reversal_dirs = dirs where inner==4 or inner==-4 or outer==4 or outer==-4 (if available)",
+        "notes include: 'tension used for hint only' and '±4 is edge hint not guarantee'"
+      ]
+    },
+
+    "compose_narrative_hints": {
+      "steps": [
+        "bottleneck_frame: 卡點=阻塞點/保護點 + 需要付出的代價",
+        "reverse_route_frame: 逆時針回推=找循環中的可用槓桿",
+        "entry_frame: 連兩正分=可用起點，不是終點",
+        "one_micro_action_suggestion: 從 solution_entry[0] 取一個最小可做動作（調用 EnergyGrammar.direction_action_hints 或 EightDirections.micro_action_options）"
+      ]
+    },
+
+    "completeness_report": {
+      "steps": [
+        "overall from completeness",
+        "missing: list missing outer if needed, missing gap/tension if overlays skipped",
+        "skipped: list overlays not applied",
+        "how_to_fix: '補齊八方位 outer' + '補齊 gap/tension（由 EnergyGrammar 生成）'"
+      ]
+    }
+  },
+
+  "output_templates": {
+    "zen": {
+      "default": [
+        "我們把『卡點』當作阻塞點，也當作保護點：它通常在幫你避免某種代價。",
+        "逆時針回推不是在找正確答案，而是在找你此刻最『用得上』的起點，先把循環轉起來。"
+      ]
+    },
+    "ketsu": {
+      "default": [
+        "規則：先找最負分方位作卡點，再沿逆時針找『連續兩個正分』作為起點（可用槓桿）。",
+        "若外在能量 outer 未完整，會自動降級用 inner 口徑，並標註 PARTIAL。"
+      ]
+    },
+    "sword": {
+      "default": [
+        "最小一步：從起點方位的第一個方向做一件 15–30 分鐘能完成的小動作，讓循環先動起來。"
+      ]
+    }
+  },
+
+  "exports": {
+    "signals_written": ["reverse_route_result", "narrative_hints", "completeness_report"],
+    "recommended_consumers": [
+      "PLUS:EIGHT_DIRECTIONS_TRIPLE_LAYER",
+      "PLUS:INTEGRATED_SYNTHESIS",
+      "OM-Index-Router"
+    ]
+  },
+
+  "links": {
+    "protocols": ["P:K5.S1.BOTTLENECK_DETECT", "P:K5.S2.REVERSE_ROUTE_TWO_POS"],
+    "recommended_routes": ["R:5.EIGHT_DIRECTIONS", "R:6.SYNTHESIS"],
+    "neighbor_modules": [
+      "PLUS:ENERGY_GRAMMAR",
+      "PLUS:EIGHT_DIRECTIONS_TRIPLE_LAYER",
+      "PLUS:FOUR_MANIFESTATIONS",
+      "PLUS:FOUR_FEELINGS",
+      "PLUS:FOUR_AXES_STRUCTURE_CODE"
+    ],
+    "crystals": {
+      "placeholders": [
+        "CR:AEO.REVERSE_ROUTE.RULE.001",
+        "CR:AEO.BOTTLENECK.TIEBREAK.001",
+        "CR:GEO.ENERGY_CYCLE.001"
+      ],
+      "note": "若未來要擴充『組合解釋』與『不同方位組合的變化』，建議以 OM-Cry 晶體形式掛載。"
+    }
+  }
+}

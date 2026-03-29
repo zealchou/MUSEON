@@ -1,0 +1,41 @@
+{
+  "version": "3.0.0",
+  "user_id": "8549590648",
+  "created_at": "2026-03-29T16:58:58.213599",
+  "interaction_count": 13,
+  "last_seen": "2026-03-29T19:20:13.974223",
+  "display_name": "Rita",
+  "context_summary": "Rita 的近期話題：@MuseonClaw_bot以上有幾段 修改過，請給我一個整理後的 V4版；@MuseonClaw_bot  \n現在農業這段 刪除。 \n農民陳明輝建立了冷鏈農業，把田寮種的棗子；剛剛有 PART 就是@ 不到 Museon；@MuseonClaw_bot \n美食：這一段在幫我加上，隨著影視產業的拍攝黃金時期，這個地方多了很；我叫不出Ｍｕｓｅｏｎ了",
+  "profile": {
+    "name": null,
+    "role": null,
+    "business_type": "unknown"
+  },
+  "relationship": {
+    "trust_level": "initial",
+    "total_interactions": 0,
+    "positive_signals": 0,
+    "negative_signals": 0,
+    "last_interaction": null,
+    "first_interaction": "2026-03-29T16:58:58.213622"
+  },
+  "eight_primals": {},
+  "seven_layers": {
+    "L1_facts": [],
+    "L2_personality": [],
+    "L6_communication_style": {
+      "detail_level": "moderate",
+      "emoji_usage": "none",
+      "language_mix": "mixed",
+      "avg_msg_length": 0,
+      "question_style": "open",
+      "tone": "casual"
+    }
+  },
+  "preferences": {},
+  "recent_topics": [],
+  "groups_seen_in": [
+    -5195907318
+  ],
+  "relationship_to_owner": ""
+}

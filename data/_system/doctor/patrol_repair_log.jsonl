@@ -1,0 +1,2 @@
+{"ts": "2026-03-28T04:51:29.492085+00:00", "check": "gateway_liveness", "finding": "Gateway port 未回應", "action": "start_gateway", "level": "L2", "phase": "before"}
+{"ts": "2026-03-28T04:51:29.634929+00:00", "check": "gateway_liveness", "finding": "Gateway port 未回應", "action": "start_gateway", "level": "L2", "repair_status": "success", "repair_message": "已透過 supervisorctl 啟動 Gateway", "phase": "after"}
