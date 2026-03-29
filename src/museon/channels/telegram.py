@@ -124,6 +124,11 @@ class TelegramAdapter(ChannelAdapter):
         self.application.add_handler(MessageHandler(filters.VOICE | filters.AUDIO, self._handle_file_upload))
         self.application.add_handler(MessageHandler(filters.VIDEO, self._handle_file_upload))
         self.application.add_handler(CommandHandler("start", self._handle_start_command))
+        self.application.add_handler(CommandHandler("menu", self._handle_menu_command))
+
+        # Menu callback handler
+        from telegram.ext import CallbackQueryHandler as _CQH
+        self.application.add_handler(_CQH(self._handle_menu_callback, pattern=r"^menu_"))
 
         # Multi-Agent 部門指令（/dept, /flywheel, /thunder~earth）
         self.application.add_handler(CommandHandler("dept", self._handle_dept_command))
@@ -242,6 +247,17 @@ class TelegramAdapter(ChannelAdapter):
         self._seen_update_ids.add(update.update_id)
         if len(self._seen_update_ids) > self._max_seen_update_ids:
             self._seen_update_ids = set(list(self._seen_update_ids)[-500:])
+
+        # ReplyKeyboard 按鈕文字轉換為指令
+        if update.message and update.message.text:
+            from museon.channels.menu_config import BUTTON_TO_COMMAND
+            _btn_text = update.message.text.strip()
+            if _btn_text in BUTTON_TO_COMMAND:
+                _cmd = BUTTON_TO_COMMAND[_btn_text]
+                if _cmd == "/menu":
+                    await self._handle_menu_command(update, context)
+                    return
+                update.message.text = _cmd  # 轉換為指令讓 Brain 處理
 
         # Content-hash deduplication: 相同 chat+user+內容 在 30 秒內只處理一次
         if update.message:
@@ -527,19 +543,46 @@ class TelegramAdapter(ChannelAdapter):
             return None
 
     async def _handle_start_command(self, update: Update, context: Any) -> None:
-        """Handle /start command — 歡迎訊息 + 權限聲明."""
-        # 先發送權限聲明
+        """Handle /start command — 歡迎訊息 + 持久鍵盤 + 權限聲明."""
         if update.message:
-            permission_notice = (
-                "⚠️ 權限聲明\n\n"
-                "MUSEON 擁有與啟動者相同的系統權限，"
-                "可執行 shell 指令、讀寫檔案、存取網路服務。\n\n"
-                "僅攔截不可逆的毀滅性操作（格式化硬碟、刪除根目錄等 7 類指令）。\n\n"
-                "如需調整權限設定，請至 MUSEON Dashboard 管理。"
-            )
-            await update.message.reply_text(permission_notice)
+            # 發送歡迎訊息 + 持久鍵盤
+            try:
+                from museon.channels.telegram_menu import send_welcome_with_keyboard
+                user = update.effective_user
+                user_name = user.first_name if user else ""
+                await send_welcome_with_keyboard(
+                    self.application.bot,
+                    update.message.chat_id,
+                    user_name=user_name,
+                )
+            except Exception as e:
+                logger.warning(f"[TG] Welcome keyboard failed: {e}")
+                # 降級：原始歡迎
+                await update.message.reply_text(
+                    "👋 歡迎！我是 MUSEON，你的 AI 策略幕僚。\n"
+                    "輸入 /menu 查看功能選單。"
+                )
         # 再讓 Brain 處理正常的 /start 歡迎流程
         await self.message_queue.put(update)
+
+    async def _handle_menu_command(self, update: Update, context: Any) -> None:
+        """Handle /menu — 顯示完整功能選單（InlineKeyboard）."""
+        if update.message:
+            try:
+                from museon.channels.telegram_menu import send_full_menu
+                await send_full_menu(self.application.bot, update.message.chat_id)
+            except Exception as e:
+                logger.warning(f"[TG] Full menu failed: {e}")
+                from museon.channels.menu_config import FULL_MENU_TEXT
+                await update.message.reply_text(FULL_MENU_TEXT)
+
+    async def _handle_menu_callback(self, update: Update, context: Any) -> None:
+        """Handle menu inline keyboard callbacks."""
+        try:
+            from museon.channels.telegram_menu import handle_menu_callback
+            await handle_menu_callback(update, context)
+        except Exception as e:
+            logger.warning(f"[TG] Menu callback failed: {e}")
 
     async def _handle_dept_command(self, update: Update, context: Any) -> None:
         """Handle /dept — 顯示當前部門."""
