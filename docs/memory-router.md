@@ -5,6 +5,7 @@
 > **更新時機**：新增 Skill 或記憶系統時，必須在同一個 commit 中新增對應的路由規則。
 > **建立日期**：2026-03-21
 > **搭配**：`docs/skill-manifest-spec.md`（Skill I/O 合約）、各 Skill 的 `memory.writes` 欄位、`docs/operational-contract.md`（操作契約表）
+> **v1.14 (2026-03-30)**：市場戰神（Market Ares）——新增 1 條 knowledge-lattice 路由：market-ares→simulation_crystal（策略模擬結果結晶，含 52 週演化摘要 + 最佳策略組合，永久）；新增 1 條 eval-engine 路由：market-ares→模擬準確度追蹤（真實數據 vs 模擬結果的偏差率）。同步 system-topology v1.64、blast-radius v1.83、joint-map v1.53、persistence-contract v1.41。
 > **v1.13 (2026-03-29)**：戰神系統（Ares）——新增 2 條 knowledge-lattice 路由：anima-individual→individual_crystal（ANIMA 個體分析結晶，永久）、ares→strategy_crystal（戰神戰略結晶，永久）；新增 2 條 user-model 路由：anima-individual→關係網路維度、ares→戰略偏好維度。同步 system-topology v1.62、blast-radius v1.80、joint-map v1.52、persistence-contract v1.40。
 > **v1.12 (2026-03-29)**：OneMuse 能量解讀技能群——新增 3 條 knowledge-lattice 路由：energy-reading→energy_crystal（八方位能量解讀結晶，永久）、wan-miu-16→persona_crystal（萬謬16型人格結晶，永久）、combined-reading→relationship_crystal（合盤能量比對結晶，永久）。同步 system-topology v1.61、blast-radius v1.79、joint-map v1.51、persistence-contract v1.39。
 > **v1.11 (2026-03-28)**：死碼清理後同步——移除已刪除模組的路由規則：learning/strategy_accumulator（StrategyAccumulator→heuristics 路由已刪，功能由 insight-extractor 整合）；memory/epigenetic_router（不再介入記憶注入前路由）；memory/proactive_predictor（記憶路由不再涉及需求預判）；pulse/group_session_proactive（群組記憶路由不再涉及 group_session_proactive）。
