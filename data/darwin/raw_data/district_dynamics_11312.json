@@ -1,0 +1,2578 @@
+{
+  "新北市板橋區": {
+    "birth": 225,
+    "death": 368,
+    "marry": 274,
+    "divorce": 83,
+    "villages": 126
+  },
+  "新北市三重區": {
+    "birth": 135,
+    "death": 257,
+    "marry": 172,
+    "divorce": 77,
+    "villages": 119
+  },
+  "新北市中和區": {
+    "birth": 121,
+    "death": 272,
+    "marry": 215,
+    "divorce": 65,
+    "villages": 93
+  },
+  "新北市永和區": {
+    "birth": 55,
+    "death": 145,
+    "marry": 89,
+    "divorce": 40,
+    "villages": 62
+  },
+  "新北市新莊區": {
+    "birth": 187,
+    "death": 241,
+    "marry": 217,
+    "divorce": 81,
+    "villages": 84
+  },
+  "新北市新店區": {
+    "birth": 93,
+    "death": 202,
+    "marry": 161,
+    "divorce": 56,
+    "villages": 69
+  },
+  "新北市樹林區": {
+    "birth": 84,
+    "death": 113,
+    "marry": 74,
+    "divorce": 46,
+    "villages": 42
+  },
+  "新北市鶯歌區": {
+    "birth": 39,
+    "death": 49,
+    "marry": 42,
+    "divorce": 20,
+    "villages": 20
+  },
+  "新北市三峽區": {
+    "birth": 49,
+    "death": 80,
+    "marry": 56,
+    "divorce": 20,
+    "villages": 28
+  },
+  "新北市淡水區": {
+    "birth": 81,
+    "death": 119,
+    "marry": 108,
+    "divorce": 34,
+    "villages": 42
+  },
+  "新北市汐止區": {
+    "birth": 66,
+    "death": 142,
+    "marry": 83,
+    "divorce": 35,
+    "villages": 50
+  },
+  "新北市瑞芳區": {
+    "birth": 17,
+    "death": 29,
+    "marry": 14,
+    "divorce": 12,
+    "villages": 34
+  },
+  "新北市土城區": {
+    "birth": 115,
+    "death": 150,
+    "marry": 132,
+    "divorce": 43,
+    "villages": 47
+  },
+  "新北市蘆洲區": {
+    "birth": 71,
+    "death": 114,
+    "marry": 91,
+    "divorce": 58,
+    "villages": 38
+  },
+  "新北市五股區": {
+    "birth": 44,
+    "death": 36,
+    "marry": 62,
+    "divorce": 18,
+    "villages": 20
+  },
+  "新北市泰山區": {
+    "birth": 37,
+    "death": 40,
+    "marry": 40,
+    "divorce": 16,
+    "villages": 17
+  },
+  "新北市林口區": {
+    "birth": 82,
+    "death": 62,
+    "marry": 78,
+    "divorce": 35,
+    "villages": 17
+  },
+  "新北市深坑區": {
+    "birth": 5,
+    "death": 16,
+    "marry": 11,
+    "divorce": 6,
+    "villages": 8
+  },
+  "新北市石碇區": {
+    "birth": 3,
+    "death": 12,
+    "marry": 2,
+    "divorce": 2,
+    "villages": 12
+  },
+  "新北市坪林區": {
+    "birth": 5,
+    "death": 10,
+    "marry": 4,
+    "divorce": 0,
+    "villages": 7
+  },
+  "新北市三芝區": {
+    "birth": 3,
+    "death": 23,
+    "marry": 3,
+    "divorce": 7,
+    "villages": 13
+  },
+  "新北市石門區": {
+    "birth": 4,
+    "death": 12,
+    "marry": 1,
+    "divorce": 3,
+    "villages": 9
+  },
+  "新北市八里區": {
+    "birth": 24,
+    "death": 31,
+    "marry": 25,
+    "divorce": 7,
+    "villages": 10
+  },
+  "新北市平溪區": {
+    "birth": 1,
+    "death": 9,
+    "marry": 1,
+    "divorce": 1,
+    "villages": 12
+  },
+  "新北市雙溪區": {
+    "birth": 2,
+    "death": 14,
+    "marry": 7,
+    "divorce": 0,
+    "villages": 12
+  },
+  "新北市貢寮區": {
+    "birth": 2,
+    "death": 19,
+    "marry": 5,
+    "divorce": 1,
+    "villages": 11
+  },
+  "新北市金山區": {
+    "birth": 6,
+    "death": 19,
+    "marry": 10,
+    "divorce": 2,
+    "villages": 15
+  },
+  "新北市萬里區": {
+    "birth": 9,
+    "death": 24,
+    "marry": 8,
+    "divorce": 2,
+    "villages": 10
+  },
+  "新北市烏來區": {
+    "birth": 8,
+    "death": 3,
+    "marry": 3,
+    "divorce": 1,
+    "villages": 5
+  },
+  "臺北市松山區": {
+    "birth": 131,
+    "death": 141,
+    "marry": 82,
+    "divorce": 27,
+    "villages": 33
+  },
+  "臺北市信義區": {
+    "birth": 138,
+    "death": 179,
+    "marry": 115,
+    "divorce": 35,
+    "villages": 41
+  },
+  "臺北市大安區": {
+    "birth": 156,
+    "death": 172,
+    "marry": 158,
+    "divorce": 43,
+    "villages": 53
+  },
+  "臺北市中山區": {
+    "birth": 131,
+    "death": 145,
+    "marry": 99,
+    "divorce": 46,
+    "villages": 42
+  },
+  "臺北市中正區": {
+    "birth": 67,
+    "death": 88,
+    "marry": 71,
+    "divorce": 24,
+    "villages": 31
+  },
+  "臺北市大同區": {
+    "birth": 78,
+    "death": 93,
+    "marry": 55,
+    "divorce": 13,
+    "villages": 25
+  },
+  "臺北市萬華區": {
+    "birth": 125,
+    "death": 164,
+    "marry": 91,
+    "divorce": 39,
+    "villages": 36
+  },
+  "臺北市文山區": {
+    "birth": 155,
+    "death": 155,
+    "marry": 119,
+    "divorce": 54,
+    "villages": 43
+  },
+  "臺北市南港區": {
+    "birth": 74,
+    "death": 71,
+    "marry": 63,
+    "divorce": 18,
+    "villages": 20
+  },
+  "臺北市內湖區": {
+    "birth": 209,
+    "death": 150,
+    "marry": 128,
+    "divorce": 54,
+    "villages": 39
+  },
+  "臺北市士林區": {
+    "birth": 184,
+    "death": 196,
+    "marry": 119,
+    "divorce": 35,
+    "villages": 51
+  },
+  "臺北市北投區": {
+    "birth": 135,
+    "death": 161,
+    "marry": 109,
+    "divorce": 42,
+    "villages": 42
+  },
+  "桃園市桃園區": {
+    "birth": 317,
+    "death": 273,
+    "marry": 252,
+    "divorce": 115,
+    "villages": 82
+  },
+  "桃園市中壢區": {
+    "birth": 293,
+    "death": 208,
+    "marry": 234,
+    "divorce": 91,
+    "villages": 88
+  },
+  "桃園市大溪區": {
+    "birth": 73,
+    "death": 75,
+    "marry": 31,
+    "divorce": 24,
+    "villages": 28
+  },
+  "桃園市楊梅區": {
+    "birth": 109,
+    "death": 115,
+    "marry": 103,
+    "divorce": 42,
+    "villages": 41
+  },
+  "桃園市蘆竹區": {
+    "birth": 117,
+    "death": 81,
+    "marry": 97,
+    "divorce": 31,
+    "villages": 39
+  },
+  "桃園市大園區": {
+    "birth": 73,
+    "death": 49,
+    "marry": 43,
+    "divorce": 17,
+    "villages": 20
+  },
+  "桃園市龜山區": {
+    "birth": 129,
+    "death": 95,
+    "marry": 99,
+    "divorce": 34,
+    "villages": 32
+  },
+  "桃園市八德區": {
+    "birth": 161,
+    "death": 135,
+    "marry": 107,
+    "divorce": 45,
+    "villages": 51
+  },
+  "桃園市龍潭區": {
+    "birth": 65,
+    "death": 87,
+    "marry": 65,
+    "divorce": 27,
+    "villages": 32
+  },
+  "桃園市平鎮區": {
+    "birth": 146,
+    "death": 136,
+    "marry": 105,
+    "divorce": 34,
+    "villages": 46
+  },
+  "桃園市新屋區": {
+    "birth": 28,
+    "death": 40,
+    "marry": 27,
+    "divorce": 9,
+    "villages": 23
+  },
+  "桃園市觀音區": {
+    "birth": 62,
+    "death": 41,
+    "marry": 41,
+    "divorce": 19,
+    "villages": 24
+  },
+  "桃園市復興區": {
+    "birth": 17,
+    "death": 16,
+    "marry": 8,
+    "divorce": 3,
+    "villages": 10
+  },
+  "臺中市中區": {
+    "birth": 3,
+    "death": 19,
+    "marry": 5,
+    "divorce": 2,
+    "villages": 8
+  },
+  "臺中市東區": {
+    "birth": 39,
+    "death": 59,
+    "marry": 34,
+    "divorce": 22,
+    "villages": 17
+  },
+  "臺中市南區": {
+    "birth": 40,
+    "death": 80,
+    "marry": 72,
+    "divorce": 32,
+    "villages": 22
+  },
+  "臺中市西區": {
+    "birth": 36,
+    "death": 76,
+    "marry": 51,
+    "divorce": 21,
+    "villages": 25
+  },
+  "臺中市北區": {
+    "birth": 57,
+    "death": 97,
+    "marry": 75,
+    "divorce": 30,
+    "villages": 36
+  },
+  "臺中市西屯區": {
+    "birth": 103,
+    "death": 113,
+    "marry": 129,
+    "divorce": 56,
+    "villages": 39
+  },
+  "臺中市南屯區": {
+    "birth": 83,
+    "death": 79,
+    "marry": 118,
+    "divorce": 42,
+    "villages": 25
+  },
+  "臺中市北屯區": {
+    "birth": 189,
+    "death": 149,
+    "marry": 191,
+    "divorce": 78,
+    "villages": 42
+  },
+  "臺中市豐原區": {
+    "birth": 81,
+    "death": 102,
+    "marry": 82,
+    "divorce": 35,
+    "villages": 36
+  },
+  "臺中市東勢區": {
+    "birth": 16,
+    "death": 50,
+    "marry": 20,
+    "divorce": 13,
+    "villages": 25
+  },
+  "臺中市大甲區": {
+    "birth": 43,
+    "death": 49,
+    "marry": 29,
+    "divorce": 15,
+    "villages": 29
+  },
+  "臺中市清水區": {
+    "birth": 66,
+    "death": 66,
+    "marry": 51,
+    "divorce": 19,
+    "villages": 32
+  },
+  "臺中市沙鹿區": {
+    "birth": 52,
+    "death": 57,
+    "marry": 47,
+    "divorce": 21,
+    "villages": 21
+  },
+  "臺中市梧棲區": {
+    "birth": 24,
+    "death": 35,
+    "marry": 41,
+    "divorce": 13,
+    "villages": 14
+  },
+  "臺中市后里區": {
+    "birth": 27,
+    "death": 39,
+    "marry": 34,
+    "divorce": 14,
+    "villages": 18
+  },
+  "臺中市神岡區": {
+    "birth": 46,
+    "death": 50,
+    "marry": 31,
+    "divorce": 9,
+    "villages": 16
+  },
+  "臺中市潭子區": {
+    "birth": 51,
+    "death": 66,
+    "marry": 47,
+    "divorce": 25,
+    "villages": 16
+  },
+  "臺中市大雅區": {
+    "birth": 57,
+    "death": 42,
+    "marry": 49,
+    "divorce": 21,
+    "villages": 15
+  },
+  "臺中市新社區": {
+    "birth": 8,
+    "death": 20,
+    "marry": 10,
+    "divorce": 3,
+    "villages": 13
+  },
+  "臺中市石岡區": {
+    "birth": 7,
+    "death": 11,
+    "marry": 3,
+    "divorce": 5,
+    "villages": 10
+  },
+  "臺中市外埔區": {
+    "birth": 24,
+    "death": 39,
+    "marry": 14,
+    "divorce": 2,
+    "villages": 11
+  },
+  "臺中市大安區": {
+    "birth": 12,
+    "death": 15,
+    "marry": 6,
+    "divorce": 4,
+    "villages": 12
+  },
+  "臺中市烏日區": {
+    "birth": 46,
+    "death": 44,
+    "marry": 39,
+    "divorce": 16,
+    "villages": 16
+  },
+  "臺中市大肚區": {
+    "birth": 36,
+    "death": 37,
+    "marry": 27,
+    "divorce": 9,
+    "villages": 17
+  },
+  "臺中市龍井區": {
+    "birth": 46,
+    "death": 35,
+    "marry": 53,
+    "divorce": 21,
+    "villages": 16
+  },
+  "臺中市霧峰區": {
+    "birth": 19,
+    "death": 61,
+    "marry": 38,
+    "divorce": 20,
+    "villages": 20
+  },
+  "臺中市太平區": {
+    "birth": 98,
+    "death": 126,
+    "marry": 125,
+    "divorce": 41,
+    "villages": 39
+  },
+  "臺中市大里區": {
+    "birth": 97,
+    "death": 131,
+    "marry": 120,
+    "divorce": 33,
+    "villages": 27
+  },
+  "臺中市和平區": {
+    "birth": 4,
+    "death": 9,
+    "marry": 6,
+    "divorce": 0,
+    "villages": 8
+  },
+  "臺南市新營區": {
+    "birth": 37,
+    "death": 71,
+    "marry": 33,
+    "divorce": 8,
+    "villages": 23
+  },
+  "臺南市鹽水區": {
+    "birth": 17,
+    "death": 26,
+    "marry": 12,
+    "divorce": 4,
+    "villages": 13
+  },
+  "臺南市白河區": {
+    "birth": 12,
+    "death": 48,
+    "marry": 14,
+    "divorce": 5,
+    "villages": 21
+  },
+  "臺南市柳營區": {
+    "birth": 8,
+    "death": 21,
+    "marry": 9,
+    "divorce": 3,
+    "villages": 13
+  },
+  "臺南市後壁區": {
+    "birth": 7,
+    "death": 24,
+    "marry": 11,
+    "divorce": 5,
+    "villages": 14
+  },
+  "臺南市東山區": {
+    "birth": 7,
+    "death": 27,
+    "marry": 6,
+    "divorce": 0,
+    "villages": 16
+  },
+  "臺南市麻豆區": {
+    "birth": 18,
+    "death": 49,
+    "marry": 22,
+    "divorce": 7,
+    "villages": 20
+  },
+  "臺南市下營區": {
+    "birth": 11,
+    "death": 25,
+    "marry": 8,
+    "divorce": 2,
+    "villages": 12
+  },
+  "臺南市六甲區": {
+    "birth": 7,
+    "death": 22,
+    "marry": 6,
+    "divorce": 4,
+    "villages": 11
+  },
+  "臺南市官田區": {
+    "birth": 7,
+    "death": 25,
+    "marry": 6,
+    "divorce": 1,
+    "villages": 10
+  },
+  "臺南市大內區": {
+    "birth": 4,
+    "death": 12,
+    "marry": 2,
+    "divorce": 4,
+    "villages": 10
+  },
+  "臺南市佳里區": {
+    "birth": 20,
+    "death": 50,
+    "marry": 26,
+    "divorce": 9,
+    "villages": 16
+  },
+  "臺南市學甲區": {
+    "birth": 11,
+    "death": 21,
+    "marry": 13,
+    "divorce": 4,
+    "villages": 13
+  },
+  "臺南市西港區": {
+    "birth": 10,
+    "death": 27,
+    "marry": 16,
+    "divorce": 1,
+    "villages": 12
+  },
+  "臺南市七股區": {
+    "birth": 9,
+    "death": 29,
+    "marry": 11,
+    "divorce": 4,
+    "villages": 18
+  },
+  "臺南市將軍區": {
+    "birth": 4,
+    "death": 20,
+    "marry": 6,
+    "divorce": 1,
+    "villages": 12
+  },
+  "臺南市北門區": {
+    "birth": 1,
+    "death": 7,
+    "marry": 6,
+    "divorce": 1,
+    "villages": 10
+  },
+  "臺南市新化區": {
+    "birth": 22,
+    "death": 35,
+    "marry": 27,
+    "divorce": 9,
+    "villages": 16
+  },
+  "臺南市善化區": {
+    "birth": 42,
+    "death": 46,
+    "marry": 32,
+    "divorce": 11,
+    "villages": 20
+  },
+  "臺南市新市區": {
+    "birth": 12,
+    "death": 29,
+    "marry": 25,
+    "divorce": 10,
+    "villages": 11
+  },
+  "臺南市安定區": {
+    "birth": 11,
+    "death": 26,
+    "marry": 14,
+    "divorce": 6,
+    "villages": 13
+  },
+  "臺南市山上區": {
+    "birth": 2,
+    "death": 7,
+    "marry": 2,
+    "divorce": 1,
+    "villages": 7
+  },
+  "臺南市玉井區": {
+    "birth": 6,
+    "death": 18,
+    "marry": 3,
+    "divorce": 1,
+    "villages": 10
+  },
+  "臺南市楠西區": {
+    "birth": 2,
+    "death": 9,
+    "marry": 1,
+    "divorce": 4,
+    "villages": 7
+  },
+  "臺南市南化區": {
+    "birth": 4,
+    "death": 7,
+    "marry": 4,
+    "divorce": 0,
+    "villages": 9
+  },
+  "臺南市左鎮區": {
+    "birth": 1,
+    "death": 9,
+    "marry": 0,
+    "divorce": 0,
+    "villages": 10
+  },
+  "臺南市仁德區": {
+    "birth": 45,
+    "death": 59,
+    "marry": 35,
+    "divorce": 13,
+    "villages": 16
+  },
+  "臺南市歸仁區": {
+    "birth": 35,
+    "death": 44,
+    "marry": 36,
+    "divorce": 20,
+    "villages": 21
+  },
+  "臺南市關廟區": {
+    "birth": 20,
+    "death": 45,
+    "marry": 15,
+    "divorce": 6,
+    "villages": 15
+  },
+  "臺南市龍崎區": {
+    "birth": 0,
+    "death": 5,
+    "marry": 2,
+    "divorce": 0,
+    "villages": 8
+  },
+  "臺南市永康區": {
+    "birth": 135,
+    "death": 139,
+    "marry": 126,
+    "divorce": 46,
+    "villages": 43
+  },
+  "臺南市東區": {
+    "birth": 60,
+    "death": 118,
+    "marry": 80,
+    "divorce": 32,
+    "villages": 45
+  },
+  "臺南市南區": {
+    "birth": 47,
+    "death": 97,
+    "marry": 66,
+    "divorce": 27,
+    "villages": 37
+  },
+  "臺南市北區": {
+    "birth": 60,
+    "death": 91,
+    "marry": 68,
+    "divorce": 26,
+    "villages": 33
+  },
+  "臺南市安南區": {
+    "birth": 112,
+    "death": 157,
+    "marry": 116,
+    "divorce": 40,
+    "villages": 51
+  },
+  "臺南市安平區": {
+    "birth": 33,
+    "death": 40,
+    "marry": 41,
+    "divorce": 12,
+    "villages": 13
+  },
+  "臺南市中西區": {
+    "birth": 38,
+    "death": 75,
+    "marry": 31,
+    "divorce": 12,
+    "villages": 20
+  },
+  "高雄市鹽埕區": {
+    "birth": 7,
+    "death": 26,
+    "marry": 11,
+    "divorce": 1,
+    "villages": 21
+  },
+  "高雄市鼓山區": {
+    "birth": 79,
+    "death": 107,
+    "marry": 61,
+    "divorce": 21,
+    "villages": 38
+  },
+  "高雄市左營區": {
+    "birth": 107,
+    "death": 131,
+    "marry": 116,
+    "divorce": 37,
+    "villages": 39
+  },
+  "高雄市楠梓區": {
+    "birth": 136,
+    "death": 128,
+    "marry": 113,
+    "divorce": 46,
+    "villages": 37
+  },
+  "高雄市三民區": {
+    "birth": 157,
+    "death": 260,
+    "marry": 165,
+    "divorce": 70,
+    "villages": 86
+  },
+  "高雄市新興區": {
+    "birth": 31,
+    "death": 45,
+    "marry": 20,
+    "divorce": 6,
+    "villages": 32
+  },
+  "高雄市前金區": {
+    "birth": 16,
+    "death": 34,
+    "marry": 11,
+    "divorce": 6,
+    "villages": 20
+  },
+  "高雄市苓雅區": {
+    "birth": 73,
+    "death": 169,
+    "marry": 65,
+    "divorce": 25,
+    "villages": 69
+  },
+  "高雄市前鎮區": {
+    "birth": 99,
+    "death": 167,
+    "marry": 97,
+    "divorce": 42,
+    "villages": 59
+  },
+  "高雄市旗津區": {
+    "birth": 8,
+    "death": 23,
+    "marry": 11,
+    "divorce": 1,
+    "villages": 13
+  },
+  "高雄市小港區": {
+    "birth": 72,
+    "death": 113,
+    "marry": 87,
+    "divorce": 41,
+    "villages": 38
+  },
+  "高雄市鳳山區": {
+    "birth": 178,
+    "death": 260,
+    "marry": 187,
+    "divorce": 79,
+    "villages": 76
+  },
+  "高雄市林園區": {
+    "birth": 33,
+    "death": 71,
+    "marry": 29,
+    "divorce": 11,
+    "villages": 24
+  },
+  "高雄市大寮區": {
+    "birth": 62,
+    "death": 94,
+    "marry": 45,
+    "divorce": 22,
+    "villages": 24
+  },
+  "高雄市大樹區": {
+    "birth": 18,
+    "death": 43,
+    "marry": 13,
+    "divorce": 11,
+    "villages": 18
+  },
+  "高雄市大社區": {
+    "birth": 18,
+    "death": 24,
+    "marry": 15,
+    "divorce": 7,
+    "villages": 9
+  },
+  "高雄市仁武區": {
+    "birth": 89,
+    "death": 51,
+    "marry": 78,
+    "divorce": 20,
+    "villages": 16
+  },
+  "高雄市鳥松區": {
+    "birth": 27,
+    "death": 48,
+    "marry": 27,
+    "divorce": 10,
+    "villages": 7
+  },
+  "高雄市岡山區": {
+    "birth": 64,
+    "death": 89,
+    "marry": 58,
+    "divorce": 15,
+    "villages": 33
+  },
+  "高雄市橋頭區": {
+    "birth": 28,
+    "death": 24,
+    "marry": 22,
+    "divorce": 15,
+    "villages": 17
+  },
+  "高雄市燕巢區": {
+    "birth": 19,
+    "death": 30,
+    "marry": 15,
+    "divorce": 2,
+    "villages": 11
+  },
+  "高雄市田寮區": {
+    "birth": 3,
+    "death": 12,
+    "marry": 0,
+    "divorce": 1,
+    "villages": 10
+  },
+  "高雄市阿蓮區": {
+    "birth": 8,
+    "death": 28,
+    "marry": 13,
+    "divorce": 5,
+    "villages": 12
+  },
+  "高雄市路竹區": {
+    "birth": 28,
+    "death": 43,
+    "marry": 28,
+    "divorce": 9,
+    "villages": 20
+  },
+  "高雄市湖內區": {
+    "birth": 9,
+    "death": 25,
+    "marry": 18,
+    "divorce": 1,
+    "villages": 14
+  },
+  "高雄市茄萣區": {
+    "birth": 13,
+    "death": 28,
+    "marry": 14,
+    "divorce": 4,
+    "villages": 15
+  },
+  "高雄市永安區": {
+    "birth": 13,
+    "death": 9,
+    "marry": 3,
+    "divorce": 3,
+    "villages": 6
+  },
+  "高雄市彌陀區": {
+    "birth": 15,
+    "death": 15,
+    "marry": 8,
+    "divorce": 3,
+    "villages": 12
+  },
+  "高雄市梓官區": {
+    "birth": 13,
+    "death": 35,
+    "marry": 13,
+    "divorce": 6,
+    "villages": 15
+  },
+  "高雄市旗山區": {
+    "birth": 20,
+    "death": 52,
+    "marry": 13,
+    "divorce": 7,
+    "villages": 21
+  },
+  "高雄市美濃區": {
+    "birth": 13,
+    "death": 41,
+    "marry": 22,
+    "divorce": 7,
+    "villages": 19
+  },
+  "高雄市六龜區": {
+    "birth": 10,
+    "death": 22,
+    "marry": 2,
+    "divorce": 1,
+    "villages": 12
+  },
+  "高雄市甲仙區": {
+    "birth": 4,
+    "death": 10,
+    "marry": 1,
+    "divorce": 0,
+    "villages": 7
+  },
+  "高雄市杉林區": {
+    "birth": 7,
+    "death": 17,
+    "marry": 2,
+    "divorce": 0,
+    "villages": 8
+  },
+  "高雄市內門區": {
+    "birth": 7,
+    "death": 17,
+    "marry": 2,
+    "divorce": 1,
+    "villages": 18
+  },
+  "高雄市茂林區": {
+    "birth": 0,
+    "death": 3,
+    "marry": 0,
+    "divorce": 0,
+    "villages": 3
+  },
+  "高雄市桃源區": {
+    "birth": 2,
+    "death": 5,
+    "marry": 0,
+    "divorce": 0,
+    "villages": 8
+  },
+  "高雄市那瑪夏區": {
+    "birth": 4,
+    "death": 5,
+    "marry": 2,
+    "divorce": 1,
+    "villages": 3
+  },
+  "宜蘭縣宜蘭市": {
+    "birth": 38,
+    "death": 75,
+    "marry": 34,
+    "divorce": 15,
+    "villages": 38
+  },
+  "宜蘭縣羅東鎮": {
+    "birth": 31,
+    "death": 52,
+    "marry": 26,
+    "divorce": 11,
+    "villages": 23
+  },
+  "宜蘭縣蘇澳鎮": {
+    "birth": 14,
+    "death": 47,
+    "marry": 17,
+    "divorce": 4,
+    "villages": 26
+  },
+  "宜蘭縣頭城鎮": {
+    "birth": 19,
+    "death": 26,
+    "marry": 14,
+    "divorce": 6,
+    "villages": 24
+  },
+  "宜蘭縣礁溪鄉": {
+    "birth": 25,
+    "death": 36,
+    "marry": 25,
+    "divorce": 5,
+    "villages": 18
+  },
+  "宜蘭縣壯圍鄉": {
+    "birth": 17,
+    "death": 18,
+    "marry": 11,
+    "divorce": 6,
+    "villages": 14
+  },
+  "宜蘭縣員山鄉": {
+    "birth": 13,
+    "death": 33,
+    "marry": 17,
+    "divorce": 5,
+    "villages": 16
+  },
+  "宜蘭縣冬山鄉": {
+    "birth": 33,
+    "death": 40,
+    "marry": 19,
+    "divorce": 12,
+    "villages": 24
+  },
+  "宜蘭縣五結鄉": {
+    "birth": 31,
+    "death": 30,
+    "marry": 27,
+    "divorce": 12,
+    "villages": 15
+  },
+  "宜蘭縣三星鄉": {
+    "birth": 6,
+    "death": 27,
+    "marry": 6,
+    "divorce": 6,
+    "villages": 18
+  },
+  "宜蘭縣大同鄉": {
+    "birth": 1,
+    "death": 8,
+    "marry": 2,
+    "divorce": 2,
+    "villages": 10
+  },
+  "宜蘭縣南澳鄉": {
+    "birth": 12,
+    "death": 2,
+    "marry": 5,
+    "divorce": 2,
+    "villages": 7
+  },
+  "新竹縣竹北市": {
+    "birth": 138,
+    "death": 77,
+    "marry": 118,
+    "divorce": 41,
+    "villages": 31
+  },
+  "新竹縣關西鎮": {
+    "birth": 17,
+    "death": 27,
+    "marry": 15,
+    "divorce": 2,
+    "villages": 21
+  },
+  "新竹縣新埔鎮": {
+    "birth": 20,
+    "death": 27,
+    "marry": 24,
+    "divorce": 12,
+    "villages": 19
+  },
+  "新竹縣竹東鎮": {
+    "birth": 38,
+    "death": 63,
+    "marry": 48,
+    "divorce": 14,
+    "villages": 25
+  },
+  "新竹縣湖口鄉": {
+    "birth": 56,
+    "death": 58,
+    "marry": 37,
+    "divorce": 19,
+    "villages": 20
+  },
+  "新竹縣橫山鄉": {
+    "birth": 4,
+    "death": 11,
+    "marry": 5,
+    "divorce": 1,
+    "villages": 11
+  },
+  "新竹縣新豐鄉": {
+    "birth": 21,
+    "death": 39,
+    "marry": 28,
+    "divorce": 16,
+    "villages": 17
+  },
+  "新竹縣芎林鄉": {
+    "birth": 13,
+    "death": 20,
+    "marry": 14,
+    "divorce": 8,
+    "villages": 12
+  },
+  "新竹縣寶山鄉": {
+    "birth": 15,
+    "death": 14,
+    "marry": 4,
+    "divorce": 5,
+    "villages": 10
+  },
+  "新竹縣北埔鄉": {
+    "birth": 7,
+    "death": 9,
+    "marry": 4,
+    "divorce": 1,
+    "villages": 9
+  },
+  "新竹縣峨眉鄉": {
+    "birth": 2,
+    "death": 9,
+    "marry": 3,
+    "divorce": 0,
+    "villages": 6
+  },
+  "新竹縣尖石鄉": {
+    "birth": 4,
+    "death": 14,
+    "marry": 6,
+    "divorce": 4,
+    "villages": 7
+  },
+  "新竹縣五峰鄉": {
+    "birth": 2,
+    "death": 5,
+    "marry": 2,
+    "divorce": 0,
+    "villages": 4
+  },
+  "苗栗縣苗栗市": {
+    "birth": 35,
+    "death": 78,
+    "marry": 42,
+    "divorce": 24,
+    "villages": 28
+  },
+  "苗栗縣頭份市": {
+    "birth": 46,
+    "death": 63,
+    "marry": 58,
+    "divorce": 33,
+    "villages": 33
+  },
+  "苗栗縣苑裡鎮": {
+    "birth": 17,
+    "death": 28,
+    "marry": 26,
+    "divorce": 4,
+    "villages": 25
+  },
+  "苗栗縣通霄鎮": {
+    "birth": 13,
+    "death": 26,
+    "marry": 11,
+    "divorce": 2,
+    "villages": 24
+  },
+  "苗栗縣竹南鎮": {
+    "birth": 39,
+    "death": 56,
+    "marry": 40,
+    "divorce": 25,
+    "villages": 25
+  },
+  "苗栗縣後龍鎮": {
+    "birth": 9,
+    "death": 32,
+    "marry": 18,
+    "divorce": 5,
+    "villages": 23
+  },
+  "苗栗縣卓蘭鎮": {
+    "birth": 6,
+    "death": 16,
+    "marry": 9,
+    "divorce": 3,
+    "villages": 11
+  },
+  "苗栗縣大湖鄉": {
+    "birth": 2,
+    "death": 22,
+    "marry": 6,
+    "divorce": 4,
+    "villages": 12
+  },
+  "苗栗縣公館鄉": {
+    "birth": 7,
+    "death": 35,
+    "marry": 13,
+    "divorce": 4,
+    "villages": 19
+  },
+  "苗栗縣銅鑼鄉": {
+    "birth": 7,
+    "death": 20,
+    "marry": 5,
+    "divorce": 4,
+    "villages": 10
+  },
+  "苗栗縣南庄鄉": {
+    "birth": 3,
+    "death": 24,
+    "marry": 3,
+    "divorce": 1,
+    "villages": 9
+  },
+  "苗栗縣頭屋鄉": {
+    "birth": 6,
+    "death": 8,
+    "marry": 5,
+    "divorce": 2,
+    "villages": 8
+  },
+  "苗栗縣三義鄉": {
+    "birth": 4,
+    "death": 16,
+    "marry": 5,
+    "divorce": 2,
+    "villages": 7
+  },
+  "苗栗縣西湖鄉": {
+    "birth": 3,
+    "death": 14,
+    "marry": 3,
+    "divorce": 0,
+    "villages": 9
+  },
+  "苗栗縣造橋鄉": {
+    "birth": 5,
+    "death": 8,
+    "marry": 5,
+    "divorce": 3,
+    "villages": 9
+  },
+  "苗栗縣三灣鄉": {
+    "birth": 2,
+    "death": 6,
+    "marry": 2,
+    "divorce": 0,
+    "villages": 8
+  },
+  "苗栗縣獅潭鄉": {
+    "birth": 1,
+    "death": 2,
+    "marry": 3,
+    "divorce": 0,
+    "villages": 7
+  },
+  "苗栗縣泰安鄉": {
+    "birth": 2,
+    "death": 7,
+    "marry": 4,
+    "divorce": 1,
+    "villages": 8
+  },
+  "彰化縣彰化市": {
+    "birth": 115,
+    "death": 139,
+    "marry": 111,
+    "divorce": 31,
+    "villages": 73
+  },
+  "彰化縣員林市": {
+    "birth": 85,
+    "death": 85,
+    "marry": 53,
+    "divorce": 21,
+    "villages": 41
+  },
+  "彰化縣鹿港鎮": {
+    "birth": 57,
+    "death": 61,
+    "marry": 33,
+    "divorce": 10,
+    "villages": 31
+  },
+  "彰化縣和美鎮": {
+    "birth": 52,
+    "death": 53,
+    "marry": 40,
+    "divorce": 13,
+    "villages": 32
+  },
+  "彰化縣北斗鎮": {
+    "birth": 23,
+    "death": 23,
+    "marry": 20,
+    "divorce": 12,
+    "villages": 15
+  },
+  "彰化縣溪湖鎮": {
+    "birth": 33,
+    "death": 35,
+    "marry": 20,
+    "divorce": 12,
+    "villages": 25
+  },
+  "彰化縣田中鎮": {
+    "birth": 22,
+    "death": 33,
+    "marry": 13,
+    "divorce": 4,
+    "villages": 22
+  },
+  "彰化縣二林鎮": {
+    "birth": 33,
+    "death": 39,
+    "marry": 20,
+    "divorce": 7,
+    "villages": 27
+  },
+  "彰化縣線西鄉": {
+    "birth": 20,
+    "death": 9,
+    "marry": 11,
+    "divorce": 2,
+    "villages": 8
+  },
+  "彰化縣伸港鄉": {
+    "birth": 43,
+    "death": 20,
+    "marry": 17,
+    "divorce": 7,
+    "villages": 14
+  },
+  "彰化縣福興鄉": {
+    "birth": 43,
+    "death": 38,
+    "marry": 19,
+    "divorce": 6,
+    "villages": 22
+  },
+  "彰化縣秀水鄉": {
+    "birth": 31,
+    "death": 22,
+    "marry": 16,
+    "divorce": 6,
+    "villages": 14
+  },
+  "彰化縣花壇鄉": {
+    "birth": 23,
+    "death": 36,
+    "marry": 22,
+    "divorce": 7,
+    "villages": 18
+  },
+  "彰化縣芬園鄉": {
+    "birth": 14,
+    "death": 19,
+    "marry": 12,
+    "divorce": 5,
+    "villages": 15
+  },
+  "彰化縣大村鄉": {
+    "birth": 29,
+    "death": 35,
+    "marry": 26,
+    "divorce": 5,
+    "villages": 16
+  },
+  "彰化縣埔鹽鄉": {
+    "birth": 20,
+    "death": 39,
+    "marry": 19,
+    "divorce": 4,
+    "villages": 22
+  },
+  "彰化縣埔心鄉": {
+    "birth": 22,
+    "death": 22,
+    "marry": 17,
+    "divorce": 9,
+    "villages": 20
+  },
+  "彰化縣永靖鄉": {
+    "birth": 20,
+    "death": 33,
+    "marry": 14,
+    "divorce": 5,
+    "villages": 24
+  },
+  "彰化縣社頭鄉": {
+    "birth": 34,
+    "death": 29,
+    "marry": 12,
+    "divorce": 6,
+    "villages": 24
+  },
+  "彰化縣二水鄉": {
+    "birth": 7,
+    "death": 20,
+    "marry": 10,
+    "divorce": 2,
+    "villages": 17
+  },
+  "彰化縣田尾鄉": {
+    "birth": 13,
+    "death": 18,
+    "marry": 7,
+    "divorce": 7,
+    "villages": 20
+  },
+  "彰化縣埤頭鄉": {
+    "birth": 13,
+    "death": 29,
+    "marry": 12,
+    "divorce": 3,
+    "villages": 17
+  },
+  "彰化縣芳苑鄉": {
+    "birth": 16,
+    "death": 33,
+    "marry": 16,
+    "divorce": 5,
+    "villages": 26
+  },
+  "彰化縣大城鄉": {
+    "birth": 3,
+    "death": 18,
+    "marry": 8,
+    "divorce": 3,
+    "villages": 15
+  },
+  "彰化縣竹塘鄉": {
+    "birth": 8,
+    "death": 20,
+    "marry": 3,
+    "divorce": 5,
+    "villages": 14
+  },
+  "彰化縣溪州鄉": {
+    "birth": 22,
+    "death": 30,
+    "marry": 10,
+    "divorce": 3,
+    "villages": 19
+  },
+  "南投縣南投市": {
+    "birth": 57,
+    "death": 75,
+    "marry": 52,
+    "divorce": 19,
+    "villages": 34
+  },
+  "南投縣埔里鎮": {
+    "birth": 36,
+    "death": 86,
+    "marry": 38,
+    "divorce": 7,
+    "villages": 33
+  },
+  "南投縣草屯鎮": {
+    "birth": 59,
+    "death": 68,
+    "marry": 42,
+    "divorce": 22,
+    "villages": 27
+  },
+  "南投縣竹山鎮": {
+    "birth": 16,
+    "death": 75,
+    "marry": 18,
+    "divorce": 9,
+    "villages": 28
+  },
+  "南投縣集集鎮": {
+    "birth": 3,
+    "death": 8,
+    "marry": 3,
+    "divorce": 0,
+    "villages": 11
+  },
+  "南投縣名間鄉": {
+    "birth": 9,
+    "death": 48,
+    "marry": 14,
+    "divorce": 5,
+    "villages": 23
+  },
+  "南投縣鹿谷鄉": {
+    "birth": 3,
+    "death": 28,
+    "marry": 6,
+    "divorce": 3,
+    "villages": 13
+  },
+  "南投縣中寮鄉": {
+    "birth": 2,
+    "death": 15,
+    "marry": 2,
+    "divorce": 3,
+    "villages": 18
+  },
+  "南投縣魚池鄉": {
+    "birth": 8,
+    "death": 25,
+    "marry": 1,
+    "divorce": 2,
+    "villages": 13
+  },
+  "南投縣國姓鄉": {
+    "birth": 4,
+    "death": 23,
+    "marry": 4,
+    "divorce": 2,
+    "villages": 13
+  },
+  "南投縣水里鄉": {
+    "birth": 9,
+    "death": 22,
+    "marry": 5,
+    "divorce": 0,
+    "villages": 19
+  },
+  "南投縣信義鄉": {
+    "birth": 18,
+    "death": 15,
+    "marry": 6,
+    "divorce": 2,
+    "villages": 15
+  },
+  "南投縣仁愛鄉": {
+    "birth": 14,
+    "death": 11,
+    "marry": 7,
+    "divorce": 7,
+    "villages": 16
+  },
+  "雲林縣斗六市": {
+    "birth": 104,
+    "death": 77,
+    "marry": 55,
+    "divorce": 19,
+    "villages": 40
+  },
+  "雲林縣斗南鎮": {
+    "birth": 37,
+    "death": 51,
+    "marry": 22,
+    "divorce": 9,
+    "villages": 24
+  },
+  "雲林縣虎尾鎮": {
+    "birth": 58,
+    "death": 64,
+    "marry": 31,
+    "divorce": 13,
+    "villages": 29
+  },
+  "雲林縣西螺鎮": {
+    "birth": 39,
+    "death": 46,
+    "marry": 16,
+    "divorce": 8,
+    "villages": 27
+  },
+  "雲林縣土庫鎮": {
+    "birth": 19,
+    "death": 25,
+    "marry": 20,
+    "divorce": 2,
+    "villages": 17
+  },
+  "雲林縣北港鎮": {
+    "birth": 35,
+    "death": 48,
+    "marry": 24,
+    "divorce": 6,
+    "villages": 28
+  },
+  "雲林縣古坑鄉": {
+    "birth": 12,
+    "death": 47,
+    "marry": 20,
+    "divorce": 9,
+    "villages": 20
+  },
+  "雲林縣大埤鄉": {
+    "birth": 20,
+    "death": 24,
+    "marry": 9,
+    "divorce": 3,
+    "villages": 15
+  },
+  "雲林縣莿桐鄉": {
+    "birth": 31,
+    "death": 26,
+    "marry": 14,
+    "divorce": 6,
+    "villages": 14
+  },
+  "雲林縣林內鄉": {
+    "birth": 15,
+    "death": 25,
+    "marry": 6,
+    "divorce": 4,
+    "villages": 10
+  },
+  "雲林縣二崙鄉": {
+    "birth": 17,
+    "death": 34,
+    "marry": 10,
+    "divorce": 6,
+    "villages": 18
+  },
+  "雲林縣崙背鄉": {
+    "birth": 24,
+    "death": 18,
+    "marry": 12,
+    "divorce": 4,
+    "villages": 14
+  },
+  "雲林縣麥寮鄉": {
+    "birth": 60,
+    "death": 30,
+    "marry": 29,
+    "divorce": 10,
+    "villages": 13
+  },
+  "雲林縣東勢鄉": {
+    "birth": 15,
+    "death": 12,
+    "marry": 11,
+    "divorce": 3,
+    "villages": 12
+  },
+  "雲林縣褒忠鄉": {
+    "birth": 13,
+    "death": 16,
+    "marry": 4,
+    "divorce": 2,
+    "villages": 9
+  },
+  "雲林縣臺西鄉": {
+    "birth": 25,
+    "death": 33,
+    "marry": 10,
+    "divorce": 2,
+    "villages": 15
+  },
+  "雲林縣元長鄉": {
+    "birth": 22,
+    "death": 28,
+    "marry": 13,
+    "divorce": 1,
+    "villages": 21
+  },
+  "雲林縣四湖鄉": {
+    "birth": 21,
+    "death": 34,
+    "marry": 5,
+    "divorce": 5,
+    "villages": 21
+  },
+  "雲林縣口湖鄉": {
+    "birth": 33,
+    "death": 35,
+    "marry": 11,
+    "divorce": 6,
+    "villages": 21
+  },
+  "雲林縣水林鄉": {
+    "birth": 18,
+    "death": 26,
+    "marry": 5,
+    "divorce": 2,
+    "villages": 24
+  },
+  "嘉義縣太保市": {
+    "birth": 25,
+    "death": 25,
+    "marry": 18,
+    "divorce": 12,
+    "villages": 18
+  },
+  "嘉義縣朴子市": {
+    "birth": 11,
+    "death": 47,
+    "marry": 19,
+    "divorce": 9,
+    "villages": 27
+  },
+  "嘉義縣布袋鎮": {
+    "birth": 13,
+    "death": 30,
+    "marry": 12,
+    "divorce": 3,
+    "villages": 23
+  },
+  "嘉義縣大林鎮": {
+    "birth": 13,
+    "death": 35,
+    "marry": 10,
+    "divorce": 7,
+    "villages": 21
+  },
+  "嘉義縣民雄鄉": {
+    "birth": 21,
+    "death": 52,
+    "marry": 33,
+    "divorce": 9,
+    "villages": 28
+  },
+  "嘉義縣溪口鄉": {
+    "birth": 7,
+    "death": 32,
+    "marry": 6,
+    "divorce": 2,
+    "villages": 14
+  },
+  "嘉義縣新港鄉": {
+    "birth": 11,
+    "death": 28,
+    "marry": 19,
+    "divorce": 1,
+    "villages": 23
+  },
+  "嘉義縣六腳鄉": {
+    "birth": 11,
+    "death": 35,
+    "marry": 6,
+    "divorce": 0,
+    "villages": 25
+  },
+  "嘉義縣東石鄉": {
+    "birth": 7,
+    "death": 30,
+    "marry": 9,
+    "divorce": 4,
+    "villages": 23
+  },
+  "嘉義縣義竹鄉": {
+    "birth": 8,
+    "death": 20,
+    "marry": 9,
+    "divorce": 0,
+    "villages": 22
+  },
+  "嘉義縣鹿草鄉": {
+    "birth": 7,
+    "death": 17,
+    "marry": 2,
+    "divorce": 0,
+    "villages": 15
+  },
+  "嘉義縣水上鄉": {
+    "birth": 18,
+    "death": 70,
+    "marry": 24,
+    "divorce": 9,
+    "villages": 26
+  },
+  "嘉義縣中埔鄉": {
+    "birth": 19,
+    "death": 29,
+    "marry": 20,
+    "divorce": 5,
+    "villages": 22
+  },
+  "嘉義縣竹崎鄉": {
+    "birth": 12,
+    "death": 47,
+    "marry": 8,
+    "divorce": 4,
+    "villages": 24
+  },
+  "嘉義縣梅山鄉": {
+    "birth": 11,
+    "death": 26,
+    "marry": 13,
+    "divorce": 3,
+    "villages": 18
+  },
+  "嘉義縣番路鄉": {
+    "birth": 5,
+    "death": 9,
+    "marry": 2,
+    "divorce": 3,
+    "villages": 11
+  },
+  "嘉義縣大埔鄉": {
+    "birth": 0,
+    "death": 6,
+    "marry": 1,
+    "divorce": 0,
+    "villages": 5
+  },
+  "嘉義縣阿里山鄉": {
+    "birth": 3,
+    "death": 5,
+    "marry": 3,
+    "divorce": 0,
+    "villages": 12
+  },
+  "屏東縣屏東市": {
+    "birth": 84,
+    "death": 153,
+    "marry": 86,
+    "divorce": 43,
+    "villages": 59
+  },
+  "屏東縣潮州鎮": {
+    "birth": 15,
+    "death": 53,
+    "marry": 22,
+    "divorce": 12,
+    "villages": 21
+  },
+  "屏東縣東港鎮": {
+    "birth": 19,
+    "death": 31,
+    "marry": 22,
+    "divorce": 11,
+    "villages": 22
+  },
+  "屏東縣恆春鎮": {
+    "birth": 14,
+    "death": 25,
+    "marry": 15,
+    "divorce": 7,
+    "villages": 17
+  },
+  "屏東縣萬丹鄉": {
+    "birth": 20,
+    "death": 45,
+    "marry": 19,
+    "divorce": 7,
+    "villages": 30
+  },
+  "屏東縣長治鄉": {
+    "birth": 13,
+    "death": 34,
+    "marry": 11,
+    "divorce": 6,
+    "villages": 16
+  },
+  "屏東縣麟洛鄉": {
+    "birth": 5,
+    "death": 10,
+    "marry": 6,
+    "divorce": 1,
+    "villages": 7
+  },
+  "屏東縣九如鄉": {
+    "birth": 12,
+    "death": 19,
+    "marry": 11,
+    "divorce": 2,
+    "villages": 11
+  },
+  "屏東縣里港鄉": {
+    "birth": 24,
+    "death": 20,
+    "marry": 13,
+    "divorce": 4,
+    "villages": 14
+  },
+  "屏東縣鹽埔鄉": {
+    "birth": 6,
+    "death": 32,
+    "marry": 13,
+    "divorce": 3,
+    "villages": 12
+  },
+  "屏東縣高樹鄉": {
+    "birth": 9,
+    "death": 29,
+    "marry": 7,
+    "divorce": 1,
+    "villages": 19
+  },
+  "屏東縣萬巒鄉": {
+    "birth": 11,
+    "death": 23,
+    "marry": 7,
+    "divorce": 4,
+    "villages": 14
+  },
+  "屏東縣內埔鄉": {
+    "birth": 26,
+    "death": 51,
+    "marry": 37,
+    "divorce": 13,
+    "villages": 23
+  },
+  "屏東縣竹田鄉": {
+    "birth": 9,
+    "death": 21,
+    "marry": 6,
+    "divorce": 2,
+    "villages": 15
+  },
+  "屏東縣新埤鄉": {
+    "birth": 3,
+    "death": 14,
+    "marry": 3,
+    "divorce": 2,
+    "villages": 7
+  },
+  "屏東縣枋寮鄉": {
+    "birth": 10,
+    "death": 30,
+    "marry": 11,
+    "divorce": 3,
+    "villages": 15
+  },
+  "屏東縣新園鄉": {
+    "birth": 19,
+    "death": 34,
+    "marry": 9,
+    "divorce": 6,
+    "villages": 15
+  },
+  "屏東縣崁頂鄉": {
+    "birth": 3,
+    "death": 13,
+    "marry": 6,
+    "divorce": 4,
+    "villages": 8
+  },
+  "屏東縣林邊鄉": {
+    "birth": 4,
+    "death": 13,
+    "marry": 4,
+    "divorce": 4,
+    "villages": 10
+  },
+  "屏東縣南州鄉": {
+    "birth": 4,
+    "death": 13,
+    "marry": 3,
+    "divorce": 3,
+    "villages": 10
+  },
+  "屏東縣佳冬鄉": {
+    "birth": 10,
+    "death": 18,
+    "marry": 2,
+    "divorce": 5,
+    "villages": 12
+  },
+  "屏東縣琉球鄉": {
+    "birth": 10,
+    "death": 9,
+    "marry": 7,
+    "divorce": 0,
+    "villages": 8
+  },
+  "屏東縣車城鄉": {
+    "birth": 4,
+    "death": 15,
+    "marry": 3,
+    "divorce": 2,
+    "villages": 11
+  },
+  "屏東縣滿州鄉": {
+    "birth": 6,
+    "death": 12,
+    "marry": 4,
+    "divorce": 0,
+    "villages": 8
+  },
+  "屏東縣枋山鄉": {
+    "birth": 0,
+    "death": 4,
+    "marry": 1,
+    "divorce": 1,
+    "villages": 4
+  },
+  "屏東縣三地門鄉": {
+    "birth": 4,
+    "death": 10,
+    "marry": 10,
+    "divorce": 1,
+    "villages": 10
+  },
+  "屏東縣霧臺鄉": {
+    "birth": 3,
+    "death": 1,
+    "marry": 2,
+    "divorce": 0,
+    "villages": 6
+  },
+  "屏東縣瑪家鄉": {
+    "birth": 1,
+    "death": 11,
+    "marry": 3,
+    "divorce": 2,
+    "villages": 6
+  },
+  "屏東縣泰武鄉": {
+    "birth": 4,
+    "death": 6,
+    "marry": 2,
+    "divorce": 1,
+    "villages": 6
+  },
+  "屏東縣來義鄉": {
+    "birth": 7,
+    "death": 9,
+    "marry": 2,
+    "divorce": 2,
+    "villages": 7
+  },
+  "屏東縣春日鄉": {
+    "birth": 6,
+    "death": 7,
+    "marry": 1,
+    "divorce": 0,
+    "villages": 6
+  },
+  "屏東縣獅子鄉": {
+    "birth": 6,
+    "death": 2,
+    "marry": 3,
+    "divorce": 0,
+    "villages": 8
+  },
+  "屏東縣牡丹鄉": {
+    "birth": 2,
+    "death": 8,
+    "marry": 1,
+    "divorce": 1,
+    "villages": 6
+  },
+  "臺東縣臺東市": {
+    "birth": 87,
+    "death": 91,
+    "marry": 43,
+    "divorce": 30,
+    "villages": 38
+  },
+  "臺東縣成功鎮": {
+    "birth": 5,
+    "death": 18,
+    "marry": 5,
+    "divorce": 1,
+    "villages": 8
+  },
+  "臺東縣關山鎮": {
+    "birth": 7,
+    "death": 10,
+    "marry": 0,
+    "divorce": 1,
+    "villages": 7
+  },
+  "臺東縣卑南鄉": {
+    "birth": 15,
+    "death": 18,
+    "marry": 10,
+    "divorce": 5,
+    "villages": 13
+  },
+  "臺東縣大武鄉": {
+    "birth": 2,
+    "death": 3,
+    "marry": 1,
+    "divorce": 0,
+    "villages": 5
+  },
+  "臺東縣太麻里鄉": {
+    "birth": 10,
+    "death": 13,
+    "marry": 6,
+    "divorce": 2,
+    "villages": 9
+  },
+  "臺東縣東河鄉": {
+    "birth": 1,
+    "death": 12,
+    "marry": 1,
+    "divorce": 0,
+    "villages": 7
+  },
+  "臺東縣長濱鄉": {
+    "birth": 8,
+    "death": 16,
+    "marry": 3,
+    "divorce": 3,
+    "villages": 6
+  },
+  "臺東縣鹿野鄉": {
+    "birth": 6,
+    "death": 7,
+    "marry": 4,
+    "divorce": 1,
+    "villages": 7
+  },
+  "臺東縣池上鄉": {
+    "birth": 1,
+    "death": 11,
+    "marry": 1,
+    "divorce": 1,
+    "villages": 10
+  },
+  "臺東縣綠島鄉": {
+    "birth": 3,
+    "death": 1,
+    "marry": 6,
+    "divorce": 2,
+    "villages": 3
+  },
+  "臺東縣延平鄉": {
+    "birth": 4,
+    "death": 5,
+    "marry": 1,
+    "divorce": 1,
+    "villages": 5
+  },
+  "臺東縣海端鄉": {
+    "birth": 5,
+    "death": 4,
+    "marry": 1,
+    "divorce": 0,
+    "villages": 6
+  },
+  "臺東縣達仁鄉": {
+    "birth": 1,
+    "death": 3,
+    "marry": 0,
+    "divorce": 1,
+    "villages": 6
+  },
+  "臺東縣金峰鄉": {
+    "birth": 3,
+    "death": 3,
+    "marry": 5,
+    "divorce": 1,
+    "villages": 5
+  },
+  "臺東縣蘭嶼鄉": {
+    "birth": 5,
+    "death": 5,
+    "marry": 2,
+    "divorce": 1,
+    "villages": 4
+  },
+  "花蓮縣花蓮市": {
+    "birth": 37,
+    "death": 82,
+    "marry": 45,
+    "divorce": 19,
+    "villages": 44
+  },
+  "花蓮縣鳳林鎮": {
+    "birth": 6,
+    "death": 19,
+    "marry": 2,
+    "divorce": 2,
+    "villages": 12
+  },
+  "花蓮縣玉里鎮": {
+    "birth": 8,
+    "death": 32,
+    "marry": 12,
+    "divorce": 4,
+    "villages": 15
+  },
+  "花蓮縣新城鄉": {
+    "birth": 8,
+    "death": 21,
+    "marry": 14,
+    "divorce": 2,
+    "villages": 9
+  },
+  "花蓮縣吉安鄉": {
+    "birth": 53,
+    "death": 78,
+    "marry": 37,
+    "divorce": 17,
+    "villages": 18
+  },
+  "花蓮縣壽豐鄉": {
+    "birth": 5,
+    "death": 23,
+    "marry": 4,
+    "divorce": 5,
+    "villages": 15
+  },
+  "花蓮縣光復鄉": {
+    "birth": 2,
+    "death": 19,
+    "marry": 4,
+    "divorce": 2,
+    "villages": 14
+  },
+  "花蓮縣豐濱鄉": {
+    "birth": 0,
+    "death": 8,
+    "marry": 0,
+    "divorce": 0,
+    "villages": 5
+  },
+  "花蓮縣瑞穗鄉": {
+    "birth": 4,
+    "death": 6,
+    "marry": 3,
+    "divorce": 1,
+    "villages": 11
+  },
+  "花蓮縣富里鄉": {
+    "birth": 12,
+    "death": 19,
+    "marry": 3,
+    "divorce": 0,
+    "villages": 13
+  },
+  "花蓮縣秀林鄉": {
+    "birth": 14,
+    "death": 17,
+    "marry": 15,
+    "divorce": 6,
+    "villages": 9
+  },
+  "花蓮縣萬榮鄉": {
+    "birth": 6,
+    "death": 5,
+    "marry": 5,
+    "divorce": 1,
+    "villages": 6
+  },
+  "花蓮縣卓溪鄉": {
+    "birth": 8,
+    "death": 10,
+    "marry": 1,
+    "divorce": 1,
+    "villages": 6
+  },
+  "澎湖縣馬公市": {
+    "birth": 44,
+    "death": 43,
+    "marry": 32,
+    "divorce": 17,
+    "villages": 33
+  },
+  "澎湖縣湖西鄉": {
+    "birth": 19,
+    "death": 18,
+    "marry": 9,
+    "divorce": 4,
+    "villages": 22
+  },
+  "澎湖縣白沙鄉": {
+    "birth": 9,
+    "death": 5,
+    "marry": 2,
+    "divorce": 0,
+    "villages": 15
+  },
+  "澎湖縣西嶼鄉": {
+    "birth": 3,
+    "death": 6,
+    "marry": 5,
+    "divorce": 1,
+    "villages": 11
+  },
+  "澎湖縣望安鄉": {
+    "birth": 4,
+    "death": 3,
+    "marry": 1,
+    "divorce": 1,
+    "villages": 9
+  },
+  "澎湖縣七美鄉": {
+    "birth": 5,
+    "death": 5,
+    "marry": 0,
+    "divorce": 0,
+    "villages": 6
+  },
+  "基隆市中正區": {
+    "birth": 18,
+    "death": 49,
+    "marry": 28,
+    "divorce": 9,
+    "villages": 26
+  },
+  "基隆市七堵區": {
+    "birth": 16,
+    "death": 42,
+    "marry": 21,
+    "divorce": 13,
+    "villages": 20
+  },
+  "基隆市暖暖區": {
+    "birth": 12,
+    "death": 24,
+    "marry": 13,
+    "divorce": 8,
+    "villages": 13
+  },
+  "基隆市仁愛區": {
+    "birth": 13,
+    "death": 44,
+    "marry": 23,
+    "divorce": 8,
+    "villages": 29
+  },
+  "基隆市中山區": {
+    "birth": 27,
+    "death": 43,
+    "marry": 17,
+    "divorce": 10,
+    "villages": 24
+  },
+  "基隆市安樂區": {
+    "birth": 22,
+    "death": 46,
+    "marry": 42,
+    "divorce": 13,
+    "villages": 25
+  },
+  "基隆市信義區": {
+    "birth": 23,
+    "death": 49,
+    "marry": 19,
+    "divorce": 12,
+    "villages": 20
+  },
+  "新竹市東區": {
+    "birth": 132,
+    "death": 107,
+    "marry": 112,
+    "divorce": 25,
+    "villages": 53
+  },
+  "新竹市北區": {
+    "birth": 83,
+    "death": 102,
+    "marry": 80,
+    "divorce": 35,
+    "villages": 45
+  },
+  "新竹市香山區": {
+    "birth": 43,
+    "death": 55,
+    "marry": 59,
+    "divorce": 18,
+    "villages": 24
+  },
+  "嘉義市東區": {
+    "birth": 44,
+    "death": 77,
+    "marry": 59,
+    "divorce": 27,
+    "villages": 39
+  },
+  "嘉義市西區": {
+    "birth": 51,
+    "death": 119,
+    "marry": 67,
+    "divorce": 22,
+    "villages": 45
+  },
+  "金門縣金城鎮": {
+    "birth": 17,
+    "death": 17,
+    "marry": 11,
+    "divorce": 1,
+    "villages": 8
+  },
+  "金門縣金湖鎮": {
+    "birth": 16,
+    "death": 9,
+    "marry": 16,
+    "divorce": 12,
+    "villages": 8
+  },
+  "金門縣金沙鎮": {
+    "birth": 7,
+    "death": 19,
+    "marry": 11,
+    "divorce": 1,
+    "villages": 8
+  },
+  "金門縣金寧鄉": {
+    "birth": 10,
+    "death": 16,
+    "marry": 17,
+    "divorce": 6,
+    "villages": 6
+  },
+  "金門縣烈嶼鄉": {
+    "birth": 3,
+    "death": 6,
+    "marry": 4,
+    "divorce": 2,
+    "villages": 5
+  },
+  "金門縣烏坵鄉": {
+    "birth": 0,
+    "death": 0,
+    "marry": 0,
+    "divorce": 0,
+    "villages": 2
+  },
+  "連江縣南竿鄉": {
+    "birth": 5,
+    "death": 3,
+    "marry": 6,
+    "divorce": 0,
+    "villages": 9
+  },
+  "連江縣北竿鄉": {
+    "birth": 3,
+    "death": 0,
+    "marry": 2,
+    "divorce": 2,
+    "villages": 6
+  },
+  "連江縣莒光鄉": {
+    "birth": 2,
+    "death": 0,
+    "marry": 0,
+    "divorce": 0,
+    "villages": 5
+  },
+  "連江縣東引鄉": {
+    "birth": 0,
+    "death": 0,
+    "marry": 1,
+    "divorce": 0,
+    "villages": 2
+  }
+}
