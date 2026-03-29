@@ -1445,6 +1445,46 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
             hour=_digest_hour, minute=0,
         )
 
+    # ── Job: Ares 關係溫度預警（每 6 小時）──
+    async def _ares_relationship_scan():
+        """每 6 小時掃描 Ares profiles，偵測降溫/流失風險."""
+        try:
+            from museon.ares.proactive_intel import ProactiveIntel
+            intel = ProactiveIntel(data_dir)
+            alerts = intel.scan_relationship_alerts()
+            if not alerts:
+                return
+
+            # 只推送 high urgency 或今天第一次掃到的
+            for alert in alerts:
+                if alert.get("urgency") == "high":
+                    try:
+                        adapter = app.state.telegram_adapter if app else None
+                        if adapter and hasattr(adapter, "application"):
+                            _owner_id = int(adapter.trusted_user_ids[0])
+                            await adapter.application.bot.send_message(
+                                chat_id=_owner_id,
+                                text=alert["message"],
+                            )
+                    except Exception as _e:
+                        logger.warning(f"Ares alert push failed: {_e}")
+
+            # 儲存所有信號供晨報使用
+            intel.save_signals([{
+                "signal_type": "relationship_alert",
+                "alerts": alerts,
+                "detected_at": datetime.now().isoformat(),
+            }])
+            logger.info(f"[ARES] Relationship scan: {len(alerts)} alerts")
+        except Exception as e:
+            logger.warning(f"[ARES] Relationship scan failed: {e}")
+
+    from datetime import datetime
+    cron_engine.add_job(
+        _ares_relationship_scan, trigger="interval",
+        job_id="ares-relationship-scan", hours=6,
+    )
+
     # ── 系統排程任務元資料清冊（供 /api/tasks 使用）──
     _system_cron_registry = [
         {"job_id": "nightly-fusion",         "name": "夜間整合管線",         "schedule": "每天 03:00",     "category": "maintenance", "uses_llm": True},
@@ -1459,6 +1499,7 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
         {"job_id": "vita-evening",           "name": "霓裳暮感",             "schedule": "每天 22:00",     "category": "pulse",       "uses_llm": True},
         {"job_id": "vita-explore-auto",      "name": "自主探索（每 2h）",    "schedule": "07:10~21:10/2h", "category": "exploration", "uses_llm": True},
         {"job_id": "health-heartbeat",       "name": "健康心跳",             "schedule": "每 30 分鐘",    "category": "maintenance", "uses_llm": False},
+        {"job_id": "ares-relationship-scan", "name": "Ares 關係溫度預警",    "schedule": "每 6 小時",     "category": "ares",        "uses_llm": False},
         {"job_id": "vita-breath-pulse",      "name": "VITA 息脈",            "schedule": "每 30 分鐘",    "category": "pulse",       "uses_llm": True},
         {"job_id": "guardian-l1",            "name": "Guardian L1 巡檢",     "schedule": "每 30 分鐘",    "category": "maintenance", "uses_llm": False},
         {"job_id": "commitment-check",       "name": "承諾到期檢查",         "schedule": "每 15 分鐘",    "category": "pulse",       "uses_llm": False},

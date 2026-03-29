@@ -654,6 +654,22 @@ class BrainObservationMixin:
             if tmp_path.exists():
                 tmp_path.unlink(missing_ok=True)
 
+        # ★ P1: 偵測主人對別人的承諾（群組場景）
+        if self._is_group_session:
+            try:
+                from museon.ares.proactive_intel import ProactiveIntel
+                intel = ProactiveIntel(self.data_dir)
+                commitments = intel.detect_my_commitments(content)
+                if commitments:
+                    intel.save_signals([{
+                        "signal_type": "my_commitment",
+                        "commitments": commitments,
+                        "detected_at": datetime.now().isoformat(),
+                    }])
+                    logger.info(f"[ARES-INTEL] 偵測到主人承諾: {[c['keyword'] for c in commitments]}")
+            except Exception:
+                pass
+
     # ─── Phase 0 訊號分流（v3.0）────────────────────────
 
     def _classify_p0_signal(
@@ -1200,6 +1216,25 @@ class BrainObservationMixin:
 
             ext_mgr.save(user_id, ext_anima)
             logger.debug(f"外部用戶觀察完成（v3.0）: {user_id} ({sender_name})")
+
+            # ★ P0: 群組徵兆偵測（靜默，不回覆群組）
+            try:
+                from museon.ares.proactive_intel import ProactiveIntel
+                intel = ProactiveIntel(self.data_dir)
+                signals = intel.detect_signals_from_message(
+                    sender_name=sender_name or user_id,
+                    content=content,
+                    chat_id=metadata.get("chat_id", "") if metadata else "",
+                )
+                if signals:
+                    # 增強：如果有人格資料，加入攻略建議
+                    for s in signals:
+                        if s["signal_type"] == "opportunity":
+                            intel.enrich_opportunity_with_personality(s)
+                    intel.save_signals(signals)
+                    logger.info(f"[ARES-INTEL] 偵測到 {len(signals)} 個徵兆: {[s['signal_type'] for s in signals]}")
+            except Exception as _intel_err:
+                logger.debug(f"Ares intel detection skipped: {_intel_err}")
 
         except Exception as e:
             logger.warning(f"外部用戶觀察失敗 {user_id}: {e}")
