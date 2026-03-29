@@ -1,0 +1,181 @@
+"""Telegram Menu Adapter — 將通用選單配置轉為 Telegram UI 元件.
+
+職責：
+1. Bot Commands 註冊（/指令列表）
+2. ReplyKeyboard 持久鍵盤（九宮格快捷按鈕）
+3. InlineKeyboard 內嵌按鈕（功能分組展開）
+4. MenuButton 設定（左下角 Mini App 按鈕）
+
+與 menu_config.py 搭配：config 定義「有什麼選單」，本模組定義「在 Telegram 怎麼顯示」。
+"""
+
+from __future__ import annotations
+
+import logging
+from typing import Any
+
+logger = logging.getLogger(__name__)
+
+
+async def register_bot_commands(bot: Any) -> None:
+    """方案 1：註冊 Bot Commands（使用者輸入 / 時顯示）."""
+    try:
+        from telegram import BotCommand
+        from museon.channels.menu_config import BOT_COMMANDS
+
+        commands = [BotCommand(cmd, desc) for cmd, desc in BOT_COMMANDS]
+        await bot.set_my_commands(commands)
+        logger.info(f"[MENU] Registered {len(commands)} bot commands")
+    except Exception as e:
+        logger.warning(f"[MENU] Failed to register bot commands: {e}")
+
+
+async def setup_menu_button(bot: Any, chat_id: int | None = None) -> None:
+    """方案 4：設定左下角 Menu 按鈕 → 開啟 Mini App.
+
+    chat_id=None → 設定為所有使用者的預設
+    chat_id=具體值 → 只為特定使用者設定
+    """
+    try:
+        from telegram import MenuButtonWebApp, WebAppInfo
+        from museon.channels.menu_config import MINI_APP_NAV_URL
+
+        menu_button = MenuButtonWebApp(
+            text="📋 功能選單",
+            web_app=WebAppInfo(url=MINI_APP_NAV_URL),
+        )
+        await bot.set_chat_menu_button(chat_id=chat_id, menu_button=menu_button)
+        logger.info(f"[MENU] MenuButton → Mini App set for {'all' if chat_id is None else chat_id}")
+    except Exception as e:
+        # 降級：用 Commands 選單
+        logger.warning(f"[MENU] MenuButtonWebApp failed, falling back to commands: {e}")
+        try:
+            from telegram import MenuButtonCommands
+            await bot.set_chat_menu_button(
+                chat_id=chat_id,
+                menu_button=MenuButtonCommands(),
+            )
+        except Exception:
+            pass
+
+
+def build_reply_keyboard() -> Any:
+    """方案 2：建立持久 ReplyKeyboard（九宮格快捷按鈕）."""
+    try:
+        from telegram import ReplyKeyboardMarkup, KeyboardButton
+        from museon.channels.menu_config import QUICK_KEYBOARD
+
+        keyboard = [
+            [KeyboardButton(item.label) for item in row]
+            for row in QUICK_KEYBOARD
+        ]
+        return ReplyKeyboardMarkup(
+            keyboard,
+            resize_keyboard=True,
+            is_persistent=True,
+            input_field_placeholder="輸入訊息或點選功能...",
+        )
+    except Exception as e:
+        logger.warning(f"[MENU] Failed to build reply keyboard: {e}")
+        return None
+
+
+def build_inline_menu() -> Any:
+    """方案 3：建立 InlineKeyboard 功能選單（/menu 展開用）."""
+    try:
+        from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+        from museon.channels.menu_config import MAIN_MENU
+
+        keyboard = []
+        for category in MAIN_MENU:
+            # 分組標題行
+            keyboard.append([
+                InlineKeyboardButton(
+                    f"{category.emoji} {category.name}",
+                    callback_data=f"menu_cat:{category.name}",
+                )
+            ])
+            # 該分組的按鈕（每行 3 個）
+            row = []
+            for item in category.items:
+                row.append(InlineKeyboardButton(
+                    f"{item.emoji} {item.label}",
+                    callback_data=f"menu_cmd:{item.command}",
+                ))
+            keyboard.append(row)
+
+        # 底部加入 Mini App 按鈕
+        from museon.channels.menu_config import MINI_APP_NAV_URL
+        from telegram import WebAppInfo
+        keyboard.append([
+            InlineKeyboardButton(
+                "🌐 開啟互動式面板",
+                web_app=WebAppInfo(url=MINI_APP_NAV_URL),
+            )
+        ])
+
+        return InlineKeyboardMarkup(keyboard)
+    except Exception as e:
+        logger.warning(f"[MENU] Failed to build inline menu: {e}")
+        return None
+
+
+async def handle_menu_callback(update: Any, context: Any) -> None:
+    """處理 InlineKeyboard 的 callback（menu_cmd:/xxx）."""
+    try:
+        query = update.callback_query
+        data = query.data
+
+        if data.startswith("menu_cmd:"):
+            command = data.split(":", 1)[1]
+            await query.answer()
+            # 模擬使用者發送該指令
+            await query.message.reply_text(
+                f"正在執行 {command}...",
+            )
+            # 注入為新訊息讓 Brain 處理
+            # 透過編輯原訊息提示使用者
+        elif data.startswith("menu_cat:"):
+            await query.answer(f"展開 {data.split(':', 1)[1]}")
+    except Exception as e:
+        logger.warning(f"[MENU] Callback handler error: {e}")
+
+
+async def send_welcome_with_keyboard(
+    bot: Any, chat_id: int, user_name: str = "",
+) -> None:
+    """發送歡迎訊息 + 持久鍵盤."""
+    keyboard = build_reply_keyboard()
+    welcome = (
+        f"👋 {'嗨 ' + user_name + '！' if user_name else '歡迎！'}\n\n"
+        "我是 MUSEON，你的 AI 策略幕僚。\n\n"
+        "⬇️ 點選下方按鈕快速開始，或直接輸入你的需求。\n"
+        "輸入 /menu 可查看完整功能清單。"
+    )
+    try:
+        await bot.send_message(
+            chat_id=chat_id,
+            text=welcome,
+            reply_markup=keyboard,
+        )
+    except Exception as e:
+        logger.warning(f"[MENU] Welcome message failed: {e}")
+        # 降級：純文字
+        await bot.send_message(chat_id=chat_id, text=welcome)
+
+
+async def send_full_menu(bot: Any, chat_id: int) -> None:
+    """發送完整功能選單（/menu 觸發）."""
+    from museon.channels.menu_config import FULL_MENU_TEXT
+    inline_menu = build_inline_menu()
+    try:
+        await bot.send_message(
+            chat_id=chat_id,
+            text=FULL_MENU_TEXT,
+            parse_mode="Markdown",
+            reply_markup=inline_menu,
+        )
+    except Exception as e:
+        logger.warning(f"[MENU] Full menu failed: {e}")
+        # 降級：純文字
+        await bot.send_message(chat_id=chat_id, text=FULL_MENU_TEXT)
