@@ -168,17 +168,18 @@ class ResponseGuard:
         return True
 
     @staticmethod
-    def sanitize_for_group(response_text: str, is_group: bool) -> str:
-        """群組回覆內容清理 — 移除內部術語和敏感資訊.
+    def sanitize_for_group(response_text: str, is_group: bool = False) -> str:
+        """回覆內容清理 — 移除內部術語和敏感資訊.
 
-        非群組模式直接 passthrough；群組模式掃描並移除：
+        所有通道（群組 + 私訊）統一掃描並移除：
         - chat_id / session_id 等內部識別碼
         - 系統狀態訊息（Gateway/Pulse 等）
         - 內部檔案路徑和模組名稱
+        - L1/L2/L3 架構術語、MCP 插件名、AI 思考標記
 
         Args:
             response_text: 原始回覆文本
-            is_group: 是否為群組訊息
+            is_group: 是否為群組訊息（保留參數相容性，不再影響過濾行為）
 
         Returns:
             清理後的回覆文本
@@ -188,17 +189,9 @@ class ResponseGuard:
 
         sanitized = response_text
 
-        # 所有通道都過濾的危險 pattern（[empty] 佔位符、路由鏈）
-        sanitized = re.sub(r"^\[empty\]$", "", sanitized, flags=re.MULTILINE)
-        sanitized = re.sub(
-            r"[🎭🧠🔍💭⚡🎯🛡️📊]\s*\w[\w-]*\s*→\s*\w[\w-]*(?:\s*→\s*\w[\w-]*)*",
-            "", sanitized,
-        )
-
-        # 群組模式額外過濾內部術語
-        if is_group:
-            for pattern in _INTERNAL_PATTERNS:
-                sanitized = pattern.sub("", sanitized)
+        # 所有通道統一過濾全部 _INTERNAL_PATTERNS
+        for pattern in _INTERNAL_PATTERNS:
+            sanitized = pattern.sub("", sanitized)
 
         # 清理替換後殘留的連續空行
         sanitized = re.sub(r"\n{3,}", "\n\n", sanitized).strip()

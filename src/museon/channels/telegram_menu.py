@@ -161,6 +161,12 @@ async def send_welcome_with_keyboard(
         "⬇️ 點選下方按鈕快速開始，或直接輸入你的需求。\n"
         "輸入 /menu 可查看完整功能清單。"
     )
+    # 統一 sanitize（在 try 外，確保 fallback 也用清理後的文字）
+    try:
+        from museon.governance.response_guard import ResponseGuard
+        welcome = ResponseGuard.sanitize_for_group(welcome, is_group=(int(chat_id) < 0))
+    except Exception:
+        pass
     try:
         await bot.send_message(
             chat_id=chat_id,
@@ -187,6 +193,12 @@ async def send_full_menu(bot: Any, chat_id: int, is_group: bool = False) -> None
         inline_menu = build_inline_menu()
         text = FULL_MENU_TEXT
 
+    # 統一 sanitize（在 try 外，確保 fallback 也用清理後的文字）
+    try:
+        from museon.governance.response_guard import ResponseGuard
+        text = ResponseGuard.sanitize_for_group(text, is_group=is_group)
+    except Exception:
+        pass
     try:
         await bot.send_message(
             chat_id=chat_id,

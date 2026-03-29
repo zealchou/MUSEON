@@ -323,7 +323,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 //  SYNC META — 拓撲同步狀態
 // ═══════════════════════════════════════
 const SYNC_META = {
-  topologyVersion: 'v1.62',
+  topologyVersion: 'v1.63',
   syncDate: '2026-03-29',
   nodeCount: 0, // auto-calculated below
   linkCount: 0, // auto-calculated below
@@ -489,7 +489,7 @@ const nodes = [
   {id:"perception",label:"Perception",zh:"四診合參感知",group:"gov",r:0.9,p:"governance"},
   {id:"preflight",label:"Preflight",zh:"啟動門",group:"gov",r:0.9,p:"governance"},
   {id:"refractory",label:"Refractory",zh:"斷路器",group:"gov",r:0.9,p:"governance",desc:"斷路器（三態+半開試探）"},
-  {id:"response-guard",label:"Response Guard",zh:"發送前 chat_id 二次驗證閘門",group:"gov",r:0.9,p:"governance"},
+  {id:"response-guard",label:"Response Guard",zh:"發送前 chat_id 驗證 + 全通道內容黑名單清理",group:"gov",r:0.9,p:"governance",desc:"發送前 chat_id 驗證 + 全通道內容黑名單清理（v1.82 取消群組/私訊分流）"},
   {id:"sandbox",label:"Sandbox",zh:"沙盒隔離",group:"gov",r:0.8,p:"governance"},
   {id:"security",label:"Security",zh:"安全淨化與稽核",group:"gov",r:1.0,p:"governance"},
   {id:"service-health",label:"Service Health",zh:"服務監控",group:"gov",r:1.0,p:"governance"},
@@ -1136,7 +1136,7 @@ const links = [
   {source:"telegram-pump",target:"governance",label:"telegram_pump.py lazy import: group_context, multi_tenant, rate_limiter",type:"cross"},
   {source:"telegram-pump",target:"interaction-queue",label:"telegram_pump.py lazy import: interaction queue",type:"cross"},
   {source:"telegram-pump",target:"message-queue-store",label:"telegram_pump.py lazy import: enqueue/mark_done/mark_failed/recover_pending（v1.51 訊息持久化）",type:"cross"},
-  {source:"telegram-pump",target:"response-guard",label:"telegram_pump.py 發送前呼叫 ResponseGuard.sanitize_for_group() + chat_id 交叉驗證",type:"cross"},
+  {source:"telegram-pump",target:"response-guard",label:"telegram_pump.py 所有發送路徑統一走 adapter._safe_send() → ResponseGuard.sanitize_for_group()（v1.82 消除 9 處直送）+ chat_id 交叉驗證",type:"cross"},
   {source:"tool-registry",target:"skill-router",label:"工具查找",type:"cross"},
   {source:"vector-index",target:"qdrant",label:"向量存儲（dense）",type:"cross"},
   {source:"wan-miu-16",target:"energy-reading",label:"能量數據讀取",type:"cross"},
@@ -1190,6 +1190,7 @@ const links = [
   {source:"~~`epigenetic-router`~~",target:"~~`memory-reflector`~~",label:"~~回憶後觸發反思（已刪除）~~",type:"async"},
   {source:"~~`proactive-predictor`~~",target:"~~`metacognition`~~",label:"~~預判結果回饋元認知（已刪除）~~",type:"async"},
 ];
+
 
 
 

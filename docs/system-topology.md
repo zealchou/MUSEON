@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.62
+# MUSEON 系統拓撲圖 v1.63
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.63 (2026-03-29)**：統一發送出口防漏——response-guard 節點描述更新（全通道內容黑名單清理，取消群組/私訊分流）；telegram-pump→response-guard 連線描述更新（所有發送路徑統一走 _safe_send()，消除 9 處直送）。同步 blast-radius v1.82。
 > **v1.62 (2026-03-29)**：戰神系統（Ares）——thinking 群組新增 `anima-individual`（ANIMA 個體追蹤引擎，plugin）、`ares`（戰神系統工作流，workflow）2 個 Skill 節點；新增 Python 模組 `src/museon/ares/`（profile_store.py, graph_renderer.py, external_bridge.py）；新增儲存路徑 `data/ares/profiles/`；新增 22 條 cross 連線（ares→anima-individual/wan-miu-16/energy-reading/combined-reading/master-strategy/shadow/xmodel/pdeif/roundtable/business-12/ssa-consultant/knowledge-lattice/user-model/c15、anima-individual→wan-miu-16/energy-reading/combined-reading/shadow/master-strategy/xmodel/knowledge-lattice/user-model）；同步 blast-radius v1.80、joint-map v1.52、memory-router v1.13、persistence-contract v1.40。
 > **v1.61 (2026-03-29)**：OneMuse 能量解讀技能群——thinking 群組新增 `energy-reading`（八方位能量解讀）、`wan-miu-16`（萬謬16型人格）、`combined-reading`（合盤能量比對）3 個 Skill 節點；新增 11 條 cross 連線（energy-reading→dharma/resonance/knowledge-lattice/user-model、wan-miu-16→energy-reading/knowledge-lattice/user-model、combined-reading→energy-reading/wan-miu-16/knowledge-lattice/user-model）；同步 blast-radius v1.79、joint-map v1.51、memory-router v1.12、persistence-contract v1.39。
 > **v1.60 (2026-03-28)**：新增 MuseDoctor 第六虎將節點——`musedoctor`（持續巡邏員，綠區扇入=0）；新增 3 條連線：musedoctor→auto-repair（修復引擎）、musedoctor→nightly-pipeline（_FULL_STEPS 驗證）、cron-registry→musedoctor（每 8 分鐘排程）；免疫系統分工補注：Gateway 急症由 museoff 負責，musedoctor 專責慢循環維護。
@@ -228,7 +229,7 @@ external-user（EXTERNAL）
 | `perception` | Perception | 四診合參感知 | - | governance | 0.9 |
 | ~~`cognitive-receipt`~~ | ~~Cognitive Receipt~~ | ~~認知收據格式定義（已刪除 v1.59）~~ | - | - | - |
 | `authorization` | Authorization | 配對碼 + 工具授權 + 分級策略 | - | governance | 1.0 |
-| `response-guard` | Response Guard | 發送前 chat_id 二次驗證閘門 | - | governance | 0.9 |
+| `response-guard` | Response Guard | 發送前 chat_id 驗證 + 全通道內容黑名單清理（v1.82 取消群組/私訊分流） | - | governance | 0.9 |
 
 ### doctor — Doctor 診斷
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -886,7 +887,7 @@ external-user（EXTERNAL）
 | `gateway` | `telegram-pump` | server.py 從 telegram_pump.py import 訊息泵邏輯（v1.50 拆分） |
 | `gateway` | `routes-api` | server.py 從 routes_api.py import API 端點註冊（v1.50 拆分） |
 | `gateway` | `cron-registry` | server.py 從 cron_registry.py import cron 任務註冊（v1.50 拆分） |
-| `telegram-pump` | `response-guard` | telegram_pump.py 發送前呼叫 ResponseGuard.sanitize_for_group() + chat_id 交叉驗證 |
+| `telegram-pump` | `response-guard` | telegram_pump.py 所有發送路徑統一走 adapter._safe_send() → ResponseGuard.sanitize_for_group()（v1.82 消除 9 處直送）+ chat_id 交叉驗證 |
 | `telegram-pump` | `governance` | telegram_pump.py lazy import: group_context, multi_tenant, rate_limiter |
 | `telegram-pump` | `interaction-queue` | telegram_pump.py lazy import: interaction queue |
 | `telegram-pump` | `message-queue-store` | telegram_pump.py lazy import: enqueue/mark_done/mark_failed/recover_pending（v1.51 訊息持久化） |
