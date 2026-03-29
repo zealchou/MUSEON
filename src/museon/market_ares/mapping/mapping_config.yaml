@@ -1,0 +1,202 @@
+# Market Ares — 數據→能量映射規則 v0.1
+# 每個方位的外在指標和內在指標，以及它們的權重和方向
+
+天:
+  label: "目標、引領、行為破框"
+  outer_indicators:
+    - name: startup_density       # 新創公司密度（每萬人）
+      source: "經濟部統計"
+      weight: 0.25
+      direction: positive
+    - name: outdoor_venue_density  # 極限運動/戶外活動場所密度
+      source: "Google Maps Places API"
+      weight: 0.20
+      direction: positive
+    - name: political_participation # 選舉投票率
+      source: "中選會"
+      weight: 0.15
+      direction: positive
+  inner_indicators:
+    - name: volunteer_org_density  # 志工組織數（每萬人）
+      source: "衛福部統計"
+      weight: 0.20
+      direction: positive
+    - name: community_group_count  # 社團登記數（每萬人）
+      source: "內政部統計"
+      weight: 0.20
+      direction: positive
+
+風:
+  label: "適應、溝通、成交"
+  outer_indicators:
+    - name: sales_job_ratio        # 業務職占比
+      source: "勞動部統計"
+      weight: 0.20
+      direction: positive
+    - name: partnership_ratio      # 合夥企業比例
+      source: "經濟部商業司"
+      weight: 0.20
+      direction: positive
+    - name: business_survival_rate # 企業五年存活率
+      source: "經濟部統計"
+      weight: 0.20
+      direction: positive
+  inner_indicators:
+    - name: marriage_rate          # 結婚率
+      source: "戶政統計"
+      weight: 0.20
+      direction: positive
+    - name: mediation_success_rate # 調解成功率
+      source: "司法院統計"
+      weight: 0.20
+      direction: positive
+
+水:
+  label: "關係、照顧、連結"
+  outer_indicators:
+    - name: household_size         # 戶均人口數
+      source: "戶政統計"
+      weight: 0.20
+      direction: positive
+    - name: divorce_rate           # 離婚率
+      source: "戶政統計"
+      weight: 0.25
+      direction: negative         # 反向：離婚率高=水能量低
+    - name: birth_rate             # 生育率
+      source: "戶政統計"
+      weight: 0.15
+      direction: positive
+  inner_indicators:
+    - name: care_facility_density  # 社區照護機構密度
+      source: "衛福部統計"
+      weight: 0.20
+      direction: positive
+    - name: longterm_care_density  # 長照設施密度
+      source: "衛福部統計"
+      weight: 0.20
+      direction: positive
+
+山:
+  label: "累積、復盤、紀律"
+  outer_indicators:
+    - name: gym_density            # 健身房密度
+      source: "Google Maps Places API"
+      weight: 0.20
+      direction: positive
+    - name: fine_dining_density    # 高檔餐廳密度
+      source: "Google Maps Places API"
+      weight: 0.15
+      direction: positive
+    - name: religious_venue_density # 宗教場所密度
+      source: "Google Maps Places API"
+      weight: 0.15
+      direction: positive
+  inner_indicators:
+    - name: savings_rate           # 儲蓄率
+      source: "主計處"
+      weight: 0.25
+      direction: positive
+    - name: insurance_penetration  # 保險投保率
+      source: "保險事業發展中心"
+      weight: 0.25
+      direction: positive
+
+地:
+  label: "穩定、承載、資產運用"
+  outer_indicators:
+    - name: household_income       # 戶均所得
+      source: "財政部/主計處"
+      weight: 0.25
+      direction: positive
+    - name: home_ownership_rate    # 房屋自有率
+      source: "內政部統計"
+      weight: 0.20
+      direction: positive
+    - name: franchise_density      # 連鎖加盟店密度
+      source: "經濟部統計"
+      weight: 0.10
+      direction: positive
+  inner_indicators:
+    - name: population_density     # 人口密度
+      source: "戶政統計"
+      weight: -0.15               # 過高密度+低收入=地能量低
+      direction: contextual       # 需結合收入判斷
+    - name: passive_income_ratio   # 被動收入比例（估算）
+      source: "財政部稅務統計"
+      weight: 0.30
+      direction: positive
+
+雷:
+  label: "覺察、認知破框、內在探索"
+  outer_indicators:
+    - name: wellness_course_density # 身心靈課程/工作坊密度
+      source: "Google Maps + 爬蟲"
+      weight: 0.20
+      direction: positive
+    - name: art_event_count        # 藝文展演活動數
+      source: "文化部統計"
+      weight: 0.20
+      direction: positive
+    - name: subculture_density     # 次文化社群（刺青、獨立書店等）
+      source: "Google Maps Places API"
+      weight: 0.15
+      direction: positive
+  inner_indicators:
+    - name: meditation_search_trend # 冥想相關搜尋趨勢
+      source: "Google Trends"
+      weight: 0.20
+      direction: positive
+    - name: counseling_density     # 心理諮商所密度
+      source: "衛福部統計"
+      weight: 0.25
+      direction: positive
+
+火:
+  label: "展現、趨勢觀察、個人投入"
+  outer_indicators:
+    - name: exhibition_attendance  # 展覽/講座參與率
+      source: "文化部統計"
+      weight: 0.20
+      direction: positive
+    - name: training_enrollment    # 進修課程報名率
+      source: "勞動部統計"
+      weight: 0.25
+      direction: positive
+  inner_indicators:
+    - name: subscription_usage     # 訂閱制服務使用率
+      source: "產業報告估算"
+      weight: 0.25
+      direction: positive
+    - name: research_firm_density  # 市調/顧問公司密度
+      source: "經濟部商業司"
+      weight: 0.30
+      direction: positive
+
+澤:
+  label: "點燃、社群、品牌、感染"
+  outer_indicators:
+    - name: cafe_density           # 咖啡廳密度
+      source: "Google Maps Places API"
+      weight: 0.15
+      direction: positive
+    - name: mall_density           # 百貨/商圈密度
+      source: "Google Maps Places API"
+      weight: 0.15
+      direction: positive
+    - name: creator_ratio          # 自媒體創作者比例
+      source: "社群平台 API 估算"
+      weight: 0.20
+      direction: positive
+  inner_indicators:
+    - name: social_interaction_rate # 社群互動率
+      source: "社群平台 API"
+      weight: 0.25
+      direction: positive
+    - name: kol_density            # KOL/網紅密度
+      source: "社群分析平台"
+      weight: 0.15
+      direction: positive
+    - name: brand_store_density    # 品牌店家密度
+      source: "Google Maps Places API"
+      weight: 0.10
+      direction: positive
