@@ -566,15 +566,20 @@ class TelegramAdapter(ChannelAdapter):
         await self.message_queue.put(update)
 
     async def _handle_menu_command(self, update: Update, context: Any) -> None:
-        """Handle /menu — 顯示完整功能選單（InlineKeyboard）."""
+        """Handle /menu — 顯示功能選單（私訊完整版/群組精簡版）."""
         if update.message:
+            is_group = update.message.chat.type in ("group", "supergroup")
             try:
                 from museon.channels.telegram_menu import send_full_menu
-                await send_full_menu(self.application.bot, update.message.chat_id)
+                await send_full_menu(self.application.bot, update.message.chat_id, is_group=is_group)
             except Exception as e:
                 logger.warning(f"[TG] Full menu failed: {e}")
-                from museon.channels.menu_config import FULL_MENU_TEXT
-                await update.message.reply_text(FULL_MENU_TEXT)
+                if is_group:
+                    from museon.channels.menu_config import GROUP_INLINE_MENU_TEXT
+                    await update.message.reply_text(GROUP_INLINE_MENU_TEXT)
+                else:
+                    from museon.channels.menu_config import FULL_MENU_TEXT
+                    await update.message.reply_text(FULL_MENU_TEXT)
 
     async def _handle_menu_callback(self, update: Update, context: Any) -> None:
         """Handle menu inline keyboard callbacks."""

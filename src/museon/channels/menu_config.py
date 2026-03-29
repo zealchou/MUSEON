@@ -115,6 +115,36 @@ BOT_COMMANDS: list[tuple[str, str]] = [
     ("menu", "📋 功能選單"),
 ]
 
+# 群組專用指令清單（精簡版，只放群組最常用的）
+GROUP_COMMANDS: list[tuple[str, str]] = [
+    ("menu", "📋 功能選單"),
+    ("ares", "🎯 人物分析＋策略建議"),
+    ("meeting", "📝 整理群組對話→會議記錄"),
+    ("strategy", "⚔️ 戰略分析"),
+    ("market", "📊 市場分析"),
+    ("business", "💡 商模診斷"),
+    ("xmodel", "💡 破框解方"),
+    ("help", "❓ 使用說明"),
+]
+
+# 群組 InlineKeyboard（比私訊版精簡）
+GROUP_INLINE_MENU_TEXT = """📋 **MUSEON 群組功能**
+
+🎯 **策略**
+/ares — 人物分析＋策略建議
+/strategy — 戰略推演
+
+📝 **紀錄**
+/meeting — 整理對話→會議記錄
+
+💼 **商業**
+/market — 市場分析
+/business — 商模診斷
+/xmodel — 破框解方
+
+💡 直接 @我 加上你的問題，我就會回應！
+"""
+
 # 完整功能清單（/menu 展開用）
 FULL_MENU_TEXT = """📋 **MUSEON 完整功能選單**
 

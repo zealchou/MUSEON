@@ -18,14 +18,23 @@ logger = logging.getLogger(__name__)
 
 
 async def register_bot_commands(bot: Any) -> None:
-    """方案 1：註冊 Bot Commands（使用者輸入 / 時顯示）."""
-    try:
-        from telegram import BotCommand
-        from museon.channels.menu_config import BOT_COMMANDS
+    """方案 1：註冊 Bot Commands（使用者輸入 / 時顯示）.
 
+    分兩組：私訊用完整清單，群組用精簡清單。
+    """
+    try:
+        from telegram import BotCommand, BotCommandScopeAllPrivateChats, BotCommandScopeAllGroupChats
+        from museon.channels.menu_config import BOT_COMMANDS, GROUP_COMMANDS
+
+        # 私訊：完整清單
         commands = [BotCommand(cmd, desc) for cmd, desc in BOT_COMMANDS]
-        await bot.set_my_commands(commands)
-        logger.info(f"[MENU] Registered {len(commands)} bot commands")
+        await bot.set_my_commands(commands, scope=BotCommandScopeAllPrivateChats())
+
+        # 群組：精簡清單（最常用的 + 群組專屬）
+        group_cmds = [BotCommand(cmd, desc) for cmd, desc in GROUP_COMMANDS]
+        await bot.set_my_commands(group_cmds, scope=BotCommandScopeAllGroupChats())
+
+        logger.info(f"[MENU] Registered commands: DM={len(commands)}, Group={len(group_cmds)}")
     except Exception as e:
         logger.warning(f"[MENU] Failed to register bot commands: {e}")
 
@@ -164,18 +173,57 @@ async def send_welcome_with_keyboard(
         await bot.send_message(chat_id=chat_id, text=welcome)
 
 
-async def send_full_menu(bot: Any, chat_id: int) -> None:
-    """發送完整功能選單（/menu 觸發）."""
-    from museon.channels.menu_config import FULL_MENU_TEXT
-    inline_menu = build_inline_menu()
+async def send_full_menu(bot: Any, chat_id: int, is_group: bool = False) -> None:
+    """發送功能選單（/menu 觸發）.
+
+    群組用精簡版（避免洗版），私訊用完整版。
+    """
+    if is_group:
+        from museon.channels.menu_config import GROUP_INLINE_MENU_TEXT
+        inline_menu = build_group_inline_menu()
+        text = GROUP_INLINE_MENU_TEXT
+    else:
+        from museon.channels.menu_config import FULL_MENU_TEXT
+        inline_menu = build_inline_menu()
+        text = FULL_MENU_TEXT
+
     try:
         await bot.send_message(
             chat_id=chat_id,
-            text=FULL_MENU_TEXT,
+            text=text,
             parse_mode="Markdown",
             reply_markup=inline_menu,
         )
     except Exception as e:
         logger.warning(f"[MENU] Full menu failed: {e}")
-        # 降級：純文字
-        await bot.send_message(chat_id=chat_id, text=FULL_MENU_TEXT)
+        await bot.send_message(chat_id=chat_id, text=text)
+
+
+def build_group_inline_menu() -> Any:
+    """群組專用 InlineKeyboard（精簡版）."""
+    try:
+        from telegram import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
+        from museon.channels.menu_config import MINI_APP_NAV_URL
+
+        keyboard = [
+            [
+                InlineKeyboardButton("🎯 戰神系統", callback_data="menu_cmd:/ares"),
+                InlineKeyboardButton("📝 會議記錄", callback_data="menu_cmd:/meeting"),
+                InlineKeyboardButton("⚔️ 戰略分析", callback_data="menu_cmd:/strategy"),
+            ],
+            [
+                InlineKeyboardButton("📊 市場分析", callback_data="menu_cmd:/market"),
+                InlineKeyboardButton("💡 破框解方", callback_data="menu_cmd:/xmodel"),
+                InlineKeyboardButton("💼 商模診斷", callback_data="menu_cmd:/business"),
+            ],
+            [
+                InlineKeyboardButton(
+                    "🌐 開啟完整面板",
+                    web_app=WebAppInfo(url=MINI_APP_NAV_URL),
+                ),
+            ],
+        ]
+        return InlineKeyboardMarkup(keyboard)
+    except Exception as e:
+        logger.warning(f"[MENU] Group inline menu failed: {e}")
+        return None
