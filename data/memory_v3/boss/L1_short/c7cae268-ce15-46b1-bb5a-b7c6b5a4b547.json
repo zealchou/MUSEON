@@ -1,0 +1,14 @@
+{
+  "id": "c7cae268-ce15-46b1-bb5a-b7c6b5a4b547",
+  "key": "darwin_design_數據來源",
+  "content": "DARWIN 真實數據來源（已驗證）：內政部戶政司 API（人口密度/出生死亡結婚離婚/戶數結構/婚姻狀況，BASE=https://www.ris.gov.tw/rs-opendata/api/v1/datastore）、財政部 CSV（所得中位數 by 村里）、台北市 YouBike API。全台 370 鄉鎮市區數據已抓取存入 data/darwin/raw_data/。每次系統啟動要檢查數據是否需更新。",
+  "tags": [
+    "darwin",
+    "數據",
+    "API",
+    "政府"
+  ],
+  "created_at": "2026-03-30T05:15:24.209578+08:00",
+  "source": "claude_code_session_20260330",
+  "level": "L1_short"
+}

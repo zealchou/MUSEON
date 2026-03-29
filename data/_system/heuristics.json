@@ -12,5 +12,47 @@
     "action": "step back — is the classification layer itself the problem?",
     "source": "session_20260326",
     "weight": 2.0
+  },
+  {
+    "id": "h-darwin-pioneer-def",
+    "pattern": "classifying pioneers/early adopters in market simulation",
+    "action": "pioneers = 火高+澤高 (attracted to novelty + willing to rally people), NOT 天高+雷高. This is One Muse's unique insight, not Rogers' original theory.",
+    "source": "session_20260330_darwin",
+    "weight": 3.0
+  },
+  {
+    "id": "h-darwin-tam-layers",
+    "pattern": "calculating target market size for B2B products",
+    "action": "TAM = population × 2.5% (entrepreneurs) → SAM = TAM × 13.5% (pioneers) × need_ratio → SOM = SAM × budget_fit. Never use total city population as TAM for B2B.",
+    "source": "session_20260330_darwin",
+    "weight": 3.0
+  },
+  {
+    "id": "h-darwin-two-layer-market",
+    "pattern": "simulating a B2B product's market adoption",
+    "action": "distinguish TWO layers: (1) who buys YOUR product = entrepreneurs/pioneers (2) who your CUSTOMER simulates with your product = general consumers. Never confuse the two.",
+    "source": "session_20260330_darwin",
+    "weight": 3.0
+  },
+  {
+    "id": "h-darwin-data-first",
+    "pattern": "building simulation with placeholder/hardcoded data",
+    "action": "STOP. Fetch real data from government APIs FIRST. Hardcoded fake data wastes all parameter tuning effort. The data is the foundation — bad data = bad simulation regardless of algorithm.",
+    "source": "session_20260330_darwin",
+    "weight": 3.0
+  },
+  {
+    "id": "h-darwin-dse-before-algo",
+    "pattern": "choosing simulation algorithm without researching existing models",
+    "action": "DSE first: check academic literature for established models. Bass diffusion (1969, 57 years of validation) exists for product adoption — don't reinvent with SIR disease model.",
+    "source": "session_20260330_darwin",
+    "weight": 2.5
+  },
+  {
+    "id": "h-darwin-data-judgment",
+    "pattern": "running simulation without verifying archetype role classification",
+    "action": "before running: manually inspect each archetype's energy profile and confirm the role (pioneer/follower/resistant) makes sense for real humans. Data→Judgment→Classification→Simulation. Judgment wrong = everything wrong.",
+    "source": "session_20260330_darwin",
+    "weight": 3.0
   }
 ]

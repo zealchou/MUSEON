@@ -1,0 +1,14 @@
+{
+  "id": "82dab325-4bbd-4605-a42f-70ba49044ea1",
+  "key": "darwin_design_Bass模型",
+  "content": "DARWIN 模擬引擎選用 Bass 擴散模型（1969, 57 年驗證），替換原本的 SIR 傳染病模型。Bass 專為產品採用設計，有天然 S 曲線和 TAM 天花板。p=創新係數（火/天能量驅動），q=模仿係數（澤/水能量驅動）。鴻溝建模：山高+地高的保守者在 15-20% 採用率時有額外阻力。",
+  "tags": [
+    "darwin",
+    "Bass",
+    "模擬",
+    "演算法"
+  ],
+  "created_at": "2026-03-30T05:15:24.209578+08:00",
+  "source": "claude_code_session_20260330",
+  "level": "L1_short"
+}

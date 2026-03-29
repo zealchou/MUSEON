@@ -23,7 +23,7 @@ connects_to:
 description: >
   外掛模組註冊表（Plugin Registry）v2.4 — DNA27 核心的參考文件，
   管理所有 MUSEON 外掛模組的註冊資訊、迴圈允許規則、RC 親和對照、協作矩陣與共存規則。
-  已註冊外掛：59 個（含 10 常駐 + 42 按需 + 1 參考 + 6 工作流），分佈於 9 個 Hub。
+  已註冊外掛：60 個（含 10 常駐 + 42 按需 + 1 參考 + 6 工作流），分佈於 9 個 Hub。
   此文件為 dna27/references 底下的治理參考文件，非獨立 Skill，不可被單獨觸發。
   觸發時機：DNA27 路由、orchestrator 編排、morphenix 迭代時自動參照。
   指令觸發：無獨立指令。透過 /orchestrate、/morphenix fitness、/morphenix status 間接使用。

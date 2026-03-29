@@ -283,6 +283,7 @@ MUSEON 回覆: {museon_reply}
 | /sentiment | sentiment-radar | 市場情緒雷達 |
 | /athena, /athena-person | athena | ATHENA 智慧戰略情報 |
 | /anima, /profile | anima-individual | 人物建檔/查詢 |
+| /onemuse, /om | onemuse-core | One Muse 核心知識 |
 | /reading, /energy | energy-reading | 能量解讀 |
 | /wan-miu, /persona-16 | wan-miu-16 | 萬謬16型人格 |
 | /combined, /match | combined-reading | 合盤比對 |
