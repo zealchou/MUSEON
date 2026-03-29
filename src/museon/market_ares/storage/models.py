@@ -58,6 +58,8 @@ class Archetype:
     awareness_state: str = "unaware"
     current_inner: Optional[EnergyVector] = None
     current_outer: Optional[EnergyVector] = None
+    exposure_count: int = 0  # 累積曝光次數（每週接觸+1）
+    accumulated_pressure: float = 0.0  # 累積社會壓力
 
     def __post_init__(self):
         if self.current_inner is None:
