@@ -1462,7 +1462,7 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
                         adapter = app.state.telegram_adapter if app else None
                         if adapter and hasattr(adapter, "application"):
                             _owner_id = int(adapter.trusted_user_ids[0])
-                            await adapter.application.bot.send_message(
+                            await adapter._safe_send(
                                 chat_id=_owner_id,
                                 text=alert["message"],
                             )

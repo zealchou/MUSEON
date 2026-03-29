@@ -1,10 +1,11 @@
-# Blast Radius — 模組影響半徑表 v1.80
+# Blast Radius — 模組影響半徑表 v1.82
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節、`docs/operational-contract.md`（操作契約表）提供外部操作預期失敗
+> **v1.82 (2026-03-29)**：統一發送出口防漏修復——ResponseGuard.sanitize_for_group() 取消群組/私訊分流，所有通道統一過濾全部 18 組 _INTERNAL_PATTERNS（修復 Bug1 群組術語洩漏 + Bug2 私訊自言自語的共同根因）；telegram_pump.py 消除 9 處 bot.send_message() 直送改走 adapter._safe_send()（Phase 0/1/2/3 + SLA interim + Escalation）；cron_registry.py Ares alert 改走 _safe_send()；telegram_menu.py 2 個函數加 ResponseGuard sanitize；update_processing_status() 加 sanitize；response_guard 扇入 2→3（新增 telegram_menu.py）。同步 system-topology v1.63。
 > **v1.80 (2026-03-29)**：戰神系統（Ares）——新增 2 個 Skill 到綠區：`anima-individual`（ANIMA 個體追蹤引擎，扇入=1 from ares，扇出=8：wan-miu-16/energy-reading/combined-reading/shadow/master-strategy/xmodel/knowledge-lattice/user-model）、`ares`（戰神系統工作流，扇入=0，扇出=14：anima-individual/wan-miu-16/energy-reading/combined-reading/master-strategy/shadow/xmodel/pdeif/roundtable/business-12/ssa-consultant/knowledge-lattice/user-model/c15）。新增 Python 模組 `src/museon/ares/`（profile_store.py/graph_renderer.py/external_bridge.py）；新增儲存路徑 `data/ares/profiles/`。同步 system-topology v1.62、joint-map v1.52、memory-router v1.13、persistence-contract v1.40。
 > **v1.79 (2026-03-29)**：OneMuse 能量解讀技能群——新增 3 個 Skill 到綠區：`energy-reading`（八方位能量解讀，扇入=0，扇出=4：dharma/resonance/knowledge-lattice/user-model）、`wan-miu-16`（萬謬16型人格，扇入=0，扇出=3：energy-reading/knowledge-lattice/user-model）、`combined-reading`（合盤能量比對，扇入=0，扇出=4：energy-reading/wan-miu-16/knowledge-lattice/user-model）。唯讀參考 `data/knowledge/onemuse/`（36 檔）。同步 system-topology v1.61、joint-map v1.51、memory-router v1.12、persistence-contract v1.39。
 > **v1.78 (2026-03-28)**：新增 `doctor/musedoctor.py`（MuseDoctor 第六虎將，持續巡邏員，綠區扇入=0，扇出=2：topology_report.json 讀取 + nightly_pipeline.py 讀取）；`gateway/cron_registry.py` 新增 `musedoctor-patrol` job（每 8 分鐘）；新增共享狀態 `data/_system/doctor/patrol_state.json`（單一寫入者 musedoctor.py）。
@@ -689,7 +690,7 @@
 `pulse/push_budget.py`（★ v1.54 新增，扇入=1（server.py），PushBudget 全局推送預算管理器）
 
 ### Governance 層（2 個）
-`governance/response_guard.py`（★ v1.60 新增，扇入=2（telegram_pump.py + channels/telegram.py CLAUDE.md L2 prompt），ResponseGuard 發送前 chat_id 二次驗證閘門；三方法統一 _normalize_id(abs()) 正規化：validate() 靜態驗證 + allow_send() 實例驗證 + validate_escalation() escalation 專用；sanitize_for_group() 內容黑名單清理——v1.65 收窄【】pattern 避免誤殺合法中文；v1.68 新增 [empty] 佔位符 + Skill 路由鏈（emoji→arrow）過濾，且改為所有通道都過濾這兩類 pattern（不只群組））
+`governance/response_guard.py`（★ v1.60 新增，扇入=3（telegram_pump.py + channels/telegram.py + channels/telegram_menu.py），ResponseGuard 發送前 chat_id 二次驗證閘門；三方法統一 _normalize_id(abs()) 正規化：validate() 靜態驗證 + allow_send() 實例驗證 + validate_escalation() escalation 專用；sanitize_for_group() 內容黑名單清理——v1.65 收窄【】pattern 避免誤殺合法中文；v1.68 新增 [empty] 佔位符 + Skill 路由鏈（emoji→arrow）過濾；**v1.82 取消群組/私訊分流，所有通道統一過濾全部 18 組 _INTERNAL_PATTERNS**；telegram_pump.py 9 處直送改走 _safe_send()、cron_registry.py Ares alert 改走 _safe_send()、telegram_menu.py 加 sanitize、update_processing_status 加 sanitize）
 （注：`governance/cognitive_receipt.py` 已於 v1.77 刪除）
 
 ### Doctor 層（2 個）
@@ -705,7 +706,7 @@
 
 `gateway/routes_api.py`（★ v1.64 從 server.py 拆出，扇入=1（server.py），689 行；SkillHub + External Integration API 端點註冊，含 `/api/market/*`、`/api/image/*`、`/api/voice/*` 等 Phase 3-5 端點），
 `gateway/cron_registry.py`（★ v1.64 從 server.py 拆出，扇入=1（server.py），1424 行；系統 cron 任務註冊，含五虎將 + Nightly + 41 項排程），
-`gateway/telegram_pump.py`（★ v1.64 從 server.py 拆出，扇入=1（server.py），754 行；Telegram 訊息泵核心邏輯——收訊→Brain 處理→ResponseGuard.validate() 驗證→發送；v1.65 移除手寫 chat_id 比對改用 ResponseGuard.validate()；lazy import 8 個模組：response_guard, rate_limiter, group_context, multi_tenant, authorization, interaction, session, message）
+`gateway/telegram_pump.py`（★ v1.64 從 server.py 拆出，扇入=1（server.py），754 行；Telegram 訊息泵核心邏輯——收訊→Brain 處理→ResponseGuard.validate() 驗證→發送；v1.65 移除手寫 chat_id 比對改用 ResponseGuard.validate()；**v1.82 消除全部 9 處 bot.send_message() 直送，統一改走 adapter._safe_send() 確保 ResponseGuard 覆蓋所有出口**（Phase 0/1/2/3 + SLA interim + Escalation）；lazy import 8 個模組：response_guard, rate_limiter, group_context, multi_tenant, authorization, interaction, session, message）
 
 ### LLM 層
 `llm/` 下大部分模組

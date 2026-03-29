@@ -164,6 +164,10 @@ class TelegramAdapter(ChannelAdapter):
             )
         )
 
+        # Catch-all：未被上方 CommandHandler 攔截的 /指令（如 /strategy、/dse 等 Skill 指令）
+        # 必須放在所有 CommandHandler 之後，讓 Brain 處理
+        self.application.add_handler(MessageHandler(filters.COMMAND, self._handle_message))
+
         # Start polling
         await self.application.initialize()
         await self.application.start()
@@ -1197,6 +1201,12 @@ class TelegramAdapter(ChannelAdapter):
         try:
             if not self.application:
                 return False
+            # 統一過 ResponseGuard sanitize
+            try:
+                from museon.governance.response_guard import ResponseGuard
+                text = ResponseGuard.sanitize_for_group(text, is_group=(int(chat_id) < 0))
+            except Exception:
+                pass
             await self.application.bot.edit_message_text(
                 chat_id=chat_id, message_id=message_id, text=text
             )

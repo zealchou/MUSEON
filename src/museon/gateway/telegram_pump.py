@@ -144,7 +144,7 @@ async def _progress_updater(
                     f"如需中斷，請傳送「停止」或「暫停」。",
                 )
                 try:
-                    await adapter.application.bot.send_message(
+                    await adapter._safe_send(
                         chat_id=chat_id,
                         text=f"⏰ 目前的任務已運行超過 15 分鐘，仍在持續處理中。\n"
                              f"傳送「停止」可中斷當前任務。",
@@ -264,7 +264,7 @@ async def _brain_process_with_sla(
         sla_notified = True
         if chat_id:
             try:
-                await adapter.application.bot.send_message(
+                await adapter._safe_send(
                     chat_id=chat_id,
                     text="這個問題需要多想一下，馬上回覆你 🧠",
                 )
@@ -491,7 +491,7 @@ async def _handle_telegram_message(adapter, message) -> None:
                                             # ⛔ ResponseGuard：驗證 escalation 的 group_id
                                             from museon.governance.response_guard import ResponseGuard
                                             if ResponseGuard.validate_escalation(eid, _gid, _gid, f"escalation_approve asker={_asker}"):
-                                                await adapter.application.bot.send_message(
+                                                await adapter._safe_send(
                                                     chat_id=_gid, text=_reply
                                                 )
                                                 logger.info(f"Group escalation reply sent to {_gid} for {_asker} (eid={eid})")
@@ -515,7 +515,7 @@ async def _handle_telegram_message(adapter, message) -> None:
                                         try:
                                             from museon.governance.response_guard import ResponseGuard
                                             if ResponseGuard.validate_escalation(eid, _gid, _gid, f"escalation_deny asker={_asker}"):
-                                                await adapter.application.bot.send_message(
+                                                await adapter._safe_send(
                                                     chat_id=_gid,
                                                     text="這個問題目前不方便回答，抱歉。有其他需要歡迎繼續詢問。",
                                                 )
@@ -956,7 +956,7 @@ async def _handle_telegram_message(adapter, message) -> None:
                         # Edit 前 4096 字，剩餘用 send 追加
                         await adapter.update_processing_status(chat_id, status_msg_id, _clean[:4096])
                         for chunk_start in range(4096, len(_clean), 4096):
-                            await adapter.application.bot.send_message(
+                            await adapter._safe_send(
                                 chat_id=chat_id, text=_clean[chunk_start:chunk_start + 4096]
                             )
                         success = True
@@ -1019,14 +1019,14 @@ async def _handle_telegram_message(adapter, message) -> None:
                                     if _phase0_used and not status_msg_id:
                                         # Phase 0 edit 過，找最新 msg 追加
                                         pass  # edit 需要原 msg_id，暫時用 send
-                                    await adapter.application.bot.send_message(
+                                    await adapter._safe_send(
                                         chat_id=_reply_cid, text=_supp[:4096]
                                     )
                                 except Exception as _edit2_err:
                                     logger.debug(f"[{_tid}] Phase 2 EDIT failed: {_edit2_err}")
 
                             elif verdict.verdict == "APPEND" and verdict.supplement and _reply_cid:
-                                await adapter.application.bot.send_message(
+                                await adapter._safe_send(
                                     chat_id=_reply_cid, text=verdict.supplement[:4096]
                                 )
 
@@ -1048,7 +1048,7 @@ async def _handle_telegram_message(adapter, message) -> None:
                                             )
                                             _act_text = _act_result.text if isinstance(_act_result, BrainResponse) else str(_act_result or "")
                                             if _act_text and _act_text.strip() and _reply_cid:
-                                                await adapter.application.bot.send_message(
+                                                await adapter._safe_send(
                                                     chat_id=_reply_cid,
                                                     text=f"💡 {_act_text[:4096]}"
                                                 )
@@ -1066,7 +1066,7 @@ async def _handle_telegram_message(adapter, message) -> None:
                                         session_id=message.session_id,
                                     )
                                     if _deep and _reply_cid:
-                                        await adapter.application.bot.send_message(
+                                        await adapter._safe_send(
                                             chat_id=_reply_cid,
                                             text=f"🔬 深度分析：\n\n{_deep[:4096]}",
                                         )
