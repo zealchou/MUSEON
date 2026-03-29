@@ -106,11 +106,14 @@ def compute_social_pressure(
 
 
 def advance_state(archetype: Archetype, pressure: float, resistance_threshold: float = 0.3) -> str:
-    """根據壓力值決定是否推進到下一個狀態
+    """根據累積壓力決定是否推進到下一個狀態
+
+    累積曝光機制：每週的壓力會累積，不是獨立判斷。
+    接觸越多次，轉化的機率越高。
 
     Args:
         archetype: 原型
-        pressure: 社會壓力值
+        pressure: 本週社會壓力值
         resistance_threshold: 觸發抗拒的地能量閾值
 
     Returns:
@@ -121,26 +124,35 @@ def advance_state(archetype: Archetype, pressure: float, resistance_threshold: f
     if current in _TERMINAL_STATES:
         return current
 
+    # 累積壓力（每週衰減 10%，但持續接觸會疊加）
+    archetype.accumulated_pressure = archetype.accumulated_pressure * 0.9 + pressure
+    archetype.exposure_count += 1
+
+    # 曝光加成：接觸越多次，閾值實際上越低
+    exposure_bonus = min(0.15, archetype.exposure_count * 0.005)
+
     # 地能量極低的人更容易轉為 resistant（匱乏感導致排斥）
     earth_inner = getattr(archetype.current_inner, "地", 0.0)
     if earth_inner < -2.0 and current in ("aware", "considering"):
-        if pressure < 0.1:  # 壓力不夠大時，匱乏感觸發抗拒
+        if archetype.accumulated_pressure < 0.05:
             return "resistant"
 
-    # 壓力判定
+    # 有效壓力 = 累積壓力 + 曝光加成
+    effective_pressure = archetype.accumulated_pressure + exposure_bonus
+
     idx = _STATE_ORDER.index(current) if current in _STATE_ORDER else 0
 
-    # 每往前一步需要的壓力越大
+    # 每往前一步需要的累積壓力越大
     thresholds = {
-        "unaware": 0.03,      # 很容易被注意到
-        "aware": 0.08,        # 有一定接觸就會開始考慮
-        "considering": 0.18,  # 需要較大壓力才會決策
-        "decided": 0.35,      # 需要持續正向體驗才會忠誠
+        "unaware": 0.03,
+        "aware": 0.12,
+        "considering": 0.25,
+        "decided": 0.45,
     }
 
     threshold = thresholds.get(current, 0.5)
 
-    if pressure >= threshold and idx < len(_STATE_ORDER) - 1:
+    if effective_pressure >= threshold and idx < len(_STATE_ORDER) - 1:
         return _STATE_ORDER[idx + 1]
 
     return current
