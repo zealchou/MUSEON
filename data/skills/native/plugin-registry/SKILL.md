@@ -23,7 +23,7 @@ connects_to:
 description: >
   外掛模組註冊表（Plugin Registry）v2.4 — DNA27 核心的參考文件，
   管理所有 MUSEON 外掛模組的註冊資訊、迴圈允許規則、RC 親和對照、協作矩陣與共存規則。
-  已註冊外掛：58 個（含 10 常駐 + 42 按需 + 1 參考 + 5 工作流），分佈於 9 個 Hub。
+  已註冊外掛：59 個（含 10 常駐 + 42 按需 + 1 參考 + 6 工作流），分佈於 9 個 Hub。
   此文件為 dna27/references 底下的治理參考文件，非獨立 Skill，不可被單獨觸發。
   觸發時機：DNA27 路由、orchestrator 編排、morphenix 迭代時自動參照。
   指令觸發：無獨立指令。透過 /orchestrate、/morphenix fitness、/morphenix status 間接使用。
@@ -36,7 +36,7 @@ description: >
 # 外掛模組註冊表（Plugin Registry）v2.4
 
 > **上次更新**：2026-03-21
-> **已註冊外掛**：58 個（含 4 常駐 + 47 按需 + 1 參考 + 6 工作流），分佈於 9 個 Hub
+> **已註冊外掛**：59 個（含 4 常駐 + 47 按需 + 1 參考 + 7 工作流），分佈於 9 個 Hub
 > **治理文件**：`docs/skill-routing-governance.md`（Hub 路由 + Workflow Stage 規格）
 > **Manifest 規格**：`docs/skill-manifest-spec.md` v1.1（含 `hub` + `stages` 欄位）
 
@@ -77,14 +77,15 @@ DNA27（核心 OS）
 │   ├── anima-individual     （ANIMA 個體追蹤引擎）    ← NEW
 │   └── ares                 （戰神系統工作流）         ← NEW
 │
-├─ [Market Hub]（7）— 市場分析、風險、情緒
+├─ [Market Hub]（8）— 市場分析、風險、情緒、模擬
 │   ├── market-core          （市場分析核心引擎）
 │   ├── market-equity        （股票市場分析衛星）
 │   ├── market-crypto        （加密貨幣分析衛星）
 │   ├── market-macro         （總體經濟分析衛星）
 │   ├── investment-masters   （投資軍師團）
 │   ├── risk-matrix          （風險管理與資產配置引擎）
-│   └── sentiment-radar      （市場情緒雷達）
+│   ├── sentiment-radar      （市場情緒雷達）
+│   └── market-ares          （市場戰神策略模擬引擎）    ← NEW
 │
 ├─ [Business Hub]（8）— 商模、戰略、銷售、溝通、品牌建構
 │   ├── business-12          （商模十二力診斷引擎）

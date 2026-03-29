@@ -254,6 +254,7 @@ MUSEON 回覆: {museon_reply}
 | /strategy | master-strategy | 戰略分析 |
 | /dse | dse | 深度研究驗證 |
 | /market | market-core | 市場分析 |
+| /market-ares, /simulate | market-ares | 市場戰神策略模擬 |
 | /crypto | market-crypto | 加密貨幣分析 |
 | /equity | market-equity | 股票分析 |
 | /macro | market-macro | 總經分析 |
