@@ -55,5 +55,5 @@ INSIGHT_MODEL = "claude-sonnet-4-6"
 REPORT_MODEL = "claude-opus-4-6"
 
 # ═══════════════════════ 事件判斷閾值 ═══════════════════════
-EVENT_THRESHOLD_ENERGY_DELTA = 0.3  # 能量變化超過此值才算「有事」
-EVENT_THRESHOLD_STATE_CHANGE_PCT = 0.05  # 原型狀態遷移超過 5% 才算「有事」
+EVENT_THRESHOLD_ENERGY_DELTA = 0.5  # 能量變化超過此值才算「有事」
+EVENT_THRESHOLD_STATE_CHANGE_PCT = 0.08  # 原型狀態遷移超過 8% 才算「有事」

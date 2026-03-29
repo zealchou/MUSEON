@@ -147,6 +147,41 @@ CITY_DATA: dict[str, dict[str, float]] = {
         "brand_store_density": 7.0,
     },
 
+    "台北市+新北市": {
+        # 台北+新北合併數據（人口約 670 萬，全台最大都會區）
+        # 混合信義區的高能量和板橋/三重/中和的中低能量
+        # 天
+        "startup_density": 7.5, "outdoor_venue_density": 1.8,
+        "political_participation": 0.70, "volunteer_org_density": 4.5,
+        "community_group_count": 10.0,
+        # 風
+        "sales_job_ratio": 0.10, "partnership_ratio": 0.18,
+        "business_survival_rate": 0.63, "marriage_rate": 4.2,
+        "mediation_success_rate": 0.58,
+        # 水
+        "household_size": 2.6, "divorce_rate": 2.6, "birth_rate": 5.2,
+        "care_facility_density": 1.2, "longterm_care_density": 0.7,
+        # 山
+        "gym_density": 3.8, "fine_dining_density": 2.0,
+        "religious_venue_density": 4.5, "savings_rate": 0.24,
+        "insurance_penetration": 0.86,
+        # 地（新北拉低平均，但整體仍高於全國）
+        "household_income": 1200000, "home_ownership_rate": 0.65,
+        "franchise_density": 6.0, "population_density": 7200,
+        "passive_income_ratio": 0.10,
+        # 雷
+        "wellness_course_density": 1.2, "art_event_count": 80,
+        "subculture_density": 0.8, "meditation_search_trend": 55,
+        "counseling_density": 1.5,
+        # 火
+        "exhibition_attendance": 0.20, "training_enrollment": 0.10,
+        "subscription_usage": 0.38, "research_firm_density": 0.40,
+        # 澤
+        "cafe_density": 7.0, "mall_density": 0.8, "creator_ratio": 0.008,
+        "social_interaction_rate": 0.38, "kol_density": 0.005,
+        "brand_store_density": 4.5,
+    },
+
     "高雄鳳山": {
         # 天
         "startup_density": 2.0, "outdoor_venue_density": 1.5,

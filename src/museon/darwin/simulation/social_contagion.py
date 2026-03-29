@@ -94,12 +94,15 @@ def compute_social_pressure(
 
     # 雷能量高的人自我驅動轉化（不需要從眾壓力）
     thunder_inner = getattr(archetype.current_inner, "雷", 0.0)
-    self_drive = max(0, thunder_inner) * 0.02
+    self_drive = max(0, thunder_inner) * 0.008
+
+    # 從眾壓力有上限（不能無限放大），且有 S 曲線效應
+    capped_neighbors = min(0.3, neighbors_ratio * 0.08)
 
     conversion_rate = (
         SOCIAL_CONTAGION_BASE_RATE
-        + self_drive  # 自我驅動
-        + neighbors_ratio * 0.15  # 從眾壓力
+        + self_drive
+        + capped_neighbors
     ) * wind * (1 - defense * 0.3)
 
     return min(1.0, max(0.0, conversion_rate))
@@ -124,35 +127,46 @@ def advance_state(archetype: Archetype, pressure: float, resistance_threshold: f
     if current in _TERMINAL_STATES:
         return current
 
-    # 累積壓力（每週衰減 10%，但持續接觸會疊加）
-    archetype.accumulated_pressure = archetype.accumulated_pressure * 0.9 + pressure
+    # 累積壓力（每週衰減 20%，持續接觸會疊加）
+    archetype.accumulated_pressure = archetype.accumulated_pressure * 0.8 + pressure
     archetype.exposure_count += 1
 
-    # 曝光加成：接觸越多次，閾值實際上越低
-    exposure_bonus = min(0.15, archetype.exposure_count * 0.005)
+    # 曝光加成（接觸 20 次以上才開始有感）
+    exposure_bonus = min(0.10, max(0, archetype.exposure_count - 8) * 0.003)
 
-    # 地能量極低的人更容易轉為 resistant（匱乏感導致排斥）
+    # 地能量低的人更容易轉為 resistant（$12,000 的匱乏抗拒）
     earth_inner = getattr(archetype.current_inner, "地", 0.0)
-    if earth_inner < -2.0 and current in ("aware", "considering"):
-        if archetype.accumulated_pressure < 0.05:
+    if earth_inner < -1.0 and current in ("aware", "considering"):
+        # 匱乏感越重，抗拒機率越高
+        resist_chance = abs(earth_inner) * 0.03
+        import random
+        if random.random() < resist_chance:
             return "resistant"
 
-    # 有效壓力 = 累積壓力 + 曝光加成
-    effective_pressure = archetype.accumulated_pressure + exposure_bonus
+    # 山能量高的人更保守，不容易從 considering → decided
+    mountain_inner = getattr(archetype.current_inner, "山", 0.0)
+    mountain_drag = max(0, mountain_inner) * 0.02
+
+    # 有效壓力 = 累積壓力 + 曝光加成 - 山能量拖累
+    effective_pressure = archetype.accumulated_pressure + exposure_bonus - mountain_drag
 
     idx = _STATE_ORDER.index(current) if current in _STATE_ORDER else 0
 
-    # 每往前一步需要的累積壓力越大
+    # 閾值（漸進式難度）+ 隨機性（不是確定性轉化）
     thresholds = {
-        "unaware": 0.03,
-        "aware": 0.12,
-        "considering": 0.25,
-        "decided": 0.45,
+        "unaware": 0.04,
+        "aware": 0.10,
+        "considering": 0.22,
+        "decided": 0.35,
     }
 
     threshold = thresholds.get(current, 0.5)
 
     if effective_pressure >= threshold and idx < len(_STATE_ORDER) - 1:
-        return _STATE_ORDER[idx + 1]
+        # 不是 100% 轉化——壓力越高轉化機率越高，但有上限
+        import random
+        convert_prob = min(0.6, (effective_pressure - threshold) / threshold)
+        if random.random() < convert_prob:
+            return _STATE_ORDER[idx + 1]
 
     return current
