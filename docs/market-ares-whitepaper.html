@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>市場戰神 Market Ares — 策略模擬引擎</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Outfit:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --ember: #C4502A;
+            --ember-light: #E0714D;
+            --ember-dark: #9A3A1C;
+            --teal: #2A7A6E;
+            --gold: #B8923A;
+            --ink: #12121A;
+            --slate: #5A5A6E;
+            --mist: #9898A8;
+            --border: #E2E0DA;
+            --parchment: #F7F5F0;
+            --snow: #FDFCFA;
+            --deep-ink: #0E0E16;
+            --surface: #16161F;
+            --success: #2D8A6E;
+            --warning: #C9943A;
+            --info: #2A6A8A;
+            --error: #C4402A;
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            background: var(--parchment);
+            color: var(--ink);
+            line-height: 1.75;
+            font-size: 16px;
+        }
+
+        /* ══════════ NAV ══════════ */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            background: rgba(14,14,22,0.95);
+            backdrop-filter: blur(12px);
+            padding: 12px 24px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        nav .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 20px; font-weight: 600; color: var(--snow);
+            letter-spacing: 1px;
+        }
+        nav .logo span { color: var(--ember); }
+        nav ul {
+            list-style: none; display: flex; gap: 24px;
+        }
+        nav ul li a {
+            color: #D0CEC8; text-decoration: none; font-size: 14px;
+            font-weight: 500; transition: color 200ms;
+        }
+        nav ul li a:hover { color: var(--ember-light); }
+
+        /* ══════════ HERO ══════════ */
+        .hero {
+            background: linear-gradient(160deg, var(--deep-ink) 0%, #1a1520 40%, #1c1418 100%);
+            color: var(--snow);
+            padding: 160px 24px 96px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(ellipse at 50% 30%, rgba(196,80,42,0.08) 0%, transparent 70%);
+        }
+        .hero-content { position: relative; z-index: 1; max-width: 820px; margin: 0 auto; }
+        .hero .badge {
+            display: inline-block;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+            text-transform: uppercase;
+            background: rgba(196,80,42,0.15); color: var(--ember-light);
+            padding: 4px 14px; border-radius: 100px;
+            margin-bottom: 24px;
+        }
+        .hero h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(40px, 6vw, 64px);
+            font-weight: 600; line-height: 1.1;
+            margin-bottom: 24px;
+        }
+        .hero h1 em {
+            font-style: italic; color: var(--ember-light);
+        }
+        .hero p {
+            font-size: 18px; line-height: 1.8; color: #B0AEA8;
+            max-width: 600px; margin: 0 auto 40px;
+        }
+        .hero-cta {
+            display: inline-block;
+            background: var(--ember); color: #fff;
+            padding: 14px 32px; border-radius: 6px;
+            font-size: 16px; font-weight: 600;
+            text-decoration: none;
+            transition: background 120ms, transform 120ms;
+        }
+        .hero-cta:hover { background: var(--ember-light); transform: translateY(-1px); }
+
+        /* ══════════ CONTAINER ══════════ */
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+        .narrow { max-width: 820px; margin: 0 auto; }
+
+        /* ══════════ SECTIONS ══════════ */
+        section { padding: 80px 0; }
+        section.alt { background: var(--snow); }
+
+        .section-label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+            text-transform: uppercase; color: var(--ember);
+            margin-bottom: 12px;
+        }
+        section h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(32px, 4vw, 44px);
+            font-weight: 600; line-height: 1.2;
+            margin-bottom: 16px;
+        }
+        section h3 {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            font-size: 22px; font-weight: 600; line-height: 1.3;
+            margin-bottom: 12px;
+        }
+        section p.lead {
+            font-size: 18px; line-height: 1.8; color: var(--slate);
+            margin-bottom: 40px;
+        }
+
+        /* ══════════ PROBLEM SECTION ══════════ */
+        .problem-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px; margin-top: 40px;
+        }
+        .problem-card {
+            background: var(--snow);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 32px;
+            transition: transform 200ms, box-shadow 200ms;
+        }
+        .problem-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(18,18,26,0.08);
+        }
+        .problem-card .icon {
+            font-size: 32px; margin-bottom: 16px;
+        }
+        .problem-card h3 { font-size: 20px; margin-bottom: 8px; }
+        .problem-card p { font-size: 15px; color: var(--slate); }
+
+        /* ══════════ HOW IT WORKS ══════════ */
+        .steps {
+            display: flex; flex-direction: column; gap: 0;
+            margin-top: 48px; position: relative;
+        }
+        .steps::before {
+            content: '';
+            position: absolute; left: 28px; top: 40px; bottom: 40px;
+            width: 2px; background: var(--border);
+        }
+        .step {
+            display: flex; gap: 24px; align-items: flex-start;
+            padding: 24px 0; position: relative;
+        }
+        .step-num {
+            width: 56px; height: 56px; flex-shrink: 0;
+            border-radius: 50%;
+            background: var(--deep-ink); color: var(--ember-light);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 24px; font-weight: 600;
+            display: flex; align-items: center; justify-content: center;
+            position: relative; z-index: 1;
+        }
+        .step-content h3 { font-size: 20px; margin-bottom: 4px; }
+        .step-content p { font-size: 15px; color: var(--slate); }
+
+        /* ══════════ DUAL TRACK ══════════ */
+        .dual-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 32px; margin-top: 40px;
+        }
+        @media (max-width: 768px) { .dual-grid { grid-template-columns: 1fr; } }
+        .track-card {
+            border-radius: 12px; padding: 40px; position: relative; overflow: hidden;
+        }
+        .track-card.standard {
+            background: var(--snow); border: 1.5px solid var(--border);
+        }
+        .track-card.premium {
+            background: linear-gradient(160deg, var(--deep-ink), #1c1a22);
+            color: var(--snow); border: 1.5px solid rgba(196,80,42,0.3);
+        }
+        .track-card .track-badge {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 4px 12px; border-radius: 100px;
+            display: inline-block; margin-bottom: 20px;
+        }
+        .track-card.standard .track-badge {
+            background: rgba(42,122,110,0.1); color: var(--teal);
+        }
+        .track-card.premium .track-badge {
+            background: rgba(184,146,58,0.2); color: var(--gold);
+        }
+        .track-card h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 28px; font-weight: 600; margin-bottom: 12px;
+        }
+        .track-card p.desc {
+            font-size: 15px; margin-bottom: 24px;
+            color: var(--slate);
+        }
+        .track-card.premium p.desc { color: #B0AEA8; }
+        .track-card ul {
+            list-style: none; padding: 0;
+        }
+        .track-card ul li {
+            font-size: 15px; padding: 6px 0;
+            padding-left: 20px; position: relative;
+        }
+        .track-card ul li::before {
+            content: ''; position: absolute; left: 0; top: 14px;
+            width: 8px; height: 8px; border-radius: 50%;
+        }
+        .track-card.standard ul li::before { background: var(--teal); }
+        .track-card.premium ul li::before { background: var(--gold); }
+        .track-card.premium ul li { color: #D0CEC8; }
+
+        /* ══════════ DASHBOARD MOCK ══════════ */
+        .dashboard-mock {
+            background: var(--deep-ink);
+            border-radius: 12px;
+            padding: 32px;
+            margin-top: 48px;
+            color: var(--snow);
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .dash-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 32px; padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .dash-header .week {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 28px; font-weight: 600;
+        }
+        .dash-header .timeline {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px; color: var(--mist);
+        }
+        .dash-metrics {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 16px; margin-bottom: 32px;
+        }
+        @media (max-width: 768px) { .dash-metrics { grid-template-columns: repeat(2, 1fr); } }
+        .metric-card {
+            background: var(--surface);
+            border-radius: 8px; padding: 20px;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+        .metric-card .label {
+            font-size: 12px; color: var(--mist); margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .metric-card .value {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 32px; font-weight: 600;
+        }
+        .metric-card .delta {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px; margin-top: 4px;
+        }
+        .metric-card .delta.up { color: var(--success); }
+        .metric-card .delta.down { color: var(--error); }
+        .dash-insight {
+            background: rgba(196,80,42,0.08);
+            border-left: 3px solid var(--ember);
+            border-radius: 0 8px 8px 0;
+            padding: 20px 24px;
+        }
+        .dash-insight .insight-label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+            text-transform: uppercase; color: var(--ember-light);
+            margin-bottom: 8px;
+        }
+        .dash-insight p {
+            font-size: 15px; color: #D0CEC8; line-height: 1.7;
+        }
+
+        /* ══════════ REPORT PREVIEW ══════════ */
+        .report-toc {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px; margin-top: 40px;
+        }
+        .toc-item {
+            background: var(--snow);
+            border: 1px solid var(--border);
+            border-radius: 8px; padding: 20px;
+            display: flex; gap: 16px; align-items: flex-start;
+        }
+        .toc-item .ch {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 28px; font-weight: 600; color: var(--ember);
+            line-height: 1;
+        }
+        .toc-item .ch-content h4 {
+            font-size: 15px; font-weight: 600; margin-bottom: 4px;
+        }
+        .toc-item .ch-content p {
+            font-size: 13px; color: var(--slate);
+        }
+
+        /* ══════════ TECH HIGHLIGHT ══════════ */
+        .tech-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 24px; margin-top: 40px;
+        }
+        @media (max-width: 768px) { .tech-grid { grid-template-columns: 1fr; } }
+        .tech-item {
+            text-align: center; padding: 32px 24px;
+        }
+        .tech-item .num {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 48px; font-weight: 600; color: var(--ember);
+            margin-bottom: 8px;
+        }
+        .tech-item h4 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+        .tech-item p { font-size: 14px; color: var(--slate); }
+
+        /* ══════════ CTA SECTION ══════════ */
+        .cta-section {
+            background: linear-gradient(160deg, var(--deep-ink), #1c1418);
+            color: var(--snow);
+            text-align: center;
+            padding: 96px 24px;
+        }
+        .cta-section h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 44px; font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .cta-section p {
+            font-size: 18px; color: #B0AEA8;
+            max-width: 520px; margin: 0 auto 40px;
+        }
+
+        /* ══════════ FOOTER ══════════ */
+        footer {
+            background: var(--deep-ink); color: var(--mist);
+            text-align: center; padding: 32px 24px;
+            font-size: 13px;
+        }
+        footer a { color: var(--ember-light); text-decoration: none; }
+
+        /* ══════════ UTILITY ══════════ */
+        .mt-48 { margin-top: 48px; }
+        .text-center { text-align: center; }
+
+        /* ══════════ ANIMATION ══════════ */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .hero-content { animation: fadeUp 400ms ease-out; }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+    <div class="logo">MUSEON <span>Market Ares</span></div>
+    <ul>
+        <li><a href="#problem">為什麼需要</a></li>
+        <li><a href="#how">怎麼運作</a></li>
+        <li><a href="#modes">兩種模式</a></li>
+        <li><a href="#dashboard">你會看到什麼</a></li>
+        <li><a href="#report">最終報告</a></li>
+    </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-content">
+        <div class="badge">MUSEON Strategy Engine</div>
+        <h1>在投入真金白銀之前，<br>先讓<em>數位分身</em>替你試一次</h1>
+        <p>市場戰神是一台策略模擬引擎。輸入你的計畫，它會用真實的人口數據建造一座數位城市，讓你看見這個策略在未來 52 週會怎麼演化。</p>
+    </div>
+</section>
+
+<!-- PROBLEM -->
+<section id="problem">
+    <div class="container">
+        <div class="narrow">
+            <div class="section-label">問題</div>
+            <h2>老闆做決策，最怕的三件事</h2>
+            <p class="lead">每一個商業決策都是在賭。差別只在於——你賭之前，有沒有先在沙盤上推演過。</p>
+        </div>
+        <div class="problem-grid">
+            <div class="problem-card">
+                <div class="icon">🎯</div>
+                <h3>策略聽起來很好，但真的有用嗎？</h3>
+                <p>顧問給的建議、自己的直覺、同行的成功案例——每個都有道理，但放到你的城市、你的客群，結果可能完全不同。</p>
+            </div>
+            <div class="problem-card">
+                <div class="icon">💰</div>
+                <h3>試錯的代價太高</h3>
+                <p>一次行銷活動燒 30 萬、一次品牌重塑花半年。如果做錯了，不只賠錢，還賠時間和團隊信心。</p>
+            </div>
+            <div class="problem-card">
+                <div class="icon">🌊</div>
+                <h3>市場不會乖乖等你</h3>
+                <p>你在思考的時候，競爭對手在行動。你需要一個方法，快速知道「這招行不行」，而不是等三個月看結果。</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how" class="alt">
+    <div class="container">
+        <div class="narrow">
+            <div class="section-label">運作方式</div>
+            <h2>四步驟，從想法到驗證</h2>
+            <p class="lead">你只需要告訴系統「我想在哪裡、做什麼」。剩下的，交給引擎。</p>
+        </div>
+        <div class="narrow">
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div class="step-content">
+                        <h3>選定戰場</h3>
+                        <p>告訴系統你的目標城市。引擎會自動抓取該地區的人口結構、收入水準、消費習慣、產業分布、生活型態等五層真實數據，建造一座「數位雙生城市」。</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div class="step-content">
+                        <h3>注入策略</h3>
+                        <p>描述你的商業計畫——賣什麼、賣給誰、怎麼賣、目標多少。系統會用教練式提問，幫你把模糊的想法收斂成清晰的策略。</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div class="step-content">
+                        <h3>觀看 52 週演化</h3>
+                        <p>引擎開始模擬。你可以逐週觀看市場的反應——營業額怎麼變、口碑怎麼傳、競爭對手怎麼回擊、合作夥伴態度怎麼轉。每一週都有數據面板和白話分析。</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">4</div>
+                    <div class="step-content">
+                        <h3>調整、再跑、收斂</h3>
+                        <p>第一輪結果不滿意？調整策略，再跑一次。大多數使用者在 3-5 輪後找到最佳策略組合。最後，系統產出一份完整的戰情報告。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- DUAL MODES -->
+<section id="modes">
+    <div class="container">
+        <div class="narrow">
+            <div class="section-label">兩種模式</div>
+            <h2>你帶策略來，或我幫你想策略</h2>
+            <p class="lead">不管你是「有想法想驗證」，還是「有目標但不知道怎麼做」，都有對應的路。</p>
+        </div>
+        <div class="dual-grid">
+            <div class="track-card standard">
+                <div class="track-badge">自駕模式</div>
+                <h3>策略驗證</h3>
+                <p class="desc">你已經有策略，想知道它在真實市場中會怎麼表現。</p>
+                <ul>
+                    <li>輸入你的策略，系統模擬 52 週</li>
+                    <li>看營業額、市佔率、口碑、鐵粉數的變化</li>
+                    <li>觀察競爭對手的自動反應</li>
+                    <li>不滿意就調整，最多跑 6 輪</li>
+                    <li>最終產出完整戰情報告</li>
+                </ul>
+            </div>
+            <div class="track-card premium">
+                <div class="track-badge">代駕模式</div>
+                <h3>策略設計 + 驗證</h3>
+                <p class="desc">你只要說出目標，系統幫你設計最佳策略。</p>
+                <ul>
+                    <li>用世界級顧問提問法，10 題搞懂你的現況</li>
+                    <li>商業模式健檢，找出 12 項能力的強弱</li>
+                    <li>品牌定位分析，釐清你跟別人的差異</li>
+                    <li>AI 自動生成 3-5 組策略候選</li>
+                    <li>3 輪自動模擬 + 策略優化</li>
+                    <li>產出最終「最佳策略組合」+ 執行路線圖</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- DASHBOARD -->
+<section id="dashboard" class="alt">
+    <div class="container">
+        <div class="narrow">
+            <div class="section-label">過程可見</div>
+            <h2>每一週發生了什麼，一目了然</h2>
+            <p class="lead">不是丟給你一堆數字。每週的變化都會翻譯成你看得懂的白話分析。</p>
+        </div>
+
+        <div class="dashboard-mock">
+            <div class="dash-header">
+                <div class="week">Week 14 / 52</div>
+                <div class="timeline">◀ 上一週 ｜ ████████████░░░░░░░░░░░░░ ｜ 下一週 ▶</div>
+            </div>
+            <div class="dash-metrics">
+                <div class="metric-card">
+                    <div class="label">累計營業額</div>
+                    <div class="value" style="color: var(--success);">$142K</div>
+                    <div class="delta up">▲ +8.2% vs 上週</div>
+                </div>
+                <div class="metric-card">
+                    <div class="label">市場滲透率</div>
+                    <div class="value" style="color: var(--info);">23.4%</div>
+                    <div class="delta up">▲ +2.1% vs 上週</div>
+                </div>
+                <div class="metric-card">
+                    <div class="label">鐵粉數量</div>
+                    <div class="value" style="color: var(--gold);">89</div>
+                    <div class="delta up">▲ +12 本週新增</div>
+                </div>
+                <div class="metric-card">
+                    <div class="label">口碑溫度</div>
+                    <div class="value" style="color: var(--ember-light);">67°</div>
+                    <div class="delta up">▲ +5° vs 上週</div>
+                </div>
+            </div>
+            <div class="dash-insight">
+                <div class="insight-label">本週洞察</div>
+                <p>「早期採用者」群體開始自發推薦，口碑進入自然擴散階段。但「太貴」仍是負面評價的主因（佔 80%）。鐵粉的推薦用語是「值得」——代表價格本身不是問題，是「值得感」還沒傳遞到主流群體。建議下一步強化見證分享，讓鐵粉的聲音被更多人聽見。</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- REPORT PREVIEW -->
+<section id="report">
+    <div class="container">
+        <div class="narrow">
+            <div class="section-label">結果可見</div>
+            <h2>52 週後，你會拿到一份戰情報告</h2>
+            <p class="lead">不是學術論文，是你拿去跟合夥人討論、跟團隊佈達、跟投資人簡報用的實戰文件。</p>
+        </div>
+        <div class="report-toc">
+            <div class="toc-item">
+                <div class="ch">1</div>
+                <div class="ch-content">
+                    <h4>一頁結論</h4>
+                    <p>策略可行嗎？一句話講完，紅黃綠燈一目了然。</p>
+                </div>
+            </div>
+            <div class="toc-item">
+                <div class="ch">2</div>
+                <div class="ch-content">
+                    <h4>52 週全景曲線</h4>
+                    <p>從觸發、擴散、抗拒到穩態，標出每個轉折點。</p>
+                </div>
+            </div>
+            <div class="toc-item">
+                <div class="ch">3</div>
+                <div class="ch-content">
+                    <h4>人群深度分析</h4>
+                    <p>誰最先接受？誰最抗拒？誰從觀望變成鐵粉？</p>
+                </div>
+            </div>
+            <div class="toc-item">
+                <div class="ch">4</div>
+                <div class="ch-content">
+                    <h4>商業模式健檢</h4>
+                    <p>12 項商業能力的強弱診斷，對應策略建議。</p>
+                </div>
+            </div>
+            <div class="toc-item">
+                <div class="ch">5</div>
+                <div class="ch-content">
+                    <h4>銷售路徑設計</h4>
+                    <p>針對最有機會的群體，設計成交路徑。</p>
+                </div>
+            </div>
+            <div class="toc-item">
+                <div class="ch">6</div>
+                <div class="ch-content">
+                    <h4>風險與競爭分析</h4>
+                    <p>哪些變數最敏感？競爭對手會怎麼動？</p>
+                </div>
+            </div>
+            <div class="toc-item">
+                <div class="ch">7</div>
+                <div class="ch-content">
+                    <h4>市場滲透定位</h4>
+                    <p>你的策略目前走到哪個階段，下一步需要什麼。</p>
+                </div>
+            </div>
+            <div class="toc-item">
+                <div class="ch">8</div>
+                <div class="ch-content">
+                    <h4>行動建議</h4>
+                    <p>立刻能做的 3 件事 + 策略微調方向。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- TECH HIGHLIGHTS -->
+<section class="alt">
+    <div class="container">
+        <div class="narrow text-center">
+            <div class="section-label">引擎規格</div>
+            <h2>看不見的精密，看得見的結果</h2>
+        </div>
+        <div class="tech-grid">
+            <div class="tech-item">
+                <div class="num">5</div>
+                <h4>層數據堆疊</h4>
+                <p>地理、人口、生活型態、事件脈動、社會關係，五層真實數據交叉建模。</p>
+            </div>
+            <div class="tech-item">
+                <div class="num">16</div>
+                <h4>維能量向量</h4>
+                <p>每個人群都有 16 個維度的行為特徵，涵蓋內在驅動力和外在行為模式。</p>
+            </div>
+            <div class="tech-item">
+                <div class="num">52</div>
+                <h4>週逐步模擬</h4>
+                <p>不是猜結果，是一週一週算出來的。策略衝擊、社會傳導、能量擺盪三力交互作用。</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+    <h2>在真實市場試錯之前，<br>先在數位市場試對</h2>
+    <p>市場戰神不會幫你做決定。它讓你在做決定之前，先看見決定的結果。</p>
+    <a href="#" class="hero-cta">預約體驗 Market Ares</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <p>Market Ares 是 <a href="#">MUSEON</a> 策略引擎的核心模組。Powered by One Muse 八方位能量系統。</p>
+    <p style="margin-top: 8px; font-size: 12px; color: var(--mist);">&copy; 2026 One Muse. All rights reserved.</p>
+</footer>
+
+</body>
+</html>
