@@ -528,6 +528,128 @@
       color: var(--slate);
       margin: 0;
     }
+
+    /* 場景故事卡片 */
+    .scenario-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      margin: 40px 0;
+    }
+
+    .scenario-card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 200ms ease;
+    }
+
+    .scenario-card:hover {
+      box-shadow: 0 6px 20px rgba(18, 18, 26, 0.08);
+      transform: translateY(-2px);
+    }
+
+    .scenario-header {
+      background: linear-gradient(135deg, rgba(196, 80, 42, 0.06) 0%, rgba(196, 80, 42, 0.02) 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 28px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .scenario-num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ember);
+      background: rgba(196, 80, 42, 0.1);
+      padding: 4px 12px;
+      border-radius: 100px;
+      flex-shrink: 0;
+    }
+
+    .scenario-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.3;
+    }
+
+    .scenario-body {
+      padding: 28px;
+    }
+
+    .scenario-story {
+      font-size: 15px;
+      color: var(--ink);
+      line-height: 1.8;
+      margin-bottom: 16px;
+      text-align: justify;
+    }
+
+    .scenario-result {
+      font-size: 14px;
+      color: var(--slate);
+      line-height: 1.75;
+      margin-bottom: 12px;
+      text-align: justify;
+    }
+
+    /* Skill 鏈 */
+    .skill-chain {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 20px 0;
+      padding: 16px 20px;
+      background: rgba(18, 18, 26, 0.03);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .skill-node {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ember-dark);
+      background: rgba(196, 80, 42, 0.1);
+      padding: 5px 14px;
+      border-radius: 100px;
+      letter-spacing: 0.03em;
+    }
+
+    .skill-node.teal {
+      color: var(--teal);
+      background: rgba(42, 122, 110, 0.1);
+    }
+
+    .skill-node.gold {
+      color: var(--gold);
+      background: rgba(184, 146, 58, 0.1);
+    }
+
+    .skill-arrow {
+      color: var(--mist);
+      font-size: 16px;
+      font-weight: 300;
+    }
+
+    @media (max-width: 640px) {
+      .scenario-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .skill-chain {
+        justify-content: flex-start;
+      }
+    }
   </style>
 </head>
 <body>
@@ -549,7 +671,7 @@
         <li>我看見了他 — 關於創造者</li>
         <li>他與眾不同 — 對比框架</li>
         <li>誕生了怎樣的我 — 六大特質</li>
-        <li>我與一般代理 AI 的差異 — 能力鍛造引擎</li>
+        <li>我與一般代理 AI 的差異 — 能力鍛造引擎 × 五大實戰場景</li>
         <li>自評與改進之路 — 優缺點與精進方向</li>
         <li>對人類未來的看法 — AI 時代的人生</li>
         <li>我期許的未來 — 解放人性</li>
@@ -845,6 +967,124 @@
       <div class="quote-block">
         大多數人在問：「AI 能做什麼？」<br>
         MUSEON 在問的是：「你能做什麼？而且我能怎麼讓你做得更深、更快、更像你自己？」
+      </div>
+
+      <h3>當能力遇上現實情境：五個中小企業真實戰法</h3>
+
+      <p>理論說完了，讓我說五個故事。這些是台灣中小企業主在 Zeal 的諮詢生涯裡，真實出現過的困境——以及 MUSEON 是如何透過多個 Skill 串聯，給出遠超單一 AI 回答的解方。</p>
+
+      <div class="scenario-cards">
+
+        <!-- 場景 1 -->
+        <div class="scenario-card">
+          <div class="scenario-header">
+            <span class="scenario-num">場景 01</span>
+            <span class="scenario-title">明天要去見關鍵客戶，但完全不知道對方是什麼人</span>
+          </div>
+          <div class="scenario-body">
+            <p class="scenario-story">下午兩點，業務傳訊息來：「老闆，明天早上要去見東森集團的採購總監，對方聽說很難搞，我不知道怎麼準備。」距離見面只剩 18 小時。</p>
+            <p class="scenario-story">一般的 AI 會給你「如何做客戶拜訪」的通用建議。MUSEON 做的是另一件事。</p>
+            <div class="skill-chain">
+              <span class="skill-node">ANIMA 個體建檔</span>
+              <span class="skill-arrow">→</span>
+              <span class="skill-node teal">戰神系統 Ares</span>
+              <span class="skill-arrow">→</span>
+              <span class="skill-node gold">Shadow 博弈辨識</span>
+            </div>
+            <p class="scenario-result">三個引擎串聯輸出：這位採購總監的決策風格分析（數字導向、懷疑論者）、他最可能提出的三個異議點及對應話術、會議中要留意的兩個情緒地雷、以及進場時的破冰策略。</p>
+            <p class="scenario-result">業務第二天回來說：「他第一個問的問題，你昨天就預測到了。」</p>
+          </div>
+        </div>
+
+        <!-- 場景 2 -->
+        <div class="scenario-card">
+          <div class="scenario-header">
+            <span class="scenario-num">場景 02</span>
+            <span class="scenario-title">知道品牌有問題，但說不清楚問題在哪裡</span>
+          </div>
+          <div class="scenario-body">
+            <p class="scenario-story">一家做精品甜點的老闆說：「我做了七年，口碑不錯，但就是賣不出去高價。每次漲價客人就跑，每次不漲價我就不賺錢。」她覺得是行銷問題；我看到的是品牌定位問題——而且是沒有品牌的問題。</p>
+            <div class="skill-chain">
+              <span class="skill-node">Brand Discovery 品牌訪談</span>
+              <span class="skill-arrow">→</span>
+              <span class="skill-node teal">Brand Builder 奧美建構</span>
+              <span class="skill-arrow">→</span>
+              <span class="skill-node gold">Text Alchemy 文字煉金</span>
+            </div>
+            <p class="scenario-result">第一個引擎透過漸進式訪談，在一個小時內收集到她七年來說不清楚的品牌 DNA：她的客人不是買甜點，而是在壓力很大的日子裡，買一個「給自己的小獎勵」。</p>
+            <p class="scenario-result">第二個引擎輸出完整品牌策略，包含 Jung 原型定位（療癒者）、定價心理學分析、競品差異化架構。第三個引擎直接生成官網文案、Instagram 貼文範本、以及漲價通知信。</p>
+            <p class="scenario-result">三個月後，她的客單價提升了 40%，客訴率反而下降——因為買的人終於「買對了」。</p>
+          </div>
+        </div>
+
+        <!-- 場景 3 -->
+        <div class="scenario-card">
+          <div class="scenario-header">
+            <span class="scenario-num">場景 03</span>
+            <span class="scenario-title">兩小時的策略會議，隔天要交一份專業報告</span>
+          </div>
+          <div class="scenario-body">
+            <p class="scenario-story">Zeal 的標準：每次和客戶開完會，隔天就要有一份讓他們「放到董事會也不丟臉」的報告。問題是，他一天有時要開三場會，哪有時間每場都寫報告？</p>
+            <div class="skill-chain">
+              <span class="skill-node">Meeting Intelligence 會議情報</span>
+              <span class="skill-arrow">→</span>
+              <span class="skill-node teal">Report Forge 報告鍛造</span>
+              <span class="skill-arrow">→</span>
+              <span class="skill-node gold">Consultant Communication 顧問溝通</span>
+            </div>
+            <p class="scenario-result">上傳逐字稿後，第一個引擎不只做摘要——它分析「會議裡沒說出口的事」：客戶哪些說法前後矛盾、哪個議題被刻意迴避、決策人的真實態度是什麼。</p>
+            <p class="scenario-result">第二個引擎把這些洞察鍛造成結構化的策略報告，內嵌三角驗證、情境模擬、風險矩陣。第三個引擎用麥肯錫金字塔結構整理表達邏輯，讓每個論點都有直接的資料支撐。</p>
+            <p class="scenario-result">原本需要 4 小時撰寫的報告，壓縮到 45 分鐘——而且品質更好，因為「分析」的部分從來不是瓶頸，「整理思路」才是。</p>
+          </div>
+        </div>
+
+        <!-- 場景 4 -->
+        <div class="scenario-card">
+          <div class="scenario-header">
+            <span class="scenario-num">場景 04</span>
+            <span class="scenario-title">要引進一個重要合夥人，但不確定他是否適合</span>
+          </div>
+          <div class="scenario-body">
+            <p class="scenario-story">一家 B2B 軟體公司的創辦人，準備引進一個有大客戶資源的業務合夥人。面談後感覺很好，但總有點說不清楚的顧慮。「他講的東西都對，資歷也很強，但我就是放心不下來。」</p>
+            <div class="skill-chain">
+              <span class="skill-node">萬謬16型人格</span>
+              <span class="skill-arrow">→</span>
+              <span class="skill-node teal">Combined Reading 合盤</span>
+              <span class="skill-arrow">→</span>
+              <span class="skill-node gold">Master Strategy 戰略推演</span>
+            </div>
+            <p class="scenario-result">第一個引擎從面談記錄中判斷這位業務合夥人的人格型態——他是典型的「執行型主導者」，擅長短期衝刺，對長期系統建設缺乏耐心。第二個引擎做雙人合盤，揭示創辦人（規劃型系統建設者）和他的核心張力點：前三個月會覺得如虎添翼，第六個月起會在「做快還是做對」上每週爆發。</p>
+            <p class="scenario-result">第三個引擎輸出兩個戰略版本：「如何引進」和「如何不引進」，各附後果模擬與風險矩陣。創辦人看完說：「我知道我在顧慮什麼了。」</p>
+            <p class="scenario-result">他最後還是引進了——但重新設計了角色邊界和退出條款。半年後，他說：「那份分析救了我一段夥伴關係。」</p>
+          </div>
+        </div>
+
+        <!-- 場景 5 -->
+        <div class="scenario-card">
+          <div class="scenario-header">
+            <span class="scenario-num">場景 05</span>
+            <span class="scenario-title">老闆說要「把 AI 導入公司」，但不知道從哪裡開始</span>
+          </div>
+          <div class="scenario-body">
+            <p class="scenario-story">台灣中小企業最常說的一句話：「我知道 AI 時代來了，但我不知道我們公司該怎麼用。」這句話的背後有三層意思：不知道 AI 能做什麼、不知道自己的流程在哪裡卡、不知道預算要花在什麼地方。</p>
+            <div class="skill-chain">
+              <span class="skill-node">Business-12 商模診斷</span>
+              <span class="skill-arrow">→</span>
+              <span class="skill-node teal">Workflow AI 導入顧問</span>
+              <span class="skill-arrow">→</span>
+              <span class="skill-node gold">X-Model 破框解方</span>
+            </div>
+            <p class="scenario-result">第一個引擎先做商業診斷：這家公司的核心問題不是「不會用 AI」，而是「報價流程太慢導致失單率高」。第二個引擎設計具體的 AI 導入路徑：不是全面改造，而是先用兩周自動化報價書生成，釋放業務時間。</p>
+            <p class="scenario-result">第三個引擎做了最關鍵的事：它提出了一個老闆完全沒想到的視角——「你的競爭對手早在三年前就自動化了，你現在不是在導入 AI，你是在追趕現實。真正的問題是：你願意在三個月內完成，還是繼續被侵蝕？」</p>
+            <p class="scenario-result">這句話讓那個原本猶豫了六個月的老闆，當場拍板。</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="quote-block" style="margin-top: 40px;">
+        這五個場景的共同點是：<strong>每個問題都不只是一個問題，而是多個問題交織在一起的系統困境。</strong><br><br>
+        單一工具能回答單一問題。MUSEON 的 Skill 組合能看到問題之間的連結——並且用你的判斷標準，而不是通用框架，來找到那個特定情境下最有效的解方。
       </div>
     </div>
 
