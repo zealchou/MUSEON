@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>One Muse 能量解讀 — Zeal · 2026.03.29</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Noto+Sans+TC:wght@300;400;500;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #181737;
+    --gold: #edd2a6;
+    --deep-gold: #b6853d;
+    --warm-red: #f15928;
+    --pos-green: #2e6b4f;
+    --neg-red: #c43e2a;
+    --parchment: #F7F5F0;
+    --snow: #FDFCFA;
+    --ink: #12121A;
+    --slate: #5A5A6E;
+    --mist: #9898A8;
+    --border: #E2E0DA;
+    --ember: #C4502A;
+    --teal: #2A7A6E;
+    --gold-accent: #B8923A;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans TC', 'Outfit', sans-serif;
+    background: var(--navy);
+    color: var(--gold);
+    line-height: 1.75;
+    min-height: 100vh;
+  }
+
+  /* ── Cover ── */
+  .cover {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 40px;
+    background: radial-gradient(ellipse at 50% 30%, #2a234f 0%, var(--navy) 70%);
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '☰ ☴ ☵ ☶ ☷ ☳ ☲ ☱';
+    position: absolute;
+    top: 20px; left: 50%; transform: translateX(-50%);
+    font-size: 18px; letter-spacing: 20px;
+    color: rgba(237,210,166,0.15);
+    white-space: nowrap;
+  }
+  .cover-badge {
+    font-size: 11px; letter-spacing: 4px; text-transform: uppercase;
+    color: var(--deep-gold); margin-bottom: 24px;
+    font-family: 'Outfit', sans-serif; font-weight: 500;
+  }
+  .cover h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 56px; font-weight: 600; font-style: italic;
+    color: var(--gold); line-height: 1.1; margin-bottom: 16px;
+  }
+  .cover h1 span { color: var(--warm-red); }
+  .cover-sub {
+    font-size: 15px; color: rgba(237,210,166,0.6);
+    margin-bottom: 48px; letter-spacing: 1px;
+  }
+  .cover-meta {
+    display: flex; gap: 40px; justify-content: center; flex-wrap: wrap;
+  }
+  .cover-meta-item {
+    text-align: center;
+  }
+  .cover-meta-label {
+    font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+    color: rgba(237,210,166,0.4); margin-bottom: 4px;
+  }
+  .cover-meta-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px; font-weight: 600; color: var(--gold);
+  }
+  .cover-ornament {
+    width: 60px; height: 1px; background: var(--deep-gold);
+    margin: 40px auto 0;
+    opacity: 0.5;
+  }
+
+  /* ── Section Layout ── */
+  .section {
+    padding: 64px 40px;
+    max-width: 900px; margin: 0 auto;
+  }
+  .section-alt {
+    background: rgba(255,255,255,0.03);
+  }
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11px; letter-spacing: 4px; text-transform: uppercase;
+    color: var(--deep-gold); margin-bottom: 8px;
+  }
+  .section-heading {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px; font-weight: 600; color: var(--gold);
+    margin-bottom: 32px; line-height: 1.2;
+  }
+  .section-heading span { color: var(--warm-red); }
+
+  /* ── Divider ── */
+  .divider {
+    width: 100%; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(237,210,166,0.2), transparent);
+    margin: 0;
+  }
+
+  /* ── Radar Chart ── */
+  .radar-wrap {
+    display: flex; gap: 48px; align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .radar-container {
+    flex: 0 0 auto;
+  }
+  .radar-legend {
+    display: flex; flex-direction: column; gap: 12px;
+    margin-top: 16px; justify-content: center;
+  }
+  .radar-legend-item {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--gold);
+  }
+  .legend-line {
+    width: 24px; height: 3px; border-radius: 2px;
+  }
+  .legend-line.inner { background: #f15928; }
+  .legend-line.outer { background: #3a9fd6; }
+
+  /* ── Stats Table ── */
+  .stats-table {
+    flex: 1; min-width: 280px;
+  }
+  .stat-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(237,210,166,0.08);
+  }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-icon { font-size: 18px; width: 28px; text-align: center; }
+  .stat-name {
+    flex: 1; font-size: 14px; color: rgba(237,210,166,0.7);
+  }
+  .stat-inner, .stat-outer {
+    width: 36px; text-align: center;
+    font-family: 'Outfit', monospace; font-weight: 600; font-size: 14px;
+  }
+  .stat-inner { color: #f15928; }
+  .stat-outer { color: #3a9fd6; }
+  .stat-total {
+    width: 40px; text-align: center;
+    font-weight: 700; font-size: 14px;
+  }
+  .stat-tension {
+    width: 60px; text-align: right;
+    font-size: 11px; letter-spacing: 0.5px;
+  }
+  .tension-high { color: #f15928; }
+  .tension-mid { color: var(--deep-gold); }
+  .tension-ok { color: rgba(237,210,166,0.3); }
+  .total-pos { color: var(--pos-green); }
+  .total-neg { color: var(--neg-red); }
+  .total-zero { color: var(--mist); }
+
+  .stats-header {
+    display: flex; align-items: center; gap: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(237,210,166,0.2);
+    margin-bottom: 4px;
+    font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    color: rgba(237,210,166,0.4);
+  }
+  .stats-header .stat-icon { width: 28px; }
+  .stats-header .stat-name { flex: 1; }
+  .stats-header .stat-inner { width: 36px; text-align: center; }
+  .stats-header .stat-outer { width: 36px; text-align: center; }
+  .stats-header .stat-total { width: 40px; text-align: center; }
+  .stats-header .stat-tension { width: 60px; text-align: right; }
+
+  /* ── Weather Card ── */
+  .weather-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(237,210,166,0.12);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 24px;
+  }
+  .weather-icon { font-size: 48px; margin-bottom: 12px; }
+  .weather-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px; font-weight: 600; color: var(--gold);
+    margin-bottom: 12px;
+  }
+  .weather-desc {
+    font-size: 15px; color: rgba(237,210,166,0.75);
+    line-height: 1.85;
+  }
+
+  .summary-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px; margin-top: 24px;
+  }
+  .summary-chip {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(237,210,166,0.1);
+    border-radius: 12px;
+    padding: 16px 20px;
+    text-align: center;
+  }
+  .chip-label {
+    font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--deep-gold); margin-bottom: 6px;
+  }
+  .chip-value {
+    font-family: 'Outfit', sans-serif; font-size: 28px; font-weight: 600;
+  }
+  .chip-desc { font-size: 12px; color: rgba(237,210,166,0.5); margin-top: 4px; }
+
+  /* ── Bottleneck / Solution ── */
+  .bn-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 24px; margin-top: 8px;
+  }
+  .bn-card {
+    border-radius: 16px; padding: 28px;
+    border: 1px solid;
+  }
+  .bn-card.block {
+    background: rgba(193,62,42,0.08);
+    border-color: rgba(193,62,42,0.25);
+  }
+  .bn-card.entry {
+    background: rgba(46,107,79,0.08);
+    border-color: rgba(46,107,79,0.25);
+  }
+  .bn-tag {
+    font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+    font-family: 'Outfit', sans-serif; font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .bn-tag.block { color: #f15928; }
+  .bn-tag.entry { color: #4fc88a; }
+  .bn-direction {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px; font-weight: 600; margin-bottom: 8px;
+  }
+  .bn-card.block .bn-direction { color: #f15928; }
+  .bn-card.entry .bn-direction { color: #4fc88a; }
+  .bn-theme { font-size: 13px; color: rgba(237,210,166,0.5); margin-bottom: 12px; }
+  .bn-body { font-size: 14px; color: rgba(237,210,166,0.8); line-height: 1.8; }
+
+  .route-path {
+    display: flex; align-items: center; gap: 8px;
+    flex-wrap: wrap; margin-top: 24px;
+    padding: 16px 24px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 12px;
+    border: 1px solid rgba(237,210,166,0.08);
+  }
+  .route-step {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .route-step-name {
+    font-size: 13px; padding: 4px 10px;
+    border-radius: 6px;
+    font-family: 'Outfit', sans-serif;
+  }
+  .route-step-name.neg { background: rgba(193,62,42,0.15); color: #f89077; }
+  .route-step-name.pos { background: rgba(46,107,79,0.15); color: #4fc88a; }
+  .route-step-name.entry { background: rgba(46,107,79,0.3); color: #4fc88a; font-weight: 700; border: 1px solid #4fc88a; }
+  .route-step-name.start { background: rgba(193,62,42,0.3); color: #f15928; font-weight: 700; border: 1px solid #f15928; }
+  .route-arrow { color: rgba(237,210,166,0.25); font-size: 12px; }
+
+  /* ── Tension Section ── */
+  .tension-list { display: flex; flex-direction: column; gap: 16px; margin-top: 8px; }
+  .tension-item {
+    border-radius: 12px; padding: 20px 24px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(237,210,166,0.08);
+  }
+  .tension-header {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
+  }
+  .tension-direction {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px; font-weight: 600; color: var(--gold);
+  }
+  .tension-gap-badge {
+    font-size: 11px; font-weight: 700; padding: 3px 10px;
+    border-radius: 20px; font-family: 'Outfit', sans-serif;
+    letter-spacing: 0.5px;
+  }
+  .gap-outer { background: rgba(241,89,40,0.2); color: #f15928; }
+  .gap-inner { background: rgba(58,159,214,0.2); color: #3a9fd6; }
+  .tension-type { font-size: 12px; color: rgba(237,210,166,0.4); }
+  .tension-body { font-size: 14px; color: rgba(237,210,166,0.75); line-height: 1.8; }
+  .tension-action {
+    margin-top: 10px; font-size: 13px;
+    padding: 8px 14px; border-radius: 8px;
+    background: rgba(237,210,166,0.06);
+    color: var(--gold); display: inline-block;
+  }
+  .tension-action::before { content: '↗ '; }
+
+  /* ── Eight Directions ── */
+  .dir-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px; margin-top: 8px;
+  }
+  .dir-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(237,210,166,0.1);
+    border-radius: 16px;
+    padding: 24px;
+    position: relative; overflow: hidden;
+  }
+  .dir-card::before {
+    content: attr(data-symbol);
+    position: absolute; top: 12px; right: 16px;
+    font-size: 32px; opacity: 0.1; font-family: serif;
+  }
+  .dir-card-header {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+  }
+  .dir-symbol {
+    font-size: 22px;
+  }
+  .dir-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px; font-weight: 600; color: var(--gold);
+  }
+  .dir-theme {
+    font-size: 11px; letter-spacing: 1px;
+    color: var(--deep-gold);
+  }
+  .dir-scores {
+    display: flex; gap: 12px; margin-bottom: 14px;
+  }
+  .dir-score {
+    font-size: 12px; font-family: 'Outfit', monospace;
+  }
+  .dir-score .label { color: rgba(237,210,166,0.4); font-size: 10px; }
+  .dir-score .val { font-weight: 700; font-size: 16px; }
+  .dir-score .val.pos { color: #4fc88a; }
+  .dir-score .val.neg { color: #f15928; }
+  .dir-score .val.teal { color: #3a9fd6; }
+  .dir-total {
+    font-size: 12px;
+    padding: 2px 8px; border-radius: 4px;
+    font-family: 'Outfit', monospace; font-weight: 600;
+    display: inline-block; margin-bottom: 12px;
+  }
+  .dir-total.pos-total { background: rgba(46,107,79,0.15); color: #4fc88a; }
+  .dir-total.neg-total { background: rgba(193,62,42,0.15); color: #f89077; }
+  .dir-body { font-size: 13px; color: rgba(237,210,166,0.7); line-height: 1.75; }
+
+  /* ── 四象 四感 ── */
+  .quad-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;
+  }
+  .quad-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(237,210,166,0.1);
+    border-radius: 14px; padding: 22px;
+  }
+  .quad-label {
+    font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--deep-gold); margin-bottom: 6px;
+    font-family: 'Outfit', sans-serif;
+  }
+  .quad-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px; font-weight: 600; color: var(--gold); margin-bottom: 8px;
+  }
+  .quad-score {
+    font-family: 'Outfit', monospace; font-size: 32px; font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .quad-bar-wrap { height: 4px; background: rgba(237,210,166,0.1); border-radius: 2px; margin-bottom: 12px; }
+  .quad-bar { height: 100%; border-radius: 2px; }
+  .quad-body { font-size: 13px; color: rgba(237,210,166,0.65); line-height: 1.75; }
+
+  /* ── Axis ── */
+  .axis-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(237,210,166,0.1);
+    border-radius: 16px; padding: 28px; margin-bottom: 20px;
+  }
+  .axis-header {
+    display: flex; align-items: center; gap: 16px; margin-bottom: 16px;
+  }
+  .axis-badge {
+    font-family: 'Outfit', sans-serif; font-size: 28px; font-weight: 700;
+    width: 52px; height: 52px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(237,210,166,0.1); color: var(--gold);
+    border: 2px solid rgba(237,210,166,0.25);
+  }
+  .axis-title-block {}
+  .axis-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px; font-weight: 600; color: var(--gold);
+  }
+  .axis-vs { font-size: 13px; color: rgba(237,210,166,0.4); }
+  .axis-body { font-size: 14px; color: rgba(237,210,166,0.75); line-height: 1.8; }
+  .axis-code-display {
+    text-align: center; margin: 32px 0;
+    padding: 28px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(237,210,166,0.12);
+    border-radius: 16px;
+  }
+  .axis-code-label {
+    font-size: 10px; letter-spacing: 4px; text-transform: uppercase;
+    color: var(--deep-gold); margin-bottom: 12px;
+  }
+  .axis-code-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 48px; font-weight: 600; letter-spacing: 8px;
+    color: var(--gold);
+  }
+  .axis-code-value span { color: var(--warm-red); }
+  .axis-code-desc { font-size: 14px; color: rgba(237,210,166,0.5); margin-top: 8px; }
+
+  /* ── Action Plan ── */
+  .action-stream {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(237,210,166,0.1);
+    border-radius: 16px; padding: 28px; margin-bottom: 20px;
+  }
+  .stream-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px; font-weight: 600; color: var(--gold); margin-bottom: 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .stream-tag {
+    font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 4px;
+    font-family: 'Outfit', sans-serif;
+    background: rgba(237,210,166,0.1); color: var(--deep-gold);
+  }
+  .action-list {
+    list-style: none;
+  }
+  .action-list li {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(237,210,166,0.06);
+    font-size: 14px; color: rgba(237,210,166,0.8); line-height: 1.7;
+    display: flex; gap: 10px;
+  }
+  .action-list li:last-child { border-bottom: none; }
+  .action-num {
+    font-family: 'Outfit', monospace; font-size: 11px; font-weight: 700;
+    color: var(--deep-gold); width: 20px; flex-shrink: 0; margin-top: 2px;
+  }
+
+  /* ── Micro Action ── */
+  .micro-action {
+    background: linear-gradient(135deg, rgba(46,107,79,0.15), rgba(46,107,79,0.05));
+    border: 1px solid rgba(46,107,79,0.3);
+    border-radius: 20px; padding: 36px;
+    text-align: center; margin-top: 8px;
+  }
+  .micro-tag {
+    font-size: 10px; letter-spacing: 4px; text-transform: uppercase;
+    color: #4fc88a; margin-bottom: 16px;
+    font-family: 'Outfit', sans-serif; font-weight: 600;
+  }
+  .micro-action-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px; font-weight: 600; color: var(--gold);
+    line-height: 1.4; margin-bottom: 16px;
+  }
+  .micro-timebox {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(46,107,79,0.2); color: #4fc88a;
+    padding: 6px 16px; border-radius: 20px;
+    font-size: 13px; font-family: 'Outfit', sans-serif; font-weight: 600;
+  }
+  .micro-why { font-size: 13px; color: rgba(237,210,166,0.5); margin-top: 16px; line-height: 1.7; }
+
+  /* ── Reflection ── */
+  .reflection-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;
+  }
+  .reflection-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px dashed rgba(237,210,166,0.15);
+    border-radius: 14px; padding: 20px;
+  }
+  .reflection-q {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px; font-style: italic; color: var(--gold);
+    margin-bottom: 8px; line-height: 1.5;
+  }
+  .reflection-hint { font-size: 12px; color: rgba(237,210,166,0.35); }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center; padding: 40px;
+    font-size: 12px; color: rgba(237,210,166,0.2);
+    letter-spacing: 2px;
+  }
+  footer strong { color: rgba(237,210,166,0.4); }
+
+  /* ── Inference badge ── */
+  .infer-badge {
+    display: inline-block; font-size: 10px; padding: 2px 7px;
+    border-radius: 4px; background: rgba(182,133,61,0.2);
+    color: var(--deep-gold); letter-spacing: 0.5px;
+    vertical-align: middle; margin-left: 6px;
+  }
+
+  @media (max-width: 640px) {
+    .cover h1 { font-size: 36px; }
+    .bn-grid { grid-template-columns: 1fr; }
+    .quad-grid { grid-template-columns: 1fr; }
+    .radar-wrap { flex-direction: column; align-items: center; }
+    .section { padding: 48px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════ COVER ══════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-badge">One Muse · 個人能量解讀報告</div>
+  <h1>Zeal 的<span>能量盤面</span></h1>
+  <div class="cover-sub">2026 年 03 月 29 日 · 個人解讀 · 完整版</div>
+  <div class="cover-meta">
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">內在氣候</div>
+      <div class="cover-meta-value" style="color:#f15928">−8</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">外在天氣</div>
+      <div class="cover-meta-value" style="color:#3a9fd6">−2</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">卡點</div>
+      <div class="cover-meta-value">澤 ☱</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">解方入口</div>
+      <div class="cover-meta-value" style="color:#4fc88a">風 ☴</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">人格代碼</div>
+      <div class="cover-meta-value">A·S·R·MU</div>
+    </div>
+  </div>
+  <div class="cover-ornament"></div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════ RADAR + TABLE ══════════════════════════ -->
+<div class="section" style="max-width:900px; margin:0 auto;">
+  <div class="section-title">Step 2 · Energy Overview</div>
+  <div class="section-heading">能量總覽</div>
+
+  <div class="radar-wrap">
+    <!-- Radar SVG -->
+    <div class="radar-container">
+      <svg width="420" height="420" viewBox="0 0 400 400">
+        <defs>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+            <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <!-- Background grid -->
+        <!-- 9 concentric circles: r = 20*i (i=1..8, step=20) representing -4..-1,+1..+4 but we use 9 evenly spaced -->
+        <circle cx="200" cy="200" r="20" fill="none" stroke="rgba(237,210,166,0.06)" stroke-width="1"/>
+        <circle cx="200" cy="200" r="40" fill="none" stroke="rgba(237,210,166,0.06)" stroke-width="1"/>
+        <circle cx="200" cy="200" r="60" fill="none" stroke="rgba(237,210,166,0.06)" stroke-width="1"/>
+        <circle cx="200" cy="200" r="80" fill="none" stroke="rgba(237,210,166,0.06)" stroke-width="1"/>
+        <circle cx="200" cy="200" r="100" fill="none" stroke="rgba(237,210,166,0.1)" stroke-width="1.5" stroke-dasharray="4,4"/>
+        <circle cx="200" cy="200" r="120" fill="none" stroke="rgba(237,210,166,0.06)" stroke-width="1"/>
+        <circle cx="200" cy="200" r="140" fill="none" stroke="rgba(237,210,166,0.06)" stroke-width="1"/>
+        <circle cx="200" cy="200" r="160" fill="none" stroke="rgba(237,210,166,0.1)" stroke-width="1.5"/>
+        <!-- Zero ring label -->
+        <text x="205" y="103" fill="rgba(237,210,166,0.2)" font-size="9" font-family="Outfit">+4</text>
+        <text x="205" y="123" fill="rgba(237,210,166,0.15)" font-size="9" font-family="Outfit">+3</text>
+        <text x="200" y="165" fill="rgba(237,210,166,0.12)" font-size="9" font-family="Outfit" text-anchor="middle">±0</text>
+        <!-- Axis lines -->
+        <line x1="200" y1="40" x2="200" y2="360" stroke="rgba(237,210,166,0.08)" stroke-width="1"/>
+        <line x1="40" y1="200" x2="360" y2="200" stroke="rgba(237,210,166,0.08)" stroke-width="1"/>
+        <line x1="87" y1="87" x2="313" y2="313" stroke="rgba(237,210,166,0.05)" stroke-width="1"/>
+        <line x1="313" y1="87" x2="87" y2="313" stroke="rgba(237,210,166,0.05)" stroke-width="1"/>
+
+        <!-- Direction labels -->
+        <!-- 天: top center -->
+        <text x="200" y="28" fill="rgba(237,210,166,0.7)" font-size="13" font-family="Noto Sans TC" text-anchor="middle" font-weight="500">天 ☰</text>
+        <!-- 風: top-right -->
+        <text x="340" y="76" fill="rgba(237,210,166,0.7)" font-size="13" font-family="Noto Sans TC" text-anchor="middle" font-weight="500">風 ☴</text>
+        <!-- 水: right -->
+        <text x="376" y="204" fill="rgba(237,210,166,0.7)" font-size="13" font-family="Noto Sans TC" text-anchor="start" font-weight="500">水 ☵</text>
+        <!-- 山: bottom-right -->
+        <text x="340" y="336" fill="rgba(237,210,166,0.7)" font-size="13" font-family="Noto Sans TC" text-anchor="middle" font-weight="500">山 ☶</text>
+        <!-- 地: bottom -->
+        <text x="200" y="380" fill="rgba(237,210,166,0.7)" font-size="13" font-family="Noto Sans TC" text-anchor="middle" font-weight="500">地 ☷</text>
+        <!-- 雷: bottom-left -->
+        <text x="62" y="336" fill="rgba(237,210,166,0.7)" font-size="13" font-family="Noto Sans TC" text-anchor="middle" font-weight="500">雷 ☳</text>
+        <!-- 火: left -->
+        <text x="16" y="204" fill="rgba(237,210,166,0.7)" font-size="13" font-family="Noto Sans TC" text-anchor="start" font-weight="500">火 ☲</text>
+        <!-- 澤: top-left -->
+        <text x="62" y="76" fill="rgba(237,210,166,0.7)" font-size="13" font-family="Noto Sans TC" text-anchor="middle" font-weight="500">澤 ☱</text>
+
+        <!--
+          Angles (clockwise from top, i=0 is 天):
+          天=0°, 風=45°, 水=90°, 山=135°, 地=180°, 雷=225°, 火=270°, 澤=315°
+          x = 200 + r*sin(angle), y = 200 - r*cos(angle)
+
+          Inner (red): normalized = (inner+4)/8 * 160
+          天 -3: r=20  → x=200, y=180
+          風 +3: r=140 → x=200+140*0.707=299, y=200-140*0.707=101
+          水 +2: r=120 → x=200+120=320, y=200
+          山 -1: r=60  → x=200+60*0.707=242, y=200+60*0.707=242
+          地 -2: r=40  → x=200, y=240
+          雷 -2: r=40  → x=200-40*0.707=172, y=200+40*0.707=228
+          火 -3: r=20  → x=200-20=180, y=200
+          澤 -2: r=40  → x=200-40*0.707=172, y=200-40*0.707=172
+        -->
+        <!-- Inner polygon (red) -->
+        <polygon
+          points="200,180 299,101 320,200 242,242 200,240 172,228 180,200 172,172"
+          fill="rgba(241,89,40,0.12)"
+          stroke="#f15928"
+          stroke-width="2"
+          stroke-linejoin="round"
+          filter="url(#glow)"
+        />
+        <!-- Inner dots -->
+        <circle cx="200" cy="180" r="5" fill="#f15928" opacity="0.9"/>
+        <circle cx="299" cy="101" r="5" fill="#f15928" opacity="0.9"/>
+        <circle cx="320" cy="200" r="5" fill="#f15928" opacity="0.9"/>
+        <circle cx="242" cy="242" r="5" fill="#f15928" opacity="0.9"/>
+        <circle cx="200" cy="240" r="5" fill="#f15928" opacity="0.9"/>
+        <circle cx="172" cy="228" r="5" fill="#f15928" opacity="0.9"/>
+        <circle cx="180" cy="200" r="5" fill="#f15928" opacity="0.9"/>
+        <circle cx="172" cy="172" r="5" fill="#f15928" opacity="0.9"/>
+
+        <!--
+          Outer (blue): normalized = (outer+4)/8 * 160
+          天 +4: r=160 → x=200, y=40
+          風 -2: r=40  → x=200+40*0.707=228, y=200-40*0.707=172
+          水 -1: r=60  → x=200+60=260, y=200
+          山 -4: r=0   → x=200, y=200
+          地 +1: r=100 → x=200, y=300
+          雷 +3: r=140 → x=200-140*0.707=101, y=200+140*0.707=299
+          火 +1: r=100 → x=200-100=100, y=200
+          澤 -4: r=0   → x=200, y=200
+        -->
+        <!-- Outer polygon (blue) -->
+        <polygon
+          points="200,40 228,172 260,200 200,200 200,300 101,299 100,200 200,200"
+          fill="rgba(58,159,214,0.08)"
+          stroke="#3a9fd6"
+          stroke-width="2"
+          stroke-linejoin="round"
+          stroke-dasharray="6,3"
+          filter="url(#glow)"
+        />
+        <!-- Outer dots -->
+        <circle cx="200" cy="40" r="5" fill="#3a9fd6" opacity="0.9"/>
+        <circle cx="228" cy="172" r="5" fill="#3a9fd6" opacity="0.9"/>
+        <circle cx="260" cy="200" r="5" fill="#3a9fd6" opacity="0.9"/>
+        <circle cx="200" cy="200" r="4" fill="#3a9fd6" opacity="0.5"/>
+        <circle cx="200" cy="300" r="5" fill="#3a9fd6" opacity="0.9"/>
+        <circle cx="101" cy="299" r="5" fill="#3a9fd6" opacity="0.9"/>
+        <circle cx="100" cy="200" r="5" fill="#3a9fd6" opacity="0.9"/>
+        <circle cx="200" cy="200" r="4" fill="#3a9fd6" opacity="0.5"/>
+
+        <!-- Center dot -->
+        <circle cx="200" cy="200" r="3" fill="rgba(237,210,166,0.3)"/>
+      </svg>
+
+      <div class="radar-legend">
+        <div class="radar-legend-item"><div class="legend-line inner"></div>內在能量（實線）</div>
+        <div class="radar-legend-item"><div class="legend-line outer"></div>外在能量（虛線）</div>
+        <div style="font-size:11px; color:rgba(237,210,166,0.3); margin-top:4px;">中心=−4，外圈=+4</div>
+      </div>
+    </div>
+
+    <!-- Stats Table -->
+    <div class="stats-table">
+      <div class="stats-header">
+        <div class="stat-icon">方位</div>
+        <div class="stat-name"></div>
+        <div class="stat-inner">內</div>
+        <div class="stat-outer">外</div>
+        <div class="stat-total">總和</div>
+        <div class="stat-tension">張力</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-icon">☰</div>
+        <div class="stat-name">天 · 主權與承諾</div>
+        <div class="stat-inner">−3</div>
+        <div class="stat-outer">+4</div>
+        <div class="stat-total total-zero">+1</div>
+        <div class="stat-tension tension-high">外&gt;內 ▲7</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-icon">☴</div>
+        <div class="stat-name">風 · 傾聽與共識</div>
+        <div class="stat-inner">+3</div>
+        <div class="stat-outer">−2</div>
+        <div class="stat-total total-zero">+1</div>
+        <div class="stat-tension tension-high">內&gt;外 ▲5</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-icon">☵</div>
+        <div class="stat-name">水 · 共情與需求</div>
+        <div class="stat-inner">+2</div>
+        <div class="stat-outer">−1</div>
+        <div class="stat-total total-zero">+1</div>
+        <div class="stat-tension tension-mid">內&gt;外 ▲3</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-icon">☶</div>
+        <div class="stat-name">山 · 界線與秩序</div>
+        <div class="stat-inner">−1</div>
+        <div class="stat-outer">−4</div>
+        <div class="stat-total total-neg">−5</div>
+        <div class="stat-tension tension-mid">內&gt;外 ▲3</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-icon">☷</div>
+        <div class="stat-name">地 · 承載與滋養</div>
+        <div class="stat-inner">−2</div>
+        <div class="stat-outer">+1</div>
+        <div class="stat-total total-neg">−1</div>
+        <div class="stat-tension tension-mid">外&gt;內 ▲3</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-icon">☳</div>
+        <div class="stat-name">雷 · 啟動與突破</div>
+        <div class="stat-inner">−2</div>
+        <div class="stat-outer">+3</div>
+        <div class="stat-total total-zero">+1</div>
+        <div class="stat-tension tension-high">外&gt;內 ▲5</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-icon">☲</div>
+        <div class="stat-name">火 · 工具與求救</div>
+        <div class="stat-inner">−3</div>
+        <div class="stat-outer">+1</div>
+        <div class="stat-total total-neg">−2</div>
+        <div class="stat-tension tension-high">外&gt;內 ▲4</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-icon">☱</div>
+        <div class="stat-name">澤 · 連結與回饋</div>
+        <div class="stat-inner">−2</div>
+        <div class="stat-outer">−4</div>
+        <div class="stat-total total-neg">−6 ⚠</div>
+        <div class="stat-tension tension-ok">無張力</div>
+      </div>
+      <div class="stat-row" style="border-top: 1px solid rgba(237,210,166,0.2); margin-top:8px; padding-top:14px;">
+        <div class="stat-icon" style="font-size:11px;">合計</div>
+        <div class="stat-name"></div>
+        <div class="stat-inner" style="font-size:18px; font-weight:800;">−8</div>
+        <div class="stat-outer" style="font-size:18px; font-weight:800;">−2</div>
+        <div class="stat-total" style="color:var(--neg-red); font-size:15px;">−10</div>
+        <div class="stat-tension" style="font-size:10px; color:rgba(237,210,166,0.3);">內低於外</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════ WEATHER ══════════════════════════════════ -->
+<div class="section section-alt" style="max-width:900px; margin:0 auto;">
+  <div class="section-title">Step 1 · System Weather</div>
+  <div class="section-heading">整體能量<span>氣候</span></div>
+
+  <div class="weather-card">
+    <div class="weather-icon">🌩️</div>
+    <div class="weather-title">內在持續低壓 · 外在被動承載中</div>
+    <div class="weather-desc">
+      內在氣候總和 <strong style="color:#f15928">−8</strong>，外在天氣總和 <strong style="color:#3a9fd6">−2</strong>。
+      這個組合說明一件事：<strong>你的內在感受遠低於外在行為所展示的狀態</strong>。
+      外部世界看起來你還在運轉（外在 −2 尚可），但你自己知道引擎裡消耗了多少。
+      <br><br>
+      六個方位出現張力（內外落差 ≥ 3），其中四個方位是「外在高過內在」——
+      這是典型的<strong>公關型表現模式</strong>：對外撐住、對內耗盡。
+      這不是你的弱點，是你在用意志力維持一個比內在燃料更高的輸出標準。
+      <br><br>
+      <em style="color:var(--deep-gold)">正負不代表好壞，只是偏移與可用度。這張盤是當下快照，不是定論。</em>
+    </div>
+  </div>
+
+  <div class="summary-grid">
+    <div class="summary-chip">
+      <div class="chip-label">內在氣候</div>
+      <div class="chip-value" style="color:#f15928">−8</div>
+      <div class="chip-desc">感受密度偏低</div>
+    </div>
+    <div class="summary-chip">
+      <div class="chip-label">外在天氣</div>
+      <div class="chip-value" style="color:#3a9fd6">−2</div>
+      <div class="chip-desc">行為負荷尚可</div>
+    </div>
+    <div class="summary-chip">
+      <div class="chip-label">差異幅度</div>
+      <div class="chip-value" style="color:var(--deep-gold)">−6</div>
+      <div class="chip-desc">內遠低於外</div>
+    </div>
+    <div class="summary-chip">
+      <div class="chip-label">張力方位數</div>
+      <div class="chip-value" style="color:#f89077">6</div>
+      <div class="chip-desc">共 8 方位</div>
+    </div>
+    <div class="summary-chip">
+      <div class="chip-label">臨界方位</div>
+      <div class="chip-value" style="color:var(--deep-gold)">3</div>
+      <div class="chip-desc">天+4 · 山−4 · 澤−4</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════ BOTTLENECK ══════════════════════════════ -->
+<div class="section" style="max-width:900px; margin:0 auto;">
+  <div class="section-title">Step 5 · Bottleneck & Solution Entry</div>
+  <div class="section-heading">卡點與<span>解方</span></div>
+
+  <div class="bn-grid">
+    <div class="bn-card block">
+      <div class="bn-tag block">卡點 · Bottleneck</div>
+      <div class="bn-direction">澤 ☱</div>
+      <div class="bn-theme">連結 · 回饋 · 創意表達</div>
+      <div class="bn-body">
+        澤的主題是「讓自己被看見」與「接收外界的回應與滋養」。
+        內在 −2、外在 −4，雙向都在枯竭——<strong>你現在既沒有輸出連結的意願，外部也幾乎沒有流入回饋的管道</strong>。
+        <br><br>
+        澤卡住，通常在保護你免於「付出後被忽視的失落感」。
+        它可能是在說：<em>「先別再輸出了，等你準備好。」</em>
+      </div>
+    </div>
+    <div class="bn-card entry">
+      <div class="bn-tag entry">解方入口 · Solution Entry</div>
+      <div class="bn-direction">風 ☴</div>
+      <div class="bn-theme">傾聽 · 共識 · 溝通協調</div>
+      <div class="bn-body">
+        從澤逆時針走：澤→火（負）→雷（正）→地（負）→山（負）→水（正）→<strong>風（正）</strong>——
+        連續兩個正方位是水和風，<strong>第二個即為解方入口</strong>。
+        <br><br>
+        風（內在 +3）是你目前<strong>內在能量最充足的方位</strong>。
+        你想傾聽、想連結、想理解——這個驅力是真實的，可用的。
+        從這裡入手，讓能量循環先轉動起來。
+      </div>
+    </div>
+  </div>
+
+  <div class="route-path">
+    <span style="font-size:11px; letter-spacing:2px; text-transform:uppercase; color:rgba(237,210,166,0.3); margin-right:8px;">逆時針路徑</span>
+    <div class="route-step">
+      <span class="route-step-name start">澤 −6</span>
+      <span class="route-arrow">→</span>
+    </div>
+    <div class="route-step">
+      <span class="route-step-name neg">火 −2</span>
+      <span class="route-arrow">→</span>
+    </div>
+    <div class="route-step">
+      <span class="route-step-name pos">雷 +1 ✓</span>
+      <span class="route-arrow">→</span>
+    </div>
+    <div class="route-step">
+      <span class="route-step-name neg">地 −1</span>
+      <span class="route-arrow">→</span>
+    </div>
+    <div class="route-step">
+      <span class="route-step-name neg">山 −5</span>
+      <span class="route-arrow">→</span>
+    </div>
+    <div class="route-step">
+      <span class="route-step-name pos">水 +1 ✓</span>
+      <span class="route-arrow">→</span>
+    </div>
+    <div class="route-step">
+      <span class="route-step-name entry">風 +1 ← 入口</span>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════ TENSION ══════════════════════════════════ -->
+<div class="section section-alt" style="max-width:900px; margin:0 auto;">
+  <div class="section-title">Step 1 · Tension Flags</div>
+  <div class="section-heading">六大<span>張力區</span></div>
+
+  <div class="tension-list">
+
+    <!-- 天 外>內 gap=-7 -->
+    <div class="tension-item">
+      <div class="tension-header">
+        <div class="tension-direction">天 ☰ · 主權與承諾</div>
+        <div class="tension-gap-badge gap-outer">外&gt;內 Gap −7</div>
+        <div class="tension-type">外在行為高於內心感受（最強張力）</div>
+      </div>
+      <div class="tension-body">
+        外在 +4 已達臨界——你在外部展現出極強的使命感與承擔姿態，幾乎接近「公開宣示」的程度。
+        但內在 −3 顯示你對這個方向的<strong>內在確信度偏低</strong>，或是承擔的代價已經讓你感到疲憊。
+        +4 臨界提示：趨勢傾向往 +3 回落，外在承諾可能需要適度縮減到可承擔版本。
+      </div>
+      <div class="tension-action">界線盤點：你現在在替誰扛「方向/責任」？把其中一項還回去（授權/拒絕）。</div>
+    </div>
+
+    <!-- 雷 外>內 gap=-5 -->
+    <div class="tension-item">
+      <div class="tension-header">
+        <div class="tension-direction">雷 ☳ · 啟動與突破</div>
+        <div class="tension-gap-badge gap-outer">外&gt;內 Gap −5</div>
+        <div class="tension-type">被迫行動的可能</div>
+      </div>
+      <div class="tension-body">
+        外在 +3 表示你在外部仍持續出手、啟動新事物；但內在 −2 說明冒險的內在燃料已不充足。
+        這是<strong>外在要求你繼續突破，但你內在其實想喘口氣</strong>的典型組合。
+      </div>
+      <div class="tension-action">停止躁進：先設定止損（時間/錢/承諾）再做任何冒險。</div>
+    </div>
+
+    <!-- 風 內>外 gap=+5 -->
+    <div class="tension-item">
+      <div class="tension-header">
+        <div class="tension-direction">風 ☴ · 傾聽與共識</div>
+        <div class="tension-gap-badge gap-inner">內&gt;外 Gap +5</div>
+        <div class="tension-type">內心想要但行為出不來</div>
+      </div>
+      <div class="tension-body">
+        內在 +3 是全盤最高內在分——你非常想要深度溝通、傾聽、建立共識。
+        但外在 −2 說明這個渴望在行為層面幾乎沒有出口。
+        <strong>你的連結需求被壓在裡面，沒有被充分表達出來。</strong>
+      </div>
+      <div class="tension-action">寫下對方/客戶真正需求的 3 句話，然後把你的敘事改成「對方聽得懂」的版本。</div>
+    </div>
+
+    <!-- 火 外>內 gap=-4 -->
+    <div class="tension-item">
+      <div class="tension-header">
+        <div class="tension-direction">火 ☲ · 工具與求救</div>
+        <div class="tension-gap-badge gap-outer">外&gt;內 Gap −4</div>
+        <div class="tension-type">硬扛而非求援</div>
+      </div>
+      <div class="tension-body">
+        外在 +1 代表你還在使用工具、展現影響力；但內在 −3 說明你對自己的「掌控力」<strong>高度懷疑</strong>，
+        或正在硬撐一個你並不確信的影響力姿態。
+        這也常出現在「不好意思開口求救」的狀態。
+      </div>
+      <div class="tension-action">允許求救：把你正在硬扛的部分拆出來，找一個工具替代或向一個人開口要解法。</div>
+    </div>
+
+    <!-- 水 內>外 gap=+3 -->
+    <div class="tension-item">
+      <div class="tension-header">
+        <div class="tension-direction">水 ☵ · 共情與需求</div>
+        <div class="tension-gap-badge gap-inner">內&gt;外 Gap +3</div>
+        <div class="tension-type">共情渴望壓在心裡</div>
+      </div>
+      <div class="tension-body">
+        內在 +2 顯示你有溫柔、想被看見的一面；但外在 −1 說明這份需求在日常互動中幾乎沒有流動。
+        家庭新增（女兒出生）的脈絡在這裡特別值得留意<span class="infer-badge">推測</span>。
+      </div>
+      <div class="tension-action">主動問一句需求題：「你現在最需要我怎麼支持？」並做一個對應的小行動。</div>
+    </div>
+
+    <!-- 地 外>內 gap=-3 -->
+    <div class="tension-item">
+      <div class="tension-header">
+        <div class="tension-direction">地 ☷ · 承載與滋養</div>
+        <div class="tension-gap-badge gap-outer">外&gt;內 Gap −3</div>
+        <div class="tension-type">持續輸出未獲補充</div>
+      </div>
+      <div class="tension-body">
+        外在 +1 代表你仍在外部扮演「支撐者/提供者」的角色；
+        但內在 −2 說明你的<strong>內在豐盛感已在虧損狀態</strong>。
+        你在用一個半空的水壺澆別人的花。
+      </div>
+      <div class="tension-action">別再硬撐穩定：把一個「不必要的承載」放下（有人可以分擔）。</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════ EIGHT DIRECTIONS ════════════════════════ -->
+<div class="section" style="max-width:900px; margin:0 auto;">
+  <div class="section-title">Step 5 · Eight Directions Deep Read</div>
+  <div class="section-heading">八方位<span>深讀</span></div>
+
+  <div class="dir-grid">
+
+    <!-- 天 -->
+    <div class="dir-card" data-symbol="☰">
+      <div class="dir-card-header">
+        <div class="dir-symbol">☰</div>
+        <div>
+          <div class="dir-name">天 · 主權與承諾</div>
+          <div class="dir-theme">使命感 · 害怕失敗 · 生命靈數 8</div>
+        </div>
+      </div>
+      <div class="dir-scores">
+        <div class="dir-score"><div class="label">內在</div><div class="val neg">−3</div></div>
+        <div class="dir-score"><div class="label">外在</div><div class="val teal">+4</div></div>
+        <div class="dir-score"><div class="label">總和</div><div class="val">+1</div></div>
+      </div>
+      <div class="dir-total pos-total">臨界 +4 外在</div>
+      <div class="dir-body">
+        <strong>事業：</strong>你在外部表現出強烈的使命承諾，但內在對這個方向的確信正在動搖。要問的問題是：這個使命是你選的，還是被期待你要扛的？<br>
+        <strong>關係：</strong>你在替人承擔決策方向，但你自己可能還沒想清楚自己要什麼。<br>
+        <strong>內在：</strong>主權（自己做決定）和承諾（對外兌現）之間出現裂縫——需要一次誠實的「我真正在乎什麼」盤點。
+      </div>
+    </div>
+
+    <!-- 風 -->
+    <div class="dir-card" data-symbol="☴">
+      <div class="dir-card-header">
+        <div class="dir-symbol">☴</div>
+        <div>
+          <div class="dir-name">風 · 傾聽與共識</div>
+          <div class="dir-theme">溝通協調 · 害怕錯過 · 生命靈數 5</div>
+        </div>
+      </div>
+      <div class="dir-scores">
+        <div class="dir-score"><div class="label">內在</div><div class="val pos">+3</div></div>
+        <div class="dir-score"><div class="label">外在</div><div class="val neg">−2</div></div>
+        <div class="dir-score"><div class="label">總和</div><div class="val">+1</div></div>
+      </div>
+      <div class="dir-total pos-total">全盤最高內在 · 解方入口</div>
+      <div class="dir-body">
+        <strong>事業：</strong>你有強烈的傾聽欲望，想真正聽懂客戶、夥伴、市場在說什麼——但當前的外在互動模式還不允許這個深度發生。<br>
+        <strong>關係：</strong>你比你表現出來的更想連結、更想被理解。這個壓在裡面的渴望需要找到一個安全的出口。<br>
+        <strong>內在：</strong>風是你的解方入口，也是你當前<strong>最可用的資源</strong>。從「真正傾聽一個人」開始。
+      </div>
+    </div>
+
+    <!-- 水 -->
+    <div class="dir-card" data-symbol="☵">
+      <div class="dir-card-header">
+        <div class="dir-symbol">☵</div>
+        <div>
+          <div class="dir-name">水 · 共情與需求</div>
+          <div class="dir-theme">擁有所愛 · 害怕孤獨 · 生命靈數 6</div>
+        </div>
+      </div>
+      <div class="dir-scores">
+        <div class="dir-score"><div class="label">內在</div><div class="val pos">+2</div></div>
+        <div class="dir-score"><div class="label">外在</div><div class="val neg">−1</div></div>
+        <div class="dir-score"><div class="label">總和</div><div class="val">+1</div></div>
+      </div>
+      <div class="dir-total pos-total">總和正向 · 逆時針連續正之一</div>
+      <div class="dir-body">
+        <strong>事業：</strong>你理解客戶需求的能力仍在線，只是當前沒有足夠空間慢下來發揮。<br>
+        <strong>關係：</strong>你想照顧，但你自己也需要被照顧。這個互相的部分現在可能是單向的。<br>
+        <strong>內在：</strong>水是逆時針路徑中連續正方位的前一個，幫助能量流向風（解方入口）。先讓自己的感受有一個出口。
+      </div>
+    </div>
+
+    <!-- 山 -->
+    <div class="dir-card" data-symbol="☶">
+      <div class="dir-card-header">
+        <div class="dir-symbol">☶</div>
+        <div>
+          <div class="dir-name">山 · 界線與秩序</div>
+          <div class="dir-theme">避免傷害 · 害怕失去 · 生命靈數 2</div>
+        </div>
+      </div>
+      <div class="dir-scores">
+        <div class="dir-score"><div class="label">內在</div><div class="val neg">−1</div></div>
+        <div class="dir-score"><div class="label">外在</div><div class="val neg">−4</div></div>
+        <div class="dir-score"><div class="label">總和</div><div class="val neg">−5</div></div>
+      </div>
+      <div class="dir-total neg-total">臨界 −4 外在 · 第二低</div>
+      <div class="dir-body">
+        <strong>事業：</strong>界線和規則層已接近枯竭。外在 −4 臨界意味著現有的系統/流程正在承壓，但趨勢傾向開始回升。<br>
+        <strong>關係：</strong>你在保護某些關係不受傷，但付出的代價是「減少了流動」。<br>
+        <strong>內在：</strong>山低不一定是問題——有時它是在說「先不要再建更多規則了，先讓既有的消化一下」。
+      </div>
+    </div>
+
+    <!-- 地 -->
+    <div class="dir-card" data-symbol="☷">
+      <div class="dir-card-header">
+        <div class="dir-symbol">☷</div>
+        <div>
+          <div class="dir-name">地 · 承載與滋養</div>
+          <div class="dir-theme">內在豐盛 · 害怕匱乏 · 生命靈數 4</div>
+        </div>
+      </div>
+      <div class="dir-scores">
+        <div class="dir-score"><div class="label">內在</div><div class="val neg">−2</div></div>
+        <div class="dir-score"><div class="label">外在</div><div class="val pos">+1</div></div>
+        <div class="dir-score"><div class="label">總和</div><div class="val neg">−1</div></div>
+      </div>
+      <div class="dir-total neg-total">微負</div>
+      <div class="dir-body">
+        <strong>事業：</strong>你仍在給予（外在+1），但內在已感到匱乏。這樣的輸出不可持續太久。<br>
+        <strong>關係：</strong>你的穩定感是別人依賴的資源，但你有沒有人在滋養你？<br>
+        <strong>內在：</strong>地的匱乏通常先從休息補起。不需要什麼大計畫，就是先讓自己被補充一次。
+      </div>
+    </div>
+
+    <!-- 雷 -->
+    <div class="dir-card" data-symbol="☳">
+      <div class="dir-card-header">
+        <div class="dir-symbol">☳</div>
+        <div>
+          <div class="dir-name">雷 · 啟動與突破</div>
+          <div class="dir-theme">冒險精神 · 害怕停滯 · 生命靈數 7</div>
+        </div>
+      </div>
+      <div class="dir-scores">
+        <div class="dir-score"><div class="label">內在</div><div class="val neg">−2</div></div>
+        <div class="dir-score"><div class="label">外在</div><div class="val pos">+3</div></div>
+        <div class="dir-score"><div class="label">總和</div><div class="val">+1</div></div>
+      </div>
+      <div class="dir-total pos-total">外在偏高</div>
+      <div class="dir-body">
+        <strong>事業：</strong>你對外仍保持高行動輸出，但內在的冒險意願已下降——你可能在做「習慣性的突破」而不是「真心想要的突破」。<br>
+        <strong>關係：</strong>你喜歡啟動新的可能，但現在也許更需要深化已有的連結。<br>
+        <strong>內在：</strong>把「破框」降級：只做一個最小測試，不做全面翻盤。
+      </div>
+    </div>
+
+    <!-- 火 -->
+    <div class="dir-card" data-symbol="☲">
+      <div class="dir-card-header">
+        <div class="dir-symbol">☲</div>
+        <div>
+          <div class="dir-name">火 · 工具與求救</div>
+          <div class="dir-theme">掌握影響力 · 害怕失控 · 生命靈數 1</div>
+        </div>
+      </div>
+      <div class="dir-scores">
+        <div class="dir-score"><div class="label">內在</div><div class="val neg">−3</div></div>
+        <div class="dir-score"><div class="label">外在</div><div class="val pos">+1</div></div>
+        <div class="dir-score"><div class="label">總和</div><div class="val neg">−2</div></div>
+      </div>
+      <div class="dir-total neg-total">偏負</div>
+      <div class="dir-body">
+        <strong>事業：</strong>你外在仍在運作工具、展現影響力，但內在對「我有沒有掌控感」持高度懷疑。<br>
+        <strong>關係：</strong>不敢求救、不敢讓人看到你不確定的樣子——這正在消耗你。<br>
+        <strong>內在：</strong>火的負向通常可以用一個動作打破：向一個你信任的人說一件你正在硬扛的事。
+      </div>
+    </div>
+
+    <!-- 澤 -->
+    <div class="dir-card" data-symbol="☱" style="border-color: rgba(193,62,42,0.3);">
+      <div class="dir-card-header">
+        <div class="dir-symbol">☱</div>
+        <div>
+          <div class="dir-name">澤 · 連結與回饋</div>
+          <div class="dir-theme">創意表達 · 害怕沉默 · 生命靈數 3</div>
+        </div>
+      </div>
+      <div class="dir-scores">
+        <div class="dir-score"><div class="label">內在</div><div class="val neg">−2</div></div>
+        <div class="dir-score"><div class="label">外在</div><div class="val neg">−4</div></div>
+        <div class="dir-score"><div class="label">總和</div><div class="val neg">−6</div></div>
+      </div>
+      <div class="dir-total neg-total">⚠ 全盤最低 · 卡點</div>
+      <div class="dir-body">
+        <strong>事業：</strong>你與外部世界的「回饋循環」幾乎斷掉了——你沒有在接收來自市場/客戶/夥伴的正向回應，也沒有在輸出能夠被回應的東西。<br>
+        <strong>關係：</strong>你可能在沉默中等待，或者選擇不讓自己被看到。<br>
+        <strong>內在：</strong>澤的 −4 臨界提示趨勢傾向回升——它已在底部，不用強迫開窗，只需一個真實的小輸出就能讓它開始動。
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════ FOUR MANIFESTATIONS ═════════════════════ -->
+<div class="section section-alt" style="max-width:900px; margin:0 auto;">
+  <div class="section-title">Step 2 · Four Manifestations</div>
+  <div class="section-heading">外在<span>四象</span></div>
+
+  <div class="quad-grid">
+    <div class="quad-card">
+      <div class="quad-label">顯化象</div>
+      <div class="quad-name">顯化 · 天+風+火</div>
+      <div class="quad-score" style="color:#4fc88a">+3</div>
+      <div class="quad-bar-wrap"><div class="quad-bar" style="width:62%; background:linear-gradient(90deg,#2e6b4f,#4fc88a)"></div></div>
+      <div class="quad-body">你正在顯化的事物仍有正向動能——行動、內容、方向在外部都還看得見。但天（主權）的內在空洞讓這個顯化缺乏底氣支撐。</div>
+    </div>
+    <div class="quad-card">
+      <div class="quad-label">貴人象</div>
+      <div class="quad-name">貴人 · 澤+水+地</div>
+      <div class="quad-score" style="color:#f15928">−4</div>
+      <div class="quad-bar-wrap"><div class="quad-bar" style="width:25%; background:linear-gradient(90deg,#c43e2a,#f89077)"></div></div>
+      <div class="quad-body">外在支持與資源流入接近最低。你現在是在自己扛，而不是在接受支援。貴人（外部資源）這條路是最需要主動打開的。</div>
+    </div>
+    <div class="quad-card">
+      <div class="quad-label">規劃象</div>
+      <div class="quad-name">規劃 · 風+山+地</div>
+      <div class="quad-score" style="color:#f15928">−5</div>
+      <div class="quad-bar-wrap"><div class="quad-bar" style="width:18%; background:linear-gradient(90deg,#c43e2a,#f89077)"></div></div>
+      <div class="quad-body">外在的結構、計畫、秩序層偏低。你可能感覺到計畫不夠清晰，或已有的計畫沒有被好好執行。先精簡，不要再加新規劃。</div>
+    </div>
+    <div class="quad-card">
+      <div class="quad-label">掌握象</div>
+      <div class="quad-name">掌握 · 天+雷+澤</div>
+      <div class="quad-score" style="color:#4fc88a">+3</div>
+      <div class="quad-bar-wrap"><div class="quad-bar" style="width:62%; background:linear-gradient(90deg,#2e6b4f,#4fc88a)"></div></div>
+      <div class="quad-body">外在掌控感仍在——你還能推動事情發生，仍有號召力。但這個掌握感的燃料（天+雷）都偏向「外高內低」的張力狀態，需要補充內在。</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════ FOUR FEELINGS ══════════════════════════ -->
+<div class="section" style="max-width:900px; margin:0 auto;">
+  <div class="section-title">Step 3 · Four Feelings</div>
+  <div class="section-heading">內在<span>四感</span></div>
+
+  <div class="quad-grid">
+    <div class="quad-card">
+      <div class="quad-label">價值感</div>
+      <div class="quad-name">價值感 · 天+地+山</div>
+      <div class="quad-score" style="color:#f15928">−6</div>
+      <div class="quad-bar-wrap"><div class="quad-bar" style="width:15%; background:#c43e2a"></div></div>
+      <div class="quad-body">「我值得嗎？我做的事有意義嗎？」這個問題目前的內在答案偏向沉默或懷疑。這通常在新生命（女兒）出生後、角色轉換期特別容易浮現<span class="infer-badge">推測</span>。</div>
+    </div>
+    <div class="quad-card">
+      <div class="quad-label">幸福感</div>
+      <div class="quad-name">幸福感 · 水+澤+風</div>
+      <div class="quad-score" style="color:#4fc88a">+3</div>
+      <div class="quad-bar-wrap"><div class="quad-bar" style="width:62%; background:linear-gradient(90deg,#2e6b4f,#4fc88a)"></div></div>
+      <div class="quad-body">全盤四感中最高。你還有快樂的能力，連結、溝通、被理解的渴望都在。這是你的錨——當其他感受在低谷時，風（內在+3）是你仍然可以回來的地方。</div>
+    </div>
+    <div class="quad-card">
+      <div class="quad-label">成就感</div>
+      <div class="quad-name">成就感 · 火+雷+天</div>
+      <div class="quad-score" style="color:#f15928">−8</div>
+      <div class="quad-bar-wrap"><div class="quad-bar" style="width:5%; background:#c43e2a"></div></div>
+      <div class="quad-body">全盤最低。你對自己做的事「算不算有成就」持高度懷疑。這不是失敗，而是說明你的成就標準可能正在更新——舊的標準已不能滿足，新的還沒建立。</div>
+    </div>
+    <div class="quad-card">
+      <div class="quad-label">滿足感</div>
+      <div class="quad-name">滿足感 · 地+山+水</div>
+      <div class="quad-score" style="color:var(--mist)">−1</div>
+      <div class="quad-bar-wrap"><div class="quad-bar" style="width:45%; background:rgba(237,210,166,0.3)"></div></div>
+      <div class="quad-body">微負，接近中性。你還有一定的滿足感基底，但也還沒真正感到「夠了」。這個感受通常需要水（共情）+地（休息）先補充才能提升。</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════ FOUR AXES ══════════════════════════════ -->
+<div class="section section-alt" style="max-width:900px; margin:0 auto;">
+  <div class="section-title">Step 4 · Four Axes</div>
+  <div class="section-heading">四軸<span>人格代碼</span><span class="infer-badge">需驗證</span></div>
+
+  <div class="axis-code-display">
+    <div class="axis-code-label">萬謬 16 型人格代碼</div>
+    <div class="axis-code-value"><span>A</span>·<span>S</span>·R·MU</div>
+    <div class="axis-code-desc">利他使命者 · 支持型關係 · 穩健動力 · 靈活堅守混合</div>
+  </div>
+
+  <div class="axis-card">
+    <div class="axis-header">
+      <div class="axis-badge">A</div>
+      <div class="axis-title-block">
+        <div class="axis-name">使命守護軸 — Altruist 利他型</div>
+        <div class="axis-vs">天(+1) vs 地(−1) → 天略高 · 但差距微弱</div>
+      </div>
+    </div>
+    <div class="axis-body">
+      你的使命感（天）稍強於自我保護（地），傾向用更大的目標驅動自己而非先確保自身安全。
+      但差距只有 +2，這個軸線目前正在拉扯——你同時需要使命感和自我滋養，兩個都在要求你注意。
+    </div>
+  </div>
+
+  <div class="axis-card">
+    <div class="axis-header">
+      <div class="axis-badge">S</div>
+      <div class="axis-title-block">
+        <div class="axis-name">關係動態軸 — Supporter 支持型</div>
+        <div class="axis-vs">水(+1) vs 火(−2) → 水高</div>
+      </div>
+    </div>
+    <div class="axis-body">
+      你在關係中傾向「情感連結」優先於「效率掌控」。你想支持、想照顧、想被理解。
+      但目前火（影響力/工具）偏低，說明你的支持能力在這段時間受到限制——給出去的多，工具補充的少。
+    </div>
+  </div>
+
+  <div class="axis-card">
+    <div class="axis-header">
+      <div class="axis-badge">R</div>
+      <div class="axis-title-block">
+        <div class="axis-name">動力模型軸 — Realist 穩健型</div>
+        <div class="axis-vs">山(−5) vs 澤(−6) → 山略高 · 兩者皆低</div>
+      </div>
+    </div>
+    <div class="axis-body">
+      兩個方位都在負區，差距只有 1——這個代碼需要更多驗證。
+      暫時的解讀是：你偏向「先確認再行動」的穩健傾向，但整個動力系統現在都在低位。
+      不是你不想動，是引擎需要補充燃料。
+    </div>
+  </div>
+
+  <div class="axis-card">
+    <div class="axis-header">
+      <div class="axis-badge">MU</div>
+      <div class="axis-title-block">
+        <div class="axis-name">情緒結構軸 — M/U 混合型</div>
+        <div class="axis-vs">風(+1) vs 雷(+1) → 平手</div>
+      </div>
+    </div>
+    <div class="axis-body">
+      風（M 靈活感性）和雷（U 堅守行動）能量完全相等。這是一個真正的混合型——
+      你在不同情境下會切換：有時感性直覺優先，有時原則紀律優先。
+      這種靈活是優勢，代價是有時自己也不確定「這次我要用哪個模式」。
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════ ACTION PLAN ════════════════════════════ -->
+<div class="section" style="max-width:900px; margin:0 auto;">
+  <div class="section-title">Step 6 · Integrated Action Plan</div>
+  <div class="section-heading">三流<span>行動方案</span></div>
+
+  <div class="action-stream">
+    <div class="stream-title">能量調整 <span class="stream-tag">Energy Stream</span></div>
+    <ul class="action-list">
+      <li><span class="action-num">E1</span>先補睡眠/休息一次：不要等「有空再休息」，今晚刻意早 30 分鐘結束工作。這是地（滋養）最小的補充動作。</li>
+      <li><span class="action-num">E2</span>建立一個「關機前 3 行」的小儀式：每天結束工作時寫下今天做了什麼、感覺怎樣、明天只做一件什麼。讓天（使命）跟內在同步，不只是外在承諾。</li>
+      <li><span class="action-num">E3</span>砍掉一個外在承諾（天/雷的界線盤點）：今週找出一件你仍在扛但其實可以放掉或授權的事，把它還回去。</li>
+    </ul>
+  </div>
+
+  <div class="action-stream">
+    <div class="stream-title">關係調整 <span class="stream-tag">Relationship Stream</span></div>
+    <ul class="action-list">
+      <li><span class="action-num">R1</span>向一個人（夥伴/朋友/伴侶）說一件你正在硬扛的事。不是要解決它，只是說出來。火（求救）的最小開關。</li>
+      <li><span class="action-num">R2</span>跟你最親近的人問一句：「你現在最需要我怎麼支持？」——然後只做那一件事。水（共情）從傾聽開始。</li>
+      <li><span class="action-num">R3</span>風的行動：找一個你想深入溝通的人，安排一次沒有議程的對話（不是 meeting，是真正的聊天）。</li>
+    </ul>
+  </div>
+
+  <div class="action-stream">
+    <div class="stream-title">認知行為調整 <span class="stream-tag">Cognition + Behavior Stream</span></div>
+    <ul class="action-list">
+      <li><span class="action-num">C1</span>成就感重定義：寫下 3 件你這一季做到的事，無論大小。成就感 −8 通常不是真的沒成就，是標準在更新、舊的認可失效了。</li>
+      <li><span class="action-num">C2</span>事實/推論分離練習：選一件你現在覺得「做不好」的事，把「事實是」和「我覺得是」分開各寫一句。天（主權）的內在確信需要這個練習支撐。</li>
+      <li><span class="action-num">C3</span>把澤（連結）降壓：你不需要立刻恢復所有社交/輸出。允許自己「安靜一陣子」，不是放棄，是讓澤的臨界回到可用。</li>
+    </ul>
+  </div>
+
+  <!-- Micro Action -->
+  <div class="micro-action">
+    <div class="micro-tag">⚑ 最小一步 · One Micro Action</div>
+    <div class="micro-action-text">
+      今晚，找你最信任的一個人，<br>說一件你正在硬扛、但還沒說出口的事。
+    </div>
+    <div class="micro-timebox">⏱ 15 分鐘內可完成</div>
+    <div class="micro-why">
+      來源：風（解方入口）+ 火（張力：允許求救）+ 水（內外張力：共情需要出口）<br>
+      完成標準：說出來了，對方收到了。不需要對方解決它。<br>
+      <em>這一步做完，澤開始回流，風的能量才能真正被啟動。</em>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══════════════════════════════════ REFLECTION ══════════════════════════════ -->
+<div class="section section-alt" style="max-width:900px; margin:0 auto;">
+  <div class="section-title">Step 7 · Self-Summary</div>
+  <div class="section-heading">你的<span>自我反思</span></div>
+
+  <div style="font-size:14px; color:rgba(237,210,166,0.5); margin-bottom:24px; line-height:1.8;">
+    這些問題沒有標準答案。你可以現在回答，也可以帶著它們沉澱幾天再回來。
+  </div>
+
+  <div class="reflection-grid">
+    <div class="reflection-card">
+      <div class="reflection-q">今天這張盤，最讓你有感的一句話或一個畫面是什麼？</div>
+      <div class="reflection-hint">讓它浮現，不要分析它。</div>
+    </div>
+    <div class="reflection-card">
+      <div class="reflection-q">你看到的「問題背後的問題」是什麼？</div>
+      <div class="reflection-hint">澤的卡點在保護你什麼？</div>
+    </div>
+    <div class="reflection-card">
+      <div class="reflection-q">你現在外在表現和內在感受之間最大的落差是哪一個？</div>
+      <div class="reflection-hint">天、雷、火都有外>內的張力。哪個最讓你有共鳴？</div>
+    </div>
+    <div class="reflection-card">
+      <div class="reflection-q">你發現自己目前最強的可用資源是什麼？</div>
+      <div class="reflection-hint">風（內在+3）是你的錨。你有沒有在使用它？</div>
+    </div>
+    <div class="reflection-card">
+      <div class="reflection-q">成就感 −8：舊的標準是什麼？新的你想要是什麼？</div>
+      <div class="reflection-hint">不需要答案，只需要把問題打開。</div>
+    </div>
+    <div class="reflection-card">
+      <div class="reflection-q">你願意在 48 小時內完成的那個「最小一步」是什麼？</div>
+      <div class="reflection-hint">一件事，今晚或明天，15 分鐘。</div>
+    </div>
+    <div class="reflection-card">
+      <div class="reflection-q">完成那一步後，你希望自己感覺到什麼改變？</div>
+      <div class="reflection-hint">不用大，一點點鬆動就算。</div>
+    </div>
+    <div class="reflection-card">
+      <div class="reflection-q">你需要誰或什麼，支持你完成它？</div>
+      <div class="reflection-hint">貴人象 −4 在等你打開門。</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- Footer -->
+<footer>
+  <div style="font-family: 'Cormorant Garamond', serif; font-size:18px; font-style:italic; color:rgba(237,210,166,0.25); margin-bottom:12px;">One Muse · 能量系統</div>
+  <div>MUSEON · 2026.03.29 · Zeal 個人解讀 · 完整版</div>
+  <div style="margin-top:8px; font-size:10px; letter-spacing:2px;">
+    正負代表偏移，不代表好壞 · 推論處已標記，以你的感受為準
+  </div>
+</footer>
+
+</body>
+</html>
