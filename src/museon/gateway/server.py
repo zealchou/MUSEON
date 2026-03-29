@@ -3021,18 +3021,6 @@ def create_app() -> FastAPI:
             except Exception as e:
                 logger.warning(f"Governor-Brain bridge failed (degraded): {e}")
 
-        # ── 註冊 Bot Commands + Menu Button ──
-        try:
-            tg_adapter = app.state.telegram_adapter if hasattr(app.state, "telegram_adapter") else None
-            if tg_adapter and hasattr(tg_adapter, "application"):
-                tg_bot = tg_adapter.application.bot
-                from museon.channels.telegram_menu import register_bot_commands, setup_menu_button
-                await register_bot_commands(tg_bot)
-                await setup_menu_button(tg_bot)
-                logger.info("📋 Bot Commands + MenuButton registered")
-        except Exception as e:
-            logger.warning(f"Bot menu setup failed (degraded): {e}")
-
         # ── Ensure workspace directory exists (v9.0) ──
         workspace_dir = brain.data_dir / "workspace"
         workspace_dir.mkdir(parents=True, exist_ok=True)
@@ -3231,6 +3219,16 @@ def create_app() -> FastAPI:
 
                     await adapter.start()
                     app.state.telegram_adapter = adapter
+
+                    # v13: 註冊 Bot Commands + Menu Button
+                    try:
+                        from museon.channels.telegram_menu import register_bot_commands, setup_menu_button
+                        tg_bot = adapter.application.bot
+                        await register_bot_commands(tg_bot)
+                        await setup_menu_button(tg_bot)
+                        logger.info("📋 Bot Commands + MenuButton registered")
+                    except Exception as _menu_err:
+                        logger.warning(f"Bot menu setup failed (degraded): {_menu_err}")
 
                     # v10.0: 設定 InteractionQueue
                     try:
