@@ -28,10 +28,10 @@
       "node_type": "intention",
       "label": "任務委派",
       "properties": {
-        "detected_at": "2026-03-24T19:11:17.008309"
+        "detected_at": "2026-03-30T11:46:37.783381"
       },
       "created_at": "2026-03-11T12:32:59.013834",
-      "updated_at": "2026-03-24T19:11:17.008562"
+      "updated_at": "2026-03-30T11:46:37.783699"
     },
     "topic_turn_3": {
       "node_id": "topic_turn_3",
@@ -246,10 +246,10 @@
       "node_type": "intention",
       "label": "資訊查詢",
       "properties": {
-        "detected_at": "2026-03-25T21:19:08.835272"
+        "detected_at": "2026-03-30T08:49:25.768964"
       },
       "created_at": "2026-03-12T20:54:43.819627",
-      "updated_at": "2026-03-25T21:19:08.835465"
+      "updated_at": "2026-03-30T08:49:25.769113"
     },
     "topic_turn_23": {
       "node_id": "topic_turn_23",
@@ -300,11 +300,11 @@
       "node_type": "emotion",
       "label": "感謝",
       "properties": {
-        "detected_at": "2026-03-24T19:56:57.714688",
+        "detected_at": "2026-03-30T15:48:44.312901",
         "source": "text_analysis"
       },
       "created_at": "2026-03-12T21:49:05.444640",
-      "updated_at": "2026-03-24T19:56:57.714820"
+      "updated_at": "2026-03-30T15:48:44.313029"
     },
     "topic_turn_28": {
       "node_id": "topic_turn_28",
@@ -377,10 +377,10 @@
       "node_type": "intention",
       "label": "求助",
       "properties": {
-        "detected_at": "2026-03-24T19:08:01.324383"
+        "detected_at": "2026-03-30T09:19:08.140963"
       },
       "created_at": "2026-03-12T22:57:07.781802",
-      "updated_at": "2026-03-24T19:08:01.324581"
+      "updated_at": "2026-03-30T09:19:08.141303"
     },
     "topic_turn_35": {
       "node_id": "topic_turn_35",
@@ -2481,12 +2481,199 @@
       },
       "created_at": "2026-03-26T00:25:06.064155",
       "updated_at": "2026-03-26T00:25:06.064157"
+    },
+    "emotion_焦慮": {
+      "node_id": "emotion_焦慮",
+      "node_type": "emotion",
+      "label": "焦慮",
+      "properties": {
+        "detected_at": "2026-03-29T16:23:27.241231",
+        "source": "text_analysis"
+      },
+      "created_at": "2026-03-29T16:23:27.241307",
+      "updated_at": "2026-03-29T16:23:27.241312"
+    },
+    "topic_turn_227": {
+      "node_id": "topic_turn_227",
+      "node_type": "topic",
+      "label": "turn_227",
+      "properties": {
+        "content_length": 1645,
+        "detected_at": "2026-03-29T16:23:27.241231"
+      },
+      "created_at": "2026-03-29T16:23:27.241406",
+      "updated_at": "2026-03-29T16:23:27.241410"
+    },
+    "topic_turn_228": {
+      "node_id": "topic_turn_228",
+      "node_type": "topic",
+      "label": "turn_228",
+      "properties": {
+        "content_length": 1580,
+        "detected_at": "2026-03-30T08:21:57.961670"
+      },
+      "created_at": "2026-03-30T08:21:57.961932",
+      "updated_at": "2026-03-30T08:21:57.961935"
+    },
+    "topic_turn_229": {
+      "node_id": "topic_turn_229",
+      "node_type": "topic",
+      "label": "turn_229",
+      "properties": {
+        "content_length": 25,
+        "detected_at": "2026-03-30T08:25:15.765649"
+      },
+      "created_at": "2026-03-30T08:25:15.765736",
+      "updated_at": "2026-03-30T08:25:15.765743"
+    },
+    "topic_turn_230": {
+      "node_id": "topic_turn_230",
+      "node_type": "topic",
+      "label": "turn_230",
+      "properties": {
+        "content_length": 36,
+        "detected_at": "2026-03-30T08:27:20.397497"
+      },
+      "created_at": "2026-03-30T08:27:20.397712",
+      "updated_at": "2026-03-30T08:27:20.397731"
+    },
+    "topic_turn_231": {
+      "node_id": "topic_turn_231",
+      "node_type": "topic",
+      "label": "turn_231",
+      "properties": {
+        "content_length": 55,
+        "detected_at": "2026-03-30T08:29:10.766476"
+      },
+      "created_at": "2026-03-30T08:29:10.766550",
+      "updated_at": "2026-03-30T08:29:10.766556"
+    },
+    "topic_turn_232": {
+      "node_id": "topic_turn_232",
+      "node_type": "topic",
+      "label": "turn_232",
+      "properties": {
+        "content_length": 64,
+        "detected_at": "2026-03-30T08:45:04.809879"
+      },
+      "created_at": "2026-03-30T08:45:04.809946",
+      "updated_at": "2026-03-30T08:45:04.809951"
+    },
+    "topic_turn_233": {
+      "node_id": "topic_turn_233",
+      "node_type": "topic",
+      "label": "turn_233",
+      "properties": {
+        "content_length": 86,
+        "detected_at": "2026-03-30T08:49:25.768964"
+      },
+      "created_at": "2026-03-30T08:49:25.769145",
+      "updated_at": "2026-03-30T08:49:25.769149"
+    },
+    "topic_turn_234": {
+      "node_id": "topic_turn_234",
+      "node_type": "topic",
+      "label": "turn_234",
+      "properties": {
+        "content_length": 1862,
+        "detected_at": "2026-03-30T08:56:31.268322"
+      },
+      "created_at": "2026-03-30T08:56:31.268596",
+      "updated_at": "2026-03-30T08:56:31.268600"
+    },
+    "topic_turn_235": {
+      "node_id": "topic_turn_235",
+      "node_type": "topic",
+      "label": "turn_235",
+      "properties": {
+        "content_length": 55,
+        "detected_at": "2026-03-30T09:02:02.300543"
+      },
+      "created_at": "2026-03-30T09:02:02.300617",
+      "updated_at": "2026-03-30T09:02:02.300624"
+    },
+    "topic_turn_236": {
+      "node_id": "topic_turn_236",
+      "node_type": "topic",
+      "label": "turn_236",
+      "properties": {
+        "content_length": 1812,
+        "detected_at": "2026-03-30T09:19:08.140963"
+      },
+      "created_at": "2026-03-30T09:19:08.141332",
+      "updated_at": "2026-03-30T09:19:08.141336"
+    },
+    "topic_turn_237": {
+      "node_id": "topic_turn_237",
+      "node_type": "topic",
+      "label": "turn_237",
+      "properties": {
+        "content_length": 104,
+        "detected_at": "2026-03-30T11:26:23.665412"
+      },
+      "created_at": "2026-03-30T11:26:23.665531",
+      "updated_at": "2026-03-30T11:26:23.665537"
+    },
+    "topic_turn_238": {
+      "node_id": "topic_turn_238",
+      "node_type": "topic",
+      "label": "turn_238",
+      "properties": {
+        "content_length": 705,
+        "detected_at": "2026-03-30T11:46:37.783381"
+      },
+      "created_at": "2026-03-30T11:46:37.783716",
+      "updated_at": "2026-03-30T11:46:37.783720"
+    },
+    "topic_turn_239": {
+      "node_id": "topic_turn_239",
+      "node_type": "topic",
+      "label": "turn_239",
+      "properties": {
+        "content_length": 37,
+        "detected_at": "2026-03-30T15:21:19.369570"
+      },
+      "created_at": "2026-03-30T15:21:19.369691",
+      "updated_at": "2026-03-30T15:21:19.369698"
+    },
+    "topic_turn_240": {
+      "node_id": "topic_turn_240",
+      "node_type": "topic",
+      "label": "turn_240",
+      "properties": {
+        "content_length": 44,
+        "detected_at": "2026-03-30T15:36:30.172225"
+      },
+      "created_at": "2026-03-30T15:36:30.172333",
+      "updated_at": "2026-03-30T15:36:30.172341"
+    },
+    "topic_turn_241": {
+      "node_id": "topic_turn_241",
+      "node_type": "topic",
+      "label": "turn_241",
+      "properties": {
+        "content_length": 128,
+        "detected_at": "2026-03-30T15:48:44.312901"
+      },
+      "created_at": "2026-03-30T15:48:44.313077",
+      "updated_at": "2026-03-30T15:48:44.313082"
+    },
+    "topic_turn_242": {
+      "node_id": "topic_turn_242",
+      "node_type": "topic",
+      "label": "turn_242",
+      "properties": {
+        "content_length": 78,
+        "detected_at": "2026-03-30T15:54:21.470525"
+      },
+      "created_at": "2026-03-30T15:54:21.471268",
+      "updated_at": "2026-03-30T15:54:21.471285"
     }
   },
   "edges": {},
   "metadata": {
-    "turn_count": 217,
-    "last_content_length": 668
+    "turn_count": 233,
+    "last_content_length": 78
   },
-  "last_updated": "2026-03-26T00:25:06.064020"
+  "last_updated": "2026-03-30T15:54:21.470525"
 }

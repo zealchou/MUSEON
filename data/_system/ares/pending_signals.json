@@ -126,5 +126,239 @@
     "suggestion": "💰 Nia 提到「需要」——這可能是一個服務機會。要不要主動了解他的需求？",
     "urgency": "medium",
     "chat_id": ""
+  },
+  {
+    "signal_type": "my_commitment",
+    "commitments": [
+      {
+        "type": "my_commitment",
+        "keyword": "幫你",
+        "to": "",
+        "content": "[群組近期對話紀錄]\n  41:11 MUSEON: 這個問題我需要先確認一下，稍等。\n  41:12 MUSEON: 這個問題我需要先確認一下，稍等。\n  54:24 Feng: Zeal \n要不要",
+        "detected_at": "2026-03-30T08:22:51.758170",
+        "due_reminder": "2026-04-02T08:22:51.758378"
+      }
+    ],
+    "detected_at": "2026-03-30T08:22:51.758396"
+  },
+  {
+    "signal_type": "commitment",
+    "sender": "Feng",
+    "content_snippet": "[群組近期對話紀錄]\n  41:11 MUSEON: 這個問題我需要先確認一下，稍等。\n  41:12 MUSEON: 這個問題我需要先確認一下，稍等。\n  54:24 Feng: Zeal \n要不要",
+    "suggestion": "📌 你剛對 Feng 承諾了「幫你」相關的事。要不要設個提醒確保如期完成？",
+    "urgency": "medium",
+    "chat_id": ""
+  },
+  {
+    "signal_type": "opportunity",
+    "sender": "Feng",
+    "content_snippet": "[群組近期對話紀錄]\n  41:11 MUSEON: 這個問題我需要先確認一下，稍等。\n  41:12 MUSEON: 這個問題我需要先確認一下，稍等。\n  54:24 Feng: Zeal \n要不要",
+    "suggestion": "💰 Feng 提到「需要」——這可能是一個服務機會。要不要主動了解他的需求？",
+    "urgency": "medium",
+    "chat_id": ""
+  },
+  {
+    "signal_type": "risk",
+    "sender": "Feng",
+    "content_snippet": "Q5：如果你把「直接做出來」做到極致\n👉客戶會不會願意「只為這一個功能付錢」？\n\nA 會\nB 不確定\nC 不會",
+    "suggestion": "⚠️ Feng 提到「不確定」——可能有流失風險。建議主動關心，不要等他正式提出。",
+    "urgency": "high",
+    "chat_id": ""
+  },
+  {
+    "signal_type": "my_commitment",
+    "commitments": [
+      {
+        "type": "my_commitment",
+        "keyword": "提案",
+        "to": "",
+        "content": "Q6：如果你「消失」\n👉客戶哪一個結果會直接變差？\n\nA 提案成功率下降\nB 決策錯誤增加\nC 產出速度變慢\nD 其他（寫結果）",
+        "detected_at": "2026-03-30T08:46:17.888630",
+        "due_reminder": "2026-04-02T08:46:17.888643"
+      }
+    ],
+    "detected_at": "2026-03-30T08:46:17.888655"
+  },
+  {
+    "signal_type": "commitment",
+    "sender": "Feng",
+    "content_snippet": "Q6：如果你「消失」\n👉客戶哪一個結果會直接變差？\n\nA 提案成功率下降\nB 決策錯誤增加\nC 產出速度變慢\nD 其他（寫結果）",
+    "suggestion": "📌 你剛對 Feng 承諾了「提案」相關的事。要不要設個提醒確保如期完成？",
+    "urgency": "medium",
+    "chat_id": ""
+  },
+  {
+    "signal_type": "my_commitment",
+    "commitments": [
+      {
+        "type": "my_commitment",
+        "keyword": "幫你",
+        "to": "",
+        "content": "[群組近期對話紀錄]\n  13:33 Feng: 3/30號晚上8點開會事項\n\n1。大m殺手應用\n2。每週安排一個時間的例會，大概30～60分鐘內。討論什麼時候\n3。美業成本給與和討論\n4。雅竹是否適",
+        "detected_at": "2026-03-30T08:57:43.456354",
+        "due_reminder": "2026-04-02T08:57:43.456368"
+      }
+    ],
+    "detected_at": "2026-03-30T08:57:43.456385"
+  },
+  {
+    "signal_type": "commitment",
+    "sender": "Feng",
+    "content_snippet": "[群組近期對話紀錄]\n  13:33 Feng: 3/30號晚上8點開會事項\n\n1。大m殺手應用\n2。每週安排一個時間的例會，大概30～60分鐘內。討論什麼時候\n3。美業成本給與和討論\n4。雅竹是否適",
+    "suggestion": "📌 你剛對 Feng 承諾了「幫你」相關的事。要不要設個提醒確保如期完成？",
+    "urgency": "medium",
+    "chat_id": ""
+  },
+  {
+    "signal_type": "opportunity",
+    "sender": "Feng",
+    "content_snippet": "[群組近期對話紀錄]\n  13:33 Feng: 3/30號晚上8點開會事項\n\n1。大m殺手應用\n2。每週安排一個時間的例會，大概30～60分鐘內。討論什麼時候\n3。美業成本給與和討論\n4。雅竹是否適",
+    "suggestion": "💰 Feng 提到「需要」——這可能是一個服務機會。要不要主動了解他的需求？",
+    "urgency": "medium",
+    "chat_id": ""
+  },
+  {
+    "signal_type": "risk",
+    "sender": "Feng",
+    "content_snippet": "[群組近期對話紀錄]\n  13:33 Feng: 3/30號晚上8點開會事項\n\n1。大m殺手應用\n2。每週安排一個時間的例會，大概30～60分鐘內。討論什麼時候\n3。美業成本給與和討論\n4。雅竹是否適",
+    "suggestion": "⚠️ Feng 提到「不確定」——可能有流失風險。建議主動關心，不要等他正式提出。",
+    "urgency": "high",
+    "chat_id": ""
+  },
+  {
+    "signal_type": "my_commitment",
+    "commitments": [
+      {
+        "type": "my_commitment",
+        "keyword": "提案",
+        "to": "",
+        "content": "[群組近期對話紀錄]\n  25:02 MUSEON: 這個問題我需要先確認一下，稍等。\n  26:56 Feng: Q4：這件事目前客戶是？\nA 花很多時間\nB 花很多錢\nC 做不好會出事\n  27:",
+        "detected_at": "2026-03-30T09:20:29.831316",
+        "due_reminder": "2026-04-02T09:20:29.831324"
+      }
+    ],
+    "detected_at": "2026-03-30T09:20:29.831365"
+  },
+  {
+    "signal_type": "commitment",
+    "sender": "Feng",
+    "content_snippet": "[群組近期對話紀錄]\n  25:02 MUSEON: 這個問題我需要先確認一下，稍等。\n  26:56 Feng: Q4：這件事目前客戶是？\nA 花很多時間\nB 花很多錢\nC 做不好會出事\n  27:",
+    "suggestion": "📌 你剛對 Feng 承諾了「提案」相關的事。要不要設個提醒確保如期完成？",
+    "urgency": "medium",
+    "chat_id": ""
+  },
+  {
+    "signal_type": "opportunity",
+    "sender": "Feng",
+    "content_snippet": "[群組近期對話紀錄]\n  25:02 MUSEON: 這個問題我需要先確認一下，稍等。\n  26:56 Feng: Q4：這件事目前客戶是？\nA 花很多時間\nB 花很多錢\nC 做不好會出事\n  27:",
+    "suggestion": "💰 Feng 提到「需要」——這可能是一個服務機會。要不要主動了解他的需求？",
+    "urgency": "medium",
+    "chat_id": ""
+  },
+  {
+    "signal_type": "risk",
+    "sender": "Feng",
+    "content_snippet": "[群組近期對話紀錄]\n  25:02 MUSEON: 這個問題我需要先確認一下，稍等。\n  26:56 Feng: Q4：這件事目前客戶是？\nA 花很多時間\nB 花很多錢\nC 做不好會出事\n  27:",
+    "suggestion": "⚠️ Feng 提到「不確定」——可能有流失風險。建議主動關心，不要等他正式提出。",
+    "urgency": "high",
+    "chat_id": ""
+  },
+  {
+    "signal_type": "my_commitment",
+    "commitments": [
+      {
+        "type": "my_commitment",
+        "keyword": "提案",
+        "to": "",
+        "content": "[群組近期對話紀錄]\n  10:19 Rita: @MuseonClaw_bot  \n現在農業這段 刪除。 \n農民陳明輝建立了冷鏈農業，把田寮種的棗子和火龍果，從台南一路冷藏運輸， 直接出口到美國和加",
+        "detected_at": "2026-03-30T09:26:44.189052",
+        "due_reminder": "2026-04-02T09:26:44.189063"
+      }
+    ],
+    "detected_at": "2026-03-30T09:26:44.189081"
+  },
+  {
+    "signal_type": "commitment",
+    "sender": "Feng",
+    "content_snippet": "[群組近期對話紀錄]\n  10:19 Rita: @MuseonClaw_bot  \n現在農業這段 刪除。 \n農民陳明輝建立了冷鏈農業，把田寮種的棗子和火龍果，從台南一路冷藏運輸， 直接出口到美國和加",
+    "suggestion": "📌 你剛對 Feng 承諾了「提案」相關的事。要不要設個提醒確保如期完成？",
+    "urgency": "medium",
+    "chat_id": ""
+  },
+  {
+    "signal_type": "my_commitment",
+    "commitments": [
+      {
+        "type": "my_commitment",
+        "keyword": "幫你",
+        "to": "",
+        "content": "[回覆 霓裳 的訊息：根據你描述的工作模式，幫你整理成本結構：\n\n固定月費（不管有無案子都在燒）\n\n| 項目 | 金額 |\n|------|------|\n| Claude Code MAX | ~N",
+        "detected_at": "2026-03-30T11:47:52.120102",
+        "due_reminder": "2026-04-02T11:47:52.120118"
+      }
+    ],
+    "detected_at": "2026-03-30T11:47:52.120138"
+  },
+  {
+    "signal_type": "commitment",
+    "sender": "Feng",
+    "content_snippet": "[回覆 霓裳 的訊息：根據你描述的工作模式，幫你整理成本結構：\n\n固定月費（不管有無案子都在燒）\n\n| 項目 | 金額 |\n|------|------|\n| Claude Code MAX | ~N",
+    "suggestion": "📌 你剛對 Feng 承諾了「幫你」相關的事。要不要設個提醒確保如期完成？",
+    "urgency": "medium",
+    "chat_id": ""
+  },
+  {
+    "signal_type": "opportunity",
+    "sender": "Feng",
+    "content_snippet": "[回覆 霓裳 的訊息：根據你描述的工作模式，幫你整理成本結構：\n\n固定月費（不管有無案子都在燒）\n\n| 項目 | 金額 |\n|------|------|\n| Claude Code MAX | ~N",
+    "suggestion": "💰 Feng 提到「需要」——這可能是一個服務機會。要不要主動了解他的需求？",
+    "urgency": "medium",
+    "chat_id": ""
+  },
+  {
+    "signal_type": "opportunity",
+    "sender": "淑慧",
+    "content_snippet": "[群組近期對話紀錄]\n  37:06 老闆（老闆）: 淑慧 這邊\n  37:13 淑慧: 👌\n  37:26 老闆（老闆）: 旅行社的老闆 One Muse 的學員 @MuseonClaw_bot 打",
+    "suggestion": "💰 淑慧 提到「需要」——這可能是一個服務機會。要不要主動了解他的需求？",
+    "urgency": "medium",
+    "chat_id": ""
+  },
+  {
+    "signal_type": "opportunity",
+    "sender": "淑慧",
+    "content_snippet": "我正在請網路公司架設網站\n以下是\n需要對方更改的地方\n電腦版\n現在做的網頁是全英\n首頁的全部不會出現中文\n1、中英文切換\n2、首頁最上面的標籤\n一開始就要有白色透明底色\n（要下滑才看到，這樣不明顯）,",
+    "suggestion": "💰 淑慧 提到「需要」——這可能是一個服務機會。要不要主動了解他的需求？",
+    "urgency": "medium",
+    "chat_id": ""
+  },
+  {
+    "signal_type": "my_commitment",
+    "commitments": [
+      {
+        "type": "my_commitment",
+        "keyword": "幫你",
+        "to": "",
+        "content": "[群組近期對話紀錄]\n  40:00 MUSEON: 淑慧，這句話收到了 🙏\n\n「誠實在完美之前」——這不只是態度，是一種選擇。能被你認同，是很珍貴的事。\n\n期待後續合作！\n  44:12 淑慧: /",
+        "detected_at": "2026-03-30T14:06:39.429017",
+        "due_reminder": "2026-04-02T14:06:39.429031"
+      }
+    ],
+    "detected_at": "2026-03-30T14:06:39.429057"
+  },
+  {
+    "signal_type": "commitment",
+    "sender": "淑慧",
+    "content_snippet": "[群組近期對話紀錄]\n  40:00 MUSEON: 淑慧，這句話收到了 🙏\n\n「誠實在完美之前」——這不只是態度，是一種選擇。能被你認同，是很珍貴的事。\n\n期待後續合作！\n  44:12 淑慧: /",
+    "suggestion": "📌 你剛對 淑慧 承諾了「幫你」相關的事。要不要設個提醒確保如期完成？",
+    "urgency": "medium",
+    "chat_id": ""
+  },
+  {
+    "signal_type": "opportunity",
+    "sender": "淑慧",
+    "content_snippet": "[群組近期對話紀錄]\n  40:00 MUSEON: 淑慧，這句話收到了 🙏\n\n「誠實在完美之前」——這不只是態度，是一種選擇。能被你認同，是很珍貴的事。\n\n期待後續合作！\n  44:12 淑慧: /",
+    "suggestion": "💰 淑慧 提到「需要」——這可能是一個服務機會。要不要主動了解他的需求？",
+    "urgency": "medium",
+    "chat_id": ""
   }
 ]

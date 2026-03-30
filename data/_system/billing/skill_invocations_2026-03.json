@@ -129,6 +129,347 @@
       "session_id": "chaos_empty",
       "user_id": "",
       "outcome": ""
+    },
+    {
+      "ts": "2026-03-30T08:22:51.527500",
+      "skills": [
+        "sentiment-radar",
+        "human-design-blueprint",
+        "dse",
+        "ares",
+        "workflow-ai-deployment",
+        "energy-reading"
+      ],
+      "count": 6,
+      "session_id": "telegram_group_5107045509",
+      "user_id": "",
+      "outcome": ""
+    },
+    {
+      "ts": "2026-03-30T08:26:03.535483",
+      "skills": [
+        "dharma",
+        "plan-engine",
+        "market-core",
+        "sentiment-radar",
+        "workflow-ai-deployment",
+        "business-12",
+        "roundtable"
+      ],
+      "count": 7,
+      "session_id": "telegram_group_5107045509",
+      "user_id": "",
+      "outcome": ""
+    },
+    {
+      "ts": "2026-03-30T08:28:20.113465",
+      "skills": [
+        "workflow-ai-deployment",
+        "business-12",
+        "workflow-svc-brand-marketing"
+      ],
+      "count": 3,
+      "session_id": "telegram_group_5107045509",
+      "user_id": "",
+      "outcome": ""
+    },
+    {
+      "ts": "2026-03-30T08:30:01.996196",
+      "skills": [
+        "dse",
+        "esg-architect-pro",
+        "acsf",
+        "business-12",
+        "workflow-ai-deployment"
+      ],
+      "count": 5,
+      "session_id": "telegram_group_5107045509",
+      "user_id": "",
+      "outcome": ""
+    },
+    {
+      "ts": "2026-03-30T08:46:17.574216",
+      "skills": [
+        "dse",
+        "workflow-ai-deployment",
+        "ssa-consultant",
+        "decision-tracker"
+      ],
+      "count": 4,
+      "session_id": "telegram_group_5107045509",
+      "user_id": "",
+      "outcome": ""
+    },
+    {
+      "ts": "2026-03-30T08:50:55.397706",
+      "skills": [
+        "dse",
+        "esg-architect-pro",
+        "workflow-svc-brand-marketing",
+        "business-12",
+        "ssa-consultant"
+      ],
+      "count": 5,
+      "session_id": "telegram_group_5107045509",
+      "user_id": "",
+      "outcome": ""
+    },
+    {
+      "ts": "2026-03-30T08:57:43.213377",
+      "skills": [
+        "esg-architect-pro",
+        "dharma",
+        "workflow-ai-deployment",
+        "workflow-svc-brand-marketing",
+        "business-12"
+      ],
+      "count": 5,
+      "session_id": "telegram_group_5107045509",
+      "user_id": "",
+      "outcome": ""
+    },
+    {
+      "ts": "2026-03-30T09:03:41.423899",
+      "skills": [
+        "energy-reading",
+        "gap",
+        "meta-learning",
+        "dharma",
+        "consultant-communication",
+        "anima-individual",
+        "business-12"
+      ],
+      "count": 7,
+      "session_id": "telegram_group_5107045509",
+      "user_id": "",
+      "outcome": ""
+    },
+    {
+      "ts": "2026-03-30T09:20:29.570028",
+      "skills": [
+        "dse",
+        "esg-architect-pro",
+        "workflow-ai-deployment",
+        "workflow-svc-brand-marketing",
+        "business-12"
+      ],
+      "count": 5,
+      "session_id": "telegram_group_5107045509",
+      "user_id": "",
+      "outcome": ""
+    },
+    {
+      "ts": "2026-03-30T09:26:43.952330",
+      "skills": [
+        "script-optimizer",
+        "plan-engine",
+        "workflow-svc-brand-marketing"
+      ],
+      "count": 3,
+      "session_id": "telegram_group_5195907318",
+      "user_id": "",
+      "outcome": ""
+    },
+    {
+      "ts": "2026-03-30T11:13:08.061229",
+      "skills": [
+        "workflow-ai-deployment",
+        "report-forge",
+        "esg-architect-pro",
+        "master-strategy",
+        "business-12",
+        "workflow-investment-analysis"
+      ],
+      "count": 6,
+      "session_id": "telegram_group_5195907318",
+      "user_id": "",
+      "outcome": ""
+    },
+    {
+      "ts": "2026-03-30T11:16:19.720915",
+      "skills": [
+        "dse",
+        "pdeif",
+        "meta-learning",
+        "business-12",
+        "athena",
+        "ares"
+      ],
+      "count": 6,
+      "session_id": "telegram_group_5195907318",
+      "user_id": "",
+      "outcome": ""
+    },
+    {
+      "ts": "2026-03-30T11:26:20.311731",
+      "skills": [
+        "workflow-ai-deployment",
+        "report-forge",
+        "esg-architect-pro",
+        "philo-dialectic",
+        "master-strategy",
+        "business-12",
+        "workflow-investment-analysis"
+      ],
+      "count": 7,
+      "session_id": "telegram_group_5195907318",
+      "user_id": "",
+      "outcome": ""
+    },
+    {
+      "ts": "2026-03-30T11:38:00.666911",
+      "skills": [
+        "onemuse-core",
+        "energy-reading",
+        "report-forge",
+        "master-strategy",
+        "info-architect",
+        "dev-preflight"
+      ],
+      "count": 6,
+      "session_id": "telegram_group_5107045509",
+      "user_id": "",
+      "outcome": ""
+    },
+    {
+      "ts": "2026-03-30T11:47:51.844754",
+      "skills": [
+        "dharma",
+        "workflow-ai-deployment",
+        "workflow-investment-analysis",
+        "workflow-svc-brand-marketing"
+      ],
+      "count": 4,
+      "session_id": "telegram_group_5107045509",
+      "user_id": "",
+      "outcome": ""
+    },
+    {
+      "ts": "2026-03-30T12:41:53.334221",
+      "skills": [
+        "workflow-svc-brand-marketing",
+        "master-strategy",
+        "dse",
+        "business-12",
+        "philo-dialectic",
+        "dharma",
+        "group-meeting-notes",
+        "meeting-intelligence",
+        "investment-masters"
+      ],
+      "count": 9,
+      "session_id": "telegram_group_5222433915",
+      "user_id": "",
+      "outcome": ""
+    },
+    {
+      "ts": "2026-03-30T13:50:36.447910",
+      "skills": [
+        "human-design-blueprint",
+        "energy-reading",
+        "dharma",
+        "consultant-communication",
+        "investment-masters",
+        "business-12"
+      ],
+      "count": 6,
+      "session_id": "telegram_group_5167266823",
+      "user_id": "",
+      "outcome": ""
+    },
+    {
+      "ts": "2026-03-30T14:00:28.415060",
+      "skills": [
+        "energy-reading",
+        "resonance",
+        "dse",
+        "meta-learning",
+        "text-alchemy",
+        "dev-preflight",
+        "consultant-communication"
+      ],
+      "count": 7,
+      "session_id": "telegram_group_5167266823",
+      "user_id": "",
+      "outcome": ""
+    },
+    {
+      "ts": "2026-03-30T14:06:39.161912",
+      "skills": [
+        "group-meeting-notes",
+        "info-architect",
+        "gap",
+        "market-macro",
+        "consultant-communication",
+        "market-crypto"
+      ],
+      "count": 6,
+      "session_id": "telegram_group_5167266823",
+      "user_id": "",
+      "outcome": ""
+    },
+    {
+      "ts": "2026-03-30T15:23:08.246255",
+      "skills": [
+        "pdeif",
+        "business-12",
+        "ssa-consultant",
+        "dse",
+        "workflow-svc-brand-marketing",
+        "report-forge"
+      ],
+      "count": 6,
+      "session_id": "telegram_group_5107045509",
+      "user_id": "",
+      "outcome": ""
+    },
+    {
+      "ts": "2026-03-30T15:41:17.358726",
+      "skills": [
+        "business-12",
+        "ssa-consultant",
+        "dse",
+        "workflow-ai-deployment",
+        "pdeif",
+        "report-forge",
+        "workflow-svc-brand-marketing"
+      ],
+      "count": 7,
+      "session_id": "telegram_group_5107045509",
+      "user_id": "",
+      "outcome": ""
+    },
+    {
+      "ts": "2026-03-30T15:52:59.901585",
+      "skills": [
+        "dharma",
+        "meta-learning",
+        "dse",
+        "market-core",
+        "report-forge",
+        "workflow-ai-deployment",
+        "workflow-investment-analysis"
+      ],
+      "count": 7,
+      "session_id": "telegram_group_5107045509",
+      "user_id": "",
+      "outcome": ""
+    },
+    {
+      "ts": "2026-03-30T15:55:38.361423",
+      "skills": [
+        "consultant-communication",
+        "dharma",
+        "dse",
+        "meta-learning",
+        "workflow-ai-deployment",
+        "report-forge",
+        "workflow-svc-brand-marketing"
+      ],
+      "count": 7,
+      "session_id": "telegram_group_5107045509",
+      "user_id": "",
+      "outcome": ""
     }
   ]
 }

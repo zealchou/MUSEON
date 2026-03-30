@@ -1,0 +1,86 @@
+{
+  "session_id": "telegram_group_5167266823",
+  "nodes": {
+    "emotion_感謝": {
+      "node_id": "emotion_感謝",
+      "node_type": "emotion",
+      "label": "感謝",
+      "properties": {
+        "detected_at": "2026-03-30T13:49:29.929902",
+        "source": "text_analysis"
+      },
+      "created_at": "2026-03-30T13:49:29.930086",
+      "updated_at": "2026-03-30T13:49:29.930093"
+    },
+    "intention_求助": {
+      "node_id": "intention_求助",
+      "node_type": "intention",
+      "label": "求助",
+      "properties": {
+        "detected_at": "2026-03-30T13:49:29.929902"
+      },
+      "created_at": "2026-03-30T13:49:29.930233",
+      "updated_at": "2026-03-30T13:49:29.930437"
+    },
+    "topic_turn_2": {
+      "node_id": "topic_turn_2",
+      "node_type": "topic",
+      "label": "turn_2",
+      "properties": {
+        "content_length": 1172,
+        "detected_at": "2026-03-30T13:49:29.929902"
+      },
+      "created_at": "2026-03-30T13:49:29.930473",
+      "updated_at": "2026-03-30T13:49:29.930478"
+    },
+    "topic_turn_3": {
+      "node_id": "topic_turn_3",
+      "node_type": "topic",
+      "label": "turn_3",
+      "properties": {
+        "content_length": 1172,
+        "detected_at": "2026-03-30T13:59:21.535618"
+      },
+      "created_at": "2026-03-30T13:59:21.535936",
+      "updated_at": "2026-03-30T13:59:21.535945"
+    },
+    "emotion_滿意": {
+      "node_id": "emotion_滿意",
+      "node_type": "emotion",
+      "label": "滿意",
+      "properties": {
+        "detected_at": "2026-03-30T14:04:46.118920",
+        "source": "text_analysis"
+      },
+      "created_at": "2026-03-30T14:04:46.119194",
+      "updated_at": "2026-03-30T14:04:46.119205"
+    },
+    "intention_決策": {
+      "node_id": "intention_決策",
+      "node_type": "intention",
+      "label": "決策",
+      "properties": {
+        "detected_at": "2026-03-30T14:04:46.118920"
+      },
+      "created_at": "2026-03-30T14:04:46.119359",
+      "updated_at": "2026-03-30T14:04:46.119367"
+    },
+    "topic_turn_6": {
+      "node_id": "topic_turn_6",
+      "node_type": "topic",
+      "label": "turn_6",
+      "properties": {
+        "content_length": 1837,
+        "detected_at": "2026-03-30T14:04:46.118920"
+      },
+      "created_at": "2026-03-30T14:04:46.119386",
+      "updated_at": "2026-03-30T14:04:46.119390"
+    }
+  },
+  "edges": {},
+  "metadata": {
+    "turn_count": 3,
+    "last_content_length": 1837
+  },
+  "last_updated": "2026-03-30T14:04:46.118920"
+}

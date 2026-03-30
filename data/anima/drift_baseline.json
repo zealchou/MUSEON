@@ -1,199 +1,104 @@
 {
-  "user_primals": {
-    "action_power": {
-      "signal": "之前已經有成功上傳的工作流程 請重新再試一次",
-      "confidence": 0.9999999999925475,
-      "level": 17.99999999980147,
-      "last_observed": "2026-03-25T10:22:27.087769"
-    },
-    "boundary": {
-      "signal": "不用等我 一路生成",
-      "confidence": 0.4299999999988904,
-      "level": 15.999999999999186,
-      "last_observed": "2026-03-19T22:29:53.142946"
-    },
-    "curiosity": {
-      "signal": "[群組近期對話紀錄]   51:17 Zeal（老闆）: 但是真的剛開始跑啊   14:46 Zeal（老闆）: @MuseonClaw_bot 接續處理 al",
-      "confidence": 0.999999999999913,
-      "level": 81.92612440998062,
-      "last_observed": "2026-03-25T01:31:13.142100"
-    },
-    "relationship_depth": {
-      "signal": "你好，請問你能做什麼？",
-      "confidence": 0.9999999999999996,
-      "level": 16.0,
-      "last_observed": "2026-03-24T17:01:28.910454"
-    },
-    "emotion_pattern": {
-      "signal": "最近壓力真的很大，工作做不完，回家又要照顧小孩，覺得快要崩潰了。",
-      "confidence": 0.9999999999999938,
-      "level": 34.00581343654453,
-      "last_observed": "2026-03-22T21:16:13.267756"
-    },
-    "blindspot": {
-      "signal": "[回覆 霓裳 的訊息：藍圖和現有實作已讀完。以下是評估結果：  評估摘要  P0-P3 已有實作（在 commits 7ad4598, 149f6dc, 967",
-      "confidence": 0.07999999999665297,
-      "level": 19.999999999163244,
-      "last_observed": "2026-03-20T15:04:30.555060"
-    },
-    "accumulation": {
-      "signal": "之前已經有成功上傳的工作流程 請重新再試一次",
-      "confidence": 0.804533372075311,
-      "level": 20.604747561424556,
-      "last_observed": "2026-03-25T10:22:27.087769"
-    },
-    "aspiration": {
-      "signal": "幫我規劃一個客戶管理 Skill 的開發計畫，分成四個階段。",
-      "confidence": 0.9999999998245166,
-      "level": 20.656999999999996,
-      "last_observed": "2026-03-24T17:26:08.004866"
-    }
-  },
   "user_L6": {
-    "tone": "casual",
-    "question_style": "closed",
-    "avg_msg_length": 545.3896294471901,
-    "language_mix": "chinese_dominant",
-    "detail_level": "concise",
-    "emoji_usage": "none"
-  },
-  "mc_expression": {
-    "tone_temperature": 0.5,
-    "last_evolved_at": "2026-03-25T00:53:55.886760",
-    "opener_stats": {
-      "greeting": 0.0,
-      "empathy": 0.0,
-      "question": 0.0,
-      "direct": 0.0
-    },
-    "evolution_count": 52.512548011214115
-  },
-  "mc_primals": {
-    "兌": {
-      "absolute": 641.1909269834171,
-      "relative": 16.472338843198738
-    },
-    "艮": {
-      "absolute": 2735.881621199491,
-      "relative": 70.41001362507146
-    },
-    "坤": {
-      "absolute": 841.3208176249764,
-      "relative": 21.583013344769153
-    },
-    "坎": {
-      "absolute": 3894.677943861251,
-      "relative": 99.99912693165408
-    },
-    "震": {
-      "absolute": 147.72222501772325,
-      "relative": 3.8144853535181205
-    },
-    "巽": {
-      "absolute": 173.3531052999204,
-      "relative": 4.471154122883369
-    },
-    "乾": {
-      "absolute": 171.52944692903105,
-      "relative": 4.401856907419641
-    },
-    "離": {
-      "absolute": 125.2454490792685,
-      "relative": 3.22098924254543
-    }
+    "question_style": "open",
+    "avg_msg_length": 584.2209184291231,
+    "tone": "mixed",
+    "emoji_usage": "none",
+    "detail_level": "moderate",
+    "language_mix": "chinese_dominant"
   },
   "user_L5": [
     {
       "key": "active_late_evening",
       "value": "active late evening",
       "confidence": 1.0,
-      "observed_count": 168,
+      "observed_count": 172,
       "first_seen": "2026-03-16T22:02:34.688998",
-      "last_seen": "2026-03-24T23:26:05.460895"
+      "last_seen": "2026-03-25T23:39:51.190573"
     },
     {
       "key": "prefers_short_response",
       "value": "prefers short response",
       "confidence": 1.0,
-      "observed_count": 822,
+      "observed_count": 889,
       "first_seen": "2026-03-16T22:02:34.688998",
-      "last_seen": "2026-03-25T10:22:27.087769"
+      "last_seen": "2026-03-30T13:50:36.715504"
     },
     {
       "key": "active_late_night",
       "value": "active late night",
       "confidence": 1.0,
-      "observed_count": 98,
+      "observed_count": 104,
       "first_seen": "2026-03-17T00:00:05.327051",
-      "last_seen": "2026-03-25T01:31:13.142100"
+      "last_seen": "2026-03-28T05:49:06.649522"
     },
     {
       "key": "prefers_long_response",
       "value": "prefers long response",
       "confidence": 1.0,
-      "observed_count": 323,
+      "observed_count": 361,
       "first_seen": "2026-03-16T22:15:11.205456",
-      "last_seen": "2026-03-25T10:19:28.867142"
+      "last_seen": "2026-03-30T15:23:08.399134"
     },
     {
       "key": "active_early_morning",
       "value": "active early morning",
       "confidence": 1.0,
-      "observed_count": 33,
+      "observed_count": 46,
       "first_seen": "2026-03-17T08:41:17.043113",
-      "last_seen": "2026-03-23T08:37:50.052424"
+      "last_seen": "2026-03-30T08:57:43.446635"
     },
     {
       "key": "interested_in_technical",
       "value": "interested in technical",
       "confidence": 1.0,
-      "observed_count": 65,
+      "observed_count": 66,
       "first_seen": "2026-03-17T13:29:20.090112",
-      "last_seen": "2026-03-24T23:17:14.084747"
+      "last_seen": "2026-03-25T23:39:51.190573"
     },
     {
       "key": "interested_in_research",
       "value": "interested in research",
       "confidence": 1.0,
-      "observed_count": 41,
+      "observed_count": 46,
       "first_seen": "2026-03-17T13:02:54.496831",
-      "last_seen": "2026-03-24T19:47:08.746490"
+      "last_seen": "2026-03-30T14:06:39.418404"
     },
     {
       "key": "interested_in_creative",
       "value": "interested in creative",
       "confidence": 1.0,
-      "observed_count": 48,
+      "observed_count": 54,
       "first_seen": "2026-03-18T11:55:26.680706",
-      "last_seen": "2026-03-25T10:19:28.867142"
+      "last_seen": "2026-03-27T14:17:05.537341"
     },
     {
       "key": "interested_in_business",
       "value": "interested in business",
       "confidence": 1.0,
-      "observed_count": 65,
+      "observed_count": 74,
       "first_seen": "2026-03-17T09:34:33.219849",
-      "last_seen": "2026-03-24T19:47:08.746490"
+      "last_seen": "2026-03-30T13:50:36.715504"
     }
   ],
   "user_L7": [
     {
       "role": "manager",
       "active_since": "2026-03-20T10:42:59.761840",
-      "interaction_count": 12,
-      "last_seen": "2026-03-24T19:47:08.746490"
+      "interaction_count": 14,
+      "last_seen": "2026-03-25T12:38:26.176292"
     },
     {
       "role": "entrepreneur",
       "active_since": "2026-03-17T09:43:47.498887",
-      "interaction_count": 70,
-      "last_seen": "2026-03-24T19:47:08.746490"
+      "interaction_count": 76,
+      "last_seen": "2026-03-30T09:20:29.822438"
     },
     {
       "role": "consultant",
       "active_since": "2026-03-17T09:43:47.498887",
-      "interaction_count": 52,
-      "last_seen": "2026-03-24T19:47:08.746490"
+      "interaction_count": 60,
+      "last_seen": "2026-03-30T11:26:20.672731"
     },
     {
       "role": "father",
@@ -204,9 +109,104 @@
     {
       "role": "creator",
       "active_since": "2026-03-23T00:29:30.167946",
-      "interaction_count": 13,
-      "last_seen": "2026-03-24T19:47:08.746490"
+      "interaction_count": 15,
+      "last_seen": "2026-03-30T09:20:29.822438"
     }
   ],
-  "taken_at": "2026-03-25T02:22:27.156879+00:00"
+  "user_primals": {
+    "blindspot": {
+      "last_observed": "2026-03-20T15:04:30.555060",
+      "signal": "[回覆 霓裳 的訊息：藍圖和現有實作已讀完。以下是評估結果：  評估摘要  P0-P3 已有實作（在 commits 7ad4598, 149f6dc, 967",
+      "confidence": 0.07999999999835995,
+      "level": 19.99999999958999
+    },
+    "relationship_depth": {
+      "last_observed": "2026-03-26T08:51:57.558162",
+      "signal": "早安",
+      "confidence": 0.9999999999999996,
+      "level": 16.0
+    },
+    "action_power": {
+      "last_observed": "2026-03-25T15:50:25.434634",
+      "signal": "MUSEON 已修復完成，可以正常使用了。  修復內容： 1. telegram_pump 的 session_manager 未注入 — 導致群組訊息收到後卡",
+      "confidence": 0.9999999999963483,
+      "level": 17.99999999990272
+    },
+    "emotion_pattern": {
+      "last_observed": "2026-03-30T08:50:55.594225",
+      "signal": "Q7：客戶用完你的服務後， 👉最先出現、而且最容易被他自己感覺到的改變是什麼？  A 更快做決定 B 更敢做決定 C 做出的東西更有說服力 D 踩坑變少 E 其",
+      "confidence": 0.9999999999999969,
+      "level": 33.40284858390681
+    },
+    "curiosity": {
+      "last_observed": "2026-03-30T15:23:08.399134",
+      "signal": "想問產險業在未來到2027年的發展跟方向可以怎麼去拓展這個產業的價值跟合作",
+      "confidence": 0.9999999999999571,
+      "level": 73.29380096089051
+    },
+    "boundary": {
+      "last_observed": "2026-03-19T22:29:53.142946",
+      "signal": "不用等我 一路生成",
+      "confidence": 0.42999999999945626,
+      "level": 15.999999999999599
+    },
+    "aspiration": {
+      "last_observed": "2026-03-30T15:23:08.399134",
+      "signal": "想問產險業在未來到2027年的發展跟方向可以怎麼去拓展這個產業的價值跟合作",
+      "confidence": 0.999999999914013,
+      "level": 20.321929999999995
+    },
+    "accumulation": {
+      "last_observed": "2026-03-25T18:04:37.414932",
+      "signal": "做一個 html 說明五虎將的運作機制，達成那些效果，我要給投資人看了有信心（當然有些地方我們還需要持續改善），完成之後推上去 GitHub 然後給我外部鏈接",
+      "confidence": 0.9042213523169023,
+      "level": 22.84632630509803
+    }
+  },
+  "mc_expression": {
+    "evolution_count": 37.35878360784988,
+    "tone_temperature": 0.5,
+    "opener_stats": {
+      "empathy": 0.0,
+      "question": 0.0,
+      "direct": 0.0,
+      "greeting": 0.0
+    },
+    "last_evolved_at": "2026-03-30T14:06:39.730850"
+  },
+  "mc_primals": {
+    "乾": {
+      "absolute": 174.3194289952252,
+      "relative": 3.452909884635624
+    },
+    "艮": {
+      "absolute": 2765.0119943877503,
+      "relative": 54.86490667628501
+    },
+    "坎": {
+      "absolute": 5475.542192492012,
+      "relative": 99.99957219651048
+    },
+    "巽": {
+      "absolute": 180.913021596961,
+      "relative": 3.5678655202128504
+    },
+    "坤": {
+      "absolute": 870.2272006362383,
+      "relative": 17.11567653893688
+    },
+    "離": {
+      "absolute": 155.39027004884156,
+      "relative": 2.9042847288472604
+    },
+    "震": {
+      "absolute": 148.88389025868437,
+      "relative": 2.9610978232238785
+    },
+    "兌": {
+      "absolute": 893.3935542218744,
+      "relative": 16.333446033167377
+    }
+  },
+  "taken_at": "2026-03-30T07:23:08.475612+00:00"
 }

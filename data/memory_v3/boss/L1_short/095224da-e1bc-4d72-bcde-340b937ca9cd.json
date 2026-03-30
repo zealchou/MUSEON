@@ -20,5 +20,7 @@
   "dept_id": "",
   "chat_scope": "",
   "group_id": "",
-  "archived": false
+  "archived": true,
+  "archive_reason": "superseded",
+  "archived_at": "2026-03-30T08:58:26.936005+08:00"
 }

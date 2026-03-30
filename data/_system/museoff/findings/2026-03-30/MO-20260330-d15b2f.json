@@ -1,0 +1,31 @@
+{
+  "finding_id": "MO-20260330-d15b2f",
+  "timestamp": "2026-03-30T07:00:00.202690+00:00",
+  "probe_layer": "L6",
+  "severity": "MEDIUM",
+  "title": "Skill 連線驗證發現錯誤",
+  "source": "museoff",
+  "blast_origin": {
+    "file": "scripts/validate_connections.py",
+    "line": null,
+    "error_type": "ConnectionError",
+    "traceback": ""
+  },
+  "blast_radius": [],
+  "context": {
+    "output": "============================================================\nMUSEON Skill 連線驗證器 v1.1\n============================================================\n\n--- 統計 ---\n  📊 Skill 總數: 65\n     always-on: 10\n     on-demand: 40\n     plugin: 5\n     reference: 1\n     unknown: 2\n     workflow: 7\n  📊 總連線數: 151\n  📊 記憶寫入點: 65\n  📊 Hub 分組:\n     [business] (8): business-12, consultant-communication, esg-architect-pro, master-strategy, meeting-intelligence, pdeif, ssa-consultant, xmodel\n     [core] (2): c15, dna27\n     "
+  },
+  "triage_done": null,
+  "known_fix": null,
+  "prescription": {
+    "diagnosis": "validate_connections 報告連線錯誤",
+    "root_cause": "",
+    "suggested_fix": "",
+    "runbook_id": "",
+    "fix_complexity": "GREEN",
+    "pre_check": "",
+    "post_check": "python scripts/validate_connections.py",
+    "rollback": ""
+  },
+  "status": "open"
+}

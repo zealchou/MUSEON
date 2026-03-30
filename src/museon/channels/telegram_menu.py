@@ -113,14 +113,18 @@ def build_inline_menu() -> Any:
                 ))
             keyboard.append(row)
 
-        # 底部加入 Mini App 按鈕
-        from museon.channels.menu_config import MINI_APP_NAV_URL
+        # 底部加入手冊連結 + Mini App 按鈕
+        from museon.channels.menu_config import MINI_APP_NAV_URL, HANDBOOK_URL
         from telegram import WebAppInfo
         keyboard.append([
             InlineKeyboardButton(
-                "🌐 開啟互動式面板",
+                "📖 使用手冊",
+                web_app=WebAppInfo(url=HANDBOOK_URL),
+            ),
+            InlineKeyboardButton(
+                "🌐 互動式面板",
                 web_app=WebAppInfo(url=MINI_APP_NAV_URL),
-            )
+            ),
         ])
 
         return InlineKeyboardMarkup(keyboard)
@@ -215,7 +219,7 @@ def build_group_inline_menu() -> Any:
     """群組專用 InlineKeyboard（精簡版）."""
     try:
         from telegram import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
-        from museon.channels.menu_config import MINI_APP_NAV_URL
+        from museon.channels.menu_config import MINI_APP_NAV_URL, HANDBOOK_URL
 
         keyboard = [
             [
@@ -229,8 +233,9 @@ def build_group_inline_menu() -> Any:
                 InlineKeyboardButton("💼 商模診斷", callback_data="menu_cmd:/business"),
             ],
             [
+                InlineKeyboardButton("📖 使用手冊", web_app=WebAppInfo(url=HANDBOOK_URL)),
                 InlineKeyboardButton(
-                    "🌐 開啟完整面板",
+                    "🌐 完整面板",
                     web_app=WebAppInfo(url=MINI_APP_NAV_URL),
                 ),
             ],

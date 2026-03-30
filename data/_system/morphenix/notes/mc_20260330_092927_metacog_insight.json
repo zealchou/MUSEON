@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260330_092927_metacog_insight",
+  "category": "metacog_insight",
+  "content": "手冊已完成並存在於 `docs/museon-handbook-shih-wei.html`。這是一份 22K 的完整文檔，涵蓋：\n\n| 分頁 | 覆蓋內容 |\n|------|---------|\n| 01 | MUSEON 核心差異 + 50 模組白話版 |\n| 02 | 五種起手式 + 對話示範 |\n| 03 | 四層記憶機制 + 累積效應 |\n| 04 | 四階段人機進化路徑 |\n| 05 | 實戰場景示例 |\n| 06 | FAQ + 常用 Skill 速查表 |\n\n**如何使用：**\n```bash\n# 直接用瀏覽器開啟\nopen ~/MUSEON/docs/museon-handbook-shih-wei.html\n\n# 或上傳到 GitHub Pages\npython ~/MUSEON/scripts/publish-report.py --file docs/museon-handbook-shih-wei.html\n```\n\n**特色：**\n- ✅ 白話文，零技術術語\n- ✅ 模組化分頁，易於分享\n- ✅ 含真實對話示範，具說服力\n- ✅ 品牌設計規範內嵌（Ember 色系 + 排版）\n\n需要我調整哪些版面或內容嗎？\n\n---\n\n**洞察摘要：** 決定製作完整使用手冊，策略性投資在「教育引導」而非僅功能迭代——反映出對團隊理解度與外部傳播的重視。",
+  "source": "L4_observer",
+  "created_at": "2026-03-30T09:29:27.899324+08:00",
+  "priority": "medium"
+}

@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>台灣產險業 2027：保險業務人員的四大新拓展方向</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,600&family=Outfit:wght@400;600&family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --ember: #C4502A;
+            --ember-light: #E0714D;
+            --ember-dark: #9A3A1C;
+            --teal: #2A7A6E;
+            --gold: #B8923A;
+            --ink: #12121A;
+            --slate: #5A5A6E;
+            --mist: #9898A8;
+            --border: #E2E0DA;
+            --parchment: #F7F5F0;
+            --snow: #FDFCFA;
+            --deep-ink: #0E0E16;
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            background-color: var(--parchment);
+            color: var(--ink);
+            line-height: 1.75;
+            font-size: 16px;
+        }
+
+        .container {
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 96px 24px;
+            background: linear-gradient(135deg, rgba(196, 80, 42, 0.08) 0%, rgba(42, 122, 110, 0.06) 100%);
+            border-radius: 12px;
+            margin-bottom: 64px;
+        }
+
+        .hero h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 56px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--deep-ink);
+            line-height: 1.15;
+        }
+
+        .hero .subtitle {
+            font-size: 18px;
+            color: var(--slate);
+            margin-bottom: 24px;
+            font-weight: 400;
+        }
+
+        .meta {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            margin-top: 24px;
+            font-size: 14px;
+            color: var(--mist);
+        }
+
+        .badge {
+            background-color: rgba(196, 80, 42, 0.1);
+            color: var(--ember-dark);
+            padding: 3px 10px;
+            border-radius: 100px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        /* Section Styles */
+        section {
+            margin-bottom: 64px;
+        }
+
+        h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 40px;
+            font-weight: 600;
+            margin-bottom: 32px;
+            color: var(--deep-ink);
+            border-bottom: 3px solid var(--ember);
+            padding-bottom: 16px;
+        }
+
+        h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: var(--ember);
+        }
+
+        h4 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-top: 24px;
+            margin-bottom: 12px;
+            color: var(--ink);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--slate);
+        }
+
+        .highlight {
+            background-color: rgba(196, 80, 42, 0.08);
+            border-left: 4px solid var(--ember);
+            padding: 16px 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .highlight strong {
+            color: var(--ember);
+        }
+
+        /* Card Styles */
+        .card {
+            background: var(--snow);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(18, 18, 26, 0.06), 0 4px 12px rgba(18, 18, 26, 0.04);
+            transition: transform 200ms ease, box-shadow 200ms ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 6px rgba(18, 18, 26, 0.1), 0 8px 20px rgba(18, 18, 26, 0.08);
+        }
+
+        /* Grid for Perspective Views */
+        .perspective-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .perspective-card {
+            background: var(--snow);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 24px;
+            border-top: 4px solid var(--teal);
+        }
+
+        .perspective-card.cfo {
+            border-top-color: var(--gold);
+        }
+
+        .perspective-card.coo {
+            border-top-color: var(--ember);
+        }
+
+        .perspective-card h4 {
+            color: var(--deep-ink);
+            margin-top: 0;
+        }
+
+        /* List Styles */
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 12px;
+            color: var(--slate);
+        }
+
+        /* Table Styles */
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 24px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--snow);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        thead {
+            background-color: rgba(196, 80, 42, 0.08);
+        }
+
+        th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--ember-dark);
+            border-bottom: 2px solid var(--border);
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            color: var(--slate);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Quote/Insight Style */
+        .insight {
+            background: linear-gradient(135deg, rgba(42, 122, 110, 0.08) 0%, rgba(184, 146, 58, 0.06) 100%);
+            border-left: 4px solid var(--teal);
+            padding: 24px;
+            border-radius: 6px;
+            margin: 32px 0;
+            font-style: italic;
+            color: var(--deep-ink);
+            font-size: 18px;
+            line-height: 1.8;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: var(--deep-ink);
+            color: var(--snow);
+            padding: 48px 32px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 64px;
+        }
+
+        .cta-section h3 {
+            color: var(--ember-light);
+        }
+
+        .cta-section p {
+            color: rgba(253, 252, 250, 0.85);
+            max-width: 600px;
+            margin: 16px auto;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--ember);
+            color: #FFF;
+            padding: 12px 24px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            margin-top: 16px;
+            transition: background-color 120ms ease, transform 120ms ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: var(--ember-dark);
+            transform: translateY(-1px);
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--border);
+            padding-top: 48px;
+            margin-top: 64px;
+            color: var(--mist);
+            font-size: 12px;
+            text-align: center;
+        }
+
+        footer a {
+            color: var(--teal);
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 24px 16px;
+            }
+
+            .hero {
+                padding: 64px 20px;
+            }
+
+            .hero h1 {
+                font-size: 40px;
+            }
+
+            h2 {
+                font-size: 32px;
+            }
+
+            h3 {
+                font-size: 22px;
+            }
+
+            .perspective-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        section {
+            animation: fadeInUp 400ms ease-out;
+        }
+
+        .scenario-header {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .scenario-header.bullish {
+            border-bottom-color: var(--teal);
+            color: var(--teal);
+        }
+
+        .scenario-header.baseline {
+            border-bottom-color: var(--mist);
+            color: var(--mist);
+        }
+
+        .scenario-header.bearish {
+            border-bottom-color: #C4402A;
+            color: #C4402A;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="hero">
+            <h1>台灣產險業 2027：<br>保險業務人員的四大新拓展方向</h1>
+            <p class="subtitle">從通路重構、新興商機、技術賦能到合規優化——庭秀在 2027 年的致勝策略</p>
+            <div class="meta">
+                <span class="badge">深度分析報告</span>
+                <span>報告日期：2026 年 3 月</span>
+                <span>資料截止：2026 年 2 月</span>
+            </div>
+        </div>
+
+        <!-- Executive Summary (Layer 1) -->
+        <section>
+            <h2>核心結論</h2>
+
+            <div class="highlight">
+                <strong>台灣產險業正在經歷「三重變革」：通路多元化、法規大遷移、技術標準化。</strong>傳統單一直銷模式已死，未來屬於「通路組合 + 技術賦能 + 顧問化銷售」的業務人員。庭秀應聚焦四大新拓展方向，而非守著舊通路。
+            </div>
+
+            <h3>為什麼現在必須改變？</h3>
+            <p>2024 年產險業保費收入達 2,064.7 億元，同比增長 11.65%，市場在擴張。但底層變了：</p>
+            <ul>
+                <li><strong>通路變了：</strong>傳統直銷 + 經紀人 + 代理人已成過去，新興通路（線上、合夥、金融科技）正在切分市場</li>
+                <li><strong>法規變了：</strong>2026 年 IFRS17 + 新清償制度上路，舊的保單設計邏輯失效，客戶保障重新定義</li>
+                <li><strong>技術變了：</strong>AI 在產險業的應用率達 50%，業務員的角色從「推銷」變成「顧問 + 技術使用者」</li>
+                <li><strong>人力變了：</strong>招募和培訓成本上升 19.5%，低效業務員正在被淘汰</li>
+            </ul>
+
+            <div class="insight">
+                「市場在成長，但通路在分散。舊的『跑客户、堆業績』模式已經行不通。庭秀必須變成『通路整合者 + 客戶顧問』，才能在 2027 年活得很好。」
+            </div>
+        </section>
+
+        <!-- Deep Dive (Layer 2) -->
+        <section>
+            <h2>四大拓展方向的深度拆解</h2>
+
+            <h3>① 通路重構：從單一直銷到組合通路</h3>
+            <p><strong>現狀：</strong>傳統直銷是產險業務員的核心能力。但 2024-2026 年的通路數據顯示，單一通路的客戶獲取成本在上升，而組合通路的轉化率在上升。</p>
+
+            <div class="card">
+                <h4>舊模式 vs 新模式</h4>
+                <p><strong>舊模式（已無效）：</strong><br>直銷業務員 → 跑客户 → 推銷產品 → 成交 → 下次見面不知道何時</p>
+                <p style="margin-top: 16px;"><strong>新模式（2027 致勝）：</strong><br>
+                我（業務員）作為"通路樞紐"：
+                <ul style="margin-top: 12px;">
+                    <li>與經紀人合作，分享高端企業客户</li>
+                    <li>串聯線上平台，提供「線下諮詢 + 線上簽保」的 OMO 體驗</li>
+                    <li>與金融科技公司合夥，進入他們的客戶生態</li>
+                    <li>成為「客户保險顧問」，而非「產品推銷員」</li>
+                </ul>
+                </p>
+            </div>
+
+            <p><strong>你的行動：</strong>別守著純直銷。去了解（1）誰是你身邊的經紀人與代理人，（2）有哪些 fintech 平台需要產險保障嵌入，（3）線上銷售平台（如 momo、PChome）的保險需求。</p>
+
+            <hr style="margin: 32px 0; border: none; border-top: 1px solid var(--border);">
+
+            <h3>② 新興商機：資安保險、企業保險、小額保險</h3>
+            <p><strong>現狀：</strong>傳統汽車保險（市占 48%）競爭激烈、毛利下滑。但新興險種在高速成長。</p>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>險種</th>
+                            <th>成長動力</th>
+                            <th>客群</th>
+                            <th>業務員機會</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>資安保險</strong></td>
+                            <td>企業勒索軟體風險激增</td>
+                            <td>中小企業 IT</td>
+                            <td>新客群、高毛利、複雜設計空間大</td>
+                        </tr>
+                        <tr>
+                            <td><strong>企業保險</strong></td>
+                            <td>中小企業數位化轉型</td>
+                            <td>月營收 100-500萬中小企</td>
+                            <td>打包銷售（火災+責任+員工傷害），客戶粘性高</td>
+                        </tr>
+                        <tr>
+                            <td><strong>小額保險</strong></td>
+                            <td>零售業 OMO 風險管理</td>
+                            <td>小商家、新創</td>
+                            <td>標準化產品，易於線上銷售，批量成交</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p><strong>你的行動：</strong>選擇一個新險種深入研究。例如：如果你身邊有電商客群，資安保險就很有機會。如果你熟悉中小企，企業保險打包銷售能大幅提升客戶生命周期價值。</p>
+
+            <hr style="margin: 32px 0; border: none; border-top: 1px solid var(--border);">
+
+            <h3>③ 技術賦能：從「人工」到「人機協作」</h3>
+            <p><strong>現狀：</strong>AI 在產險核保、理賠、風險評估的應用率達 50%。這不是未來，是現在。</p>
+
+            <div class="card">
+                <h4>AI 工具如何改變業務員的工作</h4>
+                <ul>
+                    <li><strong>核保加速：</strong>過去需要 2-3 天的核保，AI 可以在分鐘內預評。你的工作不是「替代人工核保員」，而是「更快驗證客户風險，提前發現問題」</li>
+                    <li><strong>客户分層：</strong>大數據分析能告訴你「這個客户的續保機率 78%、流失風險 22%」。你就可以提前預警和介入</li>
+                    <li><strong>產品推薦：</strong>不再是「推銷所有產品」，而是「根據客户風險畫像，推薦最適合的三個產品」</li>
+                </ul>
+            </div>
+
+            <p><strong>你的行動：</strong>學會用公司的 AI 工具（核保系統、客户分析平台）。時間上，培訓 1-2 周；能力上，可能比某些「資深業務員」更有優勢，因為你用了新工具。</p>
+
+            <hr style="margin: 32px 0; border: none; border-top: 1px solid var(--border);">
+
+            <h3>④ 法規優化機會：IFRS17 帶來的客户溝通新機遇</h3>
+            <p><strong>現狀：</strong>2026 年 IFRS17 + 新清償制度上路。大多數業務員不懂，反而是你的機會。</p>
+
+            <div class="highlight">
+                IFRS17 簡白話：舊制度下，保險公司的「保費」和「賠款」的會計記錄方式改了。這對客户保單沒有影響，但會導致一些「保單調整」（例如保障重新設計）。聰明的業務員會把這當作「客戶回訪和升級產品」的機會。
+            </div>
+
+            <p><strong>你的行動：</strong>2026 年上半年，主動聯繫老客户，說「根據新法規，你的保單需要檢視一下」。這次對話不是「推銷」，而是「保障重新設計」。通常能發現客户的保障缺口，反而提升客户滿意度。</p>
+        </section>
+
+        <!-- Perspective Views (Layer 3) -->
+        <section>
+            <h2>三個角色的視角與矛盾</h2>
+
+            <p>同一份市場數據，三個不同角色怎麼看？你需要理解這些矛盾，才能制定自己的策略。</p>
+
+            <div class="perspective-grid">
+                <div class="perspective-card">
+                    <h4>老闆 / 公司戰略層</h4>
+                    <p><strong>關注：</strong>市場份額、新通路佈局、品牌定位</p>
+                    <p><strong>痛點：</strong>「市場在成長，但我們的新通路還沒跑通。」</p>
+                    <p><strong>結論：</strong>需要業務員不只會賣傳統直銷，還要有「通路整合能力」。</p>
+                </div>
+
+                <div class="perspective-card cfo">
+                    <h4>財務長 / 成本控制層</h4>
+                    <p><strong>關注：</strong>獲客成本、毛利率、人力投資 ROI</p>
+                    <p><strong>痛點：</strong>「招一個業務員成本上升 19.5%，但業績不成比例上升。」</p>
+                    <p><strong>結論：</strong>必須靠「技術槓桿」和「新險種毛利」來補。不能只靠人海戰術。</p>
+                </div>
+
+                <div class="perspective-card coo">
+                    <h4>營運長 / 流程效率層</h4>
+                    <p><strong>關注：</strong>客户體驗、核保理賠速度、合規風險</p>
+                    <p><strong>痛點：</strong>「新法規 2026 上路，舊流程全要改。業務員還在用舊邏輯跟客户溝通。」</p>
+                    <p><strong>結論：</strong>業務員必須是「顧問 + 流程倡導者」。能幫公司解釋法規、管理客户預期。</p>
+                </div>
+            </div>
+
+            <div class="insight">
+                這三個視角可能矛盾，但對庭秀來說，它們指向同一個方向：<strong>傳統業務員模式已經過時。未來屬於「多通路 + 技術驅動 + 顧問型 + 合規敏感」的業務人員。</strong>
+            </div>
+        </section>
+
+        <!-- Scenarios (Layer 5) -->
+        <section>
+            <h2>三個情境模擬（2027 年底展望）</h2>
+
+            <h3>情境 1：樂觀情景 — 「新通路 + 資安保險」雙槓桿</h3>
+            <div class="card">
+                <p class="scenario-header bullish">✓ 樂觀情景</p>
+                <h4>假設條件</h4>
+                <ul>
+                    <li>你在 2026 年上半年找到 1-2 個經紀人合作方，共享高端企業客户</li>
+                    <li>你深入研究資安保險，成為公司的「資安保險專家」</li>
+                    <li>你會用公司的 AI 核保工具，把 2-3 天的核保流程縮短到 2 小時</li>
+                </ul>
+                <h4>預估結果（2027 年底）</h4>
+                <ul>
+                    <li>年度簽單保費：相比現在增長 40-50%</li>
+                    <li>新客户占比：30% 來自新通路（經紀人、金融科技合作）</li>
+                    <li>毛利率：因資安保險占比提升，整體毛利率提升 15-20%</li>
+                    <li>客户滿意度：因 OMO 和顧問化，續保率提升 5-10%</li>
+                </ul>
+                <h4>關鍵成功因素</h4>
+                <p>前三個月的投入（學習、建立合作關係）</p>
+            </div>
+
+            <h3>情境 2：基準情景 — 「維持現狀」的自然演化</h3>
+            <div class="card">
+                <p class="scenario-header baseline">○ 基準情景</p>
+                <h4>假設條件</h4>
+                <ul>
+                    <li>繼續靠傳統直銷和熟客介紹</li>
+                    <li>新險種了解但沒有深入</li>
+                    <li>對 AI 工具、法規變化的應對是「被動的」</li>
+                </ul>
+                <h4>預估結果（2027 年底）</h4>
+                <ul>
+                    <li>年度簽單保費：增長 5-8%（跟著市場成長）</li>
+                    <li>新客户占比：主要來自熟客介紹和舊客户續保</li>
+                    <li>毛利率：因傳統險種競爭激烈，毛利率維持或微降</li>
+                    <li>市場份額被侵蝕：更多年輕客户被新通路（線上、金融科技）搶走</li>
+                </ul>
+                <h4>風險</h4>
+                <p>「增長」看起來不錯，但實際上是在掉隊。公司在佈局新通路時，你卻沒有新技能，被邊緣化的風險漸增。</p>
+            </div>
+
+            <h3>情境 3：悲觀情景 — 「被動應對法規變化」導致風險</h3>
+            <div class="card">
+                <p class="scenario-header bearish">✗ 悲觀情景</p>
+                <h4>假設條件</h4>
+                <ul>
+                    <li>2026 年 IFRS17 上路時，你還在用舊邏輯跟客户溝通</li>
+                    <li>客户的保單「被調整」，但你沒有提前預警，客户反而投訴</li>
+                    <li>AI 工具上線，但你不會用，效率反而下降</li>
+                </ul>
+                <h4>預估結果（2027 年底）</h4>
+                <ul>
+                    <li>客户流失：因溝通誤會和服務體驗下降，主動流失 10-15%</li>
+                    <li>業績下滑：年度簽單保費反而下降 5-10%</li>
+                    <li>風險事件：客户投訴轉合規風險，個人績效記錄受損</li>
+                    <li>職業危機：公司不再重視你，新人搶著你的客户</li>
+                </ul>
+                <h4>最壞情況</h4>
+                <p>被淘汰或被調離。這不是危言聳聽——許多不適應變化的業務員在 2024-2025 年已經面臨這個風險。</p>
+            </div>
+        </section>
+
+        <!-- Action Plan (Layer 6) -->
+        <section>
+            <h2>你的行動清單</h2>
+
+            <h3>這週（0-7 天）做什麼</h3>
+            <div class="card">
+                <ul>
+                    <li><strong>讀懂 IFRS17：</strong>用 30 分鐘，讀一份簡白話的 IFRS17 說明（公司應該有）。不是要你變成會計師，而是「能用客户聽得懂的方式解釋」</li>
+                    <li><strong>盤點現有客户：</strong>對你現有的 50-100 個活躍客户，分類成「高端企業」「中小企」「個人」三類。為後續的新通路合作做準備</li>
+                    <li><strong>列出身邊的經紀人和代理人：</strong>在 LinkedIn、業界活動、同行網絡中，找出 2-3 個「可能有合作機會」的經紀人。寄一封簡短的「探詢合作」郵件</li>
+                </ul>
+                <p style="margin-top: 16px;"><strong>預期產出物：</strong>一份客户分類表 + 3 個潛在合作對象名單</p>
+            </div>
+
+            <h3>這個月（7-30 天）做什麼</h3>
+            <div class="card">
+                <ul>
+                    <li><strong>深入學習一個新險種：</strong>以資安保險為例。讀 2-3 篇產業分析、訪問公司的產品經理、研究 3-5 個同業案例。目標：「能對一個企業客户做資安保險需求診斷」</li>
+                    <li><strong>學會用 AI 工具：</strong>讓公司的業務系統管理員給你 1-2 小時的培訓。重點是：「用 AI 核保工具快速評估新客户」，而不是完整的系統培訓</li>
+                    <li><strong>主動拜訪 3-5 個老客户：</strong>不是為了賣產品，而是「聽他們的新風險」。IFRS17 是個好藉口：「新法規上路，我想幫你檢視一下現有保障」</li>
+                </ul>
+                <p style="margin-top: 16px;"><strong>預期產出物：</strong>一份「資安保險客户選單」（哪些客户可能需要）+ 3-5 份客户拜訪筆記</p>
+            </div>
+
+            <h3>三個月後（90 天）要檢查的 KPI</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>KPI 指標</th>
+                            <th>預期進展</th>
+                            <th>如何驗證</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>新通路簽單數</td>
+                            <td>至少 1 筆（經紀人或金融科技合作）</td>
+                            <td>訂單系統</td>
+                        </tr>
+                        <tr>
+                            <td>資安保險客户接觸數</td>
+                            <td>至少 5 個潛在客户接觸</td>
+                            <td>拜訪記錄</td>
+                        </tr>
+                        <tr>
+                            <td>老客户拜訪反應</td>
+                            <td>80% 以上客户認可「需要檢視保障」</td>
+                            <td>CRM 筆記</td>
+                        </tr>
+                        <tr>
+                            <td>AI 工具使用頻率</td>
+                            <td>每周至少 3 次以上用 AI 核保</td>
+                            <td>系統日誌</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="insight">
+                如果 90 天後，這四個 KPI 都有進展，代表你已經踏上「新通路 + 新技能 + 新風險認知」的轉變之路。2027 年的市場是你的。
+            </div>
+        </section>
+
+        <!-- What's Next (Layer 7) -->
+        <section>
+            <h2>還有哪些主題可以深入？</h2>
+
+            <p>本報告聚焦「產險業務人員的四大拓展方向」。但 MUSEON 還能幫助庭秀深入的主題包括：</p>
+
+            <ul>
+                <li><strong>資安保險市場診斷</strong>：深入分析台灣資安保險的目標客群、銷售流程、定價策略，產出「資安保險客户獲取手冊」</li>
+                <li><strong>與經紀人合作模式設計</strong>：不同的合作方式（傭金分享、客户互推、聯合銷售）各有優缺，如何選擇最適合你</li>
+                <li><strong>IFRS17 客户溝通方案</strong>：2026 年如何系統化地對舊客户解釋法規變化，並用這個機會升級保障</li>
+                <li><strong>OMO 銷售流程設計</strong>：如何設計「線下諮詢 + 線上簽保」的客户體驗，提升轉化率</li>
+                <li><strong>個人品牌建設</strong>：在新通路時代，如何在 LinkedIn、保險社群中建立「資安保險專家」的個人品牌</li>
+            </ul>
+
+            <p>如果庭秀對任何一個主題感興趣，可以進一步與 MUSEON 討論，獲得更深度的顧問式分析與可執行的方案。</p>
+        </section>
+
+        <!-- CTA Section -->
+        <div class="cta-section">
+            <h3>準備好迎接 2027 年的新機會嗎？</h3>
+            <p>
+                這份報告只是開始。真正的改變在行動。本週做 3 件事，這個月做 3 件事，90 天後檢查 KPI。<br><br>
+                MUSEON 可以協助你更系統地規劃新通路策略、資安保險市場進入、客户溝通方案。每一步都有方法論支撐，不是猜測。
+            </p>
+            <button class="btn">深入對話與合作方案</button>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <p>
+                本報告由 MUSEON AI 決策系統製作。<br>
+                <a href="https://museon.ai">MUSEON 官網</a> |
+                <a href="https://museon.ai/contact">聯繫我們</a>
+            </p>
+            <p style="margin-top: 16px; color: #9898A8;">
+                <strong>免責聲明：</strong>本報告基於公開數據、產業研究與第一性原理分析。作為參考文件，不構成投資或經營建議。<br>
+                資料截止日期：2026 年 2 月 | 預測具有不確定性，實際情況可能不同。
+            </p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,2 +1,8 @@
 {"ts": "2026-03-28T04:51:29.492085+00:00", "check": "gateway_liveness", "finding": "Gateway port 未回應", "action": "start_gateway", "level": "L2", "phase": "before"}
 {"ts": "2026-03-28T04:51:29.634929+00:00", "check": "gateway_liveness", "finding": "Gateway port 未回應", "action": "start_gateway", "level": "L2", "repair_status": "success", "repair_message": "已透過 supervisorctl 啟動 Gateway", "phase": "after"}
+{"ts": "2026-03-30T07:46:32.306520+00:00", "check": "log_rotation", "finding": "Log 過大（>50MB）：['museon.log']", "action": "rotate_logs", "level": "L1", "phase": "before"}
+{"ts": "2026-03-30T07:46:32.308212+00:00", "check": "log_rotation", "finding": "Log 過大（>50MB）：['museon.log']", "action": "rotate_logs", "level": "L1", "repair_status": "skipped", "repair_message": "無需清理", "phase": "after"}
+{"ts": "2026-03-30T09:46:32.300482+00:00", "check": "log_rotation", "finding": "Log 過大（>50MB）：['museon.log']", "action": "rotate_logs", "level": "L1", "phase": "before"}
+{"ts": "2026-03-30T09:46:32.301971+00:00", "check": "log_rotation", "finding": "Log 過大（>50MB）：['museon.log']", "action": "rotate_logs", "level": "L1", "repair_status": "skipped", "repair_message": "無需清理", "phase": "after"}
+{"ts": "2026-03-30T11:46:32.092309+00:00", "check": "log_rotation", "finding": "Log 過大（>50MB）：['museon.log']", "action": "rotate_logs", "level": "L1", "phase": "before"}
+{"ts": "2026-03-30T11:46:32.093370+00:00", "check": "log_rotation", "finding": "Log 過大（>50MB）：['museon.log']", "action": "rotate_logs", "level": "L1", "repair_status": "skipped", "repair_message": "無需清理", "phase": "after"}

@@ -2,8 +2,8 @@
   "version": "3.0.0",
   "user_id": "8438029395",
   "created_at": "2026-03-29T12:51:55.489934",
-  "interaction_count": 3,
-  "last_seen": "2026-03-29T23:29:19.489829",
+  "interaction_count": 4,
+  "last_seen": "2026-03-30T12:41:53.870582",
   "display_name": "Nia",
   "context_summary": "Nia 的近期話題：/business@MuseonClaw_bot；1.目前只有品牌核心理念的畫面，其他都還沒有設計\n2.以實體商品為主，體驗服務為附加價值\n3.父母自；/business@MuseonClaw_bot；品牌核心理念，每個新生兒都是承載著大家的祝福而來到這世上，我想為這些新生兒送上第一份禮物，但還沒想好；/business",
   "profile": {
@@ -13,10 +13,10 @@
   },
   "relationship": {
     "trust_level": "initial",
-    "total_interactions": 2,
+    "total_interactions": 3,
     "positive_signals": 0,
     "negative_signals": 0,
-    "last_interaction": "2026-03-29T23:29:19.489829",
+    "last_interaction": "2026-03-30T12:41:53.870582",
     "first_interaction": "2026-03-29T12:51:55.489945"
   },
   "eight_primals": {
@@ -84,10 +84,10 @@
     ],
     "L2_personality": [],
     "L6_communication_style": {
-      "detail_level": "detailed",
+      "detail_level": "moderate",
       "emoji_usage": "none",
       "language_mix": "mixed",
-      "avg_msg_length": 220,
+      "avg_msg_length": 199,
       "question_style": "directive",
       "tone": "casual"
     }
@@ -103,6 +103,10 @@
     {
       "snippet": "/business",
       "date": "2026-03-29T23:29:19.489829"
+    },
+    {
+      "snippet": "/business",
+      "date": "2026-03-30T12:41:53.870582"
     }
   ],
   "groups_seen_in": [

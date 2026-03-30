@@ -6,37 +6,37 @@
       "level": "expert",
       "confidence": 0.92,
       "classification": "strength",
-      "evidence_count": 264
+      "evidence_count": 277
     },
     "consultant_sales": {
       "level": "expert",
       "confidence": 0.88,
       "classification": "strength",
-      "evidence_count": 129
+      "evidence_count": 143
     },
     "brand_design": {
       "level": "intermediate",
       "confidence": 0.72,
       "classification": "strength",
-      "evidence_count": 76
+      "evidence_count": 80
     },
     "ai_architecture": {
       "level": "advanced",
       "confidence": 0.78,
       "classification": "strength",
-      "evidence_count": 109
+      "evidence_count": 119
     },
     "programming": {
       "level": "beginner",
       "confidence": 0.95,
       "classification": "weakness",
-      "evidence_count": 92
+      "evidence_count": 95
     },
     "emotional_regulation": {
       "level": "developing",
       "confidence": 0.6,
       "classification": "weakness",
-      "evidence_count": 136
+      "evidence_count": 145
     },
     "creative_performance": {
       "classification": "unknown",
@@ -215,9 +215,9 @@
     ]
   },
   "advise_cooldown": {
-    "last_advise_ts": "2026-03-27T18:56:10.671093",
+    "last_advise_ts": "2026-03-30T11:46:39.147614",
     "cooldown_minutes": 30,
-    "session_advise_count": 1,
+    "session_advise_count": 3,
     "max_per_session": 3
   }
 }

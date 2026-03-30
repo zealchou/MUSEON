@@ -205,3 +205,6 @@ BUTTON_TO_COMMAND: dict[str, str] = {
 
 # Mini App 導覽頁 URL
 MINI_APP_NAV_URL = "https://zealchou.github.io/MUSEON/ares/"
+
+# 使用手冊 URL
+HANDBOOK_URL = "https://zealchou.github.io/MUSEON/reports/museon-handbook-shih-wei.html"

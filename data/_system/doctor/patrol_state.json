@@ -1,7 +1,7 @@
 {
-  "cursor": 157,
+  "cursor": 278,
   "cycle_count": 0,
-  "last_tick": "2026-03-29T20:10:18.425105+00:00",
+  "last_tick": "2026-03-30T12:50:32.127355+00:00",
   "llm_queue": [
     "new_module",
     "existing",
@@ -16,88 +16,121 @@
     "museon.channels.telegram",
     "museon.doctor.musedoc",
     "museon.doctor.musedoctor",
-    "museon.gateway.telegram_pump"
+    "museon.gateway.telegram_pump",
+    "museon.nightly.batch",
+    "museon.nightly.business_case",
+    "museon.nightly.course_generator",
+    "museon.nightly.curiosity_router",
+    "museon.nightly.exploration_bridge",
+    "museon.nightly.forge"
   ],
   "anomalies_today": {
-    "museon.llm.adapters": {
-      "date": "2026-03-29",
+    "museon.nightly.batch": {
+      "date": "2026-03-30",
       "anomalies": [
-        "近期 log ERROR x16"
+        "未在 _FULL_STEPS: batch"
       ],
-      "detected_at": "2026-03-29T03:43:17.651793+00:00"
+      "detected_at": "2026-03-30T06:18:32.315385+00:00"
     },
-    "museon.nightly.morphenix_executor": {
-      "date": "2026-03-29",
+    "museon.nightly.business_case": {
+      "date": "2026-03-30",
       "anomalies": [
-        "未在 _FULL_STEPS: morphenix_executor"
+        "未在 _FULL_STEPS: business_case"
       ],
-      "detected_at": "2026-03-29T03:51:18.245068+00:00"
+      "detected_at": "2026-03-30T06:26:32.330087+00:00"
     },
-    "museon.agent.brain": {
-      "date": "2026-03-29",
+    "museon.nightly.course_generator": {
+      "date": "2026-03-30",
       "anomalies": [
-        "近期 log ERROR x3"
+        "未在 _FULL_STEPS: course_generator"
       ],
-      "detected_at": "2026-03-29T04:26:18.562397+00:00"
+      "detected_at": "2026-03-30T06:34:32.895604+00:00"
     },
-    "museon.agent.brain_fast": {
-      "date": "2026-03-29",
+    "museon.nightly.curiosity_router": {
+      "date": "2026-03-30",
       "anomalies": [
-        "broken import: museon.agent.input_sanitizer.InputSanitizer",
-        "broken import: museon.agent.ceremony.NamingCeremony"
+        "未在 _FULL_STEPS: curiosity_router"
       ],
-      "detected_at": "2026-03-29T05:14:18.515349+00:00"
+      "detected_at": "2026-03-30T06:42:32.298910+00:00"
     },
-    "museon.agent.brain_tools": {
-      "date": "2026-03-29",
+    "museon.nightly.exploration_bridge": {
+      "date": "2026-03-30",
       "anomalies": [
-        "近期 log ERROR x3"
+        "未在 _FULL_STEPS: exploration_bridge"
       ],
-      "detected_at": "2026-03-29T06:02:18.512200+00:00"
+      "detected_at": "2026-03-30T06:50:32.276206+00:00"
     },
-    "museon.agent.intuition": {
-      "date": "2026-03-29",
+    "museon.nightly.forge": {
+      "date": "2026-03-30",
       "anomalies": [
-        "近期 log ERROR x15"
+        "未在 _FULL_STEPS: forge"
       ],
-      "detected_at": "2026-03-29T07:06:18.542827+00:00"
+      "detected_at": "2026-03-30T06:58:32.304742+00:00"
     },
-    "museon.agent.tools": {
-      "date": "2026-03-29",
+    "museon.nightly.fusion": {
+      "date": "2026-03-30",
       "anomalies": [
-        "近期 log ERROR x2"
+        "未在 _FULL_STEPS: fusion"
       ],
-      "detected_at": "2026-03-29T09:30:18.530579+00:00"
+      "detected_at": "2026-03-30T07:06:32.294323+00:00"
     },
-    "museon.channels.telegram": {
-      "date": "2026-03-29",
+    "museon.nightly.job": {
+      "date": "2026-03-30",
       "anomalies": [
-        "近期 log ERROR x688"
+        "未在 _FULL_STEPS: job"
       ],
-      "detected_at": "2026-03-29T11:46:18.525262+00:00"
+      "detected_at": "2026-03-30T07:14:32.170299+00:00"
     },
-    "museon.doctor.musedoc": {
-      "date": "2026-03-29",
+    "museon.nightly.morphenix_standards": {
+      "date": "2026-03-30",
       "anomalies": [
-        "近期 log ERROR x6"
+        "未在 _FULL_STEPS: morphenix_standards"
       ],
-      "detected_at": "2026-03-29T13:38:18.567546+00:00"
+      "detected_at": "2026-03-30T07:22:32.342114+00:00"
     },
-    "museon.doctor.musedoctor": {
-      "date": "2026-03-29",
+    "museon.nightly.morphenix_validator": {
+      "date": "2026-03-30",
       "anomalies": [
-        "近期 log ERROR x7"
+        "未在 _FULL_STEPS: morphenix_validator"
       ],
-      "detected_at": "2026-03-29T13:46:18.616788+00:00"
+      "detected_at": "2026-03-30T07:30:32.299231+00:00"
     },
-    "museon.gateway.telegram_pump": {
-      "date": "2026-03-29",
+    "museon.nightly.optimize": {
+      "date": "2026-03-30",
       "anomalies": [
-        "近期 log ERROR x2"
+        "未在 _FULL_STEPS: optimize"
       ],
-      "detected_at": "2026-03-29T18:10:18.519079+00:00"
+      "detected_at": "2026-03-30T07:46:32.304742+00:00"
+    },
+    "museon.nightly.periodic_cycles": {
+      "date": "2026-03-30",
+      "anomalies": [
+        "未在 _FULL_STEPS: periodic_cycles"
+      ],
+      "detected_at": "2026-03-30T07:54:32.473710+00:00"
+    },
+    "museon.nightly.pipeline_dag": {
+      "date": "2026-03-30",
+      "anomalies": [
+        "未在 _FULL_STEPS: pipeline_dag"
+      ],
+      "detected_at": "2026-03-30T08:02:32.323062+00:00"
+    },
+    "museon.nightly.skill_forge_scout": {
+      "date": "2026-03-30",
+      "anomalies": [
+        "未在 _FULL_STEPS: skill_forge_scout"
+      ],
+      "detected_at": "2026-03-30T08:10:32.323143+00:00"
+    },
+    "museon.nightly.skill_scout": {
+      "date": "2026-03-30",
+      "anomalies": [
+        "未在 _FULL_STEPS: skill_scout"
+      ],
+      "detected_at": "2026-03-30T08:18:32.323585+00:00"
     }
   },
-  "last_anomaly_reset": "2026-03-29",
-  "total_nodes": 248
+  "last_anomaly_reset": "2026-03-30",
+  "total_nodes": 290
 }

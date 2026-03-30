@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deep Taiwan Tour — 網站診斷報告</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ember: #C4502A;
+    --ember-light: #E0714D;
+    --ember-dark: #9A3A1C;
+    --teal: #2A7A6E;
+    --gold: #B8923A;
+    --ink: #12121A;
+    --slate: #5A5A6E;
+    --mist: #9898A8;
+    --border: #E2E0DA;
+    --parchment: #F7F5F0;
+    --snow: #FDFCFA;
+    --deep-ink: #0E0E16;
+    --success: #2D8A6E;
+    --warning: #C9943A;
+    --error: #C4402A;
+    --info: #2A6A8A;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+    background: var(--parchment);
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* HERO */
+  .hero {
+    background: var(--deep-ink);
+    padding: 96px 40px 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(196,80,42,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(196,80,42,0.15);
+    color: var(--ember-light);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 100px;
+    border: 1px solid rgba(196,80,42,0.3);
+    margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 52px;
+    font-weight: 600;
+    color: #FDFCFA;
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+  .hero h1 em { color: var(--ember-light); font-style: italic; }
+  .hero-sub {
+    font-size: 18px;
+    color: rgba(253,252,250,0.6);
+    max-width: 560px;
+    margin: 0 auto 40px;
+    font-weight: 300;
+  }
+  .hero-meta {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .hero-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(253,252,250,0.5);
+    font-size: 13px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .hero-meta-item span { color: rgba(253,252,250,0.9); }
+
+  /* LAYOUT */
+  .container { max-width: 880px; margin: 0 auto; padding: 0 40px; }
+  @media (max-width: 640px) { .container { padding: 0 16px; } }
+
+  section { padding: 64px 0; }
+  section + section { border-top: 1px solid var(--border); }
+
+  .section-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ember);
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+  .section-desc {
+    font-size: 17px;
+    color: var(--slate);
+    max-width: 640px;
+    line-height: 1.8;
+    margin-bottom: 40px;
+  }
+
+  /* SCORECARD */
+  .scorecard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .score-card {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+    transition: transform 200ms ease, box-shadow 200ms ease;
+  }
+  .score-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(18,18,26,0.10), 0 8px 24px rgba(18,18,26,0.06);
+  }
+  .score-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 44px;
+    font-weight: 600;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .score-label { font-size: 13px; color: var(--slate); font-weight: 500; }
+  .score-good { color: var(--success); }
+  .score-warn { color: var(--warning); }
+  .score-bad  { color: var(--error); }
+
+  /* VERDICT */
+  .verdict {
+    background: linear-gradient(135deg, var(--deep-ink) 0%, #1A1A24 100%);
+    border-radius: 12px;
+    padding: 32px 40px;
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    margin-bottom: 48px;
+  }
+  .verdict-icon { font-size: 36px; flex-shrink: 0; margin-top: 4px; }
+  .verdict-body h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: #FDFCFA;
+    margin-bottom: 8px;
+  }
+  .verdict-body p { color: rgba(253,252,250,0.7); font-size: 15px; line-height: 1.75; }
+  .verdict-body p em { color: var(--ember-light); font-style: normal; font-weight: 500; }
+
+  /* ISSUES */
+  .issue-list { display: flex; flex-direction: column; gap: 20px; }
+  .issue-card {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 20px;
+    align-items: flex-start;
+    box-shadow: 0 1px 3px rgba(18,18,26,0.06);
+    transition: transform 200ms ease;
+  }
+  .issue-card:hover { transform: translateY(-1px); }
+  .issue-number {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .issue-number.critical { background: rgba(196,64,42,0.12); color: var(--error); }
+  .issue-number.high    { background: rgba(201,148,58,0.12); color: var(--warning); }
+  .issue-number.medium  { background: rgba(42,106,138,0.12); color: var(--info); }
+
+  .issue-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .issue-title { font-weight: 600; font-size: 16px; color: var(--ink); }
+
+  .badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 9px;
+    border-radius: 100px;
+  }
+  .badge-critical { background: rgba(196,64,42,0.1); color: var(--error); }
+  .badge-high     { background: rgba(201,148,58,0.1); color: var(--warning); }
+  .badge-medium   { background: rgba(42,106,138,0.1); color: var(--info); }
+  .badge-func     { background: rgba(196,80,42,0.1); color: var(--ember-dark); }
+  .badge-visual   { background: rgba(184,146,58,0.1); color: var(--gold); }
+  .badge-copy     { background: rgba(45,138,110,0.1); color: var(--success); }
+  .badge-brand    { background: rgba(90,90,110,0.1); color: var(--slate); }
+
+  .issue-desc { font-size: 15px; color: var(--slate); line-height: 1.75; margin-bottom: 12px; }
+  .issue-fix {
+    background: rgba(42,122,110,0.06);
+    border-left: 3px solid var(--teal);
+    border-radius: 0 6px 6px 0;
+    padding: 10px 14px;
+    font-size: 14px;
+    color: var(--teal);
+    line-height: 1.65;
+  }
+  .issue-fix strong { color: #1A5A50; font-weight: 600; }
+
+  /* BRAND GRID */
+  .brand-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+  @media (max-width: 640px) { .brand-grid { grid-template-columns: 1fr; } }
+  .brand-col {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(18,18,26,0.06);
+  }
+  .brand-col-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 16px;
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .dot-green { background: var(--success); }
+  .dot-red   { background: var(--error); }
+  .brand-items { display: flex; flex-direction: column; gap: 10px; }
+  .brand-item {
+    display: flex;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--slate);
+    align-items: flex-start;
+    line-height: 1.65;
+  }
+  .brand-item::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 6px;
+  }
+  .col-good .brand-item::before { background: var(--success); }
+  .col-bad  .brand-item::before { background: var(--error); }
+
+  /* CHECKLIST */
+  .checklist { display: flex; flex-direction: column; gap: 12px; }
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    font-size: 15px;
+    color: var(--ink);
+  }
+  .check-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    font-weight: 700;
+  }
+  .check-icon.todo   { background: rgba(196,80,42,0.1); color: var(--ember); }
+  .check-icon.urgent { background: rgba(196,64,42,0.15); color: var(--error); }
+  .check-item p { line-height: 1.65; }
+  .check-item strong { color: var(--ink); font-weight: 600; }
+  .check-item span { color: var(--slate); font-size: 14px; }
+
+  /* PRIORITY TABLE */
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 3px rgba(18,18,26,0.06);
+  }
+  .priority-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .priority-table th {
+    background: var(--deep-ink);
+    color: rgba(253,252,250,0.75);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 12px 16px;
+    text-align: left;
+  }
+  .priority-table th:first-child { border-radius: 8px 0 0 0; }
+  .priority-table th:last-child  { border-radius: 0 8px 0 0; }
+  .priority-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--slate);
+    background: var(--snow);
+    vertical-align: middle;
+  }
+  .priority-table tr:last-child td { border-bottom: none; }
+  .priority-table td:first-child { color: var(--ink); font-weight: 500; }
+  .priority-tag {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 100px;
+  }
+  .p1 { background: rgba(196,64,42,0.12); color: var(--error); }
+  .p2 { background: rgba(201,148,58,0.12); color: var(--warning); }
+  .p3 { background: rgba(42,106,138,0.12); color: var(--info); }
+
+  /* FOOTER */
+  .report-footer {
+    background: var(--deep-ink);
+    padding: 48px 40px;
+    text-align: center;
+    margin-top: 64px;
+  }
+  .footer-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ember-light);
+    margin-bottom: 12px;
+    letter-spacing: 0.05em;
+  }
+  .footer-desc { font-size: 14px; color: rgba(253,252,250,0.4); max-width: 400px; margin: 0 auto; }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .hero > * { animation: fadeUp 400ms ease-out both; }
+  .hero-badge { animation-delay: 0ms; }
+  .hero h1    { animation-delay: 80ms; }
+  .hero-sub   { animation-delay: 160ms; }
+  .hero-meta  { animation-delay: 240ms; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-badge">網站品牌診斷報告</div>
+  <h1>Deep Taiwan Tour<br><em>網站診斷 · 改版建議</em></h1>
+  <p class="hero-sub">從使用者體驗、品牌一致性、功能完整性三個維度出發，提供可直接交付執行的修改清單</p>
+  <div class="hero-meta">
+    <div class="hero-meta-item">診斷日期 <span>2026-03-30</span></div>
+    <div class="hero-meta-item">網站 <span>deeptaiwantour.com</span></div>
+    <div class="hero-meta-item">診斷項目 <span>11 項</span></div>
+    <div class="hero-meta-item">優先等級 <span>3 級</span></div>
+  </div>
+</header>
+
+<main>
+
+<!-- OVERALL ASSESSMENT -->
+<section>
+  <div class="container">
+    <div class="section-label">總體評估</div>
+    <h2 class="section-title">有基礎，缺靈魂</h2>
+    <p class="section-desc">設計師做了功課，色彩、字型、組件邏輯都有選擇的痕跡。但目前這個網站賣的是「通用旅遊模板」，還不是 Deep Taiwan Tour 的品牌故事。</p>
+
+    <div class="scorecard-grid">
+      <div class="score-card">
+        <div class="score-num score-warn">6</div>
+        <div class="score-label">功能完整性 / 10</div>
+      </div>
+      <div class="score-card">
+        <div class="score-num score-warn">5</div>
+        <div class="score-label">品牌一致性 / 10</div>
+      </div>
+      <div class="score-card">
+        <div class="score-num score-bad">4</div>
+        <div class="score-label">中文友善度 / 10</div>
+      </div>
+      <div class="score-card">
+        <div class="score-num score-warn">6</div>
+        <div class="score-label">視覺質感 / 10</div>
+      </div>
+    </div>
+
+    <div class="verdict">
+      <div class="verdict-icon">💡</div>
+      <div class="verdict-body">
+        <h3>核心診斷</h3>
+        <p>技術底子有了，品牌定位還沒說清楚。<em>「Deep Taiwan」</em>這三個字暗示的是深度、在地、獨特體驗——但現在網站的視覺和文案，讓人看完還是不確定「這是誰、為誰服務、跟別人有什麼不同」。<br><br>修改優先順序：先把<em>功能問題</em>解掉（語言切換、導覽列、影片流暢度），再來談<em>品牌深化</em>。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ISSUES -->
+<section>
+  <div class="container">
+    <div class="section-label">問題清單</div>
+    <h2 class="section-title">修改項目 · 分級整理</h2>
+    <p class="section-desc">共 11 個修改項目，依緊急程度分三級。P1 必須在正式上線前完成，P2 建議 2 週內完成，P3 視資源規劃。</p>
+
+    <div class="issue-list">
+
+      <div class="issue-card">
+        <div class="issue-number critical">1</div>
+        <div class="issue-content">
+          <div class="issue-header">
+            <span class="issue-title">中英文語言切換功能</span>
+            <span class="badge badge-critical">P1 · 緊急</span>
+            <span class="badge badge-func">功能</span>
+          </div>
+          <p class="issue-desc">首頁目前全英文，沒有中文切換入口。台灣本地客戶或中文使用者進站後無法閱讀，是轉換率的致命傷。</p>
+          <div class="issue-fix"><strong>修改指示：</strong>導覽列右側加入「中文 / EN」切換按鈕，首頁預設依訪客語言環境顯示，至少支援繁體中文與英文雙語。</div>
+        </div>
+      </div>
+
+      <div class="issue-card">
+        <div class="issue-number critical">2</div>
+        <div class="issue-content">
+          <div class="issue-header">
+            <span class="issue-title">導覽列白色底色初始顯示</span>
+            <span class="badge badge-critical">P1 · 緊急</span>
+            <span class="badge badge-visual">視覺</span>
+          </div>
+          <p class="issue-desc">導覽列目前要滑動後才出現白色半透明背景，第一眼看不到選項。國際旅客習慣在 3 秒內判斷是否停留，找不到導覽就會離開。</p>
+          <div class="issue-fix"><strong>修改指示：</strong>將導覽列背景設為「從第一像素就顯示白色半透明底色」（rgba(255,255,255,0.95) + backdrop-filter: blur），不等滑動才觸發。</div>
+        </div>
+      </div>
+
+      <div class="issue-card">
+        <div class="issue-number critical">3</div>
+        <div class="issue-content">
+          <div class="issue-header">
+            <span class="issue-title">影片播放流暢度</span>
+            <span class="badge badge-critical">P1 · 緊急</span>
+            <span class="badge badge-func">功能</span>
+          </div>
+          <p class="issue-desc">首頁影片有卡頓問題。影片是旅遊網站最重要的轉換工具，卡頓直接打斷情感連結，讓訪客失去信任感。</p>
+          <div class="issue-fix"><strong>修改指示：</strong>確認影片格式（優先 WebM）、壓縮至 1080p 以下、使用 CDN 托管或 YouTube/Vimeo embed。加入 poster 靜態圖片作為載入封面。</div>
+        </div>
+      </div>
+
+      <div class="issue-card">
+        <div class="issue-number high">4</div>
+        <div class="issue-content">
+          <div class="issue-header">
+            <span class="issue-title">按鈕文案調整 + 連結對應</span>
+            <span class="badge badge-high">P2 · 重要</span>
+            <span class="badge badge-copy">文案</span>
+          </div>
+          <p class="issue-desc">「wt培訓」應改為「Build Team」；「成為供應商」應改為「Be Supplier」。兩個按鈕均需連結到「聯繫我們」頁面。</p>
+          <div class="issue-fix"><strong>修改指示：</strong>按鈕文字改為 Build Team / Be Supplier，href 指向 /contact 或聯繫我們的 anchor。中英混雜的按鈕標籤全部統一為英文。</div>
+        </div>
+      </div>
+
+      <div class="issue-card">
+        <div class="issue-number high">5</div>
+        <div class="issue-content">
+          <div class="issue-header">
+            <span class="issue-title">首頁主視覺換成英文版 Slogan</span>
+            <span class="badge badge-high">P2 · 重要</span>
+            <span class="badge badge-visual">視覺</span>
+          </div>
+          <p class="issue-desc">首頁英雄圖目前使用中文版 slogan，與全英文介面不符，造成視覺語言混亂。</p>
+          <div class="issue-fix"><strong>修改指示：</strong>將首頁主視覺 Hero 圖替換為英文版 slogan 圖（請另行提供英文版素材）。</div>
+        </div>
+      </div>
+
+      <div class="issue-card">
+        <div class="issue-number high">6</div>
+        <div class="issue-content">
+          <div class="issue-header">
+            <span class="issue-title">全站中文殘字統一替換</span>
+            <span class="badge badge-high">P2 · 重要</span>
+            <span class="badge badge-copy">文案</span>
+          </div>
+          <p class="issue-desc">頁面中出現「看全部」等中文連結/按鈕，與整體英文介面不一致，顯得粗糙。</p>
+          <div class="issue-fix"><strong>修改指示：</strong>全站搜尋中文按鈕文字，統一替換：「看全部」→「See More」、「了解更多」→「Learn More」、「立即預訂」→「Book Now」。</div>
+        </div>
+      </div>
+
+      <div class="issue-card">
+        <div class="issue-number high">7</div>
+        <div class="issue-content">
+          <div class="issue-header">
+            <span class="issue-title">右下角即時通訊整合 Email</span>
+            <span class="badge badge-high">P2 · 重要</span>
+            <span class="badge badge-func">功能</span>
+          </div>
+          <p class="issue-desc">客服入口需整合 Email 聯繫方式，讓國際旅客有明確的詢問管道。</p>
+          <div class="issue-fix"><strong>修改指示：</strong>右下角 Chat widget 設定 Email 選項（mailto: 觸發），或嵌入 Tidio / Crisp 等免費客服工具，支援 Email 轉接。</div>
+        </div>
+      </div>
+
+      <div class="issue-card">
+        <div class="issue-number medium">8</div>
+        <div class="issue-content">
+          <div class="issue-header">
+            <span class="issue-title">中文字型策略</span>
+            <span class="badge badge-medium">P3 · 建議</span>
+            <span class="badge badge-brand">品牌</span>
+          </div>
+          <p class="issue-desc">網站目前沒有指定中文字型。若中文版上線後將 fallback 到系統預設字型，視覺質感立刻降級。</p>
+          <div class="issue-fix"><strong>修改指示：</strong>CSS font-family 加入 'Noto Sans TC', 'PingFang TC'。Google Fonts 引入 Noto Sans TC（300/400/500 三個字重）。</div>
+        </div>
+      </div>
+
+      <div class="issue-card">
+        <div class="issue-number medium">9</div>
+        <div class="issue-content">
+          <div class="issue-header">
+            <span class="issue-title">色彩說出品牌故事</span>
+            <span class="badge badge-medium">P3 · 建議</span>
+            <span class="badge badge-brand">品牌深化</span>
+          </div>
+          <p class="issue-desc">目前青綠+橙色的組合跟一般旅遊電商差不多。「Deep Taiwan」這個名字暗示在地感、深層文化——這份情緒目前顏色沒有說出來。</p>
+          <div class="issue-fix"><strong>建議方向：</strong>考慮加入台灣土地感色調（陶土橘、霧山藍、稻穗金），並統一一個「只有 Deep Taiwan 才有」的視覺記憶點——特定紋理、圖示風格或照片濾鏡。</div>
+        </div>
+      </div>
+
+      <div class="issue-card">
+        <div class="issue-number medium">10</div>
+        <div class="issue-content">
+          <div class="issue-header">
+            <span class="issue-title">差異化訊息主張</span>
+            <span class="badge badge-medium">P3 · 建議</span>
+            <span class="badge badge-brand">品牌深化</span>
+          </div>
+          <p class="issue-desc">目前網站沒有清楚回答「為什麼選 Deep Taiwan Tour 而不是其他旅行社？」訪客看完首頁，離開時未必記得這個品牌。</p>
+          <div class="issue-fix"><strong>建議方向：</strong>首頁加入 Hero Tagline（20 字以內），直接說出獨特價值主張。例如：「We take you beyond the guidebook.」或「Taiwan, experienced differently.」</div>
+        </div>
+      </div>
+
+      <div class="issue-card">
+        <div class="issue-number medium">11</div>
+        <div class="issue-content">
+          <div class="issue-header">
+            <span class="issue-title">建立視覺記憶點</span>
+            <span class="badge badge-medium">P3 · 建議</span>
+            <span class="badge badge-brand">品牌深化</span>
+          </div>
+          <p class="issue-desc">Logo、首頁英雄圖、整體敘事，目前沒有一個元素讓人看完後記得「這是誰」。品牌建立的核心是讓人能複述。</p>
+          <div class="issue-fix"><strong>建議方向：</strong>挑一個視覺元素當「品牌錨點」——可以是特定插畫風格、照片人物角度、或以台灣地圖輪廓作為設計語言，在各頁面反覆強化。</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- BRAND AUDIT -->
+<section>
+  <div class="container">
+    <div class="section-label">品牌視覺診斷</div>
+    <h2 class="section-title">做到了什麼 · 缺了什麼</h2>
+    <p class="section-desc">品牌視覺策略的整體判斷：<strong>有在做，但只做了一半</strong>。基礎框架在，品牌靈魂還沒注入。</p>
+
+    <div class="brand-grid">
+      <div class="brand-col col-good">
+        <div class="brand-col-title"><div class="dot dot-green"></div>已做到的部分</div>
+        <div class="brand-items">
+          <div class="brand-item">色彩系統有建立——青綠主色、橙色強調、深藍文字，三色有明確方向，暗示「自然台灣 + 活力探索」</div>
+          <div class="brand-item">英文字型有選過——標題 Poppins（現代感）、內文 Roboto（閱讀舒適），不是隨便套的</div>
+          <div class="brand-item">按鈕、卡片樣式有統一邏輯，整體介面語言一致</div>
+          <div class="brand-item">圖片選用有旅遊氛圍，基礎視覺調性到位</div>
+        </div>
+      </div>
+      <div class="brand-col col-bad">
+        <div class="brand-col-title"><div class="dot dot-red"></div>缺少的部分</div>
+        <div class="brand-items">
+          <div class="brand-item">沒有中文字型策略——一旦中文版上線，視覺質感立刻掉級</div>
+          <div class="brand-item">色彩選對了但沒有品牌故事——跟任何旅遊電商都差不多</div>
+          <div class="brand-item">沒有視覺記憶點——沒有一個元素讓訪客記得「這是誰」</div>
+          <div class="brand-item">深度體驗定位沒有在視覺上說出來——看起來像一般觀光旅遊，不像「深度探索台灣」</div>
+          <div class="brand-item">差異化訊息不存在——為什麼選你，網站沒給答案</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRIORITY TABLE -->
+<section>
+  <div class="container">
+    <div class="section-label">執行優先序</div>
+    <h2 class="section-title">給網路公司的工作排序</h2>
+    <p class="section-desc">建議按以下順序交付，P1 為正式上線前必須完成的項目。</p>
+
+    <div class="table-wrap">
+      <table class="priority-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>修改項目</th>
+            <th>優先級</th>
+            <th>類型</th>
+            <th>預估影響</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>語言切換功能（中 / EN）</td><td><span class="priority-tag p1">P1</span></td><td>功能</td><td>觸及中文市場的前提條件</td></tr>
+          <tr><td>2</td><td>導覽列初始白色底色</td><td><span class="priority-tag p1">P1</span></td><td>視覺 / UX</td><td>第一眼信任度，直接影響跳出率</td></tr>
+          <tr><td>3</td><td>影片流暢度修復</td><td><span class="priority-tag p1">P1</span></td><td>功能</td><td>旅遊業情感轉換的核心工具</td></tr>
+          <tr><td>4</td><td>按鈕文案修改 + 連結對應</td><td><span class="priority-tag p2">P2</span></td><td>文案 / 功能</td><td>消除中英混雜的專業感損失</td></tr>
+          <tr><td>5</td><td>首頁主視覺換英文 Slogan</td><td><span class="priority-tag p2">P2</span></td><td>視覺</td><td>品牌一致性，消除視覺語言衝突</td></tr>
+          <tr><td>6</td><td>全站中文殘字統一替換</td><td><span class="priority-tag p2">P2</span></td><td>文案</td><td>整體質感一致性</td></tr>
+          <tr><td>7</td><td>右下角 Email 客服整合</td><td><span class="priority-tag p2">P2</span></td><td>功能</td><td>國際旅客詢問轉換率</td></tr>
+          <tr><td>8</td><td>中文字型策略加入</td><td><span class="priority-tag p3">P3</span></td><td>視覺 / 品牌</td><td>中文版上線前必須解決</td></tr>
+          <tr><td>9–11</td><td>品牌差異化深化（色彩 / 記憶點 / Tagline）</td><td><span class="priority-tag p3">P3</span></td><td>品牌策略</td><td>長期轉換率與品牌辨識度</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ACTION CHECKLIST -->
+<section>
+  <div class="container">
+    <div class="section-label">交付清單</div>
+    <h2 class="section-title">可直接傳給網路公司的需求單</h2>
+    <p class="section-desc">以下清單已整理成可直接溝通的格式，複製後發給工程師即可使用。</p>
+
+    <div class="checklist">
+      <div class="check-item">
+        <div class="check-icon urgent">!</div>
+        <p><strong>【必須】語言切換</strong><br><span>導覽列右側加入「中文 / EN」切換按鈕，首頁支援中英雙語，預設依瀏覽器語言環境顯示</span></p>
+      </div>
+      <div class="check-item">
+        <div class="check-icon urgent">!</div>
+        <p><strong>【必須】導覽列白色底色</strong><br><span>不等滑動，頁面載入後導覽列立即顯示白色半透明背景（rgba(255,255,255,0.95)）</span></p>
+      </div>
+      <div class="check-item">
+        <div class="check-icon urgent">!</div>
+        <p><strong>【必須】影片優化</strong><br><span>首頁影片格式改 WebM、壓縮至 1080p、使用 CDN 或 YouTube embed，加 poster 靜態封面圖</span></p>
+      </div>
+      <div class="check-item">
+        <div class="check-icon todo">→</div>
+        <p><strong>【重要】按鈕修改</strong><br><span>「wt培訓」→「Build Team」、「成為供應商」→「Be Supplier」，兩者均連結至聯繫我們頁面</span></p>
+      </div>
+      <div class="check-item">
+        <div class="check-icon todo">→</div>
+        <p><strong>【重要】首頁主圖</strong><br><span>首頁 Hero 圖換成英文版 Slogan 圖片（請另外提供素材）</span></p>
+      </div>
+      <div class="check-item">
+        <div class="check-icon todo">→</div>
+        <p><strong>【重要】全站中英統一</strong><br><span>搜尋所有中文按鈕/連結文字，統一替換：「看全部」→「See More」、「了解更多」→「Learn More」</span></p>
+      </div>
+      <div class="check-item">
+        <div class="check-icon todo">→</div>
+        <p><strong>【重要】右下角客服</strong><br><span>右下角 Chat widget 加入 Email 聯繫選項（mailto: 或整合 Tidio/Crisp 免費方案）</span></p>
+      </div>
+      <div class="check-item">
+        <div class="check-icon todo">→</div>
+        <p><strong>【建議】中文字型</strong><br><span>CSS font-family 加入 'Noto Sans TC', 'PingFang TC'，Google Fonts 引入 Noto Sans TC（300/400/500）</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="report-footer">
+  <div class="footer-logo">MUSEON</div>
+  <p class="footer-desc">AI 決策系統 · 品牌診斷服務<br>本報告基於網站實際瀏覽分析與品牌策略評估產出</p>
+</footer>
+
+</body>
+</html>

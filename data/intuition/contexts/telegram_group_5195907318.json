@@ -71,10 +71,10 @@
       "node_type": "intention",
       "label": "任務委派",
       "properties": {
-        "detected_at": "2026-03-23T13:03:25.584337"
+        "detected_at": "2026-03-30T11:24:25.072187"
       },
       "created_at": "2026-03-23T13:03:25.584650",
-      "updated_at": "2026-03-23T13:03:25.584656"
+      "updated_at": "2026-03-30T11:24:25.072646"
     },
     "topic_turn_7": {
       "node_id": "topic_turn_7",
@@ -86,12 +86,66 @@
       },
       "created_at": "2026-03-23T13:03:25.584689",
       "updated_at": "2026-03-23T13:03:25.584693"
+    },
+    "intention_決策": {
+      "node_id": "intention_決策",
+      "node_type": "intention",
+      "label": "決策",
+      "properties": {
+        "detected_at": "2026-03-30T09:25:25.749284"
+      },
+      "created_at": "2026-03-30T09:25:25.749631",
+      "updated_at": "2026-03-30T09:25:25.749636"
+    },
+    "topic_turn_9": {
+      "node_id": "topic_turn_9",
+      "node_type": "topic",
+      "label": "turn_9",
+      "properties": {
+        "content_length": 2502,
+        "detected_at": "2026-03-30T09:25:25.749284"
+      },
+      "created_at": "2026-03-30T09:25:25.749652",
+      "updated_at": "2026-03-30T09:25:25.749656"
+    },
+    "topic_turn_10": {
+      "node_id": "topic_turn_10",
+      "node_type": "topic",
+      "label": "turn_10",
+      "properties": {
+        "content_length": 1195,
+        "detected_at": "2026-03-30T11:10:30.125034"
+      },
+      "created_at": "2026-03-30T11:10:30.126033",
+      "updated_at": "2026-03-30T11:10:30.126038"
+    },
+    "topic_turn_11": {
+      "node_id": "topic_turn_11",
+      "node_type": "topic",
+      "label": "turn_11",
+      "properties": {
+        "content_length": 89,
+        "detected_at": "2026-03-30T11:14:38.404571"
+      },
+      "created_at": "2026-03-30T11:14:38.404700",
+      "updated_at": "2026-03-30T11:14:38.404707"
+    },
+    "topic_turn_12": {
+      "node_id": "topic_turn_12",
+      "node_type": "topic",
+      "label": "turn_12",
+      "properties": {
+        "content_length": 1517,
+        "detected_at": "2026-03-30T11:24:25.072187"
+      },
+      "created_at": "2026-03-30T11:24:25.072684",
+      "updated_at": "2026-03-30T11:24:25.072689"
     }
   },
   "edges": {},
   "metadata": {
-    "turn_count": 6,
-    "last_content_length": 1297
+    "turn_count": 10,
+    "last_content_length": 1517
   },
-  "last_updated": "2026-03-23T13:03:25.584337"
+  "last_updated": "2026-03-30T11:24:25.072187"
 }

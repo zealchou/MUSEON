@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MUSEON 使用手冊 — 士維專屬版</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ─── Reset & Base ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ember:        #C4502A;
+      --ember-light:  #E0714D;
+      --ember-dark:   #9A3A1C;
+      --teal:         #2A7A6E;
+      --gold:         #B8923A;
+      --ink:          #12121A;
+      --slate:        #5A5A6E;
+      --mist:         #9898A8;
+      --border:       #E2E0DA;
+      --parchment:    #F7F5F0;
+      --snow:         #FDFCFA;
+      --deep-ink:     #0E0E16;
+    }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    body {
+      background: var(--parchment);
+      color: var(--ink);
+      font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+      font-weight: 400;
+      line-height: 1.75;
+      min-height: 100vh;
+    }
+
+    /* ─── Page Layout ─── */
+    .page-wrap {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 0 40px 80px;
+    }
+
+    @media (max-width: 768px) { .page-wrap { padding: 0 24px 60px; } }
+    @media (max-width: 640px) { .page-wrap { padding: 0 16px 48px; } }
+
+    /* ─── Header ─── */
+    .site-header {
+      padding: 48px 0 0;
+      margin-bottom: 40px;
+      animation: fadeUp 400ms ease-out both;
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      background: var(--ember);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .brand-mark svg { width: 24px; height: 24px; fill: white; }
+
+    .brand-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--ink);
+    }
+
+    .brand-sub {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--slate);
+    }
+
+    .hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(32px, 5vw, 48px);
+      font-weight: 600;
+      line-height: 1.2;
+      color: var(--ink);
+      margin-bottom: 10px;
+    }
+
+    .hero-title em {
+      font-style: italic;
+      color: var(--ember);
+    }
+
+    .hero-subtitle {
+      font-size: 17px;
+      color: var(--slate);
+      line-height: 1.7;
+    }
+
+    /* ─── Tab Navigation ─── */
+    .tab-nav {
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      margin-bottom: 32px;
+      border-bottom: 1.5px solid var(--border);
+      scrollbar-width: none;
+      animation: fadeUp 400ms 80ms ease-out both;
+    }
+    .tab-nav::-webkit-scrollbar { display: none; }
+
+    .tab-btn {
+      flex-shrink: 0;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 10px 16px;
+      border-radius: 8px 8px 0 0;
+      font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--slate);
+      transition: color 200ms ease, background 200ms ease;
+      position: relative;
+      bottom: -1.5px;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover { color: var(--ember); background: rgba(196,80,42,0.05); }
+
+    .tab-btn.active {
+      color: var(--ember);
+      font-weight: 600;
+      border-bottom: 2.5px solid var(--ember);
+      background: rgba(196,80,42,0.05);
+    }
+
+    .tab-num {
+      display: inline-block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      background: rgba(196,80,42,0.12);
+      color: var(--ember-dark);
+      border-radius: 100px;
+      padding: 1px 7px;
+      margin-right: 6px;
+      letter-spacing: 0.04em;
+    }
+
+    /* ─── Tab Panels ─── */
+    .tab-panel {
+      display: none;
+      animation: fadeUp 300ms ease-out both;
+    }
+    .tab-panel.active { display: block; }
+
+    /* ─── Cards ─── */
+    .card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+      transition: transform 200ms ease, box-shadow 200ms ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 2px 8px rgba(18,18,26,0.08), 0 8px 24px rgba(18,18,26,0.06);
+    }
+
+    .card-grid {
+      display: grid;
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    .card-grid-2 { grid-template-columns: 1fr 1fr; }
+    .card-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+    @media (max-width: 640px) {
+      .card-grid-2, .card-grid-3 { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .card-grid-3 { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* ─── Typography ─── */
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 32px;
+      font-weight: 600;
+      line-height: 1.25;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+
+    .section-desc {
+      font-size: 16px;
+      color: var(--slate);
+      line-height: 1.75;
+      margin-bottom: 28px;
+    }
+
+    .card-title {
+      font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-body {
+      font-size: 15px;
+      color: var(--slate);
+      line-height: 1.75;
+    }
+
+    .highlight {
+      color: var(--ember);
+      font-weight: 600;
+    }
+
+    /* ─── Badge ─── */
+    .badge {
+      display: inline-block;
+      background: rgba(196,80,42,0.1);
+      color: var(--ember-dark);
+      border-radius: 100px;
+      padding: 3px 10px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .badge-teal {
+      background: rgba(42,122,110,0.1);
+      color: var(--teal);
+    }
+
+    .badge-gold {
+      background: rgba(184,146,58,0.1);
+      color: var(--gold);
+    }
+
+    /* ─── Divider ─── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 28px 0;
+    }
+
+    /* ─── Step List ─── */
+    .step-list { list-style: none; display: flex; flex-direction: column; gap: 16px; margin: 20px 0; }
+
+    .step-item {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--ember);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    .step-content { flex: 1; }
+    .step-label {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+    .step-detail { font-size: 15px; color: var(--slate); line-height: 1.7; }
+
+    /* ─── Scenario Cards ─── */
+    .scenario-card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--ember);
+      border-radius: 0 10px 10px 0;
+      padding: 20px 24px;
+      margin: 12px 0;
+    }
+
+    .scenario-q {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .scenario-a {
+      font-size: 14px;
+      color: var(--slate);
+      line-height: 1.7;
+      padding-left: 24px;
+    }
+
+    /* ─── Timeline ─── */
+    .timeline { margin: 20px 0; display: flex; flex-direction: column; gap: 0; }
+
+    .timeline-item {
+      display: flex;
+      gap: 20px;
+      position: relative;
+    }
+
+    .timeline-item:not(:last-child)::before {
+      content: '';
+      position: absolute;
+      left: 19px;
+      top: 36px;
+      bottom: 0;
+      width: 2px;
+      background: var(--border);
+    }
+
+    .timeline-dot {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--snow);
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .timeline-dot.active {
+      background: rgba(196,80,42,0.1);
+      border-color: var(--ember);
+    }
+
+    .timeline-body { flex: 1; padding-bottom: 28px; }
+
+    .timeline-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ember);
+      margin-bottom: 6px;
+    }
+
+    .timeline-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+
+    .timeline-desc { font-size: 15px; color: var(--slate); line-height: 1.7; }
+
+    /* ─── Phase Cards ─── */
+    .phase-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    @media (max-width: 640px) { .phase-row { grid-template-columns: 1fr; } }
+
+    .phase-card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .phase-num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mist);
+      margin-bottom: 8px;
+    }
+
+    .phase-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+
+    .phase-desc { font-size: 14px; color: var(--slate); line-height: 1.7; }
+
+    /* ─── Compare Table ─── */
+    .compare-wrap { overflow-x: auto; margin: 20px 0; }
+
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 15px;
+    }
+
+    .compare-table th {
+      background: var(--ink);
+      color: white;
+      padding: 12px 16px;
+      text-align: left;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .compare-table th:first-child { border-radius: 10px 0 0 0; }
+    .compare-table th:last-child { border-radius: 0 10px 0 0; }
+
+    .compare-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--slate);
+      line-height: 1.6;
+      vertical-align: top;
+    }
+
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table tr:nth-child(even) td { background: rgba(247,245,240,0.6); }
+
+    .compare-table .col-em {
+      color: var(--ember-dark);
+      font-weight: 500;
+    }
+
+    /* ─── Capability List ─── */
+    .cap-section { margin-bottom: 28px; }
+
+    .cap-section-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .cap-section-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: rgba(196,80,42,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .cap-section-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .cap-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+
+    .cap-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 15px;
+      color: var(--slate);
+      transition: border-color 200ms ease, background 200ms ease;
+    }
+
+    .cap-item:hover {
+      border-color: rgba(196,80,42,0.3);
+      background: rgba(253,252,250,0.9);
+    }
+
+    .cap-item::before {
+      content: '→';
+      color: var(--ember);
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ─── Info Box ─── */
+    .info-box {
+      background: rgba(42,122,110,0.06);
+      border: 1px solid rgba(42,122,110,0.2);
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin: 20px 0;
+      display: flex;
+      gap: 14px;
+    }
+
+    .info-box-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+
+    .info-box-body { font-size: 15px; color: var(--slate); line-height: 1.75; }
+    .info-box-body strong { color: var(--teal); font-weight: 600; }
+
+    /* ─── Quote ─── */
+    .pull-quote {
+      border-left: 3px solid var(--ember);
+      padding: 12px 20px;
+      margin: 20px 0;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-style: italic;
+      color: var(--slate);
+      line-height: 1.5;
+    }
+
+    /* ─── Footer ─── */
+    .site-footer {
+      margin-top: 64px;
+      padding-top: 28px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .footer-logo {
+      width: 28px;
+      height: 28px;
+      background: var(--ember);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .footer-logo svg { width: 16px; height: 16px; fill: white; }
+
+    .footer-text {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      color: var(--mist);
+      letter-spacing: 0.04em;
+    }
+
+    .footer-text strong { color: var(--slate); }
+
+    /* ─── Animations ─── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── Misc ─── */
+    strong { font-weight: 600; color: var(--ink); }
+    a { color: var(--ember); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .emoji-icon { font-size: 20px; }
+    .mt-20 { margin-top: 20px; }
+    .mb-20 { margin-bottom: 20px; }
+    .text-small { font-size: 14px; color: var(--slate); }
+  </style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+  <!-- ─── Header ─── -->
+  <header class="site-header">
+    <div class="brand-row">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L3 7v10l9 5 9-5V7L12 2zm0 2.3l6.5 3.6L12 11.5 5.5 7.9 12 4.3zM4.5 9.2l7 3.9v7.5L4.5 16.7V9.2zm9 11.4v-7.5l7-3.9v7.5l-7 3.9z"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-name">MUSEON</div>
+        <div class="brand-sub">Private Intelligence System</div>
+      </div>
+    </div>
+    <h1 class="hero-title">你的 <em>私人決策夥伴</em>，<br>士維專屬使用手冊</h1>
+    <p class="hero-subtitle">不需要懂技術，只需要知道怎麼把它用好。這份手冊從「它是什麼」到「你能要求它做什麼」，一次說清楚。</p>
+  </header>
+
+  <!-- ─── Tab Navigation ─── -->
+  <nav class="tab-nav" role="tablist">
+    <button class="tab-btn active" role="tab" aria-selected="true"  data-tab="0"><span class="tab-num">01</span>MUSEON 是什麼？</button>
+    <button class="tab-btn"        role="tab" aria-selected="false" data-tab="1"><span class="tab-num">02</span>第一次用</button>
+    <button class="tab-btn"        role="tab" aria-selected="false" data-tab="2"><span class="tab-num">03</span>越用越懂你</button>
+    <button class="tab-btn"        role="tab" aria-selected="false" data-tab="3"><span class="tab-num">04</span>雙向協作</button>
+    <button class="tab-btn"        role="tab" aria-selected="false" data-tab="4"><span class="tab-num">05</span>換掉會怎樣？</button>
+    <button class="tab-btn"        role="tab" aria-selected="false" data-tab="5"><span class="tab-num">06</span>完整能力清單</button>
+  </nav>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- TAB 1: MUSEON 是什麼？                  -->
+  <!-- ═══════════════════════════════════════ -->
+  <section class="tab-panel active" id="tab-0" role="tabpanel">
+
+    <h2 class="section-title">MUSEON 是什麼？</h2>
+    <p class="section-desc">三句話說清楚它的本質，然後告訴你它跟你用過的 AI 有什麼根本不同。</p>
+
+    <div class="pull-quote">
+      它不是工具，它是夥伴——差別在於：工具你放著，夥伴會記得你說過什麼。
+    </div>
+
+    <!-- 三句話 -->
+    <div class="card-grid card-grid-3">
+      <div class="card">
+        <div class="card-title"><span class="emoji-icon">🗣️</span> 你講，它做</div>
+        <div class="card-body">不用寫完整的 prompt，口語說出你的困擾，它幫你轉化成有用的輸出。</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="emoji-icon">🧠</span> 你問，它想</div>
+        <div class="card-body">它不只給答案，它幫你拆開問題背後的問題，給你選項 + 代價 + 風險。</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="emoji-icon">📈</span> 用越久，越懂你</div>
+        <div class="card-body">它有記憶。你說過的偏好、做過的決策、擅長的事——下次不用再解釋背景。</div>
+      </div>
+    </div>
+
+    <hr class="divider">
+    <h3 style="font-size:20px;font-weight:600;margin-bottom:14px;color:var(--ink);">比喻：它像什麼？</h3>
+
+    <div class="info-box">
+      <div class="info-box-icon">🏛️</div>
+      <div class="info-box-body">
+        想像你請了一個<strong>永遠不下班、永遠記得你說過什麼、越來越懂你習慣的智囊</strong>。他知道你喜歡直接說結論，知道你遇到不確定的決策會焦慮，知道你的客戶是什麼類型的人，知道你上個月做了什麼選擇、當時的理由是什麼。
+      </div>
+    </div>
+
+    <hr class="divider">
+    <h3 style="font-size:20px;font-weight:600;margin-bottom:16px;color:var(--ink);">跟 ChatGPT 最大的不同</h3>
+
+    <div class="compare-wrap">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>面向</th>
+            <th>ChatGPT</th>
+            <th>MUSEON</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>記憶</strong></td>
+            <td>每次對話都是陌生人，不記得你是誰</td>
+            <td class="col-em">記得你說過的事、你的偏好、你的決策脈絡</td>
+          </tr>
+          <tr>
+            <td><strong>人格</strong></td>
+            <td>通用助理，沒有特定風格</td>
+            <td class="col-em">有一致的人格與溝通風格，針對你校準過</td>
+          </tr>
+          <tr>
+            <td><strong>能力模組</strong></td>
+            <td>通用回答，沒有專業框架</td>
+            <td class="col-em">專業分析框架：戰略、市場、人際、情緒、計畫等</td>
+          </tr>
+          <tr>
+            <td><strong>累積價值</strong></td>
+            <td>用一次兩次看不出差別</td>
+            <td class="col-em">用越久越準確，三個月後是第一週的好幾倍品質</td>
+          </tr>
+          <tr>
+            <td><strong>使用體驗</strong></td>
+            <td>每次都要重新解釋背景</td>
+            <td class="col-em">直接說問題，它有背景脈絡</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr class="divider">
+    <div class="card">
+      <div class="card-title"><span class="emoji-icon">💡</span> 最簡單的一句話</div>
+      <div class="card-body" style="font-size:17px;line-height:1.8;">
+        <span class="highlight">ChatGPT 是免洗餐具——用完就丟，下次從頭開始。MUSEON 是你的私廚——認識你的口味，不需要每次從菜單解釋起。</span>
+      </div>
+    </div>
+
+  </section>
+
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- TAB 2: 第一次用                          -->
+  <!-- ═══════════════════════════════════════ -->
+  <section class="tab-panel" id="tab-1" role="tabpanel">
+
+    <h2 class="section-title">第一次用——從這裡開始</h2>
+    <p class="section-desc">不需要準備什麼，不需要寫漂亮的問句。直接把你現在卡住的事說出來就好。</p>
+
+    <ul class="step-list">
+      <li class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-label">直接說你在困擾什麼</div>
+          <div class="step-detail">不用寫完整問題，口語就好。「我最近有個客戶不知道怎麼回應」、「我要提案但思路很亂」——這樣說就夠了。它會幫你把問題整理清楚。</div>
+        </div>
+      </li>
+      <li class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-label">看它給你的選項，選一個方向</div>
+          <div class="step-detail">MUSEON 不會給你一個唯一答案——它會給你幾個方向 + 每個方向的優缺點。你選一個你覺得對的，然後繼續。</div>
+        </div>
+      </li>
+      <li class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-label">讓它產出你要的東西</div>
+          <div class="step-detail">方向確認後，它就開始生產：分析報告、回覆草稿、策略架構、會議重點——你要什麼格式，說一聲就好。</div>
+        </div>
+      </li>
+    </ul>
+
+    <hr class="divider">
+    <h3 style="font-size:20px;font-weight:600;margin-bottom:16px;color:var(--ink);">三個入門場景</h3>
+    <p class="text-small" style="margin-bottom:16px;">不知道說什麼？直接試試這三個，感受一下它會怎麼回應。</p>
+
+    <div class="scenario-card">
+      <div class="scenario-q">
+        <span style="color:var(--ember);font-weight:700;flex-shrink:0;">你說：</span>
+        「我有一個客戶不知道怎麼回，他一直問同樣的問題但好像不是真的要答案」
+      </div>
+      <div class="scenario-a">
+        <strong>MUSEON 做什麼：</strong>幫你分析對方真正想要的是什麼（確認感？信任感？還是在測試你？），然後給你 2-3 個回覆策略，每個說明用在什麼情境、有什麼代價。
+      </div>
+    </div>
+
+    <div class="scenario-card">
+      <div class="scenario-q">
+        <span style="color:var(--ember);font-weight:700;flex-shrink:0;">你說：</span>
+        「我要提案但不知道怎麼組織內容，感覺東西都有但放不進去」
+      </div>
+      <div class="scenario-a">
+        <strong>MUSEON 做什麼：</strong>問你幾個問題（對象是誰？最終目的是什麼？對方最在意什麼？），然後直接給你一份提案架構，說明每一節放什麼、為什麼這樣排。
+      </div>
+    </div>
+
+    <div class="scenario-card">
+      <div class="scenario-q">
+        <span style="color:var(--ember);font-weight:700;flex-shrink:0;">你說：</span>
+        「我最近決策很多，感覺有點亂，不知道先處理哪個」
+      </div>
+      <div class="scenario-a">
+        <strong>MUSEON 做什麼：</strong>幫你把所有問題列出來分類（緊急/重要/可以等），然後一個一個給你分析框架，讓你從最大的那個開始處理。
+      </div>
+    </div>
+
+    <hr class="divider">
+    <div class="card">
+      <div class="card-title"><span class="emoji-icon">✅</span> 記住這一點就夠了</div>
+      <div class="card-body" style="font-size:16px;line-height:1.8;">
+        <strong>不需要說得漂亮，不需要寫完整句子。</strong><br>
+        口語說出你的困擾，它會幫你整理。它的工作是把你的混亂變成清晰，不是等你給它一份完整的簡報。
+      </div>
+    </div>
+
+  </section>
+
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- TAB 3: 越用越懂你                        -->
+  <!-- ═══════════════════════════════════════ -->
+  <section class="tab-panel" id="tab-2" role="tabpanel">
+
+    <h2 class="section-title">越用越懂你</h2>
+    <p class="section-desc">MUSEON 不是靜態工具，它會隨著你的使用持續校準，越來越理解你的思考方式與判斷標準。</p>
+
+    <div class="card-grid card-grid-2">
+      <div class="card">
+        <div class="card-title"><span class="emoji-icon">🗂️</span> 記憶</div>
+        <div class="card-body">你說過的背景、提過的目標、做過的決策——它都記得。下次不用重新解釋「我是做什麼的」、「我的客戶是什麼類型」。</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="emoji-icon">🎯</span> 偏好學習</div>
+        <div class="card-body">你喜歡直接說結論還是有過程說明？你要詳細還是簡短？它會記住你的風格偏好，不用每次重新指定。</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="emoji-icon">📐</span> 累積校準</div>
+        <div class="card-body">用了三個月，它對你的判斷準確度是第一週的好幾倍。它會從你過去的反饋學習，知道什麼樣的回答讓你滿意。</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="emoji-icon">🔁</span> 脈絡延續</div>
+        <div class="card-body">上週討論到一半的問題，下次可以接著說。它不會忘記你們說到哪裡，不需要你重新說背景。</div>
+      </div>
+    </div>
+
+    <hr class="divider">
+    <div class="pull-quote">
+      就像一個工作夥伴，做久了不需要你每次從頭解釋，它知道你的標準。
+    </div>
+
+    <h3 style="font-size:20px;font-weight:600;margin-bottom:16px;color:var(--ink);">你會在什麼時候感受到這個差異</h3>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-dot active">⚡</div>
+        <div class="timeline-body">
+          <div class="timeline-label">第 1 週</div>
+          <div class="timeline-title">快了很多——省時感</div>
+          <div class="timeline-desc">不用從頭解釋背景，直接切入問題。原本要花 20 分鐘思考的問題，10 分鐘內有了架構。</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot active">🌿</div>
+        <div class="timeline-body">
+          <div class="timeline-label">第 1 個月</div>
+          <div class="timeline-title">省力很多——它開始預判需求</div>
+          <div class="timeline-desc">它開始知道你問一個問題通常還想知道什麼，會主動補充你還沒問到的部分，不需要你追問。</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot active">🔮</div>
+        <div class="timeline-body">
+          <div class="timeline-label">第 3 個月</div>
+          <div class="timeline-title">開始依賴——決策品質感</div>
+          <div class="timeline-desc">重要決策前你會想先問它。不是因為它替你決定，而是它幫你把所有角度攤開，讓你做決定的時候心裡更踏實。</div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+    <div class="info-box">
+      <div class="info-box-icon">💬</div>
+      <div class="info-box-body">
+        <strong>你不需要特別「訓練」它。</strong>正常使用就好——它從你每次的反饋、你接受哪個選項、你最後做了什麼決定，自然累積對你的理解。
+      </div>
+    </div>
+
+  </section>
+
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- TAB 4: 雙向協作模式                      -->
+  <!-- ═══════════════════════════════════════ -->
+  <section class="tab-panel" id="tab-3" role="tabpanel">
+
+    <h2 class="section-title">雙向協作模式</h2>
+    <p class="section-desc">從「你問它答」進化到「一起想」——這是使用 MUSEON 的三個階段。</p>
+
+    <div class="phase-row">
+      <div class="phase-card">
+        <div class="phase-num">Phase 01</div>
+        <div class="phase-title">人類主導，AI 執行</div>
+        <div class="phase-desc">你給方向，它做事。「幫我寫這個」「幫我分析那個」——你是指揮，它是執行者。</div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-num">Phase 02</div>
+        <div class="phase-title">AI 輔助判斷</div>
+        <div class="phase-desc">你有問題，它給選項 + 代價。你不只拿到答案，還拿到「為什麼選這個比選那個更好」。</div>
+      </div>
+      <div class="phase-card" style="border-left: 3px solid var(--ember);">
+        <div class="phase-num" style="color:var(--ember);">Phase 03</div>
+        <div class="phase-title">雙向協作</div>
+        <div class="phase-desc">它主動發現你沒問到的問題。你做最後決策，但它幫你把盲點找出來。</div>
+      </div>
+    </div>
+
+    <hr class="divider">
+    <h3 style="font-size:20px;font-weight:600;margin-bottom:16px;color:var(--ink);">進入協作模式後，你會感受到什麼</h3>
+
+    <div class="scenario-card">
+      <div class="scenario-q">
+        <span style="color:var(--ember);font-weight:700;flex-shrink:0;">你說：</span>
+        「我在想要不要接這個客戶」
+      </div>
+      <div class="scenario-a">
+        <strong>它不只回答「接還是不接」：</strong>它還告訴你「你可能沒考慮到這個客戶的隱性成本」、「你的現有資源是否支撐得起同時服務兩個這類型客戶」——這些是你沒問到但應該知道的問題。
+      </div>
+    </div>
+
+    <div class="scenario-card">
+      <div class="scenario-q">
+        <span style="color:var(--ember);font-weight:700;flex-shrink:0;">你說：</span>
+        「幫我分析這份合約」
+      </div>
+      <div class="scenario-a">
+        <strong>分析完它還會說：</strong>「這裡有一個條款你可能要確認對方的解釋——因為這個措辭通常有兩種讀法，其中一種對你不利。」這不是你要求的，但它知道你需要這個。
+      </div>
+    </div>
+
+    <div class="scenario-card">
+      <div class="scenario-q">
+        <span style="color:var(--ember);font-weight:700;flex-shrink:0;">你說：</span>
+        「幫我想一個市場策略」
+      </div>
+      <div class="scenario-a">
+        <strong>它給策略，還附上：</strong>「這個策略成立的前提是 X，如果 X 不成立，第二個選項比較穩。你現在確認過 X 嗎？」——它幫你把假設說出來，讓你去驗證。
+      </div>
+    </div>
+
+    <hr class="divider">
+    <div class="card" style="border-left: 3px solid var(--ember);">
+      <div class="card-title"><span class="emoji-icon">🧭</span> 協作模式的本質</div>
+      <div class="card-body" style="font-size:16px;line-height:1.8;">
+        進入這個模式後，你的感覺不是「我在用工具」，而是「<span class="highlight">它在幫我把風險找出來，我在做有充分資訊下的決策</span>」。
+        <br><br>
+        決定還是你做。但你做決定的時候，比以前更清楚自己在做什麼。
+      </div>
+    </div>
+
+  </section>
+
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- TAB 5: 換掉會怎樣？                      -->
+  <!-- ═══════════════════════════════════════ -->
+  <section class="tab-panel" id="tab-4" role="tabpanel">
+
+    <h2 class="section-title">如果換掉 MUSEON 會怎樣？</h2>
+    <p class="section-desc">誠實說。不是為了嚇你，是讓你清楚 MUSEON 的核心價值在哪裡。</p>
+
+    <div class="compare-wrap">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>換掉後</th>
+            <th>你會損失什麼</th>
+            <th>實際感受</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>換回 ChatGPT</strong></td>
+            <td>每次要重新解釋背景；輸出品質不穩定；沒有專業分析框架</td>
+            <td class="col-em">原本 10 分鐘的問題回到 30 分鐘；每次輸出結構都不一樣</td>
+          </tr>
+          <tr>
+            <td><strong>換回自己做</strong></td>
+            <td>5 小時 vs. 10 分鐘；可能遺漏盲點</td>
+            <td class="col-em">時間成本 × 5；思考被自己的認知框架限制</td>
+          </tr>
+          <tr>
+            <td><strong>換回其他 AI 工具</strong></td>
+            <td>沒有針對你校準的人格；沒有累積記憶；通用框架不夠深</td>
+            <td class="col-em">用起來「有用但不貼」——知道它能做，但不知道它了解你</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr class="divider">
+    <div class="card" style="background: rgba(18,18,26,0.03); border-color: rgba(18,18,26,0.1);">
+      <div class="card-title"><span class="emoji-icon">⚠️</span> 最大的那個損失</div>
+      <div class="card-body" style="font-size:16px;line-height:1.8;">
+        三個月使用累積的「<span class="highlight">它對你的理解</span>」會歸零。
+        <br><br>
+        就像換了一個完全不認識你的助手——你得重新告訴它你是誰、你的標準是什麼、你的客戶類型是什麼、你做決策的方式是什麼。這些背景，是花時間換來的。
+      </div>
+    </div>
+
+    <hr class="divider">
+    <h3 style="font-size:20px;font-weight:600;margin-bottom:14px;color:var(--ink);">但換掉也沒關係的部分</h3>
+
+    <div class="info-box">
+      <div class="info-box-icon">✋</div>
+      <div class="info-box-body">
+        <strong>誠實說：</strong>如果你只是偶爾問問題、不需要持續脈絡、每次都是獨立任務，ChatGPT 就夠了。
+        <br><br>
+        MUSEON 的核心價值在<strong>持續使用</strong>——用一次兩次看不出差別。它是「越用越值錢」的系統，不是「用一次就賺回來」的工具。
+      </div>
+    </div>
+
+    <div class="pull-quote">
+      真正的問題不是「MUSEON 貴不貴」，而是「你願不願意每天讓一個比你記性好的夥伴幫你思考」。
+    </div>
+
+  </section>
+
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- TAB 6: 完整能力清單                      -->
+  <!-- ═══════════════════════════════════════ -->
+  <section class="tab-panel" id="tab-5" role="tabpanel">
+
+    <h2 class="section-title">你可以要求它做的事</h2>
+    <p class="section-desc">按情境分類。不用記指令，用日常語言說就好——它能判斷你要什麼。</p>
+
+    <!-- 分析類 -->
+    <div class="cap-section">
+      <div class="cap-section-label">
+        <div class="cap-section-icon">🔍</div>
+        <div class="cap-section-title">分析類</div>
+        <span class="badge">拆解資訊，找出重點</span>
+      </div>
+      <ul class="cap-list">
+        <li class="cap-item">幫我看這份文件有什麼問題</li>
+        <li class="cap-item">幫我分析這個市場機會</li>
+        <li class="cap-item">幫我比較 A 方案和 B 方案的優缺點</li>
+        <li class="cap-item">幫我找出這個決策的風險</li>
+        <li class="cap-item">幫我分析這個合作對象的動機</li>
+        <li class="cap-item">幫我看這個數字背後代表什麼</li>
+      </ul>
+    </div>
+
+    <!-- 產出類 -->
+    <div class="cap-section">
+      <div class="cap-section-label">
+        <div class="cap-section-icon">📝</div>
+        <div class="cap-section-title">產出類</div>
+        <span class="badge badge-teal">生成具體可用的內容</span>
+      </div>
+      <ul class="cap-list">
+        <li class="cap-item">幫我寫一份提案（會問你目的、對象、重點）</li>
+        <li class="cap-item">幫我出一份會議記錄（把對話或筆記貼進去）</li>
+        <li class="cap-item">幫我做一個分析報告（會給你 HTML 格式的完整報告）</li>
+        <li class="cap-item">幫我整理這段對話的重點</li>
+        <li class="cap-item">幫我草擬一封回覆信</li>
+        <li class="cap-item">幫我把這段文字改得更有說服力</li>
+      </ul>
+    </div>
+
+    <!-- 策略類 -->
+    <div class="cap-section">
+      <div class="cap-section-label">
+        <div class="cap-section-icon">🎯</div>
+        <div class="cap-section-title">策略類</div>
+        <span class="badge badge-gold">釐清方向，做更好的決策</span>
+      </div>
+      <ul class="cap-list">
+        <li class="cap-item">我在思考要不要做 X，幫我想清楚（給我選項 + 代價）</li>
+        <li class="cap-item">我有個客戶/合作對象，幫我分析怎麼應對</li>
+        <li class="cap-item">我想找這個市場的機會，幫我研究</li>
+        <li class="cap-item">我想進入某個領域，幫我想第一步怎麼做</li>
+        <li class="cap-item">幫我評估這個機會的真實潛力</li>
+        <li class="cap-item">幫我想這個計畫的反面——有哪些地方會出問題</li>
+      </ul>
+    </div>
+
+    <!-- 問題解決 -->
+    <div class="cap-section">
+      <div class="cap-section-label">
+        <div class="cap-section-icon">🧩</div>
+        <div class="cap-section-title">問題解決</div>
+        <span class="badge">卡住的時候，找到下一步</span>
+      </div>
+      <ul class="cap-list">
+        <li class="cap-item">我卡住了，不知道下一步（說出卡在哪）</li>
+        <li class="cap-item">我有兩個選擇，不知道選哪個</li>
+        <li class="cap-item">我要說服某人，幫我設計論述</li>
+        <li class="cap-item">我想做一件事但資源不夠，幫我想替代方案</li>
+        <li class="cap-item">幫我把這個複雜的問題拆成幾個小問題</li>
+        <li class="cap-item">幫我想如果我是對方，我會怎麼看這件事</li>
+      </ul>
+    </div>
+
+    <hr class="divider">
+    <div class="card" style="border-left: 3px solid var(--teal);">
+      <div class="card-title"><span class="emoji-icon">🤝</span> 加分技巧：說越多背景，它越準</div>
+      <div class="card-body" style="font-size:15px;line-height:1.8;">
+        你不需要說得漂亮，但說越多背景，它給你的答案就越貼合你的情況。
+        <br><br>
+        <strong>差的問法：</strong>「幫我寫提案」<br>
+        <strong>好的問法：</strong>「幫我寫一份給零售業客戶的 AI 顧問服務提案，他們最在意的是導入成本和培訓難度，預算不確定但老闆想快點看到成果」
+        <br><br>
+        一句話說清楚：<span class="highlight">把你知道的告訴它，它才能把它知道的告訴你。</span>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ─── Footer ─── -->
+  <footer class="site-footer">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L3 7v10l9 5 9-5V7L12 2zm0 2.3l6.5 3.6L12 11.5 5.5 7.9 12 4.3zM4.5 9.2l7 3.9v7.5L4.5 16.7V9.2zm9 11.4v-7.5l7-3.9v7.5l-7 3.9z"/>
+        </svg>
+      </div>
+      <div class="footer-text">
+        <strong>MUSEON</strong> Private Intelligence System
+      </div>
+    </div>
+    <div class="footer-text">
+      <span style="margin-right:16px;">士維專屬版 v1.0</span>
+      <span>由 MUSEON 生成 · 2026</span>
+    </div>
+  </footer>
+
+</div>
+
+<!-- ─── JavaScript: Tab Switching ─── -->
+<script>
+  const tabs = document.querySelectorAll('.tab-btn');
+  const panels = document.querySelectorAll('.tab-panel');
+
+  tabs.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      tabs.forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      panels.forEach(p => p.classList.remove('active'));
+
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+
+      const target = document.getElementById('tab-' + btn.dataset.tab);
+      if (target) {
+        target.classList.add('active');
+        target.style.animation = 'none';
+        target.offsetHeight;
+        target.style.animation = '';
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
