@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MUSEON — 品牌定位規劃 v1.0</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ember:        #C4502A;
+      --ember-light:  #E0714D;
+      --ember-dark:   #9A3A1C;
+      --teal:         #2A7A6E;
+      --gold:         #B8923A;
+      --ink:          #12121A;
+      --slate:        #5A5A6E;
+      --mist:         #9898A8;
+      --border:       #E2E0DA;
+      --parchment:    #F7F5F0;
+      --snow:         #FDFCFA;
+      --deep-ink:     #0E0E16;
+      --surface:      #16161F;
+      --raised:       #1E1E2A;
+      --border-dark:  #2A2A38;
+      --success:      #2D8A6E;
+      --warning:      #C9943A;
+      --error:        #C4402A;
+      --info:         #2A6A8A;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--parchment);
+      color: var(--ink);
+      font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+      font-size: 16px;
+      line-height: 1.75;
+    }
+
+    /* ── NAV ── */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(247,245,240,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
+    }
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+    }
+    .nav-logo {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .nav-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--ember);
+    }
+    .nav-links {
+      display: flex;
+      gap: 4px;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--slate);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: all 150ms;
+    }
+    .nav-links a:hover {
+      color: var(--ember);
+      background: rgba(196,80,42,0.08);
+    }
+    .nav-version {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--mist);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(196,80,42,0.08);
+      padding: 3px 10px;
+      border-radius: 100px;
+    }
+
+    /* ── LAYOUT ── */
+    .page { max-width: 1200px; margin: 0 auto; padding: 0 40px 96px; }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 96px 0 80px;
+      animation: fadeUp 0.4s ease-out;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(196,80,42,0.08);
+      border: 1px solid rgba(196,80,42,0.2);
+      border-radius: 100px;
+      padding: 5px 14px;
+      margin-bottom: 24px;
+    }
+    .hero-badge span {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ember-dark);
+    }
+    .hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 64px;
+      font-weight: 600;
+      line-height: 1.1;
+      color: var(--ink);
+      margin-bottom: 16px;
+    }
+    .hero h1 em {
+      color: var(--ember);
+      font-style: italic;
+    }
+    .hero-sub {
+      font-size: 20px;
+      color: var(--slate);
+      line-height: 1.6;
+      max-width: 620px;
+      margin-bottom: 40px;
+    }
+    .hero-meta {
+      display: flex;
+      gap: 32px;
+    }
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .meta-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--mist);
+    }
+    .meta-value {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    /* ── SECTION ── */
+    section {
+      margin-bottom: 80px;
+      animation: fadeUp 0.4s ease-out;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--mist);
+      letter-spacing: 0.1em;
+    }
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 36px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    /* ── PHILOSOPHY ── */
+    .philosophy-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .philosophy-card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 28px;
+      transition: transform 200ms ease, box-shadow 200ms ease;
+    }
+    .philosophy-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(18,18,26,0.08);
+    }
+    .philosophy-card.highlight {
+      background: linear-gradient(135deg, rgba(196,80,42,0.04), rgba(184,146,58,0.04));
+      border-color: rgba(196,80,42,0.2);
+      grid-column: 1 / -1;
+    }
+    .philosophy-icon {
+      font-size: 28px;
+      margin-bottom: 12px;
+    }
+    .philosophy-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ember);
+      margin-bottom: 8px;
+    }
+    .philosophy-card h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+    .philosophy-card p {
+      font-size: 15px;
+      color: var(--slate);
+      line-height: 1.65;
+    }
+
+    /* ── POSITIONING ── */
+    .positioning-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .pos-row {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 24px;
+      align-items: start;
+      padding: 20px 24px;
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      transition: transform 200ms ease;
+    }
+    .pos-row:hover { transform: translateX(4px); }
+    .pos-key {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ember-dark);
+      padding-top: 2px;
+    }
+    .pos-value {
+      font-size: 16px;
+      color: var(--ink);
+      line-height: 1.65;
+    }
+    .pos-value strong {
+      color: var(--ember);
+    }
+
+    .tagline-block {
+      background: var(--deep-ink);
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      margin-top: 24px;
+    }
+    .tagline-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--mist);
+      margin-bottom: 16px;
+    }
+    .tagline {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 40px;
+      font-weight: 600;
+      font-style: italic;
+      color: #FDFCFA;
+      line-height: 1.25;
+      margin-bottom: 12px;
+    }
+    .tagline em {
+      color: var(--ember-light);
+    }
+    .tagline-sub {
+      font-size: 15px;
+      color: #5A5A6E;
+    }
+
+    /* ── COLOR ── */
+    .color-section-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+    .color-group-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--mist);
+      margin-bottom: 16px;
+    }
+    .color-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .color-chip {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 120px;
+      flex: 1;
+    }
+    .chip-swatch {
+      height: 72px;
+      border-radius: 10px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(18,18,26,0.08);
+    }
+    .chip-swatch::after {
+      content: attr(data-hex);
+      position: absolute;
+      bottom: 8px;
+      right: 10px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      opacity: 0.6;
+    }
+    .chip-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .chip-usage {
+      font-size: 12px;
+      color: var(--slate);
+      line-height: 1.4;
+    }
+    .chip-hex {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--mist);
+    }
+
+    .sw-ember        { background: #C4502A; } .sw-ember::after        { color: #FFD4C2; }
+    .sw-ember-light  { background: #E0714D; } .sw-ember-light::after  { color: #FFF0E8; }
+    .sw-ember-dark   { background: #9A3A1C; } .sw-ember-dark::after   { color: #FFB8A0; }
+    .sw-teal         { background: #2A7A6E; } .sw-teal::after         { color: #C8EDE8; }
+    .sw-gold         { background: #B8923A; } .sw-gold::after         { color: #FBF0DC; }
+    .sw-ink          { background: #12121A; } .sw-ink::after          { color: #888896; }
+    .sw-slate        { background: #5A5A6E; } .sw-slate::after        { color: #D0D0D8; }
+    .sw-mist         { background: #9898A8; } .sw-mist::after         { color: #ECECF0; }
+    .sw-border       { background: #E2E0DA; border: 1px solid #D4D2CA; } .sw-border::after { color: #9898A8; }
+    .sw-parchment    { background: #F7F5F0; border: 1px solid #E2E0DA; } .sw-parchment::after { color: #9898A8; }
+    .sw-snow         { background: #FDFCFA; border: 1px solid #E2E0DA; } .sw-snow::after { color: #9898A8; }
+    .sw-deep-ink     { background: #0E0E16; } .sw-deep-ink::after     { color: #555566; }
+    .sw-surface      { background: #16161F; } .sw-surface::after      { color: #6E6E7E; }
+    .sw-raised       { background: #1E1E2A; } .sw-raised::after       { color: #7E7E8E; }
+    .sw-success      { background: #2D8A6E; } .sw-success::after      { color: #C0EDE4; }
+    .sw-warning      { background: #C9943A; } .sw-warning::after      { color: #FBF0DC; }
+    .sw-error        { background: #C4402A; } .sw-error::after        { color: #FFD4C2; }
+    .sw-info         { background: #2A6A8A; } .sw-info::after         { color: #C0E0F0; }
+
+    .color-group-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── TYPOGRAPHY ── */
+    .type-showcase {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .type-row {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 24px;
+      align-items: center;
+      padding: 20px 24px;
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    .type-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .type-name {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ember);
+    }
+    .type-spec {
+      font-size: 12px;
+      color: var(--mist);
+      font-family: 'IBM Plex Mono', monospace;
+      line-height: 1.6;
+    }
+    .ts-display-h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 56px; font-weight: 600; line-height: 1.15; color: var(--ink);
+    }
+    .ts-display-h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 40px; font-weight: 600; line-height: 1.2; color: var(--ink);
+    }
+    .ts-display-h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px; font-weight: 600; line-height: 1.3; color: var(--ink);
+    }
+    .ts-body-large { font-size: 18px; font-weight: 400; line-height: 1.8; color: var(--ink); }
+    .ts-body       { font-size: 16px; font-weight: 400; line-height: 1.75; color: var(--slate); }
+    .ts-caption    { font-size: 12px; font-weight: 500; line-height: 1.6; color: var(--mist); }
+    .ts-mono {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px; font-weight: 500; color: var(--ink);
+      background: #F0EDE8; padding: 3px 8px; border-radius: 4px;
+    }
+    .ts-tag {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(196,80,42,0.1); color: var(--ember-dark);
+      padding: 3px 10px; border-radius: 100px;
+    }
+
+    .font-family-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+    .font-card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+    }
+    .font-role {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--ember); margin-bottom: 8px;
+    }
+    .font-name    { font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+    .font-usage   { font-size: 13px; color: var(--slate); margin-bottom: 16px; }
+    .font-preview-serif {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 32px; font-weight: 600; color: var(--ink); line-height: 1.2;
+    }
+    .font-preview-sans {
+      font-family: 'Outfit', sans-serif;
+      font-size: 22px; font-weight: 400; color: var(--slate); line-height: 1.5;
+    }
+    .font-preview-mono {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 18px; font-weight: 400; color: var(--ink); line-height: 1.4;
+    }
+
+    /* ── COMPONENTS ── */
+    .component-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .comp-card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 28px;
+    }
+    .comp-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--mist); margin-bottom: 20px;
+    }
+    .comp-demo { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+    .btn-primary {
+      background: var(--ember); color: #FFF;
+      padding: 12px 24px; border-radius: 6px; border: none;
+      font-size: 15px; font-weight: 600; font-family: 'Outfit', sans-serif;
+      cursor: pointer; transition: background 150ms;
+    }
+    .btn-primary:hover { background: var(--ember-dark); }
+    .btn-secondary {
+      background: transparent; color: var(--ink);
+      padding: 11px 24px; border-radius: 6px;
+      border: 1.5px solid var(--border);
+      font-size: 15px; font-weight: 500; font-family: 'Outfit', sans-serif;
+      cursor: pointer; transition: border-color 150ms, color 150ms;
+    }
+    .btn-secondary:hover { border-color: var(--ember); color: var(--ember); }
+    .btn-ghost {
+      background: transparent; color: var(--ember);
+      padding: 11px 24px; border-radius: 6px; border: none;
+      font-size: 15px; font-weight: 600; font-family: 'Outfit', sans-serif;
+      cursor: pointer; transition: background 150ms;
+    }
+    .btn-ghost:hover { background: rgba(196,80,42,0.08); }
+
+    .demo-card {
+      background: var(--snow); border: 1px solid var(--border);
+      border-radius: 10px; padding: 20px;
+      box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+      width: 100%;
+    }
+    .demo-card-title { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+    .demo-card-sub   { font-size: 13px; color: var(--slate); }
+
+    .badge-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .badge {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 100px;
+    }
+    .badge-ember   { background: rgba(196,80,42,0.1);  color: var(--ember-dark); }
+    .badge-teal    { background: rgba(42,122,110,0.1); color: #1D5C53; }
+    .badge-gold    { background: rgba(184,146,58,0.1); color: #7A5E1C; }
+    .badge-dark    { background: rgba(18,18,26,0.08);  color: var(--slate); }
+    .badge-success { background: rgba(45,138,110,0.1); color: #1A5C44; }
+    .badge-warning { background: rgba(201,148,58,0.12);color: #7A5218; }
+    .badge-error   { background: rgba(196,64,42,0.1);  color: #8C1C0C; }
+
+    .demo-input {
+      width: 100%; height: 44px;
+      border: 1.5px solid var(--border); border-radius: 6px;
+      padding: 0 14px; font-size: 15px;
+      font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+      color: var(--ink); background: var(--snow);
+      outline: none; transition: border-color 150ms, box-shadow 150ms;
+    }
+    .demo-input:focus {
+      border-color: var(--ember);
+      box-shadow: 0 0 0 3px rgba(196,80,42,0.15);
+    }
+    .demo-input::placeholder { color: var(--mist); }
+
+    .dark-card {
+      background: var(--surface); border: 1px solid var(--border-dark);
+      border-radius: 10px; padding: 20px; width: 100%;
+    }
+    .dark-card-title { font-size: 15px; font-weight: 600; color: #FDFCFA; margin-bottom: 6px; }
+    .dark-card-sub   { font-size: 13px; color: #5A5A6E; }
+    .dark-card-badge {
+      display: inline-block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--ember-light); background: rgba(196,80,42,0.2);
+      padding: 2px 8px; border-radius: 100px; margin-bottom: 10px;
+    }
+
+    /* ── SPACING ── */
+    .spacing-grid {
+      display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;
+      padding: 24px; background: var(--snow);
+      border: 1px solid var(--border); border-radius: 10px;
+    }
+    .spacing-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .spacing-block {
+      background: rgba(196,80,42,0.15);
+      border: 1px solid rgba(196,80,42,0.3);
+      border-radius: 2px; min-width: 32px; width: 32px;
+    }
+    .spacing-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px; font-weight: 600; color: var(--mist); text-align: center;
+    }
+
+    /* ── DO / DON'T ── */
+    .dos-donts {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+    }
+    .do-card {
+      background: rgba(45,138,110,0.04); border: 1px solid rgba(45,138,110,0.2);
+      border-radius: 10px; padding: 24px;
+    }
+    .dont-card {
+      background: rgba(196,64,42,0.04); border: 1px solid rgba(196,64,42,0.2);
+      border-radius: 10px; padding: 24px;
+    }
+    .rule-header { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+    .rule-icon {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700;
+    }
+    .rule-icon.do   { background: rgba(45,138,110,0.15); color: #1A5C44; }
+    .rule-icon.dont { background: rgba(196,64,42,0.15);  color: #8C1C0C; }
+    .rule-title { font-size: 15px; font-weight: 600; color: var(--ink); }
+    .rule-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .rule-list li {
+      font-size: 14px; color: var(--slate); line-height: 1.55;
+      display: flex; gap: 8px; align-items: flex-start;
+    }
+    .rule-list li::before { content: '—'; color: var(--mist); flex-shrink: 0; margin-top: 1px; }
+
+    /* ── REF ── */
+    .ref-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .ref-card {
+      background: var(--snow); border: 1px solid var(--border);
+      border-radius: 10px; padding: 20px; text-align: center;
+      transition: transform 200ms ease;
+    }
+    .ref-card:hover { transform: translateY(-2px); }
+    .ref-icon  { font-size: 28px; margin-bottom: 10px; }
+    .ref-name  { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+    .ref-desc  { font-size: 12px; color: var(--slate); line-height: 1.5; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 40px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .footer-logo {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px; font-weight: 600; color: var(--ink);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .footer-note { font-size: 13px; color: var(--mist); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      .page { padding: 0 24px 64px; }
+      .hero h1 { font-size: 48px; }
+      .component-grid { grid-template-columns: 1fr; }
+      .font-family-grid { grid-template-columns: 1fr 1fr; }
+      .ref-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .nav { padding: 0 16px; }
+      .nav-links { display: none; }
+      .page { padding: 0 16px 48px; }
+      .hero { padding: 48px 0 40px; }
+      .hero h1 { font-size: 36px; }
+      .hero-meta { flex-direction: column; gap: 16px; }
+      .philosophy-grid { grid-template-columns: 1fr; }
+      .philosophy-card.highlight { grid-column: 1; }
+      .type-row { grid-template-columns: 1fr; }
+      .dos-donts { grid-template-columns: 1fr; }
+      .font-family-grid { grid-template-columns: 1fr; }
+      .ref-grid { grid-template-columns: 1fr 1fr; }
+      .tagline { font-size: 28px; }
+      .pos-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-logo">
+      <div class="nav-dot"></div>
+      MUSEON
+    </div>
+    <ul class="nav-links">
+      <li><a href="#philosophy">品牌哲學</a></li>
+      <li><a href="#positioning">品牌定位</a></li>
+      <li><a href="#color">色彩計劃</a></li>
+      <li><a href="#typography">字型規範</a></li>
+      <li><a href="#components">組件規範</a></li>
+      <li><a href="#rules">使用規則</a></li>
+    </ul>
+    <span class="nav-version">v1.0 · 2026</span>
+  </div>
+</nav>
+
+<div class="page">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">
+    <div class="nav-dot"></div>
+    <span>Brand Identity System</span>
+  </div>
+  <h1>MUSEON<br><em>品牌定位規劃</em></h1>
+  <p class="hero-sub">從品牌哲學到視覺規範的完整定義——讓每一個接觸點都傳遞同一種溫度。</p>
+  <div class="hero-meta">
+    <div class="meta-item">
+      <span class="meta-label">版本</span>
+      <span class="meta-value">v1.0</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">發布日期</span>
+      <span class="meta-value">2026-03-30</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">適用範圍</span>
+      <span class="meta-value">所有對外視覺產出</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">負責人</span>
+      <span class="meta-value">Zeal Chou</span>
+    </div>
+  </div>
+</section>
+
+<!-- 01 哲學 -->
+<section id="philosophy">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <h2 class="section-title">品牌哲學</h2>
+  </div>
+  <div class="philosophy-grid">
+    <div class="philosophy-card highlight">
+      <div class="philosophy-label">核心命題</div>
+      <h3 style="font-family:'Cormorant Garamond',serif;font-size:28px;">壁爐旁的精密儀器</h3>
+      <p style="font-size:16px;margin-top:8px;">MUSEON 不是冷酷的科技工具，也不是輕浮的 SaaS 儀表板。<br>它是<strong style="color:var(--ember)">溫暖到你願意靠近、精密到你信任它的判斷</strong>的決策系統。</p>
+    </div>
+    <div class="philosophy-card">
+      <div class="philosophy-icon">🎯</div>
+      <div class="philosophy-label">目的</div>
+      <h3>增加可行路徑</h3>
+      <p>在未知中降低不必要代價，幫助使用者行動而不失控。</p>
+    </div>
+    <div class="philosophy-card">
+      <div class="philosophy-icon">🔨</div>
+      <div class="philosophy-label">姿態</div>
+      <h3>鍛造師，不是老師</h3>
+      <p>跟鐵匠一起打鐵，不是上對下的教學關係。建造 MUSEON 的過程，也是建造使用者自己的過程。</p>
+    </div>
+    <div class="philosophy-card">
+      <div class="philosophy-icon">🌡️</div>
+      <div class="philosophy-label">氣質</div>
+      <h3>溫暖的精密感</h3>
+      <p>暖色調不代表不嚴謹；精密不代表冷漠。兩者並存，是 MUSEON 最難被複製的核心特質。</p>
+    </div>
+    <div class="philosophy-card">
+      <div class="philosophy-icon">🔬</div>
+      <div class="philosophy-label">設計參照</div>
+      <h3>四大標竿</h3>
+      <p>Apple HIG（清晰/留白/層次）· Stripe（B2B 資訊密度）· Notion（暖色中性）· Linear（深色 Premium）</p>
+    </div>
+  </div>
+</section>
+
+<!-- 02 定位 -->
+<section id="positioning">
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <h2 class="section-title">品牌定位</h2>
+  </div>
+  <div class="positioning-stack">
+    <div class="pos-row">
+      <div class="pos-key">目標受眾</div>
+      <div class="pos-value">台灣中小企業主與高階決策者——<strong>月營收百萬以上、想把 AI 思維整合進決策流程的人</strong>。不是什麼都要學的入門者，是有方向但需要第二意見的實戰者。</div>
+    </div>
+    <div class="pos-row">
+      <div class="pos-key">解決的問題</div>
+      <div class="pos-value">雙盲困境：<strong>不知道 AI 能幫什麼</strong>（不知道能力邊界），也<strong>不知道自己需要什麼</strong>（問題定義模糊）。MUSEON 是讓人知道怎麼用 AI 思維的引擎，而不只是工具集。</div>
+    </div>
+    <div class="pos-row">
+      <div class="pos-key">競爭優勢</div>
+      <div class="pos-value">不競爭工具廣度，專注<strong>「思維品質引擎」</strong>——六層技術棧：前置思考→狀況判斷→主權守護→逆熵/第一性→陽謀陰謀→分析輸出。</div>
+    </div>
+    <div class="pos-row">
+      <div class="pos-key">交付標準</div>
+      <div class="pos-value"><strong>「放到專業顧問公司的交付物裡不會丟臉」</strong>——每一份報告、每一次回覆，都對標這個水準。</div>
+    </div>
+    <div class="pos-row">
+      <div class="pos-key">品牌個性</div>
+      <div class="pos-value">好奇心驅動 · 真誠不做作 · 行動導向 · 安靜觀察優先 · 進諫有節（先同理再建議）</div>
+    </div>
+  </div>
+  <div class="tagline-block">
+    <div class="tagline-label">品牌主張</div>
+    <div class="tagline">別的 AI 急著給你<em>答案</em>，<br>MUSEON 先確認你問對了<em>問題</em>。</div>
+    <div class="tagline-sub">Think Quality Engine — 讓思維品質成為競爭力</div>
+  </div>
+</section>
+
+<!-- 03 色彩 -->
+<section id="color">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <h2 class="section-title">色彩計劃</h2>
+  </div>
+  <div class="color-section-grid">
+
+    <div>
+      <div class="color-group-title">品牌主色 — Ember 系列</div>
+      <div class="color-row">
+        <div class="color-chip">
+          <div class="chip-swatch sw-ember" data-hex="#C4502A"></div>
+          <div class="chip-name">Ember</div>
+          <div class="chip-hex">#C4502A</div>
+          <div class="chip-usage">主 CTA · 強調文字 · 品牌識別</div>
+        </div>
+        <div class="color-chip">
+          <div class="chip-swatch sw-ember-light" data-hex="#E0714D"></div>
+          <div class="chip-name">Ember Light</div>
+          <div class="chip-hex">#E0714D</div>
+          <div class="chip-usage">Hover 狀態 · 漸層高光</div>
+        </div>
+        <div class="color-chip">
+          <div class="chip-swatch sw-ember-dark" data-hex="#9A3A1C"></div>
+          <div class="chip-name">Ember Dark</div>
+          <div class="chip-hex">#9A3A1C</div>
+          <div class="chip-usage">深色背景強調 · 按鈕按下態</div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="color-group-divider">
+
+    <div>
+      <div class="color-group-title">輔助色 — 情境語意</div>
+      <div class="color-row">
+        <div class="color-chip">
+          <div class="chip-swatch sw-teal" data-hex="#2A7A6E"></div>
+          <div class="chip-name">Teal</div>
+          <div class="chip-hex">#2A7A6E</div>
+          <div class="chip-usage">信任感 · 成功狀態 · 連結色</div>
+        </div>
+        <div class="color-chip">
+          <div class="chip-swatch sw-gold" data-hex="#B8923A"></div>
+          <div class="chip-name">Gold</div>
+          <div class="chip-hex">#B8923A</div>
+          <div class="chip-usage">智慧/洞見標記 · Premium 標籤</div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="color-group-divider">
+
+    <div>
+      <div class="color-group-title">中性色 — 日間模式</div>
+      <div class="color-row">
+        <div class="color-chip">
+          <div class="chip-swatch sw-ink" data-hex="#12121A"></div>
+          <div class="chip-name">Ink</div>
+          <div class="chip-hex">#12121A</div>
+          <div class="chip-usage">主要文字</div>
+        </div>
+        <div class="color-chip">
+          <div class="chip-swatch sw-slate" data-hex="#5A5A6E"></div>
+          <div class="chip-name">Slate</div>
+          <div class="chip-hex">#5A5A6E</div>
+          <div class="chip-usage">次要文字 · 說明</div>
+        </div>
+        <div class="color-chip">
+          <div class="chip-swatch sw-mist" data-hex="#9898A8"></div>
+          <div class="chip-name">Mist</div>
+          <div class="chip-hex">#9898A8</div>
+          <div class="chip-usage">禁用 · Placeholder</div>
+        </div>
+        <div class="color-chip">
+          <div class="chip-swatch sw-border" data-hex="#E2E0DA"></div>
+          <div class="chip-name">Border</div>
+          <div class="chip-hex">#E2E0DA</div>
+          <div class="chip-usage">分隔線 · 輸入框邊框</div>
+        </div>
+        <div class="color-chip">
+          <div class="chip-swatch sw-parchment" data-hex="#F7F5F0"></div>
+          <div class="chip-name">Parchment</div>
+          <div class="chip-hex">#F7F5F0</div>
+          <div class="chip-usage">頁面背景（帶暖調）</div>
+        </div>
+        <div class="color-chip">
+          <div class="chip-swatch sw-snow" data-hex="#FDFCFA"></div>
+          <div class="chip-name">Snow</div>
+          <div class="chip-hex">#FDFCFA</div>
+          <div class="chip-usage">卡片背景</div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="color-group-divider">
+
+    <div>
+      <div class="color-group-title">深色模式</div>
+      <div class="color-row">
+        <div class="color-chip">
+          <div class="chip-swatch sw-deep-ink" data-hex="#0E0E16"></div>
+          <div class="chip-name">Deep Ink</div>
+          <div class="chip-hex">#0E0E16</div>
+          <div class="chip-usage">深色頁面背景</div>
+        </div>
+        <div class="color-chip">
+          <div class="chip-swatch sw-surface" data-hex="#16161F"></div>
+          <div class="chip-name">Surface</div>
+          <div class="chip-hex">#16161F</div>
+          <div class="chip-usage">卡片 / 面板</div>
+        </div>
+        <div class="color-chip">
+          <div class="chip-swatch sw-raised" data-hex="#1E1E2A"></div>
+          <div class="chip-name">Raised</div>
+          <div class="chip-hex">#1E1E2A</div>
+          <div class="chip-usage">懸浮元素</div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="color-group-divider">
+
+    <div>
+      <div class="color-group-title">語義色 — 狀態回饋</div>
+      <div class="color-row">
+        <div class="color-chip">
+          <div class="chip-swatch sw-success" data-hex="#2D8A6E"></div>
+          <div class="chip-name">Success</div>
+          <div class="chip-hex">#2D8A6E</div>
+          <div class="chip-usage">成功 · 完成</div>
+        </div>
+        <div class="color-chip">
+          <div class="chip-swatch sw-warning" data-hex="#C9943A"></div>
+          <div class="chip-name">Warning</div>
+          <div class="chip-hex">#C9943A</div>
+          <div class="chip-usage">警告 · 注意</div>
+        </div>
+        <div class="color-chip">
+          <div class="chip-swatch sw-error" data-hex="#C4402A"></div>
+          <div class="chip-name">Error</div>
+          <div class="chip-hex">#C4402A</div>
+          <div class="chip-usage">錯誤 · 危險</div>
+        </div>
+        <div class="color-chip">
+          <div class="chip-swatch sw-info" data-hex="#2A6A8A"></div>
+          <div class="chip-name">Info</div>
+          <div class="chip-hex">#2A6A8A</div>
+          <div class="chip-usage">資訊 · 提示</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--snow);border:1px solid var(--border);border-radius:10px;padding:24px;">
+      <div class="color-group-title" style="margin-bottom:12px;">⛔ 禁止使用的色彩</div>
+      <div style="display:flex;flex-wrap:wrap;gap:12px;">
+        <span style="background:#0000FF;color:#fff;padding:4px 12px;border-radius:4px;font-size:12px;font-family:'IBM Plex Mono',monospace;">科技藍 #0000FF</span>
+        <span style="background:linear-gradient(90deg,#7c6aff,#9966ff);color:#fff;padding:4px 12px;border-radius:4px;font-size:12px;font-family:'IBM Plex Mono',monospace;">紫色漸層</span>
+        <span style="background:#00FF00;color:#000;padding:4px 12px;border-radius:4px;font-size:12px;font-family:'IBM Plex Mono',monospace;">螢光綠 #00FF00</span>
+        <span style="background:#000;color:#fff;padding:4px 12px;border-radius:4px;font-size:12px;font-family:'IBM Plex Mono',monospace;">純黑 #000000</span>
+        <span style="background:#fff;color:#000;border:1px solid #ccc;padding:4px 12px;border-radius:4px;font-size:12px;font-family:'IBM Plex Mono',monospace;">純白 #FFFFFF</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 04 字型 -->
+<section id="typography">
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <h2 class="section-title">字型規範</h2>
+  </div>
+
+  <div class="font-family-grid">
+    <div class="font-card">
+      <div class="font-role">Display — 品牌標題</div>
+      <div class="font-name">Cormorant Garamond</div>
+      <div class="font-usage">英雄區塊 · H1 / H2 · 品牌大標</div>
+      <div class="font-preview-serif">Aa Bb Cc<br><em>思維品質</em></div>
+    </div>
+    <div class="font-card">
+      <div class="font-role">Body — 正文介面</div>
+      <div class="font-name">Outfit + Noto Sans TC</div>
+      <div class="font-usage">正文 · 說明 · UI 元素 · H3 以下</div>
+      <div class="font-preview-sans">清晰可讀<br>MUSEON System</div>
+    </div>
+    <div class="font-card">
+      <div class="font-role">Mono — 系統標記</div>
+      <div class="font-name">IBM Plex Mono</div>
+      <div class="font-usage">版本號 · Badge · Code · Tag</div>
+      <div class="font-preview-mono">v1.0.0<br>BRAND-ID</div>
+    </div>
+  </div>
+
+  <div class="type-showcase">
+    <div class="type-row">
+      <div class="type-meta">
+        <span class="type-name">H1 Display</span>
+        <span class="type-spec">56px · w600 · Cormorant<br>line-height 1.15</span>
+      </div>
+      <div class="ts-display-h1">品牌的溫度</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">
+        <span class="type-name">H2 Display</span>
+        <span class="type-spec">40px · w600 · Cormorant<br>line-height 1.2</span>
+      </div>
+      <div class="ts-display-h2">決策系統設計</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">
+        <span class="type-name">H3 Title</span>
+        <span class="type-spec">28px · w600 · Cormorant<br>line-height 1.3</span>
+      </div>
+      <div class="ts-display-h3">品牌識別規範</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">
+        <span class="type-name">Body Large</span>
+        <span class="type-spec">18px · w400 · Outfit<br>line-height 1.8</span>
+      </div>
+      <div class="ts-body-large">MUSEON 讓台灣的企業主用上思維等級的 AI 決策系統。</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">
+        <span class="type-name">Body</span>
+        <span class="type-spec">16px · w400 · Outfit<br>line-height 1.75</span>
+      </div>
+      <div class="ts-body">每一份交付物，都對標「放到專業顧問公司裡不會丟臉」的水準。這不是口號，是每次動手前的自我要求。</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">
+        <span class="type-name">Caption</span>
+        <span class="type-spec">12px · w500 · Outfit<br>line-height 1.6</span>
+      </div>
+      <div class="ts-caption">最後更新：2026-03-30 · 版本 v1.0 · 適用所有對外產出</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">
+        <span class="type-name">Inline Code</span>
+        <span class="type-spec">13px · w500 · IBM Plex Mono<br>background #F0EDE8</span>
+      </div>
+      <code class="ts-mono">--ember: #C4502A</code>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">
+        <span class="type-name">Tag / Badge</span>
+        <span class="type-spec">11px · w600 · IBM Plex Mono<br>uppercase · ls 0.08em</span>
+      </div>
+      <span class="ts-tag">Brand Identity</span>
+    </div>
+  </div>
+</section>
+
+<!-- 05 組件 -->
+<section id="components">
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <h2 class="section-title">組件規範</h2>
+  </div>
+
+  <div class="component-grid">
+    <div class="comp-card">
+      <div class="comp-title">按鈕 Buttons</div>
+      <div class="comp-demo">
+        <button class="btn-primary">主要行動</button>
+        <button class="btn-secondary">次要行動</button>
+        <button class="btn-ghost">文字行動</button>
+      </div>
+    </div>
+    <div class="comp-card">
+      <div class="comp-title">標籤 Badges</div>
+      <div class="comp-demo badge-grid">
+        <span class="badge badge-ember">Brand</span>
+        <span class="badge badge-teal">Success</span>
+        <span class="badge badge-gold">Premium</span>
+        <span class="badge badge-dark">Neutral</span>
+        <span class="badge badge-success">完成</span>
+        <span class="badge badge-warning">注意</span>
+        <span class="badge badge-error">錯誤</span>
+      </div>
+    </div>
+    <div class="comp-card">
+      <div class="comp-title">卡片 Card（日間）</div>
+      <div class="comp-demo">
+        <div class="demo-card">
+          <div class="demo-card-title">MUSEON 決策報告</div>
+          <div class="demo-card-sub">2026-03-30 · 品牌定位分析</div>
+        </div>
+      </div>
+    </div>
+    <div class="comp-card">
+      <div class="comp-title">卡片 Card（深色）</div>
+      <div class="comp-demo" style="background:var(--deep-ink);padding:12px;border-radius:6px;">
+        <div class="dark-card">
+          <span class="dark-card-badge">Premium</span>
+          <div class="dark-card-title">深色模式卡片</div>
+          <div class="dark-card-sub">Surface #16161F · Border Dark #2A2A38</div>
+        </div>
+      </div>
+    </div>
+    <div class="comp-card" style="grid-column:1/-1;">
+      <div class="comp-title">輸入框 Input</div>
+      <div class="comp-demo" style="flex-direction:column;">
+        <input class="demo-input" type="text" placeholder="輸入你的問題或需求…">
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:32px;">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--mist);margin-bottom:16px;">間距系統（8px 基準）</div>
+    <div class="spacing-grid">
+      <div class="spacing-item"><div class="spacing-block" style="height:2px;"></div><span class="spacing-label">2px<br>細節</span></div>
+      <div class="spacing-item"><div class="spacing-block" style="height:4px;"></div><span class="spacing-label">4px<br>緊密</span></div>
+      <div class="spacing-item"><div class="spacing-block" style="height:8px;"></div><span class="spacing-label">8px<br>按鈕</span></div>
+      <div class="spacing-item"><div class="spacing-block" style="height:16px;"></div><span class="spacing-label">16px<br>組件</span></div>
+      <div class="spacing-item"><div class="spacing-block" style="height:24px;"></div><span class="spacing-label">24px<br>卡片</span></div>
+      <div class="spacing-item"><div class="spacing-block" style="height:32px;"></div><span class="spacing-label">32px<br>區塊</span></div>
+      <div class="spacing-item"><div class="spacing-block" style="height:48px;"></div><span class="spacing-label">48px<br>Section</span></div>
+      <div class="spacing-item"><div class="spacing-block" style="height:64px;"></div><span class="spacing-label">64px<br>大節</span></div>
+      <div class="spacing-item"><div class="spacing-block" style="height:96px;"></div><span class="spacing-label">96px<br>Hero</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 06 規則 -->
+<section id="rules">
+  <div class="section-header">
+    <span class="section-num">06</span>
+    <h2 class="section-title">使用規則</h2>
+  </div>
+
+  <div class="dos-donts">
+    <div class="do-card">
+      <div class="rule-header">
+        <div class="rule-icon do">✓</div>
+        <span class="rule-title">正確做法 DO</span>
+      </div>
+      <ul class="rule-list">
+        <li>頁面背景使用 Parchment <code style="font-family:monospace;font-size:11px;">#F7F5F0</code>，帶暖調</li>
+        <li>主標題用 Cormorant Garamond，H3 以下用 Outfit</li>
+        <li>強調色一律用 Ember <code style="font-family:monospace;font-size:11px;">#C4502A</code></li>
+        <li>Badge 使用全圓角 + IBM Plex Mono 字型</li>
+        <li>深色區塊用 Deep Ink <code style="font-family:monospace;font-size:11px;">#0E0E16</code></li>
+        <li>動效不超過 400ms，禁用 bounce</li>
+        <li>每頁最多使用 3 個字重</li>
+        <li>卡片陰影用雙層：1px + 12px 組合</li>
+        <li>最大寬度設定：報告 820px / 儀表板 1200px</li>
+        <li>Google Fonts 引入四種字型</li>
+      </ul>
+    </div>
+    <div class="dont-card">
+      <div class="rule-header">
+        <div class="rule-icon dont">✕</div>
+        <span class="rule-title">禁止做法 DON'T</span>
+      </div>
+      <ul class="rule-list">
+        <li>不用純白 <code style="font-family:monospace;font-size:11px;">#FFFFFF</code> 或純黑 <code style="font-family:monospace;font-size:11px;">#000000</code> 作為背景</li>
+        <li>不用科技藍或紫色漸層系列</li>
+        <li>不用螢光綠等高飽和非品牌色</li>
+        <li>不用 bounce、旋轉等裝飾性動畫</li>
+        <li>不超過 500ms 的過場效果</li>
+        <li>不用商務握手照、機器人 3D 渲染</li>
+        <li>不用藍紫科技感漸層圖像</li>
+        <li>說教語氣、上對下的表達方式</li>
+        <li>以安慰取代誠實的回覆</li>
+        <li>假裝確定、製造虛假信心</li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="margin-top:32px;">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--mist);margin-bottom:16px;">品牌參照</div>
+    <div class="ref-grid">
+      <div class="ref-card">
+        <div class="ref-icon">🍎</div>
+        <div class="ref-name">Apple HIG</div>
+        <div class="ref-desc">清晰 · 留白 · 層次——介面決策的黃金標準</div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-icon">💳</div>
+        <div class="ref-name">Stripe</div>
+        <div class="ref-desc">B2B 資訊密度——複雜內容的清晰呈現</div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-icon">📝</div>
+        <div class="ref-name">Notion</div>
+        <div class="ref-desc">暖色中性——科技感中的人性溫度</div>
+      </div>
+      <div class="ref-card">
+        <div class="ref-icon">⚡</div>
+        <div class="ref-name">Linear</div>
+        <div class="ref-desc">深色 Premium——高端工具感的黑夜模式</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div><!-- /page -->
+
+<footer>
+  <div class="footer-logo">
+    <div class="nav-dot"></div>
+    MUSEON Brand Identity v1.0
+  </div>
+  <div class="footer-note">2026 · Zeal Chou · 所有視覺產出適用本規範</div>
+</footer>
+
+</body>
+</html>
