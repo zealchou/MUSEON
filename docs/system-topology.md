@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.63
+# MUSEON 系統拓撲圖 v1.65
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.65 (2026-03-30)**：商業模式健檢引擎（biz-diagnostic）——skills-business-hub 新增 `biz-diagnostic` Skill 節點（商業模式健檢引擎，plugin，Business Hub）；新增 Python 模組 `src/museon/darwin/biz_diagnostic.py`（convert_to_strategy_brief() 參數轉換器）；新增 5 條 cross 連線（biz-diagnostic→darwin/business-12/report-forge/ssa-consultant、brand-discovery→biz-diagnostic）；plugin-registry 新增條目（Business Hub 第 9 個 Skill）；memory-router v1.15 新增 diagnostic_crystal 路由。同步 blast-radius（biz-diagnostic 扇入=1，綠區）。
 > **v1.64 (2026-03-30)**：市場戰神（Market Ares）——新增 `market_ares` 群組（9 子包 16 個模組節點）；新增儲存路徑 `data/market_ares/market_ares.db`（SQLite WAL，6 表：regions/archetypes/simulations/snapshots/competitors/partners）；模組間內部連線 12 條（engine→strategy_impact/social_contagion/oscillation、dashboard→charts、final_report→turning_point、energy_mapper→mapping_config.yaml、kmeans_refine→hierarchical、self_drive_coach→tw_demographics、chauffeur_coach→tw_demographics、report_renderer→final_report、strategy_optimizer→models、weekly_insight→models）；外部連線 0 條（獨立模組，不影響既有系統）。同步 blast-radius v1.83、joint-map v1.53、memory-router v1.14、persistence-contract v1.41。
 > **v1.63 (2026-03-29)**：統一發送出口防漏——response-guard 節點描述更新（全通道內容黑名單清理，取消群組/私訊分流）；telegram-pump→response-guard 連線描述更新（所有發送路徑統一走 _safe_send()，消除 9 處直送）。同步 blast-radius v1.82。
 > **v1.62 (2026-03-29)**：戰神系統（Ares）——thinking 群組新增 `anima-individual`（ANIMA 個體追蹤引擎，plugin）、`ares`（戰神系統工作流，workflow）2 個 Skill 節點；新增 Python 模組 `src/museon/ares/`（profile_store.py, graph_renderer.py, external_bridge.py）；新增儲存路徑 `data/ares/profiles/`；新增 22 條 cross 連線（ares→anima-individual/wan-miu-16/energy-reading/combined-reading/master-strategy/shadow/xmodel/pdeif/roundtable/business-12/ssa-consultant/knowledge-lattice/user-model/c15、anima-individual→wan-miu-16/energy-reading/combined-reading/shadow/master-strategy/xmodel/knowledge-lattice/user-model）；同步 blast-radius v1.80、joint-map v1.52、memory-router v1.13、persistence-contract v1.40。
@@ -398,6 +399,7 @@ external-user（EXTERNAL）
 | `meeting-intelligence` | Meeting-Intel | 會議情報分析 | - | skills-business-hub | 1.2 |
 | `brand-discovery` | Brand-Discovery | 漸進式品牌訪談引擎 | - | skills-business-hub | 1.2 |
 | `brand-builder` | Brand-Builder | 奧美級品牌建構引擎 | - | skills-business-hub | 1.4 |
+| `biz-diagnostic` | Biz-Diagnostic | 商業模式健檢引擎 | - | skills-business-hub | 1.2 |
 
 #### skills-product — 產品類
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -966,7 +968,13 @@ external-user（EXTERNAL）
 | `skills-business-hub` | `pdeif` | 逆熵流 |
 | `skills-business-hub` | `brand-discovery` | 品牌訪談 |
 | `skills-business-hub` | `brand-builder` | 品牌建構 |
+| `skills-business-hub` | `biz-diagnostic` | 商業模式健檢 |
 | `brand-discovery` | `brand-builder` | 訪談資料→品牌分析 |
+| `brand-discovery` | `biz-diagnostic` | 品牌訪談資料→健檢參數 |
+| `biz-diagnostic` | `darwin` | strategy_brief→DARWIN 模擬 |
+| `biz-diagnostic` | `business-12` | 診斷焦點交叉驗證 |
+| `biz-diagnostic` | `report-forge` | 診斷報告渲染 |
+| `biz-diagnostic` | `ssa-consultant` | SSA Day Level 對照 |
 
 #### Creative Hub
 | Source | Target | 說明 |

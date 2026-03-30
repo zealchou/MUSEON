@@ -28,6 +28,7 @@ from museon.darwin.simulation.bass_diffusion import (
     compute_bass_params,
     is_chasm_crossed,
 )
+from museon.darwin.simulation.product_profile import get_product_profile
 from museon.darwin.simulation.oscillation import apply_oscillation, clamp_energy
 from museon.darwin.simulation.strategy_impact import apply_strategy_impact
 from museon.darwin.storage.models import (
@@ -70,10 +71,11 @@ class SimulationEngine:
         self.partners = partners or []
         self.events = events or []
         self.product_type = product_type
+        self.profile = get_product_profile(product_type)
         self.snapshots: list[WeeklySnapshot] = []
 
-        # 預計算每個原型的 Bass 參數
-        self._bass_params = {a.id: compute_bass_params(a) for a in self.archetypes}
+        # 預計算每個原型的 Bass 參數（帶入品類修正）
+        self._bass_params = {a.id: compute_bass_params(a, self.profile) for a in self.archetypes}
 
         # 標記可觸及性
         for a in self.archetypes:
@@ -118,9 +120,30 @@ class SimulationEngine:
             elif energy_distance > 2.0:
                 prob *= 0.6
 
+            # ── 品類漏斗調整（ProductProfile）──
+            state = a.awareness_state
+            if state == "unaware":
+                # unaware → aware：曝光速度
+                prob *= self.profile.awareness_speed
+            elif state == "aware":
+                # aware → considering：試用阻力（阻力高 → 機率低）
+                prob *= (1.0 - self.profile.trial_barrier)
+            elif state == "considering":
+                # considering → decided：決策速度
+                prob *= self.profile.decision_speed
+            elif state == "decided":
+                # decided → loyal：忠誠轉化速度
+                prob *= self.profile.loyalty_speed
+
+            # 品類抗性：aware/considering 有機率因品類特性變成 resistant
+            if state in ("aware", "considering"):
+                if random.random() < self.profile.resistance_rate:
+                    a.awareness_state = "resistant"
+                    continue
+
             # 地能量低的人有機率 → resistant（$12,000 匱乏抗拒）
             earth = getattr(a.current_inner, "地", 0.0)
-            if earth < -1.5 and a.awareness_state in ("aware", "considering"):
+            if earth < -1.5 and state in ("aware", "considering"):
                 if random.random() < abs(earth) * 0.015:
                     a.awareness_state = "resistant"
                     continue

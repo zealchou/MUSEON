@@ -35,8 +35,8 @@ description: >
 
 # 外掛模組註冊表（Plugin Registry）v2.4
 
-> **上次更新**：2026-03-21
-> **已註冊外掛**：59 個（含 4 常駐 + 47 按需 + 1 參考 + 7 工作流），分佈於 9 個 Hub
+> **上次更新**：2026-03-30
+> **已註冊外掛**：60 個（含 4 常駐 + 48 按需 + 1 參考 + 7 工作流），分佈於 9 個 Hub
 > **治理文件**：`docs/skill-routing-governance.md`（Hub 路由 + Workflow Stage 規格）
 > **Manifest 規格**：`docs/skill-manifest-spec.md` v1.1（含 `hub` + `stages` 欄位）
 
@@ -87,7 +87,7 @@ DNA27（核心 OS）
 │   ├── sentiment-radar      （市場情緒雷達）
 │   └── darwin               （DARWIN 策略演化模擬引擎）    ← NEW
 │
-├─ [Business Hub]（8）— 商模、戰略、銷售、溝通、品牌建構
+├─ [Business Hub]（9）— 商模、戰略、銷售、溝通、品牌建構、商業健檢
 │   ├── business-12          （商模十二力診斷引擎）
 │   ├── ssa-consultant       （顧問式銷售與系統創業引擎）
 │   ├── master-strategy      （戰略判斷與心理動力引擎）
@@ -95,7 +95,8 @@ DNA27（核心 OS）
 │   ├── xmodel               （通用破框解方引擎）
 │   ├── pdeif                （目的導向逆熵流引擎）
 │   ├── brand-discovery      （漸進式品牌訪談引擎）
-│   └── brand-builder        （奧美級品牌建構引擎）
+│   ├── brand-builder        （奧美級品牌建構引擎）
+│   └── biz-diagnostic       （商業模式健檢引擎）    ← NEW
 │
 ├─ [Creative Hub]（5）— 語言、敘事、美感、品牌
 │   ├── text-alchemy         （文字煉金路由模組）
@@ -993,6 +994,25 @@ DNA27（核心 OS）
 | 核心能力 | 七大品牌框架（Keller 共鳴金字塔/Jung 12 原型含 Shadow/JTBD for Brand/品牌架構決策樹/Brand Purpose 五層測試/Touchpoint Lifecycle/April Dunford 強化定位）；永遠產出三個定位選項（保守/平衡/進攻）；輸出 brand_strategy_package |
 | 涉及 Skill | brand-discovery、aesthetic-sense、storytelling-engine、consultant-communication、report-forge、orchestrator、knowledge-lattice |
 | 與其他外掛 | brand-discovery（上游資料源）；aesthetic-sense（視覺識別規格）；storytelling-engine（品牌故事設計）；report-forge（手冊排版） |
+
+### biz-diagnostic — 商業模式健檢引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | BIZ_DIAGNOSTIC |
+| 類別 | business-diagnostic-engine |
+| hub | business |
+| 風險等級 | LOW |
+| 運行模式 | **按需**（on-demand） |
+| 允許迴圈 | fast_loop（快速掃描）、exploration_loop（標準診斷）、slow_loop（深度診斷含模擬） |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | 使用者有商業模式診斷需求，或 brand-discovery 完成帶入品牌資料 |
+| 觸發指令 | /biz-check、/biz-diagnostic |
+| 版本 | 1.0.0 |
+| 核心能力 | 13 題問卷引導→參數轉換（biz_diagnostic.py）→DARWIN 模擬→診斷報告；涵蓋獲客/轉化/回購/定價/行銷預算五大維度 |
+| Python 模組 | `src/museon/darwin/biz_diagnostic.py`（`convert_to_strategy_brief()` 主函數） |
+| 輸出 | `strategy_brief` JSON（傳給 DARWIN 模擬引擎）+ 診斷報告（傳給 report-forge） |
+| 與其他外掛 | darwin（strategy_brief→模擬參數）；business-12（診斷焦點交叉驗證）；report-forge（診斷報告渲染）；ssa-consultant（銷售系統層 SSA Day Level 對照）；brand-discovery（可帶入品牌訪談資料） |
 
 ### workflow-svc-brand-marketing — 服務業品牌行銷顧問工作流（WF-SVC-01）
 

@@ -1,10 +1,11 @@
-# Memory Router — 記憶路由表 v1.13
+# Memory Router — 記憶路由表 v1.15
 
 > **用途**：定義「什麼類型的洞見存到哪個記憶系統、什麼時候取出」。第五張工程藍圖。
 > **比喻**：郵局分揀表——每封信根據地址分到對應的信箱，不會寄丟也不會重複投遞。
 > **更新時機**：新增 Skill 或記憶系統時，必須在同一個 commit 中新增對應的路由規則。
 > **建立日期**：2026-03-21
 > **搭配**：`docs/skill-manifest-spec.md`（Skill I/O 合約）、各 Skill 的 `memory.writes` 欄位、`docs/operational-contract.md`（操作契約表）
+> **v1.15 (2026-03-30)**：商業模式健檢（biz-diagnostic）——新增 1 條 knowledge-lattice 路由：biz-diagnostic→diagnostic_crystal（健檢完成時，含商業診斷摘要 + DARWIN 模擬參數 + 優先問題，永久）。同步 system-topology v1.65。
 > **v1.14 (2026-03-30)**：市場戰神（Market Ares）——新增 1 條 knowledge-lattice 路由：market-ares→simulation_crystal（策略模擬結果結晶，含 52 週演化摘要 + 最佳策略組合，永久）；新增 1 條 eval-engine 路由：market-ares→模擬準確度追蹤（真實數據 vs 模擬結果的偏差率）。同步 system-topology v1.64、blast-radius v1.83、joint-map v1.53、persistence-contract v1.41。
 > **v1.13 (2026-03-29)**：戰神系統（Ares）——新增 2 條 knowledge-lattice 路由：anima-individual→individual_crystal（ANIMA 個體分析結晶，永久）、ares→strategy_crystal（戰神戰略結晶，永久）；新增 2 條 user-model 路由：anima-individual→關係網路維度、ares→戰略偏好維度。同步 system-topology v1.62、blast-radius v1.80、joint-map v1.52、persistence-contract v1.40。
 > **v1.12 (2026-03-29)**：OneMuse 能量解讀技能群——新增 3 條 knowledge-lattice 路由：energy-reading→energy_crystal（八方位能量解讀結晶，永久）、wan-miu-16→persona_crystal（萬謬16型人格結晶，永久）、combined-reading→relationship_crystal（合盤能量比對結晶，永久）。同步 system-topology v1.61、blast-radius v1.79、joint-map v1.51、persistence-contract v1.39。
@@ -43,6 +44,7 @@
 | master-strategy | 戰略評估 + 兵棋推演結果 | 沙盤推演完成時 | strategy_crystal |
 | business-12 | 商業診斷結論 | 12 力診斷完成時 | business_crystal |
 | ssa-consultant | 銷售策略 + 成交對話設計 | 顧問/教練流程完成時 | business_crystal |
+| biz-diagnostic | 健檢診斷摘要（商業模式弱點 + DARWIN 模擬參數 + 優先問題） | 健檢完成時 | diagnostic_crystal |
 | xmodel | 破框路徑 + 實驗設計 | 多方案產出時 | solution_crystal |
 | dharma | 思維轉化里程碑 | 六步驟完成到 Align 時 | insight_crystal |
 | philo-dialectic | 概念澄清 + 論證分析 | 思辨推演完成時 | insight_crystal |

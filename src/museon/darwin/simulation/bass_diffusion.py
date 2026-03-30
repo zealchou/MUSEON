@@ -25,6 +25,12 @@ from dataclasses import dataclass
 from museon.darwin.storage.models import Archetype
 
 
+# 避免循環匯入：用 TYPE_CHECKING
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from museon.darwin.simulation.product_profile import ProductProfile
+
+
 @dataclass
 class BassParameters:
     """每個原型的個性化 Bass 參數"""
@@ -33,57 +39,86 @@ class BassParameters:
     chasm_resistance: float = 0.0  # 鴻溝阻力（0~1）
 
 
-def compute_bass_params(archetype: Archetype) -> BassParameters:
-    """根據能量特徵計算個性化的 Bass p/q 參數
+def compute_bass_params(
+    archetype: Archetype,
+    profile: "ProductProfile | None" = None,
+) -> BassParameters:
+    """根據 One Muse 八方位能量計算個性化的 Bass p/q 參數
 
-    p（創新係數）：
+    p（創新係數）= f(火能量, 天能量, 雷能量)
       - 火高 → p 高（被新奇事物吸引，主動嘗試）
       - 天高 → p 略高（目標明確，主動行動）
-      - 地低 → p 略高（沒有包袱，敢試）
+      - 雷高 → p 略高（洞察力強，願意破框）
 
-    q（模仿係數）：
+    q（模仿係數）= f(澤能量, 水能量, 風能量)
       - 澤高 → q 高（願意社交傳播，也容易被社群影響）
       - 水高 → q 略高（重視關係，聽朋友推薦）
-      - 山高 → q 低（保守、要看數據證據）
+      - 風高 → q 略高（善於溝通協商，易受人脈影響）
 
-    鴻溝阻力：
-      - 山高 + 地高 → 鴻溝寬（需要充分證據才跨越）
-      - 雷低 → 鴻溝寬（不願改變認知框架）
+    chasm_resistance = f(山能量, 地能量)
+      - 山高 → 要看數據證據才行動，鴻溝寬
+      - 地高 → 保守穩定，不輕易改變，鴻溝寬
+      - 雷低 → 不願破框，鴻溝更寬
+
+    profile（可選）= 品類修正因子，套用在能量計算結果上
     """
     inner = archetype.inner_energy.to_dict()
+
+    # p（創新係數）：0.005 ~ 0.06
     fire = inner.get("火", 0)
-    lake = inner.get("澤", 0)
     sky = inner.get("天", 0)
     thunder = inner.get("雷", 0)
-    earth = inner.get("地", 0)
-    mountain = inner.get("山", 0)
+    p_base = 0.01
+    p = p_base + max(0, fire) * 0.006 + max(0, sky) * 0.003 + max(0, thunder) * 0.003
+    p = max(0.005, min(0.06, p))
+
+    # q（模仿係數）：0.03 ~ 0.45
+    lake = inner.get("澤", 0)
     water = inner.get("水", 0)
     wind = inner.get("風", 0)
+    q_base = 0.08
+    q = q_base + max(0, lake) * 0.04 + max(0, water) * 0.02 + max(0, wind) * 0.02
+    q = max(0.03, min(0.45, q))
 
-    # p（創新係數）：0.005 ~ 0.08
-    p_base = 0.015
-    p_fire = max(0, fire) * 0.008     # 火高 → 主動嘗試
-    p_sky = max(0, sky) * 0.003       # 天高 → 主動行動
-    p_earth_penalty = max(0, -earth) * 0.002  # 地低 → 沒包袱（反而是正面）
-    p = max(0.005, min(0.08, p_base + p_fire + p_sky + p_earth_penalty))
-
-    # q（模仿係數）：0.05 ~ 0.50
-    q_base = 0.12
-    q_lake = max(0, lake) * 0.04      # 澤高 → 社交傳播
-    q_water = max(0, water) * 0.02    # 水高 → 聽朋友推薦
-    q_wind = max(0, wind) * 0.015     # 風高 → 溝通適應
-    q_mountain_drag = max(0, mountain) * 0.03  # 山高 → 保守不輕信
-    q = max(0.05, min(0.50, q_base + q_lake + q_water + q_wind - q_mountain_drag))
-
-    # 鴻溝阻力：0 ~ 0.8
+    # chasm_resistance：0 ~ 0.7（保守程度）
+    mountain = inner.get("山", 0)
+    earth = inner.get("地", 0)
     chasm = 0.0
-    if mountain > 1.5 and earth > 1.0:
-        chasm += 0.3  # 保守穩定型 → 大鴻溝
+    if mountain > 1.5:
+        chasm += 0.25  # 山高 → 要充分證據才跨越
+    if earth > 1.5:
+        chasm += 0.15  # 地高 → 保守穩定，不輕易改變
     if thunder < -1.0:
-        chasm += 0.2  # 不願破框 → 鴻溝更寬
-    if fire < -0.5:
-        chasm += 0.15  # 不追新 → 鴻溝寬
-    chasm = min(0.8, chasm)
+        chasm += 0.15  # 雷低 → 不願破框
+    chasm = min(0.7, chasm)
+
+    # ── 品類修正（ProductProfile）──
+    if profile is not None:
+        # 基礎倍率
+        p *= profile.p_multiplier
+        q *= profile.q_multiplier
+
+        # 關鍵方位共振加成：該方位能量高 → p/q 額外加成
+        for primal in profile.critical_primals:
+            val = inner.get(primal, 0)
+            if val > 1.0:
+                p *= 1.0 + val * 0.05
+                q *= 1.0 + val * 0.03
+
+        # 輔助方位小加成
+        for primal in profile.boost_primals:
+            val = inner.get(primal, 0)
+            if val > 1.0:
+                p *= 1.0 + val * 0.02
+                q *= 1.0 + val * 0.015
+
+        # 鴻溝寬度修正
+        chasm *= profile.chasm_width
+
+        # 重新 clamp
+        p = max(0.002, min(0.15, p))
+        q = max(0.01, min(0.60, q))
+        chasm = min(0.85, chasm)
 
     return BassParameters(p=round(p, 4), q=round(q, 4), chasm_resistance=round(chasm, 2))
 
@@ -131,20 +166,24 @@ def is_chasm_crossed(
     archetypes: list[Archetype],
     adoption_ratio: float,
 ) -> bool:
-    """判斷市場是否已跨越鴻溝
+    """判斷市場是否已跨越鴻溝（One Muse 64 原型版）
 
     跨越條件：
-    1. 採用率 > 15%
-    2. 已有「山高」的保守型原型也開始採用
+    1. 採用率 > 12%
+    2. 已有「山高或地高」的保守型原型也開始採用
+       （山能量 > 1.5 或 地能量 > 1.5 = 保守型）
     3. 有可引用的成功案例（用 decided+loyal 的數量代理）
     """
     if adoption_ratio < 0.12:
         return False
 
-    # 檢查是否有保守型也採用了
+    # 在 64 原型中，保守型 = 山能量高或地能量高的原型
     conservative_adopted = sum(
         a.weight for a in archetypes
-        if a.adoption_stage in ("late_majority", "laggard")
+        if (
+            a.inner_energy.to_dict().get("山", 0) > 1.5
+            or a.inner_energy.to_dict().get("地", 0) > 1.5
+        )
         and a.awareness_state in ("decided", "loyal")
     )
 
