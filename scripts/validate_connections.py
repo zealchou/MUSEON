@@ -26,6 +26,10 @@ SKILLS_DIR = ROOT / "data" / "skills" / "native"
 KNOWN_MEMORY_TARGETS = {
     "knowledge-lattice", "user-model", "wee", "eval-engine",
     "session-log", "auto-memory", "morphenix", "diary",
+    # 擴充目標（v1.84 新增）
+    "anima-individual",      # ANIMA 個體追蹤引擎（biz-collab/talent-match 寫入合作方/候選人檔案）
+    "crystal_rules",         # crystal_rules.json — Brain 每次注入的規則池（fix-verify 教訓蒸餾）
+    "intuition/heuristics",  # heuristics.json — Brain Intuition 啟發式規則（fix-verify 教訓蒸餾）
 }
 
 # 合法的 Hub 值（對應 skill-routing-governance.md）

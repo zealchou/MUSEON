@@ -17,7 +17,8 @@ io:
       field: paid_report
       trigger: always
     - name: html_report
-      to: gateway
+      to: user
+      field: html_report_file
       trigger: always
     - name: report_insight
       to: knowledge-lattice

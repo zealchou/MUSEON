@@ -1,9 +1,10 @@
-# Joint Map — 共享可變狀態接頭圖 v1.52
+# Joint Map — 共享可變狀態接頭圖 v1.54
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
 > **更新時機**：改變共享檔案的讀寫者或格式時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
+> **v1.54 (2026-03-30)**：13 個新 Skill Post-Build 共享狀態補登——新增 #58 `data/equity-architect/case_files/`（🟢 Case File 跨 Session 持久化，寫入者=equity-architect Skill，讀取者=equity-architect 續談模式，原子寫入）；共享狀態 57→58 個。注意：finance-pilot 的交易記錄若未來實作將使用 PulseDB 現有 skill_invocations 表擴充（無需新增共享狀態）；talent-match 的候選人資料目前由對話記憶（Qdrant L1_short）承接，不建立獨立共享狀態（biz-collab/talent-match 的 anima-individual 寫入為 runtime 呼叫，不是新共享狀態）。同步 system-topology v1.66、blast-radius v1.84、memory-router v1.16。
 > **v1.53 (2026-03-30)**：市場戰神（Market Ares）——新增 #57 `data/market_ares/market_ares.db`（🟢 Market Ares SQLite DB，6 張表：regions/archetypes/simulations/snapshots/competitors/partners，寫入者=market_ares/storage/db.py，讀取者=market_ares/simulation/engine.py + visualization/dashboard.py）；共享狀態 56→57 個。同步 system-topology v1.64、blast-radius v1.83、memory-router v1.14、persistence-contract v1.41。
 > **v1.52 (2026-03-29)**：戰神系統（Ares）——新增 #56 `data/ares/profiles/`（🟢 ANIMA 個體檔案，寫入者=anima-individual Skill + external_bridge.py，讀取者=ares Skill + profile_store.py）；共享狀態 55→56 個。同步 system-topology v1.62、blast-radius v1.80、memory-router v1.13、persistence-contract v1.40。
 > **v1.51 (2026-03-29)**：OneMuse 能量解讀技能群——新增 #55 `data/knowledge/onemuse/`（🟢 唯讀參考資料，36 檔 Markdown/JSON，寫入者=無（手動維護），讀取者=energy-reading/wan-miu-16/combined-reading 三個 Skill）；共享狀態 54→55 個（含唯讀參考）。同步 system-topology v1.61、blast-radius v1.79、memory-router v1.12、persistence-contract v1.39。
@@ -71,6 +72,8 @@
 | 53 | _system/billing/skill_invocations_*.json | 🟢 | 1 | 1 | 無 | [→](#53-skill_invocationsjson) |
 | 55 | knowledge/onemuse/ (36 檔) | 🟢 | 0 | 3 | 無（唯讀） | [→](#55-knowledgeonemuse) |
 | 56 | ares/profiles/ | 🟢 | 2 | 2 | 無 | [→](#56-aresprofiles) |
+| 57 | market_ares/market_ares.db | 🟢 | 1 | 2 | SQLite WAL | [→](#57-market_aresdb) |
+| 58 | equity-architect/case_files/ | 🟢 | 1 | 1 | 原子寫 | [→](#58-equity-architectcase_files) |
 
 > **危險度定義**：🔴 多寫入者+高扇出+格式不一致 | 🟡 多寫入者或高扇出 | 🟢 單寫入者+低扇出
 
@@ -1401,6 +1404,8 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 | 2026-03-16 | v1.15 | Memory Reset 一鍵重置工具：新增 `doctor/memory_reset.py` 為 25 個共享狀態的重置者（#1 ANIMA_MC.json boss/self_awareness 重置、#2 ANIMA_USER.json 全量重置、#3 PULSE.md 模板重建、#9 Qdrant 全部 collections 刪除重建、#25 JSONL 審計日誌群清空、#26 記憶 Markdown 刪除、#27 fact_corrections.jsonl 清空）；同時重置 PulseDB 全表、sessions、crystals/synapses/scout_queue、diary/drift、eval/workflow_state.db、guardian/footprints/activity_log、nightly_state/outward；預設 dry-run 安全模式 |
 | 2026-03-17 | v1.15 | DNA-Inspired 品質回饋閉環：#8 PulseDB 讀取者 11→12（+morphenix_executor `get_quality_flags()`/`get_quality_flag_summary()`）；metacognition 新增 `METACOGNITION_QUALITY_FLAG` 事件發布（verdict=revise 時）；morphenix_executor 夜間管線讀取品質旗標作為演化上下文 |
 | 2026-03-16 | v1.14 | Memory Gate 記憶閘門：新增 `memory/memory_gate.py` 為 ANIMA_USER.json 間接寫入控制者；brain.py `_observe_user()` 新增 `suppress_primals`/`suppress_facts` 參數；`_observe_user_layers()` 新增 `suppress_facts` 參數；L1_facts 新增 `status`/`confidence` 欄位；Step 9.2 事實更正偵測提前到 Step 9 之前；解決「越否認越強化」記憶迴圈 |
+| 2026-03-30 | v1.54 | 13 個新 Skill Post-Build 補登——新增 #58 `data/equity-architect/case_files/`（🟢 單寫入者 equity-architect，原子寫，Case File 跨 session 持久化）；finance-pilot 交易記錄沿用 PulseDB skill_invocations 擴充、talent-match 候選人資料由 Qdrant L1_short 承接、biz-collab/talent-match anima-individual 寫入為 runtime 呼叫不建新共享狀態；共享狀態 57→58 個。同步 topology v1.66、blast-radius v1.84、memory-router v1.16 |
+| 2026-03-30 | v1.53 | 市場戰神（Market Ares）——新增 #57 `data/market_ares/market_ares.db`（🟢 Market Ares SQLite DB，6 張表）；共享狀態 56→57 個 |
 | 2026-03-29 | v1.52 | 戰神系統（Ares）——新增 #56 `data/ares/profiles/`（🟢 2 寫入者 anima-individual+external_bridge / 2 讀取者 ares+profile_store）；共享狀態 55→56 個 |
 | 2026-03-29 | v1.51 | OneMuse 能量解讀技能���——新增 #55 `data/knowledge/onemuse/`（🟢 唯讀，0 寫入者 / 3 讀取者 energy-reading+wan-miu-16+combined-reading）；共享狀態 54→55 個 |
 | 2026-03-28 | v1.50 | MuseDoctor 第六虎將——新增 #54 `data/_system/doctor/patrol_state.json`（🟢 單寫入者 musedoctor.py，讀取者：cron_registry 啟動時、Telegram /patrol 指令）；共享狀態 53→54 個 |

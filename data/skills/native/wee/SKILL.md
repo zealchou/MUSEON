@@ -23,6 +23,9 @@ io:
     - from: workflow-svc-brand-marketing
       field: execution_trace
       required: false
+    - from: workflow-brand-consulting
+      field: execution_trace
+      required: false
   outputs:
     - to: user-model
       field: proficiency_update

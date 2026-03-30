@@ -1,10 +1,11 @@
-# Blast Radius — 模組影響半徑表 v1.82
+# Blast Radius — 模組影響半徑表 v1.84
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節、`docs/operational-contract.md`（操作契約表）提供外部操作預期失敗
+> **v1.84 (2026-03-30)**：13 個新 Skill Post-Build 補登——批次新增 Skill 到安全分級表：🟡黃區：ad-pilot（扇入=3，扇出=5）、equity-architect（扇入=3，扇出=5）、course-forge（扇入=4，扇出=5）、brand-project-engine（扇入=2，扇出=2）、finance-pilot（扇入=2，扇出=4）、prompt-stresstest（扇入=2，扇出=5）；🟢綠區：biz-collab（扇入=0，扇出=4）、biz-diagnostic（扇入=0，扇出=3）、video-strategy（扇入=0，扇出=4）、shadow-muse（扇入=0，扇出=4）、daily-pilot（扇入=0，扇出=4）、talent-match（扇入=0，扇出=4）、workflow-brand-consulting（扇入=0，扇出=6）。同步 system-topology v1.66、joint-map v1.54、memory-router v1.16。
 > **v1.83 (2026-03-30)**：市場戰神（Market Ares）——新增 `src/museon/market_ares/` 模組群（9 子包 16 檔），全部 🟢 綠區扇入=0。子模組：config.py / storage/{db,models}.py / mapping/{energy_mapper,mapping_config.yaml} / clustering/{hierarchical,kmeans_refine,archetype_namer}.py / simulation/{engine,strategy_impact,social_contagion,oscillation}.py / coaching/{self_drive_coach,chauffeur_coach}.py / analysis/{weekly_insight,turning_point,strategy_optimizer,final_report}.py / visualization/{charts,dashboard,report_renderer}.py / crawler/tw_demographics.py。新增儲存：`data/market_ares/market_ares.db`（SQLite WAL，6 表）。無跨模組 import，不影響既有系統。同步 system-topology v1.64、joint-map v1.53、memory-router v1.14、persistence-contract v1.41。
 > **v1.82 (2026-03-29)**：統一發送出口防漏修復——ResponseGuard.sanitize_for_group() 取消群組/私訊分流，所有通道統一過濾全部 18 組 _INTERNAL_PATTERNS（修復 Bug1 群組術語洩漏 + Bug2 私訊自言自語的共同根因）；telegram_pump.py 消除 9 處 bot.send_message() 直送改走 adapter._safe_send()（Phase 0/1/2/3 + SLA interim + Escalation）；cron_registry.py Ares alert 改走 _safe_send()；telegram_menu.py 2 個函數加 ResponseGuard sanitize；update_processing_status() 加 sanitize；response_guard 扇入 2→3（新增 telegram_menu.py）。同步 system-topology v1.63。
 > **v1.80 (2026-03-29)**：戰神系統（Ares）——新增 2 個 Skill 到綠區：`anima-individual`（ANIMA 個體追蹤引擎，扇入=1 from ares，扇出=8：wan-miu-16/energy-reading/combined-reading/shadow/master-strategy/xmodel/knowledge-lattice/user-model）、`ares`（戰神系統工作流，扇入=0，扇出=14：anima-individual/wan-miu-16/energy-reading/combined-reading/master-strategy/shadow/xmodel/pdeif/roundtable/business-12/ssa-consultant/knowledge-lattice/user-model/c15）。新增 Python 模組 `src/museon/ares/`（profile_store.py/graph_renderer.py/external_bridge.py）；新增儲存路徑 `data/ares/profiles/`。同步 system-topology v1.62、joint-map v1.52、memory-router v1.13、persistence-contract v1.40。
@@ -721,6 +722,27 @@
 `skills/anima-individual`（★ v1.80 新增，扇入=1（ares），扇出=8（wan-miu-16, energy-reading, combined-reading, shadow, master-strategy, xmodel, knowledge-lattice, user-model），ANIMA 個體追蹤引擎——為第三方人物建立七層鏡像+八大槓桿持久化畫像，儲存 `data/ares/profiles/{profile_id}.json`，結晶化至 knowledge-lattice individual_crystal），
 `skills/ares`（★ v1.80 新增，扇入=0，扇出=14（anima-individual, wan-miu-16, energy-reading, combined-reading, master-strategy, shadow, xmodel, pdeif, roundtable, business-12, ssa-consultant, knowledge-lattice, user-model, c15），戰神系統工作流——編排 ANIMA 個體引擎+多 Skill 產出人物分析/策略建議/多層槓桿路徑/連動模擬/戰前簡報，Python 模組 `src/museon/ares/`（profile_store/graph_renderer/external_bridge），結晶化至 knowledge-lattice strategy_crystal）
 
+### 新 Skill 批次（13 個，v1.84 新增）
+
+#### 🟡 黃區（扇入 2-9）
+
+`skills/ad-pilot`（★ v1.84 新增，扇入=3（business-12, ssa-consultant, finance-pilot），扇出=5，廣告投放策略分析——從商業診斷到廣告創意到媒體採買到轉化優化，結晶化至 knowledge-lattice Insight），
+`skills/equity-architect`（★ v1.84 新增，扇入=3（business-12, master-strategy, shadow），扇出=5，合夥結構設計——股權分配/合夥協議設計/三種模式 A/B/C 選擇，結晶化至 knowledge-lattice decision_crystal），
+`skills/course-forge`（★ v1.84 新增，扇入=4（storytelling-engine, consultant-communication, script-optimizer, pdeif），扇出=5，課程架構設計引擎——學習地圖/單元架構/教學法選擇/作業設計，結晶化至 knowledge-lattice Pattern），
+`skills/brand-project-engine`（★ v1.84 新增，扇入=2（brand-builder, brand-identity），扇出=2，品牌專案管理引擎——品牌建構專案管理/里程碑追蹤/工作流程同步），
+`skills/finance-pilot`（★ v1.84 新增，扇入=2（daily-pilot, business-12），扇出=4，財務管理副駕駛——記帳/月結/現金流預測/成本結構優化，結晶化至 knowledge-lattice Insight/Pattern），
+`skills/prompt-stresstest`（★ v1.84 新增，扇入=2（acsf, fix-verify），扇出=5，提示詞壓力測試——多維度 LLM 提示詞品質驗證，結晶化至 knowledge-lattice Pattern），
+
+#### 🟢 綠區（扇入 0-1）
+
+`skills/biz-collab`（★ v1.84 新增，扇入=0，扇出=4（xmodel, business-12, biz-diagnostic, ssa-consultant），商業合作戰略——合作機會評估/合作模式設計/談判策略，結晶化至 knowledge-lattice collab_patterns），
+`skills/biz-diagnostic`（★ v1.84 新增，扇入=0，扇出=3（business-12, darwin, report-forge），商業模式健檢——四層診斷/DARWIN 模擬/優先問題排序，結晶化至 knowledge-lattice diagnostic_crystal），
+`skills/video-strategy`（★ v1.84 新增，扇入=0，扇出=4（storytelling-engine, brand-identity, script-optimizer, report-forge），影片策略規劃——內容策略/短影音工作流/跨平台分發計畫），
+`skills/shadow-muse`（★ v1.84 新增，扇入=0，扇出=4（shadow, resonance, deep-think, user-model），潛意識創意激發引擎——創意蹲點/夢境日誌/原型探索/異化訓練），
+`skills/daily-pilot`（★ v1.84 新增，扇入=0，扇出=4（plan-engine, deep-think, wee, user-model），每日決策副駕駛——日常優先序/精力管理/微決策系統），
+`skills/talent-match`（★ v1.84 新增，扇入=0，扇出=4（onemuse-core, business-12, shadow, user-model），人才評估與招募策略——崗位設計/評估框架/面試設計/招募策略，結晶化至 knowledge-lattice Insight），
+`skills/workflow-brand-consulting`（★ v1.84 新增，扇入=0，扇出=6（brand-discovery, brand-builder, brand-identity, storytelling-engine, aesthetic-sense, report-forge），品牌諮詢完整工作流——從品牌探索到品牌手冊 HTML 全流程編排，結晶化至 knowledge-lattice brand_crystal），
+
 ### 三層調度員架構（3 個）
 
 #### dispatcher（L1 調度員）
@@ -874,6 +896,8 @@
 | 2026-03-25 | v1.66 | Brain 90s SLA + Circuit Breaker——telegram_pump _brain_process_with_sla()；bulkhead.py BrainCircuitBreaker 三態機；server.py CB 通知+/health 端點。bulkhead 扇入 1→2 |
 | 2026-03-25 | v1.65 | 對話持久化+教訓蒸餾+7 條斷裂管線修復——87 檔案 +4623/-2934 行。五虎將升級+Fix-Verify 工作流鍛造 |
 | 2026-03-25 | v1.64 | server.py 拆分（5749→3800 行）——拆出 telegram_pump/routes_api/cron_registry 三模組。三層洩漏預防（L1 prompt→L2 剝離→L3 guard） |
+| 2026-03-30 | v1.84 | 13 個新 Skill Post-Build 補登——🟡黃區新增：ad-pilot（扇入=3）、equity-architect（扇入=3）、course-forge（扇入=4）、brand-project-engine（扇入=2）、finance-pilot（扇入=2）、prompt-stresstest（扇入=2）；🟢綠區新增：biz-collab、biz-diagnostic、video-strategy、shadow-muse、daily-pilot、talent-match、workflow-brand-consulting（扇入均=0）。同步 topology v1.66、joint-map v1.54、memory-router v1.16 |
+| 2026-03-30 | v1.83 | 市場戰神（Market Ares）——market_ares 模組群（9 子包 16 檔，扇入=0），新增 market_ares.db SQLite WAL。同步 topology v1.64、joint-map v1.53、memory-router v1.14、persistence-contract v1.41 |
 | 2026-03-29 | v1.80 | 戰神系統（Ares）——新增 2 個 Skill 到綠區：anima-individual（扇入=1, 扇出=8, individual_crystal）、ares（扇入=0, 扇出=14, strategy_crystal）；新增 Python 模組 src/museon/ares/ + 儲存路徑 data/ares/profiles/。同步 topology v1.62、joint-map v1.52、memory-router v1.13、persistence-contract v1.40 |
 | 2026-03-29 | v1.79 | OneMuse 能量解讀技能群——新增 3 個 Skill 到綠區（energy-reading 扇出=4、wan-miu-16 扇出=3、combined-reading 扇出=4），唯讀參考 data/knowledge/onemuse/（36 檔）。同步 topology v1.61、joint-map v1.51、memory-router v1.12、persistence-contract v1.39 |
 | 2026-03-24 | v1.62 | 全面審計修正——扇入重算（event_bus 117→45）、8 個新模組補列 |

@@ -50,6 +50,12 @@ io:
     - from: group-meeting-notes
       field: meeting_insights
       required: false
+    - from: dev-retro
+      field: dev_lesson_crystal
+      required: false
+    - from: script-optimizer
+      field: script_optimization_insights
+      required: false
   outputs:
     - to: deep-think
       field: related_crystals

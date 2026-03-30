@@ -59,6 +59,10 @@ io:
       field: onemuse_crystal
       trigger: on-update
       description: One Muse 知識結晶（新洞見/修正）
+    - to: talent-match
+      field: eight_directions_model
+      trigger: on-request
+      description: 八方位能量模型、人格特質分類規則，供人才評估使用
 connects_to:
   - energy-reading
   - wan-miu-16

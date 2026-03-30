@@ -21,9 +21,9 @@ connects_to:
   - morphenix
   - acsf
 description: >
-  外掛模組註冊表（Plugin Registry）v2.4 — DNA27 核心的參考文件，
+  外掛模組註冊表（Plugin Registry）v2.5 — DNA27 核心的參考文件，
   管理所有 MUSEON 外掛模組的註冊資訊、迴圈允許規則、RC 親和對照、協作矩陣與共存規則。
-  已註冊外掛：60 個（含 10 常駐 + 42 按需 + 1 參考 + 6 工作流），分佈於 9 個 Hub。
+  已註冊外掛：70 個（含 10 常駐 + 54 按需 + 1 參考 + 5 工作流），分佈於 9 個 Hub。
   此文件為 dna27/references 底下的治理參考文件，非獨立 Skill，不可被單獨觸發。
   觸發時機：DNA27 路由、orchestrator 編排、morphenix 迭代時自動參照。
   指令觸發：無獨立指令。透過 /orchestrate、/morphenix fitness、/morphenix status 間接使用。
@@ -33,10 +33,10 @@ description: >
   與 acsf 互補：鍛造新 Skill 完成後，必須在此表新增條目才算正式上線。
 ---
 
-# 外掛模組註冊表（Plugin Registry）v2.4
+# 外掛模組註冊表（Plugin Registry）v2.5
 
 > **上次更新**：2026-03-30
-> **已註冊外掛**：60 個（含 4 常駐 + 48 按需 + 1 參考 + 7 工作流），分佈於 9 個 Hub
+> **已註冊外掛**：70 個（含 4 常駐 + 59 按需 + 1 參考 + 6 工作流），分佈於 9 個 Hub
 > **治理文件**：`docs/skill-routing-governance.md`（Hub 路由 + Workflow Stage 規格）
 > **Manifest 規格**：`docs/skill-manifest-spec.md` v1.1（含 `hub` + `stages` 欄位）
 
@@ -75,19 +75,18 @@ DNA27（核心 OS）
 │   ├── wan-miu-16           （萬謬16型人格分析引擎）
 │   ├── combined-reading     （合盤能量比對引擎）
 │   ├── anima-individual     （ANIMA 個體追蹤引擎）    ← NEW
-│   └── athena               （ATHENA 智慧戰略情報平台）
+│   └── ares                 （戰神系統工作流）         ← NEW
 │
-├─ [Market Hub]（8）— 市場分析、風險、情緒、模擬
+├─ [Market Hub]（7）— 市場分析、風險、情緒
 │   ├── market-core          （市場分析核心引擎）
 │   ├── market-equity        （股票市場分析衛星）
 │   ├── market-crypto        （加密貨幣分析衛星）
 │   ├── market-macro         （總體經濟分析衛星）
 │   ├── investment-masters   （投資軍師團）
 │   ├── risk-matrix          （風險管理與資產配置引擎）
-│   ├── sentiment-radar      （市場情緒雷達）
-│   └── darwin               （DARWIN 策略演化模擬引擎）    ← NEW
+│   └── sentiment-radar      （市場情緒雷達）
 │
-├─ [Business Hub]（9）— 商模、戰略、銷售、溝通、品牌建構、商業健檢
+├─ [Business Hub]（8）— 商模、戰略、銷售、溝通、品牌建構
 │   ├── business-12          （商模十二力診斷引擎）
 │   ├── ssa-consultant       （顧問式銷售與系統創業引擎）
 │   ├── master-strategy      （戰略判斷與心理動力引擎）
@@ -95,8 +94,7 @@ DNA27（核心 OS）
 │   ├── xmodel               （通用破框解方引擎）
 │   ├── pdeif                （目的導向逆熵流引擎）
 │   ├── brand-discovery      （漸進式品牌訪談引擎）
-│   ├── brand-builder        （奧美級品牌建構引擎）
-│   └── biz-diagnostic       （商業模式健檢引擎）    ← NEW
+│   └── brand-builder        （奧美級品牌建構引擎）
 │
 ├─ [Creative Hub]（5）— 語言、敘事、美感、品牌
 │   ├── text-alchemy         （文字煉金路由模組）
@@ -352,6 +350,48 @@ DNA27（核心 OS）
 | stages | identify(anima-individual) → assess(wan-miu-16,energy-reading) → compare(combined-reading) → strategize(master-strategy,shadow,xmodel) → design(pdeif) → verify(roundtable) → output(anima-individual,c15) |
 | 與其他外掛 | 14 個 Skill 調用：anima-individual、wan-miu-16、energy-reading、combined-reading、master-strategy、shadow、xmodel、pdeif、roundtable、business-12、ssa-consultant、knowledge-lattice、user-model、c15 |
 
+### shadow-muse — 戰略覺察挑戰教練
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | SHADOW_MUSE |
+| 類別 | challenge-coaching-engine |
+| 風險等級 | MEDIUM |
+| 允許迴圈 | exploration_loop、slow_loop |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | 使用者需要被挑戰、被點醒、描述逃避或防衛 |
+| 觸發指令 | /shadow-muse、/sm、/coach |
+| 核心能力 | 挑戰式教練、Inner OS 狀態機、四檔輸出（spark/flow/blueprint/deepdive）、防衛掃描 |
+| 與其他外掛 | resonance（感性承接→理性挑戰）；dharma（刺破幻象→思維轉化）；shadow（他人博弈→自己防衛）；xmodel（多路徑→逼選擇） |
+
+### daily-pilot — 每日導航引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | DAILY_PILOT |
+| 類別 | daily-productivity-navigation-engine |
+| 風險等級 | LOW |
+| 允許迴圈 | fast_loop、exploration_loop、slow_loop |
+| 允許模式 | civil_mode |
+| 入場條件 | 使用者描述目標設定、每日規劃、進度追蹤、需要鼓勵 |
+| 觸發指令 | /pilot、/daily、/morning、/evening、/week |
+| 核心能力 | SMART/GROW 目標、三節奏（早宣/即時/晚結）、週月回顧、情緒支持 |
+| 與其他外掛 | shadow-muse（挑戰型↔支持型教練）；resonance（深層情緒承接）；wee（工作流演化→個人節奏）；finance-pilot（行動節奏→金錢紀律） |
+
+### talent-match — 智慧人才媒合引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | TALENT_MATCH |
+| 類別 | talent-matching-engine |
+| 風險等級 | LOW |
+| 允許迴圈 | exploration_loop、slow_loop |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | 使用者描述招募、面試、履歷分析、人格評估 |
+| 觸發指令 | /talent、/match、/hire、/talent evidence、/interview-pack |
+| 核心能力 | 六大模組（八軸比對+面談+逐字稿+靈數+報告+證據面試包）、STAR/SCENARIO/PROBE/FALSIFY 題型 |
+| 與其他外掛 | onemuse-core（八方位能量定義）；energy-reading（能量解讀→職場匹配）；wan-miu-16（16型→八軸匹配）；anima-individual（候選人→ANIMA檔案） |
+
 ---
 
 ## 三、商業與戰略
@@ -413,6 +453,63 @@ DNA27（核心 OS）
 | 核心能力 | 27 類對抗型態偵測 + 防禦原則（防禦層）；27 類情感博弈模式識別（洞察層） |
 | 與其他外掛 | master-strategy（陽謀 vs 陰謀）；ssa-consultant（客戶關係辨識）；resonance（情緒被操控時先承接再辨識）；tantra（情慾關係中的對抗偵測） |
 
+### ad-pilot — 付費廣告成效診斷引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | AD_PILOT |
+| 類別 | paid-ads-diagnosis-engine |
+| 風險等級 | LOW |
+| 允許迴圈 | fast_loop、exploration_loop、slow_loop |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | 使用者描述廣告成效問題、Meta 投放、CPM/CTR/CPC 等指標 |
+| 觸發指令 | /ads、/ad-pilot |
+| 核心能力 | MVI 最小可判讀資料閘門、品質護欄、首測模板、雙軌輸出、營收對齊 |
+| 與其他外掛 | business-12（商模診斷↔廣告診斷）；ssa-consultant（成交對話↔流量獲取）；finance-pilot（花費追蹤↔廣告效益）；xmodel（廣告決策卡點破框） |
+
+### equity-architect — 合夥股權架構引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | EQUITY_ARCHITECT |
+| 類別 | partnership-equity-design-engine |
+| 風險等級 | MEDIUM-HIGH |
+| 允許迴圈 | exploration_loop、slow_loop |
+| 禁止迴圈 | fast_loop |
+| 允許模式 | civil_mode |
+| 入場條件 | 使用者描述合夥、股權分配、股東協議、退出機制 |
+| 觸發指令 | /equity、/partnership |
+| 核心能力 | 三模式 Pipeline（適配判斷→股權設計→協議草擬）、一致性鎖、版本定稿鎖、多人硬鎖 |
+| 與其他外掛 | business-12（商模可行性→股權結構）；master-strategy（戰略判斷→結構落地）；shadow（博弈辨識→條款防護）；roundtable（多視角詰問） |
+
+### biz-collab — 異業合作媒合引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | BIZ_COLLAB |
+| 類別 | cross-industry-collaboration-engine |
+| 風險等級 | LOW |
+| 允許迴圈 | exploration_loop、slow_loop |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | 使用者描述異業合作、資源交換、策略聯盟、聯名 |
+| 觸發指令 | /collab、/biz-collab |
+| 核心能力 | 對話式盤點、八大槓桿資源盤點、合作產業推薦、洽談話術、營收模擬 |
+| 與其他外掛 | xmodel（通用破框→異業特化）；business-12（12力診斷→整合力落地）；ssa-consultant（銷售→合作洽談）；master-strategy（戰略→找盟友戰術） |
+
+### biz-diagnostic — 商業模式健檢與風險判讀引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | BIZ_DIAGNOSTIC |
+| 類別 | business-model-health-check-engine |
+| 風險等級 | LOW |
+| 允許迴圈 | exploration_loop、slow_loop |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | 使用者需要商業模式健檢、DARWIN 模擬前置資料蒐集 |
+| 觸發指令 | /biz-diag |
+| 核心能力 | SSA 商模十二力診斷框架、系統姿態判讀、因果鏈分析、一次一問漸進式對話 |
+| 與其他外掛 | darwin（前置資訊→模擬）；business-12（診斷框架共用）；report-forge（健檢→報告） |
+
 ---
 
 ## 四、語言與創作
@@ -472,6 +569,34 @@ DNA27（核心 OS）
 | 觸發指令 | 自然語言偵測（簡報、報告、提案、金字塔、MECE 等） |
 | 核心能力 | 麥肯錫金字塔原則、MECE 結構化思維、SCQA 敘事框架、HBR 寫作風格、哈佛個案研究方法論 |
 | 與其他外掛 | text-alchemy（路由來源）；c15（結構 vs 感染力）；storytelling-engine（邏輯結構 vs 情感結構）；brand-identity（溝通結構 vs 品牌調性）；aesthetic-sense（溝通美感校驗） |
+
+### video-strategy — 短影音策略引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | VIDEO_STRATEGY |
+| 類別 | short-video-strategy-engine |
+| 風險等級 | LOW |
+| 允許迴圈 | fast_loop、exploration_loop、slow_loop |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | 使用者描述短影音規劃、Reels/TikTok/Shorts 內容、腳本需求 |
+| 觸發指令 | /video、/reels |
+| 核心能力 | Precision Track 賽道鎖定、六維組合靈感生成、1min 腳本、品牌價值鎖定 |
+| 與其他外掛 | c15（語言張力→短影音微敘事）；script-optimizer（腳本壓縮）；storytelling-engine（長敘事→微敘事）；brand-builder（brand_canon 消費） |
+
+### course-forge — 講師課程建構引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | COURSE_FORGE |
+| 類別 | course-design-engine |
+| 風險等級 | LOW |
+| 允許迴圈 | exploration_loop、slow_loop |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | 使用者描述課程設計、培訓規劃、工作坊建構、教學設計 |
+| 觸發指令 | /course、/forge-course |
+| 核心能力 | 13步Pipeline、TRG+Five Gaps+D1-D4、TCG九維能力缺口、Peak-End六類峰值、雙層交付、11項QA |
+| 與其他外掛 | storytelling-engine（情緒弧線）；consultant-communication（企業內訓）；script-optimizer（時間壓縮）；aesthetic-sense（視覺材料）；pdeif（逆推學習旅程） |
 
 ---
 
@@ -765,6 +890,49 @@ DNA27（核心 OS）
 | 核心能力 | 五層回溯法（L1 表層事件→L2 路徑紀錄→L3 根因分析→L4 模式辨識→L5 防線規則）、5-Whys + 第一性原則根因追問、教訓結晶化存入 knowledge-lattice、防線規則自動回灌 dev-preflight |
 | 與其他外掛 | dev-preflight（閉環夥伴：產出 dev-lesson Crystal 回灌 preflight）；knowledge-lattice（Crystal Type: dev-lesson 寫入）；plan-engine（Close 階段調用 retro 做經驗萃取）；wee（review 五問可銜接 retro L1-L2）；meta-learning（L3 根因分析借用第一性原則框架）；morphenix（重複模式 ≥3 次可觸發迭代筆記）；qa-auditor（retro 可觸發回歸測試）；resonance（使用者帶挫折感時先用 resonance 接住） |
 
+### prompt-stresstest — Prompt 壓力測試引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | PROMPT_STRESSTEST |
+| 類別 | prompt-quality-stresstest-engine |
+| 風險等級 | LOW |
+| 允許迴圈 | exploration_loop、slow_loop |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | 使用者描述壓測 Prompt、測試 GPT、檢查 system prompt 品質 |
+| 觸發指令 | /stresstest、/prompt-test |
+| 核心能力 | 12類issue key、intake→plan→run→trace pipeline、final_gate、patch_bundle、regression suite |
+| 產線位置 | GAP→DSE→ACSF→**prompt-stresstest**→eval-engine |
+| 與其他外掛 | acsf（鍛造→壓測閉環）；fix-verify（壓測→修補→驗證）；qa-auditor（程式碼↔Prompt品質）；sandbox-lab（A/B實驗↔結構化壓測） |
+
+### brand-project-engine — 品牌行銷專案引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | BRAND_PROJECT_ENGINE |
+| 類別 | brand-marketing-project-engine |
+| 風險等級 | LOW |
+| 允許迴圈 | exploration_loop、slow_loop |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | 使用者描述品牌專案規劃、行銷年度計畫、階段推進 |
+| 觸發指令 | /brand-project、/bp |
+| 核心能力 | 蜂巢式11階段推進、導師教練+新手引導+遊戲化徽章+團隊協作 |
+| 與其他外掛 | brand-builder（品牌策略→專案執行）；brand-identity（品牌規範→落地確保）；workflow-svc-brand-marketing（區別：顧問做 vs 客戶跑） |
+
+### finance-pilot — 財務導航引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | FINANCE_PILOT |
+| 類別 | personal-finance-management-engine |
+| 風險等級 | LOW |
+| 允許迴圈 | fast_loop、exploration_loop、slow_loop |
+| 允許模式 | civil_mode |
+| 入場條件 | 使用者描述記帳、支出、收入、月結、花費分析 |
+| 觸發指令 | /finance、/ledger、/log、/close、/analyze |
+| 核心能力 | 雙帳記帳、即時回饋、七層架構、多週期分析、白話理財建議、品質護欄 |
+| 與其他外掛 | daily-pilot（行動節奏→金錢紀律）；business-12（商模診斷→現金流追蹤）；ad-pilot（花費追蹤→廣告效益） |
+
 ---
 
 ## 九、特殊模組
@@ -994,25 +1162,6 @@ DNA27（核心 OS）
 | 核心能力 | 七大品牌框架（Keller 共鳴金字塔/Jung 12 原型含 Shadow/JTBD for Brand/品牌架構決策樹/Brand Purpose 五層測試/Touchpoint Lifecycle/April Dunford 強化定位）；永遠產出三個定位選項（保守/平衡/進攻）；輸出 brand_strategy_package |
 | 涉及 Skill | brand-discovery、aesthetic-sense、storytelling-engine、consultant-communication、report-forge、orchestrator、knowledge-lattice |
 | 與其他外掛 | brand-discovery（上游資料源）；aesthetic-sense（視覺識別規格）；storytelling-engine（品牌故事設計）；report-forge（手冊排版） |
-
-### biz-diagnostic — 商業模式健檢引擎
-
-| 屬性 | 值 |
-|---|---|
-| plus_id | BIZ_DIAGNOSTIC |
-| 類別 | business-diagnostic-engine |
-| hub | business |
-| 風險等級 | LOW |
-| 運行模式 | **按需**（on-demand） |
-| 允許迴圈 | fast_loop（快速掃描）、exploration_loop（標準診斷）、slow_loop（深度診斷含模擬） |
-| 允許模式 | civil_mode、evolution_mode |
-| 入場條件 | 使用者有商業模式診斷需求，或 brand-discovery 完成帶入品牌資料 |
-| 觸發指令 | /biz-check、/biz-diagnostic |
-| 版本 | 1.0.0 |
-| 核心能力 | 13 題問卷引導→參數轉換（biz_diagnostic.py）→DARWIN 模擬→診斷報告；涵蓋獲客/轉化/回購/定價/行銷預算五大維度 |
-| Python 模組 | `src/museon/darwin/biz_diagnostic.py`（`convert_to_strategy_brief()` 主函數） |
-| 輸出 | `strategy_brief` JSON（傳給 DARWIN 模擬引擎）+ 診斷報告（傳給 report-forge） |
-| 與其他外掛 | darwin（strategy_brief→模擬參數）；business-12（診斷焦點交叉驗證）；report-forge（診斷報告渲染）；ssa-consultant（銷售系統層 SSA Day Level 對照）；brand-discovery（可帶入品牌訪談資料） |
 
 ### workflow-svc-brand-marketing — 服務業品牌行銷顧問工作流（WF-SVC-01）
 

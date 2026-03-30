@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.65
+# MUSEON 系統拓撲圖 v1.66
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.66 (2026-03-30)**：新增 13 個 Skill 節點（ad-pilot、equity-architect、biz-collab、video-strategy、course-forge、shadow-muse、daily-pilot、talent-match、brand-project-engine、finance-pilot、prompt-stresstest、workflow-brand-consulting（已存在）、biz-diagnostic（已存在））——business hub 新增 ad-pilot/equity-architect/biz-collab；creative hub 新增 video-strategy/course-forge；thinking hub 新增 shadow-muse/daily-pilot/talent-match；product hub 新增 brand-project-engine/finance-pilot；evolution hub 新增 prompt-stresstest；新增對應 13 條 internal 連線。
 > **v1.65 (2026-03-30)**：商業模式健檢引擎（biz-diagnostic）——skills-business-hub 新增 `biz-diagnostic` Skill 節點（商業模式健檢引擎，plugin，Business Hub）；新增 Python 模組 `src/museon/darwin/biz_diagnostic.py`（convert_to_strategy_brief() 參數轉換器）；新增 5 條 cross 連線（biz-diagnostic→darwin/business-12/report-forge/ssa-consultant、brand-discovery→biz-diagnostic）；plugin-registry 新增條目（Business Hub 第 9 個 Skill）；memory-router v1.15 新增 diagnostic_crystal 路由。同步 blast-radius（biz-diagnostic 扇入=1，綠區）。
 > **v1.64 (2026-03-30)**：市場戰神（Market Ares）——新增 `market_ares` 群組（9 子包 16 個模組節點）；新增儲存路徑 `data/market_ares/market_ares.db`（SQLite WAL，6 表：regions/archetypes/simulations/snapshots/competitors/partners）；模組間內部連線 12 條（engine→strategy_impact/social_contagion/oscillation、dashboard→charts、final_report→turning_point、energy_mapper→mapping_config.yaml、kmeans_refine→hierarchical、self_drive_coach→tw_demographics、chauffeur_coach→tw_demographics、report_renderer→final_report、strategy_optimizer→models、weekly_insight→models）；外部連線 0 條（獨立模組，不影響既有系統）。同步 blast-radius v1.83、joint-map v1.53、memory-router v1.14、persistence-contract v1.41。
 > **v1.63 (2026-03-29)**：統一發送出口防漏——response-guard 節點描述更新（全通道內容黑名單清理，取消群組/私訊分流）；telegram-pump→response-guard 連線描述更新（所有發送路徑統一走 _safe_send()，消除 9 處直送）。同步 blast-radius v1.82。
@@ -357,6 +358,9 @@ external-user（EXTERNAL）
 | `combined-reading` | Combined-Reading | 合盤能量比對 | - | skills-thinking-hub | 1.2 |
 | `anima-individual` | Anima-Individual | ANIMA 個體追蹤引擎 | - | skills-thinking-hub | 1.2 |
 | `ares` | Ares | 戰神系統工作流 | - | skills-thinking-hub | 1.4 |
+| `shadow-muse` | Shadow-Muse | 戰略覺察挑戰教練 | - | skills-thinking-hub | 1.2 |
+| `daily-pilot` | Daily-Pilot | 每日導航引擎 | - | skills-thinking-hub | 1.2 |
+| `talent-match` | Talent-Match | 智慧人才媒合引擎 | - | skills-thinking-hub | 1.2 |
 
 #### skills-market — 市場類
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -391,6 +395,8 @@ external-user（EXTERNAL）
 | `aesthetic-sense` | Aesthetic-Sense | 美感引擎 | - | skills-creative-hub | 1.2 |
 | `brand-identity` | Brand-Identity | 品牌識別引擎 | - | skills-creative-hub | 1.2 |
 | `human-design-blueprint` | HD-Blueprint | 人類圖靈魂藍圖 | - | skills-creative-hub | 1.2 |
+| `video-strategy` | Video-Strategy | 短影音策略引擎 | - | skills-creative-hub | 1.2 |
+| `course-forge` | Course-Forge | 講師課程建構引擎 | - | skills-creative-hub | 1.2 |
 
 #### skills-business — 商業類（補充）
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -400,6 +406,9 @@ external-user（EXTERNAL）
 | `brand-discovery` | Brand-Discovery | 漸進式品牌訪談引擎 | - | skills-business-hub | 1.2 |
 | `brand-builder` | Brand-Builder | 奧美級品牌建構引擎 | - | skills-business-hub | 1.4 |
 | `biz-diagnostic` | Biz-Diagnostic | 商業模式健檢引擎 | - | skills-business-hub | 1.2 |
+| `ad-pilot` | Ad-Pilot | 付費廣告成效診斷引擎 | - | skills-business-hub | 1.2 |
+| `equity-architect` | Equity-Architect | 合夥股權架構引擎 | - | skills-business-hub | 1.2 |
+| `biz-collab` | Biz-Collab | 異業合作媒合引擎 | - | skills-business-hub | 1.2 |
 
 #### skills-product — 產品類
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -412,6 +421,8 @@ external-user（EXTERNAL）
 | `info-architect` | Info-Architect | 資訊架構引擎 | - | skills-product-hub | 1.2 |
 | `report-forge` | Report-Forge | 報告鍛造 | - | skills-product-hub | 1.2 |
 | `orchestrator` | Orchestrator | 編排引擎 | - | skills-product-hub | 1.2 |
+| `brand-project-engine` | Brand-Project-Engine | 品牌行銷專案引擎 | - | skills-product-hub | 1.2 |
+| `finance-pilot` | Finance-Pilot | 財務導航引擎 | - | skills-product-hub | 1.2 |
 
 #### skills-evolution — 演化類
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -422,6 +433,7 @@ external-user（EXTERNAL）
 | `tantra` | Tantra | 情慾治理引擎 | - | skills-evolution-hub | 1.0 |
 | `system-health-check` | System-Health-Check | 系統健康自檢引擎 | - | skills-evolution-hub | 1.0 |
 | `decision-tracker` | Decision-Tracker | 決策歷史追蹤引擎 | - | skills-evolution-hub | 1.0 |
+| `prompt-stresstest` | Prompt-StressTest | Prompt壓力測試引擎 | - | skills-evolution-hub | 1.2 |
 
 #### skills-workflow — 工作流類
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -943,6 +955,9 @@ external-user（EXTERNAL）
 | `skills-thinking-hub` | `combined-reading` | 合盤能量比對 |
 | `skills-thinking-hub` | `anima-individual` | ANIMA 個體追蹤 |
 | `skills-thinking-hub` | `ares` | 戰神系統 |
+| `skills-thinking-hub` | `shadow-muse` | 挑戰教練 |
+| `skills-thinking-hub` | `daily-pilot` | 每日導航 |
+| `skills-thinking-hub` | `talent-match` | 人才媒合 |
 
 #### Market Hub
 | Source | Target | 說明 |
@@ -969,6 +984,9 @@ external-user（EXTERNAL）
 | `skills-business-hub` | `brand-discovery` | 品牌訪談 |
 | `skills-business-hub` | `brand-builder` | 品牌建構 |
 | `skills-business-hub` | `biz-diagnostic` | 商業模式健檢 |
+| `skills-business-hub` | `ad-pilot` | 廣告診斷 |
+| `skills-business-hub` | `equity-architect` | 股權架構 |
+| `skills-business-hub` | `biz-collab` | 異業合作 |
 | `brand-discovery` | `brand-builder` | 訪談資料→品牌分析 |
 | `brand-discovery` | `biz-diagnostic` | 品牌訪談資料→健檢參數 |
 | `biz-diagnostic` | `darwin` | strategy_brief→DARWIN 模擬 |
@@ -985,6 +1003,8 @@ external-user（EXTERNAL）
 | `skills-creative-hub` | `novel-craft` | 小說工藝 |
 | `skills-creative-hub` | `aesthetic-sense` | 美感 |
 | `skills-creative-hub` | `brand-identity` | 品牌識別 |
+| `skills-creative-hub` | `video-strategy` | 短影音 |
+| `skills-creative-hub` | `course-forge` | 課程建構 |
 | `text-alchemy` | `c15` | 語言層注入 |
 | `text-alchemy` | `novel-craft` | 小說工藝 |
 | `text-alchemy` | `storytelling-engine` | 說故事 |
@@ -999,6 +1019,8 @@ external-user（EXTERNAL）
 | `skills-product-hub` | `info-architect` | 資訊架構 |
 | `skills-product-hub` | `report-forge` | 報告鍛造 |
 | `skills-product-hub` | `orchestrator` | 編排 |
+| `skills-product-hub` | `brand-project-engine` | 品牌專案 |
+| `skills-product-hub` | `finance-pilot` | 財務導航 |
 
 #### Evolution Hub
 | Source | Target | 說明 |
@@ -1008,6 +1030,7 @@ external-user（EXTERNAL）
 | `skills-evolution-hub` | `tantra` | 情慾治理 |
 | `skills-evolution-hub` | `system-health-check` | 系統健康自檢 |
 | `skills-evolution-hub` | `decision-tracker` | 決策歷史追蹤 |
+| `skills-evolution-hub` | `prompt-stresstest` | Prompt壓測 |
 
 #### Workflow Hub
 | Source | Target | 說明 |
@@ -1188,6 +1211,7 @@ external-user（EXTERNAL）
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.66 | 2026-03-30 | 新增 13 個 Skill 節點（ad-pilot、equity-architect、biz-collab、biz-diagnostic（已存在）、video-strategy、course-forge、shadow-muse、daily-pilot、talent-match、brand-project-engine、finance-pilot、prompt-stresstest、workflow-brand-consulting（已存在））；新增 11 條 internal 連線（business +3、creative +2、thinking +3、product +2、evolution +1） |
 | v1.62 | 2026-03-29 | 戰神系統（Ares）——thinking 群組新增 anima-individual（ANIMA 個體追蹤引擎）+ ares（戰神系統工作流）2 個 Skill 節點；新增 Python 模組 src/museon/ares/（profile_store/graph_renderer/external_bridge）；新增 2 條 internal + 23 條 cross 連線。188 節點 512 連線 |
 | v1.61 | 2026-03-29 | OneMuse 能量解讀技能群——thinking 群組新增 energy-reading/wan-miu-16/combined-reading 3 個 Skill 節點 + 11 條 cross 連線。186 節點 487 連線 |
 | v1.59 | 2026-03-28 | 死碼清理 20 個模組後拓撲同步——節點 203→183（-20）；連線 500→476（-24）；更新 fan_in 數據（event_bus 45→46、data_bus 16→15、message 13→14、pulse_db 10→11、vector_bridge 7→9）；記錄破損 import 2 個（brain_fast → input_sanitizer/ceremony 待修） |

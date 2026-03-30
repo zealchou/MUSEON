@@ -1,6 +1,6 @@
 ---
 name: script-optimizer
-type: workflow
+type: on-demand
 layer: language
 hub: creative
 io:
