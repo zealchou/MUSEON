@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>定價與談判：利潤力 — MUSEON</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@300;400;600&family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* Brand Colors */
+      --ember:        #C4502A;
+      --ember-light:  #E0714D;
+      --ember-dark:   #9A3A1C;
+      --teal:         #2A7A6E;
+      --gold:         #B8923A;
+      /* Neutrals */
+      --ink:          #12121A;
+      --slate:        #5A5A6E;
+      --mist:         #9898A8;
+      --border:       #E2E0DA;
+      --parchment:    #F7F5F0;
+      --snow:         #FDFCFA;
+      /* Dark Mode */
+      --deep-ink:     #0E0E16;
+      --surface:      #16161F;
+      --raised:       #1E1E2A;
+      --border-dark:  #2A2A38;
+      /* Slide dimensions */
+      --slide-w: 1280px;
+      --slide-h: 720px;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #1a1a24;
+      font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+      overflow: hidden;
+    }
+
+    /* ===== PROGRESS BAR ===== */
+    #progress-bar-container {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: rgba(255,255,255,0.08);
+      z-index: 1000;
+    }
+    #progress-bar {
+      height: 100%;
+      background: var(--ember);
+      transition: width 250ms ease;
+    }
+
+    /* ===== SLIDE CONTAINER ===== */
+    #slideshow {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .slide-wrapper {
+      position: relative;
+      width: var(--slide-w);
+      height: var(--slide-h);
+    }
+
+    /* Scale to fit viewport */
+    @media (max-width: 1300px) {
+      .slide-wrapper {
+        transform: scale(calc(100vw / 1280));
+        transform-origin: center center;
+      }
+    }
+
+    section.slide {
+      position: absolute;
+      top: 0; left: 0;
+      width: var(--slide-w);
+      height: var(--slide-h);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 64px 80px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 200ms ease;
+    }
+    section.slide.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* ===== SLIDE THEMES ===== */
+    .slide-light {
+      background: var(--parchment);
+      color: var(--ink);
+    }
+    .slide-dark {
+      background: var(--deep-ink);
+      color: #F0EEE8;
+    }
+
+    /* ===== SLIDE NUMBER ===== */
+    .slide-number {
+      position: absolute;
+      bottom: 24px;
+      right: 32px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--mist);
+    }
+    .slide-dark .slide-number { color: rgba(255,255,255,0.22); }
+
+    /* ===== NAVIGATION ===== */
+    .nav-btn {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,0.15);
+      background: rgba(14,14,22,0.6);
+      color: rgba(255,255,255,0.6);
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 900;
+      transition: all 200ms ease;
+      backdrop-filter: blur(6px);
+    }
+    .nav-btn:hover {
+      background: rgba(196,80,42,0.5);
+      border-color: var(--ember);
+      color: #fff;
+    }
+    #nav-prev { left: 20px; }
+    #nav-next { right: 20px; }
+
+    /* ===== TYPOGRAPHY ===== */
+    .display-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 56px;
+      font-weight: 600;
+      line-height: 1.15;
+    }
+    .display-title-xl {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 72px;
+      font-weight: 600;
+      line-height: 1.1;
+    }
+    .slide-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 38px;
+      font-weight: 600;
+      line-height: 1.25;
+      margin-bottom: 8px;
+    }
+    .slide-subtitle {
+      font-size: 16px;
+      color: var(--slate);
+      font-weight: 400;
+      margin-bottom: 40px;
+    }
+    .slide-dark .slide-subtitle { color: rgba(255,255,255,0.45); }
+    .body-text {
+      font-size: 17px;
+      line-height: 1.75;
+      color: var(--slate);
+    }
+    .slide-dark .body-text { color: rgba(255,255,255,0.55); }
+    .ember { color: var(--ember); }
+    .gold { color: var(--gold); }
+    .teal { color: var(--teal); }
+    .white { color: #F0EEE8; }
+    .muted { color: var(--slate); }
+    .slide-dark .muted { color: rgba(255,255,255,0.4); }
+
+    /* ===== BADGE ===== */
+    .badge {
+      display: inline-block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(196,80,42,0.12);
+      color: var(--ember-dark);
+      border-radius: 100px;
+      padding: 3px 12px;
+      margin-bottom: 20px;
+    }
+    .slide-dark .badge {
+      background: rgba(196,80,42,0.2);
+      color: var(--ember-light);
+    }
+
+    /* ===== CARD ===== */
+    .card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+    }
+    .card-dark {
+      background: var(--surface);
+      border: 1px solid var(--border-dark);
+      border-radius: 10px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    .card-highlight {
+      border: 2px solid var(--ember);
+      background: rgba(196,80,42,0.06);
+    }
+
+    /* ===== MONO BOX ===== */
+    .mono-box {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      background: #F0EDE8;
+      border-radius: 8px;
+      padding: 18px 22px;
+      color: var(--ink);
+      line-height: 1.7;
+    }
+    .slide-dark .mono-box {
+      background: var(--raised);
+      color: rgba(255,255,255,0.85);
+    }
+
+    /* ===== DIVIDER ===== */
+    .divider {
+      width: 48px;
+      height: 2px;
+      background: var(--ember);
+      margin: 16px 0;
+    }
+
+    /* ===== EMBER DOT ===== */
+    .ember-dot::before {
+      content: '●';
+      color: var(--ember);
+      margin-right: 10px;
+      font-size: 10px;
+    }
+
+    /* ===== TAG ===== */
+    .tag {
+      display: inline-block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+    .tag-ember { background: rgba(196,80,42,0.12); color: var(--ember); }
+    .tag-teal  { background: rgba(42,122,110,0.12); color: var(--teal); }
+    .tag-gold  { background: rgba(184,146,58,0.12); color: var(--gold); }
+
+    /* ===== MUSEON BRAND MARK ===== */
+    .museon-mark {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ember);
+      border: 1.5px solid var(--ember);
+      border-radius: 100px;
+      padding: 4px 14px;
+    }
+
+    /* ===== TABLE ===== */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    .data-table th {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--ember);
+      padding: 10px 16px;
+      text-align: left;
+      border-bottom: 2px solid var(--ember);
+    }
+    .data-table td {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--ink);
+      line-height: 1.6;
+    }
+    .data-table tr:last-child td { border-bottom: none; }
+
+    /* ===== LAYOUT HELPERS ===== */
+    .flex-row {
+      display: flex;
+      gap: 24px;
+      align-items: stretch;
+    }
+    .flex-row > * { flex: 1; }
+    .flex-col {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+    .center {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .full-height { height: 100%; }
+
+    /* ===== FLOW ARROW ===== */
+    .flow-chain {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      flex-wrap: nowrap;
+    }
+    .flow-node {
+      flex: 1;
+      text-align: center;
+      padding: 14px 10px;
+      border-radius: 8px;
+    }
+    .flow-arrow {
+      color: var(--ember);
+      font-size: 18px;
+      padding: 0 6px;
+      flex-shrink: 0;
+    }
+
+    /* ===== INPUT BOX ===== */
+    .fill-box {
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      padding: 20px 24px;
+      font-size: 15px;
+      color: var(--mist);
+      font-style: italic;
+      line-height: 1.8;
+      min-height: 80px;
+    }
+    .fill-box span {
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--ember);
+      font-style: normal;
+    }
+
+    /* ===== Q&A BLOCK ===== */
+    .qa-block {
+      margin-bottom: 18px;
+    }
+    .qa-q {
+      font-size: 15px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 8px;
+    }
+    .qa-bad {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      color: var(--mist);
+      text-decoration: line-through;
+      margin-bottom: 6px;
+      padding-left: 20px;
+    }
+    .qa-good {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      color: var(--ember-light);
+      padding-left: 20px;
+      font-weight: 600;
+    }
+
+    /* ===== COMPARE CARD ===== */
+    .compare-row {
+      display: flex;
+      gap: 0;
+      margin-bottom: 14px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .compare-left {
+      flex: 1;
+      padding: 14px 18px;
+      background: var(--snow);
+      font-size: 14px;
+      color: var(--slate);
+      border-right: 2px solid var(--border);
+    }
+    .compare-right {
+      flex: 1;
+      padding: 14px 18px;
+      background: rgba(196,80,42,0.05);
+      font-size: 14px;
+      color: var(--ember-dark);
+      font-weight: 500;
+    }
+    .compare-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--mist);
+      margin-bottom: 4px;
+    }
+
+    /* ===== NUMBERED CARD ===== */
+    .num-card {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .num-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--ember);
+      color: #fff;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .num-content {
+      flex: 1;
+    }
+    .num-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+    .num-desc {
+      font-size: 13px;
+      color: var(--slate);
+      line-height: 1.6;
+    }
+
+    /* ===== PYRAMID ===== */
+    .pyramid-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+    }
+    .pyramid-step {
+      padding: 14px 24px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .pyramid-arrow-down {
+      text-align: center;
+      color: var(--ember);
+      font-size: 20px;
+      margin: 2px 0;
+    }
+
+    /* ===== BLEED DECORATIONS ===== */
+    .ember-bar-left {
+      position: absolute;
+      left: 0; top: 80px; bottom: 80px;
+      width: 4px;
+      background: var(--ember);
+      border-radius: 0 4px 4px 0;
+    }
+    .corner-deco {
+      position: absolute;
+      top: 32px; right: 32px;
+    }
+
+    /* ===== SECTION PART LABEL ===== */
+    .part-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .part-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 40px;
+      font-weight: 600;
+      color: var(--ember);
+      line-height: 1;
+    }
+    .part-text {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ember);
+    }
+
+    /* ===== SCROLL BOX ===== */
+    .scroll-hint {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--mist);
+      letter-spacing: 0.06em;
+    }
+
+    /* ===== ICON CIRCLE ===== */
+    .icon-circle {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(196,80,42,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      margin-bottom: 12px;
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- Progress Bar -->
+<div id="progress-bar-container">
+  <div id="progress-bar"></div>
+</div>
+
+<!-- Navigation Buttons -->
+<button class="nav-btn" id="nav-prev" title="上一張 (←)">‹</button>
+<button class="nav-btn" id="nav-next" title="下一張 (→)">›</button>
+
+<!-- Slideshow -->
+<div id="slideshow">
+<div class="slide-wrapper" id="slide-wrapper">
+
+  <!-- ===== SLIDE 01 — 封面 ===== -->
+  <section class="slide slide-dark active" id="slide-1">
+    <div class="corner-deco">
+      <span class="museon-mark">MUSEON</span>
+    </div>
+    <div class="ember-bar-left"></div>
+    <div style="padding-left: 20px;">
+      <div style="margin-bottom: 24px;">
+        <span class="badge">定價與談判 · 線上課程</span>
+      </div>
+      <div class="display-title-xl white" style="margin-bottom: 8px;">定價與談判</div>
+      <div style="font-family: 'Cormorant Garamond', serif; font-size: 64px; font-weight: 600; color: var(--ember); line-height: 1.1; margin-bottom: 28px;">利潤力</div>
+      <div style="font-size: 18px; color: rgba(255,255,255,0.45); font-weight: 300; margin-bottom: 64px; font-style: italic;">「賺錢不是靠便宜，而是靠價值。」</div>
+      <div style="display: flex; gap: 32px; align-items: center;">
+        <div style="width: 1px; height: 36px; background: var(--border-dark);"></div>
+        <div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.08em; color: rgba(255,255,255,0.3); text-transform: uppercase; margin-bottom: 4px;">課程時長</div>
+          <div style="font-size: 16px; color: rgba(255,255,255,0.6);">60 min</div>
+        </div>
+        <div style="width: 1px; height: 36px; background: var(--border-dark);"></div>
+        <div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.08em; color: rgba(255,255,255,0.3); text-transform: uppercase; margin-bottom: 4px;">講師</div>
+          <div style="font-size: 16px; color: rgba(255,255,255,0.6);">Zeal / MUSEON</div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">01 / 22</div>
+  </section>
+
+  <!-- ===== SLIDE 02 — 你今天會帶走什麼 ===== -->
+  <section class="slide slide-light" id="slide-2">
+    <div style="margin-bottom: 12px;"><span class="badge">課程導覽</span></div>
+    <div class="slide-title">今天你帶走的三件事</div>
+    <div class="divider"></div>
+    <div class="grid-3" style="margin-top: 32px; height: 380px;">
+      <div class="card" style="display: flex; flex-direction: column; gap: 16px; justify-content: center;">
+        <div class="icon-circle" style="font-size: 26px;">🔑</div>
+        <div style="font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--ink);">毛利設計邏輯</div>
+        <div style="font-size: 14px; color: var(--slate); line-height: 1.7;">先懂這個，<br>才談得了</div>
+        <div class="tag tag-ember">Part 1 + 2</div>
+      </div>
+      <div class="card card-highlight" style="display: flex; flex-direction: column; gap: 16px; justify-content: center;">
+        <div class="icon-circle" style="font-size: 26px;">🧩</div>
+        <div style="font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--ink);">讓價條件表</div>
+        <div style="font-size: 14px; color: var(--slate); line-height: 1.7;">12 種換回條件，<br>讓步不失底氣</div>
+        <div class="tag tag-ember">Part 3</div>
+      </div>
+      <div class="card" style="display: flex; flex-direction: column; gap: 16px; justify-content: center;">
+        <div class="icon-circle" style="font-size: 26px;">🎯</div>
+        <div style="font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--ink);">方案升級架構</div>
+        <div style="font-size: 14px; color: var(--slate); line-height: 1.7;">讓客戶自己<br>選貴的</div>
+        <div class="tag tag-ember">Part 4</div>
+      </div>
+    </div>
+    <div class="slide-number">02 / 22</div>
+  </section>
+
+  <!-- ===== SLIDE 03 — 破框開場 ===== -->
+  <section class="slide slide-dark" id="slide-3">
+    <div class="ember-bar-left"></div>
+    <div class="center full-height" style="padding-left: 20px;">
+      <div style="margin-bottom: 24px;"><span class="badge">破框開場</span></div>
+      <div style="font-family: 'Cormorant Garamond', serif; font-size: 54px; font-weight: 600; color: #F0EEE8; line-height: 1.2; text-align: center; margin-bottom: 28px;">
+        你有沒有遇過這個？
+      </div>
+      <div style="font-family: 'Cormorant Garamond', serif; font-size: 44px; font-weight: 600; color: var(--ember); line-height: 1.25; text-align: center; margin-bottom: 36px;">
+        「降價之後，<br>反而賣更差？」
+      </div>
+      <div style="font-size: 16px; color: rgba(255,255,255,0.38); text-align: center; font-style: italic;">
+        或是簽了單，卻不知道自己到底賺了什麼？
+      </div>
+    </div>
+    <div class="slide-number">03 / 22</div>
+  </section>
+
+  <!-- ===== SLIDE 04 — 便宜的詛咒 ===== -->
+  <section class="slide slide-light" id="slide-4">
+    <div style="margin-bottom: 10px;"><span class="badge">核心概念</span></div>
+    <div class="slide-title">便宜的詛咒</div>
+    <div class="divider"></div>
+    <div class="flex-col" style="margin-top: 20px; gap: 14px;">
+      <div class="compare-row">
+        <div class="compare-left">
+          <div class="compare-label">你以為</div>
+          便宜 = 容易成交
+        </div>
+        <div class="compare-right">
+          <div class="compare-label">客戶眼中</div>
+          便宜 = 我不確定品質
+        </div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-left">
+          <div class="compare-label">你以為</div>
+          讓利 = 展現誠意
+        </div>
+        <div class="compare-right">
+          <div class="compare-label">客戶眼中</div>
+          讓利 = 這東西本來就沒那麼值
+        </div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-left">
+          <div class="compare-label">你以為</div>
+          低價競爭 = 贏得市場
+        </div>
+        <div class="compare-right">
+          <div class="compare-label">客戶眼中</div>
+          跟別人沒差別，繼續比較
+        </div>
+      </div>
+    </div>
+    <div style="margin-top: 28px; padding: 18px 28px; background: rgba(196,80,42,0.07); border-left: 4px solid var(--ember); border-radius: 0 8px 8px 0;">
+      <span style="font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--ember);">客戶不是買便宜，是買值得。</span>
+    </div>
+    <div class="slide-number">04 / 22</div>
+  </section>
+
+  <!-- ===== SLIDE 05 — 真正的問題 ===== -->
+  <section class="slide slide-dark" id="slide-5">
+    <div class="center full-height">
+      <div style="font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 600; color: rgba(255,255,255,0.85); line-height: 1.25; text-align: center; margin-bottom: 16px;">
+        問題不是你的價格高不高
+      </div>
+      <div style="font-family: 'Cormorant Garamond', serif; font-size: 52px; font-weight: 600; color: var(--ember); line-height: 1.2; text-align: center; margin-bottom: 48px;">
+        而是客戶感知到的<br>價值夠不夠
+      </div>
+      <div style="padding: 20px 40px; background: var(--surface); border-radius: 10px; border: 1px solid var(--border-dark);">
+        <div class="flow-chain" style="justify-content: center; gap: 12px;">
+          <div style="text-align: center; padding: 10px 16px; background: rgba(196,80,42,0.15); border-radius: 8px; font-size: 14px; color: rgba(255,255,255,0.75);">毛利設計</div>
+          <div class="flow-arrow">→</div>
+          <div style="text-align: center; padding: 10px 16px; background: rgba(42,122,110,0.15); border-radius: 8px; font-size: 14px; color: rgba(255,255,255,0.75);">商務槓桿</div>
+          <div class="flow-arrow">→</div>
+          <div style="text-align: center; padding: 10px 16px; background: rgba(184,146,58,0.15); border-radius: 8px; font-size: 14px; color: rgba(255,255,255,0.75);">讓價設計</div>
+          <div class="flow-arrow">→</div>
+          <div style="text-align: center; padding: 10px 16px; background: rgba(196,80,42,0.15); border-radius: 8px; font-size: 14px; color: rgba(255,255,255,0.75);">體驗包裝</div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">05 / 22</div>
+  </section>
+
+  <!-- ===== SLIDE 06 — 毛利設計先行 ===== -->
+  <section class="slide slide-light" id="slide-6">
+    <div class="part-label">
+      <div class="part-num">1</div>
+      <div class="part-text">Part One</div>
+    </div>
+    <div class="slide-title">毛利設計先行</div>
+    <div style="font-size: 16px; color: var(--ember); font-weight: 500; margin-bottom: 32px;">談判桌上的底氣，來自這裡</div>
+    <div class="grid-2" style="gap: 24px; margin-bottom: 28px;">
+      <div class="card" style="border-left: 4px solid var(--teal);">
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--teal); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px;">✓ 毛利夠高</div>
+        <div style="font-size: 22px; font-weight: 600; color: var(--ink); margin-bottom: 8px;">讓你有空間</div>
+        <div style="font-size: 14px; color: var(--slate); line-height: 1.7;">設計讓價策略，每個讓步都有籌碼可以換</div>
+      </div>
+      <div class="card" style="border-left: 4px solid var(--ember);">
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ember); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px;">✗ 毛利不夠</div>
+        <div style="font-size: 22px; font-weight: 600; color: var(--ink); margin-bottom: 8px;">每一刀都在割肉</div>
+        <div style="font-size: 14px; color: var(--slate); line-height: 1.7;">根本沒得談，降了只是虧，不降就失單</div>
+      </div>
+    </div>
+    <div style="padding: 18px 24px; background: rgba(196,80,42,0.06); border-radius: 8px; font-size: 15px; color: var(--slate);">
+      ➜ 所以第一步，是<strong style="color: var(--ember);">重新設計你的產品組合</strong>，讓毛利空間留出來
+    </div>
+    <div class="slide-number">06 / 22</div>
+  </section>
+
+  <!-- ===== SLIDE 07 — 商務槓桿組合 ===== -->
+  <section class="slide slide-light" id="slide-7">
+    <div style="margin-bottom: 10px;"><span class="badge">工具庫</span></div>
+    <div class="slide-title">5 種槓桿，重新包裝產品</div>
+    <div class="divider"></div>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 24px; grid-template-rows: auto auto;">
+      <div class="card" style="padding: 18px 20px;">
+        <div style="color: var(--ember); font-size: 18px; margin-bottom: 8px;">⊕</div>
+        <div style="font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 6px;">捆綁槓桿</div>
+        <div style="font-size: 13px; color: var(--slate); line-height: 1.65;">把邊際成本 ≈ 0 的服務包進去：顧問費 + 系統授權 + 群組答疑</div>
+      </div>
+      <div class="card" style="padding: 18px 20px;">
+        <div style="color: var(--teal); font-size: 18px; margin-bottom: 8px;">⇄</div>
+        <div style="font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 6px;">渠道槓桿</div>
+        <div style="font-size: 13px; color: var(--slate); line-height: 1.65;">合作方預售，給渠道折扣、對終端維持正價</div>
+      </div>
+      <div class="card" style="padding: 18px 20px;">
+        <div style="color: var(--gold); font-size: 18px; margin-bottom: 8px;">⏱</div>
+        <div style="font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 6px;">時間槓桿</div>
+        <div style="font-size: 13px; color: var(--slate); line-height: 1.65;">年約 vs 月付，收到現金 = 投資下一個客戶</div>
+      </div>
+      <div class="card" style="padding: 18px 20px; grid-column: 1;">
+        <div style="color: var(--ember); font-size: 18px; margin-bottom: 8px;">★</div>
+        <div style="font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 6px;">背書槓桿</div>
+        <div style="font-size: 13px; color: var(--slate); line-height: 1.65;">用標竿客戶名字換低價 → 下一個客戶全面拉高</div>
+      </div>
+      <div class="card" style="padding: 18px 20px; grid-column: 2 / 4;">
+        <div style="color: var(--teal); font-size: 18px; margin-bottom: 8px;">◈</div>
+        <div style="font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 6px;">體驗槓桿</div>
+        <div style="font-size: 13px; color: var(--slate); line-height: 1.65;">儀式感 + 獨特性 → 感知價值 > 實際成本。讓客戶覺得「這不是普通服務」</div>
+      </div>
+    </div>
+    <div class="slide-number">07 / 22</div>
+  </section>
+
+  <!-- ===== SLIDE 08 — 體驗大於成本 ===== -->
+  <section class="slide slide-dark" id="slide-8">
+    <div class="ember-bar-left"></div>
+    <div style="padding-left: 20px;">
+      <div style="margin-bottom: 12px;"><span class="badge">體驗設計</span></div>
+      <div class="slide-title white" style="margin-bottom: 28px;">讓客戶覺得「值」，不靠降價靠設計</div>
+      <div class="flex-row" style="gap: 32px;">
+        <div class="flex-col" style="flex: 1.4; gap: 14px;">
+          <div style="display: flex; align-items: flex-start; gap: 14px; padding: 14px 18px; background: var(--surface); border-radius: 8px; border: 1px solid var(--border-dark);">
+            <span style="color: var(--ember); font-size: 16px; margin-top: 2px;">●</span>
+            <div style="font-size: 14px; color: rgba(255,255,255,0.72); line-height: 1.7;">報告做成互動 HTML，不是 Word 檔</div>
+          </div>
+          <div style="display: flex; align-items: flex-start; gap: 14px; padding: 14px 18px; background: var(--surface); border-radius: 8px; border: 1px solid var(--border-dark);">
+            <span style="color: var(--ember); font-size: 16px; margin-top: 2px;">●</span>
+            <div style="font-size: 14px; color: rgba(255,255,255,0.72); line-height: 1.7;">開場是「你的問題診斷」，不是「我們公司介紹」</div>
+          </div>
+          <div style="display: flex; align-items: flex-start; gap: 14px; padding: 14px 18px; background: var(--surface); border-radius: 8px; border: 1px solid var(--border-dark);">
+            <span style="color: var(--ember); font-size: 16px; margin-top: 2px;">●</span>
+            <div style="font-size: 14px; color: rgba(255,255,255,0.72); line-height: 1.7;">結尾留一個「只有顧問才會說的風險提醒」</div>
+          </div>
+          <div style="display: flex; align-items: flex-start; gap: 14px; padding: 14px 18px; background: var(--surface); border-radius: 8px; border: 1px solid var(--border-dark);">
+            <span style="color: var(--ember); font-size: 16px; margin-top: 2px;">●</span>
+            <div style="font-size: 14px; color: rgba(255,255,255,0.72); line-height: 1.7;">用品牌視覺系統，讓對方覺得「這不是路邊買的」</div>
+          </div>
+        </div>
+        <div style="flex: 1; display: flex; align-items: center;">
+          <div style="padding: 28px; background: rgba(196,80,42,0.12); border: 2px solid rgba(196,80,42,0.3); border-radius: 12px; font-size: 15px; color: rgba(255,255,255,0.75); line-height: 1.8; font-style: italic;">
+            「這就是為什麼包裝和過程的設計，<br>比成本更重要。」
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">08 / 22</div>
+  </section>
+
+  <!-- ===== SLIDE 09 — 定價三錨 ===== -->
+  <section class="slide slide-light" id="slide-9">
+    <div class="part-label">
+      <div class="part-num">2</div>
+      <div class="part-text">Part Two · 工具一</div>
+    </div>
+    <div class="slide-title">定價三錨</div>
+    <div style="font-size: 15px; color: var(--ember); font-weight: 500; margin-bottom: 8px;">工具一：錨點設計</div>
+    <div style="font-size: 14px; color: var(--slate); margin-bottom: 24px;">永遠先報旗艦版，讓標準版顯得合理</div>
+    <div class="flex-row" style="gap: 20px;">
+      <div class="card" style="opacity: 0.75; text-align: center; padding: 28px 20px;">
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--mist); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px;">旗艦版</div>
+        <div style="font-size: 32px; font-weight: 600; color: var(--mist); margin-bottom: 8px;">？？？</div>
+        <div style="font-size: 13px; color: var(--mist); line-height: 1.65;">讓這個看起來很貴<br>設定心理錨點</div>
+      </div>
+      <div class="card card-highlight" style="text-align: center; padding: 28px 20px; transform: scale(1.04);">
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ember); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px;">★ 標準版（主推）</div>
+        <div style="font-size: 28px; font-weight: 600; color: var(--ember); margin-bottom: 8px;">黃金甜蜜點</div>
+        <div style="font-size: 13px; color: var(--slate); line-height: 1.65;">比旗艦版合理<br>比基礎版豐富</div>
+      </div>
+      <div class="card" style="opacity: 0.65; text-align: center; padding: 28px 20px;">
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--mist); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px;">基礎版</div>
+        <div style="font-size: 28px; font-weight: 600; color: var(--mist); margin-bottom: 8px;">少了什麼</div>
+        <div style="font-size: 13px; color: var(--mist); line-height: 1.65;">讓客戶覺得<br>不夠用</div>
+      </div>
+    </div>
+    <div style="margin-top: 20px; padding: 14px 22px; background: rgba(196,80,42,0.06); border-radius: 8px; font-size: 14px; color: var(--slate); border-left: 3px solid var(--ember);">
+      你不是在賣三個方案，你是用兩側讓中間看起來<strong style="color: var(--ember);">剛剛好</strong>
+    </div>
+    <div class="slide-number">09 / 22</div>
+  </section>
+
+  <!-- ===== SLIDE 10 — 價值翻譯術 ===== -->
+  <section class="slide slide-light" id="slide-10">
+    <div style="margin-bottom: 10px;"><span class="badge">工具二</span></div>
+    <div class="slide-title">價值翻譯術</div>
+    <div class="divider"></div>
+    <div style="margin-top: 20px; margin-bottom: 24px; font-size: 17px; color: var(--slate);">
+      客戶買的不是服務本身，是：<strong style="color: var(--ink);">結果</strong> + <strong style="color: var(--ember);">消除恐懼</strong>
+    </div>
+    <div class="mono-box" style="margin-bottom: 24px; font-size: 15px;">
+      「這個費用，幫你解決的是 <span style="color: var(--ember);">___</span>，省掉的是 <span style="color: var(--teal);">___</span>」
+    </div>
+    <div class="flex-col" style="gap: 16px;">
+      <div class="card" style="padding: 18px 22px;">
+        <div style="display: flex; gap: 20px; align-items: center;">
+          <div style="flex: 1;">
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--mist); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;">✗ 舊說法</div>
+            <div style="font-size: 15px; color: var(--mist); text-decoration: line-through;">顧問費 10 萬</div>
+          </div>
+          <div style="color: var(--ember); font-size: 20px;">→</div>
+          <div style="flex: 2;">
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--teal); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;">✓ 價值語言</div>
+            <div style="font-size: 14px; color: var(--ink); line-height: 1.65;">幫你解決招聘卡點，省掉 3 個月徵才成本（約 <strong style="color: var(--ember);">15 萬</strong>）</div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="padding: 18px 22px;">
+        <div style="display: flex; gap: 20px; align-items: center;">
+          <div style="flex: 1;">
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--mist); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;">✗ 舊說法</div>
+            <div style="font-size: 15px; color: var(--mist); text-decoration: line-through;">系統建置費</div>
+          </div>
+          <div style="color: var(--ember); font-size: 20px;">→</div>
+          <div style="flex: 2;">
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--teal); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;">✓ 價值語言</div>
+            <div style="font-size: 14px; color: var(--ink); line-height: 1.65;">幫你省掉 1 個全職人力每週 <strong style="color: var(--ember);">10 小時</strong>的重複作業</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">10 / 22</div>
+  </section>
+
+  <!-- ===== SLIDE 11 — 稀缺與框架切換 ===== -->
+  <section class="slide slide-dark" id="slide-11">
+    <div class="ember-bar-left"></div>
+    <div style="padding-left: 20px;">
+      <div style="margin-bottom: 12px;"><span class="badge">工具三</span></div>
+      <div class="slide-title white" style="margin-bottom: 28px;">稀缺 + 框架切換</div>
+      <div class="grid-2" style="gap: 16px; margin-bottom: 28px;">
+        <div class="card-dark" style="padding: 20px 22px;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--mist); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 14px;">框架切換</div>
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <div style="flex: 1; font-size: 14px; color: rgba(255,255,255,0.4); text-decoration: line-through;">我的報價是…</div>
+              <div style="color: var(--ember);">→</div>
+              <div style="flex: 1; font-size: 14px; color: var(--ember-light); font-weight: 600;">你的 ROI 是…</div>
+            </div>
+            <div style="height: 1px; background: var(--border-dark);"></div>
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <div style="flex: 1; font-size: 14px; color: rgba(255,255,255,0.4); text-decoration: line-through;">這個服務包含…</div>
+              <div style="color: var(--ember);">→</div>
+              <div style="flex: 1; font-size: 14px; color: var(--ember-light); font-weight: 600;">幫你避免的風險是…</div>
+            </div>
+          </div>
+        </div>
+        <div class="card-dark" style="padding: 20px 22px;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--mist); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 14px;">稀缺設計</div>
+          <div class="flex-col" style="gap: 10px;">
+            <div style="font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.6; padding: 8px 14px; background: rgba(196,80,42,0.1); border-radius: 6px;">
+              <span style="color: var(--ember);">◈</span> 名額限制：「這個月只接 3 個新客戶」
+            </div>
+            <div style="font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.6; padding: 8px 14px; background: rgba(184,146,58,0.1); border-radius: 6px;">
+              <span style="color: var(--gold);">◈</span> 時間條件：「這個優惠方案只到本週五」
+            </div>
+            <div style="font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.6; padding: 8px 14px; background: rgba(42,122,110,0.1); border-radius: 6px;">
+              <span style="color: var(--teal);">◈</span> 服務條件：「這個費率是早鳥合作價」
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">11 / 22</div>
+  </section>
+
+  <!-- ===== SLIDE 12 — 讓價的藝術 ===== -->
+  <section class="slide slide-light" id="slide-12">
+    <div class="part-label">
+      <div class="part-num">3</div>
+      <div class="part-text">Part Three</div>
+    </div>
+    <div class="slide-title">讓價的藝術</div>
+    <div style="font-size: 22px; font-weight: 600; color: var(--ember); margin-bottom: 32px;">每次讓價，必須換回等值條件</div>
+    <div class="flex-col" style="gap: 18px;">
+      <div class="card" style="padding: 20px 24px; display: flex; align-items: center; gap: 24px;">
+        <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(196,80,42,0.1); display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--ember); flex-shrink: 0;">1</div>
+        <div>
+          <div style="font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 4px;">幅度遞減</div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; padding: 4px 10px; background: rgba(196,80,42,0.1); border-radius: 6px; color: var(--ember);">第一次 10%</span>
+            <span style="color: var(--mist);">→</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; padding: 4px 10px; background: rgba(196,80,42,0.07); border-radius: 6px; color: var(--ember-dark);">第二次 5%</span>
+            <span style="color: var(--mist);">→</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; padding: 4px 10px; background: rgba(196,80,42,0.04); border-radius: 6px; color: var(--mist);">第三次 2%</span>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="padding: 20px 24px; display: flex; align-items: center; gap: 24px;">
+        <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(42,122,110,0.1); display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--teal); flex-shrink: 0;">2</div>
+        <div>
+          <div style="font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 4px;">換回條件</div>
+          <div style="font-size: 14px; color: var(--slate);">讓步不是單方向，必須換回：付款期 · 範疇 · 合約長度</div>
+        </div>
+      </div>
+      <div class="card" style="padding: 20px 24px; display: flex; align-items: center; gap: 24px;">
+        <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(184,146,58,0.1); display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--gold); flex-shrink: 0;">3</div>
+        <div>
+          <div style="font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 4px;">讓對方先出數</div>
+          <div style="font-size: 14px; color: var(--slate);">永遠不要先說你能讓多少——先問對方心裡的數字是多少</div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">12 / 22</div>
+  </section>
+
+  <!-- ===== SLIDE 13 — 讓價條件表 A ===== -->
+  <section class="slide slide-light" id="slide-13">
+    <div style="margin-bottom: 10px;"><span class="badge">讓價工具</span></div>
+    <div class="slide-title">12 種可設計的讓價條件（A + B 類）</div>
+    <div class="divider"></div>
+    <div class="grid-2" style="gap: 24px; margin-top: 20px;">
+      <div class="card" style="padding: 20px;">
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--teal); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 14px;">A 類｜現金流條件</div>
+        <table class="data-table" style="font-size: 13px;">
+          <thead>
+            <tr>
+              <th style="width: 30%;">你讓</th>
+              <th style="width: 30%;">你換</th>
+              <th>話術</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong style="color: var(--ember);">費用降 10%</strong></td>
+              <td>今天簽、下週付清</td>
+              <td style="color: var(--slate); font-style: italic; font-size: 12px;">「可以，但合約今天簽、款項下週五前入帳」</td>
+            </tr>
+            <tr>
+              <td><strong style="color: var(--ember);">費用降 15%</strong></td>
+              <td>年繳</td>
+              <td style="color: var(--slate); font-style: italic; font-size: 12px;">「年約的話給年繳優惠，月繳是原價」</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card" style="padding: 20px;">
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--gold); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 14px;">B 類｜規模條件</div>
+        <table class="data-table" style="font-size: 13px;">
+          <thead>
+            <tr>
+              <th style="width: 30%;">你讓</th>
+              <th style="width: 30%;">你換</th>
+              <th>話術</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong style="color: var(--ember);">優惠價</strong></td>
+              <td>簽 3 個月以上</td>
+              <td style="color: var(--slate); font-style: italic; font-size: 12px;">「這個價是因為你承諾 3 個月合作」</td>
+            </tr>
+            <tr>
+              <td><strong style="color: var(--ember);">集團優惠</strong></td>
+              <td>帶進集團其他公司</td>
+              <td style="color: var(--slate); font-style: italic; font-size: 12px;">「前提是幫我介紹旗下 HR 需求」</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="slide-number">13 / 22</div>
+  </section>
+
+  <!-- ===== SLIDE 14 — 讓價條件表 B ===== -->
+  <section class="slide slide-light" id="slide-14">
+    <div style="margin-bottom: 10px;"><span class="badge">讓價工具</span></div>
+    <div class="slide-title">12 種可設計的讓價條件（C + D + E 類）</div>
+    <div class="divider"></div>
+    <div class="grid-3" style="gap: 18px; margin-top: 20px;">
+      <div class="card" style="padding: 18px;">
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ember); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px;">C 類｜背書條件</div>
+        <div class="flex-col" style="gap: 8px;">
+          <div style="font-size: 13px; color: var(--slate); padding: 8px 12px; background: rgba(196,80,42,0.05); border-radius: 6px; line-height: 1.6;">費用降 → 授權用他們的名字做案例</div>
+          <div style="font-size: 13px; color: var(--slate); padding: 8px 12px; background: rgba(196,80,42,0.05); border-radius: 6px; line-height: 1.6;">費用降 → 錄一段 30 秒見證影片</div>
+          <div style="font-size: 13px; color: var(--slate); padding: 8px 12px; background: rgba(196,80,42,0.05); border-radius: 6px; line-height: 1.6;">費用降 → 在他們的客戶群做一次分享</div>
+        </div>
+      </div>
+      <div class="card" style="padding: 18px;">
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--teal); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px;">D 類｜範疇條件</div>
+        <div class="flex-col" style="gap: 8px;">
+          <div style="font-size: 13px; color: var(--slate); padding: 8px 12px; background: rgba(42,122,110,0.05); border-radius: 6px; line-height: 1.6;">費用降 → 縮減服務範圍（不含週 check-in）</div>
+          <div style="font-size: 13px; color: var(--slate); padding: 8px 12px; background: rgba(42,122,110,0.05); border-radius: 6px; line-height: 1.6;">費用降 → 延長交付時間（排在優先客戶後）</div>
+        </div>
+        <div style="margin-top: 12px; font-size: 12px; color: var(--mist); font-style: italic; line-height: 1.6;">降低價格的同時也降低成本投入</div>
+      </div>
+      <div class="card" style="padding: 18px;">
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--gold); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px;">E 類｜資訊條件 ★</div>
+        <div style="font-size: 12px; color: var(--mist); margin-bottom: 10px; font-style: italic;">最常被忽略的一類</div>
+        <div class="flex-col" style="gap: 8px;">
+          <div style="font-size: 13px; color: var(--slate); padding: 8px 12px; background: rgba(184,146,58,0.07); border-radius: 6px; line-height: 1.6;">費用降 → 讓你深入了解內部數據</div>
+          <div style="font-size: 13px; color: var(--slate); padding: 8px 12px; background: rgba(184,146,58,0.07); border-radius: 6px; line-height: 1.6;">費用降 → 引薦 3 個同等級客戶</div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">14 / 22</div>
+  </section>
+
+  <!-- ===== SLIDE 15 — 談判話術即時卡 ===== -->
+  <section class="slide slide-dark" id="slide-15">
+    <div class="ember-bar-left"></div>
+    <div style="padding-left: 20px;">
+      <div style="margin-bottom: 14px;"><span class="badge">話術速查</span></div>
+      <div class="slide-title white" style="margin-bottom: 28px;">客戶這樣說，你這樣接</div>
+      <div class="grid-3" style="gap: 18px;">
+        <div class="card-dark" style="padding: 22px;">
+          <div class="qa-q">「能不能便宜一點？」</div>
+          <div class="qa-bad">好啊，打九折</div>
+          <div class="qa-good">「可以，但這樣我要調整服務內容…你現在最需要保留的部分是哪個？」</div>
+        </div>
+        <div class="card-dark" style="padding: 22px;">
+          <div class="qa-q">「我再考慮一下」</div>
+          <div class="qa-bad">好的，你慢慢考慮</div>
+          <div class="qa-good">「你現在最大的考慮點是什麼？」</div>
+        </div>
+        <div class="card-dark" style="padding: 22px;">
+          <div class="qa-q">「別人比你便宜」</div>
+          <div class="qa-bad">那我再降一點</div>
+          <div class="qa-good">「他們用的是＿＿方式，我們的差別在＿＿，這個差別對你來說值不值得？」</div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">15 / 22</div>
+  </section>
+
+  <!-- ===== SLIDE 16 — 方案升級架構 ===== -->
+  <section class="slide slide-light" id="slide-16">
+    <div class="part-label">
+      <div class="part-num">4</div>
+      <div class="part-text">Part Four</div>
+    </div>
+    <div class="slide-title">讓客戶自己選貴的</div>
+    <div style="font-size: 15px; color: var(--slate); margin-bottom: 28px;">POWER PACKAGE 三層架構</div>
+    <div class="pyramid-steps" style="max-width: 680px; margin: 0 auto;">
+      <div class="pyramid-step" style="background: rgba(198,198,208,0.15); border: 1px solid var(--border);">
+        <div>
+          <div style="font-size: 15px; font-weight: 600; color: var(--slate);">基礎版</div>
+          <div style="font-size: 13px; color: var(--mist); margin-top: 4px;">讓他覺得不夠用，缺少關鍵功能</div>
+        </div>
+        <span class="tag tag-teal" style="font-size: 11px; opacity: 0.7;">入門</span>
+      </div>
+      <div class="pyramid-arrow-down">↓</div>
+      <div class="pyramid-step card-highlight" style="border: 2px solid var(--ember); padding: 18px 24px;">
+        <div>
+          <div style="font-size: 17px; font-weight: 600; color: var(--ember);">★ 標準版（主推）</div>
+          <div style="font-size: 13px; color: var(--slate); margin-top: 4px;">黃金甜蜜點，客戶最可能選的版本</div>
+        </div>
+        <span class="tag tag-ember">推薦</span>
+      </div>
+      <div class="pyramid-arrow-down">↓</div>
+      <div class="pyramid-step" style="background: rgba(184,146,58,0.08); border: 1px solid rgba(184,146,58,0.3);">
+        <div>
+          <div style="font-size: 15px; font-weight: 600; color: var(--gold);">尊享版</div>
+          <div style="font-size: 13px; color: var(--slate); margin-top: 4px;">「只差一點點，但多了很多」——升級誘惑</div>
+        </div>
+        <span class="tag tag-gold">Premium</span>
+      </div>
+    </div>
+    <div style="margin-top: 20px; font-size: 13px; color: var(--mist); text-align: center; font-style: italic;">讓「升級」看起來值，讓「基礎」看起來委屈</div>
+    <div class="slide-number">16 / 22</div>
+  </section>
+
+  <!-- ===== SLIDE 17 — 方案升級話術 ===== -->
+  <section class="slide slide-dark" id="slide-17">
+    <div class="center full-height">
+      <div style="margin-bottom: 20px;"><span class="badge">升級話術</span></div>
+      <div class="slide-title white" style="margin-bottom: 32px; text-align: center;">升級的魔法話術</div>
+      <div style="max-width: 780px; padding: 36px 44px; background: var(--surface); border: 2px solid rgba(196,80,42,0.3); border-radius: 14px; text-align: center; line-height: 2.2;">
+        <span style="font-size: 17px; color: rgba(255,255,255,0.7);">「大部分像你這樣的客戶，</span>
+        <br>
+        <span style="font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 600; color: #F0EEE8;">最後都選標準版，</span>
+        <br>
+        <span style="font-size: 17px; color: rgba(255,255,255,0.7);">但如果你們有</span><span style="color: var(--ember); font-weight: 600;">＿＿</span><span style="font-size: 17px; color: rgba(255,255,255,0.7);">需求，</span>
+        <br>
+        <span style="font-size: 17px; color: rgba(255,255,255,0.7);">升級版只多</span><span style="color: var(--gold); font-weight: 600;">＿＿</span><span style="font-size: 17px; color: rgba(255,255,255,0.7);">，</span>
+        <br>
+        <span style="font-size: 17px; color: rgba(255,255,255,0.7);">你可以多</span><span style="color: var(--teal); font-weight: 600;">＿＿</span><span style="font-size: 17px; color: rgba(255,255,255,0.7);">，這樣划算很多。」</span>
+      </div>
+      <div style="margin-top: 28px; font-size: 15px; color: rgba(255,255,255,0.4); font-style: italic;">不是推銷，是幫客戶做更好的決定</div>
+    </div>
+    <div class="slide-number">17 / 22</div>
+  </section>
+
+  <!-- ===== SLIDE 18 — 今天學的完整邏輯 ===== -->
+  <section class="slide slide-light" id="slide-18">
+    <div style="margin-bottom: 10px;"><span class="badge">總複習</span></div>
+    <div class="slide-title">串起來看</div>
+    <div class="divider"></div>
+    <div style="margin-top: 32px;">
+      <div class="flow-chain" style="justify-content: center; gap: 0;">
+        <div class="flow-node card" style="text-align: center; padding: 22px 16px; flex: 1; margin: 0 4px;">
+          <div style="font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 600; color: var(--ink); margin-bottom: 8px;">毛利設計</div>
+          <div style="font-size: 12px; color: var(--slate); line-height: 1.6;">談判前的底氣來源</div>
+        </div>
+        <div class="flow-arrow" style="padding: 0 4px;">→</div>
+        <div class="flow-node card" style="text-align: center; padding: 22px 16px; flex: 1; margin: 0 4px;">
+          <div style="font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 600; color: var(--ink); margin-bottom: 8px;">商務槓桿</div>
+          <div style="font-size: 12px; color: var(--slate); line-height: 1.6;">5 種方式包裝產品</div>
+        </div>
+        <div class="flow-arrow" style="padding: 0 4px;">→</div>
+        <div class="flow-node card card-highlight" style="text-align: center; padding: 22px 16px; flex: 1; margin: 0 4px;">
+          <div style="font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 600; color: var(--ember); margin-bottom: 8px;">定價三錨</div>
+          <div style="font-size: 12px; color: var(--slate); line-height: 1.6;">錨點 · 翻譯 · 稀缺</div>
+        </div>
+        <div class="flow-arrow" style="padding: 0 4px;">→</div>
+        <div class="flow-node card" style="text-align: center; padding: 22px 16px; flex: 1; margin: 0 4px;">
+          <div style="font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 600; color: var(--ink); margin-bottom: 8px;">讓價條件</div>
+          <div style="font-size: 12px; color: var(--slate); line-height: 1.6;">12 種換回策略</div>
+        </div>
+        <div class="flow-arrow" style="padding: 0 4px;">→</div>
+        <div class="flow-node card" style="text-align: center; padding: 22px 16px; flex: 1; margin: 0 4px;">
+          <div style="font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 600; color: var(--ink); margin-bottom: 8px;">方案升級</div>
+          <div style="font-size: 12px; color: var(--slate); line-height: 1.6;">讓客戶選貴的</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top: 36px; padding: 18px 28px; background: rgba(196,80,42,0.06); border-radius: 8px; text-align: center; font-size: 15px; color: var(--slate); border: 1px dashed rgba(196,80,42,0.25);">
+      這五步，<strong style="color: var(--ember);">缺一個都跑不完整</strong>——毛利是基礎，升級是槓桿
+    </div>
+    <div class="slide-number">18 / 22</div>
+  </section>
+
+  <!-- ===== SLIDE 19 — 現在，你的任務 ===== -->
+  <section class="slide slide-light" id="slide-19">
+    <div style="margin-bottom: 10px;"><span class="badge">行動承諾</span></div>
+    <div class="slide-title">帶走一個承諾</div>
+    <div class="divider"></div>
+    <div class="flex-col" style="gap: 24px; margin-top: 28px; max-width: 860px;">
+      <div>
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--ember); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px;">承諾 01</div>
+        <div class="fill-box">
+          我的三個方案重新命名為：<span>＿＿＿＿</span>、<span>＿＿＿＿</span>、<span>＿＿＿＿</span>
+          <br>
+          <span style="font-size: 12px; color: var(--mist); font-style: italic; font-family: sans-serif;">讓每個版本的名字本身就傳遞價值感</span>
+        </div>
+      </div>
+      <div>
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--teal); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px;">承諾 02</div>
+        <div class="fill-box">
+          下次客戶說「能不能便宜一點」，我的第一句是：
+          <br>
+          <span>＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿</span>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top: 28px; font-size: 14px; color: var(--mist); font-style: italic;">不需要很完美，需要今天就能用。</div>
+    <div class="slide-number">19 / 22</div>
+  </section>
+
+  <!-- ===== SLIDE 20 — 自省盲點 ===== -->
+  <section class="slide slide-dark" id="slide-20">
+    <div class="ember-bar-left"></div>
+    <div style="padding-left: 20px;">
+      <div style="margin-bottom: 14px;"><span class="badge">深度自省</span></div>
+      <div class="slide-title white" style="margin-bottom: 32px;">一個你可能不知道自己在做的事</div>
+      <div class="flex-col" style="gap: 16px; margin-bottom: 36px;">
+        <div style="display: flex; align-items: flex-start; gap: 16px; padding: 18px 22px; background: var(--surface); border-radius: 10px; border: 1px solid var(--border-dark);">
+          <span style="font-size: 20px; color: var(--ember); flex-shrink: 0; margin-top: 2px;">!</span>
+          <div style="font-size: 16px; color: rgba(255,255,255,0.75); line-height: 1.7;">你在保護自己不被拒絕，所以<strong style="color: rgba(255,255,255,0.9);">先把價格降下來</strong></div>
+        </div>
+        <div style="display: flex; align-items: flex-start; gap: 16px; padding: 18px 22px; background: var(--surface); border-radius: 10px; border: 1px solid var(--border-dark);">
+          <span style="font-size: 20px; color: var(--ember); flex-shrink: 0; margin-top: 2px;">!</span>
+          <div style="font-size: 16px; color: rgba(255,255,255,0.75); line-height: 1.7;">你在<strong style="color: rgba(255,255,255,0.9);">解釋自己的成本</strong>，但客戶不在乎你的成本</div>
+        </div>
+        <div style="display: flex; align-items: flex-start; gap: 16px; padding: 18px 22px; background: var(--surface); border-radius: 10px; border: 1px solid var(--border-dark);">
+          <span style="font-size: 20px; color: var(--ember); flex-shrink: 0; margin-top: 2px;">!</span>
+          <div style="font-size: 16px; color: rgba(255,255,255,0.75); line-height: 1.7;">你在等客戶問，而不是<strong style="color: rgba(255,255,255,0.9);">設計讓客戶願意付</strong></div>
+        </div>
+      </div>
+      <div style="padding: 18px 28px; background: rgba(184,146,58,0.1); border-radius: 10px; border: 1px solid rgba(184,146,58,0.3);">
+        <span style="font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--gold);">底氣，不是天生的。是練出來的。</span>
+      </div>
+    </div>
+    <div class="slide-number">20 / 22</div>
+  </section>
+
+  <!-- ===== SLIDE 21 — 下一步行動 ===== -->
+  <section class="slide slide-light" id="slide-21">
+    <div style="margin-bottom: 10px;"><span class="badge">立即行動</span></div>
+    <div class="slide-title">這週可以做的三件事</div>
+    <div class="divider"></div>
+    <div class="flex-col" style="gap: 18px; margin-top: 24px;">
+      <div class="num-card card" style="padding: 20px 24px;">
+        <div class="num-badge">1</div>
+        <div class="num-content">
+          <div class="num-title">重新設計三層方案</div>
+          <div class="num-desc">每層有明確的「讓它顯得值」的包裝——名稱、包含服務、描述語言全部重新設計</div>
+        </div>
+      </div>
+      <div class="num-card card" style="padding: 20px 24px;">
+        <div class="num-badge" style="background: var(--teal);">2</div>
+        <div class="num-content">
+          <div class="num-title">整理砍價場景話術表</div>
+          <div class="num-desc">列出你常遇到的砍價場景，為每一種寫好一句回應話術——不要臨場發揮</div>
+        </div>
+      </div>
+      <div class="num-card card" style="padding: 20px 24px;">
+        <div class="num-badge" style="background: var(--gold);">3</div>
+        <div class="num-content">
+          <div class="num-title">重新計算一個過去合作的毛利</div>
+          <div class="num-desc">用今天的框架重新算——你留下多少？有沒有用到任何槓桿？哪一個最值得放大？</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top: 20px; font-size: 13px; color: var(--mist); font-style: italic;">行動是最短的學習路徑</div>
+    <div class="slide-number">21 / 22</div>
+  </section>
+
+  <!-- ===== SLIDE 22 — 結尾封面 ===== -->
+  <section class="slide slide-dark" id="slide-22">
+    <div class="center full-height">
+      <div style="margin-bottom: 20px;">
+        <span class="museon-mark" style="font-size: 12px; padding: 5px 18px;">MUSEON</span>
+      </div>
+      <div style="font-family: 'Cormorant Garamond', serif; font-size: 56px; font-weight: 600; color: #F0EEE8; line-height: 1.2; text-align: center; margin-bottom: 16px;">
+        利潤力，從今天開始。
+      </div>
+      <div style="width: 60px; height: 3px; background: var(--ember); margin: 0 auto 32px;"></div>
+      <div style="font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 400; color: rgba(255,255,255,0.5); margin-bottom: 56px;">
+        問題？
+      </div>
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: rgba(255,255,255,0.25); text-align: center; line-height: 2.2; letter-spacing: 0.04em;">
+        Zeal / MUSEON AI 顧問系統<br>
+        「賺錢不是靠便宜，而是靠價值。」
+      </div>
+    </div>
+    <div class="slide-number">22 / 22</div>
+  </section>
+
+</div><!-- /slide-wrapper -->
+</div><!-- /slideshow -->
+
+<script>
+  const totalSlides = 22;
+  let currentSlide = 1;
+
+  function scaleSlides() {
+    const wrapper = document.getElementById('slide-wrapper');
+    const scaleX = window.innerWidth / 1280;
+    const scaleY = window.innerHeight / 720;
+    const scale = Math.min(scaleX, scaleY) * 0.97;
+    wrapper.style.transform = `scale(${scale})`;
+    wrapper.style.transformOrigin = 'center center';
+  }
+
+  function updateProgress() {
+    const pct = (currentSlide / totalSlides) * 100;
+    document.getElementById('progress-bar').style.width = pct + '%';
+  }
+
+  function goTo(n) {
+    if (n < 1 || n > totalSlides) return;
+    const prev = document.getElementById('slide-' + currentSlide);
+    if (prev) prev.classList.remove('active');
+    currentSlide = n;
+    const curr = document.getElementById('slide-' + currentSlide);
+    if (curr) curr.classList.add('active');
+    updateProgress();
+    document.getElementById('nav-prev').style.opacity = currentSlide === 1 ? '0.3' : '1';
+    document.getElementById('nav-next').style.opacity = currentSlide === totalSlides ? '0.3' : '1';
+  }
+
+  document.getElementById('nav-prev').addEventListener('click', () => goTo(currentSlide - 1));
+  document.getElementById('nav-next').addEventListener('click', () => goTo(currentSlide + 1));
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') goTo(currentSlide - 1);
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+      e.preventDefault();
+      goTo(currentSlide + 1);
+    }
+    if (e.key === 'Home') goTo(1);
+    if (e.key === 'End') goTo(totalSlides);
+  });
+
+  // Touch/swipe support
+  let touchStartX = 0;
+  document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+  document.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 50) {
+      if (dx < 0) goTo(currentSlide + 1);
+      else goTo(currentSlide - 1);
+    }
+  });
+
+  window.addEventListener('resize', scaleSlides);
+  scaleSlides();
+  goTo(1);
+</script>
+</body>
+</html>
