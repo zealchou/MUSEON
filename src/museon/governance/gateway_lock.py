@@ -1,10 +1,8 @@
 """Gateway Lock — 確保全局唯一的 Gateway 實例
 
-多層 Stale Detection：
-1. 端口探測 — 嘗試連接 127.0.0.1:8765，確認是否有監聽器
-2. PID 存活 — kill(pid, 0) + zombie 檢測
-3. 進程身份 — 驗證 PID 對應的命令行是否為 Gateway
-4. 時間戳過期 — 鎖文件超過 stale 閾值
+兩層 Stale Detection（簡化版）：
+1. PID 存活 — kill(pid, 0)；PID 不存在 → dead
+2. HTTP health probe — PID 存在但 health check 失敗 → dead（凍結進程亦視為 dead）
 
 參考 Openclaw gateway-lock.ts，適配為 Python + macOS 環境。
 
@@ -150,7 +148,7 @@ class GatewayLock:
                 owner_status = self._resolve_owner_status(last_payload)
 
                 if owner_status == "dead":
-                    # 持有者已死亡，清理 stale 鎖
+                    # 持有者已死亡（PID 不存在或 health probe 失敗），清理 stale 鎖
                     owner_pid = last_payload.pid if last_payload else "?"
                     logger.warning(
                         f"Stale gateway lock detected (owner pid={owner_pid}), "
@@ -159,16 +157,7 @@ class GatewayLock:
                     self._force_remove_lock()
                     continue  # 重試
 
-                elif owner_status == "unknown":
-                    # 狀態不明 — 檢查 stale 時間
-                    if self._is_stale(last_payload):
-                        logger.warning(
-                            f"Gateway lock stale for >{self.stale_s}s, removing..."
-                        )
-                        self._force_remove_lock()
-                        continue
-
-                # 持有者還活著，或狀態不明且未過期 — 等待
+                # 持有者還活著（PID 存活且 health check 通過）— 等待
                 time.sleep(DEFAULT_POLL_INTERVAL_S)
 
             except OSError as e:
@@ -223,73 +212,45 @@ class GatewayLock:
     ) -> str:
         """解析鎖持有者的狀態。
 
-        漸進式檢測（保守策略 — 寧可誤判為 alive 也不誤殺）：
-        1. PID 存活檢測 — 如果 PID 已死，直接判死
-        2. 進程身份驗證 — 如果 PID 復用給其他進程，判死
-        3. 端口探測 — 輔助判斷（端口空閒 + PID 非 gateway = dead）
+        兩層檢測（積極策略 — 凍結進程視為 dead，避免死鎖）：
+        1. PID 存活檢測 — 如果 PID 不存在 → dead
+        2. HTTP health probe — 如果 PID 存在但 health check 失敗 → dead
 
         Returns:
-            "alive" | "dead" | "unknown"
+            "alive" | "dead"
         """
         if payload is None:
-            return "unknown"
+            return "dead"
 
         owner_pid = payload.pid
 
-        # Layer 1: PID 存活檢測（最基礎的判斷）
+        # Layer 1: PID 存活檢測
         if not is_pid_alive(owner_pid):
             logger.debug(f"PID {owner_pid} is not alive — owner is dead")
             return "dead"
 
-        # Layer 2: 進程啟動時間驗證（防止 PID 複用）
-        if payload.start_time is not None:
-            from .pid_alive import get_process_start_time
-
-            current_start_time = get_process_start_time(owner_pid)
-            if current_start_time is not None:
-                # 允許 2 秒的精度誤差
-                if abs(current_start_time - payload.start_time) > 2.0:
-                    logger.debug(
-                        f"PID {owner_pid} start time mismatch "
-                        f"(lock={payload.start_time}, "
-                        f"current={current_start_time}) — PID reused"
+        # Layer 2: HTTP health probe — PID 存在但無回應（卡死/凍結）視為 dead
+        try:
+            with socket.create_connection(
+                ("127.0.0.1", payload.port), timeout=PORT_PROBE_TIMEOUT_S
+            ) as s:
+                s.sendall(b"GET /health HTTP/1.0\r\nHost: localhost\r\n\r\n")
+                s.settimeout(3.0)
+                resp = s.recv(256).decode("utf-8", errors="replace")
+                if "200" not in resp:
+                    logger.warning(
+                        f"PID {owner_pid} port {payload.port} open but "
+                        f"health check failed — treating as dead"
                     )
                     return "dead"
-
-        # Layer 3: 端口 + 進程身份組合判斷
-        # 端口空閒 + PID 不是 gateway 進程 = 大概率已死
-        port_free = self._is_port_free(payload.port)
-        if port_free and not is_gateway_process(owner_pid):
-            logger.debug(
-                f"Port {payload.port} free AND PID {owner_pid} is not "
-                f"a gateway process — owner is dead"
+        except (OSError, UnicodeDecodeError):
+            logger.warning(
+                f"PID {owner_pid} port {payload.port} health probe "
+                f"failed — treating as dead"
             )
             return "dead"
 
-        # Layer 4: HTTP health probe — PID 活著且端口在用，
-        # 但如果 health check 失敗（卡住、死鎖），視為 stuck
-        if not port_free:
-            try:
-                with socket.create_connection(
-                    ("127.0.0.1", payload.port), timeout=PORT_PROBE_TIMEOUT_S
-                ) as s:
-                    s.sendall(b"GET /health HTTP/1.0\r\nHost: localhost\r\n\r\n")
-                    s.settimeout(3.0)
-                    resp = s.recv(256).decode("utf-8", errors="replace")
-                    if "200" not in resp:
-                        logger.warning(
-                            f"PID {owner_pid} port {payload.port} open but "
-                            f"health check failed — owner may be stuck"
-                        )
-                        return "unknown"  # 讓 stale timeout 接手判斷
-            except (OSError, UnicodeDecodeError):
-                logger.warning(
-                    f"PID {owner_pid} port {payload.port} health probe "
-                    f"failed — owner may be stuck"
-                )
-                return "unknown"
-
-        # PID 活著且要嘛端口在用、要嘛確實是 gateway 進程
+        # PID 活著且 health check 通過
         return "alive"
 
     # ─── Helpers ───

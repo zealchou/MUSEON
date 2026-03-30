@@ -2,7 +2,7 @@
 Telegram Message Pump — Telegram 訊息處理管線
 
 從 server.py 拆分出來的 Telegram 訊息接收、處理、回覆邏輯。
-包含：_progress_updater、_handle_telegram_message、_telegram_message_pump。
+包含：_handle_telegram_message、_telegram_message_pump。
 
 原檔案：server.py（705 行）
 """
@@ -12,32 +12,6 @@ import logging
 from datetime import datetime
 
 logger = logging.getLogger("museon.gateway.telegram_pump")
-
-# ═══════════════════════════════════════════
-# Brain 即時進度回報系統
-# ═══════════════════════════════════════════
-# Brain.process() 透過 metadata["_progress_cb"] 回報處理階段，
-# _progress_updater 讀取後即時編輯 Telegram 進度訊息（兩行格式）。
-
-_brain_progress: dict = {}  # {trace_id: {"stage": str, "detail": str, "ts": float}}
-
-
-def _make_progress_reporter(trace_id: str):
-    """建立 progress callback，Brain 每個 Step 呼叫一次."""
-    import time
-    def report(stage: str, detail: str = ""):
-        _brain_progress[trace_id] = {
-            "stage": stage,
-            "detail": detail,
-            "ts": time.time(),
-        }
-    return report
-
-
-def _cleanup_progress(trace_id: str):
-    """處理完成後清理 progress state."""
-    _brain_progress.pop(trace_id, None)
-
 
 # 由 server.py 在啟動時注入
 _server_ctx = {
@@ -107,88 +81,6 @@ def _match_workflow_intent(content: str, skill_router) -> "Optional[str]":
             best_name = skill.get("name")
 
     return best_name
-
-
-async def _progress_updater(
-    adapter, chat_id: int, status_msg_id: int, trace_id: str = ""
-) -> None:
-    """背景任務：即時顯示 Brain 處理階段（兩行格式）.
-
-    從 _brain_progress[trace_id] 讀取 Brain 真實處理階段，
-    每 2 秒更新一次 Telegram 進度訊息。
-
-    格式：
-      🧬 DNA27 路由中
-      └ EXPLORATION_LOOP · 匹配 7 個技能
-    """
-    LONG_WAIT_THRESHOLD = 900  # 15 分鐘
-    long_wait_notified = False
-    _last_text = ""
-
-    try:
-        start = asyncio.get_event_loop().time()
-
-        while True:
-            await asyncio.sleep(2)
-            elapsed = asyncio.get_event_loop().time() - start
-
-            # 超過 15 分鐘 → 特殊提醒
-            if elapsed >= LONG_WAIT_THRESHOLD and not long_wait_notified:
-                long_wait_notified = True
-                mins = int(elapsed) // 60
-                secs = int(elapsed) % 60
-                time_str = f"{mins} 分 {secs} 秒"
-                await adapter.update_processing_status(
-                    chat_id, status_msg_id,
-                    f"⚠️ 已持續處理 {time_str}，任務仍在進行中。\n"
-                    f"如需中斷，請傳送「停止」或「暫停」。",
-                )
-                try:
-                    await adapter._safe_send(
-                        chat_id=chat_id,
-                        text=f"⏰ 目前的任務已運行超過 15 分鐘，仍在持續處理中。\n"
-                             f"傳送「停止」可中斷當前任務。",
-                    )
-                except Exception as e:
-                    logger.debug(f"[SERVER] operation failed (degraded): {e}")
-                continue
-
-            # 讀取 Brain 真實進度
-            state = _brain_progress.get(trace_id, {})
-            stage = state.get("stage", "")
-            detail = state.get("detail", "")
-
-            if stage:
-                text = f"{stage}\n└ {detail}" if detail else stage
-            else:
-                # Brain 尚未回報（啟動中），顯示預設
-                secs = int(elapsed)
-                if secs < 3:
-                    text = "⏳ 收到，正在思考..."
-                else:
-                    text = f"⏳ 處理中... {secs}s"
-
-            # 避免重複更新相同內容（Flood Control）
-            if text != _last_text:
-                await adapter.update_processing_status(
-                    chat_id, status_msg_id, text
-                )
-                _last_text = text
-            else:
-                # 內容沒變但超過 15 秒，加上時間戳讓使用者知道還在動
-                if elapsed > 15 and stage:
-                    secs = int(elapsed)
-                    text_with_time = f"{stage}\n└ {detail} ({secs}s)" if detail else f"{stage} ({secs}s)"
-                    if text_with_time != _last_text:
-                        await adapter.update_processing_status(
-                            chat_id, status_msg_id, text_with_time
-                        )
-                        _last_text = text_with_time
-
-    except asyncio.CancelledError:
-        pass
-    except Exception as e:
-        logger.debug(f"Progress updater stopped: {e}")
 
 
 # ═══════════════════════════════════════════
@@ -288,14 +180,13 @@ async def _handle_telegram_message(adapter, message) -> None:
     每則訊息 spawn 為獨立 async task，實現多群組/多用戶並行處理。
 
     進度顯示策略：
-    1. 收到訊息 → 發送「⏳ 收到，正在思考...」+ 啟動 typing + 啟動進度更新器
-    2. 處理中 → typing 持續 + 進度訊息持續更新階段
+    1. 收到訊息 → 發送「⏳ 收到，正在思考...」+ 啟動 typing
+    2. 處理中 → typing 持續
     3. 完成/失敗 → 先發送回覆 → 再刪除進度訊息 + 停止 typing
     """
     # ── 跨分支共用 import（避免條件分支內 import 導致 UnboundLocalError）──
     from museon.gateway.message import BrainResponse, InternalMessage
 
-    progress_task = None
     _tid = message.trace_id  # 全鏈路追蹤 ID
     try:
             username = message.metadata.get("username", "unknown")
@@ -308,9 +199,8 @@ async def _handle_telegram_message(adapter, message) -> None:
                 f"[{_tid}] Telegram [{username}]: {message.content[:80]}"
             )
 
-            # ── 1. Phase 0 智慧確認 + start typing + start progress ──
+            # ── 1. Phase 0 智慧確認 + start typing ──
             status_msg_id = None
-            progress_task = None
             _phase0_used = False
 
             if chat_id:
@@ -349,12 +239,6 @@ async def _handle_telegram_message(adapter, message) -> None:
 
                 await adapter.start_typing(chat_id)
 
-                # 啟動背景進度更新器
-                if status_msg_id:
-                    progress_task = asyncio.create_task(
-                        _progress_updater(adapter, chat_id, status_msg_id, _tid)
-                    )
-
             # ── 1.5. 剝離 @bot mention + 過濾空訊息（不送進 Brain）──
             import re as _re_mention
             _bot_uname = getattr(adapter, '_bot_username', '') or ''
@@ -377,12 +261,6 @@ async def _handle_telegram_message(adapter, message) -> None:
                 else:
                     # DM 空訊息 → 不進 Brain，清理後 return
                     logger.info(f"[{_tid}] Skipping empty message for session {message.session_id}")
-                    if progress_task:
-                        progress_task.cancel()
-                        try:
-                            await progress_task
-                        except asyncio.CancelledError:
-                            pass
                     if status_msg_id and chat_id:
                         await adapter.delete_processing_status(chat_id, status_msg_id)
                     try:
@@ -682,7 +560,6 @@ async def _handle_telegram_message(adapter, message) -> None:
                             if _brain_metadata is None:
                                 _brain_metadata = {}
                             _brain_metadata["trace_id"] = _tid
-                            _brain_metadata["_progress_cb"] = _make_progress_reporter(_tid)
 
                             # ── Intent Router：群組外部訊息 workflow 意圖偵測 ──
                             # 命中 workflow → 直接走 brain.process()（L2），跳過 BrainFast L1
@@ -710,7 +587,6 @@ async def _handle_telegram_message(adapter, message) -> None:
                     else:
                         # Normal DM processing (owner or trusted user)
                         _dm_metadata = {**(message.metadata or {}), "trace_id": _tid} if is_group else {"trace_id": _tid}
-                        _dm_metadata["_progress_cb"] = _make_progress_reporter(_tid)
                         brain_result = await _brain_process_with_sla(
                             brain, adapter, chat_id,
                             content=message.content,
@@ -768,15 +644,9 @@ async def _handle_telegram_message(adapter, message) -> None:
                             interaction_queue=interaction_queue,
                         )
 
-                        # 停止 typing + 進度（等待使用者選擇期間不顯示 typing）
+                        # 停止 typing（等待使用者選擇期間不顯示 typing）
                         if chat_id:
                             await adapter.stop_typing(chat_id)
-                        if progress_task:
-                            progress_task.cancel()
-                            try:
-                                await progress_task
-                            except asyncio.CancelledError:
-                                pass
                         if status_msg_id and chat_id:
                             await adapter.delete_processing_status(chat_id, status_msg_id)
                             status_msg_id = None
@@ -858,14 +728,6 @@ async def _handle_telegram_message(adapter, message) -> None:
                 # Release session lock
                 if _session_locked and message.session_id and _server_ctx["session_manager"]:
                     await _server_ctx["session_manager"].release(message.session_id)
-
-            # ── 3. 停止進度更新器 ──
-            if progress_task:
-                progress_task.cancel()
-                try:
-                    await progress_task
-                except asyncio.CancelledError as e:
-                    logger.debug(f"[SERVER] operation failed (degraded): {e}")
 
             # ── 4. 先更新進度訊息為「✍️ 正在發送...」──
             if status_msg_id and chat_id:
@@ -1098,24 +960,15 @@ async def _handle_telegram_message(adapter, message) -> None:
                 get_message_queue_store().mark_done(_tid)
             except Exception:
                 pass
-            _cleanup_progress(_tid)
             logger.info(f"[{_tid}] Message handling completed for {message.session_id}")
 
     except Exception as handle_err:
-        _cleanup_progress(_tid)
         logger.error(f"[{_tid}] Message handler error for {message.session_id}: {handle_err}", exc_info=True)
         try:
             from museon.gateway.message_queue_store import get_message_queue_store
             get_message_queue_store().mark_failed(_tid, str(handle_err))
         except Exception:
             pass
-        # ── 確保 progress_task 被清理 ──
-        if progress_task and not progress_task.done():
-            progress_task.cancel()
-            try:
-                await progress_task
-            except (asyncio.CancelledError, Exception):
-                pass
 
 
 async def _recover_pending_messages(adapter) -> int:

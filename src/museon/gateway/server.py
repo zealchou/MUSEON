@@ -3075,6 +3075,19 @@ def create_app() -> FastAPI:
         except Exception as e:
             logger.debug(f"[startup] SparseEmbedder check skipped: {e}")
 
+        # ── FeedbackLoop singleton（演化閉環基礎設施）──
+        try:
+            from museon.evolution.feedback_loop import FeedbackLoop
+            from museon.core.event_bus import get_event_bus
+            app.state.feedback_loop = FeedbackLoop(
+                event_bus=get_event_bus(),
+                workspace=str(brain.data_dir),
+            )
+            logger.info("[startup] FeedbackLoop singleton initialized — subscribed to EventBus")
+        except Exception as e:
+            app.state.feedback_loop = None
+            logger.warning(f"[startup] FeedbackLoop init failed (non-fatal): {e}")
+
         # ── v10.2: Auto-connect configured MCP servers ──
         try:
             if (
@@ -3772,7 +3785,6 @@ def create_app() -> FastAPI:
 # ═══════════════════════════════════════════════════════
 
 from .telegram_pump import (  # noqa: E402
-    _progress_updater,
     _handle_telegram_message,
     _telegram_message_pump,
     init_telegram_pump,
@@ -3935,10 +3947,10 @@ def main() -> None:
     except GatewayLockError as e:
         logger.warning(f"Cannot start Gateway: {e}")
         logger.warning(
-            "Another Gateway instance is already running. "
-            "Exiting gracefully (exit 0) to prevent launchd restart storm."
+            "Gateway lock acquisition failed — exiting with code 1 "
+            "so Supervisord autorestart=unexpected triggers a retry."
         )
-        sys.exit(0)  # exit(0) — 告知 launchd 不需重試（SuccessfulExit=false 不觸發）
+        sys.exit(1)  # exit(1) — 告知 Supervisord 為異常退出，觸發 autorestart
 
     # Fallback: 如果 lock 成功但 port 仍被佔用（邊緣情況），
     # 保留舊的清理邏輯作為安全網

@@ -547,7 +547,7 @@ class ClaudeCLIAdapter:
                         stderr=asyncio.subprocess.PIPE,
                     )
                     stdout2, _ = await asyncio.wait_for(
-                        proc2.communicate(input=prompt_text.encode("utf-8")),
+                        proc2.communicate(input=prompt_bytes),
                         timeout=self._timeout,
                     )
                     raw2 = stdout2.decode("utf-8", errors="replace").strip()

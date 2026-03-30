@@ -156,6 +156,11 @@ class TelegramAdapter(ChannelAdapter):
             CallbackQueryHandler(self._handle_choice_callback, pattern=r"^choice:")
         )
 
+        # Skill 草稿核准/拒絕 inline keyboard callback
+        self.application.add_handler(
+            CallbackQueryHandler(self._handle_skill_callback, pattern=r"^skill:")
+        )
+
         # 追蹤成員變更（偵測 Zeal 退群 → 停止摘要服務）
         self.application.add_handler(
             ChatMemberHandler(
@@ -1195,25 +1200,44 @@ class TelegramAdapter(ChannelAdapter):
             return None
 
     async def update_processing_status(self, chat_id: int, message_id: int, text: str) -> bool:
-        """
-        Edit an existing processing status message.
-        """
+        """Edit processing status with flood control retry."""
+        import re as _re
         try:
-            if not self.application:
-                return False
-            # 統一過 ResponseGuard sanitize
+            from museon.governance.response_guard import ResponseGuard
+            text = ResponseGuard.sanitize_for_group(text, is_group=(int(chat_id) < 0))
+        except Exception:
+            pass
+        for _attempt in range(3):
             try:
-                from museon.governance.response_guard import ResponseGuard
-                text = ResponseGuard.sanitize_for_group(text, is_group=(int(chat_id) < 0))
-            except Exception:
-                pass
-            await self.application.bot.edit_message_text(
-                chat_id=chat_id, message_id=message_id, text=text
-            )
-            return True
-        except Exception as e:
-            logger.error(f"Failed to update processing status: {e}")
-            return False
+                if not self.application:
+                    return False
+                await asyncio.wait_for(
+                    self.application.bot.edit_message_text(
+                        chat_id=chat_id, message_id=message_id, text=text
+                    ),
+                    timeout=10,
+                )
+                return True
+            except asyncio.TimeoutError:
+                logger.warning(f"update_processing_status timeout (attempt {_attempt+1}/3)")
+                if _attempt < 2:
+                    await asyncio.sleep(2)
+                continue
+            except Exception as e:
+                _err = str(e)
+                if "Flood control" in _err or "429" in _err:
+                    _m = _re.search(r"retry.after[=: ]*(\d+)", _err, _re.IGNORECASE)
+                    _wait = int(_m.group(1)) if _m else 5
+                    logger.warning(f"update_processing_status flood control, wait {_wait}s (attempt {_attempt+1}/3)")
+                    await asyncio.sleep(_wait + 1)
+                    continue
+                elif "Message is not modified" in _err:
+                    return True  # 內容相同，視為成功
+                else:
+                    logger.error(f"Failed to update processing status: {e}")
+                    return False
+        logger.error("update_processing_status: all 3 attempts failed")
+        return False
 
     async def delete_processing_status(self, chat_id: int, message_id: int) -> bool:
         """
@@ -1411,6 +1435,7 @@ class TelegramAdapter(ChannelAdapter):
         event_bus.subscribe(MORPHENIX_L3_PROPOSAL, self._on_morphenix_l3)
         event_bus.subscribe(MORPHENIX_EXECUTION_COMPLETED, self._on_morphenix_executed)
         event_bus.subscribe(MORPHENIX_ROLLBACK, self._on_morphenix_rollback)
+        event_bus.subscribe("SKILL_APPROVAL_REQUEST", self._on_skill_approval_request)
         logger.info("TelegramAdapter connected to pulse EventBus")
 
     def _on_proactive_message(self, data: Optional[Dict] = None) -> None:
@@ -2135,3 +2160,152 @@ class TelegramAdapter(ChannelAdapter):
                     logger.warning(f"[GroupDigest] Failed to enable digest for {chat_id}: {e}")
         except Exception as e:
             logger.debug(f"[ChatMemberUpdated] Error: {e}")
+
+    def _on_skill_approval_request(self, data: Optional[Dict] = None) -> None:
+        """處理 SKILL_APPROVAL_REQUEST 事件 — 從 Nightly Pipeline 發來的核准請求."""
+        if not data or not self._running:
+            return
+        import asyncio
+        loop = getattr(self, "_main_async_loop", None)
+        if loop and loop.is_running():
+            asyncio.run_coroutine_threadsafe(
+                self.send_skill_approval_request(
+                    draft_id=data.get("draft_id", ""),
+                    skill_name=data.get("skill_name", ""),
+                    qa_score=data.get("qa_score", 0),
+                    summary=data.get("summary", ""),
+                ),
+                loop,
+            )
+
+    async def send_skill_approval_request(
+        self, draft_id: str, skill_name: str, qa_score: float, summary: str
+    ) -> None:
+        """發送 Skill 草稿核准請求給老闆，帶 Inline Keyboard 讓 Zeal 一鍵核准或拒絕.
+
+        Args:
+            draft_id:   草稿 ID（對應 data/_system/skills_draft/{draft_id}.json）
+            skill_name: Skill 名稱（人類可讀）
+            qa_score:   QA 評分（0.0–1.0）
+            summary:    Skill 功能摘要
+        """
+        from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+
+        keyboard = InlineKeyboardMarkup([
+            [
+                InlineKeyboardButton("✅ 核准安裝", callback_data=f"skill:approve:{draft_id}"),
+                InlineKeyboardButton("❌ 拒絕", callback_data=f"skill:reject:{draft_id}"),
+            ]
+        ])
+
+        text = (
+            f"🧬 新 Skill 草稿等待核准\n\n"
+            f"名稱: {skill_name}\n"
+            f"QA 分數: {qa_score:.2f}\n"
+            f"摘要: {summary}\n\n"
+            f"核准後將自動執行 9 步安裝鏈。"
+        )
+
+        # 發送給老闆（trusted_user_ids 的第一個）
+        boss_id = self.trusted_user_ids[0] if self.trusted_user_ids else None
+        if boss_id:
+            try:
+                await self._safe_send(int(boss_id), text, reply_markup=keyboard)
+                logger.info(f"[SkillApproval] 已發送核准請求給老闆，draft_id={draft_id}")
+            except Exception as e:
+                logger.error(f"[SkillApproval] 發送核准請求失敗: {e}")
+        else:
+            logger.warning("[SkillApproval] 找不到 trusted_user_ids，無法發送核准請求")
+
+    async def _handle_skill_callback(self, update: Update, context: Any) -> None:
+        """處理 Skill 草稿核准/拒絕的 InlineKeyboard callback.
+
+        callback_data 格式: skill:{action}:{draft_id}
+        action 可為 approve（核准）或 reject（拒絕）
+        """
+        query = update.callback_query
+        if not query or not query.data:
+            return
+
+        # 只有老闆可以操作 Skill 核准
+        user_id = str(query.from_user.id)
+        if user_id not in self.trusted_user_ids:
+            await query.answer("⛔ 無權限操作", show_alert=True)
+            return
+
+        parts = query.data.split(":")
+        if len(parts) != 3:
+            await query.answer("格式錯誤")
+            return
+
+        _, action, draft_id = parts
+
+        if action == "approve":
+            # 核准 → 更新草稿狀態 → 呼叫 SkillInstallWorker 執行 9 步安裝鏈
+            await query.answer("正在安裝...")
+            await query.edit_message_text(f"⏳ 正在安裝 Skill {draft_id}...")
+
+            try:
+                import json
+                from pathlib import Path
+
+                drafts_dir = Path.home() / "MUSEON" / "data" / "_system" / "skills_draft"
+                draft_file = drafts_dir / f"{draft_id}.json"
+
+                if not draft_file.exists():
+                    await query.edit_message_text(f"❌ 草稿 {draft_id} 不存在")
+                    return
+
+                # 更新草稿狀態為已核准
+                draft = json.loads(draft_file.read_text(encoding="utf-8"))
+                draft["status"] = "approved"
+                draft_file.write_text(
+                    json.dumps(draft, ensure_ascii=False, indent=2), encoding="utf-8"
+                )
+
+                # 呼叫 SkillInstallWorker 執行完整 9 步安裝鏈
+                from museon.nightly.skill_install_worker import SkillInstallWorker
+                worker = SkillInstallWorker()
+                result = worker.install(draft)
+
+                if result.success:
+                    manual_note = ""
+                    if result.needs_manual:
+                        manual_note = f"\n⚠️ 需手動完成: {', '.join(result.needs_manual)}"
+                    await query.edit_message_text(
+                        f"✅ Skill 「{result.skill_name}」安裝完成\n"
+                        f"完成步驟: {len(result.steps_completed)}/9{manual_note}"
+                    )
+                else:
+                    await query.edit_message_text(
+                        f"❌ 安裝失敗\n"
+                        f"成功: {', '.join(result.steps_completed)}\n"
+                        f"失敗: {', '.join(result.steps_failed)}"
+                    )
+            except Exception as e:
+                logger.error(f"[SkillApproval] 安裝過程出錯: {e}")
+                await query.edit_message_text("❌ 安裝過程出錯，請查看系統日誌")
+
+        elif action == "reject":
+            # 拒絕 → 更新草稿狀態為已拒絕
+            await query.answer("已拒絕")
+            try:
+                import json
+                from pathlib import Path
+
+                drafts_dir = Path.home() / "MUSEON" / "data" / "_system" / "skills_draft"
+                draft_file = drafts_dir / f"{draft_id}.json"
+                if draft_file.exists():
+                    draft = json.loads(draft_file.read_text(encoding="utf-8"))
+                    draft["status"] = "rejected"
+                    draft_file.write_text(
+                        json.dumps(draft, ensure_ascii=False, indent=2), encoding="utf-8"
+                    )
+                    logger.info(f"[SkillApproval] 草稿 {draft_id} 已拒絕")
+            except Exception as e:
+                logger.warning(f"[SkillApproval] 更新拒絕狀態失敗: {e}")
+            await query.edit_message_text(f"🚫 Skill 草稿 {draft_id} 已拒絕")
+
+        else:
+            await query.answer("未知操作")
+            logger.warning(f"[SkillApproval] 未知 action: {action}, draft_id={draft_id}")
