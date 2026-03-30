@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MUSEON — 決策金字塔定位圖</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ember:       #C4502A;
+      --ember-light: #E0714D;
+      --ember-dark:  #9A3A1C;
+      --gold:        #B8923A;
+      --teal:        #2A7A6E;
+      --ink:         #12121A;
+      --slate:       #5A5A6E;
+      --mist:        #9898A8;
+      --border:      #E2E0DA;
+      --parchment:   #F7F5F0;
+      --snow:        #FDFCFA;
+      --deep-ink:    #0E0E16;
+      --surface:     #16161F;
+    }
+
+    body {
+      background: var(--parchment);
+      color: var(--ink);
+      font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+      min-height: 100vh;
+      padding: 48px 24px 64px;
+    }
+
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      animation: fadeUp 0.4s ease-out;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── HEADER ── */
+    .header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(196,80,42,0.08);
+      border: 1px solid rgba(196,80,42,0.2);
+      border-radius: 100px;
+      padding: 6px 16px;
+      margin-bottom: 20px;
+    }
+    .brand-badge span {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ember-dark);
+    }
+    .brand-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--ember);
+    }
+
+    .header h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 44px;
+      font-weight: 600;
+      line-height: 1.15;
+      color: var(--ink);
+      margin-bottom: 14px;
+    }
+    .header h1 em {
+      color: var(--ember);
+      font-style: italic;
+    }
+    .header p {
+      font-size: 17px;
+      color: var(--slate);
+      line-height: 1.6;
+    }
+
+    /* ── MAIN LAYOUT ── */
+    .main-layout {
+      display: grid;
+      grid-template-columns: 200px 1fr 200px;
+      gap: 32px;
+      align-items: center;
+      margin-bottom: 48px;
+    }
+
+    /* ── WORKFLOW COLUMN ── */
+    .workflow-col {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .workflow-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mist);
+      margin-bottom: 16px;
+      text-align: right;
+    }
+
+    .workflow-step {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px 0 0 8px;
+      position: relative;
+      transition: background 200ms;
+    }
+    .workflow-step:hover { background: rgba(196,80,42,0.05); }
+
+    .step-label {
+      text-align: right;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.4;
+    }
+    .step-sub {
+      font-size: 11px;
+      color: var(--mist);
+      font-weight: 400;
+    }
+
+    .step-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+
+    .step-connector {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 0;
+    }
+    .connector-line {
+      height: 1px;
+      flex: 1;
+      max-width: 28px;
+      background: var(--border);
+    }
+    .connector-arrow {
+      width: 0; height: 0;
+      border-top: 4px solid transparent;
+      border-bottom: 4px solid transparent;
+      border-left: 6px solid var(--border);
+    }
+
+    /* Layer colors for steps */
+    .step-decision .step-icon { background: rgba(196,80,42,0.12); }
+    .step-tactical .step-icon { background: rgba(184,146,58,0.12); }
+    .step-execution .step-icon { background: rgba(42,122,110,0.1); }
+
+    /* ── PYRAMID ── */
+    .pyramid-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      position: relative;
+    }
+
+    .pyramid-layer {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      transition: transform 200ms ease;
+    }
+    .pyramid-layer:hover { transform: translateY(-2px); }
+
+    /* Triangle shape via clip-path on the block */
+    .layer-block {
+      width: 100%;
+      padding: 20px 28px 20px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: none;
+    }
+
+    /* DECISION — top layer (narrowest) */
+    .layer-decision {
+      width: 55%;
+    }
+    .layer-decision .layer-block {
+      background: linear-gradient(135deg, var(--deep-ink) 0%, #1a1228 100%);
+      border-radius: 12px 12px 0 0;
+      border: 2px solid rgba(196,80,42,0.5);
+      border-bottom: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 28px 24px 20px;
+      box-shadow:
+        0 0 32px rgba(196,80,42,0.15),
+        0 8px 32px rgba(14,14,22,0.3);
+    }
+
+    .museon-glow {
+      position: absolute;
+      top: -1px; left: -1px; right: -1px; bottom: 0;
+      border-radius: 12px 12px 0 0;
+      background: linear-gradient(180deg, rgba(196,80,42,0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .museon-label {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
+      position: relative;
+    }
+    .museon-spark {
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--ember);
+      box-shadow: 0 0 10px var(--ember);
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    .layer-tag {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 100px;
+      margin-bottom: 12px;
+    }
+    .tag-decision {
+      color: var(--ember);
+      background: rgba(196,80,42,0.15);
+      border: 1px solid rgba(196,80,42,0.3);
+    }
+    .tag-tactical {
+      color: var(--gold);
+      background: rgba(184,146,58,0.12);
+      border: 1px solid rgba(184,146,58,0.25);
+    }
+    .tag-execution {
+      color: var(--teal);
+      background: rgba(42,122,110,0.1);
+      border: 1px solid rgba(42,122,110,0.2);
+    }
+
+    .layer-desc {
+      font-size: 12px;
+      line-height: 1.5;
+      color: rgba(255,255,255,0.6);
+      margin-top: 6px;
+    }
+
+    .decision-points {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-top: 10px;
+      width: 100%;
+    }
+    .decision-pt {
+      font-size: 12px;
+      color: rgba(255,255,255,0.75);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .decision-pt::before {
+      content: '';
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--ember);
+      flex-shrink: 0;
+    }
+
+    /* TACTICAL — middle */
+    .layer-tactical {
+      width: 75%;
+    }
+    .layer-tactical .layer-block {
+      background: linear-gradient(135deg, #1a1a14 0%, #1e1a10 100%);
+      border-left: 2px solid rgba(184,146,58,0.35);
+      border-right: 2px solid rgba(184,146,58,0.35);
+      border-bottom: none;
+      padding: 18px 24px;
+    }
+
+    /* EXECUTION — bottom (widest) */
+    .layer-execution {
+      width: 100%;
+    }
+    .layer-execution .layer-block {
+      background: linear-gradient(135deg, #111a18 0%, #0f1a17 100%);
+      border: 2px solid rgba(42,122,110,0.3);
+      border-top: none;
+      border-radius: 0 0 12px 12px;
+      padding: 20px 24px 24px;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    /* Connector triangles between layers */
+    .layer-joint {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Decision→Tactical joint */
+    .joint-d-t {
+      width: 75%;
+      height: 0;
+    }
+    .joint-d-t::before {
+      content: '';
+      display: block;
+      width: 0; height: 0;
+      border-left: calc((75% - 55%) / 2 * 0.9) solid transparent;
+      border-right: calc((75% - 55%) / 2 * 0.9) solid transparent;
+    }
+
+    /* Side wings to fill gaps */
+    .wing {
+      position: absolute;
+      top: 0; bottom: 0;
+      width: calc((100% - 55%) / 2);
+    }
+    .wing-left { left: 0; }
+    .wing-right { right: 0; }
+
+    .layer-info {
+      flex: 1;
+    }
+    .layer-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.9);
+      margin-bottom: 4px;
+    }
+    .layer-subtitle {
+      font-size: 12px;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.5;
+    }
+
+    .tools-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+    }
+    .tool-chip {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.6);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 4px;
+      padding: 3px 8px;
+      letter-spacing: 0.03em;
+    }
+
+    .tool-chip.highlight {
+      color: var(--teal);
+      border-color: rgba(42,122,110,0.3);
+      background: rgba(42,122,110,0.08);
+    }
+
+    /* ── NGO COLUMN ── */
+    .ngo-col {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .workflow-title-left {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mist);
+      margin-bottom: 16px;
+      text-align: left;
+    }
+
+    .ngo-step {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 0 8px 8px 0;
+      position: relative;
+      transition: background 200ms;
+    }
+    .ngo-step:hover { background: rgba(196,80,42,0.05); }
+
+    .ngo-label {
+      text-align: left;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.4;
+    }
+    .ngo-sub {
+      font-size: 11px;
+      color: var(--mist);
+      font-weight: 400;
+    }
+
+    /* ── CONNECTOR AREA ── */
+    /* The horizontal dashed lines connecting workflow/ngo to pyramid */
+    .conn-right {
+      position: absolute;
+      right: -32px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 1px;
+      background: repeating-linear-gradient(90deg, var(--border) 0, var(--border) 4px, transparent 4px, transparent 8px);
+    }
+    .conn-left {
+      position: absolute;
+      left: -32px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 1px;
+      background: repeating-linear-gradient(90deg, var(--border) 0, var(--border) 4px, transparent 4px, transparent 8px);
+    }
+
+    /* ── INSIGHT BAR ── */
+    .insight-bar {
+      background: var(--deep-ink);
+      border-radius: 12px;
+      padding: 28px 40px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      gap: 24px;
+      align-items: center;
+      margin-bottom: 40px;
+      border: 1px solid rgba(196,80,42,0.2);
+      box-shadow: 0 4px 24px rgba(14,14,22,0.12);
+    }
+
+    .insight-item {
+      text-align: center;
+    }
+    .insight-number {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 36px;
+      font-weight: 600;
+      color: var(--ember);
+      display: block;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .insight-label {
+      font-size: 13px;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.4;
+    }
+
+    .insight-divider {
+      width: 1px;
+      height: 48px;
+      background: rgba(255,255,255,0.08);
+    }
+
+    /* ── QUOTE CALLOUT ── */
+    .callout {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--ember);
+      border-radius: 0 10px 10px 0;
+      padding: 24px 32px;
+      margin-bottom: 40px;
+    }
+    .callout-quote {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 600;
+      font-style: italic;
+      color: var(--ink);
+      line-height: 1.45;
+      margin-bottom: 10px;
+    }
+    .callout-quote em { color: var(--ember); font-style: normal; }
+    .callout-attr {
+      font-size: 13px;
+      color: var(--mist);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    /* ── TWO COLUMN SECTION ── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    .info-card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(18,18,26,0.06);
+    }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .card-icon {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .icon-ember { background: rgba(196,80,42,0.1); }
+    .icon-teal  { background: rgba(42,122,110,0.1); }
+
+    .card-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .card-title span {
+      font-size: 13px;
+      font-family: 'Outfit', sans-serif;
+      color: var(--mist);
+      font-weight: 400;
+      display: block;
+    }
+
+    .point-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .point-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--slate);
+      line-height: 1.6;
+    }
+    .point-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 7px;
+    }
+    .dot-ember { background: var(--ember); }
+    .dot-teal  { background: var(--teal); }
+    .dot-gold  { background: var(--gold); }
+
+    strong { color: var(--ink); font-weight: 600; }
+
+    /* ── FOOTER ── */
+    .footer {
+      text-align: center;
+      border-top: 1px solid var(--border);
+      padding-top: 24px;
+    }
+    .footer p {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--mist);
+      letter-spacing: 0.06em;
+    }
+
+    /* ── TACTICAL ROW ── */
+    .tactical-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+    .tactical-items {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .tactical-chip {
+      font-size: 11px;
+      color: rgba(184,146,58,0.85);
+      background: rgba(184,146,58,0.08);
+      border: 1px solid rgba(184,146,58,0.2);
+      border-radius: 4px;
+      padding: 3px 8px;
+    }
+
+    /* ── PYRAMID FRAME ── */
+    .pyramid-frame {
+      position: relative;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Fake trapezoid connectors */
+    .trap-dt {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+    .trap-dt-inner {
+      width: 75%;
+      height: 14px;
+      background: linear-gradient(180deg, #1a1228 0%, #1a1a14 100%);
+      clip-path: polygon(calc((75%-55%)/2*0.7) 0%, calc(100% - (75%-55%)/2*0.7) 0%, 100% 100%, 0% 100%);
+    }
+
+    /* Since calc in clip-path is complex, use a simpler approach */
+    .trap-connector-dt {
+      width: 75%;
+      height: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+    .trap-connector-dt::before {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0; top: 0;
+      background: linear-gradient(180deg, rgba(196,80,42,0.08) 0%, rgba(184,146,58,0.05) 100%);
+      clip-path: polygon(13% 0%, 87% 0%, 100% 100%, 0% 100%);
+    }
+
+    .trap-connector-te {
+      width: 100%;
+      height: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+    .trap-connector-te::before {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0; top: 0;
+      background: linear-gradient(180deg, rgba(184,146,58,0.05) 0%, rgba(42,122,110,0.04) 100%);
+      clip-path: polygon(5% 0%, 95% 0%, 100% 100%, 0% 100%);
+    }
+
+    /* Workflow spacing zones */
+    .wf-zone-decision { margin-top: 0; margin-bottom: 4px; }
+    .wf-zone-tactical  { margin-top: 4px; margin-bottom: 4px; }
+    .wf-zone-execution { margin-top: 4px; }
+    .wf-spacer { height: 24px; }
+
+    /* Align steps with pyramid layers */
+    .workflow-section {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .section-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 3px;
+      margin-bottom: 4px;
+      text-align: right;
+      align-self: flex-end;
+    }
+    .sl-decision { color: var(--ember-dark); background: rgba(196,80,42,0.08); }
+    .sl-tactical  { color: var(--gold);       background: rgba(184,146,58,0.08); }
+    .sl-execution { color: var(--teal);        background: rgba(42,122,110,0.08); }
+
+    .ngo-section-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 3px;
+      margin-bottom: 4px;
+      text-align: left;
+      align-self: flex-start;
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="brand-badge">
+      <div class="brand-dot"></div>
+      <span>MUSEON · 決策定位圖</span>
+    </div>
+    <h1>當老闆缺的不是工具，<br>而是<em>想清楚</em></h1>
+    <p>所有 AI 工具爭的是執行效率——MUSEON 佔的是決策品質，那是最稀缺的位置</p>
+  </div>
+
+  <!-- MAIN LAYOUT -->
+  <div class="main-layout">
+
+    <!-- LEFT: E-commerce Workflow -->
+    <div class="workflow-col">
+      <div class="workflow-title">電商老闆工作流</div>
+
+      <!-- Decision zone -->
+      <div class="workflow-section wf-zone-decision">
+        <div class="section-label sl-decision">決策層</div>
+        <div class="workflow-step step-decision">
+          <div class="step-label">
+            進什麼品類？
+            <div class="step-sub">目標客群 × 利潤結構</div>
+          </div>
+          <div class="step-icon">&#127919;</div>
+        </div>
+      </div>
+
+      <div class="wf-spacer"></div>
+
+      <!-- Tactical zone -->
+      <div class="workflow-section wf-zone-tactical">
+        <div class="section-label sl-tactical">分析優化層</div>
+        <div class="workflow-step step-tactical">
+          <div class="step-label">
+            追蹤出單數據
+            <div class="step-sub">GA · BI · A/B 測試</div>
+          </div>
+          <div class="step-icon">&#128200;</div>
+        </div>
+      </div>
+
+      <div class="wf-spacer"></div>
+
+      <!-- Execution zone -->
+      <div class="workflow-section wf-zone-execution">
+        <div class="section-label sl-execution">執行工具層</div>
+        <div class="workflow-step step-execution">
+          <div class="step-label">
+            找貨源
+            <div class="step-sub">市場研究 · Perplexity</div>
+          </div>
+          <div class="step-icon">&#128230;</div>
+        </div>
+        <div class="workflow-step step-execution">
+          <div class="step-label">
+            製作文宣
+            <div class="step-sub">Midjourney · Canva · Sora</div>
+          </div>
+          <div class="step-icon">&#127912;</div>
+        </div>
+        <div class="workflow-step step-execution">
+          <div class="step-label">
+            上架平台
+            <div class="step-sub">Shopify · ERP 自動化</div>
+          </div>
+          <div class="step-icon">&#128293;</div>
+        </div>
+        <div class="workflow-step step-execution">
+          <div class="step-label">
+            投放廣告
+            <div class="step-sub">Meta Ads · TikTok Shop</div>
+          </div>
+          <div class="step-icon">&#128161;</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER: Pyramid -->
+    <div class="pyramid-wrap">
+      <div class="pyramid-frame">
+
+        <!-- DECISION LAYER -->
+        <div class="pyramid-layer layer-decision">
+          <div class="layer-block">
+            <div class="museon-glow"></div>
+            <div class="layer-tag tag-decision">決策思維層</div>
+            <div class="museon-label"><span class="museon-spark"></span>MUSEON</div>
+            <div class="layer-desc">決策品質引擎——執行前先想清楚</div>
+            <div class="decision-points">
+              <div class="decision-pt">這個品類值得投入嗎？</div>
+              <div class="decision-pt">預算該怎麼分配？</div>
+              <div class="decision-pt">風險盲點在哪裡？</div>
+              <div class="decision-pt">多視角衝突分析</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Connector D→T -->
+        <div class="trap-connector-dt"></div>
+
+        <!-- TACTICAL LAYER -->
+        <div class="pyramid-layer layer-tactical">
+          <div class="layer-block">
+            <div class="layer-info">
+              <div class="layer-tag tag-tactical">戰術優化層</div>
+              <div class="layer-name">數據洞察 × 流程優化</div>
+              <div class="tactical-items">
+                <span class="tactical-chip">Google Analytics</span>
+                <span class="tactical-chip">BI Dashboard</span>
+                <span class="tactical-chip">A/B 測試</span>
+                <span class="tactical-chip">客戶 RFM 分析</span>
+                <span class="tactical-chip">廣告素材優化</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Connector T→E -->
+        <div class="trap-connector-te"></div>
+
+        <!-- EXECUTION LAYER -->
+        <div class="pyramid-layer layer-execution">
+          <div class="layer-block">
+            <div class="layer-tag tag-execution">執行工具層 — AI 工具密集區</div>
+            <div class="layer-name" style="color:rgba(255,255,255,0.85); font-family:'Cormorant Garamond',serif; font-size:18px; margin-bottom:10px;">
+              各類 AI 工具在此競爭
+            </div>
+            <div class="tools-grid">
+              <span class="tool-chip highlight">ChatGPT</span>
+              <span class="tool-chip highlight">Claude</span>
+              <span class="tool-chip highlight">Midjourney</span>
+              <span class="tool-chip highlight">Sora</span>
+              <span class="tool-chip">Canva AI</span>
+              <span class="tool-chip">Adobe Firefly</span>
+              <span class="tool-chip">Shopify</span>
+              <span class="tool-chip">Zapier</span>
+              <span class="tool-chip">Meta Ads AI</span>
+              <span class="tool-chip">TikTok Shop</span>
+              <span class="tool-chip">HubSpot</span>
+              <span class="tool-chip">Airtable</span>
+              <span class="tool-chip">Notion AI</span>
+              <span class="tool-chip">ElevenLabs</span>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /pyramid-frame -->
+
+      <!-- Bottom label -->
+      <div style="margin-top:16px; text-align:center;">
+        <span style="font-size:12px; color:var(--mist); font-family:'IBM Plex Mono',monospace;">
+          &#9660; 往下越多競爭 · 往上越稀缺 &#9660;
+        </span>
+      </div>
+
+    </div><!-- /pyramid-wrap -->
+
+    <!-- RIGHT: NGO/NPO Column -->
+    <div class="ngo-col">
+      <div class="workflow-title-left">NGO / NPO 應用場景</div>
+
+      <!-- Decision zone -->
+      <div class="workflow-section wf-zone-decision">
+        <div class="ngo-section-label sl-decision">決策層</div>
+        <div class="ngo-step step-decision">
+          <div class="step-icon">&#127919;</div>
+          <div class="ngo-label">
+            這個募資會傷害公信力嗎？
+            <div class="ngo-sub">風險評估 × 捐贈者信任</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wf-spacer"></div>
+
+      <!-- Tactical zone -->
+      <div class="workflow-section wf-zone-tactical">
+        <div class="ngo-section-label sl-tactical">分析優化層</div>
+        <div class="ngo-step step-tactical">
+          <div class="step-icon">&#128200;</div>
+          <div class="ngo-label">
+            捐款效益追蹤
+            <div class="ngo-sub">成效報告 · 捐贈者分析</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wf-spacer"></div>
+
+      <!-- Execution zone -->
+      <div class="workflow-section wf-zone-execution">
+        <div class="ngo-section-label sl-execution">執行工具層</div>
+        <div class="ngo-step step-execution">
+          <div class="step-icon">&#128187;</div>
+          <div class="ngo-label">
+            財務系統
+            <div class="ngo-sub">學姊現有客戶的核心工具</div>
+          </div>
+        </div>
+        <div class="ngo-step step-execution">
+          <div class="step-icon">&#128233;</div>
+          <div class="ngo-label">
+            募資文案生成
+            <div class="ngo-sub">ChatGPT · Claude</div>
+          </div>
+        </div>
+        <div class="ngo-step step-execution">
+          <div class="step-icon">&#128101;</div>
+          <div class="ngo-label">
+            志工管理系統
+            <div class="ngo-sub">Airtable · HubSpot</div>
+          </div>
+        </div>
+        <div class="ngo-step step-execution">
+          <div class="step-icon">&#127760;</div>
+          <div class="ngo-label">
+            社群推廣
+            <div class="ngo-sub">Meta Ads · Email 自動化</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main-layout -->
+
+  <!-- INSIGHT BAR -->
+  <div class="insight-bar">
+    <div class="insight-item">
+      <span class="insight-number">80%</span>
+      <div class="insight-label">的 AI 工具<br>爭的是執行效率</div>
+    </div>
+    <div class="insight-divider"></div>
+    <div class="insight-item">
+      <span class="insight-number">1</span>
+      <div class="insight-label">個系統<br>佔據決策品質層</div>
+    </div>
+    <div class="insight-divider"></div>
+    <div class="insight-item">
+      <span class="insight-number" style="color:var(--gold);">&#8734;</span>
+      <div class="insight-label">決策錯了<br>執行再快也是浪費錢</div>
+    </div>
+  </div>
+
+  <!-- QUOTE -->
+  <div class="callout">
+    <div class="callout-quote">
+      「工具很多，能讓我<em>想清楚再動</em>的系統，只有一個。」
+    </div>
+    <div class="callout-attr">MUSEON CORE PROPOSITION · 2026</div>
+  </div>
+
+  <!-- TWO COLUMN -->
+  <div class="two-col">
+    <div class="info-card">
+      <div class="card-head">
+        <div class="card-icon icon-ember">&#127942;</div>
+        <div class="card-title">
+          MUSEON 給老闆的
+          <span>電商 / 藝人公司 / 一人老闆</span>
+        </div>
+      </div>
+      <ul class="point-list">
+        <li>
+          <span class="point-dot dot-ember"></span>
+          <span><strong>進場前</strong>——品類分析、競品掃描、黑天鵝識別，讓決策有根據</span>
+        </li>
+        <li>
+          <span class="point-dot dot-ember"></span>
+          <span><strong>投放前</strong>——預算分配邏輯、多視角衝突分析，避免情緒性決策</span>
+        </li>
+        <li>
+          <span class="point-dot dot-gold"></span>
+          <span><strong>成長期</strong>——逆熵思維幫助老闆辨識「看似機會、其實是坑」的場景</span>
+        </li>
+        <li>
+          <span class="point-dot dot-ember"></span>
+          <span><strong>結果</strong>——執行工具的 ROI 提高 3 倍，因為方向本來就對</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="info-card">
+      <div class="card-head">
+        <div class="card-icon icon-teal">&#127968;</div>
+        <div class="card-title">
+          MUSEON 給 NGO／NPO 的
+          <span>公益組織 / 社福機構 / 基金會</span>
+        </div>
+      </div>
+      <ul class="point-list">
+        <li>
+          <span class="point-dot dot-teal"></span>
+          <span><strong>募資決策</strong>——這個活動方向傷害公信力嗎？風險量化，不靠直覺</span>
+        </li>
+        <li>
+          <span class="point-dot dot-teal"></span>
+          <span><strong>資源配置</strong>——有限預算如何優先排序？MUSEON 給第一性原理分析</span>
+        </li>
+        <li>
+          <span class="point-dot dot-gold"></span>
+          <span><strong>升級顧問</strong>——財務顧問從「事後審帳」升為「事前決策陪跑」，單價翻倍</span>
+        </li>
+        <li>
+          <span class="point-dot dot-teal"></span>
+          <span><strong>200 客戶</strong>——每個客戶多一個決策品質層，顧問的差異化立刻顯現</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <p>MUSEON · AI 決策品質引擎 · museon.ai · 2026</p>
+  </div>
+
+</div>
+</body>
+</html>
