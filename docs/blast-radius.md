@@ -1,10 +1,11 @@
-# Blast Radius — 模組影響半徑表 v1.88
+# Blast Radius — 模組影響半徑表 v1.89
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節、`docs/operational-contract.md`（操作契約表）提供外部操作預期失敗
+> **v1.89 (2026-03-31)**：結晶記憶架構重構——`agent/knowledge_lattice.py` 新增 `_classify_domain()` 輔助函數 + `_DOMAIN_KEYWORDS` 常數（7 domain 關鍵詞表），在 `crystallize()` Step 2→2.5 之間自動填入 domain（扇入不變，扇出不變，純內部邏輯擴充）；`nightly/nightly_pipeline.py` 新增 Step 32 `_step_crystal_decay`（ri_score 每日 *0.995 衰減，<0.1 歸檔）+ Step 33 `_step_crystal_promotion`（reinforcement_count≥3 的 Lesson/Procedure/Pattern 自動升級 heuristics.json，每次最多 3 條，總上限 50）；nightly_pipeline 步驟數 47→49；crystal.db 存取模式從 R 升級為 RW（Step 32 直接 SQL UPDATE）；heuristics.json 寫入路徑新增 nightly Step 33（via IntuitionEngine）。
 > **v1.88 (2026-03-31)**：多租戶敏感度 LLM 驗證 + 報告發布工具——`governance/multi_tenant.py` 新增 `TRUSTED_PARTNERS` dict 與 `SENSITIVITY_LLM_PROMPT` 常數，`SensitivityChecker.check()` 新增 `user_id` 參數（扇入不變，仍為 3：telegram_pump, brain_observation, brain_prompt_builder；扇出不變）；`agent/tool_schemas.py` 新增 `publish_report` 工具定義（綠區扇入=0，不影響既有模組）；`agent/tools.py` 新增 `publish_report` 路由 + `_execute_publish_report()` 執行方法，透過 `subprocess` 呼叫 `scripts/publish-report.sh`（扇出+1：scripts/publish-report.sh via subprocess）；`gateway/telegram_pump.py` 新增 LLM 上下文驗證機制——lazy import `SENSITIVITY_LLM_PROMPT` from multi_tenant，呼叫 `brain._call_llm_with_model()` 以 Haiku 進行敏感度二次驗證（扇出+1：brain._call_llm_with_model()）。
 > **v1.87 (2026-03-31)**：9 條斷裂接線修復——修改模組：`agent/skill_router.py` 新增 tuned_parameters.json 讀取（扇出+1：_system/evolution/tuned_parameters.json(R)）；`nightly/periodic_cycles.py` 高原警報→write_signal（扇出+1：triage_step.write_signal）；`evolution/wee_engine.py` payload 加 blind_spots:[]（純 schema 補齊，扇出不變）；`agent/brain_prompt_builder.py` insight update_confidence +0.05（扇出+0，InsightExtractor 已接線）；`core/session_adjustment.py` _promote_to_lesson→crystallize（扇出已含 crystal.db，不變）；`evolution/feedback_loop.py` 品質下降→LEARNING_GAP write_signal（扇出+1：triage_step.write_signal）；`doctor/surgeon.py` 手術完成→SYSTEM_FAULT write_signal（扇出+1：triage_step.write_signal）；`nightly/morphenix_executor.py` 迭代完成/失敗→SYSTEM_FAULT/BEHAVIOR_DRIFT write_signal（扇出+2：triage_step.write_signal x2）；`doctor/finding.py` record_occurrence 持久化計數（扇出+1：finding_counts.json(W)）；`doctor/museoff.py` ≥3次→SYSTEM_FAULT write_signal + escalate_to_morphenix（扇出+1：triage_step.write_signal）。triage_step.write_signal 扇入 +6（surgeon/morphenix_executor/feedback_loop/museoff/periodic_cycles）。新增共享狀態 #69 `data/_system/museoff/finding_counts.json`。同步 joint-map v1.57、system-topology v1.69、persistence-contract v1.43。
 > **v1.86 (2026-03-31)**：體液系統迭代——新增 7 個模組到安全分級表：🟢 綠區：`core/awareness.py`（AwarenessSignal 統一覺察訊號，扇入=0，扇出=0，純 dataclass 無副作用）、`core/session_adjustment.py`（SessionAdjustment 即時行為調整管理器，扇入=2（brain_prompt_builder + triage_step），扇出=1：_system/session_adjustments/）、`nightly/triage_step.py`（Nightly 分診步驟，扇入=0，扇出=3：triage_queue.jsonl + awareness_log.jsonl + nightly_priority_queue.json）、`nightly/triage_to_morphenix.py`（HIGH → Morphenix 迭代筆記橋接，扇入=1（nightly_pipeline），扇出=1：morphenix/proposals/）、`governance/algedonic_alert.py`（治理警報 Telegram 推播，扇入=1（governor），扇出=2：event_bus GOVERNANCE_ALGEDONIC_SIGNAL + PROACTIVE_MESSAGE）；修改模組：`gateway/telegram_pump.py` 新增 CHANNEL_MESSAGE_RECEIVED publish（扇出+1）、`governance/governor.py` 初始化 AlgedonicAlert（扇出+1）、`governance/response_guard.py` 新增 strip_markdown() 靜態方法（扇出不變，功能擴充）、`agent/brain_prompt_builder.py` 新增四路接線（MemoryReflector + Skill 教訓預載 + SessionAdjustment + code 層自動觸發，扇出+3）、`nightly/nightly_pipeline.py` Step 5.8 前置 triage_to_morphenix（扇出+1）。新增共享狀態 7 個（#62-#68）。同步 joint-map v1.56、system-topology v1.68、memory-router v1.18、persistence-contract v1.42。
@@ -518,15 +519,15 @@
 | 屬性 | 值 |
 |------|-----|
 | **扇入** | 2 |
-| **角色** | 夜間整合管線（47 步驟，含 Step 30 藍圖一致性驗證 + Step 31 context_cache 重建） |
+| **角色** | 夜間整合管線（49 步驟，含 Step 30 藍圖一致性驗證 + Step 31 context_cache 重建 + Step 32 crystal_decay + Step 33 crystal_promotion） |
 
 #### 影響半徑
 
 | 影響類型 | 範圍 |
 |---------|------|
-| 共享狀態讀寫 | question_queue(RW), scout_queue(R), nightly_report(W), PulseDB(RW), crystal.db(R via CrystalStore), accuracy_stats(R) |
+| 共享狀態讀寫 | question_queue(RW), scout_queue(R), nightly_report(W), PulseDB(RW), crystal.db(RW via CrystalStore+直接SQL), accuracy_stats(R), heuristics.json(W via IntuitionEngine, Step 33) |
 | 事件發布 | 6 個：NIGHTLY_COMPLETED, IMMUNE_MEMORY_LEARNED, MORPHENIX_PROPOSAL_CREATED, SOUL_IDENTITY_TAMPERED, SYNAPSE_PRELOAD, TRIGGER_FIRED, TOOL_MUSCLE_DORMANT |
-| 子步驟呼叫 | curiosity_router, exploration_bridge, skill_forge_scout, crystal_actuator, parameter_tuner, morphenix_validator, morphenix_executor, evolution_velocity, periodic_cycles, blueprint_reader, workflow_engine(lazy), cache/context_cache_builder(Step 31) |
+| 子步驟呼叫 | curiosity_router, exploration_bridge, skill_forge_scout, crystal_actuator, parameter_tuner, morphenix_validator, morphenix_executor, evolution_velocity, periodic_cycles, blueprint_reader, workflow_engine(lazy), cache/context_cache_builder(Step 31), CrystalStore(Step 32), IntuitionEngine(Step 33) |
 
 #### 修改安全邊界
 

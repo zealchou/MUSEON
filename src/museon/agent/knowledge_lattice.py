@@ -78,6 +78,33 @@ SIMILARITY_MERGE_THRESHOLD = 0.70  # 70% 相似度合併閾值
 DEDUP_SIMILARITY_THRESHOLD = 0.75  # 75% 相似度視為重複（基於分布分析：60%自然斷崖，75%+異常回升）
 MERGE_SIMILARITY_THRESHOLD = 0.50  # 50-74% 相似度視為相關主題，融合為一顆
 CRYSTAL_MAX_CHARS = 800            # 融合後超過此字數則切分
+
+# ── Domain 自動分類關鍵詞表 ──
+_DOMAIN_KEYWORDS: List[Tuple[str, List[str]]] = [
+    ("business", ["商業", "行銷", "品牌", "銷售", "客戶", "營收", "定位", "廣告", "社群", "轉換"]),
+    ("investment", ["投資", "市場", "多空", "股票", "加密", "風險", "ETF", "殖利率", "配置"]),
+    ("ai_tech", ["AI", "LLM", "Skill", "架構", "Agent", "模型", "Prompt", "演算法", "GPT"]),
+    ("relationship", ["人際", "客戶關係", "合夥", "談判", "團隊", "信任", "溝通"]),
+    ("self_growth", ["覺察", "教練", "成長", "信念", "轉化", "情緒", "冥想", "能量"]),
+    ("operational", ["部署", "工具", "流程", "SOP", "操作", "發佈", "GitHub", "cron"]),
+    ("industry", ["產業", "手搖飲", "美業", "餐飲", "保險", "房地產", "ESG", "永續"]),
+]
+
+
+def _classify_domain(text: str) -> str:
+    """根據文字內容關鍵詞自動分類 domain。
+
+    Args:
+        text: 用於分類的文字（通常為 g1_summary）
+
+    Returns:
+        命中的 domain 名稱；零命中則回傳空字串
+    """
+    for domain, keywords in _DOMAIN_KEYWORDS:
+        for kw in keywords:
+            if kw in text:
+                return domain
+    return ""
 HYPOTHESIS_UPGRADE_COUNT = 3       # 升級所需成功次數
 INSIGHT_DOWNGRADE_COUNT = 2        # 降級所需反證次數
 PROCEDURE_UPGRADE_COUNT = 0        # Lesson→Procedure 升級：門檻 0（record_success 由 brain_prompt_builder 呼叫，引用即計數）
@@ -1851,6 +1878,12 @@ class KnowledgeLattice:
                 tags=tags,
                 domain=domain,
             )
+
+            # Step 2.2: domain 自動分類（若 domain 為空，用 g1_summary 關鍵詞匹配）
+            if not refined.get("domain"):
+                _auto_domain = _classify_domain(refined.get("g1_summary", ""))
+                if _auto_domain:
+                    refined["domain"] = _auto_domain
 
             # Step 2.5: 過篩檢查 — ≥0.75 去重強化，0.50-0.74 融合入既有結晶
             _dedup_g1 = refined.get("g1_summary", "")

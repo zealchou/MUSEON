@@ -128,6 +128,8 @@ _FULL_STEPS = [
     "26", "27", "28", "29",  # 持久層衛生：session 清理 / JSONL 輪替 / WAL checkpoint / DataWatchdog
     "30",  # 藍圖一致性驗證
     "31",  # v2 context_cache 重建
+    "32",  # Crystal ri_score 每日衰減
+    "33",  # 自動升級 Heuristic（結晶→啟發式規則）
 ]
 _ORIGIN_STEPS = ["5.8", "6", "7", "8", "16"]
 _NODE_STEPS = [
@@ -248,6 +250,9 @@ class NightlyPipeline:
             "30": ("step_30_blueprint_consistency", self._step_blueprint_consistency),
             # ── v2 context_cache 重建 ──
             "31": ("step_31_context_cache_rebuild", self._step_context_cache_rebuild),
+            # ── Crystal 生命週期管理 ──
+            "32": ("step_32_crystal_decay", self._step_crystal_decay),
+            "33": ("step_33_crystal_promotion", self._step_crystal_promotion),
         }
 
     def run(self, mode: str = "full") -> Dict:
@@ -4384,6 +4389,158 @@ class NightlyPipeline:
             return {"status": "ok", "result": result}
         except Exception as e:
             logger.warning(f"[NIGHTLY] ContextCache rebuild failed: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def _step_crystal_decay(self) -> Dict:
+        """Step 32: Crystal ri_score 每日衰減 — 每次 Nightly 衰減 0.5%，低於 0.1 歸檔。
+
+        直接用 sqlite3 做 UPDATE，不做全量覆寫（效能考量）。
+        """
+        import sqlite3
+
+        try:
+            from museon.agent.crystal_store import CrystalStore
+
+            store = CrystalStore(data_dir=str(self._workspace))
+            db_path = store._db_path
+
+            decayed = 0
+            archived = 0
+            total_active = 0
+
+            conn = sqlite3.connect(str(db_path), timeout=10)
+            conn.execute("PRAGMA busy_timeout=5000")
+            try:
+                # 取得所有活躍結晶的 cuid + ri_score
+                rows = conn.execute(
+                    "SELECT cuid, ri_score FROM crystals WHERE archived = 0"
+                ).fetchall()
+                total_active = len(rows)
+
+                for cuid, ri_score in rows:
+                    ri = float(ri_score) if ri_score is not None else 0.0
+                    new_ri = ri * 0.995  # 每日衰減 0.5%
+
+                    if new_ri < 0.1:
+                        conn.execute(
+                            "UPDATE crystals SET ri_score = ?, archived = 1, status = 'decayed'"
+                            " WHERE cuid = ?",
+                            (new_ri, cuid),
+                        )
+                        archived += 1
+                    else:
+                        conn.execute(
+                            "UPDATE crystals SET ri_score = ? WHERE cuid = ?",
+                            (new_ri, cuid),
+                        )
+                        decayed += 1
+
+                conn.commit()
+            finally:
+                conn.close()
+
+            logger.info(
+                f"[NIGHTLY] CrystalDecay: total_active={total_active}, "
+                f"decayed={decayed}, archived={archived}"
+            )
+            return {
+                "status": "ok",
+                "decayed": decayed,
+                "archived": archived,
+                "total_active": total_active,
+            }
+        except Exception as e:
+            logger.warning(f"[NIGHTLY] CrystalDecay failed: {e}")
+            return {"status": "error", "error": str(e)}
+
+    def _step_crystal_promotion(self) -> Dict:
+        """Step 33: 自動升級 Heuristic — 高頻結晶提升為啟發式規則。
+
+        條件：reinforcement_count >= 3 AND crystal_type in (Lesson, Procedure, Pattern)
+        上限：每次最多升級 3 條，heuristics 總條目上限 50。
+        """
+        try:
+            from museon.agent.crystal_store import CrystalStore
+            from museon.agent.intuition import IntuitionEngine, HeuristicRule
+
+            # 載入活躍結晶
+            store = CrystalStore(data_dir=str(self._workspace))
+            crystals = store.load_crystals_raw()
+
+            # 篩選符合條件的候選結晶
+            ELIGIBLE_TYPES = {"Lesson", "Procedure", "Pattern"}
+            candidates = [
+                c for c in crystals
+                if isinstance(c, dict)
+                and c.get("reinforcement_count", 0) >= 3
+                and c.get("crystal_type", "") in ELIGIBLE_TYPES
+                and not c.get("archived", False)
+            ]
+
+            # 載入現有啟發式規則
+            engine = IntuitionEngine(data_dir=str(self._workspace))
+            existing = engine.store.load_heuristics()
+
+            # 檢查哪些結晶已被升級過（rule_id 以 h-auto- 開頭並包含 cuid）
+            already_promoted_cuids = {
+                r.rule_id.replace("h-auto-", "")
+                for r in existing
+                if r.rule_id.startswith("h-auto-")
+            }
+
+            # 過濾掉已升級的
+            new_candidates = [
+                c for c in candidates
+                if c.get("cuid", "") not in already_promoted_cuids
+            ]
+
+            # 排序：ri_score 高優先
+            new_candidates.sort(key=lambda c: c.get("ri_score", 0.0), reverse=True)
+
+            # 上限檢查
+            MAX_HEURISTICS = 50
+            MAX_PROMOTE_PER_RUN = 3
+            available_slots = MAX_HEURISTICS - len(existing)
+            to_promote = new_candidates[: min(MAX_PROMOTE_PER_RUN, available_slots)]
+
+            # 建立新規則
+            new_rules = []
+            for crystal in to_promote:
+                cuid = crystal.get("cuid", "")
+                summary = (
+                    crystal.get("g1_summary", "")
+                    or crystal.get("title", "")
+                    or cuid
+                )
+                new_rule = HeuristicRule(
+                    rule_id=f"h-auto-{cuid}",
+                    condition=summary,
+                    prediction=summary,
+                    confidence=0.8,
+                    ri_score=float(crystal.get("ri_score", 0.0)),
+                    source_crystals=[cuid],
+                    last_updated=datetime.now().isoformat(),
+                )
+                new_rules.append(new_rule)
+
+            # 寫入（追加到現有列表）
+            if new_rules:
+                updated = existing + new_rules
+                engine.store.save_heuristics(updated)
+
+            promoted = len(new_rules)
+            total_heuristics = len(existing) + promoted
+            logger.info(
+                f"[NIGHTLY] CrystalPromotion: candidates={len(new_candidates)}, "
+                f"promoted={promoted}, total_heuristics={total_heuristics}"
+            )
+            return {
+                "status": "ok",
+                "promoted": promoted,
+                "total_heuristics": total_heuristics,
+            }
+        except Exception as e:
+            logger.warning(f"[NIGHTLY] CrystalPromotion failed: {e}")
             return {"status": "error", "error": str(e)}
 
     # ═══════════════════════════════════════════
