@@ -38,6 +38,9 @@ from museon.gateway.message import InternalMessage
 
 logger = logging.getLogger(__name__)
 
+# Rate limiter for processing status updates (per chat_id)
+_STATUS_UPDATE_COOLDOWN = 3.0  # seconds between updates per chat_id
+
 
 class TelegramAdapter(ChannelAdapter):
     """
@@ -110,6 +113,9 @@ class TelegramAdapter(ChannelAdapter):
         self._interaction_queue = None  # InteractionQueue instance (set externally)
         self._pending_freetext: Dict[str, str] = {}  # {question_id: chat_id} 等待自由文字輸入
 
+        # Debounce: 追蹤每個 chat_id 最後一次 update_processing_status 的時間戳
+        self._status_update_last: Dict[int, float] = {}
+
     async def start(self) -> None:
         """Start the Telegram bot and begin polling."""
         if self._running:
@@ -125,6 +131,7 @@ class TelegramAdapter(ChannelAdapter):
         self.application.add_handler(MessageHandler(filters.VIDEO, self._handle_file_upload))
         self.application.add_handler(CommandHandler("start", self._handle_start_command))
         self.application.add_handler(CommandHandler("menu", self._handle_menu_command))
+        self.application.add_handler(CommandHandler("help", self._handle_menu_command))
 
         # Menu callback handler
         from telegram.ext import CallbackQueryHandler as _CQH
@@ -1207,6 +1214,12 @@ class TelegramAdapter(ChannelAdapter):
             text = ResponseGuard.sanitize_for_group(text, is_group=(int(chat_id) < 0))
         except Exception:
             pass
+        # Debounce: 同一個 chat_id 在 cooldown 期間內跳過，避免批次上傳時觸發 Flood Control
+        _now = time.monotonic()
+        _last = self._status_update_last.get(chat_id, 0)
+        if _now - _last < _STATUS_UPDATE_COOLDOWN:
+            return True  # 靜默跳過，舊狀態訊息仍然可見
+        self._status_update_last[chat_id] = _now
         for _attempt in range(3):
             try:
                 if not self.application:

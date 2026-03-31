@@ -91,23 +91,32 @@ class MuseQA:
             bot_replies = [m for m in messages if m.get("role") == "assistant"]
             results["scanned_replies"] += len(bot_replies)
 
+            # Skip Owner DM and test sessions for LEAKAGE detection
+            _skip_leakage = (
+                "6969045906" in session_id
+                or session_id.startswith("chaos_")
+                or session_id.startswith("e2e_")
+                or session_id == "webhook_unknown"
+            )
+
             for reply in bot_replies:
                 text = reply.get("content", "")
 
-                # CPU 篩查 1: 術語洩漏
-                leakage = self._check_leakage(text)
-                if leakage:
-                    self._create_qa_report(
-                        session_id=session_id,
-                        issue_type="LEAKAGE",
-                        severity="HIGH",
-                        evidence={
-                            "bot_reply_excerpt": text[:200],
-                            "matched_patterns": leakage,
-                        },
-                        suggested_fix="強化 CLAUDE.md Step 3.5 禁止清單",
-                    )
-                    results["issues_found"] += 1
+                # CPU 篩查 1: 術語洩漏 (skip owner/test sessions)
+                if not _skip_leakage:
+                    leakage = self._check_leakage(text)
+                    if leakage:
+                        self._create_qa_report(
+                            session_id=session_id,
+                            issue_type="LEAKAGE",
+                            severity="HIGH",
+                            evidence={
+                                "bot_reply_excerpt": text[:200],
+                                "matched_patterns": leakage,
+                            },
+                            suggested_fix="強化 CLAUDE.md Step 3.5 禁止清單",
+                        )
+                        results["issues_found"] += 1
 
                 # CPU 篩查 2: 回覆長度異常
                 length_issue = self._check_length(text)
