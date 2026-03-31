@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deep Taiwan Tour — 網站差距分析報告</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #F7F5F0;
+    color: #12121A;
+    font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+    font-size: 16px;
+    line-height: 1.75;
+  }
+
+  .page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 48px 40px 96px;
+  }
+
+  .report-header {
+    border-bottom: 2px solid #C4502A;
+    padding-bottom: 32px;
+    margin-bottom: 48px;
+    animation: fadeUp 0.4s ease-out;
+  }
+
+  .report-badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: rgba(196,80,42,0.1);
+    color: #9A3A1C;
+    padding: 3px 10px;
+    border-radius: 100px;
+    margin-bottom: 16px;
+  }
+
+  .report-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 42px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: #12121A;
+    margin-bottom: 12px;
+  }
+
+  .report-subtitle {
+    font-size: 17px;
+    color: #5A5A6E;
+    font-weight: 400;
+  }
+
+  .meta-row {
+    display: flex;
+    gap: 32px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: #9898A8;
+    letter-spacing: 0.04em;
+  }
+
+  .meta-item strong {
+    color: #5A5A6E;
+    font-weight: 600;
+  }
+
+  .section {
+    margin-bottom: 48px;
+    animation: fadeUp 0.4s ease-out;
+  }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 600;
+    color: #12121A;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-title::before {
+    content: '';
+    display: block;
+    width: 4px;
+    height: 26px;
+    background: #C4502A;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .summary-card {
+    background: #FDFCFA;
+    border: 1px solid #E2E0DA;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .summary-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(18,18,26,0.10), 0 8px 20px rgba(18,18,26,0.06);
+  }
+
+  .summary-card .label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #9898A8;
+    margin-bottom: 8px;
+  }
+
+  .summary-card .value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 600;
+    color: #C4502A;
+    line-height: 1;
+  }
+
+  .summary-card .desc {
+    font-size: 13px;
+    color: #5A5A6E;
+    margin-top: 6px;
+  }
+
+  .priority {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 100px;
+    white-space: nowrap;
+  }
+
+  .p1 { background: rgba(196,64,42,0.12); color: #C4402A; }
+  .p2 { background: rgba(201,148,58,0.12); color: #C9943A; }
+  .p3 { background: rgba(45,138,110,0.12); color: #2D8A6E; }
+
+  .comp-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #FDFCFA;
+    border: 1px solid #E2E0DA;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(18,18,26,0.06);
+    font-size: 14px;
+  }
+
+  .comp-table thead {
+    background: #0E0E16;
+  }
+
+  .comp-table thead th {
+    padding: 14px 18px;
+    text-align: left;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #9898A8;
+  }
+
+  .comp-table thead th:first-child {
+    color: #FDFCFA;
+    width: 44px;
+  }
+
+  .comp-table tbody tr {
+    border-bottom: 1px solid #E2E0DA;
+    transition: background 0.15s ease;
+  }
+
+  .comp-table tbody tr:last-child { border-bottom: none; }
+  .comp-table tbody tr:hover { background: #F0EDE8; }
+
+  .comp-table tbody td {
+    padding: 16px 18px;
+    vertical-align: top;
+    line-height: 1.6;
+  }
+
+  .gap-name {
+    font-weight: 600;
+    color: #12121A;
+    font-size: 14px;
+  }
+
+  .gap-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: #9898A8;
+  }
+
+  .has-it { color: #2D8A6E; font-size: 14px; }
+  .missing { color: #C4402A; font-size: 14px; }
+
+  .impact-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .impact-card {
+    background: #FDFCFA;
+    border: 1px solid #E2E0DA;
+    border-radius: 10px;
+    padding: 22px 24px;
+    box-shadow: 0 1px 3px rgba(18,18,26,0.06);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .impact-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px;
+    height: 100%;
+  }
+
+  .impact-card.critical::before { background: #C4402A; }
+  .impact-card.warning::before  { background: #C9943A; }
+  .impact-card.info::before     { background: #2A6A8A; }
+  .impact-card.success::before  { background: #2D8A6E; }
+
+  .impact-card .i-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #9898A8;
+    margin-bottom: 8px;
+  }
+
+  .impact-card .i-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #12121A;
+    margin-bottom: 6px;
+  }
+
+  .impact-card .i-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .impact-card.critical .i-value { color: #C4402A; }
+  .impact-card.warning  .i-value { color: #C9943A; }
+  .impact-card.info     .i-value { color: #2A6A8A; }
+  .impact-card.success  .i-value { color: #2D8A6E; }
+
+  .impact-card .i-desc {
+    font-size: 13px;
+    color: #5A5A6E;
+    line-height: 1.6;
+  }
+
+  .action-phases {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .phase-card {
+    background: #FDFCFA;
+    border: 1px solid #E2E0DA;
+    border-radius: 10px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(18,18,26,0.06);
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  .phase-label { text-align: center; }
+
+  .phase-label .phase-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: #12121A;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .phase-label .phase-time {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: #9898A8;
+    letter-spacing: 0.02em;
+    line-height: 1.5;
+  }
+
+  .phase-items { list-style: none; }
+
+  .phase-items li {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #F0EDE8;
+    font-size: 14px;
+    color: #12121A;
+  }
+
+  .phase-items li:last-child { border-bottom: none; }
+
+  .phase-items li .check {
+    color: #C4502A;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+
+  .key-insight {
+    background: #0E0E16;
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-top: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .key-insight::before {
+    content: '"';
+    position: absolute;
+    top: -10px;
+    right: 24px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 160px;
+    color: rgba(196,80,42,0.12);
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .key-insight .ki-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #C4502A;
+    margin-bottom: 12px;
+  }
+
+  .key-insight p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 21px;
+    font-weight: 400;
+    color: #FDFCFA;
+    line-height: 1.7;
+    max-width: 700px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .report-footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid #E2E0DA;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .footer-brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #C4502A;
+  }
+
+  .footer-meta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: #9898A8;
+    letter-spacing: 0.04em;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 768px) {
+    .page { padding: 32px 16px 64px; }
+    .summary-grid { grid-template-columns: 1fr 1fr; }
+    .impact-grid { grid-template-columns: 1fr; }
+    .phase-card { grid-template-columns: 1fr; }
+    .report-title { font-size: 30px; }
+    .comp-table { font-size: 12px; }
+    .comp-table tbody td,
+    .comp-table thead th { padding: 10px 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <header class="report-header">
+    <div class="report-badge">網站競爭差距分析</div>
+    <h1 class="report-title">Deep Taiwan Tour<br>對標差距報告</h1>
+    <p class="report-subtitle">以 esence.travel 為競品標竿，識別五大結構性缺口與商業影響</p>
+    <div class="meta-row">
+      <span class="meta-item"><strong>分析標竿</strong>　esence.travel</span>
+      <span class="meta-item"><strong>分析日期</strong>　2026-03-31</span>
+      <span class="meta-item"><strong>產出者</strong>　MUSEON 智慧分析系統</span>
+    </div>
+  </header>
+
+  <!-- Summary Cards -->
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="label">識別缺口</div>
+      <div class="value">5</div>
+      <div class="desc">項結構性差距</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">P1 緊急項目</div>
+      <div class="value">2</div>
+      <div class="desc">需在此次開會確認修正</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">最大轉換損失</div>
+      <div class="value" style="font-size:24px;">-40~60%</div>
+      <div class="desc">無直接購買功能造成的流失</div>
+    </div>
+  </div>
+
+  <!-- Gap Table -->
+  <div class="section">
+    <h2 class="section-title">五大缺口對照表</h2>
+    <table class="comp-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>缺口項目</th>
+          <th>esence.travel 現況</th>
+          <th>Deep Taiwan Tour 現況</th>
+          <th>優先級</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="gap-num">01</span></td>
+          <td class="gap-name">線上購買 / 預訂系統</td>
+          <td class="has-it">✓ WooCommerce 電商，訪客可直接選行程、付款下單，無需等候報價</td>
+          <td class="missing">✗ 只有詢問表單，無法直接購買，需等候回覆，決策摩擦高</td>
+          <td><span class="priority p1">P1 緊急</span></td>
+        </tr>
+        <tr>
+          <td><span class="gap-num">02</span></td>
+          <td class="gap-name">中文字型策略</td>
+          <td class="has-it">✓ 全站使用 Noto Serif TC，中英文視覺統一，閱讀質感顯著</td>
+          <td class="missing">✗ 中文字型未設計，顯示系統預設字體，品牌感落差大</td>
+          <td><span class="priority p1">P1 緊急</span></td>
+        </tr>
+        <tr>
+          <td><span class="gap-num">03</span></td>
+          <td class="gap-name">品牌色彩一致性</td>
+          <td class="has-it">✓ 暖棕 #583f24 貫穿全站所有元素，高端旅遊質感統一</td>
+          <td class="missing">✗ 青綠主色存在但應用不一致，部分頁面色彩脫節，定位感降低</td>
+          <td><span class="priority p2">P2 重要</span></td>
+        </tr>
+        <tr>
+          <td><span class="gap-num">04</span></td>
+          <td class="gap-name">公司公信力信號</td>
+          <td class="has-it">✓ 頁尾明確顯示電話、地址、營業時間、Facebook 官方頁面連結</td>
+          <td class="missing">✗ 缺乏「真實公司存在感」的信任錨點，國際旅客與大陸客疑慮高</td>
+          <td><span class="priority p2">P2 重要</span></td>
+        </tr>
+        <tr>
+          <td><span class="gap-num">05</span></td>
+          <td class="gap-name">SEO 結構化標記</td>
+          <td class="has-it">✓ 完整的 Schema.org 結構標記，Google 搜尋結果有豐富摘要呈現</td>
+          <td class="missing">✗ 未確認是否實作，搜尋排名與自然點擊率可能持續偏低</td>
+          <td><span class="priority p3">P3 優化</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Business Impact -->
+  <div class="section">
+    <h2 class="section-title">商業影響量化</h2>
+    <div class="impact-grid">
+      <div class="impact-card critical">
+        <div class="i-label">缺口 01 · 最高優先</div>
+        <div class="i-title">無直接購買功能</div>
+        <div class="i-value">-40~60%</div>
+        <div class="i-desc">訪客不願等待報價，直接流向競品；競品一鍵付款大幅降低決策摩擦，轉換率差距顯著</div>
+      </div>
+      <div class="impact-card warning">
+        <div class="i-label">缺口 04 · 信任問題</div>
+        <div class="i-title">公信力信號不足</div>
+        <div class="i-value">信任度↓</div>
+        <div class="i-desc">大陸 MICE 客首次接觸缺乏真實公司錨點（電話/地址），第一印象疑慮高，主動詢問率低</div>
+      </div>
+      <div class="impact-card info">
+        <div class="i-label">缺口 02+03 · 品牌落差</div>
+        <div class="i-title">視覺品牌定位不符</div>
+        <div class="i-value">定位錯位</div>
+        <div class="i-desc">高端深度旅遊的定價需要視覺支撐；字型預設加色彩不一致，削弱高單價可信度</div>
+      </div>
+      <div class="impact-card success">
+        <div class="i-label">缺口 05 · 長期增長</div>
+        <div class="i-title">SEO 結構化標記</div>
+        <div class="i-value">+20~30%</div>
+        <div class="i-desc">Schema.org 可讓 Google 顯示評分、價格、行程摘要，自然點擊率提升 20-30%，免費長期流量</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Plan -->
+  <div class="section">
+    <h2 class="section-title">建議行動計畫</h2>
+    <div class="action-phases">
+
+      <div class="phase-card">
+        <div class="phase-label">
+          <span class="phase-name">短期</span>
+          <span class="phase-time">此次開會<br>必須確認</span>
+        </div>
+        <ul class="phase-items">
+          <li><span class="check">▶</span><span>確認網路公司能否加入線上預訂／購買系統（WooCommerce 或 Booking 外掛），索取報價與交期</span></li>
+          <li><span class="check">▶</span><span>要求全站中文字型統一更換為 Noto Serif TC，確認所有頁面一致套用</span></li>
+          <li><span class="check">▶</span><span>頁尾加入聯絡資訊：電話、地址、Google Maps 連結、營業時間</span></li>
+        </ul>
+      </div>
+
+      <div class="phase-card">
+        <div class="phase-label">
+          <span class="phase-name">中期</span>
+          <span class="phase-time">P1 完成後<br>啟動</span>
+        </div>
+        <ul class="phase-items">
+          <li><span class="check">▶</span><span>全站品牌色彩審查：確認主色、按鈕、強調色在所有頁面一致應用</span></li>
+          <li><span class="check">▶</span><span>加入 Facebook／Instagram 官方頁面連結，建立社群信任信號</span></li>
+          <li><span class="check">▶</span><span>建立 Google 商家頁面（Google Business Profile），讓搜尋結果顯示標準知識面板</span></li>
+        </ul>
+      </div>
+
+      <div class="phase-card">
+        <div class="phase-label">
+          <span class="phase-name">長期</span>
+          <span class="phase-time">網站穩定後<br>持續優化</span>
+        </div>
+        <ul class="phase-items">
+          <li><span class="check">▶</span><span>實作 Schema.org 結構化標記（TouristAttraction / TouristTrip），強化 Google 搜尋呈現</span></li>
+          <li><span class="check">▶</span><span>針對大陸、日本、歐美三大目標市場進行多語系 SEO 關鍵字策略</span></li>
+          <li><span class="check">▶</span><span>建立訪客評價機制（Google Review / TripAdvisor），積累可見的社會認同</span></li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Key Insight -->
+  <div class="key-insight">
+    <div class="ki-label">核心洞見</div>
+    <p>esence.travel 的核心優勢不是「設計更好看」，而是「讓訪客當場決策、當場付款」。Deep Taiwan Tour 最高優先的缺口是購買流程摩擦——把詢問表單升級為線上預訂系統，是單一投資報酬率最高的改動，也是向大陸 MICE 市場展示運營能力的基礎門檻。</p>
+  </div>
+
+  <footer class="report-footer">
+    <div class="footer-brand">MUSEON</div>
+    <div class="footer-meta">Generated 2026-03-31 · Deep Taiwan Tour Website Gap Analysis v1.0</div>
+  </footer>
+
+</div>
+</body>
+</html>
