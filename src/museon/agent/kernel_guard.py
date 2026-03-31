@@ -90,6 +90,11 @@ PHI_FIELDS: Dict[str, List[str]] = {
 PSI_FIELDS: Dict[str, List[str]] = {
     "ANIMA_MC": [
         "core_values",                # 核心價值觀（真實優先、演化至上等）
+        "personality.trait_dimensions.P1_warmth",     # 人格特質：溫暖度
+        "personality.trait_dimensions.P2_directness", # 人格特質：直接度
+        "personality.trait_dimensions.P3_initiative", # 人格特質：主動性
+        "personality.trait_dimensions.P4_depth",      # 人格特質：深度
+        "personality.trait_dimensions.P5_autonomy",   # 人格特質：自主性
     ],
 }
 
@@ -103,6 +108,7 @@ PSI_FIELDS: Dict[str, List[str]] = {
 APPEND_ONLY_FIELDS: Dict[str, List[str]] = {
     "ANIMA_MC": [
         "evolution.stage_history",     # 演化歷史
+        "evolution.trait_history",     # 人格特質演化歷史
     ],
     "ANIMA_USER": [
         "relationship.milestones",     # 里程碑
@@ -121,6 +127,9 @@ FIELD_SIZE_LIMITS: Dict[str, Dict[str, int]] = {
     },
     "ANIMA_MC": {
         "capabilities.loaded_skills": 100,
+        "evolution.trait_history": 200,
+        "evolution.stage_history": 50,
+        "personality.core_traits": 20,
     },
 }
 

@@ -8,7 +8,7 @@ import json
 import logging
 import os
 import threading
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -1809,6 +1809,27 @@ class BrainObservationMixin:
                     except Exception as e:
                         logger.warning(f"L3 匹配失敗: {e}")
 
+                # ── Trait Engine: C-trait real-time update ──
+                try:
+                    from museon.agent.trait_engine import TraitEngine
+                    _te = TraitEngine()
+                    _is_dm = not getattr(self, '_current_context_type', None) == 'group'
+                    _source = "zeal" if _is_dm else "world"
+                    _interaction = {
+                        "content": "",  # content not available here, ok for C-traits
+                        "source": _source,
+                        "response_content": "",
+                        "skill_names": skill_names if skill_names else [],
+                        "quality_score": 0.6,  # default, refined by FeedbackLoop later
+                    }
+                    _c_deltas = _te.observe_interaction(_interaction, anima_mc, {})
+                    # Filter to C-traits only (P-traits only update in Nightly)
+                    _c_only = {k: v for k, v in _c_deltas.items() if k.startswith("C")}
+                    if _c_only:
+                        _te.apply_c_deltas(_c_only, anima_mc)
+                except Exception as e:
+                    logger.debug(f"TraitEngine C-update skipped: {e}")
+
                 return anima_mc
 
             self._anima_mc_store.update(updater)
@@ -2058,8 +2079,29 @@ class BrainObservationMixin:
 
         identity["days_alive"] = days_alive
 
-        # 全能體模式：不分階段，一律 adult
-        new_stage = "adult"
+        # GrowthStageComputer：動態計算認知成熟度與成長階段
+        try:
+            from museon.agent.growth_stage import GrowthStageComputer
+            _gsc = GrowthStageComputer()
+            new_stage, maturity, constraints = _gsc.compute(anima_mc)
+            # Store computed values for prompt builder to read
+            anima_mc.setdefault("identity", {})["cognitive_maturity"] = round(maturity, 3)
+            anima_mc.setdefault("identity", {})["stage_constraints"] = constraints
+            # Detect transition and deposit soul ring if needed
+            old_stage = anima_mc.get("identity", {}).get("growth_stage", "ABSORB")
+            if old_stage != new_stage:
+                transition_record = _gsc.detect_transition(old_stage, new_stage, anima_mc)
+                if transition_record and hasattr(self, '_soul_ring') and self._soul_ring:
+                    try:
+                        self._soul_ring.deposit_soul_ring(**transition_record)
+                    except Exception:
+                        pass
+                # Update stage_history (append-only)
+                stage_history = anima_mc.get("evolution", {}).get("stage_history", [])
+                stage_history.append({"stage": new_stage, "maturity": round(maturity, 3), "at": datetime.now(timezone.utc).isoformat()})
+        except Exception as e:
+            logger.debug(f"GrowthStageComputer failed, fallback to existing logic: {e}")
+            new_stage = "adult"  # Fallback
 
         old_stage = identity.get("growth_stage", "adult")
         if new_stage != old_stage:

@@ -1778,6 +1778,31 @@ class BrainPromptBuilderMixin:
         if traits:
             section += f"\n\n性格特質：{', '.join(traits)}"
 
+        # ── Trait signature (Persona Evolution) ──
+        trait_dims = anima_mc.get("personality", {}).get("trait_dimensions", {})
+        core_traits_list = anima_mc.get("personality", {}).get("core_traits", [])
+        cognitive_maturity = anima_mc.get("identity", {}).get("cognitive_maturity", 0.0)
+        growth_stage = anima_mc.get("identity", {}).get("growth_stage", "ABSORB")
+
+        if trait_dims:
+            # Human-readable trait labels
+            if core_traits_list:
+                section += f"\n性格特質：{'、'.join(core_traits_list)}"
+
+            # Top capability traits
+            c_traits = []
+            for tid in ["C1_empathy_breadth", "C2_pattern_recognition", "C4_conflict_navigation", "C5_metacognition"]:
+                t = trait_dims.get(tid, {})
+                if isinstance(t, dict) and t.get("confidence", 0) > 0.1:
+                    val = int(t.get("value", 0) * 100)
+                    label = tid.split("_", 1)[1].replace("_", " ").title()
+                    c_traits.append(f"{label} {val}%")
+            if c_traits:
+                section += f"\n能力特徵：{'、'.join(c_traits[:3])}"
+
+        if cognitive_maturity > 0:
+            section += f"\n成長階段：{growth_stage}（認知成熟度 {int(cognitive_maturity * 100)}%）"
+
         return section
 
     def _get_user_context_prompt(self, anima_user: Dict[str, Any]) -> str:
@@ -2073,7 +2098,57 @@ class BrainPromptBuilderMixin:
 
         不分階段，一律以成人期全自主運作。
         動態演化覺醒仍然保留（基於 ANIMA 絕對值）。
+        如果 ANIMA_MC 有 stage_constraints，優先使用動態約束（Persona Evolution）。
         """
+        # Read stage constraints from ANIMA_MC (set by GrowthStageComputer)
+        constraints = {}
+        if anima_mc:
+            constraints = anima_mc.get("identity", {}).get("stage_constraints", {})
+
+        if constraints:
+            stage = anima_mc.get("identity", {}).get("growth_stage", "ABSORB")
+            desc = constraints.get("description", "")
+
+            behavior_lines = [f"## 成長階段行為（{stage} — {desc}）"]
+
+            init_cap = constraints.get("initiative_cap", 1.0)
+            chal_cap = constraints.get("challenge_level_cap", 1.0)
+
+            if init_cap < 0.5:
+                behavior_lines.append("- 以觀察和提問為主，少主動建議")
+            elif init_cap < 0.8:
+                behavior_lines.append("- 可以主動提出建議，但保留空間給使用者")
+            else:
+                behavior_lines.append("- 完全自主決策，主動提出觀點和挑戰")
+
+            if chal_cap < 0.3:
+                behavior_lines.append("- 不挑戰使用者的假設，以學習為主")
+            elif chal_cap < 0.7:
+                behavior_lines.append("- 可以溫和質疑假設，但態度尊重")
+            else:
+                behavior_lines.append("- 遇到不同意見時直接表達立場")
+
+            if constraints.get("hedging_required"):
+                behavior_lines.append("- 語氣保留探索空間，用「也許」「可能」代替斷言")
+
+            if constraints.get("confirmation_question"):
+                behavior_lines.append("- 回應結尾帶一個確認提問")
+
+            if constraints.get("self_disclosure_allowed"):
+                behavior_lines.append("- 可以表達自我觀點和偏好")
+            else:
+                behavior_lines.append("- 不主動表達自我觀點，以引導使用者為主")
+
+            growth_behavior_str = "\n".join(behavior_lines)
+
+            # ── 動態演化覺醒（基於 ANIMA 絕對值）──
+            evolution_hints = self._get_evolution_behavior_hints(anima_mc)
+            if evolution_hints:
+                growth_behavior_str += "\n\n" + evolution_hints
+
+            return growth_behavior_str
+
+        # Fallback: 原有全能體模式
         base = "## 成長階段行為（全能體 — 全自主模式）\n"
         base += "- 穩定人格，深入了解老闆\n"
         base += "- 所有任務完全自主\n"
