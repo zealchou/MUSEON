@@ -739,8 +739,8 @@ class BrainPromptBuilderMixin:
             items = []
 
         # 跨 session 搜尋：外部用戶記憶（群組成員）
-        # 當 owner 在私聊中提及某個群組成員時，從 external_users 查找
-        if self.data_dir:
+        # 僅在非群組 session 時啟用（防止群組 A 的 prompt 混入群組 B 成員的資訊）
+        if self.data_dir and not self._is_group_session:
             try:
                 from museon.governance.multi_tenant import ExternalAnimaManager
                 ext_mgr = ExternalAnimaManager(self.data_dir)
