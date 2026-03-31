@@ -4559,7 +4559,8 @@ class NightlyPipeline:
             from museon.pulse.anima_mc_store import get_anima_mc_store
 
             engine = NightlyReflectionEngine()
-            anima_mc_store = get_anima_mc_store()
+            _anima_mc_path = self._workspace / "ANIMA_MC.json"
+            anima_mc_store = get_anima_mc_store(path=_anima_mc_path)
             anima_mc = anima_mc_store.load()
             if not anima_mc:
                 return {"skipped": "no ANIMA_MC"}
@@ -4567,7 +4568,7 @@ class NightlyPipeline:
             # Get today's soul rings
             recent_rings = []
             try:
-                rings_path = self._workspace / "data" / "anima" / "soul_rings.json"
+                rings_path = self._workspace / "anima" / "soul_rings.json"
                 if rings_path.exists():
                     import json
                     with open(rings_path) as f:
@@ -4582,7 +4583,7 @@ class NightlyPipeline:
             # Get daily summary from Step 10's output
             daily_summary = ""
             try:
-                summary_path = self._workspace / "data" / "_system" / "state" / "nightly_report.json"
+                summary_path = self._workspace / "_system" / "state" / "nightly_report.json"
                 if summary_path.exists():
                     import json
                     with open(summary_path) as f:
@@ -4591,34 +4592,26 @@ class NightlyPipeline:
             except Exception:
                 pass
 
-            # LLM caller — use existing brain's LLM infrastructure
+            # LLM caller — 使用 ClaudeCLIAdapter（claude -p，MAX OAuth）
             def llm_caller(system_prompt: str, user_prompt: str) -> str:
-                try:
-                    from museon.agent.llm_client import call_llm
-                    return call_llm(
-                        system_prompt=system_prompt,
-                        user_prompt=user_prompt,
-                        model="sonnet",
-                        max_tokens=1000,
-                    )
-                except ImportError:
-                    # Fallback: try anthropic directly
-                    import anthropic
-                    client = anthropic.Anthropic()
-                    response = client.messages.create(
-                        model="claude-sonnet-4-20250514",
-                        max_tokens=1000,
-                        system=system_prompt,
-                        messages=[{"role": "user", "content": user_prompt}],
-                    )
-                    return response.content[0].text
+                import asyncio
+                from museon.llm.adapters import ClaudeCLIAdapter
+                adapter = ClaudeCLIAdapter()
+                resp = asyncio.run(adapter.call(
+                    system_prompt=system_prompt,
+                    messages=[{"role": "user", "content": user_prompt}],
+                    model="haiku",
+                    max_tokens=1000,
+                ))
+                return resp.text
 
             # Soul ring depositor
             def soul_ring_depositor(**kwargs):
                 try:
-                    from museon.agent.soul_ring import DiaryStore
-                    ds = DiaryStore(self._workspace / "data" / "anima")
-                    ds.deposit_soul_ring(**kwargs)
+                    from museon.agent.soul_ring import RingDepositor, SoulRingStore
+                    store = SoulRingStore(str(self._workspace / "anima"))
+                    depositor = RingDepositor(store=store, data_dir=str(self._workspace))
+                    depositor.deposit_soul_ring(**kwargs)
                 except Exception as e:
                     logger.warning(f"Soul ring deposit failed: {e}")
 
@@ -4653,7 +4646,8 @@ class NightlyPipeline:
 
             te = TraitEngine()
             gsc = GrowthStageComputer()
-            store = get_anima_mc_store()
+            _anima_mc_path = self._workspace / "ANIMA_MC.json"
+            store = get_anima_mc_store(path=_anima_mc_path)
 
             def updater(anima_mc):
                 days = anima_mc.get("identity", {}).get("days_alive", 0)
@@ -4693,7 +4687,8 @@ class NightlyPipeline:
             import json
 
             mb = MomentumBrake()
-            store = get_anima_mc_store()
+            _anima_mc_path = self._workspace / "ANIMA_MC.json"
+            store = get_anima_mc_store(path=_anima_mc_path)
             anima_mc = store.load()
             if not anima_mc:
                 return {"skipped": "no ANIMA_MC"}
@@ -4709,7 +4704,7 @@ class NightlyPipeline:
                 # Deposit warning soul ring
                 try:
                     from museon.agent.soul_ring import DiaryStore
-                    ds = DiaryStore(self._workspace / "data" / "anima")
+                    ds = DiaryStore(self._workspace / "anima")
                     alert_summary = ", ".join(f"{tid}: {info['direction']} ({info['consecutive_same_direction']}天)" for tid, info in alerts.items())
                     ds.deposit_soul_ring(
                         ring_type="value_calibration",

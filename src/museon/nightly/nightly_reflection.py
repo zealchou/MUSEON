@@ -204,7 +204,8 @@ class NightlyReflectionEngine:
             return {"updates_applied": 0, "reflection_summary": reflection_text, "trait_diffs": {}}
 
         # ── Step 4: Apply momentum brake (optional) ────────────────────
-        braked_diffs = self._apply_momentum_brake(raw_diffs, trait_dims)
+        trait_history = anima_mc.get("evolution", {}).get("trait_history", [])
+        braked_diffs = self._apply_momentum_brake(raw_diffs, trait_dims, trait_history)
 
         # ── Step 5: Apply P-trait updates via anima_mc_store ───────────
         applied_updates = self._apply_p_trait_updates(
@@ -407,6 +408,7 @@ class NightlyReflectionEngine:
         self,
         trait_diffs: Dict[str, Dict[str, Any]],
         trait_dims: dict,
+        trait_history: list = None,
     ) -> Dict[str, Dict[str, Any]]:
         """Apply MomentumBrake if available, otherwise return diffs unchanged."""
         if not _MOMENTUM_BRAKE_AVAILABLE or MomentumBrake is None:
@@ -416,12 +418,10 @@ class NightlyReflectionEngine:
             brake = MomentumBrake()
             braked: Dict[str, Dict[str, Any]] = {}
             for trait_id, diff in trait_diffs.items():
-                current_momentum = float(
-                    trait_dims.get(trait_id, {}).get("momentum", 0.0)
-                )
-                braked_delta = brake.apply(
-                    delta=diff["delta"],
-                    momentum=current_momentum,
+                braked_delta, _audit = brake.check_and_clip(
+                    trait_id=trait_id,
+                    proposed_delta=diff["delta"],
+                    trait_history=trait_history or [],
                 )
                 braked[trait_id] = {**diff, "delta": braked_delta}
             return braked
