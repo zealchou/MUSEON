@@ -4846,15 +4846,10 @@ class NightlyPipeline:
             })
 
         # 檢查 Morphenix L3 提案（需人類審查）
+        # 只看 l3_proposals 非空（"escalated" 字串太寬泛，MuseOff finding 也會命中）
         for step_name, step_data in steps.items():
             result_str = step_data.get("result", "")
-            if "escalated" in result_str.lower():
-                decisions.append({
-                    "type": "morphenix_l3_review",
-                    "step": step_name,
-                    "description": f"有 Morphenix L3 提案需要你審查",
-                })
-            elif "l3_proposals" in result_str:
+            if "l3_proposals" in result_str:
                 import json as _json
                 try:
                     _res = _json.loads(result_str) if isinstance(result_str, str) else result_str
