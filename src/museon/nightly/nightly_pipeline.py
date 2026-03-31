@@ -122,6 +122,7 @@ _FULL_STEPS = [
     "14", "15", "16", "17",
     "18", "18.5", "18.6", "18.7",  # 18.5: 客戶互動萃取 → 18.6: Ares 橋接 → 18.7: 六層健康檢查
     "19",  # 19: Morphenix 演化品質驗證（post-execution quality gate）
+    "19.5", "19.6", "19.7",  # Skill 自動演化：健康追蹤 → 鍛造/優化 → QA 品質閘門
     "20", "21", "22", "23",  # 新增：synapse_decay/muscle_atrophy/immune_prune/trigger_eval
     "24", "25",  # 新增：演化速度計算 / 週月循環觸發檢查
     "26", "27", "28", "29",  # 持久層衛生：session 清理 / JSONL 輪替 / WAL checkpoint / DataWatchdog
@@ -223,6 +224,10 @@ class NightlyPipeline:
             "18.6": ("step_18_6_ares_bridge_sync", self._step_ares_bridge_sync),
             "18.7": ("step_18_7_system_health_audit", self._step_system_health_audit),
             "19": ("step_19_morphenix_quality_gate", self._step_morphenix_quality_gate),
+            # ── Skill 自動演化管線（Organ Growth Pipeline）──
+            "19.5": ("step_19_5_skill_health_scan", self._step_skill_health_scan),
+            "19.6": ("step_19_6_skill_draft_forge", self._step_skill_draft_forge),
+            "19.7": ("step_19_7_skill_qa_gate", self._step_skill_qa_gate),
             # ── Autonomy Architecture 新增步驟 ──
             "0": ("step_00_budget_settlement", self._step_budget_settlement),
             "0.1": ("step_00_1_footprint_cleanup", self._step_footprint_cleanup),
@@ -1066,6 +1071,9 @@ class NightlyPipeline:
                         if s.get("tier", "") == "low"
                     )
                     if consecutive_low >= 3:
+                        # 找出最弱維度，產生可執行的 config_changes
+                        _weakest = min(dim_avgs, key=dim_avgs.get) if dim_avgs else "depth"
+                        _boost = round(min(1.5, 1.0 + (0.5 - overall_avg)), 2)
                         proposal = {
                             "category": "L2",
                             "source": "qscore_consecutive_low",
@@ -1076,6 +1084,16 @@ class NightlyPipeline:
                             ),
                             "action": "review_response_strategy",
                             "metric": {"consecutive_low": consecutive_low, "overall_avg": round(overall_avg, 3)},
+                            "metadata": {
+                                "config_changes": [
+                                    {
+                                        "file": "_system/context_cache/active_rules.json",
+                                        "key": f"{_weakest}_weight",
+                                        "value": _boost,
+                                        "old_value": 1.0,
+                                    }
+                                ]
+                            },
                             "created_at": datetime.now(TZ_TAIPEI).isoformat(),
                             "status": "pending_review",
                         }
@@ -1104,6 +1122,16 @@ class NightlyPipeline:
                 ]
                 if downgraded:
                     domains = set(c.get("domain", "general") for c in downgraded)
+                    # 為每個被反證的領域產生降權 config_change
+                    _lattice_changes = [
+                        {
+                            "file": "_system/context_cache/active_rules.json",
+                            "key": f"domain_{d}_confidence",
+                            "value": 0.7,
+                            "old_value": 1.0,
+                        }
+                        for d in list(domains)[:3]
+                    ]
                     proposal = {
                         "category": "L2",
                         "source": "knowledge_lattice_downgrade",
@@ -1115,6 +1143,9 @@ class NightlyPipeline:
                         ),
                         "action": "review_skill_logic",
                         "metric": {"downgraded_count": len(downgraded), "domains": list(domains)},
+                        "metadata": {
+                            "config_changes": _lattice_changes,
+                        },
                         "created_at": datetime.now(TZ_TAIPEI).isoformat(),
                         "status": "pending_review",
                     }
@@ -1244,6 +1275,8 @@ class NightlyPipeline:
                         logger.debug(f"[NIGHTLY] JSON parse failed (degraded): {e}")
 
                 if len(notes) >= 3:
+                    # 迭代筆記是觀察型提案，標記為 type=observation
+                    # Executor 看到 observation 會記錄但不做 config 變更
                     proposal = {
                         "category": "L2",
                         "source": "iteration_notes",
@@ -1251,6 +1284,10 @@ class NightlyPipeline:
                         "description": f"累積 {len(notes)} 條迭代觀察筆記，建議結晶為具體改進提案。",
                         "action": "crystallize_notes",
                         "source_notes": [f.name for f in notes_dir.glob("*.json") if f.is_file()][:20],
+                        "metadata": {
+                            "type": "observation",
+                            "config_changes": [],
+                        },
                         "created_at": datetime.now(TZ_TAIPEI).isoformat(),
                         "status": "pending_review",
                     }
@@ -1315,6 +1352,99 @@ class NightlyPipeline:
                     diagnostics.append(f"Nightly Report: {len(error_steps)} 步驟失敗")
         except Exception as e:
             logger.debug(f"Morphenix Nightly Report signal scan failed: {e}")
+
+        # ═══ 信號源 7: FeedbackLoop 隱性品質趨勢 ═══
+        try:
+            fl_file = self._workspace / "_system" / "feedback_loop" / "daily_summary.json"
+            if fl_file.exists():
+                signals_scanned += 1
+                with open(fl_file, "r", encoding="utf-8") as fh:
+                    fl_data = json.load(fh)
+
+                avg_quality = fl_data.get("avg_quality", 0.5)
+                interaction_count = fl_data.get("interaction_count", 0)
+                trend = fl_data.get("trend_direction", "stable")
+
+                if interaction_count >= 10 and avg_quality < 0.45:
+                    proposal = {
+                        "category": "L1",
+                        "source": "feedback_loop_quality",
+                        "title": f"使用者互動品質偏低: {avg_quality:.2f}",
+                        "description": (
+                            f"FeedbackLoop 偵測到近期 {interaction_count} 次互動的"
+                            f"平均品質分 {avg_quality:.2f}（閾值 0.45），趨勢: {trend}。"
+                            f"建議提升回應深度與個人化程度。"
+                        ),
+                        "action": "boost_response_quality",
+                        "metric": {
+                            "avg_quality": round(avg_quality, 3),
+                            "interaction_count": interaction_count,
+                            "trend": trend,
+                        },
+                        "metadata": {
+                            "config_changes": [
+                                {
+                                    "file": "_system/context_cache/active_rules.json",
+                                    "key": "response_depth_boost",
+                                    "value": round(min(1.5, 1.0 + (0.45 - avg_quality)), 2),
+                                    "old_value": 1.0,
+                                }
+                            ]
+                        },
+                        "created_at": datetime.now(TZ_TAIPEI).isoformat(),
+                        "status": "pending_review",
+                    }
+                    out = proposals_dir / f"proposal_feedback_{date.today().isoformat()}.json"
+                    with open(out, "w", encoding="utf-8") as fh:
+                        json.dump(proposal, fh, ensure_ascii=False, indent=2)
+                    proposals_created += 1
+                    diagnostics.append(f"FeedbackLoop: 品質 {avg_quality:.2f}, 趨勢 {trend}")
+        except Exception as e:
+            logger.debug(f"Morphenix FeedbackLoop signal scan failed: {e}")
+
+        # ═══ 信號源 8: WEE 熟練度退化 → Skill 強化方向 ═══
+        try:
+            curricula_dir = self._workspace / "_system" / "curricula"
+            if curricula_dir.exists():
+                signals_scanned += 1
+                # 讀取最近一份診斷
+                diag_files = sorted(curricula_dir.glob("diagnosis_*.json"), reverse=True)
+                if diag_files:
+                    with open(diag_files[0], "r", encoding="utf-8") as fh:
+                        diag = json.load(fh)
+
+                    scores = diag.get("scores", {})
+                    weak_dims = {k: v for k, v in scores.items() if isinstance(v, (int, float)) and v < 4.0}
+
+                    if weak_dims:
+                        weakest = min(weak_dims, key=weak_dims.get)
+                        weakest_score = weak_dims[weakest]
+                        proposal = {
+                            "category": "L2",
+                            "source": "wee_proficiency_gap",
+                            "title": f"WEE 偵測到 {len(weak_dims)} 個弱項維度，最弱: {weakest} ({weakest_score:.1f})",
+                            "description": (
+                                f"工作流熟練度診斷顯示 {len(weak_dims)} 個維度低於 4.0: "
+                                f"{', '.join(f'{k}={v:.1f}' for k, v in weak_dims.items())}。"
+                                f"建議研究或強化相關 Skill 的處理能力。"
+                            ),
+                            "action": "skill_gap_research",
+                            "metric": {"weak_dims": {k: round(v, 2) for k, v in weak_dims.items()}},
+                            "metadata": {
+                                "type": "skill_research_request",
+                                "config_changes": [],
+                                "scout_topics": [f"{dim} 能力強化" for dim in list(weak_dims.keys())[:3]],
+                            },
+                            "created_at": datetime.now(TZ_TAIPEI).isoformat(),
+                            "status": "pending_review",
+                        }
+                        out = proposals_dir / f"proposal_wee_gap_{date.today().isoformat()}.json"
+                        with open(out, "w", encoding="utf-8") as fh:
+                            json.dump(proposal, fh, ensure_ascii=False, indent=2)
+                        proposals_created += 1
+                        diagnostics.append(f"WEE: {len(weak_dims)} 弱項, 最弱 {weakest}={weakest_score:.1f}")
+        except Exception as e:
+            logger.debug(f"Morphenix WEE signal scan failed: {e}")
 
         result = {
             "signals_scanned": signals_scanned,
@@ -3485,6 +3615,152 @@ class NightlyPipeline:
         }
 
     # ═══════════════════════════════════════════
+    # Step 19.5: Skill 健康度掃描
+    # ═══════════════════════════════════════════
+
+    def _step_skill_health_scan(self) -> Dict:
+        """Step 19.5: 掃描所有 Skill 的健康度，偵測退化信號."""
+        try:
+            from museon.nightly.skill_health_tracker import SkillHealthTracker
+            tracker = SkillHealthTracker(workspace=self._workspace)
+            health_map = tracker.scan_all_skills()
+            degradation = tracker.detect_degradation()
+            tracker.persist()
+            return {
+                "skills_scanned": len(health_map),
+                "degradation_signals": len(degradation),
+                "degraded_skills": [d.skill_name for d in degradation],
+            }
+        except Exception as e:
+            logger.debug(f"Step 19.5 skill_health_scan failed: {e}")
+            return {"error": str(e)}
+
+    # ═══════════════════════════════════════════
+    # Step 19.6: Skill 草稿鍛造/優化
+    # ═══════════════════════════════════════════
+
+    def _step_skill_draft_forge(self) -> Dict:
+        """Step 19.6: 從 Scout 筆記或退化信號自動鍛造/優化 Skill 草稿."""
+        try:
+            from museon.nightly.skill_draft_forger import SkillDraftForger
+            forger = SkillDraftForger(workspace=self._workspace)
+            result = forger.run()
+            return result
+        except Exception as e:
+            logger.debug(f"Step 19.6 skill_draft_forge failed: {e}")
+            return {"error": str(e)}
+
+    # ═══════════════════════════════════════════
+    # Step 19.7: Skill QA 品質閘門
+    # ═══════════════════════════════════════════
+
+    def _step_skill_qa_gate(self) -> Dict:
+        """Step 19.7: 對 pending_qa 狀態的草稿跑三維品質驗證."""
+        try:
+            from museon.nightly.skill_qa_gate import SkillQAGate
+            from pathlib import Path
+            gate = SkillQAGate(
+                workspace=self._workspace,
+                skills_dir=Path.home() / ".claude" / "skills",
+            )
+            drafts_dir = self._workspace / "_system" / "skills_draft"
+            if not drafts_dir.exists():
+                return {"drafts_evaluated": 0}
+
+            results = []
+            for draft_file in drafts_dir.glob("draft_*.json"):
+                try:
+                    import json
+                    draft = json.loads(draft_file.read_text(encoding="utf-8"))
+                    if draft.get("status") != "pending_qa":
+                        continue
+                    qa_result = gate.evaluate(draft_file)
+                    # 更新草稿狀態
+                    draft["status"] = "approved" if qa_result.passed else "quarantine"
+                    draft["qa_score"] = qa_result.overall_score
+                    draft["qa_result"] = {
+                        "d1": {"passed": qa_result.d1.passed, "score": qa_result.d1.score},
+                        "d2": {"passed": qa_result.d2.passed, "score": qa_result.d2.score},
+                        "d3": {"passed": qa_result.d3.passed, "score": qa_result.d3.score},
+                    }
+                    tmp = draft_file.with_suffix(".tmp")
+                    tmp.write_text(json.dumps(draft, ensure_ascii=False, indent=2), encoding="utf-8")
+                    tmp.rename(draft_file)
+                    results.append({
+                        "id": draft.get("id", ""),
+                        "passed": qa_result.passed,
+                        "score": qa_result.overall_score,
+                    })
+                except Exception as e:
+                    logger.debug(f"QA Gate eval failed for {draft_file.name}: {e}")
+
+            # ── 晨間報告推播 ──
+            report = {
+                "drafts_evaluated": len(results),
+                "passed": sum(1 for r in results if r["passed"]),
+                "quarantined": sum(1 for r in results if not r["passed"]),
+                "details": results,
+            }
+
+            # 讀取 19.5 的健康掃描結果（從 nightly report 回讀）
+            health_info = ""
+            try:
+                report_file = self._workspace / "_system" / "state" / "nightly_report.json"
+                if report_file.exists():
+                    nr = json.load(open(report_file, "r", encoding="utf-8"))
+                    h = nr.get("steps", {}).get("step_19_5_skill_health_scan", {}).get("result", {})
+                    if h.get("degradation_signals", 0) > 0:
+                        health_info = f"⚠️ {h['degradation_signals']} 個 Skill 退化中: {', '.join(h.get('degraded_skills', []))}\n"
+            except Exception:
+                pass
+
+            # 有內容才推播
+            if results or health_info:
+                lines = ["🧬 Skill 演化晨報\n"]
+                if health_info:
+                    lines.append(health_info)
+                passed = report["passed"]
+                quarantined = report["quarantined"]
+                if passed > 0:
+                    names = [r["id"] for r in results if r["passed"]]
+                    lines.append(f"✅ {passed} 個草稿通過 QA，等待你核准: {', '.join(names)}")
+                if quarantined > 0:
+                    lines.append(f"🔒 {quarantined} 個草稿品質不足，已隔離")
+                if not results and health_info:
+                    lines.append("今夜無新草稿產出。")
+
+                if self._event_bus:
+                    try:
+                        self._event_bus.publish("PROACTIVE_MESSAGE", {
+                            "message": "\n".join(lines),
+                            "source": "alert",
+                            "timestamp": datetime.now(TZ_TAIPEI).timestamp(),
+                        })
+                    except Exception:
+                        pass
+
+                    # 為每個通過 QA 的草稿發送帶 Inline Keyboard 的核准請求
+                    for r in results:
+                        if r["passed"]:
+                            try:
+                                draft_file = drafts_dir / f"{r['id']}.json"
+                                if draft_file.exists():
+                                    d = json.loads(draft_file.read_text(encoding="utf-8"))
+                                    self._event_bus.publish("SKILL_APPROVAL_REQUEST", {
+                                        "draft_id": r["id"],
+                                        "skill_name": d.get("skill_name", r["id"]),
+                                        "qa_score": r.get("score", 0),
+                                        "summary": d.get("skill_md_content", "")[:200],
+                                    })
+                            except Exception:
+                                pass
+
+            return report
+        except Exception as e:
+            logger.debug(f"Step 19.7 skill_qa_gate failed: {e}")
+            return {"error": str(e)}
+
+    # ═══════════════════════════════════════════
     # Step 20: 突觸衰減
     # ═══════════════════════════════════════════
 
@@ -4221,12 +4497,25 @@ class NightlyPipeline:
         # 檢查 Morphenix L3 提案（需人類審查）
         for step_name, step_data in steps.items():
             result_str = step_data.get("result", "")
-            if "escalated" in result_str.lower() or "l3" in result_str.lower():
+            if "escalated" in result_str.lower():
                 decisions.append({
                     "type": "morphenix_l3_review",
                     "step": step_name,
                     "description": f"有 Morphenix L3 提案需要你審查",
                 })
+            elif "l3_proposals" in result_str:
+                import json as _json
+                try:
+                    _res = _json.loads(result_str) if isinstance(result_str, str) else result_str
+                    _l3 = _res.get("l3_proposals", []) if isinstance(_res, dict) else []
+                    if _l3:  # 只有實際有 L3 提案才報
+                        decisions.append({
+                            "type": "morphenix_l3_review",
+                            "step": step_name,
+                            "description": f"有 {len(_l3)} 個 Morphenix L3 提案需要你審查",
+                        })
+                except (ValueError, AttributeError):
+                    pass
 
         layer3 = {
             "decisions_needed": len(decisions),
