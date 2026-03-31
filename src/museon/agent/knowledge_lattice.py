@@ -75,6 +75,7 @@ ARCHIVE_STALE_DAYS = 90       # 歸檔天數閾值
 
 # 再結晶參數
 SIMILARITY_MERGE_THRESHOLD = 0.70  # 70% 相似度合併閾值
+DEDUP_SIMILARITY_THRESHOLD = 0.90  # 90% 相似度視為重複，強化而非新建
 HYPOTHESIS_UPGRADE_COUNT = 3       # 升級所需成功次數
 INSIGHT_DOWNGRADE_COUNT = 2        # 降級所需反證次數
 PROCEDURE_UPGRADE_COUNT = 0        # Lesson→Procedure 升級：門檻 0（record_success 由 brain_prompt_builder 呼叫，引用即計數）
@@ -162,6 +163,8 @@ class Crystal:
     known_failures: List[dict] = field(default_factory=list)
     # 上次成功時間（ISO 8601）
     last_success: str = ""
+    # 重複觀察強化計數（同一洞見被多次觀察時累加）
+    reinforcement_count: int = 0
 
     def __post_init__(self) -> None:
         """初始化預設時間戳記."""
@@ -1847,6 +1850,42 @@ class KnowledgeLattice:
                 domain=domain,
             )
 
+            # Step 2.5: 去重檢查 — 相似度 > 90% 的既有結晶強化而非新建
+            _dedup_g1 = refined.get("g1_summary", "")
+            if _dedup_g1 and self._crystals:
+                _best_match = None
+                _best_sim = 0.0
+                # 建立臨時 Crystal 用於比對
+                _tmp = Crystal(
+                    cuid="__tmp__",
+                    crystal_type=crystal_type,
+                    g1_summary=_dedup_g1,
+                    g2_structure=refined.get("g2_structure", []),
+                    g3_root_inquiry=refined.get("g3_root_inquiry", ""),
+                    g4_insights=refined.get("g4_insights", []),
+                    tags=refined.get("tags", []),
+                )
+                for _existing in self._crystals.values():
+                    if _existing.archived or _existing.status == "quarantine":
+                        continue
+                    _sim = RecrystallizationEngine._calc_crystal_similarity(_tmp, _existing)
+                    if _sim > _best_sim:
+                        _best_sim = _sim
+                        _best_match = _existing
+                if _best_match and _best_sim >= DEDUP_SIMILARITY_THRESHOLD:
+                    # 強化既有結晶而非新建
+                    _best_match.reinforcement_count += 1
+                    _best_match.updated_at = datetime.now().isoformat()
+                    _best_match.reference_count += 1
+                    _best_match.last_referenced = datetime.now().isoformat()
+                    self._persist()
+                    logger.info(
+                        f"Crystal dedup: reinforced {_best_match.cuid} "
+                        f"(sim={_best_sim:.2f}, count={_best_match.reinforcement_count}) "
+                        f"instead of creating new"
+                    )
+                    return _best_match
+
             # Step 3: 連結發現
             refined, discovered_links = self._crystallizer.link_discovery(
                 refined
@@ -3508,3 +3547,60 @@ class KnowledgeLattice:
             for i in top_communities
             if i < len(community_summaries)
         ]
+
+    def dedup_scan(self, threshold: float = 0.90, dry_run: bool = True) -> dict:
+        """掃描並合併現有重複結晶.
+
+        Args:
+            threshold: 相似度門檻
+            dry_run: True=只報告不合併, False=執行合併
+
+        Returns:
+            {"total": N, "duplicates_found": N, "merged": N, "remaining": N}
+        """
+        with self._lock:
+            crystals = [c for c in self._crystals.values()
+                       if not c.archived and c.status != "quarantine"]
+            total = len(crystals)
+            merged_cuids = set()
+            merge_groups = []
+
+            for i, a in enumerate(crystals):
+                if a.cuid in merged_cuids:
+                    continue
+                group = [a]
+                for b in crystals[i+1:]:
+                    if b.cuid in merged_cuids:
+                        continue
+                    sim = RecrystallizationEngine._calc_crystal_similarity(a, b)
+                    if sim >= threshold:
+                        group.append(b)
+                        merged_cuids.add(b.cuid)
+                if len(group) > 1:
+                    merge_groups.append(group)
+
+            merged_count = 0
+            if not dry_run:
+                for group in merge_groups:
+                    # Keep the oldest crystal, merge others into it
+                    keeper = min(group, key=lambda c: c.created_at)
+                    for dup in group:
+                        if dup.cuid == keeper.cuid:
+                            continue
+                        keeper.reinforcement_count += 1 + dup.reinforcement_count
+                        keeper.reference_count += dup.reference_count
+                        keeper.updated_at = datetime.now().isoformat()
+                        # Archive the duplicate
+                        dup.archived = True
+                        dup.status = "merged"
+                        dup.updated_at = datetime.now().isoformat()
+                        merged_count += 1
+                self._persist()
+
+            return {
+                "total": total,
+                "duplicates_found": len(merged_cuids),
+                "merge_groups": len(merge_groups),
+                "merged": merged_count,
+                "remaining": total - merged_count,
+            }
