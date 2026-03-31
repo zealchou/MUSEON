@@ -488,12 +488,67 @@ class ServiceHealthMonitor:
         except Exception as e:
             logger.error(f"[{name}] process restart error: {e}")
 
+    async def _ensure_docker_daemon(self) -> bool:
+        """確認 Docker daemon 在跑；若未啟動則嘗試啟動 Docker Desktop。
+
+        Returns:
+            True = daemon 可用，False = 無法啟動
+        """
+        # 常見 socket 路徑
+        _sockets = [
+            os.path.expanduser("~/.docker/run/docker.sock"),
+            "/var/run/docker.sock",
+        ]
+        if any(os.path.exists(s) for s in _sockets):
+            return True
+
+        # Docker daemon 不在跑 — 嘗試啟動 Docker Desktop（macOS）
+        _now = time.time()
+        _last = getattr(self, "_last_docker_desktop_launch", 0.0)
+        if _now - _last < 300:  # 5 分鐘冷卻，避免瘋狂重啟
+            return False
+
+        logger.warning(
+            "[DockerDaemon] docker.sock not found — "
+            "attempting to launch Docker Desktop..."
+        )
+        self._last_docker_desktop_launch = _now
+
+        try:
+            await asyncio.to_thread(
+                subprocess.run,
+                ["open", "-a", "Docker"],
+                capture_output=True,
+                timeout=10,
+            )
+            # 等待 daemon 啟動（最多 60 秒）
+            for _i in range(12):
+                await asyncio.sleep(5)
+                if any(os.path.exists(s) for s in _sockets):
+                    logger.info(
+                        "[DockerDaemon] Docker Desktop started successfully "
+                        f"(waited {(_i + 1) * 5}s)"
+                    )
+                    return True
+            logger.error(
+                "[DockerDaemon] Docker Desktop launched but daemon "
+                "not ready after 60s"
+            )
+            return False
+        except Exception as e:
+            logger.error(f"[DockerDaemon] failed to launch Docker Desktop: {e}")
+            return False
+
     async def _try_restart_docker(
         self, name: str, config: ServiceConfig, state: ServiceState
     ) -> None:
         """Docker 容器重啟。"""
         if not self._has_docker:
             return  # 已在啟動時警告過，不重複報錯
+
+        # ── 前置：確認 Docker daemon 在跑 ──
+        if not await self._ensure_docker_daemon():
+            return  # daemon 不可用，不嘗試 docker restart
 
         now = time.time()
 
