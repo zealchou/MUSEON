@@ -666,6 +666,23 @@ TOOL_DEFINITIONS: List[Dict[str, Any]] = [
             },
         },
     },
+    {
+        "name": "publish_report",
+        "description": (
+            "發佈報告檔案到 GitHub Pages 並驗證 URL。"
+            "當使用者需要將 HTML/PDF 報告發佈到公開連結時使用。"
+            "工具會執行 publish-report.sh 腳本，推送到 gh-pages 分支，"
+            "驗證 CDN 後回傳已驗證的 URL。"
+            "重要：回覆使用者時必須使用回傳的 url，絕對不可自行拼接 URL。"
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "file_path": {"type": "string", "description": "要發佈的檔案絕對路徑"},
+            },
+            "required": ["file_path"],
+        },
+    },
 ]
 
 # 工具名稱集合（快速查找）

@@ -1,0 +1,6 @@
+{
+  "content": "敏感機制 v2 上線：信任夥伴白名單（馮士維 8252847174）跳過 L1/L2 只查 L3。關鍵詞大幅瘦身（L1 從 17→8、L2 從 14→5）。L1 需命中 2+ 關鍵詞。所有等級都經 Haiku LLM 語境驗證，日常對話放行。",
+  "timestamp": "2026-03-31T16:00:00",
+  "source": "claude_code_session",
+  "type": "operational_lesson"
+}

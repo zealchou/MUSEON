@@ -1,0 +1,6 @@
+{
+  "content": "教訓：發佈報告到 GitHub Pages 必須用 publish_report 工具，不可自行構造 URL。2026-03-31 全天 404 事件的根因是 Bot 自己拼的檔名（meetingintel）跟實際檔名（meeting_intel）不一致。腳本會驗證 URL 回傳 VERIFIED_URL，直接用那個。",
+  "timestamp": "2026-03-31T16:00:00",
+  "source": "claude_code_session",
+  "type": "operational_lesson"
+}

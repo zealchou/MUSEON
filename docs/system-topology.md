@@ -930,6 +930,18 @@ external-user（EXTERNAL）
 | `gateway` | `event-bus` | server.py:1000+ 事件訂閱註冊（5 事件） |
 | `gateway` | `brain` | server.py 訊息泵→Brain.chat()（主要呼叫路徑） |
 
+#### v1.70 tools.py 新工具 + telegram_pump 跨連線（2026-03-31）
+
+##### 新增工具（1 條）
+| Source | Target | 說明 |
+|--------|--------|------|
+| `brain-tools` | `publish-report-sh` | tools.py 新增 `publish_report` 工具，shell out 到 `scripts/publish-report.sh`（外部指令） |
+
+##### 新增跨連線（1 條）
+| Source | Target | 說明 |
+|--------|--------|------|
+| `telegram-pump` | `brain` | telegram_pump.py 群組訊息觸發 `brain._call_llm_with_model()` 做 Haiku LLM 敏感度驗證 |
+
 ### Skills 控制連線（control）
 | Source | Target | 說明 |
 |--------|--------|------|

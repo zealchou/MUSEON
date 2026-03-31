@@ -54,5 +54,75 @@
     "action": "before running: manually inspect each archetype's energy profile and confirm the role (pioneer/follower/resistant) makes sense for real humans. Data→Judgment→Classification→Simulation. Judgment wrong = everything wrong.",
     "source": "session_20260330_darwin",
     "weight": 3.0
+  },
+  {
+    "id": "h-connection-over-component",
+    "pattern": "adding a new module/class/file without checking who will call it",
+    "action": "stop — first answer: who consumes this output? where does its input come from? wire the connections before building the component",
+    "source": "session_20260331_evolution",
+    "weight": 2.5
+  },
+  {
+    "id": "h-grep-before-diagnosis",
+    "pattern": "accepting a DSE/research report claim that function X is never called",
+    "action": "grep for X in src/ first — reports are hypotheses, code is fact",
+    "source": "session_20260331_evolution",
+    "weight": 2.0
+  },
+  {
+    "id": "h-guardrails-before-autonomy",
+    "pattern": "making a system fully autonomous without bounds/cooldown/spiral detection",
+    "action": "design guardrails first (value bounds, cooldown period, spiral detection, batch limit), then grant autonomy",
+    "source": "session_20260331_evolution",
+    "weight": 2.5
+  },
+  {
+    "id": "h-single-source-of-truth",
+    "pattern": "maintaining the same data in two places (e.g. CLAUDE.md command table + plugin-registry)",
+    "action": "eliminate the duplicate — generate from single source. two copies always drift",
+    "source": "session_20260331_evolution",
+    "weight": 2.0
+  },
+  {
+    "id": "h-guardrails-replace-approval",
+    "pattern": "designing autonomous system that requires human approval before every action",
+    "action": "replace approval gates with four guardrails: value bounds, cooldown period, spiral detection, batch limit. human approval = bottleneck; well-designed guardrails = safe autonomy",
+    "source": "session_20260331_evolution_plan",
+    "weight": 2.5
+  },
+  {
+    "id": "h-depth-over-speed",
+    "pattern": "rushing to complete observation/analysis in one overnight run",
+    "action": "observations need time to accumulate. don't optimize for 'finish tonight' — optimize for signal quality. slow data collection beats fast garbage",
+    "source": "session_20260331_evolution_plan",
+    "weight": 2.5
+  },
+  {
+    "id": "h-question-framework-first",
+    "pattern": "applying the first framework that comes to mind without questioning its fit",
+    "action": "stop before using any framework — ask: does this framework's assumptions match my problem? DSE round 1 = question the framework, round 2 = apply after validation",
+    "source": "session_20260331_evolution_plan",
+    "weight": 2.0
+  },
+  {
+    "id": "h-always-include-slow-option",
+    "pattern": "presenting only fast/aggressive solution options to the user",
+    "action": "every proposal must include at least one slow/conservative option. user choosing speed is their right; user not being offered slowness is your mistake",
+    "source": "session_20260331_evolution_plan",
+    "weight": 2.0
+  },
+  {
+    "id": "h-publish-report-tool",
+    "pattern": "publishing HTML report to GitHub Pages",
+    "action": "發佈 HTML 報告到 GitHub Pages 時，必須使用 publish_report 工具。禁止自行 git push 到 gh-pages、禁止自行拼接 URL。工具會執行 publish-report.sh 腳本並回傳已驗證的 VERIFIED_URL，直接用那個 URL 回覆使用者。自行構造 URL 會因檔名不一致導致 404。",
+    "source": "session_20260331_github_pages",
+    "weight": 3.0
+  },
+  {
+    "id": "h-group-sensitivity-v2",
+    "pattern": "handling sensitive keyword detection in group chats",
+    "action": "群組敏感問題 v2：信任夥伴（TRUSTED_PARTNERS）跳過 L1/L2 檢查，只查 L3。所有等級的關鍵詞命中後都會經過 Haiku LLM 語境驗證，日常對話不攔截。L1 需命中 2+ 個不同關鍵詞才觸發。目前信任夥伴：馮士維（8252847174）。",
+    "source": "session_20260331_sensitivity_v2",
+    "weight": 2.5
   }
 ]

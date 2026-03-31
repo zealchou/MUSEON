@@ -518,7 +518,27 @@ async def _handle_telegram_message(adapter, message) -> None:
                             if not is_owner:
                                 # Sensitivity check for non-owner messages
                                 checker = get_sensitivity_checker()
-                                level, reason = checker.check(message.content)
+                                level, reason = checker.check(message.content, user_id=message.user_id)
+
+                                # LLM context verification for all keyword hits (L1/L2/L3)
+                                if level:
+                                    try:
+                                        from museon.governance.multi_tenant import SENSITIVITY_LLM_PROMPT
+                                        _llm_verdict = await brain._call_llm_with_model(
+                                            system_prompt=SENSITIVITY_LLM_PROMPT,
+                                            messages=[{"role": "user", "content": message.content[:500]}],
+                                            model="claude-haiku-4-5-20251001",
+                                            max_tokens=20,
+                                        )
+                                        if "NOT_SENSITIVE" in _llm_verdict.upper():
+                                            logger.info(
+                                                f"Sensitivity LLM override: {level} → pass "
+                                                f"(user={sender_name}, reason={reason})"
+                                            )
+                                            level = None  # LLM says not sensitive, let it through
+                                    except Exception as _llm_err:
+                                        logger.warning(f"Sensitivity LLM check failed, falling back to keyword: {_llm_err}")
+                                        # Keep keyword-based level on LLM failure
 
                                 if level:
                                     eq = get_escalation_queue()

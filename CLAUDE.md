@@ -233,6 +233,7 @@ MUSEON 回覆: {museon_reply}
 - 使用者表達了情緒狀態變化
 - 使用者做了重要決策
 - 可以提煉為結晶的教訓
+- 外部操作工具的成功/失敗模式（可提煉為操作教訓）
 
 用 Write 工具寫入：
 ~/MUSEON/data/_system/context_cache/{session_id}/pending_insights.json
@@ -251,6 +252,7 @@ MUSEON 回覆: {museon_reply}
 2. 回覆中出現「我不確定」「可能」超過 3 次 → 下次增加深度/確定性
 3. 使用者的問題跟上一輪非常相似 → 下次換角度回答
 4. Skill 輸出缺少預期結構（缺標題、缺結論）→ 下次補完結構
+5. L2 使用了外部操作工具（publish_report、shell_exec、trigger_job 等）→ 記錄工具名稱 + success/failure + 關鍵參數到 session_adjustments，trigger 設為 "tool_execution_result"
 
 如果命中任何一條，用 Write 工具寫入：
 ~/MUSEON/data/_system/session_adjustments/{session_id}.json
@@ -399,6 +401,7 @@ cd ~/MUSEON && .venv/bin/python -m museon.cache.context_cache_builder --all
 4. **新增 Nightly 步驟必須砍一個舊步驟**
 5. **L4 代碼不超過 200 行** — 超過就是在重建 v1 pipeline
 6. **每次修改先問「能刪什麼」**
+7. **GitHub Pages 發佈禁止即興操作** — 必須用 `bash scripts/publish-report.sh <file>`，從輸出中提取 `VERIFIED_URL=` 行作為使用者連結。禁止自己構造 URL、禁止自己做 git push 到 gh-pages。檔名不一致 = 404。
 
 ---
 

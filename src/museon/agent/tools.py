@@ -371,6 +371,8 @@ class ToolExecutor:
             return await self._execute_restart_gateway(arguments)
         elif tool_name == "pending_action":
             return await self._execute_pending_action(arguments)
+        elif tool_name == "publish_report":
+            return await self._execute_publish_report(arguments)
         # v13: Ares 戰神系統
         elif tool_name.startswith("ares_"):
             return await self._execute_ares_tool(tool_name, arguments)
@@ -2167,6 +2169,68 @@ class ToolExecutor:
                 "entry": entry,
             },
         }
+
+    async def _execute_publish_report(
+        self, arguments: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """發佈報告到 GitHub Pages 並驗證 URL.
+
+        使用 scripts/publish-report.sh 腳本，確保檔名一致性和 URL 驗證。
+        """
+        import subprocess
+
+        file_path = arguments.get("file_path")
+        if not file_path:
+            return {"success": False, "error": "Missing 'file_path' parameter"}
+
+        from pathlib import Path
+        fp = Path(file_path)
+        if not fp.exists():
+            return {"success": False, "error": f"File not found: {file_path}"}
+
+        script = Path("/Users/ZEALCHOU/MUSEON/scripts/publish-report.sh")
+        if not script.exists():
+            return {"success": False, "error": "publish-report.sh script not found"}
+
+        try:
+            result = subprocess.run(
+                ["bash", str(script), str(fp)],
+                capture_output=True, text=True, timeout=300,
+                cwd="/Users/ZEALCHOU/MUSEON",
+            )
+
+            # Parse VERIFIED_URL from output
+            urls = []
+            for line in result.stdout.splitlines():
+                if line.startswith("VERIFIED_URL="):
+                    urls.append(line.split("=", 1)[1].strip())
+
+            if result.returncode != 0:
+                return {
+                    "success": False,
+                    "error": f"publish script failed (exit {result.returncode}): {result.stderr[:500]}",
+                }
+
+            if urls:
+                logger.info(f"Report published: {urls[0]}")
+                return {
+                    "success": True,
+                    "url": urls[0],
+                    "all_urls": urls,
+                    "filename": fp.name,
+                }
+            else:
+                return {
+                    "success": True,
+                    "url": f"https://zealchou.github.io/MUSEON/reports/{fp.name}",
+                    "warning": "URL not verified by script, using fallback",
+                    "filename": fp.name,
+                }
+
+        except subprocess.TimeoutExpired:
+            return {"success": False, "error": "publish script timed out (300s)"}
+        except Exception as e:
+            return {"success": False, "error": f"publish failed: {str(e)}"}
 
     async def _execute_trigger_job(
         self, arguments: Dict[str, Any]

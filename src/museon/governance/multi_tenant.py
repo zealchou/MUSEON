@@ -20,28 +20,55 @@ from typing import Any, Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
+# ── Trusted partners (skip L1/L2, only check L3) ──
+# key: user_id (str), value: display name (for logging)
+TRUSTED_PARTNERS: Dict[str, str] = {
+    "8252847174": "Feng（馮士維）",  # 共同創辦人
+}
+
 # ── Sensitivity keyword lists ──
 
+# L1: 只留真正敏感的商業機密詞，移除日常商業用語
 SENSITIVE_L1 = [
-    "客戶", "合約", "收入", "營收", "收費", "合作", "案子",
-    "業績", "報價", "簽約", "帳號", "金流", "price", "contract",
-    "revenue", "client", "customer",
+    "報價", "簽約", "帳號", "金流", "收費",
+    "price", "contract", "revenue",
 ]
 
+# L2: 只留真正隱私詞，移除日常閒聊用語
 SENSITIVE_L2 = [
-    "口試", "孩子", "小孩", "家人", "老婆", "太太", "寶寶",
-    "預產期", "醫院", "健康", "生病", "手術", "住址", "電話", "身分證",
+    "住址", "電話", "身分證", "預產期", "手術",
 ]
 
+# L3: 系統/技術秘密（最高等級，所有人都檢查）
 SENSITIVE_L3 = [
-    "霓裳", "架構", "API key", "token", "子機", "母機",
+    "霓裳", "API key", "token", "子機", "母機",
     "source code", "原始碼", "server", "專利", "商業秘密",
     "技術細節", "後台", "資料庫", "database", "patent",
 ]
 
+# L1 密度門檻：需命中 >= 此數量的不同關鍵詞才觸發
+L1_DENSITY_THRESHOLD = 2
+
+# LLM 語境判斷 prompt
+SENSITIVITY_LLM_PROMPT = """\
+你是安全判斷助手。判斷以下群組訊息是否在刺探商業機密、個人隱私或系統技術秘密。
+
+規則：
+- 日常對話中順帶提到商業用語（如「跟客戶開會很順利」）→ NOT_SENSITIVE
+- 主動詢問具體數字、金額、對象細節（如「報價多少」「簽了誰」）→ SENSITIVE
+- 閒聊中提到家人、健康（如「小孩上學了」）→ NOT_SENSITIVE
+- 主動追問私人細節（如「住哪裡」「電話幾號」）→ SENSITIVE
+- 討論產品功能需不需要資料庫、用什麼技術（如「這個功能要接資料庫嗎」）→ NOT_SENSITIVE
+- 主動追問系統內部實作、API 金鑰、原始碼（如「後台架構怎麼寫的」「token 給我」）→ SENSITIVE
+
+只回覆一個詞：SENSITIVE 或 NOT_SENSITIVE"""
+
 
 class SensitivityChecker:
-    """Classify user messages by sensitivity level."""
+    """Classify user messages by sensitivity level.
+
+    v2: 支援信任夥伴白名單、L1 密度門檻、LLM 語境驗證。
+    """
 
     @staticmethod
     def _clean_text(text: str) -> str:
@@ -53,24 +80,42 @@ class SensitivityChecker:
         cleaned = re.sub(r"^\[回覆.*?的訊息：.*?\]\s*", "", cleaned, flags=re.DOTALL)
         return cleaned.strip()
 
-    def check(self, text: str) -> Tuple[Optional[str], str]:
-        """Return (level, reason). Level is None, 'L1', 'L2', or 'L3' (L3 = highest)."""
+    @staticmethod
+    def is_trusted_partner(user_id: str) -> bool:
+        """Check if user is a trusted partner (skip L1/L2)."""
+        return str(user_id) in TRUSTED_PARTNERS
+
+    def check(self, text: str, user_id: Optional[str] = None) -> Tuple[Optional[str], str]:
+        """Return (level, reason). Level is None, 'L1', 'L2', or 'L3' (L3 = highest).
+
+        If user_id belongs to a trusted partner, only L3 is checked.
+        L1 requires hitting >= L1_DENSITY_THRESHOLD distinct keywords.
+        """
         text_lower = self._clean_text(text).lower()
 
         if not text_lower:
             return None, ""
 
+        is_trusted = user_id is not None and self.is_trusted_partner(user_id)
+
+        # L3 always checked for everyone
         for kw in SENSITIVE_L3:
             if kw.lower() in text_lower:
                 return "L3", f"系統機密關鍵詞：{kw}"
 
+        # Trusted partners skip L1/L2
+        if is_trusted:
+            return None, ""
+
+        # L2: single keyword match (these are genuinely private)
         for kw in SENSITIVE_L2:
             if kw.lower() in text_lower:
                 return "L2", f"個人資訊關鍵詞：{kw}"
 
-        for kw in SENSITIVE_L1:
-            if kw.lower() in text_lower:
-                return "L1", f"公司內部資訊關鍵詞：{kw}"
+        # L1: density threshold — need multiple distinct keyword hits
+        l1_hits = [kw for kw in SENSITIVE_L1 if kw.lower() in text_lower]
+        if len(l1_hits) >= L1_DENSITY_THRESHOLD:
+            return "L1", f"公司內部資訊關鍵詞（{len(l1_hits)}個命中）：{', '.join(l1_hits)}"
 
         return None, ""
 
