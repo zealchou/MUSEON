@@ -1533,7 +1533,24 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
         {"job_id": "group-digest-10",      "name": "群組摘要 10:00",     "schedule": "每天 10:00",    "category": "pulse",       "uses_llm": True},
         {"job_id": "group-digest-14",      "name": "群組摘要 14:00",     "schedule": "每天 14:00",    "category": "pulse",       "uses_llm": True},
         {"job_id": "group-digest-17",      "name": "群組摘要 17:00",     "schedule": "每天 17:00",    "category": "pulse",       "uses_llm": True},
+        {"job_id": "breath-tick",          "name": "Breath 深呼吸",       "schedule": "每天 02:00",    "category": "evolution",   "uses_llm": True},
     ]
+
+    # ── BREATH: 有機體自主呼吸（每天 02:00）──
+    async def _breath_tick_job():
+        """Breath Protocol 每日 tick — 根據週幾自動跑觀察/分析/診斷/行動/回望."""
+        try:
+            from museon.evolution.breath_scheduler import breath_tick
+            result = await breath_tick(data_dir)
+            phase = result.get("phase", "unknown")
+            logger.info(f"[Breath] {phase} completed: {result.get('summary', '')}")
+        except Exception as e:
+            logger.warning(f"[Breath] tick failed (degraded): {e}")
+
+    cron_engine.add_job(
+        _breath_tick_job, trigger="cron", job_id="breath-tick",
+        hour=2, minute=0,
+    )
 
     # 存到 app.state 供 /api/tasks 讀取
     if app:
