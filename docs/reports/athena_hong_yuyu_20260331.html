@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ATHENA — 洪岳裕 戰略情報簡報</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ember: #C4502A;
+      --ember-light: #E0714D;
+      --ember-dark: #9A3A1C;
+      --teal: #2A7A6E;
+      --gold: #B8923A;
+      --ink: #12121A;
+      --slate: #5A5A6E;
+      --mist: #9898A8;
+      --border: #E2E0DA;
+      --parchment: #F7F5F0;
+      --snow: #FDFCFA;
+      --deep-ink: #0E0E16;
+      --surface: #16161F;
+      --raised: #1E1E2A;
+      --border-dark: #2A2A38;
+      --success: #2D8A6E;
+      --warning: #C9943A;
+    }
+
+    body {
+      font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+      background: var(--parchment);
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* === HEADER === */
+    .report-header {
+      background: var(--deep-ink);
+      color: #fff;
+      padding: 64px 40px 48px;
+      position: relative;
+      overflow: hidden;
+    }
+    .report-header::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -80px;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(196,80,42,0.18) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .report-header::after {
+      content: '';
+      position: absolute;
+      bottom: -40px; left: 10%;
+      width: 260px; height: 260px;
+      background: radial-gradient(circle, rgba(42,122,110,0.12) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    .system-badge {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ember-light);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .system-badge::before {
+      content: '';
+      display: inline-block;
+      width: 6px; height: 6px;
+      background: var(--ember);
+      border-radius: 50%;
+    }
+    .report-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 52px;
+      font-weight: 600;
+      line-height: 1.1;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+    .report-subtitle {
+      font-size: 18px;
+      color: rgba(255,255,255,0.55);
+      font-weight: 300;
+      margin-bottom: 32px;
+    }
+    .header-meta {
+      display: flex;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .meta-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.35);
+    }
+    .meta-value {
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.85);
+    }
+    .confidence-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .confidence-dots {
+      display: flex; gap: 4px;
+    }
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--ember-light);
+    }
+    .dot.empty { background: rgba(255,255,255,0.2); }
+
+    /* === MAIN LAYOUT === */
+    .main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 48px 40px 80px;
+    }
+
+    /* === SECTION === */
+    .section {
+      margin-bottom: 48px;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 24px;
+      padding-bottom: 14px;
+      border-bottom: 1.5px solid var(--border);
+    }
+    .section-num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mist);
+      width: 32px;
+      flex-shrink: 0;
+    }
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .section-tag {
+      margin-left: auto;
+      background: rgba(196,80,42,0.09);
+      color: var(--ember-dark);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 100px;
+    }
+
+    /* === PROFILE CARD === */
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 24px;
+    }
+    .profile-avatar {
+      background: var(--deep-ink);
+      border-radius: 10px;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 64px;
+      color: rgba(255,255,255,0.25);
+      position: relative;
+      overflow: hidden;
+    }
+    .profile-avatar::before {
+      content: '';
+      position: absolute;
+      bottom: -20px; right: -20px;
+      width: 120px; height: 120px;
+      background: radial-gradient(circle, rgba(196,80,42,0.25) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .profile-info {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .profile-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 36px;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.1;
+    }
+    .profile-role {
+      font-size: 15px;
+      color: var(--slate);
+    }
+    .profile-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .profile-tag {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 4px 12px;
+      font-size: 13px;
+      color: var(--slate);
+    }
+    .profile-tag.ember {
+      background: rgba(196,80,42,0.07);
+      border-color: rgba(196,80,42,0.2);
+      color: var(--ember-dark);
+    }
+    .vision-quote {
+      background: var(--deep-ink);
+      border-radius: 10px;
+      padding: 20px 24px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+    .vision-quote::before {
+      content: '"';
+      position: absolute;
+      top: -10px; left: 16px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 100px;
+      color: rgba(196,80,42,0.25);
+      line-height: 1;
+    }
+    .vision-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-style: italic;
+      line-height: 1.5;
+      color: rgba(255,255,255,0.9);
+      position: relative;
+      z-index: 1;
+    }
+    .vision-source {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+      margin-top: 8px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    /* === CARD === */
+    .card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+    }
+
+    /* === EIGHT COMPASS === */
+    .compass-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .compass-item {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(18,18,26,0.06);
+      transition: transform 200ms ease, box-shadow 200ms ease;
+    }
+    .compass-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(18,18,26,0.1);
+    }
+    .compass-item.high {
+      border-left: 3px solid var(--ember);
+    }
+    .compass-item.medium {
+      border-left: 3px solid var(--gold);
+    }
+    .compass-item.low {
+      border-left: 3px solid var(--border);
+    }
+    .compass-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .compass-gua {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px;
+      line-height: 1;
+    }
+    .compass-name {
+      display: flex;
+      flex-direction: column;
+    }
+    .compass-zh {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .compass-en {
+      font-size: 11px;
+      color: var(--mist);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .compass-stars {
+      display: flex;
+      gap: 3px;
+      margin-bottom: 8px;
+    }
+    .star {
+      width: 12px; height: 12px;
+      border-radius: 2px;
+      background: var(--ember);
+    }
+    .star.empty { background: var(--border); }
+    .compass-evidence {
+      font-size: 13px;
+      color: var(--slate);
+      line-height: 1.6;
+    }
+
+    /* === PERSONALITY TYPE === */
+    .type-card {
+      background: var(--deep-ink);
+      border-radius: 10px;
+      padding: 28px 32px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+    .type-code {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 72px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.2);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .type-name-zh {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 32px;
+      font-weight: 600;
+      color: var(--ember-light);
+      margin-bottom: 4px;
+    }
+    .type-name-en {
+      font-size: 14px;
+      color: rgba(255,255,255,0.45);
+      font-style: italic;
+    }
+    .type-traits {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .trait-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .trait-axis {
+      font-size: 12px;
+      color: rgba(255,255,255,0.35);
+      font-family: 'IBM Plex Mono', monospace;
+      width: 36px;
+      flex-shrink: 0;
+    }
+    .trait-bar-bg {
+      flex: 1;
+      height: 6px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .trait-bar {
+      height: 100%;
+      background: var(--ember);
+      border-radius: 3px;
+    }
+    .trait-label {
+      font-size: 12px;
+      color: rgba(255,255,255,0.7);
+      width: 80px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .confidence-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(196,80,42,0.2);
+      border: 1px solid rgba(196,80,42,0.3);
+      border-radius: 100px;
+      padding: 4px 12px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--ember-light);
+      letter-spacing: 0.08em;
+      margin-top: 12px;
+    }
+
+    /* === COMBINED READING === */
+    .combined-grid {
+      display: grid;
+      grid-template-columns: 1fr 80px 1fr;
+      gap: 16px;
+      align-items: center;
+    }
+    .person-card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+    }
+    .person-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .person-role {
+      font-size: 12px;
+      color: var(--mist);
+      margin-bottom: 12px;
+    }
+    .person-tags {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px;
+    }
+    .person-tag {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 100px;
+      background: var(--parchment);
+      color: var(--slate);
+    }
+    .vs-circle {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: var(--deep-ink);
+      color: rgba(255,255,255,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      margin: 0 auto;
+    }
+    .resonance-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .resonance-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .resonance-icon {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .resonance-icon.sync { background: rgba(45,138,110,0.15); color: var(--teal); }
+    .resonance-icon.tension { background: rgba(196,80,42,0.12); color: var(--ember); }
+    .resonance-icon.neutral { background: rgba(184,146,58,0.15); color: var(--gold); }
+    .resonance-text { font-size: 14px; color: var(--ink); line-height: 1.6; }
+    .resonance-sublabel {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .resonance-sublabel.sync { color: var(--teal); }
+    .resonance-sublabel.tension { color: var(--ember); }
+    .resonance-sublabel.neutral { color: var(--gold); }
+
+    /* === STRATEGY === */
+    .strategy-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .strategy-tab {
+      padding: 6px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .strategy-tab.active-yang {
+      background: var(--ember);
+      color: #fff;
+    }
+    .strategy-tab.active-yin {
+      background: var(--deep-ink);
+      color: rgba(255,255,255,0.8);
+    }
+    .strategy-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .strategy-block {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+    }
+    .strategy-block.yang { border-top: 3px solid var(--ember); }
+    .strategy-block.yin { border-top: 3px solid var(--deep-ink); }
+    .strategy-block-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .stag-icon {
+      width: 20px; height: 20px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+    }
+    .stag-icon.yang { background: rgba(196,80,42,0.12); color: var(--ember); }
+    .stag-icon.yin { background: rgba(18,18,26,0.08); color: var(--ink); }
+    .strategy-content {
+      font-size: 14px;
+      color: var(--slate);
+      line-height: 1.7;
+    }
+    .strategy-content li {
+      margin-bottom: 6px;
+      padding-left: 16px;
+      position: relative;
+    }
+    .strategy-content li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--ember);
+      font-size: 12px;
+    }
+
+    /* === PRICING STRATEGY === */
+    .pricing-card {
+      background: var(--deep-ink);
+      border-radius: 10px;
+      padding: 28px;
+      color: #fff;
+    }
+    .pricing-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .pricing-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ember-light);
+    }
+    .pricing-strategy-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px;
+      font-weight: 600;
+      color: #fff;
+      margin-top: 4px;
+    }
+    .pricing-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .pricing-step {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .step-num {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: rgba(196,80,42,0.25);
+      border: 1px solid rgba(196,80,42,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--ember-light);
+      flex-shrink: 0;
+    }
+    .step-content {
+      flex: 1;
+      font-size: 14px;
+      color: rgba(255,255,255,0.75);
+      line-height: 1.7;
+    }
+    .step-title {
+      font-weight: 600;
+      color: rgba(255,255,255,0.9);
+      margin-bottom: 4px;
+    }
+    .highlight-box {
+      background: rgba(196,80,42,0.12);
+      border: 1px solid rgba(196,80,42,0.25);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-top: 20px;
+    }
+    .highlight-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ember-light);
+      margin-bottom: 6px;
+    }
+    .highlight-text {
+      font-size: 15px;
+      color: rgba(255,255,255,0.85);
+      line-height: 1.65;
+      font-style: italic;
+    }
+
+    /* === LEVERAGE PATH === */
+    .leverage-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .leverage-item {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .leverage-item::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      right: 0; height: 3px;
+    }
+    .leverage-item.l1::before { background: var(--ember); }
+    .leverage-item.l2::before { background: var(--gold); }
+    .leverage-item.l3::before { background: var(--teal); }
+    .leverage-num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--mist);
+      margin-bottom: 8px;
+    }
+    .leverage-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+    .leverage-desc {
+      font-size: 13px;
+      color: var(--slate);
+      line-height: 1.65;
+    }
+    .leverage-prob {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 12px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+    }
+    .prob-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .prob-dot.high { background: var(--success); }
+    .prob-dot.med { background: var(--warning); }
+    .prob-dot.low { background: var(--mist); }
+
+    /* === ACTION FLOW === */
+    .flow-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .flow-step {
+      display: flex;
+      gap: 20px;
+      align-items: stretch;
+    }
+    .flow-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+      width: 40px;
+    }
+    .flow-circle {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--snow);
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--slate);
+      flex-shrink: 0;
+      z-index: 1;
+    }
+    .flow-circle.active {
+      background: var(--ember);
+      border-color: var(--ember);
+      color: #fff;
+    }
+    .flow-line {
+      width: 2px;
+      flex: 1;
+      background: var(--border);
+      margin: 4px 0;
+    }
+    .flow-content {
+      padding: 0 0 28px;
+      flex: 1;
+    }
+    .flow-step:last-child .flow-content { padding-bottom: 0; }
+    .flow-step:last-child .flow-line { display: none; }
+    .flow-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 6px;
+      padding-top: 8px;
+    }
+    .flow-desc {
+      font-size: 14px;
+      color: var(--slate);
+      line-height: 1.65;
+    }
+    .flow-tag {
+      display: inline-flex;
+      margin-top: 8px;
+      background: rgba(196,80,42,0.07);
+      color: var(--ember-dark);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      padding: 2px 8px;
+      border-radius: 100px;
+    }
+
+    /* === BLINDSPOT / RISK === */
+    .alert-box {
+      border-radius: 10px;
+      padding: 18px 20px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .alert-box.warning {
+      background: rgba(201,148,58,0.08);
+      border: 1px solid rgba(201,148,58,0.25);
+    }
+    .alert-box.danger {
+      background: rgba(196,64,42,0.07);
+      border: 1px solid rgba(196,64,42,0.2);
+    }
+    .alert-icon {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .alert-icon.warning { background: rgba(201,148,58,0.2); }
+    .alert-icon.danger { background: rgba(196,64,42,0.15); }
+    .alert-content { flex: 1; }
+    .alert-title { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+    .alert-desc { font-size: 13px; color: var(--slate); line-height: 1.65; }
+    .alerts-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* === BRIEFING === */
+    .briefing-card {
+      background: var(--deep-ink);
+      border-radius: 12px;
+      padding: 36px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+    .briefing-card::before {
+      content: 'ATHENA';
+      position: absolute;
+      top: 20px; right: 24px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 64px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: rgba(255,255,255,0.04);
+    }
+    .briefing-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--ember-light);
+      margin-bottom: 24px;
+    }
+    .briefing-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .briefing-section h4 {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 10px;
+    }
+    .briefing-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .briefing-item {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      font-size: 14px;
+      color: rgba(255,255,255,0.75);
+      line-height: 1.6;
+    }
+    .briefing-item::before {
+      content: '◈';
+      color: var(--ember);
+      font-size: 10px;
+      margin-top: 3px;
+      flex-shrink: 0;
+    }
+
+    /* === FOOTER === */
+    .report-footer {
+      background: var(--deep-ink);
+      padding: 24px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .footer-brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.6);
+    }
+    .footer-meta {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: rgba(255,255,255,0.25);
+      letter-spacing: 0.05em;
+    }
+
+    /* === UTILS === */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+    @media (max-width: 768px) {
+      .report-header { padding: 40px 20px 32px; }
+      .main { padding: 32px 20px 60px; }
+      .compass-grid, .strategy-grid, .leverage-grid, .briefing-grid, .two-col, .three-col { grid-template-columns: 1fr; }
+      .combined-grid { grid-template-columns: 1fr; }
+      .profile-grid { grid-template-columns: 1fr; }
+      .type-card { grid-template-columns: 1fr; }
+    }
+
+    /* Animate in */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .section { animation: fadeUp 400ms ease-out both; }
+    .section:nth-child(1) { animation-delay: 0ms; }
+    .section:nth-child(2) { animation-delay: 60ms; }
+    .section:nth-child(3) { animation-delay: 120ms; }
+    .section:nth-child(4) { animation-delay: 180ms; }
+    .section:nth-child(5) { animation-delay: 240ms; }
+    .section:nth-child(6) { animation-delay: 300ms; }
+    .section:nth-child(7) { animation-delay: 360ms; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="report-header">
+  <div class="header-inner">
+    <div class="system-badge">ATHENA — 戰略情報平台 · STANDARD MODE</div>
+    <h1 class="report-title">洪岳裕</h1>
+    <p class="report-subtitle">物理治療創業者 · B2B 企業健康佈局 · 白皮書合作評估</p>
+    <div class="header-meta">
+      <div class="meta-item">
+        <span class="meta-label">分析日期</span>
+        <span class="meta-value">2026-03-31</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">資料來源</span>
+        <span class="meta-value">諮詢逐字稿（55 min）</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">場域標籤</span>
+        <span class="meta-value">商業 · 客戶攻略</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">代理評估置信度</span>
+        <div class="confidence-bar">
+          <div class="confidence-dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot empty"></div>
+          </div>
+          <span style="font-size:13px; color:rgba(255,255,255,0.7)">4/5</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- SECTION 1: PROFILE -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2 class="section-title">人物簡介</h2>
+      <span class="section-tag">ANIMA Profile</span>
+    </div>
+    <div class="profile-grid" style="margin-bottom:16px;">
+      <div class="profile-avatar">洪</div>
+      <div class="profile-info">
+        <div class="profile-name">洪岳裕</div>
+        <div class="profile-role">物理治療師 / 創業者 / 企業講師候選人</div>
+        <div class="profile-tags">
+          <span class="profile-tag ember">BNI 成員</span>
+          <span class="profile-tag ember">連鎖品牌建構者</span>
+          <span class="profile-tag">四年行業深耕</span>
+          <span class="profile-tag">每年 50–60 場演講</span>
+          <span class="profile-tag">Podcast 幾十萬流量</span>
+          <span class="profile-tag">2022 創業</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px;">
+          <div style="background:var(--parchment);border-radius:8px;padding:12px;">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mist);margin-bottom:4px;">短期目標</div>
+            <div style="font-size:13px;font-weight:600;">2028 台灣前三</div>
+          </div>
+          <div style="background:var(--parchment);border-radius:8px;padding:12px;">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mist);margin-bottom:4px;">長期目標</div>
+            <div style="font-size:13px;font-weight:600;">2030 亞洲第一</div>
+          </div>
+          <div style="background:var(--parchment);border-radius:8px;padding:12px;">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mist);margin-bottom:4px;">終極願景</div>
+            <div style="font-size:13px;font-weight:600;">百年永續企業</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="vision-quote">
+      <p class="vision-text">改變人們看待身體的方式——透過教育，讓每個家庭都知道如何正確照顧自己的身體。</p>
+      <p class="vision-source">核心使命陳述 · 逐字稿 00:02:28</p>
+    </div>
+  </section>
+
+  <!-- SECTION 2: EIGHT COMPASS -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2 class="section-title">八原語能量分析</h2>
+      <span class="section-tag">One Muse · 代理評估</span>
+    </div>
+    <div class="compass-grid">
+
+      <div class="compass-item high">
+        <div class="compass-header">
+          <div class="compass-gua">☰</div>
+          <div class="compass-name">
+            <span class="compass-zh">乾 — 天 / 使命</span>
+            <span class="compass-en">Heaven · Mission</span>
+          </div>
+        </div>
+        <div class="compass-stars">
+          <div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div>
+        </div>
+        <div class="compass-evidence">願景極清晰且有時間軸（2028/2030），創業第一個月就對員工溝通使命。「改變全台灣看待身體的方式」是清醒選擇，不是口號。</div>
+      </div>
+
+      <div class="compass-item high">
+        <div class="compass-header">
+          <div class="compass-gua">☷</div>
+          <div class="compass-name">
+            <span class="compass-zh">坤 — 地 / 累積</span>
+            <span class="compass-en">Earth · Accumulation</span>
+          </div>
+        </div>
+        <div class="compass-stars">
+          <div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star empty"></div>
+        </div>
+        <div class="compass-evidence">四年持續深耕，每年 50–60 場演講，Podcast 幾萬到幾十萬流量；透過雲長助力轉譯。是踏實累積型，不是急速擴張。</div>
+      </div>
+
+      <div class="compass-item high">
+        <div class="compass-header">
+          <div class="compass-gua">☴</div>
+          <div class="compass-name">
+            <span class="compass-zh">巽 — 風 / 傳播</span>
+            <span class="compass-en">Wind · Spread</span>
+          </div>
+        </div>
+        <div class="compass-stars">
+          <div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star empty"></div>
+        </div>
+        <div class="compass-evidence">主動建立多個傳播管道（講座、影音、Podcast、BNI），目的是「讓知識流入每個家庭」。傳播不是目的，是到達願景的工具。</div>
+      </div>
+
+      <div class="compass-item medium">
+        <div class="compass-header">
+          <div class="compass-gua">☶</div>
+          <div class="compass-name">
+            <span class="compass-zh">艮 — 山 / 守護</span>
+            <span class="compass-en">Mountain · Preservation</span>
+          </div>
+        </div>
+        <div class="compass-stars">
+          <div class="star"></div><div class="star"></div><div class="star"></div><div class="star empty"></div><div class="star empty"></div>
+        </div>
+        <div class="compass-evidence">百年企業意識強（「有一天我跟我的營運不在，企業仍繼續」），重視員工文化傳承，設計讓患者走向健身房的系統化服務。</div>
+      </div>
+
+      <div class="compass-item medium">
+        <div class="compass-header">
+          <div class="compass-gua">☳</div>
+          <div class="compass-name">
+            <span class="compass-zh">震 — 雷 / 啟動</span>
+            <span class="compass-en">Thunder · Action</span>
+          </div>
+        </div>
+        <div class="compass-stars">
+          <div class="star"></div><div class="star"></div><div class="star"></div><div class="star empty"></div><div class="star empty"></div>
+        </div>
+        <div class="compass-evidence">2021年溝通不成即決定獨立創業，2022正式出來，加入BNI後受啟發快速行動。不猶豫，但也不衝動——有醞釀期。</div>
+      </div>
+
+      <div class="compass-item medium">
+        <div class="compass-header">
+          <div class="compass-gua">☲</div>
+          <div class="compass-name">
+            <span class="compass-zh">離 — 火 / 核心專業</span>
+            <span class="compass-en">Fire · Expertise</span>
+          </div>
+        </div>
+        <div class="compass-stars">
+          <div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star empty"></div>
+        </div>
+        <div class="compass-evidence">從疼痛治療到行為改變到身體教育的三層遞進清晰，對退化分級（1-4級）、逆轉機制有深度專業論述。技術深度是立身根本。</div>
+      </div>
+
+      <div class="compass-item medium">
+        <div class="compass-header">
+          <div class="compass-gua">☵</div>
+          <div class="compass-name">
+            <span class="compass-zh">坎 — 水 / 風險感知</span>
+            <span class="compass-en">Water · Risk</span>
+          </div>
+        </div>
+        <div class="compass-stars">
+          <div class="star"></div><div class="star"></div><div class="star empty"></div><div class="star empty"></div><div class="star empty"></div>
+        </div>
+        <div class="compass-evidence">對競爭對手（深深有動/生生互動）有清醒認識，主動承認「三年追不上」，把目標從第一改為前三。理性但缺少防禦佈局。</div>
+      </div>
+
+      <div class="compass-item low">
+        <div class="compass-header">
+          <div class="compass-gua">☱</div>
+          <div class="compass-name">
+            <span class="compass-zh">兌 — 澤 / 交流換資</span>
+            <span class="compass-en">Lake · Exchange</span>
+          </div>
+        </div>
+        <div class="compass-stars">
+          <div class="star"></div><div class="star"></div><div class="star empty"></div><div class="star empty"></div><div class="star empty"></div>
+        </div>
+        <div class="compass-evidence">主要是輸出型，傾聽模式偏接收資訊後內化，較少即興雙向回饋。本次諮詢聽完後問的問題都是「如何支持企業發展」——結果導向。</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECTION 3: PERSONALITY TYPE -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2 class="section-title">萬謬16型人格代理評估</h2>
+      <span class="section-tag">Wan-Miu-16 · 代理模式</span>
+    </div>
+    <div class="type-card">
+      <div>
+        <div class="type-code">INTJ</div>
+        <div class="type-name-zh">戰略建築師</div>
+        <div class="type-name-en">Visionary Strategist · Builder Type</div>
+        <div class="confidence-badge">代理評估 · 置信度 76%</div>
+        <div style="margin-top:20px; font-size:14px; color:rgba(255,255,255,0.6); line-height:1.7;">
+          帶有乾卦強使命感的建構型。願景清晰、目標有時間軸、獨立創業、不隨波逐流——典型 INTJ 特徵。不同的是他同時具備強傳播意識（巽），比純 INTJ 更主動對外輸出。
+        </div>
+      </div>
+      <div class="type-traits">
+        <div class="trait-row">
+          <span class="trait-axis">I↔E</span>
+          <div class="trait-bar-bg">
+            <div class="trait-bar" style="width:65%"></div>
+          </div>
+          <span class="trait-label">偏內向</span>
+        </div>
+        <div class="trait-row">
+          <span class="trait-axis">N↔S</span>
+          <div class="trait-bar-bg">
+            <div class="trait-bar" style="width:80%"></div>
+          </div>
+          <span class="trait-label">強直覺</span>
+        </div>
+        <div class="trait-row">
+          <span class="trait-axis">T↔F</span>
+          <div class="trait-bar-bg">
+            <div class="trait-bar" style="width:72%"></div>
+          </div>
+          <span class="trait-label">偏理性</span>
+        </div>
+        <div class="trait-row">
+          <span class="trait-axis">J↔P</span>
+          <div class="trait-bar-bg">
+            <div class="trait-bar" style="width:78%"></div>
+          </div>
+          <span class="trait-label">強計劃性</span>
+        </div>
+        <div style="margin-top:16px; padding:12px; background:rgba(255,255,255,0.05); border-radius:6px;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.3);margin-bottom:6px;">驅力核心</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.65);line-height:1.7;">使命感 > 認可感 > 影響力 > 金錢</div>
+        </div>
+        <div style="padding:12px; background:rgba(255,255,255,0.05); border-radius:6px;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.3);margin-bottom:6px;">決策觸發器</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.65);line-height:1.7;">「這件事能不能讓我更快到達願景？」</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 4: COMBINED READING -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2 class="section-title">合盤比對 — Evvon vs 洪岳裕</h2>
+      <span class="section-tag">Combined Reading</span>
+    </div>
+    <div class="combined-grid" style="margin-bottom:20px;">
+      <div class="person-card">
+        <div class="person-name">Evvon</div>
+        <div class="person-role">永續 × 品牌顧問</div>
+        <div class="person-tags">
+          <span class="person-tag">坤型（累積）</span>
+          <span class="person-tag">艮型（守護定義）</span>
+          <span class="person-tag">碳資料 + 白皮書</span>
+          <span class="person-tag">B2B 倡議</span>
+        </div>
+      </div>
+      <div><div class="vs-circle">合盤</div></div>
+      <div class="person-card">
+        <div class="person-name">洪岳裕</div>
+        <div class="person-role">物理治療創業者</div>
+        <div class="person-tags">
+          <span class="person-tag">乾型（使命）</span>
+          <span class="person-tag">巽型（傳播）</span>
+          <span class="person-tag">企業演講</span>
+          <span class="person-tag">連鎖品牌</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="resonance-list">
+        <div class="resonance-item">
+          <div class="resonance-icon sync">⇄</div>
+          <div>
+            <div class="resonance-sublabel sync">強共振</div>
+            <div class="resonance-text">雙方都是 BNI 生態，信任基礎已建立，不需重建信用。Eric 的轉介背書是第一層摩擦保險。</div>
+          </div>
+        </div>
+        <div class="resonance-item">
+          <div class="resonance-icon sync">⇄</div>
+          <div>
+            <div class="resonance-sublabel sync">強共振</div>
+            <div class="resonance-text">雙方的最終方向都是「進企業」——Evvon 想拓科學園區，洪想成為企業御用物理治療師。目標高度對齊，白皮書是共同橋梁。</div>
+          </div>
+        </div>
+        <div class="resonance-item">
+          <div class="resonance-icon neutral">≈</div>
+          <div>
+            <div class="resonance-sublabel neutral">互補</div>
+            <div class="resonance-text">Evvon 擅長「永續語言 + 品牌定位」，洪缺的正是「如何把使命翻譯成企業可買單的語言」。供需結構清晰。</div>
+          </div>
+        </div>
+        <div class="resonance-item">
+          <div class="resonance-icon tension">⚡</div>
+          <div>
+            <div class="resonance-sublabel tension">潛在張力</div>
+            <div class="resonance-text">洪是「使命優先型」，對永續是否帶來即時收益還在觀望。Evvon 若直接用「永續」框架包裝，可能觸發他的「花錢」疑慮。需要用「進企業工具」重新框架。</div>
+          </div>
+        </div>
+        <div class="resonance-item">
+          <div class="resonance-icon tension">⚡</div>
+          <div>
+            <div class="resonance-sublabel tension">節奏差異</div>
+            <div class="resonance-text">洪有明確時間軸（2028/2030），決策節奏較快；Evvon 的顧問流程是 6 次漸進式。需要在第一次見面就讓他看見 6 次後的「結果圖」。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 5: STRATEGY -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <h2 class="section-title">策略建議</h2>
+      <span class="section-tag">Master-Strategy · Shadow</span>
+    </div>
+    <div class="strategy-grid" style="margin-bottom:16px;">
+      <div class="strategy-block yang">
+        <div class="strategy-block-title">
+          <div class="stag-icon yang">陽</div>
+          陽謀佈局 — 看得見的策略
+        </div>
+        <div class="strategy-content">
+          <ul style="list-style:none;">
+            <li>用「進企業加速器」框架替代「白皮書」標籤——他最想要的是企業合約，白皮書是達成的工具</li>
+            <li>在第一次顧問就展示「你演講 50 場，白皮書讓每場變成合約」的直接因果</li>
+            <li>提供「量化指標清單」作為核心交付物之一，讓他帶進企業就能說服 HR</li>
+            <li>借助 Evvon 的科學園區拓展計劃，讓洪的治療服務成為其中一個「幸福企業」模組</li>
+            <li>在 BNI 渠道共同曝光，建立「永續物理治療所」的稀缺定位</li>
+          </ul>
+        </div>
+      </div>
+      <div class="strategy-block yin">
+        <div class="strategy-block-title">
+          <div class="stag-icon yin">防</div>
+          陰謀辨識 — 潛在風險點
+        </div>
+        <div class="strategy-content">
+          <ul style="list-style:none;">
+            <li>他對「永續 = 花錢」的直覺疑慮是真實的——若報價單裡「永續」字眼太多，可能產生心理抗拒</li>
+            <li>他問「如何支持企業發展」是在測試 ROI，不是客套，必須直接回答</li>
+            <li>生生互動已經把他想做的事都做了——要強調「路徑不同」而非「更好」</li>
+            <li>他是建構型人格，顧問流程太模糊會讓他不放心。每次要有明確的交付物說明</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRICING STRATEGY -->
+    <div class="pricing-card">
+      <div class="pricing-header">
+        <div>
+          <div class="pricing-label">報價策略 · 核心框架</div>
+          <div class="pricing-strategy-title">用「三大產出」框架報價，不用「永續白皮書」框架</div>
+        </div>
+      </div>
+      <div class="pricing-steps">
+        <div class="pricing-step">
+          <div class="step-num">01</div>
+          <div class="step-content">
+            <div class="step-title">開場錨點（Before 見面）</div>
+            傳給他一份「典型企業白皮書合約案例」，讓他看到 to B 路徑的實際樣貌。他是視覺化決策者，需要看到「成功後的圖」才會行動。
+          </div>
+        </div>
+        <div class="pricing-step">
+          <div class="step-num">02</div>
+          <div class="step-content">
+            <div class="step-title">報價框架三主軸</div>
+            ① 品牌定位文件（讓他說清楚自己是誰）<br>
+            ② 進企業量化指標包（讓 HR 看得懂、看得想買）<br>
+            ③ 第一家目標企業的話術腳本（讓他帶著工具上場，不是帶著白皮書）
+          </div>
+        </div>
+        <div class="pricing-step">
+          <div class="step-num">03</div>
+          <div class="step-content">
+            <div class="step-title">價格節奏建議</div>
+            先提 6 次顧問費用，說清楚每次交付物。結尾加「合作伙伴共推方案」——若未來共同進科學園區，顧問費可折抵或轉換成合作分成，降低他的初始決策門檻。
+          </div>
+        </div>
+        <div class="pricing-step">
+          <div class="step-num">04</div>
+          <div class="step-content">
+            <div class="step-title">禁忌話語</div>
+            避免說「你的故事很適合做永續」——他知道自己適合，他要的是「怎麼把適合變成合約」。直接給工具，不要再稱讚願景了。
+          </div>
+        </div>
+      </div>
+      <div class="highlight-box">
+        <div class="highlight-label">核心話術建議</div>
+        <div class="highlight-text">「你每年已經講 50–60 場演講，白皮書要做的事只有一件：讓每場演講之後，企業知道下一步怎麼跟你簽約。」</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 6: LEVERAGE PATH -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <h2 class="section-title">多層槓桿路徑</h2>
+      <span class="section-tag">XModel · 八大槓桿</span>
+    </div>
+    <div class="leverage-grid">
+      <div class="leverage-item l1">
+        <div class="leverage-num">第一層 — 直接路徑</div>
+        <div class="leverage-title">Evvon → 洪岳裕</div>
+        <div class="leverage-desc">以 Eric 轉介背書 + BNI 共同信任，直接提案顧問服務。主要摩擦點在報價後的 ROI 疑慮，需要提前用案例說服。</div>
+        <div class="leverage-prob">
+          <div class="prob-dot high"></div>
+          <span style="font-size:12px;color:var(--slate)">成功率 75%+ · 時間 1–2 週</span>
+        </div>
+      </div>
+      <div class="leverage-item l2">
+        <div class="leverage-num">第二層 — 借力路徑</div>
+        <div class="leverage-title">Evvon → Eric → 洪岳裕</div>
+        <div class="leverage-desc">請 Eric 在旁邊補充「海費手錶案例」的實際收益，讓洪岳裕看到白皮書帶來的 B2B 合作成果。雙重背書，降低疑慮。</div>
+        <div class="leverage-prob">
+          <div class="prob-dot high"></div>
+          <span style="font-size:12px;color:var(--slate)">成功率 85%+ · 附加成本低</span>
+        </div>
+      </div>
+      <div class="leverage-item l3">
+        <div class="leverage-num">第三層 — 造勢路徑</div>
+        <div class="leverage-title">科學園區說明會作為切入點</div>
+        <div class="leverage-desc">邀請洪岳裕以演講嘉賓身分參與 Evvon 的企業說明會——讓他先「試水」B2B 場景，合作關係從協作開始，而非單純的客戶關係。</div>
+        <div class="leverage-prob">
+          <div class="prob-dot med"></div>
+          <span style="font-size:12px;color:var(--slate)">成功率 60% · 需較長時間</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 7: ACTION FLOW -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <h2 class="section-title">行動流程設計</h2>
+      <span class="section-tag">PDEIF · 逆熵接觸點序列</span>
+    </div>
+    <div class="card" style="padding: 28px 32px;">
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="flow-left">
+            <div class="flow-circle active">1</div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-content">
+            <div class="flow-title">報價單寄出前 — 確認 to B 目標細節</div>
+            <div class="flow-desc">在傳報價前，先私訊問一個問題：「你最想進的第一家企業，規模大概是多少人、什麼產業？」這個問題讓他感覺報價是客製化的，也幫你校準交付物。</div>
+            <div class="flow-tag">48 小時內完成</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-left">
+            <div class="flow-circle active">2</div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-content">
+            <div class="flow-title">報價單寄出 — 三欄式格式</div>
+            <div class="flow-desc">格式：「你獲得什麼 / 我們做什麼 / 大概時間表」——他是建構型人格，需要看到結構，不是長段文字描述。附上海費手錶案例連結作為佐證。</div>
+            <div class="flow-tag">寄出後 3 天等候反應</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-left">
+            <div class="flow-circle">3</div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-content">
+            <div class="flow-title">若對方猶豫 — 提供「試探性第一步」</div>
+            <div class="flow-desc">若 3 天沒有回應，提議「我們先做第一次顧問，確認你的品牌定位方向，費用先結算這一次」——降低承諾門檻，讓他先進入流程。</div>
+            <div class="flow-tag">降低初始決策門檻</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-left">
+            <div class="flow-circle">4</div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-content">
+            <div class="flow-title">第一次顧問 — 建立深度信任</div>
+            <div class="flow-desc">在第一次顧問結束時，交出一份「你的企業目標客群推薦清單（3–5 家）」——這是超出預期的額外價值，讓他看到你不只是做文件，而是真的幫他進企業。</div>
+            <div class="flow-tag">超出預期交付</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-left">
+            <div class="flow-circle">5</div>
+          </div>
+          <div class="flow-content">
+            <div class="flow-title">白皮書完成後 — 共推計劃</div>
+            <div class="flow-desc">白皮書完成後，提議「我們一起去科學園區說明會，你負責演講，我負責商務接洽」——把合作關係從甲乙方升格為共同作戰夥伴，長期黏性最高。</div>
+            <div class="flow-tag">長期夥伴關係</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 8: BLINDSPOT & RISK -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <h2 class="section-title">盲點與風險提醒</h2>
+      <span class="section-tag">Roundtable · 多視角</span>
+    </div>
+    <div class="alerts-grid">
+      <div class="alert-box warning">
+        <div class="alert-icon warning">⚠</div>
+        <div class="alert-content">
+          <div class="alert-title">他不需要再被讚美願景了</div>
+          <div class="alert-desc">逐字稿中洪岳裕被稱讚了多次「理念很棒」，他已經聽習慣了。下一步他需要的是具體工具，不是情感認同。直接告訴他「這個工具解決哪個問題」。</div>
+        </div>
+      </div>
+      <div class="alert-box warning">
+        <div class="alert-icon warning">⚠</div>
+        <div class="alert-content">
+          <div class="alert-title">生生互動的陰影</div>
+          <div class="alert-desc">洪自己說「生生互動把我想做的事情幾乎都做了」，這背後有一種焦慮。若報價方案中沒有回應「跟生生互動的差異化路徑」，他可能在簽約前猶豫。</div>
+        </div>
+      </div>
+      <div class="alert-box danger">
+        <div class="alert-icon danger">✕</div>
+        <div class="alert-content">
+          <div class="alert-title">禁忌：過多次數 + 不明確的交付物</div>
+          <div class="alert-desc">他直接問「流程是什麼、要幾次」，是建構型人格在評估是否可控。若顧問次數說「視情況調整」而不給清楚的每次產出，他的安全感會降低，決策會拖延。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 9: BRIEFING CARD -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">09</span>
+      <h2 class="section-title">戰前簡報 — 一頁總覽</h2>
+      <span class="section-tag">C15 · 戰略摘要</span>
+    </div>
+    <div class="briefing-card">
+      <div class="briefing-title">洪岳裕 · 核心簡報</div>
+      <div class="briefing-grid">
+        <div class="briefing-section">
+          <h4>他是誰</h4>
+          <div class="briefing-list">
+            <div class="briefing-item">帶著使命創業的物理治療師，2022 年出來，四年扎根</div>
+            <div class="briefing-item">每年 50–60 場演講，正在向企業講師轉型</div>
+            <div class="briefing-item">2028 台灣前三、2030 亞洲第一的明確時間軸</div>
+            <div class="briefing-item">想建立百年企業，不只是賺錢</div>
+          </div>
+        </div>
+        <div class="briefing-section">
+          <h4>他要什麼</h4>
+          <div class="briefing-list">
+            <div class="briefing-item">進企業的「話術包 + 量化指標」，讓企業知道怎麼跟他簽年約</div>
+            <div class="briefing-item">差異化路徑，不是跟生生互動硬拼連鎖數量</div>
+            <div class="briefing-item">可以帶回企業就能直接用的工具，不只是一份報告</div>
+          </div>
+        </div>
+        <div class="briefing-section">
+          <h4>怎麼說服他</h4>
+          <div class="briefing-list">
+            <div class="briefing-item">用「進企業加速器」框架，不用「白皮書」或「永續」</div>
+            <div class="briefing-item">每次顧問給清楚的交付物清單</div>
+            <div class="briefing-item">用 Eric 介紹的海費手錶 ROI 案例作為開場錨點</div>
+            <div class="briefing-item">讓他看到 6 次後的「成果圖」，不是過程</div>
+          </div>
+        </div>
+        <div class="briefing-section">
+          <h4>避雷清單</h4>
+          <div class="briefing-list">
+            <div class="briefing-item">不要繼續稱讚他的願景，他聽夠了</div>
+            <div class="briefing-item">不要用「永續報告書」框架，永續 = 花錢 的疑慮還在</div>
+            <div class="briefing-item">不要讓報價單次數「視情況調整」，他需要可預期的結構</div>
+            <div class="briefing-item">不要忽視生生互動的競爭焦慮，要正面回應差異化</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="report-footer">
+  <div class="footer-brand">MUSEON · ATHENA</div>
+  <div class="footer-meta">洪岳裕 戰略情報報告 · 2026-03-31 · 代理評估基於諮詢逐字稿 · 置信度 4/5</div>
+</footer>
+
+</body>
+</html>
