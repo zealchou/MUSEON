@@ -458,7 +458,7 @@ class BrainPromptBuilderMixin:
 
         # ── Zone: buffer — 成長階段行為 ──
         if anima_mc:
-            growth = anima_mc.get("identity", {}).get("growth_stage", "adult")
+            growth = anima_mc.get("identity", {}).get("growth_stage", "ABSORB")
             days = anima_mc.get("identity", {}).get("days_alive", 0)
             growth_text = self._get_growth_behavior(growth, days, anima_mc)
             growth_fitted = budget.fit_text_to_zone("buffer", growth_text)
@@ -1752,7 +1752,7 @@ class BrainPromptBuilderMixin:
 
         name = identity.get("name", "MUSEON")
         days = identity.get("days_alive", 0)
-        growth = identity.get("growth_stage", "adult")
+        growth = identity.get("growth_stage", "ABSORB")
 
         section = f"## 我的身份\n\n"
         section += f"我是 {name}，"
@@ -1785,10 +1785,6 @@ class BrainPromptBuilderMixin:
         growth_stage = anima_mc.get("identity", {}).get("growth_stage", "ABSORB")
 
         if trait_dims:
-            # Human-readable trait labels
-            if core_traits_list:
-                section += f"\n性格特質：{'、'.join(core_traits_list)}"
-
             # Top capability traits
             c_traits = []
             for tid in ["C1_empathy_breadth", "C2_pattern_recognition", "C4_conflict_navigation", "C5_metacognition"]:

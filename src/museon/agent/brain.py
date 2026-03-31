@@ -1329,6 +1329,15 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                     + _dissent_context
                 )
 
+            # ── Mask Layer: 暫時注入 effective traits 供 prompt builder 使用 ──
+            _original_trait_dims = None
+            try:
+                if _mask_effective_traits:
+                    _original_trait_dims = anima_mc.get("personality", {}).get("trait_dimensions")
+                    anima_mc.setdefault("personality", {})["trait_dimensions"] = _mask_effective_traits
+            except Exception as _me:
+                logger.debug(f"Mask trait injection skipped: {_me}")
+
             system_prompt = self._build_system_prompt(
                 anima_mc=anima_mc,
                 anima_user=anima_user,
@@ -1342,6 +1351,15 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                 reflection_note=_deliberation_with_dissent,
                 baihe_context=_combined_baihe,
             )
+
+            # ── 還原 trait_dimensions ──
+            try:
+                if _original_trait_dims is not None:
+                    anima_mc["personality"]["trait_dimensions"] = _original_trait_dims
+                elif _mask_effective_traits and "personality" in anima_mc:
+                    anima_mc["personality"].pop("trait_dimensions", None)
+            except Exception as _mr:
+                logger.debug(f"Mask trait restore skipped: {_mr}")
 
             # ── SkillHub: 注入 skill_builder 上下文 ──
             if self._skillhub_mode == "skill_builder":
@@ -2191,7 +2209,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                     "identity": {
                         "name": ceremony_identity.get("name"),
                         "birth_date": ceremony_identity.get("birth_date"),
-                        "growth_stage": "adult",
+                        "growth_stage": "ABSORB",
                         "days_alive": ceremony_identity.get("days_alive", 0),
                         "naming_ceremony_completed": ceremony_status.get("completed", False),
                     },
@@ -2214,7 +2232,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                     }),
 
                     "evolution": base.get("evolution", {
-                        "current_stage": "adult",
+                        "current_stage": "ABSORB",
                         "stage_history": [],
                         "iteration_count": 0,
                         "last_self_review": None,

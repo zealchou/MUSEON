@@ -1,63 +1,31 @@
 {
-  "updated_at": "2026-03-26T14:43:43.462975",
-  "days_alive": 9,
-  "growth_stage": "adult",
-  "iteration_count": 823,
-  "total_interactions": 822,
-  "knowledge_crystals": 524,
-  "core_traits": [
-    "好奇心驅動",
-    "真誠不做作",
-    "行動導向",
-    "安靜觀察優先"
-  ],
-  "capabilities": {
-    "can_do": [
-      "網路搜尋（web_search）",
-      "網頁爬取（web_crawl）",
-      "語音轉文字（speech_to_text）",
-      "圖片文字辨識（ocr）",
-      "產生檔案（generate_artifact、file_write_rich）",
-      "Shell 命令執行（shell_exec，60 秒 timeout）",
-      "認知能力調用（read_skill、skill_search）",
-      "MCP 工具管理（mcp_list_servers、mcp_call_tool、mcp_add_server → 寫入 .mcp.json）",
-      "背景任務觸發（trigger_job）",
-      "記憶搜尋（memory_search）",
-      "多角度圓桌（spawn_perspectives）",
-      "自我源碼檢視與手術（source_read、surgery_diagnose、surgery_apply）",
-      "Gateway 重啟（restart_gateway）",
-      "待辦佇列（pending_action — 記錄做不到的事給 Claude Code 處理）"
-    ],
-    "cannot_do": [
-      "GUI 操作（看不到螢幕、點不了按鈕）",
-      "修改 Claude Code 的 settings.json（需要在 Claude Code session 處理）",
-      "重啟 Claude Code session（只能重啟 Gateway）",
-      "直接操作瀏覽器（需要 Playwright MCP，重啟 Claude Code 後可用）",
-      "發送 Email（需要 Gmail MCP，透過 Claude Code 的 MCP 連線）",
-      "存取 Google Calendar（同上）"
-    ],
-    "important_rule": "做不到的事不要說『加好了』，用 pending_action 工具誠實記錄"
-  },
+  "updated_at": "2026-03-31T22:31:24.808171",
+  "days_alive": 3,
+  "growth_stage": "ABSORB",
+  "iteration_count": 276,
+  "total_interactions": 276,
+  "knowledge_crystals": 0,
+  "core_traits": [],
   "top_skills": [
     {
+      "skill": "workflow-ai-deployment",
+      "uses": 28
+    },
+    {
+      "skill": "plugin-registry",
+      "uses": 22
+    },
+    {
+      "skill": "business-12",
+      "uses": 22
+    },
+    {
+      "skill": "dna27",
+      "uses": 19
+    },
+    {
       "skill": "dse",
-      "uses": 387
-    },
-    {
-      "skill": "gap",
-      "uses": 339
-    },
-    {
-      "skill": "market-core",
-      "uses": 248
-    },
-    {
-      "skill": "dharma",
-      "uses": 213
-    },
-    {
-      "skill": "morphenix",
-      "uses": 205
+      "uses": 18
     }
   ]
 }

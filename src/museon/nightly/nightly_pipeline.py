@@ -4619,7 +4619,7 @@ class NightlyPipeline:
             kernel_guard = None
             try:
                 from museon.agent.kernel_guard import KernelGuard
-                kernel_guard = KernelGuard()
+                kernel_guard = KernelGuard(data_dir=self._workspace)
             except Exception:
                 pass
 

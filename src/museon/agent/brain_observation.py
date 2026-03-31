@@ -2097,13 +2097,14 @@ class BrainObservationMixin:
                     except Exception:
                         pass
                 # Update stage_history (append-only)
-                stage_history = anima_mc.get("evolution", {}).get("stage_history", [])
+                evo = anima_mc.setdefault("evolution", {})
+                stage_history = evo.setdefault("stage_history", [])
                 stage_history.append({"stage": new_stage, "maturity": round(maturity, 3), "at": datetime.now(timezone.utc).isoformat()})
         except Exception as e:
             logger.debug(f"GrowthStageComputer failed, fallback to existing logic: {e}")
-            new_stage = "adult"  # Fallback
+            new_stage = "ABSORB"  # Fallback
 
-        old_stage = identity.get("growth_stage", "adult")
+        old_stage = identity.get("growth_stage", "ABSORB")
         if new_stage != old_stage:
             identity["growth_stage"] = new_stage
             logger.info(f"Growth stage evolved: {old_stage} → {new_stage} (Day {days_alive})")

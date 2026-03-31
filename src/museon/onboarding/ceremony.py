@@ -150,7 +150,7 @@ class NamingCeremony:
             "identity": {
                 "name": my_name,
                 "birth_date": datetime.now().isoformat(),
-                "growth_stage": "adult",
+                "growth_stage": "ABSORB",
                 "days_alive": 0,
             },
             "self_awareness": {

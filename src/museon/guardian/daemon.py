@@ -376,7 +376,7 @@ class GuardianDaemon:
                 "identity": {
                     "name": "MUSEON",
                     "birth_date": datetime.now().isoformat(),
-                    "growth_stage": "adult",
+                    "growth_stage": "ABSORB",
                     "days_alive": 0,
                 },
                 "self_awareness": {"who_am_i": "", "my_purpose": ""},
