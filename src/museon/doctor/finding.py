@@ -168,6 +168,25 @@ class FindingStore:
         self._recent_origins[origin_key] = time.monotonic()
         return False
 
+    def record_occurrence(self, finding_key: str) -> int:
+        """記錄 Finding 出現次數，返回累計次數.
+
+        持久化到 {base_dir}/../finding_counts.json（與 findings/ 同層）。
+        """
+        try:
+            counts_file = self.base_dir.parent / "finding_counts.json"
+            counts_file.parent.mkdir(parents=True, exist_ok=True)
+            counts: dict = {}
+            if counts_file.exists():
+                counts = json.loads(counts_file.read_text(encoding="utf-8"))
+            counts[finding_key] = counts.get(finding_key, 0) + 1
+            counts_file.write_text(
+                json.dumps(counts, ensure_ascii=False, indent=2), encoding="utf-8"
+            )
+            return counts[finding_key]
+        except Exception:
+            return 1
+
     def _origin_key(self, finding: Finding) -> str:
         if isinstance(finding.blast_origin, dict):
             return finding.blast_origin.get("file", "") + ":" + finding.blast_origin.get("error_type", "")

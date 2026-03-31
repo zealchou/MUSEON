@@ -936,6 +936,26 @@ class SurgeryEngine:
             "validated": True,
         })
 
+        # 修復完成 → 覺察訊號（閉環）
+        try:
+            from museon.nightly.triage_step import write_signal
+            from museon.core.awareness import (
+                AwarenessSignal,
+                Severity,
+                SignalType,
+                Actionability,
+            )
+            write_signal(str(self._root / "data"), AwarenessSignal(
+                source="surgeon",
+                severity=Severity.LOW,
+                signal_type=SignalType.SYSTEM_FAULT,
+                title=f"手術完成: {surgery_id}，待驗證效果",
+                actionability=Actionability.PROMPT,
+                suggested_action="verify_repair",
+            ))
+        except Exception:
+            pass
+
         logger.info(
             f"SurgeryEngine: 手術 {surgery_id} 完成 ✅ — "
             f"{len(applied)} 個檔案已修改，pytest 驗證通過"

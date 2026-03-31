@@ -426,6 +426,7 @@ class WEEEngine:
                         "score": score.to_dict(),
                         "outcome": outcome,
                         "matched_skills": data.get("matched_skills", []),
+                        "blind_spots": [],  # WEE 不做盲點分析，佔位讓 OutwardTrigger 不報錯
                     })
                 except Exception as e:
                     logger.debug(f"[WEE_ENGINE] skill failed (degraded): {e}")

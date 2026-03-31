@@ -48,6 +48,20 @@ class SkillRouter:
         self._build_rc_index()
         self._subscribe_events()
 
+    def _load_tuned_rc_weight(self) -> float:
+        """從 ParameterTuner 的輸出讀取 RC 權重，fallback 到預設值."""
+        try:
+            import json
+            tuned_file = self.skills_dir.parent / "_system" / "evolution" / "tuned_parameters.json"
+            if tuned_file.exists():
+                data = json.loads(tuned_file.read_text(encoding="utf-8"))
+                val = data.get("skill_router_rc_multiplier")
+                if val is not None and isinstance(val, (int, float)):
+                    return float(val)
+        except Exception:
+            pass
+        return 5.0  # 預設值
+
     def _build_index(self) -> None:
         """掃描所有 SKILL.md，建立觸發詞索引."""
         self._index = []
@@ -543,7 +557,7 @@ class SkillRouter:
             rc_s = rc_scores.get(skill_name, 0.0)
             v_score = vector_scores.get(skill_name, 0.0)
 
-            _rc_weight = 5.0
+            _rc_weight = self._load_tuned_rc_weight()
             if len(message.strip()) < 20 and rc_s < 0.3 and rc_s > 0:
                 _rc_weight = 2.0
 

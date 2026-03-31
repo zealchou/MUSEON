@@ -288,6 +288,14 @@ class BrainPromptBuilderMixin:
                     _insight_fitted = budget.fit_text_to_zone("memory", _insight_block)
                     if _insight_fitted:
                         sections.append(_insight_fitted)
+                        # 回饋 insight 使用情況（學習閉環）
+                        for _ins in _relevant:
+                            try:
+                                _ins_id = _ins.get("id", "")
+                                if _ins_id:
+                                    self._insight_extractor.update_confidence(_ins_id, 0.05)
+                            except Exception:
+                                pass
             except Exception as e:
                 logger.debug(f"Phase 7 insight inject skipped: {e}")
 

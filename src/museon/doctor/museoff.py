@@ -639,6 +639,35 @@ class MuseOff:
         self._stats["findings_created"] += 1
         logger.info("[MuseOff] Finding created: %s [%s] %s", finding.finding_id, severity, title)
 
+        # 反覆出現的問題 → 升級給 Morphenix
+        origin_key = self._store._origin_key(finding)
+        occurrence_count = self._store.record_occurrence(origin_key)
+        if occurrence_count >= 3:
+            try:
+                from museon.nightly.triage_step import write_signal
+                from museon.core.awareness import (
+                    AwarenessSignal,
+                    Severity as AwSeverity,
+                    SignalType,
+                    Actionability,
+                )
+                write_signal(self.home, AwarenessSignal(
+                    source="museoff",
+                    severity=AwSeverity.HIGH,
+                    signal_type=SignalType.SYSTEM_FAULT,
+                    title=f"反覆失敗({occurrence_count}次): {title[:50]}",
+                    actionability=Actionability.AUTO,
+                    suggested_action="escalate_to_morphenix",
+                    context={"finding_key": origin_key, "count": occurrence_count},
+                ))
+                logger.warning(
+                    "[MuseOff] Finding '%s' occurred %d times, escalated to Morphenix",
+                    origin_key,
+                    occurrence_count,
+                )
+            except Exception:
+                pass  # 升級失敗不阻擋主流程
+
         # 即時 DM 通知老闆（所有 severity 都通知）
         try:
             from museon.doctor.notify import notify_owner

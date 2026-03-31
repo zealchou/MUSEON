@@ -318,6 +318,20 @@ class SessionAdjustmentManager:
             skill_lessons_path,
         )
 
+        # 同步寫入 KnowledgeLattice（操作性學習 → 知識結晶）
+        try:
+            from museon.agent.knowledge_lattice import KnowledgeLattice, CRYSTAL_TYPE_LESSON
+            lattice = KnowledgeLattice(data_dir=str(workspace))
+            lattice.crystallize(
+                raw_material=f"行為調整教訓：{trigger} → {adjustment}（累積 3 次驗證成功）",
+                crystal_type=CRYSTAL_TYPE_LESSON,
+                g1_summary=f"當偵測到 {trigger} 時，應該 {adjustment}",
+                source_context="session_adjustment_promotion",
+                mode="auto",
+            )
+        except Exception:
+            pass  # KnowledgeLattice 不可用時不阻塞
+
     # ── 補線 C（session_adjustment 側）：load_pending_from_nightly ───────────────
 
     def load_pending_from_nightly(self, workspace: Path, session_id: str) -> int:

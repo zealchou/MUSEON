@@ -36,6 +36,30 @@ TZ8 = timezone(timedelta(hours=8))
 
 MAX_ROLLBACKS_PER_DAY = 3  # 每日回滾上限，超過則暫停 Morphenix
 
+# ───────────────────────────────────────────
+# L1 護欄常數（Config 自動調參防失控）
+# ───────────────────────────────────────────
+
+# 護欄 1：各類型 key 的合理值域（min, max）
+_VALUE_BOUNDS: Dict[str, tuple] = {
+    "default":    (0.1, 3.0),   # 一般權重值
+    "weight":     (0.1, 2.0),   # *_weight 結尾的 key
+    "threshold":  (0.01, 0.99), # *_threshold 結尾的 key
+    "multiplier": (0.5, 3.0),   # *_multiplier 結尾的 key
+    "boost":      (0.5, 2.0),   # *_boost 結尾的 key
+    "confidence": (0.1, 1.0),   # *_confidence 結尾的 key
+}
+
+# 護欄 2：死亡螺旋偵測閾值（同 key 連續同方向調整次數上限）
+_SPIRAL_DETECTION_WINDOW_DAYS = 7
+_SPIRAL_CONSECUTIVE_LIMIT = 3
+
+# 護欄 3：同一 key 的冷卻期（小時）
+_COOLDOWN_HOURS = 72
+
+# 護欄 4：單次批次執行上限
+_MAX_CHANGES_PER_BATCH = 3
+
 
 class MorphenixExecutor:
     """執行已核准的 Morphenix 演化提案.
@@ -332,6 +356,25 @@ class MorphenixExecutor:
                 self._db.reject_proposal(pid, decided_by="execution_failed")
             except Exception as exc:
                 logger.warning(f"Morphenix Executor: DB reject_proposal failed for {pid}: {exc}")
+            # 迭代失敗 → 覺察訊號
+            try:
+                from museon.nightly.triage_step import write_signal
+                from museon.core.awareness import (
+                    AwarenessSignal,
+                    Severity,
+                    SignalType,
+                    Actionability,
+                )
+                write_signal(self._workspace, AwarenessSignal(
+                    source="morphenix",
+                    severity=Severity.HIGH,
+                    signal_type=SignalType.SYSTEM_FAULT,
+                    title=f"Morphenix 迭代失敗: {pid}",
+                    actionability=Actionability.HUMAN,
+                    suggested_action="review_proposal",
+                ))
+            except Exception:
+                pass
             return {
                 "proposal_id": pid,
                 "outcome": "failed",
@@ -384,6 +427,26 @@ class MorphenixExecutor:
         self._close_crystal_loop(proposal, exec_result, pid)
 
         logger.info(f"Morphenix Executor: EXECUTED {pid} successfully")
+
+        # 迭代完成 → 覺察訊號（閉環）
+        try:
+            from museon.nightly.triage_step import write_signal
+            from museon.core.awareness import (
+                AwarenessSignal,
+                Severity,
+                SignalType,
+                Actionability,
+            )
+            write_signal(self._workspace, AwarenessSignal(
+                source="morphenix",
+                severity=Severity.MEDIUM,
+                signal_type=SignalType.BEHAVIOR_DRIFT,
+                title=f"Morphenix 迭代完成: {pid}，待驗證效果",
+                actionability=Actionability.PROMPT,
+                suggested_action="eval_compare",
+            ))
+        except Exception:
+            pass
 
         return {
             "proposal_id": pid,
@@ -470,6 +533,127 @@ class MorphenixExecutor:
         else:
             return {"action": "unknown_level", "level": level}
 
+    # ───────────────────────────────────────────
+    # L1 護欄輔助方法
+    # ───────────────────────────────────────────
+
+    def _get_value_bounds(self, key: str) -> tuple:
+        """根據 key 的後綴決定對應的值域邊界."""
+        for suffix, bounds in _VALUE_BOUNDS.items():
+            if suffix == "default":
+                continue
+            if key.endswith(f"_{suffix}"):
+                return bounds
+        return _VALUE_BOUNDS["default"]
+
+    def _clamp_value(self, key: str, value: float) -> tuple:
+        """將 value 限制在合理值域內，返回 (clamped_value, was_clamped)."""
+        if not isinstance(value, (int, float)):
+            # 非數值型 value 不套用值域限制
+            return value, False
+        lo, hi = self._get_value_bounds(key)
+        clamped = max(lo, min(hi, float(value)))
+        return clamped, (clamped != float(value))
+
+    def _read_recent_execution_logs(self, days: int = 7) -> List[Dict[str, Any]]:
+        """讀取最近 N 天的執行記錄，回傳所有 applied 變更的清單."""
+        cutoff = datetime.now(tz=TZ8) - timedelta(days=days)
+        records: List[Dict[str, Any]] = []
+        log_dir = self._workspace / "_system" / "morphenix" / "execution_log"
+        if not log_dir.exists():
+            return records
+        for log_file in sorted(log_dir.glob("*.json")):
+            try:
+                with open(log_file, "r", encoding="utf-8") as f:
+                    entry = json.load(f)
+                ts_str = entry.get("executed_at") or entry.get("timestamp", "")
+                if ts_str:
+                    ts = datetime.fromisoformat(ts_str)
+                    if ts.tzinfo is None:
+                        ts = ts.replace(tzinfo=TZ8)
+                    if ts < cutoff:
+                        continue
+                result = entry.get("result", {})
+                for applied in result.get("applied", []):
+                    records.append({
+                        "executed_at": ts_str,
+                        "key": applied.get("key", ""),
+                        "old_value": applied.get("old_value"),
+                        "new_value": applied.get("new_value"),
+                    })
+            except Exception:
+                continue
+        return records
+
+    def _check_spiral(self, key: str, new_value: float) -> bool:
+        """檢查是否出現死亡螺旋（同 key 連續同方向調整 3+ 次）.
+
+        讀取最近 7 天的 execution_log，找同 key 的歷史調整方向。
+        如果最近 3 次都是同一方向（都增 / 都減），回傳 True 表示螺旋成立。
+        """
+        if not isinstance(new_value, (int, float)):
+            return False
+
+        records = self._read_recent_execution_logs(_SPIRAL_DETECTION_WINDOW_DAYS)
+        # 僅保留相同 key 且新舊值均為數值的記錄
+        key_records = [
+            r for r in records
+            if r.get("key") == key
+            and isinstance(r.get("old_value"), (int, float))
+            and isinstance(r.get("new_value"), (int, float))
+        ]
+        # 取最近 (_SPIRAL_CONSECUTIVE_LIMIT - 1) 筆歷史 + 本次共組成窗口
+        window = key_records[-((_SPIRAL_CONSECUTIVE_LIMIT - 1)):]
+        if len(window) < _SPIRAL_CONSECUTIVE_LIMIT - 1:
+            return False
+
+        # 計算歷史方向（+1 增 / -1 減 / 0 不變）
+        def direction(old, new):
+            if new > old:
+                return 1
+            if new < old:
+                return -1
+            return 0
+
+        hist_dirs = [
+            direction(r["old_value"], r["new_value"]) for r in window
+        ]
+        # 本次方向：拿 window 最後一筆的 new_value 當 old，與 new_value 比較
+        last_new = window[-1]["new_value"]
+        this_dir = direction(last_new, new_value)
+
+        if this_dir == 0:
+            return False
+
+        # 所有方向必須非零且一致，才判定為螺旋
+        all_dirs = hist_dirs + [this_dir]
+        non_zero = [d for d in all_dirs if d != 0]
+        if len(non_zero) < _SPIRAL_CONSECUTIVE_LIMIT:
+            return False
+        return len(set(non_zero[-_SPIRAL_CONSECUTIVE_LIMIT:])) == 1
+
+    def _check_cooldown(self, key: str) -> Optional[str]:
+        """檢查 key 是否仍在冷卻期內，返回上次調整時間字串或 None."""
+        records = self._read_recent_execution_logs(days=4)  # 72h ≤ 4 天
+        key_records = [r for r in records if r.get("key") == key]
+        if not key_records:
+            return None
+        # 取最新一筆
+        last = key_records[-1]
+        ts_str = last.get("executed_at", "")
+        if not ts_str:
+            return None
+        try:
+            ts = datetime.fromisoformat(ts_str)
+            if ts.tzinfo is None:
+                ts = ts.replace(tzinfo=TZ8)
+            elapsed = datetime.now(tz=TZ8) - ts
+            if elapsed < timedelta(hours=_COOLDOWN_HOURS):
+                return ts_str
+        except Exception:
+            pass
+        return None
+
     def _apply_l1(
         self, proposal: Dict[str, Any], metadata: Dict
     ) -> Dict[str, Any]:
@@ -523,6 +707,20 @@ class MorphenixExecutor:
                 )
 
         applied = []
+        guarded = []  # 被護欄攔截的 change 紀錄
+
+        # ── 護欄 4：單次批次上限 ──────────────────────────────────────────
+        # 超過上限的 change 直接跳過，不進入後續護欄
+        if len(changes) > _MAX_CHANGES_PER_BATCH:
+            excess = changes[_MAX_CHANGES_PER_BATCH:]
+            for ex in excess:
+                reason = (
+                    f"batch_limit_exceeded（批次最多 {_MAX_CHANGES_PER_BATCH} 個，"
+                    f"此 change 排在第 {changes.index(ex) + 1} 位）"
+                )
+                guarded.append({"file": ex.get("file", ""), "key": ex.get("key", ""), "reason": reason})
+                logger.warning(f"Morphenix L1 護欄 4 觸發：{reason} → 跳過 {ex.get('key', '')}")
+            changes = changes[:_MAX_CHANGES_PER_BATCH]
 
         for change in changes:
             filepath = change.get("file", "")
@@ -538,6 +736,41 @@ class MorphenixExecutor:
                 logger.warning(f"Morphenix L1: path escape attempt: {filepath}")
                 continue
 
+            # ── 護欄 1：值域限制 ─────────────────────────────────────────
+            clamped_value, was_clamped = self._clamp_value(key, value)
+            if was_clamped:
+                lo, hi = self._get_value_bounds(key)
+                logger.warning(
+                    f"Morphenix L1 護欄 1 觸發：{key} 的值 {value} 超出範圍 "
+                    f"[{lo}, {hi}]，已 clamp 至 {clamped_value}"
+                )
+                guarded.append({
+                    "file": filepath,
+                    "key": key,
+                    "reason": f"value_clamped（原值 {value} → 截斷至 {clamped_value}）",
+                    "original_value": value,
+                    "clamped_value": clamped_value,
+                })
+                value = clamped_value  # 繼續使用截斷後的值，不中斷執行
+
+            # ── 護欄 3：冷卻期 ───────────────────────────────────────────
+            last_ts = self._check_cooldown(key)
+            if last_ts is not None:
+                reason = f"cooldown（上次調整 {last_ts}，冷卻期 {_COOLDOWN_HOURS} 小時尚未結束）"
+                guarded.append({"file": filepath, "key": key, "reason": reason})
+                logger.warning(f"Morphenix L1 護欄 3 觸發：{key} {reason}")
+                continue  # 跳過此 change
+
+            # ── 護欄 2：死亡螺旋偵測 ────────────────────────────────────
+            if isinstance(value, (int, float)) and self._check_spiral(key, float(value)):
+                reason = (
+                    f"spiral_detected（{key} 連續 {_SPIRAL_CONSECUTIVE_LIMIT} 次以上"
+                    f"朝同一方向調整，疑似死亡螺旋）"
+                )
+                guarded.append({"file": filepath, "key": key, "reason": reason})
+                logger.warning(f"Morphenix L1 護欄 2 觸發：{reason}")
+                continue  # 拒絕執行
+
             try:
                 if target.exists():
                     with open(target, "r", encoding="utf-8") as f:
@@ -552,13 +785,20 @@ class MorphenixExecutor:
                     if k not in obj:
                         obj[k] = {}
                     obj = obj[k]
+
+                old_value = obj.get(keys[-1])
                 obj[keys[-1]] = value
 
                 with open(target, "w", encoding="utf-8") as f:
                     json.dump(data, f, ensure_ascii=False, indent=2)
 
-                applied.append({"file": filepath, "key": key})
-                logger.info(f"Morphenix L1: updated {filepath}:{key}")
+                applied.append({
+                    "file": filepath,
+                    "key": key,
+                    "old_value": old_value,
+                    "new_value": value,
+                })
+                logger.info(f"Morphenix L1: updated {filepath}:{key} ({old_value} → {value})")
 
             except Exception as e:
                 logger.warning(f"Morphenix L1: failed {filepath}: {e}")
@@ -567,6 +807,8 @@ class MorphenixExecutor:
             "action": "l1_config_update",
             "applied": applied,
             "count": len(applied),
+            "guarded": guarded,
+            "guarded_count": len(guarded),
         }
 
     def _apply_l2(

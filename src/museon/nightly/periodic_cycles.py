@@ -291,12 +291,31 @@ class WeeklyCycle:
         trend = engine.get_trend()
         ctx["velocity_trend"] = trend
 
+        # 高原警報 → 覺察訊號（不再只印 log）
+        if snapshot and getattr(snapshot, 'plateau_alert', False):
+            try:
+                from museon.nightly.triage_step import write_signal
+                from museon.core.awareness import (
+                    AwarenessSignal, Severity, SignalType, Actionability,
+                )
+                write_signal(self._workspace, AwarenessSignal(
+                    source="evolution_velocity",
+                    severity=Severity.HIGH,
+                    signal_type=SignalType.LEARNING_GAP,
+                    title="演化高原期：連續數週無進步，建議觸發外部知識搜尋",
+                    actionability=Actionability.AUTO,
+                    suggested_action="trigger_outward_search",
+                ))
+            except Exception:
+                pass
+
         return {
             "iso_week": snapshot_dict.get("iso_week", ""),
             "composite_velocity": round(
                 snapshot_dict.get("composite_velocity", 0.0), 4
             ),
             "trend": trend,
+            "plateau_alert": bool(getattr(snapshot, 'plateau_alert', False)),
         }
 
     def _step_knowledge_lattice_deep(self, ctx: Dict) -> Dict:

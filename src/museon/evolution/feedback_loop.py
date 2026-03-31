@@ -177,6 +177,9 @@ class FeedbackLoop:
         # 趨勢偵測
         self._check_trend_change()
 
+        # 持久化摘要供 Nightly 讀取
+        self._persist_summary()
+
     def _calculate_quality_signal(self, interaction: Dict) -> float:
         """計算單次互動的品質分數（0-1）.
 
@@ -308,6 +311,28 @@ class FeedbackLoop:
         except Exception as e:
             logger.error(f"EventBus publish USER_FEEDBACK_SIGNAL failed: {e}")
 
+        # 品質持續下降 → 可能有學習空缺
+        if delta < 0:
+            try:
+                from museon.nightly.triage_step import write_signal
+                from museon.core.awareness import (
+                    AwarenessSignal,
+                    Severity,
+                    SignalType,
+                    Actionability,
+                )
+                if hasattr(self, '_workspace') and self._workspace:
+                    write_signal(self._workspace, AwarenessSignal(
+                        source="feedback_loop",
+                        severity=Severity.MEDIUM,
+                        signal_type=SignalType.LEARNING_GAP,
+                        title=f"品質趨勢下降，可能存在學習空缺",
+                        actionability=Actionability.AUTO,
+                        suggested_action="trigger_insight_extraction",
+                    ))
+            except Exception:
+                pass
+
         self._last_trend_mean = recent_mean
 
     def get_daily_summary(self) -> Dict[str, Any]:
@@ -352,6 +377,50 @@ class FeedbackLoop:
             }
 
         return summary
+
+    def _persist_summary(self) -> None:
+        """持久化每日摘要到檔案，供 Nightly Pipeline 讀取."""
+        if not self._workspace:
+            return
+        try:
+            import json
+            from pathlib import Path
+
+            out_dir = Path(self._workspace) / "_system" / "feedback_loop"
+            out_dir.mkdir(parents=True, exist_ok=True)
+            out_file = out_dir / "daily_summary.json"
+
+            today = datetime.now(TZ8).strftime("%Y-%m-%d")
+            today_stats = self._daily_stats.get(today, {})
+            count = today_stats.get("count", 0)
+
+            # 計算趨勢方向
+            trend = "stable"
+            if len(self._quality_history) >= _TREND_WINDOW * 2:
+                recent = self._quality_history[-_TREND_WINDOW:]
+                previous = self._quality_history[-_TREND_WINDOW * 2:-_TREND_WINDOW]
+                delta = (sum(recent) / len(recent)) - (sum(previous) / len(previous))
+                if delta > _TREND_THRESHOLD:
+                    trend = "improving"
+                elif delta < -_TREND_THRESHOLD:
+                    trend = "declining"
+
+            summary = {
+                "date": today,
+                "interaction_count": count,
+                "avg_quality": round(today_stats.get("total_quality", 0) / count, 4) if count > 0 else 0.5,
+                "trend_direction": trend,
+                "total_interactions_lifetime": self._interaction_count,
+                "persisted_at": datetime.now(TZ8).isoformat(),
+            }
+
+            # 原子寫入
+            tmp = out_file.with_suffix(".tmp")
+            with open(tmp, "w", encoding="utf-8") as fh:
+                json.dump(summary, fh, ensure_ascii=False, indent=2)
+            tmp.rename(out_file)
+        except Exception as e:
+            logger.debug(f"FeedbackLoop persist failed: {e}")
 
     # ── Status ──
 
