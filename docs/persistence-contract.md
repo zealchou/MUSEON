@@ -1,8 +1,9 @@
-# MUSEON Persistence Contract v1.43 — 水電圖
+# MUSEON Persistence Contract v1.44 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
 > 與 `system-topology.md`（控制流拓撲）互補——那是「神經圖」，這是「水電圖」。
+> **v1.44 (2026-03-31)**：Persona Evolution 系統——新增 `_system/mask_states.json`（面具狀態快照，mask_engine.py 原子寫入 tmp+rename，TTL=7 天，mask_engine.cleanup_stale 自動清理，每次儲存全量覆寫）；ANIMA_MC 新增子結構：`personality.trait_dimensions`（P1-P5 PSI 保護需 evolution_write、C1-C5 FREE 可 anima_mc_store.update 直接更新，寫入者=trait_engine.py C-traits 即時/nightly_reflection.py P-traits 每夜）、`evolution.trait_history`（APPEND_ONLY，寫入者=nightly_reflection.py，上限 200 筆）、`evolution.stage_history`（APPEND_ONLY，寫入者=brain_observation.py 於成長階段轉換時，上限 50 筆）。
 > **v1.43 (2026-03-31)**：9 條斷裂接線修復——新增持久化路徑 `data/_system/museoff/finding_counts.json`（🟢 MuseOff 異常計數，格式：`{finding_key: int}`，寫入者=doctor/finding.py record_occurrence()（原子讀寫），讀取者=doctor/museoff.py（觸發 ≥3 次升級判斷），生命週期=永久累積，無 TTL）；新增讀取路徑 `data/_system/evolution/tuned_parameters.json`（🟢 唯讀，skill_router.py _load_tuned_rc_weight() 讀取 RC 權重，寫入者=parameter_tuner.py，無格式變更）。同步 topology v1.69、blast-radius v1.87、joint-map v1.57。
 > **v1.42 (2026-03-31)**：體液系統迭代——新增 7 個 JSONL/JSON 持久化路徑：`data/_system/triage_queue.jsonl`（覺察訊號佇列，triage_step 寫入/消費，append-only，永久）、`data/_system/awareness_log.jsonl`（覺察日誌，triage_step 寫入，append-only，永久）、`data/_system/pending_adjustments.json`（待處理調整，triage_step 寫入/session_adjustment 讀取，原子寫，短期 TTL）、`data/_system/nightly_priority_queue.json`（Nightly 優先佇列，triage_step 寫入/triage_to_morphenix 消費後清空，原子寫）、`data/_system/session_adjustments/{session_id}.json`（即時行為調整，L4 觀察者寫入/brain_prompt_builder 讀取，原子寫，expires_after_turns TTL）、`data/_system/triage_human_queue.json`（人工審核佇列，triage_step HIGH/CRITICAL 寫入/Telegram 告警後消費，原子寫）、`data/skills/native/{name}/_lessons.json`（Skill 教訓檔，session_adjustment promote 寫入/brain_prompt_builder 注入 system prompt，原子寫，永久累積）；同步 topology v1.68、blast-radius v1.86、joint-map v1.56、memory-router v1.18。
 > **v1.41 (2026-03-30)**：市場戰神（Market Ares）——新增 SQLite DB `data/market_ares/market_ares.db`（WAL 模式，busy_timeout=60s），6 張表：regions（地區五層數據+能量基底）、archetypes（聚類原型定義+16維能量）、simulations（模擬設定+策略）、snapshots（每週快照+商業指標+洞察）、competitors（競爭者 Agent）、partners（生態夥伴 Agent）；寫入者=market_ares/storage/db.py（init_schema/save_region/save_snapshot）；讀取者=simulation/engine.py + visualization/dashboard.py + analysis/final_report.py；生命週期=永久（每次模擬獨立存檔）。同步 system-topology v1.64、blast-radius v1.83、joint-map v1.53、memory-router v1.14。
@@ -443,6 +444,9 @@ adaptive_decay ──ACT-R B_i──→ _activation 欄位 (in-memory) ←──
 | 檔案 | 負責模組 | 用途 | R/W |
 |------|---------|------|-----|
 | `ANIMA_MC.json` | `pulse/anima_mc_store.py` | ANIMA 多元性狀態（✅ AnimaMCStore 統一存取） | R/W |
+| `ANIMA_MC.personality.trait_dimensions` | `trait_engine.py`（C-traits 即時）/ `nightly_reflection.py`（P-traits 每夜） | 人格特質維度：P1-P5 PSI 保護（需 evolution_write），C1-C5 FREE（可 anima_mc_store.update 直接更新） | R/W |
+| `ANIMA_MC.evolution.trait_history` | `nightly_reflection.py` | 特質演化歷史（APPEND_ONLY，上限 200 筆） | R/W |
+| `ANIMA_MC.evolution.stage_history` | `brain_observation.py`（成長階段轉換時觸發） | 成長階段歷史（APPEND_ONLY，上限 50 筆） | R/W |
 | `ANIMA_USER.json` | `brain.py` | 使用者 ANIMA 狀態 | R/W |
 | `ceremony_state.json` | `onboarding/ceremony.py` | 初始化儀式狀態 | R/W |
 | `tasks.json` | `pulse/pulse_engine.py` | 任務清單快照 | R/W |
@@ -452,6 +456,7 @@ adaptive_decay ──ACT-R B_i──→ _activation 欄位 (in-memory) ←──
 | 路徑 | 負責模組 | 用途 |
 |------|---------|------|
 | `_system/budget/usage_{month}.json` | `llm/budget.py` | 月度 Token 用量 |
+| `_system/mask_states.json` | `persona/mask_engine.py` | 面具狀態快照（引擎=JSON 原子寫入 tmp+rename，TTL=7 天，mask_engine.cleanup_stale 清理，每次全量覆寫） |
 | `_system/chromosome_index.json` | `memory/chromosome_index.py` | 染色體索引 |
 | `_system/curiosity/question_queue.json` | `pulse/curiosity_router.py` | 好奇心佇列 |
 | `_system/evolution/version.json` | `evolution/wee_engine.py` | 系統版本追蹤 |
@@ -696,6 +701,7 @@ adaptive_decay ──ACT-R B_i──→ _activation 欄位 (in-memory) ←──
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.44 | 2026-03-31 | Persona Evolution 系統——新增 `_system/mask_states.json`（面具狀態快照，mask_engine.py 原子寫入 tmp+rename，TTL=7 天，cleanup_stale 清理，全量覆寫）；ANIMA_MC 新增 `personality.trait_dimensions`（P1-P5 PSI 保護/C1-C5 FREE，寫入者 trait_engine.py+nightly_reflection.py）、`evolution.trait_history`（APPEND_ONLY，上限 200 筆，nightly_reflection.py）、`evolution.stage_history`（APPEND_ONLY，上限 50 筆，brain_observation.py）。同步 memory-router v1.19 |
 | v1.0 | 2026-03-15 | 初版：完整水電圖，涵蓋 23 個正常配對、3 個 Dead Write、14 個死目錄 |
 | v1.1 | 2026-03-15 | Phase 2 完成：4 個 JSON 遷移至 PulseDB（ceremony_state + eval 三件套） |
 | v1.2 | 2026-03-15 | Phase 3 完成：DataContract + DataBus 建立，10 個 Store 類統一接入 |

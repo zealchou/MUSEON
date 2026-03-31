@@ -1,10 +1,11 @@
-# Memory Router — 記憶路由表 v1.17
+# Memory Router — 記憶路由表 v1.19
 
 > **用途**：定義「什麼類型的洞見存到哪個記憶系統、什麼時候取出」。第五張工程藍圖。
 > **比喻**：郵局分揀表——每封信根據地址分到對應的信箱，不會寄丟也不會重複投遞。
 > **更新時機**：新增 Skill 或記憶系統時，必須在同一個 commit 中新增對應的路由規則。
 > **建立日期**：2026-03-21
 > **搭配**：`docs/skill-manifest-spec.md`（Skill I/O 合約）、各 Skill 的 `memory.writes` 欄位、`docs/operational-contract.md`（操作契約表）
+> **v1.19 (2026-03-31)**：Persona Evolution 系統——新增 1 條 diary 路由：nightly_reflection.py（Nightly Step 34）→ `soul_rings.json`（via RingDepositor.deposit_soul_ring），類型=value_calibration，觸發=每夜 Persona 自我反思，內容=特質差異佐證 + 反思摘要。同步 persistence-contract v1.44。
 > **v1.17 (2026-03-30)**：Skill 自動演化管線記憶路由——新增 3 條路由：skill-health-tracker→`data/_system/skill_health/{skill_name}.json`（Per-Skill 健康度快照，每夜 Step 19.5 寫入，SkillDraftForger 讀取判斷退化）；skill-draft-forger→`data/_system/skills_draft/draft_*.json`（Skill 草稿，Step 19.6 寫入，SkillQA Gate 讀取驗證）；skill-qa-gate→更新 `skills_draft/draft_*.json` 狀態欄位（pending_qa→approved/quarantine）。新增 1 條 feedback-loop 持久化路由：feedback-loop→`data/_system/feedback_loop/daily_summary.json`（每次互動後寫入，Nightly 信號源 7 讀取）。同步 system-topology v1.67、blast-radius v1.85。
 > **v1.16 (2026-03-30)**：新 Skill 群批次補路由——新增 7 條 knowledge-lattice 路由：finance-pilot→週期分析洞見（/close 結算時）、花費行為模式（累計 3 個月以上）；course-forge→課程設計模式（Pipeline 完成時）；ad-pilot→廣告優化洞見（/optimize 含品質護欄時）；equity-architect→合夥決策記錄（Mode B 選定方案時，路由至 decision-tracker→knowledge-lattice）；prompt-stresstest→壓測發現模式（final_gate 未通過時）；talent-match→招募模式洞見（證據面試包完成時）。
 > **v1.15 (2026-03-30)**：商業模式健檢（biz-diagnostic）——新增 1 條 knowledge-lattice 路由：biz-diagnostic→diagnostic_crystal（健檢完成時，含商業診斷摘要 + DARWIN 模擬參數 + 優先問題，永久）。同步 system-topology v1.65。
@@ -185,6 +186,15 @@
 | 每次 session | 工作摘要 | session-log | session 結束或重要里程碑時 |
 | 重大迭代 | 迭代紀錄 | session-log | commit 完成時 |
 
+### 📔 Persona 自我反思 → diary（soul_rings.json）（v1.19 新增）
+
+| 來源 | 觸發 | 去向 | 路由方法 | 內容 |
+|------|------|------|---------|------|
+| nightly_reflection.py（Nightly Step 34） | 每夜 Persona 自我反思 | `anima/soul_rings.json` | RingDepositor.deposit_soul_ring | 特質差異佐證 + 反思摘要（value_calibration 類型） |
+
+> **消費者**：DiaryStore.recall_soul_rings() → MemoryReflector → brain_prompt_builder memory zone（Soul Ring 年輪反思）
+> **路由類型**：value_calibration（Persona 特質校準記錄，用於追蹤 P-traits 夜間演化軌跡）
+
 ### 🔩 系統基礎設施持久資料
 
 | 檔案路徑 | 用途 | Writer | 寫入觸發 | Reader | 讀取觸發 |
@@ -247,6 +257,7 @@
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.19 | 2026-03-31 | Persona Evolution 系統——新增 1 條 diary 路由（nightly_reflection.py Nightly Step 34 → soul_rings.json via RingDepositor.deposit_soul_ring，value_calibration 類型，內容=特質差異佐證+反思摘要）。同步 persist v1.44 |
 | v1.18 | 2026-03-31 | 體液系統迭代——新增 Skill 教訓預載路由（brain_prompt_builder `_build_skill_lesson_context()` 讀取 `data/skills/native/{name}/_lessons.json` 注入 system prompt）；新增 SessionAdjustment 路由（L4 觀察者寫入 `_system/session_adjustments/{id}.json`，brain_prompt_builder `_auto_adjust_from_history()` 讀取）；新增覺察訊號路由（triage_step 寫入 `_system/triage_queue.jsonl`，Nightly Step 5.8 消費到 Morphenix 迭代筆記）；同步 topology v1.68、blast v1.86、joint v1.56、persist v1.42 |
 | v1.17 | 2026-03-30 | Skill 自動演化管線——新增 3 條知識路由（skill_health_tracker→skill_health/ 健康度快照、feedback_loop→daily_summary.json 品質摘要、skill_draft_forger→skills_draft/ 草稿暫存） |
 | v1.16 | 2026-03-30 | 新 Skill 群批次補路由——新增 7 條 knowledge-lattice 路由：finance-pilot（週期洞見/行為模式）、course-forge（課程設計模式）、ad-pilot（廣告優化洞見）、equity-architect（合夥決策記錄，via decision-tracker）、prompt-stresstest（壓測發現模式）、talent-match（招募模式洞見） |
