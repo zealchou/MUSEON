@@ -75,7 +75,9 @@ ARCHIVE_STALE_DAYS = 90       # 歸檔天數閾值
 
 # 再結晶參數
 SIMILARITY_MERGE_THRESHOLD = 0.70  # 70% 相似度合併閾值
-DEDUP_SIMILARITY_THRESHOLD = 0.90  # 90% 相似度視為重複，強化而非新建
+DEDUP_SIMILARITY_THRESHOLD = 0.75  # 75% 相似度視為重複（基於分布分析：60%自然斷崖，75%+異常回升）
+MERGE_SIMILARITY_THRESHOLD = 0.50  # 50-74% 相似度視為相關主題，融合為一顆
+CRYSTAL_MAX_CHARS = 800            # 融合後超過此字數則切分
 HYPOTHESIS_UPGRADE_COUNT = 3       # 升級所需成功次數
 INSIGHT_DOWNGRADE_COUNT = 2        # 降級所需反證次數
 PROCEDURE_UPGRADE_COUNT = 0        # Lesson→Procedure 升級：門檻 0（record_success 由 brain_prompt_builder 呼叫，引用即計數）
@@ -1850,12 +1852,11 @@ class KnowledgeLattice:
                 domain=domain,
             )
 
-            # Step 2.5: 去重檢查 — 相似度 > 90% 的既有結晶強化而非新建
+            # Step 2.5: 過篩檢查 — ≥0.75 去重強化，0.50-0.74 融合入既有結晶
             _dedup_g1 = refined.get("g1_summary", "")
             if _dedup_g1 and self._crystals:
                 _best_match = None
                 _best_sim = 0.0
-                # 建立臨時 Crystal 用於比對
                 _tmp = Crystal(
                     cuid="__tmp__",
                     crystal_type=crystal_type,
@@ -1863,6 +1864,9 @@ class KnowledgeLattice:
                     g2_structure=refined.get("g2_structure", []),
                     g3_root_inquiry=refined.get("g3_root_inquiry", ""),
                     g4_insights=refined.get("g4_insights", []),
+                    assumption=refined.get("assumption", ""),
+                    evidence=refined.get("evidence", ""),
+                    limitation=refined.get("limitation", ""),
                     tags=refined.get("tags", []),
                 )
                 for _existing in self._crystals.values():
@@ -1872,8 +1876,9 @@ class KnowledgeLattice:
                     if _sim > _best_sim:
                         _best_sim = _sim
                         _best_match = _existing
+
                 if _best_match and _best_sim >= DEDUP_SIMILARITY_THRESHOLD:
-                    # 強化既有結晶而非新建
+                    # ≥ 0.75: 去重 — 強化既有結晶
                     _best_match.reinforcement_count += 1
                     _best_match.updated_at = datetime.now().isoformat()
                     _best_match.reference_count += 1
@@ -1881,8 +1886,38 @@ class KnowledgeLattice:
                     self._persist()
                     logger.info(
                         f"Crystal dedup: reinforced {_best_match.cuid} "
-                        f"(sim={_best_sim:.2f}, count={_best_match.reinforcement_count}) "
-                        f"instead of creating new"
+                        f"(sim={_best_sim:.2f}, count={_best_match.reinforcement_count})"
+                    )
+                    return _best_match
+
+                if _best_match and _best_sim >= MERGE_SIMILARITY_THRESHOLD:
+                    # 0.50-0.74: 融合 — 將新內容併入既有結晶
+                    _new_g2 = set(_best_match.g2_structure)
+                    for item in refined.get("g2_structure", []):
+                        if item not in _new_g2:
+                            _best_match.g2_structure.append(item)
+                    _new_g4 = set(_best_match.g4_insights)
+                    for item in refined.get("g4_insights", []):
+                        if item not in _new_g4:
+                            _best_match.g4_insights.append(item)
+                    _new_tags = set(_best_match.tags)
+                    for tag in refined.get("tags", []):
+                        if tag not in _new_tags:
+                            _best_match.tags.append(tag)
+                    if len(refined.get("evidence", "")) > len(_best_match.evidence):
+                        _best_match.evidence = refined["evidence"]
+                    if len(refined.get("assumption", "")) > len(_best_match.assumption):
+                        _best_match.assumption = refined["assumption"]
+                    if len(refined.get("limitation", "")) > len(_best_match.limitation):
+                        _best_match.limitation = refined["limitation"]
+                    _best_match.reinforcement_count += 1
+                    _best_match.updated_at = datetime.now().isoformat()
+                    _best_match.reference_count += 1
+                    _best_match.last_referenced = datetime.now().isoformat()
+                    self._persist()
+                    logger.info(
+                        f"Crystal merge: enriched {_best_match.cuid} "
+                        f"(sim={_best_sim:.2f}, count={_best_match.reinforcement_count})"
                     )
                     return _best_match
 
@@ -3548,59 +3583,165 @@ class KnowledgeLattice:
             if i < len(community_summaries)
         ]
 
-    def dedup_scan(self, threshold: float = 0.90, dry_run: bool = True) -> dict:
-        """掃描並合併現有重複結晶.
+    @staticmethod
+    def _crystal_completeness(c: Crystal) -> int:
+        """計算結晶的完整度分數（用於去重時保留最完整的）."""
+        score = len(c.g1_summary)
+        score += sum(len(s) for s in c.g2_structure)
+        score += len(c.g3_root_inquiry)
+        score += sum(len(s) for s in c.g4_insights)
+        score += len(c.assumption) + len(c.evidence) + len(c.limitation)
+        score += len(c.tags) * 10  # tags 有分類價值
+        return score
+
+    @staticmethod
+    def _crystal_total_chars(c: Crystal) -> int:
+        """計算結晶的總字數."""
+        return (len(c.g1_summary) + sum(len(s) for s in c.g2_structure)
+                + len(c.g3_root_inquiry) + sum(len(s) for s in c.g4_insights)
+                + len(c.assumption) + len(c.evidence) + len(c.limitation)
+                + len(c.source_context))
+
+    def cleanup_crystals(self, dry_run: bool = True) -> dict:
+        """三層結晶清理：去重 + 融合 + 切分.
+
+        層 1 (≥ 0.75): 去重 — 保留最完整的一顆，其餘歸檔
+        層 2 (0.50-0.74): 融合 — 相關主題合併為一顆更豐富的結晶
+        層 3: 切分 — 融合後超過 800 chars 的拆成子結晶
 
         Args:
-            threshold: 相似度門檻
-            dry_run: True=只報告不合併, False=執行合併
+            dry_run: True=只報告不執行, False=執行清理
 
         Returns:
-            {"total": N, "duplicates_found": N, "merged": N, "remaining": N}
+            {"total", "dedup_merged", "content_merged", "split", "remaining"}
         """
         with self._lock:
             crystals = [c for c in self._crystals.values()
                        if not c.archived and c.status != "quarantine"]
             total = len(crystals)
-            merged_cuids = set()
-            merge_groups = []
+            dedup_count = 0
+            content_merge_count = 0
+            split_count = 0
 
+            # ── 層 1: 去重 (≥ 0.75) ──
+            dedup_cuids = set()
+            dedup_groups = []
             for i, a in enumerate(crystals):
-                if a.cuid in merged_cuids:
+                if a.cuid in dedup_cuids:
                     continue
                 group = [a]
                 for b in crystals[i+1:]:
-                    if b.cuid in merged_cuids:
+                    if b.cuid in dedup_cuids:
                         continue
                     sim = RecrystallizationEngine._calc_crystal_similarity(a, b)
-                    if sim >= threshold:
+                    if sim >= DEDUP_SIMILARITY_THRESHOLD:
                         group.append(b)
-                        merged_cuids.add(b.cuid)
+                        dedup_cuids.add(b.cuid)
                 if len(group) > 1:
-                    merge_groups.append(group)
+                    dedup_groups.append(group)
 
-            merged_count = 0
             if not dry_run:
-                for group in merge_groups:
-                    # Keep the oldest crystal, merge others into it
-                    keeper = min(group, key=lambda c: c.created_at)
+                for group in dedup_groups:
+                    keeper = max(group, key=lambda c: self._crystal_completeness(c))
                     for dup in group:
                         if dup.cuid == keeper.cuid:
                             continue
                         keeper.reinforcement_count += 1 + dup.reinforcement_count
                         keeper.reference_count += dup.reference_count
                         keeper.updated_at = datetime.now().isoformat()
-                        # Archive the duplicate
                         dup.archived = True
                         dup.status = "merged"
                         dup.updated_at = datetime.now().isoformat()
-                        merged_count += 1
+                        dedup_count += 1
+
+            # ── 層 2: 融合 (0.50-0.74) ──
+            remaining = [c for c in crystals
+                        if c.cuid not in dedup_cuids and not c.archived]
+            merge_cuids = set()
+            merge_groups = []
+            for i, a in enumerate(remaining):
+                if a.cuid in merge_cuids:
+                    continue
+                group = [a]
+                for b in remaining[i+1:]:
+                    if b.cuid in merge_cuids:
+                        continue
+                    sim = RecrystallizationEngine._calc_crystal_similarity(a, b)
+                    if sim >= MERGE_SIMILARITY_THRESHOLD:
+                        group.append(b)
+                        merge_cuids.add(b.cuid)
+                if len(group) > 1:
+                    merge_groups.append(group)
+
+            if not dry_run:
+                for group in merge_groups:
+                    keeper = max(group, key=lambda c: self._crystal_completeness(c))
+                    for other in group:
+                        if other.cuid == keeper.cuid:
+                            continue
+                        # 融合內容
+                        existing_g2 = set(keeper.g2_structure)
+                        for item in other.g2_structure:
+                            if item not in existing_g2:
+                                keeper.g2_structure.append(item)
+                        existing_g4 = set(keeper.g4_insights)
+                        for item in other.g4_insights:
+                            if item not in existing_g4:
+                                keeper.g4_insights.append(item)
+                        existing_tags = set(keeper.tags)
+                        for tag in other.tags:
+                            if tag not in existing_tags:
+                                keeper.tags.append(tag)
+                        if len(other.evidence) > len(keeper.evidence):
+                            keeper.evidence = other.evidence
+                        if len(other.assumption) > len(keeper.assumption):
+                            keeper.assumption = other.assumption
+                        if len(other.limitation) > len(keeper.limitation):
+                            keeper.limitation = other.limitation
+                        keeper.reinforcement_count += 1 + other.reinforcement_count
+                        keeper.reference_count += other.reference_count
+                        keeper.updated_at = datetime.now().isoformat()
+                        other.archived = True
+                        other.status = "merged"
+                        other.updated_at = datetime.now().isoformat()
+                        content_merge_count += 1
+
+                    # ── 層 3: 切分檢查 ──
+                    if self._crystal_total_chars(keeper) > CRYSTAL_MAX_CHARS:
+                        # 多出的 g4_insights 拆成子結晶
+                        while (self._crystal_total_chars(keeper) > CRYSTAL_MAX_CHARS
+                               and len(keeper.g4_insights) > 1):
+                            overflow = keeper.g4_insights.pop()
+                            sub_cuid = self._generate_cuid(keeper.crystal_type)
+                            sub = Crystal(
+                                cuid=sub_cuid,
+                                crystal_type=keeper.crystal_type,
+                                g1_summary=overflow[:80],
+                                g2_structure=[],
+                                g3_root_inquiry="",
+                                g4_insights=[overflow],
+                                assumption="",
+                                evidence="",
+                                limitation="",
+                                tags=list(keeper.tags),
+                                domain=keeper.domain,
+                                source_context=f"split from {keeper.cuid}",
+                                status="active",
+                            )
+                            self._crystals[sub_cuid] = sub
+                            self._dag.add_node(sub_cuid)
+                            self.add_link(keeper.cuid, sub_cuid, "extended", 0.9)
+                            split_count += 1
+
                 self._persist()
 
+            final_remaining = total - dedup_count - content_merge_count + split_count
             return {
                 "total": total,
-                "duplicates_found": len(merged_cuids),
-                "merge_groups": len(merge_groups),
-                "merged": merged_count,
-                "remaining": total - merged_count,
+                "dedup_groups": len(dedup_groups),
+                "dedup_merged": dedup_count if not dry_run else len(dedup_cuids),
+                "content_merge_groups": len(merge_groups),
+                "content_merged": content_merge_count if not dry_run else len(merge_cuids),
+                "split": split_count,
+                "remaining": final_remaining if not dry_run else total - len(dedup_cuids) - len(merge_cuids),
             }
