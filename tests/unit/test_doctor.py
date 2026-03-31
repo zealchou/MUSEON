@@ -207,12 +207,13 @@ class TestApiKeysCheck:
         assert result.status == CheckStatus.OK
 
     def test_missing_anthropic_key(self, temp_home):
-        """When: ANTHROPIC_API_KEY 缺失，Then: CRITICAL"""
+        """When: ANTHROPIC_API_KEY 缺失，Then: OK（MUSEON 改用 Claude MAX CLI OAuth，不再依賴 ANTHROPIC_API_KEY）"""
         env = temp_home / ".env"
         env.write_text("TELEGRAM_BOT_TOKEN=123\n")
         hc = HealthChecker(museon_home=str(temp_home))
         result = hc.check_api_keys()
-        assert result.status == CheckStatus.CRITICAL
+        # MUSEON 統一使用 Claude MAX CLI OAuth，ANTHROPIC_API_KEY 不再必要
+        assert result.status == CheckStatus.OK
 
     def test_missing_telegram_token(self, temp_home):
         """When: TELEGRAM_BOT_TOKEN 缺失，Then: WARNING（非致命）"""
