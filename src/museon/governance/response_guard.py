@@ -168,14 +168,67 @@ class ResponseGuard:
         return True
 
     @staticmethod
+    def strip_markdown(text: str) -> str:
+        """將 Markdown 格式轉為 Telegram 友善的純文字.
+
+        LLM 會自然產出 markdown，但 Telegram 純文字模式不渲染。
+        在 _safe_send() 出口統一轉換，比在 prompt 裡叫 LLM 不用 markdown 更可靠。
+        """
+        if not text:
+            return text
+
+        # 1. 移除 markdown 標題 (##, ###, ####)，保留標題文字
+        #    "## 七個問題重新整理" → "七個問題重新整理"
+        text = re.sub(r'^#{1,6}\s+', '', text, flags=re.MULTILINE)
+
+        # 2. 轉換 markdown 表格為簡單列表
+        #    "| 問題 | 核心關注 |" → "問題 / 核心關注"
+        #    先移除分隔線 "|---|---|"
+        text = re.sub(r'^\|[\s\-:]+\|[\s\-:|]*$', '', text, flags=re.MULTILINE)
+        #    再轉換資料行
+        def _table_row_to_text(m):
+            cells = [c.strip() for c in m.group(0).split('|') if c.strip()]
+            return ' / '.join(cells) if cells else ''
+        text = re.sub(r'^\|.+\|$', _table_row_to_text, text, flags=re.MULTILINE)
+
+        # 3. 移除粗體/斜體標記，保留文字
+        #    "**重要**" → "重要"，"*斜體*" → "斜體"
+        text = re.sub(r'\*\*(.+?)\*\*', r'\1', text)
+        text = re.sub(r'\*(.+?)\*', r'\1', text)
+        text = re.sub(r'__(.+?)__', r'\1', text)
+        text = re.sub(r'_(.+?)_', r'\1', text)
+
+        # 4. 移除行內代碼標記
+        #    "`code`" → "code"
+        text = re.sub(r'`([^`]+)`', r'\1', text)
+
+        # 5. 移除代碼塊標記（保留內容）
+        #    "```python\ncode\n```" → "code"
+        text = re.sub(r'```\w*\n?', '', text)
+
+        # 6. 轉換 markdown 連結
+        #    "[text](url)" → "text"
+        text = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', text)
+
+        # 7. 移除水平線
+        text = re.sub(r'^---+$', '', text, flags=re.MULTILINE)
+        text = re.sub(r'^\*\*\*+$', '', text, flags=re.MULTILINE)
+
+        # 8. 清理多餘空行（連續 3+ 個空行 → 2 個）
+        text = re.sub(r'\n{3,}', '\n\n', text)
+
+        return text.strip()
+
+    @staticmethod
     def sanitize_for_group(response_text: str, is_group: bool = False) -> str:
-        """回覆內容清理 — 移除內部術語和敏感資訊.
+        """回覆內容清理 — 移除內部術語和敏感資訊，並轉換 Markdown 為純文字.
 
         所有通道（群組 + 私訊）統一掃描並移除：
         - chat_id / session_id 等內部識別碼
         - 系統狀態訊息（Gateway/Pulse 等）
         - 內部檔案路徑和模組名稱
         - L1/L2/L3 架構術語、MCP 插件名、AI 思考標記
+        - Markdown 格式（標題/表格/粗體等）→ 純文字
 
         Args:
             response_text: 原始回覆文本
@@ -196,12 +249,15 @@ class ResponseGuard:
         # 清理替換後殘留的連續空行
         sanitized = re.sub(r"\n{3,}", "\n\n", sanitized).strip()
 
-        if sanitized != response_text:
+        # Markdown → 純文字轉換（LLM 自然產出 markdown，Telegram 不渲染）
+        result = ResponseGuard.strip_markdown(sanitized)
+
+        if result != response_text:
             logger.info(
                 f"[ResponseGuard] sanitize_for_group: 已清理回覆中的內部資訊"
             )
 
-        return sanitized
+        return result
 
     @staticmethod
     def validate_escalation(

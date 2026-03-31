@@ -1,9 +1,11 @@
-# Joint Map — 共享可變狀態接頭圖 v1.54
+# Joint Map — 共享可變狀態接頭圖 v1.56
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
 > **更新時機**：改變共享檔案的讀寫者或格式時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
+> **v1.56 (2026-03-31)**：體液系統迭代——新增 #62-#68 共 7 個共享狀態：#62 `data/_system/triage_queue.jsonl`（🟢 覺察訊號佇列，寫入者=各覺察源+triage_step，讀取者=triage_step Nightly 消費）；#63 `data/_system/awareness_log.jsonl`（🟢 覺察日誌，寫入者=triage_step，讀取者=triage_step accumulation）；#64 `data/_system/pending_adjustments.json`（🟢 待處理調整，寫入者=triage_step，讀取者=session_adjustment）；#65 `data/_system/nightly_priority_queue.json`（🟢 Nightly 優先佇列，寫入者=triage_step，讀取者=triage_to_morphenix）；#66 `data/_system/session_adjustments/{id}.json`（🟢 即時行為調整，寫入者=L4 觀察者，讀取者=brain_prompt_builder _auto_adjust_from_history()）；#67 `data/_system/triage_human_queue.json`（🟢 人工審核佇列，寫入者=triage_step HIGH/CRITICAL，讀取者=triage_step drain + Telegram 告警）；#68 `data/skills/native/{name}/_lessons.json`（🟢 Skill 教訓檔，寫入者=session_adjustment promote，讀取者=brain_prompt_builder _build_skill_lesson_context() 注入 system prompt）；共享狀態 61→68 個。同步 topology v1.68、blast-radius v1.86、memory-router v1.18、persistence-contract v1.42。
+> **v1.55 (2026-03-30)**：Skill 自動演化管線——新增 #59 `data/_system/skills_draft/`（🟢 Skill 草稿暫存區，寫入者=skill_draft_forger.py，讀取者=skill_qa_gate.py + skill_install_worker.py + telegram.py callback，原子寫入）；新增 #60 `data/_system/skill_health/`（🟢 Per-Skill 健康度快照，寫入者=skill_health_tracker.py，讀取者=skill_draft_forger.py optimize_existing 模式，原子寫入）；新增 #61 `data/_system/feedback_loop/daily_summary.json`（🟢 FeedbackLoop 品質摘要，寫入者=feedback_loop.py singleton，讀取者=nightly_pipeline.py 信號源 7，原子寫入）；共享狀態 58→61 個。同步 system-topology v1.67、blast-radius v1.85、memory-router v1.17。
 > **v1.54 (2026-03-30)**：13 個新 Skill Post-Build 共享狀態補登——新增 #58 `data/equity-architect/case_files/`（🟢 Case File 跨 Session 持久化，寫入者=equity-architect Skill，讀取者=equity-architect 續談模式，原子寫入）；共享狀態 57→58 個。注意：finance-pilot 的交易記錄若未來實作將使用 PulseDB 現有 skill_invocations 表擴充（無需新增共享狀態）；talent-match 的候選人資料目前由對話記憶（Qdrant L1_short）承接，不建立獨立共享狀態（biz-collab/talent-match 的 anima-individual 寫入為 runtime 呼叫，不是新共享狀態）。同步 system-topology v1.66、blast-radius v1.84、memory-router v1.16。
 > **v1.53 (2026-03-30)**：市場戰神（Market Ares）——新增 #57 `data/market_ares/market_ares.db`（🟢 Market Ares SQLite DB，6 張表：regions/archetypes/simulations/snapshots/competitors/partners，寫入者=market_ares/storage/db.py，讀取者=market_ares/simulation/engine.py + visualization/dashboard.py）；共享狀態 56→57 個。同步 system-topology v1.64、blast-radius v1.83、memory-router v1.14、persistence-contract v1.41。
 > **v1.52 (2026-03-29)**：戰神系統（Ares）——新增 #56 `data/ares/profiles/`（🟢 ANIMA 個體檔案，寫入者=anima-individual Skill + external_bridge.py，讀取者=ares Skill + profile_store.py）；共享狀態 55→56 個。同步 system-topology v1.62、blast-radius v1.80、memory-router v1.13、persistence-contract v1.40。
@@ -74,6 +76,16 @@
 | 56 | ares/profiles/ | 🟢 | 2 | 2 | 無 | [→](#56-aresprofiles) |
 | 57 | market_ares/market_ares.db | 🟢 | 1 | 2 | SQLite WAL | [→](#57-market_aresdb) |
 | 58 | equity-architect/case_files/ | 🟢 | 1 | 1 | 原子寫 | [→](#58-equity-architectcase_files) |
+| 59 | _system/skills_draft/ | 🟢 | 1 | 3 | 原子寫 | [→](#59-skills_draft) |
+| 60 | _system/skill_health/ | 🟢 | 1 | 1 | 原子寫 | [→](#60-skill_health) |
+| 61 | _system/feedback_loop/daily_summary.json | 🟢 | 1 | 1 | 原子寫 | [→](#61-feedback_loop-daily_summaryjson) |
+| 62 | _system/triage_queue.jsonl | 🟢 | 多(各覺察源) | 1(triage_step) | 無(append) | — |
+| 63 | _system/awareness_log.jsonl | 🟢 | 1(triage_step) | 1(triage_step) | 無(append) | — |
+| 64 | _system/pending_adjustments.json | 🟢 | 1(triage_step) | 1(session_adjustment) | 原子寫 | — |
+| 65 | _system/nightly_priority_queue.json | 🟢 | 1(triage_step) | 1(triage_to_morphenix) | 原子寫 | — |
+| 66 | _system/session_adjustments/{id}.json | 🟢 | 1(L4觀察者) | 1(brain_prompt_builder) | 原子寫 | — |
+| 67 | _system/triage_human_queue.json | 🟢 | 1(triage_step) | 1(triage_step+algedonic_alert) | 原子寫 | — |
+| 68 | skills/native/{name}/_lessons.json | 🟢 | 1(session_adjustment) | 1(brain_prompt_builder) | 原子寫 | — |
 
 > **危險度定義**：🔴 多寫入者+高扇出+格式不一致 | 🟡 多寫入者或高扇出 | 🟢 單寫入者+低扇出
 
@@ -1404,6 +1416,8 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 | 2026-03-16 | v1.15 | Memory Reset 一鍵重置工具：新增 `doctor/memory_reset.py` 為 25 個共享狀態的重置者（#1 ANIMA_MC.json boss/self_awareness 重置、#2 ANIMA_USER.json 全量重置、#3 PULSE.md 模板重建、#9 Qdrant 全部 collections 刪除重建、#25 JSONL 審計日誌群清空、#26 記憶 Markdown 刪除、#27 fact_corrections.jsonl 清空）；同時重置 PulseDB 全表、sessions、crystals/synapses/scout_queue、diary/drift、eval/workflow_state.db、guardian/footprints/activity_log、nightly_state/outward；預設 dry-run 安全模式 |
 | 2026-03-17 | v1.15 | DNA-Inspired 品質回饋閉環：#8 PulseDB 讀取者 11→12（+morphenix_executor `get_quality_flags()`/`get_quality_flag_summary()`）；metacognition 新增 `METACOGNITION_QUALITY_FLAG` 事件發布（verdict=revise 時）；morphenix_executor 夜間管線讀取品質旗標作為演化上下文 |
 | 2026-03-16 | v1.14 | Memory Gate 記憶閘門：新增 `memory/memory_gate.py` 為 ANIMA_USER.json 間接寫入控制者；brain.py `_observe_user()` 新增 `suppress_primals`/`suppress_facts` 參數；`_observe_user_layers()` 新增 `suppress_facts` 參數；L1_facts 新增 `status`/`confidence` 欄位；Step 9.2 事實更正偵測提前到 Step 9 之前；解決「越否認越強化」記憶迴圈 |
+| 2026-03-31 | v1.56 | 體液系統迭代——新增 #62-#68 共 7 個共享狀態（triage_queue.jsonl / awareness_log.jsonl / pending_adjustments.json / nightly_priority_queue.json / session_adjustments/{id}.json / triage_human_queue.json / skills/native/{name}/_lessons.json）；共享狀態 61→68 個；同步 topology v1.68、blast-radius v1.86、memory-router v1.18、persistence-contract v1.42 |
+| 2026-03-30 | v1.55 | Skill 自動演化管線——新增 #59-#61（skills_draft/ + skill_health/ + feedback_loop/daily_summary.json）；共享狀態 58→61 個 |
 | 2026-03-30 | v1.54 | 13 個新 Skill Post-Build 補登——新增 #58 `data/equity-architect/case_files/`（🟢 單寫入者 equity-architect，原子寫，Case File 跨 session 持久化）；finance-pilot 交易記錄沿用 PulseDB skill_invocations 擴充、talent-match 候選人資料由 Qdrant L1_short 承接、biz-collab/talent-match anima-individual 寫入為 runtime 呼叫不建新共享狀態；共享狀態 57→58 個。同步 topology v1.66、blast-radius v1.84、memory-router v1.16 |
 | 2026-03-30 | v1.53 | 市場戰神（Market Ares）——新增 #57 `data/market_ares/market_ares.db`（🟢 Market Ares SQLite DB，6 張表）；共享狀態 56→57 個 |
 | 2026-03-29 | v1.52 | 戰神系統（Ares）——新增 #56 `data/ares/profiles/`（🟢 2 寫入者 anima-individual+external_bridge / 2 讀取者 ares+profile_store）；共享狀態 55→56 個 |

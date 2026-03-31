@@ -403,6 +403,13 @@ class Governor:
         if self._immune_memory and not getattr(self._immune_memory, "_event_bus", None):
             self._immune_memory._event_bus = event_bus
             self._immune_memory._subscribe()
+        # 治理警報 Telegram 推播（疼痛神經）
+        try:
+            from museon.governance.algedonic_alert import AlgedonicAlert
+            self._algedonic_alert = AlgedonicAlert(event_bus)
+            logger.info("Governor: AlgedonicAlert 已啟動（疼痛神經接通）")
+        except Exception as e:
+            logger.warning(f"Governor: AlgedonicAlert not available: {e}")
         logger.debug("Governor: EventBus connected to PerceptionEngine")
 
     def _get_telegram_status(self) -> dict:

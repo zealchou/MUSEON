@@ -199,6 +199,23 @@ async def _handle_telegram_message(adapter, message) -> None:
                 f"[{_tid}] Telegram [{username}]: {message.content[:80]}"
             )
 
+            # ── 0.5 品質回饋閉環：通知 FeedbackLoop ──
+            try:
+                from museon.core.event_bus import EventBus, CHANNEL_MESSAGE_RECEIVED
+                _eb = EventBus.get_instance()
+                _eb.publish(CHANNEL_MESSAGE_RECEIVED, {
+                    "channel": "telegram",
+                    "user_id": username,
+                    "content": message.content[:500],  # 限制長度避免記憶體問題
+                    "timestamp": message.metadata.get("timestamp", ""),
+                    "chat_id": str(chat_id) if chat_id else "",
+                    "is_group": is_group,
+                    "is_owner": is_owner,
+                    "trace_id": _tid,
+                })
+            except Exception as _fb_err:
+                logger.debug(f"[{_tid}] EventBus CHANNEL_MESSAGE_RECEIVED publish failed: {_fb_err}")
+
             # ── 1. Phase 0 智慧確認 + start typing ──
             status_msg_id = None
             _phase0_used = False

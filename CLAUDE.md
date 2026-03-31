@@ -235,6 +235,35 @@ MUSEON 回覆: {museon_reply}
   "insights": [{"type": "goal|emotion|decision|lesson", "content": "...", "created_at": "ISO8601"}]
 }
 
+**Step 3.5: 即時行為調整（覺察→行動）**
+評估本次回覆的品質，如果有問題，寫入即時調整讓下一輪自動修正。
+
+判斷標準（任一命中就寫入調整）：
+1. 回覆超過 1500 字但使用者問題少於 100 字 → 下次壓縮回覆
+2. 回覆中出現「我不確定」「可能」超過 3 次 → 下次增加深度/確定性
+3. 使用者的問題跟上一輪非常相似 → 下次換角度回答
+4. Skill 輸出缺少預期結構（缺標題、缺結論）→ 下次補完結構
+
+如果命中任何一條，用 Write 工具寫入：
+~/MUSEON/data/_system/session_adjustments/{session_id}.json
+
+格式：
+{
+  "session_id": "{session_id}",
+  "adjustments": [
+    {
+      "trigger": "response_too_long",
+      "adjustment": "compress_output",
+      "params": {"max_length": 800},
+      "expires_after_turns": 3,
+      "created_at_turn": {current_turn}
+    }
+  ],
+  "updated_at": "ISO8601"
+}
+
+如果沒有品質問題，跳過此步驟（不寫入 = 沒問題）。
+
 **Step 4: 群組上下文落地（僅群組訊息）**
 如果是群組訊息，用 mcp__museon__museon_group_context 確認上下文已記錄。
 
@@ -249,44 +278,9 @@ MUSEON 回覆: {museon_reply}
 
 ### Step 1: L1 辨識指令
 
-| 指令 | Skill | 說明 |
-|------|-------|------|
-| /strategy | master-strategy | 戰略分析 |
-| /dse | dse | 深度研究驗證 |
-| /market | market-core | 市場分析 |
-| /darwin, /simulate | darwin | DARWIN 策略演化模擬 |
-| /crypto | market-crypto | 加密貨幣分析 |
-| /equity | market-equity | 股票分析 |
-| /macro | market-macro | 總經分析 |
-| /brand | brand-identity | 品牌定位 |
-| /brand-discover | brand-discovery | 漸進式品牌訪談 |
-| /brand-build | brand-builder | 奧美級品牌建構 |
-| /brand-manual | workflow-brand-consulting | 品牌手冊工作流 |
-| /story | storytelling-engine | 故事設計 |
-| /text | text-alchemy | 文字煉金 |
-| /xmodel | xmodel | 破框解方 |
-| /plan | plan-engine | 計畫引擎 |
-| /dharma | dharma | 思維轉化 |
-| /philo | philo-dialectic | 哲學思辨 |
-| /ssa | ssa-consultant | 顧問銷售 |
-| /business | business-12 | 商模十二力 |
-| /report | report-forge | 產業報告 |
-| /learn | meta-learning | 元學習 |
-| /shadow | shadow | 人際博弈 |
-| /resonance | resonance | 感性共振 |
-| /masters | investment-masters | 投資軍師 |
-| /blueprint, /hd | human-design-blueprint | 人類圖藍圖 |
-| /esg-forge, /esg | esg-architect-pro | ESG 永續報告 |
-| /esg-audit | esg-architect-pro | ESG 漂綠檢測 |
-| /meeting, /intel | meeting-intelligence | 會議情報分析 |
-| /risk, /allocation | risk-matrix | 風險管理與資產配置 |
-| /sentiment | sentiment-radar | 市場情緒雷達 |
-| /athena, /athena-person | athena | ATHENA 智慧戰略情報 |
-| /anima, /profile | anima-individual | 人物建檔/查詢 |
-| /onemuse, /om | onemuse-core | One Muse 核心知識 |
-| /reading, /energy | energy-reading | 能量解讀 |
-| /wan-miu, /persona-16 | wan-miu-16 | 萬謬16型人格 |
-| /combined, /match | combined-reading | 合盤比對 |
+用 Read 工具讀取 `~/MUSEON/data/_system/context_cache/command_routes.json` 取得指令路由表。
+此表由 plugin-registry 自動生成（單一事實來源），新增/刪除 Skill 時自動同步。
+格式：`{"routes": [{"command": "/xxx", "skill": "skill-name"}, ...]}` — 根據 command 匹配 Skill 名稱。
 
 ### Step 2: 回覆確認 + Spawn Worker
 

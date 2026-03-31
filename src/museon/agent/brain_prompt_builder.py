@@ -112,6 +112,9 @@ class BrainPromptBuilderMixin:
 
         sections = []
 
+        # 追蹤歷史狀態供 code 層自動觸發用
+        self._current_query = user_query
+
         # ── Zone: buffer — 深度反射注解（最高優先，置於 core_system 之前）──
         # 必須讓 LLM 在讀入任何其他指令前，先看到本輪的行為約束
         if reflection_note:
@@ -400,6 +403,40 @@ class BrainPromptBuilderMixin:
             except Exception as e:
                 logger.warning(f"結晶行為規則注入失敗（降級運行）: {e}")
 
+        # ── Zone: memory — Stage 5.5: Skill 教訓預載（Phase 2B）──
+        if matched_skills and not budget.is_exhausted("memory"):
+            try:
+                skill_lessons = self._build_skill_lesson_context(matched_skills, budget)
+                if skill_lessons:
+                    skill_lessons_fitted = budget.fit_text_to_zone("memory", skill_lessons)
+                    if skill_lessons_fitted:
+                        sections.append(skill_lessons_fitted)
+                        logger.debug(f"Skill 教訓預載注入: {len(matched_skills)} skills")
+            except Exception as e:
+                logger.debug(f"Skill 教訓預載失敗（降級）: {e}")
+
+        # ── Zone: buffer — SessionAdjustment 即時行為調整注入 ──
+        if not budget.is_exhausted("buffer"):
+            try:
+                # Code 層自動觸發（底線機制，不靠 LLM 記得）
+                self._auto_adjust_from_history(session_id)
+            except Exception as _e:
+                logger.debug(f"Auto-adjust trigger failed (degraded): {_e}")
+            try:
+                from museon.core.session_adjustment import get_manager as _get_sam
+                _sam = _get_sam()
+                # 載入 L4 觀察者的即時調整
+                if self.data_dir:
+                    _sam.load_from_l4(self.data_dir, session_id)
+                _adj_text = _sam.format_for_prompt(session_id, current_turn=0)
+                if _adj_text:
+                    _adj_fitted = budget.fit_text_to_zone("buffer", _adj_text)
+                    if _adj_fitted:
+                        sections.append(_adj_fitted)
+                        logger.debug("SessionAdjustment 注入完成")
+            except Exception as e:
+                logger.debug(f"SessionAdjustment 注入失敗（降級）: {e}")
+
         # ── Zone: buffer — PULSE.md 靈魂上下文注入（演化核心）──
         if not budget.is_exhausted("buffer"):
             try:
@@ -433,7 +470,104 @@ class BrainPromptBuilderMixin:
                 f"— 後續注入內容可能被沉默截斷"
             )
 
+        # 記錄本輪 query 供下一輪 code 層自動觸發比較
+        self._last_user_query = user_query
+
         return "\n\n---\n\n".join(sections)
+
+    # ═══════════════════════════════════════════
+    # Code 層自動觸發 SessionAdjustment（底線機制）
+    # ═══════════════════════════════════════════
+
+    def record_response_metrics(self, response_length: int, query_length: int) -> None:
+        """記錄本輪回覆的指標，供下一輪 code 層自動觸發用.
+
+        由 L4 觀察者或 Brain 回覆完成後呼叫，不修改 brain.py。
+        """
+        self._last_response_length = response_length
+        self._last_query_length = query_length
+
+    def _auto_adjust_from_history(self, session_id: str) -> None:
+        """Code 層自動觸發 SessionAdjustment — 不靠 LLM 記得.
+
+        三個底線觸發：
+        1. 上次回覆過長 → 壓縮
+        2. 使用者重複相似問題 → 換角度
+        3. 上次 Skill 品質旗標為 degraded → 降級
+        """
+        try:
+            from museon.core.session_adjustment import (
+                get_manager, SessionAdjustment,
+                COMPRESS_OUTPUT, SWITCH_APPROACH, DEGRADE_SKILL,
+            )
+            manager = get_manager()
+
+            # 觸發 1: 回覆過長（短問題 → 超長回覆）
+            if (
+                hasattr(self, "_last_response_length")
+                and hasattr(self, "_last_query_length")
+            ):
+                if (
+                    self._last_response_length > 1500
+                    and self._last_query_length < 150
+                    and self._last_response_length > self._last_query_length * 10
+                ):
+                    manager.add(session_id, SessionAdjustment(
+                        trigger="response_too_long",
+                        adjustment=COMPRESS_OUTPUT,
+                        params={"max_length": 800, "reason": "上次回覆過長"},
+                        expires_after_turns=2,
+                        created_at_turn=0,
+                    ))
+                    logger.debug(
+                        f"[AutoAdjust] 觸發 COMPRESS_OUTPUT "
+                        f"(resp={self._last_response_length}, "
+                        f"query={self._last_query_length})"
+                    )
+
+            # 觸發 2: 使用者重複相似問題 → 換角度
+            if (
+                hasattr(self, "_last_user_query")
+                and hasattr(self, "_current_query")
+            ):
+                _prev = self._last_user_query or ""
+                _curr = self._current_query or ""
+                if _prev and _curr and len(_prev) > 10 and len(_curr) > 10:
+                    # 簡單相似度：共同 unique 字元比例
+                    _common = set(_prev) & set(_curr)
+                    _similarity = len(_common) / max(
+                        len(set(_prev)), len(set(_curr)), 1
+                    )
+                    if _similarity > 0.7:
+                        manager.add(session_id, SessionAdjustment(
+                            trigger="repeated_query",
+                            adjustment=SWITCH_APPROACH,
+                            params={"reason": "使用者問了類似的問題，換個角度回答"},
+                            expires_after_turns=1,
+                            created_at_turn=0,
+                        ))
+                        logger.debug(
+                            f"[AutoAdjust] 觸發 SWITCH_APPROACH "
+                            f"(similarity={_similarity:.2f})"
+                        )
+
+            # 觸發 3: Skill 降級旗標
+            if hasattr(self, "_skill_degradation_flags"):
+                for skill_name, is_degraded in self._skill_degradation_flags.items():
+                    if is_degraded:
+                        manager.add(session_id, SessionAdjustment(
+                            trigger=f"skill_degraded:{skill_name}",
+                            adjustment=DEGRADE_SKILL,
+                            params={"skill": skill_name, "mode": "simple"},
+                            expires_after_turns=5,
+                            created_at_turn=0,
+                        ))
+                        logger.debug(
+                            f"[AutoAdjust] 觸發 DEGRADE_SKILL: {skill_name}"
+                        )
+
+        except Exception as e:
+            logger.debug(f"_auto_adjust_from_history failed (degraded): {e}")
 
     def _build_signal_context(self, session_id: str, content: str) -> str:
         """組建訊號感應上下文（~100-150 tokens）."""
@@ -674,6 +808,25 @@ class BrainPromptBuilderMixin:
         if not items:
             return ""
 
+        # ── MemoryReflector 交叉反思（Phase 1c）──
+        # 對 recall 回來的記憶做交叉比對（矛盾/模式/時間軸/Activation 排序）
+        # 注意：此段落在 EpigeneticRouter 之前執行，提供純 CPU 計算的基礎反思
+        _reflector_summary = ""
+        try:
+            from museon.memory.memory_reflector import MemoryReflector
+            _reflector = MemoryReflector()
+            _reflection = _reflector.reflect(
+                recalled_memories=items,
+                current_query=user_query,
+            )
+            if _reflection and _reflection.summary:
+                _reflector_summary = _reflection.summary
+                # 如果有反思結果，將高 activation 記憶排到前面
+                if _reflection.ranked_memories:
+                    items = _reflection.ranked_memories
+        except Exception as _e:
+            logger.debug(f"MemoryReflector failed (degrading gracefully): {_e}")
+
         _OUTCOME_BADGE = {
             "failed": "⚠️FAIL",
             "partial": "△PART",
@@ -738,6 +891,10 @@ class BrainPromptBuilderMixin:
                 "\n⚠️ 以上包含失敗經驗，標記為 ⚠️FAIL。"
                 "請優先採用無 FAIL 標記的方法。"
             )
+
+        # ── MemoryReflector 反思摘要（Phase 1c）──
+        if _reflector_summary:
+            text += "\n## 記憶交叉反思\n" + _reflector_summary
 
         # ── 第四層：經驗回放（Procedure 結晶 + Activity Log 降級）──
         procedure_text = ""
@@ -814,6 +971,81 @@ class BrainPromptBuilderMixin:
         budget.track_usage("memory", tokens_used)
 
         return f"【相關記憶】\n{text}"
+
+    def _build_skill_lesson_context(
+        self,
+        matched_skills: List[Dict[str, Any]],
+        budget: Any,
+    ) -> str:
+        """Stage 5.5: Skill 教訓預載 — 從 Skill 的 _lessons.json 載入相關教訓.
+
+        覺察的意義不是「記住」，是讓教訓在需要的時候主動出現在需要的地方。
+        每個 Skill 觸發時，自動載入該 Skill + 相關 Skill 的歷史教訓。
+
+        預算上限：400 tokens（從 memory zone 劃出）。
+        """
+        if not matched_skills:
+            return ""
+
+        remaining = budget.remaining("memory") if hasattr(budget, "remaining") else 0
+        if remaining is None or remaining <= 400:
+            return ""
+
+        skills_dir = None
+        if self.data_dir:
+            skills_dir = Path(self.data_dir) / "skills" / "native"
+
+        if not skills_dir:
+            return ""
+
+        lessons: List[str] = []
+
+        for skill_item in matched_skills[:3]:  # 最多看 3 個 Skill
+            skill_name = skill_item.get("name", "") if isinstance(skill_item, dict) else str(skill_item)
+            if not skill_name:
+                continue
+
+            lesson_file = skills_dir / skill_name / "_lessons.json"
+            if not lesson_file.exists():
+                # 也看 forged 目錄
+                forged_file = Path(self.data_dir) / "skills" / "forged" / skill_name / "_lessons.json"
+                if forged_file.exists():
+                    lesson_file = forged_file
+                else:
+                    continue
+
+            try:
+                data = json.loads(lesson_file.read_text(encoding="utf-8"))
+                for lesson in data.get("lessons", [])[:2]:  # 每個 Skill 最多 2 條
+                    summary = lesson.get("summary", "")
+                    if summary:
+                        lessons.append(f"[{skill_name}] {summary}")
+            except Exception:
+                continue
+
+        # 橫向學習：從 SynapseNetwork 取相關 Skill 的教訓
+        if hasattr(self, '_synapse_network') and self._synapse_network and matched_skills:
+            try:
+                first_skill = matched_skills[0]
+                first_name = first_skill.get("name", "") if isinstance(first_skill, dict) else str(first_skill)
+                if first_name:
+                    related = self._synapse_network.top_co_fired(first_name, top_n=2)
+                    for rel_skill in related:
+                        rel_file = skills_dir / rel_skill / "_lessons.json"
+                        if rel_file.exists():
+                            data = json.loads(rel_file.read_text(encoding="utf-8"))
+                            for lesson in data.get("lessons", [])[:1]:
+                                summary = lesson.get("summary", "")
+                                if summary:
+                                    lessons.append(f"[關聯: {rel_skill}] {summary}")
+            except Exception:
+                pass
+
+        if not lessons:
+            return ""
+
+        result = "## 此任務相關教訓\n" + "\n".join(f"- {l}" for l in lessons[:5])
+        return result[:800]  # 硬上限
 
     def _anima_filter_procedures(
         self,

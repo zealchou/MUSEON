@@ -1,10 +1,12 @@
-# Blast Radius — 模組影響半徑表 v1.84
+# Blast Radius — 模組影響半徑表 v1.86
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節、`docs/operational-contract.md`（操作契約表）提供外部操作預期失敗
+> **v1.86 (2026-03-31)**：體液系統迭代——新增 7 個模組到安全分級表：🟢 綠區：`core/awareness.py`（AwarenessSignal 統一覺察訊號，扇入=0，扇出=0，純 dataclass 無副作用）、`core/session_adjustment.py`（SessionAdjustment 即時行為調整管理器，扇入=2（brain_prompt_builder + triage_step），扇出=1：_system/session_adjustments/）、`nightly/triage_step.py`（Nightly 分診步驟，扇入=0，扇出=3：triage_queue.jsonl + awareness_log.jsonl + nightly_priority_queue.json）、`nightly/triage_to_morphenix.py`（HIGH → Morphenix 迭代筆記橋接，扇入=1（nightly_pipeline），扇出=1：morphenix/proposals/）、`governance/algedonic_alert.py`（治理警報 Telegram 推播，扇入=1（governor），扇出=2：event_bus GOVERNANCE_ALGEDONIC_SIGNAL + PROACTIVE_MESSAGE）；修改模組：`gateway/telegram_pump.py` 新增 CHANNEL_MESSAGE_RECEIVED publish（扇出+1）、`governance/governor.py` 初始化 AlgedonicAlert（扇出+1）、`governance/response_guard.py` 新增 strip_markdown() 靜態方法（扇出不變，功能擴充）、`agent/brain_prompt_builder.py` 新增四路接線（MemoryReflector + Skill 教訓預載 + SessionAdjustment + code 層自動觸發，扇出+3）、`nightly/nightly_pipeline.py` Step 5.8 前置 triage_to_morphenix（扇出+1）。新增共享狀態 7 個（#62-#68）。同步 joint-map v1.56、system-topology v1.68、memory-router v1.18、persistence-contract v1.42。
+> **v1.85 (2026-03-30)**：Skill 自動演化管線（Organ Growth Pipeline）——新增 4 個 🟢 綠區模組：`nightly/skill_draft_forger.py`（扇入=1 from nightly_pipeline，扇出=3：skills_draft/ + morphenix/proposals/ + Anthropic API）、`nightly/skill_install_worker.py`（扇入=1 from telegram callback，扇出=6：~/.claude/skills/ + plugin-registry + topology + memory-router + validate_connections.py + sync_topology_to_3d.py）、`nightly/skill_qa_gate.py`（扇入=1 from nightly_pipeline，扇出=2：skills_draft/ + Anthropic API）、`nightly/skill_health_tracker.py`（扇入=1 from nightly_pipeline，扇出=3：skill_usage_log.jsonl + q_scores.jsonl + skill_health/）。nightly_pipeline.py 新增 Step 19.5/19.6/19.7（扇入不變，新增 4 個 import）。morphenix_executor.py 新增 L1 四道護欄（扇入不變）。同步 system-topology v1.67、joint-map v1.55、memory-router v1.17。
 > **v1.84 (2026-03-30)**：13 個新 Skill Post-Build 補登——批次新增 Skill 到安全分級表：🟡黃區：ad-pilot（扇入=3，扇出=5）、equity-architect（扇入=3，扇出=5）、course-forge（扇入=4，扇出=5）、brand-project-engine（扇入=2，扇出=2）、finance-pilot（扇入=2，扇出=4）、prompt-stresstest（扇入=2，扇出=5）；🟢綠區：biz-collab（扇入=0，扇出=4）、biz-diagnostic（扇入=0，扇出=3）、video-strategy（扇入=0，扇出=4）、shadow-muse（扇入=0，扇出=4）、daily-pilot（扇入=0，扇出=4）、talent-match（扇入=0，扇出=4）、workflow-brand-consulting（扇入=0，扇出=6）。同步 system-topology v1.66、joint-map v1.54、memory-router v1.16。
 > **v1.83 (2026-03-30)**：市場戰神（Market Ares）——新增 `src/museon/market_ares/` 模組群（9 子包 16 檔），全部 🟢 綠區扇入=0。子模組：config.py / storage/{db,models}.py / mapping/{energy_mapper,mapping_config.yaml} / clustering/{hierarchical,kmeans_refine,archetype_namer}.py / simulation/{engine,strategy_impact,social_contagion,oscillation}.py / coaching/{self_drive_coach,chauffeur_coach}.py / analysis/{weekly_insight,turning_point,strategy_optimizer,final_report}.py / visualization/{charts,dashboard,report_renderer}.py / crawler/tw_demographics.py。新增儲存：`data/market_ares/market_ares.db`（SQLite WAL，6 表）。無跨模組 import，不影響既有系統。同步 system-topology v1.64、joint-map v1.53、memory-router v1.14、persistence-contract v1.41。
 > **v1.82 (2026-03-29)**：統一發送出口防漏修復——ResponseGuard.sanitize_for_group() 取消群組/私訊分流，所有通道統一過濾全部 18 組 _INTERNAL_PATTERNS（修復 Bug1 群組術語洩漏 + Bug2 私訊自言自語的共同根因）；telegram_pump.py 消除 9 處 bot.send_message() 直送改走 adapter._safe_send()（Phase 0/1/2/3 + SLA interim + Escalation）；cron_registry.py Ares alert 改走 _safe_send()；telegram_menu.py 2 個函數加 ResponseGuard sanitize；update_processing_status() 加 sanitize；response_guard 扇入 2→3（新增 telegram_menu.py）。同步 system-topology v1.63。
@@ -783,6 +785,14 @@
 
 > ⚠️ `museon-persona.md` 雖然不是 Python 模組，但實質上是所有 L2 thinker 的「系統提示源」。修改此檔案等同於修改紅區模組，建議視為 🟠 紅區對待。
 
+### 體液系統（5 個，v1.86 新增）
+
+`core/awareness.py`（★ v1.86 新增，扇入=0，AwarenessSignal 統一覺察訊號格式——dataclass 含 Severity/SignalType/Actionability enum，to_dict()/from_dict() 序列化，純資料結構無副作用），
+`core/session_adjustment.py`（★ v1.86 新增，扇入=2（brain_prompt_builder + triage_step），SessionAdjustment 即時行為調整管理器——get_manager() singleton，add/get_active/format_for_prompt/clear 四個方法，寫入 `_system/session_adjustments/{id}.json`，expires_after_turns 自動過期），
+`nightly/triage_step.py`（★ v1.86 新增，扇入=0（Nightly Step 5.8 前置呼叫），Nightly 分診步驟——write_signal()/drain_queue()/accumulate_signals()/escalate_high()/emit_adjustments() 五個函數，寫入 triage_queue.jsonl + awareness_log.jsonl + nightly_priority_queue.json），
+`nightly/triage_to_morphenix.py`（★ v1.86 新增，扇入=1（nightly_pipeline Step 5.8），HIGH→Morphenix 迭代筆記橋接——drain_priority_queue()/write_morphenix_proposal() 兩個函數，消費 nightly_priority_queue.json 寫入 morphenix/proposals/），
+`governance/algedonic_alert.py`（★ v1.86 新增，扇入=1（governor.py 初始化），治理警報 Telegram 推播——AlgedonicAlert class，訂閱 GOVERNANCE_ALGEDONIC_SIGNAL 事件，防洪閘（rate limit）+ 嚴重度過濾，發布 PROACTIVE_MESSAGE 到 event_bus）
+
 ### 其他
 各子系統的終端執行模組（無人 import 的工具、通道適配器等）
 
@@ -890,6 +900,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-31 | v1.86 | 體液系統——新增 awareness.py（🟢 扇入=0）、session_adjustment.py（🟢 扇入=2）、triage_step.py（🟢 扇入=0）、triage_to_morphenix.py（🟢 扇入=1）、algedonic_alert.py（🟢 扇入=1）；brain_prompt_builder 四路接線（扇出+3）；nightly_pipeline Step 5.8 前置（扇出+1）；response_guard 新增 strip_markdown()；governor 初始化 algedonic_alert（扇出+1）；telegram_pump 新增 CHANNEL_MESSAGE_RECEIVED publish（扇出+1） |
 | 2026-03-26 | v1.70 | v2 Brain 四層架構 + 死碼清理——新增 `brain_deep.py`（L2 Opus 引擎，綠區扇入=1）、`brain_tool_loop.py`（獨立 tool-use 迴圈，綠區扇入=1）、`brain_observer.py`（L4 觀察者，綠區扇入=1）、`brain_fast.py` 重寫為 L1 Sonnet + escalation JSON + L4 回饋迴路、`tool_schemas.py` 新增 3 工具（trigger_job/memory_search/spawn_perspectives）、`nightly_pipeline.py` Step 31 context_cache 重建。死碼移除：federation/（skill_market + sync）、installer/（整個目錄）、nightly_v2.py |
 | 2026-03-25 | v1.68 | L2 Worker 分離 + AIORateLimiter——新增 brain_worker.py（subprocess + Pipe IPC）、AsyncTokenBucket（token bucket 取代 semaphore）；telegram_pump worker 優先路徑 + fallback；server.py worker lifecycle。response_guard 新增 [empty]+路由鏈過濾 |
 | 2026-03-25 | v1.67 | 訊息佇列持久化 + 全鏈路 trace_id——新增 message_queue_store.py（SQLite crash recovery）；InternalMessage trace_id 欄位；telegram_pump 持久化+恢復+log trace_id；brain.py process() trace_id |

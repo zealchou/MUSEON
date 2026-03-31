@@ -981,16 +981,31 @@ class NightlyPipeline:
     def _step_morphenix_proposals(self) -> Dict:
         """Step 5.8: ★ 信號驅動的自動演化提案生成.
 
-        從六個系統信號源偵測問題，自動生成具體的 Morphenix 提案：
+        從七個系統信號源偵測問題，自動生成具體的 Morphenix 提案：
+        0. Triage HIGH 訊號 → 先轉為迭代筆記（drain_priority_queue_to_notes）
         1. Q-Score 連續低分 → 調整 prompt 策略
         2. Knowledge Lattice 降級結晶 → 修正相關 Skill
         3. MetaCognition 預判失準 → 調整預測參數
         4. Skill Router 命中率低 → 調整路由權重
-        5. 迭代筆記累積 → 傳統筆記結晶提案
+        5. 迭代筆記累積（含 triage 轉入）→ 傳統筆記結晶提案
         6. Nightly Report 錯誤步驟 → 管線修復提案
 
         這是從「被動記錄」跨越到「主動演化」的關鍵步驟。
         """
+        # ── 前置步驟：將 triage HIGH 訊號轉為迭代筆記 ──
+        # 必須在信號源 5 掃描 notes 之前執行，這樣 HIGH 訊號才會被信號源 5 直接消費。
+        try:
+            from museon.nightly.triage_to_morphenix import drain_priority_queue_to_notes
+            _triage_result = drain_priority_queue_to_notes(self._workspace)
+            if _triage_result["notes_created"] > 0:
+                logger.info(
+                    "[MORPHENIX 5.8] Triage 前置：%d 條 HIGH 訊號 → %d 條迭代筆記",
+                    _triage_result["processed"],
+                    _triage_result["notes_created"],
+                )
+        except Exception as e:
+            logger.warning("[MORPHENIX 5.8] Triage 前置失敗（降級繼續）: %s", e)
+
         proposals_dir = self._workspace / "_system" / "morphenix" / "proposals"
         proposals_dir.mkdir(parents=True, exist_ok=True)
 

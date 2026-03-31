@@ -1,10 +1,11 @@
-# Memory Router — 記憶路由表 v1.16
+# Memory Router — 記憶路由表 v1.17
 
 > **用途**：定義「什麼類型的洞見存到哪個記憶系統、什麼時候取出」。第五張工程藍圖。
 > **比喻**：郵局分揀表——每封信根據地址分到對應的信箱，不會寄丟也不會重複投遞。
 > **更新時機**：新增 Skill 或記憶系統時，必須在同一個 commit 中新增對應的路由規則。
 > **建立日期**：2026-03-21
 > **搭配**：`docs/skill-manifest-spec.md`（Skill I/O 合約）、各 Skill 的 `memory.writes` 欄位、`docs/operational-contract.md`（操作契約表）
+> **v1.17 (2026-03-30)**：Skill 自動演化管線記憶路由——新增 3 條路由：skill-health-tracker→`data/_system/skill_health/{skill_name}.json`（Per-Skill 健康度快照，每夜 Step 19.5 寫入，SkillDraftForger 讀取判斷退化）；skill-draft-forger→`data/_system/skills_draft/draft_*.json`（Skill 草稿，Step 19.6 寫入，SkillQA Gate 讀取驗證）；skill-qa-gate→更新 `skills_draft/draft_*.json` 狀態欄位（pending_qa→approved/quarantine）。新增 1 條 feedback-loop 持久化路由：feedback-loop→`data/_system/feedback_loop/daily_summary.json`（每次互動後寫入，Nightly 信號源 7 讀取）。同步 system-topology v1.67、blast-radius v1.85。
 > **v1.16 (2026-03-30)**：新 Skill 群批次補路由——新增 7 條 knowledge-lattice 路由：finance-pilot→週期分析洞見（/close 結算時）、花費行為模式（累計 3 個月以上）；course-forge→課程設計模式（Pipeline 完成時）；ad-pilot→廣告優化洞見（/optimize 含品質護欄時）；equity-architect→合夥決策記錄（Mode B 選定方案時，路由至 decision-tracker→knowledge-lattice）；prompt-stresstest→壓測發現模式（final_gate 未通過時）；talent-match→招募模式洞見（證據面試包完成時）。
 > **v1.15 (2026-03-30)**：商業模式健檢（biz-diagnostic）——新增 1 條 knowledge-lattice 路由：biz-diagnostic→diagnostic_crystal（健檢完成時，含商業診斷摘要 + DARWIN 模擬參數 + 優先問題，永久）。同步 system-topology v1.65。
 > **v1.14 (2026-03-30)**：市場戰神（Market Ares）——新增 1 條 knowledge-lattice 路由：market-ares→simulation_crystal（策略模擬結果結晶，含 52 週演化摘要 + 最佳策略組合，永久）；新增 1 條 eval-engine 路由：market-ares→模擬準確度追蹤（真實數據 vs 模擬結果的偏差率）。同步 system-topology v1.64、blast-radius v1.83、joint-map v1.53、persistence-contract v1.41。
@@ -246,6 +247,8 @@
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.18 | 2026-03-31 | 體液系統迭代——新增 Skill 教訓預載路由（brain_prompt_builder `_build_skill_lesson_context()` 讀取 `data/skills/native/{name}/_lessons.json` 注入 system prompt）；新增 SessionAdjustment 路由（L4 觀察者寫入 `_system/session_adjustments/{id}.json`，brain_prompt_builder `_auto_adjust_from_history()` 讀取）；新增覺察訊號路由（triage_step 寫入 `_system/triage_queue.jsonl`，Nightly Step 5.8 消費到 Morphenix 迭代筆記）；同步 topology v1.68、blast v1.86、joint v1.56、persist v1.42 |
+| v1.17 | 2026-03-30 | Skill 自動演化管線——新增 3 條知識路由（skill_health_tracker→skill_health/ 健康度快照、feedback_loop→daily_summary.json 品質摘要、skill_draft_forger→skills_draft/ 草稿暫存） |
 | v1.16 | 2026-03-30 | 新 Skill 群批次補路由——新增 7 條 knowledge-lattice 路由：finance-pilot（週期洞見/行為模式）、course-forge（課程設計模式）、ad-pilot（廣告優化洞見）、equity-architect（合夥決策記錄，via decision-tracker）、prompt-stresstest（壓測發現模式）、talent-match（招募模式洞見） |
 | v1.13 | 2026-03-29 | 戰神系統（Ares）——新增 2 條 knowledge-lattice 路由（anima-individual→individual_crystal、ares→strategy_crystal）+ 2 條 user-model 路由（關係網路/戰略偏好維度更新）；新增消費者 data/ares/profiles/ 個體檔案；同步 topology v1.62、blast v1.80、joint v1.52、persist v1.40 |
 | v1.12 | 2026-03-29 | OneMuse 能量解讀技能群——新增 3 條 knowledge-lattice 路由（energy-reading→energy_crystal、wan-miu-16→persona_crystal、combined-reading→relationship_crystal）+ 3 條 user-model 路由（能量/人格/關係維度更新）；同步 topology v1.61、blast v1.79、joint v1.51、persist v1.39 |
