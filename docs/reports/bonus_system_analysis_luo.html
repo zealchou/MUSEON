@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>獎金制度演化分析報告 2022–2025</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ember: #C4502A;
+    --ember-light: #E0714D;
+    --ember-dark: #9A3A1C;
+    --teal: #2A7A6E;
+    --gold: #B8923A;
+    --ink: #12121A;
+    --slate: #5A5A6E;
+    --mist: #9898A8;
+    --border: #E2E0DA;
+    --parchment: #F7F5F0;
+    --snow: #FDFCFA;
+    --success: #2D8A6E;
+    --warning: #C9943A;
+    --error: #C4402A;
+    --info: #2A6A8A;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--parchment);
+    color: var(--ink);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .page-header {
+    background: linear-gradient(135deg, #1a0e0a 0%, #2c1810 60%, #3d2215 100%);
+    color: white;
+    padding: 56px 48px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .page-header::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    right: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(196,80,42,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .page-header .badge {
+    display: inline-block;
+    background: rgba(196,80,42,0.25);
+    border: 1px solid rgba(196,80,42,0.5);
+    color: var(--ember-light);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    padding: 4px 12px;
+    border-radius: 2px;
+    margin-bottom: 20px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+
+  .page-header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 38px;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.2;
+    margin-bottom: 12px;
+    letter-spacing: 0.02em;
+  }
+
+  .page-header .subtitle {
+    color: rgba(255,255,255,0.55);
+    font-size: 13px;
+    letter-spacing: 0.05em;
+  }
+
+  .page-header .meta-row {
+    display: flex;
+    gap: 32px;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .page-header .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .page-header .meta-item .label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .page-header .meta-item .value {
+    font-size: 13px;
+    color: rgba(255,255,255,0.8);
+    font-weight: 500;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 32px;
+  }
+
+  /* ── Section ── */
+  .section {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 32px 36px;
+    margin-bottom: 24px;
+  }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-title .icon {
+    width: 28px;
+    height: 28px;
+    background: var(--ember);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  .section-desc {
+    color: var(--slate);
+    font-size: 13px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── KPI Cards ── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 0;
+  }
+
+  .kpi-card {
+    background: var(--parchment);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px 18px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--ember);
+  }
+
+  .kpi-card .kpi-label {
+    font-size: 11px;
+    color: var(--mist);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .kpi-card .kpi-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--ember);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .kpi-card .kpi-sub {
+    font-size: 12px;
+    color: var(--slate);
+  }
+
+  .kpi-card .kpi-trend {
+    font-size: 11px;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .kpi-card .kpi-trend.up { color: var(--success); }
+  .kpi-card .kpi-trend.down { color: var(--error); }
+  .kpi-card .kpi-trend.neutral { color: var(--warning); }
+
+  /* ── 4-Year Table ── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .data-table thead th {
+    background: var(--ink);
+    color: rgba(255,255,255,0.85);
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .data-table thead th:first-child { border-radius: 4px 0 0 0; }
+  .data-table thead th:last-child { border-radius: 0 4px 0 0; }
+
+  .data-table tbody tr {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .data-table tbody tr:hover {
+    background: rgba(196,80,42,0.04);
+  }
+
+  .data-table tbody td {
+    padding: 10px 14px;
+    color: var(--ink);
+  }
+
+  .data-table tbody td.num {
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    font-family: 'Noto Sans TC', monospace;
+    color: var(--slate);
+  }
+
+  .data-table tbody td.num.highlight {
+    color: var(--ember);
+    font-weight: 500;
+  }
+
+  .data-table tbody tr.total-row td {
+    background: rgba(196,80,42,0.06);
+    font-weight: 600;
+    color: var(--ink);
+    border-top: 2px solid var(--ember);
+  }
+
+  .data-table tbody tr.lina-row td {
+    color: var(--mist);
+    font-style: italic;
+    font-size: 12px;
+  }
+
+  /* ── Year Tabs / Overview ── */
+  .year-overview {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .year-col {
+    background: var(--snow);
+    padding: 20px 16px;
+  }
+
+  .year-col .year-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ember);
+    margin-bottom: 8px;
+  }
+
+  .year-col .year-total {
+    font-size: 13px;
+    color: var(--slate);
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .year-col .year-people {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .year-col .person-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+  }
+
+  .year-col .person-row .pname {
+    color: var(--slate);
+  }
+
+  .year-col .person-row .pamount {
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .year-col .person-row.top-earner .pamount {
+    color: var(--ember);
+  }
+
+  .year-col .turnover-badge {
+    display: inline-block;
+    background: rgba(196,80,42,0.08);
+    color: var(--ember-dark);
+    border: 1px solid rgba(196,80,42,0.2);
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    margin-top: 10px;
+  }
+
+  /* ── Risk cards ── */
+  .risk-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .risk-card {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px 20px 18px;
+    position: relative;
+  }
+
+  .risk-card .risk-level {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+  }
+
+  .risk-card .risk-level.high {
+    background: rgba(196,64,42,0.1);
+    color: #C4402A;
+    border: 1px solid rgba(196,64,42,0.25);
+  }
+
+  .risk-card .risk-level.medium {
+    background: rgba(201,148,58,0.1);
+    color: #C9943A;
+    border: 1px solid rgba(201,148,58,0.25);
+  }
+
+  .risk-card .risk-level.low {
+    background: rgba(45,138,110,0.1);
+    color: #2D8A6E;
+    border: 1px solid rgba(45,138,110,0.25);
+  }
+
+  .risk-card .risk-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+
+  .risk-card .risk-person {
+    font-size: 11px;
+    color: var(--ember);
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  .risk-card .risk-desc {
+    font-size: 12px;
+    color: var(--slate);
+    line-height: 1.6;
+  }
+
+  .risk-card .risk-evidence {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: var(--parchment);
+    border-radius: 4px;
+    font-size: 11px;
+    color: var(--slate);
+    border-left: 2px solid var(--border);
+  }
+
+  /* ── Redesign section ── */
+  .redesign-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .role-card {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .role-card .role-header {
+    padding: 14px 18px;
+    font-weight: 600;
+    font-size: 13px;
+    color: white;
+  }
+
+  .role-card.role-exec .role-header { background: var(--ember-dark); }
+  .role-card.role-pm .role-header { background: var(--teal); }
+  .role-card.role-design .role-header { background: var(--gold); color: var(--ink); }
+  .role-card.role-new .role-header { background: var(--info); }
+  .role-card.role-coord .role-header { background: var(--slate); }
+  .role-card.role-biz .role-header { background: #6B5A3E; }
+
+  .role-card .role-body {
+    padding: 16px 18px;
+    background: var(--snow);
+  }
+
+  .role-card .role-problem {
+    font-size: 11px;
+    color: var(--error);
+    margin-bottom: 10px;
+    padding: 6px 10px;
+    background: rgba(196,64,42,0.06);
+    border-radius: 3px;
+  }
+
+  .role-card .role-suggestion {
+    font-size: 12px;
+    color: var(--slate);
+    line-height: 1.7;
+  }
+
+  .role-card .role-suggestion strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .role-card .mechanics {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .role-card .mechanic-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    font-size: 11px;
+    color: var(--slate);
+  }
+
+  .role-card .mechanic-item::before {
+    content: '▸';
+    color: var(--ember);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ── Chart bar ── */
+  .bar-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+  }
+
+  .bar-row .bar-label {
+    width: 80px;
+    color: var(--slate);
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .bar-row .bar-track {
+    flex: 1;
+    height: 20px;
+    background: var(--parchment);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .bar-row .bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 6px;
+  }
+
+  .bar-row .bar-fill span {
+    font-size: 10px;
+    color: white;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .bar-row .bar-fill.ember { background: var(--ember); }
+  .bar-row .bar-fill.teal { background: var(--teal); }
+  .bar-row .bar-fill.gold { background: var(--gold); }
+  .bar-row .bar-fill.slate { background: var(--slate); }
+  .bar-row .bar-fill.mist { background: var(--mist); }
+
+  /* ── Insight box ── */
+  .insight-box {
+    border-left: 3px solid var(--ember);
+    padding: 14px 18px;
+    background: rgba(196,80,42,0.04);
+    border-radius: 0 4px 4px 0;
+    margin: 16px 0;
+  }
+
+  .insight-box .insight-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ember);
+    margin-bottom: 6px;
+  }
+
+  .insight-box p {
+    font-size: 13px;
+    color: var(--ink);
+    line-height: 1.7;
+  }
+
+  /* ── Turnover timeline ── */
+  .timeline {
+    position: relative;
+    padding-left: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: var(--border);
+  }
+
+  .timeline-item {
+    position: relative;
+    padding: 0 0 20px 20px;
+  }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -1px;
+    top: 6px;
+    width: 10px;
+    height: 10px;
+    background: var(--snow);
+    border: 2px solid var(--ember);
+    border-radius: 50%;
+  }
+
+  .timeline-item.exit::before { border-color: var(--error); }
+  .timeline-item.entry::before { border-color: var(--success); }
+
+  .timeline-item .t-year {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ember);
+    margin-bottom: 4px;
+  }
+
+  .timeline-item .t-content {
+    font-size: 12px;
+    color: var(--slate);
+    line-height: 1.6;
+  }
+
+  .timeline-item .t-content .exit-tag {
+    display: inline-block;
+    background: rgba(196,64,42,0.08);
+    color: var(--error);
+    border: 1px solid rgba(196,64,42,0.2);
+    font-size: 10px;
+    padding: 1px 7px;
+    border-radius: 3px;
+    margin-right: 4px;
+  }
+
+  .timeline-item .t-content .entry-tag {
+    display: inline-block;
+    background: rgba(45,138,110,0.08);
+    color: var(--success);
+    border: 1px solid rgba(45,138,110,0.2);
+    font-size: 10px;
+    padding: 1px 7px;
+    border-radius: 3px;
+    margin-right: 4px;
+  }
+
+  /* ── Conclusion ── */
+  .conclusion-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .conclusion-card {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px;
+    background: var(--parchment);
+  }
+
+  .conclusion-card .c-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: rgba(196,80,42,0.15);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .conclusion-card .c-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  .conclusion-card .c-desc {
+    font-size: 12px;
+    color: var(--slate);
+    line-height: 1.7;
+  }
+
+  .footer {
+    text-align: center;
+    padding: 32px;
+    color: var(--mist);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    border-top: 1px solid var(--border);
+    margin-top: 8px;
+  }
+
+  .tag {
+    display: inline-block;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+
+  .tag.red { background: rgba(196,64,42,0.1); color: #C4402A; }
+  .tag.green { background: rgba(45,138,110,0.1); color: #2D8A6E; }
+  .tag.gold { background: rgba(184,146,58,0.1); color: #B8923A; }
+  .tag.blue { background: rgba(42,106,138,0.1); color: #2A6A8A; }
+  .tag.gray { background: rgba(90,90,110,0.1); color: #5A5A6E; }
+
+  @media (max-width: 768px) {
+    .kpi-grid { grid-template-columns: repeat(2,1fr); }
+    .year-overview { grid-template-columns: repeat(2,1fr); }
+    .risk-grid { grid-template-columns: 1fr; }
+    .redesign-grid { grid-template-columns: 1fr; }
+    .conclusion-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== PAGE HEADER ===== -->
+<div class="page-header">
+  <div class="badge">MUSEON 獎金制度分析</div>
+  <h1>情緒花園 獎金制度<br>四年演化診斷報告</h1>
+  <div class="subtitle">2022 – 2025 年度獎金結構 ✕ 人員流動 ✕ 制度風險 ✕ 改善建議</div>
+  <div class="meta-row">
+    <div class="meta-item">
+      <span class="label">分析期間</span>
+      <span class="value">2022 – 2025（4年）</span>
+    </div>
+    <div class="meta-item">
+      <span class="label">資料來源</span>
+      <span class="value">6 份原始文件（Excel + DOCX）</span>
+    </div>
+    <div class="meta-item">
+      <span class="label">總發放金額</span>
+      <span class="value">3,531,256 元（4年合計）</span>
+    </div>
+    <div class="meta-item">
+      <span class="label">人員流動</span>
+      <span class="value">3年內異動 5 人</span>
+    </div>
+    <div class="meta-item">
+      <span class="label">產出日期</span>
+      <span class="value">2026-03-31 by MUSEON</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ===== KPI ROW ===== -->
+  <div class="section">
+    <div class="section-title">
+      <div class="icon">◎</div>
+      關鍵數字總覽
+    </div>
+    <div class="section-desc">四年獎金發放全景，不含 Lina 固定 460,000 元</div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">4年總發放</div>
+        <div class="kpi-value">353萬</div>
+        <div class="kpi-sub">含 Lina 固定值 184萬</div>
+        <div class="kpi-trend up">↑ 2022→2025 漲 21%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Lina 佔比</div>
+        <div class="kpi-value">52%</div>
+        <div class="kpi-sub">2023-2025 固定 460,000/年</div>
+        <div class="kpi-trend neutral">● 完全獨立於員工制度</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">三年人員流失</div>
+        <div class="kpi-value">5人</div>
+        <div class="kpi-sub">Debby、Giselle、Kelly…</div>
+        <div class="kpi-trend down">↓ 留存率僅 2/5（原班）</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">最大績效落差</div>
+        <div class="kpi-value">3.5×</div>
+        <div class="kpi-sub">Giselle vs Annie（2023年）</div>
+        <div class="kpi-trend down">↓ 協調型人才被系統低估</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 4-YEAR OVERVIEW ===== -->
+  <div class="section">
+    <div class="section-title">
+      <div class="icon">◈</div>
+      四年個人獎金總覽
+    </div>
+    <div class="section-desc">每人每年實際領取金額（含保底＋業績＋特殊＋支援，不含補發）</div>
+
+    <div class="year-overview">
+      <div class="year-col">
+        <div class="year-label">2022</div>
+        <div class="year-total">員工小計：399,619</div>
+        <div class="year-people">
+          <div class="person-row"><span class="pname">Lina（固定）</span><span class="pamount">400,000</span></div>
+          <div class="person-row top-earner"><span class="pname">Debby</span><span class="pamount">201,976</span></div>
+          <div class="person-row"><span class="pname">Jasmine</span><span class="pamount">108,333</span></div>
+          <div class="person-row"><span class="pname">Annie</span><span class="pamount">84,609</span></div>
+          <div class="person-row"><span class="pname">Giselle（新人）</span><span class="pamount">4,701</span></div>
+        </div>
+        <span class="turnover-badge">Debby 高績效年</span>
+      </div>
+      <div class="year-col">
+        <div class="year-label">2023</div>
+        <div class="year-total">員工小計：472,887</div>
+        <div class="year-people">
+          <div class="person-row"><span class="pname">Lina（固定）</span><span class="pamount">460,000</span></div>
+          <div class="person-row top-earner"><span class="pname">Giselle</span><span class="pamount">189,945</span></div>
+          <div class="person-row"><span class="pname">Jasmine</span><span class="pamount">180,323</span></div>
+          <div class="person-row"><span class="pname">Annie</span><span class="pamount">91,975</span></div>
+          <div class="person-row"><span class="pname">Kelly（新人）</span><span class="pamount">10,644</span></div>
+        </div>
+        <span class="turnover-badge">Debby 離職後</span>
+      </div>
+      <div class="year-col">
+        <div class="year-label">2024</div>
+        <div class="year-total">員工小計：367,573</div>
+        <div class="year-people">
+          <div class="person-row"><span class="pname">Lina（固定）</span><span class="pamount">460,000</span></div>
+          <div class="person-row top-earner"><span class="pname">Jasmine</span><span class="pamount">179,587</span></div>
+          <div class="person-row"><span class="pname">Annie</span><span class="pamount">106,502</span></div>
+          <div class="person-row"><span class="pname">Vivian（約聘）</span><span class="pamount">49,353</span></div>
+          <div class="person-row"><span class="pname">Susan/Jacky/Teren</span><span class="pamount">32,131</span></div>
+        </div>
+        <span class="turnover-badge">3 人同時離職</span>
+      </div>
+      <div class="year-col">
+        <div class="year-label">2025</div>
+        <div class="year-total">員工小計：511,177</div>
+        <div class="year-people">
+          <div class="person-row"><span class="pname">Lina（固定）</span><span class="pamount">460,000</span></div>
+          <div class="person-row top-earner"><span class="pname">Annie（含特殊）</span><span class="pamount">136,626</span></div>
+          <div class="person-row"><span class="pname">Jasmine</span><span class="pamount">129,017</span></div>
+          <div class="person-row"><span class="pname">Susan</span><span class="pamount">86,672</span></div>
+          <div class="person-row"><span class="pname">Teren</span><span class="pamount">80,798</span></div>
+          <div class="person-row"><span class="pname">Jacky</span><span class="pamount">78,064</span></div>
+        </div>
+        <span class="turnover-badge">新人上量</span>
+      </div>
+    </div>
+
+    <div class="insight-box" style="margin-top:20px;">
+      <div class="insight-label">🔍 關鍵洞見</div>
+      <p>2022-2024 留存率只有 <strong>Annie + Jasmine</strong>。Debby 是最高績效者（2022 年 201k），離職後再也沒人能在個人專案上超越她。Giselle 在第二年（2023）爆發到 189k，跑贏所有資深員工，卻在 2024 年消失——這個模式值得深究：制度在特定條件下「訓練了高手再讓他們離開」。</p>
+    </div>
+  </div>
+
+  <!-- ===== TURNOVER TIMELINE ===== -->
+  <div class="section">
+    <div class="section-title">
+      <div class="icon">→</div>
+      人員流動時間軸
+    </div>
+    <div class="section-desc">三年內 5 人異動，背後是制度問題還是個人因素？</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;">
+      <div class="timeline">
+        <div class="timeline-item entry">
+          <div class="t-year">2022</div>
+          <div class="t-content">
+            <span class="entry-tag">入職</span> Giselle（2022/11 新人）<br>
+            <strong>制度環境：</strong>Debby 是唯一能拿 10% 主案的員工，Jasmine 拿設計費。Annie 協調佔比高，獎金遠不及業績。
+          </div>
+        </div>
+        <div class="timeline-item exit">
+          <div class="t-year">2023 初</div>
+          <div class="t-content">
+            <span class="exit-tag">離職</span> Debby（廖以婷）<br>
+            資歷最深的業務主管，2022 年個人獎金 201k。離開原因不明，但她的缺口在 2023 年由 Giselle 部分填補。
+          </div>
+        </div>
+        <div class="timeline-item entry">
+          <div class="t-year">2023/Q4</div>
+          <div class="t-content">
+            <span class="entry-tag">入職</span> Kelly（張芷晴）<br>
+            新人，第一年保底 7,644 元加上少量支援費 3,000，基本上是「空窗期」。
+          </div>
+        </div>
+      </div>
+      <div class="timeline">
+        <div class="timeline-item exit">
+          <div class="t-year">2024 初</div>
+          <div class="t-content">
+            <span class="exit-tag">離職</span> Giselle（潘冠今）<br>
+            <span class="exit-tag">離職</span> Kelly（張芷晴）<br>
+            兩人同期離職。Giselle 2023 年高峰後消失，Kelly 入職不到一年離開——新人制度留不住人的直接證據。
+          </div>
+        </div>
+        <div class="timeline-item entry">
+          <div class="t-year">2024/Q4</div>
+          <div class="t-content">
+            <span class="entry-tag">入職</span> Susan、Jacky、Teren（同期 3 人）<br>
+            三人同時入職，每人保底約 5k-9k，支援費 3k，制度幾乎沒有激勵。
+          </div>
+        </div>
+        <div class="timeline-item exit">
+          <div class="t-year">2024 末</div>
+          <div class="t-content">
+            <span class="exit-tag">離職</span> Vivian（劉蔚萱，約聘）<br>
+            但 Susan、Jacky、Teren 留下來，2025 年開始有實際業績獎金——顯示 6 個月後制度開始有效。
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== STRUCTURAL PROBLEMS ===== -->
+  <div class="section">
+    <div class="section-title">
+      <div class="icon">⚠</div>
+      四大結構性問題
+    </div>
+    <div class="section-desc">從四年數據提煉出的制度設計根本缺陷</div>
+
+    <div class="risk-grid">
+      <div class="risk-card">
+        <div class="risk-level high">🔴 高風險</div>
+        <div class="risk-title">新人激勵斷層——6 個月黑洞</div>
+        <div class="risk-person">受影響：Giselle / Kelly / Susan / Jacky / Teren</div>
+        <div class="risk-desc">
+          制度規定「入職前 6 個月不計專案獎金」，加上業績門檻 800 萬幾乎不可達，新人第一年只能靠保底薪。對高能力、高期待的業務人才，這等於「進來前 6 個月做白工」。
+        </div>
+        <div class="risk-evidence">
+          📊 Kelly 入職 90 天，年度獎金 = 保底 7,644 + 支援費 3,000 = 10,644 元。
+          Giselle 入職 52 天：4,701 元（純保底）。
+          三人同期入職（2024Q4）的 Susan/Jacky/Teren 皆相同。
+        </div>
+      </div>
+
+      <div class="risk-card">
+        <div class="risk-level high">🔴 高風險</div>
+        <div class="risk-title">協調型人才薪資天花板</div>
+        <div class="risk-person">受影響：Annie（周義惠）</div>
+        <div class="risk-desc">
+          Annie 是公司最資深員工（2019 入職），主要貢獻是協調整合，而非主案執行。制度只給整帳 1%、提案 1%，與 10% 主案抽成相比差距懸殊。2025 年用「特殊獎金 41,000」打補丁，但這是非系統性的主管自由裁量，不可預測。
+        </div>
+        <div class="risk-evidence">
+          📊 Annie 2023 年拿 91,975 / Giselle（入職第 2 年）拿 189,945——差距 2.06 倍。
+          Debby 2022 年拿 201,976——比 Annie 多 2.39 倍。
+        </div>
+      </div>
+
+      <div class="risk-card">
+        <div class="risk-level medium">🟡 中風險</div>
+        <div class="risk-title">800 萬門檻是假目標</div>
+        <div class="risk-person">受影響：全體員工</div>
+        <div class="risk-desc">
+          四年資料中，沒有任何個人實際達到 800 萬業績門檻。部分員工靠「含支援業績 ×50%」湊到，但實際的業績達標獎金（×0.001）極其微小，不構成行為激勵。整套制度的激勵來自「專案抽成比例」，門檻存在但形同虛設。
+        </div>
+        <div class="risk-evidence">
+          📊 Giselle 2023 年最高業績達標獎金：10,178 元（其餘 179,767 來自專案抽成）。
+          Jasmine 2025：業績 720 萬，差 80 萬未達門檻——制度邏輯告訴她「差一點就差很多」。
+        </div>
+      </div>
+
+      <div class="risk-card">
+        <div class="risk-level medium">🟡 中風險</div>
+        <div class="risk-title">Lina 固定獎金的心理效應</div>
+        <div class="risk-person">受影響：全體員工（感知層）</div>
+        <div class="risk-desc">
+          Lina 每年固定 400k→460k，與員工制度完全脫鉤。這本身是合理的（執行長分紅），但問題在於「員工知道這件事」且「Lina 的獎金佔比超過 50%」。在公司總體發放有限的年份（如 2024 年 827k），Lina 一人拿走 55.6%，容易產生結構性不公平感。
+        </div>
+        <div class="risk-evidence">
+          📊 2024 年：Lina 460k / 員工全體 367k ——Lina 超過員工總和。
+          即使是業績最好的 Jasmine（179k），也只有 Lina 的 39%。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== REDESIGN RECOMMENDATIONS ===== -->
+  <div class="section">
+    <div class="section-title">
+      <div class="icon">◆</div>
+      多元化獎金機制設計建議
+    </div>
+    <div class="section-desc">依不同職能與工作表現設計差異化激勵，解決現行一體化制度的盲點</div>
+
+    <div class="redesign-grid">
+      <div class="role-card role-pm">
+        <div class="role-header">🏗 專案主導型（PM/業務）</div>
+        <div class="role-body">
+          <div class="role-problem">現狀問題：10%/5%/3% 差異大，但認定標準模糊</div>
+          <div class="role-suggestion">
+            <strong>建議：明確化分級認定 + 加入成長維度</strong>
+            <div class="mechanics">
+              <div class="mechanic-item">維持 10%/5%/3% 主案抽成，但建立書面認定單（主案比例由雙方確認）</div>
+              <div class="mechanic-item">新增「自主開發獎金」：12 個月內自己開發的新客，首案獎金 +2%</div>
+              <div class="mechanic-item">毛利超標加碼：單案毛利超過 40%，獎金額外 +5%（鼓勵控管成本）</div>
+              <div class="mechanic-item">客戶留存獎金：客戶連續兩年續約，續約案加碼 +1%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="role-card role-design">
+        <div class="role-header">🎨 設計型（Jasmine 類）</div>
+        <div class="role-body">
+          <div class="role-problem">現狀問題：高度依賴大案，業績波動大</div>
+          <div class="role-suggestion">
+            <strong>建議：穩定底層 + 放大爆發</strong>
+            <div class="mechanics">
+              <div class="mechanic-item">維持 2%/3%/5% 設計費率，但設計成果有「延伸收益」——後續同設計再用，設計者拿 0.5% 授權費</div>
+              <div class="mechanic-item">增設「設計專案主導獎金」：不依賴 PM，自己主導設計提案、執行、驗收的，按 5% 計</div>
+              <div class="mechanic-item">能力加乘：獲客戶書面好評或作品獲獎，年底特殊獎金 5,000-15,000</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="role-card role-coord">
+        <div class="role-header">🔗 協調整合型（Annie 類）</div>
+        <div class="role-body">
+          <div class="role-problem">現狀問題：1% 整帳費嚴重低估協調貢獻</div>
+          <div class="role-suggestion">
+            <strong>建議：建立獨立的整合貢獻評分</strong>
+            <div class="mechanics">
+              <div class="mechanic-item">新增「協調加值獎金」：每季由主管評分（0-100），轉換為 0-30,000 季度加給</div>
+              <div class="mechanic-item">「危機處理獎金」：成功解決客戶投訴、協調超時專案者，一次性 3,000-8,000</div>
+              <div class="mechanic-item">年資特別加碼：5年以上資深員工，年底額外固定特殊獎金（現在 Annie 的 41k 制度化）</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="role-card role-new">
+        <div class="role-header">🌱 新人上手期（入職 0-12 個月）</div>
+        <div class="role-body">
+          <div class="role-problem">現狀問題：前 6 個月幾乎無激勵，高流失</div>
+          <div class="role-suggestion">
+            <strong>建議：三段漸進解鎖制</strong>
+            <div class="mechanics">
+              <div class="mechanic-item">月 1-3：觀察期，保底外每完成一個里程碑獲 2,000 元成長獎金（由主管認定）</div>
+              <div class="mechanic-item">月 4-6：半參與期，開始計算 50% 支援費率（現為 1%，新人版 1.5%）</div>
+              <div class="mechanic-item">月 7-12：解鎖期，開始計算正式抽成（3% 協助 or 5% 半主導），不等一年才開始</div>
+              <div class="mechanic-item">12 個月達成目標（例：參與業績 300 萬），解鎖「留任確認獎金」15,000</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="role-card role-biz">
+        <div class="role-header">📈 業務開發型（未來方向）</div>
+        <div class="role-body">
+          <div class="role-problem">現狀問題：提案獎金偏低（最高 5,000），無法吸引主動開發</div>
+          <div class="role-suggestion">
+            <strong>建議：分離「開發」與「執行」的激勵</strong>
+            <div class="mechanics">
+              <div class="mechanic-item">提案獎金加碼至 1.5 倍（150 萬以下 → 3,000，601 萬以上 → 8,000）</div>
+              <div class="mechanic-item">新增「目標型季度獎金」：每季個人設定 KPI，達成後加發 2%-5% 的超額業績分紅</div>
+              <div class="mechanic-item">「戰略客戶獎金」：拿下年度合約（100 萬+）的客戶，額外加 8,000</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="role-card role-exec">
+        <div class="role-header">👑 執行長（Lina）透明化</div>
+        <div class="role-body">
+          <div class="role-problem">現狀問題：固定 460k 佔比過大，員工感知不公平</div>
+          <div class="role-suggestion">
+            <strong>建議：非重新設計，而是透明溝通</strong>
+            <div class="mechanics">
+              <div class="mechanic-item">對員工說明：執行長獎金是「公司整體績效分紅」，與員工獎金池分開計算</div>
+              <div class="mechanic-item">若公司年度業績未達目標，明確說明 Lina 獎金同樣調整（增加信任度）</div>
+              <div class="mechanic-item">長期：考慮設立「整體業績加碼池」——公司超過目標業績部分，一定比例給員工加碼，Lina 和員工共同受益</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PREDICTION ===== -->
+  <div class="section">
+    <div class="section-title">
+      <div class="icon">◎</div>
+      現行制度的風險預測
+    </div>
+    <div class="section-desc">若不調整現行制度，2026 年最可能發生的情境</div>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>人物</th>
+          <th>現況</th>
+          <th>最可能的行為變化</th>
+          <th>觸發點</th>
+          <th>風險等級</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Annie</strong></td>
+          <td>2025 年有 41k 特殊獎金補貼，感覺相對被照顧</td>
+          <td>若 2026 年少了特殊獎金，對比 Susan/Jacky 業績起來後，會有強烈相對剝奪感</td>
+          <td>新人業績超越她，且她的協調貢獻繼續不被制度承認</td>
+          <td><span class="tag red">高</span></td>
+        </tr>
+        <tr>
+          <td><strong>Jasmine</strong></td>
+          <td>2025 業績 720 萬，差 80 萬沒過 800 萬門檻</td>
+          <td>若 2026 年繼續「差一點」，開始質疑制度公平性；或刻意追大案導致品質下滑</td>
+          <td>業績目標觸手可及但反覆未達，心理成本累積</td>
+          <td><span class="tag gold">中</span></td>
+        </tr>
+        <tr>
+          <td><strong>Susan</strong></td>
+          <td>2025 年業績起來（39k），加上特殊獎金 9k 達 86k</td>
+          <td>2026 年進入「期待增長期」，若增幅低於預期，最可能主動離職找更好機會</td>
+          <td>她看到 Giselle 的 2023 年軌跡，知道第二年可以爆發，若沒爆發就走</td>
+          <td><span class="tag gold">中</span></td>
+        </tr>
+        <tr>
+          <td><strong>Jacky</strong></td>
+          <td>2025 年 78k，跟 Susan（86k）差距不大</td>
+          <td>若業績沒有顯著差距，但 Susan 有特殊獎金、Jacky 沒有，會有比較情緒</td>
+          <td>制度不透明，不知道特殊獎金怎麼給</td>
+          <td><span class="tag blue">低中</span></td>
+        </tr>
+        <tr>
+          <td><strong>Teren</strong></td>
+          <td>2025 年 80k（業績獎金 37k），是新人中業績最好的</td>
+          <td>最穩定，但需要明確的成長路徑。若 2026 年進入 5% 半主導卻沒有配套，效益遞減</td>
+          <td>沒有清晰的升級軌道讓他知道下一步是什麼</td>
+          <td><span class="tag blue">低</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ===== CONCLUSION ===== -->
+  <div class="section">
+    <div class="section-title">
+      <div class="icon">◈</div>
+      三個核心結論
+    </div>
+    <div class="section-desc">給 Luo 的設計決策依據</div>
+
+    <div class="conclusion-grid">
+      <div class="conclusion-card">
+        <div class="c-num">01</div>
+        <div class="c-title">制度目前在「執行力強的個人」身上有效</div>
+        <div class="c-desc">
+          Debby（2022）、Giselle（2023）都是「一個人搞定整個專案」的類型，在這套制度下爆發。但兩人都離開了——因為制度訓練了高手，卻沒給他們留下來的理由（沒有成長通道、沒有歸屬感）。
+        </div>
+      </div>
+      <div class="conclusion-card">
+        <div class="c-num">02</div>
+        <div class="c-title">協調整合的貢獻被系統性低估</div>
+        <div class="c-desc">
+          Annie 四年下來是公司最穩定的人，但每年都需要「特殊獎金」打補丁。這不是主管不了解，而是制度設計根本沒有協調型人才的獎勵通道。這條通道必須被正式化，不能靠主觀判斷。
+        </div>
+      </div>
+      <div class="conclusion-card">
+        <div class="c-num">03</div>
+        <div class="c-title">新制度應圍繞「可預測性」設計</div>
+        <div class="c-desc">
+          Luo 提到的核心問題——「讓人把專案當成自己的事在推」——需要的不只是更高的分潤，而是讓每個人都知道「我做什麼 = 我得什麼」。越清晰、越可預測，自主驅動越強。模糊的特殊獎金反而製造不確定感。
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  MUSEON 情報分析系統 ✕ 2026-03-31 ｜ 依據 6 份原始文件生成（2022-2025 獎金明細 + 計算規則）<br>
+  此報告為策略顧問用途，人名資料僅在授權範圍內使用
+</div>
+
+</body>
+</html>
