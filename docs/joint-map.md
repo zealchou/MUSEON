@@ -1,9 +1,10 @@
-# Joint Map — 共享可變狀態接頭圖 v1.57
+# Joint Map — 共享可變狀態接頭圖 v1.58
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
 > **更新時機**：改變共享檔案的讀寫者或格式時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
+> **v1.58 (2026-03-31)**：Persona Evolution 系統——新增 #70 `ANIMA_MC.personality.trait_dimensions`（🟠 人格特質維度，P1-P5 需 evolution_write，C1-C5 FREE，寫入者=trait_engine.py+nightly_reflection.py，讀取者=brain_prompt_builder+growth_stage+mask_engine+dissent_engine）；新增 #71 `ANIMA_MC.evolution.trait_history`（🟢 APPEND_ONLY 特質變化歷史，寫入者=nightly_reflection.py，讀取者=momentum_brake+drift_detector）；新增 #72 `ANIMA_MC.evolution.stage_history`（🟢 APPEND_ONLY 成長階段歷史，寫入者=brain_observation.py，讀取者=growth_stage）；新增 #73 `_system/mask_states.json`（🟢 短暫面具狀態，寫入者=mask_engine.py，讀取者=mask_engine.py，7 天自動清理）；更新 `_system/crystal_rules.json`（G5 新增讀取者=dissent_engine.py 矛盾校驗）；共享狀態 69→73 個。同步 blast-radius、system-topology。
 > **v1.57 (2026-03-31)**：9 條斷裂接線修復——新增 #69 `data/_system/museoff/finding_counts.json`（🟢 MuseOff 異常計數持久化，寫入者=doctor/finding.py record_occurrence()，讀取者=doctor/museoff.py ≥3次升級判斷，原子 JSON 讀寫，格式：{finding_key: int}，永久累積）；共享狀態 68→69 個。同步 blast-radius v1.87、system-topology v1.69、persistence-contract v1.43。
 > **v1.56 (2026-03-31)**：體液系統迭代——新增 #62-#68 共 7 個共享狀態：#62 `data/_system/triage_queue.jsonl`（🟢 覺察訊號佇列，寫入者=各覺察源+triage_step，讀取者=triage_step Nightly 消費）；#63 `data/_system/awareness_log.jsonl`（🟢 覺察日誌，寫入者=triage_step，讀取者=triage_step accumulation）；#64 `data/_system/pending_adjustments.json`（🟢 待處理調整，寫入者=triage_step，讀取者=session_adjustment）；#65 `data/_system/nightly_priority_queue.json`（🟢 Nightly 優先佇列，寫入者=triage_step，讀取者=triage_to_morphenix）；#66 `data/_system/session_adjustments/{id}.json`（🟢 即時行為調整，寫入者=L4 觀察者，讀取者=brain_prompt_builder _auto_adjust_from_history()）；#67 `data/_system/triage_human_queue.json`（🟢 人工審核佇列，寫入者=triage_step HIGH/CRITICAL，讀取者=triage_step drain + Telegram 告警）；#68 `data/skills/native/{name}/_lessons.json`（🟢 Skill 教訓檔，寫入者=session_adjustment promote，讀取者=brain_prompt_builder _build_skill_lesson_context() 注入 system prompt）；共享狀態 61→68 個。同步 topology v1.68、blast-radius v1.86、memory-router v1.18、persistence-contract v1.42。
 > **v1.55 (2026-03-30)**：Skill 自動演化管線——新增 #59 `data/_system/skills_draft/`（🟢 Skill 草稿暫存區，寫入者=skill_draft_forger.py，讀取者=skill_qa_gate.py + skill_install_worker.py + telegram.py callback，原子寫入）；新增 #60 `data/_system/skill_health/`（🟢 Per-Skill 健康度快照，寫入者=skill_health_tracker.py，讀取者=skill_draft_forger.py optimize_existing 模式，原子寫入）；新增 #61 `data/_system/feedback_loop/daily_summary.json`（🟢 FeedbackLoop 品質摘要，寫入者=feedback_loop.py singleton，讀取者=nightly_pipeline.py 信號源 7，原子寫入）；共享狀態 58→61 個。同步 system-topology v1.67、blast-radius v1.85、memory-router v1.17。
@@ -87,6 +88,11 @@
 | 66 | _system/session_adjustments/{id}.json | 🟢 | 1(L4觀察者) | 1(brain_prompt_builder) | 原子寫 | — |
 | 67 | _system/triage_human_queue.json | 🟢 | 1(triage_step) | 1(triage_step+algedonic_alert) | 原子寫 | — |
 | 68 | skills/native/{name}/_lessons.json | 🟢 | 1(session_adjustment) | 1(brain_prompt_builder) | 原子寫 | — |
+| 69 | _system/museoff/finding_counts.json | 🟢 | 1(doctor/finding.py) | 1(doctor/museoff.py) | 原子 JSON 讀寫 | — |
+| 70 | ANIMA_MC.personality.trait_dimensions | 🟠 | 2(trait_engine+nightly_reflection) | 4(brain_prompt_builder+growth_stage+mask_engine+dissent_engine) | AnimaMCStore + evolution_write (P-traits) | [→](#70-anima_mcpersonalitytrait_dimensions) |
+| 71 | ANIMA_MC.evolution.trait_history | 🟢 | 1(nightly_reflection) | 2(momentum_brake+drift_detector) | APPEND_ONLY | [→](#71-anima_mcevolutiontrait_history) |
+| 72 | ANIMA_MC.evolution.stage_history | 🟢 | 1(brain_observation) | 1(growth_stage) | APPEND_ONLY | [→](#72-anima_mcevolutionstage_history) |
+| 73 | _system/mask_states.json | 🟢 | 1(mask_engine) | 1(mask_engine) | 無（短暫，7 天自動清理） | [→](#73-_systemmask_statesjson) |
 
 > **危險度定義**：🔴 多寫入者+高扇出+格式不一致 | 🟡 多寫入者或高扇出 | 🟢 單寫入者+低扇出
 
@@ -99,7 +105,7 @@
 **路徑**：`data/ANIMA_MC.json`
 **用途**：MUSEON 靈魂核心——身份、人格、能力、演化狀態
 
-#### 寫入者（6 個模組 → 統一經由 AnimaMCStore + guardian 修復）
+#### 寫入者（8 個模組 → 統一經由 AnimaMCStore + guardian 修復）
 
 | 模組 | 函數 | 寫入的 Key | 格式 | 鎖 |
 |------|------|-----------|------|-----|
@@ -112,6 +118,9 @@
 | `agent/brain.py` | `_merge_ceremony_into_anima_mc()` → Store.update() via WQ | 全部欄位（ceremony 合併） | 完整 JSON | ✅ 原子讀改寫 via AnimaMCStore.update() |
 | `onboarding/ceremony.py` | `receive_name()`, `_initialize_anima_l1()` | 初始化全部欄位 | 完整 JSON | 無（單次初始化，可接受） |
 | `guardian/daemon.py` | 修復邏輯 — `_check_anima()` | 結構修復（缺失欄位補回） | 部分 JSON patch | 無（修復模式，低頻） |
+| `agent/trait_engine.py` | `update_c_traits()` → Store.update() | `personality.trait_dimensions`（C1-C5 即時特質） | `{trait_id: {value: float, level: str}}` | ✅ 經由 AnimaMCStore（FREE 層級） |
+| `nightly/nightly_reflection.py` | `evolution_write()` → Store.update() | `personality.trait_dimensions`（P1-P5 穩定人格特質）、`evolution.trait_history`（append） | dict + JSONL append | ✅ 經由 AnimaMCStore（PSI 層級，需 evolution_write 授權） |
+| `agent/brain_observation.py` | `record_stage_transition()` → Store.update() | `evolution.stage_history`（append） | JSONL append | ✅ 經由 AnimaMCStore（APPEND_ONLY） |
 
 #### 讀取者（12+ 個模組）
 
@@ -130,6 +139,10 @@
 | `nightly/periodic_cycles.py` | — | `eight_primal_energies` | 30 天趨勢 |
 | `mcp_server.py` | `museon_anima_status()` | 全部 | 暴露給 Claude Code |
 | `guardian/daemon.py` | `_check_anima()` | 全部 | 結構完整性檢查 + 修復 |
+| `agent/brain_prompt_builder.py` | `_get_identity_prompt()` | `personality.trait_dimensions` | 將人格特質維度注入 system prompt |
+| `agent/growth_stage.py` | — | `personality.trait_dimensions.confidence` | 判斷成熟度（confidence 值） |
+| `agent/mask_engine.py` | `get_effective_traits()` | `personality.trait_dimensions`（核心特質） | 計算面具偏移量的基準值 |
+| `agent/dissent_engine.py` | — | `personality.trait_dimensions`（via stage_constraints） | 異議決策的階段限制校驗 |
 
 #### ✅ 衝突風險（已修復 — 合約 1）
 
@@ -1330,6 +1343,82 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 
 ---
 
+### 70. ANIMA_MC.personality.trait_dimensions
+
+**路徑**：`data/ANIMA_MC.json` → `personality.trait_dimensions`
+**用途**：人格特質維度——分為即時特質（C1-C5，FREE 層級）與穩定人格特質（P1-P5，PSI 層級，需 evolution_write 授權）
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| `agent/trait_engine.py` | **W** | `update_c_traits()` | 即時更新 C1-C5 特質（對話中動態計算） | ✅ 經由 AnimaMCStore（FREE 層級） |
+| `nightly/nightly_reflection.py` | **W** | `evolution_write()` | 夜間更新 P1-P5 穩定人格特質 | ✅ 經由 AnimaMCStore（PSI 層級，需 evolution_write 授權） |
+| `agent/brain_prompt_builder.py` | **R** | `_get_identity_prompt()` | 讀取特質維度注入 system prompt | ✅ 經由 AnimaMCStore 讀取 |
+| `agent/growth_stage.py` | **R** | — | 讀取 `confidence` 值判斷成熟度分級 | ✅ 經由 AnimaMCStore 讀取 |
+| `agent/mask_engine.py` | **R** | `get_effective_traits()` | 讀取核心特質作為面具偏移量的基準值 | ✅ 經由 AnimaMCStore 讀取 |
+| `agent/dissent_engine.py` | **R** | — | 讀取 stage_constraints 進行異議決策校驗 | ✅ 經由 AnimaMCStore 讀取 |
+
+> **保護級別**：P1-P5（穩定人格特質）= PSI 層級，寫入需 KernelGuard `evolution_write` 授權；C1-C5（即時特質）= FREE 層級，可即時寫入
+> **危險度**：🟠（2 寫入者 × 4 讀取者，P-traits 保護已到位，C-traits 動態覆寫需注意競態）
+
+---
+
+### 71. ANIMA_MC.evolution.trait_history
+
+**路徑**：`data/ANIMA_MC.json` → `evolution.trait_history`（JSONL 格式陣列）
+**用途**：人格特質演化歷史——APPEND_ONLY 記錄每次 P-trait 變化，供動量剎車與漂移偵測使用
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| `nightly/nightly_reflection.py` | **W（append-only）** | `evolution_write()` | 每次夜間反思後 append 特質變化記錄 | ✅ 經由 AnimaMCStore（APPEND_ONLY） |
+| `agent/momentum_brake.py` | **R** | — | 讀取近 7 天視窗，計算變化速率上限 | ✅ 經由 AnimaMCStore 讀取 |
+| `agent/drift_detector.py` | **R** | — | 讀取歷史進行方向性漂移分析 | ✅ 經由 AnimaMCStore 讀取 |
+
+> **保護**：APPEND_ONLY——禁止修改或刪除歷史記錄；size limit 200 條（超過時 LRU 截斷）
+> **危險度**：🟢（單一寫入者，append-only，無並發寫入風險）
+
+---
+
+### 72. ANIMA_MC.evolution.stage_history
+
+**路徑**：`data/ANIMA_MC.json` → `evolution.stage_history`（JSONL 格式陣列）
+**用途**：成長階段轉換歷史——APPEND_ONLY 記錄每次階段晉升事件，只升不降（only-upgrade enforcement）
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| `agent/brain_observation.py` | **W（append-only）** | `record_stage_transition()` | 偵測到階段晉升時 append 轉換記錄 | ✅ 經由 AnimaMCStore（APPEND_ONLY） |
+| `agent/growth_stage.py` | **R** | — | 讀取歷史確認 only-upgrade 規則（不允許降級） | ✅ 經由 AnimaMCStore 讀取 |
+
+> **保護**：APPEND_ONLY——歷史不可修改；size limit 50 條；growth_stage.py 讀取時強制 only-upgrade 驗證
+> **危險度**：🟢（單一寫入者，append-only，讀取者只讀）
+
+---
+
+### 73. _system/mask_states.json
+
+**路徑**：`data/_system/mask_states.json`
+**用途**：面具狀態快取——記錄當前啟用的面具及其衰減狀態，短暫性資料，無需嚴格保護，7 天後自動清理
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| `agent/mask_engine.py` | **W** | `activate()` | 啟用新面具，寫入啟用時間與初始強度 | 原子寫入（tmp→rename） |
+| `agent/mask_engine.py` | **W** | `decay_session()` | 每次 session 後衰減面具強度 | 原子寫入（tmp→rename） |
+| `agent/mask_engine.py` | **W** | `cleanup_stale()` | 清理超過 7 天的失效面具 | 原子寫入（tmp→rename） |
+| `agent/mask_engine.py` | **R** | `get_effective_traits()` | 讀取當前啟用的面具計算有效特質 | 讀取 JSON |
+
+> **鎖**：無（mask_engine.py 為唯一讀寫者，寫入使用 tmp→rename 原子操作）
+> **TTL**：7 天自動清理（`cleanup_stale()` 定期執行）
+> **危險度**：🟢（單一模組讀寫，短暫資料，自動清理）
+
+---
+
 ## 必須同時修改的模組組（不可分批）
 
 > 修改以下任一模組時，**必須**同時檢查並調整同組所有模組。
@@ -1340,7 +1429,7 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 | **G2** | 探索結晶管線 | pulse_engine + curiosity_router + exploration_bridge + nightly_pipeline + skill_forge_scout | question_queue.json + scout_queue/pending.json + PULSE.md 探索佇列 |
 | **G3** | 記憶管線 | memory_manager + brain + vector_bridge + reflex_router + multi_agent_executor | MemoryStore + Qdrant memories collection（memory_manager 支援 dept_id 標籤寫入 + dept_filter 過濾檢索 + chat_scope 群組隔離 + supersede() 事實覆寫 + VectorBridge.mark_deprecated() 軟刪除） |
 | **G4** | 演化速度 | evolution_velocity + parameter_tuner + periodic_cycles + metacognition | accuracy_stats.json + tuned_parameters.json + velocity_log.jsonl |
-| **G5** | 知識晶格 | knowledge_lattice + crystal_store + crystal_actuator + recommender | crystal.db (via CrystalStore) + crystal_rules.json |
+| **G5** | 知識晶格 | knowledge_lattice + crystal_store + crystal_actuator + recommender + dissent_engine | crystal.db (via CrystalStore) + crystal_rules.json（dissent_engine 讀取做矛盾校驗） |
 | **G6** | 免疫系統 | immunity + immune_memory + immune_research + daemon | events.jsonl + immune_memory.json |
 
 ---
@@ -1417,6 +1506,8 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 | 2026-03-16 | v1.15 | Memory Reset 一鍵重置工具：新增 `doctor/memory_reset.py` 為 25 個共享狀態的重置者（#1 ANIMA_MC.json boss/self_awareness 重置、#2 ANIMA_USER.json 全量重置、#3 PULSE.md 模板重建、#9 Qdrant 全部 collections 刪除重建、#25 JSONL 審計日誌群清空、#26 記憶 Markdown 刪除、#27 fact_corrections.jsonl 清空）；同時重置 PulseDB 全表、sessions、crystals/synapses/scout_queue、diary/drift、eval/workflow_state.db、guardian/footprints/activity_log、nightly_state/outward；預設 dry-run 安全模式 |
 | 2026-03-17 | v1.15 | DNA-Inspired 品質回饋閉環：#8 PulseDB 讀取者 11→12（+morphenix_executor `get_quality_flags()`/`get_quality_flag_summary()`）；metacognition 新增 `METACOGNITION_QUALITY_FLAG` 事件發布（verdict=revise 時）；morphenix_executor 夜間管線讀取品質旗標作為演化上下文 |
 | 2026-03-16 | v1.14 | Memory Gate 記憶閘門：新增 `memory/memory_gate.py` 為 ANIMA_USER.json 間接寫入控制者；brain.py `_observe_user()` 新增 `suppress_primals`/`suppress_facts` 參數；`_observe_user_layers()` 新增 `suppress_facts` 參數；L1_facts 新增 `status`/`confidence` 欄位；Step 9.2 事實更正偵測提前到 Step 9 之前；解決「越否認越強化」記憶迴圈 |
+| 2026-03-31 | v1.58 | Persona Evolution 系統——新增 #70 `ANIMA_MC.personality.trait_dimensions`（🟠 P1-P5 PSI 層級+C1-C5 FREE，寫入者=trait_engine+nightly_reflection，讀取者=brain_prompt_builder+growth_stage+mask_engine+dissent_engine）；新增 #71 `ANIMA_MC.evolution.trait_history`（🟢 APPEND_ONLY，size limit 200，讀取者=momentum_brake+drift_detector）；新增 #72 `ANIMA_MC.evolution.stage_history`（🟢 APPEND_ONLY，size limit 50，only-upgrade 強制，讀取者=growth_stage）；新增 #73 `_system/mask_states.json`（🟢 短暫，7 天清理，mask_engine 獨佔）；G5 新增 dissent_engine 讀取 crystal_rules.json；共享狀態 69→73 個 |
+| 2026-03-31 | v1.57 | 9 條斷裂接線修復——新增 #69 `data/_system/museoff/finding_counts.json`（🟢 MuseOff 異常計數持久化，{finding_key: int}，永久累積）；共享狀態 68→69 個；同步 blast-radius v1.87、system-topology v1.69、persistence-contract v1.43 |
 | 2026-03-31 | v1.56 | 體液系統迭代——新增 #62-#68 共 7 個共享狀態（triage_queue.jsonl / awareness_log.jsonl / pending_adjustments.json / nightly_priority_queue.json / session_adjustments/{id}.json / triage_human_queue.json / skills/native/{name}/_lessons.json）；共享狀態 61→68 個；同步 topology v1.68、blast-radius v1.86、memory-router v1.18、persistence-contract v1.42 |
 | 2026-03-30 | v1.55 | Skill 自動演化管線——新增 #59-#61（skills_draft/ + skill_health/ + feedback_loop/daily_summary.json）；共享狀態 58→61 個 |
 | 2026-03-30 | v1.54 | 13 個新 Skill Post-Build 補登——新增 #58 `data/equity-architect/case_files/`（🟢 單寫入者 equity-architect，原子寫，Case File 跨 session 持久化）；finance-pilot 交易記錄沿用 PulseDB skill_invocations 擴充、talent-match 候選人資料由 Qdrant L1_short 承接、biz-collab/talent-match anima-individual 寫入為 runtime 呼叫不建新共享狀態；共享狀態 57→58 個。同步 topology v1.66、blast-radius v1.84、memory-router v1.16 |

@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.69
+# MUSEON 系統拓撲圖 v1.71
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.71 (2026-03-31)**：Persona Evolution 系統——agent 群組新增 `trait-engine`（10 維度特質代謝）、`growth-stage-computer`（Kegan 成熟度計算）、`dissent-engine`（Crystal Lattice 矛盾偵測）、`mask-engine`（每用戶臨時人格適應層）、`momentum-brake`（特質 delta 保護）5 個節點；nightly 群組新增 `nightly-reflection-engine`（LLM 自我反思 P-trait 演化）1 個節點；新增 3 條 internal 連線（brain→dissent-engine、brain→mask-engine、nightly-pipeline→nightly-reflection-engine）+ 7 條 cross 連線（brain-observation→trait-engine/growth-stage-computer、drift-detector→momentum-brake、nightly-reflection-engine→anima-mc-store/soul-ring、dissent-engine→crystal-rules、mask-engine→anima-mc-store）；188→194 節點，512→522 連線。同步 blast-radius、joint-map 待更新。
 > **v1.69 (2026-03-31)**：9 條斷裂接線修復——新增 6 條 cross 連線：`surgeon→triage-step`（手術完成 SYSTEM_FAULT write_signal）、`morphenix-executor→triage-step`（迭代完成 SYSTEM_FAULT + 迭代失敗 BEHAVIOR_DRIFT write_signal x2）、`feedback-loop→triage-step`（品質下降 LEARNING_GAP write_signal）、`museoff→triage-step`（≥3次 SYSTEM_FAULT + escalate_to_morphenix）、`periodic-cycles→triage-step`（高原警報 LEARNING_GAP write_signal）、`skill-router→tuned-parameters`（讀取 tuned_parameters.json RC 權重）；新增 1 條 internal 連線：`finding→finding-counts`（record_occurrence 持久化計數）。triage-step 扇入由 0→6（新增 surgeon/morphenix-executor/feedback-loop/museoff/periodic-cycles 五個覺察源）。同步 blast-radius v1.87、joint-map v1.57、persistence-contract v1.43。
 > **v1.68 (2026-03-31)**：體液系統迭代——governance 群組新增 `algedonic-alert` 節點（治理警報推播引擎，扇入=1 from governor）；nightly 群組新增 `triage-step`（Nightly 分診，Step 5.8 前置）、`triage-to-morphenix`（HIGH 訊號→Morphenix 迭代筆記橋接）2 個節點；core 群組新增 `awareness-signal`（AwarenessSignal 統一格式，純 dataclass）、`session-adjustment`（SessionAdjustment 即時調整管理器）2 個節點；新增 9 條連線（governor→algedonic-alert、nightly-pipeline→triage-step→triage-to-morphenix→morphenix/proposals/、triage-step→session-adjustment、brain-prompt-builder→session-adjustment（讀）、brain-prompt-builder→skill-lessons（讀 _lessons.json）、telegram-pump→event-bus CHANNEL_MESSAGE_RECEIVED）；腦前台（brain_prompt_builder）四路接線完成。同步 blast-radius v1.86、joint-map v1.56、memory-router v1.18、persistence-contract v1.42。
 > **v1.67 (2026-03-30)**：Skill 自動演化管線——nightly 群組新增 4 個模組節點：`skill-draft-forger`（Skill 草稿鍛造引擎，Step 19.6）、`skill-install-worker`（9 步自動安裝引擎）、`skill-qa-gate`（三維品質閘門，Step 19.7）、`skill-health-tracker`（Per-Skill 健康度追蹤，Step 19.5）；新增 8 條 internal 連線（nightly-pipeline→skill-health-tracker/skill-draft-forger/skill-qa-gate、skill-draft-forger→skill-qa-gate→skill-install-worker、skill-health-tracker→skill-draft-forger、telegram-callback→skill-install-worker）；channel 群組 telegram 節點新增 `skill:approve/reject` callback handler。Nightly 步驟 51→54（新增 19.5/19.6/19.7）。
@@ -184,6 +185,11 @@ external-user（EXTERNAL）
 | `brain-tool-loop` | Brain-Tool-Loop | 獨立 tool-use 迴圈 | - | brain | 1.0 |
 | `brain-observer` | Brain-Observer (L4) | L4 觀察者（Haiku，記憶落地 + 洞察偵測） | - | brain | 0.9 |
 | `memory-graph` | Memory Graph | 記憶關聯圖（語意關聯邊 + 存取追蹤 + 過期偵測） | - | brain | 1.0 |
+| `trait-engine` | Trait Engine | 10 維度特質代謝引擎，從互動計算特質 delta（C-trait 即時更新） | - | brain | 1.0 |
+| `growth-stage-computer` | Growth Stage Computer | Kegan 認知成熟度計算（ABSORB→TRANSCEND），取代硬編碼 "adult" | - | brain | 0.9 |
+| `dissent-engine` | Dissent Engine | Crystal Lattice 矛盾偵測，分階段表達異見（Step 3.655） | - | brain | 0.9 |
+| `mask-engine` | Mask Engine | 每位使用者臨時人格適應層，附衰減機制（Step 2.2 啟動 / Step 9.9 衰減） | - | brain | 0.9 |
+| `momentum-brake` | Momentum Brake | 特質 delta 上限保護 + 捕獲風險偵測 | - | brain | 0.8 |
 
 ### agent — PDR (Progressive Depth Response) 模組群
 
@@ -318,6 +324,7 @@ external-user（EXTERNAL）
 | `periodic-cycles` | Periodic Cycles | 週期循環 | - | nightly | 0.9 |
 | `morphenix-validator` | Morphenix Validator | Docker 沙盒驗證 | - | nightly | 0.7 |
 | `context-cache-builder` | Context Cache Builder | Step 31 context_cache 重建 | - | nightly | 0.8 |
+| `nightly-reflection-engine` | Nightly Reflection Engine | LLM 自我反思引擎，驅動 P-trait 演化（Steps 34 / 34.5 / 34.7） | - | nightly | 1.0 |
 
 ### learning — Learning 學習
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -561,6 +568,8 @@ external-user（EXTERNAL）
 | `worker` | `gmail` | L3 透過 MCP 工具收發 Email |
 | `worker` | `gcal` | L3 透過 MCP 工具管理行程 |
 | `thinker` | `worker` | L2→L3（前景）：需要查詢結果時同步等待 L3 回傳資料 |
+| `brain` | `dissent-engine` | Step 3.655 矛盾偵測呼叫 |
+| `brain` | `mask-engine` | Step 2.2 啟動臨時人格層 / Step 9.9 衰減 |
 
 ### Pulse 內部連線（internal）
 | Source | Target | 說明 |
@@ -693,6 +702,7 @@ external-user（EXTERNAL）
 | `nightly` | `morphenix-validator` | Docker 沙盒驗證 |
 | `nightly` | `context-cache-builder` | Step 31 context_cache 重建 |
 | `morphenix-validator` | `morphenix` | 驗證通過→執行 |
+| `nightly-pipeline` | `nightly-reflection-engine` | Steps 34 / 34.5 / 34.7 P-trait 演化反思 |
 
 ### 跨系統連線（cross）
 | Source | Target | 說明 |
@@ -831,6 +841,13 @@ external-user（EXTERNAL）
 | `musedoctor` | `nightly-pipeline` | 讀取 _FULL_STEPS 驗證 nightly 步驟 |
 | `cron-registry` | `musedoctor` | 排程 patrol_tick（每 8 分鐘） |
 | `brain-tools` | `skill-counter` | Skill 調用計量 |
+| `brain-observation` | `trait-engine` | _observe_self() C-trait 即時更新 |
+| `brain-observation` | `growth-stage-computer` | _observe_self() 認知成熟度計算（取代硬編碼 "adult"） |
+| `drift-detector` | `momentum-brake` | 捕獲風險計算（capture risk detection） |
+| `nightly-reflection-engine` | `anima-mc-store` | P-trait delta 寫入（evolution_write） |
+| `nightly-reflection-engine` | `soul-ring` | value_calibration 積分存入 |
+| `dissent-engine` | `crystal-rules` | 讀取 crystal_rules.json 進行矛盾檢測 |
+| `mask-engine` | `anima-mc-store` | 讀取 trait_dimensions 計算人格適應 |
 
 #### v1.43 全系統拓撲審計補齊（70 條）
 
@@ -1211,8 +1228,8 @@ external-user（EXTERNAL）
 
 | 指標 | 數值 |
 |------|------|
-| 總節點數 | 188（153 系統 - 20 已刪除 + 55 Skills） |
-| 總連線數 | 512（487 + 2 internal + 23 cross Ares/ANIMA） |
+| 總節點數 | 194（159 系統 - 20 已刪除 + 55 Skills） |
+| 總連線數 | 522（487 + 2 internal + 23 cross Ares/ANIMA + 10 Persona Evolution） |
 | 群組數 | 15 (含 skills，新增 learning + billing) |
 | Hub 節點 | 19 (12 系統 + 7 Skills Hub) |
 | 已刪除節點（v1.59）| 20（含 line/electron/dna27/epigenetic-router/proactive-predictor 等） |
@@ -1226,6 +1243,7 @@ external-user（EXTERNAL）
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.71 | 2026-03-31 | Persona Evolution 系統——agent 群組新增 trait-engine / growth-stage-computer / dissent-engine / mask-engine / momentum-brake 5 個節點；nightly 群組新增 nightly-reflection-engine 1 個節點；新增 3 條 internal 連線（brain→dissent-engine、brain→mask-engine、nightly-pipeline→nightly-reflection-engine）+ 7 條 cross 連線（brain-observation→trait-engine、brain-observation→growth-stage-computer、drift-detector→momentum-brake、nightly-reflection-engine→anima-mc-store、nightly-reflection-engine→soul-ring、dissent-engine→crystal-rules、mask-engine→anima-mc-store）；188→194 節點，512→522 連線 |
 | v1.66 | 2026-03-30 | 新增 13 個 Skill 節點（ad-pilot、equity-architect、biz-collab、biz-diagnostic（已存在）、video-strategy、course-forge、shadow-muse、daily-pilot、talent-match、brand-project-engine、finance-pilot、prompt-stresstest、workflow-brand-consulting（已存在））；新增 11 條 internal 連線（business +3、creative +2、thinking +3、product +2、evolution +1） |
 | v1.62 | 2026-03-29 | 戰神系統（Ares）——thinking 群組新增 anima-individual（ANIMA 個體追蹤引擎）+ ares（戰神系統工作流）2 個 Skill 節點；新增 Python 模組 src/museon/ares/（profile_store/graph_renderer/external_bridge）；新增 2 條 internal + 23 條 cross 連線。188 節點 512 連線 |
 | v1.61 | 2026-03-29 | OneMuse 能量解讀技能群——thinking 群組新增 energy-reading/wan-miu-16/combined-reading 3 個 Skill 節點 + 11 條 cross 連線。186 節點 487 連線 |

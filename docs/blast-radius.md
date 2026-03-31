@@ -1,10 +1,11 @@
-# Blast Radius — 模組影響半徑表 v1.89
+# Blast Radius — 模組影響半徑表 v1.90
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節、`docs/operational-contract.md`（操作契約表）提供外部操作預期失敗
+> **v1.90 (2026-03-31)**：Persona Evolution 系統六模組新增——🟡黃區：`evolution/trait_engine.py`（扇入=2：brain_observation._observe_self + nightly_reflection，扇出=1：anima_mc_store via kernel_guard，寫入 ANIMA_MC.personality.trait_dimensions）、`evolution/nightly_reflection.py`（扇入=1：nightly_pipeline Step 34，扇出=4：anima_mc_store + kernel_guard + soul_ring + momentum_brake，讀寫 ANIMA_MC.personality.trait_dimensions + soul_rings.json）、`evolution/mask_engine.py`（扇入=2：brain.py Step 2.2 + Step 9.9，扇出=1：寫入 _system/mask_states.json）；🟢綠區：`evolution/growth_stage.py`（扇入=2：brain_observation._update_growth_stage + nightly_pipeline Step 34.5，扇出=0，純計算，讀 ANIMA_MC.evolution.stage_history）、`evolution/dissent_engine.py`（扇入=1：brain.py Step 3.655，扇出=1：讀 crystal_rules.json，無狀態）、`evolution/momentum_brake.py`（扇入=2：nightly_reflection + drift_detector，扇出=0，純計算，讀 ANIMA_MC.evolution.trait_history）。新增共享狀態：_system/mask_states.json（#70）。綠區葉子模組 171→173，黃區 62→65。
 > **v1.89 (2026-03-31)**：結晶記憶架構重構——`agent/knowledge_lattice.py` 新增 `_classify_domain()` 輔助函數 + `_DOMAIN_KEYWORDS` 常數（7 domain 關鍵詞表），在 `crystallize()` Step 2→2.5 之間自動填入 domain（扇入不變，扇出不變，純內部邏輯擴充）；`nightly/nightly_pipeline.py` 新增 Step 32 `_step_crystal_decay`（ri_score 每日 *0.995 衰減，<0.1 歸檔）+ Step 33 `_step_crystal_promotion`（reinforcement_count≥3 的 Lesson/Procedure/Pattern 自動升級 heuristics.json，每次最多 3 條，總上限 50）；nightly_pipeline 步驟數 47→49；crystal.db 存取模式從 R 升級為 RW（Step 32 直接 SQL UPDATE）；heuristics.json 寫入路徑新增 nightly Step 33（via IntuitionEngine）。
 > **v1.88 (2026-03-31)**：多租戶敏感度 LLM 驗證 + 報告發布工具——`governance/multi_tenant.py` 新增 `TRUSTED_PARTNERS` dict 與 `SENSITIVITY_LLM_PROMPT` 常數，`SensitivityChecker.check()` 新增 `user_id` 參數（扇入不變，仍為 3：telegram_pump, brain_observation, brain_prompt_builder；扇出不變）；`agent/tool_schemas.py` 新增 `publish_report` 工具定義（綠區扇入=0，不影響既有模組）；`agent/tools.py` 新增 `publish_report` 路由 + `_execute_publish_report()` 執行方法，透過 `subprocess` 呼叫 `scripts/publish-report.sh`（扇出+1：scripts/publish-report.sh via subprocess）；`gateway/telegram_pump.py` 新增 LLM 上下文驗證機制——lazy import `SENSITIVITY_LLM_PROMPT` from multi_tenant，呼叫 `brain._call_llm_with_model()` 以 Haiku 進行敏感度二次驗證（扇出+1：brain._call_llm_with_model()）。
 > **v1.87 (2026-03-31)**：9 條斷裂接線修復——修改模組：`agent/skill_router.py` 新增 tuned_parameters.json 讀取（扇出+1：_system/evolution/tuned_parameters.json(R)）；`nightly/periodic_cycles.py` 高原警報→write_signal（扇出+1：triage_step.write_signal）；`evolution/wee_engine.py` payload 加 blind_spots:[]（純 schema 補齊，扇出不變）；`agent/brain_prompt_builder.py` insight update_confidence +0.05（扇出+0，InsightExtractor 已接線）；`core/session_adjustment.py` _promote_to_lesson→crystallize（扇出已含 crystal.db，不變）；`evolution/feedback_loop.py` 品質下降→LEARNING_GAP write_signal（扇出+1：triage_step.write_signal）；`doctor/surgeon.py` 手術完成→SYSTEM_FAULT write_signal（扇出+1：triage_step.write_signal）；`nightly/morphenix_executor.py` 迭代完成/失敗→SYSTEM_FAULT/BEHAVIOR_DRIFT write_signal（扇出+2：triage_step.write_signal x2）；`doctor/finding.py` record_occurrence 持久化計數（扇出+1：finding_counts.json(W)）；`doctor/museoff.py` ≥3次→SYSTEM_FAULT write_signal + escalate_to_morphenix（扇出+1：triage_step.write_signal）。triage_step.write_signal 扇入 +6（surgeon/morphenix_executor/feedback_loop/museoff/periodic_cycles）。新增共享狀態 #69 `data/_system/museoff/finding_counts.json`。同步 joint-map v1.57、system-topology v1.69、persistence-contract v1.43。
@@ -65,8 +66,8 @@
 |------|------|--------|---------|
 | 🔴 **禁區** | 扇入 ≥ 40，修改影響全系統 | 1 | 除非系統級重構計畫，**禁止修改** |
 | 🟠 **紅區** | 扇入 10-39 或系統核心（扇出極大） | 4 | 必須回報使用者 + 全量 pytest + 影響分析 |
-| 🟡 **黃區** | 扇入 2-9，修改影響 2+ 模組 | 62 | 查 blast-radius + joint-map，跑相關測試 |
-| 🟢 **綠區** | 扇入 0-1，修改不影響上游 | 171 | 可直接修改，跑單元測試即可 |
+| 🟡 **黃區** | 扇入 2-9，修改影響 2+ 模組 | 65 | 查 blast-radius + joint-map，跑相關測試 |
+| 🟢 **綠區** | 扇入 0-1，修改不影響上游 | 174 | 可直接修改，跑單元測試即可 |
 
 ---
 
@@ -796,6 +797,20 @@
 `nightly/triage_to_morphenix.py`（★ v1.86 新增，扇入=1（nightly_pipeline Step 5.8），HIGH→Morphenix 迭代筆記橋接——drain_priority_queue()/write_morphenix_proposal() 兩個函數，消費 nightly_priority_queue.json 寫入 morphenix/proposals/），
 `governance/algedonic_alert.py`（★ v1.86 新增，扇入=1（governor.py 初始化），治理警報 Telegram 推播——AlgedonicAlert class，訂閱 GOVERNANCE_ALGEDONIC_SIGNAL 事件，防洪閘（rate limit）+ 嚴重度過濾，發布 PROACTIVE_MESSAGE 到 event_bus）
 
+### Persona Evolution 系統（6 個，v1.90 新增）
+
+#### 🟡 黃區（扇入 2-9）
+
+`evolution/trait_engine.py`（★ v1.90 新增，扇入=2（brain_observation._observe_self + nightly_reflection），扇出=1（anima_mc_store via kernel_guard），人格特質引擎——計算並寫入 ANIMA_MC.personality.trait_dimensions；kernel_guard 作為唯一寫入閘門，防止並發衝突），
+`evolution/nightly_reflection.py`（★ v1.90 新增，扇入=1（nightly_pipeline Step 34），扇出=4（anima_mc_store + kernel_guard + soul_ring + momentum_brake），夜間人格反思管線——整合單日互動資料、計算特質趨勢、觸發 soul_ring 寫入與 momentum_brake 煞車評估；讀寫共享狀態：ANIMA_MC.personality.trait_dimensions + soul_rings.json），
+`evolution/mask_engine.py`（★ v1.90 新增，扇入=2（brain.py Step 2.2 + Step 9.9），扇出=1（寫 _system/mask_states.json），人格面具引擎——根據對話情境動態切換/合成人格面具；共享狀態 _system/mask_states.json（#70）單一寫入者）
+
+#### 🟢 綠區（扇入 0-1）
+
+`evolution/growth_stage.py`（★ v1.90 新增，扇入=2（brain_observation._update_growth_stage + nightly_pipeline Step 34.5），扇出=0，純計算，成長階段評估器——讀取 ANIMA_MC.evolution.stage_history 計算當前階段，不寫入任何持久層），
+`evolution/dissent_engine.py`（★ v1.90 新增，扇入=1（brain.py Step 3.655），扇出=1（讀 crystal_rules.json），無狀態，反異見引擎——在 Brain 回覆生成前注入反向視角；讀取 crystal_rules.json 取得反異見規則，無寫入副作用），
+`evolution/momentum_brake.py`（★ v1.90 新增，扇入=2（nightly_reflection + drift_detector），扇出=0，純計算，人格動量煞車器——評估特質演化速度，防止劇烈人格漂移；讀取 ANIMA_MC.evolution.trait_history，返回計算結果不寫入）
+
 ### 其他
 各子系統的終端執行模組（無人 import 的工具、通道適配器等）
 
@@ -903,6 +918,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-03-31 | v1.90 | Persona Evolution 系統——新增 trait_engine.py（🟡 扇入=2）、nightly_reflection.py（🟡 扇入=1，扇出=4）、mask_engine.py（🟡 扇入=2）、growth_stage.py（🟢 扇入=2，純計算）、dissent_engine.py（🟢 扇入=1，無狀態）、momentum_brake.py（🟢 扇入=2，純計算）；新增共享狀態 #70 _system/mask_states.json；黃區 62→65、綠區 171→174 |
 | 2026-03-31 | v1.86 | 體液系統——新增 awareness.py（🟢 扇入=0）、session_adjustment.py（🟢 扇入=2）、triage_step.py（🟢 扇入=0）、triage_to_morphenix.py（🟢 扇入=1）、algedonic_alert.py（🟢 扇入=1）；brain_prompt_builder 四路接線（扇出+3）；nightly_pipeline Step 5.8 前置（扇出+1）；response_guard 新增 strip_markdown()；governor 初始化 algedonic_alert（扇出+1）；telegram_pump 新增 CHANNEL_MESSAGE_RECEIVED publish（扇出+1） |
 | 2026-03-26 | v1.70 | v2 Brain 四層架構 + 死碼清理——新增 `brain_deep.py`（L2 Opus 引擎，綠區扇入=1）、`brain_tool_loop.py`（獨立 tool-use 迴圈，綠區扇入=1）、`brain_observer.py`（L4 觀察者，綠區扇入=1）、`brain_fast.py` 重寫為 L1 Sonnet + escalation JSON + L4 回饋迴路、`tool_schemas.py` 新增 3 工具（trigger_job/memory_search/spawn_perspectives）、`nightly_pipeline.py` Step 31 context_cache 重建。死碼移除：federation/（skill_market + sync）、installer/（整個目錄）、nightly_v2.py |
 | 2026-03-25 | v1.68 | L2 Worker 分離 + AIORateLimiter——新增 brain_worker.py（subprocess + Pipe IPC）、AsyncTokenBucket（token bucket 取代 semaphore）；telegram_pump worker 優先路徑 + fallback；server.py worker lifecycle。response_guard 新增 [empty]+路由鏈過濾 |
