@@ -130,8 +130,7 @@ class ProactiveBridge:
         self._metacognition = metacognition
         self._dispatcher = dispatcher  # Phase 4: ProactiveDispatcher（推播分級）
 
-        # 全局推送預算（P0-1：由 server.py 注入共用 PushBudget）
-        self._push_budget = None
+        # 全局推送預算已移除（由 ProactiveDispatcher 統一管控）
 
         # 向後相容：保留 _daily_push_count 供狀態查詢
         self._daily_push_count = 0
@@ -203,13 +202,8 @@ class ProactiveBridge:
         return start <= hour < end
 
     def is_within_daily_limit(self) -> bool:
-        """判斷是否未超過每日推送上限（委派給 PushBudget）."""
-        if self._push_budget:
-            return self._push_budget.can_push("proactive")
-        # 向後相容 fallback
-        self._maybe_reset_daily_count()
-        limit = _cfg("daily_push_limit", DAILY_PUSH_LIMIT)
-        return self._daily_push_count < limit
+        """配額由 ProactiveDispatcher 統一管控，此層永遠放行。"""
+        return True
 
     def should_push(self, response: str, mode: str = "functional") -> bool:
         """判斷回覆是否應該推送（非靜默確認 + P2 品質門檻 + P5 角色一致性）."""
@@ -236,11 +230,8 @@ class ProactiveBridge:
                 logger.debug("推送品質門檻攔截：問句比率 %.1f%% > 50%%", question_ratio * 100)
                 return False
 
-        # P2 品質門檻 2：語意去重（P0-1：委派給 PushBudget 詞級 Jaccard）
-        if self._push_budget and self._push_budget.is_duplicate(stripped):
-            logger.debug("推送品質門檻攔截：PushBudget 語意去重命中")
-            return False
-        elif not self._push_budget and self._is_duplicate_push(stripped):
+        # P2 品質門檻 2：語意去重（Dispatcher 為主要去重，此層保留快速 fallback）
+        if self._is_duplicate_push(stripped):
             logger.debug("推送品質門檻攔截：與最近推送重複度過高")
             return False
 
@@ -401,9 +392,9 @@ class ProactiveBridge:
 
         # 判斷是否推送
         if self.should_push(response, mode=mode):
-            self._daily_push_count += 1  # 向後相容
-            if self._push_budget:
-                self._push_budget.record_push("proactive", response)
+            # 向後相容：更新記憶體計數（確保重置日期同步，避免 property getter 誤重置）
+            self._maybe_reset_daily_count()
+            self._daily_push_count += 1
 
             # Phase 4: 推播分級前綴
             response = self._add_grade_prefix(response)
@@ -413,11 +404,10 @@ class ProactiveBridge:
             # 發布事件
             if self._event_bus:
                 from museon.core.event_bus import PROACTIVE_MESSAGE
-                push_count = self._push_budget.today_count if self._push_budget else self._daily_push_count
                 self._event_bus.publish(PROACTIVE_MESSAGE, {
                     "message": response,
                     "timestamp": time.time(),
-                    "push_count": push_count,
+                    "push_count": self._daily_push_count,
                     "mode": mode,
                 })
 
@@ -676,15 +666,6 @@ class ProactiveBridge:
             parts.append("⚠️ 最近事實更正（以下資訊已確認過期，自省時請勿引用）:")
             for c in corrections:
                 parts.append(f"  - {c}")
-
-        # P2-6：注入最近推送摘要，避免 LLM 重複相同話題
-        if self._push_budget:
-            recent_summaries = self._push_budget.get_recent_summaries(limit=3)
-            if recent_summaries:
-                summaries = "\n".join(f"  - {s}" for s in recent_summaries)
-                parts.append(
-                    f"[最近已推送] 以下內容已推送給達達，請避免重複相同話題：\n{summaries}"
-                )
 
         # Phase 4: 業務脈絡注入（近期承諾、客戶動態、探索洞見）
         _biz_context_parts: List[str] = []

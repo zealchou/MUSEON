@@ -512,6 +512,27 @@ class MuseOff:
         except Exception:
             pass
 
+        # --- 檢查 6: Cron Job 健康度 ---
+        try:
+            from museon.gateway.cron import CronEngine as _CronEngine
+            import sys as _sys
+            # 取得已在 server 模組中初始化的全域 cron_engine（避免重複建立實例）
+            _server_mod = _sys.modules.get("museon.gateway.server")
+            _cron = getattr(_server_mod, "cron_engine", None)
+            if _cron and hasattr(_cron, "status"):
+                _cron_stats = _cron.status()
+                _unhealthy = []
+                for _jid, _s in _cron_stats.items():
+                    if _s.get("consecutive_failures", 0) >= 3:
+                        _unhealthy.append(
+                            f"{_jid}: {_s['consecutive_failures']} consecutive failures, "
+                            f"last_error={_s.get('last_error', '?')}"
+                        )
+                if _unhealthy:
+                    broken_pipelines.append(f"Cron jobs unhealthy: {'; '.join(_unhealthy[:5])}")
+        except Exception:
+            pass
+
         if broken_pipelines:
             self._create_finding(
                 probe_layer="L7",

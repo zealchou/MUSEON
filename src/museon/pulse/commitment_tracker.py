@@ -30,49 +30,45 @@ TZ8 = timezone(timedelta(hours=8))
 
 # ═══════════════════════════════════════════
 # 承諾模式偵測（純 CPU regex）
+# 策略：只捕捉含時間錨點的承諾，避免即時行為被誤登記
 # ═══════════════════════════════════════════
 
-# 時間承諾 — 明確提到未來時間點
-_TEMPORAL_PATTERNS = [
-    (re.compile(r"明天早上"), "temporal", "明天早上"),
-    (re.compile(r"明早"), "temporal", "明天早上"),
-    (re.compile(r"明天晚上"), "temporal", "明天晚上"),
-    (re.compile(r"明天"), "temporal", "明天"),
-    (re.compile(r"後天"), "temporal", "後天"),
-    (re.compile(r"今晚"), "temporal", "今晚"),
-    (re.compile(r"稍後"), "temporal", "稍後"),
-    (re.compile(r"等一下"), "temporal", "等一下"),
-    (re.compile(r"一小時後"), "temporal", "一小時後"),
-    (re.compile(r"兩小時後"), "temporal", "兩小時後"),
-    (re.compile(r"半小時後"), "temporal", "半小時後"),
-    (re.compile(r"待會"), "temporal", "待會"),
-    (re.compile(r"下週|下禮拜"), "temporal", "下週"),
-    (re.compile(r"下個月"), "temporal", "下個月"),
+# 時間錨點關鍵字（供 parse_due_time 及 _detect_commitment 共用）
+_TEMPORAL_KEYWORDS = [
+    "明天早上", "明天晚上", "明早", "明天", "後天",
+    "今晚", "稍後", "等一下", "待會",
+    "一小時後", "兩小時後", "半小時後",
+    "下週", "下禮拜", "下個月",
 ]
 
-# 行動承諾 — 「我會/來/要 + 動詞」
-_ACTION_PATTERNS = [
-    (re.compile(r"我[會來要](?:幫|替|給|為|查|找|做|準備|整理|安排|研究|分析|追蹤|更新|回覆|處理)"), "action"),
-    (re.compile(r"我(?:幫你|替你|給你|為你)(?:查|找|做|準備|整理|安排|研究|分析)"), "action"),
-    (re.compile(r"讓我.*(?:查|找|做|準備|整理|研究|分析)"), "action"),
+# 動作關鍵字（供 pattern 及 _is_fulfilled 共用）
+_ACTION_KEYWORDS = (
+    "幫|替|給|為|查|找|做|準備|整理|安排|研究|分析|追蹤|更新|回覆|處理|確認|完成"
+)
+
+# 只保留含時間錨點的承諾 pattern（同一句同時含時間詞 + 動作詞才算）
+_TEMPORAL_COMMITMENT_PATTERNS = [
+    # 時間詞在前，動作詞在後
+    re.compile(
+        r"(?:明[天日早]|後天|下[週周禮拜]+|今[天晚]|稍[後晚]|等[一下會]|過[一會陣]|待會)"
+        r"[^。！？\n]*"
+        r"(?:" + _ACTION_KEYWORDS + r")"
+    ),
+    # 動作詞在前，時間詞在後
+    re.compile(
+        r"(?:" + _ACTION_KEYWORDS + r")"
+        r"[^。！？\n]*"
+        r"(?:明[天日早]|後天|下[週周禮拜]+|今[天晚]|稍[後晚]|等[一下會]|過[一會陣]|待會)"
+    ),
+    # N 小時/天/週後 + 動作詞
+    re.compile(
+        r"(?:\d+|一|兩|三)\s*(?:小時|天|日|週|周)[後内內]"
+        r"[^。！？\n]*"
+        r"(?:" + _ACTION_KEYWORDS + r")"
+    ),
 ]
 
-# 提醒承諾 — 主動承諾提醒
-_REMINDER_PATTERNS = [
-    (re.compile(r"我.*提醒你"), "reminder"),
-    (re.compile(r"到時候.*告訴你"), "reminder"),
-    (re.compile(r"會.*通知你"), "reminder"),
-    (re.compile(r"時間到.*叫你"), "reminder"),
-]
-
-# 排程承諾 — 定期/固定
-_RECURRING_PATTERNS = [
-    (re.compile(r"每天.*(?:幫|替|給|為|查|做|追蹤|更新|回報)"), "recurring"),
-    (re.compile(r"每週.*(?:幫|替|給|為|查|做|追蹤|更新|回報)"), "recurring"),
-    (re.compile(r"定期.*(?:幫|替|給|為|查|做|追蹤|更新|回報)"), "recurring"),
-]
-
-# 排除模式 — 這些不是承諾，只是建議
+# 排除模式 — 這些不是承諾，只是建議或假設
 _EXCLUSION_PATTERNS = [
     re.compile(r"你可以"),        # 建議使用者做
     re.compile(r"你[會來要]"),    # 描述使用者的行為
@@ -83,6 +79,11 @@ _EXCLUSION_PATTERNS = [
     re.compile(r"[嗎呢？?]\s*$"),  # 問句（詢問使用者，非承諾）
     re.compile(r"需要我.*嗎"),    # 「需要我幫你做X嗎」是詢問，不是承諾
 ]
+
+# 排除：已在同一句完成的即時行為（動作詞 + 結果詞在同一句）
+_INSTANT_ACTION_EXCLUSION = re.compile(
+    r"(?:幫你|替你|給你)[^。！？\n]{0,100}(?:了|完成|好了|出來|如下|以下)"
+)
 
 
 # ═══════════════════════════════════════════
@@ -203,6 +204,9 @@ class CommitmentTracker:
                 due_at = commitment.get("due_at")
 
                 try:
+                    min_alive_until = (
+                        datetime.now(TZ8) + timedelta(minutes=30)
+                    )
                     self._db.add_commitment(
                         commitment_id=commitment_id,
                         session_id=session_id,
@@ -211,12 +215,14 @@ class CommitmentTracker:
                         due_at=due_at.isoformat() if due_at else None,
                         user_message=user_message,
                         our_response_snippet=sentence[:500],
+                        min_alive_until=min_alive_until.isoformat(),
                     )
                     commitments_found.append({
                         "id": commitment_id,
                         "promise_text": promise_text,
                         "type": promise_type,
                         "due_at": due_at.isoformat() if due_at else None,
+                        "min_alive_until": min_alive_until.isoformat(),
                     })
                 except Exception as e:
                     logger.warning(f"[Commitment] 登記失敗: {e}")
@@ -232,60 +238,47 @@ class CommitmentTracker:
     def _detect_commitment(
         self, sentence: str,
     ) -> Optional[Dict[str, Any]]:
-        """偵測單句中的承諾.
+        """偵測單句中的承諾（只接受含時間錨點的承諾）.
+
+        策略：
+        1. 先排除即時行為（動作詞 + 結果詞同句 = 已完成，不是承諾）
+        2. 只有符合 _TEMPORAL_COMMITMENT_PATTERNS 的句子才算承諾
+        3. 解析時間錨點推算 due_at
 
         Returns:
             {'promise_text': ..., 'type': ..., 'due_at': ...} 或 None
         """
         now = datetime.now(TZ8)
-        due_at = None
-        promise_type = None
 
-        # 1. 先檢查時間承諾（最高優先）
-        time_hint = None
-        for pattern, ptype, hint in _TEMPORAL_PATTERNS:
-            if pattern.search(sentence):
-                time_hint = hint
-                promise_type = ptype
-                due_at = parse_due_time(hint, now)
-                break
-
-        # 2. 檢查行動承諾
-        if not promise_type:
-            for pattern, ptype in _ACTION_PATTERNS:
-                if pattern.search(sentence):
-                    promise_type = ptype
-                    # 行動承諾如果沒有時間，預設 24 小時
-                    due_at = now + timedelta(hours=24)
-                    break
-
-        # 3. 檢查提醒承諾
-        if not promise_type:
-            for pattern, ptype in _REMINDER_PATTERNS:
-                if pattern.search(sentence):
-                    promise_type = ptype
-                    break
-
-        # 4. 檢查排程承諾
-        if not promise_type:
-            for pattern, ptype in _RECURRING_PATTERNS:
-                if pattern.search(sentence):
-                    promise_type = ptype
-                    break
-
-        if not promise_type:
+        # 排除：即時完成行為（同一句話已兌現）
+        if _INSTANT_ACTION_EXCLUSION.search(sentence):
             return None
 
-        # 如果是時間承諾但也有行動模式，組合成更完整的承諾
-        if time_hint:
-            for pattern, _ in _ACTION_PATTERNS:
-                if pattern.search(sentence):
-                    promise_type = "temporal"  # 有時間的行動 = temporal
+        # 必須符合含時間錨點的承諾 pattern
+        matched = False
+        for pattern in _TEMPORAL_COMMITMENT_PATTERNS:
+            if pattern.search(sentence):
+                matched = True
+                break
+
+        if not matched:
+            return None
+
+        # 解析時間 hint → due_at
+        due_at = None
+        for hint in _TEMPORAL_KEYWORDS:
+            if hint in sentence:
+                due_at = parse_due_time(hint, now)
+                if due_at:
                     break
+
+        # 如果完全解析不出時間，預設 24 小時後到期
+        if due_at is None:
+            due_at = now + timedelta(hours=24)
 
         return {
             "promise_text": sentence[:200],
-            "type": promise_type,
+            "type": "temporal",
             "due_at": due_at,
         }
 
@@ -321,6 +314,19 @@ class CommitmentTracker:
         user_lower = user_message.lower() if user_message else ""
 
         for commitment in all_active:
+            # 跳過存活期內的承諾（避免同回合建立即兌現）
+            min_alive = commitment.get("min_alive_until")
+            if min_alive:
+                try:
+                    alive_until = datetime.fromisoformat(min_alive)
+                    # 確保 alive_until 有 timezone
+                    if alive_until.tzinfo is None:
+                        alive_until = alive_until.replace(tzinfo=TZ8)
+                    if datetime.now(TZ8) < alive_until:
+                        continue  # 還在最短存活期內，不做兌現檢查
+                except Exception:
+                    pass  # 解析失敗就正常繼續
+
             promise = commitment.get("promise_text", "")
             cid = commitment.get("id", "")
 

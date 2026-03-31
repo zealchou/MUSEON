@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.71
+# MUSEON 系統拓撲圖 v1.72
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.72 (2026-03-31)**：推播系統重構——pulse 群組刪除 `push-budget` 節點（PushBudget 全局推送預算管理器已移除）；刪除 3 條 internal 連線（`pulse-engine→push-budget`、`proactive-bridge→push-budget`、`push-budget→pulse-db`）；新增 1 條 cross 連線（`cron→museoff` cron 健康度讀取，cron.status() 被 museoff.py L7 消費）；新增 1 條 internal 連線（`proactive-dispatcher→haiku-llm` LLM adapter 接入，三桶分級配額決策）；刪除 1 條 cross 連線（`proactive-dispatcher→push-budget` 推播前去重配合已清除）；194→193 節點，522→521 連線（刪除 push-budget 節點 -1、刪除 5 條連線 -5、新增 2 條連線 +2 = 521）。同步 blast-radius v1.91、joint-map v1.59、persistence-contract v1.45。
 > **v1.71 (2026-03-31)**：Persona Evolution 系統——agent 群組新增 `trait-engine`（10 維度特質代謝）、`growth-stage-computer`（Kegan 成熟度計算）、`dissent-engine`（Crystal Lattice 矛盾偵測）、`mask-engine`（每用戶臨時人格適應層）、`momentum-brake`（特質 delta 保護）5 個節點；nightly 群組新增 `nightly-reflection-engine`（LLM 自我反思 P-trait 演化）1 個節點；新增 3 條 internal 連線（brain→dissent-engine、brain→mask-engine、nightly-pipeline→nightly-reflection-engine）+ 7 條 cross 連線（brain-observation→trait-engine/growth-stage-computer、drift-detector→momentum-brake、nightly-reflection-engine→anima-mc-store/soul-ring、dissent-engine→crystal-rules、mask-engine→anima-mc-store）；188→194 節點，512→522 連線。同步 blast-radius、joint-map 待更新。
 > **v1.69 (2026-03-31)**：9 條斷裂接線修復——新增 6 條 cross 連線：`surgeon→triage-step`（手術完成 SYSTEM_FAULT write_signal）、`morphenix-executor→triage-step`（迭代完成 SYSTEM_FAULT + 迭代失敗 BEHAVIOR_DRIFT write_signal x2）、`feedback-loop→triage-step`（品質下降 LEARNING_GAP write_signal）、`museoff→triage-step`（≥3次 SYSTEM_FAULT + escalate_to_morphenix）、`periodic-cycles→triage-step`（高原警報 LEARNING_GAP write_signal）、`skill-router→tuned-parameters`（讀取 tuned_parameters.json RC 權重）；新增 1 條 internal 連線：`finding→finding-counts`（record_occurrence 持久化計數）。triage-step 扇入由 0→6（新增 surgeon/morphenix-executor/feedback-loop/museoff/periodic-cycles 五個覺察源）。同步 blast-radius v1.87、joint-map v1.57、persistence-contract v1.43。
 > **v1.68 (2026-03-31)**：體液系統迭代——governance 群組新增 `algedonic-alert` 節點（治理警報推播引擎，扇入=1 from governor）；nightly 群組新增 `triage-step`（Nightly 分診，Step 5.8 前置）、`triage-to-morphenix`（HIGH 訊號→Morphenix 迭代筆記橋接）2 個節點；core 群組新增 `awareness-signal`（AwarenessSignal 統一格式，純 dataclass）、`session-adjustment`（SessionAdjustment 即時調整管理器）2 個節點；新增 9 條連線（governor→algedonic-alert、nightly-pipeline→triage-step→triage-to-morphenix→morphenix/proposals/、triage-step→session-adjustment、brain-prompt-builder→session-adjustment（讀）、brain-prompt-builder→skill-lessons（讀 _lessons.json）、telegram-pump→event-bus CHANNEL_MESSAGE_RECEIVED）；腦前台（brain_prompt_builder）四路接線完成。同步 blast-radius v1.86、joint-map v1.56、memory-router v1.18、persistence-contract v1.42。
@@ -212,7 +213,7 @@ external-user（EXTERNAL）
 | `explorer` | Explorer | 自主探索 | - | pulse | 1.1 |
 | `silent-digestion` | Silent Digestion | 靜默消化 | - | pulse | 1.0 |
 | `proactive-bridge` | Proactive Bridge | 主動推播 + 百合引擎象限調適 | - | pulse | 1.2 |
-| `push-budget` | Push Budget | 全局推送預算管理器（限額+語意去重+持久化） | - | pulse | 1.0 |
+| ~~`push-budget`~~ | ~~Push Budget~~ | ~~全局推送預算管理器（限額+語意去重+持久化）~~ | ~~-~~ | ~~pulse~~ | ~~已刪除 v1.72~~ |
 | `micro-pulse` | Micro Pulse | 秒級微脈 | - | pulse | 0.8 |
 | `pulse-db` | Pulse DB | 脈搏資料庫 | - | pulse | 0.8 |
 | `commitment-tracker` | Commitment | 承諾追蹤 | - | pulse | 0.9 |
@@ -586,9 +587,9 @@ external-user（EXTERNAL）
 | `anima-tracker` | `anima-mc-store` | 八元素經由 Store |
 | `micro-pulse` | `anima-mc-store` | 微脈經由 Store |
 | ~~`pulse`~~ | ~~`group-session-proactive`~~ | ~~群組追問（已刪除 v1.59）~~ |
-| `pulse-engine` | `push-budget` | 推送預算檢查+記錄 |
-| `proactive-bridge` | `push-budget` | 推送預算檢查+記錄 |
-| `push-budget` | `pulse-db` | push_log 表持久化 |
+| ~~`pulse-engine`~~ | ~~`push-budget`~~ | ~~推送預算檢查+記錄~~ ← 已刪除 v1.72 |
+| ~~`proactive-bridge`~~ | ~~`push-budget`~~ | ~~推送預算檢查+記錄~~ ← 已刪除 v1.72 |
+| ~~`push-budget`~~ | ~~`pulse-db`~~ | ~~push_log 表持久化~~ ← 已刪除 v1.72 |
 | `pulse` | `proactive-dispatcher` | 推播大總管 |
 
 ### Learning 內部連線（internal）
@@ -828,7 +829,9 @@ external-user（EXTERNAL）
 | `gateway` | `interaction-queue` | InteractionQueue 啟動初始化 |
 | ~~`line`~~ | ~~`event-bus`~~ | ~~LINE webhook 事件發布（LINE 已刪除 v1.59）~~ |
 | `proactive-dispatcher` | `telegram` | 攔截 push_notification，統一推播出口 |
-| `proactive-dispatcher` | `push-budget` | 推播前去重配合 |
+| ~~`proactive-dispatcher`~~ | ~~`push-budget`~~ | ~~推播前去重配合~~ ← 已刪除 v1.72 |
+| `proactive-dispatcher` | `haiku-llm` | 三桶分級配額決策（LLM adapter 接入，v1.72 新增） |
+| `cron` | `museoff` | cron.status() 健康度讀取，museoff.py L7 消費（v1.72 新增） |
 | `proactive-bridge` | `proactive-dispatcher` | 推播前檢查（語意去重+分級） |
 | `brain` | `memory-graph` | 初始化記憶關聯圖 |
 | `brain` | `insight-extractor` | 初始化洞見萃取引擎 |
@@ -1256,6 +1259,7 @@ external-user（EXTERNAL）
 | v1.49 | 2026-03-24 | 全面審計——統計摘要修正（184→194 節點、456→481 連線）|
 | v1.48 | 2026-03-24 | 操作記憶層——第六張藍圖 operational-contract.md + scripts/workflows/。194 節點 481 連線 |
 | v1.47 | 2026-03-24 | 跨群組洩漏防禦——新增 response-guard 節點 + 3 條連線。194 節點 481 連線 |
+| v1.72 | 2026-03-31 | 推播系統重構——刪除 push-budget 節點（-1）；刪除 5 條連線（pulse-engine→push-budget、proactive-bridge→push-budget、push-budget→pulse-db、proactive-dispatcher→push-budget）；新增 2 條連線（proactive-dispatcher→haiku-llm、cron→museoff）；193→192 節點，521→518 連線 |
 | v1.46 | 2026-03-23 | 推送品質修復——新增 push-budget 節點 + 3 條連線。193 節點 478 連線 |
 | v1.45 | 2026-03-23 | Project Epigenesis——新增 5 節點（epigenetic-router/memory-reflector/proactive-predictor/adaptive-decay/anima-changelog）+ 12 條 cross 連線。192 節點 475 連線 |
 | v1.44 | 2026-03-23 | 三層調度員架構——新增 dispatcher/thinker/worker 3 節點 + 7 條連線。187 節點 463 連線 |

@@ -106,7 +106,14 @@ class ProactiveDispatcher:
             # 去重失敗 → 靜默放行（不能因為去重失敗就擋住推播）
             logger.debug(f"[Dispatcher] semantic dedup error, pass-through: {e}")
 
-        # 5. 放行
+        # 5. 三桶分級配額
+        _bucket = self._get_bucket(source)
+        if _bucket == "proactive":
+            _today_count = self._count_today_by_bucket("proactive")
+            if _today_count >= 8:
+                return False, "proactive_daily_limit"
+
+        # 6. 放行
         return True, ""
 
     def record_push(self, message: str, source: str) -> None:
@@ -283,3 +290,36 @@ class ProactiveDispatcher:
             except (ValueError, KeyError):
                 continue
         self._entries = pruned
+
+    # ═══════════════════════════════════════════
+    # 三桶分級配額
+    # ═══════════════════════════════════════════
+
+    # 三桶分級常量
+    _BUCKET_MAP = {
+        "morning": "ritual", "evening": "ritual",
+        "nightly": "report", "business_case": "report", "group_digest": "report",
+        "tool_discovery": "report", "skill_forge": "report",
+        "soul": "proactive", "proactive": "proactive", "idle": "proactive",
+        "exploration": "proactive", "free_explore": "proactive",
+        "companion": "proactive", "breath": "proactive",
+        "alert": "alert", "morphenix": "alert",
+    }
+
+    def _get_bucket(self, source: str) -> str:
+        return self._BUCKET_MAP.get(source, "proactive")
+
+    def _count_today_by_bucket(self, bucket: str) -> int:
+        """計算今日指定桶的推播數量。"""
+        today = datetime.now(TZ8).strftime("%Y-%m-%d")
+        count = 0
+        for entry in self._entries:
+            try:
+                ts_str = entry.get("ts", "")
+                if ts_str[:10] == today and not entry.get("blocked", False):
+                    _src = entry.get("source", "")
+                    if self._get_bucket(_src) == bucket:
+                        count += 1
+            except (ValueError, KeyError):
+                continue
+        return count

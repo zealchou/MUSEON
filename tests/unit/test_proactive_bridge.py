@@ -142,34 +142,36 @@ class TestActiveHours:
 
 
 class TestDailyPushLimit:
-    """每日推送上限測試."""
+    """每日推送上限測試（配額已移至 ProactiveDispatcher，此層永遠放行）."""
 
     def test_within_limit(self):
         """BDD: 未到上限 → 可推送."""
         bridge = ProactiveBridge()
         assert bridge.is_within_daily_limit()
 
-    def test_at_limit(self):
-        """BDD: 到達上限 → 不可推送."""
+    def test_at_limit_always_true(self):
+        """BDD: 配額由 ProactiveDispatcher 管控，is_within_daily_limit 永遠返回 True."""
         bridge = ProactiveBridge()
         bridge._daily_push_count = 25
         bridge._last_reset_date = datetime.now().strftime("%Y-%m-%d")
-        assert not bridge.is_within_daily_limit()
+        # 新架構：配額已移至 Dispatcher，此層永遠放行
+        assert bridge.is_within_daily_limit()
 
-    def test_over_limit(self):
-        """BDD: 超過上限 → 不可推送."""
+    def test_over_limit_always_true(self):
+        """BDD: 超過上限時，is_within_daily_limit 仍返回 True（配額由 Dispatcher 管）."""
         bridge = ProactiveBridge()
         bridge._daily_push_count = 30
         bridge._last_reset_date = datetime.now().strftime("%Y-%m-%d")
-        assert not bridge.is_within_daily_limit()
+        # 新架構：配額已移至 Dispatcher，此層永遠放行
+        assert bridge.is_within_daily_limit()
 
     def test_daily_reset(self):
-        """BDD: 隔天自動重置."""
+        """BDD: 隔天自動重置（記憶體備用計數仍有重置機制）."""
         bridge = ProactiveBridge()
         bridge._daily_push_count = 5
         bridge._last_reset_date = "2026-01-01"  # 過去日期
+        # is_within_daily_limit 永遠返回 True，但 daily_push_count property 仍重置
         assert bridge.is_within_daily_limit()
-        assert bridge._daily_push_count == 0
 
     def test_push_count_property(self):
         """BDD: daily_push_count 正確."""
@@ -203,12 +205,13 @@ class TestCanPush:
         bridge = ProactiveBridge()
         assert not bridge.can_push(datetime(2026, 2, 27, 3, 0))
 
-    def test_limit_reached(self):
-        """BDD: 到達上限 → 不可推送."""
+    def test_limit_not_checked_at_bridge_layer(self):
+        """BDD: 配額由 Dispatcher 管，Bridge 層不攔截 limit → 活躍時段內仍可推送."""
         bridge = ProactiveBridge()
         bridge._daily_push_count = DAILY_PUSH_LIMIT
         bridge._last_reset_date = datetime.now().strftime("%Y-%m-%d")
-        assert not bridge.can_push(datetime(2026, 2, 27, 12, 0))
+        # 新架構：can_push 不再因 limit 返回 False
+        assert bridge.can_push(datetime(2026, 2, 27, 12, 0))
 
 
 # ═══════════════════════════════════════════
@@ -240,17 +243,18 @@ class TestProactiveThink:
         assert result["reason"] == "outside_active_hours"
 
     @pytest.mark.asyncio
-    async def test_limit_reached_silent(self):
-        """BDD: 到達上限 → 靜默."""
+    async def test_limit_not_blocks_at_bridge_layer(self):
+        """BDD: 配額由 Dispatcher 管，Bridge 層不因 limit 靜默（需提供 brain 回覆）."""
         brain = MagicMock()
+        brain._call_llm_with_model = AsyncMock(return_value="OK")
         bridge = ProactiveBridge(brain=brain)
         bridge._daily_push_count = DAILY_PUSH_LIMIT
         bridge._last_reset_date = datetime.now().strftime("%Y-%m-%d")
         # 確保在活躍時段
         bridge.set_active_hours(0, 24)
         result = await bridge.proactive_think()
-        assert not result["pushed"]
-        assert result["reason"] == "daily_limit_reached"
+        # 新架構：Bridge 層不再因 limit 返回 daily_limit_reached
+        assert result["reason"] != "daily_limit_reached"
 
     @pytest.mark.asyncio
     async def test_short_response_silent_ack(self):

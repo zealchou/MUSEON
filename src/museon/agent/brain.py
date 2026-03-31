@@ -1862,34 +1862,13 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                     user_message=content,
                     session_id=session_id,
                 )
-                # 同時檢查本次回覆是否兌現了之前的承諾
-                fulfilled = self._commitment_tracker.check_fulfillment(
-                    response=response_text,
-                    user_message=content,
-                )
-                # ANIMA 連動：兌現承諾 → zhen +2
-                # ★ 寫入排隊：PulseDB 寫入通過 WriteQueue 序列化
-                if fulfilled and hasattr(self, '_soul_ring_store'):
-                    try:
-                        from museon.pulse.pulse_db import get_pulse_db
-                        _pdb = get_pulse_db(self.data_dir)
-                        for _fid in fulfilled:
-                            if self._wq:
-                                self._wq.enqueue(
-                                    f"commitment_zhen_{_fid}",
-                                    _pdb.log_anima_change,
-                                    element="zhen", delta=2,
-                                    reason=f"承諾兌現: {_fid}",
-                                    absolute_after=0,
-                                )
-                            else:
-                                _pdb.log_anima_change(
-                                    element="zhen", delta=2,
-                                    reason=f"承諾兌現: {_fid}",
-                                    absolute_after=0,
-                                )
-                    except Exception as e:
-                        logger.debug(f"承諾兌現 ANIMA 記錄失敗: {e}")
+                # check_fulfillment 由 periodic_check（每 15 分鐘）負責
+                # 移除同回合兌現檢查，避免建立即兌現的假正例
+                if new_commitments:
+                    logger.debug(
+                        f"[Commitment] 新登記 {len(new_commitments)} 筆，"
+                        f"兌現檢查由 periodic_check 負責"
+                    )
             except Exception as e:
                 logger.warning(f"承諾掃描失敗: {e}")
 

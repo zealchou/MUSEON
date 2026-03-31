@@ -310,8 +310,7 @@ class PulseEngine:
         self._pulse_md = Path(data_dir) / "PULSE.md" if data_dir else None
         self._pulse_md_lock = threading.Lock()  # PULSE.md 寫入鎖
 
-        # 全局推送預算（P0-1：統一三條管線的計數和去重）
-        self._push_budget = None  # 由 server.py 注入
+        # 全局推送預算已移除（由 ProactiveDispatcher 統一管控）
 
         # 向後相容：保留 _daily_push_count 屬性（供外部讀取 status 用）
         self._daily_push_count = 0
@@ -551,10 +550,43 @@ class PulseEngine:
                                 )
                             except Exception:
                                 pass
-                            exploration = None  # 清除，不繼續走結晶/推播流程
-                            result["percrl"]["explore"] = "discarded"
-                            result["action"] = "discarded"
-                            result["reason"] = "low_quality"
+                            exploration = None  # 清除，準備重試或放棄
+
+                            # ── 重試一次：從種子庫換一個主題 ──
+                            _retry_key = trigger if trigger in _SEED_TOPICS else "curiosity"
+                            _retry_candidates = [
+                                t for t in _SEED_TOPICS[_retry_key]
+                                if t != explore_topic
+                            ]
+                            if _retry_candidates:
+                                import random as _random
+                                _retry_topic = _random.choice(_retry_candidates)
+                                logger.info(f"[Explore] 重試換主題: {_retry_topic[:50]}")
+                                try:
+                                    _retry_result = await self._explorer.explore(
+                                        topic=_retry_topic,
+                                        motivation=trigger if trigger in ("curiosity", "mission", "skill", "world", "self") else "curiosity",
+                                    )
+                                    if _retry_result and _retry_result.get("status") == "done":
+                                        _retry_quality = await self._evaluate_exploration_quality(
+                                            _retry_result.get("findings", ""),
+                                            _retry_result.get("topic", _retry_topic),
+                                        )
+                                        if _retry_quality not in ("garbage",):
+                                            exploration = _retry_result
+                                            explore_topic = _retry_topic
+                                            logger.info(f"[Explore] 重試成功，品質={_retry_quality}: {_retry_topic[:50]}")
+                                        else:
+                                            logger.info(f"[Explore] 重試品質仍低，放棄: {_retry_topic[:50]}")
+                                            self._mark_topic_cooldown(_retry_topic, days=3)
+                                except Exception as _re:
+                                    logger.warning(f"[Explore] 重試失敗: {_re}")
+
+                            if exploration is None:
+                                # 重試失敗或無可選主題，標記 discarded
+                                result["percrl"]["explore"] = "discarded"
+                                result["action"] = "discarded"
+                                result["reason"] = "low_quality"
                         elif _quality == "generic":
                             logger.info(f"[Explore] 品質一般，僅存 Digest: {explore_topic[:50]}")
                             self._save_to_digest(explore_topic, exploration.get("findings", ""))
@@ -628,8 +660,13 @@ class PulseEngine:
             }
 
         # R — Reflect（反思結果自動寫入 PULSE.md，下次對話注入 system prompt）
-        reflection = await self._reflect(perception, exploration)
-        result["percrl"]["reflect"] = "done" if reflection else "skipped"
+        if exploration is None and result.get("action") in ("discarded", "digest_only"):
+            # Explore 階段已丟棄探索內容，跳過 Reflect 避免生成空殼反思
+            reflection = None
+            result["percrl"]["reflect"] = "skipped_no_exploration"
+        else:
+            reflection = await self._reflect(perception, exploration)
+            result["percrl"]["reflect"] = "done" if reflection else "skipped"
 
         # C — Crystallize（探索結晶 + 反思結晶 → Knowledge Lattice → 下次對話注入）
         crystallized = False
@@ -743,14 +780,19 @@ class PulseEngine:
         result["percrl"]["renew"] = "done"
 
         # L — Link
-        if reflection and self._can_push("soul") and len(reflection) > 100:
-            self._daily_push_count += 1  # 向後相容（實際由 PushBudget 管控）
+        # 若 Explore 已被丟棄（discarded / digest_only），禁止推送，維持 action 不覆寫
+        _explore_discarded = result.get("action") in ("discarded", "digest_only")
+        if not _explore_discarded and reflection and self._can_push("soul") and len(reflection) > 100:
+            self._daily_push_count += 1  # 向後相容計數備用
             self._publish_message(reflection, source="soul")
             result["percrl"]["link"] = "pushed"
             result["action"] = "pushed"
         else:
             result["percrl"]["link"] = "silent"
-            result["action"] = "silent"
+            if not _explore_discarded:
+                # 只有非 discarded 路徑才覆寫 action 為 silent
+                result["action"] = "silent"
+            # else: 維持 discarded / digest_only，不覆寫
 
         # 發布 PULSE_EXPLORATION_DONE（ActivityLogger 訂閱）
         if exploration and self._event_bus:
@@ -859,13 +901,8 @@ class PulseEngine:
         return start <= hour < end
 
     def _can_push(self, source: str = "soul") -> bool:
-        """檢查是否可推送（委派給 PushBudget 全局限額）."""
-        if self._push_budget:
-            return self._push_budget.can_push(source) and self._is_active_hours()
-        # 向後相容 fallback
-        self._maybe_reset_daily()
-        limit = _cfg("daily_push_limit", DAILY_PUSH_LIMIT)
-        return self._daily_push_count < limit and self._is_active_hours()
+        """檢查是否在活躍時段內。配額由 ProactiveDispatcher 統一管控。"""
+        return self._is_active_hours()
 
     def _maybe_reset_daily(self) -> None:
         today = datetime.now(TZ8).strftime("%Y-%m-%d")
@@ -874,12 +911,8 @@ class PulseEngine:
             self._last_reset_date = today
 
     def _is_duplicate(self, message: str) -> bool:
-        """語意去重：委派給 PushBudget 的詞級 Jaccard（P0-1 升級）."""
-        if self._push_budget:
-            return self._push_budget.is_duplicate(message)
-        # 向後相容 fallback：前 80 字精確比對
-        short = message.strip()[:80]
-        return False  # 無 PushBudget 時不阻擋
+        """去重由 ProactiveDispatcher 統一管控，此層不做。"""
+        return False
 
     def _publish_message(self, message: str, source: str = "vita") -> None:
         if self._is_duplicate(message):
@@ -888,16 +921,12 @@ class PulseEngine:
         if self._event_bus:
             try:
                 from museon.core.event_bus import PROACTIVE_MESSAGE
-                push_count = self._push_budget.today_count if self._push_budget else self._daily_push_count
                 self._event_bus.publish(PROACTIVE_MESSAGE, {
                     "message": message,
                     "timestamp": time.time(),
-                    "push_count": push_count,
+                    "push_count": self._daily_push_count,
                     "source": source,
                 })
-                # 記錄到 PushBudget（持久化）
-                if self._push_budget:
-                    self._push_budget.record_push(source, message)
             except Exception as e:
                 logger.error(f"Publish message failed: {e}")
 
@@ -1794,15 +1823,6 @@ class PulseEngine:
                 topic = exploration.get("topic", "未知主題")
                 # 明確標記為系統自主探索，區分於使用者想法
                 context_parts.append(f"[系統探索] 今日主題：「{topic}」\n發現：{findings}")
-
-            # ── P2-6：注入最近推送摘要，避免 LLM 重複話題 ──
-            if self._push_budget:
-                recent_summaries = self._push_budget.get_recent_summaries(limit=3)
-                if recent_summaries:
-                    summaries = "\n".join(f"- {s}" for s in recent_summaries)
-                    context_parts.append(
-                        f"[最近已推送] 以下內容已推送給達達，請避免重複相同話題：\n{summaries}"
-                    )
 
             context = "\n\n".join(context_parts)
 

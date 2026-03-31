@@ -3145,6 +3145,7 @@ def create_app() -> FastAPI:
         cron_engine.start()
         _register_system_cron_jobs(brain, app, cron_engine)
         _register_external_endpoints(app, brain.data_dir)
+        app.state.cron_engine = cron_engine  # 掛到 app.state 供 MuseOff L7 探針存取
         logger.info(
             f"CronEngine started | jobs: {len(cron_engine.get_all_jobs())}"
         )
@@ -3344,26 +3345,12 @@ def create_app() -> FastAPI:
                             app.state.pulse_db = pulse_db
                             app.state.anima_tracker = anima_tracker
 
-                            # ── P0-1: PushBudget 全局推送預算 ──
-                            try:
-                                from museon.pulse.push_budget import PushBudget
-                                push_budget = PushBudget(pulse_db=pulse_db)
-                                pulse_engine._push_budget = push_budget
-                                proactive_bridge._push_budget = push_budget
-                                app.state.push_budget = push_budget
-                                logger.info(
-                                    f"PushBudget injected (today={push_budget.today_count}, "
-                                    f"remaining={push_budget.remaining})"
-                                )
-                            except Exception as _pb_err:
-                                logger.warning(f"PushBudget init failed (degraded): {_pb_err}")
-
                             # ── Phase 1: ProactiveDispatcher 推播大總管 ──
                             try:
                                 from museon.pulse.proactive_dispatcher import ProactiveDispatcher
                                 _dispatcher = ProactiveDispatcher(
                                     data_dir=str(brain.data_dir),
-                                    llm_adapter=None,  # Phase 2 再接 Haiku adapter
+                                    llm_adapter=getattr(brain, "_llm_adapter", None),
                                 )
                                 _tg = getattr(app.state, "telegram_adapter", None)
                                 if _tg:

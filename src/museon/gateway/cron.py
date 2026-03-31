@@ -3,6 +3,7 @@
 import asyncio
 import functools
 import logging
+from datetime import datetime
 from typing import Any, Callable, Optional
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -17,21 +18,35 @@ _DEFAULT_TIMEOUT_CRON = 600     # cron 排程：10 分鐘
 _DEFAULT_TIMEOUT_INTERVAL = 120  # interval 排程：2 分鐘
 
 
-def _wrap_with_timeout(func: Callable, timeout: float, job_id: str) -> Callable:
-    """包裝 async 函式加入超時保護."""
+def _wrap_with_timeout(
+    func: Callable, timeout: float, job_id: str, job_stats: dict
+) -> Callable:
+    """包裝 async 函式加入超時保護與執行統計."""
     if not asyncio.iscoroutinefunction(func):
         return func  # 同步函式不包裝
 
     @functools.wraps(func)
     async def _wrapper():
+        _stat = job_stats.setdefault(job_id, {
+            "run_count": 0, "fail_count": 0,
+            "consecutive_failures": 0,
+            "last_success": None, "last_error": None,
+        })
         try:
             await asyncio.wait_for(func(), timeout=timeout)
+            _stat["run_count"] += 1
+            _stat["consecutive_failures"] = 0
+            _stat["last_success"] = datetime.now().isoformat()
         except asyncio.TimeoutError:
-            logger.error(
-                f"Cron job '{job_id}' timed out after {timeout}s, killed"
-            )
+            _stat["fail_count"] += 1
+            _stat["consecutive_failures"] += 1
+            _stat["last_error"] = f"timeout after {timeout}s"
+            logger.warning(f"Cron job '{job_id}' timed out after {timeout}s, killed")
         except Exception as e:
-            logger.debug(f"Cron job '{job_id}' failed: {e}")
+            _stat["fail_count"] += 1
+            _stat["consecutive_failures"] += 1
+            _stat["last_error"] = str(e)[:200]
+            logger.warning(f"Cron job '{job_id}' failed: {e}")
 
     return _wrapper
 
@@ -46,6 +61,7 @@ class CronEngine:
 
     def __init__(self) -> None:
         self._scheduler = AsyncIOScheduler()
+        self._job_stats: dict[str, dict] = {}
 
     def start(self) -> None:
         """Start the scheduler."""
@@ -91,7 +107,7 @@ class CronEngine:
         # 超時保護：包裝 async 函式
         effective_timeout = timeout if timeout is not None else default_timeout
         if effective_timeout > 0:
-            func = _wrap_with_timeout(func, effective_timeout, job_id)
+            func = _wrap_with_timeout(func, effective_timeout, job_id, self._job_stats)
 
         self._scheduler.add_job(func, trigger_obj, id=job_id, replace_existing=True)
         return job_id
@@ -125,3 +141,7 @@ class CronEngine:
             List of Job objects
         """
         return self._scheduler.get_jobs()
+
+    def status(self) -> dict:
+        """Return execution stats for all registered jobs."""
+        return dict(self._job_stats)

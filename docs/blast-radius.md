@@ -1,10 +1,11 @@
-# Blast Radius — 模組影響半徑表 v1.90
+# Blast Radius — 模組影響半徑表 v1.91
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節、`docs/operational-contract.md`（操作契約表）提供外部操作預期失敗
+> **v1.91 (2026-03-31)**：推播系統重構——`pulse/push_budget.py` 已刪除（從 Pulse 層綠區葉子模組列表移除，扇入原=1 from server.py，PushBudget 全局預算管理器已由 ProactiveDispatcher 三桶分級配額取代）；`pulse/pulse_engine.py` 扇出 -1（不再 import push_budget）；`pulse/proactive_bridge.py` 扇出 -1（is_within_daily_limit 永遠 True，PushBudget 依賴清除）；`gateway/server.py` 扇出 -1（刪除 PushBudget 注入區塊）；`pulse/proactive_dispatcher.py` 新增三桶分級配額內建（_BUCKET_MAP/_get_bucket/_count_today_by_bucket，扇出 +1：llm_adapter Haiku 接入）；`gateway/cron.py` 新增 _job_stats + status() 方法（扇出 +1：被 doctor/museoff.py L7 cron 健康度讀取）；`channels/telegram.py` 新增 DM 非 Owner 阻擋（send_dm_to_owner 改為 push_notification wrapper）；`pulse/commitment_tracker.py` 精簡為只追蹤時間承諾（扇出 -2，移除非時間承諾分支）；`agent/brain.py` 移除同回合 check_fulfillment（扇出 -1，commitment_tracker 呼叫點減少）。綠區葉子模組 173→172（刪除 push_budget.py）。
 > **v1.90 (2026-03-31)**：Persona Evolution 系統六模組新增——🟡黃區：`evolution/trait_engine.py`（扇入=2：brain_observation._observe_self + nightly_reflection，扇出=1：anima_mc_store via kernel_guard，寫入 ANIMA_MC.personality.trait_dimensions）、`evolution/nightly_reflection.py`（扇入=1：nightly_pipeline Step 34，扇出=4：anima_mc_store + kernel_guard + soul_ring + momentum_brake，讀寫 ANIMA_MC.personality.trait_dimensions + soul_rings.json）、`evolution/mask_engine.py`（扇入=2：brain.py Step 2.2 + Step 9.9，扇出=1：寫入 _system/mask_states.json）；🟢綠區：`evolution/growth_stage.py`（扇入=2：brain_observation._update_growth_stage + nightly_pipeline Step 34.5，扇出=0，純計算，讀 ANIMA_MC.evolution.stage_history）、`evolution/dissent_engine.py`（扇入=1：brain.py Step 3.655，扇出=1：讀 crystal_rules.json，無狀態）、`evolution/momentum_brake.py`（扇入=2：nightly_reflection + drift_detector，扇出=0，純計算，讀 ANIMA_MC.evolution.trait_history）。新增共享狀態：_system/mask_states.json（#70）。綠區葉子模組 171→173，黃區 62→65。
 > **v1.89 (2026-03-31)**：結晶記憶架構重構——`agent/knowledge_lattice.py` 新增 `_classify_domain()` 輔助函數 + `_DOMAIN_KEYWORDS` 常數（7 domain 關鍵詞表），在 `crystallize()` Step 2→2.5 之間自動填入 domain（扇入不變，扇出不變，純內部邏輯擴充）；`nightly/nightly_pipeline.py` 新增 Step 32 `_step_crystal_decay`（ri_score 每日 *0.995 衰減，<0.1 歸檔）+ Step 33 `_step_crystal_promotion`（reinforcement_count≥3 的 Lesson/Procedure/Pattern 自動升級 heuristics.json，每次最多 3 條，總上限 50）；nightly_pipeline 步驟數 47→49；crystal.db 存取模式從 R 升級為 RW（Step 32 直接 SQL UPDATE）；heuristics.json 寫入路徑新增 nightly Step 33（via IntuitionEngine）。
 > **v1.88 (2026-03-31)**：多租戶敏感度 LLM 驗證 + 報告發布工具——`governance/multi_tenant.py` 新增 `TRUSTED_PARTNERS` dict 與 `SENSITIVITY_LLM_PROMPT` 常數，`SensitivityChecker.check()` 新增 `user_id` 參數（扇入不變，仍為 3：telegram_pump, brain_observation, brain_prompt_builder；扇出不變）；`agent/tool_schemas.py` 新增 `publish_report` 工具定義（綠區扇入=0，不影響既有模組）；`agent/tools.py` 新增 `publish_report` 路由 + `_execute_publish_report()` 執行方法，透過 `subprocess` 呼叫 `scripts/publish-report.sh`（扇出+1：scripts/publish-report.sh via subprocess）；`gateway/telegram_pump.py` 新增 LLM 上下文驗證機制——lazy import `SENSITIVITY_LLM_PROMPT` from multi_tenant，呼叫 `brain._call_llm_with_model()` 以 Haiku 進行敏感度二次驗證（扇出+1：brain._call_llm_with_model()）。
@@ -695,7 +696,7 @@
 （注：`llm/vision.py`、`llm/client.py` 已於 v1.77 刪除）
 
 ### Pulse 層（1 個）
-`pulse/push_budget.py`（★ v1.54 新增，扇入=1（server.py），PushBudget 全局推送預算管理器）
+~~`pulse/push_budget.py`~~（★ v1.54 新增，★★ **v1.91 已刪除**——PushBudget 全局推送預算管理器，功能由 ProactiveDispatcher 三桶分級配額取代）
 
 ### Governance 層（2 個）
 `governance/response_guard.py`（★ v1.60 新增，扇入=3（telegram_pump.py + channels/telegram.py + channels/telegram_menu.py），ResponseGuard 發送前 chat_id 二次驗證閘門；三方法統一 _normalize_id(abs()) 正規化：validate() 靜態驗證 + allow_send() 實例驗證 + validate_escalation() escalation 專用；sanitize_for_group() 內容黑名單清理——v1.65 收窄【】pattern 避免誤殺合法中文；v1.68 新增 [empty] 佔位符 + Skill 路由鏈（emoji→arrow）過濾；**v1.82 取消群組/私訊分流，所有通道統一過濾全部 18 組 _INTERNAL_PATTERNS**；telegram_pump.py 9 處直送改走 _safe_send()、cron_registry.py Ares alert 改走 _safe_send()、telegram_menu.py 加 sanitize、update_processing_status 加 sanitize）

@@ -1,9 +1,10 @@
-# Joint Map — 共享可變狀態接頭圖 v1.58
+# Joint Map — 共享可變狀態接頭圖 v1.59
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
 > **更新時機**：改變共享檔案的讀寫者或格式時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
+> **v1.59 (2026-03-31)**：推播系統重構——刪除 #41 索引項「PushBudget 單例」（`pulse/push_budget.py` 已刪除，全局推送配額改由 ProactiveDispatcher 三桶分級配額內建管理）；#8 PulseDB 寫入者 4→3（移除 push_budget.py），讀取者 13→12（移除 push_budget.py）；pulse_engine.py 不再經由 PushBudget 讀取 push_log；push_journal_24h.json（#48）寫入者維持 proactive_dispatcher.py 獨自寫入（PushBudget 已非第二寫入路徑）；共享狀態 73→72 個（刪除 #41 PushBudget 單例）。同步 blast-radius v1.91、system-topology v1.72、persistence-contract v1.45。
 > **v1.58 (2026-03-31)**：Persona Evolution 系統——新增 #70 `ANIMA_MC.personality.trait_dimensions`（🟠 人格特質維度，P1-P5 需 evolution_write，C1-C5 FREE，寫入者=trait_engine.py+nightly_reflection.py，讀取者=brain_prompt_builder+growth_stage+mask_engine+dissent_engine）；新增 #71 `ANIMA_MC.evolution.trait_history`（🟢 APPEND_ONLY 特質變化歷史，寫入者=nightly_reflection.py，讀取者=momentum_brake+drift_detector）；新增 #72 `ANIMA_MC.evolution.stage_history`（🟢 APPEND_ONLY 成長階段歷史，寫入者=brain_observation.py，讀取者=growth_stage）；新增 #73 `_system/mask_states.json`（🟢 短暫面具狀態，寫入者=mask_engine.py，讀取者=mask_engine.py，7 天自動清理）；更新 `_system/crystal_rules.json`（G5 新增讀取者=dissent_engine.py 矛盾校驗）；共享狀態 69→73 個。同步 blast-radius、system-topology。
 > **v1.57 (2026-03-31)**：9 條斷裂接線修復——新增 #69 `data/_system/museoff/finding_counts.json`（🟢 MuseOff 異常計數持久化，寫入者=doctor/finding.py record_occurrence()，讀取者=doctor/museoff.py ≥3次升級判斷，原子 JSON 讀寫，格式：{finding_key: int}，永久累積）；共享狀態 68→69 個。同步 blast-radius v1.87、system-topology v1.69、persistence-contract v1.43。
 > **v1.56 (2026-03-31)**：體液系統迭代——新增 #62-#68 共 7 個共享狀態：#62 `data/_system/triage_queue.jsonl`（🟢 覺察訊號佇列，寫入者=各覺察源+triage_step，讀取者=triage_step Nightly 消費）；#63 `data/_system/awareness_log.jsonl`（🟢 覺察日誌，寫入者=triage_step，讀取者=triage_step accumulation）；#64 `data/_system/pending_adjustments.json`（🟢 待處理調整，寫入者=triage_step，讀取者=session_adjustment）；#65 `data/_system/nightly_priority_queue.json`（🟢 Nightly 優先佇列，寫入者=triage_step，讀取者=triage_to_morphenix）；#66 `data/_system/session_adjustments/{id}.json`（🟢 即時行為調整，寫入者=L4 觀察者，讀取者=brain_prompt_builder _auto_adjust_from_history()）；#67 `data/_system/triage_human_queue.json`（🟢 人工審核佇列，寫入者=triage_step HIGH/CRITICAL，讀取者=triage_step drain + Telegram 告警）；#68 `data/skills/native/{name}/_lessons.json`（🟢 Skill 教訓檔，寫入者=session_adjustment promote，讀取者=brain_prompt_builder _build_skill_lesson_context() 注入 system prompt）；共享狀態 61→68 個。同步 topology v1.68、blast-radius v1.86、memory-router v1.18、persistence-contract v1.42。
@@ -60,7 +61,7 @@
 | 38 | ~/.claude/skills/*/SKILL.md | 🔴 | 3 | 4+ | 無 | [→](#38-claudeskillsskillmd) |
 | 39 | _system/sessions/{id}.json | 🟡 | 1 | 2 | 無 | [→](#39-_systemsessionsidjson) |
 | 40 | group_context.db | 🟡 | 1 | 2 | SQLite WAL | [→](#40-group_contextdb) |
-| 41 | PushBudget 單例（記憶體+PulseDB push_log） | 🟡 | 2 | 2 | SQLite WAL | [→](#41-pushbudget) |
+| ~~41~~ | ~~PushBudget 單例（記憶體+PulseDB push_log）~~ | ~~🟡~~ | ~~2~~ | ~~2~~ | ~~SQLite WAL~~ | ~~已刪除 v1.59~~ |
 | 42 | BrainCircuitBreaker singleton（記憶體） | 🟢 | 1 | 2 | threading.Lock | [→](#42-braincircuitbreaker-singleton記憶體) |
 | 46 | _system/context_cache/pending_insights.json | 🟢 | 1 | 1 | 原子寫 | [→](#46-pending_insightsjson) |
 | 47 | _system/context_cache/{4檔} | 🟡 | 2 | 2 | 無 | [→](#47-context-cache-四檔) |
@@ -398,7 +399,7 @@
 | `pulse/pulse_db.py` | 全部 16 表（schedules, explorations, anima_log, evolution_events, morphenix_proposals, commitments, metacognition, scout_drafts, health_scores, incidents, orchestrator_calls, push_log 等） |
 | `nightly/nightly_pipeline.py` | evolution_events, 多表日誌 |
 | `gateway/server.py` (via Governor callback) | incidents（P2 新增：Governor 免疫迴圈 → `_bridge_incident_to_pulsedb()` → `pulse_db.save_incident()`） |
-| `pulse/push_budget.py` (via PushBudget) | push_log（全局推送去重 + 限額追蹤） |
+| ~~`pulse/push_budget.py` (via PushBudget)~~ | ~~push_log（全局推送去重 + 限額追蹤）~~ ← **已刪除 v1.59**，配額管理移至 ProactiveDispatcher 三桶分級內建 |
 
 #### 讀取者（12 個模組）
 
@@ -412,7 +413,7 @@
 | `nightly/nightly_pipeline.py` | 多表 |
 | `channels/telegram.py` | morphenix_proposals |
 | `gateway/server.py` | commitments |
-| `pulse/pulse_engine.py` | explorations, push_log (via PushBudget) |
+| `pulse/pulse_engine.py` | explorations（push_log 讀取已移除，PushBudget 依賴已清除 v1.59） |
 | `nightly/evolution_velocity.py` | evolution_events |
 | `nightly/periodic_cycles.py` | metacognition |
 | `nightly/morphenix_executor.py` | metacognition（DNA-Inspired 品質旗標閉環：`get_quality_flags()` / `get_quality_flag_summary()`） |
@@ -1484,6 +1485,7 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 | 2026-03-23 | v1.37 | 三層調度員架構：新增 #37 `museon-persona.md`（🟡 危險度，Zeal/morphenix 寫入，所有 L2 thinker subagent spawn 時讀取——影響面廣但寫入頻率極低）；補登 #38 `~/.claude/skills/*/SKILL.md`（🔴 危險度，51 個 Skill ~909KB，3 寫入者 手動/acsf/morphenix，4+ 讀取者 Claude Code session/skill_router/vector_bridge/nightly 8.6）；快速索引表補齊 #36；共享狀態 36→38 個 |
 | 2026-03-22 | v1.36 | External User 健康檢查：新增 #36 `external_users/{uid}.json`（🟢 危險度，ExternalAnimaManager 統一管理）；ExternalAnimaManager 新增 `threading.Lock` + 原子寫入（tmp→rename）修復 TOCTOU 競態條件；鎖一覽表新增 external_users 條目；共享狀態 35→36 個 |
 | 2026-03-22 | v1.35 | Sparse Embedder 啟動：#9 Qdrant 向量庫 Sparse Collections 從「已定義未消費」升級為「全面啟動」；hybrid_search() 被 skill_router + memory_manager + knowledge_lattice + server.py 4 個消費者呼叫（取代原 pure dense search）；Nightly Step 8.7 新增 IDF 重建 + 回填步驟；Gateway startup 新增 IDF 驗證；同步 blast-radius v1.35、persistence-contract v1.30 |
+| 2026-03-31 | v1.59 | 推播系統重構：刪除 #41 PushBudget 單例（push_budget.py 已刪除，全局配額改由 ProactiveDispatcher 三桶分級內建）；#8 PulseDB 寫入者 4→3、讀取者 13→12；pulse_engine.py push_log 讀取依賴清除；共享狀態 73→72 個；同步 blast-radius v1.91、system-topology v1.72、persistence-contract v1.45 |
 | 2026-03-23 | v1.39 | 推送品質修復：新增 #41 PushBudget 單例（🟡 危險度，2 寫入者 pulse_engine+proactive_bridge 經由共用實例，2 讀取者同）；#8 PulseDB 表數 15→16（新增 push_log 表）；寫入者 3→4（+push_budget.py）；讀取者 12→13（+push_budget.py）；共享狀態 40→41 個；同步 persistence-contract v1.31、blast-radius v1.54、system-topology v1.46 |
 | 2026-03-22 | v1.34 | Brain 三層治療：新增 #35 `orchestrator_calls`（PulseDB 表，🟢 危險度，單寫入者 brain.py `_dispatch_orchestrate()`，讀取者 0 供未來 A1 確定性路由）；#8 PulseDB 表數 14→15；共享狀態 34→35 個；同步 persistence-contract v1.29、system-topology v1.37 |
 | 2026-03-22 | v1.33 | P0-P3 升級：新增 #34 `_system/backups/` 目錄（🟢 危險度，2 個寫入者各自寫不同子目錄無競爭——AnimaMCStore._backup_before_write() 寫 anima_mc/、PulseEngine._backup_pulse_md() 寫 pulse_md/，各保留 10 份 FIFO）；無讀取者（手動恢復）；共享狀態 33→34 個；同步 persistence-contract v1.28、system-topology v1.35、blast-radius v1.46、memory-router v1.4 |

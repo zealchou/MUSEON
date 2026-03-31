@@ -416,6 +416,16 @@ class TelegramAdapter(ChannelAdapter):
             except Exception as _dm_err:
                 logger.debug(f"DM context DB write error: {_dm_err}")
 
+        # ── DM 非 Owner 擋關 ──
+        if update.message and update.message.chat.type == "private":
+            _dm_user_id = str(update.message.from_user.id) if update.message.from_user else ""
+            if _dm_user_id not in self.trusted_user_ids:
+                logger.info(
+                    "[DM-BLOCK] EXTERNAL user %s attempted DM, silently blocked",
+                    _dm_user_id,
+                )
+                return
+
         await self.message_queue.put(update)
 
     async def _handle_file_upload(self, update: Update, context: Any) -> None:
@@ -494,6 +504,16 @@ class TelegramAdapter(ChannelAdapter):
                     (u, t) for u, t in self._pending_group_files[chat_id] if t > cutoff
                 ]
                 logger.info("Group file upload stashed from %s in chat %s (pending @mention)", user_id_str, chat_id)
+                return
+
+        # ── DM 非 Owner 檔案上傳擋關 ──
+        if update.message and update.message.chat.type == "private":
+            _dm_user_id = str(update.message.from_user.id) if update.message.from_user else ""
+            if _dm_user_id not in self.trusted_user_ids:
+                logger.info(
+                    "[DM-BLOCK] EXTERNAL user %s file upload blocked",
+                    _dm_user_id,
+                )
                 return
 
         if update.message and update.message.from_user:
@@ -1003,16 +1023,16 @@ class TelegramAdapter(ChannelAdapter):
             self._group_msg_counts[gid] = 0
 
     async def send_dm_to_owner(self, text: str) -> bool:
-        """Send a DM directly to the owner (first trusted_user_id)."""
-        if not self.application or not self.trusted_user_ids:
+        """向 Owner 發送系統通知（走統一推播出口）。
+
+        已整合到 push_notification(source="alert") 路徑，
+        保留方法簽名以免破壞呼叫方。
+        """
+        if not self.trusted_user_ids:
             return False
-        try:
-            owner_id = int(self.trusted_user_ids[0])
-            await self._safe_send(chat_id=owner_id, text=text)
-            return True
-        except Exception as e:
-            logger.error(f"send_dm_to_owner failed: {e}")
-            return False
+        owner_id = int(self.trusted_user_ids[0])
+        sent = await self.push_notification(text, chat_ids=[owner_id], source="alert")
+        return sent > 0
 
     async def send(self, message: InternalMessage) -> bool:
         """
@@ -1345,7 +1365,7 @@ class TelegramAdapter(ChannelAdapter):
         return chunks
 
     async def push_notification(
-        self, text: str, chat_ids: Optional[list] = None
+        self, text: str, chat_ids: Optional[list] = None, source: Optional[str] = None
     ) -> int:
         """推播通知到指定或所有受信任使用者 — 零 Token.
 
@@ -1354,6 +1374,7 @@ class TelegramAdapter(ChannelAdapter):
         Args:
             text: 推播訊息（純文字或 Telegram Markdown）
             chat_ids: 指定推播的 chat_id 列表，None = 所有 trusted users
+            source: 推播來源標籤（覆蓋 _current_push_source），例如 "alert"
 
         Returns:
             成功送出的訊息數量
@@ -1361,6 +1382,10 @@ class TelegramAdapter(ChannelAdapter):
         if not self.application or not self._running:
             logger.warning("Telegram adapter not running, cannot push notification")
             return 0
+
+        # 若明確傳入 source，覆蓋 instance 變數
+        if source is not None:
+            self._current_push_source = source
 
         # ProactiveDispatcher 攔截（Phase 1）
         try:
