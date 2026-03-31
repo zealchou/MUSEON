@@ -197,6 +197,11 @@ MUSEON_DEPENDENCIES: Dict[str, List[str]] = {
     # Phase 8: Evolution
     "24": [],                 # evolution velocity（獨立，讀取既有資料計算）
     "25": ["18"],             # periodic cycle check（依賴 daily summary 完成後再觸發）
+
+    # Phase 5+8: Persona Evolution
+    "34": ["10", "33"],       # persona_reflection 依賴 diary(10) + crystal_promotion(33)
+    "34.5": ["34"],           # trait_metabolize 依賴 persona_reflection
+    "34.7": ["34.5"],         # drift_direction_check 依賴 trait_metabolize
 }
 
 

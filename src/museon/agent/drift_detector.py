@@ -26,6 +26,8 @@ class DriftReport:
     awareness_log: str = ""  # 自我覺察日誌文字
     details: List[Dict[str, Any]] = field(default_factory=list)
     checked_at: str = ""
+    drift_direction: str = "neutral"           # "toward_user" | "away_from_user" | "stable" | "neutral"
+    personality_capture_risk: float = 0.0      # 0-1, cosine similarity with user profile
 
     def to_dict(self) -> dict:
         return {
@@ -34,6 +36,8 @@ class DriftReport:
             "awareness_log": self.awareness_log,
             "details": self.details,
             "checked_at": self.checked_at,
+            "drift_direction": self.drift_direction,
+            "personality_capture_risk": round(self.personality_capture_risk, 4),
         }
 
 
@@ -199,6 +203,8 @@ class DriftDetector:
         - 寫入覺察日誌而非觸發暫停
         """
         now_iso = datetime.now(timezone.utc).isoformat()
+        drift_direction = "neutral"
+        personality_capture_risk = 0.0
 
         if not self._baseline:
             self.take_baseline(anima_mc, anima_user, force=True)
@@ -279,12 +285,59 @@ class DriftDetector:
         # 生成覺察日誌
         awareness = self._generate_awareness_log(weighted_sum, details, should_restrict)
 
+        # ── Directional drift analysis (Phase 8) ──
+        try:
+            from museon.agent.momentum_brake import MomentumBrake
+            mb = MomentumBrake()
+
+            # Get trait_history for directional analysis
+            trait_history = anima_mc.get("evolution", {}).get("trait_history", [])
+            if trait_history:
+                directional = mb.compute_directional_drift(trait_history, days=7)
+                # Determine overall direction
+                positive_drifts = sum(1 for v in directional.values() if v.get("direction") == "positive")
+                negative_drifts = sum(1 for v in directional.values() if v.get("direction") == "negative")
+                if positive_drifts > negative_drifts + 1:
+                    drift_direction = "positive_bias"
+                elif negative_drifts > positive_drifts + 1:
+                    drift_direction = "negative_bias"
+                else:
+                    drift_direction = "stable"
+
+            # Check personality capture risk
+            user_primals = anima_user.get("eight_primals", {}) if anima_user else {}
+            if trait_history and user_primals:
+                # Get recent trait deltas
+                from datetime import datetime, timezone, timedelta
+                cutoff = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
+                recent_deltas = {}
+                for entry in trait_history:
+                    if entry.get("at", "") >= cutoff:
+                        tid = entry.get("trait", "")
+                        recent_deltas[tid] = recent_deltas.get(tid, 0) + entry.get("delta", entry.get("new", 0) - entry.get("old", 0))
+
+                if recent_deltas:
+                    user_primal_levels = {
+                        k: v.get("level", 0) if isinstance(v, dict) else v
+                        for k, v in user_primals.items()
+                    }
+                    capture_risk, capture_dir = mb.check_capture_risk(recent_deltas, user_primal_levels)
+                    personality_capture_risk = capture_risk
+                    if capture_dir == "toward_user":
+                        drift_direction = "toward_user"
+                    elif capture_dir == "away_from_user":
+                        drift_direction = "away_from_user"
+        except Exception as e:
+            logger.debug(f"Directional drift analysis skipped: {e}")
+
         report = DriftReport(
             drift_score=weighted_sum,
             should_restrict_morphenix=should_restrict,
             awareness_log=awareness,
             details=details,
             checked_at=now_iso,
+            drift_direction=drift_direction,
+            personality_capture_risk=personality_capture_risk,
         )
 
         # 累計漂移追蹤（不隨基線重置）

@@ -818,6 +818,28 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         except Exception as _e:
             logger.debug(f"八原語即時值取得失敗（降級）: {_e}")
 
+        # ── Step 2.2: Mask Layer activation ──
+        _mask_effective_traits = None
+        try:
+            from museon.agent.mask_engine import MaskEngine
+            _mask = MaskEngine(workspace=self.data_dir)
+            _user_energy = "MEDIUM"  # Default
+            if hasattr(self, '_current_energy'):
+                _user_energy = self._current_energy
+            _user_primals_for_mask = {}
+            if anima_user:
+                _user_primals_for_mask = {
+                    k: v.get("level", 0) if isinstance(v, dict) else v
+                    for k, v in anima_user.get("eight_primals", {}).items()
+                }
+            _core_traits = anima_mc.get("personality", {}).get("trait_dimensions", {})
+            if _core_traits:
+                _sender_id = str(user_id or session_id or 'unknown')
+                _mask.activate(_sender_id, _user_energy, _user_primals_for_mask, _core_traits)
+                _mask_effective_traits = _mask.get_effective_traits(_core_traits, _sender_id)
+        except Exception as e:
+            logger.debug(f"MaskEngine activation skipped: {e}")
+
         # ── Step 2.5: 簡單訊息判定（Pipeline 短路用）──
         # 短訊息且不含指令/分析關鍵字 → 跳過重量級步驟（MetaCog/KnowledgeLattice/Q-Score）
         _is_simple = (
@@ -1201,6 +1223,24 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         except Exception as e:
             logger.debug(f"Step 3.65 百合引擎降級: {e}")
 
+        # ── Step 3.655: Dissent Engine check ──
+        _dissent_context = ""
+        try:
+            from museon.agent.dissent_engine import DissentEngine
+            _de = DissentEngine(workspace=self.data_dir)
+            _stage_constraints = anima_mc.get("identity", {}).get("stage_constraints", {})
+            _dissent_signal = _de.check(
+                message=content,
+                anima_mc=anima_mc,
+                crystal_store_path=self.data_dir / "_system" / "crystal_rules.json",
+                growth_stage_constraints=_stage_constraints,
+            )
+            if _dissent_signal and _dissent_signal.should_dissent:
+                _dissent_context = _de.build_dissent_context(_dissent_signal)
+                logger.info(f"[DISSENT] strength={_dissent_signal.strength:.2f} capped={_dissent_signal.stage_capped}")
+        except Exception as e:
+            logger.debug(f"DissentEngine check skipped: {e}")
+
         # ── Step 3.66: 根因偵測層 — 掃描重複模式，偵測問題背後的問題 ──
         _report("🔍 根因偵測", "掃描重複模式...")
         root_cause_hint = ""
@@ -1281,6 +1321,14 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                     + root_cause_hint
                 )
 
+            # 合併 Dissent Engine 上下文到 reflection_note
+            _deliberation_with_dissent = deliberation_note
+            if _dissent_context:
+                _deliberation_with_dissent = (
+                    (_deliberation_with_dissent + "\n" if _deliberation_with_dissent else "")
+                    + _dissent_context
+                )
+
             system_prompt = self._build_system_prompt(
                 anima_mc=anima_mc,
                 anima_user=anima_user,
@@ -1291,7 +1339,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                 session_id=session_id,
                 routing_signal=routing_signal,
                 commitment_context=commitment_context,
-                reflection_note=deliberation_note,
+                reflection_note=_deliberation_with_dissent,
                 baihe_context=_combined_baihe,
             )
 
@@ -1954,6 +2002,14 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                 )
         except Exception as e:
             logger.debug(f"Morphenix 即時筆記跳過: {e}")
+
+        # ── Step 9.9: Mask Layer decay ──
+        try:
+            if '_mask' in dir() and _mask:
+                _sender_id = str(user_id or session_id or 'unknown')
+                _mask.decay_session(_sender_id)
+        except Exception as e:
+            logger.debug(f"MaskEngine decay skipped: {e}")
 
         # ── Step 10: 發布 BRAIN_RESPONSE_COMPLETE 事件（WEE 自動循環入口）──
         _report("✅ 完成", "準備發送回覆...")

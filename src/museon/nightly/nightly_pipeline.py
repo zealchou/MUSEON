@@ -130,6 +130,7 @@ _FULL_STEPS = [
     "31",  # v2 context_cache 重建
     "32",  # Crystal ri_score 每日衰減
     "33",  # 自動升級 Heuristic（結晶→啟發式規則）
+    "34", "34.5", "34.7",  # Phase 5/8: 人格自省 → Trait 代謝 → 方向性漂移檢查
 ]
 _ORIGIN_STEPS = ["5.8", "6", "7", "8", "16"]
 _NODE_STEPS = [
@@ -253,6 +254,10 @@ class NightlyPipeline:
             # ── Crystal 生命週期管理 ──
             "32": ("step_32_crystal_decay", self._step_crystal_decay),
             "33": ("step_33_crystal_promotion", self._step_crystal_promotion),
+            # ── Phase 5/8: Persona Evolution ──
+            "34": ("persona_reflection", self._step_persona_reflection),
+            "34.5": ("trait_metabolize", self._step_trait_metabolize),
+            "34.7": ("drift_direction_check", self._step_drift_direction_check),
         }
 
     def run(self, mode: str = "full") -> Dict:
@@ -4542,6 +4547,185 @@ class NightlyPipeline:
         except Exception as e:
             logger.warning(f"[NIGHTLY] CrystalPromotion failed: {e}")
             return {"status": "error", "error": str(e)}
+
+    # ═══════════════════════════════════════════
+    # Phase 5 + Phase 8: Persona Evolution Steps
+    # ═══════════════════════════════════════════
+
+    def _step_persona_reflection(self) -> dict:
+        """Step 34: Nightly persona self-reflection (P1-P5 evolution)."""
+        try:
+            from museon.nightly.nightly_reflection import NightlyReflectionEngine
+            from museon.pulse.anima_mc_store import get_anima_mc_store
+
+            engine = NightlyReflectionEngine()
+            anima_mc_store = get_anima_mc_store()
+            anima_mc = anima_mc_store.load()
+            if not anima_mc:
+                return {"skipped": "no ANIMA_MC"}
+
+            # Get today's soul rings
+            recent_rings = []
+            try:
+                rings_path = self._workspace / "data" / "anima" / "soul_rings.json"
+                if rings_path.exists():
+                    import json
+                    with open(rings_path) as f:
+                        all_rings = json.load(f)
+                    # Filter to today
+                    from datetime import datetime, timezone
+                    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+                    recent_rings = [r for r in all_rings if r.get("created_at", "").startswith(today)]
+            except Exception:
+                pass
+
+            # Get daily summary from Step 10's output
+            daily_summary = ""
+            try:
+                summary_path = self._workspace / "data" / "_system" / "state" / "nightly_report.json"
+                if summary_path.exists():
+                    import json
+                    with open(summary_path) as f:
+                        report = json.load(f)
+                    daily_summary = report.get("daily_summary", "")
+            except Exception:
+                pass
+
+            # LLM caller — use existing brain's LLM infrastructure
+            def llm_caller(system_prompt: str, user_prompt: str) -> str:
+                try:
+                    from museon.agent.llm_client import call_llm
+                    return call_llm(
+                        system_prompt=system_prompt,
+                        user_prompt=user_prompt,
+                        model="sonnet",
+                        max_tokens=1000,
+                    )
+                except ImportError:
+                    # Fallback: try anthropic directly
+                    import anthropic
+                    client = anthropic.Anthropic()
+                    response = client.messages.create(
+                        model="claude-sonnet-4-20250514",
+                        max_tokens=1000,
+                        system=system_prompt,
+                        messages=[{"role": "user", "content": user_prompt}],
+                    )
+                    return response.content[0].text
+
+            # Soul ring depositor
+            def soul_ring_depositor(**kwargs):
+                try:
+                    from museon.agent.soul_ring import DiaryStore
+                    ds = DiaryStore(self._workspace / "data" / "anima")
+                    ds.deposit_soul_ring(**kwargs)
+                except Exception as e:
+                    logger.warning(f"Soul ring deposit failed: {e}")
+
+            # KernelGuard
+            kernel_guard = None
+            try:
+                from museon.agent.kernel_guard import KernelGuard
+                kernel_guard = KernelGuard()
+            except Exception:
+                pass
+
+            result = engine.run(
+                anima_mc=anima_mc,
+                recent_soul_rings=recent_rings,
+                daily_summary=daily_summary,
+                llm_caller=llm_caller,
+                kernel_guard=kernel_guard,
+                anima_mc_store=anima_mc_store,
+                soul_ring_depositor=soul_ring_depositor,
+            )
+            return {"reflections": result.get("updates_applied", 0), "summary": result.get("reflection_summary", "")}
+        except Exception as e:
+            logger.warning(f"Step 34 persona_reflection failed: {e}")
+            return {"error": str(e)}
+
+    def _step_trait_metabolize(self) -> dict:
+        """Step 34.5: Update weight_profile + recompute core_traits + growth stage."""
+        try:
+            from museon.agent.trait_engine import TraitEngine
+            from museon.agent.growth_stage import GrowthStageComputer
+            from museon.pulse.anima_mc_store import get_anima_mc_store
+
+            te = TraitEngine()
+            gsc = GrowthStageComputer()
+            store = get_anima_mc_store()
+
+            def updater(anima_mc):
+                days = anima_mc.get("identity", {}).get("days_alive", 0)
+                personality = anima_mc.setdefault("personality", {})
+
+                # Update weight profile
+                personality["weight_profile"] = te.compute_weight_profile(days)
+                personality["weight_profile"]["computed_at_day"] = days
+
+                # Recompute human-readable core_traits
+                td = personality.get("trait_dimensions", {})
+                personality["core_traits"] = te.compute_core_traits_label(td)
+
+                # Recompute growth stage
+                stage, maturity, constraints = gsc.compute(anima_mc)
+                identity = anima_mc.setdefault("identity", {})
+                old_stage = identity.get("growth_stage", "ABSORB")
+                identity["growth_stage"] = stage
+                identity["cognitive_maturity"] = round(maturity, 3)
+                identity["stage_constraints"] = constraints
+                personality["growth_stage_computed"] = stage
+                personality["cognitive_maturity"] = round(maturity, 3)
+
+                return anima_mc
+
+            store.update(updater)
+            return {"ok": True}
+        except Exception as e:
+            logger.warning(f"Step 34.5 trait_metabolize failed: {e}")
+            return {"error": str(e)}
+
+    def _step_drift_direction_check(self) -> dict:
+        """Step 34.7: Check directional drift and personality capture risk."""
+        try:
+            from museon.agent.momentum_brake import MomentumBrake
+            from museon.pulse.anima_mc_store import get_anima_mc_store
+            import json
+
+            mb = MomentumBrake()
+            store = get_anima_mc_store()
+            anima_mc = store.load()
+            if not anima_mc:
+                return {"skipped": "no ANIMA_MC"}
+
+            trait_history = anima_mc.get("evolution", {}).get("trait_history", [])
+            drift_report = mb.compute_directional_drift(trait_history, days=7)
+
+            # Check for alerts
+            alerts = {tid: info for tid, info in drift_report.items() if info.get("alert")}
+
+            if alerts:
+                logger.info(f"[DRIFT DIRECTION] Alerts: {list(alerts.keys())}")
+                # Deposit warning soul ring
+                try:
+                    from museon.agent.soul_ring import DiaryStore
+                    ds = DiaryStore(self._workspace / "data" / "anima")
+                    alert_summary = ", ".join(f"{tid}: {info['direction']} ({info['consecutive_same_direction']}天)" for tid, info in alerts.items())
+                    ds.deposit_soul_ring(
+                        ring_type="value_calibration",
+                        description=f"方向性漂移警告：{alert_summary}",
+                        context="drift_direction_alert",
+                        impact="啟動慣性煞車觀察",
+                        entry_type="reflection",
+                        force=True,
+                    )
+                except Exception as e:
+                    logger.debug(f"Drift alert soul ring failed: {e}")
+
+            return {"drift_report": {k: v.get("direction", "stable") for k, v in drift_report.items()}, "alerts": list(alerts.keys())}
+        except Exception as e:
+            logger.warning(f"Step 34.7 drift_direction_check failed: {e}")
+            return {"error": str(e)}
 
     # ═══════════════════════════════════════════
     # 報告持久化
