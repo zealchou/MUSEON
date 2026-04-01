@@ -50,7 +50,7 @@ def _match_workflow_intent(content: str, skill_router) -> "Optional[str]":
     設計原則：
     - 完全複用 skill_router._index，無新依賴
     - 至少一個觸發詞完全匹配（THRESHOLD=2.5）才命中，避免誤判
-    - 只對 type=workflow 的 Skill 生效，type=skill 走原有 BrainFast 路徑
+    - 只對 type=workflow 的 Skill 生效，type=skill 走 brain.process() 統一管線
     """
     from typing import Optional as _Opt
     if not skill_router or not content:
@@ -102,10 +102,7 @@ async def _brain_process_with_sla(
     metadata=None,
     semaphore=None,
 ):
-    """Layer 1 即時回覆 + 90 秒 SLA 保證.
-
-    使用 BrainFast（極簡管線）取代完整 brain.process()。
-    """
+    """統一管線：所有訊息走 brain.process() + 90 秒 SLA 保證."""
     from museon.governance.bulkhead import get_brain_circuit_breaker
 
     cb = get_brain_circuit_breaker()
@@ -115,31 +112,16 @@ async def _brain_process_with_sla(
         logger.warning(f"BrainCircuitBreaker OPEN — returning fallback for {session_id}")
         return cb.fallback_message
 
-    # ── Layer 1：BrainFast 即時回覆（或 Intent Router 命中 workflow → L2）──
     async def _do_process():
         from museon.gateway.message import BrainResponse
-        # Intent Router 命中 workflow → 跳過 BrainFast，直接走 brain.process()（L2 完整流程）
-        if (metadata or {}).get("_workflow_intent"):
-            resp = await brain.process(
-                content=content,
-                session_id=session_id,
-                user_id=user_id,
-                source=source,
-                metadata=metadata,
-            )
-            return resp if isinstance(resp, BrainResponse) else BrainResponse(text=str(resp or ""))
-
-        # 正常路徑：BrainFast L1
-        from museon.gateway.server import _get_brain_fast
-        brain_fast = _get_brain_fast()
-        text = await brain_fast.process(
+        resp = await brain.process(
             content=content,
             session_id=session_id,
             user_id=user_id,
             source=source,
             metadata=metadata,
         )
-        return BrainResponse(text=text)
+        return resp if isinstance(resp, BrainResponse) else BrainResponse(text=str(resp or ""))
 
     brain_task = asyncio.create_task(_do_process())
     sla_notified = False
@@ -599,8 +581,8 @@ async def _handle_telegram_message(adapter, message) -> None:
                             _brain_metadata["trace_id"] = _tid
 
                             # ── Intent Router：群組外部訊息 workflow 意圖偵測 ──
-                            # 命中 workflow → 直接走 brain.process()（L2），跳過 BrainFast L1
-                            # 未命中 → 維持原有 BrainFast 路徑
+                            # 命中 workflow → metadata 帶 _workflow_intent
+                            # 所有路徑統一走 brain.process()
                             if not is_owner:
                                 _wf_match = _match_workflow_intent(
                                     message.content, brain.skill_router

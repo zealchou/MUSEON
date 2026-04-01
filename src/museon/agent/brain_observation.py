@@ -454,22 +454,12 @@ class BrainObservationMixin:
         content: str,
         session_id: str,
         matched_skills: list,
-        routing_signal: "Any" = None,
         baihe_quadrant: str = "",
     ) -> str:
         """Step 3.66: 根因偵測 — 掃描近期對話模式，偵測問題背後的問題.
 
-        只在 EXPLORATION_LOOP 或 SLOW_LOOP 啟動。
         使用 Haiku 低成本分析。受百合引擎 Q3 調節。
         """
-        # 只在非 FAST_LOOP 啟動
-        loop = (
-            getattr(routing_signal, "loop", "FAST_LOOP")
-            if routing_signal else "FAST_LOOP"
-        )
-        if loop == "FAST_LOOP":
-            return ""
-
         # 取得近期 session 歷史
         history = self._get_session_history(session_id)
         if len(history) < self._ROOT_CAUSE_MIN_HISTORY:  # 至少 3 輪

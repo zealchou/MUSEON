@@ -106,12 +106,19 @@ class ProactiveDispatcher:
             # 去重失敗 → 靜默放行（不能因為去重失敗就擋住推播）
             logger.debug(f"[Dispatcher] semantic dedup error, pass-through: {e}")
 
-        # 5. 三桶分級配額
+        # 5. 三桶分級配額（分時段）
         _bucket = self._get_bucket(source)
         if _bucket == "proactive":
+            _now_hour = datetime.now(TZ8).hour
             _today_count = self._count_today_by_bucket("proactive")
+            # 全日上限仍為 8
             if _today_count >= 8:
                 return False, "proactive_daily_limit"
+            # 凌晨 00-07 時段上限 2 次，保留白天額度
+            if _now_hour < 7:
+                _night_count = self._count_period_by_bucket("proactive", 0, 7)
+                if _night_count >= 2:
+                    return False, "proactive_daily_limit"
 
         # 6. 放行
         return True, ""
@@ -320,6 +327,31 @@ class ProactiveDispatcher:
                     _src = entry.get("source", "")
                     if self._get_bucket(_src) == bucket:
                         count += 1
+            except (ValueError, KeyError):
+                continue
+        return count
+
+    def _count_period_by_bucket(self, bucket: str, hour_start: int, hour_end: int) -> int:
+        """計算今日指定時段內指定桶的推播數量。
+
+        Args:
+            bucket: 桶名稱
+            hour_start: 起始小時（含），0-23
+            hour_end: 結束小時（不含），0-24
+        """
+        today = datetime.now(TZ8).strftime("%Y-%m-%d")
+        count = 0
+        for entry in self._entries:
+            try:
+                ts_str = entry.get("ts", "")
+                if ts_str[:10] != today or entry.get("blocked", False):
+                    continue
+                _src = entry.get("source", "")
+                if self._get_bucket(_src) != bucket:
+                    continue
+                entry_dt = datetime.fromisoformat(ts_str).astimezone(TZ8)
+                if hour_start <= entry_dt.hour < hour_end:
+                    count += 1
             except (ValueError, KeyError):
                 continue
         return count

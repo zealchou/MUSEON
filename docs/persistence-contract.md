@@ -1,8 +1,9 @@
-# MUSEON Persistence Contract v1.45 — 水電圖
+# MUSEON Persistence Contract v1.46 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
 > 與 `system-topology.md`（控制流拓撲）互補——那是「神經圖」，這是「水電圖」。
+> **v1.46 (2026-04-01)**：Brain 統一重構——Qdrant dna27 collection 標記為 deprecated（reflex_router 路由退役，signal_lite 取代，不再需要反射模式向量索引）；brain_fast.py 刪除後 session 檔案讀寫統一為 brain.py。
 > **v1.45 (2026-03-31)**：推播系統重構——`pulse/push_budget.py` 已刪除，PulseDB push_log 表的**直接寫入路徑**移除（push_log 表本身保留，但 push_budget.py 不再作為獨立寫入者）；`pulse/pulse_engine.py` 不再經由 PushBudget 讀取 push_log；`pulse/proactive_bridge.py` is_within_daily_limit 不再查 PushBudget；`push_journal_24h.json`（Engine 3 JSON 檔）維持 ProactiveDispatcher 單一寫入者不變（PushBudget 原本沒有直接寫入此檔，影響為零）；`gateway/server.py` 移除 PushBudget 注入區塊。同步 blast-radius v1.91、system-topology v1.72、joint-map v1.59。
 > **v1.44 (2026-03-31)**：Persona Evolution 系統——新增 `_system/mask_states.json`（面具狀態快照，mask_engine.py 原子寫入 tmp+rename，TTL=7 天，mask_engine.cleanup_stale 自動清理，每次儲存全量覆寫）；ANIMA_MC 新增子結構：`personality.trait_dimensions`（P1-P5 PSI 保護需 evolution_write、C1-C5 FREE 可 anima_mc_store.update 直接更新，寫入者=trait_engine.py C-traits 即時/nightly_reflection.py P-traits 每夜）、`evolution.trait_history`（APPEND_ONLY，寫入者=nightly_reflection.py，上限 200 筆）、`evolution.stage_history`（APPEND_ONLY，寫入者=brain_observation.py 於成長階段轉換時，上限 50 筆）。
 > **v1.43 (2026-03-31)**：9 條斷裂接線修復——新增持久化路徑 `data/_system/museoff/finding_counts.json`（🟢 MuseOff 異常計數，格式：`{finding_key: int}`，寫入者=doctor/finding.py record_occurrence()（原子讀寫），讀取者=doctor/museoff.py（觸發 ≥3 次升級判斷），生命週期=永久累積，無 TTL）；新增讀取路徑 `data/_system/evolution/tuned_parameters.json`（🟢 唯讀，skill_router.py _load_tuned_rc_weight() 讀取 RC 權重，寫入者=parameter_tuner.py，無格式變更）。同步 topology v1.69、blast-radius v1.87、joint-map v1.57。

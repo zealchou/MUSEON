@@ -1,10 +1,11 @@
-# Memory Router — 記憶路由表 v1.19
+# Memory Router — 記憶路由表 v1.20
 
 > **用途**：定義「什麼類型的洞見存到哪個記憶系統、什麼時候取出」。第五張工程藍圖。
 > **比喻**：郵局分揀表——每封信根據地址分到對應的信箱，不會寄丟也不會重複投遞。
 > **更新時機**：新增 Skill 或記憶系統時，必須在同一個 commit 中新增對應的路由規則。
 > **建立日期**：2026-03-21
 > **搭配**：`docs/skill-manifest-spec.md`（Skill I/O 合約）、各 Skill 的 `memory.writes` 欄位、`docs/operational-contract.md`（操作契約表）
+> **v1.20 (2026-04-01)**：Brain 統一重構——G3 記憶管線成員移除 reflex_router（路由退役）；記憶注入路徑統一為 brain.py→brain_prompt_builder.py（消除 brain_fast.py 平行路徑）。
 > **v1.19 (2026-03-31)**：Persona Evolution 系統——新增 1 條 diary 路由：nightly_reflection.py（Nightly Step 34）→ `soul_rings.json`（via RingDepositor.deposit_soul_ring），類型=value_calibration，觸發=每夜 Persona 自我反思，內容=特質差異佐證 + 反思摘要。同步 persistence-contract v1.44。
 > **v1.17 (2026-03-30)**：Skill 自動演化管線記憶路由——新增 3 條路由：skill-health-tracker→`data/_system/skill_health/{skill_name}.json`（Per-Skill 健康度快照，每夜 Step 19.5 寫入，SkillDraftForger 讀取判斷退化）；skill-draft-forger→`data/_system/skills_draft/draft_*.json`（Skill 草稿，Step 19.6 寫入，SkillQA Gate 讀取驗證）；skill-qa-gate→更新 `skills_draft/draft_*.json` 狀態欄位（pending_qa→approved/quarantine）。新增 1 條 feedback-loop 持久化路由：feedback-loop→`data/_system/feedback_loop/daily_summary.json`（每次互動後寫入，Nightly 信號源 7 讀取）。同步 system-topology v1.67、blast-radius v1.85。
 > **v1.16 (2026-03-30)**：新 Skill 群批次補路由——新增 7 條 knowledge-lattice 路由：finance-pilot→週期分析洞見（/close 結算時）、花費行為模式（累計 3 個月以上）；course-forge→課程設計模式（Pipeline 完成時）；ad-pilot→廣告優化洞見（/optimize 含品質護欄時）；equity-architect→合夥決策記錄（Mode B 選定方案時，路由至 decision-tracker→knowledge-lattice）；prompt-stresstest→壓測發現模式（final_gate 未通過時）；talent-match→招募模式洞見（證據面試包完成時）。

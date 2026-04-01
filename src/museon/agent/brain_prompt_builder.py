@@ -74,7 +74,8 @@ class BrainPromptBuilderMixin:
         safety_context: str = "",
         user_query: str = "",
         session_id: str = "",
-        routing_signal: Optional[Any] = None,
+        safety_triggered: bool = False,
+        max_crystal_push: int = 10,
         commitment_context: str = "",
         reflection_note: str = "",
         baihe_context: str = "",
@@ -88,27 +89,19 @@ class BrainPromptBuilderMixin:
           - memory:      2000 (Qdrant-primary memory injection)
           - buffer:      2000 (growth behavior + safety + overflow)
 
-        結構：DNA27 核心 → 路由感知 → ANIMA 身份 → 使用者畫像
+        結構：DNA27 核心 → ANIMA 身份 → 使用者畫像
               → 匹配的技能 → 子代理回報 → 記憶 → 結晶 → 成長行為
         """
         from museon.agent.token_optimizer import TokenBudget, estimate_tokens
 
         budget = TokenBudget()
 
-        # RoutingSignal 驅動的動態預算分配
-        if routing_signal:
-            try:
-                # 安全觸發（Tier A ≥ 0.5）→ 增加 buffer/modules 預算
-                if routing_signal.is_safety_triggered:
-                    budget.apply_dynamic_allocation(self._BUDGET_SAFETY_MULTIPLIER)
-                # 演化模式 → 增加 memory 預算（結晶注入量更大）
-                elif routing_signal.mode == "EVOLUTION_MODE":
-                    budget.apply_dynamic_allocation(self._BUDGET_EVOLUTION_MULTIPLIER)
-            except Exception as e:
-                logger.debug(f"Token budget 動態分配失敗（降級）: {e}")
+        # 安全觸發 → 增加 modules 預算
+        if safety_triggered:
+            budget.apply_dynamic_allocation(safety_triggered=True)
         elif safety_context and len(safety_context) > self._SAFETY_CONTEXT_THRESHOLD:
-            # 向後相容：沒有 routing_signal 時用 safety_context 長度推估
-            budget.apply_dynamic_allocation(1.5)
+            # 向後相容：沒有明確旗標時用 safety_context 長度推估
+            budget.apply_dynamic_allocation(safety_triggered=True)
 
         sections = []
 
@@ -123,8 +116,7 @@ class BrainPromptBuilderMixin:
                 sections.append(reflect_fitted)
 
         # ── Zone: core_system — DNA27 核心規則（always full）──
-        _loop = routing_signal.loop if routing_signal else "EXPLORATION_LOOP"
-        core_text = self._get_dna27_core(loop=_loop)
+        core_text = self._get_dna27_core()
         core_fitted = budget.fit_text_to_zone("core_system", core_text)
         sections.append(core_fitted)
 
@@ -300,15 +292,13 @@ class BrainPromptBuilderMixin:
                 logger.debug(f"Phase 7 insight inject skipped: {e}")
 
         # ── Zone: memory — 知識結晶三層注入（演化核心）──
-        # Layer 1: 動態 max_push（由 RoutingSignal 決定：5/10/30）
+        # Layer 1: 動態 max_push（由 max_crystal_push 參數決定，預設 10）
         # Layer 2: Crystal Chain Traversal（DAG 鏈式展開）
         # Layer 3: Crystal Compression（超過閾值時壓縮注入）
         if self.knowledge_lattice and user_query and not budget.is_exhausted("memory"):
             try:
-                # 動態 max_push：RoutingSignal 驅動，否則 fallback 到 5
-                max_push = 5
-                if routing_signal:
-                    max_push = routing_signal.max_crystal_push
+                # 動態 max_push：由 max_crystal_push 參數決定（預設 10）
+                max_push = max_crystal_push
 
                 # Layer 2: MemGPT 分層召回（Hot 常駐 + Warm 語義搜尋）
                 try:
@@ -1244,27 +1234,9 @@ class BrainPromptBuilderMixin:
         except Exception as e:
             logger.warning(f"Failure distill 存儲失敗: {e}")
 
-    def _get_dna27_core(self, loop: str = "EXPLORATION_LOOP") -> str:
-        """DNA27 核心規則 — 濃縮版（v9.0: 回應合約依迴圈動態調整）."""
-        # v9.0: 根據迴圈類型選擇回應合約
-        if loop == "FAST_LOOP":
-            response_contract = """## 回應合約（快速模式）
-1. 直接回應最緊迫的需求
-2. 一個具體的下一步
-3. 不超過 3 段
-即使是簡短回覆，也嘗試在結尾留一個開放性提問或新角度，讓對方看到可能沒想到的觀點。"""
-        elif loop == "SLOW_LOOP":
-            response_contract = """## 回應合約（深度模式）
-1. 我怎麼讀到你現在的狀態（1 句）
-2. 事實/假設/推論分離（若有）
-3. 1-3 個選項（每個含：甜頭/代價/風險/下一步）
-4. 最小下一步
-進行逆熵分析：
-- 目前方案的熵增風險在哪？（什麼會越來越混亂？）
-- 如何用最小能量創造最大秩序？
-- 有哪些外部槓桿可以降低內部成本？"""
-        else:  # EXPLORATION_LOOP
-            response_contract = """## 回應合約（探索模式）
+    def _get_dna27_core(self) -> str:
+        """DNA27 核心規則 — 濃縮版（固定使用探索模式回應合約，LLM 自行判斷迴圈節奏）."""
+        response_contract = """## 回應合約（探索模式）
 1. 我怎麼讀到你的狀態（1 句）
 2. 核心洞察或觀察
 3. 一個探索方向 + 一個具體小行動

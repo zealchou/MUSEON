@@ -10,7 +10,7 @@ Each advisor has:
 
 Usage:
     council = PDRCouncil(llm_adapter, brain)
-    verdict = await council.review(routing_signal, query, primary_response, session_id)
+    verdict = await council.review(query, primary_response, session_id, safety_triggered=False)
 """
 
 import asyncio
@@ -158,35 +158,28 @@ ADVISORS: Dict[str, AdvisorProfile] = {
 # ═══════════════════════════════════════
 
 def select_advisors(
-    routing_signal: Any,
+    safety_triggered: bool,
     query: str,
     primary_response: str,
     max_advisors: int = 4,
 ) -> List[str]:
-    """Select 2-4 advisors based on RoutingSignal + response characteristics."""
+    """Select 2-4 advisors based on response characteristics.
+
+    Fixed logic:
+    - Always include strategy + human perspectives (strategist + shadow)
+    - If safety_triggered, also include guardian
+    """
     selected = []
 
-    # 1. Safety/sovereignty triggers → guardian
-    cluster_scores = getattr(routing_signal, "cluster_scores", {})
-    tier_a = sum(cluster_scores.get(f"RC-A{i}", 0) for i in range(1, 8))
-    tier_b = sum(cluster_scores.get(f"RC-B{i}", 0) for i in range(1, 7))
-    if tier_a > 2.0 or tier_b > 2.0:
+    # 1. Always include core strategy + human perspectives
+    selected.append("strategist")
+    selected.append("shadow")
+
+    # 2. Safety triggered → include guardian perspective
+    if safety_triggered:
         selected.append("guardian")
 
-    # 2. SLOW_LOOP → always include devil's advocate
-    loop = getattr(routing_signal, "loop", "FAST_LOOP")
-    if loop == "SLOW_LOOP":
-        selected.append("devil")
-
-    # 3. Cluster-based selection
-    for advisor_id, profile in ADVISORS.items():
-        if advisor_id in selected:
-            continue
-        affinity = sum(cluster_scores.get(c, 0) for c in profile.dna27_clusters)
-        if affinity > 1.0:
-            selected.append(advisor_id)
-
-    # 4. Response-characteristic selection
+    # 3. Response-characteristic selection
     if len(primary_response) > 800 and "simplifier" not in selected:
         selected.append("simplifier")
 
@@ -259,11 +252,11 @@ class PDRCouncil:
 
     async def review(
         self,
-        routing_signal: Any,
         query: str,
         primary_response: str,
         session_id: str = "",
         available_skills: str = "",
+        safety_triggered: bool = False,
     ) -> PDRVerdict:
         """Run parallel advisor review and synthesize verdict."""
         from museon.agent.pdr_params import get_pdr_params
@@ -271,7 +264,7 @@ class PDRCouncil:
 
         # Select advisors
         advisor_ids = select_advisors(
-            routing_signal, query, primary_response,
+            safety_triggered, query, primary_response,
             max_advisors=params.phase2_advisor_count,
         )
         logger.info(f"[PDR Council] Selected advisors: {advisor_ids}")

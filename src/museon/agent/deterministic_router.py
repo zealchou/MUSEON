@@ -7,7 +7,7 @@ LLM 降級為可選的 focus 描述填充（容錯，失敗用預設描述）。
 設計原則：
 - 確定性 > 靈活性（成功率 100% > LLM 的 49%）
 - Skill 排序按 Hub 優先級（情緒先行 → 戰略 → 分析 → 執行）
-- depth/model 由 RoutingSignal 決定，不依賴 LLM 判斷
+- depth/model 由 is_simple 旗標決定：簡單 → haiku/quick，否則 → sonnet/standard
 - 優先級/模型偏好/依賴關係由 Skill Manifest 驅動，非硬編碼
 
 v1.1: 三項外部化——
@@ -85,7 +85,7 @@ def _build_depends_on(
 def decompose(
     user_request: str,
     matched_skills: List[Dict[str, Any]],
-    routing_signal: Optional[Any] = None,
+    is_simple: bool = False,
     max_tasks: int = 5,
 ) -> List[Dict[str, Any]]:
     """確定性任務分解.
@@ -93,7 +93,7 @@ def decompose(
     Args:
         user_request: 使用者原始訊息
         matched_skills: DNA27 匹配的 Skill 清單
-        routing_signal: RoutingSignal（含 loop、max_push 等）
+        is_simple: 簡單請求時使用 haiku/quick，否則使用 sonnet/standard
         max_tasks: 最大子任務數
 
     Returns:
@@ -115,24 +115,13 @@ def decompose(
     # Step 3: 取 top-N（不超過 max_tasks）
     selected = worker_skills[:max_tasks]
 
-    # Step 4: 決定 depth 和 model（由 RoutingSignal 驅動）
-    loop = "EXPLORATION_LOOP"
-    if routing_signal:
-        loop = getattr(routing_signal, "loop", "EXPLORATION_LOOP")
-
-    depth_map = {
-        "FAST_LOOP": "quick",
-        "EXPLORATION_LOOP": "standard",
-        "SLOW_LOOP": "deep",
-    }
-    default_depth = depth_map.get(loop, "standard")
-
-    model_map = {
-        "FAST_LOOP": "haiku",
-        "EXPLORATION_LOOP": "haiku",
-        "SLOW_LOOP": "sonnet",
-    }
-    default_model = model_map.get(loop, "haiku")
+    # Step 4: 決定 depth 和 model（簡單 → haiku/quick，否則 → sonnet/standard）
+    if is_simple:
+        default_depth = "quick"
+        default_model = "haiku"
+    else:
+        default_depth = "standard"
+        default_model = "sonnet"
 
     # Step 5: 從 io.inputs 推導依賴關係
     deps_map = _build_depends_on(selected)
@@ -156,6 +145,6 @@ def decompose(
 
     logger.info(
         f"[DeterministicRouter] 分解完成: {len(tasks)} tasks "
-        f"from {len(matched_skills)} matched, loop={loop}"
+        f"from {len(matched_skills)} matched, is_simple={is_simple}"
     )
     return tasks

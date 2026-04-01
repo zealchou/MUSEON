@@ -265,22 +265,6 @@ def _get_brain():
     return _brain
 
 
-_brain_fast = None
-
-
-def _get_brain_fast():
-    """Get the global BrainFast instance (Layer 1 即時回覆)."""
-    global _brain_fast
-    if _brain_fast is None:
-        from museon.agent.brain_fast import BrainFast
-        brain = _get_brain()
-        data_dir = _resolve_data_dir()
-        _brain_fast = BrainFast(
-            data_dir=data_dir,
-            llm_adapter=brain._llm_adapter,
-        )
-    return _brain_fast
-
 
 def _reset_brain():
     """Reset brain instance (for testing isolation)."""

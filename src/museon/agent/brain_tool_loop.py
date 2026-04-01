@@ -2,7 +2,7 @@
 run_tool_loop — 獨立的 tool-use 迴圈。
 
 從 BrainToolsMixin._call_llm() 提取，不依賴任何 self._* 狀態。
-供 BrainDeep（L2）和其他需要 tool-use 的場景使用。
+供需要 tool-use 的場景使用。
 """
 
 from __future__ import annotations

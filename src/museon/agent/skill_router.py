@@ -1,27 +1,26 @@
-"""DNA27-based Skill Router — 透過 DNA27 反射弧驅動技能喚醒.
+"""Skill Router — 透過關鍵字與向量語義驅動技能喚醒.
 
-v10.1 核心架構：DNA27 RC 叢集觸發 → 查詢每個 skill 自己宣告的 RC 親和 → 喚醒 skills。
+v11.0 核心架構：關鍵字匹配 + 向量語義搜尋 + 八原語親和 + MoE 衰減
 
-三層疊加評分（v10.1 調參）：
-  Layer 1: RC 驅動（權重 ×5.0）— 從 skill 檔案的 DNA27 親和對照動態載入
-  Layer 2: 關鍵字匹配（觸發詞 + 名稱 + 描述）
-  Layer 3: Qdrant 向量語義匹配（權重 ×1.5）
+三層疊加評分（v11.0）：
+  Layer 1: 關鍵字匹配（觸發詞 + 名稱 + 描述）
+  Layer 2: Qdrant 向量語義匹配（權重 ×1.5）
+  Layer 3: 八原語親和評分（權重 ×2.0）
 
-v10.1 修正：
-  - RC 權重 3.0→5.0（DNA27 反射弧必須主導 skill 選擇）
-  - Vector 權重 2.0→1.5（語義補充，不應蓋過 RC 信號）
-  - Always-on 底分 2.0→0.5（常駐 skill 不搶 slot）
-  - RC 保底機制：前 2 名 RC-matched skills 保證進入結果
-  - RC 歸一化修正：分母 cap=3，避免泛用型 skill 被稀釋
+v11.0 修正：
+  - 移除對 RoutingSignal（top_clusters、cluster_scores、tier_scores、mode、loop）的依賴
+  - match() 簽名簡化為 safety_triggered: bool + is_simple: bool
+  - safety_triggered=True 時只保留 always-on skills，其他降權
+  - is_simple=True 時 effective_top_n 縮減至 min(top_n, 3)
+  - RC affinity index 保留（供外部查詢），但不再驅動 match() 評分
 
-skills 不是外掛模組，而是嵌入在 DNA27 反射弧中的認知迴路。
-每個 skill 自己定義自己屬於哪條神經通路（不是硬編碼）。
+skills 不是外掛模組，而是透過關鍵字與語義匹配動態喚醒的認知工具。
 """
 
 import logging
 import re
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -368,10 +367,7 @@ class SkillRouter:
         except Exception as e:
             logger.warning(f"SkillRouter RC rebuild failed: {e}")
 
-    # 演化模式優先技能
-    _EVOLUTION_SKILLS = {"morphenix", "wee", "dse", "sandbox-lab", "eval-engine"}
-
-    # 市場/商業類技能（安全觸發時降權）
+    # 市場/商業類技能（safety_triggered=True 時降權）
     _MARKET_SKILLS = {
         "market-core", "market-equity", "market-crypto", "market-macro",
         "investment-masters", "sentiment-radar", "risk-matrix",
@@ -382,45 +378,43 @@ class SkillRouter:
         self,
         message: str,
         top_n: int = 5,
-        routing_signal: Any = None,
+        routing_signal: Any = None,  # 保留參數避免 brain.py 呼叫方爆炸，但不使用
         skill_usage: Optional[Dict[str, int]] = None,
         user_primals: Optional[Dict[str, int]] = None,
         signal_cache: Optional[Dict[str, Any]] = None,
+        safety_triggered: bool = False,
+        is_simple: bool = False,
     ) -> List[Dict[str, Any]]:
-        """v10.5 四層疊加匹配 — RC 驅動 + 關鍵字 + 向量 + 八原語 + MoE 衰減.
+        """v11.0 三層疊加匹配 — 關鍵字 + 向量 + 八原語 + MoE 衰減.
 
-        Layer 1: RC 驅動（權重 ×5.0）
-          - 從 routing_signal.top_clusters 取得觸發的 RC
-          - 查詢 RCAffinityIndex（skill 自己宣告的 RC 親和）
-          - 禁止的 skill 被自動壓制
-
-        Layer 2: 關鍵字匹配
+        Layer 1: 關鍵字匹配
           - 觸發詞 + /command + 名稱 + 描述詞
 
-        Layer 3: Qdrant 向量語義搜尋
+        Layer 2: Qdrant 向量語義搜尋
           - 語義相似度補充
 
-        Layer 4: ★ v10.5 八原語親和評分
+        Layer 3: 八原語親和評分
           - 使用者當前原語 × 技能原語親和度
 
-        最終分數 = (RC × 5.0 + kw + vec × 1.5 + primal × 2.0) × usage_decay
+        最終分數 = (kw + vec × 1.5 + primal × 2.0) × usage_decay
 
-        ★ v10.4 Route B: MoE-style usage frequency decay
-          - 借鏡 MoE auxiliary load balancing loss
+        MoE-style usage frequency decay:
           - 頻繁使用的 skill 自動衰減，防止壟斷
           - always_on 超過 3 次額外打折
 
-        DNA27 RoutingSignal 調節：
-          - Loop → effective_top_n
-          - Mode → EVOLUTION_MODE boost
-          - Safety → 市場/商業降權 + 高強度覆寫
+        安全模式調節：
+          - safety_triggered=True → 市場/商業降權，only always-on 保底
+          - is_simple=True → effective_top_n 縮減至 min(top_n, 3)
 
         Args:
             message: 使用者訊息
             top_n: 返回前 N 個匹配結果
-            routing_signal: DNA27 RoutingSignal（可選）
-            skill_usage: ★ v10.4 Route B — {skill_name: usage_count} session 內使用次數
-            user_primals: ★ v10.5 — {primal_key: level(0-100)} 使用者八原語
+            routing_signal: 已棄用，保留以維持向後相容（不使用）
+            skill_usage: {skill_name: usage_count} session 內使用次數
+            user_primals: {primal_key: level(0-100)} 使用者八原語
+            signal_cache: 訊號快取（含 suggested_skills）
+            safety_triggered: True 時降權市場/商業技能，非 always-on 大幅壓制
+            is_simple: True 時 effective_top_n = min(top_n, 3)
 
         Returns:
             匹配到的技能列表，按相關度排序
@@ -428,58 +422,17 @@ class SkillRouter:
         if not self._index:
             return []
 
-        # ── 維度 1: Loop 調節 effective_top_n ──
-        effective_top_n = top_n
-        if routing_signal:
-            try:
-                loop = routing_signal.loop
-                if loop == "FAST_LOOP":
-                    effective_top_n = min(top_n, 3)
-                elif loop == "SLOW_LOOP":
-                    effective_top_n = top_n + 2
-                # EXPLORATION_LOOP → 維持原 top_n
-            except Exception as e:
-                logger.debug(f"[SKILL_ROUTER] operation failed (degraded): {e}")
+        # ── effective_top_n：is_simple 決定 ──
+        effective_top_n = min(top_n, 3) if is_simple else top_n
 
-        # ── Layer 1: DNA27 RC 驅動 — 從 skill 自己的 RC 親和宣告匹配 ──
-        rc_scores: Dict[str, float] = {}
-        suppressed_skills: Set[str] = set()
+        # ── 安全模式旗標（來自 safety_triggered 參數） ──
         safety_override = False
-        is_evolution = False
         safety_downweight = False
-        fired_clusters: List[str] = []
+        if safety_triggered:
+            safety_downweight = True
+            safety_override = True  # 高強度覆寫：只保留 always-on
 
-        if routing_signal:
-            try:
-                # 提取 RC cluster IDs（去除後綴，如 RC-A1_energy_depletion → RC-A1）
-                fired_clusters = [
-                    c.split("_")[0].upper()
-                    for c in routing_signal.top_clusters
-                    if c
-                ]
-
-                # v10: 用 RCAffinityIndex（skill 自己宣告的 RC 親和）
-                if self._rc_index and fired_clusters:
-                    rc_scores = self._rc_index.get_skills_for_clusters(fired_clusters)
-                    # v10.2: 傳入叢集分數，只在 RC 分數 >= 0.5 時才壓制
-                    _cs = getattr(routing_signal, "cluster_scores", None) or {}
-                    suppressed_skills = self._rc_index.get_suppressed_skills(
-                        fired_clusters, cluster_scores=_cs,
-                    )
-
-                # Mode 過濾
-                if routing_signal.mode == "EVOLUTION_MODE":
-                    is_evolution = True
-                elif routing_signal.tier_scores.get("A", 0) >= 0.5:
-                    safety_downweight = True
-
-                # 高強度安全覆寫
-                if routing_signal.tier_scores.get("A", 0) >= 1.5:
-                    safety_override = True
-            except Exception as e:
-                logger.debug(f"RC scoring error: {e}")
-
-        # ── Layer 3: Qdrant 向量語義搜尋 ──
+        # ── Layer 2: Qdrant 向量語義搜尋 ──
         vector_scores = self._vector_search_skills(message, effective_top_n * 2)
 
         # ── 三層疊加評分 ──
@@ -489,11 +442,7 @@ class SkillRouter:
         for skill in self._index:
             skill_name = skill.get("name", "")
 
-            # 被 RC 禁止的 skill → 壓制
-            if skill_name in suppressed_skills:
-                continue
-
-            # ── Layer 2: 關鍵字匹配 ──
+            # ── Layer 1: 關鍵字匹配 ──
             kw_score = 0.0
 
             # v10.3: Always-on 底分從 0.5 再降至 0.2
@@ -530,38 +479,25 @@ class SkillRouter:
                     if trigger.lower() == cmd:
                         kw_score += 10.0
 
-            # ── DNA27 RoutingSignal 調節 ──
-            if routing_signal:
-                # EVOLUTION_MODE → 演化技能 boost
-                if is_evolution and skill_name in self._EVOLUTION_SKILLS:
-                    kw_score += 2.0
-
-                # 安全觸發 → 市場/商業技能降權
+            # ── 安全模式調節（由 safety_triggered 驅動） ──
+            if safety_downweight and skill_name in self._MARKET_SKILLS:
                 v_score_check = vector_scores.get(skill_name, 0.0)
-                if safety_downweight and skill_name in self._MARKET_SKILLS:
-                    if v_score_check >= 0.3:
-                        kw_score *= 0.7  # 語意相關 → 輕微降權
-                    else:
-                        kw_score *= 0.3  # 無語意相關 → 重度降權
+                if v_score_check >= 0.3:
+                    kw_score *= 0.7  # 語意相關 → 輕微降權
+                else:
+                    kw_score *= 0.3  # 無語意相關 → 重度降權
 
-                # 高強度安全覆寫 — 只保留 always-on + RC 親和技能
-                if safety_override:
-                    if not skill.get("always_on") and skill_name not in rc_scores:
-                        kw_score = 0.0
+            # 高強度安全覆寫 — 只保留 always-on skills
+            if safety_override:
+                if not skill.get("always_on"):
+                    kw_score = 0.0
 
-            # ── v10.5 四層疊加：RC × rc_weight + keyword + vector × 1.5 + primal × 2.0 ──
-            # RC 預設 5.0（DNA27 反射弧是核心驅動，必須主導）
-            # ★ v10.5: 短訊息 + 弱 RC 信號 → 動態降權至 2.0（讓語義有機會補正）
-            # Vector 降至 1.5（語義補充，不應蓋過神經迴路信號）
+            # ── v11.0 三層疊加：keyword + vector × 1.5 + primal × 2.0 ──
+            # Vector 1.5（語義補充）
             # Primal 2.0（八原語親和——使用者驅力影響技能選擇）
-            rc_s = rc_scores.get(skill_name, 0.0)
             v_score = vector_scores.get(skill_name, 0.0)
 
-            _rc_weight = self._load_tuned_rc_weight()
-            if len(message.strip()) < 20 and rc_s < 0.3 and rc_s > 0:
-                _rc_weight = 2.0
-
-            # ── Layer 4: 八原語親和評分 ──
+            # ── Layer 3: 八原語親和評分 ──
             primal_score = 0.0
             if user_primals:
                 try:
@@ -575,7 +511,7 @@ class SkillRouter:
                 except Exception:
                     pass
 
-            combined = rc_s * _rc_weight + kw_score + v_score * 1.5 + primal_score * 2.0
+            combined = kw_score + v_score * 1.5 + primal_score * 2.0
 
             # ── ★ Layer 5: Signal Cache 訊號加權（×3.0）──
             if signal_cache:
@@ -609,63 +545,28 @@ class SkillRouter:
         # Sort by score descending
         scored.sort(key=lambda x: x[0], reverse=True)
 
-        # v10.2 Fix: 加入 combined score 詳細 logging（debug 可見三層分數）
+        # v11.0 combined score logging（debug 可見 kw + vec 分數）
         if scored:
             top_detail = [
                 f"{s[1].get('name','')}={s[0]:.1f}"
-                f"(rc={rc_scores.get(s[1].get('name',''),0):.2f}×5"
-                f"+kw={s[0]-rc_scores.get(s[1].get('name',''),0)*5.0-vector_scores.get(s[1].get('name',''),0)*1.5:.1f}"
+                f"(kw={s[0]-vector_scores.get(s[1].get('name',''),0)*1.5:.1f}"
                 f"+vec={vector_scores.get(s[1].get('name',''),0):.2f}×1.5)"
                 for s in scored[:8]
             ]
             logger.debug(
-                f"[DNA27→Skill] combined_top8: {', '.join(top_detail)}"
+                f"[SkillRouter] combined_top8: {', '.join(top_detail)}"
             )
 
-        # ── v10.1 RC 保底機制：確保前 2 名 RC-matched skills 進入結果 ──
-        # 問題：always-on + vector 分數可能把所有 RC-matched skills 推出 top-N
-        # 修正：找出 RC scored skills，如果它們不在 top-N，替換掉最後的 slot
         result = [s[1] for s in scored[:effective_top_n]]
-        result_names = {s.get("name", "") for s in result}
 
-        if rc_scores:
-            # 按 RC 分數排序，取前 2 名 RC-matched skills
-            rc_ranked = sorted(rc_scores.items(), key=lambda x: x[1], reverse=True)
-            rc_guarantee_count = min(2, len(rc_ranked))
-
-            for i in range(rc_guarantee_count):
-                rc_skill_name = rc_ranked[i][0]
-                # v10.2 Fix: RC 保底不得覆蓋 suppressed_skills（安全壓制優先）
-                if rc_skill_name in suppressed_skills:
-                    continue
-                if rc_skill_name not in result_names:
-                    # 找到這個 skill 的完整 metadata
-                    rc_skill_meta = None
-                    for sc, sk in scored:
-                        if sk.get("name") == rc_skill_name:
-                            rc_skill_meta = sk
-                            break
-                    if rc_skill_meta:
-                        # 替換 result 最後一個（最低分的）slot
-                        if len(result) >= effective_top_n:
-                            result[-1] = rc_skill_meta
-                        else:
-                            result.append(rc_skill_meta)
-                        result_names.add(rc_skill_name)
-
-        if routing_signal and (rc_scores or fired_clusters):
-            top_rc = dict(sorted(rc_scores.items(), key=lambda x: x[1], reverse=True)[:5])
-            # v10.1: 加入 vector 分數 logging（debug 可見性）
-            top_vec = dict(sorted(vector_scores.items(), key=lambda x: x[1], reverse=True)[:5])
-            logger.info(
-                f"[DNA27→Skill] fired_clusters={fired_clusters}, "
-                f"rc_top5={top_rc}, "
-                f"vec_top5={top_vec}, "
-                f"suppressed={suppressed_skills}, "
-                f"safety_override={safety_override}, "
-                f"evolution={is_evolution}, "
-                f"effective_top_n={effective_top_n}"
-            )
+        # v11.0 routing logging
+        top_vec = dict(sorted(vector_scores.items(), key=lambda x: x[1], reverse=True)[:5])
+        logger.info(
+            f"[SkillRouter] vec_top5={top_vec}, "
+            f"safety_triggered={safety_triggered}, "
+            f"is_simple={is_simple}, "
+            f"effective_top_n={effective_top_n}"
+        )
 
         return result
 

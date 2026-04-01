@@ -116,8 +116,8 @@ SKILL_ARCHIVE_INACTIVE_DAYS = 30
 # Federation step sets
 _FULL_STEPS = [
     "0", "0.1",  # Budget settlement + Footprint cleanup (最先執行)
-    "1", "2", "3", "4", "5", "5.5", "5.6", "5.6.5", "5.7", "5.8", "5.8.1", "5.8.2", "5.9", "5.9.5", "5.10",
-    "6", "6.5", "7", "8", "8.5", "8.6", "8.7", "9", "10", "12", "13", "13.5",
+    "1", "2", "3", "4", "5", "5.5", "5.6", "5.6.5", "5.7", "5.8", "5.9", "5.9.5", "5.10",
+    "6", "6.5", "7", "7.5", "8", "8.5", "8.6", "8.7", "9", "10", "10.5", "10.6", "11", "12", "13", "13.5",
     "13.6", "13.7", "13.8",  # 外向型進化：觸發掃描 → 外向研究 → 消化生命週期
     "14", "15", "16", "17",
     "18", "18.5", "18.6", "18.7",  # 18.5: 客戶互動萃取 → 18.6: Ares 橋接 → 18.7: 六層健康檢查
@@ -2280,13 +2280,8 @@ class NightlyPipeline:
     # ═══════════════════════════════════════════
 
     def _step_dna27_reindex(self) -> Dict:
-        """Step 8.5: 重新索引 DNA27 反射模式到 Qdrant（零 LLM）."""
-        try:
-            from museon.agent.reflex_router import index_reflex_patterns_to_qdrant
-            indexed = index_reflex_patterns_to_qdrant(str(self._workspace))
-            return {"indexed_count": indexed}
-        except Exception as e:
-            return {"skipped": f"DNA27 reindex failed: {e}"}
+        """Step 8.5: DNA27 反射模式索引（已退役，reflex_router 路由功能已由 signal_lite 取代）."""
+        return {"skipped": "DNA27 reflex_router retired — routing replaced by signal_lite + persona_digest"}
 
     # ═══════════════════════════════════════════
     # Step 8.6: Skill 向量重索引

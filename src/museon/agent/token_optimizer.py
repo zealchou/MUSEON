@@ -300,13 +300,13 @@ class TokenBudget:
 
     _BUFFER_MIN_RESERVE = 500  # buffer zone 最低保留量，防止被完全借光
 
-    def apply_dynamic_allocation(self, max_tier_score: float) -> None:
-        """依據最高 tier score 動態調整預算.
+    def apply_dynamic_allocation(self, safety_triggered: bool = False) -> None:
+        """依據安全觸發狀態動態調整預算.
 
-        BDD Spec §5.2: max(tier_scores) > 1.0 → modules +20% from buffer.
+        safety_triggered=True → modules +20% from buffer.
         Buffer zone 保留至少 _BUFFER_MIN_RESERVE tokens 不外借。
         """
-        if max_tier_score > 1.0:
+        if safety_triggered:
             available = max(
                 self._zones.get("buffer", 0) - self._BUFFER_MIN_RESERVE,
                 0,
@@ -319,7 +319,7 @@ class TokenBudget:
                 self._zones["modules"] = self._zones.get("modules", 0) + bonus
                 self._zones["buffer"] = self._zones.get("buffer", 0) - bonus
             logger.debug(
-                f"TokenBudget dynamic: modules +{bonus}, "
+                f"TokenBudget dynamic (safety): modules +{bonus}, "
                 f"buffer -{bonus}"
             )
 

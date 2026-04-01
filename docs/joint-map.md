@@ -1,9 +1,10 @@
-# Joint Map — 共享可變狀態接頭圖 v1.59
+# Joint Map — 共享可變狀態接頭圖 v1.60
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
 > **更新時機**：改變共享檔案的讀寫者或格式時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
+> **v1.60 (2026-04-01)**：Brain 統一重構——刪除 brain_fast.py 相關共享狀態讀寫者條目（pending_insights.json #46、context_cache #47 的讀取者從 brain_fast.py 改為統一 brain.py）；Qdrant dna27 collection 標記為廢棄（reflex_router 退役）；session 歷史統一為 brain.py 單一讀寫者（消除 brain_fast.py 的平行 session 管理）；共享狀態 73→72 個。
 > **v1.59 (2026-03-31)**：推播系統重構——刪除 #41 索引項「PushBudget 單例」（`pulse/push_budget.py` 已刪除，全局推送配額改由 ProactiveDispatcher 三桶分級配額內建管理）；#8 PulseDB 寫入者 4→3（移除 push_budget.py），讀取者 13→12（移除 push_budget.py）；pulse_engine.py 不再經由 PushBudget 讀取 push_log；push_journal_24h.json（#48）寫入者維持 proactive_dispatcher.py 獨自寫入（PushBudget 已非第二寫入路徑）；共享狀態 73→72 個（刪除 #41 PushBudget 單例）。同步 blast-radius v1.91、system-topology v1.72、persistence-contract v1.45。
 > **v1.58 (2026-03-31)**：Persona Evolution 系統——新增 #70 `ANIMA_MC.personality.trait_dimensions`（🟠 人格特質維度，P1-P5 需 evolution_write，C1-C5 FREE，寫入者=trait_engine.py+nightly_reflection.py，讀取者=brain_prompt_builder+growth_stage+mask_engine+dissent_engine）；新增 #71 `ANIMA_MC.evolution.trait_history`（🟢 APPEND_ONLY 特質變化歷史，寫入者=nightly_reflection.py，讀取者=momentum_brake+drift_detector）；新增 #72 `ANIMA_MC.evolution.stage_history`（🟢 APPEND_ONLY 成長階段歷史，寫入者=brain_observation.py，讀取者=growth_stage）；新增 #73 `_system/mask_states.json`（🟢 短暫面具狀態，寫入者=mask_engine.py，讀取者=mask_engine.py，7 天自動清理）；更新 `_system/crystal_rules.json`（G5 新增讀取者=dissent_engine.py 矛盾校驗）；共享狀態 69→73 個。同步 blast-radius、system-topology。
 > **v1.57 (2026-03-31)**：9 條斷裂接線修復——新增 #69 `data/_system/museoff/finding_counts.json`（🟢 MuseOff 異常計數持久化，寫入者=doctor/finding.py record_occurrence()，讀取者=doctor/museoff.py ≥3次升級判斷，原子 JSON 讀寫，格式：{finding_key: int}，永久累積）；共享狀態 68→69 個。同步 blast-radius v1.87、system-topology v1.69、persistence-contract v1.43。

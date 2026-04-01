@@ -621,10 +621,10 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         # 斷點一修復(方案A)：確保 anima_user 永遠在 scope，即使 Step 2 因例外 early exit
         anima_user = None
 
-        # ── Step 0.5: 承諾自檢 — 檢查到期/逾期承諾 ──
+        # ── Step 0.5: 承諾自檢 — 檢查到期/逾期承諾（僅私訊，群組不注入）──
         _report("📋 承諾自檢", "檢查待辦承諾...")
         commitment_context = ""
-        if self._commitment_tracker:
+        if self._commitment_tracker and not self._is_group_session:
             try:
                 commitment_context = self._commitment_tracker.build_commitment_context()
                 if commitment_context:
@@ -632,25 +632,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
             except Exception as e:
                 logger.warning(f"承諾自檢失敗: {e}")
 
-        # ── Step 0.7: 元認知觀察 — 比對上次預判 vs 本次使用者反應 ──
-        _report("🔮 元認知觀察", "比對預判 vs 實際反應")
-        self._last_observation_accuracy = None  # v9.0: 供 Step 9.8 morphenix 橋接使用
-        if self._metacognition:
-            try:
-                _mc_observation = self._metacognition.observe_reaction(
-                    session_id=session_id,
-                    current_user_message=content,
-                )
-                if _mc_observation and _mc_observation.get("prediction_accuracy") is not None:
-                    self._last_observation_accuracy = _mc_observation["prediction_accuracy"]
-                    logger.info(
-                        f"[MetaCog] 預判觀察: "
-                        f"predicted={_mc_observation['predicted_type']}, "
-                        f"actual={_mc_observation['actual_type']}, "
-                        f"accuracy={_mc_observation['prediction_accuracy']:.2f}"
-                    )
-            except Exception as e:
-                logger.debug(f"元認知觀察跳過: {e}")
+        self._last_observation_accuracy = None  # 供 Step 9.8 morphenix 橋接使用
 
         # ── Step 1: 命名儀式（僅限私訊，群組不觸發）──
         if self.ceremony.is_ceremony_needed() and not self._is_group_session:
@@ -741,30 +723,6 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         except Exception as e:
             logger.warning(f"自我檢查模組載入失敗（降級跳過）: {e}", exc_info=True)
 
-        # ── Step 1.5: 直覺引擎 — Step -0.5（在 DNA27 路由之前） ──
-        _report("🔮 直覺感知", "信號掃描中...")
-        intuition_report = None
-        if self.intuition:
-            try:
-                user_history = self._get_session_history(session_id)
-                intuition_report = await self.intuition.sense(
-                    content=content,
-                    session_id=session_id,
-                    user_history=[
-                        {"content": m["content"]}
-                        for m in user_history
-                        if m.get("role") == "user"
-                    ][-10:],  # 最近 10 條使用者訊息
-                )
-                if intuition_report and intuition_report.has_significant_findings():
-                    logger.info(
-                        f"直覺引擎偵測到顯著信號: "
-                        f"anomalies={len(intuition_report.anomalies)}, "
-                        f"level={intuition_report.overall_level}"
-                    )
-            except Exception as e:
-                logger.warning(f"直覺引擎執行失敗（降級）: {e}")
-
         # ── Step 1.8: InputSanitizer — L2 輸入防線 ──
         _report("🛡️ 輸入安全檢查", "InputSanitizer 掃描")
         if self.input_sanitizer:
@@ -818,27 +776,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         except Exception as _e:
             logger.debug(f"八原語即時值取得失敗（降級）: {_e}")
 
-        # ── Step 2.2: Mask Layer activation ──
         _mask_effective_traits = None
-        try:
-            from museon.agent.mask_engine import MaskEngine
-            _mask = MaskEngine(workspace=self.data_dir)
-            _user_energy = "MEDIUM"  # Default
-            if hasattr(self, '_current_energy'):
-                _user_energy = self._current_energy
-            _user_primals_for_mask = {}
-            if anima_user:
-                _user_primals_for_mask = {
-                    k: v.get("level", 0) if isinstance(v, dict) else v
-                    for k, v in anima_user.get("eight_primals", {}).items()
-                }
-            _core_traits = anima_mc.get("personality", {}).get("trait_dimensions", {})
-            if _core_traits:
-                _sender_id = str(user_id or session_id or 'unknown')
-                _mask.activate(_sender_id, _user_energy, _user_primals_for_mask, _core_traits)
-                _mask_effective_traits = _mask.get_effective_traits(_core_traits, _sender_id)
-        except Exception as e:
-            logger.debug(f"MaskEngine activation skipped: {e}")
 
         # ── Step 2.5: 簡單訊息判定（Pipeline 短路用）──
         # 短訊息且不含指令/分析關鍵字 → 跳過重量級步驟（MetaCog/KnowledgeLattice/Q-Score）
@@ -925,28 +863,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
             except Exception as e:
                 logger.debug(f"Phase3c 健康感知路由調節失敗（降級）: {e}")
 
-        # ── Step 3.0.5: Multi-Agent 自動路由 — 根據訊息內容自動切換部門 ──
-        _report("🔀 Multi-Agent 路由", "自動切換部門...")
         self._multiagent_auxiliaries = []  # 重置每 turn 的輔助部門
-        if self._multiagent_enabled and self._context_switcher and _pipeline == "DEEP":
-            try:
-                from museon.multiagent.okr_router import route_extended
-                current_dept = self._context_switcher.current_dept
-                target_dept, confidence, auxiliaries = route_extended(
-                    content, current_dept,
-                    user_primals=_user_primals or None,
-                )
-                self._multiagent_auxiliaries = auxiliaries
-                if target_dept != current_dept and confidence >= 0.4:
-                    switch_result = self._context_switcher.switch_to(target_dept)
-                    if switch_result.get("switched"):
-                        logger.info(
-                            f"[MultiAgent] 自動路由: {current_dept} → {target_dept} "
-                            f"(confidence={confidence:.2f}, aux={auxiliaries})"
-                        )
-                self._context_switcher.add_message("user", content)
-            except Exception as e:
-                logger.debug(f"Multi-Agent 自動路由跳過: {e}")
 
         # ── Step 3.1: DNA27 路由 — 匹配技能（受 RoutingSignal 調節）──
         _report("🎯 匹配技能模組", "Skill Router 運算中...")
@@ -978,150 +895,8 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         skill_names = [s.get("name", "?") for s in matched_skills]
         logger.info(f"DNA27 matched skills: {skill_names}")
 
-        # ── Step 3.15: 主動 Skill 擴展（PDR 軌道 A）──
-        from museon.agent.pdr_params import get_pdr_params
-        _pdr = get_pdr_params()
-        if _pdr.feature_flag and _pdr.proactive_skill_expand and matched_skills:
-            _report("🔗 主動擴展 Skill", "根據 connects_to 關係擴展...")
-            try:
-                _expanded = self._proactive_expand_skills(matched_skills, routing_signal)
-                if _expanded:
-                    _exp_names = [s.get("name", "?") for s in _expanded]
-                    logger.info(f"[PDR] Proactive expand: +{_exp_names}")
-                    existing_names = {s.get("name") for s in matched_skills}
-                    for s in _expanded:
-                        if s.get("name") not in existing_names:
-                            matched_skills.append(s)
-                            existing_names.add(s.get("name"))
-                    skill_names = [s.get("name", "?") for s in matched_skills]
-            except Exception as _exp_err:
-                logger.debug(f"[PDR] Proactive expand failed: {_exp_err}")
-
-        # ── Step 3.2: P2 決策層信號偵測 ──
-        _report("⚖️ 決策層偵測", "掃描重大決策信號...")
-        decision_signal = None
-        try:
-            loop_mode = (
-                getattr(routing_signal, "loop", "EXPLORATION_LOOP")
-                if routing_signal else "EXPLORATION_LOOP"
-            )
-            decision_signal = self._detect_major_decision_signal(
-                query=content,
-                loop_mode=loop_mode,
-                anima_mc=anima_mc,
-                anima_user=anima_user,
-            )
-            if decision_signal.is_major:
-                logger.info(
-                    f"[P2] 重大決策信號偵測: type={decision_signal.decision_type}, "
-                    f"stakeholders={decision_signal.stakeholders_count}, "
-                    f"confidence={decision_signal.confidence:.2f}"
-                )
-        except Exception as e:
-            logger.debug(f"決策層信號偵測失敗（降級跳過）: {e}")
-            decision_signal = DecisionSignal(
-                is_major=False,
-                decision_type="",
-                confidence=0.0,
-                stakeholders_count=0,
-                impact_horizon_months=0,
-                details=f"偵測異常: {str(e)}",
-            )
-
-        # 存儲 decision_signal 供 _deliberate() 使用
-        self._last_decision_signal = decision_signal
-
-        # ── Step 3.3: P2 決策層路徑短路 — 重大決策先問後答 ──
-        # 若偵測到重大決策，立即進入「決策層反問模式」，不進入後續 pipeline
-        if decision_signal and decision_signal.is_major:
-            try:
-                decision_response = await self._handle_decision_layer_path(
-                    query=content,
-                    decision_signal=decision_signal,
-                    session_id=session_id,
-                    anima_mc=anima_mc,
-                    anima_user=anima_user,
-                )
-
-                # 記錄決策層互動
-                if session_id:
-                    self._sessions.setdefault(session_id, []).append({
-                        "role": "assistant",
-                        "content": decision_response,
-                        "decision_layer": True,
-                    })
-
-                # 簡略的決策層事件追蹤
-                try:
-                    from museon.pulse.heartbeat_engine import log_action
-                    log_action(
-                        self.data_dir,
-                        event="decision_layer_triggered",
-                        details={
-                            "decision_type": decision_signal.decision_type,
-                            "stakeholders": decision_signal.stakeholders_count,
-                        },
-                    )
-                except Exception as _log_e:
-                    logger.debug(f"[P2] 決策層日誌記錄失敗: {_log_e}", exc_info=True)
-
-                logger.info("[P2] 決策層路徑完成，返回反問回覆")
-                return decision_response
-
-            except Exception as e:
-                logger.error(
-                    f"[P2] 決策層路徑失敗，降級進入正常 pipeline: {e}",
-                    exc_info=True,
-                )
-                # 降級：繼續進行正常 pipeline
-
-        # ── Step 3.4: P3 策略層並行融合信號偵測 ──
-        _report("⚗️ 策略層融合", "多視角信號偵測...")
-        # 條件：非 P2 重大決策 + 非簡單訊息 + SLOW/EXPLORATION_LOOP + 有策略層 Skill
-        _p3_fusion_signal = P3FusionSignal(
-            should_fuse=False, perspectives=[], confidence=0.0, reason="未偵測"
-        )
-        if not (decision_signal and decision_signal.is_major) and not _is_simple:
-            try:
-                _p3_loop_mode = (
-                    getattr(routing_signal, "loop", "EXPLORATION_LOOP")
-                    if routing_signal else "EXPLORATION_LOOP"
-                )
-                _p3_fusion_signal = self._detect_p3_strategy_layer_signal(
-                    query=content,
-                    loop_mode=_p3_loop_mode,
-                    matched_skills=skill_names,
-                )
-                if _p3_fusion_signal.should_fuse:
-                    logger.info(
-                        f"[P3] 策略層融合信號: "
-                        f"perspectives={_p3_fusion_signal.perspectives}, "
-                        f"confidence={_p3_fusion_signal.confidence:.2f}, "
-                        f"reason={_p3_fusion_signal.reason}"
-                    )
-            except Exception as e:
-                logger.debug(f"[P3] 融合信號偵測失敗（降級跳過）: {e}")
-
-        # ── Step 3.5: 計畫引擎觸發檢查 ──
-        _report("📐 計畫引擎", "觸發評估中...")
-        if self.plan_engine:
-            try:
-                plan_decision = self.plan_engine.assess_trigger(
-                    content=content,
-                    context={
-                        "matched_skills": skill_names,
-                        "session_id": session_id,
-                    },
-                )
-                if plan_decision.should_plan:
-                    logger.info(
-                        f"計畫引擎觸發: reason={plan_decision.reason}, "
-                        f"complexity={plan_decision.complexity_score:.2f}"
-                    )
-                    # 計畫引擎只觸發建議，不攔截回覆流程
-                    # 使用者需透過 /plan 指令啟動完整流程
-            except Exception as e:
-                logger.warning(f"計畫引擎評估失敗: {e}")
+        # decision_signal 初始化（供 _deliberate() 使用）
+        self._last_decision_signal = None
 
         # ── Step 3.6: SubAgent — 收集已完成子代理的結果 + 推播通知 ──
         sub_agent_context = ""
@@ -1157,107 +932,9 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
             except Exception as e:
                 logger.warning(f"SubAgent 結果收集失敗: {e}")
 
-        # ── Step 3.65: 百合引擎 — 軍師四象限路由 ──
-        _report("🎭 百合引擎", "軍師四象限路由...")
         baihe_context = ""
-        try:
-            _lord_path = self.data_dir / "_system" / "lord_profile.json"
-            if _lord_path.exists():
-                _lord_raw = _lord_path.read_text(encoding="utf-8")
-                _lord_profile = json.loads(_lord_raw)
-                # 取得 user_primals（如果有）
-                _user_primals = None
-                if anima_user:
-                    _raw_primals = anima_user.get("eight_primals", {})
-                    _user_primals = {
-                        k: int(v.get("level", 0)) if isinstance(v, dict) else 0
-                        for k, v in _raw_primals.items()
-                    }
-                from museon.agent.persona_router import PersonaRouter
-                _baihe_router = PersonaRouter()
-                _baihe_context_data = {
-                    "routing_signal_loop": getattr(routing_signal, "loop", "EXPLORATION_LOOP") if routing_signal else "EXPLORATION_LOOP",
-                    "top_clusters": getattr(routing_signal, "top_clusters", []) if routing_signal else [],
-                    "matched_skills": [s.get("name", "") for s in matched_skills],
-                    "has_commitment": bool(commitment_context),
-                    "session_history_len": len(self._get_session_history(session_id)),
-                    "is_late_night": datetime.now().hour >= 23 or datetime.now().hour < 6,
-                }
-                _baihe_decision = _baihe_router.baihe_decide(
-                    content, _baihe_context_data, _lord_profile, _user_primals,
-                )
-                baihe_context = self._format_baihe_guidance(_baihe_decision)
-
-                # 更新進諫冷卻（如果本輪進諫了）
-                if _baihe_decision.should_advise:
-                    _cooldown = _lord_profile.setdefault("advise_cooldown", {})
-                    _cooldown["last_advise_ts"] = datetime.now().isoformat()
-                    _cooldown["session_advise_count"] = (
-                        _cooldown.get("session_advise_count", 0) + 1
-                    )
-                    _tmp = _lord_path.with_suffix(".json.tmp")
-                    _tmp.write_text(
-                        json.dumps(_lord_profile, ensure_ascii=False, indent=2) + "\n",
-                        encoding="utf-8",
-                    )
-                    _tmp.replace(_lord_path)
-
-                # P3: 寫入 baihe_cache 供 ProactiveBridge 讀取象限
-                try:
-                    _baihe_cache_path = self.data_dir / "_system" / "baihe_cache.json"
-                    _baihe_cache = {
-                        "quadrant": _baihe_decision.quadrant.value,
-                        "expression_mode": _baihe_decision.expression_mode,
-                        "advise_tier": _baihe_decision.advise_tier,
-                        "topic_domain": _baihe_decision.topic_domain.value,
-                        "ts": datetime.now().isoformat(),
-                    }
-                    _tmp2 = _baihe_cache_path.with_suffix(".json.tmp")
-                    _tmp2.write_text(
-                        json.dumps(_baihe_cache, ensure_ascii=False) + "\n",
-                        encoding="utf-8",
-                    )
-                    _tmp2.replace(_baihe_cache_path)
-                except Exception as _cache_e:
-                    logger.debug(f"Step 3.65 百合快取寫入失敗: {_cache_e}", exc_info=True)
-        except Exception as e:
-            logger.debug(f"Step 3.65 百合引擎降級: {e}")
-
-        # ── Step 3.655: Dissent Engine check ──
         _dissent_context = ""
-        try:
-            from museon.agent.dissent_engine import DissentEngine
-            _de = DissentEngine(workspace=self.data_dir)
-            _stage_constraints = anima_mc.get("identity", {}).get("stage_constraints", {})
-            _dissent_signal = _de.check(
-                message=content,
-                anima_mc=anima_mc,
-                crystal_store_path=self.data_dir / "_system" / "crystal_rules.json",
-                growth_stage_constraints=_stage_constraints,
-            )
-            if _dissent_signal and _dissent_signal.should_dissent:
-                _dissent_context = _de.build_dissent_context(_dissent_signal)
-                logger.info(f"[DISSENT] strength={_dissent_signal.strength:.2f} capped={_dissent_signal.stage_capped}")
-        except Exception as e:
-            logger.debug(f"DissentEngine check skipped: {e}")
-
-        # ── Step 3.66: 根因偵測層 — 掃描重複模式，偵測問題背後的問題 ──
-        _report("🔍 根因偵測", "掃描重複模式...")
         root_cause_hint = ""
-        try:
-            root_cause_hint = await self._detect_root_cause_hint(
-                content=content,
-                session_id=session_id,
-                matched_skills=matched_skills,
-                routing_signal=routing_signal,
-                baihe_quadrant=getattr(
-                    locals().get("_baihe_decision"), "quadrant", None
-                ),
-            )
-            if root_cause_hint and root_cause_hint.strip():
-                logger.info(f"[RootCause] 偵測到重複模式: {root_cause_hint[:100]}")
-        except Exception as e:
-            logger.debug(f"Step 3.66 根因偵測降級: {e}")
 
         # ── Step 3.8: 謀定而後動 — 所有路徑前執行（dispatch 之前）──
         _report("🧘 謀定而後動", "深度反思中...")
@@ -1282,10 +959,9 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
 
         # ── Step 3.7: Dispatch Assessment（分派評估）──
         _report("📤 Dispatch 評估", "分派決策中...")
-        # ★ 初始化 P3 審查變數（dispatch/normal 兩條路徑都會在後續引用）
+        # 初始化 Q-Score 相關變數（dispatch/normal 兩條路徑共用）
         q_score = None
         thinking_path_summary = ""
-        p3_fusion_result = None
         dispatch_decision = self._assess_dispatch(content, matched_skills)
         if dispatch_decision["should_dispatch"] and _pipeline == "DEEP":
             logger.info(
@@ -1394,14 +1070,6 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                 except Exception as e:
                     logger.warning(f"SkillHub skill_builder 注入失敗: {e}")
 
-            # ── Step 4.5: 主動工具偵測（PDR 軌道 A）──
-            if _pdr.feature_flag and _pdr.proactive_tool_invoke:
-                _report("🔧 主動工具偵測", "掃描工具調用機會...")
-                _tool_hints = self._detect_tool_opportunities(content)
-                if _tool_hints:
-                    system_prompt += f"\n\n[主動工具提示 — 根據使用者訊息偵測到可用工具]\n{_tool_hints}\n如果對回覆有幫助，請主動使用上述工具。"
-                    logger.info(f"[{_trace_id}] PDR tool hints injected: {len(_tool_hints)} chars")
-
             # ── Step 5: 載入對話歷史 ──
             _report("💾 載入對話歷史", "session 歷史載入...")
             history = self._get_session_history(session_id)
@@ -1416,32 +1084,6 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                 dropping = history[:-_max_history]
                 self._pre_compact_flush(session_id, dropping)
                 history[:] = history[-_max_history:]
-
-            # ── Step 5.5: P3 前置融合 — 並行收集多視角洞察注入主回覆 ──
-            _report("⚗️ P3 前置融合", "多視角洞察收集...")
-            # 核心改變：視角不再「追加」在主回覆後面，而是「交織」在主回覆裡面
-            _p3_pre_fusion_ctx = ""
-            if _p3_fusion_signal and _p3_fusion_signal.should_fuse:
-                try:
-                    _p3_pre_fusion_ctx = await self._p3_gather_pre_fusion_insights(
-                        query=content,
-                        fusion_signal=_p3_fusion_signal,
-                        anima_user=anima_user,
-                    )
-                    if _p3_pre_fusion_ctx:
-                        # 注入 system prompt — 讓主 LLM 自然交織多視角
-                        system_prompt = (
-                            system_prompt
-                            + "\n\n"
-                            + _p3_pre_fusion_ctx
-                        )
-                        logger.info(
-                            f"[P3] 前置融合注入完成: "
-                            f"perspectives={_p3_fusion_signal.perspectives}, "
-                            f"ctx_len={len(_p3_pre_fusion_ctx)}"
-                        )
-                except Exception as e:
-                    logger.debug(f"[P3] 前置融合失敗（降級繼續）: {e}")
 
             # ── Step 6: 呼叫 Claude API（含 tool_use 支援）──
             _report("💬 Claude 思考中", "等待 AI 回應...")
@@ -1509,29 +1151,6 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                     matched_skills=skill_names,
                 )
 
-                # ── Phase 4.5: P3 策略層交織融合簽名 ──
-                # v1.22: 視角已在 Step 5.5 前置注入 system_prompt，
-                # 主 LLM 回覆自然交織多視角，不再追加獨立區塊。
-                # 僅在回覆末尾加入融合來源簽名（使用者知道哪些視角參與了）。
-                if _p3_pre_fusion_ctx and _p3_fusion_signal and _p3_fusion_signal.should_fuse:
-                    _perspective_emojis = {
-                        "strategy": "🌀 wind",
-                        "human": "💧 water",
-                        "risk": "🔥 fire",
-                    }
-                    _fused_names = [
-                        _perspective_emojis.get(p, p)
-                        for p in _p3_fusion_signal.perspectives
-                    ]
-                    _fusion_tag = "、".join(_fused_names)
-                    response_text = (
-                        response_text
-                        + f"\n\n---\n🧬 *本回覆融合了{_fusion_tag}的觀點*"
-                    )
-                    logger.info(
-                        f"[P3] 交織融合完成: perspectives={_p3_fusion_signal.perspectives}"
-                    )
-
             # ── v10.5: 清理 tool-use 中間訊息 ──
             # _call_llm 會透過 messages（= history 同引用）直接
             # append tool_use/tool_result 中間訊息，這些對後續輪次
@@ -1551,62 +1170,26 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                 logger.info(f"跳過 session 持久化（離線回覆）")
                 self._offline_flag = False  # 重置
 
-            # ── Step 6.2-6.5: P3 並行融合模式 ── (★ v1.21 實裝)
-            _report("🔍 品質審查", "PreCognition + Q-Score...")
-            # ★ 三角度同步審查：MetaCog + Eval + Health（無串行瓶頸）
-            # 改進方向：由原本的 Phase 4.5 策略層融合改為 Step 6 決策審查層並行融合
+            # ── Step 6.5: Q-Score 評分 ──
             pre_review = None
             q_score = None
             thinking_path_summary = ""
-            p3_fusion_result = None
 
-            if _pipeline == "DEEP" and (self._metacognition or self.eval_engine):
+            if _pipeline == "DEEP" and self.eval_engine:
                 try:
-                    # ★ P3 並行融合：三個評分模組並行執行（MetaCog + Eval + Health）
-                    p3_fusion_result = await self._parallel_review_synthesis(
-                        draft_response=response_text,
-                        user_query=content,
-                        response_content=response_text,
-                        routing_signal=routing_signal,
+                    q_score = self.eval_engine.score(
+                        query=content,
+                        response=response_text,
                         matched_skills=skill_names,
                     )
-
-                    # 解包融合結果
-                    pre_review = p3_fusion_result.get("pre_review")
-                    q_score = p3_fusion_result.get("q_score")
-                    thinking_path_summary = p3_fusion_result.get("thinking_path_summary", "")
-                    fusion_verdict = p3_fusion_result.get("fusion_verdict", "pass")
-
-                    # 記錄 Q-Score 評分（如果有）
                     if q_score:
                         logger.debug(
                             f"Q-Score: {q_score.score:.3f} ({q_score.tier}) | "
                             f"U={q_score.understanding:.2f} D={q_score.depth:.2f} "
                             f"C={q_score.clarity:.2f} A={q_score.actionability:.2f}"
                         )
-
-                    # Step 6.3: 根據融合決策執行修改
-                    if fusion_verdict == "revise" and pre_review:
-                        logger.info(
-                            f"[P3-Fusion] REVISE 決策 | "
-                            f"feedback={pre_review.get('feedback', '')[:80]}..."
-                        )
-                        refined = await self._refine_with_precog_feedback(
-                            system_prompt=system_prompt,
-                            messages=history[:-1] if len(history) > 1 else history,
-                            feedback=pre_review.get("feedback", ""),
-                        )
-                        if refined:
-                            response_text = refined
-                            # 更新歷史中的回覆
-                            history[-1] = {"role": "assistant", "content": response_text}
-                    elif fusion_verdict == "alert":
-                        logger.warning(
-                            "[P3-Fusion] ALERT 決策 | 系統健康度臨界，建議監控"
-                        )
-
                 except Exception as e:
-                    logger.warning(f"P3 並行融合異常，降級運行: {e}")
+                    logger.debug(f"Q-Score 評分跳過: {e}")
 
         # ── Step 7: 持久化到記憶 ──
         _report("💾 寫入記憶", "四通道持久化...")
@@ -1959,27 +1542,6 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
             except Exception as e:
                 logger.warning(f"ANIMA_MC 自我觀察失敗: {e}")
 
-        # ── Step 9.7: 元認知預判 — 預測使用者對本次回覆的反應 ──
-        _report("🔮 元認知預判", "預測使用者反應...")
-        # ★ 寫入排隊：predict_reaction 寫入 PulseDB，通過 WriteQueue 序列化
-        if self._metacognition:
-            try:
-                _predict_fn = self._metacognition.predict_reaction
-                _predict_kwargs = dict(
-                    session_id=session_id,
-                    user_query=content,
-                    response=response_text,
-                    routing_signal=routing_signal,
-                    matched_skills=skill_names,
-                    pre_review=pre_review,
-                )
-                if self._wq:
-                    self._wq.enqueue("metacog_predict", _predict_fn, **_predict_kwargs)
-                else:
-                    _predict_fn(**_predict_kwargs)
-            except Exception as e:
-                logger.debug(f"元認知預判跳過: {e}")
-
         # ── Step 9.8: Morphenix 即時筆記橋接（v9.0）──
         # PreCognition REVISE 或 PostCognition 觀察準確率低 → 自動寫入 morphenix 筆記
         try:
@@ -1999,14 +1561,6 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                 )
         except Exception as e:
             logger.debug(f"Morphenix 即時筆記跳過: {e}")
-
-        # ── Step 9.9: Mask Layer decay ──
-        try:
-            if '_mask' in dir() and _mask:
-                _sender_id = str(user_id or session_id or 'unknown')
-                _mask.decay_session(_sender_id)
-        except Exception as e:
-            logger.debug(f"MaskEngine decay skipped: {e}")
 
         # ── Step 10: 發布 BRAIN_RESPONSE_COMPLETE 事件（WEE 自動循環入口）──
         _report("✅ 完成", "準備發送回覆...")

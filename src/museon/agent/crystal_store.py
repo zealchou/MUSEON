@@ -153,6 +153,20 @@ class CrystalStore(DataContract):
                     logger.info(f"CrystalStore: 遷移新增欄位 {col_name}")
                 except sqlite3.OperationalError:
                     pass  # 欄位已存在，靜默跳過
+
+            # ── 漸進遷移：reinforcement_count 欄位（v1.60） ──
+            _REINFORCEMENT_COLUMNS = [
+                ("reinforcement_count", "INTEGER NOT NULL DEFAULT 0"),
+            ]
+            for col_name, col_def in _REINFORCEMENT_COLUMNS:
+                try:
+                    conn.execute(
+                        f"ALTER TABLE crystals ADD COLUMN {col_name} {col_def}"
+                    )
+                    conn.commit()
+                    logger.info(f"CrystalStore: 遷移新增欄位 {col_name}")
+                except sqlite3.OperationalError:
+                    pass  # 欄位已存在，靜默跳過
         finally:
             conn.close()
 
