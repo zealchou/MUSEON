@@ -3967,7 +3967,7 @@ class NightlyPipeline:
                         total_repairs += 1
                         _repair_id = _entry.get("repair_id", _entry.get("id", "unknown"))
                         _status = str(_entry.get("status", "")).upper()
-                        if _status in ("OK", "SUCCESS", "DONE", "FIXED"):
+                        if _status in ("OK", "SUCCESS", "DONE", "FIXED", "REPAIRED"):
                             success_count += 1
                             details.append(f"{_repair_id}: OK")
                         else:

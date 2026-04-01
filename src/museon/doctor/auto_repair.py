@@ -424,7 +424,7 @@ class AutoRepair:
             conn.row_factory = sqlite3.Row
             cursor = conn.execute(
                 "SELECT id, title, content FROM crystals "
-                "WHERE type='procedure' AND status='active'"
+                "WHERE crystal_type='procedure' AND status='active'"
             )
             procedures = cursor.fetchall()
             conn.close()

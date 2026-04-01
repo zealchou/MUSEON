@@ -569,9 +569,9 @@ class MuseOff:
             try:
                 rows = conn.execute(
                     """
-                    SELECT id, title, content, tags, type
+                    SELECT id, title, content, tags, crystal_type
                     FROM crystals
-                    WHERE (type = 'pattern' OR type = 'lesson')
+                    WHERE (crystal_type = 'pattern' OR crystal_type = 'lesson')
                       AND (tags LIKE '%failure%'
                            OR tags LIKE '%error%'
                            OR tags LIKE '%fix%')
@@ -659,6 +659,83 @@ class MuseOff:
             )
         except OSError as e:
             logger.warning("[MuseOff L6] 寫入 crystal_informed.json 失敗: %s", e)
+
+    # -------------------------------------------------------------------
+    # L6c: 意識→察覺連線 — pulse_alerts 消費端
+    # -------------------------------------------------------------------
+
+    async def probe_pulse_alerts(self) -> None:
+        """L6c: 意識→察覺連線——讀取 pulse_engine 寫入的 pulse_alerts.jsonl，
+        對反覆出現的 keyword 或 CRITICAL severity 建立 finding。
+        """
+        if not self._should_probe():
+            return
+
+        self._stats["probes_run"] += 1
+
+        alerts_path = self.home / "data" / "_system" / "pulse_alerts.jsonl"
+        if not alerts_path.exists():
+            return  # 靜默返回
+
+        cutoff = time.time() - 86400  # 最近 24h
+        keyword_counts: dict[str, int] = {}
+        critical_alerts: list[str] = []
+
+        try:
+            with alerts_path.open("r", encoding="utf-8") as f:
+                for raw_line in f:
+                    raw_line = raw_line.strip()
+                    if not raw_line:
+                        continue
+                    try:
+                        entry = json.loads(raw_line)
+                        # 時間過濾：用 timestamp 欄位（ISO8601）
+                        ts_str = entry.get("timestamp", "")
+                        if ts_str:
+                            try:
+                                from datetime import datetime, timezone
+                                ts_dt = datetime.fromisoformat(ts_str.replace("Z", "+00:00"))
+                                ts_epoch = ts_dt.timestamp()
+                                if ts_epoch < cutoff:
+                                    continue
+                            except (ValueError, OSError):
+                                pass  # 無法解析時間 → 不過濾
+
+                        keyword = entry.get("keyword", entry.get("type", "unknown"))
+                        severity = entry.get("severity", "").upper()
+
+                        if keyword:
+                            keyword_counts[keyword] = keyword_counts.get(keyword, 0) + 1
+
+                        if severity == "CRITICAL":
+                            msg = entry.get("message", entry.get("detail", keyword))
+                            critical_alerts.append(str(msg))
+
+                    except (json.JSONDecodeError, KeyError):
+                        continue
+        except OSError:
+            return  # 靜默返回
+
+        # 反覆問題（同一 keyword 出現 3+ 次）→ MEDIUM finding
+        for keyword, count in keyword_counts.items():
+            if count >= 3:
+                self._create_finding(
+                    probe_layer="L6c",
+                    severity="MEDIUM",
+                    title=f"意識層偵測到反覆問題：{keyword}，出現 {count} 次",
+                    diagnosis=f"pulse_alerts.jsonl 中關鍵字 '{keyword}' 在最近 24h 出現 {count} 次，可能是系統持續性問題。",
+                    prescription=f"調查 pulse_engine 寫入的 '{keyword}' 告警來源，確認是否有循環觸發。",
+                )
+
+        # CRITICAL severity alert → HIGH finding
+        for msg in critical_alerts:
+            self._create_finding(
+                probe_layer="L6c",
+                severity="HIGH",
+                title=f"意識層 CRITICAL 告警：{msg[:80]}",
+                diagnosis=f"pulse_engine 寫入了 CRITICAL 級別的告警：{msg}",
+                prescription="立即調查 pulse_alerts.jsonl 中的 CRITICAL 條目，確認系統狀態。",
+            )
 
     # -------------------------------------------------------------------
     # L7: 管線完整性探針 — 消費端→寫入端反向追蹤
@@ -807,6 +884,7 @@ class MuseOff:
             ("L5", self.probe_chaos),
             ("L6", self.probe_blueprint),
             ("L6b", self.probe_crystal_patterns),
+            ("L6c", self.probe_pulse_alerts),
             ("L7", self.probe_pipeline_integrity),
         ]
         for name, func in probes:

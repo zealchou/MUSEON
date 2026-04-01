@@ -319,7 +319,7 @@ class NightlyReflectionEngine:
             repair_lines: List[str] = []
 
             # 1. 讀取 AutoRepair 修復紀錄（JSONL，每行一個 JSON）
-            repair_log_path = Path(__file__).parents[4] / "data" / "guardian" / "repair_log.jsonl"
+            repair_log_path = Path(__file__).parents[3] / "data" / "guardian" / "repair_log.jsonl"
             if repair_log_path.exists():
                 with repair_log_path.open("r", encoding="utf-8") as f:
                     for raw_line in f:
@@ -343,7 +343,7 @@ class NightlyReflectionEngine:
                             continue
 
             # 2. 讀取 SurgeryEngine 手術紀錄（JSON 陣列）
-            surgery_log_path = Path(__file__).parents[4] / "data" / "doctor" / "surgery_log.json"
+            surgery_log_path = Path(__file__).parents[3] / "data" / "doctor" / "surgery_log.json"
             if surgery_log_path.exists():
                 with surgery_log_path.open("r", encoding="utf-8") as f:
                     surgery_entries = json.load(f)
@@ -361,7 +361,7 @@ class NightlyReflectionEngine:
 
             # 3. 讀取 pending_rings.jsonl，過濾今天的條目
             has_resilience_ring = False
-            pending_rings_path = Path(__file__).parents[4] / "data" / "anima" / "pending_rings.jsonl"
+            pending_rings_path = Path(__file__).parents[3] / "data" / "anima" / "pending_rings.jsonl"
             if pending_rings_path.exists():
                 surviving_lines: List[str] = []
                 with pending_rings_path.open("r", encoding="utf-8") as f:
@@ -392,7 +392,32 @@ class NightlyReflectionEngine:
                     for line in surviving_lines:
                         f.write(line + "\n")
 
-            # 4. 有修復事件才追加區塊
+            # 4. 讀取 governance_transitions.jsonl（察覺→認同 連線）
+            gov_transitions_path = Path(__file__).parents[3] / "data" / "anima" / "governance_transitions.jsonl"
+            if gov_transitions_path.exists():
+                try:
+                    with gov_transitions_path.open("r", encoding="utf-8") as f:
+                        for raw_line in f:
+                            raw_line = raw_line.strip()
+                            if not raw_line:
+                                continue
+                            try:
+                                entry = json.loads(raw_line)
+                                ts = entry.get("timestamp", "")
+                                if not ts.startswith(today_str):
+                                    continue
+                                old_tier = entry.get("old_tier", "?")
+                                new_tier = entry.get("new_tier", "?")
+                                time_part = ts[11:16] if len(ts) >= 16 else ts
+                                repair_lines.append(
+                                    f"- [{time_part}] [GovernanceTransition] {old_tier} → {new_tier}"
+                                )
+                            except (json.JSONDecodeError, KeyError):
+                                continue
+                except OSError:
+                    pass  # 靜默跳過
+
+            # 5. 有修復事件才追加區塊
             if repair_lines:
                 resilience_emphasis = ""
                 if has_resilience_ring:
