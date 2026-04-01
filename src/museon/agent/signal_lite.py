@@ -31,7 +31,7 @@ _SOVEREIGNTY_KEYWORDS = frozenset({
 
 @dataclass
 class SignalLite:
-    """輕量路由信號 — 取代 RoutingSignal."""
+    """輕量路由信號 — 取代 reflex_router 的 RoutingSignal."""
     max_crystal_push: int = 10
     safety_triggered: bool = False
     sovereignty_triggered: bool = False

@@ -11,7 +11,7 @@
   Step 1.5  : 直覺引擎 — sense()（Step -0.5：在 DNA27 路由之前）
   Step 2    : 載入 ANIMA_MC + ANIMA_USER
   Step 3    : 信號路由 — SignalLite（純算術，< 1ms）
-  Step 3.1  : DNA27 路由 — 匹配技能（受 RoutingSignal 調節）
+  Step 3.1  : DNA27 路由 — 匹配技能（受 SignalLite 調節）
   Step 3.2  : ★ P2 決策層信號偵測（重大決策先問後答）
   Step 3.3  : ★ P2 決策層路徑短路（若偵測到重大決策，直接返回反問）
   Step 3.4  : ★ P3 策略層並行融合信號偵測（非 P2 重大決策時才觸發）
@@ -813,7 +813,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
 
         self._multiagent_auxiliaries = []  # 重置每 turn 的輔助部門
 
-        # ── Step 3.1: DNA27 路由 — 匹配技能（受 RoutingSignal 調節）──
+        # ── Step 3.1: DNA27 路由 — 匹配技能（受 SignalLite 調節）──
         _report("🎯 匹配技能模組", "Skill Router 運算中...")
         # ★ v10.4 Route B: 傳入 session 內 skill 使用次數（MoE 衰減）
         session_usage = self._skill_usage.get(session_id, {})

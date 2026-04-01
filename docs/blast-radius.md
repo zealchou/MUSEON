@@ -855,7 +855,7 @@
 |-------|---------|----------------|-----------|
 | **G1** | 改 ANIMA 數值邏輯 | anima_tracker + brain + server + micro_pulse + kernel_guard | ANIMA_MC.json |
 | **G2** | 改探索/好奇心邏輯 | pulse_engine + curiosity_router + exploration_bridge + nightly_pipeline + skill_forge_scout | question_queue.json + scout_queue/pending.json + PULSE.md |
-| **G3** | 改記憶存取 | memory_manager + brain + vector_bridge + reflex_router | MemoryStore + Qdrant |
+| **G3** | 改記憶存取 | memory_manager + brain + vector_bridge | MemoryStore + Qdrant |
 | **G4** | 改演化速度計算 | evolution_velocity + parameter_tuner + periodic_cycles + metacognition | accuracy_stats.json + tuned_parameters.json |
 | **G5** | 改知識晶格 | knowledge_lattice + crystal_store + crystal_actuator + recommender + brain（Layer 2.5 社群摘要 + 經驗回放） | crystal.db (via CrystalStore)；knowledge_lattice.py 新增 `recall_procedures()` RO 方法 + 再結晶 Lesson↔Procedure 升降級規則 |
 | **G6** | 改免疫系統 | immunity + immune_memory + immune_research + daemon | events.jsonl + immune_memory.json |
