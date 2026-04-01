@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HE 的靈魂藍圖 — MUSEON 人格解析報告</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ember: #C4502A;
+      --ember-light: #E0714D;
+      --ember-dark: #9A3A1C;
+      --teal: #2A7A6E;
+      --gold: #B8923A;
+      --ink: #12121A;
+      --slate: #5A5A6E;
+      --mist: #9898A8;
+      --border: #E2E0DA;
+      --parchment: #F7F5F0;
+      --snow: #FDFCFA;
+      --deep-ink: #0E0E16;
+      --surface: #16161F;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+      background: var(--parchment);
+      color: var(--ink);
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: var(--deep-ink);
+      padding: 96px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 30% 50%, rgba(196,80,42,0.18) 0%, transparent 60%),
+                  radial-gradient(ellipse at 70% 30%, rgba(184,146,58,0.12) 0%, transparent 55%),
+                  radial-gradient(ellipse at 50% 80%, rgba(42,122,110,0.10) 0%, transparent 50%);
+    }
+    .hero-inner { position: relative; z-index: 1; max-width: 820px; margin: 0 auto; }
+    .hero-badge {
+      display: inline-block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ember-light);
+      background: rgba(196,80,42,0.15);
+      border: 1px solid rgba(196,80,42,0.3);
+      border-radius: 100px;
+      padding: 4px 14px;
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 56px;
+      font-weight: 600;
+      color: #FDFCFA;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+    .hero h1 span { color: var(--ember-light); font-style: italic; }
+    .hero-subtitle {
+      font-size: 18px;
+      color: rgba(253,252,250,0.65);
+      max-width: 560px;
+      margin: 0 auto 40px;
+      line-height: 1.8;
+    }
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      flex-wrap: wrap;
+    }
+    .hero-stat { text-align: center; }
+    .hero-stat-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 32px;
+      font-weight: 600;
+      color: var(--ember-light);
+    }
+    .hero-stat-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(253,252,250,0.45);
+      margin-top: 4px;
+    }
+
+    /* ── LAYOUT ── */
+    .container { max-width: 820px; margin: 0 auto; padding: 0 40px; }
+
+    section { padding: 64px 0; border-bottom: 1px solid var(--border); }
+    section:last-of-type { border-bottom: none; }
+
+    .section-tag {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ember);
+      background: rgba(196,80,42,0.08);
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 100px;
+      margin-bottom: 16px;
+    }
+    h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 36px;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+    .section-intro {
+      font-size: 17px;
+      color: var(--slate);
+      line-height: 1.8;
+      margin-bottom: 40px;
+      max-width: 65ch;
+    }
+    h3 {
+      font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 12px;
+    }
+    p { font-size: 16px; color: var(--slate); line-height: 1.8; margin-bottom: 16px; }
+    p:last-child { margin-bottom: 0; }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+      transition: transform 200ms ease, box-shadow 200ms ease;
+    }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(18,18,26,0.09); }
+
+    .card-grid { display: grid; gap: 16px; margin-bottom: 32px; }
+    .card-grid-2 { grid-template-columns: 1fr 1fr; }
+    .card-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+    @media (max-width: 640px) {
+      .card-grid-2, .card-grid-3 { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 36px; }
+      .hero-stats { gap: 24px; }
+      .container { padding: 0 16px; }
+    }
+
+    /* ── NUMBER CARDS ── */
+    .number-showcase {
+      background: linear-gradient(135deg, var(--deep-ink) 0%, #1a1a28 100%);
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      margin-bottom: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+    .number-showcase::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, rgba(196,80,42,0.2) 0%, transparent 70%);
+    }
+    .number-showcase-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 96px;
+      font-weight: 600;
+      color: var(--ember-light);
+      line-height: 1;
+      position: relative;
+      z-index: 1;
+    }
+    .number-showcase-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(253,252,250,0.5);
+      margin-top: 8px;
+      position: relative;
+      z-index: 1;
+    }
+    .number-showcase-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px;
+      font-weight: 600;
+      color: #FDFCFA;
+      margin-top: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── TRAIT PILLS ── */
+    .trait-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+    .trait-pill {
+      font-size: 13px;
+      font-weight: 500;
+      padding: 5px 14px;
+      border-radius: 100px;
+      color: var(--ember-dark);
+      background: rgba(196,80,42,0.08);
+      border: 1px solid rgba(196,80,42,0.2);
+    }
+    .trait-pill.teal {
+      color: var(--teal);
+      background: rgba(42,122,110,0.08);
+      border-color: rgba(42,122,110,0.2);
+    }
+    .trait-pill.gold {
+      color: #8B6C20;
+      background: rgba(184,146,58,0.08);
+      border-color: rgba(184,146,58,0.2);
+    }
+
+    /* ── INSIGHT BOX ── */
+    .insight-box {
+      background: linear-gradient(135deg, rgba(196,80,42,0.06), rgba(184,146,58,0.04));
+      border-left: 3px solid var(--ember);
+      border-radius: 0 8px 8px 0;
+      padding: 20px 24px;
+      margin: 24px 0;
+    }
+    .insight-box p { color: var(--ink); font-size: 16px; }
+    .insight-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ember);
+      margin-bottom: 8px;
+    }
+
+    /* ── WARNING BOX ── */
+    .warning-box {
+      background: rgba(184,146,58,0.06);
+      border: 1px solid rgba(184,146,58,0.25);
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin: 24px 0;
+    }
+    .warning-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+
+    /* ── TABLE ── */
+    .data-table { width: 100%; border-collapse: collapse; margin: 24px 0; }
+    .data-table th {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mist);
+      padding: 8px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .data-table td {
+      font-size: 15px;
+      color: var(--ink);
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table td:first-child { font-weight: 500; color: var(--ember-dark); width: 120px; }
+
+    /* ── PILLAR CARDS (八字) ── */
+    .bazi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin: 24px 0; }
+    .bazi-pillar {
+      background: var(--deep-ink);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+    }
+    .bazi-pillar-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(253,252,250,0.35);
+      margin-bottom: 12px;
+    }
+    .bazi-stem {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 40px;
+      font-weight: 600;
+      color: var(--ember-light);
+      line-height: 1;
+    }
+    .bazi-branch {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 40px;
+      font-weight: 600;
+      color: #FDFCFA;
+      line-height: 1;
+    }
+    .bazi-element {
+      font-size: 12px;
+      color: rgba(253,252,250,0.45);
+      margin-top: 8px;
+    }
+
+    /* ── ENERGY METER ── */
+    .energy-bar-wrap { margin: 16px 0; }
+    .energy-bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--slate);
+      margin-bottom: 6px;
+    }
+    .energy-bar-label span:last-child { font-weight: 600; color: var(--ink); }
+    .energy-bar-track {
+      height: 6px;
+      background: var(--border);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+    .energy-bar-fill {
+      height: 100%;
+      border-radius: 100px;
+      background: linear-gradient(90deg, var(--ember), var(--ember-light));
+      transition: width 800ms ease-out;
+    }
+
+    /* ── MONTH TABLE ── */
+    .month-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .month-item {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+    }
+    .month-item-face {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mist);
+      margin-bottom: 6px;
+    }
+    .month-item-val { font-size: 15px; font-weight: 500; color: var(--ink); }
+
+    /* ── QUOTE ── */
+    .final-quote {
+      background: var(--deep-ink);
+      border-radius: 12px;
+      padding: 48px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .final-quote::before {
+      content: '"';
+      position: absolute;
+      top: -20px;
+      left: 30px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 200px;
+      color: rgba(196,80,42,0.1);
+      line-height: 1;
+    }
+    .final-quote-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px;
+      font-weight: 600;
+      font-style: italic;
+      color: #FDFCFA;
+      line-height: 1.5;
+      position: relative;
+      z-index: 1;
+      max-width: 600px;
+      margin: 0 auto 20px;
+    }
+    .final-quote-attr {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(253,252,250,0.35);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--deep-ink);
+      padding: 32px 40px;
+      text-align: center;
+    }
+    footer p {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: rgba(253,252,250,0.25);
+      margin: 0;
+    }
+
+    /* ── ANIMATE ── */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(12px);
+      animation: fadeIn 400ms ease-out forwards;
+    }
+    @keyframes fadeIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in:nth-child(1) { animation-delay: 0ms; }
+    .fade-in:nth-child(2) { animation-delay: 60ms; }
+    .fade-in:nth-child(3) { animation-delay: 120ms; }
+    .fade-in:nth-child(4) { animation-delay: 180ms; }
+    .fade-in:nth-child(5) { animation-delay: 240ms; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════ HERO ═══════════════════════ -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">Soul Blueprint · 靈魂藍圖 · 2026</div>
+    <h1>HE 的<span>靈魂藍圖</span></h1>
+    <p class="hero-subtitle">
+      生日：1994 年 5 月 23 日 · 女性<br>
+      融合八字命理、西洋占星、生命靈數，繪製你的人格全景圖
+    </p>
+    <div class="hero-stats">
+      <div class="hero-stat fade-in">
+        <div class="hero-stat-value">33/6</div>
+        <div class="hero-stat-label">Life Path · 生命靈數</div>
+      </div>
+      <div class="hero-stat fade-in">
+        <div class="hero-stat-value">雙子座</div>
+        <div class="hero-stat-label">Sun Sign · 太陽星座</div>
+      </div>
+      <div class="hero-stat fade-in">
+        <div class="hero-stat-value">甲戌</div>
+        <div class="hero-stat-label">Year Pillar · 年柱</div>
+      </div>
+      <div class="hero-stat fade-in">
+        <div class="hero-stat-value">大師數</div>
+        <div class="hero-stat-label">Master Number · 等級</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ SECTION 1: 速覽 ═══════════════════════ -->
+<section>
+  <div class="container">
+    <div class="section-tag">System Overview</div>
+    <h2>三系統速覽</h2>
+    <p class="section-intro">八字、西洋占星、生命靈數——三條完全獨立的古老系統，各自從不同維度描述你。當它們指向相同的主題時，那個主題就是你靈魂的底層代碼。</p>
+
+    <div class="card-grid card-grid-3">
+      <div class="card">
+        <div class="section-tag">Eastern · 東方</div>
+        <h3>八字命理</h3>
+        <p style="font-size:14px;">甲戌年 · 丁巳月<br>木火能量為主，創意旺盛、行動力強，但需注意土克水（情緒收藏過深）</p>
+        <div class="trait-list">
+          <span class="trait-pill">甲木主體</span>
+          <span class="trait-pill">丁火食傷</span>
+          <span class="trait-pill gold">財運藏戌</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-tag">Western · 西方</div>
+        <h3>雙子座 ♊</h3>
+        <p style="font-size:14px;">太陽雙子 · 水星守護<br>極強的語言力、思維彈性、社交適應力，天生資訊橋接者</p>
+        <div class="trait-list">
+          <span class="trait-pill">水星守護</span>
+          <span class="trait-pill">變動星座</span>
+          <span class="trait-pill teal">風象能量</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-tag">Numerology · 靈數</div>
+        <h3>生命靈數 33</h3>
+        <p style="font-size:14px;">全球最高頻大師數<br>療癒者 × 導師 × 服務者，影響力天生就是磁場，不是技術</p>
+        <div class="trait-list">
+          <span class="trait-pill">大師數</span>
+          <span class="trait-pill">6號能量</span>
+          <span class="trait-pill gold">療癒天賦</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight-box">
+      <div class="insight-title">三系統共同指向</div>
+      <p><strong>你是一個「傳遞者」。</strong>不管用什麼系統看，HE 的核心能量都是：接收→轉化→輸出。八字的甲木生丁火（創意輸出），雙子的語言橋接，33 的導師天賦——三條線指向同一件事：你天生是讓資訊和能量在人與人之間流動的節點。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ SECTION 2: 生命靈數 ═══════════════════════ -->
+<section>
+  <div class="container">
+    <div class="section-tag">Numerology Deep Dive</div>
+    <h2>生命靈數 33/6<br><em style="font-style:italic;color:var(--slate);font-size:28px;">大師數：療癒師與導師</em></h2>
+    <p class="section-intro">生命靈數計算：1+9+9+4+5+2+3 = <strong>33</strong>（保留大師數，不再縮減）→ 底層能量 6。全球人口中約 3% 是大師數持有者，而 33 是三個大師數中能量最高、也最沉重的。</p>
+
+    <div class="number-showcase">
+      <div class="number-showcase-num">33</div>
+      <div class="number-showcase-label">Master Number · 大師數</div>
+      <div class="number-showcase-title">「基督意識數」— 療癒師的靈魂藍圖</div>
+    </div>
+
+    <h3>33 的本質：什麼是「基督意識」？</h3>
+    <p>這不是宗教標籤，而是一種能力的描述：33 號人天生帶著一種讓周圍人感覺「<strong>被接住、被懂得</strong>」的能量磁場。你很可能常常聽到這些話：</p>
+    <div class="trait-list" style="margin-bottom:24px;">
+      <span class="trait-pill">「跟你說話很舒服」</span>
+      <span class="trait-pill">「你懂我」</span>
+      <span class="trait-pill">「我不知道為什麼，就是想跟你說」</span>
+      <span class="trait-pill">「你怎麼知道我在想什麼」</span>
+    </div>
+
+    <div class="card-grid card-grid-2">
+      <div class="card">
+        <h3>✦ 核心天賦（光面）</h3>
+        <table class="data-table">
+          <tbody>
+            <tr><td>療癒力</td><td>天生傾聽力，不用說很多話，人就感到被安撫</td></tr>
+            <tr><td>語言翻譯</td><td>能把複雜的事說得讓人聽得懂、記得住</td></tr>
+            <tr><td>情感感知</td><td>對他人情緒極度敏銳，有時甚至在對方開口前就感受到</td></tr>
+            <tr><td>責任內驅</td><td>家庭、責任、服務感是你的動力來源，不是外在壓力</td></tr>
+            <tr><td>影響力磁場</td><td>不需要刻意建立權威，人自然傾向信任你的判斷</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h3>⚠ 影子面（必須認識）</h3>
+        <table class="data-table">
+          <tbody>
+            <tr><td>拯救磁場</td><td>容易吸引「需要被拯救的人」，不是你的錯，是磁場</td></tr>
+            <tr><td>無限承接</td><td>說不出「不」，導致能量被無限提取</td></tr>
+            <tr><td>情緒代勞</td><td>把別人的情緒當自己的處理，容易耗竭</td></tr>
+            <tr><td>自我忽略</td><td>照顧別人的能力 >> 照顧自己的意願</td></tr>
+            <tr><td>完美主義</td><td>6 號底能量：對「家/關係/環境」有很高的和諧標準</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="warning-box">
+      <div class="warning-title">33 號人的核心課題</div>
+      <p><strong>大師數的代價：</strong>33 的能量在青壯年時期（25-40 歲）通常是「沉睡的」——你可能感覺自己有能力，但還沒找到完整的出口。這很正常。33 通常需要足夠的生命深度（包括傷）才能真正啟動。</p>
+      <p style="margin-top:12px;"><strong>本月特別提醒（4月靈數共振）：</strong>你的個人月數字同樣是 6（個人年 2 + 月 4 = 6），天賦放大的同時，影子面也同步放大。這個月如果感到「又在幫別人收爛攤子」「明明沒做錯卻覺得虧欠」——那是 33 的慣性，不是你的責任。</p>
+    </div>
+
+    <h3>33 的一句核心守則</h3>
+    <div class="insight-box">
+      <p style="font-size:18px;font-weight:600;color:var(--ink);">給出去之前，先問自己一句：<br>「<em style="color:var(--ember);">這是我真的想給，還是我怕說不？</em>」</p>
+      <p style="margin-top:12px;">能量充足時給 100%，能量不足時給 30% 就好。你不需要永遠滿格才有資格幫人。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ SECTION 3: 雙子座 ═══════════════════════ -->
+<section>
+  <div class="container">
+    <div class="section-tag">Western Astrology</div>
+    <h2>雙子座深度人格<br><em style="font-style:italic;color:var(--slate);font-size:28px;">水星守護 · 風象 · 變動星座</em></h2>
+    <p class="section-intro">雙子座（May 21 – June 20）是黃道十二宮中第三宮，由「溝通之星」水星守護。你是所有星座中最善於橋接資訊、連結人群的能量。</p>
+
+    <div class="card-grid card-grid-2">
+      <div class="card">
+        <h3>♊ 雙子座的核心人格</h3>
+        <div class="energy-bar-wrap">
+          <div class="energy-bar-label"><span>語言表達力</span><span>95</span></div>
+          <div class="energy-bar-track"><div class="energy-bar-fill" style="width:95%"></div></div>
+        </div>
+        <div class="energy-bar-wrap">
+          <div class="energy-bar-label"><span>適應彈性</span><span>90</span></div>
+          <div class="energy-bar-track"><div class="energy-bar-fill" style="width:90%"></div></div>
+        </div>
+        <div class="energy-bar-wrap">
+          <div class="energy-bar-label"><span>社交能量</span><span>88</span></div>
+          <div class="energy-bar-track"><div class="energy-bar-fill" style="width:88%"></div></div>
+        </div>
+        <div class="energy-bar-wrap">
+          <div class="energy-bar-label"><span>創意發散</span><span>92</span></div>
+          <div class="energy-bar-track"><div class="energy-bar-fill" style="width:92%"></div></div>
+        </div>
+        <div class="energy-bar-wrap">
+          <div class="energy-bar-label"><span>深度堅持</span><span>58</span></div>
+          <div class="energy-bar-track"><div class="energy-bar-fill" style="width:58%"></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>⚡ 雙子座的超能力</h3>
+        <p>雙子是黃道中<strong>最快的心智</strong>。你能在幾秒內掌握一個陌生概念的大致輪廓、找到最快的溝通路徑、讓對方感覺「你真的懂我在說什麼」。</p>
+        <p>這種「快速建模」的能力，在人際上是天然的親和力，在工作上是極強的學習速度——你通常不需要很長時間就能入門一個新領域。</p>
+        <div class="trait-list">
+          <span class="trait-pill">快速建模</span>
+          <span class="trait-pill">多線處理</span>
+          <span class="trait-pill teal">跨領域連結</span>
+          <span class="trait-pill">訊息橋接</span>
+        </div>
+      </div>
+    </div>
+
+    <h3>雙子座的兩面性</h3>
+    <p>雙子座的符號是「雙胞胎」，代表的不是矛盾或不穩定，而是<strong>你同時擁有兩種看待事物的角度</strong>。你可以同時理解一件事的正面和反面，這讓你成為優秀的調解者和顧問——你天生就能看到別人看不到的「另一面」。</p>
+
+    <div class="card-grid card-grid-2" style="margin-top:24px;">
+      <div class="card">
+        <h3>光面的雙子</h3>
+        <p style="font-size:14px;">好奇、靈活、善溝通、有趣。能在任何場合找到話題，讓陌生人感到舒適。天生的學習者，對世界的運作方式永遠有興趣。</p>
+      </div>
+      <div class="card">
+        <h3>陰影的雙子</h3>
+        <p style="font-size:14px;">容易分心、起頭容易收尾難。情緒變動快，對方有時跟不上你的轉換速度。有時在「表達」和「真實感受」之間有落差。</p>
+      </div>
+    </div>
+
+    <div class="insight-box" style="margin-top:32px;">
+      <div class="insight-title">雙子 × 33 的交叉洞見</div>
+      <p>雙子的語言天賦 + 33 的療癒能量 = 一種罕見的組合：<strong>你能用「說話」來療癒人</strong>。不是心理諮商意義上的，而是：當你開口說話，人會感覺被接住、被理解、問題被整理清楚了。這個組合在教育、顧問、培訓、引導師等領域有極高的天然適配度。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ SECTION 4: 八字 ═══════════════════════ -->
+<section>
+  <div class="container">
+    <div class="section-tag">Chinese Astrology</div>
+    <h2>八字命盤解析<br><em style="font-style:italic;color:var(--slate);font-size:28px;">甲戌年 × 丁巳月</em></h2>
+    <p class="section-intro">八字（四柱命理）以出生的年、月、日、時為四柱，每柱含天干地支，映射出生命的底層能量結構。以下解析以可確認的年柱與月柱為主。</p>
+
+    <div class="bazi-grid">
+      <div class="bazi-pillar">
+        <div class="bazi-pillar-label">年柱 · Year Pillar</div>
+        <div class="bazi-stem">甲</div>
+        <div class="bazi-branch">戌</div>
+        <div class="bazi-element">天干：甲木（正印能量）<br>地支：戌土（財庫）</div>
+      </div>
+      <div class="bazi-pillar">
+        <div class="bazi-pillar-label">月柱 · Month Pillar</div>
+        <div class="bazi-stem">丁</div>
+        <div class="bazi-branch">巳</div>
+        <div class="bazi-element">天干：丁火（食傷星）<br>地支：巳火（創意、表達）</div>
+      </div>
+    </div>
+
+    <h3>命盤能量解讀</h3>
+
+    <div class="card-grid card-grid-2">
+      <div class="card">
+        <h3>甲木 — 年干能量</h3>
+        <p style="font-size:14px;"><strong>甲木是「大樹」的能量</strong>——向上生長、有方向感、善於突破束縛。年干代表的是你靈魂層面最深的「天賦設定」：</p>
+        <div class="trait-list">
+          <span class="trait-pill">創意力強</span>
+          <span class="trait-pill">擴張性高</span>
+          <span class="trait-pill teal">適應力好</span>
+          <span class="trait-pill">有主見</span>
+        </div>
+        <p style="font-size:14px;margin-top:12px;">甲木最大的特徵：<strong>彎但不折</strong>。壓力大時你會彎曲，但底層的方向感不會消失。</p>
+      </div>
+      <div class="card">
+        <h3>丁火巳月 — 月柱能量</h3>
+        <p style="font-size:14px;"><strong>丁火是「燭火」的能量</strong>——溫暖、照亮、持續。月柱代表你在社會上展現的方式和天賦：</p>
+        <div class="trait-list">
+          <span class="trait-pill">表達力佳</span>
+          <span class="trait-pill">創意輸出</span>
+          <span class="trait-pill gold">溫暖感染力</span>
+          <span class="trait-pill">藝術觸感</span>
+        </div>
+        <p style="font-size:14px;margin-top:12px;">甲木生丁火（木生火）：你的天賦（甲木）自然滋養你的表達（丁火），這是一種<strong>流暢的能量轉化</strong>，不是對抗。</p>
+      </div>
+    </div>
+
+    <h3>戌土的財庫意涵</h3>
+    <div class="insight-box">
+      <div class="insight-title">隱藏的財庫能量</div>
+      <p>地支「戌」是一個<strong>財庫地支</strong>。財庫的特性是：財不是擺在桌上讓你拿，而是需要你主動「開庫」才能取用。</p>
+      <p style="margin-top:8px;">翻譯成白話：你的財運不是靠等待或被動接收，而是需要你<strong>主動出擊、創造機會</strong>。一旦你真的行動，財是會進來的——但前提是你得先開庫。</p>
+    </div>
+
+    <h3>2026 丙午年流年運勢</h3>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>面向</th>
+          <th>流年影響</th>
+          <th>建議</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>整體</td>
+          <td>丙午年木生火，創意與表達能量全開，適合對外展示、建立影響力</td>
+          <td>把你的想法說出來、寫出來</td>
+        </tr>
+        <tr>
+          <td>事業</td>
+          <td>火旺利創業、表演、教學、顧問類工作</td>
+          <td>考慮更多「站出來」的機會</td>
+        </tr>
+        <tr>
+          <td>財運</td>
+          <td>財在戌庫，需要主動開庫——被動等待效果有限</td>
+          <td>主動開發新合作、新客源</td>
+        </tr>
+        <tr>
+          <td>感情</td>
+          <td>火旺情感熱烈，但容易急躁——給對方和自己足夠空間</td>
+          <td>「留白」是這年的關係功課</td>
+        </tr>
+        <tr>
+          <td>身體</td>
+          <td>火旺注意心臟、血壓、睡眠；木火旺容易情緒急躁</td>
+          <td>每週安排靜心時間</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════ SECTION 5: 人格整合 ═══════════════════════ -->
+<section>
+  <div class="container">
+    <div class="section-tag">Integration</div>
+    <h2>人格整合：天賦地圖</h2>
+    <p class="section-intro">三個系統各自描述了你的一個側面。整合之後，浮現出一張完整的天賦地圖——你最有可能在哪裡發光，用什麼方式發光。</p>
+
+    <div class="card-grid card-grid-3">
+      <div class="card">
+        <div class="section-tag">天賦 #1</div>
+        <h3>語言與意義的轉化者</h3>
+        <p style="font-size:14px;">雙子的語言力 + 丁火的表達天賦 + 33 的導師能量。你能把複雜的事變得容易理解，把抽象的感受變成清晰的語言。這是你最強的天賦，也是影響力的入口。</p>
+      </div>
+      <div class="card">
+        <div class="section-tag">天賦 #2</div>
+        <h3>療癒性的存在感</h3>
+        <p style="font-size:14px;">33 的療癒磁場 + 甲木的穩定向上。你不需要特別做什麼，光是在場就讓人感到安心。這種「存在即療癒」的能量是天賦，不是技巧——但你需要保護它，不能無限消耗。</p>
+      </div>
+      <div class="card">
+        <div class="section-tag">天賦 #3</div>
+        <h3>跨域的連結者</h3>
+        <p style="font-size:14px;">雙子的多線思考 + 甲木的擴張性。你天生能在看似不相關的事物之間看見連結，這讓你在跨產業合作、創新思維、整合型工作上有天然優勢。</p>
+      </div>
+    </div>
+
+    <h3>最適合你的能量場域</h3>
+    <div class="card" style="margin-top:16px;">
+      <div class="trait-list">
+        <span class="trait-pill gold">教育 / 培訓</span>
+        <span class="trait-pill gold">顧問 / 諮詢</span>
+        <span class="trait-pill teal">引導師 / 教練</span>
+        <span class="trait-pill teal">創意產業</span>
+        <span class="trait-pill">溝通橋接</span>
+        <span class="trait-pill">內容創作</span>
+        <span class="trait-pill">品牌策略</span>
+        <span class="trait-pill gold">療癒相關工作</span>
+      </div>
+      <p style="margin-top:16px;font-size:14px;">共同特徵：<strong>需要你「人在場」的工作</strong>。你的天賦不是靠系統或工具發揮，而是靠你這個人——你的聲音、你的存在感、你的感知力。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ SECTION 6: 關係模式 ═══════════════════════ -->
+<section>
+  <div class="container">
+    <div class="section-tag">Relationship Patterns</div>
+    <h2>關係模式解析</h2>
+    <p class="section-intro">你怎麼在關係中展現自己、你容易掉入什麼慣性、什麼樣的關係能讓你成長——三個系統的關係面向整合解讀。</p>
+
+    <div class="card-grid card-grid-2">
+      <div class="card">
+        <h3>友誼 / 人際</h3>
+        <p style="font-size:14px;">你是天生的「磁鐵中心」，人自然圍繞你聚集。你讓人感覺被理解、舒適、不被評判。</p>
+        <p style="font-size:14px;margin-top:8px;">但要注意：<strong>不是所有靠近你的人都在填充你的能量</strong>。有些人靠近你是因為你讓他們感覺好——這沒有錯，但你需要辨識誰真的也在照顧你。</p>
+      </div>
+      <div class="card">
+        <h3>感情 / 伴侶</h3>
+        <p style="font-size:14px;">雙子需要在感情中保持「心理空間」——不是物理距離，而是能有自己的思考和探索。太密不透風的關係反而讓你窒息。</p>
+        <p style="font-size:14px;margin-top:8px;">33 在感情中有「想照顧對方」的強烈衝動，但要小心：<strong>照顧不是控制，付出不是保險</strong>。你不能用「給予」來換取安全感。</p>
+      </div>
+    </div>
+
+    <div class="warning-box">
+      <div class="warning-title">關係警示：33 號人的高風險慣性</div>
+      <p><strong>「只要我給夠多，他就不會離開」</strong>——這個信念如果在你身上成立，是最需要面對的功課。33 號人因為天生的療癒磁場，容易進入「照顧者-被照顧者」的不對等關係，長期下來會感到耗竭和委屈。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ SECTION 7: 4月運勢 ═══════════════════════ -->
+<section>
+  <div class="container">
+    <div class="section-tag">April 2026 · 本月運勢</div>
+    <h2>2026 年 4 月行動建議</h2>
+    <p class="section-intro">本月是你的「靈數共振月」（個人年 2 + 月份 4 = 6，與你的生命靈數底能量共振），加上八字壬辰月的水土沉澱能量——是深挖、整合、選擇的時機。</p>
+
+    <div class="month-grid">
+      <div class="month-item">
+        <div class="month-item-face">整體能量</div>
+        <div class="month-item-val">沉澱 > 衝刺，判斷月</div>
+      </div>
+      <div class="month-item">
+        <div class="month-item-face">事業</div>
+        <div class="month-item-val">主軸收斂至 1-2 個，深耕</div>
+      </div>
+      <div class="month-item">
+        <div class="month-item-face">財運</div>
+        <div class="month-item-val">有小額機會，避免衝動支出</div>
+      </div>
+      <div class="month-item">
+        <div class="month-item-face">感情</div>
+        <div class="month-item-val">留白比追問更吸引人</div>
+      </div>
+      <div class="month-item">
+        <div class="month-item-face">身心</div>
+        <div class="month-item-val">腸胃/睡眠注意，減少濕氣</div>
+      </div>
+      <div class="month-item">
+        <div class="month-item-face">大師數共振</div>
+        <div class="month-item-val">天賦放大，影子面也同步放大</div>
+      </div>
+    </div>
+
+    <div class="insight-box" style="margin-top:32px;">
+      <div class="insight-title">本月核心功課</div>
+      <p style="font-size:18px;"><strong>「你連假來探討人生，這本身就是一個大師數的信號。」</strong></p>
+      <p style="margin-top:12px;">33 號人的覺醒，通常從「我是誰」這個問題開始。你願意停下來問這個問題，是一種智慧，不是迷茫。4 月的能量支持你做這件事——不要用「我應該去行動」來逃避「我應該去感受」。</p>
+    </div>
+
+    <h3>4 月三個行動建議</h3>
+    <div class="card-grid card-grid-3">
+      <div class="card">
+        <div class="section-tag">Action 01</div>
+        <h3>盤點你的能量帳戶</h3>
+        <p style="font-size:14px;">列出過去 30 天裡，哪些事/人讓你有能量，哪些讓你失去能量。這不是判斷誰好誰壞，是盤點你的資源真實狀況。</p>
+      </div>
+      <div class="card">
+        <div class="section-tag">Action 02</div>
+        <h3>選 1 件你一直推遲的事</h3>
+        <p style="font-size:14px;">33 號人最常推遲的是「為自己做的事」。不是要你做大決定，選一件小的：一個你一直想嘗試但還沒做的事，4 月開始。</p>
+      </div>
+      <div class="card">
+        <div class="section-tag">Action 03</div>
+        <h3>練習說一次「不」</h3>
+        <p style="font-size:14px;">這個月找一個場合，說一次「不」。不需要是大的拒絕，任何一個「對不起這個我沒辦法」都算。感受說完之後的感覺——那是你在重建自己的邊界。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ SECTION 8: 最終話語 ═══════════════════════ -->
+<section style="border-bottom:none;">
+  <div class="container">
+    <div class="final-quote">
+      <p class="final-quote-text">你不是因為「有用」才值得被愛。<br>你存在本身，就是夠的。</p>
+      <p class="final-quote-attr">給每一位 33 號人 · MUSEON Soul Blueprint</p>
+    </div>
+
+    <div style="margin-top:48px;">
+      <div class="section-tag">A Note</div>
+      <h2>給 HE 的一段話</h2>
+      <p>你問的是「這個月的運勢建議」，但我想說的是：你願意利用連假來探索自己，這件事本身就已經是答案的一部分。</p>
+      <p>33 號人很少缺能力，最常缺的是<strong>允許自己做自己的許可</strong>。你可能已經很擅長幫別人看清楚、給出方向——現在是用同樣的眼睛看見自己的時候了。</p>
+      <p>任何想深問的方向——感情、事業、人生方向、某個具體決策——都可以繼續追問。這份報告是起點，不是終點。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ FOOTER ═══════════════════════ -->
+<footer>
+  <p>HE · Soul Blueprint Report · Generated by MUSEON · 2026-04-01 · 資料以 1994/5/23 為基礎，部分分析依賴完整出生時間可進一步精準化</p>
+</footer>
+
+</body>
+</html>
