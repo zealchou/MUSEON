@@ -356,10 +356,7 @@ class RefractoryGuard:
         current = Path(__file__).resolve()
         for parent in current.parents:
             if (parent / "pyproject.toml").exists():
-                if parent.name == ".runtime":
-                    candidate = parent.parent / ".env"
-                else:
-                    candidate = parent / ".env"
+                candidate = parent / ".env"
                 if candidate.exists():
                     return candidate
 

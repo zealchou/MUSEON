@@ -568,15 +568,15 @@ class TestSensitivityChecker:
     """敏感度分類（確保群組也能正常運作）."""
 
     def test_l1_company_keywords(self):
-        """L1 公司內部關鍵字."""
+        """L1 公司內部關鍵字（需命中 >= 2 個）."""
         checker = SensitivityChecker()
-        level, reason = checker.check("我們的客戶合約金額是多少")
+        level, reason = checker.check("這次簽約的報價是多少，金流怎麼走")
         assert level == "L1"
 
     def test_l2_personal_keywords(self):
         """L2 個人資訊關鍵字."""
         checker = SensitivityChecker()
-        level, reason = checker.check("你家人最近身體健康嗎")
+        level, reason = checker.check("請問他的住址和電話是多少")
         assert level == "L2"
 
     def test_l3_system_keywords(self):

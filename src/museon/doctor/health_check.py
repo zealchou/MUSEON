@@ -77,7 +77,7 @@ class HealthChecker:
         self.data_dir = self.home / "data"
         self.logs_dir = self.home / "logs"
         self.env_path = self.home / ".env"
-        self.venv_dir = self.runtime_dir / ".venv"
+        self.venv_dir = self.home / ".venv"
         self.gateway_port = 8765
         self.plist_path = (
             Path.home()

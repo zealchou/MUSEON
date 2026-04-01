@@ -45,19 +45,12 @@ if [ -n "$BUSY" ]; then
 fi
 echo "✅ session 檢查完成"
 
-# ─── Step 1.5: 同步 src/ → .runtime/src/ ─────────────────
+# ─── Step 1.5: 清理 __pycache__ ─────────────────
 echo ""
-echo "📋 Step 1.5: 同步 src/ → .runtime/src/..."
-if [ -d "$PROJECT_DIR/.runtime/src" ]; then
-    find "$PROJECT_DIR/src" "$PROJECT_DIR/.runtime/src" -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
-    find "$PROJECT_DIR/src" "$PROJECT_DIR/.runtime/src" -name "*.pyc" -delete 2>/dev/null || true
-    rsync -a --delete \
-        --exclude='__pycache__' --exclude='.DS_Store' \
-        "$PROJECT_DIR/src/" "$PROJECT_DIR/.runtime/src/"
-    echo "✅ .runtime 同步完成"
-else
-    echo "⚠️  .runtime/src 不存在，跳過同步"
-fi
+echo "📋 Step 1.5: 清理 src/ __pycache__..."
+find "$PROJECT_DIR/src" -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
+find "$PROJECT_DIR/src" -name "*.pyc" -delete 2>/dev/null || true
+echo "✅ __pycache__ 清理完成"
 
 # ─── Step 2: 透過 supervisorctl 重啟 ─────────────────
 echo ""

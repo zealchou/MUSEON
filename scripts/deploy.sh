@@ -18,7 +18,7 @@ set -e
 DEV_ROOT="/Users/ZEALCHOU/museon"
 PROD_ROOT="/Users/ZEALCHOU/MUSEON"
 APP_ASAR="/Applications/MUSEON.app/Contents/Resources/app.asar"
-PROD_ASAR="$PROD_ROOT/.runtime/electron/app.asar"
+PROD_ASAR="$PROD_ROOT/electron/app.asar"
 DMG_DEST="$HOME/Desktop/MUSEON-1.0.0-arm64.dmg"
 VERSION_FILE="$PROD_ROOT/update_marker.json"
 CHANGELOG_FILE="$PROD_ROOT/CHANGELOG.md"
@@ -70,14 +70,14 @@ info "變更：${CHANGES[*]}"
 info "Step 1/7: 同步 Python 後端..."
 
 # Agent 模組
-rsync -a --delete "$DEV_ROOT/src/museon/agent/" "$PROD_ROOT/.runtime/src/museon/agent/"
+rsync -a --delete "$DEV_ROOT/src/museon/agent/" "$PROD_ROOT/src/museon/agent/"
 # Nightly 模組
-rsync -a --delete "$DEV_ROOT/src/museon/nightly/" "$PROD_ROOT/.runtime/src/museon/nightly/"
+rsync -a --delete "$DEV_ROOT/src/museon/nightly/" "$PROD_ROOT/src/museon/nightly/"
 # Gateway 模組
-rsync -a --delete "$DEV_ROOT/src/museon/gateway/" "$PROD_ROOT/.runtime/src/museon/gateway/"
+rsync -a --delete "$DEV_ROOT/src/museon/gateway/" "$PROD_ROOT/src/museon/gateway/"
 
 # 驗證 import
-cd "$PROD_ROOT/.runtime"
+cd "$PROD_ROOT"
 PYTHONPATH="./src:$PYTHONPATH" python3 -c "
 from museon.agent.brain import MuseonBrain
 from museon.agent.kernel_guard import KernelGuard

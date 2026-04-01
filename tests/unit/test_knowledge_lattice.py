@@ -165,14 +165,16 @@ class TestCUID:
     def test_cuid_sequential(self, lattice):
         """CUID 序號遞增."""
         c1 = lattice.crystallize(
-            raw_material="第一個洞見結晶",
+            raw_material="第一個洞見結晶的詳細內容描述",
             source_context="",
             crystal_type="Insight",
+            g2_structure=["技術架構設計", "組織流程管理"],
         )
         c2 = lattice.crystallize(
-            raw_material="第二個洞見結晶",
+            raw_material="第二個洞見結晶的詳細內容描述",
             source_context="",
             crystal_type="Insight",
+            g2_structure=["市場需求分析", "財務成本控制"],
         )
         seq1 = int(c1.cuid.split("-")[2])
         seq2 = int(c2.cuid.split("-")[2])
@@ -799,10 +801,23 @@ class TestCommunityDetection:
 
     def test_detect_communities_convergence(self, lattice):
         """Label Propagation 能收斂（不無限迭代）."""
+        g2_pairs = [
+            ["硬體基礎設施", "軟體演算法"],
+            ["市場行銷策略", "供應鏈管理"],
+            ["人才招募培訓", "財務風險控制"],
+            ["客戶服務品質", "生產製造流程"],
+            ["數據安全合規", "品牌形象推廣"],
+            ["研發創新投入", "通路渠道佈局"],
+            ["法規遵循稽核", "競爭對手分析"],
+            ["使用者體驗設計", "後端系統穩定性"],
+            ["國際市場擴張", "本地化語言轉換"],
+            ["環境永續責任", "股東利益報酬"],
+        ]
         crystals = []
         for i in range(10):
             c = lattice.crystallize(
                 f"連續結晶第 {i} 號的詳細內容描述", "", "Pattern",
+                g2_structure=g2_pairs[i],
             )
             crystals.append(c)
 
@@ -861,8 +876,10 @@ class TestHasCommunities:
 
     def test_has_communities_true(self, lattice):
         """有連結時回傳 True."""
-        c1 = lattice.crystallize("結晶甲用來測試社群存在", "", "Insight")
-        c2 = lattice.crystallize("結晶乙用來測試社群存在", "", "Pattern")
+        c1 = lattice.crystallize("結晶甲用來測試社群存在", "", "Insight",
+                                 g2_structure=["技術架構評估", "市場需求調研"])
+        c2 = lattice.crystallize("結晶乙用來測試社群存在", "", "Pattern",
+                                 g2_structure=["組織流程改善", "財務成本分析"])
         lattice.add_link(c1.cuid, c2.cuid, "supports")
 
         assert lattice.has_communities() is True

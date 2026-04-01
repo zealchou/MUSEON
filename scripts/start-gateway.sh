@@ -14,12 +14,12 @@ set -e
 # ─── 路徑設定 ─────────────────────────────────────
 export PATH="/usr/sbin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
 MUSEON_HOME="${MUSEON_HOME:-/Users/ZEALCHOU/MUSEON}"
-VENV_BIN="$MUSEON_HOME/.runtime/.venv/bin"
-PYTHONPATH="${PYTHONPATH:-$MUSEON_HOME/.runtime/src}"
+VENV_BIN="$MUSEON_HOME/.venv/bin"
+PYTHONPATH="${PYTHONPATH:-$MUSEON_HOME/src}"
 export PYTHONPATH
 
 # ─── 清理 __pycache__（防止舊 bytecode 污染）──────
-find "$MUSEON_HOME/.runtime/src" -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
+find "$MUSEON_HOME/src" -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
 
 # ─── 啟動 Gateway（uvicorn 直接模式）────────────
 exec "$VENV_BIN/python" -m museon.gateway.server

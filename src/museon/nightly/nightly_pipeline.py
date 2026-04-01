@@ -2865,7 +2865,7 @@ class NightlyPipeline:
                 pulse_db=_pulse_db,
             )
 
-            results = _run_async_safe(router.process_queue(max_items=2))
+            results = _run_async_safe(router.process_queue(max_items=None))
 
             valuable = sum(1 for r in results if r.get("is_valuable"))
             return {
@@ -3526,9 +3526,32 @@ class NightlyPipeline:
     def _step_system_health_audit(self) -> Dict:
         """Step 18.7: 全系統六層健康檢查.
 
-        跑 full_system_audit，將結果寫入 shared_board。
+        先嘗試讀取快取（< 2 小時內的 shared_board.json），避免重複 subprocess。
+        快取不新鮮或不存在時，fallback 重跑 full_system_audit。
         如果有 CRITICAL/HIGH 問題，記錄到 shared_board 供 MuseDoctor 巡邏時處理。
         """
+        import time
+
+        # ── 嘗試讀取快取 ──
+        cache_dir = self._workspace / "_system" / "doctor"
+        shared_board_path = cache_dir / "shared_board.json"
+        _CACHE_TTL = 2 * 3600  # 2 小時
+
+        if shared_board_path.exists():
+            try:
+                cache_mtime = shared_board_path.stat().st_mtime
+                if (time.time() - cache_mtime) < _CACHE_TTL:
+                    with open(shared_board_path, encoding="utf-8") as f:
+                        board = json.load(f)
+                    nightly_entry = board.get("nightly") or {}
+                    summary = nightly_entry.get("summary", "")
+                    # 快取有效：直接返回摘要，跳過重跑
+                    logger.info(f"[NIGHTLY 18.7] Using cached audit (age < 2h): {summary}")
+                    return {"cached": True, "summary": summary}
+            except Exception as cache_err:
+                logger.debug(f"[NIGHTLY 18.7] Cache read failed, will re-run audit: {cache_err}")
+
+        # ── Fallback：重跑 full_system_audit ──
         try:
             import subprocess
             import sys

@@ -27,12 +27,6 @@ def get_session_root() -> Path:
     if SESSIONS_DIR.exists():
         return SESSIONS_DIR
 
-    # Fallback 到打包環境
-    runtime_root = Path(__file__).resolve()
-    for parent in runtime_root.parents:
-        if parent.name == ".runtime" and (parent.parent / "data" / "_system" / "sessions").exists():
-            return parent.parent / "data" / "_system" / "sessions"
-
     return SESSIONS_DIR
 
 

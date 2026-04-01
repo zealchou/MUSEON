@@ -15,7 +15,7 @@ import logging
 import time
 import uuid
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from museon.vector.embedder import Embedder
 from museon.vector.sparse_embedder import SparseEmbedder
@@ -530,7 +530,7 @@ class VectorBridge:
     # 全量索引操作
     # ═══════════════════════════════════════════
 
-    def index_all_skills(self, skills_dir: str | Path | None = None) -> dict:
+    def index_all_skills(self, skills_dir: Union[str, Path] | None = None) -> dict:
         """全量索引所有 Skill 到 Qdrant skills collection.
 
         讀取 data/skills/native/ 下所有 SKILL.md，
@@ -673,7 +673,7 @@ class VectorBridge:
 
         return result
 
-    def reindex_all(self, workspace: str | Path | None = None) -> dict:
+    def reindex_all(self, workspace: Union[str, Path] | None = None) -> dict:
         """全量重索引所有 collection（用於 Qdrant 重建後恢復）.
 
         Args:

@@ -306,7 +306,7 @@ class TestTokenBudget:
         assert budget.get_zone_budget("persona") == 1500
         assert budget.get_zone_budget("modules") == 6000
         assert budget.get_zone_budget("memory") == 2500
-        assert budget.get_zone_budget("buffer") == 2800
+        assert budget.get_zone_budget("buffer") == 1800
 
     def test_track_usage(self):
         """BDD: 追蹤使用量."""
@@ -331,22 +331,24 @@ class TestTokenBudget:
         assert budget.is_exhausted("modules")
 
     def test_dynamic_allocation_over_threshold(self):
-        """BDD: max_tier > 1.0 → modules +20% from buffer."""
+        """BDD: safety_triggered=True → modules +20% from buffer."""
         budget = TokenBudget()
         original_modules = budget.get_zone_budget("modules")  # 6000
-        original_buffer = budget.get_zone_budget("buffer")  # 2000
-        bonus = min(original_buffer, original_modules // 5)  # min(2000, 1200) = 1200
+        original_buffer = budget.get_zone_budget("buffer")  # 1800
+        # buffer - _BUFFER_MIN_RESERVE 可借出；bonus = min(available, modules//5)
+        available = max(original_buffer - budget._BUFFER_MIN_RESERVE, 0)
+        bonus = min(available, original_modules // 5)
 
-        budget.apply_dynamic_allocation(1.5)
+        budget.apply_dynamic_allocation(safety_triggered=True)
         assert budget.get_zone_budget("modules") == original_modules + bonus
         assert budget.get_zone_budget("buffer") == original_buffer - bonus
 
     def test_dynamic_allocation_under_threshold(self):
-        """BDD: max_tier <= 1.0 → 不變."""
+        """BDD: safety_triggered=False → 不變."""
         budget = TokenBudget()
-        budget.apply_dynamic_allocation(0.8)
+        budget.apply_dynamic_allocation(safety_triggered=False)
         assert budget.get_zone_budget("modules") == 6000
-        assert budget.get_zone_budget("buffer") == 2800
+        assert budget.get_zone_budget("buffer") == 1800
 
     def test_fit_text_to_zone(self):
         """BDD: 文本適配到區預算."""

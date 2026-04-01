@@ -52,10 +52,7 @@ def _configure_logging() -> None:
     current = Path(__file__).resolve()
     for parent in current.parents:
         if (parent / "pyproject.toml").exists():
-            if parent.name == ".runtime":
-                log_dir = parent.parent / "logs"
-            else:
-                log_dir = parent / "logs"
+            log_dir = parent / "logs"
             break
 
     if log_dir is None:
@@ -120,11 +117,7 @@ def _load_env_file() -> None:
     current = Path(__file__).resolve()
     for parent in current.parents:
         if (parent / "pyproject.toml").exists():
-            # If we're inside .runtime, .env is one level up
-            if parent.name == ".runtime":
-                env_file = parent.parent / ".env"
-            else:
-                env_file = parent / ".env"
+            env_file = parent / ".env"
             if env_file.exists():
                 _parse_env(env_file)
                 return
@@ -179,10 +172,7 @@ def _persist_env_setting(key: str, value: str) -> None:
         current = Path(__file__).resolve()
         for parent in current.parents:
             if (parent / "pyproject.toml").exists():
-                if parent.name == ".runtime":
-                    candidate = parent.parent / ".env"
-                else:
-                    candidate = parent / ".env"
+                candidate = parent / ".env"
                 if candidate.exists():
                     env_file = candidate
                     break
@@ -226,11 +216,7 @@ def _resolve_data_dir() -> str:
     current = Path(__file__).resolve()
     for parent in current.parents:
         if (parent / "pyproject.toml").exists():
-            # If we're inside .runtime, data/ is one level up
-            if parent.name == ".runtime":
-                data_dir = parent.parent / "data"
-            else:
-                data_dir = parent / "data"
+            data_dir = parent / "data"
             if data_dir.exists():
                 return str(data_dir)
 

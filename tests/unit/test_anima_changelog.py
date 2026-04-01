@@ -280,5 +280,7 @@ class TestAnimaChangelogCompression:
         removed = changelog.compress_old_records(threshold_days=90)
         assert removed > 0
 
-        # 壓縮後：1 筆日摘要 + 1 筆新記錄 = 2 筆
-        assert changelog.get_record_count() == 2
+        # 壓縮後：舊記錄按天合併（5 筆可能跨 1-2 天）+ 1 筆新記錄
+        # 因執行時間不同，舊記錄可能落在 1 或 2 個日期，所以是 2 或 3 筆
+        count = changelog.get_record_count()
+        assert 2 <= count <= 3

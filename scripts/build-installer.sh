@@ -67,17 +67,12 @@ echo "  ✅ Scope Audit 通過"
 echo ""
 
 # ═══════════════════════════════════════
-# 同步開發環境 .runtime/（Gateway daemon 使用）
+# 清理 __pycache__（Gateway 直接使用 src/，不需 .runtime 同步）
 # ═══════════════════════════════════════
-DEV_RUNTIME="$PROJECT_DIR/.runtime"
-if [ -d "$DEV_RUNTIME/src" ]; then
-    echo "  → 同步 src/ → .runtime/src/（開發環境 daemon 使用）..."
-    rsync -a --delete \
-        --exclude='__pycache__' --exclude='.DS_Store' \
-        "$PROJECT_DIR/src/" "$DEV_RUNTIME/src/"
-    echo "  ✅ 開發環境 .runtime 同步完成"
-    echo ""
-fi
+echo "  → 清理 src/ __pycache__..."
+find "$PROJECT_DIR/src" -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
+echo "  ✅ __pycache__ 清理完成"
+echo ""
 
 # 執行打包
 echo "  → 開始打包..."
@@ -258,36 +253,36 @@ if [ -f "dist/Install-MUSEON.command" ]; then
 
     # V6: 正式版同步驗證 + 自動同步
     # 偵測已安裝的正式版，自動同步最新程式碼
-    PROD_RUNTIME="$HOME/MUSEON 正式版/MUSEON/.runtime"
-    if [ -d "$PROD_RUNTIME/src" ]; then
+    PROD_ROOT="$HOME/MUSEON 正式版/MUSEON"
+    if [ -d "$PROD_ROOT/src" ]; then
         echo ""
         echo "  → 偵測到正式版安裝，執行自動同步..."
 
         # 同步 Python 原始碼
         rsync -a --delete \
             --exclude='__pycache__' --exclude='.DS_Store' \
-            "$PROJECT_DIR/src/" "$PROD_RUNTIME/src/" 2>/dev/null
+            "$PROJECT_DIR/src/" "$PROD_ROOT/src/" 2>/dev/null
 
         # 同步 Electron 原始碼（不覆蓋 node_modules）
         for ef in main.js preload.js .babelrc; do
-            cp "$PROJECT_DIR/electron/$ef" "$PROD_RUNTIME/electron/$ef" 2>/dev/null
+            cp "$PROJECT_DIR/electron/$ef" "$PROD_ROOT/electron/$ef" 2>/dev/null
         done
         rsync -a --delete \
             --exclude='node_modules' --exclude='.DS_Store' \
-            "$PROJECT_DIR/electron/src/" "$PROD_RUNTIME/electron/src/" 2>/dev/null
+            "$PROJECT_DIR/electron/src/" "$PROD_ROOT/electron/src/" 2>/dev/null
 
         # 同步 skills
         if [ -d "$PROJECT_DIR/data/skills" ]; then
             rsync -a --delete \
                 --exclude='__pycache__' --exclude='.DS_Store' \
-                "$PROJECT_DIR/data/skills/" "$PROD_RUNTIME/data/skills/" 2>/dev/null
+                "$PROJECT_DIR/data/skills/" "$PROD_ROOT/data/skills/" 2>/dev/null
         fi
 
         # 驗證同步結果
         V6_OK=true
         # 抽樣比對：server.py 的 md5
         DEV_HASH=$(md5 -q "$PROJECT_DIR/src/museon/gateway/server.py" 2>/dev/null)
-        PROD_HASH=$(md5 -q "$PROD_RUNTIME/src/museon/gateway/server.py" 2>/dev/null)
+        PROD_HASH=$(md5 -q "$PROD_ROOT/src/museon/gateway/server.py" 2>/dev/null)
         if [ "$DEV_HASH" = "$PROD_HASH" ] && [ -n "$DEV_HASH" ]; then
             echo "  ✅ V6: 正式版已同步最新程式碼 (server.py ✓)"
         else
@@ -300,7 +295,7 @@ if [ -f "dist/Install-MUSEON.command" ]; then
 
         # 抽樣比對：brain.py
         DEV_HASH2=$(md5 -q "$PROJECT_DIR/src/museon/agent/brain.py" 2>/dev/null)
-        PROD_HASH2=$(md5 -q "$PROD_RUNTIME/src/museon/agent/brain.py" 2>/dev/null)
+        PROD_HASH2=$(md5 -q "$PROD_ROOT/src/museon/agent/brain.py" 2>/dev/null)
         if [ "$DEV_HASH2" = "$PROD_HASH2" ] && [ -n "$DEV_HASH2" ]; then
             echo "  ✅ V6: brain.py 同步確認 ✓"
         else
@@ -311,7 +306,7 @@ if [ -f "dist/Install-MUSEON.command" ]; then
 
         # 抽樣比對：app.js
         DEV_HASH3=$(md5 -q "$PROJECT_DIR/electron/src/app.js" 2>/dev/null)
-        PROD_HASH3=$(md5 -q "$PROD_RUNTIME/electron/src/app.js" 2>/dev/null)
+        PROD_HASH3=$(md5 -q "$PROD_ROOT/electron/src/app.js" 2>/dev/null)
         if [ "$DEV_HASH3" = "$PROD_HASH3" ] && [ -n "$DEV_HASH3" ]; then
             echo "  ✅ V6: app.js 同步確認 ✓"
         else
@@ -320,10 +315,10 @@ if [ -f "dist/Install-MUSEON.command" ]; then
             VERIFY_PASS=false
         fi
         # V6b: 重建 Electron app 並更新 /Applications/MUSEON.app
-        if [ "$V6_OK" = true ] && [ -f "$PROD_RUNTIME/electron/package.json" ]; then
+        if [ "$V6_OK" = true ] && [ -f "$PROD_ROOT/electron/package.json" ]; then
             echo ""
             echo "  → 重建 Electron app（確保 app.asar 包含最新程式碼）..."
-            ELECTRON_DIR="$PROD_RUNTIME/electron"
+            ELECTRON_DIR="$PROD_ROOT/electron"
             if command -v npm &>/dev/null && (cd "$ELECTRON_DIR" && npm run build 2>/dev/null); then
                 NEW_APP="$ELECTRON_DIR/dist/mac-arm64/MUSEON.app"
                 if [ -d "$NEW_APP" ]; then

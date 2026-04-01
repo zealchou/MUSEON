@@ -34,12 +34,12 @@ access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s %(L)ss'
 def on_starting(server):
     """Master 進程啟動時執行 preflight + governor（取代 main() 的保護層）"""
     # 加入 PYTHONPATH
-    _runtime_src = "/Users/ZEALCHOU/MUSEON/.runtime/src"
+    _runtime_src = "/Users/ZEALCHOU/MUSEON/src"
     if _runtime_src not in sys.path:
         sys.path.insert(0, _runtime_src)
 
     # 確保 site-packages 可用
-    _site = "/Users/ZEALCHOU/MUSEON/.runtime/.venv/lib/python3.13/site-packages"
+    _site = "/Users/ZEALCHOU/MUSEON/.venv/lib/python3.13/site-packages"
     if _site not in sys.path:
         sys.path.insert(0, _site)
 

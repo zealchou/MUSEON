@@ -456,7 +456,6 @@ class BrainDispatchMixin:
                 f"{[t.skill_name for t in layer]}"
             )
 
-    @staticmethod
     def _get_handoff_from_deps(
         self, task: Any, result_map: Dict[str, Any],
     ) -> str:

@@ -266,12 +266,7 @@ class GuardianDaemon:
         """檢查 .env 檔案 — 純 CPU"""
         # 找 .env：data_dir 的父目錄
         home = self.data_dir.parent
-        env_candidates = [home / ".env", home / ".runtime" / ".env"]
-        env_path = None
-        for p in env_candidates:
-            if p.exists():
-                env_path = p
-                break
+        env_path = home / ".env" if (home / ".env").exists() else None
 
         if not env_path:
             return GuardianEntry("L1", "env_file", GuardianStatus.FAILED,

@@ -29,9 +29,9 @@ class TestToolSchemas:
     """tool_schemas.py 定義驗證."""
 
     def test_tool_definitions_exist(self):
-        """TOOL_DEFINITIONS 包含 19 個工具（v12 含 7 個 Self-Surgery 工具）."""
+        """TOOL_DEFINITIONS 包含 30 個工具（含 Self-Surgery、ARES、系統操作工具）."""
         from museon.agent.tool_schemas import TOOL_DEFINITIONS
-        assert len(TOOL_DEFINITIONS) == 19
+        assert len(TOOL_DEFINITIONS) == 30
 
     def test_tool_definitions_have_required_fields(self):
         """每個工具定義包含 name, description, input_schema."""
@@ -44,17 +44,23 @@ class TestToolSchemas:
             assert "required" in tool["input_schema"]
 
     def test_tool_names(self):
-        """19 個工具名稱正確（v12 含 Self-Surgery 工具）."""
+        """30 個工具名稱正確（含 Self-Surgery、ARES、系統操作工具）."""
         from museon.agent.tool_schemas import TOOL_NAMES
         assert TOOL_NAMES == {
             "web_search", "web_crawl", "speech_to_text", "ocr",
             "generate_artifact", "read_skill", "skill_search",
             "shell_exec", "file_write_rich",
             "mcp_list_servers", "mcp_call_tool", "mcp_add_server",
-            # v12 Self-Surgery 工具
+            # Self-Surgery 工具
             "source_read", "source_search", "source_ast_check",
             "surgery_diagnose", "surgery_propose",
             "surgery_apply", "surgery_rollback",
+            # 系統操作工具
+            "restart_gateway", "pending_action", "trigger_job",
+            "memory_search", "spawn_perspectives", "publish_report",
+            # ARES 工具
+            "ares_search", "ares_create", "ares_update",
+            "ares_briefing", "ares_topology",
         }
 
     def test_descriptions_are_detailed(self):

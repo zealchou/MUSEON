@@ -186,8 +186,8 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
             logger.error(f"Health heartbeat failed: {e}", exc_info=True)
 
     cron_engine.add_job(
-        _health_heartbeat, trigger="interval", job_id="health-heartbeat",
-        minutes=30,
+        _health_heartbeat, trigger="cron", job_id="health-heartbeat",
+        minute="0,30",
     )
 
     # ── Job 3: 記憶持久化確認（每 6 小時）── 純 CPU
@@ -225,8 +225,8 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
             logger.error(f"Guardian L1 failed: {e}", exc_info=True)
 
     cron_engine.add_job(
-        _guardian_l1, trigger="interval", job_id="guardian-l1",
-        minutes=30,
+        _guardian_l1, trigger="cron", job_id="guardian-l1",
+        minute="10,40",
     )
 
     # ── Job 6: Guardian L2+L3 深度巡檢（每 6 小時）── 純 CPU
@@ -326,8 +326,8 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
             logger.error(f"VITA BreathPulse failed: {e}", exc_info=True)
 
     cron_engine.add_job(
-        _vita_breath_pulse, trigger="interval", job_id="vita-breath-pulse",
-        minutes=30,
+        _vita_breath_pulse, trigger="cron", job_id="vita-breath-pulse",
+        minute="20,50",
     )
 
     # ── Job 10: VITA 晨感（每天 07:30）── 取代舊早報

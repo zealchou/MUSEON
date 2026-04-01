@@ -612,14 +612,14 @@ class TestCronEngineWiring:
         async def _test():
             cron_engine.start()
             try:
-                _register_system_cron_jobs(mock_brain)
+                _register_system_cron_jobs(mock_brain, cron_engine=cron_engine)
                 jobs = cron_engine.get_all_jobs()
                 job_ids = {j.id for j in jobs}
 
                 assert "nightly-fusion" in job_ids
                 assert "health-heartbeat" in job_ids
                 assert "memory-flush" in job_ids
-                assert "skill-acquisition-scan" in job_ids
+                # skill-acquisition-scan 已在 v1.75 移除，由 Nightly Step 6.5 涵蓋
             finally:
                 cron_engine.shutdown()
 

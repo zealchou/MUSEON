@@ -831,7 +831,6 @@ class ToolExecutor:
             Path(self._workspace_dir).parent,  # data/
             Path(self._workspace_dir).parent.parent,  # project root
             Path.home() / "MUSEON" / "data",
-            Path.home() / "MUSEON" / ".runtime" / "data",
         ]
 
         for base in base_dirs:
@@ -852,7 +851,6 @@ class ToolExecutor:
             Path(self._workspace_dir).parent,
             Path(self._workspace_dir).parent.parent,
             Path.home() / "MUSEON" / "data",
-            Path.home() / "MUSEON" / ".runtime" / "data",
         ]
 
         for base in base_dirs:

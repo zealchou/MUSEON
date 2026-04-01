@@ -280,10 +280,7 @@ def review_proposal(
         _docs_dir = None
         for parent in Path(__file__).resolve().parents:
             if (parent / "pyproject.toml").exists():
-                if parent.name == ".runtime":
-                    _docs_dir = parent.parent / "docs"
-                else:
-                    _docs_dir = parent / "docs"
+                _docs_dir = parent / "docs"
                 break
         if not _docs_dir:
             _docs_dir = Path.home() / "MUSEON" / "docs"

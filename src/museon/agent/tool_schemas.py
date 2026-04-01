@@ -664,6 +664,7 @@ TOOL_DEFINITIONS: List[Dict[str, Any]] = [
                 "format": {"type": "string", "enum": ["png", "json"], "description": "輸出格式", "default": "png"},
                 "domain": {"type": "string", "enum": ["business", "internal", "personal"], "description": "場域篩選（選填）"},
             },
+            "required": [],
         },
     },
     {
