@@ -10,7 +10,7 @@
   Step 1    : 檢查命名儀式
   Step 1.5  : 直覺引擎 — sense()（Step -0.5：在 DNA27 路由之前）
   Step 2    : 載入 ANIMA_MC + ANIMA_USER
-  Step 3    : DNA27 反射路由器 — RoutingSignal（靈魂先行）
+  Step 3    : 信號路由 — SignalLite（純算術，< 1ms）
   Step 3.1  : DNA27 路由 — 匹配技能（受 RoutingSignal 調節）
   Step 3.2  : ★ P2 決策層信號偵測（重大決策先問後答）
   Step 3.3  : ★ P2 決策層路徑短路（若偵測到重大決策，直接返回反問）
@@ -52,7 +52,6 @@ from typing import Any, Dict, List, Optional, Tuple
 from museon.agent.brain_prompt_builder import BrainPromptBuilderMixin
 from museon.agent.brain_dispatch import BrainDispatchMixin
 from museon.agent.brain_observation import BrainObservationMixin
-from museon.agent.brain_p3_fusion import BrainP3FusionMixin
 from museon.agent.brain_tools import BrainToolsMixin
 
 
@@ -60,10 +59,10 @@ logger = logging.getLogger(__name__)
 
 
 # L3-A2: 共享型別從 brain_types 導入（避免循環 import）
-from museon.agent.brain_types import DecisionSignal, P3FusionSignal
+from museon.agent.brain_types import DecisionSignal
 
 
-class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationMixin, BrainP3FusionMixin, BrainToolsMixin):
+class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationMixin, BrainToolsMixin):
     """MUSEON Brain — MUSEON 的大腦，整合所有模組."""
 
     def __init__(self, data_dir: str = "data"):
@@ -105,8 +104,6 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         # ★ v10.4 Route B: session 內 skill 使用次數追蹤（MoE 衰減用）
         self._skill_usage: Dict[str, Dict[str, int]] = {}
 
-        # ★ v10.4 Route C: 跨輪路由歷史（state-conditioned routing 用）
-        self._routing_history: Dict[str, List[Dict]] = {}
         self._last_routing_signal = None  # PDR Phase 2 消費
 
         # ── EventBus（全域事件匯流排）──
@@ -787,81 +784,32 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
             )
         )
 
-        # ── Step 3: DNA27 反射路由器（全 27 叢集 + RoutingSignal）——靈魂先行 ──
-        _report("🧬 DNA27 路由", "27 叢集反射判斷中...")
+        # ── Step 3: 信號路由（signal_lite — 純算術，< 1ms）──
+        _report("🧬 信號路由", "signal_lite 運算中...")
         routing_signal = None
         safety_context = ""
         try:
-            from museon.agent.reflex_router import route, build_routing_context
-            history = self._get_session_history(session_id)
-            # ★ v10.4 Route C: 取前 3 輪路由歷史
-            prev_signals = self._routing_history.get(session_id, [])[-3:]
-            routing_signal = route(
-                content,
-                history_len=len(history),
-                workspace=str(self.data_dir),
-                prev_signals=prev_signals,
-                user_primals=_user_primals or None,
-            )
-            safety_context = build_routing_context(routing_signal)
-            # ★ 簡單訊息強制 FAST_LOOP（覆蓋 reflex_router 的誤判）
-            if _is_simple and routing_signal.loop != "FAST_LOOP":
-                logger.info(
-                    f"[DNA27] Simple message override: {routing_signal.loop} → FAST_LOOP"
+            from museon.agent.signal_lite import compute_signal
+            routing_signal = compute_signal(content, is_simple=_is_simple)
+            # 安全上下文（純文字注入 prompt，LLM 自行判斷）
+            if routing_signal.safety_triggered:
+                safety_context = (
+                    "⚠️ 偵測到高風險訊號（能量耗竭、情緒過熱或不可逆決策）。"
+                    "優先穩定對方情緒，回覆控制在 200 字以內，給最小可行下一步。"
                 )
-                routing_signal.loop = "FAST_LOOP"
+            if routing_signal.sovereignty_triggered:
+                safety_context += (
+                    "\n提醒：對方可能在尋求決策代理。不要替對方做決定，"
+                    "而是提供選項和各自代價，讓對方自己選擇。"
+                )
+            self._last_routing_signal = routing_signal
             logger.info(
-                f"[DNA27] RoutingSignal: loop={routing_signal.loop}, "
-                f"mode={routing_signal.mode}, "
-                f"max_push={routing_signal.max_crystal_push}, "
-                f"tiers={routing_signal.tier_scores}, "
-                f"time={routing_signal.route_time_ms:.1f}ms"
+                f"[SignalLite] loop={routing_signal.loop}, "
+                f"push={routing_signal.max_crystal_push}, "
+                f"safety={routing_signal.safety_triggered}"
             )
-            # ★ v10.4 Route C: 儲存當輪 signal 到路由歷史
-            if session_id not in self._routing_history:
-                self._routing_history[session_id] = []
-            self._routing_history[session_id].append(routing_signal.to_dict())
-            self._last_routing_signal = routing_signal  # PDR Phase 2 消費
-            # 只保留最近 5 輪
-            if len(self._routing_history[session_id]) > 5:
-                self._routing_history[session_id] = self._routing_history[session_id][-5:]
         except Exception as e:
-            logger.warning(f"DNA27 ReflexRouter failed (fallback to legacy): {e}")
-            # Fallback: 舊版安全叢集偵測
-            try:
-                from museon.agent.safety_clusters import (
-                    detect_safety_clusters, build_safety_context as _legacy_build,
-                )
-                cluster_scores = detect_safety_clusters(content)
-                if cluster_scores:
-                    safety_context = _legacy_build(cluster_scores)
-            except Exception as e:
-                logger.debug(f"安全叢集偵測（legacy fallback）失敗: {e}")
-
-        # ── Step 3.0.3: Phase 3c — 健康感知路由調節 ──
-        # 系統不健康時，將 SLOW_LOOP 降級為 EXPLORATION_LOOP，減少資源消耗
-        if routing_signal and self._governor:
-            try:
-                _gov_ctx = self._governor.build_context()
-                if (
-                    _gov_ctx.is_fresh
-                    and _gov_ctx.needs_caution
-                    and routing_signal.loop == "SLOW_LOOP"
-                ):
-                    from dataclasses import replace as _dc_replace
-                    routing_signal = _dc_replace(
-                        routing_signal,
-                        loop="EXPLORATION_LOOP",
-                        max_crystal_push=min(
-                            routing_signal.max_crystal_push, 5
-                        ),
-                    )
-                    logger.info(
-                        f"[Phase3c] 治理調節: SLOW_LOOP → EXPLORATION_LOOP "
-                        f"(health={_gov_ctx.health_tier.value})"
-                    )
-            except Exception as e:
-                logger.debug(f"Phase3c 健康感知路由調節失敗（降級）: {e}")
+            logger.warning(f"SignalLite failed: {e}")
 
         self._multiagent_auxiliaries = []  # 重置每 turn 的輔助部門
 

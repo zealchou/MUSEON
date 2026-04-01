@@ -29,12 +29,32 @@ _SOVEREIGNTY_KEYWORDS = frozenset({
 })
 
 
-@dataclass(frozen=True)
+@dataclass
 class SignalLite:
-    """輕量路由信號 — 只有兩個維度."""
+    """輕量路由信號 — 取代 RoutingSignal."""
     max_crystal_push: int = 10
     safety_triggered: bool = False
     sovereignty_triggered: bool = False
+    loop: str = "EXPLORATION_LOOP"
+
+    @property
+    def is_safety_triggered(self) -> bool:
+        return self.safety_triggered
+
+    @property
+    def mode(self) -> str:
+        return "CIVIL_MODE"
+
+    @property
+    def tier_scores(self) -> dict:
+        return {"A": 1.0 if self.safety_triggered else 0.0}
+
+    @property
+    def route_time_ms(self) -> float:
+        return 0.0
+
+    def to_dict(self) -> dict:
+        return {"loop": self.loop, "max_crystal_push": self.max_crystal_push, "safety": self.safety_triggered}
 
 
 def compute_signal(message: str, is_simple: bool = False) -> SignalLite:
@@ -66,15 +86,26 @@ def compute_signal(message: str, is_simple: bool = False) -> SignalLite:
     if safety:
         max_push = min(max_push, 5)
 
+    # loop 判斷
+    if is_simple or msg_len <= 30:
+        loop = "FAST_LOOP"
+    elif safety:
+        loop = "FAST_LOOP"
+    elif msg_len > 300:
+        loop = "SLOW_LOOP"
+    else:
+        loop = "EXPLORATION_LOOP"
+
     signal = SignalLite(
         max_crystal_push=max_push,
         safety_triggered=safety,
         sovereignty_triggered=sovereignty,
+        loop=loop,
     )
 
     logger.debug(
         f"[SignalLite] len={msg_len}, push={max_push}, "
-        f"safety={safety}, sovereignty={sovereignty}"
+        f"safety={safety}, sovereignty={sovereignty}, loop={loop}"
     )
 
     return signal

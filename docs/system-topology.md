@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.73
+# MUSEON 系統拓撲圖 v1.74
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.74 (2026-04-01)**：Phase A-C 死碼清理 + signal_lite 遷移——移除 `brain-p3-fusion`（P3 融合層已清除）、`brain-observer`（L4 觀察者已刪除）2 個節點；`reflex-router`、~~`dna27`~~ 同步標記刪除（路由功能已退役）；新增 `signal-lite` 節點（輕量信號路由，取代 reflex_router）；移除相關連線：brain→brain-p3-fusion、brain→reflex-router、brain→brain-observer、primal-detector→reflex-router、nightly→reflex-router 共 5 條；更新 brain.py Step 3 描述（DNA27 反射路由器 → signal_lite 信號路由）；同步 blast-radius v1.93。
 > **v1.73 (2026-04-01)**：Brain 統一重構——agent 群組刪除 `brain-fast`（L1 Sonnet，已合併回 brain 統一管線）、`brain-deep`（L2 Opus，已合併回 brain）2 個節點；新增 `signal-lite`（輕量信號器，取代 reflex_router 路由功能）1 個節點；`reflex-router` 標記為 deprecated（路由退役，人格定義遷移到 persona_digest）；刪除 brain→brain-deep、brain-fast→brain-observer 2 條 internal 連線；brain 節點名稱從 "Brain-Fast (L1)" 更新為 "Brain (統一管線)"；193→192 節點，521→519 連線。同步 blast-radius v1.92、joint-map v1.60、persistence-contract v1.46。
 > **v1.72 (2026-03-31)**：推播系統重構——pulse 群組刪除 `push-budget` 節點（PushBudget 全局推送預算管理器已移除）；刪除 3 條 internal 連線（`pulse-engine→push-budget`、`proactive-bridge→push-budget`、`push-budget→pulse-db`）；新增 1 條 cross 連線（`cron→museoff` cron 健康度讀取，cron.status() 被 museoff.py L7 消費）；新增 1 條 internal 連線（`proactive-dispatcher→haiku-llm` LLM adapter 接入，三桶分級配額決策）；刪除 1 條 cross 連線（`proactive-dispatcher→push-budget` 推播前去重配合已清除）；194→193 節點，522→521 連線（刪除 push-budget 節點 -1、刪除 5 條連線 -5、新增 2 條連線 +2 = 521）。同步 blast-radius v1.91、joint-map v1.59、persistence-contract v1.45。
 > **v1.71 (2026-03-31)**：Persona Evolution 系統——agent 群組新增 `trait-engine`（10 維度特質代謝）、`growth-stage-computer`（Kegan 成熟度計算）、`dissent-engine`（Crystal Lattice 矛盾偵測）、`mask-engine`（每用戶臨時人格適應層）、`momentum-brake`（特質 delta 保護）5 個節點；nightly 群組新增 `nightly-reflection-engine`（LLM 自我反思 P-trait 演化）1 個節點；新增 3 條 internal 連線（brain→dissent-engine、brain→mask-engine、nightly-pipeline→nightly-reflection-engine）+ 7 條 cross 連線（brain-observation→trait-engine/growth-stage-computer、drift-detector→momentum-brake、nightly-reflection-engine→anima-mc-store/soul-ring、dissent-engine→crystal-rules、mask-engine→anima-mc-store）；188→194 節點，512→522 連線。同步 blast-radius、joint-map 待更新。
@@ -146,12 +147,12 @@ external-user（EXTERNAL）
 | `brain-prompt-builder` | Brain Prompt Builder | Mixin: system prompt 建構（1668 行） | - | brain | 1.0 |
 | `brain-dispatch` | Brain Dispatch | Mixin: 任務分派（1082 行） | - | brain | 1.0 |
 | `brain-observation` | Brain Observation | Mixin: 觀察與演化（2003 行） | - | brain | 1.0 |
-| `brain-p3-fusion` | Brain P3 Fusion | Mixin: P3 融合與決策層（948 行） | - | brain | 1.0 |
 | `brain-tools` | Brain Tools | Mixin: LLM 呼叫與 session 管理（966 行） | - | brain | 1.0 |
-| `brain-types` | Brain Types | 共享 dataclass: DecisionSignal, P3FusionSignal | - | brain | 0.7 |
-| ~~`dna27`~~ | ~~DNA27~~ | ~~27 反射叢集（已刪除 v1.59，功能由 reflex-router 承接）~~ | - | - | - |
+| `brain-types` | Brain Types | 共享 dataclass: DecisionSignal | - | brain | 0.7 |
+| ~~`dna27`~~ | ~~DNA27~~ | ~~27 反射叢集（已刪除 v1.59）~~ | - | - | - |
 | `skill-router` | Skill Router | 技能路由 | - | brain | 1.1 |
-| `reflex-router` | Reflex Router | 反射路由 | - | brain | 1.0 |
+| ~~`reflex-router`~~ | ~~Reflex Router~~ | ~~反射路由（已退役 v1.74，路由功能遷移至 signal_lite）~~ | - | - | - |
+| `signal-lite` | Signal Lite | 輕量信號路由（取代 reflex_router，由 brain.py 直接呼叫） | - | brain | 0.8 |
 | `dispatch` | Dispatch | 多技能編排 | - | brain | 1.0 |
 | `knowledge-lattice` | Knowledge Lattice | 知識晶格 | - | brain | 1.1 |
 | `plan-engine` | Plan Engine | 六階段計畫 | - | brain | 1.0 |
@@ -185,7 +186,7 @@ external-user（EXTERNAL）
 | `adaptive-decay` | Adaptive Decay | ACT-R 式統一衰減引擎（B_i = ln(Σt^{-d}) + β_i） | - | brain | 0.8 |
 | `brain-deep` | Brain-Deep (L2) | L2 深度思考引擎（Opus + tool_use） | - | brain | 1.2 |
 | `brain-tool-loop` | Brain-Tool-Loop | 獨立 tool-use 迴圈 | - | brain | 1.0 |
-| `brain-observer` | Brain-Observer (L4) | L4 觀察者（Haiku，記憶落地 + 洞察偵測） | - | brain | 0.9 |
+| ~~`brain-observer`~~ | ~~Brain-Observer (L4)~~ | ~~L4 觀察者（已刪除 v1.74，功能整合至 L4 觀察者 Nightly Workflow）~~ | - | - | - |
 | `memory-graph` | Memory Graph | 記憶關聯圖（語意關聯邊 + 存取追蹤 + 過期偵測） | - | brain | 1.0 |
 | `trait-engine` | Trait Engine | 10 維度特質代謝引擎，從互動計算特質 delta（C-trait 即時更新） | - | brain | 1.0 |
 | `growth-stage-computer` | Growth Stage Computer | Kegan 認知成熟度計算（ABSORB→TRANSCEND），取代硬編碼 "adult" | - | brain | 0.9 |
@@ -523,14 +524,13 @@ external-user（EXTERNAL）
 | `brain-prompt-builder` | `anthropic-api` | 結晶壓縮時的 LLM 呼叫（via knowledge_lattice） |
 | `brain` | `brain-dispatch` | Mixin: 任務分派 |
 | `brain` | `brain-observation` | Mixin: 觀察與演化 |
-| `brain` | `brain-p3-fusion` | Mixin: P3 融合與決策層 |
 | `brain` | `brain-tools` | Mixin: LLM 呼叫與 session 管理 |
 | `brain-tools` | `anthropic-api` | LLM 呼叫（Fallback 鏈：Opus→Sonnet→Haiku→離線） |
 | `brain-tools` | `data-bus` | Session 持久化 + cache/routing/skill_usage JSONL |
 | `brain` | `brain-types` | 共享型別: DecisionSignal, P3FusionSignal |
 | ~~`brain`~~ | ~~`dna27`~~ | ~~載入反射（dna27 已刪除 v1.59）~~ |
 | `brain` | `skill-router` | 技能路由 |
-| `brain` | `reflex-router` | 迴圈判定 |
+| `brain` | `signal-lite` | signal_lite 信號路由（取代 DNA27 反射路由器） |
 | `brain` | `dispatch` | 多技能分派 |
 | `brain` | `knowledge-lattice` | 結晶注入 |
 | `brain` | `knowledge-lattice` | MemGPT 三層分級召回 recall_tiered() |
@@ -558,7 +558,6 @@ external-user（EXTERNAL）
 | `brain` | `chat-context` | 對話上下文封裝 |
 | `brain` | `deterministic-router` | 確定性任務分解（取代 LLM Orchestrator） |
 | `brain` | `brain-deep` | L1 escalation 委派（複雜訊息→L2 Opus 深度思考） |
-| `brain` | `brain-observer` | L1→L4 fire-and-forget（記憶落地 + 洞察偵測） |
 | `brain-deep` | `brain-tool-loop` | tool-use 迴圈（L2 需要工具時委派） |
 | `brain-tool-loop` | `tool-executor` | 工具執行（MCP 工具呼叫） |
 | `dendritic-fusion` | `metacognition` | 並行預認知審查 |
@@ -711,7 +710,6 @@ external-user（EXTERNAL）
 |--------|--------|------|
 | `primal-detector` | `vector-index` | 八原語語義匹配 |
 | `primal-detector` | `skill-router` | 原語加分 |
-| `primal-detector` | `reflex-router` | 原語 boost |
 | `primal-detector` | `persona-router` | 原語調適 |
 | `primal-detector` | `okr-router` | 原語路由 |
 | `persona-router` | `proactive-bridge` | 象限決策結果回饋（P1-P3） |
@@ -897,7 +895,6 @@ external-user（EXTERNAL）
 |--------|--------|------|
 | `digest-engine` | `security` | digest_engine.py:487 輸入淨化 sanitizer |
 | `nightly` | `crystal-actuator` | nightly_pipeline.py:719 Step 4 結晶降級 |
-| `nightly` | `reflex-router` | nightly_pipeline.py:1673 Step 8.4 反射模式索引重建 |
 | `nightly` | `footprint` | nightly_pipeline.py:2853 Step 23.5 足跡統計 |
 | `nightly` | `immunity` | nightly_pipeline.py:2936 Step 24 immune_memory 學習（補充粒度） |
 | `nightly` | `group-context-db` | nightly_pipeline.py:3295 Step 28 群組上下文清理 |
@@ -1247,6 +1244,7 @@ external-user（EXTERNAL）
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.74 | 2026-04-01 | Phase A-C 死碼清理 + signal_lite 遷移——移除 brain-p3-fusion（P3 融合層已清除）、brain-observer（L4 觀察者已刪除）2 個節點；reflex-router 標記已刪除（路由功能退役）；新增 signal-lite 節點（輕量信號路由）；移除連線：brain→brain-p3-fusion、brain→reflex-router（改為 brain→signal-lite）、brain→brain-observer、primal-detector→reflex-router、nightly→reflex-router 共 5 條；brain.py Step 3 描述更新（signal_lite 信號路由）。同步 blast-radius v1.93 |
 | v1.71 | 2026-03-31 | Persona Evolution 系統——agent 群組新增 trait-engine / growth-stage-computer / dissent-engine / mask-engine / momentum-brake 5 個節點；nightly 群組新增 nightly-reflection-engine 1 個節點；新增 3 條 internal 連線（brain→dissent-engine、brain→mask-engine、nightly-pipeline→nightly-reflection-engine）+ 7 條 cross 連線（brain-observation→trait-engine、brain-observation→growth-stage-computer、drift-detector→momentum-brake、nightly-reflection-engine→anima-mc-store、nightly-reflection-engine→soul-ring、dissent-engine→crystal-rules、mask-engine→anima-mc-store）；188→194 節點，512→522 連線 |
 | v1.66 | 2026-03-30 | 新增 13 個 Skill 節點（ad-pilot、equity-architect、biz-collab、biz-diagnostic（已存在）、video-strategy、course-forge、shadow-muse、daily-pilot、talent-match、brand-project-engine、finance-pilot、prompt-stresstest、workflow-brand-consulting（已存在））；新增 11 條 internal 連線（business +3、creative +2、thinking +3、product +2、evolution +1） |
 | v1.62 | 2026-03-29 | 戰神系統（Ares）——thinking 群組新增 anima-individual（ANIMA 個體追蹤引擎）+ ares（戰神系統工作流）2 個 Skill 節點；新增 Python 模組 src/museon/ares/（profile_store/graph_renderer/external_bridge）；新增 2 條 internal + 23 條 cross 連線。188 節點 512 連線 |

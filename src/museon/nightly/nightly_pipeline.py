@@ -117,7 +117,7 @@ SKILL_ARCHIVE_INACTIVE_DAYS = 30
 _FULL_STEPS = [
     "0", "0.1",  # Budget settlement + Footprint cleanup (最先執行)
     "1", "2", "3", "4", "5", "5.5", "5.6", "5.6.5", "5.7", "5.8", "5.9", "5.9.5", "5.10",
-    "6", "6.5", "7", "7.5", "8", "8.5", "8.6", "8.7", "9", "10", "10.5", "10.6", "11", "12", "13", "13.5",
+    "6", "6.5", "7", "7.5", "8", "8.6", "8.7", "9", "10", "10.5", "10.6", "11", "12", "13", "13.5",
     "13.6", "13.7", "13.8",  # 外向型進化：觸發掃描 → 外向研究 → 消化生命週期
     "14", "15", "16", "17",
     "18", "18.5", "18.6", "18.7",  # 18.5: 客戶互動萃取 → 18.6: Ares 橋接 → 18.7: 六層健康檢查
@@ -157,7 +157,6 @@ class NightlyPipeline:
     | 6    | Skill Forge                 | 0     |
     | 7    | 課程處方                     | 0     |
     | 8    | 工作流突變                   | 0     |
-    | 8.5  | DNA27 反射向量重索引          | 0     |
     | 9    | 圖譜整合                     | 0     |
     | 10   | 靈魂夜間                     | 0     |
     | 11   | 夢境引擎                     | 0     |
@@ -205,7 +204,6 @@ class NightlyPipeline:
             "7": ("step_07_curriculum", self._step_curriculum),
             "7.5": ("step_07_5_auto_course", self._step_auto_course),
             "8": ("step_08_workflow_mutation", self._step_workflow_mutation),
-            "8.5": ("step_08_5_dna27_reindex", self._step_dna27_reindex),
             "8.6": ("step_08_6_skill_vector_reindex", self._step_skill_vector_reindex),
             "8.7": ("step_08_7_sparse_idf_rebuild", self._step_sparse_idf_rebuild),
             "9": ("step_09_graph_consolidation", self._step_graph_consolidation),
@@ -2274,14 +2272,6 @@ class NightlyPipeline:
             "plateaus_found": plateaus,
             "mutations_applied": mutations,
         }
-
-    # ═══════════════════════════════════════════
-    # Step 8.5: DNA27 反射模式向量重索引
-    # ═══════════════════════════════════════════
-
-    def _step_dna27_reindex(self) -> Dict:
-        """Step 8.5: DNA27 反射模式索引（已退役，reflex_router 路由功能已由 signal_lite 取代）."""
-        return {"skipped": "DNA27 reflex_router retired — routing replaced by signal_lite + persona_digest"}
 
     # ═══════════════════════════════════════════
     # Step 8.6: Skill 向量重索引

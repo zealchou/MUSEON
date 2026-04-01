@@ -1,10 +1,11 @@
-# Blast Radius — 模組影響半徑表 v1.92
+# Blast Radius — 模組影響半徑表 v1.93
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節、`docs/operational-contract.md`（操作契約表）提供外部操作預期失敗
+> **v1.93 (2026-04-01)**：Phase A-C 死碼清理 + signal_lite 遷移——從安全分級表移除 brain_p3_fusion.py（綠區，已清除）、brain_observer.py（綠區，已刪除）2 個條目；從 vector_bridge.py 扇入列表移除 reflex_router（已退役）；更新 brain.py 扇出描述（移除對 reflex_router/safety_clusters 的依賴，移除 P3 方法群描述）；更新 server.py 扇出描述（移除 DNA27 Qdrant 索引）；新增 signal_lite.py 到綠區（扇入=1 from brain.py，扇出=無）；版本紀錄新增本次變更。同步 system-topology v1.74。
 > **v1.92 (2026-04-01)**：Brain 統一重構——刪除 brain_fast.py（498 行，綠區）、brain_deep.py（~200 行，綠區）2 個模組；brain.py 從 2904→2458 行（刪除 17 個 D 類判斷步驟：Haiku 分類器、P2 決策層、P3 融合、百合引擎、直覺引擎、元認知觀察/預判、Mask Layer、PreCognition 審查等）；新增 signal_lite.py（80 行，綠區扇入=1）；reflex_router.py 路由功能退役（1221 行→deprecated，Qdrant dna27 collection 廢棄）；brain_prompt_builder.py 移除 RoutingSignal 依賴；skill_router.py 解除 RC 親和匹配（top_clusters × 5.0 權重移除）。
 > **v1.91 (2026-03-31)**：推播系統重構——`pulse/push_budget.py` 已刪除（從 Pulse 層綠區葉子模組列表移除，扇入原=1 from server.py，PushBudget 全局預算管理器已由 ProactiveDispatcher 三桶分級配額取代）；`pulse/pulse_engine.py` 扇出 -1（不再 import push_budget）；`pulse/proactive_bridge.py` 扇出 -1（is_within_daily_limit 永遠 True，PushBudget 依賴清除）；`gateway/server.py` 扇出 -1（刪除 PushBudget 注入區塊）；`pulse/proactive_dispatcher.py` 新增三桶分級配額內建（_BUCKET_MAP/_get_bucket/_count_today_by_bucket，扇出 +1：llm_adapter Haiku 接入）；`gateway/cron.py` 新增 _job_stats + status() 方法（扇出 +1：被 doctor/museoff.py L7 cron 健康度讀取）；`channels/telegram.py` 新增 DM 非 Owner 阻擋（send_dm_to_owner 改為 push_notification wrapper）；`pulse/commitment_tracker.py` 精簡為只追蹤時間承諾（扇出 -2，移除非時間承諾分支）；`agent/brain.py` 移除同回合 check_fulfillment（扇出 -1，commitment_tracker 呼叫點減少）。綠區葉子模組 173→172（刪除 push_budget.py）。
 > **v1.90 (2026-03-31)**：Persona Evolution 系統六模組新增——🟡黃區：`evolution/trait_engine.py`（扇入=2：brain_observation._observe_self + nightly_reflection，扇出=1：anima_mc_store via kernel_guard，寫入 ANIMA_MC.personality.trait_dimensions）、`evolution/nightly_reflection.py`（扇入=1：nightly_pipeline Step 34，扇出=4：anima_mc_store + kernel_guard + soul_ring + momentum_brake，讀寫 ANIMA_MC.personality.trait_dimensions + soul_rings.json）、`evolution/mask_engine.py`（扇入=2：brain.py Step 2.2 + Step 9.9，扇出=1：寫入 _system/mask_states.json）；🟢綠區：`evolution/growth_stage.py`（扇入=2：brain_observation._update_growth_stage + nightly_pipeline Step 34.5，扇出=0，純計算，讀 ANIMA_MC.evolution.stage_history）、`evolution/dissent_engine.py`（扇入=1：brain.py Step 3.655，扇出=1：讀 crystal_rules.json，無狀態）、`evolution/momentum_brake.py`（扇入=2：nightly_reflection + drift_detector，扇出=0，純計算，讀 ANIMA_MC.evolution.trait_history）。新增共享狀態：_system/mask_states.json（#70）。綠區葉子模組 171→173，黃區 62→65。
@@ -117,9 +118,9 @@
 | 屬性 | 值 |
 |------|-----|
 | **扇入** | 0（入口點，無人 import） |
-| **扇出** | 50+（import 50+ 模組） |
+| **扇出** | 49+（import 49+ 模組；v1.93 扇出 -1：reflex_router import 已移除） |
 | **行數** | 3800 行（v1.64 拆分後；原 5749 行拆出 telegram_pump/routes_api/cron_registry） |
-| **角色** | FastAPI 閘道器，管理 30+ app.state；訊息泵/API 端點/cron 註冊已拆至獨立模組 |
+| **角色** | FastAPI 閘道器，管理 30+ app.state；訊息泵/API 端點/cron 註冊已拆至獨立模組（v1.93：startup 已移除 DNA27 Qdrant dna27 collection 索引步驟） |
 
 #### 影響半徑
 
@@ -222,15 +223,7 @@
 | **扇入** | 1（server.py；入列紅區因扇出 32+ 且為系統核心） |
 | **扇出** | 32+（import 32 個模組，初始化全系統——含 PrimalDetector, MultiAgentExecutor, MemoryGate） |
 | **角色** | 系統核心——LLM 對話、記憶、自我觀察、所有子系統初始化、多代理並行呼叫、記憶閘門意圖判斷、認知追蹤（trace_decision+trace_cognitive）、P3 並行融合（Step 6.2-6.5）、P0 訊號六類分流（_classify_p0_signal）、事實糾正偵測（_detect_fact_correction）、外部使用者觀察（_observe_external_user v3.0 含 trust evolution + 八原語 + L6 溝通風格）、環境感知宣告（_build_environment_awareness v11.3）、自我修改協議（_build_self_modification_protocol v11.4） |
-| **檔案數** | v1.48 起拆分為 7 個檔案：`brain.py`（核心 2575 行）+ 5 個 Mixin（`brain_prompt_builder.py` 1668 行、`brain_dispatch.py` 1082 行、`brain_observation.py` 2003 行、`brain_p3_fusion.py` 948 行、`brain_tools.py` 966 行）+ `brain_types.py`（共享 dataclass）。Python Mixin Pattern 多重繼承，外部 import 路徑不變。 |
-
-**P3 方法群：**
-- `_p3_gather_pre_fusion_insights()` (新增 v1.22: 前置融合注入 system_prompt)
-- `_detect_p3_strategy_layer_signal()`
-- `_execute_p3_parallel_fusion()` (v1.22 起降級為向後相容)
-- `_p3_strategy_perspective()`
-- `_p3_human_perspective()`
-- `_p3_risk_perspective()`
+| **檔案數** | v1.93 起拆分為 6 個檔案：`brain.py`（核心 2458 行）+ 4 個 Mixin（`brain_prompt_builder.py`、`brain_dispatch.py`、`brain_observation.py`、`brain_tools.py`）+ `brain_types.py`（共享 dataclass）。`brain_p3_fusion.py`（P3 融合層）已於 v1.93 清除，Python Mixin Pattern 多重繼承，外部 import 路徑不變。 |
 
 #### 影響半徑
 
@@ -554,7 +547,7 @@
 | 影響類型 | 範圍 |
 |---------|------|
 | 共享狀態 | Qdrant 8 個 dense collections + N 個 sparse collections（`{name}_sparse`）；memories collection 新增 status=deprecated 軟刪除過濾 |
-| 直接 import | 9 個模組（brain, brain_observation, memory_manager, reflex_router, skill_router, knowledge_lattice, primal_detector, server.py, nightly_pipeline.py）（fan_in 從 7→9，基於 topology_report） |
+| 直接 import | 8 個模組（brain, brain_observation, memory_manager, skill_router, knowledge_lattice, primal_detector, server.py, nightly_pipeline.py）（注：reflex_router 已於 v1.93 退役，fan_in 9→8） |
 | 新增方法 | `mark_deprecated()` — 軟刪除；`hybrid_search()` — Dense+Sparse RRF 融合（已被 4 模組主動消費：skill_router、memory_manager、knowledge_lattice、server）；`index_sparse()` / `backfill_sparse()` / `build_sparse_idf()` — 稀疏向量管理；`index_all_skills()` — skills collection 全量索引（Gateway startup + Nightly 8.6 + API reindex）；`reindex_all()` — 全部 collection 重索引 |
 | 降級影響 | Qdrant 離線 → 檢索降級為 TF-IDF（0.3 折扣）；Sparse 不可用 → hybrid_search 降級為純 dense；hybrid_search 已全面啟用（skill_router、memory_manager、knowledge_lattice、server 四模組均已從 search() 切換為 hybrid_search()） |
 
@@ -678,12 +671,11 @@
 `agent/brain_prompt_builder.py`（★ v1.48 Mixin，扇入=1（brain.py），system prompt 建構，1668 行），
 `agent/brain_dispatch.py`（★ v1.48 Mixin，扇入=1（brain.py），任務分派，1082 行），
 `agent/brain_observation.py`（★ v1.48 Mixin，扇入=1（brain.py），觀察與演化，2003 行），
-`agent/brain_p3_fusion.py`（★ v1.48 Mixin，扇入=1（brain.py），P3 融合與決策層，948 行），
 `agent/brain_tools.py`（★ v1.48 Mixin，扇入=1（brain.py），LLM 呼叫與 session 管理，966 行），
-`agent/brain_fast.py`（★ v1.70 重寫，扇入=1（server.py/telegram_pump.py），L1 接待層——Sonnet + escalation JSON + L4 回饋迴路，扇出含 brain_deep.py（L2 委派）+ brain_observer.py（L4 觀察）），
-`agent/brain_deep.py`（★ v1.70 新增，扇入=1（brain_fast.py），L2 深度思考引擎——Opus + tool_use，扇出 3：brain_tool_loop.py, tool_schemas.py, context_cache 檔案），
+`agent/brain_deep.py`（★ v1.70 新增，扇入=1（brain.py），L2 深度思考引擎——Opus + tool_use，扇出 3：brain_tool_loop.py, tool_schemas.py, context_cache 檔案），
 `agent/brain_tool_loop.py`（★ v1.70 新增，扇入=1（brain_deep.py），獨立 tool-use 迴圈——從 brain_tools.py 提取，扇出 2：llm/adapters.py, agent/tools.py ToolExecutor），
-`agent/brain_observer.py`（★ v1.70 新增，扇入=1（brain_fast.py），L4 觀察者——記憶落地 + 洞察偵測，扇出 1：context_cache/pending_insights.json），
+`agent/signal_lite.py`（★ v1.93 新增，扇入=1（brain.py），輕量信號路由——取代 reflex_router 路由功能，扇出=無，純路由判定，80 行），
+（注：`agent/brain_p3_fusion.py` 已於 v1.93 清除——P3 融合層死碼刪除；`agent/brain_fast.py` 已於 v1.92 刪除；`agent/brain_observer.py` 已於 v1.93 刪除）
 `agent/chat_context.py`（★ v1.47 新增，扇入=1（brain.py），ChatContext dataclass 取代 per-turn 變數），
 `agent/deterministic_router.py`（★ v1.47 新增，扇入=1（brain_dispatch.py），確定性任務分解器取代 LLM Orchestrator），
 `agent/tool_schemas.py`（★ v1.70 擴充，扇入=1（brain_deep.py），工具定義目錄——v1.70 新增 trigger_job/memory_search/spawn_perspectives 3 個工具），
@@ -920,6 +912,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-04-01 | v1.93 | Phase A-C 死碼清理 + signal_lite 遷移——從綠區移除 brain_p3_fusion.py（P3 融合層清除）、brain_observer.py（L4 觀察者刪除）2 個條目；從 vector_bridge.py 扇入列表移除 reflex_router（退役，fan_in 9→8）；更新 brain.py 扇出描述（移除 reflex_router/safety_clusters 依賴，移除 P3 方法群）；更新 server.py 扇出（移除 DNA27 Qdrant 索引，扇出 50+→49+）；新增 signal_lite.py 到綠區（🟢 扇入=1 from brain.py，扇出=無，80 行）。同步 system-topology v1.74 |
 | 2026-03-31 | v1.90 | Persona Evolution 系統——新增 trait_engine.py（🟡 扇入=2）、nightly_reflection.py（🟡 扇入=1，扇出=4）、mask_engine.py（🟡 扇入=2）、growth_stage.py（🟢 扇入=2，純計算）、dissent_engine.py（🟢 扇入=1，無狀態）、momentum_brake.py（🟢 扇入=2，純計算）；新增共享狀態 #70 _system/mask_states.json；黃區 62→65、綠區 171→174 |
 | 2026-03-31 | v1.86 | 體液系統——新增 awareness.py（🟢 扇入=0）、session_adjustment.py（🟢 扇入=2）、triage_step.py（🟢 扇入=0）、triage_to_morphenix.py（🟢 扇入=1）、algedonic_alert.py（🟢 扇入=1）；brain_prompt_builder 四路接線（扇出+3）；nightly_pipeline Step 5.8 前置（扇出+1）；response_guard 新增 strip_markdown()；governor 初始化 algedonic_alert（扇出+1）；telegram_pump 新增 CHANNEL_MESSAGE_RECEIVED publish（扇出+1） |
 | 2026-03-26 | v1.70 | v2 Brain 四層架構 + 死碼清理——新增 `brain_deep.py`（L2 Opus 引擎，綠區扇入=1）、`brain_tool_loop.py`（獨立 tool-use 迴圈，綠區扇入=1）、`brain_observer.py`（L4 觀察者，綠區扇入=1）、`brain_fast.py` 重寫為 L1 Sonnet + escalation JSON + L4 回饋迴路、`tool_schemas.py` 新增 3 工具（trigger_job/memory_search/spawn_perspectives）、`nightly_pipeline.py` Step 31 context_cache 重建。死碼移除：federation/（skill_market + sync）、installer/（整個目錄）、nightly_v2.py |

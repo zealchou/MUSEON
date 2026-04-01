@@ -5,6 +5,7 @@
 > **更新時機**：新增 Skill 或記憶系統時，必須在同一個 commit 中新增對應的路由規則。
 > **建立日期**：2026-03-21
 > **搭配**：`docs/skill-manifest-spec.md`（Skill I/O 合約）、各 Skill 的 `memory.writes` 欄位、`docs/operational-contract.md`（操作契約表）
+> **v1.21 (2026-04-01)**：Phase A-C 死碼清理 + signal_lite 遷移——正式移除 reflex_router 記憶管道條目（dna27 collection 已清理，reflex_router 完全退役）；確認 signal_lite 純記憶體計算，不寫入任何記憶系統（routing_signal 不進 memories collection、不進 knowledge-lattice、不進 diary，request-scoped 物件）。
 > **v1.20 (2026-04-01)**：Brain 統一重構——G3 記憶管線成員移除 reflex_router（路由退役）；記憶注入路徑統一為 brain.py→brain_prompt_builder.py（消除 brain_fast.py 平行路徑）。
 > **v1.19 (2026-03-31)**：Persona Evolution 系統——新增 1 條 diary 路由：nightly_reflection.py（Nightly Step 34）→ `soul_rings.json`（via RingDepositor.deposit_soul_ring），類型=value_calibration，觸發=每夜 Persona 自我反思，內容=特質差異佐證 + 反思摘要。同步 persistence-contract v1.44。
 > **v1.17 (2026-03-30)**：Skill 自動演化管線記憶路由——新增 3 條路由：skill-health-tracker→`data/_system/skill_health/{skill_name}.json`（Per-Skill 健康度快照，每夜 Step 19.5 寫入，SkillDraftForger 讀取判斷退化）；skill-draft-forger→`data/_system/skills_draft/draft_*.json`（Skill 草稿，Step 19.6 寫入，SkillQA Gate 讀取驗證）；skill-qa-gate→更新 `skills_draft/draft_*.json` 狀態欄位（pending_qa→approved/quarantine）。新增 1 條 feedback-loop 持久化路由：feedback-loop→`data/_system/feedback_loop/daily_summary.json`（每次互動後寫入，Nightly 信號源 7 讀取）。同步 system-topology v1.67、blast-radius v1.85。

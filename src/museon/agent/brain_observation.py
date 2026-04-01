@@ -1913,7 +1913,6 @@ class BrainObservationMixin:
         if total == 0 or total % 50 != 0:
             return
 
-        # 統計 safety_clusters 的累計觸發
         rc_stats = anima_user.setdefault("_rc_calibration", {
             "total_checks": 0,
             "trigger_counts": {},

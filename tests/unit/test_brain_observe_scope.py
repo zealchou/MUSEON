@@ -25,7 +25,6 @@ BRAIN_MIXIN_FILES = [
     AGENT_DIR / "brain_prompt_builder.py",
     AGENT_DIR / "brain_dispatch.py",
     AGENT_DIR / "brain_observation.py",
-    AGENT_DIR / "brain_p3_fusion.py",
     AGENT_DIR / "brain_tools.py",
 ]
 

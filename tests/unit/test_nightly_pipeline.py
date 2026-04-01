@@ -83,8 +83,8 @@ class TestConstants:
         assert REPORT_TRUNCATE_CHARS == 200
 
     def test_full_steps_count(self):
-        """BDD: 61 個步驟（含 Phase 5/8 人格演化步驟 34/34.5/34.7）."""
-        assert len(_FULL_STEPS) == 61
+        """BDD: 62 個步驟（Phase A-C 清理移除 Step 8.5 後，含 Phase 5/8 人格演化步驟）."""
+        assert len(_FULL_STEPS) == 62
 
     def test_origin_steps(self):
         """BDD: Origin 模式 = 5.8, 6, 7, 8, 16（5 個）."""

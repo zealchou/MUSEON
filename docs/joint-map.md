@@ -4,6 +4,7 @@
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
 > **更新時機**：改變共享檔案的讀寫者或格式時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
+> **v1.61 (2026-04-01)**：Phase A-C 死碼清理 + signal_lite 遷移——移除 reflex_router 相關共享狀態條目（Qdrant dna27 collection 已清理，routing_signal 純記憶體，不另立條目）；移除 brain_observer 讀寫者條目（#46 pending_insights.json 寫入者改為 brain.py L4 觀察者，#47 context_cache 寫入者移除 brain_observer.py）；新增 #74 signal_lite 的 SignalLite 物件（純記憶體計算，寫入者 signal_lite.py，讀取者 brain.py + metacognition.py + telegram_pump.py）；G3 記憶管線移除 reflex_router；共享狀態 73→74 個。
 > **v1.60 (2026-04-01)**：Brain 統一重構——刪除 brain_fast.py 相關共享狀態讀寫者條目（pending_insights.json #46、context_cache #47 的讀取者從 brain_fast.py 改為統一 brain.py）；Qdrant dna27 collection 標記為廢棄（reflex_router 退役）；session 歷史統一為 brain.py 單一讀寫者（消除 brain_fast.py 的平行 session 管理）；共享狀態 73→72 個。
 > **v1.59 (2026-03-31)**：推播系統重構——刪除 #41 索引項「PushBudget 單例」（`pulse/push_budget.py` 已刪除，全局推送配額改由 ProactiveDispatcher 三桶分級配額內建管理）；#8 PulseDB 寫入者 4→3（移除 push_budget.py），讀取者 13→12（移除 push_budget.py）；pulse_engine.py 不再經由 PushBudget 讀取 push_log；push_journal_24h.json（#48）寫入者維持 proactive_dispatcher.py 獨自寫入（PushBudget 已非第二寫入路徑）；共享狀態 73→72 個（刪除 #41 PushBudget 單例）。同步 blast-radius v1.91、system-topology v1.72、persistence-contract v1.45。
 > **v1.58 (2026-03-31)**：Persona Evolution 系統——新增 #70 `ANIMA_MC.personality.trait_dimensions`（🟠 人格特質維度，P1-P5 需 evolution_write，C1-C5 FREE，寫入者=trait_engine.py+nightly_reflection.py，讀取者=brain_prompt_builder+growth_stage+mask_engine+dissent_engine）；新增 #71 `ANIMA_MC.evolution.trait_history`（🟢 APPEND_ONLY 特質變化歷史，寫入者=nightly_reflection.py，讀取者=momentum_brake+drift_detector）；新增 #72 `ANIMA_MC.evolution.stage_history`（🟢 APPEND_ONLY 成長階段歷史，寫入者=brain_observation.py，讀取者=growth_stage）；新增 #73 `_system/mask_states.json`（🟢 短暫面具狀態，寫入者=mask_engine.py，讀取者=mask_engine.py，7 天自動清理）；更新 `_system/crystal_rules.json`（G5 新增讀取者=dissent_engine.py 矛盾校驗）；共享狀態 69→73 個。同步 blast-radius、system-topology。
@@ -95,6 +96,7 @@
 | 71 | ANIMA_MC.evolution.trait_history | 🟢 | 1(nightly_reflection) | 2(momentum_brake+drift_detector) | APPEND_ONLY | [→](#71-anima_mcevolutiontrait_history) |
 | 72 | ANIMA_MC.evolution.stage_history | 🟢 | 1(brain_observation) | 1(growth_stage) | APPEND_ONLY | [→](#72-anima_mcevolutionstage_history) |
 | 73 | _system/mask_states.json | 🟢 | 1(mask_engine) | 1(mask_engine) | 無（短暫，7 天自動清理） | [→](#73-_systemmask_statesjson) |
+| 74 | SignalLite 物件（記憶體） | 🟢 | 1(signal_lite.py) | 3(brain.py + metacognition.py + telegram_pump.py) | 純記憶體，無鎖（不可變計算結果） | [→](#74-signallite-物件記憶體) |
 
 > **危險度定義**：🔴 多寫入者+高扇出+格式不一致 | 🟡 多寫入者或高扇出 | 🟢 單寫入者+低扇出
 
@@ -448,7 +450,6 @@
 | `memory/memory_manager.py` | **RW** | memories |
 | `agent/skill_router.py` | **R** | skills |
 | `agent/knowledge_lattice.py` | **R** | documents |
-| `agent/reflex_router.py` | **R** | memories |
 | `memory/chromosome_index.py` | **R** | references |
 | `agent/primal_detector.py` | **RW** | primals（八原語語義偵測——寫入索引 + 搜尋匹配） |
 
@@ -1169,8 +1170,8 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 
 | 模組 | 操作 | 函數 | 說明 | 鎖 |
 |------|------|------|------|-----|
-| `agent/brain_observer.py` | **W** | `_write_insights()` | L4 觀察者偵測到洞察時寫入（append + LRU 50） | 原子寫 |
-| `agent/brain_fast.py` | **R+W** | `_read_pending_insights()` / `_consume_insights()` | L1 讀取融入 prompt，回覆後清空 | 原子寫 |
+| `agent/brain.py` | **W** | `_write_insights()` | L4 觀察者偵測到洞察時寫入（append + LRU 50） | 原子寫 |
+| `agent/brain.py` | **R+W** | `_read_pending_insights()` / `_consume_insights()` | L1 讀取融入 prompt，回覆後清空 | 原子寫 |
 
 > **鎖**：無顯式鎖（原子寫入 + 單一寫入者 + 讀後清空模式）
 > **TTL**：由 L1 消費後清空；未消費的由 LRU 保持最多 50 筆
@@ -1193,9 +1194,8 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 | 模組 | 操作 | 函數 | 說明 | 鎖 |
 |------|------|------|------|-----|
 | `cache/context_cache_builder.py` | **W** | `build_all()` | Nightly Step 31 重建所有四檔 | 無（夜間單次執行） |
-| `agent/brain_observer.py` | **W** | `_observe()` | L4 增量更新 user_summary（選配） | 原子寫 |
-| `agent/brain_fast.py` | **R** | `_build_prompt()` | L1 每次回覆前讀取 | — |
-| `agent/brain_deep.py` | **R** | `_build_prompt()` | L2 每次處理前讀取 | — |
+| `agent/brain.py` | **W** | `_observe()` | L4 增量更新 user_summary（選配） | 原子寫 |
+| `agent/brain.py` | **R** | `_build_prompt()` | L1/L2 每次回覆前讀取 | — |
 
 > **鎖**：無（寫入者時間分離：nightly 凌晨、L4 即時但低頻）
 > **TTL**：每日 Nightly Step 31 全量重建
@@ -1421,6 +1421,27 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 
 ---
 
+### 74. SignalLite 物件（記憶體）
+
+**路徑**：純記憶體（無持久化）
+**用途**：signal_lite.py 計算的輕量訊號物件，取代 reflex_router 的路由訊號（Phase A-C 遷移）。包含 category、strength、tags 等欄位，每次請求計算後傳遞給下游消費者。
+
+#### 讀寫表
+
+| 模組 | 操作 | 函數 | 說明 | 鎖 |
+|------|------|------|------|-----|
+| `agent/signal_lite.py` | **W** | `compute()` | 每次請求時計算 SignalLite 物件並回傳 | 無（純函數，不可變） |
+| `agent/brain.py` | **R** | `_build_prompt()` | 讀取 SignalLite 決定路由策略 | — |
+| `agent/metacognition.py` | **R** | `observe()` | 讀取 SignalLite 做後設認知標記 | — |
+| `gateway/telegram_pump.py` | **R** | `dispatch()` | 讀取 SignalLite 決定是否需要 L2 spawn | — |
+
+> **鎖**：無（純記憶體計算，每次計算產生不可變物件，無並發競爭）
+> **TTL**：請求生命週期（request-scoped），不跨 session 持久化
+> **危險度**：🟢（單一寫入者，純記憶體，不可變計算結果）
+> **注意**：此物件不寫入 Qdrant、不寫入任何 JSON 檔——routing_signal 已從 baihe_cache 的 context 欄位移除（純記憶體傳遞）
+
+---
+
 ## 必須同時修改的模組組（不可分批）
 
 > 修改以下任一模組時，**必須**同時檢查並調整同組所有模組。
@@ -1429,7 +1450,7 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 |-------|------|------|---------|
 | **G1** | ANIMA 數值 | anima_tracker + brain + server + micro_pulse + kernel_guard | ANIMA_MC.json（寫入格式 + 鎖機制必須統一） |
 | **G2** | 探索結晶管線 | pulse_engine + curiosity_router + exploration_bridge + nightly_pipeline + skill_forge_scout | question_queue.json + scout_queue/pending.json + PULSE.md 探索佇列 |
-| **G3** | 記憶管線 | memory_manager + brain + vector_bridge + reflex_router + multi_agent_executor | MemoryStore + Qdrant memories collection（memory_manager 支援 dept_id 標籤寫入 + dept_filter 過濾檢索 + chat_scope 群組隔離 + supersede() 事實覆寫 + VectorBridge.mark_deprecated() 軟刪除） |
+| **G3** | 記憶管線 | memory_manager + brain + vector_bridge + multi_agent_executor | MemoryStore + Qdrant memories collection（memory_manager 支援 dept_id 標籤寫入 + dept_filter 過濾檢索 + chat_scope 群組隔離 + supersede() 事實覆寫 + VectorBridge.mark_deprecated() 軟刪除） |
 | **G4** | 演化速度 | evolution_velocity + parameter_tuner + periodic_cycles + metacognition | accuracy_stats.json + tuned_parameters.json + velocity_log.jsonl |
 | **G5** | 知識晶格 | knowledge_lattice + crystal_store + crystal_actuator + recommender + dissent_engine | crystal.db (via CrystalStore) + crystal_rules.json（dissent_engine 讀取做矛盾校驗） |
 | **G6** | 免疫系統 | immunity + immune_memory + immune_research + daemon | events.jsonl + immune_memory.json |

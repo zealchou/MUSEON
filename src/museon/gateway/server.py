@@ -3019,14 +3019,6 @@ def create_app() -> FastAPI:
         except Exception as e:
             logger.warning(f"Dispatch recovery failed: {e}")
 
-        # ── DNA27 ReflexRouter → Qdrant 索引（首次啟動 + 自我演化基底）──
-        try:
-            from museon.agent.reflex_router import index_reflex_patterns_to_qdrant
-            indexed = index_reflex_patterns_to_qdrant(str(brain.data_dir))
-            logger.info(f"DNA27 Qdrant indexed: {indexed} reflex patterns")
-        except Exception as e:
-            logger.warning(f"DNA27 Qdrant indexing failed (degraded): {e}")
-
         # ── Skill 向量索引（全量，確保語意搜尋可用）──
         try:
             from museon.vector.vector_bridge import VectorBridge

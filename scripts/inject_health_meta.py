@@ -48,8 +48,6 @@ PATH_MAP = {
     "brain-fast":           f"{SRC}/agent/brain_fast.py",
     "brain-dispatch":       f"{SRC}/agent/brain_dispatch.py",
     "brain-observation":    f"{SRC}/agent/brain_observation.py",
-    "brain-observer":       f"{SRC}/agent/brain_observer.py",
-    "brain-p3-fusion":      f"{SRC}/agent/brain_p3_fusion.py",
     "brain-prompt-builder": f"{SRC}/agent/brain_prompt_builder.py",
     "brain-tool-loop":      f"{SRC}/agent/brain_tool_loop.py",
     "brain-tools":          f"{SRC}/agent/brain_tools.py",
@@ -86,8 +84,6 @@ PATH_MAP = {
     "token-optimizer":      f"{SRC}/agent/token_optimizer.py",
     "tool-schemas":         f"{SRC}/agent/tool_schemas.py",
     "tools-agent":          f"{SRC}/agent/tools.py",
-    "dendritic-fusion":     f"{SRC}/agent/brain_p3_fusion.py",
-
     # ── Memory ──
     "memory":               f"{SRC}/memory/memory_manager.py",
     "memory-gate":          f"{SRC}/memory/memory_gate.py",
