@@ -31,6 +31,8 @@ class AlgedonicAlert:
     """
 
     COOLDOWN = COOLDOWN
+    _SILENT_START = 23  # 23:00
+    _SILENT_END = 7     # 07:00
 
     def __init__(self, event_bus: Any) -> None:
         self._event_bus = event_bus
@@ -38,6 +40,13 @@ class AlgedonicAlert:
 
         if event_bus is not None:
             self._subscribe()
+
+    def _is_in_silent_hours(self) -> bool:
+        """夜間靜默時段（23:00-07:00），降級為 log only."""
+        hour = datetime.now().hour
+        if self._SILENT_START > self._SILENT_END:
+            return hour >= self._SILENT_START or hour < self._SILENT_END
+        return self._SILENT_START <= hour < self._SILENT_END
 
     def _subscribe(self) -> None:
         """訂閱 GOVERNANCE_ALGEDONIC_SIGNAL."""
@@ -78,6 +87,14 @@ class AlgedonicAlert:
 
         # ── 4. 格式化告警訊息 ──
         message = self._format_alert(data, alert_type)
+
+        # ── 4.5. 靜默時段檢查（23:00-07:00 降級為 log only）──
+        description = data.get("summary", data.get("description", alert_type))
+        if self._is_in_silent_hours():
+            logger.warning(
+                f"[AlgedonicAlert] 靜默時段，降級為 log: {description}"
+            )
+            return
 
         # ── 5. 透過 PROACTIVE_MESSAGE 推播（Fire-and-forget）──
         try:

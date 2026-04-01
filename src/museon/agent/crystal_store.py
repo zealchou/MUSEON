@@ -167,8 +167,52 @@ class CrystalStore(DataContract):
                     logger.info(f"CrystalStore: 遷移新增欄位 {col_name}")
                 except sqlite3.OperationalError:
                     pass  # 欄位已存在，靜默跳過
+
+            # ── Schema drift 自動偵測與修復 ──
+            self._check_schema_drift(conn)
         finally:
             conn.close()
+
+    def _check_schema_drift(self, conn: sqlite3.Connection) -> None:
+        """檢查 dataclass 欄位與 DB schema 是否一致，自動修復缺失欄位."""
+        try:
+            cursor = conn.execute("PRAGMA table_info(crystals)")
+            db_columns = {row[1] for row in cursor.fetchall()}
+
+            # 從 Crystal dataclass 取得應有欄位
+            from dataclasses import fields as dc_fields
+            from museon.agent.knowledge_lattice import Crystal
+            expected_columns = {f.name for f in dc_fields(Crystal)}
+
+            missing = expected_columns - db_columns
+            if not missing:
+                return
+
+            logger.warning(f"CrystalStore schema drift 偵測到缺失欄位: {missing}")
+
+            # 自動修復：ALTER TABLE ADD COLUMN
+            _TYPE_MAP = {
+                int: "INTEGER NOT NULL DEFAULT 0",
+                float: "REAL NOT NULL DEFAULT 0.0",
+                str: "TEXT NOT NULL DEFAULT ''",
+                bool: "INTEGER NOT NULL DEFAULT 0",
+            }
+
+            for col_name in missing:
+                # 找到對應的 dataclass field type
+                field = next((f for f in dc_fields(Crystal) if f.name == col_name), None)
+                if field is None:
+                    continue
+                col_type = _TYPE_MAP.get(field.type, "TEXT NOT NULL DEFAULT ''")
+                try:
+                    conn.execute(f"ALTER TABLE crystals ADD COLUMN {col_name} {col_type}")
+                    logger.info(f"CrystalStore: 已新增欄位 {col_name} ({col_type})")
+                except Exception as e:
+                    logger.error(f"CrystalStore: 新增欄位 {col_name} 失敗: {e}")
+
+            conn.commit()
+        except Exception as e:
+            logger.error(f"CrystalStore schema drift 檢查失敗: {e}")
 
     def _get_read_conn(self) -> sqlite3.Connection:
         """取得讀取用連線（WAL 模式下不阻塞寫入）."""

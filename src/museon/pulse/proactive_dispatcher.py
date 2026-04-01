@@ -43,16 +43,18 @@ _JOURNAL_FILENAME = "push_journal_24h.json"
 class ProactiveDispatcher:
     """推播大總管 — 所有推播通道的統一品質閘門."""
 
-    def __init__(self, data_dir: str, llm_adapter=None):
+    def __init__(self, data_dir: str, llm_adapter=None, event_bus=None):
         """初始化 ProactiveDispatcher.
 
         Args:
             data_dir: MUSEON data 根目錄（如 ~/MUSEON/data）
             llm_adapter: LLM 呼叫介面（需有 async complete(prompt) -> str 方法），
                          None 時語意去重降級為跳過
+            event_bus: 事件匯流排（可選），用於發佈 GOVERNANCE_ALGEDONIC_SIGNAL
         """
         self._data_dir = Path(data_dir)
         self._llm_adapter = llm_adapter
+        self._event_bus = event_bus
         self._journal_path = self._data_dir / "_system" / "pulse" / _JOURNAL_FILENAME
 
         # 確保目錄存在
@@ -61,6 +63,9 @@ class ProactiveDispatcher:
         # 載入日誌到記憶體
         self._entries: List[dict] = []
         self._load_journal()
+
+        # 今日已發出告警的桶（防止同桶重複告警）
+        self._alerted_buckets: set = set()
 
     # ═══════════════════════════════════════════
     # 核心 API
@@ -111,9 +116,14 @@ class ProactiveDispatcher:
         if _bucket == "proactive":
             _now_hour = datetime.now(TZ8).hour
             _today_count = self._count_today_by_bucket("proactive")
+            _daily_limit = 8
             # 全日上限仍為 8
-            if _today_count >= 8:
+            if _today_count >= _daily_limit:
+                # 100% 耗盡告警（每日每桶只告一次）
+                self._check_quota_alert("proactive", _today_count, _daily_limit)
                 return False, "proactive_daily_limit"
+            # 消耗比例告警（≥ 50%）
+            self._check_quota_alert("proactive", _today_count, _daily_limit)
             # 凌晨 00-07 時段上限 2 次，保留白天額度
             if _now_hour < 7:
                 _night_count = self._count_period_by_bucket("proactive", 0, 7)
@@ -355,3 +365,45 @@ class ProactiveDispatcher:
             except (ValueError, KeyError):
                 continue
         return count
+
+    # ═══════════════════════════════════════════
+    # 配額消耗告警
+    # ═══════════════════════════════════════════
+
+    def _check_quota_alert(self, bucket: str, used: int, total: int) -> None:
+        """檢查配額消耗比例並發出對應告警.
+
+        - 消耗 ≥ 50%：log WARNING
+        - 消耗 100%（耗盡）：log ERROR + 發佈 GOVERNANCE_ALGEDONIC_SIGNAL（每日每桶最多一次）
+        """
+        if total <= 0:
+            return
+        pct = int(used / total * 100)
+
+        if pct >= 100:
+            logger.error(
+                f"[Proactive] {bucket} 桶配額耗盡！白天推播將沉默"
+            )
+            # 每日每桶只發一次 ALGEDONIC 告警
+            today = datetime.now(TZ8).strftime("%Y-%m-%d")
+            alert_key = f"{today}:{bucket}"
+            if alert_key not in self._alerted_buckets:
+                self._alerted_buckets.add(alert_key)
+                self._publish_quota_alert(bucket, used, total)
+        elif pct >= 50:
+            logger.warning(
+                f"[Proactive] {bucket} 桶已消耗 {pct}%（{used}/{total}）"
+            )
+
+    def _publish_quota_alert(self, bucket: str, used: int, total: int) -> None:
+        """配額耗盡告警."""
+        if not hasattr(self, '_event_bus') or self._event_bus is None:
+            return
+        try:
+            self._event_bus.publish("GOVERNANCE_ALGEDONIC_SIGNAL", {
+                "source": f"proactive_dispatcher:{bucket}",
+                "severity": "WARNING",
+                "description": f"{bucket} 推播日配額已耗盡 ({used}/{total})",
+            })
+        except Exception as e:
+            logger.debug(f"配額告警發佈失敗: {e}")

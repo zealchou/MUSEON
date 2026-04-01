@@ -204,43 +204,7 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
         hours=6,
     )
 
-    # ── Job 4: Skill 偵查掃描（每天 04:00）── CPU 過濾，LLM 評估
-    async def _skill_acquisition_scan():
-        """Skill Acquisition Pipeline: 偵測缺口 → 搜尋 → 過濾."""
-        try:
-            from museon.nightly.skill_scout import SkillScout
-            scout = SkillScout(data_dir=str(data_dir))
-
-            # CPU-only: 偵測能力缺口
-            gaps = scout.detect_capability_gaps(
-                quality_history={},  # TODO: 從 eval engine 載入
-                usage_data={"unmatched_tasks": {}},  # TODO: 從使用日誌載入
-                skill_names=[
-                    s.get("name", "") for s in brain.skill_router._index
-                ],
-            )
-
-            if gaps:
-                logger.info(
-                    f"SkillScout 偵測到 {len(gaps)} 個能力缺口"
-                )
-                # CPU-only: 搜尋 + 安全過濾
-                for gap in gaps[:3]:
-                    candidates = await scout.scan(gap, max_candidates=3)
-                    if candidates:
-                        logger.info(
-                            f"找到 {len(candidates)} 個候選 Skill "
-                            f"for gap: {gap.description[:50]}"
-                        )
-            else:
-                logger.info("SkillScout: 無能力缺口")
-        except Exception as e:
-            logger.error(f"Skill acquisition scan failed: {e}", exc_info=True)
-
-    cron_engine.add_job(
-        _skill_acquisition_scan, trigger="cron", job_id="skill-acquisition-scan",
-        hour=4, minute=0,
-    )
+    # v1.75: skill-acquisition-scan 已刪除，由 Nightly Step 6.5 涵蓋
 
     # ── Job 5: Guardian L1 巡檢（每 30 分鐘）── 純 CPU
     async def _guardian_l1():
@@ -315,59 +279,7 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
         hours=6,
     )
 
-    # ── Job 7: 工具自動發現（每天 05:00）── SearXNG 搜尋
-    async def _tool_discovery_scan():
-        """每天 5am 搜尋新的免費自建 AI 工具."""
-        try:
-            from museon.tools.tool_registry import ToolRegistry
-            from museon.tools.tool_discovery import ToolDiscovery
-
-            registry = ToolRegistry(workspace=data_dir)
-            # 先做健康檢查
-            registry.check_all_health()
-
-            # 檢查 SearXNG 是否啟用
-            searxng_state = registry._states.get("searxng")
-            if not searxng_state or not searxng_state.enabled:
-                logger.info("Tool discovery skipped: SearXNG not enabled")
-                return
-
-            # 執行發現掃描
-            discovery = ToolDiscovery(workspace=data_dir)
-            result = discovery.discover()
-            recommended = result.get("recommended", [])
-
-            if recommended:
-                logger.info(
-                    f"Tool discovery found {len(recommended)} "
-                    f"recommended tools"
-                )
-                # 推送通知到 Telegram
-                adapter = getattr(app.state, "telegram_adapter", None)
-                if adapter and recommended:
-                    msg = "📡 <b>工具自動發現</b>\n\n"
-                    for tool in recommended[:3]:
-                        msg += (
-                            f"• {tool.get('title', '?')} "
-                            f"(評分: {tool.get('score', 0)}/10)\n"
-                        )
-                    msg += "\n在儀表板「工具庫」查看詳情"
-                    if hasattr(adapter, '_current_push_source'):
-                        adapter._current_push_source = "tool_discovery"
-                    try:
-                        await adapter.push_notification(msg)
-                    except Exception as push_err:
-                        logger.warning(f"Tool discovery push failed: {push_err}")
-            else:
-                logger.info("Tool discovery: no new recommendations")
-        except Exception as e:
-            logger.error(f"Tool discovery scan failed: {e}", exc_info=True)
-
-    cron_engine.add_job(
-        _tool_discovery_scan, trigger="cron",
-        job_id="tool-discovery-scan",
-        hour=5, minute=0,
-    )
+    # v1.75: tool-discovery-scan 已刪除，由 Nightly Step 17 涵蓋
 
     # ── Job 8: VITA 微脈 SysPulse（每 5 分鐘）── 純 CPU
     async def _vita_sys_pulse():
@@ -1490,8 +1402,6 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
         {"job_id": "nightly-fusion",         "name": "夜間整合管線",         "schedule": "每天 03:00",     "category": "maintenance", "uses_llm": True},
         {"job_id": "system-audit-periodic",  "name": "系統審計",             "schedule": "每天 02:30",     "category": "maintenance", "uses_llm": False},
         {"job_id": "exploration-bridge-batch","name": "探索路由批次",         "schedule": "每天 03:30",     "category": "exploration", "uses_llm": False},
-        {"job_id": "skill-acquisition-scan", "name": "Skill 偵查掃描",      "schedule": "每天 04:00",     "category": "exploration", "uses_llm": True},
-        {"job_id": "tool-discovery-scan",    "name": "工具自動發現",         "schedule": "每天 05:00",     "category": "exploration", "uses_llm": False},
         {"job_id": "vita-morning",           "name": "霓裳晨感",             "schedule": "每天 07:30",     "category": "pulse",       "uses_llm": True},
         {"job_id": "community-scan",         "name": "社群關鍵字掃描",       "schedule": "每天 09:00",     "category": "external",    "uses_llm": False},
         {"job_id": "business-case-daily",    "name": "每日市場研究報告",     "schedule": "每天 09:05",     "category": "research",    "uses_llm": True},

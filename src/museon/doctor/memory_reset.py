@@ -853,7 +853,7 @@ class MemoryReset:
             print(f"  要實際執行，請加上 --confirm 參數。")
         else:
             print(f"\n  🔥 重置完成！請重啟 Gateway：")
-            print(f"     launchctl kickstart -k gui/502/com.museon.gateway")
+            print(f"     bash ~/MUSEON/scripts/workflows/restart-gateway.sh")
 
         print(f"{'='*60}\n")
 

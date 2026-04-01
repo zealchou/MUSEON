@@ -2395,8 +2395,12 @@ class ToolExecutor:
     def _get_ares_store(self):
         """Lazy init Ares ProfileStore."""
         if not hasattr(self, "_ares_store"):
-            from museon.ares.profile_store import ProfileStore
-            self._ares_store = ProfileStore(self.data_dir)
+            try:
+                from museon.ares.profile_store import ProfileStore
+                self._ares_store = ProfileStore(self.data_dir)
+            except ImportError:
+                logger.warning("[ARES] museon.ares 模組不存在，_ares_store 不可用")
+                return None
         return self._ares_store
 
     async def _execute_ares_tool(

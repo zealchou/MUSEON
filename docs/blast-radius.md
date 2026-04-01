@@ -1,10 +1,11 @@
-# Blast Radius — 模組影響半徑表 v1.93
+# Blast Radius — 模組影響半徑表 v1.94
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節、`docs/operational-contract.md`（操作契約表）提供外部操作預期失敗
+> **v1.94 (2026-04-01)**：Phase 1-3 十項修復——`algedonic_alert.py` 新增靜默邏輯（扇出不變，純內部時段判斷）；`crystal_store.py` 新增 schema drift 自動修復 ALTER TABLE（純內部方法，扇出不變）；`service_health.py` 新增退避邏輯（純內部方法，扇出不變）；`guardian/daemon.py` 新增 credential 檢查（扇出+0，純 env 讀取）；`proactive_dispatcher.py` 新增 GOVERNANCE_ALGEDONIC_SIGNAL 發佈（扇出+1：event_bus）；`doctor/museoff.py` 重啟路徑改為 restart-gateway.sh（移除 launchctl 直呼叫）；`cron_registry.py` 移除 skill-acquisition-scan + tool-discovery-scan 2 個 cron job（扇出-2）；`nightly_pipeline.py` 移除 Step 26 session_cleanup（_FULL_STEPS -1）。同步 system-topology v1.75。
 > **v1.93 (2026-04-01)**：Phase A-C 死碼清理 + signal_lite 遷移——從安全分級表移除 brain_p3_fusion.py（綠區，已清除）、brain_observer.py（綠區，已刪除）2 個條目；從 vector_bridge.py 扇入列表移除 reflex_router（已退役）；更新 brain.py 扇出描述（移除對 reflex_router/safety_clusters 的依賴，移除 P3 方法群描述）；更新 server.py 扇出描述（移除 DNA27 Qdrant 索引）；新增 signal_lite.py 到綠區（扇入=1 from brain.py，扇出=無）；版本紀錄新增本次變更。同步 system-topology v1.74。
 > **v1.92 (2026-04-01)**：Brain 統一重構——刪除 brain_fast.py（498 行，綠區）、brain_deep.py（~200 行，綠區）2 個模組；brain.py 從 2904→2458 行（刪除 17 個 D 類判斷步驟：Haiku 分類器、P2 決策層、P3 融合、百合引擎、直覺引擎、元認知觀察/預判、Mask Layer、PreCognition 審查等）；新增 signal_lite.py（80 行，綠區扇入=1）；reflex_router.py 路由功能退役（1221 行→deprecated，Qdrant dna27 collection 廢棄）；brain_prompt_builder.py 移除 RoutingSignal 依賴；skill_router.py 解除 RC 親和匹配（top_clusters × 5.0 權重移除）。
 > **v1.91 (2026-03-31)**：推播系統重構——`pulse/push_budget.py` 已刪除（從 Pulse 層綠區葉子模組列表移除，扇入原=1 from server.py，PushBudget 全局預算管理器已由 ProactiveDispatcher 三桶分級配額取代）；`pulse/pulse_engine.py` 扇出 -1（不再 import push_budget）；`pulse/proactive_bridge.py` 扇出 -1（is_within_daily_limit 永遠 True，PushBudget 依賴清除）；`gateway/server.py` 扇出 -1（刪除 PushBudget 注入區塊）；`pulse/proactive_dispatcher.py` 新增三桶分級配額內建（_BUCKET_MAP/_get_bucket/_count_today_by_bucket，扇出 +1：llm_adapter Haiku 接入）；`gateway/cron.py` 新增 _job_stats + status() 方法（扇出 +1：被 doctor/museoff.py L7 cron 健康度讀取）；`channels/telegram.py` 新增 DM 非 Owner 阻擋（send_dm_to_owner 改為 push_notification wrapper）；`pulse/commitment_tracker.py` 精簡為只追蹤時間承諾（扇出 -2，移除非時間承諾分支）；`agent/brain.py` 移除同回合 check_fulfillment（扇出 -1，commitment_tracker 呼叫點減少）。綠區葉子模組 173→172（刪除 push_budget.py）。

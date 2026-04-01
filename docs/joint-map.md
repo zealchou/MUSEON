@@ -1,9 +1,10 @@
-# Joint Map — 共享可變狀態接頭圖 v1.60
+# Joint Map — 共享可變狀態接頭圖 v1.62
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
 > **更新時機**：改變共享檔案的讀寫者或格式時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
+> **v1.62 (2026-04-01)**：Phase 1-3 十項修復——signal_cache JSON 讀取路徑已清理（brain_prompt_builder 不再讀檔，Layer 5 skill_router 已刪除該讀取點）；brain_observer 相關殘留讀寫者已全數清除（pending_insights.json、context_cache 讀寫者已於 v1.61 同步）；共享狀態條目無增減，僅修正讀寫者清單。同步 system-topology v1.75、blast-radius v1.94。
 > **v1.61 (2026-04-01)**：Phase A-C 死碼清理 + signal_lite 遷移——移除 reflex_router 相關共享狀態條目（Qdrant dna27 collection 已清理，routing_signal 純記憶體，不另立條目）；移除 brain_observer 讀寫者條目（#46 pending_insights.json 寫入者改為 brain.py L4 觀察者，#47 context_cache 寫入者移除 brain_observer.py）；新增 #74 signal_lite 的 SignalLite 物件（純記憶體計算，寫入者 signal_lite.py，讀取者 brain.py + metacognition.py + telegram_pump.py）；G3 記憶管線移除 reflex_router；共享狀態 73→74 個。
 > **v1.60 (2026-04-01)**：Brain 統一重構——刪除 brain_fast.py 相關共享狀態讀寫者條目（pending_insights.json #46、context_cache #47 的讀取者從 brain_fast.py 改為統一 brain.py）；Qdrant dna27 collection 標記為廢棄（reflex_router 退役）；session 歷史統一為 brain.py 單一讀寫者（消除 brain_fast.py 的平行 session 管理）；共享狀態 73→72 個。
 > **v1.59 (2026-03-31)**：推播系統重構——刪除 #41 索引項「PushBudget 單例」（`pulse/push_budget.py` 已刪除，全局推送配額改由 ProactiveDispatcher 三桶分級配額內建管理）；#8 PulseDB 寫入者 4→3（移除 push_budget.py），讀取者 13→12（移除 push_budget.py）；pulse_engine.py 不再經由 PushBudget 讀取 push_log；push_journal_24h.json（#48）寫入者維持 proactive_dispatcher.py 獨自寫入（PushBudget 已非第二寫入路徑）；共享狀態 73→72 個（刪除 #41 PushBudget 單例）。同步 blast-radius v1.91、system-topology v1.72、persistence-contract v1.45。

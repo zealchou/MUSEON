@@ -568,69 +568,19 @@ class BrainPromptBuilderMixin:
             logger.debug(f"_auto_adjust_from_history failed (degraded): {e}")
 
     def _build_signal_context(self, session_id: str, content: str) -> str:
-        """組建訊號感應上下文（~100-150 tokens）."""
-        import json as _json
-        from datetime import datetime, timezone, timedelta
+        """組建訊號感應上下文（~100-150 tokens）.
+
+        brain_observer.py 已移除，signal_cache 不再寫入。
+        僅保留 keyword 快篩（即時訊號）。
+        """
         from museon.pulse.signal_keywords import quick_signal_scan
         from museon.agent.signal_skill_map import SIGNAL_DESCRIPTIONS, get_suggested_skills
 
-        TZ8 = timezone(timedelta(hours=8))
-
-        # 1. 讀取 signal_cache（L4 上一輪的分析）
-        cache_dir = getattr(self, "data_dir", None)
-        if not cache_dir:
-            return ""
-
-        signal_file = (
-            Path(cache_dir)
-            / "_system"
-            / "context_cache"
-            / f"{session_id}_signals.json"
-        )
-        cached_signals: Dict[str, Any] = {}
-        trajectory = ""
-        if signal_file.exists():
-            try:
-                data = _json.loads(signal_file.read_text(encoding="utf-8"))
-                raw_signals = data.get("signals", {})
-                trajectory = data.get("trajectory", "")
-
-                # 應用衰減
-                now = datetime.now(TZ8)
-                decay_rate = data.get("decay_per_day", 0.1)
-                for sig_name, sig_info in raw_signals.items():
-                    if isinstance(sig_info, dict):
-                        last_seen = sig_info.get("last_seen", "")
-                        strength = sig_info.get("strength", 0)
-                        if last_seen:
-                            try:
-                                ls_dt = datetime.fromisoformat(last_seen)
-                                if ls_dt.tzinfo is None:
-                                    ls_dt = ls_dt.replace(tzinfo=TZ8)
-                                elapsed_days = (
-                                    (now - ls_dt).total_seconds() / 86400
-                                )
-                                strength = max(
-                                    0, strength - elapsed_days * decay_rate,
-                                )
-                            except Exception:
-                                pass
-                        if strength >= 0.2:
-                            cached_signals[sig_name] = {
-                                "strength": strength,
-                                "evidence": sig_info.get("evidence", ""),
-                            }
-            except Exception:
-                pass
-
-        # 2. L1 keyword 快篩（當下這一輪的即時補充）
-        instant_signals = quick_signal_scan(content)
-
-        # 3. 合併（取較高的 strength）
-        merged: Dict[str, Any] = dict(cached_signals)
-        for sig, score in instant_signals.items():
-            if sig not in merged or score > merged[sig].get("strength", 0):
-                merged[sig] = {"strength": score, "evidence": content[:50]}
+        # keyword 快篩（即時訊號，無需讀檔）
+        merged: Dict[str, Any] = {
+            sig: {"strength": score, "evidence": content[:50]}
+            for sig, score in quick_signal_scan(content).items()
+        }
 
         if not merged:
             return ""
@@ -665,7 +615,6 @@ class BrainPromptBuilderMixin:
             "【使用者狀態感應】\n"
             "活躍訊號：\n"
             f"{chr(10).join(signal_lines)}\n"
-            f"{'思考軌跡：' + trajectory + chr(10) if trajectory else ''}"
             f"建議能力：{skill_names}\n"
             f"行為取向：{behavior}"
         )

@@ -53,7 +53,11 @@ class ProactiveIntel:
 
         Returns: [{profile_id, name, alert_type, message, urgency}]
         """
-        from museon.ares.profile_store import ProfileStore
+        try:
+            from museon.ares.profile_store import ProfileStore
+        except ImportError:
+            logger.warning("[ARES] museon.ares 模組不存在，跳過關係溫度掃描")
+            return []
         store = ProfileStore(self.data_dir)
         alerts = []
 

@@ -30,6 +30,9 @@ from typing import Any, Callable, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
+# 指數退避序列（秒）：30s → 1m → 2m → 5m → 15m 封頂
+_RETRY_BACKOFF_SECONDS = [30, 60, 120, 300, 900]
+
 
 # ─── 服務定義 ───
 
@@ -68,6 +71,7 @@ class ServiceState:
     last_restart_at: float = 0.0
     restart_timestamps: list = field(default_factory=list)
     last_error: Optional[str] = None
+    next_check_at: float = 0.0  # 指數退避：下次允許探測的時間戳
 
 
 # ─── 預設服務配置 ───
@@ -216,6 +220,7 @@ class ServiceHealthMonitor:
             "consecutive_failures": state.consecutive_failures,
             "total_restarts": state.total_restarts,
             "last_error": state.last_error,
+            "next_check_at": state.next_check_at,
         }
 
     def get_all_status(self) -> dict:
@@ -285,18 +290,38 @@ class ServiceHealthMonitor:
     async def _check_and_heal(
         self, name: str, config: ServiceConfig
     ) -> None:
-        """檢查單一服務，如果不健康則嘗試恢復。"""
+        """檢查單一服務，如果不健康則嘗試恢復。
+
+        指數退避邏輯：
+        - 服務失敗後，依 consecutive_failures 計算退避間隔
+        - 退避期間跳過探測（節省資源，避免無意義輪詢）
+        - 服務恢復後重置計數器與 next_check_at
+        """
         state = self._states[name]
+        now = time.time()
+
+        # 指數退避：若尚未到下次允許探測時間，跳過本次
+        if state.next_check_at > now:
+            return
+
         old_status = state.status
 
         # 探測健康狀態
         new_status = await self._probe_service(config)
         state.status = new_status
-        state.last_check_at = time.time()
+        state.last_check_at = now
 
         if new_status == ServiceStatus.HEALTHY:
-            state.last_healthy_at = time.time()
+            state.last_healthy_at = now
+
+            # 服務恢復 → 重置退避計數器
+            if state.consecutive_failures > 0:
+                logger.info(
+                    f"[ServiceHealth] {name} 服務恢復，重置退避計數器 "
+                    f"(was {state.consecutive_failures} failures)"
+                )
             state.consecutive_failures = 0
+            state.next_check_at = 0.0
             state.last_error = None
 
             # 狀態恢復 → 通知
@@ -306,8 +331,15 @@ class ServiceHealthMonitor:
                     self.on_status_change(name, old_status, new_status)
             return
 
-        # 不健康
+        # 不健康：遞增失敗計數，計算退避間隔
         state.consecutive_failures += 1
+        n = state.consecutive_failures
+        backoff = _RETRY_BACKOFF_SECONDS[min(n - 1, len(_RETRY_BACKOFF_SECONDS) - 1)]
+        state.next_check_at = now + backoff
+
+        logger.info(
+            f"[ServiceHealth] {name} 重試退避: {backoff}s (attempt #{n})"
+        )
 
         if new_status != old_status:
             logger.warning(

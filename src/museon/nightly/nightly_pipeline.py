@@ -125,7 +125,7 @@ _FULL_STEPS = [
     "19.5", "19.6", "19.7",  # Skill 自動演化：健康追蹤 → 鍛造/優化 → QA 品質閘門
     "20", "21", "22", "23",  # 新增：synapse_decay/muscle_atrophy/immune_prune/trigger_eval
     "24", "25",  # 新增：演化速度計算 / 週月循環觸發檢查
-    "26", "27", "28", "29",  # 持久層衛生：session 清理 / JSONL 輪替 / WAL checkpoint / DataWatchdog
+    "27", "28", "29",  # 持久層衛生：JSONL 輪替 / WAL checkpoint / DataWatchdog  # v1.75: "26" session_cleanup 已刪除，由每小時 cron 涵蓋
     "30",  # 藍圖一致性驗證
     "31",  # v2 context_cache 重建
     "32",  # Crystal ri_score 每日衰減
@@ -240,8 +240,7 @@ class NightlyPipeline:
             # ── Evolution Architecture 新增步驟 ──
             "24": ("step_24_evolution_velocity", self._step_evolution_velocity),
             "25": ("step_25_periodic_cycle_check", self._step_periodic_cycle_check),
-            # ── 持久層衛生 ──
-            "26": ("step_26_session_cleanup", self._step_session_cleanup),
+            # ── 持久層衛生 ──  # v1.75: "26" session_cleanup 已刪除，由每小時 cron 涵蓋
             "27": ("step_27_log_rotation", self._step_log_rotation),
             "28": ("step_28_wal_checkpoint", self._step_wal_checkpoint),
             "29": ("step_29_data_watchdog", self._step_data_watchdog),
@@ -4078,34 +4077,7 @@ class NightlyPipeline:
 
         return results
 
-    # ═══════════════════════════════════════════
-    # Step 26: Session TTL 清理
-    # ═══════════════════════════════════════════
-
-    def _step_session_cleanup(self) -> Dict:
-        """Step 26: 清理超過 14 天的 session 檔案."""
-        sessions_dir = self._workspace / "_system" / "sessions"
-        if not sessions_dir.exists():
-            return {"skipped": "sessions dir not found"}
-
-        cutoff = time.time() - 14 * 86400  # 14 天
-        removed = 0
-        kept = 0
-
-        for f in sessions_dir.glob("*.json"):
-            try:
-                if f.stat().st_mtime < cutoff:
-                    f.unlink()
-                    removed += 1
-                else:
-                    kept += 1
-            except Exception as e:
-                logger.debug(f"[NIGHTLY] session cleanup skip {f.name}: {e}")
-
-        if removed > 0:
-            logger.info(f"[NIGHTLY] session cleanup: removed {removed}, kept {kept}")
-
-        return {"removed": removed, "kept": kept}
+    # v1.75: _step_session_cleanup (Step 26) 已刪除，由每小時 cron 涵蓋，Nightly 重複執行無附加價值
 
     # ═══════════════════════════════════════════
     # Step 27: JSONL 日誌輪替

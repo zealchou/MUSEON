@@ -926,12 +926,11 @@ class MuseOff:
         entry = {"timestamp": _now_iso(), "action": action, "result": "unknown"}
 
         if action == "restart_gateway":
-            supervisorctl = "/Users/ZEALCHOU/Library/Python/3.9/bin/supervisorctl"
-            conf = str(self.home / "data/_system/supervisord.conf")
+            script = self.home / "scripts" / "workflows" / "restart-gateway.sh"
             try:
                 result = subprocess.run(
-                    [supervisorctl, "-c", conf, "start", "museon-gateway"],
-                    timeout=10, capture_output=True
+                    ["bash", str(script)],
+                    timeout=120, capture_output=True
                 )
                 entry["result"] = "success" if result.returncode == 0 else f"rc={result.returncode}"
             except Exception as e:

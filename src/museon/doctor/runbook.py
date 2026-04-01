@@ -275,7 +275,7 @@ class RB007_GatewayRestart(Runbook):
 
     注意：MuseDoc 跑在 Gateway cron 內，不能用 subprocess.run 等待
     restart-gateway.sh 完成（等於殺自己母進程再等自己回來）。
-    改用 launchctl kickstart fire-and-forget + 寫 flag 讓下一輪巡檢驗證。
+    action() 只記錄 + 通知，實際重啟由 supervisord autorestart 自動處理。
     """
     runbook_id = "RB-007"
     name = "Gateway 安全重啟"
@@ -295,11 +295,11 @@ class RB007_GatewayRestart(Runbook):
 
     async def action(self, finding: dict, home: Path) -> RunbookResult:
         # MuseDoc 跑在 Gateway 的 cron 內，不能重啟自己的母進程。
-        # Gateway 重啟交由 launchd KeepAlive 自動處理。
+        # Gateway 重啟由 supervisord autorestart=unexpected 自動處理。
         # MuseDoc 只負責記錄 + 通知老闆。
         return RunbookResult(
             success=True,
-            message="Gateway 已死亡，已通知老闆。重啟由 launchd KeepAlive 處理。",
+            message="Gateway 已死亡，已通知老闆。重啟由 supervisord autorestart 處理。",
         )
 
     async def post_check(self, finding: dict, home: Path) -> bool:

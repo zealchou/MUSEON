@@ -1,8 +1,9 @@
-# MUSEON Persistence Contract v1.46 — 水電圖
+# MUSEON Persistence Contract v1.48 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
 > 與 `system-topology.md`（控制流拓撲）互補——那是「神經圖」，這是「水電圖」。
+> **v1.48 (2026-04-01)**：Phase 1-3 十項修復——CrystalStore 新增 schema drift 自動修復（ALTER TABLE ADD COLUMN，crystal.db ENGINE 1 表格新增 drift_fixed_at 追蹤欄）；signal_cache JSON 不再有寫入者（已確認 brain_prompt_builder 移除檔案讀取點，signal_cache 管道由 keyword 快篩替代，持久化路徑正式廢棄）。同步 system-topology v1.75、joint-map v1.62、memory-router v1.22。
 > **v1.47 (2026-04-01)**：Phase A-C 死碼清理 + signal_lite 遷移——Qdrant dna27 collection 從 deprecated 改為「已清理」並從 Engine 2 表格移除（reflex_router 退役，signal_lite 純記憶體取代，不再需要向量索引）；移除數據流圖中 reflex_router 讀取記憶的標注；signal_lite 確認不使用任何持久層（純記憶體計算，request-scoped）。
 > **v1.46 (2026-04-01)**：Brain 統一重構——Qdrant dna27 collection 標記為 deprecated（reflex_router 路由退役，signal_lite 取代，不再需要反射模式向量索引）；brain_fast.py 刪除後 session 檔案讀寫統一為 brain.py。
 > **v1.45 (2026-03-31)**：推播系統重構——`pulse/push_budget.py` 已刪除，PulseDB push_log 表的**直接寫入路徑**移除（push_log 表本身保留，但 push_budget.py 不再作為獨立寫入者）；`pulse/pulse_engine.py` 不再經由 PushBudget 讀取 push_log；`pulse/proactive_bridge.py` is_within_daily_limit 不再查 PushBudget；`push_journal_24h.json`（Engine 3 JSON 檔）維持 ProactiveDispatcher 單一寫入者不變（PushBudget 原本沒有直接寫入此檔，影響為零）；`gateway/server.py` 移除 PushBudget 注入區塊。同步 blast-radius v1.91、system-topology v1.72、joint-map v1.59。

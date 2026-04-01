@@ -129,6 +129,20 @@ class GuardianDaemon:
         # 5. data 目錄基本結構
         entries.append(self._check_data_directories())
 
+        # 6. Credential 有效性快篩
+        cred_result = self._check_credentials()
+        missing_creds = [k for k, v in cred_result.items() if v == "MISSING"]
+        if missing_creds:
+            cred_status = GuardianStatus.FAILED
+            cred_details = f"缺少: {', '.join(missing_creds)}"
+            self._add_unresolved("L1", "credentials",
+                                 f"環境變數未設定: {', '.join(missing_creds)}")
+        else:
+            cred_status = GuardianStatus.OK
+            cred_details = "所有 credential 已設定"
+        entries.append(GuardianEntry("L1", "credentials", cred_status,
+                                     details=cred_details))
+
         duration = int((time.monotonic() - start) * 1000)
 
         result = self._compile_result("L1", entries, duration)
@@ -314,6 +328,39 @@ class GuardianDaemon:
                                  details=f"已建立: {', '.join(repaired)}")
         return GuardianEntry("L1", "data_directories", GuardianStatus.OK,
                              details="目錄結構完整")
+
+    def _check_credentials(self) -> dict:
+        """L1 附加：credential 有效性快篩（零 API 呼叫）."""
+        results = {}
+
+        # GITHUB_TOKEN
+        gh_token = os.environ.get("GITHUB_TOKEN", "")
+        if not gh_token:
+            results["GITHUB_TOKEN"] = "MISSING"
+            logger.warning("[Guardian] GITHUB_TOKEN 環境變數未設定")
+        elif len(gh_token) < 10:
+            results["GITHUB_TOKEN"] = "INVALID_FORMAT"
+            logger.warning("[Guardian] GITHUB_TOKEN 格式異常（長度不足）")
+        else:
+            results["GITHUB_TOKEN"] = "PRESENT"
+
+        # TELEGRAM_BOT_TOKEN
+        tg_token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+        if not tg_token:
+            results["TELEGRAM_BOT_TOKEN"] = "MISSING"
+            logger.warning("[Guardian] TELEGRAM_BOT_TOKEN 環境變數未設定")
+        else:
+            results["TELEGRAM_BOT_TOKEN"] = "PRESENT"
+
+        # ANTHROPIC_API_KEY
+        api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+        if not api_key:
+            results["ANTHROPIC_API_KEY"] = "MISSING"
+            logger.warning("[Guardian] ANTHROPIC_API_KEY 環境變數未設定")
+        else:
+            results["ANTHROPIC_API_KEY"] = "PRESENT"
+
+        return results
 
     # ═══════════════════════════════════════
     # L2: 資料完整性巡檢（每 6 小時）

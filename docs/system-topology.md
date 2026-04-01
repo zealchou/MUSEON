@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.74
+# MUSEON 系統拓撲圖 v1.75
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.75 (2026-04-01)**：Phase 1-3 十項修復——AlgedonicAlert 新增靜默時段（23:00-07:00）；Guardian daemon 新增 credential 檢查（L1 巡檢擴充）；Nightly Step 26 session_cleanup 移除（cron 已覆蓋）；cron skill-acquisition-scan/tool-discovery-scan 移除（Nightly 已覆蓋）；Gateway 重啟路徑統一（launchctl 引用全部移除，統一為 restart-gateway.sh）。同步 blast-radius v1.94。
 > **v1.74 (2026-04-01)**：Phase A-C 死碼清理 + signal_lite 遷移——移除 `brain-p3-fusion`（P3 融合層已清除）、`brain-observer`（L4 觀察者已刪除）2 個節點；`reflex-router`、~~`dna27`~~ 同步標記刪除（路由功能已退役）；新增 `signal-lite` 節點（輕量信號路由，取代 reflex_router）；移除相關連線：brain→brain-p3-fusion、brain→reflex-router、brain→brain-observer、primal-detector→reflex-router、nightly→reflex-router 共 5 條；更新 brain.py Step 3 描述（DNA27 反射路由器 → signal_lite 信號路由）；同步 blast-radius v1.93。
 > **v1.73 (2026-04-01)**：Brain 統一重構——agent 群組刪除 `brain-fast`（L1 Sonnet，已合併回 brain 統一管線）、`brain-deep`（L2 Opus，已合併回 brain）2 個節點；新增 `signal-lite`（輕量信號器，取代 reflex_router 路由功能）1 個節點；`reflex-router` 標記為 deprecated（路由退役，人格定義遷移到 persona_digest）；刪除 brain→brain-deep、brain-fast→brain-observer 2 條 internal 連線；brain 節點名稱從 "Brain-Fast (L1)" 更新為 "Brain (統一管線)"；193→192 節點，521→519 連線。同步 blast-radius v1.92、joint-map v1.60、persistence-contract v1.46。
 > **v1.72 (2026-03-31)**：推播系統重構——pulse 群組刪除 `push-budget` 節點（PushBudget 全局推送預算管理器已移除）；刪除 3 條 internal 連線（`pulse-engine→push-budget`、`proactive-bridge→push-budget`、`push-budget→pulse-db`）；新增 1 條 cross 連線（`cron→museoff` cron 健康度讀取，cron.status() 被 museoff.py L7 消費）；新增 1 條 internal 連線（`proactive-dispatcher→haiku-llm` LLM adapter 接入，三桶分級配額決策）；刪除 1 條 cross 連線（`proactive-dispatcher→push-budget` 推播前去重配合已清除）；194→193 節點，522→521 連線（刪除 push-budget 節點 -1、刪除 5 條連線 -5、新增 2 條連線 +2 = 521）。同步 blast-radius v1.91、joint-map v1.59、persistence-contract v1.45。
