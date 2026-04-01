@@ -417,7 +417,7 @@ const nodes = [
   {id:"zeal",label:"Zeal (Owner)",zh:"主人",group:"channel",r:2.0,path:"",fi:0},
   // ── agent ──
   {id:"brain",label:"Brain-Fast (L1)",zh:"L1 接待層",group:"agent",r:2.8,hub:1,desc:"L1 接待層（Sonnet + escalation JSON，簡單自答/複雜派 L2）",path:"src/museon/agent/brain.py",fi:2},
-  {id:"adaptive-decay",label:"Adaptive Decay",zh:"ACT-R 式統一衰減引擎",group:"agent",r:0.8,p:"brain",desc:"ACT-R 式統一衰減引擎（B_i = ln(Σt^{-d,path:"src/museon/memory/adaptive_decay.py",fi:0}) + β_i）"},
+  {id:"adaptive-decay",label:"Adaptive Decay",zh:"ACT-R 式統一衰減引擎",group:"agent",r:0.8,p:"brain",desc:"ACT-R 式統一衰減引擎（B_i = ln(Σt^(-d)) + β_i）",path:"src/museon/memory/adaptive_decay.py",fi:0},
   {id:"agent-registry",label:"Agent Registry",zh:"統一能力目錄",group:"agent",r:0.7,p:"brain",path:"src/museon/agent/agent_registry.py",fi:0},
   {id:"brain-deep",label:"Brain-Deep (L2)",zh:"L2 深度思考引擎",group:"agent",r:1.2,p:"brain",desc:"L2 深度思考引擎（Opus + tool_use）",path:"src/museon/agent/brain_deep.py",fi:0},
   {id:"brain-dispatch",label:"Brain Dispatch",zh:"Mixin: 任務分派",group:"agent",r:1.0,p:"brain",desc:"Mixin: 任務分派（1082 行）",path:"src/museon/agent/brain_dispatch.py",fi:2},
