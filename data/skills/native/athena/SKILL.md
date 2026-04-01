@@ -1,5 +1,8 @@
 ---
 name: athena
+absurdity_affinity:
+  relationship_leverage: 0.8
+  strategic_integration: 0.5
 description: ATHENA（智慧戰略情報平台）— 個人戰略情報平台。編排 ANIMA 個體引擎、萬謬16型、合盤、九策軍師、陰謀辨識、八大槓桿等 Skill，產出人物分析、策略建議、多層槓桿路徑、連動模擬、戰前簡報。
 type: workflow
 layer: application

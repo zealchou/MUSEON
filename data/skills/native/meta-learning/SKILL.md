@@ -25,6 +25,8 @@ memory:
   reads:
     - source: knowledge-lattice
       field: related_crystals
+absurdity_affinity:
+  accumulation: 0.8
 description: >
   元學習引擎（Meta-Learning Engine）——學習如何學習。DNA27 核心的外掛模組，
   融合 Feynman 教學驗證法、Musk 第一性原理、Munger 心智模型晶格、Da Vinci 跨域好奇力、

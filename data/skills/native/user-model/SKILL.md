@@ -50,6 +50,9 @@ memory:
       field: domain_crystals
     - source: wee
       field: workflow_proficiency
+absurdity_affinity:
+  self_awareness: 0.6
+  accumulation: 0.3
 description: >
   User-Model（使用者畫像引擎）— DNA27 核心的外掛模組，
   MUSEON 的動態使用者理解與個人化調適引擎。從對話互動中持續學習使用者的

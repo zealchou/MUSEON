@@ -26,6 +26,9 @@ memory:
   reads:
     - source: user-model
       field: user_context
+absurdity_affinity:
+  direction_clarity: 0.9
+  strategic_integration: 0.4
 description: >
   PDEIF（Purpose-Driven Entropy-Inverse Flow）目的導向逆熵流引擎。
   DNA27 核心的外掛模組，將「終點狀態」形式化為可操作的逆熵流：

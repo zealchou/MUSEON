@@ -201,6 +201,17 @@ class BrainPromptBuilderMixin:
                 if _brevity_fitted:
                     sections.append(_brevity_fitted)
 
+        # ── Zone: persona — 荒謬雷達（v12.0: 主動引導使用者發展最弱維度）──
+        if not budget.is_exhausted("persona"):
+            try:
+                _radar_text = self._build_absurdity_radar_context(session_id)
+                if _radar_text:
+                    _radar_fitted = budget.fit_text_to_zone("persona", _radar_text)
+                    if _radar_fitted:
+                        sections.append(_radar_fitted)
+            except Exception as _e:
+                logger.debug(f"Absurdity radar injection skipped: {_e}")
+
         # ── Zone: strategic — 企業決策脈絡（v1.0）──
         strategic_text = self._build_strategic_context()
         if strategic_text and not budget.is_exhausted("strategic"):
@@ -566,6 +577,62 @@ class BrainPromptBuilderMixin:
 
         except Exception as e:
             logger.debug(f"_auto_adjust_from_history failed (degraded): {e}")
+
+    # ── 荒謬雷達上下文建構（v12.0）──
+
+    _ABSURDITY_LABELS = {
+        "self_awareness": "自我認知",
+        "direction_clarity": "方向清晰度",
+        "gap_visibility": "GAP 可見度",
+        "accumulation": "累積盤點",
+        "relationship_leverage": "人脈槓桿",
+        "strategic_integration": "整合佈局",
+    }
+
+    def _build_absurdity_radar_context(self, session_id: str) -> str:
+        """組建荒謬雷達上下文（~80-120 tokens）.
+
+        讓 LLM 知道使用者目前在六大荒謬維度上的發展程度，
+        自動在對話中引導使用者朝最弱的維度發展。
+        """
+        try:
+            from museon.agent.absurdity_radar import load_radar, ABSURDITY_DIMENSIONS
+
+            # 從 session_id 推導 user_id
+            user_id = "boss"  # 預設
+            if session_id and "_" in session_id:
+                _parts = session_id.split("_", 1)
+                if len(_parts) == 2 and _parts[1].isdigit():
+                    # external user 暫不注入雷達
+                    pass
+
+            radar = load_radar(user_id, data_dir=str(self.data_dir))
+            confidence = radar.get("confidence", 0.0)
+
+            if confidence < 0.1:
+                return ""  # 觀察不足，不注入
+
+            # 找出最弱和最強維度
+            dims = {d: radar.get(d, 0.5) for d in ABSURDITY_DIMENSIONS}
+            weakest = min(dims, key=dims.get)
+            strongest = max(dims, key=dims.get)
+
+            weak_label = self._ABSURDITY_LABELS.get(weakest, weakest)
+            weak_val = dims[weakest]
+
+            # 只在有明顯缺口時注入
+            if weak_val >= 0.6:
+                return ""  # 沒有明顯缺口
+
+            lines = [
+                "## 使用者發展雷達",
+                f"最弱維度：**{weak_label}**（{weak_val:.0%}）",
+                f"如果對話自然允許，引導使用者探索「{weak_label}」相關議題。",
+                "不要生硬地轉話題，只在自然銜接時輕輕推動。",
+            ]
+            return "\n".join(lines)
+        except Exception:
+            return ""
 
     def _build_signal_context(self, session_id: str, content: str) -> str:
         """組建訊號感應上下文（~100-150 tokens）.

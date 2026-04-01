@@ -26,6 +26,8 @@ memory:
   reads:
     - source: user-model
       field: emotional_history
+absurdity_affinity:
+  self_awareness: 0.5
 description: >
   感性共振引擎（Resonance Engine）——DNA27 核心的外掛模組，
   專為處理使用者輸入中的「感性資訊」與「情緒語句」所設計。

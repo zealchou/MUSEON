@@ -30,6 +30,9 @@ memory:
   reads:
     - source: knowledge-lattice
       field: related_crystals
+absurdity_affinity:
+  self_awareness: 0.4
+  direction_clarity: 0.8
 description: >
   思維轉化引擎（DHARMA Engine）——DNA27 核心的外掛模組，
   融合東方達摩哲學（佛法四聖諦、道家順勢、儒家修齊治平）與

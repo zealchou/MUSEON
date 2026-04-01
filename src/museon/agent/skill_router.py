@@ -140,6 +140,9 @@ class SkillRouter:
                 # 提取 io.inputs（用於 DeterministicRouter 依賴推導）
                 meta["io_inputs"] = self._extract_io_inputs(frontmatter)
 
+                # 提取 absurdity_affinity（六大荒謬親和度）
+                meta["absurdity_affinity"] = self._extract_absurdity_affinity(frontmatter)
+
                 # Extract trigger words from body
                 meta["triggers"] = self._extract_triggers(body, frontmatter)
 
@@ -174,6 +177,42 @@ class SkillRouter:
     def get_skills_by_hub(self, hub_name: str) -> List[Dict[str, Any]]:
         """回傳指定 Hub 下的所有 Skill 元資料."""
         return [s for s in self._index if s.get("hub") == hub_name]
+
+    @staticmethod
+    def _extract_absurdity_affinity(frontmatter: str) -> Dict[str, float]:
+        """從 YAML frontmatter 提取 absurdity_affinity 映射.
+
+        解析格式：
+          absurdity_affinity:
+            self_awareness: 0.8
+            direction_clarity: 0.7
+        回傳 {"self_awareness": 0.8, "direction_clarity": 0.7}
+        """
+        VALID_DIMS = {
+            "self_awareness", "direction_clarity", "gap_visibility",
+            "accumulation", "relationship_leverage", "strategic_integration",
+        }
+        result: Dict[str, float] = {}
+        lines = frontmatter.splitlines()
+        in_section = False
+        for line in lines:
+            stripped = line.strip()
+            # 進入 absurdity_affinity 區塊
+            if stripped == "absurdity_affinity:" or stripped.startswith("absurdity_affinity:"):
+                in_section = True
+                continue
+            # 離開區塊（遇到頂層 key）
+            if in_section and stripped and not line.startswith(" ") and not line.startswith("\t"):
+                break
+            if in_section and ":" in stripped:
+                key, _, val = stripped.partition(":")
+                key = key.strip()
+                if key in VALID_DIMS:
+                    try:
+                        result[key] = float(val.strip())
+                    except ValueError:
+                        pass
+        return result
 
     @staticmethod
     def _extract_io_inputs(frontmatter: str) -> List[Dict[str, str]]:
@@ -384,8 +423,9 @@ class SkillRouter:
         signal_cache: Optional[Dict[str, Any]] = None,  # deprecated, unused
         safety_triggered: bool = False,
         is_simple: bool = False,
+        user_absurdity_radar: Optional[Dict[str, float]] = None,
     ) -> List[Dict[str, Any]]:
-        """v11.0 三層疊加匹配 — 關鍵字 + 向量 + 八原語 + MoE 衰減.
+        """v12.0 四層疊加匹配 — 關鍵字 + 向量 + 八原語 + 荒謬缺口 + MoE 衰減.
 
         Layer 1: 關鍵字匹配
           - 觸發詞 + /command + 名稱 + 描述詞
@@ -396,7 +436,12 @@ class SkillRouter:
         Layer 3: 八原語親和評分
           - 使用者當前原語 × 技能原語親和度
 
-        最終分數 = (kw + vec × 1.5 + primal × 2.0) × usage_decay
+        Layer 4: 荒謬缺口親和度（v12.0）
+          - 使用者最弱的荒謬維度 × Skill 親和度 = 高分
+          - 效果：系統自然把對話推向使用者最需要發展的方向
+          - 僅在 user_absurdity_radar 提供且 confidence > 0.1 時生效
+
+        最終分數 = (kw + vec × 1.5 + primal × 2.0 + absurdity × 1.0) × usage_decay
 
         MoE-style usage frequency decay:
           - 頻繁使用的 skill 自動衰減，防止壟斷
@@ -415,6 +460,9 @@ class SkillRouter:
             signal_cache: 已棄用，brain_observer.py 移除後不再寫入（保留向後相容）
             safety_triggered: True 時降權市場/商業技能，非 always-on 大幅壓制
             is_simple: True 時 effective_top_n = min(top_n, 3)
+            user_absurdity_radar: {dim: level(0.0-1.0), "confidence": float}
+                六大荒謬維度的使用者當前水平（0=最弱/缺口最大，1=最強）
+                包含 "confidence" 鍵表示觀察信心（< 0.1 時 Layer 4 不生效）
 
         Returns:
             匹配到的技能列表，按相關度排序
@@ -435,8 +483,9 @@ class SkillRouter:
         # ── Layer 2: Qdrant 向量語義搜尋 ──
         vector_scores = self._vector_search_skills(message, effective_top_n * 2)
 
-        # ── 三層疊加評分 ──
+        # ── 四層疊加評分 ──
         scored: List[Tuple[float, Dict[str, Any]]] = []
+        absurdity_debug: Dict[str, float] = {}  # skill_name → absurdity_score（僅用於 logging）
         msg_lower = message.lower()
 
         for skill in self._index:
@@ -511,7 +560,27 @@ class SkillRouter:
                 except Exception:
                     pass
 
-            combined = kw_score + v_score * 1.5 + primal_score * 2.0
+            # ── Layer 4: 荒謬缺口親和度（v12.0）──
+            # 使用者最弱的荒謬維度 × Skill 親和度 = 高分
+            # 效果：系統自然把對話推向使用者最需要發展的方向
+            absurdity_score = 0.0
+            if user_absurdity_radar:
+                skill_affinity = skill.get("absurdity_affinity", {})
+                if skill_affinity:
+                    radar_confidence = user_absurdity_radar.get("confidence", 0.0)
+                    if radar_confidence > 0.1:
+                        for dim, aff in skill_affinity.items():
+                            user_level = user_absurdity_radar.get(dim, 0.5)
+                            gap = 1.0 - user_level  # 越低 = 缺口越大
+                            absurdity_score += aff * gap
+                        # 標準化
+                        absurdity_score = absurdity_score / max(len(skill_affinity), 1)
+                        # 乘以信心（觀察不足時影響小）
+                        absurdity_score *= radar_confidence
+
+            combined = kw_score + v_score * 1.5 + primal_score * 2.0 + absurdity_score * 1.0
+            if absurdity_score > 0:
+                absurdity_debug[skill_name] = absurdity_score
 
             # /command 匹配的絕對優先（不受 usage decay 影響）
             is_command_match = kw_score >= 10.0
@@ -537,14 +606,18 @@ class SkillRouter:
         # Sort by score descending
         scored.sort(key=lambda x: x[0], reverse=True)
 
-        # v11.0 combined score logging（debug 可見 kw + vec 分數）
+        # v12.0 combined score logging（debug 可見 kw + vec + absurdity 分數）
         if scored:
-            top_detail = [
-                f"{s[1].get('name','')}={s[0]:.1f}"
-                f"(kw={s[0]-vector_scores.get(s[1].get('name',''),0)*1.5:.1f}"
-                f"+vec={vector_scores.get(s[1].get('name',''),0):.2f}×1.5)"
-                for s in scored[:8]
-            ]
+            top_detail = []
+            for s in scored[:8]:
+                sname = s[1].get("name", "")
+                ab = absurdity_debug.get(sname, 0.0)
+                ab_part = f"+ab={ab:.2f}" if ab > 0 else ""
+                top_detail.append(
+                    f"{sname}={s[0]:.1f}"
+                    f"(kw={s[0]-vector_scores.get(sname,0)*1.5:.1f}"
+                    f"+vec={vector_scores.get(sname,0):.2f}×1.5{ab_part})"
+                )
             logger.debug(
                 f"[SkillRouter] combined_top8: {', '.join(top_detail)}"
             )

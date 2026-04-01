@@ -23,6 +23,8 @@ memory:
   writes: []
   reads:
     - user-model
+absurdity_affinity:
+  accumulation: 0.5
 description: >
   Finance Pilot（財務導航引擎）— DNA27 核心的外掛模組，
   個人與微型企業的財務行為管理系統。雙帳記帳（個人/公司）、

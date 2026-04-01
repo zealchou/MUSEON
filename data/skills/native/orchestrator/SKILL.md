@@ -31,6 +31,8 @@ memory:
   reads:
     - source: user-model
       field: user_context
+absurdity_affinity:
+  strategic_integration: 0.7
 description: >
   Orchestrator（編排引擎）— DNA27 核心的外掛模組，
   MUSEON 的多 Skill 協作編排與任務分解引擎。當使用者的需求橫跨多個 Skill 時，

@@ -1,9 +1,10 @@
-# Joint Map — 共享可變狀態接頭圖 v1.65
+# Joint Map — 共享可變狀態接頭圖 v1.66
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
 > **更新時機**：改變共享檔案的讀寫者或格式時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
+> **v1.66 (2026-04-02)**：荒謬雷達系統——新增 #75 `data/_system/absurdity_radar/{user}.json`（🟢 per-user 雷達分數，寫入者=absurdity_radar.py+brain.py，讀取者=absurdity_radar.py+brain_prompt_builder.py）；共享狀態 74→75 個。
 > **v1.65 (2026-04-02)**：#47 寫者修正 build_all()；移除不存在的 build_command_routes（確認兩者皆已正確，無需更動 #47 主體）；同步 blast-radius v1.97。
 > **v1.64 (2026-04-01)**：ares 套件更名為 athena——`src/museon/ares/external_bridge.py` → `src/museon/athena/external_bridge.py`、`src/museon/ares/profile_store.py` → `src/museon/athena/profile_store.py`。同步 persistence-contract v1.50、blast-radius v1.96。
 > **v1.63 (2026-04-01)**：.runtime 路徑移除後，共享狀態讀寫路徑簡化（不再有 .runtime/data vs data/ 雙路徑）；所有條目的「寫入者路徑」統一為 MUSEON_HOME/ 下的單一路徑；共享狀態條目數量不變。同步 system-topology v1.76、blast-radius v1.95。
@@ -101,6 +102,7 @@
 | 72 | ANIMA_MC.evolution.stage_history | 🟢 | 1(brain_observation) | 1(growth_stage) | APPEND_ONLY | [→](#72-anima_mcevolutionstage_history) |
 | 73 | _system/mask_states.json | 🟢 | 1(mask_engine) | 1(mask_engine) | 無（短暫，7 天自動清理） | [→](#73-_systemmask_statesjson) |
 | 74 | SignalLite 物件（記憶體） | 🟢 | 1(signal_lite.py) | 3(brain.py + metacognition.py + telegram_pump.py) | 純記憶體，無鎖（不可變計算結果） | [→](#74-signallite-物件記憶體) |
+| 75 | _system/absurdity_radar/{user}.json | 🟢 | 2 | 2 | 原子寫 | [→](#75-absurdity_radarjson) |
 
 > **危險度定義**：🔴 多寫入者+高扇出+格式不一致 | 🟡 多寫入者或高扇出 | 🟢 單寫入者+低扇出
 
@@ -1446,6 +1448,21 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 
 ---
 
+### #75 absurdity_radar/{user}.json
+
+**路徑**：`data/_system/absurdity_radar/{user_id}.json`
+**危險度**：🟢（每個使用者獨立檔案，原子寫入）
+**格式**：JSON — 六大荒謬維度分數 + confidence + updated_at
+
+| 角色 | 模組 |
+|------|------|
+| 寫入者 | `agent/absurdity_radar.py save_radar()` + `agent/brain.py update_radar_from_skill()` |
+| 讀取者 | `agent/absurdity_radar.py load_radar()` + `agent/brain_prompt_builder.py _build_absurdity_radar_context()` |
+
+**備註**：每次 Skill 匹配後漸進更新，Nightly step 32.5 每日衰減。
+
+---
+
 ## 必須同時修改的模組組（不可分批）
 
 > 修改以下任一模組時，**必須**同時檢查並調整同組所有模組。
@@ -1501,6 +1518,7 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-04-02 | v1.66 | 荒謬雷達系統——新增 #75 `data/_system/absurdity_radar/{user}.json`（🟢 per-user 雷達分數，寫入者=absurdity_radar.py+brain.py，讀取者=absurdity_radar.py+brain_prompt_builder.py）；共享狀態 74→75 個 |
 | 2026-04-02 | v1.65 | #47 寫者修正 build_all()；移除不存在的 build_command_routes（確認已正確）；同步 blast-radius v1.97 |
 | 2026-03-25 | v1.46 | L2 Worker + RateLimiter：新增 #44 AsyncTokenBucket singleton（🟢 記憶體，asyncio.Lock）、#45 BrainWorkerManager singleton（🟢 記憶體，asyncio.Lock）；共享狀態 43→45 個 |
 | 2026-03-25 | v1.45 | 訊息佇列持久化：新增 #43 message_queue.db（🟢 危險度，SQLite WAL + threading.Lock，Owner message_queue_store.py，Writer/Reader telegram_pump.py，Init server.py）；共享狀態 42→43 個 |

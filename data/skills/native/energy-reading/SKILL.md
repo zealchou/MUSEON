@@ -1,6 +1,8 @@
 ---
 name: energy-reading
-description: One Muse 核心能量解讀系統。透過八方位（天風水山地雷火澤）的內外能量分析，執行 Step 1→7 完整諮詢流程，產出個人能量報告。融合易經卦象、人類圖閘門、教練對話，將抽象能量轉譯為可行動的微步驟。
+absurdity_affinity:
+  self_awareness: 0.8
+description:One Muse 核心能量解讀系統。透過八方位（天風水山地雷火澤）的內外能量分析，執行 Step 1→7 完整諮詢流程，產出個人能量報告。融合易經卦象、人類圖閘門、教練對話，將抽象能量轉譯為可行動的微步驟。
 type: plugin
 layer: application
 hub: thinking

@@ -43,6 +43,9 @@ memory:
       field: productivity_history
     - source: knowledge-lattice
       field: past_goal_crystals
+absurdity_affinity:
+  direction_clarity: 0.6
+  accumulation: 0.4
 description: >
   Daily Pilot（每日導航引擎）— DNA27 核心的外掛模組，
   融合目標管理、每日任務規劃、情緒支持、進度視覺化與主動提醒的

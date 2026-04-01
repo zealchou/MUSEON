@@ -1,5 +1,7 @@
 ---
 name: onemuse-core
+absurdity_affinity:
+  self_awareness: 0.9
 description: >
   One Muse 核心知識引擎 — MUSEON 所有能量系統的源頭方法論。
   統一管理八方位能量系統、四軸線、64 卦象行為模型、顯化法則、能量擺盪規則、

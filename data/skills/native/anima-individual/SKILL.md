@@ -1,5 +1,7 @@
 ---
 name: anima-individual
+absurdity_affinity:
+  relationship_leverage: 0.9
 description: ANIMA 個體追蹤引擎——戰神系統的人物檔案管理核心。為第三方人物（客戶、供應商、合夥人、員工、私人關係）建立持久化畫像，包含七層鏡像、八大槓桿、互動歷史、關係溫度。
 type: plugin
 layer: application

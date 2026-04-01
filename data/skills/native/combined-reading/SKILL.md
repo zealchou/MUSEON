@@ -1,5 +1,8 @@
 ---
 name: combined-reading
+absurdity_affinity:
+  relationship_leverage: 0.7
+  self_awareness: 0.3
 description: One Muse 合盤系統。比對兩人或多人的能量盤面，分析互動狀態（共振/張力/分歧），提供協作診斷與角色分配建議。支援雙人合盤與團隊合盤（≤20人）。
 type: plugin
 layer: application

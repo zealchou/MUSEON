@@ -1,6 +1,8 @@
 ---
 name: wan-miu-16
-description: 基於 One Muse 四軸線的16型人格分析系統。透過28題測驗或代理評估，判定使用者（或對手/團隊成員）的萬謬人格型態，提供個人成長、團隊配置、關係經營的深度洞見。
+absurdity_affinity:
+  self_awareness: 0.8
+description:基於 One Muse 四軸線的16型人格分析系統。透過28題測驗或代理評估，判定使用者（或對手/團隊成員）的萬謬人格型態，提供個人成長、團隊配置、關係經營的深度洞見。
 type: plugin
 layer: application
 hub: thinking

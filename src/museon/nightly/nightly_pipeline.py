@@ -128,8 +128,7 @@ _FULL_STEPS = [
     "27", "28", "29",  # 持久層衛生：JSONL 輪替 / WAL checkpoint / DataWatchdog  # v1.75: "26" session_cleanup 已刪除，由每小時 cron 涵蓋
     "30",  # 藍圖一致性驗證
     "31",  # v2 context_cache 重建
-    "32",  # Crystal ri_score 每日衰減
-    "33",  # 自動升級 Heuristic（結晶→啟發式規則）
+    "32", "32.5", "33",  # Crystal ri_score 衰減 / 荒謬雷達重算 / Crystal→Heuristic 升級
     "34", "34.5", "34.7",  # Phase 5/8: 人格自省 → Trait 代謝 → 方向性漂移檢查
 ]
 _ORIGIN_STEPS = ["5.8", "6", "7", "8", "16"]
@@ -250,6 +249,7 @@ class NightlyPipeline:
             "31": ("step_31_context_cache_rebuild", self._step_context_cache_rebuild),
             # ── Crystal 生命週期管理 ──
             "32": ("step_32_crystal_decay", self._step_crystal_decay),
+            "32.5": ("step_32.5_absurdity_radar", self._step_absurdity_radar_recalc),
             "33": ("step_33_crystal_promotion", self._step_crystal_promotion),
             # ── Phase 5/8: Persona Evolution ──
             "34": ("persona_reflection", self._step_persona_reflection),
@@ -4495,6 +4495,43 @@ class NightlyPipeline:
             logger.warning(f"[NIGHTLY] CrystalDecay failed: {e}")
             return {"status": "error", "error": str(e)}
 
+    def _step_absurdity_radar_recalc(self) -> Dict:
+        """Step 32.5: 荒謬雷達每日重算.
+
+        根據近 30 天的 Skill 使用頻率和結晶數量，重新校準雷達分數。
+        漸進更新，不突變。
+        """
+        from museon.agent.absurdity_radar import (
+            load_radar, save_radar, ABSURDITY_DIMENSIONS,
+        )
+
+        # 掃描所有使用者的 radar 檔案
+        radar_dir = self._workspace / "_system" / "absurdity_radar"
+        if not radar_dir.exists():
+            return {"recalculated": 0}
+
+        recalculated = 0
+        for f in radar_dir.glob("*.json"):
+            user_id = f.stem
+            try:
+                radar = load_radar(user_id, data_dir=str(self._workspace))
+
+                # 衰減：所有維度緩慢向 0.5 回歸（防止永遠偏高）
+                # 衰減幅度 = 0.02 × (當前值 - 0.5)
+                for dim in ABSURDITY_DIMENSIONS:
+                    current = radar.get(dim, 0.5)
+                    radar[dim] = current - 0.02 * (current - 0.5)
+
+                # 信心衰減：每天 -0.01（鼓勵持續互動）
+                radar["confidence"] = max(0.0, radar.get("confidence", 0.0) - 0.01)
+
+                save_radar(radar, user_id, data_dir=str(self._workspace))
+                recalculated += 1
+            except Exception as e:
+                logger.warning(f"[NIGHTLY] Absurdity radar recalc failed for {user_id}: {e}")
+
+        return {"recalculated": recalculated}
+
     def _step_crystal_promotion(self) -> Dict:
         """Step 33: 自動升級 Heuristic — 高頻結晶提升為啟發式規則。
 
@@ -4576,6 +4613,32 @@ class NightlyPipeline:
                 f"[NIGHTLY] CrystalPromotion: candidates={len(new_candidates)}, "
                 f"promoted={promoted}, total_heuristics={total_heuristics}"
             )
+
+            # ── Crystal Rules 硬上限：最多保留 50 條活躍規則 ──
+            try:
+                rules_path = self._workspace / "_system" / "crystal_rules.json"
+                if rules_path.exists():
+                    data = json.loads(rules_path.read_text(encoding="utf-8"))
+                    rules = data.get("rules", [])
+                    active = [r for r in rules if r.get("status") == "active"]
+                    if len(active) > 50:
+                        # 按 strength 排序，保留 top 50
+                        active.sort(key=lambda r: r.get("strength", 0), reverse=True)
+                        keep_ids = {r.get("rule_id") for r in active[:50]}
+                        pruned = 0
+                        for r in rules:
+                            if r.get("status") == "active" and r.get("rule_id") not in keep_ids:
+                                r["status"] = "expired"
+                                pruned += 1
+                        if pruned > 0:
+                            data["rules"] = [r for r in rules if r.get("status") == "active"]
+                            rules_path.write_text(
+                                json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8"
+                            )
+                            logger.info(f"[NIGHTLY] Crystal rules pruned: {pruned} expired, {len(data['rules'])} remaining")
+            except Exception as e:
+                logger.warning(f"[NIGHTLY] Crystal rules pruning failed: {e}")
+
             return {
                 "status": "ok",
                 "promoted": promoted,

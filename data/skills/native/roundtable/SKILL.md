@@ -33,6 +33,9 @@ memory:
   reads:
     - source: user-model
       field: user_profile
+absurdity_affinity:
+  strategic_integration: 0.6
+  gap_visibility: 0.4
 description: >
   Roundtable（圓桌詰問引擎）— DNA27 核心的外掛模組，
   問題清晰後啟動的多角色交叉詰問系統。MUSEON 擔任主持人，

@@ -23,6 +23,8 @@ memory:
     - knowledge-lattice
   reads:
     - knowledge-lattice
+absurdity_affinity:
+  gap_visibility: 0.9
 description: >
   GAP（Gap Analysis for Prompt-products）AI Agent 生態系缺口分析引擎。
   DNA27 核心的外掛模組，專門掃描 AI Agent / Skill 市場的需求缺口，

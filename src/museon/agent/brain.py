@@ -817,12 +817,22 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         # ★ v10.4 Route B: 傳入 session 內 skill 使用次數（MoE 衰減）
         session_usage = self._skill_usage.get(session_id, {})
         _safety = getattr(routing_signal, 'is_safety_triggered', False) if routing_signal else False
+
+        # ── 荒謬雷達（v12.0）──
+        _absurdity_radar = None
+        try:
+            from museon.agent.absurdity_radar import load_radar
+            _absurdity_radar = load_radar(user_id=ctx.user_id, data_dir=str(self.data_dir))
+        except Exception:
+            pass  # radar 不存在時靜默降級
+
         matched_skills = self.skill_router.match(
             content, top_n=5,
             safety_triggered=_safety,
             is_simple=_is_simple,
             skill_usage=session_usage,
             user_primals=_user_primals or None,
+            user_absurdity_radar=_absurdity_radar,
         )
 
         # Step 3.1b: VectorBridge 語義匹配輔助（靜默失敗）
@@ -1213,6 +1223,19 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                     self._skill_usage[session_id][sk_name] = (
                         self._skill_usage[session_id].get(sk_name, 0) + 1
                     )
+
+        # ── 荒謬雷達更新：Skill 使用後更新對應維度 ──
+        if matched_skills and _absurdity_radar:
+            try:
+                from museon.agent.absurdity_radar import update_radar_from_skill, save_radar
+                _updated_radar = dict(_absurdity_radar)
+                for sk in matched_skills[:3]:  # 只用 top-3 matched skills 更新
+                    sk_affinity = sk.get("absurdity_affinity", {})
+                    if sk_affinity:
+                        _updated_radar = update_radar_from_skill(_updated_radar, sk_affinity)
+                save_radar(_updated_radar, user_id=ctx.user_id, data_dir=str(self.data_dir))
+            except Exception as e:
+                logger.debug(f"[AbsurdityRadar] update failed: {e}")
 
         # ── Step 8.1: 演化數據輸入 — Synapse / ToolMuscle / Footprint ──
         _report("🧬 演化數據", "Synapse + ToolMuscle + Footprint...")

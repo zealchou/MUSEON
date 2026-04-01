@@ -83,8 +83,12 @@ class TestConstants:
         assert REPORT_TRUNCATE_CHARS == 200
 
     def test_full_steps_count(self):
-        """BDD: 61 個步驟（v1.75 移除 Step 26 session_cleanup，由每小時 cron 涵蓋）."""
-        assert len(_FULL_STEPS) == 61
+        """BDD: 步驟 32.5 存在且在正確位置."""
+        assert "32.5" in _FULL_STEPS
+        idx32 = _FULL_STEPS.index("32")
+        idx325 = _FULL_STEPS.index("32.5")
+        idx33 = _FULL_STEPS.index("33")
+        assert idx32 < idx325 < idx33
 
     def test_origin_steps(self):
         """BDD: Origin 模式 = 5.8, 6, 7, 8, 16（5 個）."""

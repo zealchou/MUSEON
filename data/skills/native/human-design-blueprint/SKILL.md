@@ -29,6 +29,8 @@ memory:
   reads:
     - source: user-model
       field: user_context
+absurdity_affinity:
+  self_awareness: 0.7
 description: >
   Human Design Blueprint（人類圖靈魂藍圖分析引擎）— DNA27 核心的外掛模組，
   MUSEON 的完整人類圖解讀與多系統交叉分析引擎。

@@ -26,6 +26,10 @@ memory:
   reads:
     - source: knowledge-lattice
       field: related_crystals
+absurdity_affinity:
+  direction_clarity: 0.7
+  gap_visibility: 0.5
+  strategic_integration: 0.6
 description: >
   X-Model（vNext）通用破框解方引擎。DNA27 核心的外掛模組，用跨領域槓桿視角生成多條可行路徑，
   並把解法轉成「可承擔的小實驗」。不限商業場景——可用於人生/關係/健康/職涯/創作等任何領域。
@@ -43,6 +47,32 @@ description: >
 ---
 
 # X-Model：通用破框解方引擎
+
+## 底層邏輯：人類的六大荒謬
+
+X-Model 的存在不只是「破框工具」——它的底層是在治療人類決策的六大系統性盲區。
+用 One Muse 的邏輯來看，MUSEON 就是在解決人類的這六大荒謬：
+
+| # | 荒謬 | 本質 | X-Model 對應 |
+|---|------|------|-------------|
+| 1 | 不知道自己是誰 | 現況不清晰，無法準確描述自己的狀態 | M1：情境與狀態釐清 |
+| 2 | 沒有明確的方向跟目標 | 漫無目的或目標頻繁切換 | M2：目標與邊界定義 |
+| 3 | 不掌握 GAP | 不清楚目標與現況的落差，永遠找不到真正的問題 | M1→M2 的差距分析 |
+| 4 | 未盤點累積 | 對自己過去的累積沒有盤點，也沒在刻意累積 | M3：槓桿掃描（自身資源維度） |
+| 5 | 不懂人脈槓桿 | 不清楚累積可以槓桿人脈，不知如何經營人脈、識別誰是人脈（有商務八大槓桿的商務人士） | M3→M4：槓桿掃描 + 交換分析 |
+| 6 | 缺整合佈局 | 沒有整合外部資源與槓桿的思維，缺乏佈局能力，無法生出槓桿策略去解決看到的 GAP | M3–M6 全流程整合 |
+
+**MUSEON 的對應**：這六大荒謬不只靠 X-Model 單一 Skill 解決，而是整個 MUSEON 生態系的協作：
+- 荒謬 1 → energy-reading / wan-miu-16 / human-design-blueprint（自我認識）
+- 荒謬 2 → pdeif / daily-pilot / dharma（方向收斂）
+- 荒謬 3 → xmodel + business-12（缺口分析）
+- 荒謬 4 → knowledge-lattice / meta-learning（累積盤點）
+- 荒謬 5 → biz-collab / athena / anima-individual（人脈槓桿）+ 商務八大槓桿框架
+- 荒謬 6 → master-strategy / orchestrator / xmodel 全流程（整合佈局）
+
+X-Model 的 Manifest 六層推演（M1→M6）本身就是在逐層破解這六大荒謬。
+
+> ⚠️ 對外語境規則：「六大荒謬」為 One Muse 方法論的內部術語。對使用者/客戶互動時，**必須使用「六大盲區」「決策盲點」等中性詞彙**，絕對不使用「荒謬」一詞——沒上過課的人會覺得被冒犯。
 
 ## 外掛合約
 

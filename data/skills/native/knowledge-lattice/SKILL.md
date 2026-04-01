@@ -79,6 +79,8 @@ memory:
   reads:
     - source: knowledge-lattice
       field: existing_crystals
+absurdity_affinity:
+  accumulation: 0.9
 description: >
   Knowledge Lattice（知識晶格）— DNA27 核心的外掛模組，
   MUSEON 的結構化知識累積與再結晶引擎。將對話中驗證過的洞見、失敗教訓、成功模式，

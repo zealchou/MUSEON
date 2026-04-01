@@ -25,6 +25,8 @@ memory:
   writes: []
   reads:
     - user-model
+absurdity_affinity:
+  gap_visibility: 0.5
 description: >
   Ad Pilot（付費廣告成效診斷引擎）— DNA27 核心的外掛模組，
   付費廣告（目前以 Meta 為主）的成效診斷、優化策略與 A/B 測試框架。

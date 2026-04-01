@@ -52,6 +52,8 @@ memory:
   reads:
     - source: knowledge-lattice
       field: workflow_crystals
+absurdity_affinity:
+  accumulation: 0.7
 description: >
   Workflow Evolution Engine（WEE）— 六憶逆熵演化系統。DNA27 核心的外掛模組，
   融合六層記憶系統、三環教練迴路、四維熟練度追蹤與逆熵破框機制，管理工作流完整生命週期。

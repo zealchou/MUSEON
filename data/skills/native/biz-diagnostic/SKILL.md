@@ -1,5 +1,7 @@
 ---
 name: biz-diagnostic
+absurdity_affinity:
+  gap_visibility: 0.8
 description: >
   商業模式健檢與風險判讀引擎 — DNA27 核心的外掛模組。
   融合 SSA 商模十二力診斷框架、系統姿態判讀、因果鏈分析，

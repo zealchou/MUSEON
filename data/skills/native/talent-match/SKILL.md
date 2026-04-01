@@ -51,6 +51,8 @@ memory:
       field: eight_directions_definitions
     - source: knowledge-lattice
       field: past_hiring_patterns
+absurdity_affinity:
+  relationship_leverage: 0.7
 description: >
   Talent Match（智慧人才媒合引擎）— DNA27 核心的外掛模組，
   支援 HR 與主管進行職缺評估、履歷對照、面談設計、人格分析、

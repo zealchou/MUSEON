@@ -1,10 +1,11 @@
-# Blast Radius — 模組影響半徑表 v1.97
+# Blast Radius — 模組影響半徑表 v1.98
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節、`docs/operational-contract.md`（操作契約表）提供外部操作預期失敗
+> **v1.98 (2026-04-02)**：荒謬雷達系統——skill_router.py 新增 Layer 4 (absurdity gap affinity)，扇入不變；nightly_pipeline.py 新增步驟 32.5 (absurdity_radar_recalc)；brain.py 新增 absurdity_radar load/update/save 呼叫（try/except 包裹，不影響扇入）；brain_prompt_builder.py 新增 _build_absurdity_radar_context() 注入到 persona zone；新增共享狀態 #75 data/_system/absurdity_radar/{user}.json。
 > **v1.97 (2026-04-02)**：新增 core/message_constants.py（🟡 黃區，扇入=3：brain.py + signal_lite.py + metacognition.py，扇出=0，純常數源）；brain.py 扇出 +1（新增 message_constants）；signal_lite.py 扇出 +1（新增 message_constants）；metacognition.py 扇出 +1（新增 message_constants）；nightly_pipeline.py Step 31 子步驟描述確認 build_all()；移除不存在的 build_command_routes（skill_install_worker 版本紀錄已正確）；同步 joint-map v1.65。
 > **v1.96 (2026-04-01)**：ares 套件更名為 athena——破損 import 計數從 2 降為 0（brain_fast.py 已刪除，ares→athena imports 已修復）；健康快照更新。同步 joint-map v1.64、persistence-contract v1.50。
 > **v1.95 (2026-04-01)**：.runtime 廢除影響 15 個檔案（4 shell + 8 Python + 3 config），所有 .runtime 路徑判斷已移除；brain_dispatch.py 修復 @staticmethod 衝突；vector_bridge.py PEP 604 語法修復。同步 system-topology v1.76。
@@ -947,6 +948,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-04-02 | v1.98 | 荒謬雷達系統——skill_router.py 新增 Layer 4 (absurdity gap affinity)，扇入不變；nightly_pipeline.py 新增步驟 32.5 (absurdity_radar_recalc)；brain.py 新增 absurdity_radar load/update/save 呼叫（try/except 包裹，不影響扇入）；brain_prompt_builder.py 新增 _build_absurdity_radar_context() 注入到 persona zone；新增共享狀態 #75 data/_system/absurdity_radar/{user}.json；同步 joint-map v1.66 |
 | 2026-04-02 | v1.97 | 新增 core/message_constants.py（🟡 黃區，扇入=3：brain.py + signal_lite.py + metacognition.py，扇出=0，純常數源）；brain.py 扇出 32+→33+；signal_lite.py 扇出 無→1；新增 metacognition.py 黃區條目（扇出+1）；nightly_pipeline Step 31 子步驟 build_all() 確認；清理 electron/doctor 殘留（條目不存在，略過）；同步 joint-map v1.65 |
 | 2026-04-01 | v1.93 | Phase A-C 死碼清理 + signal_lite 遷移——從綠區移除 brain_p3_fusion.py（P3 融合層清除）、brain_observer.py（L4 觀察者刪除）2 個條目；從 vector_bridge.py 扇入列表移除 reflex_router（退役，fan_in 9→8）；更新 brain.py 扇出描述（移除 reflex_router/safety_clusters 依賴，移除 P3 方法群）；更新 server.py 扇出（移除 DNA27 Qdrant 索引，扇出 50+→49+）；新增 signal_lite.py 到綠區（🟢 扇入=1 from brain.py，扇出=無，80 行）。同步 system-topology v1.74 |
 | 2026-03-31 | v1.90 | Persona Evolution 系統——新增 trait_engine.py（🟡 扇入=2）、nightly_reflection.py（🟡 扇入=1，扇出=4）、mask_engine.py（🟡 扇入=2）、growth_stage.py（🟢 扇入=2，純計算）、dissent_engine.py（🟢 扇入=1，無狀態）、momentum_brake.py（🟢 扇入=2，純計算）；新增共享狀態 #70 _system/mask_states.json；黃區 62→65、綠區 171→174 |

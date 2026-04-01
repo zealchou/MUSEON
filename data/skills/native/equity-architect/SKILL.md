@@ -25,6 +25,9 @@ memory:
   writes: []
   reads:
     - user-model
+absurdity_affinity:
+  strategic_integration: 0.5
+  relationship_leverage: 0.4
 description: >
   Equity Architect（合夥股權架構引擎）— DNA27 核心的外掛模組，
   合夥判斷、股權規劃（多方案）與股東協議草擬的結構化協作系統。
