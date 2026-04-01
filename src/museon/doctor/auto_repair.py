@@ -613,14 +613,30 @@ class AutoRepair:
             # 寫入修復日誌
             guardian_dir = self.data_dir / "guardian"
             guardian_dir.mkdir(parents=True, exist_ok=True)
+            action = "restore_anima"
             self._append_jsonl(guardian_dir / "repair_log.jsonl", {
                 "timestamp": datetime.now(timezone.utc).isoformat(),
-                "action": "restore_anima",
+                "action": action,
                 "status": "repaired",
                 "source": str(bak_path),
                 "target": str(anima_path),
                 "message": "ANIMA_MC 已從備份還原",
             })
+
+            # 重大修復事件 → 沉積 soul ring 候選
+            try:
+                ring_entry = {
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "ring_type": "resilience",
+                    "content": f"系統身份資料損壞，已從備份成功還原。修復動作：{action}",
+                    "metadata": {"repair_action": "restore_anima", "outcome": "success"},
+                }
+                pending_path = self.data_dir / "anima" / "pending_rings.jsonl"
+                pending_path.parent.mkdir(parents=True, exist_ok=True)
+                with open(pending_path, "a", encoding="utf-8") as f:
+                    f.write(json.dumps(ring_entry, ensure_ascii=False) + "\n")
+            except Exception:
+                pass
 
             return RepairResult(
                 action="restore_anima",
@@ -685,6 +701,21 @@ class AutoRepair:
                 status=RepairStatus.FAILED,
                 message=f"備份失敗：{e}",
             )
+
+        # 定期備份成功 → 沉積 soul ring 候選
+        try:
+            ring_entry = {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "ring_type": "maintenance",
+                "content": f"系統身份資料定期備份完成。備份至 {bak_path.name}",
+                "metadata": {"repair_action": "backup_anima", "outcome": "success"},
+            }
+            pending_path = self.data_dir / "anima" / "pending_rings.jsonl"
+            pending_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(pending_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(ring_entry, ensure_ascii=False) + "\n")
+        except Exception:
+            pass
 
         return RepairResult(
             action="backup_anima",

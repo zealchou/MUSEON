@@ -3940,6 +3940,64 @@ class NightlyPipeline:
             except Exception as e:
                 logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
 
+        # ── 修復→認知：將今日修復事件摘要寫入 EvalEngine 可讀的路徑 ──
+        try:
+            import json
+            from datetime import date
+            repair_log_path = self._workspace / "guardian" / "repair_log.jsonl"
+            if repair_log_path.exists():
+                today_str = date.today().isoformat()
+                total_repairs = 0
+                success_count = 0
+                failed_count = 0
+                details = []
+                with open(repair_log_path, encoding="utf-8") as _f:
+                    for _line in _f:
+                        _line = _line.strip()
+                        if not _line:
+                            continue
+                        try:
+                            _entry = json.loads(_line)
+                        except json.JSONDecodeError:
+                            continue
+                        # 只統計今日事件（依 timestamp 欄位，格式 YYYY-MM-DD...）
+                        _ts = _entry.get("timestamp", "") or _entry.get("date", "")
+                        if not str(_ts).startswith(today_str):
+                            continue
+                        total_repairs += 1
+                        _repair_id = _entry.get("repair_id", _entry.get("id", "unknown"))
+                        _status = str(_entry.get("status", "")).upper()
+                        if _status in ("OK", "SUCCESS", "DONE", "FIXED"):
+                            success_count += 1
+                            details.append(f"{_repair_id}: OK")
+                        else:
+                            failed_count += 1
+                            details.append(f"{_repair_id}: FAILED")
+
+                if total_repairs > 0:
+                    _success_rate = round(success_count / total_repairs, 2)
+                    _eval_dir = self._workspace / "eval"
+                    _eval_dir.mkdir(parents=True, exist_ok=True)
+                    _quality_path = _eval_dir / "repair_quality.json"
+                    _payload = {
+                        "date": today_str,
+                        "total_repairs": total_repairs,
+                        "success": success_count,
+                        "failed": failed_count,
+                        "success_rate": _success_rate,
+                        "details": details,
+                    }
+                    with open(_quality_path, "w", encoding="utf-8") as _out:
+                        json.dump(_payload, _out, ensure_ascii=False, indent=2)
+                    logger.info(
+                        f"[NIGHTLY] 修復品質摘要已寫入 eval/repair_quality.json — "
+                        f"共 {total_repairs} 筆，成功率 {_success_rate:.0%}"
+                    )
+                else:
+                    logger.debug("[NIGHTLY] 今日無修復事件，跳過 repair_quality 寫入")
+        except Exception as _repair_exc:
+            logger.warning(f"[NIGHTLY] 修復→認知弱通連線失敗（不影響主流程）：{_repair_exc}")
+
         return {
             "total_score": result.total_score,
             "vitality_modifier": result.vitality_modifier,
@@ -4622,6 +4680,37 @@ class NightlyPipeline:
                 kernel_guard = KernelGuard(data_dir=self._workspace)
             except Exception:
                 pass
+
+            # ── 學習→意識：將 KnowledgeLattice Top-RI 結晶注入反思上下文 ──
+            try:
+                import sqlite3
+                _crystal_db = self._workspace / "lattice" / "crystal.db"
+                if _crystal_db.exists():
+                    _conn = sqlite3.connect(str(_crystal_db))
+                    try:
+                        _cursor = _conn.execute(
+                            "SELECT id, crystal_type, g1_summary, ri_score "
+                            "FROM crystals WHERE status='active' "
+                            "ORDER BY ri_score DESC LIMIT 5"
+                        )
+                        _rows = _cursor.fetchall()
+                    finally:
+                        _conn.close()
+                    if _rows:
+                        _crystal_lines = ["\n\n【重要知識結晶（Top RI）】"]
+                        for _row in _rows:
+                            _cid, _ctype, _summary, _ri = _row
+                            _ri_val = float(_ri) if _ri is not None else 0.0
+                            _title = (_summary or "").strip()[:60]
+                            _crystal_lines.append(f"- [{_ctype}] {_title} (RI: {_ri_val:.2f})")
+                        daily_summary += "\n".join(_crystal_lines)
+                        logger.info(
+                            f"[NIGHTLY] 已將 {len(_rows)} 條高 RI 結晶注入 NightlyReflection 上下文"
+                        )
+                    else:
+                        logger.debug("[NIGHTLY] crystal.db 無 active 結晶，跳過注入")
+            except Exception as _crystal_exc:
+                logger.warning(f"[NIGHTLY] 學習→意識弱通連線失敗（不影響主流程）：{_crystal_exc}")
 
             result = engine.run(
                 anima_mc=anima_mc,

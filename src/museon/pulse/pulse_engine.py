@@ -2037,6 +2037,28 @@ class PulseEngine:
         except Exception as e:
             logger.error(f"Write observation to PULSE.md failed: {e}")
 
+        # 意識→察覺橋接：負面觀察寫入 pulse_alerts.jsonl 供 Governor/MuseOff 巡邏讀取
+        try:
+            _NEGATIVE_KEYWORDS = ["反覆", "持續", "一直", "退化", "失敗", "異常", "惡化"]
+            matched = [kw for kw in _NEGATIVE_KEYWORDS if kw in observation]
+            if matched and self._data_dir:
+                alert_path = self._data_dir / "_system" / "pulse_alerts.jsonl"
+                alert_path.parent.mkdir(parents=True, exist_ok=True)
+                alert = {
+                    "timestamp": datetime.now().isoformat(),
+                    "source": "pulse_observation",
+                    "keywords_matched": matched,
+                    "excerpt": observation[:300],
+                }
+                with open(alert_path, "a", encoding="utf-8") as f:
+                    f.write(json.dumps(alert, ensure_ascii=False) + "\n")
+                logger.debug(
+                    "[PulseEngine] 負面觀察已寫入 pulse_alerts.jsonl，命中關鍵字: %s",
+                    matched,
+                )
+        except Exception:
+            pass  # 橋接失敗不影響主流程
+
     # ── PULSE.md 探索佇列管理 ──
 
     def _mark_pulse_topic_done(self, topic: str) -> None:

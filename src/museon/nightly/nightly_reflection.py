@@ -359,14 +359,56 @@ class NightlyReflectionEngine:
                             f"- [{time_part}] [Surgery] {title} → {outcome}"
                         )
 
-            # 3. 有修復事件才追加區塊
+            # 3. 讀取 pending_rings.jsonl，過濾今天的條目
+            has_resilience_ring = False
+            pending_rings_path = Path(__file__).parents[4] / "data" / "anima" / "pending_rings.jsonl"
+            if pending_rings_path.exists():
+                surviving_lines: List[str] = []
+                with pending_rings_path.open("r", encoding="utf-8") as f:
+                    for raw_line in f:
+                        raw_line = raw_line.strip()
+                        if not raw_line:
+                            continue
+                        try:
+                            ring = json.loads(raw_line)
+                            ts = ring.get("timestamp", "")
+                            if ts.startswith(today_str):
+                                # 今天的 ring → 加入 repair_lines，不保留
+                                ring_type = ring.get("ring_type", "unknown")
+                                content = ring.get("content", "")
+                                time_part = ts[11:16] if len(ts) >= 16 else ts
+                                repair_lines.append(
+                                    f"- [{time_part}] [PendingRing/{ring_type}] {content}"
+                                )
+                                if ring_type == "resilience":
+                                    has_resilience_ring = True
+                            else:
+                                # 非今天的 ring → 保留（留給未來的 Nightly）
+                                surviving_lines.append(raw_line)
+                        except (json.JSONDecodeError, KeyError):
+                            continue
+                # 清空今天已處理的條目，保留其餘條目
+                with pending_rings_path.open("w", encoding="utf-8") as f:
+                    for line in surviving_lines:
+                        f.write(line + "\n")
+
+            # 4. 有修復事件才追加區塊
             if repair_lines:
+                resilience_emphasis = ""
+                if has_resilience_ring:
+                    resilience_emphasis = (
+                        "\n\n⚠️ 重要提示：今天有重大修復事件涉及身份/認同層（ANIMA_MC 還原）。"
+                        "請在反思中特別考慮這對自我認同的影響——"
+                        "系統在面對身份損壞時如何復原？這次還原意味著什麼？"
+                        "對 P5_autonomy（自主性）和 P1_warmth（溫暖度）是否有影響？"
+                    )
                 repair_block = (
                     "\n\n## 今日修復事件\n"
                     "以下是今天系統自我修復的記錄，請在反思中考慮：\n"
                     + "\n".join(repair_lines)
                     + "\n\n請反思：這些修復事件揭示了什麼系統弱點？"
                     "有沒有重複出現的問題？如何預防？"
+                    + resilience_emphasis
                 )
                 user_prompt += repair_block
 

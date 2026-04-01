@@ -23,7 +23,10 @@ Phase 3b — 2026-03-03
 
 from __future__ import annotations
 
+import json
 import logging
+from datetime import datetime
+from pathlib import Path
 from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
@@ -172,3 +175,49 @@ class GovernanceGrowthDriver:
                 self._tracker.grow("kan", 2, "治理: 系統共振回歸穩定")
         except Exception as e:
             logger.debug(f"[ANIMA_BRIDGE] health check failed (degraded): {e}")
+
+    def on_health_tier_changed(self, old_tier: str, new_tier: str) -> None:
+        """健康等級轉變時沉積靈魂年輪.
+
+        AnimaTracker 目前不直接暴露 depositor，
+        因此將轉變記錄寫入 data/anima/governance_transitions.jsonl，
+        供 NightlyReflection 讀取作為反思輸入。
+        """
+        if not self._tracker:
+            return
+        try:
+            description = f"系統健康轉變：{old_tier} → {new_tier}"
+            # 嘗試透過 tracker 的 depositor 沉積 soul ring（若未來實作）
+            if hasattr(self._tracker, "_depositor") and self._tracker._depositor:
+                self._tracker._depositor.deposit(
+                    ring_type="governance_transition",
+                    content=description,
+                    metadata={"old_tier": old_tier, "new_tier": new_tier},
+                )
+                logger.info(
+                    "[AnimaBridge] 健康轉變已沉積 soul ring: %s → %s",
+                    old_tier,
+                    new_tier,
+                )
+                return
+
+            # Fallback：寫入 JSONL 檔案讓 NightlyReflection 可讀取
+            data_root = Path(__file__).parent.parent.parent.parent / "data"
+            transitions_path = data_root / "anima" / "governance_transitions.jsonl"
+            transitions_path.parent.mkdir(parents=True, exist_ok=True)
+            record = {
+                "timestamp": datetime.now().isoformat(),
+                "ring_type": "governance_transition",
+                "content": description,
+                "old_tier": old_tier,
+                "new_tier": new_tier,
+            }
+            with open(transitions_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(record, ensure_ascii=False) + "\n")
+            logger.info(
+                "[AnimaBridge] 健康轉變已記錄至 governance_transitions.jsonl: %s → %s",
+                old_tier,
+                new_tier,
+            )
+        except Exception as e:
+            logger.debug("[AnimaBridge] soul ring 沉積失敗: %s", e)

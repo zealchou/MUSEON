@@ -670,6 +670,12 @@ class Governor:
                                 f"{self._prev_health_tier.value} → "
                                 f"{current_tier.value}"
                             )
+                            # Phase 3d+: 察覺→認同橋接 — 觸發 soul ring 沉積
+                            if self._growth_driver:
+                                self._growth_driver.on_health_tier_changed(
+                                    self._prev_health_tier.value,
+                                    current_tier.value,
+                                )
 
                         # 警覺信號
                         if current_tier == HealthTier.CRITICAL:
