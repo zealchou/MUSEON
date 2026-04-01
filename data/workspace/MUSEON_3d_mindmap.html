@@ -319,6 +319,8 @@ import { TrackballControls } from 'three/addons/controls/TrackballControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
+console.log('[MUSEON 3D] Three.js loaded OK, version:', THREE.REVISION);
+
 // ═══════════════════════════════════════
 //  SYNC META — 拓撲同步狀態
 // ═══════════════════════════════════════
@@ -437,7 +439,7 @@ const nodes = [
   {id:"eval-engine",label:"Eval Engine",zh:"Q-Score",group:"agent",r:1.0,p:"brain"},
   {id:"fact-correction",label:"Fact Correction",zh:"事實覆寫引擎",group:"agent",r:0.9,p:"brain"},
   {id:"flywheel-coordinator",label:"Flywheel Coordinator",zh:"飛輪流動協調",group:"agent",r:0.9,p:"brain"},
-  {id:"growth-stage-computer",label:"Growth Stage Computer",zh:"Kegan 認知成熟度計算",group:"agent",r:0.9,p:"brain",desc:"Kegan 認知成熟度計算（ABSORB→TRANSCEND），取代硬編碼 "adult""},
+  {id:"growth-stage-computer",label:"Growth Stage Computer",zh:"Kegan 認知成熟度計算",group:"agent",r:0.9,p:"brain",desc:"Kegan 認知成熟度計算（ABSORB→TRANSCEND），取代硬編碼 adult"},
   {id:"intuition",label:"Intuition",zh:"五層直覺",group:"agent",r:0.9,p:"brain"},
   {id:"investment-masters",label:"Investment Masters",zh:"投資軍師團",group:"agent",r:0.9,p:"brain",desc:"投資軍師團（六位大師模型會診）"},
   {id:"knowledge-lattice",label:"Knowledge Lattice",zh:"知識晶格",group:"agent",r:1.1,p:"brain"},
