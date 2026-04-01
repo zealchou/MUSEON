@@ -415,7 +415,6 @@ const nodes = [
   {id:"telegram-pump",label:"Telegram Pump",zh:"Telegram 訊息泵",group:"channel",r:1.4,desc:"Telegram 訊息泵（收訊→Brain→驗證→發送）"},
   {id:"verified-user",label:"Verified User",zh:"動態配對使用者",group:"channel",r:1.2},
   {id:"zeal",label:"Zeal (Owner)",zh:"主人",group:"channel",r:2.0},
-  {id:"~~`line`~~",label:"~~LINE~~",zh:"~~LINE@ 通道",group:"channel",r:1.0,desc:"~~LINE@ 通道（已刪除 v1.59）~~"},
   // ── agent ──
   {id:"brain",label:"Brain-Fast (L1)",zh:"L1 接待層",group:"agent",r:2.8,hub:1,desc:"L1 接待層（Sonnet + escalation JSON，簡單自答/複雜派 L2）"},
   {id:"adaptive-decay",label:"Adaptive Decay",zh:"ACT-R 式統一衰減引擎",group:"agent",r:0.8,p:"brain",desc:"ACT-R 式統一衰減引擎（B_i = ln(Σt^{-d}) + β_i）"},
@@ -465,11 +464,6 @@ const nodes = [
   {id:"thinker",label:"L2 Thinker",zh:"思考者 subagent：讀 museon-persona.md → 分析決策 → spawn L3 工人",group:"agent",r:1.0,p:"brain",desc:"思考者 subagent：讀 museon-persona.md → 分析決策 → spawn L3 工人（model: sonnet, run_in_background）"},
   {id:"trait-engine",label:"Trait Engine",zh:"10 維度特質代謝引擎，從互動計算特質 delta",group:"agent",r:1.0,p:"brain",desc:"10 維度特質代謝引擎，從互動計算特質 delta（C-trait 即時更新）"},
   {id:"worker",label:"L3 Worker",zh:"工人 subagent：執行 MCP 工具呼叫後銷毀",group:"agent",r:0.8,p:"brain",desc:"工人 subagent：執行 MCP 工具呼叫後銷毀（model: haiku, run_in_background）"},
-  {id:"~~`brain-observer`~~",label:"~~Brain-Observer (L4)~~",zh:"~~L4 觀察者",group:"agent",r:1.0,desc:"~~L4 觀察者（已刪除 v1.74，功能整合至 L4 觀察者 Nightly Workflow）~~"},
-  {id:"~~`dna27`~~",label:"~~DNA27~~",zh:"~~27 反射叢集",group:"agent",r:1.0,desc:"~~27 反射叢集（已刪除 v1.59）~~"},
-  {id:"~~`epigenetic-router`~~",label:"~~Epigenetic Router~~",zh:"~~表觀遺傳路由器",group:"agent",r:1.0,desc:"~~表觀遺傳路由器（已刪除 v1.59）~~"},
-  {id:"~~`proactive-predictor`~~",label:"~~Proactive Predictor~~",zh:"~~需求預判引擎",group:"agent",r:1.0,desc:"~~需求預判引擎（已刪除 v1.59）~~"},
-  {id:"~~`reflex-router`~~",label:"~~Reflex Router~~",zh:"~~反射路由",group:"agent",r:1.0,desc:"~~反射路由（已退役 v1.74，路由功能遷移至 signal_lite）~~"},
   // ── pulse ──
   {id:"pulse",label:"Pulse Engine",zh:"VITA 生命力",group:"pulse",r:2.8,hub:1},
   {id:"anima-changelog",label:"Anima Changelog",zh:"ANIMA_USER 差分版本追蹤",group:"pulse",r:0.8,p:"pulse",desc:"ANIMA_USER 差分版本追蹤（append-only JSONL）"},
@@ -483,8 +477,6 @@ const nodes = [
   {id:"proactive-dispatcher",label:"Proactive Dispatcher",zh:"推播大總管",group:"pulse",r:1.1,p:"pulse",desc:"推播大總管（統一攔截推播、24hr 日誌、語意去重、分級）"},
   {id:"pulse-db",label:"Pulse DB",zh:"脈搏資料庫",group:"pulse",r:0.8,p:"pulse"},
   {id:"silent-digestion",label:"Silent Digestion",zh:"靜默消化",group:"pulse",r:1.0,p:"pulse"},
-  {id:"~~`group-session-proactive`~~",label:"~~Group Session Proactive~~",zh:"~~群組後主動追問",group:"pulse",r:1.0,desc:"~~群組後主動追問（已刪除 v1.59）~~"},
-  {id:"~~`push-budget`~~",label:"~~Push Budget~~",zh:"~~全局推送預算管理器",group:"pulse",r:1.0,p:"~~pulse~~",desc:"~~全局推送預算管理器（限額+語意去重+持久化）~~"},
   // ── gov ──
   {id:"governance",label:"Governance",zh:"三焦式治理",group:"gov",r:2.8,hub:1},
   {id:"authorization",label:"Authorization",zh:"配對碼 + 工具授權 + 分級策略",group:"gov",r:1.0,p:"governance"},
@@ -502,7 +494,6 @@ const nodes = [
   {id:"service-health",label:"Service Health",zh:"服務監控",group:"gov",r:1.0,p:"governance"},
   {id:"skill-scanner",label:"Skill Scanner",zh:"技能掃描",group:"gov",r:0.8,p:"governance"},
   {id:"telegram-guard",label:"TG Guard",zh:"Polling 守衛",group:"gov",r:0.8,p:"governance"},
-  {id:"~~`cognitive-receipt`~~",label:"~~Cognitive Receipt~~",zh:"~~認知收據格式定義",group:"gov",r:1.0,desc:"~~認知收據格式定義（已刪除 v1.59）~~"},
   // ── doctor ──
   {id:"doctor",label:"Doctor",zh:"自我診斷修復",group:"doctor",r:2.8,hub:1},
   {id:"auto-repair",label:"Auto Repair",zh:"自動修復",group:"doctor",r:1.0,p:"doctor"},
@@ -650,8 +641,6 @@ const nodes = [
   {id:"insight-extractor",label:"Insight Extractor",zh:"洞見萃取引擎",group:"learning",r:1.2,hub:1,desc:"洞見萃取引擎（晨報+探索統一萃取）"},
   // ── billing ──
   {id:"skill-counter",label:"Skill Counter",zh:"Skill 調用計數器",group:"billing",r:1.0,hub:1,desc:"Skill 調用計數器（月度檔案）"},
-  // ── learning ──
-  {id:"~~`strategy-accumulator`~~",label:"~~Strategy Accumulator~~",zh:"~~策略成熟度累積器",group:"learning",r:1.0,desc:"~~策略成熟度累積器（已刪除 v1.59，功能由 insight-extractor 整合）~~"},
 ];
 
 const links = [
@@ -904,14 +893,6 @@ const links = [
   {source:"worker",target:"telegram",label:"L3 透過 MCP 工具回覆 Telegram 訊息",type:"internal"},
   {source:"workflow-brand-consulting",target:"brand-builder",label:"工作流→品牌建構",type:"internal"},
   {source:"workflow-brand-consulting",target:"brand-discovery",label:"工作流→訪談",type:"internal"},
-  {source:"~~`brain`~~",target:"~~`dna27`~~",label:"~~載入反射（dna27 已刪除 v1.59）~~",type:"internal"},
-  {source:"~~`footprint`~~",target:"~~`cognitive-receipt`~~",label:"~~認知追蹤格式定義（已刪除 v1.59）~~",type:"internal"},
-  {source:"~~`governance`~~",target:"~~`cognitive-receipt`~~",label:"~~認知收據（已刪除 v1.59）~~",type:"internal"},
-  {source:"~~`insight-extractor`~~",target:"~~`strategy-accumulator`~~",label:"~~洞見成熟度升級（strategy-accumulator 已刪除 v1.59）~~",type:"internal"},
-  {source:"~~`proactive-bridge`~~",target:"~~`push-budget`~~",label:"~~推送預算檢查+記錄~~ ← 已刪除 v1.72",type:"internal"},
-  {source:"~~`pulse-engine`~~",target:"~~`push-budget`~~",label:"~~推送預算檢查+記錄~~ ← 已刪除 v1.72",type:"internal"},
-  {source:"~~`pulse`~~",target:"~~`group-session-proactive`~~",label:"~~群組追問（已刪除 v1.59）~~",type:"internal"},
-  {source:"~~`push-budget`~~",target:"~~`pulse-db`~~",label:"~~push_log 表持久化~~ ← 已刪除 v1.72",type:"internal"},
   // ── cross ──
   {source:"anima-individual",target:"combined-reading",label:"合盤能量比對",type:"cross"},
   {source:"anima-individual",target:"energy-reading",label:"八方位能量數據",type:"cross"},
@@ -1195,16 +1176,6 @@ const links = [
   {source:"wee",target:"skills-registry",label:"演化追蹤",type:"cross"},
   {source:"wee",target:"workflow-state-db",label:"wee_engine.py:23-24 頂層硬 import workflow.models + workflow_engine",type:"cross"},
   {source:"wee",target:"xmodel",label:"破框解方",type:"cross"},
-  {source:"~~`dna27`~~",target:"~~`c15`~~",label:"~~敘事張力（dna27 已刪除 v1.59）~~",type:"cross"},
-  {source:"~~`dna27`~~",target:"~~`query-clarity`~~",label:"~~問題品質守門（dna27 已刪除 v1.59）~~",type:"cross"},
-  {source:"~~`drift-detector`~~",target:"~~`memory`~~",label:"~~覺察日誌~~ ❌ **幽靈連線 v1.43 移除**：drift_detector.py 零 cross import，純 dataclass 邏輯",type:"cross"},
-  {source:"~~`group-session-proactive`~~",target:"~~`event-bus`~~",label:"~~GROUP_SESSION_END 訂閱（已刪除 v1.59）~~",type:"cross"},
-  {source:"~~`group-session-proactive`~~",target:"~~`telegram`~~",label:"~~群組追問發送（已刪除 v1.59）~~",type:"cross"},
-  {source:"~~`interaction-queue`~~",target:"~~`line`~~",label:"~~present_choices() Quick Reply/Flex 呈現（LINE 已刪除 v1.59）~~",type:"cross"},
-  {source:"~~`line`~~",target:"~~`event-bus`~~",label:"~~LINE webhook 事件發布（LINE 已刪除 v1.59）~~",type:"cross"},
-  {source:"~~`nightly`~~",target:"~~`federation-sync`~~",label:"~~nightly_pipeline.py:2751 Step 23 母子同步~~ ❌ **v1.53 移除**：federation 模組已刪除",type:"cross"},
-  {source:"~~`proactive-dispatcher`~~",target:"~~`push-budget`~~",label:"~~推播前去重配合~~ ← 已刪除 v1.72",type:"cross"},
-  {source:"~~`zotero-bridge`~~",target:"~~`vector-index`~~",label:"~~文獻索引~~ ❌ **幽靈連線 v1.43 移除**：zotero_bridge.py 只 import event_bus，無 vector 連線",type:"cross"},
   // ── monitor ──
   {source:"service-health",target:"anthropic-api",label:"監控",type:"monitor"},
   {source:"service-health",target:"firecrawl",label:"監控",type:"monitor"},
@@ -1229,14 +1200,8 @@ const links = [
   {source:"telegram",target:"zeal",label:"回傳回應（私聊 + 群組回覆）",type:"async"},
   {source:"verified-user",target:"anima-mc-store",label:"配對使用者互動更新 ANIMA_USER（L1-L8 觀察）",type:"async"},
   {source:"zeal",target:"anima-mc-store",label:"Owner 互動觸發 ANIMA_MC 更新（boss_name、self_awareness）",type:"async"},
-  {source:"~~`brain`~~",target:"~~`epigenetic-router`~~",label:"~~記憶注入前呼叫表觀遺傳路由（epigenetic-router 已刪除 v1.59）~~",type:"async"},
-  {source:"~~`brain`~~",target:"~~`proactive-predictor`~~",label:"~~Skill 使用記錄 + 需求預判（proactive-predictor 已刪除 v1.59）~~",type:"async"},
-  {source:"~~`epigenetic-router`~~",target:"~~`anima-changelog`~~",label:"~~時間圖遍歷（已刪除）~~",type:"async"},
-  {source:"~~`epigenetic-router`~~",target:"~~`diary-store`~~",label:"~~時間圖/因果圖遍歷（已刪除）~~",type:"async"},
-  {source:"~~`epigenetic-router`~~",target:"~~`knowledge-lattice`~~",label:"~~結晶圖遍歷（已刪除）~~",type:"async"},
-  {source:"~~`epigenetic-router`~~",target:"~~`memory-reflector`~~",label:"~~回憶後觸發反思（已刪除）~~",type:"async"},
-  {source:"~~`proactive-predictor`~~",target:"~~`metacognition`~~",label:"~~預判結果回饋元認知（已刪除）~~",type:"async"},
 ];
+
 
 
 

@@ -127,8 +127,11 @@ def _parse_nodes(text: str) -> list[dict]:
             if len(cols) < 4:
                 continue
 
-            nid = cols[0].strip("`")
+            nid = cols[0].strip("`").strip("~").strip("`")
             if nid in ("ID", "---", "") or nid.startswith("-"):
+                continue
+            # 跳過刪除線節點（~~node-id~~）
+            if "~~" in cols[0]:
                 continue
 
             label = cols[1]
@@ -197,6 +200,9 @@ def _parse_links(text: str) -> list[dict]:
 
             # 第一欄必須包含反引號包裹的 ID（排除版本歷史表等誤判）
             if "`" not in source_raw:
+                continue
+            # 跳過刪除線連線（~~`node`~~）
+            if "~~" in source_raw or "~~" in target_raw:
                 continue
 
             # 處理 decay 連線特殊格式：`A` → `B` | target_desc | desc
