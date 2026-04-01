@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260331_152752_metacog_insight",
+  "category": "metacog_insight",
+  "content": "消息截断與命令路由的根本差異：分段發送要靠**架構保證**（一段=一則），不能靠即興修補；catch-all 邏輯讓輸出失控，必須用顯式 Handler 綁定命令。教訓：設計問題無法在執行層解決。",
+  "source": "L4_observer",
+  "created_at": "2026-03-31T15:27:52.632274+08:00",
+  "priority": "medium"
+}

@@ -1,0 +1,6 @@
+{
+  "session_id": "telegram_6969045906",
+  "user_message": "[回覆 霓裳 的訊息：問題找到了。\n\n我方 curl 是 200，檔案確實在 gh-pages 上。\n\n還是 Telegram 吃底線的問題。\n\n上次傳出去的連結是：\n\nmorningcase2026-04-01_business-crossroads.html\n\n（morning_case 變成 morningcase，前面的底線被吞掉了）\n\n正確連結（無底線版本）：\n\nhttps://zealchou.github.io/MUSEON/reports/morning-case-2026-04-01-business-crossroads.html\n\n但這需要把檔案重新命名。現在最快的解法：直接給你一個可以安全貼進 Telegram 的連結——把所有底線換成 -，重新 push：\n\n要我現在 rename 推上去嗎？還是你先用這個暫時繞：\n\nhttps://htmlpreview.github.io/?https://raw.githubusercontent.com/zealchou/MUSEON/gh-pages/reports/morningcase2026-04-01_bus",
+  "museon_reply": "推上去，curl 200 驗證通過。\n\n晨報連結（無底線，Telegram 可安全貼上）：\n\n```\nhttps://zealchou.github.io/MUSEON/reports/morning-case-2026-04-01-business-crossroads.html\n```\n\n---\n\n**命名規範已確認：從今天起所有報告檔名一律用橫線 `-`，不用底線 `_`。**",
+  "timestamp": "2026-04-01T11:09:24.622233+08:00"
+}

@@ -48,7 +48,8 @@
   {
     "question": "我改主意了，不做 B2C 了，改做 B2B 企業記帳解決方案。幫我分析這個轉變需要調整哪些策略？",
     "source_date": "2026-03-26",
-    "status": "pending"
+    "status": "researched",
+    "researched_at": "2026-04-01T10:00:00.059829+08:00"
   },
   {
     "question": "台積電最近表現怎麼樣？",
@@ -92,7 +93,8 @@
   {
     "question": "為什麼這是最高槓桿的下一步：本次探索建立了「為什麼需要失敗記憶」的理論基礎，但還沒有回答「怎麼設計才不會讓失敗記憶變成認知枷鎖」。這個問題的答案直接決定 MUSEON `footprints/tool_failures.jsonl` 的欄位設計——也就是下次 session 可以立刻動手實作的東西。複利效應在於：格式設計好了，L4 落地成本極低，MUSEON 會自然積累這個數據庫，無需額外維護。",
     "source_date": "2026-03-28",
-    "status": "pending",
-    "source": "exploration_bridge"
+    "status": "researched",
+    "source": "exploration_bridge",
+    "researched_at": "2026-04-01T10:00:00.049934+08:00"
   }
 ]

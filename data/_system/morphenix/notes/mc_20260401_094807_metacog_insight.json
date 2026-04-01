@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260401_094807_metacog_insight",
+  "category": "metacog_insight",
+  "content": "**洞察摘要**：\nGitHub CDN 跨地區快取不同步導致 404，下次連結等 5-10 分鐘再傳；Netlify 方案可消除此類延遲陷阱，待決策。",
+  "source": "L4_observer",
+  "created_at": "2026-04-01T09:48:07.073929+08:00",
+  "priority": "medium"
+}

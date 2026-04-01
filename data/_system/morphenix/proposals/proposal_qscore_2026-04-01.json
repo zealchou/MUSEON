@@ -1,0 +1,25 @@
+{
+  "category": "L1",
+  "source": "qscore_signal",
+  "title": "Q-Score 弱項修復: understanding 維度平均僅 0.37",
+  "description": "過去 7 天 28 次互動中，understanding 維度平均分數 0.37（低於 0.5 閾值）。建議在系統提示詞中強化該維度的指引。",
+  "action": "increase_prompt_weight_understanding",
+  "metric": {
+    "dimension": "understanding",
+    "current_avg": 0.369
+  },
+  "metadata": {
+    "config_changes": [
+      {
+        "file": "_system/context_cache/active_rules.json",
+        "key": "understanding_weight",
+        "value": 1.13,
+        "old_value": 1.0
+      }
+    ]
+  },
+  "created_at": "2026-04-01T03:00:29.446452+08:00",
+  "status": "approved",
+  "decided_by": "auto",
+  "decided_at": "2026-04-01T03:00:29.655512+08:00"
+}

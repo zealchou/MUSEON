@@ -1,0 +1,6 @@
+{
+  "session_id": "telegram_6969045906",
+  "user_message": "[回覆 霓裳 的訊息：找到了：htmlpreview.github.io 可以正確渲染 HTML，完全不走 GitHub Pages CDN，且 URL 裡沒有底線，Telegram 不會吃字元。\n\n試這個連結：\n\nhttps://htmlpreview.github.io/?https://raw.githubusercontent.com/zealchou/MUSEON/gh-pages/reports/ssapage.html\n\n這條路徑：\n1. raw.githubusercontent.com — 直接讀 GitHub 原始檔（200 確認）\n2. htmlpreview.github.io — 包裝成正確的 HTML 渲染（200 確認）\n3. 檔名 ssapage.html 無底線 — Telegram 不會破壞連結\n\n如果這個也掛，最後一手是 Netlify 部署（完全不依賴 GitHub）。]\n\n這個可以了，但是不是非永久之計？",
+  "museon_reply": "對，不是永久解。\n\n`htmlpreview.github.io` 是第三方服務，隨時可能掛、可能限速、URL 醜而且長。\n\n**真正的永久解有兩條：**\n\n**1. 等 GitHub Pages CDN 自動清快取（1-24 小時）**\n台灣 Fastly 節點的 404 快取會自動過期，到時候原始連結就能用：\n```\nhttps://zealchou.github.io/MUSEON/reports/ssapage.html\n```\n\n**2. 部署到 Netlify（一次性，永久解決）**\n- 不依賴 GitHub CDN\n- 台灣速度快\n- 支援自訂域名\n- 連結乾淨\n\n要現在做 Netlify 嗎？大概 5 分鐘可以設好，之後所有報告都走這條路，再也不會有 CDN 快取問題。",
+  "timestamp": "2026-04-01T09:47:37.201394+08:00"
+}

@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260331_134341_metacog_insight",
+  "category": "metacog_insight",
+  "content": "MUSEON 在檔案上傳驗證層有缺陷——確認「吸收完畢」但實際漏掉「教育資料2-6」。反映上傳確認與實際存儲不同步，需建立完整清單驗收機制。",
+  "source": "L4_observer",
+  "created_at": "2026-03-31T13:43:41.665352+08:00",
+  "priority": "medium"
+}

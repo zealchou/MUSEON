@@ -968,7 +968,7 @@ class BusinessCaseDaily:
         }
 
         # 檔名帶日期 + 關鍵字
-        filename = f"morning_case_{date_str}_{theme_slug}.html"
+        filename = f"morning-case-{date_str}-{theme_slug}.html"
         report_path = f"reports/{filename}"
         encoded_content = base64.b64encode(html_content.encode("utf-8")).decode("ascii")
 
@@ -1145,7 +1145,7 @@ class BusinessCaseDaily:
 
         # 組裝完整 HTML
         vol = self._get_next_vol()
-        pages_filename = f"morning_case_{date_str}_{theme_slug}.html"
+        pages_filename = f"morning-case-{date_str}-{theme_slug}.html"
         og_url = f"https://zealchou.github.io/museon-daily/reports/{pages_filename}"
 
         full_html = _HTML_TEMPLATE.format(
@@ -1165,7 +1165,7 @@ class BusinessCaseDaily:
         # ── Step 7a: 本地備份 ──
         backup_dir = self.data_dir / "daily_summaries"
         backup_dir.mkdir(parents=True, exist_ok=True)
-        backup_path = backup_dir / f"morning_case_{date_str}_{theme_slug}.html"
+        backup_path = backup_dir / f"morning-case-{date_str}-{theme_slug}.html"
         try:
             backup_path.write_text(full_html, encoding="utf-8")
             logger.info(f"BusinessCase: local backup saved → {backup_path}")

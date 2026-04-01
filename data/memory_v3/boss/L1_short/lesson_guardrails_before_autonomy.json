@@ -1,0 +1,6 @@
+{
+  "key": "lesson_guardrails_before_autonomy",
+  "content": "自由的前提是邊界。Morphenix 自主演化必須有值域限制(0.1-3.0)、72小時冷卻期、死亡螺旋偵測(連續3次同方向)、批次上限(3個/次)。沒護欄的自動化=失控。",
+  "timestamp": "2026-03-31T00:00:23.477245+08:00",
+  "source": "session_20260331_evolution"
+}

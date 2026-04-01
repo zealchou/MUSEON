@@ -1,0 +1,778 @@
+{
+  "routes": [
+    {
+      "command": "/think-deep",
+      "skill": "deep-think"
+    },
+    {
+      "command": "/think-off",
+      "skill": "deep-think"
+    },
+    {
+      "command": "/think-on",
+      "skill": "deep-think"
+    },
+    {
+      "command": "/c15-full",
+      "skill": "c15"
+    },
+    {
+      "command": "/c15-off",
+      "skill": "c15"
+    },
+    {
+      "command": "/c15-on",
+      "skill": "c15"
+    },
+    {
+      "command": "/c15-plain",
+      "skill": "c15"
+    },
+    {
+      "command": "/roundtable",
+      "skill": "roundtable"
+    },
+    {
+      "command": "/resonance",
+      "skill": "resonance"
+    },
+    {
+      "command": "/dharma",
+      "skill": "dharma"
+    },
+    {
+      "command": "/dharma",
+      "skill": "dharma"
+    },
+    {
+      "command": "/philo",
+      "skill": "philo-dialectic"
+    },
+    {
+      "command": "/dialectic",
+      "skill": "philo-dialectic"
+    },
+    {
+      "command": "/思辨",
+      "skill": "philo-dialectic"
+    },
+    {
+      "command": "/xmodel",
+      "skill": "xmodel"
+    },
+    {
+      "command": "/xmodel",
+      "skill": "xmodel"
+    },
+    {
+      "command": "/manifest",
+      "skill": "xmodel"
+    },
+    {
+      "command": "/pdeif",
+      "skill": "pdeif"
+    },
+    {
+      "command": "/flow-design",
+      "skill": "pdeif"
+    },
+    {
+      "command": "/reading",
+      "skill": "energy-reading"
+    },
+    {
+      "command": "/energy",
+      "skill": "energy-reading"
+    },
+    {
+      "command": "/wan-miu",
+      "skill": "wan-miu-16"
+    },
+    {
+      "command": "/persona-16",
+      "skill": "wan-miu-16"
+    },
+    {
+      "command": "/combined",
+      "skill": "combined-reading"
+    },
+    {
+      "command": "/match",
+      "skill": "combined-reading"
+    },
+    {
+      "command": "/anima",
+      "skill": "anima-individual"
+    },
+    {
+      "command": "/profile",
+      "skill": "anima-individual"
+    },
+    {
+      "command": "/ares",
+      "skill": "ares"
+    },
+    {
+      "command": "/strategy-person",
+      "skill": "ares"
+    },
+    {
+      "command": "/shadow-muse",
+      "skill": "shadow-muse"
+    },
+    {
+      "command": "/sm",
+      "skill": "shadow-muse"
+    },
+    {
+      "command": "/coach",
+      "skill": "shadow-muse"
+    },
+    {
+      "command": "/pilot",
+      "skill": "daily-pilot"
+    },
+    {
+      "command": "/daily",
+      "skill": "daily-pilot"
+    },
+    {
+      "command": "/morning",
+      "skill": "daily-pilot"
+    },
+    {
+      "command": "/evening",
+      "skill": "daily-pilot"
+    },
+    {
+      "command": "/week",
+      "skill": "daily-pilot"
+    },
+    {
+      "command": "/talent",
+      "skill": "talent-match"
+    },
+    {
+      "command": "/match",
+      "skill": "talent-match"
+    },
+    {
+      "command": "/hire",
+      "skill": "talent-match"
+    },
+    {
+      "command": "/talent",
+      "skill": "talent-match"
+    },
+    {
+      "command": "/interview-pack",
+      "skill": "talent-match"
+    },
+    {
+      "command": "/ssa",
+      "skill": "ssa-consultant"
+    },
+    {
+      "command": "/ssa",
+      "skill": "ssa-consultant"
+    },
+    {
+      "command": "/strategy",
+      "skill": "master-strategy"
+    },
+    {
+      "command": "/strategy",
+      "skill": "master-strategy"
+    },
+    {
+      "command": "/wargame",
+      "skill": "master-strategy"
+    },
+    {
+      "command": "/shadow",
+      "skill": "shadow"
+    },
+    {
+      "command": "/shadow-crimson",
+      "skill": "shadow"
+    },
+    {
+      "command": "/ads",
+      "skill": "ad-pilot"
+    },
+    {
+      "command": "/ad-pilot",
+      "skill": "ad-pilot"
+    },
+    {
+      "command": "/equity",
+      "skill": "equity-architect"
+    },
+    {
+      "command": "/partnership",
+      "skill": "equity-architect"
+    },
+    {
+      "command": "/collab",
+      "skill": "biz-collab"
+    },
+    {
+      "command": "/biz-collab",
+      "skill": "biz-collab"
+    },
+    {
+      "command": "/biz-diag",
+      "skill": "biz-diagnostic"
+    },
+    {
+      "command": "/text",
+      "skill": "text-alchemy"
+    },
+    {
+      "command": "/alchemy",
+      "skill": "text-alchemy"
+    },
+    {
+      "command": "/story",
+      "skill": "storytelling-engine"
+    },
+    {
+      "command": "/storytelling",
+      "skill": "storytelling-engine"
+    },
+    {
+      "command": "/novel",
+      "skill": "novel-craft"
+    },
+    {
+      "command": "/craft",
+      "skill": "novel-craft"
+    },
+    {
+      "command": "/prose",
+      "skill": "novel-craft"
+    },
+    {
+      "command": "/video",
+      "skill": "video-strategy"
+    },
+    {
+      "command": "/reels",
+      "skill": "video-strategy"
+    },
+    {
+      "command": "/course",
+      "skill": "course-forge"
+    },
+    {
+      "command": "/forge-course",
+      "skill": "course-forge"
+    },
+    {
+      "command": "/aesthetic",
+      "skill": "aesthetic-sense"
+    },
+    {
+      "command": "/美感",
+      "skill": "aesthetic-sense"
+    },
+    {
+      "command": "/brand",
+      "skill": "brand-identity"
+    },
+    {
+      "command": "/identity",
+      "skill": "brand-identity"
+    },
+    {
+      "command": "/profile",
+      "skill": "user-model"
+    },
+    {
+      "command": "/user-model",
+      "skill": "user-model"
+    },
+    {
+      "command": "/morphenix",
+      "skill": "morphenix"
+    },
+    {
+      "command": "/phoenix",
+      "skill": "morphenix"
+    },
+    {
+      "command": "/evolve",
+      "skill": "morphenix"
+    },
+    {
+      "command": "/morphenix",
+      "skill": "morphenix"
+    },
+    {
+      "command": "/morphenix",
+      "skill": "morphenix"
+    },
+    {
+      "command": "/morphenix",
+      "skill": "morphenix"
+    },
+    {
+      "command": "/morphenix",
+      "skill": "morphenix"
+    },
+    {
+      "command": "/morphenix",
+      "skill": "morphenix"
+    },
+    {
+      "command": "/workflow",
+      "skill": "wee"
+    },
+    {
+      "command": "/wee",
+      "skill": "wee"
+    },
+    {
+      "command": "/kata",
+      "skill": "wee"
+    },
+    {
+      "command": "/review",
+      "skill": "wee"
+    },
+    {
+      "command": "/diagnose",
+      "skill": "wee"
+    },
+    {
+      "command": "/why-stuck",
+      "skill": "wee"
+    },
+    {
+      "command": "/proficiency",
+      "skill": "wee"
+    },
+    {
+      "command": "/lattice",
+      "skill": "knowledge-lattice"
+    },
+    {
+      "command": "/crystal",
+      "skill": "knowledge-lattice"
+    },
+    {
+      "command": "/knowledge",
+      "skill": "knowledge-lattice"
+    },
+    {
+      "command": "/crystallize",
+      "skill": "knowledge-lattice"
+    },
+    {
+      "command": "/recall",
+      "skill": "knowledge-lattice"
+    },
+    {
+      "command": "/atlas",
+      "skill": "knowledge-lattice"
+    },
+    {
+      "command": "/recrystallize",
+      "skill": "knowledge-lattice"
+    },
+    {
+      "command": "/eval",
+      "skill": "eval-engine"
+    },
+    {
+      "command": "/dashboard",
+      "skill": "eval-engine"
+    },
+    {
+      "command": "/eval",
+      "skill": "eval-engine"
+    },
+    {
+      "command": "/eval",
+      "skill": "eval-engine"
+    },
+    {
+      "command": "/eval",
+      "skill": "eval-engine"
+    },
+    {
+      "command": "/eval",
+      "skill": "eval-engine"
+    },
+    {
+      "command": "/sandbox",
+      "skill": "sandbox-lab"
+    },
+    {
+      "command": "/lab",
+      "skill": "sandbox-lab"
+    },
+    {
+      "command": "/sandbox",
+      "skill": "sandbox-lab"
+    },
+    {
+      "command": "/sandbox",
+      "skill": "sandbox-lab"
+    },
+    {
+      "command": "/sandbox",
+      "skill": "sandbox-lab"
+    },
+    {
+      "command": "/orchestrate",
+      "skill": "orchestrator"
+    },
+    {
+      "command": "/plan",
+      "skill": "orchestrator"
+    },
+    {
+      "command": "/qa",
+      "skill": "qa-auditor"
+    },
+    {
+      "command": "/audit",
+      "skill": "qa-auditor"
+    },
+    {
+      "command": "/plan",
+      "skill": "plan-engine"
+    },
+    {
+      "command": "/plan",
+      "skill": "plan-engine"
+    },
+    {
+      "command": "/plan",
+      "skill": "plan-engine"
+    },
+    {
+      "command": "/plan",
+      "skill": "plan-engine"
+    },
+    {
+      "command": "/plan",
+      "skill": "plan-engine"
+    },
+    {
+      "command": "/plan",
+      "skill": "plan-engine"
+    },
+    {
+      "command": "/plan",
+      "skill": "plan-engine"
+    },
+    {
+      "command": "/gap",
+      "skill": "gap"
+    },
+    {
+      "command": "/market-scan",
+      "skill": "gap"
+    },
+    {
+      "command": "/dse",
+      "skill": "dse"
+    },
+    {
+      "command": "/dse",
+      "skill": "dse"
+    },
+    {
+      "command": "/dse",
+      "skill": "dse"
+    },
+    {
+      "command": "/dse",
+      "skill": "dse"
+    },
+    {
+      "command": "/sota-check",
+      "skill": "dse"
+    },
+    {
+      "command": "/acsf",
+      "skill": "acsf"
+    },
+    {
+      "command": "/acsf",
+      "skill": "acsf"
+    },
+    {
+      "command": "/acsf",
+      "skill": "acsf"
+    },
+    {
+      "command": "/forge",
+      "skill": "acsf"
+    },
+    {
+      "command": "/radar",
+      "skill": "env-radar"
+    },
+    {
+      "command": "/scan",
+      "skill": "env-radar"
+    },
+    {
+      "command": "/env",
+      "skill": "env-radar"
+    },
+    {
+      "command": "/trend-ext",
+      "skill": "env-radar"
+    },
+    {
+      "command": "/competitor",
+      "skill": "env-radar"
+    },
+    {
+      "command": "/tech-radar",
+      "skill": "env-radar"
+    },
+    {
+      "command": "/signal",
+      "skill": "env-radar"
+    },
+    {
+      "command": "/report",
+      "skill": "report-forge"
+    },
+    {
+      "command": "/report",
+      "skill": "report-forge"
+    },
+    {
+      "command": "/forge-report",
+      "skill": "report-forge"
+    },
+    {
+      "command": "/diagnose",
+      "skill": "report-forge"
+    },
+    {
+      "command": "/report",
+      "skill": "report-forge"
+    },
+    {
+      "command": "/report",
+      "skill": "report-forge"
+    },
+    {
+      "command": "/preflight",
+      "skill": "dev-preflight"
+    },
+    {
+      "command": "/pf",
+      "skill": "dev-preflight"
+    },
+    {
+      "command": "/pf",
+      "skill": "dev-preflight"
+    },
+    {
+      "command": "/pf",
+      "skill": "dev-preflight"
+    },
+    {
+      "command": "/pf",
+      "skill": "dev-preflight"
+    },
+    {
+      "command": "/pf",
+      "skill": "dev-preflight"
+    },
+    {
+      "command": "/retro",
+      "skill": "dev-retro"
+    },
+    {
+      "command": "/retro",
+      "skill": "dev-retro"
+    },
+    {
+      "command": "/retro",
+      "skill": "dev-retro"
+    },
+    {
+      "command": "/retro",
+      "skill": "dev-retro"
+    },
+    {
+      "command": "/retro",
+      "skill": "dev-retro"
+    },
+    {
+      "command": "/retro",
+      "skill": "dev-retro"
+    },
+    {
+      "command": "/retro",
+      "skill": "dev-retro"
+    },
+    {
+      "command": "/stresstest",
+      "skill": "prompt-stresstest"
+    },
+    {
+      "command": "/prompt-test",
+      "skill": "prompt-stresstest"
+    },
+    {
+      "command": "/brand-project",
+      "skill": "brand-project-engine"
+    },
+    {
+      "command": "/bp",
+      "skill": "brand-project-engine"
+    },
+    {
+      "command": "/finance",
+      "skill": "finance-pilot"
+    },
+    {
+      "command": "/ledger",
+      "skill": "finance-pilot"
+    },
+    {
+      "command": "/log",
+      "skill": "finance-pilot"
+    },
+    {
+      "command": "/close",
+      "skill": "finance-pilot"
+    },
+    {
+      "command": "/analyze",
+      "skill": "finance-pilot"
+    },
+    {
+      "command": "/tantra",
+      "skill": "tantra"
+    },
+    {
+      "command": "/learn",
+      "skill": "meta-learning"
+    },
+    {
+      "command": "/meta-learn",
+      "skill": "meta-learning"
+    },
+    {
+      "command": "/organize",
+      "skill": "info-architect"
+    },
+    {
+      "command": "/info-arch",
+      "skill": "info-architect"
+    },
+    {
+      "command": "/market",
+      "skill": "market-core"
+    },
+    {
+      "command": "/analyze",
+      "skill": "market-core"
+    },
+    {
+      "command": "/equity",
+      "skill": "market-equity"
+    },
+    {
+      "command": "/crypto",
+      "skill": "market-crypto"
+    },
+    {
+      "command": "/macro",
+      "skill": "market-macro"
+    },
+    {
+      "command": "/masters",
+      "skill": "investment-masters"
+    },
+    {
+      "command": "/guru",
+      "skill": "investment-masters"
+    },
+    {
+      "command": "/risk",
+      "skill": "risk-matrix"
+    },
+    {
+      "command": "/allocation",
+      "skill": "risk-matrix"
+    },
+    {
+      "command": "/sentiment",
+      "skill": "sentiment-radar"
+    },
+    {
+      "command": "/workflow",
+      "skill": "workflow-investment-analysis"
+    },
+    {
+      "command": "/workflow",
+      "skill": "workflow-investment-analysis"
+    },
+    {
+      "command": "/workflow",
+      "skill": "workflow-investment-analysis"
+    },
+    {
+      "command": "/workflow",
+      "skill": "workflow-ai-deployment"
+    },
+    {
+      "command": "/workflow",
+      "skill": "workflow-ai-deployment"
+    },
+    {
+      "command": "/workflow",
+      "skill": "workflow-ai-deployment"
+    },
+    {
+      "command": "/brand-discover",
+      "skill": "brand-discovery"
+    },
+    {
+      "command": "/brand-build",
+      "skill": "brand-builder"
+    },
+    {
+      "command": "/workflow",
+      "skill": "workflow-svc-brand-marketing"
+    },
+    {
+      "command": "/workflow",
+      "skill": "workflow-svc-brand-marketing"
+    },
+    {
+      "command": "/brand-manual",
+      "skill": "workflow-brand-consulting"
+    },
+    {
+      "command": "/brand-manual",
+      "skill": "workflow-brand-consulting"
+    },
+    {
+      "command": "/brand-manual",
+      "skill": "workflow-brand-consulting"
+    },
+    {
+      "command": "/gmn",
+      "skill": "group-meeting-notes"
+    },
+    {
+      "command": "/meeting-notes",
+      "skill": "group-meeting-notes"
+    }
+  ],
+  "count": 193,
+  "built_at": "2026-03-31T22:31:24.810247"
+}

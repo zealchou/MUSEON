@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260401_084657_metacog_insight",
+  "category": "metacog_insight",
+  "content": "GitHub Pages 發布驗證失敗教訓：HTTP 200 驗證存在假陽性，因 CDN 部署延遲導致。需加入驗證延遲（3-5秒）或二次確認機制，確保真實可訪問後才通知使用者。",
+  "source": "L4_observer",
+  "created_at": "2026-04-01T08:46:57.436792+08:00",
+  "priority": "medium"
+}

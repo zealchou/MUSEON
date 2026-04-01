@@ -1,0 +1,3 @@
+{"proposal_id": "morphenix_2026-04-01_L1_003", "outcome": "executed", "timestamp": "2026-04-01T03:00:42.460651+08:00", "result": {"action": "l1_config_update", "applied": [{"file": "_system/context_cache/active_rules.json", "key": "understanding_weight", "old_value": null, "new_value": 1.13}], "count": 1, "guarded": [], "guarded_count": 0}}
+{"proposal_id": "morphenix_2026-04-01_L2_002", "outcome": "executed", "timestamp": "2026-04-01T03:00:43.560177+08:00", "result": {"action": "l2_logic_patch", "applied": [], "count": 0}}
+{"proposal_id": "morphenix_2026-04-01_L2_001", "outcome": "executed", "timestamp": "2026-04-01T03:00:43.891268+08:00", "result": {"action": "l2_logic_patch", "applied": [], "count": 0}}

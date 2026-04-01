@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260401_124736_metacog_insight",
+  "category": "metacog_insight",
+  "content": "群組隔離規則失效：訊息傳錯群組，L2 的 chat_id 驗證機制需要立即診斷修復。",
+  "source": "L4_observer",
+  "created_at": "2026-04-01T12:47:36.392615+08:00",
+  "priority": "medium"
+}

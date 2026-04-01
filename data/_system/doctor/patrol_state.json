@@ -1,7 +1,7 @@
 {
-  "cursor": 278,
-  "cycle_count": 0,
-  "last_tick": "2026-03-30T12:50:32.127355+00:00",
+  "cursor": 282,
+  "cycle_count": 1,
+  "last_tick": "2026-04-01T05:08:40.491953+00:00",
   "llm_queue": [
     "new_module",
     "existing",
@@ -26,111 +26,160 @@
   ],
   "anomalies_today": {
     "museon.nightly.batch": {
-      "date": "2026-03-30",
+      "date": "2026-04-01",
       "anomalies": [
         "未在 _FULL_STEPS: batch"
       ],
-      "detected_at": "2026-03-30T06:18:32.315385+00:00"
+      "detected_at": "2026-04-01T00:20:41.110422+00:00"
     },
     "museon.nightly.business_case": {
-      "date": "2026-03-30",
+      "date": "2026-04-01",
       "anomalies": [
         "未在 _FULL_STEPS: business_case"
       ],
-      "detected_at": "2026-03-30T06:26:32.330087+00:00"
+      "detected_at": "2026-04-01T00:28:40.348563+00:00"
     },
     "museon.nightly.course_generator": {
-      "date": "2026-03-30",
+      "date": "2026-04-01",
       "anomalies": [
         "未在 _FULL_STEPS: course_generator"
       ],
-      "detected_at": "2026-03-30T06:34:32.895604+00:00"
+      "detected_at": "2026-04-01T00:36:40.307769+00:00"
     },
     "museon.nightly.curiosity_router": {
-      "date": "2026-03-30",
+      "date": "2026-04-01",
       "anomalies": [
         "未在 _FULL_STEPS: curiosity_router"
       ],
-      "detected_at": "2026-03-30T06:42:32.298910+00:00"
+      "detected_at": "2026-04-01T00:44:40.331388+00:00"
     },
     "museon.nightly.exploration_bridge": {
-      "date": "2026-03-30",
+      "date": "2026-04-01",
       "anomalies": [
         "未在 _FULL_STEPS: exploration_bridge"
       ],
-      "detected_at": "2026-03-30T06:50:32.276206+00:00"
+      "detected_at": "2026-04-01T00:52:40.364157+00:00"
     },
     "museon.nightly.forge": {
-      "date": "2026-03-30",
+      "date": "2026-04-01",
       "anomalies": [
         "未在 _FULL_STEPS: forge"
       ],
-      "detected_at": "2026-03-30T06:58:32.304742+00:00"
+      "detected_at": "2026-04-01T01:00:40.338408+00:00"
     },
     "museon.nightly.fusion": {
-      "date": "2026-03-30",
+      "date": "2026-04-01",
       "anomalies": [
         "未在 _FULL_STEPS: fusion"
       ],
-      "detected_at": "2026-03-30T07:06:32.294323+00:00"
+      "detected_at": "2026-04-01T01:08:40.346489+00:00"
     },
     "museon.nightly.job": {
-      "date": "2026-03-30",
+      "date": "2026-04-01",
       "anomalies": [
         "未在 _FULL_STEPS: job"
       ],
-      "detected_at": "2026-03-30T07:14:32.170299+00:00"
+      "detected_at": "2026-04-01T01:16:40.321993+00:00"
     },
     "museon.nightly.morphenix_standards": {
-      "date": "2026-03-30",
+      "date": "2026-04-01",
       "anomalies": [
         "未在 _FULL_STEPS: morphenix_standards"
       ],
-      "detected_at": "2026-03-30T07:22:32.342114+00:00"
+      "detected_at": "2026-04-01T01:24:40.348424+00:00"
     },
     "museon.nightly.morphenix_validator": {
-      "date": "2026-03-30",
+      "date": "2026-04-01",
       "anomalies": [
         "未在 _FULL_STEPS: morphenix_validator"
       ],
-      "detected_at": "2026-03-30T07:30:32.299231+00:00"
+      "detected_at": "2026-04-01T01:32:40.339520+00:00"
+    },
+    "museon.nightly.nightly_reflection": {
+      "date": "2026-04-01",
+      "anomalies": [
+        "未在 _FULL_STEPS: nightly_reflection"
+      ],
+      "detected_at": "2026-04-01T01:48:40.331507+00:00"
     },
     "museon.nightly.optimize": {
-      "date": "2026-03-30",
+      "date": "2026-04-01",
       "anomalies": [
         "未在 _FULL_STEPS: optimize"
       ],
-      "detected_at": "2026-03-30T07:46:32.304742+00:00"
+      "detected_at": "2026-04-01T01:56:40.576995+00:00"
     },
     "museon.nightly.periodic_cycles": {
-      "date": "2026-03-30",
+      "date": "2026-04-01",
       "anomalies": [
         "未在 _FULL_STEPS: periodic_cycles"
       ],
-      "detected_at": "2026-03-30T07:54:32.473710+00:00"
+      "detected_at": "2026-04-01T02:04:40.357828+00:00"
     },
     "museon.nightly.pipeline_dag": {
-      "date": "2026-03-30",
+      "date": "2026-04-01",
       "anomalies": [
         "未在 _FULL_STEPS: pipeline_dag"
       ],
-      "detected_at": "2026-03-30T08:02:32.323062+00:00"
+      "detected_at": "2026-04-01T02:12:40.358916+00:00"
+    },
+    "museon.nightly.skill_draft_forger": {
+      "date": "2026-04-01",
+      "anomalies": [
+        "未在 _FULL_STEPS: skill_draft_forger"
+      ],
+      "detected_at": "2026-04-01T02:20:40.995342+00:00"
     },
     "museon.nightly.skill_forge_scout": {
-      "date": "2026-03-30",
+      "date": "2026-04-01",
       "anomalies": [
         "未在 _FULL_STEPS: skill_forge_scout"
       ],
-      "detected_at": "2026-03-30T08:10:32.323143+00:00"
+      "detected_at": "2026-04-01T02:28:40.292160+00:00"
+    },
+    "museon.nightly.skill_health_tracker": {
+      "date": "2026-04-01",
+      "anomalies": [
+        "未在 _FULL_STEPS: skill_health_tracker"
+      ],
+      "detected_at": "2026-04-01T02:36:40.304523+00:00"
+    },
+    "museon.nightly.skill_install_worker": {
+      "date": "2026-04-01",
+      "anomalies": [
+        "未在 _FULL_STEPS: skill_install_worker"
+      ],
+      "detected_at": "2026-04-01T02:44:40.331554+00:00"
+    },
+    "museon.nightly.skill_qa_gate": {
+      "date": "2026-04-01",
+      "anomalies": [
+        "未在 _FULL_STEPS: skill_qa_gate"
+      ],
+      "detected_at": "2026-04-01T02:52:40.288039+00:00"
     },
     "museon.nightly.skill_scout": {
-      "date": "2026-03-30",
+      "date": "2026-04-01",
       "anomalies": [
         "未在 _FULL_STEPS: skill_scout"
       ],
-      "detected_at": "2026-03-30T08:18:32.323585+00:00"
+      "detected_at": "2026-04-01T03:00:40.344173+00:00"
+    },
+    "museon.nightly.triage_step": {
+      "date": "2026-04-01",
+      "anomalies": [
+        "未在 _FULL_STEPS: triage_step"
+      ],
+      "detected_at": "2026-04-01T03:08:40.347879+00:00"
+    },
+    "museon.nightly.triage_to_morphenix": {
+      "date": "2026-04-01",
+      "anomalies": [
+        "未在 _FULL_STEPS: triage_to_morphenix"
+      ],
+      "detected_at": "2026-04-01T03:16:40.294810+00:00"
     }
   },
-  "last_anomaly_reset": "2026-03-30",
-  "total_nodes": 290
+  "last_anomaly_reset": "2026-04-01",
+  "total_nodes": 313
 }

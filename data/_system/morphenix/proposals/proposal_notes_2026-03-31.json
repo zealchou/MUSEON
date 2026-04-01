@@ -1,0 +1,37 @@
+{
+  "category": "L2",
+  "source": "iteration_notes",
+  "title": "295 條迭代筆記待結晶",
+  "description": "累積 295 條迭代觀察筆記，建議結晶為具體改進提案。",
+  "action": "crystallize_notes",
+  "source_notes": [
+    "mc_20260331_201131_metacog_insight.json",
+    "mc_20260328_002010_metacog_insight.json",
+    "mc_20260331_152344_metacog_insight.json",
+    "mc_20260330_083232_metacog_insight.json",
+    "mc_20260331_183849_metacog_insight.json",
+    "mc_20260330_142956_metacog_insight.json",
+    "mc_20260329_211511_metacog_insight.json",
+    "mc_20260326_190203_metacog_insight.json",
+    "mc_20260330_085743_metacog_insight.json",
+    "mc_20260330_155300_metacog_insight.json",
+    "mc_20260329_190446_metacog_insight.json",
+    "mc_20260328_161130_metacog_insight.json",
+    "mc_20260330_152340_metacog_insight.json",
+    "mc_20260328_172635_metacog_insight.json",
+    "mc_20260331_124517_metacog_insight.json",
+    "mc_20260331_211926_metacog_insight.json",
+    "mc_20260328_154709_metacog_insight.json",
+    "mc_20260326_230649_metacog_insight.json",
+    "mc_20260329_191519_metacog_insight.json",
+    "mc_20260330_180227_metacog_insight.json"
+  ],
+  "metadata": {
+    "type": "observation",
+    "config_changes": []
+  },
+  "created_at": "2026-03-31T22:20:20.803431+08:00",
+  "status": "approved",
+  "decided_by": "auto",
+  "decided_at": "2026-03-31T22:20:20.805925+08:00"
+}

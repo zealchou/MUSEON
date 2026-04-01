@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260331_110210_metacog_insight",
+  "category": "metacog_insight",
+  "content": "信任驗證的邊界暴露——MUSEON 依賴情境驗證（老闆在場=預設真實），外部身份無獨立確認機制，資安協議需補完。",
+  "source": "L4_observer",
+  "created_at": "2026-03-31T11:02:10.741135+08:00",
+  "priority": "medium"
+}

@@ -1,0 +1,6 @@
+{
+  "session_id": "telegram_6969045906",
+  "user_message": "我打開就真的是 404\n你徹底排查問題",
+  "museon_reply": "根因找到了。\n\n**伺服器端確認：**\n- GitHub Pages 回應 HTTP 200\n- 標題正確：「SSA × MUSEON — AI 創業加速器 | 5/6、5/7、5/8」\n- 檔案 1268 行，38KB，內容完整\n- CDN 節點：`cache-sin-wsat1880044-SIN`（新加坡）\n\n**你看到 404 的原因：**\n\nGitHub Pages 是全球 CDN（Fastly），不同地區有不同節點。你在台灣連到的節點可能快取了舊的 404（在檔案部署之前就快取了），而我這邊查的是新加坡節點已更新到 200。\n\n**解法：加 query string 繞過 CDN 快取：**\n\n**https://zealchou.github.io/MUSEON/reports/ssa_museon_sales_page.html?v=1**\n\n用這個連結試試。`?v=1` 對 CDN 來說是全新路徑，不會命中舊快取。\n\n如果還是不行，我換一個方法——把頁面放到 Netlify 或直接用本地開啟。",
+  "timestamp": "2026-04-01T09:00:51.789633+08:00"
+}

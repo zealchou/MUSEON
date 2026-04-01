@@ -46,7 +46,7 @@ for f in "${FILES[@]}"; do
         exit 1
     fi
     SIZE=$(du -h "$f" | cut -f1)
-    NAME=$(basename "$f")
+    NAME=$(basename "$f" | tr '_' '-')
     DEST_NAMES+=("$NAME")
     echo "  OK: $NAME ($SIZE)"
 done

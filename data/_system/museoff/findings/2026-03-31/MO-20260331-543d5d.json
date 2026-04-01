@@ -1,0 +1,35 @@
+{
+  "finding_id": "MO-20260331-543d5d",
+  "timestamp": "2026-03-31T01:33:55.189036+00:00",
+  "probe_layer": "L0",
+  "severity": "CRITICAL",
+  "title": "Gateway liveness 失敗: Gateway 進程不存在（連續 3 次失敗）",
+  "source": "museoff",
+  "blast_origin": {
+    "file": "gateway/server.py",
+    "line": null,
+    "error_type": "LivenessFailure",
+    "traceback": ""
+  },
+  "blast_radius": [
+    {
+      "module": "所有通道",
+      "impact": "使用者無法收到回覆",
+      "fan_in": "N/A"
+    }
+  ],
+  "context": {},
+  "triage_done": null,
+  "known_fix": null,
+  "prescription": {
+    "diagnosis": "Gateway 進程不存在（連續 3 次失敗）",
+    "root_cause": "Gateway 進程死亡或 HTTP 無回應",
+    "suggested_fix": "重啟 Gateway",
+    "runbook_id": "RB-restart-gateway",
+    "fix_complexity": "GREEN",
+    "pre_check": "",
+    "post_check": "",
+    "rollback": ""
+  },
+  "status": "open"
+}

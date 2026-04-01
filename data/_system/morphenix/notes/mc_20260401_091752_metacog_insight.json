@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260401_091752_metacog_insight",
+  "category": "metacog_insight",
+  "content": "**洞察**：CDN 快取時序陷阱——檔案部署前訪問 URL 導致 404 被快取，後續推送成功仍返回快取 404。解法：使用全新 URL 或加 query string 避免快取汙染。未來報告發佈需納入「驗證前不訪問 URL」檢查項。",
+  "source": "L4_observer",
+  "created_at": "2026-04-01T09:17:52.807381+08:00",
+  "priority": "medium"
+}

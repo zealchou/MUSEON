@@ -1,0 +1,6 @@
+{
+  "key": "lesson_grep_before_diagnosis",
+  "content": "任何DSE報告的「沒人呼叫X」結論，上手前先grep驗證。2026-03-31 DSE說record_push()沒人呼叫，grep發現telegram.py:1377已接通。報告是假設，代碼是事實。",
+  "timestamp": "2026-03-31T00:00:23.477245+08:00",
+  "source": "session_20260331_evolution"
+}

@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260401_073303_metacog_insight",
+  "category": "metacog_insight",
+  "content": "根據 2026-04-01 的提案檔案，Morphenix 現有**三項提案**（非四項）：\n\n---\n\n### 1️⃣ **Q-Score 弱項修復** `proposal_qscore_2026-04-01.json`\n- **問題**：`understanding` 維度 7 日平均 0.369（低於 0.5 閾值）\n- **診斷來源**：28 次互動的品質評分資料\n- **行動**：調整系統提示權重（`understanding_weight: 1.0 → 1.13`）\n- **狀態**：✅ Auto-approved\n\n---\n\n### 2️⃣ **連續低分警報** `proposal_consecutive_low_2026-04-01.json`\n- **問題**：最近 5 次互動中 4 次品質低分（overall avg 0.468）\n- **診斷來源**：連續品質監控信號\n- **行動**：回應策略深度檢視 + 微調權重（`understanding_weight: 1.0 → 1.03`）\n- **狀態**：✅ Auto-approved\n\n---\n\n### 3️⃣ **迭代筆記結晶** `proposal_notes_2026-04-01.json`\n- **問題**：累積 297 條迭代觀察筆記待整理\n- **診斷來源**：過去 7 天的 metacognitive insight 檔案\n- **行動**：結晶為具體改進提案（非配置級，是觀察級別）\n- **狀態**：✅ Auto-approved\n\n---\n\n**你說的「四項」是否有其他來源？** 或者是指某兩個日期版本的組合？",
+  "source": "L4_observer",
+  "created_at": "2026-04-01T07:33:03.272330+08:00",
+  "priority": "medium"
+}

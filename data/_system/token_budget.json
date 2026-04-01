@@ -1,10 +1,10 @@
 {
   "monthly_ceiling_usd": 15.0,
-  "reserve_pool_usd": 2.0,
+  "reserve_pool_usd": 3.0,
   "today_spent_usd": 0.0,
-  "today_date": "2026-03-30",
+  "today_date": "2026-04-01",
   "month_spent_usd": 0.0,
-  "month_key": "2026-03",
+  "month_key": "2026-04",
   "metabolic_rate": 0.02,
   "max_reserve_months": 3.0,
   "daily_log": {}

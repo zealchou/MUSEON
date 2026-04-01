@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260331_150301_metacog_insight",
+  "category": "metacog_insight",
+  "content": "Telegram 附件 file_id 有時效性限制，重啟後無法補撈歷史訊息的附件，必須使用者重新傳送。此為系統設計層面的已知限制，值得在 API 文件中標註。",
+  "source": "L4_observer",
+  "created_at": "2026-03-31T15:03:01.664309+08:00",
+  "priority": "medium"
+}

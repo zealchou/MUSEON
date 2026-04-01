@@ -1,0 +1,6 @@
+{
+  "key": "lesson_single_source_of_truth",
+  "content": "維護同一份資料在兩個地方=必然漂移。CLAUDE.md指令表38行刪掉，改從plugin-registry動態生成193條路由。兩份抄本不是同步問題，是架構問題。",
+  "timestamp": "2026-03-31T00:00:23.477245+08:00",
+  "source": "session_20260331_evolution"
+}

@@ -1,0 +1,23 @@
+{
+  "id": "5bb52e8a-d39c-45f9-94e4-c0950c57f50c",
+  "content": "[Daily Crystal 2026-03-31] interactions=14 avg_composite=5.06 success_rate=14/14 workflows=webhook",
+  "layer": "L2_ep",
+  "tags": [
+    "wee_daily_crystal",
+    "2026-03-31"
+  ],
+  "quality_tier": "silver",
+  "dna27_routing": {},
+  "created_at": "2026-04-01T03:00:00.216426+08:00",
+  "updated_at": "2026-04-01T03:00:00.216426+08:00",
+  "access_count": 0,
+  "relevance_score": 1.0,
+  "source": "wee_auto",
+  "outcome": "",
+  "user_id": "boss",
+  "session_id": "",
+  "dept_id": "",
+  "chat_scope": "",
+  "group_id": "",
+  "archived": false
+}

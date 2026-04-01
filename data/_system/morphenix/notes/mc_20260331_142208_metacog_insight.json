@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260331_142208_metacog_insight",
+  "category": "metacog_insight",
+  "content": "Telegram 長訊息截斷教訓：多段結構化內容不應塞同一則訊息，應改為一段發一則，避免中間內容被截。此教訓適用於所有未來的 Telegram 輸出。",
+  "source": "L4_observer",
+  "created_at": "2026-03-31T14:22:08.944270+08:00",
+  "priority": "medium"
+}

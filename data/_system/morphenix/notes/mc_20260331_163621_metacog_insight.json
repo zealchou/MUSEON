@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260331_163621_metacog_insight",
+  "category": "metacog_insight",
+  "content": "**發現 Bot URL 拼接 bug**：Bot 在組合報告連結時會自動去掉底線（`future_work_report` → `futureworkreport`），導致 GitHub Pages 404。根因是字符正規化邏輯過度，需修復。驗證機制（HTTP 200 檢查）有效。",
+  "source": "L4_observer",
+  "created_at": "2026-03-31T16:36:21.435477+08:00",
+  "priority": "medium"
+}

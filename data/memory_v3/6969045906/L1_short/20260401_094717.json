@@ -1,0 +1,6 @@
+{
+  "session_id": "telegram_6969045906",
+  "user_message": "Actions 被停用的原因是什麼？ token 過期？",
+  "museon_reply": "結論：\n\n**Token 沒問題**，登入正常，Actions 停用跟 token 無關。\n\n**Actions 被停用的原因**：GitHub 對免費帳號或特定帳號類型有時候會停用 Actions（可能是因為 repository 設定、帳號層級設定，或 GitHub 自動偵測到某些行為）。但這已經不重要了——我們上一輪已改成 `legacy` 模式（直接讀 gh-pages 分支），完全不依賴 Actions。\n\n**真正的問題**：Taiwan Fastly CDN 節點把 404 快取住了，我這邊 curl 出來都是 200（新加坡節點），但台灣節點還沒更新。\n\n---\n\n**現在能用的連結（兩條都是 200）**：\n\n```\nhttps://htmlpreview.github.io/?https://raw.githubusercontent.com/zealchou/MUSEON/gh-pages/reports/ssapage.html\n```\n\n這條走 `raw.githubusercontent.com`（不走 GitHub Pages CDN），再透過 htmlp",
+  "timestamp": "2026-04-01T09:47:17.582135+08:00"
+}

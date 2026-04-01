@@ -1,0 +1,15 @@
+{
+  "qa_report_id": "QA-20260331-072928",
+  "timestamp": "2026-03-31T07:29:28.528889+00:00",
+  "session_id": "chaos_special_0",
+  "issue_type": "LEAKAGE",
+  "severity": "HIGH",
+  "evidence": {
+    "bot_reply_excerpt": "# 🌀 風部掃描啟動\n\n我看到前面的對話脈絡。系統已滿狀態，但我注意到幾個信號：\n\n## 當前狀態診斷\n\n| 指標 | 狀態 |\n|------|------|\n| **待提交改動** | 42+ 文件（含核心模組、數據、報告） |\n| **未追蹤文件** | 200+ 項（上傳、報告、臨時檔案） |\n| **施工檢查簽章** | 未見「四藍圖日期=2026-03-21」 |\n| **Git 分支",
+    "matched_patterns": [
+      "\\b(fan.?in|扇入|扇出|blast.?radius|爆炸圖)\\b"
+    ]
+  },
+  "suggested_fix": "強化 CLAUDE.md Step 3.5 禁止清單",
+  "status": "open"
+}

@@ -1,0 +1,15 @@
+{
+ "metadata": {
+  "last_active": "2026-03-31T15:25:04.674548"
+ },
+ "messages": [
+  {
+   "role": "user",
+   "content": "   \n\t  \n  "
+  },
+  {
+   "role": "assistant",
+   "content": "我是 MUSEON，準備接棒。\n\n讀取上次 session 摘要中..."
+  }
+ ]
+}

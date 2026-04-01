@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260330_213001_metacog_insight",
+  "category": "metacog_insight",
+  "content": "**立即驗證 Day 03 連結的實際狀態，不要選 1 或 2，而是：**\n\n1. **現在就檢查** Day 03 URL 是否已 HTTP 200（用 WebFetch 或 `curl -I`）\n   - 如果已上線 → **直接發連結給 Evvon**（最專業、最快）\n   - 如果還是 404 → 發簡短訊息「部署中，ETA 2 分鐘」+ 提供內容摘要\n\n這樣符合「action_first」——不要被部署時間卡住，直接驗證現狀再決策。等待的時間不如驗證 30 秒。\n\n---\n\n**洞察**：無。",
+  "source": "L4_observer",
+  "created_at": "2026-03-30T21:30:01.297028+08:00",
+  "priority": "medium"
+}

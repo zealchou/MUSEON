@@ -692,11 +692,11 @@ def generate_html_report(data: Dict[str, Any], output_dir: Path) -> Path:
     try:
         dt = datetime.fromisoformat(timestamp) if timestamp else datetime.now()
         time_str = dt.strftime("%Y年%m月%d日 %H:%M")
-        date_slug = dt.strftime("%Y%m%d_%H%M%S")
+        date_slug = dt.strftime("%Y%m%d-%H%M%S")
     except (ValueError, TypeError):
         dt = datetime.now()
         time_str = dt.strftime("%Y年%m月%d日 %H:%M")
-        date_slug = dt.strftime("%Y%m%d_%H%M%S")
+        date_slug = dt.strftime("%Y%m%d-%H%M%S")
 
     # 耗時 / 費用
     if duration_ms and duration_ms > 0:

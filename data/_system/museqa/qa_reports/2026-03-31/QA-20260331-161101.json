@@ -1,0 +1,13 @@
+{
+  "qa_report_id": "QA-20260331-161101",
+  "timestamp": "2026-03-31T16:11:01.078861+00:00",
+  "session_id": "telegram_6969045906",
+  "issue_type": "LENGTH_ANOMALY",
+  "severity": "LOW",
+  "evidence": {
+    "length": 0,
+    "issue": "too_short"
+  },
+  "suggested_fix": "",
+  "status": "open"
+}

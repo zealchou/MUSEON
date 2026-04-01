@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260401_092056_metacog_insight",
+  "category": "metacog_insight",
+  "content": "確認發布腳本 + 驗證機制有效；GitHub Pages CDN 快取是隱藏陷阱，需等待 + 重試驗證才能確保真實可用。",
+  "source": "L4_observer",
+  "created_at": "2026-04-01T09:20:56.649792+08:00",
+  "priority": "medium"
+}

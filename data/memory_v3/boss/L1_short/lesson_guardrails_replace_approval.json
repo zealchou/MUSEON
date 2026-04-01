@@ -1,0 +1,6 @@
+{
+  "key": "lesson_guardrails_replace_approval",
+  "content": "護欄取代審批。自主系統的安全不靠人類每次審批，而靠四道護欄：值域限制、冷卻期、死亡螺旋偵測、批次上限。人類審批是瓶頸，設計良好的護欄才是安全自主的前提。",
+  "timestamp": "2026-03-31T12:00:00+08:00",
+  "source": "session_20260331_evolution_plan"
+}

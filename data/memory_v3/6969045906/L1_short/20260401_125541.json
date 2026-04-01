@@ -1,0 +1,6 @@
+{
+  "session_id": "telegram_6969045906",
+  "user_message": "為什麼群組生成的 html 依然都還是一直 404 要到這邊給你處理才會過？ 想深一點 廣一點再回答我",
+  "museon_reply": "根本原因是多層的，不是單一 bug。讓我從深到廣說清楚。\n\n---\n\n## 為什麼群組生成的 HTML 一直 404？\n\n### 第一層：命名的問題發生在「生成時」，但你的修補在「發布時」\n\n```\n現在的流程：\nSkill Worker → 生成 HTML → 存 data/workspace/xxx_yyy.html（底線）\n ↓\n publish_report tool 呼叫\n ↓\n publish-report.sh（這裡我加了轉換）\n ↓\n gh-pages 上的檔名仍是 xxx_yyy.html\n ↓\n Telegram 吃底線 → 404\n```\n\n問題在於：**底線是在 Skill Worker 生成檔案時就寫進去的**，不是在發布時才出現的。即使 publish script 有轉換邏輯，**這層轉換我剛才加進去的，還沒有被驗證真正生效於群組呼叫路徑**。\n\n---\n\n### 第二層：系統有多條發布路徑，不是全部都走同一個 script\n\n| 路徑 | 觸發者 | 發布機制 | 是否經過我修的 script |\n|------|--------|----------|",
+  "timestamp": "2026-04-01T12:55:41.452781+08:00"
+}

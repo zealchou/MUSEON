@@ -1,0 +1,6 @@
+{
+  "session_id": "telegram_6969045906",
+  "user_message": "不要 我就是要原生 GitHub的\n\n總結一下這次的復盤學習，有問題的地方記下來、成功的方法也記下來，在這邊跟群組未來不要再來會那麼多趟了",
+  "museon_reply": "復盤完畢，記憶已存檔。\n\n---\n\n## 這次的完整教訓\n\n### 根因（三個疊加）\n\n| # | 問題 | 現象 | 解法 |\n|---|---|---|---|\n| 1 | **GitHub Actions 停用** | 工作流從未跑，Pages 從未真正部署 | Pages 改 legacy 模式，直接讀 gh-pages 分支，不依賴 Actions |\n| 2 | **台灣 Fastly CDN 快取 404** | 我方 curl 200，台灣端 404，兩邊看到不同結果 | 推完等 5-10 分鐘讓 CDN 自動同步，或等自然過期（最終自己就通了） |\n| 3 | **Telegram 吃底線** | URL 裡的 `_` 被當 markdown 格式符號吞掉，連結失效 | 報告檔名一律不含底線 |\n\n### 有效的備援路徑（緊急時用）\n- `htmlpreview.github.io` — 繞開 GitHub Pages CDN，直接渲染 raw 檔\n- `jsDelivr` — 台灣有獨立節點，不走 Fastly\n\n### 下次 SOP\n1. 推上 gh-pages\n",
+  "timestamp": "2026-04-01T10:04:24.470651+08:00"
+}

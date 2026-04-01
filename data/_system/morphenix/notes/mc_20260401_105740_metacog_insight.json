@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260401_105740_metacog_insight",
+  "category": "metacog_insight",
+  "content": "確認。Telegram 底線問題已記錄在案，檢驗無誤。\n\n**馬上修改規範**：從現在開始，報告檔名統一用 **短橫線** 代替底線（`morning-case-2026-04-01-xxx.html`），避免 Telegram 吃字元。\n\n你的訊息被截斷了——「但這需要把檔」後面呢？\n\n---\n\n*無*",
+  "source": "L4_observer",
+  "created_at": "2026-04-01T10:57:40.028049+08:00",
+  "priority": "medium"
+}

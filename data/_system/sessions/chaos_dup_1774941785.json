@@ -1,0 +1,15 @@
+{
+ "metadata": {
+  "last_active": "2026-03-31T15:26:22.045912"
+ },
+ "messages": [
+  {
+   "role": "user",
+   "content": "你好"
+  },
+  {
+   "role": "assistant",
+   "content": "你好！我是 MUSEON，Zeal 的 AI 夥伴。\n\n今天有什麼需要幫忙的嗎？"
+  }
+ ]
+}

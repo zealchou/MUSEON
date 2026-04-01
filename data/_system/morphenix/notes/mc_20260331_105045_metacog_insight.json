@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260331_105045_metacog_insight",
+  "category": "metacog_insight",
+  "content": "Telegram 快取導致連結預覽失效——下次報告發布後應主動檢測 Telegram 快取，或提醒使用者新分頁打開確保獲取最新內容。",
+  "source": "L4_observer",
+  "created_at": "2026-03-31T10:50:45.137372+08:00",
+  "priority": "medium"
+}

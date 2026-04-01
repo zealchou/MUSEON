@@ -1,0 +1,6 @@
+{
+  "session_id": "telegram_6969045906",
+  "user_message": "[回覆 霓裳 的訊息：推上去了，連結驗證 200 OK：\n\nhttps://zealchou.github.io/MUSEON/reports/morningcase2026-04-01_business-crossroads.html\n\n今日晨報摘要：Vol.003「商業決策的十字路口」\n\n兩個對比個案，同一個主題——同樣的決策邏輯，不同的執行結果：\n· 成功篇：微軟 AI 助理企業部署——嫁接在三億付費用戶的金牛業務上，繞開問號死亡谷，六個月後發現真實黏著點不是「效率」而是「記憶力」\n· 失敗篇：WeWork IPO 崩盤——用「空間即服務」包裝房地產租賃，但數字不支撐估值，最終在投資人和公開市場的一致質疑下撤件\n\n等 5-10 分鐘 CDN 同步再傳出去比較保險。]\n\n又是404 剛剛才處理過欸，小姐",
+  "museon_reply": "問題找到了。\n\n我方 curl 是 **200**，檔案確實在 gh-pages 上。\n\n**還是 Telegram 吃底線的問題。**\n\n上次傳出去的連結是：\n```\nmorningcase2026-04-01_business-crossroads.html\n```\n（`morning_case` 變成 `morningcase`，前面的底線被吞掉了）\n\n正確連結（無底線版本）：\n```\nhttps://zealchou.github.io/MUSEON/reports/morning-case-2026-04-01-business-crossroads.html\n```\n\n但這需要把檔案重新命名。**現在最快的解法**：直接給你一個可以安全貼進 Telegram 的連結——把所有底線換成 `-`，重新 push：\n\n要我現在 rename 推上去嗎？還是你先用這個暫時繞：\n```\nhttps://htmlpreview.github.io/?https://raw.githubusercontent.com/zealchou/MUSEON/gh-pages/reports/mo",
+  "timestamp": "2026-04-01T10:57:23.521970+08:00"
+}

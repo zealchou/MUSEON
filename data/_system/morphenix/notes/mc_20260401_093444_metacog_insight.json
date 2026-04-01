@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260401_093444_metacog_insight",
+  "category": "metacog_insight",
+  "content": "確認問題根源。GitHub Actions 被停用導致工作流永不執行。\n\n**立即修復步驟（選一個）：**\n\n**方案 A：改為直接分支部署（推薦）**\n```bash\ncd ~/MUSEON\ngit checkout gh-pages 2>/dev/null || git checkout --orphan gh-pages\ngit rm -rf . 2>/dev/null || true\ngit commit --allow-empty -m \"Initial gh-pages branch\"\ngit push origin gh-pages\n```\n\n然後在 GitHub 設定 Pages：Settings → Pages → Source 改為「Deploy from a branch」→ 選 `gh-pages` 分支。\n\n**方案 B：啟用 Actions（如果可以）**\nSettings → Actions → General → 確認 \"Actions permissions\" 選 \"Allow all actions and reusable workflows\"\n\n**方案 C：使用本地發布腳本（臨時方案）**\n```bash\ncd ~/MUSEON\nbash bin/publish_report.sh reports/ssa_museon_sales_page_v3.html\n```\n\n---\n\n建議**先試方案 A**（直接分支部署最簡潔）。完成後再測新連結。要我幫忙跑這些命令嗎？",
+  "source": "L4_observer",
+  "created_at": "2026-04-01T09:34:44.252582+08:00",
+  "priority": "medium"
+}

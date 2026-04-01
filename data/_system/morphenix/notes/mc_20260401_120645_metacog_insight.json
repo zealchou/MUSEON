@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260401_120645_metacog_insight",
+  "category": "metacog_insight",
+  "content": "同意。這個改動應該加進去。\n\n確認一下實作位置：\n1. **修改點**：`scripts/publish-report.py` 中的檔名生成邏輯，所有底線 `_` 自動轉橫線 `-`\n2. **影響範圍**：只改發布的檔案名稱，不影響原始報告檔案\n3. **向後相容**：新檔名都用橫線，舊連結（含底線）會 404 — 但因為已經靠 curl 驗證，所以你會第一時間發現問題\n\n**建議順序：**\n1. 先改 `publish-report.py` 加檔名轉換邏輯\n2. 測試一份報告看是否正確生成橫線版\n3. 考慮是否需要在 `docs/publish-quick-guide.md` 補一句「檔名自動用橫線，無需手動」\n\n**遺留問題**：GitHub Pages 上現在同時有底線版和橫線版，要不要清理舊的？（可選，但建議清一下避免混淆）\n\n我來改 `publish-report.py` — 先讀檔確認目前結構。",
+  "source": "L4_observer",
+  "created_at": "2026-04-01T12:06:45.449164+08:00",
+  "priority": "medium"
+}

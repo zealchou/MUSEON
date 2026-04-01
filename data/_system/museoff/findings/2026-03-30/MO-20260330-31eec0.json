@@ -1,0 +1,29 @@
+{
+  "finding_id": "MO-20260330-31eec0",
+  "timestamp": "2026-03-30T15:34:33.394447+00:00",
+  "probe_layer": "L3",
+  "severity": "MEDIUM",
+  "title": "配置問題: data/_system/group_context.db — db_error",
+  "source": "museoff",
+  "blast_origin": {
+    "file": "file is not a database",
+    "line": null,
+    "error_type": "db_error",
+    "traceback": ""
+  },
+  "blast_radius": [],
+  "context": {},
+  "triage_done": null,
+  "known_fix": null,
+  "prescription": {
+    "diagnosis": "db_error: file is not a database",
+    "root_cause": "",
+    "suggested_fix": "",
+    "runbook_id": "",
+    "fix_complexity": "GREEN",
+    "pre_check": "",
+    "post_check": "",
+    "rollback": ""
+  },
+  "status": "open"
+}

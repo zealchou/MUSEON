@@ -1,0 +1,15 @@
+{
+  "qa_report_id": "QA-20260331-072929",
+  "timestamp": "2026-03-31T07:29:29.381684+00:00",
+  "session_id": "chaos_special_0",
+  "issue_type": "LEAKAGE",
+  "severity": "HIGH",
+  "evidence": {
+    "bot_reply_excerpt": "看到前面的診斷了。\n\n**當前狀況：**\n- ✅ brain.py self 參考缺失已定位（紅區修改）\n- ✅ 42+ 待 commit 檔案堆積\n- ✅ pytest 環境未裝（暫無法跑全量驗證）\n\n**準備就緒，等你的指令。**\n\n你現在要我：\n1. 🔴 **直接修復** brain.py self 缺失 + commit？\n2. 🟡 **優先提交** 現有 42 個改動，修復留後？  \n3",
+    "matched_patterns": [
+      "\\b(MCP|plugin|Gateway|Brain|ResponseGuard|EventBus)\\b"
+    ]
+  },
+  "suggested_fix": "強化 CLAUDE.md Step 3.5 禁止清單",
+  "status": "open"
+}

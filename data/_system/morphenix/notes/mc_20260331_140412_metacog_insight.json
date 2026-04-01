@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260331_140412_metacog_insight",
+  "category": "metacog_insight",
+  "content": "**故障診斷順序**：先區分「發送端完成 vs 接收端故障」，再決定補救行動，避免無謂重傳與重複勞動。確認接收故障後決定系統重啟，而非怪罪上游。",
+  "source": "L4_observer",
+  "created_at": "2026-03-31T14:04:12.833685+08:00",
+  "priority": "medium"
+}

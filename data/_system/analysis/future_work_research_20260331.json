@@ -1,0 +1,294 @@
+{
+  "meta": {
+    "generated_at": "2026-03-31",
+    "purpose": "未來工作趨勢研究摘要，供報告使用",
+    "search_queries": 8,
+    "data_currency": "2024-2025 最新數據"
+  },
+
+  "1_digital_nomads": {
+    "title": "數位遊牧族（Digital Nomads）",
+    "global_population": {
+      "2019": "1000萬（估計）",
+      "2020": "1090萬",
+      "2022": "3500萬（COVID 大爆發後）",
+      "2024": "3500萬～4000萬（估計）",
+      "2025": "4000萬～6000萬（估計）"
+    },
+    "growth_rate": {
+      "2019_to_2022": "131%（三年三倍，COVID 效應）",
+      "post_2022_annual": "約 2%（趨於穩定）"
+    },
+    "us_specific": {
+      "2019": "730萬",
+      "2024": "1810萬（佔美國勞動力 11%）",
+      "growth_2019_to_2024": "147%"
+    },
+    "taiwan": {
+      "global_ranking_2024": "全球第 12 名，亞洲第 1",
+      "suitable_jobs": ["工程師", "自媒體", "數位行銷", "線上家教", "翻譯", "剪接師", "設計師", "作家"]
+    },
+    "projections": {
+      "2030": "超過 6000 萬",
+      "2035": "可能達 10 億（Pieter Levels 極端預測）"
+    },
+    "key_trends": [
+      "疫情後遠端工作正常化是主要驅動力",
+      "AI 工具讓個人可遠端承接更多類型工作",
+      "數位遊牧簽證已在 40+ 國家推出",
+      "亞洲城市（曼谷、峇里、台灣）成熱門基地"
+    ],
+    "sources": [
+      "https://www.mbopartners.com/state-of-independence/digital-nomads/",
+      "https://blog.savvynomad.io/digital-nomad-statistics/",
+      "https://thenomadalmanac.com/digital-nomad-statistics/",
+      "https://abrotherabroad.com/digital-nomad-statistics/"
+    ]
+  },
+
+  "2_freelancer_soho_market": {
+    "title": "SOHO／自由工作者／個體戶市場",
+    "global_workforce": {
+      "freelance_share": "46.6%（全球 15.7 億勞工，佔 33.8 億總勞動力）",
+      "note": "自雇比例從 2000 年 55.5% 降至 2024 年 46.7%（傳統農業自雇下降，平台自雇上升）"
+    },
+    "market_size": {
+      "global_freelance_economy": "1.5 兆美元（CAGR 15%）",
+      "freelance_platforms_market_2025": "63.7 億美元",
+      "freelance_platforms_market_2033": "241.6 億美元（CAGR 18.6%）",
+      "gig_economy_global_revenue": "3.8 兆美元／年"
+    },
+    "us_soho_market": {
+      "2024": "125 億美元",
+      "2034_projection": "250 億美元（CAGR 7.2%）"
+    },
+    "us_freelancers": {
+      "count_2024": "7040 萬人（佔美國勞動力 36%）",
+      "full_time_independent_2020": "1360 萬",
+      "full_time_independent_2024": "2770 萬（翻倍）",
+      "contribution_to_economy": "1.27 兆美元"
+    },
+    "demographics": {
+      "gen_z_freelance": "52% 的 Z 世代從事自由工作",
+      "millennials_freelance": "44% 的千禧世代從事自由工作",
+      "high_earners_100k_plus_2020": "300 萬人",
+      "high_earners_100k_plus_2025": "560 萬人（+87%）"
+    },
+    "key_trends": [
+      "平台經濟（Upwork、Fiverr）持續高速增長",
+      "高技能自由工作者收入大幅提升",
+      "Z 世代優先選擇彈性工作而非傳統就業",
+      "全球跨境接案成為主流（尤其科技、設計、寫作）"
+    ],
+    "sources": [
+      "https://www.demandsage.com/freelance-statistics/",
+      "https://scoop.market.us/freelance-statistics/",
+      "https://www.emergenresearch.com/industry-report/us-small-office-home-office-soho-service-market",
+      "https://www.grandviewresearch.com/industry-analysis/freelance-platforms-market-report"
+    ]
+  },
+
+  "3_solopreneur_one_person_company": {
+    "title": "一人公司／Solopreneur 趨勢",
+    "us_market": {
+      "solopreneur_count_2025": "2980 萬人（美國）",
+      "solopreneur_count_2026": "4180 萬人（美國）",
+      "economic_contribution": "1.3 兆～1.7 兆美元／年（佔美國 GDP 約 6.8%）",
+      "pct_of_all_us_businesses": "84%（無僱員企業，1997 年為 76%）"
+    },
+    "growth_signals": {
+      "sba_monthly_applications": "44 萬件／月（較疫情前 +90%）",
+      "solo_founded_startups_2019": "23.7%",
+      "solo_founded_startups_mid_2025": "36.3%"
+    },
+    "profitability": {
+      "profitable_first_year": "77%（vs 傳統僱主企業 54%）",
+      "expect_profitable_2025": "93%",
+      "earns_100k_to_300k_annually": "約 20%（無聘員）"
+    },
+    "demographics": {
+      "women_solopreneurs": "54.4%（首次超過男性）",
+      "immigrant_solopreneurs": "14%（vs 傳統僱主企業 7%）",
+      "startup_capital_under_5k": "近 50%"
+    },
+    "ai_adoption": {
+      "use_ai_for_productivity": "60%",
+      "expect_ai_to_change_operations": "78%",
+      "believe_ai_will_benefit_business": "68%"
+    },
+    "key_trends": [
+      "AI 工具大幅降低一人公司的規模限制",
+      "「Billion-dollar solo act」概念出現：AI 讓一人創造企業級產出",
+      "社群媒體讓個人品牌成為核心競爭力",
+      "女性創業比例首次超越男性",
+      "低資本創業（< $5,000 起步）成常態"
+    ],
+    "sources": [
+      "https://kenyarmosh.com/blog/solopreneur-statistics/",
+      "https://gusto.com/resources/gusto-insights/new-business-formation-solopreneurs-2025",
+      "https://www.solobusinesshub.com/trend-watch/solo-business-trends-2025/",
+      "https://founderreports.com/solopreneur-statistics/"
+    ]
+  },
+
+  "4_taiwan_specific": {
+    "title": "台灣自由工作者／個體創業特有觀察",
+    "digital_nomad_ranking": {
+      "global": "第 12 名（2024）",
+      "asia": "第 1 名",
+      "factors": ["基礎建設完善", "生活成本相對低", "網路品質高", "醫療便利", "安全"]
+    },
+    "startup_ecosystem": {
+      "2023_new_company_registrations": "較前年增加 11,078 家",
+      "youth_entrepreneurship_intent": "71%（26-30 歲受訪者想創業）",
+      "focus_sectors": ["電子/半導體", "FinTech", "生成式 AI 應用", "IoT", "自媒體/內容創作"],
+      "government_support": "政府積極建立新創友好環境，早期融資案件數顯著增加"
+    },
+    "work_culture_shift": {
+      "popular_platforms": ["104 人力銀行", "Tasker 接案平台"],
+      "suitable_remote_jobs": ["工程師", "自媒體", "數位行銷", "線上家教", "翻譯", "剪接師", "設計師"],
+      "trend": "後疫情時代「數位游牧」話題熱度顯著上升，自媒體創業為最熱門選項之一"
+    },
+    "limitations": {
+      "official_stats_gap": "台灣勞動部尚未發布完整的自由工作者/數位遊牧族官方統計數據",
+      "data_source": "主要依賴人力銀行調查與媒體報導"
+    },
+    "sources": [
+      "https://betweengos.com/digital-nomad-report-2024-remote-work-opportunities/",
+      "https://kpmg.com/tw/zh/home/insights/2024/02/kpmg-taiwan-startups-trends-outlook.html",
+      "https://blog.104.com.tw/digital-nomad-introduce/",
+      "https://jasoninsight.com/jasoninsight-com-2025-solopreneur-trends/"
+    ]
+  },
+
+  "5_future_of_work_2025_2030": {
+    "title": "未來工作趨勢預測（2025-2030）",
+    "wef_future_of_jobs_2025": {
+      "jobs_displaced_by_2030": "9200 萬",
+      "jobs_created_by_2030": "1.7 億",
+      "net_new_jobs": "+7800 萬",
+      "ai_specific_net": "+1000 萬（AI 創造 1900 萬 - 取代 900 萬）",
+      "skills_obsolete_by_2030": "39%（現有技能將過時）"
+    },
+    "remote_hybrid_work": {
+      "remote_capable_workers_hybrid_or_remote": "80%（2025 初）",
+      "hybrid_preference": "83% 員工偏好混合辦公",
+      "hybrid_job_postings_q2_2023": "15%",
+      "hybrid_job_postings_q2_2025": "24%（+60%）",
+      "us_remote_workers_2025": "3260 萬人（22% 勞動力）",
+      "employers_offering_hybrid": "88%"
+    },
+    "workforce_transformation": {
+      "reskilling_priority_2030": "77% 雇主計畫再培訓",
+      "ai_upskilling_plan": "80% 企業計畫提供 AI 培訓",
+      "skill_gap_as_barrier": "63% 雇主視技能缺口為最大障礙",
+      "talent_availability_improvement": "僅 29% 雇主預期 2025-2030 人才供應改善"
+    },
+    "fastest_growing_jobs": [
+      "大數據專家",
+      "FinTech 工程師",
+      "AI/ML 工程師",
+      "永續發展專家",
+      "人機協作設計師"
+    ],
+    "fastest_declining_jobs": [
+      "行政助理",
+      "文件處理員",
+      "收銀員",
+      "部分客服職位"
+    ],
+    "sources": [
+      "https://www.weforum.org/publications/the-future-of-jobs-report-2025/",
+      "https://reports.weforum.org/docs/WEF_Future_of_Jobs_Report_2025.pdf",
+      "https://www.mbopartners.com/blog/independent-workforce-trends/the-future-of-remote-work-10-trends-and-predictions-for-2025/"
+    ]
+  },
+
+  "6_ai_impact_on_individuals": {
+    "title": "AI 對個體創業者的影響",
+    "productivity": {
+      "hours_saved_per_week_avg": "8 小時（自由工作者使用 AI）",
+      "expected_productivity_increase": "25%～55%（企業導入 AI 後）",
+      "solopreneurs_using_ai": "60%"
+    },
+    "revenue_impact": {
+      "positive": "高技能自由工作者收入大幅提升",
+      "negative": "AI 直接可替代領域（基礎寫作、圖像）：合約數 -2%、收入 -5%",
+      "100k_earners_2020": "300 萬人",
+      "100k_earners_2025": "560 萬人（+87%）"
+    },
+    "business_model_transformation": {
+      "solo_founded_startup_surge": "23.7%（2019）→ 36.3%（2025）",
+      "billion_dollar_solo_concept": "AI 讓一人公司具備過去需要數十人才能完成的能力",
+      "llm_enterprise_adoption": "64% 企業已在整合/部署 LLM（2024）"
+    },
+    "freelancer_ai_polarization": {
+      "winners": "高技能、使用 AI 擴大產能的工作者",
+      "losers": "AI 直接可替代的低階任務工作者（翻譯、基礎設計、程式模板）",
+      "key_insight": "AI 不取代自由工作者，而是取代「不用 AI 的自由工作者」"
+    },
+    "sources": [
+      "https://www.jobbers.io/ais-impact-on-freelancing-navigating-the-future-of-independent-work/",
+      "https://www.shno.co/blog/how-solopreneurs-are-scaling-with-ai",
+      "https://www.brookings.edu/articles/is-generative-ai-a-job-killer-evidence-from-the-freelance-market/",
+      "https://complexdiscovery.com/the-billion-dollar-solo-act-can-ai-fueled-solopreneurs-redefine-scalable-business/"
+    ]
+  },
+
+  "7_remote_work_data": {
+    "title": "遠端工作／混合辦公趨勢數據",
+    "global_snapshot_2025": {
+      "remote_capable_workers_hybrid": "52%",
+      "remote_capable_workers_fully_remote": "26%",
+      "total_flexible_work": "78%",
+      "global_job_postings_with_remote_option": "36%"
+    },
+    "us_data_2025": {
+      "remote_workers": "3260 萬（22%）",
+      "hybrid_job_posting_q2_2025": "24%（vs Q2 2023 的 15%）",
+      "fully_onsite_q4_2025": "65%"
+    },
+    "employee_preferences": {
+      "prefer_hybrid": "83%",
+      "hybrid_top_choice_jobseekers": "55%",
+      "flexible_work_top_priority_gen_z": "92%"
+    },
+    "employer_stance": {
+      "provide_hybrid_option": "88%",
+      "maintained_or_expanded_remote_policies": "90%"
+    },
+    "macro_trend": "2026 年遠端工作佔全球勞動力 52%，幾乎是疫情前的兩倍",
+    "sources": [
+      "https://www.venasolutions.com/blog/remote-work-statistics",
+      "https://www.gallup.com/401384/indicator-hybrid-work.aspx",
+      "https://economicgraph.linkedin.com/content/dam/me/economicgraph/en-us/PDF/global-state-of-remote-and-hybrid-work-sept-2024.pdf",
+      "https://neat.no/resources/the-state-of-remote-work-2025-statistics/"
+    ]
+  },
+
+  "synthesis": {
+    "title": "跨主題綜合洞見",
+    "mega_trend": "「個人化工作單元」正在取代傳統組織架構——個人在 AI 賦能下，具備過去只有企業才有的競爭力",
+    "key_numbers": {
+      "global_digital_nomads_2025": "4000萬～6000萬",
+      "global_freelance_economy": "1.5兆美元",
+      "us_solopreneurs_2025": "2980萬",
+      "net_new_jobs_by_2030_wef": "+7800萬",
+      "skills_to_become_obsolete_by_2030": "39%",
+      "ai_weekly_hours_saved": "8小時（自由工作者平均）"
+    },
+    "taiwan_opportunity": [
+      "亞洲數位遊牧首選國（基礎建設+安全+CP值）",
+      "科技人才外包到全球的機會龐大",
+      "政府積極扶植新創，法規環境相對友善",
+      "自媒體+AI 工具結合，個人創業門檻大幅降低"
+    ],
+    "2030_predictions": [
+      "全球數位遊牧族 6000 萬+",
+      "自由工作者貢獻超過全球 GDP 5%",
+      "一人公司利用 AI 可達到過去 10 人公司的產出",
+      "混合辦公成為絕大多數知識工作者的預設模式",
+      "技能半衰期縮短至 2-3 年，終身學習成為生存必需"
+    ]
+  }
+}

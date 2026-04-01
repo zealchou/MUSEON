@@ -1,0 +1,14 @@
+{
+  "status": "done",
+  "generated_at": "2026-03-31T04:35:21.012131+08:00",
+  "explorations_analyzed": 9,
+  "connections": [],
+  "contradictions": [],
+  "blind_spots": [],
+  "reweighted_crystals": {
+    "KL-HYP-0434": 0.3527,
+    "KL-HYP-0633": 0.3527,
+    "KL-INS-0149": 0.6937
+  },
+  "summary": "更新了 3 個結晶的共振指數"
+}

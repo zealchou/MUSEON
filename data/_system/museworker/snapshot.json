@@ -1,5 +1,5 @@
 {
-  "snapshot_version": "2026-03-30T12:55:11.547017+00:00",
+  "snapshot_version": "2026-04-01T04:49:44.216944+00:00",
   "worker_version": "1.0.0",
   "trigger": "scheduled",
   "fan_in_table": {
@@ -13,7 +13,7 @@
     },
     "agent/brain.py": {
       "fan_in": 2,
-      "fan_out": 42,
+      "fan_out": 44,
       "zone": "RED",
       "importers": [
         "gateway/brain_worker.py",
@@ -47,7 +47,7 @@
     },
     "agent/brain_observation.py": {
       "fan_in": 1,
-      "fan_out": 3,
+      "fan_out": 5,
       "zone": "GREEN",
       "importers": [
         "agent/brain.py"
@@ -71,7 +71,7 @@
     },
     "agent/brain_prompt_builder.py": {
       "fan_in": 1,
-      "fan_out": 7,
+      "fan_out": 9,
       "zone": "GREEN",
       "importers": [
         "agent/brain.py"
@@ -148,9 +148,17 @@
         "gateway/server.py"
       ]
     },
+    "agent/dissent_engine.py": {
+      "fan_in": 1,
+      "fan_out": 0,
+      "zone": "GREEN",
+      "importers": [
+        "agent/brain.py"
+      ]
+    },
     "agent/drift_detector.py": {
       "fan_in": 0,
-      "fan_out": 0,
+      "fan_out": 1,
       "zone": "GREEN",
       "importers": []
     },
@@ -163,32 +171,53 @@
         "nightly/job.py"
       ]
     },
+    "agent/growth_stage.py": {
+      "fan_in": 2,
+      "fan_out": 0,
+      "zone": "YELLOW",
+      "importers": [
+        "agent/brain_observation.py",
+        "nightly/nightly_pipeline.py"
+      ]
+    },
     "agent/intuition.py": {
+      "fan_in": 2,
+      "fan_out": 0,
+      "zone": "YELLOW",
+      "importers": [
+        "agent/brain_prompt_builder.py",
+        "nightly/nightly_pipeline.py"
+      ]
+    },
+    "agent/kernel_guard.py": {
       "fan_in": 1,
       "fan_out": 0,
       "zone": "GREEN",
       "importers": [
-        "agent/brain_prompt_builder.py"
+        "nightly/nightly_pipeline.py"
       ]
     },
-    "agent/kernel_guard.py": {
-      "fan_in": 0,
-      "fan_out": 0,
-      "zone": "GREEN",
-      "importers": []
-    },
     "agent/knowledge_lattice.py": {
-      "fan_in": 7,
+      "fan_in": 8,
       "fan_out": 4,
       "zone": "YELLOW",
       "importers": [
         "agent/crystal_store.py",
+        "core/session_adjustment.py",
         "evolution/digest_engine.py",
         "evolution/wee_engine.py",
         "nightly/morphenix_executor.py",
         "nightly/nightly_pipeline.py",
         "nightly/periodic_cycles.py",
         "pulse/pulse_engine.py"
+      ]
+    },
+    "agent/mask_engine.py": {
+      "fan_in": 1,
+      "fan_out": 0,
+      "zone": "GREEN",
+      "importers": [
+        "agent/brain.py"
       ]
     },
     "agent/mcp_connector.py": {
@@ -206,6 +235,16 @@
       "zone": "GREEN",
       "importers": [
         "agent/brain.py"
+      ]
+    },
+    "agent/momentum_brake.py": {
+      "fan_in": 3,
+      "fan_out": 0,
+      "zone": "YELLOW",
+      "importers": [
+        "agent/drift_detector.py",
+        "nightly/nightly_pipeline.py",
+        "nightly/nightly_reflection.py"
       ]
     },
     "agent/pdr_council.py": {
@@ -367,6 +406,16 @@
         "agent/brain.py"
       ]
     },
+    "agent/trait_engine.py": {
+      "fan_in": 3,
+      "fan_out": 0,
+      "zone": "YELLOW",
+      "importers": [
+        "agent/brain_observation.py",
+        "nightly/nightly_pipeline.py",
+        "nightly/nightly_reflection.py"
+      ]
+    },
     "athena/external_bridge.py": {
       "fan_in": 0,
       "fan_out": 0,
@@ -400,11 +449,12 @@
       ]
     },
     "cache/context_cache_builder.py": {
-      "fan_in": 1,
+      "fan_in": 2,
       "fan_out": 0,
-      "zone": "GREEN",
+      "zone": "YELLOW",
       "importers": [
-        "nightly/nightly_pipeline.py"
+        "nightly/nightly_pipeline.py",
+        "nightly/skill_install_worker.py"
       ]
     },
     "channels/base.py": {
@@ -464,7 +514,7 @@
     },
     "channels/telegram.py": {
       "fan_in": 1,
-      "fan_out": 11,
+      "fan_out": 12,
       "zone": "GREEN",
       "importers": [
         "gateway/server.py"
@@ -492,6 +542,19 @@
       "importers": [
         "gateway/server.py",
         "nightly/nightly_pipeline.py"
+      ]
+    },
+    "core/awareness.py": {
+      "fan_in": 6,
+      "fan_out": 0,
+      "zone": "YELLOW",
+      "importers": [
+        "doctor/museoff.py",
+        "doctor/surgeon.py",
+        "evolution/feedback_loop.py",
+        "nightly/morphenix_executor.py",
+        "nightly/periodic_cycles.py",
+        "nightly/triage_step.py"
       ]
     },
     "core/blueprint_reader.py": {
@@ -536,7 +599,7 @@
       ]
     },
     "core/event_bus.py": {
-      "fan_in": 46,
+      "fan_in": 49,
       "fan_out": 0,
       "zone": "FORBIDDEN",
       "importers": [
@@ -565,6 +628,8 @@
         "gateway/cron_registry.py",
         "gateway/routes_api.py",
         "gateway/server.py",
+        "gateway/telegram_pump.py",
+        "governance/algedonic_alert.py",
         "governance/dendritic_scorer.py",
         "governance/governor.py",
         "governance/immune_memory.py",
@@ -577,6 +642,7 @@
         "nightly/morphenix_executor.py",
         "nightly/nightly_pipeline.py",
         "nightly/skill_forge_scout.py",
+        "nightly/triage_step.py",
         "pulse/autonomous_queue.py",
         "pulse/micro_pulse.py",
         "pulse/proactive_bridge.py",
@@ -594,6 +660,14 @@
       "zone": "GREEN",
       "importers": [
         "agent/brain.py"
+      ]
+    },
+    "core/session_adjustment.py": {
+      "fan_in": 1,
+      "fan_out": 1,
+      "zone": "GREEN",
+      "importers": [
+        "agent/brain_prompt_builder.py"
       ]
     },
     "core/skill_manager.py": {
@@ -979,7 +1053,7 @@
     },
     "doctor/museoff.py": {
       "fan_in": 1,
-      "fan_out": 5,
+      "fan_out": 8,
       "zone": "GREEN",
       "importers": [
         "gateway/cron_registry.py"
@@ -1057,7 +1131,7 @@
     },
     "doctor/surgeon.py": {
       "fan_in": 2,
-      "fan_out": 5,
+      "fan_out": 7,
       "zone": "YELLOW",
       "importers": [
         "agent/tools.py",
@@ -1082,6 +1156,54 @@
         "gateway/server.py"
       ]
     },
+    "evolution/breath_analyzer.py": {
+      "fan_in": 1,
+      "fan_out": 1,
+      "zone": "GREEN",
+      "importers": [
+        "evolution/breath_scheduler.py"
+      ]
+    },
+    "evolution/breath_diagnostician.py": {
+      "fan_in": 1,
+      "fan_out": 1,
+      "zone": "GREEN",
+      "importers": [
+        "evolution/breath_scheduler.py"
+      ]
+    },
+    "evolution/breath_executor.py": {
+      "fan_in": 1,
+      "fan_out": 1,
+      "zone": "GREEN",
+      "importers": [
+        "evolution/breath_scheduler.py"
+      ]
+    },
+    "evolution/breath_retro.py": {
+      "fan_in": 1,
+      "fan_out": 0,
+      "zone": "GREEN",
+      "importers": [
+        "evolution/breath_scheduler.py"
+      ]
+    },
+    "evolution/breath_scheduler.py": {
+      "fan_in": 1,
+      "fan_out": 5,
+      "zone": "GREEN",
+      "importers": [
+        "gateway/cron_registry.py"
+      ]
+    },
+    "evolution/breath_watcher.py": {
+      "fan_in": 1,
+      "fan_out": 0,
+      "zone": "GREEN",
+      "importers": [
+        "evolution/breath_scheduler.py"
+      ]
+    },
     "evolution/digest_engine.py": {
       "fan_in": 2,
       "fan_out": 3,
@@ -1101,11 +1223,12 @@
       ]
     },
     "evolution/feedback_loop.py": {
-      "fan_in": 1,
-      "fan_out": 1,
-      "zone": "GREEN",
+      "fan_in": 2,
+      "fan_out": 3,
+      "zone": "YELLOW",
       "importers": [
-        "gateway/routes_api.py"
+        "gateway/routes_api.py",
+        "gateway/server.py"
       ]
     },
     "evolution/intention_radar.py": {
@@ -1126,10 +1249,11 @@
       ]
     },
     "evolution/parameter_tuner.py": {
-      "fan_in": 1,
+      "fan_in": 2,
       "fan_out": 0,
-      "zone": "GREEN",
+      "zone": "YELLOW",
       "importers": [
+        "evolution/breath_executor.py",
         "nightly/periodic_cycles.py"
       ]
     },
@@ -1186,14 +1310,16 @@
       ]
     },
     "gateway/cron.py": {
-      "fan_in": 0,
+      "fan_in": 1,
       "fan_out": 0,
       "zone": "GREEN",
-      "importers": []
+      "importers": [
+        "doctor/museoff.py"
+      ]
     },
     "gateway/cron_registry.py": {
       "fan_in": 0,
-      "fan_out": 29,
+      "fan_out": 30,
       "zone": "GREEN",
       "importers": []
     },
@@ -1278,9 +1404,17 @@
     },
     "gateway/telegram_pump.py": {
       "fan_in": 0,
-      "fan_out": 14,
+      "fan_out": 15,
       "zone": "GREEN",
       "importers": []
+    },
+    "governance/algedonic_alert.py": {
+      "fan_in": 1,
+      "fan_out": 1,
+      "zone": "GREEN",
+      "importers": [
+        "governance/governor.py"
+      ]
     },
     "governance/anima_bridge.py": {
       "fan_in": 0,
@@ -1333,7 +1467,7 @@
     },
     "governance/governor.py": {
       "fan_in": 1,
-      "fan_out": 2,
+      "fan_out": 3,
       "zone": "GREEN",
       "importers": [
         "gateway/server.py"
@@ -1466,13 +1600,16 @@
       ]
     },
     "llm/adapters.py": {
-      "fan_in": 3,
+      "fan_in": 6,
       "fan_out": 1,
       "zone": "YELLOW",
       "importers": [
         "agent/brain.py",
         "agent/brain_tool_loop.py",
-        "agent/brain_tools.py"
+        "agent/brain_tools.py",
+        "evolution/breath_analyzer.py",
+        "evolution/breath_diagnostician.py",
+        "nightly/nightly_pipeline.py"
       ]
     },
     "llm/budget.py": {
@@ -1545,10 +1682,12 @@
       ]
     },
     "memory/memory_reflector.py": {
-      "fan_in": 0,
+      "fan_in": 1,
       "fan_out": 1,
       "zone": "GREEN",
-      "importers": []
+      "importers": [
+        "agent/brain_prompt_builder.py"
+      ]
     },
     "memory/quality_gate.py": {
       "fan_in": 1,
@@ -1692,7 +1831,7 @@
     },
     "nightly/morphenix_executor.py": {
       "fan_in": 3,
-      "fan_out": 4,
+      "fan_out": 6,
       "zone": "YELLOW",
       "importers": [
         "gateway/server.py",
@@ -1719,11 +1858,19 @@
     },
     "nightly/nightly_pipeline.py": {
       "fan_in": 2,
-      "fan_out": 41,
+      "fan_out": 53,
       "zone": "YELLOW",
       "importers": [
         "gateway/cron_registry.py",
         "gateway/server.py"
+      ]
+    },
+    "nightly/nightly_reflection.py": {
+      "fan_in": 1,
+      "fan_out": 2,
+      "zone": "GREEN",
+      "importers": [
+        "nightly/nightly_pipeline.py"
       ]
     },
     "nightly/optimize.py": {
@@ -1734,13 +1881,21 @@
     },
     "nightly/periodic_cycles.py": {
       "fan_in": 1,
-      "fan_out": 4,
+      "fan_out": 6,
       "zone": "GREEN",
       "importers": [
         "nightly/nightly_pipeline.py"
       ]
     },
     "nightly/pipeline_dag.py": {
+      "fan_in": 1,
+      "fan_out": 0,
+      "zone": "GREEN",
+      "importers": [
+        "nightly/nightly_pipeline.py"
+      ]
+    },
+    "nightly/skill_draft_forger.py": {
       "fan_in": 1,
       "fan_out": 0,
       "zone": "GREEN",
@@ -1757,12 +1912,56 @@
         "nightly/nightly_pipeline.py"
       ]
     },
+    "nightly/skill_health_tracker.py": {
+      "fan_in": 1,
+      "fan_out": 0,
+      "zone": "GREEN",
+      "importers": [
+        "nightly/nightly_pipeline.py"
+      ]
+    },
+    "nightly/skill_install_worker.py": {
+      "fan_in": 1,
+      "fan_out": 1,
+      "zone": "GREEN",
+      "importers": [
+        "channels/telegram.py"
+      ]
+    },
+    "nightly/skill_qa_gate.py": {
+      "fan_in": 1,
+      "fan_out": 0,
+      "zone": "GREEN",
+      "importers": [
+        "nightly/nightly_pipeline.py"
+      ]
+    },
     "nightly/skill_scout.py": {
       "fan_in": 1,
       "fan_out": 0,
       "zone": "GREEN",
       "importers": [
         "gateway/cron_registry.py"
+      ]
+    },
+    "nightly/triage_step.py": {
+      "fan_in": 5,
+      "fan_out": 2,
+      "zone": "YELLOW",
+      "importers": [
+        "doctor/museoff.py",
+        "doctor/surgeon.py",
+        "evolution/feedback_loop.py",
+        "nightly/morphenix_executor.py",
+        "nightly/periodic_cycles.py"
+      ]
+    },
+    "nightly/triage_to_morphenix.py": {
+      "fan_in": 1,
+      "fan_out": 0,
+      "zone": "GREEN",
+      "importers": [
+        "nightly/nightly_pipeline.py"
       ]
     },
     "onboarding/ceremony.py": {
@@ -1782,12 +1981,13 @@
       ]
     },
     "pulse/anima_mc_store.py": {
-      "fan_in": 2,
+      "fan_in": 3,
       "fan_out": 1,
       "zone": "YELLOW",
       "importers": [
         "agent/brain.py",
-        "gateway/server.py"
+        "gateway/server.py",
+        "nightly/nightly_pipeline.py"
       ]
     },
     "pulse/anima_tracker.py": {
@@ -1931,14 +2131,6 @@
         "pulse/explorer.py",
         "pulse/proactive_bridge.py",
         "pulse/pulse_engine.py"
-      ]
-    },
-    "pulse/push_budget.py": {
-      "fan_in": 1,
-      "fan_out": 0,
-      "zone": "GREEN",
-      "importers": [
-        "gateway/server.py"
       ]
     },
     "pulse/signal_keywords.py": {
@@ -2206,38 +2398,34 @@
   "zone_summary": {
     "FORBIDDEN": 1,
     "RED": 7,
-    "YELLOW": 84,
-    "GREEN": 165
+    "YELLOW": 93,
+    "GREEN": 176
   },
   "connections": {
-    "total": 151,
-    "orphan_outputs": [
-      "⚠️  dev-retro → knowledge-lattice.dev_lesson_crystal (trigger=always 但 knowledge-lattice 的 inputs 未接收)",
-      "⚠️  report-forge → gateway. (trigger=always 但 gateway 的 inputs 未接收)",
-      "⚠️  script-optimizer → knowledge-lattice.script_optimization_insights (trigger=always 但 knowledge-lattice 的 inputs 未接收)"
-    ],
-    "errors": 2
+    "total": 193,
+    "orphan_outputs": [],
+    "errors": 0
   },
   "shared_states": {
     "pulse/pulse.db": {
       "exists": true,
       "size_kb": 280.0,
-      "last_modified": "2026-03-30T12:48:49.486177+00:00"
+      "last_modified": "2026-03-31T20:20:39.959496+00:00"
     },
     "_system/group_context.db": {
       "exists": true,
-      "size_kb": 436.0,
-      "last_modified": "2026-03-30T08:23:25.087489+00:00"
+      "size_kb": 480.0,
+      "last_modified": "2026-03-31T20:20:39.974867+00:00"
     },
     "_system/wee/workflow_state.db": {
       "exists": true,
-      "size_kb": 40.0,
-      "last_modified": "2026-03-30T00:48:02.938211+00:00"
+      "size_kb": 48.0,
+      "last_modified": "2026-03-31T20:20:40.794999+00:00"
     },
     "lattice/crystal.db": {
       "exists": true,
       "size_kb": 2008.0,
-      "last_modified": "2026-03-30T12:24:57.285205+00:00"
+      "last_modified": "2026-04-01T04:36:29.172916+00:00"
     },
     "registry/cli_user/registry.db": {
       "exists": true,
@@ -2246,13 +2434,13 @@
     },
     "ANIMA_MC.json": {
       "exists": true,
-      "size_kb": 5.7,
-      "last_modified": "2026-03-30T12:53:49.521677+00:00"
+      "size_kb": 10.4,
+      "last_modified": "2026-04-01T04:47:36.398781+00:00"
     },
     "ANIMA_USER.json": {
       "exists": true,
       "size_kb": 42.0,
-      "last_modified": "2026-03-30T07:55:38.672794+00:00"
+      "last_modified": "2026-04-01T04:37:35.952122+00:00"
     },
     "_system/immunity.json": {
       "exists": true,
@@ -2262,17 +2450,17 @@
     "anima/soul_rings.json": {
       "exists": true,
       "size_kb": 35.3,
-      "last_modified": "2026-03-30T07:53:00.414685+00:00"
+      "last_modified": "2026-04-01T04:37:35.846829+00:00"
     },
     "_system/baihe_cache.json": {
       "exists": true,
       "size_kb": 0.1,
-      "last_modified": "2026-03-30T07:54:22.146636+00:00"
+      "last_modified": "2026-04-01T04:36:17.490453+00:00"
     },
     "_system/lord_profile.json": {
       "exists": true,
       "size_kb": 3.8,
-      "last_modified": "2026-03-30T07:55:38.670573+00:00"
+      "last_modified": "2026-04-01T04:37:35.949135+00:00"
     },
     "_system/museon-persona.md": {
       "exists": true,
@@ -2282,7 +2470,9 @@
   },
   "path_health": {
     "missing_paths": [],
-    "zombie_files": [],
+    "zombie_files": [
+      "group_context.db"
+    ],
     "stale_dirs": [
       "dispatch",
       "plans",
@@ -2295,305 +2485,305 @@
   },
   "recent_changes": [
     {
-      "file": "data/darwin/raw_data/district_centroids.json",
-      "commit": "577a6c1d",
-      "message": "DARWIN v2: real data pipeline, One Muse archetypes, consulting-grade reports, biz-diagnostic skill",
-      "time": "2026-03-30 20:55:11 +0800"
+      "file": "docs/reports/bni-partner-table-v2.html",
+      "commit": "1987cfd4",
+      "message": "backup: 1 files to docs/reports/",
+      "time": "2026-04-01 12:49:43 +0800"
     },
     {
-      "file": "data/darwin/raw_data/places_cache.json",
-      "commit": "577a6c1d",
-      "message": "DARWIN v2: real data pipeline, One Muse archetypes, consulting-grade reports, biz-diagnostic skill",
-      "time": "2026-03-30 20:55:11 +0800"
+      "file": "docs/reports/bni_partner_table_v2.html",
+      "commit": "f93fb487",
+      "message": "backup: 1 files to docs/reports/",
+      "time": "2026-04-01 12:46:37 +0800"
     },
     {
-      "file": "data/skills/native/plugin-registry/SKILL.md",
-      "commit": "577a6c1d",
-      "message": "DARWIN v2: real data pipeline, One Muse archetypes, consulting-grade reports, biz-diagnostic skill",
-      "time": "2026-03-30 20:55:11 +0800"
+      "file": "docs/reports/he_soul_blueprint_20260401.html",
+      "commit": "a9b965c6",
+      "message": "backup: 1 files to docs/reports/",
+      "time": "2026-04-01 12:01:05 +0800"
     },
     {
-      "file": "docs/memory-router.md",
-      "commit": "577a6c1d",
-      "message": "DARWIN v2: real data pipeline, One Muse archetypes, consulting-grade reports, biz-diagnostic skill",
-      "time": "2026-03-30 20:55:11 +0800"
+      "file": "docs/reports/morning-case-2026-04-01-business-crossroads.html",
+      "commit": "24d44a9c",
+      "message": "fix: rename morning case report to use hyphens instead of underscores",
+      "time": "2026-04-01 11:07:31 +0800"
+    },
+    {
+      "file": "docs/reports/morning_case_2026-04-01_business-crossroads.html",
+      "commit": "02ff4993",
+      "message": "backup: 1 files to docs/reports/",
+      "time": "2026-04-01 10:54:18 +0800"
+    },
+    {
+      "file": "docs/reports/ssapage.html",
+      "commit": "2131211e",
+      "message": "backup: 1 files to docs/reports/",
+      "time": "2026-04-01 10:12:12 +0800"
+    },
+    {
+      "file": "docs/reports/ssa_museon_sales_page_v3.html",
+      "commit": "dbe578f2",
+      "message": "backup: 1 files to docs/reports/",
+      "time": "2026-04-01 09:19:56 +0800"
+    },
+    {
+      "file": "docs/reports/ssa_x_museon_20260401_091619.html",
+      "commit": "f30a482f",
+      "message": "backup: 1 files to docs/reports/",
+      "time": "2026-04-01 09:16:44 +0800"
+    },
+    {
+      "file": "docs/reports/ssa_museon_v2_20260401.html",
+      "commit": "0b38d1ab",
+      "message": "backup: 1 files to docs/reports/",
+      "time": "2026-04-01 09:14:07 +0800"
+    },
+    {
+      "file": "docs/reports/ssa_museon_sales_page.html",
+      "commit": "598befcf",
+      "message": "backup: 1 files to docs/reports/",
+      "time": "2026-04-01 08:44:53 +0800"
+    },
+    {
+      "file": "src/museon/nightly/nightly_pipeline.py",
+      "commit": "2c26dc53",
+      "message": "fix: 晨報 Morphenix 提案計數誤報 — 移除寬泛的 escalated 字串匹配",
+      "time": "2026-04-01 07:38:08 +0800"
+    },
+    {
+      "file": "src/museon/agent/brain_prompt_builder.py",
+      "commit": "945adde8",
+      "message": "fix: 修復跨群組內容洩漏 — external_users 搜尋限制為非群組 session",
+      "time": "2026-04-01 07:31:04 +0800"
+    },
+    {
+      "file": "src/museon/governance/service_health.py",
+      "commit": "b12aec17",
+      "message": "feat: Docker daemon 自動偵測與啟動",
+      "time": "2026-04-01 07:15:43 +0800"
+    },
+    {
+      "file": "tests/unit/test_doctor.py",
+      "commit": "15cb48ab",
+      "message": "fix: FV 測試修復 + ProactiveBridge daily_count 重置 bug",
+      "time": "2026-04-01 00:27:12 +0800"
+    },
+    {
+      "file": "tests/unit/test_nightly_pipeline.py",
+      "commit": "15cb48ab",
+      "message": "fix: FV 測試修復 + ProactiveBridge daily_count 重置 bug",
+      "time": "2026-04-01 00:27:12 +0800"
+    },
+    {
+      "file": "docs/blast-radius.md",
+      "commit": "e6528513",
+      "message": "refactor: 推播系統減法重構 — 刪 PushBudget，統一出口，三桶分級",
+      "time": "2026-04-01 00:17:38 +0800"
+    },
+    {
+      "file": "docs/joint-map.md",
+      "commit": "e6528513",
+      "message": "refactor: 推播系統減法重構 — 刪 PushBudget，統一出口，三桶分級",
+      "time": "2026-04-01 00:17:38 +0800"
+    },
+    {
+      "file": "docs/persistence-contract.md",
+      "commit": "e6528513",
+      "message": "refactor: 推播系統減法重構 — 刪 PushBudget，統一出口，三桶分級",
+      "time": "2026-04-01 00:17:38 +0800"
     },
     {
       "file": "docs/system-topology.md",
-      "commit": "577a6c1d",
-      "message": "DARWIN v2: real data pipeline, One Muse archetypes, consulting-grade reports, biz-diagnostic skill",
-      "time": "2026-03-30 20:55:11 +0800"
+      "commit": "e6528513",
+      "message": "refactor: 推播系統減法重構 — 刪 PushBudget，統一出口，三桶分級",
+      "time": "2026-04-01 00:17:38 +0800"
     },
     {
-      "file": "src/museon/darwin/biz_diagnostic.py",
-      "commit": "577a6c1d",
-      "message": "DARWIN v2: real data pipeline, One Muse archetypes, consulting-grade reports, biz-diagnostic skill",
-      "time": "2026-03-30 20:55:11 +0800"
+      "file": "src/museon/agent/brain.py",
+      "commit": "e6528513",
+      "message": "refactor: 推播系統減法重構 — 刪 PushBudget，統一出口，三桶分級",
+      "time": "2026-04-01 00:17:38 +0800"
     },
     {
-      "file": "src/museon/darwin/compare_districts.py",
-      "commit": "577a6c1d",
-      "message": "DARWIN v2: real data pipeline, One Muse archetypes, consulting-grade reports, biz-diagnostic skill",
-      "time": "2026-03-30 20:55:11 +0800"
+      "file": "src/museon/channels/telegram.py",
+      "commit": "e6528513",
+      "message": "refactor: 推播系統減法重構 — 刪 PushBudget，統一出口，三桶分級",
+      "time": "2026-04-01 00:17:38 +0800"
     },
     {
-      "file": "src/museon/darwin/crawler/data_loader.py",
-      "commit": "577a6c1d",
-      "message": "DARWIN v2: real data pipeline, One Muse archetypes, consulting-grade reports, biz-diagnostic skill",
-      "time": "2026-03-30 20:55:11 +0800"
+      "file": "src/museon/doctor/museoff.py",
+      "commit": "e6528513",
+      "message": "refactor: 推播系統減法重構 — 刪 PushBudget，統一出口，三桶分級",
+      "time": "2026-04-01 00:17:38 +0800"
     },
     {
-      "file": "src/museon/darwin/crawler/data_matrix.py",
-      "commit": "577a6c1d",
-      "message": "DARWIN v2: real data pipeline, One Muse archetypes, consulting-grade reports, biz-diagnostic skill",
-      "time": "2026-03-30 20:55:11 +0800"
+      "file": "src/museon/gateway/cron.py",
+      "commit": "e6528513",
+      "message": "refactor: 推播系統減法重構 — 刪 PushBudget，統一出口，三桶分級",
+      "time": "2026-04-01 00:17:38 +0800"
     },
     {
-      "file": "src/museon/darwin/crawler/district_geocoder.py",
-      "commit": "577a6c1d",
-      "message": "DARWIN v2: real data pipeline, One Muse archetypes, consulting-grade reports, biz-diagnostic skill",
-      "time": "2026-03-30 20:55:11 +0800"
+      "file": "src/museon/gateway/server.py",
+      "commit": "e6528513",
+      "message": "refactor: 推播系統減法重構 — 刪 PushBudget，統一出口，三桶分級",
+      "time": "2026-04-01 00:17:38 +0800"
     },
     {
-      "file": "src/museon/darwin/crawler/indicator_builder.py",
-      "commit": "577a6c1d",
-      "message": "DARWIN v2: real data pipeline, One Muse archetypes, consulting-grade reports, biz-diagnostic skill",
-      "time": "2026-03-30 20:55:11 +0800"
+      "file": "src/museon/pulse/commitment_tracker.py",
+      "commit": "e6528513",
+      "message": "refactor: 推播系統減法重構 — 刪 PushBudget，統一出口，三桶分級",
+      "time": "2026-04-01 00:17:38 +0800"
     },
     {
-      "file": "src/museon/darwin/crawler/places_crawler.py",
-      "commit": "577a6c1d",
-      "message": "DARWIN v2: real data pipeline, One Muse archetypes, consulting-grade reports, biz-diagnostic skill",
-      "time": "2026-03-30 20:55:11 +0800"
+      "file": "src/museon/pulse/proactive_bridge.py",
+      "commit": "e6528513",
+      "message": "refactor: 推播系統減法重構 — 刪 PushBudget，統一出口，三桶分級",
+      "time": "2026-04-01 00:17:38 +0800"
     },
     {
-      "file": "src/museon/darwin/event_detector.py",
-      "commit": "577a6c1d",
-      "message": "DARWIN v2: real data pipeline, One Muse archetypes, consulting-grade reports, biz-diagnostic skill",
-      "time": "2026-03-30 20:55:11 +0800"
+      "file": "src/museon/pulse/proactive_dispatcher.py",
+      "commit": "e6528513",
+      "message": "refactor: 推播系統減法重構 — 刪 PushBudget，統一出口，三桶分級",
+      "time": "2026-04-01 00:17:38 +0800"
     },
     {
-      "file": "src/museon/darwin/insight_generator.py",
-      "commit": "577a6c1d",
-      "message": "DARWIN v2: real data pipeline, One Muse archetypes, consulting-grade reports, biz-diagnostic skill",
-      "time": "2026-03-30 20:55:11 +0800"
+      "file": "src/museon/pulse/pulse_engine.py",
+      "commit": "e6528513",
+      "message": "refactor: 推播系統減法重構 — 刪 PushBudget，統一出口，三桶分級",
+      "time": "2026-04-01 00:17:38 +0800"
     },
     {
-      "file": "src/museon/darwin/report_generator.py",
-      "commit": "577a6c1d",
-      "message": "DARWIN v2: real data pipeline, One Muse archetypes, consulting-grade reports, biz-diagnostic skill",
-      "time": "2026-03-30 20:55:11 +0800"
+      "file": "src/museon/pulse/push_budget.py",
+      "commit": "e6528513",
+      "message": "refactor: 推播系統減法重構 — 刪 PushBudget，統一出口，三桶分級",
+      "time": "2026-04-01 00:17:38 +0800"
     },
     {
-      "file": "src/museon/darwin/run_simulation.py",
-      "commit": "577a6c1d",
-      "message": "DARWIN v2: real data pipeline, One Muse archetypes, consulting-grade reports, biz-diagnostic skill",
-      "time": "2026-03-30 20:55:11 +0800"
+      "file": "tests/unit/test_ares_profile_store.py",
+      "commit": "e6528513",
+      "message": "refactor: 推播系統減法重構 — 刪 PushBudget，統一出口，三桶分級",
+      "time": "2026-04-01 00:17:38 +0800"
     },
     {
-      "file": "src/museon/darwin/simulation/bass_diffusion.py",
-      "commit": "577a6c1d",
-      "message": "DARWIN v2: real data pipeline, One Muse archetypes, consulting-grade reports, biz-diagnostic skill",
-      "time": "2026-03-30 20:55:11 +0800"
+      "file": "tests/unit/test_channels.py",
+      "commit": "e6528513",
+      "message": "refactor: 推播系統減法重構 — 刪 PushBudget，統一出口，三桶分級",
+      "time": "2026-04-01 00:17:38 +0800"
     },
     {
-      "file": "src/museon/darwin/simulation/engine.py",
-      "commit": "577a6c1d",
-      "message": "DARWIN v2: real data pipeline, One Muse archetypes, consulting-grade reports, biz-diagnostic skill",
-      "time": "2026-03-30 20:55:11 +0800"
+      "file": "tests/unit/test_epigenetic_router.py",
+      "commit": "e6528513",
+      "message": "refactor: 推播系統減法重構 — 刪 PushBudget，統一出口，三桶分級",
+      "time": "2026-04-01 00:17:38 +0800"
     },
     {
-      "file": "src/museon/darwin/simulation/product_profile.py",
-      "commit": "577a6c1d",
-      "message": "DARWIN v2: real data pipeline, One Muse archetypes, consulting-grade reports, biz-diagnostic skill",
-      "time": "2026-03-30 20:55:11 +0800"
+      "file": "tests/unit/test_proactive_bridge.py",
+      "commit": "e6528513",
+      "message": "refactor: 推播系統減法重構 — 刪 PushBudget，統一出口，三桶分級",
+      "time": "2026-04-01 00:17:38 +0800"
     },
     {
-      "file": "docs/reports/museon-positioning-pyramid.html",
-      "commit": "d0c2d287",
-      "message": "fix: 將品牌定位規劃頁面移至 reports 目錄以便 GitHub Pages 正確部署",
-      "time": "2026-03-30 17:52:42 +0800"
+      "file": "tests/unit/test_proactive_predictor.py",
+      "commit": "e6528513",
+      "message": "refactor: 推播系統減法重構 — 刪 PushBudget，統一出口，三桶分級",
+      "time": "2026-04-01 00:17:38 +0800"
     },
     {
-      "file": "docs/reports/pricing_slides_v2.html",
-      "commit": "ba4ab710",
-      "message": "Add pricing slides v2 (fresh URL, all 27 slides)",
-      "time": "2026-03-30 17:29:32 +0800"
+      "file": "tests/unit/test_push_budget.py",
+      "commit": "e6528513",
+      "message": "refactor: 推播系統減法重構 — 刪 PushBudget，統一出口，三桶分級",
+      "time": "2026-04-01 00:17:38 +0800"
     },
     {
-      "file": "docs/reports/pricing_negotiation_slides.html",
-      "commit": "5a95f879",
-      "message": "Add behind-the-scenes slides 23-27: design process + MUSEON CTA",
-      "time": "2026-03-30 17:24:24 +0800"
+      "file": "tests/unit/test_vision.py",
+      "commit": "e6528513",
+      "message": "refactor: 推播系統減法重構 — 刪 PushBudget，統一出口，三桶分級",
+      "time": "2026-04-01 00:17:38 +0800"
     },
     {
-      "file": "docs/reports/property-casualty-2026-2027.html",
-      "commit": "07d68986",
-      "message": "產險業 2026-2027 發展與拓展策略報告（庭秀）",
-      "time": "2026-03-30 15:50:35 +0800"
+      "file": "data/workspace/MUSEON_3d_mindmap.html",
+      "commit": "5bcea1c8",
+      "message": "docs: complete blueprint sync — persistence-contract v1.44, memory-router v1.19, 3D mindmap",
+      "time": "2026-03-31 22:38:33 +0800"
     },
     {
-      "file": "docs/reports/china-market-macro-report.html",
-      "commit": "70d4a4b2",
-      "message": "backup: 1 files to docs/reports/",
-      "time": "2026-03-30 14:23:03 +0800"
+      "file": "docs/memory-router.md",
+      "commit": "5bcea1c8",
+      "message": "docs: complete blueprint sync — persistence-contract v1.44, memory-router v1.19, 3D mindmap",
+      "time": "2026-03-31 22:38:33 +0800"
     },
     {
-      "file": "docs/reports/museon-handbook-shih-wei.html",
-      "commit": "a9d9cb84",
-      "message": "backup: 1 files to docs/reports/",
-      "time": "2026-03-30 11:37:05 +0800"
+      "file": "docs/persistence-contract.md",
+      "commit": "5bcea1c8",
+      "message": "docs: complete blueprint sync — persistence-contract v1.44, memory-router v1.19, 3D mindmap",
+      "time": "2026-03-31 22:38:33 +0800"
     },
     {
-      "file": "docs/reports/museon-handbook-shih-wei.html",
-      "commit": "02838a12",
-      "message": "backup: 1 files to docs/reports/",
-      "time": "2026-03-30 09:37:45 +0800"
+      "file": "data/_system/context_cache/self_summary.json",
+      "commit": "8f0436b8",
+      "message": "fix: blast-radius cleanup — growth_stage \"adult\"→\"ABSORB\", KernelGuard init, dead code",
+      "time": "2026-03-31 22:31:35 +0800"
     },
     {
-      "file": "CLAUDE.md",
-      "commit": "0457c5f6",
-      "message": "One Muse Core Skill + full MUSEON knowledge sync",
-      "time": "2026-03-30 05:20:04 +0800"
+      "file": "src/museon/agent/brain.py",
+      "commit": "8f0436b8",
+      "message": "fix: blast-radius cleanup — growth_stage \"adult\"→\"ABSORB\", KernelGuard init, dead code",
+      "time": "2026-03-31 22:31:35 +0800"
     },
     {
-      "file": "data/_system/crystal_rules.json",
-      "commit": "0457c5f6",
-      "message": "One Muse Core Skill + full MUSEON knowledge sync",
-      "time": "2026-03-30 05:20:04 +0800"
+      "file": "src/museon/agent/brain_observation.py",
+      "commit": "8f0436b8",
+      "message": "fix: blast-radius cleanup — growth_stage \"adult\"→\"ABSORB\", KernelGuard init, dead code",
+      "time": "2026-03-31 22:31:35 +0800"
     },
     {
-      "file": "data/_system/heuristics.json",
-      "commit": "0457c5f6",
-      "message": "One Muse Core Skill + full MUSEON knowledge sync",
-      "time": "2026-03-30 05:20:04 +0800"
+      "file": "src/museon/agent/brain_prompt_builder.py",
+      "commit": "8f0436b8",
+      "message": "fix: blast-radius cleanup — growth_stage \"adult\"→\"ABSORB\", KernelGuard init, dead code",
+      "time": "2026-03-31 22:31:35 +0800"
     },
     {
-      "file": "data/memory_v3/boss/L1_short/43390c5e-19ce-415d-87ef-489d62f9c50e.json",
-      "commit": "0457c5f6",
-      "message": "One Muse Core Skill + full MUSEON knowledge sync",
-      "time": "2026-03-30 05:20:04 +0800"
+      "file": "src/museon/guardian/daemon.py",
+      "commit": "8f0436b8",
+      "message": "fix: blast-radius cleanup — growth_stage \"adult\"→\"ABSORB\", KernelGuard init, dead code",
+      "time": "2026-03-31 22:31:35 +0800"
     },
     {
-      "file": "data/memory_v3/boss/L1_short/82dab325-4bbd-4605-a42f-70ba49044ea1.json",
-      "commit": "0457c5f6",
-      "message": "One Muse Core Skill + full MUSEON knowledge sync",
-      "time": "2026-03-30 05:20:04 +0800"
+      "file": "src/museon/nightly/nightly_pipeline.py",
+      "commit": "8f0436b8",
+      "message": "fix: blast-radius cleanup — growth_stage \"adult\"→\"ABSORB\", KernelGuard init, dead code",
+      "time": "2026-03-31 22:31:35 +0800"
     },
     {
-      "file": "data/memory_v3/boss/L1_short/c7cae268-ce15-46b1-bb5a-b7c6b5a4b547.json",
-      "commit": "0457c5f6",
-      "message": "One Muse Core Skill + full MUSEON knowledge sync",
-      "time": "2026-03-30 05:20:04 +0800"
+      "file": "src/museon/onboarding/ceremony.py",
+      "commit": "8f0436b8",
+      "message": "fix: blast-radius cleanup — growth_stage \"adult\"→\"ABSORB\", KernelGuard init, dead code",
+      "time": "2026-03-31 22:31:35 +0800"
     },
     {
-      "file": "data/memory_v3/boss/L1_short/d7745522-7b6f-453c-a8f4-a4f6ed622385.json",
-      "commit": "0457c5f6",
-      "message": "One Muse Core Skill + full MUSEON knowledge sync",
-      "time": "2026-03-30 05:20:04 +0800"
+      "file": "src/museon/nightly/nightly_pipeline.py",
+      "commit": "ae5eb438",
+      "message": "fix: persona reflection Step 34 — LLM adapter + path + method name fixes",
+      "time": "2026-03-31 22:25:28 +0800"
     },
     {
-      "file": "data/memory_v3/boss/L1_short/e1fa467d-d4ed-49ac-9b7a-8dafb2996b98.json",
-      "commit": "0457c5f6",
-      "message": "One Muse Core Skill + full MUSEON knowledge sync",
-      "time": "2026-03-30 05:20:04 +0800"
+      "file": "src/museon/nightly/nightly_reflection.py",
+      "commit": "ae5eb438",
+      "message": "fix: persona reflection Step 34 — LLM adapter + path + method name fixes",
+      "time": "2026-03-31 22:25:28 +0800"
     },
     {
-      "file": "data/memory_v3/boss/L1_short/ed3e1db2-e181-401d-b710-6a44ae4dea4d.json",
-      "commit": "0457c5f6",
-      "message": "One Muse Core Skill + full MUSEON knowledge sync",
-      "time": "2026-03-30 05:20:04 +0800"
+      "file": "docs/blast-radius.md",
+      "commit": "dabddc42",
+      "message": "docs: sync 3 blueprints for persona evolution (Phase 1-8)",
+      "time": "2026-03-31 22:11:42 +0800"
     },
     {
-      "file": "data/skills/native/onemuse-core/SKILL.md",
-      "commit": "0457c5f6",
-      "message": "One Muse Core Skill + full MUSEON knowledge sync",
-      "time": "2026-03-30 05:20:04 +0800"
-    },
-    {
-      "file": "data/skills/native/plugin-registry/SKILL.md",
-      "commit": "0457c5f6",
-      "message": "One Muse Core Skill + full MUSEON knowledge sync",
-      "time": "2026-03-30 05:20:04 +0800"
-    },
-    {
-      "file": "data/darwin/raw_data/age_population_11312.json",
-      "commit": "d1d5aee8",
-      "message": "DARWIN: Fetch real Taiwan government data (26.5MB)",
-      "time": "2026-03-30 05:07:01 +0800"
-    },
-    {
-      "file": "data/darwin/raw_data/birth_by_mother_age_113.json",
-      "commit": "d1d5aee8",
-      "message": "DARWIN: Fetch real Taiwan government data (26.5MB)",
-      "time": "2026-03-30 05:07:01 +0800"
-    },
-    {
-      "file": "data/darwin/raw_data/district_dynamics_11312.json",
-      "commit": "d1d5aee8",
-      "message": "DARWIN: Fetch real Taiwan government data (26.5MB)",
-      "time": "2026-03-30 05:07:01 +0800"
-    },
-    {
-      "file": "data/darwin/raw_data/dynamics_11312.json",
-      "commit": "d1d5aee8",
-      "message": "DARWIN: Fetch real Taiwan government data (26.5MB)",
-      "time": "2026-03-30 05:07:01 +0800"
-    },
-    {
-      "file": "data/darwin/raw_data/household_structure_113.json",
-      "commit": "d1d5aee8",
-      "message": "DARWIN: Fetch real Taiwan government data (26.5MB)",
-      "time": "2026-03-30 05:07:01 +0800"
-    },
-    {
-      "file": "data/darwin/raw_data/households_113.json",
-      "commit": "d1d5aee8",
-      "message": "DARWIN: Fetch real Taiwan government data (26.5MB)",
-      "time": "2026-03-30 05:07:01 +0800"
-    },
-    {
-      "file": "data/darwin/raw_data/income_111.csv",
-      "commit": "d1d5aee8",
-      "message": "DARWIN: Fetch real Taiwan government data (26.5MB)",
-      "time": "2026-03-30 05:07:01 +0800"
-    },
-    {
-      "file": "data/darwin/raw_data/indigenous_11312.json",
-      "commit": "d1d5aee8",
-      "message": "DARWIN: Fetch real Taiwan government data (26.5MB)",
-      "time": "2026-03-30 05:07:01 +0800"
-    },
-    {
-      "file": "data/darwin/raw_data/marriage_nationality_11312.json",
-      "commit": "d1d5aee8",
-      "message": "DARWIN: Fetch real Taiwan government data (26.5MB)",
-      "time": "2026-03-30 05:07:01 +0800"
-    },
-    {
-      "file": "data/darwin/raw_data/marriage_status_113.json",
-      "commit": "d1d5aee8",
-      "message": "DARWIN: Fetch real Taiwan government data (26.5MB)",
-      "time": "2026-03-30 05:07:01 +0800"
-    },
-    {
-      "file": "data/darwin/raw_data/migration_11312.json",
-      "commit": "d1d5aee8",
-      "message": "DARWIN: Fetch real Taiwan government data (26.5MB)",
-      "time": "2026-03-30 05:07:01 +0800"
-    },
-    {
-      "file": "data/darwin/raw_data/population_density_113.json",
-      "commit": "d1d5aee8",
-      "message": "DARWIN: Fetch real Taiwan government data (26.5MB)",
-      "time": "2026-03-30 05:07:01 +0800"
-    },
-    {
-      "file": "data/darwin/raw_data/youbike_taipei_stations.json",
-      "commit": "d1d5aee8",
-      "message": "DARWIN: Fetch real Taiwan government data (26.5MB)",
-      "time": "2026-03-30 05:07:01 +0800"
+      "file": "docs/joint-map.md",
+      "commit": "dabddc42",
+      "message": "docs: sync 3 blueprints for persona evolution (Phase 1-8)",
+      "time": "2026-03-31 22:11:42 +0800"
     }
   ],
-  "compute_duration_ms": 1764
+  "compute_duration_ms": 10764
 }

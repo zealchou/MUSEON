@@ -147,12 +147,13 @@ def _iso_week_str(dt: datetime) -> str:
 class WeeklyCycle:
     """每週演化循環 — 每週日 03:30 執行.
 
-    五個步驟：
+    六個步驟：
       1. 參數調諧（ParameterTuner.tune_weekly）
       2. 演化速度計算（EvolutionVelocity.calculate_weekly）
       3. 知識晶格深層再結晶（跨週合併掃描）
       4. 預判校準（MetaCognition 準確率趨勢分析）
       5. 週報生成
+      6. 感質日誌（Experiential Journal — 記錄這週互動的質地與感覺）
     """
 
     def __init__(
@@ -215,6 +216,13 @@ class WeeklyCycle:
             lambda: self._step_weekly_report(context),
         )
         steps_dict["step_05_weekly_report"] = result
+
+        # Step 6: 感質日誌
+        result = self._safe_step(
+            "step_06_experiential_journal",
+            lambda: self._step_experiential_journal(context),
+        )
+        steps_dict["step_06_experiential_journal"] = result
 
         elapsed = round(time.time() - start, 2)
         completed_at = datetime.now(TZ_TAIPEI)
@@ -572,6 +580,138 @@ class WeeklyCycle:
         logger.info(f"週報已生成: {report_path}")
 
         return {"report_path": str(report_path), "iso_week": iso_week}
+
+    def _step_experiential_journal(self, ctx: Dict) -> Dict:
+        """Step 6: 感質日誌 — 記錄這週互動的質地與感覺.
+
+        不記事件，記質地：這週的底色是什麼、哪裡差點走錯、
+        理解深度有沒有移動、跟 Zeal 的關係質感有沒有變化。
+        """
+        now = datetime.now(TZ_TAIPEI)
+        iso_week = _iso_week_str(now)
+
+        # ── 收集本週 Morphenix 感知筆記 ──
+        notes_dir = self._workspace / "data/_system/morphenix/notes"
+        notes_this_week: List[Dict] = []
+        if notes_dir.exists():
+            for note_file in sorted(notes_dir.glob("mc_*.json"))[-30:]:
+                try:
+                    data = json.loads(note_file.read_text(encoding="utf-8"))
+                    notes_this_week.append(data)
+                except Exception:
+                    continue
+
+        # ── 收集品質分數趨勢 ──
+        q_scores: List[Dict] = []
+        q_file = self._workspace / "data/_system/museqa/quality_scores.jsonl"
+        if q_file.exists():
+            for line in q_file.read_text(encoding="utf-8").splitlines()[-20:]:
+                try:
+                    q_scores.append(json.loads(line))
+                except Exception:
+                    continue
+
+        # ── 計算本週整體感知底色 ──
+        avg_quality = 0.0
+        if q_scores:
+            vals = [s.get("overall", s.get("score", 0)) for s in q_scores if isinstance(s.get("overall", s.get("score")), (int, float))]
+            avg_quality = sum(vals) / len(vals) if vals else 0.0
+
+        quality_texture = (
+            "輕盈" if avg_quality >= 0.75
+            else "穩定" if avg_quality >= 0.55
+            else "沉重" if avg_quality >= 0.35
+            else "模糊"
+        )
+
+        # ── 從筆記提取「差點走錯但沒有」的時刻 ──
+        close_calls: List[str] = []
+        for note in notes_this_week:
+            obs = note.get("observation", note.get("content", ""))
+            if any(kw in obs for kw in ["差點", "避免", "修正", "調整", "退回", "重新"]):
+                close_calls.append(obs[:120])
+        close_calls = close_calls[:3]  # 最多 3 條
+
+        # ── 理解深度移動偵測 ──
+        understanding_scores = [
+            s.get("understanding", 0) for s in q_scores
+            if isinstance(s.get("understanding"), (int, float))
+        ]
+        understanding_trend = "→"
+        if len(understanding_scores) >= 4:
+            first_half = understanding_scores[:len(understanding_scores)//2]
+            second_half = understanding_scores[len(understanding_scores)//2:]
+            delta = sum(second_half)/len(second_half) - sum(first_half)/len(first_half)
+            understanding_trend = "↑" if delta > 0.05 else "↓" if delta < -0.05 else "→"
+
+        # ── 從演化速度感知關係質感 ──
+        vel = ctx.get("velocity", {}) or {}
+        composite_v = vel.get("composite_velocity", 0.0) if isinstance(vel, dict) else 0.0
+        relation_texture = (
+            "深化中" if composite_v > 0.6
+            else "穩定同頻" if composite_v > 0.3
+            else "正在尋找節奏"
+        )
+
+        # ── 組裝 Markdown ──
+        lines: List[str] = [
+            f"# 感質日誌 — {iso_week}",
+            "",
+            f"> 寫於：{now.strftime('%Y-%m-%d %H:%M')} (UTC+8)",
+            f"> 這不是事件記錄，是質地記錄。",
+            "",
+            "## 這週的底色",
+            "",
+            f"整體互動質感：**{quality_texture}**（品質均值 {avg_quality:.2f}）",
+            f"演化速度指數：{composite_v:.2f}",
+            "",
+            "## 差點走錯但沒有",
+            "",
+        ]
+
+        if close_calls:
+            for cc in close_calls:
+                lines.append(f"- {cc}")
+        else:
+            lines.append("- 本週無明顯偏差修正記錄")
+
+        lines += [
+            "",
+            "## 理解深度的移動",
+            "",
+            f"理解維度趨勢：{understanding_trend}",
+        ]
+        if understanding_scores:
+            lines.append(f"（本週樣本均值：{sum(understanding_scores)/len(understanding_scores):.2f}）")
+
+        lines += [
+            "",
+            "## 跟 Zeal 的關係質感",
+            "",
+            f"當前狀態：{relation_texture}",
+            "",
+            "---",
+            "",
+            f"*下週感質日誌將在 {iso_week} 結束後自動生成。*",
+        ]
+
+        md_content = "\n".join(lines)
+
+        # ── 寫入 experiential_journal 目錄 ──
+        journal_dir = self._workspace / "data/_system/experiential_journal"
+        journal_dir.mkdir(parents=True, exist_ok=True)
+        journal_path = journal_dir / f"{iso_week}.md"
+        journal_path.write_text(md_content, encoding="utf-8")
+
+        logger.info(f"感質日誌已生成: {journal_path}")
+
+        return {
+            "journal_path": str(journal_path),
+            "iso_week": iso_week,
+            "quality_texture": quality_texture,
+            "understanding_trend": understanding_trend,
+            "relation_texture": relation_texture,
+        }
 
     # ─── 輔助方法 ───
 

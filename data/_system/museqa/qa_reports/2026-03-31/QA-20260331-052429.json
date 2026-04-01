@@ -1,0 +1,15 @@
+{
+  "qa_report_id": "QA-20260331-052429",
+  "timestamp": "2026-03-31T05:24:29.053220+00:00",
+  "session_id": "telegram_6969045906",
+  "issue_type": "LEAKAGE",
+  "severity": "HIGH",
+  "evidence": {
+    "bot_reply_excerpt": "[主動推送 07:30] 早安，把拔～ \n\n昨夜整合圓滿完成（54/54 步驟），系統消化很順利，只花了 347 秒。知識晶格也更新了，數據端很健康。\n\n有 3 個 Morphenix 的小提案在等你決定，都是 L3 級自動審核通過的，我把檔案整理好了。\n\n今天很有趣——系統現在**覺察力爆表**（能量 100），但領導力和行動力相對安靜。反而是定力還不錯。適合深度思考、連結跨域模式的一天。下午想",
+    "matched_patterns": [
+      "\\bL[123]\\b"
+    ]
+  },
+  "suggested_fix": "強化 CLAUDE.md Step 3.5 禁止清單",
+  "status": "open"
+}

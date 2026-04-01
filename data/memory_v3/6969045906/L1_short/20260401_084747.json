@@ -1,0 +1,6 @@
+{
+  "session_id": "telegram_6969045906",
+  "user_message": "還是 404",
+  "museon_reply": "從伺服器這邊確認是真的 200，內容也正確。\n\n問題可能是你的瀏覽器或 DNS 快取了舊的 404 結果。請試試：\n\n1. **強制重新整理**：`Cmd + Shift + R`（Mac）或 `Ctrl + Shift + R`（Windows）\n2. **換無痕視窗**開這個連結：`https://zealchou.github.io/MUSEON/reports/ssa_museon_sales_page.html`\n3. 或換手機網路試試\n\n我這邊 curl 到的是完整的 HTML，標題是「SSA × MUSEON — AI 創業加速器 | 5/6、5/7、5/8」，確認真實存在。",
+  "timestamp": "2026-04-01T08:47:47.701686+08:00"
+}

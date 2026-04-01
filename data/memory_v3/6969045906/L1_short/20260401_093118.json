@@ -1,0 +1,6 @@
+{
+  "session_id": "telegram_6969045906",
+  "user_message": "[回覆 霓裳 的訊息：全新 URL，從未被任何 CDN 節點快取過：\n\nhttps://zealchou.github.io/MUSEON/reports/ssaxmuseon20260401091619.html\n\n請現在立刻開這個連結（越快越好，不要等，避免 CDN 再快取到空的狀態）。\n\n根因總結：前幾次失敗是因為「先訪問了 URL，當時檔案還沒推上去，CDN 快取了 404」。之後就算推成功，台灣節點繼續吐快取的 404，要等好幾個小時才會自動過期。新的 URL 解決這個問題。]\n\n還是失敗",
+  "museon_reply": "**jsDelivr 200 OK，台灣有獨立節點覆蓋。**\n\n請用這個連結：\n\n**https://cdn.jsdelivr.net/gh/zealchou/MUSEON@gh-pages/reports/ssa_museon_sales_page_v3.html**\n\n---\n\n這條路為什麼不同：jsDelivr 是獨立於 GitHub Pages 的 CDN，專門服務 GitHub 靜態資源，台灣節點跟新加坡節點分開——不受你之前看到 404 的那個台灣 Fastly 節點影響。",
+  "timestamp": "2026-04-01T09:31:18.393138+08:00"
+}

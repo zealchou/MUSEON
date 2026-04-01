@@ -1,0 +1,6 @@
+{
+  "session_id": "telegram_6969045906",
+  "user_message": "為什麼現在各個群組發佈的 html 全都是 404\n你檢查一下 群組 log\n以及我們原本內建的工作流 深度DSE一下讓我知道一下",
+  "museon_reply": "根本原因找到了。讓我整理完整的 DSE 分析。\n\n---\n\n## 404 根本原因 — DSE 分析\n\n### 一、症狀確認\n\n```\nbni_partner_table_v2.html → 404\nmeeting_intel_20260331.html → 404\nathena_hong_yuyu_v2.html → 404\n\nathena_hong_yuyu_20260331.html → 200 ✓（手動 publish 過的）\n```\n\n### 二、架構斷層（第一性原理）\n\n系統裡**存在兩條完全平行但互不相通的發布路徑**：\n\n| 路徑 | 觸發者 | 機制 | 有沒有 push？ |\n|------|--------|------|--------------|\n| **A — 自動** | `business_case.py` | 直接呼叫 GitHub API (`_push_to_github_pages`) | ✅ 有 |\n| **B — 手動** | Skill Worker / Agent | 生成 HTML → 存到 `data/workspace/` → *",
+  "timestamp": "2026-03-31T11:02:10.723161+08:00"
+}

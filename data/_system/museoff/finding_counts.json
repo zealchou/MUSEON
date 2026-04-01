@@ -1,0 +1,4 @@
+{
+  "mode=644, should be 600:bad_permissions": 6,
+  "gateway/server.py:ReadinessFailure": 8
+}

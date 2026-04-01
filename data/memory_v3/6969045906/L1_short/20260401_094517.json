@@ -1,0 +1,6 @@
+{
+  "session_id": "telegram_6969045906",
+  "user_message": "[🖼️ 圖片上傳]\n圖片已儲存至: /Users/ZEALCHOU/MUSEON/data/uploads/telegram/20260401_094221_AQADFw5rG7PWYFZ-.jpg",
+  "museon_reply": "找到了：`htmlpreview.github.io` 可以正確渲染 HTML，完全不走 GitHub Pages CDN，且 URL 裡沒有底線，Telegram 不會吃字元。\n\n**試這個連結：**\n\n```\nhttps://htmlpreview.github.io/?https://raw.githubusercontent.com/zealchou/MUSEON/gh-pages/reports/ssapage.html\n```\n\n這條路徑：\n1. `raw.githubusercontent.com` — 直接讀 GitHub 原始檔（200 確認）\n2. `htmlpreview.github.io` — 包裝成正確的 HTML 渲染（200 確認）\n3. 檔名 `ssapage.html` 無底線 — Telegram 不會破壞連結\n\n如果這個也掛，最後一手是 Netlify 部署（完全不依賴 GitHub）。",
+  "timestamp": "2026-04-01T09:45:17.491456+08:00"
+}

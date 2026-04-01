@@ -1,0 +1,6 @@
+{
+  "session_id": "telegram_6969045906",
+  "user_message": "[回覆 霓裳 的訊息：200 確認。\n\n根本問題：Telegram 把 URL 裡的 _ 當 markdown 格式符號，底線全部消失，檔名被破壞。\n\n新連結（無底線）：\n\nhttps://zealchou.github.io/MUSEON/reports/ssapage.html\n\n這個連結在 Telegram 傳送後字元不會被吃掉，可以正常開啟。]\n\n這個也可以了\n不知道為什麼",
+  "museon_reply": "CDN 快取自動過期了。\n\n台灣 Fastly 節點的 404 快取有 TTL（存活時間），時間到了就去 origin 重新抓，這次抓到了真實的 200 內容，就通了。\n\n這就是為什麼我們這邊 curl 一直是 200，但台灣端一直看到 404——不同節點、不同快取狀態，時間差問題。\n\n---\n\n**後續建議**：以後發報告連結，在推上 gh-pages 後等 5-10 分鐘再傳連結，讓 CDN 有時間同步。或者改用 Netlify（不依賴 GitHub CDN，推完秒生效）。\n\n要不要順手設一下 Netlify 作為長期方案？",
+  "timestamp": "2026-04-01T09:47:54.735658+08:00"
+}

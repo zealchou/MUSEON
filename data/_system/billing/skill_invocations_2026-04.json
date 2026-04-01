@@ -1,0 +1,32 @@
+{
+  "entries": [
+    {
+      "ts": "2026-04-01T12:37:35.582010",
+      "skills": [
+        "equity-architect",
+        "course-forge",
+        "business-12",
+        "workflow-ai-deployment",
+        "ssa-consultant"
+      ],
+      "count": 5,
+      "session_id": "telegram_group_5195907318",
+      "user_id": "",
+      "outcome": ""
+    },
+    {
+      "ts": "2026-04-01T13:05:22.889638",
+      "skills": [
+        "course-forge",
+        "equity-architect",
+        "ssa-consultant",
+        "business-12",
+        "workflow-ai-deployment"
+      ],
+      "count": 5,
+      "session_id": "telegram_group_5195907318",
+      "user_id": "",
+      "outcome": ""
+    }
+  ]
+}

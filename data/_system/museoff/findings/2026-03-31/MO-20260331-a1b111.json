@@ -1,0 +1,40 @@
+{
+  "finding_id": "MO-20260331-a1b111",
+  "timestamp": "2026-03-31T20:45:39.395917+00:00",
+  "probe_layer": "L1",
+  "severity": "HIGH",
+  "title": "系統就緒檢查失敗: Failed: qdrant, searxng",
+  "source": "museoff",
+  "blast_origin": {
+    "file": "gateway/server.py",
+    "line": null,
+    "error_type": "ReadinessFailure",
+    "traceback": ""
+  },
+  "blast_radius": [
+    {
+      "module": "qdrant",
+      "impact": "服務降級",
+      "fan_in": "N/A"
+    },
+    {
+      "module": "searxng",
+      "impact": "服務降級",
+      "fan_in": "N/A"
+    }
+  ],
+  "context": {},
+  "triage_done": null,
+  "known_fix": null,
+  "prescription": {
+    "diagnosis": "Failed: qdrant, searxng",
+    "root_cause": "以下服務未就緒: qdrant, searxng",
+    "suggested_fix": "檢查相關服務狀態",
+    "runbook_id": "",
+    "fix_complexity": "GREEN",
+    "pre_check": "",
+    "post_check": "",
+    "rollback": ""
+  },
+  "status": "open"
+}

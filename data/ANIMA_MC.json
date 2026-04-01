@@ -35,10 +35,10 @@
     "completed_at": "2026-03-28T17:33:05.027266"
   },
   "memory_summary": {
-    "total_interactions": 276
+    "total_interactions": 329
   },
   "evolution": {
-    "iteration_count": 276,
+    "iteration_count": 329,
     "l3_match_score": 0.6,
     "l3_match_updated": "2026-03-30T09:20:30.133660",
     "trait_history": [],
@@ -125,7 +125,53 @@
         },
         "last_updated": null
       },
-      "C3_domain_depth": {},
+      "C3_domain_depth": {
+        "plugin-registry": {
+          "value": 0.006999999999999999,
+          "confidence": 0.002,
+          "last_updated": "2026-04-01T05:05:23.696072+00:00"
+        },
+        "dna27": {
+          "value": 0.006999999999999999,
+          "confidence": 0.002,
+          "last_updated": "2026-04-01T05:05:23.696072+00:00"
+        },
+        "equity-architect": {
+          "value": 0.006999999999999999,
+          "confidence": 0.002,
+          "last_updated": "2026-04-01T05:05:23.696072+00:00"
+        },
+        "course-forge": {
+          "value": 0.006999999999999999,
+          "confidence": 0.002,
+          "last_updated": "2026-04-01T05:05:23.696072+00:00"
+        },
+        "eval-engine": {
+          "value": 0.0034999999999999996,
+          "confidence": 0.001,
+          "last_updated": "2026-04-01T04:37:36.241267+00:00"
+        },
+        "business-12": {
+          "value": 0.006999999999999999,
+          "confidence": 0.002,
+          "last_updated": "2026-04-01T05:05:23.696072+00:00"
+        },
+        "workflow-ai-deployment": {
+          "value": 0.006999999999999999,
+          "confidence": 0.002,
+          "last_updated": "2026-04-01T05:05:23.696072+00:00"
+        },
+        "ssa-consultant": {
+          "value": 0.006999999999999999,
+          "confidence": 0.002,
+          "last_updated": "2026-04-01T05:05:23.696072+00:00"
+        },
+        "morphenix": {
+          "value": 0.0034999999999999996,
+          "confidence": 0.001,
+          "last_updated": "2026-04-01T05:05:23.696072+00:00"
+        }
+      },
       "C4_conflict_navigation": {
         "value": 0.3,
         "confidence": 0.0,
@@ -160,44 +206,44 @@
   },
   "eight_primal_energies": {
     "乾": {
-      "absolute": 177,
-      "relative": 2.3
+      "absolute": 266,
+      "relative": 3.3
     },
     "坤": {
-      "absolute": 898,
-      "relative": 11.5
+      "absolute": 1356,
+      "relative": 17.0
     },
     "震": {
-      "absolute": 150,
-      "relative": 1.9
+      "absolute": 233,
+      "relative": 2.9
     },
     "巽": {
-      "absolute": 193,
-      "relative": 2.5
+      "absolute": 280,
+      "relative": 3.5
     },
     "坎": {
-      "absolute": 7776,
+      "absolute": 7963,
       "relative": 100.0
     },
     "離": {
-      "absolute": 199,
-      "relative": 2.6
+      "absolute": 201,
+      "relative": 2.5
     },
     "艮": {
-      "absolute": 2793,
-      "relative": 35.9
+      "absolute": 3256,
+      "relative": 40.9
     },
     "兌": {
-      "absolute": 1263,
-      "relative": 16.2
+      "absolute": 1295,
+      "relative": 16.3
     }
   },
   "_vita_triggered_thresholds": [
+    "phoenix_2000",
     "branch_500",
     "tree_1000",
     "sprout_100",
-    "star_5000",
-    "phoenix_2000"
+    "star_5000"
   ],
   "capabilities": {
     "loaded_skills": [
@@ -270,27 +316,27 @@
       "xmodel"
     ],
     "skill_proficiency": {
-      "plugin-registry": 22,
-      "dna27": 19,
+      "plugin-registry": 24,
+      "dna27": 21,
       "sentiment-radar": 3,
       "human-design-blueprint": 3,
       "dse": 18,
       "ares": 3,
-      "workflow-ai-deployment": 28,
+      "workflow-ai-deployment": 30,
       "energy-reading": 7,
       "dharma": 16,
       "plan-engine": 4,
       "qa-auditor": 4,
       "market-core": 8,
-      "business-12": 22,
+      "business-12": 24,
       "roundtable": 1,
       "c15": 2,
       "deep-think": 1,
       "workflow-svc-brand-marketing": 16,
-      "morphenix": 14,
+      "morphenix": 15,
       "esg-architect-pro": 9,
       "acsf": 2,
-      "ssa-consultant": 5,
+      "ssa-consultant": 7,
       "decision-tracker": 1,
       "gap": 12,
       "meta-learning": 14,
@@ -318,9 +364,9 @@
       "market-macro": 3,
       "market-crypto": 2,
       "orchestrator": 4,
-      "equity-architect": 4,
-      "course-forge": 3,
-      "eval-engine": 2,
+      "equity-architect": 6,
+      "course-forge": 5,
+      "eval-engine": 3,
       "talent-match": 2,
       "workflow-brand-consulting": 3,
       "finance-pilot": 4,

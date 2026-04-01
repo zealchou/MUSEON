@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260401_100526_metacog_insight",
+  "category": "metacog_insight",
+  "content": "**已記錄與分享。**\n\n✅ **記憶檔**：`~/.claude/projects/-Users-ZEALCHOU-MUSEON/memory/feedback_github_pages_native_only.md`\n- 根因：GitHub Actions 停用 + Fastly CDN 快取延遲 + Telegram URL 限制疊加\n- 決策：原生 GitHub Only（gh-pages legacy 模式）\n- 驗證方式：發布腳本內置 HTTP 200 確認\n\n✅ **群組通知**：`~/MUSEON/docs/REPORT_PUBLISHING_GROUP_NOTICE.md`\n- 單一標準流程：publish-report.py → 等腳本驗證 → 取得連結\n- 禁止項：不手動驗、不用 CDN 中轉、不急著報平安\n\n下次報告時執行新流程，應該能避免這類「多人驗證、台灣端還是 404」的輪迴。\n\n無",
+  "source": "L4_observer",
+  "created_at": "2026-04-01T10:05:26.514169+08:00",
+  "priority": "medium"
+}

@@ -1,0 +1,8 @@
+{
+  "id": "mc_20260401_094537_metacog_insight",
+  "category": "metacog_insight",
+  "content": "看到了——是 `rawgit.hack` 的警告頁面，要使用者確認才能開啟。\n\n這代表 rawgit 路徑**不適合直接分享給客戶**（會卡在警告頁）。\n\n建議還是用我剛才提的 `htmlpreview.github.io` 方案，那個直接開啟，沒有中間警告層。\n\n無",
+  "source": "L4_observer",
+  "created_at": "2026-04-01T09:45:37.766701+08:00",
+  "priority": "medium"
+}

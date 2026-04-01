@@ -21,6 +21,8 @@
   "dept_id": "",
   "chat_scope": "",
   "group_id": "",
-  "archived": false,
-  "supersedes_id": "f17cf855-91c6-408a-bab0-c44b06151206"
+  "archived": true,
+  "supersedes_id": "f17cf855-91c6-408a-bab0-c44b06151206",
+  "archive_reason": "superseded",
+  "archived_at": "2026-04-01T13:05:43.118897+08:00"
 }
