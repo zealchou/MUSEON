@@ -25,6 +25,20 @@ set -e
 MUSEON_ROOT="${MUSEON_ROOT:-$HOME/MUSEON}"
 WORKTREE_DIR="/tmp/museon-gh-pages"
 BASE_URL="https://zealchou.github.io/MUSEON/reports"
+RAW_BASE_URL="https://raw.githubusercontent.com/zealchou/MUSEON/gh-pages/reports"
+
+# ─── Trap 清理（worktree 殘留防護） ─────────────────────────
+_cleanup() {
+    local exit_code=$?
+    if [ $exit_code -ne 0 ] && [ -d "$WORKTREE_DIR" ]; then
+        echo ""
+        echo "  [trap] 腳本中途失敗，清理 worktree..."
+        cd "$MUSEON_ROOT" 2>/dev/null || true
+        git worktree remove --force "$WORKTREE_DIR" 2>/dev/null || true
+        git worktree prune 2>/dev/null || true
+    fi
+}
+trap _cleanup EXIT
 
 # ─── 參數檢查 ─────────────────────────
 if [ $# -lt 1 ]; then
@@ -105,49 +119,64 @@ git commit -m "backup: ${FILE_COUNT} files to docs/reports/" 2>/dev/null || true
 echo ""
 echo "Step 6: 驗證連結（等 GitHub Pages CDN）..."
 MAX_RETRIES=4
-RETRY_INTERVAL=30
-ALL_VERIFIED=true
+FIRST_WAIT=45   # CDN 通常需要 30-60 秒，第一輪等 45 秒
+RETRY_INTERVAL=10
+ALL_CDN_VERIFIED=true
 
 # 等第一輪 CDN
-sleep $RETRY_INTERVAL
+echo "  等待 ${FIRST_WAIT}s 讓 CDN 同步..."
+sleep $FIRST_WAIT
 
-VERIFIED_URLS=""
+CACHE_BUST=$(date +%s)
+
 for name in "${DEST_NAMES[@]}"; do
     URL="$BASE_URL/$name"
-    VERIFIED=false
+    RAW_URL="$RAW_BASE_URL/$name"
+
+    # ── Phase A: 先驗 raw.githubusercontent.com（不經 CDN）──
+    RAW_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$RAW_URL")
+
+    if [ "$RAW_CODE" != "200" ]; then
+        # raw 也不是 200 → 檔案本身可能還沒到 gh-pages
+        echo "  FAILED: $name (raw=$RAW_CODE，gh-pages 分支可能尚未同步)"
+        echo "FAILED_URL=$URL"
+        ALL_CDN_VERIFIED=false
+        continue
+    fi
+
+    # ── Phase B: raw 200，再驗 CDN（附 cache-bust 參數）──
+    CDN_VERIFIED=false
+    HTTP_CODE="000"
     for attempt in $(seq 1 $MAX_RETRIES); do
-        HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
+        HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "${URL}?v=${CACHE_BUST}")
         if [ "$HTTP_CODE" = "200" ]; then
-            VERIFIED=true
+            CDN_VERIFIED=true
             break
         fi
-        sleep 10
+        sleep $RETRY_INTERVAL
     done
-    if [ "$VERIFIED" = true ]; then
+
+    if [ "$CDN_VERIFIED" = true ]; then
         echo "  OK: $URL"
-        VERIFIED_URLS="$VERIFIED_URLS$URL\n"
+        echo "VERIFIED_URL=$URL"
     else
-        echo "  PENDING: $URL (HTTP $HTTP_CODE, CDN may be slow)"
-        VERIFIED_URLS="$VERIFIED_URLS$URL\n"
-        ALL_VERIFIED=false
+        # 檔案確實在 gh-pages，只是 CDN 還沒同步
+        echo "  VERIFIED (CDN syncing): $URL (raw=200, cdn=$HTTP_CODE, may take 1-2 min)"
+        echo "VERIFIED_URL=$URL  # CDN syncing, may take 1-2 min"
+        ALL_CDN_VERIFIED=false
     fi
 done
 
 # ─── 結果 ─────────────────────────
 echo ""
 echo "════════════════════════════════════════"
-if [ "$ALL_VERIFIED" = true ]; then
-    echo "ALL ${FILE_COUNT} files published and verified"
+if [ "$ALL_CDN_VERIFIED" = true ]; then
+    echo "ALL ${FILE_COUNT} files published and CDN verified"
 else
-    echo "${FILE_COUNT} files published (some CDN pending)"
+    echo "${FILE_COUNT} files published (CDN may still be syncing)"
 fi
 echo ""
 for name in "${DEST_NAMES[@]}"; do
     echo "  $BASE_URL/$name"
-done
-echo ""
-echo "VERIFIED_URLS:"
-for name in "${DEST_NAMES[@]}"; do
-    echo "VERIFIED_URL=$BASE_URL/$name"
 done
 echo "════════════════════════════════════════"

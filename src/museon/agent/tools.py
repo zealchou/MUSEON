@@ -2220,11 +2220,12 @@ class ToolExecutor:
                     "filename": fp.name,
                 }
             else:
+                # 沒有 VERIFIED_URL → 視為發佈失敗，不構造 URL
                 return {
-                    "success": True,
-                    "url": f"https://zealchou.github.io/MUSEON/reports/{fp.name}",
-                    "warning": "URL not verified by script, using fallback",
-                    "filename": fp.name,
+                    "success": False,
+                    "error": "publish-report.sh 未輸出 VERIFIED_URL，可能發佈失敗",
+                    "stdout": result.stdout[-500:] if result.stdout else "",
+                    "stderr": result.stderr[-500:] if result.stderr else "",
                 }
 
         except subprocess.TimeoutExpired:

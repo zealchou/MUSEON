@@ -220,6 +220,45 @@ class ResponseGuard:
         return text.strip()
 
     @staticmethod
+    def validate_github_urls(response_text: str) -> str:
+        """掃描回覆中的 GitHub Pages URL，驗證可達性.
+
+        如果 URL 不可達（非 200），在 URL 後追加警告標記，
+        讓使用者知道連結可能需要等待。
+
+        此方法只處理 zealchou.github.io 的 URL，不影響其他內容。
+        """
+        if not response_text or "github.io" not in response_text:
+            return response_text
+
+        import urllib.request
+
+        # 匹配 GitHub Pages URL
+        url_pattern = re.compile(
+            r'(https?://zealchou\.github\.io/\S+\.(?:html|pdf|xlsx|docx|pptx))'
+        )
+
+        def _check_and_annotate(match):
+            url = match.group(1)
+            try:
+                req = urllib.request.Request(url, method='HEAD')
+                req.add_header('User-Agent', 'MUSEON-ResponseGuard/1.0')
+                resp = urllib.request.urlopen(req, timeout=10)
+                if resp.status == 200:
+                    return url  # 可達，保持不變
+            except Exception:
+                pass
+
+            # 不可達 → 加警告
+            logger.warning(
+                "[ResponseGuard] GitHub URL 未通過可達性驗證: %s", url
+            )
+            return f"{url}\n（提醒：連結可能需要 1-2 分鐘才能生效）"
+
+        result = url_pattern.sub(_check_and_annotate, response_text)
+        return result
+
+    @staticmethod
     def sanitize_for_group(response_text: str, is_group: bool = False) -> str:
         """回覆內容清理 — 移除內部術語和敏感資訊，並轉換 Markdown 為純文字.
 
@@ -241,6 +280,9 @@ class ResponseGuard:
             return response_text
 
         sanitized = response_text
+
+        # Step 0: 驗證 GitHub Pages URL 可達性
+        sanitized = ResponseGuard.validate_github_urls(sanitized)
 
         # 所有通道統一過濾全部 _INTERNAL_PATTERNS
         for pattern in _INTERNAL_PATTERNS:
