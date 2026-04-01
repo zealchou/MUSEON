@@ -191,7 +191,7 @@ external-user（EXTERNAL）
 | ~~`brain-observer`~~ | ~~Brain-Observer (L4)~~ | ~~L4 觀察者（已刪除 v1.74，功能整合至 L4 觀察者 Nightly Workflow）~~ | - | - | - |
 | `memory-graph` | Memory Graph | 記憶關聯圖（語意關聯邊 + 存取追蹤 + 過期偵測） | - | brain | 1.0 |
 | `trait-engine` | Trait Engine | 10 維度特質代謝引擎，從互動計算特質 delta（C-trait 即時更新） | - | brain | 1.0 |
-| `growth-stage-computer` | Growth Stage Computer | Kegan 認知成熟度計算（ABSORB→TRANSCEND），取代硬編碼 "adult" | - | brain | 0.9 |
+| `growth-stage-computer` | Growth Stage Computer | Kegan 認知成熟度計算（ABSORB→TRANSCEND），取代硬編碼 adult | - | brain | 0.9 |
 | `dissent-engine` | Dissent Engine | Crystal Lattice 矛盾偵測，分階段表達異見（Step 3.655） | - | brain | 0.9 |
 | `mask-engine` | Mask Engine | 每位使用者臨時人格適應層，附衰減機制（Step 2.2 啟動 / Step 9.9 衰減） | - | brain | 0.9 |
 | `momentum-brake` | Momentum Brake | 特質 delta 上限保護 + 捕獲風險偵測 | - | brain | 0.8 |
@@ -846,7 +846,7 @@ external-user（EXTERNAL）
 | `cron-registry` | `musedoctor` | 排程 patrol_tick（每 8 分鐘） |
 | `brain-tools` | `skill-counter` | Skill 調用計量 |
 | `brain-observation` | `trait-engine` | _observe_self() C-trait 即時更新 |
-| `brain-observation` | `growth-stage-computer` | _observe_self() 認知成熟度計算（取代硬編碼 "adult"） |
+| `brain-observation` | `growth-stage-computer` | _observe_self() 認知成熟度計算（取代硬編碼 adult） |
 | `drift-detector` | `momentum-brake` | 捕獲風險計算（capture risk detection） |
 | `nightly-reflection-engine` | `anima-mc-store` | P-trait delta 寫入（evolution_write） |
 | `nightly-reflection-engine` | `soul-ring` | value_calibration 積分存入 |
