@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scott Su — One Muse 人格深度分析</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ember:        #C4502A;
+      --ember-light:  #E0714D;
+      --ember-dark:   #9A3A1C;
+      --teal:         #2A7A6E;
+      --gold:         #B8923A;
+      --ink:          #12121A;
+      --slate:        #5A5A6E;
+      --mist:         #9898A8;
+      --border:       #E2E0DA;
+      --parchment:    #F7F5F0;
+      --snow:         #FDFCFA;
+      --deep-ink:     #0E0E16;
+      --max-w:        820px;
+    }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    body {
+      background: var(--parchment);
+      color: var(--ink);
+      font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── 動效 ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp 400ms ease-out both; }
+    .delay-1 { animation-delay: 60ms; }
+    .delay-2 { animation-delay: 120ms; }
+    .delay-3 { animation-delay: 180ms; }
+    .delay-4 { animation-delay: 240ms; }
+    .delay-5 { animation-delay: 300ms; }
+
+    /* ── Layout ── */
+    .container {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 40px;
+    }
+    @media (max-width: 768px) { .container { padding: 0 24px; } }
+    @media (max-width: 640px) { .container { padding: 0 16px; } }
+
+    /* ── Hero ── */
+    .hero {
+      background: var(--deep-ink);
+      padding: 96px 0 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 20% 40%, rgba(196,80,42,0.18) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 60% at 80% 60%, rgba(184,146,58,0.10) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 40% at 50% 90%, rgba(42,122,110,0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(196,80,42,0.5) 30%, rgba(184,146,58,0.4) 70%, transparent);
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ember-light);
+      margin-bottom: 20px;
+    }
+    .hero-label::before {
+      content: '';
+      display: inline-block;
+      width: 20px;
+      height: 1px;
+      background: var(--ember-light);
+    }
+
+    .hero-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(44px, 8vw, 64px);
+      font-weight: 600;
+      color: #FDFCFA;
+      line-height: 1.1;
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+    }
+    .hero-name em {
+      font-style: italic;
+      color: var(--ember-light);
+    }
+
+    .hero-subtitle {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(16px, 3vw, 20px);
+      font-weight: 400;
+      color: rgba(253,252,250,0.65);
+      margin-bottom: 36px;
+      line-height: 1.5;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 48px;
+    }
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(253,252,250,0.07);
+      border: 1px solid rgba(253,252,250,0.12);
+      border-radius: 100px;
+      padding: 6px 14px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(253,252,250,0.7);
+    }
+    .hero-pill.ember { border-color: rgba(196,80,42,0.4); color: var(--ember-light); background: rgba(196,80,42,0.1); }
+    .hero-pill.gold  { border-color: rgba(184,146,58,0.4); color: #D4AB5A; background: rgba(184,146,58,0.08); }
+    .hero-pill.teal  { border-color: rgba(42,122,110,0.4); color: #3DA090; background: rgba(42,122,110,0.08); }
+
+    .hero-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(253,252,250,0.12) 30%, rgba(253,252,250,0.08) 70%, transparent);
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      padding-top: 36px;
+    }
+    .hero-stat {
+      padding: 0 24px 0 0;
+      border-right: 1px solid rgba(253,252,250,0.08);
+    }
+    .hero-stat:first-child { padding-left: 0; }
+    .hero-stat:last-child  { border-right: none; padding-right: 0; padding-left: 24px; }
+    .hero-stat-number {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 36px;
+      font-weight: 600;
+      color: var(--ember-light);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .hero-stat-label {
+      font-size: 13px;
+      color: rgba(253,252,250,0.5);
+      line-height: 1.4;
+    }
+    @media (max-width: 640px) {
+      .hero-stats { grid-template-columns: 1fr 1fr; }
+      .hero-stat:nth-child(2) { border-right: none; padding-left: 24px; }
+      .hero-stat:last-child { grid-column: 1/-1; padding: 20px 0 0; border-right: none; border-top: 1px solid rgba(253,252,250,0.08); }
+    }
+
+    /* ── Section ── */
+    .section {
+      padding: 64px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .section:last-of-type { border-bottom: none; }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ember);
+      margin-bottom: 12px;
+    }
+    .section-label::before {
+      content: '';
+      display: inline-block;
+      width: 16px;
+      height: 1px;
+      background: var(--ember);
+    }
+
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(26px, 4vw, 34px);
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.25;
+      margin-bottom: 8px;
+    }
+
+    .section-desc {
+      font-size: 16px;
+      color: var(--slate);
+      line-height: 1.75;
+      margin-bottom: 40px;
+      max-width: 620px;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 28px;
+      box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+      transition: transform 200ms ease, box-shadow 200ms ease;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 2px 6px rgba(18,18,26,0.08), 0 8px 24px rgba(18,18,26,0.07);
+    }
+
+    .card-icon {
+      font-size: 28px;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .card-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 12px;
+      line-height: 1.3;
+    }
+
+    .card-body {
+      font-size: 15px;
+      color: var(--slate);
+      line-height: 1.75;
+    }
+    .card-body p + p { margin-top: 10px; }
+
+    /* ── 四格特質卡 ── */
+    .traits-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 640px) { .traits-grid { grid-template-columns: 1fr; } }
+
+    .trait-card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+      transition: transform 200ms ease, box-shadow 200ms ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .trait-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      border-radius: 10px 10px 0 0;
+    }
+    .trait-card.fire::before  { background: linear-gradient(90deg, #C4502A, #E0714D); }
+    .trait-card.wind::before  { background: linear-gradient(90deg, #2A7A6E, #3DA090); }
+    .trait-card.three::before { background: linear-gradient(90deg, #B8923A, #D4AB5A); }
+    .trait-card.deep::before  { background: linear-gradient(90deg, #5A5A6E, #9898A8); }
+
+    .trait-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 2px 6px rgba(18,18,26,0.08), 0 8px 24px rgba(18,18,26,0.07);
+    }
+
+    .trait-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .trait-icon {
+      font-size: 26px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .trait-title-group {}
+    .trait-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mist);
+      margin-bottom: 3px;
+    }
+    .trait-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.2;
+    }
+
+    .trait-body {
+      font-size: 14px;
+      color: var(--slate);
+      line-height: 1.7;
+    }
+    .trait-item {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 7px;
+    }
+    .trait-item::before {
+      content: '·';
+      color: var(--mist);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .trait-highlight {
+      background: rgba(196,80,42,0.06);
+      border-left: 2px solid var(--ember);
+      border-radius: 0 6px 6px 0;
+      padding: 8px 12px;
+      margin-top: 14px;
+      font-size: 13px;
+      color: var(--ember-dark);
+      font-style: italic;
+    }
+    .trait-card.wind .trait-highlight  { background: rgba(42,122,110,0.06); border-color: var(--teal); color: #1D5F55; }
+    .trait-card.three .trait-highlight { background: rgba(184,146,58,0.06); border-color: var(--gold); color: #8B6E25; }
+    .trait-card.deep .trait-highlight  { background: rgba(90,90,110,0.06); border-color: #9898A8; color: #3A3A52; }
+
+    /* ── 能量時間線 ── */
+    .timeline {
+      position: relative;
+      padding-left: 28px;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 6px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: linear-gradient(180deg, var(--ember) 0%, var(--gold) 50%, var(--teal) 100%);
+      border-radius: 2px;
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 32px;
+    }
+    .timeline-item:last-child { margin-bottom: 0; }
+
+    .timeline-dot {
+      position: absolute;
+      left: -28px;
+      top: 4px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid var(--snow);
+      box-shadow: 0 0 0 2px var(--ember);
+    }
+    .timeline-item.gold-dot .timeline-dot  { box-shadow: 0 0 0 2px var(--gold); }
+    .timeline-item.teal-dot .timeline-dot  { box-shadow: 0 0 0 2px var(--teal); }
+
+    .timeline-date {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ember);
+      margin-bottom: 6px;
+    }
+    .timeline-item.gold-dot .timeline-date  { color: var(--gold); }
+    .timeline-item.teal-dot .timeline-date  { color: var(--teal); }
+
+    .timeline-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 19px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+
+    .timeline-content {
+      font-size: 15px;
+      color: var(--slate);
+      line-height: 1.75;
+    }
+
+    .energy-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .energy-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--mist);
+      letter-spacing: 0.05em;
+      min-width: 72px;
+    }
+    .energy-track {
+      flex: 1;
+      height: 6px;
+      background: var(--border);
+      border-radius: 100px;
+      overflow: hidden;
+      min-width: 80px;
+    }
+    .energy-fill {
+      height: 100%;
+      border-radius: 100px;
+      transition: width 0.8s ease-out;
+    }
+    .energy-fill.neg { background: linear-gradient(90deg, #C4402A, #E05A3A); }
+    .energy-fill.pos { background: linear-gradient(90deg, #2A7A6E, #3DA090); }
+    .energy-fill.gold { background: linear-gradient(90deg, #B8923A, #D4AB5A); }
+    .energy-value {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      min-width: 36px;
+      text-align: right;
+    }
+    .energy-value.neg  { color: #C4402A; }
+    .energy-value.pos  { color: var(--teal); }
+    .energy-value.gold { color: var(--gold); }
+
+    /* ── 三大卡點 ── */
+    .blockage-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .blockage-card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px 28px;
+      box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 640px) { .blockage-card { grid-template-columns: 1fr; } }
+
+    .blockage-number {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 52px;
+      font-weight: 600;
+      color: rgba(196,80,42,0.12);
+      line-height: 1;
+      text-align: right;
+      margin-top: -8px;
+    }
+
+    .blockage-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(196,80,42,0.1);
+      color: var(--ember-dark);
+      border-radius: 100px;
+      padding: 3px 10px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      display: inline-block;
+    }
+
+    .blockage-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 21px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+
+    .blockage-body {
+      font-size: 14.5px;
+      color: var(--slate);
+      line-height: 1.75;
+    }
+
+    .breakthrough {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      background: rgba(42,122,110,0.06);
+      border: 1px solid rgba(42,122,110,0.18);
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-top: 14px;
+      font-size: 13.5px;
+      color: #1D5F55;
+      line-height: 1.65;
+    }
+    .breakthrough::before {
+      content: '→';
+      flex-shrink: 0;
+      font-weight: 600;
+      color: var(--teal);
+      margin-top: 1px;
+    }
+
+    /* ── 競爭格局表格 ── */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--snow);
+      font-size: 14px;
+    }
+    thead tr {
+      background: var(--parchment);
+    }
+    thead th {
+      padding: 14px 16px;
+      text-align: left;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--slate);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    thead th:first-child { width: 22%; }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 150ms ease;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(247,245,240,0.7); }
+
+    tbody td {
+      padding: 13px 16px;
+      color: var(--ink);
+      vertical-align: top;
+      line-height: 1.6;
+    }
+    tbody td:first-child {
+      font-weight: 500;
+      color: var(--slate);
+      font-size: 13px;
+    }
+
+    .td-scott { font-weight: 500; }
+    .score-pos { color: var(--teal); font-weight: 600; font-family: 'IBM Plex Mono', monospace; font-size: 13px; }
+    .score-neg { color: #C4402A; font-weight: 600; font-family: 'IBM Plex Mono', monospace; font-size: 13px; }
+    .score-gold { color: var(--gold); font-weight: 600; font-family: 'IBM Plex Mono', monospace; font-size: 13px; }
+
+    /* ── 行動處方 ── */
+    .rx-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      counter-reset: rx;
+    }
+    .rx-item {
+      counter-increment: rx;
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 24px;
+      display: grid;
+      grid-template-columns: 40px 1fr;
+      gap: 16px;
+      align-items: start;
+      box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+      transition: transform 200ms ease, box-shadow 200ms ease;
+    }
+    .rx-item:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(18,18,26,0.08), 0 8px 24px rgba(18,18,26,0.07);
+    }
+    .rx-number {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--ember), var(--ember-dark));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: #FDFCFA;
+      flex-shrink: 0;
+    }
+    .rx-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 5px;
+    }
+    .rx-body {
+      font-size: 14px;
+      color: var(--slate);
+      line-height: 1.7;
+    }
+
+    /* ── 成長藍圖 ── */
+    .growth-path {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      position: relative;
+      margin-bottom: 40px;
+    }
+    .growth-path::before {
+      content: '';
+      position: absolute;
+      top: 30px;
+      left: 10%;
+      right: 10%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--ember) 0%, var(--gold) 50%, var(--teal) 100%);
+      z-index: 0;
+    }
+    @media (max-width: 640px) {
+      .growth-path { grid-template-columns: 1fr 1fr; }
+      .growth-path::before { display: none; }
+    }
+
+    .growth-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 0 12px;
+      position: relative;
+      z-index: 1;
+    }
+    .growth-dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 3px solid var(--snow);
+      margin-bottom: 12px;
+    }
+    .growth-dot.e1 { background: var(--ember); box-shadow: 0 0 0 2px var(--ember); }
+    .growth-dot.e2 { background: #C4402A; box-shadow: 0 0 0 2px #C4402A; }
+    .growth-dot.g  { background: var(--gold); box-shadow: 0 0 0 2px var(--gold); }
+    .growth-dot.t  { background: var(--teal); box-shadow: 0 0 0 2px var(--teal); }
+    .growth-month {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--mist);
+      margin-bottom: 4px;
+    }
+    .growth-event {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.4;
+    }
+
+    /* ── 結語 ── */
+    .closing-card {
+      background: var(--deep-ink);
+      border-radius: 14px;
+      padding: 48px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .closing-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 50% 60% at 20% 50%, rgba(196,80,42,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 40% at 80% 30%, rgba(184,146,58,0.08) 0%, transparent 55%);
+      pointer-events: none;
+    }
+    .closing-quote {
+      position: relative;
+      z-index: 1;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 600;
+      font-style: italic;
+      color: #FDFCFA;
+      line-height: 1.45;
+      margin-bottom: 20px;
+      border-left: 3px solid var(--ember);
+      padding-left: 24px;
+    }
+    .closing-text {
+      position: relative;
+      z-index: 1;
+      font-size: 15px;
+      color: rgba(253,252,250,0.6);
+      line-height: 1.75;
+      max-width: 560px;
+      padding-left: 24px;
+    }
+    @media (max-width: 640px) {
+      .closing-card { padding: 36px 24px; }
+    }
+
+    /* ── 頁尾 ── */
+    .footer {
+      padding: 32px 0;
+      border-top: 1px solid var(--border);
+    }
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer-brand {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--mist);
+    }
+    .footer-conf {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ember);
+      background: rgba(196,80,42,0.08);
+      padding: 3px 10px;
+      border-radius: 100px;
+    }
+
+    /* ── Inline badge ── */
+    .badge {
+      display: inline-block;
+      background: rgba(196,80,42,0.1);
+      color: var(--ember-dark);
+      border-radius: 100px;
+      padding: 2px 9px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      vertical-align: middle;
+    }
+    .badge.teal { background: rgba(42,122,110,0.1); color: #1D5F55; }
+    .badge.gold { background: rgba(184,146,58,0.1); color: #8B6E25; }
+
+    /* ── Insight block ── */
+    .insight {
+      background: rgba(184,146,58,0.07);
+      border: 1px solid rgba(184,146,58,0.22);
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-size: 14.5px;
+      color: #6B5520;
+      line-height: 1.7;
+    }
+    .insight strong {
+      display: block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 5px;
+    }
+
+    hr.section-hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 32px 0;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ══════════════ HERO ══════════════ -->
+  <div class="hero">
+    <div class="container hero-inner fade-up">
+      <div class="hero-label">One Muse × MUSEON · 人格深度分析</div>
+      <h1 class="hero-name">Scott <em>Su</em></h1>
+      <p class="hero-subtitle">
+        基於 2026 年 1 月全盤能量解讀 × 4 月三才陣追蹤
+      </p>
+      <div class="hero-meta">
+        <span class="hero-pill ember">Toastmasters D67</span>
+        <span class="hero-pill gold">Club Growth Director 候選人</span>
+        <span class="hero-pill teal">選舉日 2026 / 04 / 25–26</span>
+      </div>
+      <div class="hero-divider"></div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-number">+27</div>
+          <div class="hero-stat-label">得票能量<br>三位候選人最強</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-number">+4</div>
+          <div class="hero-stat-label">未來能量快速反轉<br>現況 −3 → 預測 +4</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-number">06</div>
+          <div class="hero-stat-label">解讀牌面總數<br>四張指向情緒影響</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ 01 · 人物速寫 ══════════════ -->
+  <section class="section fade-up delay-1">
+    <div class="container">
+      <div class="section-label">01 · 人物速寫</div>
+      <h2 class="section-title">誰是 Scott Su？</h2>
+      <p class="section-desc">從兩次 One Muse 解讀，拼出一個人完整的能量地圖。</p>
+
+      <div class="card">
+        <div class="card-body">
+          <p>
+            Scott Su 是 Toastmasters District 67 的深度參與者，現以 <span class="badge">Club Growth Director</span> 候選人身份參與 2026 年 4 月底的年度選舉。他不是第一次在公開場合展現自己，但這一次的挑戰意味著更高的能見度、更複雜的關係網絡，以及前所未有的對內核穩定性的要求。
+          </p>
+          <hr class="section-hr">
+          <p>
+            One Muse 對 Scott 進行了兩次深度解讀：<span class="badge gold">2026 年 1 月</span> 的全盤能量盤，梳理他的先天人格結構與當下運勢走向；<span class="badge teal">2026 年 4 月 1 日</span> 的三才陣追蹤，在選舉前夕精準定位他的天地人三層狀態，以及最關鍵的能量卡點。這份報告，是兩次解讀的合集——不只是預測，而是一張人格成長的藍圖。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ 02 · 核心人格特質 ══════════════ -->
+  <section class="section fade-up delay-2">
+    <div class="container">
+      <div class="section-label">02 · 核心人格特質</div>
+      <h2 class="section-title">六張牌，讀出一個人</h2>
+      <p class="section-desc">盤面的四大能量軸心，構成 Scott 的人格底色——他的優勢武器，也是他最深的侷限。</p>
+
+      <div class="traits-grid">
+        <!-- 火 -->
+        <div class="trait-card fire fade-up delay-1">
+          <div class="trait-header">
+            <span class="trait-icon">🔥</span>
+            <div class="trait-title-group">
+              <div class="trait-label">內在驅力</div>
+              <div class="trait-title">火的能量</div>
+            </div>
+          </div>
+          <div class="trait-body">
+            <div class="trait-item">內在動力是火——求好心切、求快、容易曇花一現式燃燒</div>
+            <div class="trait-item">六張牌中四張指向情緒容易被外界影響</div>
+            <div class="trait-item">壓力大時：守舊、打破自己定下的規則</div>
+            <div class="trait-item">壓力低時：溝通協調力強、落地策略、鼓舞他人</div>
+          </div>
+          <div class="trait-highlight">
+            「火」的人，燒起來能點亮全場；滅下去，灰燼卻冷得沒有一點溫度。
+          </div>
+        </div>
+
+        <!-- 風 -->
+        <div class="trait-card wind fade-up delay-2">
+          <div class="trait-header">
+            <span class="trait-icon">🌿</span>
+            <div class="trait-title-group">
+              <div class="trait-label">行動模式</div>
+              <div class="trait-title">風的適應力</div>
+            </div>
+          </div>
+          <div class="trait-body">
+            <div class="trait-item">四張風牌——適應力是他核心的行動語言</div>
+            <div class="trait-item">外圓內方：內在堅持，外在自然貼合大眾期待</div>
+            <div class="trait-item">遇障礙習慣繞路而非硬撞，效率高但容易失去方向</div>
+            <div class="trait-item">最大盲點：太配合對方，自己的原則從未說出口</div>
+          </div>
+          <div class="trait-highlight">
+            風可以去任何地方，但問題是：它有沒有自己想去的地方？
+          </div>
+        </div>
+
+        <!-- 三的能量 -->
+        <div class="trait-card three fade-up delay-3">
+          <div class="trait-header">
+            <span class="trait-icon">📚</span>
+            <div class="trait-title-group">
+              <div class="trait-label">成長結構</div>
+              <div class="trait-title">累積型人格</div>
+            </div>
+          </div>
+          <div class="trait-body">
+            <div class="trait-item">盤面大量「三」的能量——沉澱、累積、槓桿過去</div>
+            <div class="trait-item">喜歡複製成功模式，不是真正的突破性創新者</div>
+            <div class="trait-item">「框架內成立」——在既有結構中深化、優化</div>
+            <div class="trait-item">人脈、Know-how、過去的積累都是可用的武器庫</div>
+          </div>
+          <div class="trait-highlight">
+            三不是弱點，是策略。聰明人不打破規則，他們把規則用得比任何人都徹底。
+          </div>
+        </div>
+
+        <!-- 深度關係 -->
+        <div class="trait-card deep fade-up delay-4">
+          <div class="trait-header">
+            <span class="trait-icon">🔍</span>
+            <div class="trait-title-group">
+              <div class="trait-label">社交動態</div>
+              <div class="trait-title">深度 vs 人群</div>
+            </div>
+          </div>
+          <div class="trait-body">
+            <div class="trait-item">一對一深度關係能量飽滿，覆盤反思能力極強</div>
+            <div class="trait-item">人多時行動力下降，容易被各種聲音淹沒</div>
+            <div class="trait-item">聽了未必真的聽進去——內在聆聽尚未完全打開</div>
+            <div class="trait-item">對別人好三分，對方只收到一分——給的不是對方要的</div>
+          </div>
+          <div class="trait-highlight">
+            深度是他的護城河，但他必須先學會真正聽見對方，再決定要給什麼。
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ 03 · 能量演化軌跡 ══════════════ -->
+  <section class="section fade-up delay-2">
+    <div class="container">
+      <div class="section-label">03 · 能量演化軌跡</div>
+      <h2 class="section-title">從冬到春，能量如何流動</h2>
+      <p class="section-desc">兩次解讀，紀錄了 Scott 從外在具足、內在空虛，到受衝擊後能量準備反轉的完整弧線。</p>
+
+      <div class="timeline">
+
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">2026 年 1 月 · 全盤解讀</div>
+          <div class="timeline-heading">外在豐盛，內在等待點燃</div>
+          <div class="timeline-content">
+            <p>貴人、資源、財力能量具足，是少見的外在條件全面就位的盤面。然而內在能量卻偏向負向，形成了一個矛盾的結構——舞台搭好了，但主角還沒進場。顯化能量高，卻因為四個步驟尚未完成（畫面不夠清晰、內在能量未拉起），力量無法落地。</p>
+            <p style="margin-top: 10px; color: var(--mist); font-size: 13px;">解讀方向：拉升內在能量，讓外在資源真正為你所用。</p>
+          </div>
+          <div class="energy-bar">
+            <span class="energy-label">外在能量</span>
+            <div class="energy-track"><div class="energy-fill pos" style="width:78%"></div></div>
+            <span class="energy-value pos">+正向</span>
+          </div>
+          <div class="energy-bar">
+            <span class="energy-label">內在能量</span>
+            <div class="energy-track"><div class="energy-fill neg" style="width:40%"></div></div>
+            <span class="energy-value neg">−偏低</span>
+          </div>
+        </div>
+
+        <div class="timeline-item gold-dot">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">2026 年 3 月 10 日 · 能量轉折點</div>
+          <div class="timeline-heading">運勢轉折——能量翻正，但向下走</div>
+          <div class="timeline-content">
+            <p>約在 1 月解讀後的一個半月（3 月 10 日前後），Scott 的內在能量轉正。然而轉折帶來的不只是機會——整體運勢的方向此時也開始向下延伸。好消息是，能量終於補上來了；挑戰是，這個補上來的能量，很快遭遇了外部衝擊的考驗。</p>
+          </div>
+          <div class="energy-bar">
+            <span class="energy-label">整體能量</span>
+            <div class="energy-track"><div class="energy-fill gold" style="width:52%"></div></div>
+            <span class="energy-value gold">↗ 轉折</span>
+          </div>
+        </div>
+
+        <div class="timeline-item teal-dot">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">2026 年 3 月下旬 · 微軟事件</div>
+          <div class="timeline-heading">衝擊抵達，內在穩定性受損</div>
+          <div class="timeline-content">
+            <p>微軟相關事件對 Scott 造成了非預期的衝擊。能量數值從 −4 拉升至 −3，好轉的方向清楚，但時間上的窗口已然收窄。更深層的問題是：這個事件動搖了他的天能量（核心層），讓他在選舉前夕必須面對一個本來應該早已穩固的命題——「我究竟是誰？我要往哪裡走？」</p>
+          </div>
+          <div class="energy-bar">
+            <span class="energy-label">內在穩定</span>
+            <div class="energy-track"><div class="energy-fill neg" style="width:30%"></div></div>
+            <span class="energy-value neg">−3</span>
+          </div>
+        </div>
+
+        <div class="timeline-item teal-dot">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">2026 年 4 月 1 日 · 三才陣追蹤</div>
+          <div class="timeline-heading">能量已備，等待點火時刻</div>
+          <div class="timeline-content">
+            <p>三才陣的天地人三層結構揭示了一個逆轉的可能性：現況雖然是 −3，但未來能量可以快速反轉到 +4。4 月初透過大師課程找回的聚焦感，正是這個反轉的引線。關鍵不是加速衝刺，而是從「創新者」重新定位為「守舊中的幸福感倡議者」——讓 Scott 的核心能量回到他真正擅長的軌道。</p>
+          </div>
+          <div class="energy-bar">
+            <span class="energy-label">現況能量</span>
+            <div class="energy-track"><div class="energy-fill neg" style="width:30%"></div></div>
+            <span class="energy-value neg">−3</span>
+          </div>
+          <div class="energy-bar">
+            <span class="energy-label">未來能量</span>
+            <div class="energy-track"><div class="energy-fill pos" style="width:65%"></div></div>
+            <span class="energy-value pos">+4</span>
+          </div>
+          <div class="energy-bar">
+            <span class="energy-label">得票能量</span>
+            <div class="energy-track"><div class="energy-fill gold" style="width:90%"></div></div>
+            <span class="energy-value gold">+27</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="insight" style="margin-top: 32px;">
+        <strong>洞見</strong>
+        得票能量 +27 是三位候選人中最強的數字。選舉的勝負，從能量層面看，已有定論。真正的問題是：Scott 能不能在選前的最後三週，讓自己的狀態匹配上這個能量所預示的結果。
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ 04 · 三大卡點 ══════════════ -->
+  <section class="section fade-up delay-2">
+    <div class="container">
+      <div class="section-label">04 · 卡點與突破</div>
+      <h2 class="section-title">三道關卡，一個人的成長命題</h2>
+      <p class="section-desc">解讀不是算命，是精準定位問題。這三個卡點，是 Scott 在選舉前——乃至此後整個人生周期——必須正面回答的問題。</p>
+
+      <div class="blockage-list">
+
+        <div class="blockage-card fade-up delay-1">
+          <div>
+            <span class="blockage-badge">Blockage 01</span>
+            <div class="blockage-title">核心理念模糊</div>
+            <div class="blockage-body">
+              「大師」的概念有力量，但這個力量要成立，需要一個完整的轉譯工程。「千人千面——每個人都能成為大師」的論述有了雛形，但尚未真正建立。品牌宣言遲遲未完成，讓 Scott 在對話時使用的語言，仍停留在描述自己的感受，而非傳遞一個清晰的價值主張。
+            </div>
+            <div class="breakthrough">
+              突破路徑：「處變不驚、隨遇而安、回到當下」這三句話是制勝的核心語言。它們既是 Scott 的人格成長命題，也是最容易引起 Toastmasters 文化共鳴的品牌錨點。先把自己活成這個樣子，再告訴別人。
+            </div>
+          </div>
+          <div class="blockage-number">01</div>
+        </div>
+
+        <div class="blockage-card fade-up delay-2">
+          <div>
+            <span class="blockage-badge">Blockage 02</span>
+            <div class="blockage-title">被影響的心性</div>
+            <div class="blockage-body">
+              三才陣的天層（代表核心、靈魂、初衷）顯示為空——意味著 Scott 的最深處容易被帶著走，缺乏一個穩定的內在錨點。火的能量容易散逸，風的適應力在沒有方向感時反而變成了過度配合。這讓他在外部衝擊（如微軟事件）發生時，「受害者心態 ↔ 負責任心態」的擺盪會特別劇烈。
+            </div>
+            <div class="breakthrough">
+              突破路徑：用「大我」角度重新框架每一個讓他不舒服的事件，不被過去的情節綑綁。問的問題不是「為什麼這件事發生在我身上」，而是「這件事在召喚我做什麼？」
+            </div>
+          </div>
+          <div class="blockage-number">02</div>
+        </div>
+
+        <div class="blockage-card fade-up delay-3">
+          <div>
+            <span class="blockage-badge">Blockage 03</span>
+            <div class="blockage-title">行動發散</div>
+            <div class="blockage-body">
+              過去幾個月，Scott 的能量焦點落在自己身上，而非對方身上。線上宣傳（空軍）幾乎完全放棄，只剩下地面接觸（陸軍），使得影響力範圍遠小於他本有的潛力。更根本的問題在於：他的大量精力用在思考上，而非行動上——而在能量低迷的時期，思考會加劇內耗，而不是找到出路。
+            </div>
+            <div class="breakthrough">
+              突破路徑：每天言之有物地感恩 3–5 人，讓焦點從「我」移向「你」。能出門就出門；不能出門就打一通真正在意的電話。行動優先於思考，做了再說。
+            </div>
+          </div>
+          <div class="blockage-number">03</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ 05 · 競爭格局 ══════════════ -->
+  <section class="section fade-up delay-2">
+    <div class="container">
+      <div class="section-label">05 · 競爭格局</div>
+      <h2 class="section-title">三位候選人，三種能量結構</h2>
+      <p class="section-desc">從能量盤面看選局，每一位候選人的優勢與弱點，在數字之前就已經說話了。</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>維度</th>
+              <th>Scott Su</th>
+              <th>韓大哥</th>
+              <th>Dorin</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>過去能量</td>
+              <td class="td-scott">發散，但基底厚實</td>
+              <td>承諾多，行動少</td>
+              <td>氣勢強，正三入場</td>
+            </tr>
+            <tr>
+              <td>現在能量</td>
+              <td class="td-scott"><span class="score-neg">−3</span>　微軟事件後震盪</td>
+              <td><span class="score-neg">−3</span>　君親師角色未盡</td>
+              <td><span class="score-pos">+3</span>　當下氣場最強</td>
+            </tr>
+            <tr>
+              <td>未來能量</td>
+              <td class="td-scott"><span class="score-pos">+4 → +7</span>　強勢反轉</td>
+              <td><span class="score-neg">−3</span>　難以拉起</td>
+              <td><span class="score-pos">+5</span>　但得票不穩定</td>
+            </tr>
+            <tr>
+              <td>得票能量</td>
+              <td class="td-scott"><span class="score-gold">+27</span>　三人最強</td>
+              <td><span class="score-neg">負值</span>　支持者鬆散</td>
+              <td>隨環境高度波動</td>
+            </tr>
+            <tr>
+              <td>核心弱點</td>
+              <td class="td-scott">內核尚待明確</td>
+              <td>過度承諾失信</td>
+              <td>個性過強，缺乏團隊</td>
+            </tr>
+            <tr>
+              <td>制勝策略</td>
+              <td class="td-scott">感恩路線＋守舊定位</td>
+              <td>需要立即行動力</td>
+              <td>需要降低鋒芒，耐心建盤</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="insight" style="margin-top: 28px;">
+        <strong>格局判讀</strong>
+        從能量結構看，這場選舉的勝負早有預示。Dorin 的正三雖然當下最耀眼，但「將虛掉」意味著他的能量在投票日前會開始流失。韓大哥的負值軌跡，使他難以累積足夠的集體支持。Scott 的 +27 得票能量，加上未來 +4 到 +7 的反轉弧線，是唯一能在投票日當天讓能量持續升高的人。
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ 06 · 人格成長藍圖 ══════════════ -->
+  <section class="section fade-up delay-2">
+    <div class="container">
+      <div class="section-label">06 · 成長藍圖</div>
+      <h2 class="section-title">從 1 月到 4 月，一個人的蛻變弧線</h2>
+      <p class="section-desc">選舉是外在事件，成長才是真正的主線。這四個節點，標記了 Scott 從「外在具足但內在空虛」到「內外準備就緒」的完整旅程。</p>
+
+      <div class="growth-path">
+        <div class="growth-node">
+          <div class="growth-dot e1"></div>
+          <div class="growth-month">Jan 2026</div>
+          <div class="growth-event">外在豐盛<br>內在待填滿</div>
+        </div>
+        <div class="growth-node">
+          <div class="growth-dot e2"></div>
+          <div class="growth-month">Mar 10</div>
+          <div class="growth-event">能量轉折<br>衝擊抵達</div>
+        </div>
+        <div class="growth-node">
+          <div class="growth-dot g"></div>
+          <div class="growth-month">Apr 01</div>
+          <div class="growth-event">三才陣定盤<br>聚焦點找回</div>
+        </div>
+        <div class="growth-node">
+          <div class="growth-dot t"></div>
+          <div class="growth-month">Apr 25–26</div>
+          <div class="growth-event">選舉日<br>能量反轉完成</div>
+        </div>
+      </div>
+
+      <hr class="section-hr">
+
+      <h3 style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--ink);margin-bottom:8px;margin-top:8px;">最後一個月行動處方</h3>
+      <p style="font-size:15px;color:var(--slate);margin-bottom:28px;line-height:1.75;">五個行動，每一個都指向同一個核心命題：<em>把焦點從自己身上，移到他人身上。</em></p>
+
+      <div class="rx-list">
+        <div class="rx-item fade-up delay-1">
+          <div class="rx-number">1</div>
+          <div>
+            <div class="rx-title">核心理念想透</div>
+            <div class="rx-body">「大師境界如何具體影響每個人的日常」——不是理論，是故事。找三個真實案例，讓人聽完之後覺得「這就是我需要的東西」，而不是「這聽起來很有道理」。</div>
+          </div>
+        </div>
+        <div class="rx-item fade-up delay-2">
+          <div class="rx-number">2</div>
+          <div>
+            <div class="rx-title">感恩路線·言之有物</div>
+            <div class="rx-body">列出真正想感謝的人，每天 3–5 通。不是群發感謝，是具體說出那個人曾經給你的一句話、一個眼神、一次選擇。讓對方感受到被真正看見的重量。</div>
+          </div>
+        </div>
+        <div class="rx-item fade-up delay-3">
+          <div class="rx-number">3</div>
+          <div>
+            <div class="rx-title">找貴人止血，不要自己扛</div>
+            <div class="rx-body">微軟事件的傷口需要有影響力的人幫忙出聲。不是訴苦，是主動尋找能為你背書的人，讓第三者的聲音替你填補負面敘事留下的空白。</div>
+          </div>
+        </div>
+        <div class="rx-item fade-up delay-4">
+          <div class="rx-number">4</div>
+          <div>
+            <div class="rx-title">行動優先於思考</div>
+            <div class="rx-body">能出門就出門，不能出門就打電話。這三週的每一天，先問「我今天要接觸到誰」，再問「我要說什麼」。身體動了，能量就會跟上。</div>
+          </div>
+        </div>
+        <div class="rx-item fade-up delay-5">
+          <div class="rx-number">5</div>
+          <div>
+            <div class="rx-title">聽比說多·教練模式</div>
+            <div class="rx-body">「對別人好三分，對方只收到一分」的根因，是給的不是對方要的。這三週，每次對話先停下來聽完，再問「你真正需要的是什麼？」——然後給那個。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ 07 · 結語 ══════════════ -->
+  <section class="section fade-up delay-2">
+    <div class="container">
+      <div class="section-label">07 · 結語</div>
+      <h2 class="section-title">這不只是一場選舉</h2>
+      <p class="section-desc" style="margin-bottom: 32px;">能量解讀的目的，從來不是幫你贏，而是幫你看清楚自己。</p>
+
+      <div class="closing-card">
+        <div class="closing-quote">
+          「處變不驚，隨遇而安，回到當下。」
+        </div>
+        <div class="closing-text">
+          這三句話，不只是 Scott 的競選標語，更是他人格成長的核心命題。<br><br>
+          得票能量 +27 告訴我們：外在條件已然到位，宇宙給出的答案是肯定的。真正的考題，是 Scott 能不能在最後這三週，讓自己的內在狀態追上這個能量所預示的結果。<br><br>
+          而這，恰好也是「大師境界」最有力的示範——不是在順境時的自信，而是在逆境中的處變不驚。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ FOOTER ══════════════ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-inner">
+        <span class="footer-brand">MUSEON × One Muse &nbsp;|&nbsp; 2026-04-01</span>
+        <span class="footer-conf">Confidential</span>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
