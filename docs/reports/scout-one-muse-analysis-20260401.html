@@ -1,347 +1,371 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scout One Muse 人格深度分析｜2026年 Q1 進程報告</title>
-
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Outfit:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;600&display=swap" rel="stylesheet">
+  <title>Scout Su 競選最後一個月戰略簡報 | One Muse × MUSEON</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
 
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ember:       #C4502A;
+      --ember-light: #E0714D;
+      --ember-dark:  #9A3A1C;
+      --teal:        #2A7A6E;
+      --gold:        #B8923A;
+      --ink:         #12121A;
+      --slate:       #5A5A6E;
+      --mist:        #9898A8;
+      --border:      #E2E0DA;
+      --parchment:   #F7F5F0;
+      --snow:        #FDFCFA;
+      --deep-ink:    #0E0E16;
+      --success:     #2D8A6E;
+      --warning:     #C9943A;
     }
 
-    html {
-      scroll-behavior: smooth;
-    }
+    html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'Outfit', 'Noto Sans TC', system-ui, sans-serif;
-      color: #12121A;
-      background: #F7F5F0;
+      background: var(--parchment);
+      color: var(--ink);
+      font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+      font-size: 16px;
       line-height: 1.75;
-      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
     }
 
-    .container {
-      max-width: 820px;
-      margin: 0 auto;
-      padding: 40px;
+    /* Fade-in */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
+    .fade-up { animation: fadeUp 400ms ease-out both; }
+    .fade-up:nth-child(2) { animation-delay: 60ms; }
+    .fade-up:nth-child(3) { animation-delay: 120ms; }
+    .fade-up:nth-child(4) { animation-delay: 180ms; }
 
-    @media (max-width: 768px) {
-      .container {
-        padding: 24px;
-      }
-    }
+    /* Layout */
+    .container { max-width: 820px; margin: 0 auto; padding: 40px 24px 80px; }
+    section { margin-bottom: 64px; }
 
-    /* Hero 區塊 */
-    .hero {
-      background: linear-gradient(135deg, #C4502A 0%, #9A3A1C 100%);
-      color: #FDFCFA;
-      padding: 96px 40px;
-      border-radius: 10px;
-      margin-bottom: 64px;
-      text-align: center;
-      box-shadow: 0 4px 12px rgba(18,18,26,0.08);
-    }
-
-    .hero h1 {
+    /* Typography */
+    h1 {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 56px;
+      font-size: clamp(36px, 6vw, 56px);
       font-weight: 600;
-      margin-bottom: 16px;
       line-height: 1.15;
-      letter-spacing: 1px;
+      color: var(--ink);
     }
-
-    .hero-subtitle {
-      font-size: 18px;
-      font-weight: 400;
-      opacity: 0.92;
-      margin-bottom: 20px;
-    }
-
-    .hero-meta {
-      font-size: 14px;
-      opacity: 0.8;
-      font-family: 'IBM Plex Mono', monospace;
-    }
-
-    /* Section 樣式 */
-    .section {
-      margin-bottom: 64px;
-    }
-
-    .section h2 {
+    h2 {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 40px;
+      font-size: clamp(26px, 4vw, 40px);
       font-weight: 600;
-      color: #C4502A;
-      margin-bottom: 24px;
-      padding-bottom: 12px;
-      border-bottom: 3px solid #C4502A;
       line-height: 1.2;
+      color: var(--ink);
+      margin-bottom: 24px;
     }
-
-    .section h3 {
+    h3 {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 28px;
+      font-size: clamp(20px, 3vw, 28px);
       font-weight: 600;
-      color: #2A6A8A;
-      margin-top: 32px;
-      margin-bottom: 16px;
-    }
-
-    .section p {
-      margin-bottom: 16px;
-      line-height: 1.8;
-    }
-
-    /* Insight Box */
-    .insight-box {
-      background: #FDFCFA;
-      border-left: 4px solid #C4502A;
-      padding: 24px;
-      margin: 24px 0;
-      border-radius: 6px;
-      box-shadow: 0 1px 3px rgba(18,18,26,0.06);
-    }
-
-    .insight-box strong {
-      color: #C4502A;
-    }
-
-    /* 維度卡片網格 */
-    .dimension-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-      margin: 32px 0;
-    }
-
-    @media (max-width: 640px) {
-      .dimension-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .dimension-card {
-      background: #FDFCFA;
-      border: 1px solid #E2E0DA;
-      padding: 24px;
-      border-radius: 10px;
-      box-shadow: 0 1px 3px rgba(18,18,26,0.06);
-    }
-
-    .dimension-card h4 {
-      font-size: 16px;
-      font-weight: 600;
-      color: #C4502A;
+      line-height: 1.3;
+      color: var(--ink);
       margin-bottom: 12px;
     }
-
-    .dimension-card .before {
-      color: #5A5A6E;
-      font-size: 14px;
-      margin-bottom: 8px;
-      display: block;
-    }
-
-    .dimension-card .divider {
-      height: 1px;
-      background: #E2E0DA;
-      margin: 12px 0;
-    }
-
-    .dimension-card .after {
-      color: #12121A;
-      font-weight: 500;
+    h4 {
+      font-family: 'Outfit', sans-serif;
       font-size: 15px;
-    }
-
-    /* Timeline */
-    .timeline {
-      position: relative;
-      padding: 32px 0;
-    }
-
-    .timeline-item {
-      display: flex;
-      margin-bottom: 32px;
-      position: relative;
-    }
-
-    .timeline-marker {
-      width: 20px;
-      height: 20px;
-      background: #C4502A;
-      border-radius: 50%;
-      margin-top: 2px;
-      flex-shrink: 0;
-      margin-right: 24px;
-      box-shadow: 0 0 0 4px rgba(196,80,42,0.1);
-    }
-
-    .timeline-content h4 {
-      margin-bottom: 8px;
-      color: #12121A;
       font-weight: 600;
-      font-size: 16px;
-    }
-
-    .timeline-content p {
-      color: #5A5A6E;
+      letter-spacing: 0.04em;
+      color: var(--slate);
+      text-transform: uppercase;
       margin-bottom: 8px;
     }
+    p { margin-bottom: 1em; color: var(--ink); }
+    p:last-child { margin-bottom: 0; }
 
-    /* 策略盒 */
-    .strategy-box {
-      background: rgba(196,80,42,0.06);
-      border: 2px solid #C4502A;
-      padding: 32px;
+    /* Card */
+    .card {
+      background: var(--snow);
+      border: 1px solid var(--border);
       border-radius: 10px;
-      margin: 24px 0;
+      padding: 28px;
+      box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+      transition: transform 200ms ease, box-shadow 200ms ease;
     }
-
-    .strategy-box h4 {
-      color: #C4502A;
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 16px;
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(18,18,26,0.10), 0 1px 3px rgba(18,18,26,0.06);
     }
-
-    .key-action {
-      list-style: none;
-      margin: 16px 0;
-    }
-
-    .key-action li {
-      padding-left: 28px;
-      position: relative;
-      margin-bottom: 12px;
-      color: #12121A;
-      line-height: 1.7;
-    }
-
-    .key-action li:before {
-      content: "▸";
-      position: absolute;
-      left: 8px;
-      color: #C4502A;
-      font-weight: bold;
-      font-size: 16px;
-    }
-
-    /* 對比表格 */
-    .comparison-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 24px 0;
-      background: #FDFCFA;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 1px 3px rgba(18,18,26,0.06);
-    }
-
-    .comparison-table th {
-      background: #C4502A;
-      color: #FDFCFA;
-      padding: 16px;
-      text-align: left;
-      font-weight: 600;
-      font-size: 14px;
-    }
-
-    .comparison-table td {
-      padding: 16px;
-      border-bottom: 1px solid #E2E0DA;
-    }
-
-    .comparison-table tr:last-child td {
-      border-bottom: none;
-    }
-
-    .comparison-table .highlight {
-      color: #C4502A;
-      font-weight: 600;
-    }
+    .card + .card { margin-top: 16px; }
 
     /* Badge */
     .badge {
-      display: inline-block;
-      background: rgba(196,80,42,0.1);
-      color: #9A3A1C;
-      padding: 4px 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(196,80,42,0.10);
+      color: var(--ember-dark);
       border-radius: 100px;
-      font-size: 12px;
-      font-weight: 600;
+      padding: 3px 10px;
       font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
       letter-spacing: 0.08em;
-      margin-right: 8px;
-      margin-bottom: 8px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .badge.teal  { background: rgba(42,122,110,0.10);  color: var(--teal); }
+    .badge.gold  { background: rgba(184,146,58,0.10);  color: var(--gold); }
+    .badge.slate { background: rgba(90,90,110,0.10);   color: var(--slate); }
+    .badge.success { background: rgba(45,138,110,0.10); color: var(--success); }
+    .badge.warning { background: rgba(201,148,58,0.12); color: var(--warning); }
+    .badge.danger  { background: rgba(196,64,42,0.10);  color: #C4402A; }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; }
+
+    /* Section Header */
+    .section-header { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 32px; }
+    .section-icon {
+      width: 48px; height: 48px;
+      border-radius: 10px;
+      background: rgba(196,80,42,0.10);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+      margin-top: 4px;
+    }
+    .section-icon.teal  { background: rgba(42,122,110,0.10); }
+    .section-icon.gold  { background: rgba(184,146,58,0.10); }
+    .section-icon.slate { background: rgba(90,90,110,0.10);  }
+
+    /* Hero */
+    .hero {
+      background: var(--deep-ink);
+      border-radius: 14px;
+      padding: 60px 48px 56px;
+      margin-bottom: 64px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: -80px; right: -80px;
+      width: 320px; height: 320px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(196,80,42,0.25) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero::after {
+      content: '';
+      position: absolute; bottom: -60px; left: -60px;
+      width: 240px; height: 240px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(42,122,110,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-meta {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--ember); margin-bottom: 20px;
+    }
+    .hero h1 { color: #FDFCFA; margin-bottom: 16px; }
+    .hero h1 em { font-style: italic; color: var(--ember-light); }
+    .hero-sub {
+      font-family: 'Outfit', sans-serif; font-size: 18px;
+      color: rgba(253,252,250,0.65); line-height: 1.6; margin-bottom: 32px;
+    }
+    .hero-badges { display: flex; flex-wrap: wrap; gap: 8px; }
+    .hero-badge {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 4px 12px; border-radius: 100px;
+      border: 1px solid rgba(253,252,250,0.18); color: rgba(253,252,250,0.7);
+    }
+    .hero-badge.active { background: var(--ember); border-color: var(--ember); color: #fff; }
+    .hero-date {
+      position: absolute; top: 28px; right: 28px;
+      font-family: 'IBM Plex Mono', monospace; font-size: 12px;
+      color: rgba(253,252,250,0.4);
     }
 
-    .badge.positive {
-      background: rgba(45,138,110,0.1);
-      color: #2D8A6E;
+    /* Table */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    thead tr { border-bottom: 2px solid var(--border); }
+    thead th {
+      text-align: left; padding: 10px 14px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--slate);
     }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background 150ms; }
+    tbody tr:hover { background: rgba(196,80,42,0.03); }
+    tbody tr:last-child { border-bottom: none; }
+    tbody td { padding: 12px 14px; vertical-align: top; color: var(--ink); }
+    .td-highlight { font-weight: 600; color: var(--ember); }
 
-    .badge.warning {
-      background: rgba(201,148,58,0.1);
-      color: #C9943A;
+    /* Candidate Grid */
+    .candidate-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    @media (max-width: 680px) { .candidate-grid { grid-template-columns: 1fr; } }
+    .candidate-card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 10px; padding: 24px 20px;
+      box-shadow: 0 1px 3px rgba(18,18,26,0.06);
+      position: relative; overflow: hidden;
     }
+    .candidate-card.our    { border-color: var(--ember); border-width: 2px; }
+    .candidate-card.rival  { border-color: var(--teal);  border-width: 1.5px; }
+    .candidate-card.eliminated { opacity: 0.6; }
+    .candidate-avatar {
+      width: 48px; height: 48px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; margin-bottom: 12px;
+    }
+    .candidate-avatar.our     { background: rgba(196,80,42,0.12); }
+    .candidate-avatar.rival-b { background: rgba(42,122,110,0.12); }
+    .candidate-avatar.rival-d { background: rgba(184,146,58,0.12); }
+    .candidate-avatar.out     { background: rgba(90,90,110,0.10); }
+    .candidate-name { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+    .candidate-role { font-size: 12px; color: var(--slate); margin-bottom: 12px; }
+    .energy-number { font-family: 'IBM Plex Mono', monospace; font-size: 28px; font-weight: 600; margin-top: 8px; }
+    .energy-number.pos { color: var(--success); }
+    .energy-number.neg { color: #C4402A; }
+    .energy-label { font-size: 11px; font-family: 'IBM Plex Mono', monospace; color: var(--mist); letter-spacing: 0.06em; text-transform: uppercase; }
 
-    .badge.insight {
-      background: rgba(42,106,138,0.1);
-      color: #2A6A8A;
-    }
+    /* Profile Grid */
+    .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 600px) { .profile-grid { grid-template-columns: 1fr; } }
+    .profile-item { padding: 16px; background: rgba(247,245,240,0.7); border-radius: 8px; border: 1px solid var(--border); }
+    .profile-item h4 { margin-bottom: 8px; font-size: 11px; }
+    .profile-item p  { font-size: 14px; margin-bottom: 0; }
 
-    /* Quote 區塊 */
-    .quote-block {
-      border-left: 4px solid #B8923A;
-      padding: 24px;
-      margin: 24px 0;
-      background: rgba(184,146,58,0.05);
-      border-radius: 4px;
-      font-style: italic;
-      color: #5A5A6E;
+    /* Callout */
+    .callout {
+      border-left: 3px solid var(--ember);
+      padding: 16px 20px; background: rgba(196,80,42,0.05);
+      border-radius: 0 8px 8px 0; margin: 20px 0;
     }
+    .callout p { font-size: 15px; font-style: italic; color: var(--ink); margin-bottom: 0; }
+    .callout.teal { border-left-color: var(--teal); background: rgba(42,122,110,0.05); }
+    .callout.gold { border-left-color: var(--gold); background: rgba(184,146,58,0.05); }
+
+    /* Timeline */
+    .timeline { position: relative; padding-left: 24px; }
+    .timeline::before {
+      content: '';
+      position: absolute; left: 6px; top: 8px; bottom: 8px;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--ember), var(--gold), var(--teal));
+      border-radius: 2px;
+    }
+    .timeline-item { position: relative; margin-bottom: 28px; }
+    .timeline-item::before {
+      content: '';
+      position: absolute; left: -21px; top: 6px;
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--snow); border: 2px solid var(--ember);
+    }
+    .timeline-week { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ember); margin-bottom: 6px; }
+    .timeline-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+    .timeline-actions { display: flex; flex-direction: column; gap: 6px; }
+    .timeline-action { display: flex; align-items: flex-start; gap: 8px; font-size: 14px; color: var(--slate); }
+    .timeline-action::before { content: '▸'; color: var(--ember); flex-shrink: 0; margin-top: 1px; }
+
+    /* Risk */
+    .risk-list { display: flex; flex-direction: column; gap: 10px; }
+    .risk-item {
+      display: grid; grid-template-columns: 2fr 1.2fr 1.8fr;
+      gap: 12px; align-items: start;
+      padding: 14px 16px; background: var(--snow);
+      border: 1px solid var(--border); border-radius: 8px; font-size: 14px;
+    }
+    @media (max-width: 600px) { .risk-item { grid-template-columns: 1fr; } }
+    .risk-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mist); margin-bottom: 4px; }
+    .risk-level { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 100px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 600; }
+    .risk-level.high { background: rgba(196,64,42,0.12); color: #C4402A; }
+    .risk-level.mid  { background: rgba(201,148,58,0.12); color: var(--warning); }
+    .risk-level.low  { background: rgba(45,138,110,0.10); color: var(--success); }
+
+    /* Energy Chart */
+    .energy-row { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .energy-name { width: 70px; font-size: 13px; font-weight: 500; flex-shrink: 0; color: var(--ink); }
+    .energy-phase { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
+    .energy-bar-wrap { width: 100%; height: 80px; background: rgba(226,224,218,0.5); border-radius: 6px; position: relative; overflow: hidden; }
+    .energy-bar { position: absolute; bottom: 0; left: 0; right: 0; border-radius: 6px; }
+    .energy-bar.scott { background: linear-gradient(to top, var(--ember-dark), var(--ember)); }
+    .energy-bar.han   { background: linear-gradient(to top, #5A5A6E, #9898A8); }
+    .energy-bar.dorin { background: linear-gradient(to top, #1E6A60, var(--teal)); }
+    .energy-phase-label { font-size: 10px; color: var(--mist); font-family: 'IBM Plex Mono', monospace; }
+
+    /* Mantras */
+    .mantra-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    @media (max-width: 600px) { .mantra-row { grid-template-columns: 1fr; } }
+    .mantra-card { background: var(--deep-ink); border-radius: 10px; padding: 24px 20px; text-align: center; }
+    .mantra-icon  { font-size: 28px; margin-bottom: 10px; }
+    .mantra-text  { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: #FDFCFA; margin-bottom: 8px; }
+    .mantra-desc  { font-size: 12px; color: rgba(253,252,250,0.5); }
+
+    /* Brand Statement */
+    .brand-statement {
+      background: var(--deep-ink); border-radius: 12px;
+      padding: 40px; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .brand-statement::before {
+      content: '\275D';
+      position: absolute; top: 12px; left: 24px;
+      font-size: 72px; color: rgba(196,80,42,0.2);
+      font-family: serif; line-height: 1;
+    }
+    .brand-statement p {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(18px, 3vw, 24px); font-weight: 400;
+      color: #FDFCFA; line-height: 1.8;
+      position: relative; z-index: 1;
+    }
+    .brand-statement .highlight { color: var(--ember-light); font-weight: 600; }
+
+    /* Divider */
+    .divider { height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); margin: 48px 0; }
+
+    /* Insight Grid */
+    .insight-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    @media (max-width: 560px) { .insight-grid { grid-template-columns: 1fr; } }
+    .insight-item { padding: 18px; background: var(--snow); border: 1px solid var(--border); border-radius: 8px; display: flex; gap: 12px; align-items: flex-start; }
+    .insight-num { font-family: 'IBM Plex Mono', monospace; font-size: 22px; font-weight: 600; color: var(--ember); flex-shrink: 0; line-height: 1.2; }
+    .insight-content h4 { font-size: 13px; margin-bottom: 4px; }
+    .insight-content p  { font-size: 13px; color: var(--slate); margin-bottom: 0; }
+
+    /* Perspective */
+    .perspective-list { display: flex; flex-direction: column; gap: 16px; }
+    .perspective { padding: 22px; background: var(--snow); border: 1px solid var(--border); border-radius: 10px; border-left: 4px solid var(--ember); }
+    .perspective.teal  { border-left-color: var(--teal); }
+    .perspective.gold  { border-left-color: var(--gold); }
+    .perspective.slate { border-left-color: var(--slate); }
+    .perspective-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .perspective-icon  { font-size: 20px; }
+    .perspective-title { font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--slate); }
+    .perspective-body  { font-size: 14px; line-height: 1.75; }
+    .perspective-body p { margin-bottom: 8px; color: var(--ink); }
+    .perspective-body p:last-child { margin-bottom: 0; }
+
+    /* Big Number */
+    .big-num { font-family: 'IBM Plex Mono', monospace; font-size: 48px; font-weight: 600; color: var(--ember); line-height: 1; }
 
     /* Footer */
-    footer {
-      text-align: center;
-      color: #9898A8;
-      font-size: 14px;
-      margin-top: 96px;
-      padding-top: 32px;
-      border-top: 1px solid #E2E0DA;
-      font-family: 'IBM Plex Mono', monospace;
-    }
+    footer { margin-top: 80px; padding: 32px 0; border-top: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; }
+    .footer-brand { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; color: var(--ink); }
+    .footer-brand span { color: var(--ember); }
+    .footer-meta { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--mist); letter-spacing: 0.06em; }
 
-    /* 強調段落 */
-    .emphasis {
-      background: rgba(196,80,42,0.08);
-      padding: 20px;
-      border-radius: 6px;
-      margin: 20px 0;
-      font-weight: 500;
-      color: #12121A;
-    }
-
-    /* 連結 */
-    a {
-      color: #C4502A;
-      text-decoration: none;
-      border-bottom: 1px solid #C4502A;
-      transition: opacity 200ms ease;
-    }
-
-    a:hover {
-      opacity: 0.7;
+    /* Responsive */
+    @media (max-width: 640px) {
+      .hero { padding: 40px 24px 36px; }
+      .container { padding: 24px 16px 60px; }
     }
   </style>
 </head>
@@ -349,547 +373,672 @@
 
 <div class="container">
 
-  <!-- Hero 區塊 -->
-  <div class="hero">
-    <h1>Scout 人格深度分析</h1>
-    <p class="hero-subtitle">基於 One Muse 系統的進程報告</p>
-    <p class="hero-meta">2026年 1月 — 4月初｜人格演化軌跡追蹤</p>
+  <!-- HERO -->
+  <div class="hero fade-up">
+    <div class="hero-date">2026-04-01</div>
+    <div class="hero-meta">One Muse &times; MUSEON ／ 競選戰略情報</div>
+    <h1>Scout Su<br>競選最後一個月<em>戰略簡報</em></h1>
+    <p class="hero-sub">Toastmasters D67 Club Growth Director 選舉倒數 25 天<br>完整博弈分析 &times; 能量走勢預測 &times; 作戰計畫</p>
+    <div class="hero-badges">
+      <span class="hero-badge active">ARES</span>
+      <span class="hero-badge active">ATHENA</span>
+      <span class="hero-badge active">ROUNDTABLE</span>
+      <span class="hero-badge active">MASTER-STRATEGY</span>
+    </div>
   </div>
 
-  <!-- Executive Summary -->
-  <section class="section">
-    <h2>Executive Summary</h2>
+  <!-- CH.1 戰場態勢 -->
+  <section class="fade-up">
+    <div class="section-header">
+      <div class="section-icon">&#9876;</div>
+      <div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+          <span class="badge">第一章</span>
+          <span class="badge teal">ATHENA 情報平台</span>
+        </div>
+        <h2>戰場態勢總覽</h2>
+      </div>
+    </div>
 
-    <p>Scout 是一位 <strong>高行動力、外向資源豐厚但內在狀態易波動的新興領導者</strong>。在過去三個月（1月至4月初）中，他經歷了從能量高漲到突遭內部事件衝擊、再逐步反轉的人格轉折。這份報告基於兩次 One Muse 深度能量解讀，記錄其人格核心、決策演化與領導能力的提升軌跡。</p>
+    <div class="card" style="margin-bottom:20px;">
+      <div style="display:flex;flex-wrap:wrap;gap:24px;align-items:center;margin-bottom:4px;">
+        <div>
+          <div class="energy-label">選舉日期</div>
+          <div class="big-num">4/25</div>
+          <div style="font-size:13px;color:var(--slate);margin-top:4px;">&#8211; 4/26&nbsp;&nbsp;投票日</div>
+        </div>
+        <div style="flex:1;min-width:180px;">
+          <div class="energy-label" style="margin-bottom:8px;">倒數</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:36px;font-weight:600;color:var(--ember);">25 Days</div>
+          <div style="font-size:13px;color:var(--slate);margin-top:4px;">每一天都必須有具體行動</div>
+        </div>
+        <div style="flex:1;min-width:180px;">
+          <div class="energy-label" style="margin-bottom:8px;">One Muse 命中率</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:36px;font-weight:600;color:var(--teal);">83–92%</div>
+          <div style="font-size:13px;color:var(--slate);margin-top:4px;">系統已被驗證</div>
+        </div>
+      </div>
+    </div>
 
-    <div class="insight-box">
-      <strong>核心人格特質</strong>
-      <p style="margin-top: 8px;">
-        1. <strong>顯化能力強</strong>：外在福分足、貴人具足、成交能力突出（投票能量得分 +27）<br>
-        2. <strong>內在狀態脆弱</strong>：容易被多人聲音影響、缺乏核心信念定錨、情緒易受衝擊<br>
-        3. <strong>成長意願高</strong>：願意接受挑戰、快速迭代認知、從「創新幻想」轉向「框架內成立」的理性策略
+    <div class="card">
+      <h3 style="margin-bottom:16px;">三位候選人現況速覽</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>候選人</th>
+              <th>當前能量</th>
+              <th>策略路線</th>
+              <th>最大風險</th>
+              <th>局勢判定</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Scott Su</strong><br><span style="font-size:12px;color:var(--slate);">我方</span></td>
+              <td class="td-highlight">-3 &#8594; 反轉中</td>
+              <td>大師境界 &times; 感恩路線</td>
+              <td>內核未清晰、情緒被煽動</td>
+              <td><span class="badge success">可勝</span></td>
+            </tr>
+            <tr>
+              <td><strong>韓大哥</strong><br><span style="font-size:12px;color:var(--slate);">主要競爭者</span></td>
+              <td style="color:#C4402A;font-weight:600;">-3（持平）</td>
+              <td>創新路線 &times; 立會合作</td>
+              <td>過度承諾 &times; 行動不足</td>
+              <td><span class="badge warning">弱化中</span></td>
+            </tr>
+            <tr>
+              <td><strong>Dorin</strong><br><span style="font-size:12px;color:var(--slate);">真正勁敵</span></td>
+              <td style="color:var(--success);font-weight:600;">+3 &#8594; +5（虛掉）</td>
+              <td>用心領導 &times; 共創</td>
+              <td>孤軍奮戰 &times; 風向依賴</td>
+              <td><span class="badge teal">須警戒</span></td>
+            </tr>
+            <tr style="opacity:0.55;">
+              <td><strong>Rochina</strong><br><span style="font-size:12px;color:var(--slate);">已出局</span></td>
+              <td style="color:var(--mist);">-3&#8764;-9（極低）</td>
+              <td>行銷導向</td>
+              <td>拿不到票</td>
+              <td><span class="badge slate">出局確認</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:20px;">
+      <p>整體局勢判斷：Scott 有機會但需要快速行動。韓大哥已自敗，Dorin 是真正對手，但他缺乏風向主導權。這場仗的關鍵不在別人，在 Scott 的內核是否在第一週定調完成。</p>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- CH.2 候選人深度檔案 -->
+  <section class="fade-up">
+    <div class="section-header">
+      <div class="section-icon">&#127919;</div>
+      <div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+          <span class="badge">第二章</span>
+          <span class="badge teal">ARES 人物分析</span>
+        </div>
+        <h2>候選人深度檔案</h2>
+      </div>
+    </div>
+
+    <!-- Scott -->
+    <div class="card" style="border-left:3px solid var(--ember);margin-bottom:16px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+        <div class="candidate-avatar our">&#128293;</div>
+        <div>
+          <div class="candidate-name">Scott Su（我方）</div>
+          <div class="candidate-role">火/風雙能量 ｜ 得票能量 <span style="color:var(--success);font-weight:600;">正 27（極強）</span></div>
+          <div class="badge-row">
+            <span class="badge">我方候選</span>
+            <span class="badge teal">內在轉正</span>
+            <span class="badge gold">大師路線</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-grid">
+        <div class="profile-item">
+          <h4>&#11088; 核心人格</h4>
+          <p>火/風能量為主。內在是火（求好求快），行為是風（適應力強，外圓內方）。三全是累積，深度關係經營好。</p>
+        </div>
+        <div class="profile-item">
+          <h4>&#9889; 當前狀態</h4>
+          <p>能量從 <strong style="color:#C4402A;">-3</strong> 正在反轉。一個月內可從 -3 衝到 <strong style="color:var(--success);">+4</strong>，選舉日可達 <strong style="color:var(--success);">+7</strong>。</p>
+        </div>
+        <div class="profile-item">
+          <h4>&#9989; 優勢</h4>
+          <p>累積深厚、深度關係強、反思複盤能力強、成交能力有、得票能量正27（四人中最強）。</p>
+        </div>
+        <div class="profile-item">
+          <h4>&#9888; 弱點</h4>
+          <p>內在不穩定（微軟女主管事件衝擊）、容易被外界聲音影響、核心理念尚未清晰論述、行動力在人多時下降。</p>
+        </div>
+      </div>
+
+      <div class="mantra-row" style="margin-top:16px;">
+        <div class="mantra-card">
+          <div class="mantra-icon">&#129485;</div>
+          <div class="mantra-text">處變不驚</div>
+          <div class="mantra-desc">面對突發狀況保持內核穩定</div>
+        </div>
+        <div class="mantra-card">
+          <div class="mantra-icon">&#127754;</div>
+          <div class="mantra-text">隨遇而安</div>
+          <div class="mantra-desc">不與環境對抗，順勢而為</div>
+        </div>
+        <div class="mantra-card">
+          <div class="mantra-icon">&#11093;</div>
+          <div class="mantra-text">回到當下</div>
+          <div class="mantra-desc">情緒波動時的核心錨點</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rivals grid -->
+    <div class="candidate-grid">
+      <!-- 韓大哥 -->
+      <div class="candidate-card rival">
+        <div class="candidate-avatar rival-b">&#127754;</div>
+        <div class="candidate-name">韓大哥</div>
+        <div class="candidate-role">口才文采最強 ｜ 主要競爭者</div>
+        <div class="badge-row" style="margin-bottom:12px;">
+          <span class="badge warning">能量下滑</span>
+        </div>
+        <div class="energy-label">得票能量最終</div>
+        <div class="energy-number neg">負</div>
+        <div style="margin-top:12px;font-size:13px;color:var(--slate);">
+          <p style="margin-bottom:8px;">&#9989; 口才文采最強、深度關係好、對外形象強</p>
+          <p style="margin-bottom:8px;">&#10060; 過度承諾行動不足、「君親師」三件事都沒做好</p>
+          <p style="margin-bottom:0;">&#9888; 能量：正一 &#8594; 負三 &#8594; 負三，無法拉起</p>
+        </div>
+      </div>
+
+      <!-- Dorin -->
+      <div class="candidate-card rival" style="border-color:var(--gold);">
+        <div class="candidate-avatar rival-d">&#9876;</div>
+        <div class="candidate-name">Dorin</div>
+        <div class="candidate-role">個性強勢 ｜ 真正勁敵</div>
+        <div class="badge-row" style="margin-bottom:12px;">
+          <span class="badge gold">鐵樁腳強</span>
+        </div>
+        <div class="energy-label">得票能量</div>
+        <div class="energy-number pos">+3&#8594;+5</div>
+        <div style="margin-top:12px;font-size:13px;color:var(--slate);">
+          <p style="margin-bottom:8px;">&#9989; 說到會做、願意負責、鐵樁腳扎實且多</p>
+          <p style="margin-bottom:8px;">&#10060; 孤軍奮戰、個性太強勢、回話太急容易出錯</p>
+          <p style="margin-bottom:0;">&#9888; 最後一個月能量虛掉，風向一轉票就沒了</p>
+        </div>
+      </div>
+
+      <!-- Rochina -->
+      <div class="candidate-card eliminated">
+        <div class="candidate-avatar out">&#10006;</div>
+        <div class="candidate-name">Rochina</div>
+        <div class="candidate-role">行銷力強 ｜ 已出局</div>
+        <div class="badge-row" style="margin-bottom:12px;">
+          <span class="badge danger">已出局</span>
+        </div>
+        <div class="energy-label">分數加總</div>
+        <div class="energy-number neg">-3&#8764;-9</div>
+        <div style="margin-top:12px;font-size:13px;color:var(--slate);">
+          <p style="margin-bottom:0;">行銷力看似強但拿不到票，One Muse 評估確認出局，不需花費資源關注。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- CH.3 博弈矩陣 -->
+  <section class="fade-up">
+    <div class="section-header">
+      <div class="section-icon teal">&#9820;</div>
+      <div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+          <span class="badge">第三章</span>
+          <span class="badge teal">ROUNDTABLE 圓桌詰問</span>
+        </div>
+        <h2>博弈矩陣與交鋒分析</h2>
+      </div>
+    </div>
+
+    <div class="perspective-list">
+      <div class="perspective">
+        <div class="perspective-header">
+          <span class="perspective-icon">&#9876;</span>
+          <span class="perspective-title">軍師視角（孫子兵法）</span>
+        </div>
+        <div class="perspective-body">
+          <p>Scott 的「大師境界」路線 = <strong>以逸待勞</strong>。韓大哥到處承諾 = 兵力分散，三條戰線齊開卻無一鞏固。Dorin 孤軍奮戰 = 將在外軍令不受，無後援難持久。</p>
+          <p><strong>核心策略：不戰而屈人之兵</strong>——用「愛民如己」的實際行動讓韓大哥的空頭支票自動曝光，不需主動攻擊，時間與行動差距會自動說話。</p>
+        </div>
+      </div>
+
+      <div class="perspective teal">
+        <div class="perspective-header">
+          <span class="perspective-icon">&#127744;</span>
+          <span class="perspective-title">縱橫家視角（鬼谷子）</span>
+        </div>
+        <div class="perspective-body">
+          <p>韓大哥的弱點已知（說到沒做到），不需要主動攻擊，只需要用行動形成對比。Dorin 鐵樁腳多但風向一轉就沒了——<strong>Scott 需要創造風向</strong>（品牌宣言 + 大師理念清晰化），而非等風向出現。</p>
+          <p><strong>最危險的情境</strong>：Scott 內核不清晰 + Dorin 氣勢維持 &#8594; 可能被反超。時間不等人，內核定調必須在第一週完成。</p>
+        </div>
+      </div>
+
+      <div class="perspective gold">
+        <div class="perspective-header">
+          <span class="perspective-icon">&#128302;</span>
+          <span class="perspective-title">教練視角（DHARMA）</span>
+        </div>
+        <div class="perspective-body">
+          <p>Scott 最大的敵人不是韓大哥也不是 Dorin，<strong>是自己的內在不穩定</strong>。微軟事件的心結必須在一週內放下——不是忘記，是接受並轉化。</p>
+          <p><strong>大師境界 = 處變不驚 = 看到問題背後的問題</strong>——這本身就是品牌宣言的核心。「大師」不是頭銜，是每一次面對挑戰時的行為模式。</p>
+        </div>
+      </div>
+
+      <div class="perspective slate">
+        <div class="perspective-header">
+          <span class="perspective-icon">&#128373;</span>
+          <span class="perspective-title">情報分析視角（Shadow）</span>
+        </div>
+        <div class="perspective-body">
+          <p><strong>韓大哥可能的動作</strong>：最後兩週密集拜票、發佈創新政見、拉攏中立派。機率：中等，但已無足夠信用支撐。</p>
+          <p><strong>Dorin 可能的動作</strong>：維持現有鐵樁腳、保守穩健、等風向。弱點在於被動，無法主動造勢。</p>
+          <p><strong>Scott 的最大盲點</strong>：覺得「時間會證明一切」但沒時間了。每一天不行動 = 把機會讓給 Dorin。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- CH.4 作戰計畫 -->
+  <section class="fade-up">
+    <div class="section-header">
+      <div class="section-icon gold">&#128197;</div>
+      <div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+          <span class="badge">第四章</span>
+          <span class="badge gold">MASTER-STRATEGY 九策軍師</span>
+        </div>
+        <h2>最後 25 天作戰計畫</h2>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="timeline">
+
+        <div class="timeline-item">
+          <div class="timeline-week">Week 1 ／ 4/1–4/7</div>
+          <div class="timeline-title">內核定調 &#9881;</div>
+          <div class="timeline-actions">
+            <div class="timeline-action">Day 1–3：大師境界品牌宣言定稿（我是誰、我為誰站出來、我看到什麼、我要做什麼）</div>
+            <div class="timeline-action">Day 3–5：核心團隊對齊——將品牌宣言內化、練習表達、統一口徑</div>
+            <div class="timeline-action">Day 5–7：微軟事件止血——找到關鍵影響者協助修復，接受並轉化</div>
+            <div class="timeline-action">每天冥想或靜心 15 分鐘，重建內在錨點</div>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-week">Week 2 ／ 4/8–4/14</div>
+          <div class="timeline-title">感恩攻勢 &#129309;</div>
+          <div class="timeline-actions">
+            <div class="timeline-action">每天感恩 3–5 人（言之有物的感恩，回溯具體事件，不是泛泛而言）</div>
+            <div class="timeline-action">鎖定 30 個有影響力的人，一對一深度對話</div>
+            <div class="timeline-action">聽比說多、聚焦對方需求、用大師視角幫對方看到問題背後的問題</div>
+            <div class="timeline-action">不主動批評對手，讓行動差距自己說話</div>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-week">Week 3 ／ 4/15–4/21</div>
+          <div class="timeline-title">能量爆發 &#128640;</div>
+          <div class="timeline-actions">
+            <div class="timeline-action">公開表態 + 粉專更新 + 核心理念視覺化傳播</div>
+            <div class="timeline-action">地推為主空軍為輔（能量全在陸軍，面對面為王）</div>
+            <div class="timeline-action">讓核心團隊代替自己做廣度擴散——Scout 聚焦深度關係</div>
+            <div class="timeline-action">每天記錄一個「今天讓誰成長了」的故事</div>
+          </div>
+        </div>
+
+        <div class="timeline-item" style="margin-bottom:0;">
+          <div class="timeline-week">Week 4 ／ 4/22–4/25</div>
+          <div class="timeline-title">收尾決戰 &#127937;</div>
+          <div class="timeline-actions">
+            <div class="timeline-action">不做新動作，穩住心性——戰術已布，靜待收割</div>
+            <div class="timeline-action">處變不驚、隨遇而安、回到當下（三句話每天複誦）</div>
+            <div class="timeline-action">確保每一天都有具體行動：出門見人 or 打電話</div>
+            <div class="timeline-action">不聽負面聲音，不被情緒煽動，錨定在服務而非競選</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- CH.5 風險矩陣 -->
+  <section class="fade-up">
+    <div class="section-header">
+      <div class="section-icon">&#9888;</div>
+      <div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+          <span class="badge">第五章</span>
+          <span class="badge slate">風險管理</span>
+        </div>
+        <h2>風險矩陣與應急預案</h2>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:grid;grid-template-columns:2fr 1.2fr 1.8fr;gap:12px;padding:0 16px 10px;border-bottom:1px solid var(--border);">
+        <div class="risk-label">風險情境</div>
+        <div class="risk-label">機率／等級</div>
+        <div class="risk-label">應急對策</div>
+      </div>
+
+      <div class="risk-list" style="margin-top:12px;">
+        <div class="risk-item">
+          <div>
+            <div class="risk-label">風險 01</div>
+            <strong>Scott 內核未定就衝出去</strong>
+            <div style="font-size:12px;color:var(--slate);margin-top:4px;">順序反了，沒有根基的攻勢反而暴露弱點</div>
+          </div>
+          <div>
+            <div class="risk-label">等級</div>
+            <span class="risk-level high">&#128308; 高</span>
+          </div>
+          <div>
+            <div class="risk-label">應對</div>
+            <span style="font-size:13px;color:var(--ink);">先想透再行動。第一週只做內核，不對外發聲。</span>
+          </div>
+        </div>
+
+        <div class="risk-item">
+          <div>
+            <div class="risk-label">風險 02</div>
+            <strong>韓大哥突然有驚人變化</strong>
+            <div style="font-size:12px;color:var(--slate);margin-top:4px;">機率低，但信用破產後難以逆轉</div>
+          </div>
+          <div>
+            <div class="risk-label">等級</div>
+            <span class="risk-level low">&#128994; 低</span>
+          </div>
+          <div>
+            <div class="risk-label">應對</div>
+            <span style="font-size:13px;color:var(--ink);">維持守舊路線不跟進。他動我不動，觀察即可。</span>
+          </div>
+        </div>
+
+        <div class="risk-item">
+          <div>
+            <div class="risk-label">風險 03</div>
+            <strong>Dorin 最後一週強勢反撲</strong>
+            <div style="font-size:12px;color:var(--slate);margin-top:4px;">鐵樁腳多，若風向轉向 Dorin 將形成威脅</div>
+          </div>
+          <div>
+            <div class="risk-label">等級</div>
+            <span class="risk-level mid">&#128993; 中</span>
+          </div>
+          <div>
+            <div class="risk-label">應對</div>
+            <span style="font-size:13px;color:var(--ink);">Scott 需要主動創造風向（品牌宣言），而非等風向出現。</span>
+          </div>
+        </div>
+
+        <div class="risk-item">
+          <div>
+            <div class="risk-label">風險 04</div>
+            <strong>微軟事件二次爆發</strong>
+            <div style="font-size:12px;color:var(--slate);margin-top:4px;">輿論若被操弄可能影響中立票</div>
+          </div>
+          <div>
+            <div class="risk-label">等級</div>
+            <span class="risk-level mid">&#128993; 中</span>
+          </div>
+          <div>
+            <div class="risk-label">應對</div>
+            <span style="font-size:13px;color:var(--ink);">已鎖定關鍵協助者代為止血。第一週主動處理，不拖延。</span>
+          </div>
+        </div>
+
+        <div class="risk-item">
+          <div>
+            <div class="risk-label">風險 05</div>
+            <strong>Scott 精力分散注意力被拉走</strong>
+            <div style="font-size:12px;color:var(--slate);margin-top:4px;">六張牌四張情緒易被煽動——最大盲點</div>
+          </div>
+          <div>
+            <div class="risk-label">等級</div>
+            <span class="risk-level high">&#128308; 高</span>
+          </div>
+          <div>
+            <div class="risk-label">應對</div>
+            <span style="font-size:13px;color:var(--ink);">每天冥想 + 固守核心。「處變不驚」是日常練習，不是競選宣言。</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- CH.6 能量走勢 -->
+  <section class="fade-up">
+    <div class="section-header">
+      <div class="section-icon teal">&#128200;</div>
+      <div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+          <span class="badge">第六章</span>
+          <span class="badge teal">能量演化</span>
+        </div>
+        <h2>三人能量走勢預測</h2>
+      </div>
+    </div>
+
+    <div class="card">
+      <!-- Phase labels -->
+      <div style="display:grid;grid-template-columns:70px 1fr;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);">
+        <div></div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+          <div style="text-align:center;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--mist);">4/1–4/7<br>第一週</div>
+          <div style="text-align:center;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--mist);">4/8–4/21<br>第二三週</div>
+          <div style="text-align:center;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--mist);">4/25–4/26<br>選舉日</div>
+        </div>
+      </div>
+
+      <!-- Scott -->
+      <div class="energy-row">
+        <div class="energy-name">
+          <div style="font-weight:600;color:var(--ember);">Scott</div>
+          <div style="font-size:11px;color:var(--mist);">我方</div>
+        </div>
+        <div style="flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+          <div class="energy-phase">
+            <div class="energy-bar-wrap">
+              <div class="energy-bar scott" style="height:30%;"></div>
+              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--snow);white-space:nowrap;">-3 &#8594; 0</div>
+            </div>
+            <div class="energy-phase-label">內核定調</div>
+          </div>
+          <div class="energy-phase">
+            <div class="energy-bar-wrap">
+              <div class="energy-bar scott" style="height:65%;"></div>
+              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--snow);white-space:nowrap;">0 &#8594; +4</div>
+            </div>
+            <div class="energy-phase-label">感恩爆發</div>
+          </div>
+          <div class="energy-phase">
+            <div class="energy-bar-wrap">
+              <div class="energy-bar scott" style="height:95%;"></div>
+              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--snow);white-space:nowrap;">+7</div>
+            </div>
+            <div class="energy-phase-label">決戰收割</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Han -->
+      <div class="energy-row">
+        <div class="energy-name">
+          <div style="font-weight:600;color:var(--slate);">韓大哥</div>
+          <div style="font-size:11px;color:var(--mist);">競爭者</div>
+        </div>
+        <div style="flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+          <div class="energy-phase">
+            <div class="energy-bar-wrap">
+              <div class="energy-bar han" style="height:18%;"></div>
+              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;">-3</div>
+            </div>
+            <div class="energy-phase-label">持平</div>
+          </div>
+          <div class="energy-phase">
+            <div class="energy-bar-wrap">
+              <div class="energy-bar han" style="height:18%;"></div>
+              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;">-3</div>
+            </div>
+            <div class="energy-phase-label">無法拉起</div>
+          </div>
+          <div class="energy-phase">
+            <div class="energy-bar-wrap">
+              <div class="energy-bar han" style="height:18%;"></div>
+              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;">-3</div>
+            </div>
+            <div class="energy-phase-label">票被拿走</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dorin -->
+      <div class="energy-row" style="margin-bottom:0;">
+        <div class="energy-name">
+          <div style="font-weight:600;color:var(--teal);">Dorin</div>
+          <div style="font-size:11px;color:var(--mist);">勁敵</div>
+        </div>
+        <div style="flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+          <div class="energy-phase">
+            <div class="energy-bar-wrap">
+              <div class="energy-bar dorin" style="height:50%;"></div>
+              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--snow);white-space:nowrap;">+3</div>
+            </div>
+            <div class="energy-phase-label">鞏固</div>
+          </div>
+          <div class="energy-phase">
+            <div class="energy-bar-wrap">
+              <div class="energy-bar dorin" style="height:70%;"></div>
+              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--snow);white-space:nowrap;">+5</div>
+            </div>
+            <div class="energy-phase-label">衝高</div>
+          </div>
+          <div class="energy-phase">
+            <div class="energy-bar-wrap">
+              <div class="energy-bar dorin" style="height:40%;opacity:0.55;"></div>
+              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--snow);white-space:nowrap;opacity:0.8;">虛掉</div>
+            </div>
+            <div class="energy-phase-label">風向依賴</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout teal" style="margin-top:20px;margin-bottom:0;">
+        <p>關鍵預測：Scott 的能量軌跡是三人中唯一呈現強勁上升曲線的。得票能量正27在四人中最強，只要內核在第一週定調，最後一個月的行動量會自動轉化成票數。</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- CH.7 決勝總結 -->
+  <section class="fade-up">
+    <div class="section-header">
+      <div class="section-icon gold">&#11088;</div>
+      <div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+          <span class="badge">第七章</span>
+          <span class="badge gold">決勝總結</span>
+        </div>
+        <h2>核心洞見與品牌宣言</h2>
+      </div>
+    </div>
+
+    <div class="insight-grid" style="margin-bottom:24px;">
+      <div class="insight-item">
+        <div class="insight-num">01</div>
+        <div class="insight-content">
+          <h4>Scout 的三大勝選支柱</h4>
+          <p>內核清晰 + 行動量大 + 感恩路線。三者缺一則勝算大幅下降。</p>
+        </div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-num">02</div>
+        <div class="insight-content">
+          <h4>韓大哥已自敗</h4>
+          <p>過度承諾 + 行動不足 = 信用破產。不需主動攻擊，讓時間說話。</p>
+        </div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-num">03</div>
+        <div class="insight-content">
+          <h4>Dorin 的致命傷</h4>
+          <p>孤軍奮戰 + 沒有風向主導權。只要 Scott 創造風向，Dorin 的票會自然流失。</p>
+        </div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-num">04</div>
+        <div class="insight-content">
+          <h4>One Muse 系統驗證</h4>
+          <p>命中率 83–92%，預測框架已被多次驗證。信任分析，不要被情緒覆蓋判斷。</p>
+        </div>
+      </div>
+      <div class="insight-item" style="grid-column:1/-1;">
+        <div class="insight-num">05</div>
+        <div class="insight-content">
+          <h4>最後一個月的本質</h4>
+          <p>不是比誰聲音大，是比誰的行動最真實。在別人喊口號的時候，去做那件讓人感動的事。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="brand-statement">
+      <p>
+        「致敬成長，成就大師。<br>
+        每個來到 Toastmaster 的人，<br>
+        都值得被看見、被照顧、被帶領。<br><br>
+        不是創新，是<span class="highlight">回歸</span>——<br>
+        回歸每個人內在的大師潛能。<br><br>
+        我不只是要贏，<br>
+        我是要讓<span class="highlight">每個人</span>都成為大師。」
       </p>
     </div>
 
-    <div class="insight-box">
-      <strong>Q1 進展亮點</strong>
-      <ul class="key-action">
-        <li><strong>價值主張清晰化</strong>：確認了「幸福感」為核心價值，放棄了虛幻的「創新」標籤，轉向實踐層面（大師課程→能量反轉）</li>
-        <li><strong>領導心境轉變</strong>：從「多面討好」到「核心堅定、外圓內方」，開始實踐「君親師」的德性領導</li>
-        <li><strong>危機應對能力</strong>：面對3月初的內部事件，快速進行牌卡分析與自我覺察，主動破框化解，一個月內內在能量從 -3 反轉至 +4</li>
-      </ul>
+    <div style="margin-top:16px;text-align:center;font-size:13px;color:var(--mist);">
+      &#8593; 品牌宣言核心框架（供 Scout 依個人風格修改潤色）
     </div>
-
-    <div class="insight-box">
-      <strong>待深化領域</strong>
-      <ul class="key-action">
-        <li><strong>核心理念論述</strong>：「大師」的定義仍需完整轉譯——如何讓 13.5% 的核心人群理解「人人都可成為大師」的邏輯，進而自然傳播</li>
-        <li><strong>內在穩定性</strong>：抱歉承諾、求好心切、火能量易散，需要長期修煉「當下」與「耐心」的定力</li>
-      </ul>
-    </div>
-  </section>
-
-  <!-- 能量結構演化 -->
-  <section class="section">
-    <h2>能量結構演化</h2>
-
-    <h3>1月快照 vs 4月初快照</h3>
-
-    <p>One Muse 系統將人的能量配置分為六個卦位（正四、正六、正三、內在對、體驗活動、壓力狀態），得分範圍從負到正，反映不同人生維度的狀態。</p>
-
-    <table class="comparison-table">
-      <thead>
-        <tr>
-          <th>能量維度</th>
-          <th>1月狀態</th>
-          <th>4月初狀態</th>
-          <th>變化</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>領導力 (正四)</strong></td>
-          <td>正向最高</td>
-          <td>持續穩定但待激發</td>
-          <td>轉向內省</td>
-        </tr>
-        <tr>
-          <td><strong>深度關係 (正六)</strong></td>
-          <td>正向最高</td>
-          <td>受事件衝擊，在恢復中</td>
-          <td>3人被影響，需主動止血</td>
-        </tr>
-        <tr>
-          <td><strong>反思能力 (正三)</strong></td>
-          <td>正向最高</td>
-          <td>轉為能量反轉的關鍵</td>
-          <td>從被動反思→主動破框</td>
-        </tr>
-        <tr>
-          <td><strong>內在狀態 (內在對)</strong></td>
-          <td>負向最低</td>
-          <td>大師課程後轉正 (+4)</td>
-          <td class="highlight">完全反轉</td>
-        </tr>
-        <tr>
-          <td><strong>社交主動性 (體驗活動)</strong></td>
-          <td>負向最低</td>
-          <td>仍需加強，順序需調整</td>
-          <td>待行動量拉高</td>
-        </tr>
-        <tr>
-          <td><strong>壓力管理 (壓力狀態)</strong></td>
-          <td>火能量易散</td>
-          <td>正在覺察，需修煉定力</td>
-          <td>意識提升，行動中</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <h3>內在狀態拉升的證據</h3>
-
-    <div class="timeline">
-      <div class="timeline-item">
-        <div class="timeline-marker"></div>
-        <div class="timeline-content">
-          <h4>1月：「內在能量在前面一個半月是負的」</h4>
-          <p>Scout 自述：外在福分足但「沒有把狀態拉上來」，參與社交活動但「能去了可是沒有把狀態拉上來。對那這去就是白去。」</p>
-          <p style="color: #5A5A6E; font-size: 14px;">根因：缺乏內在興奮度，無法感染他人，導致「顯化四步驟」在第二步斷裂——內在能量狀態沒有拉起來，就無法激發他人的行動意願。</p>
-        </div>
-      </div>
-
-      <div class="timeline-item">
-        <div class="timeline-marker"></div>
-        <div class="timeline-content">
-          <h4>3月初：事件衝擊，內在能量從 +1 跌至 -3</h4>
-          <p>一位女性社群領導者的不當行為破壞了團隊信任。Scout 承認：「整個三月，我的能量真的是超低的，一直起起伏伏」、「內在的穩定性嚴重被影響了」。</p>
-          <p style="color: #5A5A6E; font-size: 14px;">此時牌卡顯示「你內在的穩定性嚴重被影響」，但也同時預示「狀態會變好……你會從負四走到負三」——能量正在回升的軌跡已啟動。</p>
-        </div>
-      </div>
-
-      <div class="timeline-item">
-        <div class="timeline-marker"></div>
-        <div class="timeline-content">
-          <h4>3月中旬至4月初：大師課程的轉折點</h4>
-          <p>Scout 參與 One Muse 大師課程（邪惡碎片實驗）後，快速內化了「破框思維」。在牌卡分析中自述：「大師課程剛好注定是一個反轉點」，「有很多東西就扣」。</p>
-          <p style="color: #5A5A6E; font-size: 14px;">關鍵轉變：從被動承受事件衝擊 → 主動從大我視角思考 → 內在能量完全反轉至 +4。一個月內從 -3 到 +4 的跳躍，證明了深度自我覺察的力量。</p>
-        </div>
-      </div>
-    </div>
-
-    <h3>外在福分是否仍在</h3>
-
-    <div class="insight-box">
-      <strong>貴人運勢狀態</strong><br>
-      <p style="margin-top: 8px;">
-      1月確認「有貴人又有錢花能力」的外在福分。4月初的牌卡分析中，「投票能量最後是正二七，這很強」，說明顯化成交力依然穩健。<br><br>
-      但一個關鍵變化：<strong>貴人願意幫你，前提是你要先呈現出需要被幫的狀態</strong>。Scout 過去「走得很瀟灑」，讓人以為他一切都好，所以「旁邊人其實也很想幫我，只是我沒有去呈現出這樣狀態，他們也不知道」。<br><br>
-      改變：Scout 開始主動溝通（「我知道我必須 do something」），邀請核心團隊參與，正在將潛在的貴人資源轉化為實際的支援行動。
-      </p>
-    </div>
-  </section>
-
-  <!-- 決策風格深化 -->
-  <section class="section">
-    <h2>決策風格深化</h2>
-
-    <h3>從「創新幻想」到「框架內成立」</h3>
-
-    <p>1月的核心發現：Scout 被認為是「創新者」，但他的能量顯示他 <strong>根本不是創新型</strong>。一月反思錄音中的關鍵對話：</p>
-
-    <div class="quote-block">
-      顧問：「你是不創新的。」<br>
-      Scout：「對，是這樣......我其實在想這件事情的時候也是對我是蠻喜歡複製的人，尤其是複製我覺得適合的東西。」<br>
-      顧問：「這個叫做框架內成立。」
-    </div>
-
-    <p>這個對話是 Scout 自我認知的 <strong>第一次重要轉變</strong>。他原本因為「看起來年輕」「選舉中相對新穎」而被標籤為創新者，但實際上他的天賦是 <strong>複製成功框架、在既有系統內優化</strong>。</p>
-
-    <div class="dimension-grid">
-      <div class="dimension-card">
-        <h4>1月的幻想</h4>
-        <div class="before">「創新」標籤、走新路線、AI 合作、青商會……</div>
-        <div class="divider"></div>
-        <div class="after">發散的方向、多個 if 條件、難以聚焦</div>
-      </div>
-
-      <div class="dimension-card">
-        <h4>4月的清晰</h4>
-        <div class="before">「大師」定義、回歸本質、幸福感文化、守舊派支援……</div>
-        <div class="divider"></div>
-        <div class="after">聚焦的軸線、單一主張、易傳播易共鳴</div>
-      </div>
-    </div>
-
-    <h3>幸福感從「理念」到「行動」的演化</h3>
-
-    <p>1月的願景是抽象的：</p>
-
-    <div class="quote-block">
-      「我的內在價值是以幸福感為主……你要打造一個可以讓你感受到幸福的環境……什麼叫幸福？就是我看到他有需求，不用他講，我就先幫他做。」
-    </div>
-
-    <p>到了4月初，幸福感有了具體的實踐矩陣：</p>
-
-    <div class="strategy-box">
-      <h4>幸福感文化的三層拆解（1 月確認）</h4>
-      <ul class="key-action">
-        <li><strong>為人君</strong>：領導身邊人，持續往前衝，不只講概念，要手把手幫助</li>
-        <li><strong>為人親</strong>：真正去照顧他，不光是「以為他要什麼」，而是仔細聆聽他真實需要的是什麼</li>
-        <li><strong>為人師</strong>：教會他，傳承能力與知識</li>
-      </ul>
-    </div>
-
-    <p>這三層來自《大學》與孔子論述，不是新創概念，而是古聖先賢的智慧「複製」——完全符合 Scout「框架內成立」的決策風格。</p>
-
-    <div class="emphasis">
-      <strong>關鍵洞見：</strong>Scout 一開始想用 Ecosystem、AI、青商會等概念來吸引選票，但實際吸引人的是「真實的人性關懷」。當他確認自己不需要創新、只需要把「照顧人」這件最古老的事情做好時，整個主張就落地了。
-    </div>
-  </section>
-
-  <!-- 團隊互動與領導力 -->
-  <section class="section">
-    <h2>團隊互動與領導力</h2>
-
-    <h3>核心團隊協作進展</h3>
-
-    <p>1月設定的里程碑：「3月8日前要搞定核心團隊的價值主張，他們要幫你站臺。」</p>
-
-    <p>4月初的現況評估：</p>
-
-    <div class="insight-box">
-      <strong>進展部分</strong>
-      <ul class="key-action">
-        <li>核心委員團隊相對穩定，不被女性社群領導者的事件太大影響</li>
-        <li>價值主張框架已定（幸福感 + 大師），但論述還在迭代</li>
-        <li>部分核心夥伴已被說服開始採取行動</li>
-      </ul>
-    </div>
-
-    <div class="insight-box">
-      <strong>待補強部分</strong>
-      <ul class="key-action">
-        <li>價值主張的「轉譯」未完成——大師課程的收獲如何讓普通成員理解？「人人都可成為大師」的邏輯還需寫成白皮書級別的論述</li>
-        <li>Toastmaster 內 3-4 位成員受到事件衝擊，需要找有利人士去反向影響他們、「止血」</li>
-        <li>並非所有人都想成為大師，Scout 需要清楚地識別核心 13.5% 的人群並重點經營</li>
-      </ul>
-    </div>
-
-    <h3>「被多人聲音影響」的改善</h3>
-
-    <p>1月的問題診斷：</p>
-
-    <div class="quote-block">
-      「人多的時候我蠻容易被不同的聲音影響……以前都是什麼都要去做，人家說什麼我就去做，那但是就沒有辦法做事。」
-    </div>
-
-    <p>4月初的自我覺察與改變：</p>
-
-    <div class="timeline">
-      <div class="timeline-item">
-        <div class="timeline-marker"></div>
-        <div class="timeline-content">
-          <h4>認知層的突破</h4>
-          <p>Scout 確認了：「這次我要走守著路線，不要被影響。這次你要稍微固執一下。」</p>
-          <p style="color: #5A5A6E; font-size: 14px;">從被動接受建議 → 主動設立邊界，標誌著自我主權的第一次確立。</p>
-        </div>
-      </div>
-
-      <div class="timeline-item">
-        <div class="timeline-marker"></div>
-        <div class="timeline-content">
-          <h4>面對女性社群領導者事件</h4>
-          <p>當人事紛爭來臨時，Scout 的反應從被動承受轉向主動回應：他了解了「有人想幫我，只是我沒有呈現出需要被幫的狀態」。</p>
-          <p style="color: #5A5A6E; font-size: 14px;">關鍵行動：邀請核心團隊對話、確保 3-4 位被影響成員的心態、找尋「有利人士」來反向影響</p>
-        </div>
-      </div>
-
-      <div class="timeline-item">
-        <div class="timeline-marker"></div>
-        <div class="timeline-content">
-          <h4>大師視角的內在對話</h4>
-          <p>顧問提示：「如果你已經是 Toastmaster 的會長、總會長，你如何處理這件事？」</p>
-          <p style="color: #5A5A6E; font-size: 14px;">Scout 開始從「大我」的視角思考，而不是被小我的情緒牽著走。這是領導成熟度的象徵——從「我受到傷害」轉向「我如何為整個生態負責」。</p>
-        </div>
-      </div>
-    </div>
-
-    <h3>聆聽能力的升級</h3>
-
-    <p>1月時發現的盲點：</p>
-
-    <div class="quote-block">
-      「你對別人好三分對方收一分，所以有一部分是你以為他們要的而不是真的去了解……你的內在的聆聽沒有行為上的多也就是說你聽了不一定真的聽進去。」
-    </div>
-
-    <p>改進方向（1月確認）：</p>
-
-    <div class="insight-box">
-      <strong>「先完全把耳朵打開」的實踐</strong>
-      <ul class="key-action">
-        <li>在互動時，先停止建議和行動，完全聆聽對方</li>
-        <li>聽弦外之音，挖掘對方表面需求背後的真實渴望</li>
-        <li>只有被你幫過的人才會變成你的貴人——但前提是幫的東西要正確</li>
-      </ul>
-    </div>
-
-    <p>4月初的驗證：Scout 開始有意識地在一對一互動中實踐這個準則，特別是在與被事件影響的團隊成員對話時，更多地傾聽而非解釋。</p>
-  </section>
-
-  <!-- 成長盲點與突破 -->
-  <section class="section">
-    <h2>成長盲點與突破</h2>
-
-    <h3>累積槓桿的使用進度</h3>
-
-    <p>1月時，顧問提醒 Scout 進行「盤點」：</p>
-
-    <div class="quote-block">
-      「你回去可以盤點一下，我們講人脈是一個累積，你的 know how 是一個累積。你曾經有研發過的、開創過的東西是累積。錢跟能夠調動的人的資源就是能夠來協助別人的人。這些都是你可以拿來協助別人的武器……如果沒有用就是累積再多也是浪費。」
-    </div>
-
-    <div class="dimension-grid">
-      <div class="dimension-card">
-        <h4>已識別的槓桿</h4>
-        <div class="before">1月時盤點出來</div>
-        <div class="divider"></div>
-        <div class="after">人脈、know-how、已研發的東西、資金、動員能力</div>
-      </div>
-
-      <div class="dimension-card">
-        <h4>使用進度評估</h4>
-        <div class="before">4月初自述</div>
-        <div class="divider"></div>
-        <div class="after">「我把那個你的分析分享給那個人」（開始使用顧問洞見）；持續整合過去經驗的轉譯</div>
-      </div>
-    </div>
-
-    <div class="emphasis">
-      <strong>盲點識別：</strong>Scout 有足夠的資源，但還沒有完整系統地拿出來用。這三個月的主要工作應該是「資源盤點 + 轉譯 + 配置」，而不是去找新的東西。
-    </div>
-
-    <h3>壓力狀態的覺察</h3>
-
-    <p>1月測牌發現：Scout 有一張牌是「負責任」與「協調者」同時出現，這揭示了他在高壓狀態下會出現什麼：</p>
-
-    <div class="insight-box">
-      <strong>Scout 的壓力狀態模式</strong>
-      <ul class="key-action">
-        <li>高壓時會變成守舊的人，破壞自己曾經定下的規則</li>
-        <li>會試圖協調所有人，導致自責與受害者心態交織</li>
-        <li>傾向「stay home」（縮小行動半徑），反而加重心理負擔</li>
-      </ul>
-    </div>
-
-    <p>4月初，這些模式在面對事件時精准出現：</p>
-
-    <div class="quote-block">
-      「這些事情確實是我前一陣子最需要的一個狀態，就是我內在到底，我已經實在都能理解很多觀點的交錯。但自己還是會被影響，自責啊或什麼，或者就精神狀態會很不好。因為就會覺得說就是就是受害者負責的這些事情是跳來跳去。」
-    </div>
-
-    <p>改善策略（顧問建議）：</p>
-
-    <div class="strategy-box">
-      <h4>內在穩定性的三句箴言</h4>
-      <ul class="key-action">
-        <li><strong>處變不驚</strong>——事件發生是事實，但我可以選擇不被情緒綁架</li>
-        <li><strong>隨遇而安</strong>——接納當下的狀況，從「大我」的角度思考整體</li>
-        <li><strong>回到當下</strong>——不被過去的微軟事件困擾，也不過度憂慮未來選舉，專注此刻與眼前人的連接</li>
-      </ul>
-    </div>
-
-    <h3>幸福感文化的具體實踐案例</h3>
-
-    <p>從理論到實踐的轉化：Scout 逐漸把「為人君、親、師」這些概念應用到日常互動中。</p>
-
-    <div class="insight-box">
-      <strong>新的行為轉變跡象</strong>
-      <ul class="key-action">
-        <li>主動邀請被事件影響的成員一對一對話，而非集體說明</li>
-        <li>開始有意識地從對方的角度思考需要什麼，而非預設</li>
-        <li>嘗試用「大師視角」來看待衝突，尋求「化險為夷」的方案而非逃避</li>
-        <li>每天都在行動，即使只是打通電話，也是在實踐「幸福感」文化的前哨兵</li>
-      </ul>
-    </div>
-  </section>
-
-  <!-- 未來 3 個月行動地圖 -->
-  <section class="section">
-    <h2>未來 3 個月行動地圖</h2>
-
-    <h3>4 月底里程碑（選舉衝刺期）</h3>
-
-    <div class="timeline">
-      <div class="timeline-item">
-        <div class="timeline-marker"></div>
-        <div class="timeline-content">
-          <h4>完成「大師論述」白皮書</h4>
-          <p>將 One Muse 大師課程的個人收獲轉譯為 Toastmaster 成員能理解的語言。核心問題待回答：「為什麼 Toastmaster 需要大師？」「人人都可成為大師」的邏輯是什麼？</p>
-          <p style="color: #5A5A6E; font-size: 14px;">這不只是競選宣言，更是 Scout 內在信念的完整表達——沒有這份論述，投票能量無法完全轉化為實際選票。</p>
-        </div>
-      </div>
-
-      <div class="timeline-item">
-        <div class="timeline-marker"></div>
-        <div class="timeline-content">
-          <h4>核心 13.5% 人群的識別與經營</h4>
-          <p>根據創新傳播理論，Scout 不需要說服所有人成為大師，只需要鎖定「核心信徒」（13.5% 的早期採納者）並讓他們自然傳播。</p>
-          <p style="color: #5A5A6E; font-size: 14px;">具體行動：列名單、一對一深度對話、確保他們理解並成為傳播者。</p>
-        </div>
-      </div>
-
-      <div class="timeline-item">
-        <div class="timeline-marker"></div>
-        <div class="timeline-content">
-          <h4>內部事件的「止血」與信任修復</h4>
-          <p>找到「有利人士」（可能是資深委員或有影響力的成員）來反向影響那 3-4 位被事件衝擊的成員。Scout 本人則退後一步，用「大我」視角去看待，而非陷入冰清玉潔式的解釋。</p>
-          <p style="color: #5A5A6E; font-size: 14px;">選舉前夕，內部團結度是隱形的得票機制。</p>
-        </div>
-      </div>
-    </div>
-
-    <h3>6 月底里程碑（選後總結與後續規劃）</h3>
-
-    <div class="insight-box">
-      <strong>關鍵確認點</strong>
-      <ul class="key-action">
-        <li>選舉結果（4月25-26進行）與能量預測的符合度評估</li>
-        <li>根據選舉過程中學到的「真實民意」，迭代「大師論述」的更新版本</li>
-        <li>無論當選與否，確立「幸福感文化」作為 Scout 個人領導品牌的長期核心</li>
-      </ul>
-    </div>
-
-    <h3>待深化的 2-3 個核心項目</h3>
-
-    <div class="dimension-grid">
-      <div class="dimension-card">
-        <h4>項目 1：內在穩定性修煉</h4>
-        <div class="before">當前瓶頸</div>
-        <div class="divider"></div>
-        <div class="after">仍易被外界聲音與情緒波動所影響，「火能量」易散</div>
-      </div>
-
-      <div class="dimension-card">
-        <h4>持續觀察指標</h4>
-        <div class="before">4月-6月</div>
-        <div class="divider"></div>
-        <div class="after">每週 1-2 次自我覺察日誌、月度能量牌卡追蹤</div>
-      </div>
-    </div>
-
-    <div class="dimension-grid">
-      <div class="dimension-card">
-        <h4>項目 2：聆聽能力的實踐</h4>
-        <div class="before">當前瓶頸</div>
-        <div class="divider"></div>
-        <div class="after">「聽」與「做」之間的轉譯還不夠精准，容易過度配合而失去原則</div>
-      </div>
-
-      <div class="dimension-card">
-        <h4>持續觀察指標</h4>
-        <div class="before">4月-6月</div>
-        <div class="divider"></div>
-        <div class="after">一對一互動後的反饋、對方是否感受到被真正理解與照顧</div>
-      </div>
-    </div>
-
-    <div class="dimension-grid">
-      <div class="dimension-card">
-        <h4>項目 3：資源槓桿的體系化</h4>
-        <div class="before">當前瓶頸</div>
-        <div class="divider"></div>
-        <div class="after">人脈/know-how/已研發東西的盤點與轉譯尚未系統化，拿出來用的速度仍不夠快</div>
-      </div>
-
-      <div class="dimension-card">
-        <h4>持續觀察指標</h4>
-        <div class="before">4月-6月</div>
-        <div class="divider"></div>
-        <div class="after">每月 1-2 個已使用槓桿案例、投票得票率與預測分數的相關性</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 數據支撐 -->
-  <section class="section">
-    <h2>數據支撐：能量計分總覽</h2>
-
-    <p>根據 4月初的詳細牌卡分析，以下是 Scout 與競爭對手（韓大哥）的能量對比：</p>
-
-    <table class="comparison-table">
-      <thead>
-        <tr>
-          <th>能量維度</th>
-          <th>Scout</th>
-          <th>韓大哥</th>
-          <th>解讀</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>過去狀態</td>
-          <td>發散但正 (+1)</td>
-          <td>正 (+1)</td>
-          <td>平手，但 Scout 更散亂</td>
-        </tr>
-        <tr>
-          <td>現在狀態</td>
-          <td>負 (-3) → 轉正 (+4)</td>
-          <td>負 (-3)</td>
-          <td class="highlight">Scout 反轉中，韓大哥停滯</td>
-        </tr>
-        <tr>
-          <td>未來能量</td>
-          <td>正 (+4)</td>
-          <td>負 (-3)</td>
-          <td class="highlight">Scout 領先</td>
-        </tr>
-        <tr>
-          <td>投票能力</td>
-          <td>正 27（累積九倍）</td>
-          <td>負 1（無法拉高）</td>
-          <td class="highlight">Scout 得票能力遠勝</td>
-        </tr>
-        <tr>
-          <td>核心問題</td>
-          <td>核心理念空心 (對位為空)</td>
-          <td>說得多做得少，德性未展現</td>
-          <td>Scout 缺定位，韓大哥缺行動</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="emphasis">
-      <strong>戰略啟示：</strong>Scout 的投票能量（27分）遠勝韓大哥（-1分）。但 Scout 的劣勢在於「核心理念不夠明確」，如果能在4月中旬前完成「大師論述」的完整轉譯，則 no issue——因為民眾會為了理解並被感動而投票，而不是被承諾了卻無行動所失望（韓大哥的困境）。
-    </div>
-  </section>
-
-  <!-- 結論 -->
-  <section class="section">
-    <h2>結論</h2>
-
-    <p>Scout 的人格進程可以概括為：<strong>從外向行動力強但內在支離破碎，逐步整合為內在堅定、外圓內方的新興領導者。</strong></p>
-
-    <div class="insight-box">
-      <strong>三個核心發現</strong>
-      <ul class="key-action">
-        <li><strong>他不是創新者，而是優化者</strong>——放棄創新幻想，回歸「複製成功框架、在既有系統內成立」的天賦，反而讓他的主張更聚焦、更容易成交。</li>
-        <li><strong>他的內在能量可以極速反轉</strong>——從 -3 到 +4 只花了一個月（感謝大師課程的洞見激發），證明他的反思能力和成長意願都很高。只要找對方向，就能快速突破。</li>
-        <li><strong>他的成交能力其實已經很強</strong>——投票能量 +27 證明了他能吸引人、能成交。當下的瓶頸不在「如何獲得選票」，而在「如何讓選民相信他知道自己要什麼」。</li>
-      </ul>
-    </div>
-
-    <div class="emphasis">
-      <strong>未來 3 個月的單一優先級：完整論述「大師」概念，讓普通成員看懂。</strong>其他所有行動（見面、溝通、傾聽、示弱求援）都是為了這個論述而服務。一旦論述清晰，其他能量會自動流動。
-    </div>
-
-    <p style="margin-top: 32px; font-size: 16px;">在面對 3月初的內部事件衝擊時，Scout 展現了成熟領導者該有的品質——不是逃避，而是主動破框、從大我視角重新思考。這一轉變已經啟動了他人格的第二層進化。選舉的最終結果會是什麼，也許沒有比「Scout 在關鍵時刻選擇了內在成長」這個事實更重要的了。</p>
   </section>
 
   <!-- Footer -->
   <footer>
-    <p>報告生成時間：2026年4月1日</p>
-    <p style="margin-top: 8px;">基於 One Muse 系統的兩次深度能量解讀<br>（2026年1月 全盤能量分析 + 2026年4月初 三才陣追蹤分析）</p>
+    <div>
+      <div class="footer-brand">MUSEON <span>&times;</span> One Muse</div>
+      <div style="margin-top:4px;font-size:12px;color:var(--slate);">戰略情報平台 ／ Club Growth Director 選舉分析</div>
+    </div>
+    <div style="text-align:right;">
+      <div class="footer-meta">2026-04-01</div>
+      <div class="footer-meta" style="margin-top:4px;">CONFIDENTIAL ／ 機密等級：內部使用</div>
+      <div style="margin-top:8px;display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap;">
+        <span class="badge">ARES</span>
+        <span class="badge teal">ATHENA</span>
+        <span class="badge gold">ROUNDTABLE</span>
+        <span class="badge slate">MASTER-STRATEGY</span>
+      </div>
+    </div>
   </footer>
 
 </div>
