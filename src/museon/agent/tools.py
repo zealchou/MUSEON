@@ -2394,10 +2394,10 @@ class ToolExecutor:
         """Lazy init Ares ProfileStore."""
         if not hasattr(self, "_ares_store"):
             try:
-                from museon.ares.profile_store import ProfileStore
+                from museon.athena.profile_store import ProfileStore
                 self._ares_store = ProfileStore(self.data_dir)
             except ImportError:
-                logger.warning("[ARES] museon.ares 模組不存在，_ares_store 不可用")
+                logger.warning("[ATHENA] museon.athena 模組不存在，_ares_store 不可用")
                 return None
         return self._ares_store
 
@@ -2568,7 +2568,7 @@ class ToolExecutor:
 
         # PNG
         try:
-            from museon.ares.graph_renderer import render_topology_png
+            from museon.athena.graph_renderer import render_topology_png
             out_path = Path(self.data_dir) / "ares" / "topology.png"
             render_topology_png(data, output_path=out_path, owner_name="Zeal")
             return {

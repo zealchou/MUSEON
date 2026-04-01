@@ -1361,7 +1361,7 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
     async def _ares_relationship_scan():
         """每 6 小時掃描 Ares profiles，偵測降溫/流失風險."""
         try:
-            from museon.ares.proactive_intel import ProactiveIntel
+            from museon.athena.proactive_intel import ProactiveIntel
             intel = ProactiveIntel(data_dir)
             alerts = intel.scan_relationship_alerts()
             if not alerts:

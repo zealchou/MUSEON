@@ -1,9 +1,10 @@
-# Joint Map — 共享可變狀態接頭圖 v1.63
+# Joint Map — 共享可變狀態接頭圖 v1.64
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
 > **更新時機**：改變共享檔案的讀寫者或格式時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
+> **v1.64 (2026-04-01)**：ares 套件更名為 athena——`src/museon/ares/external_bridge.py` → `src/museon/athena/external_bridge.py`、`src/museon/ares/profile_store.py` → `src/museon/athena/profile_store.py`。同步 persistence-contract v1.50、blast-radius v1.96。
 > **v1.63 (2026-04-01)**：.runtime 路徑移除後，共享狀態讀寫路徑簡化（不再有 .runtime/data vs data/ 雙路徑）；所有條目的「寫入者路徑」統一為 MUSEON_HOME/ 下的單一路徑；共享狀態條目數量不變。同步 system-topology v1.76、blast-radius v1.95。
 > **v1.62 (2026-04-01)**：Phase 1-3 十項修復——signal_cache JSON 讀取路徑已清理（brain_prompt_builder 不再讀檔，Layer 5 skill_router 已刪除該讀取點）；brain_observer 相關殘留讀寫者已全數清除（pending_insights.json、context_cache 讀寫者已於 v1.61 同步）；共享狀態條目無增減，僅修正讀寫者清單。同步 system-topology v1.75、blast-radius v1.94。
 > **v1.61 (2026-04-01)**：Phase A-C 死碼清理 + signal_lite 遷移——移除 reflex_router 相關共享狀態條目（Qdrant dna27 collection 已清理，routing_signal 純記憶體，不另立條目）；移除 brain_observer 讀寫者條目（#46 pending_insights.json 寫入者改為 brain.py L4 觀察者，#47 context_cache 寫入者移除 brain_observer.py）；新增 #74 signal_lite 的 SignalLite 物件（純記憶體計算，寫入者 signal_lite.py，讀取者 brain.py + metacognition.py + telegram_pump.py）；G3 記憶管線移除 reflex_router；共享狀態 73→74 個。
@@ -1336,8 +1337,8 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 | 模組 | 操作 | 函數 | 說明 | 鎖 |
 |------|------|------|------|-----|
 | `skills/anima-individual` | **W** | Skill 執行時寫入 | 個體分析結果持久化（七層鏡像 + 八大槓桿） | — |
-| `src/museon/ares/external_bridge.py` | **W** | `bridge_group_member()` | Telegram 群組成員自動建立/更新個體檔案 | — |
-| `src/museon/ares/profile_store.py` | **RW** | CRUD + `search_paths()` + `simulate()` | 個體 CRUD、槓桿分析、路徑搜尋、連動模擬 | — |
+| `src/museon/athena/external_bridge.py` | **W** | `bridge_group_member()` | Telegram 群組成員自動建立/更新個體檔案 | — |
+| `src/museon/athena/profile_store.py` | **RW** | CRUD + `search_paths()` + `simulate()` | 個體 CRUD、槓桿分析、路徑搜尋、連動模擬 | — |
 | `skills/ares` | **R** | Skill 執行時讀取 | 戰略分析時讀取個體檔案做跨人物分析 | — |
 
 > **鎖**：無需（profile_store.py 為唯一 CRUD 入口，Skill 寫入經由 profile_store 路由）

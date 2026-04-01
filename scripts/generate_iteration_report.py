@@ -238,7 +238,7 @@ def _upload_to_gist(html: str, title: str) -> str | None:
         print("WARN: httpx not available, skipping Gist upload", file=sys.stderr)
         return None
 
-    date_str = datetime.now().strftime("%Y%m%d_%H%M")
+    date_str = datetime.now().strftime("%Y%m%d-%H%M")
     filename = f"museon-iteration-{date_str}.html"
     payload = {
         "description": f"MUSEON: {title}",

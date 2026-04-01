@@ -164,6 +164,7 @@ class ClaudeCLIAdapter:
         self._claude_path = claude_path or "claude"
         self._call_count = 0
         self._total_duration_ms = 0
+        self._timeout = 3600  # 1 小時超時（與主要呼叫一致）
 
     def _get_oauth_token(self) -> Optional[str]:
         """取得 OAuth token — 四層來源，絕不輕易放棄.

@@ -89,8 +89,8 @@ DEFAULT_SERVICES = [
     ),
     ServiceConfig(
         name="searxng",
-        container_name="searxng",
-        health_url="http://127.0.0.1:8888/healthz",
+        container_name="museon-searxng",
+        health_url="http://127.0.0.1:8888/",
         port=8888,
         required=True,
         timeout_s=5.0,

@@ -647,7 +647,7 @@ class BrainObservationMixin:
         # ★ P1: 偵測主人對別人的承諾（群組場景）
         if self._is_group_session:
             try:
-                from museon.ares.proactive_intel import ProactiveIntel
+                from museon.athena.proactive_intel import ProactiveIntel
                 intel = ProactiveIntel(self.data_dir)
                 commitments = intel.detect_my_commitments(content)
                 if commitments:
@@ -1209,7 +1209,7 @@ class BrainObservationMixin:
 
             # ★ P0: 群組徵兆偵測（靜默，不回覆群組）
             try:
-                from museon.ares.proactive_intel import ProactiveIntel
+                from museon.athena.proactive_intel import ProactiveIntel
                 intel = ProactiveIntel(self.data_dir)
                 signals = intel.detect_signals_from_message(
                     sender_name=sender_name or user_id,

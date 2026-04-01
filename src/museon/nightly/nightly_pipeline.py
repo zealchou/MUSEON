@@ -3603,8 +3603,8 @@ class NightlyPipeline:
         接在 Step 18.5 之後——18.5 更新 external_users，18.6 橋接到 Ares。
         """
         try:
-            from museon.ares.profile_store import ProfileStore
-            from museon.ares.external_bridge import ExternalBridge
+            from museon.athena.profile_store import ProfileStore
+            from museon.athena.external_bridge import ExternalBridge
 
             store = ProfileStore(self._workspace)
             ext_dir = self._workspace / "_system" / "external_users"

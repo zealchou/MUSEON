@@ -1,8 +1,9 @@
-# MUSEON Persistence Contract v1.49 — 水電圖
+# MUSEON Persistence Contract v1.50 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
 > 與 `system-topology.md`（控制流拓撲）互補——那是「神經圖」，這是「水電圖」。
+> **v1.50 (2026-04-01)**：ares 套件更名為 athena——`src/museon/ares/` → `src/museon/athena/`（profile_store.py、external_bridge.py、graph_renderer.py）；data 路徑 `ares/profiles/` 不變。同步 joint-map v1.64、blast-radius v1.96。
 > **v1.49 (2026-04-01)**：.runtime 目錄正式廢除——所有持久層路徑統一為 MUSEON_HOME/ 下的單一路徑，不再有 .runtime/data vs data/ 雙路徑分支；CrystalStore schema drift 自動修復已部署（v1.48）。同步 system-topology v1.76、blast-radius v1.95。
 > **v1.48 (2026-04-01)**：Phase 1-3 十項修復——CrystalStore 新增 schema drift 自動修復（ALTER TABLE ADD COLUMN，crystal.db ENGINE 1 表格新增 drift_fixed_at 追蹤欄）；signal_cache JSON 不再有寫入者（已確認 brain_prompt_builder 移除檔案讀取點，signal_cache 管道由 keyword 快篩替代，持久化路徑正式廢棄）。同步 system-topology v1.75、joint-map v1.62、memory-router v1.22。
 > **v1.47 (2026-04-01)**：Phase A-C 死碼清理 + signal_lite 遷移——Qdrant dna27 collection 從 deprecated 改為「已清理」並從 Engine 2 表格移除（reflex_router 退役，signal_lite 純記憶體取代，不再需要向量索引）；移除數據流圖中 reflex_router 讀取記憶的標注；signal_lite 確認不使用任何持久層（純記憶體計算，request-scoped）。
@@ -557,13 +558,13 @@ adaptive_decay ──ACT-R B_i──→ _activation 欄位 (in-memory) ←──
 
 | 路徑 | 格式 | 寫入者 | 讀取者 | 說明 |
 |------|------|--------|--------|------|
-| `ares/profiles/{profile_id}.json` | JSON | `anima-individual` Skill, `src/museon/ares/profile_store.py`, `src/museon/ares/external_bridge.py` | `ares` Skill, `src/museon/ares/profile_store.py` | ANIMA 個體檔案（七層鏡像、八大槓桿、互動歷史、關係溫度） |
-| `ares/profiles/_index.json` | JSON | `src/museon/ares/profile_store.py` | `ares` Skill, `src/museon/ares/profile_store.py` | 個體索引（profile_id → 名稱/建立時間/最後更新） |
+| `ares/profiles/{profile_id}.json` | JSON | `anima-individual` Skill, `src/museon/athena/profile_store.py`, `src/museon/athena/external_bridge.py` | `ares` Skill, `src/museon/athena/profile_store.py` | ANIMA 個體檔案（七層鏡像、八大槓桿、互動歷史、關係溫度） |
+| `ares/profiles/_index.json` | JSON | `src/museon/athena/profile_store.py` | `ares` Skill, `src/museon/athena/profile_store.py` | 個體索引（profile_id → 名稱/建立時間/最後更新） |
 
 > **引擎**：JSON（人類可讀個體檔案）
 > **生命週期**：永久（持續更新）
 > **結晶類型**：anima-individual → knowledge-lattice `individual_crystal`；ares → knowledge-lattice `strategy_crystal`
-> **Python 模組**：`src/museon/ares/profile_store.py`（CRUD + 槓桿 + 連線 + 路徑搜尋 + 連動模擬）、`src/museon/ares/graph_renderer.py`（networkx PNG 渲染）、`src/museon/ares/external_bridge.py`（Telegram 群組成員→Ares 個體橋接器）
+> **Python 模組**：`src/museon/athena/profile_store.py`（CRUD + 槓桿 + 連線 + 路徑搜尋 + 連動模擬）、`src/museon/athena/graph_renderer.py`（networkx PNG 渲染）、`src/museon/athena/external_bridge.py`（Telegram 群組成員→Ares 個體橋接器）
 
 ### `eval/` 子目錄
 

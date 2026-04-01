@@ -24,7 +24,6 @@ import ast
 import json
 import logging
 import os
-import re
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -40,8 +39,6 @@ _LOG_SCAN_LINES = 2000           # 每次掃 log 的行數上限
 _LOG_ERROR_WINDOW_HOURS = 6      # 只看最近 N 小時的 log
 _MAX_LLM_QUEUE = 20              # llm_queue 上限（防膨脹）
 _MAX_ANOMALIES_TODAY = 50        # 今日異常記錄上限
-_NIGHTLY_PIPELINE_PATH = "src/museon/nightly/nightly_pipeline.py"
-
 # 系統健康檢查：每 N 個節點做一次（不是每個 tick 都查 Gateway）
 _SYSTEM_CHECK_EVERY_N = 15
 
@@ -143,7 +140,7 @@ class MuseDoctor:
         L3（需 LLM）  ：不動，交給 llm_queue
         """
         for anomaly in anomalies:
-            if "broken import" in anomaly or "未在 _FULL_STEPS" in anomaly:
+            if "broken import" in anomaly:
                 # L3：需要人腦或 LLM 判斷，不自動修復
                 continue
             if "近期 log ERROR" in anomaly:
@@ -286,7 +283,6 @@ class MuseDoctor:
         1. 對應的 .py 檔案是否存在
         2. 是否在 broken_imports 清單中
         3. 最近 N 小時的 log 是否有包含此模組名稱的 ERROR
-        4. （nightly 模組）是否在 _FULL_STEPS 清單中
         """
         anomalies: list[str] = []
 
@@ -308,14 +304,9 @@ class MuseDoctor:
         if log_errors:
             anomalies.append(f"近期 log ERROR x{log_errors}")
 
-        # 4. nightly 模組：確認在 _FULL_STEPS
-        if "nightly" in module_path and module_path not in (
-            "museon.nightly.nightly_pipeline",
-            "museon.nightly.__init__",
-        ):
-            step_id = self._infer_nightly_step_id(module_path)
-            if step_id and not self._is_in_full_steps(step_id):
-                anomalies.append(f"未在 _FULL_STEPS: {step_id}")
+        # 4. nightly 模組：_FULL_STEPS 使用數字 ID（"0","1","2"...），
+        #    nightly helper 模組透過 step function 內的 lazy import 載入，
+        #    不會直接出現在 _FULL_STEPS 中，因此不做此項檢查以避免誤報。
 
         return anomalies
 
@@ -408,29 +399,6 @@ class MuseDoctor:
             logger.debug("[MuseDoctor] log scan error: %s", e)
 
         return error_count
-
-    def _infer_nightly_step_id(self, module: str) -> str | None:
-        """
-        從模組名稱推斷 nightly step ID。
-        e.g., 'museon.nightly.curiosity_router' → 'curiosity_router'
-        """
-        return module.split(".")[-1]
-
-    def _is_in_full_steps(self, step_id: str) -> bool:
-        """檢查 step_id 是否在 nightly_pipeline._FULL_STEPS 中"""
-        try:
-            pipeline_path = self.home / _NIGHTLY_PIPELINE_PATH
-            if not pipeline_path.exists():
-                return True  # 找不到就假設 OK，不誤報
-            content = pipeline_path.read_text(errors="replace")
-            # 找 _FULL_STEPS = [ ... ] 區塊
-            match = re.search(r"_FULL_STEPS\s*=\s*\[([^\]]+)\]", content, re.DOTALL)
-            if not match:
-                return True
-            steps_block = match.group(1)
-            return step_id in steps_block
-        except Exception:
-            return True
 
     # ─────────────────────── 異常記錄 ────────────────────────────────────────
 

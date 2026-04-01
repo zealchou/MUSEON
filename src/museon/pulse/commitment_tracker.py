@@ -215,7 +215,6 @@ class CommitmentTracker:
                         due_at=due_at.isoformat() if due_at else None,
                         user_message=user_message,
                         our_response_snippet=sentence[:500],
-                        min_alive_until=min_alive_until.isoformat(),
                     )
                     commitments_found.append({
                         "id": commitment_id,

@@ -1,10 +1,11 @@
-# Blast Radius — 模組影響半徑表 v1.95
+# Blast Radius — 模組影響半徑表 v1.96
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節、`docs/operational-contract.md`（操作契約表）提供外部操作預期失敗
+> **v1.96 (2026-04-01)**：ares 套件更名為 athena——破損 import 計數從 2 降為 0（brain_fast.py 已刪除，ares→athena imports 已修復）；健康快照更新。同步 joint-map v1.64、persistence-contract v1.50。
 > **v1.95 (2026-04-01)**：.runtime 廢除影響 15 個檔案（4 shell + 8 Python + 3 config），所有 .runtime 路徑判斷已移除；brain_dispatch.py 修復 @staticmethod 衝突；vector_bridge.py PEP 604 語法修復。同步 system-topology v1.76。
 > **v1.94 (2026-04-01)**：Phase 1-3 十項修復——`algedonic_alert.py` 新增靜默邏輯（扇出不變，純內部時段判斷）；`crystal_store.py` 新增 schema drift 自動修復 ALTER TABLE（純內部方法，扇出不變）；`service_health.py` 新增退避邏輯（純內部方法，扇出不變）；`guardian/daemon.py` 新增 credential 檢查（扇出+0，純 env 讀取）；`proactive_dispatcher.py` 新增 GOVERNANCE_ALGEDONIC_SIGNAL 發佈（扇出+1：event_bus）；`doctor/museoff.py` 重啟路徑改為 restart-gateway.sh（移除 launchctl 直呼叫）；`cron_registry.py` 移除 skill-acquisition-scan + tool-discovery-scan 2 個 cron job（扇出-2）；`nightly_pipeline.py` 移除 Step 26 session_cleanup（_FULL_STEPS -1）。同步 system-topology v1.75。
 > **v1.93 (2026-04-01)**：Phase A-C 死碼清理 + signal_lite 遷移——從安全分級表移除 brain_p3_fusion.py（綠區，已清除）、brain_observer.py（綠區，已刪除）2 個條目；從 vector_bridge.py 扇入列表移除 reflex_router（已退役）；更新 brain.py 扇出描述（移除對 reflex_router/safety_clusters 的依賴，移除 P3 方法群描述）；更新 server.py 扇出描述（移除 DNA27 Qdrant 索引）；新增 signal_lite.py 到綠區（扇入=1 from brain.py，扇出=無）；版本紀錄新增本次變更。同步 system-topology v1.74。
@@ -906,7 +907,7 @@
 | 共享可變狀態 | 53 | 詳見 joint-map.md v1.49 |
 | 事件健康度 | 67.9% | 幽靈訂閱清零（v1.5 修復） |
 | 致命單點 | event_bus | 佔全系統 21% 直接依賴（46/220） |
-| 破損 import | 2 | brain_fast.py → input_sanitizer, ceremony（待修復） |
+| 破損 import | 0 | 全部修復 |
 
 ---
 

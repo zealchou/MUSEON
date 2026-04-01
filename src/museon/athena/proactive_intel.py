@@ -54,9 +54,9 @@ class ProactiveIntel:
         Returns: [{profile_id, name, alert_type, message, urgency}]
         """
         try:
-            from museon.ares.profile_store import ProfileStore
+            from museon.athena.profile_store import ProfileStore
         except ImportError:
-            logger.warning("[ARES] museon.ares 模組不存在，跳過關係溫度掃描")
+            logger.warning("[ATHENA] museon.athena 模組不存在，跳過關係溫度掃描")
             return []
         store = ProfileStore(self.data_dir)
         alerts = []
@@ -197,7 +197,7 @@ class ProactiveIntel:
     ) -> dict[str, Any]:
         """用 Ares 人格資料增強機會偵測結果."""
         try:
-            from museon.ares.profile_store import ProfileStore
+            from museon.athena.profile_store import ProfileStore
             store = ProfileStore(self.data_dir)
             profiles = store.search(signal.get("sender", ""))
             if profiles:

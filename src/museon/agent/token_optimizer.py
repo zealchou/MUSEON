@@ -29,7 +29,7 @@ _DEFAULT_ZONES: Dict[str, int] = {
     "persona": 1500,
     "modules": 6000,
     "memory": 2500,   # +500 for knowledge crystal auto_recall injection
-    "buffer": 1800,   # +800 for PULSE.md soul context injection
+    "buffer": 2500,   # +800 for PULSE.md soul context injection; enlarged from 1800 to prevent zone exhaustion
     "strategic": 1000,  # 企業決策脈絡注入
 }
 

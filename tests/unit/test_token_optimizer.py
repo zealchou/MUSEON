@@ -306,7 +306,7 @@ class TestTokenBudget:
         assert budget.get_zone_budget("persona") == 1500
         assert budget.get_zone_budget("modules") == 6000
         assert budget.get_zone_budget("memory") == 2500
-        assert budget.get_zone_budget("buffer") == 1800
+        assert budget.get_zone_budget("buffer") == 2500
 
     def test_track_usage(self):
         """BDD: 追蹤使用量."""
@@ -348,7 +348,7 @@ class TestTokenBudget:
         budget = TokenBudget()
         budget.apply_dynamic_allocation(safety_triggered=False)
         assert budget.get_zone_budget("modules") == 6000
-        assert budget.get_zone_budget("buffer") == 1800
+        assert budget.get_zone_budget("buffer") == 2500
 
     def test_fit_text_to_zone(self):
         """BDD: 文本適配到區預算."""

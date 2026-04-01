@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -308,7 +308,6 @@ class DriftDetector:
             user_primals = anima_user.get("eight_primals", {}) if anima_user else {}
             if trait_history and user_primals:
                 # Get recent trait deltas
-                from datetime import datetime, timezone, timedelta
                 cutoff = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
                 recent_deltas = {}
                 for entry in trait_history:
