@@ -1993,16 +1993,14 @@ window.doHealthCheck = function() {
     const srcLabel = nodeMap[l.source]?.label || l.source;
     const lbl = l.label ? `（${l.label.substring(0,40)}）` : '';
     return `  • ${srcLabel}${lbl}`;
-  }).join('
-');
+  }).join('\n');
 
   // 被呼叫方（輸出方）列表
   const calleeLines = outLinks.slice(0,12).map(l => {
     const tgtLabel = nodeMap[l.target]?.label || l.target;
     const lbl = l.label ? `（${l.label.substring(0,40)}）` : '';
     return `  • ${tgtLabel}${lbl}`;
-  }).join('
-');
+  }).join('\n');
 
   // 路徑說明
   const pathLine = node.path
@@ -2038,8 +2036,7 @@ window.doHealthCheck = function() {
     calleeLines || `  （無）`,
     ``,
     checkSteps,
-  ].join('
-');
+  ].join('\n');
 
   navigator.clipboard.writeText(cmd).then(() => {
     const btn = document.getElementById('i-health-btn');
