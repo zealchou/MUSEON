@@ -204,9 +204,6 @@ class CommitmentTracker:
                 due_at = commitment.get("due_at")
 
                 try:
-                    min_alive_until = (
-                        datetime.now(TZ8) + timedelta(minutes=30)
-                    )
                     self._db.add_commitment(
                         commitment_id=commitment_id,
                         session_id=session_id,
@@ -221,7 +218,6 @@ class CommitmentTracker:
                         "promise_text": promise_text,
                         "type": promise_type,
                         "due_at": due_at.isoformat() if due_at else None,
-                        "min_alive_until": min_alive_until.isoformat(),
                     })
                 except Exception as e:
                     logger.warning(f"[Commitment] 登記失敗: {e}")
@@ -313,19 +309,6 @@ class CommitmentTracker:
         user_lower = user_message.lower() if user_message else ""
 
         for commitment in all_active:
-            # 跳過存活期內的承諾（避免同回合建立即兌現）
-            min_alive = commitment.get("min_alive_until")
-            if min_alive:
-                try:
-                    alive_until = datetime.fromisoformat(min_alive)
-                    # 確保 alive_until 有 timezone
-                    if alive_until.tzinfo is None:
-                        alive_until = alive_until.replace(tzinfo=TZ8)
-                    if datetime.now(TZ8) < alive_until:
-                        continue  # 還在最短存活期內，不做兌現檢查
-                except Exception:
-                    pass  # 解析失敗就正常繼續
-
             promise = commitment.get("promise_text", "")
             cid = commitment.get("id", "")
 
