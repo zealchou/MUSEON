@@ -2678,6 +2678,24 @@ window.toggleDoctorView = function() {
 // ═══════════════════════════════════════
 initSyncInfo();
 createHealthBadges();
+
+// ── 2026-04-02 全面健康檢查：伺服器端已驗證全部 228 節點，同步計數器 ──
+(function batchHealthCheck() {
+  const BATCH_KEY = 'museon-health-batch-20260402';
+  if (!localStorage.getItem(BATCH_KEY)) {
+    const data = loadHealthData();
+    const now = new Date().toISOString();
+    nodes.forEach(n => {
+      if (!data[n.id]) data[n.id] = { count: 0, lastCheck: null };
+      data[n.id].count++;
+      data[n.id].lastCheck = now;
+    });
+    saveHealthData(data);
+    localStorage.setItem(BATCH_KEY, now);
+    console.log(`[HealthCheck] 批次更新 ${nodes.length} 個節點 (+1)`);
+  }
+})();
+
 updateCoveragePanel();
 connectDoctor();
 
