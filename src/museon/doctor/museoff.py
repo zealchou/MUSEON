@@ -193,6 +193,111 @@ class MuseOff:
             )
 
     # -------------------------------------------------------------------
+    # L2b: ANIMA 身份完整性探針（每 1 小時）
+    # -------------------------------------------------------------------
+
+    async def probe_anima_integrity(self) -> None:
+        """L2b: ANIMA_MC.json 身份核心是否完整？損壞/清空立即告警。"""
+        if not self._should_probe():
+            return
+
+        anima_path = self.home / "data" / "ANIMA_MC.json"
+        self._stats["probes_run"] += 1
+
+        # 檔案不存在
+        if not anima_path.exists():
+            self._create_finding(
+                probe_layer="L2",
+                severity="CRITICAL",
+                title="ANIMA_MC.json 不存在——系統身份核心遺失",
+                blast_origin=BlastOrigin(
+                    file="data/ANIMA_MC.json",
+                    error_type="MissingFile",
+                ),
+                prescription=Prescription(
+                    diagnosis="data/ANIMA_MC.json 不存在",
+                    root_cause="檔案遺失（可能被誤刪或從未建立）",
+                    suggested_fix="從備份或 MUSEON_archive 恢復 ANIMA_MC.json",
+                    runbook_id="RB-anima-restore",
+                ),
+            )
+            return
+
+        # 檔案大小 < 100 bytes（可能被清空）
+        file_size = anima_path.stat().st_size
+        if file_size < 100:
+            self._create_finding(
+                probe_layer="L2",
+                severity="HIGH",
+                title=f"ANIMA_MC.json 異常小（{file_size} bytes）——可能被清空",
+                blast_origin=BlastOrigin(
+                    file="data/ANIMA_MC.json",
+                    error_type="SuspiciouslySmallFile",
+                ),
+                prescription=Prescription(
+                    diagnosis=f"檔案大小僅 {file_size} bytes，低於正常門檻 100 bytes",
+                    root_cause="檔案可能在寫入中途被截斷或被清空",
+                    suggested_fix="從備份或 MUSEON_archive 恢復 ANIMA_MC.json",
+                ),
+            )
+            return
+
+        # JSON 解析
+        try:
+            anima_data = json.loads(anima_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError) as e:
+            self._create_finding(
+                probe_layer="L2",
+                severity="CRITICAL",
+                title=f"ANIMA_MC.json 解析失敗——身份資料損壞",
+                blast_origin=BlastOrigin(
+                    file="data/ANIMA_MC.json",
+                    error_type="JSONDecodeError",
+                    traceback=str(e),
+                ),
+                prescription=Prescription(
+                    diagnosis=f"JSON 解析錯誤: {e}",
+                    root_cause="檔案損壞（可能是寫入中途斷電或不合法 JSON）",
+                    suggested_fix="從備份或 MUSEON_archive 恢復 ANIMA_MC.json",
+                ),
+            )
+            return
+
+        # 必要欄位檢查
+        missing_fields = []
+        identity = anima_data.get("identity", {})
+        if not identity.get("name"):
+            missing_fields.append("identity.name")
+        if not identity.get("birth_date"):
+            missing_fields.append("identity.birth_date")
+        if "ceremony" not in anima_data:
+            missing_fields.append("ceremony")
+        personality = anima_data.get("personality", {})
+        trait_dims = personality.get("trait_dimensions", {})
+        if not isinstance(trait_dims, dict) or len(trait_dims) < 5:
+            missing_fields.append(
+                f"personality.trait_dimensions（需 ≥5 維，實際 {len(trait_dims) if isinstance(trait_dims, dict) else 0}）"
+            )
+
+        if missing_fields:
+            self._create_finding(
+                probe_layer="L2",
+                severity="HIGH",
+                title=f"ANIMA_MC.json 必要欄位缺失: {', '.join(missing_fields)}",
+                blast_origin=BlastOrigin(
+                    file="data/ANIMA_MC.json",
+                    error_type="MissingFields",
+                ),
+                context={"missing_fields": missing_fields},
+                prescription=Prescription(
+                    diagnosis=f"缺失欄位: {missing_fields}",
+                    root_cause="ANIMA_MC.json 未完整建立，或欄位被意外刪除",
+                    suggested_fix="補全缺失欄位，或從備份恢復",
+                ),
+            )
+        # 全部通過 → 靜默返回
+
+    # -------------------------------------------------------------------
     # L3: Config Validator（每 1 小時）
     # -------------------------------------------------------------------
 
@@ -417,6 +522,145 @@ class MuseOff:
                 pass
 
     # -------------------------------------------------------------------
+    # L6b: Crystal Pattern 回饋探針（每 12 小時）
+    # -------------------------------------------------------------------
+
+    async def probe_crystal_patterns(self) -> None:
+        """L6b: 學習→察覺連線——KnowledgeLattice 中已知失敗模式是否反覆出現？
+
+        從 crystal.db 讀取 failure/error/fix 類型結晶，提取關鍵字，
+        比對最近 24h 的 findings，找出「系統已學過但仍在犯的問題」。
+        """
+        if not self._should_probe():
+            return
+
+        self._stats["probes_run"] += 1
+
+        crystal_db = self.home / "data" / "lattice" / "crystal.db"
+        if not crystal_db.exists():
+            return  # 靜默返回
+
+        # 讀取最近 24h 的 findings 文字（用於關鍵字比對）
+        recent_finding_texts: list[dict] = []
+        try:
+            cutoff = time.time() - 86400  # 24 小時前
+            for fpath in sorted(self.findings_dir.glob("*.json")):
+                if fpath.stat().st_mtime >= cutoff:
+                    try:
+                        fd = json.loads(fpath.read_text(encoding="utf-8"))
+                        recent_finding_texts.append({
+                            "id": fd.get("finding_id", fpath.stem),
+                            "text": (fd.get("title", "") + " " + fd.get("prescription", {}).get("diagnosis", "")).lower(),
+                        })
+                    except (json.JSONDecodeError, OSError):
+                        pass
+        except OSError:
+            pass
+
+        if not recent_finding_texts:
+            return  # 最近沒有 finding，不需比對
+
+        # 查詢 crystal.db 中 failure/error/fix 相關結晶
+        import sqlite3 as _sqlite3
+        crystals: list[dict] = []
+        try:
+            conn = _sqlite3.connect(str(crystal_db), timeout=5)
+            # 嘗試查詢——欄位名稱根據實際 schema，容錯處理
+            try:
+                rows = conn.execute(
+                    """
+                    SELECT id, title, content, tags, type
+                    FROM crystals
+                    WHERE (type = 'pattern' OR type = 'lesson')
+                      AND (tags LIKE '%failure%'
+                           OR tags LIKE '%error%'
+                           OR tags LIKE '%fix%')
+                    LIMIT 200
+                    """
+                ).fetchall()
+                for row in rows:
+                    crystals.append({
+                        "id": row[0],
+                        "title": row[1] or "",
+                        "content": row[2] or "",
+                        "tags": row[3] or "",
+                        "type": row[4] or "",
+                    })
+            except _sqlite3.OperationalError:
+                # schema 不同，嘗試不帶 type/tags 過濾
+                try:
+                    rows = conn.execute(
+                        "SELECT id, title, content FROM crystals LIMIT 200"
+                    ).fetchall()
+                    for row in rows:
+                        crystals.append({"id": row[0], "title": row[1] or "", "content": row[2] or ""})
+                except _sqlite3.OperationalError:
+                    pass
+            conn.close()
+        except (_sqlite3.DatabaseError, OSError):
+            return  # 靜默返回
+
+        if not crystals:
+            return
+
+        # 從結晶 content 提取關鍵字（取較具體的技術詞彙）
+        _STOPWORDS = {"the", "a", "an", "is", "in", "on", "at", "to", "of", "and", "or", "for",
+                      "with", "it", "this", "that", "was", "are", "be", "by", "from", "as", "有",
+                      "的", "了", "在", "是", "和", "不", "也", "會", "可", "以", "但", "到"}
+        import re as _re
+
+        def _extract_keywords(text: str) -> list[str]:
+            # 保留英數詞（≥4 字元）及中文技術詞（≥2 字）
+            tokens = _re.findall(r'[a-zA-Z0-9_\-]{4,}|[\u4e00-\u9fff]{2,}', text)
+            return [t.lower() for t in tokens if t.lower() not in _STOPWORDS][:30]
+
+        # 比對 findings
+        matches: list[dict] = []
+        for crystal in crystals:
+            combined_text = crystal.get("title", "") + " " + crystal.get("content", "")
+            keywords = _extract_keywords(combined_text)
+            if not keywords:
+                continue
+            for finding in recent_finding_texts:
+                finding_text = finding["text"]
+                matched_kw = next((kw for kw in keywords if kw in finding_text), None)
+                if matched_kw:
+                    crystal_id = str(crystal.get("id", ""))
+                    finding_id = finding["id"]
+                    # 避免重複記錄同一組合
+                    if not any(
+                        m["crystal_id"] == crystal_id and m["finding_id"] == finding_id
+                        for m in matches
+                    ):
+                        matches.append({
+                            "crystal_id": crystal_id,
+                            "finding_id": finding_id,
+                            "keyword": matched_kw,
+                        })
+                        pattern_title = crystal.get("title") or f"crystal#{crystal_id}"
+                        logger.info(
+                            "[MuseOff L6] Crystal-informed: 已知模式 '%s' 再次出現（關鍵字: %s）",
+                            pattern_title,
+                            matched_kw,
+                        )
+
+        # 寫入 crystal_informed.json
+        output_dir = self.home / "data" / "_system" / "museoff"
+        output_dir.mkdir(parents=True, exist_ok=True)
+        output_path = output_dir / "crystal_informed.json"
+        try:
+            output_path.write_text(
+                json.dumps(
+                    {"updated_at": _now_iso(), "matches": matches},
+                    ensure_ascii=False,
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
+        except OSError as e:
+            logger.warning("[MuseOff L6] 寫入 crystal_informed.json 失敗: %s", e)
+
+    # -------------------------------------------------------------------
     # L7: 管線完整性探針 — 消費端→寫入端反向追蹤
     # -------------------------------------------------------------------
 
@@ -557,10 +801,12 @@ class MuseOff:
             ("L0", self.probe_liveness),
             ("L1", self.probe_readiness),
             ("L2", self.probe_import),
+            ("L2b", self.probe_anima_integrity),
             ("L3", self.probe_config),
             ("L4", self.probe_regression),
             ("L5", self.probe_chaos),
             ("L6", self.probe_blueprint),
+            ("L6b", self.probe_crystal_patterns),
             ("L7", self.probe_pipeline_integrity),
         ]
         for name, func in probes:
