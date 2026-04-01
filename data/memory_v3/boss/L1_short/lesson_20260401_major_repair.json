@@ -1,0 +1,6 @@
+{
+  "key": "lesson_20260401_major_repair",
+  "content": "2026-04-01 大修復復盤七教訓：(1)Mixin刪除追蹤所有方法名 (2)多路DSE不只grep import (3)雙路徑立即殺一條 (4)藍圖是合約 (5)測試驗行為不驗數量 (6)減法優先 (7)FV+BDD互補",
+  "timestamp": "2026-04-01T23:30:00+08:00",
+  "tags": ["lesson", "architecture", "testing", "blueprint"]
+}
