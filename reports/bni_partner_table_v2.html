@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MUSEON × BNI 合作夥伴戰略手冊</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Outfit:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ember: #C4502A; --ember-light: #E0714D; --ember-dark: #9A3A1C;
+    --teal: #2A7A6E; --gold: #B8923A;
+    --ink: #12121A; --slate: #5A5A6E; --mist: #9898A8;
+    --border: #E2E0DA; --parchment: #F7F5F0; --snow: #FDFCFA;
+    --deep-ink: #0E0E16;
+  }
+  body {
+    background: var(--parchment); color: var(--ink);
+    font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+    font-size: 16px; line-height: 1.75;
+    padding: 40px 16px 80px;
+    animation: fadeIn 400ms ease-out both;
+  }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+  .container { max-width: 1100px; margin: 0 auto; }
+
+  /* Hero */
+  .hero {
+    background: var(--deep-ink); border-radius: 14px;
+    padding: 56px 48px; margin-bottom: 48px;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 0%, rgba(196,80,42,0.25) 0%, transparent 60%),
+                radial-gradient(ellipse at 10% 100%, rgba(42,122,110,0.15) 0%, transparent 55%);
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(196,80,42,0.2); color: var(--ember-light);
+    border: 1px solid rgba(196,80,42,0.4);
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 4px 12px; border-radius: 100px; margin-bottom: 20px; position: relative;
+  }
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif; font-size: 44px; font-weight: 600;
+    color: #FDFCFA; line-height: 1.15; margin-bottom: 16px; position: relative;
+  }
+  .hero h1 em { color: var(--ember-light); font-style: italic; }
+  .hero p { color: #9898A8; font-size: 16px; max-width: 580px; position: relative; }
+  .hero-meta { display: flex; gap: 24px; margin-top: 28px; position: relative; flex-wrap: wrap; }
+  .hero-stat { border-left: 2px solid rgba(196,80,42,0.5); padding-left: 14px; }
+  .hero-stat-num { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600; color: #FDFCFA; line-height: 1; }
+  .hero-stat-label { font-size: 12px; color: var(--mist); margin-top: 2px; }
+
+  /* Section */
+  .section-title { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
+  .section-sub { color: var(--slate); font-size: 14px; margin-bottom: 28px; }
+
+  /* Framework */
+  .framework {
+    background: var(--snow); border: 1px solid var(--border);
+    border-radius: 10px; padding: 28px 32px; margin-bottom: 48px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;
+  }
+  .fw-item { display: flex; gap: 14px; align-items: flex-start; }
+  .fw-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .fw-icon.a { background: rgba(196,80,42,0.1); }
+  .fw-icon.b { background: rgba(42,122,110,0.1); }
+  .fw-icon.c { background: rgba(184,146,58,0.1); }
+  .fw-title { font-weight: 600; font-size: 15px; color: var(--ink); margin-bottom: 4px; }
+  .fw-desc { font-size: 13px; color: var(--slate); line-height: 1.6; }
+
+  /* Cards */
+  .partner-grid { display: flex; flex-direction: column; gap: 28px; margin-bottom: 56px; }
+  .partner-card {
+    background: var(--snow); border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+    box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+    transition: transform 200ms ease, box-shadow 200ms ease;
+  }
+  .partner-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(18,18,26,0.1); }
+  .card-header { padding: 22px 28px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 16px; }
+  .card-num {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--ember);
+    background: rgba(196,80,42,0.08); padding: 3px 10px; border-radius: 100px; flex-shrink: 0;
+  }
+  .card-title { font-weight: 600; font-size: 17px; color: var(--ink); }
+  .card-tag {
+    margin-left: auto; font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 3px 10px; border-radius: 100px; flex-shrink: 0;
+  }
+  .tag-high { background: rgba(42,122,110,0.1); color: #1A5C52; }
+  .tag-med { background: rgba(184,146,58,0.1); color: #8A6820; }
+
+  .card-body { padding: 24px 28px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+  @media (max-width: 768px) { .card-body { grid-template-columns: 1fr; } }
+
+  .body-label {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--mist);
+    margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+  }
+  .body-label::before { content: ''; display: inline-block; width: 16px; height: 2px; background: var(--ember); border-radius: 2px; }
+  .body-list { list-style: none; }
+  .body-list li {
+    font-size: 14px; color: var(--slate); padding: 5px 0;
+    border-bottom: 1px solid rgba(226,224,218,0.5); padding-left: 12px; position: relative;
+  }
+  .body-list li::before { content: '–'; position: absolute; left: 0; color: var(--ember); font-weight: 600; }
+  .body-list li:last-child { border-bottom: none; }
+  .script-box {
+    background: var(--parchment); border: 1px solid var(--border);
+    border-left: 3px solid var(--ember); border-radius: 6px;
+    padding: 14px 16px; font-size: 14px; color: var(--ink); line-height: 1.7; font-style: italic;
+  }
+  .script-box strong { font-style: normal; font-weight: 600; color: var(--ember-dark); }
+  .card-footer {
+    padding: 16px 28px; background: rgba(247,245,240,0.6);
+    border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+  .footer-label { font-size: 12px; color: var(--mist); font-family: 'IBM Plex Mono', monospace; }
+  .mode-tag { font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 100px; border: 1px solid; }
+  .mode-referral { color: var(--teal); border-color: rgba(42,122,110,0.3); background: rgba(42,122,110,0.06); }
+  .mode-white-label { color: var(--gold); border-color: rgba(184,146,58,0.3); background: rgba(184,146,58,0.06); }
+  .mode-joint { color: var(--ember); border-color: rgba(196,80,42,0.3); background: rgba(196,80,42,0.06); }
+
+  /* Summary Table */
+  .summary-section { margin-bottom: 56px; }
+  .summary-table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  thead tr { background: var(--deep-ink); }
+  thead th { padding: 14px 16px; text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mist); white-space: nowrap; }
+  tbody tr { background: var(--snow); border-bottom: 1px solid var(--border); }
+  tbody tr:hover { background: rgba(196,80,42,0.03); }
+  tbody td { padding: 12px 16px; color: var(--slate); vertical-align: top; }
+  tbody td:first-child { font-weight: 600; color: var(--ink); }
+  .priority-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+  .p1 { background: var(--ember); }
+  .p2 { background: var(--gold); }
+
+  /* Action */
+  .action-section {
+    background: var(--deep-ink); border-radius: 14px;
+    padding: 40px; margin-bottom: 48px; position: relative; overflow: hidden;
+  }
+  .action-section::before {
+    content: ''; position: absolute; top: 0; right: 0; width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(196,80,42,0.15) 0%, transparent 70%); pointer-events: none;
+  }
+  .action-section .section-title { color: #FDFCFA; position: relative; }
+  .action-section .section-sub { color: var(--mist); position: relative; }
+  .action-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 8px; }
+  .action-step { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 20px; position: relative; }
+  .step-num { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 600; color: rgba(196,80,42,0.4); line-height: 1; margin-bottom: 8px; }
+  .step-title { font-weight: 600; color: #FDFCFA; font-size: 15px; margin-bottom: 6px; }
+  .step-desc { font-size: 13px; color: var(--mist); line-height: 1.65; }
+
+  /* Footer */
+  .page-footer { text-align: center; color: var(--mist); font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.06em; padding-top: 32px; border-top: 1px solid var(--border); }
+  .page-footer strong { color: var(--ember); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="hero">
+    <div class="hero-badge">BNI Strategic Playbook</div>
+    <h1>MUSEON × BNI<br><em>同情境不同賽道</em> 合作戰略手冊</h1>
+    <p>針對 10 類互補夥伴的合作可能性、切入策略與實戰話術。目標：最短時間鎖定共銷夥伴，互為經銷。</p>
+    <div class="hero-meta">
+      <div class="hero-stat"><div class="hero-stat-num">10</div><div class="hero-stat-label">目標合作類型</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">3</div><div class="hero-stat-label">主要合作模式</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">2</div><div class="hero-stat-label">MUSEON 核心服務線</div></div>
+    </div>
+  </div>
+
+  <div style="margin-bottom:16px">
+    <p class="section-title">合作框架總則</p>
+    <p class="section-sub">三種實質合作模式，對每類夥伴都適用其中一種或多種</p>
+  </div>
+  <div class="framework">
+    <div class="fw-item">
+      <div class="fw-icon a">🔄</div>
+      <div>
+        <div class="fw-title">互轉客戶（Referral）</div>
+        <div class="fw-desc">你把需要 AI 數位員工的客戶介紹給我，我把需要你服務的企業主轉給你。雙向流量。</div>
+      </div>
+    </div>
+    <div class="fw-item">
+      <div class="fw-icon b">🤝</div>
+      <div>
+        <div class="fw-title">強化對方服務（White-Label）</div>
+        <div class="fw-desc">MUSEON 作為對方的 AI 層工具，讓他們的服務含金量提升，不搶客戶，共同漲價。</div>
+      </div>
+    </div>
+    <div class="fw-item">
+      <div class="fw-icon c">🚀</div>
+      <div>
+        <div class="fw-title">聯合提案（Joint Pitch）</div>
+        <div class="fw-desc">鎖定同一客戶，兩家一起進場分工——對方賣主服務，MUSEON 賣 AI 層。</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-bottom:16px">
+    <p class="section-title">10 類合作夥伴詳解</p>
+    <p class="section-sub">客戶痛點 × 我方服務價值 × 切入方式 × 開場話術</p>
+  </div>
+  <div class="partner-grid">
+
+    <div class="partner-card">
+      <div class="card-header">
+        <span class="card-num">01</span>
+        <span class="card-title">人力資源顧問 / 獵頭公司</span>
+        <span class="card-tag tag-high">優先度 A</span>
+      </div>
+      <div class="card-body">
+        <div>
+          <div class="body-label">他的客戶在痛什麼</div>
+          <ul class="body-list">
+            <li>招不到人、人事成本年年漲</li>
+            <li>人找到了但留不住</li>
+            <li>老闆要的是「好用的人」，不一定是真人</li>
+          </ul>
+        </div>
+        <div>
+          <div class="body-label">MUSEON 能做什麼</div>
+          <ul class="body-list">
+            <li>AI 數位員工補位（客服、內容、行政）</li>
+            <li>人 + AI 混合配置方案，聯合報價</li>
+            <li>協助建立「AI 角色規格書」，提升服務深度</li>
+          </ul>
+        </div>
+        <div>
+          <div class="body-label">開場切入話術</div>
+          <div class="script-box">「你的客戶找人的當下，其實有一部分職位我們可以用 AI 先跑起來——<strong>你幫我找到需要擴編的企業，我們一起提案</strong>，你收人力費、我收導入費，不搶。」</div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="footer-label">合作模式：</span>
+        <span class="mode-tag mode-joint">聯合提案</span>
+        <span class="mode-tag mode-referral">互轉客戶</span>
+      </div>
+    </div>
+
+    <div class="partner-card">
+      <div class="card-header">
+        <span class="card-num">02</span>
+        <span class="card-title">ERP / 進銷存系統商</span>
+        <span class="card-tag tag-high">優先度 A</span>
+      </div>
+      <div class="card-body">
+        <div>
+          <div class="body-label">他的客戶在痛什麼</div>
+          <ul class="body-list">
+            <li>系統裝好了但員工不會用</li>
+            <li>資料在系統裡，沒人幫他分析</li>
+            <li>想要 AI 但不知道從哪裡接</li>
+          </ul>
+        </div>
+        <div>
+          <div class="body-label">MUSEON 能做什麼</div>
+          <ul class="body-list">
+            <li>在既有系統上加 AI 分析層（讀 ERP 資料→自動報告）</li>
+            <li>打通系統資料流，串 AI 工作流</li>
+            <li>系統商導入時帶我們進去，負責 AI 層</li>
+          </ul>
+        </div>
+        <div>
+          <div class="body-label">開場切入話術</div>
+          <div class="script-box">「你幫客戶裝好系統之後，<strong>資料都在裡面但沒人用</strong>——我們可以在你的案子後面加一層 AI，讓老闆每週自動拿到報告，你的服務附加值馬上提高。」</div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="footer-label">合作模式：</span>
+        <span class="mode-tag mode-white-label">強化服務</span>
+        <span class="mode-tag mode-joint">聯合提案</span>
+      </div>
+    </div>
+
+    <div class="partner-card">
+      <div class="card-header">
+        <span class="card-num">03</span>
+        <span class="card-title">企業管理顧問 / 流程優化顧問</span>
+        <span class="card-tag tag-high">優先度 A</span>
+      </div>
+      <div class="card-body">
+        <div>
+          <div class="body-label">他的客戶在痛什麼</div>
+          <ul class="body-list">
+            <li>流程診斷出問題但執行端沒人跑</li>
+            <li>顧問建議做完，半年後又回到原點</li>
+            <li>需要「可持續執行」的機制</li>
+          </ul>
+        </div>
+        <div>
+          <div class="body-label">MUSEON 能做什麼</div>
+          <ul class="body-list">
+            <li>把顧問建議的流程自動化，嵌 AI 執行層</li>
+            <li>流程優化後用 AI 監控指標，確保不退步</li>
+            <li>顧問診斷後 MUSEON 接手執行——上下游互補</li>
+          </ul>
+        </div>
+        <div>
+          <div class="body-label">開場切入話術</div>
+          <div class="script-box">「你做完流程診斷之後，有沒有遇過客戶三個月後又打回原形？<strong>我們做的是讓你的建議真的被執行的 AI 層</strong>——你負責想清楚，我們負責跑起來。」</div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="footer-label">合作模式：</span>
+        <span class="mode-tag mode-joint">聯合提案</span>
+        <span class="mode-tag mode-referral">互轉客戶</span>
+      </div>
+    </div>
+
+    <div class="partner-card">
+      <div class="card-header">
+        <span class="card-num">04</span>
+        <span class="card-title">會計師事務所</span>
+        <span class="card-tag tag-high">優先度 A</span>
+      </div>
+      <div class="card-body">
+        <div>
+          <div class="body-label">他的客戶在痛什麼</div>
+          <ul class="body-list">
+            <li>財務人手不足，老闆自己做帳</li>
+            <li>資料散落各處，月底才拼得出來</li>
+            <li>想用 AI 但怕算錯、不敢信</li>
+          </ul>
+        </div>
+        <div>
+          <div class="body-label">MUSEON 能做什麼</div>
+          <ul class="body-list">
+            <li>財務摘要 AI：自動彙整月報給老闆看</li>
+            <li>AI 數位員工補位行政記帳流程</li>
+            <li>讓會計師服務升級：你做審閱，AI 做執行</li>
+          </ul>
+        </div>
+        <div>
+          <div class="body-label">開場切入話術</div>
+          <div class="script-box">「你的客戶裡面，有沒有老闆跟你說『人手不夠、帳來不及整理』的？<strong>這類客戶我們可以進去幫他補財務行政 AI</strong>，你的報帳品質也更好，有興趣互介紹嗎？」</div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="footer-label">合作模式：</span>
+        <span class="mode-tag mode-referral">互轉客戶</span>
+        <span class="mode-tag mode-white-label">強化服務</span>
+      </div>
+    </div>
+
+    <div class="partner-card">
+      <div class="card-header">
+        <span class="card-num">05</span>
+        <span class="card-title">行銷代理商 / 廣告公司</span>
+        <span class="card-tag tag-med">優先度 B</span>
+      </div>
+      <div class="card-body">
+        <div>
+          <div class="body-label">他的客戶在痛什麼</div>
+          <ul class="body-list">
+            <li>內容量需求大但預算有限</li>
+            <li>客服回應慢、漏單</li>
+            <li>想用 AI 出內容但品牌調性會跑掉</li>
+          </ul>
+        </div>
+        <div>
+          <div class="body-label">MUSEON 能做什麼</div>
+          <ul class="body-list">
+            <li>品牌化 AI 內容產線（保留調性）</li>
+            <li>AI 客服員工：24 小時回覆，轉介真人</li>
+            <li>代理商接不了的 AI 需求，轉介給我們</li>
+          </ul>
+        </div>
+        <div>
+          <div class="body-label">開場切入話術</div>
+          <div class="script-box">「你的客戶有沒有問過你能不能幫他做 AI 客服或 AI 內容？<strong>你接不到的這塊，我們可以接，轉介費我們談</strong>——你不用多花精力，直接分潤。」</div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="footer-label">合作模式：</span>
+        <span class="mode-tag mode-referral">互轉客戶</span>
+        <span class="mode-tag mode-white-label">強化服務</span>
+      </div>
+    </div>
+
+    <div class="partner-card">
+      <div class="card-header">
+        <span class="card-num">06</span>
+        <span class="card-title">企業教育訓練公司</span>
+        <span class="card-tag tag-med">優先度 B</span>
+      </div>
+      <div class="card-body">
+        <div>
+          <div class="body-label">他的客戶在痛什麼</div>
+          <ul class="body-list">
+            <li>培訓完員工，回去還是一樣做法</li>
+            <li>想加入 AI 課程但不知道教什麼</li>
+            <li>客戶問「AI 怎麼實際導入」他答不上來</li>
+          </ul>
+        </div>
+        <div>
+          <div class="body-label">MUSEON 能做什麼</div>
+          <ul class="body-list">
+            <li>培訓後銜接 AI 工具實作——員工學完馬上有配套</li>
+            <li>提供 AI 導入課程模組，讓課程更完整</li>
+            <li>共同開發「AI + 管理技能」複合課程</li>
+          </ul>
+        </div>
+        <div>
+          <div class="body-label">開場切入話術</div>
+          <div class="script-box">「你培訓完員工之後，他們有沒有實際的工具可以用？<strong>我們可以在你的課程後面接一個 AI 導入工作坊</strong>——你的課程完整度提高，我們拿到新客源，雙贏。」</div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="footer-label">合作模式：</span>
+        <span class="mode-tag mode-white-label">強化服務</span>
+        <span class="mode-tag mode-referral">互轉客戶</span>
+      </div>
+    </div>
+
+    <div class="partner-card">
+      <div class="card-header">
+        <span class="card-num">07</span>
+        <span class="card-title">商業空間設計 / 工裝公司</span>
+        <span class="card-tag tag-med">優先度 B</span>
+      </div>
+      <div class="card-body">
+        <div>
+          <div class="body-label">他的客戶在痛什麼</div>
+          <ul class="body-list">
+            <li>開新店 / 換新辦公室 = 正在擴張</li>
+            <li>老闆剛花大錢裝修，接著要優化運營</li>
+            <li>新空間開業後人力配置要重新規劃</li>
+          </ul>
+        </div>
+        <div>
+          <div class="body-label">MUSEON 能做什麼</div>
+          <ul class="body-list">
+            <li>開業後 AI 員工導入——硬體到軟體一次到位</li>
+            <li>新店開業前幫老闆規劃 AI 人力架構</li>
+            <li>轉介 AI 客服、AI 訂位系統整合需求</li>
+          </ul>
+        </div>
+        <div>
+          <div class="body-label">開場切入話術</div>
+          <div class="script-box">「你的客戶裝修完之後要開業，<strong>開業後的人力配置問題找誰？我們可以幫他在開業前就把 AI 員工配好</strong>，你幫我介紹，你的服務也多一個『貼心加值』。」</div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="footer-label">合作模式：</span>
+        <span class="mode-tag mode-referral">互轉客戶</span>
+      </div>
+    </div>
+
+    <div class="partner-card">
+      <div class="card-header">
+        <span class="card-num">08</span>
+        <span class="card-title">企業保險經紀 / 壽險顧問</span>
+        <span class="card-tag tag-med">優先度 B</span>
+      </div>
+      <div class="card-body">
+        <div>
+          <div class="body-label">他的客戶在痛什麼</div>
+          <ul class="body-list">
+            <li>每年續約時要找理由維持關係</li>
+            <li>老闆開始問 AI 能幫什麼，他答不上</li>
+            <li>高資產客戶需要多方位的企業服務</li>
+          </ul>
+        </div>
+        <div>
+          <div class="body-label">MUSEON 能做什麼</div>
+          <ul class="body-list">
+            <li>提供「AI 導入評估」作為保險客戶的加值禮包</li>
+            <li>保險顧問推薦 MUSEON，客戶體驗升級</li>
+            <li>反向：我們的客戶有企業保險需求，轉給你</li>
+          </ul>
+        </div>
+        <div>
+          <div class="body-label">開場切入話術</div>
+          <div class="script-box">「你每年找客戶續約的時候，<strong>有沒有什麼可以額外帶給他的？我們的 AI 導入評估可以讓你送給客戶做禮物</strong>——他覺得你有加值，黏著度也提高。」</div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="footer-label">合作模式：</span>
+        <span class="mode-tag mode-referral">互轉客戶</span>
+        <span class="mode-tag mode-white-label">強化服務</span>
+      </div>
+    </div>
+
+    <div class="partner-card">
+      <div class="card-header">
+        <span class="card-num">09</span>
+        <span class="card-title">法律 / 合規顧問</span>
+        <span class="card-tag tag-med">優先度 B</span>
+      </div>
+      <div class="card-body">
+        <div>
+          <div class="body-label">他的客戶在痛什麼</div>
+          <ul class="body-list">
+            <li>合規要求多但人手跟不上</li>
+            <li>文件管理混亂、審閱耗時</li>
+            <li>企業要正規化但沒有內部法務人力</li>
+          </ul>
+        </div>
+        <div>
+          <div class="body-label">MUSEON 能做什麼</div>
+          <ul class="body-list">
+            <li>AI 文件整理 + 合規流程自動化</li>
+            <li>法律顧問診斷完，MUSEON 幫執行合規流程</li>
+            <li>企業正規化 = 內部流程重建，一起進去</li>
+          </ul>
+        </div>
+        <div>
+          <div class="body-label">開場切入話術</div>
+          <div class="script-box">「你的客戶做完法遵規劃之後，<strong>執行端有人跟嗎？我們可以幫他把合規流程自動化</strong>，你的建議真的被落實，你的口碑也更好。」</div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="footer-label">合作模式：</span>
+        <span class="mode-tag mode-joint">聯合提案</span>
+        <span class="mode-tag mode-referral">互轉客戶</span>
+      </div>
+    </div>
+
+    <div class="partner-card">
+      <div class="card-header">
+        <span class="card-num">10</span>
+        <span class="card-title">軟體開發 / IT 外包商</span>
+        <span class="card-tag tag-high">優先度 A</span>
+      </div>
+      <div class="card-body">
+        <div>
+          <div class="body-label">他的客戶在痛什麼</div>
+          <ul class="body-list">
+            <li>系統做完但沒有 AI 層，客戶開始問</li>
+            <li>IT 商不懂 AI 策略，MUSEON 正好補</li>
+            <li>客戶預算有限，想要 AI 但沒人規劃</li>
+          </ul>
+        </div>
+        <div>
+          <div class="body-label">MUSEON 能做什麼</div>
+          <ul class="body-list">
+            <li>IT 負責系統，MUSEON 負責 AI 員工層</li>
+            <li>打包提案：系統 + AI 數位員工一次搞定</li>
+            <li>IT 商帶我們進去，分工清楚，不搶生意</li>
+          </ul>
+        </div>
+        <div>
+          <div class="body-label">開場切入話術</div>
+          <div class="script-box">「你做完系統，客戶有沒有問你 AI 的部分怎麼辦？<strong>我們可以跟你打包——你做技術底層，我們做 AI 員工層，一起去提案，價格也好談。</strong>」</div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="footer-label">合作模式：</span>
+        <span class="mode-tag mode-joint">聯合提案</span>
+        <span class="mode-tag mode-white-label">強化服務</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Summary -->
+  <div class="summary-section">
+    <p class="section-title">優先順序總覽</p>
+    <p class="section-sub">建議 BNI 初次參訪，先鎖定優先度 A 的五類，快速測試轉介意願</p>
+    <div class="summary-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>類型</th><th>切入甜頭</th><th>主要合作模式</th><th>優先度</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>01</td><td>人力資源顧問 / 獵頭</td><td>人 + AI 聯合報價，不搶生意</td><td>聯合提案 + 互轉</td><td><span class="priority-dot p1"></span>A 最高</td></tr>
+          <tr><td>02</td><td>ERP / 進銷存系統商</td><td>幫系統商加 AI 層，服務升級</td><td>強化服務 + 聯合</td><td><span class="priority-dot p1"></span>A 最高</td></tr>
+          <tr><td>03</td><td>企業管理顧問</td><td>顧問診斷後 MUSEON 執行，上下游</td><td>聯合提案 + 互轉</td><td><span class="priority-dot p1"></span>A 最高</td></tr>
+          <tr><td>04</td><td>會計師事務所</td><td>財務行政 AI 補位，雙向轉介</td><td>互轉 + 強化服務</td><td><span class="priority-dot p1"></span>A 最高</td></tr>
+          <tr><td>10</td><td>IT 外包商</td><td>技術 + AI 打包，客戶一次買齊</td><td>聯合提案</td><td><span class="priority-dot p1"></span>A 最高</td></tr>
+          <tr><td>05</td><td>行銷代理商</td><td>AI 需求轉介，分潤機制</td><td>互轉 + 強化服務</td><td><span class="priority-dot p2"></span>B</td></tr>
+          <tr><td>06</td><td>企業教育訓練</td><td>培訓後接 AI 工作坊，延伸服務</td><td>強化服務 + 互轉</td><td><span class="priority-dot p2"></span>B</td></tr>
+          <tr><td>07</td><td>商業空間設計</td><td>開業後 AI 人力配套</td><td>互轉</td><td><span class="priority-dot p2"></span>B</td></tr>
+          <tr><td>08</td><td>企業保險經紀</td><td>AI 評估當禮物，黏著度提升</td><td>互轉 + 強化服務</td><td><span class="priority-dot p2"></span>B</td></tr>
+          <tr><td>09</td><td>法律 / 合規顧問</td><td>合規流程自動化，上下游</td><td>聯合提案 + 互轉</td><td><span class="priority-dot p2"></span>B</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Action -->
+  <div class="action-section">
+    <p class="section-title">BNI 初次參訪行動指引</p>
+    <p class="section-sub">一個 chapter 裡，用 3 週完成初步篩選</p>
+    <div class="action-steps">
+      <div class="action-step">
+        <div class="step-num">01</div>
+        <div class="step-title">第 1 週：掃描</div>
+        <div class="step-desc">列出場內所有優先度 A 的類型，記下名字和公司，不急著談合作。</div>
+      </div>
+      <div class="action-step">
+        <div class="step-num">02</div>
+        <div class="step-title">第 2 週：約 1 對 1</div>
+        <div class="step-desc">每週約 2 個優先度 A 的人喝咖啡，用開場話術試水溫。</div>
+      </div>
+      <div class="action-step">
+        <div class="step-num">03</div>
+        <div class="step-title">第 3 週：確認意願</div>
+        <div class="step-desc">問一句：「你願不願意試著互轉一個客戶？」有意願的，正式建立合作機制。</div>
+      </div>
+      <div class="action-step">
+        <div class="step-num">04</div>
+        <div class="step-title">建立篩選清單</div>
+        <div class="step-desc">有意願的列入「主動維護名單」，沒意願的觀察 3 個月，不強推。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <strong>MUSEON</strong> — AI 數位員工導入 × BNI 合作戰略手冊 · 2026-04-01 · Confidential
+  </div>
+
+</div>
+</body>
+</html>
