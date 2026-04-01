@@ -25,6 +25,8 @@ import uuid
 from datetime import datetime, timezone, timedelta
 from typing import Any, Dict, List, Optional
 
+from museon.core.message_constants import SIMPLE_GREETINGS
+
 logger = logging.getLogger(__name__)
 
 TZ8 = timezone(timedelta(hours=8))
@@ -231,14 +233,8 @@ class MetaCognitionEngine:
         6. EXPLORATION_LOOP → 審查
         """
         # Rule 0: 簡單問候/確認 → 跳過審查（零 token 成本）
-        _SKIP_PATTERNS = {
-            "你好", "嗨", "哈囉", "早安", "晚安", "午安",
-            "好的", "了解", "收到", "謝謝", "感謝", "讚",
-            "拜拜", "再見", "掰掰", "OK", "ok", "嗯",
-            "對", "沒錯", "是", "好", "行",
-        }
         _query_clean = user_query.strip().rstrip("！!。.~～")
-        if _query_clean in _SKIP_PATTERNS or len(_query_clean) <= 3:
+        if _query_clean in SIMPLE_GREETINGS or len(_query_clean) <= 3:
             return False
 
         skills = set(matched_skills or [])

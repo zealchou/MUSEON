@@ -13,6 +13,11 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 
+from museon.core.message_constants import (
+    SIGNAL_LENGTH_SHORT, SIGNAL_LENGTH_LONG,
+    LOOP_FAST, LOOP_SLOW, LOOP_EXPLORATION,
+)
+
 logger = logging.getLogger(__name__)
 
 # 高風險安全關鍵字（Tier A：能量耗竭、情緒過熱、不可逆決策）
@@ -75,9 +80,9 @@ def compute_signal(message: str, is_simple: bool = False) -> SignalLite:
     sovereignty = any(kw in msg_lower for kw in _SOVEREIGNTY_KEYWORDS)
 
     # 結晶注入量：純算術
-    if is_simple or msg_len <= 30:
+    if is_simple or msg_len <= SIGNAL_LENGTH_SHORT:
         max_push = 5
-    elif msg_len <= 300:
+    elif msg_len <= SIGNAL_LENGTH_LONG:
         max_push = 10
     else:
         max_push = 20
@@ -87,14 +92,14 @@ def compute_signal(message: str, is_simple: bool = False) -> SignalLite:
         max_push = min(max_push, 5)
 
     # loop 判斷
-    if is_simple or msg_len <= 30:
-        loop = "FAST_LOOP"
+    if is_simple or msg_len <= SIGNAL_LENGTH_SHORT:
+        loop = LOOP_FAST
     elif safety:
-        loop = "FAST_LOOP"
-    elif msg_len > 300:
-        loop = "SLOW_LOOP"
+        loop = LOOP_FAST
+    elif msg_len > SIGNAL_LENGTH_LONG:
+        loop = LOOP_SLOW
     else:
-        loop = "EXPLORATION_LOOP"
+        loop = LOOP_EXPLORATION
 
     signal = SignalLite(
         max_crystal_push=max_push,

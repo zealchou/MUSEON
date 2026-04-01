@@ -777,11 +777,10 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
 
         # ── Step 2.5: 簡單訊息判定（Pipeline 短路用）──
         # 短訊息且不含指令/分析關鍵字 → 跳過重量級步驟（MetaCog/KnowledgeLattice/Q-Score）
+        from museon.core.message_constants import SIMPLE_MESSAGE_LENGTH, SIMPLE_EXCLUDE_KEYWORDS
         _is_simple = (
-            len(content.strip()) < 15
-            and not any(
-                kw in content for kw in ["/", "分析", "報告", "計畫", "策略", "研究", "評估"]
-            )
+            len(content.strip()) < SIMPLE_MESSAGE_LENGTH
+            and not any(kw in content for kw in SIMPLE_EXCLUDE_KEYWORDS)
         )
 
         # ── Step 3: 信號路由（signal_lite — 純算術，< 1ms）──

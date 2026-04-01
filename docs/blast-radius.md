@@ -1,10 +1,11 @@
-# Blast Radius — 模組影響半徑表 v1.96
+# Blast Radius — 模組影響半徑表 v1.97
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節、`docs/operational-contract.md`（操作契約表）提供外部操作預期失敗
+> **v1.97 (2026-04-02)**：新增 core/message_constants.py（🟡 黃區，扇入=3：brain.py + signal_lite.py + metacognition.py，扇出=0，純常數源）；brain.py 扇出 +1（新增 message_constants）；signal_lite.py 扇出 +1（新增 message_constants）；metacognition.py 扇出 +1（新增 message_constants）；nightly_pipeline.py Step 31 子步驟描述確認 build_all()；移除不存在的 build_command_routes（skill_install_worker 版本紀錄已正確）；同步 joint-map v1.65。
 > **v1.96 (2026-04-01)**：ares 套件更名為 athena——破損 import 計數從 2 降為 0（brain_fast.py 已刪除，ares→athena imports 已修復）；健康快照更新。同步 joint-map v1.64、persistence-contract v1.50。
 > **v1.95 (2026-04-01)**：.runtime 廢除影響 15 個檔案（4 shell + 8 Python + 3 config），所有 .runtime 路徑判斷已移除；brain_dispatch.py 修復 @staticmethod 衝突；vector_bridge.py PEP 604 語法修復。同步 system-topology v1.76。
 > **v1.94 (2026-04-01)**：Phase 1-3 十項修復——`algedonic_alert.py` 新增靜默邏輯（扇出不變，純內部時段判斷）；`crystal_store.py` 新增 schema drift 自動修復 ALTER TABLE（純內部方法，扇出不變）；`service_health.py` 新增退避邏輯（純內部方法，扇出不變）；`guardian/daemon.py` 新增 credential 檢查（扇出+0，純 env 讀取）；`proactive_dispatcher.py` 新增 GOVERNANCE_ALGEDONIC_SIGNAL 發佈（扇出+1：event_bus）；`doctor/museoff.py` 重啟路徑改為 restart-gateway.sh（移除 launchctl 直呼叫）；`cron_registry.py` 移除 skill-acquisition-scan + tool-discovery-scan 2 個 cron job（扇出-2）；`nightly_pipeline.py` 移除 Step 26 session_cleanup（_FULL_STEPS -1）。同步 system-topology v1.75。
@@ -224,7 +225,7 @@
 | 屬性 | 值 |
 |------|-----|
 | **扇入** | 1（server.py；入列紅區因扇出 32+ 且為系統核心） |
-| **扇出** | 32+（import 32 個模組，初始化全系統——含 PrimalDetector, MultiAgentExecutor, MemoryGate） |
+| **扇出** | 33+（import 33 個模組，初始化全系統——含 PrimalDetector, MultiAgentExecutor, MemoryGate, message_constants） |
 | **角色** | 系統核心——LLM 對話、記憶、自我觀察、所有子系統初始化、多代理並行呼叫、記憶閘門意圖判斷、認知追蹤（trace_decision+trace_cognitive）、P3 並行融合（Step 6.2-6.5）、P0 訊號六類分流（_classify_p0_signal）、事實糾正偵測（_detect_fact_correction）、外部使用者觀察（_observe_external_user v3.0 含 trust evolution + 八原語 + L6 溝通風格）、環境感知宣告（_build_environment_awareness v11.3）、自我修改協議（_build_self_modification_protocol v11.4） |
 | **檔案數** | v1.93 起拆分為 6 個檔案：`brain.py`（核心 2458 行）+ 4 個 Mixin（`brain_prompt_builder.py`、`brain_dispatch.py`、`brain_observation.py`、`brain_tools.py`）+ `brain_types.py`（共享 dataclass）。`brain_p3_fusion.py`（P3 融合層）已於 v1.93 清除，Python Mixin Pattern 多重繼承，外部 import 路徑不變。 |
 
@@ -317,6 +318,19 @@
 | 共享狀態 | WorkflowStateDB(RW)、crystal.db(W via CrystalStore) |
 | 事件發布 | SKILL_QUALITY_SCORED, WEE_CYCLE_COMPLETE |
 | 跨模組依賴 | workflow/models.py, workflow/workflow_engine.py, agent/knowledge_lattice.py |
+
+---
+
+### agent/metacognition.py
+
+| 屬性 | 值 |
+|------|-----|
+| **扇入** | 多（event_bus fan_in=11 中的成員之一） |
+| **扇出** | 1（core/message_constants，★ v1.97 新增） |
+| **安全分級** | 🟡 黃區 |
+| **角色** | 品質旗標偵測——`_emit_quality_flag()` 發布 METACOGNITION_QUALITY_FLAG；`extract_thinking_summary()` 五維度思考摘要 |
+
+#### 必須同時檢查：**G4（演化速度組）+ G7（品質回饋閉環）**
 
 ---
 
@@ -526,7 +540,7 @@
 |---------|------|
 | 共享狀態讀寫 | question_queue(RW), scout_queue(R), nightly_report(W), PulseDB(RW), crystal.db(RW via CrystalStore+直接SQL), accuracy_stats(R), heuristics.json(W via IntuitionEngine, Step 33) |
 | 事件發布 | 6 個：NIGHTLY_COMPLETED, IMMUNE_MEMORY_LEARNED, MORPHENIX_PROPOSAL_CREATED, SOUL_IDENTITY_TAMPERED, SYNAPSE_PRELOAD, TRIGGER_FIRED, TOOL_MUSCLE_DORMANT |
-| 子步驟呼叫 | curiosity_router, exploration_bridge, skill_forge_scout, crystal_actuator, parameter_tuner, morphenix_validator, morphenix_executor, evolution_velocity, periodic_cycles, blueprint_reader, workflow_engine(lazy), cache/context_cache_builder(Step 31), CrystalStore(Step 32), IntuitionEngine(Step 33) |
+| 子步驟呼叫 | curiosity_router, exploration_bridge, skill_forge_scout, crystal_actuator, parameter_tuner, morphenix_validator, morphenix_executor, evolution_velocity, periodic_cycles, blueprint_reader, workflow_engine(lazy), cache/context_cache_builder.build_all()(Step 31), CrystalStore(Step 32), IntuitionEngine(Step 33) |
 
 #### 修改安全邊界
 
@@ -630,6 +644,24 @@
 
 ---
 
+### core/message_constants.py
+
+| 屬性 | 值 |
+|------|-----|
+| **扇入** | 3（brain.py, signal_lite.py, metacognition.py） |
+| **扇出** | 0（純常數，無 import） |
+| **安全分級** | 🟡 黃區 |
+| **角色** | 統一訊息分類常數源——集中定義訊息分類、路由類型等常數，取代各模組散落的魔術字串 |
+
+#### 修改安全邊界
+
+| ✅ 安全 | ❌ 危險 |
+|---------|---------|
+| 新增常數（不影響現有） | 修改/刪除現有常數名稱 |
+| 修改常數的值（需確認 3 個消費者相容） | 修改常數類型（如 str → int） |
+
+---
+
 ## PDR 模組（Progressive Depth Response）
 
 > v1.70 新增。PDR 漸進深度回應系統，含調控參數、九策軍師、統一能力目錄三個模組。
@@ -677,7 +709,7 @@
 `agent/brain_tools.py`（★ v1.48 Mixin，扇入=1（brain.py），LLM 呼叫與 session 管理，966 行），
 `agent/brain_deep.py`（★ v1.70 新增，扇入=1（brain.py），L2 深度思考引擎——Opus + tool_use，扇出 3：brain_tool_loop.py, tool_schemas.py, context_cache 檔案），
 `agent/brain_tool_loop.py`（★ v1.70 新增，扇入=1（brain_deep.py），獨立 tool-use 迴圈——從 brain_tools.py 提取，扇出 2：llm/adapters.py, agent/tools.py ToolExecutor），
-`agent/signal_lite.py`（★ v1.93 新增，扇入=1（brain.py），輕量信號路由——取代 reflex_router 路由功能，扇出=無，純路由判定，80 行），
+`agent/signal_lite.py`（★ v1.93 新增，扇入=1（brain.py），輕量信號路由——取代 reflex_router 路由功能，扇出=1（core/message_constants），純路由判定，80 行），
 （注：`agent/brain_p3_fusion.py` 已於 v1.93 清除——P3 融合層死碼刪除；`agent/brain_fast.py` 已於 v1.92 刪除；`agent/brain_observer.py` 已於 v1.93 刪除）
 `agent/chat_context.py`（★ v1.47 新增，扇入=1（brain.py），ChatContext dataclass 取代 per-turn 變數），
 `agent/deterministic_router.py`（★ v1.47 新增，扇入=1（brain_dispatch.py），確定性任務分解器取代 LLM Orchestrator），
@@ -915,6 +947,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-04-02 | v1.97 | 新增 core/message_constants.py（🟡 黃區，扇入=3：brain.py + signal_lite.py + metacognition.py，扇出=0，純常數源）；brain.py 扇出 32+→33+；signal_lite.py 扇出 無→1；新增 metacognition.py 黃區條目（扇出+1）；nightly_pipeline Step 31 子步驟 build_all() 確認；清理 electron/doctor 殘留（條目不存在，略過）；同步 joint-map v1.65 |
 | 2026-04-01 | v1.93 | Phase A-C 死碼清理 + signal_lite 遷移——從綠區移除 brain_p3_fusion.py（P3 融合層清除）、brain_observer.py（L4 觀察者刪除）2 個條目；從 vector_bridge.py 扇入列表移除 reflex_router（退役，fan_in 9→8）；更新 brain.py 扇出描述（移除 reflex_router/safety_clusters 依賴，移除 P3 方法群）；更新 server.py 扇出（移除 DNA27 Qdrant 索引，扇出 50+→49+）；新增 signal_lite.py 到綠區（🟢 扇入=1 from brain.py，扇出=無，80 行）。同步 system-topology v1.74 |
 | 2026-03-31 | v1.90 | Persona Evolution 系統——新增 trait_engine.py（🟡 扇入=2）、nightly_reflection.py（🟡 扇入=1，扇出=4）、mask_engine.py（🟡 扇入=2）、growth_stage.py（🟢 扇入=2，純計算）、dissent_engine.py（🟢 扇入=1，無狀態）、momentum_brake.py（🟢 扇入=2，純計算）；新增共享狀態 #70 _system/mask_states.json；黃區 62→65、綠區 171→174 |
 | 2026-03-31 | v1.86 | 體液系統——新增 awareness.py（🟢 扇入=0）、session_adjustment.py（🟢 扇入=2）、triage_step.py（🟢 扇入=0）、triage_to_morphenix.py（🟢 扇入=1）、algedonic_alert.py（🟢 扇入=1）；brain_prompt_builder 四路接線（扇出+3）；nightly_pipeline Step 5.8 前置（扇出+1）；response_guard 新增 strip_markdown()；governor 初始化 algedonic_alert（扇出+1）；telegram_pump 新增 CHANNEL_MESSAGE_RECEIVED publish（扇出+1） |
