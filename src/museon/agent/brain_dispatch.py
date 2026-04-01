@@ -208,7 +208,6 @@ class BrainDispatchMixin:
             det_tasks = det_decompose(
                 user_request=content,
                 matched_skills=active_skills,
-                routing_signal=getattr(self, '_last_routing_signal', None),
                 max_tasks=self._MAX_DETERMINISTIC_TASKS,
             )
             if det_tasks:
