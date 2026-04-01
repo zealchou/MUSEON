@@ -869,8 +869,11 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         _report("🎯 匹配技能模組", "Skill Router 運算中...")
         # ★ v10.4 Route B: 傳入 session 內 skill 使用次數（MoE 衰減）
         session_usage = self._skill_usage.get(session_id, {})
+        _safety = getattr(routing_signal, 'is_safety_triggered', False) if routing_signal else False
         matched_skills = self.skill_router.match(
-            content, top_n=5, routing_signal=routing_signal,
+            content, top_n=5,
+            safety_triggered=_safety,
+            is_simple=_is_simple,
             skill_usage=session_usage,
             user_primals=_user_primals or None,
         )
@@ -1014,6 +1017,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
             except Exception as _me:
                 logger.debug(f"Mask trait injection skipped: {_me}")
 
+            _max_push = getattr(routing_signal, 'max_crystal_push', 10) if routing_signal else 10
             system_prompt = self._build_system_prompt(
                 anima_mc=anima_mc,
                 anima_user=anima_user,
@@ -1022,7 +1026,8 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                 safety_context=safety_context,
                 user_query=content,
                 session_id=session_id,
-                routing_signal=routing_signal,
+                safety_triggered=_safety,
+                max_crystal_push=_max_push,
                 commitment_context=commitment_context,
                 reflection_note=_deliberation_with_dissent,
                 baihe_context=_combined_baihe,
