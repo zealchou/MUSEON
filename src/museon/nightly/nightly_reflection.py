@@ -15,7 +15,8 @@ from __future__ import annotations
 import json
 import logging
 import re
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
+from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
@@ -309,6 +310,69 @@ class NightlyReflectionEngine:
             p5_value=f"{_tv('P5_autonomy'):.3f}",
             p5_conf=f"{_tc('P5_autonomy'):.3f}",
         )
+
+        # ------------------------------------------------------------------
+        # 追加今日修復事件（AutoRepair + SurgeryEngine）
+        # ------------------------------------------------------------------
+        try:
+            today_str = date.today().isoformat()  # e.g. "2026-04-01"
+            repair_lines: List[str] = []
+
+            # 1. 讀取 AutoRepair 修復紀錄（JSONL，每行一個 JSON）
+            repair_log_path = Path(__file__).parents[4] / "data" / "guardian" / "repair_log.jsonl"
+            if repair_log_path.exists():
+                with repair_log_path.open("r", encoding="utf-8") as f:
+                    for raw_line in f:
+                        raw_line = raw_line.strip()
+                        if not raw_line:
+                            continue
+                        try:
+                            entry = json.loads(raw_line)
+                            ts = entry.get("timestamp", "")
+                            if not ts.startswith(today_str):
+                                continue
+                            action  = entry.get("action", "auto_repair")
+                            status  = entry.get("status", "unknown")
+                            message = entry.get("message", "")
+                            # 取時間部分（HH:MM）
+                            time_part = ts[11:16] if len(ts) >= 16 else ts
+                            repair_lines.append(
+                                f"- [{time_part}] [AutoRepair] {message} → {status}"
+                            )
+                        except (json.JSONDecodeError, KeyError):
+                            continue
+
+            # 2. 讀取 SurgeryEngine 手術紀錄（JSON 陣列）
+            surgery_log_path = Path(__file__).parents[4] / "data" / "doctor" / "surgery_log.json"
+            if surgery_log_path.exists():
+                with surgery_log_path.open("r", encoding="utf-8") as f:
+                    surgery_entries = json.load(f)
+                if isinstance(surgery_entries, list):
+                    for entry in surgery_entries:
+                        ts = entry.get("timestamp", "")
+                        if not ts.startswith(today_str):
+                            continue
+                        title   = entry.get("title", "手術")
+                        outcome = entry.get("outcome", "unknown")
+                        time_part = ts[11:16] if len(ts) >= 16 else ts
+                        repair_lines.append(
+                            f"- [{time_part}] [Surgery] {title} → {outcome}"
+                        )
+
+            # 3. 有修復事件才追加區塊
+            if repair_lines:
+                repair_block = (
+                    "\n\n## 今日修復事件\n"
+                    "以下是今天系統自我修復的記錄，請在反思中考慮：\n"
+                    + "\n".join(repair_lines)
+                    + "\n\n請反思：這些修復事件揭示了什麼系統弱點？"
+                    "有沒有重複出現的問題？如何預防？"
+                )
+                user_prompt += repair_block
+
+        except Exception as exc:  # noqa: BLE001
+            # 靜默跳過，不影響原有反思流程
+            logger.debug("讀取修復紀錄時發生例外（已跳過）：%s", exc)
 
         return REFLECTION_SYSTEM, user_prompt
 

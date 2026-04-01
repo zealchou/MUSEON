@@ -1916,6 +1916,14 @@ class PulseEngine:
 
                 self._atomic_write_pulse_md(text)
             logger.info(f"反思寫入 PULSE.md（演化閉環）: {reflection[:60]}...")
+
+            # 意識→修復橋接：將反思中偵測到的問題訊號寫入 triage_queue
+            if self._data_dir:
+                try:
+                    from museon.pulse.reflection_bridge import bridge_reflection_to_triage
+                    bridge_reflection_to_triage(self._data_dir, reflection, source="vita_reflection")
+                except Exception:
+                    pass  # 橋接失敗不影響主流程
         except Exception as e:
             logger.error(f"Write reflection to PULSE.md failed: {e}")
 

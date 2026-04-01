@@ -4,10 +4,13 @@
 每個修復動作都是冪等的（可安全重複執行）。
 """
 
+import json
 import os
+import shutil
+import sqlite3
 import subprocess
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
 from typing import Optional
@@ -19,6 +22,7 @@ class RepairStatus(str, Enum):
     SUCCESS = "success"
     FAILED = "failed"
     SKIPPED = "skipped"
+    REPAIRED = "repaired"
 
 
 @dataclass
@@ -396,4 +400,294 @@ class AutoRepair:
             action="rebuild_dashboard",
             status=RepairStatus.FAILED,
             message="Electron dashboard 已廢棄，不需重建",
+        )
+
+    def repair_apply_crystal_procedures(self) -> RepairResult:
+        """從 KnowledgeLattice 讀取 Procedure 結晶並執行安全操作步驟。
+
+        此方法不會被自動排程調用，僅在 MuseOff triage 或手動觸發時執行。
+        只執行三種安全操作：restart_service、check_file_exists、create_directory。
+        """
+        crystal_db = self.data_dir / "lattice" / "crystal.db"
+
+        # crystal.db 不存在 → 靜默 SKIPPED
+        if not crystal_db.exists():
+            return RepairResult(
+                action="apply_crystal_procedures",
+                status=RepairStatus.SKIPPED,
+                message="無可用的結晶修復程序",
+            )
+
+        # 查詢 type='procedure' 且 status='active' 的結晶
+        try:
+            conn = sqlite3.connect(str(crystal_db))
+            conn.row_factory = sqlite3.Row
+            cursor = conn.execute(
+                "SELECT id, title, content FROM crystals "
+                "WHERE type='procedure' AND status='active'"
+            )
+            procedures = cursor.fetchall()
+            conn.close()
+        except sqlite3.Error:
+            return RepairResult(
+                action="apply_crystal_procedures",
+                status=RepairStatus.SKIPPED,
+                message="無可用的結晶修復程序",
+            )
+
+        if not procedures:
+            return RepairResult(
+                action="apply_crystal_procedures",
+                status=RepairStatus.SKIPPED,
+                message="無可用的結晶修復程序",
+            )
+
+        # 確保 guardian 目錄存在
+        guardian_dir = self.data_dir / "guardian"
+        guardian_dir.mkdir(parents=True, exist_ok=True)
+        log_path = guardian_dir / "crystal_repair_log.jsonl"
+
+        # 安全操作白名單
+        SAFE_OPERATIONS = {"restart_service", "check_file_exists", "create_directory"}
+
+        executed_count = 0
+        skipped_count = 0
+
+        for proc in procedures:
+            proc_id = proc["id"]
+            proc_title = proc["title"] or proc_id
+
+            # 解析 content 中的 steps 欄位
+            steps = []
+            try:
+                content_data = json.loads(proc["content"] or "{}")
+                raw_steps = content_data.get("steps", [])
+                if isinstance(raw_steps, list):
+                    steps = raw_steps
+            except (json.JSONDecodeError, TypeError):
+                # content 不是 JSON 或 steps 格式不符 → 跳過此 procedure
+                self._append_jsonl(log_path, {
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "procedure_id": proc_id,
+                    "procedure_title": proc_title,
+                    "step_index": None,
+                    "operation": None,
+                    "status": "skipped",
+                    "message": "content 無法解析或缺少 steps 欄位",
+                })
+                skipped_count += 1
+                continue
+
+            # 逐步執行
+            for idx, step in enumerate(steps):
+                if not isinstance(step, dict):
+                    continue
+                operation = step.get("operation", "")
+                params = step.get("params", {})
+
+                # 只執行安全操作
+                if operation not in SAFE_OPERATIONS:
+                    self._append_jsonl(log_path, {
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                        "procedure_id": proc_id,
+                        "procedure_title": proc_title,
+                        "step_index": idx,
+                        "operation": operation,
+                        "status": "skipped",
+                        "message": f"操作 '{operation}' 不在安全白名單，已略過",
+                    })
+                    skipped_count += 1
+                    continue
+
+                step_status, step_message = self._execute_safe_operation(
+                    operation, params
+                )
+                self._append_jsonl(log_path, {
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "procedure_id": proc_id,
+                    "procedure_title": proc_title,
+                    "step_index": idx,
+                    "operation": operation,
+                    "params": params,
+                    "status": step_status,
+                    "message": step_message,
+                })
+                executed_count += 1
+
+        return RepairResult(
+            action="apply_crystal_procedures",
+            status=RepairStatus.SUCCESS,
+            message=(
+                f"已處理 {len(procedures)} 個結晶程序，"
+                f"執行 {executed_count} 步，略過 {skipped_count} 步"
+            ),
+        )
+
+    def _execute_safe_operation(
+        self, operation: str, params: dict
+    ) -> tuple[str, str]:
+        """執行單一安全操作，回傳 (status, message)."""
+        try:
+            if operation == "create_directory":
+                target = params.get("path", "")
+                if not target:
+                    return "failed", "缺少 path 參數"
+                Path(target).mkdir(parents=True, exist_ok=True)
+                return "success", f"目錄已確保存在：{target}"
+
+            elif operation == "check_file_exists":
+                target = params.get("path", "")
+                if not target:
+                    return "failed", "缺少 path 參數"
+                exists = Path(target).exists()
+                return "success", f"檔案存在：{exists}（{target}）"
+
+            elif operation == "restart_service":
+                service = params.get("service", "")
+                if not service:
+                    return "failed", "缺少 service 參數"
+                supervisorctl = "/Users/ZEALCHOU/Library/Python/3.9/bin/supervisorctl"
+                conf = str(self.home / "data/_system/supervisord.conf")
+                result = subprocess.run(
+                    [supervisorctl, "-c", conf, "restart", service],
+                    capture_output=True,
+                    text=True,
+                    timeout=15,
+                )
+                if result.returncode == 0:
+                    return "success", f"服務 '{service}' 已重啟"
+                return "failed", f"重啟 '{service}' 失敗：{result.stderr[:100]}"
+
+        except Exception as e:
+            return "failed", f"執行例外：{e}"
+
+        return "skipped", "未知操作"
+
+    def _append_jsonl(self, path: Path, record: dict) -> None:
+        """將一筆記錄以 JSONL 格式追加到檔案。"""
+        try:
+            with path.open("a", encoding="utf-8") as f:
+                f.write(json.dumps(record, ensure_ascii=False) + "\n")
+        except OSError:
+            pass  # degraded: log write
+
+    def repair_restore_anima(self) -> RepairResult:
+        """修復 ANIMA_MC.json 損壞的情況。
+
+        如果 ANIMA_MC.json 有效，直接 SKIPPED。
+        如果無效或不存在，嘗試從 .bak 還原；.bak 也無效則返回 FAILED。
+        """
+        anima_path = self.data_dir / "ANIMA_MC.json"
+        bak_path = self.data_dir / "ANIMA_MC.json.bak"
+
+        def is_valid_anima(path: Path) -> bool:
+            """檢查 ANIMA_MC JSON 是否可解析且包含 identity.name。"""
+            if not path.exists():
+                return False
+            try:
+                data = json.loads(path.read_text(encoding="utf-8"))
+                identity = data.get("identity", {})
+                return bool(identity.get("name"))
+            except (json.JSONDecodeError, OSError, AttributeError):
+                return False
+
+        # 1. 已存在且有效 → SKIPPED
+        if is_valid_anima(anima_path):
+            return RepairResult(
+                action="restore_anima",
+                status=RepairStatus.SKIPPED,
+                message="ANIMA_MC.json 有效，無需修復",
+            )
+
+        # 2. 嘗試從 .bak 還原
+        if is_valid_anima(bak_path):
+            try:
+                shutil.copy2(str(bak_path), str(anima_path))
+            except OSError as e:
+                return RepairResult(
+                    action="restore_anima",
+                    status=RepairStatus.FAILED,
+                    message=f"複製備份失敗：{e}",
+                )
+
+            # 寫入修復日誌
+            guardian_dir = self.data_dir / "guardian"
+            guardian_dir.mkdir(parents=True, exist_ok=True)
+            self._append_jsonl(guardian_dir / "repair_log.jsonl", {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "action": "restore_anima",
+                "status": "repaired",
+                "source": str(bak_path),
+                "target": str(anima_path),
+                "message": "ANIMA_MC 已從備份還原",
+            })
+
+            return RepairResult(
+                action="restore_anima",
+                status=RepairStatus.REPAIRED,
+                message="ANIMA_MC 已從備份還原",
+            )
+
+        # 3. .bak 也無效
+        return RepairResult(
+            action="restore_anima",
+            status=RepairStatus.FAILED,
+            message="ANIMA_MC 損壞且無有效備份，需要人工介入",
+        )
+
+    def repair_backup_anima(self) -> RepairResult:
+        """將 ANIMA_MC.json 備份為 .bak（設計為 Nightly 定期調用）。
+
+        僅在 ANIMA_MC.json 存在、可解析、有 identity.name、
+        且大小 > 100 bytes 時執行備份。
+        """
+        anima_path = self.data_dir / "ANIMA_MC.json"
+        bak_path = self.data_dir / "ANIMA_MC.json.bak"
+
+        if not anima_path.exists():
+            return RepairResult(
+                action="backup_anima",
+                status=RepairStatus.SKIPPED,
+                message="ANIMA_MC.json 不存在，略過備份",
+            )
+
+        # 檢查大小
+        if anima_path.stat().st_size <= 100:
+            return RepairResult(
+                action="backup_anima",
+                status=RepairStatus.SKIPPED,
+                message="ANIMA_MC.json 大小 ≤ 100 bytes，略過備份",
+            )
+
+        # 檢查 JSON 格式與 identity.name
+        try:
+            data = json.loads(anima_path.read_text(encoding="utf-8"))
+            identity = data.get("identity", {})
+            if not isinstance(identity, dict) or not identity.get("name"):
+                return RepairResult(
+                    action="backup_anima",
+                    status=RepairStatus.SKIPPED,
+                    message="ANIMA_MC.json 缺少 identity.name，略過備份以免覆蓋好的 .bak",
+                )
+        except (json.JSONDecodeError, OSError) as e:
+            return RepairResult(
+                action="backup_anima",
+                status=RepairStatus.SKIPPED,
+                message=f"ANIMA_MC.json 無法解析（{e}），略過備份以免覆蓋好的 .bak",
+            )
+
+        # 執行備份
+        try:
+            shutil.copy2(str(anima_path), str(bak_path))
+        except OSError as e:
+            return RepairResult(
+                action="backup_anima",
+                status=RepairStatus.FAILED,
+                message=f"備份失敗：{e}",
+            )
+
+        return RepairResult(
+            action="backup_anima",
+            status=RepairStatus.REPAIRED,
+            message=f"ANIMA_MC.json 已備份至 {bak_path.name}",
         )
