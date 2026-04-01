@@ -573,6 +573,11 @@ external-user（EXTERNAL）
 | `thinker` | `worker` | L2→L3（前景）：需要查詢結果時同步等待 L3 回傳資料 |
 | `brain` | `dissent-engine` | Step 3.655 矛盾偵測呼叫 |
 | `brain` | `mask-engine` | Step 2.2 啟動臨時人格層 / Step 9.9 衰減 |
+| `brain` | `agent-registry` | Brain 初始化時載入能力目錄 |
+| `brain` | `pdr-params` | PDR 調控參數載入/保存 |
+| `brain` | `pdr-council` | 謀定而後動引擎（Phase 2/3 審查） |
+| `pdr-council` | `agent-registry` | 查詢可用能力目標（action targets） |
+| `pdr-council` | `pdr-params` | 讀取 Phase 2/3 參數 + 安全護欄 |
 
 ### Pulse 內部連線（internal）
 | Source | Target | 說明 |
@@ -839,6 +844,9 @@ external-user（EXTERNAL）
 | `insight-extractor` | `knowledge-lattice` | 洞見結晶化（case_crystal / exploration_crystal） |
 | `museoff` | `shared-board` | 讀寫看板（巡邏結果） |
 | `museqa` | `shared-board` | 讀寫看板（品質檢查結果） |
+| `museoff` | `doctor-notify` | MuseOff 發送診斷卡通知 |
+| `museqa` | `doctor-notify` | MuseQA 發送品質問題通知 |
+| `doctor-notify` | `telegram` | DM 老闆 + 待審閱摘要 |
 | `musedoc` | `shared-board` | 讀寫看板（文件同步結果） |
 | `museworker` | `shared-board` | 讀寫看板（變動記錄） |
 | `musedoctor` | `auto-repair` | 呼叫修復引擎（目錄補建、log 輪轉） |
@@ -1152,6 +1160,9 @@ external-user（EXTERNAL）
 | `ares` | `knowledge-lattice` | strategy_crystal 結晶讀寫 |
 | `ares` | `user-model` | 使用者畫像讀寫 |
 | `ares` | `c15` | 敘事張力語言 |
+| `skill-router` | `esg-architect-pro` | Skill 路由匹配 |
+| `skill-router` | `human-design-blueprint` | Skill 路由匹配 |
+| `skill-router` | `meeting-intelligence` | Skill 路由匹配 |
 
 ### 監控連線（monitor）
 | Source | Target | 說明 |

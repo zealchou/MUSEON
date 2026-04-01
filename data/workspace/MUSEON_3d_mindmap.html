@@ -686,6 +686,7 @@ const links = [
   {source:"biz-diagnostic",target:"darwin",label:"strategy_brief→DARWIN 模擬",type:"internal"},
   {source:"biz-diagnostic",target:"report-forge",label:"診斷報告渲染",type:"internal"},
   {source:"biz-diagnostic",target:"ssa-consultant",label:"SSA Day Level 對照",type:"internal"},
+  {source:"brain",target:"agent-registry",label:"Brain 初始化時載入能力目錄",type:"internal"},
   {source:"brain",target:"brain-deep",label:"L1 escalation 委派（複雜訊息→L2 Opus 深度思考）",type:"internal"},
   {source:"brain",target:"brain-dispatch",label:"Mixin: 任務分派",type:"internal"},
   {source:"brain",target:"brain-observation",label:"Mixin: 觀察與演化",type:"internal"},
@@ -714,6 +715,8 @@ const links = [
   {source:"brain",target:"multiagent",label:"多代理協調",type:"internal"},
   {source:"brain",target:"okr-router",label:"八卦路由",type:"internal"},
   {source:"brain",target:"onboarding",label:"上線儀式",type:"internal"},
+  {source:"brain",target:"pdr-council",label:"謀定而後動引擎（Phase 2/3 審查）",type:"internal"},
+  {source:"brain",target:"pdr-params",label:"PDR 調控參數載入/保存",type:"internal"},
   {source:"brain",target:"persona-router",label:"人格路由",type:"internal"},
   {source:"brain",target:"plan-engine",label:"計畫啟動",type:"internal"},
   {source:"brain",target:"primal-detector",label:"八原語偵測",type:"internal"},
@@ -802,6 +805,8 @@ const links = [
   {source:"nightly",target:"periodic-cycles",label:"週期循環",type:"internal"},
   {source:"nightly",target:"skill-forge-scout",label:"技能鍛造",type:"internal"},
   {source:"nightly-pipeline",target:"nightly-reflection-engine",label:"Steps 34 / 34.5 / 34.7 P-trait 演化反思",type:"internal"},
+  {source:"pdr-council",target:"agent-registry",label:"查詢可用能力目標（action targets）",type:"internal"},
+  {source:"pdr-council",target:"pdr-params",label:"讀取 Phase 2/3 參數 + 安全護欄",type:"internal"},
   {source:"pulse",target:"anima-mc-store",label:"ANIMA 統一存取",type:"internal"},
   {source:"pulse",target:"anima-tracker",label:"八元素追蹤",type:"internal"},
   {source:"pulse",target:"commitment-tracker",label:"承諾",type:"internal"},
@@ -984,6 +989,7 @@ const links = [
   {source:"digest-engine",target:"security",label:"digest_engine.py:487 輸入淨化 sanitizer",type:"cross"},
   {source:"dispatch",target:"llm-router",label:"API 呼叫",type:"cross"},
   {source:"dissent-engine",target:"crystal-rules",label:"讀取 crystal_rules.json 進行矛盾檢測",type:"cross"},
+  {source:"doctor-notify",target:"telegram",label:"DM 老闆 + 待審閱摘要",type:"cross"},
   {source:"drift-detector",target:"momentum-brake",label:"捕獲風險計算（capture risk detection）",type:"cross"},
   {source:"energy-reading",target:"dharma",label:"思維轉化讀取",type:"cross"},
   {source:"energy-reading",target:"knowledge-lattice",label:"能量結晶讀寫",type:"cross"},
@@ -1072,7 +1078,9 @@ const links = [
   {source:"musedoc",target:"shared-board",label:"讀寫看板（文件同步結果）",type:"cross"},
   {source:"musedoctor",target:"auto-repair",label:"呼叫修復引擎（目錄補建、log 輪轉）",type:"cross"},
   {source:"musedoctor",target:"nightly-pipeline",label:"讀取 _FULL_STEPS 驗證 nightly 步驟",type:"cross"},
+  {source:"museoff",target:"doctor-notify",label:"MuseOff 發送診斷卡通知",type:"cross"},
   {source:"museoff",target:"shared-board",label:"讀寫看板（巡邏結果）",type:"cross"},
+  {source:"museqa",target:"doctor-notify",label:"MuseQA 發送品質問題通知",type:"cross"},
   {source:"museqa",target:"shared-board",label:"讀寫看板（品質檢查結果）",type:"cross"},
   {source:"museworker",target:"shared-board",label:"讀寫看板（變動記錄）",type:"cross"},
   {source:"nightly",target:"blueprint-reader",label:"Step 30 藍圖一致性驗證",type:"cross"},
@@ -1137,7 +1145,10 @@ const links = [
   {source:"self-diagnosis",target:"tool-registry",label:"self_diagnosis.py:246,:484 工具狀態查詢",type:"cross"},
   {source:"silent-digestion",target:"memory",label:"反思寫入",type:"cross"},
   {source:"skill-forge-scout",target:"research-engine",label:"skill_forge_scout.py:141 鍛造偵察研究",type:"cross"},
+  {source:"skill-router",target:"esg-architect-pro",label:"Skill 路由匹配",type:"cross"},
+  {source:"skill-router",target:"human-design-blueprint",label:"Skill 路由匹配",type:"cross"},
   {source:"skill-router",target:"llm-router",label:"API 呼叫",type:"cross"},
+  {source:"skill-router",target:"meeting-intelligence",label:"Skill 路由匹配",type:"cross"},
   {source:"skill-router",target:"skills-registry",label:"技能查找",type:"cross"},
   {source:"skill-router",target:"sparse-embedder",label:"混合檢索（hybrid_search）",type:"cross"},
   {source:"skill-router",target:"vector-index",label:"語義匹配",type:"cross"},
@@ -1201,6 +1212,7 @@ const links = [
   {source:"verified-user",target:"anima-mc-store",label:"配對使用者互動更新 ANIMA_USER（L1-L8 觀察）",type:"async"},
   {source:"zeal",target:"anima-mc-store",label:"Owner 互動觸發 ANIMA_MC 更新（boss_name、self_awareness）",type:"async"},
 ];
+
 
 
 
