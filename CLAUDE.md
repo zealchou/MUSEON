@@ -24,7 +24,7 @@ Breath 每週自動跑：Mon/Tue 觀察 → Wed/Thu 分析 → Fri 診斷 → Sa
 用 Read 工具讀取以下快取檔（已預生成，100ms 內完成）：
 1. `~/MUSEON/data/_system/context_cache/persona_digest.md` — 人格準則
 2. `~/MUSEON/data/_system/context_cache/user_summary.json` — 使用者狀態
-3. `~/MUSEON/data/_system/context_cache/active_rules.json` — Top-10 行動規則
+3. `~/MUSEON/data/_system/context_cache/active_rules.json` — Top-20 行動規則
 4. `~/MUSEON/data/_system/context_cache/self_summary.json` — MUSEON 自我狀態
 
 ### Step 1: 提取訊息資訊
@@ -93,7 +93,7 @@ Agent 工具參數：
 依序讀取以下檔案：
 1. ~/MUSEON/data/_system/context_cache/persona_digest.md — 你的人格準則
 2. ~/MUSEON/data/_system/context_cache/user_summary.json — 使用者能力摘要
-3. ~/MUSEON/data/_system/context_cache/active_rules.json — 你必須遵守的 Top-10 規則
+3. ~/MUSEON/data/_system/context_cache/active_rules.json — 你必須遵守的 Top-20 規則
 4. ~/MUSEON/data/_system/context_cache/self_summary.json — 你的自我狀態
 5. ~/MUSEON/data/_system/context_cache/{session_id}_signals.json — 使用者狀態訊號
    - 如果有活躍訊號（strength > 0.3），你的回覆應該自然融入對應能力
@@ -150,7 +150,7 @@ Agent 工具參數：
 依序讀取以下檔案：
 1. ~/MUSEON/data/_system/context_cache/persona_digest.md — 你的人格準則
 2. ~/MUSEON/data/_system/context_cache/user_summary.json — 使用者能力摘要
-3. ~/MUSEON/data/_system/context_cache/active_rules.json — 你必須遵守的 Top-10 規則
+3. ~/MUSEON/data/_system/context_cache/active_rules.json — 你必須遵守的 Top-20 規則
 
 **Step 2: 了解群組上下文**
 - chat_id: {chat_id}

@@ -94,24 +94,39 @@ def build_user_summary() -> dict[str, Any]:
     return summary
 
 
-# ── Active Rules (Top-10) ──
+# ── Active Rules (Top-15) ──
 
 
-def build_active_rules(top_n: int = 10) -> dict[str, Any]:
-    """從 crystal_rules.json 排序取 top-N 規則."""
+def build_active_rules(top_n: int = 20) -> dict[str, Any]:
+    """從 crystal_rules.json + heuristics.json 合併排序取 top-N 規則."""
     rules_data = _read_json(SYSTEM_DIR / "crystal_rules.json")
     rules = rules_data.get("rules", [])
 
     # 只取 active 規則
     active = [r for r in rules if r.get("status") == "active"]
 
-    # 按 strength * crystal_ri 降序排列，再按 positive_count 降序
+    # 合併 heuristics.json 規則
+    heuristics_data = _read_json(SYSTEM_DIR / "heuristics.json")
+    heuristics_list = heuristics_data if isinstance(heuristics_data, list) else []
+    for h in heuristics_list:
+        active.append({
+            "rule_id": h.get("id", ""),
+            "summary": h.get("pattern", ""),
+            "directive": h.get("action", ""),
+            "rule_type": "heuristic",
+            "action": "guard",
+            "strength": h.get("weight", 1.0),
+            "crystal_ri": 1.0,  # heuristics 永遠視為高 RI
+            "status": "active",
+            "positive_count": 0,
+            "negative_count": 0,
+        })
+
+    # 按 strength * crystal_ri 降序排列，heuristic 類型額外 +1.0 bonus
     def score(r: dict) -> float:
-        return (
-            r.get("strength", 1.0) * r.get("crystal_ri", 1.0)
-            + r.get("positive_count", 0) * 0.1
-            - r.get("negative_count", 0) * 0.2
-        )
+        base = r.get("strength", 1.0) * r.get("crystal_ri", 1.0)
+        bonus = 1.0 if r.get("rule_type") == "heuristic" else 0.0
+        return base + bonus + r.get("positive_count", 0) * 0.1 - r.get("negative_count", 0) * 0.2
 
     active.sort(key=score, reverse=True)
     top = active[:top_n]
