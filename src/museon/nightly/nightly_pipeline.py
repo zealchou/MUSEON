@@ -4425,9 +4425,8 @@ class NightlyPipeline:
         重建 persona_digest.md / active_rules.json / user_summary.json / self_summary.json。
         """
         try:
-            from museon.cache.context_cache_builder import ContextCacheBuilder
-            builder = ContextCacheBuilder(data_dir=str(self.data_dir))
-            result = builder.build_all()
+            from museon.cache.context_cache_builder import build_all
+            result = build_all()
             logger.info(f"[NIGHTLY] ContextCache rebuilt: {result}")
             return {"status": "ok", "result": result}
         except Exception as e:

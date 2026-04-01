@@ -326,7 +326,7 @@ class RB008_PycCleanup(Runbook):
     async def pre_check(self, finding: dict, home: Path) -> bool:
         import subprocess
         result = subprocess.run(
-            ["find", str(home / "src"), str(home / ".runtime" / "src"), "-name", "__pycache__", "-type", "d"],
+            ["find", str(home / "src"), "-name", "__pycache__", "-type", "d"],
             capture_output=True, text=True, timeout=10,
         )
         return len(result.stdout.strip()) > 0  # 有 pyc 目錄存在
@@ -334,12 +334,12 @@ class RB008_PycCleanup(Runbook):
     async def action(self, finding: dict, home: Path) -> RunbookResult:
         import subprocess
         subprocess.run(
-            ["find", str(home / "src"), str(home / ".runtime" / "src"),
+            ["find", str(home / "src"),
              "-name", "__pycache__", "-type", "d", "-exec", "rm", "-rf", "{}", "+"],
             capture_output=True, timeout=15,
         )
         subprocess.run(
-            ["find", str(home / "src"), str(home / ".runtime" / "src"),
+            ["find", str(home / "src"),
              "-name", "*.pyc", "-delete"],
             capture_output=True, timeout=15,
         )
@@ -348,7 +348,7 @@ class RB008_PycCleanup(Runbook):
     async def post_check(self, finding: dict, home: Path) -> bool:
         import subprocess
         result = subprocess.run(
-            ["find", str(home / "src"), str(home / ".runtime" / "src"), "-name", "__pycache__", "-type", "d"],
+            ["find", str(home / "src"), "-name", "__pycache__", "-type", "d"],
             capture_output=True, text=True, timeout=10,
         )
         return len(result.stdout.strip()) == 0

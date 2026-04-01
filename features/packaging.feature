@@ -135,7 +135,6 @@ Feature: 自解壓安裝包 — Self-Extracting Installer Packaging
       | 項目                  | 說明                    |
       | .runtime/src/         | Python 原始碼           |
       | .runtime/.venv/       | Python 虛擬環境         |
-      | .runtime/electron/    | Dashboard 前端          |
       | .runtime/pyproject.toml | Python 依賴宣告       |
 
   Scenario: 安裝位置選擇 — osascript 圖形化 + 文字回退

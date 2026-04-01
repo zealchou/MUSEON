@@ -167,12 +167,10 @@ class SkillInstallWorker:
         # 寫入安裝記錄
         self._write_install_log(result)
 
-        # ── Step 10: 重建指令路由快取（單一事實來源同步）──
+        # ── Step 10: command_routes 由 plugin-registry 管理 ──
         if result.success:
             try:
-                from museon.cache.context_cache_builder import build_command_routes
-                build_command_routes()
-                log_lines.append("Step 10: command_routes.json 已重建")
+                log_lines.append("Step 10: command_routes.json 由 plugin-registry 管理（跳過）")
             except Exception as e:
                 log_lines.append(f"Step 10: command_routes rebuild failed: {e}")
 

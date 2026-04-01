@@ -114,14 +114,6 @@ if [ -f "dist/Install-MUSEON.command" ]; then
     echo ""
     VERIFY_PASS=true
 
-    # V1: main.js getProjectRoot() 必須支援生產佈局
-    if grep -q "\.runtime.*pyproject\.toml" "$PROJECT_DIR/electron/main.js"; then
-        echo "  ✅ V1: getProjectRoot() 支援 .runtime/pyproject.toml"
-    else
-        echo "  ❌ V1: getProjectRoot() 不支援 .runtime 佈局 — 會導致生產版 .env 被忽略！"
-        VERIFY_PASS=false
-    fi
-
     # V2: preload.js 有完整的 API bridge
     PRELOAD="$PROJECT_DIR/electron/preload.js"
     MISSING_API=""

@@ -270,7 +270,7 @@ class SurgeryEngine:
     4. SafetyReview ← morphenix_standards 審查
     5. Snapshot    ← git tag 快照
     6. Apply       ← 套用修改
-    7. Sync        ← rsync 同步到 .runtime/
+    7. Sync        ← (已廢除：.runtime 不再存在)
     8. Restart     ← 三策略重啟
     9. Verify      ← 驗證修復
     10. Complete   ← 記錄結果 / 回滾
