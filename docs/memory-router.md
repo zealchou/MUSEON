@@ -1,10 +1,11 @@
-# Memory Router — 記憶路由表 v1.23
+# Memory Router — 記憶路由表 v1.24
 
 > **用途**：定義「什麼類型的洞見存到哪個記憶系統、什麼時候取出」。第五張工程藍圖。
 > **比喻**：郵局分揀表——每封信根據地址分到對應的信箱，不會寄丟也不會重複投遞。
 > **更新時機**：新增 Skill 或記憶系統時，必須在同一個 commit 中新增對應的路由規則。
 > **建立日期**：2026-03-21
 > **搭配**：`docs/skill-manifest-spec.md`（Skill I/O 合約）、各 Skill 的 `memory.writes` 欄位、`docs/operational-contract.md`（操作契約表）
+> **v1.24 (2026-04-02)**：藍圖交叉引用同步——persistence-contract v1.49→v1.50（ares→athena 更名同步），同步 system-topology v1.77、persistence-contract v1.50。
 > **v1.23 (2026-04-01)**：.runtime 廢除無記憶流向影響（signal_lite 純記憶體不變）；排程優化 Step 13.5 全清不影響記憶寫入路徑；路由表條目無增減。同步 system-topology v1.76、persistence-contract v1.49。
 > **v1.22 (2026-04-01)**：Phase 1-3 十項修復——signal_cache 記憶管道正式標記為「keyword 快篩替代」：signal_lite.py 純記憶體計算（request-scoped），不寫入任何記憶系統；原 signal_cache JSON 路由規則廢棄，由 Step 1.5 keyword 快篩 + session context 直接傳遞取代；路由表移除 signal_cache 條目，G3 記憶管線說明同步更新。同步 persistence-contract v1.48、system-topology v1.75。
 > **v1.21 (2026-04-01)**：Phase A-C 死碼清理 + signal_lite 遷移——正式移除 reflex_router 記憶管道條目（dna27 collection 已清理，reflex_router 完全退役）；確認 signal_lite 純記憶體計算，不寫入任何記憶系統（routing_signal 不進 memories collection、不進 knowledge-lattice、不進 diary，request-scoped 物件）。
