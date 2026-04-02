@@ -347,13 +347,8 @@ class GuardianDaemon:
         else:
             results["TELEGRAM_BOT_TOKEN"] = "PRESENT"
 
-        # ANTHROPIC_API_KEY
-        api_key = os.environ.get("ANTHROPIC_API_KEY", "")
-        if not api_key:
-            results["ANTHROPIC_API_KEY"] = "MISSING"
-            logger.warning("[Guardian] ANTHROPIC_API_KEY 環境變數未設定")
-        else:
-            results["ANTHROPIC_API_KEY"] = "PRESENT"
+        # ANTHROPIC_API_KEY 已移除 — MUSEON 統一使用 Claude MAX CLI OAuth
+        # 不再檢查 ANTHROPIC_API_KEY
 
         return results
 

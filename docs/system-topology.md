@@ -2,6 +2,7 @@
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.79 (2026-04-02)**：補齊 absurdity-radar 孤島連線——新增 3 條 internal 連線（`brain→absurdity-radar` load/update/save、`brain-prompt-builder→absurdity-radar` persona zone 注入、`nightly-pipeline→absurdity-radar` Step 32.5 recalc）；absurdity-radar 節點扇入由 0→3，孤島問題修復。
 > **v1.78 (2026-04-02)**：荒謬雷達系統——新增 `agent/absurdity_radar.py`（純函數模組，無 class，提供 load/save/update_radar）；
 > `skill_router.py` 新增 Layer 4 (absurdity gap affinity)，讀取 Skill manifest 的 `absurdity_affinity` + user radar；
 > `brain.py` 新增荒謬雷達讀取/更新呼叫（load_radar → match() → update_radar_from_skill → save_radar）；
@@ -585,6 +586,8 @@ external-user（EXTERNAL）
 | `brain` | `pdr-council` | 謀定而後動引擎（Phase 2/3 審查） |
 | `pdr-council` | `agent-registry` | 查詢可用能力目標（action targets） |
 | `pdr-council` | `pdr-params` | 讀取 Phase 2/3 參數 + 安全護欄 |
+| `brain` | `absurdity-radar` | load_radar（每請求讀取）→ update_radar_from_skill + save_radar（命中後更新） |
+| `brain-prompt-builder` | `absurdity-radar` | _build_absurdity_radar_context() 讀取六維雷達注入 persona zone |
 
 ### Pulse 內部連線（internal）
 | Source | Target | 說明 |
@@ -718,6 +721,7 @@ external-user（EXTERNAL）
 | `nightly` | `context-cache-builder` | Step 31 context_cache 重建 |
 | `morphenix-validator` | `morphenix` | 驗證通過→執行 |
 | `nightly-pipeline` | `nightly-reflection-engine` | Steps 34 / 34.5 / 34.7 P-trait 演化反思 |
+| `nightly-pipeline` | `absurdity-radar` | Step 32.5 _step_absurdity_radar_recalc 重算六維雷達 |
 
 ### 跨系統連線（cross）
 | Source | Target | 說明 |

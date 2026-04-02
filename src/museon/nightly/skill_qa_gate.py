@@ -340,9 +340,15 @@ class SkillQAGate:
         try:
             import anthropic
 
-            client = anthropic.Anthropic(
-                api_key=os.environ.get("ANTHROPIC_API_KEY", "")
-            )
+            _api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+            if not _api_key:
+                logger.warning(
+                    "skill_qa_gate: ANTHROPIC_API_KEY 未設定，"
+                    "_generate_test_questions 跳過（MUSEON 使用 Claude MAX CLI OAuth，"
+                    "此模組需要直接 API key 才能運作）"
+                )
+                return []
+            client = anthropic.Anthropic(api_key=_api_key)
             trigger_str = "、".join(triggers) if triggers else "（無觸發詞）"
             prompt = (
                 f"你是一個使用者，想測試一個名為「{skill_name}」的 AI 技能。\n"
@@ -374,9 +380,15 @@ class SkillQAGate:
         try:
             import anthropic
 
-            client = anthropic.Anthropic(
-                api_key=os.environ.get("ANTHROPIC_API_KEY", "")
-            )
+            _api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+            if not _api_key:
+                logger.warning(
+                    "skill_qa_gate: ANTHROPIC_API_KEY 未設定，"
+                    "_judge_question 跳過（MUSEON 使用 Claude MAX CLI OAuth，"
+                    "此模組需要直接 API key 才能運作）"
+                )
+                return False, "ANTHROPIC_API_KEY 未設定，無法執行 LLM 判斷"
+            client = anthropic.Anthropic(api_key=_api_key)
             # 只傳遞 Skill 的 frontmatter 摘要，不傳完整 SKILL.md（節省 token）
             frontmatter = self._parse_frontmatter(skill_md)
             skill_summary = (

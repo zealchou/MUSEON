@@ -687,6 +687,7 @@ const links = [
   {source:"biz-diagnostic",target:"darwin",label:"strategy_brief→DARWIN 模擬",type:"internal"},
   {source:"biz-diagnostic",target:"report-forge",label:"診斷報告渲染",type:"internal"},
   {source:"biz-diagnostic",target:"ssa-consultant",label:"SSA Day Level 對照",type:"internal"},
+  {source:"brain",target:"absurdity-radar",label:"load_radar（每請求讀取）→ update_radar_from_skill + save_radar（命中後更新）",type:"internal"},
   {source:"brain",target:"agent-registry",label:"Brain 初始化時載入能力目錄",type:"internal"},
   {source:"brain",target:"brain-deep",label:"L1 escalation 委派（複雜訊息→L2 Opus 深度思考）",type:"internal"},
   {source:"brain",target:"brain-dispatch",label:"Mixin: 任務分派",type:"internal"},
@@ -727,6 +728,7 @@ const links = [
   {source:"brain",target:"signal-lite",label:"signal_lite 信號路由（取代 DNA27 反射路由器）",type:"internal"},
   {source:"brain",target:"skill-router",label:"技能路由",type:"internal"},
   {source:"brain-deep",target:"brain-tool-loop",label:"tool-use 迴圈（L2 需要工具時委派）",type:"internal"},
+  {source:"brain-prompt-builder",target:"absurdity-radar",label:"_build_absurdity_radar_context() 讀取六維雷達注入 persona zone",type:"internal"},
   {source:"brain-prompt-builder",target:"anima-mc-store",label:"讀取 ANIMA_MC（身份/能力/演化/八原語）",type:"internal"},
   {source:"brain-prompt-builder",target:"anthropic-api",label:"結晶壓縮時的 LLM 呼叫（via knowledge_lattice）",type:"internal"},
   {source:"brain-prompt-builder",target:"data-bus",label:"讀取 PULSE.md + fact_corrections + 記憶注入",type:"internal"},
@@ -805,6 +807,7 @@ const links = [
   {source:"nightly",target:"morphenix-validator",label:"Docker 沙盒驗證",type:"internal"},
   {source:"nightly",target:"periodic-cycles",label:"週期循環",type:"internal"},
   {source:"nightly",target:"skill-forge-scout",label:"技能鍛造",type:"internal"},
+  {source:"nightly-pipeline",target:"absurdity-radar",label:"Step 32.5 _step_absurdity_radar_recalc 重算六維雷達",type:"internal"},
   {source:"nightly-pipeline",target:"nightly-reflection-engine",label:"Steps 34 / 34.5 / 34.7 P-trait 演化反思",type:"internal"},
   {source:"pdr-council",target:"agent-registry",label:"查詢可用能力目標（action targets）",type:"internal"},
   {source:"pdr-council",target:"pdr-params",label:"讀取 Phase 2/3 參數 + 安全護欄",type:"internal"},
@@ -1213,6 +1216,7 @@ const links = [
   {source:"verified-user",target:"anima-mc-store",label:"配對使用者互動更新 ANIMA_USER（L1-L8 觀察）",type:"async"},
   {source:"zeal",target:"anima-mc-store",label:"Owner 互動觸發 ANIMA_MC 更新（boss_name、self_awareness）",type:"async"},
 ];
+
 
 
 

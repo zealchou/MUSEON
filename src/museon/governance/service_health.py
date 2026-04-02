@@ -87,15 +87,9 @@ DEFAULT_SERVICES = [
         degraded_threshold_ms=500,
         restart_strategy="process",  # Qdrant 以本地進程運行，非 Docker
     ),
-    ServiceConfig(
-        name="searxng",
-        container_name="museon-searxng",
-        health_url="http://127.0.0.1:8888/",
-        port=8888,
-        required=True,
-        timeout_s=5.0,
-        degraded_threshold_ms=3000,
-    ),
+    # searxng 已移除 — container 不存在，不必要的健康檢查
+    # 每 30 秒嘗試 docker restart 一個不存在的 container 會污染日誌
+    # 未來實際部署 searxng 時再加回
     # firecrawl 已移除 — container 不存在，不必要的健康檢查
     # 每 30 秒嘗試 docker restart 一個不存在的 container 會污染日誌
     # 未來實際部署 firecrawl 時再加回
