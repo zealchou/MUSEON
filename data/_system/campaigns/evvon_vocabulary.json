@@ -1,0 +1,20 @@
+{
+  "campaign_id": "evvon_sustainability",
+  "words": [
+    {"day": 1, "word": "Green", "zh": "綠色（永續意義）", "intro": "不只是顏色，更是一種生活態度"},
+    {"day": 2, "word": "Circularity", "zh": "循環性", "intro": "東西用完不是丟掉，而是讓它重新開始"},
+    {"day": 3, "word": "Carbon Footprint", "zh": "碳足跡", "intro": "你的每個行動都在地球上留下看不見的腳印"},
+    {"day": 4, "word": "Renewable Energy", "zh": "再生能源", "intro": "太陽和風永遠不會用完"},
+    {"day": 5, "word": "Biodiversity", "zh": "生物多樣性", "intro": "地球上每種生命都是生命之網的一條線"},
+    {"day": 6, "word": "Sustainability", "zh": "永續性", "intro": "用今天的資源，但不偷走明天的"},
+    {"day": 7, "word": "Upcycling", "zh": "升級回收", "intro": "把廢物變成更有價值的東西"},
+    {"day": 8, "word": "Zero Waste", "zh": "零廢棄", "intro": "目標是什麼都不浪費"},
+    {"day": 9, "word": "Fair Trade", "zh": "公平貿易", "intro": "你喝的咖啡，種它的人也該過好生活"},
+    {"day": 10, "word": "Organic", "zh": "有機的", "intro": "回到最自然的耕種方式"},
+    {"day": 11, "word": "Greenhouse Gas", "zh": "溫室氣體", "intro": "地球的毯子越來越厚，熱氣散不出去"},
+    {"day": 12, "word": "Deforestation", "zh": "森林砍伐", "intro": "地球的肺正在一片片消失"},
+    {"day": 13, "word": "Water Footprint", "zh": "水足跡", "intro": "一件T恤背後藏著2700公升的水"},
+    {"day": 14, "word": "Climate Change", "zh": "氣候變遷", "intro": "地球的天氣正在改寫規則"},
+    {"day": 15, "word": "Recycling", "zh": "回收", "intro": "垃圾的第二人生從分類開始"}
+  ]
+}

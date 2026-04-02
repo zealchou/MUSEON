@@ -3112,6 +3112,57 @@ def create_app() -> FastAPI:
             f"CronEngine started | jobs: {len(cron_engine.get_all_jobs())}"
         )
 
+        # ── ScheduledMessageDispatcher + DripCampaign（承諾投遞系統）──
+        try:
+            from museon.scheduling.dispatcher import (
+                ScheduledMessageDispatcher, register_dispatcher_cron,
+            )
+            from museon.scheduling.campaigns import DripCampaignEngine, make_evvon_engine
+
+            _dispatcher = ScheduledMessageDispatcher(
+                data_dir=str(brain.data_dir),
+            )
+            # Gateway 重啟後立刻 replay 未投遞的訊息
+            _replayed = _dispatcher.replay_on_startup()
+            if _replayed:
+                logger.info(
+                    f"[startup] Replayed {len(_replayed)} overdue scheduled messages"
+                )
+
+            # 每分鐘檢查排程佇列
+            register_dispatcher_cron(cron_engine, _dispatcher)
+
+            # Evvon 永續英文 campaign
+            _campaign_engine = make_evvon_engine(
+                data_dir=str(brain.data_dir),
+            )
+
+            # 每天 07:55 生成當日 campaign 內容並排程 08:00 發送
+            async def _campaign_daily_check():
+                import asyncio
+                loop = asyncio.get_event_loop()
+                await loop.run_in_executor(
+                    None, _campaign_engine.check_all_campaigns,
+                )
+
+            cron_engine.add_job(
+                _campaign_daily_check,
+                trigger="cron",
+                job_id="campaign-daily-check",
+                hour=7, minute=55,
+                timeout=120,
+            )
+
+            app.state.scheduled_dispatcher = _dispatcher
+            app.state.campaign_engine = _campaign_engine
+            logger.info(
+                f"[startup] ScheduledMessageDispatcher + DripCampaign initialized"
+            )
+        except Exception as _sched_err:
+            logger.warning(
+                f"[startup] ScheduledMessageDispatcher init failed (non-fatal): {_sched_err}"
+            )
+
         # ── SkillHub: 工作流排程初始化 ──
         try:
             from museon.workflow.soft_workflow import WorkflowStore

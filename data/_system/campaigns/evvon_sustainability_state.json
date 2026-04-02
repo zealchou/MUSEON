@@ -1,0 +1,14 @@
+{
+  "campaign_id": "evvon_sustainability",
+  "current_day": 6,
+  "started_at": "2026-03-27",
+  "last_sent_date": "2026-04-02",
+  "last_sent_day": 5,
+  "history": [
+    {"day": 1, "sent_at": "2026-03-27", "status": "manual"},
+    {"day": 2, "sent_at": "2026-03-28", "status": "manual"},
+    {"day": 3, "sent_at": "2026-03-30", "status": "manual"},
+    {"day": 4, "sent_at": "2026-03-31", "status": "manual"},
+    {"day": 5, "sent_at": "2026-04-02", "status": "manual"}
+  ]
+}

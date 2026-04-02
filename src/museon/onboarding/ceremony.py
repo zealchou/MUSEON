@@ -72,12 +72,29 @@ class NamingCeremony:
         return dict(_DEFAULT_STATE)
 
     def _save_state(self):
-        """Save ceremony state to PulseDB."""
+        """Save ceremony state to PulseDB + JSON（雙寫，防 PulseDB 讀取失敗）."""
         self._pulse_db.save_ceremony_state(self._state)
+        # Belt-and-suspenders: 同時寫 JSON，PulseDB 失敗時有 fallback
+        try:
+            with open(self.ceremony_state_path, 'w', encoding='utf-8') as f:
+                json.dump(self._state, f, ensure_ascii=False, indent=2)
+        except Exception:
+            pass
 
     def is_ceremony_needed(self) -> bool:
-        """Check if naming ceremony is needed (first time setup)."""
-        return not self.anima_l1_path.exists() or not self._state.get("completed", False)
+        """Check if naming ceremony is needed (first time setup).
+
+        硬擋邏輯（防重啟後 PulseDB 讀取失敗導致重跑命名儀式）：
+        1. ANIMA_MC.json 存在 → 永遠不需要（已經命名過）
+        2. ceremony_state.json 存在且 completed=True → 不需要
+        3. PulseDB state completed=True → 不需要
+        只有三者都不成立時才觸發。
+        """
+        # 硬擋：ANIMA_MC.json 存在 = 曾經完成過命名，不可能再需要
+        if self.anima_l1_path.exists():
+            return False
+
+        return not self._state.get("completed", False)
 
     def get_current_stage(self) -> str:
         """Get current ceremony stage."""
