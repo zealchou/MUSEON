@@ -1,7 +1,12 @@
-# MUSEON 系統拓撲圖 v1.77
+# MUSEON 系統拓撲圖 v1.78
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.78 (2026-04-02)**：荒謬雷達系統——新增 `agent/absurdity_radar.py`（純函數模組，無 class，提供 load/save/update_radar）；
+> `skill_router.py` 新增 Layer 4 (absurdity gap affinity)，讀取 Skill manifest 的 `absurdity_affinity` + user radar；
+> `brain.py` 新增荒謬雷達讀取/更新呼叫（load_radar → match() → update_radar_from_skill → save_radar）；
+> `brain_prompt_builder.py` 新增 `_build_absurdity_radar_context()` 注入 persona zone；
+> `nightly_pipeline.py` 新增步驟 32.5 (`_step_absurdity_radar_recalc`) + 步驟 33 crystal rules 硬上限。
 > **v1.77 (2026-04-02)**：藍圖交叉引用同步——blast-radius v1.95→v1.96（ares→athena 更名同步），同步 blast-radius v1.96、joint-map v1.64、persistence-contract v1.50、memory-router v1.23。
 > **v1.76 (2026-04-01)**：.runtime 路徑廢除——Gateway 統一從 src/ 啟動（supervisord.conf + start-gateway.sh 路徑已改）；8 個 Python 模組移除 .runtime 分支邏輯；排程優化（Step 13.5 全清、30min job 錯開、Step 18.7 快取）。同步 blast-radius v1.95。
 > **v1.75 (2026-04-01)**：Phase 1-3 十項修復——AlgedonicAlert 新增靜默時段（23:00-07:00）；Guardian daemon 新增 credential 檢查（L1 巡檢擴充）；Nightly Step 26 session_cleanup 移除（cron 已覆蓋）；cron skill-acquisition-scan/tool-discovery-scan 移除（Nightly 已覆蓋）；Gateway 重啟路徑統一（launchctl 引用全部移除，統一為 restart-gateway.sh）。同步 blast-radius v1.94。
@@ -154,6 +159,7 @@ external-user（EXTERNAL）
 | `brain-types` | Brain Types | 共享 dataclass: DecisionSignal | - | brain | 0.7 |
 | ~~`dna27`~~ | ~~DNA27~~ | ~~27 反射叢集（已刪除 v1.59）~~ | - | - | - |
 | `skill-router` | Skill Router | 技能路由 | - | brain | 1.1 |
+| `absurdity-radar` | Absurdity Radar | 荒謬雷達（純函數模組，load/save/update_radar，無 class） | - | brain | 0.8 |
 | ~~`reflex-router`~~ | ~~Reflex Router~~ | ~~反射路由（已退役 v1.74，路由功能遷移至 signal_lite）~~ | - | - | - |
 | `signal-lite` | Signal Lite | 輕量信號路由（取代 reflex_router，由 brain.py 直接呼叫） | - | brain | 0.8 |
 | `dispatch` | Dispatch | 多技能編排 | - | brain | 1.0 |

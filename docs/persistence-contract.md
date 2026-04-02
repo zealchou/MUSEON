@@ -1,8 +1,9 @@
-# MUSEON Persistence Contract v1.50 — 水電圖
+# MUSEON Persistence Contract v1.51 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
 > 與 `system-topology.md`（控制流拓撲）互補——那是「神經圖」，這是「水電圖」。
+> **v1.51 (2026-04-02)**：荒謬雷達系統——新增 `data/_system/absurdity_radar/{user_id}.json`（per-user 原子 JSON，寫入者=agent/absurdity_radar.py save_radar() + brain.py update，讀取者=absurdity_radar.py load_radar() + brain_prompt_builder.py + skill_router.py Layer 4，Nightly step 32.5 每日衰減）。
 > **v1.50 (2026-04-01)**：ares 套件更名為 athena——`src/museon/ares/` → `src/museon/athena/`（profile_store.py、external_bridge.py、graph_renderer.py）；data 路徑 `ares/profiles/` 不變。同步 joint-map v1.64、blast-radius v1.96。
 > **v1.49 (2026-04-01)**：.runtime 目錄正式廢除——所有持久層路徑統一為 MUSEON_HOME/ 下的單一路徑，不再有 .runtime/data vs data/ 雙路徑分支；CrystalStore schema drift 自動修復已部署（v1.48）。同步 system-topology v1.76、blast-radius v1.95。
 > **v1.48 (2026-04-01)**：Phase 1-3 十項修復——CrystalStore 新增 schema drift 自動修復（ALTER TABLE ADD COLUMN，crystal.db ENGINE 1 表格新增 drift_fixed_at 追蹤欄）；signal_cache JSON 不再有寫入者（已確認 brain_prompt_builder 移除檔案讀取點，signal_cache 管道由 keyword 快篩替代，持久化路徑正式廢棄）。同步 system-topology v1.75、joint-map v1.62、memory-router v1.22。
@@ -485,6 +486,7 @@ adaptive_decay ──ACT-R B_i──→ _activation 欄位 (in-memory) ←──
 | `_system/budget/usage_{month}.json` | `llm/budget.py` | 月度 Token 用量 |
 | `_system/backups/anima_mc/*.json` | `pulse/anima_mc_store.py` | ANIMA_MC 寫入前快照（保留 10 份） |
 | `_system/backups/pulse_md/*.md` | `pulse/pulse_engine.py` | PULSE.md 寫入前快照（保留 10 份） |
+| `_system/absurdity_radar/{user_id}.json` | `agent/absurdity_radar.py` + `agent/brain.py` | 六大荒謬雷達 per-user 快照（v1.51 新增，詳見下方專節） |
 
 ### PDR 持久化（v1.70 新增）
 
@@ -565,6 +567,22 @@ adaptive_decay ──ACT-R B_i──→ _activation 欄位 (in-memory) ←──
 > **生命週期**：永久（持續更新）
 > **結晶類型**：anima-individual → knowledge-lattice `individual_crystal`；ares → knowledge-lattice `strategy_crystal`
 > **Python 模組**：`src/museon/athena/profile_store.py`（CRUD + 槓桿 + 連線 + 路徑搜尋 + 連動模擬）、`src/museon/athena/graph_renderer.py`（networkx PNG 渲染）、`src/museon/athena/external_bridge.py`（Telegram 群組成員→Ares 個體橋接器）
+
+### `_system/absurdity_radar/` 子目錄（荒謬雷達，v1.51 新增）
+
+> **注意**：此目錄為六大荒謬守望的 per-user 雷達快照。每個使用者一個 JSON 檔案，原子寫入。
+
+| 路徑 | 格式 | 寫入者 | 讀取者 | 說明 |
+|------|------|--------|--------|------|
+| `_system/absurdity_radar/{user_id}.json` | JSON | `agent/absurdity_radar.py save_radar()`, `agent/brain.py update_radar_from_skill()` | `agent/absurdity_radar.py load_radar()`, `agent/brain_prompt_builder.py _build_absurdity_radar_context()`, `agent/skill_router.py match() Layer 4` | 六大荒謬雷達 per-user 快照 |
+
+**引擎**：原子 JSON（read → modify → write_text）
+**路徑**：`data/_system/absurdity_radar/{user_id}.json`
+**格式**：`{"user_id": "boss", "self_awareness": 0.5, ..., "confidence": 0.1, "updated_at": "ISO8601"}`
+**寫入者**：`agent/absurdity_radar.py save_radar()` + `agent/brain.py update_radar_from_skill()`
+**讀取者**：`agent/absurdity_radar.py load_radar()` + `agent/brain_prompt_builder.py _build_absurdity_radar_context()` + `agent/skill_router.py match() Layer 4`
+**TTL**：永久（Nightly step 32.5 每日衰減，不刪除）
+**鎖**：無需（per-user 檔案，單一寫入者路徑）
 
 ### `eval/` 子目錄
 

@@ -1,10 +1,11 @@
-# Memory Router — 記憶路由表 v1.24
+# Memory Router — 記憶路由表 v1.25
 
 > **用途**：定義「什麼類型的洞見存到哪個記憶系統、什麼時候取出」。第五張工程藍圖。
 > **比喻**：郵局分揀表——每封信根據地址分到對應的信箱，不會寄丟也不會重複投遞。
 > **更新時機**：新增 Skill 或記憶系統時，必須在同一個 commit 中新增對應的路由規則。
 > **建立日期**：2026-03-21
 > **搭配**：`docs/skill-manifest-spec.md`（Skill I/O 合約）、各 Skill 的 `memory.writes` 欄位、`docs/operational-contract.md`（操作契約表）
+> **v1.25 (2026-04-02)**：荒謬雷達系統——新增雷達資料流：`brain.py` Skill 匹配後 → `absurdity_radar.py update_radar_from_skill()` → `_system/absurdity_radar/{user}.json`；prompt 注入路徑：`brain_prompt_builder.py _build_absurdity_radar_context()` ← `absurdity_radar.py load_radar()`。Nightly step 32.5 每日衰減。
 > **v1.24 (2026-04-02)**：藍圖交叉引用同步——persistence-contract v1.49→v1.50（ares→athena 更名同步），同步 system-topology v1.77、persistence-contract v1.50。
 > **v1.23 (2026-04-01)**：.runtime 廢除無記憶流向影響（signal_lite 純記憶體不變）；排程優化 Step 13.5 全清不影響記憶寫入路徑；路由表條目無增減。同步 system-topology v1.76、persistence-contract v1.49。
 > **v1.22 (2026-04-01)**：Phase 1-3 十項修復——signal_cache 記憶管道正式標記為「keyword 快篩替代」：signal_lite.py 純記憶體計算（request-scoped），不寫入任何記憶系統；原 signal_cache JSON 路由規則廢棄，由 Step 1.5 keyword 快篩 + session context 直接傳遞取代；路由表移除 signal_cache 條目，G3 記憶管線說明同步更新。同步 persistence-contract v1.48、system-topology v1.75。
@@ -199,6 +200,17 @@
 
 > **消費者**：DiaryStore.recall_soul_rings() → MemoryReflector → brain_prompt_builder memory zone（Soul Ring 年輪反思）
 > **路由類型**：value_calibration（Persona 特質校準記錄，用於追蹤 P-traits 夜間演化軌跡）
+
+### 🔴 荒謬雷達 → _system/absurdity_radar（v1.25 新增）
+
+| 來源 | 觸發 | 去向 | 路由方法 | 內容 |
+|------|------|------|---------|------|
+| 荒謬雷達 | brain.py (Skill 使用後) | absurdity_radar.py | _system/absurdity_radar/{user}.json | 漸進更新 | brain_prompt_builder (persona zone) + skill_router (Layer 4) |
+
+> **寫入路徑**：`brain.py` Skill 匹配後 → `absurdity_radar.py update_radar_from_skill()` → `_system/absurdity_radar/{user}.json`
+> **讀取路徑（prompt 注入）**：`brain_prompt_builder.py _build_absurdity_radar_context()` ← `absurdity_radar.py load_radar()`
+> **讀取路徑（路由加權）**：`skill_router.py` Layer 4 absurdity gap affinity ← `absurdity_radar.py load_radar()`
+> **衰減機制**：Nightly step 32.5 `_step_absurdity_radar_recalc` 每日自動衰減雷達各維度分值
 
 ### 🔩 系統基礎設施持久資料
 
