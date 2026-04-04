@@ -1341,22 +1341,56 @@ SYNC_META.linkCount = links.length;
 //  FORCE-DIRECTED LAYOUT — gravity + attraction + repulsion
 // ═══════════════════════════════════════
 
-// Group target positions on a Fibonacci sphere (uniform spherical distribution)
-// constellation 和 center 不參與 Fibonacci 分佈
-const fibGroups = Object.keys(GC).filter(g => g !== 'center' && g !== 'constellation');
+// ═══════════════════════════════════════
+// 洋蔥式佈局：探針→星座→技能→基礎設施
+// ═══════════════════════════════════════
+
+// 星座→Skill 追蹤映射（用於 Skills 定向引力）
+const constellationSkillMap = {
+  'constellation-brand': ['brand-builder','brand-identity'],
+  'constellation-business': ['business-12','ssa-consultant'],
+  'constellation-conversion': ['landing-page-forge','ssa-consultant'],
+  'constellation-energy': ['energy-reading','onemuse-core'],
+  'constellation-growth': ['anima-individual','resonance','wan-miu-16'],
+  'constellation-market': ['investment-masters','market-core','market-equity'],
+  'constellation-strategy': ['master-strategy','shadow'],
+  'constellation-thinking': ['deep-think','dharma','philo-dialectic'],
+};
+// 反向映射：skill → constellation node ID
+const skillToConstellation = {};
+Object.entries(constellationSkillMap).forEach(([cId, skills]) => {
+  skills.forEach(s => { if (!skillToConstellation[s]) skillToConstellation[s] = cId; });
+});
+
+// 8 個領域星座在 XZ 平面的角度分佈
+const domainConstellations = [
+  'constellation-business','constellation-brand','constellation-strategy',
+  'constellation-energy','constellation-conversion','constellation-market',
+  'constellation-thinking','constellation-growth'
+];
+const constellationPositions = {};
+domainConstellations.forEach((cId, i) => {
+  const angle = (2 * Math.PI * i) / domainConstellations.length;
+  const R = 15;
+  constellationPositions[cId] = new THREE.Vector3(
+    R * Math.cos(angle), 10, R * Math.sin(angle)
+  );
+});
+
+// 基礎設施群組走 Fibonacci 球面（排除 center, constellation, skills）
+const infraGroups = Object.keys(GC).filter(g =>
+  g !== 'center' && g !== 'constellation' && g !== 'skills'
+);
 const groupTargets = {};
 const golden = (1 + Math.sqrt(5)) / 2;
 
-// center 在原點
 groupTargets['center'] = new THREE.Vector3(0, 0, 0);
+groupTargets['constellation'] = new THREE.Vector3(0, 20, 0);  // 星座群組預設
+groupTargets['skills'] = new THREE.Vector3(0, 0, 0);  // Skills 由 per-node 引力覆蓋
 
-// constellation 固定在正上方（Meta 層）
-groupTargets['constellation'] = new THREE.Vector3(0, 38, 0);
-
-// 其餘群組走 Fibonacci 球面
-fibGroups.forEach((g, i) => {
+infraGroups.forEach((g, i) => {
   const theta = 2 * Math.PI * i / golden;
-  const phi = Math.acos(1 - 2 * (i + 0.5) / fibGroups.length);
+  const phi = Math.acos(1 - 2 * (i + 0.5) / infraGroups.length);
   const R = 35;
   groupTargets[g] = new THREE.Vector3(
     R * Math.sin(phi) * Math.cos(theta),
@@ -1370,15 +1404,54 @@ nodes.forEach(n => {
   n.connCount = links.filter(l => l.source === n.id || l.target === n.id).length;
 });
 
-// Initialize positions near group targets with jitter
+// Initialize positions — 洋蔥式分層
 nodes.forEach(n => {
-  const target = groupTargets[n.group] || new THREE.Vector3(0, 0, 0);
-  const jitter = n.hub ? 3 : (n.group === 'constellation' ? 6 : 12);
-  n.pos = new THREE.Vector3(
-    target.x + (Math.random() - 0.5) * jitter,
-    target.y + (Math.random() - 0.5) * jitter,
-    target.z + (Math.random() - 0.5) * jitter
-  );
+  let target;
+  const id = n.id;
+
+  if (id === 'constellation-radar' || id === 'constellation-probe') {
+    // 頂層：指揮塔
+    target = new THREE.Vector3(
+      (Math.random() - 0.5) * 3, 30 + (Math.random() - 0.5) * 2, (Math.random() - 0.5) * 3
+    );
+  } else if (id === 'constellation-absurdity') {
+    // 中上：荒謬六芒星
+    target = new THREE.Vector3(
+      (Math.random() - 0.5) * 4, 20 + (Math.random() - 0.5) * 2, (Math.random() - 0.5) * 4
+    );
+  } else if (constellationPositions[id]) {
+    // 中層：8 個領域星座
+    const cp = constellationPositions[id];
+    target = new THREE.Vector3(
+      cp.x + (Math.random() - 0.5) * 3, cp.y + (Math.random() - 0.5) * 2, cp.z + (Math.random() - 0.5) * 3
+    );
+  } else if (n.group === 'skills' && skillToConstellation[id]) {
+    // 外圍：追蹤型 Skill — 靠近對應星座方向
+    const cPos = constellationPositions[skillToConstellation[id]];
+    if (cPos) {
+      const dir = cPos.clone().normalize();
+      const R = 42;
+      target = new THREE.Vector3(
+        dir.x * R + (Math.random() - 0.5) * 8,
+        cPos.y - 5 + (Math.random() - 0.5) * 6,
+        dir.z * R + (Math.random() - 0.5) * 8
+      );
+    } else {
+      target = groupTargets[n.group] || new THREE.Vector3(0, 0, 0);
+      target = target.clone().add(new THREE.Vector3((Math.random()-.5)*12,(Math.random()-.5)*12,(Math.random()-.5)*12));
+    }
+  } else {
+    // 其他節點（基礎設施、未追蹤的 Skills）
+    const gt = groupTargets[n.group] || new THREE.Vector3(0, 0, 0);
+    const jitter = n.hub ? 3 : 12;
+    target = new THREE.Vector3(
+      gt.x + (Math.random() - 0.5) * jitter,
+      gt.y + (Math.random() - 0.5) * jitter,
+      gt.z + (Math.random() - 0.5) * jitter
+    );
+  }
+
+  n.pos = target;
   n.vx = 0; n.vy = 0; n.vz = 0;
 });
 
@@ -1926,8 +1999,10 @@ function simulateForces() {
   });
 
   // 3. Spherical shell constraint — push toward target sphere radius
+  //    constellation 節點有自己的分層約束，跳過球殼
   const sphereK = 0.04;
   nodes.forEach(n => {
+    if (n.group === 'constellation') return;
     const dist = n.pos.length() || 1;
     const targetR = n.hub || n.id === 'event-bus' ? 0 : 38;
     const diff = targetR - dist;
@@ -1946,15 +2021,42 @@ function simulateForces() {
     n.fz += (target.z - n.pos.z) * groupK;
   });
 
-  // 4.5 Meta layer Y constraint — keep constellation nodes above
-  const metaK = 0.08;
+  // 4.5 洋蔥式分層約束
   nodes.forEach(n => {
-    if (n.group === 'constellation') {
-      const targetY = 38;
-      n.fy += (targetY - n.pos.y) * metaK;
-      // 同時限制水平擴散——constellation 應緊湊
-      n.fx += (0 - n.pos.x) * metaK * 0.3;
-      n.fz += (0 - n.pos.z) * metaK * 0.3;
+    const id = n.id;
+
+    if (id === 'constellation-radar' || id === 'constellation-probe') {
+      // 頂層：強約束在 (0, 30, 0) 附近
+      const k = 0.12;
+      n.fx += (0 - n.pos.x) * k;
+      n.fy += (30 - n.pos.y) * k;
+      n.fz += (0 - n.pos.z) * k;
+    } else if (id === 'constellation-absurdity') {
+      // 中上：(0, 20, 0)
+      const k = 0.10;
+      n.fx += (0 - n.pos.x) * k;
+      n.fy += (20 - n.pos.y) * k;
+      n.fz += (0 - n.pos.z) * k;
+    } else if (constellationPositions[id]) {
+      // 中層：8 個領域星座各自的目標位置
+      const cp = constellationPositions[id];
+      const k = 0.08;
+      n.fx += (cp.x - n.pos.x) * k;
+      n.fy += (cp.y - n.pos.y) * k;
+      n.fz += (cp.z - n.pos.z) * k;
+    } else if (n.group === 'skills' && skillToConstellation[id]) {
+      // 外圍：被追蹤的 Skill 朝對應星座方向散開
+      const cPos = constellationPositions[skillToConstellation[id]];
+      if (cPos) {
+        const dir = cPos.clone().normalize();
+        const targetX = dir.x * 42;
+        const targetZ = dir.z * 42;
+        const targetY = cPos.y - 5;
+        const k = 0.03;
+        n.fx += (targetX - n.pos.x) * k;
+        n.fy += (targetY - n.pos.y) * k;
+        n.fz += (targetZ - n.pos.z) * k;
+      }
     }
   });
 
