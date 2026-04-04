@@ -396,6 +396,12 @@ class ClaudeCLIAdapter:
             env["USER"] = getpass.getuser()
             logger.info(f"[CLI] Injected USER={env['USER']} for keychain access")
 
+        # ⚠️ launchd daemon 環境 PATH 不含 homebrew，Claude CLI 需要 node
+        _path = env.get("PATH", "")
+        _extra_paths = "/opt/homebrew/bin:/opt/homebrew/opt/node@22/bin:/usr/local/bin"
+        if "/opt/homebrew/bin" not in _path:
+            env["PATH"] = f"{_extra_paths}:{_path}"
+
         try:
             prompt_bytes = prompt.encode("utf-8")
             _prompt_mb = len(prompt_bytes) / (1024 * 1024)
@@ -546,6 +552,7 @@ class ClaudeCLIAdapter:
                         stdin=asyncio.subprocess.PIPE,
                         stdout=asyncio.subprocess.PIPE,
                         stderr=asyncio.subprocess.PIPE,
+                        env=env,
                     )
                     stdout2, _ = await asyncio.wait_for(
                         proc2.communicate(input=prompt_bytes),
@@ -1092,6 +1099,10 @@ async def create_adapter(prefer_cli: bool = True) -> LLMAdapter:
             env = os.environ.copy()
             env.pop("CLAUDECODE", None)
             env.pop("ANTHROPIC_API_KEY", None)
+            # launchd 環境 PATH 修補
+            _path = env.get("PATH", "")
+            if "/opt/homebrew/bin" not in _path:
+                env["PATH"] = f"/opt/homebrew/bin:/opt/homebrew/opt/node@22/bin:/usr/local/bin:{_path}"
             proc = await asyncio.create_subprocess_exec(
                 claude_path, "--version",
                 stdout=asyncio.subprocess.PIPE,

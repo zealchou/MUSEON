@@ -131,7 +131,7 @@ class TelegramAdapter(ChannelAdapter):
         self.application.add_handler(MessageHandler(filters.VIDEO, self._handle_file_upload))
         self.application.add_handler(CommandHandler("start", self._handle_start_command))
         self.application.add_handler(CommandHandler("menu", self._handle_menu_command))
-        self.application.add_handler(CommandHandler("help", self._handle_menu_command))
+        self.application.add_handler(CommandHandler("help", self._handle_help_command))
 
         # Menu callback handler
         from telegram.ext import CallbackQueryHandler as _CQH
@@ -616,6 +616,44 @@ class TelegramAdapter(ChannelAdapter):
                 else:
                     from museon.channels.menu_config import FULL_MENU_TEXT
                     await update.message.reply_text(FULL_MENU_TEXT)
+
+    async def _handle_help_command(self, update: Update, context: Any) -> None:
+        """Handle /help — 顯示詳細使用說明（與 /menu 不同）."""
+        if not update.message:
+            return
+        is_group = update.message.chat.type in ("group", "supergroup")
+        help_text = (
+            "❓ **MUSEON 使用說明**\n\n"
+            "MUSEON 是你的 AI 策略幕僚，融合商業診斷、戰略推演、品牌建構、投資分析等 80+ 項專業能力。\n\n"
+            "**🚀 快速開始**\n"
+            "直接用中文描述你的需求即可，不一定要用指令。例如：\n"
+            "• 「幫我分析這個商業模式的優缺點」\n"
+            "• 「最近台積電的走勢如何？」\n"
+            "• 「幫我寫一封客戶提案信」\n\n"
+            "**📋 指令用法**\n"
+            "輸入 `/指令名稱` 啟動特定功能，例如：\n"
+            "• `/ares 王小明` — 分析此人的人格與策略建議\n"
+            "• `/market BTC` — 加密貨幣市場分析\n"
+            "• `/meeting` — 將群組對話整理成會議記錄\n"
+            "• `/brand` — 啟動品牌定位顧問流程\n\n"
+            "**📊 完整指令清單**\n"
+            "輸入 /menu 查看所有可用功能。\n\n"
+        )
+        if is_group:
+            help_text += (
+                "**💡 群組使用提示**\n"
+                "• 在群組中 @我 + 你的問題，我就會回應\n"
+                "• `/meeting` 可以整理群組對話為會議記錄\n"
+                "• 我會記住群組的對話脈絡\n"
+            )
+        else:
+            help_text += (
+                "**💡 私訊專屬功能**\n"
+                "• 我會記住你的偏好和對話歷史\n"
+                "• 深度分析（投資、品牌、戰略）建議在私訊中進行\n"
+                "• 可以上傳檔案讓我分析（PDF、圖片、音檔）\n"
+            )
+        await update.message.reply_text(help_text, parse_mode="Markdown")
 
     async def _handle_menu_callback(self, update: Update, context: Any) -> None:
         """Handle menu inline keyboard callbacks."""
