@@ -80,6 +80,7 @@ class L4CpuObserver:
             "signal_updated": False,
             "preference_detected": False,
             "adjustment_written": False,
+            "cache_written": False,
         }
 
         try:
@@ -109,6 +110,13 @@ class L4CpuObserver:
             )
         except Exception as e:
             logger.debug(f"[L4-CPU] Step 4 session adjustment failed: {e}")
+
+        try:
+            result["cache_written"] = self._step5_semantic_cache_write(
+                session_id, chat_id, user_message, museon_reply,
+            )
+        except Exception as e:
+            logger.debug(f"[L4-CPU] Step 5 semantic cache write failed: {e}")
 
         return result
 
@@ -260,4 +268,28 @@ class L4CpuObserver:
             return True
         except Exception as e:
             logger.debug(f"[L4-CPU] Session adjustment write error: {e}")
+            return False
+
+    # ─── Step 5: 語意快取寫入 ───
+
+    def _step5_semantic_cache_write(
+        self, session_id: str, chat_id: str,
+        user_message: str, museon_reply: str,
+    ) -> bool:
+        """寫入 semantic response cache（供下次相似查詢命中）."""
+        from museon.pulse.signal_keywords import quick_signal_scan
+
+        signals = quick_signal_scan(user_message)
+
+        try:
+            from museon.cache.semantic_response_cache import SemanticResponseCache
+            cache = SemanticResponseCache()
+            return cache.write(
+                chat_id=chat_id,
+                query=user_message,
+                response=museon_reply,
+                signals=signals,
+            )
+        except Exception as e:
+            logger.debug(f"[L4-CPU] Semantic cache write error: {e}")
             return False

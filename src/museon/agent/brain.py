@@ -673,10 +673,49 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                         self._pre_compact_flush(session_id, dropping)
                         full_history[:] = full_history[-40:]
                     logger.info(f"[FAST] 完成，回覆 {len(_fast_resp)} 字")
+                    # L4 CPU 觀察（FAST 管線也要觀察）
+                    try:
+                        from museon.agent.l4_cpu_observer import L4CpuObserver
+                        _l4 = L4CpuObserver(data_dir=self.data_dir, memory_manager=self.memory_store)
+                        _l4.observe(
+                            session_id=session_id, chat_id=session_id,
+                            user_id=user_id, user_message=content, museon_reply=_fast_resp,
+                        )
+                    except Exception as _l4e:
+                        logger.debug(f"[L4-CPU] FAST observation failed: {_l4e}")
                     return _fast_resp
             except Exception as e:
                 logger.warning(f"[FAST] 失敗，降級到 STANDARD: {e}")
                 _pipeline = "STANDARD"
+
+        # ── Step 1.1.8: Semantic Cache 查詢（零 LLM token）──
+        if _pipeline != "DEEP":  # DEEP 需要新鮮深度分析，不走快取
+            try:
+                from museon.cache.semantic_response_cache import SemanticResponseCache
+                _sem_cache = SemanticResponseCache()
+                _cache_hit = _sem_cache.query(chat_id=session_id, query=content)
+                if _cache_hit:
+                    logger.info(f"[SemanticCache] HIT → 跳過 LLM，直接回覆")
+                    # 寫入歷史
+                    _cache_history = self._get_session_history(session_id)
+                    _cache_history.append({"role": "user", "content": content})
+                    _cache_history.append({"role": "assistant", "content": _cache_hit})
+                    # L4 CPU 觀察（即使快取命中也要觀察）
+                    try:
+                        from museon.agent.l4_cpu_observer import L4CpuObserver
+                        _l4 = L4CpuObserver(data_dir=self.data_dir, memory_manager=self.memory_store)
+                        _l4.observe(
+                            session_id=session_id,
+                            chat_id=session_id,
+                            user_id=user_id,
+                            user_message=content,
+                            museon_reply=_cache_hit,
+                        )
+                    except Exception as _l4e:
+                        logger.debug(f"[L4-CPU] Cache-hit observation failed: {_l4e}")
+                    return _cache_hit
+            except Exception as _sce:
+                logger.debug(f"[SemanticCache] Query failed (degraded): {_sce}")
 
         # ── Step 1.2: 自我檢查意圖攔截（非阻塞，加 timeout）──
         try:
@@ -1560,6 +1599,24 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                 })
             except Exception as e:
                 logger.warning(f"BRAIN_RESPONSE_COMPLETE 事件發布失敗: {e}")
+
+        # ── Step 10.5: L4 CPU Observer（零 token 對話後觀察）──
+        try:
+            from museon.agent.l4_cpu_observer import L4CpuObserver
+            _l4 = L4CpuObserver(
+                data_dir=self.data_dir,
+                memory_manager=self.memory_store,
+            )
+            _l4_result = _l4.observe(
+                session_id=session_id,
+                chat_id=session_id,
+                user_id=user_id,
+                user_message=content,
+                museon_reply=response_text,
+            )
+            logger.debug(f"[L4-CPU] Observation: {_l4_result}")
+        except Exception as e:
+            logger.debug(f"[L4-CPU] Observation failed (degraded): {e}")
 
         # ── SkillHub: 解析 [WORKFLOW_DRAFT] 標記 ──
         if self._skillhub_mode == "skill_builder":
