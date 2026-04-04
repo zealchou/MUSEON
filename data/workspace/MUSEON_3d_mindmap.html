@@ -1342,13 +1342,21 @@ SYNC_META.linkCount = links.length;
 // ═══════════════════════════════════════
 
 // Group target positions on a Fibonacci sphere (uniform spherical distribution)
-const groupKeys = Object.keys(GC);
+// constellation 和 center 不參與 Fibonacci 分佈
+const fibGroups = Object.keys(GC).filter(g => g !== 'center' && g !== 'constellation');
 const groupTargets = {};
 const golden = (1 + Math.sqrt(5)) / 2;
-groupKeys.forEach((g, i) => {
-  if (g === 'center') { groupTargets[g] = new THREE.Vector3(0, 0, 0); return; }
+
+// center 在原點
+groupTargets['center'] = new THREE.Vector3(0, 0, 0);
+
+// constellation 固定在正上方（Meta 層）
+groupTargets['constellation'] = new THREE.Vector3(0, 38, 0);
+
+// 其餘群組走 Fibonacci 球面
+fibGroups.forEach((g, i) => {
   const theta = 2 * Math.PI * i / golden;
-  const phi = Math.acos(1 - 2 * (i + 0.5) / groupKeys.length);
+  const phi = Math.acos(1 - 2 * (i + 0.5) / fibGroups.length);
   const R = 35;
   groupTargets[g] = new THREE.Vector3(
     R * Math.sin(phi) * Math.cos(theta),
@@ -1356,11 +1364,6 @@ groupKeys.forEach((g, i) => {
     R * Math.sin(phi) * Math.sin(theta)
   );
 });
-
-// Meta layer: constellation floats above
-if (groupTargets['constellation']) {
-  groupTargets['constellation'].y += 25;
-}
 
 // Connection weight per node (proxy for "熟練度")
 nodes.forEach(n => {
@@ -1370,7 +1373,7 @@ nodes.forEach(n => {
 // Initialize positions near group targets with jitter
 nodes.forEach(n => {
   const target = groupTargets[n.group] || new THREE.Vector3(0, 0, 0);
-  const jitter = n.hub ? 3 : 12;
+  const jitter = n.hub ? 3 : (n.group === 'constellation' ? 6 : 12);
   n.pos = new THREE.Vector3(
     target.x + (Math.random() - 0.5) * jitter,
     target.y + (Math.random() - 0.5) * jitter,
@@ -1471,10 +1474,13 @@ links.forEach(l => {
   if (!sn || !tn) return;
 
   const geo = new THREE.BufferGeometry().setFromPoints([sn.pos, tn.pos]);
+  // constellation cross links 需要更高可見度
+  const isConstellationCross = l.type === 'cross' &&
+    (l.source.startsWith('constellation-') || l.target.startsWith('constellation-'));
   const mat = new THREE.LineBasicMaterial({
-    color: lkHex(l.type),
+    color: isConstellationCross ? 0x9B59B6 : lkHex(l.type),
     transparent: true,
-    opacity: l.type === 'internal' ? 0.15 : 0.3,
+    opacity: isConstellationCross ? 0.55 : (l.type === 'internal' ? 0.15 : 0.3),
     linewidth: 1
   });
   const line = new THREE.Line(geo, mat);
@@ -1938,6 +1944,18 @@ function simulateForces() {
     n.fx += (target.x - n.pos.x) * groupK;
     n.fy += (target.y - n.pos.y) * groupK;
     n.fz += (target.z - n.pos.z) * groupK;
+  });
+
+  // 4.5 Meta layer Y constraint — keep constellation nodes above
+  const metaK = 0.08;
+  nodes.forEach(n => {
+    if (n.group === 'constellation') {
+      const targetY = 38;
+      n.fy += (targetY - n.pos.y) * metaK;
+      // 同時限制水平擴散——constellation 應緊湊
+      n.fx += (0 - n.pos.x) * metaK * 0.3;
+      n.fz += (0 - n.pos.z) * metaK * 0.3;
+    }
   });
 
   // 5. Central gravity — gentle pull toward origin

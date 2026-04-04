@@ -146,6 +146,7 @@
     "ad-pilot", "video-strategy", "brand-builder",
     "biz-collab", "course-forge", "consultant-communication"
   ],
+  "tracked_skills": ["ssa-consultant", "landing-page-forge", "video-strategy"],
   "created_at": "2026-04-04",
   "updated_at": "2026-04-04"
 }

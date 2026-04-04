@@ -124,6 +124,7 @@
     "market-core", "market-equity", "market-crypto", "market-macro",
     "sentiment-radar", "risk-matrix", "investment-masters"
   ],
+  "tracked_skills": ["market-core", "market-equity", "market-crypto", "market-macro", "investment-masters", "sentiment-radar", "risk-matrix"],
   "created_at": "2026-04-04",
   "updated_at": "2026-04-04"
 }

@@ -138,6 +138,7 @@
     "deep-think", "dharma", "philo-dialectic", "meta-learning",
     "resonance", "roundtable", "shadow-muse"
   ],
+  "tracked_skills": ["dharma", "deep-think", "philo-dialectic", "meta-learning"],
   "created_at": "2026-04-04",
   "updated_at": "2026-04-04"
 }

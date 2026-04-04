@@ -111,6 +111,7 @@
     "deep-think", "philo-dialectic", "decision-tracker",
     "athena", "anima-individual"
   ],
+  "tracked_skills": ["master-strategy", "shadow", "roundtable"],
   "created_at": "2026-04-04",
   "updated_at": "2026-04-04"
 }

@@ -133,6 +133,7 @@
     "brand-identity", "consultant-communication", "video-strategy",
     "landing-page-forge", "biz-collab", "biz-diagnostic", "xmodel"
   ],
+  "tracked_skills": ["business-12", "ssa-consultant", "biz-diagnostic", "biz-collab"],
   "created_at": "2026-04-04",
   "updated_at": "2026-04-04"
 }

@@ -1276,6 +1276,47 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
             except Exception as e:
                 logger.debug(f"[AbsurdityRadar] update failed: {e}")
 
+        # ── 多星座雷達更新：Skill 使用後更新相關星座 ──
+        if matched_skills:
+            try:
+                from museon.agent.constellation_radar import (
+                    load_definition, load_radar, update_from_skill, save_radar as save_constellation_radar,
+                    list_constellations,
+                )
+                _data_dir = str(self.data_dir)
+                _raw_list = list_constellations(_data_dir)
+                _skill_names = {sk.get("name", "") for sk in matched_skills[:3]}
+
+                for _cname in _raw_list:
+                    if _cname == "absurdity":
+                        continue  # absurdity 由上方舊版機制處理
+
+                    _defn = load_definition(_cname, _data_dir)
+                    if not _defn:
+                        continue
+
+                    _tracked = _defn.get("tracked_skills", [])
+                    # 檢查本次使用的 Skill 是否被這個星座追蹤
+                    _matched_tracked = _skill_names & set(_tracked)
+                    if not _matched_tracked:
+                        continue
+
+                    # 更新雷達：每個匹配的 Skill 都會增加信心
+                    _dims = tuple(_defn["dimensions"])
+                    _alpha = _defn.get("alpha", 0.05)  # 用較小的 alpha（沒有 per-dim affinity）
+                    _radar = load_radar(_cname, ctx.user_id, _data_dir)
+
+                    for _sk_name in _matched_tracked:
+                        # 均勻小幅更新所有維度（未來可加 per-skill dimension affinity）
+                        _uniform_affinity = {dim: 0.3 for dim in _dims}
+                        _radar = update_from_skill(_radar, _uniform_affinity, _dims, _alpha)
+
+                    save_constellation_radar(_cname, _radar, ctx.user_id, _data_dir)
+                    logger.info(f"[ConstellationRadar] updated {_cname} for skills: {_matched_tracked}")
+
+            except Exception as e:
+                logger.debug(f"[ConstellationRadar] multi-constellation update failed: {e}")
+
         # ── Step 8.1: 演化數據輸入 — Synapse / ToolMuscle / Footprint ──
         _report("🧬 演化數據", "Synapse + ToolMuscle + Footprint...")
         if skill_names and not self._offline_flag:
