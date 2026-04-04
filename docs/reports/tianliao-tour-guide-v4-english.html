@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tianliao Moon World Cultural Field Trip Tour Guide v4.0 — For American Chinese-Studies Students</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ember: #C4502A;
+    --ember-light: #E0714D;
+    --ember-dark: #9A3A1C;
+    --teal: #2A7A6E;
+    --gold: #B8923A;
+    --ink: #12121A;
+    --slate: #5A5A6E;
+    --mist: #9898A8;
+    --border: #E2E0DA;
+    --parchment: #F7F5F0;
+    --snow: #FDFCFA;
+    --deep-ink: #0E0E16;
+    --surface: #16161F;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--parchment);
+    color: var(--ink);
+    font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+    font-size: 16px;
+    line-height: 1.75;
+  }
+
+  .hero {
+    background: var(--deep-ink);
+    color: white;
+    padding: 96px 40px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 30% 50%, rgba(196,80,42,0.25) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(42,122,110,0.15) 0%, transparent 50%);
+  }
+  .hero-inner {
+    max-width: 820px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(196,80,42,0.2);
+    border: 1px solid rgba(196,80,42,0.4);
+    color: var(--ember-light);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 100px;
+    margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 52px;
+    font-weight: 600;
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+  .hero h1 em {
+    color: var(--ember-light);
+    font-style: italic;
+  }
+  .hero-subtitle {
+    font-size: 18px;
+    color: rgba(255,255,255,0.7);
+    max-width: 600px;
+    line-height: 1.7;
+    margin-bottom: 32px;
+  }
+  .hero-meta {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .hero-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .hero-meta-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+  }
+  .hero-meta-value {
+    font-size: 15px;
+    color: rgba(255,255,255,0.85);
+    font-weight: 500;
+  }
+
+  .container {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+
+  section {
+    padding: 64px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  section:last-of-type { border-bottom: none; }
+
+  .usr-box {
+    background: linear-gradient(135deg, rgba(42,122,110,0.08) 0%, rgba(42,122,110,0.04) 100%);
+    border: 1px solid rgba(42,122,110,0.2);
+    border-left: 4px solid var(--teal);
+    border-radius: 10px;
+    padding: 24px;
+    margin: 32px 0;
+  }
+  .usr-box-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 8px;
+  }
+  .usr-box p {
+    font-size: 15px;
+    color: var(--slate);
+    line-height: 1.7;
+  }
+
+  .station {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 32px;
+    margin-bottom: 32px;
+    box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+    animation: fadeUp 0.4s ease-out both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .station-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .station-number {
+    background: var(--ember);
+    color: white;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .station-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--ink);
+  }
+  .station-zh {
+    font-size: 13px;
+    color: var(--mist);
+    font-style: italic;
+    margin-top: 2px;
+  }
+
+  .script-block {
+    background: var(--parchment);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 16px 0;
+    border-left: 3px solid var(--ember);
+  }
+  .script-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ember);
+    margin-bottom: 8px;
+  }
+  .script-text {
+    font-size: 15px;
+    line-height: 1.85;
+    color: var(--ink);
+  }
+  .script-text .humor {
+    color: var(--ember);
+    font-style: italic;
+  }
+
+  .term-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .term-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .term-en {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+  .term-zh {
+    font-size: 12px;
+    color: var(--teal);
+    font-style: italic;
+    margin-bottom: 6px;
+  }
+  .term-def {
+    font-size: 13px;
+    color: var(--slate);
+    line-height: 1.6;
+  }
+
+  .wisdom-block {
+    background: linear-gradient(135deg, rgba(184,146,58,0.1) 0%, rgba(184,146,58,0.05) 100%);
+    border: 1px solid rgba(184,146,58,0.25);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 16px 0;
+  }
+  .wisdom-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .wisdom-text {
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--slate);
+  }
+  .wisdom-quote {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-style: italic;
+    color: var(--gold);
+    border-left: 3px solid var(--gold);
+    padding-left: 16px;
+    margin: 12px 0;
+  }
+
+  .interaction {
+    background: rgba(196,80,42,0.06);
+    border: 1px dashed rgba(196,80,42,0.3);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 12px 0;
+  }
+  .interaction-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ember);
+    margin-bottom: 6px;
+  }
+  .interaction-text {
+    font-size: 14px;
+    color: var(--slate);
+  }
+
+  .transition-note {
+    text-align: center;
+    color: var(--mist);
+    font-size: 13px;
+    font-style: italic;
+    padding: 16px;
+    margin: 8px 0;
+  }
+  .transition-note::before { content: '— '; }
+  .transition-note::after { content: ' —'; }
+
+  .section-tag {
+    display: inline-block;
+    background: rgba(196,80,42,0.1);
+    color: var(--ember-dark);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 100px;
+    margin-bottom: 12px;
+  }
+  h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+  h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 20px 0 8px;
+  }
+  p {
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--slate);
+    margin-bottom: 12px;
+  }
+
+  .tip-list {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0;
+  }
+  .tip-list li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 15px;
+    color: var(--slate);
+  }
+  .tip-list li:last-child { border-bottom: none; }
+  .tip-list li::before {
+    content: '\2726';
+    color: var(--ember);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 14px;
+  }
+  .summary-table th {
+    background: var(--ink);
+    color: white;
+    padding: 10px 16px;
+    text-align: left;
+    font-weight: 500;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+  }
+  .summary-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--slate);
+    background: var(--snow);
+  }
+  .summary-table tr:hover td { background: var(--parchment); }
+
+  .footer {
+    background: var(--deep-ink);
+    color: rgba(255,255,255,0.5);
+    text-align: center;
+    padding: 40px;
+    font-size: 13px;
+  }
+  .footer strong { color: var(--ember-light); }
+
+  @media print {
+    .hero { background: #12121A !important; }
+    .station { box-shadow: none; border: 1px solid #ccc; }
+    .interaction { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">USR Educational Tour Program x NKNU</div>
+    <h1>Tianliao Moon World<br><em>Cultural Field Trip Guide</em></h1>
+    <p class="hero-subtitle">
+      An immersive field trip script designed for American Chinese-studies students and NKNU (National Kaohsiung Normal University) student guides.
+      Step into a part of Taiwan that "doesn't look like Taiwan" — and learn to read the mud volcanoes, the badlands, and the life wisdom left behind by ancestors a thousand years ago.
+    </p>
+    <div class="hero-meta">
+      <div class="hero-meta-item">
+        <span class="hero-meta-label">Audience</span>
+        <span class="hero-meta-value">American Chinese-studies students + NKNU student helpers</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hero-meta-label">Suggested Duration</span>
+        <span class="hero-meta-value">120-150 minutes</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hero-meta-label">Number of Stops</span>
+        <span class="hero-meta-value">11 stops</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="hero-meta-label">Version</span>
+        <span class="hero-meta-value">v4.0 English Translation</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- USR Framework -->
+<div class="container">
+  <section>
+    <div class="section-tag">USR Course Framework</div>
+    <h2>Why Is This the Best Classroom?</h2>
+    <p>
+      The core idea of NKNU's USR (University Social Responsibility) program is: "Let the university step out of the ivory tower, and let the community step into the university."
+      Tianliao Moon World (Tianliao Yueshijie, <span style="color:var(--teal);">田寮月世界</span>) is not a tourist spot — it is a living classroom. Geology, ecology, farming history, language and culture — everything is written on this land.
+    </p>
+
+    <div class="usr-box">
+      <div class="usr-box-title">USR — University Social Responsibility (大學社會責任)</div>
+      <p>
+        "USR" is a program started by Taiwan's Ministry of Education. It asks universities to work with local communities to solve real social problems.
+        At Tianliao, NKNU (Gao Shi Da, <span style="color:var(--teal);">高師大</span>) is working on: ecological education, local culture preservation, and sustainable rural development.
+        For American students, you can think of it as a mix of Community Engagement and Experiential Learning.
+      </p>
+    </div>
+
+    <div class="usr-box">
+      <div class="usr-box-title">Guide's User Manual</div>
+      <p>
+        <strong>[Speaking Script]</strong>: Read it word-by-word, or rewrite it in your own style<br>
+        <strong>[Ancestral Wisdom]</strong>: Special explanations about "why did the old people do it this way?"<br>
+        <strong>[Vocabulary Notes]</strong>: Extra help for words American students might not know<br>
+        <strong>[Discussion Question]</strong>: Throw it to the students for discussion — no rush to give answers<br>
+        <strong>Humor tips</strong>: <em>shown in italics — use them based on the mood of the group</em>
+      </p>
+    </div>
+  </section>
+</div>
+
+<!-- Opening -->
+<div class="container">
+  <section>
+    <div class="section-tag">Gathering Point — Before We Start</div>
+    <h2>Opening: Welcome to the "Moon"</h2>
+
+    <div class="station">
+      <div class="script-label">Speaking Script</div>
+      <div class="script-text">
+        <p>
+          Welcome, everyone! I am your guide today, and I am also a student at NKNU (Gao Shi Da, <span style="color:var(--teal);">高師大</span>).
+          Before we start, I want to ask you a question:
+        </p>
+        <p>
+          <strong>Do you feel like the place you are standing right now doesn't look like Taiwan?</strong>
+        </p>
+        <p>
+          What does Taiwan usually look like? Green mountains, plants everywhere, rice fields, cities.
+          But the view in front of you right now — gray-white, bare, rolling hills —
+          geologists have found that the mudstone badlands here look almost exactly like the surface of the moon.
+        </p>
+        <p>
+          That is why we call it <strong>"Moon World" (Yueshijie, <span style="color:var(--teal);">月世界</span>)</strong>.
+          <span class="humor">And it has one big advantage: we don't need a rocket to get here.</span>
+        </p>
+        <p>
+          Today, the Tianliao Moon World (Tianliao Yueshijie, <span style="color:var(--teal);">田寮月世界</span>) we are going to explore is a place with special geology, unique farming, and mysterious folk customs.
+          Friends from America, I promise you will take home a few stories that you have never read in any textbook.
+        </p>
+      </div>
+    </div>
+
+    <div class="interaction">
+      <div class="interaction-label">Discussion Question</div>
+      <div class="interaction-text">
+        "In your hometown, is there a place that is famous because it looks like somewhere else?"
+        (Let the American students share — it helps everyone feel closer.)
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Stations -->
+<div class="container">
+  <section>
+    <div class="section-tag">Prologue + 11 Stops + Extension</div>
+    <h2>Field Trip Route</h2>
+
+    <!-- Prologue: History -->
+    <div class="station">
+      <div class="station-header">
+        <div class="station-number">Prologue</div>
+        <div>
+          <div class="station-title">Whose Land? — A 280-Year Migration Story</div>
+          <div class="station-zh">序章：誰的家？280年前的移民故事</div>
+        </div>
+      </div>
+
+      <div class="term-grid">
+        <div class="term-card">
+          <div class="term-en">Zhangzhou (漳州, Zhangzhou)</div>
+          <div class="term-zh">Zhangzhou, Fujian Province</div>
+          <div class="term-def">A port city in Fujian Province, China. During the Qing Dynasty (around 1600s-1800s), many immigrants crossed the sea from here to Taiwan. It is one of the most important homeland regions for Taiwanese Han Chinese immigrants.</div>
+        </div>
+        <div class="term-card">
+          <div class="term-en">Pingpu Tribe (平埔族, Pingpu zu)</div>
+          <div class="term-zh">Plains Aborigines / Indigenous Peoples</div>
+          <div class="term-def">The Indigenous peoples of Taiwan who lived on the plains. Before Han Chinese immigrants came, they had already been living on this land for thousands of years.</div>
+        </div>
+        <div class="term-card">
+          <div class="term-en">Hakka (客家, Kejia)</div>
+          <div class="term-zh">Hakka People</div>
+          <div class="term-def">An ethnic group from southern China, known for their unique language and culture. They are one of Taiwan's four major ethnic groups and also have early immigrant footprints in the Tianliao area.</div>
+        </div>
+      </div>
+
+      <div class="script-block">
+        <div class="script-label">Speaking Script</div>
+        <div class="script-text">
+          <p>
+            Before we start our field trip, I want to tell you a story.
+            This land, about <strong>280 years ago (around the 1740s)</strong>, welcomed its first Han Chinese settlers.
+          </p>
+          <p>
+            The most well-known among them was the <strong>Lin family (林氏家族)</strong>, who crossed the sea from Zhangzhou (漳州) in Fujian Province.
+            Teacher Xiang (項老師), who is guiding us today, is the eighth-generation descendant of this family.
+            Eight generations — that is roughly your great-great-great-great-great-grandparent. One family's story, stretching across seven or eight lifetimes.
+          </p>
+          <p>
+            But the beginning of this story was not a heroic adventure.
+            Legend says the Lin ancestor was tricked by a dishonest trader — in other words, he was "cheated into coming to Taiwan."
+            <span class="humor">If you think this sounds like a movie plot — yes, it really does.
+            Except this hero had no sword, no magic powers, just two hands and a piece of poor land.</span>
+          </p>
+          <p>
+            Even earlier, this land belonged to the <strong>Pingpu people (平埔族)</strong> — Taiwan's earliest residents.
+            Later, <strong>Hakka people (客家)</strong> also moved here.
+            As latecomers, the Han Chinese immigrants could only settle in places nobody else wanted —
+            poor dry land, edges by the roadsides.
+          </p>
+          <p>
+            The whole area of Tianliao (田寮) is 92 square kilometers, but only about "30-something hectares" of land could be registered for farming.
+            Does that number help you understand?
+            <span class="humor">Here is a comparison: if Taipei City were a big pizza, the farmable land in Tianliao would be that tiny crust edge with no toppings.
+            The ancestors raised their entire family on that tiny piece.</span>
+          </p>
+          <p>
+            Every step we take today is on the soil of this 280-year story.
+          </p>
+        </div>
+      </div>
+
+      <div class="wisdom-block">
+        <div class="wisdom-label">The Complexity of Historical Narratives (For American Students)</div>
+        <div class="wisdom-text">
+          Taiwan's immigration history shares an important similarity with America's immigration history:
+          It was never a simple "heroes conquering a new land" story.
+          It includes deception, displacement, ethnic mixing, and the wisdom of surviving under limits.
+          When we look at history again, the question more important than "who is the hero" is:
+          "Under what conditions did what kind of people make what kind of choices?"
+        </div>
+      </div>
+    </div>
+
+    <div class="transition-note">Let us step onto this ancient land and begin the first stop</div>
+
+    <!-- Station 1 -->
+    <div class="station">
+      <div class="station-header">
+        <div class="station-number">Stop 01</div>
+        <div>
+          <div class="station-title">Badlands Geology — "Bad" Land, Great Story</div>
+          <div class="station-zh">惡地地質——惡地，不是惡人住的地方</div>
+        </div>
+      </div>
+
+      <div class="term-grid">
+        <div class="term-card">
+          <div class="term-en">Badlands (惡地, e di)</div>
+          <div class="term-zh">Badlands terrain</div>
+          <div class="term-def">A geology term for land where the soil is very tight, plants have a hard time growing, and water has carved deep grooves into the ground. "Bad" means "hard to farm," not "evil."</div>
+        </div>
+        <div class="term-card">
+          <div class="term-en">Mudstone (泥岩, ni yan)</div>
+          <div class="term-zh">Mudstone / Shale</div>
+          <div class="term-def">Rock made from tiny clay particles pressed together over millions of years. It becomes soft when wet and hard when dry — that is what creates Moon World's special landscape.</div>
+        </div>
+        <div class="term-card">
+          <div class="term-en">Erosion (侵蝕, qin shi)</div>
+          <div class="term-zh">Erosion by water or wind</div>
+          <div class="term-def">The process where water or wind carries away soil and rock. Rainwater in Tianliao peels away the mudstone layer by layer. It took thousands of years to create the moon-like look we see today.</div>
+        </div>
+      </div>
+
+      <div class="script-block">
+        <div class="script-label">Speaking Script</div>
+        <div class="script-text">
+          <p>
+            The ground you are standing on right now is deep-sea mud and sand from about <strong>6 to 8 million years ago</strong>.
+            Back then, Taiwan did not even exist — this was all ancient ocean.
+            Later, tectonic plates (the huge pieces of Earth's crust) crashed into each other, and Taiwan slowly "grew" out of the sea, bringing this mud and sand up to the surface.
+          </p>
+          <p>
+            This kind of soil is called <strong>"mudstone" (泥岩, ni yan)</strong>. In Tianliao, older locals also call it "sea-silver soil" (海銀土, hai yin tu) or "sea-cloud soil" (海雲土).
+            It has a very tricky personality: high salt content, doesn't hold water — when it rains, it turns into soft mud; when the sun comes out, it hardens into rock. Plant roots can barely dig into it.
+            So every rainstorm is like a sculptor, carving this land into a new shape.
+          </p>
+          <p>
+            How deep is it? The CPC Corporation (中油, Taiwan's national oil company) drilled 4,000 meters underground here, and it was still mudstone.
+            <span class="humor">Think of it like an extremely difficult roommate: when it rains, it gets soggy and clingy; when the sun comes out, it becomes hard as a rock. Even plants don't want to live with it. And the oil company says, "It's the same thing 4,000 meters down."</span>
+          </p>
+          <p>
+            The name "Moon World" (月世界, Yueshijie) comes from the Japanese colonial period (around the late 1930s). When the Japanese arrived here and saw the bare, pale mudstone hills, they named it "Tsuki no Sekai" (月の世界, "World of the Moon" in Japanese), and the name has been used ever since. In geography, this type of terrain is called "mudstone badlands." The fragile mudstone erodes in the rain and cracks when dry, creating this landscape that looks amazingly similar to the surface of the moon.
+          </p>
+          <p>
+            Flowing through this landscape is the <strong>Erjin River (二仁溪, Er Ren Xi)</strong>, stretching 62 kilometers from Neimen (內門) to Qieding (茄定). Geographers call it "one of the most winding rivers in the world" — because the mudstone of the badlands is so soft, the river carves left and right over millions of years, cutting out this twisting waterway.
+          </p>
+        </div>
+      </div>
+
+      <div class="wisdom-block">
+        <div class="wisdom-label">Ancestral Wisdom</div>
+        <div class="wisdom-quote">"The land doesn't feed the people; the people feed the land." (地不養人，人養地。)</div>
+        <div class="wisdom-text">
+          The early residents of Tianliao could not farm on this kind of soil. Over generations, they built up wisdom to live side by side with the badlands —
+          instead of fighting the land head-on, they went around the badlands, found small farmable patches along the streams, or raised livestock (like free-range goats).
+          This is a classic example of "working with the land, not against it" — a farming philosophy of adapting to terrain rather than conquering it.
+        </div>
+      </div>
+    </div>
+
+    <div class="transition-note">Walk to the mud volcano observation area, about 5 minutes</div>
+
+    <!-- Station 2 -->
+    <div class="station">
+      <div class="station-header">
+        <div class="station-number">Stop 02</div>
+        <div>
+          <div class="station-title">Mud Volcanoes — Earth's Burps</div>
+          <div class="station-zh">泥火山——地球在這裡打嗝</div>
+        </div>
+      </div>
+
+      <div class="term-grid">
+        <div class="term-card">
+          <div class="term-en">Mud Volcano (泥火山, ni huo shan)</div>
+          <div class="term-zh">Mud Volcano</div>
+          <div class="term-def">Natural gas or hot water underground pushes mud up through the ground, forming something that looks like a small volcano. It is not a real volcano — it just "looks like one."</div>
+        </div>
+        <div class="term-card">
+          <div class="term-en">Methane Gas (甲烷, jia wan)</div>
+          <div class="term-zh">Methane — a type of natural gas</div>
+          <div class="term-def">The main part of natural gas. It has no color and no smell, but it can burn. It is the main gas that comes out of mud volcanoes. Early residents used it to start cooking fires.</div>
+        </div>
+      </div>
+
+      <div class="script-block">
+        <div class="script-label">Speaking Script</div>
+        <div class="script-text">
+          <p>
+            Everyone, look at this bubbling mud pit — this is a mud volcano.
+            It is not a real volcano. There is no magma underground. But it is doing something very similar to what a volcano does:
+            it brings stuff from deep underground up to the surface.
+          </p>
+          <p>
+            Natural gas and hot water deep in the ground push through cracks in the mudstone, rushing upward,
+            carrying mud along the way. That creates this "glug-glug" bubbling look.
+          </p>
+          <p>
+            <span class="humor">If you think this sound is familiar — yes, the Earth is burping right here. And it has been burping for millions of years.</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="wisdom-block">
+        <div class="wisdom-label">Ancestral Wisdom</div>
+        <div class="wisdom-quote">"Earth-fire can cook rice; you don't need to spend a penny on firewood." (地火可炊飯，不用柴薪一分錢。)</div>
+        <div class="wisdom-text">
+          Early residents of Tianliao discovered that the natural gas from mud volcanoes could burn, and they used to cook food right next to the mud volcano.
+          This was one of Taiwan's earliest uses of "natural gas" — long before modern gas pipelines were built, the ancestors already knew how to use geothermal resources.
+          This kind of observation and practical skill is called "localized resource utilization" in today's engineering world.
+        </div>
+      </div>
+
+      <div class="interaction">
+        <div class="interaction-label">Discussion Question</div>
+        <div class="interaction-text">
+          "If you were a person living here a thousand years ago, and you saw a mud volcano for the first time, what would be your first reaction?
+          Fear? Curiosity? Or immediately thinking about how to use it?"
+        </div>
+      </div>
+    </div>
+
+    <div class="transition-note">Walk along the badlands ridge trail, about 8 minutes</div>
+
+    <!-- Station 3 -->
+    <div class="station">
+      <div class="station-header">
+        <div class="station-number">Stop 03</div>
+        <div>
+          <div class="station-title">Soil Proverbs — The Language of the Land</div>
+          <div class="station-zh">海銀土俗諺——土地的語言</div>
+        </div>
+      </div>
+
+      <div class="term-grid">
+        <div class="term-card">
+          <div class="term-en">Folk Proverb (俗諺, su yan)</div>
+          <div class="term-zh">Traditional sayings passed down through generations</div>
+          <div class="term-def">Short sentences passed down from generation to generation by word of mouth. They are like tiny packages of farming wisdom — similar to English "proverbs" or "old sayings."</div>
+        </div>
+        <div class="term-card">
+          <div class="term-en">Sea-Silver Soil (海銀土, hai yin tu)</div>
+          <div class="term-zh">Whitish clay soil of Tianliao</div>
+          <div class="term-def">The mudstone soil of Tianliao Moon World. It has a silvery-white shine, comes from ancient seabed deposits, is high in salt, and is not good for growing plants.</div>
+        </div>
+      </div>
+
+      <div class="script-block">
+        <div class="script-label">Speaking Script</div>
+        <div class="script-text">
+          <p>
+            In Taiwanese farming villages, there is a very interesting thing:
+            farmers don't use textbooks, but they understand the personality of the land.
+            They squeezed hundreds of years of observation into a few words, so every new generation didn't have to figure things out from scratch.
+          </p>
+          <p>
+            About this sea-silver soil, the old folks of Tianliao say:
+          </p>
+          <p style="background: var(--parchment); padding: 12px 16px; border-radius: 6px; font-style: italic; color: var(--ink); font-size: 15px; border-left: 3px solid var(--gold);">
+            "White soil can't grow life; black soil feeds all things." (白土種不活、黑土養萬物。)
+          </p>
+          <p>
+            This is how they describe the difference between mudstone soil (white) and regular farming soil (black).
+            Using color to tell soil quality apart — just as accurate as modern soil science.
+          </p>
+          <p>
+            <span class="humor">In a time without Google, farmers used their tongues to taste soil and their eyes to check the color, building their own "soil database." In some ways, they were better at data analysis than we are.</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="wisdom-block">
+        <div class="wisdom-label">Ancestral Wisdom x USR Connection</div>
+        <div class="wisdom-text">
+          Folk proverbs are the earliest form of "open-source knowledge" — anyone can use them, and every generation can add new observations to update them.
+          What the NKNU USR program is doing now is actually in the same spirit as these proverbs:
+          translating academic knowledge into language that local communities can actually use.
+        </div>
+      </div>
+    </div>
+
+    <div class="transition-note">Head to the hillside goat grazing area, about 10 minutes by car</div>
+
+    <!-- Station 4 -->
+    <div class="station">
+      <div class="station-header">
+        <div class="station-number">Stop 04</div>
+        <div>
+          <div class="station-title">Free-Range Goat Culture — The Original Residents</div>
+          <div class="station-zh">放山羊文化——月世界的原住民</div>
+        </div>
+      </div>
+
+      <div class="term-grid">
+        <div class="term-card">
+          <div class="term-en">Free-Range Mountain Goat (放山羊, fang shan yang)</div>
+          <div class="term-zh">Goats that roam freely on the mountains</div>
+          <div class="term-def">Letting goats wander and find food freely in the mountains, without fences. It takes real skill to keep the herd from getting lost.</div>
+        </div>
+        <div class="term-card">
+          <div class="term-en">Shepherd (牧羊人, mu yang ren)</div>
+          <div class="term-zh">Person who watches over the goat herd</div>
+          <div class="term-def">The person who takes care of the goat herd. In Taiwanese farming villages, it was usually the elders or children. Today, very few people still do this.</div>
+        </div>
+        <div class="term-card">
+          <div class="term-en">Sheepfold / Pen (羊圈, yang juan)</div>
+          <div class="term-zh">Enclosure for goats</div>
+          <div class="term-def">A fenced area where goats rest at night or during rain. In Tianliao, pens are usually built with bamboo or wood.</div>
+        </div>
+      </div>
+
+      <div class="script-block">
+        <div class="script-label">Speaking Script</div>
+        <div class="script-text">
+          <p>
+            In a badlands environment, most crops can't survive.
+            But goats are different — goats are tough. They can find wild grass hiding in cracks between rocks,
+            and they can even digest rough, hard plants that most other animals won't eat.
+          </p>
+          <p>
+            So the ancestors of Tianliao figured out: if you can't grow food, you can raise an animal that goes and finds food for you.
+          </p>
+          <p>
+            They chose goats. Why goats? Because goats naturally need salt — and salt was expensive. But the badlands hilltops of Tianliao have rocks that naturally contain mineral salt.
+            The goats walked up the mountains every day by themselves, licked the rocks to get their minerals, and the owners didn't have to do a thing.
+            <span class="humor">This was the earliest "all-you-can-eat buffet" — the goats treated themselves, and the ancestors collected the benefits.</span>
+          </p>
+          <p>
+            And goats are almost zero-waste animals: their meat and milk are food, their droppings make the best organic fertilizer, and you can sell goats to buy other things you need.
+            <span class="humor">In a way, the goat was the "Swiss Army knife" of the farming age.</span>
+          </p>
+          <p>
+            Raising free-range goats takes real skill — you need to know the habits of the herd, know how to read the weather, and know which mountain paths are safe.
+            In Tianliao, some families have passed down goat-herding skills for generations. This is a kind of "human knowledge" that is disappearing.
+          </p>
+          <p>
+            Here is a story you might not have heard: have you ever eaten "<strong>Gangshan Goat Meat</strong>" (岡山羊肉, Gangshan Yang Rou)? It's very famous in Taiwan — you can see "Gangshan Goat Stew" signs everywhere.
+            But people who know the real story know that most of the goats in Gangshan restaurants were actually raised in Tianliao — Tianliao's mountain goats are the real source of supply.
+            <span class="humor">This is one of the most successful "origin swaps" in marketing history: customers buy the "Gangshan" name, but eat "Tianliao" goats.
+            In a way, Tianliao's goats have a right to feel unappreciated — they did all the growing up, but the neighbor town got all the fame.</span>
+          </p>
+          <p>
+            This case teaches us something: branding, storytelling, and marketing can sometimes be more powerful than the product itself.
+            If Tianliao had told the story of "Tianliao Goat Meat" well from the beginning, maybe we would be using a different name today.
+          </p>
+        </div>
+      </div>
+
+      <div class="wisdom-block">
+        <div class="wisdom-label">Ancestral Wisdom</div>
+        <div class="wisdom-quote">"Let nature do what nature is good at; people do what people are good at." (讓自然去做自然擅長的事，人去做人擅長的事。)</div>
+        <div class="wisdom-text">
+          The logic of free-range goat herding is actually a very modern "division of labor" philosophy:
+          goats are better at finding food than humans, so let goats find the grass;
+          humans are better at making decisions than goats, so humans decide where to let them graze.
+          This wisdom of "putting the right ability in the right place" is called "Comparative Advantage" in management studies today.
+        </div>
+      </div>
+
+      <div class="interaction">
+        <div class="interaction-label">Discussion Question</div>
+        <div class="interaction-text">
+          "In your hometown, is there a type of farming or food culture that developed because of a special landscape?
+          (For example: nomadic culture in desert areas, or fishing culture by the coast)"
+        </div>
+      </div>
+    </div>
+
+    <div class="transition-note">Walk to the movie filming viewpoint, about 5 minutes</div>
+
+    <!-- Station 5 -->
+    <div class="station">
+      <div class="station-header">
+        <div class="station-number">Stop 05</div>
+        <div>
+          <div class="station-title">Film Location — When Moonscape Becomes Story</div>
+          <div class="station-zh">電影取景地——當月世界變成了故事</div>
+        </div>
+      </div>
+
+      <div class="script-block">
+        <div class="script-label">Speaking Script</div>
+        <div class="script-text">
+          <p>
+            The spot where you are standing right now has appeared in several Taiwanese movies and TV shows.
+            Especially during the <strong>1970s-80s</strong>, this was the most popular filming location for Taiwanese martial arts movies.
+            Famous actors like <strong>Brigitte Lin (林青霞, Lin Qingxia)</strong> and <strong>Chin Han (秦祥林, Qin Xianglin)</strong> came here to shoot films — the barren feeling of Moon World was a perfect match for the "wilderness showdown" atmosphere of martial arts stories.
+          </p>
+          <p>
+            However, during the same period, another story was happening along the Erjin River (二仁溪) — the <strong>scrap metal industry</strong> grew rapidly, and factories dumped polluted water from electronic waste into the river. The Erjin River was once called "<strong>Taiwan's Black Dragon River</strong>."
+            Behind the desolate beauty of Moon World was a polluted river.
+            <span class="humor">The land of Tianliao never does anything just for show — the good and the bad are both laid out under the sun.</span>
+          </p>
+          <p>
+            Directors chose Tianliao Moon World because it offered a visual language that could not be found anywhere else in Taiwan:
+            <strong>desolation, silence, and a feeling of being completely cut off from the outside world.</strong>
+          </p>
+          <p>
+            <span class="humor">One director once said: "This place doesn't need special effects — it is the best special effect."
+            I think that quote also describes the people of Tianliao — living in such a difficult place for hundreds of years is itself a miracle.</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="wisdom-block">
+        <div class="wisdom-label">Cultural Dialogue</div>
+        <div class="wisdom-text">
+          In America, there is a concept called "Sense of Place" — the unique spirit or atmosphere of a place that cannot be copied anywhere else.
+          The "moon feeling" of Tianliao Moon World is exactly its Sense of Place.
+          And this feeling can only be truly experienced by standing on this land in person — that is also why the USR program insists on "field trips" instead of "classroom lectures."
+        </div>
+      </div>
+    </div>
+
+    <div class="transition-note">Head to the chicken restaurant area, about 5 minutes by car</div>
+
+    <!-- Station 6 -->
+    <div class="station">
+      <div class="station-header">
+        <div class="station-number">Stop 06</div>
+        <div>
+          <div class="station-title">Free-Range Chicken Restaurant Culture — Eating as Wisdom</div>
+          <div class="station-zh">土雞城飲食文化——吃飯是一門學問</div>
+        </div>
+      </div>
+
+      <div class="term-grid">
+        <div class="term-card">
+          <div class="term-en">Free-Range Chicken (土雞, tu ji)</div>
+          <div class="term-zh">Traditional breed chicken raised outdoors</div>
+          <div class="term-def">In Taiwan, this means a traditional breed of chicken raised outdoors in the open. The meat is chewier than factory-raised chicken. Taiwanese people think it tastes richer and sweeter.</div>
+        </div>
+        <div class="term-card">
+          <div class="term-en">Chicken Restaurant Village (土雞城, tu ji cheng)</div>
+          <div class="term-zh">A cluster of farm-style chicken restaurants</div>
+          <div class="term-def">A group of farm-style chicken restaurants that gather near mountain areas or scenic spots. Tianliao is one of the most famous chicken restaurant clusters in all of Taiwan.</div>
+        </div>
+        <div class="term-card">
+          <div class="term-en">Three-Cup Chicken (三杯雞, san bei ji)</div>
+          <div class="term-zh">A famous Taiwanese chicken dish</div>
+          <div class="term-def">A famous Taiwanese dish: chicken cooked with one cup of rice wine, one cup of soy sauce, and one cup of sesame oil. It is a classic home-cooked dish in Taiwanese farming families.</div>
+        </div>
+        <div class="term-card">
+          <div class="term-en">Mountain-Raised Chicken (放山雞, fang shan ji)</div>
+          <div class="term-zh">Chickens raised on mountain slopes</div>
+          <div class="term-def">Chickens raised freely on mountain slopes. Because they exercise a lot, their muscles are well-developed. This is the highest grade of free-range chicken.</div>
+        </div>
+      </div>
+
+      <div class="script-block">
+        <div class="script-label">Speaking Script</div>
+        <div class="script-text">
+          <p>
+            Tianliao has a specialty that is very hard to copy anywhere else: chicken restaurant villages.
+            Around Tianliao Moon World, there are more than a dozen restaurants that mainly serve free-range chicken dishes.
+            On weekends, sometimes you even have to wait for a seat.
+          </p>
+          <p>
+            The origin of this food culture is actually connected to movies.
+            In the 1970s-80s, Moon World was a hot filming location for martial arts movies,
+            and large film crews and tourists poured in — these people needed a place to eat and rest. So the mountain chicken restaurants gradually grew during that time.
+          </p>
+          <p>
+            Behind this, there is an even more basic reason: the badlands of Moon World can't grow crops, but you can raise chickens.
+            Free-range chickens roam freely on the hillsides, eating wild grass and insects. When they grow up, the meat quality is especially good.
+            The residents turned this disadvantage — "the land is too hard, nothing can grow" — into an advantage.
+          </p>
+          <p>
+            <span class="humor">This is probably one of the most successful "turning adversity into business" stories in the world:
+            a piece of land where even grass doesn't want to grow, ended up attracting people from all over Taiwan to come here and eat chicken.</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="wisdom-block">
+        <div class="wisdom-label">Ancestral Wisdom x Business Wisdom</div>
+        <div class="wisdom-quote">"The land gives what it gives; we use what we get." (土地給什麼，我們就用什麼。)</div>
+        <div class="wisdom-text">
+          The story of Tianliao's chicken restaurants is a very classic case of "Regional Revitalization" (地方創生, difang chuangsheng).
+          The residents didn't give up on this land — instead, they found the industry that fit this land best.
+          In modern management studies, this is called "finding your core competitive advantage under constraints."
+          In a way, the people of Tianliao figured this out long before many MBA case studies did.
+        </div>
+      </div>
+    </div>
+
+    <div class="transition-note">Head to the bamboo culture exhibit area</div>
+
+    <!-- Station 7 -->
+    <div class="station">
+      <div class="station-header">
+        <div class="station-number">Stop 07</div>
+        <div>
+          <div class="station-title">Bamboo Culture — A Thousand Uses of Bamboo</div>
+          <div class="station-zh">流竹文化——竹子的千種用法</div>
+        </div>
+      </div>
+
+      <div class="term-grid">
+        <div class="term-card">
+          <div class="term-en">Makino Bamboo (桂竹, gui zhu)</div>
+          <div class="term-zh">The most common bamboo in Taiwan</div>
+          <div class="term-def">One of the most common types of bamboo in Taiwan. The stems are hard and the sections between joints are long. It is the most important building and tool material in farming villages.</div>
+        </div>
+        <div class="term-card">
+          <div class="term-en">Bamboo Shoot (竹筍, zhu sun)</div>
+          <div class="term-zh">The young sprout of bamboo</div>
+          <div class="term-def">The tender new shoot of bamboo just poking out of the ground. It is an important food in Taiwanese farming villages — it can be stir-fried, stewed, or pickled. It has a crispy, crunchy texture.</div>
+        </div>
+        <div class="term-card">
+          <div class="term-en">Bamboo Weaving (竹編, zhu bian)</div>
+          <div class="term-zh">Traditional craft of weaving with bamboo strips</div>
+          <div class="term-def">The traditional craft of splitting bamboo into thin strips and weaving them into baskets, hats, fences, and other items. It takes many years of practice to master.</div>
+        </div>
+      </div>
+
+      <div class="script-block">
+        <div class="script-label">Speaking Script</div>
+        <div class="script-text">
+          <p>
+            In Tianliao, bamboo is not just a plant — it is the basic infrastructure of life.
+          </p>
+          <p>
+            In the history of Taiwanese farming villages, bamboo played a role similar to plastic today:
+            it is light, strong, bendable, grows fast, and can be found everywhere.
+            The walls of a house, the handles of farming tools, bowls and chopsticks in the kitchen, a fan for the summer — everything could be made from bamboo.
+          </p>
+          <p>
+            <span class="humor">Bamboo was the "all-purpose material" of the farming age.
+            Its only drawback was probably that the things it made were too durable, so the next generation had nothing to buy.
+            That's why there was no "bamboo consumerism" in the old days.</span>
+          </p>
+          <p>
+            More importantly, the use of bamboo shows a "zero-waste" way of living.
+            Bamboo itself can be eaten (bamboo shoots); when it grows tall, it becomes tools; when it gets old, you burn it for fuel; and the ash can fertilize the field.
+            The entire bamboo plant can be "recycled."
+          </p>
+        </div>
+      </div>
+
+      <div class="wisdom-block">
+        <div class="wisdom-label">Ancestral Wisdom x Modern ESG</div>
+        <div class="wisdom-text">
+          Today's popular global concepts of "Circular Economy" and "Zero Waste" have actually been practiced in Taiwanese farming villages for hundreds of years — nobody just wrote them up in research papers.
+          Tianliao's bamboo culture is a complete model of sustainable development.
+          Long before ESG reports existed, it was already "sustainable."
+        </div>
+      </div>
+    </div>
+
+    <div class="transition-note">Walk to the badlands ridge viewpoint, about 15 minutes</div>
+
+    <!-- Station 8 -->
+    <div class="station">
+      <div class="station-header">
+        <div class="station-number">Stop 08</div>
+        <div>
+          <div class="station-title">Traditional Water Management — Ancient Hydraulic Engineering</div>
+          <div class="station-zh">農村水文管理——先民的水利工程</div>
+        </div>
+      </div>
+
+      <div class="term-grid">
+        <div class="term-card">
+          <div class="term-en">Irrigation Pond (埤塘, pi tang)</div>
+          <div class="term-zh">Man-made water storage pond</div>
+          <div class="term-def">A pond dug by people to store water. It is one of the lifelines of Taiwanese farming. Tianliao residents built ponds in farmable spots to save rainwater for the dry season.</div>
+        </div>
+        <div class="term-card">
+          <div class="term-en">Irrigation Canal (圳, zhuan)</div>
+          <div class="term-zh">Man-made water channel</div>
+          <div class="term-def">A ditch dug by people to direct water flow to farm fields. Taiwan already had complex canal systems during the Qing Dynasty (1600s-1800s), and some are still in use today.</div>
+        </div>
+      </div>
+
+      <div class="script-block">
+        <div class="script-label">Speaking Script</div>
+        <div class="script-text">
+          <p>
+            In a badlands environment like Moon World, water is the most precious resource.
+            During the rainy season, water floods away quickly. During the dry season, the ground cracks open.
+          </p>
+          <p>
+            The ancestors of Tianliao solved this problem with amazing engineering wisdom:
+            they dug ponds in low-lying areas to store rainwater;
+            then they used canals to guide the water to the farm fields that needed it. They built an irrigation system — without any engineers designing it.
+          </p>
+          <p>
+            This whole system was built purely by observing the land and understanding how water flows.
+            <span class="humor">No AutoCAD, no surveying instruments — just knowledge of the land built up over generations by walking it with their own feet.
+            A modern civil engineer would probably ask: "How did these people pull this off?" The answer is: through experience, through passing down knowledge, and through love for the land.</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="wisdom-block">
+        <div class="wisdom-label">Ancestral Wisdom</div>
+        <div class="wisdom-quote">"Water flows downhill, and people aim for higher ground. But true wisdom is: making the water go where you want it to go." (水往低處流，人往高處走。但智慧是：讓水流到你想要它去的地方。)</div>
+        <div class="wisdom-text">
+          The wisdom behind the canal system is "using natural forces to your advantage": don't fight nature — understand nature's rules,
+          and then design a system that lets nature work for you. This principle works in farming, engineering, and business alike.
+        </div>
+      </div>
+    </div>
+
+    <div class="transition-note">Head to the temple and folk culture area</div>
+
+    <!-- Station 9 -->
+    <div class="station">
+      <div class="station-header">
+        <div class="station-number">Stop 09</div>
+        <div>
+          <div class="station-title">Temple & Folk Beliefs — Where the Gods Live</div>
+          <div class="station-zh">廟宇與民俗信仰——神明住在哪裡</div>
+        </div>
+      </div>
+
+      <div class="term-grid">
+        <div class="term-card">
+          <div class="term-en">Earth God (土地公, Tu Di Gong)</div>
+          <div class="term-zh">The most common folk deity in Taiwan</div>
+          <div class="term-def">The most popular folk god in Taiwan. He protects the land and helps crops grow well. Almost every village has an Earth God temple — some are very small, just a little stone marker.</div>
+        </div>
+        <div class="term-card">
+          <div class="term-en">Incense (香火, xiang huo)</div>
+          <div class="term-zh">Burning incense as a form of prayer</div>
+          <div class="term-def">The smoke from burning incense sticks, which represents believers sending their prayers to the gods. "Busy incense" (香火旺盛) means the temple is very popular and has many believers.</div>
+        </div>
+        <div class="term-card">
+          <div class="term-en">Divination Blocks (擲筊, zhi jiao)</div>
+          <div class="term-zh">A tool for asking the gods yes/no questions</div>
+          <div class="term-def">Two half-moon shaped wooden or bamboo pieces. You throw them on the ground and look at how they land to ask the gods a question. One flat side up and one round side up means "yes" — the god agrees.</div>
+        </div>
+      </div>
+
+      <div class="script-block">
+        <div class="script-label">Speaking Script</div>
+        <div class="script-text">
+          <p>
+            In Tianliao, a temple is not just a religious place — it is the spiritual center and the information exchange hub for the whole community.
+          </p>
+          <p>
+            In the old days, when farmers faced natural disasters, illness, or bad harvests, they had no insurance and no government help.
+            Their only support was the community and the gods.
+            The regular festivals held at the temple were also chances for the whole village to gather and share information —
+            "Which rice variety had a good harvest this year?" "Which mountain path had a landslide recently?"
+            All this information was exchanged at the temple entrance.
+          </p>
+          <p>
+            <span class="humor">So you could say the temple was the earliest "social media platform" in Taiwanese farming villages.
+            Except its algorithm was divination blocks, not AI.</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="wisdom-block">
+        <div class="wisdom-label">Cultural Understanding Tip (For American Students)</div>
+        <div class="wisdom-text">
+          Taiwan's folk beliefs are not superstition — they are a cultural system that helped communities deal with uncertainty before modern science existed.
+          Just like ancient Greek mythology or Native American spirit beliefs,
+          they are all trying to answer the same question: "In a world we can't control, how do we find meaning and order?"
+        </div>
+      </div>
+
+      <div class="interaction">
+        <div class="interaction-label">Discussion Question</div>
+        <div class="interaction-text">
+          "In your own cultural background, is there a similar place — somewhere that is both a religious site and a community gathering point?
+          (For example: a church, a mosque, a community center) What role does it play, and how is it similar to or different from the temples here?"
+        </div>
+      </div>
+    </div>
+
+    <div class="transition-note">Head to the jute craft experience area</div>
+
+    <!-- Station 10 -->
+    <div class="station">
+      <div class="station-header">
+        <div class="station-number">Stop 10</div>
+        <div>
+          <div class="station-title">Jute Craft Experience — Learning History with Your Hands</div>
+          <div class="station-zh">黃麻手作體驗——用手學歷史</div>
+        </div>
+      </div>
+
+      <div class="term-grid">
+        <div class="term-card">
+          <div class="term-en">Jute (黃麻, huang ma)</div>
+          <div class="term-zh">A tropical plant used for making fiber</div>
+          <div class="term-def">A tropical plant whose fibers can be made into rope, burlap bags, and rugs. During the Japanese colonial period in Taiwan, it was grown in large amounts and was an important cash crop for farming villages.</div>
+        </div>
+        <div class="term-card">
+          <div class="term-en">Jute Rope (麻繩, ma sheng)</div>
+          <div class="term-zh">Rope made by hand from plant fibers</div>
+          <div class="term-def">Rope made by hand from plant fibers. It was the main tying tool in early farming villages. Today, it has almost been replaced by plastic rope.</div>
+        </div>
+      </div>
+
+      <div class="script-block">
+        <div class="script-label">Speaking Script</div>
+        <div class="script-text">
+          <p>
+            Now we are going to do something: twist a piece of jute rope by hand.
+          </p>
+          <p>
+            I know this sounds simple. But before you start, I want you to think about something:
+            before your phone charging cable broke, this kind of rope was one of the most important tools for humans.
+            Tying farm tools, building shelters, hanging laundry, pulling boats, holding animals — without rope, a farming village could barely function.
+          </p>
+          <p>
+            <span class="humor">What you are about to make with your hands today is one of the oldest "production technologies" in human history.
+            In a way, you are closer to the origin of human civilization today than in any AI class.
+            And I promise: after you finish, you will have a new appreciation for "Amazon fast delivery."</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="wisdom-block">
+        <div class="wisdom-label">Ancestral Wisdom x Experiential Learning</div>
+        <div class="wisdom-text">
+          The core idea of USR educational tourism is: some knowledge can only be remembered by the body, not by the brain.
+          The feel, the pressure, the rhythm needed to twist jute rope — none of this is in any textbook.
+          The NKNU USR program includes this kind of "body knowledge" in its courses,
+          challenging the traditional education model of "learning only with the brain."
+        </div>
+      </div>
+    </div>
+
+    <div class="transition-note">Return to the gathering point for closing remarks</div>
+
+    <!-- Station 11 -->
+    <div class="station">
+      <div class="station-header">
+        <div class="station-number">Stop 11</div>
+        <div>
+          <div class="station-title">NKNU x Tianliao — What Can a University Do for a Community?</div>
+          <div class="station-zh">高師大 USR × 田寮——大學能為社區做什麼？</div>
+        </div>
+      </div>
+
+      <div class="term-grid">
+        <div class="term-card">
+          <div class="term-en">Regional Revitalization (地方創生, difang chuangsheng)</div>
+          <div class="term-zh">Bringing life back to rural communities</div>
+          <div class="term-def">Actions by the government and private groups to bring new life to farming villages that are losing population and getting older. They use culture, industry, and tourism to attract new energy.</div>
+        </div>
+        <div class="term-card">
+          <div class="term-en">Cultural Heritage (文化資產, wenhua zichan)</div>
+          <div class="term-zh">A place's unique knowledge and traditions</div>
+          <div class="term-def">The unique knowledge, skills, stories, buildings, and customs of a place. These are special resources that money cannot copy.</div>
+        </div>
+      </div>
+
+      <div class="script-block">
+        <div class="script-label">Speaking Script</div>
+        <div class="script-text">
+          <p>
+            For our last stop today, I want to talk about a very important question:
+            <strong>Why does NKNU come here? What does a university have to do with a farming village?</strong>
+          </p>
+          <p>
+            The NKNU USR program's answer is:
+            a university should not just do research in the city and write papers nobody reads.
+            A university should bring knowledge to the places that need it — and at the same time, learn wisdom from those places that textbooks don't teach.
+          </p>
+          <p>
+            Tianliao has so much of this wisdom — about geology, farming, water management, bamboo, and the gods.
+            Our job as students is to record this wisdom, translate it into language that more people can understand, and keep it from disappearing.
+          </p>
+          <p>
+            <span class="humor">Some people say university students are "the most useless people" because we don't produce anything.
+            But if university students can "keep a thousand years of wisdom from being lost," I think that job is actually more important than many jobs.</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="usr-box">
+        <div class="usr-box-title">USR Program Development History (2019 to Present)</div>
+        <p>
+          The NKNU USR program officially started in <strong>2019</strong>, choosing Tianliao as its base because it is only a 30-minute drive from the Yanchao (燕巢) campus — close enough, yet "remote" enough.
+        </p>
+        <p>
+          <strong>Phase One: Local Resource Inventory</strong> — Teachers and students walked all over Tianliao, recording the geology, farming, customs, and people to build a "Tianliao knowledge database."
+        </p>
+        <p>
+          <strong>Phase Two: Educational Tourism Model</strong> — Working with cram schools, NKNU students designed lesson plans and brought city kids to Tianliao for food-farming activities, plant fiber extraction (from banana and jute), and jute craft product making. The field trip route you are walking today was designed station by station by students.
+        </p>
+        <p>
+          <strong>Future Blueprint</strong> — NKNU is now working on a "two-location collaboration" with <strong>National Cheng Kung University (NCKU, 成功大學)</strong>, planning to connect the Tianliao model with Hengchun (恆春), Green Island (綠島, Lu Dao), and the Southern Four Islands (南方四島). The goal is to develop a complete <strong>bilingual educational tourism curriculum</strong> — so that Taiwan's local cultural knowledge can be learned by people around the world in both Chinese and English. Your visit today is part of this plan.
+        </p>
+      </div>
+
+      <div class="usr-box">
+        <div class="usr-box-title">USR Learning Reflection (For American Students)</div>
+        <p>
+          Taiwan's USR program is similar to American universities' Service Learning or Community Engagement,
+          but it emphasizes "long-term companionship" rather than "short-term service."
+          In the Tianliao case, NKNU teachers and students have built an ongoing relationship with local residents.
+          They are not here to "help" the locals — they are here to "work together." This difference is very important.
+        </p>
+        <p>
+          When you go back to America, if your school has a similar community engagement program,
+          try comparing: is your program "short-term service" or "long-term working together"? Which one means more to the community?
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Closing -->
+<div class="container">
+  <section>
+    <div class="section-tag">Closing</div>
+    <h2>Leave with a Question</h2>
+
+    <div class="station">
+      <div class="script-label">Closing Script</div>
+      <div class="script-text">
+        <p>
+          Today we visited 11 stops. We saw badlands, mud volcanoes, free-range goats, chicken restaurants, bamboo, temples...
+          But what I hope you take away is not these facts.
+        </p>
+        <p>
+          What I hope you take away is a question:
+        </p>
+        <p style="background: var(--parchment); padding: 16px 20px; border-radius: 8px; font-family: 'Cormorant Garamond', serif; font-size: 20px; font-style: italic; color: var(--ink); border-left: 4px solid var(--ember); margin: 20px 0;">
+          "Under what limitations did our ancestors develop what kind of wisdom?
+          And how much of that wisdom have we already forgotten?"<br>
+          <span style="font-size: 14px; color: var(--mist);">(我們的祖先，是在什麼樣的限制下，發展出什麼樣的智慧？而這些智慧，有多少我們已經遺忘了？)</span>
+        </p>
+        <p>
+          Tianliao Moon World is the most honest piece of land in Taiwan.
+          It doesn't hide its barrenness. It doesn't pretend to be some rich, fertile place.
+          But precisely because of its honesty, the people who lived here developed survival wisdom that cannot be copied anywhere else.
+        </p>
+        <p>
+          Thank you all for walking this path with me today.
+          If you have any questions, now is the best time — or, you can also take your questions home and let them slowly grow.
+        </p>
+        <p>
+          <span class="humor">And next time you eat free-range chicken, you will think of today. I guarantee it.</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Quick reference -->
+    <h3>Quick Glossary (For Guides to Carry Along)</h3>
+    <table class="summary-table">
+      <tr>
+        <th>English</th>
+        <th>Chinese</th>
+        <th>Pinyin</th>
+        <th>One-Line Explanation</th>
+      </tr>
+      <tr><td>Badlands</td><td>惡地</td><td>e di</td><td>Eroded terrain where plants can barely grow</td></tr>
+      <tr><td>Mud Volcano</td><td>泥火山</td><td>ni huo shan</td><td>Natural gas + mud bubbling up from underground</td></tr>
+      <tr><td>Mudstone</td><td>泥岩</td><td>ni yan</td><td>Rock formed from ancient seabed mud</td></tr>
+      <tr><td>Sea-Silver Soil</td><td>海銀土</td><td>hai yin tu</td><td>The silvery-white mudstone soil of Moon World</td></tr>
+      <tr><td>Free-Range Goat</td><td>放山羊</td><td>fang shan yang</td><td>Goats that roam freely on hillsides</td></tr>
+      <tr><td>Free-Range Chicken</td><td>土雞</td><td>tu ji</td><td>Traditional breed chicken raised outdoors</td></tr>
+      <tr><td>Bamboo Weaving</td><td>竹編</td><td>zhu bian</td><td>Craft of weaving daily tools from bamboo strips</td></tr>
+      <tr><td>Irrigation Pond</td><td>埤塘</td><td>pi tang</td><td>Man-made pond for storing water</td></tr>
+      <tr><td>Earth God</td><td>土地公</td><td>Tu Di Gong</td><td>Folk deity who protects the land</td></tr>
+      <tr><td>Divination Blocks</td><td>擲筊</td><td>zhi jiao</td><td>Tool for asking gods yes/no questions</td></tr>
+      <tr><td>Jute</td><td>黃麻</td><td>huang ma</td><td>Plant fiber used for making rope</td></tr>
+      <tr><td>Folk Proverb</td><td>俗諺</td><td>su yan</td><td>Farming wisdom sayings passed down for generations</td></tr>
+      <tr><td>USR</td><td>大學社會責任</td><td>—</td><td>University Social Responsibility program</td></tr>
+      <tr><td>Regional Revitalization</td><td>地方創生</td><td>difang chuangsheng</td><td>Actions to bring life back to rural communities</td></tr>
+      <tr><td>Zhangzhou</td><td>漳州</td><td>Zhangzhou</td><td>Main homeland of Qing Dynasty immigrants to Taiwan</td></tr>
+      <tr><td>Plains Aborigines</td><td>平埔族</td><td>Pingpu zu</td><td>Indigenous peoples of Taiwan's plains</td></tr>
+      <tr><td>Cold Chain</td><td>冷鏈</td><td>leng lian</td><td>Temperature-controlled logistics for farm products</td></tr>
+      <tr><td>Erjin River</td><td>二仁溪</td><td>Er Ren Xi</td><td>One of the world's most winding rivers, flows through Tianliao</td></tr>
+    </table>
+  </section>
+</div>
+
+<!-- Tips for student guides -->
+<div class="container">
+  <section>
+    <div class="section-tag">Guide's Notes</div>
+    <h2>Five Tips to Keep American Students Engaged</h2>
+    <ul class="tip-list">
+      <li>At every stop, first ask a question they can connect to their own experience, then tell the Tianliao story — this is called "bridging."</li>
+      <li>When you come to a Chinese word, say the Chinese first, then the pinyin, then the English translation — this helps Chinese-studies students build vocabulary connections.</li>
+      <li>Humor is the fastest way to break through cultural barriers — don't be afraid to joke, but make sure the humor is connected to the local culture.</li>
+      <li>"Ancestral Wisdom" is the part American Chinese-studies students find most interesting — connect farming wisdom to modern concepts (ESG, Circular Economy, Comparative Advantage) so they get that "Oh, I see!" moment.</li>
+      <li>Always save 5-10 minutes at the end for students to ask questions, and encourage them to share similar cultures from their own countries. This is the most precious "two-way exchange" moment in the USR course.</li>
+    </ul>
+  </section>
+</div>
+
+<footer class="footer">
+  <p>Tianliao Moon World Cultural Field Trip Tour Guide v4.0 — English Translation</p>
+  <p>Audience: American Chinese-Studies Students x NKNU USR Program</p>
+  <p style="margin-top: 12px; font-size: 12px;">
+    Produced with assistance from <strong>MUSEON</strong> · Version 2026-03-29 · English Translation 2026-04-04<br>
+    v4.0 updates: Moon World naming corrected (Japanese colonial 1930s, removed unverified NASA claim), goat section added mineral-salt foraging detail, chicken restaurant section added film-industry origin story, removed unverified agricultural transition extension stop
+  </p>
+</footer>
+
+</body>
+</html>
