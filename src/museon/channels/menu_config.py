@@ -95,8 +95,133 @@ QUICK_KEYBOARD: list[list[MenuItem]] = [
     ],
 ]
 
-# Bot Commands（顯示在 / 選單裡）
-BOT_COMMANDS: list[tuple[str, str]] = [
+# ═══════════════════════════════════════
+# 動態 Bot Commands（從 command_routes.json 生成）
+# ═══════════════════════════════════════
+
+# 指令→描述映射（人工策展，保證品質）
+_COMMAND_DESCRIPTIONS: dict[str, str] = {
+    "ares": "🎯 戰神系統 — 人物分析＋策略建議",
+    "reading": "🔮 能量解讀 — 八方位能量盤",
+    "strategy": "⚔️ 戰略分析 — 九策軍師",
+    "market": "📊 市場分析 — 多空研判",
+    "meeting": "📝 會議記錄 — 對話→報告",
+    "business": "💡 商模診斷 — 十二力框架",
+    "brand": "🏷️ 品牌顧問 — 定位＋識別",
+    "ssa": "🤝 顧問銷售 — 成交流程",
+    "xmodel": "💡 破框解方 — 槓桿推演",
+    "report": "📋 產業報告 — 深度分析",
+    "wan_miu": "🎭 人格分析 — 萬謬16型",
+    "wan-miu": "🎭 人格分析 — 萬謬16型",
+    "dharma": "🌊 思維轉化 — 認知突破",
+    "risk": "📈 風險管理 — 資產配置",
+    "shadow": "🕶️ 人際博弈 — 陰謀辨識",
+    "combined": "🔮 合盤比對 — 雙人能量",
+    "equity": "📊 股票分析",
+    "crypto": "₿ 加密貨幣分析",
+    "macro": "🌐 總經分析",
+    "masters": "🏛️ 投資軍師團",
+    "sentiment": "📡 市場情緒雷達",
+    "text": "✍️ 文字煉金 — 各類文案",
+    "video": "🎬 短影音策略",
+    "dse": "🔬 深度研究驗證",
+    "philo": "💭 哲學思辨",
+    "resonance": "💫 感性共振",
+    "novel": "📖 小說工藝",
+    "course": "🎓 課程建構",
+    "talent": "👥 人才媒合",
+    "ads": "📢 付費廣告診斷",
+    "collab": "🤝 異業合作媒合",
+    "plan": "📋 計畫引擎",
+    "learn": "🧠 元學習",
+    "blueprint": "🧬 人類圖藍圖",
+    "finance": "💰 財務導航",
+    "daily": "📅 每日導航",
+    "roundtable": "🏛️ 圓桌詰問",
+    "help": "❓ 使用說明",
+    "menu": "📋 功能選單",
+}
+
+# 系統/內部指令（不顯示在使用者選單）
+_INTERNAL_COMMANDS = frozenset([
+    "think-deep", "think-off", "think-on",
+    "c15-full", "c15-off", "c15-on", "c15-plain",
+    "morphenix", "phoenix", "evolve",
+    "eval", "dashboard", "sandbox", "lab",
+    "qa", "audit", "orchestrate",
+    "preflight", "pf", "retro",
+    "stresstest", "prompt-test",
+    "workflow", "wee", "kata", "review", "diagnose",
+    "why-stuck", "proficiency",
+    "lattice", "crystal", "knowledge", "crystallize",
+    "recall", "atlas", "recrystallize",
+    "shadow-muse", "sm", "coach",
+    "user-model", "profile",
+    "identity", "aesthetic", "美感",
+    "info-arch", "organize",
+    "brand-discover", "brand-build", "brand-manual",
+    "brand-project", "bp",
+    "biz-diag", "biz-collab",
+    "flow-design", "pdeif",
+    "forge", "acsf",
+    "radar", "scan", "env", "trend-ext", "competitor", "tech-radar", "signal",
+    "strategy-person", "wargame",
+    "shadow-crimson", "tantra",
+    "allocation", "guru",
+    "manifest", "思辨", "dialectic",
+    "energy", "persona-16", "match",
+    "anima", "ad-pilot", "partnership",
+    "ledger", "log", "close", "analyze",
+    "morning", "evening", "week", "pilot",
+    "alchemy", "storytelling", "story", "craft", "prose",
+    "reels", "forge-course", "forge-report",
+    "market-scan", "sota-check",
+    "interview-pack", "hire",
+    "gmn", "meeting-notes",
+])
+
+
+def build_bot_commands() -> list[tuple[str, str]]:
+    """從 command_routes.json 動態生成 BOT_COMMANDS.
+
+    策略：讀取 command_routes.json → 去重 → 排除內部指令 → 用描述映射表生成。
+    新增 Skill 後只要 command_routes.json 重新生成，下次重啟就自動更新。
+    """
+    import json
+    from pathlib import Path
+
+    routes_path = Path(__file__).parent.parent.parent.parent / "data" / "_system" / "context_cache" / "command_routes.json"
+    try:
+        if routes_path.exists():
+            data = json.loads(routes_path.read_text(encoding="utf-8"))
+            seen = set()
+            commands = []
+            for route in data.get("routes", []):
+                cmd = route.get("command", "").lstrip("/").replace("_", "-")
+                if not cmd or cmd in seen or cmd in _INTERNAL_COMMANDS:
+                    continue
+                seen.add(cmd)
+                # 用策展描述，沒有的用 skill 名稱自動生成
+                desc = _COMMAND_DESCRIPTIONS.get(cmd, "")
+                if not desc:
+                    skill = route.get("skill", cmd)
+                    desc = f"🔹 {skill.replace('-', ' ').title()}"
+                commands.append((cmd.replace("-", "_"), desc))
+
+            # 確保 help 和 menu 永遠在最後
+            help_menu = [("help", "❓ 使用說明"), ("menu", "📋 功能選單")]
+            commands = [c for c in commands if c[0] not in ("help", "menu")] + help_menu
+
+            if commands:
+                return commands
+    except Exception:
+        pass
+
+    # Fallback：靜態清單
+    return _FALLBACK_BOT_COMMANDS
+
+
+_FALLBACK_BOT_COMMANDS: list[tuple[str, str]] = [
     ("ares", "🎯 戰神系統 — 人物分析＋策略建議"),
     ("reading", "🔮 能量解讀 — 八方位能量盤"),
     ("strategy", "⚔️ 戰略分析 — 九策軍師"),
@@ -115,6 +240,9 @@ BOT_COMMANDS: list[tuple[str, str]] = [
     ("menu", "📋 功能選單"),
 ]
 
+# 動態生成（啟動時執行一次）
+BOT_COMMANDS: list[tuple[str, str]] = build_bot_commands()
+
 # 群組專用指令清單（精簡版，只放群組最常用的）
 GROUP_COMMANDS: list[tuple[str, str]] = [
     ("menu", "📋 功能選單"),
@@ -124,6 +252,8 @@ GROUP_COMMANDS: list[tuple[str, str]] = [
     ("market", "📊 市場分析"),
     ("business", "💡 商模診斷"),
     ("xmodel", "💡 破框解方"),
+    ("brand", "🏷️ 品牌顧問"),
+    ("report", "📋 產業報告"),
     ("help", "❓ 使用說明"),
 ]
 
