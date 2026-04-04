@@ -1,0 +1,204 @@
+{
+  "name": "energy_octagram",
+  "display_name": "能量八芒星",
+  "layer": "domain",
+  "description": "One Muse 源頭方法論。基於先天八卦的八方位能量系統，追蹤使用者對八個生命維度的覺察程度與均衡度。不追求最高分，追求平衡與流動。",
+  "dimensions": [
+    "heaven", "wind", "water", "mountain",
+    "earth", "thunder", "fire", "lake"
+  ],
+  "dimension_labels": {
+    "heaven": "天（目標/願景）",
+    "wind": "風（適應/敘事）",
+    "water": "水（關係/洞察）",
+    "mountain": "山（累積/秩序）",
+    "earth": "地（豐盛/落實）",
+    "thunder": "雷（察覺/破框）",
+    "fire": "火（創造/深工）",
+    "lake": "澤（能量/自在）"
+  },
+  "dimension_groups": {
+    "heaven_earth_axis": {
+      "label": "天地軸線（使命守護）",
+      "description": "集體使命 vs 個體保護。從全域福祉到個人自護。整合態：使命守護。",
+      "polarity": ["heaven", "earth"],
+      "tension": "集體利益 vs 個體利益"
+    },
+    "fire_water_axis": {
+      "label": "火水軸線（關係動態）",
+      "description": "任務導向 vs 人際導向。從效率執行到情感支持。整合態：共情型領導。",
+      "polarity": ["fire", "water"],
+      "tension": "任務導向 vs 人際導向"
+    },
+    "mountain_lake_axis": {
+      "label": "山澤軸線（動力模型）",
+      "description": "理性積累 vs 情緒驅動。從周密計劃到即興行動。整合態：務實的樂觀主義。",
+      "polarity": ["mountain", "lake"],
+      "tension": "理性積累 vs 情緒驅動"
+    },
+    "wind_thunder_axis": {
+      "label": "風雷軸線（適應創造）",
+      "description": "靈活適應 vs 堅定執行。從環境反應到框架忠誠。整合態：穩定中求變。",
+      "polarity": ["wind", "thunder"],
+      "tension": "靈活適應 vs 堅定執行"
+    }
+  },
+  "dimension_details": {
+    "heaven": {
+      "trigram": "☰",
+      "english": "Goals / Results",
+      "white_hat": "使命感",
+      "black_hat": "恐懼失敗",
+      "success_trait": "目標清晰明確、強大行動力引領變革",
+      "energy_strong": "領導者",
+      "energy_weak": "追隨者",
+      "business": "願景宣告、使命定錨",
+      "relationship": "個人邊界、願景清晰、承諾定錨",
+      "primal_mapping": "aspiration"
+    },
+    "wind": {
+      "trigram": "☴",
+      "english": "Responsibility / Adaptability",
+      "white_hat": "稀缺性（把握時機）",
+      "black_hat": "害怕錯失",
+      "success_trait": "對周遭人事物變化的適應力",
+      "energy_strong": "鬥士",
+      "energy_weak": "導演",
+      "business": "行銷敘事與渠道、內容節拍",
+      "relationship": "深度傾聽、回聲確認、敘事釘選",
+      "primal_mapping": "blindspot"
+    },
+    "water": {
+      "trigram": "☵",
+      "english": "Relationship / Team",
+      "white_hat": "擁有所愛的人事物",
+      "black_hat": "害怕孤立",
+      "success_trait": "重視並協調關係",
+      "energy_strong": "協調者",
+      "energy_weak": "獨裁者",
+      "business": "產品洞察、客戶痛點理解",
+      "relationship": "情緒命名、感受表達、需要識別",
+      "primal_mapping": "relationship_depth"
+    },
+    "mountain": {
+      "trigram": "☶",
+      "english": "Accumulation / Bargaining Power",
+      "white_hat": "避開危害（風險管理）",
+      "black_hat": "害怕損失",
+      "success_trait": "留意時時刻刻的籌碼累積、形成防火牆",
+      "energy_strong": "策略家",
+      "energy_weak": "藝術家",
+      "business": "結構化執行、產品標準化、決策框架",
+      "relationship": "界線語句、課題分離、退場條件",
+      "primal_mapping": "accumulation"
+    },
+    "earth": {
+      "trigram": "☷",
+      "english": "Abundance / Gratitude",
+      "white_hat": "內在豐盛",
+      "black_hat": "恐懼匱乏",
+      "success_trait": "與結果有健康的關係、勝不驕敗不餒",
+      "energy_strong": "守護者",
+      "energy_weak": "自護者",
+      "business": "資源配置、供應鏈、單位經濟",
+      "relationship": "資源池、滋養與回饋、能量衛生",
+      "primal_mapping": "boundary"
+    },
+    "thunder": {
+      "trigram": "☳",
+      "english": "Awareness / Illusion",
+      "white_hat": "冒險（接受靈感與創意）",
+      "black_hat": "害怕停滯",
+      "success_trait": "察覺到自己需要改變、不被過去成功經驗綁架（跳脫愚者之巔）、接受靈感與創意的能量",
+      "energy_strong": "開拓者",
+      "energy_weak": "守舊派",
+      "business": "啟動行動、下一步承諾、試驗設計",
+      "relationship": "微行動、承諾設計、立即回應",
+      "primal_mapping": "action_power"
+    },
+    "fire": {
+      "trigram": "☲",
+      "english": "Creation / Possibility",
+      "white_hat": "掌握影響力",
+      "black_hat": "害怕失控",
+      "success_trait": "把握機會、深度探索、技術與知識力",
+      "energy_strong": "追尋者（高度好奇外界）",
+      "energy_weak": "隱士（只在乎自己在乎的事）",
+      "business": "深化客戶體驗、成交設計、呈現力",
+      "relationship": "深度對話、關係深化、衝突復盤",
+      "primal_mapping": "curiosity"
+    },
+    "lake": {
+      "trigram": "☱",
+      "english": "Energy / State",
+      "white_hat": "從創造出發",
+      "black_hat": "害怕沉寂",
+      "success_trait": "在人群中依然自在做自己，透過興趣渲染他人的情緒與認同",
+      "energy_strong": "鼓舞者",
+      "energy_weak": "破壞者",
+      "business": "客戶維繫、回饋機制、社群循環",
+      "relationship": "回饋請求、感謝練習、迴圈閉合",
+      "primal_mapping": "emotion_pattern"
+    }
+  },
+  "energy_flow": {
+    "clockwise_order": ["heaven", "wind", "water", "mountain", "earth", "thunder", "fire", "lake"],
+    "description": "天→風→水→山→地→雷→火→澤→天，生生不息的順時針循環",
+    "stuck_point_rule": "找到最低能量方位（卡點），逆時針回推找連續兩個正分方位（解方）",
+    "counterclockwise_solution_map": {
+      "heaven": "lake",
+      "wind": "heaven",
+      "water": "wind",
+      "mountain": "water",
+      "earth": "mountain",
+      "thunder": "earth",
+      "fire": "thunder",
+      "lake": "fire"
+    }
+  },
+  "dimension_relations": {
+    "type": "polarity_balance",
+    "description": "八方位不追求最高分，追求平衡與流動。四軸線各自有極性張力，過強過弱都是失衡。能量沿順時針流動，某方位卡住會阻斷下游所有方位。",
+    "tracking_mode": "balance",
+    "balance_metrics": [
+      "standard_deviation（越小越均衡）",
+      "inner_outer_gap（內外落差，|Δ|>25 為紅區）",
+      "stuck_point_count（卡點數量）",
+      "flow_continuity（順時針連續正分的最長鏈）"
+    ]
+  },
+  "wan_miu_16": {
+    "description": "四軸線的高低組合形成 16 種人格原型（萬謬16型）",
+    "axes_codes": {
+      "heaven_earth": {"high": "A (Altruist)", "low": "P (Protective Opportunist)"},
+      "fire_water": {"high": "O (Efficient Operator)", "low": "S (Supporter)"},
+      "mountain_lake": {"high": "E (Enthusiast)", "low": "R (Realist)"},
+      "wind_thunder": {"high": "M (Mood-driven Reactor)", "low": "U (Unyielding Executor)"}
+    },
+    "total_types": 16,
+    "naming": "每種類型都有它的「荒謬」（盲區），故名萬謬"
+  },
+  "absurdity_mapping": {
+    "heaven": {"direction_clarity": 0.7, "self_awareness": 0.3},
+    "wind": {"strategic_integration": 0.6, "relationship_leverage": 0.4},
+    "water": {"relationship_leverage": 0.8, "self_awareness": 0.2},
+    "mountain": {"accumulation": 0.9, "gap_visibility": 0.1},
+    "earth": {"self_awareness": 0.6, "accumulation": 0.4},
+    "thunder": {"gap_visibility": 0.7, "self_awareness": 0.3},
+    "fire": {"gap_visibility": 0.4, "direction_clarity": 0.6},
+    "lake": {"self_awareness": 0.5, "strategic_integration": 0.5}
+  },
+  "default_value": 0.5,
+  "alpha": 0.10,
+  "decay_rate": 0.01,
+  "confidence_increment": 0.015,
+  "confidence_decay": 0.008,
+  "min_confidence": 0.1,
+  "linked_skills": [
+    "energy-reading", "wan-miu-16", "combined-reading",
+    "onemuse-core", "human-design-blueprint", "athena",
+    "darwin", "resonance", "dharma", "daily-pilot"
+  ],
+  "created_at": "2026-04-04",
+  "updated_at": "2026-04-04"
+}

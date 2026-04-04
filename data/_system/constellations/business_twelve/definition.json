@@ -1,0 +1,138 @@
+{
+  "name": "business_twelve",
+  "display_name": "商模十二力星",
+  "layer": "domain",
+  "description": "企業商業體質的十二維度診斷與追蹤系統。三力主幹驅動營收（短期衝刺×穩定抗跌×長期拉高），底盤三力貫穿支撐（累積×感受×視覺）。",
+  "dimensions": [
+    "product_power",
+    "accumulation_power",
+    "integration_power",
+    "sharing_power",
+    "experience_power",
+    "inspiration_power",
+    "brand_power",
+    "optimization_power",
+    "community_power",
+    "visual_power",
+    "negotiation_power",
+    "conversion_power"
+  ],
+  "dimension_labels": {
+    "product_power": "產品力",
+    "accumulation_power": "累積力",
+    "integration_power": "整合力",
+    "sharing_power": "共享力",
+    "experience_power": "感受力",
+    "inspiration_power": "感召力",
+    "brand_power": "品牌力",
+    "optimization_power": "優化力",
+    "community_power": "社群力",
+    "visual_power": "視覺力",
+    "negotiation_power": "談判力",
+    "conversion_power": "轉換力"
+  },
+  "dimension_groups": {
+    "sprint": {
+      "label": "短期衝刺",
+      "description": "快速營收+話題爆發（AIDA模型）",
+      "dimensions": ["product_power", "negotiation_power", "conversion_power"]
+    },
+    "sustain": {
+      "label": "穩定抗跌",
+      "description": "社群穩定性+裂變擴散（品牌社群價值共創）",
+      "dimensions": ["community_power", "inspiration_power", "sharing_power"]
+    },
+    "nurture": {
+      "label": "長期拉高",
+      "description": "品牌價值+組織韌性（不被取代的資產累積）",
+      "dimensions": ["brand_power", "integration_power", "optimization_power"]
+    },
+    "foundation": {
+      "label": "底盤三力",
+      "description": "跨主力貫穿的穩定系統，底盤不穩→上層投資損失70%+",
+      "dimensions": ["accumulation_power", "experience_power", "visual_power"]
+    }
+  },
+  "abc_dimensions": {
+    "A": {
+      "label": "理性/商務談判能力",
+      "dimensions": ["product_power", "accumulation_power", "integration_power", "sharing_power"]
+    },
+    "B": {
+      "label": "感性/體驗優化能力",
+      "dimensions": ["experience_power", "inspiration_power", "brand_power", "optimization_power"]
+    },
+    "C": {
+      "label": "動能/業務轉換能力",
+      "dimensions": ["community_power", "visual_power", "negotiation_power", "conversion_power"]
+    }
+  },
+  "dimension_relations": {
+    "type": "foundation_layered",
+    "description": "三力主幹驅動營收，底盤三力貫穿支撐。底盤不穩→上層投資損失70%+。木桶理論：最弱一環拖垮整體。",
+    "foundation": ["accumulation_power", "experience_power", "visual_power"],
+    "flywheels": [
+      {
+        "name": "產品型成長飛輪",
+        "chain": ["product_power", "brand_power", "conversion_power"],
+        "description": "好產品→品牌故事化→實際成交"
+      },
+      {
+        "name": "用戶經營飛輪",
+        "chain": ["community_power", "inspiration_power", "accumulation_power", "sharing_power"],
+        "description": "社群互動→主動傳播→信任沉澱→粉絲變代理"
+      },
+      {
+        "name": "資源協同飛輪",
+        "chain": ["accumulation_power", "integration_power", "optimization_power"],
+        "description": "實績累積→串聯資源→持續迭代"
+      }
+    ],
+    "cross_links": [
+      {"from": "experience_power", "to": "all", "type": "lubricant", "description": "底盤潤滑，感受力差其他力都打折"},
+      {"from": "visual_power", "to": "brand_power", "type": "reinforcement", "description": "認知強化"},
+      {"from": "negotiation_power", "to": "conversion_power", "type": "dual_track", "description": "B2B談判+B2C自動化的成交雙軌"}
+    ],
+    "stages": {
+      "startup": {
+        "priority": ["product_power", "conversion_power", "brand_power", "negotiation_power"],
+        "description": "初創期：快速現金流+基礎信任"
+      },
+      "growth": {
+        "priority": ["accumulation_power", "optimization_power", "community_power", "experience_power"],
+        "description": "成長期：資產沉澱+流程優化+用戶黏著"
+      },
+      "expansion": {
+        "priority": ["integration_power", "sharing_power", "inspiration_power", "visual_power"],
+        "description": "擴張期：跨部門協作+對外合作+品牌升級"
+      }
+    }
+  },
+  "absurdity_mapping": {
+    "product_power": {"gap_visibility": 0.5, "direction_clarity": 0.5},
+    "accumulation_power": {"accumulation": 0.9, "self_awareness": 0.1},
+    "integration_power": {"relationship_leverage": 0.7, "strategic_integration": 0.3},
+    "sharing_power": {"relationship_leverage": 0.5, "strategic_integration": 0.5},
+    "experience_power": {"self_awareness": 0.6, "gap_visibility": 0.4},
+    "inspiration_power": {"self_awareness": 0.4, "relationship_leverage": 0.6},
+    "brand_power": {"self_awareness": 0.7, "direction_clarity": 0.3},
+    "optimization_power": {"gap_visibility": 0.6, "strategic_integration": 0.4},
+    "community_power": {"accumulation": 0.5, "relationship_leverage": 0.5},
+    "visual_power": {"self_awareness": 0.5, "gap_visibility": 0.5},
+    "negotiation_power": {"gap_visibility": 0.4, "relationship_leverage": 0.6},
+    "conversion_power": {"gap_visibility": 0.7, "direction_clarity": 0.3}
+  },
+  "default_value": 0.5,
+  "alpha": 0.12,
+  "decay_rate": 0.015,
+  "confidence_increment": 0.02,
+  "confidence_decay": 0.01,
+  "min_confidence": 0.1,
+  "linked_skills": [
+    "business-12", "ssa-consultant", "ad-pilot", "brand-builder",
+    "brand-identity", "consultant-communication", "video-strategy",
+    "landing-page-forge", "biz-collab", "biz-diagnostic", "xmodel"
+  ],
+  "created_at": "2026-04-04",
+  "updated_at": "2026-04-04"
+}

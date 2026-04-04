@@ -1,0 +1,55 @@
+{
+  "version": "1.0",
+  "updated_at": "2026-04-04",
+  "description": "星座間的共享頂點與觸發規則。from 維度低於 threshold 時建議切換到 to 星座。",
+  "links": [
+    {
+      "from_constellation": "business_twelve",
+      "from_dimension": "brand_power",
+      "to_constellation": "brand_seven",
+      "to_dimension": "positioning",
+      "threshold": 0.35,
+      "description": "品牌力弱 → 引導進入品牌七芒星"
+    },
+    {
+      "from_constellation": "business_twelve",
+      "from_dimension": "negotiation_power",
+      "to_constellation": "strategy_prism",
+      "to_dimension": "tactical",
+      "threshold": 0.35,
+      "description": "談判力弱 → 引導進入戰略三稜鏡"
+    },
+    {
+      "from_constellation": "business_twelve",
+      "from_dimension": "conversion_power",
+      "to_constellation": "conversion_triangle",
+      "to_dimension": "product_funnel",
+      "threshold": 0.35,
+      "description": "轉換力弱 → 引導進入轉化漏斗"
+    },
+    {
+      "from_constellation": "strategy_prism",
+      "from_dimension": "shadow_play",
+      "to_constellation": "anima_octagram",
+      "to_dimension": "relationship",
+      "threshold": 0.35,
+      "description": "陰謀維度觸發 → 引導關注人際動態"
+    },
+    {
+      "from_constellation": "energy_octagram",
+      "from_dimension": "self_position",
+      "to_constellation": "absurdity",
+      "to_dimension": "self_awareness",
+      "threshold": 0.35,
+      "description": "能量自我定位弱 → 映射回荒謬的自我認知"
+    },
+    {
+      "from_constellation": "thinking_pentagram",
+      "from_dimension": "emotional_resonance",
+      "to_constellation": "energy_octagram",
+      "to_dimension": "emotional_axis",
+      "threshold": 0.35,
+      "description": "感性共振弱 → 引導探索能量系統"
+    }
+  ]
+}

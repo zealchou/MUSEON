@@ -1,0 +1,17 @@
+{
+  "constellation": "conversion_triangle",
+  "user_id": "boss",
+  "transformation_design": 0.5,
+  "product_ladder": 0.5,
+  "product_funnel": 0.5,
+  "marketing_funnel": 0.5,
+  "community_funnel": 0.5,
+  "decision_flow": 0.5,
+  "identity_spiral": 0.5,
+  "growth_loop": 0.5,
+  "funnel_integration": 0.5,
+  "confidence": 0.15,
+  "bootstrapped": true,
+  "bootstrapped_at": "2026-04-04T14:21:25.427551+00:00",
+  "updated_at": "2026-04-04T14:21:25.427551+00:00"
+}

@@ -1,7 +1,9 @@
-# MUSEON 系統拓撲圖 v1.81
+# MUSEON 系統拓撲圖 v1.83
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.83 (2026-04-04)**：星座層級化——群組定義表新增 Layer 欄位（constellation = meta 元層）；新增層級模型說明段落；constellation 群組描述更新為「Skill 之上的多維追蹤框架」。
+> **v1.82 (2026-04-04)**：星座系統——新增 `constellation` 群組（1 Hub + 10 節點共 11 個）；新增 10 條 internal 連線（constellation-radar→各星座）+ 15 條 cross 連線（constellation-probe→brain/brain-prompt-builder、荒謬→4個領域星座、5個星座→對應 Skill、absurdity-radar↔constellation-radar 同步、nightly-pipeline→constellation-radar、skill-router→constellation-radar）；群組色碼 `#9B59B6`（紫色系）；統計：194+11=205 節點，522+25=547 連線。
 > **v1.81 (2026-04-04)**：Knife 2+3 變更——llm 群組新增 `semantic-response-cache`（Qdrant-backed 語意回覆快取，零 LLM token）；新增 3 條連線（brain→semantic-response-cache L1 查詢快取、l4-cpu-observer→semantic-response-cache 回覆後寫入、semantic-response-cache→qdrant collection 讀寫）；brain_tools.py tool-use loop 改用 --resume session 避免重送 system prompt；cron_registry.py 新增 quota circuit breaker（quota 耗盡跳過 LLM cron jobs）；cron 頻率調整（breath-pulse 每小時1次、curiosity-research 週二次、business-case 週一次）。
 > **v1.80 (2026-04-04)**：L4 CPU Observer 架構更新——agent 群組新增 `l4-cpu-observer`（CPU-only 對話後觀察者，取代 Haiku L4 agent spawn，零 LLM 呼叫，<10ms）；brain-tools 描述更新（_classify_complexity 已改為 CPU-only v12）；新增 4 條連線（brain→l4-cpu-observer、l4-cpu-observer→context-cache/session-adjustments/memory）。
 > **v1.79 (2026-04-02)**：補齊 absurdity-radar 孤島連線——新增 3 條 internal 連線（`brain→absurdity-radar` load/update/save、`brain-prompt-builder→absurdity-radar` persona zone 注入、`nightly-pipeline→absurdity-radar` Step 32.5 recalc）；absurdity-radar 節點扇入由 0→3，孤島問題修復。
@@ -80,23 +82,34 @@
 
 ## 群組定義
 
-| 群組 ID | 名稱 | 職責 | 色碼 |
-|---------|------|------|------|
-| `center` | 核心 | 事件匯流排，全系統通訊樞紐 | `#C4502A` |
-| `channel` | 通道入口 | 使用者訊息收發、WebSocket、排程 | `#C4502A` |
-| `agent` | Agent / Brain | 主判斷中樞、技能路由、元認知 | `#2A7A6E` |
-| `pulse` | Pulse 生命力 | 自主探索、推播、心跳、承諾追蹤 | `#B8923A` |
-| `gov` | Governance | 三焦治理、免疫、護欄、沙盒 | `#2A6A8A` |
-| `doctor` | Doctor 診斷 | 系統審計、自我診斷、自動修復 | `#2D8A6E` |
-| `llm` | LLM 路由 | 模型選擇、預算、速限、快取 | `#5A5A6E` |
-| `data` | 資料持久層 | 記憶、向量索引、技能庫、SQLite | `#7A7888` |
-| `evolution` | Evolution 演化 | 外向演化、意圖雷達、研究消化、參數調諧 | `#6B3FA0` |
-| `tools` | Tools 工具 | 工具註冊、探測、排程 | `#8A6A3E` |
-| `nightly` | Nightly 夜間 | 31+ 步夜間整合管線、演化提案、好奇心路由 | `#9A3A1C` |
-| `learning` | Learning 學習 | 持續學習引擎（洞見萃取、策略累積） | `#4A8A2A` |
-| `billing` | Billing 計費 | Skill 調用計數、信任點數 | `#8A7A3E` |
-| `external` | 外部服務 | SearXNG、Qdrant、Firecrawl、API | `#6A6880` |
-| `skills` | Skills 生態系 | 外掛 Skill 語義群組（7 子中樞 + 41 Skill）；治理規格見 `skill-routing-governance.md` | `#8B5CF6` |
+| 群組 ID | 名稱 | 職責 | 色碼 | Layer |
+|---------|------|------|------|-------|
+| `center` | 核心 | 事件匯流排，全系統通訊樞紐 | `#C4502A` | - |
+| `channel` | 通道入口 | 使用者訊息收發、WebSocket、排程 | `#C4502A` | - |
+| `agent` | Agent / Brain | 主判斷中樞、技能路由、元認知 | `#2A7A6E` | - |
+| `pulse` | Pulse 生命力 | 自主探索、推播、心跳、承諾追蹤 | `#B8923A` | - |
+| `gov` | Governance | 三焦治理、免疫、護欄、沙盒 | `#2A6A8A` | - |
+| `doctor` | Doctor 診斷 | 系統審計、自我診斷、自動修復 | `#2D8A6E` | - |
+| `llm` | LLM 路由 | 模型選擇、預算、速限、快取 | `#5A5A6E` | - |
+| `data` | 資料持久層 | 記憶、向量索引、技能庫、SQLite | `#7A7888` | - |
+| `evolution` | Evolution 演化 | 外向演化、意圖雷達、研究消化、參數調諧 | `#6B3FA0` | - |
+| `tools` | Tools 工具 | 工具註冊、探測、排程 | `#8A6A3E` | - |
+| `nightly` | Nightly 夜間 | 31+ 步夜間整合管線、演化提案、好奇心路由 | `#9A3A1C` | - |
+| `learning` | Learning 學習 | 持續學習引擎（洞見萃取、策略累積） | `#4A8A2A` | - |
+| `billing` | Billing 計費 | Skill 調用計數、信任點數 | `#8A7A3E` | - |
+| `external` | 外部服務 | SearXNG、Qdrant、Firecrawl、API | `#6A6880` | - |
+| `skills` | Skills 生態系 | 外掛 Skill 語義群組（7 子中樞 + 41 Skill）；治理規格見 `skill-routing-governance.md` | `#8B5CF6` | - |
+| `constellation` | 星座系統 | MUSEON 多維知識追蹤框架——9 個星座追蹤 Skill 使用模式，荒謬六芒星為底層 OS；Meta 層，在 Skill 之上 | `#9B59B6` | `meta` |
+
+### 層級模型（Layer Model）
+
+| Layer | 說明 | 群組 |
+|-------|------|------|
+| Meta（元層） | 追蹤 Skill 使用模式的多維知識框架，一個 Skill 可屬多個星座 | constellation |
+| Core（核心層） | 所有 Skill、Agent、基礎設施群組 | 其餘所有群組 |
+
+> 星座不「擁有」Skill，而是「追蹤」Skill 的使用對哪些維度產生影響。
+> 星座→Skill 的連線在拓撲中表示為 cross 連線，在 3D 圖中渲染為從上方向下的追蹤線。
 
 ---
 
@@ -471,6 +484,26 @@ external-user（EXTERNAL）
 | `workflow-ai-deployment` | WF-AID-01 | AI部署工作流 | - | skills-workflow-hub | 1.2 |
 | `workflow-brand-consulting` | WF-BRD-01 | 品牌手冊工作流 | - | skills-workflow-hub | 1.4 |
 | `group-meeting-notes` | WF-GMN-01 | 會議記錄引擎 | - | skills-workflow-hub | 1.2 |
+
+### constellation — 星座系統
+
+> **設計文件**：`~/.claude/projects/-Users-ZEALCHOU/memory/project_constellation_system.md`
+> **核心邏輯**：荒謬六芒星是底層 OS（補上六大決策盲區），8 個領域星座映射回荒謬，星座雷達引擎追蹤使用者在各星座的位置，探針層負責觸發診斷。
+> **色碼**：`#9B59B6`（紫色系，與其他群組一眼可辨）
+
+| ID | 名稱 | 中文 | Hub | Parent | 半徑 |
+|----|------|------|-----|--------|------|
+| `constellation-radar` | Constellation Radar | 星座雷達引擎（追蹤各星座活躍度、缺口引力） | Yes | - | 2.0 |
+| `constellation-probe` | Constellation Probe | 探針層（觸發診斷、注入 Brain Prompt） | - | constellation-radar | 1.4 |
+| `constellation-absurdity` | 荒謬六芒星 | 底層 OS——補上六大決策盲區（存在/虛假/資訊/時間/框架/自我） | - | constellation-radar | 1.6 |
+| `constellation-business` | 商模十二力星 | 商業模式十二力領域星座 | - | constellation-radar | 1.2 |
+| `constellation-brand` | 品牌七芒星 | 品牌建構七芒領域星座 | - | constellation-radar | 1.2 |
+| `constellation-strategy` | 戰略三稜鏡 | 戰略判斷三稜鏡領域星座 | - | constellation-radar | 1.2 |
+| `constellation-energy` | 能量八芒星 | 八方位能量領域星座 | - | constellation-radar | 1.2 |
+| `constellation-conversion` | 轉化漏斗三角星 | 轉化漏斗三角領域星座 | - | constellation-radar | 1.2 |
+| `constellation-market` | 市場七芒星 | 市場分析七芒領域星座 | - | constellation-radar | 1.2 |
+| `constellation-thinking` | 思維轉化五芒星 | 思維轉化五芒領域星座 | - | constellation-radar | 1.2 |
+| `constellation-growth` | 年輪星 | 年度成長週期領域星座 | - | constellation-radar | 1.2 |
 
 ---
 
@@ -1223,6 +1256,60 @@ external-user（EXTERNAL）
 | `diary-store` | `qdrant` | Soul Ring 向量索引到 soul_rings collection |
 | `adaptive-decay` | `nightly` | 每日衰減排程（Step 32） |
 
+### 星座系統連線（constellation）
+
+> 以下連線描述星座系統與 Brain/Skills 的整合關係。
+
+#### 星座內部連線（internal）
+| Source | Target | 說明 |
+|--------|--------|------|
+| `constellation-radar` | `constellation-absurdity` | 荒謬六芒星作為底層 OS，雷達掛載 |
+| `constellation-radar` | `constellation-business` | 商模十二力星追蹤 |
+| `constellation-radar` | `constellation-brand` | 品牌七芒星追蹤 |
+| `constellation-radar` | `constellation-strategy` | 戰略三稜鏡追蹤 |
+| `constellation-radar` | `constellation-energy` | 能量八芒星追蹤 |
+| `constellation-radar` | `constellation-conversion` | 轉化漏斗三角星追蹤 |
+| `constellation-radar` | `constellation-market` | 市場七芒星追蹤 |
+| `constellation-radar` | `constellation-thinking` | 思維轉化五芒星追蹤 |
+| `constellation-radar` | `constellation-growth` | 年輪星追蹤 |
+| `constellation-radar` | `constellation-probe` | 探針層隸屬雷達引擎 |
+
+#### 星座跨群組連線（cross）
+| Source | Target | 說明 |
+|--------|--------|------|
+| `constellation-probe` | `brain` | 探針觸發時注入診斷上下文至 Brain |
+| `constellation-probe` | `brain-prompt-builder` | 星座缺口注入 system prompt（constellation zone） |
+| `constellation-absurdity` | `constellation-business` | 商模盲區映射回荒謬六芒星 |
+| `constellation-absurdity` | `constellation-brand` | 品牌盲區映射回荒謬六芒星 |
+| `constellation-absurdity` | `constellation-strategy` | 戰略盲區映射回荒謬六芒星 |
+| `constellation-absurdity` | `constellation-energy` | 能量盲區映射回荒謬六芒星 |
+| `constellation-absurdity` | `constellation-conversion` | 轉化漏斗映射回荒謬六芒星 |
+| `constellation-absurdity` | `constellation-market` | 市場認知映射回荒謬六芒星 |
+| `constellation-absurdity` | `constellation-thinking` | 思維品質映射回荒謬六芒星 |
+| `constellation-absurdity` | `constellation-growth` | 決策機器映射回荒謬六芒星 |
+| `constellation-business` | `business-12` | 商模十二力星連結商模十二力 Skill |
+| `constellation-business` | `ssa-consultant` | 商模十二力星連結 SSA 顧問 Skill |
+| `constellation-brand` | `brand-builder` | 品牌七芒星連結品牌建構 Skill |
+| `constellation-brand` | `brand-identity` | 品牌七芒星連結品牌識別 Skill |
+| `constellation-strategy` | `master-strategy` | 戰略三稜鏡連結戰略判斷 Skill |
+| `constellation-strategy` | `shadow` | 戰略三稜鏡連結陰謀辨識 Skill |
+| `constellation-energy` | `energy-reading` | 能量八芒星連結八方位能量解讀 Skill |
+| `constellation-energy` | `onemuse-core` | 能量八芒星連結 One Muse 核心知識 |
+| `constellation-conversion` | `ssa-consultant` | 轉化漏斗連結 SSA 顧問 Skill |
+| `constellation-conversion` | `landing-page-forge` | 轉化漏斗連結銷售頁鍛造 Skill |
+| `constellation-market` | `market-core` | 市場七芒星連結市場分析核心 Skill |
+| `constellation-market` | `market-equity` | 市場七芒星連結股票分析 Skill |
+| `constellation-market` | `investment-masters` | 市場七芒星連結投資軍師團 Skill |
+| `constellation-thinking` | `dharma` | 思維轉化五芒星連結思維轉化引擎 Skill |
+| `constellation-thinking` | `deep-think` | 思維轉化五芒星連結深度思考 Skill |
+| `constellation-thinking` | `philo-dialectic` | 思維轉化五芒星連結哲學思辨 Skill |
+| `constellation-growth` | `wan-miu-16` | 年輪星連結萬謬16型人格 Skill |
+| `constellation-growth` | `anima-individual` | 年輪星連結 ANIMA 個體追蹤 Skill |
+| `constellation-growth` | `resonance` | 年輪星連結感性共振 Skill |
+| `absurdity-radar` | `constellation-radar` | 荒謬雷達數據同步至星座雷達（缺口引力共享） |
+| `nightly-pipeline` | `constellation-radar` | Nightly 步驟定期重算星座活躍度 |
+| `skill-router` | `constellation-radar` | Skill 路由讀取星座缺口引力輔助決策 |
+
 ---
 
 ## 驗證規則（Validation Rules）
@@ -1264,10 +1351,10 @@ external-user（EXTERNAL）
 
 | 指標 | 數值 |
 |------|------|
-| 總節點數 | 194（159 系統 - 20 已刪除 + 55 Skills） |
-| 總連線數 | 522（487 + 2 internal + 23 cross Ares/ANIMA + 10 Persona Evolution） |
-| 群組數 | 15 (含 skills，新增 learning + billing) |
-| Hub 節點 | 19 (12 系統 + 7 Skills Hub) |
+| 總節點數 | 205（194 + 11 constellation 新增） |
+| 總連線數 | 547（522 + 10 internal + 15 cross constellation 新增） |
+| 群組數 | 16 (含 skills、learning、billing、constellation) |
+| Hub 節點 | 20 (12 系統 + 7 Skills Hub + 1 constellation-radar) |
 | 已刪除節點（v1.59）| 20（含 line/electron/dna27/epigenetic-router/proactive-predictor 等） |
 | 已刪除連線（v1.59）| 24（所有涉及已刪除模組的連線，文件中以刪除線標記） |
 | 破損 import（未修）| 2（brain_fast.py → input_sanitizer, ceremony） |
@@ -1279,6 +1366,7 @@ external-user（EXTERNAL）
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.82 | 2026-04-04 | 星座系統——新增 `constellation` 群組（constellation-radar Hub + constellation-probe + constellation-absurdity/business/brand/strategy/energy/conversion/market/thinking/growth 共 11 節點）；新增 10 internal + 15 cross 連線；群組色碼 `#9B59B6`；194→205 節點，522→547 連線 |
 | v1.81 | 2026-04-04 | Knife 2+3 變更——llm 群組新增 `semantic-response-cache`（Qdrant-backed 語意回覆快取，零 LLM token，v12 新增）；新增 3 條連線（brain→semantic-response-cache 查詢快取、l4-cpu-observer→semantic-response-cache 寫入、semantic-response-cache→qdrant collection 讀寫）；brain_tools.py tool-use loop 改用 --resume session；cron_registry.py 新增 quota circuit breaker；cron 頻率調整（breath-pulse 每小時1次、curiosity-research 週二次、business-case 週一次）|
 | v1.80 | 2026-04-04 | L4 CPU Observer 架構更新——agent 群組新增 `l4-cpu-observer`（CPU-only 對話後觀察者，取代 Haiku L4 agent spawn，零 LLM 呼叫，<10ms）；brain-tools 描述更新（_classify_complexity 已改為 CPU-only v12）；新增 4 條連線（brain→l4-cpu-observer、l4-cpu-observer→context-cache/session-adjustments/memory）|
 | v1.74 | 2026-04-01 | Phase A-C 死碼清理 + signal_lite 遷移——移除 brain-p3-fusion（P3 融合層已清除）、brain-observer（L4 觀察者已刪除）2 個節點；reflex-router 標記已刪除（路由功能退役）；新增 signal-lite 節點（輕量信號路由）；移除連線：brain→brain-p3-fusion、brain→reflex-router（改為 brain→signal-lite）、brain→brain-observer、primal-detector→reflex-router、nightly→reflex-router 共 5 條；brain.py Step 3 描述更新（signal_lite 信號路由）。同步 blast-radius v1.93 |

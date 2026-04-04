@@ -1,0 +1,78 @@
+{
+  "version": "1.0",
+  "updated_at": "2026-04-04",
+  "constellations": [
+    {
+      "name": "absurdity",
+      "display_name": "荒謬六芒星",
+      "status": "active",
+      "layer": "base",
+      "dimensions_count": 6,
+      "description": "MUSEON 底層作業系統，追蹤使用者在六大盲區的發展程度"
+    },
+    {
+      "name": "business_twelve",
+      "display_name": "商模十二力星",
+      "status": "active",
+      "layer": "domain",
+      "dimensions_count": 12,
+      "description": "商業體質診斷，追蹤企業在十二個力的強弱"
+    },
+    {
+      "name": "brand_seven",
+      "display_name": "品牌七芒星",
+      "status": "active",
+      "layer": "domain",
+      "dimensions_count": 7,
+      "description": "品牌完整性，追蹤品牌在七個框架維度的成熟度"
+    },
+    {
+      "name": "strategy_prism",
+      "display_name": "戰略三稜鏡",
+      "status": "active",
+      "layer": "domain",
+      "dimensions_count": 7,
+      "description": "決策博弈三維：陽謀×陰謀×鏡照"
+    },
+    {
+      "name": "energy_octagram",
+      "display_name": "能量八芒星",
+      "status": "active",
+      "layer": "domain",
+      "dimensions_count": 8,
+      "description": "One Muse 八方位能量追蹤"
+    },
+    {
+      "name": "conversion_triangle",
+      "display_name": "轉化漏斗三角星",
+      "status": "active",
+      "layer": "domain",
+      "dimensions_count": 9,
+      "description": "三重漏斗（產品×行銷×社群）各三階段"
+    },
+    {
+      "name": "market_heptagram",
+      "display_name": "市場七芒星",
+      "status": "active",
+      "layer": "domain",
+      "dimensions_count": 7,
+      "description": "市場認知七維度——追蹤使用者對外部市場環境的理解深度"
+    },
+    {
+      "name": "thinking_pentagram",
+      "display_name": "思維轉化五芒星",
+      "status": "active",
+      "layer": "domain",
+      "dimensions_count": 5,
+      "description": "認知品質五維度——覺察/靈活/嚴謹/綜攝/認識論，五維交錯湧現創造力"
+    },
+    {
+      "name": "growth_rings",
+      "display_name": "年輪星",
+      "status": "active",
+      "layer": "domain",
+      "dimensions_count": 9,
+      "description": "人格×認知交互的決策機器——九紋追蹤行為模式、經驗累積、時間演化與可預測性"
+    }
+  ]
+}

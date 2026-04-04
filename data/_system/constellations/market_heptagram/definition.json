@@ -1,0 +1,129 @@
+{
+  "name": "market_heptagram",
+  "display_name": "市場七芒星",
+  "layer": "domain",
+  "description": "市場認知的七維度追蹤系統。追蹤使用者對外部市場環境的理解深度——不是市場本身的狀態，而是你對市場理解了多少。",
+  "dimensions": [
+    "macro_literacy",
+    "liquidity_awareness",
+    "valuation_judgment",
+    "trend_recognition",
+    "sentiment_reading",
+    "risk_awareness",
+    "cycle_positioning"
+  ],
+  "dimension_labels": {
+    "macro_literacy": "總經判讀",
+    "liquidity_awareness": "流動性感知",
+    "valuation_judgment": "估值判斷",
+    "trend_recognition": "趨勢辨識",
+    "sentiment_reading": "情緒判讀",
+    "risk_awareness": "風險意識",
+    "cycle_positioning": "週期定位"
+  },
+  "dimension_groups": {
+    "foundation": {
+      "label": "地基層（環境在哪裡）",
+      "description": "總經和流動性構成其他所有判斷的前提。不懂水位，估值和趨勢都是空中閣樓。",
+      "dimensions": ["macro_literacy", "liquidity_awareness"]
+    },
+    "analysis": {
+      "label": "研判層（標的值多少、往哪走）",
+      "description": "估值、趨勢、情緒三者需要同時看，缺一不可。估值告訴你貴不貴，趨勢告訴你方向，情緒告訴你市場參與者在想什麼。",
+      "dimensions": ["valuation_judgment", "trend_recognition", "sentiment_reading"]
+    },
+    "decision": {
+      "label": "決策層（怎麼行動）",
+      "description": "知道風險在哪、知道自己在週期的哪裡，才能決定要多激進。",
+      "dimensions": ["risk_awareness", "cycle_positioning"]
+    }
+  },
+  "dimension_details": {
+    "macro_literacy": {
+      "definition": "對總體經濟環境（GDP、利率、通膨、地緣政治）的理解程度。",
+      "frameworks": ["Ray Dalio 經濟機器模型（生產力+短期債務+長期債務）", "PESTEL 環境分析", "CFA 資產配置框架"],
+      "master": "Ray Dalio",
+      "kpis": ["能否用白話解釋當前利率政策的影響", "能否辨識總經數據的領先/落後指標", "能否判斷經濟擴張或收縮階段"],
+      "anti_pattern": "只看個股不看大環境，在升息週期重壓成長股"
+    },
+    "liquidity_awareness": {
+      "definition": "對資金環境（央行政策、信用鬆緊、市場資金流向）的理解程度。獨立於總經，因為流動性可以日內劇變。",
+      "frameworks": ["Ray Dalio 信用週期", "Howard Marks 信用窗口", "央行資產負債表分析"],
+      "master": "Ray Dalio",
+      "kpis": ["能否判斷目前資金面鬆緊", "能否辨識央行政策轉向訊號", "能否理解信用擴張/收縮對資產價格的影響"],
+      "anti_pattern": "不知道水位在哪，在退潮時裸泳（Buffett: 潮退了才知道誰沒穿褲子）"
+    },
+    "valuation_judgment": {
+      "definition": "判斷資產價格相對於內在價值是貴還是便宜的能力。",
+      "frameworks": ["Buffett 安全邊際", "Munger 多元心智模型", "Fama-French 價值因子", "DCF / 本益比 / 股價淨值比"],
+      "master": "Warren Buffett / Charlie Munger",
+      "kpis": ["能否用至少兩種方法估算內在價值", "能否辨識市場價格與內在價值的偏離", "能否判斷安全邊際是否足夠"],
+      "anti_pattern": "追高殺低、不知道自己買的東西值多少"
+    },
+    "trend_recognition": {
+      "definition": "辨識價格動量、產業趨勢、技術變革方向的能力。",
+      "frameworks": ["Philip Fisher 閒聊法（深度產業研究）", "Fama-French 動量因子", "Soros 反身性底層趨勢", "技術分析趨勢辨識"],
+      "master": "Philip Fisher",
+      "kpis": ["能否辨識產業結構性變化 vs 短期波動", "能否判斷趨勢的強度和持續性", "能否區分真突破和假突破"],
+      "anti_pattern": "只看靜態估值不看動態方向，買了便宜的價值陷阱"
+    },
+    "sentiment_reading": {
+      "definition": "辨識市場參與者的集體情緒狀態（恐懼/貪婪）並獨立於其中的能力。",
+      "frameworks": ["Soros 反身性（認知功能）", "Kahneman 行為金融學", "Howard Marks 心理鐘擺", "恐懼貪婪指數"],
+      "master": "George Soros",
+      "kpis": ["能否辨識當前市場情緒的極端程度", "能否在群體恐慌中保持獨立判斷", "能否辨識情緒和基本面的背離"],
+      "anti_pattern": "被市場情緒帶著走，在恐慌中恐慌、在瘋狂中瘋狂"
+    },
+    "risk_awareness": {
+      "definition": "辨識、量化、管理風險（包括尾部風險和不可量化風險）的能力。",
+      "frameworks": ["Taleb 反脆弱 / 槓鈴策略 / 黑天鵝防禦", "Howard Marks 風險態度週期", "Kelly Criterion 倉位管理", "VaR / 最大回撤"],
+      "master": "Nassim Taleb",
+      "kpis": ["能否區分可量化風險和不確定性", "能否設計槓鈴策略（90%極安全+10%高風險）", "能否在事前而非事後管理風險"],
+      "anti_pattern": "只想著報酬不想著風險，以為過去的波動就是未來的風險"
+    },
+    "cycle_positioning": {
+      "definition": "整合多維度資訊，判斷目前處於經濟/信用/市場週期哪個階段的能力。這是一種整合性認知，不是獨立資訊源。",
+      "frameworks": ["Howard Marks 週期理論（Mastering the Market Cycle）", "Dalio 債務週期（短期5-8年+長期75-100年）", "Kondratiev 長波"],
+      "master": "Howard Marks",
+      "kpis": ["能否判斷現在在週期的哪個階段（早期/中期/晚期/衰退）", "能否辨識週期轉折的先行訊號", "能否根據週期位置調整行動激進度"],
+      "anti_pattern": "不知道現在是什麼時候——在泡沫頂部以為還早，在底部以為要完蛋"
+    }
+  },
+  "dimension_relations": {
+    "type": "foundation_layered",
+    "description": "地基→研判→決策。地基層提供環境認知，研判層分析具體標的，決策層整合為行動依據。不是線性流程，而是三層同時運作，但地基不穩則上層判斷失準。",
+    "foundation": ["macro_literacy", "liquidity_awareness"],
+    "causal_chain": "Macro+Liquidity → Valuation+Trend+Sentiment → Risk+Cycle",
+    "weakest_link": "sentiment_reading（情緒判讀是最脆弱的環節，因為需要獨立於群體思考——而人類天生是群居動物）",
+    "master_mapping": {
+      "macro_literacy": "Ray Dalio（經濟機器）",
+      "liquidity_awareness": "Ray Dalio（信用週期）",
+      "valuation_judgment": "Warren Buffett / Charlie Munger",
+      "trend_recognition": "Philip Fisher（閒聊法深度研究）",
+      "sentiment_reading": "George Soros（反身性）",
+      "risk_awareness": "Nassim Taleb（反脆弱）",
+      "cycle_positioning": "Howard Marks（週期大師）"
+    }
+  },
+  "absurdity_mapping": {
+    "macro_literacy": {"gap_visibility": 0.6, "direction_clarity": 0.4},
+    "liquidity_awareness": {"gap_visibility": 0.5, "accumulation": 0.5},
+    "valuation_judgment": {"gap_visibility": 0.5, "self_awareness": 0.5},
+    "trend_recognition": {"direction_clarity": 0.6, "strategic_integration": 0.4},
+    "sentiment_reading": {"self_awareness": 0.6, "relationship_leverage": 0.4},
+    "risk_awareness": {"gap_visibility": 0.4, "accumulation": 0.3, "strategic_integration": 0.3},
+    "cycle_positioning": {"direction_clarity": 0.4, "strategic_integration": 0.6}
+  },
+  "default_value": 0.5,
+  "alpha": 0.12,
+  "decay_rate": 0.06,
+  "confidence_increment": 0.02,
+  "confidence_decay": 0.015,
+  "min_confidence": 0.1,
+  "linked_skills": [
+    "market-core", "market-equity", "market-crypto", "market-macro",
+    "sentiment-radar", "risk-matrix", "investment-masters"
+  ],
+  "created_at": "2026-04-04",
+  "updated_at": "2026-04-04"
+}

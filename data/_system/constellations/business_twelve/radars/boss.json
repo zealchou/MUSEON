@@ -1,0 +1,20 @@
+{
+  "constellation": "business_twelve",
+  "user_id": "boss",
+  "product_power": 0.5,
+  "accumulation_power": 0.5,
+  "integration_power": 0.5,
+  "sharing_power": 0.5,
+  "experience_power": 0.5,
+  "inspiration_power": 0.5,
+  "brand_power": 0.5,
+  "optimization_power": 0.5,
+  "community_power": 0.5,
+  "visual_power": 0.5,
+  "negotiation_power": 0.5,
+  "conversion_power": 0.5,
+  "confidence": 0.15,
+  "bootstrapped": true,
+  "bootstrapped_at": "2026-04-04T14:21:25.426634+00:00",
+  "updated_at": "2026-04-04T14:21:25.426634+00:00"
+}

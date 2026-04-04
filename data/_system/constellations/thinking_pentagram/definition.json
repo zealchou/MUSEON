@@ -1,0 +1,143 @@
+{
+  "name": "thinking_pentagram",
+  "display_name": "思維轉化五芒星",
+  "layer": "domain",
+  "description": "認知品質的五維度追蹤系統。五芒星幾何——每個頂點跟其他四個相連——代表維度間互相影響但各自不可替代。五維交錯到位後，創造力自然湧現。",
+  "dimensions": [
+    "awareness_depth",
+    "frame_agility",
+    "reasoning_rigor",
+    "synthesis_power",
+    "epistemic_maturity"
+  ],
+  "dimension_labels": {
+    "awareness_depth": "覺察深度",
+    "frame_agility": "框架靈活度",
+    "reasoning_rigor": "論證嚴謹度",
+    "synthesis_power": "綜攝力",
+    "epistemic_maturity": "認識論成熟度"
+  },
+  "dimension_groups": {
+    "perception": {
+      "label": "感知層（看見什麼）",
+      "description": "覺察讓你向內看見自己的狀態，框架靈活讓你向外看見多個角度。",
+      "dimensions": ["awareness_depth", "frame_agility"]
+    },
+    "processing": {
+      "label": "處理層（怎麼想）",
+      "description": "論證確保推理品質，綜攝把散亂收斂成行動路徑。",
+      "dimensions": ["reasoning_rigor", "synthesis_power"]
+    },
+    "meta": {
+      "label": "後設層（想自己的想）",
+      "description": "認識論成熟度是認知系統的免疫系統——防止其他四維的強大變成傲慢。",
+      "dimensions": ["epistemic_maturity"]
+    }
+  },
+  "dimension_details": {
+    "awareness_depth": {
+      "definition": "能把多大範圍的內在和外在體驗從「主體」變成「客體」的能力。你看不見的東西你改不了。",
+      "frameworks": ["Kegan 建構發展理論（主體→客體轉化）", "Stanovich 反思心智", "Salovey & Mayer 情緒智力四支模型", "佛法五蘊「識」＋「受」"],
+      "low_signal": "被情緒帶著走但不知道；重複犯同樣的錯不知道為什麼；「我就是這樣的人」",
+      "high_signal": "能辨識自己的情緒並讓它成為資訊；能看見自己的思維模式；能區分「我的想法」和「我」",
+      "anti_pattern": "聰明（算法心智強）不等於理性（反思心智強）"
+    },
+    "frame_agility": {
+      "definition": "在不同思維框架、視角、心智模型之間自如切換的能力。不是「知道很多框架」，而是「能在框架之間流動」。",
+      "frameworks": ["Tetlock 超級預測者（狐狸型）", "Munger 多元心智模型", "認知靈活性三機制（集合轉換+抑制控制+更新）", "佛法「空」"],
+      "low_signal": "只從一個角度看問題；被告知另一個視角會覺得「那不對」；刺蝟型思維",
+      "high_signal": "能同時持有多個矛盾假設而不焦慮；能從甲方/乙方/旁觀者各自看同一件事；狐狸型思維",
+      "anti_pattern": "知道很多框架 ≠ 能在框架間流動——收藏心智模型不是擁有它們"
+    },
+    "reasoning_rigor": {
+      "definition": "推理過程中辨識假設、評估證據、構建有效論證、偵測謬誤的能力。思考的工程品質。",
+      "frameworks": ["Paul & Elder 批判性思考三元素", "Facione Delphi 六技能", "Stanovich 算法心智", "儒家「格物致知」"],
+      "low_signal": "把相關當因果；被故事說服不檢驗證據；「我覺得」=「事實是」；確認偏誤嚴重",
+      "high_signal": "自動區分事實/假設/推論；能辨識論證中的邏輯漏洞；主動找反面證據",
+      "anti_pattern": "傾向/美德是驅動力，結構/標準是工具——沒有傾向，工具不會自動啟動"
+    },
+    "synthesis_power": {
+      "definition": "將看似矛盾的資訊、感受、框架綜合成連貫理解和行動方案的能力。不是折衷或平均——是升維整合。",
+      "frameworks": ["Argyris 雙迴路學習", "Kolb 抽象概念化→主動實驗", "黑格爾正→反→合", "佛法五蘊「行」"],
+      "low_signal": "分析完一大堆但不知道「所以呢」；理性和感性打架解不開；「道理我都懂但做不到」",
+      "high_signal": "能把矛盾收斂成更高層次理解；能將洞見轉化為具體行動；能在複雜中找到槓桿點",
+      "anti_pattern": "綜攝不是行動力——行動力是執行層，綜攝是認知上的收斂"
+    },
+    "epistemic_maturity": {
+      "definition": "對「知識本身」的態度——理解知識有限度、保持認知謙遜、能在不確定中做決策、能修正自己的心智模型。認知系統的免疫系統。",
+      "frameworks": ["King & Kitchener 反思判斷模型", "Dweck 成長心態", "Tetlock 超級預測者特質", "道家「知其不知」", "禪宗「初心」"],
+      "low_signal": "非黑即白；接受權威不質疑；害怕不確定所以選最簡單的解釋；不願承認自己想錯了",
+      "high_signal": "能說「我不確定，但根據現有證據…」；能在不完整資訊下做合理決策；能開心地修正之前的結論",
+      "anti_pattern": "其他四維都很強但認識論低 → 強大變成傲慢 → 認知系統建在脆弱地基上"
+    }
+  },
+  "emergent_property": {
+    "name": "creativity_emergence",
+    "display_name": "創造力湧現",
+    "description": "五維交錯應用後的自然湧現（Amabile 成分理論、Sternberg 投資理論均支持）。不是獨立維度，而是五維的匯流（confluence）。乘法關係——任一維為零則整體為零。",
+    "academic_basis": ["Amabile Componential Theory (1996)", "Sternberg Investment Theory (1995)", "Boden Three Types of Creativity (2004)", "Sawyer Explaining Creativity (2012)"],
+    "computation": {
+      "method": "geometric_mean_with_threshold_gate",
+      "description": "幾何平均（乘法交互）+ 門檻閘門（未過門檻的維度強懲罰）+ Sigmoid 正規化",
+      "gate": "(pass_count / n) ^ 2",
+      "core": "GeometricMean(max(0, score_i - threshold_i))"
+    },
+    "thresholds": {
+      "awareness_depth": 0.55,
+      "frame_agility": 0.60,
+      "reasoning_rigor": 0.50,
+      "synthesis_power": 0.65,
+      "epistemic_maturity": 0.60
+    },
+    "stages": [
+      {"range": [0.0, 0.2], "name": "absorption", "label": "吸納", "boden": null, "description": "接收和記憶框架"},
+      {"range": [0.2, 0.4], "name": "reproduction", "label": "複現", "boden": null, "description": "在已知框架內操作"},
+      {"range": [0.4, 0.6], "name": "recombination", "label": "重組", "boden": "combinational", "description": "已知元素的新組合"},
+      {"range": [0.6, 0.8], "name": "exploration", "label": "探索", "boden": "exploratory", "description": "在概念空間邊緣發現新可能"},
+      {"range": [0.8, 1.0], "name": "transformation", "label": "變革", "boden": "transformational", "description": "創造新的概念空間"}
+    ],
+    "critical_transitions": {
+      "0.4": "複製→創造門檻線（框架內→開始有原創成分）",
+      "0.6": "量變→質變湧現線（交互效應開始超越各部分之和）"
+    }
+  },
+  "dimension_relations": {
+    "type": "pentagram_network",
+    "description": "五芒星：每個頂點與其他四個都有連線（共10條），代表互相影響但各自不可替代。覺察是看見的前提，靈活是寬度，嚴謹是深度，綜攝是收斂，認識論是免疫系統。",
+    "interactions": {
+      "awareness_depth↔frame_agility": "覺察自己的預設框架 → 才能切換框架",
+      "awareness_depth↔reasoning_rigor": "覺察到確認偏誤 → 才會主動檢驗證據",
+      "awareness_depth↔synthesis_power": "覺察到理性感性衝突 → 才能整合兩者",
+      "awareness_depth↔epistemic_maturity": "深度覺察認知限度 → 產生認識論謙遜",
+      "frame_agility↔reasoning_rigor": "多框架需要嚴謹判斷哪個更有根據",
+      "frame_agility↔synthesis_power": "靈活提供整合原料，綜攝讓靈活不散亂",
+      "frame_agility↔epistemic_maturity": "接觸不同框架 → 挑戰「只有一個正確答案」",
+      "reasoning_rigor↔synthesis_power": "嚴謹支撐整合品質，整合需求推動更深論證",
+      "reasoning_rigor↔epistemic_maturity": "嚴謹推理讓你清楚結論的確信度",
+      "synthesis_power↔epistemic_maturity": "整合矛盾需要容忍不確定"
+    }
+  },
+  "absurdity_mapping": {
+    "awareness_depth": {"self_awareness": 0.8, "gap_visibility": 0.2},
+    "frame_agility": {"relationship_leverage": 0.4, "strategic_integration": 0.3, "gap_visibility": 0.3},
+    "reasoning_rigor": {"gap_visibility": 0.6, "direction_clarity": 0.4},
+    "synthesis_power": {"strategic_integration": 0.6, "direction_clarity": 0.2, "accumulation": 0.2},
+    "epistemic_maturity": {"self_awareness": 0.5, "gap_visibility": 0.3, "direction_clarity": 0.2}
+  },
+  "absurdity_differentiation": {
+    "principle": "荒謬六芒星問「你的地圖上哪裡有空白」（WHAT），思維五芒星問「你的指南針和測量工具有多精準」（HOW WELL）",
+    "example": "荒謬 #1 高分（已知道自己是誰）但覺察深度低分（靠別人告訴的不是自己看見的）→ 荒謬 #1 的高分其實脆弱"
+  },
+  "default_value": 0.5,
+  "alpha": 0.12,
+  "decay_rate": 0.015,
+  "confidence_increment": 0.02,
+  "confidence_decay": 0.008,
+  "min_confidence": 0.1,
+  "linked_skills": [
+    "deep-think", "dharma", "philo-dialectic", "meta-learning",
+    "resonance", "roundtable", "shadow-muse"
+  ],
+  "created_at": "2026-04-04",
+  "updated_at": "2026-04-04"
+}

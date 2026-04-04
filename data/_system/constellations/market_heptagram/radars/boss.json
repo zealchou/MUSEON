@@ -1,0 +1,15 @@
+{
+  "constellation": "market_heptagram",
+  "user_id": "boss",
+  "macro_literacy": 0.5,
+  "liquidity_awareness": 0.5,
+  "valuation_judgment": 0.5,
+  "trend_recognition": 0.5,
+  "sentiment_reading": 0.5,
+  "risk_awareness": 0.5,
+  "cycle_positioning": 0.5,
+  "confidence": 0.15,
+  "bootstrapped": true,
+  "bootstrapped_at": "2026-04-04T14:21:25.427762+00:00",
+  "updated_at": "2026-04-04T14:21:25.427762+00:00"
+}

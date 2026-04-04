@@ -325,8 +325,8 @@ console.log('[MUSEON 3D] Three.js loaded OK, version:', THREE.REVISION);
 //  SYNC META — 拓撲同步狀態
 // ═══════════════════════════════════════
 const SYNC_META = {
-  topologyVersion: 'v1.78',
-  syncDate: '2026-04-02',
+  topologyVersion: 'v1.83',
+  syncDate: '2026-04-04',
   nodeCount: 0, // auto-calculated below
   linkCount: 0, // auto-calculated below
   skillUpgrades: [
@@ -385,14 +385,16 @@ const GC = {
   gov:'#84A4BA', doctor:'#80B8A8', llm:'#9A9199', data:'#A097B8',
   evolution:'#AC8EC2', tools:'#B89E84',
   nightly:'#C58476', installer:'#93AC84', external:'#9E9EA4',
-  skills:'#8B5CF6'
+  skills:'#8B5CF6', learning:'#4A8A2A', billing:'#8A7A3E',
+  constellation:'#9B59B6'
 };
 const GN = {
   center:'核心', channel:'通道入口', agent:'Agent/Brain', pulse:'Pulse 生命力',
   gov:'Governance', doctor:'Doctor', llm:'LLM 路由', data:'資料層',
   evolution:'Evolution 演化', tools:'Tools 工具',
   nightly:'Nightly', installer:'Installer 安裝', external:'外部服務',
-  skills:'Skills 生態系'
+  skills:'Skills 生態系', learning:'Learning 學習', billing:'Billing 計費',
+  constellation:'星座系統 ✦'
 };
 function lkHex(t){ return t==='cross'?0xC98980:t==='async'?0xC5A47E:t==='monitor'?0x84A4BA:t==='control'?0x9E9EA4:t==='flow'?0xDC9F8E:t==='decay'?0x8B6E5A:0xB5B3AD; }
 function lkCSS(t){ return t==='cross'?'#C98980':t==='async'?'#C5A47E':t==='monitor'?'#84A4BA':t==='control'?'#9E9EA4':t==='flow'?'#DC9F8E':t==='decay'?'#8B6E5A':'#B5B3AD'; }
@@ -425,7 +427,7 @@ const nodes = [
   {id:"brain-observation",label:"Brain Observation",zh:"Mixin: 觀察與演化",group:"agent",r:1.0,p:"brain",desc:"Mixin: 觀察與演化（2003 行）"},
   {id:"brain-prompt-builder",label:"Brain Prompt Builder",zh:"Mixin: system prompt 建構",group:"agent",r:1.0,p:"brain",desc:"Mixin: system prompt 建構（1668 行）"},
   {id:"brain-tool-loop",label:"Brain-Tool-Loop",zh:"獨立 tool-use 迴圈",group:"agent",r:1.0,p:"brain"},
-  {id:"brain-tools",label:"Brain Tools",zh:"Mixin: LLM 呼叫與 session 管理",group:"agent",r:1.0,p:"brain",desc:"Mixin: LLM 呼叫與 session 管理（966 行）"},
+  {id:"brain-tools",label:"Brain Tools",zh:"Mixin: LLM 呼叫",group:"agent",r:1.0,p:"brain",desc:"Mixin: LLM 呼叫（_call_llm）與 session 管理（966 行）。_classify_complexity 已改為 CPU-only（v12）"},
   {id:"brain-types",label:"Brain Types",zh:"共享 dataclass: DecisionSignal",group:"agent",r:0.7,p:"brain"},
   {id:"chat-context",label:"Chat Context",zh:"ChatContext dataclass",group:"agent",r:0.7,p:"brain",desc:"ChatContext dataclass（輕量對話上下文資料結構）"},
   {id:"deep-think",label:"Deep Think",zh:"思考前置引擎",group:"agent",r:1.1,p:"brain",desc:"思考前置引擎（P0 訊號分流 / P1 輸入審視 / P2 決策偵測）"},
@@ -443,6 +445,7 @@ const nodes = [
   {id:"intuition",label:"Intuition",zh:"五層直覺",group:"agent",r:0.9,p:"brain"},
   {id:"investment-masters",label:"Investment Masters",zh:"投資軍師團",group:"agent",r:0.9,p:"brain",desc:"投資軍師團（六位大師模型會診）"},
   {id:"knowledge-lattice",label:"Knowledge Lattice",zh:"知識晶格",group:"agent",r:1.1,p:"brain"},
+  {id:"l4-cpu-observer",label:"L4 CPU Observer",zh:"CPU-only 對話後觀察者",group:"agent",r:0.8,p:"brain",desc:"CPU-only 對話後觀察者（v12 新增，取代 Haiku L4 agent spawn）。零 LLM 呼叫，<10ms。四步觀察：記憶寫入、訊號更新、偏好偵測、品質調整。"},
   {id:"mask-engine",label:"Mask Engine",zh:"每位使用者臨時人格適應層，附衰減機制",group:"agent",r:0.9,p:"brain",desc:"每位使用者臨時人格適應層，附衰減機制（Step 2.2 啟動 / Step 9.9 衰減）"},
   {id:"memory-graph",label:"Memory Graph",zh:"記憶關聯圖",group:"agent",r:1.0,p:"brain",desc:"記憶關聯圖（語意關聯邊 + 存取追蹤 + 過期偵測）"},
   {id:"memory-reflector",label:"Memory Reflector",zh:"Hindsight 式反思引擎",group:"agent",r:1.0,p:"brain",desc:"Hindsight 式反思引擎（矛盾偵測/模式發現/時間軸/Activation 排序）"},
@@ -513,6 +516,7 @@ const nodes = [
   {id:"budget-mgr",label:"Budget Mgr",zh:"Token 預算",group:"llm",r:1.0,p:"llm-router"},
   {id:"llm-cache",label:"Cache",zh:"LRU 快取",group:"llm",r:0.8,p:"llm-router"},
   {id:"rate-limit",label:"Rate Limit",zh:"速限守衛",group:"llm",r:0.8,p:"llm-router"},
+  {id:"semantic-response-cache",label:"Semantic Response Cache",zh:"Qdrant-backed 語意回覆快取，零 LLM token。v12 新增。",group:"llm",r:0.8,p:"llm-router"},
   // ── data ──
   {id:"data-bus",label:"DataBus",zh:"資料層路由器",group:"data",r:1.8,hub:1},
   {id:"blueprint-reader",label:"Blueprint Reader",zh:"藍圖解析器",group:"data",r:0.9,p:"data-bus"},
@@ -642,6 +646,18 @@ const nodes = [
   {id:"insight-extractor",label:"Insight Extractor",zh:"洞見萃取引擎",group:"learning",r:1.2,hub:1,desc:"洞見萃取引擎（晨報+探索統一萃取）"},
   // ── billing ──
   {id:"skill-counter",label:"Skill Counter",zh:"Skill 調用計數器",group:"billing",r:1.0,hub:1,desc:"Skill 調用計數器（月度檔案）"},
+  // ── constellation ──
+  {id:"constellation-radar",label:"Constellation Radar",zh:"星座雷達引擎",group:"constellation",r:2.0,hub:1,desc:"星座雷達引擎（追蹤各星座活躍度、缺口引力）",layer:"meta"},
+  {id:"constellation-absurdity",label:"荒謬六芒星",zh:"底層 OS——補上六大決策盲區",group:"constellation",r:1.6,p:"constellation-radar",desc:"底層 OS——補上六大決策盲區（存在/虛假/資訊/時間/框架/自我）",layer:"meta"},
+  {id:"constellation-brand",label:"品牌七芒星",zh:"品牌建構七芒領域星座",group:"constellation",r:1.2,p:"constellation-radar",layer:"meta"},
+  {id:"constellation-business",label:"商模十二力星",zh:"商業模式十二力領域星座",group:"constellation",r:1.2,p:"constellation-radar",layer:"meta"},
+  {id:"constellation-conversion",label:"轉化漏斗三角星",zh:"轉化漏斗三角領域星座",group:"constellation",r:1.2,p:"constellation-radar",layer:"meta"},
+  {id:"constellation-energy",label:"能量八芒星",zh:"八方位能量領域星座",group:"constellation",r:1.2,p:"constellation-radar",layer:"meta"},
+  {id:"constellation-growth",label:"年輪星",zh:"年度成長週期領域星座",group:"constellation",r:1.2,p:"constellation-radar",layer:"meta"},
+  {id:"constellation-market",label:"市場七芒星",zh:"市場分析七芒領域星座",group:"constellation",r:1.2,p:"constellation-radar",layer:"meta"},
+  {id:"constellation-probe",label:"Constellation Probe",zh:"探針層",group:"constellation",r:1.4,p:"constellation-radar",desc:"探針層（觸發診斷、注入 Brain Prompt）",layer:"meta"},
+  {id:"constellation-strategy",label:"戰略三稜鏡",zh:"戰略判斷三稜鏡領域星座",group:"constellation",r:1.2,p:"constellation-radar",layer:"meta"},
+  {id:"constellation-thinking",label:"思維轉化五芒星",zh:"思維轉化五芒領域星座",group:"constellation",r:1.2,p:"constellation-radar",layer:"meta"},
 ];
 
 const links = [
@@ -711,6 +727,7 @@ const links = [
   {source:"brain",target:"knowledge-lattice",label:"結晶注入",type:"internal"},
   {source:"brain",target:"knowledge-lattice",label:"MemGPT 三層分級召回 recall_tiered()",type:"internal"},
   {source:"brain",target:"knowledge-lattice",label:"GraphRAG 社群摘要 Layer 2.5 recall_with_community()",type:"internal"},
+  {source:"brain",target:"l4-cpu-observer",label:"回覆後呼叫 L4CpuObserver.observe()，CPU-only，<10ms",type:"internal"},
   {source:"brain",target:"mask-engine",label:"Step 2.2 啟動臨時人格層 / Step 9.9 衰減",type:"internal"},
   {source:"brain",target:"metacognition",label:"元認知",type:"internal"},
   {source:"brain",target:"multi-agent-executor",label:"並行 LLM 呼叫",type:"internal"},
@@ -725,6 +742,7 @@ const links = [
   {source:"brain",target:"recommender",label:"知識推薦引擎",type:"internal"},
   {source:"brain",target:"response-synthesizer",label:"回覆合成",type:"internal"},
   {source:"brain",target:"roundtable",label:"圓桌詰問",type:"internal"},
+  {source:"brain",target:"semantic-response-cache",label:"L1 查詢快取，命中則跳過 L2",type:"internal"},
   {source:"brain",target:"signal-lite",label:"signal_lite 信號路由（取代 DNA27 反射路由器）",type:"internal"},
   {source:"brain",target:"skill-router",label:"技能路由",type:"internal"},
   {source:"brain-deep",target:"brain-tool-loop",label:"tool-use 迴圈（L2 需要工具時委派）",type:"internal"},
@@ -737,6 +755,16 @@ const links = [
   {source:"brain-tools",target:"data-bus",label:"Session 持久化 + cache/routing/skill_usage JSONL",type:"internal"},
   {source:"brand-discovery",target:"biz-diagnostic",label:"品牌訪談資料→健檢參數",type:"internal"},
   {source:"brand-discovery",target:"brand-builder",label:"訪談資料→品牌分析",type:"internal"},
+  {source:"constellation-radar",target:"constellation-absurdity",label:"荒謬六芒星作為底層 OS，雷達掛載",type:"internal"},
+  {source:"constellation-radar",target:"constellation-brand",label:"品牌七芒星追蹤",type:"internal"},
+  {source:"constellation-radar",target:"constellation-business",label:"商模十二力星追蹤",type:"internal"},
+  {source:"constellation-radar",target:"constellation-conversion",label:"轉化漏斗三角星追蹤",type:"internal"},
+  {source:"constellation-radar",target:"constellation-energy",label:"能量八芒星追蹤",type:"internal"},
+  {source:"constellation-radar",target:"constellation-growth",label:"年輪星追蹤",type:"internal"},
+  {source:"constellation-radar",target:"constellation-market",label:"市場七芒星追蹤",type:"internal"},
+  {source:"constellation-radar",target:"constellation-probe",label:"探針層隸屬雷達引擎",type:"internal"},
+  {source:"constellation-radar",target:"constellation-strategy",label:"戰略三稜鏡追蹤",type:"internal"},
+  {source:"constellation-radar",target:"constellation-thinking",label:"思維轉化五芒星追蹤",type:"internal"},
   {source:"data-bus",target:"blueprint-reader",label:"Store 路由",type:"internal"},
   {source:"data-bus",target:"crystal-store",label:"Store 路由",type:"internal"},
   {source:"data-bus",target:"data-watchdog",label:"監控注入",type:"internal"},
@@ -790,6 +818,10 @@ const links = [
   {source:"governance",target:"telegram-guard",label:"守衛",type:"internal"},
   {source:"governor",target:"dendritic-scorer",label:"immunity 未解決→健康分數",type:"internal"},
   {source:"governor",target:"immunity",label:"learn() 抗體學習",type:"internal"},
+  {source:"l4-cpu-observer",target:"context-cache",label:"signal_cache JSON 寫入（訊號更新）",type:"internal"},
+  {source:"l4-cpu-observer",target:"memory",label:"記憶寫入（訊息 > 20 字 + 非問候時觸發，optional）",type:"internal"},
+  {source:"l4-cpu-observer",target:"semantic-response-cache",label:"回覆後寫入快取",type:"internal"},
+  {source:"l4-cpu-observer",target:"session-adjustments",label:"品質調整寫入（規則引擎輸出）",type:"internal"},
   {source:"llm-router",target:"budget-mgr",label:"預算",type:"internal"},
   {source:"llm-router",target:"llm-cache",label:"快取",type:"internal"},
   {source:"llm-router",target:"rate-limit",label:"速限",type:"internal"},
@@ -821,6 +853,7 @@ const links = [
   {source:"pulse",target:"proactive-dispatcher",label:"推播大總管",type:"internal"},
   {source:"pulse",target:"pulse-db",label:"持久化",type:"internal"},
   {source:"pulse",target:"silent-digestion",label:"消化",type:"internal"},
+  {source:"semantic-response-cache",target:"qdrant",label:"semantic_response_cache collection 讀寫",type:"internal"},
   {source:"skills-business-hub",target:"ad-pilot",label:"廣告診斷",type:"internal"},
   {source:"skills-business-hub",target:"biz-collab",label:"異業合作",type:"internal"},
   {source:"skills-business-hub",target:"biz-diagnostic",label:"商業模式健檢",type:"internal"},
@@ -903,6 +936,7 @@ const links = [
   {source:"workflow-brand-consulting",target:"brand-builder",label:"工作流→品牌建構",type:"internal"},
   {source:"workflow-brand-consulting",target:"brand-discovery",label:"工作流→訪談",type:"internal"},
   // ── cross ──
+  {source:"absurdity-radar",target:"constellation-radar",label:"荒謬雷達數據同步至星座雷達（缺口引力共享）",type:"cross"},
   {source:"anima-individual",target:"combined-reading",label:"合盤能量比對",type:"cross"},
   {source:"anima-individual",target:"energy-reading",label:"八方位能量數據",type:"cross"},
   {source:"anima-individual",target:"knowledge-lattice",label:"individual_crystal 結晶讀寫",type:"cross"},
@@ -969,6 +1003,35 @@ const links = [
   {source:"combined-reading",target:"wan-miu-16",label:"人格數據讀取",type:"cross"},
   {source:"commitment-tracker",target:"brain",label:"承諾自檢",type:"cross"},
   {source:"commitment-tracker",target:"registry",label:"承諾記錄",type:"cross"},
+  {source:"constellation-absurdity",target:"constellation-brand",label:"品牌盲區映射回荒謬六芒星",type:"cross"},
+  {source:"constellation-absurdity",target:"constellation-business",label:"商模盲區映射回荒謬六芒星",type:"cross"},
+  {source:"constellation-absurdity",target:"constellation-conversion",label:"轉化漏斗映射回荒謬六芒星",type:"cross"},
+  {source:"constellation-absurdity",target:"constellation-energy",label:"能量盲區映射回荒謬六芒星",type:"cross"},
+  {source:"constellation-absurdity",target:"constellation-growth",label:"決策機器映射回荒謬六芒星",type:"cross"},
+  {source:"constellation-absurdity",target:"constellation-market",label:"市場認知映射回荒謬六芒星",type:"cross"},
+  {source:"constellation-absurdity",target:"constellation-strategy",label:"戰略盲區映射回荒謬六芒星",type:"cross"},
+  {source:"constellation-absurdity",target:"constellation-thinking",label:"思維品質映射回荒謬六芒星",type:"cross"},
+  {source:"constellation-brand",target:"brand-builder",label:"品牌七芒星連結品牌建構 Skill",type:"cross"},
+  {source:"constellation-brand",target:"brand-identity",label:"品牌七芒星連結品牌識別 Skill",type:"cross"},
+  {source:"constellation-business",target:"business-12",label:"商模十二力星連結商模十二力 Skill",type:"cross"},
+  {source:"constellation-business",target:"ssa-consultant",label:"商模十二力星連結 SSA 顧問 Skill",type:"cross"},
+  {source:"constellation-conversion",target:"landing-page-forge",label:"轉化漏斗連結銷售頁鍛造 Skill",type:"cross"},
+  {source:"constellation-conversion",target:"ssa-consultant",label:"轉化漏斗連結 SSA 顧問 Skill",type:"cross"},
+  {source:"constellation-energy",target:"energy-reading",label:"能量八芒星連結八方位能量解讀 Skill",type:"cross"},
+  {source:"constellation-energy",target:"onemuse-core",label:"能量八芒星連結 One Muse 核心知識",type:"cross"},
+  {source:"constellation-growth",target:"anima-individual",label:"年輪星連結 ANIMA 個體追蹤 Skill",type:"cross"},
+  {source:"constellation-growth",target:"resonance",label:"年輪星連結感性共振 Skill",type:"cross"},
+  {source:"constellation-growth",target:"wan-miu-16",label:"年輪星連結萬謬16型人格 Skill",type:"cross"},
+  {source:"constellation-market",target:"investment-masters",label:"市場七芒星連結投資軍師團 Skill",type:"cross"},
+  {source:"constellation-market",target:"market-core",label:"市場七芒星連結市場分析核心 Skill",type:"cross"},
+  {source:"constellation-market",target:"market-equity",label:"市場七芒星連結股票分析 Skill",type:"cross"},
+  {source:"constellation-probe",target:"brain",label:"探針觸發時注入診斷上下文至 Brain",type:"cross"},
+  {source:"constellation-probe",target:"brain-prompt-builder",label:"星座缺口注入 system prompt（constellation zone）",type:"cross"},
+  {source:"constellation-strategy",target:"master-strategy",label:"戰略三稜鏡連結戰略判斷 Skill",type:"cross"},
+  {source:"constellation-strategy",target:"shadow",label:"戰略三稜鏡連結陰謀辨識 Skill",type:"cross"},
+  {source:"constellation-thinking",target:"deep-think",label:"思維轉化五芒星連結深度思考 Skill",type:"cross"},
+  {source:"constellation-thinking",target:"dharma",label:"思維轉化五芒星連結思維轉化引擎 Skill",type:"cross"},
+  {source:"constellation-thinking",target:"philo-dialectic",label:"思維轉化五芒星連結哲學思辨 Skill",type:"cross"},
   {source:"cron",target:"museoff",label:"cron.status() 健康度讀取，museoff.py L7 消費（v1.72 新增）",type:"cross"},
   {source:"cron-registry",target:"musedoctor",label:"排程 patrol_tick（每 8 分鐘）",type:"cross"},
   {source:"crystal-actuator",target:"crystal-store",label:"結晶降級/升級（經由 CrystalStore API）",type:"cross"},
@@ -1116,6 +1179,7 @@ const links = [
   {source:"nightly",target:"vector-index",label:"nightly_pipeline.py:1686,:1704 Step 8.5/8.6 向量重建",type:"cross"},
   {source:"nightly",target:"wee",label:"演化速度",type:"cross"},
   {source:"nightly",target:"workflow-state-db",label:"nightly_pipeline.py:3306 Step 28.5 工作流清理",type:"cross"},
+  {source:"nightly-pipeline",target:"constellation-radar",label:"Nightly 步驟定期重算星座活躍度",type:"cross"},
   {source:"nightly-reflection-engine",target:"anima-mc-store",label:"P-trait delta 寫入（evolution_write）",type:"cross"},
   {source:"nightly-reflection-engine",target:"soul-ring",label:"value_calibration 積分存入",type:"cross"},
   {source:"observatory",target:"footprint",label:"讀取 cognitive_trace.jsonl 視覺化",type:"cross"},
@@ -1149,6 +1213,7 @@ const links = [
   {source:"self-diagnosis",target:"tool-registry",label:"self_diagnosis.py:246,:484 工具狀態查詢",type:"cross"},
   {source:"silent-digestion",target:"memory",label:"反思寫入",type:"cross"},
   {source:"skill-forge-scout",target:"research-engine",label:"skill_forge_scout.py:141 鍛造偵察研究",type:"cross"},
+  {source:"skill-router",target:"constellation-radar",label:"Skill 路由讀取星座缺口引力輔助決策",type:"cross"},
   {source:"skill-router",target:"esg-architect-pro",label:"Skill 路由匹配",type:"cross"},
   {source:"skill-router",target:"human-design-blueprint",label:"Skill 路由匹配",type:"cross"},
   {source:"skill-router",target:"llm-router",label:"API 呼叫",type:"cross"},
@@ -1263,6 +1328,8 @@ const links = [
 
 
 
+
+
 const nodeMap = {};
 nodes.forEach(n => nodeMap[n.id] = n);
 
@@ -1289,6 +1356,11 @@ groupKeys.forEach((g, i) => {
     R * Math.sin(phi) * Math.sin(theta)
   );
 });
+
+// Meta layer: constellation floats above
+if (groupTargets['constellation']) {
+  groupTargets['constellation'].y += 25;
+}
 
 // Connection weight per node (proxy for "熟練度")
 nodes.forEach(n => {
@@ -1361,14 +1433,15 @@ const nodeGroup = new THREE.Group();
 
 nodes.forEach(n => {
   const color = new THREE.Color(GC[n.group]);
+  const isMeta = n.group === 'constellation';
   const mat = new THREE.MeshPhysicalMaterial({
     color: color,
-    roughness: 0.45,
-    metalness: 0.0,
+    roughness: isMeta ? 0.3 : 0.45,
+    metalness: isMeta ? 0.1 : 0.0,
     emissive: color,
-    emissiveIntensity: 0.5,
-    clearcoat: 0.0,
-    transmission: 0.0,
+    emissiveIntensity: isMeta ? 0.7 : 0.5,
+    clearcoat: isMeta ? 0.3 : 0.0,
+    transmission: isMeta ? 0.15 : 0.0,
     envMapIntensity: 0.15,
     sheen: 0.3,
     sheenRoughness: 0.6,

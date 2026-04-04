@@ -1,0 +1,116 @@
+{
+  "name": "strategy_prism",
+  "display_name": "戰略三稜鏡",
+  "layer": "domain",
+  "description": "決策博弈的三面稜鏡：陽謀（可見策略佈局）× 陰謀（隱形人心動態）× 鏡照（決策品質校準）。三者兼備才是完整的人類世界認知。",
+  "dimensions": [
+    "situation_assessment",
+    "path_design",
+    "motive_detection",
+    "influence_dynamics",
+    "cognitive_calibration",
+    "multi_angle_validation",
+    "decision_discipline"
+  ],
+  "dimension_labels": {
+    "situation_assessment": "局勢判斷",
+    "path_design": "路徑設計",
+    "motive_detection": "動機辨識",
+    "influence_dynamics": "影響力動態",
+    "cognitive_calibration": "認知校準",
+    "multi_angle_validation": "多角驗證",
+    "decision_discipline": "決策紀律"
+  },
+  "dimension_groups": {
+    "yang_strategy": {
+      "label": "陽謀（可見策略）",
+      "description": "看得見的策略佈局——局勢怎麼判、路徑怎麼走。master-strategy 七叢集 22 染色體的領域。",
+      "dimensions": ["situation_assessment", "path_design"],
+      "skill": "master-strategy"
+    },
+    "yin_dynamics": {
+      "label": "陰謀（隱形動態）",
+      "description": "看不見的人心暗流——對方真正想什麼、怎麼影響你。shadow 雙層 54 型態的領域。",
+      "dimensions": ["motive_detection", "influence_dynamics"],
+      "skill": "shadow"
+    },
+    "mirror": {
+      "label": "鏡照（決策品質）",
+      "description": "照見自己的盲點——決策品質的校準、多角驗證、紀律。roundtable 圓桌詰問的領域。",
+      "dimensions": ["cognitive_calibration", "multi_angle_validation", "decision_discipline"],
+      "skill": "roundtable"
+    }
+  },
+  "dimension_details": {
+    "situation_assessment": {
+      "definition": "對競爭格局的動態感知——迷霧中看清全局、識別重心、判斷時機。",
+      "frameworks": ["OODA Loop 觀察+導向（Boyd）", "Clausewitz 戰爭迷霧+重心", "Wardley Mapping 演化定位", "孫子五事七計"],
+      "kpis": ["OODA 循環速度（從觀察到行動的時間）", "重心識別準確度", "情報品質分數（可信度×時效性）"],
+      "anti_pattern": "等待完整資訊才行動——迷霧是常態，不是可消除的障礙"
+    },
+    "path_design": {
+      "definition": "多方案路徑推演——奇正轉換、虛實攻防、非對稱策略設計。",
+      "frameworks": ["孫子奇正轉換", "Wardley 演化軸 Build vs Buy", "博弈論 Nash Equilibrium", "master-strategy 七叢集"],
+      "kpis": ["備選方案數量（≥3）", "路徑風險/報酬比", "不對稱優勢識別數"],
+      "anti_pattern": "只有一條路——沒有 Plan B 的策略不是策略"
+    },
+    "motive_detection": {
+      "definition": "穿透對方表面行為，辨識真實動機和對抗模式。",
+      "frameworks": ["Shadow 防禦層 27 型態", "Shadow 洞察層 27 模式", "信號理論（Spence）", "Dark Psychology 防禦認知"],
+      "kpis": ["型態識別準確度", "預警提前量（多早偵測到）", "誤報率"],
+      "anti_pattern": "把對方的話當面值——最危險的假設是『對方在說實話』"
+    },
+    "influence_dynamics": {
+      "definition": "理解和運用人際影響力——戰術同理心、信號發送、權力動態。",
+      "frameworks": ["Chris Voss 戰術同理心（鏡射+標籤+校準問題）", "Robert Greene 權力法則", "Influence Without Authority（Cohen & Bradford）", "鬼谷子捭闔之術"],
+      "kpis": ["談判成功率", "對方自願合作比例", "影響力持續時間"],
+      "anti_pattern": "靠職位權力而非影響力——有權力時看不出差別，沒權力時才知道"
+    },
+    "cognitive_calibration": {
+      "definition": "校準自己的認知偏誤——System 1 的陷阱、確認偏誤、過度自信。",
+      "frameworks": ["Kahneman System 1/2", "Gary Klein RPD（識別啟動決策）", "Pre-mortem 事前驗屍", "認知去偏四技術"],
+      "kpis": ["校準信心（預測 vs 實際偏差 <10%）", "Pre-mortem 執行率", "決策一致性"],
+      "anti_pattern": "在疲憊/壓力下做重大決策——System 2 會罷工"
+    },
+    "multi_angle_validation": {
+      "definition": "讓多角視角在衝突中碰撞，照見單一視角的盲點。",
+      "frameworks": ["Roundtable 圓桌詰問（陽謀者+陰謀者+鏡照者）", "Red Team / Blue Team", "Devil's Advocate 制度化"],
+      "kpis": ["反對意見紀錄數", "裁決軌跡清晰度", "盲點發現數"],
+      "anti_pattern": "團隊都同意=群體思維——沒有人反對的計畫最危險"
+    },
+    "decision_discipline": {
+      "definition": "決策品質的系統化管理——框架、流程、紀律。",
+      "frameworks": ["DQ 六邊形（Strategic Decisions Group）", "EVOI（資訊期望值）", "Bezos Type 1/Type 2", "Clausewitz 摩擦力管理"],
+      "kpis": ["DQ 六邊形最低分", "關鍵假設列出率", "決策可逆性評估", "EVOI vs 調查成本比"],
+      "anti_pattern": "用結果評判決策品質——好運氣不等於好決策"
+    }
+  },
+  "dimension_relations": {
+    "type": "triangular_prism",
+    "description": "三面稜鏡互相照射：陽謀看局勢，陰謀看人心，鏡照看自己。三面同時旋轉才能折射出完整的決策光譜。缺任何一面，決策就有死角。",
+    "integration": "Roundtable 將陽謀者和陰謀者作為常設角色，在衝突中同時照見戰略缺陷與人際風險。使用者做仲裁，鏡照面校準決策品質。",
+    "flow": "局勢判斷(陽) → 動機辨識(陰) → 認知校準(鏡) → 路徑設計(陽) → 影響力操作(陰) → 多角驗證(鏡) → 決策紀律(鏡) → 行動"
+  },
+  "absurdity_mapping": {
+    "situation_assessment": {"gap_visibility": 0.7, "strategic_integration": 0.3},
+    "path_design": {"strategic_integration": 0.6, "direction_clarity": 0.4},
+    "motive_detection": {"gap_visibility": 0.5, "relationship_leverage": 0.5},
+    "influence_dynamics": {"relationship_leverage": 0.7, "self_awareness": 0.3},
+    "cognitive_calibration": {"self_awareness": 0.8, "gap_visibility": 0.2},
+    "multi_angle_validation": {"gap_visibility": 0.4, "strategic_integration": 0.3, "self_awareness": 0.3},
+    "decision_discipline": {"strategic_integration": 0.5, "direction_clarity": 0.3, "gap_visibility": 0.2}
+  },
+  "default_value": 0.5,
+  "alpha": 0.12,
+  "decay_rate": 0.015,
+  "confidence_increment": 0.02,
+  "confidence_decay": 0.01,
+  "min_confidence": 0.1,
+  "linked_skills": [
+    "master-strategy", "shadow", "roundtable",
+    "deep-think", "philo-dialectic", "decision-tracker",
+    "athena", "anima-individual"
+  ],
+  "created_at": "2026-04-04",
+  "updated_at": "2026-04-04"
+}

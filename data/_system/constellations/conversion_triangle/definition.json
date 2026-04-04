@@ -1,0 +1,151 @@
+{
+  "name": "conversion_triangle",
+  "display_name": "轉化漏斗三角星",
+  "layer": "domain",
+  "description": "SSA 三重漏斗成交引擎——把流量變成錢的完整轉化系統。三條漏斗並聯互饋（產品×行銷×社群），加上產品階梯、決策流、身份螺旋和增長飛輪，形成從陌生人到系統夥伴的完整升階路徑。",
+  "dimensions": [
+    "transformation_design",
+    "product_ladder",
+    "product_funnel",
+    "marketing_funnel",
+    "community_funnel",
+    "decision_flow",
+    "identity_spiral",
+    "growth_loop",
+    "funnel_integration"
+  ],
+  "dimension_labels": {
+    "transformation_design": "轉變設計",
+    "product_ladder": "產品階梯",
+    "product_funnel": "產品漏斗",
+    "marketing_funnel": "行銷漏斗",
+    "community_funnel": "社群漏斗",
+    "decision_flow": "決策流",
+    "identity_spiral": "身份螺旋",
+    "growth_loop": "增長飛輪",
+    "funnel_integration": "漏斗整合"
+  },
+  "dimension_groups": {
+    "core_engine": {
+      "label": "三重漏斗（並聯引擎）",
+      "description": "三條漏斗在不同地方、用不同方式，證明同一個改變是真的。產品漏斗走信任階梯，行銷漏斗走決策節奏，社群漏斗走黏著迴圈。",
+      "dimensions": ["product_funnel", "marketing_funnel", "community_funnel"]
+    },
+    "foundation": {
+      "label": "轉化基礎（定錨層）",
+      "description": "轉變設計是所有漏斗的唯一核心——Before/After/Key Shift 沒定義清楚，三條漏斗都在講不同的故事。產品階梯是價值升階的骨架。",
+      "dimensions": ["transformation_design", "product_ladder"]
+    },
+    "acceleration": {
+      "label": "加速機制（飛輪層）",
+      "description": "決策流解除購買阻力，身份螺旋讓客戶從使用者升階為系統夥伴，增長飛輪讓舊客戶帶來新客戶。",
+      "dimensions": ["decision_flow", "identity_spiral", "growth_loop"]
+    },
+    "integration": {
+      "label": "系統整合",
+      "description": "三條漏斗的協同效率——各自跑各自的是 1+1+1=3，整合好是 1×1×1=∞。",
+      "dimensions": ["funnel_integration"]
+    }
+  },
+  "dimension_details": {
+    "transformation_design": {
+      "definition": "客戶的轉變路徑是否清晰——來之前什麼狀態、用完之後什麼狀態、中間真正發生的改變是什麼。",
+      "frameworks": ["SSA M-13 Transformation（Before/After/Key Shift）", "StoryBrand 七步框架", "JTBD Transformation"],
+      "kpis": ["Transformation 清晰度（團隊能否一句話說出）", "客戶能否自己描述改變", "Before/After 敘事的情感共鳴度"],
+      "anti_pattern": "三條漏斗在講不同的改變故事——沒有統一的 Transformation 是漏斗碎片化的根因",
+      "ssa_reference": "M-13 A2"
+    },
+    "product_ladder": {
+      "definition": "從入口到系統的價值升階路徑——A(入口)→B(主產品)→C(深度)→D(系統/授權)。",
+      "frameworks": ["Russell Brunson Value Ladder", "Tripwire Marketing", "Land and Expand（SaaS）", "SSA 產品階梯 A→D"],
+      "kpis": ["階梯層數（A-D 各層是否都有產品）", "層間轉化率（A→B、B→C、C→D）", "最高單價產品的成交率"],
+      "anti_pattern": "跳過入口直接賣高單價——客戶還沒信任你就要求最大承諾",
+      "ssa_reference": "M-13 A4"
+    },
+    "product_funnel": {
+      "definition": "以 PDEIF 逆熵流邏輯設計——起點是品牌價值主張（Transformation），逆推設計產品階梯和轉化路徑。不是從入口往上堆，而是從終點逆向拆解。",
+      "frameworks": ["PDEIF 逆熵流程設計（Purpose-Driven Entropy-Inverse Flow）", "AIDA→AARRR→Flywheel 演進", "Freemium→Premium 轉化"],
+      "kpis": ["入口→核心轉化率", "核心→深度轉化率", "試用→付費轉化率（基準 3-5%，優秀 >8%）"],
+      "anti_pattern": "從入口往上堆而非從價值主張逆推——導致產品之間缺乏內在邏輯",
+      "design_logic": "品牌價值主張（Transformation）→ 核心產品（重力中心）→ 逆推入口和升階路徑。每一階都必須是下一階的自然前置條件。",
+      "ssa_reference": "M-13 A5.1 + PDEIF"
+    },
+    "marketing_funnel": {
+      "definition": "消除客戶不相信的理由——用什麼證據讓他願意踏出下一步。",
+      "frameworks": ["Content Marketing Funnel（TOFU/MOFU/BOFU）", "Cialdini 六原則 CRO 應用", "社會認同（Social Proof）", "SSA Belief Gap → Proof Method"],
+      "kpis": ["主要信念差距（客戶最不相信什麼）識別清晰度", "證明方法有效性（案例/見證/數據）", "內容→詢問轉化率"],
+      "anti_pattern": "講了一堆功能但沒有回答客戶心裡的『真的嗎？』",
+      "ssa_reference": "M-13 A5.2"
+    },
+    "community_funnel": {
+      "definition": "社群不是公告欄——是讓人從潛水者變成參與者、最終變成倡導者的場域。",
+      "frameworks": ["CLG Community Flywheel", "Content→Community→Commerce（3C）", "1%/9%/90% 成員分佈法則", "SSA 社群漏斗（Entry→Engagement→Upgrade）"],
+      "kpis": ["社群成員→付費客戶轉化率", "DAU/MAU（≥20% = 健康）", "Lurker→Contributor 轉化率（≥5%）", "社群影響營收佔比"],
+      "anti_pattern": "社群很多人但都在潛水——沒有設計讓人跨出第一步貢獻的低摩擦機制",
+      "ssa_reference": "M-13 A5.3"
+    },
+    "decision_flow": {
+      "definition": "客戶決策過程中的阻力點、安心點、和未購買的卡住原因。",
+      "frameworks": ["McKinsey Consumer Decision Journey", "BJ Fogg B=MAP（動機×能力×觸發）", "Chris Voss 異議處理", "SSA 決策流（Blocker/Trust/Fallback）"],
+      "kpis": ["主要購買阻力識別完整度", "異議處理 SOP 覆蓋率", "每增加一個表單欄位轉換率降 11%（摩擦量化）"],
+      "anti_pattern": "只優化結帳流程但 83% 的流失發生在加入購物車之前",
+      "ssa_reference": "M-13 A6"
+    },
+    "identity_spiral": {
+      "definition": "客戶的身份升階路徑——從使用者→參與者→示範者→協作者→系統角色。讓價值自然擴散與複製。",
+      "frameworks": ["SSA 三重螺旋（五階身份升階）", "CLG Member Lifecycle（Lurker→Contributor→Champion）", "Affiliate/Ambassador Programs"],
+      "kpis": ["各階身份人數分佈", "升階轉化率（使用者→參與者→示範者）", "系統角色帶來的營收佔比"],
+      "anti_pattern": "所有客戶都是一次性關係——沒有讓人深度參與的升級路徑",
+      "ssa_reference": "M-13 A7"
+    },
+    "growth_loop": {
+      "definition": "舊客戶帶來新客戶的增長迴圈——不是漏斗的終點，而是飛輪的啟動點。",
+      "frameworks": ["Reforge Growth Loops（Viral/Content/Sales/Paid）", "HubSpot Flywheel（Attract→Engage→Delight）", "Retention-Led Growth", "Dropbox Referral Loop"],
+      "kpis": ["Viral Coefficient K-factor（>1 = 自增長）", "Referral Rate（推薦帶來的新用戶%）", "NPS Promoter→實際推薦行動轉化率", "推薦客戶 LTV vs 付費廣告客戶 LTV（推薦高 16-25%）"],
+      "anti_pattern": "用金錢獎勵推薦——與產品核心價值對齊的獎勵效果比現金高 20-35%",
+      "ssa_reference": "外部 DSE 補充"
+    },
+    "funnel_integration": {
+      "definition": "三條漏斗的協同效率——它們是不是在不同地方、用不同方式、證明同一個改變是真的。",
+      "frameworks": ["SSA M-13 統一 Transformation 原則", "Multi-Touch Attribution", "Binet & Field 60/40（品牌60%+效果40%）"],
+      "kpis": ["三漏斗 Transformation 一致性（是否講同一個故事）", "跨漏斗歸因覆蓋率", "品牌投入 vs 效果投入比例"],
+      "anti_pattern": "產品漏斗講功能、行銷漏斗講情感、社群漏斗講社交——三條漏斗各說各話",
+      "ssa_reference": "M-13 A5 總覽"
+    }
+  },
+  "dimension_relations": {
+    "type": "foundation_layered",
+    "description": "轉變設計是一切的根——三條漏斗只是用不同方式證明同一個 Transformation 是真的。產品階梯提供升階骨架，決策流解除阻力，身份螺旋讓客戶深度參與，增長飛輪讓系統自我增強。",
+    "foundation": ["transformation_design", "product_ladder"],
+    "design_direction": "逆熵流（PDEIF）：從品牌價值主張（Transformation）逆推→核心產品（重力中心）→產品階梯→三條漏斗。設計方向永遠是從終點往回走，不是從起點往前堆。",
+    "core_engine": ["product_funnel", "marketing_funnel", "community_funnel"],
+    "accelerator": ["decision_flow", "identity_spiral", "growth_loop"],
+    "integration_check": ["funnel_integration"],
+    "ssa_principle": "三個漏斗只是在不同地方、用不同方式，證明同一個改變是真的。",
+    "flywheel_vs_funnel": "漏斗是線性耗散（投入→產出→結束），飛輪是能量儲存（產出→回饋→加速）。轉化漏斗三角星的終極狀態是飛輪而非漏斗。"
+  },
+  "absurdity_mapping": {
+    "transformation_design": {"direction_clarity": 0.7, "self_awareness": 0.3},
+    "product_ladder": {"strategic_integration": 0.6, "accumulation": 0.4},
+    "product_funnel": {"gap_visibility": 0.6, "direction_clarity": 0.4},
+    "marketing_funnel": {"gap_visibility": 0.5, "relationship_leverage": 0.5},
+    "community_funnel": {"relationship_leverage": 0.6, "accumulation": 0.4},
+    "decision_flow": {"gap_visibility": 0.7, "self_awareness": 0.3},
+    "identity_spiral": {"relationship_leverage": 0.5, "strategic_integration": 0.5},
+    "growth_loop": {"strategic_integration": 0.5, "relationship_leverage": 0.5},
+    "funnel_integration": {"strategic_integration": 0.8, "direction_clarity": 0.2}
+  },
+  "default_value": 0.5,
+  "alpha": 0.12,
+  "decay_rate": 0.015,
+  "confidence_increment": 0.02,
+  "confidence_decay": 0.01,
+  "min_confidence": 0.1,
+  "linked_skills": [
+    "ssa-consultant", "business-12", "landing-page-forge",
+    "ad-pilot", "video-strategy", "brand-builder",
+    "biz-collab", "course-forge", "consultant-communication"
+  ],
+  "created_at": "2026-04-04",
+  "updated_at": "2026-04-04"
+}

@@ -1,0 +1,17 @@
+{
+  "constellation": "growth_rings",
+  "user_id": "boss",
+  "drive_source": 0.5,
+  "situational_anchoring": 0.5,
+  "risk_posture": 0.5,
+  "other_weighting": 0.5,
+  "temporal_lens": 0.5,
+  "behavioral_stability": 0.5,
+  "inner_multiplicity": 0.5,
+  "belief_plasticity": 0.5,
+  "emotional_processing": 0.5,
+  "confidence": 0.15,
+  "bootstrapped": true,
+  "bootstrapped_at": "2026-04-04T14:21:25.428181+00:00",
+  "updated_at": "2026-04-04T14:21:25.428181+00:00"
+}

@@ -1,0 +1,15 @@
+{
+  "constellation": "strategy_prism",
+  "user_id": "boss",
+  "situation_assessment": 0.5,
+  "path_design": 0.5,
+  "motive_detection": 0.5,
+  "influence_dynamics": 0.5,
+  "cognitive_calibration": 0.5,
+  "multi_angle_validation": 0.5,
+  "decision_discipline": 0.5,
+  "confidence": 0.15,
+  "bootstrapped": true,
+  "bootstrapped_at": "2026-04-04T14:21:25.427107+00:00",
+  "updated_at": "2026-04-04T14:21:25.427107+00:00"
+}

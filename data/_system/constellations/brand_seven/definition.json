@@ -1,0 +1,132 @@
+{
+  "name": "brand_seven",
+  "display_name": "品牌七芒星",
+  "layer": "domain",
+  "description": "品牌完整性的七維度追蹤系統。品牌=一致性的累積=心佔率=想到品類就想到你。從靈魂定錨到心智佔領的完整品牌建構路徑。",
+  "dimensions": [
+    "brand_purpose",
+    "brand_positioning",
+    "brand_identity",
+    "brand_expression",
+    "brand_experience",
+    "brand_narrative",
+    "brand_resonance"
+  ],
+  "dimension_labels": {
+    "brand_purpose": "品牌靈魂（Why）",
+    "brand_positioning": "品牌定位",
+    "brand_identity": "品牌識別",
+    "brand_expression": "品牌表達（視覺）",
+    "brand_experience": "品牌體驗（行為）",
+    "brand_narrative": "品牌敘事",
+    "brand_resonance": "品牌共鳴（心佔率）"
+  },
+  "dimension_groups": {
+    "strategy": {
+      "label": "戰略層（定錨）",
+      "description": "品牌的靈魂和市場位置，對應 CIS 的 MI",
+      "dimensions": ["brand_purpose", "brand_positioning"]
+    },
+    "communication": {
+      "label": "溝通層（表達）",
+      "description": "品牌如何被看到、聽到、感受到，對應 CIS 的 VI + 部分 BI",
+      "dimensions": ["brand_identity", "brand_expression", "brand_narrative"]
+    },
+    "impact": {
+      "label": "影響層（成果）",
+      "description": "品牌在客戶端產生的實際效果，對應 CIS 的 BI + 品牌資產",
+      "dimensions": ["brand_experience", "brand_resonance"]
+    }
+  },
+  "dimension_details": {
+    "brand_purpose": {
+      "definition": "品牌為什麼存在？驅動一切的核心信念。",
+      "frameworks": ["Simon Sinek Golden Circle (Why)", "Neumeier Brand Commitment Matrix (Purpose)", "CIS MI (理念識別)"],
+      "kpis": ["品牌目的認同度（員工+客戶）", "使命/願景/價值觀清晰度（0-4分）", "Why-How-What 對齊度"],
+      "anti_pattern": "後天貼標籤的假 Purpose 比沒有 Purpose 傷害更大",
+      "cis_mapping": "MI（理念識別）"
+    },
+    "brand_positioning": {
+      "definition": "在消費者心中佔據什麼位置？跟誰競爭？為什麼選你？",
+      "frameworks": ["April Dunford 五要素（Obviously Awesome）", "Ries & Trout 心智定位", "Aaker 品牌架構（Branded House / House of Brands / Endorsed）"],
+      "kpis": ["Onlyness 清晰度（能否一句話說出獨特性）", "競爭替代方案識別完整度", "差異化價值量化（客戶願意多付多少%）", "最佳客戶定義精確度"],
+      "anti_pattern": "定位聲明是填空題而非推導結果",
+      "cis_mapping": "MI（理念識別）延伸"
+    },
+    "brand_identity": {
+      "definition": "品牌是一個什麼樣的人？它的人格、文化、自我投射。",
+      "frameworks": ["Kapferer 品牌識別稜鏡（6面向）", "Aaker 品牌個性五維度", "Jung 12 品牌原型", "Neumeier Brand Gap 五紀律"],
+      "kpis": ["品牌原型一致率（素材符合主原型的%）", "品牌個性聯想測試（消費者 vs 企業 的重合率）", "Kapferer 六面向完整度"],
+      "anti_pattern": "把品牌識別等同於 Logo 設計",
+      "cis_mapping": "跨 MI/VI/BI"
+    },
+    "brand_expression": {
+      "definition": "品牌的視覺語言系統——色彩、字型、版面、設計規範。",
+      "frameworks": ["CIS VI（視覺識別）", "Design System / Design Token", "Stanford Web Credibility（46.1% 用戶依視覺判斷可信度）"],
+      "kpis": ["VI 合規率（抽樣觸點正確使用%）", "品牌辨識一致性（一致色彩提升辨識度80%）", "Design Token 覆蓋率", "50毫秒信任測試通過率"],
+      "anti_pattern": "每次設計都不一樣、沒有設計系統",
+      "cis_mapping": "VI（視覺識別）"
+    },
+    "brand_experience": {
+      "definition": "每個觸點的體驗一致性——客戶從接觸到使用的完整旅程。",
+      "frameworks": ["CIS BI（行為識別）", "McKinsey Customer Decision Journey", "Touchpoint Consistency Score", "Peak-End Rule（Kahneman）", "Burmann 品牌公民行為模型（員工內化）"],
+      "kpis": ["Touchpoint Consistency Score", "品牌感知差異指數（跨觸點）", "員工品牌認同度（eNPS品牌版）", "BI 行為稽核通過率"],
+      "anti_pattern": "有美麗的品牌手冊但員工不看、不執行",
+      "cis_mapping": "BI（行為識別）"
+    },
+    "brand_narrative": {
+      "definition": "品牌說什麼故事？用什麼方式說？讓人「進入」故事的能力。",
+      "frameworks": ["StoryBrand 七步框架（Donald Miller）", "Narrative Transportation Theory（Green & Brock）", "STEPPS（Jonah Berger, Contagious）"],
+      "kpis": ["BrandScript 完成度（7/7）", "內容完讀率（>80% = 進入傳輸狀態）", "口碑觸及率（有機討論/付費觸及）", "UGC 生成量"],
+      "anti_pattern": "把品牌當英雄而非嚮導——客戶才是英雄",
+      "cis_mapping": "MI+VI 的對外傳播層"
+    },
+    "brand_resonance": {
+      "definition": "品牌在消費者心中的佔有率——想到品類就想到你。品牌=心佔率=一致性的累積成果。",
+      "frameworks": ["Keller CBBE 金字塔頂層（Brand Resonance 四子維度）", "Byron Sharp Mental Availability + CEPs", "Share of Search（Les Binet）", "Interbrand Brand Strength Score"],
+      "kpis": ["Share of Search（品牌搜尋量÷品類總搜尋量）", "Unaided Brand Recall（無提示回想率）", "CEPs 覆蓋數（在幾個購買情境中被想到）", "NPS Promoter 比例", "品牌共鳴四維度（行為忠誠+情感依附+社群歸屬+主動參與）"],
+      "anti_pattern": "只看知名度不看心智可得性——被認識不等於被想到",
+      "cis_mapping": "三層整合的最終成果"
+    }
+  },
+  "dimension_relations": {
+    "type": "progressive_ladder",
+    "description": "品牌建構是由內而外的漸進階梯：靈魂定錨→市場卡位→人格塑造→視覺統一→體驗一致→故事傳播→心智佔領。每一層必須建在下層穩固的基礎上。品牌體驗是最脆弱的環節——企業可控度最低但影響最大。",
+    "order": ["brand_purpose", "brand_positioning", "brand_identity", "brand_expression", "brand_experience", "brand_narrative", "brand_resonance"],
+    "causal_chain": "Purpose → Positioning → Identity → Expression → Experience → Narrative → Resonance",
+    "weakest_link": "brand_experience（品牌體驗→品牌資產是最脆弱的環節，因為發生在消費者端）",
+    "cis_mapping": {
+      "MI": ["brand_purpose", "brand_positioning"],
+      "VI": ["brand_expression"],
+      "BI": ["brand_experience"],
+      "cross": ["brand_identity", "brand_narrative", "brand_resonance"]
+    },
+    "time_dimension": {
+      "short_term": "Performance marketing（1-3個月見效，快速衰退）",
+      "long_term": "Brand building（12-24個月見效，持續數年）",
+      "optimal_ratio": "Binet & Field 60/40 法則（品牌60% + 效果40%）"
+    }
+  },
+  "absurdity_mapping": {
+    "brand_purpose": {"self_awareness": 0.8, "direction_clarity": 0.2},
+    "brand_positioning": {"direction_clarity": 0.6, "gap_visibility": 0.4},
+    "brand_identity": {"self_awareness": 0.7, "strategic_integration": 0.3},
+    "brand_expression": {"self_awareness": 0.4, "gap_visibility": 0.3, "strategic_integration": 0.3},
+    "brand_experience": {"gap_visibility": 0.5, "relationship_leverage": 0.5},
+    "brand_narrative": {"self_awareness": 0.3, "relationship_leverage": 0.4, "strategic_integration": 0.3},
+    "brand_resonance": {"accumulation": 0.5, "strategic_integration": 0.5}
+  },
+  "default_value": 0.5,
+  "alpha": 0.10,
+  "decay_rate": 0.012,
+  "confidence_increment": 0.02,
+  "confidence_decay": 0.008,
+  "min_confidence": 0.1,
+  "linked_skills": [
+    "brand-builder", "brand-identity", "brand-discovery",
+    "brand-project-engine", "aesthetic-sense", "storytelling-engine",
+    "consultant-communication", "video-strategy", "text-alchemy"
+  ],
+  "created_at": "2026-04-04",
+  "updated_at": "2026-04-04"
+}

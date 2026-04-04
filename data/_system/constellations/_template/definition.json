@@ -1,0 +1,35 @@
+{
+  "name": "CONSTELLATION_ID",
+  "display_name": "星座顯示名稱",
+  "layer": "domain",
+  "description": "一句話描述這個星座在解決什麼問題",
+  "dimensions": ["dim_1", "dim_2", "dim_3"],
+  "dimension_labels": {
+    "dim_1": "維度一中文名",
+    "dim_2": "維度二中文名",
+    "dim_3": "維度三中文名"
+  },
+  "dimension_groups": {
+    "group_name": ["dim_1", "dim_2"]
+  },
+  "dimension_relations": {
+    "type": "progressive_ladder | foundation_layered | parallel | network",
+    "description": "維度之間的關係說明",
+    "foundation": ["(如果 type=foundation_layered) 底盤維度列表"],
+    "order": ["(如果 type=progressive_ladder) 漸進順序"]
+  },
+  "default_value": 0.5,
+  "alpha": 0.12,
+  "decay_rate": 0.015,
+  "confidence_increment": 0.02,
+  "confidence_decay": 0.01,
+  "min_confidence": 0.1,
+  "absurdity_mapping": {
+    "dim_1": {"self_awareness": 0.6, "gap_visibility": 0.4},
+    "dim_2": {"accumulation": 0.7, "strategic_integration": 0.3},
+    "dim_3": {"relationship_leverage": 0.5, "direction_clarity": 0.5}
+  },
+  "linked_skills": ["skill_name_1", "skill_name_2"],
+  "created_at": "YYYY-MM-DD",
+  "updated_at": "YYYY-MM-DD"
+}

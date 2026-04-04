@@ -1,0 +1,41 @@
+{
+  "name": "absurdity",
+  "display_name": "荒謬六芒星",
+  "layer": "base",
+  "description": "MUSEON 底層作業系統。追蹤使用者在人類決策六大系統性盲區的發展程度。所有領域星座的維度最終都映射回這六個基礎維度。",
+  "dimensions": [
+    "self_awareness",
+    "direction_clarity",
+    "gap_visibility",
+    "accumulation",
+    "relationship_leverage",
+    "strategic_integration"
+  ],
+  "dimension_labels": {
+    "self_awareness": "自我認知",
+    "direction_clarity": "方向清晰度",
+    "gap_visibility": "GAP 可見度",
+    "accumulation": "累積盤點",
+    "relationship_leverage": "人脈槓桿",
+    "strategic_integration": "整合佈局"
+  },
+  "dimension_groups": {
+    "identity": ["self_awareness", "direction_clarity"],
+    "analysis": ["gap_visibility", "accumulation"],
+    "action": ["relationship_leverage", "strategic_integration"]
+  },
+  "dimension_relations": {
+    "type": "progressive_ladder",
+    "description": "六維度是漸進階梯：先知道自己是誰→知道要去哪→看到差距→盤點手上有什麼→運用人脈槓桿→整合成戰略",
+    "order": ["self_awareness", "direction_clarity", "gap_visibility", "accumulation", "relationship_leverage", "strategic_integration"]
+  },
+  "default_value": 0.5,
+  "alpha": 0.15,
+  "decay_rate": 0.02,
+  "confidence_increment": 0.02,
+  "confidence_decay": 0.01,
+  "min_confidence": 0.1,
+  "absurdity_mapping": null,
+  "created_at": "2026-04-02",
+  "updated_at": "2026-04-04"
+}

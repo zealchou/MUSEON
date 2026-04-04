@@ -1,0 +1,16 @@
+{
+  "constellation": "energy_octagram",
+  "user_id": "boss",
+  "heaven": 0.5,
+  "wind": 0.5,
+  "water": 0.5,
+  "mountain": 0.5,
+  "earth": 0.5,
+  "thunder": 0.5,
+  "fire": 0.5,
+  "lake": 0.5,
+  "confidence": 0.15,
+  "bootstrapped": true,
+  "bootstrapped_at": "2026-04-04T14:21:25.427325+00:00",
+  "updated_at": "2026-04-04T14:21:25.427325+00:00"
+}

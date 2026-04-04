@@ -1,0 +1,15 @@
+{
+  "constellation": "brand_seven",
+  "user_id": "boss",
+  "brand_purpose": 0.5,
+  "brand_positioning": 0.5,
+  "brand_identity": 0.5,
+  "brand_expression": 0.5,
+  "brand_experience": 0.5,
+  "brand_narrative": 0.5,
+  "brand_resonance": 0.5,
+  "confidence": 0.15,
+  "bootstrapped": true,
+  "bootstrapped_at": "2026-04-04T14:21:25.426900+00:00",
+  "updated_at": "2026-04-04T14:21:25.426900+00:00"
+}

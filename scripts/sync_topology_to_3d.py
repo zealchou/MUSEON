@@ -87,9 +87,10 @@ def _parse_nodes(text: str) -> list[dict]:
             if "色碼" not in line and gid not in ("ID",):
                 known_groups.add(gid)
 
-    # 從群組定義表取群組 ID
+    # 從群組定義表取群組 ID 及 Layer 欄位
     in_group_table = False
     group_ids = set()
+    group_layers: dict = {}  # group_id -> layer string (e.g. "meta")
     for line in lines:
         if "群組 ID" in line and "色碼" in line:
             in_group_table = True
@@ -98,7 +99,15 @@ def _parse_nodes(text: str) -> list[dict]:
             if line.startswith("|") and "`" in line:
                 m = re.match(r"^\|\s*`(\w[\w-]*)`", line)
                 if m:
-                    group_ids.add(m.group(1))
+                    gid = m.group(1)
+                    group_ids.add(gid)
+                    # 解析 Layer 欄位（第 5 列）
+                    cols = [c.strip() for c in line.split("|")]
+                    cols = [c for c in cols if c]
+                    if len(cols) >= 5:
+                        layer_val = cols[4].strip().strip("`")
+                        if layer_val and layer_val != "-":
+                            group_layers[gid] = layer_val
             elif not line.strip().startswith("|"):
                 if group_ids:
                     break
@@ -147,6 +156,9 @@ def _parse_nodes(text: str) -> list[dict]:
             }
             if zh_desc:
                 node["desc"] = zh_desc
+            # 繼承群組的 Layer 屬性（Meta 層標記）
+            if current_group in group_layers:
+                node["layer"] = group_layers[current_group]
 
             hub_col = cols[3].strip()
             if hub_col == "Yes":
@@ -321,7 +333,7 @@ def diff_report(topo: dict, html_nodes: list, html_links: list) -> dict:
 GROUP_ORDER = [
     "center", "channel", "agent", "pulse", "gov", "doctor",
     "llm", "data", "evolution", "tools", "nightly", "installer",
-    "external", "skills",
+    "external", "skills", "learning", "billing", "constellation",
 ]
 
 
@@ -341,6 +353,8 @@ def _node_to_js(n: dict) -> str:
     if n.get("desc"):
         # 完整描述（括號/技術細節），info panel 點擊查看
         parts.append(f'desc:"{n["desc"]}"')
+    if n.get("layer"):
+        parts.append(f'layer:"{n["layer"]}"')
     return "  {" + ",".join(parts) + "}"
 
 

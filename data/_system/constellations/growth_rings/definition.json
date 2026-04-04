@@ -1,0 +1,192 @@
+{
+  "name": "growth_rings",
+  "display_name": "年輪星",
+  "layer": "domain",
+  "description": "人格×認知交互的決策機器追蹤系統。年輪隱喻：每一圈記錄經驗，讀年輪能回推一生。九個維度是九紋——決策機器的九根弦，共振模式決定行為。雙用途：追蹤自己 + 理解他人（識人之術）。",
+  "tracking_type": "polarity_spectrum",
+  "tracking_note": "維度是極性光譜（沒有好壞之分），不是越高越好。分數代表在光譜上的位置，0.0=左端，1.0=右端，0.5=中性。",
+  "dual_use": {
+    "self": "追蹤自己的決策模式演化",
+    "other": "理解他人的決策機器如何運作（識人之術）"
+  },
+  "dimensions": [
+    "drive_source",
+    "situational_anchoring",
+    "risk_posture",
+    "other_weighting",
+    "temporal_lens",
+    "behavioral_stability",
+    "inner_multiplicity",
+    "belief_plasticity",
+    "emotional_processing"
+  ],
+  "dimension_labels": {
+    "drive_source": "驅動源",
+    "situational_anchoring": "情境錨定",
+    "risk_posture": "風險姿態",
+    "other_weighting": "他者權重",
+    "temporal_lens": "時間透鏡",
+    "behavioral_stability": "行為穩定-可塑",
+    "inner_multiplicity": "內在多元性",
+    "belief_plasticity": "信念彈性",
+    "emotional_processing": "情緒處理模式"
+  },
+  "dimension_polarity": {
+    "drive_source": ["直覺(S1)", "分析(S2)"],
+    "situational_anchoring": ["情境免疫（磐石）", "情境重編程（變色龍）"],
+    "risk_posture": ["風險擁抱", "風險規避"],
+    "other_weighting": ["內在參照", "外在參照"],
+    "temporal_lens": ["即時視野", "遠期視野"],
+    "behavioral_stability": ["守（穩定）", "攻（可塑）"],
+    "inner_multiplicity": ["整合統一", "多元分裂"],
+    "belief_plasticity": ["固著", "流動"],
+    "emotional_processing": ["浸泡（感性先行）", "調控（理性先行）"]
+  },
+  "dimension_groups": {
+    "cognitive_engine": {
+      "label": "認知引擎（怎麼處理資訊）",
+      "description": "決策的啟動機制、情境如何影響處理、情緒如何被處理",
+      "dimensions": ["drive_source", "situational_anchoring", "emotional_processing"]
+    },
+    "decision_parameters": {
+      "label": "決策參數（什麼影響選擇）",
+      "description": "風險、他人、時間——三個決策方程式中的權重係數",
+      "dimensions": ["risk_posture", "other_weighting", "temporal_lens"]
+    },
+    "structural_dynamics": {
+      "label": "結構動力學（底層怎麼運作）",
+      "description": "行為的穩定/可塑、信念的固著/流動、內在系統的整合/分裂",
+      "dimensions": ["behavioral_stability", "belief_plasticity", "inner_multiplicity"]
+    }
+  },
+  "dimension_details": {
+    "drive_source": {
+      "definition": "決策的主要驅動力是直覺(System 1)還是分析(System 2)？在什麼情境下切換？",
+      "polarity_left": "直覺主導：快速、自動、基於經驗模式匹配",
+      "polarity_right": "分析主導：緩慢、費力、基於邏輯推演",
+      "frameworks": ["Kahneman System 1/2", "Jung 認知功能", "冰鑑「神」"],
+      "ancient_parallel": "冰鑑：「神」= 精神的清濁明暗，清者善用直覺，濁者需靠分析",
+      "anti_pattern": "大多數人以為自己用 S2，其實 95% 時間 S1 在開車"
+    },
+    "situational_anchoring": {
+      "definition": "行為在多大程度上被情境重新編程？有多少穩定的 if-then 模式？",
+      "polarity_left": "情境免疫（磐石）：不管在哪都一樣，行為高度一致",
+      "polarity_right": "情境重編程（變色龍）：不同場合像不同的人",
+      "frameworks": ["Mischel if-then 行為簽名", "TAT 特質激活理論", "冰鑑「情態」", "鬼谷子「摩」"],
+      "ancient_parallel": "鬼谷子「摩而動之」：製造情境誘發真實反應——古代已知行為是情境依賴的",
+      "anti_pattern": "高情境依賴不是「沒個性」——精密的適應機器比磐石更難讀懂"
+    },
+    "risk_posture": {
+      "definition": "面對不確定性時的預設反應：趨近、迴避、還是對沖？",
+      "polarity_left": "風險擁抱：不確定性 = 機會，預設行動是靠近",
+      "polarity_right": "風險規避：不確定性 = 威脅，預設行動是退後",
+      "frameworks": ["Scott & Bruce 決策風格", "NLP M2 趨向/遠離", "諸葛亮「勇」", "Hippocrates 膽汁質"],
+      "ancient_parallel": "跨文化最穩定的識人維度——中國「勇怯」、希臘「膽汁/黏液」、日本「膽」都在追蹤同一件事",
+      "anti_pattern": "風險規避不是膽小，風險擁抱不是勇敢——是預設的神經回路"
+    },
+    "other_weighting": {
+      "definition": "他人的期望、意見、評價在決策方程式中佔多大權重？",
+      "polarity_left": "內在參照：自己的標準算數，不太在意他人看法",
+      "polarity_right": "外在參照：重視他人意見，決策前先問身邊的人",
+      "frameworks": ["NLP M3 內在/外在參照", "TPB 主觀規範", "鬼谷子「揣」"],
+      "ancient_parallel": "鬼谷子「揣」：觀察對方的欲望和恐懼——判斷一個人的他者權重是操作他的前提",
+      "anti_pattern": "高外在參照不是軟弱，是強大的環境感知能力"
+    },
+    "temporal_lens": {
+      "definition": "決策時的時間視野：聚焦當下體驗，還是投射未來規劃？",
+      "polarity_left": "即時視野：活在當下，決策考慮眼前效果",
+      "polarity_right": "遠期視野：著眼未來，決策考慮長期影響",
+      "frameworks": ["Zimbardo 時間觀", "延遲滿足研究", "孫子兵法「廟算」"],
+      "ancient_parallel": "孫子「夫未戰而廟算勝者，得算多也」——遠期視野者善於戰略，即時視野者善於戰術",
+      "anti_pattern": "即時視野的人在危機中反而有優勢——不被未來焦慮癱瘓"
+    },
+    "behavioral_stability": {
+      "definition": "行為層面偏好維持穩定秩序，還是擁抱新事物和變化？",
+      "polarity_left": "守（穩定）：偏好固定流程、習慣、可預測的環境",
+      "polarity_right": "攻（可塑）：偏好新嘗試、變化、探索未知",
+      "frameworks": ["DeYoung CB5T 穩定性/可塑性", "冰鑑「剛柔」", "NLP M4 程序/選項", "Roberts 成熟原則"],
+      "ancient_parallel": "冰鑑：「剛柔相濟」為最佳——不是哪端好，是動態平衡",
+      "anti_pattern": "這是行為層——行為很穩定的人，信念可能很流動（見 D8）",
+      "time_trend": "Roberts 成熟原則：年齡增長→穩定性自然上升"
+    },
+    "inner_multiplicity": {
+      "definition": "內在系統的整合程度——各個「部分」之間的協調度、行為的可預測性、對自身多重面向的覺知。",
+      "polarity_left": "整合統一：各面向協調，知行合一，高度可預測",
+      "polarity_right": "多元分裂：不同情境下像不同的人，內在系統有時打架",
+      "sub_dimensions": {
+        "consistency": "一致性——各內在系統的協調程度",
+        "predictability": "可預測性——行為簽名的穩定度",
+        "self_awareness_of_parts": "部分覺知——對自己多重面向的意識程度"
+      },
+      "frameworks": ["IFS 內在家庭系統（Schwartz）", "Ego State Therapy（Watkins）解離連續體", "Minsky 心智社會理論", "Fleeson WTT 密度分布", "劉邵「平陂」", "人類圖分裂定義"],
+      "ancient_parallel": "劉邵「平陂」：內在平衡度是識人的核心——平者穩定可信，陂者需要更多觀察",
+      "anti_pattern": "多元分裂不是病態——人類圖三分人只是需要更多元的環境刺激。Cook-Greuter 最高階段：同時擁有高度多元性和高度整合"
+    },
+    "belief_plasticity": {
+      "definition": "核心信念、假設、世界觀被更新的容易程度。比行為更深一層。",
+      "polarity_left": "固著：核心信念深度錨定，不輕易動搖",
+      "polarity_right": "流動：願意且能夠更新核心假設，甚至享受認知重建",
+      "frameworks": ["Kegan 五階意識發展（主體→客體轉化）", "Cook-Greuter 後自主階段", "Dilts 邏輯層次（信念/價值層）", "NLP M5 相同/差異"],
+      "ancient_parallel": "Kegan 的五階跟佛法的修行階段有結構性相似——都是把「我以為是世界的東西」變成「我能看見的東西」",
+      "anti_pattern": "信念固著不一定行為固著——一個人可以行為很靈活（D6 偏可塑），但核心信念紋風不動"
+    },
+    "emotional_processing": {
+      "definition": "情緒體驗被處理、表達或抑制的預設策略。",
+      "polarity_left": "浸泡（感性先行）：先充分感受情緒，讓情緒成為資訊源",
+      "polarity_right": "調控（理性先行）：先壓下情緒，用認知重評處理",
+      "frameworks": ["Gross 情緒調節過程模型（五策略）", "CAPS 情感 CAU", "NLP W3 壓力反應", "劉邵「慘懌」"],
+      "ancient_parallel": "劉邵「慘懌」（悲/樂傾向）——古人已知情緒處理模式是穩定的人格面向",
+      "anti_pattern": "浸泡型不是「情緒化」——是「情緒作為決策資訊」；調控型不是「冷血」——是「情緒後處理」"
+    }
+  },
+  "dimension_relations": {
+    "type": "nine_point_network",
+    "description": "九紋交織：不是線性因果，而是 Bandura 三元交互（人格×行為×環境持續互動）。認知引擎決定怎麼處理，決策參數決定什麼影響選擇，結構動力學決定底層怎麼運作。三組之間持續互動。",
+    "key_interactions": {
+      "D1↔D9": "驅動源和情緒處理高度交織——S1 決策大量仰賴情緒訊號",
+      "D2↔D7": "情境錨定和內在多元性互為因果——多元的人在不同情境自然表現不同",
+      "D3↔D5": "風險姿態和時間透鏡交互——遠期視野者對短期風險的容忍度更高",
+      "D6↔D8": "行為穩定和信念彈性是不同層——可以行為穩定但信念流動",
+      "D4↔D9": "他者權重和情緒處理交互——情緒浸泡型更容易受他人情緒影響"
+    }
+  },
+  "time_evolution": {
+    "description": "年輪的隱喻：每一圈記錄一段經驗。維度值不只是快照，還有方向（正在往哪端移動）和速度。",
+    "maturity_principle": "Roberts 成熟原則：年齡增長→宜人性↑、盡責性↑、情緒穩定↑、開放性↓。對應：D6 偏穩定、D8 可能偏固著、D9 偏調控。",
+    "domain_specific": "Fischer 的關鍵修正：發展水準是領域特定的——一個人在工作中可能 Kegan 第五階，在親密關係中停留在第三階。",
+    "reversibility": "退化是可能的——重大創傷、長期壓力都可以逆轉發展。年輪不只有寬（成長期）也有窄（壓力期）。"
+  },
+  "anima_layer_mapping": {
+    "L1_facts": "靜態資料，不直接對應維度",
+    "L2_personality": "D1, D3, D6 — 人格如何調變認知和行為",
+    "L3_energy": "D6 — 穩定/可塑張力的即時能量狀態",
+    "L4_interaction": "D4 — 他者權重的歷史累積",
+    "L5_leverage": "D5 — 資源如何影響時間視野",
+    "L6_communication": "D2 — 情境錨定的表達端",
+    "L7_mask": "D2, D7 — 情境面具和內在多元性"
+  },
+  "absurdity_mapping": {
+    "drive_source": {"self_awareness": 0.5, "gap_visibility": 0.5},
+    "situational_anchoring": {"self_awareness": 0.6, "relationship_leverage": 0.4},
+    "risk_posture": {"direction_clarity": 0.5, "gap_visibility": 0.5},
+    "other_weighting": {"relationship_leverage": 0.7, "self_awareness": 0.3},
+    "temporal_lens": {"direction_clarity": 0.6, "strategic_integration": 0.4},
+    "behavioral_stability": {"accumulation": 0.5, "strategic_integration": 0.5},
+    "inner_multiplicity": {"self_awareness": 0.8, "gap_visibility": 0.2},
+    "belief_plasticity": {"self_awareness": 0.4, "direction_clarity": 0.3, "gap_visibility": 0.3},
+    "emotional_processing": {"self_awareness": 0.6, "relationship_leverage": 0.4}
+  },
+  "default_value": 0.5,
+  "alpha": 0.10,
+  "decay_rate": 0.008,
+  "confidence_increment": 0.02,
+  "confidence_decay": 0.005,
+  "min_confidence": 0.1,
+  "linked_skills": [
+    "wan-miu-16", "energy-reading", "combined-reading",
+    "anima-individual", "master-strategy", "shadow",
+    "dharma", "resonance", "roundtable", "user-model"
+  ],
+  "created_at": "2026-04-04",
+  "updated_at": "2026-04-04"
+}
