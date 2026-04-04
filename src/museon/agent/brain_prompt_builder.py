@@ -201,6 +201,28 @@ class BrainPromptBuilderMixin:
                 if _brevity_fitted:
                     sections.append(_brevity_fitted)
 
+        # ── Zone: buffer — 星座系統感知框架 ──
+        # 從 persona_digest.md 提取星座段落（九星座表 + 行為守則，~800 字）
+        if not budget.is_exhausted("buffer"):
+            try:
+                _digest_path = (
+                    Path(self.data_dir) / "_system" / "context_cache" / "persona_digest.md"
+                    if self.data_dir
+                    else Path("data/_system/context_cache/persona_digest.md")
+                )
+                if _digest_path.exists():
+                    _full = _digest_path.read_text(encoding="utf-8")
+                    # 提取星座段落：從「## 星座系統」到下一個「## 」或檔尾
+                    _start = _full.find("## 星座系統")
+                    if _start >= 0:
+                        _end = _full.find("\n## ", _start + 10)
+                        _constellation_section = _full[_start:_end] if _end > 0 else _full[_start:]
+                        _const_fitted = budget.fit_text_to_zone("buffer", _constellation_section)
+                        if _const_fitted:
+                            sections.append(_const_fitted)
+            except Exception as _e:
+                logger.debug(f"Constellation persona injection skipped: {_e}")
+
         # ── Zone: persona — 荒謬雷達（v12.0: 主動引導使用者發展最弱維度）──
         if not budget.is_exhausted("persona"):
             try:
@@ -465,6 +487,44 @@ class BrainPromptBuilderMixin:
             growth_fitted = budget.fit_text_to_zone("buffer", growth_text)
             if growth_fitted:
                 sections.append(growth_fitted)
+
+        # ── Zone: buffer — 主動探針注入（Probe Layer）──
+        # 從各星座雷達讀取最弱維度，選出本輪應主動探問的問題，
+        # 注入 Brain prompt 讓 LLM 在自然結尾帶入。
+        if session_id and not budget.is_exhausted("buffer"):
+            try:
+                from museon.agent.probe_layer import run_probe_cycle
+                from museon.agent.constellation_radar import (
+                    list_constellations, load_radar,
+                )
+
+                _data_dir = str(self.data_dir) if self.data_dir else "data"
+
+                # 讀取所有已知星座的使用者雷達，組成 constellations dict
+                _raw_list = list_constellations(_data_dir)
+                _constellations: Dict[str, Dict[str, float]] = {}
+                for _item in _raw_list:
+                    # registry 回傳物件（含 name 欄位）或純字串，兩者均相容
+                    _cname = _item["name"] if isinstance(_item, dict) else str(_item)
+                    _constellations[_cname] = load_radar(_cname, "boss", _data_dir)
+
+                # 取得目前互動輪次（session_id 若含數字尾號則解析；否則退回 0）
+                _interaction_count = getattr(self, "_interaction_count", 0)
+
+                _probe_text = run_probe_cycle(
+                    interaction_count=_interaction_count,
+                    session_id=session_id,
+                    constellations=_constellations,
+                    user_signal=user_query,
+                    data_dir=_data_dir,
+                )
+                if _probe_text:
+                    _probe_fitted = budget.fit_text_to_zone("buffer", _probe_text)
+                    if _probe_fitted:
+                        sections.append(_probe_fitted)
+                        logger.info("[ProbeLayer] 探針注入完成")
+            except Exception as _pe:
+                logger.debug(f"[ProbeLayer] 探針注入失敗（降級）: {_pe}")
 
         # Token 預算可觀測性：記錄各 zone 使用率，耗盡時 warning
         zone_report = budget.get_all_zones()
