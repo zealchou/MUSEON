@@ -1,10 +1,11 @@
-# Blast Radius — 模組影響半徑表 v1.98
+# Blast Radius — 模組影響半徑表 v1.99
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節、`docs/operational-contract.md`（操作契約表）提供外部操作預期失敗
+> **v1.99 (2026-04-04)**：新增 `agent/l4_cpu_observer.py`（🟢 綠區，扇入=1（brain.py），扇出=3：context_cache JSON、session_adjustments、memory_manager，CPU-only 對話後觀察，零 LLM，v12 新增取代 Haiku L4 agent spawn）；`agent/brain_tools.py` 備注更新：`_classify_complexity` 已於 v12 改為 CPU-only，`_call_llm` 仍走 LLM。
 > **v1.98 (2026-04-02)**：荒謬雷達系統——skill_router.py 新增 Layer 4 (absurdity gap affinity)，扇入不變；nightly_pipeline.py 新增步驟 32.5 (absurdity_radar_recalc)；brain.py 新增 absurdity_radar load/update/save 呼叫（try/except 包裹，不影響扇入）；brain_prompt_builder.py 新增 _build_absurdity_radar_context() 注入到 persona zone；新增共享狀態 #75 data/_system/absurdity_radar/{user}.json。
 > **v1.97 (2026-04-02)**：新增 core/message_constants.py（🟡 黃區，扇入=3：brain.py + signal_lite.py + metacognition.py，扇出=0，純常數源）；brain.py 扇出 +1（新增 message_constants）；signal_lite.py 扇出 +1（新增 message_constants）；metacognition.py 扇出 +1（新增 message_constants）；nightly_pipeline.py Step 31 子步驟描述確認 build_all()；移除不存在的 build_command_routes（skill_install_worker 版本紀錄已正確）；同步 joint-map v1.65。
 > **v1.96 (2026-04-01)**：ares 套件更名為 athena——破損 import 計數從 2 降為 0（brain_fast.py 已刪除，ares→athena imports 已修復）；健康快照更新。同步 joint-map v1.64、persistence-contract v1.50。
@@ -707,7 +708,8 @@
 `agent/brain_prompt_builder.py`（★ v1.48 Mixin，扇入=1（brain.py），system prompt 建構，1668 行），
 `agent/brain_dispatch.py`（★ v1.48 Mixin，扇入=1（brain.py），任務分派，1082 行），
 `agent/brain_observation.py`（★ v1.48 Mixin，扇入=1（brain.py），觀察與演化，2003 行），
-`agent/brain_tools.py`（★ v1.48 Mixin，扇入=1（brain.py），LLM 呼叫與 session 管理，966 行），
+`agent/brain_tools.py`（★ v1.48 Mixin，扇入=1（brain.py），LLM 呼叫與 session 管理，966 行；注：`_classify_complexity` 已於 v12 改為 CPU-only，`_call_llm` 仍走 LLM），
+`agent/l4_cpu_observer.py`（★ v1.99 新增，扇入=1（brain.py），扇出=3（context_cache JSON、session_adjustments、memory_manager），CPU-only 對話後觀察，零 LLM。v12 新增，取代 Haiku L4 agent spawn），
 `agent/brain_deep.py`（★ v1.70 新增，扇入=1（brain.py），L2 深度思考引擎——Opus + tool_use，扇出 3：brain_tool_loop.py, tool_schemas.py, context_cache 檔案），
 `agent/brain_tool_loop.py`（★ v1.70 新增，扇入=1（brain_deep.py），獨立 tool-use 迴圈——從 brain_tools.py 提取，扇出 2：llm/adapters.py, agent/tools.py ToolExecutor），
 `agent/signal_lite.py`（★ v1.93 新增，扇入=1（brain.py），輕量信號路由——取代 reflex_router 路由功能，扇出=1（core/message_constants），純路由判定，80 行），
@@ -948,6 +950,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-04-04 | v1.99 | 新增 `agent/l4_cpu_observer.py`（🟢 綠區，扇入=1（brain.py），扇出=3：context_cache JSON、session_adjustments、memory_manager，CPU-only 對話後觀察，零 LLM，v12 取代 Haiku L4 agent spawn）；`agent/brain_tools.py` 備注更新：`_classify_complexity` 已於 v12 改為 CPU-only，`_call_llm` 仍走 LLM |
 | 2026-04-02 | v1.98 | 荒謬雷達系統——skill_router.py 新增 Layer 4 (absurdity gap affinity)，扇入不變；nightly_pipeline.py 新增步驟 32.5 (absurdity_radar_recalc)；brain.py 新增 absurdity_radar load/update/save 呼叫（try/except 包裹，不影響扇入）；brain_prompt_builder.py 新增 _build_absurdity_radar_context() 注入到 persona zone；新增共享狀態 #75 data/_system/absurdity_radar/{user}.json；同步 joint-map v1.66 |
 | 2026-04-02 | v1.97 | 新增 core/message_constants.py（🟡 黃區，扇入=3：brain.py + signal_lite.py + metacognition.py，扇出=0，純常數源）；brain.py 扇出 32+→33+；signal_lite.py 扇出 無→1；新增 metacognition.py 黃區條目（扇出+1）；nightly_pipeline Step 31 子步驟 build_all() 確認；清理 electron/doctor 殘留（條目不存在，略過）；同步 joint-map v1.65 |
 | 2026-04-01 | v1.93 | Phase A-C 死碼清理 + signal_lite 遷移——從綠區移除 brain_p3_fusion.py（P3 融合層清除）、brain_observer.py（L4 觀察者刪除）2 個條目；從 vector_bridge.py 扇入列表移除 reflex_router（退役，fan_in 9→8）；更新 brain.py 扇出描述（移除 reflex_router/safety_clusters 依賴，移除 P3 方法群）；更新 server.py 扇出（移除 DNA27 Qdrant 索引，扇出 50+→49+）；新增 signal_lite.py 到綠區（🟢 扇入=1 from brain.py，扇出=無，80 行）。同步 system-topology v1.74 |

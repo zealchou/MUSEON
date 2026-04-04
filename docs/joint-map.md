@@ -1,9 +1,10 @@
-# Joint Map — 共享可變狀態接頭圖 v1.66
+# Joint Map — 共享可變狀態接頭圖 v1.67
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
 > **更新時機**：改變共享檔案的讀寫者或格式時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
+> **v1.67 (2026-04-04)**：l4_cpu_observer 架構更新——新增 #76 `_system/context_cache/{session_id}_signals.json`（🟢 EMA 訊號快取，寫入者=l4_cpu_observer，讀取者=brain_prompt_builder）；新增 #77 `_system/pending_preference_updates.jsonl`（🟢 偏好更新佇列，寫入者=l4_cpu_observer，讀取者=nightly_pipeline）；更新 #66 session_adjustments/{id}.json 寫入者從「L4 觀察者」改為 `agent/l4_cpu_observer.py`；共享狀態 75→77 個。同步 persistence-contract v1.52、memory-router v1.26。
 > **v1.66 (2026-04-02)**：荒謬雷達系統——新增 #75 `data/_system/absurdity_radar/{user}.json`（🟢 per-user 雷達分數，寫入者=absurdity_radar.py+brain.py，讀取者=absurdity_radar.py+brain_prompt_builder.py）；共享狀態 74→75 個。
 > **v1.65 (2026-04-02)**：#47 寫者修正 build_all()；移除不存在的 build_command_routes（確認兩者皆已正確，無需更動 #47 主體）；同步 blast-radius v1.97。
 > **v1.64 (2026-04-01)**：ares 套件更名為 athena——`src/museon/ares/external_bridge.py` → `src/museon/athena/external_bridge.py`、`src/museon/ares/profile_store.py` → `src/museon/athena/profile_store.py`。同步 persistence-contract v1.50、blast-radius v1.96。
@@ -93,7 +94,7 @@
 | 63 | _system/awareness_log.jsonl | 🟢 | 1(triage_step) | 1(triage_step) | 無(append) | — |
 | 64 | _system/pending_adjustments.json | 🟢 | 1(triage_step) | 1(session_adjustment) | 原子寫 | — |
 | 65 | _system/nightly_priority_queue.json | 🟢 | 1(triage_step) | 1(triage_to_morphenix) | 原子寫 | — |
-| 66 | _system/session_adjustments/{id}.json | 🟢 | 1(L4觀察者) | 1(brain_prompt_builder) | 原子寫 | — |
+| 66 | _system/session_adjustments/{id}.json | 🟢 | 1(agent/l4_cpu_observer.py) | 1(brain_prompt_builder) | 原子寫 | — |
 | 67 | _system/triage_human_queue.json | 🟢 | 1(triage_step) | 1(triage_step+algedonic_alert) | 原子寫 | — |
 | 68 | skills/native/{name}/_lessons.json | 🟢 | 1(session_adjustment) | 1(brain_prompt_builder) | 原子寫 | — |
 | 69 | _system/museoff/finding_counts.json | 🟢 | 1(doctor/finding.py) | 1(doctor/museoff.py) | 原子 JSON 讀寫 | — |
@@ -103,6 +104,8 @@
 | 73 | _system/mask_states.json | 🟢 | 1(mask_engine) | 1(mask_engine) | 無（短暫，7 天自動清理） | [→](#73-_systemmask_statesjson) |
 | 74 | SignalLite 物件（記憶體） | 🟢 | 1(signal_lite.py) | 3(brain.py + metacognition.py + telegram_pump.py) | 純記憶體，無鎖（不可變計算結果） | [→](#74-signallite-物件記憶體) |
 | 75 | _system/absurdity_radar/{user}.json | 🟢 | 2 | 2 | 原子寫 | [→](#75-absurdity_radarjson) |
+| 76 | _system/context_cache/{session_id}_signals.json | 🟢 | 1(l4_cpu_observer) | 1(brain_prompt_builder) | 原子寫 | [→](#76-context_cachesession_id_signalsjson) |
+| 77 | _system/pending_preference_updates.jsonl | 🟢 | 1(l4_cpu_observer) | 1(nightly_pipeline) | 無(append) | [→](#77-pending_preference_updatesjsonl) |
 
 > **危險度定義**：🔴 多寫入者+高扇出+格式不一致 | 🟡 多寫入者或高扇出 | 🟢 單寫入者+低扇出
 
@@ -1201,11 +1204,14 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 |------|------|------|------|-----|
 | `cache/context_cache_builder.py` | **W** | `build_all()` | Nightly Step 31 重建所有四檔 | 無（夜間單次執行） |
 | `agent/brain.py` | **W** | `_observe()` | L4 增量更新 user_summary（選配） | 原子寫 |
+| `agent/l4_cpu_observer.py` | **W** | `observe()` | L4 CPU Observer 每次觀察後 EMA 合併更新 `{session_id}_signals.json` | 原子寫 |
 | `agent/brain.py` | **R** | `_build_prompt()` | L1/L2 每次回覆前讀取 | — |
+| `agent/brain_prompt_builder.py` | **R** | `_build_signal_context()` | 讀取 `{session_id}_signals.json` 建構訊號上下文 | — |
 
 > **鎖**：無（寫入者時間分離：nightly 凌晨、L4 即時但低頻）
-> **TTL**：每日 Nightly Step 31 全量重建
-> **危險度**：🟡 黃（多讀者 + 2 寫入者，但寫入者時間錯開）
+> **TTL**：每日 Nightly Step 31 全量重建；`{session_id}_signals.json` Session 級別
+> **危險度**：🟡 黃（多讀者 + 3 寫入者，但寫入者時間錯開）
+> **v1.67 更新**：l4_cpu_observer.py 新增為 context_cache 的 `{session_id}_signals.json` 寫入者（EMA 訊號快取），詳見 #76
 
 ### 48. push_journal_24h.json
 
@@ -1463,6 +1469,36 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 
 ---
 
+### #76 context_cache/{session_id}_signals.json
+
+**路徑**：`data/_system/context_cache/{session_id}_signals.json`
+**危險度**：🟢（per-session 單一寫入者，原子寫入）
+**格式**：JSON — `{"signal_name": float, "_updated_at": "ISO8601"}`
+
+| 角色 | 模組 |
+|------|------|
+| 寫入者 | `agent/l4_cpu_observer.py observe()`（每次觀察 EMA 合併寫入） |
+| 讀取者 | `agent/brain_prompt_builder.py _build_signal_context()` |
+
+**備註**：L4 CPU Observer 觀察後以 EMA 方式合併更新訊號快取，v1.67 新增。
+
+---
+
+### #77 pending_preference_updates.jsonl
+
+**路徑**：`data/_system/pending_preference_updates.jsonl`
+**危險度**：🟢（append-only 單一寫入者）
+**格式**：JSONL — 每行一個 JSON 物件（偏好更新記錄）
+
+| 角色 | 模組 |
+|------|------|
+| 寫入者 | `agent/l4_cpu_observer.py observe()`（keyword diff 偵測到偏好變化時 append） |
+| 讀取者 | Nightly pipeline（批次處理偏好更新） |
+
+**備註**：L4 CPU Observer 偵測到偏好變化時 append，Nightly 批次處理後清空，v1.67 新增。
+
+---
+
 ## 必須同時修改的模組組（不可分批）
 
 > 修改以下任一模組時，**必須**同時檢查並調整同組所有模組。
@@ -1518,6 +1554,7 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-04-04 | v1.67 | l4_cpu_observer 架構更新——新增 #76 `_system/context_cache/{session_id}_signals.json`（🟢 EMA 訊號快取，寫入者=l4_cpu_observer，讀取者=brain_prompt_builder）；新增 #77 `_system/pending_preference_updates.jsonl`（🟢 偏好更新佇列 append-only，寫入者=l4_cpu_observer，讀取者=nightly_pipeline）；更新 #66 session_adjustments/{id}.json 寫入者從「L4 觀察者」改為 `agent/l4_cpu_observer.py`；更新 #47 context_cache 讀寫表新增 l4_cpu_observer 為寫入者（signals 子檔）；共享狀態 75→77 個 |
 | 2026-04-02 | v1.66 | 荒謬雷達系統——新增 #75 `data/_system/absurdity_radar/{user}.json`（🟢 per-user 雷達分數，寫入者=absurdity_radar.py+brain.py，讀取者=absurdity_radar.py+brain_prompt_builder.py）；共享狀態 74→75 個 |
 | 2026-04-02 | v1.65 | #47 寫者修正 build_all()；移除不存在的 build_command_routes（確認已正確）；同步 blast-radius v1.97 |
 | 2026-03-25 | v1.46 | L2 Worker + RateLimiter：新增 #44 AsyncTokenBucket singleton（🟢 記憶體，asyncio.Lock）、#45 BrainWorkerManager singleton（🟢 記憶體，asyncio.Lock）；共享狀態 43→45 個 |

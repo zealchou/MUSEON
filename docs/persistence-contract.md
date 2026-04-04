@@ -1,8 +1,9 @@
-# MUSEON Persistence Contract v1.51 — 水電圖
+# MUSEON Persistence Contract v1.52 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
 > 與 `system-topology.md`（控制流拓撲）互補——那是「神經圖」，這是「水電圖」。
+> **v1.52 (2026-04-04)**：l4_cpu_observer 架構更新——新增 `data/_system/context_cache/{session_id}_signals.json`（EMA 訊號快取，寫入者=agent/l4_cpu_observer.py，讀取者=brain_prompt_builder.py _build_signal_context，格式=`{"signal_name": float, "_updated_at": "ISO8601"}`）；新增 `data/_system/pending_preference_updates.jsonl`（偏好更新 append-only 佇列，寫入者=agent/l4_cpu_observer.py，讀取者=Nightly pipeline 批次處理）；更新 #66 `session_adjustments/{session_id}.json` 寫入者從「L4 觀察者」改為 `agent/l4_cpu_observer.py`。同步 joint-map v1.67、memory-router v1.26。
 > **v1.51 (2026-04-02)**：荒謬雷達系統——新增 `data/_system/absurdity_radar/{user_id}.json`（per-user 原子 JSON，寫入者=agent/absurdity_radar.py save_radar() + brain.py update，讀取者=absurdity_radar.py load_radar() + brain_prompt_builder.py + skill_router.py Layer 4，Nightly step 32.5 每日衰減）。
 > **v1.50 (2026-04-01)**：ares 套件更名為 athena——`src/museon/ares/` → `src/museon/athena/`（profile_store.py、external_bridge.py、graph_renderer.py）；data 路徑 `ares/profiles/` 不變。同步 joint-map v1.64、blast-radius v1.96。
 > **v1.49 (2026-04-01)**：.runtime 目錄正式廢除——所有持久層路徑統一為 MUSEON_HOME/ 下的單一路徑，不再有 .runtime/data vs data/ 雙路徑分支；CrystalStore schema drift 自動修復已部署（v1.48）。同步 system-topology v1.76、blast-radius v1.95。
@@ -487,6 +488,9 @@ adaptive_decay ──ACT-R B_i──→ _activation 欄位 (in-memory) ←──
 | `_system/backups/anima_mc/*.json` | `pulse/anima_mc_store.py` | ANIMA_MC 寫入前快照（保留 10 份） |
 | `_system/backups/pulse_md/*.md` | `pulse/pulse_engine.py` | PULSE.md 寫入前快照（保留 10 份） |
 | `_system/absurdity_radar/{user_id}.json` | `agent/absurdity_radar.py` + `agent/brain.py` | 六大荒謬雷達 per-user 快照（v1.51 新增，詳見下方專節） |
+| `_system/context_cache/{session_id}_signals.json` | `agent/l4_cpu_observer.py` | L4 CPU Observer EMA 訊號快取（v1.52 新增，寫入者=l4_cpu_observer observe() EMA 合併，讀取者=brain_prompt_builder.py _build_signal_context，格式=`{"signal_name": float, "_updated_at": "ISO8601"}`） |
+| `_system/pending_preference_updates.jsonl` | `agent/l4_cpu_observer.py` | L4 CPU Observer 偏好更新 append-only 佇列（v1.52 新增，每條一個 JSON 物件，Nightly pipeline 批次處理） |
+| `_system/session_adjustments/{session_id}.json` | `agent/l4_cpu_observer.py` (寫入) / `agent/brain_prompt_builder.py` (讀取) | 即時行為調整（v1.52 更新寫入者為 l4_cpu_observer.py，expires_after_turns TTL） |
 
 ### PDR 持久化（v1.70 新增）
 
@@ -583,6 +587,38 @@ adaptive_decay ──ACT-R B_i──→ _activation 欄位 (in-memory) ←──
 **讀取者**：`agent/absurdity_radar.py load_radar()` + `agent/brain_prompt_builder.py _build_absurdity_radar_context()` + `agent/skill_router.py match() Layer 4`
 **TTL**：永久（Nightly step 32.5 每日衰減，不刪除）
 **鎖**：無需（per-user 檔案，單一寫入者路徑）
+
+### `_system/context_cache/{session_id}_signals.json`（l4_cpu_observer 訊號快取，v1.52 新增）
+
+> **注意**：此檔案為 L4 CPU Observer 每次觀察後以 EMA 方式合併更新的訊號快取，供 brain_prompt_builder 建構訊號上下文使用。
+
+| 路徑 | 格式 | 寫入者 | 讀取者 | 說明 |
+|------|------|--------|--------|------|
+| `_system/context_cache/{session_id}_signals.json` | JSON | `agent/l4_cpu_observer.py observe()`（每次觀察 EMA 合併） | `agent/brain_prompt_builder.py _build_signal_context()` | per-session 訊號快取 |
+
+**引擎**：JSON 原子寫入
+**格式**：`{"signal_name": float, "_updated_at": "ISO8601"}`
+**寫入者**：`agent/l4_cpu_observer.py`（EMA merge on each observation）
+**讀取者**：`agent/brain_prompt_builder.py _build_signal_context()`
+**TTL**：Session 級別，session 結束或 Nightly 清理
+**鎖**：無需（per-session 單一寫入者）
+**危險度**：🟢（單寫入者）
+
+### `_system/pending_preference_updates.jsonl`（l4_cpu_observer 偏好佇列，v1.52 新增）
+
+> **注意**：此檔案為 L4 CPU Observer 偵測到偏好變化時 append-only 寫入，Nightly pipeline 批次處理。
+
+| 路徑 | 格式 | 寫入者 | 讀取者 | 說明 |
+|------|------|--------|--------|------|
+| `_system/pending_preference_updates.jsonl` | JSONL append-only | `agent/l4_cpu_observer.py observe()` | Nightly pipeline（批次處理偏好更新） | 偏好更新待處理佇列 |
+
+**引擎**：JSONL append-only
+**格式**：每行一個 JSON 物件（偏好更新記錄）
+**寫入者**：`agent/l4_cpu_observer.py`
+**讀取者**：Nightly pipeline（批次處理）
+**TTL**：Nightly 處理後清空
+**鎖**：無需（append-only 單寫入者）
+**危險度**：🟢（append-only，單寫入者）
 
 ### `eval/` 子目錄
 
@@ -724,6 +760,7 @@ adaptive_decay ──ACT-R B_i──→ _activation 欄位 (in-memory) ←──
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.52 | 2026-04-04 | l4_cpu_observer 架構更新——新增 `_system/context_cache/{session_id}_signals.json`（EMA 訊號快取，寫入者=agent/l4_cpu_observer.py observe() EMA 合併，讀取者=brain_prompt_builder.py _build_signal_context，格式=`{"signal_name": float, "_updated_at": "ISO8601"}`）；新增 `_system/pending_preference_updates.jsonl`（偏好更新 append-only 佇列，寫入者=l4_cpu_observer.py，讀取者=Nightly pipeline 批次處理）；更新 #66 session_adjustments/{id}.json 寫入者從「L4 觀察者」改為 `agent/l4_cpu_observer.py`。同步 joint-map v1.67、memory-router v1.26 |
 | v1.44 | 2026-03-31 | Persona Evolution 系統——新增 `_system/mask_states.json`（面具狀態快照，mask_engine.py 原子寫入 tmp+rename，TTL=7 天，cleanup_stale 清理，全量覆寫）；ANIMA_MC 新增 `personality.trait_dimensions`（P1-P5 PSI 保護/C1-C5 FREE，寫入者 trait_engine.py+nightly_reflection.py）、`evolution.trait_history`（APPEND_ONLY，上限 200 筆，nightly_reflection.py）、`evolution.stage_history`（APPEND_ONLY，上限 50 筆，brain_observation.py）。同步 memory-router v1.19 |
 | v1.0 | 2026-03-15 | 初版：完整水電圖，涵蓋 23 個正常配對、3 個 Dead Write、14 個死目錄 |
 | v1.1 | 2026-03-15 | Phase 2 完成：4 個 JSON 遷移至 PulseDB（ceremony_state + eval 三件套） |

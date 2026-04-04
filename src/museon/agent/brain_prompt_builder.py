@@ -1357,89 +1357,64 @@ class BrainPromptBuilderMixin:
         anima_mc: Optional[Dict[str, Any]],
         matched_skills: List[Dict[str, Any]],
     ) -> str:
-        """v11: 建構完整能力目錄 — 讓 LLM 看見所有認知能力並自主選擇.
+        """v12: 精簡能力目錄 — 只注入本次匹配的 Skill，節省 ~4800 tokens.
 
-        設計參考 OpenClaw 的 Skills (mandatory) 模式：
-        LLM 掃描 <available_skills> → 判斷哪個能力適用
-        → 用 read_skill 工具讀取完整 SKILL.md → 按照指引回覆。
-
-        取代舊版 v10 的「只看 DNA27 匹配的 5-10 個技能」。
-        DNA27 匹配結果降級為「建議」，LLM 擁有最終選擇權。
+        v11 → v12 改動：
+        從「列出全部 65 個 Skill 讓 LLM 選」→「只列 DNA27 匹配的 2-5 個」。
+        理由：skill_router 的 4 層路由已經完成選擇，LLM 不需要重新掃描全部。
+        未匹配的 Skill 仍可透過 skill_search 工具按需發現。
         """
-        # 1. 從 ANIMA_MC 取得完整能力清單和熟練度
-        capabilities = {}
-        proficiency = {}
-        if anima_mc:
-            cap_data = anima_mc.get("capabilities", {})
-            loaded = cap_data.get("loaded_skills", [])
-            proficiency = cap_data.get("skill_proficiency", {})
-            for skill_name in loaded:
-                desc = self._get_skill_short_desc(skill_name)
-                capabilities[skill_name] = desc
-
-        # Fallback: 如果 ANIMA_MC 沒有 capabilities，從 SkillRouter 索引取得
-        if not capabilities and self.skill_router:
-            for skill in self.skill_router._index:
-                name = skill.get("name", "")
-                desc = skill.get("description", "")[:80]
-                if name:
-                    capabilities[name] = desc
-
-        if not capabilities:
-            return ""
-
-        # 2. DNA27 反射弧建議（本次匹配結果，僅供參考）
-        dna27_suggested = []
-        if matched_skills:
-            dna27_suggested = [s.get("name", "") for s in matched_skills[:5]]
-
-        # 3. 組建能力目錄
-        section = "## 我的認知能力（必讀）\n\n"
-        section += (
-            "**回覆前必做：** 掃描下方 <available_skills> 的描述。\n"
-            "- 如果恰好一個能力明確適用：使用 `read_skill` 工具讀取完整 SKILL.md，"
-            "然後按照指引回覆。\n"
-            "- 如果多個能力可能適用：選最具體的那個，用 `read_skill` 讀取後遵循。\n"
-            "- 如果沒有明確對應的能力：不需要讀取任何 SKILL.md，直接回覆。\n"
-            "- 不確定時：使用 `skill_search` 工具用關鍵字搜尋最相關的能力。\n\n"
-        )
-
-        if dna27_suggested:
-            section += (
-                f"**DNA27 反射弧建議（本次）：** "
-                f"{', '.join(dna27_suggested)}\n\n"
+        if not matched_skills:
+            # 沒有匹配 → 只保留工具指引
+            return (
+                "## 認知能力\n\n"
+                "本次未匹配到特定能力模組。如需特定分析框架，"
+                "使用 `skill_search` 工具搜尋相關能力。\n"
             )
 
-        # 4. 按熟練度排序的能力清單
-        section += "<available_skills>\n"
-        sorted_skills = sorted(
-            capabilities.items(),
-            key=lambda x: proficiency.get(x[0], 0),
-            reverse=True,
-        )
-        for name, desc in sorted_skills:
+        proficiency = {}
+        if anima_mc:
+            proficiency = anima_mc.get("capabilities", {}).get("skill_proficiency", {})
+
+        total_skills = 0
+        if anima_mc:
+            total_skills = len(anima_mc.get("capabilities", {}).get("loaded_skills", []))
+        if not total_skills and self.skill_router:
+            total_skills = len(getattr(self.skill_router, '_index', []))
+
+        section = "## 本次匹配的認知能力\n\n"
+        section += (
+            "以下是根據你的訊息匹配到的能力模組。\n"
+            "- 使用 `read_skill` 工具讀取完整 SKILL.md 後按指引回覆。\n"
+            "- 需要其他能力？使用 `skill_search` 搜尋（共 {} 個能力可用）。\n\n"
+        ).format(total_skills)
+
+        for skill in matched_skills[:5]:
+            name = skill.get("name", "")
+            desc = skill.get("description", "")
+            score = skill.get("score", 0)
             prof = proficiency.get(name, 0)
+
             if prof >= 50:
                 badge = "🟢"
             elif prof >= 20:
                 badge = "🟡"
             else:
                 badge = "🔵"
-            # 緊湊格式：badge name (prof) — desc
-            section += f"{badge} {name} ({prof}) — {desc}\n"
-        section += "</available_skills>\n\n"
 
-        # 5. MCP 外部工具感知（v11.1: 參考 OpenClaw mandatory skills 模式）
-        # 讓 LLM 主動知道有哪些 MCP 伺服器已連線，不需要先 call mcp_list_servers
+            section += f"{badge} **{name}** (熟練度 {prof}, 匹配度 {score:.0%})\n"
+            if desc:
+                section += f"   {desc[:150]}\n"
+            section += "\n"
+
+        # MCP 外部工具感知
         mcp_summary = self._build_mcp_tools_summary()
         if mcp_summary:
             section += mcp_summary + "\n\n"
 
         section += (
-            "我的工具（搜尋、爬取、Shell、檔案讀寫、MCP 擴充）"
-            "是這些認知能力的運動輸出。\n"
-            "認知 → 判斷 → 行動，一體的。不需要分開思考「要不要用工具」。\n"
-            "遇到問題時，先內省自己有什麼能力可以處理，再決定行動路徑。"
+            "工具（搜尋、爬取、Shell、檔案讀寫、MCP）"
+            "是認知能力的運動輸出。認知 → 判斷 → 行動，一體的。"
         )
 
         return section

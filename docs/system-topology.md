@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.78
+# MUSEON 系統拓撲圖 v1.80
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.80 (2026-04-04)**：L4 CPU Observer 架構更新——agent 群組新增 `l4-cpu-observer`（CPU-only 對話後觀察者，取代 Haiku L4 agent spawn，零 LLM 呼叫，<10ms）；brain-tools 描述更新（_classify_complexity 已改為 CPU-only v12）；新增 4 條連線（brain→l4-cpu-observer、l4-cpu-observer→context-cache/session-adjustments/memory）。
 > **v1.79 (2026-04-02)**：補齊 absurdity-radar 孤島連線——新增 3 條 internal 連線（`brain→absurdity-radar` load/update/save、`brain-prompt-builder→absurdity-radar` persona zone 注入、`nightly-pipeline→absurdity-radar` Step 32.5 recalc）；absurdity-radar 節點扇入由 0→3，孤島問題修復。
 > **v1.78 (2026-04-02)**：荒謬雷達系統——新增 `agent/absurdity_radar.py`（純函數模組，無 class，提供 load/save/update_radar）；
 > `skill_router.py` 新增 Layer 4 (absurdity gap affinity)，讀取 Skill manifest 的 `absurdity_affinity` + user radar；
@@ -156,7 +157,7 @@ external-user（EXTERNAL）
 | `brain-prompt-builder` | Brain Prompt Builder | Mixin: system prompt 建構（1668 行） | - | brain | 1.0 |
 | `brain-dispatch` | Brain Dispatch | Mixin: 任務分派（1082 行） | - | brain | 1.0 |
 | `brain-observation` | Brain Observation | Mixin: 觀察與演化（2003 行） | - | brain | 1.0 |
-| `brain-tools` | Brain Tools | Mixin: LLM 呼叫與 session 管理（966 行） | - | brain | 1.0 |
+| `brain-tools` | Brain Tools | Mixin: LLM 呼叫（_call_llm）與 session 管理（966 行）。_classify_complexity 已改為 CPU-only（v12） | - | brain | 1.0 |
 | `brain-types` | Brain Types | 共享 dataclass: DecisionSignal | - | brain | 0.7 |
 | ~~`dna27`~~ | ~~DNA27~~ | ~~27 反射叢集（已刪除 v1.59）~~ | - | - | - |
 | `skill-router` | Skill Router | 技能路由 | - | brain | 1.1 |
@@ -197,6 +198,7 @@ external-user（EXTERNAL）
 | `brain-deep` | Brain-Deep (L2) | L2 深度思考引擎（Opus + tool_use） | - | brain | 1.2 |
 | `brain-tool-loop` | Brain-Tool-Loop | 獨立 tool-use 迴圈 | - | brain | 1.0 |
 | ~~`brain-observer`~~ | ~~Brain-Observer (L4)~~ | ~~L4 觀察者（已刪除 v1.74，功能整合至 L4 觀察者 Nightly Workflow）~~ | - | - | - |
+| `l4-cpu-observer` | L4 CPU Observer | CPU-only 對話後觀察者（v12 新增，取代 Haiku L4 agent spawn）。零 LLM 呼叫，<10ms。四步觀察：記憶寫入、訊號更新、偏好偵測、品質調整。 | - | brain | 0.8 |
 | `memory-graph` | Memory Graph | 記憶關聯圖（語意關聯邊 + 存取追蹤 + 過期偵測） | - | brain | 1.0 |
 | `trait-engine` | Trait Engine | 10 維度特質代謝引擎，從互動計算特質 delta（C-trait 即時更新） | - | brain | 1.0 |
 | `growth-stage-computer` | Growth Stage Computer | Kegan 認知成熟度計算（ABSORB→TRANSCEND），取代硬編碼 adult | - | brain | 0.9 |
@@ -588,6 +590,10 @@ external-user（EXTERNAL）
 | `pdr-council` | `pdr-params` | 讀取 Phase 2/3 參數 + 安全護欄 |
 | `brain` | `absurdity-radar` | load_radar（每請求讀取）→ update_radar_from_skill + save_radar（命中後更新） |
 | `brain-prompt-builder` | `absurdity-radar` | _build_absurdity_radar_context() 讀取六維雷達注入 persona zone |
+| `brain` | `l4-cpu-observer` | 回覆後呼叫 L4CpuObserver.observe()，CPU-only，<10ms |
+| `l4-cpu-observer` | `context-cache` | signal_cache JSON 寫入（訊號更新） |
+| `l4-cpu-observer` | `session-adjustments` | 品質調整寫入（規則引擎輸出） |
+| `l4-cpu-observer` | `memory` | 記憶寫入（訊息 > 20 字 + 非問候時觸發，optional） |
 
 ### Pulse 內部連線（internal）
 | Source | Target | 說明 |
@@ -1268,6 +1274,7 @@ external-user（EXTERNAL）
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.80 | 2026-04-04 | L4 CPU Observer 架構更新——agent 群組新增 `l4-cpu-observer`（CPU-only 對話後觀察者，取代 Haiku L4 agent spawn，零 LLM 呼叫，<10ms）；brain-tools 描述更新（_classify_complexity 已改為 CPU-only v12）；新增 4 條連線（brain→l4-cpu-observer、l4-cpu-observer→context-cache/session-adjustments/memory）|
 | v1.74 | 2026-04-01 | Phase A-C 死碼清理 + signal_lite 遷移——移除 brain-p3-fusion（P3 融合層已清除）、brain-observer（L4 觀察者已刪除）2 個節點；reflex-router 標記已刪除（路由功能退役）；新增 signal-lite 節點（輕量信號路由）；移除連線：brain→brain-p3-fusion、brain→reflex-router（改為 brain→signal-lite）、brain→brain-observer、primal-detector→reflex-router、nightly→reflex-router 共 5 條；brain.py Step 3 描述更新（signal_lite 信號路由）。同步 blast-radius v1.93 |
 | v1.71 | 2026-03-31 | Persona Evolution 系統——agent 群組新增 trait-engine / growth-stage-computer / dissent-engine / mask-engine / momentum-brake 5 個節點；nightly 群組新增 nightly-reflection-engine 1 個節點；新增 3 條 internal 連線（brain→dissent-engine、brain→mask-engine、nightly-pipeline→nightly-reflection-engine）+ 7 條 cross 連線（brain-observation→trait-engine、brain-observation→growth-stage-computer、drift-detector→momentum-brake、nightly-reflection-engine→anima-mc-store、nightly-reflection-engine→soul-ring、dissent-engine→crystal-rules、mask-engine→anima-mc-store）；188→194 節點，512→522 連線 |
 | v1.66 | 2026-03-30 | 新增 13 個 Skill 節點（ad-pilot、equity-architect、biz-collab、biz-diagnostic（已存在）、video-strategy、course-forge、shadow-muse、daily-pilot、talent-match、brand-project-engine、finance-pilot、prompt-stresstest、workflow-brand-consulting（已存在））；新增 11 條 internal 連線（business +3、creative +2、thinking +3、product +2、evolution +1） |

@@ -1,10 +1,11 @@
-# Memory Router — 記憶路由表 v1.25
+# Memory Router — 記憶路由表 v1.26
 
 > **用途**：定義「什麼類型的洞見存到哪個記憶系統、什麼時候取出」。第五張工程藍圖。
 > **比喻**：郵局分揀表——每封信根據地址分到對應的信箱，不會寄丟也不會重複投遞。
 > **更新時機**：新增 Skill 或記憶系統時，必須在同一個 commit 中新增對應的路由規則。
 > **建立日期**：2026-03-21
 > **搭配**：`docs/skill-manifest-spec.md`（Skill I/O 合約）、各 Skill 的 `memory.writes` 欄位、`docs/operational-contract.md`（操作契約表）
+> **v1.26 (2026-04-04)**：l4_cpu_observer 架構更新——L4 觀察者從 Haiku agent spawn 改為 CPU Python 函數（`agent/l4_cpu_observer.py`），零 LLM token 消耗；記憶寫入路徑：`l4_cpu_observer.observe()` → `memory_manager.write()`（同步，非 async）；新增 signals 快取寫入路徑：`l4_cpu_observer.observe()` → `_system/context_cache/{session_id}_signals.json`（EMA 合併）；新增偏好佇列寫入路徑：`l4_cpu_observer.observe()` → `_system/pending_preference_updates.jsonl`（append）。同步 persistence-contract v1.52、joint-map v1.67。
 > **v1.25 (2026-04-02)**：荒謬雷達系統——新增雷達資料流：`brain.py` Skill 匹配後 → `absurdity_radar.py update_radar_from_skill()` → `_system/absurdity_radar/{user}.json`；prompt 注入路徑：`brain_prompt_builder.py _build_absurdity_radar_context()` ← `absurdity_radar.py load_radar()`。Nightly step 32.5 每日衰減。
 > **v1.24 (2026-04-02)**：藍圖交叉引用同步——persistence-contract v1.49→v1.50（ares→athena 更名同步），同步 system-topology v1.77、persistence-contract v1.50。
 > **v1.23 (2026-04-01)**：.runtime 廢除無記憶流向影響（signal_lite 純記憶體不變）；排程優化 Step 13.5 全清不影響記憶寫入路徑；路由表條目無增減。同步 system-topology v1.76、persistence-contract v1.49。
@@ -270,10 +271,27 @@
 
 ---
 
+### 規則 8：L4 CPU Observer 記憶寫入路徑（v1.26 新增）
+
+> v12: L4 觀察者從 Haiku agent spawn 改為 CPU Python 函數（`agent/l4_cpu_observer.py`），零 LLM token 消耗。
+> 記憶寫入路徑：`l4_cpu_observer.observe()` → `memory_manager.write()`（同步，非 async）
+
+| 來源 | 觸發 | 去向 | 格式 | 說明 |
+|------|------|------|------|------|
+| `agent/l4_cpu_observer.py` | 每次 observe()（訊息 > 20 字 + 非問候） | `memory_manager.write()`（L1_short） | Qdrant memories | 直接同步寫入，不 spawn agent |
+| `agent/l4_cpu_observer.py` | observe() quick_signal_scan | `_system/context_cache/{session_id}_signals.json` | JSON（EMA 合併） | 訊號快取，供 brain_prompt_builder 讀取 |
+| `agent/l4_cpu_observer.py` | observe() keyword diff 偵測偏好變化 | `_system/pending_preference_updates.jsonl` | JSONL append | 偏好佇列，Nightly 批次處理 |
+| `agent/l4_cpu_observer.py` | observe() 規則引擎 | `_system/session_adjustments/{session_id}.json` | JSON 原子寫 | 即時行為調整，brain_prompt_builder 讀取 |
+
+> **架構特性**：L4 CPU Observer 全部四步驟皆為 CPU 計算（< 10ms），不呼叫 LLM，不 spawn subagent。
+
+---
+
 ## 變更紀錄
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.26 | 2026-04-04 | l4_cpu_observer 架構更新——新增規則 8（L4 CPU Observer 記憶寫入路徑）；L4 從 Haiku agent spawn 改為 CPU Python 函數（`agent/l4_cpu_observer.py`），零 LLM token；記憶寫入路徑 observe() → memory_manager.write()（同步非 async）；新增 signals 快取路由（context_cache/{session_id}_signals.json EMA 合併）；新增偏好佇列路由（pending_preference_updates.jsonl append）。同步 persistence-contract v1.52、joint-map v1.67 |
 | v1.19 | 2026-03-31 | Persona Evolution 系統——新增 1 條 diary 路由（nightly_reflection.py Nightly Step 34 → soul_rings.json via RingDepositor.deposit_soul_ring，value_calibration 類型，內容=特質差異佐證+反思摘要）。同步 persist v1.44 |
 | v1.18 | 2026-03-31 | 體液系統迭代——新增 Skill 教訓預載路由（brain_prompt_builder `_build_skill_lesson_context()` 讀取 `data/skills/native/{name}/_lessons.json` 注入 system prompt）；新增 SessionAdjustment 路由（L4 觀察者寫入 `_system/session_adjustments/{id}.json`，brain_prompt_builder `_auto_adjust_from_history()` 讀取）；新增覺察訊號路由（triage_step 寫入 `_system/triage_queue.jsonl`，Nightly Step 5.8 消費到 Morphenix 迭代筆記）；同步 topology v1.68、blast v1.86、joint v1.56、persist v1.42 |
 | v1.17 | 2026-03-30 | Skill 自動演化管線——新增 3 條知識路由（skill_health_tracker→skill_health/ 健康度快照、feedback_loop→daily_summary.json 品質摘要、skill_draft_forger→skills_draft/ 草稿暫存） |

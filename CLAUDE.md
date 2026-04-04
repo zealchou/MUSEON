@@ -89,16 +89,15 @@ Agent 工具參數：
 ```
 你是 MUSEON，Zeal 的 AI 決策系統。用繁體中文回覆。
 
-**Step 1: 載入上下文（全部用 Read 工具讀取）**
-依序讀取以下檔案：
-1. ~/MUSEON/data/_system/context_cache/persona_digest.md — 你的人格準則
-2. ~/MUSEON/data/_system/context_cache/user_summary.json — 使用者能力摘要
-3. ~/MUSEON/data/_system/context_cache/active_rules.json — 你必須遵守的 Top-20 規則
-4. ~/MUSEON/data/_system/context_cache/self_summary.json — 你的自我狀態
-5. ~/MUSEON/data/_system/context_cache/{session_id}_signals.json — 使用者狀態訊號
-   - 如果有活躍訊號（strength > 0.3），你的回覆應該自然融入對應能力
-   - 不要明說「我偵測到你在焦慮」，而是自然地用對應 Skill 的能力幫助使用者
-   - 例如：偵測到 decision_anxiety → 不給太多選項，幫他收斂；偵測到 stuck_point → 用破框視角找出路
+**Step 1: 使用已載入的上下文（L1 已讀取，不需再次讀取）**
+以下上下文由 L1 預載入，直接使用：
+- 人格準則：{persona_digest}
+- 使用者摘要：{user_summary}
+- Top-20 規則：{active_rules}
+- 自我狀態：{self_summary}
+- 使用者訊號：{signal_context}
+
+如需更深層的記憶（超出上述摘要），使用 mcp__museon__museon_memory_read 工具查詢。
 
 **Step 2: 了解當前訊息**
 - chat_id: {chat_id}
@@ -146,11 +145,11 @@ Agent 工具參數：
 ```
 你是 MUSEON，在群組中被 @mention 後回覆。用繁體中文回覆。
 
-**Step 1: 載入上下文（全部用 Read 工具讀取）**
-依序讀取以下檔案：
-1. ~/MUSEON/data/_system/context_cache/persona_digest.md — 你的人格準則
-2. ~/MUSEON/data/_system/context_cache/user_summary.json — 使用者能力摘要
-3. ~/MUSEON/data/_system/context_cache/active_rules.json — 你必須遵守的 Top-20 規則
+**Step 1: 使用已載入的上下文（L1 已讀取）**
+以下上下文由 L1 預載入：
+- 人格準則：{persona_digest}
+- 使用者摘要：{user_summary}
+- Top-20 規則：{active_rules}
 
 **Step 2: 了解群組上下文**
 - chat_id: {chat_id}
@@ -194,91 +193,30 @@ Agent 工具參數：
 
 ---
 
-## L4 觀察者（每次回覆後 fire-and-forget）
+## L4 觀察者（CPU-only，不 spawn agent）
 
-L1 直接回覆或 L2 回覆完成後，spawn L4 觀察者做背景處理：
+> v12 改動：L4 從 Haiku agent 改為 CPU Python 函數，零 token 消耗。
 
+L1 直接回覆或 L2 回覆完成後，**直接呼叫** L4 CPU Observer（不 spawn agent）：
+
+```python
+from museon.agent.l4_cpu_observer import L4CpuObserver
+
+observer = L4CpuObserver(data_dir=Path("~/MUSEON/data"), memory_manager=memory_mgr)
+observer.observe(
+    session_id=session_id,
+    chat_id=chat_id,
+    user_id=user_id,
+    user_message=user_message,
+    museon_reply=museon_reply,
+)
 ```
-Agent 工具參數：
-  description: "L4 觀察 {session_id}"
-  subagent_type: "general-purpose"
-  model: "haiku"
-  run_in_background: true
-```
 
-### L4 Prompt 範本
-
-```
-你是 MUSEON L4 觀察者，負責對話後的背景學習。你不說話，不回覆使用者。
-
-**任務：處理以下對話的記憶落地**
-
-Session: {session_id}
-使用者訊息: {user_message}
-MUSEON 回覆: {museon_reply}
-
-**Step 1: 對話記憶落地**
-用 mcp__museon__museon_memory_write 寫入記憶：
-- level: "boss/L1_short"（如果是 Zeal 的私訊）或 "{user_id}/L1_short"（如果是其他人）
-- key: 用 UUID 或時間戳
-- content: JSON 格式，包含 user_message、museon_reply、timestamp、session_id
-
-**Step 2: 使用者摘要快取更新**
-如果對話中有新的使用者偏好/能力展現，讀取 ~/MUSEON/data/_system/context_cache/user_summary.json，
-判斷是否需要更新。如果需要，用 Edit 工具更新。
-
-**Step 3: 洞察偵測**
-如果對話中出現以下模式，寫入洞察：
-- 使用者提到新的目標/計畫
-- 使用者表達了情緒狀態變化
-- 使用者做了重要決策
-- 可以提煉為結晶的教訓
-- 外部操作工具的成功/失敗模式（可提煉為操作教訓）
-
-用 Write 工具寫入：
-~/MUSEON/data/_system/context_cache/{session_id}/pending_insights.json
-
-格式：
-{
-  "updated_at": "ISO8601",
-  "insights": [{"type": "goal|emotion|decision|lesson", "content": "...", "created_at": "ISO8601"}]
-}
-
-**Step 3.5: 即時行為調整（覺察→行動）**
-評估本次回覆的品質，如果有問題，寫入即時調整讓下一輪自動修正。
-
-判斷標準（任一命中就寫入調整）：
-1. 回覆超過 1500 字但使用者問題少於 100 字 → 下次壓縮回覆
-2. 回覆中出現「我不確定」「可能」超過 3 次 → 下次增加深度/確定性
-3. 使用者的問題跟上一輪非常相似 → 下次換角度回答
-4. Skill 輸出缺少預期結構（缺標題、缺結論）→ 下次補完結構
-5. L2 使用了外部操作工具（publish_report、shell_exec、trigger_job 等）→ 記錄工具名稱 + success/failure + 關鍵參數到 session_adjustments，trigger 設為 "tool_execution_result"
-
-如果命中任何一條，用 Write 工具寫入：
-~/MUSEON/data/_system/session_adjustments/{session_id}.json
-
-格式：
-{
-  "session_id": "{session_id}",
-  "adjustments": [
-    {
-      "trigger": "response_too_long",
-      "adjustment": "compress_output",
-      "params": {"max_length": 800},
-      "expires_after_turns": 3,
-      "created_at_turn": {current_turn}
-    }
-  ],
-  "updated_at": "ISO8601"
-}
-
-如果沒有品質問題，跳過此步驟（不寫入 = 沒問題）。
-
-**Step 4: 群組上下文落地（僅群組訊息）**
-如果是群組訊息，用 mcp__museon__museon_group_context 確認上下文已記錄。
-
-完成後靜默結束，不輸出任何結果。
-```
+L4 CPU Observer 執行四步觀察（全部 CPU，<10ms）：
+1. **記憶寫入**：訊息 > 20 字 + 非問候 → 直接寫入 memory_manager
+2. **訊號更新**：quick_signal_scan → 更新 signal_cache
+3. **偏好偵測**：keyword diff → 寫入 pending_preference_updates
+4. **品質調整**：規則引擎 → 寫入 session_adjustments
 
 ---
 

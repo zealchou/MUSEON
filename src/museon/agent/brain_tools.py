@@ -51,9 +51,10 @@ class BrainToolsMixin:
     _OFFLINE_PROBE_INTERVAL = 300  # 秒（5 分鐘自動 probe 恢復）
 
     # ═══════════════════════════════════════
-    # 三管線分類器（Haiku 單 token）
+    # 三管線分類器（CPU-only，v1.50 起取代 Haiku 呼叫）
     # ═══════════════════════════════════════
 
+    # 以下兩個常數保留供向後相容（已不用於分類邏輯，勿刪除）
     _CLASSIFY_PROMPT = (
         "Classify the user message complexity. Reply with exactly one uppercase letter, nothing else.\n\n"
         "F — Fast: greetings, acknowledgments, emotional expressions, very short small talk, "
@@ -64,38 +65,56 @@ class BrainToolsMixin:
         "long detailed requests (e.g. 幫我分析投資組合, 寫一份企劃書, 比較三個方案的優缺點)\n\n"
         "When uncertain, prefer S over F (never under-classify)."
     )
-    _CLASSIFY_MAP = {"F": "FAST", "S": "STANDARD", "D": "DEEP"}
+    _CLASSIFY_MAP = {"F": "FAST", "S": "STANDARD", "D": "DEEP"}  # backwards compat
 
     async def _classify_complexity(self, content: str) -> str:
-        """用 Haiku 單 token 分類訊息複雜度 → FAST / STANDARD / DEEP.
+        """CPU-only 三管線分類（取代 Haiku 呼叫，節省 token）.
 
-        8 秒 timeout（CLI subprocess 啟動需要 1-3 秒，加上 Haiku 回應時間），
-        失敗時 fallback 到 STANDARD。
+        使用 signal_keywords + 長度啟發式判斷，<5ms 完成。
+        分類邏輯：
+        - FAST: 僅限模式命中（問候、確認、情緒表達）
+        - DEEP: 複雜關鍵字 ≥2 或高訊號強度
+        - STANDARD: 其他（安全預設）
         """
-        if not self._llm_adapter or self._offline_flag:
+        from museon.pulse.signal_keywords import quick_signal_scan
+
+        text = content.strip()
+        text_len = len(text)
+
+        # ── 空字串 → STANDARD（安全預設）──
+        if text_len == 0:
+            logger.info("[Classifier-CPU] '' → STANDARD (empty)")
             return "STANDARD"
-        try:
-            # 直接用 adapter 呼叫，繞過 SafetyAnchor（分類器不需要安全錨點）
-            # 注意：CLI adapter 忽略 max_tokens 參數，API adapter 使用此參數
-            adapter_resp = await asyncio.wait_for(
-                self._llm_adapter.call(
-                    system_prompt=self._CLASSIFY_PROMPT,
-                    messages=[{"role": "user", "content": content}],
-                    model="claude-haiku-4-5-20251001",
-                    max_tokens=10,
-                ),
-                timeout=8.0,
-            )
-            label = adapter_resp.text.strip().upper()[:1] if adapter_resp.text else ""
-            result = self._CLASSIFY_MAP.get(label, "STANDARD")
-            logger.info(f"[Classifier] '{content[:20]}' → {label} → {result}")
-            return result
-        except asyncio.TimeoutError:
-            logger.warning("[Classifier] timeout (>8s), fallback → STANDARD")
-            return "STANDARD"
-        except Exception as e:
-            logger.warning(f"[Classifier] failed ({e!r}), fallback → STANDARD")
-            return "STANDARD"
+
+        # ── FAST 路徑：僅限模式命中（≤10 字的問候/確認）──
+        _FAST_PATTERNS = (
+            "早安", "午安", "晚安", "你好", "哈囉", "嗨",
+            "好", "好的", "收到", "了解", "謝謝", "謝啦", "感謝",
+            "OK", "ok", "嗯", "嗯嗯", "對", "讚", "哈哈", "笑死",
+            "88", "掰", "再見", "晚點聊",
+        )
+        if text_len <= 10 and (text in _FAST_PATTERNS or any(text.startswith(p) for p in _FAST_PATTERNS)):
+            logger.info(f"[Classifier-CPU] '{text[:20]}' → FAST (pattern match)")
+            return "FAST"
+
+        # ── 訊號掃描 ──
+        signals = quick_signal_scan(text)
+        total_signal = sum(signals.values())
+
+        # ── DEEP 路徑：複雜關鍵字 ≥2 或高訊號 ──
+        _deep_hits = sum(1 for kw in self._COMPLEX_KEYWORDS if kw in text)
+
+        if _deep_hits >= 2 or total_signal > 1.5:
+            logger.info(f"[Classifier-CPU] '{text[:20]}' → DEEP (kw={_deep_hits}, sig={total_signal:.1f})")
+            return "DEEP"
+
+        if text_len > 50 and (_deep_hits >= 1 or total_signal > 0.8):
+            logger.info(f"[Classifier-CPU] '{text[:20]}' → DEEP (long+signal: len={text_len}, kw={_deep_hits})")
+            return "DEEP"
+
+        # ── 預設：STANDARD ──
+        logger.info(f"[Classifier-CPU] '{text[:20]}' → STANDARD (default: len={text_len}, sig={total_signal:.1f})")
+        return "STANDARD"
 
     async def _call_llm(
         self,
