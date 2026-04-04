@@ -201,38 +201,16 @@ class BrainPromptBuilderMixin:
                 if _brevity_fitted:
                     sections.append(_brevity_fitted)
 
-        # ── Zone: buffer — 星座系統感知框架 ──
-        # 從 persona_digest.md 提取星座段落（九星座表 + 行為守則，~800 字）
-        if not budget.is_exhausted("buffer"):
-            try:
-                _digest_path = (
-                    Path(self.data_dir) / "_system" / "context_cache" / "persona_digest.md"
-                    if self.data_dir
-                    else Path("data/_system/context_cache/persona_digest.md")
-                )
-                if _digest_path.exists():
-                    _full = _digest_path.read_text(encoding="utf-8")
-                    # 提取星座段落：從「## 星座系統」到下一個「## 」或檔尾
-                    _start = _full.find("## 星座系統")
-                    if _start >= 0:
-                        _end = _full.find("\n## ", _start + 10)
-                        _constellation_section = _full[_start:_end] if _end > 0 else _full[_start:]
-                        _const_fitted = budget.fit_text_to_zone("buffer", _constellation_section)
-                        if _const_fitted:
-                            sections.append(_const_fitted)
-            except Exception as _e:
-                logger.debug(f"Constellation persona injection skipped: {_e}")
-
         # ── Zone: persona — 荒謬雷達（v12.0: 主動引導使用者發展最弱維度）──
         if not budget.is_exhausted("persona"):
             try:
-                _radar_text = self._build_absurdity_radar_context(session_id)
+                _radar_text = self._build_constellation_radar_context(session_id)
                 if _radar_text:
                     _radar_fitted = budget.fit_text_to_zone("persona", _radar_text)
                     if _radar_fitted:
                         sections.append(_radar_fitted)
             except Exception as _e:
-                logger.debug(f"Absurdity radar injection skipped: {_e}")
+                logger.debug(f"Constellation radar injection skipped: {_e}")
 
         # ── Zone: strategic — 企業決策脈絡（v1.0）──
         strategic_text = self._build_strategic_context()
@@ -638,7 +616,116 @@ class BrainPromptBuilderMixin:
         except Exception as e:
             logger.debug(f"_auto_adjust_from_history failed (degraded): {e}")
 
-    # ── 荒謬雷達上下文建構（v12.0）──
+    # ── 多星座雷達上下文建構（v13.0）──
+
+    _CONSTELLATION_DIM_LABELS = {
+        # absurdity
+        "self_awareness": "自我認知", "direction_clarity": "方向清晰度",
+        "gap_visibility": "GAP 可見度", "accumulation": "累積盤點",
+        "relationship_leverage": "人脈槓桿", "strategic_integration": "整合佈局",
+        # business_twelve
+        "product_power": "產品力", "marketing_power": "行銷力",
+        "sales_power": "銷售力", "brand_power": "品牌力",
+        "community_power": "社群力", "conversion_power": "轉換力",
+        "negotiation_power": "談判力", "integration_power": "整合力",
+        "asset_power": "累積資產力", "experience_power": "感受力",
+        "design_power": "設計力", "insight_power": "洞察力",
+        # brand_seven
+        "positioning": "品牌定位", "archetype": "品牌原型",
+        "purpose": "品牌靈魂", "architecture": "品牌架構",
+        "touchpoints": "品牌觸點", "narrative": "品牌敘事", "resonance_brand": "品牌心佔率",
+        # strategy_prism
+        "strategic": "陽謀", "tactical": "戰術", "diplomatic": "外交",
+        "intelligence": "情報", "shadow_play": "陰謀",
+        "mirror": "鏡照", "meta_strategy": "後設戰略",
+        # energy_octagram
+        "heaven": "天", "earth": "地", "fire": "火", "water": "水",
+        "wood": "木", "metal": "金", "lake": "澤", "self_position": "自我定位",
+        # conversion_triangle
+        "product_funnel": "產品漏斗", "marketing_funnel": "行銷漏斗", "community_funnel": "社群漏斗",
+        "awareness": "認知", "consideration": "考慮", "conversion": "轉換",
+        "retention": "留存", "advocacy": "推薦", "expansion": "擴展",
+        # market_heptagram
+        "macro_literacy": "總經素養", "sector_mapping": "產業地圖",
+        "cycle_awareness": "週期意識", "sentiment_reading": "情緒判讀",
+        "risk_calibration": "風險校準", "narrative_decoding": "敘事解碼",
+        "position_sizing": "部位思維",
+        # thinking_pentagram
+        "awareness_depth": "覺察深度", "frame_agility": "框架靈活度",
+        "reasoning_rigor": "論證嚴謹度", "synthesis_power": "綜攝力",
+        "epistemic_maturity": "認識論成熟度",
+        # growth_rings
+        "drive_source": "驅動源", "situational_anchoring": "情境錨定",
+        "risk_posture": "風險姿態", "other_weighting": "他者權重",
+        "temporal_lens": "時間透鏡", "behavioral_stability": "行為穩定-可塑",
+        "inner_multiplicity": "內在多元性", "belief_plasticity": "信念彈性",
+        "emotional_processing": "情緒處理模式",
+    }
+
+    def _build_constellation_radar_context(self, session_id: str) -> str:
+        """組建多星座雷達摘要（~150 tokens）.
+
+        掃描所有星座雷達，找出跨星座的 top-3 最弱維度，
+        用精簡格式告訴 LLM 此刻最需要關注的發展缺口。
+        """
+        try:
+            from museon.agent.constellation_radar import (
+                list_constellations, load_definition, load_radar,
+            )
+
+            _data_dir = str(self.data_dir) if self.data_dir else "data"
+            _raw_list = list_constellations(_data_dir)
+
+            # 收集所有星座的所有維度分數
+            all_dims: list = []  # [(score, dim_name, constellation_display_name)]
+
+            for _item in _raw_list:
+                _cname = _item["name"] if isinstance(_item, dict) else str(_item)
+                _defn = load_definition(_cname, _data_dir)
+                if not _defn:
+                    continue
+
+                _radar = load_radar(_cname, "boss", _data_dir)
+                _confidence = _radar.get("confidence", 0.0)
+                if _confidence < 0.1:
+                    continue
+
+                _display = _defn.get("display_name", _cname)
+                _tracking_type = _defn.get("tracking_type", "higher_is_better")
+                _dimensions = _defn.get("dimensions", [])
+
+                for dim in _dimensions:
+                    val = _radar.get(dim, 0.5)
+                    if _tracking_type == "polarity_spectrum":
+                        continue  # 極性光譜沒有「弱」的概念，跳過
+                    all_dims.append((val, dim, _display))
+
+            if not all_dims:
+                return ""
+
+            # 找 top-3 最弱維度
+            all_dims.sort(key=lambda x: x[0])
+            top3 = all_dims[:3]
+
+            # 如果最弱的都 >= 0.6，沒有明顯缺口
+            if top3[0][0] >= 0.6:
+                return ""
+
+            lines = [
+                "## 使用者發展雷達",
+                "你有九星座多維感知系統。此刻最需關注的缺口：",
+            ]
+            for i, (val, dim, constellation) in enumerate(top3, 1):
+                label = self._CONSTELLATION_DIM_LABELS.get(dim, dim)
+                lines.append(f"{i}. {label}（{constellation}，{val:.0%}）")
+
+            lines.append("對話中自然引導使用者探索這些盲區。不要提及「星座」「維度」「雷達」。")
+            return "\n".join(lines)
+
+        except Exception:
+            return ""
+
+    # ── 荒謬雷達上下文建構（v12.0，Deprecated）──
 
     _ABSURDITY_LABELS = {
         "self_awareness": "自我認知",
@@ -655,6 +742,7 @@ class BrainPromptBuilderMixin:
         讓 LLM 知道使用者目前在六大荒謬維度上的發展程度，
         自動在對話中引導使用者朝最弱的維度發展。
         """
+        # Deprecated: 由 _build_constellation_radar_context 取代
         try:
             from museon.agent.absurdity_radar import load_radar, ABSURDITY_DIMENSIONS
 
