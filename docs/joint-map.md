@@ -1,9 +1,10 @@
-# Joint Map — 共享可變狀態接頭圖 v1.67
+# Joint Map — 共享可變狀態接頭圖 v1.68
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
 > **更新時機**：改變共享檔案的讀寫者或格式時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
+> **v1.68 (2026-04-04)**：semantic_response_cache——新增 #78 Qdrant collection `semantic_response_cache`（🟢 512 維語義回覆快取，寫入者=cache/semantic_response_cache.py（L4CpuObserver 回覆後寫入），讀取者=cache/semantic_response_cache.py（Brain L1 查詢），per-chat 隔離，TTL 動態）；共享狀態 77→78 個。同步 persistence-contract v1.53。
 > **v1.67 (2026-04-04)**：l4_cpu_observer 架構更新——新增 #76 `_system/context_cache/{session_id}_signals.json`（🟢 EMA 訊號快取，寫入者=l4_cpu_observer，讀取者=brain_prompt_builder）；新增 #77 `_system/pending_preference_updates.jsonl`（🟢 偏好更新佇列，寫入者=l4_cpu_observer，讀取者=nightly_pipeline）；更新 #66 session_adjustments/{id}.json 寫入者從「L4 觀察者」改為 `agent/l4_cpu_observer.py`；共享狀態 75→77 個。同步 persistence-contract v1.52、memory-router v1.26。
 > **v1.66 (2026-04-02)**：荒謬雷達系統——新增 #75 `data/_system/absurdity_radar/{user}.json`（🟢 per-user 雷達分數，寫入者=absurdity_radar.py+brain.py，讀取者=absurdity_radar.py+brain_prompt_builder.py）；共享狀態 74→75 個。
 > **v1.65 (2026-04-02)**：#47 寫者修正 build_all()；移除不存在的 build_command_routes（確認兩者皆已正確，無需更動 #47 主體）；同步 blast-radius v1.97。
@@ -106,6 +107,7 @@
 | 75 | _system/absurdity_radar/{user}.json | 🟢 | 2 | 2 | 原子寫 | [→](#75-absurdity_radarjson) |
 | 76 | _system/context_cache/{session_id}_signals.json | 🟢 | 1(l4_cpu_observer) | 1(brain_prompt_builder) | 原子寫 | [→](#76-context_cachesession_id_signalsjson) |
 | 77 | _system/pending_preference_updates.jsonl | 🟢 | 1(l4_cpu_observer) | 1(nightly_pipeline) | 無(append) | [→](#77-pending_preference_updatesjsonl) |
+| 78 | semantic_response_cache（Qdrant collection） | 🟢 | 1(semantic_response_cache.py) | 1(semantic_response_cache.py) | Qdrant 內部 MVCC | [→](#78-semantic_response_cacheqdrant-collection) |
 
 > **危險度定義**：🔴 多寫入者+高扇出+格式不一致 | 🟡 多寫入者或高扇出 | 🟢 單寫入者+低扇出
 
@@ -1496,6 +1498,22 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 | 讀取者 | Nightly pipeline（批次處理偏好更新） |
 
 **備註**：L4 CPU Observer 偵測到偏好變化時 append，Nightly 批次處理後清空，v1.67 新增。
+
+---
+
+### #78 semantic_response_cache（Qdrant collection）
+
+**路徑**：Qdrant collection `semantic_response_cache`
+**危險度**：🟢（單一模組讀寫，per-chat 隔離）
+**格式**：Qdrant point（512-dim vector + payload: chat_id, query, response, signals, ttl, created_at）
+
+| 角色 | 模組 |
+|------|------|
+| 寫入者 | `cache/semantic_response_cache.py`（L4CpuObserver 回覆後寫入） |
+| 讀取者 | `cache/semantic_response_cache.py`（Brain L1 查詢） |
+
+**隔離**：chat_id payload filter
+**備註**：v12 新增的語義回覆快取，TTL 動態（30min~12h，依訊號類型），查詢時判斷 TTL 過期自動刪除，v1.68 新增。
 
 ---
 

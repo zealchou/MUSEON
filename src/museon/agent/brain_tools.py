@@ -296,6 +296,9 @@ class BrainToolsMixin:
                     self._MAX_TOOL_ITERATIONS_COMPLEX if _is_complex
                     else self._MAX_TOOL_ITERATIONS_SIMPLE
                 )
+                # Capture session for tool-use --resume optimization
+                _tool_session_id = getattr(_adapter_resp, 'session_id', None)
+
                 iteration = 0
                 total_tool_calls = 0
                 all_tools_failed_break = False
@@ -417,14 +420,28 @@ class BrainToolsMixin:
                         all_tools_failed_break = True
                         break
 
-                    # 3. 再次呼叫 LLM（帶相同 tools）
-                    _adapter_resp = await self._llm_adapter.call(
-                        system_prompt=system_prompt,
-                        messages=messages,
-                        model=model,
-                        max_tokens=self._MAX_TOKENS_PRIMARY,
-                        tools=tool_definitions,
-                    )
+                    # 3. 再次呼叫 LLM — 使用 --resume 避免重送完整 system prompt
+                    if _tool_session_id:
+                        logger.debug(f"[Tool-use] Using --resume session: {_tool_session_id[:8]}...")
+                        # Resume 模式：session 已有 context，只送新的 tool results
+                        _adapter_resp = await self._llm_adapter.call(
+                            system_prompt="",
+                            messages=messages[-2:],  # 只送最新的 assistant+tool_result
+                            model=model,
+                            max_tokens=self._MAX_TOKENS_PRIMARY,
+                            tools=tool_definitions,
+                            session_id=_tool_session_id,
+                        )
+                        _tool_session_id = getattr(_adapter_resp, 'session_id', None) or _tool_session_id
+                    else:
+                        # Fallback：無 session_id 時走完整路徑
+                        _adapter_resp = await self._llm_adapter.call(
+                            system_prompt=system_prompt,
+                            messages=messages,
+                            model=model,
+                            max_tokens=self._MAX_TOKENS_PRIMARY,
+                            tools=tool_definitions,
+                        )
                     response = APICompatResponse(_adapter_resp)
 
                 if total_tool_calls > 0:
@@ -506,12 +523,22 @@ class BrainToolsMixin:
                         "role": "user",
                         "content": synth_hint,
                     })
-                    _synth_resp = await self._llm_adapter.call(
-                        system_prompt=system_prompt,
-                        messages=synth_messages,
-                        model=model,
-                        max_tokens=self._MAX_TOKENS_PRIMARY,
-                    )
+                    if _tool_session_id:
+                        logger.debug(f"[Tool-use] Synthesis using --resume session: {_tool_session_id[:8]}...")
+                        _synth_resp = await self._llm_adapter.call(
+                            system_prompt="",
+                            messages=synth_messages[-1:],  # 只送 synth_hint
+                            model=model,
+                            max_tokens=self._MAX_TOKENS_PRIMARY,
+                            session_id=_tool_session_id,
+                        )
+                    else:
+                        _synth_resp = await self._llm_adapter.call(
+                            system_prompt=system_prompt,
+                            messages=synth_messages,
+                            model=model,
+                            max_tokens=self._MAX_TOKENS_PRIMARY,
+                        )
                     response = APICompatResponse(_synth_resp)
 
                 # 提取最終文字回覆

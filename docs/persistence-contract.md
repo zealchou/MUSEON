@@ -1,8 +1,9 @@
-# MUSEON Persistence Contract v1.52 — 水電圖
+# MUSEON Persistence Contract v1.53 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
 > 與 `system-topology.md`（控制流拓撲）互補——那是「神經圖」，這是「水電圖」。
+> **v1.53 (2026-04-04)**：semantic_response_cache——新增 Qdrant dense collection `semantic_response_cache`（512 維，BAAI/bge-small-zh-v1.5，cosine distance）；寫入者=`cache/semantic_response_cache.py`（L4CpuObserver 回覆後呼叫），讀取者=`cache/semantic_response_cache.py`（Brain L1 查詢），TTL 動態（30min~12h），按 chat_id 做 payload filter 群組隔離，查詢時判斷 TTL 過期自動刪除。同步 joint-map v1.68。
 > **v1.52 (2026-04-04)**：l4_cpu_observer 架構更新——新增 `data/_system/context_cache/{session_id}_signals.json`（EMA 訊號快取，寫入者=agent/l4_cpu_observer.py，讀取者=brain_prompt_builder.py _build_signal_context，格式=`{"signal_name": float, "_updated_at": "ISO8601"}`）；新增 `data/_system/pending_preference_updates.jsonl`（偏好更新 append-only 佇列，寫入者=agent/l4_cpu_observer.py，讀取者=Nightly pipeline 批次處理）；更新 #66 `session_adjustments/{session_id}.json` 寫入者從「L4 觀察者」改為 `agent/l4_cpu_observer.py`。同步 joint-map v1.67、memory-router v1.26。
 > **v1.51 (2026-04-02)**：荒謬雷達系統——新增 `data/_system/absurdity_radar/{user_id}.json`（per-user 原子 JSON，寫入者=agent/absurdity_radar.py save_radar() + brain.py update，讀取者=absurdity_radar.py load_radar() + brain_prompt_builder.py + skill_router.py Layer 4，Nightly step 32.5 每日衰減）。
 > **v1.50 (2026-04-01)**：ares 套件更名為 athena——`src/museon/ares/` → `src/museon/athena/`（profile_store.py、external_bridge.py、graph_renderer.py）；data 路徑 `ares/profiles/` 不變。同步 joint-map v1.64、blast-radius v1.96。
@@ -61,6 +62,15 @@
 | `documents` | 1024 | `vector_bridge.py` | `mcp_connector.py` | `vector_bridge.query_points()` |
 | `references` | 1024 | `vector_bridge.py` | `zotero_bridge.py` | `zotero_bridge.py` |
 | `primals` | 1024 | `vector_bridge.py` | `primal_detector.py` | `primal_detector.py` |
+
+### semantic_response_cache（v12 新增）
+- **引擎**: Qdrant dense collection（512 維，BAAI/bge-small-zh-v1.5，cosine distance）
+- **寫入者**: `cache/semantic_response_cache.py`（via L4CpuObserver 呼叫）
+- **讀取者**: `cache/semantic_response_cache.py`（via Brain L1 查詢）
+- **Payload**: chat_id (keyword index), query, response, signals, ttl, created_at
+- **TTL**: 動態（30min~12h，依訊號類型）
+- **隔離**: 按 chat_id 做 payload filter（群組隔離）
+- **容量策略**: TTL 過期自動刪除（查詢時判斷）
 
 **Sparse Collections（BM25 稀疏向量，Route A 分離式）**：
 

@@ -15,6 +15,50 @@ from pathlib import Path
 
 logger = logging.getLogger("museon.gateway.cron_registry")
 
+# ═══════════════════════════════════════
+# Token Quota Circuit Breaker (v12)
+# ═══════════════════════════════════════
+import time as _cb_time
+
+_QUOTA_CIRCUIT_BREAKER = {
+    "tripped": False,
+    "trip_time": 0.0,
+    "cooldown_seconds": 3600,  # 1 hour cooldown after quota exhaustion
+    "consecutive_failures": 0,
+    "trip_threshold": 3,  # Trip after 3 consecutive "out of usage" errors
+}
+
+def _cb_check_quota_available() -> bool:
+    """Check if circuit breaker allows LLM calls."""
+    cb = _QUOTA_CIRCUIT_BREAKER
+    if not cb["tripped"]:
+        return True
+    elapsed = _cb_time.time() - cb["trip_time"]
+    if elapsed >= cb["cooldown_seconds"]:
+        cb["tripped"] = False
+        cb["consecutive_failures"] = 0
+        logger.info("[CircuitBreaker] Cooldown expired, resetting circuit breaker")
+        return True
+    return False
+
+def _cb_record_failure(error_msg: str):
+    """Record a failure. Trip breaker if threshold reached."""
+    cb = _QUOTA_CIRCUIT_BREAKER
+    if "out of" in error_msg.lower() and "usage" in error_msg.lower():
+        cb["consecutive_failures"] += 1
+        if cb["consecutive_failures"] >= cb["trip_threshold"]:
+            cb["tripped"] = True
+            cb["trip_time"] = _cb_time.time()
+            logger.warning(
+                f"[CircuitBreaker] TRIPPED — quota exhausted after "
+                f"{cb['consecutive_failures']} failures. "
+                f"Cooldown: {cb['cooldown_seconds']}s"
+            )
+
+def _cb_record_success():
+    """Record a success. Reset failure counter."""
+    _QUOTA_CIRCUIT_BREAKER["consecutive_failures"] = 0
+
 
 def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
     """註冊系統級排程任務 — Layer 1.
@@ -302,6 +346,9 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
     # ── Job 9: VITA 息脈 BreathPulse（每 30 分鐘）── Haiku LLM
     async def _vita_breath_pulse():
         """VITA BreathPulse: 30 分鐘息脈 — 自適應自省."""
+        if not _cb_check_quota_available():
+            logger.debug("[CircuitBreaker] Skipping vita-breath-pulse — quota breaker tripped")
+            return
         try:
             if not app:
                 return
@@ -315,19 +362,22 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
                     pushed = result.get("pushed", False)
                     if pushed:
                         logger.info(f"ProactiveBridge pushed: {action}")
+                        _cb_record_success()
                 return
             result = await engine.breath_pulse()
+            _cb_record_success()
             action = result.get("action", "?")
             if action == "pushed":
                 logger.info(f"VITA BreathPulse pushed")
             else:
                 logger.debug(f"VITA BreathPulse: {action}")
         except Exception as e:
+            _cb_record_failure(str(e))
             logger.error(f"VITA BreathPulse failed: {e}", exc_info=True)
 
     cron_engine.add_job(
         _vita_breath_pulse, trigger="cron", job_id="vita-breath-pulse",
-        minute="20,50",
+        minute="30",
     )
 
     # ── Job 10: VITA 晨感（每天 07:30）── 取代舊早報
@@ -380,6 +430,9 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
 
     async def _vita_exploration_auto():
         """VITA SoulPulse: 每 2h 自主探索 + Telegram 回報 + 自動鍛造."""
+        if not _cb_check_quota_available():
+            logger.debug("[CircuitBreaker] Skipping vita-explore-auto — quota breaker tripped")
+            return
         try:
             if not app:
                 return
@@ -490,6 +543,7 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
                     logger.debug(f"Auto skill forge after exploration failed: {e}")
 
         except Exception as e:
+            _cb_record_failure(str(e))
             logger.error(f"VITA auto-explore failed: {e}", exc_info=True)
 
     cron_engine.add_job(
@@ -631,6 +685,9 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
 
     async def _vita_free_explore_on_idle():
         """閒置 20 分鐘 → 自主自由探索（不打擾使用者，探索完再報告）."""
+        if not _cb_check_quota_available():
+            logger.debug("[CircuitBreaker] Skipping vita-free-explore-idle — quota breaker tripped")
+            return
         try:
             if not app:
                 return
@@ -729,6 +786,7 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
                         logger.warning(f"Free explore report send failed: {_re}")
 
         except Exception as e:
+            _cb_record_failure(str(e))
             logger.error(f"自由探索 idle job failed: {e}", exc_info=True)
 
     cron_engine.add_job(
@@ -741,6 +799,9 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
     # ── Job: Companion Watchdog — 看門狗（每 60 分鐘）──
     async def _companion_watchdog():
         """看門狗: 超過 3 小時沒成功推送 → 強制觸發 companion 模式."""
+        if not _cb_check_quota_available():
+            logger.debug("[CircuitBreaker] Skipping companion-watchdog — quota breaker tripped")
+            return
         try:
             if not app:
                 return
@@ -766,6 +827,7 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
                 except Exception as think_err:
                     logger.error(f"Watchdog companion think failed: {think_err}", exc_info=True)
         except Exception as e:
+            _cb_record_failure(str(e))
             logger.error(f"Companion watchdog failed: {e}", exc_info=True)
 
     cron_engine.add_job(
@@ -821,6 +883,9 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
     # ── Job: Curiosity Research（每天 10:00）──
     async def _curiosity_research_job():
         """好奇問題研究 — 從佇列取 2 個問題用 ResearchEngine 研究."""
+        if not _cb_check_quota_available():
+            logger.debug("[CircuitBreaker] Skipping curiosity-research — quota breaker tripped")
+            return
         try:
             from museon.nightly.curiosity_router import CuriosityRouter
             from museon.research.research_engine import ResearchEngine
@@ -840,17 +905,19 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
             )
             results = await router.process_queue(max_items=2)
             valuable = sum(1 for r in results if r.get("is_valuable"))
+            _cb_record_success()
             logger.info(
                 f"CuriosityRouter: researched {len(results)}, "
                 f"valuable {valuable}"
             )
         except Exception as e:
+            _cb_record_failure(str(e))
             logger.error(f"Curiosity research cron failed: {e}", exc_info=True)
 
     cron_engine.add_job(
         _curiosity_research_job, trigger="cron",
         job_id="curiosity-research",
-        hour=10, minute=0,
+        hour=10, minute=0, day_of_week="mon,thu",
     )
 
     # ── Job: Immune Research（每 2 小時）──
@@ -1214,7 +1281,7 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
 
     cron_engine.add_job(
         _business_case_daily, trigger="cron", job_id="business-case-daily",
-        hour=9, minute=5,
+        hour=9, minute=5, day_of_week="mon",
     )
 
     # ── Session 清理：自動釋放超過 3 天未互動的舊 session ──
@@ -1404,13 +1471,13 @@ def _register_system_cron_jobs(brain, app=None, cron_engine=None) -> None:
         {"job_id": "exploration-bridge-batch","name": "探索路由批次",         "schedule": "每天 03:30",     "category": "exploration", "uses_llm": False},
         {"job_id": "vita-morning",           "name": "霓裳晨感",             "schedule": "每天 07:30",     "category": "pulse",       "uses_llm": True},
         {"job_id": "community-scan",         "name": "社群關鍵字掃描",       "schedule": "每天 09:00",     "category": "external",    "uses_llm": False},
-        {"job_id": "business-case-daily",    "name": "每日市場研究報告",     "schedule": "每天 09:05",     "category": "research",    "uses_llm": True},
-        {"job_id": "curiosity-research",     "name": "好奇問題研究",         "schedule": "每天 10:00",     "category": "research",    "uses_llm": True},
+        {"job_id": "business-case-daily",    "name": "每週市場研究報告",     "schedule": "每週一 09:05",   "category": "research",    "uses_llm": True},
+        {"job_id": "curiosity-research",     "name": "好奇問題研究",         "schedule": "週一/四 10:00",  "category": "research",    "uses_llm": True},
         {"job_id": "vita-evening",           "name": "霓裳暮感",             "schedule": "每天 22:00",     "category": "pulse",       "uses_llm": True},
         {"job_id": "vita-explore-auto",      "name": "自主探索（每 2h）",    "schedule": "07:10~21:10/2h", "category": "exploration", "uses_llm": True},
         {"job_id": "health-heartbeat",       "name": "健康心跳",             "schedule": "每 30 分鐘",    "category": "maintenance", "uses_llm": False},
         {"job_id": "ares-relationship-scan", "name": "Ares 關係溫度預警",    "schedule": "每 6 小時",     "category": "ares",        "uses_llm": False},
-        {"job_id": "vita-breath-pulse",      "name": "VITA 息脈",            "schedule": "每 30 分鐘",    "category": "pulse",       "uses_llm": True},
+        {"job_id": "vita-breath-pulse",      "name": "VITA 息脈",            "schedule": "每小時 :30",    "category": "pulse",       "uses_llm": True},
         {"job_id": "guardian-l1",            "name": "Guardian L1 巡檢",     "schedule": "每 30 分鐘",    "category": "maintenance", "uses_llm": False},
         {"job_id": "commitment-check",       "name": "承諾到期檢查",         "schedule": "每 15 分鐘",    "category": "pulse",       "uses_llm": False},
         {"job_id": "vita-idle-check",        "name": "念感閒置偵測",         "schedule": "每 60 分鐘",    "category": "pulse",       "uses_llm": True},

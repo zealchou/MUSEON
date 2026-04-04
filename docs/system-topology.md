@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.80
+# MUSEON 系統拓撲圖 v1.81
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.81 (2026-04-04)**：Knife 2+3 變更——llm 群組新增 `semantic-response-cache`（Qdrant-backed 語意回覆快取，零 LLM token）；新增 3 條連線（brain→semantic-response-cache L1 查詢快取、l4-cpu-observer→semantic-response-cache 回覆後寫入、semantic-response-cache→qdrant collection 讀寫）；brain_tools.py tool-use loop 改用 --resume session 避免重送 system prompt；cron_registry.py 新增 quota circuit breaker（quota 耗盡跳過 LLM cron jobs）；cron 頻率調整（breath-pulse 每小時1次、curiosity-research 週二次、business-case 週一次）。
 > **v1.80 (2026-04-04)**：L4 CPU Observer 架構更新——agent 群組新增 `l4-cpu-observer`（CPU-only 對話後觀察者，取代 Haiku L4 agent spawn，零 LLM 呼叫，<10ms）；brain-tools 描述更新（_classify_complexity 已改為 CPU-only v12）；新增 4 條連線（brain→l4-cpu-observer、l4-cpu-observer→context-cache/session-adjustments/memory）。
 > **v1.79 (2026-04-02)**：補齊 absurdity-radar 孤島連線——新增 3 條 internal 連線（`brain→absurdity-radar` load/update/save、`brain-prompt-builder→absurdity-radar` persona zone 注入、`nightly-pipeline→absurdity-radar` Step 32.5 recalc）；absurdity-radar 節點扇入由 0→3，孤島問題修復。
 > **v1.78 (2026-04-02)**：荒謬雷達系統——新增 `agent/absurdity_radar.py`（純函數模組，無 class，提供 load/save/update_radar）；
@@ -281,6 +282,7 @@ external-user（EXTERNAL）
 | `budget-mgr` | Budget Mgr | Token 預算 | - | llm-router | 1.0 |
 | `rate-limit` | Rate Limit | 速限守衛 | - | llm-router | 0.8 |
 | `llm-cache` | Cache | LRU 快取 | - | llm-router | 0.8 |
+| `semantic-response-cache` | Semantic Response Cache | Qdrant-backed 語意回覆快取，零 LLM token。v12 新增。 | - | llm-router | 0.8 |
 
 ### data — 資料持久層
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -594,6 +596,9 @@ external-user（EXTERNAL）
 | `l4-cpu-observer` | `context-cache` | signal_cache JSON 寫入（訊號更新） |
 | `l4-cpu-observer` | `session-adjustments` | 品質調整寫入（規則引擎輸出） |
 | `l4-cpu-observer` | `memory` | 記憶寫入（訊息 > 20 字 + 非問候時觸發，optional） |
+| `brain` | `semantic-response-cache` | L1 查詢快取，命中則跳過 L2 |
+| `l4-cpu-observer` | `semantic-response-cache` | 回覆後寫入快取 |
+| `semantic-response-cache` | `qdrant` | semantic_response_cache collection 讀寫 |
 
 ### Pulse 內部連線（internal）
 | Source | Target | 說明 |
@@ -1274,6 +1279,7 @@ external-user（EXTERNAL）
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.81 | 2026-04-04 | Knife 2+3 變更——llm 群組新增 `semantic-response-cache`（Qdrant-backed 語意回覆快取，零 LLM token，v12 新增）；新增 3 條連線（brain→semantic-response-cache 查詢快取、l4-cpu-observer→semantic-response-cache 寫入、semantic-response-cache→qdrant collection 讀寫）；brain_tools.py tool-use loop 改用 --resume session；cron_registry.py 新增 quota circuit breaker；cron 頻率調整（breath-pulse 每小時1次、curiosity-research 週二次、business-case 週一次）|
 | v1.80 | 2026-04-04 | L4 CPU Observer 架構更新——agent 群組新增 `l4-cpu-observer`（CPU-only 對話後觀察者，取代 Haiku L4 agent spawn，零 LLM 呼叫，<10ms）；brain-tools 描述更新（_classify_complexity 已改為 CPU-only v12）；新增 4 條連線（brain→l4-cpu-observer、l4-cpu-observer→context-cache/session-adjustments/memory）|
 | v1.74 | 2026-04-01 | Phase A-C 死碼清理 + signal_lite 遷移——移除 brain-p3-fusion（P3 融合層已清除）、brain-observer（L4 觀察者已刪除）2 個節點；reflex-router 標記已刪除（路由功能退役）；新增 signal-lite 節點（輕量信號路由）；移除連線：brain→brain-p3-fusion、brain→reflex-router（改為 brain→signal-lite）、brain→brain-observer、primal-detector→reflex-router、nightly→reflex-router 共 5 條；brain.py Step 3 描述更新（signal_lite 信號路由）。同步 blast-radius v1.93 |
 | v1.71 | 2026-03-31 | Persona Evolution 系統——agent 群組新增 trait-engine / growth-stage-computer / dissent-engine / mask-engine / momentum-brake 5 個節點；nightly 群組新增 nightly-reflection-engine 1 個節點；新增 3 條 internal 連線（brain→dissent-engine、brain→mask-engine、nightly-pipeline→nightly-reflection-engine）+ 7 條 cross 連線（brain-observation→trait-engine、brain-observation→growth-stage-computer、drift-detector→momentum-brake、nightly-reflection-engine→anima-mc-store、nightly-reflection-engine→soul-ring、dissent-engine→crystal-rules、mask-engine→anima-mc-store）；188→194 節點，512→522 連線 |
