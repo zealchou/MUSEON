@@ -249,7 +249,9 @@ class ExternalAnimaManager:
                     ).lower()
                     relation = (data.get("relationship_to_owner") or "").lower()
                     searchable = f"{name} {summary} {topics} {relation}"
-                    if keyword_lower in searchable:
+                    import re as _re
+                    _name_base = _re.sub(r'\([^)]*\)', '', name).strip()
+                    if keyword_lower in searchable or (name and name in keyword_lower) or (_name_base and _name_base in keyword_lower):
                         results.append(data)
                         if len(results) >= limit:
                             break

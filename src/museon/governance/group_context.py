@@ -413,12 +413,14 @@ class GroupContextStore(DataContract):
         conn.commit()
 
     def resolve_alias(self, keyword: str) -> List[Dict[str, Any]]:
-        """根據關鍵字查找所有匹配的 entity（case-insensitive）."""
+        """根據關鍵字查找所有匹配的 entity（case-insensitive，雙向匹配）."""
         conn = self._get_conn()
         rows = conn.execute(
             """SELECT alias, entity_type, entity_id, created_by
-               FROM entity_aliases WHERE alias LIKE ? COLLATE NOCASE""",
-            (f"%{keyword}%",),
+               FROM entity_aliases
+               WHERE alias LIKE ? COLLATE NOCASE
+                  OR ? LIKE '%' || alias || '%' COLLATE NOCASE""",
+            (f"%{keyword}%", keyword),
         ).fetchall()
         return [dict(r) for r in rows]
 

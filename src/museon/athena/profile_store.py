@@ -258,7 +258,14 @@ class ProfileStore:
             if domain and domain not in entry.get("domains", []):
                 continue
             name = (entry.get("name") or "").lower()
-            if keyword_lower in name:
+            # 去括號比對：「吳明憲(Alan Wu)」→ 也用「吳明憲」和「alan wu」分別比對
+            import re as _re
+            _name_base = _re.sub(r'\([^)]*\)', '', name).strip()
+            _name_paren = _re.search(r'\(([^)]*)\)', name)
+            _name_paren_inner = _name_paren.group(1).strip() if _name_paren else ""
+            if (keyword_lower in name or (name and name in keyword_lower)
+                    or (_name_base and _name_base in keyword_lower)
+                    or (_name_paren_inner and _name_paren_inner in keyword_lower)):
                 profile = self.load(pid)
                 if profile:
                     results.append(profile)
@@ -269,7 +276,7 @@ class ProfileStore:
                 facts = profile.get("L1_facts", {})
                 company = (facts.get("company") or "").lower()
                 role = (facts.get("role") or "").lower()
-                if keyword_lower in company or keyword_lower in role:
+                if keyword_lower in company or keyword_lower in role or (company and company in keyword_lower) or (role and role in keyword_lower):
                     results.append(profile)
         return results
 

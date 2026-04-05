@@ -920,6 +920,36 @@ class BrainPromptBuilderMixin:
                     _etype = _ah.get("entity_type", "")
                     if _eid:
                         _seen_entity_ids.add(f"{_etype}:{_eid}")
+                    # alias 命中 ares_profile → 直接載入 profile 注入
+                    if _etype == "ares_profile" and _eid:
+                        try:
+                            from museon.athena.profile_store import ProfileStore as _APS
+                            _alias_ps = _APS(Path(self.data_dir))
+                            _alias_profile = _alias_ps.load(_eid)
+                            if _alias_profile:
+                                _seen_entity_ids.add(f"ares:{_eid}")
+                                _facts = _alias_profile.get("L1_facts", {})
+                                _name = _facts.get("name", "Unknown")
+                                _parts = [f"人物「{_name}」（透過別名「{_ah.get('alias', '')}」找到）"]
+                                if _facts.get("company"):
+                                    _parts.append(f"公司：{_facts['company']}")
+                                if _facts.get("role"):
+                                    _parts.append(f"角色：{_facts['role']}")
+                                _temp = _alias_profile.get("temperature", {}).get("level", "new")
+                                _parts.append(f"關係溫度：{_temp}")
+                                _inter = _alias_profile.get("L4_interactions", {})
+                                if _inter.get("total_count", 0) > 0:
+                                    _parts.append(f"互動次數：{_inter['total_count']}")
+                                if _inter.get("last_interaction"):
+                                    _parts.append(f"最後互動：{_inter['last_interaction'][:10]}")
+                                items.append({
+                                    "content": "｜".join(_parts),
+                                    "layer": "ares_profile",
+                                    "tags": ["人物檔案", "alias 命中"],
+                                    "outcome": "",
+                                })
+                        except Exception:
+                            pass
             except Exception:
                 _alias_hits = []
 

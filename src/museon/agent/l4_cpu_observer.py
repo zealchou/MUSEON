@@ -54,13 +54,13 @@ class L4CpuObserver:
     # 別名設定模式（使用者在 DM 中指定人物別名）
     _ALIAS_PATTERNS = [
         # "X 就是 Y" / "X就是Y"
-        r"[「「]?(.{1,10})[」」]?\s*就是\s*[「「]?(.{1,20})[」」]?",
+        r"[「「]?([^\s，。,\.！!？?、；;「」]{1,10})[」」]?\s*就是\s*[「「]?([^\s，。,\.！!？?、；;「」]{1,20})[」」]?",
         # "X = Y"
-        r"[「「]?(.{1,10})[」」]?\s*[=＝]\s*[「「]?(.{1,20})[」」]?",
+        r"[「「]?([^\s，。,\.！!？?、；;「」]{1,10})[」」]?\s*[=＝]\s*[「「]?([^\s，。,\.！!？?、；;「」]{1,20})[」」]?",
         # "X 又叫 Y" / "X 也叫 Y"
-        r"[「「]?(.{1,10})[」」]?\s*(?:又|也)叫\s*[「「]?(.{1,20})[」」]?",
+        r"[「「]?([^\s，。,\.！!？?、；;「」]{1,10})[」」]?\s*(?:又|也)叫\s*[「「]?([^\s，。,\.！!？?、；;「」]{1,20})[」」]?",
         # "記住 X 是 Y" / "幫我記住 X 叫 Y"
-        r"(?:記住|幫我記住)\s*[「「]?(.{1,10})[」」]?\s*(?:是|叫)\s*[「「]?(.{1,20})[」」]?",
+        r"(?:記住|幫我記住)\s*[「「]?([^\s，。,\.！!？?、；;「」]{1,10})[」」]?\s*(?:是|叫)\s*[「「]?([^\s，。,\.！!？?、；;「」]{1,20})[」」]?",
     ]
 
     def __init__(
@@ -341,13 +341,17 @@ class L4CpuObserver:
         if metadata and metadata.get("is_group"):
             return False
 
-        for pattern in self._ALIAS_PATTERNS:
+        # 「也叫」pattern (index 2) 語意相反：X 也叫 Y → person=X, newname=Y
+        _SWAP_PATTERNS = {2}  # index of patterns where groups are swapped
+        for _pat_idx, pattern in enumerate(self._ALIAS_PATTERNS):
             match = re.search(pattern, user_message)
             if not match:
                 continue
 
             alias_name = match.group(1).strip()
             target_name = match.group(2).strip()
+            if _pat_idx in _SWAP_PATTERNS:
+                alias_name, target_name = target_name, alias_name
             if not alias_name or not target_name or alias_name == target_name:
                 continue
 
