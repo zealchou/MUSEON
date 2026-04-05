@@ -3698,6 +3698,44 @@ class NightlyPipeline:
             except Exception as e:
                 logger.warning(f"[NIGHTLY] Auto-alias failed: {e}")
 
+            # ── 從群組名稱建立 alias ──
+            try:
+                _group_alias_count = 0
+                _owner_ids = {"6969045906", "boss", "bot"}  # Owner + Bot 的 UID
+                conn = _gcs._get_conn()
+                groups = conn.execute("SELECT group_id, title FROM groups").fetchall()
+                for _grp in groups:
+                    _title = _grp[1] or ""
+                    # 解析 "Museon x 客戶名" 或 "MUSEON 測試 x 客戶名" pattern
+                    import re as _re
+                    _match = _re.search(r'museon\s*(?:測試\s*)?x\s+(.+)', _title, _re.IGNORECASE)
+                    if not _match:
+                        continue
+                    _client_name = _match.group(1).strip()
+                    if not _client_name:
+                        continue
+                    # 找該群組的非 Owner 成員
+                    _members = conn.execute(
+                        "SELECT user_id FROM group_members WHERE group_id = ?",
+                        (_grp[0],),
+                    ).fetchall()
+                    for _mem in _members:
+                        _uid = str(_mem[0])
+                        if _uid in _owner_ids:
+                            continue
+                        # 建 alias: 群組名中的客戶名 → 該成員
+                        _gcs.add_alias(_client_name, _uid, "telegram_uid", "nightly_group_name")
+                        # 如果有 ares profile 映射，也建
+                        _ares_pid = _ext_map.get(_uid)
+                        if _ares_pid:
+                            _gcs.add_alias(_client_name, _ares_pid, "ares_profile", "nightly_group_name")
+                        _group_alias_count += 1
+                if _group_alias_count > 0:
+                    logger.info(f"[NIGHTLY] Group-name alias: {_group_alias_count} names synced")
+                stats["group_name_aliases"] = _group_alias_count
+            except Exception as e:
+                logger.warning(f"[NIGHTLY] Group-name alias failed: {e}")
+
             # ── 重複 profile 偵測 ──
             try:
                 _index = _ps.list_all() if '_ps' in dir() else ProfileStore(self._workspace).list_all()

@@ -915,7 +915,15 @@ class BrainPromptBuilderMixin:
                 from museon.governance.group_context import GroupContextStore
                 _gcs = GroupContextStore(Path(self.data_dir))
                 _alias_hits = _gcs.resolve_alias(user_query)
-                for _ah in _alias_hits[:3]:
+                # dedup：同一個 entity 只保留第一筆
+                _alias_deduped = []
+                _alias_seen = set()
+                for _ah in _alias_hits:
+                    _key = f"{_ah.get('entity_type', '')}:{_ah.get('entity_id', '')}"
+                    if _key not in _alias_seen:
+                        _alias_seen.add(_key)
+                        _alias_deduped.append(_ah)
+                for _ah in _alias_deduped[:5]:
                     _eid = _ah.get("entity_id", "")
                     _etype = _ah.get("entity_type", "")
                     if _eid:
