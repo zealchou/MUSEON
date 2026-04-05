@@ -51,6 +51,18 @@ class L4CpuObserver:
         "decision_style": ["快速", "謹慎", "數據", "直覺", "風險", "保守"],
     }
 
+    # 別名設定模式（使用者在 DM 中指定人物別名）
+    _ALIAS_PATTERNS = [
+        # "X 就是 Y" / "X就是Y"
+        r"[「「]?(.{1,10})[」」]?\s*就是\s*[「「]?(.{1,20})[」」]?",
+        # "X = Y"
+        r"[「「]?(.{1,10})[」」]?\s*[=＝]\s*[「「]?(.{1,20})[」」]?",
+        # "X 又叫 Y" / "X 也叫 Y"
+        r"[「「]?(.{1,10})[」」]?\s*(?:又|也)叫\s*[「「]?(.{1,20})[」」]?",
+        # "記住 X 是 Y" / "幫我記住 X 叫 Y"
+        r"(?:記住|幫我記住)\s*[「「]?(.{1,10})[」」]?\s*(?:是|叫)\s*[「「]?(.{1,20})[」」]?",
+    ]
+
     def __init__(
         self,
         data_dir: Path,
@@ -93,6 +105,7 @@ class L4CpuObserver:
             "preference_detected": False,
             "adjustment_written": False,
             "cache_written": False,
+            "alias_detected": False,
         }
 
         try:
@@ -130,6 +143,13 @@ class L4CpuObserver:
             )
         except Exception as e:
             logger.debug(f"[L4-CPU] Step 5 semantic cache write failed: {e}")
+
+        try:
+            result["alias_detected"] = self._step6_alias_detection(
+                user_message, metadata,
+            )
+        except Exception as e:
+            logger.debug(f"[L4-CPU] Step 6 alias detection failed: {e}")
 
         return result
 
@@ -308,3 +328,66 @@ class L4CpuObserver:
         except Exception as e:
             logger.debug(f"[L4-CPU] Semantic cache write error: {e}")
             return False
+
+    # ─── Step 6: 別名偵測 ───
+
+    def _step6_alias_detection(
+        self, user_message: str, metadata: Optional[Dict[str, Any]] = None,
+    ) -> bool:
+        """偵測使用者在 DM 中設定人物別名的意圖."""
+        import re
+
+        # 只在 DM 中偵測（群組中不處理）
+        if metadata and metadata.get("is_group"):
+            return False
+
+        for pattern in self._ALIAS_PATTERNS:
+            match = re.search(pattern, user_message)
+            if not match:
+                continue
+
+            alias_name = match.group(1).strip()
+            target_name = match.group(2).strip()
+            if not alias_name or not target_name or alias_name == target_name:
+                continue
+
+            # 搜尋 target_name 是否對應到現有 entity
+            try:
+                from museon.athena.profile_store import ProfileStore
+                _ps = ProfileStore(self._data_dir)
+                _results = _ps.search(target_name)
+                if _results:
+                    _profile = _results[0]
+                    _pid = _profile.get("profile_id", "")
+                    _existing_name = _profile.get("L1_facts", {}).get("name", "")
+
+                    from museon.governance.group_context import GroupContextStore
+                    _gcs = GroupContextStore(self._data_dir)
+                    _gcs.add_alias(alias_name, _pid, "ares_profile", "l4_auto")
+                    logger.info(
+                        f"[L4-CPU] Alias detected: '{alias_name}' → '{_existing_name}' ({_pid})"
+                    )
+                    return True
+            except Exception as e:
+                logger.debug(f"[L4-CPU] Alias detection entity lookup failed: {e}")
+
+            # 也搜 ExternalAnima
+            try:
+                from museon.governance.multi_tenant import ExternalAnimaManager
+                _ext = ExternalAnimaManager(self._data_dir)
+                _ext_results = _ext.search_by_keyword(target_name, limit=1)
+                if _ext_results:
+                    _uid = _ext_results[0].get("user_id", "")
+                    _ext_name = _ext_results[0].get("display_name", "")
+
+                    from museon.governance.group_context import GroupContextStore
+                    _gcs = GroupContextStore(self._data_dir)
+                    _gcs.add_alias(alias_name, _uid, "telegram_uid", "l4_auto")
+                    logger.info(
+                        f"[L4-CPU] Alias detected: '{alias_name}' → '{_ext_name}' (TG:{_uid})"
+                    )
+                    return True
+            except Exception as e:
+                logger.debug(f"[L4-CPU] Alias detection ext lookup failed: {e}")
+
+        return False

@@ -3669,6 +3669,72 @@ class NightlyPipeline:
             except Exception as e:
                 logger.warning(f"[NIGHTLY] Temperature decay failed: {e}")
 
+            # ── 自動建立 alias（從 ExternalAnima display_name）──
+            try:
+                from museon.governance.group_context import GroupContextStore
+                _gcs = GroupContextStore(self.data_dir)
+                _ext_map = bridge._load_map()  # {telegram_uid: ares_profile_id}
+                _alias_count = 0
+                for _tg_uid, _ares_pid in _ext_map.items():
+                    # 讀 ExternalAnima 取 display_name
+                    _ext_path = bridge.ext_dir / f"{_tg_uid}.json"
+                    if not _ext_path.exists():
+                        continue
+                    try:
+                        _ext_data = json.loads(_ext_path.read_text(encoding="utf-8"))
+                        _display_name = _ext_data.get("display_name", "")
+                        if not _display_name or _display_name.startswith("User_"):
+                            continue
+                        # 建 display_name → ares_profile alias
+                        _gcs.add_alias(_display_name, _ares_pid, "ares_profile", "nightly_auto")
+                        # 建 display_name → telegram_uid alias
+                        _gcs.add_alias(_display_name, _tg_uid, "telegram_uid", "nightly_auto")
+                        _alias_count += 1
+                    except Exception:
+                        continue
+                if _alias_count > 0:
+                    logger.info(f"[NIGHTLY] Auto-alias: {_alias_count} names synced")
+                stats["auto_aliases"] = _alias_count
+            except Exception as e:
+                logger.warning(f"[NIGHTLY] Auto-alias failed: {e}")
+
+            # ── 重複 profile 偵測 ──
+            try:
+                _index = _ps.list_all() if '_ps' in dir() else ProfileStore(self._workspace).list_all()
+                _name_groups: dict[str, list[str]] = {}
+                for _pid, _entry in _index.items():
+                    _name = (_entry.get("name") or "").strip()
+                    if _name:
+                        _name_groups.setdefault(_name, []).append(_pid)
+                _duplicates = {n: pids for n, pids in _name_groups.items() if len(pids) > 1}
+                if _duplicates:
+                    _dup_summary = "; ".join(f"{n}({len(pids)})" for n, pids in _duplicates.items())
+                    logger.warning(f"[NIGHTLY] Duplicate profiles detected: {_dup_summary}")
+                    # 寫入 pending_signals 供推播
+                    try:
+                        _signals_path = self.data_dir / "_system" / "ares" / "pending_signals.json"
+                        _signals = json.loads(_signals_path.read_text(encoding="utf-8")) if _signals_path.exists() else {"alerts": []}
+                        # 避免重複 alert（每天只發一次）
+                        _today = datetime.now().strftime("%Y-%m-%d")
+                        _existing_dup_alerts = [a for a in _signals.get("alerts", []) if a.get("type") == "duplicate_profiles" and a.get("date") == _today]
+                        if not _existing_dup_alerts:
+                            _signals.setdefault("alerts", []).append({
+                                "type": "duplicate_profiles",
+                                "date": _today,
+                                "summary": f"偵測到重複人物檔案：{_dup_summary}",
+                                "details": {n: pids for n, pids in _duplicates.items()},
+                                "action": "建議使用者確認是否為同一人並合併",
+                            })
+                            _signals_path.parent.mkdir(parents=True, exist_ok=True)
+                            _tmp = _signals_path.with_suffix(".tmp")
+                            _tmp.write_text(json.dumps(_signals, ensure_ascii=False, indent=2), encoding="utf-8")
+                            _tmp.rename(_signals_path)
+                    except Exception as _se:
+                        logger.debug(f"[NIGHTLY] Duplicate alert write failed: {_se}")
+                stats["duplicate_profiles"] = len(_duplicates) if '_duplicates' in dir() else 0
+            except Exception as e:
+                logger.warning(f"[NIGHTLY] Duplicate detection failed: {e}")
+
             return stats
         except Exception as e:
             logger.warning(f"[NIGHTLY] Ares bridge sync failed: {e}")
