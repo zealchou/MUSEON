@@ -2240,24 +2240,55 @@ class TelegramAdapter(ChannelAdapter):
             logger.debug(f"[ChatMemberUpdated] Error: {e}")
 
     def _on_skill_gap_proposal(self, data: Optional[Dict] = None) -> None:
-        """處理能力缺口偵測事件 — DM to Owner 詢問是否建立/重鍛 Skill."""
+        """處理能力缺口偵測事件 — DM to Owner 帶 Inline Keyboard 詢問是否啟動 DSE."""
         if not data or not self._running:
             return
         import asyncio
 
+        loop = getattr(self, "_main_async_loop", None)
+        if loop and loop.is_running():
+            asyncio.run_coroutine_threadsafe(
+                self._send_skill_gap_proposal_with_keyboard(data), loop
+            )
+
+    async def _send_skill_gap_proposal_with_keyboard(self, data: Dict) -> None:
+        """組裝帶 Inline Keyboard 的 Skill 缺口/重鍛提案訊息並發送給老闆.
+
+        GAP_PROPOSAL   callback_data: skill:gap_approve:{key} / skill:gap_ignore:{key}
+        REFORGE_PROPOSAL callback_data: skill:reforge_approve:{key} / skill:reforge_ignore:{key}
+        key = topic 或 skill_name 的前 32 字元（已由 gap_accumulator 寫入 skill_requests/）
+        """
+        from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+        import hashlib
+
         prop_type = data.get("type", "forge_new")
+
         if prop_type == "optimize_existing":
             skill_name = data.get("skill_name", "?")
             avg_q = data.get("avg_q_score", 0)
             cnt = data.get("failure_count", 0)
             samples = data.get("sample_failures", [])
             sample_lines = "\n".join(f"  • {s.get('query', '')[:60]}" for s in samples[:3])
-            msg = (
+            text = (
                 f"🔧 我的「{skill_name}」Skill 最近表現不佳"
                 f"（{cnt} 次低品質回應，平均 Q={avg_q:.2f}）。\n\n"
                 f"典型失敗案例：\n{sample_lines}\n\n"
-                f"要不要我重新研究並升級這個 Skill？"
+                f"已將重鍛請求加入佇列，請確認是否啟動？"
             )
+            # key 使用 skill_name 的安全縮寫（CallbackData 上限 64 bytes）
+            key = skill_name[:30].replace(":", "-")
+            keyboard = InlineKeyboardMarkup([
+                [
+                    InlineKeyboardButton(
+                        "🔧 啟動重鍛",
+                        callback_data=f"skill:reforge_approve:{key}",
+                    ),
+                    InlineKeyboardButton(
+                        "❌ 忽略",
+                        callback_data=f"skill:reforge_ignore:{key}",
+                    ),
+                ]
+            ])
         else:
             topic = data.get("topic", "?")
             cnt = data.get("cluster_count", 0)
@@ -2265,16 +2296,36 @@ class TelegramAdapter(ChannelAdapter):
             queries = data.get("sample_queries", [])
             sample_lines = "\n".join(f"  • {q[:60]}" for q in queries[:3])
             user_note = f"（{users} 位不同使用者提問）" if users >= 2 else ""
-            msg = (
+            text = (
                 f"💡 我注意到在「{topic}」領域，"
                 f"我目前沒有專門的能力來處理{user_note}。\n\n"
                 f"最近 {cnt} 次相關提問：\n{sample_lines}\n\n"
-                f"要不要我啟動深度研究，建立專門的 Skill？"
+                f"已將研究請求加入佇列，請確認是否啟動 DSE？"
             )
+            # key 使用 topic 的安全縮寫
+            key = topic[:30].replace(":", "-")
+            keyboard = InlineKeyboardMarkup([
+                [
+                    InlineKeyboardButton(
+                        "✅ 啟動 DSE 研究",
+                        callback_data=f"skill:gap_approve:{key}",
+                    ),
+                    InlineKeyboardButton(
+                        "❌ 忽略",
+                        callback_data=f"skill:gap_ignore:{key}",
+                    ),
+                ]
+            ])
 
-        loop = getattr(self, "_main_async_loop", None)
-        if loop and loop.is_running():
-            asyncio.run_coroutine_threadsafe(self.send_dm_to_owner(msg), loop)
+        boss_id = self.trusted_user_ids[0] if self.trusted_user_ids else None
+        if boss_id:
+            try:
+                await self._safe_send(int(boss_id), text, reply_markup=keyboard)
+                logger.info(f"[SkillGapProposal] 已發送提案給老闆，type={prop_type}")
+            except Exception as e:
+                logger.error(f"[SkillGapProposal] 發送提案失敗: {e}")
+        else:
+            logger.warning("[SkillGapProposal] 找不到 trusted_user_ids，無法發送提案")
 
     def _on_skill_approval_request(self, data: Optional[Dict] = None) -> None:
         """處理 SKILL_APPROVAL_REQUEST 事件 — 從 Nightly Pipeline 發來的核准請求."""
@@ -2420,6 +2471,155 @@ class TelegramAdapter(ChannelAdapter):
             except Exception as e:
                 logger.warning(f"[SkillApproval] 更新拒絕狀態失敗: {e}")
             await query.edit_message_text(f"🚫 Skill 草稿 {draft_id} 已拒絕")
+
+        elif action == "gap_approve":
+            # 使用者確認啟動 DSE → skill_requests/ 已由 gap_accumulator 寫入，
+            # 此處將對應的 req 標記為 pending_dse_confirmed（下次 session 掃描會撿到）
+            await query.answer("✅ 已排入 DSE 研究佇列")
+            key = draft_id  # draft_id 在此為 topic key
+            try:
+                import json
+                from pathlib import Path
+
+                req_dir = Path.home() / "MUSEON" / "data" / "_system" / "skill_requests"
+                req_dir.mkdir(parents=True, exist_ok=True)
+                # 搜尋 topic key 匹配的 req 檔（forge_new 類型）
+                matched = [
+                    f for f in req_dir.glob("*.json")
+                    if key in f.stem and "forge" in f.stem
+                ]
+                if matched:
+                    req_file = sorted(matched)[-1]  # 取最新的
+                    req = json.loads(req_file.read_text(encoding="utf-8"))
+                    req["status"] = "pending_dse_confirmed"
+                    req_file.write_text(
+                        json.dumps(req, ensure_ascii=False, indent=2), encoding="utf-8"
+                    )
+                    logger.info(f"[SkillGap] gap_approve: {req_file.name} → pending_dse_confirmed")
+                    await query.edit_message_text(
+                        f"✅ DSE 研究已確認啟動\n"
+                        f"主題：{req.get('topic', key)}\n"
+                        f"下次 session 開始時 Skill 缺口掃描將自動撿起此任務。"
+                    )
+                else:
+                    # req 檔找不到（可能還沒寫入），直接建立一個
+                    import time
+                    ts = int(time.time())
+                    req_file = req_dir / f"req_{ts}_forge.json"
+                    req = {
+                        "type": "forge_new",
+                        "topic": key,
+                        "gap_cluster_summary": f"User confirmed DSE for topic: {key}",
+                        "status": "pending_dse",
+                        "created_at": __import__('datetime').datetime.utcnow().isoformat(),
+                    }
+                    req_file.write_text(
+                        json.dumps(req, ensure_ascii=False, indent=2), encoding="utf-8"
+                    )
+                    logger.info(f"[SkillGap] gap_approve: 新建 {req_file.name}")
+                    await query.edit_message_text(
+                        f"✅ DSE 研究已確認啟動\n"
+                        f"主題：{key}\n"
+                        f"下次 session 開始時 Skill 缺口掃描將自動撿起此任務。"
+                    )
+            except Exception as e:
+                logger.error(f"[SkillGap] gap_approve 處理失敗: {e}")
+                await query.edit_message_text("⚠️ 確認失敗，請查看系統日誌")
+
+        elif action == "gap_ignore":
+            # 使用者忽略 → 刪除對應的 req 檔，避免下次 session 重複提示
+            await query.answer("已忽略")
+            key = draft_id
+            try:
+                import json
+                from pathlib import Path
+
+                req_dir = Path.home() / "MUSEON" / "data" / "_system" / "skill_requests"
+                if req_dir.exists():
+                    matched = [
+                        f for f in req_dir.glob("*.json")
+                        if key in f.stem and "forge" in f.stem
+                    ]
+                    for f in matched:
+                        f.unlink(missing_ok=True)
+                        logger.info(f"[SkillGap] gap_ignore: 刪除 {f.name}")
+            except Exception as e:
+                logger.warning(f"[SkillGap] gap_ignore 清理失敗: {e}")
+            await query.edit_message_text(f"🚫 已忽略此能力缺口提案（主題：{key}）")
+
+        elif action == "reforge_approve":
+            # 使用者確認啟動重鍛 → 標記 req 為 pending_dse_confirmed
+            await query.answer("✅ 已排入重鍛佇列")
+            key = draft_id  # draft_id 在此為 skill_name key
+            try:
+                import json
+                from pathlib import Path
+
+                req_dir = Path.home() / "MUSEON" / "data" / "_system" / "skill_requests"
+                req_dir.mkdir(parents=True, exist_ok=True)
+                # 搜尋 skill_name key 匹配的 req 檔（optimize 類型）
+                matched = [
+                    f for f in req_dir.glob("*.json")
+                    if key in f.stem and "optimize" in f.stem
+                ]
+                if matched:
+                    req_file = sorted(matched)[-1]
+                    req = json.loads(req_file.read_text(encoding="utf-8"))
+                    req["status"] = "pending_dse_confirmed"
+                    req_file.write_text(
+                        json.dumps(req, ensure_ascii=False, indent=2), encoding="utf-8"
+                    )
+                    logger.info(f"[SkillReforge] reforge_approve: {req_file.name} → pending_dse_confirmed")
+                    await query.edit_message_text(
+                        f"✅ 重鍛研究已確認啟動\n"
+                        f"Skill：{req.get('skill_name', key)}\n"
+                        f"下次 session 開始時 Skill 缺口掃描將自動撿起此任務。"
+                    )
+                else:
+                    import time
+                    ts = int(time.time())
+                    req_file = req_dir / f"req_{ts}_optimize_{key[:20]}.json"
+                    req = {
+                        "type": "optimize_existing",
+                        "skill_name": key,
+                        "skill_path": f"~/.claude/skills/{key}/SKILL.md",
+                        "problem_summary": f"User confirmed reforge for skill: {key}",
+                        "status": "pending_dse",
+                        "created_at": __import__('datetime').datetime.utcnow().isoformat(),
+                    }
+                    req_file.write_text(
+                        json.dumps(req, ensure_ascii=False, indent=2), encoding="utf-8"
+                    )
+                    logger.info(f"[SkillReforge] reforge_approve: 新建 {req_file.name}")
+                    await query.edit_message_text(
+                        f"✅ 重鍛研究已確認啟動\n"
+                        f"Skill：{key}\n"
+                        f"下次 session 開始時 Skill 缺口掃描將自動撿起此任務。"
+                    )
+            except Exception as e:
+                logger.error(f"[SkillReforge] reforge_approve 處理失敗: {e}")
+                await query.edit_message_text("⚠️ 確認失敗，請查看系統日誌")
+
+        elif action == "reforge_ignore":
+            # 使用者忽略 → 刪除對應的 req 檔
+            await query.answer("已忽略")
+            key = draft_id
+            try:
+                import json
+                from pathlib import Path
+
+                req_dir = Path.home() / "MUSEON" / "data" / "_system" / "skill_requests"
+                if req_dir.exists():
+                    matched = [
+                        f for f in req_dir.glob("*.json")
+                        if key in f.stem and "optimize" in f.stem
+                    ]
+                    for f in matched:
+                        f.unlink(missing_ok=True)
+                        logger.info(f"[SkillReforge] reforge_ignore: 刪除 {f.name}")
+            except Exception as e:
+                logger.warning(f"[SkillReforge] reforge_ignore 清理失敗: {e}")
+            await query.edit_message_text(f"🚫 已忽略此重鍛提案（Skill：{key}）")
 
         else:
             await query.answer("未知操作")
