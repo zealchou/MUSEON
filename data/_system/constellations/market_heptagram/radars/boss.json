@@ -8,8 +8,6 @@
   "sentiment_reading": 0.5,
   "risk_awareness": 0.5,
   "cycle_positioning": 0.5,
-  "confidence": 0.15,
-  "bootstrapped": true,
-  "bootstrapped_at": "2026-04-04T14:21:25.427762+00:00",
-  "updated_at": "2026-04-04T14:21:25.427762+00:00"
+  "confidence": 0.135,
+  "updated_at": "2026-04-05T00:15:43.838659+00:00"
 }

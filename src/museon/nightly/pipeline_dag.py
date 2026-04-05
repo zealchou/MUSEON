@@ -198,6 +198,9 @@ MUSEON_DEPENDENCIES: Dict[str, List[str]] = {
     "24": [],                 # evolution velocity（獨立，讀取既有資料計算）
     "25": ["18"],             # periodic cycle check（依賴 daily summary 完成後再觸發）
 
+    # Crystal 生命週期
+    "32.6": ["32.5"],         # 多星座衰減依賴荒謬雷達重算（32.5）完成後執行
+
     # Phase 5+8: Persona Evolution
     "34": ["10", "33"],       # persona_reflection 依賴 diary(10) + crystal_promotion(33)
     "34.5": ["34"],           # trait_metabolize 依賴 persona_reflection

@@ -865,6 +865,46 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         except Exception:
             pass  # radar 不存在時靜默降級
 
+        # ── 多星座信號組建（v12.1）——傳給 Skill Router Layer 4 延伸 ──
+        _constellation_signals: dict = {}
+        try:
+            from museon.agent.constellation_radar import (
+                list_constellations as _list_constellations,
+                load_definition as _load_definition,
+                load_radar as _load_constellation_radar,
+            )
+            _data_dir_str = str(self.data_dir)
+            _raw_constellations = _list_constellations(_data_dir_str)
+            for _citem in _raw_constellations:
+                _cname = _citem["name"] if isinstance(_citem, dict) else str(_citem)
+                _cradar = _load_constellation_radar(_cname, "boss", _data_dir_str)
+                _cconfidence = _cradar.get("confidence", 0.0)
+                if _cconfidence < 0.1:
+                    continue
+                # 取最弱維度
+                _cdim_scores = {k: v for k, v in _cradar.items()
+                                if k != "confidence" and isinstance(v, (int, float))}
+                if not _cdim_scores:
+                    continue
+                _cweakest_dim = min(_cdim_scores, key=lambda d: _cdim_scores[d])
+                _cweakest_val = _cdim_scores[_cweakest_dim]
+                # 取該星座追蹤的 Skills
+                _cdefn = _load_definition(_cname, _data_dir_str)
+                _ctracked = _cdefn.get("tracked_skills", []) if _cdefn else []
+                if _ctracked:
+                    _constellation_signals[_cname] = {
+                        "weakest_dim": _cweakest_dim,
+                        "value": _cweakest_val,
+                        "tracked_skills": _ctracked,
+                    }
+            if _constellation_signals:
+                logger.info(
+                    f"[Brain] 多星座信號組建完成: {list(_constellation_signals.keys())} "
+                    f"→ 傳入 Skill Router Layer 4"
+                )
+        except Exception as _ce:
+            logger.warning(f"[Brain] 多星座信號組建失敗（降級）: {_ce}")
+
         matched_skills = self.skill_router.match(
             content, top_n=5,
             safety_triggered=_safety,
@@ -872,6 +912,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
             skill_usage=session_usage,
             user_primals=_user_primals or None,
             user_absurdity_radar=_absurdity_radar,
+            constellation_signals=_constellation_signals or None,
         )
 
         # Step 3.1b: VectorBridge 語義匹配輔助（靜默失敗）
@@ -1304,7 +1345,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                     # 更新雷達：每個匹配的 Skill 都會增加信心
                     _dims = tuple(_defn["dimensions"])
                     _alpha = _defn.get("alpha", 0.05)  # 用較小的 alpha（沒有 per-dim affinity）
-                    _radar = load_radar(_cname, ctx.user_id, _data_dir)
+                    _radar = load_radar(_cname, "boss", _data_dir)
 
                     for _sk_name in _matched_tracked:
                         # 均勻小幅更新所有維度（未來可加 per-skill dimension affinity）
@@ -1687,51 +1728,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         # P5: 偵測用戶休息/免打擾意圖 → 發布 USER_QUIET_MODE 事件
         self._detect_and_publish_quiet_mode(content)
 
-        # P0: 謀定而後動——思考軌跡分級顯示
         final_response = response_text
-        _display_loop = getattr(routing_signal, 'loop', 'EXPLORATION_LOOP') if routing_signal else 'EXPLORATION_LOOP'
-        if _display_loop != "FAST_LOOP":
-            if _display_loop == "SLOW_LOOP" and thinking_path_summary:
-                final_response = f"\U0001f9e0 {thinking_path_summary}\n\n{response_text}"
-                logger.debug(f"[P0] SLOW_LOOP 回覆前置注入思考摘要")
-            elif active_lenses:
-                non_default_lenses = [l for l in active_lenses if l != "c15"]
-                if non_default_lenses:
-                    lens_hint = " \u2192 ".join(non_default_lenses)
-                    final_response = f"\U0001f9e0 {lens_hint}\n\n{response_text}"
-                    logger.debug(f"[P0] 透鏡提示注入: {lens_hint}")
-
-        # P1: 主動盲點提醒——根據探索度決定是否注入「你可能沒想到」提示
-        try:
-            exploration_score = self._estimate_user_exploration_level(anima_user)
-
-            # 計算本次提醒的出現概率（技術型<20%不提示，均衡型30-50%，探索型>60%較常提示）
-            should_show_blindspot = False
-            if exploration_score < 0.25:
-                # 技術型：降低頻率（10% 概率）
-                should_show_blindspot = (len(content) % 10 == 0)
-            elif exploration_score < 0.55:
-                # 均衡型：中等頻率（40% 概率）
-                should_show_blindspot = (len(content) % 10 < 4)
-            else:
-                # 探索型：較高頻率（60% 概率）
-                should_show_blindspot = (len(content) % 10 < 6)
-
-            if should_show_blindspot:
-                from museon.agent.eval_engine import get_blindspot_hint_for_query
-                blindspot_hint = get_blindspot_hint_for_query(
-                    query=content,
-                    matched_skills=[s.get("name") for s in matched_skills] if matched_skills else None,
-                )
-                if blindspot_hint:
-                    # 在思考路徑和回應之間插入盲點提醒
-                    if thinking_path_summary:
-                        final_response = f"【我的思考路徑】{thinking_path_summary}\n\n【順便一提】{blindspot_hint}\n\n{response_text}"
-                    else:
-                        final_response = f"【順便一提】{blindspot_hint}\n\n{response_text}"
-                    logger.debug(f"[P1] 盲點提醒已注入 | 探索度={exploration_score:.2f}")
-        except Exception as e:
-            logger.debug(f"[P1] 盲點提醒注入失敗（降級繼續）: {e}")
 
         # v9.0: 返回 BrainResponse（含 artifacts）
         try:

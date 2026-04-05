@@ -128,7 +128,7 @@ _FULL_STEPS = [
     "27", "28", "29",  # 持久層衛生：JSONL 輪替 / WAL checkpoint / DataWatchdog  # v1.75: "26" session_cleanup 已刪除，由每小時 cron 涵蓋
     "30",  # 藍圖一致性驗證
     "31",  # v2 context_cache 重建
-    "32", "32.5", "33",  # Crystal ri_score 衰減 / 荒謬雷達重算 / Crystal→Heuristic 升級
+    "32", "32.5", "32.6", "33",  # Crystal ri_score 衰減 / 荒謬雷達重算 / 多星座衰減 / Crystal→Heuristic 升級
     "34", "34.5", "34.7",  # Phase 5/8: 人格自省 → Trait 代謝 → 方向性漂移檢查
 ]
 _ORIGIN_STEPS = ["5.8", "6", "7", "8", "16"]
@@ -250,6 +250,7 @@ class NightlyPipeline:
             # ── Crystal 生命週期管理 ──
             "32": ("step_32_crystal_decay", self._step_crystal_decay),
             "32.5": ("step_32.5_absurdity_radar", self._step_absurdity_radar_recalc),
+            "32.6": ("step_32.6_constellation_decay", self._step_constellation_decay),
             "33": ("step_33_crystal_promotion", self._step_crystal_promotion),
             # ── Phase 5/8: Persona Evolution ──
             "34": ("persona_reflection", self._step_persona_reflection),
@@ -4531,6 +4532,123 @@ class NightlyPipeline:
                 logger.warning(f"[NIGHTLY] Absurdity radar recalc failed for {user_id}: {e}")
 
         return {"recalculated": recalculated}
+
+    def _step_constellation_decay(self) -> Dict:
+        """Step 32.6: 多星座每日衰減.
+
+        遍歷所有已註冊的 active 星座（跳過 absurdity，已由 Step 32.5 處理），
+        對每個星座的所有使用者雷達執行每日衰減：
+        - 各維度向 0.5 回歸（衰減幅度由星座定義的 decay_rate 決定）
+        - 信心值每天遞減（confidence_decay），下限為定義的 min_confidence（預設 0.0）
+        """
+        import json
+        from museon.agent import constellation_radar
+
+        data_dir = str(self._workspace)
+        registry_path = self._workspace / "_system" / "constellations" / "registry.json"
+
+        # 讀取 registry，取得所有已註冊星座
+        if not registry_path.exists():
+            logger.info("[NIGHTLY] 32.6: constellations/registry.json 不存在，跳過")
+            return {"constellations_processed": 0, "users_decayed": 0, "details": {}}
+
+        try:
+            registry_data = json.loads(registry_path.read_text(encoding="utf-8"))
+        except Exception as e:
+            logger.warning(f"[NIGHTLY] 32.6: 讀取 registry.json 失敗: {e}")
+            return {"constellations_processed": 0, "users_decayed": 0, "details": {}}
+
+        # 取得 active 星座名稱列表（支援 list of dicts 或 list of strings 兩種格式）
+        raw_constellations = registry_data.get("constellations", [])
+        if isinstance(raw_constellations, list):
+            active_names = []
+            for item in raw_constellations:
+                if isinstance(item, dict):
+                    # list of dicts 格式：{"name": "...", "status": "active", ...}
+                    name = item.get("name", "")
+                    status = item.get("status", "active")
+                    if name and status == "active":
+                        active_names.append(name)
+                elif isinstance(item, str):
+                    # list of strings 格式：直接取名稱
+                    active_names.append(item)
+        elif isinstance(raw_constellations, dict):
+            # dict 格式：{name: meta, ...}
+            active_names = [
+                name for name, meta in raw_constellations.items()
+                if isinstance(meta, dict) and meta.get("active", True)
+            ]
+        else:
+            active_names = []
+
+        constellations_processed = 0
+        total_users_decayed = 0
+        details: dict = {}
+
+        for name in active_names:
+            # 跳過 absurdity：已由 Step 32.5 專責處理
+            if name == "absurdity":
+                continue
+
+            # 載入星座定義
+            defn = constellation_radar.load_definition(name, data_dir)
+            if defn is None:
+                logger.warning(f"[NIGHTLY] 32.6: 星座 {name} 定義不存在，跳過")
+                continue
+
+            dimensions = tuple(defn.get("dimensions", []))
+            if not dimensions:
+                logger.warning(f"[NIGHTLY] 32.6: 星座 {name} 無 dimensions，跳過")
+                continue
+
+            decay_rate: float = defn.get("decay_rate", 0.02)
+            confidence_decay: float = defn.get("confidence_decay", 0.01)
+            min_confidence: float = defn.get("min_confidence", 0.0)
+
+            # 掃描此星座的所有使用者 radar 檔案
+            radars_dir = self._workspace / "_system" / "constellations" / name / "radars"
+            if not radars_dir.exists():
+                # 星座目錄存在但尚無任何 radar 資料，正常情況，不報 warning
+                continue
+
+            users_decayed_this_constellation = 0
+            for radar_file in radars_dir.glob("*.json"):
+                user_id = radar_file.stem
+                try:
+                    radar = constellation_radar.load_radar(name, user_id, data_dir)
+
+                    # 維度衰減：向 0.5 回歸
+                    radar = constellation_radar.decay_radar(radar, dimensions, decay_rate)
+
+                    # 信心衰減：覆寫 decay_radar 固定的 -0.01，改用星座自訂 confidence_decay
+                    # decay_radar() 已把 confidence 減了 0.01，加回 0.01 再減 confidence_decay
+                    # 等效於只減 confidence_decay（尊重星座自訂衰減率）
+                    radar["confidence"] = round(
+                        max(min_confidence, radar.get("confidence", 0.0) - confidence_decay + 0.01),
+                        4,
+                    )
+
+                    constellation_radar.save_radar(name, radar, user_id, data_dir)
+                    users_decayed_this_constellation += 1
+                except Exception as e:
+                    logger.warning(
+                        f"[NIGHTLY] 32.6: 星座 {name} 使用者 {user_id} 衰減失敗: {e}"
+                    )
+
+            if users_decayed_this_constellation > 0:
+                constellations_processed += 1
+                total_users_decayed += users_decayed_this_constellation
+                details[name] = users_decayed_this_constellation
+
+        logger.info(
+            f"[NIGHTLY] 32.6: 多星座衰減完成 — "
+            f"{constellations_processed} 星座 × {total_users_decayed} 使用者"
+        )
+        return {
+            "constellations_processed": constellations_processed,
+            "users_decayed": total_users_decayed,
+            "details": details,
+        }
 
     def _step_crystal_promotion(self) -> Dict:
         """Step 33: 自動升級 Heuristic — 高頻結晶提升為啟發式規則。

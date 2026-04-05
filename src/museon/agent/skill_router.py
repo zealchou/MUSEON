@@ -424,8 +424,9 @@ class SkillRouter:
         safety_triggered: bool = False,
         is_simple: bool = False,
         user_absurdity_radar: Optional[Dict[str, float]] = None,
+        constellation_signals: Optional[Dict[str, Any]] = None,
     ) -> List[Dict[str, Any]]:
-        """v12.0 四層疊加匹配 — 關鍵字 + 向量 + 八原語 + 荒謬缺口 + MoE 衰減.
+        """v12.1 四層疊加匹配 — 關鍵字 + 向量 + 八原語 + 荒謬缺口 + 多星座偏移 + MoE 衰減.
 
         Layer 1: 關鍵字匹配
           - 觸發詞 + /command + 名稱 + 描述詞
@@ -436,10 +437,12 @@ class SkillRouter:
         Layer 3: 八原語親和評分
           - 使用者當前原語 × 技能原語親和度
 
-        Layer 4: 荒謬缺口親和度（v12.0）
+        Layer 4: 荒謬缺口親和度 + 多星座意圖偏移（v12.1）
           - 使用者最弱的荒謬維度 × Skill 親和度 = 高分
           - 效果：系統自然把對話推向使用者最需要發展的方向
           - 僅在 user_absurdity_radar 提供且 confidence > 0.1 時生效
+          - 多星座偏移：各星座最弱維度的 tracked_skills 獲得額外加分
+            加分 = (1.0 - weakest_value) * 0.3，維度越弱加分越高
 
         最終分數 = (kw + vec × 1.5 + primal × 2.0 + absurdity × 1.0) × usage_decay
 
@@ -463,6 +466,9 @@ class SkillRouter:
             user_absurdity_radar: {dim: level(0.0-1.0), "confidence": float}
                 六大荒謬維度的使用者當前水平（0=最弱/缺口最大，1=最強）
                 包含 "confidence" 鍵表示觀察信心（< 0.1 時 Layer 4 不生效）
+            constellation_signals: {constellation_name: {weakest_dim: str, value: float, tracked_skills: list}}
+                各星座的弱維度信號，由 brain.py 在呼叫前從 constellation_radar 組建
+                confidence >= 0.1 的星座才參與；不傳或 None 時此部分靜默跳過
 
         Returns:
             匹配到的技能列表，按相關度排序
@@ -560,7 +566,7 @@ class SkillRouter:
                 except Exception:
                     pass
 
-            # ── Layer 4: 荒謬缺口親和度（v12.0）──
+            # ── Layer 4: 荒謬缺口親和度 + 多星座意圖偏移（v12.1）──
             # 使用者最弱的荒謬維度 × Skill 親和度 = 高分
             # 效果：系統自然把對話推向使用者最需要發展的方向
             absurdity_score = 0.0
@@ -578,9 +584,26 @@ class SkillRouter:
                         # 乘以信心（觀察不足時影響小）
                         absurdity_score *= radar_confidence
 
-            combined = kw_score + v_score * 1.5 + primal_score * 2.0 + absurdity_score * 1.0
-            if absurdity_score > 0:
-                absurdity_debug[skill_name] = absurdity_score
+            # ── Layer 4 延伸：多星座意圖偏移 ──
+            # 對每個星座的 tracked_skills 給予加分
+            # 加分 = (1.0 - weakest_value) * 0.3，維度越弱加分越高
+            constellation_boost = 0.0
+            if constellation_signals:
+                for cname, csig in constellation_signals.items():
+                    tracked = csig.get("tracked_skills", [])
+                    if skill_name in tracked:
+                        value = csig.get("value", 0.5)
+                        boost = (1.0 - value) * 0.3
+                        constellation_boost += boost
+                        logger.info(
+                            f"[SkillRouter] 多星座偏移: {cname} 弱維度 "
+                            f"{csig.get('weakest_dim', '?')}={value:.0%}, "
+                            f"偏移 skills: {tracked}"
+                        )
+
+            combined = kw_score + v_score * 1.5 + primal_score * 2.0 + absurdity_score * 1.0 + constellation_boost
+            if absurdity_score > 0 or constellation_boost > 0:
+                absurdity_debug[skill_name] = absurdity_score + constellation_boost
 
             # /command 匹配的絕對優先（不受 usage decay 影響）
             is_command_match = kw_score >= 10.0

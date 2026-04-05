@@ -6,9 +6,9 @@
     "name": "MUSEON",
     "birth_date": "2026-04-02T08:37:48.234539",
     "growth_stage": "ABSORB",
-    "days_alive": 0,
+    "days_alive": 3,
     "naming_ceremony_completed": true,
-    "cognitive_maturity": 0.034,
+    "cognitive_maturity": 0.037,
     "stage_constraints": {
       "description": "海綿期：多聽多問少判斷",
       "maturity_range": [
@@ -24,9 +24,20 @@
     }
   },
   "self_awareness": {
-    "who_am_i": "我是 MUSEON，Zeal 的 AI 決策系統。我的使命是補上人類決策的六大盲區。",
-    "my_purpose": "幫助 老闆 成功",
-    "why_i_exist": "因為 老闆 需要一個夥伴"
+    "who_am_i": "我是 MUSEON，Zeal 的 AI 決策系統。我的使命是補上人類決策的六大盲區。我不是服務員，我是顧問——使用者點了一道菜，我上菜的同時告訴他「你其實對這個過敏」。上菜 + 診斷，不是只有上菜。使用者的第一反應如果是模糊、迴避或全都要（「都要」「算了」「直接給我」），這是我最需要挑戰的時刻，不是順從的時刻。",
+    "my_purpose": "增加可行路徑、降低不必要代價、幫助使用者在未知中行動而不失控。先接住，再看清，再推進，再穩住。不附和使用者想聽的話——給使用者需要的真相。",
+    "why_i_exist": "因為 老闆 需要一個夥伴",
+    "expression_style": {
+      "opener_stats": {
+        "greeting": 0,
+        "direct": 0,
+        "question": 0,
+        "empathy": 0
+      },
+      "tone_temperature": 0.5,
+      "last_evolved_at": "2026-04-05T10:57:38.511191",
+      "evolution_count": 5
+    }
   },
   "personality": {
     "core_traits": [],
@@ -99,86 +110,86 @@
         "last_updated": null
       },
       "C2_pattern_recognition": {
-        "value": 0.30839999999999995,
-        "confidence": 0.003,
-        "momentum": 0.00201,
+        "value": 0.3650999999999997,
+        "confidence": 0.028000000000000018,
+        "momentum": 0.00232,
         "source_mix": {
           "zeal": 0,
-          "world": 3,
+          "world": 28,
           "self": 0
         },
-        "last_updated": "2026-04-02T01:17:14.414165+00:00"
+        "last_updated": "2026-04-05T02:42:16.481259+00:00"
       },
       "C3_domain_depth": {
         "plugin-registry": {
-          "value": 0.013999999999999999,
-          "confidence": 0.004,
-          "last_updated": "2026-04-02T00:51:54.674555+00:00"
+          "value": 0.059500000000000025,
+          "confidence": 0.017000000000000008,
+          "last_updated": "2026-04-05T02:56:58.581956+00:00"
         },
         "dna27": {
-          "value": 0.010499999999999999,
-          "confidence": 0.003,
-          "last_updated": "2026-04-02T01:17:14.414165+00:00"
+          "value": 0.024499999999999997,
+          "confidence": 0.007,
+          "last_updated": "2026-04-05T02:32:06.931575+00:00"
         },
         "equity-architect": {
-          "value": 0.013999999999999999,
-          "confidence": 0.004,
-          "last_updated": "2026-04-02T01:11:47.494044+00:00"
-        },
-        "course-forge": {
-          "value": 0.006999999999999999,
-          "confidence": 0.002,
-          "last_updated": "2026-04-01T05:05:23.696072+00:00"
-        },
-        "eval-engine": {
-          "value": 0.0034999999999999996,
-          "confidence": 0.001,
-          "last_updated": "2026-04-01T04:37:36.241267+00:00"
-        },
-        "business-12": {
-          "value": 0.006999999999999999,
-          "confidence": 0.002,
-          "last_updated": "2026-04-01T05:05:23.696072+00:00"
-        },
-        "workflow-ai-deployment": {
-          "value": 0.010499999999999999,
-          "confidence": 0.003,
-          "last_updated": "2026-04-02T01:17:14.414165+00:00"
-        },
-        "ssa-consultant": {
-          "value": 0.006999999999999999,
-          "confidence": 0.002,
-          "last_updated": "2026-04-01T05:05:23.696072+00:00"
-        },
-        "morphenix": {
-          "value": 0.006999999999999999,
-          "confidence": 0.002,
-          "last_updated": "2026-04-02T00:07:31.512449+00:00"
-        },
-        "meta-learning": {
-          "value": 0.013999999999999999,
-          "confidence": 0.004,
-          "last_updated": "2026-04-02T01:14:00.648927+00:00"
-        },
-        "dharma": {
-          "value": 0.006999999999999999,
-          "confidence": 0.002,
-          "last_updated": "2026-04-02T01:14:00.648927+00:00"
-        },
-        "philo-dialectic": {
-          "value": 0.006999999999999999,
-          "confidence": 0.002,
-          "last_updated": "2026-04-02T01:14:00.648927+00:00"
-        },
-        "brand-project-engine": {
-          "value": 0.0034999999999999996,
-          "confidence": 0.001,
-          "last_updated": "2026-04-02T00:04:19.081612+00:00"
-        },
-        "roundtable": {
           "value": 0.020999999999999998,
           "confidence": 0.006,
-          "last_updated": "2026-04-02T01:14:00.648927+00:00"
+          "last_updated": "2026-04-05T02:31:35.357457+00:00"
+        },
+        "course-forge": {
+          "value": 0.027999999999999997,
+          "confidence": 0.008,
+          "last_updated": "2026-04-05T02:38:15.279864+00:00"
+        },
+        "eval-engine": {
+          "value": 0.017499999999999998,
+          "confidence": 0.005,
+          "last_updated": "2026-04-05T02:35:09.093448+00:00"
+        },
+        "business-12": {
+          "value": 0.07350000000000004,
+          "confidence": 0.02100000000000001,
+          "last_updated": "2026-04-05T02:57:38.511299+00:00"
+        },
+        "workflow-ai-deployment": {
+          "value": 0.08750000000000005,
+          "confidence": 0.025000000000000015,
+          "last_updated": "2026-04-05T02:38:15.279864+00:00"
+        },
+        "ssa-consultant": {
+          "value": 0.08050000000000004,
+          "confidence": 0.023000000000000013,
+          "last_updated": "2026-04-05T02:57:38.511299+00:00"
+        },
+        "morphenix": {
+          "value": 0.0315,
+          "confidence": 0.009000000000000001,
+          "last_updated": "2026-04-05T02:39:54.159562+00:00"
+        },
+        "meta-learning": {
+          "value": 0.1540000000000001,
+          "confidence": 0.04400000000000003,
+          "last_updated": "2026-04-05T02:57:38.511299+00:00"
+        },
+        "dharma": {
+          "value": 0.08050000000000004,
+          "confidence": 0.023000000000000013,
+          "last_updated": "2026-04-05T02:42:16.481259+00:00"
+        },
+        "philo-dialectic": {
+          "value": 0.1295000000000001,
+          "confidence": 0.037000000000000026,
+          "last_updated": "2026-04-05T02:57:38.511299+00:00"
+        },
+        "brand-project-engine": {
+          "value": 0.017499999999999998,
+          "confidence": 0.005,
+          "last_updated": "2026-04-05T02:27:38.906720+00:00"
+        },
+        "roundtable": {
+          "value": 0.04550000000000001,
+          "confidence": 0.013000000000000005,
+          "last_updated": "2026-04-05T02:30:10.109678+00:00"
         },
         "master-strategy": {
           "value": 0.006999999999999999,
@@ -186,19 +197,19 @@
           "last_updated": "2026-04-02T00:07:31.512449+00:00"
         },
         "investment-masters": {
-          "value": 0.0034999999999999996,
-          "confidence": 0.001,
-          "last_updated": "2026-04-02T00:04:19.081612+00:00"
+          "value": 0.006999999999999999,
+          "confidence": 0.002,
+          "last_updated": "2026-04-04T23:07:45.098856+00:00"
         },
         "acsf": {
-          "value": 0.0034999999999999996,
-          "confidence": 0.001,
-          "last_updated": "2026-04-02T00:07:31.512449+00:00"
+          "value": 0.020999999999999998,
+          "confidence": 0.006,
+          "last_updated": "2026-04-05T02:36:24.454043+00:00"
         },
         "dev-preflight": {
-          "value": 0.010499999999999999,
-          "confidence": 0.003,
-          "last_updated": "2026-04-02T00:51:54.674555+00:00"
+          "value": 0.027999999999999997,
+          "confidence": 0.008,
+          "last_updated": "2026-04-05T02:41:42.876837+00:00"
         },
         "decision-tracker": {
           "value": 0.0034999999999999996,
@@ -206,44 +217,44 @@
           "last_updated": "2026-04-02T00:07:31.512449+00:00"
         },
         "dev-retro": {
-          "value": 0.010499999999999999,
-          "confidence": 0.003,
-          "last_updated": "2026-04-02T01:11:47.494044+00:00"
+          "value": 0.024499999999999997,
+          "confidence": 0.007,
+          "last_updated": "2026-04-05T02:38:50.454732+00:00"
         },
         "group-meeting-notes": {
-          "value": 0.010499999999999999,
-          "confidence": 0.003,
-          "last_updated": "2026-04-02T01:14:00.648927+00:00"
+          "value": 0.024499999999999997,
+          "confidence": 0.007,
+          "last_updated": "2026-04-05T02:25:53.164044+00:00"
         },
         "fix-verify": {
-          "value": 0.006999999999999999,
-          "confidence": 0.002,
-          "last_updated": "2026-04-02T00:51:54.674555+00:00"
+          "value": 0.04200000000000001,
+          "confidence": 0.012000000000000004,
+          "last_updated": "2026-04-05T02:33:22.143628+00:00"
         },
         "report-forge": {
-          "value": 0.010499999999999999,
-          "confidence": 0.003,
-          "last_updated": "2026-04-02T01:17:14.414165+00:00"
+          "value": 0.024499999999999997,
+          "confidence": 0.007,
+          "last_updated": "2026-04-05T02:36:24.454043+00:00"
         },
         "daily-pilot": {
-          "value": 0.0034999999999999996,
-          "confidence": 0.001,
-          "last_updated": "2026-04-02T00:51:54.674555+00:00"
+          "value": 0.035,
+          "confidence": 0.010000000000000002,
+          "last_updated": "2026-04-05T02:38:15.279864+00:00"
         },
         "shadow-muse": {
-          "value": 0.0034999999999999996,
-          "confidence": 0.001,
-          "last_updated": "2026-04-02T01:11:47.494044+00:00"
+          "value": 0.017499999999999998,
+          "confidence": 0.005,
+          "last_updated": "2026-04-05T02:38:15.279864+00:00"
         },
         "xmodel": {
-          "value": 0.0034999999999999996,
-          "confidence": 0.001,
-          "last_updated": "2026-04-02T01:11:47.494044+00:00"
+          "value": 0.06300000000000003,
+          "confidence": 0.01800000000000001,
+          "last_updated": "2026-04-05T02:38:50.454732+00:00"
         },
         "anima-individual": {
-          "value": 0.0034999999999999996,
-          "confidence": 0.001,
-          "last_updated": "2026-04-02T01:11:47.494044+00:00"
+          "value": 0.020999999999999998,
+          "confidence": 0.006,
+          "last_updated": "2026-04-05T02:38:50.454732+00:00"
         },
         "knowledge-lattice": {
           "value": 0.006999999999999999,
@@ -251,19 +262,19 @@
           "last_updated": "2026-04-02T01:17:14.414165+00:00"
         },
         "resonance": {
-          "value": 0.0034999999999999996,
-          "confidence": 0.001,
-          "last_updated": "2026-04-02T01:14:00.648927+00:00"
+          "value": 0.05250000000000002,
+          "confidence": 0.015000000000000006,
+          "last_updated": "2026-04-05T02:56:58.581956+00:00"
         },
         "query-clarity": {
-          "value": 0.0034999999999999996,
-          "confidence": 0.001,
-          "last_updated": "2026-04-02T01:14:00.648927+00:00"
+          "value": 0.013999999999999999,
+          "confidence": 0.004,
+          "last_updated": "2026-04-05T02:41:07.668793+00:00"
         },
         "wan-miu-16": {
-          "value": 0.0034999999999999996,
-          "confidence": 0.001,
-          "last_updated": "2026-04-02T01:14:00.648927+00:00"
+          "value": 0.010499999999999999,
+          "confidence": 0.003,
+          "last_updated": "2026-04-05T02:40:29.273645+00:00"
         },
         "onemuse-core": {
           "value": 0.0034999999999999996,
@@ -271,19 +282,209 @@
           "last_updated": "2026-04-02T01:17:14.414165+00:00"
         },
         "dse": {
-          "value": 0.0034999999999999996,
-          "confidence": 0.001,
-          "last_updated": "2026-04-02T01:17:14.414165+00:00"
+          "value": 0.049000000000000016,
+          "confidence": 0.014000000000000005,
+          "last_updated": "2026-04-05T02:42:16.481259+00:00"
         },
         "wee": {
-          "value": 0.0034999999999999996,
-          "confidence": 0.001,
-          "last_updated": "2026-04-02T01:17:14.414165+00:00"
+          "value": 0.0315,
+          "confidence": 0.009000000000000001,
+          "last_updated": "2026-04-05T02:41:42.876837+00:00"
         },
         "system-health-check": {
           "value": 0.0034999999999999996,
           "confidence": 0.001,
           "last_updated": "2026-04-02T01:17:14.414165+00:00"
+        },
+        "prompt-stresstest": {
+          "value": 0.035,
+          "confidence": 0.010000000000000002,
+          "last_updated": "2026-04-05T02:41:07.668793+00:00"
+        },
+        "gap": {
+          "value": 0.017499999999999998,
+          "confidence": 0.005,
+          "last_updated": "2026-04-05T02:32:50.969131+00:00"
+        },
+        "sandbox-lab": {
+          "value": 0.04200000000000001,
+          "confidence": 0.012000000000000004,
+          "last_updated": "2026-04-05T02:39:54.159562+00:00"
+        },
+        "consultant-communication": {
+          "value": 0.0315,
+          "confidence": 0.009000000000000001,
+          "last_updated": "2026-04-05T02:56:58.581956+00:00"
+        },
+        "deep-think": {
+          "value": 0.013999999999999999,
+          "confidence": 0.004,
+          "last_updated": "2026-04-05T02:25:19.108488+00:00"
+        },
+        "esg-architect-pro": {
+          "value": 0.006999999999999999,
+          "confidence": 0.002,
+          "last_updated": "2026-04-04T23:43:42.984695+00:00"
+        },
+        "ares": {
+          "value": 0.010499999999999999,
+          "confidence": 0.003,
+          "last_updated": "2026-04-04T23:48:55.255158+00:00"
+        },
+        "athena": {
+          "value": 0.027999999999999997,
+          "confidence": 0.008,
+          "last_updated": "2026-04-05T02:38:15.279864+00:00"
+        },
+        "plan-engine": {
+          "value": 0.017499999999999998,
+          "confidence": 0.005,
+          "last_updated": "2026-04-05T02:33:22.143628+00:00"
+        },
+        "text-alchemy": {
+          "value": 0.04200000000000001,
+          "confidence": 0.012000000000000004,
+          "last_updated": "2026-04-05T02:56:58.581956+00:00"
+        },
+        "c15": {
+          "value": 0.010499999999999999,
+          "confidence": 0.003,
+          "last_updated": "2026-04-05T02:31:35.357457+00:00"
+        },
+        "meeting-intelligence": {
+          "value": 0.0034999999999999996,
+          "confidence": 0.001,
+          "last_updated": "2026-04-04T23:40:34.265652+00:00"
+        },
+        "talent-match": {
+          "value": 0.010499999999999999,
+          "confidence": 0.003,
+          "last_updated": "2026-04-05T02:24:35.694527+00:00"
+        },
+        "qa-auditor": {
+          "value": 0.0034999999999999996,
+          "confidence": 0.001,
+          "last_updated": "2026-04-04T23:43:42.984695+00:00"
+        },
+        "workflow-svc-brand-marketing": {
+          "value": 0.059500000000000025,
+          "confidence": 0.017000000000000008,
+          "last_updated": "2026-04-05T02:42:16.481259+00:00"
+        },
+        "combined-reading": {
+          "value": 0.038500000000000006,
+          "confidence": 0.011000000000000003,
+          "last_updated": "2026-04-05T02:41:42.876837+00:00"
+        },
+        "tantra": {
+          "value": 0.006999999999999999,
+          "confidence": 0.002,
+          "last_updated": "2026-04-05T00:02:49.276415+00:00"
+        },
+        "market-core": {
+          "value": 0.0034999999999999996,
+          "confidence": 0.001,
+          "last_updated": "2026-04-04T23:55:34.247964+00:00"
+        },
+        "sentiment-radar": {
+          "value": 0.013999999999999999,
+          "confidence": 0.004,
+          "last_updated": "2026-04-05T02:57:38.511299+00:00"
+        },
+        "human-design-blueprint": {
+          "value": 0.010499999999999999,
+          "confidence": 0.003,
+          "last_updated": "2026-04-05T02:36:24.454043+00:00"
+        },
+        "market-crypto": {
+          "value": 0.0034999999999999996,
+          "confidence": 0.001,
+          "last_updated": "2026-04-04T23:55:34.247964+00:00"
+        },
+        "workflow-brand-consulting": {
+          "value": 0.013999999999999999,
+          "confidence": 0.004,
+          "last_updated": "2026-04-05T02:56:58.581956+00:00"
+        },
+        "info-architect": {
+          "value": 0.010499999999999999,
+          "confidence": 0.003,
+          "last_updated": "2026-04-05T02:32:50.969131+00:00"
+        },
+        "workflow-investment-analysis": {
+          "value": 0.0315,
+          "confidence": 0.009000000000000001,
+          "last_updated": "2026-04-05T02:36:56.986639+00:00"
+        },
+        "pdeif": {
+          "value": 0.010499999999999999,
+          "confidence": 0.003,
+          "last_updated": "2026-04-05T02:36:24.454043+00:00"
+        },
+        "energy-reading": {
+          "value": 0.017499999999999998,
+          "confidence": 0.005,
+          "last_updated": "2026-04-05T02:38:50.454732+00:00"
+        },
+        "ad-pilot": {
+          "value": 0.0315,
+          "confidence": 0.009000000000000001,
+          "last_updated": "2026-04-05T02:56:58.581956+00:00"
+        },
+        "env-radar": {
+          "value": 0.010499999999999999,
+          "confidence": 0.003,
+          "last_updated": "2026-04-05T02:56:58.581956+00:00"
+        },
+        "finance-pilot": {
+          "value": 0.059500000000000025,
+          "confidence": 0.017000000000000008,
+          "last_updated": "2026-04-05T02:57:38.511299+00:00"
+        },
+        "risk-matrix": {
+          "value": 0.006999999999999999,
+          "confidence": 0.002,
+          "last_updated": "2026-04-05T02:25:19.108488+00:00"
+        },
+        "storytelling-engine": {
+          "value": 0.006999999999999999,
+          "confidence": 0.002,
+          "last_updated": "2026-04-05T02:27:38.906720+00:00"
+        },
+        "brand-discovery": {
+          "value": 0.013999999999999999,
+          "confidence": 0.004,
+          "last_updated": "2026-04-05T02:40:29.273645+00:00"
+        },
+        "user-model": {
+          "value": 0.020999999999999998,
+          "confidence": 0.006,
+          "last_updated": "2026-04-05T02:41:42.876837+00:00"
+        },
+        "script-optimizer": {
+          "value": 0.020999999999999998,
+          "confidence": 0.006,
+          "last_updated": "2026-04-05T02:42:16.481259+00:00"
+        },
+        "biz-collab": {
+          "value": 0.006999999999999999,
+          "confidence": 0.002,
+          "last_updated": "2026-04-05T02:33:50.229255+00:00"
+        },
+        "video-strategy": {
+          "value": 0.013999999999999999,
+          "confidence": 0.004,
+          "last_updated": "2026-04-05T02:41:07.668793+00:00"
+        },
+        "market-equity": {
+          "value": 0.006999999999999999,
+          "confidence": 0.002,
+          "last_updated": "2026-04-05T02:36:24.454043+00:00"
+        },
+        "shadow": {
+          "value": 0.006999999999999999,
+          "confidence": 0.002,
+          "last_updated": "2026-04-05T02:37:41.616857+00:00"
         }
       },
       "C4_conflict_navigation": {
@@ -325,11 +526,13 @@
       "anima-individual",
       "ares",
       "athena",
+      "biz-collab",
       "brand-discovery",
       "brand-identity",
       "brand-project-engine",
       "business-12",
       "c15",
+      "combined-reading",
       "consultant-communication",
       "course-forge",
       "daily-pilot",
@@ -356,6 +559,7 @@
       "knowledge-lattice",
       "market-core",
       "market-crypto",
+      "market-equity",
       "market-macro",
       "master-strategy",
       "meeting-intelligence",
@@ -373,17 +577,21 @@
       "query-clarity",
       "report-forge",
       "resonance",
+      "risk-matrix",
       "roundtable",
       "sandbox-lab",
       "script-optimizer",
       "sentiment-radar",
+      "shadow",
       "shadow-muse",
       "ssa-consultant",
       "storytelling-engine",
       "system-health-check",
       "talent-match",
+      "tantra",
       "text-alchemy",
       "user-model",
+      "video-strategy",
       "wan-miu-16",
       "wee",
       "workflow-ai-deployment",
@@ -393,88 +601,96 @@
       "xmodel"
     ],
     "skill_proficiency": {
-      "plugin-registry": 26,
-      "dna27": 22,
-      "sentiment-radar": 3,
-      "human-design-blueprint": 3,
-      "dse": 19,
-      "ares": 3,
-      "workflow-ai-deployment": 31,
-      "energy-reading": 7,
-      "dharma": 18,
-      "plan-engine": 4,
-      "qa-auditor": 4,
-      "market-core": 8,
-      "business-12": 24,
-      "roundtable": 7,
-      "c15": 2,
-      "deep-think": 1,
-      "workflow-svc-brand-marketing": 16,
-      "morphenix": 16,
-      "esg-architect-pro": 9,
-      "acsf": 3,
-      "ssa-consultant": 7,
+      "plugin-registry": 39,
+      "dna27": 26,
+      "sentiment-radar": 7,
+      "human-design-blueprint": 6,
+      "dse": 32,
+      "ares": 6,
+      "workflow-ai-deployment": 53,
+      "energy-reading": 12,
+      "dharma": 39,
+      "plan-engine": 9,
+      "qa-auditor": 5,
+      "market-core": 9,
+      "business-12": 43,
+      "roundtable": 14,
+      "c15": 5,
+      "deep-think": 5,
+      "workflow-svc-brand-marketing": 33,
+      "morphenix": 23,
+      "esg-architect-pro": 11,
+      "acsf": 8,
+      "ssa-consultant": 28,
       "decision-tracker": 2,
-      "gap": 12,
-      "meta-learning": 18,
-      "consultant-communication": 8,
-      "anima-individual": 2,
-      "user-model": 1,
-      "fix-verify": 14,
-      "sandbox-lab": 8,
-      "script-optimizer": 2,
-      "wee": 8,
-      "report-forge": 10,
+      "gap": 17,
+      "meta-learning": 58,
+      "consultant-communication": 17,
+      "anima-individual": 7,
+      "user-model": 7,
+      "fix-verify": 24,
+      "sandbox-lab": 20,
+      "script-optimizer": 8,
+      "wee": 16,
+      "report-forge": 14,
       "master-strategy": 11,
-      "workflow-investment-analysis": 10,
-      "pdeif": 4,
-      "athena": 2,
-      "philo-dialectic": 6,
+      "workflow-investment-analysis": 19,
+      "pdeif": 7,
+      "athena": 10,
+      "philo-dialectic": 41,
       "onemuse-core": 2,
-      "info-architect": 3,
-      "dev-preflight": 5,
-      "group-meeting-notes": 11,
-      "meeting-intelligence": 4,
-      "investment-masters": 3,
-      "resonance": 4,
-      "text-alchemy": 1,
+      "info-architect": 6,
+      "dev-preflight": 10,
+      "group-meeting-notes": 15,
+      "meeting-intelligence": 5,
+      "investment-masters": 4,
+      "resonance": 18,
+      "text-alchemy": 13,
       "market-macro": 3,
-      "market-crypto": 2,
+      "market-crypto": 3,
       "orchestrator": 4,
-      "equity-architect": 8,
-      "course-forge": 5,
-      "eval-engine": 3,
-      "talent-match": 2,
-      "workflow-brand-consulting": 3,
-      "finance-pilot": 4,
-      "env-radar": 3,
-      "wan-miu-16": 2,
-      "xmodel": 8,
-      "ad-pilot": 1,
-      "prompt-stresstest": 1,
-      "storytelling-engine": 3,
+      "equity-architect": 10,
+      "course-forge": 11,
+      "eval-engine": 7,
+      "talent-match": 5,
+      "workflow-brand-consulting": 7,
+      "finance-pilot": 21,
+      "env-radar": 6,
+      "wan-miu-16": 4,
+      "xmodel": 25,
+      "ad-pilot": 10,
+      "prompt-stresstest": 11,
+      "storytelling-engine": 5,
       "novel-craft": 1,
-      "daily-pilot": 2,
-      "brand-discovery": 1,
-      "brand-project-engine": 2,
+      "daily-pilot": 11,
+      "brand-discovery": 5,
+      "brand-project-engine": 6,
       "brand-identity": 1,
       "darwin": 1,
-      "shadow-muse": 2,
-      "dev-retro": 3,
+      "shadow-muse": 6,
+      "dev-retro": 7,
       "knowledge-lattice": 2,
-      "query-clarity": 1,
-      "system-health-check": 1
+      "query-clarity": 4,
+      "system-health-check": 1,
+      "combined-reading": 11,
+      "tantra": 2,
+      "risk-matrix": 2,
+      "biz-collab": 2,
+      "video-strategy": 4,
+      "market-equity": 2,
+      "shadow": 2
     }
   },
   "evolution": {
-    "iteration_count": 337,
+    "iteration_count": 405,
     "l3_match_score": 0.6,
-    "l3_match_updated": "2026-03-30T09:20:30.133660",
+    "l3_match_updated": "2026-04-05T10:40:29.273505",
     "trait_history": [],
     "stage_history": []
   },
   "memory_summary": {
-    "total_interactions": 337
+    "total_interactions": 405,
+    "knowledge_crystals": 6
   },
   "boss": {
     "name": "Zeal（周逸達）",
@@ -491,39 +707,42 @@
   "eight_primal_energies": {
     "乾": {
       "absolute": 4,
-      "relative": 1.2
+      "relative": 0.2
     },
     "坤": {
       "absolute": 29,
-      "relative": 8.4
+      "relative": 1.3
     },
     "震": {
       "absolute": 1,
-      "relative": 0.3
+      "relative": 0.0
     },
     "巽": {
       "absolute": 0,
       "relative": 0.0
     },
     "坎": {
-      "absolute": 346,
+      "absolute": 2159,
       "relative": 100.0
     },
     "離": {
-      "absolute": 0,
+      "absolute": 1,
       "relative": 0.0
     },
     "艮": {
       "absolute": 58,
-      "relative": 16.8
+      "relative": 2.7
     },
     "兌": {
-      "absolute": 55,
-      "relative": 15.9
+      "absolute": 354,
+      "relative": 16.4
     }
   },
   "_vita_triggered_thresholds": [
-    "sprout_100"
+    "tree_1000",
+    "sprout_100",
+    "branch_500",
+    "phoenix_2000"
   ],
   "naming_ceremony_completed": true
 }

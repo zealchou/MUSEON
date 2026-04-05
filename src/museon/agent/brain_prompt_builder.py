@@ -209,8 +209,13 @@ class BrainPromptBuilderMixin:
                     _radar_fitted = budget.fit_text_to_zone("persona", _radar_text)
                     if _radar_fitted:
                         sections.append(_radar_fitted)
+                        logger.info(f"[CONSTELLATION] 星座雷達已注入 ({len(_radar_fitted)} chars)")
+                    else:
+                        logger.info("[CONSTELLATION] 星座雷達被 token 預算截斷")
+                else:
+                    logger.info("[CONSTELLATION] 星座雷達回傳空字串（無缺口或無數據）")
             except Exception as _e:
-                logger.debug(f"Constellation radar injection skipped: {_e}")
+                logger.warning(f"[CONSTELLATION] 星座雷達注入失敗: {_e}")
 
         # ── Zone: strategic — 企業決策脈絡（v1.0）──
         strategic_text = self._build_strategic_context()
@@ -496,11 +501,19 @@ class BrainPromptBuilderMixin:
                     user_signal=user_query,
                     data_dir=_data_dir,
                 )
+                logger.info(
+                    f"[ProbeLayer] run_probe_cycle 呼叫: "
+                    f"session={session_id} constellations={list(_constellations.keys())}"
+                )
                 if _probe_text:
                     _probe_fitted = budget.fit_text_to_zone("buffer", _probe_text)
                     if _probe_fitted:
                         sections.append(_probe_fitted)
-                        logger.info("[ProbeLayer] 探針注入完成")
+                        logger.info("[ProbeLayer] 探針注入完成 → prompt 已附加探針問題")
+                    else:
+                        logger.info("[ProbeLayer] 探針文本存在但 token zone 已耗盡，未注入")
+                else:
+                    logger.info("[ProbeLayer] 本輪不觸發探針（閘門關閉）")
             except Exception as _pe:
                 logger.debug(f"[ProbeLayer] 探針注入失敗（降級）: {_pe}")
 
@@ -1909,6 +1922,20 @@ class BrainPromptBuilderMixin:
 
         if cognitive_maturity > 0:
             section += f"\n成長階段：{growth_stage}（認知成熟度 {int(cognitive_maturity * 100)}%）"
+
+        # ── 行為示範（few-shot，幫助 LLM 具體理解正確行為）──
+        section += (
+            "\n\n## 行為示範\n"
+            "使用者：「幫我提升來客數」（沒有數據）\n"
+            "❌ 列出方法清單\n"
+            "✅ 「你的少是跟什麼比？有數字嗎？沒有數字，任何策略都是猜的。」\n\n"
+            "使用者：「都要」\n"
+            "❌ 「好，兩個版本都寫」\n"
+            "✅ 「都要通常等於都沒打到。上個月哪篇互動最高？」\n\n"
+            "使用者：「A 跟 B 差在哪？」\n"
+            "❌ 列功能比較表\n"
+            "✅ 「在比較工具之前——你想解決什麼問題？」"
+        )
 
         return section
 

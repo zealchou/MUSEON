@@ -6,8 +6,6 @@
   "reasoning_rigor": 0.5,
   "synthesis_power": 0.5,
   "epistemic_maturity": 0.5,
-  "confidence": 0.15,
-  "bootstrapped": true,
-  "bootstrapped_at": "2026-04-04T14:21:25.427962+00:00",
-  "updated_at": "2026-04-04T14:21:25.427962+00:00"
+  "confidence": 0.142,
+  "updated_at": "2026-04-05T00:15:43.838938+00:00"
 }

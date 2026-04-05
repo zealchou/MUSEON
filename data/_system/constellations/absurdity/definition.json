@@ -35,6 +35,14 @@
   "confidence_increment": 0.02,
   "confidence_decay": 0.01,
   "min_confidence": 0.1,
+  "tracked_skills": [
+    "deep-think",
+    "roundtable",
+    "shadow-muse",
+    "xmodel",
+    "master-strategy",
+    "pdeif"
+  ],
   "absurdity_mapping": null,
   "created_at": "2026-04-02",
   "updated_at": "2026-04-04"
