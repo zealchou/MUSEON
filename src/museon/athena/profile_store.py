@@ -135,6 +135,16 @@ class ProfileStore:
     def _ensure_index(self) -> None:
         if not self._index_path.exists():
             self._save_index({})
+        # 防護：index 存在但為空，且有 profile 檔案時自動重建
+        try:
+            index = self._load_index()
+            if not index:
+                profile_count = sum(1 for f in self.profiles_dir.glob("*.json") if f.name not in {"_index.json", "_external_map.json"})
+                if profile_count > 0:
+                    logger.warning(f"[ARES] Empty index with {profile_count} profiles, rebuilding...")
+                    self.rebuild_index()
+        except Exception:
+            pass
 
     def _load_index(self) -> dict[str, dict[str, Any]]:
         try:
@@ -214,6 +224,30 @@ class ProfileStore:
     def list_all(self) -> dict[str, dict[str, Any]]:
         """列出所有個體的索引摘要."""
         return self._load_index()
+
+    def rebuild_index(self) -> int:
+        """從現有 profile 檔案重建 _index.json（用於修復空索引）."""
+        skip = {"_index.json", "_external_map.json"}
+        index: dict[str, dict[str, Any]] = {}
+        for f in self.profiles_dir.glob("*.json"):
+            if f.name in skip:
+                continue
+            try:
+                p = json.loads(f.read_text(encoding="utf-8"))
+                pid = p.get("profile_id", f.stem)
+                index[pid] = {
+                    "name": p.get("L1_facts", {}).get("name", "Unknown"),
+                    "domains": p.get("domains", []),
+                    "wan_miu_code": p.get("L2_personality", {}).get("wan_miu_code"),
+                    "temperature": p.get("temperature", {}).get("level", "new"),
+                    "updated_at": p.get("updated_at", ""),
+                }
+            except Exception as e:
+                logger.warning(f"[ARES] Failed to read profile {f.name}: {e}")
+        with self._lock:
+            self._save_index(index)
+        logger.info(f"[ARES] Index rebuilt: {len(index)} profiles")
+        return len(index)
 
     def search(self, keyword: str, domain: str | None = None) -> list[dict[str, Any]]:
         """搜尋個體：比對名稱、公司、角色."""

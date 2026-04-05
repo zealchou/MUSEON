@@ -676,10 +676,11 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                     # L4 CPU 觀察（FAST 管線也要觀察）
                     try:
                         from museon.agent.l4_cpu_observer import L4CpuObserver
-                        _l4 = L4CpuObserver(data_dir=self.data_dir, memory_manager=self.memory_store)
+                        _l4 = L4CpuObserver(data_dir=self.data_dir, memory_manager=self.memory_manager)
                         _l4.observe(
                             session_id=session_id, chat_id=session_id,
                             user_id=user_id, user_message=content, museon_reply=_fast_resp,
+                            metadata=_metadata if '_metadata' in dir() else None,
                         )
                     except Exception as _l4e:
                         logger.debug(f"[L4-CPU] FAST observation failed: {_l4e}")
@@ -703,13 +704,14 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                     # L4 CPU 觀察（即使快取命中也要觀察）
                     try:
                         from museon.agent.l4_cpu_observer import L4CpuObserver
-                        _l4 = L4CpuObserver(data_dir=self.data_dir, memory_manager=self.memory_store)
+                        _l4 = L4CpuObserver(data_dir=self.data_dir, memory_manager=self.memory_manager)
                         _l4.observe(
                             session_id=session_id,
                             chat_id=session_id,
                             user_id=user_id,
                             user_message=content,
                             museon_reply=_cache_hit,
+                            metadata=_metadata if '_metadata' in dir() else None,
                         )
                     except Exception as _l4e:
                         logger.debug(f"[L4-CPU] Cache-hit observation failed: {_l4e}")
@@ -1687,7 +1689,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
             from museon.agent.l4_cpu_observer import L4CpuObserver
             _l4 = L4CpuObserver(
                 data_dir=self.data_dir,
-                memory_manager=self.memory_store,
+                memory_manager=self.memory_manager,
             )
             _l4_result = _l4.observe(
                 session_id=session_id,
@@ -1695,6 +1697,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                 user_id=user_id,
                 user_message=content,
                 museon_reply=response_text,
+                metadata=_metadata if '_metadata' in dir() else None,
             )
             logger.debug(f"[L4-CPU] Observation: {_l4_result}")
         except Exception as e:

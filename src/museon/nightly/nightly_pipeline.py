@@ -3621,6 +3621,54 @@ class NightlyPipeline:
                     f"[NIGHTLY] Ares bridge sync: created={stats['created']}, "
                     f"updated={stats['updated']}, errors={stats['errors']}"
                 )
+
+            # ── 溫度自動衰減 ──
+            try:
+                _ps = ProfileStore(self._workspace)
+                _index = _ps.list_all()
+                _decay_count = 0
+                _now = datetime.now()
+                for _pid, _entry in _index.items():
+                    _profile = _ps.load(_pid)
+                    if not _profile:
+                        continue
+                    _temp = _profile.get("temperature", {})
+                    _current = _temp.get("level", "new")
+                    # 只衰減 hot 和 warm，cold 和 new 不動
+                    if _current not in ("hot", "warm"):
+                        continue
+                    _last = _profile.get("L4_interactions", {}).get("last_interaction")
+                    if not _last:
+                        continue
+                    try:
+                        _days = (_now - datetime.fromisoformat(_last)).days
+                    except Exception:
+                        continue
+                    # 衰減規則：hot → warm (14天), warm → cold (30天)
+                    _new_level = _current
+                    if _current == "hot" and _days > 14:
+                        _new_level = "warm"
+                    elif _current == "warm" and _days > 30:
+                        _new_level = "cold"
+                    if _new_level != _current:
+                        _profile["temperature"] = {
+                            "level": _new_level,
+                            "trend": "falling",
+                            "last_updated": _now.isoformat(),
+                        }
+                        _ps._save_profile(_profile)
+                        _ps._update_index_entry(_profile)
+                        _decay_count += 1
+                        logger.info(
+                            f"[NIGHTLY] Temperature decay: {_entry.get('name', _pid)} "
+                            f"{_current} → {_new_level}"
+                        )
+                if _decay_count > 0:
+                    logger.info(f"[NIGHTLY] Temperature decay: {_decay_count} profiles updated")
+                stats["temperature_decay"] = _decay_count
+            except Exception as e:
+                logger.warning(f"[NIGHTLY] Temperature decay failed: {e}")
+
             return stats
         except Exception as e:
             logger.warning(f"[NIGHTLY] Ares bridge sync failed: {e}")

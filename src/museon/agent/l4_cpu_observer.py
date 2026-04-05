@@ -75,6 +75,18 @@ class L4CpuObserver:
         Returns:
             觀察結果摘要 dict
         """
+        # 從 metadata 推導 chat_scope
+        _chat_scope = ""
+        if metadata:
+            _group_id = metadata.get("group_id", "")
+            _is_group = metadata.get("is_group", False)
+            if _is_group and _group_id:
+                _chat_scope = f"group:{_group_id}"
+            elif chat_id:
+                _chat_scope = f"private:{chat_id}"
+        elif chat_id:
+            _chat_scope = f"private:{chat_id}"
+
         result = {
             "memory_written": False,
             "signal_updated": False,
@@ -86,6 +98,7 @@ class L4CpuObserver:
         try:
             result["memory_written"] = self._step1_memory_write(
                 session_id, chat_id, user_id, user_message, museon_reply,
+                chat_scope=_chat_scope,
             )
         except Exception as e:
             logger.debug(f"[L4-CPU] Step 1 memory write failed: {e}")
@@ -125,6 +138,7 @@ class L4CpuObserver:
     def _step1_memory_write(
         self, session_id: str, chat_id: str, user_id: str,
         user_message: str, museon_reply: str,
+        chat_scope: str = "",
     ) -> bool:
         """規則：訊息 > 20 字 + 非問候 → 寫入記憶."""
         if len(user_message.strip()) < 20:
@@ -135,18 +149,19 @@ class L4CpuObserver:
         if not self._memory_manager:
             return False
 
-        level = "boss/L1_short" if user_id == "boss" else f"{user_id}/L1_short"
         try:
-            self._memory_manager.write(
-                level=level,
-                key=f"l4_{int(time.time())}",
-                content=json.dumps({
-                    "user_message": user_message[:500],
-                    "museon_reply": museon_reply[:500],
-                    "session_id": session_id,
-                    "chat_id": chat_id,
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
-                }, ensure_ascii=False),
+            content = (
+                f"使用者：{user_message[:500]}\n"
+                f"MUSEON：{museon_reply[:500]}"
+            )
+            self._memory_manager.store(
+                user_id=user_id,
+                content=content,
+                layer="L1_short",
+                tags=["l4_observation", "dialogue"],
+                source="l4_cpu_observer",
+                session_id=session_id,
+                chat_scope=chat_scope,
             )
             return True
         except Exception as e:

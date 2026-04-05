@@ -5,6 +5,7 @@
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節、`docs/operational-contract.md`（操作契約表）提供外部操作預期失敗
+> **v2.01 (2026-04-05)**：Entity Registry 建置——brain_prompt_builder.py 扇入不變(6)，扇出 +2（新增 athena/profile_store.py + governance/group_context.py 讀取）；l4_cpu_observer.py 寫入目標從 MemoryStore 改為 MemoryManager（修正斷裂接線）。同步 persistence-contract v1.54、joint-map v1.69。
 > **v2.00 (2026-04-04)**：Knife 2+3 變更——新增 `cache/semantic_response_cache.py`（🟢 綠區，扇入=2（brain.py query、l4_cpu_observer write），扇出=1（Qdrant semantic_response_cache collection），Qdrant 語意快取，零 LLM，v12 新增）；`gateway/cron_registry.py` 新增 quota circuit breaker（quota 耗盡時跳過 LLM cron jobs）。
 > **v1.99 (2026-04-04)**：新增 `agent/l4_cpu_observer.py`（🟢 綠區，扇入=1（brain.py），扇出=3：context_cache JSON、session_adjustments、memory_manager，CPU-only 對話後觀察，零 LLM，v12 新增取代 Haiku L4 agent spawn）；`agent/brain_tools.py` 備注更新：`_classify_complexity` 已於 v12 改為 CPU-only，`_call_llm` 仍走 LLM。
 > **v1.98 (2026-04-02)**：荒謬雷達系統——skill_router.py 新增 Layer 4 (absurdity gap affinity)，扇入不變；nightly_pipeline.py 新增步驟 32.5 (absurdity_radar_recalc)；brain.py 新增 absurdity_radar load/update/save 呼叫（try/except 包裹，不影響扇入）；brain_prompt_builder.py 新增 _build_absurdity_radar_context() 注入到 persona zone；新增共享狀態 #75 data/_system/absurdity_radar/{user}.json。

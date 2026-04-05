@@ -35,7 +35,7 @@ class GroupContextStore(DataContract):
             engine=StoreEngine.SQLITE,
             ttl=TTLTier.PERMANENT,
             description="Telegram 群組上下文 SQLite 儲存",
-            tables=["groups", "clients", "group_members", "messages"],
+            tables=["groups", "clients", "group_members", "messages", "entity_aliases", "projects", "project_entities", "events"],
         )
 
     def health_check(self) -> Dict[str, Any]:
@@ -113,6 +113,47 @@ class GroupContextStore(DataContract):
                 ON messages(group_id, created_at);
             CREATE INDEX IF NOT EXISTS idx_messages_user
                 ON messages(user_id, created_at);
+
+            CREATE TABLE IF NOT EXISTS entity_aliases (
+                alias       TEXT NOT NULL,
+                entity_type TEXT NOT NULL DEFAULT 'telegram_uid',
+                entity_id   TEXT NOT NULL,
+                created_by  TEXT DEFAULT 'auto',
+                created_at  TEXT DEFAULT (datetime('now')),
+                PRIMARY KEY (alias, entity_type, entity_id)
+            );
+            CREATE INDEX IF NOT EXISTS idx_aliases_alias ON entity_aliases(alias COLLATE NOCASE);
+
+            CREATE TABLE IF NOT EXISTS projects (
+                project_id  TEXT PRIMARY KEY,
+                name        TEXT NOT NULL,
+                description TEXT DEFAULT '',
+                status      TEXT DEFAULT 'active',
+                created_at  TEXT DEFAULT (datetime('now')),
+                updated_at  TEXT DEFAULT (datetime('now'))
+            );
+
+            CREATE TABLE IF NOT EXISTS project_entities (
+                project_id  TEXT NOT NULL,
+                entity_type TEXT NOT NULL DEFAULT 'telegram_uid',
+                entity_id   TEXT NOT NULL,
+                role        TEXT DEFAULT 'member',
+                added_at    TEXT DEFAULT (datetime('now')),
+                PRIMARY KEY (project_id, entity_type, entity_id)
+            );
+
+            CREATE TABLE IF NOT EXISTS events (
+                event_id    TEXT PRIMARY KEY,
+                entity_type TEXT,
+                entity_id   TEXT,
+                project_id  TEXT,
+                event_type  TEXT NOT NULL,
+                summary     TEXT NOT NULL,
+                source      TEXT DEFAULT '',
+                created_at  TEXT DEFAULT (datetime('now'))
+            );
+            CREATE INDEX IF NOT EXISTS idx_events_entity ON events(entity_type, entity_id, created_at);
+            CREATE INDEX IF NOT EXISTS idx_events_project ON events(project_id, created_at);
         """)
         conn.commit()
 
@@ -347,6 +388,124 @@ class GroupContextStore(DataContract):
                WHERE gm.group_id = ?
                ORDER BY c.last_seen DESC""",
             (group_id,),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+    # ── Entity Alias management ──
+
+    def add_alias(self, alias: str, entity_id: str, entity_type: str = "telegram_uid", created_by: str = "manual") -> None:
+        """新增人物別名映射."""
+        conn = self._get_conn()
+        conn.execute(
+            """INSERT OR IGNORE INTO entity_aliases (alias, entity_type, entity_id, created_by)
+               VALUES (?, ?, ?, ?)""",
+            (alias, entity_type, entity_id, created_by),
+        )
+        conn.commit()
+
+    def remove_alias(self, alias: str, entity_id: str, entity_type: str = "telegram_uid") -> None:
+        """移除人物別名映射."""
+        conn = self._get_conn()
+        conn.execute(
+            "DELETE FROM entity_aliases WHERE alias = ? AND entity_type = ? AND entity_id = ?",
+            (alias, entity_type, entity_id),
+        )
+        conn.commit()
+
+    def resolve_alias(self, keyword: str) -> List[Dict[str, Any]]:
+        """根據關鍵字查找所有匹配的 entity（case-insensitive）."""
+        conn = self._get_conn()
+        rows = conn.execute(
+            """SELECT alias, entity_type, entity_id, created_by
+               FROM entity_aliases WHERE alias LIKE ? COLLATE NOCASE""",
+            (f"%{keyword}%",),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+    def list_aliases(self, entity_id: str, entity_type: str = "telegram_uid") -> List[str]:
+        """列出某個 entity 的所有別名."""
+        conn = self._get_conn()
+        rows = conn.execute(
+            "SELECT alias FROM entity_aliases WHERE entity_type = ? AND entity_id = ?",
+            (entity_type, entity_id),
+        ).fetchall()
+        return [r["alias"] for r in rows]
+
+    # ── Project management ──
+
+    def create_project(self, project_id: str, name: str, description: str = "") -> None:
+        """建立新專案."""
+        conn = self._get_conn()
+        conn.execute(
+            """INSERT OR IGNORE INTO projects (project_id, name, description)
+               VALUES (?, ?, ?)""",
+            (project_id, name, description),
+        )
+        conn.commit()
+
+    def add_entity_to_project(self, project_id: str, entity_id: str, entity_type: str = "telegram_uid", role: str = "member") -> None:
+        """將 entity 加入專案."""
+        conn = self._get_conn()
+        conn.execute(
+            """INSERT OR IGNORE INTO project_entities (project_id, entity_type, entity_id, role)
+               VALUES (?, ?, ?, ?)""",
+            (project_id, entity_type, entity_id, role),
+        )
+        conn.commit()
+
+    def get_project_entities(self, project_id: str) -> List[Dict[str, Any]]:
+        """取得專案中的所有 entity."""
+        conn = self._get_conn()
+        rows = conn.execute(
+            "SELECT entity_type, entity_id, role, added_at FROM project_entities WHERE project_id = ?",
+            (project_id,),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+    def get_entity_projects(self, entity_id: str, entity_type: str = "telegram_uid") -> List[Dict[str, Any]]:
+        """取得某 entity 參與的所有專案."""
+        conn = self._get_conn()
+        rows = conn.execute(
+            """SELECT p.project_id, p.name, p.status, pe.role
+               FROM projects p JOIN project_entities pe ON p.project_id = pe.project_id
+               WHERE pe.entity_type = ? AND pe.entity_id = ?""",
+            (entity_type, entity_id),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+    # ── Event tracking ──
+
+    def add_event(self, event_id: str, event_type: str, summary: str,
+                  entity_type: str = "", entity_id: str = "",
+                  project_id: str = "", source: str = "") -> None:
+        """追加事件記錄."""
+        conn = self._get_conn()
+        conn.execute(
+            """INSERT OR IGNORE INTO events (event_id, event_type, summary, entity_type, entity_id, project_id, source)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            (event_id, event_type, summary, entity_type, entity_id, project_id, source),
+        )
+        conn.commit()
+
+    def get_entity_events(self, entity_id: str, entity_type: str = "telegram_uid", limit: int = 20) -> List[Dict[str, Any]]:
+        """取得某 entity 的事件時間線."""
+        conn = self._get_conn()
+        rows = conn.execute(
+            """SELECT event_id, event_type, summary, project_id, source, created_at
+               FROM events WHERE entity_type = ? AND entity_id = ?
+               ORDER BY created_at DESC LIMIT ?""",
+            (entity_type, entity_id, limit),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+    def get_project_events(self, project_id: str, limit: int = 20) -> List[Dict[str, Any]]:
+        """取得某專案的事件時間線."""
+        conn = self._get_conn()
+        rows = conn.execute(
+            """SELECT event_id, event_type, summary, entity_type, entity_id, source, created_at
+               FROM events WHERE project_id = ?
+               ORDER BY created_at DESC LIMIT ?""",
+            (project_id, limit),
         ).fetchall()
         return [dict(r) for r in rows]
 

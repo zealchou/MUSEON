@@ -103,6 +103,13 @@ class ExternalBridge:
                 stats["errors"] += 1
 
         self._save_map(mapping)
+        # 索引一致性驗證：確保所有 profile 都在 index 中
+        index = self.store._load_index()
+        profile_files = {f.stem for f in self.store.profiles_dir.glob("*.json") if f.name not in {"_index.json", "_external_map.json"}}
+        missing = profile_files - set(index.keys())
+        if missing:
+            logger.warning(f"[ARES-BRIDGE] {len(missing)} profiles missing from index, rebuilding...")
+            self.store.rebuild_index()
         logger.info(
             f"[ARES-BRIDGE] Sync complete: "
             f"created={stats['created']}, updated={stats['updated']}, "

@@ -908,11 +908,69 @@ class BrainPromptBuilderMixin:
         # 跨 session 搜尋：外部用戶記憶（群組成員）
         # 僅在非群組 session 時啟用（防止群組 A 的 prompt 混入群組 B 成員的資訊）
         if self.data_dir and not self._is_group_session:
+            _seen_entity_ids: set[str] = set()
+
+            # 第一層：alias 表查詢（精確映射，最高優先）
+            try:
+                from museon.governance.group_context import GroupContextStore
+                _gcs = GroupContextStore(Path(self.data_dir))
+                _alias_hits = _gcs.resolve_alias(user_query)
+                for _ah in _alias_hits[:3]:
+                    _eid = _ah.get("entity_id", "")
+                    _etype = _ah.get("entity_type", "")
+                    if _eid:
+                        _seen_entity_ids.add(f"{_etype}:{_eid}")
+            except Exception:
+                _alias_hits = []
+
+            # 第二層：Ares ProfileStore 搜尋（七層完整資料）
+            try:
+                from museon.athena.profile_store import ProfileStore
+                _ps = ProfileStore(Path(self.data_dir))
+                _ares_results = _ps.search(user_query, domain=None)
+                for _ap in _ares_results[:3]:
+                    _pid = _ap.get("profile_id", "")
+                    if f"ares:{_pid}" in _seen_entity_ids:
+                        continue
+                    _seen_entity_ids.add(f"ares:{_pid}")
+                    _facts = _ap.get("L1_facts", {})
+                    _name = _facts.get("name", "Unknown")
+                    _parts = [f"人物「{_name}」"]
+                    if _facts.get("company"):
+                        _parts.append(f"公司：{_facts['company']}")
+                    if _facts.get("role"):
+                        _parts.append(f"角色：{_facts['role']}")
+                    _temp = _ap.get("temperature", {}).get("level", "new")
+                    _parts.append(f"關係溫度：{_temp}")
+                    _inter = _ap.get("L4_interactions", {})
+                    if _inter.get("total_count", 0) > 0:
+                        _parts.append(f"互動次數：{_inter['total_count']}")
+                    if _inter.get("last_interaction"):
+                        _parts.append(f"最後互動：{_inter['last_interaction'][:10]}")
+                    _comm = _ap.get("L6_communication", {})
+                    if _comm.get("effective_approaches"):
+                        _parts.append(f"有效溝通方式：{'、'.join(_comm['effective_approaches'][:2])}")
+                    if _comm.get("landmines"):
+                        _parts.append(f"地雷：{'、'.join(_comm['landmines'][:2])}")
+                    items.append({
+                        "content": "｜".join(_parts),
+                        "layer": "ares_profile",
+                        "tags": ["人物檔案", "ANIMA Individual"],
+                        "outcome": "",
+                    })
+            except Exception as e:
+                logger.warning(f"Ares profile search in memory inject: {e}")
+
+            # 第三層：ExternalAnima 搜尋（Telegram 互動觀察）
             try:
                 from museon.governance.multi_tenant import ExternalAnimaManager
                 ext_mgr = ExternalAnimaManager(self.data_dir)
                 ext_results = ext_mgr.search_by_keyword(user_query, limit=3)
                 for ext in ext_results:
+                    _uid = ext.get("user_id", "")
+                    if f"telegram_uid:{_uid}" in _seen_entity_ids:
+                        continue
+                    _seen_entity_ids.add(f"telegram_uid:{_uid}")
                     name = ext.get("display_name") or ext.get("user_id", "?")
                     parts = [f"外部用戶「{name}」"]
                     relation = ext.get("relationship_to_owner")
@@ -923,7 +981,7 @@ class BrainPromptBuilderMixin:
                         parts.append(f"摘要：{summary}")
                     topics = ext.get("recent_topics", [])
                     if topics:
-                        parts.append(f"近期話題：{'、'.join(topics[:3])}")
+                        parts.append(f"近期話題：{'、'.join(str(t.get('snippet', t) if isinstance(t, dict) else t) for t in topics[:3])}")
                     groups = ext.get("groups_seen_in", [])
                     if groups:
                         parts.append(f"出現群組：{'、'.join(str(g) for g in groups[:2])}")

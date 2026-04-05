@@ -4,6 +4,7 @@
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
 > **更新時機**：改變共享檔案的讀寫者或格式時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
+> **v1.69 (2026-04-05)**：Entity Registry 建置——新增 #79 `entity_aliases` 表（🟢 GroupContextDB，寫入者=governance/group_context.py add_alias()，讀取者=agent/brain_prompt_builder.py resolve_alias() + governance/group_context.py）；新增 #80 `projects + project_entities` 表（🟢 GroupContextDB，寫入者=governance/group_context.py，讀取者=governance/group_context.py）；新增 #81 `events` 表（🟢 GroupContextDB，寫入者=governance/group_context.py，讀取者=governance/group_context.py）；修正 L4CpuObserver 記憶寫入路徑（MemoryStore→MemoryManager），Qdrant memories collection 新增寫入者=agent/l4_cpu_observer.py；brain_prompt_builder.py 新增讀取者=athena/profile_store.py search() + governance/group_context.py resolve_alias()；共享狀態 78→81 個。同步 persistence-contract v1.54、blast-radius v2.01。
 > **v1.68 (2026-04-04)**：semantic_response_cache——新增 #78 Qdrant collection `semantic_response_cache`（🟢 512 維語義回覆快取，寫入者=cache/semantic_response_cache.py（L4CpuObserver 回覆後寫入），讀取者=cache/semantic_response_cache.py（Brain L1 查詢），per-chat 隔離，TTL 動態）；共享狀態 77→78 個。同步 persistence-contract v1.53。
 > **v1.67 (2026-04-04)**：l4_cpu_observer 架構更新——新增 #76 `_system/context_cache/{session_id}_signals.json`（🟢 EMA 訊號快取，寫入者=l4_cpu_observer，讀取者=brain_prompt_builder）；新增 #77 `_system/pending_preference_updates.jsonl`（🟢 偏好更新佇列，寫入者=l4_cpu_observer，讀取者=nightly_pipeline）；更新 #66 session_adjustments/{id}.json 寫入者從「L4 觀察者」改為 `agent/l4_cpu_observer.py`；共享狀態 75→77 個。同步 persistence-contract v1.52、memory-router v1.26。
 > **v1.66 (2026-04-02)**：荒謬雷達系統——新增 #75 `data/_system/absurdity_radar/{user}.json`（🟢 per-user 雷達分數，寫入者=absurdity_radar.py+brain.py，讀取者=absurdity_radar.py+brain_prompt_builder.py）；共享狀態 74→75 個。
@@ -108,6 +109,9 @@
 | 76 | _system/context_cache/{session_id}_signals.json | 🟢 | 1(l4_cpu_observer) | 1(brain_prompt_builder) | 原子寫 | [→](#76-context_cachesession_id_signalsjson) |
 | 77 | _system/pending_preference_updates.jsonl | 🟢 | 1(l4_cpu_observer) | 1(nightly_pipeline) | 無(append) | [→](#77-pending_preference_updatesjsonl) |
 | 78 | semantic_response_cache（Qdrant collection） | 🟢 | 1(semantic_response_cache.py) | 1(semantic_response_cache.py) | Qdrant 內部 MVCC | [→](#78-semantic_response_cacheqdrant-collection) |
+| 79 | entity_aliases (GroupContextDB) | 🟢 | 1 | 2 | SQLite WAL | [→](#79-entity_aliases) |
+| 80 | projects + project_entities (GroupContextDB) | 🟢 | 1 | 1 | SQLite WAL | [→](#80-projects) |
+| 81 | events (GroupContextDB) | 🟢 | 1 | 1 | SQLite WAL | [→](#81-events) |
 
 > **危險度定義**：🔴 多寫入者+高扇出+格式不一致 | 🟡 多寫入者或高扇出 | 🟢 單寫入者+低扇出
 

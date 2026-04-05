@@ -3,6 +3,7 @@
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
 > 與 `system-topology.md`（控制流拓撲）互補——那是「神經圖」，這是「水電圖」。
+> **v1.54 (2026-04-05)**：Entity Registry 建置——GroupContextDB 新增 4 張表：`entity_aliases`（別名映射，PK=alias+entity_type+entity_id，case-insensitive index）、`projects`（專案基本資訊）、`project_entities`（專案成員多對多關聯）、`events`（事件時間線，entity+project 雙索引）；寫入者=`governance/group_context.py`，讀取者=`governance/group_context.py`+`agent/brain_prompt_builder.py`（alias resolve）。L4CpuObserver 記憶寫入路徑修正：從 MemoryStore.write()（Markdown，靜默失敗）改為 MemoryManager.store()（Qdrant memories collection），chat_scope 欄位從 metadata 推導。brain_prompt_builder.py 人物搜尋新增 ProfileStore + GroupContextStore 讀取者。同步 joint-map v1.69、blast-radius v2.01。
 > **v1.53 (2026-04-04)**：semantic_response_cache——新增 Qdrant dense collection `semantic_response_cache`（512 維，BAAI/bge-small-zh-v1.5，cosine distance）；寫入者=`cache/semantic_response_cache.py`（L4CpuObserver 回覆後呼叫），讀取者=`cache/semantic_response_cache.py`（Brain L1 查詢），TTL 動態（30min~12h），按 chat_id 做 payload filter 群組隔離，查詢時判斷 TTL 過期自動刪除。同步 joint-map v1.68。
 > **v1.52 (2026-04-04)**：l4_cpu_observer 架構更新——新增 `data/_system/context_cache/{session_id}_signals.json`（EMA 訊號快取，寫入者=agent/l4_cpu_observer.py，讀取者=brain_prompt_builder.py _build_signal_context，格式=`{"signal_name": float, "_updated_at": "ISO8601"}`）；新增 `data/_system/pending_preference_updates.jsonl`（偏好更新 append-only 佇列，寫入者=agent/l4_cpu_observer.py，讀取者=Nightly pipeline 批次處理）；更新 #66 `session_adjustments/{session_id}.json` 寫入者從「L4 觀察者」改為 `agent/l4_cpu_observer.py`。同步 joint-map v1.67、memory-router v1.26。
 > **v1.51 (2026-04-02)**：荒謬雷達系統——新增 `data/_system/absurdity_radar/{user_id}.json`（per-user 原子 JSON，寫入者=agent/absurdity_radar.py save_radar() + brain.py update，讀取者=absurdity_radar.py load_radar() + brain_prompt_builder.py + skill_router.py Layer 4，Nightly step 32.5 每日衰減）。
@@ -39,7 +40,7 @@
 | 資料庫 | 路徑 | 負責模組 | 用途 | WAL |
 |--------|------|---------|------|-----|
 | **PulseDB** | `data/pulse/pulse.db` | `pulse/pulse_db.py` | 排程、探索、ANIMA、演化、承諾、後設認知、推送日誌(push_log — v1.45 起無直接寫入者，push_budget.py 已刪除) | Yes |
-| **GroupContextDB** | `data/_system/group_context.db`（v1.34 修正；另有 `_system/sessions/group_context.db` 副本待清理） | `governance/group_context.py` | 多租戶對話上下文（群組+DM+bot 回覆，v1.35 擴展） | Yes |
+| **GroupContextDB** | `data/_system/group_context.db`（v1.34 修正；另有 `_system/sessions/group_context.db` 副本待清理） | `governance/group_context.py` | 多租戶對話上下文 + Entity Registry（群組+DM+bot回覆+別名映射+專案+事件，v1.54 擴展） | Yes |
 | **WorkflowStateDB** | `data/_system/wee/workflow_state.db` | `evolution/wee_engine.py` | 工作流演化狀態 | Yes |
 | **CrystalDB** | `data/lattice/crystal.db` | `agent/crystal_store.py` | 知識晶體（crystals, links, cuid_counters 三表） | Yes |
 | **RegistryDB** | `data/registry/cli_user/registry.db`（v1.34 修正路徑層級） | `tools/tool_registry.py` | 使用者註冊、工具清單 | Yes |
