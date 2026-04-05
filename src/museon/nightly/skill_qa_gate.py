@@ -469,7 +469,8 @@ class SkillQAGate:
                 messages=[{"role": "user", "content": prompt}],
             )
             answer = resp.content[0].text.strip()
-            passed = answer.startswith("通過")
+            clean = answer.lstrip(" \t✓✅▶→·•").strip()
+            passed = clean.startswith("通過") and not clean.startswith("不通過")
             return passed, answer
         except Exception as exc:  # noqa: BLE001
             logger.warning("壓測判斷失敗：%s", exc)
