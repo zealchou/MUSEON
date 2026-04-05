@@ -1,10 +1,11 @@
-# Memory Router — 記憶路由表 v1.30
+# Memory Router — 記憶路由表 v1.31
 
 > **用途**：定義「什麼類型的洞見存到哪個記憶系統、什麼時候取出」。第五張工程藍圖。
 > **比喻**：郵局分揀表——每封信根據地址分到對應的信箱，不會寄丟也不會重複投遞。
 > **更新時機**：新增 Skill 或記憶系統時，必須在同一個 commit 中新增對應的路由規則。
 > **建立日期**：2026-03-21
 > **搭配**：`docs/skill-manifest-spec.md`（Skill I/O 合約）、各 Skill 的 `memory.writes` 欄位、`docs/operational-contract.md`（操作契約表）
+> **v1.31 (2026-04-06)**：X-RAY 診斷結晶路由——新增 x-ray→knowledge-lattice 路由（診斷完成時，類型=diagnostic_crystal，包含根因摘要 + 三維分析 + 修復策略矩陣，永久存入 knowledge-lattice；觸發條件：/x-ray 三維透視完成且有明確根因定位）。同步 system-topology v1.91、blast-radius v2.09。
 > **v1.30 (2026-04-06)**：Entity Registry 互動路由——新增規則 11（Entity Registry → GroupContextDB 別名映射：channels/telegram.py 觸發 add_alias()，brain_prompt_builder.py resolve_alias() 消費，l4_cpu_observer.py 觀察讀取，nightly Step 28 清理；別名映射不進 Qdrant，深度 Entity 分析走 anima-individual → individual_crystal）。同步 joint-map v1.73、blast-radius v2.06。
 > **v1.29 (2026-04-05)**：Phase 4 FV 藍圖同步——新增「生態系雷達 → morphenix/notes/ → skill_draft_forger」路由段（ecosystem_radar Nightly Step 17.5 週一限定，ResearchEngine 搜尋 3 個外部生態查詢，有價值結果寫入 `morphenix/notes/scout_ecosystem_{ts}.json`，消費者=Step 19.6 skill_draft_forger 掃描 notes 目錄生成外部 Skill 草稿）；備注：skill_trust_scores.json 為 `skill_trust_tracker.py` 私有持久化，目前不進入記憶路由系統（無 Qdrant/knowledge-lattice 分揀）。同步 system-topology v1.87、joint-map v1.72、blast-radius v2.04。
 > **v1.28 (2026-04-05)**：能力缺口偵測路由——新增「能力缺口偵測 → morphenix/notes/ + skill_requests/」路由段（三軌道 A=低分未觸發宏觀聚合→scout_gap_cluster 筆記，B=弱匹配→scout_skill_optimize 筆記，缺口達閾值→skill_requests/req_*.json 需求槽）；向量去重路由（Qdrant gaps #86）；消費：morphenix/notes=skill_forge_scout.py，skill_requests=Claude Code session 啟動掃描。同步 persistence-contract v1.56、joint-map v1.71、blast-radius v2.03。
@@ -369,6 +370,7 @@
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.31 | 2026-04-06 | X-RAY 診斷結晶路由——新增 x-ray→knowledge-lattice 路由（diagnostic_crystal，/x-ray 三維透視完成時寫入，包含根因摘要+三維分析+修復策略矩陣，永久存入）。同步 system-topology v1.91、blast-radius v2.09 |
 | v1.30 | 2026-04-06 | Entity Registry 互動路由——新增規則 11（Entity Registry → GroupContextDB 別名映射路由：channels/telegram.py 觸發 add_alias()，brain_prompt_builder.py resolve_alias() 消費，l4_cpu_observer.py 觀察讀取，nightly Step 28 清理；僅做 id 映射持久化，深度分析走 anima-individual→individual_crystal）。同步 joint-map v1.73、blast-radius v2.06 |
 | v1.29 | 2026-04-05 | Phase 2+3 FV 藍圖同步——新增「探索結晶觀察 → crystal_observations.jsonl」路由段（exploration_bridge.py 含「認知/盲點/偏見/學到/發現」關鍵字的結晶觀察 append-only 寫入 `_system/footprints/crystal_observations.jsonl`，消費者=未來 Observatory/SystemAudit）；同步 persistence-contract v1.56、joint-map v1.72 |
 | v1.28 | 2026-04-05 | 能力缺口偵測路由——新增「能力缺口偵測 → morphenix/notes/ + skill_requests/」路由段（三軌道 A/B/C：Track A=低分未觸發宏觀聚合→scout_gap_cluster 筆記，Track B=_match_score 弱匹配→scout_skill_optimize 筆記，缺口達閾值→skill_requests/req_*.json 需求槽）；向量去重路由（gap_accumulator→Qdrant gaps collection #86）；消費路徑：morphenix/notes=skill_forge_scout.py 讀取，skill_requests=Claude Code session 啟動掃描。同步 system-topology v1.85、persistence-contract v1.56、joint-map v1.71、blast-radius v2.03 |

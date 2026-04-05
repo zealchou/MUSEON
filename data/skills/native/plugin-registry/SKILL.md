@@ -21,9 +21,9 @@ connects_to:
   - morphenix
   - acsf
 description: >
-  外掛模組註冊表（Plugin Registry）v2.6 — DNA27 核心的參考文件，
+  外掛模組註冊表（Plugin Registry）v2.7 — DNA27 核心的參考文件，
   管理所有 MUSEON 外掛模組的註冊資訊、迴圈允許規則、RC 親和對照、協作矩陣與共存規則。
-  已註冊外掛：82 個（含 4 常駐 + 1 半常駐 + 65 按需 + 1 參考 + 6 工作流 + 5 特殊），分佈於 9 個 Hub。
+  已註冊外掛：83 個（含 4 常駐 + 1 半常駐 + 66 按需 + 1 參考 + 6 工作流 + 5 特殊），分佈於 9 個 Hub。
   此文件為 dna27/references 底下的治理參考文件，非獨立 Skill，不可被單獨觸發。
   觸發時機：DNA27 路由、orchestrator 編排、morphenix 迭代時自動參照。
   指令觸發：無獨立指令。透過 /orchestrate、/morphenix fitness、/morphenix status 間接使用。
@@ -34,10 +34,10 @@ description: >
 constellation_affinity: [absurdity]
 ---
 
-# 外掛模組註冊表（Plugin Registry）v2.6
+# 外掛模組註冊表（Plugin Registry）v2.7
 
 > **上次更新**：2026-04-06
-> **已註冊外掛**：82 個（含 4 常駐 + 1 半常駐 + 65 按需 + 1 參考 + 6 工作流 + 5 特殊），分佈於 9 個 Hub
+> **已註冊外掛**：83 個（含 4 常駐 + 1 半常駐 + 66 按需 + 1 參考 + 6 工作流 + 5 特殊），分佈於 9 個 Hub
 > **治理文件**：`docs/skill-routing-governance.md`（Hub 路由 + Workflow Stage 規格）
 > **Manifest 規格**：`docs/skill-manifest-spec.md` v1.1（含 `hub` + `stages` 欄位）
 
@@ -113,7 +113,7 @@ DNA27（核心 OS）
 │   ├── script-optimizer     （劇本優化引擎）           ← NEW
 │   └── human-design-blueprint（人類圖靈魂藍圖分析引擎）← NEW
 │
-├─ [Product Hub]（8）— 能力鑄造、診斷、報告
+├─ [Product Hub]（9）— 能力鑄造、診斷、報告
 │   ├── acsf                 （能力結晶與 Skill 鑄造引擎）
 │   ├── dse                  （AI 技術融合驗證引擎）
 │   ├── gap                  （市場缺口分析引擎）
@@ -121,7 +121,8 @@ DNA27（核心 OS）
 │   ├── info-architect       （資訊架構引擎）
 │   ├── orchestrator         （編排引擎）
 │   ├── report-forge         （付費級產業診斷報告鍛造引擎）
-│   └── fix-verify           （BDD 逆向驗證閉環工作流）  ← NEW
+│   ├── fix-verify           （BDD 逆向驗證閉環工作流）
+│   └── x-ray                （透視引擎：根因追溯 + 修復策略 + 驗收閉環） ← NEW
 │
 ├─ [Evolution Hub]（7）— 沙盒、品質審計、健康、決策、開發閉環
 │   ├── sandbox-lab          （沙盒實驗室）
@@ -1043,6 +1044,21 @@ DNA27（核心 OS）
 | 核心能力 | 強制三維驗證閉環：Phase 0（現場記錄）→ Phase 1（自動產生 BDD 腳本）→ Phase 2（spawn 隔離審計員執行三維驗證：D1 行為/D2 接線/D3 藍圖）→ Phase 3（教訓同步四管道）；未通過自動修復→重跑，迴圈上限 5 輪 |
 | 與其他外掛 | qa-auditor（程式碼品質審計 vs BDD 行為驗證）；sandbox-lab（A/B 實驗 vs 修復驗證）；dev-retro（修復驗證後教訓萃取）；prompt-stresstest（Prompt 壓測 vs 修復驗證） |
 
+### x-ray — 透視引擎（eXhaustive Root-cause Analysis & Yield）
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | X_RAY |
+| 類別 | root-cause-analysis-engine |
+| 風險等級 | LOW |
+| 允許迴圈 | exploration_loop（快速定位）、slow_loop（三維完整透視） |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | 使用者描述系統異常、反覆踩坑、「為什麼壞了」、「根本原因是什麼」；或迭代完成後主動觸發根因沉澱 |
+| 觸發指令 | /x-ray、/xray、/diagnose |
+| 核心能力 | 三維根因透視（D1 症狀層/D2 接線層/D3 架構層）+ 五層剝洋蔥（Why×5）+ 修復策略矩陣（減法優先/增法/替換）+ DSE 驗證整合 + Fix-Verify 驗收閉環 + 診斷結晶 knowledge-lattice |
+| 產線位置 | **x-ray**（根因）→ DSE（方案驗證）→ fix-verify（驗收閉環）→ knowledge-lattice（診斷結晶） |
+| 與其他外掛 | knowledge-lattice（診斷結晶永久沉澱）；dse（方案技術可行性驗證）；fix-verify（修復後三維驗收閉環）；plan-engine（修復行動計畫化）；dev-retro（復盤教訓萃取）；qa-auditor（品質審計配合根因）；morphenix（重複根因觸發系統迭代） |
+
 ### brand-project-engine — 品牌行銷專案引擎
 
 | 屬性 | 值 |
@@ -1557,3 +1573,4 @@ DNA27（核心 OS）
 | **v2.4** | **2026-03-21** | **Hub 路由治理升級（共 49 個）：母子架構樹改為 Hub 為主軸（core/infra/thinking/market/business/creative/product/evolution/workflow 9 個 Hub）；meta-learning 和 info-architect 從「未部署」升級為已部署；新增 dna27、plugin-registry 為正式條目；引用 skill-routing-governance.md 治理文件與 skill-manifest-spec.md v1.1 Manifest 規格** |
 | **v2.5** | **2026-03-24** | **DSE vNext 升級 + 開發閉環雙引擎（共 51 個）：DSE 從 AI 技術融合引擎升級為通用研究驗證引擎（新增領域路由器 7 領域、深度旋鈕 Quick/Standard/Deep、xmodel→DSE 探索-驗證固定組合）；新增 dev-preflight（開發前置飛行檢查，五張藍圖白話提問）和 dev-retro（開發回溯引擎，五層回溯法 + 教訓結晶）；dev-preflight ↔ dev-retro 形成閉環；Evolution Hub 從 5→7 個；協作矩陣新增完整行動管線和開發閉環組合** |
 | **v2.6** | **2026-04-06** | **補齊 12 個未登記 Skill（共 82 個）：Thinking Hub 新增 onemuse-core + athena（12）；Market Hub 新增 darwin（8）；Business Hub 新增 esg-architect-pro + meeting-intelligence + landing-page-forge（11）；Creative Hub 新增 script-optimizer + human-design-blueprint（7）；Product Hub 新增 fix-verify（8）；Evolution Hub 補充 system-health-check + decision-tracker 詳細條目；Infra Hub 新增 constellation-forge（7）；解除 system-health-check 和 decision-tracker 的登記缺失狀態；test-auto-skill 為測試用跳過** |
+| **v2.7** | **2026-04-06** | **新增 x-ray（共 83 個）：Product Hub 新增 x-ray 透視引擎（8→9）；三維根因透視（D1/D2/D3）+ 修復策略矩陣 + DSE/fix-verify 閉環；memory-router 新增診斷結晶路由；system-topology 新增 x-ray 節點及 4 條連線（→knowledge-lattice/dse/fix-verify/plan-engine）** |
