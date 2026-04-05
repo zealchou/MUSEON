@@ -1,0 +1,7 @@
+{
+  "content": "【教訓 A：ctx 是 v1 架構殘留】brain.py 的 process() 從 v1 的 ctx 物件改為直接參數後，三處 ctx.user_id 沒有同步更新，導致星座雷達和荒謬雷達建立以來從未更新（全卡 50%）。防範：任何核心物件/參數簽名重構後，必須 grep src/ 找出所有 ctx.XXX、self.brain.XXX 等舊存取模式，逐一確認已更新。靜默卡死比 crash 更危險。\n\n【教訓 B：.env token 缺失 = 重啟後永久斷線】TELEGRAM_BOT_TOKEN 只在 terminal session 手動 export，.env 不存在。supervisord 重啟後繼承不到 terminal 環境變數，Telegram 通道永久斷線。防範：所有 API token 必須寫入 .env（不 commit git），並確認 supervisord 能載入。部署後重啟一次立刻驗證通道是否仍可用。",
+  "timestamp": "2026-04-06T12:00:00+08:00",
+  "source": "claude_code_session",
+  "type": "operational_lesson",
+  "tags": ["refactoring", "api-token", "env", "silent-failure", "ctx-residue", "telegram"]
+}

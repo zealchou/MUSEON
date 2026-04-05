@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.74
+# Joint Map — 共享可變狀態接頭圖 v1.75
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -6,6 +6,7 @@
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **v1.72 (2026-04-05)**：Phase 4 FV 藍圖同步——新增 #90 `data/_system/skill_trust_scores.json`（🟢 Skill 信任分數持久化，寫入者=`nightly/skill_trust_tracker.py` persist()，讀取者=`nightly/skill_trust_tracker.py` _load()，格式=`{skill_name: {score: float, origin: "internal"|"external", last_updated: ISO8601}}`，生命週期=永久累積，備注=prototype 階段，尚無外部寫入者或消費者）；共享狀態 89→90 個。同步 system-topology v1.87、persistence-contract v1.57、blast-radius v2.04。
 > **v1.71 (2026-04-05)**：能力缺口偵測系統——新增 #86 Qdrant `gaps` collection（🟢 單寫入者+單讀取者 gap_accumulator.py，語意去重向量索引）；新增 #87 `_system/quality_gaps.jsonl`（🟢 品質缺口審計日誌 append-only，寫入者=gap_accumulator.py，讀取者=Claude Code session）；新增 #88 `_system/weak_match_log.jsonl`（🟢 弱匹配事件日誌 append-only，Track B，寫入者=gap_accumulator.py）；新增 #89 `_system/skill_requests/req_*.json`（🟢 待鍛造 Skill 需求槽，原子寫入，寫入者=gap_accumulator.py，讀取者=Claude Code session）；更新 G2 探索結晶管線組新增 gap_accumulator + morphenix/notes/ 三方寫入說明；共享狀態 85→89 個。同步 system-topology v1.85、persistence-contract v1.56、blast-radius v2.03。
+> **v1.75 (2026-04-06)**：skill_requests/ 新增 telegram.py 讀寫路徑——#89 `_system/skill_requests/req_*.json` 寫入者 1→2（新增 `channels/telegram.py` gap_approve/reforge_approve 寫入 status=pending_dse_confirmed 欄位），新增刪除操作者（gap_ignore/reforge_ignore 刪除對應 req 檔）；危險度維持 🟢（telegram.py 操作為互斥分支：approve 更新 status/ignore 刪除，不與 gap_accumulator 原子寫衝突）；同步 system-topology v1.90、blast-radius v2.08。
 > **v1.74 (2026-04-06)**：Nightly Mixin 拆分共享狀態確認——`nightly_pipeline.py` 拆分為 7 個 Mixin 後，所有 Mixin 透過繼承共享 `self`（NightlyPipeline 實例）的全部屬性，包含 `self.workspace`、`self.config`、`self.db`、`self.memory_manager`、`self.crystal_actuator`、`self.exploration_bridge` 等所有共享狀態讀寫器；各 Mixin 讀寫的共享狀態（#1 ANIMA_MC、#2 PULSE.md、#6 crystal.db、#8 PulseDB、#15 morphenix/proposals/、#44 context_cache/ 等）權限歸屬不變，仍以 nightly_pipeline 為統一寫入者（代理 Mixin 操作）；`brain.py` probe_health() 為純 LLM 呼叫，不涉及任何共享狀態；`vital_signs.py` 讀取路徑變更（改呼叫 brain.probe_health()）不新增共享狀態；`skill_qa_gate.py` startswith 修復不影響共享狀態。共享狀態條目數 90 不變。同步 system-topology v1.89、blast-radius v2.07、persistence-contract v1.58。
 > **v1.73 (2026-04-06)**：Entity Registry 藍圖同步——#79 entity_aliases 補登讀取者 `agent/l4_cpu_observer.py`（觀察後 Entity 解析）和 `nightly/nightly_pipeline.py`（Step 28 群組上下文清理）；讀取者從 2 個更新為 4 個。同步 blast-radius v2.06、memory-router v1.30。
 > **v1.70 (2026-04-05)**：Decision Atlas + Breath System + Elder Council——新增 #82 `_system/decision_atlas/da-*.json`（🟢 決策結晶 JSON 群，寫入者=Claude Code session + 未來 L4 觀察者，讀取者=brain_prompt_builder.py persona zone + vision_loop.py）；新增 #83 `_system/breath/patterns/{yyyy-wNN}.json`（🟢 呼吸分析結果，寫入者=breath_analyzer.py，讀取者=vision_loop.py，12 週保留）；新增 #84 `_system/breath/visions/{yyyy-wNN}.json`（🟢 願景提案，寫入者=vision_loop.py，讀取者=未來 Elder Council，12 週保留）；新增 #85 `_system/elder_council/members.json`（🟢 長老名單，寫入者=手動，讀取者=vision_loop.py，永久）；`_system/breath/observations/{yyyy-wNN}.jsonl` 為 breath_analyzer.py 輸入佇列（🟢 append-only，不另立共享狀態條目，歸入 #83 管線）；共享狀態 81→85 個。同步 persistence-contract v1.55、memory-router v1.27。
@@ -124,7 +125,7 @@
 | 86 | Qdrant `gaps` collection | 🟢 | 1(gap_accumulator) | 1(gap_accumulator) | Qdrant 內部 MVCC | [→](#86-qdrant-gaps-collection) |
 | 87 | _system/quality_gaps.jsonl | 🟢 | 1(gap_accumulator) | 1(Claude Code) | 無(append) | [→](#87-quality_gapsjsonl) |
 | 88 | _system/weak_match_log.jsonl | 🟢 | 1(gap_accumulator) | 1(Claude Code) | 無(append) | [→](#88-weak_match_logjsonl) |
-| 89 | _system/skill_requests/req_*.json | 🟢 | 1(gap_accumulator) | 1(Claude Code) | 原子寫 | [→](#89-skill_requestsreq_json) |
+| 89 | _system/skill_requests/req_*.json | 🟢 | 2(gap_accumulator+telegram) | 2(Claude Code+telegram) | 原子寫/刪除 | [→](#89-skill_requestsreq_json) |
 
 > **危險度定義**：🔴 多寫入者+高扇出+格式不一致 | 🟡 多寫入者或高扇出 | 🟢 單寫入者+低扇出
 
@@ -1702,12 +1703,14 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 
 | 角色 | 模組 |
 |------|------|
-| 寫入者 | `agent/gap_accumulator.py`（缺口聚合達閾值時原子寫入） |
-| 讀取者 | Claude Code session（啟動時掃描 `_system/skill_requests/`，確認後轉交 Skill Forge） |
+| 寫入者（新建） | `agent/gap_accumulator.py`（缺口聚合達閾值時原子寫入） |
+| 寫入者（更新 status） | `channels/telegram.py`（gap_approve/reforge_approve callback 將 status 更新為 `pending_dse_confirmed`） |
+| 刪除者 | `channels/telegram.py`（gap_ignore/reforge_ignore callback 刪除對應 req 檔，表示使用者明確忽略） |
+| 讀取者 | Claude Code session（啟動時掃描，確認後轉交 Skill Forge）；`channels/telegram.py`（approve/ignore 時 glob 查找對應 req 檔） |
 
-**生命週期**：人工審閱後手動刪除或歸檔
-**鎖**：原子寫入（tmp→rename）
-**備註**：v1.71 新增。待鍛造 Skill 需求槽，是缺口偵測→Skill 鍛造管道的觸發點。Claude Code session 啟動時自動掃描並報告待處理需求。
+**生命週期**：使用者透過 Inline Keyboard 決定（approve→status=pending_dse_confirmed，ignore→刪除）
+**鎖**：原子寫入（tmp→rename），telegram approve 直接 json.dump 覆寫（單一 callback 執行，不存在並發競態）
+**備註**：v1.71 新增，v1.75 升級為雙向閉環。gap_accumulator 寫入 → telegram Inline Keyboard 通知 Zeal → Zeal approve（Claude Code session 啟動時認領）或 ignore（直接刪除）。
 
 ---
 
@@ -1830,5 +1833,6 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 | 2026-03-15 | v1.3 | 藍圖完整性修復：guardian/daemon.py 加入 ANIMA_MC 讀寫者，新增 #17-#21 共享狀態（velocity_log, tuning_audit, trigger_configs, tool_muscles, repair_log） |
 | 2026-03-15 | v1.2 | 合約 2 驗證已解決 + 合約 3：nightly async 橋接修復，並發模型表更新 |
 | 2026-03-15 | v1.1 | 合約 1：AnimaMCStore 統一存取層，ANIMA_MC.json 鎖策略統一 |
+| 2026-04-06 | v1.75 | skill_requests/ 新增 telegram.py 讀寫路徑——#89 寫入者 1→2（gap_accumulator 新建 + telegram.py approve 更新 status=pending_dse_confirmed）；新增刪除操作（telegram.py ignore 刪除 req 檔）；危險度維持 🟢；共享狀態條目數 90 不變（僅更新 #89 操作者）。同步 system-topology v1.90、blast-radius v2.08 |
 | 2026-04-06 | v1.74 | Nightly Mixin 拆分共享狀態確認——7 個 Mixin 透過繼承共享 NightlyPipeline self，現有 90 個共享狀態條目的讀寫者歸屬不變（以 nightly_pipeline 為統一代理）；brain.probe_health() / vital_signs 路徑變更 / skill_qa_gate 修復均不新增共享狀態。條目數 90 不變。同步 system-topology v1.89、blast-radius v2.07、persistence-contract v1.58 |
 | 2026-03-15 | v1.0 | 初始建立，16 個共享狀態，6 個模組組 |

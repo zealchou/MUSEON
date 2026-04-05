@@ -166,5 +166,21 @@
     "rule": "大型迭代用 FV 驗每個 Phase + BDD 五路並行驗所有關聯，FV 和 BDD 互補不可替代",
     "source": "20260401-大修復",
     "weight": 0.85
+  },
+  {
+    "id": "H-37",
+    "pattern": "refactoring a module that replaces core objects (ctx, self.brain, adapter, etc.)",
+    "action": "after refactor, grep for the OLD object/variable name across all src/ — callers using old API silently break without errors, causing features to never update (e.g., ctx.user_id in 3 places blocked constellation+absurdity radar at 50% for months)",
+    "rule": "重構後必須 grep 舊架構的核心物件名（ctx, self.brain 等），找出仍使用舊 API 的 caller，否則功能靜默卡死不報錯",
+    "source": "20260406-ctx殘留修復",
+    "weight": 0.95
+  },
+  {
+    "id": "H-38",
+    "pattern": "deploying a service that requires API tokens (Telegram, OpenAI, etc.)",
+    "action": "verify the token exists in .env file (not just exported in current terminal session) — supervisord/systemd restarts won't inherit terminal env vars, causing permanent disconnection after any restart",
+    "rule": "所有 API token 必須寫入 .env 檔案，不可只在 terminal 手動 export——supervisord 重啟後 terminal 環境變數消失，導致永久斷線",
+    "source": "20260406-telegram-token-断线修復",
+    "weight": 0.95
   }
 ]
