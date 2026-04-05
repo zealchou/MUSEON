@@ -3714,6 +3714,8 @@ class NightlyPipeline:
                     try:
                         _signals_path = self.data_dir / "_system" / "ares" / "pending_signals.json"
                         _signals = json.loads(_signals_path.read_text(encoding="utf-8")) if _signals_path.exists() else {"alerts": []}
+                        if isinstance(_signals, list):
+                            _signals = {"alerts": []}  # 舊格式相容：捨棄 list 重建 dict
                         # 避免重複 alert（每天只發一次）
                         _today = datetime.now().strftime("%Y-%m-%d")
                         _existing_dup_alerts = [a for a in _signals.get("alerts", []) if a.get("type") == "duplicate_profiles" and a.get("date") == _today]
