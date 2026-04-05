@@ -1,4 +1,4 @@
-# Blast Radius — 模組影響半徑表 v2.05
+# Blast Radius — 模組影響半徑表 v2.07
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
@@ -9,6 +9,7 @@
 > **v2.04 (2026-04-05)**：Phase 4 FV 藍圖同步——新增 🟢 綠區：`nightly/skill_trust_tracker.py`（Skill 信任分數追蹤器 prototype，扇入=0 目前無外部呼叫，扇出=1：`_system/skill_trust_scores.json`（寫）；`nightly/skill_scout.py` 新增 `semantic_intent_audit()` 函數（扇入=1：skill_qa_gate.py _verify_semantic_intent()，扇出=0，純 CPU 啟發式計算，無狀態）；`nightly/skill_qa_gate.py` 新增 D1.5 語意審計子層（`_verify_semantic_intent()` 呼叫 skill_scout.semantic_intent_audit，FAIL→直接 quarantine，扇入/扇出不變但增加一個內部依賴）；`nightly/nightly_pipeline.py` 新增 Step 17.5（_step_ecosystem_radar，扇出+1：morphenix/notes/scout_ecosystem_*.json）；_FULL_STEPS 53→54；Step count 更新 54/55 硬上限。同步 system-topology v1.87、joint-map v1.72、persistence-contract v1.57。
 > **v2.03 (2026-04-05)**：Phase 0 Nightly 減法手術——nightly_pipeline.py 移除 12 個 ghost steps（5.5/6/8/9/10.5/10.6/11/13.7/14/15/16/19，全部 always-skipped，資料來源不存在）；_FULL_STEPS 從歷史峰值 63 縮減至 53（含 0/0.1 兩個新增基礎步驟），DORMANT 步驟保留 _step_* 方法待資料來源建立後重新啟用；validate_nightly_steps.py 新增硬上限 55 步驟檢查；nightly_report.json 加入 .gitignore；morning_report 三層降級（morning_report.json→nightly_report.json→nightly_history/）。
 > **v2.02 (2026-04-05)**：五個新功能補登——新增 🟢 綠區：`agent/consultant_supplement.py`（扇入=2：server.py 初始化 + telegram_pump.py 觸發，扇出=1：Telegram 輸出）、`nightly/breath_analyzer.py`（扇入=1：nightly_pipeline Step 34.8，扇出=1：breath/patterns/*.json）、`nightly/vision_loop.py`（扇入=1：nightly_pipeline Step 34.9，扇出=1：breath/visions/*.json，讀取四信號源但不改它們）；brain_prompt_builder.py 扇出 +1（新增 decision_atlas/da-*.json 讀取，_build_decision_atlas_context()）；group_context.py 新增 entity_aliases/projects/project_entities/events 四張表（schema 擴展，扇入扇出不變）；l4_cpu_observer.py 新增 alias 偵測功能（扇出不變）；nightly_pipeline.py Step 18.6 新增溫度衰減 + 自動 alias（扇出不變）。同步 system-topology v1.84。
+> **v2.06 (2026-04-06)**：Entity Registry 藍圖同步——Governance 層新增 `governance/group_context.py` 獨立條目（🟡 黃區，扇入=7：channels/telegram.py 5 處 + telegram_pump.py + mcp_server.py + brain_prompt_builder.py + l4_cpu_observer.py + nightly_pipeline.py + cron_registry.py，GroupContextStore 9 表統一存取層）；Governance 層 2→3 個。同步 joint-map v1.73、memory-router v1.30。
 > **v2.01 (2026-04-05)**：Entity Registry 建置——brain_prompt_builder.py 扇入不變(6)，扇出 +2（新增 athena/profile_store.py + governance/group_context.py 讀取）；l4_cpu_observer.py 寫入目標從 MemoryStore 改為 MemoryManager（修正斷裂接線）。同步 persistence-contract v1.54、joint-map v1.69。
 > **v2.00 (2026-04-04)**：Knife 2+3 變更——新增 `cache/semantic_response_cache.py`（🟢 綠區，扇入=2（brain.py query、l4_cpu_observer write），扇出=1（Qdrant semantic_response_cache collection），Qdrant 語意快取，零 LLM，v12 新增）；`gateway/cron_registry.py` 新增 quota circuit breaker（quota 耗盡時跳過 LLM cron jobs）。
 > **v1.99 (2026-04-04)**：新增 `agent/l4_cpu_observer.py`（🟢 綠區，扇入=1（brain.py），扇出=3：context_cache JSON、session_adjustments、memory_manager，CPU-only 對話後觀察，零 LLM，v12 新增取代 Haiku L4 agent spawn）；`agent/brain_tools.py` 備注更新：`_classify_complexity` 已於 v12 改為 CPU-only，`_call_llm` 仍走 LLM。
@@ -267,6 +268,15 @@
 ## 🟡 黃區重點模組
 
 > 以下列出扇入 2-9 且觸及共享狀態的重要模組。完整黃區模組不逐一列出。
+
+### nightly/constellation_radar.py（v2.03 新增）
+
+| 項目 | 值 |
+|------|---|
+| **扇入** | 4（brain.py, brain_prompt_builder.py, nightly_pipeline.py, vision_loop.py） |
+| **扇出** | 2（data/_system/constellations/*/radars/*.json, data/_system/constellations/*/definition.json） |
+| **安全分級** | 🟡 黃區 |
+| **角色** | 星座雷達框架——list_constellations / load_definition / update_from_skill / decay_radar，管理 9 個星座的維度追蹤與衰減 |
 
 ### tools/tool_registry.py（v1.62 從紅區降級）
 
@@ -737,7 +747,8 @@
 ### Pulse 層（1 個）
 ~~`pulse/push_budget.py`~~（★ v1.54 新增，★★ **v1.91 已刪除**——PushBudget 全局推送預算管理器，功能由 ProactiveDispatcher 三桶分級配額取代）
 
-### Governance 層（2 個）
+### Governance 層（3 個）
+`governance/group_context.py`（★ v1.23 原有，v2.01 Entity Registry 建置後扇入升至黃區，扇入=7（channels/telegram.py 5 處 + gateway/telegram_pump.py + gateway/mcp_server.py + agent/brain_prompt_builder.py + agent/l4_cpu_observer.py + nightly/nightly_pipeline.py + gateway/cron_registry.py），GroupContextStore 統一存取層——負責 9 個 SQLite 表讀寫（messages/clients/groups/interactions/entity_registry/entity_aliases/projects/project_entities/events）；扇出=1（data/_system/group_context.db）；v2.06 新增條目，修改前必查本表）
 `governance/response_guard.py`（★ v1.60 新增，扇入=3（telegram_pump.py + channels/telegram.py + channels/telegram_menu.py），ResponseGuard 發送前 chat_id 二次驗證閘門；三方法統一 _normalize_id(abs()) 正規化：validate() 靜態驗證 + allow_send() 實例驗證 + validate_escalation() escalation 專用；sanitize_for_group() 內容黑名單清理——v1.65 收窄【】pattern 避免誤殺合法中文；v1.68 新增 [empty] 佔位符 + Skill 路由鏈（emoji→arrow）過濾；**v1.82 取消群組/私訊分流，所有通道統一過濾全部 18 組 _INTERNAL_PATTERNS**；telegram_pump.py 9 處直送改走 _safe_send()、cron_registry.py Ares alert 改走 _safe_send()、telegram_menu.py 加 sanitize、update_processing_status 加 sanitize）
 （注：`governance/cognitive_receipt.py` 已於 v1.77 刪除）
 
@@ -971,6 +982,7 @@
 |------|------|------|
 | 2026-04-05 | v2.03 | 能力缺口偵測系統——新增 🟢 綠區：agent/gap_accumulator.py（扇入=1（brain.py 兩注入點 Step 3.1c + Step 8.1），扇出=3（vector_bridge gaps collection RW + morphenix/notes/ W + event_bus SKILL_GAP_PROPOSAL/SKILL_REFORGE_PROPOSAL），安全分級=🟢 綠區）；brain.py 扇出 +1（gap_accumulator fire-and-forget）；vector_bridge.py 扇入 +1（gap_accumulator，fan_in 8→9）；event_bus 新增 2 個事件訂閱（SKILL_GAP_PROPOSAL + SKILL_REFORGE_PROPOSAL → telegram.py Stage 2 主動詢問）；同步 system-topology v1.85、joint-map v1.71、persistence-contract v1.56 |
 | 2026-04-05 | v2.02 | 五個新功能補登——新增 🟢 綠區：consultant_supplement.py（扇入=2：server+telegram_pump，扇出=1：Telegram）、breath_analyzer.py（扇入=1：nightly_pipeline Step 34.8，扇出=1：breath/patterns/）、vision_loop.py（扇入=1：nightly_pipeline Step 34.9，扇出=1：breath/visions/）；brain_prompt_builder.py 扇出 +1（decision_atlas 讀取）；group_context.py schema 擴展 +4 表（扇入扇出不變）；nightly_pipeline 描述更新（+Step 34.8/34.9）。同步 system-topology v1.84 |
+| 2026-04-06 | v2.06 | Entity Registry 藍圖同步——Governance 層新增 `governance/group_context.py` 獨立條目（🟡 黃區，扇入=7：channels/telegram.py 5 處 + telegram_pump.py + mcp_server.py + brain_prompt_builder.py + l4_cpu_observer.py + nightly_pipeline.py + cron_registry.py，GroupContextStore 9 表統一存取層）；Governance 層 2→3 個。同步 joint-map v1.73、memory-router v1.30 |
 | 2026-04-05 | v2.01 | Entity Registry 建置——brain_prompt_builder.py 扇出 +2（athena/profile_store.py + group_context.py）；l4_cpu_observer.py 寫入目標從 MemoryStore 改為 MemoryManager（修正斷裂接線）。同步 persistence-contract v1.54、joint-map v1.69 |
 | 2026-04-04 | v2.00 | Knife 2+3——新增 `cache/semantic_response_cache.py`（🟢 綠區，扇入=2（brain.py query、l4_cpu_observer write），扇出=1（Qdrant semantic_response_cache collection），零 LLM，v12 新增）；`gateway/cron_registry.py` 備注更新：quota circuit breaker（v12，quota 耗盡時跳過 LLM cron jobs）|
 | 2026-04-04 | v1.99 | 新增 `agent/l4_cpu_observer.py`（🟢 綠區，扇入=1（brain.py），扇出=3：context_cache JSON、session_adjustments、memory_manager，CPU-only 對話後觀察，零 LLM，v12 取代 Haiku L4 agent spawn）；`agent/brain_tools.py` 備注更新：`_classify_complexity` 已於 v12 改為 CPU-only，`_call_llm` 仍走 LLM |
@@ -1040,6 +1052,7 @@
 | 2026-03-16 | v1.6 | Docker 沙盒驗證器上線：新增 nightly/morphenix_validator.py 到綠區（扇入=1），Dockerfile 修復（補齊專案依賴 + jieba + PYTHONPATH + addopts 覆蓋），image `museon-validator:latest` 已建構並驗證（1637 passed） |
 | 2026-03-15 | v1.5 | DNA27 深度修復：幽靈訂閱 3→0（telegram 2 個移除 + server ActivityLogger 2 個修正）、事件健康度 52.5%→67.9%、ANIMA_MC 殘餘漏洞已修復（_observe_self + _merge_ceremony 改用 Store.update()） |
 | 2026-03-15 | v1.4 | 9.5 精度修復：健康快照共享狀態 24→26（同步 joint-map v1.5） |
+| 2026-04-06 | v2.07 | Nightly 拆分 + e2e probe_health + skill_qa_gate bug 修復——nightly_pipeline.py 拆分為 7 Mixin（nightly_steps_memory/morphenix/skill/identity/ecosystem/maintenance/persona.py），nightly_pipeline.py 扇出由「-67 個步驟方法」改為「import 7 Mixin + 委派」；7 個 Mixin 各自扇入=1（nightly_pipeline），扇出=各自擁有的 _step_* 方法數（約 5-15 個）；brain.py 新增 probe_health()（純新增方法，不改現有介面，扇入不變）；vital_signs.py e2e_flow 新增 brain.probe_health() 呼叫（brain.py 扇入不變，vital_signs.py→brain.py 連線新增一條）；skill_qa_gate.py startswith bug 修復（純內部邏輯修正，扇入=1 不變）。Nightly Mixin 均為綠區（各自扇入=1）。同步 system-topology v1.89、persistence-contract v1.58、joint-map v1.74 |
 | 2026-03-15 | v1.3 | 全面覆蓋修復：新增 doctor/system_audit、mcp_server、federation/skill_market、federation/sync 到黃區；健康快照同步（共享狀態 16→24） |
 | 2026-03-15 | v1.2 | 藍圖完整性修復：新增 evolution/outward_trigger, evolution/wee_engine, evolution/evolution_velocity, guardian/daemon 到黃區 |
 | 2026-03-15 | v1.1 | 合約 1：新增 AnimaMCStore 模組，anima_tracker 鎖風險標記為已修復 |

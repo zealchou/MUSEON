@@ -21,9 +21,9 @@ connects_to:
   - morphenix
   - acsf
 description: >
-  外掛模組註冊表（Plugin Registry）v2.5 — DNA27 核心的參考文件，
+  外掛模組註冊表（Plugin Registry）v2.6 — DNA27 核心的參考文件，
   管理所有 MUSEON 外掛模組的註冊資訊、迴圈允許規則、RC 親和對照、協作矩陣與共存規則。
-  已註冊外掛：70 個（含 10 常駐 + 54 按需 + 1 參考 + 5 工作流），分佈於 9 個 Hub。
+  已註冊外掛：82 個（含 4 常駐 + 1 半常駐 + 65 按需 + 1 參考 + 6 工作流 + 5 特殊），分佈於 9 個 Hub。
   此文件為 dna27/references 底下的治理參考文件，非獨立 Skill，不可被單獨觸發。
   觸發時機：DNA27 路由、orchestrator 編排、morphenix 迭代時自動參照。
   指令觸發：無獨立指令。透過 /orchestrate、/morphenix fitness、/morphenix status 間接使用。
@@ -31,12 +31,13 @@ description: >
   與 orchestrator 互補：orchestrator 編排多 Skill 時參照此表的協作矩陣與迴圈允許規則。
   與 morphenix 互補：morphenix Skill 健康儀表板參照此表的完整外掛清單。
   與 acsf 互補：鍛造新 Skill 完成後，必須在此表新增條目才算正式上線。
+constellation_affinity: [absurdity]
 ---
 
-# 外掛模組註冊表（Plugin Registry）v2.5
+# 外掛模組註冊表（Plugin Registry）v2.6
 
-> **上次更新**：2026-03-30
-> **已註冊外掛**：70 個（含 4 常駐 + 59 按需 + 1 參考 + 6 工作流），分佈於 9 個 Hub
+> **上次更新**：2026-04-06
+> **已註冊外掛**：82 個（含 4 常駐 + 1 半常駐 + 65 按需 + 1 參考 + 6 工作流 + 5 特殊），分佈於 9 個 Hub
 > **治理文件**：`docs/skill-routing-governance.md`（Hub 路由 + Workflow Stage 規格）
 > **Manifest 規格**：`docs/skill-manifest-spec.md` v1.1（含 `hub` + `stages` 欄位）
 
@@ -56,15 +57,16 @@ DNA27（核心 OS）
 │   ├── query-clarity        （問題品質守門層）
 │   └── user-model           （使用者畫像引擎）
 │
-├─ [infra] 基礎設施（6）— 跨 Hub 共用服務
+├─ [infra] 基礎設施（7）— 跨 Hub 共用服務
 │   ├── knowledge-lattice    （知識晶格引擎）
 │   ├── eval-engine          （效能儀表板）
 │   ├── wee                  （工作流演化引擎）
 │   ├── morphenix            （自我進化引擎）
 │   ├── plan-engine          （計畫引擎）
-│   └── plugin-registry      （外掛模組註冊表）
+│   ├── plugin-registry      （外掛模組註冊表）
+│   └── constellation-forge  （星座鑄造工作流）         ← NEW
 │
-├─ [Thinking Hub]（9）— 思維、轉化、共振、元認知、能量解讀
+├─ [Thinking Hub]（12）— 思維、轉化、共振、元認知、能量解讀
 │   ├── dharma               （思維轉化引擎）
 │   ├── philo-dialectic      （哲學思辨引擎）
 │   ├── resonance            （感性共振引擎）
@@ -74,19 +76,22 @@ DNA27（核心 OS）
 │   ├── energy-reading       （八方位能量解讀引擎）
 │   ├── wan-miu-16           （萬謬16型人格分析引擎）
 │   ├── combined-reading     （合盤能量比對引擎）
-│   ├── anima-individual     （ANIMA 個體追蹤引擎）    ← NEW
-│   └── ares                 （戰神系統工作流）         ← NEW
+│   ├── anima-individual     （ANIMA 個體追蹤引擎）
+│   ├── ares                 （戰神系統工作流）
+│   ├── onemuse-core         （One Muse 核心知識引擎）  ← NEW
+│   └── athena               （智慧戰略情報平台）       ← NEW
 │
-├─ [Market Hub]（7）— 市場分析、風險、情緒
+├─ [Market Hub]（8）— 市場分析、風險、情緒
 │   ├── market-core          （市場分析核心引擎）
 │   ├── market-equity        （股票市場分析衛星）
 │   ├── market-crypto        （加密貨幣分析衛星）
 │   ├── market-macro         （總體經濟分析衛星）
 │   ├── investment-masters   （投資軍師團）
 │   ├── risk-matrix          （風險管理與資產配置引擎）
-│   └── sentiment-radar      （市場情緒雷達）
+│   ├── sentiment-radar      （市場情緒雷達）
+│   └── darwin               （策略模擬引擎）           ← NEW
 │
-├─ [Business Hub]（8）— 商模、戰略、銷售、溝通、品牌建構
+├─ [Business Hub]（11）— 商模、戰略、銷售、溝通、品牌建構
 │   ├── business-12          （商模十二力診斷引擎）
 │   ├── ssa-consultant       （顧問式銷售與系統創業引擎）
 │   ├── master-strategy      （戰略判斷與心理動力引擎）
@@ -94,23 +99,29 @@ DNA27（核心 OS）
 │   ├── xmodel               （通用破框解方引擎）
 │   ├── pdeif                （目的導向逆熵流引擎）
 │   ├── brand-discovery      （漸進式品牌訪談引擎）
-│   └── brand-builder        （奧美級品牌建構引擎）
+│   ├── brand-builder        （奧美級品牌建構引擎）
+│   ├── esg-architect-pro    （ESG 永續報告書鍛造引擎）  ← NEW
+│   ├── meeting-intelligence （會議情報分析引擎）        ← NEW
+│   └── landing-page-forge   （一頁式銷售頁鍛造引擎）   ← NEW
 │
-├─ [Creative Hub]（5）— 語言、敘事、美感、品牌
+├─ [Creative Hub]（7）— 語言、敘事、美感、品牌
 │   ├── text-alchemy         （文字煉金路由模組）
 │   ├── storytelling-engine  （說故事引擎）
 │   ├── novel-craft          （小說工藝引擎）
 │   ├── aesthetic-sense      （美感引擎）
-│   └── brand-identity       （品牌識別治理引擎）
+│   ├── brand-identity       （品牌識別治理引擎）
+│   ├── script-optimizer     （劇本優化引擎）           ← NEW
+│   └── human-design-blueprint（人類圖靈魂藍圖分析引擎）← NEW
 │
-├─ [Product Hub]（7）— 能力鑄造、診斷、報告
+├─ [Product Hub]（8）— 能力鑄造、診斷、報告
 │   ├── acsf                 （能力結晶與 Skill 鑄造引擎）
 │   ├── dse                  （AI 技術融合驗證引擎）
 │   ├── gap                  （市場缺口分析引擎）
 │   ├── env-radar            （環境雷達引擎）
 │   ├── info-architect       （資訊架構引擎）
 │   ├── orchestrator         （編排引擎）
-│   └── report-forge         （付費級產業診斷報告鍛造引擎）
+│   ├── report-forge         （付費級產業診斷報告鍛造引擎）
+│   └── fix-verify           （BDD 逆向驗證閉環工作流）  ← NEW
 │
 ├─ [Evolution Hub]（7）— 沙盒、品質審計、健康、決策、開發閉環
 │   ├── sandbox-lab          （沙盒實驗室）
@@ -392,6 +403,34 @@ DNA27（核心 OS）
 | 核心能力 | 六大模組（八軸比對+面談+逐字稿+靈數+報告+證據面試包）、STAR/SCENARIO/PROBE/FALSIFY 題型 |
 | 與其他外掛 | onemuse-core（八方位能量定義）；energy-reading（能量解讀→職場匹配）；wan-miu-16（16型→八軸匹配）；anima-individual（候選人→ANIMA檔案） |
 
+### onemuse-core — One Muse 核心知識引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | ONEMUSE_CORE |
+| 類別 | core-knowledge-engine |
+| 風險等級 | LOW |
+| 允許迴圈 | 全部（知識層，任何迴圈皆可查詢） |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | energy-reading、wan-miu-16、combined-reading、DARWIN、ATHENA 等能量系統 Skill 自動呼叫；或使用者明確詢問 One Muse 方法論 |
+| 觸發指令 | /onemuse、/om |
+| 核心能力 | 統一管理八方位能量系統、四軸線、64 卦象行為模型、顯化法則、能量擺盪規則、先鋒/追隨者分類邏輯、數據→能量映射規則；是所有能量系統的知識根 |
+| 與其他外掛 | energy-reading（八方位數據來源）；wan-miu-16（四軸線計算根）；combined-reading（合盤知識庫）；darwin（能量模型根）；athena（策略槓桿知識根）；talent-match（八軸比對知識庫） |
+
+### athena — 智慧戰略情報平台
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | ATHENA |
+| 類別 | strategic-intelligence-workflow |
+| 風險等級 | MEDIUM |
+| 允許迴圈 | slow_loop（主，完整策略佈局）、exploration_loop（快速人物分析）、fast_loop（戰前簡報） |
+| 允許模式 | civil_mode |
+| 入場條件 | 使用者描述人物攻略、談判策略、組織管理、多層槓桿佈局需求 |
+| 觸發指令 | /athena、/athena-person |
+| 核心能力 | 整合 ANIMA 個體引擎、萬謬16型、合盤、九策軍師、陰謀辨識、八大槓桿；產出人物分析、策略建議、多層槓桿路徑（2-4層）、連動模擬、戰前簡報 |
+| 與其他外掛 | anima-individual（人物檔案建立）；wan-miu-16（人格評估）；combined-reading（關係合盤）；master-strategy（戰略判斷）；shadow（陰謀辨識）；onemuse-core（槓桿知識根）；ares（ares 為戰神工作流，athena 為情報平台） |
+
 ---
 
 ## 三、商業與戰略
@@ -509,6 +548,49 @@ DNA27（核心 OS）
 | 觸發指令 | /biz-diag |
 | 核心能力 | SSA 商模十二力診斷框架、系統姿態判讀、因果鏈分析、一次一問漸進式對話 |
 | 與其他外掛 | darwin（前置資訊→模擬）；business-12（診斷框架共用）；report-forge（健檢→報告） |
+
+### esg-architect-pro — ESG 永續報告書專業鍛造引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | ESG_ARCHITECT_PRO |
+| 類別 | esg-report-forge-engine |
+| 風險等級 | MEDIUM |
+| 允許迴圈 | slow_loop（主，完整九階段鍛造）、exploration_loop（快速漂綠檢測） |
+| 禁止迴圈 | fast_loop |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | 使用者描述 ESG 永續報告書需求、企業永續合規、漂綠風險檢測 |
+| 觸發指令 | /esg-forge、/esg、/esg-audit |
+| 核心能力 | 九階段鍛造工作流（重大性評估→框架選擇→資料盤點→指標計算→敘事撰寫→CRO 稽核→視覺渲染→漂綠檢測→交付）；融合 IFRS S1/S2（ISSB）、GRI 2021、ESRS、SASB 77 行業標準、TCFD/TNFD、GHG Protocol、ISO 14064 |
+| 與其他外掛 | dse（法規標準研究）；eval-engine（報告品質驗證）；fix-verify（合規閉環）；aesthetic-sense（HTML 報告美感）；consultant-communication（報告結構框架）；report-forge（通用報告 vs ESG 專業報告） |
+
+### meeting-intelligence — 會議情報分析引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | MEETING_INTELLIGENCE |
+| 類別 | meeting-intelligence-engine |
+| 風險等級 | LOW |
+| 允許迴圈 | slow_loop（五層深度分析）、exploration_loop（標準會議記錄） |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | 使用者提供會議逐字稿或音頻；或需要對既有會議記錄做博弈分析 |
+| 觸發指令 | /meeting、/intel、/meeting-audit |
+| 核心能力 | 七階段管線：逐字稿接收→五層分析（表層記錄/決策邏輯/人際動態/博弈辨識/戰略提取）→HTML 報告產出；融合 SCQA、圓桌多視角、陰謀辨識；不只記錄「發生什麼」，更分析「背後發生什麼」 |
+| 與其他外掛 | consultant-communication（SCQA 結構化）；roundtable（多視角圓桌會診）；master-strategy（戰略層面提取）；shadow（博弈動態辨識）；resonance（情緒承接）；aesthetic-sense（HTML 美感）；knowledge-lattice（會議洞見結晶） |
+
+### landing-page-forge — 一頁式銷售頁鍛造引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | LANDING_PAGE_FORGE |
+| 類別 | landing-page-production-engine |
+| 風險等級 | LOW |
+| 允許迴圈 | slow_loop（主，五段 Pipeline 完整執行）、exploration_loop（快速模式跳過問答） |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | 使用者需要銷售頁、報名頁、一頁式網站、高轉化文案 |
+| 觸發指令 | /landing、/lpf、/lpf quick |
+| 核心能力 | 五段 Pipeline × 十大說服區段：診斷先行（轉化誰/從哪到哪）→ 敘事架構（StoryBrand 英雄旅程）→ 說服文案（Hook-Story-Offer）→ CRO Gate（Hormozi Value Equation + Cialdini 六力稽核）→ HTML 輸出；轉化率思維優先 |
+| 與其他外掛 | ssa-consultant（銷售對話 vs 文字轉化）；brand-builder（品牌定位→說服力）；storytelling-engine（敘事結構）；c15（語言張力）；aesthetic-sense（HTML 美感審計） |
 
 ---
 
@@ -629,6 +711,34 @@ DNA27（核心 OS）
 | 觸發指令 | /brand、/identity |
 | 核心能力 | April Dunford 定位五要素、品牌金字塔、色彩/字型規劃、品牌做與不做原則、訊息金字塔、競爭定位矩陣 |
 | 與其他外掛 | aesthetic-sense（通用美感 vs 品牌規範）；consultant-communication（溝通結構 vs 品牌調性）；c15（敘事張力不偏離品牌人格）；ssa-consultant（品牌人格一致性） |
+
+### script-optimizer — 劇本優化引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | SCRIPT_OPTIMIZER |
+| 類別 | script-optimization-engine |
+| 風險等級 | LOW |
+| 允許迴圈 | exploration_loop（標準診斷/優化）、slow_loop（深度教練） |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | 使用者提供劇本、短影音腳本、演講稿需要優化；或描述時間壓縮、笑點密度提升需求 |
+| 觸發指令 | /script-optimize、/optimize-script、/optimize |
+| 核心能力 | 三模式：劇本診斷（diagnose）/ 劇本優化（build）/ 劇本教練（coach）；融合 Freytag 金字塔、喜劇時序學、舞蹈劇場整合理論、短形式敘事壓縮技術；專注於時間限制下的笑點密度、節奏控制、角色弧線強化 |
+| 與其他外掛 | novel-craft（文學質感回饋）；storytelling-engine（敘事結構）；consultant-communication（演講稿商業溝通）；video-strategy（短影音腳本壓縮）；c15（語言張力執行） |
+
+### human-design-blueprint — 人類圖靈魂藍圖分析引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | HUMAN_DESIGN_BLUEPRINT |
+| 類別 | human-design-analysis-engine |
+| 風險等級 | LOW |
+| 允許迴圈 | slow_loop（完整六系統交叉分析）、exploration_loop（單一系統快讀） |
+| 允許模式 | civil_mode |
+| 入場條件 | 使用者提供出生日期/時間/地點，要求人類圖解讀 |
+| 觸發指令 | /blueprint、/hd |
+| 核心能力 | 完整人類圖分析：四大類型 + 策略 + 內在權威 + 人生角色 + 九大能量中心 + 36 條通道 + 64 閘門 + 爻線 + MUSEON 獨家六系統交叉融合（人類圖×八方位×萬謬16型×占星×數字命理×中醫五行）；HTML 報告輸出 |
+| 與其他外掛 | aesthetic-sense（報告美感）；consultant-communication（解讀結構化）；storytelling-engine（人生故事敘事化）；resonance（情緒承接）；user-model（人類圖檔案更新）；energy-reading（能量盤交叉融合） |
 
 ---
 
@@ -784,6 +894,20 @@ DNA27（核心 OS）
 | RC 親和 | RC-C3、RC-D1（偏好）；RC-A1（限制） |
 | 與其他外掛 | orchestrator（plan-engine 負責前段收斂，orchestrator 負責後段編排）；所有需要多步驟規劃的 Skill 均可透過 plan-engine 前置收斂 |
 
+### constellation-forge — 星座鑄造工作流
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | CONSTELLATION_FORGE |
+| 類別 | knowledge-constellation-workflow |
+| 風險等級 | LOW |
+| 允許迴圈 | slow_loop（主，完整四階段鑄造）、exploration_loop（快速結構化） |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | 使用者需要將多維知識框架鑄造為可追蹤的星座結構 |
+| 觸發指令 | /constellation、/forge-star、/星座 |
+| 核心能力 | 四階段流程（知識攝取→結構化→審核→接線）；將 MUSEON 多維知識框架鑄造為可追蹤、可連結的「星座」結構；每個星座是一組互相關聯的維度，形成雷達式追蹤系統，並透過共享頂點與其他星座連動 |
+| 與其他外掛 | knowledge-lattice（星座結晶存入知識晶格）；orchestrator（多 Skill 協作編排）；eval-engine（星座健康度評估） |
+
 ---
 
 ## 八、產品線
@@ -905,6 +1029,20 @@ DNA27（核心 OS）
 | 產線位置 | GAP→DSE→ACSF→**prompt-stresstest**→eval-engine |
 | 與其他外掛 | acsf（鍛造→壓測閉環）；fix-verify（壓測→修補→驗證）；qa-auditor（程式碼↔Prompt品質）；sandbox-lab（A/B實驗↔結構化壓測） |
 
+### fix-verify — BDD 逆向驗證閉環工作流
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | FIX_VERIFY |
+| 類別 | bdd-verification-workflow |
+| 風險等級 | LOW |
+| 允許迴圈 | exploration_loop（Phase 0 記錄）、slow_loop（完整四階段閉環） |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | 任何迭代/debug 完成後強制觸發；或使用者描述驗證、確認修好、BDD、回歸測試需求 |
+| 觸發指令 | /fix-verify、/fv、/fv record |
+| 核心能力 | 強制三維驗證閉環：Phase 0（現場記錄）→ Phase 1（自動產生 BDD 腳本）→ Phase 2（spawn 隔離審計員執行三維驗證：D1 行為/D2 接線/D3 藍圖）→ Phase 3（教訓同步四管道）；未通過自動修復→重跑，迴圈上限 5 輪 |
+| 與其他外掛 | qa-auditor（程式碼品質審計 vs BDD 行為驗證）；sandbox-lab（A/B 實驗 vs 修復驗證）；dev-retro（修復驗證後教訓萃取）；prompt-stresstest（Prompt 壓測 vs 修復驗證） |
+
 ### brand-project-engine — 品牌行銷專案引擎
 
 | 屬性 | 值 |
@@ -952,6 +1090,35 @@ DNA27（核心 OS）
 | 觸發指令 | /tantra |
 | 核心能力 | 四層架構：Eros（治理總則）→ Adult（狀態路由）→ Drive（深化引擎）→ Feral（極態辨識） |
 | 與其他外掛 | resonance（情慾情境情緒承接）；shadow（情慾關係對抗偵測）；c15（情慾場景敘事張力） |
+
+### system-health-check — 系統健康自檢引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | SYSTEM_HEALTH_CHECK |
+| 類別 | system-health-diagnostic-engine |
+| 風險等級 | LOW |
+| 允許迴圈 | exploration_loop（主，標準健檢）、slow_loop（深度健檢 + 修復提案） |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | 定期自動診斷觸發；或使用者描述系統連線問題、Skill 協作異常、記憶流向問題 |
+| 觸發指令 | /health、/system-check |
+| 核心能力 | 自動診斷 MUSEON 連線完整性、記憶流向健康度、Skill 協作狀態；產出結構化健康報告；CRITICAL 級問題時自動生成 Morphenix 修復提案；三級告警（INFO/WARNING/CRITICAL） |
+| 與其他外掛 | qa-auditor（系統健康自檢 vs 技術品質審計）；eval-engine（健康指標 vs 品質指標）；morphenix（收到修復提案→迭代行動）；sandbox-lab（修復前安全測試） |
+
+### decision-tracker — 決策歷史追蹤引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | DECISION_TRACKER |
+| 類別 | decision-governance-engine |
+| 運行模式 | **半常駐（always-on）**——Brain 偵測到重大決策信號時自動啟動 |
+| 風險等級 | LOW |
+| 允許迴圈 | 全部（決策追蹤可在任何迴圈追加） |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | Brain 偵測到重大決策信號自動啟動；或使用者明確要求記錄決策 |
+| 觸發指令 | /decision、/track |
+| 核心能力 | 記錄決策完整生命週期（背景→選項→選擇→執行→結果→回饋）；決策偏好模式辨識；決策歷史查詢；與 roundtable 整合（仲裁結果自動記錄）；與 master-strategy 整合（戰略評估自動存入） |
+| 與其他外掛 | roundtable（仲裁結果→決策記錄）；deep-think（輸出品質→決策品質追蹤）；master-strategy（戰略評估→決策歷史）；eval-engine（決策效果度量）；knowledge-lattice（決策結晶存入） |
 
 ---
 
@@ -1095,6 +1262,21 @@ DNA27（核心 OS）
 | 核心能力 | 社群情緒掃描（PTT/Reddit/Twitter/X）、新聞情緒分析、恐懼貪婪綜合指數、散戶 vs 法人情緒分歧偵測、極端情緒反轉訊號；台灣在地化（PTT 股板/八卦板、Mobile01） |
 | RC 親和 | RC-C3、RC-D1（偏好）；RC-B1（限制） |
 | 與其他外掛 | market-core（Layer 4 深度展開）；investment-masters（情緒面數據供大師參考） |
+
+### darwin — 策略模擬引擎
+
+| 屬性 | 值 |
+|---|---|
+| plus_id | DARWIN |
+| 類別 | strategic-simulation-engine |
+| 風險等級 | MEDIUM |
+| 允許迴圈 | slow_loop（完整 52 週模擬）、exploration_loop（快速策略驗證） |
+| 禁止迴圈 | fast_loop（模擬需要深度展開） |
+| 允許模式 | civil_mode、evolution_mode |
+| 入場條件 | 使用者需要策略驗證、市場推演、兵棋推演；或想預測商業策略的演化結果 |
+| 觸發指令 | /darwin、/simulate、/ares-market |
+| 核心能力 | 注入地區人口統計資料，生成具備 16 維能量屬性的數位人群原型（64-512 個），預測商業策略在 52 週內的演化與顯化結果；雙軌模式：自駕（使用者帶策略驗證）+ 代駕（MUSEON 設計最佳策略） |
+| 與其他外掛 | market-core（市場數據整合）；onemuse-core（能量模型知識根）；biz-diagnostic（前置資訊蒐集）；master-strategy（策略輸入→模擬驗證）；report-forge（模擬結果→報告產出） |
 
 ---
 
@@ -1374,3 +1556,4 @@ DNA27（核心 OS）
 | **v2.5** | **2026-03-28** | **品牌建構系統上線（共 56 個）：新增 3 個 Skill（brand-discovery、brand-builder、workflow-brand-consulting）；Business Hub 6→8；Workflow Hub 4→5；新增品牌工作流管線 4 組協作組合；memory-router 新增品牌結晶路由規則** |
 | **v2.4** | **2026-03-21** | **Hub 路由治理升級（共 49 個）：母子架構樹改為 Hub 為主軸（core/infra/thinking/market/business/creative/product/evolution/workflow 9 個 Hub）；meta-learning 和 info-architect 從「未部署」升級為已部署；新增 dna27、plugin-registry 為正式條目；引用 skill-routing-governance.md 治理文件與 skill-manifest-spec.md v1.1 Manifest 規格** |
 | **v2.5** | **2026-03-24** | **DSE vNext 升級 + 開發閉環雙引擎（共 51 個）：DSE 從 AI 技術融合引擎升級為通用研究驗證引擎（新增領域路由器 7 領域、深度旋鈕 Quick/Standard/Deep、xmodel→DSE 探索-驗證固定組合）；新增 dev-preflight（開發前置飛行檢查，五張藍圖白話提問）和 dev-retro（開發回溯引擎，五層回溯法 + 教訓結晶）；dev-preflight ↔ dev-retro 形成閉環；Evolution Hub 從 5→7 個；協作矩陣新增完整行動管線和開發閉環組合** |
+| **v2.6** | **2026-04-06** | **補齊 12 個未登記 Skill（共 82 個）：Thinking Hub 新增 onemuse-core + athena（12）；Market Hub 新增 darwin（8）；Business Hub 新增 esg-architect-pro + meeting-intelligence + landing-page-forge（11）；Creative Hub 新增 script-optimizer + human-design-blueprint（7）；Product Hub 新增 fix-verify（8）；Evolution Hub 補充 system-health-check + decision-tracker 詳細條目；Infra Hub 新增 constellation-forge（7）；解除 system-health-check 和 decision-tracker 的登記缺失狀態；test-auto-skill 為測試用跳過** |

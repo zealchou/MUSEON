@@ -1,8 +1,9 @@
-# MUSEON Persistence Contract v1.57 — 水電圖
+# MUSEON Persistence Contract v1.58 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
 > 與 `system-topology.md`（控制流拓撲）互補——那是「神經圖」，這是「水電圖」。
+> **v1.58 (2026-04-06)**：Nightly 拆分無持久層變更——`nightly_pipeline.py` 拆分為 7 個 Mixin 為純架構重構，不新增、不修改、不刪除任何持久層路徑；所有 Mixin 繼承 NightlyPipeline 實例（self），讀寫的共享狀態路徑與拆分前完全一致；`brain.py` 新增 `probe_health()` 方法為純 LLM 呼叫，不寫入任何持久層；`vital_signs.py` 改用 `probe_health()` 為純讀路徑變更，不影響持久層格式；`skill_qa_gate.py` startswith bug 修復為純邏輯修正，讀取路徑不變，無持久層格式變更。本版本記錄確認：Nightly Mixin 拆分對水電圖零影響。同步 system-topology v1.89、blast-radius v2.07、joint-map v1.74。
 > **v1.57 (2026-04-05)**：Phase 4 FV 藍圖同步——新增 `data/_system/skill_trust_scores.json`（🟢 Skill 信任分數持久化，寫入者=`nightly/skill_trust_tracker.py`（`persist()`），讀取者=`nightly/skill_trust_tracker.py`（`_load()`），格式=JSON 物件（`{skill_name: {score, origin, last_updated}}`），生命週期=永久累積（無 TTL，分數持續更新），備注：目前 skill_trust_tracker.py 為 prototype，尚未被其他模組 import，採用 update_trust_score(delta) + persist() 雙步驟寫入，T1/T2/T3 三等級邊界 0.4/0.7）。同步 joint-map v1.72、blast-radius v2.04、system-topology v1.87。
 > **v1.56 (2026-04-05)**：Phase 2+3 FV 藍圖同步——新增 `data/_system/morphenix/processed_notes.json`（已結晶筆記清單，寫入者=`nightly/morphenix_executor.py`（`_action_crystallize_notes()`），讀取者=`morphenix_executor.py`（讀取已處理清單做去重），格式=JSON 陣列（note_id strings），生命週期=累積，無 TTL）；新增 `data/_system/footprints/crystal_observations.jsonl`（探索結晶觀察日誌，寫入者=`nightly/exploration_bridge.py`（含「認知/盲點/偏見/學到/發現」關鍵字的探索結晶），讀取者=未來 Observatory/SystemAudit，格式=JSONL（每行含 topic/observation/timestamp），生命週期=append-only）；新增 `morphenix_executor.py` 作為 `crystal_rules.json` 的第二寫入者（`_action_crystallize_notes()` 在規則數超過 100 條時自動淘汰最舊的 crystallized_note 型規則）。同步 joint-map v1.72、memory-router v1.29。
 > **v1.55 (2026-04-05)**：Decision Atlas + Breath System + Elder Council——新增 `data/_system/decision_atlas/da-*.json`（決策結晶 JSON 群，寫入者=Claude Code session + 未來 L4 觀察者，讀取者=brain_prompt_builder.py persona zone + vision_loop.py 覆蓋度掃描，永久保存）；新增 `data/_system/breath/patterns/{yyyy-wNN}.json`（呼吸分析結果，寫入者=breath_analyzer.py Nightly Step 34.8，讀取者=vision_loop.py，保留最近 12 週）；新增 `data/_system/breath/visions/{yyyy-wNN}.json`（願景提案，寫入者=vision_loop.py Nightly Step 34.9，讀取者=未來 Elder Council，保留最近 12 週）；新增 `data/_system/breath/observations/{yyyy-wNN}.jsonl`（呼吸觀察 JSONL，寫入者=L4 觀察者+系統監控，讀取者=breath_analyzer.py，保留最近 12 週）；新增 `data/_system/elder_council/members.json`（長老名單，寫入者=手動/未來自動晉升，讀取者=vision_loop.py，永久）。同步 joint-map v1.70、memory-router v1.27。
@@ -878,4 +879,5 @@ adaptive_decay ──ACT-R B_i──→ _activation 欄位 (in-memory) ←──
 | v1.6 | 2026-03-15 | 9.5 精度修復：新增管線 H(Installer)、拓撲對應表同步（3 個 SQLite 子節點已在 topology v1.4 上圖） |
 | v1.5 | 2026-03-15 | 全面覆蓋修復：新增管線 G(Federation)、W31-W33 配對、修正 outward 歸屬（proactive_bridge→outward_trigger）、新增 marketplace+budget 子目錄 |
 | v1.4 | 2026-03-15 | 藍圖完整性修復：新增管線 E(Evolution) + F(Guardian)、W24-W30 配對、9 個 _system 子目錄條目 |
+| v1.58 | 2026-04-06 | Nightly 拆分無持久層變更——nightly_pipeline.py 拆分為 7 Mixin 為純架構重構，持久層路徑零變更；brain.probe_health() 純 LLM 呼叫不寫持久層；vital_signs.py probe_health 改用純讀路徑；skill_qa_gate startswith 修復無持久層影響。同步 system-topology v1.89、blast-radius v2.07、joint-map v1.74 |
 | v1.3 | 2026-03-15 | Phase 4 完成：DataWatchdog 監控 + Nightly Step 29 + Dead Write 偵測 + 空間預警 |

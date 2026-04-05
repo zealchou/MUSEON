@@ -1,10 +1,11 @@
-# Memory Router — 記憶路由表 v1.29
+# Memory Router — 記憶路由表 v1.30
 
 > **用途**：定義「什麼類型的洞見存到哪個記憶系統、什麼時候取出」。第五張工程藍圖。
 > **比喻**：郵局分揀表——每封信根據地址分到對應的信箱，不會寄丟也不會重複投遞。
 > **更新時機**：新增 Skill 或記憶系統時，必須在同一個 commit 中新增對應的路由規則。
 > **建立日期**：2026-03-21
 > **搭配**：`docs/skill-manifest-spec.md`（Skill I/O 合約）、各 Skill 的 `memory.writes` 欄位、`docs/operational-contract.md`（操作契約表）
+> **v1.30 (2026-04-06)**：Entity Registry 互動路由——新增規則 11（Entity Registry → GroupContextDB 別名映射：channels/telegram.py 觸發 add_alias()，brain_prompt_builder.py resolve_alias() 消費，l4_cpu_observer.py 觀察讀取，nightly Step 28 清理；別名映射不進 Qdrant，深度 Entity 分析走 anima-individual → individual_crystal）。同步 joint-map v1.73、blast-radius v2.06。
 > **v1.29 (2026-04-05)**：Phase 4 FV 藍圖同步——新增「生態系雷達 → morphenix/notes/ → skill_draft_forger」路由段（ecosystem_radar Nightly Step 17.5 週一限定，ResearchEngine 搜尋 3 個外部生態查詢，有價值結果寫入 `morphenix/notes/scout_ecosystem_{ts}.json`，消費者=Step 19.6 skill_draft_forger 掃描 notes 目錄生成外部 Skill 草稿）；備注：skill_trust_scores.json 為 `skill_trust_tracker.py` 私有持久化，目前不進入記憶路由系統（無 Qdrant/knowledge-lattice 分揀）。同步 system-topology v1.87、joint-map v1.72、blast-radius v2.04。
 > **v1.28 (2026-04-05)**：能力缺口偵測路由——新增「能力缺口偵測 → morphenix/notes/ + skill_requests/」路由段（三軌道 A=低分未觸發宏觀聚合→scout_gap_cluster 筆記，B=弱匹配→scout_skill_optimize 筆記，缺口達閾值→skill_requests/req_*.json 需求槽）；向量去重路由（Qdrant gaps #86）；消費：morphenix/notes=skill_forge_scout.py，skill_requests=Claude Code session 啟動掃描。同步 persistence-contract v1.56、joint-map v1.71、blast-radius v2.03。
 > **v1.27 (2026-04-05)**：Decision Atlas + Vision Loop 路由——新增規則 9（Decision Atlas → Brain Prompt）：Claude Code 互動觀察 + 未來 L4 觀察者 → `_system/decision_atlas/da-*.json` → `brain_prompt_builder.py` persona zone 注入（每次 L2 回覆時自動讀取，N/A 寫入記憶系統，直接進 system prompt）；新增規則 10（Vision Loop → Breath Visions）：四信號源匯聚（星座/Skill/Atlas/呼吸）→ `nightly/vision_loop.py`（Nightly Step 34.9，週日）→ `_system/breath/visions/{yyyy-wNN}.json`（未來接 Morphenix 執行管道）。同步 persistence-contract v1.55、joint-map v1.70。
@@ -347,10 +348,28 @@
 
 ---
 
+### 規則 11：Entity Registry 互動記錄 → GroupContextDB（v1.30 新增）
+
+> Entity 互動資料寫入 GroupContextDB，以別名映射形式持久化，供後續 Brain Prompt 解析使用。
+
+| 來源 | 觸發 | 去向 | 格式 | 說明 |
+|------|------|------|------|------|
+| `channels/telegram.py` | 每則訊息收到時 | `data/_system/group_context.db` → `entity_registry` + `entity_aliases` 表 | SQLite WAL | `governance/group_context.py add_alias()` 建立 Telegram username → ANIMA profile id 映射 |
+| `governance/group_context.py` | alias 寫入後 | `agent/brain_prompt_builder.py resolve_alias()` | 記憶體呼叫 | Brain L1/L2 建構 prompt 時解析別名，注入 persona zone |
+| `agent/l4_cpu_observer.py` | 對話後觀察 | 讀取 `entity_aliases` 表 | SQLite 查詢 | L4 CPU Observer 在觀察環節解析 Entity 身份，零 LLM |
+| `nightly/nightly_pipeline.py` | Step 28 群組上下文清理 | 讀取 + 清理 `entity_aliases` 表 | SQLite 批次操作 | 夜間清理過期/失效別名，維持 GroupContextDB 健康 |
+
+> **寫入層**：`data/_system/group_context.db` → `entity_aliases` 表（SQLite WAL，永久）
+> **消費者**：brain_prompt_builder.py（每次 L1/L2 回覆）、l4_cpu_observer.py（對話後觀察）、nightly_pipeline.py Step 28（清理）
+> **備註**：Entity 互動本身不進 Qdrant/knowledge-lattice，僅做 id 映射持久化；深度的 Entity 分析由 anima-individual Skill 處理（路由至 individual_crystal，見規則 13）
+
+---
+
 ## 變更紀錄
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.30 | 2026-04-06 | Entity Registry 互動路由——新增規則 11（Entity Registry → GroupContextDB 別名映射路由：channels/telegram.py 觸發 add_alias()，brain_prompt_builder.py resolve_alias() 消費，l4_cpu_observer.py 觀察讀取，nightly Step 28 清理；僅做 id 映射持久化，深度分析走 anima-individual→individual_crystal）。同步 joint-map v1.73、blast-radius v2.06 |
 | v1.29 | 2026-04-05 | Phase 2+3 FV 藍圖同步——新增「探索結晶觀察 → crystal_observations.jsonl」路由段（exploration_bridge.py 含「認知/盲點/偏見/學到/發現」關鍵字的結晶觀察 append-only 寫入 `_system/footprints/crystal_observations.jsonl`，消費者=未來 Observatory/SystemAudit）；同步 persistence-contract v1.56、joint-map v1.72 |
 | v1.28 | 2026-04-05 | 能力缺口偵測路由——新增「能力缺口偵測 → morphenix/notes/ + skill_requests/」路由段（三軌道 A/B/C：Track A=低分未觸發宏觀聚合→scout_gap_cluster 筆記，Track B=_match_score 弱匹配→scout_skill_optimize 筆記，缺口達閾值→skill_requests/req_*.json 需求槽）；向量去重路由（gap_accumulator→Qdrant gaps collection #86）；消費路徑：morphenix/notes=skill_forge_scout.py 讀取，skill_requests=Claude Code session 啟動掃描。同步 system-topology v1.85、persistence-contract v1.56、joint-map v1.71、blast-radius v2.03 |
 | v1.27 | 2026-04-05 | Decision Atlas + Vision Loop 路由——新增規則 9（Decision Atlas → Brain Prompt 直接注入 persona zone，N/A 進記憶系統）；新增規則 10（四信號源匯聚 → vision_loop.py → breath/visions/{yyyy-wNN}.json，Nightly Step 34.9 週日，未來接 Morphenix）；補充 breath/observations JSONL 上游輸入管道與 breath_analyzer.py Step 34.8 分析鏈路說明。同步 persistence-contract v1.55、joint-map v1.70 |

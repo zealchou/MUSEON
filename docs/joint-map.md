@@ -1,4 +1,4 @@
-# Joint Map — 共享可變狀態接頭圖 v1.72
+# Joint Map — 共享可變狀態接頭圖 v1.74
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
@@ -6,6 +6,8 @@
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **v1.72 (2026-04-05)**：Phase 4 FV 藍圖同步——新增 #90 `data/_system/skill_trust_scores.json`（🟢 Skill 信任分數持久化，寫入者=`nightly/skill_trust_tracker.py` persist()，讀取者=`nightly/skill_trust_tracker.py` _load()，格式=`{skill_name: {score: float, origin: "internal"|"external", last_updated: ISO8601}}`，生命週期=永久累積，備注=prototype 階段，尚無外部寫入者或消費者）；共享狀態 89→90 個。同步 system-topology v1.87、persistence-contract v1.57、blast-radius v2.04。
 > **v1.71 (2026-04-05)**：能力缺口偵測系統——新增 #86 Qdrant `gaps` collection（🟢 單寫入者+單讀取者 gap_accumulator.py，語意去重向量索引）；新增 #87 `_system/quality_gaps.jsonl`（🟢 品質缺口審計日誌 append-only，寫入者=gap_accumulator.py，讀取者=Claude Code session）；新增 #88 `_system/weak_match_log.jsonl`（🟢 弱匹配事件日誌 append-only，Track B，寫入者=gap_accumulator.py）；新增 #89 `_system/skill_requests/req_*.json`（🟢 待鍛造 Skill 需求槽，原子寫入，寫入者=gap_accumulator.py，讀取者=Claude Code session）；更新 G2 探索結晶管線組新增 gap_accumulator + morphenix/notes/ 三方寫入說明；共享狀態 85→89 個。同步 system-topology v1.85、persistence-contract v1.56、blast-radius v2.03。
+> **v1.74 (2026-04-06)**：Nightly Mixin 拆分共享狀態確認——`nightly_pipeline.py` 拆分為 7 個 Mixin 後，所有 Mixin 透過繼承共享 `self`（NightlyPipeline 實例）的全部屬性，包含 `self.workspace`、`self.config`、`self.db`、`self.memory_manager`、`self.crystal_actuator`、`self.exploration_bridge` 等所有共享狀態讀寫器；各 Mixin 讀寫的共享狀態（#1 ANIMA_MC、#2 PULSE.md、#6 crystal.db、#8 PulseDB、#15 morphenix/proposals/、#44 context_cache/ 等）權限歸屬不變，仍以 nightly_pipeline 為統一寫入者（代理 Mixin 操作）；`brain.py` probe_health() 為純 LLM 呼叫，不涉及任何共享狀態；`vital_signs.py` 讀取路徑變更（改呼叫 brain.probe_health()）不新增共享狀態；`skill_qa_gate.py` startswith 修復不影響共享狀態。共享狀態條目數 90 不變。同步 system-topology v1.89、blast-radius v2.07、persistence-contract v1.58。
+> **v1.73 (2026-04-06)**：Entity Registry 藍圖同步——#79 entity_aliases 補登讀取者 `agent/l4_cpu_observer.py`（觀察後 Entity 解析）和 `nightly/nightly_pipeline.py`（Step 28 群組上下文清理）；讀取者從 2 個更新為 4 個。同步 blast-radius v2.06、memory-router v1.30。
 > **v1.70 (2026-04-05)**：Decision Atlas + Breath System + Elder Council——新增 #82 `_system/decision_atlas/da-*.json`（🟢 決策結晶 JSON 群，寫入者=Claude Code session + 未來 L4 觀察者，讀取者=brain_prompt_builder.py persona zone + vision_loop.py）；新增 #83 `_system/breath/patterns/{yyyy-wNN}.json`（🟢 呼吸分析結果，寫入者=breath_analyzer.py，讀取者=vision_loop.py，12 週保留）；新增 #84 `_system/breath/visions/{yyyy-wNN}.json`（🟢 願景提案，寫入者=vision_loop.py，讀取者=未來 Elder Council，12 週保留）；新增 #85 `_system/elder_council/members.json`（🟢 長老名單，寫入者=手動，讀取者=vision_loop.py，永久）；`_system/breath/observations/{yyyy-wNN}.jsonl` 為 breath_analyzer.py 輸入佇列（🟢 append-only，不另立共享狀態條目，歸入 #83 管線）；共享狀態 81→85 個。同步 persistence-contract v1.55、memory-router v1.27。
 > **v1.69 (2026-04-05)**：Entity Registry 建置——新增 #79 `entity_aliases` 表（🟢 GroupContextDB，寫入者=governance/group_context.py add_alias()，讀取者=agent/brain_prompt_builder.py resolve_alias() + governance/group_context.py）；新增 #80 `projects + project_entities` 表（🟢 GroupContextDB，寫入者=governance/group_context.py，讀取者=governance/group_context.py）；新增 #81 `events` 表（🟢 GroupContextDB，寫入者=governance/group_context.py，讀取者=governance/group_context.py）；修正 L4CpuObserver 記憶寫入路徑（MemoryStore→MemoryManager），Qdrant memories collection 新增寫入者=agent/l4_cpu_observer.py；brain_prompt_builder.py 新增讀取者=athena/profile_store.py search() + governance/group_context.py resolve_alias()；共享狀態 78→81 個。同步 persistence-contract v1.54、blast-radius v2.01。
 > **v1.68 (2026-04-04)**：semantic_response_cache——新增 #78 Qdrant collection `semantic_response_cache`（🟢 512 維語義回覆快取，寫入者=cache/semantic_response_cache.py（L4CpuObserver 回覆後寫入），讀取者=cache/semantic_response_cache.py（Brain L1 查詢），per-chat 隔離，TTL 動態）；共享狀態 77→78 個。同步 persistence-contract v1.53。
@@ -1540,10 +1542,10 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 
 | 角色 | 模組 |
 |------|------|
-| 寫入者 | `governance/group_context.py add_alias()` |
-| 讀取者 | `agent/brain_prompt_builder.py resolve_alias()`、`governance/group_context.py` |
+| 寫入者 | `governance/group_context.py add_alias()` / `remove_alias()` |
+| 讀取者 | `agent/brain_prompt_builder.py resolve_alias()`、`governance/group_context.py`、`agent/l4_cpu_observer.py`（觀察後 Entity 解析）、`nightly/nightly_pipeline.py`（Step 28 群組上下文清理時讀取） |
 
-**備註**：Entity Registry 建置，v1.69 新增。別名映射層，支援多平台名稱解析（Telegram username → ANIMA profile id）。
+**備註**：Entity Registry 建置，v1.69 新增。別名映射層，支援多平台名稱解析（Telegram username → ANIMA profile id）。v1.73 補登 l4_cpu_observer + nightly_pipeline 讀取者。
 
 ---
 
@@ -1764,6 +1766,7 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-04-06 | v1.73 | Entity Registry 藍圖同步——#79 entity_aliases 補登讀取者 `agent/l4_cpu_observer.py`（觀察後 Entity 解析）和 `nightly/nightly_pipeline.py`（Step 28 群組上下文清理）；讀取者從 2 個更新為 4 個。同步 blast-radius v2.06、memory-router v1.30 |
 | 2026-04-05 | v1.72 | Phase 2+3 FV 藍圖同步——G5 知識晶格組新增 morphenix_executor 為 crystal_rules.json 第二寫入者（_action_crystallize_notes()，100 條上限自動淘汰最舊 crystallized_note）；新增 #90 `_system/morphenix/processed_notes.json`（🟢 單寫入者 morphenix_executor，JSON 陣列 note_id，已結晶筆記去重清單，無 TTL）；新增 #91 `_system/footprints/crystal_observations.jsonl`（🟢 單寫入者 exploration_bridge.py，JSONL，探索結晶觀察，append-only）；共享狀態 89→91 個。同步 persistence-contract v1.56、memory-router v1.29 |
 | 2026-04-05 | v1.71 | 能力缺口偵測系統——新增 #86 Qdrant `gaps` collection（🟢，單寫入者 gap_accumulator.py，語意去重向量索引）；新增 #87 `_system/quality_gaps.jsonl`（🟢 品質缺口審計 append-only）；新增 #88 `_system/weak_match_log.jsonl`（🟢 弱匹配 Track B append-only）；新增 #89 `_system/skill_requests/req_*.json`（🟢 待鍛造 Skill 需求槽，原子寫入）；更新 G2 組新增 gap_accumulator + morphenix/notes/ 三方說明；共享狀態 85→89 個。同步 persistence-contract v1.56、system-topology v1.85、blast-radius v2.03 |
 | 2026-04-05 | v1.70 | Decision Atlas + Breath System + Elder Council——新增 #82 `_system/decision_atlas/da-*.json`（🟢 決策結晶 JSON 群，寫入者=Claude Code session + 未來 L4 觀察者，讀取者=brain_prompt_builder.py persona zone + vision_loop.py，永久）；新增 #83 `_system/breath/patterns/{yyyy-wNN}.json`（🟢 呼吸分析結果，寫入者=breath_analyzer.py Step 34.8，讀取者=vision_loop.py，12 週保留）；新增 #84 `_system/breath/visions/{yyyy-wNN}.json`（🟢 願景提案，寫入者=vision_loop.py Step 34.9，讀取者=未來 Elder Council，12 週保留）；新增 #85 `_system/elder_council/members.json`（🟢 長老名單，寫入者=手動/未來自動晉升，讀取者=vision_loop.py，永久）；`breath/observations/{yyyy-wNN}.jsonl` 歸入 #83 管線不另立條目；共享狀態 81→85 個。同步 persistence-contract v1.55、memory-router v1.27 |
@@ -1827,4 +1830,5 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 | 2026-03-15 | v1.3 | 藍圖完整性修復：guardian/daemon.py 加入 ANIMA_MC 讀寫者，新增 #17-#21 共享狀態（velocity_log, tuning_audit, trigger_configs, tool_muscles, repair_log） |
 | 2026-03-15 | v1.2 | 合約 2 驗證已解決 + 合約 3：nightly async 橋接修復，並發模型表更新 |
 | 2026-03-15 | v1.1 | 合約 1：AnimaMCStore 統一存取層，ANIMA_MC.json 鎖策略統一 |
+| 2026-04-06 | v1.74 | Nightly Mixin 拆分共享狀態確認——7 個 Mixin 透過繼承共享 NightlyPipeline self，現有 90 個共享狀態條目的讀寫者歸屬不變（以 nightly_pipeline 為統一代理）；brain.probe_health() / vital_signs 路徑變更 / skill_qa_gate 修復均不新增共享狀態。條目數 90 不變。同步 system-topology v1.89、blast-radius v2.07、persistence-contract v1.58 |
 | 2026-03-15 | v1.0 | 初始建立，16 個共享狀態，6 個模組組 |
