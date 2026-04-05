@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MUSEON 封測更新 — 三週進化報告</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@300;400;500;600&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ember:        #C4502A;
+      --ember-light:  #E0714D;
+      --ember-dark:   #9A3A1C;
+      --teal:         #2A7A6E;
+      --gold:         #B8923A;
+      --ink:          #12121A;
+      --slate:        #5A5A6E;
+      --mist:         #9898A8;
+      --border:       #E2E0DA;
+      --parchment:    #F7F5F0;
+      --snow:         #FDFCFA;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+      background: var(--parchment);
+      color: var(--ink);
+      line-height: 1.75;
+      font-size: 16px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: var(--ink);
+      color: var(--snow);
+      padding: 80px 24px 72px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 60% at 50% 0%, rgba(196,80,42,0.22) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ember-light);
+      border: 1px solid rgba(224,113,77,0.4);
+      border-radius: 20px;
+      padding: 4px 14px;
+      margin-bottom: 28px;
+    }
+    .hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(38px, 6vw, 64px);
+      font-weight: 600;
+      line-height: 1.15;
+      margin-bottom: 20px;
+    }
+    .hero h1 em {
+      color: var(--ember-light);
+      font-style: italic;
+    }
+    .hero-sub {
+      font-size: 17px;
+      color: rgba(253,252,250,0.65);
+      max-width: 540px;
+      margin: 0 auto 40px;
+      font-weight: 300;
+    }
+    .hero-meta {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+    .hero-meta-item {
+      text-align: center;
+    }
+    .hero-meta-item .num {
+      display: block;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 36px;
+      font-weight: 600;
+      color: var(--ember-light);
+      line-height: 1;
+    }
+    .hero-meta-item .label {
+      font-size: 12px;
+      color: rgba(253,252,250,0.5);
+      letter-spacing: 0.06em;
+      margin-top: 4px;
+    }
+
+    /* ── CONTAINER ── */
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── SECTION ── */
+    section {
+      padding: 64px 0;
+    }
+    section + section {
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── APOLOGY BLOCK ── */
+    .apology-card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--ember);
+      border-radius: 12px;
+      padding: 32px 36px;
+      margin-bottom: 28px;
+    }
+    .apology-card h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--ink);
+    }
+    .apology-card p {
+      color: var(--slate);
+      margin-bottom: 14px;
+      font-size: 15.5px;
+    }
+    .apology-card p:last-child { margin-bottom: 0; }
+    .apology-card .highlight {
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    /* ── UPGRADE GRID ── */
+    .section-eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ember);
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(26px, 4vw, 38px);
+      font-weight: 600;
+      line-height: 1.25;
+      margin-bottom: 12px;
+    }
+    .section-desc {
+      font-size: 15.5px;
+      color: var(--slate);
+      max-width: 580px;
+      margin-bottom: 40px;
+    }
+
+    .upgrade-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 18px;
+    }
+    .upgrade-card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px 26px;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .upgrade-card:hover {
+      box-shadow: 0 6px 24px rgba(18,18,26,0.08);
+      transform: translateY(-2px);
+    }
+    .upgrade-icon {
+      font-size: 28px;
+      margin-bottom: 14px;
+      display: block;
+    }
+    .upgrade-card h3 {
+      font-size: 15.5px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--ink);
+    }
+    .upgrade-card p {
+      font-size: 14px;
+      color: var(--slate);
+      line-height: 1.7;
+    }
+    .upgrade-card .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 2px 9px;
+      border-radius: 10px;
+      margin-top: 12px;
+    }
+    .tag-new   { background: rgba(45,138,110,0.1); color: var(--teal); }
+    .tag-fixed { background: rgba(184,146,58,0.12); color: var(--gold); }
+    .tag-deep  { background: rgba(196,80,42,0.1);  color: var(--ember); }
+
+    /* ── HOW TO USE ── */
+    .howto-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .howto-list li {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .howto-num {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--ember);
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+    .howto-text h4 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .howto-text p {
+      font-size: 14px;
+      color: var(--slate);
+    }
+    .howto-text code {
+      background: rgba(196,80,42,0.1);
+      color: var(--ember-dark);
+      padding: 1px 7px;
+      border-radius: 5px;
+      font-size: 13px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+
+    /* ── THANK YOU ── */
+    .thanks-block {
+      background: var(--ink);
+      border-radius: 20px;
+      padding: 52px 48px;
+      text-align: center;
+      color: var(--snow);
+      position: relative;
+      overflow: hidden;
+    }
+    .thanks-block::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 55% 55% at 50% 100%, rgba(196,80,42,0.18) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .thanks-block h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 600;
+      margin-bottom: 20px;
+      line-height: 1.2;
+    }
+    .thanks-block h2 em {
+      color: var(--ember-light);
+      font-style: italic;
+    }
+    .thanks-block p {
+      font-size: 15.5px;
+      color: rgba(253,252,250,0.7);
+      max-width: 520px;
+      margin: 0 auto 28px;
+      line-height: 1.8;
+    }
+    .gift-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 50px;
+      padding: 12px 28px;
+      font-size: 14.5px;
+      font-weight: 500;
+      color: var(--snow);
+    }
+    .gift-badge .gift-icon { font-size: 20px; }
+
+    /* ── SIGNATURE ── */
+    .signature {
+      padding: 48px 0 64px;
+      text-align: center;
+    }
+    .signature .name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 600;
+      font-style: italic;
+      color: var(--slate);
+    }
+    .signature .title {
+      font-size: 13px;
+      color: var(--mist);
+      margin-top: 4px;
+      letter-spacing: 0.06em;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--ink);
+      padding: 24px;
+      text-align: center;
+      font-size: 12px;
+      color: rgba(253,252,250,0.3);
+    }
+    footer a { color: var(--ember-light); text-decoration: none; }
+
+    @media (max-width: 600px) {
+      .apology-card { padding: 24px 20px; }
+      .thanks-block  { padding: 40px 24px; }
+      .upgrade-grid  { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-badge">封測夥伴專屬更新</div>
+  <h1>MUSEON 進化了<br><em>三週、七項升級</em></h1>
+  <p class="hero-sub">感謝你在最混亂的時候還在場。這封信是給你的。</p>
+  <div class="hero-meta">
+    <div class="hero-meta-item">
+      <span class="num">3</span>
+      <span class="label">進化週期</span>
+    </div>
+    <div class="hero-meta-item">
+      <span class="num">7</span>
+      <span class="label">核心升級</span>
+    </div>
+    <div class="hero-meta-item">
+      <span class="num">∞</span>
+      <span class="label">你們給的教訓</span>
+    </div>
+  </div>
+</header>
+
+<!-- APOLOGY -->
+<div class="container">
+  <section>
+    <div class="apology-card">
+      <h2>先說一件欠大家的事</h2>
+      <p>
+        過去三週，你們一定遇過不少次「系統維護中」或訊息卡住的狀況。
+        <span class="highlight">這裡跟大家說聲抱歉。</span>
+      </p>
+      <p>
+        那段時間 MUSEON 正在經歷一次大規模的核心重建。就像一棟房子住著人的同時在換掉整套水電管線——有時候會突然斷水斷電，體驗確實不好。我們選擇邊跑邊修，而不是關起來改完再開，是因為你們在使用中遇到的每一個卡頓、每一次「它怎麼聽不懂」，都直接變成了改進的依據。
+      </p>
+      <p>
+        <span class="highlight">所以那些不順暢的時刻，其實是你們在幫 MUSEON 長大。</span>
+      </p>
+    </div>
+  </section>
+</div>
+
+<!-- UPGRADES -->
+<div class="container">
+  <section>
+    <div class="section-eyebrow">What's New</div>
+    <h2 class="section-title">這三週 MUSEON 進化了什麼？</h2>
+    <p class="section-desc">不需要記指令，這些升級都在你正常對話的過程中自動運作。</p>
+
+    <div class="upgrade-grid">
+
+      <div class="upgrade-card">
+        <span class="upgrade-icon">📎</span>
+        <h3>看得懂圖片和 PDF</h3>
+        <p>直接丟圖片或文件到對話裡，MUSEON 幫你分析。競品截圖、報價單、合約草稿——傳過來就能聊。</p>
+        <span class="tag tag-new">全新能力</span>
+      </div>
+
+      <div class="upgrade-card">
+        <span class="upgrade-icon">🧠</span>
+        <h3>回答更深了，因為它會先想再說</h3>
+        <p>MUSEON 在回答前會跑一輪多角度思考，自動檢查有沒有遺漏的觀點或盲點，再給你答案。學會了三思而後行。</p>
+        <span class="tag tag-deep">深度升級</span>
+      </div>
+
+      <div class="upgrade-card">
+        <span class="upgrade-icon">💾</span>
+        <h3>記憶力大幅升級</h3>
+        <p>記憶系統重新打造——關鍵字搜得到、語意也搜得到，自動整理不重複。你跟它聊越多，它對你的理解越精準。</p>
+        <span class="tag tag-fixed">已修復</span>
+      </div>
+
+      <div class="upgrade-card">
+        <span class="upgrade-icon">🌱</span>
+        <h3>個性會跟著你成長</h3>
+        <p>新增人格演化機制。用得越久，它越能抓到你的溝通風格和思考偏好。不是討好你，而是更精準地接住你。</p>
+        <span class="tag tag-new">全新能力</span>
+      </div>
+
+      <div class="upgrade-card">
+        <span class="upgrade-icon">📊</span>
+        <h3>商業顧問能力大升級</h3>
+        <p>整套 SSA 方法論已灌進核心。思考商業模式、定價策略、客戶旅程時，能給你有框架、有方法論支撐的完整分析。</p>
+        <span class="tag tag-deep">深度升級</span>
+      </div>
+
+      <div class="upgrade-card">
+        <span class="upgrade-icon">🔖</span>
+        <h3>不再搞混人了</h3>
+        <p>統一的身份識別系統，跨群組也能正確對應同一個人。你的對話不會再串線。</p>
+        <span class="tag tag-fixed">已修復</span>
+      </div>
+
+      <div class="upgrade-card">
+        <span class="upgrade-icon">🔭</span>
+        <h3>主動探索——它會自己找題目</h3>
+        <p>即使你沒有傳訊息，MUSEON 也在背景研究你關心的產業、整理過去對話的洞見。下次你回來，它已帶著新的理解準備好了。</p>
+        <span class="tag tag-new">全新能力</span>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- HOW TO USE -->
+<div class="container">
+  <section>
+    <div class="section-eyebrow">Getting Started</div>
+    <h2 class="section-title">怎麼用這些新功能？</h2>
+    <p class="section-desc">不需要記任何指令。正常跟它聊天就好。</p>
+
+    <ul class="howto-list">
+      <li>
+        <div class="howto-num">1</div>
+        <div class="howto-text">
+          <h4>直接說你的問題</h4>
+          <p>想要商業分析、文案撰寫、策略建議，直接說問題就好，它會判斷需要哪個方法論。</p>
+        </div>
+      </li>
+      <li>
+        <div class="howto-num">2</div>
+        <div class="howto-text">
+          <h4>丟檔案就好，不用解釋格式</h4>
+          <p>圖片、PDF、截圖——傳過來，MUSEON 會自己解析，再問你想怎麼用。</p>
+        </div>
+      </li>
+      <li>
+        <div class="howto-num">3</div>
+        <div class="howto-text">
+          <h4>問它記得你什麼</h4>
+          <p>「你對我的了解是什麼？」「我上次說過 XX 嗎？」直接問，它會誠實告訴你它記了什麼、沒記到什麼。</p>
+        </div>
+      </li>
+      <li>
+        <div class="howto-num">4</div>
+        <div class="howto-text">
+          <h4>看完整功能清單</h4>
+          <p>打 <code>/help</code> 取得最新指令列表，隨時可以查。</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+</div>
+
+<!-- THANKS -->
+<div class="container">
+  <section>
+    <div class="thanks-block">
+      <h2>你們是<em>第一批</em>真正使用者</h2>
+      <p>
+        每一個「它怎麼這樣回」的反饋、每一次「系統又掛了」的耐心等待、甚至每一個「算了不用了」的沉默離開——這些都是真實的數據，比任何測試腳本都珍貴。
+      </p>
+      <p>
+        MUSEON 之所以能在三週內進化這麼多，是因為有你們在真實場景裡跟它碰撞。
+      </p>
+      <div class="gift-badge">
+        <span class="gift-icon">🎁</span>
+        <span>正式上線時，封測夥伴有禮物在等你。先賣個關子。</span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- SIGNATURE -->
+<div class="container">
+  <div class="signature">
+    <div class="name">— Zeal</div>
+    <div class="title">MUSEON 創辦人 · 2026 年 4 月</div>
+  </div>
+</div>
+
+<footer>
+  <p>© 2026 MUSEON &nbsp;·&nbsp; <a href="https://zealchou.github.io/museon-reports/">museon-reports</a></p>
+</footer>
+
+</body>
+</html>
