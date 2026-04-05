@@ -67,6 +67,7 @@ class MuseDoc:
         t0 = time.monotonic()
 
         findings = self._store.load_open()
+        findings = await self._auto_expire_stale(findings)  # 自動過期陳舊 finding
         if not findings:
             logger.info("[MuseDoc] No open findings, nothing to do")
             return {"fixed": 0, "rolled_back": 0, "needs_human": 0, "skipped": 0}
@@ -155,6 +156,62 @@ class MuseDoc:
         )
 
         return summary
+
+    # -------------------------------------------------------------------
+    # 自動過期陳舊 Finding
+    # -------------------------------------------------------------------
+
+    async def _auto_expire_stale(self, findings: list) -> list:
+        """自動過期：CRITICAL 且超過 7 天且服務已恢復的 finding。"""
+        import subprocess
+        from datetime import datetime, timezone, timedelta
+
+        STALE_DAYS = 7
+        now = datetime.now(timezone.utc)
+        surviving = []
+        expired_count = 0
+
+        for finding in findings:
+            should_expire = False
+
+            if getattr(finding, 'severity', '') == 'CRITICAL':
+                ts_str = getattr(finding, 'timestamp', '') or ''
+                try:
+                    ts = datetime.fromisoformat(ts_str)
+                    if ts.tzinfo is None:
+                        ts = ts.replace(tzinfo=timezone.utc)
+                    age_days = (now - ts).days
+                    if age_days >= STALE_DAYS:
+                        # Check if service recovered
+                        origin = getattr(finding, 'blast_origin', {})
+                        if isinstance(origin, dict):
+                            error_type = origin.get('error_type', '')
+                        else:
+                            error_type = getattr(origin, 'error_type', '')
+
+                        if error_type == 'LivenessFailure':
+                            try:
+                                r = subprocess.run(
+                                    ["pgrep", "-f", "museon.gateway"],
+                                    capture_output=True, timeout=5
+                                )
+                                should_expire = (r.returncode == 0)
+                            except Exception:
+                                pass
+                except (ValueError, AttributeError):
+                    pass
+
+            if should_expire:
+                fid = getattr(finding, 'finding_id', '')
+                self._store.update_status(fid, 'fixed_externally')
+                expired_count += 1
+            else:
+                surviving.append(finding)
+
+        if expired_count:
+            logger.info("[MuseDoc] Auto-expired %d stale CRITICAL findings", expired_count)
+
+        return surviving
 
     # -------------------------------------------------------------------
     # 單一 Finding 處理

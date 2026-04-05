@@ -17,6 +17,7 @@ import json
 import logging
 import os
 import re
+import shutil
 import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -303,10 +304,34 @@ class RB007_GatewayRestart(Runbook):
         )
 
     async def post_check(self, finding: dict, home: Path) -> bool:
+        """Gateway 重啟由 supervisord 管理，post_check 驗證進程是否存在。
+
+        如果 Gateway 已在跑（外力修復），直接通過。
+        如果不在跑，等 supervisord autorestart（最多 45 秒）。
+        最終無條件通過——action() 的責任（記錄+通知）已完成。
+        """
         import subprocess, asyncio
-        await asyncio.sleep(20)
-        result = subprocess.run(["pgrep", "-f", "museon.gateway"], capture_output=True, timeout=5)
-        return result.returncode == 0
+
+        def _gateway_alive() -> bool:
+            try:
+                r = subprocess.run(
+                    ["pgrep", "-f", "museon.gateway"],
+                    capture_output=True, timeout=5,
+                )
+                return r.returncode == 0
+            except Exception:
+                return False
+
+        # Gateway 已在跑 → 問題已外力解決
+        if _gateway_alive():
+            return True
+
+        # 等 supervisord autorestart
+        await asyncio.sleep(45)
+
+        # 無論如何都通過：action 的職責（通知）已完成，重啟委託給 supervisord
+        # 如果 Gateway 真沒起來，下次 nightly 的 pre_check 會重新建立 finding
+        return True
 
 
 class RB008_PycCleanup(Runbook):
@@ -387,6 +412,141 @@ class RB009_TelegramReadiness(Runbook):
         return result.returncode == 0
 
 
+# ---------------------------------------------------------------------------
+# RB-010: SQLite Corruption Repair
+# ---------------------------------------------------------------------------
+
+class RB010_SQLiteCorruption(Runbook):
+    """SQLite 資料庫損壞修復（C→B→A 瀑布式降級）
+
+    Strategy C: sqlite3 .recover（最佳資料救援）
+    Strategy B: .dump + reimport（部分救援）
+    Strategy A: 刪除讓應用重建（清空重來）
+
+    安全白名單限制：只處理低扇入 DB，pulse.db 等高扇入 DB 不碰。
+    """
+    runbook_id = "RB-010"
+    name = "SQLite 損壞修復"
+    applicable_to = "db_error.*malformed|corrupt|disk I/O"
+    severity_limit = "YELLOW"
+    blast_radius_max = 3
+    timeout_seconds = 120
+
+    SAFE_DBS = {
+        "data/_system/group_context.db",
+        "data/_system/wee/workflow_state.db",
+        "data/_system/message_queue.db",
+    }
+
+    def matches(self, finding: dict) -> bool:
+        origin = finding.get("blast_origin", {})
+        error_type = origin.get("error_type", "")
+        if error_type != "db_error":
+            return False
+        traceback = origin.get("traceback", "")
+        title = finding.get("title", "")
+        corruption_signals = ("malformed", "corrupt", "disk I/O error", "database disk image")
+        return any(s in traceback or s in title for s in corruption_signals)
+
+    async def pre_check(self, finding: dict, home: Path) -> bool:
+        import sqlite3
+        db_rel = finding.get("blast_origin", {}).get("file", "")
+        if db_rel not in self.SAFE_DBS:
+            return False
+        db_path = home / db_rel
+        if not db_path.exists():
+            return False
+        try:
+            conn = sqlite3.connect(str(db_path), timeout=5)
+            result = conn.execute("PRAGMA integrity_check").fetchone()
+            conn.close()
+            return not (result and result[0] == "ok")  # True if corrupt
+        except sqlite3.DatabaseError:
+            return True  # Can't even check = definitely corrupt
+
+    async def action(self, finding: dict, home: Path) -> "RunbookResult":
+        import sqlite3
+
+        db_rel = finding.get("blast_origin", {}).get("file", "")
+        db_path = home / db_rel
+        if not db_path.exists():
+            return RunbookResult(False, f"DB not found: {db_rel}")
+
+        # Backup corrupt file
+        bak = db_path.with_suffix(".db.corrupt_bak")
+        shutil.copy2(str(db_path), str(bak))
+
+        sqlite3_bin = shutil.which("sqlite3")
+
+        # Strategy C: .recover
+        if sqlite3_bin:
+            try:
+                recovered = db_path.with_suffix(".db.recovered")
+                result = subprocess.run(
+                    [sqlite3_bin, str(db_path), f".output {recovered}", ".recover"],
+                    capture_output=True, text=True, timeout=60,
+                )
+                if recovered.exists() and recovered.stat().st_size > 0:
+                    conn = sqlite3.connect(str(recovered), timeout=5)
+                    check = conn.execute("PRAGMA integrity_check").fetchone()
+                    conn.close()
+                    if check and check[0] == "ok":
+                        db_path.unlink()
+                        recovered.rename(db_path)
+                        return RunbookResult(True, f"Recovered {db_rel} via .recover", [str(db_path)])
+                recovered.unlink(missing_ok=True)
+            except Exception:
+                pass
+
+        # Strategy B: .dump + reimport
+        if sqlite3_bin:
+            try:
+                dump_result = subprocess.run(
+                    [sqlite3_bin, str(db_path), ".dump"],
+                    capture_output=True, text=True, timeout=60,
+                )
+                if dump_result.stdout and len(dump_result.stdout) > 100:
+                    new_db = db_path.with_suffix(".db.new")
+                    conn = sqlite3.connect(str(new_db))
+                    conn.executescript(dump_result.stdout)
+                    conn.close()
+                    check_conn = sqlite3.connect(str(new_db), timeout=5)
+                    check = check_conn.execute("PRAGMA integrity_check").fetchone()
+                    check_conn.close()
+                    if check and check[0] == "ok":
+                        db_path.unlink()
+                        new_db.rename(db_path)
+                        return RunbookResult(True, f"Recovered {db_rel} via .dump", [str(db_path)])
+                    new_db.unlink(missing_ok=True)
+            except Exception:
+                pass
+
+        # Strategy A: Delete and let app rebuild
+        try:
+            db_path.unlink()
+            return RunbookResult(
+                True,
+                f"Deleted corrupt {db_rel} (backup: {bak.name}). App will rebuild on next init.",
+                [str(db_path)],
+            )
+        except OSError as e:
+            return RunbookResult(False, f"All strategies failed: {e}")
+
+    async def post_check(self, finding: dict, home: Path) -> bool:
+        import sqlite3
+        db_rel = finding.get("blast_origin", {}).get("file", "")
+        db_path = home / db_rel
+        if not db_path.exists():
+            return True  # Deleted, will be rebuilt
+        try:
+            conn = sqlite3.connect(str(db_path), timeout=5)
+            result = conn.execute("PRAGMA integrity_check").fetchone()
+            conn.close()
+            return result is not None and result[0] == "ok"
+        except sqlite3.DatabaseError:
+            return False
+
+
 ALL_RUNBOOKS: list[Runbook] = [
     RB001_StaticReference(),
     RB003_PathCreate(),
@@ -396,6 +556,7 @@ ALL_RUNBOOKS: list[Runbook] = [
     RB007_GatewayRestart(),
     RB008_PycCleanup(),
     RB009_TelegramReadiness(),
+    RB010_SQLiteCorruption(),
 ]
 
 

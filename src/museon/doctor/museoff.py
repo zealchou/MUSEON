@@ -357,7 +357,7 @@ class MuseOff:
                 probe_layer="L3",
                 severity="HIGH" if issue_type in ("missing_file", "empty_file") else "MEDIUM",
                 title=f"配置問題: {name} — {issue_type}",
-                blast_origin=BlastOrigin(file=detail, error_type=issue_type),
+                blast_origin=BlastOrigin(file=name, error_type=issue_type, traceback=detail),
                 prescription=Prescription(
                     diagnosis=f"{issue_type}: {detail}",
                     runbook_id="RB-003" if issue_type == "missing_file" else "",
@@ -723,8 +723,16 @@ class MuseOff:
                     probe_layer="L6c",
                     severity="MEDIUM",
                     title=f"意識層偵測到反覆問題：{keyword}，出現 {count} 次",
-                    diagnosis=f"pulse_alerts.jsonl 中關鍵字 '{keyword}' 在最近 24h 出現 {count} 次，可能是系統持續性問題。",
-                    prescription=f"調查 pulse_engine 寫入的 '{keyword}' 告警來源，確認是否有循環觸發。",
+                    blast_origin=BlastOrigin(
+                        file="data/_system/pulse_alerts.jsonl",
+                        error_type="RepeatedAlert",
+                    ),
+                    context={"keyword": keyword, "count": count},
+                    prescription=Prescription(
+                        diagnosis=f"pulse_alerts.jsonl 中關鍵字 '{keyword}' 在最近 24h 出現 {count} 次",
+                        root_cause="可能是系統持續性問題導致 pulse_engine 循環觸發",
+                        suggested_fix=f"調查 pulse_engine 寫入的 '{keyword}' 告警來源",
+                    ),
                 )
 
         # CRITICAL severity alert → HIGH finding
@@ -733,8 +741,16 @@ class MuseOff:
                 probe_layer="L6c",
                 severity="HIGH",
                 title=f"意識層 CRITICAL 告警：{msg[:80]}",
-                diagnosis=f"pulse_engine 寫入了 CRITICAL 級別的告警：{msg}",
-                prescription="立即調查 pulse_alerts.jsonl 中的 CRITICAL 條目，確認系統狀態。",
+                blast_origin=BlastOrigin(
+                    file="data/_system/pulse_alerts.jsonl",
+                    error_type="CriticalAlert",
+                ),
+                context={"alert_message": msg},
+                prescription=Prescription(
+                    diagnosis=f"pulse_engine 寫入了 CRITICAL 級別的告警：{msg}",
+                    root_cause="系統觸發了嚴重等級的 pulse 告警",
+                    suggested_fix="立即調查 pulse_alerts.jsonl 中的 CRITICAL 條目，確認系統狀態",
+                ),
             )
 
     # -------------------------------------------------------------------
