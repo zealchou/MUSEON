@@ -112,6 +112,7 @@ class MuseDoc:
                     )
             elif result == "rolled_back":
                 rolled_back += 1
+                self._store.update_status(finding.finding_id, "rolled_back")
             elif result == "needs_human":
                 needs_human += 1
                 self._store.update_status(finding.finding_id, "needs_human")
