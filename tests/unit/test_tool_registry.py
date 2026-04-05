@@ -459,6 +459,9 @@ class TestAutoDetect:
             return result
 
         mock_subprocess.run.side_effect = mock_run
+        # 在 Docker 容器環境中 _docker_bin 可能是 None（系統無 docker CLI）
+        # 強制設定一個假路徑，確保 auto_detect() 不會因為 _docker_bin 缺失而直接跳過 docker 工具
+        registry._docker_bin = "/usr/bin/docker"
 
         detected = registry.auto_detect()
         assert registry._states["searxng"].installed is True

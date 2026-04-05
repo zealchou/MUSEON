@@ -215,7 +215,7 @@ class Explorer:
 
             if not search_results:
                 result["findings"] = "搜尋無結果"
-                result["status"] = "done"
+                result["status"] = "failed"
                 result["duration_ms"] = int((time.monotonic() - start) * 1000)
                 return result
 

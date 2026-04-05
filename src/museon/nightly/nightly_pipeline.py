@@ -4849,7 +4849,7 @@ class NightlyPipeline:
                     _conn = sqlite3.connect(str(_crystal_db))
                     try:
                         _cursor = _conn.execute(
-                            "SELECT id, crystal_type, g1_summary, ri_score "
+                            "SELECT cuid, crystal_type, g1_summary, ri_score "
                             "FROM crystals WHERE status='active' "
                             "ORDER BY ri_score DESC LIMIT 5"
                         )

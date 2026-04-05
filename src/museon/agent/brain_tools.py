@@ -192,8 +192,17 @@ class BrainToolsMixin:
         # SafetyAnchor: 快速安全檢查
         if self.safety_anchor:
             if not self.safety_anchor.quick_check(system_prompt):
-                logger.error("SafetyAnchor 快速檢查失敗！拒絕回覆。")
-                return "系統安全檢查未通過，請聯繫管理員。"
+                # 嘗試自動恢復：注入安全錨點後重新檢查
+                if self.safety_anchor.should_recover():
+                    logger.warning("SafetyAnchor 觸發自動恢復，重新注入安全錨點...")
+                    system_prompt = system_prompt + self.safety_anchor.get_safety_anchors_text()
+                    if not self.safety_anchor.quick_check(system_prompt):
+                        logger.error("SafetyAnchor 恢復後仍失敗！拒絕回覆。")
+                        return "系統安全檢查未通過，請聯繫管理員。"
+                    logger.info("SafetyAnchor 自動恢復成功，繼續處理。")
+                else:
+                    logger.error("SafetyAnchor 快速檢查失敗！拒絕回覆。")
+                    return "系統安全檢查未通過，請聯繫管理員。"
 
         if not self._llm_adapter:
             return self._offline_response(messages, error_msg="LLM adapter not initialized")
