@@ -1,10 +1,11 @@
-# Memory Router — 記憶路由表 v1.26
+# Memory Router — 記憶路由表 v1.27
 
 > **用途**：定義「什麼類型的洞見存到哪個記憶系統、什麼時候取出」。第五張工程藍圖。
 > **比喻**：郵局分揀表——每封信根據地址分到對應的信箱，不會寄丟也不會重複投遞。
 > **更新時機**：新增 Skill 或記憶系統時，必須在同一個 commit 中新增對應的路由規則。
 > **建立日期**：2026-03-21
 > **搭配**：`docs/skill-manifest-spec.md`（Skill I/O 合約）、各 Skill 的 `memory.writes` 欄位、`docs/operational-contract.md`（操作契約表）
+> **v1.27 (2026-04-05)**：Decision Atlas + Vision Loop 路由——新增規則 9（Decision Atlas → Brain Prompt）：Claude Code 互動觀察 + 未來 L4 觀察者 → `_system/decision_atlas/da-*.json` → `brain_prompt_builder.py` persona zone 注入（每次 L2 回覆時自動讀取，N/A 寫入記憶系統，直接進 system prompt）；新增規則 10（Vision Loop → Breath Visions）：四信號源匯聚（星座/Skill/Atlas/呼吸）→ `nightly/vision_loop.py`（Nightly Step 34.9，週日）→ `_system/breath/visions/{yyyy-wNN}.json`（未來接 Morphenix 執行管道）。同步 persistence-contract v1.55、joint-map v1.70。
 > **v1.26 (2026-04-04)**：l4_cpu_observer 架構更新——L4 觀察者從 Haiku agent spawn 改為 CPU Python 函數（`agent/l4_cpu_observer.py`），零 LLM token 消耗；記憶寫入路徑：`l4_cpu_observer.observe()` → `memory_manager.write()`（同步，非 async）；新增 signals 快取寫入路徑：`l4_cpu_observer.observe()` → `_system/context_cache/{session_id}_signals.json`（EMA 合併）；新增偏好佇列寫入路徑：`l4_cpu_observer.observe()` → `_system/pending_preference_updates.jsonl`（append）。同步 persistence-contract v1.52、joint-map v1.67。
 > **v1.25 (2026-04-02)**：荒謬雷達系統——新增雷達資料流：`brain.py` Skill 匹配後 → `absurdity_radar.py update_radar_from_skill()` → `_system/absurdity_radar/{user}.json`；prompt 注入路徑：`brain_prompt_builder.py _build_absurdity_radar_context()` ← `absurdity_radar.py load_radar()`。Nightly step 32.5 每日衰減。
 > **v1.24 (2026-04-02)**：藍圖交叉引用同步——persistence-contract v1.49→v1.50（ares→athena 更名同步），同步 system-topology v1.77、persistence-contract v1.50。
@@ -287,10 +288,42 @@
 
 ---
 
+### 規則 9：Decision Atlas → Brain Prompt（v1.27 新增）
+
+> 決策結晶不進記憶系統，而是直接注入 system prompt 的 persona zone。
+
+| 來源 | 觸發 | 去向 | 格式 | 說明 |
+|------|------|------|------|------|
+| Claude Code session（手動/自動萃取） | 每次互動觀察、重要決策事件 | `_system/decision_atlas/da-*.json` | JSON（每決策一檔） | 決策結晶寫入（人工主導） |
+| 未來 L4 觀察者 | 偵測到高價值決策模式 | `_system/decision_atlas/da-*.json` | JSON | 自動萃取（未來實作） |
+| `agent/brain_prompt_builder.py` | 每次 L2 回覆前 | `_system/decision_atlas/da-*.json`（讀取） | — | persona zone 注入（N/A 寫入記憶系統） |
+| `nightly/vision_loop.py` | Nightly Step 34.9（週日） | `_system/decision_atlas/da-*.json`（讀取） | — | Atlas 覆蓋度掃描 |
+
+> **寫入層**：N/A（不進 Qdrant/SQLite/JSONL 記憶系統，直接進 system prompt persona zone）
+> **生命週期**：永久，不衰減——決策結晶是系統進化的知識骨幹
+
+---
+
+### 規則 10：Vision Loop → Breath Visions（v1.27 新增）
+
+> 四信號源週日匯聚，生成願景提案。
+
+| 來源 | 觸發 | 去向 | 格式 | 說明 |
+|------|------|------|------|------|
+| 星座覆蓋度 + Skill 雷達 + Decision Atlas + Breath Observations | Nightly Step 34.9（週日） | `_system/breath/visions/{yyyy-wNN}.json` | JSON | `nightly/vision_loop.py` 匯聚四信號源生成願景提案 |
+| `_system/breath/observations/{yyyy-wNN}.jsonl` | L4 觀察者 + 系統監控（append-only） | `nightly/breath_analyzer.py`（週三/四讀取） | JSONL | 上游觀察輸入，breath_analyzer.py 整理為 patterns |
+| `nightly/breath_analyzer.py` | Nightly Step 34.8（週三/四） | `_system/breath/patterns/{yyyy-wNN}.json` | JSON | 分析結果，供 vision_loop.py 讀取 |
+
+> **寫入層**：`_system/breath/visions/`（每週一檔，12 週保留）
+> **未來接管**：願景提案未來接 Morphenix 執行管道（Elder Council 投票後自動執行）
+
+---
+
 ## 變更紀錄
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.27 | 2026-04-05 | Decision Atlas + Vision Loop 路由——新增規則 9（Decision Atlas → Brain Prompt 直接注入 persona zone，N/A 進記憶系統）；新增規則 10（四信號源匯聚 → vision_loop.py → breath/visions/{yyyy-wNN}.json，Nightly Step 34.9 週日，未來接 Morphenix）；補充 breath/observations JSONL 上游輸入管道與 breath_analyzer.py Step 34.8 分析鏈路說明。同步 persistence-contract v1.55、joint-map v1.70 |
 | v1.26 | 2026-04-04 | l4_cpu_observer 架構更新——新增規則 8（L4 CPU Observer 記憶寫入路徑）；L4 從 Haiku agent spawn 改為 CPU Python 函數（`agent/l4_cpu_observer.py`），零 LLM token；記憶寫入路徑 observe() → memory_manager.write()（同步非 async）；新增 signals 快取路由（context_cache/{session_id}_signals.json EMA 合併）；新增偏好佇列路由（pending_preference_updates.jsonl append）。同步 persistence-contract v1.52、joint-map v1.67 |
 | v1.19 | 2026-03-31 | Persona Evolution 系統——新增 1 條 diary 路由（nightly_reflection.py Nightly Step 34 → soul_rings.json via RingDepositor.deposit_soul_ring，value_calibration 類型，內容=特質差異佐證+反思摘要）。同步 persist v1.44 |
 | v1.18 | 2026-03-31 | 體液系統迭代——新增 Skill 教訓預載路由（brain_prompt_builder `_build_skill_lesson_context()` 讀取 `data/skills/native/{name}/_lessons.json` 注入 system prompt）；新增 SessionAdjustment 路由（L4 觀察者寫入 `_system/session_adjustments/{id}.json`，brain_prompt_builder `_auto_adjust_from_history()` 讀取）；新增覺察訊號路由（triage_step 寫入 `_system/triage_queue.jsonl`，Nightly Step 5.8 消費到 Morphenix 迭代筆記）；同步 topology v1.68、blast v1.86、joint v1.56、persist v1.42 |

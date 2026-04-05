@@ -1,9 +1,10 @@
-# Joint Map — 共享可變狀態接頭圖 v1.68
+# Joint Map — 共享可變狀態接頭圖 v1.70
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
 > **更新時機**：改變共享檔案的讀寫者或格式時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
+> **v1.70 (2026-04-05)**：Decision Atlas + Breath System + Elder Council——新增 #82 `_system/decision_atlas/da-*.json`（🟢 決策結晶 JSON 群，寫入者=Claude Code session + 未來 L4 觀察者，讀取者=brain_prompt_builder.py persona zone + vision_loop.py）；新增 #83 `_system/breath/patterns/{yyyy-wNN}.json`（🟢 呼吸分析結果，寫入者=breath_analyzer.py，讀取者=vision_loop.py，12 週保留）；新增 #84 `_system/breath/visions/{yyyy-wNN}.json`（🟢 願景提案，寫入者=vision_loop.py，讀取者=未來 Elder Council，12 週保留）；新增 #85 `_system/elder_council/members.json`（🟢 長老名單，寫入者=手動，讀取者=vision_loop.py，永久）；`_system/breath/observations/{yyyy-wNN}.jsonl` 為 breath_analyzer.py 輸入佇列（🟢 append-only，不另立共享狀態條目，歸入 #83 管線）；共享狀態 81→85 個。同步 persistence-contract v1.55、memory-router v1.27。
 > **v1.69 (2026-04-05)**：Entity Registry 建置——新增 #79 `entity_aliases` 表（🟢 GroupContextDB，寫入者=governance/group_context.py add_alias()，讀取者=agent/brain_prompt_builder.py resolve_alias() + governance/group_context.py）；新增 #80 `projects + project_entities` 表（🟢 GroupContextDB，寫入者=governance/group_context.py，讀取者=governance/group_context.py）；新增 #81 `events` 表（🟢 GroupContextDB，寫入者=governance/group_context.py，讀取者=governance/group_context.py）；修正 L4CpuObserver 記憶寫入路徑（MemoryStore→MemoryManager），Qdrant memories collection 新增寫入者=agent/l4_cpu_observer.py；brain_prompt_builder.py 新增讀取者=athena/profile_store.py search() + governance/group_context.py resolve_alias()；共享狀態 78→81 個。同步 persistence-contract v1.54、blast-radius v2.01。
 > **v1.68 (2026-04-04)**：semantic_response_cache——新增 #78 Qdrant collection `semantic_response_cache`（🟢 512 維語義回覆快取，寫入者=cache/semantic_response_cache.py（L4CpuObserver 回覆後寫入），讀取者=cache/semantic_response_cache.py（Brain L1 查詢），per-chat 隔離，TTL 動態）；共享狀態 77→78 個。同步 persistence-contract v1.53。
 > **v1.67 (2026-04-04)**：l4_cpu_observer 架構更新——新增 #76 `_system/context_cache/{session_id}_signals.json`（🟢 EMA 訊號快取，寫入者=l4_cpu_observer，讀取者=brain_prompt_builder）；新增 #77 `_system/pending_preference_updates.jsonl`（🟢 偏好更新佇列，寫入者=l4_cpu_observer，讀取者=nightly_pipeline）；更新 #66 session_adjustments/{id}.json 寫入者從「L4 觀察者」改為 `agent/l4_cpu_observer.py`；共享狀態 75→77 個。同步 persistence-contract v1.52、memory-router v1.26。
@@ -112,6 +113,10 @@
 | 79 | entity_aliases (GroupContextDB) | 🟢 | 1 | 2 | SQLite WAL | [→](#79-entity_aliases) |
 | 80 | projects + project_entities (GroupContextDB) | 🟢 | 1 | 1 | SQLite WAL | [→](#80-projects) |
 | 81 | events (GroupContextDB) | 🟢 | 1 | 1 | SQLite WAL | [→](#81-events) |
+| 82 | decision_atlas/da-*.json | 🟢 | 1(Claude Code) | 2(brain_prompt_builder+vision_loop) | 原子 JSON | [→](#82-decision_atlasda-json) |
+| 83 | breath/patterns/{yyyy-wNN}.json | 🟢 | 1(breath_analyzer) | 1(vision_loop) | 原子 JSON | [→](#83-breathpatterns) |
+| 84 | breath/visions/{yyyy-wNN}.json | 🟢 | 1(vision_loop) | 0(未來 Elder Council) | 原子 JSON | [→](#84-breathvisions) |
+| 85 | elder_council/members.json | 🟢 | 1(手動) | 1(vision_loop) | 原子 JSON | [→](#85-elder_councilmembersjson) |
 
 > **危險度定義**：🔴 多寫入者+高扇出+格式不一致 | 🟡 多寫入者或高扇出 | 🟢 單寫入者+低扇出
 
@@ -1521,6 +1526,115 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 
 ---
 
+### #79 entity_aliases (GroupContextDB)
+
+**路徑**：`data/_system/group_context.db` → `entity_aliases` 表
+**危險度**：🟢（單一寫入者，SQLite WAL）
+**格式**：SQLite 表（PK=alias+entity_type+entity_id，case-insensitive index）
+
+| 角色 | 模組 |
+|------|------|
+| 寫入者 | `governance/group_context.py add_alias()` |
+| 讀取者 | `agent/brain_prompt_builder.py resolve_alias()`、`governance/group_context.py` |
+
+**備註**：Entity Registry 建置，v1.69 新增。別名映射層，支援多平台名稱解析（Telegram username → ANIMA profile id）。
+
+---
+
+### #80 projects + project_entities (GroupContextDB)
+
+**路徑**：`data/_system/group_context.db` → `projects` + `project_entities` 表
+**危險度**：🟢（單一寫入者，SQLite WAL）
+**格式**：SQLite 表（projects：專案基本資訊；project_entities：專案成員多對多關聯）
+
+| 角色 | 模組 |
+|------|------|
+| 寫入者 | `governance/group_context.py` |
+| 讀取者 | `governance/group_context.py` |
+
+**備註**：Entity Registry 建置，v1.69 新增。支援多個 Entity 同屬一個專案的關聯追蹤。
+
+---
+
+### #81 events (GroupContextDB)
+
+**路徑**：`data/_system/group_context.db` → `events` 表
+**危險度**：🟢（單一寫入者，SQLite WAL）
+**格式**：SQLite 表（entity+project 雙索引，事件時間線）
+
+| 角色 | 模組 |
+|------|------|
+| 寫入者 | `governance/group_context.py` |
+| 讀取者 | `governance/group_context.py` |
+
+**備註**：Entity Registry 建置，v1.69 新增。跨 Entity 跨 Project 的事件時間線索引。
+
+---
+
+### #82 decision_atlas/da-*.json
+
+**路徑**：`data/_system/decision_atlas/da-*.json`
+**危險度**：🟢（人工寫入為主，讀取者有限）
+**格式**：JSON（每個決策結晶一檔）
+
+| 角色 | 模組 |
+|------|------|
+| 寫入者 | Claude Code session（手動/自動萃取）、未來 L4 觀察者 |
+| 讀取者 | `agent/brain_prompt_builder.py`（persona zone 注入）、`nightly/vision_loop.py`（覆蓋度掃描） |
+
+**生命週期**：永久保存，不衰減
+**備註**：v1.70 新增。決策結晶為系統進化的知識骨幹，不進記憶系統，直接注入 system prompt persona zone。
+
+---
+
+### #83 breath/patterns/{yyyy-wNN}.json
+
+**路徑**：`data/_system/breath/patterns/{yyyy-wNN}.json`
+**危險度**：🟢（單一寫入者，按週分檔）
+**格式**：JSON（呼吸分析結果，含四信號源匯聚摘要）
+
+| 角色 | 模組 |
+|------|------|
+| 寫入者 | `nightly/breath_analyzer.py`（Nightly Step 34.8，週三/四） |
+| 讀取者 | `nightly/vision_loop.py`（週日掃描） |
+
+**生命週期**：保留最近 12 週，舊週自動清理
+**備註**：v1.70 新增。同目錄下的 `observations/{yyyy-wNN}.jsonl`（L4 觀察者 append-only 輸入佇列）為 breath_analyzer.py 的上游輸入，不另立共享狀態條目。
+
+---
+
+### #84 breath/visions/{yyyy-wNN}.json
+
+**路徑**：`data/_system/breath/visions/{yyyy-wNN}.json`
+**危險度**：🟢（單一寫入者，按週分檔）
+**格式**：JSON（願景提案，含四信號源匯聚分析 + 具體行動建議）
+
+| 角色 | 模組 |
+|------|------|
+| 寫入者 | `nightly/vision_loop.py`（Nightly Step 34.9，週日） |
+| 讀取者 | 未來 Elder Council 投票機制（尚未實作） |
+
+**生命週期**：保留最近 12 週，舊週自動清理
+**備註**：v1.70 新增。願景提案未來接 Morphenix 執行管道。
+
+---
+
+### #85 elder_council/members.json
+
+**路徑**：`data/_system/elder_council/members.json`
+**危險度**：🟢（人工寫入，讀取者有限）
+**格式**：JSON（長老名單，含 id/name/domain/joined_at/status）
+
+| 角色 | 模組 |
+|------|------|
+| 寫入者 | 手動維護 / 未來自動晉升機制 |
+| 讀取者 | `nightly/vision_loop.py`（未來投票機制） |
+
+**生命週期**：永久，人類管理
+**備註**：v1.70 新增。Elder Council 為未來自主治理機制的基礎結構，目前由人工維護。
+
+---
+
 ## 必須同時修改的模組組（不可分批）
 
 > 修改以下任一模組時，**必須**同時檢查並調整同組所有模組。
@@ -1576,6 +1690,8 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-04-05 | v1.70 | Decision Atlas + Breath System + Elder Council——新增 #82 `_system/decision_atlas/da-*.json`（🟢 決策結晶 JSON 群，寫入者=Claude Code session + 未來 L4 觀察者，讀取者=brain_prompt_builder.py persona zone + vision_loop.py，永久）；新增 #83 `_system/breath/patterns/{yyyy-wNN}.json`（🟢 呼吸分析結果，寫入者=breath_analyzer.py Step 34.8，讀取者=vision_loop.py，12 週保留）；新增 #84 `_system/breath/visions/{yyyy-wNN}.json`（🟢 願景提案，寫入者=vision_loop.py Step 34.9，讀取者=未來 Elder Council，12 週保留）；新增 #85 `_system/elder_council/members.json`（🟢 長老名單，寫入者=手動/未來自動晉升，讀取者=vision_loop.py，永久）；`breath/observations/{yyyy-wNN}.jsonl` 歸入 #83 管線不另立條目；共享狀態 81→85 個。同步 persistence-contract v1.55、memory-router v1.27 |
+| 2026-04-05 | v1.69 | Entity Registry 建置——新增 #79 `entity_aliases`（🟢 GroupContextDB，寫入者=governance/group_context.py，讀取者=brain_prompt_builder.py resolve_alias() + governance/group_context.py）；新增 #80 `projects + project_entities`（🟢 GroupContextDB，寫入者=governance/group_context.py，讀取者=governance/group_context.py）；新增 #81 `events`（🟢 GroupContextDB entity+project 雙索引，寫入者=governance/group_context.py，讀取者=governance/group_context.py）；修正 Qdrant memories collection 新增寫入者=l4_cpu_observer.py；共享狀態 78→81 個。同步 persistence-contract v1.54、blast-radius v2.01 |
 | 2026-04-04 | v1.67 | l4_cpu_observer 架構更新——新增 #76 `_system/context_cache/{session_id}_signals.json`（🟢 EMA 訊號快取，寫入者=l4_cpu_observer，讀取者=brain_prompt_builder）；新增 #77 `_system/pending_preference_updates.jsonl`（🟢 偏好更新佇列 append-only，寫入者=l4_cpu_observer，讀取者=nightly_pipeline）；更新 #66 session_adjustments/{id}.json 寫入者從「L4 觀察者」改為 `agent/l4_cpu_observer.py`；更新 #47 context_cache 讀寫表新增 l4_cpu_observer 為寫入者（signals 子檔）；共享狀態 75→77 個 |
 | 2026-04-02 | v1.66 | 荒謬雷達系統——新增 #75 `data/_system/absurdity_radar/{user}.json`（🟢 per-user 雷達分數，寫入者=absurdity_radar.py+brain.py，讀取者=absurdity_radar.py+brain_prompt_builder.py）；共享狀態 74→75 個 |
 | 2026-04-02 | v1.65 | #47 寫者修正 build_all()；移除不存在的 build_command_routes（確認已正確）；同步 blast-radius v1.97 |

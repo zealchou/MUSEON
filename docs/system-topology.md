@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.83
+# MUSEON 系統拓撲圖 v1.84
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.84 (2026-04-05)**：五個新功能補登——nightly 群組新增 `breath-analyzer`（Step 34.8 呼吸五層分析）和 `vision-loop`（Step 34.9 週日願景迴圈）；agent 群組新增 `consultant-supplement`（L2 後補充挑戰/提醒）；data 群組新增 `decision-atlas`（決策圖譜資料節點）；新增 9 條連線（nightly-pipeline→breath-analyzer、nightly-pipeline→vision-loop、vision-loop→constellation-radar(R)、vision-loop→decision-atlas(R)、vision-loop→breath/patterns(R)、brain-prompt-builder→decision-atlas(R)、server→consultant-supplement 初始化、telegram-pump→consultant-supplement 觸發、consultant-supplement→telegram 輸出）；更新統計：205+3=208 節點，547+9=556 連線。
 > **v1.83 (2026-04-04)**：星座層級化——群組定義表新增 Layer 欄位（constellation = meta 元層）；新增層級模型說明段落；constellation 群組描述更新為「Skill 之上的多維追蹤框架」。
 > **v1.82 (2026-04-04)**：星座系統——新增 `constellation` 群組（1 Hub + 10 節點共 11 個）；新增 10 條 internal 連線（constellation-radar→各星座）+ 15 條 cross 連線（constellation-probe→brain/brain-prompt-builder、荒謬→4個領域星座、5個星座→對應 Skill、absurdity-radar↔constellation-radar 同步、nightly-pipeline→constellation-radar、skill-router→constellation-radar）；群組色碼 `#9B59B6`（紫色系）；統計：194+11=205 節點，522+25=547 連線。
 > **v1.81 (2026-04-04)**：Knife 2+3 變更——llm 群組新增 `semantic-response-cache`（Qdrant-backed 語意回覆快取，零 LLM token）；新增 3 條連線（brain→semantic-response-cache L1 查詢快取、l4-cpu-observer→semantic-response-cache 回覆後寫入、semantic-response-cache→qdrant collection 讀寫）；brain_tools.py tool-use loop 改用 --resume session 避免重送 system prompt；cron_registry.py 新增 quota circuit breaker（quota 耗盡跳過 LLM cron jobs）；cron 頻率調整（breath-pulse 每小時1次、curiosity-research 週二次、business-case 週一次）。
@@ -219,6 +220,7 @@ external-user（EXTERNAL）
 | `dissent-engine` | Dissent Engine | Crystal Lattice 矛盾偵測，分階段表達異見（Step 3.655） | - | brain | 0.9 |
 | `mask-engine` | Mask Engine | 每位使用者臨時人格適應層，附衰減機制（Step 2.2 啟動 / Step 9.9 衰減） | - | brain | 0.9 |
 | `momentum-brake` | Momentum Brake | 特質 delta 上限保護 + 捕獲風險偵測 | - | brain | 0.8 |
+| `consultant-supplement` | Consultant Supplement | L2 回覆後補充挑戰/提醒，發送獨立 Telegram 訊息。由 server.py 初始化、telegram_pump.py 觸發 | - | brain | 0.8 |
 
 ### agent — PDR (Progressive Depth Response) 模組群
 
@@ -315,6 +317,7 @@ external-user（EXTERNAL）
 | `blueprint-reader` | Blueprint Reader | 藍圖解析器 | - | data-bus | 0.9 |
 | `lord-profile` | Lord Profile | 主人領域畫像 | - | data-bus | 0.8 |
 | `sparse-embedder` | Sparse Embedder | BM25 稀疏向量（已啟動） | - | data-bus | 0.9 |
+| `decision-atlas` | Decision Atlas | 決策圖譜資料節點（data/_system/decision_atlas/da-*.json），提供決策歷史給 brain_prompt_builder 注入 + vision_loop 匯聚 | - | data-bus | 0.8 |
 
 ### evolution — Evolution 演化
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -355,6 +358,8 @@ external-user（EXTERNAL）
 | `morphenix-validator` | Morphenix Validator | Docker 沙盒驗證 | - | nightly | 0.7 |
 | `context-cache-builder` | Context Cache Builder | Step 31 context_cache 重建 | - | nightly | 0.8 |
 | `nightly-reflection-engine` | Nightly Reflection Engine | LLM 自我反思引擎，驅動 P-trait 演化（Steps 34 / 34.5 / 34.7） | - | nightly | 1.0 |
+| `breath-analyzer` | Breath Analyzer | 呼吸系統 Day 3-4 CPU 級五層分析（Step 34.8）。讀取 breath/observations/*.jsonl，寫入 breath/patterns/*.json | - | nightly | 0.8 |
+| `vision-loop` | Vision Loop | 週日願景迴圈，匯聚四信號源生成方向提案（Step 34.9）。讀取 constellations/registry.json + skill_health/latest.json + decision_atlas/da-*.json + breath/patterns/*.json，寫入 breath/visions/*.json | - | nightly | 0.9 |
 
 ### learning — Learning 學習
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -766,6 +771,8 @@ external-user（EXTERNAL）
 | `morphenix-validator` | `morphenix` | 驗證通過→執行 |
 | `nightly-pipeline` | `nightly-reflection-engine` | Steps 34 / 34.5 / 34.7 P-trait 演化反思 |
 | `nightly-pipeline` | `absurdity-radar` | Step 32.5 _step_absurdity_radar_recalc 重算六維雷達 |
+| `nightly-pipeline` | `breath-analyzer` | Step 34.8 呼吸五層分析（Day 3-4 CPU-only） |
+| `nightly-pipeline` | `vision-loop` | Step 34.9 週日願景迴圈（週日執行） |
 
 ### 跨系統連線（cross）
 | Source | Target | 說明 |
@@ -915,6 +922,13 @@ external-user（EXTERNAL）
 | `nightly-reflection-engine` | `soul-ring` | value_calibration 積分存入 |
 | `dissent-engine` | `crystal-rules` | 讀取 crystal_rules.json 進行矛盾檢測 |
 | `mask-engine` | `anima-mc-store` | 讀取 trait_dimensions 計算人格適應 |
+| `server` | `consultant-supplement` | Gateway 初始化時建立 ConsultantSupplement 實例 |
+| `telegram-pump` | `consultant-supplement` | L2 回覆後觸發補充分析與 Telegram 發送 |
+| `consultant-supplement` | `telegram` | 獨立 Telegram 訊息輸出（挑戰/提醒補充）  |
+| `brain-prompt-builder` | `decision-atlas` | _build_decision_atlas_context() 讀取 da-*.json 注入 persona zone |
+| `vision-loop` | `constellation-radar` | 讀取星座活躍度數據作為方向信號 |
+| `vision-loop` | `decision-atlas` | 讀取決策圖譜數據匯聚方向提案 |
+| `vision-loop` | `breath-analyzer` | 讀取 breath/patterns/*.json（前序分析結果） |
 
 #### v1.43 全系統拓撲審計補齊（70 條）
 
@@ -1351,8 +1365,8 @@ external-user（EXTERNAL）
 
 | 指標 | 數值 |
 |------|------|
-| 總節點數 | 205（194 + 11 constellation 新增） |
-| 總連線數 | 547（522 + 10 internal + 15 cross constellation 新增） |
+| 總節點數 | 208（205 + 3 v1.84 新增：breath-analyzer / vision-loop / consultant-supplement）|
+| 總連線數 | 556（547 + 9 v1.84 新增：2 internal nightly + 7 cross）|
 | 群組數 | 16 (含 skills、learning、billing、constellation) |
 | Hub 節點 | 20 (12 系統 + 7 Skills Hub + 1 constellation-radar) |
 | 已刪除節點（v1.59）| 20（含 line/electron/dna27/epigenetic-router/proactive-predictor 等） |
@@ -1366,6 +1380,7 @@ external-user（EXTERNAL）
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.84 | 2026-04-05 | 五個新功能補登——nightly 群組新增 breath-analyzer（Step 34.8 呼吸五層分析）和 vision-loop（Step 34.9 週日願景迴圈）；agent 群組新增 consultant-supplement（L2 後補充，扇入=2）；data 群組新增 decision-atlas（決策圖譜，資料節點）；新增 2 internal（nightly-pipeline→breath-analyzer/vision-loop）+ 7 cross 連線（server/telegram-pump→consultant-supplement、consultant-supplement→telegram、brain-prompt-builder→decision-atlas、vision-loop→constellation-radar/decision-atlas/breath-analyzer）；205→208 節點，547→556 連線 |
 | v1.82 | 2026-04-04 | 星座系統——新增 `constellation` 群組（constellation-radar Hub + constellation-probe + constellation-absurdity/business/brand/strategy/energy/conversion/market/thinking/growth 共 11 節點）；新增 10 internal + 15 cross 連線；群組色碼 `#9B59B6`；194→205 節點，522→547 連線 |
 | v1.81 | 2026-04-04 | Knife 2+3 變更——llm 群組新增 `semantic-response-cache`（Qdrant-backed 語意回覆快取，零 LLM token，v12 新增）；新增 3 條連線（brain→semantic-response-cache 查詢快取、l4-cpu-observer→semantic-response-cache 寫入、semantic-response-cache→qdrant collection 讀寫）；brain_tools.py tool-use loop 改用 --resume session；cron_registry.py 新增 quota circuit breaker；cron 頻率調整（breath-pulse 每小時1次、curiosity-research 週二次、business-case 週一次）|
 | v1.80 | 2026-04-04 | L4 CPU Observer 架構更新——agent 群組新增 `l4-cpu-observer`（CPU-only 對話後觀察者，取代 Haiku L4 agent spawn，零 LLM 呼叫，<10ms）；brain-tools 描述更新（_classify_complexity 已改為 CPU-only v12）；新增 4 條連線（brain→l4-cpu-observer、l4-cpu-observer→context-cache/session-adjustments/memory）|

@@ -1,8 +1,9 @@
-# MUSEON Persistence Contract v1.53 — 水電圖
+# MUSEON Persistence Contract v1.55 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
 > 與 `system-topology.md`（控制流拓撲）互補——那是「神經圖」，這是「水電圖」。
+> **v1.55 (2026-04-05)**：Decision Atlas + Breath System + Elder Council——新增 `data/_system/decision_atlas/da-*.json`（決策結晶 JSON 群，寫入者=Claude Code session + 未來 L4 觀察者，讀取者=brain_prompt_builder.py persona zone + vision_loop.py 覆蓋度掃描，永久保存）；新增 `data/_system/breath/patterns/{yyyy-wNN}.json`（呼吸分析結果，寫入者=breath_analyzer.py Nightly Step 34.8，讀取者=vision_loop.py，保留最近 12 週）；新增 `data/_system/breath/visions/{yyyy-wNN}.json`（願景提案，寫入者=vision_loop.py Nightly Step 34.9，讀取者=未來 Elder Council，保留最近 12 週）；新增 `data/_system/breath/observations/{yyyy-wNN}.jsonl`（呼吸觀察 JSONL，寫入者=L4 觀察者+系統監控，讀取者=breath_analyzer.py，保留最近 12 週）；新增 `data/_system/elder_council/members.json`（長老名單，寫入者=手動/未來自動晉升，讀取者=vision_loop.py，永久）。同步 joint-map v1.70、memory-router v1.27。
 > **v1.54 (2026-04-05)**：Entity Registry 建置——GroupContextDB 新增 4 張表：`entity_aliases`（別名映射，PK=alias+entity_type+entity_id，case-insensitive index）、`projects`（專案基本資訊）、`project_entities`（專案成員多對多關聯）、`events`（事件時間線，entity+project 雙索引）；寫入者=`governance/group_context.py`，讀取者=`governance/group_context.py`+`agent/brain_prompt_builder.py`（alias resolve）。L4CpuObserver 記憶寫入路徑修正：從 MemoryStore.write()（Markdown，靜默失敗）改為 MemoryManager.store()（Qdrant memories collection），chat_scope 欄位從 metadata 推導。brain_prompt_builder.py 人物搜尋新增 ProfileStore + GroupContextStore 讀取者。同步 joint-map v1.69、blast-radius v2.01。
 > **v1.53 (2026-04-04)**：semantic_response_cache——新增 Qdrant dense collection `semantic_response_cache`（512 維，BAAI/bge-small-zh-v1.5，cosine distance）；寫入者=`cache/semantic_response_cache.py`（L4CpuObserver 回覆後呼叫），讀取者=`cache/semantic_response_cache.py`（Brain L1 查詢），TTL 動態（30min~12h），按 chat_id 做 payload filter 群組隔離，查詢時判斷 TTL 過期自動刪除。同步 joint-map v1.68。
 > **v1.52 (2026-04-04)**：l4_cpu_observer 架構更新——新增 `data/_system/context_cache/{session_id}_signals.json`（EMA 訊號快取，寫入者=agent/l4_cpu_observer.py，讀取者=brain_prompt_builder.py _build_signal_context，格式=`{"signal_name": float, "_updated_at": "ISO8601"}`）；新增 `data/_system/pending_preference_updates.jsonl`（偏好更新 append-only 佇列，寫入者=agent/l4_cpu_observer.py，讀取者=Nightly pipeline 批次處理）；更新 #66 `session_adjustments/{session_id}.json` 寫入者從「L4 觀察者」改為 `agent/l4_cpu_observer.py`。同步 joint-map v1.67、memory-router v1.26。
@@ -502,6 +503,11 @@ adaptive_decay ──ACT-R B_i──→ _activation 欄位 (in-memory) ←──
 | `_system/context_cache/{session_id}_signals.json` | `agent/l4_cpu_observer.py` | L4 CPU Observer EMA 訊號快取（v1.52 新增，寫入者=l4_cpu_observer observe() EMA 合併，讀取者=brain_prompt_builder.py _build_signal_context，格式=`{"signal_name": float, "_updated_at": "ISO8601"}`） |
 | `_system/pending_preference_updates.jsonl` | `agent/l4_cpu_observer.py` | L4 CPU Observer 偏好更新 append-only 佇列（v1.52 新增，每條一個 JSON 物件，Nightly pipeline 批次處理） |
 | `_system/session_adjustments/{session_id}.json` | `agent/l4_cpu_observer.py` (寫入) / `agent/brain_prompt_builder.py` (讀取) | 即時行為調整（v1.52 更新寫入者為 l4_cpu_observer.py，expires_after_turns TTL） |
+| `_system/decision_atlas/da-*.json` | Claude Code session（手動/自動萃取） / 未來 L4 觀察者（寫入）；`agent/brain_prompt_builder.py`（persona zone 注入）/ `nightly/vision_loop.py`（覆蓋度掃描）（讀取） | 決策結晶 JSON 群（v1.55 新增，每個決策結晶一檔，永久保存，不衰減） |
+| `_system/breath/patterns/{yyyy-wNN}.json` | `nightly/breath_analyzer.py`（唯一寫入者，Nightly Step 34.8，週三/四）；`nightly/vision_loop.py`（讀取） | 呼吸分析結果（v1.55 新增，保留最近 12 週） |
+| `_system/breath/visions/{yyyy-wNN}.json` | `nightly/vision_loop.py`（唯一寫入者，Nightly Step 34.9，週日）；未來 Elder Council 投票機制（讀取） | 願景提案（v1.55 新增，保留最近 12 週） |
+| `_system/breath/observations/{yyyy-wNN}.jsonl` | L4 觀察者 + 系統監控（寫入）；`nightly/breath_analyzer.py`（讀取） | 呼吸觀察 JSONL，每行一個觀察（v1.55 新增，保留最近 12 週） |
+| `_system/elder_council/members.json` | 手動 / 未來自動晉升（寫入）；`nightly/vision_loop.py`（讀取，未來投票機制） | 長老名單（v1.55 新增，永久，人類管理） |
 
 ### PDR 持久化（v1.70 新增）
 
@@ -771,6 +777,7 @@ adaptive_decay ──ACT-R B_i──→ _activation 欄位 (in-memory) ←──
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.55 | 2026-04-05 | Decision Atlas + Breath System + Elder Council——新增 `_system/decision_atlas/da-*.json`（決策結晶 JSON 群，寫入者=Claude Code session + 未來 L4 觀察者，讀取者=brain_prompt_builder.py + vision_loop.py，永久）；新增 `_system/breath/patterns/{yyyy-wNN}.json`（呼吸分析結果，寫入者=breath_analyzer.py Step 34.8，讀取者=vision_loop.py，12 週保留）；新增 `_system/breath/visions/{yyyy-wNN}.json`（願景提案，寫入者=vision_loop.py Step 34.9，讀取者=未來 Elder Council，12 週保留）；新增 `_system/breath/observations/{yyyy-wNN}.jsonl`（呼吸觀察 JSONL，寫入者=L4 觀察者+系統監控，讀取者=breath_analyzer.py，12 週保留）；新增 `_system/elder_council/members.json`（長老名單，寫入者=手動/未來自動晉升，讀取者=vision_loop.py，永久）。同步 joint-map v1.70、memory-router v1.27 |
 | v1.52 | 2026-04-04 | l4_cpu_observer 架構更新——新增 `_system/context_cache/{session_id}_signals.json`（EMA 訊號快取，寫入者=agent/l4_cpu_observer.py observe() EMA 合併，讀取者=brain_prompt_builder.py _build_signal_context，格式=`{"signal_name": float, "_updated_at": "ISO8601"}`）；新增 `_system/pending_preference_updates.jsonl`（偏好更新 append-only 佇列，寫入者=l4_cpu_observer.py，讀取者=Nightly pipeline 批次處理）；更新 #66 session_adjustments/{id}.json 寫入者從「L4 觀察者」改為 `agent/l4_cpu_observer.py`。同步 joint-map v1.67、memory-router v1.26 |
 | v1.44 | 2026-03-31 | Persona Evolution 系統——新增 `_system/mask_states.json`（面具狀態快照，mask_engine.py 原子寫入 tmp+rename，TTL=7 天，cleanup_stale 清理，全量覆寫）；ANIMA_MC 新增 `personality.trait_dimensions`（P1-P5 PSI 保護/C1-C5 FREE，寫入者 trait_engine.py+nightly_reflection.py）、`evolution.trait_history`（APPEND_ONLY，上限 200 筆，nightly_reflection.py）、`evolution.stage_history`（APPEND_ONLY，上限 50 筆，brain_observation.py）。同步 memory-router v1.19 |
 | v1.0 | 2026-03-15 | 初版：完整水電圖，涵蓋 23 個正常配對、3 個 Dead Write、14 個死目錄 |

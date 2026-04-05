@@ -1,10 +1,11 @@
-# Blast Radius — 模組影響半徑表 v2.00
+# Blast Radius — 模組影響半徑表 v2.02
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節、`docs/operational-contract.md`（操作契約表）提供外部操作預期失敗
+> **v2.02 (2026-04-05)**：五個新功能補登——新增 🟢 綠區：`agent/consultant_supplement.py`（扇入=2：server.py 初始化 + telegram_pump.py 觸發，扇出=1：Telegram 輸出）、`nightly/breath_analyzer.py`（扇入=1：nightly_pipeline Step 34.8，扇出=1：breath/patterns/*.json）、`nightly/vision_loop.py`（扇入=1：nightly_pipeline Step 34.9，扇出=1：breath/visions/*.json，讀取四信號源但不改它們）；brain_prompt_builder.py 扇出 +1（新增 decision_atlas/da-*.json 讀取，_build_decision_atlas_context()）；group_context.py 新增 entity_aliases/projects/project_entities/events 四張表（schema 擴展，扇入扇出不變）；l4_cpu_observer.py 新增 alias 偵測功能（扇出不變）；nightly_pipeline.py Step 18.6 新增溫度衰減 + 自動 alias（扇出不變）。同步 system-topology v1.84。
 > **v2.01 (2026-04-05)**：Entity Registry 建置——brain_prompt_builder.py 扇入不變(6)，扇出 +2（新增 athena/profile_store.py + governance/group_context.py 讀取）；l4_cpu_observer.py 寫入目標從 MemoryStore 改為 MemoryManager（修正斷裂接線）。同步 persistence-contract v1.54、joint-map v1.69。
 > **v2.00 (2026-04-04)**：Knife 2+3 變更——新增 `cache/semantic_response_cache.py`（🟢 綠區，扇入=2（brain.py query、l4_cpu_observer write），扇出=1（Qdrant semantic_response_cache collection），Qdrant 語意快取，零 LLM，v12 新增）；`gateway/cron_registry.py` 新增 quota circuit breaker（quota 耗盡時跳過 LLM cron jobs）。
 > **v1.99 (2026-04-04)**：新增 `agent/l4_cpu_observer.py`（🟢 綠區，扇入=1（brain.py），扇出=3：context_cache JSON、session_adjustments、memory_manager，CPU-only 對話後觀察，零 LLM，v12 新增取代 Haiku L4 agent spawn）；`agent/brain_tools.py` 備注更新：`_classify_complexity` 已於 v12 改為 CPU-only，`_call_llm` 仍走 LLM。
@@ -536,7 +537,7 @@
 | 屬性 | 值 |
 |------|-----|
 | **扇入** | 2 |
-| **角色** | 夜間整合管線（49 步驟，含 Step 30 藍圖一致性驗證 + Step 31 context_cache 重建 + Step 32 crystal_decay + Step 33 crystal_promotion） |
+| **角色** | 夜間整合管線（49 步驟，含 Step 30 藍圖一致性驗證 + Step 31 context_cache 重建 + Step 32 crystal_decay + Step 33 crystal_promotion + Step 34.8 breath_analyzer + Step 34.9 vision_loop） |
 
 #### 影響半徑
 
@@ -707,7 +708,7 @@
 ### Agent 層（22 個）
 `agent/crystal_store.py`（★ v1.41 新增，扇入=2（knowledge_lattice + crystal_actuator），CrystalStore 統一存取層——crystal.db SQLite WAL 模式，`threading.Lock` + singleton factory `get_crystal_store()`），
 `agent/recommender.py`（★ v1.43 新增，扇入=1（brain.py），知識推薦引擎——CrystalStore 經由 brain 注入，互動歷史 `data/_system/recommendations/interactions.json` 原子寫入），
-`agent/brain_prompt_builder.py`（★ v1.48 Mixin，扇入=1（brain.py），system prompt 建構，1668 行），
+`agent/brain_prompt_builder.py`（★ v1.48 Mixin，扇入=1（brain.py），system prompt 建構，1668 行；v2.01 新增 athena/profile_store.py + governance/group_context.py 讀取（扇出+2）；v2.02 新增 _build_decision_atlas_context() 讀取 decision_atlas/da-*.json 注入 persona zone（扇出+1）），
 `agent/brain_dispatch.py`（★ v1.48 Mixin，扇入=1（brain.py），任務分派，1082 行），
 `agent/brain_observation.py`（★ v1.48 Mixin，扇入=1（brain.py），觀察與演化，2003 行），
 `agent/brain_tools.py`（★ v1.48 Mixin，扇入=1（brain.py），LLM 呼叫與 session 管理，966 行；注：`_classify_complexity` 已於 v12 改為 CPU-only，`_call_llm` 仍走 LLM），
@@ -722,6 +723,7 @@
 `agent/tool_schemas.py`（★ v1.70 擴充，扇入=1（brain_deep.py），工具定義目錄——v1.70 新增 trigger_job/memory_search/spawn_perspectives 3 個工具），
 `agent/drift_detector.py`, `agent/intuition.py`, `agent/kernel_guard.py`, `agent/plan_engine.py`, `agent/primal_detector.py`, `agent/safety_anchor.py`, `agent/sub_agent.py`
 （注：`agent/dna27.py`、`agent/routing_bridge.py`、`agent/pending_sayings.py` 已於 v1.77 刪除）
+`agent/consultant_supplement.py`（★ v2.02 新增，扇入=2（server.py 初始化 + telegram_pump.py 觸發），扇出=1（Telegram 訊息輸出），L2 回覆後補充挑戰/提醒——ConsultantSupplement class，在 L2 回覆後非同步發送獨立 Telegram 補充訊息，純輸出無持久層寫入，🟢 綠區）
 
 ### Memory 層（1 個）
 `memory/memory_gate.py`（★ v1.19 新增，扇入=1，僅 brain.py import；純 CPU 規則引擎，零 LLM 成本，判斷記憶寫入意圖）
@@ -831,6 +833,11 @@
 `nightly/triage_step.py`（★ v1.86 新增，扇入=0（Nightly Step 5.8 前置呼叫），Nightly 分診步驟——write_signal()/drain_queue()/accumulate_signals()/escalate_high()/emit_adjustments() 五個函數，寫入 triage_queue.jsonl + awareness_log.jsonl + nightly_priority_queue.json），
 `nightly/triage_to_morphenix.py`（★ v1.86 新增，扇入=1（nightly_pipeline Step 5.8），HIGH→Morphenix 迭代筆記橋接——drain_priority_queue()/write_morphenix_proposal() 兩個函數，消費 nightly_priority_queue.json 寫入 morphenix/proposals/），
 `governance/algedonic_alert.py`（★ v1.86 新增，扇入=1（governor.py 初始化），治理警報 Telegram 推播——AlgedonicAlert class，訂閱 GOVERNANCE_ALGEDONIC_SIGNAL 事件，防洪閘（rate limit）+ 嚴重度過濾，發布 PROACTIVE_MESSAGE 到 event_bus）
+
+### 呼吸系統 Nightly 分析（2 個，v2.02 新增）
+
+`nightly/breath_analyzer.py`（★ v2.02 新增，扇入=1（nightly_pipeline Step 34.8），扇出=1（data/_system/breath/patterns/*.json），呼吸系統 Day 3-4 CPU 級五層分析——讀取 breath/observations/*.jsonl 進行模式萃取，寫入 breath/patterns/*.json，純 CPU 計算無 LLM，🟢 綠區），
+`nightly/vision_loop.py`（★ v2.02 新增，扇入=1（nightly_pipeline Step 34.9），扇出=1（data/_system/breath/visions/*.json），週日願景迴圈——讀取四信號源（constellations/registry.json + skill_health/latest.json + decision_atlas/da-*.json + breath/patterns/*.json）匯聚方向提案，寫入 breath/visions/*.json，唯讀四信號源（不改寫），🟢 綠區）
 
 ### Persona Evolution 系統（6 個，v1.90 新增）
 
@@ -953,6 +960,8 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-04-05 | v2.02 | 五個新功能補登——新增 🟢 綠區：consultant_supplement.py（扇入=2：server+telegram_pump，扇出=1：Telegram）、breath_analyzer.py（扇入=1：nightly_pipeline Step 34.8，扇出=1：breath/patterns/）、vision_loop.py（扇入=1：nightly_pipeline Step 34.9，扇出=1：breath/visions/）；brain_prompt_builder.py 扇出 +1（decision_atlas 讀取）；group_context.py schema 擴展 +4 表（扇入扇出不變）；nightly_pipeline 描述更新（+Step 34.8/34.9）。同步 system-topology v1.84 |
+| 2026-04-05 | v2.01 | Entity Registry 建置——brain_prompt_builder.py 扇出 +2（athena/profile_store.py + group_context.py）；l4_cpu_observer.py 寫入目標從 MemoryStore 改為 MemoryManager（修正斷裂接線）。同步 persistence-contract v1.54、joint-map v1.69 |
 | 2026-04-04 | v2.00 | Knife 2+3——新增 `cache/semantic_response_cache.py`（🟢 綠區，扇入=2（brain.py query、l4_cpu_observer write），扇出=1（Qdrant semantic_response_cache collection），零 LLM，v12 新增）；`gateway/cron_registry.py` 備注更新：quota circuit breaker（v12，quota 耗盡時跳過 LLM cron jobs）|
 | 2026-04-04 | v1.99 | 新增 `agent/l4_cpu_observer.py`（🟢 綠區，扇入=1（brain.py），扇出=3：context_cache JSON、session_adjustments、memory_manager，CPU-only 對話後觀察，零 LLM，v12 取代 Haiku L4 agent spawn）；`agent/brain_tools.py` 備注更新：`_classify_complexity` 已於 v12 改為 CPU-only，`_call_llm` 仍走 LLM |
 | 2026-04-02 | v1.98 | 荒謬雷達系統——skill_router.py 新增 Layer 4 (absurdity gap affinity)，扇入不變；nightly_pipeline.py 新增步驟 32.5 (absurdity_radar_recalc)；brain.py 新增 absurdity_radar load/update/save 呼叫（try/except 包裹，不影響扇入）；brain_prompt_builder.py 新增 _build_absurdity_radar_context() 注入到 persona zone；新增共享狀態 #75 data/_system/absurdity_radar/{user}.json；同步 joint-map v1.66 |

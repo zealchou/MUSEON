@@ -325,8 +325,8 @@ console.log('[MUSEON 3D] Three.js loaded OK, version:', THREE.REVISION);
 //  SYNC META — 拓撲同步狀態
 // ═══════════════════════════════════════
 const SYNC_META = {
-  topologyVersion: 'v1.83',
-  syncDate: '2026-04-04',
+  topologyVersion: 'v1.84',
+  syncDate: '2026-04-05',
   nodeCount: 0, // auto-calculated below
   linkCount: 0, // auto-calculated below
   skillUpgrades: [
@@ -430,6 +430,7 @@ const nodes = [
   {id:"brain-tools",label:"Brain Tools",zh:"Mixin: LLM 呼叫",group:"agent",r:1.0,p:"brain",desc:"Mixin: LLM 呼叫（_call_llm）與 session 管理（966 行）。_classify_complexity 已改為 CPU-only（v12）"},
   {id:"brain-types",label:"Brain Types",zh:"共享 dataclass: DecisionSignal",group:"agent",r:0.7,p:"brain"},
   {id:"chat-context",label:"Chat Context",zh:"ChatContext dataclass",group:"agent",r:0.7,p:"brain",desc:"ChatContext dataclass（輕量對話上下文資料結構）"},
+  {id:"consultant-supplement",label:"Consultant Supplement",zh:"L2 回覆後補充挑戰/提醒，發送獨立 Telegram 訊息。由 server.py 初始化、telegram_pump.py 觸發",group:"agent",r:0.8,p:"brain"},
   {id:"deep-think",label:"Deep Think",zh:"思考前置引擎",group:"agent",r:1.1,p:"brain",desc:"思考前置引擎（P0 訊號分流 / P1 輸入審視 / P2 決策偵測）"},
   {id:"dendritic-fusion",label:"Dendritic Fusion",zh:"P3 並行融合引擎",group:"agent",r:1.1,p:"brain",desc:"P3 並行融合引擎（MetaCog+Eval+Health）"},
   {id:"deterministic-router",label:"Deterministic Router",zh:"確定性任務分解器",group:"agent",r:1.0,p:"brain",desc:"確定性任務分解器（取代 LLM Orchestrator）"},
@@ -522,6 +523,7 @@ const nodes = [
   {id:"blueprint-reader",label:"Blueprint Reader",zh:"藍圖解析器",group:"data",r:0.9,p:"data-bus"},
   {id:"crystal-store",label:"CrystalStore",zh:"知識晶體 SQLite",group:"data",r:1.0,p:"data-bus",desc:"知識晶體 SQLite (WAL)"},
   {id:"data-watchdog",label:"DataWatchdog",zh:"資料層監控",group:"data",r:1.0,p:"data-bus"},
+  {id:"decision-atlas",label:"Decision Atlas",zh:"決策圖譜資料節點",group:"data",r:0.8,p:"data-bus",desc:"決策圖譜資料節點（data/_system/decision_atlas/da-*.json），提供決策歷史給 brain_prompt_builder 注入 + vision_loop 匯聚"},
   {id:"group-context-db",label:"GroupContextDB",zh:"群組上下文 SQLite",group:"data",r:1.0,p:"data-bus"},
   {id:"lord-profile",label:"Lord Profile",zh:"主人領域畫像",group:"data",r:0.8,p:"data-bus"},
   {id:"memory",label:"Memory",zh:"六層記憶",group:"data",r:1.6,p:"data-bus"},
@@ -554,6 +556,7 @@ const nodes = [
   {id:"zotero-bridge",label:"Zotero Bridge",zh:"文獻管理橋接",group:"tools",r:0.8,p:"tool-registry"},
   // ── nightly ──
   {id:"nightly",label:"Nightly Pipeline",zh:"31+ 步夜間整合",group:"nightly",r:2.2,hub:1},
+  {id:"breath-analyzer",label:"Breath Analyzer",zh:"呼吸系統 Day 3-4 CPU 級五層分析",group:"nightly",r:0.8,p:"nightly",desc:"呼吸系統 Day 3-4 CPU 級五層分析（Step 34.8）。讀取 breath/observations/*.jsonl，寫入 breath/patterns/*.json"},
   {id:"context-cache-builder",label:"Context Cache Builder",zh:"Step 31 context_cache 重建",group:"nightly",r:0.8,p:"nightly"},
   {id:"crystal-actuator",label:"Crystal Actuator",zh:"結晶致動器",group:"nightly",r:0.8,p:"nightly"},
   {id:"curiosity-router",label:"Curiosity Router",zh:"好奇心路由",group:"nightly",r:0.9,p:"nightly"},
@@ -563,6 +566,7 @@ const nodes = [
   {id:"nightly-reflection-engine",label:"Nightly Reflection Engine",zh:"LLM 自我反思引擎，驅動 P-trait 演化",group:"nightly",r:1.0,p:"nightly",desc:"LLM 自我反思引擎，驅動 P-trait 演化（Steps 34 / 34.5 / 34.7）"},
   {id:"periodic-cycles",label:"Periodic Cycles",zh:"週期循環",group:"nightly",r:0.9,p:"nightly"},
   {id:"skill-forge-scout",label:"Skill Forge Scout",zh:"技能鍛造偵察",group:"nightly",r:0.8,p:"nightly"},
+  {id:"vision-loop",label:"Vision Loop",zh:"週日願景迴圈，匯聚四信號源生成方向提案",group:"nightly",r:0.9,p:"nightly",desc:"週日願景迴圈，匯聚四信號源生成方向提案（Step 34.9）。讀取 constellations/registry.json + skill_health/latest.json + decision_atlas/da-*.json + breath/patterns/*.json，寫入 breath/visions/*.json"},
   // ── external ──
   {id:"anthropic-api",label:"Anthropic API",zh:"Claude API",group:"external",r:1.1},
   {id:"fetch-mcp",label:"Fetch MCP",zh:"網頁讀取",group:"external",r:0.5,desc:"網頁讀取（MCP）"},
@@ -840,7 +844,9 @@ const links = [
   {source:"nightly",target:"periodic-cycles",label:"週期循環",type:"internal"},
   {source:"nightly",target:"skill-forge-scout",label:"技能鍛造",type:"internal"},
   {source:"nightly-pipeline",target:"absurdity-radar",label:"Step 32.5 _step_absurdity_radar_recalc 重算六維雷達",type:"internal"},
+  {source:"nightly-pipeline",target:"breath-analyzer",label:"Step 34.8 呼吸五層分析（Day 3-4 CPU-only）",type:"internal"},
   {source:"nightly-pipeline",target:"nightly-reflection-engine",label:"Steps 34 / 34.5 / 34.7 P-trait 演化反思",type:"internal"},
+  {source:"nightly-pipeline",target:"vision-loop",label:"Step 34.9 週日願景迴圈（週日執行）",type:"internal"},
   {source:"pdr-council",target:"agent-registry",label:"查詢可用能力目標（action targets）",type:"internal"},
   {source:"pdr-council",target:"pdr-params",label:"讀取 Phase 2/3 參數 + 安全護欄",type:"internal"},
   {source:"pulse",target:"anima-mc-store",label:"ANIMA 統一存取",type:"internal"},
@@ -990,6 +996,7 @@ const links = [
   {source:"brain-observation",target:"growth-stage-computer",label:"_observe_self() 認知成熟度計算（取代硬編碼 adult）",type:"cross"},
   {source:"brain-observation",target:"trait-engine",label:"_observe_self() C-trait 即時更新",type:"cross"},
   {source:"brain-observation",target:"vector-index",label:"brain_observation.py:875 向量索引存取",type:"cross"},
+  {source:"brain-prompt-builder",target:"decision-atlas",label:"_build_decision_atlas_context() 讀取 da-*.json 注入 persona zone",type:"cross"},
   {source:"brain-prompt-builder",target:"governance",label:"brain_prompt_builder.py:468 外部使用者記憶",type:"cross"},
   {source:"brain-prompt-builder",target:"pulse-db",label:"brain_prompt_builder.py:501 PulseDB 脈搏數據",type:"cross"},
   {source:"brain-tool-loop",target:"anthropic-api",label:"LLM 呼叫（tool-use 迴圈）",type:"cross"},
@@ -1032,6 +1039,7 @@ const links = [
   {source:"constellation-thinking",target:"deep-think",label:"思維轉化五芒星連結深度思考 Skill",type:"cross"},
   {source:"constellation-thinking",target:"dharma",label:"思維轉化五芒星連結思維轉化引擎 Skill",type:"cross"},
   {source:"constellation-thinking",target:"philo-dialectic",label:"思維轉化五芒星連結哲學思辨 Skill",type:"cross"},
+  {source:"consultant-supplement",target:"telegram",label:"獨立 Telegram 訊息輸出（挑戰/提醒補充）",type:"cross"},
   {source:"cron",target:"museoff",label:"cron.status() 健康度讀取，museoff.py L7 消費（v1.72 新增）",type:"cross"},
   {source:"cron-registry",target:"musedoctor",label:"排程 patrol_tick（每 8 分鐘）",type:"cross"},
   {source:"crystal-actuator",target:"crystal-store",label:"結晶降級/升級（經由 CrystalStore API）",type:"cross"},
@@ -1211,6 +1219,7 @@ const links = [
   {source:"roundtable",target:"master-strategy",label:"戰略詰問",type:"cross"},
   {source:"roundtable",target:"shadow",label:"博弈辨識",type:"cross"},
   {source:"self-diagnosis",target:"tool-registry",label:"self_diagnosis.py:246,:484 工具狀態查詢",type:"cross"},
+  {source:"server",target:"consultant-supplement",label:"Gateway 初始化時建立 ConsultantSupplement 實例",type:"cross"},
   {source:"silent-digestion",target:"memory",label:"反思寫入",type:"cross"},
   {source:"skill-forge-scout",target:"research-engine",label:"skill_forge_scout.py:141 鍛造偵察研究",type:"cross"},
   {source:"skill-router",target:"constellation-radar",label:"Skill 路由讀取星座缺口引力輔助決策",type:"cross"},
@@ -1240,12 +1249,16 @@ const links = [
   {source:"telegram",target:"pulse-db",label:"telegram.py:583 脈搏讀取",type:"cross"},
   {source:"telegram-pump",target:"brain",label:"telegram_pump.py 群組訊息觸發 `brain._call_llm_with_model()` 做 Haiku LLM 敏感度驗證",type:"cross"},
   {source:"telegram-pump",target:"brain-worker",label:"telegram_pump.py _brain_process_with_sla worker 優先路徑（v1.52）",type:"cross"},
+  {source:"telegram-pump",target:"consultant-supplement",label:"L2 回覆後觸發補充分析與 Telegram 發送",type:"cross"},
   {source:"telegram-pump",target:"governance",label:"telegram_pump.py lazy import: group_context, multi_tenant, rate_limiter",type:"cross"},
   {source:"telegram-pump",target:"interaction-queue",label:"telegram_pump.py lazy import: interaction queue",type:"cross"},
   {source:"telegram-pump",target:"message-queue-store",label:"telegram_pump.py lazy import: enqueue/mark_done/mark_failed/recover_pending（v1.51 訊息持久化）",type:"cross"},
   {source:"telegram-pump",target:"response-guard",label:"telegram_pump.py 所有發送路徑統一走 adapter._safe_send() → ResponseGuard.sanitize_for_group()（v1.82 消除 9 處直送）+ chat_id 交叉驗證",type:"cross"},
   {source:"tool-registry",target:"skill-router",label:"工具查找",type:"cross"},
   {source:"vector-index",target:"qdrant",label:"向量存儲（dense）",type:"cross"},
+  {source:"vision-loop",target:"breath-analyzer",label:"讀取 breath/patterns/*.json（前序分析結果）",type:"cross"},
+  {source:"vision-loop",target:"constellation-radar",label:"讀取星座活躍度數據作為方向信號",type:"cross"},
+  {source:"vision-loop",target:"decision-atlas",label:"讀取決策圖譜數據匯聚方向提案",type:"cross"},
   {source:"wan-miu-16",target:"energy-reading",label:"能量數據讀取",type:"cross"},
   {source:"wan-miu-16",target:"knowledge-lattice",label:"人格結晶讀寫",type:"cross"},
   {source:"wan-miu-16",target:"user-model",label:"使用者畫像讀寫",type:"cross"},
@@ -1281,6 +1294,7 @@ const links = [
   {source:"verified-user",target:"anima-mc-store",label:"配對使用者互動更新 ANIMA_USER（L1-L8 觀察）",type:"async"},
   {source:"zeal",target:"anima-mc-store",label:"Owner 互動觸發 ANIMA_MC 更新（boss_name、self_awareness）",type:"async"},
 ];
+
 
 
 
