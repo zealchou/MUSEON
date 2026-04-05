@@ -64,6 +64,7 @@
 | `documents` | 1024 | `vector_bridge.py` | `mcp_connector.py` | `vector_bridge.query_points()` |
 | `references` | 1024 | `vector_bridge.py` | `zotero_bridge.py` | `zotero_bridge.py` |
 | `primals` | 1024 | `vector_bridge.py` | `primal_detector.py` | `primal_detector.py` |
+| `gaps` | 1024 | `vector_bridge.py` | `agent/gap_accumulator.py`（弱匹配向量索引，三軌道 A/B/C 聚合寫入） | `agent/gap_accumulator.py`（RW，缺口去重與語意聚類） |
 
 ### semantic_response_cache（v12 新增）
 - **引擎**: Qdrant dense collection（512 維，BAAI/bge-small-zh-v1.5，cosine distance）
@@ -637,6 +638,60 @@ adaptive_decay ──ACT-R B_i──→ _activation 欄位 (in-memory) ←──
 **鎖**：無需（append-only 單寫入者）
 **危險度**：🟢（append-only，單寫入者）
 
+### `_system/quality_gaps.jsonl`（gap_accumulator 品質缺口日誌，v1.56 新增）
+
+> **注意**：gap_accumulator 每次偵測到低分請求時 append-only 寫入，供 Claude Code session 啟動掃描使用。
+
+| 路徑 | 格式 | 寫入者 | 讀取者 | 說明 |
+|------|------|--------|--------|------|
+| `_system/quality_gaps.jsonl` | JSONL append-only | `agent/gap_accumulator.py`（低分 Skill 請求記錄） | Claude Code session 啟動掃描 / 未來 Nightly 分析 | 品質缺口審計日誌 |
+
+**引擎**：JSONL append-only
+**格式**：每行一個 JSON（含 timestamp/chat_id/user_input/best_skill/match_score/track 欄位）
+**寫入者**：`agent/gap_accumulator.py`
+**讀取者**：Claude Code session 啟動時掃描 `_system/skill_requests/`
+**TTL**：30 天滾動
+**鎖**：無需（append-only 單寫入者）
+**危險度**：🟢（append-only）
+
+---
+
+### `_system/weak_match_log.jsonl`（gap_accumulator 弱匹配日誌，v1.56 新增）
+
+> **注意**：skill_router._match_score 低於閾值時，gap_accumulator 記錄弱匹配事件。
+
+| 路徑 | 格式 | 寫入者 | 讀取者 | 說明 |
+|------|------|--------|--------|------|
+| `_system/weak_match_log.jsonl` | JSONL append-only | `agent/gap_accumulator.py`（_match_score < threshold 時記錄） | Claude Code session 啟動掃描 | 弱匹配審計日誌（Track B） |
+
+**引擎**：JSONL append-only
+**格式**：每行一個 JSON（含 timestamp/user_input/matched_skill/score/threshold 欄位）
+**寫入者**：`agent/gap_accumulator.py`（brain.py Step 3.1c 注入點觸發）
+**讀取者**：Claude Code session 啟動掃描
+**TTL**：30 天滾動
+**鎖**：無需（append-only 單寫入者）
+**危險度**：🟢（append-only）
+
+---
+
+### `_system/skill_requests/`（gap_accumulator Skill 需求槽，v1.56 新增）
+
+> **注意**：gap_accumulator 在跨多輪累積到足夠缺口信號時，寫入 req_*.json 供 Claude Code session 讀取。
+
+| 路徑 | 格式 | 寫入者 | 讀取者 | 說明 |
+|------|------|--------|--------|------|
+| `_system/skill_requests/req_*.json` | JSON（單一需求） | `agent/gap_accumulator.py`（缺口聚合達閾值時生成） | Claude Code session（啟動時掃描），人工審閱 | 待鍛造 Skill 需求槽 |
+
+**引擎**：JSON 原子寫入（tmp→rename）
+**格式**：`{"request_id": str, "gap_type": str, "description": str, "supporting_evidence": list, "priority": str, "created_at": ISO8601}`
+**寫入者**：`agent/gap_accumulator.py`
+**讀取者**：Claude Code session 啟動時掃描，確認後轉交 Skill Forge 流程
+**TTL**：人工審閱後手動刪除或歸檔
+**鎖**：原子寫入（tmp→rename）
+**危險度**：🟢（單寫入者，人工消費）
+
+---
+
 ### `eval/` 子目錄
 
 | 路徑 | 負責模組 | 用途 |
@@ -777,6 +832,7 @@ adaptive_decay ──ACT-R B_i──→ _activation 欄位 (in-memory) ←──
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.56 | 2026-04-05 | 能力缺口偵測系統——新增 Qdrant `gaps` collection（1024 維，寫入者+搜尋者=agent/gap_accumulator.py，三軌道弱匹配向量索引）；新增 `_system/quality_gaps.jsonl`（品質缺口審計日誌，JSONL append-only，單寫入者 gap_accumulator.py）；新增 `_system/weak_match_log.jsonl`（弱匹配事件日誌，JSONL append-only，單寫入者 gap_accumulator.py，Track B）；新增 `_system/skill_requests/req_*.json`（待鍛造 Skill 需求槽，JSON 原子寫入，寫入者=gap_accumulator.py，讀取者=Claude Code session 啟動掃描）。同步 system-topology v1.85、joint-map v1.71、blast-radius v2.03 |
 | v1.55 | 2026-04-05 | Decision Atlas + Breath System + Elder Council——新增 `_system/decision_atlas/da-*.json`（決策結晶 JSON 群，寫入者=Claude Code session + 未來 L4 觀察者，讀取者=brain_prompt_builder.py + vision_loop.py，永久）；新增 `_system/breath/patterns/{yyyy-wNN}.json`（呼吸分析結果，寫入者=breath_analyzer.py Step 34.8，讀取者=vision_loop.py，12 週保留）；新增 `_system/breath/visions/{yyyy-wNN}.json`（願景提案，寫入者=vision_loop.py Step 34.9，讀取者=未來 Elder Council，12 週保留）；新增 `_system/breath/observations/{yyyy-wNN}.jsonl`（呼吸觀察 JSONL，寫入者=L4 觀察者+系統監控，讀取者=breath_analyzer.py，12 週保留）；新增 `_system/elder_council/members.json`（長老名單，寫入者=手動/未來自動晉升，讀取者=vision_loop.py，永久）。同步 joint-map v1.70、memory-router v1.27 |
 | v1.52 | 2026-04-04 | l4_cpu_observer 架構更新——新增 `_system/context_cache/{session_id}_signals.json`（EMA 訊號快取，寫入者=agent/l4_cpu_observer.py observe() EMA 合併，讀取者=brain_prompt_builder.py _build_signal_context，格式=`{"signal_name": float, "_updated_at": "ISO8601"}`）；新增 `_system/pending_preference_updates.jsonl`（偏好更新 append-only 佇列，寫入者=l4_cpu_observer.py，讀取者=Nightly pipeline 批次處理）；更新 #66 session_adjustments/{id}.json 寫入者從「L4 觀察者」改為 `agent/l4_cpu_observer.py`。同步 joint-map v1.67、memory-router v1.26 |
 | v1.44 | 2026-03-31 | Persona Evolution 系統——新增 `_system/mask_states.json`（面具狀態快照，mask_engine.py 原子寫入 tmp+rename，TTL=7 天，cleanup_stale 清理，全量覆寫）；ANIMA_MC 新增 `personality.trait_dimensions`（P1-P5 PSI 保護/C1-C5 FREE，寫入者 trait_engine.py+nightly_reflection.py）、`evolution.trait_history`（APPEND_ONLY，上限 200 筆，nightly_reflection.py）、`evolution.stage_history`（APPEND_ONLY，上限 50 筆，brain_observation.py）。同步 memory-router v1.19 |

@@ -1512,6 +1512,8 @@ class TelegramAdapter(ChannelAdapter):
         event_bus.subscribe(MORPHENIX_EXECUTION_COMPLETED, self._on_morphenix_executed)
         event_bus.subscribe(MORPHENIX_ROLLBACK, self._on_morphenix_rollback)
         event_bus.subscribe("SKILL_APPROVAL_REQUEST", self._on_skill_approval_request)
+        event_bus.subscribe("SKILL_GAP_PROPOSAL", self._on_skill_gap_proposal)
+        event_bus.subscribe("SKILL_REFORGE_PROPOSAL", self._on_skill_gap_proposal)
         logger.info("TelegramAdapter connected to pulse EventBus")
 
     def _on_proactive_message(self, data: Optional[Dict] = None) -> None:
@@ -2236,6 +2238,43 @@ class TelegramAdapter(ChannelAdapter):
                     logger.warning(f"[GroupDigest] Failed to enable digest for {chat_id}: {e}")
         except Exception as e:
             logger.debug(f"[ChatMemberUpdated] Error: {e}")
+
+    def _on_skill_gap_proposal(self, data: Optional[Dict] = None) -> None:
+        """處理能力缺口偵測事件 — DM to Owner 詢問是否建立/重鍛 Skill."""
+        if not data or not self._running:
+            return
+        import asyncio
+
+        prop_type = data.get("type", "forge_new")
+        if prop_type == "optimize_existing":
+            skill_name = data.get("skill_name", "?")
+            avg_q = data.get("avg_q_score", 0)
+            cnt = data.get("failure_count", 0)
+            samples = data.get("sample_failures", [])
+            sample_lines = "\n".join(f"  • {s.get('query', '')[:60]}" for s in samples[:3])
+            msg = (
+                f"🔧 我的「{skill_name}」Skill 最近表現不佳"
+                f"（{cnt} 次低品質回應，平均 Q={avg_q:.2f}）。\n\n"
+                f"典型失敗案例：\n{sample_lines}\n\n"
+                f"要不要我重新研究並升級這個 Skill？"
+            )
+        else:
+            topic = data.get("topic", "?")
+            cnt = data.get("cluster_count", 0)
+            users = data.get("unique_users", 0)
+            queries = data.get("sample_queries", [])
+            sample_lines = "\n".join(f"  • {q[:60]}" for q in queries[:3])
+            user_note = f"（{users} 位不同使用者提問）" if users >= 2 else ""
+            msg = (
+                f"💡 我注意到在「{topic}」領域，"
+                f"我目前沒有專門的能力來處理{user_note}。\n\n"
+                f"最近 {cnt} 次相關提問：\n{sample_lines}\n\n"
+                f"要不要我啟動深度研究，建立專門的 Skill？"
+            )
+
+        loop = getattr(self, "_main_async_loop", None)
+        if loop and loop.is_running():
+            asyncio.run_coroutine_threadsafe(self.send_dm_to_owner(msg), loop)
 
     def _on_skill_approval_request(self, data: Optional[Dict] = None) -> None:
         """處理 SKILL_APPROVAL_REQUEST 事件 — 從 Nightly Pipeline 發來的核准請求."""

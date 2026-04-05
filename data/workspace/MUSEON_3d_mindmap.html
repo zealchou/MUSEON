@@ -325,7 +325,7 @@ console.log('[MUSEON 3D] Three.js loaded OK, version:', THREE.REVISION);
 //  SYNC META — 拓撲同步狀態
 // ═══════════════════════════════════════
 const SYNC_META = {
-  topologyVersion: 'v1.84',
+  topologyVersion: 'v1.85',
   syncDate: '2026-04-05',
   nodeCount: 0, // auto-calculated below
   linkCount: 0, // auto-calculated below
@@ -561,6 +561,7 @@ const nodes = [
   {id:"crystal-actuator",label:"Crystal Actuator",zh:"結晶致動器",group:"nightly",r:0.8,p:"nightly"},
   {id:"curiosity-router",label:"Curiosity Router",zh:"好奇心路由",group:"nightly",r:0.9,p:"nightly"},
   {id:"exploration-bridge",label:"Exploration Bridge",zh:"探索橋接",group:"nightly",r:0.9,p:"nightly"},
+  {id:"gap-accumulator",label:"Gap Accumulator",zh:"能力缺口偵測與累積",group:"nightly",r:0.9,p:"nightly",desc:"能力缺口偵測與累積（三軌道 A/B/C）——A: 對話 Skill 未觸發的低分請求，B: skill_router._match_score 弱匹配偵測，C: Nightly 宏觀分析；聚合寫入 Qdrant gaps collection + morphenix/notes/ + skill_requests/"},
   {id:"morphenix",label:"Morphenix",zh:"演化提案",group:"nightly",r:1.0,p:"nightly"},
   {id:"morphenix-validator",label:"Morphenix Validator",zh:"Docker 沙盒驗證",group:"nightly",r:0.7,p:"nightly"},
   {id:"nightly-reflection-engine",label:"Nightly Reflection Engine",zh:"LLM 自我反思引擎，驅動 P-trait 演化",group:"nightly",r:1.0,p:"nightly",desc:"LLM 自我反思引擎，驅動 P-trait 演化（Steps 34 / 34.5 / 34.7）"},
@@ -976,6 +977,7 @@ const links = [
   {source:"brain",target:"data-bus",label:"經驗回放搜尋（activity_log.search() via ActivityLogger）",type:"cross"},
   {source:"brain",target:"doctor",label:"brain.py:571,:1378 self_diagnosis 觸發",type:"cross"},
   {source:"brain",target:"footprint",label:"Step 8 認知追蹤（trace_decision+trace_cognitive）",type:"cross"},
+  {source:"brain",target:"gap-accumulator",label:"brain.py Step 3.1c 弱匹配偵測 + Step 8.1 Nightly 宏觀分析（fire-and-forget，兩個注入點）",type:"cross"},
   {source:"brain",target:"heartbeat",label:"brain.py:868 log_action() 呼叫",type:"cross"},
   {source:"brain",target:"insight-extractor",label:"初始化洞見萃取引擎",type:"cross"},
   {source:"brain",target:"llm-router",label:"生成回應",type:"cross"},
@@ -1073,6 +1075,7 @@ const links = [
   {source:"eval-engine",target:"memory",label:"品質數據",type:"cross"},
   {source:"eval-engine",target:"pulse-db",label:"eval_engine.py:463 Q-Score 存取",type:"cross"},
   {source:"eval-engine",target:"registry",label:"Q-Score 存取",type:"cross"},
+  {source:"event-bus",target:"telegram",label:"訂閱 SKILL_GAP_PROPOSAL + SKILL_REFORGE_PROPOSAL（Stage 2 主動詢問）",type:"cross"},
   {source:"evolution-velocity",target:"crystal-store",label:"結晶數量統計",type:"cross"},
   {source:"evolution-velocity",target:"crystal-store",label:"evolution_velocity.py:373 跨群組讀取",type:"cross"},
   {source:"evolution-velocity",target:"parameter-tuner",label:"速度驅動調諧",type:"cross"},
@@ -1085,6 +1088,9 @@ const links = [
   {source:"fact-correction",target:"vector-index",label:"向量廢棄標記（mark_deprecated）",type:"cross"},
   {source:"footprint",target:"data-bus",label:"足跡持久化",type:"cross"},
   {source:"footprint",target:"data-bus",label:"cognitive_trace.jsonl 寫入",type:"cross"},
+  {source:"gap-accumulator",target:"event-bus",label:"發布 SKILL_GAP_PROPOSAL + SKILL_REFORGE_PROPOSAL 事件",type:"cross"},
+  {source:"gap-accumulator",target:"morphenix",label:"morphenix/notes/ 寫入（scout_gap_cluster + scout_skill_optimize 筆記）",type:"cross"},
+  {source:"gap-accumulator",target:"vector-bridge",label:"gaps collection RW（弱匹配向量索引）",type:"cross"},
   {source:"gateway",target:"anima-mc-store",label:"API 查詢 ANIMA",type:"cross"},
   {source:"gateway",target:"brain",label:"server.py 訊息泵→Brain.chat()（主要呼叫路徑）",type:"cross"},
   {source:"gateway",target:"brain-worker",label:"server.py startup 啟動 BrainWorkerManager + shutdown 停止（v1.52）",type:"cross"},
@@ -1294,6 +1300,7 @@ const links = [
   {source:"verified-user",target:"anima-mc-store",label:"配對使用者互動更新 ANIMA_USER（L1-L8 觀察）",type:"async"},
   {source:"zeal",target:"anima-mc-store",label:"Owner 互動觸發 ANIMA_MC 更新（boss_name、self_awareness）",type:"async"},
 ];
+
 
 
 

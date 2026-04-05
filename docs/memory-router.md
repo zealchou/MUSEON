@@ -1,10 +1,11 @@
-# Memory Router — 記憶路由表 v1.27
+# Memory Router — 記憶路由表 v1.28
 
 > **用途**：定義「什麼類型的洞見存到哪個記憶系統、什麼時候取出」。第五張工程藍圖。
 > **比喻**：郵局分揀表——每封信根據地址分到對應的信箱，不會寄丟也不會重複投遞。
 > **更新時機**：新增 Skill 或記憶系統時，必須在同一個 commit 中新增對應的路由規則。
 > **建立日期**：2026-03-21
 > **搭配**：`docs/skill-manifest-spec.md`（Skill I/O 合約）、各 Skill 的 `memory.writes` 欄位、`docs/operational-contract.md`（操作契約表）
+> **v1.28 (2026-04-05)**：能力缺口偵測路由——新增「能力缺口偵測 → morphenix/notes/ + skill_requests/」路由段（三軌道 A=低分未觸發宏觀聚合→scout_gap_cluster 筆記，B=弱匹配→scout_skill_optimize 筆記，缺口達閾值→skill_requests/req_*.json 需求槽）；向量去重路由（Qdrant gaps #86）；消費：morphenix/notes=skill_forge_scout.py，skill_requests=Claude Code session 啟動掃描。同步 persistence-contract v1.56、joint-map v1.71、blast-radius v2.03。
 > **v1.27 (2026-04-05)**：Decision Atlas + Vision Loop 路由——新增規則 9（Decision Atlas → Brain Prompt）：Claude Code 互動觀察 + 未來 L4 觀察者 → `_system/decision_atlas/da-*.json` → `brain_prompt_builder.py` persona zone 注入（每次 L2 回覆時自動讀取，N/A 寫入記憶系統，直接進 system prompt）；新增規則 10（Vision Loop → Breath Visions）：四信號源匯聚（星座/Skill/Atlas/呼吸）→ `nightly/vision_loop.py`（Nightly Step 34.9，週日）→ `_system/breath/visions/{yyyy-wNN}.json`（未來接 Morphenix 執行管道）。同步 persistence-contract v1.55、joint-map v1.70。
 > **v1.26 (2026-04-04)**：l4_cpu_observer 架構更新——L4 觀察者從 Haiku agent spawn 改為 CPU Python 函數（`agent/l4_cpu_observer.py`），零 LLM token 消耗；記憶寫入路徑：`l4_cpu_observer.observe()` → `memory_manager.write()`（同步，非 async）；新增 signals 快取寫入路徑：`l4_cpu_observer.observe()` → `_system/context_cache/{session_id}_signals.json`（EMA 合併）；新增偏好佇列寫入路徑：`l4_cpu_observer.observe()` → `_system/pending_preference_updates.jsonl`（append）。同步 persistence-contract v1.52、joint-map v1.67。
 > **v1.25 (2026-04-02)**：荒謬雷達系統——新增雷達資料流：`brain.py` Skill 匹配後 → `absurdity_radar.py update_radar_from_skill()` → `_system/absurdity_radar/{user}.json`；prompt 注入路徑：`brain_prompt_builder.py _build_absurdity_radar_context()` ← `absurdity_radar.py load_radar()`。Nightly step 32.5 每日衰減。
@@ -158,6 +159,21 @@
 | env-radar | 外部訊號 + 演化壓力 | 環境掃描發現重要變化時 |
 | sandbox-lab | 實驗結果 | 實驗完成且有結論時 |
 | qa-auditor | 審計報告 + 回歸問題 | 審計完成時 |
+
+### 🔴 能力缺口偵測 → morphenix/notes/ + skill_requests/（v1.28 新增）
+
+> gap_accumulator 三軌道累積缺口信號，聚合後寫入 morphenix 筆記和需求槽，供 Skill 鍛造流程消費。
+
+| 來源 | 觸發 | 去向 | 格式 | 說明 |
+|------|------|------|------|------|
+| `agent/gap_accumulator.py`（Track A） | brain.py Step 8.1 宏觀分析 | `_system/morphenix/notes/scout_gap_cluster_{ts}.md` | Markdown 筆記 | 低分 Skill 未觸發請求聚合，交給 Morphenix 演化建議 |
+| `agent/gap_accumulator.py`（Track B） | brain.py Step 3.1c 弱匹配偵測 | `_system/morphenix/notes/scout_skill_optimize_{ts}.md` | Markdown 筆記 | Skill 弱匹配優化建議，skill_router._match_score < 閾值 |
+| `agent/gap_accumulator.py`（缺口達閾值） | 跨輪次累積至 N 個相同缺口 | `_system/skill_requests/req_{id}.json` | JSON 需求槽 | 轉交 Skill Forge 流程；Claude Code session 啟動時掃描消費 |
+
+> **寫入路徑**：`brain.py` → `gap_accumulator.py accumulate()` → `morphenix/notes/` + `skill_requests/`
+> **消費路徑（morphenix/notes）**：Morphenix 演化提案流程（nightly/skill_forge_scout.py）讀取並決定是否觸發鍛造
+> **消費路徑（skill_requests）**：Claude Code session 啟動時掃描 `_system/skill_requests/`，報告待處理需求，確認後轉交人工鍛造
+> **向量索引**：`gap_accumulator.py` 同時寫入 Qdrant `gaps` collection 做語意去重（#86）
 
 ### 🔵 持續學習引擎路由（v1.10 新增）
 
@@ -323,6 +339,7 @@
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.28 | 2026-04-05 | 能力缺口偵測路由——新增「能力缺口偵測 → morphenix/notes/ + skill_requests/」路由段（三軌道 A/B/C：Track A=低分未觸發宏觀聚合→scout_gap_cluster 筆記，Track B=_match_score 弱匹配→scout_skill_optimize 筆記，缺口達閾值→skill_requests/req_*.json 需求槽）；向量去重路由（gap_accumulator→Qdrant gaps collection #86）；消費路徑：morphenix/notes=skill_forge_scout.py 讀取，skill_requests=Claude Code session 啟動掃描。同步 system-topology v1.85、persistence-contract v1.56、joint-map v1.71、blast-radius v2.03 |
 | v1.27 | 2026-04-05 | Decision Atlas + Vision Loop 路由——新增規則 9（Decision Atlas → Brain Prompt 直接注入 persona zone，N/A 進記憶系統）；新增規則 10（四信號源匯聚 → vision_loop.py → breath/visions/{yyyy-wNN}.json，Nightly Step 34.9 週日，未來接 Morphenix）；補充 breath/observations JSONL 上游輸入管道與 breath_analyzer.py Step 34.8 分析鏈路說明。同步 persistence-contract v1.55、joint-map v1.70 |
 | v1.26 | 2026-04-04 | l4_cpu_observer 架構更新——新增規則 8（L4 CPU Observer 記憶寫入路徑）；L4 從 Haiku agent spawn 改為 CPU Python 函數（`agent/l4_cpu_observer.py`），零 LLM token；記憶寫入路徑 observe() → memory_manager.write()（同步非 async）；新增 signals 快取路由（context_cache/{session_id}_signals.json EMA 合併）；新增偏好佇列路由（pending_preference_updates.jsonl append）。同步 persistence-contract v1.52、joint-map v1.67 |
 | v1.19 | 2026-03-31 | Persona Evolution 系統——新增 1 條 diary 路由（nightly_reflection.py Nightly Step 34 → soul_rings.json via RingDepositor.deposit_soul_ring，value_calibration 類型，內容=特質差異佐證+反思摘要）。同步 persist v1.44 |

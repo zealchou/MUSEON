@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.84
+# MUSEON 系統拓撲圖 v1.85
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.85 (2026-04-05)**：能力缺口偵測系統——nightly 群組新增 `gap-accumulator` 節點（三軌道 A/B/C 缺口累積，扇入=1 brain，扇出=3 vector-bridge/morphenix/event-bus）；新增 5 條 cross 連線（brain→gap-accumulator 兩注入點、gap-accumulator→vector-bridge、gap-accumulator→morphenix/notes/、gap-accumulator→event-bus）+ 1 條 event-bus→telegram 訂閱（SKILL_GAP_PROPOSAL+SKILL_REFORGE_PROPOSAL）；208+1=209 節點，556+6=562 連線。
 > **v1.84 (2026-04-05)**：五個新功能補登——nightly 群組新增 `breath-analyzer`（Step 34.8 呼吸五層分析）和 `vision-loop`（Step 34.9 週日願景迴圈）；agent 群組新增 `consultant-supplement`（L2 後補充挑戰/提醒）；data 群組新增 `decision-atlas`（決策圖譜資料節點）；新增 9 條連線（nightly-pipeline→breath-analyzer、nightly-pipeline→vision-loop、vision-loop→constellation-radar(R)、vision-loop→decision-atlas(R)、vision-loop→breath/patterns(R)、brain-prompt-builder→decision-atlas(R)、server→consultant-supplement 初始化、telegram-pump→consultant-supplement 觸發、consultant-supplement→telegram 輸出）；更新統計：205+3=208 節點，547+9=556 連線。
 > **v1.83 (2026-04-04)**：星座層級化——群組定義表新增 Layer 欄位（constellation = meta 元層）；新增層級模型說明段落；constellation 群組描述更新為「Skill 之上的多維追蹤框架」。
 > **v1.82 (2026-04-04)**：星座系統——新增 `constellation` 群組（1 Hub + 10 節點共 11 個）；新增 10 條 internal 連線（constellation-radar→各星座）+ 15 條 cross 連線（constellation-probe→brain/brain-prompt-builder、荒謬→4個領域星座、5個星座→對應 Skill、absurdity-radar↔constellation-radar 同步、nightly-pipeline→constellation-radar、skill-router→constellation-radar）；群組色碼 `#9B59B6`（紫色系）；統計：194+11=205 節點，522+25=547 連線。
@@ -360,6 +361,7 @@ external-user（EXTERNAL）
 | `nightly-reflection-engine` | Nightly Reflection Engine | LLM 自我反思引擎，驅動 P-trait 演化（Steps 34 / 34.5 / 34.7） | - | nightly | 1.0 |
 | `breath-analyzer` | Breath Analyzer | 呼吸系統 Day 3-4 CPU 級五層分析（Step 34.8）。讀取 breath/observations/*.jsonl，寫入 breath/patterns/*.json | - | nightly | 0.8 |
 | `vision-loop` | Vision Loop | 週日願景迴圈，匯聚四信號源生成方向提案（Step 34.9）。讀取 constellations/registry.json + skill_health/latest.json + decision_atlas/da-*.json + breath/patterns/*.json，寫入 breath/visions/*.json | - | nightly | 0.9 |
+| `gap-accumulator` | Gap Accumulator | 能力缺口偵測與累積（三軌道 A/B/C）——A: 對話 Skill 未觸發的低分請求，B: skill_router._match_score 弱匹配偵測，C: Nightly 宏觀分析；聚合寫入 Qdrant gaps collection + morphenix/notes/ + skill_requests/ | - | nightly | 0.9 |
 
 ### learning — Learning 學習
 | ID | 名稱 | 中文 | Hub | Parent | 半徑 |
@@ -929,6 +931,11 @@ external-user（EXTERNAL）
 | `vision-loop` | `constellation-radar` | 讀取星座活躍度數據作為方向信號 |
 | `vision-loop` | `decision-atlas` | 讀取決策圖譜數據匯聚方向提案 |
 | `vision-loop` | `breath-analyzer` | 讀取 breath/patterns/*.json（前序分析結果） |
+| `brain` | `gap-accumulator` | brain.py Step 3.1c 弱匹配偵測 + Step 8.1 Nightly 宏觀分析（fire-and-forget，兩個注入點） |
+| `gap-accumulator` | `vector-bridge` | gaps collection RW（弱匹配向量索引） |
+| `gap-accumulator` | `morphenix` | morphenix/notes/ 寫入（scout_gap_cluster + scout_skill_optimize 筆記） |
+| `gap-accumulator` | `event-bus` | 發布 SKILL_GAP_PROPOSAL + SKILL_REFORGE_PROPOSAL 事件 |
+| `event-bus` | `telegram` | 訂閱 SKILL_GAP_PROPOSAL + SKILL_REFORGE_PROPOSAL（Stage 2 主動詢問） |
 
 #### v1.43 全系統拓撲審計補齊（70 條）
 
@@ -1380,6 +1387,7 @@ external-user（EXTERNAL）
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.85 | 2026-04-05 | 能力缺口偵測系統——nightly 群組新增 gap-accumulator（三軌道 A/B/C 缺口累積，扇入=1 brain，扇出=3 vector-bridge/morphenix/event-bus）；新增 5 cross 連線（brain→gap-accumulator 兩點、gap-accumulator→vector-bridge/morphenix/event-bus）+ 1 event-bus→telegram 訂閱（SKILL_GAP_PROPOSAL+SKILL_REFORGE_PROPOSAL）；208→209 節點，556→562 連線 |
 | v1.84 | 2026-04-05 | 五個新功能補登——nightly 群組新增 breath-analyzer（Step 34.8 呼吸五層分析）和 vision-loop（Step 34.9 週日願景迴圈）；agent 群組新增 consultant-supplement（L2 後補充，扇入=2）；data 群組新增 decision-atlas（決策圖譜，資料節點）；新增 2 internal（nightly-pipeline→breath-analyzer/vision-loop）+ 7 cross 連線（server/telegram-pump→consultant-supplement、consultant-supplement→telegram、brain-prompt-builder→decision-atlas、vision-loop→constellation-radar/decision-atlas/breath-analyzer）；205→208 節點，547→556 連線 |
 | v1.82 | 2026-04-04 | 星座系統——新增 `constellation` 群組（constellation-radar Hub + constellation-probe + constellation-absurdity/business/brand/strategy/energy/conversion/market/thinking/growth 共 11 節點）；新增 10 internal + 15 cross 連線；群組色碼 `#9B59B6`；194→205 節點，522→547 連線 |
 | v1.81 | 2026-04-04 | Knife 2+3 變更——llm 群組新增 `semantic-response-cache`（Qdrant-backed 語意回覆快取，零 LLM token，v12 新增）；新增 3 條連線（brain→semantic-response-cache 查詢快取、l4-cpu-observer→semantic-response-cache 寫入、semantic-response-cache→qdrant collection 讀寫）；brain_tools.py tool-use loop 改用 --resume session；cron_registry.py 新增 quota circuit breaker；cron 頻率調整（breath-pulse 每小時1次、curiosity-research 週二次、business-case 週一次）|

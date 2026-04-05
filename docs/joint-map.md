@@ -1,9 +1,10 @@
-# Joint Map — 共享可變狀態接頭圖 v1.70
+# Joint Map — 共享可變狀態接頭圖 v1.71
 
 > **用途**：任何程式碼修改前，查閱此圖確認「我要改的模組碰了哪些共享狀態、誰還在讀寫同一根管子」。
 > **比喻**：水電圖畫了管線位置，接頭圖畫的是「哪個水龍頭接哪根管、這根管誰負責」。
 > **更新時機**：改變共享檔案的讀寫者或格式時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
+> **v1.71 (2026-04-05)**：能力缺口偵測系統——新增 #86 Qdrant `gaps` collection（🟢 單寫入者+單讀取者 gap_accumulator.py，語意去重向量索引）；新增 #87 `_system/quality_gaps.jsonl`（🟢 品質缺口審計日誌 append-only，寫入者=gap_accumulator.py，讀取者=Claude Code session）；新增 #88 `_system/weak_match_log.jsonl`（🟢 弱匹配事件日誌 append-only，Track B，寫入者=gap_accumulator.py）；新增 #89 `_system/skill_requests/req_*.json`（🟢 待鍛造 Skill 需求槽，原子寫入，寫入者=gap_accumulator.py，讀取者=Claude Code session）；更新 G2 探索結晶管線組新增 gap_accumulator + morphenix/notes/ 三方寫入說明；共享狀態 85→89 個。同步 system-topology v1.85、persistence-contract v1.56、blast-radius v2.03。
 > **v1.70 (2026-04-05)**：Decision Atlas + Breath System + Elder Council——新增 #82 `_system/decision_atlas/da-*.json`（🟢 決策結晶 JSON 群，寫入者=Claude Code session + 未來 L4 觀察者，讀取者=brain_prompt_builder.py persona zone + vision_loop.py）；新增 #83 `_system/breath/patterns/{yyyy-wNN}.json`（🟢 呼吸分析結果，寫入者=breath_analyzer.py，讀取者=vision_loop.py，12 週保留）；新增 #84 `_system/breath/visions/{yyyy-wNN}.json`（🟢 願景提案，寫入者=vision_loop.py，讀取者=未來 Elder Council，12 週保留）；新增 #85 `_system/elder_council/members.json`（🟢 長老名單，寫入者=手動，讀取者=vision_loop.py，永久）；`_system/breath/observations/{yyyy-wNN}.jsonl` 為 breath_analyzer.py 輸入佇列（🟢 append-only，不另立共享狀態條目，歸入 #83 管線）；共享狀態 81→85 個。同步 persistence-contract v1.55、memory-router v1.27。
 > **v1.69 (2026-04-05)**：Entity Registry 建置——新增 #79 `entity_aliases` 表（🟢 GroupContextDB，寫入者=governance/group_context.py add_alias()，讀取者=agent/brain_prompt_builder.py resolve_alias() + governance/group_context.py）；新增 #80 `projects + project_entities` 表（🟢 GroupContextDB，寫入者=governance/group_context.py，讀取者=governance/group_context.py）；新增 #81 `events` 表（🟢 GroupContextDB，寫入者=governance/group_context.py，讀取者=governance/group_context.py）；修正 L4CpuObserver 記憶寫入路徑（MemoryStore→MemoryManager），Qdrant memories collection 新增寫入者=agent/l4_cpu_observer.py；brain_prompt_builder.py 新增讀取者=athena/profile_store.py search() + governance/group_context.py resolve_alias()；共享狀態 78→81 個。同步 persistence-contract v1.54、blast-radius v2.01。
 > **v1.68 (2026-04-04)**：semantic_response_cache——新增 #78 Qdrant collection `semantic_response_cache`（🟢 512 維語義回覆快取，寫入者=cache/semantic_response_cache.py（L4CpuObserver 回覆後寫入），讀取者=cache/semantic_response_cache.py（Brain L1 查詢），per-chat 隔離，TTL 動態）；共享狀態 77→78 個。同步 persistence-contract v1.53。
@@ -117,6 +118,10 @@
 | 83 | breath/patterns/{yyyy-wNN}.json | 🟢 | 1(breath_analyzer) | 1(vision_loop) | 原子 JSON | [→](#83-breathpatterns) |
 | 84 | breath/visions/{yyyy-wNN}.json | 🟢 | 1(vision_loop) | 0(未來 Elder Council) | 原子 JSON | [→](#84-breathvisions) |
 | 85 | elder_council/members.json | 🟢 | 1(手動) | 1(vision_loop) | 原子 JSON | [→](#85-elder_councilmembersjson) |
+| 86 | Qdrant `gaps` collection | 🟢 | 1(gap_accumulator) | 1(gap_accumulator) | Qdrant 內部 MVCC | [→](#86-qdrant-gaps-collection) |
+| 87 | _system/quality_gaps.jsonl | 🟢 | 1(gap_accumulator) | 1(Claude Code) | 無(append) | [→](#87-quality_gapsjsonl) |
+| 88 | _system/weak_match_log.jsonl | 🟢 | 1(gap_accumulator) | 1(Claude Code) | 無(append) | [→](#88-weak_match_logjsonl) |
+| 89 | _system/skill_requests/req_*.json | 🟢 | 1(gap_accumulator) | 1(Claude Code) | 原子寫 | [→](#89-skill_requestsreq_json) |
 
 > **危險度定義**：🔴 多寫入者+高扇出+格式不一致 | 🟡 多寫入者或高扇出 | 🟢 單寫入者+低扇出
 
@@ -1635,6 +1640,74 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 
 ---
 
+### #86 Qdrant `gaps` collection
+
+**路徑**：Qdrant collection `gaps`
+**危險度**：🟢（單寫入者）
+**格式**：Qdrant dense vector 1024 維，Payload: gap_type/user_input/best_skill/match_score/track/timestamp
+
+| 角色 | 模組 |
+|------|------|
+| 寫入者 | `agent/gap_accumulator.py`（弱匹配事件向量化寫入，三軌道 A/B/C 聚合） |
+| 讀取者 | `agent/gap_accumulator.py`（語意去重與缺口聚類查詢） |
+
+**生命週期**：30 天 TTL，gap_accumulator 自行清理
+**鎖**：Qdrant 內部 MVCC
+**備註**：v1.71 新增。能力缺口偵測系統的向量記憶層，用於跨輪次語意去重，避免相同缺口被重複計算。
+
+---
+
+### #87 _system/quality_gaps.jsonl
+
+**路徑**：`data/_system/quality_gaps.jsonl`
+**危險度**：🟢（append-only 單寫入者）
+**格式**：JSONL，每行 `{"timestamp": ISO8601, "chat_id": str, "user_input": str, "best_skill": str, "match_score": float, "track": "A"|"B"|"C"}`
+
+| 角色 | 模組 |
+|------|------|
+| 寫入者 | `agent/gap_accumulator.py`（每次偵測到品質缺口時 append） |
+| 讀取者 | Claude Code session 啟動掃描（人工審閱） |
+
+**生命週期**：30 天滾動，超時自動清理
+**鎖**：無需（append-only 單寫入者）
+**備註**：v1.71 新增。品質缺口審計日誌，供人工決策是否鍛造新 Skill。
+
+---
+
+### #88 _system/weak_match_log.jsonl
+
+**路徑**：`data/_system/weak_match_log.jsonl`
+**危險度**：🟢（append-only 單寫入者）
+**格式**：JSONL，每行 `{"timestamp": ISO8601, "user_input": str, "matched_skill": str, "score": float, "threshold": float}`
+
+| 角色 | 模組 |
+|------|------|
+| 寫入者 | `agent/gap_accumulator.py`（brain.py Step 3.1c 注入點觸發，skill_router._match_score 低於閾值時） |
+| 讀取者 | Claude Code session 啟動掃描 |
+
+**生命週期**：30 天滾動
+**鎖**：無需（append-only 單寫入者）
+**備註**：v1.71 新增。Track B 弱匹配事件日誌，用於追蹤 Skill 匹配品質衰退。
+
+---
+
+### #89 _system/skill_requests/req_*.json
+
+**路徑**：`data/_system/skill_requests/req_{request_id}.json`
+**危險度**：🟢（單寫入者，人工消費）
+**格式**：JSON `{"request_id": str, "gap_type": str, "description": str, "supporting_evidence": list, "priority": "high"|"medium"|"low", "created_at": ISO8601}`
+
+| 角色 | 模組 |
+|------|------|
+| 寫入者 | `agent/gap_accumulator.py`（缺口聚合達閾值時原子寫入） |
+| 讀取者 | Claude Code session（啟動時掃描 `_system/skill_requests/`，確認後轉交 Skill Forge） |
+
+**生命週期**：人工審閱後手動刪除或歸檔
+**鎖**：原子寫入（tmp→rename）
+**備註**：v1.71 新增。待鍛造 Skill 需求槽，是缺口偵測→Skill 鍛造管道的觸發點。Claude Code session 啟動時自動掃描並報告待處理需求。
+
+---
+
 ## 必須同時修改的模組組（不可分批）
 
 > 修改以下任一模組時，**必須**同時檢查並調整同組所有模組。
@@ -1642,7 +1715,7 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 | 組 ID | 組名 | 模組 | 共享什麼 |
 |-------|------|------|---------|
 | **G1** | ANIMA 數值 | anima_tracker + brain + server + micro_pulse + kernel_guard | ANIMA_MC.json（寫入格式 + 鎖機制必須統一） |
-| **G2** | 探索結晶管線 | pulse_engine + curiosity_router + exploration_bridge + nightly_pipeline + skill_forge_scout | question_queue.json + scout_queue/pending.json + PULSE.md 探索佇列 |
+| **G2** | 探索結晶管線 | pulse_engine + curiosity_router + exploration_bridge + nightly_pipeline + skill_forge_scout + **gap_accumulator** | question_queue.json + scout_queue/pending.json + PULSE.md 探索佇列 + **morphenix/notes/**（三方寫入：exploration_bridge + skill_forge_scout + gap_accumulator） |
 | **G3** | 記憶管線 | memory_manager + brain + vector_bridge + multi_agent_executor | MemoryStore + Qdrant memories collection（memory_manager 支援 dept_id 標籤寫入 + dept_filter 過濾檢索 + chat_scope 群組隔離 + supersede() 事實覆寫 + VectorBridge.mark_deprecated() 軟刪除） |
 | **G4** | 演化速度 | evolution_velocity + parameter_tuner + periodic_cycles + metacognition | accuracy_stats.json + tuned_parameters.json + velocity_log.jsonl |
 | **G5** | 知識晶格 | knowledge_lattice + crystal_store + crystal_actuator + recommender + dissent_engine | crystal.db (via CrystalStore) + crystal_rules.json（dissent_engine 讀取做矛盾校驗） |
@@ -1690,6 +1763,7 @@ Markdown 純文字，包含行為準則、語氣定義、決策原則等。
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-04-05 | v1.71 | 能力缺口偵測系統——新增 #86 Qdrant `gaps` collection（🟢，單寫入者 gap_accumulator.py，語意去重向量索引）；新增 #87 `_system/quality_gaps.jsonl`（🟢 品質缺口審計 append-only）；新增 #88 `_system/weak_match_log.jsonl`（🟢 弱匹配 Track B append-only）；新增 #89 `_system/skill_requests/req_*.json`（🟢 待鍛造 Skill 需求槽，原子寫入）；更新 G2 組新增 gap_accumulator + morphenix/notes/ 三方說明；共享狀態 85→89 個。同步 persistence-contract v1.56、system-topology v1.85、blast-radius v2.03 |
 | 2026-04-05 | v1.70 | Decision Atlas + Breath System + Elder Council——新增 #82 `_system/decision_atlas/da-*.json`（🟢 決策結晶 JSON 群，寫入者=Claude Code session + 未來 L4 觀察者，讀取者=brain_prompt_builder.py persona zone + vision_loop.py，永久）；新增 #83 `_system/breath/patterns/{yyyy-wNN}.json`（🟢 呼吸分析結果，寫入者=breath_analyzer.py Step 34.8，讀取者=vision_loop.py，12 週保留）；新增 #84 `_system/breath/visions/{yyyy-wNN}.json`（🟢 願景提案，寫入者=vision_loop.py Step 34.9，讀取者=未來 Elder Council，12 週保留）；新增 #85 `_system/elder_council/members.json`（🟢 長老名單，寫入者=手動/未來自動晉升，讀取者=vision_loop.py，永久）；`breath/observations/{yyyy-wNN}.jsonl` 歸入 #83 管線不另立條目；共享狀態 81→85 個。同步 persistence-contract v1.55、memory-router v1.27 |
 | 2026-04-05 | v1.69 | Entity Registry 建置——新增 #79 `entity_aliases`（🟢 GroupContextDB，寫入者=governance/group_context.py，讀取者=brain_prompt_builder.py resolve_alias() + governance/group_context.py）；新增 #80 `projects + project_entities`（🟢 GroupContextDB，寫入者=governance/group_context.py，讀取者=governance/group_context.py）；新增 #81 `events`（🟢 GroupContextDB entity+project 雙索引，寫入者=governance/group_context.py，讀取者=governance/group_context.py）；修正 Qdrant memories collection 新增寫入者=l4_cpu_observer.py；共享狀態 78→81 個。同步 persistence-contract v1.54、blast-radius v2.01 |
 | 2026-04-04 | v1.67 | l4_cpu_observer 架構更新——新增 #76 `_system/context_cache/{session_id}_signals.json`（🟢 EMA 訊號快取，寫入者=l4_cpu_observer，讀取者=brain_prompt_builder）；新增 #77 `_system/pending_preference_updates.jsonl`（🟢 偏好更新佇列 append-only，寫入者=l4_cpu_observer，讀取者=nightly_pipeline）；更新 #66 session_adjustments/{id}.json 寫入者從「L4 觀察者」改為 `agent/l4_cpu_observer.py`；更新 #47 context_cache 讀寫表新增 l4_cpu_observer 為寫入者（signals 子檔）；共享狀態 75→77 個 |

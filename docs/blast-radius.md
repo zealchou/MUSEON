@@ -230,7 +230,7 @@
 | 屬性 | 值 |
 |------|-----|
 | **扇入** | 1（server.py；入列紅區因扇出 32+ 且為系統核心） |
-| **扇出** | 33+（import 33 個模組，初始化全系統——含 PrimalDetector, MultiAgentExecutor, MemoryGate, message_constants） |
+| **扇出** | 34+（import 34 個模組，初始化全系統——含 PrimalDetector, MultiAgentExecutor, MemoryGate, message_constants, gap_accumulator（v2.03 新增，fire-and-forget 兩點注入）） |
 | **角色** | 系統核心——LLM 對話、記憶、自我觀察、所有子系統初始化、多代理並行呼叫、記憶閘門意圖判斷、認知追蹤（trace_decision+trace_cognitive）、P3 並行融合（Step 6.2-6.5）、P0 訊號六類分流（_classify_p0_signal）、事實糾正偵測（_detect_fact_correction）、外部使用者觀察（_observe_external_user v3.0 含 trust evolution + 八原語 + L6 溝通風格）、環境感知宣告（_build_environment_awareness v11.3）、自我修改協議（_build_self_modification_protocol v11.4） |
 | **檔案數** | v1.93 起拆分為 6 個檔案：`brain.py`（核心 2458 行）+ 4 個 Mixin（`brain_prompt_builder.py`、`brain_dispatch.py`、`brain_observation.py`、`brain_tools.py`）+ `brain_types.py`（共享 dataclass）。`brain_p3_fusion.py`（P3 融合層）已於 v1.93 清除，Python Mixin Pattern 多重繼承，外部 import 路徑不變。 |
 
@@ -561,7 +561,7 @@
 
 | 屬性 | 值 |
 |------|-----|
-| **扇入** | 9 |
+| **扇入** | 10（v2.03 +1：gap_accumulator.py 讀寫 gaps collection） |
 | **角色** | Qdrant 向量庫的統一存取層 |
 
 #### 影響半徑
@@ -569,7 +569,7 @@
 | 影響類型 | 範圍 |
 |---------|------|
 | 共享狀態 | Qdrant 8 個 dense collections + N 個 sparse collections（`{name}_sparse`）；memories collection 新增 status=deprecated 軟刪除過濾 |
-| 直接 import | 8 個模組（brain, brain_observation, memory_manager, skill_router, knowledge_lattice, primal_detector, server.py, nightly_pipeline.py）（注：reflex_router 已於 v1.93 退役，fan_in 9→8） |
+| 直接 import | 9 個模組（brain, brain_observation, memory_manager, skill_router, knowledge_lattice, primal_detector, server.py, nightly_pipeline.py, gap_accumulator.py（v2.03 新增，gaps collection RW））（注：reflex_router 已於 v1.93 退役；v2.03 gap_accumulator 加入，fan_in 8→9→10） |
 | 新增方法 | `mark_deprecated()` — 軟刪除；`hybrid_search()` — Dense+Sparse RRF 融合（已被 4 模組主動消費：skill_router、memory_manager、knowledge_lattice、server）；`index_sparse()` / `backfill_sparse()` / `build_sparse_idf()` — 稀疏向量管理；`index_all_skills()` — skills collection 全量索引（Gateway startup + Nightly 8.6 + API reindex）；`reindex_all()` — 全部 collection 重索引 |
 | 降級影響 | Qdrant 離線 → 檢索降級為 TF-IDF（0.3 折扣）；Sparse 不可用 → hybrid_search 降級為純 dense；hybrid_search 已全面啟用（skill_router、memory_manager、knowledge_lattice、server 四模組均已從 search() 切換為 hybrid_search()） |
 
@@ -834,6 +834,10 @@
 `nightly/triage_to_morphenix.py`（★ v1.86 新增，扇入=1（nightly_pipeline Step 5.8），HIGH→Morphenix 迭代筆記橋接——drain_priority_queue()/write_morphenix_proposal() 兩個函數，消費 nightly_priority_queue.json 寫入 morphenix/proposals/），
 `governance/algedonic_alert.py`（★ v1.86 新增，扇入=1（governor.py 初始化），治理警報 Telegram 推播——AlgedonicAlert class，訂閱 GOVERNANCE_ALGEDONIC_SIGNAL 事件，防洪閘（rate limit）+ 嚴重度過濾，發布 PROACTIVE_MESSAGE 到 event_bus）
 
+### 能力缺口偵測系統（1 個，v2.03 新增）
+
+`agent/gap_accumulator.py`（★ v2.03 新增，扇入=1（brain.py fire-and-forget，兩注入點：Step 3.1c 弱匹配偵測 + Step 8.1 Nightly 宏觀分析），扇出=3（Qdrant gaps collection RW + morphenix/notes/ W + event_bus SKILL_GAP_PROPOSAL/SKILL_REFORGE_PROPOSAL 發布），🟢 綠區；三軌道 A：低分 Skill 未觸發請求，B：_match_score < threshold 弱匹配，C：Nightly 宏觀缺口；寫入共享狀態 #86/#87/#88/#89；telegram.py 訂閱上述兩事件做 Stage 2 主動詢問）
+
 ### 呼吸系統 Nightly 分析（2 個，v2.02 新增）
 
 `nightly/breath_analyzer.py`（★ v2.02 新增，扇入=1（nightly_pipeline Step 34.8），扇出=1（data/_system/breath/patterns/*.json），呼吸系統 Day 3-4 CPU 級五層分析——讀取 breath/observations/*.jsonl 進行模式萃取，寫入 breath/patterns/*.json，純 CPU 計算無 LLM，🟢 綠區），
@@ -872,6 +876,8 @@
 | `NIGHTLY_COMPLETED` | nightly_pipeline | server, exploration_bridge | 凌晨管線完成同步點 |
 | `MORPHENIX_EXECUTION_COMPLETED` | morphenix_executor | skill_router, telegram | 演化執行完成廣播 |
 | `SKILL_QUALITY_SCORED` | eval_engine, wee_engine | dendritic_scorer, outward_trigger | 技能評分（多源雙消） |
+| `SKILL_GAP_PROPOSAL` | gap_accumulator | telegram（Stage 2 主動詢問） | 缺口提案通知 Zeal（v2.03 新增） |
+| `SKILL_REFORGE_PROPOSAL` | gap_accumulator | telegram（Stage 2 主動詢問） | Skill 重鍛提案通知 Zeal（v2.03 新增） |
 
 ### 孤兒事件（只發不收）：38 個
 
@@ -960,6 +966,7 @@
 
 | 日期 | 版本 | 變更 |
 |------|------|------|
+| 2026-04-05 | v2.03 | 能力缺口偵測系統——新增 🟢 綠區：agent/gap_accumulator.py（扇入=1（brain.py 兩注入點 Step 3.1c + Step 8.1），扇出=3（vector_bridge gaps collection RW + morphenix/notes/ W + event_bus SKILL_GAP_PROPOSAL/SKILL_REFORGE_PROPOSAL），安全分級=🟢 綠區）；brain.py 扇出 +1（gap_accumulator fire-and-forget）；vector_bridge.py 扇入 +1（gap_accumulator，fan_in 8→9）；event_bus 新增 2 個事件訂閱（SKILL_GAP_PROPOSAL + SKILL_REFORGE_PROPOSAL → telegram.py Stage 2 主動詢問）；同步 system-topology v1.85、joint-map v1.71、persistence-contract v1.56 |
 | 2026-04-05 | v2.02 | 五個新功能補登——新增 🟢 綠區：consultant_supplement.py（扇入=2：server+telegram_pump，扇出=1：Telegram）、breath_analyzer.py（扇入=1：nightly_pipeline Step 34.8，扇出=1：breath/patterns/）、vision_loop.py（扇入=1：nightly_pipeline Step 34.9，扇出=1：breath/visions/）；brain_prompt_builder.py 扇出 +1（decision_atlas 讀取）；group_context.py schema 擴展 +4 表（扇入扇出不變）；nightly_pipeline 描述更新（+Step 34.8/34.9）。同步 system-topology v1.84 |
 | 2026-04-05 | v2.01 | Entity Registry 建置——brain_prompt_builder.py 扇出 +2（athena/profile_store.py + group_context.py）；l4_cpu_observer.py 寫入目標從 MemoryStore 改為 MemoryManager（修正斷裂接線）。同步 persistence-contract v1.54、joint-map v1.69 |
 | 2026-04-04 | v2.00 | Knife 2+3——新增 `cache/semantic_response_cache.py`（🟢 綠區，扇入=2（brain.py query、l4_cpu_observer write），扇出=1（Qdrant semantic_response_cache collection），零 LLM，v12 新增）；`gateway/cron_registry.py` 備注更新：quota circuit breaker（v12，quota 耗盡時跳過 LLM cron jobs）|

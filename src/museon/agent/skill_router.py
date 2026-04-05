@@ -624,6 +624,7 @@ class SkillRouter:
                     combined *= 0.5
 
             if combined > 0:
+                skill["_match_score"] = combined
                 scored.append((combined, skill))
 
         # Sort by score descending

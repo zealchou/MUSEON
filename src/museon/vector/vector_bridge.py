@@ -36,6 +36,7 @@ COLLECTIONS: Dict[str, Dict[str, Any]] = {
     "references": {"desc": "Zotero 文獻語義索引"},
     "primals": {"desc": "八原語語義偵測"},
     "soul_rings": {"desc": "靈魂年輪語義索引（Project Epigenesis）"},
+    "gaps": {"desc": "能力缺口語義聚類"},
 }
 
 # documents collection 的 payload index 定義

@@ -937,6 +937,26 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         skill_names = [s.get("name", "?") for s in matched_skills]
         logger.info(f"DNA27 matched skills: {skill_names}")
 
+        # ── Step 3.1c: 能力缺口偵測（fire-and-forget）──
+        try:
+            if not _is_simple:
+                _top_conf = matched_skills[0].get("_match_score", 0) / 8.0 if matched_skills else 0.0
+                _top_conf = min(_top_conf, 1.0)
+                if _top_conf < 0.65:
+                    from museon.agent.gap_accumulator import record_gap
+                    _skill_list = [s.get("name", "") for s in matched_skills[:5]]
+                    record_gap(
+                        workspace=self.data_dir,
+                        query=content,
+                        matched_skills=_skill_list,
+                        confidence=_top_conf,
+                        q_score=None,
+                        user_id=str(metadata.get("user_id", "")),
+                        group_id=str(metadata.get("group_id", "")),
+                    )
+        except Exception:
+            pass
+
         # decision_signal 初始化（供 _deliberate() 使用）
         self._last_decision_signal = None
 
@@ -1295,6 +1315,25 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
             response_length=len(response_text),
             outcome=_skill_outcome,
         )
+
+        # ── Step 8.1: 品質缺口偵測（fire-and-forget）──
+        try:
+            if _skill_outcome == "failed" and not _is_simple:
+                from museon.agent.gap_accumulator import record_gap
+                _top_conf = matched_skills[0].get("_match_score", 0) / 8.0 if matched_skills else 0.0
+                _top_conf = min(_top_conf, 1.0)
+                _q_val = getattr(q_score, "score", None)
+                record_gap(
+                    workspace=self.data_dir,
+                    query=content,
+                    matched_skills=[s.get("name", "") for s in matched_skills[:5]],
+                    confidence=_top_conf,
+                    q_score=_q_val,
+                    user_id=str(metadata.get("user_id", "")),
+                    group_id=str(metadata.get("group_id", "")),
+                )
+        except Exception:
+            pass
 
         # ★ v10.4 Route B: 更新 session 內 skill 使用次數（MoE 衰減用）
         if skill_names:
