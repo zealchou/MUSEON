@@ -111,13 +111,26 @@ class ExplorationBridge:
         # 探索有洞見 → 主動推送給使用者（透過 PROACTIVE_MESSAGE 事件）
         if findings and len(findings) > 50 and self._event_bus:
             crystal_tag = "💎 " if crystallized else ""
-            preview = findings[:800].replace("\n", " ")
-            msg = f"🔭 {crystal_tag}探索「{topic[:30]}」的發現：\n\n{preview}"
+            # 三句摘要格式：發現了什麼 + 為什麼重要 + 下一步
+            sentences = [s.strip() for s in re.split(r"[。！？\n]", findings) if s.strip()]
+            what = sentences[0][:120] if sentences else findings[:120]
+            why = sentences[1][:120] if len(sentences) > 1 else "此發現與 MUSEON 的核心使命相關"
+            next_step = sentences[2][:120] if len(sentences) > 2 else "已加入知識庫供後續深化"
+            msg = (
+                f"🔭 {crystal_tag}探索「{topic[:30]}」\n\n"
+                f"📌 發現：{what}\n"
+                f"💡 意義：{why}\n"
+                f"⏭ 後續：{next_step}"
+            )
             self._event_bus.publish(PROACTIVE_MESSAGE, {
                 "message": msg,
                 "timestamp": datetime.now(TZ8).timestamp(),
                 "source": "exploration_bridge",
             })
+
+        # 結晶完成後的行動路由
+        if crystallized and findings:
+            self._route_crystal(topic, findings)
 
         # 記錄待批次處理
         self._pending_routes.append({
@@ -221,7 +234,7 @@ class ExplorationBridge:
         note = {
             "type": "exploration_insight",
             "topic": topic,
-            "observation": findings[:2000],
+            "observation": findings[:5000],
             "source": "exploration_bridge",
             "created_at": now.isoformat(),
         }
@@ -262,3 +275,45 @@ class ExplorationBridge:
                 if 5 < len(clean) < 200:
                     questions.append(clean)
         return questions[:5]  # 最多 5 個
+
+    def _route_crystal(self, crystal_topic: str, crystal_findings: str) -> None:
+        """結晶完成後的行動路由 — 觸發後續行動而非只存文章."""
+        findings_lower = crystal_findings.lower()
+        now = datetime.now(TZ8)
+        ts = now.strftime("%Y%m%d_%H%M%S")
+
+        # 技術洞見 → 檢查是否有 Skill 需要改進（寫入 scout_queue）
+        if any(kw in findings_lower for kw in ["skill", "工具", "方法", "框架", "最佳實踐"]):
+            try:
+                scout_dir = self._workspace / "_system" / "bridge" / "scout_queue"
+                scout_dir.mkdir(parents=True, exist_ok=True)
+                note_file = scout_dir / f"scout_crystal_insight_{ts}.json"
+                note_file.write_text(
+                    json.dumps({
+                        "type": "scout_crystal_insight",
+                        "topic": crystal_topic,
+                        "gap_identified": crystal_findings[:200],
+                        "source": "exploration_crystal",
+                        "created_at": now.isoformat(),
+                        "auto_propose": True,
+                    }, ensure_ascii=False, indent=2),
+                    encoding="utf-8",
+                )
+                logger.info(f"ExplorationBridge: crystal insight routed to scout_queue: {crystal_topic[:40]}")
+            except Exception as e:
+                logger.debug(f"ExplorationBridge: scout routing failed (degraded): {e}")
+
+        # 自我認知更新 → 寫入觀察日誌
+        if any(kw in findings_lower for kw in ["認知", "盲點", "偏見", "學到", "發現"]):
+            try:
+                obs_path = self._workspace / "_system" / "footprints" / "crystal_observations.jsonl"
+                obs_path.parent.mkdir(parents=True, exist_ok=True)
+                with obs_path.open("a", encoding="utf-8") as fh:
+                    fh.write(json.dumps({
+                        "topic": crystal_topic,
+                        "observation": crystal_findings[:500],
+                        "timestamp": now.isoformat(),
+                    }, ensure_ascii=False) + "\n")
+                logger.info(f"ExplorationBridge: crystal observation logged: {crystal_topic[:40]}")
+            except Exception as e:
+                logger.debug(f"ExplorationBridge: observation logging failed (degraded): {e}")

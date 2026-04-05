@@ -2797,8 +2797,23 @@ class NightlyPipeline:
     # Step 13: 好奇心掃描
     # ═══════════════════════════════════════════
 
+    @staticmethod
+    def _should_enqueue_question(question: str) -> bool:
+        """品質過濾：排除閒聊、指令、過短問題."""
+        if len(question.strip()) < 15:
+            return False
+        low_value = [
+            "叫什麼", "是誰", "在嗎", "你好", "早安", "晚安", "謝謝",
+            "收到", "了解", "@", "http://", "https://",
+        ]
+        q_lower = question.lower()
+        if any(w in q_lower for w in low_value):
+            return False
+        return True
+
     def _step_curiosity_scan(self) -> Dict:
         """Step 13: 提取未解答的好奇問題."""
+        import collections
         curiosity_dir = self._workspace / "_system" / "curiosity"
         curiosity_dir.mkdir(parents=True, exist_ok=True)
 
@@ -2838,7 +2853,7 @@ class NightlyPipeline:
                         content = content.strip()
                         if (content.endswith("？") or content.endswith("?")) and len(content) > 5:
                             q_text = content[:200]
-                            if q_text[:100] not in existing_qs:
+                            if q_text[:100] not in existing_qs and self._should_enqueue_question(q_text):
                                 queue.append({
                                     "question": q_text,
                                     "source_date": yesterday,
@@ -2859,7 +2874,7 @@ class NightlyPipeline:
                         line = line.strip().lstrip("- ").strip()
                         if (line.endswith("？") or line.endswith("?")) and len(line) > 5:
                             q_text = line[:200]
-                            if q_text[:100] not in existing_qs:
+                            if q_text[:100] not in existing_qs and self._should_enqueue_question(q_text):
                                 queue.append({
                                     "question": q_text,
                                     "source_date": yesterday,
@@ -2869,6 +2884,110 @@ class NightlyPipeline:
                                 new_questions += 1
                 except Exception as e:
                     logger.debug(f"[NIGHTLY] operation failed (degraded): {e}")
+
+        # ── 四個新方向注入來源 ──────────────────────────────────
+
+        # 來源 A: 原語輪替（每週一個八原語維度）
+        try:
+            primals = ["感知", "直覺", "意志", "情感", "理性", "創造", "連結", "超越"]
+            week_num = date.today().isocalendar()[1]
+            primal = primals[week_num % 8]
+            primal_q = (
+                f"關於「{primal}」這個能量維度，最新的心理學或認知科學研究有什麼新發現？"
+                f"如何應用到 AI Agent 的人格設計？"
+            )
+            if primal_q[:100] not in existing_qs:
+                queue.append({
+                    "question": primal_q,
+                    "source_date": yesterday,
+                    "status": "pending",
+                    "source": "primal_rotation",
+                    "priority": 2,
+                })
+                existing_qs.add(primal_q[:100])
+                new_questions += 1
+        except Exception as e:
+            logger.debug(f"[NIGHTLY] primal_rotation failed (degraded): {e}")
+
+        # 來源 B: 使用者互動模式（最近 7 天高頻主題）
+        try:
+            activity_log = self._workspace / "activity_log.jsonl"
+            if activity_log.exists():
+                topic_counter: collections.Counter = collections.Counter()
+                cutoff = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
+                for line in activity_log.read_text(encoding="utf-8").splitlines()[-500:]:
+                    try:
+                        entry = json.loads(line)
+                        if entry.get("timestamp", "") >= cutoff:
+                            content = entry.get("user_content", entry.get("content", ""))
+                            if content and len(content) > 20:
+                                topic_counter[content[:30]] += 1
+                    except (json.JSONDecodeError, KeyError):
+                        continue
+                for topic, count in topic_counter.most_common(3):
+                    if count >= 2:
+                        user_q = (
+                            f"使用者最近反覆討論「{topic}」相關議題，"
+                            f"有什麼最新的專業知識或最佳實踐可以幫助他們？"
+                        )
+                        if user_q[:100] not in existing_qs:
+                            queue.append({
+                                "question": user_q,
+                                "source_date": yesterday,
+                                "status": "pending",
+                                "source": "user_interaction_pattern",
+                                "priority": 1,
+                            })
+                            existing_qs.add(user_q[:100])
+                            new_questions += 1
+        except Exception as e:
+            logger.debug(f"[NIGHTLY] user_interaction_pattern failed (degraded): {e}")
+
+        # 來源 C: Skill 使用熱力圖（最常用 Skill 找最佳實踐）
+        try:
+            usage_path = self._workspace / "_system" / "skill_usage_stats.json"
+            if usage_path.exists():
+                usage = json.loads(usage_path.read_text(encoding="utf-8"))
+                if isinstance(usage, dict):
+                    sorted_skills = sorted(usage.items(), key=lambda x: x[1], reverse=True)
+                    if sorted_skills:
+                        top_skill = sorted_skills[0][0]
+                        skill_q = (
+                            f"「{top_skill}」是目前最常被使用的 Skill，"
+                            f"這個領域有什麼最新的方法論或工具可以讓它更強？"
+                        )
+                        if skill_q[:100] not in existing_qs:
+                            queue.append({
+                                "question": skill_q,
+                                "source_date": yesterday,
+                                "status": "pending",
+                                "source": "skill_heatmap",
+                                "priority": 2,
+                            })
+                            existing_qs.add(skill_q[:100])
+                            new_questions += 1
+        except Exception as e:
+            logger.debug(f"[NIGHTLY] skill_heatmap failed (degraded): {e}")
+
+        # 來源 D: 外部生態掃描（每週一次，週一執行）
+        try:
+            if date.today().weekday() == 0:  # Monday
+                eco_q = (
+                    "2026 年最新的 AI Agent 工具和 Skill 生態系有什麼重要更新？"
+                    "MCP、Agent Skills、A2A 協議有什麼新發展？"
+                )
+                if eco_q[:100] not in existing_qs:
+                    queue.append({
+                        "question": eco_q,
+                        "source_date": yesterday,
+                        "status": "pending",
+                        "source": "ecosystem_scan",
+                        "priority": 3,
+                    })
+                    existing_qs.add(eco_q[:100])
+                    new_questions += 1
+        except Exception as e:
+            logger.debug(f"[NIGHTLY] ecosystem_scan failed (degraded): {e}")
 
         # 保留最近 50 個問題
         queue = queue[-50:]

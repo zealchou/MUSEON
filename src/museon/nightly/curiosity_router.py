@@ -87,14 +87,14 @@ class CuriosityRouter:
                         "is_valuable": True,
                     })
 
-                # 記錄到 PulseDB
-                if self._db and research_result:
+                # 記錄到 PulseDB（只記錄有價值的結果，避免 NO_VALUE 污染）
+                if self._db and research_result and research_result.is_valuable:
                     try:
                         self._db.log_exploration(
                             topic=question,
                             motivation="curiosity_router",
                             query=question,
-                            findings=research_result.filtered_summary or "無價值發現",
+                            findings=research_result.filtered_summary or "無發現",
                             crystallized=research_result.is_valuable,
                             crystal_id="",
                             tokens_used=research_result.tokens_used,
