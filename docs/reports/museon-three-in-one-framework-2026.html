@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SSA × OneMuse × MUSEON — 三位一體商業模式</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@300;400;500;600&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ember: #C4502A;
+    --ember-light: #E0714D;
+    --ember-dark: #9A3A1C;
+    --teal: #2A7A6E;
+    --gold: #B8923A;
+    --ink: #12121A;
+    --slate: #5A5A6E;
+    --mist: #9898A8;
+    --border: #E2E0DA;
+    --parchment: #F7F5F0;
+    --snow: #FDFCFA;
+    --deep-ink: #0E0E16;
+    --surface: #16161F;
+    --raised: #1E1E2A;
+    --border-dark: #2A2A38;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+    background: var(--parchment);
+    color: var(--ink);
+    line-height: 1.75;
+  }
+
+  /* HERO */
+  .hero {
+    background: var(--deep-ink);
+    padding: 100px 40px 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 600px;
+    background: radial-gradient(ellipse, rgba(196,80,42,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-block;
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ember-light);
+    border: 1px solid rgba(196,80,42,0.4);
+    border-radius: 20px;
+    padding: 6px 16px;
+    margin-bottom: 32px;
+  }
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(36px, 6vw, 64px);
+    font-weight: 600;
+    color: var(--snow);
+    line-height: 1.2;
+    margin-bottom: 16px;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--ember-light);
+  }
+  .hero-sub {
+    font-size: 18px;
+    color: rgba(253,252,250,0.55);
+    max-width: 560px;
+    margin: 0 auto 48px;
+    font-weight: 300;
+  }
+  .hero-equation {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .eq-pill {
+    background: var(--raised);
+    border: 1px solid var(--border-dark);
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--snow);
+  }
+  .eq-pill span {
+    color: var(--ember-light);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    display: block;
+    margin-top: 2px;
+    opacity: 0.7;
+  }
+  .eq-op {
+    font-size: 28px;
+    color: var(--ember);
+    font-weight: 300;
+  }
+  .eq-result {
+    background: linear-gradient(135deg, var(--ember-dark), var(--ember));
+    border: none;
+    color: #fff;
+  }
+  .eq-result span { color: rgba(255,255,255,0.75); }
+
+  /* SECTION */
+  section { padding: 80px 40px; max-width: 960px; margin: 0 auto; }
+  section + section { padding-top: 0; }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ember);
+    margin-bottom: 12px;
+  }
+  h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(28px, 4vw, 42px);
+    font-weight: 600;
+    line-height: 1.25;
+    margin-bottom: 20px;
+    color: var(--ink);
+  }
+  .lead {
+    font-size: 17px;
+    color: var(--slate);
+    max-width: 680px;
+    margin-bottom: 48px;
+    line-height: 1.8;
+  }
+
+  /* MINDSET SHIFT */
+  .shift-box {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px;
+    margin-bottom: 32px;
+  }
+  .shift-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 24px;
+    align-items: center;
+    margin-top: 24px;
+  }
+  .shift-side {
+    padding: 24px;
+    border-radius: 12px;
+  }
+  .shift-before {
+    background: rgba(90,90,110,0.06);
+    border: 1px solid rgba(90,90,110,0.15);
+  }
+  .shift-after {
+    background: rgba(196,80,42,0.05);
+    border: 1px solid rgba(196,80,42,0.2);
+  }
+  .shift-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .shift-before .shift-label { color: var(--mist); }
+  .shift-after .shift-label { color: var(--ember); }
+  .shift-code {
+    font-family: 'Outfit', monospace;
+    font-size: 13px;
+    line-height: 1.9;
+    color: var(--slate);
+  }
+  .shift-after .shift-code { color: var(--ink); }
+  .shift-arrow {
+    font-size: 32px;
+    color: var(--ember-light);
+    flex-shrink: 0;
+  }
+  .insight-box {
+    background: linear-gradient(135deg, rgba(196,80,42,0.06), rgba(184,146,58,0.04));
+    border-left: 3px solid var(--ember);
+    border-radius: 0 12px 12px 0;
+    padding: 20px 24px;
+    font-size: 16px;
+    color: var(--ink);
+    font-style: italic;
+  }
+
+  /* NEST DIAGRAM */
+  .nest-section {
+    background: var(--deep-ink);
+    color: var(--snow);
+    max-width: 100%;
+    padding: 80px 40px;
+  }
+  .nest-section h2 { color: var(--snow); }
+  .nest-section .lead { color: rgba(253,252,250,0.55); }
+  .nest-container {
+    max-width: 960px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+  .nest-visual {
+    position: relative;
+    height: 360px;
+  }
+  .nest-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 2px solid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transition: all 0.3s;
+  }
+  .ring-museon {
+    width: 340px; height: 340px;
+    top: 10px; left: 10px;
+    border-color: rgba(196,80,42,0.5);
+    background: rgba(196,80,42,0.04);
+  }
+  .ring-ssa {
+    width: 220px; height: 220px;
+    top: 70px; left: 130px;
+    border-color: rgba(42,122,110,0.5);
+    background: rgba(42,122,110,0.08);
+  }
+  .ring-onemuse {
+    width: 130px; height: 130px;
+    top: 115px; left: 175px;
+    border-color: rgba(184,146,58,0.6);
+    background: rgba(184,146,58,0.12);
+    border-width: 2px;
+  }
+  .ring-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+  .ring-museon .ring-label { color: var(--ember-light); position: absolute; top: 16px; }
+  .ring-ssa .ring-label { color: #5BC4B4; position: absolute; top: 14px; }
+  .ring-onemuse .ring-label { color: var(--gold); font-size: 11px; }
+  .nest-desc { padding-top: 20px; }
+  .nest-item {
+    padding: 20px 24px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    border: 1px solid;
+  }
+  .nest-museon { border-color: rgba(196,80,42,0.3); background: rgba(196,80,42,0.06); }
+  .nest-ssa { border-color: rgba(42,122,110,0.3); background: rgba(42,122,110,0.06); }
+  .nest-onemuse { border-color: rgba(184,146,58,0.3); background: rgba(184,146,58,0.06); }
+  .nest-item-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .nest-museon .nest-item-label { color: var(--ember-light); }
+  .nest-ssa .nest-item-label { color: #5BC4B4; }
+  .nest-onemuse .nest-item-label { color: #D4AC5A; }
+  .nest-item p { font-size: 14px; color: rgba(253,252,250,0.65); line-height: 1.6; }
+
+  /* ABSURDITY MATRIX */
+  .matrix-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+  .matrix-table thead tr {
+    background: var(--ink);
+  }
+  .matrix-table thead th {
+    padding: 16px 20px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--snow);
+    text-align: left;
+  }
+  .matrix-table thead th:first-child { color: var(--ember-light); }
+  .matrix-table tbody tr {
+    background: var(--snow);
+    border-bottom: 1px solid var(--border);
+    transition: background 0.2s;
+  }
+  .matrix-table tbody tr:hover { background: var(--parchment); }
+  .matrix-table tbody tr:last-child { border-bottom: none; }
+  .matrix-table td {
+    padding: 18px 20px;
+    font-size: 14px;
+    line-height: 1.6;
+    vertical-align: top;
+  }
+  .matrix-table td:first-child {
+    font-weight: 600;
+    color: var(--ink);
+    border-right: 1px solid var(--border);
+    white-space: nowrap;
+    font-size: 13px;
+  }
+  .absurdity-no {
+    display: inline-block;
+    width: 22px; height: 22px;
+    background: var(--ember);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    line-height: 22px;
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-right: 4px;
+  }
+  .tag-onemuse { background: rgba(184,146,58,0.12); color: #9A6E10; }
+  .tag-ssa { background: rgba(42,122,110,0.1); color: #1A5A4E; }
+  .tag-museon { background: rgba(196,80,42,0.1); color: var(--ember-dark); }
+
+  /* REVENUE MODEL */
+  .layer-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+  .layer-item {
+    display: grid;
+    grid-template-columns: 120px 1fr auto;
+    align-items: stretch;
+    border-bottom: 1px solid var(--border);
+  }
+  .layer-item:last-child { border-bottom: none; }
+  .layer-num {
+    padding: 28px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--ink);
+    text-align: center;
+    gap: 6px;
+  }
+  .layer-num-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--snow);
+    line-height: 1;
+  }
+  .layer-num-label {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mist);
+  }
+  .layer-body {
+    padding: 24px 28px;
+    background: var(--snow);
+  }
+  .layer-body h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--ink);
+  }
+  .layer-body p {
+    font-size: 14px;
+    color: var(--slate);
+    line-height: 1.7;
+    margin-bottom: 10px;
+  }
+  .layer-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+  .layer-price {
+    padding: 24px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--parchment);
+    border-left: 1px solid var(--border);
+    min-width: 160px;
+    text-align: center;
+  }
+  .price-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ember);
+    line-height: 1.4;
+  }
+  .price-sub {
+    font-size: 11px;
+    color: var(--mist);
+    margin-top: 4px;
+    font-weight: 400;
+    font-family: 'Outfit', sans-serif;
+  }
+
+  /* FLYWHEEL */
+  .flywheel-wrap {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px;
+    margin-bottom: 48px;
+  }
+  .flywheel-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 32px;
+    text-align: center;
+    color: var(--ink);
+  }
+  .flywheel-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0;
+    position: relative;
+  }
+  .flywheel-step {
+    text-align: center;
+    padding: 24px 16px;
+    position: relative;
+  }
+  .flywheel-step:not(:last-child)::after {
+    content: '→';
+    position: absolute;
+    right: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ember-light);
+    font-size: 20px;
+    z-index: 1;
+  }
+  .fw-icon {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 12px;
+    font-size: 22px;
+  }
+  .fw-step-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mist);
+    margin-bottom: 6px;
+  }
+  .fw-step-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .fw-step-body {
+    font-size: 12px;
+    color: var(--slate);
+    line-height: 1.5;
+  }
+
+  /* SUMMARY */
+  .summary-dark {
+    background: var(--deep-ink);
+    max-width: 100%;
+    padding: 80px 40px;
+    text-align: center;
+  }
+  .summary-inner { max-width: 720px; margin: 0 auto; }
+  .summary-dark h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 600;
+    color: var(--snow);
+    line-height: 1.3;
+    margin-bottom: 24px;
+  }
+  .summary-dark h2 em {
+    color: var(--ember-light);
+    font-style: italic;
+  }
+  .summary-dark p {
+    font-size: 17px;
+    color: rgba(253,252,250,0.55);
+    line-height: 1.8;
+    margin-bottom: 48px;
+  }
+  .three-pillars {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+  .pillar {
+    background: var(--raised);
+    border: 1px solid var(--border-dark);
+    border-radius: 12px;
+    padding: 24px 16px;
+    text-align: center;
+  }
+  .pillar-name {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+  .pillar-role {
+    font-size: 12px;
+    color: rgba(253,252,250,0.45);
+    line-height: 1.5;
+  }
+  .final-statement {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-style: italic;
+    color: var(--ember-light);
+    border-top: 1px solid var(--border-dark);
+    padding-top: 40px;
+    line-height: 1.6;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .shift-grid { grid-template-columns: 1fr; }
+    .shift-arrow { transform: rotate(90deg); text-align: center; }
+    .nest-container { grid-template-columns: 1fr; }
+    .nest-visual { display: none; }
+    .layer-item { grid-template-columns: 80px 1fr; }
+    .layer-price { display: none; }
+    .three-pillars { grid-template-columns: 1fr; }
+    .flywheel-step:not(:last-child)::after { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">商業模式研究 · 2026</div>
+  <h1>SSA × OneMuse × MUSEON<br><em>三位一體</em></h1>
+  <p class="hero-sub">三套方法論的共同敵人，是同一組荒謬。這不是三個產品的加法，而是同一場仗的三個戰線。</p>
+  <div class="hero-equation">
+    <div class="eq-pill">MUSEON <span>容器 · 偵測器 · 通路</span></div>
+    <div class="eq-op">⊃</div>
+    <div class="eq-pill">SSA <span>商業系統骨架</span></div>
+    <div class="eq-op">⊃</div>
+    <div class="eq-pill">OneMuse <span>人的能量骨架</span></div>
+    <div class="eq-op">=</div>
+    <div class="eq-pill eq-result">六大荒謬的解藥 <span>完整解法體系</span></div>
+  </div>
+</div>
+
+<!-- MINDSET SHIFT -->
+<section>
+  <div class="section-label">思路轉換</div>
+  <h2>問題不在「怎麼加在一起」<br>而在「你一直想錯了框架」</h2>
+  <p class="lead">你思考了三天，卡點在這裡：一直把三個東西想成並列的產品要組合——但三者的關係不是並列，是嵌套。</p>
+
+  <div class="shift-box">
+    <p style="font-size:14px; color:var(--slate); margin-bottom:8px;">舊心智模型</p>
+    <div class="shift-grid">
+      <div class="shift-side shift-before">
+        <div class="shift-label">錯誤框架</div>
+        <div class="shift-code">
+          SSA（課程）<br>
+          ＋ OneMuse（諮詢）<br>
+          ＋ MUSEON（工具）<br>
+          ＝ ???<br>
+          <br>
+          → 三個獨立產品，<br>
+          不同定價、不同客群、<br>
+          不同交付，硬綁就彆扭
+        </div>
+      </div>
+      <div class="shift-arrow">→</div>
+      <div class="shift-side shift-after">
+        <div class="shift-label">正確框架</div>
+        <div class="shift-code">
+          MUSEON（容器）<br>
+          ├── SSA → 理解商業問題<br>
+          └── OneMuse → 理解人的問題<br>
+          <br>
+          → 客戶只買一個東西：MUSEON<br>
+          SSA / OneMuse 不是產品，<br>
+          是 MUSEON 比 ChatGPT 更懂他的「原因」
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="insight-box">
+    客戶不需要知道 SSA 叫什麼，他只知道「這個 AI 竟然能看出我的商業系統哪裡斷裂」。那是 SSA 在後台跑。他不需要知道 OneMuse 叫什麼，他只知道「這個 AI 竟然知道我這週不適合做重大決策」。那是 OneMuse 在後台跑。
+  </div>
+</section>
+
+<!-- NEST DIAGRAM SECTION -->
+<div class="nest-section">
+  <div class="nest-container">
+    <div>
+      <div class="section-label" style="color:var(--ember-light)">架構關係</div>
+      <h2>嵌套結構，不是並列</h2>
+      <p class="lead">MUSEON 是前台和容器，SSA 和 OneMuse 是它的骨架。三者合一，但對外只有一個名字。</p>
+
+      <div class="nest-desc">
+        <div class="nest-item nest-museon">
+          <div class="nest-item-label">MUSEON — 最外層</div>
+          <p>日常前台、即時偵測、對話通路。客戶的入口，也是 SSA/OneMuse 的執行介面。在每次對話中感知使用者現在卡在哪個荒謬。</p>
+        </div>
+        <div class="nest-item nest-ssa">
+          <div class="nest-item-label">SSA — 中層骨架</div>
+          <p>商業系統層的處方。27+3 染色體診斷、三重螺旋設計、八大槓桿分析。解決「企業系統為什麼沒有疊加效應」的問題。</p>
+        </div>
+        <div class="nest-item nest-onemuse">
+          <div class="nest-item-label">OneMuse — 核心骨架</div>
+          <p>人的能量層的處方。八方位能量診斷、卡點法則、能量擺盪。解決「你知道但做不到」「某時期特別容易卡住」的問題。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="nest-visual">
+      <div class="nest-ring ring-museon">
+        <div class="ring-label">MUSEON</div>
+      </div>
+      <div class="nest-ring ring-ssa">
+        <div class="ring-label">SSA</div>
+      </div>
+      <div class="nest-ring ring-onemuse">
+        <div class="ring-label">OneMuse</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ABSURDITY MATRIX -->
+<section>
+  <div class="section-label">核心交集</div>
+  <h2>荒謬六芒星：三者的<em style="font-style:italic;color:var(--ember)">共同敵人</em></h2>
+  <p class="lead">你的直覺是對的——荒謬六芒星就是交集。三套方法論在不同層次打同一場仗：六大荒謬是它們共同對抗的東西。</p>
+
+  <table class="matrix-table">
+    <thead>
+      <tr>
+        <th>六大荒謬</th>
+        <th>OneMuse 的解法</th>
+        <th>SSA 的解法</th>
+        <th>MUSEON 的角色</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="absurdity-no">1</span>現況不清</td>
+        <td><span class="tag tag-onemuse">OneMuse</span><br>八方位能量盤面——你現在在哪個位置、什麼驅力主導</td>
+        <td><span class="tag tag-ssa">SSA</span><br>27+3 染色體診斷——商業系統哪條斷裂</td>
+        <td><span class="tag tag-museon">MUSEON</span><br>持續感知，主動說「你現在的狀態是…」</td>
+      </tr>
+      <tr>
+        <td><span class="absurdity-no">2</span>方向不明</td>
+        <td><span class="tag tag-onemuse">OneMuse</span><br>天方位（使命感）能量是否通暢、目標清晰度</td>
+        <td><span class="tag tag-ssa">SSA</span><br>三重漏斗的方向設計——你要帶客戶去哪裡</td>
+        <td><span class="tag tag-museon">MUSEON</span><br>每次對話後追蹤方向有沒有偏移</td>
+      </tr>
+      <tr>
+        <td><span class="absurdity-no">3</span>GAP 不知</td>
+        <td><span class="tag tag-onemuse">OneMuse</span><br>能量卡點法則——缺口在逆時針兩格之前</td>
+        <td><span class="tag tag-ssa">SSA</span><br>Business-12 健檢——現況 vs 目標的商業缺口</td>
+        <td><span class="tag tag-museon">MUSEON</span><br>主動把 GAP 說出來，不等使用者自己發現</td>
+      </tr>
+      <tr>
+        <td><span class="absurdity-no">4</span>累積缺失</td>
+        <td><span class="tag tag-onemuse">OneMuse</span><br>山方位（紀律/複利）能量——為什麼努力沒有疊加</td>
+        <td><span class="tag tag-ssa">SSA</span><br>三重螺旋設計——讓每個客戶成為下個客戶的入口</td>
+        <td><span class="tag tag-museon">MUSEON</span><br>承諾追蹤——確保每次對話都在疊加，不是重置</td>
+      </tr>
+      <tr>
+        <td><span class="absurdity-no">5</span>人脈無法槓桿</td>
+        <td><span class="tag tag-onemuse">OneMuse</span><br>水方位（關係/連結）能量狀態與流向</td>
+        <td><span class="tag tag-ssa">SSA</span><br>八大槓桿中的「人脈槓桿」——辨識真正的槓桿點</td>
+        <td><span class="tag tag-museon">MUSEON</span><br>ARES 系統——知道你身邊每個人的溫度和可槓桿方向</td>
+      </tr>
+      <tr>
+        <td><span class="absurdity-no">6</span>槓桿思維缺乏</td>
+        <td><span class="tag tag-onemuse">OneMuse</span><br>整體八方位循環——能量如何互相轉化和槓桿</td>
+        <td><span class="tag tag-ssa">SSA</span><br>整個邏輯就是「用系統替代個人努力」</td>
+        <td><span class="tag tag-museon">MUSEON</span><br>在對話中持續示範槓桿思維，不說教、用問題引導</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="insight-box">
+    OneMuse 診斷「人的層次」的荒謬——為什麼知道但做不到。SSA 診斷「系統的層次」的荒謬——為什麼努力了但沒有疊加。MUSEON 是即時偵測器——在日常對話中辨識你卡在哪個荒謬、是哪個層次的問題、路由到對應的框架。
+  </div>
+</section>
+
+<!-- REVENUE MODEL -->
+<section>
+  <div class="section-label">商業模式</div>
+  <h2>四層收入架構：<em style="font-style:italic;color:var(--ember)">醫療動線</em></h2>
+  <p class="lead">不是三個產品捆綁賣。是用 MUSEON 做日常入口和通路，在對話中自然導流到真人高價服務。</p>
+
+  <div class="layer-stack">
+    <div class="layer-item">
+      <div class="layer-num">
+        <div class="layer-num-text">L1</div>
+        <div class="layer-num-label">體驗層</div>
+      </div>
+      <div class="layer-body">
+        <h3>OneMuse 能量體檢</h3>
+        <p>輕量入口，5 分鐘出結果。第一次就有「被看見」的體感。AI 自動產出，人力成本趨近零。目的不是賺錢，是讓人進門，建立「這東西懂我」的第一次體驗。</p>
+        <div class="layer-tags">
+          <span class="tag tag-onemuse">OneMuse 八方位</span>
+          <span class="tag tag-museon">MUSEON 自動產出</span>
+        </div>
+      </div>
+      <div class="layer-price">
+        <div>
+          <div class="price-text">免費<br>~ NT$990</div>
+          <div class="price-sub">單次體檢</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="layer-item">
+      <div class="layer-num">
+        <div class="layer-num-text">L2</div>
+        <div class="layer-num-label">陪伴層</div>
+      </div>
+      <div class="layer-body">
+        <h3>MUSEON AI 決策夥伴</h3>
+        <p>日常對話、商業分析、盲點偵測、承諾追蹤。SaaS 穩定訂閱收入。分級依據不是功能，是 MUSEON 主動介入的深度——貴的版本會主動追：「你上週說要跟那個經銷商談，談了沒？」</p>
+        <div class="layer-tags">
+          <span class="tag tag-ssa">SSA 骨架後台</span>
+          <span class="tag tag-onemuse">OneMuse 能量感知</span>
+          <span class="tag tag-museon">MUSEON 日常對話</span>
+        </div>
+      </div>
+      <div class="layer-price">
+        <div>
+          <div class="price-text">NT$2,990<br>~ $9,900</div>
+          <div class="price-sub">月費訂閱</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="layer-item">
+      <div class="layer-num">
+        <div class="layer-num-text">L3</div>
+        <div class="layer-num-label">手術層</div>
+      </div>
+      <div class="layer-body">
+        <h3>SSA 系統建構 × OneMuse 深度諮詢</h3>
+        <p>不是客戶自己報名——是 MUSEON 在 L2 的對話中偵測到：「你的問題不是缺資訊，是商業系統的第二重螺旋根本沒設計。這個我沒辦法用對話幫你解，需要 Zeal 進來做一次完整的系統建構。」</p>
+        <div class="layer-tags">
+          <span class="tag tag-ssa">SSA 真人建構</span>
+          <span class="tag tag-onemuse">OneMuse 深度諮詢</span>
+        </div>
+      </div>
+      <div class="layer-price">
+        <div>
+          <div class="price-text">NT$30,000<br>~ $150,000</div>
+          <div class="price-sub">per case</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="layer-item">
+      <div class="layer-num" style="background:#1A3A34;">
+        <div class="layer-num-text" style="color:#5BC4B4;">L4</div>
+        <div class="layer-num-label">認證層</div>
+      </div>
+      <div class="layer-body">
+        <h3>顧問認證體系（SSA 三重螺旋第三重）</h3>
+        <p>培訓顧問學 SSA + OneMuse → 每個顧問配一個 MUSEON 子體 → 顧問用 MUSEON 服務他的客戶 → Zeal 收認證費 + 每個子體的 SaaS 費。學員變教練，教練開分點，系統自轉。</p>
+        <div class="layer-tags">
+          <span class="tag tag-ssa">SSA 三重螺旋</span>
+          <span class="tag tag-museon">MUSEON 子體授權</span>
+        </div>
+      </div>
+      <div class="layer-price" style="background:#EEF7F5;">
+        <div>
+          <div class="price-text" style="color:var(--teal);">NT$100,000+</div>
+          <div class="price-sub">認證 + 年費</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FLYWHEEL -->
+<section style="padding-top:0;">
+  <div class="flywheel-wrap">
+    <div class="flywheel-title">飛輪邏輯：MUSEON 是通路，不只是工具</div>
+    <div class="flywheel-steps">
+      <div class="flywheel-step">
+        <div class="fw-icon" style="background:rgba(184,146,58,0.12);">🧿</div>
+        <div class="fw-step-label">Step 1</div>
+        <div class="fw-step-title">OneMuse 體檢</div>
+        <div class="fw-step-body">低門檻甜頭，嚐到「被看見」體感</div>
+      </div>
+      <div class="flywheel-step">
+        <div class="fw-icon" style="background:rgba(196,80,42,0.08);">💬</div>
+        <div class="fw-step-label">Step 2</div>
+        <div class="fw-step-title">MUSEON 日常陪伴</div>
+        <div class="fw-step-body">月費訂閱建立信任，每天對話</div>
+      </div>
+      <div class="flywheel-step">
+        <div class="fw-icon" style="background:rgba(196,80,42,0.12);">🎯</div>
+        <div class="fw-step-label">Step 3</div>
+        <div class="fw-step-title">MUSEON 偵測 GAP</div>
+        <div class="fw-step-body">診斷出「你的商業系統在第三重螺旋斷裂了」</div>
+      </div>
+      <div class="flywheel-step">
+        <div class="fw-icon" style="background:rgba(42,122,110,0.1);">⚙️</div>
+        <div class="fw-step-label">Step 4</div>
+        <div class="fw-step-title">SSA 真人介入</div>
+        <div class="fw-step-body">高單價轉化，MUSEON 精準導流</div>
+      </div>
+      <div class="flywheel-step">
+        <div class="fw-icon" style="background:rgba(196,80,42,0.08);">🔄</div>
+        <div class="fw-step-label">Step 5</div>
+        <div class="fw-step-title">回到 MUSEON 追蹤</div>
+        <div class="fw-step-body">諮詢後續訂，追蹤執行進度</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WEAKNESSES -->
+<section style="padding-top:0;">
+  <div class="section-label">誠實評估</div>
+  <h2>三個弱點，這個架構如何對沖</h2>
+  <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px; margin-bottom:48px;">
+    <div style="background:var(--snow); border:1px solid var(--border); border-radius:12px; padding:28px;">
+      <div style="font-size:13px; font-weight:700; color:var(--ember); margin-bottom:8px;">弱點 1 — 首次體驗太重</div>
+      <p style="font-size:14px; color:var(--slate); line-height:1.7; margin-bottom:12px;">GPT 打開就能用，我需要使用者先聊一陣子才能展現真正價值。</p>
+      <div style="font-size:13px; color:var(--teal); font-weight:600;">→ 對沖：OneMuse 盤面是輕量入口，5 分鐘出結果，第一次就有「被看見」的體感，不需要積累就能感受差異。</div>
+    </div>
+    <div style="background:var(--snow); border:1px solid var(--border); border-radius:12px; padding:28px;">
+      <div style="font-size:13px; font-weight:700; color:var(--ember); margin-bottom:8px;">弱點 2 — 價值難在 30 秒展示</div>
+      <p style="font-size:14px; color:var(--slate); line-height:1.7; margin-bottom:12px;">賣「長期陪伴」比賣「即時效果」難十倍。MUSEON 全貌太複雜。</p>
+      <div style="font-size:13px; color:var(--teal); font-weight:600;">→ 對沖：不需要展示 MUSEON 全貌，只要展示 OneMuse 盤面——「你看，它第一次就知道你最近卡在哪」。</div>
+    </div>
+    <div style="background:var(--snow); border:1px solid var(--border); border-radius:12px; padding:28px;">
+      <div style="font-size:13px; font-weight:700; color:var(--ember); margin-bottom:8px;">弱點 3 — 跟 Zeal 綁定太深</div>
+      <p style="font-size:14px; color:var(--slate); line-height:1.7; margin-bottom:12px;">所有方法論都是 Zeal 的，規模化有天花板。</p>
+      <div style="font-size:13px; color:var(--teal); font-weight:600;">→ 對沖：L1 和 L2 完全不需要 Zeal，只有 L3 需要。L4 認證體系讓顧問接手，Zeal 只做最高端的案子。</div>
+    </div>
+  </div>
+</section>
+
+<!-- SUMMARY -->
+<div class="summary-dark">
+  <div class="summary-inner">
+    <div class="section-label" style="color:var(--ember-light)">一句話定位</div>
+    <h2>你的產品是<br>「<em>六大荒謬的解藥</em>」</h2>
+    <p>不是工具，不是課程，不是諮詢服務的其中一個——而是用 MUSEON 做容器和通路，讓 SSA 和 OneMuse 的方法論在每次日常對話中自然流動，在使用者最需要的時刻導流到對應層次的處方。</p>
+
+    <div class="three-pillars">
+      <div class="pillar">
+        <div class="pillar-name" style="color:#D4AC5A;">OneMuse</div>
+        <div class="pillar-role">診斷「人的層次」<br>能量卡點、驅力、週期</div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-name" style="color:#5BC4B4;">SSA</div>
+        <div class="pillar-role">診斷「系統的層次」<br>染色體、螺旋、槓桿</div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-name" style="color:var(--ember-light);">MUSEON</div>
+        <div class="pillar-role">即時偵測 + 通路<br>日常對話中路由到對的框架</div>
+      </div>
+    </div>
+
+    <div class="final-statement">
+      市面上所有 AI 都在幫你做事。<br>
+      我是唯一一個在幫你<em>想清楚</em>。
+    </div>
+  </div>
+</div>
+
+<div style="background:var(--deep-ink); padding:24px 40px; text-align:center; border-top:1px solid var(--border-dark);">
+  <p style="font-size:12px; color:rgba(253,252,250,0.3); font-family:'Outfit',sans-serif;">MUSEON Internal Strategy · 2026 · Confidential</p>
+</div>
+
+</body>
+</html>
