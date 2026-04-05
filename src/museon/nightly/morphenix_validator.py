@@ -81,6 +81,24 @@ class MorphenixValidator:
         if level == "L1":
             return ValidationResult(passed=True, reason="L1_skip_docker")
 
+        # L2 pure-action 提案（無 patch/changes，只有 action 欄位）不涉及原始碼修改
+        # 由 MorphenixExecutor._action_* handler 處理，跳過 Docker pytest
+        metadata = proposal.get("metadata", {})
+        if isinstance(metadata, str):
+            try:
+                metadata = json.loads(metadata)
+            except (json.JSONDecodeError, TypeError):
+                metadata = {}
+        action = metadata.get("action") or proposal.get("action", "")
+        has_patch = bool(metadata.get("patch", ""))
+        has_changes = bool(metadata.get("changes", []))
+        if level == "L2" and action and not has_patch and not has_changes:
+            logger.info(
+                f"[MORPHENIX_VALIDATOR] L2 pure-action '{action}' detected, "
+                "skipping Docker pytest (no source code changes)"
+            )
+            return ValidationResult(passed=True, reason="L2_pure_action_skip_docker")
+
         # 檢查 Docker 是否可用
         if not self._docker_available():
             logger.warning("Docker not available, skipping validation")

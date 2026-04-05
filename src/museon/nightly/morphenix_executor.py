@@ -811,17 +811,211 @@ class MorphenixExecutor:
             "guarded_count": len(guarded),
         }
 
+    # ───────────────────────────────────────────
+    # L2 Action 分發器（純 action 型提案，無 patch/changes）
+    # ───────────────────────────────────────────
+
+    def _action_crystallize_notes(self, proposal: Dict[str, Any]) -> Dict[str, Any]:
+        """結晶化迭代筆記：將 notes/ 目錄的筆記摘要寫入 crystal_rules.json.
+
+        流程：
+        1. 讀取 source_notes（提案指定）或掃描全部 notes/
+        2. 依類型分組（metacog_insight / exploration_insight / scout）
+        3. 每個群組若未處理過，串聯摘要 → 寫入 crystal_rules.json
+        4. 標記已處理（processed_notes.json）
+        """
+        notes_dir = self._workspace / "_system" / "morphenix" / "notes"
+        crystal_rules_path = self._workspace / "_system" / "crystal_rules.json"
+        processed_path = self._workspace / "_system" / "morphenix" / "processed_notes.json"
+
+        # 讀取已處理清單
+        try:
+            processed_set = set(json.loads(processed_path.read_text(encoding="utf-8"))) if processed_path.exists() else set()
+        except Exception:
+            processed_set = set()
+
+        # 收集待處理筆記
+        source_notes = proposal.get("source_notes", [])
+        if not source_notes:
+            # fallback：掃描全部
+            source_notes = [f.name for f in notes_dir.glob("*.json")] if notes_dir.exists() else []
+
+        groups: Dict[str, List[Dict]] = {}
+        for note_name in source_notes:
+            if note_name in processed_set:
+                continue
+            note_path = notes_dir / note_name
+            if not note_path.exists():
+                continue
+            try:
+                note_data = json.loads(note_path.read_text(encoding="utf-8"))
+                note_type = note_data.get("category", note_data.get("type", "metacog_insight"))
+                groups.setdefault(note_type, []).append(note_data)
+            except Exception as e:
+                logger.warning(f"Morphenix crystallize: failed to read note {note_name}: {e}")
+
+        if not groups:
+            logger.info("Morphenix crystallize_notes: no new notes to process")
+            return {"action": "crystallize_notes", "applied": [], "count": 0, "reason": "no_new_notes"}
+
+        # 讀取 crystal_rules.json
+        try:
+            cr_data = json.loads(crystal_rules_path.read_text(encoding="utf-8")) if crystal_rules_path.exists() else {"version": "1.0", "rules": []}
+        except Exception:
+            cr_data = {"version": "1.0", "rules": []}
+        rules = cr_data.get("rules", [])
+
+        crystallized = []
+        newly_processed = set()
+
+        for note_type, notes in groups.items():
+            if len(notes) < 5:
+                # 每組至少 5 條才結晶
+                for n in notes:
+                    newly_processed.add(n.get("id", "") or "")
+                continue
+
+            # 串聯摘要（CPU-only，取 content/observation 前 200 字）
+            summaries = []
+            for n in notes:
+                text = n.get("content", n.get("observation", ""))
+                if text:
+                    summaries.append(text[:200].replace("\n", " ").strip())
+
+            summary_text = f"[{note_type}] {len(notes)} 條筆記結晶：" + " | ".join(summaries[:5])
+
+            rule_id = f"crystallized_{note_type}_{datetime.now(TZ8).strftime('%Y%m%d%H%M%S')}"
+            rule = {
+                "rule_id": rule_id,
+                "rule_type": "crystallized_note",
+                "summary": summary_text[:500],
+                "source": "morphenix_crystallize",
+                "note_type": note_type,
+                "note_count": len(notes),
+                "status": "active",
+                "strength": 0.6,
+                "created_at": datetime.now(TZ8).isoformat(),
+            }
+            rules.append(rule)
+            crystallized.append({"rule_id": rule_id, "note_type": note_type, "count": len(notes)})
+
+            for n in notes:
+                newly_processed.add(n.get("id", "") or "")
+
+        if crystallized:
+            # 護欄：crystal_rules 上限 100 條，超過則淘汰最舊的 crystallized_note
+            MAX_RULES = 100
+            if len(rules) > MAX_RULES:
+                crystallized_old = [r for r in rules if r.get("rule_type") == "crystallized_note"]
+                crystallized_old.sort(key=lambda r: r.get("created_at", ""))
+                to_remove = len(rules) - MAX_RULES
+                remove_ids = {r["rule_id"] for r in crystallized_old[:to_remove]}
+                rules = [r for r in rules if r.get("rule_id") not in remove_ids]
+                logger.info(f"Morphenix crystallize: pruned {len(remove_ids)} old crystallized rules (cap={MAX_RULES})")
+
+            cr_data["rules"] = rules
+            cr_data["updated_at"] = datetime.now(TZ8).isoformat()
+            try:
+                tmp = crystal_rules_path.with_suffix(".tmp")
+                tmp.write_text(json.dumps(cr_data, ensure_ascii=False, indent=2), encoding="utf-8")
+                tmp.replace(crystal_rules_path)
+                logger.info(f"Morphenix crystallize: wrote {len(crystallized)} crystal rules")
+            except Exception as e:
+                logger.warning(f"Morphenix crystallize: failed to write crystal_rules.json: {e}")
+
+        # 更新已處理清單
+        processed_set.update(n for n in newly_processed if n)
+        try:
+            processed_path.parent.mkdir(parents=True, exist_ok=True)
+            processed_path.write_text(json.dumps(list(processed_set), ensure_ascii=False, indent=2), encoding="utf-8")
+        except Exception as e:
+            logger.warning(f"Morphenix crystallize: failed to update processed_notes.json: {e}")
+
+        return {
+            "action": "crystallize_notes",
+            "applied": crystallized,
+            "count": len(crystallized),
+        }
+
+    def _action_review_response_strategy(self, proposal: Dict[str, Any], metadata: Dict[str, Any]) -> Dict[str, Any]:
+        """回應策略微調：連續低分時小幅提升品質導向權重.
+
+        策略：
+        - 在 active_rules.json 裡找最高 strength 的規則（品質相關），略為提升 strength +0.05
+        - 直接操作 JSON，不修改原始碼（L1 行為，但由 L2 action 觸發）
+        - 護欄：strength 最高 1.0，每次最多調整 1 條規則
+        """
+        active_rules_path = self._workspace / "_system" / "context_cache" / "active_rules.json"
+        metric = proposal.get("metric", metadata.get("metric", {}))
+        consecutive_low = metric.get("consecutive_low", 0)
+
+        if consecutive_low < 3:
+            return {"action": "review_response_strategy", "applied": [], "count": 0, "reason": "consecutive_low_below_threshold"}
+
+        try:
+            ar_data = json.loads(active_rules_path.read_text(encoding="utf-8")) if active_rules_path.exists() else {}
+        except Exception:
+            ar_data = {}
+
+        rules = ar_data.get("rules", [])
+        if not rules:
+            logger.info("Morphenix review_response_strategy: no rules in active_rules.json")
+            return {"action": "review_response_strategy", "applied": [], "count": 0, "reason": "no_rules"}
+
+        # 找最高 strength 且可調整的規則（排除 strength >= 1.0 的）
+        candidates = [r for r in rules if isinstance(r.get("strength"), (int, float)) and r.get("strength", 0) < 1.0]
+        if not candidates:
+            return {"action": "review_response_strategy", "applied": [], "count": 0, "reason": "no_adjustable_rules"}
+
+        # 選 strength 最高的一條（品質最強的，再加強）
+        target = max(candidates, key=lambda r: r.get("strength", 0))
+        old_strength = target.get("strength", 0.5)
+        new_strength = round(min(1.0, old_strength + 0.05), 3)
+        target["strength"] = new_strength
+
+        try:
+            tmp = active_rules_path.with_suffix(".tmp")
+            tmp.write_text(json.dumps(ar_data, ensure_ascii=False, indent=2), encoding="utf-8")
+            tmp.replace(active_rules_path)
+            logger.info(
+                f"Morphenix review_response_strategy: adjusted rule '{target.get('rule_id', '?')}' "
+                f"strength {old_strength} → {new_strength} (consecutive_low={consecutive_low})"
+            )
+        except Exception as e:
+            logger.warning(f"Morphenix review_response_strategy: write failed: {e}")
+            return {"action": "review_response_strategy", "applied": [], "count": 0, "reason": f"write_failed: {e}"}
+
+        return {
+            "action": "review_response_strategy",
+            "applied": [{"rule_id": target.get("rule_id", "?"), "old_strength": old_strength, "new_strength": new_strength}],
+            "count": 1,
+        }
+
     def _apply_l2(
         self, proposal: Dict[str, Any], metadata: Dict
     ) -> Dict[str, Any]:
-        """L2 Logic 變更：套用 diff patch.
+        """L2 Logic 變更：套用 diff patch 或 pure-action 分發.
 
         metadata 可包含：
           - "patch": "unified diff 文本"
           - "changes": [{"file": "...", "old": "...", "new": "..."}]
+          - 或 "action" 欄位（純 action 型，由 action dispatcher 處理）
         """
+        # 方式 0：純 action 型（無 patch/changes），分發到 action 處理器
+        action = metadata.get("action") or proposal.get("action", "")
         patch_text = metadata.get("patch", "")
         changes = metadata.get("changes", [])
+
+        if not patch_text and not changes and action:
+            logger.info(f"Morphenix L2: pure-action dispatch → {action}")
+            if action == "crystallize_notes":
+                return self._action_crystallize_notes(proposal)
+            elif action == "review_response_strategy":
+                return self._action_review_response_strategy(proposal, metadata)
+            else:
+                logger.warning(f"Morphenix L2: unknown pure-action '{action}', skipping")
+                return {"action": action, "applied": [], "count": 0, "reason": "unknown_action"}
+
         applied = []
 
         # 方式 1：有 patch 文本
