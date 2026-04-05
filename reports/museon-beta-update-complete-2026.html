@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MUSEON 進化報告 — 封測夥伴專屬</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,600&family=Outfit:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ──────────────────────────────────────
+       Reset & Base
+    ────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* Brand Colors */
+      --ember:        #C4502A;
+      --ember-light:  #E0714D;
+      --ember-dark:   #9A3A1C;
+      --teal:         #2A7A6E;
+      --gold:         #B8923A;
+
+      /* Dark Mode Surfaces */
+      --deep-ink:     #0E0E16;
+      --surface:      #16161F;
+      --raised:       #1E1E2A;
+      --border-dark:  #2A2A38;
+      --border-glow:  rgba(196, 80, 42, 0.3);
+
+      /* Text */
+      --text-primary:   #F0EDE8;
+      --text-secondary: #9898A8;
+      --text-muted:     #5A5A6E;
+
+      /* Typography */
+      --font-display: 'Cormorant Garamond', 'Noto Sans TC', Georgia, serif;
+      --font-body:    'Outfit', 'Noto Sans TC', sans-serif;
+      --font-mono:    'IBM Plex Mono', monospace;
+
+      /* Spacing */
+      --sp-2:  2px;
+      --sp-4:  4px;
+      --sp-8:  8px;
+      --sp-16: 16px;
+      --sp-24: 24px;
+      --sp-32: 32px;
+      --sp-48: 48px;
+      --sp-64: 64px;
+      --sp-96: 96px;
+
+      /* Layout */
+      --max-w-report: 820px;
+      --max-w-wide:   1200px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--deep-ink);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.75;
+      overflow-x: hidden;
+    }
+
+    /* ──────────────────────────────────────
+       Particle Canvas
+    ────────────────────────────────────── */
+    #particle-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.45;
+    }
+
+    /* ──────────────────────────────────────
+       Layout Wrapper
+    ────────────────────────────────────── */
+    .page-wrapper {
+      position: relative;
+      z-index: 1;
+    }
+
+    .container {
+      max-width: var(--max-w-report);
+      margin: 0 auto;
+      padding: 0 var(--sp-40, 40px);
+    }
+
+    @media (max-width: 640px) {
+      .container { padding: 0 var(--sp-16); }
+    }
+
+    /* ──────────────────────────────────────
+       Scroll Animation
+    ────────────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 400ms ease-out, transform 400ms ease-out;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: 80ms; }
+    .reveal-delay-2 { transition-delay: 160ms; }
+    .reveal-delay-3 { transition-delay: 240ms; }
+    .reveal-delay-4 { transition-delay: 320ms; }
+
+    /* ──────────────────────────────────────
+       Typography Utilities
+    ────────────────────────────────────── */
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ember-light);
+      display: inline-block;
+      margin-bottom: var(--sp-16);
+    }
+
+    h1, h2 {
+      font-family: var(--font-display);
+      font-weight: 600;
+      line-height: 1.15;
+    }
+
+    h3 {
+      font-family: var(--font-display);
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    /* ──────────────────────────────────────
+       Badge
+    ────────────────────────────────────── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--sp-8);
+      background: rgba(196, 80, 42, 0.12);
+      border: 1px solid rgba(196, 80, 42, 0.3);
+      border-radius: 100px;
+      padding: 4px 14px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--ember-light);
+    }
+    .badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--ember-light);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    /* ──────────────────────────────────────
+       Divider
+    ────────────────────────────────────── */
+    .section-divider {
+      width: 48px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--ember), transparent);
+      margin: var(--sp-48) 0;
+      border: none;
+    }
+
+    /* ──────────────────────────────────────
+       SECTION 1: Hero
+    ────────────────────────────────────── */
+    .hero {
+      padding: var(--sp-96) 0 80px;
+      text-align: center;
+      position: relative;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 400px;
+      background: radial-gradient(ellipse at center top, rgba(196,80,42,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero .badge {
+      margin-bottom: var(--sp-32);
+    }
+
+    .hero h1 {
+      font-size: clamp(40px, 7vw, 68px);
+      color: var(--text-primary);
+      margin-bottom: var(--sp-16);
+      letter-spacing: -0.01em;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--ember-light);
+    }
+
+    .hero .subtitle {
+      font-family: var(--font-display);
+      font-size: clamp(18px, 3vw, 24px);
+      font-weight: 400;
+      color: var(--text-secondary);
+      margin-bottom: var(--sp-32);
+      letter-spacing: 0.01em;
+    }
+
+    .hero .tagline {
+      font-size: 16px;
+      color: var(--text-secondary);
+      max-width: 480px;
+      margin: 0 auto var(--sp-48);
+      line-height: 1.8;
+    }
+
+    /* Stats Row */
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: var(--sp-48);
+      flex-wrap: wrap;
+      margin-top: var(--sp-48);
+      padding-top: var(--sp-48);
+      border-top: 1px solid var(--border-dark);
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-family: var(--font-display);
+      font-size: 40px;
+      font-weight: 600;
+      color: var(--ember-light);
+      line-height: 1;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .stat-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    /* ──────────────────────────────────────
+       SECTION 2: Apology Card
+    ────────────────────────────────────── */
+    .section {
+      padding: var(--sp-64) 0;
+    }
+
+    .apology-card {
+      background: var(--surface);
+      border: 1px solid var(--border-dark);
+      border-left: 4px solid var(--ember);
+      border-radius: 12px;
+      padding: var(--sp-32) var(--sp-32) var(--sp-32) 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .apology-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at top left, rgba(196,80,42,0.05) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .apology-card h3 {
+      font-size: 22px;
+      color: var(--text-primary);
+      margin-bottom: var(--sp-24);
+    }
+
+    .apology-card p {
+      color: var(--text-secondary);
+      line-height: 1.85;
+      margin-bottom: var(--sp-16);
+    }
+
+    .apology-card p:last-child {
+      margin-bottom: 0;
+    }
+
+    .apology-card .highlight-line {
+      color: var(--ember-light);
+      font-style: italic;
+    }
+
+    /* ──────────────────────────────────────
+       SECTION 3: Upgrade Cards Grid
+    ────────────────────────────────────── */
+    .upgrades-header {
+      text-align: center;
+      margin-bottom: var(--sp-48);
+    }
+
+    .upgrades-header h2 {
+      font-size: clamp(28px, 5vw, 44px);
+      color: var(--text-primary);
+      margin-bottom: var(--sp-16);
+    }
+
+    .upgrades-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--sp-24);
+    }
+
+    @media (max-width: 640px) {
+      .upgrades-grid { grid-template-columns: 1fr; }
+    }
+
+    .upgrade-card {
+      background: var(--surface);
+      border: 1px solid var(--border-dark);
+      border-radius: 12px;
+      padding: var(--sp-24);
+      position: relative;
+      overflow: hidden;
+      transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+      cursor: default;
+    }
+
+    .upgrade-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(196,80,42,0.25);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(196,80,42,0.08);
+    }
+
+    .upgrade-card::before {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 120px;
+      height: 120px;
+      background: radial-gradient(ellipse at top right, rgba(196,80,42,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: var(--sp-16);
+    }
+
+    .card-icon {
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .card-tag {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 100px;
+    }
+
+    .tag-new {
+      background: rgba(42, 122, 110, 0.15);
+      color: #3DB89E;
+      border: 1px solid rgba(42, 122, 110, 0.25);
+    }
+
+    .tag-upgrade {
+      background: rgba(196, 80, 42, 0.12);
+      color: var(--ember-light);
+      border: 1px solid rgba(196, 80, 42, 0.25);
+    }
+
+    .tag-fix {
+      background: rgba(184, 146, 58, 0.12);
+      color: #D4AE5A;
+      border: 1px solid rgba(184, 146, 58, 0.25);
+    }
+
+    .upgrade-card h3 {
+      font-size: 17px;
+      color: var(--text-primary);
+      margin-bottom: var(--sp-8);
+      font-family: var(--font-display);
+    }
+
+    .upgrade-card .card-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.75;
+      margin-bottom: var(--sp-16);
+    }
+
+    .card-usage {
+      background: var(--raised);
+      border-radius: 8px;
+      padding: 10px 14px;
+      border-left: 2px solid var(--border-dark);
+    }
+
+    .card-usage-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .card-usage p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    .card-usage .usage-highlight {
+      color: var(--teal);
+      font-style: italic;
+    }
+
+    /* ──────────────────────────────────────
+       SECTION 4: How to Use
+    ────────────────────────────────────── */
+    .how-to-use {
+      background: var(--surface);
+      border: 1px solid var(--border-dark);
+      border-radius: 16px;
+      padding: var(--sp-48) var(--sp-48);
+      position: relative;
+      overflow: hidden;
+    }
+
+    @media (max-width: 640px) {
+      .how-to-use { padding: var(--sp-32) var(--sp-24); }
+    }
+
+    .how-to-use::before {
+      content: '';
+      position: absolute;
+      bottom: 0; right: 0;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(ellipse at bottom right, rgba(42,122,110,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .how-to-use h2 {
+      font-size: clamp(24px, 4vw, 36px);
+      color: var(--text-primary);
+      margin-bottom: var(--sp-32);
+    }
+
+    .steps-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-24);
+    }
+
+    .step-item {
+      display: flex;
+      gap: var(--sp-16);
+      align-items: flex-start;
+    }
+
+    .step-number {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(196,80,42,0.12);
+      border: 1px solid rgba(196,80,42,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ember-light);
+      margin-top: 2px;
+    }
+
+    .step-content strong {
+      display: block;
+      color: var(--text-primary);
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .step-content p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    /* ──────────────────────────────────────
+       SECTION 5: Thanks + Gift
+    ────────────────────────────────────── */
+    .thanks-section {
+      text-align: center;
+    }
+
+    .thanks-section h2 {
+      font-size: clamp(26px, 5vw, 42px);
+      color: var(--text-primary);
+      margin-bottom: var(--sp-32);
+    }
+
+    .thanks-text {
+      font-size: 16px;
+      color: var(--text-secondary);
+      line-height: 1.9;
+      max-width: 600px;
+      margin: 0 auto var(--sp-48);
+    }
+
+    /* Gift Card */
+    .gift-card {
+      background: linear-gradient(135deg, var(--surface) 0%, var(--raised) 100%);
+      border: 1px solid rgba(184, 146, 58, 0.3);
+      border-radius: 20px;
+      padding: var(--sp-48) var(--sp-32);
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+      box-shadow:
+        0 0 60px rgba(184,146,58,0.06),
+        0 0 120px rgba(196,80,42,0.04),
+        inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+
+    .gift-card::before {
+      content: '';
+      position: absolute;
+      top: -60px; left: 50%;
+      transform: translateX(-50%);
+      width: 400px;
+      height: 300px;
+      background: radial-gradient(ellipse at center top, rgba(184,146,58,0.12) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .gift-card::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; right: -80px;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(ellipse at center, rgba(196,80,42,0.08) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .gift-glow-ring {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: rgba(184, 146, 58, 0.1);
+      border: 2px solid rgba(184, 146, 58, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto var(--sp-24);
+      font-size: 36px;
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 0 30px rgba(184,146,58,0.2);
+      animation: gift-glow 3s ease-in-out infinite;
+    }
+
+    @keyframes gift-glow {
+      0%, 100% { box-shadow: 0 0 30px rgba(184,146,58,0.2); }
+      50% { box-shadow: 0 0 50px rgba(184,146,58,0.35), 0 0 80px rgba(184,146,58,0.1); }
+    }
+
+    .gift-badge {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: var(--sp-16);
+      position: relative;
+      z-index: 1;
+    }
+
+    .gift-card h3 {
+      font-family: var(--font-display);
+      font-size: clamp(22px, 4vw, 34px);
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--sp-8);
+      position: relative;
+      z-index: 1;
+    }
+
+    .gift-card .gift-subtitle {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-style: italic;
+      color: var(--gold);
+      margin-bottom: var(--sp-24);
+      position: relative;
+      z-index: 1;
+    }
+
+    .gift-card .gift-desc {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.85;
+      max-width: 540px;
+      margin: 0 auto var(--sp-32);
+      position: relative;
+      z-index: 1;
+    }
+
+    .gift-card .gift-bold {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    /* Gift Sub-cards */
+    .gift-perks {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--sp-16);
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (max-width: 640px) {
+      .gift-perks { grid-template-columns: 1fr; }
+    }
+
+    .perk-card {
+      background: rgba(14, 14, 22, 0.6);
+      border: 1px solid rgba(184, 146, 58, 0.15);
+      border-radius: 12px;
+      padding: var(--sp-24) var(--sp-16);
+      text-align: center;
+      transition: border-color 200ms ease;
+    }
+
+    .perk-card:hover {
+      border-color: rgba(184, 146, 58, 0.3);
+    }
+
+    .perk-icon {
+      font-size: 24px;
+      margin-bottom: var(--sp-8);
+      display: block;
+    }
+
+    .perk-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .perk-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    /* ──────────────────────────────────────
+       SECTION 6: Timeline
+    ────────────────────────────────────── */
+    .timeline {
+      position: relative;
+      padding-left: 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 11px;
+      top: 12px;
+      bottom: 12px;
+      width: 2px;
+      background: linear-gradient(180deg, var(--ember) 0%, var(--gold) 60%, rgba(184,146,58,0.2) 100%);
+    }
+
+    .timeline-item {
+      position: relative;
+      padding: var(--sp-24) 0;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: -34px;
+      top: 28px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .timeline-dot.active {
+      background: var(--ember);
+      box-shadow: 0 0 0 4px rgba(196,80,42,0.2), 0 0 16px rgba(196,80,42,0.4);
+    }
+
+    .timeline-dot.active::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: white;
+    }
+
+    .timeline-dot.pending {
+      background: var(--raised);
+      border: 2px solid var(--border-dark);
+    }
+
+    .timeline-dot.pending::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-muted);
+    }
+
+    .timeline-dot.gold {
+      background: var(--gold);
+      box-shadow: 0 0 0 4px rgba(184,146,58,0.2), 0 0 16px rgba(184,146,58,0.3);
+    }
+
+    .timeline-dot.gold::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: white;
+    }
+
+    .timeline-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .timeline-label.active { color: var(--ember-light); }
+    .timeline-label.pending { color: var(--text-muted); }
+    .timeline-label.gold { color: var(--gold); }
+
+    .timeline-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .timeline-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    /* ──────────────────────────────────────
+       SECTION 7: Signature
+    ────────────────────────────────────── */
+    .signature-section {
+      padding: var(--sp-64) 0;
+      text-align: center;
+    }
+
+    .signature-quote {
+      font-family: var(--font-display);
+      font-size: clamp(18px, 3vw, 26px);
+      font-style: italic;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      max-width: 580px;
+      margin: 0 auto var(--sp-32);
+      padding: var(--sp-32);
+      border-top: 1px solid var(--border-dark);
+      border-bottom: 1px solid var(--border-dark);
+      position: relative;
+    }
+
+    .signature-quote::before {
+      content: '"';
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--font-display);
+      font-size: 48px;
+      color: var(--ember);
+      line-height: 1;
+      background: var(--deep-ink);
+      padding: 0 8px;
+    }
+
+    .signature-name {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .signature-name span {
+      color: var(--ember-light);
+    }
+
+    /* ──────────────────────────────────────
+       Footer
+    ────────────────────────────────────── */
+    footer {
+      padding: var(--sp-32) 0;
+      text-align: center;
+      border-top: 1px solid var(--border-dark);
+    }
+
+    footer p {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    footer span {
+      color: var(--border-dark);
+      margin: 0 8px;
+    }
+
+    /* ──────────────────────────────────────
+       Decorative Elements
+    ────────────────────────────────────── */
+    .ember-line {
+      width: 40px;
+      height: 2px;
+      background: var(--ember);
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 12px;
+    }
+
+    /* Section padding override */
+    .section-pad {
+      padding: var(--sp-64) 0;
+    }
+
+    .section-pad-lg {
+      padding: var(--sp-96) 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Particle Background -->
+<canvas id="particle-canvas"></canvas>
+
+<div class="page-wrapper">
+
+  <!-- ══════════════════════════════
+       HERO
+  ══════════════════════════════ -->
+  <section class="hero">
+    <div class="container">
+
+      <div class="badge reveal">封測夥伴專屬更新</div>
+
+      <h1 class="reveal reveal-delay-1">
+        MUSEON <em>進化報告</em>
+      </h1>
+
+      <p class="subtitle reveal reveal-delay-2">三週・十二項核心升級・一份禮物</p>
+
+      <p class="tagline reveal reveal-delay-3">
+        感謝你在最混亂的時候還在場。<br>這封信是給你的。
+      </p>
+
+      <div class="hero-stats reveal reveal-delay-4">
+        <div class="stat-item">
+          <span class="stat-number">3</span>
+          <span class="stat-label">週迭代期</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">120+</span>
+          <span class="stat-label">Commits</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">12</span>
+          <span class="stat-label">核心升級</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">49</span>
+          <span class="stat-label">認知能力</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════
+       APOLOGY
+  ══════════════════════════════ -->
+  <section class="section-pad">
+    <div class="container">
+      <div class="apology-card reveal">
+        <h3>先說一件欠大家的事</h3>
+        <p>
+          過去三週，你們一定遇過不少次「系統維護中」或訊息卡住的狀況。這裡跟大家說聲抱歉。
+        </p>
+        <p>
+          那段時間 MUSEON 正在經歷一次大規模的核心重建。就像一棟房子住著人的同時在換掉整套水電管線——有時候會突然斷水斷電，體驗確實不好。我們選擇邊跑邊修，而不是關起來改完再開，是因為你們在使用中遇到的每一個卡頓、每一次「它怎麼聽不懂」，都直接變成了改進的依據。
+        </p>
+        <p class="highlight-line">
+          所以那些不順暢的時刻，其實是你們在幫 MUSEON 長大。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════
+       UPGRADES GRID
+  ══════════════════════════════ -->
+  <section class="section-pad">
+    <div class="container">
+
+      <div class="upgrades-header">
+        <span class="eyebrow reveal">What's New</span>
+        <h2 class="reveal reveal-delay-1">三週・十二項核心進化</h2>
+      </div>
+
+      <div class="upgrades-grid">
+
+        <!-- Card 1 -->
+        <div class="upgrade-card reveal">
+          <div class="card-header">
+            <span class="card-icon">🧠</span>
+            <span class="card-tag tag-upgrade">深度升級</span>
+          </div>
+          <h3>思維引擎全面升級</h3>
+          <p class="card-desc">
+            MUSEON 在回答你之前，會先跑一輪多角度思考——自動檢查有沒有遺漏的觀點、盲點、或你可能沒想到的風險。不再是「第一反應」，而是真正的三思而後行。遇到重大決策時，它會先問你問題，確認假設，再給建議。
+          </p>
+          <div class="card-usage">
+            <p class="card-usage-label">使用情境</p>
+            <p>「我該不該接這個案子？」→ MUSEON 會從多個角度幫你拆解，<span class="usage-highlight">不只給答案，還告訴你哪些是假設、哪些是事實。</span></p>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="upgrade-card reveal reveal-delay-1">
+          <div class="card-header">
+            <span class="card-icon">💾</span>
+            <span class="card-tag tag-upgrade">深度升級</span>
+          </div>
+          <h3>記憶系統重建</h3>
+          <p class="card-desc">
+            記憶系統從零重建——混合檢索（關鍵字＋語意都搜得到）、三層記憶分級（熱/暖/冷）、記憶閘門防止迴圈、事實糾正機制。不會再把同一件事記成三份，也不會忘記你上次說過的重要細節。
+          </p>
+          <div class="card-usage">
+            <p class="card-usage-label">使用情境</p>
+            <p>「我之前提過我不想做 XX，你怎麼又建議了？」→ <span class="usage-highlight">它會精準記住，而且你糾正它一次，它就不會再犯。</span></p>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="upgrade-card reveal">
+          <div class="card-header">
+            <span class="card-icon">⚡</span>
+            <span class="card-tag tag-new">全新能力</span>
+          </div>
+          <h3>49 個認知能力模組</h3>
+          <p class="card-desc">
+            從 20 個擴充到 49 個——涵蓋品牌建構、商業診斷、投資分析、市場研究、定價策略、銷售流程設計、ESG 報告、股權架構、財務導航等。每個能力都有完整的方法論框架，不是泛泛而談。
+          </p>
+          <div class="card-usage">
+            <p class="card-usage-label">使用情境</p>
+            <p>想分析競品？打 /market-core。不確定用哪個？<span class="usage-highlight">直接說你的問題，它會自動匹配最適合的能力。</span></p>
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="upgrade-card reveal reveal-delay-1">
+          <div class="card-header">
+            <span class="card-icon">📊</span>
+            <span class="card-tag tag-upgrade">深度升級</span>
+          </div>
+          <h3>SSA 方法論完整注入</h3>
+          <p class="card-desc">
+            Zeal 自研的 SSA 完整 27+3 個模組全數灌入核心——消費者七步決策旅程、三重銷售漏斗、五層商業架構、PCT 價值三層模型，加上 5 個經典案例庫和 14 個分析框架。這不是網路上找得到的東西，是實戰十年淬煉出來的方法論。
+          </p>
+          <div class="card-usage">
+            <p class="card-usage-label">使用情境</p>
+            <p>「我的客戶總是問完就不回了」→ <span class="usage-highlight">用消費者七步旅程幫你找到卡在哪一步。</span></p>
+          </div>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="upgrade-card reveal">
+          <div class="card-header">
+            <span class="card-icon">📎</span>
+            <span class="card-tag tag-new">全新能力</span>
+          </div>
+          <h3>圖片和文件理解</h3>
+          <p class="card-desc">
+            直接丟圖片、PDF、截圖到對話裡，MUSEON 會自動辨識內容並分析。不需要手動把圖片裡的字打出來，也不需要把 PDF 轉成文字檔。
+          </p>
+          <div class="card-usage">
+            <p class="card-usage-label">使用情境</p>
+            <p>傳一份合約 PDF → 它幫你抓重點和潛在風險。傳一張報價單照片 → <span class="usage-highlight">它幫你比對和計算。</span></p>
+          </div>
+        </div>
+
+        <!-- Card 6 -->
+        <div class="upgrade-card reveal reveal-delay-1">
+          <div class="card-header">
+            <span class="card-icon">🌱</span>
+            <span class="card-tag tag-new">全新能力</span>
+          </div>
+          <h3>人格演化機制</h3>
+          <p class="card-desc">
+            全新八元素人格系統——好奇心、情緒模式、累積沉澱、關係深度、行動力、覺察力、邊界守護、連結互動。MUSEON 會根據你的互動風格動態調整。用得越久，它越能精準接住你——不是討好，是真正理解。
+          </p>
+          <div class="card-usage">
+            <p class="card-usage-label">使用情境</p>
+            <p>你習慣直接了當？它就不會繞圈子。<span class="usage-highlight">這些調整會隨著互動自然發生，不需要你設定任何東西。</span></p>
+          </div>
+        </div>
+
+        <!-- Card 7 -->
+        <div class="upgrade-card reveal">
+          <div class="card-header">
+            <span class="card-icon">🔖</span>
+            <span class="card-tag tag-fix">已修復</span>
+          </div>
+          <h3>統一身份識別</h3>
+          <p class="card-desc">
+            全新的實體識別系統——同一個人在不同群組、用不同名字，MUSEON 都能正確對應。自動偵測別名、去重、跨群組追蹤。你的對話不會再「串線」。
+          </p>
+          <div class="card-usage">
+            <p class="card-usage-label">使用情境</p>
+            <p>你在 A 群叫某人「阿明」，在 B 群叫他「陳先生」→ <span class="usage-highlight">MUSEON 知道這是同一個人，不會把兩邊的對話搞混。</span></p>
+          </div>
+        </div>
+
+        <!-- Card 8 -->
+        <div class="upgrade-card reveal reveal-delay-1">
+          <div class="card-header">
+            <span class="card-icon">🔭</span>
+            <span class="card-tag tag-new">全新能力</span>
+          </div>
+          <h3>主動探索與研究</h3>
+          <p class="card-desc">
+            MUSEON 現在有「呼吸節奏」——即使你沒有傳訊息，它也會在背景做功課：研究你關心的產業趨勢、整理過去對話的洞見、自我健康檢查。每天早上還會自動產出一份企業案例晨報。
+          </p>
+          <div class="card-usage">
+            <p class="card-usage-label">使用情境</p>
+            <p>你三天沒跟它聊天，回來後它可能會說：<span class="usage-highlight">「這幾天我研究了你上次提到的 XX 產業，發現一個你可能感興趣的趨勢...」</span></p>
+          </div>
+        </div>
+
+        <!-- Card 9 -->
+        <div class="upgrade-card reveal">
+          <div class="card-header">
+            <span class="card-icon">🎯</span>
+            <span class="card-tag tag-new">全新能力</span>
+          </div>
+          <h3>軍師行為模式</h3>
+          <p class="card-desc">
+            全新的四象限軍師路由——根據你當下的能量狀態（高/低）和問題緊急度（急/緩），自動切換回應模式。急事直接給行動方案；不急但重要的事，帶你一起推演。
+          </p>
+          <div class="card-usage">
+            <p class="card-usage-label">使用情境</p>
+            <p>深夜傳「明天開會要用的簡報還沒做」→ 它直接給框架不廢話。週末問「我的事業方向對嗎」→ <span class="usage-highlight">它帶你做完整的多角度推演。</span></p>
+          </div>
+        </div>
+
+        <!-- Card 10 -->
+        <div class="upgrade-card reveal reveal-delay-1">
+          <div class="card-header">
+            <span class="card-icon">🛡️</span>
+            <span class="card-tag tag-fix">已修復</span>
+          </div>
+          <h3>訊息品質防護</h3>
+          <p class="card-desc">
+            全面升級的回覆品質控管——回答前自動檢查有沒有外洩內部術語、有沒有搞混群組、有沒有編造資訊。加上訊息合併機制，連續傳的多條訊息會被智慧合併處理，不會漏掉你說的某句話。
+          </p>
+          <div class="card-usage">
+            <p class="card-usage-label">使用情境</p>
+            <p>你快速連傳三條語音轉文字 → <span class="usage-highlight">它會等你說完，理解完整意思後一次回覆。</span></p>
+          </div>
+        </div>
+
+        <!-- Card 11 -->
+        <div class="upgrade-card reveal">
+          <div class="card-header">
+            <span class="card-icon">📌</span>
+            <span class="card-tag tag-new">全新能力</span>
+          </div>
+          <h3>承諾追蹤系統</h3>
+          <p class="card-desc">
+            MUSEON 現在會追蹤它自己做過的承諾——如果它說「我明天會幫你整理那份報告」，它真的會記住並執行。內建的決策圖譜會記錄你做過的重大決策和背後的理由，方便你日後回顧。
+          </p>
+          <div class="card-usage">
+            <p class="card-usage-label">使用情境</p>
+            <p>「你上次說要幫我追蹤 XX，追蹤了嗎？」→ 它不會再忘記。<span class="usage-highlight">你三個月後回頭，可以翻閱完整的決策軌跡。</span></p>
+          </div>
+        </div>
+
+        <!-- Card 12 -->
+        <div class="upgrade-card reveal reveal-delay-1">
+          <div class="card-header">
+            <span class="card-icon">⚙️</span>
+            <span class="card-tag tag-fix">已修復</span>
+          </div>
+          <h3>系統韌性大升級</h3>
+          <p class="card-desc">
+            底層架構全面強化——斷路器防止連鎖崩潰、免疫系統自動學習過去的故障模式、健康自檢機制即時偵測異常。系統壞掉的機率大幅降低，就算遇到問題也能更快自我修復。
+          </p>
+          <div class="card-usage">
+            <p class="card-usage-label">使用情境</p>
+            <p>你不會直接感受到這個升級——<span class="usage-highlight">因為它的目標就是讓你感受不到問題。</span>「系統維護中」的出現頻率會明顯降低。</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════
+       HOW TO USE
+  ══════════════════════════════ -->
+  <section class="section-pad">
+    <div class="container">
+      <div class="how-to-use reveal">
+        <span class="eyebrow">Getting Started</span>
+        <h2>怎麼使用這些新功能？</h2>
+
+        <ol class="steps-list">
+          <li class="step-item">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <strong>直接說你的問題</strong>
+              <p>不需要記指令。想要商業分析、文案撰寫、策略建議，說出來就好。MUSEON 會自動判斷該用哪個認知能力。</p>
+            </div>
+          </li>
+          <li class="step-item">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <strong>丟檔案就好</strong>
+              <p>圖片、PDF、截圖、語音，傳過來就能分析。不需要解釋格式。</p>
+            </div>
+          </li>
+          <li class="step-item">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <strong>問它記得你什麼</strong>
+              <p>「你對我的了解是什麼？」「我上次說過 XX 嗎？」直接問，它會誠實告訴你。</p>
+            </div>
+          </li>
+          <li class="step-item">
+            <div class="step-number">4</div>
+            <div class="step-content">
+              <strong>用 /help 看完整清單</strong>
+              <p>49 個認知能力的完整指令列表，隨時可查。</p>
+            </div>
+          </li>
+          <li class="step-item">
+            <div class="step-number">5</div>
+            <div class="step-content">
+              <strong>給它回饋</strong>
+              <p>覺得哪裡不對、哪裡可以更好，直接說。它會真的學起來，不是客套。</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════
+       THANKS + GIFT
+  ══════════════════════════════ -->
+  <section class="section-pad">
+    <div class="container">
+      <div class="thanks-section">
+
+        <h2 class="reveal">你們是第一批真正使用者</h2>
+
+        <p class="thanks-text reveal reveal-delay-1">
+          每一個「它怎麼這樣回」的反饋、每一次「系統又掛了」的耐心等待、甚至每一個「算了不用了」的沉默離開——這些都是真實的數據，比任何測試腳本都珍貴。MUSEON 之所以能在三週內進化這麼多，是因為有你們在真實場景裡跟它碰撞。
+        </p>
+
+        <!-- Gift Card -->
+        <div class="gift-card reveal reveal-delay-2">
+          <div class="gift-glow-ring">🎁</div>
+          <p class="gift-badge">封測夥伴專屬禮物</p>
+          <h3>MUSEON 正式上線後&nbsp;&nbsp;免費使用資格</h3>
+          <p class="gift-subtitle">— 你已經付出了最珍貴的代價 —</p>
+          <p class="gift-desc">
+            封測期間你給的每一個回饋、每一次耐心等待，都是 MUSEON 真正的研發成本。<br>
+            正式上線後，所有封測夥伴將獲得<span class="gift-bold">免費使用資格</span>，作為我們的回報。<br>
+            具體期間將在上線前公告。<br><br>
+            但有一件事從現在就確定：<br>
+            <span class="gift-bold">你值得這份禮物。</span>
+          </p>
+
+          <div class="gift-perks">
+            <div class="perk-card">
+              <span class="perk-icon">⚡</span>
+              <p class="perk-title">完整功能存取</p>
+              <p class="perk-desc">正式版所有功能，無限制開放，不是試用版</p>
+            </div>
+            <div class="perk-card">
+              <span class="perk-icon">🧠</span>
+              <p class="perk-title">記憶完整繼承</p>
+              <p class="perk-desc">封測期間 MUSEON 對你的了解，全部帶入正式版</p>
+            </div>
+            <div class="perk-card">
+              <span class="perk-icon">🌟</span>
+              <p class="perk-title">早鳥見證地位</p>
+              <p class="perk-desc">你的名字，被記錄在 MUSEON 的起源故事裡</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════
+       TIMELINE
+  ══════════════════════════════ -->
+  <section class="section-pad">
+    <div class="container">
+      <span class="eyebrow reveal">What's Next</span>
+      <div class="timeline">
+
+        <div class="timeline-item reveal">
+          <div class="timeline-dot active"></div>
+          <span class="timeline-label active">Now · 現在</span>
+          <h3 class="timeline-title">封測持續進行</h3>
+          <p class="timeline-desc">系統每週都在進化。你使用的每一刻，都在讓 MUSEON 變得更好。</p>
+        </div>
+
+        <div class="timeline-item reveal reveal-delay-1">
+          <div class="timeline-dot pending"></div>
+          <span class="timeline-label pending">Soon · 即將</span>
+          <h3 class="timeline-title">核心功能凍結</h3>
+          <p class="timeline-desc">進入最終打磨期——不再新增功能，專注穩定性與體驗細節。</p>
+        </div>
+
+        <div class="timeline-item reveal reveal-delay-2">
+          <div class="timeline-dot pending"></div>
+          <span class="timeline-label pending">Coming · 到來</span>
+          <h3 class="timeline-title">正式上線</h3>
+          <p class="timeline-desc">MUSEON 對外開放。你在這裡陪我們走到了這一天。</p>
+        </div>
+
+        <div class="timeline-item reveal reveal-delay-3">
+          <div class="timeline-dot gold"></div>
+          <span class="timeline-label gold">Your Gift · 你的禮物</span>
+          <h3 class="timeline-title">免費使用期開始</h3>
+          <p class="timeline-desc">屬於你的 MUSEON 已準備好——帶著你們給它的所有記憶，等你來。</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════
+       SIGNATURE
+  ══════════════════════════════ -->
+  <section class="signature-section">
+    <div class="container">
+      <blockquote class="signature-quote reveal">
+        你們不是使用者，你們是見證者。<br>MUSEON 因為你們而存在，也因為你們而變得更好。
+      </blockquote>
+      <p class="signature-name reveal reveal-delay-1">
+        <span>Zeal</span> / MUSEON 創辦人
+      </p>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════
+       FOOTER
+  ══════════════════════════════ -->
+  <footer>
+    <div class="container">
+      <p>MUSEON <span>/</span> Your AI Decision System <span>·</span> Est. 2026</p>
+    </div>
+  </footer>
+
+</div><!-- .page-wrapper -->
+
+<!-- ──────────────────────────────────────
+     SCRIPTS
+────────────────────────────────────── -->
+<script>
+  /* ─── Particle System ─── */
+  (function() {
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [], animFrame;
+
+    const PARTICLE_COUNT = 55;
+    const COLORS = ['rgba(196,80,42,', 'rgba(224,113,77,', 'rgba(184,146,58,', 'rgba(42,122,110,'];
+
+    function resize() {
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+
+    function rand(min, max) { return Math.random() * (max - min) + min; }
+
+    function createParticle() {
+      const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+      return {
+        x: rand(0, W),
+        y: rand(0, H),
+        r: rand(0.5, 2.2),
+        dx: rand(-0.15, 0.15),
+        dy: rand(-0.25, -0.08),
+        alpha: rand(0.1, 0.55),
+        color,
+        pulse: rand(0, Math.PI * 2),
+        pulseSpeed: rand(0.008, 0.022),
+      };
+    }
+
+    function initParticles() {
+      particles = [];
+      for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(createParticle());
+    }
+
+    function drawParticle(p) {
+      p.pulse += p.pulseSpeed;
+      const alpha = p.alpha * (0.6 + 0.4 * Math.sin(p.pulse));
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.color + alpha + ')';
+      ctx.fill();
+    }
+
+    function drawConnections() {
+      const threshold = 140;
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < threshold) {
+            const alpha = (1 - dist / threshold) * 0.06;
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = `rgba(196,80,42,${alpha})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+    }
+
+    function tick() {
+      ctx.clearRect(0, 0, W, H);
+
+      particles.forEach(p => {
+        drawParticle(p);
+        p.x += p.dx;
+        p.y += p.dy;
+
+        // Wrap around
+        if (p.y < -5) { p.y = H + 5; p.x = rand(0, W); }
+        if (p.x < -5) p.x = W + 5;
+        if (p.x > W + 5) p.x = -5;
+      });
+
+      drawConnections();
+      animFrame = requestAnimationFrame(tick);
+    }
+
+    window.addEventListener('resize', () => { resize(); initParticles(); });
+    resize();
+    initParticles();
+    tick();
+  })();
+
+  /* ─── Scroll Reveal (IntersectionObserver) ─── */
+  (function() {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Trigger visible for elements already in viewport on load
+    setTimeout(() => {
+      document.querySelectorAll('.reveal:not(.visible)').forEach(el => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight) {
+          el.classList.add('visible');
+        }
+      });
+    }, 100);
+  })();
+
+  /* ─── Number Counter Animation ─── */
+  (function() {
+    const stats = document.querySelectorAll('.stat-number');
+    const counterObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          const raw = el.textContent.trim();
+          const hasPlus = raw.includes('+');
+          const target = parseInt(raw.replace('+', ''));
+          let current = 0;
+          const increment = target / 40;
+          const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+              current = target;
+              clearInterval(timer);
+            }
+            el.textContent = Math.floor(current) + (hasPlus ? '+' : '');
+          }, 30);
+          counterObserver.unobserve(el);
+        }
+      });
+    }, { threshold: 0.5 });
+
+    stats.forEach(s => counterObserver.observe(s));
+  })();
+</script>
+
+</body>
+</html>
