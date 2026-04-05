@@ -1,8 +1,9 @@
-# MUSEON Persistence Contract v1.55 — 水電圖
+# MUSEON Persistence Contract v1.56 — 水電圖
 
 > **本文件是 MUSEON 資料持久層的唯一真相來源。**
 > 所有資料的寫入、消費、生命週期、格式、儲存位置，以此文件為準。
 > 與 `system-topology.md`（控制流拓撲）互補——那是「神經圖」，這是「水電圖」。
+> **v1.56 (2026-04-05)**：Phase 2+3 FV 藍圖同步——新增 `data/_system/morphenix/processed_notes.json`（已結晶筆記清單，寫入者=`nightly/morphenix_executor.py`（`_action_crystallize_notes()`），讀取者=`morphenix_executor.py`（讀取已處理清單做去重），格式=JSON 陣列（note_id strings），生命週期=累積，無 TTL）；新增 `data/_system/footprints/crystal_observations.jsonl`（探索結晶觀察日誌，寫入者=`nightly/exploration_bridge.py`（含「認知/盲點/偏見/學到/發現」關鍵字的探索結晶），讀取者=未來 Observatory/SystemAudit，格式=JSONL（每行含 topic/observation/timestamp），生命週期=append-only）；新增 `morphenix_executor.py` 作為 `crystal_rules.json` 的第二寫入者（`_action_crystallize_notes()` 在規則數超過 100 條時自動淘汰最舊的 crystallized_note 型規則）。同步 joint-map v1.72、memory-router v1.29。
 > **v1.55 (2026-04-05)**：Decision Atlas + Breath System + Elder Council——新增 `data/_system/decision_atlas/da-*.json`（決策結晶 JSON 群，寫入者=Claude Code session + 未來 L4 觀察者，讀取者=brain_prompt_builder.py persona zone + vision_loop.py 覆蓋度掃描，永久保存）；新增 `data/_system/breath/patterns/{yyyy-wNN}.json`（呼吸分析結果，寫入者=breath_analyzer.py Nightly Step 34.8，讀取者=vision_loop.py，保留最近 12 週）；新增 `data/_system/breath/visions/{yyyy-wNN}.json`（願景提案，寫入者=vision_loop.py Nightly Step 34.9，讀取者=未來 Elder Council，保留最近 12 週）；新增 `data/_system/breath/observations/{yyyy-wNN}.jsonl`（呼吸觀察 JSONL，寫入者=L4 觀察者+系統監控，讀取者=breath_analyzer.py，保留最近 12 週）；新增 `data/_system/elder_council/members.json`（長老名單，寫入者=手動/未來自動晉升，讀取者=vision_loop.py，永久）。同步 joint-map v1.70、memory-router v1.27。
 > **v1.54 (2026-04-05)**：Entity Registry 建置——GroupContextDB 新增 4 張表：`entity_aliases`（別名映射，PK=alias+entity_type+entity_id，case-insensitive index）、`projects`（專案基本資訊）、`project_entities`（專案成員多對多關聯）、`events`（事件時間線，entity+project 雙索引）；寫入者=`governance/group_context.py`，讀取者=`governance/group_context.py`+`agent/brain_prompt_builder.py`（alias resolve）。L4CpuObserver 記憶寫入路徑修正：從 MemoryStore.write()（Markdown，靜默失敗）改為 MemoryManager.store()（Qdrant memories collection），chat_scope 欄位從 metadata 推導。brain_prompt_builder.py 人物搜尋新增 ProfileStore + GroupContextStore 讀取者。同步 joint-map v1.69、blast-radius v2.01。
 > **v1.53 (2026-04-04)**：semantic_response_cache——新增 Qdrant dense collection `semantic_response_cache`（512 維，BAAI/bge-small-zh-v1.5，cosine distance）；寫入者=`cache/semantic_response_cache.py`（L4CpuObserver 回覆後呼叫），讀取者=`cache/semantic_response_cache.py`（Brain L1 查詢），TTL 動態（30min~12h），按 chat_id 做 payload filter 群組隔離，查詢時判斷 TTL 過期自動刪除。同步 joint-map v1.68。
@@ -483,6 +484,8 @@ adaptive_decay ──ACT-R B_i──→ _activation 欄位 (in-memory) ←──
 | `_system/footprints/actions.jsonl` | `governance/footprint.py` | L1 足跡 |
 | `_system/footprints/cognitive_trace.jsonl` | `governance/footprint.py` | 認知追蹤（Brain Step 8 決策迴圈的認知軌跡） |
 | `_system/morphenix/*.json` | `nightly/morphenix_executor.py` | 執行快照 |
+| `_system/morphenix/processed_notes.json` | `nightly/morphenix_executor.py`（`_action_crystallize_notes()`） | 已結晶筆記清單（去重用）|
+| `_system/footprints/crystal_observations.jsonl` | `nightly/exploration_bridge.py` | 探索結晶觀察日誌（append-only） |
 | `_system/outward/*.json` | `evolution/outward_trigger.py` | 外向演化狀態（behavior_shift, cooldown, counter, pending_signals 等） |
 | `_system/sessions/*.json` | `brain_tools.py` / `session_cleanup.py` | 會話快照（v1.55 新增 metadata.last_active 自動清理） |
 | `_system/tools/registry.json` | `tools/tool_registry.py` | 工具清單 |
@@ -862,6 +865,7 @@ adaptive_decay ──ACT-R B_i──→ _activation 欄位 (in-memory) ←──
 | v1.18 | 2026-03-19 | P1-P3 藍圖同步：新增 W36 baihe_cache.json 配對（Brain Step 3.65 原子寫入、ProactiveBridge 讀取，TTL 2h）；補入 _system/baihe_cache.json 子目錄條目；同步 blast-radius/joint-map 已有的 baihe_cache 記錄 |
 | v1.17 | 2026-03-17 | 軍師架構 Phase 0：`_system/` 子目錄新增 lord_profile.json 條目（brain.py `_observe_lord()` 寫入、persona_router.py 讀取）；JSON 格式：6 領域 × 4 欄位 + domain_keywords + advise_cooldown；原子寫入（tmp→rename） |
 | v1.16 | 2026-03-17 | WorkflowEngine DataContract 接入：WorkflowEngine 實作 DataContract（store_spec+health_check）；Nightly _auto_register_known_stores 新增 workflow_state_db 自動註冊；新增 cleanup_old_executions() 清理已歸檔工作流的過期 executions（90 天） |
+| v1.56 | 2026-04-05 | Phase 2+3 FV 藍圖同步：新增 `_system/morphenix/processed_notes.json`（morphenix_executor `_action_crystallize_notes()` 寫入，JSON 陣列 note_id strings，已處理清單去重）；新增 `_system/footprints/crystal_observations.jsonl`（exploration_bridge.py 寫入，JSONL，探索結晶觀察日誌，append-only）；`crystal_rules.json` 新增寫入者 morphenix_executor（_action_crystallize_notes，100 條上限淘汰最舊 crystallized_note）。同步 joint-map v1.72、memory-router v1.29 |
 | v1.15 | 2026-03-17 | 認知可觀測性：新增 W35 cognitive_trace.jsonl（FootprintStore.trace_cognitive() 寫入、SystemAudit Skill Doctor + Observatory 讀取）；管線 D 新增 Footprint→cognitive_trace.jsonl 資料流；FootprintStore DataContract 描述更新（actions+decisions+evolutions+cognitive_trace 四檔）；`_system/footprints/` 子目錄新增 cognitive_trace.jsonl 條目 |
 | v1.14 | 2026-03-16 | Memory Reset 一鍵重置管線：新增 Pipeline R（25 個持久層的原子重置管線）；涵蓋 7 大類（A.身份 B.對話 C.知識 D.行為 E.評估 F.日誌 G.狀態）；`doctor/memory_reset.py` 為唯一執行入口；預設 dry-run 安全模式 |
 | v1.12 | 2026-03-16 | P0 記憶事實覆寫：新增管線 A-2（事實更正覆寫管線）；Qdrant memories 新增 status=deprecated 軟刪除標記（VectorBridge.mark_deprecated() 寫入、search() 自動過濾）；新增 data/anima/fact_corrections.jsonl（Brain 寫入、ProactiveBridge+PulseEngine+Brain 讀取）；MemoryManager.supersede() 已存在但現在被 Brain 自動呼叫 |

@@ -190,6 +190,17 @@
 > - heuristics.json → `brain_prompt_builder.py` Stage 5 `format_rules_for_prompt()` 注入每次對話 prompt
 > - MemoryGraph edges → brain.py 記憶注入時查詢關聯記憶
 
+### 🔵 探索結晶觀察 → crystal_observations.jsonl（v1.29 新增）
+
+| 來源 | 洞見類型 | 寫入條件 | 目標路徑 |
+|------|---------|---------|---------|
+| ExplorationBridge 探索結晶 | 自我認知更新（含「認知/盲點/偏見/學到/發現」關鍵字） | exploration_bridge.py `_route_crystal_insight()` | `data/_system/footprints/crystal_observations.jsonl` |
+
+> **消費者**：未來 Observatory / SystemAudit（觀察日誌分析）
+> **格式**：JSONL，每行含 `{topic, observation, timestamp}`，append-only
+
+---
+
 ### 🔵 教訓蒸餾 → crystal_rules.json（v1.8 新增）
 
 | 來源 | 洞見類型 | 寫入條件 | 規則類型 |
@@ -339,6 +350,7 @@
 
 | 版本 | 日期 | 變更 |
 |------|------|------|
+| v1.29 | 2026-04-05 | Phase 2+3 FV 藍圖同步——新增「探索結晶觀察 → crystal_observations.jsonl」路由段（exploration_bridge.py 含「認知/盲點/偏見/學到/發現」關鍵字的結晶觀察 append-only 寫入 `_system/footprints/crystal_observations.jsonl`，消費者=未來 Observatory/SystemAudit）；同步 persistence-contract v1.56、joint-map v1.72 |
 | v1.28 | 2026-04-05 | 能力缺口偵測路由——新增「能力缺口偵測 → morphenix/notes/ + skill_requests/」路由段（三軌道 A/B/C：Track A=低分未觸發宏觀聚合→scout_gap_cluster 筆記，Track B=_match_score 弱匹配→scout_skill_optimize 筆記，缺口達閾值→skill_requests/req_*.json 需求槽）；向量去重路由（gap_accumulator→Qdrant gaps collection #86）；消費路徑：morphenix/notes=skill_forge_scout.py 讀取，skill_requests=Claude Code session 啟動掃描。同步 system-topology v1.85、persistence-contract v1.56、joint-map v1.71、blast-radius v2.03 |
 | v1.27 | 2026-04-05 | Decision Atlas + Vision Loop 路由——新增規則 9（Decision Atlas → Brain Prompt 直接注入 persona zone，N/A 進記憶系統）；新增規則 10（四信號源匯聚 → vision_loop.py → breath/visions/{yyyy-wNN}.json，Nightly Step 34.9 週日，未來接 Morphenix）；補充 breath/observations JSONL 上游輸入管道與 breath_analyzer.py Step 34.8 分析鏈路說明。同步 persistence-contract v1.55、joint-map v1.70 |
 | v1.26 | 2026-04-04 | l4_cpu_observer 架構更新——新增規則 8（L4 CPU Observer 記憶寫入路徑）；L4 從 Haiku agent spawn 改為 CPU Python 函數（`agent/l4_cpu_observer.py`），零 LLM token；記憶寫入路徑 observe() → memory_manager.write()（同步非 async）；新增 signals 快取路由（context_cache/{session_id}_signals.json EMA 合併）；新增偏好佇列路由（pending_preference_updates.jsonl append）。同步 persistence-contract v1.52、joint-map v1.67 |
