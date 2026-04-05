@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>室內設計公司報價系統規劃書 — MUSEON</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ember: #C4502A;
+    --ember-light: #E0714D;
+    --ember-dark: #9A3A1C;
+    --teal: #2A7A6E;
+    --gold: #B8923A;
+    --ink: #12121A;
+    --slate: #5A5A6E;
+    --mist: #9898A8;
+    --border: #E2E0DA;
+    --parchment: #F7F5F0;
+    --snow: #FDFCFA;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--parchment);
+    color: var(--ink);
+    font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+    font-size: 16px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page-container {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 64px 40px 96px;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    text-align: center;
+    padding: 96px 0 64px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 64px;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(196,80,42,0.1);
+    color: var(--ember-dark);
+    border-radius: 100px;
+    padding: 3px 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 48px;
+    font-weight: 600;
+    line-height: 1.15;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+  .hero .subtitle {
+    font-size: 18px;
+    color: var(--slate);
+    font-weight: 300;
+    max-width: 560px;
+    margin: 0 auto;
+  }
+  .hero-meta {
+    margin-top: 32px;
+    font-size: 13px;
+    color: var(--mist);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* ── Section ── */
+  .section {
+    margin-bottom: 64px;
+  }
+  .section-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ember);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--ink);
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--ember);
+    display: inline-block;
+  }
+  h3 {
+    font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-top: 32px;
+    margin-bottom: 12px;
+  }
+  h4 {
+    font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--ember-dark);
+    margin-top: 24px;
+    margin-bottom: 8px;
+  }
+  p {
+    margin-bottom: 16px;
+    color: var(--ink);
+  }
+  .text-slate { color: var(--slate); }
+
+  /* ── Card ── */
+  .card {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+  }
+  .card-title {
+    font-weight: 600;
+    font-size: 17px;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+  .card-icon {
+    display: inline-block;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    text-align: center;
+    line-height: 36px;
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+
+  /* ── Pain point cards ── */
+  .pain-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin: 24px 0;
+  }
+  .pain-card {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(18,18,26,0.06);
+  }
+  .pain-card .icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+  }
+  .pain-card .label {
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 4px;
+  }
+  .pain-card .desc {
+    font-size: 13px;
+    color: var(--slate);
+    line-height: 1.5;
+  }
+
+  /* ── Tier cards ── */
+  .tier-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin: 24px 0;
+  }
+  .tier-card {
+    background: var(--snow);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(18,18,26,0.06);
+    transition: transform 200ms ease, box-shadow 200ms ease;
+  }
+  .tier-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(18,18,26,0.1);
+  }
+  .tier-card.featured {
+    border-color: var(--ember);
+    border-width: 2px;
+    position: relative;
+  }
+  .tier-card.featured::before {
+    content: 'RECOMMENDED';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ember);
+    color: #fff;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    padding: 2px 12px;
+    border-radius: 100px;
+  }
+  .tier-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .tier-range {
+    font-size: 13px;
+    color: var(--slate);
+    margin-bottom: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .tier-features {
+    text-align: left;
+    font-size: 14px;
+    color: var(--slate);
+    line-height: 1.8;
+  }
+  .tier-features li {
+    list-style: none;
+    padding-left: 20px;
+    position: relative;
+  }
+  .tier-features li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--teal);
+  }
+
+  /* ── Flow ── */
+  .flow-steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    margin: 24px 0;
+    align-items: flex-start;
+  }
+  .flow-step {
+    flex: 1;
+    min-width: 100px;
+    text-align: center;
+    position: relative;
+    padding: 0 8px;
+  }
+  .flow-step .step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--ember);
+    color: #fff;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .flow-step .step-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+    display: block;
+  }
+  .flow-step .step-desc {
+    font-size: 12px;
+    color: var(--slate);
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+  .flow-arrow {
+    display: flex;
+    align-items: center;
+    padding-top: 10px;
+    color: var(--mist);
+    font-size: 18px;
+  }
+
+  /* ── Table ── */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 24px 0;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 3px rgba(18,18,26,0.06);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--snow);
+    font-size: 14px;
+  }
+  thead {
+    background: var(--ink);
+    color: #fff;
+  }
+  thead th {
+    padding: 12px 16px;
+    font-weight: 600;
+    text-align: left;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+  }
+  tbody td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--ink);
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: rgba(196,80,42,0.03); }
+  .row-category {
+    background: rgba(196,80,42,0.06);
+    font-weight: 600;
+    color: var(--ember-dark);
+  }
+  .row-subtotal {
+    background: rgba(42,122,110,0.06);
+    font-weight: 600;
+    color: var(--teal);
+  }
+  .row-total {
+    background: var(--ink);
+    color: #fff;
+    font-weight: 600;
+    font-size: 15px;
+  }
+  .text-right { text-align: right; }
+  .text-center { text-align: center; }
+  .text-muted { color: var(--mist); font-size: 13px; }
+
+  /* ── Timeline ── */
+  .timeline {
+    position: relative;
+    margin: 32px 0;
+    padding-left: 40px;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+  .timeline-item {
+    position: relative;
+    margin-bottom: 32px;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -29px;
+    top: 6px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--ember);
+    border: 3px solid var(--parchment);
+  }
+  .timeline-phase {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ember);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .timeline-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 4px 0 8px;
+  }
+  .timeline-desc {
+    font-size: 14px;
+    color: var(--slate);
+    line-height: 1.7;
+  }
+
+  /* ── Callout ── */
+  .callout {
+    background: rgba(196,80,42,0.06);
+    border-left: 3px solid var(--ember);
+    border-radius: 0 8px 8px 0;
+    padding: 16px 20px;
+    margin: 24px 0;
+    font-size: 15px;
+    color: var(--ink);
+  }
+  .callout-teal {
+    background: rgba(42,122,110,0.06);
+    border-left-color: var(--teal);
+  }
+  .callout-gold {
+    background: rgba(184,146,58,0.06);
+    border-left-color: var(--gold);
+  }
+
+  /* ── List ── */
+  ul.styled {
+    list-style: none;
+    padding: 0;
+    margin: 12px 0;
+  }
+  ul.styled li {
+    padding: 6px 0 6px 24px;
+    position: relative;
+    color: var(--ink);
+  }
+  ul.styled li::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 14px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--ember);
+    opacity: 0.6;
+  }
+  ul.check-list {
+    list-style: none;
+    padding: 0;
+    margin: 12px 0;
+  }
+  ul.check-list li {
+    padding: 6px 0 6px 28px;
+    position: relative;
+    color: var(--ink);
+    font-size: 15px;
+  }
+  ul.check-list li::before {
+    content: '\2713';
+    position: absolute;
+    left: 4px;
+    top: 6px;
+    color: var(--teal);
+    font-weight: 700;
+  }
+
+  /* ── Divider ── */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 48px 0;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center;
+    padding: 48px 0;
+    border-top: 1px solid var(--border);
+    margin-top: 64px;
+    color: var(--mist);
+    font-size: 13px;
+  }
+  .footer .logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--ember);
+    margin-bottom: 8px;
+  }
+
+  /* ── Two-column layout ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+
+  /* ── Profit badge ── */
+  .profit-badge {
+    display: inline-block;
+    background: var(--gold);
+    color: #fff;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .page-container { padding: 32px 24px 64px; }
+    .hero { padding: 48px 0 32px; }
+    .hero h1 { font-size: 36px; }
+    h2 { font-size: 26px; }
+    .pain-grid, .tier-grid { grid-template-columns: 1fr; }
+    .flow-steps { flex-direction: column; align-items: center; }
+    .flow-arrow { transform: rotate(90deg); padding: 4px 0; }
+    .two-col { grid-template-columns: 1fr; }
+  }
+
+  @media print {
+    body { background: #fff; }
+    .page-container { max-width: 100%; padding: 20px; }
+    .card, .tier-card { break-inside: avoid; }
+    .hero { padding: 32px 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+  <!-- ════════════ HERO ════════════ -->
+  <header class="hero">
+    <div class="hero-badge">System Planning Document</div>
+    <h1>室內設計公司<br>報價系統規劃書</h1>
+    <p class="subtitle">從手工估價到系統化報價管理 — 提升效率、降低漏項、打造專業形象的完整解決方案</p>
+    <p class="hero-meta">MUSEON AI Consulting &nbsp;|&nbsp; 2026.04</p>
+  </header>
+
+  <!-- ════════════ 一、系統概述 ════════════ -->
+  <section class="section">
+    <div class="section-number">Section 01</div>
+    <h2>系統概述</h2>
+
+    <h3>為什麼需要系統化報價？</h3>
+    <p>室內設計產業的報價流程，往往是決定案件成敗與利潤高低的關鍵環節。多數設計公司仍仰賴人工經驗估算，導致以下核心痛點：</p>
+
+    <div class="pain-grid">
+      <div class="pain-card">
+        <div class="icon">&#9888;</div>
+        <div class="label">報價不一致</div>
+        <div class="desc">同一坪數、同類需求，不同設計師給出的報價差距達 20-40%，影響公司專業形象</div>
+      </div>
+      <div class="pain-card">
+        <div class="icon">&#128203;</div>
+        <div class="label">漏項風險</div>
+        <div class="desc">工程項目繁雜，手工估算容易遺漏保護工程、管線遷移等隱性成本，導致施工期間追加預算</div>
+      </div>
+      <div class="pain-card">
+        <div class="icon">&#128200;</div>
+        <div class="label">利潤失控</div>
+        <div class="desc">缺乏成本結構化管理，無法即時掌握毛利率，常在結案後才發現利潤不如預期</div>
+      </div>
+    </div>
+
+    <h3>系統目標</h3>
+    <ul class="check-list">
+      <li><strong>標準化</strong> — 建立統一的報價結構與單價資料庫，確保同類案件報價一致</li>
+      <li><strong>可追蹤</strong> — 每筆報價可回溯、可比較、可分析，累積公司定價智慧</li>
+      <li><strong>專業形象</strong> — 輸出格式統一、排版專業的報價單，提升客戶信任度</li>
+      <li><strong>利潤可控</strong> — 內建成本與利潤率計算，報價同時即知預估毛利</li>
+      <li><strong>效率提升</strong> — 從 3 天出報價縮短到半天，設計師專注設計而非算數</li>
+    </ul>
+  </section>
+
+  <!-- ════════════ 二、報價結構設計 ════════════ -->
+  <section class="section">
+    <div class="section-number">Section 02</div>
+    <h2>報價結構設計</h2>
+
+    <p>報價系統的核心是「分層報價模型」，將所有費用歸入六大類別，確保不遺漏、不重複。</p>
+
+    <div class="callout">
+      <strong>設計原則：</strong>每一層都是獨立模組，可依客戶需求組合。客戶可選擇全包或僅委託部分項目。
+    </div>
+
+    <!-- 1. 設計費 -->
+    <h3>1. 設計費</h3>
+    <div class="card">
+      <div class="card-title">設計服務費用</div>
+      <p class="text-slate" style="font-size:14px; margin-bottom:12px;">設計公司的核心價值所在，通常以坪數或案件複雜度計費。</p>
+      <div class="two-col">
+        <div>
+          <h4>基本項目</h4>
+          <ul class="styled">
+            <li>設計諮詢費（初次丈量 + 需求訪談）</li>
+            <li>平面配置規劃費</li>
+            <li>3D 效果圖製作費（按張計）</li>
+            <li>全套施工圖費</li>
+          </ul>
+        </div>
+        <div>
+          <h4>加值項目</h4>
+          <ul class="styled">
+            <li>風格提案簡報（Moodboard）</li>
+            <li>傢具/軟裝配置建議</li>
+            <li>VR 虛擬實境導覽</li>
+            <li>建材選樣服務</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 工程費 -->
+    <h3>2. 工程費</h3>
+    <p>室內裝修的主要成本，依工種細分為獨立項目：</p>
+
+    <div class="two-col">
+      <div class="card">
+        <h4 style="margin-top:0;">拆除工程</h4>
+        <ul class="styled">
+          <li>隔間拆除（磚牆/輕隔間）</li>
+          <li>地坪拆除</li>
+          <li>天花板拆除</li>
+          <li>衛浴/廚房拆除</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0;">水電工程</h4>
+        <ul class="styled">
+          <li>配電盤更新</li>
+          <li>迴路增設/遷移</li>
+          <li>冷熱水管配置</li>
+          <li>排水管線遷移</li>
+          <li>弱電（網路/電視/對講機）</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0;">泥作工程</h4>
+        <ul class="styled">
+          <li>砌磚隔間</li>
+          <li>地壁磚鋪設</li>
+          <li>防水工程（浴室/陽台）</li>
+          <li>粉光打底</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0;">木作工程</h4>
+        <ul class="styled">
+          <li>天花板造型（平釘/間接照明）</li>
+          <li>木作櫃體（衣櫃/書櫃/鞋櫃）</li>
+          <li>木作隔間/拉門</li>
+          <li>木作窗簾盒/門片</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0;">油漆工程</h4>
+        <ul class="styled">
+          <li>批土打磨</li>
+          <li>乳膠漆（牆面/天花）</li>
+          <li>特殊漆（礦物漆/珪藻土）</li>
+          <li>木作噴漆</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0;">其他工種</h4>
+        <ul class="styled">
+          <li>地板工程（超耐磨/SPC/實木）</li>
+          <li>系統櫃工程</li>
+          <li>鋁窗工程</li>
+          <li>門片工程（室內門/玄關門）</li>
+          <li>玻璃工程</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 3. 材料費 -->
+    <h3>3. 材料費</h3>
+    <div class="card">
+      <div class="two-col">
+        <div>
+          <h4 style="margin-top:0;">主材</h4>
+          <ul class="styled">
+            <li>磁磚（地磚/壁磚/馬賽克）</li>
+            <li>石材（大理石/花崗石/石英石）</li>
+            <li>木地板（實木/海島型/超耐磨）</li>
+            <li>壁紙/壁布</li>
+            <li>五金配件（把手/鉸鏈/滑軌）</li>
+          </ul>
+        </div>
+        <div>
+          <h4 style="margin-top:0;">輔材</h4>
+          <ul class="styled">
+            <li>水泥/砂/紅磚</li>
+            <li>板材（木心板/夾板/矽酸鈣板）</li>
+            <li>防水材料</li>
+            <li>管線/線材</li>
+            <li>填縫劑/黏著劑</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. 設備費 -->
+    <h3>4. 設備費</h3>
+    <div class="card">
+      <div class="two-col">
+        <div>
+          <ul class="styled">
+            <li>衛浴設備（馬桶/面盆/淋浴/浴缸）</li>
+            <li>廚具設備（廚櫃/檯面/水槽/爐具）</li>
+            <li>燈具（主燈/崁燈/軌道燈/間接光源）</li>
+          </ul>
+        </div>
+        <div>
+          <ul class="styled">
+            <li>窗簾（布簾/捲簾/百葉/紗簾）</li>
+            <li>空調設備（分離式/吊隱式/全熱交換）</li>
+            <li>智慧家居設備（選配）</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. 管理費 -->
+    <h3>5. 管理費</h3>
+    <div class="card">
+      <p style="margin-bottom:12px;">工程管理費涵蓋專案管理、現場監工、工班協調、進度管控等。</p>
+      <div class="two-col">
+        <div>
+          <h4 style="margin-top:0;">計費方式</h4>
+          <ul class="styled">
+            <li>總工程款的 <strong>8% ~ 15%</strong></li>
+            <li>依案件規模與複雜度調整</li>
+          </ul>
+        </div>
+        <div>
+          <h4 style="margin-top:0;">涵蓋項目</h4>
+          <ul class="styled">
+            <li>施工進度管理</li>
+            <li>現場品質監控</li>
+            <li>工班調度協調</li>
+            <li>業主對接與回報</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. 其他費用 -->
+    <h3>6. 其他費用</h3>
+    <div class="card">
+      <ul class="styled">
+        <li><strong>垃圾清運費</strong> — 依拆除量與樓層計算</li>
+        <li><strong>保護工程</strong> — 電梯/公共區域/既有傢俱保護</li>
+        <li><strong>搬運費</strong> — 無電梯加收搬運費（每層 +5~10%）</li>
+        <li><strong>營業稅</strong> — 5% 營業稅</li>
+        <li><strong>停車/臨停費用</strong> — 施工期間工班停車</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ════════════ 三、計價邏輯 ════════════ -->
+  <section class="section">
+    <div class="section-number">Section 03</div>
+    <h2>計價邏輯</h2>
+
+    <h3>兩種主要計價模式</h3>
+    <div class="two-col">
+      <div class="card">
+        <h4 style="margin-top:0;">坪數基礎計價</h4>
+        <p class="text-slate" style="font-size:14px;">以室內坪數乘以每坪單價，快速得出總價概估。</p>
+        <ul class="styled">
+          <li>適合：初步估價、快速比價</li>
+          <li>優點：簡單直覺，客戶易理解</li>
+          <li>風險：無法反映個案差異</li>
+        </ul>
+        <div class="callout" style="margin-top:12px; margin-bottom:0;">
+          公式：室內坪數 &times; 每坪單價 = 預估總價
+        </div>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0;">項目逐項計價</h4>
+        <p class="text-slate" style="font-size:14px;">逐一列出每個工項的數量、單價，精準計算總價。</p>
+        <ul class="styled">
+          <li>適合：細部報價、簽約用</li>
+          <li>優點：透明精準，爭議低</li>
+          <li>風險：製作耗時</li>
+        </ul>
+        <div class="callout-teal callout" style="margin-top:12px; margin-bottom:0;">
+          建議：初步用坪數估價 &rarr; 確認合作後轉逐項報價
+        </div>
+      </div>
+    </div>
+
+    <h3>三級定價策略</h3>
+    <p>建議以三個等級涵蓋不同客群，讓客戶有選擇感、降低決策壓力：</p>
+
+    <div class="tier-grid">
+      <div class="tier-card">
+        <div class="tier-name">經濟方案</div>
+        <div class="tier-range">ECONOMY</div>
+        <ul class="tier-features">
+          <li>基礎建材與工法</li>
+          <li>實用導向的設計</li>
+          <li>標準衛浴/廚具</li>
+          <li>簡潔天花板處理</li>
+          <li>基本收納規劃</li>
+        </ul>
+      </div>
+      <div class="tier-card featured">
+        <div class="tier-name">標準方案</div>
+        <div class="tier-range">STANDARD</div>
+        <ul class="tier-features">
+          <li>中高階建材選配</li>
+          <li>完整風格設計</li>
+          <li>品牌衛浴/廚具</li>
+          <li>造型天花板+間接燈光</li>
+          <li>客製化收納系統</li>
+          <li>3D 效果圖呈現</li>
+        </ul>
+      </div>
+      <div class="tier-card">
+        <div class="tier-name">豪華方案</div>
+        <div class="tier-range">PREMIUM</div>
+        <ul class="tier-features">
+          <li>高端進口建材</li>
+          <li>全客製化設計</li>
+          <li>頂級衛浴/廚具品牌</li>
+          <li>精緻木作+石材</li>
+          <li>智慧家居整合</li>
+          <li>VR 導覽+軟裝提案</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>利潤率設定建議</h3>
+    <div class="card">
+      <p style="margin-bottom:12px;">業界常見的利潤結構參考：</p>
+      <div class="table-wrapper" style="border:none; box-shadow:none; margin:0;">
+        <table>
+          <thead>
+            <tr>
+              <th>費用類別</th>
+              <th>建議毛利率</th>
+              <th>說明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>設計費</td>
+              <td><span class="profit-badge">70-90%</span></td>
+              <td>核心價值，純腦力勞動</td>
+            </tr>
+            <tr>
+              <td>工程費（含工帶料）</td>
+              <td><span class="profit-badge">15-25%</span></td>
+              <td>市場競爭較高，控制品質為主</td>
+            </tr>
+            <tr>
+              <td>主材代購</td>
+              <td><span class="profit-badge">10-20%</span></td>
+              <td>依品牌合作關係而異</td>
+            </tr>
+            <tr>
+              <td>設備代購</td>
+              <td><span class="profit-badge">8-15%</span></td>
+              <td>客戶自購率較高，需彈性處理</td>
+            </tr>
+            <tr>
+              <td>管理費</td>
+              <td><span class="profit-badge">100%</span></td>
+              <td>純服務費，即為利潤</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout-gold callout" style="margin-top:16px; margin-bottom:0;">
+        <strong>重要：</strong>以上為業界通用範圍，實際利潤率須依貴公司的營運成本、市場定位、客群特性進行客製化調整。導入系統後可追蹤每案實際毛利，逐步優化定價策略。
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 四、報價流程 SOP ════════════ -->
+  <section class="section">
+    <div class="section-number">Section 04</div>
+    <h2>報價流程 SOP</h2>
+
+    <p>系統化的報價流程，確保每位設計師都能輸出一致品質的報價：</p>
+
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="step-num">1</div>
+        <span class="step-label">現場丈量</span>
+        <span class="step-desc">實際測量<br>拍照記錄</span>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="step-num">2</div>
+        <span class="step-label">需求訪談</span>
+        <span class="step-desc">結構化問卷<br>預算確認</span>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="step-num">3</div>
+        <span class="step-label">初步估價</span>
+        <span class="step-desc">坪數概估<br>預算對齊</span>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="step-num">4</div>
+        <span class="step-label">設計提案</span>
+        <span class="step-desc">平面+3D<br>風格確認</span>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="step-num">5</div>
+        <span class="step-label">細部報價</span>
+        <span class="step-desc">逐項明細<br>利潤試算</span>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="step-num">6</div>
+        <span class="step-label">簽約</span>
+        <span class="step-desc">報價轉合約<br>付款期程</span>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="step-num">7</div>
+        <span class="step-label">變更管理</span>
+        <span class="step-desc">追加/變更<br>版本控管</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <h3>各階段重點說明</h3>
+
+    <div class="card" style="margin-bottom:12px;">
+      <h4 style="margin-top:0;">Step 1 — 現場丈量</h4>
+      <ul class="styled">
+        <li>使用標準化丈量表格（含樑柱、管線位置、開口方向）</li>
+        <li>拍攝全景照片（每個房間至少四面牆 + 天花 + 地板）</li>
+        <li>記錄現況問題（壁癌、漏水、結構裂縫）</li>
+        <li>確認社區施工規範（施工時段、電梯使用、保證金）</li>
+      </ul>
+    </div>
+
+    <div class="card" style="margin-bottom:12px;">
+      <h4 style="margin-top:0;">Step 2 — 需求訪談</h4>
+      <ul class="styled">
+        <li>家庭成員組成與生活動線分析</li>
+        <li>風格偏好確認（提供參考圖庫讓客戶選擇）</li>
+        <li>預算上限與彈性空間確認</li>
+        <li>特殊需求記錄（無障礙、寵物、收納癖好）</li>
+        <li>期望入住時間（倒推施工排程）</li>
+      </ul>
+    </div>
+
+    <div class="card" style="margin-bottom:12px;">
+      <h4 style="margin-top:0;">Step 3 — 初步估價</h4>
+      <ul class="styled">
+        <li>系統自動帶入坪數概估，給出三級方案價格帶</li>
+        <li>與客戶預算做「預算對齊」，確認可行範圍</li>
+        <li>標記可能的高風險項目（老屋管線、防水層）</li>
+      </ul>
+    </div>
+
+    <div class="card" style="margin-bottom:12px;">
+      <h4 style="margin-top:0;">Step 5 — 細部報價（核心）</h4>
+      <ul class="styled">
+        <li>系統從單價資料庫自動帶入各工項單價</li>
+        <li>設計師僅需填入數量，系統自動計算小計</li>
+        <li>內建利潤率檢查：低於設定門檻自動警示</li>
+        <li>自動計算管理費、稅金、總價</li>
+        <li>可匯出 PDF 報價單（含公司品牌 CI）</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h4 style="margin-top:0;">Step 7 — 變更管理</h4>
+      <ul class="styled">
+        <li>施工中的追加/變更項目，獨立記錄為「變更單」</li>
+        <li>每次變更需客戶簽認，系統自動更新總價</li>
+        <li>保留完整版本歷史，避免糾紛</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ════════════ 五、報價單範本 ════════════ -->
+  <section class="section">
+    <div class="section-number">Section 05</div>
+    <h2>報價單範本</h2>
+
+    <p>以下為標準報價單的表格結構範本，系統將自動計算各級小計與總計：</p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:35%;">項目</th>
+            <th style="width:10%;">單位</th>
+            <th class="text-center" style="width:10%;">數量</th>
+            <th class="text-right" style="width:15%;">單價</th>
+            <th class="text-right" style="width:15%;">小計</th>
+            <th style="width:15%;">備註</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 拆除 -->
+          <tr class="row-category">
+            <td colspan="6">一、拆除工程</td>
+          </tr>
+          <tr>
+            <td>磚牆拆除</td>
+            <td>m&sup2;</td>
+            <td class="text-center">12</td>
+            <td class="text-right">$800</td>
+            <td class="text-right">$9,600</td>
+            <td class="text-muted">含清運</td>
+          </tr>
+          <tr>
+            <td>地磚拆除</td>
+            <td>坪</td>
+            <td class="text-center">25</td>
+            <td class="text-right">$1,500</td>
+            <td class="text-right">$37,500</td>
+            <td class="text-muted">—</td>
+          </tr>
+          <tr>
+            <td>天花板拆除</td>
+            <td>坪</td>
+            <td class="text-center">30</td>
+            <td class="text-right">$600</td>
+            <td class="text-right">$18,000</td>
+            <td class="text-muted">—</td>
+          </tr>
+          <tr class="row-subtotal">
+            <td colspan="4" class="text-right">拆除工程小計</td>
+            <td class="text-right">$65,100</td>
+            <td></td>
+          </tr>
+
+          <!-- 水電 -->
+          <tr class="row-category">
+            <td colspan="6">二、水電工程</td>
+          </tr>
+          <tr>
+            <td>電力迴路增設</td>
+            <td>迴</td>
+            <td class="text-center">6</td>
+            <td class="text-right">$3,500</td>
+            <td class="text-right">$21,000</td>
+            <td class="text-muted">含線材</td>
+          </tr>
+          <tr>
+            <td>給排水配管</td>
+            <td>式</td>
+            <td class="text-center">1</td>
+            <td class="text-right">$45,000</td>
+            <td class="text-right">$45,000</td>
+            <td class="text-muted">2 衛 1 廚</td>
+          </tr>
+          <tr class="row-subtotal">
+            <td colspan="4" class="text-right">水電工程小計</td>
+            <td class="text-right">$66,000</td>
+            <td></td>
+          </tr>
+
+          <!-- 泥作 -->
+          <tr class="row-category">
+            <td colspan="6">三、泥作工程</td>
+          </tr>
+          <tr>
+            <td>浴室防水工程</td>
+            <td>間</td>
+            <td class="text-center">2</td>
+            <td class="text-right">$18,000</td>
+            <td class="text-right">$36,000</td>
+            <td class="text-muted">含試水</td>
+          </tr>
+          <tr>
+            <td>地壁磚鋪設</td>
+            <td>坪</td>
+            <td class="text-center">8</td>
+            <td class="text-right">$5,500</td>
+            <td class="text-right">$44,000</td>
+            <td class="text-muted">不含磚材</td>
+          </tr>
+          <tr class="row-subtotal">
+            <td colspan="4" class="text-right">泥作工程小計</td>
+            <td class="text-right">$80,000</td>
+            <td></td>
+          </tr>
+
+          <!-- 木作 -->
+          <tr class="row-category">
+            <td colspan="6">四、木作工程</td>
+          </tr>
+          <tr>
+            <td>平釘天花板</td>
+            <td>坪</td>
+            <td class="text-center">25</td>
+            <td class="text-right">$3,200</td>
+            <td class="text-right">$80,000</td>
+            <td class="text-muted">矽酸鈣板</td>
+          </tr>
+          <tr>
+            <td>間接燈光天花</td>
+            <td>尺</td>
+            <td class="text-center">40</td>
+            <td class="text-right">$1,800</td>
+            <td class="text-right">$72,000</td>
+            <td class="text-muted">含燈槽</td>
+          </tr>
+          <tr>
+            <td>衣櫃（木作）</td>
+            <td>尺</td>
+            <td class="text-center">12</td>
+            <td class="text-right">$6,500</td>
+            <td class="text-right">$78,000</td>
+            <td class="text-muted">含五金</td>
+          </tr>
+          <tr class="row-subtotal">
+            <td colspan="4" class="text-right">木作工程小計</td>
+            <td class="text-right">$230,000</td>
+            <td></td>
+          </tr>
+
+          <!-- 加總 -->
+          <tr><td colspan="6" style="height:8px; border:none;"></td></tr>
+          <tr class="row-subtotal">
+            <td colspan="4" class="text-right">工程費合計</td>
+            <td class="text-right">$441,100</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td colspan="4" class="text-right">設計費</td>
+            <td class="text-right">$120,000</td>
+            <td class="text-muted">30坪 &times; $4,000/坪</td>
+          </tr>
+          <tr>
+            <td colspan="4" class="text-right">工程管理費（10%）</td>
+            <td class="text-right">$44,110</td>
+            <td class="text-muted">工程費 &times; 10%</td>
+          </tr>
+          <tr>
+            <td colspan="4" class="text-right">垃圾清運 + 保護工程</td>
+            <td class="text-right">$25,000</td>
+            <td class="text-muted">—</td>
+          </tr>
+          <tr>
+            <td colspan="4" class="text-right">小計</td>
+            <td class="text-right">$630,210</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td colspan="4" class="text-right">營業稅（5%）</td>
+            <td class="text-right">$31,511</td>
+            <td></td>
+          </tr>
+          <tr class="row-total">
+            <td colspan="4" class="text-right">報價總計</td>
+            <td class="text-right">$661,721</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout" style="margin-top:24px;">
+      <strong>自動計算邏輯：</strong><br>
+      &bull; 各工項小計 = 數量 &times; 單價<br>
+      &bull; 各類別小計 = 該類別所有工項小計加總<br>
+      &bull; 工程管理費 = 工程費合計 &times; 管理費率<br>
+      &bull; 稅前合計 = 設計費 + 工程費 + 材料費 + 設備費 + 管理費 + 其他費用<br>
+      &bull; 營業稅 = 稅前合計 &times; 5%<br>
+      &bull; 報價總計 = 稅前合計 + 營業稅
+    </div>
+
+    <div class="callout-teal callout">
+      <strong>備註欄位建議用途：</strong>標示「含材料/不含材料」「品牌指定」「客戶自購」等關鍵資訊，避免後續爭議。
+    </div>
+  </section>
+
+  <!-- ════════════ 六、系統化建議 ════════════ -->
+  <section class="section">
+    <div class="section-number">Section 06</div>
+    <h2>系統化建議</h2>
+
+    <h3>數位化程度分級</h3>
+    <p>依公司規模與需求，建議分三個等級逐步導入：</p>
+
+    <div class="tier-grid">
+      <div class="tier-card">
+        <div class="tier-name">Level 1</div>
+        <div class="tier-range">EXCEL PLUS</div>
+        <ul class="tier-features">
+          <li>進階 Excel / Google Sheets</li>
+          <li>內建公式自動計算</li>
+          <li>下拉選單標準化選項</li>
+          <li>單價資料庫獨立工作表</li>
+          <li>條件格式化利潤警示</li>
+        </ul>
+        <p style="margin-top:12px; font-size:13px; color:var(--teal); font-weight:600;">適合：5人以下工作室</p>
+      </div>
+      <div class="tier-card featured">
+        <div class="tier-name">Level 2</div>
+        <div class="tier-range">SMART SHEETS</div>
+        <ul class="tier-features">
+          <li>Google Sheets + Apps Script</li>
+          <li>自動產生 PDF 報價單</li>
+          <li>報價版本歷史追蹤</li>
+          <li>多使用者協作</li>
+          <li>基礎數據儀表板</li>
+          <li>Email 自動寄送報價</li>
+        </ul>
+        <p style="margin-top:12px; font-size:13px; color:var(--teal); font-weight:600;">適合：5-20人設計公司</p>
+      </div>
+      <div class="tier-card">
+        <div class="tier-name">Level 3</div>
+        <div class="tier-range">CUSTOM SYSTEM</div>
+        <ul class="tier-features">
+          <li>Web-based 自建系統</li>
+          <li>CRM 串接客戶管理</li>
+          <li>客戶端線上查看進度</li>
+          <li>工班排程整合</li>
+          <li>AI 輔助報價建議</li>
+          <li>BI 報表與預測分析</li>
+        </ul>
+        <p style="margin-top:12px; font-size:13px; color:var(--teal); font-weight:600;">適合：20人以上或多據點</p>
+      </div>
+    </div>
+
+    <h3>未來擴展方向</h3>
+    <div class="card">
+      <ul class="styled">
+        <li><strong>CRM 串接</strong> — 從客戶第一次諮詢到結案售後，完整追蹤客戶旅程</li>
+        <li><strong>客戶端入口</strong> — 客戶可線上查看報價明細、施工進度、變更紀錄</li>
+        <li><strong>供應商管理</strong> — 串接常用供應商報價，即時更新材料單價</li>
+        <li><strong>工班排程</strong> — 整合工班行事曆，報價同時確認施工時程可行性</li>
+        <li><strong>AI 輔助報價</strong> — 根據歷史案件數據，自動建議合理單價範圍</li>
+        <li><strong>利潤分析儀表板</strong> — 即時掌握每案毛利率、每工種成本佔比</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ════════════ 七、導入時程建議 ════════════ -->
+  <section class="section">
+    <div class="section-number">Section 07</div>
+    <h2>導入時程建議</h2>
+
+    <p>建議採三階段漸進式導入，降低組織變革阻力：</p>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-phase">Phase 1 &mdash; 第 1~2 週</div>
+        <div class="timeline-title">盤點與建庫</div>
+        <div class="timeline-desc">
+          <ul class="check-list">
+            <li>蒐集過去 10-20 個案件的報價資料，分析常用項目與價格帶</li>
+            <li>建立標準化「工項清單」（含單位、預設單價、備註欄位）</li>
+            <li>建立「單價資料庫」，區分工資與材料，標記價格有效期</li>
+            <li>定義三級方案的每坪概估單價範圍</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-phase">Phase 2 &mdash; 第 3~4 週</div>
+        <div class="timeline-title">範本與流程</div>
+        <div class="timeline-desc">
+          <ul class="check-list">
+            <li>設計標準化報價單範本（含公司 CI、自動計算公式）</li>
+            <li>建立報價 SOP 文件，確保每位設計師流程一致</li>
+            <li>建立變更管理機制（變更單範本、簽認流程）</li>
+            <li>訓練團隊使用新系統（至少 2 次 workshop）</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-phase">Phase 3 &mdash; 第 5 週起（持續）</div>
+        <div class="timeline-title">實戰與優化</div>
+        <div class="timeline-desc">
+          <ul class="check-list">
+            <li>以 2-3 個真實案件試行新報價流程</li>
+            <li>蒐集設計師回饋，調整不合理的預設單價</li>
+            <li>建立季度單價檢視機制（原物料波動 &rarr; 更新單價）</li>
+            <li>累積數據後，逐步建立利潤分析報表</li>
+            <li>評估是否升級至 Level 2 / Level 3 系統</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ 附錄 ════════════ -->
+  <section class="section">
+    <div class="section-number">Appendix</div>
+    <h2>下一步行動</h2>
+
+    <div class="callout">
+      <strong>本規劃書為通用框架版本。</strong>正式啟動後，我們將依據貴公司提供的實際資料（現行報價單、工班費率表、常用建材清單）進行客製化調整，產出可直接使用的報價系統。
+    </div>
+
+    <h3>我們需要的資料</h3>
+    <div class="card">
+      <ul class="styled">
+        <li><strong>過去案件報價單</strong>（3-5 份即可）— 了解現行定價邏輯</li>
+        <li><strong>常用工班費率</strong> — 各工種的日薪/坪價/米價</li>
+        <li><strong>常用建材清單</strong> — 品牌偏好、常用等級</li>
+        <li><strong>公司 CI 素材</strong> — Logo、品牌色、常用字型（用於報價單排版）</li>
+        <li><strong>目前使用的工具</strong> — Excel / 手寫 / 其他軟體</li>
+        <li><strong>團隊規模與角色</strong> — 誰出報價、誰審核、誰管單價</li>
+      </ul>
+    </div>
+
+    <h3>預期效益</h3>
+    <div class="pain-grid">
+      <div class="pain-card">
+        <div class="icon" style="color:var(--teal);">&#9201;</div>
+        <div class="label">效率提升</div>
+        <div class="desc">報價時間從 2-3 天縮短至 2-4 小時，設計師回歸設計本業</div>
+      </div>
+      <div class="pain-card">
+        <div class="icon" style="color:var(--teal);">&#9989;</div>
+        <div class="label">品質一致</div>
+        <div class="desc">不同設計師的報價格式統一、項目完整，零漏項風險</div>
+      </div>
+      <div class="pain-card">
+        <div class="icon" style="color:var(--teal);">&#128176;</div>
+        <div class="label">利潤可控</div>
+        <div class="desc">每份報價即時顯示預估毛利率，杜絕「做完才知道賠錢」</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════ Footer ════════════ -->
+  <footer class="footer">
+    <div class="logo">MUSEON</div>
+    <p>AI-Powered Business Consulting</p>
+    <p style="margin-top:8px;">本文件為 MUSEON 智慧顧問系統產出 &nbsp;|&nbsp; 2026 年 4 月</p>
+    <p style="margin-top:4px; font-size: 12px;">本規劃書內容為通用框架，實際數字與流程將依客戶提供資料進行客製化調整</p>
+  </footer>
+
+</div>
+
+</body>
+</html>
