@@ -1,10 +1,11 @@
-# Memory Router — 記憶路由表 v1.28
+# Memory Router — 記憶路由表 v1.29
 
 > **用途**：定義「什麼類型的洞見存到哪個記憶系統、什麼時候取出」。第五張工程藍圖。
 > **比喻**：郵局分揀表——每封信根據地址分到對應的信箱，不會寄丟也不會重複投遞。
 > **更新時機**：新增 Skill 或記憶系統時，必須在同一個 commit 中新增對應的路由規則。
 > **建立日期**：2026-03-21
 > **搭配**：`docs/skill-manifest-spec.md`（Skill I/O 合約）、各 Skill 的 `memory.writes` 欄位、`docs/operational-contract.md`（操作契約表）
+> **v1.29 (2026-04-05)**：Phase 4 FV 藍圖同步——新增「生態系雷達 → morphenix/notes/ → skill_draft_forger」路由段（ecosystem_radar Nightly Step 17.5 週一限定，ResearchEngine 搜尋 3 個外部生態查詢，有價值結果寫入 `morphenix/notes/scout_ecosystem_{ts}.json`，消費者=Step 19.6 skill_draft_forger 掃描 notes 目錄生成外部 Skill 草稿）；備注：skill_trust_scores.json 為 `skill_trust_tracker.py` 私有持久化，目前不進入記憶路由系統（無 Qdrant/knowledge-lattice 分揀）。同步 system-topology v1.87、joint-map v1.72、blast-radius v2.04。
 > **v1.28 (2026-04-05)**：能力缺口偵測路由——新增「能力缺口偵測 → morphenix/notes/ + skill_requests/」路由段（三軌道 A=低分未觸發宏觀聚合→scout_gap_cluster 筆記，B=弱匹配→scout_skill_optimize 筆記，缺口達閾值→skill_requests/req_*.json 需求槽）；向量去重路由（Qdrant gaps #86）；消費：morphenix/notes=skill_forge_scout.py，skill_requests=Claude Code session 啟動掃描。同步 persistence-contract v1.56、joint-map v1.71、blast-radius v2.03。
 > **v1.27 (2026-04-05)**：Decision Atlas + Vision Loop 路由——新增規則 9（Decision Atlas → Brain Prompt）：Claude Code 互動觀察 + 未來 L4 觀察者 → `_system/decision_atlas/da-*.json` → `brain_prompt_builder.py` persona zone 注入（每次 L2 回覆時自動讀取，N/A 寫入記憶系統，直接進 system prompt）；新增規則 10（Vision Loop → Breath Visions）：四信號源匯聚（星座/Skill/Atlas/呼吸）→ `nightly/vision_loop.py`（Nightly Step 34.9，週日）→ `_system/breath/visions/{yyyy-wNN}.json`（未來接 Morphenix 執行管道）。同步 persistence-contract v1.55、joint-map v1.70。
 > **v1.26 (2026-04-04)**：l4_cpu_observer 架構更新——L4 觀察者從 Haiku agent spawn 改為 CPU Python 函數（`agent/l4_cpu_observer.py`），零 LLM token 消耗；記憶寫入路徑：`l4_cpu_observer.observe()` → `memory_manager.write()`（同步，非 async）；新增 signals 快取寫入路徑：`l4_cpu_observer.observe()` → `_system/context_cache/{session_id}_signals.json`（EMA 合併）；新增偏好佇列寫入路徑：`l4_cpu_observer.observe()` → `_system/pending_preference_updates.jsonl`（append）。同步 persistence-contract v1.52、joint-map v1.67。

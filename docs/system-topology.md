@@ -1,7 +1,8 @@
-# MUSEON 系統拓撲圖 v1.86
+# MUSEON 系統拓撲圖 v1.87
 
 > 本文件是 MUSEON 所有子系統及其關聯性的 **唯一真相來源（Single Source of Truth）**。
 > 新增模組、Debug、審計時必須參照此文件，確保不遺漏依賴關係。
+> **v1.87 (2026-04-05)**：Phase 4 FV 藍圖同步——生態系雷達 + 語意審計 + 信任追蹤——nightly 群組新增 `ecosystem-radar`（Step 17.5，週一限定外部生態掃描，扇入=1 nightly-pipeline，扇出=1 morphenix/notes/scout_ecosystem_*.json）、`skill-trust-tracker`（Skill 信任分數追蹤器 prototype，扇入=0 目前獨立，扇出=1 _system/skill_trust_scores.json）；skill-qa-gate 節點新增 D1.5 語意審計子元件 `semantic-auditor`（純 CPU 啟發式規則，risk_score≥0.5→直接 quarantine）；新增 4 條連線（nightly-pipeline→ecosystem-radar，ecosystem-radar→morphenix/notes（scout_ecosystem_*.json 寫入），skill-qa-gate→semantic-auditor，semantic-auditor→skill_qa_gate quarantine）；_FULL_STEPS 53→54（新增 17.5）；209+2=211 節點，562+4=566 連線。
 > **v1.86 (2026-04-05)**：Phase 0 Nightly 減法手術（純內部步驟調整，節點/連線不變）——nightly-pipeline 節點的 _FULL_STEPS 從歷史峰值 63 縮減至 53；12 個 ghost steps（5.5/6/8/9/10.5/10.6/11/13.7/14/15/16/19）標記 DORMANT（保留 _step_* 方法，移出執行列表）；validate_nightly_steps.py 硬上限 55 守護；nightly_report.json 移入 .gitignore，morning_report 三層降級。節點數、連線數不變。
 > **v1.85 (2026-04-05)**：能力缺口偵測系統——nightly 群組新增 `gap-accumulator` 節點（三軌道 A/B/C 缺口累積，扇入=1 brain，扇出=3 vector-bridge/morphenix/event-bus）；新增 5 條 cross 連線（brain→gap-accumulator 兩注入點、gap-accumulator→vector-bridge、gap-accumulator→morphenix/notes/、gap-accumulator→event-bus）+ 1 條 event-bus→telegram 訂閱（SKILL_GAP_PROPOSAL+SKILL_REFORGE_PROPOSAL）；208+1=209 節點，556+6=562 連線。
 > **v1.84 (2026-04-05)**：五個新功能補登——nightly 群組新增 `breath-analyzer`（Step 34.8 呼吸五層分析）和 `vision-loop`（Step 34.9 週日願景迴圈）；agent 群組新增 `consultant-supplement`（L2 後補充挑戰/提醒）；data 群組新增 `decision-atlas`（決策圖譜資料節點）；新增 9 條連線（nightly-pipeline→breath-analyzer、nightly-pipeline→vision-loop、vision-loop→constellation-radar(R)、vision-loop→decision-atlas(R)、vision-loop→breath/patterns(R)、brain-prompt-builder→decision-atlas(R)、server→consultant-supplement 初始化、telegram-pump→consultant-supplement 觸發、consultant-supplement→telegram 輸出）；更新統計：205+3=208 節點，547+9=556 連線。
