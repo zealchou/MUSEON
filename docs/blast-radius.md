@@ -1,10 +1,11 @@
-# Blast Radius — 模組影響半徑表 v2.02
+# Blast Radius — 模組影響半徑表 v2.03
 
 > **用途**：修改任何模組前，查閱此表確認「改了會影響誰、觸發什麼連鎖反應」。
 > **比喻**：施工影響範圍圖——在哪裡動工、要封哪些路、通知哪些住戶。
 > **更新時機**：改變模組的 import 關係或共享狀態存取時，必須在同一個 commit 中同步更新此文件。
 > **建立日期**：2026-03-15（DSE 第二輪排查後建立）
 > **搭配**：`docs/joint-map.md`（接頭圖）提供共享狀態細節、`docs/operational-contract.md`（操作契約表）提供外部操作預期失敗
+> **v2.03 (2026-04-05)**：Phase 0 Nightly 減法手術——nightly_pipeline.py 移除 12 個 ghost steps（5.5/6/8/9/10.5/10.6/11/13.7/14/15/16/19，全部 always-skipped，資料來源不存在）；_FULL_STEPS 從歷史峰值 63 縮減至 53（含 0/0.1 兩個新增基礎步驟），DORMANT 步驟保留 _step_* 方法待資料來源建立後重新啟用；validate_nightly_steps.py 新增硬上限 55 步驟檢查；nightly_report.json 加入 .gitignore；morning_report 三層降級（morning_report.json→nightly_report.json→nightly_history/）。
 > **v2.02 (2026-04-05)**：五個新功能補登——新增 🟢 綠區：`agent/consultant_supplement.py`（扇入=2：server.py 初始化 + telegram_pump.py 觸發，扇出=1：Telegram 輸出）、`nightly/breath_analyzer.py`（扇入=1：nightly_pipeline Step 34.8，扇出=1：breath/patterns/*.json）、`nightly/vision_loop.py`（扇入=1：nightly_pipeline Step 34.9，扇出=1：breath/visions/*.json，讀取四信號源但不改它們）；brain_prompt_builder.py 扇出 +1（新增 decision_atlas/da-*.json 讀取，_build_decision_atlas_context()）；group_context.py 新增 entity_aliases/projects/project_entities/events 四張表（schema 擴展，扇入扇出不變）；l4_cpu_observer.py 新增 alias 偵測功能（扇出不變）；nightly_pipeline.py Step 18.6 新增溫度衰減 + 自動 alias（扇出不變）。同步 system-topology v1.84。
 > **v2.01 (2026-04-05)**：Entity Registry 建置——brain_prompt_builder.py 扇入不變(6)，扇出 +2（新增 athena/profile_store.py + governance/group_context.py 讀取）；l4_cpu_observer.py 寫入目標從 MemoryStore 改為 MemoryManager（修正斷裂接線）。同步 persistence-contract v1.54、joint-map v1.69。
 > **v2.00 (2026-04-04)**：Knife 2+3 變更——新增 `cache/semantic_response_cache.py`（🟢 綠區，扇入=2（brain.py query、l4_cpu_observer write），扇出=1（Qdrant semantic_response_cache collection），Qdrant 語意快取，零 LLM，v12 新增）；`gateway/cron_registry.py` 新增 quota circuit breaker（quota 耗盡時跳過 LLM cron jobs）。
@@ -537,7 +538,7 @@
 | 屬性 | 值 |
 |------|-----|
 | **扇入** | 2 |
-| **角色** | 夜間整合管線（49 步驟，含 Step 30 藍圖一致性驗證 + Step 31 context_cache 重建 + Step 32 crystal_decay + Step 33 crystal_promotion + Step 34.8 breath_analyzer + Step 34.9 vision_loop） |
+| **角色** | 夜間整合管線（53 步驟，含 Step 30 藍圖一致性驗證 + Step 31 context_cache 重建 + Step 32 crystal_decay + Step 33 crystal_promotion + Step 34.8 breath_analyzer + Step 34.9 vision_loop；12 個 ghost steps DORMANT，保留方法待資料來源就緒後重啟） |
 
 #### 影響半徑
 
