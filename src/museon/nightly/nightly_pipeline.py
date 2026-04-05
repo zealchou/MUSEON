@@ -129,7 +129,7 @@ _FULL_STEPS = [
     "30",  # 藍圖一致性驗證
     "31",  # v2 context_cache 重建
     "32", "32.5", "32.6", "33",  # Crystal ri_score 衰減 / 荒謬雷達重算 / 多星座衰減 / Crystal→Heuristic 升級
-    "34", "34.5", "34.7",  # Phase 5/8: 人格自省 → Trait 代謝 → 方向性漂移檢查
+    "34", "34.5", "34.7", "34.8", "34.9",  # Phase 5/8: 人格自省 → Trait 代謝 → 方向性漂移檢查 → 呼吸分析 → 願景迴圈
 ]
 _ORIGIN_STEPS = ["5.8", "6", "7", "8", "16"]
 _NODE_STEPS = [
@@ -256,6 +256,8 @@ class NightlyPipeline:
             "34": ("persona_reflection", self._step_persona_reflection),
             "34.5": ("trait_metabolize", self._step_trait_metabolize),
             "34.7": ("drift_direction_check", self._step_drift_direction_check),
+            "34.8": ("breath_analysis", self._step_breath_analysis),
+            "34.9": ("vision_loop", self._step_vision_loop),
         }
 
     def run(self, mode: str = "full") -> Dict:
@@ -5124,6 +5126,38 @@ class NightlyPipeline:
         except Exception as e:
             logger.warning(f"Step 34.7 drift_direction_check failed: {e}")
             return {"error": str(e)}
+
+    def _step_breath_analysis(self) -> Dict:
+        """Step 34.8: 呼吸系統 Day 3-4 自動分析."""
+        try:
+            from museon.nightly.breath_analyzer import run_breath_analysis
+            result = run_breath_analysis(self.data_dir)
+            status = result.get("status", "unknown")
+            if status == "skipped":
+                return {"breath": "skipped (not Wed/Thu)"}
+            if status == "no_observations":
+                return {"breath": "no observations this week"}
+            if status == "already_analyzed":
+                return {"breath": "already done this week"}
+            scope = result.get("layers", {}).get("L4_coupling", {}).get("affected_scope", "?")
+            return {"breath": f"analyzed, scope={scope}"}
+        except Exception as e:
+            logger.warning(f"[BREATH] Step 34.8 failed: {e}")
+            return {"breath_error": str(e)}
+
+    def _step_vision_loop(self) -> Dict:
+        """Step 34.9: 願景迴圈 — MUSEON 自主方向探索."""
+        try:
+            from museon.nightly.vision_loop import generate_vision_proposals
+            result = generate_vision_proposals(self.data_dir)
+            status = result.get("status", "unknown")
+            if status == "skipped":
+                return {"vision": "skipped (not Sunday)"}
+            count = len(result.get("proposals", []))
+            return {"vision": f"{status}, {count} proposals"}
+        except Exception as e:
+            logger.warning(f"[VISION] Step 34.9 failed: {e}")
+            return {"vision_error": str(e)}
 
     # ═══════════════════════════════════════════
     # 報告持久化

@@ -1,0 +1,19 @@
+{
+  "id": "da-20260405-003",
+  "date": "2026-04-05",
+  "source": "claude_code",
+  "category": "taste",
+  "absurdity_dimension": "accumulation",
+  "context": "繼承架構的紀念文件應該用什麼形式保存？技術文件 vs 個人文件 vs 混合？",
+  "options": [
+    "純技術架構文件（Markdown）",
+    "個人敘事文件（散文/信件）",
+    "結構化 HTML 報告（品牌規範）",
+    "影片/音訊記錄"
+  ],
+  "chosen": "HTML 紀念文件，融合個人敘事 + 方法論結構 + 三封信（給 MUSEON/給自己/給孩子）",
+  "why": "Zeal 明確說「留作紀念，給 MUSEON 也給我自己還有我未來的人類小孩」。純技術文件孩子看不懂，純散文系統學不了。HTML 兼顧美感（MUSEON 品牌規範）和可讀性。三封信是 Zeal 重視「對不同受眾用不同語言」的體現。",
+  "conditions_to_change": "如果未來有更好的沉浸式媒介（VR/AR），可以用新媒介重新詮釋，但文字版永遠保留。",
+  "confidence": 0.9,
+  "tags": ["legacy", "communication", "audience-awareness", "brand"]
+}

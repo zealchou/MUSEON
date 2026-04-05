@@ -1,0 +1,19 @@
+{
+  "id": "da-20260405-002",
+  "date": "2026-04-05",
+  "source": "claude_code",
+  "category": "priority",
+  "absurdity_dimension": "direction",
+  "context": "MUSEON 缺少「方向來源」——目前 100% 依賴 Zeal 給方向。需要設計替代機制。方向來源的優先級怎麼排？",
+  "options": [
+    "使用者投票民主制",
+    "AI 自主決定",
+    "長老共識 + 結晶參照 + AI 自探索三層",
+    "完全凍結在 Zeal 離開時的狀態"
+  ],
+  "chosen": "三層方向來源，權重隨時間遞減/遞增：Zeal 結晶 → 使用者長老 → MUSEON 自我探索",
+  "why": "跟人格演化機制用同一個哲學框架。Zeal 已經在人格設計裡寫了 70%→20% 的遞減曲線。方向來源用同樣的邏輯才一致。民主制品質太低（群眾不一定知道什麼對他們好），純 AI 缺乏方向感，凍結等於死亡。",
+  "conditions_to_change": "如果長老機制吸引不到足夠的高品質使用者（< 5 人達到 STAND），需要加重 AI 自探索的比重。",
+  "confidence": 0.8,
+  "tags": ["direction", "governance", "weight-decay", "persona-evolution"]
+}

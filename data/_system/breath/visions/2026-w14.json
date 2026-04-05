@@ -1,0 +1,21 @@
+{
+  "status": "generated",
+  "timestamp": "2026-04-05T22:43:07.517545+08:00",
+  "week_id": "2026-w14",
+  "total_signals": 1,
+  "proposals": [
+    {
+      "direction": "decision_atlas_enrichment",
+      "description": "決策圖譜覆蓋度 10%，維度 self_awareness 最空，建議主動結晶",
+      "signal_source": "decision_atlas",
+      "absurdity_link": "self_awareness",
+      "blast_radius": "low",
+      "raw_signal": {
+        "type": "atlas_gap",
+        "dimension": "self_awareness",
+        "coverage_pct": 0.1,
+        "signal": "decision_atlas_gap"
+      }
+    }
+  ]
+}

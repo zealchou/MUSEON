@@ -1,0 +1,28 @@
+{
+  "elders": [
+    {
+      "user_id": "boss",
+      "display_name": "Zeal",
+      "joined_at": "2026-04-05",
+      "growth_stage": "TRANSCEND",
+      "trust_level": "established",
+      "total_interactions": 9999,
+      "hub_coverage": ["commercial", "personal", "strategy", "creative", "market", "coaching", "technical", "evolution", "governance"],
+      "status": "active",
+      "role": "founder",
+      "vote_history": {
+        "total": 0,
+        "participated": 0
+      }
+    }
+  ],
+  "honorary": [],
+  "config": {
+    "min_elders": 3,
+    "max_elders": 12,
+    "vote_window_hours": 72,
+    "quorum": 0.67,
+    "self_exploration_boost_when_low": 0.15,
+    "founder_veto_until_transcend": true
+  }
+}

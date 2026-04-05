@@ -217,6 +217,18 @@ class BrainPromptBuilderMixin:
             except Exception as _e:
                 logger.warning(f"[CONSTELLATION] 星座雷達注入失敗: {_e}")
 
+        # ── Zone: persona — 決策圖譜（Decision Atlas：創造者判斷模式）──
+        if not budget.is_exhausted("persona"):
+            try:
+                _atlas_text = self._build_decision_atlas_context(session_id)
+                if _atlas_text:
+                    _atlas_fitted = budget.fit_text_to_zone("persona", _atlas_text)
+                    if _atlas_fitted:
+                        sections.append(_atlas_fitted)
+                        logger.info(f"[DECISION_ATLAS] 決策圖譜已注入 ({len(_atlas_fitted)} chars)")
+            except Exception as _e:
+                logger.warning(f"[DECISION_ATLAS] 決策圖譜注入失敗: {_e}")
+
         # ── Zone: strategic — 企業決策脈絡（v1.0）──
         strategic_text = self._build_strategic_context()
         if strategic_text and not budget.is_exhausted("strategic"):
@@ -791,6 +803,50 @@ class BrainPromptBuilderMixin:
                 f"如果對話自然允許，引導使用者探索「{weak_label}」相關議題。",
                 "不要生硬地轉話題，只在自然銜接時輕輕推動。",
             ]
+            return "\n".join(lines)
+        except Exception:
+            return ""
+
+    def _build_decision_atlas_context(self, session_id: str) -> str:
+        """組建決策圖譜上下文（~100-150 tokens）.
+
+        讀取 decision_atlas 中 confidence 最高的 2-3 個決策結晶，
+        讓 LLM 知道創造者在類似情境下的判斷邏輯。
+        """
+        try:
+            atlas_dir = self.data_dir / "_system" / "decision_atlas"
+            if not atlas_dir.exists():
+                return ""
+
+            # 讀取所有結晶
+            crystals = []
+            for f in atlas_dir.glob("da-*.json"):
+                try:
+                    with open(f) as fh:
+                        crystals.append(json.load(fh))
+                except Exception:
+                    continue
+
+            if not crystals:
+                return ""
+
+            # 選出 confidence 最高的 3 個
+            crystals.sort(key=lambda c: c.get("confidence", 0), reverse=True)
+            top = crystals[:3]
+
+            lines = [
+                "## 創造者決策圖譜（Decision Atlas）",
+                "以下是創造者在關鍵情境下的判斷邏輯，供你參考：",
+            ]
+            for c in top:
+                lines.append(
+                    f"- **{c.get('category', '?')}**：{c.get('chosen', '?')}"
+                    f"（原因：{c.get('why', '?')[:80]}）"
+                )
+            lines.append(
+                "在類似情境下，參考這些判斷模式，但不是機械複製——理解 why，不是背誦 what。"
+            )
+
             return "\n".join(lines)
         except Exception:
             return ""
