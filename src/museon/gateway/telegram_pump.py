@@ -19,6 +19,7 @@ _server_ctx = {
     "get_llm_semaphore": None,
     "session_manager": None,
     "data_dir": None,
+    "consultant_supplement": None,
 }
 
 
@@ -961,6 +962,32 @@ async def _handle_telegram_message(adapter, message) -> None:
                     asyncio.create_task(_phase2_background())
                     logger.info(f"[{_tid}] Phase 2 council spawned (loop={_loop})")
 
+            # ── 6.7. CSF: Consultant Supplement（非阻塞背景任務）──
+            _csf = _server_ctx.get("consultant_supplement")
+            if _csf and success and response_text:
+                _is_group = message.metadata.get("is_group", False)
+                _routing_sig = getattr(brain, '_last_routing_signal', None)
+                _loop = getattr(_routing_sig, 'loop', 'FAST_LOOP') if _routing_sig else 'FAST_LOOP'
+
+                async def _csf_background():
+                    try:
+                        await _csf.run_async_supplement({
+                            "user_message": message.content,
+                            "main_response": response_text,
+                            "session_id": message.session_id,
+                            "chat_id": message.metadata.get("chat_id", message.session_id),
+                            "user_id": message.user_id,
+                            "pipeline": _loop,
+                            "turn_count": getattr(brain, '_session_turn_count', {}).get(message.session_id, 0),
+                            "reply_to_message_id": message.metadata.get("message_id"),
+                            "constellation_signals": getattr(brain, '_last_constellation_signals', None),
+                        })
+                    except Exception as _csf_err:
+                        logger.debug(f"[{_tid}] CSF background failed (non-fatal): {_csf_err}")
+
+                asyncio.create_task(_csf_background())
+                logger.debug(f"[{_tid}] CSF background task spawned")
+
             # ── 7. 推播子代理通知（純 CPU 模板）──
             try:
                 notifications = brain.drain_notifications()
@@ -1031,6 +1058,13 @@ async def _telegram_message_pump(adapter) -> None:
     if recovered:
         logger.info(f"Recovered {recovered} pending messages")
 
+    # ── Message Debouncer（合併連發訊息）��─
+    from museon.gateway.message_debouncer import MessageDebouncer
+    debouncer = MessageDebouncer(
+        handler=_handle_telegram_message,
+        adapter=adapter,
+    )
+
     # ── 指數退避 + 斷路器狀態（僅用於 receive 層級錯誤）──
     consecutive_errors = 0
     CIRCUIT_BREAKER_THRESHOLD = 10
@@ -1039,10 +1073,10 @@ async def _telegram_message_pump(adapter) -> None:
 
     while True:
         try:
-            # L1: 接收訊息，立刻 spawn handler，不等結果
+            # L1: 接收訊息，交給 debouncer 合併後再 dispatch
             message = await adapter.receive()
 
-            # v11.0: 持久化到 SQLite（crash recovery）
+            # v11.0: 持久化到 SQLite��crash recovery）
             try:
                 from museon.gateway.message_queue_store import get_message_queue_store
                 store = get_message_queue_store()
@@ -1051,7 +1085,12 @@ async def _telegram_message_pump(adapter) -> None:
                 logger.debug(f"[{message.trace_id}] Queue persist failed (non-fatal): {_pq_err}")
 
             logger.info(f"[{message.trace_id}] Dispatching message from {message.session_id}")
-            asyncio.create_task(_handle_telegram_message(adapter, message))
+            # 指令不 debounce，直接處理
+            _content = (message.content or "").strip()
+            if _content.startswith("/"):
+                asyncio.create_task(_handle_telegram_message(adapter, message))
+            else:
+                await debouncer.add(message)
             consecutive_errors = 0
 
         except asyncio.CancelledError:

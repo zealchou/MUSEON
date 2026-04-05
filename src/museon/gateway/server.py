@@ -19,7 +19,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from fastapi import Body, FastAPI, Request, HTTPException, Header
+from fastapi import BackgroundTasks, Body, FastAPI, Request, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 import uvicorn
@@ -345,7 +345,7 @@ def create_app() -> FastAPI:
 
     @app.post("/webhook")
     async def webhook_handler(
-        request: Request, x_signature: str = Header(None)
+        request: Request, background_tasks: BackgroundTasks, x_signature: str = Header(None)
     ) -> JSONResponse:
         """
         Webhook endpoint for external integrations.
@@ -427,6 +427,21 @@ def create_app() -> FastAPI:
                 response_payload = {"text": response_text, "artifacts": []}
 
             logger.info(f"Brain responded to webhook/{session_id} ({len(response_text)} chars)")
+
+            # ── CSF: Consultant Supplement（BackgroundTask，HTTP response 送出後才跑）──
+            _csf = getattr(app.state, "consultant_supplement", None)
+            if _csf:
+                background_tasks.add_task(
+                    _csf.run_async_supplement,
+                    {
+                        "user_message": content,
+                        "main_response": response_text,
+                        "session_id": session_id,
+                        "chat_id": data.get("metadata", {}).get("chat_id", session_id),
+                        "user_id": user_id,
+                        "pipeline": "EXPLORATION_LOOP",
+                    },
+                )
 
             return JSONResponse(
                 content={
@@ -3049,6 +3064,21 @@ def create_app() -> FastAPI:
         except Exception as e:
             app.state.feedback_loop = None
             logger.warning(f"[startup] FeedbackLoop init failed (non-fatal): {e}")
+
+        # ── Consultant Supplement Framework（CSF）──
+        try:
+            from museon.agent.consultant_supplement import ConsultantSupplement
+            _csf = ConsultantSupplement(
+                brain=brain,
+                telegram_adapter_getter=lambda: getattr(app.state, "telegram_adapter", None),
+            )
+            app.state.consultant_supplement = _csf
+            # 注入到 telegram_pump 供 Telegram 路徑使用
+            from museon.gateway.telegram_pump import _server_ctx as _pump_ctx
+            _pump_ctx["consultant_supplement"] = _csf
+        except Exception as e:
+            app.state.consultant_supplement = None
+            logger.warning(f"[startup] ConsultantSupplement init failed (non-fatal): {e}")
 
         # ── v10.2: Auto-connect configured MCP servers ──
         try:
