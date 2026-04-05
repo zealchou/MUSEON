@@ -863,7 +863,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         _absurdity_radar = None
         try:
             from museon.agent.absurdity_radar import load_radar
-            _absurdity_radar = load_radar(user_id=ctx.user_id, data_dir=str(self.data_dir))
+            _absurdity_radar = load_radar(user_id=user_id, data_dir=str(self.data_dir))
         except Exception:
             pass  # radar 不存在時靜默降級
 
@@ -907,6 +907,18 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
         except Exception as _ce:
             logger.warning(f"[Brain] 多星座信號組建失敗（降級）: {_ce}")
 
+        # ── DNA27 C-traits 提取（供 Skill Router Layer 4 乘數計算）──
+        _c_traits: dict = {}
+        try:
+            _td = anima_mc.get("personality", {}).get("trait_dimensions", {})
+            for _tid, _tdata in _td.items():
+                if _tid.startswith("C") and isinstance(_tdata, dict):
+                    _c_traits[_tid] = float(_tdata.get("value", 0.5))
+            if _c_traits:
+                logger.debug(f"[Brain] C-traits 提取完成: {_c_traits}")
+        except Exception as _te:
+            logger.debug(f"[Brain] C-traits 提取失敗（降級）: {_te}")
+
         matched_skills = self.skill_router.match(
             content, top_n=5,
             safety_triggered=_safety,
@@ -915,6 +927,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
             user_primals=_user_primals or None,
             user_absurdity_radar=_absurdity_radar,
             constellation_signals=_constellation_signals or None,
+            c_traits=_c_traits or None,
         )
 
         # Step 3.1b: VectorBridge 語義匹配輔助（靜默失敗）
@@ -1354,7 +1367,7 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                     sk_affinity = sk.get("absurdity_affinity", {})
                     if sk_affinity:
                         _updated_radar = update_radar_from_skill(_updated_radar, sk_affinity)
-                save_radar(_updated_radar, user_id=ctx.user_id, data_dir=str(self.data_dir))
+                save_radar(_updated_radar, user_id=user_id, data_dir=str(self.data_dir))
             except Exception as e:
                 logger.debug(f"[AbsurdityRadar] update failed: {e}")
 
@@ -1369,7 +1382,9 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                 _raw_list = list_constellations(_data_dir)
                 _skill_names = {sk.get("name", "") for sk in matched_skills[:3]}
 
-                for _cname in _raw_list:
+                for _citem in _raw_list:
+                    # registry 回傳 list of dicts（含 name 欄位）或純字串，兩者均相容
+                    _cname = _citem["name"] if isinstance(_citem, dict) else str(_citem)
                     if _cname == "absurdity":
                         continue  # absurdity 由上方舊版機制處理
 
@@ -1393,11 +1408,11 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                         _uniform_affinity = {dim: 0.3 for dim in _dims}
                         _radar = update_from_skill(_radar, _uniform_affinity, _dims, _alpha)
 
-                    save_constellation_radar(_cname, _radar, ctx.user_id, _data_dir)
+                    save_constellation_radar(_cname, _radar, user_id, _data_dir)
                     logger.info(f"[ConstellationRadar] updated {_cname} for skills: {_matched_tracked}")
 
             except Exception as e:
-                logger.debug(f"[ConstellationRadar] multi-constellation update failed: {e}")
+                logger.warning(f"[ConstellationRadar] multi-constellation update failed: {e}")
 
         # ── Step 8.1: 演化數據輸入 — Synapse / ToolMuscle / Footprint ──
         _report("🧬 演化數據", "Synapse + ToolMuscle + Footprint...")
@@ -1719,6 +1734,12 @@ class MuseonBrain(BrainPromptBuilderMixin, BrainDispatchMixin, BrainObservationM
                     "source": source,
                     "session_id": session_id,
                     "metacognition": _mc_payload,
+                    # CSF 欄位
+                    "user_message": content,
+                    "main_response": response_text,
+                    "chat_id": session_id,
+                    "pipeline": _pipeline if "_pipeline" in dir() else "STANDARD",
+                    "turn_count": len(self._get_session_history(session_id)) // 2,
                 })
             except Exception as e:
                 logger.warning(f"BRAIN_RESPONSE_COMPLETE 事件發布失敗: {e}")
