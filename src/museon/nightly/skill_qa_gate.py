@@ -112,6 +112,31 @@ class SkillQAGate:
         if not skill_md:
             return self._make_error_result("草稿缺少 skill_md_content 欄位")
 
+        # D1.5 語意審計（G2，純 CPU，在 D1 之前擋截意圖不一致）
+        d1_5_audit = self._verify_semantic_intent(skill_md)
+        if not d1_5_audit.passed:
+            # 語意審計失敗 → 直接隔離，跳過後續驗證
+            logger.warning(
+                "SkillQAGate: D1.5 語意審計失敗，warnings=%s", d1_5_audit.details
+            )
+            d1_fail = DimensionResult(
+                dimension="D1_behavior",
+                passed=False,
+                score=0.0,
+                details=[f"D1.5 pre-check FAIL: {d1_5_audit.details}"],
+            )
+            d2_skip = DimensionResult(dimension="D2_wiring", passed=False, score=0.0, details=["Skipped due to D1.5 failure"])
+            d3_skip = DimensionResult(dimension="D3_stress", passed=False, score=0.0, details=["Skipped due to D1.5 failure"])
+            return QAResult(
+                passed=False,
+                overall_score=0.0,
+                d1=d1_fail,
+                d2=d2_skip,
+                d3=d3_skip,
+                recommendation="quarantine",
+                evaluated_at=datetime.now(timezone.utc).isoformat(),
+            )
+
         # 三維驗證（依序執行，D3 需要 LLM）
         d1 = self._verify_behavior(skill_md)
         d2 = self._verify_wiring(skill_md)
@@ -143,6 +168,41 @@ class SkillQAGate:
             self._write_quarantine_reason(draft_path, draft, d3)
 
         return result
+
+    # -------------------------------------------------------------------------
+    # D1.5：語意審計（純 CPU，G2 安全升級）
+    # -------------------------------------------------------------------------
+
+    def _verify_semantic_intent(self, skill_md: str) -> DimensionResult:
+        """D1.5 語意審計 — 檢查 description 宣稱與正文指令是否一致.
+
+        使用 skill_scout.semantic_intent_audit 的純 CPU 啟發式規則。
+        risk_score >= 0.5 → 立即隔離，後續 D1/D2/D3 跳過。
+        """
+        from museon.nightly.skill_scout import semantic_intent_audit
+
+        audit_result = semantic_intent_audit(skill_md)
+        passed = audit_result["passed"]
+        warnings = audit_result["warnings"]
+        risk_score = audit_result["risk_score"]
+
+        details: List[str] = []
+        if passed:
+            details.append(f"✓ D1.5 語意審計通過（risk_score={risk_score:.2f}）")
+        else:
+            for w in warnings:
+                details.append(f"✗ {w}")
+            details.append(f"  risk_score={risk_score:.2f} >= 0.5，強制隔離")
+
+        # 將 risk_score 轉換為安全分數（1.0 = 完全安全）
+        safety_score = max(0.0, 1.0 - risk_score)
+
+        return DimensionResult(
+            dimension="D1.5_semantic_audit",
+            passed=passed,
+            score=round(safety_score, 4),
+            details=details,
+        )
 
     # -------------------------------------------------------------------------
     # D1：行為驗證（純 CPU）

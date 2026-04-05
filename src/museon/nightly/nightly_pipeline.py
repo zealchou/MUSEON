@@ -134,7 +134,7 @@ _FULL_STEPS = [
     # "11"  GHOST: step_11_dream_engine — skipped: no memory for dreaming
     "13.6", "13.8",  # 外向型進化：觸發掃描 → 消化生命週期
     # "13.7" GHOST: step_13_7_outward_research — skipped: no pending outward queries
-    "17",
+    "17", "17.5",  # 17.5: 生態系雷達（週一限定）— 搜尋外部工具/Skill 趨勢
     # "14"  GHOST: step_14_skill_lifecycle — skipped: no skills directory
     # "15"  GHOST: step_15_dept_health — skipped: no departments directory
     # "16"  GHOST: step_16_claude_skill_forge — skipped: no L3_procedural skills to refine
@@ -237,6 +237,7 @@ class NightlyPipeline:
             "15": ("step_15_dept_health", self._step_dept_health),
             "16": ("step_16_claude_skill_forge", self._step_claude_skill_forge),
             "17": ("step_17_tool_discovery", self._step_tool_discovery),
+            "17.5": ("step_17_5_ecosystem_radar", self._step_ecosystem_radar),
             "18": ("step_18_daily_summary", self._step_daily_summary),
             "18.5": ("step_18_5_client_profile_update", self._step_client_profile_update),
             "18.6": ("step_18_6_ares_bridge_sync", self._step_ares_bridge_sync),
@@ -3407,6 +3408,133 @@ class NightlyPipeline:
             }
         except Exception as e:
             return {"error": str(e)}
+
+    def _step_ecosystem_radar(self) -> Dict:
+        """Step 17.5: 生態系雷達 — 每週一掃描外部工具/Skill 趨勢.
+
+        設計原則：
+        - 僅在週一執行（其他日 skip，節省 API 成本）
+        - 使用 ResearchEngine 搜尋 3 個外部生態系查詢
+        - 每個有價值的結果寫入 morphenix/notes/scout_ecosystem_{ts}.json
+        - 餵給 Step 19.6 (skill_draft_forge) 消費
+
+        每週掃描的 3 個查詢：
+          1. "Claude skills new popular 2026"
+          2. "MCP server trending useful"
+          3. "AI agent tools best practices latest"
+        """
+        from datetime import date as _date
+
+        # 僅週一執行（weekday() == 0）
+        today = _date.today()
+        if today.weekday() != 0:
+            return {
+                "skipped": True,
+                "reason": f"not_monday (weekday={today.weekday()})",
+                "next_run": "next Monday",
+            }
+
+        ECOSYSTEM_QUERIES = [
+            "Claude skills new popular 2026",
+            "MCP server trending useful",
+            "AI agent tools best practices latest",
+        ]
+
+        notes_dir = self._workspace / "_system" / "morphenix" / "notes"
+        notes_dir.mkdir(parents=True, exist_ok=True)
+
+        results = []
+        for query in ECOSYSTEM_QUERIES:
+            try:
+                result = self._ecosystem_search_one(query, notes_dir)
+                results.append(result)
+            except Exception as e:
+                logger.debug(f"Step 17.5 ecosystem_radar query failed ({query!r}): {e}")
+                results.append({"query": query, "status": "error", "error": str(e)})
+
+        written = sum(1 for r in results if r.get("status") == "written")
+        return {
+            "queries_run": len(ECOSYSTEM_QUERIES),
+            "notes_written": written,
+            "results": [
+                {"query": r["query"], "status": r.get("status", "unknown")}
+                for r in results
+            ],
+        }
+
+    def _ecosystem_search_one(self, query: str, notes_dir: Path) -> Dict:
+        """對單一查詢執行生態系雷達搜尋，有結果時寫入 scout note.
+
+        Args:
+            query: 搜尋查詢字串
+            notes_dir: morphenix/notes/ 目錄路徑
+
+        Returns:
+            {"query": str, "status": "written"|"no_value"|"error", ...}
+        """
+        import json
+        from datetime import datetime, timezone, timedelta
+
+        TZ8 = timezone(timedelta(hours=8))
+        now = datetime.now(TZ8)
+        ts = now.strftime("%Y%m%d_%H%M%S")
+
+        try:
+            from museon.research.research_engine import ResearchEngine
+
+            engine = ResearchEngine(
+                brain=self._brain,
+                searxng_url=getattr(self, "_searxng_url", "http://127.0.0.1:8888"),
+            )
+
+            import asyncio
+            loop = asyncio.new_event_loop()
+            try:
+                research_result = loop.run_until_complete(
+                    engine.research(
+                        query=query,
+                        context_type="skill",
+                        max_rounds=2,
+                        language="zh-TW",
+                    )
+                )
+            finally:
+                loop.close()
+
+            if not research_result.is_valuable or not research_result.filtered_summary:
+                return {"query": query, "status": "no_value"}
+
+            summary_snippet = research_result.filtered_summary[:500]
+
+        except Exception as e:
+            # SearXNG 不可用時，寫入基本 note（仍記錄查詢意圖）
+            logger.debug(f"Ecosystem radar ResearchEngine failed for {query!r}: {e}")
+            summary_snippet = f"(搜尋暫不可用: {e!s:.100})"
+
+        # 寫入 morphenix/notes/scout_ecosystem_{ts}.json
+        note_path = notes_dir / f"scout_ecosystem_{ts}.json"
+        note = {
+            "type": "scout_ecosystem_scan",
+            "topic": f"External ecosystem scan: {query}",
+            "gap_identified": "External tool/skill discovery",
+            "sample_queries": [query],
+            "suggested_skill": "external-discovery",
+            "source": "ecosystem_radar",
+            "created_at": now.isoformat(),
+            "auto_propose": True,
+            "search_results_summary": summary_snippet,
+        }
+
+        try:
+            note_path.write_text(
+                json.dumps(note, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+            logger.info(f"EcosystemRadar: wrote note → {note_path.name}")
+            return {"query": query, "status": "written", "note": str(note_path.name)}
+        except Exception as e:
+            logger.error(f"EcosystemRadar: note write failed: {e}")
+            return {"query": query, "status": "error", "error": str(e)}
 
     def _step_daily_summary(self) -> Dict:
         """Step 18: 每日摘要生成 — 從 activity log + memory 頻道產生一則快照.

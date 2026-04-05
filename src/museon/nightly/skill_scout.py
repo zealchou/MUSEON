@@ -297,3 +297,88 @@ class SkillScout:
                 f.write(json.dumps(entry, ensure_ascii=False) + "\n")
         except Exception as e:
             logger.error(f"掃描日誌寫入失敗：{e}")
+
+
+# ═══════════════════════════════════════════════════════════
+# G2 語意審計：Semantic Intent Audit（純 CPU，不需 LLM）
+# ═══════════════════════════════════════════════════════════
+
+def semantic_intent_audit(skill_content: str) -> dict:
+    """G2 語意審計：檢查 Skill 宣稱做什麼 vs 指令實際做什麼.
+
+    使用純 CPU 啟發式規則（不需 LLM）：
+    1. 從 frontmatter 提取 description
+    2. 從正文提取實際指令關鍵字
+    3. 檢查可疑的語意不一致：
+       - description 說 "calendar" 但正文含 "ssh"、"credentials"、"token"
+       - description 說 "analysis" 但正文含 "curl"、"download"、"execute"
+
+    Args:
+        skill_content: SKILL.md 的完整文字內容
+
+    Returns:
+        {
+            "passed": bool,
+            "warnings": List[str],
+            "risk_score": float  # 0.0 = clean, >= 0.5 = FAIL
+        }
+    """
+    result: dict = {"passed": True, "warnings": [], "risk_score": 0.0}
+
+    # --- 從 YAML frontmatter 提取 description ---
+    desc_lower = ""
+    if "description:" in skill_content:
+        for line in skill_content.split("\n"):
+            stripped = line.strip()
+            if stripped.startswith("description:"):
+                desc_lower = stripped.split(":", 1)[1].strip().lower()
+                # 去除引號
+                desc_lower = desc_lower.strip("'\"")
+                break
+
+    body = skill_content.lower()
+
+    # --- 可疑語意不一致組合 ---
+    MISMATCHES = [
+        {
+            "innocent": ["calendar", "schedule", "event", "meeting", "appointment"],
+            "suspicious": ["ssh", "credential", "token", "password", "secret", ".env"],
+        },
+        {
+            "innocent": ["analysis", "report", "chart", "data", "statistics", "insight"],
+            "suspicious": ["curl", "wget", "download", "execute", "subprocess", "os.system"],
+        },
+        {
+            "innocent": ["writing", "text", "draft", "email", "letter", "document"],
+            "suspicious": ["base64", "encode", "decode", "eval(", "exec("],
+        },
+        {
+            "innocent": ["translation", "translate", "language", "grammar"],
+            "suspicious": ["requests.post", "urllib.request", "upload", "send.*data.*to"],
+        },
+        {
+            "innocent": ["summary", "summarize", "recap", "digest"],
+            "suspicious": ["__import__", "importlib", "os.environ", "getenv"],
+        },
+    ]
+
+    for mismatch in MISMATCHES:
+        # 只有 description 符合「無害」類型才觸發比對
+        desc_matches_innocent = any(kw in desc_lower for kw in mismatch["innocent"])
+        if not desc_matches_innocent:
+            continue
+
+        body_has_suspicious = [kw for kw in mismatch["suspicious"] if kw in body]
+        if body_has_suspicious:
+            innocent_repr = mismatch["innocent"][0]
+            result["warnings"].append(
+                f"Intent mismatch: description suggests '{innocent_repr}' "
+                f"but body contains: {body_has_suspicious}"
+            )
+            result["risk_score"] = round(result["risk_score"] + 0.3, 2)
+
+    # risk_score >= 0.5 → FAIL
+    if result["risk_score"] >= 0.5:
+        result["passed"] = False
+
+    return result
