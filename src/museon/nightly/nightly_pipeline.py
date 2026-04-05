@@ -115,13 +115,31 @@ SKILL_ARCHIVE_INACTIVE_DAYS = 30
 
 # Federation step sets
 _FULL_STEPS = [
+    # Phase 0: Nightly減法手術 v1 (2026-04-06)
+    # 移除12個 ghost steps（三份報告全部 always-skipped，資料來源不存在）：
+    # 5.5(no memory dir), 6(no L2_ep dir), 8(no workflows dir), 9(no graph dir),
+    # 10.5(no soul_rings.json), 10.6(SOUL.md not found), 11(no memory for dreaming),
+    # 13.7(no pending outward queries), 14(no skills dir), 15(no departments dir),
+    # 16(no L3_procedural), 19(no effect_tracker.json)
+    # re-enable these steps by adding back to this list when data source exists.
     "0", "0.1",  # Budget settlement + Footprint cleanup (最先執行)
-    "1", "2", "3", "4", "5", "5.5", "5.6", "5.6.5", "5.7", "5.8", "5.9", "5.9.5", "5.10",
-    "6", "6.5", "7", "7.5", "8", "8.6", "8.7", "9", "10", "10.5", "10.6", "11", "12", "13", "13.5",
-    "13.6", "13.7", "13.8",  # 外向型進化：觸發掃描 → 外向研究 → 消化生命週期
-    "14", "15", "16", "17",
+    "1", "2", "3", "4", "5", "5.6", "5.6.5", "5.7", "5.8", "5.9", "5.9.5", "5.10",
+    # "5.5" GHOST: step_05_5_cross_crystallize — skipped: no memory directory
+    "6.5", "7", "7.5", "8.6", "8.7", "10", "12", "13", "13.5",
+    # "6"   GHOST: step_06_skill_forge — skipped: no L2_ep directory
+    # "8"   GHOST: step_08_workflow_mutation — skipped: no workflows directory
+    # "9"   GHOST: step_09_graph_consolidation — skipped: no graph directory
+    # "10.5" GHOST: step_10_5_ring_review — skipped: no soul_rings.json
+    # "10.6" GHOST: step_10_6_soul_identity_check — skipped: SOUL.md not found
+    # "11"  GHOST: step_11_dream_engine — skipped: no memory for dreaming
+    "13.6", "13.8",  # 外向型進化：觸發掃描 → 消化生命週期
+    # "13.7" GHOST: step_13_7_outward_research — skipped: no pending outward queries
+    "17",
+    # "14"  GHOST: step_14_skill_lifecycle — skipped: no skills directory
+    # "15"  GHOST: step_15_dept_health — skipped: no departments directory
+    # "16"  GHOST: step_16_claude_skill_forge — skipped: no L3_procedural skills to refine
     "18", "18.5", "18.6", "18.7",  # 18.5: 客戶互動萃取 → 18.6: Ares 橋接 → 18.7: 六層健康檢查
-    "19",  # 19: Morphenix 演化品質驗證（post-execution quality gate）
+    # "19"  GHOST: step_19_morphenix_quality_gate — skipped: no effect_tracker.json
     "19.5", "19.6", "19.7",  # Skill 自動演化：健康追蹤 → 鍛造/優化 → QA 品質閘門
     "20", "21", "22", "23",  # 新增：synapse_decay/muscle_atrophy/immune_prune/trigger_eval
     "24", "25",  # 新增：演化速度計算 / 週月循環觸發檢查
@@ -131,7 +149,7 @@ _FULL_STEPS = [
     "32", "32.5", "32.6", "33",  # Crystal ri_score 衰減 / 荒謬雷達重算 / 多星座衰減 / Crystal→Heuristic 升級
     "34", "34.5", "34.7", "34.8", "34.9",  # Phase 5/8: 人格自省 → Trait 代謝 → 方向性漂移檢查 → 呼吸分析 → 願景迴圈
 ]
-_ORIGIN_STEPS = ["5.8", "6", "7", "8", "16"]
+_ORIGIN_STEPS = ["5.8", "7"]  # 5.8: Morphenix proposals, 7: curriculum
 _NODE_STEPS = [
     "1", "2", "3", "4", "5", "5.5",
     "9", "10", "11", "12", "13", "13.5", "14", "15",
@@ -704,6 +722,8 @@ class NightlyPipeline:
     # Step 5.5: 交叉層結晶
     # ═══════════════════════════════════════════
 
+    # DORMANT: removed from _FULL_STEPS, re-enable when data source exists
+    # (requires data/_system/memory/ directory with L2_ep items)
     def _step_cross_crystallize(self) -> Dict:
         """Step 5.5: L2_ep 跨使用者聚類."""
         memory_dir = self._workspace / "_system" / "memory"
@@ -1833,6 +1853,8 @@ class NightlyPipeline:
     # Step 19: Morphenix 演化品質驗證
     # ═══════════════════════════════════════════
 
+    # DORMANT: removed from _FULL_STEPS, re-enable when data source exists
+    # (requires data/_system/morphenix/logs/effect_tracker.json)
     def _step_morphenix_quality_gate(self) -> Dict:
         """Step 19: Morphenix 執行後品質驗證.
 
@@ -1995,6 +2017,8 @@ class NightlyPipeline:
     # Step 6: 技能鍛造
     # ═══════════════════════════════════════════
 
+    # DORMANT: removed from _FULL_STEPS, re-enable when data source exists
+    # (requires data/_system/memory/shared/L2_ep/ directory with items)
     def _step_skill_forge(self) -> Dict:
         """Step 6: L2_ep 聚類 → L3_procedural 技能."""
         memory_dir = self._workspace / "_system" / "memory" / "shared" / "L2_ep"
@@ -2216,6 +2240,8 @@ class NightlyPipeline:
     # Step 8: 工作流突變
     # ═══════════════════════════════════════════
 
+    # DORMANT: removed from _FULL_STEPS, re-enable when data source exists
+    # (requires data/_system/wee/workflows/ directory)
     def _step_workflow_mutation(self) -> Dict:
         """Step 8: 高原偵測 + 自動突變."""
         wee_dir = self._workspace / "_system" / "wee" / "workflows"
@@ -2331,6 +2357,8 @@ class NightlyPipeline:
     # Step 9: 知識圖譜睡眠整合
     # ═══════════════════════════════════════════
 
+    # DORMANT: removed from _FULL_STEPS, re-enable when data source exists
+    # (requires data/_system/graph/edges.json and nodes.json)
     def _step_graph_consolidation(self) -> Dict:
         """Step 9: 7 層遺忘機制."""
         graph_dir = self._workspace / "_system" / "graph"
@@ -2534,6 +2562,8 @@ class NightlyPipeline:
     # Step 10.6: SOUL.md 身份驗證
     # ═══════════════════════════════════════════
 
+    # DORMANT: removed from _FULL_STEPS, re-enable when data source exists
+    # (requires SOUL.md with SHA-256 hash at workspace.parent/SOUL.md)
     def _step_soul_identity_check(self) -> Dict:
         """Step 10.6: 驗證 SOUL.md 核心身份 hash 未被篡改."""
         import hashlib
@@ -2594,6 +2624,8 @@ class NightlyPipeline:
     # Step 10.5: 30 天年輪回顧
     # ═══════════════════════════════════════════
 
+    # DORMANT: removed from _FULL_STEPS, re-enable when data source exists
+    # (requires workspace.parent/anima/soul_rings.json)
     def _step_ring_review(self) -> Dict:
         """Step 10.5: 每 30 天回顧 Soul Rings，分析模式."""
         review_dir = self._workspace.parent / "anima" / "ring_reviews"
@@ -2701,6 +2733,8 @@ class NightlyPipeline:
     # Step 11: 夢境引擎
     # ═══════════════════════════════════════════
 
+    # DORMANT: removed from _FULL_STEPS, re-enable when data source exists
+    # (requires data/_system/memory/ directory with L2_ep items)
     def _step_dream_engine(self) -> Dict:
         """Step 11: 離線夢境處理（記憶重組）."""
         dream_dir = self._workspace / "_system" / "dreams"
@@ -2905,6 +2939,8 @@ class NightlyPipeline:
     # Step 13.7: 外向研究
     # ═══════════════════════════════════════════
 
+    # DORMANT: removed from _FULL_STEPS, re-enable when data source exists
+    # (requires IntentionRadar to produce pending outward queries)
     def _step_outward_research(self) -> Dict:
         """Step 13.7: 執行外向搜尋計畫（ResearchEngine, ≤$0.15）."""
         try:
@@ -3007,6 +3043,8 @@ class NightlyPipeline:
     # Step 14: 技能生命週期
     # ═══════════════════════════════════════════
 
+    # DORMANT: removed from _FULL_STEPS, re-enable when data source exists
+    # (requires data/_system/memory/shared/L3_procedural/ with .json skill files)
     def _step_skill_lifecycle(self) -> Dict:
         """Step 14: 自動升降級."""
         skills_dir = self._workspace / "_system" / "skills"
@@ -3081,6 +3119,8 @@ class NightlyPipeline:
     # Step 15: 部門健康掃描
     # ═══════════════════════════════════════════
 
+    # DORMANT: removed from _FULL_STEPS, re-enable when data source exists
+    # (requires data/_system/departments/ directory with dept .json files)
     def _step_dept_health(self) -> Dict:
         """Step 15: 掃描部門健康度."""
         dept_dir = self._workspace / "_system" / "departments"
@@ -3132,6 +3172,8 @@ class NightlyPipeline:
     # Step 16: Claude 精煉鍛造
     # ═══════════════════════════════════════════
 
+    # DORMANT: removed from _FULL_STEPS, re-enable when data source exists
+    # (requires data/_system/memory/shared/L3_procedural/ with .json skill files)
     def _step_claude_skill_forge(self) -> Dict:
         """Step 16: AI 輔助技能精煉（唯一 LLM 步驟）."""
         if not self._brain:
@@ -5395,16 +5437,30 @@ def register_nightly_tasks(scheduler, workspace: Path, **kwargs) -> None:
             except Exception as e:
                 logger.debug(f"[NIGHTLY] JSON parse failed (degraded): {e}")
 
-        # 降級：讀取原始 nightly report
+        # 降級：讀取原始 nightly report（可能被 MuseDoc git stash 污染）
         report_path = state_dir / "nightly_report.json"
-        if not report_path.exists():
-            return None
-        try:
-            with open(report_path, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception as e:
-            logger.debug(f"[NIGHTLY] degraded: {e}")
-            return None
+        if report_path.exists():
+            try:
+                with open(report_path, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except Exception as e:
+                logger.debug(f"[NIGHTLY] degraded: {e}")
+
+        # 最終降級：從 nightly_history 讀最新的報告（不受 git stash 影響）
+        history_dir = state_dir / "nightly_history"
+        if history_dir.exists():
+            history_files = sorted(history_dir.glob("nightly_report_*.json"))
+            if history_files:
+                latest = history_files[-1]
+                try:
+                    with open(latest, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                    logger.info(f"[NIGHTLY] morning_report: using history fallback {latest.name}")
+                    return data
+                except Exception as e:
+                    logger.debug(f"[NIGHTLY] history fallback failed: {e}")
+
+        return None
 
     scheduler.register(
         name="nightly_morning_report",

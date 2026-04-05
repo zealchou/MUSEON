@@ -91,9 +91,10 @@ class TestConstants:
         assert idx32 < idx325 < idx33
 
     def test_origin_steps(self):
-        """BDD: Origin 模式 = 5.8, 6, 7, 8, 16（5 個）."""
-        assert _ORIGIN_STEPS == ["5.8", "6", "7", "8", "16"]
-        assert len(_ORIGIN_STEPS) == 5
+        """BDD: Origin 模式 = 5.8, 7（Phase 0 減法：移除 6/8/16 ghost steps）."""
+        # 6(no L2_ep), 8(no workflows), 16(no L3_procedural) 均為 ghost steps，已移除
+        assert _ORIGIN_STEPS == ["5.8", "7"]
+        assert len(_ORIGIN_STEPS) == 2
 
     def test_node_steps(self):
         """BDD: Node 模式 = 1-5.5, 9-15（14 個，含 13.5）."""
@@ -213,15 +214,17 @@ class TestFederationMode:
     """Scenario: Federation 模式."""
 
     def test_origin_mode(self, tmp_path):
-        """BDD: Origin 模式只執行 5 個步驟."""
+        """BDD: Origin 模式只執行 2 個步驟（Phase 0 減法：6/8/16 已移除為 ghost）."""
         pipeline = NightlyPipeline(tmp_path)
         report = pipeline.run(mode="origin")
 
         assert report["mode"] == "origin"
         assert len(report["steps"]) == len(_ORIGIN_STEPS)
         assert "step_05_8_morphenix_proposals" in report["steps"]
-        assert "step_06_skill_forge" in report["steps"]
-        assert "step_16_claude_skill_forge" in report["steps"]
+        assert "step_07_curriculum" in report["steps"]
+        # 6(no L2_ep), 16(no L3_procedural) 是 ghost steps，不在 origin 中
+        assert "step_06_skill_forge" not in report["steps"]
+        assert "step_16_claude_skill_forge" not in report["steps"]
 
     def test_node_mode(self, tmp_path):
         """BDD: Node 模式執行 13 + federation_upload."""

@@ -67,6 +67,13 @@ data/_system/audit/
 # === 備份檔案（運行時自動生成，不該版控）===
 data/_system/backups/
 
+# === Nightly 報告（運行時生成，不該版控）
+# 根本原因：MuseDoc 做 git stash pop 時會把已版控的 nightly_report.json 還原成舊版
+# 解法：從 git 移除，改由 history 目錄作為唯一事實來源
+data/_system/state/nightly_report.json
+data/_system/state/morning_report.json
+data/_system/state/nightly_history/
+
 # === 測試暫存（pytest）===
 .pytest_cache/
 htmlcov/
