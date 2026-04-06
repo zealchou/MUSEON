@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>永續英文 Day 06 — Sustainability | MUSEON for Evvon</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,600&family=Outfit:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ember:       #C4502A;
+      --ember-light: #E0714D;
+      --ember-dark:  #9A3A1C;
+      --teal:        #2A7A6E;
+      --gold:        #B8923A;
+      --ink:         #12121A;
+      --slate:       #5A5A6E;
+      --mist:        #9898A8;
+      --border:      #E2E0DA;
+      --parchment:   #F7F5F0;
+      --snow:        #FDFCFA;
+    }
+
+    body {
+      background: var(--parchment);
+      color: var(--ink);
+      font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+      font-size: 16px;
+      line-height: 1.75;
+      min-height: 100vh;
+      padding: 24px 16px 64px;
+    }
+
+    .container {
+      max-width: 540px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+      animation: fadeUp 0.4s ease-out both;
+    }
+
+    .header-badge {
+      display: inline-block;
+      background: rgba(196, 80, 42, 0.1);
+      color: var(--ember-dark);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-radius: 100px;
+      padding: 3px 12px;
+      margin-bottom: 12px;
+    }
+
+    .header-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 36px;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.2;
+      margin-bottom: 6px;
+    }
+
+    .header-sub {
+      font-size: 14px;
+      color: var(--slate);
+    }
+
+    .progress-wrap {
+      background: var(--border);
+      border-radius: 100px;
+      height: 6px;
+      margin: 16px 0 32px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      background: linear-gradient(90deg, var(--ember), var(--ember-light));
+      height: 100%;
+      width: 6.67%;
+      border-radius: 100px;
+    }
+    .progress-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--mist);
+      text-align: right;
+      margin-top: 4px;
+      letter-spacing: 0.04em;
+    }
+
+    .card {
+      background: var(--snow);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(18,18,26,0.06), 0 4px 12px rgba(18,18,26,0.04);
+      animation: fadeUp 0.4s ease-out both;
+    }
+    .card:nth-child(2) { animation-delay: 0.08s; }
+    .card:nth-child(3) { animation-delay: 0.16s; }
+    .card:nth-child(4) { animation-delay: 0.24s; }
+    .card:nth-child(5) { animation-delay: 0.32s; }
+
+    .layer-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ember-dark);
+      background: rgba(196, 80, 42, 0.08);
+      border-radius: 100px;
+      padding: 3px 10px;
+      margin-bottom: 20px;
+    }
+
+    .word-main {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 44px;
+      font-weight: 600;
+      color: var(--ember);
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+
+    .word-phonetic {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--slate);
+      margin-bottom: 10px;
+    }
+
+    .word-pos {
+      display: inline-block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--teal);
+      background: rgba(42, 122, 110, 0.1);
+      border-radius: 6px;
+      padding: 2px 8px;
+      margin-bottom: 16px;
+    }
+
+    .word-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    .word-meaning-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--mist);
+      margin-bottom: 6px;
+    }
+
+    .word-meaning {
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .example-box {
+      background: rgba(42, 122, 110, 0.07);
+      border-left: 3px solid var(--teal);
+      border-radius: 0 8px 8px 0;
+      padding: 14px 16px;
+    }
+
+    .example-en {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--teal);
+      font-style: italic;
+      margin-bottom: 6px;
+    }
+
+    .example-zh {
+      font-size: 14px;
+      color: var(--slate);
+    }
+
+    .story-body {
+      font-size: 17px;
+      line-height: 1.9;
+      color: var(--ink);
+      margin-bottom: 16px;
+    }
+
+    .story-en { font-weight: 500; }
+
+    .story-zh {
+      font-size: 14px;
+      color: var(--slate);
+      line-height: 1.8;
+      border-top: 1px dashed var(--border);
+      padding-top: 14px;
+      margin-top: 14px;
+    }
+
+    .related-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .related-item {
+      background: var(--parchment);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+
+    .related-en {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--teal);
+      margin-bottom: 3px;
+    }
+
+    .related-zh {
+      font-size: 12px;
+      color: var(--slate);
+    }
+
+    .hw-icon {
+      font-size: 36px;
+      margin-bottom: 12px;
+    }
+
+    .hw-main {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .hw-hint {
+      font-size: 14px;
+      color: var(--slate);
+      background: rgba(184, 146, 58, 0.08);
+      border-radius: 8px;
+      padding: 10px 14px;
+    }
+
+    .hw-hint strong { color: var(--gold); }
+
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 12px;
+      color: var(--mist);
+      font-family: 'IBM Plex Mono', monospace;
+      letter-spacing: 0.04em;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 400px) {
+      .word-main { font-size: 34px; }
+      .card { padding: 22px 18px; }
+      .related-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="header">
+      <div class="header-badge">永續英文 · Sustainability Vocab</div>
+      <div class="header-title">Day 06 of 90</div>
+      <div class="header-sub">2026-04-06 · for Evvon</div>
+      <div class="progress-wrap">
+        <div class="progress-fill"></div>
+      </div>
+      <div class="progress-label">6 / 90 days</div>
+    </div>
+
+    <!-- Layer 1: Today's Word -->
+    <div class="card">
+      <div class="layer-label">✦ Layer 1 · 今日單字</div>
+
+      <div class="word-main">Sustainability</div>
+      <div class="word-phonetic">/ˌsʌs.tə.nə.ˈbɪl.ə.t̬i/</div>
+      <div class="word-pos">n. 名詞</div>
+
+      <div class="word-divider"></div>
+
+      <div class="word-meaning-label">中文意思</div>
+      <div class="word-meaning">
+        <span style="color:var(--ember);font-weight:600;">永續性</span>——能夠持續維持下去的方式與習慣。<br>
+        用今天的資源，但不偷走明天的。像是照顧一棵樹，我們摘果實吃，但也要保留枝幹讓它繼續生長。
+      </div>
+
+      <div class="example-box">
+        <div class="example-en">"The company focuses on sustainability by reducing waste and using renewable energy."</div>
+        <div class="example-zh">這家公司專注於永續性發展，通過減少廢棄物和使用可再生能源來實現。</div>
+      </div>
+    </div>
+
+    <!-- Layer 2: Mini Story -->
+    <div class="card">
+      <div class="layer-label">✦ Layer 2 · 簡單小故事</div>
+
+      <div class="story-body story-en">
+        Emma plants a garden in her backyard.<br>
+        She grows vegetables, but she also plants flowers for bees.<br>
+        "Why do you do this?" her brother asks.<br>
+        "Because of <span style="color:var(--teal);font-weight:700;">sustainability</span>," Emma explains.<br>
+        "I'm using the soil today, but I'm also protecting it for next year.<br>
+        The bees help my garden grow, and I help them survive. It's a cycle."<br>
+        Her brother smiles. He understands now.
+      </div>
+
+      <div class="story-zh">
+        Emma 在她的後院種了一個花園。<br>
+        她種植蔬菜，但她也為蜜蜂種植花卉。<br>
+        「你為什麼這樣做？」她的哥哥問。<br>
+        「因為永續性，」Emma 解釋說。<br>
+        「我今天在用這片土壤，但我也在為明年保護它。<br>
+        蜜蜂幫助我的花園生長，我幫助他們生存。這是一個循環。」<br>
+        她的哥哥笑了。他現在明白了。
+      </div>
+    </div>
+
+    <!-- Layer 3: Related Words -->
+    <div class="card">
+      <div class="layer-label">✦ Layer 3 · 延伸單字</div>
+
+      <div class="related-grid">
+        <div class="related-item">
+          <div class="related-en">Sustainable</div>
+          <div class="related-zh">永續的（形容詞）</div>
+        </div>
+        <div class="related-item">
+          <div class="related-en">Renewable Energy</div>
+          <div class="related-zh">可再生能源</div>
+        </div>
+        <div class="related-item">
+          <div class="related-en">Eco-friendly</div>
+          <div class="related-zh">對環境友善的</div>
+        </div>
+        <div class="related-item">
+          <div class="related-en">Carbon Footprint</div>
+          <div class="related-zh">碳足跡</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layer 4: Homework -->
+    <div class="card">
+      <div class="layer-label">✦ Layer 4 · 你的作業</div>
+
+      <div class="hw-icon">✏️</div>
+      <div class="hw-main">
+        今天試著用 <span style="color:var(--ember);">Sustainability</span> 或延伸單字<br>造一個句子，貼到群組！
+      </div>
+
+      <div class="hw-hint">
+        <strong>小提示：</strong>想想你今天做過的哪件事是「永續」的做法？例如：<br>
+        <em>"I choose public transportation for sustainability, so there's less pollution."</em><br>
+        （我為了永續性選擇大眾運輸，這樣污染會更少。）
+      </div>
+    </div>
+
+    <div class="footer">
+      MUSEON · Sustainability Vocab Series · Day 06/90
+    </div>
+
+  </div>
+</body>
+</html>
