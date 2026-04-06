@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>身心靈心創育成計畫 DAY2 — 上午</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Sans+TC:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #FAF8F5;
+  --bg-warm: #F5F0EA;
+  --text: #2D2420;
+  --text-light: #6B5E54;
+  --accent: #8B6914;
+  --accent-gold: #C4962C;
+  --accent-warm: #A0724A;
+  --dark-bg: #3D2B1F;
+  --dark-bg2: #4A3328;
+  --border-warm: #D4C4B0;
+  --card-bg: #FFFFFF;
+  --card-shadow: rgba(61, 43, 31, 0.08);
+  --quote-border: #C4962C;
+  --check-border: #A0724A;
+  --transition-page: #2E1F14;
+}
+
+html { scroll-behavior: smooth; overflow: hidden; }
+body {
+  font-family: 'Noto Sans TC', 'Helvetica Neue', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Progress bar */
+#progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-warm), var(--accent-gold));
+  z-index: 1000;
+  transition: width 0.4s ease;
+}
+
+/* Page counter */
+#page-counter {
+  position: fixed;
+  bottom: 28px;
+  right: 36px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px;
+  color: var(--text-light);
+  opacity: 0.5;
+  z-index: 999;
+  letter-spacing: 2px;
+  transition: color 0.5s;
+}
+#page-counter.on-dark { color: rgba(255,255,255,0.4); }
+
+/* Slides */
+.slide {
+  width: 100vw;
+  height: 100vh;
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 100px;
+  position: relative;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.slide.active { display: flex; opacity: 1; }
+.slide.fade-in { opacity: 1; }
+.slide.fade-out { opacity: 0; }
+
+/* Slide types */
+.slide--default { background: var(--bg); }
+.slide--warm { background: var(--bg-warm); }
+.slide--transition {
+  background: linear-gradient(135deg, var(--dark-bg) 0%, var(--dark-bg2) 100%);
+  color: #F5F0EA;
+}
+.slide--activity { background: var(--bg-warm); }
+.slide--practice {
+  background: linear-gradient(135deg, #F0E8DD 0%, #EDE4D8 100%);
+}
+
+/* Typography */
+.slide-tag {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--accent-warm);
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+.slide--transition .slide-tag { color: rgba(196, 150, 44, 0.7); }
+
+h1 {
+  font-family: 'Playfair Display', 'Cormorant Garamond', serif;
+  font-size: 52px;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 24px;
+  text-align: center;
+  max-width: 900px;
+}
+.slide--transition h1 {
+  font-size: 58px;
+  color: #F5F0EA;
+}
+
+h2 {
+  font-family: 'Playfair Display', 'Cormorant Garamond', serif;
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1.35;
+  margin-bottom: 20px;
+  text-align: center;
+  max-width: 850px;
+}
+
+.subtitle {
+  font-size: 20px;
+  color: var(--text-light);
+  line-height: 1.6;
+  text-align: center;
+  max-width: 700px;
+  font-weight: 300;
+}
+.slide--transition .subtitle { color: rgba(245, 240, 234, 0.6); }
+
+.big-text {
+  font-family: 'Playfair Display', 'Cormorant Garamond', serif;
+  font-size: 46px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+  max-width: 800px;
+  margin-bottom: 20px;
+}
+
+.huge-text {
+  font-family: 'Playfair Display', 'Cormorant Garamond', serif;
+  font-size: 64px;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+  max-width: 800px;
+}
+
+.core-sentence {
+  font-family: 'Playfair Display', serif;
+  font-size: 34px;
+  font-weight: 600;
+  color: var(--accent);
+  text-align: center;
+  max-width: 750px;
+  margin-bottom: 28px;
+  line-height: 1.5;
+}
+
+.explain {
+  font-size: 19px;
+  color: var(--text-light);
+  line-height: 1.8;
+  text-align: center;
+  max-width: 700px;
+  margin-top: 8px;
+}
+
+.note {
+  font-size: 14px;
+  color: var(--accent-warm);
+  margin-top: 20px;
+  font-style: italic;
+  opacity: 0.7;
+}
+
+/* Activity card */
+.activity-card {
+  background: var(--card-bg);
+  border-radius: 20px;
+  padding: 48px 56px;
+  max-width: 700px;
+  width: 100%;
+  box-shadow: 0 8px 40px var(--card-shadow);
+  border: 1px solid rgba(212, 196, 176, 0.3);
+}
+.activity-card h2 {
+  text-align: left;
+  margin-bottom: 28px;
+  font-size: 34px;
+}
+.activity-card ul {
+  list-style: none;
+  padding: 0;
+}
+.activity-card li {
+  font-size: 19px;
+  line-height: 1.8;
+  padding: 6px 0;
+  padding-left: 28px;
+  position: relative;
+  color: var(--text);
+}
+.activity-card li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 14px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-gold);
+}
+.activity-time {
+  display: inline-block;
+  margin-top: 24px;
+  padding: 8px 20px;
+  background: rgba(196, 150, 44, 0.1);
+  border-radius: 8px;
+  font-size: 15px;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* Quote box */
+.quote-box {
+  background: var(--card-bg);
+  border-left: 5px solid var(--quote-border);
+  border-radius: 0 16px 16px 0;
+  padding: 40px 48px;
+  max-width: 750px;
+  width: 100%;
+  box-shadow: 0 6px 30px var(--card-shadow);
+  margin-bottom: 20px;
+}
+.quote-box p {
+  font-size: 19px;
+  line-height: 1.9;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.quote-box .highlight {
+  color: var(--accent);
+  font-weight: 500;
+}
+.quote-box .takeaway {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-warm);
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* Checklist */
+.checklist {
+  max-width: 650px;
+  width: 100%;
+}
+.check-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 20px 0;
+  border-bottom: 1px solid rgba(212, 196, 176, 0.3);
+}
+.check-item:last-child { border-bottom: none; }
+.check-box {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--check-border);
+  border-radius: 6px;
+  margin-right: 20px;
+  margin-top: 2px;
+}
+.check-text {
+  font-size: 21px;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+/* Practice slide */
+.timer-display {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 120px;
+  font-weight: 300;
+  color: var(--accent-warm);
+  opacity: 0.3;
+  margin-top: 16px;
+}
+
+/* Steps / Principle */
+.steps-container {
+  max-width: 750px;
+  width: 100%;
+  text-align: left;
+}
+.step-block {
+  margin-bottom: 28px;
+}
+.step-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px;
+  letter-spacing: 3px;
+  color: var(--accent-gold);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.step-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+.step-desc {
+  font-size: 17px;
+  color: var(--text-light);
+  line-height: 1.7;
+}
+.step-desc li {
+  margin-left: 20px;
+  margin-bottom: 4px;
+}
+
+/* Three layers visual */
+.three-layers {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  margin: 20px 0;
+}
+.layer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: 'Playfair Display', serif;
+  font-weight: 600;
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+.layer--outer {
+  width: 380px; height: 380px;
+  background: rgba(160, 114, 74, 0.08);
+  border: 2px solid rgba(160, 114, 74, 0.2);
+  font-size: 20px;
+  color: var(--accent-warm);
+  position: relative;
+}
+.layer--mid {
+  width: 260px; height: 260px;
+  background: rgba(196, 150, 44, 0.1);
+  border: 2px solid rgba(196, 150, 44, 0.25);
+  font-size: 19px;
+  color: var(--accent);
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+}
+.layer--inner {
+  width: 140px; height: 140px;
+  background: rgba(139, 105, 20, 0.15);
+  border: 2px solid rgba(139, 105, 20, 0.3);
+  font-size: 17px;
+  color: var(--accent);
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+}
+.layer-label {
+  position: absolute;
+  font-family: 'Noto Sans TC', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-light);
+  letter-spacing: 1px;
+}
+.layer--outer .layer-label { bottom: 30px; }
+
+/* Self-assessment */
+.assessment-list {
+  max-width: 700px;
+  width: 100%;
+  counter-reset: q;
+}
+.assessment-item {
+  display: flex;
+  align-items: center;
+  padding: 18px 0;
+  border-bottom: 1px solid rgba(212, 196, 176, 0.25);
+  gap: 16px;
+}
+.assessment-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent-gold);
+  flex-shrink: 0;
+  width: 36px;
+}
+.assessment-text {
+  font-size: 19px;
+  line-height: 1.6;
+  flex: 1;
+}
+.assessment-score {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.score-dot {
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--border-warm);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+/* Three options */
+.options-row {
+  display: flex;
+  gap: 40px;
+  margin: 24px 0;
+}
+.option-card {
+  padding: 24px 36px;
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px var(--card-shadow);
+  border: 1px solid rgba(212, 196, 176, 0.3);
+}
+.option-card .big-text {
+  font-size: 32px;
+  margin-bottom: 0;
+}
+
+/* Principle points */
+.principle-points {
+  max-width: 750px;
+  width: 100%;
+}
+.principle-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 20px 0;
+  border-bottom: 1px solid rgba(212, 196, 176, 0.15);
+}
+.principle-item:last-child { border-bottom: none; }
+.principle-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--accent-gold);
+  line-height: 1;
+  flex-shrink: 0;
+  width: 40px;
+}
+.principle-emoji {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+.principle-content h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.principle-content p {
+  font-size: 17px;
+  color: var(--text-light);
+  line-height: 1.6;
+}
+
+/* Section tag */
+.section-tag {
+  position: absolute;
+  top: 32px;
+  left: 40px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 12px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--accent-warm);
+  opacity: 0.5;
+}
+.slide--transition .section-tag { color: rgba(196, 150, 44, 0.4); }
+
+/* Metaphor box */
+.metaphor {
+  background: rgba(196, 150, 44, 0.08);
+  border-radius: 12px;
+  padding: 20px 28px;
+  margin-top: 16px;
+  max-width: 700px;
+  text-align: center;
+}
+.metaphor p {
+  font-size: 18px;
+  font-style: italic;
+  color: var(--accent);
+  line-height: 1.6;
+}
+
+/* Flow diagram text */
+.flow-text {
+  font-size: 17px;
+  color: var(--text-light);
+  line-height: 1.8;
+  text-align: center;
+  max-width: 700px;
+}
+.flow-text .arrow {
+  color: var(--accent-gold);
+  margin: 0 4px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .slide { padding: 40px 48px; }
+  h1 { font-size: 40px; }
+  h2 { font-size: 32px; }
+  .big-text { font-size: 36px; }
+  .huge-text { font-size: 48px; }
+  .core-sentence { font-size: 28px; }
+  .timer-display { font-size: 80px; }
+  .activity-card { padding: 32px 36px; }
+  .quote-box { padding: 28px 32px; }
+  .layer--outer { width: 300px; height: 300px; }
+  .layer--mid { width: 200px; height: 200px; }
+  .layer--inner { width: 110px; height: 110px; }
+}
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+<div id="page-counter">1 / 38</div>
+
+<!-- ===== 環節一：確認品牌思維 ===== -->
+
+<!-- 頁1 - 暖場 -->
+<div class="slide slide--warm active" data-section="環節一">
+  <span class="section-tag">環節一 &middot; 確認品牌思維</span>
+  <h1>閉上眼睛，30 秒</h1>
+  <p class="subtitle" style="margin-top: 12px;">你最想幫助的那個人，此刻坐在你對面——<br>她的表情是什麼？</p>
+  <p class="note">計時 30 秒靜默</p>
+</div>
+
+<!-- 頁2 - 活動指引 -->
+<div class="slide slide--activity" data-section="環節一">
+  <span class="section-tag">環節一 &middot; 確認品牌思維</span>
+  <div class="activity-card">
+    <h2>🪞 鏡子練習</h2>
+    <ul>
+      <li>兩人一組</li>
+      <li>A 用 30 秒介紹自己的品牌（用昨天 DAY1 的產出）</li>
+      <li>B 只能回答一句話：<br><strong style="color: var(--accent);">「所以你是幫___的人解決___的問題？」</strong></li>
+      <li>然後交換</li>
+    </ul>
+    <span class="activity-time">⏱ 15 分鐘</span>
+  </div>
+</div>
+
+<!-- 頁3 - 實作進行 -->
+<div class="slide slide--practice" data-section="環節一">
+  <span class="section-tag">環節一 &middot; 確認品牌思維</span>
+  <div class="big-text">鏡子練習進行中</div>
+  <div class="timer-display">15:00</div>
+</div>
+
+<!-- 頁4 - 反思問題 -->
+<div class="slide slide--default" data-section="環節一">
+  <span class="section-tag">環節一 &middot; 確認品牌思維</span>
+  <div class="slide-tag">想一想</div>
+  <div class="big-text">B 的那句話，<br>跟你心裡想的一樣嗎？</div>
+  <p class="subtitle">如果不一樣——是你沒說清楚，還是你自己也不確定？</p>
+</div>
+
+<!-- 頁5 - 反思分享 -->
+<div class="slide slide--warm" data-section="環節一">
+  <span class="section-tag">環節一 &middot; 確認品牌思維</span>
+  <div class="slide-tag">分享時間</div>
+  <h2>3–4 組上台分享<br>「你們之間的落差」</h2>
+  <span class="activity-time">⏱ 10 分鐘</span>
+</div>
+
+<!-- 頁6 - 過場頁 -->
+<div class="slide slide--transition" data-section="環節一">
+  <span class="section-tag">環節一 &middot; 確認品牌思維</span>
+  <div class="huge-text">這個落差，<br>有個名字——</div>
+</div>
+
+<!-- 頁7 - 原理：現況不清 -->
+<div class="slide slide--default" data-section="環節一">
+  <span class="section-tag">環節一 &middot; 確認品牌思維</span>
+  <div class="slide-tag">荒謬 #1</div>
+  <h2>現況不清</h2>
+  <div class="core-sentence">「我什麼都能教」<br>= 別人什麼都記不住</div>
+  <p class="explain">身心靈老師最常見的品牌盲點——<br>你的能力太多，反而讓客戶不知道該找你做什麼</p>
+</div>
+
+<!-- 頁8 - 案例 -->
+<div class="slide slide--default" data-section="環節一">
+  <span class="section-tag">環節一 &middot; 確認品牌思維</span>
+  <div class="quote-box">
+    <p>一位靈氣老師原本這樣介紹自己：</p>
+    <p class="highlight">「我教身心平衡。」</p>
+    <p style="margin-top: 16px;">後來改成：</p>
+    <p class="highlight">「我幫失眠的職業婦女，用 21 天找回睡眠。」</p>
+    <p style="margin-top: 16px;">結果：報名率翻倍。</p>
+    <p class="takeaway">不是你變厲害了，是別人終於聽懂了。</p>
+  </div>
+</div>
+
+<!-- 頁9 - 原理：方向不明 -->
+<div class="slide slide--default" data-section="環節一">
+  <span class="section-tag">環節一 &middot; 確認品牌思維</span>
+  <div class="slide-tag">荒謬 #2</div>
+  <h2>方向不明</h2>
+  <div class="core-sentence">你的品牌不是你喜歡什麼，<br>是別人痛什麼 + 你剛好能解</div>
+</div>
+
+<!-- 頁10 - 案例 -->
+<div class="slide slide--default" data-section="環節一">
+  <span class="section-tag">環節一 &middot; 確認品牌思維</span>
+  <div class="quote-box">
+    <p>一位塔羅師覺得自己的價值是<span class="highlight">「預測未來」</span>。</p>
+    <p style="margin-top: 12px;">但客戶真正買的是<span class="highlight">「做決定前的安心感」</span>。</p>
+    <p style="margin-top: 12px;">重新定位後，客單價從 800 → 3,000。</p>
+    <p class="takeaway">你賣的不是工具，是工具背後的安心。</p>
+  </div>
+</div>
+
+<!-- 頁11 - 工具頁 -->
+<div class="slide slide--warm" data-section="環節一">
+  <span class="section-tag">環節一 &middot; 確認品牌思維</span>
+  <div class="slide-tag">工具</div>
+  <h2>品牌壓力測試三問</h2>
+  <div class="checklist" style="margin-top: 20px;">
+    <div class="check-item">
+      <div class="check-box"></div>
+      <div class="check-text">你的客戶會怎麼跟朋友介紹你？</div>
+    </div>
+    <div class="check-item">
+      <div class="check-box"></div>
+      <div class="check-text">如果你明天不做這件事，誰會難過？</div>
+    </div>
+    <div class="check-item">
+      <div class="check-box"></div>
+      <div class="check-text">你跟同領域的人差在哪，用一句話說</div>
+    </div>
+  </div>
+</div>
+
+<!-- 頁12 - 小結 -->
+<div class="slide slide--default" data-section="環節一">
+  <span class="section-tag">環節一 &middot; 確認品牌思維</span>
+  <div class="big-text">方向不是想出來的，<br>是被檢驗出來的。</div>
+  <p class="subtitle">剛才的鏡子，就是最小的檢驗。</p>
+</div>
+
+<!-- ===== 環節二：逆熵流程設計 ===== -->
+
+<!-- 頁13 - 暖場 -->
+<div class="slide slide--warm" data-section="環節二">
+  <span class="section-tag">環節二 &middot; 逆熵流程設計</span>
+  <div class="slide-tag">舉手調查</div>
+  <div class="big-text">你上一次辦完課之後，<br>學員有沒有自動來問你<br>「下一步是什麼」？</div>
+  <p class="subtitle">還是......你要自己去追？</p>
+</div>
+
+<!-- 頁14 - 活動指引 -->
+<div class="slide slide--activity" data-section="環節二">
+  <span class="section-tag">環節二 &middot; 逆熵流程設計</span>
+  <div class="activity-card">
+    <h2>⏪ 倒帶練習</h2>
+    <ul>
+      <li>在紙上畫一條線</li>
+      <li>右端寫：<strong>「我的學員最終變成 ____」</strong>（終點）</li>
+      <li>左端寫：<strong>「現在」</strong></li>
+      <li>中間至少切三格</li>
+      <li>每格寫一個：<strong>「他必須先 ____ 才能到下一格」</strong></li>
+      <li>從右往左推！<strong style="color: var(--accent);">不是從左往右</strong></li>
+    </ul>
+    <span class="activity-time">⏱ 10 分鐘</span>
+  </div>
+</div>
+
+<!-- 頁15 - 實作進行 -->
+<div class="slide slide--practice" data-section="環節二">
+  <span class="section-tag">環節二 &middot; 逆熵流程設計</span>
+  <div class="big-text">倒帶練習進行中</div>
+  <div class="timer-display">10:00</div>
+</div>
+
+<!-- 頁16 - 反思問題 -->
+<div class="slide slide--default" data-section="環節二">
+  <span class="section-tag">環節二 &middot; 逆熵流程設計</span>
+  <div class="slide-tag">看看你的線</div>
+  <div class="big-text">你現在在賣的課，<br>只涵蓋了其中哪一格？</div>
+  <p class="subtitle">其他格呢？</p>
+</div>
+
+<!-- 頁17 - 分享 -->
+<div class="slide slide--warm" data-section="環節二">
+  <span class="section-tag">環節二 &middot; 逆熵流程設計</span>
+  <div class="slide-tag">分享時間</div>
+  <h2>3 人上台分享<br>自己的倒帶線</h2>
+  <span class="activity-time">⏱ 8 分鐘</span>
+</div>
+
+<!-- 頁18 - 過場頁 -->
+<div class="slide slide--transition" data-section="環節二">
+  <span class="section-tag">環節二 &middot; 逆熵流程設計</span>
+  <div class="huge-text">這條線，<br>就是你的逆熵流——</div>
+</div>
+
+<!-- 頁19 - 原理：熵增 vs 逆熵 -->
+<div class="slide slide--default" data-section="環節二">
+  <span class="section-tag">環節二 &middot; 逆熵流程設計</span>
+  <div class="slide-tag">核心觀念</div>
+  <h2>為什麼你每次都在從零開始？</h2>
+  <div class="core-sentence">每次辦活動都從零開始<br>= 能量一直在散</div>
+  <div style="display: flex; gap: 40px; margin-top: 20px; max-width: 700px;">
+    <div style="flex: 1; text-align: center;">
+      <div style="font-size: 15px; letter-spacing: 2px; color: var(--text-light); margin-bottom: 8px;">熵增</div>
+      <p style="font-size: 17px; line-height: 1.7; color: var(--text-light);">每場活動結束，<br>學員散了，<br>你又要重新找人</p>
+    </div>
+    <div style="width: 1px; background: var(--border-warm);"></div>
+    <div style="flex: 1; text-align: center;">
+      <div style="font-size: 15px; letter-spacing: 2px; color: var(--accent); margin-bottom: 8px;">逆熵</div>
+      <p style="font-size: 17px; line-height: 1.7; color: var(--text);">設計好「這一步結束後，<br>自動帶到下一步」，<br>能量會累積</p>
+    </div>
+  </div>
+  <div class="metaphor" style="margin-top: 28px;">
+    <p>「熵增像漏水的桶，你一直在裝水。<br>逆熵是先把洞補起來。」</p>
+  </div>
+</div>
+
+<!-- 頁20 - 案例 -->
+<div class="slide slide--default" data-section="環節二">
+  <span class="section-tag">環節二 &middot; 逆熵流程設計</span>
+  <div class="quote-box">
+    <p>一位頌缽老師，以前每月開體驗課，結束就散了。</p>
+    <p style="margin-top: 14px;">後來她這樣設計：</p>
+    <p style="margin-top: 10px;">體驗課尾聲留 15 分鐘帶「居家練習」</p>
+    <p><span class="arrow" style="color: var(--accent-gold);">→</span> 建 LINE 群追蹤 21 天</p>
+    <p><span class="arrow" style="color: var(--accent-gold);">→</span> 21 天後邀請進階班</p>
+    <p style="margin-top: 14px;">同樣的學員，從一次 500 變成半年 8,000。</p>
+    <p class="takeaway">她的能力沒變，變的是能量的流向。</p>
+  </div>
+</div>
+
+<!-- 頁21 - PDEIF Step 1-2 -->
+<div class="slide slide--default" data-section="環節二">
+  <span class="section-tag">環節二 &middot; 逆熵流程設計</span>
+  <div class="slide-tag">逆熵設計框架</div>
+  <h2>逆熵設計的前兩步</h2>
+  <div class="steps-container" style="margin-top: 20px;">
+    <div class="step-block">
+      <div class="step-label">STEP 1</div>
+      <div class="step-title">終點狀態定義</div>
+      <div class="step-desc">
+        你要去哪裡？先說清楚可觀測的終點。<br>
+        不是「我想幫助更多人」，是<strong>「我的學員能____」</strong>
+      </div>
+    </div>
+    <div class="step-block">
+      <div class="step-label">STEP 2</div>
+      <div class="step-title">MECE 逆熵遞迴拆解</div>
+      <div class="step-desc">
+        從終點往回推，找到每個「必須先做什麼」。<br>
+        就是你剛才做的<strong>倒帶練習</strong>。
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 頁22 - 案例（套用 PDEIF） -->
+<div class="slide slide--default" data-section="環節二">
+  <span class="section-tag">環節二 &middot; 逆熵流程設計</span>
+  <div class="slide-tag">案例套用</div>
+  <h2>以頌缽老師為例</h2>
+  <div style="margin-top: 16px; max-width: 700px;">
+    <div class="core-sentence" style="font-size: 22px; margin-bottom: 20px;">終點：「學員能自己帶家人做頌缽放鬆」</div>
+    <div class="flow-text">
+      <strong>往回推：</strong><br><br>
+      先會基本手法 <span class="arrow">←</span> 先有持續練習 <span class="arrow">←</span> 先體驗過 <span class="arrow">←</span> 先知道頌缽是什麼
+    </div>
+    <div class="metaphor" style="margin-top: 24px;">
+      <p>每一格之間，都有一個「自動帶過去」的機制</p>
+    </div>
+  </div>
+</div>
+
+<!-- 頁23 - PDEIF Step 3-4 -->
+<div class="slide slide--default" data-section="環節二">
+  <span class="section-tag">環節二 &middot; 逆熵流程設計</span>
+  <div class="slide-tag">逆熵設計框架</div>
+  <h2>逆熵設計的後兩步</h2>
+  <div class="steps-container" style="margin-top: 20px;">
+    <div class="step-block">
+      <div class="step-label">STEP 3</div>
+      <div class="step-title">多通道流設計</div>
+      <div class="step-desc">
+        三條以上的路徑都想好。<br>
+        任何一條堵住，還能走。
+      </div>
+    </div>
+    <div class="step-block">
+      <div class="step-label">STEP 4</div>
+      <div class="step-title">回饋迴路與失效包絡</div>
+      <div class="step-desc">
+        什麼時候要停、要退、要換路。<br>
+        提前設計好，不是出事才想。
+      </div>
+    </div>
+    <div style="margin-top: 12px; padding: 16px 20px; background: rgba(196,150,44,0.08); border-radius: 10px;">
+      <p style="font-size: 17px; color: var(--text-light); line-height: 1.6;">
+        案例問題：「LINE 群都沒人說話怎麼辦？」<br>
+        <span style="color: var(--accent);">→ 所以你需要備案</span>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- 頁24 - 互動 -->
+<div class="slide slide--warm" data-section="環節二">
+  <span class="section-tag">環節二 &middot; 逆熵流程設計</span>
+  <div class="slide-tag">回到你的倒帶線</div>
+  <div class="big-text">哪一格到下一格之間，<br>是斷的？</div>
+  <p class="subtitle">用紅筆圈起來。</p>
+</div>
+
+<!-- 頁25 - 工具頁 -->
+<div class="slide slide--warm" data-section="環節二">
+  <span class="section-tag">環節二 &middot; 逆熵流程設計</span>
+  <div class="slide-tag">工具</div>
+  <h2>逆熵自檢三問</h2>
+  <div class="checklist" style="margin-top: 20px;">
+    <div class="check-item">
+      <div class="check-box"></div>
+      <div class="check-text">學員上完課後的「下一步」是設計好的嗎？</div>
+    </div>
+    <div class="check-item">
+      <div class="check-box"></div>
+      <div class="check-text">你有沒有至少兩條路徑通往同一個終點？</div>
+    </div>
+    <div class="check-item">
+      <div class="check-box"></div>
+      <div class="check-text">如果某條路堵住了，你知道什麼時候該換路嗎？</div>
+    </div>
+  </div>
+</div>
+
+<!-- 頁26 - 小結 -->
+<div class="slide slide--default" data-section="環節二">
+  <span class="section-tag">環節二 &middot; 逆熵流程設計</span>
+  <div class="big-text">你不是缺學員，<br>是缺一條讓學員<br>自動往前走的路。</div>
+  <p class="subtitle">逆熵流，就是這條路。</p>
+</div>
+
+<!-- ===== 環節三：X 模型 / 六大荒謬 ===== -->
+
+<!-- 頁27 - 暖場 -->
+<div class="slide slide--warm" data-section="環節三">
+  <span class="section-tag">環節三 &middot; X 模型 / 六大荒謬</span>
+  <div class="slide-tag">🃏 荒謬自評卡</div>
+  <h2>發一張卡片<br>上面六個問題<br>每題 1–5 分自評</h2>
+  <p class="subtitle">不用給任何人看，這是你自己的</p>
+</div>
+
+<!-- 頁28 - 六題自評 -->
+<div class="slide slide--default" data-section="環節三">
+  <span class="section-tag">環節三 &middot; X 模型 / 六大荒謬</span>
+  <div class="slide-tag">六個問題</div>
+  <div class="assessment-list">
+    <div class="assessment-item">
+      <div class="assessment-num">1</div>
+      <div class="assessment-text">我能用一句話說清楚我現在的狀態嗎？</div>
+      <div class="assessment-score"><span class="score-dot">1</span><span class="score-dot">2</span><span class="score-dot">3</span><span class="score-dot">4</span><span class="score-dot">5</span></div>
+    </div>
+    <div class="assessment-item">
+      <div class="assessment-num">2</div>
+      <div class="assessment-text">我知道三年後我要站在哪裡嗎？</div>
+      <div class="assessment-score"><span class="score-dot">1</span><span class="score-dot">2</span><span class="score-dot">3</span><span class="score-dot">4</span><span class="score-dot">5</span></div>
+    </div>
+    <div class="assessment-item">
+      <div class="assessment-num">3</div>
+      <div class="assessment-text">我知道「現在的我」跟「三年後的我」之間缺什麼嗎？</div>
+      <div class="assessment-score"><span class="score-dot">1</span><span class="score-dot">2</span><span class="score-dot">3</span><span class="score-dot">4</span><span class="score-dot">5</span></div>
+    </div>
+    <div class="assessment-item">
+      <div class="assessment-num">4</div>
+      <div class="assessment-text">我過去三年的努力有在疊加嗎？</div>
+      <div class="assessment-score"><span class="score-dot">1</span><span class="score-dot">2</span><span class="score-dot">3</span><span class="score-dot">4</span><span class="score-dot">5</span></div>
+    </div>
+    <div class="assessment-item">
+      <div class="assessment-num">5</div>
+      <div class="assessment-text">我認識的人裡，有誰能幫我走更快？</div>
+      <div class="assessment-score"><span class="score-dot">1</span><span class="score-dot">2</span><span class="score-dot">3</span><span class="score-dot">4</span><span class="score-dot">5</span></div>
+    </div>
+    <div class="assessment-item">
+      <div class="assessment-num">6</div>
+      <div class="assessment-text">我有沒有「用系統替代自己」的經驗？</div>
+      <div class="assessment-score"><span class="score-dot">1</span><span class="score-dot">2</span><span class="score-dot">3</span><span class="score-dot">4</span><span class="score-dot">5</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- 頁29 - 活動指引 -->
+<div class="slide slide--activity" data-section="環節三">
+  <span class="section-tag">環節三 &middot; X 模型 / 六大荒謬</span>
+  <div class="activity-card">
+    <h2>🔍 盲點配對</h2>
+    <ul>
+      <li>找一個人</li>
+      <li>互相看對方的卡片</li>
+      <li>指出：<strong style="color: var(--accent);">「你給自己最高分的那題，我覺得你可能高估了」</strong></li>
+      <li>說說為什麼</li>
+    </ul>
+    <span class="activity-time">⏱ 10 分鐘</span>
+  </div>
+</div>
+
+<!-- 頁30 - 實作進行 -->
+<div class="slide slide--practice" data-section="環節三">
+  <span class="section-tag">環節三 &middot; X 模型 / 六大荒謬</span>
+  <div class="big-text">盲點配對進行中</div>
+  <div class="timer-display">10:00</div>
+</div>
+
+<!-- 頁31 - 反思 -->
+<div class="slide slide--default" data-section="環節三">
+  <span class="section-tag">環節三 &middot; X 模型 / 六大荒謬</span>
+  <div class="slide-tag">被指出來的那一刻</div>
+  <div class="big-text">你的第一反應是什麼？</div>
+  <div class="options-row">
+    <div class="option-card"><div class="big-text">防衛？</div></div>
+    <div class="option-card"><div class="big-text">驚訝？</div></div>
+    <div class="option-card"><div class="big-text">我早就知道？</div></div>
+  </div>
+  <p class="subtitle">這個反應本身，就是一條線索。</p>
+</div>
+
+<!-- 頁32 - 過場頁 -->
+<div class="slide slide--transition" data-section="環節三">
+  <span class="section-tag">環節三 &middot; X 模型 / 六大荒謬</span>
+  <div class="huge-text">這六個問題，<br>就是創業者最常見的<br>六個「看不見」——</div>
+</div>
+
+<!-- 頁33 - 荒謬 1-3 -->
+<div class="slide slide--default" data-section="環節三">
+  <span class="section-tag">環節三 &middot; X 模型 / 六大荒謬</span>
+  <div class="slide-tag">前三個看不見</div>
+  <div class="principle-points">
+    <div class="principle-item">
+      <div class="principle-num">1</div>
+      <div class="principle-emoji">🔮</div>
+      <div class="principle-content">
+        <h3>現況不清</h3>
+        <p>有天賦，但不知道怎麼描述自己</p>
+      </div>
+    </div>
+    <div class="principle-item">
+      <div class="principle-num">2</div>
+      <div class="principle-emoji">🧭</div>
+      <div class="principle-content">
+        <h3>方向不明</h3>
+        <p>開了很多課，但每門都覺得一樣重要</p>
+      </div>
+    </div>
+    <div class="principle-item">
+      <div class="principle-num">3</div>
+      <div class="principle-emoji">🕳️</div>
+      <div class="principle-content">
+        <h3>GAP 不知</h3>
+        <p>「我只差一個爆紅機會」——但根本問題是漏斗沒設計</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 頁34 - 案例 -->
+<div class="slide slide--default" data-section="環節三">
+  <span class="section-tag">環節三 &middot; X 模型 / 六大荒謬</span>
+  <div class="quote-box">
+    <p>一位花精老師覺得：<span class="highlight">「我只差一個大平台曝光。」</span></p>
+    <p style="margin-top: 12px;">但她連自己的回頭客比例都沒算過。</p>
+    <p style="margin-top: 12px;">問題不在曝光，在留存。</p>
+    <p class="takeaway">你以為差的那一塊，通常不是真正差的那一塊。</p>
+  </div>
+</div>
+
+<!-- 頁35 - 荒謬 4-6 -->
+<div class="slide slide--default" data-section="環節三">
+  <span class="section-tag">環節三 &middot; X 模型 / 六大荒謬</span>
+  <div class="slide-tag">後三個看不見</div>
+  <div class="principle-points">
+    <div class="principle-item">
+      <div class="principle-num">4</div>
+      <div class="principle-emoji">🔄</div>
+      <div class="principle-content">
+        <h3>累積缺失</h3>
+        <p>每次辦活動像第一次，學員沒有沉澱下來</p>
+      </div>
+    </div>
+    <div class="principle-item">
+      <div class="principle-num">5</div>
+      <div class="principle-emoji">🤝</div>
+      <div class="principle-content">
+        <h3>人脈無法槓桿</h3>
+        <p>認識很多人，但沒有轉化成生意</p>
+      </div>
+    </div>
+    <div class="principle-item">
+      <div class="principle-num">6</div>
+      <div class="principle-emoji">⚙️</div>
+      <div class="principle-content">
+        <h3>槓桿思維缺乏</h3>
+        <p>用時間換錢，沒有系統放大</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 頁36 - 案例 -->
+<div class="slide slide--default" data-section="環節三">
+  <span class="section-tag">環節三 &middot; X 模型 / 六大荒謬</span>
+  <div class="quote-box">
+    <p>一位芳療師認識 200 個同業（人脈 ✓）。</p>
+    <p style="margin-top: 12px;">但她從沒想過：<span class="highlight">「讓他們的學員來上我的進階課。」</span></p>
+    <p style="margin-top: 12px;">一次聯名工作坊，她的名單從 200 → 1,200。</p>
+    <p class="takeaway">槓桿不是認識更多人，是讓認識的人帶來更多人。</p>
+  </div>
+</div>
+
+<!-- 頁37 - 收斂 -->
+<div class="slide slide--warm" data-section="環節三">
+  <span class="section-tag">環節三 &middot; X 模型 / 六大荒謬</span>
+  <div class="slide-tag">回到你的自評卡</div>
+  <div class="big-text">現在，你想改<br>哪一題的分數？</div>
+  <p class="subtitle">不用改。記住這個感覺就好。<br>下午的產品組合設計，會用到。</p>
+</div>
+
+<!-- 頁38 - 上午總結 -->
+<div class="slide slide--default" data-section="總結">
+  <span class="section-tag">上午總結</span>
+  <div class="slide-tag">上午三層鑽探</div>
+  <div style="position: relative; width: 380px; height: 380px; margin-bottom: 28px;">
+    <div class="layer layer--outer">
+      <span style="position: absolute; top: 28px; left: 50%; transform: translateX(-50%); font-size: 17px;">方向</span>
+      <span class="layer-label">品牌壓力測試</span>
+      <div class="layer layer--mid">
+        <span style="position: absolute; top: 22px; left: 50%; transform: translateX(-50%); font-size: 16px;">路徑</span>
+        <span class="layer-label" style="bottom: 20px;">逆熵流設計</span>
+        <div class="layer layer--inner">
+          <span style="font-size: 15px;">盲點</span>
+          <span class="layer-label" style="bottom: 14px; font-size: 11px;">六大荒謬</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="big-text" style="font-size: 30px;">上午你看清了自己站在哪、<br>路怎麼走、哪裡看不見。</div>
+  <p class="subtitle" style="margin-top: 12px; font-size: 22px; color: var(--accent);">下午，我們來設計武器。</p>
+</div>
+
+<script>
+(function() {
+  const slides = document.querySelectorAll('.slide');
+  const counter = document.getElementById('page-counter');
+  const progressBar = document.getElementById('progress-bar');
+  const total = slides.length;
+  let current = 0;
+
+  function updateUI() {
+    counter.textContent = (current + 1) + ' / ' + total;
+    progressBar.style.width = ((current + 1) / total * 100) + '%';
+    // Dark mode counter
+    if (slides[current].classList.contains('slide--transition')) {
+      counter.classList.add('on-dark');
+    } else {
+      counter.classList.remove('on-dark');
+    }
+  }
+
+  function goTo(index) {
+    if (index < 0 || index >= total || index === current) return;
+    const oldSlide = slides[current];
+    const newSlide = slides[index];
+
+    oldSlide.style.opacity = '0';
+    setTimeout(() => {
+      oldSlide.classList.remove('active');
+      oldSlide.style.opacity = '';
+      newSlide.classList.add('active');
+      // Force reflow
+      newSlide.offsetHeight;
+      newSlide.style.opacity = '1';
+      current = index;
+      updateUI();
+    }, 250);
+  }
+
+  // Keyboard
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+      e.preventDefault();
+      goTo(current + 1);
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      goTo(current - 1);
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      goTo(0);
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      goTo(total - 1);
+    }
+  });
+
+  // Click navigation
+  document.addEventListener('click', function(e) {
+    const x = e.clientX;
+    const w = window.innerWidth;
+    if (x > w * 0.65) {
+      goTo(current + 1);
+    } else if (x < w * 0.35) {
+      goTo(current - 1);
+    }
+  });
+
+  // Touch swipe
+  let touchStartX = 0;
+  document.addEventListener('touchstart', function(e) {
+    touchStartX = e.changedTouches[0].screenX;
+  });
+  document.addEventListener('touchend', function(e) {
+    const diff = touchStartX - e.changedTouches[0].screenX;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) goTo(current + 1);
+      else goTo(current - 1);
+    }
+  });
+
+  // Init
+  updateUI();
+})();
+</script>
+</body>
+</html>
